@@ -1,0 +1,7 @@
+true: package(batteries)
+true: package(extlib)
+true: package(menhirLib)
+true: use_menhir, table
+true: package(containers)
+true: package(containers.data)
+<*>: include
