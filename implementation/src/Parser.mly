@@ -22,7 +22,7 @@
 %token <bool> BOOLEAN
 %token <string> VAR
 %token <string> STRING
-%token LOG_AND LOG_OR
+%token LAND LOR
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN NOT
 %token TYPEOF
 %token INT_TYPE
@@ -31,7 +31,7 @@
 %token BOOL_TYPE
 %token EOF
 
-%left LOG_AND LOG_OR
+%left LAND LOR
 %left GT LT EGT ELT IN
 %left PLUS MINUS
 %left TIMES DIVIDE
@@ -187,7 +187,7 @@ op_target:
   | LT      { Expr.Lt }
   | EGT     { Expr.Egt }
   | ELT     { Expr.Elt }
-  | LOG_AND { Expr.Log_And }
-  | LOG_OR  { Expr.Log_Or }
+  | LAND { Expr.Log_And }
+  | LOR  { Expr.Log_Or }
   | IN      { Expr.InObj }
 
