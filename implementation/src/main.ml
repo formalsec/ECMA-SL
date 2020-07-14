@@ -1,4 +1,6 @@
-print_string "=====================\n\tECMA-SL\n=====================\n"
+open Parsing_Utils
+
+
 
 let file = ref ""
 let mode = ref ""
@@ -21,7 +23,7 @@ let arguments () =
 
 (* Main function - Run *)
 let run ()=
-
+	print_string "=====================\n\tECMA-SL\n=====================\n";
 	arguments();
 	if (!file = "" && !mode = "" && !out = "") then print_string "No option selected. Use -h"
 	else if (!file = "") then  (print_string "No input file. Use -i\n=====================\n\tFINISHED\n=====================\n";exit 1)
