@@ -1,14 +1,14 @@
-let parse_expr (str : string) : Expr.t =
+let parse_e_expr (str : string) : E_Expr.t =
   let lexbuf = Lexing.from_string str in
-  Parser.prog_expr_target Lexer.read lexbuf
+  Parser.e_prog_e_expr_target Lexer.read lexbuf
 
-let parse_stmt (str : string) : Stmt.t =
+let parse_e_stmt (str : string) : E_Stmt.t =
   let lexbuf = Lexing.from_string str in
-  Parser.prog_stmt_target Lexer.read lexbuf
+  Parser.e_prog_e_stmt_target Lexer.read lexbuf
 
-let parse_prog (str : string) : Prog.t =
+let parse_e_prog (str : string) : E_Prog.t =
   let lexbuf = Lexing.from_string str in
-  Parser.prog_target Lexer.read lexbuf
+  Parser.e_prog_target Lexer.read lexbuf
 
 let load_file f : string =
   let ic = open_in f in

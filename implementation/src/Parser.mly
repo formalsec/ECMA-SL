@@ -9,8 +9,6 @@
 %token WHILE
 %token IF ELSE
 %token RETURN
-%token UNDEFINED
-%token NULL
 %token FUNCTION
 %token LPAREN RPAREN
 %token LBRACE RBRACE
@@ -24,11 +22,6 @@
 %token <string> STRING
 %token LAND LOR
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN NOT
-%token TYPEOF
-%token INT_TYPE
-%token FLT_TYPE
-%token STR_TYPE
-%token BOOL_TYPE
 %token EOF
 
 %left LAND LOR
@@ -41,11 +34,11 @@
 %nonassoc binopt_prec
 %nonassoc unopt_prec
 
-%type <Expr.t> prog_expr_target
-%type <Stmt.t> prog_stmt_target
-%type <Prog.t> prog_target
+%type <E_Expr.t> e_prog_e_expr_target
+%type <E_Stmt.t> e_prog_e_stmt_target
+%type <E_Prog.t> e_prog_target
 
-%start prog_target prog_expr_target prog_stmt_target
+%start e_prog_target e_prog_e_expr_target e_prog_e_stmt_target
 %% (* separator line *)
 (* END first section - declarations *)
 
@@ -56,19 +49,19 @@
     the possible productions for a given nonterminal.
 *)
 
-prog_expr_target:
-  | e = expr_target; EOF; { e }
+e_prog_e_expr_target:
+  | e = e_expr_target; EOF; { e }
 
-prog_stmt_target:
-  | s = stmt_target; EOF; { s }
+e_prog_e_stmt_target:
+  | s = e_stmt_target; EOF; { s }
 
-prog_target:
+e_prog_target:
   | funcs = separated_list (SEMICOLON, proc_target); EOF;
-   { Prog.create funcs }
+   { E_Prog.create funcs }
 
 proc_target:
-  | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; LBRACE; s = stmt_target; RBRACE
-   { Func.create f vars s }
+  | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; LBRACE; s = e_stmt_target; RBRACE
+   { E_Func.create f vars s }
 
 (*
   The pipes separate the individual productions, and the curly braces contain a semantic action:
@@ -77,92 +70,72 @@ proc_target:
     to produce values that are attached to the nonterminal in the rule.
 *)
 
-type_target:
-  | INT_TYPE;
-    { Type.IntType }
-  | FLT_TYPE;
-    { Type.FltType }
-  | STR_TYPE;
-    { Type.StrType }
-  | BOOL_TYPE;
-    { Type.BoolType }
-
 (* v ::= f | i | b | s *)
-val_target:
-  | UNDEFINED;
-    { Val.Undef }
-  | NULL;
-    { Val.Null }
+e_val_target:
   | f = FLOAT;
-    { Val.Flt f }
+    { E_Val.Flt f }
   | i = INT;
-    { Val.Int i }
+    { E_Val.Int i }
   | b = BOOLEAN;
-    { Val.Bool b }
+    { E_Val.Bool b }
   | s = STRING;
     { let len = String.length s in
       let sub = String.sub s 1 (len - 2) in
-      Val.Str sub } (* Remove the double-quote characters from the parsed string *)
-  | t = type_target;
-    { Val.Type t }
+      E_Val.Str sub } (* Remove the double-quote characters from the parsed string *)
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
-expr_target:
+e_expr_target:
   | LBRACE; fes = separated_list (COMMA, fv_target); RBRACE;
-    { Expr.NewObj (fes) }
-  | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
-    { Expr.NOpt (Expr.ListExpr, es) }
-  | e = expr_target; PERIOD; f = VAR;
-    { Expr.Access (e, Expr.Val (Str f)) }
-  | e = expr_target; LBRACK; f = expr_target; RBRACK;
-    { Expr.Access (e, f) }
-  | v = val_target;
-    { Expr.Val v }
+    { E_Expr.NewObj (fes) }
+  | LBRACK; es = separated_list (COMMA, e_expr_target); RBRACK;
+    { E_Expr.NOpt (E_Expr.ListExpr, es) }
+  | e = e_expr_target; PERIOD; f = VAR;
+    { E_Expr.Access (e, E_Expr.Val (Str f)) }
+  | e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
+    { E_Expr.Access (e, f) }
+  | v = e_val_target;
+    { E_Expr.Val v }
   | v = VAR;
-    { Expr.Var v }
-  | MINUS; e = expr_target;
-    { Expr.UnOpt (Expr.Neg, e) } %prec unopt_prec
-  | NOT; e = expr_target;
-    { Expr.UnOpt (Expr.Not, e) } %prec unopt_prec
-  | TYPEOF; e = expr_target;
-    { Expr.UnOpt (Expr.Typeof, e) } %prec unopt_prec
-  | e1 = expr_target; bop = op_target; e2 = expr_target;
-    { Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
-  | f = expr_target; LPAREN; es = separated_list (COMMA, expr_target); RPAREN;
-    { Expr.Call (f, es) }
-  | LPAREN; e = expr_target; RPAREN;
+    { E_Expr.Var v }
+  | MINUS; e = e_expr_target;
+    { E_Expr.UnOpt (E_Expr.Neg, e) } %prec unopt_prec
+  | NOT; e = e_expr_target;
+    { E_Expr.UnOpt (E_Expr.Not, e) } %prec unopt_prec
+  | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
+    { E_Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
+  | f = e_expr_target; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
+    { E_Expr.Call (f, es) }
+  | LPAREN; e = e_expr_target; RPAREN;
     { e }
 
 fv_target:
-  | f = VAR; COLON; e = expr_target;
+  | f = VAR; COLON; e = e_expr_target;
     { (f, e) }
 
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return *)
-stmt_target:
-  | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;
-    { Stmt.FieldAssign (e1, Expr.Val (Str f), e2) }
-  | e1 = expr_target; LBRACK; f = expr_target; RBRACK; DEFEQ; e2 = expr_target;
-    { Stmt.FieldAssign (e1, f, e2) }
-  | DELETE; e = expr_target; PERIOD; f = VAR;
-    { Stmt.FieldDelete (e, Expr.Val (Str f)) }
-  | DELETE; e = expr_target; LBRACK; f = expr_target; RBRACK;
-    { Stmt.FieldDelete (e, f) }
+e_stmt_target:
+  | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;
+    { E_Stmt.FieldAssign (e1, E_Expr.Val (Str f), e2) }
+  | e1 = e_expr_target; LBRACK; f = e_expr_target; RBRACK; DEFEQ; e2 = e_expr_target;
+    { E_Stmt.FieldAssign (e1, f, e2) }
+  | DELETE; e = e_expr_target; PERIOD; f = VAR;
+    { E_Stmt.FieldDelete (e, E_Expr.Val (Str f)) }
+  | DELETE; e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
+    { E_Stmt.FieldDelete (e, f) }
   | SKIP;
-    { Stmt.Skip }
-  | v = VAR; DEFEQ; e = expr_target;
-    { Stmt.Assign (v, e) }
-  | s1 = stmt_target; SEMICOLON; s2 = stmt_target;
-    { Stmt.Seq (s1, s2) }
+    { E_Stmt.Skip }
+  | v = VAR; DEFEQ; e = e_expr_target;
+    { E_Stmt.Assign (v, e) }
+  | s1 = e_stmt_target; SEMICOLON; s2 = e_stmt_target;
+    { E_Stmt.Seq (s1, s2) }
   | exps_stmts = list (ifelse_target);
-    { Stmt.If (exps_stmts) }
-  | WHILE; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_target; RBRACE;
-    { Stmt.While (e, s) }
-  | RETURN; e = expr_target;
-    { Stmt.Return e }
-  | RETURN;
-    { Stmt.Return (Expr.Val Val.Void) }
-  | e = expr_target;
-    { Stmt.ExprStmt e }
+    { E_Stmt.If (exps_stmts) }
+  | WHILE; LPAREN; e = e_expr_target; RPAREN; LBRACE; s = e_stmt_target; RBRACE;
+    { E_Stmt.While (e, s) }
+  | RETURN; e = e_expr_target;
+    { E_Stmt.Return e }
+  | e = e_expr_target;
+    { E_Stmt.ExprStmt e }
 
 (* if (e) { s } | else if (e) { s } | else { s } *)
 ifelse_target:
@@ -170,24 +143,24 @@ ifelse_target:
     { if_t }
   | ELSE; if_t = if_target;
     { if_t }
-  | ELSE; LBRACE; s = stmt_target; RBRACE;
+  | ELSE; LBRACE; s = e_stmt_target; RBRACE;
     { (None, s) }
 
 if_target:
-  | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_target; RBRACE;
+  | IF; LPAREN; e = e_expr_target; RPAREN; LBRACE; s = e_stmt_target; RBRACE;
     { (Some e, s) }
 
 op_target:
-  | MINUS   { Expr.Minus }
-  | PLUS    { Expr.Plus }
-  | TIMES   { Expr.Times }
-  | DIVIDE  { Expr.Div }
-  | EQUAL   { Expr.Equal }
-  | GT      { Expr.Gt }
-  | LT      { Expr.Lt }
-  | EGT     { Expr.Egt }
-  | ELT     { Expr.Elt }
-  | LAND { Expr.Log_And }
-  | LOR  { Expr.Log_Or }
-  | IN      { Expr.InObj }
+  | MINUS   { E_Expr.Minus }
+  | PLUS    { E_Expr.Plus }
+  | TIMES   { E_Expr.Times }
+  | DIVIDE  { E_Expr.Div }
+  | EQUAL   { E_Expr.Equal }
+  | GT      { E_Expr.Gt }
+  | LT      { E_Expr.Lt }
+  | EGT     { E_Expr.Egt }
+  | ELT     { E_Expr.Elt }
+  | LAND    { E_Expr.Log_And }
+  | LOR     { E_Expr.Log_Or }
+  | IN      { E_Expr.InObj }
 
