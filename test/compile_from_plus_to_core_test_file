@@ -1,8 +1,6 @@
-function main () {
+function main() {
   x := {
     a: 1,
     b: "two"
-  };
-
-  return x
+  }
 }
