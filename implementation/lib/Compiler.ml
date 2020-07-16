@@ -49,6 +49,12 @@ let compile_stmt (e_stmt : E_Stmt.t) : Stmt.t =
   | FieldDelete (e_e, e_f)        -> invalid_arg "Exception in Compile.compile_stmt: FieldDelete is not implemented"
   | ExprStmt e_e                  -> invalid_arg "Exception in Compile.compile_stmt: ExprStmt is not implemented"
 
-let compile_func (e_func : E_Func.t) : E_Func.t = e_func
+let compile_func (e_func : E_Func.t) : Func.t =
+  let fname = E_Func.get_name e_func and
+    fparams = E_Func.get_params e_func and
+    fbody = E_Func.get_body e_func in
+  Func.create fname fparams (compile_stmt fbody)
 
-let compile_prog (e_prog : E_Prog.t) : E_Prog.t = e_prog
+let compile_prog (e_prog : E_Prog.t) : Prog.t =
+  let funcs = Hashtbl.fold (fun fname func acc -> acc @ [compile_func func]) e_prog [] in
+  Prog.create funcs
