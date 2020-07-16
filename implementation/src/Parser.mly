@@ -161,8 +161,7 @@ stmt_target:
     { Stmt.Return e }
   | RETURN;
     { Stmt.Return (Expr.Val Val.Void) }
-  | e = expr_target;
-    { Stmt.ExprStmt e }
+ 
 
 (* if (e) { s } | else if (e) { s } | else { s } *)
 ifelse_target:

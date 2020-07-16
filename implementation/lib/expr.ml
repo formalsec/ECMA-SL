@@ -22,9 +22,11 @@ type t = Val    of Val.t
        | BinOpt of (bopt * t * t)
        | UnOpt  of (uopt * t)
        | NOpt   of nopt * t list
-       | Call   of (t * t list)
        | NewObj of (Field.t * t) list
        | Access of t * t
+
+
+(*-----------String-------------*)
 
 let str_of_unopt (op : uopt) : string = match op with
   | Neg    -> "-"
@@ -51,7 +53,6 @@ let rec str (e : t) : string = match e with
   | UnOpt (op, e)       -> (str_of_unopt op) ^ "(" ^ (str e) ^ ")"
   | BinOpt (op, e1, e2) -> (str e1) ^ " " ^ (str_of_binopt op) ^ " " ^ (str e2)
   | NOpt (op, es)       -> (str_of_nopt op es)
-  | Call (f, es)        -> (str f) ^ " (" ^ List.fold_left (fun acc ele -> acc ^ str ele) "" es ^ ")"
   | NewObj (fes)        -> "{ " ^ fields_list_to_string fes ^ " }"
   | Access (e, f)       -> str e ^ "[" ^ str f ^ "]"
 

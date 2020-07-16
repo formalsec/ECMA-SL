@@ -8,7 +8,9 @@ type t = Skip
        | Return      of Expr.t
        | FieldAssign of Expr.t * Expr.t * Expr.t
        | FieldDelete of Expr.t * Expr.t
-       | ExprStmt    of Expr.t
+       | Call        of Val.t * string  * Expr.t list
+
+(*---------------Strings------------------*)       
 
 let rec str (stmt : t) : string = match stmt with
     Skip                      -> ""
@@ -19,7 +21,7 @@ let rec str (stmt : t) : string = match stmt with
   | Return exp                -> "return " ^ (Expr.str exp) ^ ";"
   | FieldAssign (e_o, f, e_v) -> Expr.str e_o ^ "[" ^ Expr.str f ^ "] = " ^ Expr.str e_v
   | FieldDelete (e, f)        -> "delete " ^ Expr.str e ^ "[" ^ Expr.str f ^ "]"
-  | ExprStmt e                -> Expr.str e
+  | Call (va, st, e_lst)    ->  "STRING" (*TODO*)
 
 and build_ifelse (exp_stmt : Expr.t option * t) : string =
   match exp_stmt with

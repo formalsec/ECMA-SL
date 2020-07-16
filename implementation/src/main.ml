@@ -5,8 +5,6 @@ open Stmt
 open Val
 open Interpreter
 
-
-
 let file = ref ""
 let heap_file = ref ""
 let mode = ref ""
@@ -18,11 +16,11 @@ let arguments () =
 	   let usage_msg = "Usage: -i <path> -mode <c/> -o <path> -v <bool> " in
 	   Arg.parse
 	     [
-	        ("-i", Arg.String (fun f -> file := f), "input file")
-			;("-mode", Arg.String (fun m -> mode := m ), "mode to run: c - Core / p - Plus ")
+	        ("-i", Arg.String (fun f -> file := f), "Input file")
+			;("-mode", Arg.String (fun m -> mode := m ), "Mode to run: ci - Core Interpreter / pi - Plus Interpreter / p - Parse (Plus -> Core) ")
 			;("-heap", Arg.String(fun f -> heap_file := f), "File with the heap. Program runs against this heap.")
-			;("-o", Arg.String (fun o -> out := o ), "output file")
-			;("-v", Arg.Set verb_aux, "verbose")
+			;("-o", Arg.String (fun o -> out := o ), "Output file")
+			;("-v", Arg.Set verb_aux, "Verbose")
 
 	     ]
 	     (fun s -> Printf.printf "Ignored Argument: %s" s)
@@ -33,8 +31,7 @@ let print_store (sto : Store.t) : unit =
   print_endline (Store.str sto);
   print_endline "--------------\n"
 
-
-let main_expr (prog : Prog.t) (heap : Heap.t) (sto : Store.t) : unit =
+  let main_expr (prog : Prog.t) (heap : Heap.t) (sto : Store.t) : unit =
   (* 3.5 * 2 *)
   let e1 = BinOpt (Times, Val (Flt 3.5), Val (Int 2))
   (* 7 *)
@@ -44,7 +41,7 @@ let main_expr (prog : Prog.t) (heap : Heap.t) (sto : Store.t) : unit =
   (* y - 3 *)
   and ey = BinOpt (Minus, Var "y", Val (Flt 3.))
   (* 4 + fact(5) *)
-  and ef = BinOpt (Plus, Val (Int 4), Call (Val (Str "fact"), [Val (Int 5)]))
+  and ef = BinOpt (Plus, Val (Int 4), (Val (Int 2)))
   (* !(5 == 5.) *)
   and en = UnOpt (Not, BinOpt (Equal, Val (Int 5), Val (Flt 5.))) in
   print_endline "Expressions:\n---------------------";
@@ -110,6 +107,7 @@ let fibonacci_stmt (param_name : string) : Stmt.t =
   s
 
 
+
 let main_test_functions (prog : Prog.t) (heap : Heap.t) (sto : Store.t) : unit =
   let var_name = "z" in
   let s_fact = factorial_stmt var_name in
@@ -134,7 +132,7 @@ let main_test_functions (prog : Prog.t) (heap : Heap.t) (sto : Store.t) : unit =
 
 let main_parse_files (prog : Prog.t) (heap : Heap.t) : unit =
   Parsing_utils.(
-    let expr_contents = load_file "expr_test_file" and
+    let expr_contents = load_file !file and
     stmt_contents = load_file "stmt_test_file" in
     let e = parse_expr expr_contents and
       s = parse_stmt stmt_contents and
@@ -163,14 +161,9 @@ let main_parse_prog () : unit =
 
 let create_prog () : (Prog.t * Heap.t) =
   let main_heap = Heap.create () and
-  main_func = Func.create "main" [] (Return (Call (Val (Str "main"), []))) and
-  fact_func = Func.create "fact" ["num"] (factorial_stmt "num") and
-  fibo_func = Func.create "fibonacci" ["term"] (fibonacci_stmt "term") in
+  main_func = Func.create "main" [] (Return (Call (Val (Str "main"), []))) in
   let main_prog = Prog.create ([main_func]) in
-  Hashtbl.add main_prog "fact" fact_func;
-  Hashtbl.add main_prog "fibonacci" fibo_func; (main_prog, main_heap)
-
-
+  (main_prog, main_heap)
 ;;
 
 
@@ -183,16 +176,12 @@ let run ()=
 	else if(!mode = "") then  (print_string "No mode selected. Use -mode\n=====================\n\tFINISHED\n=====================\n";exit 1);
 
 	let (main_prog, main_heap) = create_prog () in
-		print_endline "\nProgram functions:\n--------------------";
-		print_endline (Prog.str main_prog);
-
-		print_endline "\n=========================";
-		print_endline "=========================";
-
 	let local_store = Store.create [("x", Int 2); ("y", Flt 3.)] and
   	local_heap = Heap.create () in
 		print_store local_store;
+	
 		main_expr main_prog local_heap local_store;
+
 		main_stmt main_prog local_heap local_store;
 		print_store local_store;
 
@@ -206,9 +195,15 @@ let run ()=
 		print_endline "=========================";
 		print_endline "=========================";
 
-		main_parse_files main_prog main_heap;
+		
+		if (!mode = "p") then main_parse_prog ()
+		else if(!mode = "ci")then (
+			let v = Interpreter.eval_prog prog [] [] !mode !out !verb_aux in
+			match v with
+				|Some z ->	print_string ("MAIN return -> "^(Val.str z))
+				| None -> print_string "ERROR HERE"
 
-		main_parse_prog ();
+		);
 
 		print_string "=====================\n\tFINISHED\n=====================\n"
 
