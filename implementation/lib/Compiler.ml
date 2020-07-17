@@ -15,15 +15,16 @@ let compile_binopt (e_op : E_Expr.bopt) : Expr.bopt =
   | Plus -> Expr.Plus
   | _    -> invalid_arg ("Exception in Compile.compile_binopt: Invalid e_op -> " ^ E_Expr.str_of_binopt e_op)
 
-let rec compile_newobj (e_fes : (string * E_Expr.t) list) : Stmt.t =
-  let var = Expr.Var "x" in
+let rec compile_newobj (e_fes : (string * E_Expr.t) list) : Stmt.t * Expr.t =
+  let var = Expr.Var "x'" in
   let newObj = Stmt.Assign (Expr.str var, Expr.NewObj([])) in
-  List.fold_left (fun acc f_v -> Stmt.Seq(acc,
-                                          Stmt.FieldAssign(var,
-                                                           Expr.Val (Val.Str (fst f_v)),
-                                                           snd (compile_expr (snd f_v)))
-                                         )
-                 ) newObj e_fes
+  let stmt = List.fold_left (fun acc f_v -> Stmt.Seq(acc,
+                                                     Stmt.FieldAssign(var,
+                                                                      Expr.Val (Val.Str (fst f_v)),
+                                                                      snd (compile_expr (snd f_v)))
+                                                    )
+                            ) newObj e_fes in
+  stmt, var
 
 and compile_expr (e_expr : E_Expr.t) : Stmt.t * Expr.t =
   match e_expr with
@@ -36,13 +37,14 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t * Expr.t =
   | UnOpt (op, e_e)           -> invalid_arg "Exception in Compile.compile_expr: UnOpt is not implemented"
   | NOpt (op, e_es)           -> invalid_arg "Exception in Compile.compile_expr: NOpt is not implemented"
   | Call (f, e_es)            -> invalid_arg "Exception in Compile.compile_expr: Call is not implemented"
-  | NewObj (e_fes)            -> compile_newobj e_fes, Expr.Val (Val.Int 0)
+  | NewObj (e_fes)            -> compile_newobj e_fes
   | Access (e_e, e_f)         -> invalid_arg "Exception in Compile.compile_expr: Access is not implemented"
 
 let compile_stmt (e_stmt : E_Stmt.t) : Stmt.t =
   match e_stmt with
   | Skip                          -> Stmt.Skip
-  | Assign (v, e_exp)             -> Stmt.Assign (v, snd (compile_expr e_exp))
+  | Assign (v, e_exp)             -> (let stmts, aux_var = compile_expr e_exp in
+                                      Stmt.Seq (stmts, Stmt.Assign (v, aux_var)))
   | Seq (e_s1, e_s2)              -> invalid_arg "Exception in Compile.compile_stmt: Seq is not implemented"
   | If (e_exps_e_stmts)           -> invalid_arg "Exception in Compile.compile_stmt: If is not implemented"
   | While (e_exp, e_s)            -> invalid_arg "Exception in Compile.compile_stmt: While is not implemented"
