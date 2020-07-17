@@ -14,11 +14,14 @@ let get_name (func : t) : string = func.name
 let get_params (func : t) : string list = func.params
 let get_body (func : t) : E_Stmt.t = func.body
 
+let  print_list (lis : string list) : string =
+  String.concat ", "  lis
+
 let str (func : t) : string =
   "function "
   ^ func.name
   ^ " ("
-  ^ List.fold_left (fun acc ele -> (if acc <> "" then acc ^ ", " else acc) ^ ele) "" func.params
+  ^ print_list func.params
   ^ ") { "
   ^ E_Stmt.str func.body
   ^ " }"
