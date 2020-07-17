@@ -43,7 +43,8 @@
 
 %type <Expr.t> prog_expr_target
 %type <Stmt.t> prog_stmt_target
-%type <Prog.t> prog_target
+%type <Func.t > proc_target
+%type <Func.t list> prog_target
 
 %start prog_target prog_expr_target prog_stmt_target
 %% (* separator line *)
@@ -64,10 +65,10 @@ prog_stmt_target:
 
 prog_target:
   | funcs = separated_list (SEMICOLON, proc_target); EOF;
-   { Prog.create funcs }
+   { funcs }
 
 proc_target:
-  | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; LBRACE; s = stmt_target; RBRACE
+  | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; LBRACE; s =separated_list (SEMICOLON,stmt_target); RBRACE
    { Func.create f vars s }
 
 (*
@@ -128,8 +129,6 @@ expr_target:
     { Expr.UnOpt (Expr.Typeof, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
     { Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
-  | f = expr_target; LPAREN; es = separated_list (COMMA, expr_target); RPAREN;
-    { Expr.Call (f, es) }
   | LPAREN; e = expr_target; RPAREN;
     { e }
 
@@ -151,8 +150,6 @@ stmt_target:
     { Stmt.Skip }
   | v = VAR; DEFEQ; e = expr_target;
     { Stmt.Assign (v, e) }
-  | s1 = stmt_target; SEMICOLON; s2 = stmt_target;
-    { Stmt.Seq (s1, s2) }
   | exps_stmts = list (ifelse_target);
     { Stmt.If (exps_stmts) }
   | WHILE; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_target; RBRACE;
@@ -161,7 +158,7 @@ stmt_target:
     { Stmt.Return e }
   | RETURN;
     { Stmt.Return (Expr.Val Val.Void) }
- 
+
 
 (* if (e) { s } | else if (e) { s } | else { s } *)
 ifelse_target:
@@ -189,4 +186,3 @@ op_target:
   | LAND { Expr.Log_And }
   | LOR  { Expr.Log_Or }
   | IN      { Expr.InObj }
-
