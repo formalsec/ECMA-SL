@@ -6,8 +6,8 @@
 *)
 {
   open Lexing
-  open EParser
- 
+  open E_Parser
+
 
 
   exception Syntax_error of string
