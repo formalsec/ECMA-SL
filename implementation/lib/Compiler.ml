@@ -1,3 +1,8 @@
+let rec stmt_to_list (stmt : Stmt.t) : Stmt.t list =
+  match stmt with
+  | Stmt.Seq (s1, s2) -> [s1] @ stmt_to_list s2
+  | _                 -> [stmt]
+
 let compile_val (e_val : E_Val.t) : Val.t =
   match e_val with
   | Flt e_f  -> Val.Flt e_f
@@ -53,7 +58,9 @@ let compile_func (e_func : E_Func.t) : Func.t =
   let fname = E_Func.get_name e_func and
     fparams = E_Func.get_params e_func and
     fbody = E_Func.get_body e_func in
-  Func.create fname fparams (compile_stmt fbody)
+  let stmt = compile_stmt fbody in
+  let stmt_list = stmt_to_list stmt in
+  Func.create fname fparams stmt_list
 
 let compile_prog (e_prog : E_Prog.t) : Prog.t =
   let funcs = Hashtbl.fold (fun fname func acc -> acc @ [compile_func func]) e_prog [] in
