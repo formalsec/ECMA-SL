@@ -25,8 +25,8 @@ let arguments () =
 let compile_from_plus_to_core () : unit =
   let e_prog_contents = Parsing_Utils.load_file !file in
   let e_prog = Parsing_Utils.parse_e_prog e_prog_contents in
-  let c_prog = Compiler.compile e_prog in
-  print_endline (E_Prog.str c_prog)
+  let c_prog = Compiler.compile_prog e_prog in
+  print_endline (Prog.str c_prog)
 
 let core_interpretation () : unit =
   let prog_contents = Parsing_Utils.load_file !file in
