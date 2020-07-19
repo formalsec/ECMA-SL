@@ -68,6 +68,7 @@ rule read =
   | '}'          { RBRACE }
   | '['          { LBRACK }
   | ']'          { RBRACK }
+  | '|'          { PIPE }
   | "if"         { IF }
   | "else"       { ELSE }
   | "while"      { WHILE }
@@ -76,6 +77,8 @@ rule read =
   | "delete"     { DELETE }
   | "repeat"     { REPEAT }
   | "until"      { UNTIL }
+  | "match"      { MATCH }
+  | "with"       { WITH }
   | int          { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float        { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool         { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }

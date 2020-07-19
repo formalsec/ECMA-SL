@@ -64,17 +64,18 @@ and compile_expr (e_expr : E_Expr.t) (v : string) : Stmt.t * Expr.t =
 
 let rec compile_stmt (e_stmt : E_Stmt.t) : Stmt.t =
   match e_stmt with
-  | Skip                          -> Stmt.Skip
-  | Assign (v, e_exp)             -> (let stmts, aux_var = compile_expr e_exp v in
-                                      Stmt.Seq (stmts, Stmt.Assign (v, aux_var)))
-  | Seq (e_s1, e_s2)              -> Stmt.Seq (compile_stmt e_s1, compile_stmt e_s2)
-  | If (e_exps_e_stmts)           -> invalid_arg "Exception in Compile.compile_stmt: If is not implemented"
-  | While (e_exp, e_s)            -> invalid_arg "Exception in Compile.compile_stmt: While is not implemented"
-  | Return e_exp                  -> invalid_arg "Exception in Compile.compile_stmt: Return is not implemented"
-  | FieldAssign (e_eo, e_f, e_ev) -> compile_fieldassign e_eo e_f e_ev
-  | FieldDelete (e_e, e_f)        -> invalid_arg "Exception in Compile.compile_stmt: FieldDelete is not implemented"
-  | ExprStmt e_e                  -> invalid_arg "Exception in Compile.compile_stmt: ExprStmt is not implemented"
-  | RepeatUntil (e_s, e_e)        -> invalid_arg "Exception in Compile.compile_stmt: RepeatUntil is not implemented"
+  | Skip                            -> Stmt.Skip
+  | Assign (v, e_exp)               -> (let stmts, aux_var = compile_expr e_exp v in
+                                        Stmt.Seq (stmts, Stmt.Assign (v, aux_var)))
+  | Seq (e_s1, e_s2)                -> Stmt.Seq (compile_stmt e_s1, compile_stmt e_s2)
+  | If (e_exps_e_stmts)             -> invalid_arg "Exception in Compile.compile_stmt: If is not implemented"
+  | While (e_exp, e_s)              -> invalid_arg "Exception in Compile.compile_stmt: While is not implemented"
+  | Return e_exp                    -> invalid_arg "Exception in Compile.compile_stmt: Return is not implemented"
+  | FieldAssign (e_eo, e_f, e_ev)   -> compile_fieldassign e_eo e_f e_ev
+  | FieldDelete (e_e, e_f)          -> invalid_arg "Exception in Compile.compile_stmt: FieldDelete is not implemented"
+  | ExprStmt e_e                    -> invalid_arg "Exception in Compile.compile_stmt: ExprStmt is not implemented"
+  | RepeatUntil (e_s, e_e)          -> invalid_arg "Exception in Compile.compile_stmt: RepeatUntil is not implemented"
+  | MatchWith (e_e, e_exps_e_stmts) -> invalid_arg "Exception in Compile.compile_stmt: MatchWith is not implemented"
 
 
 let compile_func (e_func : E_Func.t) : Func.t =

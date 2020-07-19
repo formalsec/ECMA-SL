@@ -13,9 +13,10 @@
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
-%token PERIOD COMMA SEMICOLON COLON
+%token PERIOD COMMA SEMICOLON COLON PIPE
 %token DELETE
 %token REPEAT UNTIL
+%token MATCH WITH
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -139,7 +140,8 @@ e_stmt_target:
     { E_Stmt.ExprStmt e }
   | REPEAT; s = e_stmt_target; UNTIL; e = e_expr_target;
     { E_Stmt.RepeatUntil (s, e) }
-
+  | MATCH; e = e_expr_target; WITH; ptrn_stmts = list (pattern_statement_target);
+    { E_Stmt.MatchWith (e, ptrn_stmts) }
 
 (* if (e) { s } | else if (e) { s } | else { s } *)
 ifelse_target:
@@ -153,6 +155,10 @@ ifelse_target:
 if_target:
   | IF; LPAREN; e = e_expr_target; RPAREN; LBRACE; s = e_stmt_target; RBRACE;
     { (Some e, s) }
+
+pattern_statement_target:
+  | PIPE; e = e_expr_target; COLON; s = e_stmt_target;
+    { (e, s) }
 
 op_target:
   | MINUS   { E_Expr.Minus }
