@@ -1,5 +1,3 @@
-open Expr
-
 type t = Skip
        | Assign      of string * Expr.t
        | Seq         of t * t
@@ -8,9 +6,9 @@ type t = Skip
        | Return      of Expr.t
        | FieldAssign of Expr.t * Expr.t * Expr.t
        | FieldDelete of Expr.t * Expr.t
-       | Call        of Val.t * string  * Expr.t list
+       | Call        of string * string  * Expr.t list
 
-(*---------------Strings------------------*)       
+(*---------------Strings------------------*)
 
 let rec str (stmt : t) : string = match stmt with
     Skip                      -> ""
@@ -21,7 +19,7 @@ let rec str (stmt : t) : string = match stmt with
   | Return exp                -> "return " ^ (Expr.str exp) ^ ";"
   | FieldAssign (e_o, f, e_v) -> Expr.str e_o ^ "[" ^ Expr.str f ^ "] = " ^ Expr.str e_v
   | FieldDelete (e, f)        -> "delete " ^ Expr.str e ^ "[" ^ Expr.str f ^ "]"
-  | Call (va, st, e_lst)    ->  "STRING" (*TODO*)
+  | Call (va, st, e_lst)      -> va ^ " = " ^ st ^ " (" ^ String.concat ", " (List.map (fun e -> Expr.str e) e_lst) ^ ")"
 
 and build_ifelse (exp_stmt : Expr.t option * t) : string =
   match exp_stmt with
