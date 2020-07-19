@@ -1,12 +1,14 @@
-let generate_fresh_var (var : string) : Expr.Var =
+let generate_fresh_var (var : string) : Expr.t =
   match var with
   | "" -> Expr.Var "__temp"
-  | _  -> Expr.Var (v ^ "'")
+  | _  -> Expr.Var (var ^ "'")
+
 
 let rec stmt_to_list (stmt : Stmt.t) : Stmt.t list =
   match stmt with
   | Stmt.Seq (s1, s2) -> [s1] @ stmt_to_list s2
   | _                 -> [stmt]
+
 
 let compile_val (e_val : E_Val.t) : Val.t =
   match e_val with
@@ -40,6 +42,7 @@ let rec compile_newobj (e_fes : (string * E_Expr.t) list) (v : string) : Stmt.t 
                             ) newObj e_fes in
   stmt, var
 
+
 and compile_expr (e_expr : E_Expr.t) (v : string) : Stmt.t * Expr.t =
   match e_expr with
   | Val e_v                   -> Stmt.Skip, Expr.Val (compile_val e_v)
@@ -54,6 +57,7 @@ and compile_expr (e_expr : E_Expr.t) (v : string) : Stmt.t * Expr.t =
   | NewObj (e_fes)            -> compile_newobj e_fes v
   | Access (e_e, e_f)         -> invalid_arg "Exception in Compile.compile_expr: Access is not implemented"
 
+
 let rec compile_stmt (e_stmt : E_Stmt.t) : Stmt.t =
   match e_stmt with
   | Skip                          -> Stmt.Skip
@@ -67,6 +71,7 @@ let rec compile_stmt (e_stmt : E_Stmt.t) : Stmt.t =
   | FieldDelete (e_e, e_f)        -> invalid_arg "Exception in Compile.compile_stmt: FieldDelete is not implemented"
   | ExprStmt e_e                  -> invalid_arg "Exception in Compile.compile_stmt: ExprStmt is not implemented"
 
+
 let compile_func (e_func : E_Func.t) : Func.t =
   let fname = E_Func.get_name e_func and
     fparams = E_Func.get_params e_func and
@@ -74,6 +79,7 @@ let compile_func (e_func : E_Func.t) : Func.t =
   let stmt = compile_stmt fbody in
   let stmt_list = stmt_to_list stmt in
   Func.create fname fparams stmt_list
+
 
 let compile_prog (e_prog : E_Prog.t) : Prog.t =
   let funcs = Hashtbl.fold (fun fname func acc -> acc @ [compile_func func]) e_prog [] in
