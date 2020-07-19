@@ -74,6 +74,7 @@ let rec compile_stmt (e_stmt : E_Stmt.t) : Stmt.t =
   | FieldAssign (e_eo, e_f, e_ev) -> compile_fieldassign e_eo e_f e_ev
   | FieldDelete (e_e, e_f)        -> invalid_arg "Exception in Compile.compile_stmt: FieldDelete is not implemented"
   | ExprStmt e_e                  -> invalid_arg "Exception in Compile.compile_stmt: ExprStmt is not implemented"
+  | RepeatUntil (e_s, e_e)        -> invalid_arg "Exception in Compile.compile_stmt: RepeatUntil is not implemented"
 
 
 let compile_func (e_func : E_Func.t) : Func.t =

@@ -15,6 +15,7 @@
 %token LBRACK RBRACK
 %token PERIOD COMMA SEMICOLON COLON
 %token DELETE
+%token REPEAT UNTIL
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -112,7 +113,7 @@ fv_target:
   | f = VAR; COLON; e = e_expr_target;
     { (f, e) }
 
-(* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return *)
+(* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return | repeat s until e*)
 e_stmt_target:
   | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;
     { E_Stmt.FieldAssign (e1, E_Expr.Val (Str f), e2) }
@@ -129,7 +130,6 @@ e_stmt_target:
   | s1 = e_stmt_target; SEMICOLON; s2 = e_stmt_target;
     { E_Stmt.Seq (s1, s2) }
   | exps_stmts = list (ifelse_target);
-
     { E_Stmt.If (exps_stmts) }
   | WHILE; LPAREN; e = e_expr_target; RPAREN; LBRACE; s = e_stmt_target; RBRACE;
     { E_Stmt.While (e, s) }
@@ -137,6 +137,8 @@ e_stmt_target:
     { E_Stmt.Return e }
   | e = e_expr_target;
     { E_Stmt.ExprStmt e }
+  | REPEAT; s = e_stmt_target; UNTIL; e = e_expr_target;
+    { E_Stmt.RepeatUntil (s, e) }
 
 
 (* if (e) { s } | else if (e) { s } | else { s } *)
