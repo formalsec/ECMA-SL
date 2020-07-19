@@ -6,5 +6,9 @@ function main() {
 
   x["c"] := {
     c: true
-  }
+  };
+
+  x["d"] := 1.2;
+
+  y := func("a", 3)
 }
