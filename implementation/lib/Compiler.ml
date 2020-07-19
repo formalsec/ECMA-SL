@@ -28,6 +28,11 @@ let rec compile_binopt (e_op : E_Expr.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) 
   Stmt.Skip, Expr.BinOpt (op, e1, e2)
 
 
+and compile_call (fname : E_Expr.t) (fargs : E_Expr.t list) (v : string) : Stmt.t * Expr.t =
+  let var = generate_fresh_var v in
+  Stmt.Call (Expr.str var, (E_Expr.str fname), (List.map (fun arg -> snd (compile_expr arg "")) fargs)), var
+
+
 and compile_newobj (e_fes : (string * E_Expr.t) list) (v : string) : Stmt.t * Expr.t =
   let var = generate_fresh_var v in
   let newObj = Stmt.Assign (Expr.str var, Expr.NewObj([])) in
@@ -59,7 +64,7 @@ and compile_expr (e_expr : E_Expr.t) (v : string) : Stmt.t * Expr.t =
   | BinOpt (e_op, e_e1, e_e2) -> compile_binopt e_op e_e1 e_e2
   | UnOpt (op, e_e)           -> invalid_arg "Exception in Compile.compile_expr: UnOpt is not implemented"
   | NOpt (op, e_es)           -> invalid_arg "Exception in Compile.compile_expr: NOpt is not implemented"
-  | Call (f, e_es)            -> invalid_arg "Exception in Compile.compile_expr: Call is not implemented"
+  | Call (f, e_es)            -> compile_call f e_es v
   | NewObj (e_fes)            -> compile_newobj e_fes v
   | Access (e_e, e_f)         -> invalid_arg "Exception in Compile.compile_expr: Access is not implemented"
 
