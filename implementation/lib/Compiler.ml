@@ -10,12 +10,13 @@ let rec stmt_to_list (stmt : Stmt.t) : Stmt.t list =
   | _                 -> [stmt]
 
 
-let compile_val (e_val : E_Val.t) : Val.t =
-  match e_val with
-  | Flt e_f  -> Val.Flt e_f
-  | Int e_i  -> Val.Int e_i
-  | Bool e_b -> Val.Bool e_b
-  | Str e_s  -> Val.Str e_s
+let compile_val (e_val : E_Val.t) : Stmt.t * Expr.t =
+  let v = match e_val with
+    | Flt e_f  -> Val.Flt e_f
+    | Int e_i  -> Val.Int e_i
+    | Bool e_b -> Val.Bool e_b
+    | Str e_s  -> Val.Str e_s in
+  Stmt.Skip, Expr.Val (v)
 
 
 let rec compile_binopt (e_op : E_Expr.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) : Stmt.t * Expr.t =
@@ -51,7 +52,7 @@ and compile_newobj (e_fes : (string * E_Expr.t) list) (v : string) : Stmt.t * Ex
 
 and compile_expr (e_expr : E_Expr.t) (v : string) : Stmt.t * Expr.t =
   match e_expr with
-  | Val e_v                   -> Stmt.Skip, Expr.Val (compile_val e_v)
+  | Val e_v                   -> compile_val e_v
   | Var e_v                   -> Stmt.Skip, Expr.Var e_v
   | BinOpt (e_op, e_e1, e_e2) -> compile_binopt e_op e_e1 e_e2
   | UnOpt (op, e_e)           -> invalid_arg "Exception in Compile.compile_expr: UnOpt is not implemented"
