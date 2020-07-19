@@ -2,5 +2,9 @@ function main() {
   x := {
     a: 1,
     b: "two"
+  };
+
+  x["c"] := {
+    c: true
   }
 }
