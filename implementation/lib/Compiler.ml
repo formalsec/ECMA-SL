@@ -1,3 +1,8 @@
+let generate_fresh_var (var : string) : Expr.Var =
+  match var with
+  | "" -> Expr.Var "__temp"
+  | _  -> Expr.Var (v ^ "'")
+
 let rec stmt_to_list (stmt : Stmt.t) : Stmt.t list =
   match stmt with
   | Stmt.Seq (s1, s2) -> [s1] @ stmt_to_list s2
@@ -15,29 +20,29 @@ let compile_binopt (e_op : E_Expr.bopt) : Expr.bopt =
   | Plus -> Expr.Plus
   | _    -> invalid_arg ("Exception in Compile.compile_binopt: Invalid e_op -> " ^ E_Expr.str_of_binopt e_op)
 
-let rec compile_newobj (e_fes : (string * E_Expr.t) list) : Stmt.t * Expr.t =
-  let var = Expr.Var "x'" in
+let rec compile_newobj (e_fes : (string * E_Expr.t) list) (v : string) : Stmt.t * Expr.t =
+  let var = generate_fresh_var v in
   let newObj = Stmt.Assign (Expr.str var, Expr.NewObj([])) in
   let stmt = List.fold_left (fun acc f_v -> Stmt.Seq(acc,
                                                      Stmt.FieldAssign(var,
                                                                       Expr.Val (Val.Str (fst f_v)),
-                                                                      snd (compile_expr (snd f_v)))
+                                                                      snd (compile_expr (snd f_v) v))
                                                     )
                             ) newObj e_fes in
   stmt, var
 
-and compile_expr (e_expr : E_Expr.t) : Stmt.t * Expr.t =
+and compile_expr (e_expr : E_Expr.t) (v : string) : Stmt.t * Expr.t =
   match e_expr with
   | Val e_v                   -> Stmt.Skip, Expr.Val (compile_val e_v)
   | Var e_v                   -> Stmt.Skip, Expr.Var e_v
   | BinOpt (e_op, e_e1, e_e2) -> (let op = compile_binopt e_op and
-                                   e1 = snd (compile_expr e_e1) and
-                                   e2 = snd (compile_expr e_e2) in
+                                   e1 = snd (compile_expr e_e1 v) and
+                                   e2 = snd (compile_expr e_e2 v) in
                                   Stmt.Skip, Expr.BinOpt (op, e1, e2))
   | UnOpt (op, e_e)           -> invalid_arg "Exception in Compile.compile_expr: UnOpt is not implemented"
   | NOpt (op, e_es)           -> invalid_arg "Exception in Compile.compile_expr: NOpt is not implemented"
   | Call (f, e_es)            -> invalid_arg "Exception in Compile.compile_expr: Call is not implemented"
-  | NewObj (e_fes)            -> compile_newobj e_fes
+  | NewObj (e_fes)            -> compile_newobj e_fes v
   | Access (e_e, e_f)         -> invalid_arg "Exception in Compile.compile_expr: Access is not implemented"
 
 let compile_stmt (e_stmt : E_Stmt.t) : Stmt.t =
