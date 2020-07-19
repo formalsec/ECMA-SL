@@ -49,10 +49,7 @@ and compile_fieldassign (e_eo : E_Expr.t) (e_f : E_Expr.t) (e_ev : E_Expr.t) : S
   let e_o = snd (compile_expr e_eo "") and
   f = snd (compile_expr e_f "") and
   stmt, e_v = compile_expr e_ev "" in
-  match stmt, e_v with
-  | Stmt.Skip, _           -> Stmt.FieldAssign (e_o, f, e_v)
-  | Stmt.Seq _, Expr.Var _ -> Stmt.Seq (stmt, Stmt.FieldAssign (e_o, f, e_v))
-  | _                      -> invalid_arg ("Exception in Compile.compile_fieldassign: Invalid (stmt, e_v) pair -> " ^ Stmt.str stmt ^ ", " ^ Expr.str e_v)
+  Stmt.Seq (stmt, Stmt.FieldAssign (e_o, f, e_v))
 
 
 and compile_expr (e_expr : E_Expr.t) (v : string) : Stmt.t * Expr.t =
