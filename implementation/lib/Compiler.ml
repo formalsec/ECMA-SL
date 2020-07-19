@@ -28,16 +28,6 @@ let rec compile_binopt (e_op : E_Expr.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) 
   Stmt.Skip, Expr.BinOpt (op, e1, e2)
 
 
-and compile_fieldassign (e_eo : E_Expr.t) (e_f : E_Expr.t) (e_ev : E_Expr.t) : Stmt.t =
-  let e_o = snd (compile_expr e_eo "") and
-  f = snd (compile_expr e_f "") and
-  stmt, e_v = compile_expr e_ev "" in
-  match stmt, e_v with
-  | Stmt.Skip, _           -> Stmt.FieldAssign (e_o, f, e_v)
-  | Stmt.Seq _, Expr.Var _ -> Stmt.Seq (stmt, Stmt.FieldAssign (e_o, f, e_v))
-  | _                      -> invalid_arg ("Exception in Compile.compile_fieldassign: Invalid (stmt, e_v) pair -> " ^ Stmt.str stmt ^ ", " ^ Expr.str e_v)
-
-
 and compile_newobj (e_fes : (string * E_Expr.t) list) (v : string) : Stmt.t * Expr.t =
   let var = generate_fresh_var v in
   let newObj = Stmt.Assign (Expr.str var, Expr.NewObj([])) in
@@ -48,6 +38,21 @@ and compile_newobj (e_fes : (string * E_Expr.t) list) (v : string) : Stmt.t * Ex
                                                     )
                             ) newObj e_fes in
   stmt, var
+
+
+and compile_assign (var : string) (e_exp : E_Expr.t) : Stmt.t =
+  let stmts, aux_var = compile_expr e_exp var in
+  Stmt.Seq (stmts, Stmt.Assign (var, aux_var))
+
+
+and compile_fieldassign (e_eo : E_Expr.t) (e_f : E_Expr.t) (e_ev : E_Expr.t) : Stmt.t =
+  let e_o = snd (compile_expr e_eo "") and
+  f = snd (compile_expr e_f "") and
+  stmt, e_v = compile_expr e_ev "" in
+  match stmt, e_v with
+  | Stmt.Skip, _           -> Stmt.FieldAssign (e_o, f, e_v)
+  | Stmt.Seq _, Expr.Var _ -> Stmt.Seq (stmt, Stmt.FieldAssign (e_o, f, e_v))
+  | _                      -> invalid_arg ("Exception in Compile.compile_fieldassign: Invalid (stmt, e_v) pair -> " ^ Stmt.str stmt ^ ", " ^ Expr.str e_v)
 
 
 and compile_expr (e_expr : E_Expr.t) (v : string) : Stmt.t * Expr.t =
@@ -65,8 +70,7 @@ and compile_expr (e_expr : E_Expr.t) (v : string) : Stmt.t * Expr.t =
 let rec compile_stmt (e_stmt : E_Stmt.t) : Stmt.t =
   match e_stmt with
   | Skip                            -> Stmt.Skip
-  | Assign (v, e_exp)               -> (let stmts, aux_var = compile_expr e_exp v in
-                                        Stmt.Seq (stmts, Stmt.Assign (v, aux_var)))
+  | Assign (v, e_exp)               -> compile_assign v e_exp
   | Seq (e_s1, e_s2)                -> Stmt.Seq (compile_stmt e_s1, compile_stmt e_s2)
   | If (e_exps_e_stmts)             -> invalid_arg "Exception in Compile.compile_stmt: If is not implemented"
   | While (e_exp, e_s)              -> invalid_arg "Exception in Compile.compile_stmt: While is not implemented"
