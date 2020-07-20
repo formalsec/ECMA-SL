@@ -21,15 +21,18 @@ and compile_nopt (nop : Oper.nopt) (e_exprs : E_Expr.t list) : Stmt.t list * Exp
 
 and compile_call (fname : E_Expr.t) (fargs : E_Expr.t list) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
-  [Stmt.Call (var, (E_Expr.str fname), (List.map (fun arg -> snd (compile_expr arg)) fargs))], Expr.Var var
+  let fname_stmts, fname_expr = compile_expr fname in
+  let fargs_stmts_exprs = List.map compile_expr fargs in
+  let fargs_stmts, fargs_exprs = List.split fargs_stmts_exprs in
+  fname_stmts @ List.concat fargs_stmts @ [Stmt.AssignCall (var, fname_expr, fargs_exprs)], Expr.Var var
 
 
 and compile_newobj (e_fes : (string * E_Expr.t) list) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
-  let newObj = Expr.AssignNewObj var in
+  let newObj = Stmt.AssignNewObj var in
   let stmts = List.map (fun (pn, e) -> let stmts, e' = compile_expr e in
                          stmts @ [Stmt.FieldAssign(Expr.Var var, Expr.Val (Val.Str pn), e')]) e_fes in
-  List.concat stmts, Expr.Var var
+  List.concat stmts @ [newObj], Expr.Var var
 
 
 and compile_assign (var : string) (e_exp : E_Expr.t) : Stmt.t list =
@@ -38,10 +41,10 @@ and compile_assign (var : string) (e_exp : E_Expr.t) : Stmt.t list =
 
 
 and compile_fieldassign (e_eo : E_Expr.t) (e_f : E_Expr.t) (e_ev : E_Expr.t) : Stmt.t list =
-  let e_o = snd (compile_expr e_eo) and
-  f = snd (compile_expr e_f) and
-  stmt, e_v = compile_expr e_ev in
-  stmt @ [Stmt.FieldAssign (e_o, f, e_v)]
+  let stmts_eo, expr_eo = compile_expr e_eo in
+  let stmts_f, expr_f = compile_expr e_f in
+  let stmts_ev, expr_ev = compile_expr e_ev in
+  stmts_eo @ stmts_f @ stmts_ev @ [Stmt.FieldAssign (expr_eo, expr_f, expr_ev)]
 
 
 and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
