@@ -109,32 +109,23 @@ val_target:
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 expr_target:
-  | LBRACE; fes = separated_list (COMMA, fv_target); RBRACE;
-    { Expr.NewObj (fes) }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
-    { Expr.NOpt (Expr.ListExpr, es) }
-  | e = expr_target; PERIOD; f = VAR;
-    { Expr.Access (e, Expr.Val (Str f)) }
-  | e = expr_target; LBRACK; f = expr_target; RBRACK;
-    { Expr.Access (e, f) }
+    { Expr.NOpt (Oper.ListExpr, es) }
   | v = val_target;
     { Expr.Val v }
   | v = VAR;
     { Expr.Var v }
   | MINUS; e = expr_target;
-    { Expr.UnOpt (Expr.Neg, e) } %prec unopt_prec
+    { Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
   | NOT; e = expr_target;
-    { Expr.UnOpt (Expr.Not, e) } %prec unopt_prec
+    { Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
   | TYPEOF; e = expr_target;
-    { Expr.UnOpt (Expr.Typeof, e) } %prec unopt_prec
+    { Expr.UnOpt ( Oper.Typeof, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
     { Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
   | LPAREN; e = expr_target; RPAREN;
     { e }
 
-fv_target:
-  | f = VAR; COLON; e = expr_target;
-    { (f, e) }
 
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return *)
 stmt_target:
@@ -150,39 +141,42 @@ stmt_target:
     { Stmt.Skip }
   | v = VAR; DEFEQ; e = expr_target;
     { Stmt.Assign (v, e) }
-  | exps_stmts = list (ifelse_target);
-    { Stmt.If (exps_stmts) }
+  | exps_stmts = ifelse_target;
+    { exps_stmts }
   | WHILE; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_target; RBRACE;
     { Stmt.While (e, s) }
   | RETURN; e = expr_target;
     { Stmt.Return e }
   | RETURN;
     { Stmt.Return (Expr.Val Val.Void) }
+  | v=VAR; DEFEQ; f=expr_target; LPAREN;vs= separated_list(COMMA, expr_target);RPAREN;
+  {Stmt.AssignCall (v,f,vs)}
+
+  | v=VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;
+    { Stmt.AssignAccess (v,e, Expr.Val (Str f)) }
+  | v=VAR; DEFEQ;e = expr_target; LBRACK; f = expr_target; RBRACK;
+    { Stmt.AssignAccess (v,e, f) }
+  | v=VAR; DEFEQ;LBRACE; RBRACE;
+    { Stmt.AssignNewObj (v) }
 
 
-(* if (e) { s } | else if (e) { s } | else { s } *)
+(* if (e) { s } | if (e) {s} else { s } *)
 ifelse_target:
-  | if_t = if_target;
-    { if_t }
-  | ELSE; if_t = if_target;
-    { if_t }
-  | ELSE; LBRACE; s = stmt_target; RBRACE;
-    { (None, s) }
-
-if_target:
+  | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s1 = stmt_target; RBRACE; ELSE;LBRACE; s2 = stmt_target; RBRACE;
+    { Stmt.If(e, s1, Some s2) }
   | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_target; RBRACE;
-    { (Some e, s) }
+    { Stmt.If(e, s, None) }
 
 op_target:
-  | MINUS   { Expr.Minus }
-  | PLUS    { Expr.Plus }
-  | TIMES   { Expr.Times }
-  | DIVIDE  { Expr.Div }
-  | EQUAL   { Expr.Equal }
-  | GT      { Expr.Gt }
-  | LT      { Expr.Lt }
-  | EGT     { Expr.Egt }
-  | ELT     { Expr.Elt }
-  | LAND { Expr.Log_And }
-  | LOR  { Expr.Log_Or }
-  | IN      { Expr.InObj }
+  | MINUS   { Oper.Minus }
+  | PLUS    { Oper.Plus }
+  | TIMES   { Oper.Times }
+  | DIVIDE  { Oper.Div }
+  | EQUAL   { Oper.Equal }
+  | GT      { Oper.Gt }
+  | LT      { Oper.Lt }
+  | EGT     { Oper.Egt }
+  | ELT     { Oper.Elt }
+  | LAND { Oper.Log_And }
+  | LOR  { Oper.Log_Or }
+  | IN      { Oper.InObj }

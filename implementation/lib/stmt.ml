@@ -25,7 +25,7 @@ let rec str (stmt : t) : string = match stmt with
   | Return exp                  -> "return " ^ (Expr.str exp) ^ ";"
   | FieldAssign (e_o, f, e_v)   -> Expr.str e_o ^ "[" ^ Expr.str f ^ "] = " ^ Expr.str e_v
   | FieldDelete (e, f)          -> "delete " ^ Expr.str e ^ "[" ^ Expr.str f ^ "]"
-  | AssignCall (va, st, e_lst)  -> va ^ " = " ^ st ^ " (" ^ String.concat ", " (List.map (fun e -> Expr.str e) e_lst) ^ ")"
+  | AssignCall (va, st, e_lst)  -> va ^ " = " ^ Expr.str st ^ " (" ^ String.concat ", " (List.map (fun e -> Expr.str e) e_lst) ^ ")"
   | AssignNewObj va             -> va ^ " = { }"
   | AssignAccess (va, eo, p)    -> va ^ " = " ^ Expr.str eo ^ "[" ^ Expr.str p ^ "]"
 
