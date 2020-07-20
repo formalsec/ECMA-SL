@@ -1,13 +1,10 @@
-let generate_fresh_var (var : string) : Expr.t =
-  match var with
-  | "" -> Expr.Var "__temp"
-  | _  -> Expr.Var (var ^ "'")
+let make_fresh_var_generator (pref : string) : (unit -> string) =
+  let count = ref 0 in
+  fun () -> let x = !count in
+    count := x+1; pref ^ (string_of_int x)
 
 
-let rec stmt_to_list (stmt : Stmt.t) : Stmt.t list =
-  match stmt with
-  | Stmt.Seq (s1, s2) -> [s1] @ stmt_to_list s2
-  | _                 -> [stmt]
+let generate_fresh_var = make_fresh_var_generator "___temp"
 
 
 let compile_val (e_val : E_Val.t) : Stmt.t * Expr.t =
