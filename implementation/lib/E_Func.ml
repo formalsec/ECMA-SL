@@ -4,7 +4,7 @@ type t = {
   body   : E_Stmt.t;
 }
 
-let create_store (func : t) (vals : E_Val.t list) : E_Store.t =
+let create_store (func : t) (vals : Val.t list) : E_Store.t =
   let varvals = List.combine func.params vals in
   E_Store.create varvals
 

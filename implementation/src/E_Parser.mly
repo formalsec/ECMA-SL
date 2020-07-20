@@ -73,36 +73,36 @@ proc_target:
 *)
 
 (* v ::= f | i | b | s *)
-e_val_target:
+val_target:
   | f = FLOAT;
-    { E_Val.Flt f }
+    { Val.Flt f }
   | i = INT;
-    { E_Val.Int i }
+    { Val.Int i }
   | b = BOOLEAN;
-    { E_Val.Bool b }
+    { Val.Bool b }
   | s = STRING;
     { let len = String.length s in
       let sub = String.sub s 1 (len - 2) in
-      E_Val.Str sub } (* Remove the double-quote characters from the parsed string *)
+      Val.Str sub } (* Remove the double-quote characters from the parsed string *)
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 e_expr_target:
   | LBRACE; fes = separated_list (COMMA, fv_target); RBRACE;
     { E_Expr.NewObj (fes) }
   | LBRACK; es = separated_list (COMMA, e_expr_target); RBRACK;
-    { E_Expr.NOpt (E_Expr.ListExpr, es) }
+    { E_Expr.NOpt (Oper.ListExpr, es) }
   | e = e_expr_target; PERIOD; f = VAR;
     { E_Expr.Access (e, E_Expr.Val (Str f)) }
   | e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
     { E_Expr.Access (e, f) }
-  | v = e_val_target;
+  | v = val_target;
     { E_Expr.Val v }
   | v = VAR;
     { E_Expr.Var v }
   | MINUS; e = e_expr_target;
-    { E_Expr.UnOpt (E_Expr.Neg, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
   | NOT; e = e_expr_target;
-    { E_Expr.UnOpt (E_Expr.Not, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
     { E_Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
   | f = e_expr_target; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
@@ -161,16 +161,16 @@ pattern_statement_target:
     { (e, s) }
 
 op_target:
-  | MINUS   { E_Expr.Minus }
-  | PLUS    { E_Expr.Plus }
-  | TIMES   { E_Expr.Times }
-  | DIVIDE  { E_Expr.Div }
-  | EQUAL   { E_Expr.Equal }
-  | GT      { E_Expr.Gt }
-  | LT      { E_Expr.Lt }
-  | EGT     { E_Expr.Egt }
-  | ELT     { E_Expr.Elt }
-  | LAND    { E_Expr.Log_And }
-  | LOR     { E_Expr.Log_Or }
-  | IN      { E_Expr.InObj }
+  | MINUS   { Oper.Minus }
+  | PLUS    { Oper.Plus }
+  | TIMES   { Oper.Times }
+  | DIVIDE  { Oper.Div }
+  | EQUAL   { Oper.Equal }
+  | GT      { Oper.Gt }
+  | LT      { Oper.Lt }
+  | EGT     { Oper.Egt }
+  | ELT     { Oper.Elt }
+  | LAND    { Oper.Log_And }
+  | LOR     { Oper.Log_Or }
+  | IN      { Oper.InObj }
 
