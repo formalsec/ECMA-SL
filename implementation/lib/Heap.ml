@@ -42,5 +42,5 @@ let from_list_to_hashtbl (h_list : (string * (Field.t * Val.t) list) list) : t =
     ) h_list; heap
 
 let from_json_file (filename : string) : t =
-  let h_list = Parse_heap.parse filename in
+  let h_list = Parse_Heap.parse filename in
   from_list_to_hashtbl h_list

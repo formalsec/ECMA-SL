@@ -5,9 +5,7 @@ type return =
 
 let add_fields_to (obj : Object.t) (fes : (Field.t * Expr.t) list) (eval_e : (Expr.t -> Val.t)) : unit =
   List.iter (fun (f, e) -> let e' = eval_e e in Object.set obj f e') fes
-  (*
-  Values are equal in both scenarios (extended and core)
-  *)
+
 (*EDIT TO: Op.ml*)
 let eval_inobj_expr (heap : Heap.t) (field : Val.t) (loc : Val.t) : Val.t =
   let b = match loc, field with
@@ -45,7 +43,7 @@ let eval_nopt_expr (op : Expr.nopt) (vals : Val.t list) : Val.t =
   | ListExpr -> Val.List vals
 
 
-let rec eval_expr (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : Expr.t) : Val.t =
+let rec eval_expr (prog : Prog.t) (sto : Store.t) (e : Expr.t) : Val.t =
   match e with
   | Val n                -> n
   | Var x                -> Store.get sto x
@@ -86,7 +84,7 @@ and eval_stmt (prog : Prog.t) (cs:Callstack.t) (heap : Heap.t) (sto: Store.t) (s
   | Assign (x, e)             -> let v = eval_expr prog heap sto e in Store.set sto x v; None
   | Seq (s1, s2)              -> (let v1 = eval_stmt prog cs heap sto s1 in
                                   match v1 with
-                                    None -> eval_stmt prog cs heap sto s2
+                                  | None -> eval_stmt prog cs heap sto s2
                                   | Some v1 -> Some v1)
   | If (exps_stmts)           -> eval_if_stmt prog cs heap sto exps_stmts
   | While (e, s)              -> eval_stmt prog cs heap sto (If ([Some e, Seq (s, While (e, s))]))
@@ -153,7 +151,7 @@ let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (sto: Store.t) (cont: Stmt
 
 
 
-  | Return e -> let v = eval_expr prog heap sto e in
+  | Return e -> let v = eval_expr prog sto e in
                 let  (f,cs') = Callstack.pop cs in (
                 match f with
                 | Callstack.Intermediate (cont',sto', x) ->   (Store.set_store sto'  (Val.str x) v;
@@ -203,10 +201,10 @@ let rec small_step_iter (prog:Prog.t) (cs:Callstack.t) (heap:Heap.t) (sto:Store.
 
 
 (*Worker class of the Interpreter*)
-let eval_prog (prog : Prog.t) ( cs: Callstack.t) (heap:Heap.t) (out:string) (verbose:bool) : Val.t option =
+let eval_prog (prog : Prog.t) ( cs: Callstack.t) (heap:Heap.t) (out:string) (verbose:bool) (main:string) : Val.t option =
   let sto = Store.create_store [] in
   let cs'= Callstack.push cs (Callstack.Toplevel) in
-  let func = (Prog.get_func prog "main"(*passar como argumento valores e nome*)) in
+  let func = (Prog.get_func prog main(*passar como argumento valores e nome*)) in
   let v=  small_step_iter prog cs sto func.body verbose in
   match v with
   |Finalv v -> v
