@@ -66,7 +66,8 @@ and eval_call_expr (prog : Prog.t) (cs:Callstack.t) (heap : Heap.t) (sto : Store
 
 
 and eval_access_expr (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : Expr.t) (f : Expr.t) : Val.t =
-  let loc = eval_expr prog heap sto e and field = eval_expr prog heap sto f in
+  let loc = eval_expr prog heap sto e in
+  let field = eval_expr prog heap sto f in
   let loc' = (match loc with
       | Loc loc -> loc
       | _       -> invalid_arg "Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc") in
@@ -78,7 +79,7 @@ and eval_access_expr (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : Expr.t
   | None    -> Undef
   | Some v' -> v'
 
-
+                 (*
 and eval_stmt (prog : Prog.t) (cs:Callstack.t) (heap : Heap.t) (sto: Store.t) (s: Stmt.t) : Val.t option = match s with
     Skip                      -> None
   | Assign (x, e)             -> let v = eval_expr prog heap sto e in Store.set sto x v; None
@@ -100,6 +101,7 @@ and eval_if_stmt (prog : Prog.t) (cs : Callstack.t) (heap : Heap.t) (sto: Store.
                     if (Val.is_true v) then eval_stmt prog cs heap sto s
                     else eval_stmt prog cs heap sto (If rest))
     | None, s   -> eval_stmt prog cs heap sto s
+                   *)
 
 and eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : Expr.t) (f : Expr.t) =
   let loc = eval_expr prog heap sto e and field = eval_expr prog heap sto f in
@@ -131,22 +133,18 @@ and eval_proc (prog : Prog.t) (cs:Callstack.t) (heap : Heap.t) (pname : string) 
   | Some v -> (v, sto)
 
 
-let eval_prog (prog : Prog.t) (cs : Callstack.t) (heap : Heap.t) (sto : Store.t): Val.t * Store.t =
-  eval_proc prog cs heap "main" []
-
-
 
 (*============================================================*)
 
 let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (sto: Store.t) (cont: Stmt.t list) (mode:string) (verbose: bool) (s: Stmt.t) : return  =
 
   match s with
-  | Skip ->  Intermediate (cs, cont,sto)
+  | Skip ->  Intermediate (cs, cont,sto, heap)
 
   | Asgn (x,e) -> (let v = eval_expr prog sto e in
                   Store.set_store sto x v;
                   print_string ("STORE: " ^ (x) ^ " <- " ^   Val.str v ^"\n");
-                  Intermediate (cs, cont, sto))
+                  Intermediate (cs, cont, sto, heap))
 
 
 
@@ -154,24 +152,23 @@ let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (sto: Store.t) (cont: Stmt
   | Return e -> let v = eval_expr prog sto e in
                 let  (f,cs') = Callstack.pop cs in (
                 match f with
-                | Callstack.Intermediate (cont',sto', x) ->   (Store.set_store sto'  (Val.str x) v;
-                                                                                Intermediate (cs',cont',sto'))
+                | Callstack.Intermediate (cont',sto', x, heap) ->   (Store.set_store sto'  (Val.str x) v;
+                                                                                Intermediate (cs',cont',sto', heap))
 
 
                 | Callstack.Toplevel -> Finalv (Some v))
 
 
 
-  |If stmts -> Intermediate (cs,cont,sto)
-(*
-  | If (e,s1,s2) -> (let v = eval_expr prog sto e in
-                    match v with
-                    | Bool true -> Intermediate (cs,((s1 @ (Stmt.End::[])) @ cont),sto),TLabel.BranchLab (e,s2)
+  |If (e,s1,s2) -> let v = eval_expr prog sto e in
+                       if (Val.is_true v) then Intermediate (cs,(s1 @ cont),sto, heap)
+                       else match s2 with
+                         | Some v -> Intermediate (cs,(s2 @ cont),sto, heap)
+                         | None ->  Intermediate (cs,cont,sto, heap)
 
-                    |_ -> Intermediate (cs,((s2 @ (Stmt.End :: [])) @ cont),sto))
-*)
+
   | While (e,s) -> let (stms:Stmt.t list) = s @ (Stmt.While (e,s) :: []) in
-                     Intermediate (cs, (Stmt.If (e, stms, (Stmt.Skip :: []) ) :: cont),sto)
+                     Intermediate (cs, (Stmt.If (e, stms, None ) :: cont),sto, heap)
 
   | Call (x,f,es) -> let cs' = Callstack.push cs (Callstack.Intermediate (cont, sto, x)) in
                      let vs = (List.map (eval_expr prog sto) es) in
@@ -179,12 +176,38 @@ let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (sto: Store.t) (cont: Stmt
                      let sto_aux = Store.create_store pvs in
                      let func = (Prog.get_func prog f) in
                      let (cont':Stmt.t list) = func.body in
-                     Intermediate (cs', cont', sto_aux)
+                     Intermediate (cs', cont', sto_aux, heap)
 
   | FieldAssign (e_o, f, e_v) -> eval_fieldassign_stmt prog heap sto e_o f e_v;
-                                 Intermediate (cs', cont', sto_aux)
+                                 Intermediate (cs, cont, sto_aux, heap)
   | FieldDelete (e, f)        -> eval_fielddelete_stmt prog heap sto e f;
-                                 Intermediate (cs', cont', sto_aux)
+                                 Intermediate (cs, cont, sto_aux, heap)
+  | AssignCall   (st, ef, el)->
+
+  | AssignNewObj (st) ->let newobj= Object.create in
+                        let loc= heap.insert heap obj in
+                        Store.set_store sto st (Val.Loc loc);
+                        print_string ("STORE: " ^ st ^ " <- " ^   Val.str v ^"\n");
+                        Intermediate (cs, cont, sto, heap)
+
+
+  | AssignAccess (st, ef, ep) -> let loc= eval_expr prog sto ef in
+                                 let field = eval_expr prog heap sto ep in
+                                 let loc' = (match loc with
+                                      | Loc loc -> loc
+                                      | _       -> invalid_arg "Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc") in
+                                 let field' = (match field with
+                                      | Str field -> field
+                                      | _         -> invalid_arg "Exception in Interpreter.eval_access_expr : \"f\" didn't evaluate to Str") in
+                                 let v = Heap.get_field heap loc' field' in
+                                 match v with
+                                  | None    -> Val.Undef
+                                  | Some v' -> v'
+                                 Store.set_store sto st v';
+                                 print_string ("STORE: " ^ st ^ " <- " ^   Val.str v' ^"\n");
+                                 Intermediate (cs, cont, sto, heap)
+
+
 
   |_ ->   raise(Except "Unknown Op")(*ERROR*)
 

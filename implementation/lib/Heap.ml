@@ -2,7 +2,9 @@ type t = (Loc.t, Object.t) Hashtbl.t
 
 let create () : t = Hashtbl.create 511
 
-let insert ?(loc=Loc.newloc()) (heap : t) (obj : Object.t) : Loc.t = Hashtbl.add heap loc obj; loc
+let insert (heap : t) (obj : Object.t) : Loc.t =
+  let loc = Loc.newloc in
+  Hashtbl.add heap loc obj;
 
 let remove (heap : t) (loc : Loc.t) : unit = Hashtbl.remove heap loc
 
