@@ -25,6 +25,14 @@ let rec compile_binopt (e_op : E_Expr.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) 
   stmts_1 @ stmts_2, Expr.BinOpt (op, e1, e2)
 
 
+and compile_nopt (e_nop : E_Expr.nopt) (e_exprs : E_Expr.t list) : Stmt.t list * Expr.t =
+  let nop = match e_nop with
+    | ListExpr -> Expr.ListExpr in
+  let stmts_exprs = List.map compile_expr e_exprs in
+  let stmts, exprs = List.split stmts_exprs in
+  List.concat stmts, Expr.NOpt (nop, exprs)
+
+
 and compile_call (fname : E_Expr.t) (fargs : E_Expr.t list) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   [Stmt.Call (var, (E_Expr.str fname), (List.map (fun arg -> snd (compile_expr arg)) fargs))], Expr.Var var
@@ -56,6 +64,7 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | Var e_v                   -> [], Expr.Var e_v
   | BinOpt (e_op, e_e1, e_e2) -> compile_binopt e_op e_e1 e_e2
   | UnOpt (op, e_e)           -> invalid_arg "Exception in Compile.compile_expr: UnOpt is not implemented"
+  | NOpt (op, e_es)           -> compile_nopt op e_es
   | Call (f, e_es)            -> compile_call f e_es
   | NewObj (e_fes)            -> compile_newobj e_fes
   | Access (e_e, e_f)         -> invalid_arg "Exception in Compile.compile_expr: Access is not implemented"
