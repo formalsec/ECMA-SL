@@ -130,10 +130,10 @@ and eval_proc (prog : Prog.t) (cs:Callstack.t) (heap : Heap.t) (pname : string) 
     None -> raise (Invalid_argument "Exception in Interpreter.eval_proc: statement didn't return")
   | Some v -> (v, sto)
 
-
+(*
 let eval_prog (prog : Prog.t) (cs : Callstack.t) (heap : Heap.t) (sto : Store.t): Val.t * Store.t =
   eval_proc prog cs heap "main" []
-
+*)
 
 
 (*============================================================*)
