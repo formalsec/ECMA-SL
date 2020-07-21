@@ -143,7 +143,7 @@ let eval_prog (prog : Prog.t) (cs : Callstack.t) (heap : Heap.t) (sto : Store.t)
 
 (*============================================================*)
 
-let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: Store.t) (cont: Stmt.t list) (mode:string) (verbose: bool) (s: Stmt.t) : return  =
+let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: Store.t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : return  =
 
   match s with
   | Skip ->  Intermediate (cs, cont,sto, heap)
@@ -165,16 +165,26 @@ let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: Store.
 
                 | Callstack.Toplevel -> Finalv (Some v))
 
+  |Block block -> let v=  small_step_iter prog cs heap sto block verbose in
+                  v
+
 
 
   |If (e,s1,s2) -> let v = eval_expr prog sto e in
-                       if (Val.is_true v) then Intermediate (cs,(s1 @ cont),sto, heap)
-                       else match s2 with
-                         | Some v -> Intermediate (cs,(s2 @ cont),sto, heap)
-                         | None ->  Intermediate (cs,cont,sto, heap)
+    if (Val.is_true v) then
+      let ret = eval_small_step prog cs heap sto [] verbose s1 in
+      match ret with
+        Intermediate (cs', cont',sto', heap') -> Intermediate (cs',cont,sto, heap)
+    else
+      (match s2 with
+      | Some v -> let ret = eval_small_step prog cs heap sto [] verbose v in
+        (match ret with Intermediate (cs', cont', sto', heap')-> Intermediate (cs', cont, sto', heap'))
+      | None ->  Intermediate (cs,cont,sto, heap)
+      )
 
 
-  | While (e,s) -> let (stms:Stmt.t list) = s @ (Stmt.While (e,s) :: []) in
+
+      | While (e,s) -> let (stms:Stmt.t list) = s @ (Stmt.While (e,s) :: []) in
                      Intermediate (cs, (Stmt.If (e, stms, None ) :: cont),sto, heap)
 
   | AssignCall (x,f,es) -> let cs' = Callstack.push cs (Callstack.Intermediate (cont, sto, x)) in
@@ -188,9 +198,10 @@ let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: Store.
   | FieldAssign (e_o, f, e_v) -> eval_fieldassign_stmt prog heap sto e_o f e_v;
                                  Intermediate (cs, cont, sto_aux, heap)
   | FieldDelete (e, f)        -> eval_fielddelete_stmt prog heap sto e f;
-                                 Intermediate (cs, cont, sto_aux, heap)
+    Intermediate (cs, cont, sto_aux, heap)
 
-  |AssignInOnjCheck (st, e1, e2) ->  Intermediate (cs, cont, sto_aux, heap)
+
+  |AssignInObjCheck (st, e1, e2) ->  Intermediate (cs, cont, sto_aux, heap)
 
 
   | AssignNewObj (st) ->let newobj= Object.create in
@@ -221,7 +232,7 @@ let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: Store.
   |_ ->   raise(Except "Unknown Op")(*ERROR*)
 
 (*This function will iterate smallsteps in a list of functions*)
-let rec small_step_iter (prog:Prog.t) (cs:Callstack.t) (heap:Heap.t) (sto:Store.t) (stmts:Stmt.t list)  (verbose:bool): return =
+and  small_step_iter (prog:Prog.t) (cs:Callstack.t) (heap:Heap.t) (sto:Store.t) (stmts:Stmt.t list)  (verbose:bool): return =
   match stmts with
     | [] ->  Intermediate (cs, stmts, sto) (*Raise(error??)*)
     | s::stmts' -> ( let return = eval_small_step prog cs heap sto stmts' verbose s in
