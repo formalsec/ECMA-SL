@@ -55,6 +55,11 @@ and compile_while (expr : E_Expr.t) (stmt : E_Stmt.t) : Stmt.t list =
   stmts_expr @ [Stmt.While (expr', Stmt.Seq stmts_stmt)]
 
 
+and compile_return (expr : E_Expr.t) : Stmt.t list =
+  let stmts_expr, expr' = compile_expr expr in
+  stmts_expr @ [Stmt.Return (expr')]
+
+
 and compile_fieldassign (e_eo : E_Expr.t) (e_f : E_Expr.t) (e_ev : E_Expr.t) : Stmt.t list =
   let stmts_eo, expr_eo = compile_expr e_eo in
   let stmts_f, expr_f = compile_expr e_f in
@@ -81,7 +86,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | Seq (e_s1, e_s2)                -> compile_stmt e_s1 @ compile_stmt e_s2
   | If (e_e, e_s1, e_s2)            -> compile_if e_e e_s1 e_s2
   | While (e_exp, e_s)              -> compile_while e_exp e_s
-  | Return e_exp                    -> invalid_arg "Exception in Compile.compile_stmt: Return is not implemented"
+  | Return e_exp                    -> compile_return e_exp
   | FieldAssign (e_eo, e_f, e_ev)   -> compile_fieldassign e_eo e_f e_ev
   | FieldDelete (e_e, e_f)          -> invalid_arg "Exception in Compile.compile_stmt: FieldDelete is not implemented"
   | ExprStmt e_e                    -> invalid_arg "Exception in Compile.compile_stmt: ExprStmt is not implemented"
