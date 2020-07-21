@@ -73,6 +73,11 @@ and compile_fielddelete (expr : E_Expr.t) (field : E_Expr.t) : Stmt.t list =
   stmts_expr @ stmts_field @ [Stmt.FieldDelete (expr', field')]
 
 
+and compile_exprstmt (expr : E_Expr.t) : Stmt.t list =
+  let stmts_expr, _ = compile_expr expr in
+  stmts_expr
+
+
 and compile_repeatuntil (stmt : E_Stmt.t) (expr : E_Expr.t) : Stmt.t list =
   let stmts_stmt = compile_stmt stmt in
   let stmts_expr, expr' = compile_expr expr in
@@ -116,7 +121,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | Return e_exp                    -> compile_return e_exp
   | FieldAssign (e_eo, e_f, e_ev)   -> compile_fieldassign e_eo e_f e_ev
   | FieldDelete (e_e, e_f)          -> compile_fielddelete e_e e_f
-  | ExprStmt e_e                    -> invalid_arg "Exception in Compile.compile_stmt: ExprStmt is not implemented"
+  | ExprStmt e_e                    -> compile_exprstmt e_e
   | RepeatUntil (e_s, e_e)          -> compile_repeatuntil e_s e_e
   | MatchWith (e_e, e_exps_e_stmts) -> compile_matchwith e_e e_exps_e_stmts
 
