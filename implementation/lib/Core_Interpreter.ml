@@ -1,3 +1,5 @@
+exception Exept of string
+
 type return =
 | Intermediate of (Callstack.t * Stmt.t list * Store.t * Heap.t)
 | Finalv of Val.t option
@@ -176,11 +178,11 @@ let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (sto: Store.t) (cont: Stmt
   | While (e,s) -> let (stms:Stmt.t list) = s @ (Stmt.While (e,s) :: []) in
                      Intermediate (cs, (Stmt.If (e, stms, None ) :: cont),sto, heap)
 
-  | Call (x,f,es) -> let cs' = Callstack.push cs (Callstack.Intermediate (cont, sto, x)) in
+  | AssignCall (x,f,es) -> let cs' = Callstack.push cs (Callstack.Intermediate (cont, sto, x)) in
                      let vs = (List.map (eval_expr prog sto) es) in
                      let pvs = List.combine (Prog.get_params prog f) vs in
                      let sto_aux = Store.create_store pvs in
-                     let func = (Prog.get_func prog f) in
+    let func = (Prog.get_func prog (Expr.str f)) in
                      let (cont':Stmt.t list) = func.body in
                      Intermediate (cs', cont', sto_aux, heap)
 
@@ -188,7 +190,6 @@ let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (sto: Store.t) (cont: Stmt
                                  Intermediate (cs, cont, sto_aux, heap)
   | FieldDelete (e, f)        -> eval_fielddelete_stmt prog heap sto e f;
                                  Intermediate (cs, cont, sto_aux, heap)
-  | AssignCall   (st, ef, el)->
 
   | AssignNewObj (st) ->let newobj= Object.create in
                         let loc= heap.insert heap obj in
