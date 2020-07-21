@@ -1,7 +1,7 @@
 type t = {
   name   : string;
   params : string list;
-  body   : Stmt.t list;
+  body   : Stmt.t;
 }
 
 let create_store (func : t) (vals : Val.t list) : Store.t =
@@ -13,13 +13,13 @@ let  print_list (lis:string list) : string =
   String.concat ", "  lis
 
 
-let create (name : string) (params : string list) (body : Stmt.t list) : t = { name; params; body }
+let create (name : string) (params : string list) (body : Stmt.t) : t = { name; params; body }
 
 let get_name (func : t) : string = func.name
 
 let get_params (func : t) : string list = func.params
 
-let get_body (func : t) : Stmt.t list = func.body
+let get_body (func : t) : Stmt.t = func.body
 
 let str (func : t) : string =
   "function "
@@ -27,5 +27,5 @@ let str (func : t) : string =
   ^ " ("
   ^ print_list func.params
   ^ ") { "
-  ^ String.concat "; " (List.map (fun s -> Stmt.str s) func.body)
+  ^ Stmt.str func.body
   ^ " }"

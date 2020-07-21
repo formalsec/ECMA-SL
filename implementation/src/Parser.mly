@@ -41,12 +41,11 @@
 %nonassoc binopt_prec
 %nonassoc unopt_prec
 
-%type <Expr.t> prog_expr_target
-%type <Stmt.t> prog_stmt_target
+
 %type <Func.t > proc_target
 %type <Func.t list> prog_target
 
-%start prog_target prog_expr_target prog_stmt_target
+%start prog_target
 %% (* separator line *)
 (* END first section - declarations *)
 
@@ -56,19 +55,19 @@
   - productions are organized into rules, where each rule lists all
     the possible productions for a given nonterminal.
 *)
-
+(*
 prog_expr_target:
   | e = expr_target; EOF; { e }
 
 prog_stmt_target:
   | s = stmt_target; EOF; { s }
-
+*)
 prog_target:
   | funcs = separated_list (SEMICOLON, proc_target); EOF;
    { funcs }
 
 proc_target:
-  | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; LBRACE; s =separated_list (SEMICOLON,stmt_target); RBRACE
+  | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; LBRACE; s = stmt_block; RBRACE
    { Func.create f vars s }
 
 (*
@@ -126,7 +125,11 @@ expr_target:
   | LPAREN; e = expr_target; RPAREN;
     { e }
 
-
+stmt_block:
+| s= separated_list (SEMICOLON, stmt_target);
+{
+    Stmt.Block s
+}
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return *)
 stmt_target:
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;
@@ -143,7 +146,7 @@ stmt_target:
     { Stmt.Assign (v, e) }
   | exps_stmts = ifelse_target;
     { exps_stmts }
-  | WHILE; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_target; RBRACE;
+  | WHILE; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block; RBRACE;
     { Stmt.While (e, s) }
   | RETURN; e = expr_target;
     { Stmt.Return e }
@@ -162,11 +165,12 @@ stmt_target:
     { Stmt.AssignNewObj (v) }
 
 
+
 (* if (e) { s } | if (e) {s} else { s } *)
 ifelse_target:
-  | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s1 = stmt_target; RBRACE; ELSE;LBRACE; s2 = stmt_target; RBRACE;
+  | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s1 = stmt_block; RBRACE; ELSE;LBRACE; s2 = stmt_block; RBRACE;
     { Stmt.If(e, s1, Some s2) }
-  | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_target; RBRACE;
+  | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block; RBRACE;
     { Stmt.If(e, s, None) }
 
 op_target:
