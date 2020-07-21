@@ -1,5 +1,3 @@
-exception Exept of string
-
 type return =
 | Intermediate of (Callstack.t * Stmt.t list * Store.t * Heap.t)
 | Finalv of Val.t option
@@ -25,7 +23,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Typeof -> Oper.typeof v
 
 (*EDIT TO: Op.ml*)
-let eval_binopt_expr (heap : Heap.t) (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
+let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   match op with
   | Plus    -> Oper.plus (v1, v2)
   | Minus   -> Oper.minus (v1, v2)
@@ -38,7 +36,6 @@ let eval_binopt_expr (heap : Heap.t) (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) 
   | Elt     -> Oper.elt (v1, v2)
   | Log_And -> Oper.log_and (v1, v2)
   | Log_Or  -> Oper.log_or (v1, v2)
-  | InObj   -> eval_inobj_expr heap v1 v2
 (*EDIT TO: Op.ml*)
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   match op with
@@ -49,18 +46,20 @@ let rec eval_expr (prog : Prog.t) (sto : Store.t) (e : Expr.t) : Val.t =
   match e with
   | Val n                -> n
   | Var x                -> Store.get sto x
-  | UnOpt (uop, e)       -> let v = eval_expr prog heap sto e in eval_unop uop v
-  | BinOpt (bop, e1, e2) -> let v1 = eval_expr prog heap sto e1 and v2 = eval_expr prog heap sto e2 in eval_binopt_expr heap bop v1 v2
-  | NOpt (nop, es)       -> eval_nopt_expr nop (List.map (eval_expr prog heap sto) es)
-  | NewObj (fes)         -> let obj = Object.create() in add_fields_to obj fes (eval_expr prog heap sto); Loc (Heap.insert heap obj)
-  | Access (e, f)        -> eval_access_expr prog heap sto e f
+  | UnOpt (uop, e)       -> let v = eval_expr prog sto e in
+                            eval_unop uop v
+  | BinOpt (bop, e1, e2) -> let v1 = eval_expr prog sto e1
+                            and v2 = eval_expr prog sto e2 in
+                              eval_binopt_expr bop v1 v2
+  | NOpt (nop, es)       -> eval_nopt_expr nop (List.map (eval_expr prog sto) es)
 
 
-(* Syntax for mutually recursive functions *)
+
+                              (*)(* Syntax for mutually recursive functions *)
 and eval_call_expr (prog : Prog.t) (cs:Callstack.t) (heap : Heap.t) (sto : Store.t) (f_name : Expr.t) (es : Expr.t list) : Val.t =
-  let vs = List.map (eval_expr prog heap sto) es in
+  let vs = List.map (eval_expr prog  sto) es in
   try
-    let fname = eval_expr prog heap sto f_name in
+    let fname = eval_expr prog  sto f_name in
     match fname with
     | Str f -> fst (eval_proc prog cs heap f vs)
     | _     -> invalid_arg "Exception in Interpreter.eval_call_expr | value found in store is not a string."
@@ -81,7 +80,7 @@ and eval_access_expr (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : Expr.t
   | None    -> Undef
   | Some v' -> v'
 
-                 (*
+
 and eval_stmt (prog : Prog.t) (cs:Callstack.t) (heap : Heap.t) (sto: Store.t) (s: Stmt.t) : Val.t option = match s with
     Skip                      -> None
   | Assign (x, e)             -> let v = eval_expr prog heap sto e in Store.set sto x v; None
@@ -103,7 +102,7 @@ and eval_if_stmt (prog : Prog.t) (cs : Callstack.t) (heap : Heap.t) (sto: Store.
                     if (Val.is_true v) then eval_stmt prog cs heap sto s
                     else eval_stmt prog cs heap sto (If rest))
     | None, s   -> eval_stmt prog cs heap sto s
-                   *)
+
 
 and eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : Expr.t) (f : Expr.t) =
   let loc = eval_expr prog heap sto e and field = eval_expr prog heap sto f in
@@ -135,7 +134,7 @@ and eval_proc (prog : Prog.t) (cs:Callstack.t) (heap : Heap.t) (pname : string) 
   | Some v -> (v, sto)
 
 
-(*
+
 let eval_prog (prog : Prog.t) (cs : Callstack.t) (heap : Heap.t) (sto : Store.t): Val.t * Store.t =
   eval_proc prog cs heap "main" []
 *)
@@ -144,13 +143,13 @@ let eval_prog (prog : Prog.t) (cs : Callstack.t) (heap : Heap.t) (sto : Store.t)
 
 (*============================================================*)
 
-let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (sto: Store.t) (cont: Stmt.t list) (mode:string) (verbose: bool) (s: Stmt.t) : return  =
+let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: Store.t) (cont: Stmt.t list) (mode:string) (verbose: bool) (s: Stmt.t) : return  =
 
   match s with
   | Skip ->  Intermediate (cs, cont,sto, heap)
 
-  | Asgn (x,e) -> (let v = eval_expr prog sto e in
-                  Store.set_store sto x v;
+  | Assign (x,e) -> (let v = eval_expr prog sto e in
+                  Store.set sto x v;
                   print_string ("STORE: " ^ (x) ^ " <- " ^   Val.str v ^"\n");
                   Intermediate (cs, cont, sto, heap))
 
@@ -160,7 +159,7 @@ let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (sto: Store.t) (cont: Stmt
   | Return e -> let v = eval_expr prog sto e in
                 let  (f,cs') = Callstack.pop cs in (
                 match f with
-                | Callstack.Intermediate (cont',sto', x, heap) ->   (Store.set_store sto'  (Val.str x) v;
+                | Callstack.Intermediate (cont',sto', x) ->   (Store.set sto'  x v;
                                                                                 Intermediate (cs',cont',sto', heap))
 
 
@@ -182,7 +181,7 @@ let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (sto: Store.t) (cont: Stmt
                      let vs = (List.map (eval_expr prog sto) es) in
                      let pvs = List.combine (Prog.get_params prog f) vs in
                      let sto_aux = Store.create_store pvs in
-    let func = (Prog.get_func prog (Expr.str f)) in
+                     let func = (Prog.get_func prog f) in
                      let (cont':Stmt.t list) = func.body in
                      Intermediate (cs', cont', sto_aux, heap)
 
@@ -191,15 +190,18 @@ let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (sto: Store.t) (cont: Stmt
   | FieldDelete (e, f)        -> eval_fielddelete_stmt prog heap sto e f;
                                  Intermediate (cs, cont, sto_aux, heap)
 
+  |AssignInOnjCheck (st, e1, e2) ->  Intermediate (cs, cont, sto_aux, heap)
+
+
   | AssignNewObj (st) ->let newobj= Object.create in
                         let loc= heap.insert heap obj in
-                        Store.set_store sto st (Val.Loc loc);
+                        Store.set sto st (Val.Loc loc);
                         print_string ("STORE: " ^ st ^ " <- " ^   Val.str v ^"\n");
                         Intermediate (cs, cont, sto, heap)
 
 
   | AssignAccess (st, ef, ep) -> let loc= eval_expr prog sto ef in
-                                 let field = eval_expr prog heap sto ep in
+                                 let field = eval_expr prog  sto ep in
                                  let loc' = (match loc with
                                       | Loc loc -> loc
                                       | _       -> invalid_arg "Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc") in
@@ -210,7 +212,7 @@ let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (sto: Store.t) (cont: Stmt
                                  match v with
                                   | None    -> Val.Undef
                                   | Some v' -> v'
-                                 Store.set_store sto st v';
+                                 Store.set sto st v';
                                  print_string ("STORE: " ^ st ^ " <- " ^   Val.str v' ^"\n");
                                  Intermediate (cs, cont, sto, heap)
 
@@ -222,12 +224,12 @@ let eval_small_step (prog: Prog.t) (cs: Callstack.t)  (sto: Store.t) (cont: Stmt
 let rec small_step_iter (prog:Prog.t) (cs:Callstack.t) (heap:Heap.t) (sto:Store.t) (stmts:Stmt.t list)  (verbose:bool): return =
   match stmts with
     | [] ->  Intermediate (cs, stmts, sto) (*Raise(error??)*)
-    | s::stmts' -> ( let return = eval_small_step prog cs sto stmts' verbose s in
+    | s::stmts' -> ( let return = eval_small_step prog cs heap sto stmts' verbose s in
 
 
           match return with
           |Finalv v ->  Finalv v
-          |Intermediate (cs', stmts'', sto') -> small_step_iter prog cs' sto' stmts'' verbose)
+          |Intermediate (cs', stmts'', sto',heap') -> small_step_iter prog cs' heap' sto' stmts'' verbose)
 
 
 (*Worker class of the Interpreter*)
@@ -235,7 +237,7 @@ let eval_prog (prog : Prog.t) ( cs: Callstack.t) (heap:Heap.t) (out:string) (ver
   let sto = Store.create_store [] in
   let cs'= Callstack.push cs (Callstack.Toplevel) in
   let func = (Prog.get_func prog main(*passar como argumento valores e nome*)) in
-  let v=  small_step_iter prog cs sto func.body verbose in
+  let v=  small_step_iter prog cs heap sto func.body verbose in
   match v with
   |Finalv v -> v
   | _ -> raise(Except "No return value")(*ERROR*)

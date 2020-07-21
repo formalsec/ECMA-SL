@@ -151,6 +151,8 @@ stmt_target:
     { Stmt.Return (Expr.Val Val.Void) }
   | v=VAR; DEFEQ; f=expr_target; LPAREN;vs= separated_list(COMMA, expr_target);RPAREN;
   {Stmt.AssignCall (v,f,vs)}
+  | v=VAR; DEFEQ; e1=expr_target; IN; e2= expr_target;
+  {Stmt.AssignInOnjCheck (v,e1,e2)}
 
   | v=VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;
     { Stmt.AssignAccess (v,e, Expr.Val (Str f)) }
@@ -179,4 +181,3 @@ op_target:
   | ELT     { Oper.Elt }
   | LAND { Oper.Log_And }
   | LOR  { Oper.Log_Or }
-  | IN      { Oper.InObj }
