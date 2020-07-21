@@ -67,6 +67,12 @@ and compile_fieldassign (e_eo : E_Expr.t) (e_f : E_Expr.t) (e_ev : E_Expr.t) : S
   stmts_eo @ stmts_f @ stmts_ev @ [Stmt.FieldAssign (expr_eo, expr_f, expr_ev)]
 
 
+and compile_fielddelete (expr : E_Expr.t) (field : E_Expr.t) : Stmt.t list =
+  let stmts_expr, expr' = compile_expr expr in
+  let stmts_field, field' = compile_expr field in
+  stmts_expr @ stmts_field @ [Stmt.FieldDelete (expr', field')]
+
+
 and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   match e_expr with
   | Val e_v                   -> [], Expr.Val e_v
@@ -88,7 +94,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | While (e_exp, e_s)              -> compile_while e_exp e_s
   | Return e_exp                    -> compile_return e_exp
   | FieldAssign (e_eo, e_f, e_ev)   -> compile_fieldassign e_eo e_f e_ev
-  | FieldDelete (e_e, e_f)          -> invalid_arg "Exception in Compile.compile_stmt: FieldDelete is not implemented"
+  | FieldDelete (e_e, e_f)          -> compile_fielddelete e_e e_f
   | ExprStmt e_e                    -> invalid_arg "Exception in Compile.compile_stmt: ExprStmt is not implemented"
   | RepeatUntil (e_s, e_e)          -> invalid_arg "Exception in Compile.compile_stmt: RepeatUntil is not implemented"
   | MatchWith (e_e, e_exps_e_stmts) -> invalid_arg "Exception in Compile.compile_stmt: MatchWith is not implemented"
