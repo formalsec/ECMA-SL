@@ -80,6 +80,20 @@ and compile_repeatuntil (stmt : E_Stmt.t) (expr : E_Expr.t) : Stmt.t list =
   stmts @ [Stmt.While (expr', Stmt.Seq stmts)]
 
 
+and compile_matchwith (expr : E_Expr.t) (exprs_stmts : (E_Expr.t * E_Stmt.t) list) : Stmt.t list =
+  let stmts_expr, expr' = compile_expr expr in
+  let se_e_ss_list = List.map (fun (e, s) -> (let stmts_e, e' = compile_expr e in
+                                              let stmts_s = compile_stmt s in
+                                              stmts_e, e', stmts_s)
+                              ) exprs_stmts in
+  match List.rev se_e_ss_list with
+  | []                -> [Stmt.Skip]
+  | (se, e, ss)::[]   -> se @ [Stmt.If (Expr.BinOpt (Oper.Equal, expr', e), Stmt.Seq ss, None)]
+  | (se, e, ss)::rest -> (let last_if = se @ [Stmt.If (Expr.BinOpt (Oper.Equal, expr', e), Stmt.Seq ss, None)] in
+                          stmts_expr @ List.fold_left (fun acc (se, e, ss) -> se @ [Stmt.If (Expr.BinOpt (Oper.Equal, expr', e), Stmt.Seq ss, (Some (Stmt.Seq acc)))]
+                                                      ) last_if rest)
+
+
 and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   match e_expr with
   | Val e_v                   -> [], Expr.Val e_v
@@ -104,7 +118,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | FieldDelete (e_e, e_f)          -> compile_fielddelete e_e e_f
   | ExprStmt e_e                    -> invalid_arg "Exception in Compile.compile_stmt: ExprStmt is not implemented"
   | RepeatUntil (e_s, e_e)          -> compile_repeatuntil e_s e_e
-  | MatchWith (e_e, e_exps_e_stmts) -> invalid_arg "Exception in Compile.compile_stmt: MatchWith is not implemented"
+  | MatchWith (e_e, e_exps_e_stmts) -> compile_matchwith e_e e_exps_e_stmts
 
 
 let compile_func (e_func : E_Func.t) : Func.t =
