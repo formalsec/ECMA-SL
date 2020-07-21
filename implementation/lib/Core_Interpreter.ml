@@ -16,14 +16,14 @@ let eval_inobj_expr (heap : Heap.t) (field : Val.t) (loc : Val.t) : Val.t =
   | None -> Bool (false)
 
 (*EDIT TO: Op.ml*)
-let eval_unop (op : Expr.uopt) (v : Val.t) : Val.t =
+let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   match op with
   | Neg    -> Oper.neg v
   | Not    -> Oper.not v
   | Typeof -> Oper.typeof v
 
 (*EDIT TO: Op.ml*)
-let eval_binopt_expr (heap : Heap.t) (op : Expr.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
+let eval_binopt_expr (heap : Heap.t) (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   match op with
   | Plus    -> Oper.plus (v1, v2)
   | Minus   -> Oper.minus (v1, v2)
@@ -38,7 +38,7 @@ let eval_binopt_expr (heap : Heap.t) (op : Expr.bopt) (v1 : Val.t) (v2 : Val.t) 
   | Log_Or  -> Oper.log_or (v1, v2)
   | InObj   -> eval_inobj_expr heap v1 v2
 (*EDIT TO: Op.ml*)
-let eval_nopt_expr (op : Expr.nopt) (vals : Val.t list) : Val.t =
+let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   match op with
   | ListExpr -> Val.List vals
 
@@ -131,6 +131,12 @@ and eval_proc (prog : Prog.t) (cs:Callstack.t) (heap : Heap.t) (pname : string) 
   match v0 with
     None -> raise (Invalid_argument "Exception in Interpreter.eval_proc: statement didn't return")
   | Some v -> (v, sto)
+
+
+(*
+let eval_prog (prog : Prog.t) (cs : Callstack.t) (heap : Heap.t) (sto : Store.t): Val.t * Store.t =
+  eval_proc prog cs heap "main" []
+*)
 
 
 
