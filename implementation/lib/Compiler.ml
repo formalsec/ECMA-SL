@@ -40,6 +40,13 @@ and compile_newobj (e_fes : (string * E_Expr.t) list) : Stmt.t list * Expr.t =
   [newObj] @ List.concat stmts, Expr.Var var
 
 
+and compile_access (expr : E_Expr.t) (field : E_Expr.t) : Stmt.t list * Expr.t =
+  let var = generate_fresh_var () in
+  let stmts_expr, expr' = compile_expr expr in
+  let stmts_field, field' = compile_expr field in
+  stmts_expr @ stmts_field @ [Stmt.AssignAccess (var, expr', field')], Expr.Var var
+
+
 and compile_assign (var : string) (e_exp : E_Expr.t) : Stmt.t list =
   let stmts, aux_var = compile_expr e_exp in
   stmts @ [Stmt.Assign (var, aux_var)]
@@ -113,7 +120,7 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | NOpt (op, e_es)           -> compile_nopt op e_es
   | Call (f, e_es)            -> compile_call f e_es
   | NewObj (e_fes)            -> compile_newobj e_fes
-  | Access (e_e, e_f)         -> invalid_arg "Exception in Compile.compile_expr: Access is not implemented"
+  | Access (e_e, e_f)         -> compile_access e_e e_f
 
 
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
