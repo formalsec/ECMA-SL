@@ -99,7 +99,7 @@ let compile_func (e_func : E_Func.t) : Func.t =
     fparams = E_Func.get_params e_func and
     fbody = E_Func.get_body e_func in
   let stmt_list = compile_stmt fbody in
-  Func.create fname fparams stmt_list
+  Func.create fname fparams (Stmt.Block stmt_list)
 
 
 let compile_prog (e_prog : E_Prog.t) : Prog.t =
