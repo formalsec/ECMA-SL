@@ -32,8 +32,3 @@ let rec str (stmt : t) : string = match stmt with
   | AssignAccess (va, eo, p)    -> va ^ " = " ^ Expr.str eo ^ "[" ^ Expr.str p ^ "]"
   | AssignInOnjCheck (st,e1,e2) -> st ^" "^Expr.str e1 ^ " in "^Expr.str e2
 
-
-and build_ifelse (exp_stmt : Expr.t option * t) : string =
-  match exp_stmt with
-  | Some e, s -> "if (" ^ (Expr.str e) ^ ") { " ^ (str s) ^ " }"
-  | None, s   -> "{ " ^ (str s) ^ " }"
