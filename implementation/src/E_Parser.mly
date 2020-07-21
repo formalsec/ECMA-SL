@@ -130,8 +130,8 @@ e_stmt_target:
     { E_Stmt.Assign (v, e) }
   | s1 = e_stmt_target; SEMICOLON; s2 = e_stmt_target;
     { E_Stmt.Seq (s1, s2) }
-  | exps_stmts = list (ifelse_target);
-    { E_Stmt.If (exps_stmts) }
+  | exps_stmts = ifelse_target;
+    { exps_stmts }
   | WHILE; LPAREN; e = e_expr_target; RPAREN; LBRACE; s = e_stmt_target; RBRACE;
     { E_Stmt.While (e, s) }
   | RETURN; e = e_expr_target;
@@ -143,18 +143,13 @@ e_stmt_target:
   | MATCH; e = e_expr_target; WITH; ptrn_stmts = list (pattern_statement_target);
     { E_Stmt.MatchWith (e, ptrn_stmts) }
 
-(* if (e) { s } | else if (e) { s } | else { s } *)
+(* if (e) { s } | if (e) {s} else { s } *)
 ifelse_target:
-  | if_t = if_target;
-    { if_t }
-  | ELSE; if_t = if_target;
-    { if_t }
-  | ELSE; LBRACE; s = e_stmt_target; RBRACE;
-    { (None, s) }
-
-if_target:
+  | IF; LPAREN; e = e_expr_target; RPAREN; LBRACE; s1 = e_stmt_target; RBRACE; ELSE; LBRACE; s2 = e_stmt_target; RBRACE;
+    { E_Stmt.If (e, s1, Some s2) }
   | IF; LPAREN; e = e_expr_target; RPAREN; LBRACE; s = e_stmt_target; RBRACE;
-    { (Some e, s) }
+    { E_Stmt.If (e, s, None) }
+
 
 pattern_statement_target:
   | PIPE; e = e_expr_target; COLON; s = e_stmt_target;

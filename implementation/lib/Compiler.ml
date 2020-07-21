@@ -64,7 +64,7 @@ let rec compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | Skip                            -> [Stmt.Skip]
   | Assign (v, e_exp)               -> compile_assign v e_exp
   | Seq (e_s1, e_s2)                -> compile_stmt e_s1 @ compile_stmt e_s2
-  | If (e_exps_e_stmts)             -> invalid_arg "Exception in Compile.compile_stmt: If is not implemented"
+  | If (e, s1, s2)                  -> invalid_arg "Exception in Compile.compile_stmt: If is not implemented"
   | While (e_exp, e_s)              -> invalid_arg "Exception in Compile.compile_stmt: While is not implemented"
   | Return e_exp                    -> invalid_arg "Exception in Compile.compile_stmt: Return is not implemented"
   | FieldAssign (e_eo, e_f, e_ev)   -> compile_fieldassign e_eo e_f e_ev
