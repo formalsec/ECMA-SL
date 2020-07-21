@@ -40,6 +40,15 @@ and compile_assign (var : string) (e_exp : E_Expr.t) : Stmt.t list =
   stmts @ [Stmt.Assign (var, aux_var)]
 
 
+and compile_if (expr : E_Expr.t) (stmt1 : E_Stmt.t) (stmt2 : E_Stmt.t option) : Stmt.t list =
+  let stmts_expr, expr' = compile_expr expr in
+  let stmts_s1 = Stmt.Seq (compile_stmt stmt1) in
+  let stmts_s2 = match stmt2 with
+    | None    -> None
+    | Some s2 -> Some (Stmt.Seq (compile_stmt s2)) in
+  stmts_expr @ [Stmt.If (expr', stmts_s1, stmts_s2)]
+
+
 and compile_fieldassign (e_eo : E_Expr.t) (e_f : E_Expr.t) (e_ev : E_Expr.t) : Stmt.t list =
   let stmts_eo, expr_eo = compile_expr e_eo in
   let stmts_f, expr_f = compile_expr e_f in
@@ -59,12 +68,12 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | Access (e_e, e_f)         -> invalid_arg "Exception in Compile.compile_expr: Access is not implemented"
 
 
-let rec compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
+and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   match e_stmt with
   | Skip                            -> [Stmt.Skip]
   | Assign (v, e_exp)               -> compile_assign v e_exp
   | Seq (e_s1, e_s2)                -> compile_stmt e_s1 @ compile_stmt e_s2
-  | If (e, s1, s2)                  -> invalid_arg "Exception in Compile.compile_stmt: If is not implemented"
+  | If (e_e, e_s1, e_s2)            -> compile_if e_e e_s1 e_s2
   | While (e_exp, e_s)              -> invalid_arg "Exception in Compile.compile_stmt: While is not implemented"
   | Return e_exp                    -> invalid_arg "Exception in Compile.compile_stmt: Return is not implemented"
   | FieldAssign (e_eo, e_f, e_ev)   -> compile_fieldassign e_eo e_f e_ev
