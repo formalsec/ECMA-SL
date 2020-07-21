@@ -13,6 +13,11 @@ let rec compile_binopt (binop : Oper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) :
   stmts_1 @ stmts_2, Expr.BinOpt (binop, e1, e2)
 
 
+and compile_unopt (op : Oper.uopt) (expr : E_Expr.t) : Stmt.t list * Expr.t =
+  let stmts_expr, expr' = compile_expr expr in
+  stmts_expr, Expr.UnOpt (op, expr')
+
+
 and compile_nopt (nop : Oper.nopt) (e_exprs : E_Expr.t list) : Stmt.t list * Expr.t =
   let stmts_exprs = List.map compile_expr e_exprs in
   let stmts, exprs = List.split stmts_exprs in
@@ -104,7 +109,7 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | Val e_v                   -> [], Expr.Val e_v
   | Var e_v                   -> [], Expr.Var e_v
   | BinOpt (e_op, e_e1, e_e2) -> compile_binopt e_op e_e1 e_e2
-  | UnOpt (op, e_e)           -> invalid_arg "Exception in Compile.compile_expr: UnOpt is not implemented"
+  | UnOpt (op, e_e)           -> compile_unopt op e_e
   | NOpt (op, e_es)           -> compile_nopt op e_es
   | Call (f, e_es)            -> compile_call f e_es
   | NewObj (e_fes)            -> compile_newobj e_fes
