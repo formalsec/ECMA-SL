@@ -10,5 +10,15 @@ function main() {
 
   x["d"] := 1.2;
 
-  y := func("a", 3)
+  y := func("a", 3);
+
+  z := f(g(h(3)));
+
+  i := 0;
+  repeat i := i + 1 until i <= 4;
+
+  match x.c with
+  | { a: true } : z(2)
+  | { b: true } : z(3)
+  | { c: true } : z(4)
 }
