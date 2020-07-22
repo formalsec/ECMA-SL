@@ -251,7 +251,7 @@ let eval_prog (prog : Prog.t) ( cs: Callstack.t) (heap:Heap.t) (out:string) (ver
   let sto = Store.create [] in
   let cs'= Callstack.push cs (Callstack.Toplevel) in
   let func = (Prog.get_func prog main(*passar como argumento valores e nome*)) in
-  let v = eval_small_step prog cs heap sto [] verbose func.body in
+  let v = eval_small_step prog cs' heap sto [] verbose func.body in
   (*let v=  small_step_iter prog cs heap sto func.body verbose in*)
   match v with
   |Finalv v -> v

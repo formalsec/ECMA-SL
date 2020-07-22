@@ -42,11 +42,11 @@ let run ()=
   arguments();
   if (!file = "" && !mode = "" && !out = "") then print_string "No option selected. Use -h"
   else if (!file = "") then  (print_string "No input file. Use -i\n=====================\n\tFINISHED\n=====================\n";exit 1)
-  else if(!mode = "") then  (print_string "No mode selected. Use -mode\n=====================\n\tFINISHED\n=====================\n";exit 1);
+  else if(!mode = "") then  (print_string "No mode selected. Use -mode\n=====================\n\tFINISHED\n=====================\n";exit 1)
+  else if (!mode = "ci") then (core_interpretation ())
+  else (compile_from_plus_to_core ());
 
-  compile_from_plus_to_core();
 
-
-  print_string "=====================\n\tFINISHED\n=====================\n"
+  print_string "\n=====================\n\tFINISHED\n=====================\n"
 
 let _ = run ()
