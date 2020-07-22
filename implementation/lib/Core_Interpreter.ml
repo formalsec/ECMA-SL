@@ -145,7 +145,7 @@ let eval_prog (prog : Prog.t) (cs : Callstack.t) (heap : Heap.t) (sto : Store.t)
 (*============================================================*)
 
 let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: Store.t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : return  =
-
+  print_string ("\n>>> "^Stmt.str s^"\n");
   match s with
   | Skip ->  Intermediate (cs, cont,sto, heap)
 
@@ -166,8 +166,10 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
 
                 | Callstack.Toplevel -> Finalv (Some v))
 
-  | Block block -> let v=  small_step_iter prog cs heap sto block verbose in
-                  v
+  | Block block ->let v=  small_step_iter prog cs heap sto block verbose in
+                  (match v with
+        | Intermediate (cs', cont',sto', heap') -> Intermediate (cs',cont,sto', heap')
+        | Finalv v -> Finalv v)
 
 
 
@@ -185,10 +187,11 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
 
 
 
-  | While (e,s) -> let (stms:Stmt.t list) = ((s::[]) @( Stmt.While (e,s) :: [])) in
-    print_string ("\n--------\n"^Stmt.str (Stmt.Block stms));
+  | While (e,s) ->let s1 = (s :: []) @ (Stmt.While (e,s) :: []) in
+    let stms= Stmt.If (e, (Stmt.Block s1), None) in
 
-                    Intermediate (cs, ((Stmt.If (e, Stmt.Block stms, None )) :: cont),sto, heap)
+
+                    Intermediate (cs, (stms :: cont),sto, heap)
 
   | AssignCall (x,f,es) -> let cs' = Callstack.push cs (Callstack.Intermediate (cont, sto, x)) in
                      let vs = (List.map (eval_expr prog sto) es) in
