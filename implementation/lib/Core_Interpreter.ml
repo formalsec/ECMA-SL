@@ -185,8 +185,10 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
 
 
 
-  | While (e,s) -> let (stms:Stmt.t list) = (s :: Stmt.While (e,s) :: []) in
-                     Intermediate (cs, (Stmt.If (e, Stmt.Block stms, None ) :: cont),sto, heap)
+  | While (e,s) -> let (stms:Stmt.t list) = ((s::[]) @( Stmt.While (e,s) :: [])) in
+    print_string ("\n--------\n"^Stmt.str (Stmt.Block stms));
+
+                    Intermediate (cs, ((Stmt.If (e, Stmt.Block stms, None )) :: cont),sto, heap)
 
   | AssignCall (x,f,es) -> let cs' = Callstack.push cs (Callstack.Intermediate (cont, sto, x)) in
                      let vs = (List.map (eval_expr prog sto) es) in
