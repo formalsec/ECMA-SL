@@ -155,7 +155,7 @@ stmt_target:
   | v=VAR; DEFEQ; f=expr_target; LPAREN;vs= separated_list(COMMA, expr_target);RPAREN;
   {Stmt.AssignCall (v,f,vs)}
   | v=VAR; DEFEQ; e1=expr_target; IN; e2= expr_target;
-  {Stmt.AssignInOnjCheck (v,e1,e2)}
+  {Stmt.AssignInObjCheck (v,e1,e2)}
 
   | v=VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;
     { Stmt.AssignAccess (v,e, Expr.Val (Str f)) }

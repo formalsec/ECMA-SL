@@ -9,7 +9,7 @@ type t = Skip
        | AssignCall   of string * Expr.t * Expr.t list
        | AssignNewObj of string
        | AssignAccess of string * Expr.t * Expr.t
-       | AssignInOnjCheck of string * Expr.t * Expr.t
+       | AssignInObjCheck of string * Expr.t * Expr.t
        | Block of t list
 
 (*---------------Strings------------------*)
@@ -30,5 +30,5 @@ let rec str (stmt : t) : string = match stmt with
   | AssignCall (va, st, e_lst)  -> va ^ " = " ^ Expr.str st ^ " (" ^ String.concat ", " (List.map (fun e -> Expr.str e) e_lst) ^ ")"
   | AssignNewObj va             -> va ^ " = { }"
   | AssignAccess (va, eo, p)    -> va ^ " = " ^ Expr.str eo ^ "[" ^ Expr.str p ^ "]"
-  | AssignInOnjCheck (st,e1,e2) -> st ^" "^Expr.str e1 ^ " in "^Expr.str e2
+  | AssignInObjCheck (st,e1,e2) -> st ^" "^Expr.str e1 ^ " in "^Expr.str e2
 

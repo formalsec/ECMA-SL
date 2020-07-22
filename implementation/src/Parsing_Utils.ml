@@ -1,7 +1,8 @@
 
-let parse_prog (str : string) : Func.t list =
+let parse_prog (str : string) : Prog.t  =
   let lexbuf = Lexing.from_string str in
-  Parser.prog_target Lexer.read lexbuf
+  let funcs= Parser.prog_target Lexer.read lexbuf in
+  Prog.create funcs
 
 let parse_e_expr (str : string) : E_Expr.t =
   let lexbuf = Lexing.from_string str in
@@ -26,5 +27,4 @@ let load_file f : string =
 let parse_file str : Prog.t =
   let str = load_file str in
   let fs = parse_prog str in
-  let prog = Prog.create fs in
-  prog
+  fs
