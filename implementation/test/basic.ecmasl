@@ -1,12 +1,14 @@
-function main () {
- x:=1;
-if (true){
-  x:=3;
-  if(true){
-    x:=10
-  }
+function main() {
+ x:=value(20);
+ y := {};
+ y.a := 2;
+ z := y.a;
+ return z
+
 }
 ;
+function value(x) {
+ x:=x*2;
  return x
 
 }
