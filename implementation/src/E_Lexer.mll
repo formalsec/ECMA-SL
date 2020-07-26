@@ -69,6 +69,9 @@ rule read =
   | '['          { LBRACK }
   | ']'          { RBRACK }
   | '|'          { PIPE }
+  | "->"         { RIGHT_ARROW }
+  | "None"       { NONE }
+  | "default"    { DEFAULT }
   | "if"         { IF }
   | "else"       { ELSE }
   | "while"      { WHILE }

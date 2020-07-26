@@ -8,7 +8,7 @@ type t = Skip
        | FieldDelete of E_Expr.t * E_Expr.t
        | ExprStmt    of E_Expr.t
        | RepeatUntil of t * E_Expr.t
-       | MatchWith   of E_Expr.t * (E_Expr.t * t) list
+       | MatchWith   of E_Expr.t * (E_Pat.t * t) list
 
 let rec str (stmt : t) : string = match stmt with
     Skip                      -> ""
@@ -24,4 +24,5 @@ let rec str (stmt : t) : string = match stmt with
   | FieldDelete (e, f)        -> "delete " ^ E_Expr.str e ^ "[" ^ E_Expr.str f ^ "]"
   | ExprStmt e                -> E_Expr.str e
   | RepeatUntil (s, e)        -> "repeat " ^ str s ^ " until " ^ E_Expr.str e
-  | MatchWith (e, exps_stmts) -> "match " ^ E_Expr.str e ^ " with | " ^ String.concat " | " (List.map (fun e_s -> E_Expr.str (fst e_s) ^ ": " ^ str (snd e_s)) exps_stmts)
+  | MatchWith (e, pats_stmts) -> "match " ^ E_Expr.str e ^ " with | "
+                                 ^ String.concat " | " (List.map (fun (e, s) -> E_Pat.str e ^ ": " ^ str s) pats_stmts)
