@@ -15,7 +15,7 @@
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
-%token PERIOD COMMA SEMICOLON COLON
+%token PERIOD COMMA SEMICOLON
 %token DELETE
 %token <float> FLOAT
 %token <int> INT
@@ -32,11 +32,11 @@
 %token EOF
 
 %left LAND LOR
-%left GT LT EGT ELT IN
+%left GT LT EGT ELT
 %left PLUS MINUS
 %left TIMES DIVIDE
 %left EQUAL
-%left SEMICOLON
+
 
 %nonassoc binopt_prec
 %nonassoc unopt_prec

@@ -7,7 +7,7 @@
 {
   open Lexing
   open Parser
- 
+
 
 
   exception Syntax_error of string
@@ -47,7 +47,6 @@ rule read =
   | ":="         { DEFEQ }
   | '.'          { PERIOD }
   | ';'          { SEMICOLON }
-  | ':'          { COLON }
   | ','          { COMMA }
   | '+'          { PLUS }
   | '-'          { MINUS }
@@ -89,4 +88,3 @@ and read_comment =
   | "*/" { read lexbuf }
   | _    { read_comment lexbuf }
   | eof  { raise (Syntax_error ("Comment is not terminated."))}
-

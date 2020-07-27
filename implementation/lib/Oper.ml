@@ -83,6 +83,7 @@ let is_true (v : Val.t) : bool = match v with
   | Bool v -> v
   | _      -> invalid_arg "Exception in Val.is_true: argument is not boolean"
 
+
 let typeof (v : Val.t) : Val.t = match v with
   | Int v  -> Type (Type.IntType)
   | Flt v  -> Type (Type.FltType)
