@@ -62,12 +62,9 @@ let eval_inobj_expr (prog: Prog.t) (heap : Heap.t) (sto : Store.t) (field : Expr
   let b =  match loc', field' with
     | Loc l, Str f -> Heap.get_field heap l f
     | _            -> invalid_arg "Exception in Interpreter.eval_inobj_expr : \"loc\" is not a Loc value or \"field\" is not a string" in
-
-match b with
+  match b with
   | Some v -> Bool (true)
   | None -> Bool (false)
-
-
 
 
 let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : Expr.t) (f : Expr.t): unit =
@@ -90,16 +87,22 @@ and eval_fieldassign_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e_o :
       | _         -> invalid_arg "Exception in Interpreter.eval_fieldassign_stmt : \"f\" didn't evaluate to Str") in
   Heap.set_field heap loc' field' v
 
-let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: Store.t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : return  =
+
+
+(* \/ ======================================= Main InterpreterFunctions ======================================= \/ *)
+
+
+
+let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: Store.t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : (return * SecLabel.t)  =
   print_string ("\n>>> "^Stmt.str s^"\n");
   print_string (String.concat "; " (List.map (Stmt.str) cont));
   match s with
-  | Skip ->  Intermediate (cs, cont,sto, heap)
+  | Skip ->  (Intermediate (cs, cont,sto, heap), SecLabel.EmptyLab)
 
   | Assign (x,e) -> (let v = eval_expr prog sto e in
                      Store.set sto x v;
                      print_string ("STORE: " ^ (x) ^ " <- " ^   Val.str v ^"\n");
-                     Intermediate (cs, cont, sto, heap))
+                     (Intermediate (cs, cont, sto, heap)), SecLabel.AsgnLab (x,e))
 
 
 
@@ -108,34 +111,34 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
     let  (f,cs') = Callstack.pop cs in (
       match f with
       | Callstack.Intermediate (cont',sto', x) ->   (Store.set sto'  x v;
-                                                     Intermediate (cs',cont',sto', heap))
+                                                     (Intermediate (cs',cont',sto', heap), SecLabel.RetLab e))
 
 
-      | Callstack.Toplevel -> Finalv (Some v))
+      | Callstack.Toplevel -> (Finalv (Some v), SecLabel.RetLab e))
 
-  | Block block -> Intermediate (cs,(block @ cont),sto,heap)
+  | Block block -> (Intermediate (cs,(block @ cont),sto,heap), SecLabel.EmptyLab )
 
 
   | If (e,s1,s2) -> let v = eval_expr prog sto e in
     if (Val.is_true v) then
       (*Tirar recursividade!!! concat*)
-      let ret = eval_small_step prog cs heap sto [] verbose s1 in
+      let (ret, monitor) = eval_small_step prog cs heap sto [] verbose s1 in
       match ret with
-        Intermediate (cs', cont',sto', heap') -> Intermediate (cs',cont,sto', heap')
-      | _ -> raise(Except "Not expected")
+        Intermediate (cs', cont',sto', heap') -> (Intermediate (cs',cont,sto', heap'), SecLabel.EmptyLab)
+                                                 | _ -> raise(Except "Not expected")
     else
       (match s2 with
-       | Some v -> let ret = eval_small_step prog cs heap sto [] verbose v in
-         (match ret with Intermediate (cs', cont', sto', heap')-> Intermediate (cs', cont, sto', heap')
+       | Some v -> let (ret,monitor) = eval_small_step prog cs heap sto [] verbose v in
+         (match ret with Intermediate (cs', cont', sto', heap')-> (Intermediate (cs', cont, sto', heap'),SecLabel.EmptyLab)
                        |_ -> raise(Except "Not expected"))
-       | None ->  Intermediate (cs,cont,sto, heap)
+       | None ->  (Intermediate (cs,cont,sto, heap), SecLabel.EmptyLab )
       )
 
 
 
   | While (e,s) ->let s1 = (s :: []) @ (Stmt.While (e,s) :: []) in
     let stms= Stmt.If (e, (Stmt.Block s1), None) in
-    Intermediate (cs, (stms :: cont),sto, heap)
+    (Intermediate (cs, (stms :: cont),sto, heap), SecLabel.EmptyLab)
 
   | AssignCall (x,f,es) -> let cs' = Callstack.push cs (Callstack.Intermediate (cont, sto, x)) in
     (*Criar uma func para gerar stores, etc*)
@@ -145,20 +148,20 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
     let func = (Prog.get_func prog (Expr.str f)) in
     let (cont':Stmt.t) = func.body in
     let aux_list= (cont'::[]) in
-    Intermediate (cs', aux_list, sto_aux, heap)
+    (Intermediate (cs', aux_list, sto_aux, heap), SecLabel.CallLab (es,x,(Expr.str f)))
   (*Retirar recursividade -> passar loc e field *)
 
   |AssignInObjCheck (st, e1, e2) ->
     let v= eval_inobj_expr prog heap sto e1 e2 in
     Store.set sto st v;
-    Intermediate (cs, cont, sto, heap) (* ARRANJAR*)
+    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,e1))
 
 
   | AssignNewObj (st) ->let newobj= Object.create () in
     let loc= Heap.insert heap newobj in
     Store.set sto st (Val.Loc loc);
     print_string ("STORE: " ^ st ^ " <- " ^   Val.str (Val.Loc loc) ^"\n");
-    Intermediate (cs, cont, sto, heap)
+    (Intermediate (cs, cont, sto, heap), SecLabel.EmptyLab)
 
 
   | AssignAccess (st, ef, ep) -> let loc= eval_expr prog sto ef in
@@ -177,12 +180,13 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
       ) in
     Store.set sto st v';
     print_string ("STORE: " ^ st ^ " <- " ^   Val.str v' ^"\n");
-    Intermediate (cs, cont, sto, heap)
+    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,ep(*Tenho que trabalhar esta expressao*)))
 
   | FieldAssign (e_o, f, e_v) -> eval_fieldassign_stmt prog heap sto e_o f e_v;
-    Intermediate (cs, cont, sto, heap)
+    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e_v))
+
   | FieldDelete (e, f)        -> eval_fielddelete_stmt prog heap sto e f;
-    Intermediate (cs, cont, sto, heap)
+    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e))
 
 
 
@@ -194,7 +198,7 @@ and  small_step_iter (prog:Prog.t) (cs:Callstack.t) (heap:Heap.t) (sto:Store.t) 
   print_string "small_iter";
   match stmts with
   | [] ->  raise(Except "Empty list")
-  | s::stmts' -> ( let return = eval_small_step prog cs heap sto stmts' verbose s in
+  | s::stmts' -> ( let (return, label) = eval_small_step prog cs heap sto stmts' verbose s in
 
 
                    match return with
