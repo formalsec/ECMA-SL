@@ -121,18 +121,18 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
 
   | If (e,s1,s2) -> let v = eval_expr prog sto e in
     if (Val.is_true v) then
-      (*Tirar recursividade!!! concat*)
-      let (ret, monitor) = eval_small_step prog cs heap sto [] verbose s1 in
-      match ret with
-        Intermediate (cs', cont',sto', heap') -> (Intermediate (cs',cont,sto', heap'), SecLabel.EmptyLab)
-                                                 | _ -> raise(Except "Not expected")
+      match s1 with
+      | Block block -> (match s2 with
+          |Some v -> Intermediate (cs,(block @ cont),sto, heap), SecLabel.BranchLab (e,v)
+          |None -> Intermediate (cs,(block @ cont),sto, heap), SecLabel.BranchLab (e,(Stmt.Skip)))
+      | _ -> raise (Except "IF block expected ")
+
     else
       (match s2 with
-       | Some v -> let (ret,monitor) = eval_small_step prog cs heap sto [] verbose v in
-         (match ret with Intermediate (cs', cont', sto', heap')-> (Intermediate (cs', cont, sto', heap'),SecLabel.EmptyLab)
-                       |_ -> raise(Except "Not expected"))
-       | None ->  (Intermediate (cs,cont,sto, heap), SecLabel.EmptyLab )
-      )
+       | Some v -> (match v with
+           | Block block2 -> Intermediate (cs, (block2 @ cont), sto, heap),SecLabel.BranchLab (e,s1)
+           |_ -> raise (Except "Not expected"))
+       | None ->  (Intermediate (cs,cont,sto, heap), SecLabel.EmptyLab))
 
 
 
@@ -180,7 +180,7 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
       ) in
     Store.set sto st v';
     print_string ("STORE: " ^ st ^ " <- " ^   Val.str v' ^"\n");
-    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,ep(*Tenho que trabalhar esta expressao*)))
+    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,ep (*Tenho que trabalhar esta expressao*)))
 
   | FieldAssign (e_o, f, e_v) -> eval_fieldassign_stmt prog heap sto e_o f e_v;
     (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e_v))
