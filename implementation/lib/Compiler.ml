@@ -134,7 +134,7 @@ and compile_pat (expr : Expr.t) (e_pat : E_Pat.t) : string list * Stmt.t list * 
 and compile_pats_stmts (expr : Expr.t) (pat, stmt : E_Pat.t * E_Stmt.t) : Stmt.t list * Expr.t * Stmt.t list =
   let bs, pre_pat_stmts, in_pat_stmts = compile_pat expr pat in
   let stmts = compile_stmt stmt in
-  let and_bs = List.fold_left (fun acc b -> Expr.BinOpt (Oper.Log_And, acc, Expr.Var b)) (Expr.Val (Val.Bool true)) bs in
+  let and_bs = Expr.NOpt (Oper.NAry_And, Expr.Val (Val.Bool true) :: List.map (fun b -> Expr.Var b) bs) in
   let if_stmt = in_pat_stmts @ stmts in
   pre_pat_stmts, and_bs, if_stmt
 

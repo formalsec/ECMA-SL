@@ -16,6 +16,8 @@ type uopt = Neg
           | Typeof
 
 type nopt = ListExpr
+          | NAry_And
+          | NAry_Or
 
 let neg (v : Val.t) : Val.t = match v with
   | Flt v  -> Flt (-.v)
@@ -93,24 +95,26 @@ let typeof (v : Val.t) : Val.t = match v with
   | Type v -> invalid_arg "Exception in Val.typeof: not implemented for Type type argument"
   | _      -> invalid_arg "Exception in Val.typeof: invalid argument"
 
-  let str_of_unopt (op : uopt) : string = match op with
-    | Neg    -> "-"
-    | Not    -> "!"
-    | Typeof -> "typeof"
+let str_of_unopt (op : uopt) : string = match op with
+  | Neg    -> "-"
+  | Not    -> "!"
+  | Typeof -> "typeof"
 
-  let str_of_binopt (op : bopt) : string = match op with
-    | Plus    -> "+"
-    | Minus   -> "-"
-    | Times   -> "*"
-    | Div     -> "/"
-    | Equal   -> "=="
-    | Gt      -> ">"
-    | Lt      -> "<"
-    | Egt     -> ">="
-    | Elt     -> "<="
-    | Log_And -> "&&"
-    | Log_Or  -> "||"
-    | InObj   -> "in"
+let str_of_binopt (op : bopt) : string = match op with
+  | Plus    -> "+"
+  | Minus   -> "-"
+  | Times   -> "*"
+  | Div     -> "/"
+  | Equal   -> "=="
+  | Gt      -> ">"
+  | Lt      -> "<"
+  | Egt     -> ">="
+  | Elt     -> "<="
+  | Log_And -> "&&"
+  | Log_Or  -> "||"
+  | InObj   -> "in"
 
-    let str_of_nopt (op : nopt) (es : string list) : string = match op with
-      | ListExpr -> "[ " ^ List.fold_left (fun acc ele -> (if acc <> "" then acc ^ ", " else acc) ^ ele) "" es ^ " ]"
+let str_of_nopt (op : nopt) (es : string list) : string = match op with
+  | ListExpr -> "[ " ^ List.fold_left (fun acc ele -> (if acc <> "" then acc ^ ", " else acc) ^ ele) "" es ^ " ]"
+  | NAry_And -> String.concat " && " es
+  | NAry_Or -> String.concat " || " es
