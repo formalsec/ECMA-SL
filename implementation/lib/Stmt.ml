@@ -31,4 +31,3 @@ let rec str (stmt : t) : string = match stmt with
   | AssignNewObj va             -> va ^ " = { }"
   | AssignAccess (va, eo, p)    -> va ^ " = " ^ Expr.str eo ^ "[" ^ Expr.str p ^ "]"
   | AssignInObjCheck (st,e1,e2) -> st ^" "^Expr.str e1 ^ " in "^Expr.str e2
-
