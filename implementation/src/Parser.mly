@@ -79,99 +79,99 @@ proc_target:
 
 type_target:
   | INT_TYPE;
-    { Type.IntType }
+    { print_string ">INT_TYPE\n";Type.IntType }
   | FLT_TYPE;
-    { Type.FltType }
+    { print_string ">FLOAT_TYPE\n";Type.FltType }
   | STR_TYPE;
-    { Type.StrType }
+    { print_string ">STR_TYPE\n";Type.StrType }
   | BOOL_TYPE;
-    { Type.BoolType }
+    { print_string ">BOOL_TYPE\n";Type.BoolType }
 
 (* v ::= f | i | b | s *)
 val_target:
   | UNDEFINED;
-    { Val.Undef }
+    { print_string ">UNDEF\n";Val.Undef }
   | NULL;
-    { Val.Null }
+    { print_string ">NULL\n";Val.Null }
   | f = FLOAT;
-    { Val.Flt f }
+    { print_string ">FLOAT\n";Val.Flt f }
   | i = INT;
-    { Val.Int i }
+    { print_string ">INT\n";Val.Int i }
   | b = BOOLEAN;
-    { Val.Bool b }
+    { print_string ">BOOL\n";Val.Bool b }
   | s = STRING;
     { let len = String.length s in
       let sub = String.sub s 1 (len - 2) in
-      Val.Str sub } (* Remove the double-quote characters from the parsed string *)
+      print_string ">STR\n";Val.Str sub } (* Remove the double-quote characters from the parsed string *)
   | t = type_target;
-    { Val.Type t }
+    { print_string ">TYPE \n";Val.Type t }
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 expr_target:
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
-    { Expr.NOpt (Oper.ListExpr, es) }
+    { print_string ">NOP\n";Expr.NOpt (Oper.ListExpr, es) }
   | v = val_target;
-    { Expr.Val v }
+    { print_string ">VAL\n"; Expr.Val v }
   | v = VAR;
-    { Expr.Var v }
+    { print_string ">VAR\n";  Expr.Var v }
   | MINUS; e = expr_target;
-    { Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
   | NOT; e = expr_target;
-    { Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
   | TYPEOF; e = expr_target;
-    { Expr.UnOpt ( Oper.Typeof, e) } %prec unopt_prec
+    { print_string ">UNOP\n"; Expr.UnOpt ( Oper.Typeof, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
-    { Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
+    { print_string ">BINOP\n";Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
   | LPAREN; e = expr_target; RPAREN;
-    { e }
+    { print_string ">PAREN\n";e }
 
 stmt_block:
 | s= separated_list (SEMICOLON, stmt_target);
 {
-    Stmt.Block s
+    print_string ">BLOCK\n";Stmt.Block s
 }
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return *)
 stmt_target:
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;
-    { Stmt.FieldAssign (e1, Expr.Val (Str f), e2) }
+    { print_string ">FIELDASSIGN\n";  Stmt.FieldAssign (e1, Expr.Val (Str f), e2) }
   | e1 = expr_target; LBRACK; f = expr_target; RBRACK; DEFEQ; e2 = expr_target;
-    { Stmt.FieldAssign (e1, f, e2) }
+    { print_string ">FIELDASSIGN\n";Stmt.FieldAssign (e1, f, e2) }
   | DELETE; e = expr_target; PERIOD; f = VAR;
-    { Stmt.FieldDelete (e, Expr.Val (Str f)) }
+    { print_string ">FIELDDELETE\n"; Stmt.FieldDelete (e, Expr.Val (Str f)) }
   | DELETE; e = expr_target; LBRACK; f = expr_target; RBRACK;
-    { Stmt.FieldDelete (e, f) }
+    {print_string ">FIELDDELETE\n";   Stmt.FieldDelete (e, f) }
   | SKIP;
-    { Stmt.Skip }
+    { print_string ">SKIP\n";Stmt.Skip }
   | v = VAR; DEFEQ; e = expr_target;
-    { Stmt.Assign (v, e) }
+    { print_string ">ASSIGN\n";Stmt.Assign (v, e) }
   | exps_stmts = ifelse_target;
     { exps_stmts }
   | WHILE; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block; RBRACE;
-    { Stmt.While (e, s) }
+    { print_string ">WHILE\n";Stmt.While (e, s) }
   | RETURN; e = expr_target;
-    { Stmt.Return e }
+    { print_string ">RETURN\n";Stmt.Return e }
   | RETURN;
-    { Stmt.Return (Expr.Val Val.Void) }
+    { print_string ">RETURN\n";Stmt.Return (Expr.Val Val.Void) }
   | v=VAR; DEFEQ; f=expr_target; LPAREN;vs= separated_list(COMMA, expr_target);RPAREN;
-  {Stmt.AssignCall (v,f,vs)}
+  {print_string ">ASSIGNCALL\n";Stmt.AssignCall (v,f,vs)}
   | v=VAR; DEFEQ; e1=expr_target; IN; e2= expr_target;
-  {Stmt.AssignInObjCheck (v,e1,e2)}
+  {print_string ">ASSIGNINOBJCHECK\n";Stmt.AssignInObjCheck (v,e1,e2)}
 
   | v=VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;
-    { Stmt.AssignAccess (v,e, Expr.Val (Str f)) }
+    { print_string ">ASSIGNACCESS\n";Stmt.AssignAccess (v,e, Expr.Val (Str f)) }
   | v=VAR; DEFEQ;e = expr_target; LBRACK; f = expr_target; RBRACK;
-    { Stmt.AssignAccess (v,e, f) }
+    { print_string ">ASSIGNACCESS\n";Stmt.AssignAccess (v,e, f) }
   | v=VAR; DEFEQ;LBRACE; RBRACE;
-    { Stmt.AssignNewObj (v) }
+    { print_string ">ASSIGNNEWOBJ\n";Stmt.AssignNewObj (v) }
 
 
 
 (* if (e) { s } | if (e) {s} else { s } *)
 ifelse_target:
   | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s1 = stmt_block; RBRACE; ELSE;LBRACE; s2 = stmt_block; RBRACE;
-    { Stmt.If(e, s1, Some s2) }
+    { print_string ">IF\n";Stmt.If(e, s1, Some s2) }
   | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block; RBRACE;
-    { Stmt.If(e, s, None) }
+    { print_string ">IF\n";Stmt.If(e, s, None) }
 
 op_target:
   | MINUS   { Oper.Minus }
