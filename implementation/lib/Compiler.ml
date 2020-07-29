@@ -100,18 +100,55 @@ and compile_repeatuntil (stmt : E_Stmt.t) (expr : E_Expr.t) : Stmt.t list =
   stmts @ [Stmt.While (expr', Stmt.Seq stmts)]
 
 
-and compile_matchwith (expr : E_Expr.t) (exprs_stmts : (E_Expr.t * E_Stmt.t) list) : Stmt.t list =
+and compile_patv (expr: Expr.t) (pname : string) (pat_v : E_Pat_v.t) (var_b : string) : string list * Stmt.t list * Stmt.t list =
+  match pat_v with
+  | PatVar v -> ([], [], [Stmt.AssignAccess (v, expr, Expr.Val (Val.Str pname))])
+  | PatVal v -> (let b = generate_fresh_var () in
+                 let w = generate_fresh_var () in
+                 let stmt = Stmt.AssignAccess (w, expr, Expr.Val (Val.Str pname)) in
+                 let stmt_assign = Stmt.Assign (b, Expr.BinOpt (Oper.Equal, Expr.Var w, Expr.Val v)) in
+                 [b], [stmt; stmt_assign], [])
+  | PatNone  -> (let stmt = Stmt.Assign (var_b, Expr.UnOpt (Oper.Not, Expr.Var var_b)) in
+                 [], [stmt], [])
+
+
+and compile_pn_pat (expr: Expr.t) (pn, patv : string * E_Pat_v.t) : string list * Stmt.t list * Stmt.t list =
+  let fresh_b = generate_fresh_var () in
+  let in_stmt = Stmt.AssignInObjCheck (fresh_b, Expr.Val (Val.Str pn), expr) in
+  let bs, stmts, stmts' = compile_patv expr pn patv fresh_b in
+  fresh_b :: bs, in_stmt :: stmts, stmts'
+
+
+and compile_pat (expr : Expr.t) (e_pat : E_Pat.t) : string list * Stmt.t list * Stmt.t list =
+  match e_pat with
+  | DefaultPat     -> [], [], []
+  | ObjPat pn_pats -> (let bs, pre_stmts, in_stmts =
+                         List.fold_left (
+                           fun (bs, pre_stmts, in_stmts) pn_pat ->
+                             let bs', pre_stmts', in_stmts' = compile_pn_pat expr pn_pat in
+                             (bs @ bs', pre_stmts @ pre_stmts', in_stmts @ in_stmts')
+                         ) ([],[],[]) pn_pats in
+                       bs, pre_stmts, in_stmts)
+
+
+and compile_pats_stmts (expr : Expr.t) (pat, stmt : E_Pat.t * E_Stmt.t) : Stmt.t list * Expr.t * Stmt.t list =
+  let bs, pre_pat_stmts, in_pat_stmts = compile_pat expr pat in
+  let stmts = compile_stmt stmt in
+  let and_bs = List.fold_left (fun acc b -> Expr.BinOpt (Oper.Log_And, acc, Expr.Var b)) (Expr.Val (Val.Bool true)) bs in
+  let if_stmt = in_pat_stmts @ stmts in
+  pre_pat_stmts, and_bs, if_stmt
+
+
+and compile_matchwith (expr : E_Expr.t) (pats_stmts : (E_Pat.t * E_Stmt.t) list) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in
-  let se_e_ss_list = List.map (fun (e, s) -> (let stmts_e, e' = compile_expr e in
-                                              let stmts_s = compile_stmt s in
-                                              stmts_e, e', stmts_s)
-                              ) exprs_stmts in
-  match List.rev se_e_ss_list with
-  | []                -> [Stmt.Skip]
-  | (se, e, ss)::[]   -> se @ [Stmt.If (Expr.BinOpt (Oper.Equal, expr', e), Stmt.Seq ss, None)]
-  | (se, e, ss)::rest -> (let last_if = se @ [Stmt.If (Expr.BinOpt (Oper.Equal, expr', e), Stmt.Seq ss, None)] in
-                          stmts_expr @ List.fold_left (fun acc (se, e, ss) -> se @ [Stmt.If (Expr.BinOpt (Oper.Equal, expr', e), Stmt.Seq ss, (Some (Stmt.Seq acc)))]
-                                                      ) last_if rest)
+  let pat_stmts_bs_stmts_list = List.rev (List.map (compile_pats_stmts expr') pats_stmts) in
+  let chained_ifs = match pat_stmts_bs_stmts_list with
+    | []                                -> []
+    | (pat_stmts, bs_expr, stmts)::rest -> (let last_if = pat_stmts @ [Stmt.If (bs_expr, Stmt.Block stmts, None)] in
+                                            List.fold_left (fun acc (ps, be, ss) ->
+                                                ps @ [Stmt.If (be, Stmt.Block ss, Some (Stmt.Block acc))]) last_if rest
+                                           ) in
+  stmts_expr @ chained_ifs
 
 
 and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
@@ -138,13 +175,13 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | FieldDelete (e_e, e_f)          -> compile_fielddelete e_e e_f
   | ExprStmt e_e                    -> compile_exprstmt e_e
   | RepeatUntil (e_s, e_e)          -> compile_repeatuntil e_s e_e
-  | MatchWith (e_e, e_exps_e_stmts) -> compile_matchwith e_e e_exps_e_stmts
+  | MatchWith (e_e, e_pats_e_stmts) -> compile_matchwith e_e e_pats_e_stmts
 
 
 let compile_func (e_func : E_Func.t) : Func.t =
-  let fname = E_Func.get_name e_func and
-    fparams = E_Func.get_params e_func and
-    fbody = E_Func.get_body e_func in
+  let fname = E_Func.get_name e_func in
+  let fparams = E_Func.get_params e_func in
+  let fbody = E_Func.get_body e_func in
   let stmt_list = compile_stmt fbody in
   Func.create fname fparams (Stmt.Block stmt_list)
 
