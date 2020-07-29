@@ -8,20 +8,23 @@ let generate_fresh_var = make_fresh_var_generator "___temp"
 
 
 let rec compile_binopt (binop : Oper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) : Stmt.t list * Expr.t =
+  let var = generate_fresh_var () in
   let stmts_1, e1 = compile_expr e_e1 in
   let stmts_2, e2 = compile_expr e_e2 in
-  stmts_1 @ stmts_2, Expr.BinOpt (binop, e1, e2)
+  stmts_1 @ stmts_2 @ [Stmt.Assign (var, Expr.BinOpt (binop, e1, e2))], Expr.Var var
 
 
 and compile_unopt (op : Oper.uopt) (expr : E_Expr.t) : Stmt.t list * Expr.t =
+  let var = generate_fresh_var () in
   let stmts_expr, expr' = compile_expr expr in
-  stmts_expr, Expr.UnOpt (op, expr')
+  stmts_expr @ [Stmt.Assign (var, Expr.UnOpt (op, expr'))], Expr.Var var
 
 
 and compile_nopt (nop : Oper.nopt) (e_exprs : E_Expr.t list) : Stmt.t list * Expr.t =
+  let var = generate_fresh_var () in
   let stmts_exprs = List.map compile_expr e_exprs in
   let stmts, exprs = List.split stmts_exprs in
-  List.concat stmts, Expr.NOpt (nop, exprs)
+  (List.concat stmts) @ [Stmt.Assign (var, Expr.NOpt (nop, exprs))], Expr.Var var
 
 
 and compile_call (fname : E_Expr.t) (fargs : E_Expr.t list) : Stmt.t list * Expr.t =
