@@ -40,7 +40,7 @@ and compile_newobj (e_fes : (string * E_Expr.t) list) : Stmt.t list * Expr.t =
   let newObj = Stmt.AssignNewObj var in
   let stmts = List.map (fun (pn, e) -> let stmts, e' = compile_expr e in
                          stmts @ [Stmt.FieldAssign(Expr.Var var, Expr.Val (Val.Str pn), e')]) e_fes in
-  [newObj] @ List.concat stmts, Expr.Var var
+  newObj :: List.concat stmts, Expr.Var var
 
 
 and compile_access (expr : E_Expr.t) (field : E_Expr.t) : Stmt.t list * Expr.t =
