@@ -4,7 +4,7 @@ let make_fresh_var_generator (pref : string) : (unit -> string) =
     count := x+1; pref ^ (string_of_int x)
 
 
-let generate_fresh_var = make_fresh_var_generator "___temp"
+let generate_fresh_var = make_fresh_var_generator "__v"
 
 
 let rec compile_binopt (binop : Oper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) : Stmt.t list * Expr.t =
