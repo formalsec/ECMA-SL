@@ -138,6 +138,8 @@ e_stmt_target:
     { E_Stmt.Return e }
   | e = e_expr_target;
     { E_Stmt.ExprStmt e }
+  | REPEAT; s = e_stmt_target;
+    { E_Stmt.RepeatUntil (s, E_Expr.Val (Val.Bool true)) }
   | REPEAT; s = e_stmt_target; UNTIL; e = e_expr_target;
     { E_Stmt.RepeatUntil (s, e) }
   | MATCH; e = e_expr_target; WITH; PIPE; pat_stmts = separated_list (PIPE, pat_stmt_target);
