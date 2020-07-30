@@ -13,10 +13,10 @@
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
-%token PERIOD COMMA SEMICOLON COLON PIPE
+%token PERIOD COMMA SEMICOLON COLON
 %token DELETE
 %token REPEAT UNTIL
-%token MATCH WITH
+%token MATCH WITH PIPE RIGHT_ARROW NONE DEFAULT
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -140,8 +140,8 @@ e_stmt_target:
     { E_Stmt.ExprStmt e }
   | REPEAT; s = e_stmt_target; UNTIL; e = e_expr_target;
     { E_Stmt.RepeatUntil (s, e) }
-  | MATCH; e = e_expr_target; WITH; ptrn_stmts = list (pattern_statement_target);
-    { E_Stmt.MatchWith (e, ptrn_stmts) }
+  | MATCH; e = e_expr_target; WITH; PIPE; pat_stmts = separated_list (PIPE, pat_stmt_target);
+    { E_Stmt.MatchWith (e, pat_stmts) }
 
 (* if (e) { s } | if (e) {s} else { s } *)
 ifelse_target:
@@ -150,10 +150,24 @@ ifelse_target:
   | IF; LPAREN; e = e_expr_target; RPAREN; LBRACE; s = e_stmt_target; RBRACE;
     { E_Stmt.If (e, s, None) }
 
+(* { p: v | "x" ! None } -> s | default -> s *)
+pat_stmt_target:
+  | p = e_pat_target; RIGHT_ARROW; s = e_stmt_target;
+    { (p, s) }
 
-pattern_statement_target:
-  | PIPE; e = e_expr_target; COLON; s = e_stmt_target;
-    { (e, s) }
+e_pat_target:
+  | LBRACE; pn_patv = separated_list (COMMA, e_pat_v_target); RBRACE;
+    { E_Pat.ObjPat pn_patv }
+  | DEFAULT;
+    { E_Pat.DefaultPat }
+
+e_pat_v_target:
+  | pn = VAR; COLON; v = VAR;
+    { (pn, E_Pat_v.PatVar v) }
+  | pn = VAR; COLON; v = val_target;
+    { (pn, E_Pat_v.PatVal v) }
+  | pn = VAR; COLON; NONE;
+    { (pn, E_Pat_v.PatNone) }
 
 op_target:
   | MINUS   { Oper.Minus }
