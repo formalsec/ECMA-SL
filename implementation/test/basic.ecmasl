@@ -3,7 +3,7 @@ function main() {
  y := 1;
 
  while(y<3){
- x:=x +1
+ y:=y +1
  };
  return x
 }

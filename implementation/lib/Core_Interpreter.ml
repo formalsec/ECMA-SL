@@ -7,7 +7,7 @@ type return =
 let add_fields_to (obj : Object.t) (fes : (Field.t * Expr.t) list) (eval_e : (Expr.t -> Val.t)) : unit =
   List.iter (fun (f, e) -> let e' = eval_e e in Object.set obj f e') fes
 
-(*EDIT TO: Op.ml*)
+
 let eval_inobj_expr (heap : Heap.t) (field : Val.t) (loc : Val.t) : Val.t =
   let b = match loc, field with
     | Loc l, Str f -> Heap.get_field heap l f
@@ -16,14 +16,14 @@ let eval_inobj_expr (heap : Heap.t) (field : Val.t) (loc : Val.t) : Val.t =
   | Some v -> Bool (true)
   | None -> Bool (false)
 
-(*EDIT TO: Op.ml*)
+
 let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   match op with
   | Neg    -> Oper.neg v
   | Not    -> Oper.not v
   | Typeof -> Oper.typeof v
 
-(*EDIT TO: Op.ml*)
+
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   match op with
   | Plus    -> Oper.plus (v1, v2)
@@ -39,7 +39,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Log_Or  -> Oper.log_or (v1, v2)
   | _ -> raise(Except "Not expected")
 
-(*EDIT TO: Op.ml*)
+
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   match op with
   | ListExpr -> Val.List vals
@@ -55,6 +55,13 @@ let rec eval_expr (prog : Prog.t) (sto : Store.t) (e : Expr.t) : Val.t =
     and v2 = eval_expr prog sto e2 in
     eval_binopt_expr bop v1 v2
   | NOpt (nop, es)       -> eval_nopt_expr nop (List.map (eval_expr prog sto) es)
+
+let prepare_call  (prog:Prog.t) (cs:Callstack.t)(sto: Store.t) (cont: Stmt.t list) (x:string) (es:Expr.t list) (f:Expr.t): (Callstack.t * Store.t ) =
+  let cs' = Callstack.push cs (Callstack.Intermediate (cont, sto, x)) in
+  let vs = (List.map (eval_expr prog sto) es) in
+  let pvs = List.combine (Prog.get_params prog (Expr.str f)) vs in
+  let sto_aux = Store.create pvs in
+  (cs', sto_aux)
 
 let eval_inobj_expr (prog: Prog.t) (heap : Heap.t) (sto : Store.t) (field : Expr.t) (loc : Expr.t) : Val.t =
   let loc' = eval_expr prog sto loc in
@@ -88,9 +95,7 @@ and eval_fieldassign_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e_o :
   Heap.set_field heap loc' field' v
 
 
-
 (* \/ ======================================= Main InterpreterFunctions ======================================= \/ *)
-
 
 
 let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: Store.t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : (return * SecLabel.t)  =
@@ -140,16 +145,11 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
     let stms= Stmt.If (e, (Stmt.Block s1), None) in
     (Intermediate (cs, (stms :: cont),sto, heap), SecLabel.EmptyLab)
 
-  | AssignCall (x,f,es) -> let cs' = Callstack.push cs (Callstack.Intermediate (cont, sto, x)) in
-    (*Criar uma func para gerar stores, etc*)
-    let vs = (List.map (eval_expr prog sto) es) in
-    let pvs = List.combine (Prog.get_params prog (Expr.str f)) vs in
-    let sto_aux = Store.create pvs in
+  | AssignCall (x,f,es) -> let (cs', sto_aux) = prepare_call  prog cs sto cont x es f in
     let func = (Prog.get_func prog (Expr.str f)) in
     let (cont':Stmt.t) = func.body in
     let aux_list= (cont'::[]) in
     (Intermediate (cs', aux_list, sto_aux, heap), SecLabel.CallLab (es,x,(Expr.str f)))
-  (*Retirar recursividade -> passar loc e field *)
 
   |AssignInObjCheck (st, e1, e2) ->
     let v= eval_inobj_expr prog heap sto e1 e2 in
@@ -166,32 +166,29 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
 
   | AssignAccess (st, ef, ep) -> let loc= eval_expr prog sto ef in
     let field = eval_expr prog  sto ep in
-    let loc' = (match loc with
-        | Loc loc -> loc
-        | _       -> invalid_arg "Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc") in
+    (match loc,field with
+    | Loc loc', Str field' -> (let v = Heap.get_field heap loc' field' in
+                               let v' =(match v with
+                                   | None    -> Val.Undef
+                                   | Some v'' -> v''
+                                 ) in
+                               Store.set sto st v';
+                               print_string ("STORE: " ^ st ^ " <- " ^   Val.str v' ^"\n");
+                               (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,ep)))
+    | _       -> invalid_arg "Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc"
+    )
 
-    let field' = (match field with
-        | Str field -> field
-        | _         -> invalid_arg "Exception in Interpreter.eval_access_expr : \"f\" didn't evaluate to Str") in
-    let v = Heap.get_field heap loc' field' in
-    let v' =(match v with
-        | None    -> Val.Undef
-        | Some v'' -> v''
-      ) in
-    Store.set sto st v';
-    print_string ("STORE: " ^ st ^ " <- " ^   Val.str v' ^"\n");
-    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,ep (*Tenho que trabalhar esta expressao*)))
 
-  | FieldAssign (e_o, f, e_v) -> eval_fieldassign_stmt prog heap sto e_o f e_v;
-    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e_v))
+    | FieldAssign (e_o, f, e_v) -> eval_fieldassign_stmt prog heap sto e_o f e_v;
+      (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e_v))
 
-  | FieldDelete (e, f)        -> eval_fielddelete_stmt prog heap sto e f;
-    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e))
+    | FieldDelete (e, f)        -> eval_fielddelete_stmt prog heap sto e f;
+      (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e))
 
 
 
 
-  | _ ->   raise(Except "Unknown Op")(*ERROR*)
+    | _ ->   raise(Except "Unknown Op")(*ERROR*)
 
 (*This function will iterate smallsteps in a list of functions*)
 and  small_step_iter (prog:Prog.t) (cs:Callstack.t) (heap:Heap.t) (sto:Store.t) (stmts:Stmt.t list)  (verbose:bool): return =
