@@ -15,10 +15,11 @@ function main() {
   z := f(g(h(3)));
 
   i := 0;
-  repeat i := i + 1 until i <= 4;
+  repeat { i := i + 1 } until i <= 4;
 
   match x.c with
-  | { a: true } : z(2)
-  | { b: true } : z(3)
-  | { c: true } : z(4)
+  | { type: "var", vname: x } -> { z(2) }
+  | { prop: w, vname: None } -> { z(3) }
+  | { prop: w, vname: y } -> { y+w }
+  | default -> { z(4) }
 }
