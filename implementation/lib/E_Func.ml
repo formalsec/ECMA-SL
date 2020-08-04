@@ -22,6 +22,5 @@ let str (func : t) : string =
   ^ func.name
   ^ " ("
   ^ print_list func.params
-  ^ ") { "
+  ^ ") "
   ^ E_Stmt.str func.body
-  ^ " }"

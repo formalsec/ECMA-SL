@@ -55,19 +55,24 @@ and compile_assign (var : string) (e_exp : E_Expr.t) : Stmt.t list =
   stmts @ [Stmt.Assign (var, aux_var)]
 
 
+and compile_block (e_stmts : E_Stmt.t list) : Stmt.t list =
+  let stmts_lists = List.map (compile_stmt) e_stmts in
+  List.concat stmts_lists
+
+
 and compile_if (expr : E_Expr.t) (stmt1 : E_Stmt.t) (stmt2 : E_Stmt.t option) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in
-  let stmts_s1 = Stmt.Seq (compile_stmt stmt1) in
+  let stmts_s1 = Stmt.Block (compile_stmt stmt1) in
   let stmts_s2 = match stmt2 with
     | None    -> None
-    | Some s2 -> Some (Stmt.Seq (compile_stmt s2)) in
+    | Some s2 -> Some (Stmt.Block (compile_stmt s2)) in
   stmts_expr @ [Stmt.If (expr', stmts_s1, stmts_s2)]
 
 
 and compile_while (expr : E_Expr.t) (stmt : E_Stmt.t) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in
   let stmts_stmt = compile_stmt stmt in
-  stmts_expr @ [Stmt.While (expr', Stmt.Seq stmts_stmt)]
+  stmts_expr @ [Stmt.While (expr', Stmt.Block stmts_stmt)]
 
 
 and compile_return (expr : E_Expr.t) : Stmt.t list =
@@ -97,7 +102,7 @@ and compile_repeatuntil (stmt : E_Stmt.t) (expr : E_Expr.t) : Stmt.t list =
   let stmts_stmt = compile_stmt stmt in
   let stmts_expr, expr' = compile_expr expr in
   let stmts = stmts_stmt @ stmts_expr in
-  stmts @ [Stmt.While (expr', Stmt.Seq stmts)]
+  stmts @ [Stmt.While (expr', Stmt.Block stmts)]
 
 
 and compile_patv (expr: Expr.t) (pname : string) (pat_v : E_Pat_v.t) (var_b : string) : string list * Stmt.t list * Stmt.t list =
@@ -167,7 +172,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   match e_stmt with
   | Skip                            -> [Stmt.Skip]
   | Assign (v, e_exp)               -> compile_assign v e_exp
-  | Seq (e_s1, e_s2)                -> compile_stmt e_s1 @ compile_stmt e_s2
+  | Block (e_stmts)                 -> compile_block e_stmts
   | If (e_e, e_s1, e_s2)            -> compile_if e_e e_s1 e_s2
   | While (e_exp, e_s)              -> compile_while e_exp e_s
   | Return e_exp                    -> compile_return e_exp

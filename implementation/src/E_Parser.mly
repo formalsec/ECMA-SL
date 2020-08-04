@@ -31,7 +31,6 @@
 %left PLUS MINUS
 %left TIMES DIVIDE
 %left EQUAL
-%left SEMICOLON
 
 %nonassoc binopt_prec
 %nonassoc unopt_prec
@@ -55,14 +54,14 @@ e_prog_e_expr_target:
   | e = e_expr_target; EOF; { e }
 
 e_prog_e_stmt_target:
-  | s = e_stmt_target; EOF; { s }
+  | s = e_block_target; EOF; { s }
 
 e_prog_target:
   | funcs = separated_list (SEMICOLON, proc_target); EOF;
    { E_Prog.create funcs }
 
 proc_target:
-  | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; LBRACE; s = e_stmt_target; RBRACE
+  | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; s = e_block_target;
    { E_Func.create f vars s }
 
 (*
@@ -114,6 +113,11 @@ fv_target:
   | f = VAR; COLON; e = e_expr_target;
     { (f, e) }
 
+(* { s1; ...; sn } *)
+e_block_target:
+  | LBRACE; stmts = separated_list (SEMICOLON, e_stmt_target); RBRACE;
+    { E_Stmt.Block stmts }
+
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return | repeat s until e*)
 e_stmt_target:
   | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;
@@ -128,33 +132,31 @@ e_stmt_target:
     { E_Stmt.Skip }
   | v = VAR; DEFEQ; e = e_expr_target;
     { E_Stmt.Assign (v, e) }
-  | s1 = e_stmt_target; SEMICOLON; s2 = e_stmt_target;
-    { E_Stmt.Seq (s1, s2) }
   | exps_stmts = ifelse_target;
     { exps_stmts }
-  | WHILE; LPAREN; e = e_expr_target; RPAREN; LBRACE; s = e_stmt_target; RBRACE;
+  | WHILE; LPAREN; e = e_expr_target; RPAREN; s = e_block_target;
     { E_Stmt.While (e, s) }
   | RETURN; e = e_expr_target;
     { E_Stmt.Return e }
   | e = e_expr_target;
     { E_Stmt.ExprStmt e }
-  | REPEAT; s = e_stmt_target;
+  | REPEAT; s = e_block_target;
     { E_Stmt.RepeatUntil (s, E_Expr.Val (Val.Bool true)) }
-  | REPEAT; s = e_stmt_target; UNTIL; e = e_expr_target;
+  | REPEAT; s = e_block_target; UNTIL; e = e_expr_target;
     { E_Stmt.RepeatUntil (s, e) }
   | MATCH; e = e_expr_target; WITH; PIPE; pat_stmts = separated_list (PIPE, pat_stmt_target);
     { E_Stmt.MatchWith (e, pat_stmts) }
 
-(* if (e) { s } | if (e) {s} else { s } *)
+(* if (e) { s } | if (e) { s } else { s } *)
 ifelse_target:
-  | IF; LPAREN; e = e_expr_target; RPAREN; LBRACE; s1 = e_stmt_target; RBRACE; ELSE; LBRACE; s2 = e_stmt_target; RBRACE;
+  | IF; LPAREN; e = e_expr_target; RPAREN; s1 = e_block_target; ELSE; s2 = e_block_target;
     { E_Stmt.If (e, s1, Some s2) }
-  | IF; LPAREN; e = e_expr_target; RPAREN; LBRACE; s = e_stmt_target; RBRACE;
+  | IF; LPAREN; e = e_expr_target; RPAREN; s = e_block_target;
     { E_Stmt.If (e, s, None) }
 
 (* { p: v | "x" ! None } -> s | default -> s *)
 pat_stmt_target:
-  | p = e_pat_target; RIGHT_ARROW; s = e_stmt_target;
+  | p = e_pat_target; RIGHT_ARROW; s = e_block_target;
     { (p, s) }
 
 e_pat_target:
