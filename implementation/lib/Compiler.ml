@@ -72,7 +72,7 @@ and compile_if (expr : E_Expr.t) (stmt1 : E_Stmt.t) (stmt2 : E_Stmt.t option) : 
 and compile_while (expr : E_Expr.t) (stmt : E_Stmt.t) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in
   let stmts_stmt = compile_stmt stmt in
-  stmts_expr @ [Stmt.While (expr', Stmt.Block stmts_stmt)]
+  stmts_expr @ [Stmt.While (expr', Stmt.Block (stmts_stmt @ stmts_expr))]
 
 
 and compile_return (expr : E_Expr.t) : Stmt.t list =
