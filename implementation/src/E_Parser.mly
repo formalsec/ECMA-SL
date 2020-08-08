@@ -71,6 +71,10 @@ proc_target:
     to produce values that are attached to the nonterminal in the rule.
 *)
 
+/* tuple_target:
+  | vs = separated_nonempty_list (COMMA, val_target);
+    { vs } */
+
 (* v ::= f | i | b | s *)
 val_target:
   | f = FLOAT;
@@ -83,6 +87,8 @@ val_target:
     { let len = String.length s in
       let sub = String.sub s 1 (len - 2) in
       Val.Str sub } (* Remove the double-quote characters from the parsed string *)
+  /* | LPAREN; t = tuple_target; RPAREN;
+    { Val.Tuple t } */
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 e_expr_target:
@@ -132,8 +138,8 @@ e_stmt_target:
     { E_Stmt.Skip }
   | v = VAR; DEFEQ; e = e_expr_target;
     { E_Stmt.Assign (v, e) }
-  | exps_stmts = ifelse_target;
-    { exps_stmts }
+  | e_stmt = ifelse_target;
+    { e_stmt }
   | WHILE; LPAREN; e = e_expr_target; RPAREN; s = e_block_target;
     { E_Stmt.While (e, s) }
   | RETURN; e = e_expr_target;
