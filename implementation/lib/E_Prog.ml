@@ -3,15 +3,20 @@ type t = {
   funcs   : (string, E_Func.t) Hashtbl.t
 }
 
+let add_funcs (prog : t) (funcs : E_Func.t list) : unit =
+  List.iter (fun (f : E_Func.t) -> match Hashtbl.find_opt prog.funcs f.name with
+      | None   -> Hashtbl.add prog.funcs f.name f
+      | Some _ -> invalid_arg ("Function \"" ^ f.name ^ "\" already exists in the program")
+    ) funcs
+
+
 let create (imports : string list) (funcs : E_Func.t list) : t =
   let prog = {
     imports;
     funcs   = Hashtbl.create 511
   } in
-  List.iter (fun (f : E_Func.t) -> Hashtbl.add prog.funcs f.name f) funcs;
-  match Hashtbl.find_opt prog.funcs "main" with
-    None   -> invalid_arg "Missing main function"
-  | Some _ -> prog
+  add_funcs prog funcs;
+  prog
 
 let get_func (prog : t) (func : string) : E_Func.t = Hashtbl.find prog.funcs func
 

@@ -28,3 +28,14 @@ let parse_file str : Prog.t =
   let str = load_file str in
   let fs = parse_prog str in
   fs
+
+let rec resolve_imports (prog : E_Prog.t) : E_Prog.t =
+  let imported_funcs = List.fold_left (fun acc i -> (resolve_import i) @ acc) [] prog.imports in
+  E_Prog.add_funcs prog imported_funcs; prog
+
+and resolve_import (import : string) : E_Func.t list =
+  let e_prog_contents = load_file import in
+  let e_prog = parse_e_prog e_prog_contents in
+  let e_prog_resolved = resolve_imports e_prog in
+  let funcs = Hashtbl.fold (fun fname func acc -> acc @ [func]) e_prog_resolved.funcs [] in
+  funcs
