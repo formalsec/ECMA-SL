@@ -185,11 +185,6 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
     | FieldDelete (e, f)        -> eval_fielddelete_stmt prog heap sto e f;
       (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e))
 
-
-
-
-    | _ ->   raise(Except "Unknown Op")(*ERROR*)
-
 (*This function will iterate smallsteps in a list of functions*)
 and  small_step_iter (prog:Prog.t) (cs:Callstack.t) (heap:Heap.t) (sto:Store.t) (stmts:Stmt.t list)  (verbose:bool): return =
   print_string "small_iter";
