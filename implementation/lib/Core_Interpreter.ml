@@ -43,6 +43,8 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   match op with
   | ListExpr -> Val.List vals
+  | NAry_And -> Val.Bool (List.for_all Oper.is_true vals)
+  | NAry_Or  -> Val.Bool (List.exists Oper.is_true vals)
 
 
 let rec eval_expr (prog : Prog.t) (sto : Store.t) (e : Expr.t) : Val.t =
