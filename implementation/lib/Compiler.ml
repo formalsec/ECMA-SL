@@ -193,4 +193,4 @@ let compile_func (e_func : E_Func.t) : Func.t =
 
 let compile_prog (e_prog : E_Prog.t) : Prog.t =
   let funcs = Hashtbl.fold (fun fname func acc -> acc @ [compile_func func]) e_prog.funcs [] in
-  Prog.create e_prog.imports funcs
+  Prog.create funcs

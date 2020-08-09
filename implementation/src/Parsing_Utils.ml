@@ -2,7 +2,7 @@
 let parse_prog (str : string) : Prog.t  =
   let lexbuf = Lexing.from_string str in
   let funcs= Parser.prog_target Lexer.read lexbuf in
-  Prog.create [] funcs
+  Prog.create funcs
 
 let parse_e_expr (str : string) : E_Expr.t =
   let lexbuf = Lexing.from_string str in
