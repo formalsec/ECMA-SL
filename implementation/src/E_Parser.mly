@@ -24,6 +24,7 @@
 %token <string> STRING
 %token LAND LOR
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN NOT
+%token IMPORT
 %token EOF
 
 %left LAND LOR
@@ -57,8 +58,14 @@ e_prog_e_stmt_target:
   | s = e_block_target; EOF; { s }
 
 e_prog_target:
-  | funcs = separated_list (SEMICOLON, proc_target); EOF;
-   { E_Prog.create funcs }
+  | imports = list (import_target); funcs = separated_list (SEMICOLON, proc_target); EOF;
+   { E_Prog.create imports funcs }
+
+import_target:
+  | IMPORT; fname = STRING; SEMICOLON;
+    { let len = String.length fname in
+      let sub = String.sub fname 1 (len - 2) in
+      sub }
 
 proc_target:
   | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; s = e_block_target;

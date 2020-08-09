@@ -69,6 +69,7 @@ rule read =
   | '['          { LBRACK }
   | ']'          { RBRACK }
   | '|'          { PIPE }
+  | "import"     { IMPORT }
   | "->"         { RIGHT_ARROW }
   | "None"       { NONE }
   | "default"    { DEFAULT }
