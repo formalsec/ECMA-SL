@@ -25,8 +25,7 @@
 %token <string> VAR
 %token <string> STRING
 %token LAND LOR
-%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN NOT
-%token IMPORT
+%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN NOT LEN
 %token EOF
 
 %left LAND LOR
@@ -121,6 +120,8 @@ e_expr_target:
     { E_Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
   | NOT; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
+  | LEN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Len, e) } %prec unopt_prec
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
     { E_Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
   | f = e_expr_target; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;

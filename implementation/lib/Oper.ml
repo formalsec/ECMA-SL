@@ -14,6 +14,7 @@ type bopt = Plus
 type uopt = Neg
           | Not
           | Typeof
+          | Len
 
 type nopt = ListExpr
           | NAry_And
@@ -85,7 +86,6 @@ let is_true (v : Val.t) : bool = match v with
   | Bool v -> v
   | _      -> invalid_arg "Exception in Val.is_true: argument is not boolean"
 
-
 let typeof (v : Val.t) : Val.t = match v with
   | Int v  -> Type (Type.IntType)
   | Flt v  -> Type (Type.FltType)
@@ -95,10 +95,15 @@ let typeof (v : Val.t) : Val.t = match v with
   | Type v -> invalid_arg "Exception in Val.typeof: not implemented for Type type argument"
   | _      -> invalid_arg "Exception in Val.typeof: invalid argument"
 
+let len (v : Val.t) : Val.t = match v with
+  | List v  -> Val.Int (List.length v)
+  | _       -> invalid_arg "Exception in Oper.len: this operation is only applicable to List arguments"
+
 let str_of_unopt (op : uopt) : string = match op with
   | Neg    -> "-"
   | Not    -> "!"
   | Typeof -> "typeof"
+  | Len    -> "len"
 
 let str_of_binopt (op : bopt) : string = match op with
   | Plus    -> "+"

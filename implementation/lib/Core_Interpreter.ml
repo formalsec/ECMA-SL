@@ -22,6 +22,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Neg    -> Oper.neg v
   | Not    -> Oper.not v
   | Typeof -> Oper.typeof v
+  | Len    -> Oper.len v
 
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =

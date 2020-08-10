@@ -59,6 +59,7 @@ rule read =
   | "<="         { ELT }
   | "in"         { IN }
   | '!'          { NOT }
+  | "len"        { LEN }
   | "&&"         { LOR }
   | "||"		     { LAND }
   | '('          { LPAREN }
