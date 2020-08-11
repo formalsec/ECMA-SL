@@ -178,7 +178,11 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
                                Store.set sto st v';
                                print_string ("STORE: " ^ st ^ " <- " ^   Val.str v' ^"\n");
                                (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,ep)))
-    | _       -> invalid_arg "Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc"
+     | List l, Int i        -> (let v = List.nth l i in
+                                Store.set sto st v;
+                                print_string ("STORE: " ^ st ^ " <- " ^   Val.str v ^"\n");
+                                (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,ep)))
+     | _                    -> invalid_arg ("Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc nor to List.")
     )
 
 
