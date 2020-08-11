@@ -158,6 +158,8 @@ e_stmt_target:
     { E_Stmt.While (e, s) }
   | RETURN; e = e_expr_target;
     { E_Stmt.Return e }
+  | RETURN;
+    { E_Stmt.Return (E_Expr.Val Val.Void) }
   | e = e_expr_target;
     { E_Stmt.ExprStmt e }
   | REPEAT; s = e_block_target;
