@@ -60,8 +60,8 @@ rule read =
   | "in"         { IN }
   | '!'          { NOT }
   | "len"        { LEN }
-  | "&&"         { LOR }
-  | "||"		     { LAND }
+  | "&&"         { LAND }
+  | "||"		     { LOR }
   | '('          { LPAREN }
   | ')'          { RPAREN }
   | '{'          { LBRACE }
