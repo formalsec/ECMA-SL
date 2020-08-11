@@ -110,7 +110,7 @@ let str_of_binopt (op : bopt) : string = match op with
   | Minus   -> "-"
   | Times   -> "*"
   | Div     -> "/"
-  | Equal   -> "=="
+  | Equal   -> "="
   | Gt      -> ">"
   | Lt      -> "<"
   | Egt     -> ">="

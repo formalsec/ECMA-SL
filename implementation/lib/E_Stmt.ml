@@ -12,15 +12,15 @@ type t = Skip
 
 let rec str (stmt : t) : string = match stmt with
     Skip                      -> ""
-  | Assign (v, exp)           -> v ^ " = " ^ (E_Expr.str exp)
+  | Assign (v, exp)           -> v ^ " := " ^ (E_Expr.str exp)
   | Block stmts               -> "{ " ^ String.concat ";" (List.map str stmts) ^ " }"
   | If (e, s1, s2)            -> (let v = "if (" ^ E_Expr.str e ^ ") " ^ str s1 in
                                   match s2 with
                                   | None   -> v
                                   | Some s -> v ^ " else " ^ str s)
   | While (exp, s)            -> "while (" ^ (E_Expr.str exp) ^ ") " ^ (str s)
-  | Return exp                -> "return " ^ (E_Expr.str exp) ^ ";"
-  | FieldAssign (e_o, f, e_v) -> E_Expr.str e_o ^ "[" ^ E_Expr.str f ^ "] = " ^ E_Expr.str e_v
+  | Return exp                -> "return " ^ (E_Expr.str exp)
+  | FieldAssign (e_o, f, e_v) -> E_Expr.str e_o ^ "[" ^ E_Expr.str f ^ "] := " ^ E_Expr.str e_v
   | FieldDelete (e, f)        -> "delete " ^ E_Expr.str e ^ "[" ^ E_Expr.str f ^ "]"
   | ExprStmt e                -> E_Expr.str e
   | RepeatUntil (s, e)        -> "repeat " ^ str s ^ " until " ^ E_Expr.str e
