@@ -26,6 +26,7 @@
 %token <string> STRING
 %token LAND LOR
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN NOT LEN
+%token IMPORT
 %token EOF
 
 %left LAND LOR
