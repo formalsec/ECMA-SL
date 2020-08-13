@@ -5,9 +5,10 @@ type t =
   | MergeLab
   | CallLab of ((Expr.t list)* string * string)
   | RetLab of Expr.t
-  | UpgradeVarLab of (string * SecLevel.t)
-  | UpgradePropVal
-  | UpgradePropLevel
+  | UpgVarLab of (string * SecLevel.t)
+  | UpgPropLab of (Loc.t * string * SecLevel.t)
+  | UpgStructLab of (Loc.t * SecLevel.t)
+  | UpgMetaLab of (string(*Metadata???*) * SecLevel.t)
  
 
 let str (label :t) : string =
@@ -19,8 +20,12 @@ let str (label :t) : string =
   |BranchLab (exp, stmt) -> "BranchLab (" ^(Expr.str exp) ^"),{ "^(Stmt.str stmt)^"}"
   |CallLab (exp,x,f)-> "CallLab ("^(String.concat "; " (List.map Expr.str exp))^", "^ x^")"
   
-let intercept (func:string) (vs:Val.t list): t option =
+let interceptor (func:string) (vs:Val.t list): t option =
    match (func,vs) with
-   | ("upgVar",[Val.Str x; Val.Str lev_str]) ->  UpgradeVarLab(x,SecLevel.parse_lvl lev_str)
+   | ("upgVar",[Val.Str x; Val.Str lev_str]) ->  Some (UpgVarLab (x,SecLevel.parse_lvl lev_str))
+   | ("upgProp",[Val.Loc loc; Val.Str x; Val.Str lev_str])-> Some (UpgPropLab (loc,x,SecLevel.parse_lvl lev_str))
+   | ("upgStruct",[Val.Loc loc; Val.Str lev_str])-> Some (UpgStructLab (loc, SecLevel.parse_lvl lev_str))
+   | ("upgMeta",[Val.Str x; Val.Str lev_str])-> Some (UpgMetaLab (x, SecLevel.parse_lvl lev_str))
+   |_ -> None
    
    (*Ver tese andre para checkar todas a labels*)

@@ -29,6 +29,7 @@ let compile_from_plus_to_core () : unit =
   print_endline (Prog.str c_prog)
 
 let core_interpretation () : unit =
+  let interceptor = SecLabel.interceptor in
   let prog_contents = Parsing_Utils.load_file !file in
   let prog = Parsing_Utils.parse_prog prog_contents in
   let v = Core_Interpreter.eval_prog interceptor prog [] (Heap.create ()) !out !verb_aux "main" in

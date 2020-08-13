@@ -155,11 +155,11 @@ let rec eval_small_step (interceptor: string -> Val.t list -> SecLabel.t option)
     let (cs', sto_aux, vs) = prepare_call  prog cs sto cont x es f' in
     let func = (Prog.get_func prog f') in
     let b = interceptor f' vs in
-    match b with
+   ( match b with
      |None -> (let (cont':Stmt.t) = func.body in
                let aux_list= (cont'::[]) in
               (Intermediate (cs', aux_list, sto_aux, heap), SecLabel.CallLab (es,x,(Expr.str f))))
-     |Some lab -> (Intermediate(cs,cont,sto,heap),lab)
+     |Some lab -> (Intermediate(cs,cont,sto,heap),lab))
 
   |AssignInObjCheck (st, e1, e2) ->
     let v= eval_inobj_expr prog heap sto e1 e2 in
