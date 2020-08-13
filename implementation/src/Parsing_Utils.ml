@@ -1,4 +1,4 @@
-
+exception ImportException of string
 let parse_prog (str : string) : Prog.t  =
   let lexbuf = Lexing.from_string str in
   let funcs= Parser.prog_target Lexer.read lexbuf in
@@ -42,14 +42,14 @@ and resolve_import (import : string) : E_Func.t list =
 
 module SS = Set.Make(String)
 
-let rec resolve_imports_2 (to_resolve : string list) (resolved : SS.t) (path : string list) : E_Func.t list = 
+(*let rec resolve_imports_2 (to_resolve : string list) (resolved : SS.t) (path : string list) : E_Func.t list = 
   match to_resolve with 
     | [] -> [] 
     | file :: files ->
       if (SS.mem file resolved) 
         then resolve_imports_2 files resolved path 
         else (if (List.mem file path)
-                then raise (Error "cyclic dependency")
+                then raise (ImportException "cyclic dependency")
                 else (
                   let file_contents = load_file file in
                   let cur_prog = parse_e_prog file_contents in
@@ -81,3 +81,5 @@ let rec resolve_imports_3 (to_resolve : string list list) (resolved : SS.t) (pat
 
 let my_resolve_imports (prog : E_Prog.t) : E_Func.t list = 
    resolve_imports_3  [ prog.imports ] SS.empty [ prog.file_name ] (E_Prog.get_funcs prog)
+   
+   *)

@@ -18,7 +18,7 @@ let rec str (stmt : t) : string = match stmt with
   | Assign (v, exp)             -> v ^ " := " ^ (Expr.str exp)
   | If (e, s1, s2)              -> (let v = "if (" ^ Expr.str e ^ ") { " ^ str s1 ^ " }" in
                                     match s2 with
-                                    | None   -> v
+                                    | None   -> v)
   | Block (block)               -> String.concat "; " (List.map str block)
   | While (exp, s)              -> "while (" ^ (Expr.str exp) ^ ") { " ^ (str s) ^ " }"
   | Return exp                  -> "return " ^ (Expr.str exp)
