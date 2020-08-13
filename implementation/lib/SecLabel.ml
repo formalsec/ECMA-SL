@@ -18,7 +18,11 @@ let str (label :t) : string =
   |RetLab e-> "RetLab ("^ (Expr.str e)^ ")"
   |AsgnLab (st,exp) -> "AsgnLab ("^ (Expr.str exp) ^", "^st ^")"
   |BranchLab (exp, stmt) -> "BranchLab (" ^(Expr.str exp) ^"),{ "^(Stmt.str stmt)^"}"
-  |CallLab (exp,x,f)-> "CallLab ("^(String.concat "; " (List.map Expr.str exp))^", "^ x^")"
+  |CallLab (exp,x,f) -> "CallLab ("^(String.concat "; " (List.map Expr.str exp))^", "^ x^")"
+  |UpgVarLab (x, lvl) -> "UpgVarLab"
+  |UpgPropLab (loc,x, lvl) -> "UpgPropLab"
+  |UpgStructLab (loc, lvl) -> "UpgStructLab"
+  |UpgMetaLab (x, lvl) -> "UpgMetaLab"
   
 let interceptor (func:string) (vs:Val.t list): t option =
    match (func,vs) with
