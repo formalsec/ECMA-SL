@@ -49,7 +49,7 @@ let rec resolve_imports_2 (to_resolve : string list) (resolved : SS.t) (path : s
       if (SS.mem file resolved) 
         then resolve_imports_2 files resolved path 
         else (if (List.mem file path)
-                then raise (Error "cyclic dependency")
+                then failwith "Resolving imports: Cyclic dependency"
                 else (
                   let file_contents = load_file file in
                   let cur_prog = parse_e_prog file_contents in
@@ -71,7 +71,7 @@ let rec resolve_imports_3 (to_resolve : string list list) (resolved : SS.t) (pat
       if (SS.mem file resolved) 
         then resolve_imports_3 files resolved path funcs
         else (if (List.mem file path)
-                then raise (Error "cyclic dependency")
+              then failwith "Resolving imports: Cyclic dependency"
                 else (
                   let file_contents = load_file file in
                   let cur_prog = parse_e_prog file_contents in
