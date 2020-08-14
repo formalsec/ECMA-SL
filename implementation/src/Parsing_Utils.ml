@@ -67,9 +67,9 @@ let rec resolve_imports_3 (to_resolve : string list list) (resolved : SS.t) (pat
     | ([] :: lst, file :: rest_path) ->
       let resolved =  SS.add file resolved in 
       resolve_imports_3 lst resolved rest_path funcs 
-    | file :: files ->
+    | ((file :: files):: _, _) ->
       if (SS.mem file resolved) 
-        then resolve_imports_3 files resolved path funcs
+        then resolve_imports_3 [files] resolved path funcs 
         else (if (List.mem file path)
               then failwith "Resolving imports: Cyclic dependency"
                 else (
@@ -78,6 +78,7 @@ let rec resolve_imports_3 (to_resolve : string list list) (resolved : SS.t) (pat
                   let cur_prog_funcs = E_Prog.get_funcs cur_prog in 
                   resolve_imports_3 (cur_prog.imports :: to_resolve) resolved (file :: path) (funcs @ cur_prog_funcs) 
                 ))
+    | ([]::_, []) -> invalid_arg "Error resolving imports: path is empty and still some imports to resolve."
 
 let my_resolve_imports (prog : E_Prog.t) : E_Func.t list = 
    resolve_imports_3  [ prog.imports ] SS.empty [ prog.file_name ] (E_Prog.get_funcs prog)
