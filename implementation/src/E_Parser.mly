@@ -25,7 +25,8 @@
 %token <string> VAR
 %token <string> STRING
 %token LAND LOR
-%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN NOT LEN
+%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
+%token NOT LEN LNTH
 %token IMPORT
 %token EOF
 
@@ -117,18 +118,32 @@ e_expr_target:
     { E_Expr.Val v }
   | v = VAR;
     { E_Expr.Var v }
+  | f = e_expr_target; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
+    { E_Expr.Call (f, es) }
+  | LPAREN; e = e_expr_target; RPAREN;
+    { e }
+  | pre_un_op_expr = prefix_unary_op_target;
+    { pre_un_op_expr }
+  | pre_bin_op_expr = prefix_binary_op_target;
+    { pre_bin_op_expr }
+  | in_bin_op_expr = infix_binary_op_target;
+    { in_bin_op_expr }
+
+prefix_unary_op_target:
   | MINUS; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
   | NOT; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
   | LEN; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Len, e) } %prec unopt_prec
+
+prefix_binary_op_target:
+  | LNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Lnth, e1, e2) }
+
+infix_binary_op_target:
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
     { E_Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
-  | f = e_expr_target; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
-    { E_Expr.Call (f, es) }
-  | LPAREN; e = e_expr_target; RPAREN;
-    { e }
 
 fv_target:
   | f = VAR; COLON; e = e_expr_target;

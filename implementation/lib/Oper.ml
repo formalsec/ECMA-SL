@@ -10,6 +10,7 @@ type bopt = Plus
           | Log_And
           | Log_Or
           | InObj
+          | Lnth
 
 type uopt = Neg
           | Not
@@ -99,6 +100,10 @@ let len (v : Val.t) : Val.t = match v with
   | List v  -> Val.Int (List.length v)
   | _       -> invalid_arg "Exception in Oper.len: this operation is only applicable to List arguments"
 
+let list_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | List l, Int i -> List.nth l i
+  | _             -> invalid_arg "Exception in Oper.list_nth: this operation is only applicable to List and Int arguments"
+
 let str_of_unopt (op : uopt) : string = match op with
   | Neg    -> "-"
   | Not    -> "!"
@@ -118,6 +123,7 @@ let str_of_binopt (op : bopt) : string = match op with
   | Log_And -> "&&"
   | Log_Or  -> "||"
   | InObj   -> "in"
+  | Lnth    -> "l_nth"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | ListExpr -> "[ " ^ List.fold_left (fun acc ele -> (if acc <> "" then acc ^ ", " else acc) ^ ele) "" es ^ " ]"

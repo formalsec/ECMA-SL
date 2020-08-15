@@ -23,7 +23,8 @@
 %token <string> VAR
 %token <string> STRING
 %token LAND LOR
-%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN NOT LEN
+%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
+%token NOT LEN LNTH
 %token TYPEOF
 %token INT_TYPE
 %token FLT_TYPE
@@ -124,6 +125,8 @@ expr_target:
     { print_string ">UNOP\n"; Expr.UnOpt ( Oper.Typeof, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
     { print_string ">BINOP\n";Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
+  | LNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    {  print_string ">BINOP\n";Expr.BinOpt (Oper.Lnth, e1, e2) }
   | LPAREN; e = expr_target; RPAREN;
     { print_string ">PAREN\n";e }
 

@@ -38,7 +38,8 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Elt     -> Oper.elt (v1, v2)
   | Log_And -> Oper.log_and (v1, v2)
   | Log_Or  -> Oper.log_or (v1, v2)
-  | _ -> raise(Except "Not expected")
+  | Lnth    -> Oper.list_nth (v1, v2)
+  | InObj   -> raise(Except "Not expected")
 
 
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
@@ -170,19 +171,15 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
   | AssignAccess (st, ef, ep) -> let loc= eval_expr prog sto ef in
     let field = eval_expr prog  sto ep in
     (match loc,field with
-    | Loc loc', Str field' -> (let v = Heap.get_field heap loc' field' in
-                               let v' =(match v with
-                                   | None    -> Val.Undef
-                                   | Some v'' -> v''
-                                 ) in
-                               Store.set sto st v';
-                               print_string ("STORE: " ^ st ^ " <- " ^   Val.str v' ^"\n");
-                               (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,ep)))
-     | List l, Int i        -> (let v = List.nth l i in
-                                Store.set sto st v;
-                                print_string ("STORE: " ^ st ^ " <- " ^   Val.str v ^"\n");
+     | Loc loc', Str field' -> (let v = Heap.get_field heap loc' field' in
+                                let v' =(match v with
+                                    | None    -> Val.Undef
+                                    | Some v'' -> v''
+                                  ) in
+                                Store.set sto st v';
+                                print_string ("STORE: " ^ st ^ " <- " ^   Val.str v' ^"\n");
                                 (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,ep)))
-     | _                    -> invalid_arg ("Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc nor to List.")
+     | _                    -> invalid_arg ("Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc.")
     )
 
 
