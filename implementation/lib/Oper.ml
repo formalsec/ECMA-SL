@@ -111,20 +111,20 @@ let str_of_unopt (op : uopt) : string = match op with
   | Typeof -> "typeof"
   | Len    -> "len"
 
-let str_of_binopt (op : bopt) : string = match op with
-  | Plus    -> "+"
-  | Minus   -> "-"
-  | Times   -> "*"
-  | Div     -> "/"
-  | Equal   -> "="
-  | Gt      -> ">"
-  | Lt      -> "<"
-  | Egt     -> ">="
-  | Elt     -> "<="
-  | Log_And -> "&&"
-  | Log_Or  -> "||"
-  | InObj   -> "in"
-  | Lnth    -> "l_nth"
+let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
+  | Plus    -> e1 ^ " + " ^ e2
+  | Minus   -> e1 ^ " - " ^ e2
+  | Times   -> e1 ^ " * " ^ e2
+  | Div     -> e1 ^ " / " ^ e2
+  | Equal   -> e1 ^ " = " ^ e2
+  | Gt      -> e1 ^ " > " ^ e2
+  | Lt      -> e1 ^ " < " ^ e2
+  | Egt     -> e1 ^ " >= " ^ e2
+  | Elt     -> e1 ^ " <= " ^ e2
+  | Log_And -> e1 ^ " && " ^ e2
+  | Log_Or  -> e1 ^ " || " ^ e2
+  | InObj   -> e1 ^ " in " ^ e2
+  | Lnth    -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | ListExpr -> "[ " ^ List.fold_left (fun acc ele -> (if acc <> "" then acc ^ ", " else acc) ^ ele) "" es ^ " ]"
