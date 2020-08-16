@@ -125,7 +125,7 @@ expr_target:
   | LEN; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Len, e) } %prec unopt_prec
   | TYPEOF; e = expr_target;
-    { print_string ">UNOP\n"; Expr.UnOpt ( Oper.Typeof, e) } %prec unopt_prec
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.Typeof, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
     { print_string ">BINOP\n";Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
   | LNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;

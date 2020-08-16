@@ -127,6 +127,6 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Lnth    -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
-  | ListExpr -> "[ " ^ List.fold_left (fun acc ele -> (if acc <> "" then acc ^ ", " else acc) ^ ele) "" es ^ " ]"
+  | ListExpr -> "[ " ^ (String.concat ", " es) ^ " ]"
   | NAry_And -> String.concat " && " es
-  | NAry_Or -> String.concat " || " es
+  | NAry_Or  -> String.concat " || " es

@@ -9,24 +9,25 @@ let create (funcs : Func.t list) : t =
 
 
 let get_func (prog : t ) (id : string) : Func.t =
-  	Hashtbl.find prog id
+  Hashtbl.find prog id
 
 let get_body (prog: t ) (id: string) : Stmt.t=
-	let s = get_func prog id in
-		s.body
+  let s = get_func prog id in
+  s.body
 
 
 let get_params (prog: t ) (id: string) : string list =
-	let s = get_func prog id in
-		s.params
+  let s = get_func prog id in
+  s.params
 
 let get_name (prog: t ) (id: string) : string  =
-	let s = get_func prog id in
-		s.name
+  let s = get_func prog id in
+  s.name
 
 let add_func (prog:t) (k: string) (v : Func.t): unit =
   Hashtbl.replace prog k v
 
 (*------------Strings----------*)
 
-let str (prog : t) : string = Hashtbl.fold (fun n v ac -> (if ac <> "" then ac ^ "\n" else ac) ^ (Printf.sprintf "(%s -> %s)" n (Func.str v))) prog ""
+let str (prog : t) : string =
+  String.concat ";\n" (List.of_seq (Seq.map Func.str (Hashtbl.to_seq_values prog)))

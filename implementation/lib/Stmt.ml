@@ -16,10 +16,11 @@ type t = Skip
 let rec str (stmt : t) : string = match stmt with
     Skip                        -> ""
   | Assign (v, exp)             -> v ^ " := " ^ (Expr.str exp)
-  | If (e, s1, s2)              -> (let v = "if (" ^ Expr.str e ^ ") { " ^ str s1 ^ " }" in
+  | If (e, s1, s2)              -> (let v = "if (" ^ Expr.str e ^ ") {\n" ^ str s1 ^ "\n}" in
                                     match s2 with
                                     | None   -> v
-  | Block (block)               -> String.concat "; " (List.map str block)
+                                    | Some s -> v ^ " else {\n" ^ str s ^ "\n}" )
+  | Block (block)               -> String.concat ";\n" (List.map str block)
   | While (exp, s)              -> "while (" ^ (Expr.str exp) ^ ") { " ^ (str s) ^ " }"
   | Return exp                  -> "return " ^ (Expr.str exp)
   | FieldAssign (e_o, f, e_v)   -> Expr.str e_o ^ "[" ^ Expr.str f ^ "] := " ^ Expr.str e_v

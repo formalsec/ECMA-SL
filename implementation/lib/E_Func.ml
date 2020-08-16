@@ -14,8 +14,7 @@ let get_name (func : t) : string = func.name
 let get_params (func : t) : string list = func.params
 let get_body (func : t) : E_Stmt.t = func.body
 
-let  print_list (lis : string list) : string =
-  String.concat ", "  lis
+let print_list (lis : string list) : string = String.concat ", "  lis
 
 let str (func : t) : string =
   "function "

@@ -33,16 +33,16 @@ let core_interpretation () : unit =
   let prog = Parsing_Utils.parse_prog prog_contents in
   let v = Core_Interpreter.eval_prog prog [] (Heap.create ()) !out !verb_aux "main" in
   match v with
-	|Some z ->	print_string ("MAIN return -> "^(Val.str z))
-	| None -> print_string "ERROR HERE"
+  | Some z -> print_string ("MAIN return -> "^(Val.str z))
+  | None -> print_string "ERROR HERE"
 
 (* Main function - Run *)
 let run ()=
   print_string "=====================\n\tECMA-SL\n=====================\n";
   arguments();
   if (!file = "" && !mode = "" && !out = "") then print_string "No option selected. Use -h"
-  else if (!file = "") then  (print_string "No input file. Use -i\n=====================\n\tFINISHED\n=====================\n";exit 1)
-  else if(!mode = "") then  (print_string "No mode selected. Use -mode\n=====================\n\tFINISHED\n=====================\n";exit 1)
+  else if (!file = "") then (print_string "No input file. Use -i\n=====================\n\tFINISHED\n=====================\n";exit 1)
+  else if (!mode = "") then (print_string "No mode selected. Use -mode\n=====================\n\tFINISHED\n=====================\n";exit 1)
   else if (!mode = "ci") then (core_interpretation ())
   else (compile_from_plus_to_core ());
 

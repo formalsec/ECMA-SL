@@ -8,15 +8,6 @@ let add_fields_to (obj : Object.t) (fes : (Field.t * Expr.t) list) (eval_e : (Ex
   List.iter (fun (f, e) -> let e' = eval_e e in Object.set obj f e') fes
 
 
-let eval_inobj_expr (heap : Heap.t) (field : Val.t) (loc : Val.t) : Val.t =
-  let b = match loc, field with
-    | Loc l, Str f -> Heap.get_field heap l f
-    | _            -> invalid_arg "Exception in Interpreter.eval_inobj_expr : \"loc\" is not a Loc value or \"field\" is not a string" in
-  match b with
-  | Some v -> Bool (true)
-  | None -> Bool (false)
-
-
 let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   match op with
   | Neg    -> Oper.neg v
@@ -155,7 +146,7 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
     let aux_list= (cont'::[]) in
     (Intermediate (cs', aux_list, sto_aux, heap), SecLabel.CallLab (es,x,(Expr.str f)))
 
-  |AssignInObjCheck (st, e1, e2) ->
+  | AssignInObjCheck (st, e1, e2) ->
     let v= eval_inobj_expr prog heap sto e1 e2 in
     Store.set sto st v;
     (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,e1))
@@ -169,7 +160,7 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
 
 
   | AssignAccess (st, ef, ep) -> let loc= eval_expr prog sto ef in
-    let field = eval_expr prog  sto ep in
+    let field = eval_expr prog sto ep in
     (match loc,field with
      | Loc loc', Str field' -> (let v = Heap.get_field heap loc' field' in
                                 let v' =(match v with
@@ -183,11 +174,11 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
     )
 
 
-    | FieldAssign (e_o, f, e_v) -> eval_fieldassign_stmt prog heap sto e_o f e_v;
-      (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e_v))
+  | FieldAssign (e_o, f, e_v) -> eval_fieldassign_stmt prog heap sto e_o f e_v;
+    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e_v))
 
-    | FieldDelete (e, f)        -> eval_fielddelete_stmt prog heap sto e f;
-      (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e))
+  | FieldDelete (e, f)        -> eval_fielddelete_stmt prog heap sto e f;
+    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e))
 
 (*This function will iterate smallsteps in a list of functions*)
 and  small_step_iter (prog:Prog.t) (cs:Callstack.t) (heap:Heap.t) (sto:Store.t) (stmts:Stmt.t list)  (verbose:bool): return =
@@ -198,8 +189,8 @@ and  small_step_iter (prog:Prog.t) (cs:Callstack.t) (heap:Heap.t) (sto:Store.t) 
 
 
                    match return with
-                   |Finalv v ->  Finalv v
-                   |Intermediate (cs', stmts'', sto',heap') -> small_step_iter prog cs' heap' sto' stmts'' verbose)
+                   | Finalv v -> Finalv v
+                   | Intermediate (cs', stmts'', sto',heap') -> small_step_iter prog cs' heap' sto' stmts'' verbose)
 
 
 (*Worker class of the Interpreter*)
