@@ -105,7 +105,9 @@ val_target:
   | t = type_target;
     { print_string ">TYPE \n";Val.Type t }
   | s = SYMBOL;
-    { print_string ">SYMBOL\n";Val.Symbol s }
+    { let len = String.length s in
+      let sub = String.sub s 1 (len - 1) in
+      print_string ">SYMBOL\n";Val.Symbol sub } (* Remove the double-quote characters from the parsed string *)
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 expr_target:

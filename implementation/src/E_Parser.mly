@@ -100,9 +100,9 @@ val_target:
       let sub = String.sub s 1 (len - 2) in
       Val.Str sub } (* Remove the double-quote characters from the parsed string *)
   | s = SYMBOL;
-    { Val.Symbol s }
-  /* | LPAREN; t = tuple_target; RPAREN;
-    { Val.Tuple t } */
+    { let len = String.length s in
+      let sub = String.sub s 1 (len - 1) in
+      Val.Symbol sub } (* Remove the double-quote characters from the parsed string *)
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 e_expr_target:
