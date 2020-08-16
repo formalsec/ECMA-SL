@@ -164,7 +164,7 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
     (match loc,field with
      | Loc loc', Str field' -> (let v = Heap.get_field heap loc' field' in
                                 let v' =(match v with
-                                    | None    -> Val.Undef
+                                    | None     -> Val.Symbol "undefined"
                                     | Some v'' -> v''
                                   ) in
                                 Store.set sto st v';

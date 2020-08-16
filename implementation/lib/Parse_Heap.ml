@@ -2,7 +2,7 @@ open Yojson.Basic
 
 let read_primitive_type (p_type : Yojson.Basic.t) : Val.t =
   match p_type with
-  | `Null     -> Undef
+  | `Null     -> Val.Symbol "undefined"
   | `Bool b   -> Bool b
   | `Int i    -> Int i
   | `Float f  -> Flt f

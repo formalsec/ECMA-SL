@@ -1,13 +1,13 @@
 type t =
-  | Flt   of float
-  | Int   of int
-  | Bool  of bool
-  | Str   of string
-  | Loc   of Loc.t
-  | List  of t list
-  | Type  of Type.t
+  | Flt    of float
+  | Int    of int
+  | Bool   of bool
+  | Str    of string
+  | Loc    of Loc.t
+  | List   of t list
+  | Type   of Type.t
+  | Tuple  of t list
   | Void
-  | Undef
   | Null
   | Symbol of string
 
@@ -96,6 +96,5 @@ let rec str (v : t) : string = match v with
   | List vs  -> "[" ^ (String.concat ", " (List.map str vs)) ^ "]"
   | Type v   -> Type.str v
   | Void     -> ""
-  | Undef    -> "undefined"
   | Null     -> "null"
   | Symbol s -> "'" ^ s

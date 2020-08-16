@@ -82,7 +82,6 @@ rule read =
   | "return"     { RETURN }
   | "function"   { FUNCTION }
   | "delete"     { DELETE }
-  | "undefined"  { UNDEFINED }
   | "null"       { NULL }
   | "repeat"     { REPEAT }
   | "until"      { UNTIL }

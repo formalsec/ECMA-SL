@@ -30,7 +30,6 @@ let neg (v : Val.t) : Val.t = match v with
   | List v   -> invalid_arg "Exception in Val.neg: this operation doesn't apply to List type argument"
   | Type v   -> invalid_arg "Exception in Val.neg: this operation doesn't apply to Type type argument"
   | Void     -> invalid_arg "Exception in Val.neg: this operation doesn't apply to void type argument"
-  | Undef    -> invalid_arg "Exception in Val.neg: this operation doesn't apply to undefined type argument"
   | Null     -> invalid_arg "Exception in Val.neg: this operation doesn't apply to null type argument"
   | Symbol s -> invalid_arg "Exception in Val.neg: this operation doesn't apply to Symbol type argument"
 

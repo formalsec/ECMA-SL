@@ -9,7 +9,6 @@
 %token WHILE
 %token IF ELSE
 %token RETURN
-%token UNDEFINED
 %token NULL
 %token FUNCTION
 %token LPAREN RPAREN
@@ -91,8 +90,6 @@ type_target:
 
 (* v ::= f | i | b | s *)
 val_target:
-  | UNDEFINED;
-    { print_string ">UNDEF\n";Val.Undef }
   | NULL;
     { print_string ">NULL\n";Val.Null }
   | f = FLOAT;
