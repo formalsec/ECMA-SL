@@ -120,7 +120,7 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
 
 
   | If (e,s1,s2) -> let v = eval_expr prog sto e in
-    if (Val.is_true v) then
+    if (Oper.is_true v) then
       match s1 with
       | Block block -> (match s2 with
           |Some v -> Intermediate (cs,(block @ cont),sto, heap), SecLabel.BranchLab (e,v)
