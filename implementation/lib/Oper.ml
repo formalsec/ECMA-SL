@@ -24,14 +24,7 @@ type nopt = ListExpr
 let neg (v : Val.t) : Val.t = match v with
   | Flt v    -> Flt (-.v)
   | Int v    -> Int (-v)
-  | Bool v   -> invalid_arg "Exception in Oper.neg: this operation doesn't apply to boolean type argument"
-  | Str v    -> invalid_arg "Exception in Oper.neg: this operation doesn't apply to string type argument"
-  | Loc v    -> invalid_arg "Exception in Oper.neg: this operation doesn't apply to Loc type argument"
-  | List v   -> invalid_arg "Exception in Oper.neg: this operation doesn't apply to List type argument"
-  | Type v   -> invalid_arg "Exception in Oper.neg: this operation doesn't apply to Type type argument"
-  | Void     -> invalid_arg "Exception in Oper.neg: this operation doesn't apply to void type argument"
-  | Null     -> invalid_arg "Exception in Oper.neg: this operation doesn't apply to null type argument"
-  | Symbol s -> invalid_arg "Exception in Oper.neg: this operation doesn't apply to Symbol type argument"
+  | _        -> invalid_arg "Exception in Oper.neg: this operation is only applicable to Float or Int arguments"
 
 let not (v : Val.t) : Val.t = match v with
   | Bool v -> Bool (v = false)
