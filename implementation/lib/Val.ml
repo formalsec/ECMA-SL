@@ -9,6 +9,7 @@ type t =
   | Void
   | Undef
   | Null
+  | Symbol of string
 
 let neg (v : t) : t = match v with
   | Flt v  -> Flt (-.v)
@@ -21,6 +22,7 @@ let neg (v : t) : t = match v with
   | Void   -> invalid_arg "Exception in Val.neg: this operation doesn't apply to void type argument"
   | Undef  -> invalid_arg "Exception in Val.neg: this operation doesn't apply to undefined type argument"
   | Null   -> invalid_arg "Exception in Val.neg: this operation doesn't apply to null type argument"
+  | Symbol s -> invalid_arg "Exception in Val.neg: this operation doesn't apply to Symbol type argument"
 
 let not (v : t) : t = match v with
   | Bool v -> Bool (v = false)
@@ -86,13 +88,14 @@ let typeof (v : t) : t = match v with
   | _      -> invalid_arg "Exception in Val.typeof: invalid argument"
 
 let rec str (v : t) : string = match v with
-  | Flt v   -> string_of_float v
-  | Int v   -> string_of_int v
-  | Bool v  -> string_of_bool v
-  | Str v   -> "\"" ^ v ^ "\""
-  | Loc v   -> Loc.str v
-  | List vs -> "[" ^ List.fold_left (fun acc v -> (if acc <> "" then acc ^ ", " else acc) ^ str v) "" vs ^ "]"
-  | Type v  -> Type.str v
-  | Void    -> ""
-  | Undef   -> "undefined"
-  | Null    -> "null"
+  | Flt v    -> string_of_float v
+  | Int v    -> string_of_int v
+  | Bool v   -> string_of_bool v
+  | Str v    -> "\"" ^ v ^ "\""
+  | Loc v    -> Loc.str v
+  | List vs  -> "[" ^ (String.concat ", " (List.map str vs)) ^ "]"
+  | Type v   -> Type.str v
+  | Void     -> ""
+  | Undef    -> "undefined"
+  | Null     -> "null"
+  | Symbol s -> "'" ^ s

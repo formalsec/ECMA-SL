@@ -24,6 +24,7 @@
 %token <bool> BOOLEAN
 %token <string> VAR
 %token <string> STRING
+%token <string> SYMBOL
 %token LAND LOR
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
 %token NOT LEN LNTH
@@ -101,6 +102,8 @@ val_target:
     { let len = String.length s in
       let sub = String.sub s 1 (len - 2) in
       Val.Str sub } (* Remove the double-quote characters from the parsed string *)
+  | s = SYMBOL;
+    { Val.Symbol s }
   /* | LPAREN; t = tuple_target; RPAREN;
     { Val.Tuple t } */
 

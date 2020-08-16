@@ -22,6 +22,7 @@
 %token <bool> BOOLEAN
 %token <string> VAR
 %token <string> STRING
+%token <string> SYMBOL
 %token LAND LOR
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
 %token NOT LEN LNTH
@@ -106,6 +107,8 @@ val_target:
       print_string ">STR\n";Val.Str sub } (* Remove the double-quote characters from the parsed string *)
   | t = type_target;
     { print_string ">TYPE \n";Val.Type t }
+  | s = SYMBOL;
+    { print_string ">SYMBOL\n";Val.Symbol s }
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 expr_target:

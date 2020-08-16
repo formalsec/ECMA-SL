@@ -25,6 +25,7 @@ let float   = int('.')digit*
 let bool    = "true"|"false"
 let string  = '"'(digit|letter|special)*'"'
 let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
+let symbol  = '\''(var)
 let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
 
@@ -80,6 +81,7 @@ rule read =
   | bool         { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | string       { STRING (Lexing.lexeme lexbuf) }
   | var          { VAR (Lexing.lexeme lexbuf) }
+  | symbol       { SYMBOL (Lexing.lexeme lexbuf) }
   | "/*"         { read_comment lexbuf }
   | _            { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof          { EOF }
