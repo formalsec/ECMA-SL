@@ -16,6 +16,8 @@ type uopt = Neg
           | Not
           | Typeof
           | Len
+          | Head
+          | Tail
 
 type nopt = ListExpr
           | NAry_And
@@ -97,11 +99,21 @@ let list_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | List l, Int i -> List.nth l i
   | _             -> invalid_arg "Exception in Oper.list_nth: this operation is only applicable to List and Int arguments"
 
+let head (v : Val.t) : Val.t = match v with
+  | Tuple t -> List.hd t
+  | _       -> invalid_arg "Exception in Oper.head: this operation is only applicable to Tuple arguments"
+
+let tail (v : Val.t) : Val.t = match v with
+  | Tuple t -> Tuple (List.tl t)
+  | _       -> invalid_arg "Exception in Oper.head: this operation is only applicable to Tuple arguments"
+
 let str_of_unopt (op : uopt) : string = match op with
   | Neg    -> "-"
   | Not    -> "!"
   | Typeof -> "typeof"
   | Len    -> "len"
+  | Head   -> "hd"
+  | Tail   -> "tl"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus    -> e1 ^ " + " ^ e2

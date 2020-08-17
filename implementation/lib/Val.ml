@@ -19,6 +19,7 @@ let rec str (v : t) : string = match v with
   | Loc v    -> Loc.str v
   | List vs  -> "[" ^ (String.concat ", " (List.map str vs)) ^ "]"
   | Type v   -> Type.str v
+  | Tuple vs -> "(" ^ (String.concat ", " (List.map str vs)) ^ ")"
   | Void     -> ""
   | Null     -> "null"
   | Symbol s -> "'" ^ s

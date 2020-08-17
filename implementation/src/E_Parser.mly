@@ -26,7 +26,7 @@
 %token <string> SYMBOL
 %token LAND LOR
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
-%token NOT LEN LNTH
+%token NOT LEN LNTH HD TL
 %token IMPORT
 %token EOF
 
@@ -81,9 +81,11 @@ proc_target:
     to produce values that are attached to the nonterminal in the rule.
 *)
 
-/* tuple_target:
-  | vs = separated_nonempty_list (COMMA, val_target);
-    { vs } */
+tuple_target:
+  | v1 = val_target; COMMA; v2 = val_target;
+    { [v2; v1] }
+  | vs = tuple_target; COMMA; v = val_target;
+    { v :: vs }
 
 (* v ::= f | i | b | s *)
 val_target:
@@ -103,6 +105,8 @@ val_target:
     { let len = String.length s in
       let sub = String.sub s 1 (len - 1) in
       Val.Symbol sub } (* Remove the double-quote characters from the parsed string *)
+  | LPAREN; t = tuple_target; RPAREN;
+    { Val.Tuple (List.rev t) }
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 e_expr_target:
@@ -136,6 +140,10 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
   | LEN; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Len, e) } %prec unopt_prec
+  | HD; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Head, e) } %prec unopt_prec
+  | TL; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Tail, e) } %prec unopt_prec
 
 prefix_binary_op_target:
   | LNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
