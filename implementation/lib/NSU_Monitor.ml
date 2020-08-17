@@ -41,12 +41,9 @@ let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t) (ssto:SecStore.t) (pc
   (if (verbose)
    then print_string ("[ M ]  "^(TLabel.str tl)^"  \n")
   );
-
-
- (*
-No-Sensitive-Upgrade
-*)
-
+             (*
+            No-Sensitive-Upgrade
+            *)
 
   (match tl with
    |EmptyLab -> MReturn (pc, ssto,scs)
