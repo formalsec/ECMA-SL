@@ -83,9 +83,9 @@ proc_target:
 *)
 
 tuple_target:
-  | v1 = val_target; COMMA; v2 = val_target;
+  | v1 = e_expr_target; COMMA; v2 = e_expr_target;
     { [v2; v1] }
-  | vs = tuple_target; COMMA; v = val_target;
+  | vs = tuple_target; COMMA; v = e_expr_target;
     { v :: vs }
 
 (* v ::= f | i | b | s *)
@@ -105,16 +105,12 @@ val_target:
   | s = SYMBOL;
     { let len = String.length s in
       let sub = String.sub s 1 (len - 1) in
-      Val.Symbol sub } (* Remove the double-quote characters from the parsed string *)
-  | LPAREN; t = tuple_target; RPAREN;
-    { Val.Tuple (List.rev t) }
+      Val.Symbol sub } (* Remove the quote characters from the parsed string *)
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 e_expr_target:
   | LBRACE; fes = separated_list (COMMA, fv_target); RBRACE;
     { E_Expr.NewObj (fes) }
-  | LBRACK; es = separated_list (COMMA, e_expr_target); RBRACK;
-    { E_Expr.NOpt (Oper.ListExpr, es) }
   | e = e_expr_target; PERIOD; f = VAR;
     { E_Expr.Access (e, E_Expr.Val (Str f)) }
   | e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
@@ -127,12 +123,20 @@ e_expr_target:
     { E_Expr.Call (f, es) }
   | LPAREN; e = e_expr_target; RPAREN;
     { e }
+  | nary_op_expr = nary_op_target;
+    { nary_op_expr }
   | pre_un_op_expr = prefix_unary_op_target;
     { pre_un_op_expr }
   | pre_bin_op_expr = prefix_binary_op_target;
     { pre_bin_op_expr }
   | in_bin_op_expr = infix_binary_op_target;
     { in_bin_op_expr }
+
+nary_op_target:
+  | LBRACK; es = separated_list (COMMA, e_expr_target); RBRACK;
+    { E_Expr.NOpt (Oper.ListExpr, es) }
+  | LPAREN; t = tuple_target; RPAREN;
+    { E_Expr.NOpt (Oper.TupleExpr, List.rev t) }
 
 prefix_unary_op_target:
   | MINUS; e = e_expr_target;

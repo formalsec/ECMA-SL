@@ -64,6 +64,8 @@ rule read =
   | "&&"         { LAND }
   | "||"		     { LOR }
   | "l_nth"      { LNTH }
+  | "hd"         { HD }
+  | "tl"         { TL }
   | '('          { LPAREN }
   | ')'          { RPAREN }
   | '{'          { LBRACE }

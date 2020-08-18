@@ -20,6 +20,7 @@ type uopt = Neg
           | Tail
 
 type nopt = ListExpr
+          | TupleExpr
           | NAry_And
           | NAry_Or
 
@@ -131,6 +132,7 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Lnth    -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
-  | ListExpr -> "[ " ^ (String.concat ", " es) ^ " ]"
-  | NAry_And -> String.concat " && " es
-  | NAry_Or  -> String.concat " || " es
+  | ListExpr  -> "[ " ^ (String.concat ", " es) ^ " ]"
+  | TupleExpr -> "( " ^ (String.concat ", " es) ^ " )"
+  | NAry_And  -> String.concat " && " es
+  | NAry_Or   -> String.concat " || " es
