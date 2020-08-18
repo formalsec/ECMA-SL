@@ -1,4 +1,5 @@
 type t = Skip
+       | Print        of Expr.t
        | Assign       of string * Expr.t
        | If           of Expr.t * t * t option
        | While        of Expr.t * t
@@ -15,6 +16,7 @@ type t = Skip
 
 let rec str (stmt : t) : string = match stmt with
     Skip                        -> ""
+  | Print e                     -> "print " ^ (Expr.str e)
   | Assign (v, exp)             -> v ^ " := " ^ (Expr.str exp)
   | If (e, s1, s2)              -> (let v = "if (" ^ Expr.str e ^ ") {\n" ^ str s1 ^ "\n}" in
                                     match s2 with

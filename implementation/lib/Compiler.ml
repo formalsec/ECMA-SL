@@ -168,9 +168,15 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | Access (e_e, e_f)         -> compile_access e_e e_f
 
 
+and compile_print (expr : E_Expr.t) : Stmt.t list =
+  let stmts_expr, expr' = compile_expr expr in
+  stmts_expr @ [Stmt.Print expr']
+
+
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   match e_stmt with
   | Skip                            -> [Stmt.Skip]
+  | Print e                         -> compile_print e
   | Assign (v, e_exp)               -> compile_assign v e_exp
   | Block (e_stmts)                 -> compile_block e_stmts
   | If (e_e, e_s1, e_s2)            -> compile_if e_e e_s1 e_s2

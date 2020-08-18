@@ -77,6 +77,7 @@ rule read =
   | "function"   { FUNCTION }
   | "delete"     { DELETE }
   | "null"       { NULL }
+  | "print"      { PRINT }
   | int          { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float        { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool         { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }

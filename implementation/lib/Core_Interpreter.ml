@@ -101,6 +101,11 @@ let rec eval_small_step (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: St
   match s with
   | Skip ->  (Intermediate (cs, cont,sto, heap), SecLabel.EmptyLab)
 
+  | Print e -> (let v = eval_expr prog sto e in
+                print_endline ("PROGRAM PRINT: " ^ (Val.str v));
+                (Intermediate (cs, cont, sto, heap), SecLabel.EmptyLab)
+               )
+
   | Assign (x,e) -> (let v = eval_expr prog sto e in
                      Store.set sto x v;
                      print_string ("STORE: " ^ (x) ^ " <- " ^   Val.str v ^"\n");

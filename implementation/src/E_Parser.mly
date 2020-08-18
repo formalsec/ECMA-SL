@@ -5,6 +5,7 @@
   - token and type specifications, precedence directives and other output directives
 *)
 %token SKIP
+%token PRINT
 %token DEFEQ
 %token WHILE
 %token IF ELSE
@@ -164,6 +165,8 @@ e_block_target:
 
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return | repeat s until e*)
 e_stmt_target:
+  | PRINT; e = e_expr_target;
+    { E_Stmt.Print e }
   | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;
     { E_Stmt.FieldAssign (e1, E_Expr.Val (Str f), e2) }
   | e1 = e_expr_target; LBRACK; f = e_expr_target; RBRACK; DEFEQ; e2 = e_expr_target;
