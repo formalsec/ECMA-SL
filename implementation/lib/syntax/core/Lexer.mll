@@ -25,6 +25,7 @@ let float   = int('.')digit*
 let bool    = "true"|"false"
 let string  = '"'(digit|letter|special)*'"'
 let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
+let symbol  = '\''(var)
 let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
 
@@ -62,23 +63,31 @@ rule read =
   | "len"        { LEN }
   | "&&"         { LAND }
   | "||"		     { LOR }
+  | "l_nth"      { LNTH }
+  | "hd"         { HD }
+  | "tl"         { TL }
   | '('          { LPAREN }
   | ')'          { RPAREN }
   | '{'          { LBRACE }
   | '}'          { RBRACE }
   | '['          { LBRACK }
   | ']'          { RBRACK }
+  | "typeof"     { TYPEOF }
+  | "__$"        { read_type lexbuf }
   | "if"         { IF }
   | "else"       { ELSE }
   | "while"      { WHILE }
   | "return"     { RETURN }
   | "function"   { FUNCTION }
   | "delete"     { DELETE }
+  | "null"       { NULL }
+  | "print"      { PRINT }
   | int          { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float        { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool         { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | string       { STRING (Lexing.lexeme lexbuf) }
   | var          { VAR (Lexing.lexeme lexbuf) }
+  | symbol       { SYMBOL (Lexing.lexeme lexbuf) }
   | "/*"         { read_comment lexbuf }
   | _            { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof          { EOF }
@@ -89,3 +98,18 @@ and read_comment =
   | "*/" { read lexbuf }
   | _    { read_comment lexbuf }
   | eof  { raise (Syntax_error ("Comment is not terminated."))}
+
+and read_type =
+(* Read Standard Types *)
+  parse
+  | "undefined"           { UNDEF_TYPE }
+  | "null"                { NULL_TYPE }
+  | "boolean"             { BOOL_TYPE }
+  | "string"              { STR_TYPE }
+  | "number"              { NUMBER_TYPE }
+  | "object"              { OBJ_TYPE }
+  | "reference"           { REFERENCE_TYPE }
+  | "list"                { LIST_TYPE }
+  | "completion"          { COMPLETION_TYPE }
+  | "environment_record"  { ENVIRONMENT_RECORD_TYPE }
+  | _                     { raise (Syntax_error ("Unexpected type: " ^ Lexing.lexeme lexbuf)) }

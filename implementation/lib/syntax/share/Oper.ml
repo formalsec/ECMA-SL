@@ -10,59 +10,56 @@ type bopt = Plus
           | Log_And
           | Log_Or
           | InObj
+          | Lnth
 
 type uopt = Neg
           | Not
           | Typeof
           | Len
+          | Head
+          | Tail
 
 type nopt = ListExpr
+          | TupleExpr
           | NAry_And
           | NAry_Or
 
 let neg (v : Val.t) : Val.t = match v with
-  | Flt v  -> Flt (-.v)
-  | Int v  -> Int (-v)
-  | Bool v -> invalid_arg "Exception in Val.neg: this operation doesn't apply to boolean type argument"
-  | Str v  -> invalid_arg "Exception in Val.neg: this operation doesn't apply to string type argument"
-  | Loc v  -> invalid_arg "Exception in Val.neg: this operation doesn't apply to Loc type argument"
-  | List v -> invalid_arg "Exception in Val.neg: this operation doesn't apply to List type argument"
-  | Type v -> invalid_arg "Exception in Val.neg: this operation doesn't apply to Type type argument"
-  | Void   -> invalid_arg "Exception in Val.neg: this operation doesn't apply to void type argument"
-  | Undef  -> invalid_arg "Exception in Val.neg: this operation doesn't apply to undefined type argument"
-  | Null   -> invalid_arg "Exception in Val.neg: this operation doesn't apply to null type argument"
+  | Flt v    -> Flt (-.v)
+  | Int v    -> Int (-v)
+  | _        -> invalid_arg "Exception in Oper.neg: this operation is only applicable to Float or Int arguments"
 
 let not (v : Val.t) : Val.t = match v with
   | Bool v -> Bool (v = false)
-  | _      -> invalid_arg "Exception in Val.not: this operation is only applicable to a boolean type argument"
+  | _      -> invalid_arg "Exception in Oper.not: this operation is only applicable to a boolean type argument"
 
 let plus (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt v1, Int v2) -> Flt (v1 +. float_of_int v2)
   | (Int v1, Flt v2) -> Flt (float_of_int v1 +. v2)
   | (Flt v1, Flt v2) -> Flt (v1 +. v2)
   | (Int v1, Int v2) -> Int (v1 + v2)
-  | _                -> invalid_arg "Exception in Val.plus: this operation is only applicable to Float or Int arguments"
+  | _                -> invalid_arg "Exception in Oper.plus: this operation is only applicable to Float or Int arguments"
 
 let minus (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt v1, Int v2) -> Flt (v1 -. float_of_int v2)
   | (Int v1, Flt v2) -> Flt (float_of_int v1 -. v2)
   | (Flt v1, Flt v2) -> Flt (v1 -. v2)
   | (Int v1, Int v2) -> Int (v1 - v2)
-  | _                -> invalid_arg "Exception in Val.minus: this operation is only applicable to Float or Int arguments"
+  | _                -> invalid_arg "Exception in Oper.minus: this operation is only applicable to Float or Int arguments"
 
 let times (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt v1, Int v2) -> Flt (v1 *. float_of_int v2)
   | (Int v1, Flt v2) -> Flt (float_of_int v1 *. v2)
   | (Flt v1, Flt v2) -> Flt (v1 *. v2)
   | (Int v1, Int v2) -> Int (v1 * v2)
-  | _                -> invalid_arg "Exception in Val.times: this operation is only applicable to Float or Int arguments"
+  | _                -> invalid_arg "Exception in Oper.times: this operation is only applicable to Float or Int arguments"
 
 let div (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt v1, Int v2) -> Flt (v1 /. float_of_int v2)
   | (Int v1, Flt v2) -> Flt (float_of_int v1 /. v2)
   | (Flt v1, Flt v2) -> Flt (v1 /. v2)
   | (Int v1, Int v2) -> Int (v1 / v2)
-  | _                -> invalid_arg "Exception in Val.div: this operation is only applicable to Float or Int arguments"
+  | _                -> invalid_arg "Exception in Oper.div: this operation is only applicable to Float or Int arguments"
 
 let equal (v1, v2 : Val.t * Val.t) : Val.t = Bool (v1 = v2)
 
@@ -76,50 +73,79 @@ let elt (v1, v2 : Val.t * Val.t) : Val.t = Bool (v1 <= v2)
 
 let log_and (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | Bool v1, Bool v2 -> Bool (v1 && v2)
-  | _                -> invalid_arg "Exception in Val.log_and: this operation is only applicable to Bool arguments"
+  | _                -> invalid_arg "Exception in Oper.log_and: this operation is only applicable to Bool arguments"
 
 let log_or (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | Bool v1, Bool v2 -> Bool (v1 || v2)
-  | _                -> invalid_arg "Exception in Val.log_or: this operation is only applicable to Bool arguments"
+  | _                -> invalid_arg "Exception in Oper.log_or: this operation is only applicable to Bool arguments"
 
 let is_true (v : Val.t) : bool = match v with
   | Bool v -> v
-  | _      -> invalid_arg "Exception in Val.is_true: argument is not boolean"
+  | _      -> invalid_arg "Exception in Oper.is_true: argument is not boolean"
 
 let typeof (v : Val.t) : Val.t = match v with
-  | Int v  -> Type (Type.IntType)
-  | Flt v  -> Type (Type.FltType)
-  | Str v  -> Type (Type.StrType)
-  | Bool v -> Type (Type.BoolType)
-  | Loc v  -> invalid_arg "Exception in Val.typeof: not implemented for Loc type argument"
-  | Type v -> invalid_arg "Exception in Val.typeof: not implemented for Type type argument"
-  | _      -> invalid_arg "Exception in Val.typeof: invalid argument"
+  | Int _
+  | Flt _    -> Type (Type.NumberType)
+  | Bool v   -> Type (Type.BoolType)
+  | Str v    -> Type (Type.StrType)
+  | Loc v    -> Type (Type.ObjType)
+  | List v   -> Type (Type.ListType)
+  | Tuple v  -> (let len = List.length v in
+                 if len = 3 then (
+                   let elem = List.nth v 2 in (
+                     match elem with
+                     | Bool _ -> Type (Type.ReferenceType)
+                     | Str _  -> Type (Type.CompletionType)
+                     | _      -> invalid_arg "Exception in Oper.typeof: third element of the Tuple has an invalid type"))
+                 else invalid_arg ("Exception in Oper.typeof: invalid number of elements in the Tuple -> " ^ (string_of_int len)))
+  | Null     -> Type (Type.NullType)
+  | Symbol v -> (match v with
+      | "'undefined" -> Type Type.UndefType
+      | "'NaN"       -> Type Type.NumberType
+      | _            -> invalid_arg ("Exception in Oper.typeof: unknown symbol \"" ^ v ^ "\""))
+  | _        -> invalid_arg ("Exception in Oper.typeof: invalid argument \"" ^ Val.str v ^ "\"")
 
 let len (v : Val.t) : Val.t = match v with
   | List v  -> Val.Int (List.length v)
   | _       -> invalid_arg "Exception in Oper.len: this operation is only applicable to List arguments"
+
+let list_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | List l, Int i -> List.nth l i
+  | _             -> invalid_arg "Exception in Oper.list_nth: this operation is only applicable to List and Int arguments"
+
+let head (v : Val.t) : Val.t = match v with
+  | Tuple t -> List.hd t
+  | _       -> invalid_arg "Exception in Oper.head: this operation is only applicable to Tuple arguments"
+
+let tail (v : Val.t) : Val.t = match v with
+  | Tuple t -> Tuple (List.tl t)
+  | _       -> invalid_arg "Exception in Oper.head: this operation is only applicable to Tuple arguments"
 
 let str_of_unopt (op : uopt) : string = match op with
   | Neg    -> "-"
   | Not    -> "!"
   | Typeof -> "typeof"
   | Len    -> "len"
+  | Head   -> "hd"
+  | Tail   -> "tl"
 
-let str_of_binopt (op : bopt) : string = match op with
-  | Plus    -> "+"
-  | Minus   -> "-"
-  | Times   -> "*"
-  | Div     -> "/"
-  | Equal   -> "="
-  | Gt      -> ">"
-  | Lt      -> "<"
-  | Egt     -> ">="
-  | Elt     -> "<="
-  | Log_And -> "&&"
-  | Log_Or  -> "||"
-  | InObj   -> "in"
+let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
+  | Plus    -> e1 ^ " + " ^ e2
+  | Minus   -> e1 ^ " - " ^ e2
+  | Times   -> e1 ^ " * " ^ e2
+  | Div     -> e1 ^ " / " ^ e2
+  | Equal   -> e1 ^ " = " ^ e2
+  | Gt      -> e1 ^ " > " ^ e2
+  | Lt      -> e1 ^ " < " ^ e2
+  | Egt     -> e1 ^ " >= " ^ e2
+  | Elt     -> e1 ^ " <= " ^ e2
+  | Log_And -> e1 ^ " && " ^ e2
+  | Log_Or  -> e1 ^ " || " ^ e2
+  | InObj   -> e1 ^ " in " ^ e2
+  | Lnth    -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
-  | ListExpr -> "[ " ^ List.fold_left (fun acc ele -> (if acc <> "" then acc ^ ", " else acc) ^ ele) "" es ^ " ]"
-  | NAry_And -> String.concat " && " es
-  | NAry_Or -> String.concat " || " es
+  | ListExpr  -> "[ " ^ (String.concat ", " es) ^ " ]"
+  | TupleExpr -> "( " ^ (String.concat ", " es) ^ " )"
+  | NAry_And  -> String.concat " && " es
+  | NAry_Or   -> String.concat " || " es

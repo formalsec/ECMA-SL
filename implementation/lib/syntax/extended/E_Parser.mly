@@ -5,11 +5,11 @@
   - token and type specifications, precedence directives and other output directives
 *)
 %token SKIP
+%token PRINT
 %token DEFEQ
 %token WHILE
 %token IF ELSE
 %token RETURN
-%token UNDEFINED
 %token NULL
 %token FUNCTION
 %token LPAREN RPAREN
@@ -24,9 +24,13 @@
 %token <bool> BOOLEAN
 %token <string> VAR
 %token <string> STRING
+%token <string> SYMBOL
 %token LAND LOR
-%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN NOT LEN
+%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
+%token NOT LEN LNTH HD TL
 %token IMPORT
+%token TYPEOF UNDEF_TYPE NULL_TYPE BOOL_TYPE STR_TYPE NUMBER_TYPE OBJ_TYPE REFERENCE_TYPE
+%token LIST_TYPE COMPLETION_TYPE ENVIRONMENT_RECORD_TYPE
 %token EOF
 
 %left LAND LOR
@@ -80,14 +84,36 @@ proc_target:
     to produce values that are attached to the nonterminal in the rule.
 *)
 
-/* tuple_target:
-  | vs = separated_nonempty_list (COMMA, val_target);
-    { vs } */
+type_target:
+  | UNDEF_TYPE;
+    { Type.UndefType }
+  | NULL_TYPE;
+    { Type.NullType }
+  | BOOL_TYPE
+    { Type.BoolType }
+  | STR_TYPE
+    { Type.StrType }
+  | NUMBER_TYPE;
+    { Type.NumberType }
+  | OBJ_TYPE;
+    { Type.ObjType }
+  | REFERENCE_TYPE;
+    { Type.ReferenceType }
+  | LIST_TYPE;
+    { Type.ListType }
+  | COMPLETION_TYPE;
+    { Type.CompletionType }
+  | ENVIRONMENT_RECORD_TYPE;
+    { Type.EnvironmentRecordType }
+
+tuple_target:
+  | v1 = e_expr_target; COMMA; v2 = e_expr_target;
+    { [v2; v1] }
+  | vs = tuple_target; COMMA; v = e_expr_target;
+    { v :: vs }
 
 (* v ::= f | i | b | s *)
 val_target:
-  | UNDEFINED;
-    { Val.Undef }
   | NULL;
     { Val.Null }
   | f = FLOAT;
@@ -100,15 +126,17 @@ val_target:
     { let len = String.length s in
       let sub = String.sub s 1 (len - 2) in
       Val.Str sub } (* Remove the double-quote characters from the parsed string *)
-  /* | LPAREN; t = tuple_target; RPAREN;
-    { Val.Tuple t } */
+  | s = SYMBOL;
+    { let len = String.length s in
+      let sub = String.sub s 1 (len - 1) in
+      Val.Symbol sub } (* Remove the quote characters from the parsed string *)
+  | t = type_target;
+    { Val.Type t }
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 e_expr_target:
   | LBRACE; fes = separated_list (COMMA, fv_target); RBRACE;
     { E_Expr.NewObj (fes) }
-  | LBRACK; es = separated_list (COMMA, e_expr_target); RBRACK;
-    { E_Expr.NOpt (Oper.ListExpr, es) }
   | e = e_expr_target; PERIOD; f = VAR;
     { E_Expr.Access (e, E_Expr.Val (Str f)) }
   | e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
@@ -117,18 +145,46 @@ e_expr_target:
     { E_Expr.Val v }
   | v = VAR;
     { E_Expr.Var v }
+  | f = e_expr_target; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
+    { E_Expr.Call (f, es) }
+  | LPAREN; e = e_expr_target; RPAREN;
+    { e }
+  | nary_op_expr = nary_op_target;
+    { nary_op_expr }
+  | pre_un_op_expr = prefix_unary_op_target;
+    { pre_un_op_expr }
+  | pre_bin_op_expr = prefix_binary_op_target;
+    { pre_bin_op_expr }
+  | in_bin_op_expr = infix_binary_op_target;
+    { in_bin_op_expr }
+
+nary_op_target:
+  | LBRACK; es = separated_list (COMMA, e_expr_target); RBRACK;
+    { E_Expr.NOpt (Oper.ListExpr, es) }
+  | LPAREN; t = tuple_target; RPAREN;
+    { E_Expr.NOpt (Oper.TupleExpr, List.rev t) }
+
+prefix_unary_op_target:
   | MINUS; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
   | NOT; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
   | LEN; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Len, e) } %prec unopt_prec
+  | TYPEOF; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Typeof, e) } %prec unopt_prec
+  | HD; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Head, e) } %prec unopt_prec
+  | TL; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Tail, e) } %prec unopt_prec
+
+prefix_binary_op_target:
+  | LNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Lnth, e1, e2) }
+
+infix_binary_op_target:
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
     { E_Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
-  | f = e_expr_target; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
-    { E_Expr.Call (f, es) }
-  | LPAREN; e = e_expr_target; RPAREN;
-    { e }
 
 fv_target:
   | f = VAR; COLON; e = e_expr_target;
@@ -141,6 +197,8 @@ e_block_target:
 
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return | repeat s until e*)
 e_stmt_target:
+  | PRINT; e = e_expr_target;
+    { E_Stmt.Print e }
   | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;
     { E_Stmt.FieldAssign (e1, E_Expr.Val (Str f), e2) }
   | e1 = e_expr_target; LBRACK; f = e_expr_target; RBRACK; DEFEQ; e2 = e_expr_target;

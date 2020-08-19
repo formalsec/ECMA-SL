@@ -8,20 +8,14 @@ let add_fields_to (obj : Object.t) (fes : (Field.t * Expr.t) list) (eval_e : (Ex
   List.iter (fun (f, e) -> let e' = eval_e e in Object.set obj f e') fes
 
 
-let eval_inobj_expr (heap : Heap.t) (field : Val.t) (loc : Val.t) : Val.t =
-  let b = match loc, field with
-    | Loc l, Str f -> Heap.get_field heap l f
-    | _            -> invalid_arg "Exception in Interpreter.eval_inobj_expr : \"loc\" is not a Loc value or \"field\" is not a string" in
-  match b with
-  | Some v -> Bool (true)
-  | None -> Bool (false)
-
-
 let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   match op with
   | Neg    -> Oper.neg v
   | Not    -> Oper.not v
   | Typeof -> Oper.typeof v
+  | Len    -> Oper.len v
+  | Head   -> Oper.head v
+  | Tail   -> Oper.tail v
 
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
@@ -37,12 +31,16 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Elt     -> Oper.elt (v1, v2)
   | Log_And -> Oper.log_and (v1, v2)
   | Log_Or  -> Oper.log_or (v1, v2)
-  | _ -> raise(Except "Not expected")
+  | Lnth    -> Oper.list_nth (v1, v2)
+  | InObj   -> raise(Except "Not expected")
 
 
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   match op with
-  | ListExpr -> Val.List vals
+  | ListExpr  -> Val.List vals
+  | TupleExpr -> Val.Tuple vals
+  | NAry_And  -> Val.Bool (List.for_all Oper.is_true vals)
+  | NAry_Or   -> Val.Bool (List.exists Oper.is_true vals)
 
 
 let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
@@ -59,9 +57,9 @@ let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
 let get_func_id (sto:Store.t) (exp:Expr.t) :string=
   let res= eval_expr sto exp in
   match res with
-  | Val.Str f -> f 
+  | Val.Str f -> f
   | _ -> raise (Except "Wrong/Invalid Function ID")
-  
+
 let prepare_call  (prog:Prog.t) (cs:Callstack.t)(sto: Store.t) (cont: Stmt.t list) (x:string) (es:Expr.t list) (f:string): (Callstack.t * Store.t * Val.t list) =
   let cs' = Callstack.push cs (Callstack.Intermediate (cont, sto, x)) in
   let vs = (List.map (eval_expr sto) es) in
@@ -109,12 +107,15 @@ let rec eval_small_step (interceptor: string -> Val.t list -> SecLabel.t option)
   match s with
   | Skip ->  (Intermediate (cs, cont,sto, heap), SecLabel.EmptyLab)
 
+  | Print e -> (let v = eval_expr sto e in
+                print_endline ("PROGRAM PRINT: " ^ (Val.str v));
+                (Intermediate (cs, cont, sto, heap), SecLabel.EmptyLab)
+               )
+
   | Assign (x,e) -> (let v = eval_expr sto e in
                      Store.set sto x v;
                      print_string ("STORE: " ^ (x) ^ " <- " ^   Val.str v ^"\n");
                      (Intermediate (cs, cont, sto, heap)), SecLabel.AsgnLab (x,e))
-
-
 
 
   | Return e -> let v = eval_expr sto e in
@@ -129,8 +130,9 @@ let rec eval_small_step (interceptor: string -> Val.t list -> SecLabel.t option)
   | Block block -> (Intermediate (cs,(block @ cont),sto,heap), SecLabel.EmptyLab )
 
 
+
   | If (e,s1,s2) -> let v = eval_expr sto e in
-    if (Val.is_true v) then
+    if (Oper.is_true v) then
       match s1 with
       | Block block -> (match s2 with
           |Some v -> Intermediate (cs,(block @ cont),sto, heap), SecLabel.BranchLab (e,v)
@@ -150,18 +152,18 @@ let rec eval_small_step (interceptor: string -> Val.t list -> SecLabel.t option)
     let stms= Stmt.If (e, (Stmt.Block s1), None) in
     (Intermediate (cs, (stms :: cont),sto, heap), SecLabel.EmptyLab)
 
-  | AssignCall (x,f,es) -> 
-    let f'= get_func_id sto f in 
+  | AssignCall (x,f,es) ->
+    let f'= get_func_id sto f in
     let (cs', sto_aux, vs) = prepare_call  prog cs sto cont x es f' in
     let func = (Prog.get_func prog f') in
     let b = interceptor f' vs in
-   ( match b with
-     |None -> (let (cont':Stmt.t) = func.body in
-               let aux_list= (cont'::[]) in
-              (Intermediate (cs', aux_list, sto_aux, heap), SecLabel.CallLab (es,x,(Expr.str f))))
-     |Some lab -> (Intermediate(cs,cont,sto,heap),lab))
+    ( match b with
+      |None -> (let (cont':Stmt.t) = func.body in
+                let aux_list= (cont'::[]) in
+                (Intermediate (cs', aux_list, sto_aux, heap), SecLabel.CallLab (es,x,(Expr.str f))))
+      |Some lab -> (Intermediate(cs,cont,sto,heap),lab))
 
-  |AssignInObjCheck (st, e1, e2) ->
+  | AssignInObjCheck (st, e1, e2) ->
     let v= eval_inobj_expr prog heap sto e1 e2 in
     Store.set sto st v;
     (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,e1))
@@ -173,31 +175,27 @@ let rec eval_small_step (interceptor: string -> Val.t list -> SecLabel.t option)
     print_string ("STORE: " ^ st ^ " <- " ^   Val.str (Val.Loc loc) ^"\n");
     (Intermediate (cs, cont, sto, heap), SecLabel.EmptyLab)
 
+
   | AssignAccess (st, ef, ep) -> let loc= eval_expr sto ef in
     let field = eval_expr sto ep in
     (match loc,field with
-    | Loc loc', Str field' -> (let v = Heap.get_field heap loc' field' in
-                               let v' =(match v with
-                                   | None    -> Val.Undef
-                                   | Some v'' -> v''
-                                 ) in
-                               Store.set sto st v';
-                               print_string ("STORE: " ^ st ^ " <- " ^   Val.str v' ^"\n");
-                               (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,ep)))
-    | _       -> invalid_arg "Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc"
-    )
+     | Loc loc', Str field' -> (let v = Heap.get_field heap loc' field' in
+                                let v' =(match v with
+                                    | None     -> Val.Symbol "undefined"
+                                    | Some v'' -> v''
+                                  ) in
+                                Store.set sto st v';
+                                print_string ("STORE: " ^ st ^ " <- " ^   Val.str v' ^"\n");
+                                (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,ep)))
+     | _                    -> invalid_arg ("Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc."))
 
 
-    | FieldAssign (e_o, f, e_v) -> eval_fieldassign_stmt prog heap sto e_o f e_v;
-      (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e_v))
+  | FieldAssign (e_o, f, e_v) -> eval_fieldassign_stmt prog heap sto e_o f e_v;
+    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e_v))
 
-    | FieldDelete (e, f)        -> eval_fielddelete_stmt prog heap sto e f;
-      (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e))
+  | FieldDelete (e, f)        -> eval_fielddelete_stmt prog heap sto e f;
+    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e))
 
-
-
-
-    | _ ->   raise(Except "Unknown Op")(*ERROR*)
 
 (*This function will iterate smallsteps in a list of functions*)
 and  small_step_iter (interceptor: string -> Val.t list -> SecLabel.t option) (prog:Prog.t) (cs:Callstack.t) (heap:Heap.t) (sto:Store.t) (stmts:Stmt.t list)  (verbose:bool): return =
@@ -205,8 +203,6 @@ and  small_step_iter (interceptor: string -> Val.t list -> SecLabel.t option) (p
   match stmts with
   | [] ->  raise(Except "Empty list")
   | s::stmts' -> ( let (return, label) = eval_small_step interceptor prog cs heap sto stmts' verbose s in
-
-
                    match return with
                    |Finalv v ->  Finalv v
                    |Intermediate (cs', stmts'', sto',heap') -> small_step_iter interceptor prog cs' heap' sto' stmts'' verbose)

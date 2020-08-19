@@ -5,11 +5,11 @@
   - token and type specifications, precedence directives and other output directives
 *)
 %token SKIP
+%token PRINT
 %token DEFEQ
 %token WHILE
 %token IF ELSE
 %token RETURN
-%token UNDEFINED
 %token NULL
 %token FUNCTION
 %token LPAREN RPAREN
@@ -22,13 +22,12 @@
 %token <bool> BOOLEAN
 %token <string> VAR
 %token <string> STRING
+%token <string> SYMBOL
 %token LAND LOR
-%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN NOT LEN
-%token TYPEOF
-%token INT_TYPE
-%token FLT_TYPE
-%token STR_TYPE
-%token BOOL_TYPE
+%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
+%token NOT LEN LNTH HD TL
+%token TYPEOF UNDEF_TYPE NULL_TYPE BOOL_TYPE STR_TYPE NUMBER_TYPE OBJ_TYPE REFERENCE_TYPE
+%token LIST_TYPE COMPLETION_TYPE ENVIRONMENT_RECORD_TYPE
 %token EOF
 
 %left LAND LOR
@@ -78,19 +77,35 @@ proc_target:
 *)
 
 type_target:
-  | INT_TYPE;
-    { print_string ">INT_TYPE\n";Type.IntType }
-  | FLT_TYPE;
-    { print_string ">FLOAT_TYPE\n";Type.FltType }
-  | STR_TYPE;
-    { print_string ">STR_TYPE\n";Type.StrType }
-  | BOOL_TYPE;
+  | UNDEF_TYPE;
+    { print_string ">UNDEF_TYPE\n";Type.UndefType }
+  | NULL_TYPE;
+    { print_string ">NULL_TYPE\n";Type.NullType }
+  | BOOL_TYPE
     { print_string ">BOOL_TYPE\n";Type.BoolType }
+  | STR_TYPE
+    { print_string ">STR_TYPE\n";Type.StrType }
+  | NUMBER_TYPE;
+    { print_string ">NUMBER_TYPE\n";Type.NumberType }
+  | OBJ_TYPE;
+    { print_string ">OBJ_TYPE\n";Type.ObjType }
+  | REFERENCE_TYPE;
+    { print_string ">REFERENCE_TYPE\n";Type.ReferenceType }
+  | LIST_TYPE;
+    { print_string ">LIST_TYPE\n";Type.ListType }
+  | COMPLETION_TYPE;
+    { print_string ">COMPLETION_TYPE\n";Type.CompletionType }
+  | ENVIRONMENT_RECORD_TYPE;
+    { print_string ">ENVIRONMENT_RECORD_TYPE\n";Type.EnvironmentRecordType }
+
+tuple_target:
+  | v1 = expr_target; COMMA; v2 = expr_target;
+    { [v2; v1] }
+  | vs = tuple_target; COMMA; v = expr_target;
+    { v :: vs }
 
 (* v ::= f | i | b | s *)
 val_target:
-  | UNDEFINED;
-    { print_string ">UNDEF\n";Val.Undef }
   | NULL;
     { print_string ">NULL\n";Val.Null }
   | f = FLOAT;
@@ -105,11 +120,17 @@ val_target:
       print_string ">STR\n";Val.Str sub } (* Remove the double-quote characters from the parsed string *)
   | t = type_target;
     { print_string ">TYPE \n";Val.Type t }
+  | s = SYMBOL;
+    { let len = String.length s in
+      let sub = String.sub s 1 (len - 1) in
+      print_string ">SYMBOL\n";Val.Symbol sub } (* Remove the double-quote characters from the parsed string *)
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 expr_target:
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { print_string ">NOP\n";Expr.NOpt (Oper.ListExpr, es) }
+  | LPAREN; t = tuple_target; RPAREN;
+    { Expr.NOpt (Oper.TupleExpr, List.rev t) }
   | v = val_target;
     { print_string ">VAL\n"; Expr.Val v }
   | v = VAR;
@@ -121,9 +142,15 @@ expr_target:
   | LEN; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Len, e) } %prec unopt_prec
   | TYPEOF; e = expr_target;
-    { print_string ">UNOP\n"; Expr.UnOpt ( Oper.Typeof, e) } %prec unopt_prec
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.Typeof, e) } %prec unopt_prec
+  | HD; e = expr_target;
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.Head, e) } %prec unopt_prec
+  | TL; e = expr_target;
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.Tail, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
     { print_string ">BINOP\n";Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
+  | LNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    {  print_string ">BINOP\n";Expr.BinOpt (Oper.Lnth, e1, e2) }
   | LPAREN; e = expr_target; RPAREN;
     { print_string ">PAREN\n";e }
 
@@ -134,6 +161,8 @@ stmt_block:
 }
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return *)
 stmt_target:
+  | PRINT; e = expr_target;
+    { Stmt.Print e }
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;
     { print_string ">FIELDASSIGN\n";  Stmt.FieldAssign (e1, Expr.Val (Str f), e2) }
   | e1 = expr_target; LBRACK; f = expr_target; RBRACK; DEFEQ; e2 = expr_target;
