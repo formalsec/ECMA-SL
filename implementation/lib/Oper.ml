@@ -84,13 +84,26 @@ let is_true (v : Val.t) : bool = match v with
   | _      -> invalid_arg "Exception in Oper.is_true: argument is not boolean"
 
 let typeof (v : Val.t) : Val.t = match v with
-  | Int v  -> Type (Type.IntType)
-  | Flt v  -> Type (Type.FltType)
-  | Str v  -> Type (Type.StrType)
-  | Bool v -> Type (Type.BoolType)
-  | Loc v  -> invalid_arg "Exception in Oper.typeof: not implemented for Loc type argument"
-  | Type v -> invalid_arg "Exception in Oper.typeof: not implemented for Type type argument"
-  | _      -> invalid_arg "Exception in Oper.typeof: invalid argument"
+  | Int _
+  | Flt _    -> Type (Type.NumberType)
+  | Bool v   -> Type (Type.BoolType)
+  | Str v    -> Type (Type.StrType)
+  | Loc v    -> Type (Type.ObjType)
+  | List v   -> Type (Type.ListType)
+  | Tuple v  -> (let len = List.length v in
+                 if len = 3 then (
+                   let elem = List.nth v 2 in (
+                     match elem with
+                     | Bool _ -> Type (Type.ReferenceType)
+                     | Str _  -> Type (Type.CompletionType)
+                     | _      -> invalid_arg "Exception in Oper.typeof: third element of the Tuple has an invalid type"))
+                 else invalid_arg ("Exception in Oper.typeof: invalid number of elements in the Tuple -> " ^ (string_of_int len)))
+  | Null     -> Type (Type.NullType)
+  | Symbol v -> (match v with
+      | "'undefined" -> Type Type.UndefType
+      | "'NaN"       -> Type Type.NumberType
+      | _            -> invalid_arg ("Exception in Oper.typeof: unknown symbol \"" ^ v ^ "\""))
+  | _        -> invalid_arg ("Exception in Oper.typeof: invalid argument \"" ^ Val.str v ^ "\"")
 
 let len (v : Val.t) : Val.t = match v with
   | List v  -> Val.Int (List.length v)

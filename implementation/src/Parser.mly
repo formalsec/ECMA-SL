@@ -26,11 +26,8 @@
 %token LAND LOR
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
 %token NOT LEN LNTH HD TL
-%token TYPEOF
-%token INT_TYPE
-%token FLT_TYPE
-%token STR_TYPE
-%token BOOL_TYPE
+%token TYPEOF UNDEF_TYPE NULL_TYPE BOOL_TYPE STR_TYPE NUMBER_TYPE OBJ_TYPE REFERENCE_TYPE
+%token LIST_TYPE COMPLETION_TYPE ENVIRONMENT_RECORD_TYPE
 %token EOF
 
 %left LAND LOR
@@ -80,14 +77,26 @@ proc_target:
 *)
 
 type_target:
-  | INT_TYPE;
-    { print_string ">INT_TYPE\n";Type.IntType }
-  | FLT_TYPE;
-    { print_string ">FLOAT_TYPE\n";Type.FltType }
-  | STR_TYPE;
-    { print_string ">STR_TYPE\n";Type.StrType }
-  | BOOL_TYPE;
+  | UNDEF_TYPE;
+    { print_string ">UNDEF_TYPE\n";Type.UndefType }
+  | NULL_TYPE;
+    { print_string ">NULL_TYPE\n";Type.NullType }
+  | BOOL_TYPE
     { print_string ">BOOL_TYPE\n";Type.BoolType }
+  | STR_TYPE
+    { print_string ">STR_TYPE\n";Type.StrType }
+  | NUMBER_TYPE;
+    { print_string ">NUMBER_TYPE\n";Type.NumberType }
+  | OBJ_TYPE;
+    { print_string ">OBJ_TYPE\n";Type.ObjType }
+  | REFERENCE_TYPE;
+    { print_string ">REFERENCE_TYPE\n";Type.ReferenceType }
+  | LIST_TYPE;
+    { print_string ">LIST_TYPE\n";Type.ListType }
+  | COMPLETION_TYPE;
+    { print_string ">COMPLETION_TYPE\n";Type.CompletionType }
+  | ENVIRONMENT_RECORD_TYPE;
+    { print_string ">ENVIRONMENT_RECORD_TYPE\n";Type.EnvironmentRecordType }
 
 tuple_target:
   | v1 = expr_target; COMMA; v2 = expr_target;
