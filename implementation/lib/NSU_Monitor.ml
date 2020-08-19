@@ -1,7 +1,8 @@
 (*Each monitor is independent of the other ones*)
 exception Except of string
 
-type monitor_return = MReturn of (Level.t list *SecStore.t * SecCallStack.t)
+type monitor_return = | MReturn of ( SecCallStack.t * SecHeap.t * SecStore.t * Level.t list )
+                      | MFail of ( SecCallStack.t * SecHeap.t * SecStore.t * Level.t list * string)
 
 
 
@@ -14,30 +15,29 @@ let add_pc (pc:Level.t list) (lvl : Level.t) : Level.t list=
   let aux= List.rev pc in
   let pc'=  [lvl] @ aux in
   List.rev pc'
+
 let pop_pc (pc: Level.t list) : Level.t list =
   let pc'= List.rev pc in
   match pc' with
   |[] -> raise(Except "PC list is empty!")
   |l::ls'-> List.rev ls'
+
 let check_pc (pc: Level.t list):(Level.t) =
   let pc'= List.rev pc in
   match pc' with
   | s::ss'-> s
   | _ -> raise(Except "PC list is empty!")
 
+let rec expr_lvl (ssto:SecStore.t) (exp:Expr.t) : Level.t =
+  (*Criar lub entre lista de variaveis*)
+  let vars = Expr.vars exp in
+  let vars_lvl =
+  match vars with
+  | [] -> SecLevel.Low
+  | _ -> List.fold_left  (SecLevel.lub) acc (List.map (SecStore.get_store ssto) vars);
+    acc
 
-
-let rec eval_expr (ssto:SecStore.t) (exp:Expr.t) : Level.t =
-  match exp with
-  | Val v-> Level.Low
-  | Var x -> SecStore.get_store ssto x
-  | UnOp (op,e) -> eval_expr ssto e
-  | BinOp (op,e1,e2) -> let level_e1 = eval_expr ssto e1 in
-    let level_e2 = eval_expr ssto e2 in
-    Level.parse_lvl (Level.lub (Level.str level_e1) (Level.str level_e2))
-
-
-let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t) (ssto:SecStore.t) (pc:Level.t list) (tl:TLabel.t) (verbose:bool): monitor_return =
+let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (ssto:SecStore.t) (pc:Level.t list) (tl:TLabel.t) (verbose:bool): monitor_return =
   (if (verbose)
    then print_string ("[ M ]  "^(TLabel.str tl)^"  \n")
   );
@@ -46,69 +46,58 @@ let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t) (ssto:SecStore.t) (pc
             *)
 
   (match tl with
-   |EmptyLab -> MReturn (pc, ssto,scs)
-   |MergeLab -> let pc' = pop_pc pc in
+   | EmptyLab -> MReturn (scs,sheap,ssto,pc)
+   | MergeLab -> let pc' = pop_pc pc in
      (if verbose then  print_pc(pc'));
-     MReturn (pc', ssto,scs)
+     MReturn (scs,sheap, ssto,pc')
 
+   | RetLab e ->
+      let lvl = expr_lvl ssto e in
+      let lvl_f = Level.lub lvl check_pc pc in
+      let (frame, scs') = SecCallStack.pop scs in
+      (match frame with
+        | Intermediate (pc',ssto', x) ->  eval_small_step prog scs' sheap ssto' pc' (TLabel.UpgVarLab (x,lvl_f)) verbose
+        | Toplevel -> MReturn (scs', sheap, ssto, pc))
 
-   |RetLab e ->  (let lvl = eval_expr ssto e in
-                  let lvl_f = Level.parse_lvl (Level.lub (Level.str lvl) (Level.str (check_pc pc))) in
-                  let (f, scs') = SecCallStack.pop scs in
-                  match f with
-                  | Intermediate (pc',ssto', var) ->  eval_small_step prog scs' ssto' pc' (TLabel.AsgnLevLab (var,lvl_f)) verbose
-                  | Toplevel -> MReturn (pc, ssto,scs)
-                 )
+   | UpgVarLab (x,lev)->
+      let pc_lvl= check_pc pc in
+      let x_lvl = SecStore.get_lvl ssto x in
+        if (Level.leq x_lvl pc_lvl) then (
+          SecStore.set_store ssto x (Level.lub lev pc_lvl);
+          MReturn (scs, sheap, ssto, pc)
+        ) else MFail (scs, sheap, ssto, pc, ("NSU Violation - UpgVarLab: " ^ x ^ " " ^ (SecLevel.str lev)))
 
-
-   |UpgradeLab (var,lev) -> eval_small_step prog scs ssto pc (AsgnLevLab(var, (Level.parse_lvl(lev)))) verbose
-
-
-   |AsgnLevLab (var,lev)-> let pc_lvl= check_pc pc in
-     (try (let var_lvl = Hashtbl.find ssto var in
-           if (Level.leq (Level.str var_lvl) (Level.str pc_lvl)) then(
-             print_string (Level.str lev);
-             SecStore.set_store ssto var (Level.parse_lvl (Level.lub (Level.str lev) (Level.str pc_lvl)));
-             (if verbose then print_string ("[ M ] "^var^ " <- "^(Level.lub (Level.str lev) (Level.str pc_lvl))^"\n"));
-             MReturn (pc, ssto,scs))
-
-           else (raise(Except "MONITOR BLOCK - Invalid Assignment "))
-          )
-      with Not_found -> 	SecStore.set_store ssto var (Level.parse_lvl (Level.lub (Level.str lev) (Level.str pc_lvl)));
-        (if verbose then print_string ("[ M ] "^var^ " <- "^(Level.str lev)^"\n"));
-        eval_small_step prog scs ssto pc (TLabel.AsgnLevLab (var,lev)) verbose
-     )
-
-
-
-
-   |AsgnLab (var, exp) ->	let lvl=eval_expr ssto exp in
-
-
-     eval_small_step prog scs ssto pc (TLabel.AsgnLevLab (var,lvl)) verbose
-
-   |OutLab (lev,exp) ->  let lvl_pc= check_pc pc in
-     let lvl_lev = (Level.parse_lvl lev) in
-     let lvl_exp = eval_expr ssto exp in
-     if(Level.leq (Level.str lvl_lev) (Level.lub (Level.str (lvl_exp)) (Level.str (lvl_pc)))) then
-       MReturn (pc, ssto, scs)
+   | OutLab (lev,exp) ->
+     let lvl_pc= check_pc pc in
+     let lvl_exp = expr_lvl ssto exp in
+     if (Level.leq (Level.lub lvl_exp lvl_pc) lev) then
+       MReturn (scs, sheap, ssto, pc)
      else
-       raise(Except "MONITOR BLOCK - Output levels invalid")
+       MFail (scs, sheap, ssto, pc, ("NSU Violation - OutLab: " ^ (SecLevel.str lev) ^ " " ^ (Expr.str exp)))
 
-   |BranchLab (exp, stms) -> let lev= eval_expr ssto exp in
-     (if verbose then print_string ("[M] - Branch eval = " ^ (Level.str lev)));
-     let pc_lvl = check_pc pc in
-     if(Level.leq (Level.str lev) (Level.str pc_lvl) ) then(
-       let pc' = add_pc pc lev in
-       (if verbose then ( print_string ("[ M ] Level added to stack"^ " <- "^(Level.str lev)^"\n");
-                          print_pc(pc')));
-       MReturn (pc', ssto,scs))
-     else (raise(Except "MONITOR BLOCK - Low branch in High guard"))
+   | BranchLab (exp) ->
+      let lev= expr_lvl ssto exp in
+      let pc_lvl = check_pc pc in
+      let pc' = add_pc pc lev in
+      MReturn (scs, sheap, ssto, pc')
 
-
-   |CallLab (exp,x,f)->let scs'=SecCallStack.push scs (SecCallStack.Intermediate (pc,ssto,x)) in
-     let lvls = (List.map (eval_expr ssto) exp) in
-     let pvs =( List.combine (Prog.get_params prog f) lvls) in
+   | CallLab (exp,x,f)->
+     let scs'=SecCallStack.push scs (SecCallStack.Intermediate (pc,ssto,x)) in
+     let lvls = List.map (expr_lvl ssto) exp in
+     let pvs = List.combine (Prog.get_params prog f) lvls in
      let ssto_aux = SecStore.create_store pvs in
-     MReturn (pc,ssto_aux,scs')
+     MReturn (scs', sheap, ssto_aux, [check_pc pc])
+
+
+   | UpgPropExistsLab (loc,prop,lvl) ->
+     SecHeap.upg_prop_exist_lab sheap loc prop lvl;
+     MReturn (scs, sheap, ssto, pc)
+
+   | UpgStructLab (loc,lvl) ->
+     SecHeap.upg_prop_exist_lab sheap loc prop lvl;
+     MReturn (scs, sheap, ssto, pc)
+
+   | UpgPropValLab (loc,str,lvl) ->
+     MReturn (scs, sheap, ssto, pc)
+
   )
