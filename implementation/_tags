@@ -6,3 +6,4 @@ true: package(containers)
 true: package(containers.data)
 true: package(yojson)
 <*>: include
+<**/*>: include
