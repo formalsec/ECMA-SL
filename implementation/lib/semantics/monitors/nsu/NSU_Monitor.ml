@@ -34,7 +34,7 @@ let rec expr_lvl (ssto:SecStore.t) (exp:Expr.t) : Level.t =
   let vars_lvl =
     match vars with
     | [] -> SecLevel.Low
-    | _ -> List.fold_left  (SecLevel.lub) acc (List.map (SecStore.get_store ssto) vars);
+    | _ -> List.fold_left  (SecLevel.lub) acc asdfasd (List.map (SecStore.get_store ssto) vars);
       acc
 
 let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (ssto:SecStore.t) (pc:Level.t list) (tl:TLabel.t) (verbose:bool): monitor_return =
@@ -103,5 +103,8 @@ let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (s
    | UpgPropExistsLab (loc,prop,lvl) ->
      SecHeap.upg_prop_exist sheap loc prop lvl;
      MReturn (scs, sheap, ssto, pc)
+
+   | FieldAccess (x,loc,field, e_o, e_f) ->
+     let lev_o,
 
   )
