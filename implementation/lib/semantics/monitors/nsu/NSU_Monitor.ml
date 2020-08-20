@@ -32,10 +32,10 @@ let rec expr_lvl (ssto:SecStore.t) (exp:Expr.t) : Level.t =
   (*Criar lub entre lista de variaveis*)
   let vars = Expr.vars exp in
   let vars_lvl =
-  match vars with
-  | [] -> SecLevel.Low
-  | _ -> List.fold_left  (SecLevel.lub) acc (List.map (SecStore.get_store ssto) vars);
-    acc
+    match vars with
+    | [] -> SecLevel.Low
+    | _ -> List.fold_left  (SecLevel.lub) acc (List.map (SecStore.get_store ssto) vars);
+      acc
 
 let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (ssto:SecStore.t) (pc:Level.t list) (tl:TLabel.t) (verbose:bool): monitor_return =
   (if (verbose)
@@ -52,20 +52,20 @@ let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (s
      MReturn (scs,sheap, ssto,pc')
 
    | RetLab e ->
-      let lvl = expr_lvl ssto e in
-      let lvl_f = Level.lub lvl check_pc pc in
-      let (frame, scs') = SecCallStack.pop scs in
-      (match frame with
-        | Intermediate (pc',ssto', x) ->  eval_small_step prog scs' sheap ssto' pc' (TLabel.UpgVarLab (x,lvl_f)) verbose
-        | Toplevel -> MReturn (scs', sheap, ssto, pc))
+     let lvl = expr_lvl ssto e in
+     let lvl_f = Level.lub lvl check_pc pc in
+     let (frame, scs') = SecCallStack.pop scs in
+     (match frame with
+      | Intermediate (pc',ssto', x) ->  eval_small_step prog scs' sheap ssto' pc' (TLabel.UpgVarLab (x,lvl_f)) verbose
+      | Toplevel -> MReturn (scs', sheap, ssto, pc))
 
    | UpgVarLab (x,lev)->
-      let pc_lvl= check_pc pc in
-      let x_lvl = SecStore.get_lvl ssto x in
-        if (Level.leq x_lvl pc_lvl) then (
-          SecStore.set_store ssto x (Level.lub lev pc_lvl);
-          MReturn (scs, sheap, ssto, pc)
-        ) else MFail (scs, sheap, ssto, pc, ("NSU Violation - UpgVarLab: " ^ x ^ " " ^ (SecLevel.str lev)))
+     let pc_lvl= check_pc pc in
+     let x_lvl = SecStore.get_lvl ssto x in
+     if (Level.leq x_lvl pc_lvl) then (
+       SecStore.set_store ssto x (Level.lub lev pc_lvl);
+       MReturn (scs, sheap, ssto, pc)
+     ) else MFail (scs, sheap, ssto, pc, ("NSU Violation - UpgVarLab: " ^ x ^ " " ^ (SecLevel.str lev)))
 
    | OutLab (lev,exp) ->
      let lvl_pc= check_pc pc in
@@ -76,10 +76,10 @@ let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (s
        MFail (scs, sheap, ssto, pc, ("NSU Violation - OutLab: " ^ (SecLevel.str lev) ^ " " ^ (Expr.str exp)))
 
    | BranchLab (exp) ->
-      let lev= expr_lvl ssto exp in
-      let pc_lvl = check_pc pc in
-      let pc' = add_pc pc lev in
-      MReturn (scs, sheap, ssto, pc')
+     let lev= expr_lvl ssto exp in
+     let pc_lvl = check_pc pc in
+     let pc' = add_pc pc lev in
+     MReturn (scs, sheap, ssto, pc')
 
    | CallLab (exp,x,f)->
      let scs'=SecCallStack.push scs (SecCallStack.Intermediate (pc,ssto,x)) in
@@ -88,16 +88,20 @@ let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (s
      let ssto_aux = SecStore.create_store pvs in
      MReturn (scs', sheap, ssto_aux, [check_pc pc])
 
+   | UpgStructValLab (loc,lvl) ->
+     SecHeap.upg_struct_val sheap loc prop lvl;
+     MReturn (scs, sheap, ssto, pc)
+
+   | UpgStructExistLab (loc,lvl) ->
+     SecHeap.upg_struct_exist sheap loc lvl;
+     MReturn (scs, sheap, ssto, pc)
+
+   | UpgPropValLab (loc,prop,lvl) ->
+     SecHeap.upg_prop_val sheap loc prop lvl;
+     MReturn (scs, sheap, ssto, pc)
 
    | UpgPropExistsLab (loc,prop,lvl) ->
-     SecHeap.upg_prop_exist_lab sheap loc prop lvl;
-     MReturn (scs, sheap, ssto, pc)
-
-   | UpgStructLab (loc,lvl) ->
-     SecHeap.upg_prop_exist_lab sheap loc prop lvl;
-     MReturn (scs, sheap, ssto, pc)
-
-   | UpgPropValLab (loc,str,lvl) ->
+     SecHeap.upg_prop_exist sheap loc prop lvl;
      MReturn (scs, sheap, ssto, pc)
 
   )
