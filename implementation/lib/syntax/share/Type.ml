@@ -1,23 +1,23 @@
 type t =
-  | UndefType
-  | NullType
+  | IntType
+  | FltType
   | BoolType
   | StrType
-  | NumberType
-  | ObjType
-  | ReferenceType
+  | LocType
   | ListType
-  | CompletionType
-  | EnvironmentRecordType
+  | TypeType
+  | TupleType
+  | NullType
+  | SymbolType
 
 let str (v : t) : string = match v with
-  | UndefType             -> "__$undefined"
-  | NullType              -> "__$null"
-  | BoolType              -> "__$boolean"
-  | StrType               -> "__$string"
-  | NumberType            -> "__$number"
-  | ObjType               -> "__$object"
-  | ReferenceType         -> "__$reference"
-  | ListType              -> "__$list"
-  | CompletionType        -> "__$completion"
-  | EnvironmentRecordType -> "__$environment_record"
+  | IntType    -> "Int"
+  | FltType    -> "Flt"
+  | BoolType   -> "Bool"
+  | StrType    -> "Str"
+  | LocType    -> "Obj"
+  | ListType   -> "List"
+  | TypeType   -> "Type"
+  | TupleType  -> "Tuple"
+  | NullType   -> "Null"
+  | SymbolType -> "Symbol"

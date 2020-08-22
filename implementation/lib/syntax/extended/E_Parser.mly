@@ -29,8 +29,7 @@
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
 %token NOT LEN LNTH HD TL
 %token IMPORT
-%token TYPEOF UNDEF_TYPE NULL_TYPE BOOL_TYPE STR_TYPE NUMBER_TYPE OBJ_TYPE REFERENCE_TYPE
-%token LIST_TYPE COMPLETION_TYPE ENVIRONMENT_RECORD_TYPE
+%token TYPEOF
 %token EOF
 
 %left LAND LOR
@@ -84,28 +83,6 @@ proc_target:
     to produce values that are attached to the nonterminal in the rule.
 *)
 
-type_target:
-  | UNDEF_TYPE;
-    { Type.UndefType }
-  | NULL_TYPE;
-    { Type.NullType }
-  | BOOL_TYPE
-    { Type.BoolType }
-  | STR_TYPE
-    { Type.StrType }
-  | NUMBER_TYPE;
-    { Type.NumberType }
-  | OBJ_TYPE;
-    { Type.ObjType }
-  | REFERENCE_TYPE;
-    { Type.ReferenceType }
-  | LIST_TYPE;
-    { Type.ListType }
-  | COMPLETION_TYPE;
-    { Type.CompletionType }
-  | ENVIRONMENT_RECORD_TYPE;
-    { Type.EnvironmentRecordType }
-
 tuple_target:
   | v1 = e_expr_target; COMMA; v2 = e_expr_target;
     { [v2; v1] }
@@ -130,8 +107,6 @@ val_target:
     { let len = String.length s in
       let sub = String.sub s 1 (len - 1) in
       Val.Symbol sub } (* Remove the quote characters from the parsed string *)
-  | t = type_target;
-    { Val.Type t }
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 e_expr_target:

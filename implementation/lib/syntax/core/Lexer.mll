@@ -73,7 +73,6 @@ rule read =
   | '['          { LBRACK }
   | ']'          { RBRACK }
   | "typeof"     { TYPEOF }
-  | "__$"        { read_type lexbuf }
   | "if"         { IF }
   | "else"       { ELSE }
   | "while"      { WHILE }
@@ -98,18 +97,3 @@ and read_comment =
   | "*/" { read lexbuf }
   | _    { read_comment lexbuf }
   | eof  { raise (Syntax_error ("Comment is not terminated."))}
-
-and read_type =
-(* Read Standard Types *)
-  parse
-  | "undefined"           { UNDEF_TYPE }
-  | "null"                { NULL_TYPE }
-  | "boolean"             { BOOL_TYPE }
-  | "string"              { STR_TYPE }
-  | "number"              { NUMBER_TYPE }
-  | "object"              { OBJ_TYPE }
-  | "reference"           { REFERENCE_TYPE }
-  | "list"                { LIST_TYPE }
-  | "completion"          { COMPLETION_TYPE }
-  | "environment_record"  { ENVIRONMENT_RECORD_TYPE }
-  | _                     { raise (Syntax_error ("Unexpected type: " ^ Lexing.lexeme lexbuf)) }
