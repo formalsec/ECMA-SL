@@ -105,50 +105,60 @@ and eval_fieldassign_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e_o :
 let rec eval_small_step (interceptor: string -> Val.t list -> SecLabel.t option) (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: Store.t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : (return * SecLabel.t)  =
   print_string ("\n>>> "^Stmt.str s^"\n");
   match s with
-  | Skip ->  (Intermediate (cs, cont,sto, heap), SecLabel.EmptyLab)
+  | Skip ->
+    (Intermediate (cs, cont,sto, heap), SecLabel.EmptyLab)
 
-  | Print e -> (let v = eval_expr sto e in
-                print_endline ("PROGRAM PRINT: " ^ (Val.str v));
-                (Intermediate (cs, cont, sto, heap), SecLabel.EmptyLab)
-               )
+  | Print e ->
+    (let v = eval_expr sto e in
+     print_endline ("PROGRAM PRINT: " ^ (Val.str v));
+     (Intermediate (cs, cont, sto, heap), SecLabel.EmptyLab)
+    )
 
-  | Assign (x,e) -> (let v = eval_expr sto e in
-                     Store.set sto x v;
-                     print_string ("STORE: " ^ (x) ^ " <- " ^   Val.str v ^"\n");
-                     (Intermediate (cs, cont, sto, heap)), SecLabel.AsgnLab (x,e))
+  | Assign (x,e) ->
+    (let v = eval_expr sto e in
+     Store.set sto x v;
+     print_string ("STORE: " ^ (x) ^ " <- " ^   Val.str v ^"\n");
+     (Intermediate (cs, cont, sto, heap)), SecLabel.AssignLab (x,e))
 
 
-  | Return e -> let v = eval_expr sto e in
+  | Return e ->
+    let v = eval_expr sto e in
     let  (f,cs') = Callstack.pop cs in (
       match f with
       | Callstack.Intermediate (cont',sto', x) ->   (Store.set sto'  x v;
-                                                     (Intermediate (cs',cont',sto', heap), SecLabel.RetLab e))
+                                                     (Intermediate (cs',cont',sto', heap), SecLabel.ReturnLab e))
 
 
-      | Callstack.Toplevel -> (Finalv (Some v), SecLabel.RetLab e))
+      | Callstack.Toplevel -> (Finalv (Some v), SecLabel.ReturnLab e))
 
-  | Block block -> (Intermediate (cs,(block @ cont),sto,heap), SecLabel.EmptyLab )
+  | Block block ->
+    (Intermediate (cs,(block @ cont),sto,heap), SecLabel.EmptyLab )
 
 
 
-  | If (e,s1,s2) -> let v = eval_expr sto e in
+  | If (e,s1,s2) ->
+    let v = eval_expr sto e in
     if (Oper.is_true v) then
       match s1 with
-      | Block block -> (match s2 with
-          |Some v -> Intermediate (cs,(block @ cont),sto, heap), SecLabel.BranchLab (e,v)
-          |None -> Intermediate (cs,(block @ cont),sto, heap), SecLabel.BranchLab (e,(Stmt.Skip)))
+      | Block block ->
+        (match s2 with
+         |Some v -> Intermediate (cs,(block @ cont),sto, heap), SecLabel.BranchLab (e,v)
+         |None -> Intermediate (cs,(block @ cont),sto, heap), SecLabel.BranchLab (e,(Stmt.Skip)))
       | _ -> raise (Except "IF block expected ")
 
     else
       (match s2 with
-       | Some v -> (match v with
-           | Block block2 -> Intermediate (cs, (block2 @ cont), sto, heap),SecLabel.BranchLab (e,s1)
-           |_ -> raise (Except "Not expected"))
-       | None ->  (Intermediate (cs,cont,sto, heap), SecLabel.EmptyLab))
+       | Some v ->
+         (match v with
+          | Block block2 -> Intermediate (cs, (block2 @ cont), sto, heap),SecLabel.BranchLab (e,s1)
+          |_ -> raise (Except "Not expected"))
+       | None ->
+         (Intermediate (cs,cont,sto, heap), SecLabel.EmptyLab))
 
 
 
-  | While (e,s) ->let s1 = (s :: []) @ (Stmt.While (e,s) :: []) in
+  | While (e,s) ->
+    let s1 = (s :: []) @ (Stmt.While (e,s) :: []) in
     let stms= Stmt.If (e, (Stmt.Block s1), None) in
     (Intermediate (cs, (stms :: cont),sto, heap), SecLabel.EmptyLab)
 
@@ -158,43 +168,51 @@ let rec eval_small_step (interceptor: string -> Val.t list -> SecLabel.t option)
     let func = (Prog.get_func prog f') in
     let b = interceptor f' vs in
     ( match b with
-      |None -> (let (cont':Stmt.t) = func.body in
-                let aux_list= (cont'::[]) in
-                (Intermediate (cs', aux_list, sto_aux, heap), SecLabel.CallLab (es,x,(Expr.str f))))
-      |Some lab -> (Intermediate(cs,cont,sto,heap),lab))
+      |None ->
+        (let (cont':Stmt.t) = func.body in
+         let aux_list= (cont'::[]) in
+         (Intermediate (cs', aux_list, sto_aux, heap), SecLabel.AssignCallLab (es,x,(Expr.str f))))
+      |Some lab ->
+        (Intermediate(cs,cont,sto,heap),lab))
 
   | AssignInObjCheck (st, e1, e2) ->
     let v= eval_inobj_expr prog heap sto e1 e2 in
     Store.set sto st v;
-    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,e1))
+    (Intermediate (cs, cont, sto, heap), SecLabel.AssignLab (st,e1))
 
 
-  | AssignNewObj (st) ->let newobj= Object.create () in
+  | AssignNewObj (st) ->
+    let newobj= Object.create () in
     let loc= Heap.insert heap newobj in
     Store.set sto st (Val.Loc loc);
     print_string ("STORE: " ^ st ^ " <- " ^   Val.str (Val.Loc loc) ^"\n");
     (Intermediate (cs, cont, sto, heap), SecLabel.EmptyLab)
 
 
-  | AssignAccess (st, ef, ep) -> let loc= eval_expr sto ef in
-    let field = eval_expr sto ep in
+  | FieldLookup (x, e_o, e_f) ->
+    let loc= eval_expr sto e_o in
+    let field = eval_expr sto e_f in
     (match loc,field with
-     | Loc loc', Str field' -> (let v = Heap.get_field heap loc' field' in
-                                let v' =(match v with
-                                    | None     -> Val.Symbol "undefined"
-                                    | Some v'' -> v''
-                                  ) in
-                                Store.set sto st v';
-                                print_string ("STORE: " ^ st ^ " <- " ^   Val.str v' ^"\n");
-                                (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab (st,ep)))
-     | _                    -> invalid_arg ("Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc."))
+     | Loc loc', Str field' ->
+       (let v = Heap.get_field heap loc' field' in
+        let v' =(match v with
+            | None     -> Val.Symbol "undefined"
+            | Some v'' -> v''
+          ) in
+        Store.set sto x v';
+        print_string ("STORE: " ^ x ^ " <- " ^   Val.str v' ^"\n");
+        (Intermediate (cs, cont, sto, heap), SecLabel.FieldLookupLab (x, loc', field', e_o, e_f)))
+     | _                    ->
+       invalid_arg ("Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc."))
 
 
-  | FieldAssign (e_o, f, e_v) -> eval_fieldassign_stmt prog heap sto e_o f e_v;
-    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e_v))
+  | FieldAssign (e_o, f, e_v) ->
+    eval_fieldassign_stmt prog heap sto e_o f e_v;
+    (Intermediate (cs, cont, sto, heap), SecLabel.EmptyLab) (*TODO*)
 
-  | FieldDelete (e, f)        -> eval_fielddelete_stmt prog heap sto e f;
-    (Intermediate (cs, cont, sto, heap), SecLabel.AsgnLab ((Expr.str f),e))
+  | FieldDelete (e, f)        ->
+    eval_fielddelete_stmt prog heap sto e f;
+    (Intermediate (cs, cont, sto, heap), SecLabel.EmptyLab)(*TODO*)
 
 
 (*This function will iterate smallsteps in a list of functions*)
