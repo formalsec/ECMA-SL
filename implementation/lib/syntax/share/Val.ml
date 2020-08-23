@@ -22,4 +22,4 @@ let rec str (v : t) : string = match v with
   | Tuple vs -> "(" ^ (String.concat ", " (List.map str vs)) ^ ")"
   | Void     -> ""
   | Null     -> "null"
-  | Symbol s -> "'" ^ s
+  | Symbol s -> s

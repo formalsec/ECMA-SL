@@ -96,9 +96,7 @@ val_target:
       let sub = String.sub s 1 (len - 2) in
       print_string ">STR\n";Val.Str sub } (* Remove the double-quote characters from the parsed string *)
   | s = SYMBOL;
-    { let len = String.length s in
-      let sub = String.sub s 1 (len - 1) in
-      print_string ">SYMBOL\n";Val.Symbol sub } (* Remove the double-quote characters from the parsed string *)
+    { print_string ">SYMBOL\n";Val.Symbol s }
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 expr_target:
