@@ -84,16 +84,16 @@ let is_true (v : Val.t) : bool = match v with
   | _      -> invalid_arg "Exception in Oper.is_true: argument is not boolean"
 
 let typeof (v : Val.t) : Val.t = match v with
-  | Int _    -> Type (Type.IntType)
-  | Flt _    -> Type (Type.FltType)
-  | Bool v   -> Type (Type.BoolType)
-  | Str v    -> Type (Type.StrType)
-  | Loc v    -> Type (Type.LocType)
-  | List v   -> Type (Type.ListType)
-  | Type v   -> Type (Type.TypeType)
-  | Tuple v  -> Type (Type.TupleType)
-  | Null     -> Type (Type.NullType)
-  | Symbol v -> Type (Type.SymbolType)
+  | Int _    -> Val.Str (Type.str (Type.IntType))
+  | Flt _    -> Val.Str (Type.str (Type.FltType))
+  | Bool _   -> Val.Str (Type.str (Type.BoolType))
+  | Str _    -> Val.Str (Type.str (Type.StrType))
+  | Loc _    -> Val.Str (Type.str (Type.LocType))
+  | List _   -> Val.Str (Type.str (Type.ListType))
+  | Type _   -> Val.Str (Type.str (Type.TypeType))
+  | Tuple _  -> Val.Str (Type.str (Type.TupleType))
+  | Null     -> Val.Str (Type.str (Type.NullType))
+  | Symbol _ -> Val.Str (Type.str (Type.SymbolType))
   | _        -> invalid_arg ("Exception in Oper.typeof: invalid argument \"" ^ Val.str v ^ "\"")
 
 let len (v : Val.t) : Val.t = match v with
