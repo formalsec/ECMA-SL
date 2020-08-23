@@ -168,9 +168,9 @@ stmt_target:
   {print_string ">ASSIGNINOBJCHECK\n";Stmt.AssignInObjCheck (v,e1,e2)}
 
   | v=VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;
-    { print_string ">ASSIGNACCESS\n";Stmt.AssignAccess (v,e, Expr.Val (Str f)) }
+    { print_string ">ASSIGNACCESS\n";Stmt.FieldLookup (v,e, Expr.Val (Str f)) }
   | v=VAR; DEFEQ;e = expr_target; LBRACK; f = expr_target; RBRACK;
-    { print_string ">ASSIGNACCESS\n";Stmt.AssignAccess (v,e, f) }
+    { print_string ">ASSIGNACCESS\n";Stmt.FieldLookup (v,e, f) }
   | v=VAR; DEFEQ;LBRACE; RBRACE;
     { print_string ">ASSIGNNEWOBJ\n";Stmt.AssignNewObj (v) }
 

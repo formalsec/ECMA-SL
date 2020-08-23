@@ -47,7 +47,7 @@ and compile_access (expr : E_Expr.t) (field : E_Expr.t) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   let stmts_expr, expr' = compile_expr expr in
   let stmts_field, field' = compile_expr field in
-  stmts_expr @ stmts_field @ [Stmt.AssignAccess (var, expr', field')], Expr.Var var
+  stmts_expr @ stmts_field @ [Stmt.FieldLookup (var, expr', field')], Expr.Var var
 
 
 and compile_assign (var : string) (e_exp : E_Expr.t) : Stmt.t list =
@@ -107,10 +107,10 @@ and compile_repeatuntil (stmt : E_Stmt.t) (expr : E_Expr.t) : Stmt.t list =
 
 and compile_patv (expr: Expr.t) (pname : string) (pat_v : E_Pat_v.t) (var_b : string) : string list * Stmt.t list * Stmt.t list =
   match pat_v with
-  | PatVar v -> ([], [], [Stmt.AssignAccess (v, expr, Expr.Val (Val.Str pname))])
+  | PatVar v -> ([], [], [Stmt.FieldLookup (v, expr, Expr.Val (Val.Str pname))])
   | PatVal v -> (let b = generate_fresh_var () in
                  let w = generate_fresh_var () in
-                 let stmt = Stmt.AssignAccess (w, expr, Expr.Val (Val.Str pname)) in
+                 let stmt = Stmt.FieldLookup (w, expr, Expr.Val (Val.Str pname)) in
                  let stmt_assign = Stmt.Assign (b, Expr.BinOpt (Oper.Equal, Expr.Var w, Expr.Val v)) in
                  [b], [stmt; stmt_assign], [])
   | PatNone  -> (let stmt = Stmt.Assign (var_b, Expr.UnOpt (Oper.Not, Expr.Var var_b)) in
