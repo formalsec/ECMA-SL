@@ -1,0 +1,100 @@
+import "test/ES5_Reference_Interpreter.esl";
+
+function JS_Interpreter(p) {
+  match p with
+  | { sourceType: "script", type: "Program", body: body } -> {
+    scope := NewObject();
+    i := 0;
+    lbody := l_len(body);
+    while (i<lbody) {
+      print "Before JS_Interpreter_Stmt";
+      JS_Interpreter_Stmt(l_nth(body, i), scope);
+      print "After JS_Interpreter_Stmt";
+      i := i + 1
+    };
+
+    return scope
+  }
+};
+
+function JS_Interpreter_Expr(e, scope) {
+  match e with
+  | { type: "AssignmentExpression", operator: op, left: l_expr, right: r_expr} -> {
+    /* 11.13.1 Simple Assignment ( = ) */
+    if (op = "=") {
+      lref := JS_Interpreter_Expr(l_expr, scope);
+      rref := JS_Interpreter_Expr(r_expr, scope);
+      rval := GetValue(rref);
+      if ((Type(lref) = "Reference") &&
+          (IsStrictReference(lref)) &&
+          (Type(GetBase(lref)) = "EnvironmentRecord") &&
+          ((GetReferencedName(lref) = "eval") || (GetReferencedName(lref) = "arguments")))
+      {
+        throw SyntaxErrorException()
+      };
+      PutValue(lref, rval);
+      return rval
+    }
+  }
+  | { type: "BinaryExpression", operator: op, left: l_expr, right: r_expr } -> {
+    /* 11.6.1 The Addition operator ( + ) */
+    if (op = "+") {
+      lref := JS_Interpreter_Expr(l_expr, scope);
+      lval := GetValue(lref);
+      rref := JS_Interpreter_Expr(r_expr, scope);
+      rval := GetValue(rref);
+      lprim := ToPrimitive(lval, "Number");
+      rprim := ToPrimitive(rval, "Number");
+      if ((Type(lprim) = "String") || (Type(rprim) = "String")) {
+        return ToString(lprim) + ToString(rprim)
+      };
+      return ToNumber(lprim) + ToNumber(rprim)
+    } else {
+      /* 11.9.4 The Strict Equals Operator ( === ) */
+      if (op = "===") {
+        lref := JS_Interpreter_Expr(l_expr, scope);
+        lval := GetValue(lref);
+        rref := JS_Interpreter_Expr(r_expr, scope);
+        rval := GetValue(rref);
+
+        return Strict_Equality_Operator(rval, lval)
+      }
+    }
+  }
+  | { type: "Identifier", name: name } -> {
+    /* 10.3.1 Identifier Resolution : TO_COMPLETE */
+    return GetIdentifierReference(scope, name, true)
+  }
+  | { type: "Literal", value: value } -> { return value }
+};
+
+function JS_Interpreter_Stmt(s, scope) {
+  match s with
+  | { type: "BlockStatement", body: body } -> {
+    /* TODO */
+    i := 0;
+    lbody := l_len(body);
+    while (i<lbody) {
+      JS_Interpreter(l_nth(body, i), scope);
+      i := i + 1
+    };
+
+    return
+  }
+  | { type: "ExpressionStatement", expression: e } -> {
+    return JS_Interpreter_Expr(e, scope)
+  }
+  | { type: "IfStatement", test: t, consequent: c, alternate: a } -> {
+    x := JS_Interpreter_Expr(t, scope);
+    x' := GetValue(x);
+    x' := ToBoolean(x');
+    if (x') {
+      return JS_Interpreter_Stmt(c, scope)
+    }
+    else {
+      if (!(a = null)) {
+        return JS_Interpreter_Stmt(a, scope)
+      }
+    }
+  }
+}

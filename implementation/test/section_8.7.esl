@@ -1,0 +1,107 @@
+/* Returns the base value component of the reference V. */
+function GetBase(V) {
+  print "GetBase";
+  return fst snd snd V
+};
+
+/* Returns the referenced name component of the reference V. */
+function GetReferencedName(V) {
+  print "GetReferencedName";
+  return fst snd snd snd V
+};
+
+/* Returns the strict reference component of the reference V. */
+function IsStrictReference(V) {
+  print "IsStrictReference";
+  return fst snd snd snd snd V
+};
+
+/* Returns true if the base value is a Boolean, String, or Number. */
+function HasPrimitiveBase(V) {
+  print "HasPrimitiveBase";
+  if ((Type (GetBase(V)) = "Boolean") || (Type (GetBase(V)) = "String") || (Type (GetBase(V)) = "Number")) {
+    return true
+  } else {
+    return false
+  }
+};
+
+/* Returns true if either the base value is an object or HasPrimitiveBase(V) is true; otherwise returns false. */
+function IsPropertyReference (V) {
+  print "IsPropertyReference";
+  if ((Type (GetBase(V)) = "Object") || HasPrimitiveBase(V)) {
+    return true
+  } else {
+    return false
+  }
+};
+
+/* Returns true if the base value is undefined and false otherwise. */
+function IsUnresolvableReference (V) {
+  print "IsUnresolvableReference";
+  if (Type(GetBase(V)) = "Undefined") {
+    return true
+  } else {
+    return false
+  }
+};
+
+function GetValue(V) {
+  print "GetValue";
+  if (!(Type(V) = "Reference")) {
+    return V
+  };
+
+  base := GetBase(V);
+
+  if (IsUnresolvableReference(V)) {
+    throw ReferenceErrorException()
+  };
+
+  if (IsPropertyReference(V)) {
+    /* TODO
+    if (HasPrimitiveBase(V) = false) {
+      get := base["[[Get]]"]
+    } else {
+      get := Get
+    }; */
+
+    return Get(base, GetReferencedName(V))
+  } else {
+    return GetBindingValue(base, GetReferencedName(V), IsStrictReference(V))
+  }
+};
+
+function PutValue(V, W) {
+  print "PutValue";
+  if (!(Type(V) = "Reference")) {
+    throw ReferenceErrorException()
+  };
+
+  base := GetBase(V);
+
+  if (IsUnresolvableReference(V)) {
+    if (IsStrictReference(V)) {
+      throw ReferenceErrorException()
+    };
+
+    Put(global, GetReferencedName(V), W, false)
+  } else {
+    if (IsPropertyReference(V)) {
+      if (HasPrimitiveBase(V) = false) {
+        put := base["Put"]
+      } else {
+        /* TODO */
+        throw NotImplemented();
+        put := Put
+      };
+
+      print "before put: ERROR";
+      [put](base, GetReferencedName(V), W, IsStrictReference(V))
+    } else {
+      SetMutableBinding(base, GetReferencedName(V), W, IsStrictReference(V))
+    };
+
+    return
+  }
+}
