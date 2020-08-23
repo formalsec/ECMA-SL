@@ -118,7 +118,9 @@ e_expr_target:
     { E_Expr.Val v }
   | v = VAR;
     { E_Expr.Var v }
-  | f = e_expr_target; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
+  | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
+    { E_Expr.Call (E_Expr.Val (Val.Str f), es) }
+  | LBRACK; f = e_expr_target; RBRACK; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Expr.Call (f, es) }
   | LPAREN; e = e_expr_target; RPAREN;
     { e }
