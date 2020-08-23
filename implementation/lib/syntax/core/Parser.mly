@@ -25,7 +25,7 @@
 %token <string> SYMBOL
 %token LAND LOR
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
-%token NOT LEN LNTH HD TL
+%token NOT LLEN LNTH HD TL TLEN FST SND
 %token TYPEOF
 %token EOF
 
@@ -114,14 +114,20 @@ expr_target:
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
   | NOT; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
-  | LEN; e = expr_target;
-    { print_string ">UNOP\n"; Expr.UnOpt (Oper.Len, e) } %prec unopt_prec
+  | LLEN; e = expr_target;
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.ListLen, e) } %prec unopt_prec
+  | TLEN; e = expr_target;
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.TupleLen, e) } %prec unopt_prec
   | TYPEOF; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Typeof, e) } %prec unopt_prec
   | HD; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Head, e) } %prec unopt_prec
   | TL; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Tail, e) } %prec unopt_prec
+  | FST; e = expr_target;
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.First, e) } %prec unopt_prec
+  | SND; e = expr_target;
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.Second, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
     { print_string ">BINOP\n";Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
   | LNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;

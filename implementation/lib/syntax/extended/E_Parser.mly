@@ -27,7 +27,7 @@
 %token <string> SYMBOL
 %token LAND LOR
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
-%token NOT LEN LNTH HD TL
+%token NOT LLEN LNTH HD TL TLEN FST SND
 %token IMPORT
 %token TYPEOF
 %token EOF
@@ -144,14 +144,20 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
   | NOT; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
-  | LEN; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Len, e) } %prec unopt_prec
+  | LLEN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ListLen, e) } %prec unopt_prec
+  | TLEN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.TupleLen, e) } %prec unopt_prec
   | TYPEOF; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Typeof, e) } %prec unopt_prec
   | HD; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Head, e) } %prec unopt_prec
   | TL; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Tail, e) } %prec unopt_prec
+  | FST; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.First, e) } %prec unopt_prec
+  | SND; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Second, e) } %prec unopt_prec
 
 prefix_binary_op_target:
   | LNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;

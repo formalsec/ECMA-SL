@@ -60,12 +60,15 @@ rule read =
   | "<="         { ELT }
   | "in"         { IN }
   | '!'          { NOT }
-  | "len"        { LEN }
   | "&&"         { LAND }
   | "||"		     { LOR }
+  | "l_len"      { LLEN }
   | "l_nth"      { LNTH }
   | "hd"         { HD }
   | "tl"         { TL }
+  | "t_len"      { TLEN }
+  | "fst"        { FST }
+  | "snd"        { SND }
   | '('          { LPAREN }
   | ')'          { RPAREN }
   | '{'          { LBRACE }

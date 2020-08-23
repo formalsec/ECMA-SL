@@ -15,9 +15,12 @@ type bopt = Plus
 type uopt = Neg
           | Not
           | Typeof
-          | Len
+          | ListLen
+          | TupleLen
           | Head
           | Tail
+          | First
+          | Second
 
 type nopt = ListExpr
           | TupleExpr
@@ -96,29 +99,44 @@ let typeof (v : Val.t) : Val.t = match v with
   | Symbol _ -> Val.Str (Type.str (Type.SymbolType))
   | _        -> invalid_arg ("Exception in Oper.typeof: invalid argument \"" ^ Val.str v ^ "\"")
 
-let len (v : Val.t) : Val.t = match v with
-  | List v  -> Val.Int (List.length v)
-  | _       -> invalid_arg "Exception in Oper.len: this operation is only applicable to List arguments"
+let l_len (v : Val.t) : Val.t = match v with
+  | List l -> Val.Int (List.length l)
+  | _      -> invalid_arg "Exception in Oper.l_len: this operation is only applicable to List arguments"
+
+let t_len (v : Val.t) : Val.t = match v with
+  | Tuple t -> Val.Int (List.length t)
+  | _       -> invalid_arg "Exception in Oper.t_len: this operation is only applicable to Tuple arguments"
 
 let list_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | List l, Int i -> List.nth l i
   | _             -> invalid_arg "Exception in Oper.list_nth: this operation is only applicable to List and Int arguments"
 
 let head (v : Val.t) : Val.t = match v with
-  | Tuple t -> List.hd t
-  | _       -> invalid_arg "Exception in Oper.head: this operation is only applicable to Tuple arguments"
+  | List l -> List.hd l
+  | _      -> invalid_arg "Exception in Oper.head: this operation is only applicable to List arguments"
 
 let tail (v : Val.t) : Val.t = match v with
+  | List l -> Tuple (List.tl l)
+  | _      -> invalid_arg "Exception in Oper.tail: this operation is only applicable to List arguments"
+
+let first (v : Val.t) : Val.t = match v with
+  | Tuple t -> List.hd t
+  | _       -> invalid_arg "Exception in Oper.first: this operation is only applicable to Tuple arguments"
+
+let second (v : Val.t) : Val.t = match v with
   | Tuple t -> Tuple (List.tl t)
-  | _       -> invalid_arg "Exception in Oper.head: this operation is only applicable to Tuple arguments"
+  | _       -> invalid_arg "Exception in Oper.second: this operation is only applicable to Tuple arguments"
 
 let str_of_unopt (op : uopt) : string = match op with
-  | Neg    -> "-"
-  | Not    -> "!"
-  | Typeof -> "typeof"
-  | Len    -> "len"
-  | Head   -> "hd"
-  | Tail   -> "tl"
+  | Neg      -> "-"
+  | Not      -> "!"
+  | Typeof   -> "typeof"
+  | ListLen  -> "l_len"
+  | TupleLen -> "t_len"
+  | Head     -> "hd"
+  | Tail     -> "tl"
+  | First    -> "fst"
+  | Second   -> "snd"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus    -> e1 ^ " + " ^ e2

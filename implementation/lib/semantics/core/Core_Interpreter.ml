@@ -10,12 +10,15 @@ let add_fields_to (obj : Object.t) (fes : (Field.t * Expr.t) list) (eval_e : (Ex
 
 let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   match op with
-  | Neg    -> Oper.neg v
-  | Not    -> Oper.not v
-  | Typeof -> Oper.typeof v
-  | Len    -> Oper.len v
-  | Head   -> Oper.head v
-  | Tail   -> Oper.tail v
+  | Neg      -> Oper.neg v
+  | Not      -> Oper.not v
+  | Typeof   -> Oper.typeof v
+  | ListLen  -> Oper.l_len v
+  | TupleLen -> Oper.t_len v
+  | Head     -> Oper.head v
+  | Tail     -> Oper.tail v
+  | First    -> Oper.first v
+  | Second   -> Oper.second v
 
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
