@@ -43,7 +43,7 @@ and compile_newobj (e_fes : (string * E_Expr.t) list) : Stmt.t list * Expr.t =
   newObj :: List.concat stmts, Expr.Var var
 
 
-and compile_access (expr : E_Expr.t) (field : E_Expr.t) : Stmt.t list * Expr.t =
+and compile_lookup (expr : E_Expr.t) (field : E_Expr.t) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   let stmts_expr, expr' = compile_expr expr in
   let stmts_field, field' = compile_expr field in
@@ -165,7 +165,7 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | NOpt (op, e_es)           -> compile_nopt op e_es
   | Call (f, e_es)            -> compile_call f e_es
   | NewObj (e_fes)            -> compile_newobj e_fes
-  | Access (e_e, e_f)         -> compile_access e_e e_f
+  | Lookup (e_e, e_f)         -> compile_lookup e_e e_f
 
 
 and compile_print (expr : E_Expr.t) : Stmt.t list =

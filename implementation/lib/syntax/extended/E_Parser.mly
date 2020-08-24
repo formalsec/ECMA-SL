@@ -111,9 +111,9 @@ e_expr_target:
   | LBRACE; fes = separated_list (COMMA, fv_target); RBRACE;
     { E_Expr.NewObj (fes) }
   | e = e_expr_target; PERIOD; f = VAR;
-    { E_Expr.Access (e, E_Expr.Val (Str f)) }
+    { E_Expr.Lookup (e, E_Expr.Val (Str f)) }
   | e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
-    { E_Expr.Access (e, f) }
+    { E_Expr.Lookup (e, f) }
   | v = val_target;
     { E_Expr.Val v }
   | v = VAR;
