@@ -78,7 +78,6 @@ rule read =
   | ']'          { RBRACK }
   | '|'          { PIPE }
   | "typeof"     { TYPEOF }
-  | "throw"      { THROW }
   | "import"     { IMPORT }
   | "->"         { RIGHT_ARROW }
   | "None"       { NONE }
