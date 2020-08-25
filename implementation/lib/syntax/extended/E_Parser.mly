@@ -41,6 +41,7 @@
 
 %nonassoc binopt_prec
 %nonassoc unopt_prec
+%nonassoc PERIOD LBRACK
 
 %type <E_Expr.t> e_prog_e_expr_target
 %type <E_Stmt.t> e_prog_e_stmt_target
