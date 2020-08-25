@@ -59,14 +59,15 @@ function GetValue(V) {
   };
 
   if (IsPropertyReference(V)) {
-    /* TODO
     if (HasPrimitiveBase(V) = false) {
-      get := base["[[Get]]"]
+      get := base["Get"]
     } else {
-      get := Get
-    }; */
+      /* TODO
+      get := Get; */
+      throw NotImplemented()
+    };
 
-    return Get(base, GetReferencedName(V))
+    return {get}(base, GetReferencedName(V))
   } else {
     return GetBindingValue(base, GetReferencedName(V), IsStrictReference(V))
   }
@@ -91,13 +92,12 @@ function PutValue(V, W) {
       if (HasPrimitiveBase(V) = false) {
         put := base["Put"]
       } else {
-        /* TODO */
-        throw NotImplemented();
-        put := Put
+        /* TODO
+        put := Put; */
+        throw NotImplemented()
       };
 
-      print "before put: ERROR";
-      [put](base, GetReferencedName(V), W, IsStrictReference(V))
+      {put}(base, GetReferencedName(V), W, IsStrictReference(V))
     } else {
       SetMutableBinding(base, GetReferencedName(V), W, IsStrictReference(V))
     };

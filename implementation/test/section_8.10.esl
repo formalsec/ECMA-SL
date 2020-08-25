@@ -3,7 +3,8 @@ function NewObject () {
     Prototype: null,
     Extensible: true,
     Class: "Object",
-    Put: "Put"
+    Put: "Put",
+    Get: "Get"
   }
 };
 
