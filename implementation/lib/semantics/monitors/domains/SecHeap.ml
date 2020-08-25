@@ -8,7 +8,7 @@ let insert  (heap : t) (loc : Loc.t) (secobj : SecObject.t) (obj_lvl : SecLevel.
   if(Hashtbl.mem heap loc) then raise (Exists "location already exists") else
     Hashtbl.add heap loc (secobj,obj_lvl,exist_lvl)
 
-let remove (heap : t) (loc : Loc.t) : unit = Hashtbl.remove heap loc
+let delete (heap : t) (loc : Loc.t) : unit = Hashtbl.remove heap loc
 
 let update (heap : t) (loc : Loc.t) (secobj : SecObject.t) (obj_lvl : SecLevel.t) (exist_lvl : SecLevel.t) : unit =
   Hashtbl.replace heap loc (secobj,obj_lvl,exist_lvl)
@@ -19,15 +19,31 @@ let get (heap : t) (loc : Loc.t) : (SecObject.t * SecLevel.t * SecLevel.t) =
   | None -> raise (Exists "Entry not found")
   | Some (sec_obj,obj_lvl,struct_lvl) ->  (sec_obj,obj_lvl,struct_lvl)
 
+let get_struct (heap : t) (loc : Loc.t) : SecLevel.t option =
+  let res = Hashtbl.find_opt heap loc in
+  match res with
+  | Some (_, lev_struct, _) -> Some lev_struct
+  | None -> None
+
 let get_obj (heap : t) (loc : Loc.t) : SecObject.t option =
   let res = Hashtbl.find_opt heap loc in
   match res with
   | None -> None
   | Some (sec_obj,obj_lvl,struct_lvl) -> Some sec_obj
 
-let get_prop (heap : t) (loc : Loc.t) (f : Field.t) : SecLevel.t =
+let get_field (heap : t) (loc : Loc.t) (field : Field.t) : (SecLevel.t * SecLevel.t) option =
   (*Falta fazer isto*)
-  SecLevel.Low
+  let obj = get_obj heap loc in
+  match obj with
+  | Some obj -> Some (SecObject.get obj field)
+  | None -> None
+
+let delete_field (heap : t) (loc : Loc.t) (field : Field.t) : bool =
+  let obj = get_obj heap loc in
+  match obj with
+  | Some obj -> SecObject.delete obj field; true
+  | None -> false
+
 
 let newSecObj (heap : t) (loc : Loc.t) (obj_lvl : SecLevel.t) (struct_lvl : SecLevel.t) : unit =
   let sec_obj = SecObject.create () in

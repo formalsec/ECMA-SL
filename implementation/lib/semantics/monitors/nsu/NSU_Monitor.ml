@@ -127,20 +127,41 @@ let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (s
   | FieldLookupLab (x,loc,field, e_o, e_f) ->
     let lev_o = expr_lvl ssto e_o in
     let lev_f = expr_lvl ssto e_f in
-    let context_lvl = SecLevel.lubn [lev_o ;lev_f;(check_pc pc)] in
+    let lev_ctx = SecLevel.lubn [lev_o ;lev_f;(check_pc pc)] in
     let lev_x = SecStore.get ssto x in
-    if (SecLevel.leq lev_x context_lvl) then
-      (let lub = SecLevel.lub context_lvl lev_x in
-       SecStore.set ssto x lub;
-       MReturn (scs,sheap,ssto,pc))
+    if (SecLevel.leq lev_ctx lev_x) then (
+      match  SecHeap.get_field sheap loc field with
+      | Some (_, lev_fv) ->
+        let lub = SecLevel.lub lev_ctx lev_fv  in
+        SecStore.set ssto x lub;
+        MReturn (scs,sheap,ssto,pc)
+      | None -> raise (Except "Internal Error"))
     else
       MFail(scs,sheap,ssto,pc, "Illegal Lookup")
 
-  | FieldDeleteLab (dummy_var, loc, field, e_o, e_f) ->
-    MReturn (scs,sheap,ssto,pc)
+  | FieldDeleteLab (loc, field, e_o, e_f) ->
+    let lev_o = expr_lvl ssto e_o in
+    let lev_f = expr_lvl ssto e_f in
+    let lev_ctx = SecLevel.lubn [lev_o ;lev_f;(check_pc pc)] in
+    (match SecHeap.get_field sheap loc field with
+     | Some (lev_ef , _) ->
+       if (SecLevel.leq lev_ctx lev_ef) then (
+         if SecHeap.delete_field sheap loc field then
+           MReturn (scs,sheap,ssto,pc)
+         else raise (Except "Internal Error"))
+       else MFail(scs,sheap,ssto,pc, "Illegal Delete")
+     | None -> raise (Except "Internal Error"))
+
+  | FieldAssignLab ( loc, field, e_o, e_f, exp) ->
+    let lev_o = expr_lvl ssto e_o in
+    let lev_f = expr_lvl ssto e_f in
+    let lev_ctx = SecLevel.lubn [lev_o; lev_f; (check_pc pc)] in
+    (match SecHeap.get_field sheap loc field with
+     | Some (lev_ef,lev_fv) ->
+       if (SecLevel.leq lev_ctx lev_ef) then
+         MReturn (scs,sheap,ssto,pc)  (*FALTA ACABAR ISTO - FOI SO PARA COMPILAR*)
+       else raise (Except "Internal Error")
+
+     |None -> raise (Except "Internal Error"))
 
 
-
-  | FieldAssignLab (dummy_var, loc, field, e_o, e_f) ->
-    (* dummy_var doesn't have any utility *)
-    MReturn (scs,sheap,ssto,pc)
