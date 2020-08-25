@@ -29,7 +29,8 @@
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
 %token NOT LLEN LNTH HD TL TLEN FST SND
 %token IMPORT
-%token TYPEOF
+%token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
+%token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
 
 %left LAND LOR
@@ -89,6 +90,26 @@ tuple_target:
   | vs = tuple_target; COMMA; v = e_expr_target;
     { v :: vs }
 
+type_target:
+  | INT_TYPE;
+    { Type.IntType }
+  | FLT_TYPE;
+    { Type.FltType }
+  | BOOL_TYPE;
+    { Type.BoolType }
+  | STR_TYPE;
+    { Type.StrType }
+  | LOC_TYPE;
+    { Type.LocType }
+  | LIST_TYPE;
+    { Type.ListType }
+  | TUPLE_TYPE;
+    { Type.TupleType }
+  | NULL_TYPE;
+    { Type.NullType }
+  | SYMBOL_TYPE;
+    { Type.SymbolType }
+
 (* v ::= f | i | b | s *)
 val_target:
   | NULL;
@@ -105,15 +126,18 @@ val_target:
       Val.Str sub } (* Remove the double-quote characters from the parsed string *)
   | s = SYMBOL;
     { Val.Symbol s }
+  | t = type_target;
+    { Val.Type t }
+
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 e_expr_target:
   | LBRACE; fes = separated_list (COMMA, fv_target); RBRACE;
     { E_Expr.NewObj (fes) }
   | e = e_expr_target; PERIOD; f = VAR;
-    { E_Expr.Access (e, E_Expr.Val (Str f)) }
+    { E_Expr.Lookup (e, E_Expr.Val (Str f)) }
   | e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
-    { E_Expr.Access (e, f) }
+    { E_Expr.Lookup (e, f) }
   | v = val_target;
     { E_Expr.Val v }
   | v = VAR;

@@ -6,7 +6,7 @@ type t =
   | NOpt   of Oper.nopt * t list
   | Call   of t * t list
   | NewObj of (string * t) list
-  | Access of t * t
+  | Lookup of t * t
 
 
 let rec str (e : t) : string = match e with
@@ -17,7 +17,7 @@ let rec str (e : t) : string = match e with
   | NOpt (op, es)       -> (Oper.str_of_nopt op (List.map str es))
   | Call (f, es)        -> (str f) ^ " (" ^ String.concat ", " (List.map str es) ^ ")"
   | NewObj (fes)        -> "{ " ^ fields_list_to_string fes ^ " }"
-  | Access (e, f)       -> str e ^ "[" ^ str f ^ "]"
+  | Lookup (e, f)       -> str e ^ "[" ^ str f ^ "]"
 
 
 and fields_list_to_string (fes : (string * t) list) : string =
