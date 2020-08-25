@@ -47,22 +47,23 @@ function ToNumber(V) {
 
 function Type(V) {
   v_type := typeof V;
-  if ((v_type = "Int") || (v_type = "Flt")) {return "Number"};
-  if (v_type = "Bool") {return "Boolean"};
-  if (v_type = "Str") {return "String"};
-  if (v_type = "Obj") {return "Object"};
-  if (v_type = "List") {return "List"};
-  if (v_type = "Null") {return "Null"};
-  if (v_type = "Symbol") {
-    if (v = 'undefined) {return "Undefined"};
-    if (v = 'NaN) {return "Number"}
+  if (v_type = __$Int) { return "Number" };
+  if (v_type = __$Flt) { return "Number" };
+  if (v_type = __$Bool) { return "Boolean" };
+  if (v_type = __$Str) { return "String" };
+  if (v_type = __$Obj) { return "Object" };
+  if (v_type = __$List) { return "List" };
+  if (v_type = __$Null) { return "Null" };
+  if (v_type = __$Symbol) {
+    if (v = 'undefined) { return "Undefined" };
+    if (v = 'NaN) { return "Number" }
   };
-  if (v_type = "Tuple") {
+  if (v_type = __$Tuple) {
     tup_len := t_len V;
     if (tup_len = 5) {
       ft := fst V;
-      if (ft = "R") {return "Reference"};
-      if (ft = "C") {return "Completion"}
+      if (ft = "R") { return "Reference" };
+      if (ft = "C") { return "Completion" }
     }
   };
 

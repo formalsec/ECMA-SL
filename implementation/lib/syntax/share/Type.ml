@@ -11,13 +11,13 @@ type t =
   | SymbolType
 
 let str (v : t) : string = match v with
-  | IntType    -> "Int"
-  | FltType    -> "Flt"
-  | BoolType   -> "Bool"
-  | StrType    -> "Str"
-  | LocType    -> "Obj"
-  | ListType   -> "List"
-  | TypeType   -> "Type"
-  | TupleType  -> "Tuple"
-  | NullType   -> "Null"
-  | SymbolType -> "Symbol"
+  | IntType    -> "__$Int"
+  | FltType    -> "__$Flt"
+  | BoolType   -> "__$Bool"
+  | StrType    -> "__$Str"
+  | LocType    -> "__$Obj"
+  | ListType   -> "__$List"
+  | TypeType   -> "__$Type"
+  | TupleType  -> "__$Tuple"
+  | NullType   -> "__$Null"
+  | SymbolType -> "__$Symbol"

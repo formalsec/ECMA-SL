@@ -26,7 +26,8 @@
 %token LAND LOR
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
 %token NOT LLEN LNTH HD TL TLEN FST SND
-%token TYPEOF
+%token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
+%token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
 
 %left LAND LOR
@@ -81,6 +82,26 @@ tuple_target:
   | vs = tuple_target; COMMA; v = expr_target;
     { v :: vs }
 
+type_target:
+  | INT_TYPE;
+    { print_string ">INT_TYPE\n"; Type.IntType }
+  | FLT_TYPE;
+    { print_string ">FLT_TYPE\n"; Type.FltType }
+  | BOOL_TYPE;
+    { print_string ">BOOL_TYPE\n"; Type.BoolType }
+  | STR_TYPE;
+    { print_string ">STR_TYPE\n"; Type.StrType }
+  | LOC_TYPE;
+    { print_string ">LOC_TYPE\n"; Type.LocType }
+  | LIST_TYPE;
+    { print_string ">LIST_TYPE\n"; Type.ListType }
+  | TUPLE_TYPE;
+    { print_string ">TUPLE_TYPE\n"; Type.TupleType }
+  | NULL_TYPE;
+    { print_string ">NULL_TYPE\n"; Type.NullType }
+  | SYMBOL_TYPE;
+    { print_string ">SYMBOL_TYPE\n"; Type.SymbolType }
+
 (* v ::= f | i | b | s *)
 val_target:
   | NULL;
@@ -97,6 +118,8 @@ val_target:
       print_string ">STR\n";Val.Str sub } (* Remove the double-quote characters from the parsed string *)
   | s = SYMBOL;
     { print_string ">SYMBOL\n";Val.Symbol s }
+  | t = type_target;
+    { print_string ">TYPE \n";Val.Type t }
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 expr_target:

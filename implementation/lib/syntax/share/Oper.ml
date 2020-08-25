@@ -87,17 +87,17 @@ let is_true (v : Val.t) : bool = match v with
   | _      -> invalid_arg "Exception in Oper.is_true: argument is not boolean"
 
 let typeof (v : Val.t) : Val.t = match v with
-  | Int _    -> Val.Str (Type.str (Type.IntType))
-  | Flt _    -> Val.Str (Type.str (Type.FltType))
-  | Bool _   -> Val.Str (Type.str (Type.BoolType))
-  | Str _    -> Val.Str (Type.str (Type.StrType))
-  | Loc _    -> Val.Str (Type.str (Type.LocType))
-  | List _   -> Val.Str (Type.str (Type.ListType))
-  | Type _   -> Val.Str (Type.str (Type.TypeType))
-  | Tuple _  -> Val.Str (Type.str (Type.TupleType))
-  | Null     -> Val.Str (Type.str (Type.NullType))
-  | Symbol _ -> Val.Str (Type.str (Type.SymbolType))
-  | _        -> invalid_arg ("Exception in Oper.typeof: invalid argument \"" ^ Val.str v ^ "\"")
+  | Int _    -> Type (Type.IntType)
+  | Flt _    -> Type (Type.FltType)
+  | Bool _   -> Type (Type.BoolType)
+  | Str _    -> Type (Type.StrType)
+  | Loc _    -> Type (Type.LocType)
+  | List _   -> Type (Type.ListType)
+  | Type _   -> Type (Type.TypeType)
+  | Tuple _  -> Type (Type.TupleType)
+  | Null     -> Type (Type.NullType)
+  | Symbol _ -> Type (Type.SymbolType)
+  | Void     -> invalid_arg ("Exception in Oper.typeof: unexpected void value")
 
 let l_len (v : Val.t) : Val.t = match v with
   | List l -> Val.Int (List.length l)
