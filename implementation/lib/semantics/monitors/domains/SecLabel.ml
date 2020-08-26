@@ -7,7 +7,7 @@ type t =
   | ReturnLab of Expr.t
   | FieldAssignLab of (Loc.t * Field.t * Expr.t * Expr.t * Expr.t)
   | FieldLookupLab of (string * Loc.t * Field.t * Expr.t * Expr.t)
-  | FieldDeleteLab of (string * Loc.t * Field.t * Expr.t * Expr.t)
+  | FieldDeleteLab of (Loc.t * Field.t * Expr.t * Expr.t)
   (* Direct Security Level Upgrades *)
   | UpgVarLab of (string * SecLevel.t)
   | UpgPropExistsLab of (Loc.t * string * SecLevel.t)

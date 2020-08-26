@@ -214,8 +214,17 @@ let rec eval_small_step (interceptor: string -> Val.t list -> SecLabel.t option)
     (Intermediate (cs, cont, sto, heap), SecLabel.EmptyLab) (*TODO*)
 
   | FieldDelete (e, f)        ->
-    eval_fielddelete_stmt prog heap sto e f;
-    (Intermediate (cs, cont, sto, heap), SecLabel.EmptyLab)(*TODO*)
+    let loc = eval_expr sto e in
+    let field = eval_expr sto f in
+    (match loc, field with
+     | Loc loc', Str field' ->
+       Heap.delete_field heap loc' field';
+       (Intermediate (cs, cont, sto, heap), SecLabel.FieldDeleteLab (loc', field', e, f))
+     | _ -> invalid_arg "Exception in Interpreter.eval_fielddelete_stmt : \"e\" is not a Loc value")
+
+
+
+
 
 
 (*This function will iterate smallsteps in a list of functions*)
