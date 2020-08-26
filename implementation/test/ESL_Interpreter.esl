@@ -75,11 +75,11 @@ function JS_Interpreter_Stmt(s, scope) {
     i := 0;
     lbody := l_len(body);
     while (i<lbody) {
-      JS_Interpreter(l_nth(body, i), scope);
+      JS_Interpreter_Stmt(l_nth(body, i), scope);
       i := i + 1
     };
 
-    return
+    return scope
   }
   | { type: "ExpressionStatement", expression: e } -> {
     return JS_Interpreter_Expr(e, scope)
@@ -87,8 +87,8 @@ function JS_Interpreter_Stmt(s, scope) {
   | { type: "IfStatement", test: t, consequent: c, alternate: a } -> {
     x := JS_Interpreter_Expr(t, scope);
     x' := GetValue(x);
-    x' := ToBoolean(x');
-    if (x') {
+    x'' := ToBoolean(x');
+    if (x'') {
       return JS_Interpreter_Stmt(c, scope)
     }
     else {
