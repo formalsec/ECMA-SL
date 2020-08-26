@@ -55,8 +55,8 @@ function Type(V) {
   if (v_type = __$List) { return "List" };
   if (v_type = __$Null) { return "Null" };
   if (v_type = __$Symbol) {
-    if (v = 'undefined) { return "Undefined" };
-    if (v = 'NaN) { return "Number" }
+    if (V = 'undefined) { return "Undefined" };
+    if (V = 'NaN) { return "Number" }
   };
   if (v_type = __$Tuple) {
     tup_len := t_len V;
