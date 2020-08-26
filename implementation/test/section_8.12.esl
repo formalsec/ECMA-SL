@@ -353,7 +353,7 @@ function DefaultValue (O, hint) {
   print "DefaultValue";
 
   /** When the [[DefaultValue]] internal method of O is called with hint String, the following steps are taken: */
-  if (typeof hint = "String") {
+  if (hint = 'String) {
     /** 1. Let toString be the result of calling the [[Get]] internal method of object O with argument "toString". */
     toString := Get(O, "toString");
 
@@ -385,40 +385,43 @@ function DefaultValue (O, hint) {
     /** 5. Throw a TypeError exception. */
     throw TypeErrorException()
   }
-  /** When the [[DefaultValue]] internal method of O is called with hint Number, the following steps are taken: */
   else {
-    /** 1. Let valueOf be the result of calling the [[Get]] internal method of object O with argument "valueOf". */
-    valueOf := Get(O, "valueOf");
+    /** When the [[DefaultValue]] internal method of O is called with hint Number, the following steps are taken: */
+    if (hint = 'Number) {
+      /** 1. Let valueOf be the result of calling the [[Get]] internal method of object O with argument "valueOf". */
+      valueOf := Get(O, "valueOf");
 
-    /** 2. If IsCallable(valueOf) is true then: */
-    if (IsCallable(valueOf)) {
-      /** a. Let val be the result of calling the [[Call]] internal method of valueOf, with O as the this value and an empty argument list. */
-      val := Call(valueOf, O, []);
+      /** 2. If IsCallable(valueOf) is true then: */
+      if (IsCallable(valueOf)) {
+        /** a. Let val be the result of calling the [[Call]] internal method of valueOf, with O as the this value and an empty argument list. */
+        val := Call(valueOf, O, []);
 
-      /** b. If val is a primitive value, return val. */
-      if (IsPrimitiveValue(val)) {
-        return val
-      }
-    };
+        /** b. If val is a primitive value, return val. */
+        if (IsPrimitiveValue(val)) {
+          return val
+        }
+      };
 
-    /** 3. Let toString be the result of calling the [[Get]] internal method of object O with argument "toString". */
-    toString := Get(O, "toString");
+      /** 3. Let toString be the result of calling the [[Get]] internal method of object O with argument "toString". */
+      toString := Get(O, "toString");
 
-    /** 4. If IsCallable(toString) is true then: */
-    if (IsCallable(toString)) {
-      /** a. Let str be the result of calling the [[Call]] internal method of toString, with O as the this value and an empty argument list. */
-      str := Call(toString, O, []);
+      /** 4. If IsCallable(toString) is true then: */
+      if (IsCallable(toString)) {
+        /** a. Let str be the result of calling the [[Call]] internal method of toString, with O as the this value and an empty argument list. */
+        str := Call(toString, O, []);
 
-      /** b. If str is a primitive value, return str. */
-      if (IsPrimitiveValue(str)) {
-        return str
-      }
-    };
+        /** b. If str is a primitive value, return str. */
+        if (IsPrimitiveValue(str)) {
+          return str
+        }
+      };
 
-    /** 5. Throw a TypeError exception. */
-    throw TypeErrorException()
+      /** 5. Throw a TypeError exception. */
+      throw TypeErrorException()
+    }
   }
 
+/* TODO*/
 /** When the [[DefaultValue]] internal method of O is called with no hint, then it behaves as if the hint were Number,
  * unless O is a Date object (see 15.9.6), in which case it behaves as if the hint were String.
  *
