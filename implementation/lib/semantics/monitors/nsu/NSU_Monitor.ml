@@ -114,10 +114,15 @@ let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (s
     SecHeap.upg_struct_exists sheap loc lvl;
     MReturn (scs, sheap, ssto, pc)
 
-  | UpgPropValLab (loc,prop,lvl) ->
-    (*Need to add NSU conditions*)
+  | UpgPropValLab (loc, prop, lvl) ->
+    (*let lev_o = expr_lvl ssto e_o in
+      let lev_f = expr_lvl ssto e_f in
+      let lev_ctx = SecLevel.lubn [lev_o ;lev_f;(check_pc pc)] in
+      let lev_field = SecHeap.get_field sheap loc field in
+      if SecLevel.leq lev_ctx lev_field then*)
     SecHeap.upg_prop_val sheap loc prop lvl;
     MReturn (scs, sheap, ssto, pc)
+  (*else MFail(scs,sheap,ssto,pc, "Illegal P_Val Upgrade")*)
 
   | UpgPropExistsLab (loc,prop,lvl) ->
     (*Need to add NSU conditions*)
@@ -137,7 +142,7 @@ let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (s
         MReturn (scs,sheap,ssto,pc)
       | None -> raise (Except "Internal Error"))
     else
-      MFail(scs,sheap,ssto,pc, "Illegal Lookup")
+      MFail(scs,sheap,ssto,pc, "Illegal Field Lookup")
 
   | FieldDeleteLab (loc, field, e_o, e_f) ->
     let lev_o = expr_lvl ssto e_o in
@@ -149,7 +154,7 @@ let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (s
          if SecHeap.delete_field sheap loc field then
            MReturn (scs,sheap,ssto,pc)
          else raise (Except "Internal Error"))
-       else MFail(scs,sheap,ssto,pc, "Illegal Delete")
+       else MFail(scs,sheap,ssto,pc, "Illegal Field Delete")
      | None -> raise (Except "Internal Error"))
 
   | FieldAssignLab ( loc, field, e_o, e_f, exp) ->
@@ -158,10 +163,10 @@ let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (s
     let lev_ctx = SecLevel.lubn [lev_o; lev_f; (check_pc pc)] in
     (match SecHeap.get_field sheap loc field with
      | Some (lev_ef,lev_fv) ->
-       if (SecLevel.leq lev_ctx lev_ef) then
-         MReturn (scs,sheap,ssto,pc)  (*FALTA ACABAR ISTO - FOI SO PARA COMPILAR*)
-       else raise (Except "Internal Error")
+       if (SecLevel.leq lev_ctx lev_fv) then
+         let lev_exp = expr_lvl ssto exp in
+         SecHeap.upg_prop_val sheap loc field lev_exp;
+         MReturn (scs,sheap,ssto,pc)
+       else MFail(scs,sheap,ssto,pc, "Illegal Field Assign")
 
      |None -> raise (Except "Internal Error"))
-
-
