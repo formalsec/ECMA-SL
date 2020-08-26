@@ -62,17 +62,17 @@ function JS_Interpreter_Stmt(s, scope) {
   | { type: "ExpressionStatement", expression: e } -> {
     return JS_Interpreter_Expr(e, scope)
   }
-  | { type: "IfStatement", test: t, consequent: c, alternate: a } -> {
-    x := JS_Interpreter_Expr(t, scope);
-    x' := GetValue(x);
-    x'' := ToBoolean(x');
-    if (x'') {
-      return JS_Interpreter_Stmt(c, scope)
+  | { type: "IfStatement", test: Expression, consequent: Statement1, alternate: Statement2 } -> {
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    if (ToBoolean(GetValue(exprRef))) {
+      return JS_Interpreter_Stmt(Statement1, scope)
     }
     else {
-      if (!(a = null)) {
-        return JS_Interpreter_Stmt(a, scope)
-      }
+      if (!(Statement2 = null)) {
+        return JS_Interpreter_Stmt(Statement2, scope)
+      };
+
+      return ("C", "", 'normal, 'empty, 'empty)
     }
   }
 };
