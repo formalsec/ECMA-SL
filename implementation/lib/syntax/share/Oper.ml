@@ -11,6 +11,7 @@ type bopt = Plus
           | Log_Or
           | InObj
           | Lnth
+          | Ladd
 
 type uopt = Neg
           | Not
@@ -111,6 +112,10 @@ let list_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | List l, Int i -> List.nth l i
   | _             -> invalid_arg "Exception in Oper.list_nth: this operation is only applicable to List and Int arguments"
 
+let list_add (v1, v2 : Val.t * Val.t) : Val.t = match v1 with
+  | List l -> Val.List (v2 :: l)
+  | _      -> invalid_arg "Exception in Oper.list_add: this operation is only applicable to List arguments"
+
 let head (v : Val.t) : Val.t = match v with
   | List l -> List.hd l
   | _      -> invalid_arg "Exception in Oper.head: this operation is only applicable to List arguments"
@@ -152,6 +157,7 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Log_Or  -> e1 ^ " || " ^ e2
   | InObj   -> e1 ^ " in " ^ e2
   | Lnth    -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Ladd    -> "l_add(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | ListExpr  -> "[ " ^ (String.concat ", " es) ^ " ]"
