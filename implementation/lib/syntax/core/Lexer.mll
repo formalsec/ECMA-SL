@@ -68,6 +68,7 @@ rule read =
   | "hd"         { HD }
   | "tl"         { TL }
   | "t_len"      { TLEN }
+  | "t_nth"      { TNTH }
   | "fst"        { FST }
   | "snd"        { SND }
   | '('          { LPAREN }
