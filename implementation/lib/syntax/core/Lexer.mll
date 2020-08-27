@@ -64,9 +64,11 @@ rule read =
   | "||"		     { LOR }
   | "l_len"      { LLEN }
   | "l_nth"      { LNTH }
+  | "l_add"      { LADD }
   | "hd"         { HD }
   | "tl"         { TL }
   | "t_len"      { TLEN }
+  | "t_nth"      { TNTH }
   | "fst"        { FST }
   | "snd"        { SND }
   | '('          { LPAREN }
