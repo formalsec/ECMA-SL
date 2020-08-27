@@ -5,7 +5,7 @@ type t =
   | EmptyLab
   | BranchLab of (Expr.t * Stmt.t)
   | MergeLab
-  | AssignCallLab of ((Expr.t list)* string * string)
+  | AssignCallLab of (string list * (Expr.t list)* string * string)
   | ReturnLab of Expr.t
   | FieldAssignLab of (Loc.t * Field.t * Expr.t * Expr.t * Expr.t)
   | FieldLookupLab of (string * Loc.t * Field.t * Expr.t * Expr.t)
@@ -31,7 +31,7 @@ let str (label :t) : string =
     "AsgnLab ("^ (Expr.str exp) ^", "^st ^")"
   | BranchLab (exp, stmt) ->
     "BranchLab (" ^(Expr.str exp) ^"),{ "^(Stmt.str stmt)^"}"
-  | AssignCallLab (exp,x,f) ->
+  | AssignCallLab (params, exp,x,f) ->
     "AssignCallLab ("^(String.concat "; " (List.map Expr.str exp))^", "^ x^")"
   | UpgVarLab (x, lvl) ->
     "UpgVarLab"

@@ -33,7 +33,7 @@ let core_interpretation () : unit =
   let interceptor = SecLabel.interceptor in
   let prog_contents = Parsing_Utils.load_file !file in
   let prog = Parsing_Utils.parse_prog prog_contents in
-  let v = Core_Interpreter.eval_prog interceptor prog [] (Heap.create ()) !out !verb_aux "main" in
+  let v = Core_Interpreter.eval_prog interceptor prog !out !verb_aux "main" in
   match v with
   | Some z -> print_string ("MAIN return -> "^(Val.str z))
   | None -> print_string "ERROR HERE"
