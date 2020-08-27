@@ -105,7 +105,7 @@ and eval_fieldassign_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e_o :
 (* \/ ======================================= Main InterpreterFunctions ======================================= \/ *)
 
 
-let rec eval_small_step (interceptor: string -> Val.t list -> SecLabel.t option) (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: Store.t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : (return * SecLabel.t)  =
+let rec eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> SecLabel.t option) (prog: Prog.t) (cs: Callstack.t)  (heap:Heap.t) (sto: Store.t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : (return * SecLabel.t)  =
   print_string ("\n>>> "^Stmt.str s^"\n");
   match s with
   | Skip ->
@@ -169,7 +169,7 @@ let rec eval_small_step (interceptor: string -> Val.t list -> SecLabel.t option)
     let f'= get_func_id sto f in
     let (cs', sto_aux, vs) = prepare_call  prog cs sto cont x es f' in
     let func = (Prog.get_func prog f') in
-    let b = interceptor f' vs in
+    let b = interceptor f' vs es in
     ( match b with
       |None ->
         (let (cont':Stmt.t) = func.body in
@@ -228,18 +228,19 @@ let rec eval_small_step (interceptor: string -> Val.t list -> SecLabel.t option)
 
 
 (*This function will iterate smallsteps in a list of functions*)
-and  small_step_iter (interceptor: string -> Val.t list -> SecLabel.t option) (prog:Prog.t) (cs:Callstack.t) (heap:Heap.t) (sto:Store.t) (stmts:Stmt.t list)  (verbose:bool): return =
+and  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> SecLabel.t option) (prog:Prog.t) (cs:Callstack.t) (heap:Heap.t) (sto:Store.t) (stmts:Stmt.t list)  (verbose:bool): return =
   print_string "small_iter";
   match stmts with
   | [] ->  raise(Except "Empty list")
   | s::stmts' -> ( let (return, label) = eval_small_step interceptor prog cs heap sto stmts' verbose s in
+                   (*Monitor call here*)
                    match return with
                    |Finalv v ->  Finalv v
                    |Intermediate (cs', stmts'', sto',heap') -> small_step_iter interceptor prog cs' heap' sto' stmts'' verbose)
 
 
 (*Worker class of the Interpreter*)
-let eval_prog (interceptor: string -> Val.t list -> SecLabel.t option) (prog : Prog.t) ( cs: Callstack.t) (heap:Heap.t) (out:string) (verbose:bool) (main:string) : Val.t option =
+let eval_prog (interceptor: string -> Val.t list -> Expr.t list -> SecLabel.t option) (prog : Prog.t) ( cs: Callstack.t) (heap:Heap.t) (out:string) (verbose:bool) (main:string) : Val.t option =
   let sto = Store.create [] in
   let cs'= Callstack.push cs (Callstack.Toplevel) in
   let func = (Prog.get_func prog main(*passar como argumento valores e nome*)) in

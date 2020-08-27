@@ -104,30 +104,59 @@ let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (s
     let ssto_aux = SecStore.create_store pvs in
     MReturn (scs', sheap, ssto_aux, [check_pc pc])
 
-  | UpgStructValLab (loc,lvl) ->
+  | UpgStructValLab (loc, e_o, lvl) -> (*UpgObjLab <- mudar*)
     (*Need to add NSU conditions*)
-    SecHeap.upg_struct_val sheap loc lvl;
-    MReturn (scs, sheap, ssto, pc)
+    let lev_o = expr_lvl ssto e_o in
+    let lev_ctx = SecLevel.lubn [lev_o;(check_pc pc)] in
+    (match SecHeap.get_val sheap loc with
+     | Some lev ->
+       if SecLevel.leq lev_ctx lev then (
+         SecHeap.upg_struct_val sheap loc (SecLevel.lub lvl lev_ctx);
+         MReturn (scs, sheap, ssto, pc))
+       else
+         MFail(scs,sheap,ssto,pc, "Illegal P_Val Upgrade")
+     | None -> raise (Except "Internal Error"))
 
-  | UpgStructExistsLab (loc,lvl) ->
+
+  | UpgStructExistsLab (loc, e_o, lvl) ->
     (*Need to add NSU conditions*)
-    SecHeap.upg_struct_exists sheap loc lvl;
-    MReturn (scs, sheap, ssto, pc)
+    let lev_o = expr_lvl ssto e_o in
+    let lev_ctx = SecLevel.lubn [lev_o;(check_pc pc)] in
+    (match SecHeap.get_struct sheap loc with
+     | Some lev ->
+       if SecLevel.leq lev_ctx lev then (
+         SecHeap.upg_struct_exists sheap loc (SecLevel.lub lvl lev_ctx);
+         MReturn (scs, sheap, ssto, pc))
+       else
+         MFail(scs,sheap,ssto,pc, "Illegal P_Val Upgrade")
+     | None -> raise (Except "Internal Error"))
 
-  | UpgPropValLab (loc, prop, lvl) ->
-    (*let lev_o = expr_lvl ssto e_o in
-      let lev_f = expr_lvl ssto e_f in
-      let lev_ctx = SecLevel.lubn [lev_o ;lev_f;(check_pc pc)] in
-      let lev_field = SecHeap.get_field sheap loc field in
-      if SecLevel.leq lev_ctx lev_field then*)
-    SecHeap.upg_prop_val sheap loc prop lvl;
-    MReturn (scs, sheap, ssto, pc)
-  (*else MFail(scs,sheap,ssto,pc, "Illegal P_Val Upgrade")*)
 
-  | UpgPropExistsLab (loc,prop,lvl) ->
-    (*Need to add NSU conditions*)
-    SecHeap.upg_prop_exists sheap loc prop lvl;
-    MReturn (scs, sheap, ssto, pc)
+
+  | UpgPropValLab (loc, field, e_o, e_f,  lvl) ->
+    let lev_o = expr_lvl ssto e_o in
+    let lev_f = expr_lvl ssto e_f in
+    let lev_ctx = SecLevel.lubn [lev_o ;lev_f;(check_pc pc)] in
+    (match SecHeap.get_field sheap loc field with
+     | Some (_, lev_val) ->
+       if SecLevel.leq lev_ctx lev_val then (
+         SecHeap.upg_prop_val sheap loc field (SecLevel.lub lvl lev_ctx);
+         MReturn (scs, sheap, ssto, pc))
+       else MFail(scs,sheap,ssto,pc, "Illegal P_Val Upgrade")
+     | None -> raise (Except "Internal Error"))
+
+
+  | UpgPropExistsLab (loc,field, e_o, e_f, lvl) ->
+    let lev_o = expr_lvl ssto e_o in
+    let lev_f = expr_lvl ssto e_f in
+    let lev_ctx = SecLevel.lubn [lev_o ;lev_f;(check_pc pc)] in
+    (match SecHeap.get_field sheap loc field with
+       Some (lev_exists, _) ->
+       if SecLevel.leq lev_ctx lev_exists then (
+         SecHeap.upg_prop_exists sheap loc field (SecLevel.lub lvl lev_ctx);
+         MReturn (scs, sheap, ssto, pc))
+       else MFail(scs,sheap,ssto,pc, "Illegal P_Existis Upgrade")
+     |None -> raise (Except "Internal Error"))
 
   | FieldLookupLab (x,loc,field, e_o, e_f) ->
     let lev_o = expr_lvl ssto e_o in
@@ -161,12 +190,21 @@ let rec eval_small_step (prog:Prog.t) (scs:SecCallStack.t)  (sheap:SecHeap.t) (s
     let lev_o = expr_lvl ssto e_o in
     let lev_f = expr_lvl ssto e_f in
     let lev_ctx = SecLevel.lubn [lev_o; lev_f; (check_pc pc)] in
+    let lev_exp = expr_lvl ssto exp in
     (match SecHeap.get_field sheap loc field with
      | Some (lev_ef,lev_fv) ->
-       if (SecLevel.leq lev_ctx lev_fv) then
-         let lev_exp = expr_lvl ssto exp in
-         SecHeap.upg_prop_val sheap loc field lev_exp;
-         MReturn (scs,sheap,ssto,pc)
+       if (SecLevel.leq lev_ctx lev_fv) then (
+         SecHeap.upg_prop_val sheap loc field (SecLevel.lub lev_exp lev_ctx);
+         MReturn (scs,sheap,ssto,pc))
        else MFail(scs,sheap,ssto,pc, "Illegal Field Assign")
 
-     |None -> raise (Except "Internal Error"))
+     | None ->
+       let lev_struct = SecHeap.get_struct sheap loc in
+       (match lev_struct with
+        | Some lev_struct ->
+          if (SecLevel.leq lev_ctx lev_struct) then (
+            if SecHeap.new_sec_prop sheap loc field lev_ctx (SecLevel.lub lev_exp lev_ctx) then
+              MReturn (scs, sheap, ssto, pc)
+            else raise (Except "Internal Error"))
+          else MFail(scs,sheap,ssto,pc, "Illegal Field Creation")
+        | None -> raise (Except "Internal Error")))
