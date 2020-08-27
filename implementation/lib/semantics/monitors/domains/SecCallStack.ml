@@ -6,6 +6,9 @@ type sf =
 
 type t = sf list
 
+let create () : t =
+  []
+
 let pop (cs: t): (sf * t) =
   match cs with
   | [] -> (raise(Except "The Security stack is empty already!")(*ERROR*))

@@ -27,7 +27,7 @@
 %token <string> SYMBOL
 %token LAND LOR
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
-%token NOT LLEN LNTH HD TL TLEN FST SND
+%token NOT LLEN LNTH LADD HD TL TLEN TNTH FST SND
 %token IMPORT
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
@@ -187,6 +187,10 @@ prefix_unary_op_target:
 prefix_binary_op_target:
   | LNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Lnth, e1, e2) }
+  | TNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Tnth, e1, e2) }
+  | LADD; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Ladd, e1, e2) }
 
 infix_binary_op_target:
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;

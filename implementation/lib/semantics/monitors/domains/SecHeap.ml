@@ -1,13 +1,13 @@
 exception Exists of string
 
 type t = (Loc.t, (SecObject.t * SecLevel.t * SecLevel.t)) Hashtbl.t
-(*        Object       Struct_lvl   Object_lvl           *)
+(*                 Object       Struct_lvl   Object_lvl           *)
 
 let create () : t = Hashtbl.create 511
 
 let insert  (heap : t) (loc : Loc.t) (secobj : SecObject.t) (struct_lvl : SecLevel.t) (obj_lvl : SecLevel.t) : unit =
   if(Hashtbl.mem heap loc) then raise (Exists "location already exists") else
-    Hashtbl.add heap loc (secobj, struct_lvl,  obj_lvl)
+    Hashtbl.replace heap loc (secobj, struct_lvl,  obj_lvl)
 
 let delete (heap : t) (loc : Loc.t) : unit = Hashtbl.remove heap loc
 
@@ -24,6 +24,12 @@ let get_struct (heap : t) (loc : Loc.t) : SecLevel.t option =
   let res = Hashtbl.find_opt heap loc in
   match res with
   | Some (_, lev_struct, _) -> Some lev_struct
+  | None -> None
+
+let get_val (heap : t) (loc : Loc.t) : SecLevel.t option =
+  let res = Hashtbl.find_opt heap loc in
+  match res with
+  | Some (_, _, lev_val) -> Some lev_val
   | None -> None
 
 let get_obj (heap : t) (loc : Loc.t) : SecObject.t option =
@@ -44,8 +50,13 @@ let delete_field (heap : t) (loc : Loc.t) (field : Field.t) : bool =
   | Some obj -> SecObject.delete obj field; true
   | None -> false
 
+let new_sec_prop (heap : t) (loc : Loc.t) (field : Field.t) (exists_lvl : SecLevel.t) (val_lvl : SecLevel.t) : bool =
+  match get_obj heap loc with
+  | Some obj -> SecObject.new_sec_prop obj field exists_lvl val_lvl; true
+  | None -> false
 
-let newSecObj (heap : t) (loc : Loc.t) (struct_lvl : SecLevel.t) (obj_lvl : SecLevel.t)  : unit =
+
+let (*Verificar onde é chamado*) newSecObj (heap : t) (loc : Loc.t) (struct_lvl : SecLevel.t) (obj_lvl : SecLevel.t)  : unit =
   let sec_obj = SecObject.create () in
   insert heap loc sec_obj struct_lvl obj_lvl
 
