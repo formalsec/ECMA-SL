@@ -4,7 +4,7 @@ let create () : t = Hashtbl.create 511
 
 let insert  (heap : t) (obj : Object.t) : Loc.t =
   let loc = Loc.newloc () in
-  Hashtbl.add heap loc obj;
+  Hashtbl.replace heap loc obj;
   loc
 
 let remove (heap : t) (loc : Loc.t) : unit = Hashtbl.remove heap loc

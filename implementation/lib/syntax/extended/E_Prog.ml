@@ -6,7 +6,7 @@ type t = {
 
 let add_funcs (prog : t) (funcs : E_Func.t list) : unit =
   List.iter (fun (f : E_Func.t) -> match Hashtbl.find_opt prog.funcs f.name with
-      | None   -> Hashtbl.add prog.funcs f.name f
+      | None   -> Hashtbl.replace prog.funcs f.name f
       | Some _ -> invalid_arg ("Function \"" ^ f.name ^ "\" already exists in the program")
     ) funcs
 

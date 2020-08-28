@@ -2,7 +2,7 @@ type t = (string, SecLevel.t) Hashtbl.t
 
 let create (varvals : (string * SecLevel.t) list) : t =
   let sto : t = Hashtbl.create 511 in
-  List.iter (fun (x,v) -> Hashtbl.add sto x v) varvals;
+  List.iter (fun (x,v) -> Hashtbl.replace sto x v) varvals;
   sto
 
 let get (sto:t) (var : string) : SecLevel.t =
