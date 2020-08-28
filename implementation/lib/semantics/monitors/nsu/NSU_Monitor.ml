@@ -36,6 +36,7 @@ let rec expr_lvl (ssto:SecStore.t) (exp:Expr.t) : SecLevel.t =
 
 
 let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_return =
+
   let (scs, sheap, ssto, pc)= m_state in
 
              (*
@@ -51,20 +52,30 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
     MReturn (scs,sheap, ssto,pc')
 
   | ReturnLab e ->
+    print_string "[M]returnLab\n";
     let lvl = expr_lvl ssto e in
+    Printf.printf "[M]Level e: %s\n" (SecLevel.str lvl) ;
     let lvl_f = SecLevel.lub lvl (check_pc pc) in
     let (frame, scs') = SecCallStack.pop scs in
+    print_string "[M]Pop\n";
     (match frame with
      | Intermediate (pc',ssto', x) ->  eval_small_step (scs', sheap, ssto', pc') (SecLabel.UpgVarLab (x,lvl_f))
      | Toplevel -> MReturn (scs', sheap, ssto, pc))
 
   | UpgVarLab (x,lev)->
+    print_string "[M]VarLab\n";
     let pc_lvl= check_pc pc in
-    let x_lvl = SecStore.get ssto x in
-    if (SecLevel.leq x_lvl pc_lvl) then (
-      SecStore.set ssto x (SecLevel.lub lev pc_lvl);
-      MReturn (scs, sheap, ssto, pc)
-    ) else MFail ((scs, sheap, ssto, pc), ("NSU Violation - UpgVarLab: " ^ x ^ " " ^ (SecLevel.str lev)))
+    print_string "[M]VarLab1\n";
+    (match SecStore.get_safe ssto x with
+     | Some x_lvl ->
+       print_string "[M]VarLab2\n";
+       if (SecLevel.leq x_lvl pc_lvl) then (
+         SecStore.set ssto x (SecLevel.lub lev pc_lvl);
+         MReturn (scs, sheap, ssto, pc)
+       ) else MFail ((scs, sheap, ssto, pc), ("NSU Violation - UpgVarLab: " ^ x ^ " " ^ (SecLevel.str lev)))
+     | None ->
+       SecStore.set ssto x pc_lvl;
+       MReturn (scs, sheap, ssto, pc))
 
   | AssignLab (var, exp)->
     let lvl=expr_lvl ssto exp in
@@ -211,4 +222,4 @@ let initial_monitor_state (): monitor_state_t =
   let sheap = SecHeap.create () in
   let ssto = SecStore.create [] in
   let scs = SecCallStack.create () in
-  (scs, sheap, ssto, [])
+  (scs, sheap, ssto, [SecLevel.Low])

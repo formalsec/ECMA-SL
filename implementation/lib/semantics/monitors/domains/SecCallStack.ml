@@ -7,7 +7,7 @@ type sf =
 type t = sf list
 
 let create () : t =
-  []
+  [Toplevel]
 
 let pop (cs: t): (sf * t) =
   match cs with
