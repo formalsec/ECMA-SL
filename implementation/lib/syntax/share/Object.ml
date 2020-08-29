@@ -4,7 +4,7 @@ let create () : t = Hashtbl.create 511
 
 let get (obj : t) (f : Field.t) : Val.t option = Hashtbl.find_opt obj f
 
-let set (obj : t) (f : Field.t) (v : Val.t) : unit = Hashtbl.add obj f v
+let set (obj : t) (f : Field.t) (v : Val.t) : unit = Hashtbl.replace obj f v
 
 let delete (obj : t) (f : Field.t) : unit = Hashtbl.remove obj f
 
