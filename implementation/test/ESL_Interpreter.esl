@@ -59,8 +59,11 @@ function JS_Interpreter_Stmt(s, scope) {
 
     return scope
   }
-  | { type: "ExpressionStatement", expression: e } -> {
-    return JS_Interpreter_Expr(e, scope)
+  | { type: "ExpressionStatement", expression: Expression } -> {
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Return (normal, GetValue(exprRef), empty). */
+    return normalEmptyCompletion(GetValue(exprRef))
   }
   | { type: "IfStatement", test: Expression, consequent: Statement1, alternate: Statement2 } -> {
     exprRef := JS_Interpreter_Expr(Expression, scope);
