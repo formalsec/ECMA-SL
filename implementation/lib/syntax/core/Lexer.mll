@@ -58,7 +58,8 @@ rule read =
   | '<'          { LT }
   | ">="         { EGT }
   | "<="         { ELT }
-  | "in"         { IN }
+  | "in_obj"     { IN_OBJ }
+  | "in_list"    { IN_LIST }
   | '!'          { NOT }
   | "&&"         { LAND }
   | "||"		     { LOR }

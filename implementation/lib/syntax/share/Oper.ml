@@ -10,6 +10,7 @@ type bopt = Plus
           | Log_And
           | Log_Or
           | InObj
+          | InList
           | Lnth
           | Tnth
           | Ladd
@@ -117,6 +118,10 @@ let tuple_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | Tuple l, Int i -> List.nth l i
   | _              -> invalid_arg "Exception in Oper.tuple_nth: this operation is only applicable to Tuple and Int arguments"
 
+let list_in (v1, v2 : Val.t * Val.t) : Val.t = match v2 with
+  | List l -> Bool (List.mem v1 l)
+  | _      -> invalid_arg "Exception in Oper.list_in: this operation is only applicable to List arguments"
+
 let list_add (v1, v2 : Val.t * Val.t) : Val.t = match v1 with
   | List l -> Val.List (v2 :: l)
   | _      -> invalid_arg "Exception in Oper.list_add: this operation is only applicable to List arguments"
@@ -160,7 +165,8 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Elt     -> e1 ^ " <= " ^ e2
   | Log_And -> e1 ^ " && " ^ e2
   | Log_Or  -> e1 ^ " || " ^ e2
-  | InObj   -> e1 ^ " in " ^ e2
+  | InObj   -> e1 ^ " in_obj " ^ e2
+  | InList  -> e1 ^ " in_list " ^ e2
   | Lnth    -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Tnth    -> "t_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Ladd    -> "l_add(" ^ e1 ^ ", " ^ e2 ^ ")"
