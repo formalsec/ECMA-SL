@@ -48,16 +48,27 @@ function JS_Interpreter_Expr(e, scope) {
 
 function JS_Interpreter_Stmt(s, scope) {
   match s with
-  | { type: "BlockStatement", body: body } -> {
-    /* TODO */
-    i := 0;
-    lbody := l_len(body);
-    while (i<lbody) {
-      JS_Interpreter_Stmt(l_nth(body, i), scope);
-      i := i + 1
+  | { type: "BlockStatement", body: stmts } -> {
+    /* 12.1 Block */
+    if ((l_len stmts) = 0) {
+      return normalEmptyCompletion('empty)
     };
 
-    return scope
+    V := 'empty;
+    i := 0;
+    lstmts := l_len stmts;
+    while (i < lstmts) {
+      stmt := JS_Interpreter_Stmt(l_nth(stmts, i), scope);
+      if (isAnAbruptCompletion(stmt)) {
+        return stmt
+      };
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V := completion_value (stmt)
+      };
+      i := i+ 1
+    };
+
+    return newCompletion(getCompletionType(stmt), V, getCompletionTarget(stmt))
   }
   | { type: "ExpressionStatement", expression: Expression } -> {
     /* 1. Let exprRef be the result of evaluating Expression. */
