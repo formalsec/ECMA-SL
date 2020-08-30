@@ -109,7 +109,7 @@ function IsGenericPropertyDescriptor (Desc) {
 function FromPropertyDescriptor (Desc) {
   /** 1. If Desc is undefined, then return undefined. */
   if (Desc = 'undefined) {
-    return undefined
+    return 'undefined
   };
 
   /** 2. Let obj be the result of creating a new object as if by the expression new Object() where Object is the standard built-in constructor with that name. */
