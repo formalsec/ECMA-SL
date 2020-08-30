@@ -19,13 +19,13 @@
 *)
 let digit   = ['0' - '9']
 let letter  = ['a' - 'z' 'A' - 'Z']
-let special = ('_'|' '|','|';'|'.'|':'|'\\'|'/'|'*'|'-'|'+'|'<'|'>'|'='|'{'|'}'|'['|']'|'$')
+let special = ('_'|' '|','|';'|'.'|':'|'\\'|'/'|'*'|'-'|'+'|'<'|'>'|'='|'{'|'}'|'['|']'|'('|')'|'$'|'@')
 let int     = '-'?digit+
 let float   = int('.')digit*
 let bool    = "true"|"false"
 let string  = '"'(digit|letter|special)*'"'
 let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
-let symbol  = '\''(var)
+let symbol  = '\''('+'|'-')*(var|int)
 let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
 

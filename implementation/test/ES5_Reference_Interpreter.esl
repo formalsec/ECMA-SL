@@ -18,13 +18,12 @@ function ToBoolean(argument) {
     return argument
   };
   if (Type(argument) = "Number") {
-    /* TODO
-    if ((argument = +0) || (argument = -0) || (argument = 'NaN)) {
+    if ((argument = '+0) || (argument = '-0) || (argument = 'NaN)) {
       return false
     } else {
       return true
-    }
-    */
+    };
+
     return true
   };
   if (Type(argument) = "String") {
@@ -56,7 +55,9 @@ function Type(V) {
   if (v_type = __$Null) { return "Null" };
   if (v_type = __$Symbol) {
     if (V = 'undefined) { return "Undefined" };
-    if (V = 'NaN) { return "Number" }
+    if (V = 'NaN) { return "Number" };
+    if ((V = '+0) || (V = '-0)) { return "Number" };
+    if ((V = '+Infinity) || (V = 'Infinity) || (V = '-Infinity)) { return "Number" };
   };
   if (v_type = __$Tuple) {
     tup_len := t_len V;
@@ -88,18 +89,15 @@ function Strict_Equality_Operator(x, y) {
     if (y = 'NaN) {
       return false
     };
-
     if (x = y) {
       return true
     };
-    /* TODO
-    if ((x = +0) && (y = -0)) {
+    if ((x = '+0) && (y = '-0)) {
       return true
     };
-    if ((x = -0) && (y = +0)) {
+    if ((x = '-0) && (y = '+0)) {
       return true
     };
-    */
 
     return false
   };
