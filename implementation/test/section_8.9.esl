@@ -1,0 +1,34 @@
+/** 8.9 The Completion Specification Type
+    The Completion type is used to explain the behaviour of statements (break, continue, return and throw)
+    that perform nonlocal transfers of control. Values of the Completion type are triples of the
+    form (type, value, target), where type is one of normal, break, continue, return, or throw, value is any
+    ECMAScript language value or empty, and target is any ECMAScript identifier or empty.
+    If cv is a completion value then cv.type, cv.value, and cv.target may be used to directly refer to its constituent values.
+
+    The term "abrupt completion" refers to any completion with a type other than normal.
+*/
+function isAnAbruptCompletion (completion) {
+  if (!(getCompletionType(completion) = 'normal)) {
+    return true
+  };
+
+  return false
+};
+
+/* Auxiliary functions created for the purposes of accessing the values of the triple that form the completion type. */
+function getCompletionType(completion) {
+  return t_nth(completion, 1)
+};
+function getCompletionValue(completion) {
+  return t_nth(completion, 2)
+};
+function getCompletionTarget(completion) {
+  return t_nth(completion, 3)
+};
+
+function newCompletion(type, value, target) {
+  return ("C", type, value, target)
+};
+function normalEmptyCompletion(V) {
+  return newCompletion('normal, V, 'empty)
+}

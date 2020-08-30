@@ -1,4 +1,5 @@
 import "test/section_8.7.esl";
+import "test/section_8.9.esl";
 import "test/section_8.10.esl";
 import "test/section_8.12.esl";
 import "test/section_9.12.esl";
@@ -62,12 +63,9 @@ function Type(V) {
     if ((V = '+Infinity) || (V = 'Infinity) || (V = '-Infinity)) { return "Number" };
   };
   if (v_type = __$Tuple) {
-    tup_len := t_len V;
-    if (tup_len = 5) {
-      ft := fst V;
-      if (ft = "R") { return "Reference" };
-      if (ft = "C") { return "Completion" }
-    }
+    ft := fst V;
+    if (ft = "R") { return "Reference" };
+    if (ft = "C") { return "Completion" }
   };
 
   throw SyntaxErrorException()

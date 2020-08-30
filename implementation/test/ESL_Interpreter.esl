@@ -72,8 +72,26 @@ function JS_Interpreter_Stmt(s, scope) {
         return JS_Interpreter_Stmt(Statement2, scope)
       };
 
-      return ("C", "", 'normal, 'empty, 'empty)
+      return normalEmptyCompletion('empty)
     }
+  }
+  | { type: "LabeledStatement", label: Identifier, body: Statement } -> {
+    /* 12.12 Labelled Statements */
+    /* TO COMPLETE: If the LabelledStatement itself has a non-empty label set, these labels are also added to
+                    the label set of Statement before evaluating it */
+    Statement.labelSet := [Identifier.name];
+
+    return JS_Interpreter_Stmt(Statement, scope)
+  }
+  /* The label set of an IterationStatement or a SwitchStatement initially contains the single element empty. */
+  | { type: "WhileStatement" } -> {
+    if (!("labelSet" in s)) {
+      s.LabelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+
+    return JS_Interpreter_IterationStatement(s, scope)
   }
 };
 
@@ -241,5 +259,41 @@ function JS_Interpreter_BinExpr(e, scope) {
     };
 
     return r
+  }
+};
+
+function JS_Interpreter_IterationStatement(s, scope) {
+  match s with
+  | { type: "WhileStatement", test: Expression, body: Statement, labelSet: currentLabelSet } -> {
+    /* 12.6.2 The while Statement */
+    /* 1. Let V = empty. */
+    V := 'empty;
+    /* 2. Repeat */
+    repeat {
+      /* a. Let exprRef be the result of evaluating Expression. */
+      exprRef := JS_Interpreter_Expr(Expression, scope);
+      /* b. If ToBoolean(GetValue(exprRef)) is false, return (normal, V, empty). */
+      if (ToBoolean(GetValue(exprRef)) = false) {
+        return normalEmptyCompletion(V)
+      };
+      /* c. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope);
+      /* d. If stmt.value is not empty, let V = stmt.value. */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V := getCompletionValue(stmt)
+      };
+      /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
+      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in currentLabelSet))) {
+        /* i. If stmt.type is break and stmt.target is in the current label set, then */
+        if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in currentLabelSet)) {
+          /* 1. Return (normal, V, empty). */
+          return normalEmptyCompletion(V)
+        };
+        /* ii. If stmt is an abrupt completion, return stmt. */
+        if (isAnAbruptCompletion(stmt)) {
+          return stmt
+        }
+      }
+    }
   }
 }
