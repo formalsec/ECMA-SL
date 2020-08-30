@@ -70,6 +70,9 @@ function JS_Interpreter_Stmt(s, scope) {
 
     return newCompletion(getCompletionType(stmt), V, getCompletionTarget(stmt))
   }
+  | { type: "EmptyStatement" } -> {
+    return normalEmptyCompletion('empty)
+  }
   | { type: "ExpressionStatement", expression: Expression } -> {
     /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
