@@ -1,6 +1,8 @@
 import "test/section_8.7.esl";
 import "test/section_8.10.esl";
 import "test/section_8.12.esl";
+import "test/section_9.12.esl";
+import "test/section_11.8.esl";
 
 function ToPrimitive(input, PreferredType) {
   if (Type(input) = "Object") {
@@ -71,8 +73,8 @@ function Type(V) {
   throw SyntaxErrorException()
 };
 
-function Strict_Equality_Operator(x, y) {
-  print "Strict_Equality_Operator";
+function StrictEqualityOperator(x, y) {
+  print "StrictEqualityOperator";
   if (!(Type(x) = Type(y))) {
     return false
   };

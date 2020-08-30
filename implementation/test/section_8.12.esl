@@ -1,3 +1,15 @@
+function GetProps(Desc) {
+  list := [];
+  if ("Value" in Desc) { list := l_add(list, "Value") };
+  if ("Writable" in Desc) { list := l_add(list, "Writable") };
+  if ("Get" in Desc) { list := l_add(list, "Get") };
+  if ("Set" in Desc) { list := l_add(list, "Set") };
+  if ("Enumerable" in Desc) { list := l_add(list, "Enumerable") };
+  if ("Configurable" in Desc) { list := l_add(list, "Configurable") };
+
+  return list
+};
+
 /** See 8.12.9 */
 function EveryFieldIsAbsent(Desc) {
   list := GetProps(Desc);
@@ -234,7 +246,6 @@ function Put(O, P, V, Throw) {
 
   /** 1. If the result of calling the [[CanPut]] internal method of O with argument P is false, then: */
   if (CanPut(O, P) = false) {
-    print "inside first if";
     /** a. If Throw is true, then throw a TypeError exception. */
     if (Throw) {
       throw TypeErrorException()
@@ -503,13 +514,12 @@ function DefineOwnProperty(O, P, Desc, Throw) {
     return true
   };
   */
-  print "6";
-  if ((!("Value" in Desc) || ("Value" in current) && SameValue(Desc.Value, current.Value)) &&
-      (!("Writable" in Desc) || ("Writable" in current) && SameValue(Desc.Writable, current.Writable)) &&
-      (!("Set" in Desc) || ("Set" in current) && SameValue(Desc.Set, current.Set)) &&
-      (!("Get" in Desc) || ("Get" in current) && SameValue(Desc.Get, current.Get)) &&
-      (!("Enumerable" in Desc) || ("Enumerable" in current) && SameValue(Desc.Enumerable, current.Enumerable)) &&
-      (!("Configurable" in Desc) || ("Configurable" in current) && SameValue(Desc.Configurable, current.Configurable))) {
+  if ((!("Value" in Desc) || (("Value" in current) && SameValue(Desc.Value, current.Value))) &&
+      (!("Writable" in Desc) || (("Writable" in current) && SameValue(Desc.Writable, current.Writable))) &&
+      (!("Set" in Desc) || (("Set" in current) && SameValue(Desc.Set, current.Set))) &&
+      (!("Get" in Desc) || (("Get" in current) && SameValue(Desc.Get, current.Get))) &&
+      (!("Enumerable" in Desc) || (("Enumerable" in current) && SameValue(Desc.Enumerable, current.Enumerable))) &&
+      (!("Configurable" in Desc) || (("Configurable" in current) && SameValue(Desc.Configurable, current.Configurable)))) {
     return true
   };
 
