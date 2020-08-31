@@ -119,6 +119,13 @@ function JS_Interpreter_Stmt(s, scope) {
 
     return JS_Interpreter_IterationStatement(s, scope)
   }
+  | { type: "BreakStatement", label: Identifier } -> {
+    if (Identifier = null) {
+      return newCompletion('break, 'empty, 'empty)
+    };
+
+    return newCompletion('break, 'empty, Identifier.name)
+  }
 };
 
 function JS_Interpreter_BinExpr(e, scope) {
