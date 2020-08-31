@@ -101,6 +101,15 @@ function JS_Interpreter_Stmt(s, scope) {
     return JS_Interpreter_Stmt(Statement, scope)
   }
   /* The label set of an IterationStatement or a SwitchStatement initially contains the single element empty. */
+  | { type: "DoWhileStatement" } -> {
+    if (!("labelSet" in_obj s)) {
+      s.labelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+
+    return JS_Interpreter_IterationStatement(s, scope)
+  }
   | { type: "WhileStatement" } -> {
     if (!("labelSet" in_obj s)) {
       s.labelSet := []
@@ -110,7 +119,7 @@ function JS_Interpreter_Stmt(s, scope) {
 
     return JS_Interpreter_IterationStatement(s, scope)
   }
-  | { type: "DoWhileStatement" } -> {
+  | { type: "ForStatement" } -> {
     if (!("labelSet" in_obj s)) {
       s.labelSet := []
     };
