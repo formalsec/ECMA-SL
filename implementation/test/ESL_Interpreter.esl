@@ -382,4 +382,57 @@ function JS_Interpreter_IterationStatement(s, scope) {
       }
     }
   }
+  | { type: "ForStatement", init: ExpressionNoIn, test: Expression1, update: Expression2, body: Statement, labelSet: currentLabelSet } -> {
+    /* 12.6.3 The for Statement */
+    if (isVariableDeclaration(init)) {
+      /* 1. Evaluate VariableDeclarationListNoIn. */
+      JS_Interpreter_Expr(ExpressionNoIn)
+    } else {
+      /* 1. If ExpressionNoIn is present, then. */
+      if (!(ExpressionNoIn = null)) {
+        /* a. Let exprRef be the result of evaluating ExpressionNoIn. */
+        exprRef := JS_Interpreter_Expr(ExpressionNoIn, scope);
+        /* b. Call GetValue(exprRef). (This value is not used but the call may have side-effects.) */
+        GetValue(exprRef)
+      }
+    };
+    /* 2. Let V = empty. */
+    V := 'empty;
+    /* 3. Repeat */
+    repeat {
+      /* a. If the first Expression is present, then */
+      if (!(Expression1 = null)) {
+        /* i. Let testExprRef be the result of evaluating the first Expression. */
+        testExprRef := JS_Interpreter_Expr(Expression1, scope);
+        /* ii. If ToBoolean(GetValue(testExprRef)) is false, return (normal, V, empty). */
+        if (ToBoolean(GetValue(testExprRef)) = false) {
+          return normalEmptyCompletion(V)
+        }
+      };
+      /* b. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope);
+      /* c. If stmt.value is not empty, let V = stmt.value */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V = getCompletionValue(stmt)
+      };
+      /* d. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
+      if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+        return normalEmptyCompletion(V)
+      };
+      /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
+      if (!(getCompletionType(stmt) = 'continue) || !((getCompletionTarget(stmt) in_list currentLabelSet))) {
+        /* i. If stmt is an abrupt completion, return stmt. */
+        if (isAnAbruptCompletion(stmt)) {
+          return stmt
+        }
+      };
+      /* f. If the second Expression is present, then */
+      if (!(Expression2 = null)) {
+        /* i. Let incExprRef be the result of evaluating the second Expression. */
+        incExprRef := JS_Interpreter_Expr(Expression2, scope);
+        /* ii. Call GetValue(incExprRef). (This value is not used.) */
+        GetValue(incExprRef)
+      }
+    }
+  }
 }
