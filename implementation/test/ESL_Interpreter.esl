@@ -63,7 +63,7 @@ function JS_Interpreter_Stmt(s, scope) {
         return stmt
       };
       if (!(getCompletionValue(stmt) = 'empty)) {
-        V := completion_value (stmt)
+        V := getCompletionValue(stmt)
       };
       i := i+ 1
     };
@@ -103,7 +103,7 @@ function JS_Interpreter_Stmt(s, scope) {
   /* The label set of an IterationStatement or a SwitchStatement initially contains the single element empty. */
   | { type: "WhileStatement" } -> {
     if (!("labelSet" in s)) {
-      s.LabelSet := []
+      s.labelSet := []
     };
 
     s.labelSet := l_add(s.labelSet, 'empty);
@@ -112,7 +112,7 @@ function JS_Interpreter_Stmt(s, scope) {
   }
   | { type: "DoWhileStatement" } -> {
     if (!("labelSet" in s)) {
-      s.LabelSet := []
+      s.labelSet := []
     };
 
     s.labelSet := l_add(s.labelSet, 'empty);
