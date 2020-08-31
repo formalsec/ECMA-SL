@@ -102,7 +102,7 @@ function JS_Interpreter_Stmt(s, scope) {
   }
   /* The label set of an IterationStatement or a SwitchStatement initially contains the single element empty. */
   | { type: "WhileStatement" } -> {
-    if (!("labelSet" in s)) {
+    if (!("labelSet" in_obj s)) {
       s.labelSet := []
     };
 
@@ -111,7 +111,7 @@ function JS_Interpreter_Stmt(s, scope) {
     return JS_Interpreter_IterationStatement(s, scope)
   }
   | { type: "DoWhileStatement" } -> {
-    if (!("labelSet" in s)) {
+    if (!("labelSet" in_obj s)) {
       s.labelSet := []
     };
 
@@ -305,9 +305,9 @@ function JS_Interpreter_IterationStatement(s, scope) {
         V := getCompletionValue(stmt)
       };
       /* c. If stmt.type is not continue || stmt.target is not in the current label set, then */
-      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in currentLabelSet))) {
+      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in_list currentLabelSet))) {
         /* i. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
-        if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in currentLabelSet)) {
+        if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
           return normalEmptyCompletion(V)
         };
         /* ii. If stmt is an abrupt completion, return stmt. */
@@ -344,9 +344,9 @@ function JS_Interpreter_IterationStatement(s, scope) {
         V := getCompletionValue(stmt)
       };
       /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
-      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in currentLabelSet))) {
+      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in_list currentLabelSet))) {
         /* i. If stmt.type is break and stmt.target is in the current label set, then */
-        if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in currentLabelSet)) {
+        if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
           /* 1. Return (normal, V, empty). */
           return normalEmptyCompletion(V)
         };

@@ -3,7 +3,7 @@ function main () {
     w: 2
   };
 
-  if ("w" in x) {
+  if ("w" in_obj x) {
     x.z := 1;
   } else {
     x.z := 0;

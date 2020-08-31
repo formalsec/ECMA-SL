@@ -1,11 +1,11 @@
 function GetProps(Desc) {
   list := [];
-  if ("Value" in Desc) { list := l_add(list, "Value") };
-  if ("Writable" in Desc) { list := l_add(list, "Writable") };
-  if ("Get" in Desc) { list := l_add(list, "Get") };
-  if ("Set" in Desc) { list := l_add(list, "Set") };
-  if ("Enumerable" in Desc) { list := l_add(list, "Enumerable") };
-  if ("Configurable" in Desc) { list := l_add(list, "Configurable") };
+  if ("Value" in_obj Desc) { list := l_add(list, "Value") };
+  if ("Writable" in_obj Desc) { list := l_add(list, "Writable") };
+  if ("Get" in_obj Desc) { list := l_add(list, "Get") };
+  if ("Set" in_obj Desc) { list := l_add(list, "Set") };
+  if ("Enumerable" in_obj Desc) { list := l_add(list, "Enumerable") };
+  if ("Configurable" in_obj Desc) { list := l_add(list, "Configurable") };
 
   return list
 };
@@ -32,7 +32,7 @@ function GetValueOrDefault(propDesc, propName) {
     Enumerable  : false,
     Configurable: false
   };
-  if (propName in propDesc) {
+  if (propName in_obj propDesc) {
     return propDesc[propName]
   } else {
     return objectDefaultAttributeValues[propName]
@@ -79,7 +79,7 @@ function TypeErrorException() {
 function GetOwnProperty(O, P) {
   print "GetOwnProperty";
 
-  if (!(P in O)) {
+  if (!(P in_obj O)) {
     return 'undefined
   };
 
@@ -494,16 +494,16 @@ function DefineOwnProperty(O, P, Desc, Throw) {
   /** 6. Return true, if every field in Desc also occurs in current and the value of every field in Desc is the
    *     same value as the corresponding field in current when compared using the SameValue algorithm (9.12). */
   /* TODO
-   lst := GetProps(Desc);
+  lst := GetProps(Desc);
   b = true;
   while (b && lst != []) {
     prop := hd lst;
-    b := b && (prop in current && SameValue(Desc[field], current[field]))
+    b := (prop in_obj current) && SameValue(Desc[field], current[field]);
     lst := tail lst;
   }; */
   /* Or,  */
-  /* for (field in Desc) {
-    if ((field in current) && SameValue(Desc[field], current[field])) {
+  /* for (field in_obj Desc) {
+    if ((field in_obj current) && SameValue(Desc[field], current[field])) {
       b := b && true;
     } else {
       b := b && false;
@@ -514,12 +514,12 @@ function DefineOwnProperty(O, P, Desc, Throw) {
     return true
   };
   */
-  if ((!("Value" in Desc) || (("Value" in current) && SameValue(Desc.Value, current.Value))) &&
-      (!("Writable" in Desc) || (("Writable" in current) && SameValue(Desc.Writable, current.Writable))) &&
-      (!("Set" in Desc) || (("Set" in current) && SameValue(Desc.Set, current.Set))) &&
-      (!("Get" in Desc) || (("Get" in current) && SameValue(Desc.Get, current.Get))) &&
-      (!("Enumerable" in Desc) || (("Enumerable" in current) && SameValue(Desc.Enumerable, current.Enumerable))) &&
-      (!("Configurable" in Desc) || (("Configurable" in current) && SameValue(Desc.Configurable, current.Configurable)))) {
+  if ((!("Value" in_obj Desc) || (("Value" in_obj current) && SameValue(Desc.Value, current.Value))) &&
+      (!("Writable" in_obj Desc) || (("Writable" in_obj current) && SameValue(Desc.Writable, current.Writable))) &&
+      (!("Set" in_obj Desc) || (("Set" in_obj current) && SameValue(Desc.Set, current.Set))) &&
+      (!("Get" in_obj Desc) || (("Get" in_obj current) && SameValue(Desc.Get, current.Get))) &&
+      (!("Enumerable" in_obj Desc) || (("Enumerable" in_obj current) && SameValue(Desc.Enumerable, current.Enumerable))) &&
+      (!("Configurable" in_obj Desc) || (("Configurable" in_obj current) && SameValue(Desc.Configurable, current.Configurable)))) {
     return true
   };
 
@@ -530,7 +530,7 @@ function DefineOwnProperty(O, P, Desc, Throw) {
       return Reject(Throw)
     };
     /** b. Reject, if the[[Enumerable]] field of Desc is present and the [[Enumerable]] fields of current and Desc are the Boolean negation of each other. */
-    if (("Enumerable" in Desc) && (!Desc.Enumerable = current.Enumerable)) {
+    if (("Enumerable" in_obj Desc) && (!Desc.Enumerable = current.Enumerable)) {
       return Reject(Throw)
     }
   };
@@ -580,7 +580,7 @@ function DefineOwnProperty(O, P, Desc, Throw) {
           /** ii. If the [[Writable]] field of current is false, then: */
           if (current.Writable = false) {
             /** 1. Reject, if the [[Value]] field of Desc is present and SameValue(Desc.[[Value]], current.[[Value]]) is false. */
-            if (("Value" in Desc) && SameValue(Desc.Value, current.Value) = false) {
+            if (("Value" in_obj Desc) && SameValue(Desc.Value, current.Value) = false) {
               return Reject(Throw)
             }
           }
@@ -594,11 +594,11 @@ function DefineOwnProperty(O, P, Desc, Throw) {
         /** a. If the [[Configurable]] field of current is false, then: */
         if (current.Configurable = false) {
           /** i. Reject, if the [[Set]] field of Desc is present and SameValue(Desc.[[Set]], current.[[Set]]) is false. */
-          if (("Set" in Desc) && SameValue(Desc.Set, current.Set) = false) {
+          if (("Set" in_obj Desc) && SameValue(Desc.Set, current.Set) = false) {
             return Reject(Throw)
           };
           /** ii. Reject, if the [[Get]] field of Desc is present and SameValue(Desc.[[Get]], current.[[Get]]) is false. */
-          if (("Get" in Desc) && SameValue(Desc.Get, current.Get) = false) {
+          if (("Get" in_obj Desc) && SameValue(Desc.Get, current.Get) = false) {
             return Reject(Throw)
           }
         }
@@ -606,22 +606,22 @@ function DefineOwnProperty(O, P, Desc, Throw) {
     }
   };
   /** 12. For each attribute field of Desc that is present, set the correspondingly named attribute of the property named P of object O to the value of the field. */
-  if ("Value" in Desc) {
+  if ("Value" in_obj Desc) {
     O[P].Value := Desc.Value
   };
-  if ("Writable" in Desc) {
+  if ("Writable" in_obj Desc) {
     O[P].Writable := Desc.Writable
   };
-  if ("Set" in Desc) {
+  if ("Set" in_obj Desc) {
     O[P].Set := Desc.Set
   };
-  if ("Get" in Desc) {
+  if ("Get" in_obj Desc) {
     O[P].Get := Desc.Get
   };
-  if ("Enumerable" in Desc) {
+  if ("Enumerable" in_obj Desc) {
     O[P].Enumerable := Desc.Enumerable
   };
-  if ("Configurable" in Desc) {
+  if ("Configurable" in_obj Desc) {
     O[P].Configurable := Desc.Configurable
   };
 
