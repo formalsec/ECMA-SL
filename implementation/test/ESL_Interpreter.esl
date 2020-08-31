@@ -384,7 +384,7 @@ function JS_Interpreter_IterationStatement(s, scope) {
   }
   | { type: "ForStatement", init: ExpressionNoIn, test: Expression1, update: Expression2, body: Statement, labelSet: currentLabelSet } -> {
     /* 12.6.3 The for Statement */
-    if (isVariableDeclaration(init)) {
+    if (isVariableDeclaration(ExpressionNoIn)) {
       /* 1. Evaluate VariableDeclarationListNoIn. */
       JS_Interpreter_Expr(ExpressionNoIn)
     } else {
