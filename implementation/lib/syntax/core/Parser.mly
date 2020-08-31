@@ -24,14 +24,14 @@
 %token <string> STRING
 %token <string> SYMBOL
 %token LAND LOR
-%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
+%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD HD TL TLEN TNTH FST SND
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
 
 %left LAND LOR
-%left GT LT EGT ELT
+%left GT LT EGT ELT IN_LIST
 %left PLUS MINUS
 %left TIMES DIVIDE
 %left EQUAL
@@ -191,7 +191,7 @@ stmt_target:
     { print_string ">RETURN\n";Stmt.Return (Expr.Val Val.Void) }
   | v=VAR; DEFEQ; f=expr_target; LPAREN;vs= separated_list(COMMA, expr_target);RPAREN;
   {print_string ">ASSIGNCALL\n";Stmt.AssignCall (v,f,vs)}
-  | v=VAR; DEFEQ; e1=expr_target; IN; e2= expr_target;
+  | v=VAR; DEFEQ; e1=expr_target; IN_OBJ; e2= expr_target;
   {print_string ">ASSIGNINOBJCHECK\n";Stmt.AssignInObjCheck (v,e1,e2)}
 
   | v=VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;
@@ -220,5 +220,6 @@ op_target:
   | LT      { Oper.Lt }
   | EGT     { Oper.Egt }
   | ELT     { Oper.Elt }
-  | LAND { Oper.Log_And }
-  | LOR  { Oper.Log_Or }
+  | LAND    { Oper.Log_And }
+  | LOR     { Oper.Log_Or }
+  | IN_LIST { Oper.InList }

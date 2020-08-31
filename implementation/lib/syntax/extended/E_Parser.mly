@@ -26,7 +26,7 @@
 %token <string> STRING
 %token <string> SYMBOL
 %token LAND LOR
-%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN
+%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD HD TL TLEN TNTH FST SND
 %token IMPORT
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
@@ -34,7 +34,7 @@
 %token EOF
 
 %left LAND LOR
-%left GT LT EGT ELT IN
+%left GT LT EGT ELT IN_OBJ IN_LIST
 %left PLUS MINUS
 %left TIMES DIVIDE
 %left EQUAL
@@ -276,5 +276,6 @@ op_target:
   | ELT     { Oper.Elt }
   | LAND    { Oper.Log_And }
   | LOR     { Oper.Log_Or }
-  | IN      { Oper.InObj }
+  | IN_OBJ  { Oper.InObj }
+  | IN_LIST { Oper.InList }
 
