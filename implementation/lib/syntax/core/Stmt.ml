@@ -30,4 +30,4 @@ let rec str (stmt : t) : string = match stmt with
   | AssignCall (va, st, e_lst)  -> va ^ " := " ^ Expr.str st ^ " (" ^ String.concat ", " (List.map (fun e -> Expr.str e) e_lst) ^ ")"
   | AssignNewObj va             -> va ^ " := { }"
   | FieldLookup (va, eo, p)    -> va ^ " := " ^ Expr.str eo ^ "[" ^ Expr.str p ^ "]"
-  | AssignInObjCheck (st,e1,e2) -> st ^ " := " ^ Expr.str e1 ^ " in " ^ Expr.str e2
+  | AssignInObjCheck (st,e1,e2) -> st ^ " := " ^ Expr.str e1 ^ " in_obj " ^ Expr.str e2
