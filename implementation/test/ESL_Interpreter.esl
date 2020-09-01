@@ -94,9 +94,17 @@ function JS_Interpreter_Stmt(s, scope) {
   }
   | { type: "LabeledStatement", label: Identifier, body: Statement } -> {
     /* 12.12 Labelled Statements */
-    /* TO COMPLETE: If the LabelledStatement itself has a non-empty label set, these labels are also added to
-                    the label set of Statement before evaluating it */
-    Statement.labelSet := [Identifier.name];
+    /* The production Identifier : Statement is evaluated by adding Identifier to the label set of Statement
+      and then evaluating Statement. */
+    if (!("labelSet" in_obj Statement)) {
+      Statement.labelSet := []
+    };
+    Statement.labelSet := l_add(Statement.labelSet, Identifier.name);
+    /* If the LabelledStatement itself has a non-empty label set, these labels are also added to
+       the label set of Statement before evaluating it */
+    if ("labelSet" in_obj s) {
+      Statement.labelSet := l_concat(s.labelSet, Statement.labelSet)
+    };
 
     return JS_Interpreter_Stmt(Statement, scope)
   }
