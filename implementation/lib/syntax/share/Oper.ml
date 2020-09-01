@@ -124,7 +124,7 @@ let list_in (v1, v2 : Val.t * Val.t) : Val.t = match v2 with
   | _      -> invalid_arg "Exception in Oper.list_in: this operation is only applicable to List arguments"
 
 let list_add (v1, v2 : Val.t * Val.t) : Val.t = match v1 with
-  | List l -> Val.List (v2 :: l)
+  | List l -> Val.List (l @ [v2])
   | _      -> invalid_arg "Exception in Oper.list_add: this operation is only applicable to List arguments"
 
 let list_concat (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
