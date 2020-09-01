@@ -136,19 +136,29 @@ function JS_Interpreter_Stmt(s, scope) {
 
     return JS_Interpreter_IterationStatement(s, scope)
   }
-  | { type: "BreakStatement", label: Identifier } -> {
-    if (Identifier = null) {
-      return newCompletion('break, 'empty, 'empty)
-    };
-
-    return newCompletion('break, 'empty, Identifier.name)
-  }
   | { type: "ContinueStatement", label: Identifier } -> {
+    /* 12.7 The continue Statement */
+    /* A ContinueStatement without an Identifier is evaluated as follows: */
     if (Identifier = null) {
+      /* 1. Return (continue, empty, empty). */
       return newCompletion('continue, 'empty, 'empty)
     };
 
+    /* A ContinueStatement with the optional Identifier is evaluated as follows:
+       1. Return (continue, empty, Identifier). */
     return newCompletion('continue, 'empty, Identifier.name)
+  }
+  | { type: "BreakStatement", label: Identifier } -> {
+    /* 12.8 The break Statement */
+    /* A BreakStatement without an Identifier is evaluated as follows: */
+    if (Identifier = null) {
+      /* 1. Return (break, empty, empty). */
+      return newCompletion('break, 'empty, 'empty)
+    };
+
+    /* A BreakStatement with an Identifier is evaluated as follows:
+       1. Return (break, empty, Identifier). */
+    return newCompletion('break, 'empty, Identifier.name)
   }
 };
 
