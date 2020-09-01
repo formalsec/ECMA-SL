@@ -61,11 +61,13 @@ let times (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Int v1, Int v2) -> Int (v1 * v2)
   | _                -> invalid_arg "Exception in Oper.times: this operation is only applicable to Float or Int arguments"
 
+(* ECMAScript does not perform integer division. The operands and result of all
+   division operations are double-precision floating-point numbers. *)
 let div (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt v1, Int v2) -> Flt (v1 /. float_of_int v2)
   | (Int v1, Flt v2) -> Flt (float_of_int v1 /. v2)
   | (Flt v1, Flt v2) -> Flt (v1 /. v2)
-  | (Int v1, Int v2) -> Int (v1 / v2)
+  | (Int v1, Int v2) -> Flt (float_of_int v1 /. float_of_int v2)
   | _                -> invalid_arg "Exception in Oper.div: this operation is only applicable to Float or Int arguments"
 
 let equal (v1, v2 : Val.t * Val.t) : Val.t = Bool (v1 = v2)

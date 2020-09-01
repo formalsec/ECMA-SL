@@ -101,8 +101,9 @@ and compile_exprstmt (expr : E_Expr.t) : Stmt.t list =
 and compile_repeatuntil (stmt : E_Stmt.t) (expr : E_Expr.t) : Stmt.t list =
   let stmts_stmt = compile_stmt stmt in
   let stmts_expr, expr' = compile_expr expr in
+  let not_expr = Expr.UnOpt(Oper.Not, expr') in
   let stmts = stmts_stmt @ stmts_expr in
-  stmts @ [Stmt.While (expr', Stmt.Block stmts)]
+  stmts @ [Stmt.While (not_expr, Stmt.Block stmts)]
 
 
 and compile_patv (expr: Expr.t) (pname : string) (pat_v : E_Pat_v.t) (var_b : string) : string list * Stmt.t list * Stmt.t list =
