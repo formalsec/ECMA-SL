@@ -67,6 +67,7 @@ rule read =
   | "l_len"      { LLEN }
   | "l_nth"      { LNTH }
   | "l_add"      { LADD }
+  | "l_concat"   { LCONCAT }
   | "hd"         { HD }
   | "tl"         { TL }
   | "t_len"      { TLEN }

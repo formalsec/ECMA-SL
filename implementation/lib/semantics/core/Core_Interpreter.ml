@@ -41,6 +41,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Lnth    -> Oper.list_nth (v1, v2)
   | Tnth    -> Oper.tuple_nth (v1, v2)
   | Ladd    -> Oper.list_add (v1, v2)
+  | Lconcat -> Oper.list_concat (v1, v2)
   | InList  -> Oper.list_in (v1, v2)
   | InObj   -> raise(Except "Not expected")
 
