@@ -83,7 +83,6 @@ rule read =
   | '|'          { PIPE }
   | "typeof"     { TYPEOF }
   | "__$"        { read_type lexbuf }
-  | "throw"      { THROW }
   | "import"     { IMPORT }
   | "->"         { RIGHT_ARROW }
   | "None"       { NONE }
