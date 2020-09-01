@@ -403,7 +403,7 @@ function JS_Interpreter_IterationStatement(s, scope) {
     /* 12.6.3 The for Statement */
     if (isVariableDeclaration(ExpressionNoIn)) {
       /* 1. Evaluate VariableDeclarationListNoIn. */
-      JS_Interpreter_Expr(ExpressionNoIn)
+      JS_Interpreter_Stmt(ExpressionNoIn)
     } else {
       /* 1. If ExpressionNoIn is present, then. */
       if (!(ExpressionNoIn = null)) {
