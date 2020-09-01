@@ -25,7 +25,7 @@
 %token <string> SYMBOL
 %token LAND LOR
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
-%token NOT LLEN LNTH LADD HD TL TLEN TNTH FST SND
+%token NOT LLEN LNTH LADD LCONCAT HD TL TLEN TNTH FST SND
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
@@ -157,6 +157,8 @@ expr_target:
     { print_string ">BINOP\n";Expr.BinOpt (Oper.Tnth, e1, e2) }
   | LADD; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { print_string ">BINOP\n";Expr.BinOpt (Oper.Ladd, e1, e2) }
+  | LCONCAT; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    { print_string ">BINOP\n";Expr.BinOpt (Oper.Lconcat, e1, e2) }
   | LPAREN; e = expr_target; RPAREN;
     { print_string ">PAREN\n";e }
 
