@@ -143,6 +143,13 @@ function JS_Interpreter_Stmt(s, scope) {
 
     return newCompletion('break, 'empty, Identifier.name)
   }
+  | { type: "ContinueStatement", label: Identifier } -> {
+    if (Identifier = null) {
+      return newCompletion('continue, 'empty, 'empty)
+    };
+
+    return newCompletion('continue, 'empty, Identifier.name)
+  }
 };
 
 function JS_Interpreter_BinExpr(e, scope) {
