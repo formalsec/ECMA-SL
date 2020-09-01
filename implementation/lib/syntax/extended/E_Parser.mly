@@ -232,7 +232,7 @@ e_stmt_target:
   | e = e_expr_target;
     { E_Stmt.ExprStmt e }
   | REPEAT; s = e_block_target;
-    { E_Stmt.RepeatUntil (s, E_Expr.Val (Val.Bool true)) }
+    { E_Stmt.RepeatUntil (s, E_Expr.Val (Val.Bool false)) }
   | REPEAT; s = e_block_target; UNTIL; e = e_expr_target;
     { E_Stmt.RepeatUntil (s, e) }
   | MATCH; e = e_expr_target; WITH; PIPE; pat_stmts = separated_list (PIPE, pat_stmt_target);
