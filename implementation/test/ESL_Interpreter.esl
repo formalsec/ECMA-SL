@@ -171,6 +171,13 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 3. Return (return, GetValue(exprRef), empty). */
     return newCompletion('return, GetValue(exprRef), 'empty)
   }
+  | { type: "ThrowStatement", argument: Expression } -> {
+    /* 12.13 The throw Statement */
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Return (throw, GetValue(exprRef), empty). */
+    return newCompletion('throw, GetValue(exprRef), 'empty)
+  }
 };
 
 function JS_Interpreter_BinExpr(e, scope) {
