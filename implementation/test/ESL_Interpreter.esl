@@ -160,6 +160,17 @@ function JS_Interpreter_Stmt(s, scope) {
        1. Return (break, empty, Identifier). */
     return newCompletion('break, 'empty, Identifier.name)
   }
+  | { type: "ReturnStatement", argument: Expression } -> {
+    /* 12.9 The return Statement */
+    /* 1. If the Expression is not present, return (return, undefined, empty). */
+    if (Expression = null) {
+      return newCompletion('return, 'undefined, 'empty)
+    };
+    /* 2. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 3. Return (return, GetValue(exprRef), empty). */
+    return newCompletion('return, GetValue(exprRef), 'empty)
+  }
 };
 
 function JS_Interpreter_BinExpr(e, scope) {
