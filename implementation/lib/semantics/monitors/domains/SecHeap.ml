@@ -9,6 +9,10 @@ let insert  (heap : t) (loc : Loc.t) (secobj : SecObject.t) (struct_lvl : SecLev
   if(Hashtbl.mem heap loc) then raise (Exists "location already exists") else
     Hashtbl.replace heap loc (secobj, struct_lvl,  obj_lvl)
 
+let create_object (heap : t) (loc : Loc.t) (lvl : SecLevel.t) : unit =
+  let new_obj = SecObject.create () in
+  insert heap loc new_obj lvl lvl
+
 let delete (heap : t) (loc : Loc.t) : unit = Hashtbl.remove heap loc
 
 let update (heap : t) (loc : Loc.t) (secobj : SecObject.t) (struct_lvl : SecLevel.t) (obj_lvl : SecLevel.t) : unit =
@@ -41,7 +45,7 @@ let get_obj (heap : t) (loc : Loc.t) : SecObject.t option =
 let get_field (heap : t) (loc : Loc.t) (field : Field.t) : (SecLevel.t * SecLevel.t) option =
   let obj = get_obj heap loc in
   match obj with
-  | Some obj -> Some (SecObject.get obj field)
+  | Some obj -> SecObject.get obj field
   | None -> None
 
 let delete_field (heap : t) (loc : Loc.t) (field : Field.t) : bool =
@@ -75,3 +79,9 @@ let upg_struct_val (heap : t) (loc : Loc.t) (lvl : SecLevel.t) : unit =
 let upg_struct_exists (heap : t) (loc :Loc.t) (lvl : SecLevel.t) : unit =
   let (sec_obj,strut_lvl,exist_lvl) = get heap loc in
   update heap loc sec_obj strut_lvl lvl
+
+let str (heap : t): string =
+  Hashtbl.fold
+    (fun loc (obj,struct_lvl, object_lvl) acc ->
+       (Printf.sprintf "%s|-> {%s}_{%s, %s}\n" loc (SecObject.str obj) (SecLevel.str struct_lvl) (SecLevel.str object_lvl)) ^ acc)
+    heap ""

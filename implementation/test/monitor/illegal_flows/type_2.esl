@@ -1,0 +1,25 @@
+function main () {
+h:= true;
+
+l:= true;
+o := {};
+o.p := true;
+
+x:= "upgVar"("l", "low");
+x:= "upgVar"("h", "high");
+x:= "upgStructExists"(o, "low");
+
+if (h) {
+  o.p := false
+};
+x:= o.p;
+
+if(x){
+  l := false
+};
+
+
+
+return l
+
+}

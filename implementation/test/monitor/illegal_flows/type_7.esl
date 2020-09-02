@@ -1,0 +1,28 @@
+function main () {
+h:= true;
+x:= "upgVar"("h", "high");
+l:= true;
+x:= "upgVar"("l", "low");
+o := {};
+x:= "upgStructExists"(o, "high");
+proph := "q";
+x:= "upgVar"("proph", "high");
+o.p :=true;
+o[proph] := true;
+
+
+if (h) {
+  proph := "p"
+};
+delete o[proph];
+x:= "p" in_obj o;
+if(x) {
+  l:= false
+};
+
+
+
+
+return l
+
+}
