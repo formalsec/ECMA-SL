@@ -1,28 +1,26 @@
 function main () {
-h:= true;
-x:= "upgVar"("h", "high");
-l:= true;
-x:= "upgVar"("l", "low");
-o := {};
-x:= "upgStructExists"(o, "high");
-proph := "q";
-x:= "upgVar"("proph", "high");
-o.p :=true;
-o[proph] := true;
+  h:= true;
+  l:= true;
+  o := {};
+  o.p :=true;
+  o.q := true;
+  proph := "q";
 
+  x:= "upgVar"("proph", "high");
+  x:= "upgVar"("h", "high");
 
-if (h) {
-  proph := "p"
-};
-delete o[proph];
-x:= "p" in_obj o;
-if(x) {
-  l:= false
-};
+  if (h) {
+    proph := "p"
+  };
+  delete o[proph];
+  x:= "p" in_obj o;
+  if(x) {
+    l:= false
+  };
 
 
 
 
-return l
+  return l
 
 }

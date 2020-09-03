@@ -1,14 +1,14 @@
 function main () {
-h:= true;
+h:= false;
 l:= true;
 o := {};
 o.q := false;
 proph := "p";
 
-
+x:= "upgVar"("l", "low");
 x:= "upgVar"("h", "high");
- x:= "upgVar"("proph", "high");
-
+x:= "upgVar"("proph", "high");
+x:= "upgStructExists"(o, "high");
 
 if (h) {
   proph := "q"

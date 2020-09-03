@@ -1,13 +1,13 @@
 function main () {
-  h:= true;
+  h:= false;
   l := true;
   oh := {};
   ol := {};
   ol.p := false;
-
+  x:= "upgVar"("l", "low");
   x:= "upgVar"("h", "high");
-  x:= "upgVar" ("oh", "high");
-
+  x:= "upgStructExists"(ol, "low");
+  x:= "upgStructExists"(oh, "high");
 
   if (h) {
     oh := ol

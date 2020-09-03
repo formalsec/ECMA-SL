@@ -177,11 +177,18 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
      |None -> raise (Except "Internal Error"))
 
   | FieldLookupLab (x,loc,field, e_o, e_f) ->
+    print_string "0\n";
     let lev_o = expr_lvl ssto e_o in
+    print_string "1\n";
     let lev_f = expr_lvl ssto e_f in
+    print_string "2\n";
     let lev_ctx = SecLevel.lubn [lev_o ;lev_f;(check_pc pc)] in
-    let lev_x = SecStore.get ssto x in
+    print_string "3\n";
+    let lev_x = Option.default lev_ctx (SecStore.get_safe ssto x) in
+    print_string "4\n";
+    print_string "before_if\n";
     if (SecLevel.leq lev_ctx lev_x) then (
+      print_string "then_if\n";
       match  SecHeap.get_field sheap loc field with
       | Some (_, lev_fv) ->
         let lub = SecLevel.lub lev_ctx lev_fv  in

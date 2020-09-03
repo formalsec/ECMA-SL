@@ -1,13 +1,15 @@
 function main () {
-h:= true;
-
+h:= false;
 l:= true;
 o := {};
 o.p := true;
+
+
 x:= "upgVar"("h", "high");
 
 
 if (h) {
+  
   o.p := false
 };
 x:= o.p;

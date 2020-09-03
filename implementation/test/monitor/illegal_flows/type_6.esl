@@ -3,14 +3,13 @@ h:= true;
 l:= true;
 ol := {};
 oh := {};
+oh.p := true;
+ol.p := true;
 
-
-x:= "upgVar"("l", "low");
+x:= "upgVar"("oh", "high");
 x:= "upgVar"("h", "high");
-x:= "upgStructExists"(ol, "low");
-x:= "upgStructExists"(oh, "high");
-oh.p := true;
-oh.p := true;
+
+
 if (h) {
   oh := ol
 };
