@@ -48,27 +48,13 @@ function JS_Interpreter_Expr(e, scope) {
 
 function JS_Interpreter_Stmt(s, scope) {
   match s with
-  | { type: "BlockStatement", body: stmts } -> {
+  | { type: "BlockStatement", body: StatementList } -> {
     /* 12.1 Block */
-    if ((l_len stmts) = 0) {
+    if ((l_len StatementList) = 0) {
       return normalEmptyCompletion('empty)
     };
 
-    V := 'empty;
-    i := 0;
-    lstmts := l_len stmts;
-    while (i < lstmts) {
-      stmt := JS_Interpreter_Stmt(l_nth(stmts, i), scope);
-      if (isAnAbruptCompletion(stmt)) {
-        return stmt
-      };
-      if (!(getCompletionValue(stmt) = 'empty)) {
-        V := getCompletionValue(stmt)
-      };
-      i := i+ 1
-    };
-
-    return newCompletion(getCompletionType(stmt), V, getCompletionTarget(stmt))
+    return JS_Interpreter_StmtList(StatementList, scope)
   }
   | { type: "EmptyStatement" } -> {
     return normalEmptyCompletion('empty)
@@ -178,6 +164,24 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 2. Return (throw, GetValue(exprRef), empty). */
     return newCompletion('throw, GetValue(exprRef), 'empty)
   }
+};
+
+function JS_Interpreter_StmtList(stmts, scope) {
+  V := 'empty;
+  i := 0;
+  lstmts := l_len stmts;
+  while (i < lstmts) {
+    stmt := JS_Interpreter_Stmt(l_nth(stmts, i), scope);
+    if (isAnAbruptCompletion(stmt)) {
+      return stmt
+    };
+    if (!(getCompletionValue(stmt) = 'empty)) {
+      V := getCompletionValue(stmt)
+    };
+    i := i + 1
+  };
+
+  return newCompletion(getCompletionType(stmt), V, getCompletionTarget(stmt))
 };
 
 function JS_Interpreter_BinExpr(e, scope) {
