@@ -30,11 +30,11 @@ do
 	IFS='->' read -r -a mainarray <<< "${MAINGREP}"	
 	if [[ "${mainarray[0]}" == "MAIN return " ]]
 	then
-		printf "${GREEN}${INV}OK${NC} -> ${mainarray[2]}"
+		printf "${GREEN}${INV}OK${NC} \t-> ${mainarray[2]}"
 	else
 		monitor=`grep "MONITOR EXCEPTION" <<< "${RESULT}"`
 		IFS='->' read -r -a monitor_array <<< "$monitor"
-		printf "${RED}${BLINK1}${INV}FAIL${BLINK2}${NC} -> ${monitor_array[2]}"
+		printf "${RED}${BLINK1}${INV}FAIL${BLINK2}${NC}\t-> ${monitor_array[2]}"
 	fi 
 done
 printf "\n${BOLD}_________ ILLEGAL FLOWS _________${NC}"
@@ -51,9 +51,9 @@ do
 	IFS='->' read -r -a mainarray <<< "${MONGREP}"	
 	if [[ "${mainarray[0]}" == "MONITOR EXCEPTION " ]]
 	then
-		printf "${GREEN}${INV}OK${NC} -> ${mainarray[2]}"
+		printf "${GREEN}${INV}OK${NC} \t-> ${mainarray[2]}"
 	else
-		printf "${RED}${BLINK1}${INV}FAIL${BLINK2}${NC} -> ${monitor_array[2]}"
+		printf "${RED}${BLINK1}${INV}FAIL${BLINK2}${NC}\t-> ${monitor_array[2]}"
 	fi 
 done
 

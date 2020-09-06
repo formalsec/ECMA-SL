@@ -71,7 +71,7 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
          SecStore.set ssto x (SecLevel.lub lev pc_lvl);
          print_string ("SECSTORE = "^ x ^" <-"^ (SecLevel.str (SecLevel.lub lev pc_lvl)) ^ "\n");
          MReturn (scs, sheap, ssto, pc)
-       ) else MFail ((scs, sheap, ssto, pc), ("NSU Violation - UpgVarLab: " ^ x ^ " " ^ (SecLevel.str lev)))
+       ) else MFail ((scs, sheap, ssto, pc), ("Invalid UpgVarLab: " ^ x ^ " " ^ (SecLevel.str lev)))
      | None ->
        SecStore.set ssto x pc_lvl;
        print_string ("SECSTORE = "^ x ^" <-"^ (SecLevel.str pc_lvl) ^ "\n");
@@ -85,7 +85,7 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
             SecStore.set ssto var (SecLevel.lub lvl  pc_lvl);
             MReturn (scs, sheap, ssto, pc))
 
-          else (raise(Except "MONITOR BLOCK - Invalid Assignment "))
+          else MFail((scs,sheap,ssto,pc), "Invalid Assignment ")
          )
      with Not_found -> 	SecStore.set ssto var (SecLevel.lub lvl  pc_lvl);
        MReturn (scs, sheap, ssto, pc)

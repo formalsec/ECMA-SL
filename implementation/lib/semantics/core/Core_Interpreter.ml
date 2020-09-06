@@ -249,8 +249,8 @@ let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> S
                         |Intermediate (state', stmts'') ->
                           small_step_iter interceptor prog state' mon_state' stmts'' verbose)
                     | MFail  (mon_state', str) ->
-                      print_string ("\nX X X X X X X X X X X X\nMONITOR EXCEPTION -> "^str);
-                      raise (Except "")))
+                      print_string ("MONITOR EXCEPTION -> "^str);
+                      exit 1;))
 
 
 let initial_state () : state_t =
