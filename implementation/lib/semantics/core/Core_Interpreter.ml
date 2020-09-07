@@ -261,12 +261,13 @@ let initial_state () : state_t =
   (cs, heap, sto)
 
 (*Worker class of the Interpreter*)
-let eval_prog (interceptor: string -> Val.t list -> Expr.t list -> SecLabel.t option) (prog : Prog.t) (out:string) (verbose:bool) (main:string) : Val.t option =
+let eval_prog (interceptor: string -> Val.t list -> Expr.t list -> SecLabel.t option) (prog : Prog.t) (out:string) (verbose:bool) (main:string) : Val.t option * Heap.t =
   let func = (Prog.get_func prog main(*passar como argumento valores e nome*)) in
   let state_0 = initial_state () in
   let mon_state_0 = NSU_Monitor.initial_monitor_state () in
   let v = small_step_iter interceptor prog state_0 mon_state_0 [func.body] verbose in
   (*let v=  small_step_iter prog cs heap sto func.body verbose in*)
+  let _, heap, _ = state_0 in
   match v with
-  |Finalv v -> v
+  | Finalv v -> v, heap
   | _ -> raise(Except "No return value")(*ERROR*)
