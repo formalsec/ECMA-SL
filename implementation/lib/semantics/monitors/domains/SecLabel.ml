@@ -10,6 +10,7 @@ type t =
   | FieldAssignLab of (Loc.t * Field.t * Expr.t * Expr.t * Expr.t)
   | FieldLookupLab of (string * Loc.t * Field.t * Expr.t * Expr.t)
   | FieldDeleteLab of (Loc.t * Field.t * Expr.t * Expr.t)
+  | NewLab of (string * Loc.t)
   (* Direct Security Level Upgrades *)
   | UpgVarLab of (string * SecLevel.t)
   | UpgPropExistsLab of (Loc.t * string * Expr.t * Expr.t * SecLevel.t)
@@ -47,8 +48,9 @@ let str (label :t) : string =
 
 
 let interceptor (func : string) (vs : Val.t list) (es : Expr.t list) : t option =
+
   match (func, vs, es) with
-  | ("upgVar",[Val.Str x; Val.Str lev_str], [Expr.Val (Str x'); Expr.Val (Str lev_str')])
+  | ("upgVar",[Val.Str x; Val.Str lev_str], [Expr.Val  (Str x'); Expr.Val (Str lev_str')])
     when x = x' && lev_str = lev_str' ->  Some (UpgVarLab (x,SecLevel.parse_lvl lev_str))
 
   | ("upgPropExists",[Val.Loc loc; Val.Str x; Val.Str lev_str], [e_o; e_f; Expr.Val (Str lev_str')])
@@ -68,5 +70,3 @@ let interceptor (func : string) (vs : Val.t list) (es : Expr.t list) : t option 
   | ("upgStructVal",[Val.Loc loc; Val.Str lev_str], [e_o; _])-> raise (Except "Level is not a literal ")
 
   | _ -> None
-
-(*Ver tese andre para checkar todas a labels*)

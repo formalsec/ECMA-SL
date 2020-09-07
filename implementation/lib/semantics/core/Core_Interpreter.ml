@@ -71,13 +71,12 @@ let get_func_id (sto:Store.t) (exp:Expr.t) :string=
   | Val.Str f -> f
   | _ -> raise (Except "Wrong/Invalid Function ID")
 
-let prepare_call  (prog:Prog.t) (cs:Callstack.t)(sto: Store.t) (cont: Stmt.t list) (x:string) (es:Expr.t list) (f:string): (Callstack.t * Store.t * Val.t list * string list) =
+let prepare_call  (prog:Prog.t) (cs:Callstack.t)(sto: Store.t) (cont: Stmt.t list) (x:string) (es:Expr.t list) (f:string) (vs: Val.t list): (Callstack.t * Store.t * string list) =
   let cs' = Callstack.push cs (Callstack.Intermediate (cont, sto, x)) in
-  let vs = (List.map (eval_expr sto) es) in
   let params = Prog.get_params prog f in
   let pvs = List.combine params vs in
   let sto_aux = Store.create pvs in
-  (cs', sto_aux, vs, params)
+  (cs', sto_aux, params)
 
 let eval_inobj_expr (prog: Prog.t) (heap : Heap.t) (sto : Store.t) (field : Expr.t) (loc : Expr.t) : Val.t =
   let loc' = eval_expr sto loc in
@@ -98,25 +97,16 @@ let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : E
   let field' = (match field with
       | Str field -> field
       | _         -> invalid_arg "Exception in Interpreter.eval_fielddelete_stmt : \"f\" didn't evaluate to Str") in
-  Heap.delete_field heap loc' field';
+  Heap.delete_field heap loc' field'
 
-and eval_fieldassign_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e_o : Expr.t) (f : Expr.t) (e_v : Expr.t) : unit =
-  let loc = eval_expr sto e_o and field = eval_expr sto f and v = eval_expr sto e_v in
-  let loc' = (match loc with
-      | Loc loc -> loc
-      | _       -> invalid_arg "Exception in Interpreter.eval_fieldassign_stmt : \"e_o\" is not a Loc value") in
-  let field' = (match field with
-      | Str field -> field
-      | _         -> invalid_arg "Exception in Interpreter.eval_fieldassign_stmt : \"f\" didn't evaluate to Str") in
-  Heap.set_field heap loc' field' v
 
 
 (* \/ ======================================= Main InterpreterFunctions ======================================= \/ *)
 
 
 let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> SecLabel.t option) (prog: Prog.t) (state : state_t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : (return * SecLabel.t)  =
-  print_string ("\n>>> "^Stmt.str s^"\n");
   let (cs, heap, sto)= state in
+  print_string ("====================================\nEvaluationg >>>>> "^(Stmt.str s) ^ "\n");
   match s with
   | Skip ->
     (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
@@ -177,11 +167,12 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> SecLabe
 
   | AssignCall (x,f,es) ->
     let f'= get_func_id sto f in
-    let (cs', sto_aux, vs, params) = prepare_call  prog cs sto cont x es f' in
-    let func = (Prog.get_func prog f') in
+    let vs = (List.map (eval_expr sto) es) in
     let b = interceptor f' vs es in
     ( match b with
       |None ->
+        let func = (Prog.get_func prog f') in
+        let (cs', sto_aux, params) = prepare_call prog cs sto cont x es f' vs in
         (let (cont':Stmt.t) = func.body in
          let aux_list= (cont'::[]) in
          (Intermediate ((cs', heap, sto_aux), aux_list), SecLabel.AssignCallLab (params, es, x, f')))
@@ -194,12 +185,12 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> SecLabe
     (Intermediate ((cs, heap, sto), cont), SecLabel.AssignLab (st,e1))
 
 
-  | AssignNewObj (st) ->
+  | AssignNewObj (x) ->
     let newobj= Object.create () in
     let loc= Heap.insert heap newobj in
-    Store.set sto st (Val.Loc loc);
-    print_string ("STORE: " ^ st ^ " <- " ^   Val.str (Val.Loc loc) ^"\n");
-    (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
+    Store.set sto x (Val.Loc loc);
+    print_string ("STORE: " ^ x ^ " <- " ^   Val.str (Val.Loc loc) ^"\n");
+    (Intermediate ((cs, heap, sto), cont), SecLabel.NewLab (x, loc))
 
 
   | FieldLookup (x, e_o, e_f) ->
@@ -219,9 +210,18 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> SecLabe
        invalid_arg ("Exception in Interpreter.eval_access_expr : \"e\" didn't evaluate to Loc."))
 
 
-  | FieldAssign (e_o, f, e_v) ->
-    eval_fieldassign_stmt prog heap sto e_o f e_v;
-    (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab) (*TODO*)
+  | FieldAssign (e_o, e_f, e_v) ->
+    let loc = eval_expr sto e_o in
+    let field = eval_expr sto e_f in
+    let v = eval_expr sto e_v in
+    (match loc, field with
+     | Loc loc , Str field ->
+       Heap.set_field heap loc field v;
+       (Intermediate ((cs, heap, sto), cont), SecLabel.FieldAssignLab (loc,field, e_o, e_f, e_v))
+     | _       ->
+       invalid_arg "Exception in Interpreter.eval_fieldassign_stmt : \"e_o\" is not a Loc value")
+
+
 
   | FieldDelete (e, f)        ->
     let loc = eval_expr sto e in
@@ -239,7 +239,6 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> SecLabe
 
 (*This function will iterate smallsteps in a list of functions*)
 let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> SecLabel.t option) (prog:Prog.t) (state : state_t) (mon_state:NSU_Monitor.monitor_state_t) (stmts:Stmt.t list)  (verbose:bool): return =
-  print_string "small_iter";
   match stmts with
   | [] ->  raise(Except "Empty list")
   | s::stmts' -> ( let (return, label) = eval_small_step interceptor prog state stmts' verbose s in
@@ -251,8 +250,8 @@ let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> S
                         |Intermediate (state', stmts'') ->
                           small_step_iter interceptor prog state' mon_state' stmts'' verbose)
                     | MFail  (mon_state', str) ->
-                      print_string ("\nX X X X X X X X X X X X\nMONITOR EXCEPTION -> "^str);
-                      raise (Except "")))
+                      print_string ("MONITOR EXCEPTION -> "^str);
+                      exit 1;))
 
 
 let initial_state () : state_t =

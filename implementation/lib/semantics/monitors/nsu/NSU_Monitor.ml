@@ -37,7 +37,11 @@ let rec expr_lvl (ssto:SecStore.t) (exp:Expr.t) : SecLevel.t =
 
 let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_return =
 
+
   let (scs, sheap, ssto, pc)= m_state in
+  print_string ("Monitor Evaluating >> " ^ SecLabel.str tl ^ "\n");
+  print_string "=== MONITOR STATE ===\n";
+  print_string ("PC level: "^(SecLevel.str (check_pc pc))^"\n");
 
              (*
             No-Sensitive-Upgrade
@@ -52,44 +56,39 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
     MReturn (scs,sheap, ssto,pc')
 
   | ReturnLab e ->
-    print_string "[M]returnLab\n";
     let lvl = expr_lvl ssto e in
-    Printf.printf "[M]Level e: %s\n" (SecLevel.str lvl) ;
     let lvl_f = SecLevel.lub lvl (check_pc pc) in
     let (frame, scs') = SecCallStack.pop scs in
-    print_string "[M]Pop\n";
     (match frame with
      | Intermediate (pc',ssto', x) ->  eval_small_step (scs', sheap, ssto', pc') (SecLabel.UpgVarLab (x,lvl_f))
      | Toplevel -> MReturn (scs', sheap, ssto, pc))
 
   | UpgVarLab (x,lev)->
-    print_string "[M]VarLab\n";
     let pc_lvl= check_pc pc in
-    print_string "[M]VarLab1\n";
     (match SecStore.get_safe ssto x with
      | Some x_lvl ->
-       print_string "[M]VarLab2\n";
-       if (SecLevel.leq x_lvl pc_lvl) then (
+       if (SecLevel.leq pc_lvl x_lvl ) then (
          SecStore.set ssto x (SecLevel.lub lev pc_lvl);
+         print_string ("SECSTORE = "^ x ^" <-"^ (SecLevel.str (SecLevel.lub lev pc_lvl)) ^ "\n");
          MReturn (scs, sheap, ssto, pc)
-       ) else MFail ((scs, sheap, ssto, pc), ("NSU Violation - UpgVarLab: " ^ x ^ " " ^ (SecLevel.str lev)))
+       ) else MFail ((scs, sheap, ssto, pc), ("Invalid UpgVarLab: " ^ x ^ " " ^ (SecLevel.str lev)))
      | None ->
        SecStore.set ssto x pc_lvl;
+       print_string ("SECSTORE = "^ x ^" <-"^ (SecLevel.str pc_lvl) ^ "\n");
        MReturn (scs, sheap, ssto, pc))
 
   | AssignLab (var, exp)->
     let lvl=expr_lvl ssto exp in
     let pc_lvl= check_pc pc in
     (try (let var_lvl = Hashtbl.find ssto var in
-          if (SecLevel.leq var_lvl pc_lvl) then(
-            print_string (SecLevel.str lvl);
+          if (SecLevel.leq pc_lvl var_lvl ) then(
             SecStore.set ssto var (SecLevel.lub lvl  pc_lvl);
             MReturn (scs, sheap, ssto, pc))
 
-          else (raise(Except "MONITOR BLOCK - Invalid Assignment "))
+          else MFail((scs,sheap,ssto,pc), "Invalid Assignment ")
          )
      with Not_found -> 	SecStore.set ssto var (SecLevel.lub lvl  pc_lvl);
-       eval_small_step (scs, sheap, ssto, pc) (SecLabel.AssignLab (var,exp))
+       MReturn (scs, sheap, ssto, pc)
     )
 
   (*| OutLab (lev,exp) ->
@@ -113,8 +112,14 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
     let ssto_aux = SecStore.create pvs in
     MReturn (scs', sheap, ssto_aux, [check_pc pc])
 
+  | NewLab (x, loc) ->
+    let pc_lvl = check_pc pc in
+    SecHeap.create_object sheap loc pc_lvl;
+    SecStore.set ssto x pc_lvl;
+    MReturn (scs, sheap, ssto, pc)
+
+
   | UpgStructValLab (loc, e_o, lvl) -> (*UpgObjLab <- mudar*)
-    (*Need to add NSU conditions*)
     let lev_o = expr_lvl ssto e_o in
     let lev_ctx = SecLevel.lubn [lev_o;(check_pc pc)] in
     (match SecHeap.get_val sheap loc with
@@ -127,12 +132,16 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
      | None -> raise (Except "Internal Error"))
 
 
-  | UpgStructExistsLab (loc, e_o, lvl) ->
-    (*Need to add NSU conditions*)
+  | UpgStructExistsLab (loc, e_o, lvl) -> (*StructLevel*)
+    Printf.printf "Loc: %s; e_o:%s\n" loc (Expr.str e_o) ;
+    Printf.printf "Ssto: %s" (SecStore.str ssto);
     let lev_o = expr_lvl ssto e_o in
+    print_string "1\n";
     let lev_ctx = SecLevel.lubn [lev_o;(check_pc pc)] in
+    print_string "2\n";
     (match SecHeap.get_struct sheap loc with
      | Some lev ->
+       print_string "3\n";
        if SecLevel.leq lev_ctx lev then (
          SecHeap.upg_struct_exists sheap loc (SecLevel.lub lvl lev_ctx);
          MReturn (scs, sheap, ssto, pc))
@@ -168,11 +177,18 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
      |None -> raise (Except "Internal Error"))
 
   | FieldLookupLab (x,loc,field, e_o, e_f) ->
+    print_string "0\n";
     let lev_o = expr_lvl ssto e_o in
+    print_string "1\n";
     let lev_f = expr_lvl ssto e_f in
+    print_string "2\n";
     let lev_ctx = SecLevel.lubn [lev_o ;lev_f;(check_pc pc)] in
-    let lev_x = SecStore.get ssto x in
+    print_string "3\n";
+    let lev_x = Option.default lev_ctx (SecStore.get_safe ssto x) in
+    print_string "4\n";
+    print_string "before_if\n";
     if (SecLevel.leq lev_ctx lev_x) then (
+      print_string "then_if\n";
       match  SecHeap.get_field sheap loc field with
       | Some (_, lev_fv) ->
         let lub = SecLevel.lub lev_ctx lev_fv  in
@@ -197,17 +213,24 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
 
   | FieldAssignLab ( loc, field, e_o, e_f, exp) ->
     let lev_o = expr_lvl ssto e_o in
+    print_string "fa-1\n";
     let lev_f = expr_lvl ssto e_f in
+    print_string "fa-2\n";
     let lev_ctx = SecLevel.lubn [lev_o; lev_f; (check_pc pc)] in
+    print_string "fa-3\n";
     let lev_exp = expr_lvl ssto exp in
+    print_string "fa-4\n";
+    Printf.printf "SHEAP: %s\n" (SecHeap.str sheap);
     (match SecHeap.get_field sheap loc field with
      | Some (lev_ef,lev_fv) ->
+       print_string "fieldassign Some \n";
        if (SecLevel.leq lev_ctx lev_fv) then (
          SecHeap.upg_prop_val sheap loc field (SecLevel.lub lev_exp lev_ctx);
          MReturn (scs,sheap,ssto,pc))
        else MFail((scs,sheap,ssto,pc), "Illegal Field Assign")
 
      | None ->
+       print_string "fieldassign None \n";
        let lev_struct = SecHeap.get_struct sheap loc in
        (match lev_struct with
         | Some lev_struct ->

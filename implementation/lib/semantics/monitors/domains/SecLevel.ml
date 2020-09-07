@@ -7,14 +7,14 @@ type t=
 
 let str (l:t) =
   match l with
-  | High -> "\"high\""
-  | Low -> "\"low\""
+  | High -> "high"
+  | Low -> "low"
 
 
 
 let parse_lvl (str:string) : t =
-  if (str = "\"low\"") then Low
-  else if(str = "\"high\"") then High
+  if (str = "low") then Low
+  else if(str = "high") then High
   else raise(Except ("Unknown Level -"^str))
 
 

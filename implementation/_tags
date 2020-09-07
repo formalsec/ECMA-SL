@@ -3,7 +3,6 @@ true: package(batteries)
 true: package(extlib)
 true: package(menhirLib)
 true: package(containers)
-true: package(containers.data)
 true: package(yojson)
 <*>: include
 <**/*>: include
