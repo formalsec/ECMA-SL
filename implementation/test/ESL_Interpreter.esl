@@ -41,7 +41,12 @@ function JS_Interpreter_Expr(e, scope) {
     /* 10.3.1 Identifier Resolution : TO_COMPLETE */
     return GetIdentifierReference(scope, name, true)
   }
-  | { type: "Literal", value: value } -> { return value }
+  | { type: "Literal", value: value } -> {
+    if (typeof(value) = __$Int) {
+      return int_to_float value
+    };
+    return value
+  }
 };
 
 function JS_Interpreter_Stmt(s, scope) {
