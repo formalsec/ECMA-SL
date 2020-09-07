@@ -613,7 +613,8 @@ function JS_Interpreter_CaseBlock_CaseClauses(caseClauses, input, scope) {
   i := 0;
   repeat {
     /* a. Let C be the next CaseClause in A. If there is no such CaseClause, return (normal, V, empty). */
-    C := getNextCaseClause(A, i); i:=i+1;
+    C := getNextCaseClause(A, i);
+    i := i + 1;
     if (C = "None") {
       return normalEmptyCompletion(V)
     };
@@ -640,7 +641,8 @@ function JS_Interpreter_CaseBlock_CaseClauses(caseClauses, input, scope) {
   i := 0;
   repeat {
     /* a. Let C be the next CaseClause in A. If there is no such CaseClause, return (normal, V, empty). */
-    C := getNextCaseClause(A, i); i:=i+1;
+    C := getNextCaseClause(A, i);
+    i := i + 1;
     if (C = "None") {
       return normalEmptyCompletion(V)
     };
@@ -672,29 +674,32 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
   /* 5. Repeat letting C be in order each CaseClause in A */
   i := 0;
   repeat {
-    C := getNextCaseClause(A, i); i:=i+1;
-    /* a. If found is false, then */
-    if (found = false) {
-      /* i. Let clauseSelector be the result of evaluating C. */
-      clauseSelector := JS_Interpreter_SwitchCase(C, scope);
-      /* ii. If input is equal to clauseSelector as defined by the === operator, then set found to true. */
-      if (StrictEqualityOperator(GetValue(clauseSelector), GetValue(input))) {
-        found := true
-      }
-    };
-    /* b. If found is true, then */
-    if (found = true) {
-      /* i. If C has a StatementList, then */
-      if (hasStatementList(C)) {
-        /* 1. Evaluate C‘s StatementList and let R be the result. */
-        R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
-        /* 2. If R.value is not empty, then let V = R.value. */
-        if (!(getCompletionValue(R) = 'empty)) {
-          V := getCompletionValue(R)
-        };
-        /* 3. R is an abrupt completion, then return (R.type, V, R.target). */
-        if (isAnAbruptCompletion(R)) {
-          return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+    C := getNextCaseClause(A, i);
+    i := i + 1;
+    if (!(C = "None")) {
+      /* a. If found is false, then */
+      if (found = false) {
+        /* i. Let clauseSelector be the result of evaluating C. */
+        clauseSelector := JS_Interpreter_SwitchCase(C, scope);
+        /* ii. If input is equal to clauseSelector as defined by the === operator, then set found to true. */
+        if (StrictEqualityOperator(GetValue(clauseSelector), GetValue(input))) {
+          found := true
+        }
+      };
+      /* b. If found is true, then */
+      if (found = true) {
+        /* i. If C has a StatementList, then */
+        if (hasStatementList(C)) {
+          /* 1. Evaluate C‘s StatementList and let R be the result. */
+          R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+          /* 2. If R.value is not empty, then let V = R.value. */
+          if (!(getCompletionValue(R) = 'empty)) {
+            V := getCompletionValue(R)
+          };
+          /* 3. R is an abrupt completion, then return (R.type, V, R.target). */
+          if (isAnAbruptCompletion(R)) {
+            return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+          }
         }
       }
     }
@@ -702,32 +707,36 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
   /* 6. Let foundInB be false. */
   foundInB := false;
   /* 7. If found is false, then */
+  i := 0;
   if (found = false) {
     /* a. Repeat, while foundInB is false and all elements of B have not been processed */
     repeat {
       /* i. Let C be the next CaseClause in B. */
-      C := getNextCaseClause(B);
-      /* ii. Let clauseSelector be the result of evaluating C. */
-      clauseSelector := JS_Interpreter_SwitchCase(C, scope);
-      /* iii. If input is equal to clauseSelector as defined by the === operator, then */
-      if (StrictEqualityOperator(GetValue(clauseSelector), GetValue(input))) {
-        /* 1. Set foundInB to true. */
-        foundInB := true;
-        /* 2. If C has a StatementList, then */
-        if (hasStatementList(C)) {
-          /* a  Evaluate C‘s StatementList and let R be the result. */
-          R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
-          /* b  If R.value is not empty, then let V = R.value. */
-          if (!(getCompletionValue(R) = 'empty)) {
-            V := getCompletionValue(R)
-          };
-          /* c  R is an abrupt completion, then return (R.type, V, R.target). */
-          if (isAnAbruptCompletion(R)) {
-            return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+      C := getNextCaseClause(B, i);
+      i := i + 1;
+      if (!(C = "None")) {
+        /* ii. Let clauseSelector be the result of evaluating C. */
+        clauseSelector := JS_Interpreter_SwitchCase(C, scope);
+        /* iii. If input is equal to clauseSelector as defined by the === operator, then */
+        if (StrictEqualityOperator(GetValue(clauseSelector), GetValue(input))) {
+          /* 1. Set foundInB to true. */
+          foundInB := true;
+          /* 2. If C has a StatementList, then */
+          if (hasStatementList(C)) {
+            /* a  Evaluate C‘s StatementList and let R be the result. */
+            R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+            /* b  If R.value is not empty, then let V = R.value. */
+            if (!(getCompletionValue(R) = 'empty)) {
+              V := getCompletionValue(R)
+            };
+            /* c  R is an abrupt completion, then return (R.type, V, R.target). */
+            if (isAnAbruptCompletion(R)) {
+              return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+            }
           }
         }
       }
-    } until foundInB = true || C = "None"
+    } until (foundInB = true) || (C = "None")
   };
   /* 8. If foundInB is false and the DefaultClause has a StatementList, then */
   if ((foundInB = false) && hasStatementList(DefaultClause)) {
@@ -745,7 +754,8 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
   /* 9. Repeat (Note that if step 7.a.i has been performed this loop does not start at the beginning of B) */
   repeat {
     /* a. Let C be the next CaseClause in B. If there is no such CaseClause, return (normal, V, empty). */
-    C := getNextCaseClause(B);
+    C := getNextCaseClause(B, i);
+    i := i + 1;
     if (C = "None") {
       return normalEmptyCompletion(V)
     };
