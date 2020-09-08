@@ -10,7 +10,9 @@ let str (l:t) =
   | High -> "high"
   | Low -> "low"
 
+let get_low () : t = Low  
 
+let get_high () : t = High 
 
 let parse_lvl (str:string) : t =
   if (str = "low") then Low

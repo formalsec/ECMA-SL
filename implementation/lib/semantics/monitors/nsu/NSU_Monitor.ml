@@ -5,41 +5,43 @@ module M
 
 exception Except of string
 
-type monitor_state_t =  (SL.t SecCallStack.t) * (SL.t SecHeap.t) * (SL.t SecStore.t) * SL.t list
+type sl = SL.t
 
-type monitor_return = | MReturn of monitor_state_t
-                      | MFail of ( monitor_state_t * string)
+type state_t =  (sl SecCallStack.t) * (sl SecHeap.t) * (sl SecStore.t) * sl list
+
+type monitor_return = | MReturn of state_t
+                      | MFail of (state_t * string)
 
 
-let print_pc (pc : SL.t list) =
+let print_pc (pc : sl list) =
   print_string "[ M - STACK ]";
   let aux= List.rev pc in
   print_string ((String.concat ":: " (List.map SL.str aux))^"\n")
 
-let add_pc (pc : SL.t list) (lvl : SL.t) : SL.t list=
+let add_pc (pc : sl list) (lvl : sl) : sl list=
   let aux= List.rev pc in
   let pc'=  [lvl] @ aux in
   List.rev pc'
 
-let pop_pc (pc : SL.t list) : SL.t list =
+let pop_pc (pc : sl list) : sl list =
   let pc'= List.rev pc in
   match pc' with
   |[] -> raise(Except "PC list is empty!")
   |l::ls'-> List.rev ls'
 
-let check_pc (pc : SL.t list) : SL.t =
+let check_pc (pc : sl list) : sl =
   let pc'= List.rev pc in
   match pc' with
   | s::ss'-> s
   | _ -> raise(Except "PC list is empty!")
 
-let rec expr_lvl (ssto: SL.t SecStore.t) (exp:Expr.t) : SL.t =
+let rec expr_lvl (ssto: sl SecStore.t) (exp:Expr.t) : sl =
   (*Criar lub entre lista de variaveis*)
   let vars = Expr.vars exp in
   List.fold_left  (SL.lub) (SL.get_low ())  (List.map (SecStore.get ssto) vars)
 
 
-let rec eval_small_step (m_state: monitor_state_t) (tl:SL.t SecLabel.t) : monitor_return =
+let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
 
 
   let (scs, sheap, ssto, pc)= m_state in
@@ -245,10 +247,13 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SL.t SecLabel.t) : monito
           else MFail((scs,sheap,ssto,pc), "Illegal Field Creation")
         | None -> raise (Except "Internal Error")))
 
-let initial_monitor_state (): monitor_state_t =
+let initial_monitor_state (): state_t =
   let sheap = SecHeap.create () in
   let ssto = SecStore.create [] in
   let scs = SecCallStack.create () in
   (scs, sheap, ssto, [(SL.get_low ())])
+
+
+let parse_lvl = SL.parse_lvl
 
 end 

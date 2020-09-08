@@ -6,6 +6,9 @@ let mode = ref ""
 let out = ref ""
 let verb_aux = ref false
 
+module NSU = NSU_Monitor.M(SecLevel)
+module CoreInterp = Core_Interpreter.M(NSU)
+
 (* Argument read function *)
 let arguments () =
 
@@ -30,10 +33,9 @@ let compile_from_plus_to_core () : unit =
   if !out <> "" then Parsing_Utils.write_file (Prog.str c_prog) !out
 
 let core_interpretation () : unit =
-  let interceptor = SecLabel.interceptor in
   let prog_contents = Parsing_Utils.load_file !file in
   let prog = Parsing_Utils.parse_prog prog_contents in
-  let v = Core_Interpreter.eval_prog interceptor prog !out !verb_aux "main" in
+  let v = CoreInterp.eval_prog prog !out !verb_aux "main" in
   match v with
   | Some z -> print_string ("MAIN return -> "^(Val.str z))
   | None -> print_string "ERROR HERE"

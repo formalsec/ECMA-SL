@@ -14,6 +14,6 @@ val leq : t -> t -> bool
 
 val get_low : unit -> t 
 
-val get_hight : unit -> t 
+val get_high : unit -> t 
 
 end

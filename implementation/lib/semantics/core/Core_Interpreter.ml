@@ -1,10 +1,13 @@
+module M 
+  (Mon : SecurityMonitor.M) = struct 
+
+
 exception Except of string
 
 type state_t = Callstack.t * Heap.t * Store.t
 
 type return =
   | Intermediate of state_t * Stmt.t list
-  (*| Intermediate of (Callstack.t * Stmt.t list * Store.t * Heap.t)*)
   | Finalv of Val.t option
 
 
@@ -59,8 +62,9 @@ let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
   | Var x                -> Store.get sto x
   | UnOpt (uop, e)       -> let v = eval_expr sto e in
     eval_unop uop v
-  | BinOpt (bop, e1, e2) -> let v1 = eval_expr sto e1
-    and v2 = eval_expr sto e2 in
+  | BinOpt (bop, e1, e2) -> 
+    let v1 = eval_expr sto e1 in 
+    let v2 = eval_expr sto e2 in
     eval_binopt_expr bop v1 v2
   | NOpt (nop, es)       -> eval_nopt_expr nop (List.map (eval_expr sto) es)
 
@@ -103,7 +107,7 @@ let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : E
 (* \/ ======================================= Main InterpreterFunctions ======================================= \/ *)
 
 
-let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> SecLabel.t option) (prog: Prog.t) (state : state_t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : (return * SecLabel.t)  =
+let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl SecLabel.t) option) (prog: Prog.t) (state : state_t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : (return * (Mon.sl SecLabel.t))  =
   let (cs, heap, sto)= state in
   print_string ("====================================\nEvaluationg >>>>> "^(Stmt.str s) ^ "\n");
   match s with
@@ -233,15 +237,12 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> SecLabe
 
 
 
-
-
-
 (*This function will iterate smallsteps in a list of functions*)
-let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> SecLabel.t option) (prog:Prog.t) (state : state_t) (mon_state:NSU_Monitor.monitor_state_t) (stmts:Stmt.t list)  (verbose:bool): return =
+let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> (Mon.sl SecLabel.t) option) (prog:Prog.t) (state : state_t) (mon_state:Mon.state_t) (stmts:Stmt.t list)  (verbose:bool): return =
   match stmts with
   | [] ->  raise(Except "Empty list")
   | s::stmts' -> ( let (return, label) = eval_small_step interceptor prog state stmts' verbose s in
-                   let mon_return : NSU_Monitor.monitor_return = NSU_Monitor.eval_small_step mon_state label in
+                   let mon_return : Mon.monitor_return = Mon.eval_small_step mon_state label in
                    (match mon_return with
                     | MReturn mon_state' -> (
                         match return with
@@ -259,13 +260,18 @@ let initial_state () : state_t =
   let heap = Heap.create () in
   (cs, heap, sto)
 
+
+
 (*Worker class of the Interpreter*)
-let eval_prog (interceptor: string -> Val.t list -> Expr.t list -> SecLabel.t option) (prog : Prog.t) (out:string) (verbose:bool) (main:string) : Val.t option =
+let eval_prog (prog : Prog.t) (out:string) (verbose:bool) (main:string) : Val.t option =
   let func = (Prog.get_func prog main(*passar como argumento valores e nome*)) in
   let state_0 = initial_state () in
-  let mon_state_0 = NSU_Monitor.initial_monitor_state () in
+  let mon_state_0 = Mon.initial_monitor_state () in
+  let interceptor = SecLabel.interceptor Mon.parse_lvl in
   let v = small_step_iter interceptor prog state_0 mon_state_0 [func.body] verbose in
   (*let v=  small_step_iter prog cs heap sto func.body verbose in*)
   match v with
   |Finalv v -> v
   | _ -> raise(Except "No return value")(*ERROR*)
+
+end 
