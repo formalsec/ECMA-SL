@@ -1,47 +1,51 @@
 (*Each monitor is independent of the other ones*)
+
+module M 
+  (SL : SecurityLevel.M) = struct 
+
 exception Except of string
 
-type monitor_state_t =  SecCallStack.t * SecHeap.t * SecStore.t * SecLevel.t list
+type monitor_state_t =  (SL.t SecCallStack.t) * (SL.t SecHeap.t) * (SL.t SecStore.t) * SL.t list
 
 type monitor_return = | MReturn of monitor_state_t
                       | MFail of ( monitor_state_t * string)
 
 
-let print_pc (pc : SecLevel.t list) =
+let print_pc (pc : SL.t list) =
   print_string "[ M - STACK ]";
   let aux= List.rev pc in
-  print_string ((String.concat ":: " (List.map SecLevel.str aux))^"\n")
+  print_string ((String.concat ":: " (List.map SL.str aux))^"\n")
 
-let add_pc (pc : SecLevel.t list) (lvl : SecLevel.t) : SecLevel.t list=
+let add_pc (pc : SL.t list) (lvl : SL.t) : SL.t list=
   let aux= List.rev pc in
   let pc'=  [lvl] @ aux in
   List.rev pc'
 
-let pop_pc (pc : SecLevel.t list) : SecLevel.t list =
+let pop_pc (pc : SL.t list) : SL.t list =
   let pc'= List.rev pc in
   match pc' with
   |[] -> raise(Except "PC list is empty!")
   |l::ls'-> List.rev ls'
 
-let check_pc (pc : SecLevel.t list) : SecLevel.t =
+let check_pc (pc : SL.t list) : SL.t =
   let pc'= List.rev pc in
   match pc' with
   | s::ss'-> s
   | _ -> raise(Except "PC list is empty!")
 
-let rec expr_lvl (ssto:SecStore.t) (exp:Expr.t) : SecLevel.t =
+let rec expr_lvl (ssto: SL.t SecStore.t) (exp:Expr.t) : SL.t =
   (*Criar lub entre lista de variaveis*)
   let vars = Expr.vars exp in
-  List.fold_left  (SecLevel.lub) SecLevel.Low  (List.map (SecStore.get ssto) vars)
+  List.fold_left  (SL.lub) (SL.get_low ())  (List.map (SecStore.get ssto) vars)
 
 
-let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_return =
+let rec eval_small_step (m_state: monitor_state_t) (tl:SL.t SecLabel.t) : monitor_return =
 
 
   let (scs, sheap, ssto, pc)= m_state in
-  print_string ("Monitor Evaluating >> " ^ SecLabel.str tl ^ "\n");
+  print_string ("Monitor Evaluating >> " ^ (SecLabel.str SL.str tl) ^ "\n");
   print_string "=== MONITOR STATE ===\n";
-  print_string ("PC level: "^(SecLevel.str (check_pc pc))^"\n");
+  print_string ("PC level: "^(SL.str (check_pc pc))^"\n");
 
              (*
             No-Sensitive-Upgrade
@@ -57,7 +61,7 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
 
   | ReturnLab e ->
     let lvl = expr_lvl ssto e in
-    let lvl_f = SecLevel.lub lvl (check_pc pc) in
+    let lvl_f = SL.lub lvl (check_pc pc) in
     let (frame, scs') = SecCallStack.pop scs in
     (match frame with
      | Intermediate (pc',ssto', x) ->  eval_small_step (scs', sheap, ssto', pc') (SecLabel.UpgVarLab (x,lvl_f))
@@ -67,27 +71,27 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
     let pc_lvl= check_pc pc in
     (match SecStore.get_safe ssto x with
      | Some x_lvl ->
-       if (SecLevel.leq pc_lvl x_lvl ) then (
-         SecStore.set ssto x (SecLevel.lub lev pc_lvl);
-         print_string ("SECSTORE = "^ x ^" <-"^ (SecLevel.str (SecLevel.lub lev pc_lvl)) ^ "\n");
+       if (SL.leq pc_lvl x_lvl ) then (
+         SecStore.set ssto x (SL.lub lev pc_lvl);
+         print_string ("SECSTORE = "^ x ^" <-"^ (SL.str (SL.lub lev pc_lvl)) ^ "\n");
          MReturn (scs, sheap, ssto, pc)
-       ) else MFail ((scs, sheap, ssto, pc), ("Illegal UpgVarLab: " ^ x ^ " " ^ (SecLevel.str lev)))
+       ) else MFail ((scs, sheap, ssto, pc), ("Illegal UpgVarLab: " ^ x ^ " " ^ (SL.str lev)))
      | None ->
        SecStore.set ssto x pc_lvl;
-       print_string ("SECSTORE = "^ x ^" <-"^ (SecLevel.str pc_lvl) ^ "\n");
+       print_string ("SECSTORE = "^ x ^" <-"^ (SL.str pc_lvl) ^ "\n");
        MReturn (scs, sheap, ssto, pc))
 
   | AssignLab (var, exp)->
     let lvl=expr_lvl ssto exp in
     let pc_lvl= check_pc pc in
     (try (let var_lvl = Hashtbl.find ssto var in
-          if (SecLevel.leq pc_lvl var_lvl ) then(
-            SecStore.set ssto var (SecLevel.lub lvl  pc_lvl);
+          if (SL.leq pc_lvl var_lvl ) then(
+            SecStore.set ssto var (SL.lub lvl  pc_lvl);
             MReturn (scs, sheap, ssto, pc))
 
           else MFail((scs,sheap,ssto,pc), "Illegal Assignment ")
          )
-     with Not_found -> 	SecStore.set ssto var (SecLevel.lub lvl  pc_lvl);
+     with Not_found -> 	SecStore.set ssto var (SL.lub lvl  pc_lvl);
        MReturn (scs, sheap, ssto, pc)
     )
 
@@ -102,7 +106,7 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
   | BranchLab (exp,st) ->
     let lev= expr_lvl ssto exp in
     let pc_lvl = check_pc pc in
-    let pc' = add_pc pc (SecLevel.lub lev pc_lvl) in
+    let pc' = add_pc pc (SL.lub lev pc_lvl) in
     MReturn (scs, sheap, ssto, pc')
 
   | AssignCallLab (params, exp,x,f)->
@@ -121,11 +125,11 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
 
   | UpgStructValLab (loc, e_o, lvl) -> (*UpgObjLab <- mudar*)
     let lev_o = expr_lvl ssto e_o in
-    let lev_ctx = SecLevel.lubn [lev_o;(check_pc pc)] in
+    let lev_ctx = SL.lubn [lev_o;(check_pc pc)] in
     (match SecHeap.get_val sheap loc with
      | Some lev ->
-       if SecLevel.leq lev_ctx lev then (
-         SecHeap.upg_struct_val sheap loc (SecLevel.lub lvl lev_ctx);
+       if SL.leq lev_ctx lev then (
+         SecHeap.upg_struct_val sheap loc (SL.lub lvl lev_ctx);
          MReturn (scs, sheap, ssto, pc))
        else
          MFail((scs,sheap,ssto,pc), "Illegal P_Val Upgrade")
@@ -134,16 +138,16 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
 
   | UpgStructExistsLab (loc, e_o, lvl) -> (*StructLevel*)
     Printf.printf "Loc: %s; e_o:%s\n" loc (Expr.str e_o) ;
-    Printf.printf "Ssto: %s" (SecStore.str ssto);
+    Printf.printf "Ssto: %s" (SecStore.str SL.str ssto);
     let lev_o = expr_lvl ssto e_o in
     print_string "1\n";
-    let lev_ctx = SecLevel.lubn [lev_o;(check_pc pc)] in
+    let lev_ctx = SL.lubn [lev_o;(check_pc pc)] in
     print_string "2\n";
     (match SecHeap.get_struct sheap loc with
      | Some lev ->
        print_string "3\n";
-       if SecLevel.leq lev_ctx lev then (
-         SecHeap.upg_struct_exists sheap loc (SecLevel.lub lvl lev_ctx);
+       if SL.leq lev_ctx lev then (
+         SecHeap.upg_struct_exists sheap loc (SL.lub lvl lev_ctx);
          MReturn (scs, sheap, ssto, pc))
        else
          MFail((scs,sheap,ssto,pc), "Illegal P_Val Upgrade")
@@ -154,11 +158,11 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
   | UpgPropValLab (loc, field, e_o, e_f,  lvl) ->
     let lev_o = expr_lvl ssto e_o in
     let lev_f = expr_lvl ssto e_f in
-    let lev_ctx = SecLevel.lubn [lev_o ;lev_f;(check_pc pc)] in
+    let lev_ctx = SL.lubn [lev_o ;lev_f;(check_pc pc)] in
     (match SecHeap.get_field sheap loc field with
      | Some (_, lev_val) ->
-       if SecLevel.leq lev_ctx lev_val then (
-         SecHeap.upg_prop_val sheap loc field (SecLevel.lub lvl lev_ctx);
+       if SL.leq lev_ctx lev_val then (
+         SecHeap.upg_prop_val sheap loc field (SL.lub lvl lev_ctx);
          MReturn (scs, sheap, ssto, pc))
        else MFail((scs,sheap,ssto,pc), "Illegal P_Val Upgrade")
      | None -> raise (Except "Internal Error"))
@@ -167,11 +171,11 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
   | UpgPropExistsLab (loc,field, e_o, e_f, lvl) ->
     let lev_o = expr_lvl ssto e_o in
     let lev_f = expr_lvl ssto e_f in
-    let lev_ctx = SecLevel.lubn [lev_o ;lev_f;(check_pc pc)] in
+    let lev_ctx = SL.lubn [lev_o ;lev_f;(check_pc pc)] in
     (match SecHeap.get_field sheap loc field with
        Some (lev_exists, _) ->
-       if SecLevel.leq lev_ctx lev_exists then (
-         SecHeap.upg_prop_exists sheap loc field (SecLevel.lub lvl lev_ctx);
+       if SL.leq lev_ctx lev_exists then (
+         SecHeap.upg_prop_exists sheap loc field (SL.lub lvl lev_ctx);
          MReturn (scs, sheap, ssto, pc))
        else MFail((scs,sheap,ssto,pc), "Illegal P_Existis Upgrade")
      |None -> raise (Except "Internal Error"))
@@ -182,16 +186,16 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
     print_string "1\n";
     let lev_f = expr_lvl ssto e_f in
     print_string "2\n";
-    let lev_ctx = SecLevel.lubn [lev_o ;lev_f;(check_pc pc)] in
+    let lev_ctx = SL.lubn [lev_o ;lev_f;(check_pc pc)] in
     print_string "3\n";
     let lev_x = Option.default lev_ctx (SecStore.get_safe ssto x) in
     print_string "4\n";
     print_string "before_if\n";
-    if (SecLevel.leq lev_ctx lev_x) then (
+    if (SL.leq lev_ctx lev_x) then (
       print_string "then_if\n";
       match  SecHeap.get_field sheap loc field with
       | Some (_, lev_fv) ->
-        let lub = SecLevel.lub lev_ctx lev_fv  in
+        let lub = SL.lub lev_ctx lev_fv  in
         SecStore.set ssto x lub;
         MReturn (scs,sheap,ssto,pc)
       | None -> raise (Except "Internal Error"))
@@ -201,10 +205,10 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
   | FieldDeleteLab (loc, field, e_o, e_f) ->
     let lev_o = expr_lvl ssto e_o in
     let lev_f = expr_lvl ssto e_f in
-    let lev_ctx = SecLevel.lubn [lev_o ;lev_f;(check_pc pc)] in
+    let lev_ctx = SL.lubn [lev_o ;lev_f;(check_pc pc)] in
     (match SecHeap.get_field sheap loc field with
      | Some (lev_ef , _) ->
-       if (SecLevel.leq lev_ctx lev_ef) then (
+       if (SL.leq lev_ctx lev_ef) then (
          if SecHeap.delete_field sheap loc field then
            MReturn (scs,sheap,ssto,pc)
          else raise (Except "Internal Error"))
@@ -216,16 +220,16 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
     print_string "fa-1\n";
     let lev_f = expr_lvl ssto e_f in
     print_string "fa-2\n";
-    let lev_ctx = SecLevel.lubn [lev_o; lev_f; (check_pc pc)] in
+    let lev_ctx = SL.lubn [lev_o; lev_f; (check_pc pc)] in
     print_string "fa-3\n";
     let lev_exp = expr_lvl ssto exp in
     print_string "fa-4\n";
-    Printf.printf "SHEAP: %s\n" (SecHeap.str sheap);
+    Printf.printf "SHEAP: %s\n" (SecHeap.str SL.str sheap);
     (match SecHeap.get_field sheap loc field with
      | Some (lev_ef,lev_fv) ->
        print_string "fieldassign Some \n";
-       if (SecLevel.leq lev_ctx lev_fv) then (
-         SecHeap.upg_prop_val sheap loc field (SecLevel.lub lev_exp lev_ctx);
+       if (SL.leq lev_ctx lev_fv) then (
+         SecHeap.upg_prop_val sheap loc field (SL.lub lev_exp lev_ctx);
          MReturn (scs,sheap,ssto,pc))
        else MFail((scs,sheap,ssto,pc), "Illegal Field Assign")
 
@@ -234,8 +238,8 @@ let rec eval_small_step (m_state: monitor_state_t) (tl:SecLabel.t) : monitor_ret
        let lev_struct = SecHeap.get_struct sheap loc in
        (match lev_struct with
         | Some lev_struct ->
-          if (SecLevel.leq lev_ctx lev_struct) then (
-            if SecHeap.new_sec_prop sheap loc field lev_ctx (SecLevel.lub lev_exp lev_ctx) then
+          if (SL.leq lev_ctx lev_struct) then (
+            if SecHeap.new_sec_prop sheap loc field lev_ctx (SL.lub lev_exp lev_ctx) then
               MReturn (scs, sheap, ssto, pc)
             else raise (Except "Internal Error"))
           else MFail((scs,sheap,ssto,pc), "Illegal Field Creation")
@@ -245,4 +249,6 @@ let initial_monitor_state (): monitor_state_t =
   let sheap = SecHeap.create () in
   let ssto = SecStore.create [] in
   let scs = SecCallStack.create () in
-  (scs, sheap, ssto, [SecLevel.Low])
+  (scs, sheap, ssto, [(SL.get_low ())])
+
+end 

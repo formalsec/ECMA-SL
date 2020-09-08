@@ -1,6 +1,6 @@
 exception Except of string
 
-type t =
+type 'sl t =
   | AssignLab of (string * Expr.t)
   | EmptyLab
   | BranchLab of (Expr.t * Stmt.t)
@@ -12,15 +12,15 @@ type t =
   | FieldDeleteLab of (Loc.t * Field.t * Expr.t * Expr.t)
   | NewLab of (string * Loc.t)
   (* Direct Security Level Upgrades *)
-  | UpgVarLab of (string * SecLevel.t)
-  | UpgPropExistsLab of (Loc.t * string * Expr.t * Expr.t * SecLevel.t)
-  | UpgPropValLab of (Loc.t * string * Expr.t * Expr.t * SecLevel.t)
-  | UpgStructExistsLab of (Loc.t * Expr.t * SecLevel.t)
-  | UpgStructValLab of (Loc.t * Expr.t * SecLevel.t)
+  | UpgVarLab of (string * 'sl)
+  | UpgPropExistsLab of (Loc.t * string * Expr.t * Expr.t * 'sl)
+  | UpgPropValLab of (Loc.t * string * Expr.t * Expr.t * 'sl)
+  | UpgStructExistsLab of (Loc.t * Expr.t * 'sl)
+  | UpgStructValLab of (Loc.t * Expr.t * 'sl)
 
 
 
-let str (label :t) : string =
+let str (sl_str : 'sl -> string) (label : 'sl t) : string =
   match label with
   | EmptyLab ->
     "EmptyLab"
@@ -47,26 +47,26 @@ let str (label :t) : string =
 
 
 
-let interceptor (func : string) (vs : Val.t list) (es : Expr.t list) : t option =
+let interceptor (parse_sl : string -> 'sl) (func : string) (vs : Val.t list) (es : Expr.t list) : ('sl t) option =
 
   match (func, vs, es) with
   | ("upgVar",[Val.Str x; Val.Str lev_str], [Expr.Val  (Str x'); Expr.Val (Str lev_str')])
-    when x = x' && lev_str = lev_str' ->  Some (UpgVarLab (x,SecLevel.parse_lvl lev_str))
+    when x = x' && lev_str = lev_str' ->  Some (UpgVarLab (x,parse_sl lev_str))
 
   | ("upgPropExists",[Val.Loc loc; Val.Str x; Val.Str lev_str], [e_o; e_f; Expr.Val (Str lev_str')])
-    when lev_str = lev_str' -> Some (UpgPropExistsLab (loc,x, e_o, e_f,(SecLevel.parse_lvl lev_str)))
+    when lev_str = lev_str' -> Some (UpgPropExistsLab (loc,x, e_o, e_f,(parse_sl lev_str)))
   | ("upgPropExists",[Val.Loc loc; Val.Str x; Val.Str lev_str], [e_o; e_f; _])-> raise (Except "Level is not a literal ") (*Gerar uma exception*)
 
   | ("upgPropVal", [Val.Loc loc; Val.Str x;  Val.Str lev_str], [e_o; e_f; Expr.Val (Str lev_str')])
-    when lev_str = lev_str'-> Some (UpgPropValLab (loc,x,  e_o, e_f, (SecLevel.parse_lvl lev_str)))
+    when lev_str = lev_str'-> Some (UpgPropValLab (loc,x,  e_o, e_f, (parse_sl lev_str)))
   | ("upgPropVal", [Val.Loc loc; Val.Str x;  Val.Str lev_str], [e_o; e_f; _])-> raise (Except "Level is not a literal ")
 
   | ("upgStructExists",[Val.Loc loc; Val.Str lev_str], [e_o; Expr.Val (Str lev_str')])
-    when lev_str = lev_str' -> Some (UpgStructExistsLab (loc, e_o, (SecLevel.parse_lvl lev_str)))
+    when lev_str = lev_str' -> Some (UpgStructExistsLab (loc, e_o, (parse_sl lev_str)))
   | ("upgStructExists",[Val.Loc loc; Val.Str lev_str], [e_o; _])-> raise (Except "Level is not a literal ")
 
   | ("upgStructVal",[Val.Loc loc; Val.Str lev_str], [e_o; Expr.Val (Str lev_str')])
-    when lev_str = lev_str' -> Some (UpgStructValLab (loc, e_o, (SecLevel.parse_lvl lev_str)))
+    when lev_str = lev_str' -> Some (UpgStructValLab (loc, e_o, (parse_sl lev_str)))
   | ("upgStructVal",[Val.Loc loc; Val.Str lev_str], [e_o; _])-> raise (Except "Level is not a literal ")
 
   | _ -> None
