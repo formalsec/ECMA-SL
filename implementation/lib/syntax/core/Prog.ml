@@ -27,7 +27,14 @@ let get_name (prog: t ) (id: string) : string  =
 let add_func (prog:t) (k: string) (v : Func.t): unit =
   Hashtbl.replace prog k v
 
+let get_funcs (prog : t) : Func.t list = 
+  Hashtbl.fold 
+    (fun _ f fs -> f::fs)
+    prog 
+    []   
+
+
 (*------------Strings----------*)
 
 let str (prog : t) : string =
-  String.concat ";\n" (List.of_seq (Seq.map Func.str (Hashtbl.to_seq_values prog)))
+  String.concat ";\n"  (List.map Func.str (get_funcs prog))
