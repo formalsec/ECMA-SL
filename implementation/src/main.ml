@@ -9,12 +9,12 @@ let verb_aux = ref false
 (* Argument read function *)
 let arguments () =
 
-  let usage_msg = "Usage: -i <path> -mode <c/> -o <path> -v <bool> " in
+  let usage_msg = "Usage: -i <path> -mode <c/p> -o <path> -v <bool> -h <path>" in
   Arg.parse
     [
       ("-i", Arg.String (fun f -> file := f), "input file")
     ;("-mode", Arg.String (fun m -> mode := m ), "mode to run: c - Core / p - Plus ")
-    ;("-heap", Arg.String(fun f -> heap_file := f), "File with the heap. Program runs against this heap.")
+    ;("-h", Arg.String(fun f -> heap_file := f), "File where to write the computed heap.")
     ;("-o", Arg.String (fun o -> out := o ), "output file")
     ;("-v", Arg.Set verb_aux, "verbose")
 
@@ -33,10 +33,13 @@ let core_interpretation () : unit =
   let interceptor = SecLabel.interceptor in
   let prog_contents = Parsing_Utils.load_file !file in
   let prog = Parsing_Utils.parse_prog prog_contents in
-  let v = Core_Interpreter.eval_prog interceptor prog !out !verb_aux "main" in
-  match v with
-  | Some z -> print_string ("MAIN return -> "^(Val.str z))
-  | None -> print_string "ERROR HERE"
+  let v, heap = Core_Interpreter.eval_prog interceptor prog !out !verb_aux "main" in
+  (match v with
+   | Some z -> print_endline ("MAIN return -> " ^ (Val.str z))
+   | None -> print_endline "ERROR HERE");
+  if !heap_file <> ""
+  then Parsing_Utils.write_file (Heap.str heap) !heap_file
+  else print_endline (Heap.str heap)
 
 (* Main function - Run *)
 let run ()=
