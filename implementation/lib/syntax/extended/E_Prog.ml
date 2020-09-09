@@ -23,7 +23,11 @@ let get_file_name (prog : t) : string = prog.file_name
 
 let get_func (prog : t) (func : string) : E_Func.t = Hashtbl.find prog.funcs func
 
-let get_funcs (prog : t) : E_Func.t list = List.of_seq (Hashtbl.to_seq_values prog.funcs)
+let get_funcs (prog : t) : E_Func.t list = 
+  Hashtbl.fold 
+    (fun _ f fs -> f::fs)
+    prog.funcs 
+    []     
 
 let get_imports (prog : t) : string list = prog.imports
 
