@@ -17,6 +17,10 @@ function JS_Interpreter(p) {
 
 function JS_Interpreter_Expr(e, scope) {
   match e with
+  | { type: "ObjectExpression"} -> {
+    /* 11.1.5 Object Initialiser */
+    return JS_Interpreter_ObjectInitializer(e, scope)
+  }
   | { type: "AssignmentExpression", operator: op, left: l_expr, right: r_expr} -> {
     /* 11.13.1 Simple Assignment ( = ) */
     if (op = "=") {
@@ -46,6 +50,69 @@ function JS_Interpreter_Expr(e, scope) {
       return int_to_float value
     };
     return value
+  }
+};
+
+function JS_Interpreter_ObjectInitializer(objExpr, scope) {
+  /* 11.1.5 Object Initialiser */
+  match objExpr with
+  | { type: "ObjectExpression", properties: PropertyNameAndValueList } -> {
+    /* The production ObjectLiteral : { } is evaluated as follows: */
+    /* Return a new object created as if by the expression new Object() where Object
+        is the standard built-in constructor with that name. */
+    if (l_len PropertyNameAndValueList = 0) {
+      return NewObject()
+    };
+    /* The production PropertyNameAndValueList : PropertyAssignment is evaluated as follows: */
+    /* 1. Let obj be the result of creating a new object as if by the expression new Object()
+       where Object is the standard built-in constructor with that name. */
+    obj := NewObject();
+    /* 2. Let propId be the result of evaluating PropertyAssignment. */
+    propId := JS_Interpreter_PropertyAssignment(hd PropertyNameAndValueList, scope);
+    /* 3. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and false. */
+    DefineOwnProperty(obj, getPropertyName(propId), getPropertyDescriptor(propId), false);
+    /* 4. Return obj. */
+    return obj
+  }
+};
+
+function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) {
+  match PropertyAssignment with
+  | { type: "Property", key: PropertyName, value: AssignmentExpression, kind: "init" } -> {
+    /* The production PropertyAssignment : PropertyName : AssignmentExpression is evaluated as follows: */
+
+    /* 1. Let propName be the result of evaluating PropertyName. */
+    propName := JS_Interpreter_PropertyName(PropertyName, scope);
+    /* 2. Let exprValue be the result of evaluating AssignmentExpression. */
+    exprValue := JS_Interpreter_Expr(AssignmentExpression, scope);
+    /* 3. Let propValue be GetValue(exprValue). */
+    propValue := GetValue(exprValue);
+    /* 4. Let desc be the Property Descriptor{[[Value]]: propValue, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true} */
+    desc := newDataPropertyDescriptor(propValue);
+    /* 5. Return Property Identifier (propName, desc). */
+    return newPropertyIdentifier(propName, desc)
+  }
+};
+
+function JS_Interpreter_PropertyName(PropertyName, scope) {
+  match PropertyName with
+  /* The production PropertyName : IdentifierName is evaluated as follows: */
+  | { type: "Identifier", name: IdentifierName } -> {
+    /* 1. Return the String value containing the same sequence of characters as the IdentifierName. */
+    return IdentifierName
+  }
+  /* The production PropertyName : StringLiteral is evaluated as follows: */
+  | { type: "Literal", value: Literal } -> {
+    /* Return the SV of the StringLiteral. */
+    if (typeof Literal = __$Str) {
+      return Literal
+    };
+    /* The production PropertyName : NumericLiteral is evaluated as follows: */
+    if ((typeof Literal = __$Int) || (typeof Literal = __$Flt)) {
+      /* 1. Let nbr be the result of forming the value of the NumericLiteral. */
+      nbr := Literal;
+      return ToString(nbr)
+    }
   }
 };
 
