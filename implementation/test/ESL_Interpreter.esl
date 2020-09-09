@@ -591,8 +591,7 @@ function JS_Interpreter_CaseBlock(caseBlock, input, scope) {
   /* production CaseBlock : { CaseClauses opt } */
   if (l_nth(caseBlock, 1) = null) {
     casesA := l_nth(caseBlock, 0);
-    casesB := l_nth(caseBlock, 2);
-    return JS_Interpreter_CaseBlock_CaseClauses(l_concat(casesA, casesB), input, scope)
+    return JS_Interpreter_CaseBlock_CaseClauses(casesA, input, scope)
   } else {
     /* production CaseBlock : { CaseClauses opt DefaultClause CaseClauses opt } */
     clausesA := l_nth(caseBlock, 0);
