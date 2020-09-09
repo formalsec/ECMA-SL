@@ -8,10 +8,6 @@ function NewObject () {
   }
 };
 
-function NewPropertyDescriptor() {
-  return {}
-};
-
 /**
  * 8.10 The Property Descriptor and Property Identifier Specification Types
  *
@@ -40,6 +36,35 @@ function NewPropertyDescriptor() {
  * Values of the Property Identifier type are pairs of the form (name, descriptor), where name is a String and descriptor is a Property Descriptor value.
  * The following abstract operations are used in this specification to operate upon Property Descriptor values:
  */
+
+/* Auxiliary functions created for the purposes of creating instances of the Property Descriptor type. */
+function NewPropertyDescriptor() {
+  return {}
+};
+
+function newDataPropertyDescriptor(value) {
+  desc := NewPropertyDescriptor();
+  desc.Value := value;
+  desc.Writable := true;
+  desc.Enumerable := true;
+  desc.Configurable := true;
+
+  return desc
+};
+
+/* Auxiliary functions created for the purposes of dealing with the Property Identifier type. */
+function newPropertyIdentifier(name, desc) {
+  return ("P", name, desc)
+};
+
+function getPropertyName(propertyIdentifier) {
+  return t_nth(propertyIdentifier, 1)
+};
+
+function getPropertyDescriptor(propertyIdentifier) {
+  return t_nth(propertyIdentifier, 2)
+};
+
 
 /**
  * 8.10.1 IsAccessorDescriptor ( Desc )
