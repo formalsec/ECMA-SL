@@ -2,6 +2,7 @@ import "test/section_8.7.esl";
 import "test/section_8.9.esl";
 import "test/section_8.10.esl";
 import "test/section_8.12.esl";
+import "test/section_9.esl";
 import "test/section_9.12.esl";
 import "test/section_11.8.esl";
 import "test/section_12.2.esl";

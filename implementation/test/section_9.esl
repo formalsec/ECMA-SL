@@ -1,0 +1,29 @@
+/* 9.8 ToString */
+function ToString(V) {
+  v_type := Type(V);
+  if (v_type = "Undefined") {
+    return "undefined"
+  };
+  if (v_type = "Null") {
+    return "null"
+  };
+  if (v_type = "Boolean") {
+    if (V = true) {
+      return "true"
+    };
+    return "false"
+  };
+  if (v_type = "Number") {
+    return int_to_string V
+  };
+  if (v_type = "String") {
+    return V
+  };
+  if (v_type = "Object") {
+    /* Apply the following steps: */
+    /* 1. Let primValue be ToPrimitive(input argument, hint String). */
+    primValue := ToPrimitive(V, 'String);
+    /* 2. Return ToString(primValue). */
+    return ToString(primValue)
+  }
+}
