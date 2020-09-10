@@ -67,10 +67,17 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
     /* 1. Let obj be the result of creating a new object as if by the expression new Object()
        where Object is the standard built-in constructor with that name. */
     obj := NewObject();
-    /* 2. Let propId be the result of evaluating PropertyAssignment. */
-    propId := JS_Interpreter_PropertyAssignment(hd PropertyNameAndValueList, scope);
-    /* 3. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and false. */
-    DefineOwnProperty(obj, getPropertyName(propId), getPropertyDescriptor(propId), false);
+
+    lPropList := l_len PropertyNameAndValueList;
+    i := 0;
+    while (i < lPropList) {
+      /* 2. Let propId be the result of evaluating PropertyAssignment. */
+      propId := JS_Interpreter_PropertyAssignment(l_nth(PropertyNameAndValueList, i), scope);
+      /* 3. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and false. */
+      DefineOwnProperty(obj, getPropertyName(propId), getPropertyDescriptor(propId), false);
+
+      i := i + 1
+    };
     /* 4. Return obj. */
     return obj
   }
