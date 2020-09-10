@@ -26,4 +26,16 @@ function ToString(V) {
     /* 2. Return ToString(primValue). */
     return ToString(primValue)
   }
+};
+
+/* 9.10 CheckObjectCoercible */
+/* The abstract operation CheckObjectCoercible throws an error if its argument is a value that cannot be
+   converted to an Object using ToObject. It is defined by Table 15: */
+function CheckObjectCoercible(V) {
+  v_type := Type(V);
+  if ((v_type = "Undefined") || (v_type = "Null")) {
+    throw TypeErrorException()
+  };
+
+  return
 }

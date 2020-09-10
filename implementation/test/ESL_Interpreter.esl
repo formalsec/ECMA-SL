@@ -17,9 +17,32 @@ function JS_Interpreter(p) {
 
 function JS_Interpreter_Expr(e, scope) {
   match e with
-  | { type: "ObjectExpression"} -> {
+  | { type: "ObjectExpression" } -> {
     /* 11.1.5 Object Initialiser */
     return JS_Interpreter_ObjectInitializer(e, scope)
+  }
+  | { type: "MemberExpression", object: MemberExpression, property: Expression } -> {
+    /* 11.2.1 Property Accessors */
+
+    /* The production MemberExpression : MemberExpression [ Expression ] is evaluated as follows: */
+    /* 1. Let baseReference be the result of evaluating MemberExpression. */
+    baseReference := JS_Interpreter_Expr(MemberExpression, scope);
+    /* 2. Let baseValue be GetValue(baseReference). */
+    baseValue := GetValue(baseReference);
+    /* 3. Let propertyNameReference be the result of evaluating Expression. */
+    propertyNameReference := JS_Interpreter_Expr(Expression, scope);
+    /* 4. Let propertyNameValue be GetValue(propertyNameReference). */
+    propertyNameValue := GetValue(propertyNameReference);
+    /* 5. Call CheckObjectCoercible(baseValue). */
+    CheckObjectCoercible(baseValue);
+    /* 6. Let propertyNameString be ToString(propertyNameValue). */
+    propertyNameString := ToString(propertyNameValue);
+    /* 7. If the syntactic production that is being evaluated is contained in strict mode code,
+          let strict be true, else let strict be false. */
+    strict := true; /* TODO */
+    /* 8. Return a value of type Reference whose base value is baseValue and whose referenced name is
+          propertyNameString, and whose strict mode flag is strict. */
+    return newValueReference(baseValue, propertyNameString, strict)
   }
   | { type: "AssignmentExpression", operator: op, left: l_expr, right: r_expr} -> {
     /* 11.13.1 Simple Assignment ( = ) */
