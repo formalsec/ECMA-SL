@@ -75,6 +75,7 @@ rule read =
   | "fst"          { FST }
   | "snd"          { SND }
   | "int_to_float" { INT_TO_FLOAT }
+  | "int_to_string" { INT_TO_STRING }
   | '('            { LPAREN }
   | ')'            { RPAREN }
   | '{'            { LBRACE }
