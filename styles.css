@@ -1,0 +1,41 @@
+li {
+  list-style: none;
+}
+
+body > ul > li {
+  padding: 5px 0;
+}
+
+.collapse .click-text::after,
+.expand .click-text::after {
+  margin-left: 5px;
+  font-size: 0.6em;
+  font-style: italic;
+}
+
+.collapse .click-text::after {
+  content: "click to collapse";
+}
+
+.expand .click-text::after {
+  content: "click to expand";
+}
+
+.boolean {
+  color: blueviolet;
+}
+
+.number {
+  color: green;
+}
+
+.string,
+.loc {
+  color: navy;
+}
+.string::before,
+.string::after,
+.loc::before,
+.loc::after {
+  content: '"';
+}
