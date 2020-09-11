@@ -21,6 +21,19 @@ function JS_Interpreter_Expr(e, scope) {
     /* 11.1.5 Object Initialiser */
     return JS_Interpreter_ObjectInitializer(e, scope)
   }
+  | { type: "ProtoAssignment", object: Object, value: Expression } -> {
+    /* This pattern match is specific to this implementation and
+       does not exist specified in the ES5 standard.
+       Was created to test the assignment of a value to the Prototype of an object. */
+    objectReference := JS_Interpreter_Expr(Object, scope);
+    objectLocation := GetValue(objectReference);
+    valueReference := JS_Interpreter_Expr(Expression, scope);
+    value := GetValue(valueReference);
+
+    objectLocation.Prototype := value;
+
+    return value
+  }
   | { type: "MemberExpression", object: MemberExpression, property: Expression } -> {
     /* 11.2.1 Property Accessors */
 
