@@ -108,3 +108,5 @@ dist
 # IDE
 .vscode/
 
+heap.json
+heap.html

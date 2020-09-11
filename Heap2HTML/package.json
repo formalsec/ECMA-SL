@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "prestart": "sh ./find_and_replace.sh",
     "start": "node index.js -f heap.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
