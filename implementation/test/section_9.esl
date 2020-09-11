@@ -14,7 +14,7 @@ function ToString(V) {
     return "false"
   };
   if (v_type = "Number") {
-    return int_to_string V
+    return float_to_string V
   };
   if (v_type = "String") {
     return V

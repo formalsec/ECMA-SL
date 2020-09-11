@@ -26,7 +26,7 @@ type uopt = Neg
           | First
           | Second
           | IntToFloat
-          | IntToString
+          | FloatToString
 
 type nopt = ListExpr
           | TupleExpr
@@ -153,22 +153,22 @@ let int_to_float (v : Val.t) : Val.t = match v with
   | Int i -> Flt (float_of_int i)
   | _     -> invalid_arg "Exception in Oper.int_to_float: this operation is only applicable to Int arguments"
 
-let int_to_string (v : Val.t) : Val.t = match v with
-  | Int i -> Str (string_of_int i)
-  | _     -> invalid_arg "Exception in Oper.int_to_string: this operation is only applicable to Int arguments"
+let float_to_string (v : Val.t) : Val.t = match v with
+  | Flt i -> Str (string_of_float i)
+  | _     -> invalid_arg "Exception in Oper.float_to_string: this operation is only applicable to Flt arguments"
 
 let str_of_unopt (op : uopt) : string = match op with
-  | Neg         -> "-"
-  | Not         -> "!"
-  | Typeof      -> "typeof"
-  | ListLen     -> "l_len"
-  | TupleLen    -> "t_len"
-  | Head        -> "hd"
-  | Tail        -> "tl"
-  | First       -> "fst"
-  | Second      -> "snd"
-  | IntToFloat  -> "int_to_float"
-  | IntToString -> "int_to_string"
+  | Neg           -> "-"
+  | Not           -> "!"
+  | Typeof        -> "typeof"
+  | ListLen       -> "l_len"
+  | TupleLen      -> "t_len"
+  | Head          -> "hd"
+  | Tail          -> "tl"
+  | First         -> "fst"
+  | Second        -> "snd"
+  | IntToFloat    -> "int_to_float"
+  | FloatToString -> "float_to_string"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus    -> e1 ^ " + " ^ e2

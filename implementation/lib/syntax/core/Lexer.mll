@@ -73,8 +73,8 @@ rule read =
   | "t_nth"        { TNTH }
   | "fst"          { FST }
   | "snd"          { SND }
-  | "int_to_float" { INT_TO_FLOAT }
-  | "int_to_string" { INT_TO_STRING }
+  | "int_to_float"    { INT_TO_FLOAT }
+  | "float_to_string" { FLOAT_TO_STRING }
   | '('            { LPAREN }
   | ')'            { RPAREN }
   | '{'            { LBRACE }
