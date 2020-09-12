@@ -1,15 +1,19 @@
-open NSU_Monitor
-
 let file = ref ""
 let heap_file = ref ""
 let mode = ref ""
 let out = ref ""
 let verb_aux = ref false
 
+
 module NSU = NSU_Monitor.M(SecLevel)
 module CoreInterp = Core_Interpreter.M(NSU)
-
+(*
+module DCM = Decline_Monitor.M(SecLevel)
+module CoreInterp = Core_Interpreter.M(DCM)
+*)
 (* Argument read function *)
+
+
 let arguments () =
 
   let usage_msg = "Usage: -i <path> -mode <c/> -o <path> -v <bool> " in
