@@ -183,18 +183,11 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
      |None -> raise (Except "Internal Error"))
 
   | FieldLookupLab (x,loc,field, e_o, e_f) ->
-    print_string "0\n";
-    let lev_o = expr_lvl ssto e_o in
-    print_string "1\n";
+    let lev_o = expr_lvl ssto e_o in;
     let lev_f = expr_lvl ssto e_f in
-    print_string "2\n";
     let lev_ctx = SL.lubn [lev_o ;lev_f;(check_pc pc)] in
-    print_string "3\n";
     let lev_x = Option.default lev_ctx (SecStore.get_safe ssto x) in
-    print_string "4\n";
-    print_string "before_if\n";
     if (SL.leq lev_ctx lev_x) then (
-      print_string "then_if\n";
       match  SecHeap.get_field sheap loc field with
       | Some (_, lev_fv) ->
         let lub = SL.lub lev_ctx lev_fv  in
@@ -219,24 +212,17 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
 
   | FieldAssignLab ( loc, field, e_o, e_f, exp) ->
     let lev_o = expr_lvl ssto e_o in
-    print_string "fa-1\n";
     let lev_f = expr_lvl ssto e_f in
-    print_string "fa-2\n";
     let lev_ctx = SL.lubn [lev_o; lev_f; (check_pc pc)] in
-    print_string "fa-3\n";
     let lev_exp = expr_lvl ssto exp in
-    print_string "fa-4\n";
-    Printf.printf "SHEAP: %s\n" (SecHeap.str SL.str sheap);
     (match SecHeap.get_field sheap loc field with
      | Some (lev_ef,lev_fv) ->
-       print_string "fieldassign Some \n";
        if (SL.leq lev_ctx lev_fv) then (
          SecHeap.upg_prop_val sheap loc field (SL.lub lev_exp lev_ctx);
          MReturn (scs,sheap,ssto,pc))
        else MFail((scs,sheap,ssto,pc), "Illegal Field Assign")
 
      | None ->
-       print_string "fieldassign None \n";
        let lev_struct = SecHeap.get_struct sheap loc in
        (match lev_struct with
         | Some lev_struct ->
