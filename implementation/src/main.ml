@@ -39,10 +39,15 @@ let compile_from_plus_to_core () : unit =
 let core_interpretation () : unit =
   let prog_contents = Parsing_Utils.load_file !file in
   let prog = Parsing_Utils.parse_prog prog_contents in
+  print_string "+++++++++++++++++++++++++ JSON +++++++++++++++++++++++++\n";
+  print_string (Prog.to_json prog);
+  print_string "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   let v = CoreInterp.eval_prog prog !out !verb_aux "main" in
   match v with
   | Some z -> print_string ("MAIN return -> "^(Val.str z))
   | None -> print_string "ERROR HERE"
+
+  
 
 (* Main function - Run *)
 let run ()=
@@ -51,7 +56,7 @@ let run ()=
   if (!file = "" && !mode = "" && !out = "") then print_string "No option selected. Use -h"
   else if (!file = "") then (print_string "No input file. Use -i\n=====================\n\tFINISHED\n=====================\n";exit 1)
   else if (!mode = "") then (print_string "No mode selected. Use -mode\n=====================\n\tFINISHED\n=====================\n";exit 1)
-  else if (!mode = "ci") then (print_string "CORE "; core_interpretation ())
+  else if (!mode = "ci") then (print_string "======================= CORE =======================\n"; core_interpretation ())
   else (compile_from_plus_to_core ());
 
 

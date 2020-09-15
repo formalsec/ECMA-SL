@@ -183,7 +183,7 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
      |None -> raise (Except "Internal Error"))
 
   | FieldLookupLab (x,loc,field, e_o, e_f) ->
-    let lev_o = expr_lvl ssto e_o in;
+    let lev_o = expr_lvl ssto e_o in
     let lev_f = expr_lvl ssto e_f in
     let lev_ctx = SL.lubn [lev_o ;lev_f;(check_pc pc)] in
     let lev_x = Option.default lev_ctx (SecStore.get_safe ssto x) in

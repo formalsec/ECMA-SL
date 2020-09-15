@@ -26,9 +26,9 @@ let rec str (v : t) : string = match v with
 
 let rec to_json (v : t): string =
   match v with
-  | Flt v    ->  Printf.sprintf "{ \"type\" : \"float\", \"value\" : %f }" (string_of_float v)
-  | Int v    ->  Printf.sprintf "{ \"type\" : \"int\", \"value\" : %d }" (string_of_int v)
-  | Bool v   ->  Printf.sprintf "{ \"type\" : \"boolean\", \"value\" : %s }" (str v)
+  | Flt v    ->  Printf.sprintf "{ \"type\" : \"float\", \"value\" : %s }" (string_of_float v)
+  | Int v    ->  Printf.sprintf "{ \"type\" : \"int\", \"value\" : %s }" (string_of_int v)
+  | Bool v   ->  Printf.sprintf "{ \"type\" : \"boolean\", \"value\" : %s }" (string_of_bool v)
   | Str v    ->  Printf.sprintf "{ \"type\" : \"string\", \"value\" : %s }" v
   | Loc v    ->  Printf.sprintf "{ \"type\" : \"location\", \"value\" : %s }" v
   | List vs  ->  Printf.sprintf "{ \"type\" : \"list\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
