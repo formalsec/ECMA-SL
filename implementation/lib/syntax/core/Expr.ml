@@ -16,8 +16,16 @@ let rec str (e : t) : string = match e with
 let rec vars (exp:t): string list =
   (*returns every var used in exp*)
   match exp with
-  |Var x -> [x]
-  |UnOpt (op,e) -> (vars e)
-  |BinOpt (op,e1,e2)-> (vars e1) @ (vars e2)
-  |NOpt (op,es)->  List.concat (List.map vars es)
+  | Var x -> [x]
+  | UnOpt (op,e) -> (vars e)
+  | BinOpt (op,e1,e2)-> (vars e1) @ (vars e2)
+  | NOpt (op,es)->  List.concat (List.map vars es)
   | _ -> []
+
+let rec to_json (e : t): string =
+  match e with
+  | Val v               -> Printf.sprintf "{ \"type\" : \"value\", \"value\" : %s }" (Val.to_json v)
+  | Var x               -> Printf.sprintf "{ \"type\" : \"var\", \"name\" : %s }" x
+  | UnOpt (op, e)       -> Printf.sprintf "{ \"type\" : \"unop\", \"arg\" : %s, \"op\": %s }" (to_json e) (Oper.to_json op)  
+  | BinOpt (op, e1, e2) -> Printf.sprintf "{ \"type\" : \"binop\", \"left\" : %s, \"right\": %s,  \"op\": %s}" (to_json e1) (to_json e2) (Oper.to_json op) 
+  | NOpt (op, es)       -> Printf.sprintf "{ \"type\" : \"nop\", \"op\": %s, \"args\" : [ %s ]}"  (Oper.to_json op) (String.concat ", " (List.map to_json es))  

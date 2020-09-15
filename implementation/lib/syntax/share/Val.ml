@@ -26,14 +26,14 @@ let rec str (v : t) : string = match v with
 
 let rec to_json (v : t): string =
   match v with
-  | Flt v    ->  "{ \"type\" : \"number\" : " ^ string_of_float v ^ "}"
-  | Int v    ->  "{ \"number\" : " ^ string_of_int v ^ "}"
-  | Bool v   ->  "{ \"boolean\" : " ^ str v ^ "}" 
-  | Str v    ->  "{ \"string\" : " ^ str v ^ "}" 
-  | Loc v    ->  "{ \"location\" : " ^ str v ^ "}" 
-  | List vs  ->  "[" ^ (String.concat ", " (List.map to_json vs)) ^ "]"
-  | Type v   ->     .to_json v
-  | Tuple vs ->  "(" ^ (String.concat ", " (List.map to_json vs)) ^ ")"
-  | Void     ->  "{ \"void\" : " ^ str v ^ "}" 
-  | Null     ->  "{ \"null\" : " ^ str v ^ "}" 
-  | Symbol s ->  "{ \"void\" : " ^ s ^ "}"
+  | Flt v    ->  Printf.sprintf "{ \"type\" : \"float\", \"value\" : %f }" (string_of_float v)
+  | Int v    ->  Printf.sprintf "{ \"type\" : \"int\", \"value\" : %d }" (string_of_int v)
+  | Bool v   ->  Printf.sprintf "{ \"type\" : \"boolean\", \"value\" : %s }" (str v)
+  | Str v    ->  Printf.sprintf "{ \"type\" : \"string\", \"value\" : %s }" v
+  | Loc v    ->  Printf.sprintf "{ \"type\" : \"location\", \"value\" : %s }" v
+  | List vs  ->  Printf.sprintf "{ \"type\" : \"list\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
+  | Type v   ->  Printf.sprintf "{ \"type\" : \"type\", \"value\" : %s }" (Type.str v)
+  | Tuple vs ->  Printf.sprintf "{ \"type\" : \"tuple\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
+  | Void     ->  Printf.sprintf "{ \"type\" : \"void\" }"
+  | Null     ->  Printf.sprintf "{ \"type\" : \"null\" }"
+  | Symbol s ->  Printf.sprintf "{ \"type\" : \"symbol\", \"value\" : %s }" s
