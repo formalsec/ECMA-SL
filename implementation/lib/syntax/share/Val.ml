@@ -23,3 +23,17 @@ let rec str (v : t) : string = match v with
   | Void     -> ""
   | Null     -> "null"
   | Symbol s -> s
+
+let rec to_json (v : t): string =
+  match v with
+  | Flt v    ->  "{ \"type\" : \"number\" : " ^ string_of_float v ^ "}"
+  | Int v    ->  "{ \"number\" : " ^ string_of_int v ^ "}"
+  | Bool v   ->  "{ \"boolean\" : " ^ str v ^ "}" 
+  | Str v    ->  "{ \"string\" : " ^ str v ^ "}" 
+  | Loc v    ->  "{ \"location\" : " ^ str v ^ "}" 
+  | List vs  ->  "[" ^ (String.concat ", " (List.map to_json vs)) ^ "]"
+  | Type v   ->     .to_json v
+  | Tuple vs ->  "(" ^ (String.concat ", " (List.map to_json vs)) ^ ")"
+  | Void     ->  "{ \"void\" : " ^ str v ^ "}" 
+  | Null     ->  "{ \"null\" : " ^ str v ^ "}" 
+  | Symbol s ->  "{ \"void\" : " ^ s ^ "}"
