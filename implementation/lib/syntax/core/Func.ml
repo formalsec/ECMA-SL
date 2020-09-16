@@ -29,3 +29,6 @@ let str (func : t) : string =
   ^ ") { "
   ^ Stmt.str func.body
   ^ " }"
+
+let to_json (func : t) : string =
+  Printf.sprintf "{\"type\" : \"function\", \"name\" : \"%s\", \"params\" : [ %s ], \"body\" : { %s } }" (func.name) (String.concat ", " (List.map (fun str -> Printf.sprintf "\"%s\"" str) func.params)) (Stmt.to_json func.body)
