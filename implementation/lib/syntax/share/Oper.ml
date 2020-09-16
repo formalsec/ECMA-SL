@@ -208,7 +208,8 @@ let bopt_to_json (op : bopt) : string =
       | InList  -> Printf.sprintf "InList\" }"
       | Lnth    -> Printf.sprintf "Lnth\" }"
       | Tnth    -> Printf.sprintf "Tnth\" }"
-      | Ladd    -> Printf.sprintf "Ladd\" }")
+      | Ladd    -> Printf.sprintf "Ladd\" }"
+      | Lconcat -> Printf.sprintf "Lconcat\" }")
 
   let nopt_to_json (op : nopt) : string =
    Printf.sprintf "{ \"type\" : \"Nopt\" : \"value\" :%s"
@@ -229,6 +230,7 @@ let bopt_to_json (op : bopt) : string =
       | Head     -> Printf.sprintf "Head\" }"
       | Tail     -> Printf.sprintf "Tail\" }"
       | First    -> Printf.sprintf "First\" }"
-      | Second   -> Printf.sprintf "Second\" }")
-        
+      | Second   -> Printf.sprintf "Second\" }"
+      | IntToFloat -> Printf.sprintf "IntToFloat\" }")
+
 
