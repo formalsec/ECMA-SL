@@ -16,12 +16,12 @@ module CoreInterp = Core_Interpreter.M(DCM)
 
 let arguments () =
 
-  let usage_msg = "Usage: -i <path> -mode <c/> -o <path> -v <bool> " in
+  let usage_msg = "Usage: -i <path> -mode <c/p> -o <path> -v <bool> -h <path>" in
   Arg.parse
     [
       ("-i", Arg.String (fun f -> file := f), "input file")
     ;("-mode", Arg.String (fun m -> mode := m ), "mode to run: c - Core / p - Plus ")
-    ;("-heap", Arg.String(fun f -> heap_file := f), "File with the heap. Program runs against this heap.")
+    ;("-h", Arg.String(fun f -> heap_file := f), "File where to write the computed heap.")
     ;("-o", Arg.String (fun o -> out := o ), "output file")
     ;("-v", Arg.Set verb_aux, "verbose")
 

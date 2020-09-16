@@ -19,13 +19,13 @@
 *)
 let digit   = ['0' - '9']
 let letter  = ['a' - 'z' 'A' - 'Z']
-let special = ('_'|' '|','|';'|'.'|':'|'\\'|'/'|'*'|'-'|'+'|'<'|'>'|'='|'{'|'}'|'['|']'|'$')
+let special = ('_'|' '|','|';'|'.'|':'|'\\' '"'|'/'|'*'|'-'|'+'|'<'|'>'|'='|'{'|'}'|'['|']'|'('|')'|'$'|'@'|'!'|'?')
 let int     = '-'?digit+
 let float   = int('.')digit*
 let bool    = "true"|"false"
 let string  = '"'(digit|letter|special)*'"'
 let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
-let symbol  = '\''(var)
+let symbol  = '\''('+'|'-')*(var|int)
 let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
 
@@ -43,60 +43,62 @@ let newline = '\r'|'\n'|"\r\n"
 *)
 rule read =
   parse
-  | white        { read lexbuf }
-  | newline      { read lexbuf }
-  | ":="         { DEFEQ }
-  | '.'          { PERIOD }
-  | ';'          { SEMICOLON }
-  | ','          { COMMA }
-  | '+'          { PLUS }
-  | '-'          { MINUS }
-  | '*'          { TIMES }
-  | '/'          { DIVIDE }
-  | '='          { EQUAL }
-  | '>'          { GT }
-  | '<'          { LT }
-  | ">="         { EGT }
-  | "<="         { ELT }
-  | "in_obj"     { IN_OBJ }
-  | "in_list"    { IN_LIST }
-  | '!'          { NOT }
-  | "&&"         { LAND }
-  | "||"		     { LOR }
-  | "l_len"      { LLEN }
-  | "l_nth"      { LNTH }
-  | "l_add"      { LADD }
-  | "hd"         { HD }
-  | "tl"         { TL }
-  | "t_len"      { TLEN }
-  | "t_nth"      { TNTH }
-  | "fst"        { FST }
-  | "snd"        { SND }
-  | '('          { LPAREN }
-  | ')'          { RPAREN }
-  | '{'          { LBRACE }
-  | '}'          { RBRACE }
-  | '['          { LBRACK }
-  | ']'          { RBRACK }
-  | "typeof"     { TYPEOF }
-  | "__$"        { read_type lexbuf }
-  | "if"         { IF }
-  | "else"       { ELSE }
-  | "while"      { WHILE }
-  | "return"     { RETURN }
-  | "function"   { FUNCTION }
-  | "delete"     { DELETE }
-  | "null"       { NULL }
-  | "print"      { PRINT }
-  | int          { INT (int_of_string (Lexing.lexeme lexbuf)) }
-  | float        { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
-  | bool         { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
-  | string       { STRING (Lexing.lexeme lexbuf) }
-  | var          { VAR (Lexing.lexeme lexbuf) }
-  | symbol       { SYMBOL (Lexing.lexeme lexbuf) }
-  | "/*"         { read_comment lexbuf }
-  | _            { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
-  | eof          { EOF }
+  | white          { read lexbuf }
+  | newline        { read lexbuf }
+  | ":="           { DEFEQ }
+  | '.'            { PERIOD }
+  | ';'            { SEMICOLON }
+  | ','            { COMMA }
+  | '+'            { PLUS }
+  | '-'            { MINUS }
+  | '*'            { TIMES }
+  | '/'            { DIVIDE }
+  | '='            { EQUAL }
+  | '>'            { GT }
+  | '<'            { LT }
+  | ">="           { EGT }
+  | "<="           { ELT }
+  | "in_obj"       { IN_OBJ }
+  | "in_list"      { IN_LIST }
+  | '!'            { NOT }
+  | "&&"           { LAND }
+  | "||"		       { LOR }
+  | "l_len"        { LLEN }
+  | "l_nth"        { LNTH }
+  | "l_add"        { LADD }
+  | "l_concat"     { LCONCAT }
+  | "hd"           { HD }
+  | "tl"           { TL }
+  | "t_len"        { TLEN }
+  | "t_nth"        { TNTH }
+  | "fst"          { FST }
+  | "snd"          { SND }
+  | "int_to_float" { INT_TO_FLOAT }
+  | '('            { LPAREN }
+  | ')'            { RPAREN }
+  | '{'            { LBRACE }
+  | '}'            { RBRACE }
+  | '['            { LBRACK }
+  | ']'            { RBRACK }
+  | "typeof"       { TYPEOF }
+  | "__$"          { read_type lexbuf }
+  | "if"           { IF }
+  | "else"         { ELSE }
+  | "while"        { WHILE }
+  | "return"       { RETURN }
+  | "function"     { FUNCTION }
+  | "delete"       { DELETE }
+  | "null"         { NULL }
+  | "print"        { PRINT }
+  | int            { INT (int_of_string (Lexing.lexeme lexbuf)) }
+  | float          { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
+  | bool           { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
+  | string         { STRING (Lexing.lexeme lexbuf) }
+  | var            { VAR (Lexing.lexeme lexbuf) }
+  | symbol         { SYMBOL (Lexing.lexeme lexbuf) }
+  | "/*"           { read_comment lexbuf }
+  | _              { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
+  | eof            { EOF }
 
 and read_comment =
 (* Read comments *)

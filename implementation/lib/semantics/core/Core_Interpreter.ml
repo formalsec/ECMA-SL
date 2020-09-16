@@ -17,15 +17,16 @@ let add_fields_to (obj : Object.t) (fes : (Field.t * Expr.t) list) (eval_e : (Ex
 
 let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   match op with
-  | Neg      -> Oper.neg v
-  | Not      -> Oper.not v
-  | Typeof   -> Oper.typeof v
-  | ListLen  -> Oper.l_len v
-  | TupleLen -> Oper.t_len v
-  | Head     -> Oper.head v
-  | Tail     -> Oper.tail v
-  | First    -> Oper.first v
-  | Second   -> Oper.second v
+  | Neg        -> Oper.neg v
+  | Not        -> Oper.not v
+  | Typeof     -> Oper.typeof v
+  | ListLen    -> Oper.l_len v
+  | TupleLen   -> Oper.t_len v
+  | Head       -> Oper.head v
+  | Tail       -> Oper.tail v
+  | First      -> Oper.first v
+  | Second     -> Oper.second v
+  | IntToFloat -> Oper.int_to_float v
 
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
@@ -44,6 +45,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Lnth    -> Oper.list_nth (v1, v2)
   | Tnth    -> Oper.tuple_nth (v1, v2)
   | Ladd    -> Oper.list_add (v1, v2)
+  | Lconcat -> Oper.list_concat (v1, v2)
   | InList  -> Oper.list_in (v1, v2)
   | InObj   -> raise(Except "Not expected")
 
@@ -270,8 +272,9 @@ let eval_prog (prog : Prog.t) (out:string) (verbose:bool) (main:string) : Val.t 
   let interceptor = SecLabel.interceptor Mon.parse_lvl in
   let v = small_step_iter interceptor prog state_0 mon_state_0 [func.body] verbose in
   (*let v=  small_step_iter prog cs heap sto func.body verbose in*)
+  let _, heap, _ = state_0 in
   match v with
-  |Finalv v -> v
+  | Finalv v -> v, heap
   | _ -> raise(Except "No return value")(*ERROR*)
 
 end 

@@ -1,19 +1,19 @@
 /* Returns the base value component of the reference V. */
 function GetBase(V) {
   print "GetBase";
-  return fst snd snd V
+  return t_nth(V, 2)
 };
 
 /* Returns the referenced name component of the reference V. */
 function GetReferencedName(V) {
   print "GetReferencedName";
-  return fst snd snd snd V
+  return t_nth(V, 3)
 };
 
 /* Returns the strict reference component of the reference V. */
 function IsStrictReference(V) {
   print "IsStrictReference";
-  return fst snd snd snd snd V
+  return t_nth(V, 4)
 };
 
 /* Returns true if the base value is a Boolean, String, or Number. */

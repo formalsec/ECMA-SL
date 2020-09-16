@@ -15,6 +15,7 @@ type bopt = Plus
           | Lnth
           | Tnth
           | Ladd
+          | Lconcat
 
 type uopt = Neg
           | Not
@@ -25,6 +26,7 @@ type uopt = Neg
           | Tail
           | First
           | Second
+          | IntToFloat
 
 type nopt = ListExpr
           | TupleExpr
@@ -61,13 +63,11 @@ let times (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Int v1, Int v2) -> Int (v1 * v2)
   | _                -> invalid_arg "Exception in Oper.times: this operation is only applicable to Float or Int arguments"
 
-(* ECMAScript does not perform integer division. The operands and result of all
-   division operations are double-precision floating-point numbers. *)
 let div (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt v1, Int v2) -> Flt (v1 /. float_of_int v2)
   | (Int v1, Flt v2) -> Flt (float_of_int v1 /. v2)
   | (Flt v1, Flt v2) -> Flt (v1 /. v2)
-  | (Int v1, Int v2) -> Flt (float_of_int v1 /. float_of_int v2)
+  | (Int v1, Int v2) -> Int (v1 / v2)
   | _                -> invalid_arg "Exception in Oper.div: this operation is only applicable to Float or Int arguments"
 
 let equal (v1, v2 : Val.t * Val.t) : Val.t = Bool (v1 = v2)
@@ -126,15 +126,19 @@ let list_in (v1, v2 : Val.t * Val.t) : Val.t = match v2 with
   | _      -> invalid_arg "Exception in Oper.list_in: this operation is only applicable to List arguments"
 
 let list_add (v1, v2 : Val.t * Val.t) : Val.t = match v1 with
-  | List l -> Val.List (v2 :: l)
+  | List l -> Val.List (l @ [v2])
   | _      -> invalid_arg "Exception in Oper.list_add: this operation is only applicable to List arguments"
+
+let list_concat (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | List l1, List l2 -> Val.List (l1 @ l2)
+  | _                -> invalid_arg "Exception in Oper.list_concat: this operation is only applicable to List arguments"
 
 let head (v : Val.t) : Val.t = match v with
   | List l -> List.hd l
   | _      -> invalid_arg "Exception in Oper.head: this operation is only applicable to List arguments"
 
 let tail (v : Val.t) : Val.t = match v with
-  | List l -> Tuple (List.tl l)
+  | List l -> List (List.tl l)
   | _      -> invalid_arg "Exception in Oper.tail: this operation is only applicable to List arguments"
 
 let first (v : Val.t) : Val.t = match v with
@@ -145,16 +149,21 @@ let second (v : Val.t) : Val.t = match v with
   | Tuple t -> Tuple (List.tl t)
   | _       -> invalid_arg "Exception in Oper.second: this operation is only applicable to Tuple arguments"
 
+let int_to_float (v : Val.t) : Val.t = match v with
+  | Int i -> Flt (float_of_int i)
+  | _     -> invalid_arg "Exception in Oper.int_to_float: this operation is only applicable to Int arguments"
+
 let str_of_unopt (op : uopt) : string = match op with
-  | Neg      -> "-"
-  | Not      -> "!"
-  | Typeof   -> "typeof"
-  | ListLen  -> "l_len"
-  | TupleLen -> "t_len"
-  | Head     -> "hd"
-  | Tail     -> "tl"
-  | First    -> "fst"
-  | Second   -> "snd"
+  | Neg        -> "-"
+  | Not        -> "!"
+  | Typeof     -> "typeof"
+  | ListLen    -> "l_len"
+  | TupleLen   -> "t_len"
+  | Head       -> "hd"
+  | Tail       -> "tl"
+  | First      -> "fst"
+  | Second     -> "snd"
+  | IntToFloat -> "int_to_float"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus    -> e1 ^ " + " ^ e2
@@ -173,6 +182,7 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Lnth    -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Tnth    -> "t_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Ladd    -> "l_add(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Lconcat -> "l_concat(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | ListExpr  -> "[ " ^ (String.concat ", " es) ^ " ]"
