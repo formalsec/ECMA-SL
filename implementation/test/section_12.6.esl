@@ -1,0 +1,29 @@
+/* Auxiliary functions used to deal with enumerable properties of an ES5 object */
+/* Used in the implementation of the for..in statement */
+function getEnumerableProperties(object) {
+  ret := [];
+  i := 0;
+  list := obj_to_list object;
+  llist := l_len list;
+  while(llist > i) {
+    prop_desc := l_nth(list, i);
+    desc := t_nth(prop_desc, 1);
+    if (typeof desc = __$Obj) {
+      if (desc.Enumerable = true) {
+        ret := l_add(ret, prop_desc)
+      }
+    };
+    i := i + 1
+  };
+
+  return ret
+};
+
+function getNextPropertyName(props, idx) {
+  if ((l_len props) <= idx) {
+    return "None"
+  };
+
+  prop_desc := l_nth(props, idx);
+  return fst prop_desc
+}

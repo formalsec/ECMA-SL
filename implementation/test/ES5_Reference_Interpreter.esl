@@ -5,7 +5,7 @@ import "test/section_8.12.esl";
 import "test/section_9.esl";
 import "test/section_9.12.esl";
 import "test/section_11.8.esl";
-import "test/section_12.2.esl";
+import "test/section_12.6.esl";
 import "test/section_12.11.esl";
 
 function ToPrimitive(input, PreferredType) {

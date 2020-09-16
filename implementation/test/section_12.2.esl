@@ -1,5 +1,0 @@
-function isVariableDeclaration(varDecl) {
-  match varDecl with
-  | { type: "VariableDeclaration" } -> { return true }
-  | default -> { return false }
-}
