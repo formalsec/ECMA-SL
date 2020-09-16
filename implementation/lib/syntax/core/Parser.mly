@@ -24,7 +24,7 @@
 %token <string> STRING
 %token <string> SYMBOL
 %token LAND LOR
-%token INT_TO_FLOAT
+%token INT_TO_FLOAT FLOAT_TO_STRING
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LCONCAT HD TL TLEN TNTH FST SND
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
@@ -152,6 +152,8 @@ expr_target:
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Second, e) } %prec unopt_prec
   | INT_TO_FLOAT; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.IntToFloat, e) } %prec unopt_prec
+  | FLOAT_TO_STRING; e = expr_target;
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
     { print_string ">BINOP\n";Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
   | LNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
