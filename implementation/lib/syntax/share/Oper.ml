@@ -133,7 +133,7 @@ let head (v : Val.t) : Val.t = match v with
   | _      -> invalid_arg "Exception in Oper.head: this operation is only applicable to List arguments"
 
 let tail (v : Val.t) : Val.t = match v with
-  | List l -> Tuple (List.tl l)
+  | List l -> List (List.tl l)
   | _      -> invalid_arg "Exception in Oper.tail: this operation is only applicable to List arguments"
 
 let first (v : Val.t) : Val.t = match v with
