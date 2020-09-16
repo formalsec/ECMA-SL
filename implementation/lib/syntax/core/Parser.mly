@@ -24,7 +24,7 @@
 %token <string> STRING
 %token <string> SYMBOL
 %token LAND LOR
-%token INT_TO_FLOAT FLOAT_TO_STRING
+%token INT_TO_FLOAT FLOAT_TO_STRING OBJ_TO_LIST
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LCONCAT HD TL TLEN TNTH FST SND
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
@@ -207,6 +207,8 @@ stmt_target:
     { print_string ">ASSIGNACCESS\n";Stmt.FieldLookup (v,e, f) }
   | v=VAR; DEFEQ;LBRACE; RBRACE;
     { print_string ">ASSIGNNEWOBJ\n";Stmt.AssignNewObj (v) }
+  | v = VAR; DEFEQ; OBJ_TO_LIST; e = expr_target;
+    { print_endline ">ASSIGNOBJTOLIST"; Stmt.AssignObjToList (v, e) }
 
 
 

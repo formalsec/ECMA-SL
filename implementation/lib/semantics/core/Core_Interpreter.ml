@@ -25,6 +25,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Second        -> Oper.second v
   | IntToFloat    -> Oper.int_to_float v
   | FloatToString -> Oper.float_to_string v
+  | ObjToList     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjToList")
 
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
@@ -90,6 +91,15 @@ let eval_inobj_expr (prog: Prog.t) (heap : Heap.t) (sto : Store.t) (field : Expr
   | Some v -> Bool (true)
   | None -> Bool (false)
 
+let eval_objtolist_oper (heap : Heap.t) (st : Store.t) (loc_expr : Expr.t) : Val.t =
+  let loc = eval_expr st loc_expr in
+  let loc' = (match loc with
+      | Loc l -> l
+      | _     -> invalid_arg "Exception in Core_Interpreter.eval_objtolist_oper: \"loc\" is not a Loc value") in
+  let obj = Heap.get heap loc' in
+  match obj with
+  | None   -> invalid_arg ("Exception in Core_Interpreter.eval_objtolist_oper: \"" ^ Loc.str loc' ^ "\" doesn't exist in the Heap")
+  | Some o -> let fvs = Object.to_list o in (List (List.map (fun (f, v) -> Val.Tuple (Str f :: [v])) fvs))
 
 let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : Expr.t) (f : Expr.t): unit =
   let loc = eval_expr sto e and field = eval_expr sto f in
@@ -235,6 +245,10 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> SecLabe
      | _ -> invalid_arg "Exception in Interpreter.eval_fielddelete_stmt : \"e\" is not a Loc value")
 
 
+  | AssignObjToList (st, e) ->
+    let v = eval_objtolist_oper heap sto e in
+    Store.set sto st v;
+    (Intermediate ((cs, heap, sto), cont), SecLabel.AssignLab (st, e))
 
 
 

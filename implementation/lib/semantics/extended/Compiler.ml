@@ -17,7 +17,9 @@ let rec compile_binopt (binop : Oper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) :
 and compile_unopt (op : Oper.uopt) (expr : E_Expr.t) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   let stmts_expr, expr' = compile_expr expr in
-  stmts_expr @ [Stmt.Assign (var, Expr.UnOpt (op, expr'))], Expr.Var var
+  match op with
+  | ObjToList -> stmts_expr @ [Stmt.AssignObjToList (var, expr')], Expr.Var var
+  | _         -> stmts_expr @ [Stmt.Assign (var, Expr.UnOpt (op, expr'))], Expr.Var var
 
 
 and compile_nopt (nop : Oper.nopt) (e_exprs : E_Expr.t list) : Stmt.t list * Expr.t =

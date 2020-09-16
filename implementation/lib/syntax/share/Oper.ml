@@ -27,6 +27,7 @@ type uopt = Neg
           | Second
           | IntToFloat
           | FloatToString
+          | ObjToList
 
 type nopt = ListExpr
           | TupleExpr
@@ -169,6 +170,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | Second        -> "snd"
   | IntToFloat    -> "int_to_float"
   | FloatToString -> "float_to_string"
+  | ObjToList     -> "obj_to_list"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus    -> e1 ^ " + " ^ e2
