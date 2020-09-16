@@ -51,3 +51,4 @@ let rec to_json (stmt : t) : string =
   | AssignNewObj va             -> Printf.sprintf "{\"type\" : \"assignnewobject\", \"args\" : [ %s ]}" (va)
   | FieldLookup (va, eo, p)     -> Printf.sprintf "{\"type\" : \"fieldlookup\", \"args\" : [ %s, %s, %s]}" (va) (Expr.to_json eo) (Expr.to_json p)
   | AssignInObjCheck (st,e1,e2) -> Printf.sprintf "{\"type\" : \"assigninobjcheck\", \"args\" : [ %s, %s, %s ]}" (st) (Expr.to_json e1) (Expr.to_json e2)
+  | AssignObjToList (st,e)      -> Printf.sprintf "{\"type\" : \"assigninobjcheck\", \"args\" : [ %s, %s]}" (st) (Expr.to_json e) 
