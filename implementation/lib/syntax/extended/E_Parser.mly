@@ -29,7 +29,7 @@
 %token INT_TO_FLOAT
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LCONCAT HD TL TLEN TNTH FST SND
-%token IMPORT
+%token IMPORT THROW
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
@@ -234,6 +234,8 @@ e_stmt_target:
     { E_Stmt.Return e }
   | RETURN;
     { E_Stmt.Return (E_Expr.Val Val.Void) }
+  | THROW; e = e_expr_target;
+    { E_Stmt.ExprStmt e } /* TODO */
   | e = e_expr_target;
     { E_Stmt.ExprStmt e }
   | REPEAT; s = e_block_target;
