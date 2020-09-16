@@ -240,6 +240,7 @@ let bopt_to_json (op : bopt) : string =
       | First    -> Printf.sprintf "First\" }"
       | Second   -> Printf.sprintf "Second\" }"
       | IntToFloat -> Printf.sprintf "IntToFloat\" }"
-      | FloatToString -> Printf.sprintf "FloatToString\"")
+      | FloatToString -> Printf.sprintf "FloatToString\""
+      | ObjToList -> Printf.sprintf "ObjToList\"")
 
 
