@@ -1,0 +1,23 @@
+/* 15.7 Number Objects */
+
+/* 15.7.2.1 new Number ( [ value ] ) */
+function newNumber(value) {
+  ret := {
+    /* The [[Prototype]] internal property of the newly constructed object is set to the original Number prototype
+       object, the one that is the initial value of Number.prototype (15.7.3.1). */
+    Prototype: null, /* TODO */
+    /* The [[Class]] internal property of the newly constructed object is set to "Number". */
+    Class: "Number",
+    /* The [[Extensible]] internal property of the newly constructed object is set to true. */
+    Extensible: true
+  };
+  /* The [[PrimitiveValue]] internal property of the newly constructed object is set to ToNumber(value)
+      if value was supplied, else to +0. */
+  if (value = null) {
+    ret.PrimitiveValue := 0
+  } else {
+    ret.PrimitiveValue := ToNumber(value)
+  };
+  return ret
+}
+
