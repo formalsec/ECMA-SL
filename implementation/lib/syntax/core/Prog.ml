@@ -38,3 +38,6 @@ let get_funcs (prog : t) : Func.t list =
 
 let str (prog : t) : string =
   String.concat ";\n"  (List.map Func.str (get_funcs prog))
+
+let to_json (prog : t) : string =
+  Printf.sprintf "{\"type\" : \" prog\", \"funcs\" : [ %s ] }"  (String.concat ", "  (List.map (Func.to_json) (get_funcs prog)))
