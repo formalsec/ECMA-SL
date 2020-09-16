@@ -1,0 +1,23 @@
+/* 15.5 String Objects */
+
+/* 15.5.2.1 new String ( [ value ] ) */
+function newString(value) {
+  ret := {
+    /* The [[Prototype]] internal property of the newly constructed object is set to the standard built-in String
+       prototype object that is the initial value of String.prototype (15.5.3.1). */
+    Prototype: null /* TODO */
+    /* The [[Class]] internal property of the newly constructed object is set to "String". */
+    Class: "String",
+    /* The [[Extensible]] internal property of the newly constructed object is set to true. */
+    Extensible: true
+  };
+  /* The [[PrimitiveValue]] internal property of the newly constructed object is set to ToString(value),
+     or to the empty String if value is not supplied. */
+  if (value = null) {
+    ret.PrimitiveValue := ""
+  } else {
+    ret.PrimitiveValue := ToString(value)
+  };
+  return ret
+}
+

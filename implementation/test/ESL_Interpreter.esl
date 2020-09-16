@@ -169,6 +169,21 @@ function JS_Interpreter_Stmt(s, scope) {
 
     return JS_Interpreter_StmtList(StatementList, scope)
   }
+  | { type: "VariableDeclaration", declarations: VariableDeclarationList } -> {
+    /* 12.2 Variable Statement */
+
+    /* The production VariableStatement : var VariableDeclarationList ; is evaluated as follows: */
+
+    i := 0;
+    lVarDecl := l_len VariableDeclarationList;
+    while(lVarDecl > i) {
+      /* 1. Evaluate VariableDeclarationList. */
+      JS_Interpreter_VarDecl(l_nth(VariableDeclarationList, i));
+      i := i + 1
+    };
+    /* 2. Return (normal, empty, empty).*/
+    return normalEmptyCompletion('empty)
+  }
   | { type: "EmptyStatement" } -> {
     return normalEmptyCompletion('empty)
   }
@@ -235,6 +250,15 @@ function JS_Interpreter_Stmt(s, scope) {
 
     return JS_Interpreter_IterationStatement(s, scope)
   }
+  | { type: "ForInStatement" } -> {
+    if (!("labelSet" in_obj s)) {
+      s.labelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+
+    return JS_Interpreter_IterationStatement(s, scope)
+  }
   | { type: "ContinueStatement", label: Identifier } -> {
     /* 12.7 The continue Statement */
     /* A ContinueStatement without an Identifier is evaluated as follows: */
@@ -285,6 +309,45 @@ function JS_Interpreter_Stmt(s, scope) {
     exprRef := JS_Interpreter_Expr(Expression, scope);
     /* 2. Return (throw, GetValue(exprRef), empty). */
     return newCompletion('throw, GetValue(exprRef), 'empty)
+  }
+};
+
+function JS_Interpreter_VarDecl(variableDeclaration, scope) {
+  match variableDeclaration with
+  | { type: "VariableDeclarator", id: Identifier, init: null } -> {
+    /* The production VariableDeclaration : Identifier is evaluated as follows: */
+
+    /* 1. Return a String value containing the same sequence of characters as in the Identifier. */
+    /* return Identifier.name */
+    return Identifier
+  }
+  | { type: "VariableDeclarator", id: Identifier, init: Initialiser } -> {
+    /* The production VariableDeclaration : Identifier Initialiser is evaluated as follows: */
+
+    /* 1. Let lhs be the result of evaluating Identifier as described in 11.1.2. */
+    lhs := JS_Interpreter_Expr(Identifier, scope);
+    /* 2. Let rhs be the result of evaluating Initialiser. */
+    rhs := JS_Interpreter_Expr(Initialiser, scope);
+    /* 3. Let value be GetValue(rhs). */
+    value := GetValue(rhs);
+    /* 4. Call PutValue(lhs, value). */
+    PutValue(lhs, value);
+    /* 5. Return a String value containing the same sequence of characters as in the Identifier. */
+    /* return Identifier.name */
+    return Identifier
+  }
+  | { type: "VariableDeclaration", declarations: VariableDeclarationListNoIn } -> {
+    /* Pattern created specifically for the ForInStatement where the VariableDeclarationListNoIn can only contain one VariableDeclarator
+       and where the String returned by this function is used in the evaluation of the ForInStatement */
+    ret := null;
+    i := 0;
+    ldeclarations := l_len VariableDeclarationListNoIn;
+    while (ldeclarations > i) {
+      ret := JS_Interpreter_VarDecl(l_nth(VariableDeclarationListNoIn, i), scope);
+      i := i + 1
+    };
+
+    return ret
   }
 };
 
@@ -573,6 +636,18 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
       return JS_Interpreter_ForStmt_Expr(iterStmt, scope)
     }
   }
+  | { type: "ForInStatement", left: lhsExpr_or_VarDecl } -> {
+    /* 12.6.4 The for-in Statement */
+    match lhsExpr_or_VarDecl with
+    | { type: "VariableDeclaration", kind: "var" } -> {
+      /* production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement */
+      return JS_Interpreter_ForInStmt_VarDecl(iterStmt, scope)
+    }
+    | { type: "Identifier" } -> {
+      /* production IterationStatement : for ( LeftHandSideExpression in Expression ) Statement */
+      return JS_Interpreter_ForInStmt_lhsExpr(iterStmt, scope)
+    }
+  }
 };
 
 function JS_Interpreter_SwitchStatement(switchStmt, scope) {
@@ -589,6 +664,115 @@ function JS_Interpreter_SwitchStatement(switchStmt, scope) {
     };
     /* 4. Return R. */
     return R
+  }
+};
+
+function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
+  match forInStmt with
+  | { type: "ForInStatement", left: LeftHandSideExpression, right: Expression, body: Statement, labelSet: currentLabelSet } -> {
+    /* The production IterationStatement : for ( LeftHandSideExpression in Expression ) Statement is evaluated as follows: */
+
+    /* 1. Let exprRef be the result of evaluating the Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Let experValue be GetValue(exprRef). */
+    experValue := GetValue(exprRef);
+    /* 3. If experValue is null or undefined, return (normal, empty, empty). */
+    if ((experValue = null) || (experValue = 'undefined)) {
+      return normalEmptyCompletion('empty)
+    };
+    /* 4. Let obj be ToObject(experValue). */
+    obj := ToObject(experValue);
+    /* 5. Let V = empty. */
+    V := 'empty;
+    /* 6. Repeat */
+    i := 0;
+    obj_enums := getEnumerableProperties(obj);
+    repeat {
+      /* a. Let P be the name of the next property of obj whose [[Enumerable]] attribute is true.
+            If there is no such property, return (normal, V, empty). */
+      P := getNextPropertyName(obj_enums, i);
+      i := i + 1;
+      if (P = "None") {
+        return normalEmptyCompletion(V)
+      };
+      /* b. Let lhsRef be the result of evaluating the LeftHandSideExpression ( it may be evaluated repeatedly). */
+      lhsRef := JS_Interpreter_Expr(LeftHandSideExpression, scope);
+      /* c. Call PutValue(lhsRef, P). */
+      PutValue(lhsRef, P);
+      /* d. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope);
+      /* e. If stmt.value is not empty, let V = stmt.value. */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V := getCompletionValue(stmt)
+      };
+      /* f. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
+      if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+        return normalEmptyCompletion(V)
+      };
+      /* g. If stmt.type is not continue || stmt.target is not in the current label set, then */
+      if (!(getCompletionType(stmt) = 'continue) || !(getCompletionTarget(stmt) in_list currentLabelSet)) {
+        /* i. If stmt is an abrupt completion, return stmt. */
+        if (isAnAbruptCompletion(stmt)) {
+          return stmt
+        }
+      }
+    }
+  }
+};
+
+function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
+  match forInStmt with
+  | { type: "ForInStatement", left: VariableDeclarationNoIn, right: Expression, body: Statement, labelSet: currentLabelSet } -> {
+    /* The production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement is evaluated as follows: */
+
+    /* 1. Let varName be the result of evaluating VariableDeclarationNoIn. */
+    varName := JS_Interpreter_VarDecl(VariableDeclarationNoIn, scope);
+    /* 2. Let exprRef be the result of evaluating the Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 3. Let experValue be GetValue(exprRef). */
+    experValue := GetValue(exprRef);
+    /* 4. If experValue is null or undefined, return (normal, empty, empty). */
+    if ((experValue = null) || (experValue = 'undefined)) {
+      return normalEmptyCompletion('empty)
+    };
+    /* 5. Let obj be ToObject(experValue). */
+    obj := ToObject(experValue);
+    /* 6. Let V = empty. */
+    V := 'empty;
+    /* 7. Repeat */
+    i := 0;
+    obj_enums := getEnumerableProperties(obj);
+    repeat {
+      /* a. Let P be the name of the next property of obj whose [[Enumerable]] attribute is true.
+            If there is no such property, return (normal, V, empty). */
+      P := getNextPropertyName(obj_enums, i);
+      i := i + 1;
+      if (P = "None") {
+        return normalEmptyCompletion(V)
+      };
+      /* b. Let varRef be the result of evaluating varName as if it were an Identifier Reference (11.1.2);
+            it may be evaluated repeatedly. */
+      varRef := JS_Interpreter_Expr(varName, scope);
+      /* c. Call PutValue(varRef, P). */
+      PutValue(varRef, P);
+      /* d. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope);
+      /* e. If stmt.value is not empty, let V = stmt.value. */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V := getCompletionValue(stmt)
+      };
+      /* f. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
+      if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+        return normalEmptyCompletion(V)
+      };
+      /* g. If stmt.type is not continue || stmt.target is not in the current label set, then */
+      if (!(getCompletionType(stmt) = 'continue) || !(getCompletionTarget(stmt) in_list currentLabelSet)) {
+        /* i. If stmt is an abrupt completion, return stmt. */
+        if (isAnAbruptCompletion(stmt)) {
+          return stmt
+        }
+      }
+    }
   }
 };
 

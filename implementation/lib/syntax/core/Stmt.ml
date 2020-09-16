@@ -1,16 +1,17 @@
 type t = Skip
-       | Print        of Expr.t
-       | Assign       of string * Expr.t
-       | If           of Expr.t * t * t option
-       | While        of Expr.t * t
-       | Return       of Expr.t
-       | AssignCall   of string * Expr.t * Expr.t list
-       | AssignNewObj of string
+       | Print            of Expr.t
+       | Assign           of string * Expr.t
+       | If               of Expr.t * t * t option
+       | While            of Expr.t * t
+       | Return           of Expr.t
+       | AssignCall       of string * Expr.t * Expr.t list
+       | AssignNewObj     of string
        | AssignInObjCheck of string * Expr.t * Expr.t
-       | Block of t list
-       | FieldAssign  of Expr.t * Expr.t * Expr.t
-       | FieldDelete  of Expr.t * Expr.t
-       | FieldLookup of string * Expr.t * Expr.t
+       | AssignObjToList  of string * Expr.t
+       | Block            of t list
+       | FieldAssign      of Expr.t * Expr.t * Expr.t
+       | FieldDelete      of Expr.t * Expr.t
+       | FieldLookup      of string * Expr.t * Expr.t
 
 (*---------------Strings------------------*)
 
@@ -29,10 +30,11 @@ let rec str (stmt : t) : string = match stmt with
   | FieldDelete (e, f)          -> "delete " ^ Expr.str e ^ "[" ^ Expr.str f ^ "]"
   | AssignCall (va, st, e_lst)  -> va ^ " := " ^ Expr.str st ^ " (" ^ String.concat ", " (List.map (fun e -> Expr.str e) e_lst) ^ ")"
   | AssignNewObj va             -> va ^ " := { }"
-  | FieldLookup (va, eo, p)    -> va ^ " := " ^ Expr.str eo ^ "[" ^ Expr.str p ^ "]"
+  | FieldLookup (va, eo, p)     -> va ^ " := " ^ Expr.str eo ^ "[" ^ Expr.str p ^ "]"
   | AssignInObjCheck (st,e1,e2) -> st ^ " := " ^ Expr.str e1 ^ " in_obj " ^ Expr.str e2
+  | AssignObjToList (st, e)     -> st ^ " := obj_to_list " ^ Expr.str e
 
-let rec to_json (stmt : t) : string = 
+let rec to_json (stmt : t) : string =
   match stmt with
   | Skip                        -> Printf.sprintf "{\"type\" : \"skip\"}"
   | Print e                     -> Printf.sprintf "{\"type\" : \"print\", \"args\" : [ %s ]}" (Expr.to_json e)
@@ -49,3 +51,4 @@ let rec to_json (stmt : t) : string =
   | AssignNewObj va             -> Printf.sprintf "{\"type\" : \"assignnewobject\", \"args\" : [ %s ]}" (va)
   | FieldLookup (va, eo, p)     -> Printf.sprintf "{\"type\" : \"fieldlookup\", \"args\" : [ %s, %s, %s]}" (va) (Expr.to_json eo) (Expr.to_json p)
   | AssignInObjCheck (st,e1,e2) -> Printf.sprintf "{\"type\" : \"assigninobjcheck\", \"args\" : [ %s, %s, %s ]}" (st) (Expr.to_json e1) (Expr.to_json e2)
+  | AssignObjToList (st,e)      -> Printf.sprintf "{\"type\" : \"assigninobjcheck\", \"args\" : [ %s, %s]}" (st) (Expr.to_json e) 
