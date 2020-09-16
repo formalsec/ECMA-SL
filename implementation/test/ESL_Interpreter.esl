@@ -7,9 +7,7 @@ function JS_Interpreter(p) {
     i := 0;
     lbody := l_len(body);
     while (i<lbody) {
-      print "Before JS_Interpreter_Stmt";
       JS_Interpreter_Stmt(l_nth(body, i), scope);
-      print "After JS_Interpreter_Stmt";
       i := i + 1
     };
 
@@ -36,65 +34,749 @@ function JS_Interpreter_Expr(e, scope) {
       return rval
     }
   }
-  | { type: "BinaryExpression", operator: op, left: l_expr, right: r_expr } -> {
-    /* 11.6.1 The Addition operator ( + ) */
-    if (op = "+") {
-      lref := JS_Interpreter_Expr(l_expr, scope);
-      lval := GetValue(lref);
-      rref := JS_Interpreter_Expr(r_expr, scope);
-      rval := GetValue(rref);
-      lprim := ToPrimitive(lval, "Number");
-      rprim := ToPrimitive(rval, "Number");
-      if ((Type(lprim) = "String") || (Type(rprim) = "String")) {
-        return ToString(lprim) + ToString(rprim)
-      };
-      return ToNumber(lprim) + ToNumber(rprim)
-    } else {
-      /* 11.9.4 The Strict Equals Operator ( === ) */
-      if (op = "===") {
-        lref := JS_Interpreter_Expr(l_expr, scope);
-        lval := GetValue(lref);
-        rref := JS_Interpreter_Expr(r_expr, scope);
-        rval := GetValue(rref);
-
-        return Strict_Equality_Operator(rval, lval)
-      }
-    }
+  | { type: "BinaryExpression" } -> {
+    return JS_Interpreter_BinExpr(e, scope)
   }
   | { type: "Identifier", name: name } -> {
     /* 10.3.1 Identifier Resolution : TO_COMPLETE */
     return GetIdentifierReference(scope, name, true)
   }
-  | { type: "Literal", value: value } -> { return value }
+  | { type: "Literal", value: value } -> {
+    if (typeof(value) = __$Int) {
+      return int_to_float value
+    };
+    return value
+  }
 };
 
 function JS_Interpreter_Stmt(s, scope) {
   match s with
-  | { type: "BlockStatement", body: body } -> {
-    /* TODO */
-    i := 0;
-    lbody := l_len(body);
-    while (i<lbody) {
-      JS_Interpreter(l_nth(body, i), scope);
-      i := i + 1
+  | { type: "BlockStatement", body: StatementList } -> {
+    /* 12.1 Block */
+    if ((l_len StatementList) = 0) {
+      return normalEmptyCompletion('empty)
     };
 
-    return
+    return JS_Interpreter_StmtList(StatementList, scope)
   }
-  | { type: "ExpressionStatement", expression: e } -> {
-    return JS_Interpreter_Expr(e, scope)
+  | { type: "EmptyStatement" } -> {
+    return normalEmptyCompletion('empty)
   }
-  | { type: "IfStatement", test: t, consequent: c, alternate: a } -> {
-    x := JS_Interpreter_Expr(t, scope);
-    x' := GetValue(x);
-    x' := ToBoolean(x');
-    if (x') {
-      return JS_Interpreter_Stmt(c, scope)
+  | { type: "ExpressionStatement", expression: Expression } -> {
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Return (normal, GetValue(exprRef), empty). */
+    return normalEmptyCompletion(GetValue(exprRef))
+  }
+  | { type: "IfStatement", test: Expression, consequent: Statement1, alternate: Statement2 } -> {
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    if (ToBoolean(GetValue(exprRef))) {
+      return JS_Interpreter_Stmt(Statement1, scope)
     }
     else {
-      if (!(a = null)) {
-        return JS_Interpreter_Stmt(a, scope)
+      if (!(Statement2 = null)) {
+        return JS_Interpreter_Stmt(Statement2, scope)
+      };
+
+      return normalEmptyCompletion('empty)
+    }
+  }
+  | { type: "LabeledStatement", label: Identifier, body: Statement } -> {
+    /* 12.12 Labelled Statements */
+    /* The production Identifier : Statement is evaluated by adding Identifier to the label set of Statement
+      and then evaluating Statement. */
+    if (!("labelSet" in_obj Statement)) {
+      Statement.labelSet := []
+    };
+    Statement.labelSet := l_add(Statement.labelSet, Identifier.name);
+    /* If the LabelledStatement itself has a non-empty label set, these labels are also added to
+       the label set of Statement before evaluating it */
+    if ("labelSet" in_obj s) {
+      Statement.labelSet := l_concat(s.labelSet, Statement.labelSet)
+    };
+
+    return JS_Interpreter_Stmt(Statement, scope)
+  }
+  /* The label set of an IterationStatement or a SwitchStatement initially contains the single element empty. */
+  | { type: "DoWhileStatement" } -> {
+    if (!("labelSet" in_obj s)) {
+      s.labelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+
+    return JS_Interpreter_IterationStatement(s, scope)
+  }
+  | { type: "WhileStatement" } -> {
+    if (!("labelSet" in_obj s)) {
+      s.labelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+
+    return JS_Interpreter_IterationStatement(s, scope)
+  }
+  | { type: "ForStatement" } -> {
+    if (!("labelSet" in_obj s)) {
+      s.labelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+
+    return JS_Interpreter_IterationStatement(s, scope)
+  }
+  | { type: "ContinueStatement", label: Identifier } -> {
+    /* 12.7 The continue Statement */
+    /* A ContinueStatement without an Identifier is evaluated as follows: */
+    if (Identifier = null) {
+      /* 1. Return (continue, empty, empty). */
+      return newCompletion('continue, 'empty, 'empty)
+    };
+
+    /* A ContinueStatement with the optional Identifier is evaluated as follows:
+       1. Return (continue, empty, Identifier). */
+    return newCompletion('continue, 'empty, Identifier.name)
+  }
+  | { type: "BreakStatement", label: Identifier } -> {
+    /* 12.8 The break Statement */
+    /* A BreakStatement without an Identifier is evaluated as follows: */
+    if (Identifier = null) {
+      /* 1. Return (break, empty, empty). */
+      return newCompletion('break, 'empty, 'empty)
+    };
+
+    /* A BreakStatement with an Identifier is evaluated as follows:
+       1. Return (break, empty, Identifier). */
+    return newCompletion('break, 'empty, Identifier.name)
+  }
+  | { type: "ReturnStatement", argument: Expression } -> {
+    /* 12.9 The return Statement */
+    /* 1. If the Expression is not present, return (return, undefined, empty). */
+    if (Expression = null) {
+      return newCompletion('return, 'undefined, 'empty)
+    };
+    /* 2. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 3. Return (return, GetValue(exprRef), empty). */
+    return newCompletion('return, GetValue(exprRef), 'empty)
+  }
+  | { type: "SwitchStatement" } -> {
+    if (!("labelSet" in_obj s)) {
+      s.labelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+
+    return JS_Interpreter_SwitchStatement(s, scope)
+  }
+  | { type: "ThrowStatement", argument: Expression } -> {
+    /* 12.13 The throw Statement */
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Return (throw, GetValue(exprRef), empty). */
+    return newCompletion('throw, GetValue(exprRef), 'empty)
+  }
+};
+
+function JS_Interpreter_StmtList(stmts, scope) {
+  V := 'empty;
+  i := 0;
+  lstmts := l_len stmts;
+  while (i < lstmts) {
+    stmt := JS_Interpreter_Stmt(l_nth(stmts, i), scope);
+    if (isAnAbruptCompletion(stmt)) {
+      return stmt
+    };
+    if (!(getCompletionValue(stmt) = 'empty)) {
+      V := getCompletionValue(stmt)
+    };
+    i := i + 1
+  };
+
+  return newCompletion(getCompletionType(stmt), V, getCompletionTarget(stmt))
+};
+
+function JS_Interpreter_BinExpr(e, scope) {
+  match e with
+  | { type: "BinaryExpression", operator: "+", left: AdditiveExpression, right: MultiplicativeExpression } -> {
+    /* 11.6.1 The Addition operator ( + ) */
+    lref := JS_Interpreter_Expr(AdditiveExpression, scope);
+    lval := GetValue(lref);
+    rref := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    rval := GetValue(rref);
+    lprim := ToPrimitive(lval, "Number");
+    rprim := ToPrimitive(rval, "Number");
+    if ((Type(lprim) = "String") || (Type(rprim) = "String")) {
+      return ToString(lprim) + ToString(rprim)
+    };
+    return ToNumber(lprim) + ToNumber(rprim)
+  }
+  | { type: "BinaryExpression", operator: "-", left: AdditiveExpression, right: MultiplicativeExpression } -> {
+    /* 11.6.1 The Addition operator ( + ) */
+    /* 1. Let lref be the result of evaluating AdditiveExpression. */
+    lref := JS_Interpreter_Expr(AdditiveExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. Let rref be the result of evaluating MultiplicativeExpression. */
+    rref := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    /* 4. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 5. Let lnum be ToNumber(lval). */
+    lnum := ToNumber(lval);
+    /* 6. Let rnum be ToNumber(rval). */
+    rnum := ToNumber(rval);
+    /* 7. Return the result of applying the subtraction operation to lnum and rnum.
+          See the note below 11.6.3. /* TODO */
+    return lnum - rnum
+  }
+  | { type: "BinaryExpression", operator: "===", left: EqualityExpression, right: RelationalExpression } -> {
+    /* 11.9.4 The Strict Equals Operator ( === ) */
+    lref := JS_Interpreter_Expr(EqualityExpression, scope);
+    lval := GetValue(lref);
+    rref := JS_Interpreter_Expr(RelationalExpression, scope);
+    rval := GetValue(rref);
+
+    return StrictEqualityOperator(rval, lval)
+  }
+  | { type: "BinaryExpression", operator: "*", left: MultiplicativeExpression, right: UnaryExpression } -> {
+    /* 1. Let left be the result of evaluating MultiplicativeExpression. */
+    left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    /* 2. Let leftValue be GetValue(left). */
+    leftValue := GetValue(left);
+    /* 3. Let right be the result of evaluating UnaryExpression. */
+    right := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 4. Let rightValue be GetValue(right). */
+    rightValue := GetValue(right);
+    /* 5. Let leftNum be ToNumber(leftValue). */
+    leftNum := ToNumber(leftValue);
+    /* 6. Let rightNum be ToNumber(rightValue). */
+    rightNum := ToNumber(rightValue);
+    /* 7. Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
+
+    /* 11.5.1 Applying the * Operator */
+
+    /* If either operand is NaN, the result is NaN. */
+    if ((leftNum = 'NaN) && (rightNum = 'NaN)) {
+      return 'NaN
+    };
+
+    /* The sign of the result is positive if both operands have the same sign, negative if the operands have different signs. */
+    /* TODO */
+
+    /* Multiplication of an infinity by a zero results in NaN. */
+    if (((rightNum = 0) || (rightNum = '+0) || (rightNum = '-0)) && ((leftNum = '+Infinity) || (leftNum = '-Infinity) || (leftNum = 'Infinity))) {
+      return 'NaN
+    };
+    if (((leftNum = 0) || (leftNum = '+0) || (leftNum = '-0)) && ((rightNum = '+Infinity) || (rightNum = '-Infinity) || (rightNum = 'Infinity))) {
+      return 'NaN
+    };
+
+    /* Multiplication of an infinity by an infinity results in an infinity. The sign is determined by the rule already stated above. */
+    if (((leftNum = '+Infinity) || (leftNum = 'Infinity)) && ((rightNum = '+Infinity) || (rightNum = 'Infinity))) {
+      return '+Infinity
+    };
+    if ((leftNum = '-Infinity) && (rightNum = '-Infinity)) {
+      return '+Infinity
+    };
+    if (((leftNum = '+Infinity) || (leftNum = 'Infinity)) && (rightNum = '-Infinity)) {
+      return '-Infinity
+    };
+    if ((leftNum = '-Infinity) && ((rightNum = '+Infinity) || (rightNum = 'Infinity))) {
+      return '-Infinity
+    };
+
+    /* Multiplication of an infinity by a finite nonzero value results in a signed infinity. The sign is determined by the rule already stated above. */
+    /* TODO */
+
+    /* In the remaining cases, where neither an infinity or NaN is involved, the product is computed and rounded to the nearest representable value
+       using IEEE 754 round-to-nearest mode. If the magnitude is too large to represent, the result is then an infinity of appropriate sign.
+       If the magnitude is too small to represent, the result is then a zero of appropriate sign.
+       The ECMAScript language requires support of gradual underflow as defined by IEEE 754. */
+    /* TODO */
+    return leftNum * rightNum
+  }
+  | { type: "BinaryExpression", operator: "/", left: MultiplicativeExpression, right: UnaryExpression } -> {
+    /* 1. Let left be the result of evaluating MultiplicativeExpression. */
+    left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    /* 2. Let leftValue be GetValue(left). */
+    leftValue := GetValue(left);
+    /* 3. Let right be the result of evaluating UnaryExpression. */
+    right := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 4. Let rightValue be GetValue(right). */
+    rightValue := GetValue(right);
+    /* 5. Let leftNum be ToNumber(leftValue). */
+    leftNum := ToNumber(leftValue);
+    /* 6. Let rightNum be ToNumber(rightValue). */
+    rightNum := ToNumber(rightValue);
+    /* 7. Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
+
+    /* 11.5.1 Applying the / Operator */
+
+    /* If either operand is NaN, the result is NaN. */
+    if ((leftNum = 'NaN) && (rightNum = 'NaN)) {
+      return 'NaN
+    };
+
+    /* The sign of the result is positive if both operands have the same sign, negative if the operands have different signs. */
+    /* TODO */
+
+    /* Division of an infinity by an infinity results in NaN. */
+    if (((leftNum = '+Infinity) || (leftNum = 'Infinity) || (leftNum = '-Infinity)) && ((rightNum = '+Infinity) || (rightNum = 'Infinity) || (rightNum = '-Infinity))) {
+      return 'NaN
+    };
+
+    /* Division of an infinity by a zero results in an infinity. The sign is determined by the rule already stated above. */
+    if (((leftNum = '+Infinity) || (leftNum = 'Infinity)) && ((rightNum = 0) || (rightNum = '+0))) {
+      return '+Infinity
+    };
+    if ((leftNum = '-Infinity) && (rightNum = '-0)) {
+      return '+Infinity
+    };
+    if (((leftNum = '+Infinity) || (leftNum = 'Infinity)) && (rightNum = '-0)) {
+      return '-Infinity
+    };
+    if ((leftNum = '-Infinity) && ((rightNum = 0) || (rightNum = '+0))) {
+      return '-Infinity
+    };
+
+    /* Division of an infinity by a nonzero finite value results in a signed infinity. The sign is determined by the rule already stated above. */
+    /* TODO */
+
+    /* Division of a finite value by an infinity results in zero. The sign is determined by the rule already stated above. */
+    /* TODO */
+
+    /* Division of a zero by a zero results in NaN; division of zero by any other finite value results in zero, with the sign determined by the rule already stated above. */
+    /* TODO */
+
+    /* Division of a nonzero finite value by a zero results in a signed infinity. The sign is determined by the rule already stated above. */
+    /* TODO */
+
+    /* In the remaining cases, where neither an infinity, nor a zero, nor NaN is involved, the quotient is computed and rounded
+       to the nearest representable value using IEEE 754 round-to-nearest mode. If the magnitude is too large to represent,
+       the operation overflows; the result is then an infinity of appropriate sign. If the magnitude is too small to represent, the
+       operation underflows and the result is a zero of the appropriate sign. The ECMAScript language requires support of
+       gradual underflow as defined by IEEE 754.
+    */
+    return leftNum / rightNum
+  }
+  | { type: "BinaryExpression", operator: ">", left: RelationalExpression, right: ShiftExpression } -> {
+    /* 11.8.2 The Greater-than Operator ( > ) */
+
+    /* 1. Let lref be the result of evaluating RelationalExpression. */
+    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. Let rref be the result of evaluating ShiftExpression. */
+    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    /* 4. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 5. Let r be the result of performing abstract relational comparison rval < lval with LeftFirst equal to false. (see 11.8.5). */
+    r := AbstractRelationalComparison(rval, lval, false);
+    /* 6. If r is undefined, return false. Otherwise, return r. */
+    if (r = 'undefined) {
+      return false
+    };
+
+    return r
+  }
+};
+
+function JS_Interpreter_IterationStatement(iterStmt, scope) {
+  match iterStmt with
+  | { type: "DoWhileStatement", test: Expression, body: Statement, labelSet: currentLabelSet } -> {
+    /* 12.6.1 The do-while Statement */
+    /* 1. Let V = empty. */
+    V := 'empty;
+    /* 2. Let iterating be true. */
+    iterating := true;
+    /* 3. Repeat, while iterating is true */
+    repeat {
+      /* a. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope);
+      /* b. If stmt.value is not empty, let V = stmt.value. */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V := getCompletionValue(stmt)
+      };
+      /* c. If stmt.type is not continue || stmt.target is not in the current label set, then */
+      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in_list currentLabelSet))) {
+        /* i. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
+        if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+          return normalEmptyCompletion(V)
+        };
+        /* ii. If stmt is an abrupt completion, return stmt. */
+        if (isAnAbruptCompletion(stmt)) {
+          return stmt
+        }
+      };
+      /* d. Let exprRef be the result of evaluating Expression. */
+      exprRef := JS_Interpreter_Expr(Expression, scope);
+      /* e. If ToBoolean(GetValue(exprRef)) is false, set iterating to false. */
+      if (ToBoolean(GetValue(exprRef)) = false) {
+        iterating := false
+      }
+    } until iterating = false;
+    /* 4. Return (normal, V, empty); */
+    return normalEmptyCompletion(V)
+  }
+  | { type: "WhileStatement", test: Expression, body: Statement, labelSet: currentLabelSet } -> {
+    /* 12.6.2 The while Statement */
+    /* 1. Let V = empty. */
+    V := 'empty;
+    /* 2. Repeat */
+    repeat {
+      /* a. Let exprRef be the result of evaluating Expression. */
+      exprRef := JS_Interpreter_Expr(Expression, scope);
+      /* b. If ToBoolean(GetValue(exprRef)) is false, return (normal, V, empty). */
+      if (ToBoolean(GetValue(exprRef)) = false) {
+        return normalEmptyCompletion(V)
+      };
+      /* c. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope);
+      /* d. If stmt.value is not empty, let V = stmt.value. */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V := getCompletionValue(stmt)
+      };
+      /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
+      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in_list currentLabelSet))) {
+        /* i. If stmt.type is break and stmt.target is in the current label set, then */
+        if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+          /* 1. Return (normal, V, empty). */
+          return normalEmptyCompletion(V)
+        };
+        /* ii. If stmt is an abrupt completion, return stmt. */
+        if (isAnAbruptCompletion(stmt)) {
+          return stmt
+        }
       }
     }
+  }
+  | { type: "ForStatement", init: Expr_or_VarDecl_or_Null } -> {
+    if (Expr_or_VarDecl_or_Null = null) {
+      return JS_Interpreter_ForStmt_Expr(iterStmt, scope)
+    };
+
+    match Expr_or_VarDecl_or_Null with
+    | { type: "VariableDeclaration" } -> {
+      return JS_Interpreter_ForStmt_VarDecl(iterStmt, scope)
+    }
+    | default -> {
+      return JS_Interpreter_ForStmt_Expr(iterStmt, scope)
+    }
+  }
+};
+
+function JS_Interpreter_SwitchStatement(switchStmt, scope) {
+  match switchStmt with
+  | { type: "SwitchStatement", discriminant: Expression, cases: CaseBlock, labelSet: currentLabelSet } -> {
+    /* 12.11 The switch Statement */
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Let R be the result of evaluating CaseBlock, passing it GetValue(exprRef) as a parameter. */
+    R := JS_Interpreter_CaseBlock(CaseBlock, GetValue(exprRef), scope);
+    /* 3. If R.type is break and R.target is in the current label set, return (normal, R.value, empty). */
+    if ((getCompletionType(R) = 'break) && (getCompletionTarget(R) in_list currentLabelSet)) {
+      return normalEmptyCompletion(getCompletionValue(R))
+    };
+    /* 4. Return R. */
+    return R
+  }
+};
+
+function JS_Interpreter_ForStmt_Expr(forStmt, scope) {
+  match forStmt with
+  | { type: "ForStatement", init: ExpressionNoIn, test: Expression1, update: Expression2, body: Statement, labelSet: currentLabelSet } -> {
+    /* 12.6.3 The for Statement
+       The production IterationStatement : for (ExpressionNoIn opt ; Expression opt ; Expression opt ) Statement
+       is evaluated as follows: */
+
+    /* 1. If ExpressionNoIn is present, then. */
+    if (!(ExpressionNoIn = null)) {
+      /* a. Let exprRef be the result of evaluating ExpressionNoIn. */
+      exprRef := JS_Interpreter_Expr(ExpressionNoIn, scope);
+      /* b. Call GetValue(exprRef). (This value is not used but the call may have side-effects.) */
+      GetValue(exprRef)
+    };
+    /* 2. Let V = empty. */
+    V := 'empty;
+    /* 3. Repeat */
+    repeat {
+      /* a. If the first Expression is present, then */
+      if (!(Expression1 = null)) {
+        /* i. Let testExprRef be the result of evaluating the first Expression. */
+        testExprRef := JS_Interpreter_Expr(Expression1, scope);
+        /* ii. If ToBoolean(GetValue(testExprRef)) is false, return (normal, V, empty). */
+        if (ToBoolean(GetValue(testExprRef)) = false) {
+          return normalEmptyCompletion(V)
+        }
+      };
+      /* b. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope);
+      /* c. If stmt.value is not empty, let V = stmt.value */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V = getCompletionValue(stmt)
+      };
+      /* d. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
+      if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+        return normalEmptyCompletion(V)
+      };
+      /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
+      if (!(getCompletionType(stmt) = 'continue) || !((getCompletionTarget(stmt) in_list currentLabelSet))) {
+        /* i. If stmt is an abrupt completion, return stmt. */
+        if (isAnAbruptCompletion(stmt)) {
+          return stmt
+        }
+      };
+      /* f. If the second Expression is present, then */
+      if (!(Expression2 = null)) {
+        /* i. Let incExprRef be the result of evaluating the second Expression. */
+        incExprRef := JS_Interpreter_Expr(Expression2, scope);
+        /* ii. Call GetValue(incExprRef). (This value is not used.) */
+        GetValue(incExprRef)
+      }
+    }
+  }
+};
+
+function JS_Interpreter_ForStmt_VarDecl(forStmt, scope) {
+  match forStmt with
+  | { type: "ForStatement", init: VariableDeclarationListNoIn, test: Expression1, update: Expression2, body: Statement, labelSet: currentLabelSet } -> {
+    /* 12.6.3 The for Statement
+       The production IterationStatement : for ( var VariableDeclarationListNoIn ; Expression opt ; Expression opt ) Statement
+       is evaluated as follows: */
+
+    /* 1. Evaluate VariableDeclarationListNoIn. */
+    JS_Interpreter_Stmt(VariableDeclarationListNoIn);
+    /* 2. Let V = empty. */
+    V := 'empty;
+    /* 3. Repeat */
+    repeat {
+      /* a. If the first Expression is present, then */
+      if (!(Expression1 = null)) {
+        /* i. Let testExprRef be the result of evaluating the first Expression. */
+        testExprRef := JS_Interpreter_Expr(Expression1, scope);
+        /* ii. If ToBoolean(GetValue(testExprRef)) is false, return (normal, V, empty). */
+        if (ToBoolean(GetValue(testExprRef)) = false) {
+          return normalEmptyCompletion(V)
+        }
+      };
+      /* b. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope);
+      /* c. If stmt.value is not empty, let V = stmt.value */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V = getCompletionValue(stmt)
+      };
+      /* d. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
+      if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+        return normalEmptyCompletion(V)
+      };
+      /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
+      if (!(getCompletionType(stmt) = 'continue) || !((getCompletionTarget(stmt) in_list currentLabelSet))) {
+        /* i. If stmt is an abrupt completion, return stmt. */
+        if (isAnAbruptCompletion(stmt)) {
+          return stmt
+        }
+      };
+      /* f. If the second Expression is present, then */
+      if (!(Expression2 = null)) {
+        /* i. Let incExprRef be the result of evaluating the second Expression. */
+        incExprRef := JS_Interpreter_Expr(Expression2, scope);
+        /* ii. Call GetValue(incExprRef). (This value is not used.) */
+        GetValue(incExprRef)
+      }
+    }
+  }
+};
+
+function JS_Interpreter_CaseBlock(caseBlock, input, scope) {
+  /* production CaseBlock : { CaseClauses opt } */
+  if (l_nth(caseBlock, 1) = null) {
+    casesA := l_nth(caseBlock, 0);
+    return JS_Interpreter_CaseBlock_CaseClauses(casesA, input, scope)
+  } else {
+    /* production CaseBlock : { CaseClauses opt DefaultClause CaseClauses opt } */
+    clausesA := l_nth(caseBlock, 0);
+    defaultClause := l_nth(caseBlock, 1);
+    clausesB := l_nth(caseBlock, 2);
+    return JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, defaultClause, clausesB, input, scope)
+  }
+};
+
+function JS_Interpreter_CaseBlock_CaseClauses(caseClauses, input, scope) {
+  /* 1. Let V = empty. */
+  V := 'empty;
+  /* 2. Let A be the list of CaseClause items in source text order. */
+  A := caseClauses;
+  /* 3. Let searching be true. */
+  searching := true;
+  /* 4. Repeat, while searching is true */
+  i := 0;
+  repeat {
+    /* a. Let C be the next CaseClause in A. If there is no such CaseClause, return (normal, V, empty). */
+    C := getNextCaseClause(A, i);
+    i := i + 1;
+    if (C = "None") {
+      return normalEmptyCompletion(V)
+    };
+    /* b. Let clauseSelector be the result of evaluating C. */
+    clauseSelector := JS_Interpreter_SwitchCase(C, scope);
+    /* c. If input is equal to clauseSelector as defined by the === operator, then */
+    if (StrictEqualityOperator(GetValue(clauseSelector), GetValue(input))) {
+      /* i. Set searching to false. */
+      searching := false;
+      /* ii. If C has a StatementList, then */
+      if (hasStatementList(C)) {
+        /* 1. Evaluate C‘s StatementList and let R be the result. */
+        R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+        /* 2. If R is an abrupt completion, then return R. */
+        if (isAnAbruptCompletion(R)) {
+          return R
+        };
+        /* 3. Let V = R.value. */
+        V := getCompletionValue(R)
+      }
+    }
+  } until searching = false;
+  /* 5. Repeat */
+  i := 0;
+  repeat {
+    /* a. Let C be the next CaseClause in A. If there is no such CaseClause, return (normal, V, empty). */
+    C := getNextCaseClause(A, i);
+    i := i + 1;
+    if (C = "None") {
+      return normalEmptyCompletion(V)
+    };
+    /* b. If C has a StatementList, then */
+    if (hasStatementList(C)) {
+      /* i. Evaluate C‘s StatementList and let R be the result. */
+      R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+      /* ii. If R.value is not empty, then let V = R.value. */
+      if (!(getCompletionValue(R) = 'empty)) {
+        V := getCompletionValue(R)
+      };
+      /* iii. If R is an abrupt completion, then return (R.type, V, R.target). */
+      if (isAnAbruptCompletion(R)) {
+        return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+      }
+    }
+  }
+};
+
+function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, DefaultClause, clausesB, input, scope) {
+  /* 1. Let V = empty. */
+  V := 'empty;
+  /* 2. Let A be the list of CaseClause items in the first CaseClauses, in source text order. */
+  A := clausesA;
+  /* 3. Let B be the list of CaseClause items in the second CaseClauses, in source text order. */
+  B := clausesB;
+  /* 4. Let found be false. */
+  found := false;
+  /* 5. Repeat letting C be in order each CaseClause in A */
+  i := 0;
+  repeat {
+    C := getNextCaseClause(A, i);
+    i := i + 1;
+    if (!(C = "None")) {
+      /* a. If found is false, then */
+      if (found = false) {
+        /* i. Let clauseSelector be the result of evaluating C. */
+        clauseSelector := JS_Interpreter_SwitchCase(C, scope);
+        /* ii. If input is equal to clauseSelector as defined by the === operator, then set found to true. */
+        if (StrictEqualityOperator(GetValue(clauseSelector), GetValue(input))) {
+          found := true
+        }
+      };
+      /* b. If found is true, then */
+      if (found = true) {
+        /* i. If C has a StatementList, then */
+        if (hasStatementList(C)) {
+          /* 1. Evaluate C‘s StatementList and let R be the result. */
+          R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+          /* 2. If R.value is not empty, then let V = R.value. */
+          if (!(getCompletionValue(R) = 'empty)) {
+            V := getCompletionValue(R)
+          };
+          /* 3. R is an abrupt completion, then return (R.type, V, R.target). */
+          if (isAnAbruptCompletion(R)) {
+            return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+          }
+        }
+      }
+    }
+  } until C = "None";
+  /* 6. Let foundInB be false. */
+  foundInB := false;
+  /* 7. If found is false, then */
+  i := 0;
+  if (found = false) {
+    /* a. Repeat, while foundInB is false and all elements of B have not been processed */
+    repeat {
+      /* i. Let C be the next CaseClause in B. */
+      C := getNextCaseClause(B, i);
+      i := i + 1;
+      if (!(C = "None")) {
+        /* ii. Let clauseSelector be the result of evaluating C. */
+        clauseSelector := JS_Interpreter_SwitchCase(C, scope);
+        /* iii. If input is equal to clauseSelector as defined by the === operator, then */
+        if (StrictEqualityOperator(GetValue(clauseSelector), GetValue(input))) {
+          /* 1. Set foundInB to true. */
+          foundInB := true;
+          /* 2. If C has a StatementList, then */
+          if (hasStatementList(C)) {
+            /* a  Evaluate C‘s StatementList and let R be the result. */
+            R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+            /* b  If R.value is not empty, then let V = R.value. */
+            if (!(getCompletionValue(R) = 'empty)) {
+              V := getCompletionValue(R)
+            };
+            /* c  R is an abrupt completion, then return (R.type, V, R.target). */
+            if (isAnAbruptCompletion(R)) {
+              return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+            }
+          }
+        }
+      }
+    } until (foundInB = true) || (C = "None")
+  };
+  /* 8. If foundInB is false and the DefaultClause has a StatementList, then */
+  if ((foundInB = false) && hasStatementList(DefaultClause)) {
+    /* a. Evaluate the DefaultClause’s StatementList and let R be the result. */
+    R := JS_Interpreter_StmtList(getCaseClauseStatementList(DefaultClause), scope);
+    /* b. If R.value is not empty, then let V = R.value. */
+    if (!(getCompletionValue(R) = 'empty)) {
+      V := getCompletionValue(R)
+    };
+    /* c. If R is an abrupt completion, then return (R.type, V, R.target). */
+    if (isAnAbruptCompletion(R)) {
+      return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+    }
+  };
+  /* 9. Repeat (Note that if step 7.a.i has been performed this loop does not start at the beginning of B) */
+  repeat {
+    /* a. Let C be the next CaseClause in B. If there is no such CaseClause, return (normal, V, empty). */
+    C := getNextCaseClause(B, i);
+    i := i + 1;
+    if (C = "None") {
+      return normalEmptyCompletion(V)
+    };
+    /* b. If C has a StatementList, then */
+    if (hasStatementList(C)) {
+      /* i. Evaluate C‘s StatementList and let R be the result. */
+      R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+      /* ii. If R.value is not empty, then let V = R.value. */
+      if (!(getCompletionValue(R) = 'empty)) {
+        V := getCompletionValue(R)
+      };
+      /* iii. If R is an abrupt completion, then return (R.type, V, R.target). */
+      if (isAnAbruptCompletion(R)) {
+        return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+      }
+    }
+  }
+};
+
+function JS_Interpreter_SwitchCase(switchCase, scope) {
+  match switchCase with
+  | { type: "SwitchCase", test: Expression } -> {
+    return JS_Interpreter_Expr(Expression, scope)
   }
 }
