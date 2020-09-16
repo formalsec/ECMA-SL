@@ -169,6 +169,21 @@ function JS_Interpreter_Stmt(s, scope) {
 
     return JS_Interpreter_StmtList(StatementList, scope)
   }
+  | { type: "VariableDeclaration", declarations: VariableDeclarationList } -> {
+    /* 12.2 Variable Statement */
+
+    /* The production VariableStatement : var VariableDeclarationList ; is evaluated as follows: */
+
+    i := 0;
+    lVarDecl := l_len VariableDeclarationList;
+    while(lVarDecl > i) {
+      /* 1. Evaluate VariableDeclarationList. */
+      JS_Interpreter_VarDecl(l_nth(VariableDeclarationList, i));
+      i := i + 1
+    };
+    /* 2. Return (normal, empty, empty).*/
+    return normalEmptyCompletion('empty)
+  }
   | { type: "EmptyStatement" } -> {
     return normalEmptyCompletion('empty)
   }
@@ -285,6 +300,45 @@ function JS_Interpreter_Stmt(s, scope) {
     exprRef := JS_Interpreter_Expr(Expression, scope);
     /* 2. Return (throw, GetValue(exprRef), empty). */
     return newCompletion('throw, GetValue(exprRef), 'empty)
+  }
+};
+
+function JS_Interpreter_VarDecl(variableDeclaration, scope) {
+  match variableDeclaration with
+  | { type: "VariableDeclarator", id: Identifier, init: null } -> {
+    /* The production VariableDeclaration : Identifier is evaluated as follows: */
+
+    /* 1. Return a String value containing the same sequence of characters as in the Identifier. */
+    /* return Identifier.name */
+    return Identifier
+  }
+  | { type: "VariableDeclarator", id: Identifier, init: Initialiser } -> {
+    /* The production VariableDeclaration : Identifier Initialiser is evaluated as follows: */
+
+    /* 1. Let lhs be the result of evaluating Identifier as described in 11.1.2. */
+    lhs := JS_Interpreter_Expr(Identifier, scope);
+    /* 2. Let rhs be the result of evaluating Initialiser. */
+    rhs := JS_Interpreter_Expr(Initialiser, scope);
+    /* 3. Let value be GetValue(rhs). */
+    value := GetValue(rhs);
+    /* 4. Call PutValue(lhs, value). */
+    PutValue(lhs, value);
+    /* 5. Return a String value containing the same sequence of characters as in the Identifier. */
+    /* return Identifier.name */
+    return Identifier
+  }
+  | { type: "VariableDeclaration", declarations: VariableDeclarationListNoIn } -> {
+    /* Pattern created specifically for the ForInStatement where the VariableDeclarationListNoIn can only contain one VariableDeclarator
+       and where the String returned by this function is used in the evaluation of the ForInStatement */
+    ret := null;
+    i := 0;
+    ldeclarations := l_len VariableDeclarationListNoIn;
+    while (ldeclarations > i) {
+      ret := JS_Interpreter_VarDecl(l_nth(VariableDeclarationListNoIn, i), scope);
+      i := i + 1
+    };
+
+    return ret
   }
 };
 
