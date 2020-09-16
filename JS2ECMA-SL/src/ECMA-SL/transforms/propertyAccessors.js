@@ -43,6 +43,8 @@ module.exports = {
         computed: true,
       };
     }
+    
+    return obj;
   },
 };
 
