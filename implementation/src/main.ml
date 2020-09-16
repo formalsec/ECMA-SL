@@ -42,12 +42,15 @@ let core_interpretation () : unit =
   print_string "+++++++++++++++++++++++++ JSON +++++++++++++++++++++++++\n";
   print_string (Prog.to_json prog);
   print_string "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-  let v = CoreInterp.eval_prog prog !out !verb_aux "main" in
-  match v with
+  let v, heap = CoreInterp.eval_prog prog !out !verb_aux "main" in
+  (match v with
   | Some z -> print_string ("MAIN return -> "^(Val.str z))
-  | None -> print_string "ERROR HERE"
+  | None -> print_string "ERROR HERE");
+  if !heap_file <> ""
+  then Parsing_Utils.write_file (Heap.str heap) !heap_file
+  else print_endline (Heap.str heap)
 
-  
+
 
 (* Main function - Run *)
 let run ()=

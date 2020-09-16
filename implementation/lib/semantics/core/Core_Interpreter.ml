@@ -265,7 +265,7 @@ let initial_state () : state_t =
 
 
 (*Worker class of the Interpreter*)
-let eval_prog (prog : Prog.t) (out:string) (verbose:bool) (main:string) : Val.t option =
+let eval_prog (prog : Prog.t) (out:string) (verbose:bool) (main:string) : (Val.t option * Heap.t) =
   let func = (Prog.get_func prog main(*passar como argumento valores e nome*)) in
   let state_0 = initial_state () in
   let mon_state_0 = Mon.initial_monitor_state () in
