@@ -13,6 +13,10 @@ module CoreInterp = Core_Interpreter.M(DCM)
 *)
 (* Argument read function *)
 
+let burn_to_disk (path : string) (data : string) : unit =
+  let oc = open_out path in
+  output_string oc data;
+  close_out oc
 
 let arguments () =
 
@@ -39,9 +43,14 @@ let compile_from_plus_to_core () : unit =
 let core_interpretation () : unit =
   let prog_contents = Parsing_Utils.load_file !file in
   let prog = Parsing_Utils.parse_prog prog_contents in
+  (**)
   print_string "+++++++++++++++++++++++++ JSON +++++++++++++++++++++++++\n";
-  print_string (Prog.to_json prog);
+  let json = Prog.to_json prog in
+  print_string json;
   print_string "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+  let jsonfile = Filename.remove_extension !file  in
+  burn_to_disk (jsonfile^".json") json; 
+   Printf.printf "%s" jsonfile;
   let v, heap = CoreInterp.eval_prog prog !out !verb_aux "main" in
   (match v with
   | Some z -> print_string ("MAIN return -> "^(Val.str z))
@@ -64,5 +73,6 @@ let run ()=
 
 
   print_string "\n=====================\n\tFINISHED\n=====================\n"
+
 
 let _ = run ()
