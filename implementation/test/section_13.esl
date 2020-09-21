@@ -1,0 +1,101 @@
+/* 13.2 Creating Function Objects */
+
+/* Given an optional parameter list specified by FormalParameterList, a body specified by FunctionBody, a Lexical
+   Environment specified by Scope, and a Boolean flag Strict, a Function object is constructed as follows: */
+
+function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) {
+  /* 1. Create a new native ECMAScript object and let F be that object. */
+  F := {};
+  /* 2. Set all the internal methods, except for [[Get]], of F as described in 8.12. */
+  setAllInternalMethodsExceptGet(F);
+  /* 3. Set the [[Class]] internal property of F to "Function". */
+  F.Class := "Function";
+  /* 4. Set the [[Prototype]] internal property of F to the standard built-in Function prototype object as specified in 15.3.3.1. */
+  F.Prototype := $loc_FUNC_PROTOTYPE; /* TODO */
+  /* 5. Set the [[Get]] internal property of F as described in 15.3.5.4. */
+  F.Get := null; /* TODO */
+  /* 6. Set the [[Call]] internal property of F as described in 13.2.1. */
+  F.Call := "Call"; /* TODO */
+  /* 7. Set the [[Construct]] internal property of F as described in 13.2.2. */
+  F.Construct := "Construct"; /* TODO */
+  /* 8. Set the [[HasInstance]] internal property of F as described in 15.3.5.3. */
+  F.HasInstance := null; /* TODO */
+  /* 9. Set the [[Scope]] internal property of F to the value of Scope. */
+  F.Scope := Scope;
+  /* 10. Let names be a List containing, in left to right textual order, the Strings corresponding to the identifiers of
+        FormalParameterList. If no parameters are specified, let names be the empty list. */
+  names := FormalParameterList;
+  /* 11. Set the [[FormalParameters]] internal property of F to names. */
+  F.FormalParameters := names;
+  /* 12. Set the [[Code]] internal property of F to FunctionBody. */
+  F.Code := FunctionBody;
+  /* 13. Set the [[Extensible]] internal property of F to true. */
+  F.Extensible := true;
+  /* 14. Let len be the number of formal parameters specified in FormalParameterList. If no parameters are specified,
+        let len be 0. */
+  len := l_len FormalParameterList;
+  /* 15. Call the [[DefineOwnProperty]] internal method of F with arguments "length", Property Descriptor {[[Value]]:
+        len, [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
+  DefineOwnProperty(F, "length", {
+    Value: len,
+    Writable: false,
+    Enumerable: false,
+    Configurable: false
+  }, false);
+  /* 16. Let proto be the result of creating a new object as would be constructed by the expression new Object()
+        where Object is the standard built-in constructor with that name. */
+  proto := NewObject();
+  /* 17. Call the [[DefineOwnProperty]] internal method of proto with arguments "constructor", Property Descriptor
+         {[[Value]]: F, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false. */
+  DefineOwnProperty(proto, "constructor", {
+    Value: F,
+    Writable: true,
+    Enumerable: false,
+    Configurable: true
+  }, false);
+  /* 18. Call the [[DefineOwnProperty]] internal method of F with arguments "prototype", Property Descriptor
+         {[[Value]]: proto, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
+  DefineOwnProperty(F, "prototype", {
+    Value: proto,
+    Writable: true,
+    Enumerable: false,
+    Configurable: false
+  }, false);
+  /* 19. If Strict is true, then */
+  if (Strict = true) {
+    /* a. Let thrower be the [[ThrowTypeError]] function Object (13.2.3). */
+    thrower := null; /* TODO */
+    /* b. Call the [[DefineOwnProperty]] internal method of F with arguments "caller", PropertyDescriptor
+          {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
+    DefineOwnProperty(F, "caller", {
+      Get: thrower,
+      Set: thrower,
+      Enumerable: false,
+      Configurable: false
+    }, false);
+    /* c. Call the [[DefineOwnProperty]] internal method of F with arguments "arguments", PropertyDescriptor
+          {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
+    DefineOwnProperty(F, "arguments", {
+      Get: thrower,
+      Set: thrower,
+      Enumerable: false,
+      Configurable: false
+    }, false)
+  };
+  /* 20. Return F. */
+  return F
+};
+
+/* Auxiliary functions */
+function setAllInternalMethodsExceptGet(obj) {
+  obj.GetOwnProperty    := "GetOwnProperty";
+  obj.GetProperty       := "GetProperty";
+  obj.CanPut            := "CanPut";
+  obj.Put               := "Put";
+  obj.HasProperty       := "HasProperty";
+  obj.Delete            := "Delete";
+  obj.DefaultValue      := "DefaultValue";
+  obj.DefineOwnProperty := "DefineOwnProperty";
+
+  return obj
+}
