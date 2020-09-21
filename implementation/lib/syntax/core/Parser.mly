@@ -23,6 +23,7 @@
 %token <string> VAR
 %token <string> STRING
 %token <string> SYMBOL
+%token <string> LOC
 %token LAND LOR
 %token INT_TO_FLOAT FLOAT_TO_STRING OBJ_TO_LIST
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
@@ -119,6 +120,8 @@ val_target:
       print_string ">STR\n";Val.Str sub } (* Remove the double-quote characters from the parsed string *)
   | s = SYMBOL;
     { print_string ">SYMBOL\n";Val.Symbol s }
+  | l = LOC;
+    { Val.Loc l }
   | t = type_target;
     { print_string ">TYPE \n";Val.Type t }
 

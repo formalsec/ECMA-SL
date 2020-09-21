@@ -28,6 +28,7 @@ let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
 let symbol  = '\''('+'|'-')*(var|int)
 let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
+let loc     = "$loc_"(digit|letter|'_')+
 
 (*
   The third section is
@@ -109,6 +110,7 @@ rule read =
   | string         { STRING (Lexing.lexeme lexbuf) }
   | var            { VAR (Lexing.lexeme lexbuf) }
   | symbol         { SYMBOL (Lexing.lexeme lexbuf) }
+  | loc            { LOC (Lexing.lexeme lexbuf) }
   | "/*"           { read_comment lexbuf }
   | _              { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof            { EOF }
