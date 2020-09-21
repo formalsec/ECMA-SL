@@ -86,6 +86,35 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) 
   return F
 };
 
+function Call(F, this, args) {
+  /* When the [[Call]] internal method for a Function object F is called with a this value and a list of arguments,
+    the following steps are taken: */
+
+  /* 1. Let funcCtx be the result of establishing a new execution context for function code using the value of F's
+        [[FormalParameters]] internal property, the passed arguments List args, and the this value as described in 10.4.3. */
+  /* funcCtx := EstablishExecutionContextForFunctionCode(F.FormalParameters, args, this); */
+  newScope := enteringFunctionCode(F.FormalParameters, args, F.Scope);
+
+  /* newScope := extendScope(F.Scope, funcCtx); */
+  /* 2. Let result be the result of evaluating the FunctionBody that is the value of F's [[Code]] internal property.
+        If F does not have a [[Code]] internal property or if its value is an empty FunctionBody,
+        then result is (normal, undefined, empty). */
+  /* if () { TODO}; */
+  result := JS_Interpreter_Stmt(F.Code, newScope);
+
+  /* 3. Exit the execution context funcCtx, restoring the previous execution context. */
+
+  /* 4. If result.type is throw then throw result.value. */
+  if (getCompletionType(result) = 'throw) {
+    throw getCompletionValue(result)
+  };
+  /* 5. If result.type is return then return result.value. */
+  if (getCompletionType(result) = 'return) {
+    return getCompletionValue(result)
+  };
+  /* 6. Otherwise result.type must be normal. Return undefined. */
+  return 'undefined
+};
 /* Auxiliary functions */
 function setAllInternalMethodsExceptGet(obj) {
   obj.GetOwnProperty    := "GetOwnProperty";
@@ -98,4 +127,22 @@ function setAllInternalMethodsExceptGet(obj) {
   obj.DefineOwnProperty := "DefineOwnProperty";
 
   return obj
+};
+
+function enteringFunctionCode(FormalParameterList, args, scope) {
+  functionScope := NewObject();
+  lFormalParams := l_len FormalParameterList;
+  i := 0;
+  while(lFormalParams > i) {
+    propertyName := l_nth(FormalParameterList, i);
+    value := l_nth(args, i);
+    baseRef := newValueReference(functionScope, propertyName, false);
+    PutValue(baseRef, value);
+
+    i := i + 1
+  };
+
+  scope.functionScope := functionScope;
+
+  return functionScope
 }
