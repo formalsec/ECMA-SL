@@ -57,6 +57,53 @@ function JS_Interpreter_Expr(e, scope) {
           propertyNameString, and whose strict mode flag is strict. */
     return newValueReference(baseValue, propertyNameString, strict)
   }
+  | { type: "CallExpression", callee: MemberExpression, arguments: Arguments } -> {
+    /* 11.2.3 Function Calls */
+
+    /* The production CallExpression : MemberExpression Arguments is evaluated as follows: */
+    /* 1. Let ref be the result of evaluating MemberExpression. */
+    ref := JS_Interpreter_Expr(MemberExpression, scope);
+    /* 2. Let func be GetValue(ref). */
+    func := GetValue(ref);
+    /* 3. Let argList be the result of evaluating Arguments, producing an internal list of argument values (see 11.2.4). */
+    argList := JS_Interpreter_Arguments(Arguments, scope);
+    /* 4. If Type(func) is not Object, throw a TypeError exception. */
+    if (!(Type(func) = "Object")) {
+      throw TypeErrorException()
+    };
+    /* 5. If IsCallable(func) is false, throw a TypeError exception. */
+    if (IsCallable(func) = false) {
+      throw TypeErrorException()
+    };
+    /* 6. If Type(ref) is Reference, then */
+    if (Type(ref) = "Reference") {
+      /* a. If IsPropertyReference(ref) is true, then */
+      if (IsPropertyReference(ref) = true) {
+        /* i. Let thisValue be GetBase(ref). */
+        thisValue := GetBase(ref)
+      }
+      /* b. Else, the base of ref is an Environment Record */
+      else {
+        /* i. Let thisValue be the result of calling the ImplicitThisValue concrete method of GetBase(ref). */
+        thisValue := ImplicitThisValue(GetBase(ref))
+      }
+    }
+    /* 7. Else, Type(ref) is not Reference. */
+    else {
+      /* a. Let thisValue be undefined. */
+      thisValue := 'undefined
+    };
+    /* 8. Return the result of calling the [[Call]] internal method on func, providing thisValue as the this value
+          and providing the list argList as the argument values. */
+    return Call(func, thisValue, argList)
+  }
+  | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
+    /* 11.2.5 Function Expressions */
+
+    /* The production MemberExpression : FunctionExpression is evaluated as follows: */
+    /* 1. Return the result of evaluating FunctionExpression. */
+    return JS_Interpreter_FunctionDeclaration(e, scope)
+  }
   | { type: "AssignmentExpression", operator: op, left: l_expr, right: r_expr} -> {
     /* 11.13.1 Simple Assignment ( = ) */
     if (op = "=") {
@@ -86,6 +133,48 @@ function JS_Interpreter_Expr(e, scope) {
       return int_to_float value
     };
     return value
+  }
+};
+
+function JS_Interpreter_Arguments(ArgumentsList, scope) {
+  /* 11.2.4 Argument Lists */
+  /* The evaluation of an argument list produces a List of values (see 8.8). */
+
+  /* The production ArgumentList : ArgumentList , AssignmentExpression is evaluated as follows:*/
+
+  args := [];
+  lArguments := l_len ArgumentsList;
+  i := 0;
+  /* 1. Let precedingArgs be the result of evaluating ArgumentList. */
+  while(lArguments > i) {
+    /* 2. Let ref be the result of evaluating AssignmentExpression. */
+    ref := JS_Interpreter_Expr(l_nth(ArgumentsList, i), scope);
+    /* 3. Let arg be GetValue(ref). */
+    arg := GetValue(ref);
+
+    args := l_add(args, arg);
+
+    i := i + 1
+  };
+
+  /* 4. Return a List whose length is one greater than the length of precedingArgs and whose items are the items of
+        precedingArgs, in order, followed at the end by arg which is the last item of the new list. */
+  return args
+};
+
+function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
+  match FunctionDeclaration with
+  | { id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
+    /* 13 Function Definition */
+
+    /* The production FunctionExpression : function ( FormalParameterList opt ) { FunctionBody }
+       is evaluated as follows: */
+
+    /* 1. Return the result of creating a new Function object as specified in 13.2 with parameters specified by
+          FormalParameterList opt and body specified by FunctionBody. Pass in the LexicalEnvironment of the running
+          execution context as the Scope. Pass in true as the Strict flag if the FunctionExpression is contained in
+          strict code or if its FunctionBody is strict code. */
+    return CreateFunctionObject(FormalParameterList, FunctionBody, scope, false)
   }
 };
 
