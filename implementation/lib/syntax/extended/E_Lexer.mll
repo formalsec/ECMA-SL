@@ -77,6 +77,7 @@ rule read =
   | "int_to_float"    { INT_TO_FLOAT }
   | "float_to_string" { FLOAT_TO_STRING }
   | "obj_to_list"  { OBJ_TO_LIST }
+  | "obj_fields"   { OBJ_FIELDS }
   | '('            { LPAREN }
   | ')'            { RPAREN }
   | '{'            { LBRACE }

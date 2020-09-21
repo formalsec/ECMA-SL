@@ -24,7 +24,7 @@
 %token <string> STRING
 %token <string> SYMBOL
 %token LAND LOR
-%token INT_TO_FLOAT FLOAT_TO_STRING OBJ_TO_LIST
+%token INT_TO_FLOAT FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LCONCAT HD TL TLEN TNTH FST SND
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
@@ -209,6 +209,8 @@ stmt_target:
     { print_string ">ASSIGNNEWOBJ\n";Stmt.AssignNewObj (v) }
   | v = VAR; DEFEQ; OBJ_TO_LIST; e = expr_target;
     { print_endline ">ASSIGNOBJTOLIST"; Stmt.AssignObjToList (v, e) }
+  | v = VAR; DEFEQ; OBJ_FIELDS; e = expr_target;
+    { print_endline ">ASSIGNOBJFIELDS"; Stmt.AssignObjFields (v, e) }
 
 
 
