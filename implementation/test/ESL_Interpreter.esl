@@ -178,7 +178,7 @@ function JS_Interpreter_Stmt(s, scope) {
     lVarDecl := l_len VariableDeclarationList;
     while(lVarDecl > i) {
       /* 1. Evaluate VariableDeclarationList. */
-      JS_Interpreter_VarDecl(l_nth(VariableDeclarationList, i));
+      JS_Interpreter_VarDecl(l_nth(VariableDeclarationList, i), scope);
       i := i + 1
     };
     /* 2. Return (normal, empty, empty).*/
