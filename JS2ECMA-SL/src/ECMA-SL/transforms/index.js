@@ -1,6 +1,7 @@
 const Switch = require("./switch");
 const PropertyAccessors = require("./propertyAccessors");
 const Assignment = require("./assignment");
+const FunctionCall = require("./functionCall");
 
 module.exports = {
   transformObject: function (obj) {
@@ -12,6 +13,9 @@ module.exports = {
     }
     if (obj.type === "AssignmentExpression") {
       return Assignment.transform(obj);
+    }
+    if (obj.type == "CallExpression") {
+      return FunctionCall.transform(obj);
     }
     return obj;
   },
