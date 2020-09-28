@@ -1,5 +1,6 @@
 const Store = require('./ECMA-SL/Store');
 const CsFrame = require("./ECMA-SL/CsFrame");
+const Heap = require("./ECMA-SL/syntax/Heap");
 
 class Interpreter {
 
@@ -18,8 +19,8 @@ Interpreter.interpretProg = function(_prog){
 	//Creating initial conditions
 	console.log("=========== Running ===========\n" + _prog + "\n===============================\n")
 	var main_func= _prog.getFunc('main');
-  	var final_value = this.iterate({prog:_prog, cs:[new CsFrame()], store: new Store([],[]), cont : [main_func.body]}); 
-  	console.log("MAIN RETURN >>> "+ final_value);
+  	var final_value = this.iterate({prog:_prog, cs:[new CsFrame()], store: new Store([],[]), cont : [main_func.body], heap: new Heap()}); 
+  	console.log("MAIN return -> "+ final_value);
 }
 
 module.exports = Interpreter;
