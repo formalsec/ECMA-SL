@@ -1,4 +1,3 @@
-const Expr = require("./Expr");
 
 class NewObj extends Expr {
   constructor(fieldValueList = []) {

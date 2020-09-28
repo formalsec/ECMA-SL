@@ -1,4 +1,4 @@
-const Stmt = require("./Stmt");
+const Stmt = require("./Stmt/Stmt");
 
 class Func {
   constructor(name, params, body) {
@@ -8,11 +8,12 @@ class Func {
   }
 
   toString() {
-    return `function ${this.name} (${this.params}) ${this.body.toString()}`;
+    return `function ${this.name} (${this.params}) {\n${this.body.toString()}\n}`;
   }
 }
 
 Func.fromJSON = function (obj) { 
+  
   var name = obj.name; 
   var params = obj.params;
   var body = Stmt.fromJSON(obj.body);  
