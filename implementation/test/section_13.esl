@@ -3,7 +3,7 @@
 /* Given an optional parameter list specified by FormalParameterList, a body specified by FunctionBody, a Lexical
    Environment specified by Scope, and a Boolean flag Strict, a Function object is constructed as follows: */
 
-function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) {
+function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, LocalVars) {
   /* 1. Create a new native ECMAScript object and let F be that object. */
   F := {};
   /* 2. Set all the internal methods, except for [[Get]], of F as described in 8.12. */
@@ -82,6 +82,9 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) 
       Configurable: false
     }, false)
   };
+
+  F.LocalVars := LocalVars;
+
   /* 20. Return F. */
   return F
 };
@@ -92,14 +95,15 @@ function Call(F, this, args) {
 
   /* 1. Let funcCtx be the result of establishing a new execution context for function code using the value of F's
         [[FormalParameters]] internal property, the passed arguments List args, and the this value as described in 10.4.3. */
-  /* funcCtx := EstablishExecutionContextForFunctionCode(F.FormalParameters, args, this); */
-  newScope := enteringFunctionCode(F.FormalParameters, args, F.Scope);
+  newScope := enteringFunctionCode(F.FormalParameters, args, F.Scope, this, F.LocalVars); /* TODO */
 
   /* newScope := extendScope(F.Scope, funcCtx); */
   /* 2. Let result be the result of evaluating the FunctionBody that is the value of F's [[Code]] internal property.
         If F does not have a [[Code]] internal property or if its value is an empty FunctionBody,
         then result is (normal, undefined, empty). */
-  /* if () { TODO}; */
+  if (!("Code" in_obj F) || (F.Code = [])) {
+    return normalEmptyCompletion('undefined)
+  };
   result := JS_Interpreter_Stmt(F.Code, newScope);
 
   /* 3. Exit the execution context funcCtx, restoring the previous execution context. */
@@ -129,20 +133,44 @@ function setAllInternalMethodsExceptGet(obj) {
   return obj
 };
 
-function enteringFunctionCode(FormalParameterList, args, scope) {
-  functionScope := NewObject();
-  lFormalParams := l_len FormalParameterList;
+function enteringFunctionCode(FormalParameterList, args, scope, this, funcLocalVars) {
+  print "enteringFunctionCode";
+  lexicalEnvironment := NewDeclarativeEnvironment(scope); /* 10.2.2 */
+
+  environmentRecord := getEnvironmentRecord(lexicalEnvironment);
+
+  /* "Hoisting" */
   i := 0;
-  while(lFormalParams > i) {
-    propertyName := l_nth(FormalParameterList, i);
-    value := l_nth(args, i);
-    baseRef := newValueReference(functionScope, propertyName, false);
-    PutValue(baseRef, value);
+  lfuncLocalVars := l_len funcLocalVars;
+  while(i < lfuncLocalVars) {
+    varName := l_nth(funcLocalVars, i);
+    desc := newDataPropertyDescriptor('undefined);
+
+    SetMutableBinding(environmentRecord, varName, desc, false); /* TODO strict */
 
     i := i + 1
   };
 
-  scope.functionScope := functionScope;
 
-  return functionScope
+  largs := l_len args;
+  lFormalParams := l_len FormalParameterList;
+  i := 0;
+  while((lFormalParams > i) && (largs > i)) {
+    xi := l_nth(FormalParameterList, i);
+    vi := l_nth(args, i);
+
+    SetMutableBinding(environmentRecord, xi, vi, false); /* TODO strict */
+
+    i := i + 1
+  };
+
+  while(lFormalParams > i) {
+    xi := l_nth(FormalParameterList, i);
+
+    SetMutableBinding(environmentRecord, xi, 'undefined, false); /* TODO strict */
+
+    i := i + 1
+  };
+
+  return lexicalEnvironment
 }

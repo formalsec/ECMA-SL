@@ -9,6 +9,7 @@ import "test/section_10.3.esl";
 import "test/section_11.8.esl";
 import "test/section_12.6.esl";
 import "test/section_12.11.esl";
+import "test/section_13.esl";
 import "test/section_15.5.esl";
 import "test/section_15.6.esl";
 import "test/section_15.7.esl";
@@ -119,9 +120,4 @@ function StrictEqualityOperator(x, y) {
   };
 
   return x = y
-};
-
-function SetMutableBinding(envRec, N, V, S) {
-  /* TODO */
-  envRec[N] = V
 }

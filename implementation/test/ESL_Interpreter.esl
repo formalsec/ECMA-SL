@@ -2,16 +2,34 @@ import "test/ES5_Reference_Interpreter.esl";
 
 function JS_Interpreter(p) {
   match p with
-  | { sourceType: "script", type: "Program", body: body } -> {
-    scope := NewObject();
+  | { sourceType: "script", type: "Program", body: body, globalVars: globalVars } -> {
+    /* 14 Program */
+    globalObject := {}; /* TODO global object (15.1) */
+    setAllInternalMethodsOfObject(globalObject);
+
+    /* "Hoisting" */
     i := 0;
-    lbody := l_len(body);
-    while (i<lbody) {
-      JS_Interpreter_Stmt(l_nth(body, i), scope);
+    lglobalVars := l_len globalVars;
+    while(i < lglobalVars) {
+      varName := l_nth(globalVars, i);
+      desc := newDataPropertyDescriptor('undefined);
+
+      globalObject[varName] := desc;
+
       i := i + 1
     };
 
-    return scope
+    globalScope := GlobalEnvironment(globalObject); /* 10.2.3 */
+    /* 10.4.1.1 Initial Global Execution Context */
+
+    i := 0;
+    lbody := l_len(body);
+    while (i<lbody) {
+      JS_Interpreter_Stmt(l_nth(body, i), globalScope);
+      i := i + 1
+    };
+
+    return globalScope
   }
 };
 
@@ -177,7 +195,7 @@ function JS_Interpreter_Arguments(ArgumentsList, scope) {
 
 function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
   match FunctionExpression with
-  | { id: null, params: FormalParameterList, body: FunctionBody } -> {
+  | { id: null, params: FormalParameterList, body: FunctionBody, localVars: localVars } -> {
     /* 13 Function Definition */
 
     /* The production FunctionExpression : function ( FormalParameterList opt ) { FunctionBody }
@@ -187,7 +205,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
           FormalParameterList opt and body specified by FunctionBody. Pass in the LexicalEnvironment of the running
           execution context as the Scope. Pass in true as the Strict flag if the FunctionExpression is contained in
           strict code or if its FunctionBody is strict code. */
-    return CreateFunctionObject(FormalParameterList, FunctionBody, scope, false)
+    return CreateFunctionObject(FormalParameterList, FunctionBody, scope, false, localVars)
   }
 };
 
