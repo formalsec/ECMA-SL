@@ -94,7 +94,8 @@ function JS_Interpreter_Expr(e, scope) {
       /* b. Else, the base of ref is an Environment Record */
       else {
         /* i. Let thisValue be the result of calling the ImplicitThisValue concrete method of GetBase(ref). */
-        thisValue := ImplicitThisValue(GetBase(ref))
+        /* thisValue := ImplicitThisValue(GetBase(ref)) */ /* TODO */
+        thisValue := 'undefined
       }
     }
     /* 7. Else, Type(ref) is not Reference. */
