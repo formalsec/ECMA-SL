@@ -129,7 +129,12 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
 
   | Print e ->
     (let v = eval_expr sto e in
-     print_endline ("PROGRAM PRINT: " ^ (Val.str v));
+    (match v with
+    | Loc l ->
+      (match Heap.get heap l with
+        | Some o -> print_endline ("PROGRAM PRINT: " ^ Object.str o)
+        | None   -> print_endline "PROGRAM PRINT: Nonexistent location" )
+    | _     -> print_endline ("PROGRAM PRINT: " ^ (Val.str v)));
      (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
     )
 
