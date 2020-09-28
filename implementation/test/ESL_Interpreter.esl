@@ -111,7 +111,7 @@ function JS_Interpreter_Expr(e, scope) {
 
     /* The production MemberExpression : FunctionExpression is evaluated as follows: */
     /* 1. Return the result of evaluating FunctionExpression. */
-    return JS_Interpreter_FunctionDeclaration(e, scope)
+    return JS_Interpreter_FunctionExpression(e, scope)
   }
   | { type: "AssignmentExpression", operator: op, left: l_expr, right: r_expr} -> {
     /* 11.13.1 Simple Assignment ( = ) */
@@ -171,9 +171,9 @@ function JS_Interpreter_Arguments(ArgumentsList, scope) {
   return args
 };
 
-function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
-  match FunctionDeclaration with
-  | { id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
+function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
+  match FunctionExpression with
+  | { id: null, params: FormalParameterList, body: FunctionBody } -> {
     /* 13 Function Definition */
 
     /* The production FunctionExpression : function ( FormalParameterList opt ) { FunctionBody }
