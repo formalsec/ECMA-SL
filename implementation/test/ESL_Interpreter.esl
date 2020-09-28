@@ -34,6 +34,15 @@ function JS_Interpreter_Expr(e, scope) {
 
     return value
   }
+  | { type: "ESLPrint", value: Argument } -> {
+    arg := JS_Interpreter_Expr(Argument, scope);
+    argValue := GetValue(arg);
+
+    print "JSPrint";
+    print argValue;
+
+    return argValue
+  }
   | { type: "MemberExpression", object: MemberExpression, property: Expression } -> {
     /* 11.2.1 Property Accessors */
 
