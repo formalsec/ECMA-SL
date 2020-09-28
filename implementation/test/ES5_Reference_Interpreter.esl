@@ -4,6 +4,8 @@ import "test/section_8.10.esl";
 import "test/section_8.12.esl";
 import "test/section_9.esl";
 import "test/section_9.12.esl";
+import "test/section_10.2.esl";
+import "test/section_10.3.esl";
 import "test/section_11.8.esl";
 import "test/section_12.6.esl";
 import "test/section_12.11.esl";
@@ -122,8 +124,4 @@ function StrictEqualityOperator(x, y) {
 function SetMutableBinding(envRec, N, V, S) {
   /* TODO */
   envRec[N] = V
-};
-
-function GetIdentifierReference(scope, name, strict) {
-  return ("R", "V", scope, name, strict)
 }

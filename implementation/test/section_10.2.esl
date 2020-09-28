@@ -1,0 +1,235 @@
+/* 10.2 Lexical Environments */
+
+/* A Lexical Environment is a specification type used to define the association of Identifiers to specific variables
+and functions based upon the lexical nesting structure of ECMAScript code. A Lexical Environment consists of
+an Environment Record and a possibly null reference to an outer Lexical Environment. Usually a Lexical
+Environment is associated with some specific syntactic structure of ECMAScript code such as a
+FunctionDeclaration, a WithStatement, or a Catch clause of a TryStatement and a new Lexical Environment is
+created each time such code is evaluated. */
+
+/* An Environment Record records the identifier bindings that are created within the scope of its associated
+Lexical Environment. */
+
+/* The outer environment reference is used to model the logical nesting of Lexical Environment values. The
+outer reference of a (inner) Lexical Environment is a reference to the Lexical Environment that logically
+surrounds the inner Lexical Environment. An outer Lexical Environment may, of course, have its own outer
+Lexical Environment. A Lexical Environment may serve as the outer environment for multiple inner Lexical
+Environments. For example, if a FunctionDeclaration contains two nested FunctionDeclarations then the Lexical
+Environments of each of the nested functions will have as their outer Lexical Environment the Lexical
+Environment of the current execution of the surrounding function. */
+
+/* Lexical Environments and Environment Record values are purely specification mechanisms and need not
+correspond to any specific artefact of an ECMAScript implementation. It is impossible for an ECMAScript
+program to directly access or manipulate such values. */
+
+
+
+/* 10.2.1 Environment Records */
+
+/* There are two kinds of Environment Record values used in this specification: declarative environment records
+and object environment records. Declarative environment records are used to define the effect of ECMAScript
+language syntactic elements such as FunctionDeclarations, VariableDeclarations, and Catch clauses that directly
+associate identifier bindings with ECMAScript language values. Object environment records are used to define
+the effect of ECMAScript elements such as Program and WithStatement that associate identifier bindings with
+the properties of some object. */
+
+/* For specification purposes Environment Record values can be thought of as existing in a simple object-
+oriented hierarchy where Environment Record is an abstract class with two concrete subclasses, declarative
+environment record and object environment record. The abstract class includes the abstract specification
+methods defined in Table 17. These abstract methods have distinct concrete algorithms for each of the
+concrete subclasses. */
+
+
+/* 10.2.1.1 Declarative Environment Records */
+
+/* Each declarative environment record is associated with an ECMAScript program scope containing variable
+and/or function declarations. A declarative environment record binds the set of identifiers defined by the
+declarations contained within its scope. */
+
+/* In addition to the mutable bindings supported by all Environment Records, declarative environment records
+also provide for immutable bindings. An immutable binding is one where the association between an identifier
+and a value may not be modified once it has been established. Creation and initialisation of immutable binding
+are distinct steps so it is possible for such bindings to exist in either an initialised or uninitialised state.
+Declarative environment records support the methods listed in Table 18 in addition to the Environment Record
+abstract specification methods: */
+
+/* The behaviour of the concrete specification methods for Declarative Environment Records is defined by the
+following algorithms. */
+
+function HasBinding(envRec, N) {
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return HasBindingDeclarativeEnvRecord(envRec, N)
+  };
+  return HasBindingObjectEnvRecord(envRec, N)
+};
+
+function HasBindingDeclarativeEnvRecord(declarativeEnvRec, N) {
+  /* 10.2.1.1.1 HasBinding(N) */
+  /* The concrete environment record method HasBinding for declarative environment records simply determines
+     if the argument identifier is one of the identifiers bound by the record: */
+
+  /* 1. Let envRec be the declarative environment record for which the method was invoked. */
+  envRec := declarativeEnvRec;
+  /* 2. If envRec has a binding for the name that is the value of N, return true. */
+  if (N in_obj envRec) {
+    return true
+  };
+  /* 3. If it does not have such a binding, return false. */
+  return false
+};
+
+function HasBindingObjectEnvRecord(objectEnvRec, N) {
+  /* 10.2.1.2.1 HasBinding(N) */
+  /* The concrete Environment Record method HasBinding for object environment records determines if its
+     associated binding object has a property whose name is the value of the argument N: */
+
+  /* 1. Let envRec be the object environment record for which the method was invoked. */
+  envRec := objectEnvRec;
+  /* 2. Let bindings be the binding object for envRec. */
+  bindings := getBindingObject(envRec);
+  /* 3. Return the result of calling the [[HasProperty]] internal method of bindings, passing N as the property name. */
+  return HasProperty(bindings, N)
+};
+
+
+/* 10.2.2 Lexical Environment Operations */
+
+/* The following abstract operations are used in this specification to operate upon lexical environments: */
+
+function GetIdentifierReference(lex, name, strict) {
+  print "GetIdentifierReference";
+  /* The abstract operation GetIdentifierReference is called with a Lexical Environment lex, an identifier String
+     name, and a Boolean flag strict. The value of lex may be null. When called, the following steps are performed: */
+  /* 1. If lex is the value null, then */
+  if (lex = null) {
+    /* a. Return a value of type Reference whose base value is undefined, whose referenced name is name,
+          and whose strict mode flag is strict. */
+    return newValueReference('undefined, name, strict)
+  };
+  /* 2. Let envRec be lex‘s environment record. */
+  envRec := getEnvironmentRecord(lex);
+  /* 3. Let exists be the result of calling the HasBinding(N) concrete method of envRec passing name as the argument N. */
+  exists := HasBinding(envRec, name);
+  /* 4. If exists is true, then */
+  if (exists = true) {
+    /* a. Return a value of type Reference whose base value is envRec, whose referenced name is name, and whose strict mode flag is strict. */
+    return newValueReference(envRec, name, strict)
+  }
+  /* 5. Else */
+  else {
+    /* a. Let outer be the value of lex’s outer environment reference. */
+    outer := getOuterEnvironmentReference(lex);
+    /* b. Return the result of calling GetIdentifierReference passing outer, name, and strict as arguments. */
+    return GetIdentifierReference(outer, name, strict)
+  }
+};
+
+function NewDeclarativeEnvironment(E) {
+  /* 10.2.2.2 NewDeclarativeEnvironment (E) */
+  /* When the abstract operation NewDeclarativeEnvironment is called with either a Lexical Environment or null
+     as argument E the following steps are performed: */
+
+  /* 1. Let env be a new Lexical Environment. */
+  env := newLexicalEnvironment();
+  /* 2. Let envRec be a new declarative environment record containing no bindings. */
+  envRec := newDeclarativeEnvironmentRecord();
+  /* 3. Set env’s environment record to be envRec. */
+  setEnvironmentRecord(env, envRec);
+  /* 4. Set the outer lexical environment reference of env to E. */
+  setOuterLexicalEnvironmentReference(env, E);
+  /* 5. Return env. */
+  return env
+};
+
+function NewObjectEnvironment(O, E) {
+  /* 10.2.2.3 NewObjectEnvironment (O, E) */
+  /* When the abstract operation NewObjectEnvironment is called with an Object O and a Lexical Environment E (or null)
+     as arguments, the following steps are performed: */
+
+  /* 1. Let env be a new Lexical Environment. */
+  env := newLexicalEnvironment();
+  /* 2. Let envRec be a new object environment record containing O as the binding object. */
+  envRec := newObjectEnvironmentRecord(O);
+  /* 3. Set env’s environment record to be envRec. */
+  setEnvironmentRecord(env, envRec);
+  /* 4. Set the outer lexical environment reference of env to E. */
+  setOuterLexicalEnvironmentReference(env, E);
+  /* 5. Return env. */
+  return env
+};
+
+function GlobalEnvironment(globalObject) { /* TODO global object (15.1) */
+  /* 10.2.3 The Global Environment */
+
+  /* The global environment is a unique Lexical Environment which is created before any ECMAScript code is
+     executed. The global environment‘s Environment Record is an object environment record whose binding
+     object is the global object (15.1). The global environment‘s outer environment reference is null.
+
+  /* As ECMAScript code is executed, additional properties may be added to the global object and the initial
+     properties may be modified.*/
+
+  globalEnv := newLexicalEnvironment();
+  /* The global environment‘s Environment Record is an object environment record whose binding
+     object is the global object (15.1) */
+  globalEnvRec := newObjectEnvironmentRecord(globalObject);
+  setEnvironmentRecord(globalEnv, globalEnvRec);
+  /* The global environment‘s outer environment reference is null. */
+  setOuterLexicalEnvironmentReference(globalEnv, null);
+
+  globalEnv.this := globalObject; /* TODO */
+
+  return globalEnv
+};
+
+
+/* Auxiliary functions used to deal with Lexical Environments and Environment Records */
+function newLexicalEnvironment() {
+  return {
+    /* environment‘s outer environment reference */
+    OuterEnvRef: 'undefined,
+    /* environment‘s Environment Record */
+    EnvRec: 'undefined
+  }
+};
+
+function newDeclarativeEnvironmentRecord() {
+  return {}
+};
+
+function newObjectEnvironmentRecord(bindingObj) {
+  /* An object environment record binds the set of identifier names that directly correspond to the property names
+     of its binding object. Property names that are not an IdentifierName are not included in the set of bound identifiers.
+     Both own and inherited properties are included in the set regardless of the setting of their [[Enumerable]] attribute. */
+  return bindingObj
+};
+
+function isDeclarativeEnvironmentRecord(envRec) {
+  print "isDeclarativeEnvironmentRecord";
+  if ("__proto__" in_obj envRec) {
+    return false
+  } else {
+    return true
+  }
+};
+
+function getBindingObject(objectEnvRec) {
+  return objectEnvRec
+};
+
+function getEnvironmentRecord(lexicalEnvironment) {
+  return lexicalEnvironment.EnvRec
+};
+
+function getOuterEnvironmentReference(lexicalEnvironment) {
+  return lexicalEnvironment.OuterEnvRef
+};
+
+function setEnvironmentRecord(lexicalEnvironment, environmentRecord) {
+  lexicalEnvironment.EnvRec := environmentRecord;
+  return environmentRecord /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function setOuterLexicalEnvironmentReference(lexicalEnvironment, outerLexicalEnvironment) {
+  lexicalEnvironment.OuterEnvRef := outerLexicalEnvironment;
+  return outerLexicalEnvironment /* TODO the return statement is necessary because of the Monitor. Check why! */
+}
