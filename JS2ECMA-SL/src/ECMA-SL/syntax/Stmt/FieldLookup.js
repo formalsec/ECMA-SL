@@ -10,6 +10,13 @@ function MakeFieldLookup(Stmt){
       this.stringvar = stringvar;
     }
 
+    interpret(config){
+      config.store.sto[this.stringvar] = config.heap.getField(this.expressionObject.interpret(config.store).value, this.expressionField.interpret(config.store).value);
+      console.log(config.store.sto[this.stringvar]);
+      config.cont=config.cont.slice(1);
+      return config;
+    }
+
    
   }
   FieldLookup.fromJSON = function(obj) {
