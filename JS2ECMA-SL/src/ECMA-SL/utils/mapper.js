@@ -1,76 +1,54 @@
-module.exports = traverse;
+module.exports = mapper;
 
-/**
- * Function that traverses an Esprima AST.
- * For every object found it calls the provided **callback** function and checks its return value
- * to determine if the traversing continues to the descending objects.
- *
- * @param {Function} callback
- * Function called passing the param **obj**.
- * Should return an object with two properties: **data**, an array with the result of the
- * desired computation of the provided **obj**, and **stop**, a boolean value that controls
- * the continuation of the object tree traversing.
- * @param {Object} obj
- * An Esprima AST object representing an Expression, a Statement or a Script.
- *
- * @returns an object containing one property of type Array: **data**. This value represents the
- * total values computed by the **callback** function.
- */
-function traverse(callback, obj) {
-  function mapReduce(arr) {
-    return arr
-      .map((item) => traverse(callback, item))
-      .reduce((acc, retObj) => acc.concat(retObj.data), []);
-  }
+function mapper(callback, obj) {
+  if (!obj) return obj;
 
-  if (obj === null) {
-    return {
-      data: [],
-    };
-  }
+  var ret = callback(obj);
+  var new_obj = ret.obj;
+  if (!ret.recurse) return new_obj;
 
-  const cbResult = callback(obj);
-
-  if (cbResult.stop) {
-    return {
-      data: cbResult.data,
-    };
-  }
-
-  let resultData = [];
-  switch (obj.type) {
+  switch (new_obj.type) {
     //
     // Scripts
     //
     case "Program":
-      resultData = mapReduce(obj.body);
-      break;
+      return {
+        type: "Program",
+        body: new_obj.body.map((obj) => mapper(callback, obj)),
+      };
 
     //
     // Expressions
     //
     case "ArrayExpression":
-      resultData = mapReduce(obj.elements);
-      break;
+      return {
+        type: "ArrayExpression",
+        elements: new_obj.elements.map((obj) => mapper(callback, obj)),
+      };
 
     case "ObjectExpression":
-      resultData = mapReduce(obj.properties);
-      break;
-    case "Property": {
-      const resultKey = traverse(callback, obj.key);
-      const resultValue = traverse(callback, obj.value);
+      return {
+        type: "ObjectExpression",
+        properties: new_obj.properties.map((obj) => mapper(callback, obj)),
+      };
 
-      resultData = resultKey.data.concat(resultValue.data);
-      break;
-    }
+    case "Property":
+      return {
+        type: "Property",
+        key: mapper(callback, new_obj.key),
+        value: mapper(callback, new_obj.value),
+        computed: new_obj.computed,
+        kind: new_obj.kind,
+        shorthand: new_obj.shorthand,
+      };
 
-    case "MemberExpression": {
-      const resultObject = traverse(callback, obj.object);
-      const resultProperty = traverse(callback, obj.property);
-
-      resultData = resultObject.data.concat(resultProperty.data);
-      break;
-    }
+    case "MemberExpression":
+      return {
+        type: "MemberExpression",
+        object: mapper(callback, new_obj.object),
+        property: mapper(callback, new_obj.property),
+        computed: new_object.computed,
+      };
 
     case "CallExpression":
     case "NewExpression": {
