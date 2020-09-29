@@ -1,6 +1,7 @@
 const {
   getVarDeclarations,
   getFunctionDeclarations,
+  replaceFuncDeclarations
 } = require("../utils/getDeclarations");
 
 module.exports = {
@@ -20,6 +21,8 @@ module.exports = {
     );
     obj.localFuncs = getFunctionDeclarations(obj.body);
 
+    obj = replaceFuncDeclarations(obj); 
+    
     return obj;
   },
 };
