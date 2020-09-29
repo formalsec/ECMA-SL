@@ -1,4 +1,5 @@
 const traverse = require("./traverse");
+const mapper = require("./mapper");
 
 module.exports = {
   getVarDeclarations: getVarDeclrs,
