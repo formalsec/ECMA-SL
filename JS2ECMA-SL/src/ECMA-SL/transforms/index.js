@@ -23,6 +23,7 @@ module.exports = {
       obj.type === "FunctionExpression" ||
       obj.type === "FunctionDeclaration"
     ) {
+      console.log("inside function transformer!!!");
       return FunctionLiteral.transform(obj);
     }
     if (obj.type == "CallExpression") {

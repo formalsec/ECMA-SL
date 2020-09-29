@@ -3,6 +3,7 @@ const traverse = require("./traverse");
 module.exports = {
   getVarDeclarations: getVarDeclrs,
   getFunctionDeclarations: getFuncDeclrs,
+  replaceFuncDeclarations: replaceFuncDeclarations
 };
 
 function getVarDeclrs(obj) {
@@ -55,17 +56,16 @@ function getFuncDeclrs(obj) {
 
     switch (obj.type) {
       case "FunctionDeclaration":
-      case "FunctionExpression":
         return {
           stop: true,
           data: [obj],
         };
-
-        if (obj.id) {
-          retObj.data = [obj.id.name];
+      
+      case "FunctionExpression": 
+        return {
+          stop: true, 
+          data: [] 
         }
-
-        return retObj;
 
       default:
         return {
@@ -75,4 +75,19 @@ function getFuncDeclrs(obj) {
     }
   }
   return traverse(callback, obj).data;
+}
+
+
+function replaceFuncDeclarations () {
+  function callback(obj) {
+    if (!obj) return obj; 
+
+    switch (obj.type) {
+      case "FunctionDeclaration": obj.id;
+
+      default: obj
+    }
+  }
+
+  return mapper(callback, obj);
 }
