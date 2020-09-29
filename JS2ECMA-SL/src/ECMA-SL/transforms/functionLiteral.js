@@ -18,11 +18,7 @@ module.exports = {
       (acc, localVar) => (acc.includes(localVar) ? acc : acc.concat(localVar)),
       []
     );
-    obj.localFuncs = getFunctionDeclarations(obj.body).reduce(
-      // remove repeated functions
-      (acc, localVar) => (acc.includes(localVar) ? acc : acc.concat(localVar)),
-      []
-    );
+    obj.localFuncs = getFunctionDeclarations(obj.body);
 
     return obj;
   },

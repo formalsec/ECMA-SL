@@ -56,9 +56,9 @@ function getFuncDeclrs(obj) {
     switch (obj.type) {
       case "FunctionDeclaration":
       case "FunctionExpression":
-        const retObj = {
+        return {
           stop: true,
-          data: [],
+          data: [obj],
         };
 
         if (obj.id) {
