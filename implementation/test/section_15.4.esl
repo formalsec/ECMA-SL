@@ -1,4 +1,5 @@
 import "test/section_8.10.esl";
+import "test/section_8.12.esl";
 import "test/section_9.esl";
 
 /* This method is not supposed to be here. As soon 
@@ -77,14 +78,16 @@ function newArray(items) {
        set to "Array". */
     Class: "Array",
     Put: "Put",
-    Get: "Get"
+    Get: "Get",
+    HasProperty: "HasProperty",
+    DefineOwnProperty: "DefineOwnPropertyArray"
   };
 
   i := 0;
   /* The length property of the newly constructed object is set to the
      number of arguments. */
   len := l_len items;
-  arr.length := newDataPropertyDescriptor(len);
+  arr.length := newDataPropertyDescriptor(int_to_float(len));
 
   /* The 0 property of the newly constructed object is set to item0
      (if supplied); the 1 property of the newly constructed object is set
@@ -102,6 +105,10 @@ function newArray(items) {
   return arr
 };
 
+function DefineOwnPropertyArray() {
+  
+}
+
 /**
  * 15.4.4.4 Array.prototype.concat ( [ item1 [ , item2 [ , … ] ] ] )
  *
@@ -118,48 +125,41 @@ function concat(this, items) {
         Array is the standard built-in constructor with that name. */
   A := newArray([]);
   /* 3. Let n be 0. */
-  n := 0;
+  n := int_to_float 0;
 
   /* 4. Let items be an internal List whose first element is O and whose subsequent elements
         are, in left to right order, the arguments that were passed to this function invocation. */
-  print O;
-  print items;
   items := l_prepend(O, items);
 
   /* 5. Repeat, while items is not empty */
   while (!(items = [])) {
-    print "Estou no while";
     /* a. Remove the first element from items and let E be the value of the element. */
     E := hd items;
-    print E;
     items := tl items;
     
     /* b. If the value of the [[Class]] internal property of E is "Array", then */
     if (E.Class = "Array") {
-      print "Estou dentro do array";
       /* i. Let k be 0. */
-      k := 0;
+      k := int_to_float 0;
       /* ii. Let len be the result of calling the [[Get]] internal method of E with argument "length". */
-      print E;
-      len := {E.Get}("length");
-      print len;
+      len := {E.Get}(E, "length");
 
       /* iii. Repeat, while k < len */
       while (k < len) {
         /* 1. Let P be ToString(k). */
         P := ToString(k);
         /* 2. Let exists be the result of calling the [[HasProperty]] internal method of E with P. */
-        exists := {E.HasProperty}(P);
+        exists := {E.HasProperty}(E, P);
 
         /* 3. If exists is true, then */
         if (exists = true) {
           /* a. Let subElement be the result of calling the [[Get]] internal method of E with argument P. */
-          subElement := {E.Get}(P);
+          subElement := {E.Get}(E, P);
           /* b. Call the [[DefineOwnProperty]] internal method of A with arguments ToString(n),
                 Property Descriptor {[[Value]]: subElement, [[Writable]]: true, [[Enumerable]]: true,
                 [[Configurable]]: true}, and false.*/
           descriptor := newDataPropertyDescriptorFull(subElement, true, true, true);
-          {A.DefineOwnProperty}(ToString(n), descriptor, false)
+          {A.DefineOwnProperty}(A, ToString(n), descriptor, false)
         };
 
         /* 4. Increase n by 1. */
@@ -174,7 +174,7 @@ function concat(this, items) {
             Property Descriptor {[[Value]]: E, [[Writable]]: true, [[Enumerable]]: true,
             [[Configurable]]: true}, and false. */
       descriptor := newDataPropertyDescriptorFull(E, true, true, true);
-      {A.DefineOwnProperty}(ToString(n), descriptor, false);
+      {A.DefineOwnProperty}(A, ToString(n), descriptor, false);
       /* ii. Increase n by 1. */
       n := n + 1
     }
