@@ -14,12 +14,33 @@ function mapper(callback, obj) {
     case "Program":
       return {
         type: "Program",
-        body: new_obj.body.map((obj) => mapper(callback, obj)),
+        sourceType: "script",
+        body: new_obj.body.map((stmt) => mapper(callback, stmt)),
       };
 
     //
     // Expressions
     //
+    case "Identifier":
+      return {
+        type: "Identifier",
+        name: new_obj.name,
+      };
+
+    case "Literal":
+      return new_obj.hasOwnProperty("regex")
+        ? {
+            type: "Literal",
+            value: new_obj.value,
+            raw: new_obj.raw,
+            regex: new_obj.regex,
+          }
+        : {
+            type: "Literal",
+            value: new_obj.value,
+            raw: new_obj.raw,
+          };
+
     case "ArrayExpression":
       return {
         type: "ArrayExpression",
@@ -42,152 +63,243 @@ function mapper(callback, obj) {
         shorthand: new_obj.shorthand,
       };
 
+    case "FunctionExpression":
+      return {
+        type: "FunctionExpression",
+        id: mapper(callback, new_obj.id),
+        params: new_obj.params.map((param) => mapper(callback, param)),
+        body: mapper(callback, new_obj.body),
+        generator: new_obj.generator,
+        async: new_obj.async,
+        expression: new_obj.expression,
+      };
+
     case "MemberExpression":
       return {
         type: "MemberExpression",
+        computed: new_object.computed,
         object: mapper(callback, new_obj.object),
         property: mapper(callback, new_obj.property),
-        computed: new_object.computed,
       };
 
     case "CallExpression":
-    case "NewExpression": {
-      const resultCallee = traverse(callback, obj.callee);
-      const resultArguments = mapReduce(obj.arguments);
+      return {
+        type: "CallExpression",
+        callee: mapper(callback, new_obj.callee),
+        arguments: new_obj.arguments.map((arg) => mapper(callback, arg)),
+      };
 
-      resultData = resultCallee.data.concat(resultArguments);
-      break;
-    }
+    case "NewExpression":
+      return {
+        type: "NewExpression",
+        callee: mapper(callback, new_obj.callee),
+        arguments: new_obj.arguments.map((arg) => mapper(callback, arg)),
+      };
 
     case "UpdateExpression":
+      return {
+        type: "UpdateExpression",
+        operator: new_obj.operator,
+        argument: mapper(callback, new_obj.argument),
+        prefix: new_obj.prefix,
+      };
+
     case "UnaryExpression":
-      resultData = traverse(callback, obj.argument).data;
-      break;
+      return {
+        type: "UnaryExpression",
+        operator: new_obj.operator,
+        argument: mapper(callback, new_obj.argument),
+        prefix: new_obj.prefix,
+      };
 
     case "BinaryExpression":
-    case "LogicalExpression":
-    case "AssignmentExpression": {
-      const resultLeft = traverse(callback, obj.left);
-      const resultRight = traverse(callback, obj.right);
+      return {
+        type: "BinaryExpression",
+        operator: new_obj.operator,
+        left: mapper(callback, new_obj.left),
+        right: mapper(callback, new_obj.right),
+      };
 
-      resultData = resultLeft.data.concat(resultRight.data);
-      break;
-    }
+    case "LogicalExpression":
+      return {
+        type: "LogicalExpression",
+        operator: new_obj.operator,
+        left: mapper(callback, new_obj.left),
+        right: mapper(callback, new_obj.right),
+      };
+
+    case "ConditionalExpression":
+      return {
+        type: "ConditionalExpression",
+        test: mapper(callback, new_obj.test),
+        consequent: mapper(callback, new_obj.consequent),
+        alternate: mapper(callback, new_obj.alternate),
+      };
+
+    case "AssignmentExpression":
+      return {
+        type: "AssignmentExpression",
+        operator: new_obj.operator,
+        left: mapper(callback, new_obj.left),
+        right: mapper(callback, new_obj.right),
+      };
 
     case "SequenceExpression":
-      resultData = mapReduce(obj.expressions);
-      break;
+      return {
+        type: "SequenceExpression",
+        Expressions: new_obj.Expressions.map((expr) => mapper(callback, expr)),
+      };
 
     //
     // Statements and Declarations
     //
     case "BlockStatement":
-      resultData = mapReduce(obj.body);
-      break;
+      return {
+        type: "BlockStatement",
+        body: new_obj.body.map((stmt) => mapper(callback, stmt)),
+      };
+
+    case "BreakStatement":
+      return {
+        type: "BreakStatement",
+        label: mapper(callback, new_obj.label),
+      };
+
+    case "ContinueStatement":
+      return {
+        type: "ContinueStatement",
+        label: mapper(callback, new_obj.label),
+      };
 
     case "DoWhileStatement":
-    case "WhileStatement": {
-      const resultTest = traverse(callback, obj.test);
-      const resultBody = traverse(callback, obj.body);
-
-      resultData = resultTest.data.concat(resultBody.data);
-      break;
-    }
+      return {
+        type: "DoWhileStatement",
+        body: mapper(callback, new_obj.body),
+        test: mapper(callback, new_obj.test),
+      };
 
     case "ExpressionStatement":
-      resultData = traverse(callback, obj.expression).data;
-      break;
+      return new_obj.hasOwnProperty("directive")
+        ? {
+            type: "ExpressionStatement",
+            expression: mapper(callback, new_obj.expression),
+            directive: new_obj.directive,
+          }
+        : {
+            type: "ExpressionStatement",
+            expression: mapper(callback, new_obj.expression),
+          };
 
-    case "ForStatement": {
-      const resultInit = traverse(callback, obj.init);
-      const resultTest = traverse(callback, obj.test);
-      const resultUpdate = traverse(callback, obj.update);
-      const resultBody = traverse(callback, obj.body);
+    case "ForStatement":
+      return {
+        type: "ForStatement",
+        init: mapper(callback, new_obj.init),
+        test: mapper(callback, new_obj.test),
+        update: mapper(callback, new_obj.update),
+        body: mapper(callback, new_obj.body),
+      };
 
-      resultData = resultInit.data.concat(
-        resultTest.data,
-        resultUpdate.data,
-        resultBody.data
-      );
-      break;
-    }
-
-    case "ForInStatement": {
-      const resultLeft = traverse(callback, obj.left);
-      const resultRight = traverse(callback, obj.right);
-      const resultBody = traverse(callback, obj.body);
-
-      resultData = resultLeft.data.concat(resultRight.data, resultBody.data);
-      break;
-    }
+    case "ForInStatement":
+      return {
+        type: "ForInStatement",
+        left: mapper(callback, new_obj.left),
+        right: mapper(callback, new_obj.right),
+        body: mapper(callback, new_obj.body),
+        each: new_obj.each,
+      };
 
     case "FunctionDeclaration":
-    case "FunctionExpression":
-    case "LabeledStatement":
-      resultData = traverse(callback, obj.body).data;
-      break;
+      return {
+        type: "FunctionDeclaration",
+        id: mapper(callback, new_obj.id),
+        params: new_obj.params.map((param) => mapper(callback, param)),
+        body: mapper(callback, new_obj.body),
+        generator: new_obj.generator,
+        async: new_obj.async,
+        expression: new_obj.expression,
+      };
 
     case "IfStatement":
-    case "ConditionalExpression": {
-      const resultTest = traverse(callback, obj.test);
-      const resultConsequent = traverse(callback, obj.consequent);
-      const resultAlternate = traverse(callback, obj.alternate);
+      return new_obj.hasOwnProperty("alternate")
+        ? {
+            type: "IfStatement",
+            test: mapper(callback, new_obj.test),
+            consequent: mapper(callback, new_obj.consequent),
+          }
+        : {
+            type: "IfStatement",
+            test: mapper(callback, new_obj.test),
+            consequent: mapper(callback, new_obj.consequent),
+            alternate: mapper(callback, new_obj.alternate),
+          };
 
-      resultData = resultTest.data.concat(
-        resultConsequent.data,
-        resultAlternate.data
-      );
-      break;
-    }
+    case "LabeledStatement":
+      return {
+        type: "LabeledStatement",
+        label: mapper(callback, new_obj.label),
+        body: mapper(callback, new_obj.body),
+      };
 
     case "ReturnStatement":
+      return {
+        type: "ReturnStatement",
+        argument: mapper(callback, new_obj.argument),
+      };
+
+    case "SwitchStatement":
+      return {
+        type: "SwitchStatement",
+        discriminant: mapper(callback, new_obj.discriminant),
+        cases: new_obj.cases.map((kase) => mapper(callback, kase)),
+      };
+
+    case "SwitchCase":
+      return {
+        type: "SwitchCase",
+        test: mapper(callback, new_obj.test),
+        consequent: new_obj.consequent.map((stmt) => mapper(callback, stmt)),
+      };
+
     case "ThrowStatement":
-      resultData = traverse(callback, obj.argument).data;
-      break;
-
-    case "SwitchStatement": {
-      const resultDiscriminant = traverse(callback, obj.discriminant);
-      const resultCases = mapReduce(obj.cases);
-
-      resultData = resultDiscriminant.data.concat(resultCases);
-      break;
-    }
-    case "SwitchCase": {
-      const resultTest = traverse(callback, obj.test);
-      const resultConsequent = mapReduce(obj.consequent);
-
-      resultData = resultTest.data.concat(resultConsequent);
-      break;
-    }
+      return {
+        type: "ThrowStatement",
+        argument: mapper(callback, new_obj.argument),
+      };
 
     case "VariableDeclaration":
-      resultData = mapReduce(obj.declarations);
-      break;
-    case "VariableDeclarator": {
-      const resultId = traverse(callback, obj.id);
-      const resultInit = traverse(callback, obj.init);
+      return {
+        type: "VariableDeclaration",
+        declarations: new_obj.declarations.map((declr) =>
+          mapper(callback, declr)
+        ),
+        kind: new_obj.kind,
+      };
 
-      resultData = resultId.data.concat(resultInit.data);
-      break;
-    }
+    case "VariableDeclarator":
+      return {
+        type: "VariableDeclarator",
+        id: mapper(callback, new_obj.id),
+        init: mapper(callback, new_obj.init),
+      };
 
-    case "WithStatement": {
-      const resultObject = traverse(callback, obj.object);
-      const resultBody = traverse(callback, obj.body);
+    case "WhileStatement":
+      return {
+        type: "WhileStatement",
+        test: mapper(callback, new_obj.test),
+        body: mapper(callback, new_obj.body),
+      };
 
-      resultData = resultObject.data.concat(resultBody.data);
-      break;
-    }
+    case "WithStatement":
+      return {
+        type: "WithStatement",
+        object: mapper(callback, new_obj.object),
+        body: mapper(callback, new_obj.body),
+      };
 
     case "TryStatement":
       throw Error("Traverse for TryStatements is not implemented!");
 
     default:
-      resultData = [];
-      break;
+      return new_obj;
   }
-
-  return {
-    data: cbResult.data.concat(resultData),
-  };
 }
