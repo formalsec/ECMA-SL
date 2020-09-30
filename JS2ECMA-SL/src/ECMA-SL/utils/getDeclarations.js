@@ -4,7 +4,7 @@ const mapper = require("./mapper");
 module.exports = {
   getVarDeclarations: getVarDeclrs,
   getFunctionDeclarations: getFuncDeclrs,
-  replaceFuncDeclarations: replaceFuncDeclarations
+  replaceFuncDeclarations: replaceFuncDeclarations,
 };
 
 function getVarDeclrs(obj) {
@@ -61,12 +61,12 @@ function getFuncDeclrs(obj) {
           stop: true,
           data: [obj],
         };
-      
-      case "FunctionExpression": 
+
+      case "FunctionExpression":
         return {
-          stop: true, 
-          data: [] 
-        }
+          stop: true,
+          data: [],
+        };
 
       default:
         return {
@@ -78,15 +78,32 @@ function getFuncDeclrs(obj) {
   return traverse(callback, obj).data;
 }
 
-
-function replaceFuncDeclarations () {
+function replaceFuncDeclarations(obj) {
   function callback(obj) {
-    if (!obj) return obj; 
+    if (!obj)
+      return {
+        obj,
+        recurse: false,
+      };
 
     switch (obj.type) {
-      case "FunctionDeclaration": obj.id;
+      case "FunctionDeclaration":
+        return {
+          obj: obj.id,
+          recurse: false,
+        };
 
-      default: obj
+      case "FunctionExpression":
+        return {
+          obj,
+          recurse: false,
+        };
+
+      default:
+        return {
+          obj,
+          recurse: true,
+        };
     }
   }
 

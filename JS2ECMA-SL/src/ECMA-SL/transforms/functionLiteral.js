@@ -21,8 +21,8 @@ module.exports = {
     );
     obj.localFuncs = getFunctionDeclarations(obj.body);
 
-    obj = replaceFuncDeclarations(obj); 
-    
+    obj.body = replaceFuncDeclarations(obj.body);
+
     return obj;
   },
 };
