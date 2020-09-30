@@ -66,11 +66,7 @@ function translateObject(obj) {
   const newObjStmt = new Assign(varExpr, new NewObj());
 
   const objStmts = Object.keys(obj)
-    .map(function (prop) {
-      console.log("prop: "+prop);
-      console.log("value: "+JSON.stringify(obj.params));
-      return { prop, value: traverseAndTranslate(obj[prop]) }
-    })
+    .map((prop) => ({ prop, value: traverseAndTranslate(obj[prop]) }))
     .reduce(
       (acc, propValue) =>
         acc
@@ -86,23 +82,16 @@ function translateObject(obj) {
     statements: objStmts,
   };
 }
-var i = 0; 
+
 function traverseAndTranslate(value) {
-  i++; 
-  if (i > 115) {
-    console.log(i); 
-    console.log(JSON.stringify(value));
-  }
   switch (typeof value) {
     case "undefined":
-      console.log(i);
       throw new Error("The undefined value is not supported");
     case "boolean":
       return translateBoolean(value);
     case "number":
       return translateNumber(value);
     case "string":
-      console.log("translate string");
       return translateString(value);
     case "bigint":
       throw new Error("BigInt values are not supported: " + value);
@@ -114,7 +103,6 @@ function traverseAndTranslate(value) {
       if (value === null) {
         return translateNull();
       } else if (value instanceof Array) {
-        console.log("translate array");
         return translateArray(value);
       } else if (value instanceof RegExp) {
         throw new Error("Regular expressions are not supported: " + value);
