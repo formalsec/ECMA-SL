@@ -1,7 +1,7 @@
 const {
   getVarDeclarations,
   getFunctionDeclarations,
-  replaceFuncDeclarations
+  replaceFuncDeclarations,
 } = require("../utils/getDeclarations");
 
 module.exports = {
@@ -10,6 +10,10 @@ module.exports = {
       throw Error(
         'Unexpected object type; Expecting "FunctionExpression" or "FunctionDeclaration"'
       );
+    }
+
+    if (obj.hasOwnProperty("localVars") || obj.hasOwnProperty("localFuncs")) {
+      return obj;
     }
 
     obj.params = obj.params.map((param) => param.name);
