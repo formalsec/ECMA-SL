@@ -13,7 +13,6 @@ function MakeAssign(Stmt){
     }
 
     interpret(config){
-      console.log("1");
       var v = this.expression.interpret(config.store);
       config.store.sto[this.variable]=v;
       config.cont=config.cont.slice(1);

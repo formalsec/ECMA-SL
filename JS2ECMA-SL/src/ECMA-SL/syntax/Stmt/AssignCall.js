@@ -20,9 +20,7 @@ function MakeAssignCall(Stmt){
       var func_name = this.func.interpret(config.store);
       var vs = this.args.map(e => e.interpret(config.store));
       var f = config.prog.getFunc(func_name.value);
-      console.log("1");
       if(f){
-
         var new_store = new Store(f.params, vs); 
         config.cs.push(new CsFrame(this.stringvar, config.stmtlist, config.store));
         config.store = new_store;

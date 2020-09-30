@@ -13,7 +13,7 @@ function MakeReturn(Stmt){
 	  }
 
 	  interpret(config){
-	  	config.cont=config.cont.slice(1);
+	  	config.cont=[];
 	  	var frame = config.cs.pop();
 	  	if (config.cs.lenghth > 1){
 	  		config.store = frame.store;
