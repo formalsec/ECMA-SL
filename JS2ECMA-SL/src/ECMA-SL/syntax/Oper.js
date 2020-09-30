@@ -1,4 +1,6 @@
 
+const Val = require("./Val/Val");
+const PrimitiveVal = require("./Val/PrimitiveVal")(Val);
 class Oper{
   constructor(operator, type) {
     this.operator = operator;

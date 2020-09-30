@@ -15,15 +15,18 @@ function MakeCondition(Stmt){
 
 		interpret(config){
 			var v = this.expr.interpret(config.store);
-			var stmt_result = [];
-			if(v){
-				stmt_result = [this.then_block];
+			//Needs to be bool and true
+			if(v.value){
+				config.cont = [this.then_block].concat(config.cont.slice(1));
 			} else{
 				if(this.else_block){
-					stmt_result = [this.else_block];
+					config.cont = [this.else_block].concat(config.cont.slice(1));
 				}
+				else{
+					config.cont = config.cont.slice(1);
+				}
+
 			}
-			config.cont = stmt_result.concat(config.cont.slice(1));	
 			return config;
 		}
 	}

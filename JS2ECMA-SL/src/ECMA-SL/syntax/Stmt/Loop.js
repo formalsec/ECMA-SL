@@ -1,5 +1,7 @@
 
 const Expr = require("../Expr/Expr");
+const Condition = require("./Condition")(Expr);
+const Block = require("./Block")(Expr);
 
 function MakeLoop(Stmt){
 	
@@ -11,11 +13,9 @@ function MakeLoop(Stmt){
 		}
 
 		interpret(config){
-			var v = this.expr.interpret(config.store);
-			if(v){
-				config = this.block.interpret(config);
-				interpret(config);
-			}
+			config.cont=config.cont.slice(1);
+			var result = [new Condition(this.expr, new Block([this.block].concat([new Loop(this.expr,this.block)])),null)];
+			config.cont= result.concat(config.cont);
 			return config;
 		}
 

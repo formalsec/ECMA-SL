@@ -12,7 +12,6 @@ function MakeFieldLookup(Stmt){
 
     interpret(config){
       config.store.sto[this.stringvar] = config.heap.getField(this.expressionObject.interpret(config.store).value, this.expressionField.interpret(config.store).value);
-      console.log(config.store.sto[this.stringvar]);
       config.cont=config.cont.slice(1);
       return config;
     }
