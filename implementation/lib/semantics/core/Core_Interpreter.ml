@@ -124,7 +124,7 @@ let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : E
 
 let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl SecLabel.t) option) (prog: Prog.t) (state : state_t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : (return * (Mon.sl SecLabel.t))  =
   let (cs, heap, sto)= state in
-  print_string ("====================================\nEvaluationg >>>>> "^(Stmt.str s) ^ "\n");
+  print_string ("====================================\nEvaluating >>>>> "^(Stmt.str s) ^ "\n");
   match s with
   | Skip ->
     (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
