@@ -168,8 +168,13 @@ let int_to_float (v : Val.t) : Val.t = match v with
   | _     -> invalid_arg "Exception in Oper.int_to_float: this operation is only applicable to Int arguments"
 
 let float_to_string (v : Val.t) : Val.t = match v with
-  | Flt i -> Str (string_of_float i)
-  | _     -> invalid_arg "Exception in Oper.float_to_string: this operation is only applicable to Flt arguments"
+  | Flt i -> 
+    let s = string_of_float i in 
+    let len = String.length s - 1 in
+    let c = String.get s len in
+    let s' = if c = '.' then String.sub s 0 len else s in
+    Str s'
+  | _     -> invalid_arg ("Exception in Oper.float_to_string: this operation is only applicable to Flt arguments: " ^ (Val.str v))
 
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
