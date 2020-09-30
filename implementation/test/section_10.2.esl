@@ -46,13 +46,6 @@ concrete subclasses. */
 and/or function declarations. A declarative environment record binds the set of identifiers defined by the
 declarations contained within its scope. */
 
-/* In addition to the mutable bindings supported by all Environment Records, declarative environment records
-also provide for immutable bindings. An immutable binding is one where the association between an identifier
-and a value may not be modified once it has been established. Creation and initialisation of immutable binding
-are distinct steps so it is possible for such bindings to exist in either an initialised or uninitialised state.
-Declarative environment records support the methods listed in Table 18 in addition to the Environment Record
-abstract specification methods: */
-
 /* The behaviour of the concrete specification methods for Declarative Environment Records is defined by the
 following algorithms. */
 
@@ -91,7 +84,10 @@ function HasBindingObjectEnvRecord(objectEnvRec, N) {
   return HasProperty(bindings, N)
 };
 
-
+/*
+  Create a new mutable binding in an environment record. The String value N is the text of the bound name.
+  If the optional Boolean argument D is true the binding is may be subsequently deleted.
+*/
 function CreateMutableBinding(envRec, N, D) {
   if (isDeclarativeEnvironmentRecord(envRec)) {
     return CreateMutableBindingDeclarative(envRec, N, D)
@@ -260,6 +256,72 @@ function GetBindingValueObject(objectEnvRec, N, S) {
   return Get(bindings, N)
 };
 
+/* In addition to the mutable bindings supported by all Environment Records, declarative environment records
+also provide for immutable bindings. An immutable binding is one where the association between an identifier
+and a value may not be modified once it has been established. Creation and initialisation of immutable binding
+are distinct steps so it is possible for such bindings to exist in either an initialised or uninitialised state.
+Declarative environment records support the methods listed in Table 18 in addition to the Environment Record
+abstract specification methods: */
+
+/*
+  Create a new but uninitialised immutable binding in an environment record.
+  The String value N is the text of the bound name.
+*/
+function CreateImmutableBinding(envRec, N) {
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return CreateImmutableBindingDeclarative(envRec, N)
+  };
+  throw NewSyntaxErrorException() /* TODO Assert? */
+};
+
+function CreateImmutableBindingDeclarative(declarativeEnvRec, N) {
+  /* 10.2.1.1.7 CreateImmutableBinding (N) */
+
+  /* The concrete Environment Record method CreateImmutableBinding for declarative environment records
+     creates a new immutable binding for the name N that is initialised to the value undefined.
+     A binding must not already exist in this environment record for N. */
+
+  /* 1. Let envRec be the declarative environment record for which the method was invoked. */
+  envRec := declarativeEnvRec;
+  /* 2. Assert: envRec does not already have a binding for N. */
+  /* TODO */
+  /* 3. Create an immutable binding in envRec for N and record that it is uninitialised. */
+  createImmutableBinding(envRec, N);
+  recordImmutableBindingUninitialised(envRec, N);
+
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+/*
+  Set the value of an already existing but uninitialised immutable binding in an environment record.
+  The String value N is the text of the bound name. V is the value for the binding and is a value
+  of any ECMAScript language type.
+*/
+function InitializeImmutableBinding(envRec, N, V) {
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return InitializeImmutableBindingDeclarative(envRec, N, V)
+  };
+  throw NewSyntaxErrorException() /* TODO Assert? */
+};
+
+function InitializeImmutableBindingDeclarative(declarativeEnvRec, N, V) {
+  /* The concrete Environment Record method InitializeImmutableBinding for declarative environment records is
+     used to set the bound value of the current binding of the identifier whose name is the value of the argument N
+     to the value of argument V. An uninitialised immutable binding for N must already exist. */
+
+  /* 1. Let envRec be the declarative environment record for which the method was invoked. */
+  envRec := declarativeEnvRec;
+  /* 2. Assert: envRec must have an uninitialised immutable binding for N. */
+  /* TODO */
+  /* 3. Set the bound value for N in envRec to V. */
+  setImmutableBinding(envRec, N, V);
+  /* 4. Record that the immutable binding for N in envRec has been initialised. */
+  recordImmutableBindingInitialised(envRec, N);
+
+  return V /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+
 
 /* 10.2.2 Lexical Environment Operations */
 
@@ -406,4 +468,24 @@ function setOuterLexicalEnvironmentReference(lexicalEnvironment, outerLexicalEnv
 function setMutableBinding(declarativeEnvRec, name, value) {
   declarativeEnvRec[name] := value;
   return value /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function createImmutableBinding(declarativeEnvRec, name) {
+  declarativeEnvRec[name] := {};
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function setImmutableBinding(declarativeEnvRec, name, value) {
+  declarativeEnvRec[name].value := value;
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function recordImmutableBindingUninitialised(declarativeEnvRec, name) {
+  declarativeEnvRec[name].initialised := false;
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function recordImmutableBindingInitialised(declarativeEnvRec, name) {
+  declarativeEnvRec[name].initialised := true;
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
 }
