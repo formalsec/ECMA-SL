@@ -111,7 +111,9 @@ function CreateMutableBindingDeclarative(declarativeEnvRec, N, D) {
   setMutableBinding(envRec, N, 'undefined);
   if (D = true) {
     /* TODO */
-  }
+  };
+
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
 };
 
 function CreateMutableBindingObject(objectEnvRec, N, D) {
@@ -178,7 +180,7 @@ function SetMutableBindingDeclarative(declarativeEnvRec, N, V, S) {
     }
   };
 
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return V /* TODO the return statement is necessary because of the Monitor. Check why! */
 };
 
 function SetMutableBindingObject(objectEnvRec, N, V, S) {
@@ -194,7 +196,9 @@ function SetMutableBindingObject(objectEnvRec, N, V, S) {
   /* 2. Let bindings be the binding object for envRec. */
   bindings := getBindingObject(envRec);
   /* 3. Call the [[Put]] internal method of bindings with arguments N, V, and S. */
-  Put(bindings, N, V, S)
+  Put(bindings, N, V, S);
+
+  return V /* TODO the return statement is necessary because of the Monitor. Check why! */
 };
 
 
