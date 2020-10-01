@@ -89,7 +89,7 @@ function replaceFuncDeclarations(obj) {
     switch (obj.type) {
       case "FunctionDeclaration":
         return {
-          obj: obj.id,
+          obj: newExpressionStatement(obj.id),
           recurse: false,
         };
 
@@ -108,4 +108,11 @@ function replaceFuncDeclarations(obj) {
   }
 
   return mapper(callback, obj);
+}
+
+function newExpressionStatement(expression) {
+  return {
+    type: "ExpressionStatement",
+    expression,
+  };
 }
