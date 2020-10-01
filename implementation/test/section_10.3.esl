@@ -34,21 +34,52 @@
 
 /* function IdentifierResolution(Identifier) { */
 function IdentifierResolution(Identifier, runningExecCtx) {
-   /* 10.3.1 Identifier Resolution */
-   /* Identifier resolution is the process of determining the binding of an Identifier using the LexicalEnvironment of
-      the running execution context. During execution of ECMAScript code, the syntactic production
-      PrimaryExpression : Identifier is evaluated using the following algorithm: */
+  /* 10.3.1 Identifier Resolution */
+  /* Identifier resolution is the process of determining the binding of an Identifier using the LexicalEnvironment of
+    the running execution context. During execution of ECMAScript code, the syntactic production
+    PrimaryExpression : Identifier is evaluated using the following algorithm: */
 
-   /* 1. Let env be the running execution context‘s LexicalEnvironment. */
-   /* env := getRunningExecutionContextLexicalEnvironment(); */
-   /* env := runningExecCtx.LexicalEnvironment; */
-   env := runningExecCtx;
+  /* 1. Let env be the running execution context‘s LexicalEnvironment. */
+  env := getLexicalEnvironment(runningExecCtx);
 
-   /* 2. If the syntactic production that is being evaluated is contained in a strict mode code,
-         then let strict be true, else let strict be false. */
-   strict := false; /* TODO */
-   /* 3. Return the result of calling GetIdentifierReference function passing env, Identifier, and strict as arguments.
-         The result of evaluating an identifier is always a value of type Reference with its referenced name component
-         equal to the Identifier String. */
-   return GetIdentifierReference(env, Identifier, strict)
+  /* 2. If the syntactic production that is being evaluated is contained in a strict mode code,
+        then let strict be true, else let strict be false. */
+  strict := false; /* TODO */
+  /* 3. Return the result of calling GetIdentifierReference function passing env, Identifier, and strict as arguments.
+        The result of evaluating an identifier is always a value of type Reference with its referenced name component
+        equal to the Identifier String. */
+  return GetIdentifierReference(env, Identifier, strict)
+};
+
+
+/* Auxiliary functions created to deal with Execution Contexts */
+function createExecutionContext() {
+  return {
+    LexicalEnvironment: 'undefined,
+    VariableEnvironment: 'undefined,
+    ThisBinding: 'undefined
+  }
+};
+
+function getLexicalEnvironment(runningExecCtx) {
+  return runningExecCtx.LexicalEnvironment
+};
+
+function getVariableEnvironment(runningExecCtx) {
+  return runningExecCtx.VariableEnvironment
+};
+
+function setLexicalEnvironment(runningExecCtx, lexicalEnvironment) {
+  runningExecCtx.LexicalEnvironment := lexicalEnvironment;
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function setVariableEnvironment(runningExecCtx, variableEnvironment) {
+  runningExecCtx.VariableEnvironment := variableEnvironment;
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function setThisBinding(runningExecCtx, thisBinding) {
+  runningExecCtx.ThisBinding := thisBinding;
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
 }

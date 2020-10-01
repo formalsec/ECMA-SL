@@ -212,7 +212,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
 
     /* 1. Let funcEnv be the result of calling NewDeclarativeEnvironment passing the running execution context‘s
           Lexical Environment as the argument. */
-    funcEnv := NewDeclarativeEnvironment(scope);
+    funcEnv := NewDeclarativeEnvironment(getLexicalEnvironment(scope));
     /* 2. Let envRec be funcEnv’s environment record. */
     envRec := getEnvironmentRecord(funcEnv);
     /* 3. Call the CreateImmutableBinding concrete method of envRec passing the String value of Identifier as the argument. */

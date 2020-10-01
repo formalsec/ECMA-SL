@@ -95,7 +95,7 @@ function Call(F, this, args) {
 
   /* 1. Let funcCtx be the result of establishing a new execution context for function code using the value of F's
         [[FormalParameters]] internal property, the passed arguments List args, and the this value as described in 10.4.3. */
-  newScope := enteringFunctionCode(F.FormalParameters, args, F.Scope, this, F.LocalVars); /* TODO */
+  funcCtx := EnteringFunctionCode(F, this, args, false); /* TODO strict */
 
   /* newScope := extendScope(F.Scope, funcCtx); */
   /* 2. Let result be the result of evaluating the FunctionBody that is the value of F's [[Code]] internal property.
@@ -104,7 +104,7 @@ function Call(F, this, args) {
   if (!("Code" in_obj F) || (F.Code = [])) {
     return normalEmptyCompletion('undefined)
   };
-  result := JS_Interpreter_Stmt(F.Code, newScope);
+  result := JS_Interpreter_Stmt(F.Code, funcCtx);
 
   /* 3. Exit the execution context funcCtx, restoring the previous execution context. */
 
@@ -131,46 +131,4 @@ function setAllInternalMethodsExceptGet(obj) {
   obj.DefineOwnProperty := "DefineOwnProperty";
 
   return obj
-};
-
-function enteringFunctionCode(FormalParameterList, args, scope, this, funcLocalVars) {
-  print "enteringFunctionCode";
-  lexicalEnvironment := NewDeclarativeEnvironment(scope); /* 10.2.2 */
-
-  environmentRecord := getEnvironmentRecord(lexicalEnvironment);
-
-  /* "Hoisting" */
-  i := 0;
-  lfuncLocalVars := l_len funcLocalVars;
-  while(i < lfuncLocalVars) {
-    varName := l_nth(funcLocalVars, i);
-    desc := newDataPropertyDescriptor('undefined);
-
-    SetMutableBinding(environmentRecord, varName, desc, false); /* TODO strict */
-
-    i := i + 1
-  };
-
-
-  largs := l_len args;
-  lFormalParams := l_len FormalParameterList;
-  i := 0;
-  while((lFormalParams > i) && (largs > i)) {
-    xi := l_nth(FormalParameterList, i);
-    vi := l_nth(args, i);
-
-    SetMutableBinding(environmentRecord, xi, vi, false); /* TODO strict */
-
-    i := i + 1
-  };
-
-  while(lFormalParams > i) {
-    xi := l_nth(FormalParameterList, i);
-
-    SetMutableBinding(environmentRecord, xi, 'undefined, false); /* TODO strict */
-
-    i := i + 1
-  };
-
-  return lexicalEnvironment
 }
