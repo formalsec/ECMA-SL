@@ -10,11 +10,12 @@
    manner in which these actions occur depend on the type of code being entered. */
 
 
-function EnteringGlobalCode(localVars) {
+function EnteringGlobalCode(localVars, localFuncs) {
   /* 10.4.1 Entering Global Code */
   globalObject := {}; /* TODO global object (15.1) */
   setAllInternalMethodsOfObject(globalObject);
   globalObject.LocalVars := localVars;
+  globalObject.LocalFuncs := localFuncs;
 
   /* The following steps are performed when control enters the execution context for global code: */
 

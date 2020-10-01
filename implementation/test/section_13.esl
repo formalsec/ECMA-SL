@@ -3,7 +3,7 @@
 /* Given an optional parameter list specified by FormalParameterList, a body specified by FunctionBody, a Lexical
    Environment specified by Scope, and a Boolean flag Strict, a Function object is constructed as follows: */
 
-function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, LocalVars) {
+function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, LocalVars, LocalFuncs) {
   /* 1. Create a new native ECMAScript object and let F be that object. */
   F := {};
   /* 2. Set all the internal methods, except for [[Get]], of F as described in 8.12. */
@@ -84,6 +84,7 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, 
   };
 
   F.LocalVars := LocalVars;
+  F.LocalFuncs := LocalFuncs;
 
   /* 20. Return F. */
   return F
@@ -97,7 +98,6 @@ function Call(F, this, args) {
         [[FormalParameters]] internal property, the passed arguments List args, and the this value as described in 10.4.3. */
   funcCtx := EnteringFunctionCode(F, this, args, false); /* TODO strict */
 
-  /* newScope := extendScope(F.Scope, funcCtx); */
   /* 2. Let result be the result of evaluating the FunctionBody that is the value of F's [[Code]] internal property.
         If F does not have a [[Code]] internal property or if its value is an empty FunctionBody,
         then result is (normal, undefined, empty). */
