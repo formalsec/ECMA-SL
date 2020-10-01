@@ -1,26 +1,10 @@
 import "test/ES5_Reference_Interpreter.esl";
 
-function JS_Interpreter(p) {
+function JS_Interpreter_Program(p) {
   match p with
   | { sourceType: "script", type: "Program", body: body, globalVars: globalVars } -> {
     /* 14 Program */
-    globalObject := {}; /* TODO global object (15.1) */
-    setAllInternalMethodsOfObject(globalObject);
-
-    /* "Hoisting" */
-    i := 0;
-    lglobalVars := l_len globalVars;
-    while(i < lglobalVars) {
-      varName := l_nth(globalVars, i);
-      desc := newDataPropertyDescriptor('undefined);
-
-      globalObject[varName] := desc;
-
-      i := i + 1
-    };
-
-    globalScope := GlobalEnvironment(globalObject); /* 10.2.3 */
-    /* 10.4.1.1 Initial Global Execution Context */
+    globalScope := EnteringGlobalCode(globalVars);
 
     i := 0;
     lbody := l_len(body);

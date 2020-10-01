@@ -9,6 +9,41 @@
    and initial LexicalEnvironment are defined, and declaration binding instantiation (10.5) is performed. The exact
    manner in which these actions occur depend on the type of code being entered. */
 
+
+function EnteringGlobalCode(localVars) {
+  /* 10.4.1 Entering Global Code */
+  globalObject := {}; /* TODO global object (15.1) */
+  setAllInternalMethodsOfObject(globalObject);
+  globalObject.LocalVars := localVars;
+
+  /* The following steps are performed when control enters the execution context for global code: */
+
+  /* 1. Initialise the execution context using the global code as described in 10.4.1.1. */
+  globalScope := InitialGlobalExecutionContext(globalObject);
+
+  /* 2. Perform Declaration Binding Instantiation as described in 10.5 using the global code. */
+  DeclarationBindingInstantiation(globalScope, "global code", [], globalObject);
+
+  return globalScope
+};
+
+function InitialGlobalExecutionContext(globalObject) {
+  /* 10.4.1.1 Initial Global Execution Context */
+
+  globalExecCtx := createExecutionContext();
+  /* The following steps are performed to initialise a global execution context for ECMAScript code C: */
+
+  globalEnv := GlobalEnvironment(globalObject);
+  /* 1. Set the VariableEnvironment to the Global Environment. */
+  setVariableEnvironment(globalExecCtx, globalEnv);
+  /* 2. Set the LexicalEnvironment to the Global Environment. */
+  setLexicalEnvironment(globalExecCtx, globalEnv);
+  /* 3. Set the ThisBinding to the global object. */
+  setThisBinding(globalExecCtx, globalObject);
+
+  return globalExecCtx
+};
+
 function EnteringFunctionCode(F, thisArg, argumentsList, strict) {
   /* 10.4.3 Entering Function Code */
 
