@@ -1,6 +1,7 @@
 const {
   getVarDeclarations,
   getFunctionDeclarations,
+  replaceFuncDeclarations,
 } = require("../utils/getDeclarations");
 
 module.exports = {
@@ -15,6 +16,8 @@ module.exports = {
       []
     );
     obj.globalFuncs = getFunctionDeclarations(obj);
+
+    obj.body = obj.body.map(replaceFuncDeclarations);
 
     return obj;
   },
