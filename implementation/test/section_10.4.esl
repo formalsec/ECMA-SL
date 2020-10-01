@@ -81,7 +81,7 @@ function EnteringFunctionCode(F, thisArg, argumentsList, strict) {
   /* 8. Let code be the value of F‘s [[Code]] internal property. */
   code := F.Code;
   /* 9. Perform Declaration Binding Instantiation using the function code code and argumentsList as described in 10.5. */
-  DeclarationBindingInstantiation(functionExecCtx, code, argumentsList, F);
+  DeclarationBindingInstantiation(functionExecCtx, "function code", argumentsList, F);
 
   return functionExecCtx
 }

@@ -13,19 +13,19 @@ function DeclarationBindingInstantiation(runningExecCtx, code, args, F) {
   /* 1. Let env be the environment record component of the running execution context‘s VariableEnvironment. */
   env := getEnvironmentRecord(getVariableEnvironment(runningExecCtx));
   /* 2. If code is eval code, then let configurableBindings be true else let configurableBindings be false. */
-  if (false) { /* TODO */
+  if (code = "eval code") { /* TODO */
     configurableBindings := true
   } else {
     configurableBindings := false
   };
   /* 3. If code is strict mode code, then let strict be true else let strict be false. */
-  if (false) { /* TODO */
+  if (code = "strict mode code") { /* TODO */
     strict := true
   } else {
     strict := false
   };
   /* 4. If code is function code, then */
-  if (true) { /* TODO */
+  if (code = "function code") { /* TODO */
     /* a. Let func be the function whose [[Call]] internal method initiated execution of code. Let names be
           the value of func‘s [[FormalParameters]] internal property. */
     func := F;
@@ -95,7 +95,7 @@ function DeclarationBindingInstantiation(runningExecCtx, code, args, F) {
       "arguments" as the argument. */
   argumentsAlreadyDeclared := HasBinding(env, "arguments");
   /* 7. If code is function code and argumentsAlreadyDeclared is false, then */
-  if (true && argAlreadyDeclared = false) { /* TODO */
+  if ((code = "function code") && (argumentsAlreadyDeclared = false)) { /* TODO */
     /* a. Let argsObj be the result of calling the abstract operation CreateArgumentsObject (10.6) passing
           func, names, args, env and strict as arguments. */
     argsObj := CreateArgumentsObject(func, names, args, env, strict);
