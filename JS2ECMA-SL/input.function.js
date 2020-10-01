@@ -1,13 +1,13 @@
-var f = function a(x, y) {
+function f(x, y) {
   var z = x + y;
 
-  var g = function b(x) {
+  function g(x) {
     var g1;
-    return multiplication(3)(x) + y;
-  };
+    return multiplication(5)(x) + y;
+  }
 
   return g(z);
-};
+}
 
 var multiplication = function c(multi) {
   var m1;
