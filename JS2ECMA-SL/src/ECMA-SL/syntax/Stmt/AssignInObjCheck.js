@@ -1,4 +1,5 @@
 const Expr = require("../Expr/Expr"); 
+const EmptyLab = require("../Labels/EmptyLab");
 
 function MakeAssignInObjCheck(Stmt){
   class AssignInObjCheck extends Stmt {

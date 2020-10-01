@@ -1,4 +1,5 @@
 const Expr = require("../Expr/Expr");
+const EmptyLab = require("../Labels/EmptyLab");
 
 function MakeFieldLookup(Stmt){
   
@@ -13,7 +14,7 @@ function MakeFieldLookup(Stmt){
     interpret(config){
       config.store.sto[this.stringvar] = config.heap.getField(this.expressionObject.interpret(config.store).value, this.expressionField.interpret(config.store).value);
       config.cont=config.cont.slice(1);
-      return config;
+     return {config : config, seclabel: new EmptyLab()};
     }
 
    

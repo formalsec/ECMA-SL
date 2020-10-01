@@ -2,6 +2,7 @@
 const Expr = require("../Expr/Expr");
 const Condition = require("./Condition")(Expr);
 const Block = require("./Block")(Expr);
+const EmptyLab = require("../Labels/EmptyLab");
 
 function MakeLoop(Stmt){
 	
@@ -16,7 +17,7 @@ function MakeLoop(Stmt){
 			config.cont=config.cont.slice(1);
 			var result = [new Condition(this.expr, new Block([this.block].concat([new Loop(this.expr,this.block)])),null)];
 			config.cont= result.concat(config.cont);
-			return config;
+			return {config : config, seclabel: new EmptyLab()};
 		}
 
 	}

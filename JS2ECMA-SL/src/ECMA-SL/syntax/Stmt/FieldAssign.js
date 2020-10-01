@@ -1,4 +1,5 @@
 const Expr = require("../Expr/Expr"); 
+const EmptyLab = require("../Labels/EmptyLab");
 
 
 function MakeFieldAssign(Stmt){
@@ -17,7 +18,7 @@ function MakeFieldAssign(Stmt){
     interpret(config) {
       config.heap.heap[this.expressionObject.interpret(config.store).value][this.expressionField.interpret(config.store).value] = this.expressionValue.interpret(config);
       
-      return config;
+      return {config : config, seclabel: new EmptyLab()};
     }
   }
   FieldAssign.fromJSON = function(obj) {
