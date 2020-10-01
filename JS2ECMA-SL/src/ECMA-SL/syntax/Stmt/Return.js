@@ -1,4 +1,5 @@
 const Expr = require("../Expr/Expr");
+const EmptyLab = require("../Labels/EmptyLab");
 
 function MakeReturn(Stmt){
 	
@@ -23,7 +24,7 @@ function MakeReturn(Stmt){
 	  	else{
 	  		config.final_return = this.expression.interpret(config.store);
 	  	}
-	  	return config;
+	  	return {config : config, seclabel: new EmptyLab()};
 	  	
 	  }
 	}

@@ -1,4 +1,5 @@
 const Expr = require("../Expr/Expr");
+const EmptyLab = require("../Labels/EmptyLab");
 
 function MakePrint(Stmt){
 
@@ -11,7 +12,7 @@ function MakePrint(Stmt){
 		interpret(config){
 			var v = this.expression.interpret(config.store);
 			console.log("PRINT> "+ v +"/n");
-			return config;
+			return {config : config, seclabel: new EmptyLab()};
 		}
 	}
 

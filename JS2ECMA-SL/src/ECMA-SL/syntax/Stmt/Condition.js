@@ -1,4 +1,5 @@
-const Expr = require("../Expr/Expr"); 
+const Expr = require("../Expr/Expr");
+const EmptyLab = require("../Labels/EmptyLab");
 
 function MakeCondition(Stmt){
 	class Condition extends Stmt {
@@ -27,7 +28,7 @@ function MakeCondition(Stmt){
 				}
 
 			}
-			return config;
+			return {config : config, seclabel: new EmptyLab()};
 		}
 	}
 

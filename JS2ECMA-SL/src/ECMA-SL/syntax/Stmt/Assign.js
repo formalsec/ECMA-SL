@@ -1,4 +1,6 @@
 const Expr = require("../Expr/Expr"); 
+const AssignLab = require("../Labels/AssignLab");
+
 function MakeAssign(Stmt){
 
   class Assign extends Stmt {
@@ -16,7 +18,7 @@ function MakeAssign(Stmt){
       var v = this.expression.interpret(config.store);
       config.store.sto[this.variable]=v;
       config.cont=config.cont.slice(1);
-      return config;
+      return {config : config, seclabel: new AssignLab(this.variable, this.expression)};
     }
   }
 
