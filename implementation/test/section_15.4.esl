@@ -1,0 +1,192 @@
+import "test/section_8.10.esl";
+import "test/section_8.12.esl";
+import "test/section_9.esl";
+
+/* This method is not supposed to be here. As soon 
+   as it is placed in the right section, it should
+   be replaced by an import of that section. */
+function Type(V) {
+  v_type := typeof V;
+  if (v_type = __$Int) { return "Number" };
+  if (v_type = __$Flt) { return "Number" };
+  if (v_type = __$Bool) { return "Boolean" };
+  if (v_type = __$Str) { return "String" };
+  if (v_type = __$Obj) { return "Object" };
+  if (v_type = __$List) { return "List" };
+  if (v_type = __$Null) { return "Null" };
+  if (v_type = __$Symbol) {
+    if (V = 'undefined) { return "Undefined" };
+    if (V = 'NaN) { return "Number" };
+    if ((V = '+0) || (V = '-0)) { return "Number" };
+    if ((V = '+Infinity) || (V = 'Infinity) || (V = '-Infinity)) { return "Number" }
+  };
+  if (v_type = __$Tuple) {
+    ft := fst V;
+    if (ft = "R") { return "Reference" };
+    if (ft = "C") { return "Completion" }
+  };
+
+  throw SyntaxErrorException()
+};
+
+/**
+ * 15.4 Array Objects
+ *
+ * Array objects give special treatment to a certain class of property names.
+ * A property name P (in the form of a String value) is an array index if and
+ * only if ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal to
+ * 2^32 − 1. A property whose property name is an array index is also called
+ * an element. Every Array object has a length property whose value is always
+ * a nonnegative integer less than 2^32. The value of the length property is
+ * numerically greater than the name of every property whose name is an array
+ * index; whenever a property of an Array object is created or changed, other
+ * properties are adjusted as necessary to maintain this invariant.
+ * Specifically, whenever a property is added whose name is an array index,
+ * the length property is changed, if necessary, to be one more than the
+ * numeric value of that array index; and whenever the length property is
+ * changed, every property whose name is an array index whose value is not
+ * smaller than the new length is automatically deleted. This constraint
+ * applies only to own properties of an Array object and is unaffected by
+ * length or array index properties that may be inherited from its prototypes.
+ *
+ * An object, O, is said to be sparse if the following algorithm returns true:
+ *
+ * 1. Let len be the result of calling the [[Get]] internal method of O with
+ *    argument "length".
+ * 2. For each integer i in the range 0≤i<ToUint32(len)
+ *    a. Let elem be the result of calling the [[GetOwnProperty]] internal
+ *       method of O with argument ToString(i).
+ *    b. If elem is undefined, return true.
+ * 3. Return false.
+ */
+
+/**
+ * 15.4.2.1 new Array ( [ item0 [ , item1 [ , … ] ] ] ) # Ⓣ 
+ * This description applies if and only if the Array constructor is given
+ * no arguments or at least two arguments.
+ */
+function newArray(items) {
+  arr := {
+    /* The [[Prototype]] internal property of the newly constructed object
+       is set to the original Array prototype object, the one that is the
+       initial value of Array.prototype (15.4.3.1). */
+    Prototype: null,
+    /* The [[Extensible]] internal property of the newly constructed object
+       is set to true. */
+    Extensible: true,
+    /* The [[Class]] internal property of the newly constructed object is
+       set to "Array". */
+    Class: "Array",
+    Put: "Put",
+    Get: "Get",
+    HasProperty: "HasProperty",
+    DefineOwnProperty: "DefineOwnPropertyArray"
+  };
+
+  i := 0;
+  /* The length property of the newly constructed object is set to the
+     number of arguments. */
+  len := l_len items;
+  arr.length := newDataPropertyDescriptor(int_to_float(len));
+
+  /* The 0 property of the newly constructed object is set to item0
+     (if supplied); the 1 property of the newly constructed object is set
+     to item1 (if supplied); and, in general, for as many arguments as there
+     are, the k property of the newly constructed object is set to argument k,
+     where the first argument is considered to be argument number 0. These
+     properties all have the attributes {[[Writable]]: true,
+     [[Enumerable]]: true, [[Configurable]]: true}. */
+  while (i < len) {
+    i_str := int_to_string i;
+    arr[i_str] := newDataPropertyDescriptor(l_nth (items, i));
+    i := i + 1
+  };
+
+  return arr
+};
+
+function DefineOwnPropertyArray() {
+  
+}
+
+/**
+ * 15.4.4.4 Array.prototype.concat ( [ item1 [ , item2 [ , … ] ] ] )
+ *
+ * When the concat method is called with zero or more arguments item1, item2,
+ * etc., it returns an array containing the array elements of the object
+ * followed by the array elements of each argument in order.
+ *
+ * The following steps are taken:
+ */
+function concat(this, items) {
+  /* 1. Let O be the result of calling ToObject passing the this value as the argument. */
+  O := ToObject(this);
+  /* 2. Let A be a new array created as if by the expression new Array() where
+        Array is the standard built-in constructor with that name. */
+  A := newArray([]);
+  /* 3. Let n be 0. */
+  n := int_to_float 0;
+
+  /* 4. Let items be an internal List whose first element is O and whose subsequent elements
+        are, in left to right order, the arguments that were passed to this function invocation. */
+  items := l_prepend(O, items);
+
+  /* 5. Repeat, while items is not empty */
+  while (!(items = [])) {
+    /* a. Remove the first element from items and let E be the value of the element. */
+    E := hd items;
+    items := tl items;
+    
+    /* b. If the value of the [[Class]] internal property of E is "Array", then */
+    if (E.Class = "Array") {
+      /* i. Let k be 0. */
+      k := int_to_float 0;
+      /* ii. Let len be the result of calling the [[Get]] internal method of E with argument "length". */
+      len := {E.Get}(E, "length");
+
+      /* iii. Repeat, while k < len */
+      while (k < len) {
+        /* 1. Let P be ToString(k). */
+        P := ToString(k);
+        /* 2. Let exists be the result of calling the [[HasProperty]] internal method of E with P. */
+        exists := {E.HasProperty}(E, P);
+
+        /* 3. If exists is true, then */
+        if (exists = true) {
+          /* a. Let subElement be the result of calling the [[Get]] internal method of E with argument P. */
+          subElement := {E.Get}(E, P);
+          /* b. Call the [[DefineOwnProperty]] internal method of A with arguments ToString(n),
+                Property Descriptor {[[Value]]: subElement, [[Writable]]: true, [[Enumerable]]: true,
+                [[Configurable]]: true}, and false.*/
+          descriptor := newDataPropertyDescriptorFull(subElement, true, true, true);
+          {A.DefineOwnProperty}(A, ToString(n), descriptor, false)
+        };
+
+        /* 4. Increase n by 1. */
+        n := n + 1;
+        /* 5. Increase k by 1. */
+        k := k + 1
+      }
+    }
+    /* c. Else, E is not an Array */
+    else {
+      /* i. Call the [[DefineOwnProperty]] internal method of A with arguments ToString(n),
+            Property Descriptor {[[Value]]: E, [[Writable]]: true, [[Enumerable]]: true,
+            [[Configurable]]: true}, and false. */
+      descriptor := newDataPropertyDescriptorFull(E, true, true, true);
+      {A.DefineOwnProperty}(A, ToString(n), descriptor, false);
+      /* ii. Increase n by 1. */
+      n := n + 1
+    }
+  };
+
+  /* 6. Return A. */
+  return A
+};
+
+function main() {
+  arr1 := newArray([2, 3]);
+  arr2 := newArray([4, 5]);
+  arr := concat(arr1, [arr2]);
+  return arr
+}
