@@ -30,6 +30,7 @@
 %token INT_TO_FLOAT FLOAT_TO_STRING OBJ_TO_LIST
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LCONCAT HD TL TLEN TNTH FST SND
+%token SCONCAT
 %token IMPORT THROW
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
@@ -193,6 +194,8 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
   | OBJ_TO_LIST; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ObjToList, e) } %prec unopt_prec
+  | SCONCAT; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Sconcat, e) } %prec unopt_prec
 
 prefix_binary_op_target:
   | LNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;

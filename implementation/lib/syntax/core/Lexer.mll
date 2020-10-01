@@ -74,6 +74,7 @@ rule read =
   | "t_nth"        { TNTH }
   | "fst"          { FST }
   | "snd"          { SND }
+  | "s_concat"     { SCONCAT }
   | "int_to_float"    { INT_TO_FLOAT }
   | "float_to_string" { FLOAT_TO_STRING }
   | "obj_to_list"  { OBJ_TO_LIST }

@@ -28,6 +28,7 @@
 %token INT_TO_FLOAT FLOAT_TO_STRING OBJ_TO_LIST
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LCONCAT HD TL TLEN TNTH FST SND
+%token SCONCAT
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
@@ -169,6 +170,8 @@ expr_target:
     { print_string ">BINOP\n";Expr.BinOpt (Oper.Lconcat, e1, e2) }
   | LPAREN; e = expr_target; RPAREN;
     { print_string ">PAREN\n";e }
+  | SCONCAT; e = expr_target;
+    { print_string ">UNOP\n";Expr.UnOpt (Oper.Sconcat, e) } %prec unopt_prec
 
 stmt_block:
 | s= separated_list (SEMICOLON, stmt_target);

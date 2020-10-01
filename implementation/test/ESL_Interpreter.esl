@@ -56,8 +56,7 @@ function JS_Interpreter_Expr(e, scope) {
     arg := JS_Interpreter_Expr(Argument, scope);
     argValue := GetValue(arg);
 
-    print "JSPrint";
-    print argValue;
+    print s_concat ["JSPrint - ", argValue];
 
     return argValue
   }

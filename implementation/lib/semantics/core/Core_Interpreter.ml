@@ -28,6 +28,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Second        -> Oper.second v
   | IntToFloat    -> Oper.int_to_float v
   | FloatToString -> Oper.float_to_string v
+  | Sconcat       -> Oper.string_concat v
   | ObjToList     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjToList")
 
 
