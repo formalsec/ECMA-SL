@@ -1,6 +1,7 @@
 import "test/section_8.10.esl";
 import "test/section_8.12.esl";
 import "test/section_9.esl";
+import "test/section_15.11.esl";
 
 /* This method is not supposed to be here. As soon 
    as it is placed in the right section, it should
@@ -80,7 +81,9 @@ function newArray(items) {
     Put: "Put",
     Get: "Get",
     HasProperty: "HasProperty",
-    DefineOwnProperty: "DefineOwnPropertyArray"
+    DefineOwnProperty: "DefineOwnPropertyArray",
+    GetOwnProperty: "GetOwnProperty",
+    Delete: "Delete"
   };
 
   i := 0;
@@ -104,10 +107,6 @@ function newArray(items) {
 
   return arr
 };
-
-function DefineOwnPropertyArray() {
-  
-}
 
 /**
  * 15.4.4.4 Array.prototype.concat ( [ item1 [ , item2 [ , … ] ] ] )
@@ -182,6 +181,161 @@ function concat(this, items) {
 
   /* 6. Return A. */
   return A
+};
+
+/**
+ * 15.4.5.1 [[DefineOwnProperty]] ( P, Desc, Throw )
+ *
+ * Array objects use a variation of the [[DefineOwnProperty]] internal method
+ * used for other native ECMAScript objects (8.12.9).
+ *
+ * Assume A is an Array object, Desc is a Property Descriptor, and Throw is a
+ * Boolean flag.
+ *
+ * In the following algorithm, the term “Reject” means “If Throw is true, then
+ * throw a TypeError exception, otherwise return false.”
+ *
+ * When the [[DefineOwnProperty]] internal method of A is called with property
+ * P, Property Descriptor Desc, and Boolean flag Throw, the following steps are
+ * taken:
+ */
+function DefineOwnPropertyArray(A, P, Desc, Throw) {
+  
+  /* 1. Let oldLenDesc be the result of calling the [[GetOwnProperty]] internal
+      method of A passing "length" as the argument. The result will never be
+      undefined or an accessor descriptor because Array objects are created
+      with a length data property that cannot be deleted or reconfigured. */
+  oldLenDesc := {A.GetOwnProperty}(A, "length");
+
+  /* 2. Let oldLen be oldLenDesc.[[Value]]. */
+  oldLen := oldLenDesc;
+
+  /* 3. If P is "length", then */
+  if (P = "length") {
+    /* a. If the [[Value]] field of Desc is absent, then */
+    if (!("Value" in_obj Desc)) {
+      /* i. Return the result of calling the default [[DefineOwnProperty]] internal
+          method (8.12.9) on A passing "length", Desc, and Throw as arguments. */
+      return DefineOwnProperty(A, "length", Desc, Throw)
+    };
+    /* b. Let newLenDesc be a copy of Desc. */
+    newLenDesc := CopyDescriptor(Desc);
+    /* c. Let newLen be ToUint32(Desc.[[Value]]). */
+    newLen := ToUint32(Desc.Value);
+    /* d. If newLen is not equal to ToNumber( Desc.[[Value]]), throw a RangeError
+          exception.*/
+    if (!(newLen = ToNumber(Desc.Value))) {
+      throw RangeErrorException()
+    };
+    /* e. Set newLenDesc.[[Value]] to newLen. */
+    newLenDesc.Value := newLen;
+    /* f. If newLen ≥ oldLen, then */
+    if (newLen >= oldLen) {
+      /* i. Return the result of calling the default [[DefineOwnProperty]]
+            internal method (8.12.9) on A passing "length", newLenDesc,
+            and Throw as arguments. */
+      return DefineOwnProperty(A, "length", newLenDesc, Throw)
+    };
+    /* g. Reject if oldLenDesc.[[Writable]] is false. */
+    if (oldLenDesc.Writable = false) {
+      Reject(Throw)
+    };
+    
+    /* h. If newLenDesc.[[Writable]] is absent or has the value true,
+          let newWritable be true. */
+    if (!("Writable" in_obj newLenDesc) || newLenDesc.Writable = true) {
+      newWritable := true
+    }
+    /* i. Else, */
+    else {
+      /* i. Need to defer setting the [[Writable]] attribute to false in
+            case any elements cannot be deleted. */
+      /* TODO ???*/
+      /* ii. Let newWritable be false. */
+      newWritable := false;
+      /* iii. Set newLenDesc.[[Writable] to true. */
+      newLenDesc.Writable := true
+    };
+    /* j. Let succeeded be the result of calling the default
+          [[DefineOwnProperty]] internal method (8.12.9) on A passing
+          "length", newLenDesc, and Throw as arguments. */
+    succeeded := DefineOwnProperty(A, "length", newLenDesc, Throw);
+    /* k. If succeeded is false, return false.. */
+    if (succeeded = false) {
+      return false
+    };
+    /* l. While newLen < oldLen repeat, */
+    while (newLen < oldLen) {
+      /* i. Set oldLen to oldLen – 1. */
+      oldLen := oldLen - 1;
+      /* ii. Let deleteSucceeded be the result of calling the
+             [[Delete]] internal method of A passing ToString(oldLen)
+             and false as arguments. */
+      deleteSucceeded := {A.Delete}(A, ToString(oldLen), false);
+      /* iii. If deleteSucceeded is false, then */
+      if (deleteSucceeded = false) {
+        /* 1. Set newLenDesc.[[Value] to oldLen+1. */
+        newLenDesc.Value := oldLen + 1;
+        /* 2. If newWritable is false, set newLenDesc.[[Writable] to false. */
+        if (newWritable = false) {
+          newLenDesc.Writable := false
+        };
+        /* 3. Call the default [[DefineOwnProperty]] internal method (8.12.9)
+              on A passing "length", newLenDesc, and false as arguments. */
+        DefineOwnProperty(A, "length", newLenDesc, false);
+        /* 4. Reject. */
+        Reject(Throw)
+      }
+    };
+    /* m. If newWritable is false, then */
+    if (newWritable = false) {
+      /* i. Call the default [[DefineOwnProperty]] internal method (8.12.9)
+            on A passing "length", Property Descriptor{[[Writable]]: false},
+            and false as arguments. This call will always return true. */
+      /*descriptor := newDataPropertyDescriptorFull(??, false, true, true); TODO*/
+      /*DefineOwnProperty(A, "length", descriptor, false)*/
+      throw "TODO"
+    };
+    /* n. Return true. */
+    return true
+  }
+  /* 4. Else if P is an array index (15.4), then */
+  else {
+    if (IsArrayIndex(P)) {
+      /* a. Let index be ToUint32(P). */
+      index := ToUint32(P);
+      /* b. Reject if index ≥ oldLen and oldLenDesc.[[Writable]] is false. */
+      if (index >= oldLen && oldLenDesc.Writable = false) {
+        Reject(Throw)
+      };
+      /* c. Let succeeded be the result of calling the default [[DefineOwnProperty]]
+            internal method (8.12.9) on A passing P, Desc, and false as arguments. */
+      succeeded := DefineOwnProperty(A, P, Desc, false);
+      /* d. Reject if succeeded is false. */
+      if (succeeded = false) {
+        Reject(Throw)
+      };
+      /* e. If index ≥ oldLen */
+      if (index >= oldLen) {
+        /* i. Set oldLenDesc.[[Value]] to index + 1. */
+        oldLenDesc.Value := index + 1;
+        /* ii. Call the default [[DefineOwnProperty]] internal method (8.12.9)
+              on A passing "length", oldLenDesc, and false as arguments. This
+              call will always return true. */
+        DefineOwnProperty(A, "length", oldLenDesc, false)
+      };
+      /* f. Return true. */
+      return true
+    }
+  };
+  /* 5. Return the result of calling the default [[DefineOwnProperty]] internal
+        method (8.12.9) on A passing P, Desc, and Throw as arguments. */
+  return DefineOwnProperty(A, P, Desc, Throw)
+};
+
+function IsArrayIndex(P) {
+  i := ToUint32(P);
+  return !(i = null)
 };
 
 function main() {
