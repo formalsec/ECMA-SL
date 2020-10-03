@@ -18,6 +18,10 @@ function MakeNOptExpr(Expr){
       var v_list = this.expressionsList.map(interpret(store));
       return this.n_aryOperator.interpret(v_list); 
     }
+    getVars(){
+      var vars = this.expressionsList.map(getVars());
+      return vars;
+    }
   }
 
   NOptExpr.fromJSON = function(obj){

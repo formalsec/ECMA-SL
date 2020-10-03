@@ -16,6 +16,10 @@ function MakeBinOptExpr(Expr){
       var v2 = this.expr_rhs.interpret(store);
       return this.operator.interpret(v1,v2); 
     }
+    getVars(){
+      var vars = this.expr_lhs.getVars().concat(this.expr_rhs.getVars());
+      return vars; 
+    }
   }
 
     BinOptExpr.fromJSON = function(obj){

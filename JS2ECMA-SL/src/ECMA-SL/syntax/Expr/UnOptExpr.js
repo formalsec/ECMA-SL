@@ -17,6 +17,9 @@ function MakeUnOptExpr(Expr){
 	  	var v = this.expr_rhs.interpret(store);
 	  	return this.operator.interpret(v); 
 	  }
+	  getVars(){
+	  	return this.expr_rhs.getVars();
+	  }
 	}
 
 	  UnOptExpr.fromJSON = function(obj){

@@ -1,7 +1,7 @@
 class CsFrame{
 	constructor(stringVar, stmtList, store){
 		this.stringVar = stringVar;
-		this.stmtList = stmtList;
+		this.cont = stmtList;
 		this.store = store;
 	}
 

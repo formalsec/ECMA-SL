@@ -14,17 +14,22 @@ function MakeReturn(Stmt){
 	  }
 
 	  interpret(config){
-	  	config.cont=[];
-	  	var frame = config.cs.pop();
-	  	if (config.cs.lenghth > 1){
+	  	if (config.cs.length > 1){
+	  		var frame = config.cs.pop();
+	  		var return_value = this.expression.interpret(config.store);
+	  		//console.log("RETURN:\n");
 	  		config.store = frame.store;
 	  		config.cont = frame.cont;
-	  		config.store.sto[frame.var]=this.expression;
+	  		//console.log("config.cont = "+ config.cont);
+	  		config.store.sto[frame.stringVar]=return_value;
+	  		return {config : config, seclabel: new EmptyLab()};
 	  	}
 	  	else{
+	  		config.cont=[];
 	  		config.final_return = this.expression.interpret(config.store);
+	  		return {config : config, seclabel: new EmptyLab()};
 	  	}
-	  	return {config : config, seclabel: new EmptyLab()};
+	  	
 	  	
 	  }
 	}
