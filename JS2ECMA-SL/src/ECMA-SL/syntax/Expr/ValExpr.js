@@ -15,6 +15,10 @@ function MakeValExpr(Expr){
 	  interpret(store){
 	  	return this.value;
 	  }
+
+	  getVars(){
+	  	return [];
+	  }
 	}
 
 	ValExpr.fromJSON = function(obj) {

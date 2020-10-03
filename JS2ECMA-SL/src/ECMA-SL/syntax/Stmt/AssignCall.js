@@ -18,17 +18,21 @@ function MakeAssignCall(Stmt){
     }
 
     interpret(config){
+      config.cont=config.cont.slice(1);
       var func_name = this.func.interpret(config.store);
       var vs = this.args.map(e => e.interpret(config.store));
       var f = config.prog.getFunc(func_name.value);
       if(f){
-        var new_store = new Store(f.params, vs); 
-        config.cs.push(new CsFrame(this.stringvar, config.stmtlist, config.store));
+        var new_store = new Store(f.params, vs);
+        config.cs.push(new CsFrame(this.stringvar, config.cont, config.store));
         config.store = new_store;
         config.cont = [f.body];
-        return config
+        
+      }else{
+        //interceptor
+
       }
-      config.cont=config.cont.slice(1);
+      
       return {config : config, seclabel: new EmptyLab()};
     }
 

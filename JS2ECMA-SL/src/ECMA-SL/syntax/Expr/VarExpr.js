@@ -13,6 +13,9 @@ function MakeVarExpr(Expr){
 	  interpret(store){
 	  	return store.sto[this.variable];
 	  }
+	  getVars(){
+	  	return [this.variable];
+	  }
 	}
 
 	VarExpr.fromJSON = function(obj) {
