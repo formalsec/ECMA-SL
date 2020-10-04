@@ -1,9 +1,8 @@
 const Lattice = require("../Lattice");
 
 class BranchLab{
-	constructor(expr,block){
+	constructor(expr){
 		this.expr=expr;
-		this.block=block;
 	}
 	
 	interpret(sec_conf){

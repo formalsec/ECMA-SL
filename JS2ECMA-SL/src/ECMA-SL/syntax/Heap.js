@@ -7,12 +7,15 @@ class Heap{
 
 	createObject(){
 		var obj_name = "_obj_"+ this.obj_counter;
-		this.heap[obj_name]=[];
+		this.heap[obj_name]={};
 		this.obj_counter++;
 		return obj_name;
 	}
+
 	getField(object,field){
-		return this.heap[object][field];
+		console.log(this.heap);
+		var obj = this.heap[object];
+		return obj[field];
 	}
 	getObject(object){
 		return this.heap[object];

@@ -1,4 +1,5 @@
 const Expr = require("../Expr/Expr");
+const ReturnLab = require("../Labels/ReturnLab");
 const EmptyLab = require("../Labels/EmptyLab");
 
 function MakeReturn(Stmt){
@@ -22,7 +23,7 @@ function MakeReturn(Stmt){
 	  		config.cont = frame.cont;
 	  		//console.log("config.cont = "+ config.cont);
 	  		config.store.sto[frame.stringVar]=return_value;
-	  		return {config : config, seclabel: new EmptyLab()};
+	  		return {config : config, seclabel: new ReturnLab(this.expression)};
 	  	}
 	  	else{
 	  		config.cont=[];

@@ -12,7 +12,7 @@ function MakePrint(Stmt){
 		interpret(config){
 			var v = this.expression.interpret(config.store);
 			console.log("PRINT> "+ v +"/n");
-			return {config : config, seclabel: new EmptyLab()};
+			return {config : config, seclabel: new PrintLab(this.expr)};
 		}
 	}
 

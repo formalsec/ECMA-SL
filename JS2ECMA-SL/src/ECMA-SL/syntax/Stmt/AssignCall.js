@@ -1,7 +1,7 @@
 const Expr = require("../Expr/Expr"); 
 const Store = require("../../Store");
 const CsFrame = require("../../CsFrame");
-const EmptyLab = require("../Labels/EmptyLab");
+const AssignCallLab = require("../Labels/AssignCallLab");
 
 function MakeAssignCall(Stmt){
   class AssignCall extends Stmt {
@@ -33,7 +33,7 @@ function MakeAssignCall(Stmt){
 
       }
       
-      return {config : config, seclabel: new EmptyLab()};
+      return {config : config, seclabel: new AssignCallLab(this.stringvar, f, this.args)};
     }
 
     
