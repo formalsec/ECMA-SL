@@ -65,7 +65,7 @@ function DeclarationBindingInstantiation(runningExecCtx, code, args, F) {
   };
   /* 5. For each FunctionDeclaration f in code, in source text order do */
   i := 0;
-  functionDeclarations := getFunctionDeclarationsInCode(F);
+  functionDeclarations := getFunctionDeclarationsInCode(code);
   lfunctionDeclarations := l_len functionDeclarations;
   while(lfunctionDeclarations > i) {
     f := l_nth(functionDeclarations, i);
@@ -142,7 +142,7 @@ function DeclarationBindingInstantiation(runningExecCtx, code, args, F) {
   };
   /* 8. For each VariableDeclaration and VariableDeclarationNoIn d in code, in source text order do */
   i := 0;
-  variableDeclarations := getVariableDeclarationsInCode(F);
+  variableDeclarations := getVariableDeclarationsInCode(code);
   lvariableDeclarations := l_len variableDeclarations;
   while(lvariableDeclarations > i) {
     d := l_nth(variableDeclarations, i);
@@ -169,9 +169,9 @@ function DeclarationBindingInstantiation(runningExecCtx, code, args, F) {
 
 /* Auxiliary functions */
 function getFunctionDeclarationsInCode(object) {
-  return object.LocalFuncs
+  return object.functionDeclarations
 };
 
 function getVariableDeclarationsInCode(object) {
-  return object.LocalVars
+  return object.variableDeclarations
 }

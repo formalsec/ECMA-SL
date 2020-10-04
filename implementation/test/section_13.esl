@@ -3,7 +3,7 @@
 /* Given an optional parameter list specified by FormalParameterList, a body specified by FunctionBody, a Lexical
    Environment specified by Scope, and a Boolean flag Strict, a Function object is constructed as follows: */
 
-function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, LocalVars, LocalFuncs) {
+function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) {
   /* 1. Create a new native ECMAScript object and let F be that object. */
   F := {};
   /* 2. Set all the internal methods, except for [[Get]], of F as described in 8.12. */
@@ -82,9 +82,6 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, 
       Configurable: false
     }, false)
   };
-
-  F.LocalVars := LocalVars;
-  F.LocalFuncs := LocalFuncs;
 
   /* 20. Return F. */
   return F

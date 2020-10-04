@@ -2,9 +2,9 @@ import "test/ES5_Reference_Interpreter.esl";
 
 function JS_Interpreter_Program(p) {
   match p with
-  | { sourceType: "script", type: "Program", body: body, globalVars: globalVars, globalFuncs: globalFuncs } -> {
+  | { sourceType: "script", type: "Program", body: body, variableDeclarations: vars, functionDeclarations: funcs } -> {
     /* 14 Program */
-    globalScope := EnteringGlobalCode(globalVars, globalFuncs);
+    globalScope := EnteringGlobalCode(p);
 
     i := 0;
     lbody := l_len(body);
@@ -181,7 +181,7 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
   print FunctionDeclaration;
   /* 13 Function Definition */
   match FunctionDeclaration with
-  | { id: Identifier, params: FormalParameterListopt, body: FunctionBody, localVars: localVars, localFuncs: localFuncs } -> {
+  | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
     /* The production FunctionDeclaration : function Identifier ( FormalParameterListopt ) { FunctionBody }
        is evaluated as follows: */
 
@@ -189,14 +189,14 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
           FormalParameterList opt , and body specified by FunctionBody. Pass in the VariableEnvironment of the running
           execution context as the Scope. Pass in true as the Strict flag if the FunctionDeclaration is contained in
           strict code or if its FunctionBody is strict code. */
-    return CreateFunctionObject(FormalParameterListopt, FunctionBody, scope, false, localVars, localFuncs) /* TODO strict */
+    return CreateFunctionObject(FormalParameterListopt, FunctionBody, scope, false) /* TODO strict */
   }
 };
 
 function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
   /* 13 Function Definition */
   match FunctionExpression with
-  | { id: null, params: FormalParameterList, body: FunctionBody, localVars: localVars, localFuncs: localFuncs } -> {
+  | { id: null, params: FormalParameterList, body: FunctionBody } -> {
     /* The production FunctionExpression : function ( FormalParameterList opt ) { FunctionBody }
        is evaluated as follows: */
 
@@ -204,9 +204,9 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
           FormalParameterList opt and body specified by FunctionBody. Pass in the LexicalEnvironment of the running
           execution context as the Scope. Pass in true as the Strict flag if the FunctionExpression is contained in
           strict code or if its FunctionBody is strict code. */
-    return CreateFunctionObject(FormalParameterList, FunctionBody, scope, false, localVars, localFuncs) /* TODO strict */
+    return CreateFunctionObject(FormalParameterList, FunctionBody, scope, false) /* TODO strict */
   }
-  | { id: Identifier, params: FormalParameterListopt, body: FunctionBody, localVars: localVars, localFuncs: localFuncs } -> {
+  | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
     /* The production FunctionExpression : function Identifier ( FormalParameterList opt ) { FunctionBody }
        is evaluated as follows: */
 
@@ -220,7 +220,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
     /* 4. Let closure be the result of creating a new Function object as specified in 13.2 with parameters specified by
           FormalParameterList opt and body specified by FunctionBody. Pass in funcEnv as the Scope. Pass in true as the
           Strict flag if the FunctionExpression is contained in strict code or if its FunctionBody is strict code. */
-    closure := CreateFunctionObject(FormalParameterListopt, FunctionBody, funcEnv, false, localVars, localFuncs); /* TODO strict */
+    closure := CreateFunctionObject(FormalParameterListopt, FunctionBody, funcEnv, false); /* TODO strict */
     /* 5. Call the InitializeImmutableBinding concrete method of envRec passing the String value of Identifier and closure
           as the arguments. */
     InitializeImmutableBinding(envRec, Identifier.name, closure);
