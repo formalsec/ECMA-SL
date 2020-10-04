@@ -25,6 +25,8 @@ module.exports = {
     obj.body.variableDeclarations = variableDeclarations;
     obj.body.functionDeclarations = functionDeclarations;
 
+    obj.body.codeType = "function";
+
     return obj;
   },
 };
