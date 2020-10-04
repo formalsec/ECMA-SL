@@ -1,5 +1,5 @@
 const Expr = require("../Expr/Expr"); 
-const EmptyLab = require("../Labels/EmptyLab");
+const FieldAssignLab = require("../Labels/FieldAssignLab");
 
 
 function MakeFieldAssign(Stmt){
@@ -16,9 +16,11 @@ function MakeFieldAssign(Stmt){
     }
 
     interpret(config) {
-      config.heap.heap[this.expressionObject.interpret(config.store).value][this.expressionField.interpret(config.store).value] = this.expressionValue.interpret(config);
-      
-      return {config : config, seclabel: new EmptyLab()};
+      config.cont = config.cont.slice(1) ;
+      var object = this.expressionObject.interpret(config.store).value;
+      var field = this.expressionField.interpret(config.store).value;
+      config.heap.heap[object][field] = this.expressionValue.interpret(config);
+      return {config : config, seclabel: new FieldAssignLab(object, field, this.expressionValue)};
     }
   }
   FieldAssign.fromJSON = function(obj) {

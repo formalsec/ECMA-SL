@@ -2,7 +2,7 @@ const Store = require("../../Store");
 const Heap = require("../Heap");
 const Val =require("../Val/Val");
 const LocationVal = require("../Val/LocationVal")(Val);
-const EmptyLab = require("../Labels/EmptyLab");
+const AssignNewObjLab = require("../Labels/AssignNewObjLab");
 
 function MakeAssignNewObj(Stmt){
 	class AssignNewObj extends Stmt {
@@ -15,7 +15,7 @@ function MakeAssignNewObj(Stmt){
 	  	var obj_name = config.heap.createObject();
 	  	config.store.sto[this.stringvar] = new LocationVal(obj_name);
 	  	config.cont=config.cont.slice(1);
-	  	return {config : config, seclabel: new EmptyLab()};
+	  	return {config : config, seclabel: new AssignNewObjLab(this.stringvar, obj_name)};
 	  }
 	}
 

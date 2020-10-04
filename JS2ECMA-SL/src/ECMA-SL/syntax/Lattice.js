@@ -6,6 +6,11 @@
 function lub(lev1, lev2){
 	return (lev1 && lev2);
 }
+function lubn(lev_arr){
+	var reducer = (accumulator, value) => lub(accumulator,value);
+	var lvls = lev_arr.reduce(reducer, false);
+	return lvls;
+}
 
 function leq(lev1, lev2){
 	if(lev2){
@@ -23,5 +28,6 @@ function leq(lev1, lev2){
 module.exports = { 
 	lub : lub, 
 	leq : leq,
+	lubn : lubn,
 
 };

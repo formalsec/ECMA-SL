@@ -28,7 +28,7 @@ function MakeCondition(Stmt){
 				}
 
 			}
-			return {config : config, seclabel: new EmptyLab()};
+			return {config : config, seclabel: new BranchLab(this.expr)};
 		}
 	}
 
