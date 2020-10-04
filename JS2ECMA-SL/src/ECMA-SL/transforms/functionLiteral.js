@@ -12,20 +12,18 @@ module.exports = {
       );
     }
 
-    if (obj.hasOwnProperty("localVars") || obj.hasOwnProperty("localFuncs")) {
-      return obj;
-    }
-
     obj.params = obj.params.map((param) => param.name);
 
-    obj.localVars = getVarDeclarations(obj.body).reduce(
+    const variableDeclarations = getVarDeclarations(obj.body).reduce(
       // remove repeated variables
       (acc, localVar) => (acc.includes(localVar) ? acc : acc.concat(localVar)),
       []
     );
-    obj.localFuncs = getFunctionDeclarations(obj.body);
+    const functionDeclarations = getFunctionDeclarations(obj.body);
 
     obj.body = replaceFuncDeclarations(obj.body);
+    obj.body.variableDeclarations = variableDeclarations;
+    obj.body.functionDeclarations = functionDeclarations;
 
     return obj;
   },

@@ -10,14 +10,16 @@ module.exports = {
       throw Error('Unexpected object type; Expecting "Program"');
     }
 
-    obj.globalVars = getVarDeclarations(obj).reduce(
+    const variableDeclarations = getVarDeclarations(obj).reduce(
       // remove repeated variables
       (acc, localVar) => (acc.includes(localVar) ? acc : acc.concat(localVar)),
       []
     );
-    obj.globalFuncs = getFunctionDeclarations(obj);
+    const functionDeclarations = getFunctionDeclarations(obj);
 
     obj.body = obj.body.map(replaceFuncDeclarations);
+    obj.variableDeclarations = variableDeclarations;
+    obj.functionDeclarations = functionDeclarations;
 
     return obj;
   },
