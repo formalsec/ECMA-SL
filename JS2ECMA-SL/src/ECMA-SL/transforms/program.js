@@ -21,6 +21,8 @@ module.exports = {
     obj.variableDeclarations = variableDeclarations;
     obj.functionDeclarations = functionDeclarations;
 
+    obj.codeType = "global";
+
     return obj;
   },
 };
