@@ -9,23 +9,23 @@
    execution context, bindings are created in the VariableEnvironment as follows using the caller provided code
    and, if it is function code, argument List args: */
 
-function DeclarationBindingInstantiation(runningExecCtx, code, args, F) {
+function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
   /* 1. Let env be the environment record component of the running execution context‘s VariableEnvironment. */
   env := getEnvironmentRecord(getVariableEnvironment(runningExecCtx));
   /* 2. If code is eval code, then let configurableBindings be true else let configurableBindings be false. */
-  if (code = "eval code") { /* TODO */
+  if (isEvalCode(code)) {
     configurableBindings := true
   } else {
     configurableBindings := false
   };
   /* 3. If code is strict mode code, then let strict be true else let strict be false. */
-  if (code = "strict mode code") { /* TODO */
+  if (isStrictModeCode(code)) {
     strict := true
   } else {
     strict := false
   };
   /* 4. If code is function code, then */
-  if (code = "function code") { /* TODO */
+  if (isFunctionCode(code)) {
     /* a. Let func be the function whose [[Call]] internal method initiated execution of code. Let names be
           the value of func‘s [[FormalParameters]] internal property. */
     func := F;
@@ -118,12 +118,12 @@ function DeclarationBindingInstantiation(runningExecCtx, code, args, F) {
       "arguments" as the argument. */
   argumentsAlreadyDeclared := HasBinding(env, "arguments");
   /* 7. If code is function code and argumentsAlreadyDeclared is false, then */
-  if ((code = "function code") && (argumentsAlreadyDeclared = false)) { /* TODO */
+  if (isFunctionCode(code) && (argumentsAlreadyDeclared = false)) { /* TODO */
     /* a. Let argsObj be the result of calling the abstract operation CreateArgumentsObject (10.6) passing
           func, names, args, env and strict as arguments. */
     argsObj := CreateArgumentsObject(func, names, args, env, strict);
     /* b. If strict is true, then */
-    if (false) { /* TODO */
+    if (strict = true) {
       /* i. Call env‘s CreateImmutableBinding concrete method passing the String "arguments" as
             the argument. */
       CreateImmutableBinding(env, "arguments");
@@ -168,6 +168,18 @@ function DeclarationBindingInstantiation(runningExecCtx, code, args, F) {
 };
 
 /* Auxiliary functions */
+function isEvalCode(code) {
+  return code.codeType = "eval"
+};
+
+function isFunctionCode(code) {
+  return code.codeType = "function"
+};
+
+function isStrictModeCode(code) {
+  return code.strict = true
+};
+
 function getFunctionDeclarationsInCode(object) {
   return object.functionDeclarations
 };

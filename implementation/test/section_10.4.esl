@@ -21,7 +21,7 @@ function EnteringGlobalCode(program) {
   globalScope := InitialGlobalExecutionContext(globalObject);
 
   /* 2. Perform Declaration Binding Instantiation as described in 10.5 using the global code. */
-  DeclarationBindingInstantiation(globalScope, "global code", [], program);
+  DeclarationBindingInstantiation(program, [], globalScope, null);
 
   return globalScope
 };
@@ -80,7 +80,7 @@ function EnteringFunctionCode(F, thisArg, argumentsList, strict) {
   /* 8. Let code be the value of F‘s [[Code]] internal property. */
   code := F.Code;
   /* 9. Perform Declaration Binding Instantiation using the function code code and argumentsList as described in 10.5. */
-  DeclarationBindingInstantiation(functionExecCtx, "function code", argumentsList, F);
+  DeclarationBindingInstantiation(code, argumentsList, functionExecCtx, F);
 
   return functionExecCtx
 }
