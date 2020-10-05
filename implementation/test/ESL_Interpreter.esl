@@ -189,7 +189,7 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
           FormalParameterList opt , and body specified by FunctionBody. Pass in the VariableEnvironment of the running
           execution context as the Scope. Pass in true as the Strict flag if the FunctionDeclaration is contained in
           strict code or if its FunctionBody is strict code. */
-    return CreateFunctionObject(FormalParameterListopt, FunctionBody, scope, false) /* TODO strict */
+    return CreateFunctionObject(FormalParameterListopt, FunctionBody, getVariableEnvironment(scope), false) /* TODO strict */
   }
 };
 
@@ -204,7 +204,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
           FormalParameterList opt and body specified by FunctionBody. Pass in the LexicalEnvironment of the running
           execution context as the Scope. Pass in true as the Strict flag if the FunctionExpression is contained in
           strict code or if its FunctionBody is strict code. */
-    return CreateFunctionObject(FormalParameterList, FunctionBody, scope, false) /* TODO strict */
+    return CreateFunctionObject(FormalParameterList, FunctionBody, getLexicalEnvironment(scope), false) /* TODO strict */
   }
   | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
     /* The production FunctionExpression : function Identifier ( FormalParameterList opt ) { FunctionBody }

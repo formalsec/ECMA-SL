@@ -72,7 +72,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     /* a. Let fn be the Identifier in FunctionDeclaration f. */
     fn := f.id.name;
     /* b. Let fo be the result of instantiating FunctionDeclaration f as described in Clause 13. */
-    fo := JS_Interpreter_FunctionDeclaration(f, getVariableEnvironment(runningExecCtx));
+    fo := JS_Interpreter_FunctionDeclaration(f, runningExecCtx);
     /* c. Let funcAlreadyDeclared be the result of calling env’s HasBinding concrete method passing fn as
           the argument. */
     funcAlreadyDeclared := HasBinding(env, fn);
