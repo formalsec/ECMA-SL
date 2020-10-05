@@ -15,6 +15,7 @@ type bopt = Plus
           | Lnth
           | Tnth
           | Ladd
+          | Lprepend
           | Lconcat
 
 type uopt = Neg
@@ -27,6 +28,7 @@ type uopt = Neg
           | First
           | Second
           | IntToFloat
+          | IntToString
           | FloatToString
           | ObjToList
           | Sconcat
@@ -132,6 +134,12 @@ let list_add (v1, v2 : Val.t * Val.t) : Val.t = match v1 with
   | List l -> Val.List (l @ [v2])
   | _      -> invalid_arg "Exception in Oper.list_add: this operation is only applicable to List arguments"
 
+let list_prepend (v1, v2 : Val.t * Val.t) : Val.t =
+  Printf.printf "list_prepend: %s" (Val.str v2);
+  match v2 with
+  | List l -> Val.List (v1::l)
+  | _      -> invalid_arg "Exception in Oper.list_prepend: this operation is only applicable to a Value and a List arguments"
+
 let list_concat (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | List l1, List l2 -> Val.List (l1 @ l2)
   | _                -> invalid_arg "Exception in Oper.list_concat: this operation is only applicable to List arguments"
@@ -152,13 +160,22 @@ let second (v : Val.t) : Val.t = match v with
   | Tuple t -> Tuple (List.tl t)
   | _       -> invalid_arg "Exception in Oper.second: this operation is only applicable to Tuple arguments"
 
+let int_to_string (v : Val.t) : Val.t = match v with
+  | Int i -> Str (string_of_int i)
+  | _     -> invalid_arg "Exception in Oper.int_to_string: this operation is only applicable to Int arguments"
+
 let int_to_float (v : Val.t) : Val.t = match v with
   | Int i -> Flt (float_of_int i)
   | _     -> invalid_arg "Exception in Oper.int_to_float: this operation is only applicable to Int arguments"
 
 let float_to_string (v : Val.t) : Val.t = match v with
-  | Flt i -> Str (string_of_float i)
-  | _     -> invalid_arg "Exception in Oper.float_to_string: this operation is only applicable to Flt arguments"
+  | Flt i ->
+    let s = string_of_float i in
+    let len = String.length s - 1 in
+    let c = String.get s len in
+    let s' = if c = '.' then String.sub s 0 len else s in
+    Str s'
+  | _     -> invalid_arg ("Exception in Oper.float_to_string: this operation is only applicable to Flt arguments: " ^ (Val.str v))
 
 let string_concat (v : Val.t) : Val.t = match v with
   | List l -> Str (String.concat "" (String.split_on_char '"' (String.concat "" (List.map Val.str l))))
@@ -175,28 +192,30 @@ let str_of_unopt (op : uopt) : string = match op with
   | First         -> "fst"
   | Second        -> "snd"
   | IntToFloat    -> "int_to_float"
+  | IntToString   -> "int_to_string"
   | FloatToString -> "float_to_string"
   | ObjToList     -> "obj_to_list"
   | Sconcat       -> "s_concat"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
-  | Plus    -> e1 ^ " + " ^ e2
-  | Minus   -> e1 ^ " - " ^ e2
-  | Times   -> e1 ^ " * " ^ e2
-  | Div     -> e1 ^ " / " ^ e2
-  | Equal   -> e1 ^ " = " ^ e2
-  | Gt      -> e1 ^ " > " ^ e2
-  | Lt      -> e1 ^ " < " ^ e2
-  | Egt     -> e1 ^ " >= " ^ e2
-  | Elt     -> e1 ^ " <= " ^ e2
-  | Log_And -> e1 ^ " && " ^ e2
-  | Log_Or  -> e1 ^ " || " ^ e2
-  | InObj   -> e1 ^ " in_obj " ^ e2
-  | InList  -> e1 ^ " in_list " ^ e2
-  | Lnth    -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | Tnth    -> "t_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | Ladd    -> "l_add(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | Lconcat -> "l_concat(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Plus     -> e1 ^ " + " ^ e2
+  | Minus    -> e1 ^ " - " ^ e2
+  | Times    -> e1 ^ " * " ^ e2
+  | Div      -> e1 ^ " / " ^ e2
+  | Equal    -> e1 ^ " = " ^ e2
+  | Gt       -> e1 ^ " > " ^ e2
+  | Lt       -> e1 ^ " < " ^ e2
+  | Egt      -> e1 ^ " >= " ^ e2
+  | Elt      -> e1 ^ " <= " ^ e2
+  | Log_And  -> e1 ^ " && " ^ e2
+  | Log_Or   -> e1 ^ " || " ^ e2
+  | InObj    -> e1 ^ " in_obj " ^ e2
+  | InList   -> e1 ^ " in_list " ^ e2
+  | Lnth     -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Tnth     -> "t_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Ladd     -> "l_add(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Lprepend -> "l_prepend(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Lconcat  -> "l_concat(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | ListExpr  -> "[ " ^ (String.concat ", " es) ^ " ]"
@@ -207,23 +226,24 @@ let str_of_nopt (op : nopt) (es : string list) : string = match op with
 let bopt_to_json (op : bopt) : string =
   Printf.sprintf "{ \"type\" : \"Bopt\" : \"value\" : \"%s"
     (match op with
-     | Plus    -> Printf.sprintf "Plus\" }"
-     | Minus   -> Printf.sprintf "Minus\" }"
-     | Times   -> Printf.sprintf "Times\" }"
-     | Div     -> Printf.sprintf "Div\" }"
-     | Equal   -> Printf.sprintf "Equal\" }"
-     | Gt      -> Printf.sprintf "Gt\" }"
-     | Lt      -> Printf.sprintf "Lt\" }"
-     | Egt     -> Printf.sprintf "Egt\" }"
-     | Elt     -> Printf.sprintf "Elt\" }"
-     | Log_And -> Printf.sprintf "Log_And\" }"
-     | Log_Or  -> Printf.sprintf "Log_Or\" }"
-     | InObj   -> Printf.sprintf "InObj\" }"
-     | InList  -> Printf.sprintf "InList\" }"
-     | Lnth    -> Printf.sprintf "Lnth\" }"
-     | Tnth    -> Printf.sprintf "Tnth\" }"
-     | Ladd    -> Printf.sprintf "Ladd\" }"
-     | Lconcat -> Printf.sprintf "Lconcat\" }")
+     | Plus     -> Printf.sprintf "Plus\" }"
+     | Minus    -> Printf.sprintf "Minus\" }"
+     | Times    -> Printf.sprintf "Times\" }"
+     | Div      -> Printf.sprintf "Div\" }"
+     | Equal    -> Printf.sprintf "Equal\" }"
+     | Gt       -> Printf.sprintf "Gt\" }"
+     | Lt       -> Printf.sprintf "Lt\" }"
+     | Egt      -> Printf.sprintf "Egt\" }"
+     | Elt      -> Printf.sprintf "Elt\" }"
+     | Log_And  -> Printf.sprintf "Log_And\" }"
+     | Log_Or   -> Printf.sprintf "Log_Or\" }"
+     | InObj    -> Printf.sprintf "InObj\" }"
+     | InList   -> Printf.sprintf "InList\" }"
+     | Lnth     -> Printf.sprintf "Lnth\" }"
+     | Tnth     -> Printf.sprintf "Tnth\" }"
+     | Ladd     -> Printf.sprintf "Ladd\" }"
+     | Lprepend -> Printf.sprintf "Lprepend\" }"
+     | Lconcat  -> Printf.sprintf "Lconcat\" }")
 
 let nopt_to_json (op : nopt) : string =
   Printf.sprintf "{ \"type\" : \"Nopt\" : \"value\" : \"%s"
@@ -246,6 +266,7 @@ let uopt_to_json (op : uopt) : string =
      | First    -> Printf.sprintf "First\" }"
      | Second   -> Printf.sprintf "Second\" }"
      | IntToFloat -> Printf.sprintf "IntToFloat\" }"
+     | IntToString -> Printf.sprintf "IntToString\" }"
      | FloatToString -> Printf.sprintf "FloatToString\""
      | ObjToList -> Printf.sprintf "ObjToList\""
      | Sconcat  -> Printf.sprintf "Sconcat\"")

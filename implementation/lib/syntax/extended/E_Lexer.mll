@@ -68,6 +68,7 @@ rule read =
   | "l_len"        { LLEN }
   | "l_nth"        { LNTH }
   | "l_add"        { LADD }
+  | "l_prepend"    { LPREPEND }
   | "l_concat"     { LCONCAT }
   | "hd"           { HD }
   | "tl"           { TL }
@@ -77,6 +78,7 @@ rule read =
   | "snd"          { SND }
   | "s_concat"     { SCONCAT }
   | "int_to_float"    { INT_TO_FLOAT }
+  | "int_to_string"   { INT_TO_STRING }
   | "float_to_string" { FLOAT_TO_STRING }
   | "obj_to_list"  { OBJ_TO_LIST }
   | '('            { LPAREN }

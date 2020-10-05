@@ -27,6 +27,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | First         -> Oper.first v
   | Second        -> Oper.second v
   | IntToFloat    -> Oper.int_to_float v
+  | IntToString   -> Oper.int_to_string v
   | FloatToString -> Oper.float_to_string v
   | Sconcat       -> Oper.string_concat v
   | ObjToList     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjToList")
@@ -34,23 +35,24 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   match op with
-  | Plus    -> Oper.plus (v1, v2)
-  | Minus   -> Oper.minus (v1, v2)
-  | Times   -> Oper.times (v1, v2)
-  | Div     -> Oper.div (v1, v2)
-  | Equal   -> Oper.equal (v1, v2)
-  | Gt      -> Oper.gt (v1, v2)
-  | Lt      -> Oper.lt (v1, v2)
-  | Egt     -> Oper.egt (v1, v2)
-  | Elt     -> Oper.elt (v1, v2)
-  | Log_And -> Oper.log_and (v1, v2)
-  | Log_Or  -> Oper.log_or (v1, v2)
-  | Lnth    -> Oper.list_nth (v1, v2)
-  | Tnth    -> Oper.tuple_nth (v1, v2)
-  | Ladd    -> Oper.list_add (v1, v2)
-  | Lconcat -> Oper.list_concat (v1, v2)
-  | InList  -> Oper.list_in (v1, v2)
-  | InObj   -> raise(Except "Not expected")
+  | Plus     -> Oper.plus (v1, v2)
+  | Minus    -> Oper.minus (v1, v2)
+  | Times    -> Oper.times (v1, v2)
+  | Div      -> Oper.div (v1, v2)
+  | Equal    -> Oper.equal (v1, v2)
+  | Gt       -> Oper.gt (v1, v2)
+  | Lt       -> Oper.lt (v1, v2)
+  | Egt      -> Oper.egt (v1, v2)
+  | Elt      -> Oper.elt (v1, v2)
+  | Log_And  -> Oper.log_and (v1, v2)
+  | Log_Or   -> Oper.log_or (v1, v2)
+  | Lnth     -> Oper.list_nth (v1, v2)
+  | Tnth     -> Oper.tuple_nth (v1, v2)
+  | Ladd     -> Oper.list_add (v1, v2)
+  | Lprepend -> Oper.list_prepend (v1, v2)
+  | Lconcat  -> Oper.list_concat (v1, v2)
+  | InList   -> Oper.list_in (v1, v2)
+  | InObj    -> raise(Except "Not expected")
 
 
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
@@ -123,7 +125,7 @@ let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : E
 
 let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl SecLabel.t) option) (prog: Prog.t) (state : state_t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : (return * (Mon.sl SecLabel.t))  =
   let (cs, heap, sto)= state in
-  print_string ("====================================\nEvaluationg >>>>> "^(Stmt.str s) ^ "\n");
+  print_string ("====================================\nEvaluating >>>>> "^(Stmt.str s) ^ "\n");
   match s with
   | Skip ->
     (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
