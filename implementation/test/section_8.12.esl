@@ -524,8 +524,10 @@ function DefineOwnProperty(O, P, Desc, Throw) {
       return Reject(Throw)
     };
     /** b. Reject, if the[[Enumerable]] field of Desc is present and the [[Enumerable]] fields of current and Desc are the Boolean negation of each other. */
-    if (("Enumerable" in_obj Desc) && (!Desc.Enumerable = current.Enumerable)) {
-      return Reject(Throw)
+    if ("Enumerable" in_obj Desc) {
+      if (!Desc.Enumerable = current.Enumerable) {
+        return Reject(Throw)
+      }
     }
   };
 
@@ -567,14 +569,14 @@ function DefineOwnProperty(O, P, Desc, Throw) {
         /** a. If the[[Configurable]] field of current is false, then: */
         if (current.Configurable = false) {
           /** i. Reject, if the[[Writable]] field of current is false and the [[Writable]] field of Desc is true. */
-          if (current.Writable = false && Desc.Writable = true) {
+          if ((current.Writable = false) && (Desc.Writable = true)) {
             return Reject(Throw)
           };
 
           /** ii. If the [[Writable]] field of current is false, then: */
           if (current.Writable = false) {
             /** 1. Reject, if the [[Value]] field of Desc is present and SameValue(Desc.[[Value]], current.[[Value]]) is false. */
-            if (("Value" in_obj Desc) && SameValue(Desc.Value, current.Value) = false) {
+            if (("Value" in_obj Desc) && (SameValue(Desc.Value, current.Value) = false)) {
               return Reject(Throw)
             }
           }
@@ -588,11 +590,11 @@ function DefineOwnProperty(O, P, Desc, Throw) {
         /** a. If the [[Configurable]] field of current is false, then: */
         if (current.Configurable = false) {
           /** i. Reject, if the [[Set]] field of Desc is present and SameValue(Desc.[[Set]], current.[[Set]]) is false. */
-          if (("Set" in_obj Desc) && SameValue(Desc.Set, current.Set) = false) {
+          if (("Set" in_obj Desc) && (SameValue(Desc.Set, current.Set) = false)) {
             return Reject(Throw)
           };
           /** ii. Reject, if the [[Get]] field of Desc is present and SameValue(Desc.[[Get]], current.[[Get]]) is false. */
-          if (("Get" in_obj Desc) && SameValue(Desc.Get, current.Get) = false) {
+          if (("Get" in_obj Desc) && (SameValue(Desc.Get, current.Get) = false)) {
             return Reject(Throw)
           }
         }
