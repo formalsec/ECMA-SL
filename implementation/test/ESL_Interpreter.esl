@@ -1,20 +1,51 @@
 import "test/ES5_Reference_Interpreter.esl";
 
 function JS_Interpreter_Program(p) {
+  /* 14 Program */
   match p with
-  | { sourceType: "script", type: "Program", body: body, variableDeclarations: vars, functionDeclarations: funcs } -> {
-    /* 14 Program */
-    globalScope := EnteringGlobalCode(p);
+  | { sourceType: "script", type: "Program", body: SourceElementsopt, variableDeclarations: vars, functionDeclarations: funcs } -> {
+    /* The production Program : SourceElements opt is evaluated as follows: */
 
-    i := 0;
-    lbody := l_len(body);
-    while (i<lbody) {
-      JS_Interpreter_Stmt(l_nth(body, i), globalScope);
-      i := i + 1
+    /* 1. The code of this Program is strict mode code if the Directive Prologue (14.1) of its SourceElements
+          contains a Use Strict Directive or if any of the conditions of 10.1.1 apply. If the code of this
+          Program is strict mode code, SourceElements is evaluated in the following steps as strict mode code.
+          Otherwise SourceElements is evaluated in the following steps as non-strict mode code. */
+    /* TODO strict */
+    /* 2. If SourceElements is not present, return (normal, empty, empty). */
+    if (SourceElementsopt = []) {
+      return normalEmptyCompletion('empty)
     };
+    /* 3. Let progCxt be a new execution context for global code as described in 10.4.1. */
+    progCxt := EnteringGlobalCode(p);
+    /* 4. Let result be the result of evaluating SourceElements. */
+    result := JS_Interpreter_SourceElements(SourceElementsopt, progCxt);
+    /* 5. Exit the execution context progCxt. */
 
-    return globalScope
+    /* 6. Return result. */
+    print progCxt;
+    return result
   }
+};
+
+function JS_Interpreter_SourceElements(SourceElements, scope) {
+  /* The production SourceElements : SourceElements SourceElement is evaluated as follows: */
+
+  i := 0;
+  lSourceElements := l_len(SourceElements);
+  while (i < lSourceElements) {
+    /* 1. Let headResult be the result of evaluating SourceElements. */
+    /* 2. If headResult is an abrupt completion, return headResult. */
+    /* 3. Let tailResult be result of evaluating SourceElement. */
+    /* 4. If tailResult.value is empty, let V = headResult.value, otherwise let V = tailResult.value. */
+    result := JS_Interpreter_Stmt(l_nth(SourceElements, i), scope);
+    if (isAnAbruptCompletion(result)) {
+      return result
+    };
+    V := getCompletionValue(result);
+    i := i + 1
+  };
+  /* 5. Return (tailResult.type, V, tailResult.target) */
+  return newCompletion(getCompletionType(result), V, getCompletionTarget(result))
 };
 
 function JS_Interpreter_Expr(e, scope) {
@@ -245,8 +276,8 @@ function JS_Interpreter_FunctionBody(SourceElementsopt, scope) {
         non-strict mode code. */
   /* TODO strict */
   /* 2. If SourceElements is present return the result of evaluating SourceElements. */
-  if (!(SourceElementsopt.body = [])) {
-    return JS_Interpreter_Stmt(SourceElementsopt, scope)
+  if (!(SourceElementsopt = [])) {
+    return JS_Interpreter_SourceElements(SourceElementsopt, scope)
   }
   /* 3. Else return (normal, undefined, empty). */
   else {

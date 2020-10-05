@@ -101,7 +101,7 @@ function Call(F, this, args) {
   if (!("Code" in_obj F) || (F.Code.body = [])) {
     return normalEmptyCompletion('undefined)
   };
-  result := JS_Interpreter_FunctionBody(F.Code, funcCtx);
+  result := JS_Interpreter_FunctionBody(F.Code.body, funcCtx);
 
   /* 3. Exit the execution context funcCtx, restoring the previous execution context. */
 
