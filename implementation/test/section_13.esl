@@ -98,10 +98,10 @@ function Call(F, this, args) {
   /* 2. Let result be the result of evaluating the FunctionBody that is the value of F's [[Code]] internal property.
         If F does not have a [[Code]] internal property or if its value is an empty FunctionBody,
         then result is (normal, undefined, empty). */
-  if (!("Code" in_obj F) || (F.Code = [])) {
+  if (!("Code" in_obj F) || (F.Code.body = [])) {
     return normalEmptyCompletion('undefined)
   };
-  result := JS_Interpreter_Stmt(F.Code, funcCtx);
+  result := JS_Interpreter_FunctionBody(F.Code, funcCtx);
 
   /* 3. Exit the execution context funcCtx, restoring the previous execution context. */
 

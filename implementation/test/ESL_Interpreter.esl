@@ -234,6 +234,26 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
   }
 };
 
+function JS_Interpreter_FunctionBody(SourceElementsopt, scope) {
+  /* The production FunctionBody : SourceElements opt is evaluated as follows: */
+
+  /* 1. The code of this FunctionBody is strict mode code if it is part of a FunctionDeclaration or
+        FunctionExpression that is contained in strict mode code or if the Directive Prologue (14.1)
+        of its SourceElements contains a Use Strict Directive or if any of the conditions in 10.1.1 apply.
+        If the code of this FunctionBody is strict mode code, SourceElements is evaluated in the following
+        steps as strict mode code. Otherwise, SourceElements is evaluated in the following steps as
+        non-strict mode code. */
+  /* TODO strict */
+  /* 2. If SourceElements is present return the result of evaluating SourceElements. */
+  if (!(SourceElementsopt.body = [])) {
+    return JS_Interpreter_Stmt(SourceElementsopt, scope)
+  }
+  /* 3. Else return (normal, undefined, empty). */
+  else {
+    return normalEmptyCompletion('undefined)
+  }
+};
+
 function JS_Interpreter_ObjectInitializer(objExpr, scope) {
   /* 11.1.5 Object Initialiser */
   match objExpr with
