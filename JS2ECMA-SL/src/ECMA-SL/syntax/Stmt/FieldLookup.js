@@ -1,5 +1,5 @@
 const Expr = require("../Expr/Expr");
-const EmptyLab = require("../Labels/EmptyLab");
+const FieldLookupLab = require("../Labels/FieldLookupLab");
 
 function MakeFieldLookup(Stmt){
   
@@ -12,9 +12,12 @@ function MakeFieldLookup(Stmt){
     }
 
     interpret(config){
-      config.store.sto[this.stringvar] = config.heap.getField(this.expressionObject.interpret(config.store).value, this.expressionField.interpret(config.store).value);
       config.cont=config.cont.slice(1);
-     return {config : config, seclabel: new EmptyLab()};
+      var object = this.expressionObject.interpret(config.store).value;
+      var field = this.expressionField.interpret(config.store).value;
+      config.store.sto[this.stringvar] = config.heap.getField(object, field);
+      
+     return {config : config, seclabel: new FieldLookupLab(this.stringvar, object, field)};
     }
 
    

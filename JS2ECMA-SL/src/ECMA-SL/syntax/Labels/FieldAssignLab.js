@@ -26,7 +26,7 @@ class FieldAssignLab{
 			}
 		} else{
 			var struct_lvl = sec_conf.sheap.heap[this.object].struct_lvl;
-			if(struct_lvl != "undefined"){
+			if(struct_lvl != undefined){
 				if(Lattice.leq(lev_ctx, struct_lvl)){
 					sec_conf.sheap.heap[this.object].sec_object.field = {};
 					sec_conf.sheap.heap[this.object].sec_object.field.exists_lvl = lev_ctx;
