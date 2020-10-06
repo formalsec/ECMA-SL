@@ -446,12 +446,18 @@ function newObjectEnvironmentRecord(bindingObj) {
   /* An object environment record binds the set of identifier names that directly correspond to the property names
      of its binding object. Property names that are not an IdentifierName are not included in the set of bound identifiers.
      Both own and inherited properties are included in the set regardless of the setting of their [[Enumerable]] attribute. */
-  return bindingObj
+  objEnvRec := {
+    isObjectEnvRec: true,
+    bindingObject: bindingObj,
+    provideThis: false
+  };
+
+  return objEnvRec
 };
 
 function isDeclarativeEnvironmentRecord(envRec) {
   print "isDeclarativeEnvironmentRecord";
-  if ("Prototype" in_obj envRec) {
+  if ("isObjectEnvRec" in_obj envRec) {
     return false
   } else {
     return true
@@ -459,7 +465,17 @@ function isDeclarativeEnvironmentRecord(envRec) {
 };
 
 function getBindingObject(objectEnvRec) {
-  return objectEnvRec
+  return objectEnvRec.bindingObject
+};
+
+function setProvideThis(objectEnvironment, value) {
+  getEnvironmentRecord(objectEnvironment).provideThis := value;
+
+  return value /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function getProvideThis(objectEnvRec) {
+  return objectEnvRec.provideThis
 };
 
 function getEnvironmentRecord(lexicalEnvironment) {
