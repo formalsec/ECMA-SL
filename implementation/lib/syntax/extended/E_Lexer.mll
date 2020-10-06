@@ -80,6 +80,7 @@ rule read =
   | "int_of_string"   { INT_OF_STRING }
   | "float_to_string" { FLOAT_TO_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }
+  | "to_uint32"       { TO_UINT32 }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }
