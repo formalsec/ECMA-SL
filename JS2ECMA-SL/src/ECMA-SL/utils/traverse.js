@@ -201,8 +201,25 @@ function traverse(callback, obj) {
       break;
     }
 
-    case "TryStatement":
-      throw Error("Traverse for TryStatements is not implemented!");
+    case "TryStatement": {
+      const resultBlock = traverse(callback, obj.block);
+      const resultHandler = traverse(callback, obj.handler);
+      const resultFinalizer = traverse(callback, obj.finalizer);
+
+      resultData = resultBlock.data.concat(
+        resultHandler.data,
+        resultFinalizer.data
+      );
+      break;
+    }
+
+    case "CatchClause": {
+      const resultParam = traverse(callback, obj.param);
+      const resultBlock = traverse(callback, obj.block);
+
+      resultData = resultParam.data.concat(resultBlock.data);
+      break;
+    }
 
     default:
       resultData = [];
