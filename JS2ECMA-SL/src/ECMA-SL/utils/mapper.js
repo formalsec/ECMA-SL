@@ -225,12 +225,12 @@ function mapper(callback, obj) {
             type: "IfStatement",
             test: mapper(callback, new_obj.test),
             consequent: mapper(callback, new_obj.consequent),
+            alternate: mapper(callback, new_obj.alternate),
           }
         : {
             type: "IfStatement",
             test: mapper(callback, new_obj.test),
             consequent: mapper(callback, new_obj.consequent),
-            alternate: mapper(callback, new_obj.alternate),
           };
 
     case "LabeledStatement":
