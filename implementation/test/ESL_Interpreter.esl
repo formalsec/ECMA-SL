@@ -56,6 +56,22 @@ function JS_Interpreter_Expr(e, scope) {
     /* The this keyword evaluates to the value of the ThisBinding of the current execution context. */
     return getThisBinding(scope)
   }
+  | { type: "Identifier", name: name } -> {
+    /* 11.1.2 Identifier Reference */
+
+    /* An Identifier is evaluated by performing Identifier Resolution as specified in 10.3.1. The result of evaluating an
+       Identifier is always a value of type Reference. */
+    return IdentifierResolution(name, scope)
+  }
+  | { type: "Literal", value: value } -> {
+    /* 11.1.3 Literal Reference */
+
+    /* A Literal is evaluated as described in 7.8. */
+    if (typeof(value) = __$Int) {
+      return int_to_float value
+    };
+    return value
+  }
   | { type: "ObjectExpression" } -> {
     /* 11.1.5 Object Initialiser */
     return JS_Interpreter_ObjectInitializer(e, scope)
@@ -170,19 +186,6 @@ function JS_Interpreter_Expr(e, scope) {
   }
   | { type: "BinaryExpression" } -> {
     return JS_Interpreter_BinExpr(e, scope)
-  }
-  | { type: "Identifier", name: name } -> {
-    /* 11.1.2 Identifier Reference */
-
-    /* An Identifier is evaluated by performing Identifier Resolution as specified in 10.3.1. The result of evaluating an
-       Identifier is always a value of type Reference. */
-    return IdentifierResolution(name, scope)
-  }
-  | { type: "Literal", value: value } -> {
-    if (typeof(value) = __$Int) {
-      return int_to_float value
-    };
-    return value
   }
 };
 
