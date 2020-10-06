@@ -262,6 +262,43 @@ function GetBindingValueObject(objectEnvRec, N, S) {
   return Get(bindings, N)
 };
 
+/*
+  Returns the value to use as the this value on calls to function objects that are obtained as
+  binding values from this environment record.
+ */
+function ImplicitThisValue(envRec) {
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return ImplicitThisValueDeclarative(envRec)
+  };
+  return ImplicitThisValueObject(envRec)
+};
+
+function InplicitThisValueDeclarative(declarativeEnvRec) {
+  /* 10.2.1.1.6 ImplicitThisValue() */
+
+  /* Declarative Environment Records always return undefined as their ImplicitThisValue. */
+
+  /* 1. Return undefined. */
+  return 'undefined
+};
+
+function InplicitThisValueObject(objectEnvRec) {
+  /* 10.2.1.2.6 ImplicitThisValue() */
+
+  /* Object Environment Records return undefined as their ImplicitThisValue unless their provideThis flag is true. */
+
+  /* 1. Let envRec be the object environment record for which the method was invoked. */
+  envRec := objectEnvRec;
+  /* 2. If the provideThis flag of envRec is true, return the binding object for envRec. */
+  if (getProvideThis(objectEnvRec) = true) {
+    return getBindingObject(objectEnvRec)
+  }
+  /* 3. Otherwise, return undefined. */
+  else {
+    return 'undefined
+  }
+};
+
 /* In addition to the mutable bindings supported by all Environment Records, declarative environment records
 also provide for immutable bindings. An immutable binding is one where the association between an identifier
 and a value may not be modified once it has been established. Creation and initialisation of immutable binding
