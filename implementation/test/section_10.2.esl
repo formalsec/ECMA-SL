@@ -451,7 +451,7 @@ function newObjectEnvironmentRecord(bindingObj) {
 
 function isDeclarativeEnvironmentRecord(envRec) {
   print "isDeclarativeEnvironmentRecord";
-  if ("__proto__" in_obj envRec) {
+  if ("Prototype" in_obj envRec) {
     return false
   } else {
     return true
