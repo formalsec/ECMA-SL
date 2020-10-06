@@ -489,22 +489,6 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 3. Return (return, GetValue(exprRef), empty). */
     return newCompletion('return, GetValue(exprRef), 'empty)
   }
-  | { type: "SwitchStatement" } -> {
-    if (!("labelSet" in_obj s)) {
-      s.labelSet := []
-    };
-
-    s.labelSet := l_add(s.labelSet, 'empty);
-
-    return JS_Interpreter_SwitchStatement(s, scope)
-  }
-  | { type: "ThrowStatement", argument: Expression } -> {
-    /* 12.13 The throw Statement */
-    /* 1. Let exprRef be the result of evaluating Expression. */
-    exprRef := JS_Interpreter_Expr(Expression, scope);
-    /* 2. Return (throw, GetValue(exprRef), empty). */
-    return newCompletion('throw, GetValue(exprRef), 'empty)
-  }
   | { type: "WithStatement", object: Expression, body: Statement } -> {
     /* 12.10 The with Statement */
 
@@ -533,6 +517,22 @@ function JS_Interpreter_Stmt(s, scope) {
     setLexicalEnvironment(scope, oldEnv);
     /* 9. Return C. */
     return C
+  }
+  | { type: "SwitchStatement" } -> {
+    if (!("labelSet" in_obj s)) {
+      s.labelSet := []
+    };
+
+    s.labelSet := l_add(s.labelSet, 'empty);
+
+    return JS_Interpreter_SwitchStatement(s, scope)
+  }
+  | { type: "ThrowStatement", argument: Expression } -> {
+    /* 12.13 The throw Statement */
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Return (throw, GetValue(exprRef), empty). */
+    return newCompletion('throw, GetValue(exprRef), 'empty)
   }
 };
 
