@@ -25,7 +25,7 @@ This example expects that a file named `plus.esl` exists in the folder `./test` 
 ### Create the AST file
 
 The `./test/plus.esl` file that already exists in this project imports another file that contains the AST of a JavaScript program that we want to evaluate.
-To generate a new one, please follow the instructions in this [file](./JS2ECMASL/README.md).
+To generate a new one, please follow the instructions in this [file](./JS2ECMA-SL/README.md).
 
 ## Interpretation of an ECMA-SL program written in Core
 
