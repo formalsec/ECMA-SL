@@ -50,6 +50,12 @@ function JS_Interpreter_SourceElements(SourceElements, scope) {
 
 function JS_Interpreter_Expr(e, scope) {
   match e with
+  | { type: "ThisExpression" } -> {
+    /* 11.1.1 The this Keyword */
+
+    /* The this keyword evaluates to the value of the ThisBinding of the current execution context. */
+    return getThisBinding(scope)
+  }
   | { type: "ObjectExpression" } -> {
     /* 11.1.5 Object Initialiser */
     return JS_Interpreter_ObjectInitializer(e, scope)
