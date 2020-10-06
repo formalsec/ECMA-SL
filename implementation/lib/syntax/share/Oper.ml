@@ -29,8 +29,10 @@ type uopt = Neg
           | Second
           | IntToFloat
           | IntToString
+          | IntOfString
           | FloatToString
           | ObjToList
+          | ToUint32
 
 type nopt = ListExpr
           | TupleExpr
@@ -167,6 +169,11 @@ let int_to_float (v : Val.t) : Val.t = match v with
   | Int i -> Flt (float_of_int i)
   | _     -> invalid_arg "Exception in Oper.int_to_float: this operation is only applicable to Int arguments"
 
+ let int_of_string (v : Val.t) : Val.t = match v with
+  | Str s -> Int (int_of_string s)
+  | _     -> invalid_arg "Exception in Oper.int_of_string: this operation is only applicable to Str arguments"
+
+
 let float_to_string (v : Val.t) : Val.t = match v with
   | Flt i -> 
     let s = string_of_float i in 
@@ -175,6 +182,11 @@ let float_to_string (v : Val.t) : Val.t = match v with
     let s' = if c = '.' then String.sub s 0 len else s in
     Str s'
   | _     -> invalid_arg ("Exception in Oper.float_to_string: this operation is only applicable to Flt arguments: " ^ (Val.str v))
+
+
+let to_uint32 (v : Val.t) : Val.t = match v with
+  | Flt n -> Flt (Arith_Utils.to_uint32 n)
+  | _     -> Null
 
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
@@ -188,8 +200,10 @@ let str_of_unopt (op : uopt) : string = match op with
   | Second        -> "snd"
   | IntToFloat    -> "int_to_float"
   | IntToString   -> "int_to_string"
+  | IntOfString   -> "int_of_string"
   | FloatToString -> "float_to_string"
   | ObjToList     -> "obj_to_list"
+  | ToUint32      -> "to_uint32"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
@@ -261,7 +275,8 @@ let bopt_to_json (op : bopt) : string =
       | Second   -> Printf.sprintf "Second\" }"
       | IntToFloat -> Printf.sprintf "IntToFloat\" }"
       | IntToString -> Printf.sprintf "IntToString\" }"
-      | FloatToString -> Printf.sprintf "FloatToString\""
-      | ObjToList -> Printf.sprintf "ObjToList\"")
-
+      | IntOfString -> Printf.sprintf "IntOfString\" }"
+      | FloatToString -> Printf.sprintf "FloatToString\" }"
+      | ObjToList -> Printf.sprintf "ObjToList\" }"
+      | ToUint32 -> Printf.sprintf "ToUint32\" }")
 

@@ -28,8 +28,10 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Second        -> Oper.second v
   | IntToFloat    -> Oper.int_to_float v
   | IntToString   -> Oper.int_to_string v
+  | IntOfString   -> Oper.int_of_string v
   | FloatToString -> Oper.float_to_string v
   | ObjToList     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjToList")
+  | ToUint32      -> Oper.to_uint32 v
 
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =

@@ -1,3 +1,5 @@
+import "test/section_15.11.esl";
+
 function GetProps(Desc) {
   list := [];
   if ("Value" in_obj Desc) { list := l_add(list, "Value") };
@@ -62,12 +64,6 @@ function Reject (Throw) {
     throw TypeErrorException()
   } else {
     return false
-  }
-};
-
-function TypeErrorException() {
-  return {
-    exception: "TypeError"
   }
 };
 
