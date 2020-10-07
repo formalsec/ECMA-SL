@@ -4,7 +4,7 @@
 */
 
 function lub(lev1, lev2){
-	return (lev1 && lev2);
+	return (lev1 || lev2);
 }
 function lubn(lev_arr){
 	var reducer = (accumulator, value) => lub(accumulator,value);
@@ -24,10 +24,28 @@ function leq(lev1, lev2){
 		}
 	}
 }
+function bottom(){
+	return false;
+}
+
+function top(){
+	return true;
+}
+
+function parseLvl(str){
+	if(str == 'low'){
+		return false;
+	} else if(str == 'high'){
+		return true;
+	}
+}
 
 module.exports = { 
 	lub : lub, 
 	leq : leq,
 	lubn : lubn,
+	bottom : bottom,
+	top : top,
+	parseLvl : parseLvl,
 
 };

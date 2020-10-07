@@ -15,9 +15,10 @@ function MakeAssign(Stmt){
     }
 
     interpret(config){
-      var v = this.expression.interpret(config.store);
-      config.store.sto[this.variable]=v;
+      console.log(">ASSIGN")
       config.cont=config.cont.slice(1);
+      var v = this.expression.interpret(config.store);
+      config.store.setValue(this.variable, v);
       return {config : config, seclabel: new AssignLab(this.variable, this.expression)};
     }
   }

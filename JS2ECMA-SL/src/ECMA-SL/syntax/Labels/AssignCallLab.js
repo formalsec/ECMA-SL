@@ -1,5 +1,5 @@
 const SCSFrame = require('../../SCSFrame');
-const Store = require('../../Store');
+const Store = require('../../SecStore');
 
 class AssignCallLab{
 	constructor(stringvar, f, args){
@@ -9,11 +9,9 @@ class AssignCallLab{
 	}
 	interpret(sec_conf){
 		sec_conf.scs.push(new SCSFrame(sec_conf.pc, sec_conf.ssto, this.stringvar));
-		console.log(this.args);
-		var vars = this.args.map(e => e.getVars());
-		var lvls = sec_conf.ssto.getLvls(vars);
-      if(this.f){
-       	sec_conf.ssto = new Store(this.f.params, lvls);
+		var lvls = this.args.map(e => sec_conf.ssto.getExprLvl(e));
+      if(this.f != undefined){
+       	sec_conf.ssto = new SecStore(this.f.params, lvls);
       }
 		return sec_conf;
 	}

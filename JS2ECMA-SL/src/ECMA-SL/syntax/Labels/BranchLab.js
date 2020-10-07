@@ -6,13 +6,10 @@ class BranchLab{
 	}
 	
 	interpret(sec_conf){
-		var vars = [];
-		vars = this.expr.getVars();
-		var reducer = (accumulator, value) => Lattice.lub(accumulator,value);
-		var expr_lvl = vars.reduce(reducer, false);
+		console.log(">BRANCH LAB");
+		var expr_lvl = sec_conf.ssto.getExprLvl(this.expr);
 		let pc_lvl = sec_conf.pc[0];
 		sec_conf.pc = [Lattice.lub(pc_lvl,expr_lvl)].concat(sec_conf.pc);
-
 		return sec_conf;
 	}
 	

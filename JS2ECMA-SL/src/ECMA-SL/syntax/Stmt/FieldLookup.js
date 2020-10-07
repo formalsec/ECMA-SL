@@ -17,7 +17,7 @@ function MakeFieldLookup(Stmt){
       var field = this.expressionField.interpret(config.store).value;
       config.store.sto[this.stringvar] = config.heap.getField(object, field);
       
-     return {config : config, seclabel: new FieldLookupLab(this.stringvar, object, field)};
+     return {config : config, seclabel: new FieldLookupLab(this.stringvar, object, field, this.expressionObject, this.expressionField)};
     }
 
    

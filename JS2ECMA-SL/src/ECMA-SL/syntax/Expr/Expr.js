@@ -9,7 +9,6 @@ const NOpt = require("./NOptExpr")(Expr);
 
 
 Expr.fromJSON = function(obj) {
-	
 	switch (obj.type) {
        case "value": return Val.fromJSON(obj); 
        case "var": return Var.fromJSON(obj); 

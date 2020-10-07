@@ -2,6 +2,7 @@ const Expr = require("../Expr/Expr");
 const Store = require("../../Store");
 const CsFrame = require("../../CsFrame");
 const AssignCallLab = require("../Labels/AssignCallLab");
+const Interceptor = require("../Interceptor");
 
 function MakeAssignCall(Stmt){
   class AssignCall extends Stmt {
@@ -20,8 +21,9 @@ function MakeAssignCall(Stmt){
     interpret(config){
       config.cont=config.cont.slice(1);
       var func_name = this.func.interpret(config.store);
-      var vs = this.args.map(e => e.interpret(config.store));
       var f = config.prog.getFunc(func_name.value);
+      var vs = this.args.map(e => e.interpret(config.store));
+      
       if(f){
         var new_store = new Store(f.params, vs);
         config.cs.push(new CsFrame(this.stringvar, config.cont, config.store));
@@ -30,6 +32,11 @@ function MakeAssignCall(Stmt){
         
       }else{
         //interceptor
+        var label = Interceptor.search(func_name.value, vs.map(v => v.value));
+        if(label != undefined)
+          return {config : config, seclabel: label};
+          
+
 
       }
       
