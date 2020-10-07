@@ -77,7 +77,7 @@ function mapper(callback, obj) {
     case "MemberExpression":
       return {
         type: "MemberExpression",
-        computed: new_object.computed,
+        computed: new_obj.computed,
         object: mapper(callback, new_obj.object),
         property: mapper(callback, new_obj.property),
       };
