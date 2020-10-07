@@ -106,8 +106,8 @@ function PutValue(V, W, globalObject) {
       {put}(base, GetReferencedName(V), W, IsStrictReference(V))
     } else {
       SetMutableBinding(base, GetReferencedName(V), W, IsStrictReference(V))
-    };
+    }
+  };
 
-    return
-  }
+  return
 }
