@@ -622,6 +622,28 @@ function JS_Interpreter_Stmt(s, scope) {
 
     return JS_Interpreter_TryStatement(s, scope)
   }
+  | { type: "DebuggerStatement" } -> {
+    /* 12.15 The debugger statement */
+
+    /* Evaluating the DebuggerStatement production may allow an implementation to cause a breakpoint when run
+       under a debugger. If a debugger is not present or active this statement has no observable effect. */
+
+    /* The production DebuggerStatement : debugger ; is evaluated as follows: */
+
+    /* 1. If an implementation defined debugging facility is available and enabled, then */
+    if(existsDebuggerImplementation()) { /* TODO */
+      /* a. Perform an implementation defined debugging action. */
+      /* b. Let result be an implementation defined Completion value. */
+      result := debuggerAction() /* TODO */
+    }
+    /* 2. Else */
+    else {
+      /* a. Let result be (normal, empty, empty). */
+      result := normalEmptyCompletion('empty)
+    };
+    /* 3. Return result. */
+    return result
+  }
 };
 
 function JS_Interpreter_TryStatement(TryStatement, scope) {
