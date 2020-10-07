@@ -15,7 +15,7 @@ function MakeFieldDelete(Stmt){
     		var object = this.expressionObject.interpret(config.store).value;
       		var field = this.expressionField.interpret(config.store).value;
     		config.heap.deleteField(object, field);
-    	return {config : config, seclabel: new FieldDeleteLab(object, field)};
+    	return {config : config, seclabel: new FieldDeleteLab(object, field, this.expressionObject, this.expressionField)};
 
     	}
 

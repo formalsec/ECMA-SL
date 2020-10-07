@@ -23,9 +23,9 @@ function MakeUnOptExpr(Expr){
 	}
 
 	  UnOptExpr.fromJSON = function(obj){
-	  	expr_lhs =  Expr.fromJSON(obj.lhs);
+	  	expr_rhs =  Expr.fromJSON(obj.rhs);
 	  	oper = Oper.fromJSON(obj.op);
-	  	return new UnOptExpr(oper,expr_lhs, expr_rhs);
+	  	return new UnOptExpr(oper, expr_rhs);
 	}
 	return UnOptExpr;
 }

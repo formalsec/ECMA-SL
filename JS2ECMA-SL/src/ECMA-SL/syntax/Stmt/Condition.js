@@ -1,5 +1,7 @@
 const Expr = require("../Expr/Expr");
+const BranchLab = require("../Labels/BranchLab");
 const EmptyLab = require("../Labels/EmptyLab");
+const Merge = require("./Merge");
 
 function MakeCondition(Stmt){
 	class Condition extends Stmt {
@@ -15,20 +17,24 @@ function MakeCondition(Stmt){
 		}
 
 		interpret(config){
+
 			var v = this.expr.interpret(config.store);
 			//Needs to be bool and true
-			if(v.value){
-				config.cont = [this.then_block].concat(config.cont.slice(1));
+			if(v.value){				
+				config.cont = [this.then_block].concat([new Merge()]).concat(config.cont.slice(1));
+				return {config : config, seclabel: new BranchLab(this.expr)};
 			} else{
 				if(this.else_block){
-					config.cont = [this.else_block].concat(config.cont.slice(1));
+					config.cont = [this.else_block].concat([new Merge()]).concat(config.cont.slice(1));
+					return {config : config, seclabel: new BranchLab(this.expr)};
 				}
 				else{
 					config.cont = config.cont.slice(1);
+					return {config : config, seclabel: new EmptyLab()};
 				}
 
 			}
-			return {config : config, seclabel: new BranchLab(this.expr)};
+			
 		}
 	}
 

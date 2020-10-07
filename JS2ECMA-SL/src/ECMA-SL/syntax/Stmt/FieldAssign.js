@@ -16,11 +16,12 @@ function MakeFieldAssign(Stmt){
     }
 
     interpret(config) {
+      console.log('>FIELD ASSIGN');
       config.cont = config.cont.slice(1) ;
       var object = this.expressionObject.interpret(config.store).value;
       var field = this.expressionField.interpret(config.store).value;
-      config.heap.heap[object][field] = this.expressionValue.interpret(config);
-      return {config : config, seclabel: new FieldAssignLab(object, field, this.expressionValue)};
+      config.heap.setFieldValue(object, field, this.expressionValue.interpret(config));
+      return {config : config, seclabel: new FieldAssignLab(object, field, this.expressionObject, this.expressionField, this.expressionValue)};
     }
   }
   FieldAssign.fromJSON = function(obj) {
