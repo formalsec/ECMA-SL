@@ -1,3 +1,4 @@
+import "test/section_7.8.esl";
 import "test/section_8.7.esl";
 import "test/section_8.9.esl";
 import "test/section_8.10.esl";

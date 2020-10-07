@@ -425,11 +425,11 @@ function JS_Interpreter_PropertyName(PropertyName, scope) {
       return Literal
     };
     /* The production PropertyName : NumericLiteral is evaluated as follows: */
-    if ((typeof Literal = __$Int) || (typeof Literal = __$Flt)) {
-      /* 1. Let nbr be the result of forming the value of the NumericLiteral. */
-      nbr := Literal;
-      return ToString(nbr)
-    }
+
+    /* 1. Let nbr be the result of forming the value of the NumericLiteral. */
+    nbr := formingTheValueOfTheNumericLiteral(Literal);
+    /* 2. Return ToString(nbr). */
+    return ToString(nbr)
   }
 };
 
