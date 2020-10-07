@@ -303,22 +303,61 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
     if (l_len PropertyNameAndValueList = 0) {
       return NewObject()
     };
+
     /* The production PropertyNameAndValueList : PropertyAssignment is evaluated as follows: */
+
     /* 1. Let obj be the result of creating a new object as if by the expression new Object()
-       where Object is the standard built-in constructor with that name. */
+          where Object is the standard built-in constructor with that name. */
     obj := NewObject();
 
+    /* The production PropertyNameAndValueList : PropertyNameAndValueList , PropertyAssignment is evaluated as follows: */
+
+    /* 1. Let obj be the result of evaluating PropertyNameAndValueList. */
     lPropList := l_len PropertyNameAndValueList;
     i := 0;
     while (i < lPropList) {
       /* 2. Let propId be the result of evaluating PropertyAssignment. */
       propId := JS_Interpreter_PropertyAssignment(l_nth(PropertyNameAndValueList, i), scope);
-      /* 3. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and false. */
+      /* 3. Let previous be the result of calling the [[GetOwnProperty]] internal method of obj with argument
+            propId.name. */
+      previous := GetOwnProperty(obj, getPropertyName(propId));
+      /* 4. If previous is not undefined then throw a SyntaxError exception if any of the following conditions are true */
+      if (!(previous = 'undefined)) {
+        /* a. This production is contained in strict code and IsDataDescriptor(previous) is true and
+              IsDataDescriptor(propId.descriptor) is true. */
+        if (/* TODO (strict = true) */ false &&
+            (IsDataPropertyDescriptor(previous) = true) &&
+            (IsDataPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
+          throw SyntaxErrorException()
+        };
+        /* b. IsDataDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true. */
+        if ((IsDataPropertyDescriptor(previous) = true) &&
+            (IsAccessorPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
+          throw SyntaxErrorException()
+        };
+        /* c. IsAccessorDescriptor(previous) is true and IsDataDescriptor(propId.descriptor) is true. */
+        if ((IsAccessorPropertyDescriptor(previous) = true) &&
+            (IsDataPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
+          throw SyntaxErrorException()
+        };
+        /* d. IsAccessorDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true and
+              either both previous and propId.descriptor have [[Get]] fields or both previous and propId.descriptor
+              have [[Set]] fields */
+        if ((IsAccessorPropertyDescriptor(previous) = true) &&
+            (IsAccessorPropertyDescriptor(getPropertyDescriptor(propId)) = true) &&
+            ((("Get" in_obj previous) && (!(previous.Get = 'undefined)) && ("Get" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Get = 'undefined)) ||
+             (("Set" in_obj previous) && (!(previous.Set = 'undefined)) && ("Set" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Set = 'undefined)))) {
+          throw SyntaxErrorException()
+        }
+      };
+
+      /* 5. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and
+            false. */
       DefineOwnProperty(obj, getPropertyName(propId), getPropertyDescriptor(propId), false);
 
       i := i + 1
     };
-    /* 4. Return obj. */
+    /* 6. Return obj. */
     return obj
   }
 };
