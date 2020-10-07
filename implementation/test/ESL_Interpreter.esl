@@ -180,7 +180,7 @@ function JS_Interpreter_Expr(e, scope) {
       {
         throw SyntaxErrorException()
       };
-      PutValue(lref, rval);
+      PutValue(lref, rval, getGlobalObject(getLexicalEnvironment(scope)));
       return rval
     }
   }
@@ -655,7 +655,7 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
     /* 3. Let value be GetValue(rhs). */
     value := GetValue(rhs);
     /* 4. Call PutValue(lhs, value). */
-    PutValue(lhs, value);
+    PutValue(lhs, value, getGlobalObject(getLexicalEnvironment(scope)));
     /* 5. Return a String value containing the same sequence of characters as in the Identifier. */
     /* return Identifier.name */
     return Identifier
@@ -1022,7 +1022,7 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
       /* b. Let lhsRef be the result of evaluating the LeftHandSideExpression ( it may be evaluated repeatedly). */
       lhsRef := JS_Interpreter_Expr(LeftHandSideExpression, scope);
       /* c. Call PutValue(lhsRef, P). */
-      PutValue(lhsRef, P);
+      PutValue(lhsRef, P, getGlobalObject(getLexicalEnvironment(scope)));
       /* d. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope);
       /* e. If stmt.value is not empty, let V = stmt.value. */
@@ -1078,7 +1078,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
             it may be evaluated repeatedly. */
       varRef := JS_Interpreter_Expr(varName, scope);
       /* c. Call PutValue(varRef, P). */
-      PutValue(varRef, P);
+      PutValue(varRef, P, getGlobalObject(getLexicalEnvironment(scope)));
       /* d. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope);
       /* e. If stmt.value is not empty, let V = stmt.value. */
