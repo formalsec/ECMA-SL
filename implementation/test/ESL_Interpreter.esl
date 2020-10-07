@@ -67,10 +67,7 @@ function JS_Interpreter_Expr(e, scope) {
     /* 11.1.3 Literal Reference */
 
     /* A Literal is evaluated as described in 7.8. */
-    if (typeof(value) = __$Int) {
-      return int_to_float value
-    };
-    return value
+    return formingTheValueOfTheNumericLiteral(value)
   }
   | { type: "ObjectExpression" } -> {
     /* 11.1.5 Object Initialiser */
