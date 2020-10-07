@@ -378,6 +378,37 @@ function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) {
     /* 5. Return Property Identifier (propName, desc). */
     return newPropertyIdentifier(propName, desc)
   }
+  | { type: "Property", key: PropertyName, value: FunctionExpression, kind: "get" } -> {
+    /* The production PropertyAssignment : get PropertyName ( ) { FunctionBody } is evaluated as follows: */
+
+    /* 1. Let propName be the result of evaluating PropertyName. */
+    propName := JS_Interpreter_PropertyName(PropertyName, scope);
+    /* 2. Let closure be the result of creating a new Function object as specified in 13.2 with an empty parameter list
+          and body specified by FunctionBody. Pass in the LexicalEnvironment of the running execution context as the
+          Scope. Pass in true as the Strict flag if the PropertyAssignment is contained in strict code or if its
+          FunctionBody is strict code. */
+    closure := JS_Interpreter_FunctionExpression(FunctionExpression, scope);
+    /* 3. Let desc be the Property Descriptor{[[Get]]: closure, [[Enumerable]]: true, [[Configurable]]: true} */
+    desc := newGetAccessorPropertyDescriptor(closure);
+    /* 4. Return Property Identifier (propName, desc). */
+    return newPropertyIdentifier(propName, desc)
+  }
+  | { type: "Property", key: PropertyName, value: FunctionExpression, kind: "set" } -> {
+    /* The production PropertyAssignment : set PropertyName ( PropertySetParameterList ) { FunctionBody } is
+       evaluated as follows: */
+
+    /* 1. Let propName be the result of evaluating PropertyName. */
+    propName := JS_Interpreter_PropertyName(PropertyName, scope);
+    /* 2. Let closure be the result of creating a new Function object as specified in 13.2 with parameters specified by
+          PropertySetParameterList and body specified by FunctionBody. Pass in the LexicalEnvironment of the
+          running execution context as the Scope. Pass in true as the Strict flag if the PropertyAssignment is contained
+          in strict code or if its FunctionBody is strict code. */
+    closure := JS_Interpreter_FunctionExpression(FunctionExpression, scope);
+    /* 3. Let desc be the Property Descriptor{[[Set]]: closure, [[Enumerable]]: true, [[Configurable]]: true} */
+    desc := newSetAccessorPropertyDescriptor(closure);
+    /* 4. Return Property Identifier (propName, desc). */
+    return newPropertyIdentifier(propName, desc)
+  }
 };
 
 function JS_Interpreter_PropertyName(PropertyName, scope) {
