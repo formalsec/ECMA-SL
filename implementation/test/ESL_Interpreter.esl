@@ -292,6 +292,22 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
           sign. */
     return -(oldValue)
   }
+  | { type: "UnaryExpression", operator: "!", argument: UnaryExpression } -> {
+    /* 11.4.9 Logical NOT Operator ( ! ) */
+
+    /* The production UnaryExpression : ! UnaryExpression is evaluated as follows: */
+
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. Let oldValue be ToBoolean(GetValue(expr)). */
+    oldValue := ToBoolean(GetValue(expr));
+    /* 3. If oldValue is true, return false. */
+    if (oldValue = true) {
+      return false
+    };
+    /* 4. Return true. */
+    return true
+  }
 };
 
 function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
