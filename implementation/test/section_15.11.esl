@@ -1,0 +1,21 @@
+/**
+ * 15.11.6.2 RangeError
+ *
+ * Indicates a numeric value has exceeded the allowable range.
+ */
+function RangeErrorException() {
+  return {
+    exception: "RangeError"
+  }
+};
+
+/**
+ * 15.11.6.5 TypeError
+ *
+ * Indicates the actual type of an operand is different than the expected type.
+ */
+function TypeErrorException() {
+  return {
+    exception: "TypeError"
+  }
+}

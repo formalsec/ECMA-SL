@@ -209,4 +209,14 @@ function FromPropertyDescriptor (Desc) {
 
    /** 7. Return obj. */
    return obj
+};
+
+function CopyDescriptor(Desc) {
+
+  if (IsDataPropertyDescriptor(Desc)) {
+    newDesc := newDataPropertyDescriptorFull(Desc.Value, Desc.Writable, Desc.Enumerable, Desc.Configurable);
+    return newDesc
+  };
+
+  throw "Incomplete CopyDescriptor - TODO"
 }

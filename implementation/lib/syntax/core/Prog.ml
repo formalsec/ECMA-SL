@@ -9,7 +9,11 @@ let create (funcs : Func.t list) : t =
 
 
 let get_func (prog : t ) (id : string) : Func.t =
-  Hashtbl.find prog id
+  try
+    Hashtbl.find prog id
+  with _ ->
+    (Printf.printf "Could not find function %s" id;
+    raise (Failure "Function not found."))
 
 let get_body (prog: t ) (id: string) : Stmt.t=
   let s = get_func prog id in

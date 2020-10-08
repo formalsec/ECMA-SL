@@ -10,6 +10,11 @@ type return =
   | Intermediate of state_t * Stmt.t list
   | Finalv of Val.t option
 
+type ctx_t = {
+  verbose : bool;
+  out : string;
+  monitor : bool;
+} 
 
 let add_fields_to (obj : Object.t) (fes : (Field.t * Expr.t) list) (eval_e : (Expr.t -> Val.t)) : unit =
   List.iter (fun (f, e) -> let e' = eval_e e in Object.set obj f e') fes
@@ -28,9 +33,12 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Second        -> Oper.second v
   | IntToFloat    -> Oper.int_to_float v
   | IntToString   -> Oper.int_to_string v
+  | IntOfString   -> Oper.int_of_string v
   | FloatToString -> Oper.float_to_string v
   | Sconcat       -> Oper.string_concat v
   | ObjToList     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjToList")
+  | ObjFields     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjFields")
+  | ToUint32      -> Oper.to_uint32 v
 
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
@@ -108,6 +116,16 @@ let eval_objtolist_oper (heap : Heap.t) (st : Store.t) (loc_expr : Expr.t) : Val
   | None   -> invalid_arg ("Exception in Core_Interpreter.eval_objtolist_oper: \"" ^ Loc.str loc' ^ "\" doesn't exist in the Heap")
   | Some o -> let fvs = Object.to_list o in (List (List.map (fun (f, v) -> Val.Tuple (Str f :: [v])) fvs))
 
+let eval_objfields_oper (heap : Heap.t) (st : Store.t) (loc_expr : Expr.t) : Val.t =
+  let loc = eval_expr st loc_expr in
+  let loc' = (match loc with
+      | Loc l -> l
+      | _     -> invalid_arg "Exception in Core_Interpreter.eval_objfields_oper: \"loc\" is not a Loc value") in
+  let obj = Heap.get heap loc' in
+  match obj with
+  | None   -> invalid_arg ("Exception in Core_Interpreter.eval_objfields_oper: \"" ^ Loc.str loc' ^ "\" doesn't exist in the Heap")
+  | Some o -> List (List.map (fun f -> Val.Str f) (Object.get_fields o))
+
 let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : Expr.t) (f : Expr.t): unit =
   let loc = eval_expr sto e and field = eval_expr sto f in
   let loc' = (match loc with
@@ -129,6 +147,8 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
   match s with
   | Skip ->
     (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
+  
+  | Merge -> (Intermediate ((cs, heap, sto), cont), SecLabel.MergeLab)
 
   | Print e ->
     (let v = eval_expr sto e in
@@ -168,16 +188,19 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
     if (Oper.is_true v) then
       match s1 with
       | Block block ->
+        let blockm = (block @ (Stmt.Merge :: [])) in
         (match s2 with
-         |Some v -> Intermediate ((cs, heap, sto), (block @ cont)), SecLabel.BranchLab (e,v)
-         |None -> Intermediate ((cs, heap, sto), (block @ cont)), SecLabel.BranchLab (e,(Stmt.Skip)))
+         |Some v -> Intermediate ((cs, heap, sto), (blockm @ cont)), SecLabel.BranchLab (e,v)
+         |None -> Intermediate ((cs, heap, sto), (blockm @ cont)), SecLabel.BranchLab (e,(Stmt.Skip)))
       | _ -> raise (Except "IF block expected ")
 
     else
       (match s2 with
        | Some v ->
          (match v with
-          | Block block2 -> Intermediate ((cs, heap, sto), (block2 @ cont)),SecLabel.BranchLab (e,s1)
+          | Block block2 -> 
+          let block2m = (block2 @ (Stmt.Merge :: [])) in
+          Intermediate ((cs, heap, sto), (block2m  @ cont)), SecLabel.BranchLab (e,s1)
           |_ -> raise (Except "Not expected"))
        | None ->
          (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab))
@@ -259,6 +282,12 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
 
   | AssignObjToList (st, e) ->
     let v = eval_objtolist_oper heap sto e in
+    Store.set sto st v;
+    (Intermediate ((cs, heap, sto), cont), SecLabel.AssignLab (st, e))
+
+
+  | AssignObjFields (st, e) ->
+    let v = eval_objfields_oper heap sto e in
     Store.set sto st v;
     (Intermediate ((cs, heap, sto), cont), SecLabel.AssignLab (st, e))
 
