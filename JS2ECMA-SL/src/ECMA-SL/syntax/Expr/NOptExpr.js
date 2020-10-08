@@ -29,6 +29,21 @@ function MakeNOptExpr(Expr){
     oper = Oper.fromJSON(obj.op);
     return new NOptExpr(oper,args);
   }
+
+  NOptExpr.ListExpr = class {
+    toString(elements = []) {
+      // Array.prototype.join concatenates the empty string when null or undefined appear.
+      return `[ ${elements
+        .map((elem) => {
+          if (elem === null || elem === undefined) {
+            return String(elem);
+          }
+          return elem;
+        })
+        .join(", ")} ]`;
+    }
+  }
+
   return NOptExpr;
 }
 

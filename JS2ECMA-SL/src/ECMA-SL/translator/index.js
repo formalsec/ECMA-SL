@@ -1,32 +1,36 @@
 const { generateFreshVar } = require("./generator");
 const Transforms = require("../transforms");
-const Assign = require("../syntax/Assign");
-const NewObj = require("../syntax/NewObj");
-const FieldAssign = require("../syntax/FieldAssign");
-const NOpt = require("../syntax/NOpt");
-const Val = require("../syntax/Val");
-const Var = require("../syntax/Var");
-const Return = require("../syntax/Return");
+const Stmt = require("../syntax/Stmt/Stmt");
+const Assign = require("../syntax/Stmt/Assign")(Stmt);
+const FieldAssign = require("../syntax/Stmt/FieldAssign")(Stmt);
+const Expr = require("../syntax/Expr/Expr");
+const NewObj = require("../syntax/Expr/NewObj")(Expr);
+const NOpt = require("../syntax/Expr/NOptExpr")(Expr);
+const ValExpr = require("../syntax/Expr/ValExpr")(Expr);
+const Val = require("../syntax/Val/Val");
+const PrimitiveVal = require("../syntax/Val/PrimitiveVal")(Val);
+const Var = require("../syntax/Expr/VarExpr")(Expr);
+const Return = require("../syntax/Stmt/Return")(Stmt);
 const Function = require("../syntax/Func");
-const Block = require("../syntax/Block");
+const Block = require("../syntax/Stmt/Block")(Stmt);
 
 function translateLiteral(eslVal) {
   return {
-    expression: new Val(eslVal),
+    expression: new ValExpr(new Val(eslVal)),
     statements: [],
   };
 }
 
 function translateBoolean(value) {
-  return translateLiteral(new Val.Bool(value));
+  return translateLiteral(new PrimitiveVal(value));
 }
 
 function translateString(value) {
-  return translateLiteral(new Val.Str(value));
+  return translateLiteral(new PrimitiveVal(value));
 }
 
 function translateNull() {
-  return translateLiteral(new Val.Null());
+  return translateLiteral(new PrimitiveVal());
 }
 
 function translateNumber(value) {
@@ -35,12 +39,12 @@ function translateNumber(value) {
   }
   if (Number.isInteger(value)) {
     if (Number.isSafeInteger(value)) {
-      return translateLiteral(new Val.Int(value));
+      return translateLiteral(new PrimitiveVal(value));
     }
 
     throw new Error("This number is not a safe integer: " + value);
   }
-  return translateLiteral(new Val.Flt(value));
+  return translateLiteral(new PrimitiveVal(value));
 }
 
 function translateArray(arr = []) {
