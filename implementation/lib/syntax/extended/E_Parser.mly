@@ -26,7 +26,8 @@
 %token <string> STRING
 %token <string> SYMBOL
 %token LAND LOR
-%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST TO_UINT32
+%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST TO_UINT32 OBJ_FIELDS
+
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
 %token IMPORT THROW
@@ -196,6 +197,8 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.ToUint32, e) } %prec unopt_prec
   | OBJ_TO_LIST; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ObjToList, e) } %prec unopt_prec
+  | OBJ_FIELDS; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ObjFields, e) } %prec unopt_prec
 
 prefix_binary_op_target:
   | LNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;

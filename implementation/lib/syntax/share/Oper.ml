@@ -32,7 +32,9 @@ type uopt = Neg
           | IntOfString
           | FloatToString
           | ObjToList
+          | ObjFields
           | ToUint32
+
 
 type nopt = ListExpr
           | TupleExpr
@@ -203,7 +205,9 @@ let str_of_unopt (op : uopt) : string = match op with
   | IntOfString   -> "int_of_string"
   | FloatToString -> "float_to_string"
   | ObjToList     -> "obj_to_list"
+  | ObjFields     -> "obj_fields"
   | ToUint32      -> "to_uint32"
+
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
@@ -279,4 +283,6 @@ let bopt_to_json (op : bopt) : string =
       | FloatToString -> Printf.sprintf "FloatToString\" }"
       | ObjToList -> Printf.sprintf "ObjToList\" }"
       | ToUint32 -> Printf.sprintf "ToUint32\" }")
+      | ObjFields -> Printf.sprintf "ObjFields\"")
+
 

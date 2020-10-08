@@ -79,6 +79,7 @@ rule read =
   | "int_of_string"   { INT_OF_STRING }
   | "float_to_string" { FLOAT_TO_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }
+  | "obj_fields"   { OBJ_FIELDS }
   | "to_uint32"       { TO_UINT32 }
   | '('               { LPAREN }
   | ')'               { RPAREN }
@@ -105,6 +106,7 @@ rule read =
   | "/*"              { read_comment lexbuf }
   | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof               { EOF }
+
 
 and read_comment =
 (* Read comments *)

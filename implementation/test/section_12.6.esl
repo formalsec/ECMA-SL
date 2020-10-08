@@ -1,22 +1,31 @@
 /* Auxiliary functions used to deal with enumerable properties of an ES5 object */
 /* Used in the implementation of the for..in statement */
-function getEnumerableProperties(object) {
-  ret := [];
+
+/* Enumerating the properties of an object includes enumerating properties of its prototype, and the prototype of
+   the prototype, and so on, recursively; but a property of a prototype is not enumerated if it is "shadowed"
+   because some previous object in the prototype chain has a property with the same name. The values of
+   [[Enumerable]] attributes are not considered when determining if a property of a prototype object is shadowed
+   by a previous object on the prototype chain. */
+function getEnumerableProperties(object, props) {
   i := 0;
-  list := obj_to_list object;
+  list := obj_fields object;
   llist := l_len list;
   while(llist > i) {
-    prop_desc := l_nth(list, i);
-    desc := t_nth(prop_desc, 1);
-    if (typeof desc = __$Obj) {
-      if (desc.Enumerable = true) {
-        ret := l_add(ret, prop_desc)
+    p_name := l_nth(list, i);
+    p_value := object[p_name];
+    if (typeof p_value = __$Obj) {
+      if (p_name = "Prototype") {
+        props := getEnumerableProperties(p_value, props)
+      } else {
+        if ((p_value.Enumerable = true) && !(p_name in_list props)) {
+          props := l_add(props, p_name)
+        }
       }
     };
     i := i + 1
   };
 
-  return ret
+  return props
 };
 
 function getNextPropertyName(props, idx) {
@@ -24,6 +33,5 @@ function getNextPropertyName(props, idx) {
     return "None"
   };
 
-  prop_desc := l_nth(props, idx);
-  return fst prop_desc
+  return l_nth(props, idx)
 }
