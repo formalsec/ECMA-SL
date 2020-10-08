@@ -25,7 +25,7 @@ let rec vars (exp:t): string list =
 let rec to_json (e : t): string =
   match e with
   | Val v               -> Printf.sprintf "{ \"type\" : \"value\", \"value\" : %s }" (Val.to_json v)
-  | Var x               -> Printf.sprintf "{ \"type\" : \"var\", \"name\" : %s }" x
-  | UnOpt (op, e)       -> Printf.sprintf "{ \"type\" : \"unop\", \"arg\" : %s, \"op\": %s }" (to_json e) (Oper.uopt_to_json op)  
-  | BinOpt (op, e1, e2) -> Printf.sprintf "{ \"type\" : \"binop\", \"left\" : %s, \"right\": %s,  \"op\": %s}" (to_json e1) (to_json e2) (Oper.bopt_to_json op) 
+  | Var x               -> Printf.sprintf "{ \"type\" : \"var\", \"name\" : \"%s\"}" x
+  | UnOpt (op, e)       -> Printf.sprintf "{ \"type\" : \"unop\", \"rhs\" : %s, \"op\": %s}" (to_json e) (Oper.uopt_to_json op)  
+  | BinOpt (op, e1, e2) -> Printf.sprintf "{ \"type\" : \"binop\", \"lhs\" : %s, \"rhs\": %s,  \"op\": %s}" (to_json e1) (to_json e2) (Oper.bopt_to_json op) 
   | NOpt (op, es)       -> Printf.sprintf "{ \"type\" : \"nop\", \"op\": %s, \"args\" : [ %s ]}"  (Oper.nopt_to_json op) (String.concat ", " (List.map to_json es))  

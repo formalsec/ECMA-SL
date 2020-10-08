@@ -1,4 +1,4 @@
-#!/bin/bash
+	#!/bin/bash
 printf "\t-------------------------------\n"
 printf "\t\tECMA-SL Test Tool\n"
 printf "\t-------------------------------\n"

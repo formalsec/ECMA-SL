@@ -25,7 +25,8 @@
 %token <string> SYMBOL
 %token <string> LOC
 %token LAND LOR
-%token INT_TO_FLOAT INT_TO_STRING FLOAT_TO_STRING OBJ_TO_LIST
+%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING TO_UINT32 OBJ_TO_LIST OBJ_FIELDS
+
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
 %token SCONCAT
@@ -158,6 +159,10 @@ expr_target:
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.IntToFloat, e) } %prec unopt_prec
   | INT_TO_STRING; e = expr_target;
     { Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
+  | INT_OF_STRING; e = expr_target;
+    { Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
+  | TO_UINT32; e = expr_target;
+    { Expr.UnOpt (Oper.ToUint32, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
@@ -219,6 +224,8 @@ stmt_target:
     { print_string ">ASSIGNNEWOBJ\n";Stmt.AssignNewObj (v) }
   | v = VAR; DEFEQ; OBJ_TO_LIST; e = expr_target;
     { print_endline ">ASSIGNOBJTOLIST"; Stmt.AssignObjToList (v, e) }
+  | v = VAR; DEFEQ; OBJ_FIELDS; e = expr_target;
+    { print_endline ">ASSIGNOBJFIELDS"; Stmt.AssignObjFields (v, e) }
 
 
 
