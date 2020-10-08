@@ -26,35 +26,6 @@ function ToPrimitive(input, PreferredType) {
   return input
 };
 
-function ToBoolean(argument) {
-  if ((Type(argument) = "Undefined") || (Type(argument) = "Null")) {
-    return false
-  };
-  if (Type(argument) = "Boolean") {
-    return argument
-  };
-  if (Type(argument) = "Number") {
-    if ((argument = '+0) || (argument = '-0) || (argument = 'NaN)) {
-      return false
-    } else {
-      return true
-    };
-
-    return true
-  };
-  if (Type(argument) = "String") {
-    /* TODO s_len */
-    if (l_len(argument) = 0) {
-      return false
-    } else {
-      return true
-    }
-  };
-  if (Type(argument) = "Object") {
-    return true
-  }
-};
-
 function Type(V) {
   v_type := typeof V;
   if (v_type = __$Int) { return "Number" };
