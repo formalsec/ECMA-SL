@@ -1,3 +1,5 @@
+import "test/section_15.11.esl";
+
 function GetProps(Desc) {
   list := [];
   if ("Value" in_obj Desc) { list := l_add(list, "Value") };
@@ -633,6 +635,7 @@ function DefineOwnProperty(O, P, Desc, Throw) {
    * a new [[Value]] is set, and then[[Writable]] is set to false.
    *
    */
+
 };
 
 
@@ -650,3 +653,4 @@ function setAllInternalMethodsOfObject(obj) {
 
   return obj
 }
+

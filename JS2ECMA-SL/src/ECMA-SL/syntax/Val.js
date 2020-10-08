@@ -1,8 +1,5 @@
-const Expr = require("./Expr");
-
-class Val extends Expr {
+  class Val{
   constructor(value) {
-    super();
     this.value = value;
   }
 
@@ -45,7 +42,7 @@ Val.Int = class {
 };
 
 Val.Bool = class {
-  constructor(value) {
+  constructor(value) {  
     this.value = value;
   }
 
@@ -59,5 +56,11 @@ Val.Null = class {
     return null;
   }
 };
+
+Val.fromJSON = function(obj){
+  val_value = obj.value;
+  value = val_value.value;
+  return new Val(value);
+}
 
 module.exports = Val;
