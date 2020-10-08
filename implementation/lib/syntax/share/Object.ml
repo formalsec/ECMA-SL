@@ -10,6 +10,8 @@ let delete (obj : t) (f : Field.t) : unit = Hashtbl.remove obj f
 
 let to_list (obj : t) : (Field.t * Val.t) list = List.of_seq (Hashtbl.to_seq obj)
 
+let get_fields (obj : t) : Field.t list = List.of_seq (Hashtbl.to_seq_keys obj)
+
 let str (obj : t) : string = (Hashtbl.fold (fun n v ac -> (if ac <> "{ " then ac ^ ", " else ac) ^ (Printf.sprintf "%s: %s" (Field.str n) (Val.str v))) obj "{ ") ^ " }"
 
 let to_json (obj : t) : string = (Hashtbl.fold (fun n v ac -> (if ac <> "{ " then ac ^ ", " else ac) ^ (Printf.sprintf "\"%s\": %s" (Field.str n) (Val.str v))) obj "{ ") ^ " }"
