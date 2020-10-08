@@ -13,7 +13,7 @@ class UpgStructValLab{  // Object_lvl
 		var exists = sec_conf.sheap.locationCheck(this.location);
 		if(exists){
 			if(Lattice.leq(lev_ctx, sec_conf.sheap.getObjectLvl(this.location))){
-				sec_conf.sheap.setObjectLvl(Lattice.lub(this.lvl, lev_ctx);
+				sec_conf.sheap.setObjectLvl(Lattice.lub(this.lvl, lev_ctx));
 			} else{
 				sec_conf.error = "Illegal P_Val Upgrade";
 			}

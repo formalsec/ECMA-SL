@@ -15,7 +15,7 @@ Interpreter.iterate = function(config, sec_conf){
 		mon_result= result.seclabel.interpret(sec_conf);
 		if(mon_result.error != undefined){
 			console.log("MONITOR EXCEPTION -> " + mon_result.error);
-			throw new Error("Manual Abort Script"); 
+			process.exit(1); 
 		}
 		this.iterate(result.config, mon_result); 
 	}

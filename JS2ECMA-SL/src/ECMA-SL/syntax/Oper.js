@@ -20,7 +20,7 @@ class Oper{
   		case "Elt": return new PrimitiveVal(val1.value <= val2.value); //Check
   		case "Log_And": return new PrimitiveVal(val1.value && val2.value); //Check
   		case "Log_Or": return new PrimitiveVal(val1.value || val2.value); //Check
-  		case "InObj": return new PrimitiveVal(true); //TODO
+  		case "InObj": return new PrimitiveVal(true); //TODO //Extended ECMA-SL
   		case "InList": return new PrimitiveVal(val1.value.includes(val2.value));
   		case "Lnth": return new PrimitiveVal(true);//TODO
   		case "Tnth":return new PrimitiveVal(true);//TODO

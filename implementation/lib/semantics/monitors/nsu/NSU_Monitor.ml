@@ -79,8 +79,8 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
          MReturn (scs, sheap, ssto, pc)
        ) else MFail ((scs, sheap, ssto, pc), ("Illegal UpgVarLab: " ^ x ^ " " ^ (SL.str lev)))
      | None ->
-       SecStore.set ssto x pc_lvl;
-       print_string ("SECSTORE = "^ x ^" <-"^ (SL.str pc_lvl) ^ "\n");
+       SecStore.set ssto x (SL.lub lev pc_lvl);
+       print_string ("SECSTORE = "^ x ^" <-"^ (SL.str (SL.lub lev pc_lvl)) ^ "\n");
        MReturn (scs, sheap, ssto, pc))
 
   | AssignLab (var, exp)->
@@ -214,6 +214,9 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
     let lev_o = expr_lvl ssto e_o in
     let lev_f = expr_lvl ssto e_f in
     let lev_ctx = SL.lubn [lev_o; lev_f; (check_pc pc)] in
+    print_string (SL.str lev_o);
+    print_string (SL.str lev_f);
+    print_string (SL.str lev_ctx);
     let lev_exp = expr_lvl ssto exp in
     (match SecHeap.get_field sheap loc field with
      | Some (lev_ef,lev_fv) ->

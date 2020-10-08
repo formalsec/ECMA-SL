@@ -199,7 +199,7 @@ let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | NAry_Or   -> String.concat " || " es
 
 let bopt_to_json (op : bopt) : string =
-  Printf.sprintf "{ \"type\" : \"Bopt\" : \"value\" : \"%s"
+  Printf.sprintf "{ \"type\" : \"binopt\", \"value\" : \"%s"
     (match op with
       | Plus    -> Printf.sprintf "Plus\" }"
       | Minus   -> Printf.sprintf "Minus\" }"
@@ -220,7 +220,7 @@ let bopt_to_json (op : bopt) : string =
       | Lconcat -> Printf.sprintf "Lconcat\" }")
 
   let nopt_to_json (op : nopt) : string =
-   Printf.sprintf "{ \"type\" : \"Nopt\" : \"value\" : \"%s"
+   Printf.sprintf "{ \"type\" : \"nopt\", \"value\" : \"%s"
     (match op with
       | ListExpr -> Printf.sprintf "ListExpr\" }"
       | TupleExpr -> Printf.sprintf "TupleExpr\" }"
@@ -228,7 +228,7 @@ let bopt_to_json (op : bopt) : string =
       | NAry_Or -> Printf.sprintf "NAry_Or\" }")
 
   let uopt_to_json (op : uopt) : string =
-   Printf.sprintf "{ \"type\" : \"Uopt\" : \"value\" : \"%s"
+   Printf.sprintf "{ \"type\" : \"unopt\", \"value\" : \"%s"
     (match op with
       | Neg      -> Printf.sprintf "Neg\" }"
       | Not      -> Printf.sprintf "Not\" }"
