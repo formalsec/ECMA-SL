@@ -115,7 +115,7 @@ function JS_Interpreter_Expr(e, scope) {
     strict := true; /* TODO */
     /* 8. Return a value of type Reference whose base value is baseValue and whose referenced name is
           propertyNameString, and whose strict mode flag is strict. */
-    return newValueReference(baseValue, propertyNameString, strict)
+    return newPropertyReference(baseValue, propertyNameString, strict)
   }
   | { type: "CallExpression", callee: MemberExpression, arguments: Arguments } -> {
     /* 11.2.3 Function Calls */
