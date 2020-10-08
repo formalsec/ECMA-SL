@@ -1102,15 +1102,6 @@ function JS_Interpreter_BinExpr(e, scope) {
           See the note below 11.6.3. /* TODO */
     return lnum - rnum
   }
-  | { type: "BinaryExpression", operator: "===", left: EqualityExpression, right: RelationalExpression } -> {
-    /* 11.9.4 The Strict Equals Operator ( === ) */
-    lref := JS_Interpreter_Expr(EqualityExpression, scope);
-    lval := GetValue(lref);
-    rref := JS_Interpreter_Expr(RelationalExpression, scope);
-    rval := GetValue(rref);
-
-    return StrictEqualityOperator(rval, lval)
-  }
   | { type: "BinaryExpression", operator: "*", left: MultiplicativeExpression, right: UnaryExpression } -> {
     /* 1. Let left be the result of evaluating MultiplicativeExpression. */
     left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
@@ -1251,6 +1242,49 @@ function JS_Interpreter_BinExpr(e, scope) {
     };
 
     return r
+  }
+  /* 11.9 Equality Operators */
+  /* The result of evaluating an equality operator is always of type Boolean, reflecting whether the relationship
+     named by the operator holds between its two operands.
+     The EqualityExpressionNoIn productions are evaluated in the same manner as the EqualityExpression
+     productions except that the contained EqualityExpressionNoIn and RelationalExpressionNoIn are evaluated
+     instead of the contained EqualityExpression and RelationalExpression, respectively. */
+  | { type: "BinaryExpression", operator: "===", left: EqualityExpression, right: RelationalExpression } -> {
+    /* 11.9.4 The Strict Equals Operator ( === ) */
+
+    /* The production EqualityExpression : EqualityExpression === RelationalExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating EqualityExpression. */
+    lref := JS_Interpreter_Expr(EqualityExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. Let rref be the result of evaluating RelationalExpression. */
+    rref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 4. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 5. Return the result of performing the strict equality comparison rval === lval. (See 11.9.6) */
+    return StrictEqualityOperator(rval, lval)
+  }
+  | { type: "BinaryExpression", operator: "!==", left: EqualityExpression, right: RelationalExpression } -> {
+    /* 11.9.5 The Strict Does-not-equal Operator ( !== ) */
+
+    /* The production EqualityExpression : EqualityExpression !== RelationalExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating EqualityExpression. */
+    lref := JS_Interpreter_Expr(EqualityExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. Let rref be the result of evaluating RelationalExpression. */
+    rref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 4. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 5. Let r be the result of performing strict equality comparison rval === lval. (See 11.9.6) */
+    r := StrictEqualityOperator(rval, lval)
+    /* 6. If r is true, return false. Otherwise, return true. */
+    if (r = true) {
+      return false
+    };
+    return true
   }
 };
 
