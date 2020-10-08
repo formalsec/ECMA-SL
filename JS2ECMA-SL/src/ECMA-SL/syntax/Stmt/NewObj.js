@@ -1,5 +1,4 @@
-const Expr = require("./Expr");
-
+const EmptyLab = require("../Labels/EmptyLab");
 class NewObj extends Expr {
   constructor(fieldValueList = []) {
     super();
