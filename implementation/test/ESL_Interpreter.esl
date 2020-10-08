@@ -168,6 +168,10 @@ function JS_Interpreter_Expr(e, scope) {
     /* 11.3 Postfix Expressions */
     return JS_Interpreter_PostfixExpressions(e, scope)
   }
+  | { type: "UpdateExpression", prefix: true } -> {
+    /* 11.4 Unary Operators */
+    return JS_Interpreter_UnaryOperator(e, scope)
+  }
   | { type: "AssignmentExpression", operator: op, left: l_expr, right: r_expr} -> {
     /* 11.13.1 Simple Assignment ( = ) */
     if (op = "=") {
@@ -187,6 +191,70 @@ function JS_Interpreter_Expr(e, scope) {
   }
   | { type: "BinaryExpression" } -> {
     return JS_Interpreter_BinExpr(e, scope)
+  }
+};
+
+function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
+  match UnaryExpression with
+  | { type: "UpdateExpression", operator: "++", argument: UnaryExpression, prefix: true } -> {
+    /* 11.4.4 Prefix Increment Operator */
+
+    /* The production UnaryExpression : ++ UnaryExpression is evaluated as follows: */
+
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. Throw a SyntaxError exception if the following conditions are all true: */
+    if (
+      /* Type(expr) is Reference is true */
+      (Type(expr) = "Reference") &&
+      /* IsStrictReference(expr) is true */
+      (IsStrictReference(expr) = true) &&
+      /* Type(GetBase(expr)) is Environment Record */
+      (Type(GetBase(expr)) = "Environment Record") && /* TODO */
+      /* GetReferencedName(expr) is either "eval" or "arguments" */
+      ((GetReferencedName(expr) = "eval") || (GetReferencedName(expr) = "arguments"))
+    ) {
+      throw SyntaxErrorException()
+    };
+    /* 3. Let oldValue be ToNumber(GetValue(expr)). */
+    oldValue := ToNumber(GetValue(expr));
+    /* 4. Let newValue be the result of adding the value 1 to oldValue, using the same rules as for the + operator
+          (see 11.6.3). */
+    newValue := oldValue + 1;
+    /* 5. Call PutValue(expr, newValue). */
+    PutValue(expr, newValue, getGlobalObject(getLexicalEnvironment(scope)));
+    /* 6. Return newValue.*/
+    return newValue
+  }
+  | { type: "UpdateExpression", operator: "--", argument: UnaryExpression, prefix: true } -> {
+    /* 11.4.5 Prefix Decrement Operator */
+
+    /* The production UnaryExpression : -- UnaryExpression is evaluated as follows: */
+
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. Throw a SyntaxError exception if the following conditions are all true: */
+    if (
+      /* Type(expr) is Reference is true */
+      (Type(expr) = "Reference") &&
+      /* IsStrictReference(expr) is true */
+      (IsStrictReference(expr) = true) &&
+      /* Type(GetBase(expr)) is Environment Record */
+      (Type(GetBase(expr)) = "Environment Record") && /* TODO */
+      /* GetReferencedName(expr) is either "eval" or "arguments" */
+      ((GetReferencedName(expr) = "eval") || (GetReferencedName(expr) = "arguments"))
+    ) {
+      throw SyntaxErrorException()
+    };
+    /* 3. Let oldValue be ToNumber(GetValue(expr)). */
+    oldValue := ToNumber(GetValue(expr));
+    /* 4. Let newValue be the result of subtracting the value 1 from oldValue, using the same rules as for the -
+          operator (see 11.6.3). */
+    newValue := oldValue - 1;
+    /* 5. Call PutValue(expr, newValue). */
+    PutValue(expr, newValue, getGlobalObject(getLexicalEnvironment(scope)));
+    /* 6. Return newValue.*/
+    return newValue
   }
 };
 
