@@ -1243,6 +1243,30 @@ function JS_Interpreter_BinExpr(e, scope) {
 
     return r
   }
+  | { type: "BinaryExpression", operator: "instanceof", left: RelationalExpression, right: ShiftExpression } -> {
+    /* 11.8.6 The instanceof operator */
+
+    /* The production RelationalExpression: RelationalExpression instanceof ShiftExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating RelationalExpression. */
+    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. Let rref be the result of evaluating ShiftExpression. */
+    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    /* 4. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 5. If Type(rval) is not Object, throw a TypeError exception. */
+    if (!(Type(rval) = "Object")) {
+      throw TypeErrorException()
+    };
+    /* 6. If rval does not have a [[HasInstance]] internal method, throw a TypeError exception. */
+    if ("HasInstance" in_obj rval) {
+      throw TypeErrorException()
+    };
+    /* 7. Return the result of calling the [[HasInstance]] internal method of rval with argument lval. */
+    return HasInstance(rval, lval)
+  }
   | { type: "BinaryExpression", operator: "in", left: RelationalExpression, right: ShiftExpression } -> {
     /* 11.8.7 The in operator */
 
