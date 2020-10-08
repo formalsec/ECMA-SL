@@ -258,6 +258,47 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* 3. Return undefined. */
     return 'undefined
   }
+  | { type: "UnaryExpression", operator: "typeof", argument: UnaryExpression } -> {
+    /* 11.4.3 The typeof Operator */
+
+    /* The production UnaryExpression : typeof UnaryExpression is evaluated as follows: */
+
+    /* 1. Let val be the result of evaluating UnaryExpression. */
+    val := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. If Type(val) is Reference, then */
+    if (Type(val) = "Reference") {
+      /* a. If IsUnresolvableReference(val) is true, return "undefined". */
+      if (IsUnresolvableReference(val) = true) {
+        return "undefined"
+      };
+      /* b. Let val be GetValue(val). */
+      val := GetValue(val)
+    };
+    /* 3. Return a String determined by Type(val) according to Table 20. */
+    if (Type(val) = "Undefined") {
+      return "undefined"
+    };
+    if (Type(val) = "Null") {
+      return "object"
+    };
+    if (Type(val) = "Boolean") {
+      return "boolean"
+    };
+    if (Type(val) = "Number") {
+      return "number"
+    };
+    if (Type(val) = "String") {
+      return "string"
+    };
+    if (Type(val) = "Object") {
+      return "object" /* TODO */
+      /* Object (native and does not implement [[Call]]) | "object" */
+      /* Object (native or host and does implement [[Call]]) | "function" */
+      /* Object (host and does not implement [[Call]]) | Implementation-defined except may
+                                                         not be "undefined", "boolean",
+                                                         "number", or "string". */
+    }
+  }
   | { type: "UpdateExpression", operator: "++", argument: UnaryExpression, prefix: true } -> {
     /* 11.4.4 Prefix Increment Operator */
 
