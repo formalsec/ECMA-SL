@@ -1,18 +1,51 @@
 import "test/ES5_Reference_Interpreter.esl";
 
-function JS_Interpreter(p) {
+function JS_Interpreter_Program(p) {
+  /* 14 Program */
   match p with
-  | { sourceType: "script", type: "Program", body: body } -> {
-    scope := NewObject();
-    i := 0;
-    lbody := l_len(body);
-    while (i<lbody) {
-      JS_Interpreter_Stmt(l_nth(body, i), scope);
-      i := i + 1
-    };
+  | { sourceType: "script", type: "Program", body: SourceElementsopt, variableDeclarations: vars, functionDeclarations: funcs } -> {
+    /* The production Program : SourceElements opt is evaluated as follows: */
 
-    return scope
+    /* 1. The code of this Program is strict mode code if the Directive Prologue (14.1) of its SourceElements
+          contains a Use Strict Directive or if any of the conditions of 10.1.1 apply. If the code of this
+          Program is strict mode code, SourceElements is evaluated in the following steps as strict mode code.
+          Otherwise SourceElements is evaluated in the following steps as non-strict mode code. */
+    /* TODO strict */
+    /* 2. If SourceElements is not present, return (normal, empty, empty). */
+    if (SourceElementsopt = []) {
+      return normalEmptyCompletion('empty)
+    };
+    /* 3. Let progCxt be a new execution context for global code as described in 10.4.1. */
+    progCxt := EnteringGlobalCode(p);
+    /* 4. Let result be the result of evaluating SourceElements. */
+    result := JS_Interpreter_SourceElements(SourceElementsopt, progCxt);
+    /* 5. Exit the execution context progCxt. */
+
+    /* 6. Return result. */
+    print progCxt;
+    return result
   }
+};
+
+function JS_Interpreter_SourceElements(SourceElements, scope) {
+  /* The production SourceElements : SourceElements SourceElement is evaluated as follows: */
+
+  i := 0;
+  lSourceElements := l_len(SourceElements);
+  while (i < lSourceElements) {
+    /* 1. Let headResult be the result of evaluating SourceElements. */
+    /* 2. If headResult is an abrupt completion, return headResult. */
+    /* 3. Let tailResult be result of evaluating SourceElement. */
+    /* 4. If tailResult.value is empty, let V = headResult.value, otherwise let V = tailResult.value. */
+    result := JS_Interpreter_Stmt(l_nth(SourceElements, i), scope);
+    if (isAnAbruptCompletion(result)) {
+      return result
+    };
+    V := getCompletionValue(result);
+    i := i + 1
+  };
+  /* 5. Return (tailResult.type, V, tailResult.target) */
+  return newCompletion(getCompletionType(result), V, getCompletionTarget(result))
 };
 
 function JS_Interpreter_Expr(e, scope) {
@@ -33,6 +66,14 @@ function JS_Interpreter_Expr(e, scope) {
     objectLocation.Prototype := value;
 
     return value
+  }
+  | { type: "ESLPrint", value: Argument } -> {
+    arg := JS_Interpreter_Expr(Argument, scope);
+    argValue := GetValue(arg);
+
+    print s_concat ["JSPrint - ", argValue];
+
+    return argValue
   }
   | { type: "MemberExpression", object: MemberExpression, property: Expression } -> {
     /* 11.2.1 Property Accessors */
@@ -57,6 +98,54 @@ function JS_Interpreter_Expr(e, scope) {
           propertyNameString, and whose strict mode flag is strict. */
     return newValueReference(baseValue, propertyNameString, strict)
   }
+  | { type: "CallExpression", callee: MemberExpression, arguments: Arguments } -> {
+    /* 11.2.3 Function Calls */
+
+    /* The production CallExpression : MemberExpression Arguments is evaluated as follows: */
+    /* 1. Let ref be the result of evaluating MemberExpression. */
+    ref := JS_Interpreter_Expr(MemberExpression, scope);
+    /* 2. Let func be GetValue(ref). */
+    func := GetValue(ref);
+    /* 3. Let argList be the result of evaluating Arguments, producing an internal list of argument values (see 11.2.4). */
+    argList := JS_Interpreter_Arguments(Arguments, scope);
+    /* 4. If Type(func) is not Object, throw a TypeError exception. */
+    if (!(Type(func) = "Object")) {
+      throw TypeErrorException()
+    };
+    /* 5. If IsCallable(func) is false, throw a TypeError exception. */
+    if (IsCallable(func) = false) {
+      throw TypeErrorException()
+    };
+    /* 6. If Type(ref) is Reference, then */
+    if (Type(ref) = "Reference") {
+      /* a. If IsPropertyReference(ref) is true, then */
+      if (IsPropertyReference(ref) = true) {
+        /* i. Let thisValue be GetBase(ref). */
+        thisValue := GetBase(ref)
+      }
+      /* b. Else, the base of ref is an Environment Record */
+      else {
+        /* i. Let thisValue be the result of calling the ImplicitThisValue concrete method of GetBase(ref). */
+        /* thisValue := ImplicitThisValue(GetBase(ref)) */ /* TODO */
+        thisValue := 'undefined
+      }
+    }
+    /* 7. Else, Type(ref) is not Reference. */
+    else {
+      /* a. Let thisValue be undefined. */
+      thisValue := 'undefined
+    };
+    /* 8. Return the result of calling the [[Call]] internal method on func, providing thisValue as the this value
+          and providing the list argList as the argument values. */
+    return Call(func, thisValue, argList)
+  }
+  | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
+    /* 11.2.5 Function Expressions */
+
+    /* The production MemberExpression : FunctionExpression is evaluated as follows: */
+    /* 1. Return the result of evaluating FunctionExpression. */
+    return JS_Interpreter_FunctionExpression(e, scope)
+  }
   | { type: "AssignmentExpression", operator: op, left: l_expr, right: r_expr} -> {
     /* 11.13.1 Simple Assignment ( = ) */
     if (op = "=") {
@@ -78,14 +167,121 @@ function JS_Interpreter_Expr(e, scope) {
     return JS_Interpreter_BinExpr(e, scope)
   }
   | { type: "Identifier", name: name } -> {
-    /* 10.3.1 Identifier Resolution : TO_COMPLETE */
-    return GetIdentifierReference(scope, name, true)
+    /* 11.1.2 Identifier Reference */
+
+    /* An Identifier is evaluated by performing Identifier Resolution as specified in 10.3.1. The result of evaluating an
+       Identifier is always a value of type Reference. */
+    return IdentifierResolution(name, scope)
   }
   | { type: "Literal", value: value } -> {
     if (typeof(value) = __$Int) {
       return int_to_float value
     };
     return value
+  }
+};
+
+function JS_Interpreter_Arguments(ArgumentsList, scope) {
+  /* 11.2.4 Argument Lists */
+  /* The evaluation of an argument list produces a List of values (see 8.8). */
+
+  /* The production ArgumentList : ArgumentList , AssignmentExpression is evaluated as follows:*/
+
+  args := [];
+  lArguments := l_len ArgumentsList;
+  i := 0;
+  /* 1. Let precedingArgs be the result of evaluating ArgumentList. */
+  while(lArguments > i) {
+    /* 2. Let ref be the result of evaluating AssignmentExpression. */
+    ref := JS_Interpreter_Expr(l_nth(ArgumentsList, i), scope);
+    /* 3. Let arg be GetValue(ref). */
+    arg := GetValue(ref);
+
+    args := l_add(args, arg);
+
+    i := i + 1
+  };
+
+  /* 4. Return a List whose length is one greater than the length of precedingArgs and whose items are the items of
+        precedingArgs, in order, followed at the end by arg which is the last item of the new list. */
+  return args
+};
+
+function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
+  print "JS_Interpreter_FunctionDeclaration";
+  print FunctionDeclaration;
+  /* 13 Function Definition */
+  match FunctionDeclaration with
+  | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
+    /* The production FunctionDeclaration : function Identifier ( FormalParameterListopt ) { FunctionBody }
+       is evaluated as follows: */
+
+    /* 1. Return the result of creating a new Function object as specified in 13.2 with parameters specified by
+          FormalParameterList opt , and body specified by FunctionBody. Pass in the VariableEnvironment of the running
+          execution context as the Scope. Pass in true as the Strict flag if the FunctionDeclaration is contained in
+          strict code or if its FunctionBody is strict code. */
+    return CreateFunctionObject(FormalParameterListopt, FunctionBody, getVariableEnvironment(scope), false) /* TODO strict */
+  }
+};
+
+function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
+  /* 13 Function Definition */
+  match FunctionExpression with
+  | { id: null, params: FormalParameterList, body: FunctionBody } -> {
+    /* The production FunctionExpression : function ( FormalParameterList opt ) { FunctionBody }
+       is evaluated as follows: */
+
+    /* 1. Return the result of creating a new Function object as specified in 13.2 with parameters specified by
+          FormalParameterList opt and body specified by FunctionBody. Pass in the LexicalEnvironment of the running
+          execution context as the Scope. Pass in true as the Strict flag if the FunctionExpression is contained in
+          strict code or if its FunctionBody is strict code. */
+    return CreateFunctionObject(FormalParameterList, FunctionBody, getLexicalEnvironment(scope), false) /* TODO strict */
+  }
+  | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
+    /* The production FunctionExpression : function Identifier ( FormalParameterList opt ) { FunctionBody }
+       is evaluated as follows: */
+
+    /* 1. Let funcEnv be the result of calling NewDeclarativeEnvironment passing the running execution context‘s
+          Lexical Environment as the argument. */
+    funcEnv := NewDeclarativeEnvironment(getLexicalEnvironment(scope));
+    /* 2. Let envRec be funcEnv’s environment record. */
+    envRec := getEnvironmentRecord(funcEnv);
+    /* 3. Call the CreateImmutableBinding concrete method of envRec passing the String value of Identifier as the argument. */
+    CreateImmutableBinding(envRec, Identifier.name);
+    /* 4. Let closure be the result of creating a new Function object as specified in 13.2 with parameters specified by
+          FormalParameterList opt and body specified by FunctionBody. Pass in funcEnv as the Scope. Pass in true as the
+          Strict flag if the FunctionExpression is contained in strict code or if its FunctionBody is strict code. */
+    closure := CreateFunctionObject(FormalParameterListopt, FunctionBody, funcEnv, false); /* TODO strict */
+    /* 5. Call the InitializeImmutableBinding concrete method of envRec passing the String value of Identifier and closure
+          as the arguments. */
+    InitializeImmutableBinding(envRec, Identifier.name, closure);
+    /* 6. Return closure. */
+    return closure
+
+
+    /* NOTE The Identifier in a FunctionExpression can be referenced from inside the FunctionExpression's FunctionBody to
+            allow the function to call itself recursively. However, unlike in a FunctionDeclaration, the Identifier in a
+            FunctionExpression cannot be referenced from and does not affect the scope enclosing the FunctionExpression. */
+  }
+};
+
+function JS_Interpreter_FunctionBody(SourceElementsopt, scope) {
+  /* The production FunctionBody : SourceElements opt is evaluated as follows: */
+
+  /* 1. The code of this FunctionBody is strict mode code if it is part of a FunctionDeclaration or
+        FunctionExpression that is contained in strict mode code or if the Directive Prologue (14.1)
+        of its SourceElements contains a Use Strict Directive or if any of the conditions in 10.1.1 apply.
+        If the code of this FunctionBody is strict mode code, SourceElements is evaluated in the following
+        steps as strict mode code. Otherwise, SourceElements is evaluated in the following steps as
+        non-strict mode code. */
+  /* TODO strict */
+  /* 2. If SourceElements is present return the result of evaluating SourceElements. */
+  if (!(SourceElementsopt = [])) {
+    return JS_Interpreter_SourceElements(SourceElementsopt, scope)
+  }
+  /* 3. Else return (normal, undefined, empty). */
+  else {
+    return normalEmptyCompletion('undefined)
   }
 };
 

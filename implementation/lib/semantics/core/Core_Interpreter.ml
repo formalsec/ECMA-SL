@@ -30,6 +30,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | IntToString   -> Oper.int_to_string v
   | IntOfString   -> Oper.int_of_string v
   | FloatToString -> Oper.float_to_string v
+  | Sconcat       -> Oper.string_concat v
   | ObjToList     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjToList")
   | ObjFields     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjFields")
   | ToUint32      -> Oper.to_uint32 v
@@ -144,7 +145,12 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
 
   | Print e ->
     (let v = eval_expr sto e in
-     print_endline ("PROGRAM PRINT: " ^ (Val.str v));
+    (match v with
+    | Loc l ->
+      (match Heap.get heap l with
+        | Some o -> print_endline ("PROGRAM PRINT: " ^ Object.str o)
+        | None   -> print_endline "PROGRAM PRINT: Nonexistent location" )
+    | _     -> print_endline ("PROGRAM PRINT: " ^ (Val.str v)));
      (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
     )
 

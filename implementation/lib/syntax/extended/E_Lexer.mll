@@ -28,6 +28,7 @@ let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
 let symbol  = '\''('+'|'-')*(var|int)
 let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
+let loc     = "$loc_"(digit|letter|'_')+
 
 (*
   The third section is
@@ -43,38 +44,40 @@ let newline = '\r'|'\n'|"\r\n"
 *)
 rule read =
   parse
-  | white             { read lexbuf }
-  | newline           { read lexbuf }
-  | ":="              { DEFEQ }
-  | '.'               { PERIOD }
-  | ';'               { SEMICOLON }
-  | ':'               { COLON }
-  | ','               { COMMA }
-  | '+'               { PLUS }
-  | '-'               { MINUS }
-  | '*'               { TIMES }
-  | '/'               { DIVIDE }
-  | '='               { EQUAL }
-  | '>'               { GT }
-  | '<'               { LT }
-  | ">="              { EGT }
-  | "<="              { ELT }
-  | "in_obj"          { IN_OBJ }
-  | "in_list"         { IN_LIST }
-  | '!'               { NOT }
-  | "&&"              { LAND }
-  | "||"              { LOR }
-  | "l_len"           { LLEN }
-  | "l_nth"           { LNTH }
-  | "l_add"           { LADD }
-  | "l_prepend"       { LPREPEND }
-  | "l_concat"        { LCONCAT }
-  | "hd"              { HD }
-  | "tl"              { TL }
-  | "t_len"           { TLEN }
-  | "t_nth"           { TNTH }
-  | "fst"             { FST }
-  | "snd"             { SND }
+
+  | white          { read lexbuf }
+  | newline        { read lexbuf }
+  | ":="           { DEFEQ }
+  | '.'            { PERIOD }
+  | ';'            { SEMICOLON }
+  | ':'            { COLON }
+  | ','            { COMMA }
+  | '+'            { PLUS }
+  | '-'            { MINUS }
+  | '*'            { TIMES }
+  | '/'            { DIVIDE }
+  | '='            { EQUAL }
+  | '>'            { GT }
+  | '<'            { LT }
+  | ">="           { EGT }
+  | "<="           { ELT }
+  | "in_obj"       { IN_OBJ }
+  | "in_list"      { IN_LIST }
+  | '!'            { NOT }
+  | "&&"           { LAND }
+  | "||"           { LOR }
+  | "l_len"        { LLEN }
+  | "l_nth"        { LNTH }
+  | "l_add"        { LADD }
+  | "l_prepend"    { LPREPEND }
+  | "l_concat"     { LCONCAT }
+  | "hd"           { HD }
+  | "tl"           { TL }
+  | "t_len"        { TLEN }
+  | "t_nth"        { TNTH }
+  | "fst"          { FST }
+  | "snd"          { SND }
+  | "s_concat"     { SCONCAT }
   | "int_to_float"    { INT_TO_FLOAT }
   | "int_to_string"   { INT_TO_STRING }
   | "int_of_string"   { INT_OF_STRING }
@@ -114,9 +117,11 @@ rule read =
   | string            { STRING (Lexing.lexeme lexbuf) }
   | var               { VAR (Lexing.lexeme lexbuf) }
   | symbol            { SYMBOL (Lexing.lexeme lexbuf) }
+  | loc            { LOC (Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }
   | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof               { EOF }
+
 
 
 and read_comment =
