@@ -17,7 +17,7 @@ class UpgPropExistsLab{  // Exists_lvl
 		var exists = sec_conf.sheap.fieldCheck(this.location, this.field);
 		if(exists){
 			if(Lattice.leq(lev_ctx, sec_conf.sheap.getFieldExistsLvl(this.location, this.field))){
-				sec_conf.sheap.setFieldExistsLvl(Lattice.lub(this.lvl, lev_ctx);
+				sec_conf.sheap.setFieldExistsLvl(Lattice.lub(this.lvl, lev_ctx));
 			} else{
 				sec_conf.error = "Illegal P_Val Upgrade";
 			}

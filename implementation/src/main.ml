@@ -53,11 +53,11 @@ let core_interpretation () : unit =
    Printf.printf "%s" jsonfile;
   let v, heap = CoreInterp.eval_prog prog !out !verb_aux "main" in
   (match v with
-  | Some z -> print_string ("MAIN return -> "^(Val.str z))
+  | Some z -> print_string ("MAIN return -> "^(Val.str z));
   | None -> print_string "ERROR HERE");
   if !heap_file <> ""
   then Parsing_Utils.write_file (Heap.str heap) !heap_file
-  else print_endline (Heap.str heap)
+  else print_string "\n"; print_endline (Heap.str heap)
 
 
 
