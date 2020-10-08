@@ -200,6 +200,52 @@ function JS_Interpreter_Expr(e, scope) {
 
 function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
   match UnaryExpression with
+  | { type: "UnaryExpression", operator: "delete", argument: UnaryExpression } -> {
+    /* 11.4.1 The delete Operator */
+
+    /* The production UnaryExpression : delete UnaryExpression is evaluated as follows: */
+
+    /* 1. Let ref be the result of evaluating UnaryExpression. */
+    ref := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. If Type(ref) is not Reference, return true. */
+    if (!(Type(ref) = "Reference")) {
+      return true
+    };
+    /* 3. If IsUnresolvableReference(ref) then, */
+    if (IsUnresolvableReference(ref)) {
+      /* a. If IsStrictReference(ref) is true, throw a SyntaxError exception. */
+      if (IsStrictReference(ref) = true) {
+        throw SyntaxErrorException()
+      }
+      /* b. Else, return true. */
+      else {
+        return true
+      }
+    };
+    /* 4. If IsPropertyReference(ref) is true, then */
+    if (IsPropertyReference(ref) = true) {
+      /* a. Return the result of calling the [[Delete]] internal method on ToObject(GetBase(ref)) providing
+            GetReferencedName(ref) and IsStrictReference(ref) as the arguments. */
+      return Delete(ToObject(GetBase(ref)), GetReferencedName(ref), IsStrictReference(ref))
+    }
+    /* 5. Else, ref is a Reference to an Environment Record binding, so */
+    else {
+      /* a. If IsStrictReference(ref) is true, throw a SyntaxError exception. */
+      if (IsStrictReference(ref) = true) {
+        throw SyntaxErrorException()
+      };
+      /* b. Let bindings be GetBase(ref). */
+      bindings := GetBase(ref);
+      /* c. Return the result of calling the DeleteBinding concrete method of bindings, providing
+            GetReferencedName(ref) as the argument. */
+      return DeleteBinding(bindings, GetReferencedName(ref))
+    }
+
+    /* NOTE When a delete operator occurs within strict mode code, a SyntaxError exception is thrown if its
+            UnaryExpression is a direct reference to a variable, function argument, or function name.
+            In addition, if a delete operator occurs within strict mode code and the property to be deleted has
+            the attribute { [[Configurable]]: false }, a TypeError exception is thrown. */
+  }
   | { type: "UpdateExpression", operator: "++", argument: UnaryExpression, prefix: true } -> {
     /* 11.4.4 Prefix Increment Operator */
 
