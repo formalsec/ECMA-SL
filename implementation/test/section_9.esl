@@ -1,3 +1,37 @@
+/* 9.3 ToNumber */
+function ToNumber(argument) {
+/* The abstract operation ToNumber converts its argument to a value of type Number according to Table 12: */
+
+  argument_type := Type(argument);
+  if (argument_type = "Undefined") {
+    return 'NaN
+  };
+  if (argument_type = "Null") {
+    return '+0
+  };
+  if (argument_type = "Boolean") {
+    /* The result is 1 if the argument is true. The result is +0 if the argument is false. */
+    if (argument = true) {
+      return int_to_float 1 /* TODO check this!! */
+    };
+    return '+0
+  };
+  if (argument_type = "Number") {
+    return argument
+  };
+  if (argument_type = "String") {
+    throw NotImplemented() /* TODO */
+  };
+  if (argument_type = "Object") {
+    /* Apply the following steps: */
+
+    /* 1. Let primValue be ToPrimitive(input argument, hint Number). */
+    primValue := ToPrimitive(argument, 'Number);
+    /* 2. Return ToNumber(primValue). */
+    return ToNumber(primValue)
+  }
+};
+
 /* 9.8 ToString */
 function ToString(V) {
   v_type := Type(V);

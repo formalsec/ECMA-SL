@@ -55,11 +55,6 @@ function ToBoolean(argument) {
   }
 };
 
-/** Draft */
-function ToNumber(V) {
-  return V
-};
-
 function Type(V) {
   v_type := typeof V;
   if (v_type = __$Int) { return "Number" };
