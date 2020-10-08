@@ -11,6 +11,7 @@ import "test/section_10.4.esl";
 import "test/section_10.5.esl";
 import "test/section_10.6.esl";
 import "test/section_11.8.esl";
+import "test/section_11.9.esl";
 import "test/section_12.6.esl";
 import "test/section_12.11.esl";
 import "test/section_13.esl";
@@ -48,46 +49,4 @@ function Type(V) {
   };
 
   throw SyntaxErrorException()
-};
-
-function StrictEqualityOperator(x, y) {
-  print "StrictEqualityOperator";
-  if (!(Type(x) = Type(y))) {
-    return false
-  };
-  if (Type(x) = "Undefined") {
-    return true
-  };
-  if (Type(x) = "Null") {
-    return true
-  };
-  if (Type(x) = "Number") {
-    if (x = 'NaN) {
-      return false
-    };
-    if (y = 'NaN) {
-      return false
-    };
-    if (x = y) {
-      return true
-    };
-    if ((x = '+0) && (y = '-0)) {
-      return true
-    };
-    if ((x = '-0) && (y = '+0)) {
-      return true
-    };
-
-    return false
-  };
-  if (Type(x) = "String") {
-    /* TODO */
-    return x = y
-  };
-  if (Type(x) = "Boolean") {
-    /* TODO */
-    return x = y
-  };
-
-  return x = y
 }
