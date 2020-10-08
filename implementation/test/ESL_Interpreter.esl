@@ -246,6 +246,18 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
             In addition, if a delete operator occurs within strict mode code and the property to be deleted has
             the attribute { [[Configurable]]: false }, a TypeError exception is thrown. */
   }
+  | { type: "UnaryExpression", operator: "void", argument: UnaryExpression } -> {
+    /* 11.4.2 The void Operator */
+
+    /* The production UnaryExpression : void UnaryExpression is evaluated as follows: */
+
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. Call GetValue(expr). */
+    GetValue(expr);
+    /* 3. Return undefined. */
+    return 'undefined
+  }
   | { type: "UpdateExpression", operator: "++", argument: UnaryExpression, prefix: true } -> {
     /* 11.4.4 Prefix Increment Operator */
 
