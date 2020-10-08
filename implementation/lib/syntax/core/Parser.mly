@@ -23,10 +23,13 @@
 %token <string> VAR
 %token <string> STRING
 %token <string> SYMBOL
+%token <string> LOC
 %token LAND LOR
-%token INT_TO_FLOAT FLOAT_TO_STRING OBJ_TO_LIST
+%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING TO_UINT32 OBJ_TO_LIST OBJ_FIELDS
+
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
-%token NOT LLEN LNTH LADD LCONCAT HD TL TLEN TNTH FST SND
+%token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
+%token SCONCAT
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
@@ -119,6 +122,8 @@ val_target:
       print_string ">STR\n";Val.Str sub } (* Remove the double-quote characters from the parsed string *)
   | s = SYMBOL;
     { print_string ">SYMBOL\n";Val.Symbol s }
+  | l = LOC;
+    { Val.Loc l }
   | t = type_target;
     { print_string ">TYPE \n";Val.Type t }
 
@@ -152,6 +157,12 @@ expr_target:
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Second, e) } %prec unopt_prec
   | INT_TO_FLOAT; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.IntToFloat, e) } %prec unopt_prec
+  | INT_TO_STRING; e = expr_target;
+    { Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
+  | INT_OF_STRING; e = expr_target;
+    { Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
+  | TO_UINT32; e = expr_target;
+    { Expr.UnOpt (Oper.ToUint32, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
@@ -162,10 +173,14 @@ expr_target:
     { print_string ">BINOP\n";Expr.BinOpt (Oper.Tnth, e1, e2) }
   | LADD; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { print_string ">BINOP\n";Expr.BinOpt (Oper.Ladd, e1, e2) }
+  | LPREPEND; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    { Expr.BinOpt (Oper.Lprepend, e1, e2) }
   | LCONCAT; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { print_string ">BINOP\n";Expr.BinOpt (Oper.Lconcat, e1, e2) }
   | LPAREN; e = expr_target; RPAREN;
     { print_string ">PAREN\n";e }
+  | SCONCAT; e = expr_target;
+    { print_string ">UNOP\n";Expr.UnOpt (Oper.Sconcat, e) } %prec unopt_prec
 
 stmt_block:
 | s= separated_list (SEMICOLON, stmt_target);
@@ -209,6 +224,8 @@ stmt_target:
     { print_string ">ASSIGNNEWOBJ\n";Stmt.AssignNewObj (v) }
   | v = VAR; DEFEQ; OBJ_TO_LIST; e = expr_target;
     { print_endline ">ASSIGNOBJTOLIST"; Stmt.AssignObjToList (v, e) }
+  | v = VAR; DEFEQ; OBJ_FIELDS; e = expr_target;
+    { print_endline ">ASSIGNOBJFIELDS"; Stmt.AssignObjFields (v, e) }
 
 
 

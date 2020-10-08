@@ -59,4 +59,20 @@ function CheckObjectCoercible(V) {
   };
 
   return
+};
+
+function IsCallable(V) {
+  /* 9.11 IsCallable */
+
+  /* The abstract operation IsCallable determines if its argument, which must be an ECMAScript language value,
+     is a callable function Object according to Table 16: */
+  v_type := Type(V);
+  if (v_type = "Object") {
+    if ("Call" in_obj V) {
+      return true
+    };
+    return false
+  };
+
+  return false
 }

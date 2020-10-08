@@ -25,10 +25,13 @@
 %token <string> VAR
 %token <string> STRING
 %token <string> SYMBOL
+%token <string> LOC
 %token LAND LOR
-%token INT_TO_FLOAT FLOAT_TO_STRING OBJ_TO_LIST
+%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST TO_UINT32 OBJ_FIELDS
+
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
-%token NOT LLEN LNTH LADD LCONCAT HD TL TLEN TNTH FST SND
+%token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
+%token SCONCAT
 %token IMPORT THROW
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
@@ -128,6 +131,8 @@ val_target:
       Val.Str sub } (* Remove the double-quote characters from the parsed string *)
   | s = SYMBOL;
     { Val.Symbol s }
+  | l = LOC;
+    { Val.Loc l }
   | t = type_target;
     { Val.Type t }
 
@@ -186,10 +191,23 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.Second, e) } %prec unopt_prec
   | INT_TO_FLOAT; e = e_expr_target;
     { E_Expr.UnOpt (Oper.IntToFloat, e) } %prec unopt_prec
+  | INT_TO_STRING; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
+  | INT_OF_STRING; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
+  | TO_UINT32; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ToUint32, e) } %prec unopt_prec
   | OBJ_TO_LIST; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ObjToList, e) } %prec unopt_prec
+
+  | SCONCAT; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Sconcat, e) } %prec unopt_prec
+
+  | OBJ_FIELDS; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ObjFields, e) } %prec unopt_prec
+
 
 prefix_binary_op_target:
   | LNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
@@ -198,6 +216,8 @@ prefix_binary_op_target:
     { E_Expr.BinOpt (Oper.Tnth, e1, e2) }
   | LADD; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Ladd, e1, e2) }
+  | LPREPEND; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Lprepend, e1, e2) }
   | LCONCAT; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Lconcat, e1, e2) }
 

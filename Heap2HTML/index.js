@@ -22,7 +22,7 @@ if (args.length === 4 && args.indexOf("-f") !== -1) {
         let innerPropValue = heapObj[prop][innerProp]
         let innerPropHtmlString = ""
 
-        if (String(innerPropValue).startsWith("loc")) {
+        if (String(innerPropValue).startsWith("$loc_")) {
           innerPropHtmlString += `
           <li class="expand">
             <span>${innerProp}:</span>
