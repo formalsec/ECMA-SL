@@ -15,6 +15,11 @@ class SecHeap extends Heap{
 				else return true;
 			}
 	}
+	locationCheck(object){
+		var obj = this.heap[object];
+		if(obj == undefined) return false;
+		else return true;
+	}
 	getField(object,field){
 		return this.heap[object][field];
 	}
@@ -32,6 +37,12 @@ class SecHeap extends Heap{
 		this.heap[object].sec_object[field].exists_lvl = exists_lvl;
 		this.heap[object].sec_object[field].val_lvl = val_lvl;
 	}
+	setStructLvl(location, lvl){
+		this.heap[location].struct_lvl = lvl;
+	}
+	setObjectLvl(location, lvl){
+		this.heap[location].objects_lvl = lvl;
+	}
 	setFieldLvls(location, field, lvl){
 		this.heap[location].sec_object[field] = {};
 		this.heap[location].sec_object[field].exists_lvl = lvl;
@@ -40,8 +51,14 @@ class SecHeap extends Heap{
 	setFieldValLvl(location, field, lvl){
 		this.heap[location].sec_object[field].val_lvl = lvl;
 	}
+	setFieldExistsLvl(location, field, lvl){
+		this.heap[location].sec_object[field].exists_lvl = lvl;
+	}
 	getStructLvl(location){
 		return this.heap[location].struct_lvl;
+	}
+	getObjectLvl(location){
+		return this.heap[location].object_lvl;
 	}
 	getFieldValLvl(location,field){
 		return this.heap[location].sec_object[field].val_lvl;
