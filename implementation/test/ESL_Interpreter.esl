@@ -172,6 +172,10 @@ function JS_Interpreter_Expr(e, scope) {
     /* 11.4 Unary Operators */
     return JS_Interpreter_UnaryOperator(e, scope)
   }
+  | { type: "UnaryExpression", prefix: true } -> {
+    /* 11.4 Unary Operators */
+    return JS_Interpreter_UnaryOperator(e, scope)
+  }
   | { type: "AssignmentExpression", operator: op, left: l_expr, right: r_expr} -> {
     /* 11.13.1 Simple Assignment ( = ) */
     if (op = "=") {
@@ -255,6 +259,38 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     PutValue(expr, newValue, getGlobalObject(getLexicalEnvironment(scope)));
     /* 6. Return newValue.*/
     return newValue
+  }
+  | { type: "UnaryExpression", operator: "+", argument: UnaryExpression } -> {
+    /* 11.4.6 Unary + Operator */
+
+    /* The unary + operator converts its operand to Number type. */
+
+    /* The production UnaryExpression : + UnaryExpression is evaluated as follows: */
+
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. Return ToNumber(GetValue(expr)). */
+    return ToNumber(GetValue(expr))
+  }
+  | { type: "UnaryExpression", operator: "-", argument: UnaryExpression } -> {
+    /* 11.4.7 Unary - Operator */
+
+    /* The unary - operator converts its operand to Number type and then negates it. Note that negating +0
+       produces -0, and negating -0 produces +0. */
+
+    /* The production UnaryExpression : - UnaryExpression is evaluated as follows: */
+
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 2. Let oldValue be ToNumber(GetValue(expr)). */
+    oldValue := ToNumber(GetValue(expr));
+    /* 3. If oldValue is NaN, return NaN. */
+    if (oldValue = 'NaN) {
+      return 'NaN
+    };
+    /* 4. Return the result of negating oldValue; that is, compute a Number with the same magnitude but opposite
+          sign. */
+    return -(oldValue)
   }
 };
 
