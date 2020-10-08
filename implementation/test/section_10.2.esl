@@ -262,6 +262,57 @@ function GetBindingValueObject(objectEnvRec, N, S) {
   return Get(bindings, N)
 };
 
+
+/*
+  Delete a binding from an environment record. The String value N
+  is the text of the bound name If a binding for N exists, remove
+  the binding and return true. If the binding exists but cannot be
+  removed return false. If the binding does not exist return true.
+  */
+function DeleteBinding(envRec, N) {
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return DeleteBindingDeclarative(envRec, N)
+  };
+  return DeleteBindingObject(envRec, N)
+};
+
+function DeleteBindingDeclarative(declarativeEnvRec, N) {
+  /* 10.2.1.1.5 DeleteBinding (N) */
+
+  /* The concrete Environment Record method DeleteBinding for declarative environment records can only delete
+     bindings that have been explicitly designated as being subject to deletion. */
+
+  /* 1. Let envRec be the declarative environment record for which the method was invoked. */
+  envRec := declarativeEnvRec;
+  /* 2. If envRec does not have a binding for the name that is the value of N, return true. */
+  if (!(N in_obj envRec)) {
+    return true
+  };
+  /* 3. If the binding for N in envRec is cannot be deleted, return false. */
+  if (envRec[N] = "cannot be deleted") { /* TODO */
+    return false
+  };
+  /* 4. Remove the binding for N from envRec. */
+  delete envRec[N];
+  /* 5. Return true. */
+  return true
+};
+
+function DeleteBindingObject(objectEnvRec, N) {
+  /* 10.2.1.2.5 DeleteBinding (N) */
+
+  /* The concrete Environment Record method DeleteBinding for object environment records can only delete
+     bindings that correspond to properties of the environment object whose [[Configurable]] attribute have the
+     value true. */
+
+  /* 1. Let envRec be the object environment record for which the method was invoked. */
+  envRec := objectEnvRec;
+  /* 2. Let bindings be the binding object for envRec. */
+  bindings := getBindingObject(envRec);
+  /* 3. Return the result of calling the [[Delete]] internal method of bindings, passing N and false as arguments. */
+  return Delete(bindings, N, false)
+};
+
 /*
   Returns the value to use as the this value on calls to function objects that are obtained as
   binding values from this environment record.
