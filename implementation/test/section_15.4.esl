@@ -115,6 +115,25 @@ function newArray(items) {
 
 
 /**
+ * 15.4.4.2 Array.prototype.toString ( )
+ *
+ * When the toString method is called, the following steps are taken:
+ */
+function toStringArray(this) {
+
+};
+/**
+ * NOTE The toString function is intentionally generic; it does not
+ * require that its this value be an Array object. Therefore it can be
+ * transferred to other kinds of objects for use as a method. Whether thetoString function can be applied successfully to a host object is implementation-dependent.
+
+
+ */
+
+
+
+
+/**
  * 15.4.4.4 Array.prototype.concat ( [ item1 [ , item2 [ , … ] ] ] )
  *
  * When the concat method is called with zero or more arguments item1, item2,
@@ -225,12 +244,12 @@ function join(this, separator) {
   O := ToObject(this);
   /* 2. Let lenVal be the result of calling the [[Get]] internal method
         of O with argument "length". */
-  lenVal := {O.Get}("length");
+  lenVal := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(lenVal). */
   len := to_uint32 lenVal;
   /* 4. If separator is undefined, let separator be the single-character
         String ",". */
-  if (Type(separator) = "Undefined") {
+  if (separator = 'undefined) {
     separator := ","
   };
   /* 5. Let sep be ToString(separator). */
@@ -241,10 +260,10 @@ function join(this, separator) {
   };
   /* 7. Let element0 be the result of calling the [[Get]] internal method
         of O with argument "0". */
-  element0 := {O.Get}("0");
+  element0 := {O.Get}(O, "0");
   /* 8. If element0 is undefined or null, let R be the empty String;
         otherwise, Let R be ToString(element0). */
-  if (Type(element0) = "Undefined" || Type(element0) = "Null") {
+  if (element0 = 'undefined || element0 = null) {
     R := ""
   } else {
     R := ToString(element0)
@@ -254,19 +273,19 @@ function join(this, separator) {
   /* 10. Repeat, while k < len */
   while (k < len) {
     /* a. Let S be the String value produced by concatenating R and sep. */
-    S := R + sep; /* TODO FIXME */
+    S := s_concat([R, sep]);
     /* b. Let element be the result of calling the [[Get]] internal method
           of O with argument ToString(k). */
-    element := {O.Get}(ToString(k));
+    element := {O.Get}(O, ToString(k));
     /* c. If element is undefined or null, Let next be the empty String;
           otherwise, let next be ToString(element). */
-    if (Type(element) = "Undefined" || Type(element) = "Null") {
+    if (element = 'undefined || element = null) {
       next := ""
     } else {
       next := ToString(element)
     };
     /* d. Let R be a String value produced by concatenating S and next. */
-    R := S + next; /* TODO FIXME */
+    R := s_concat([S, next]);
     /* e. Increase k by 1. */
     k := k + 1
   };
@@ -296,32 +315,42 @@ function pop(this) {
   O := ToObject(this);
   /* 2. Let lenVal be the result of calling the [[Get]] internal method of
         O with argument "length". */
-  lenVal := {O.Get}("length");
+  lenVal := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(lenVal). */
   len := to_uint32 lenVal;
 
+  print "POP LENGTH: ";
+  print len;
+
   /* 4. If len is zero, */
-  if (len = 0) {
+  if (len = 0.) {
     /* a. Call the [[Put]] internal method of O with arguments "length",
           0, and true. */
-    {O.Put}("length", 0, true);
+    {O.Put}(O, "length", 0., true);
     /* b. Return undefined. */
-    return 'undefined /* TODO */
+    return 'undefined
   }
   /* 5. Else, len > 0 */
   else {
-    if (len > 0) {
+    print "POP ELSE!";
+    print "POP ELSE2!";
+    if (len > 0.) {
+      print "POP ELSE IF!";
       /* a. Let indx be ToString(len–1). */
       indx := ToString(len - 1);
+      print indx;
       /* b. Let element be the result of calling the [[Get]] internal method
             of O with argument indx. */
-      element := {O.Get}(indx);
+      element := {O.Get}(O, indx);
+      print "POP GET";
       /* c. Call the [[Delete]] internal method of O with arguments indx
             and true. */
-      {O.Delete}(indx, true);
+      {O.Delete}(O, indx, true);
+      print "POP DELETE";
       /* d. Call the [[Put]] internal method of O with arguments "length",
             indx, and true. */
-      {O.Put}("length", indx, true);
+      {O.Put}(O, "length", indx, true);
+      print "POP PUT";
       /* e. Return element. */
       return element
     }
@@ -352,7 +381,7 @@ function push(this, items) {
   O := ToObject(this);
   /* 2. Let lenVal be the result of calling the [[Get]] internal method of O
         with argument "length". */
-  lenVal := {O.Get}("length");
+  lenVal := {O.Get}(O, "length");
   /* 3. Let n be ToUint32(lenVal). */
   n := to_uint32 lenVal;
   /* 4. Let items be an internal List whose elements are, in left to right
@@ -366,13 +395,13 @@ function push(this, items) {
     items := tl items;
     /* b. Call the [[Put]] internal method of O with arguments ToString(n),
           E, and true. */
-    {O.Put}(ToString(n), E, true);
+    {O.Put}(O, ToString(n), E, true);
     /* c. Increase n by 1. */
     n := n + 1
   };
   /* 6. Call the [[Put]] internal method of O with arguments "length", n,
         and true. */
-  {O.Put}("length", n, true);
+  {O.Put}(O, "length", n, true);
   /* 7. Return n. */
   return n
 };
@@ -400,7 +429,7 @@ function reverse(this) {
   O := ToObject(this);
   /* 2. Let lenVal be the result of calling the [[Get]] internal method of O
         with argument "length". */
-  lenVal := {O.Get}("length");
+  lenVal := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(lenVal). */
   len := to_uint32 lenVal;
   /* 4. Let middle be floor(len/2). */
@@ -417,10 +446,10 @@ function reverse(this) {
     lowerP := ToString(lower);
     /* d. Let lowerValue be the result of calling the [[Get]] internal
           method of O with argument lowerP. */
-    lowerValue := {O.Get}(lowerP);
+    lowerValue := {O.Get}(O, lowerP);
     /* e. Let upperValue be the result of calling the [[Get]] internal
           method of O with argument upperP . */
-    upperValue := {O.Get}(upperP);
+    upperValue := {O.Get}(O, upperP);
     /* f. Let lowerExists be the result of calling the [[HasProperty]]
           internal method of O with argument lowerP. */
     lowerExists := {O.HasProperty}(lowerP);
@@ -431,28 +460,28 @@ function reverse(this) {
     if (lowerExists = true && upperExists = true) {
       /* i. Call the [[Put]] internal method of O with arguments lowerP,
             upperValue, and true . */
-      {O.Put}(lowerP, upperValue, true);
+      {O.Put}(O, lowerP, upperValue, true);
       /* ii. Call the [[Put]] internal method of O with arguments upperP,
              lowerValue, and true . */
-      {O.Put}(upperP, lowerValue, true)
+      {O.Put}(O, upperP, lowerValue, true)
     };
     /* i. Else if lowerExists is false and upperExists is true, then */
     if (lowerExists = false && upperExists = true) {
       /* i. Call the [[Put]] internal method of O with arguments lowerP,
             upperValue, and true . */
-      {O.Put}(lowerP, upperValue, true);
+      {O.Put}(O, lowerP, upperValue, true);
       /* ii. Call the [[Delete]] internal method of O, with arguments upperP
              and true. */
-      {O.Delete}(upperP, true)
+      {O.Delete}(O, upperP, true)
     };
     /* j. Else if lowerExists is true and upperExists is false, then */
     if (lowerExists = true && upperExists = false) {
       /* i. Call the [[Delete]] internal method of O, with arguments lowerP
             and true . */
-      {O.Delete}(lowerP, true);
+      {O.Delete}(O, lowerP, true);
       /* ii. Call the [[Put]] internal method of O with arguments upperP,
              lowerValue, and true . */
-      {O.Put}(upperP, lowerValue, true)
+      {O.Put}(O, upperP, lowerValue, true)
     };
     /* k. Else, both lowerExists and upperExists are false */
     if (lowerExists = false && upperExists = false) {
@@ -485,20 +514,20 @@ function shift(this) {
   O := ToObject(this);
   /* 2. Let lenVal be the result of calling the [[Get]] internal method
         of O with argument "length". */
-  lenVal := {O.Get}("length");
+  lenVal := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(lenVal). */
   len := to_uint32 lenVal;
   /* 4. If len is zero, then */
   if (len = 0) {
     /* a. Call the [[Put]] internal method of O with arguments "length",
           0, and true. */
-    {O.Put}("length", 0, true);
+    {O.Put}(O, "length", 0, true);
     /* b. Return undefined. */
-    return 'undefined /* TODO */
+    return 'undefined
   };
   /* 5. Let first be the result of calling the [[Get]] internal method
         of O with argument "0". */
-  first := {O.Get}("0");
+  first := {O.Get}(O, "0");
   /* 6. Let k be 1. */
   k := 1;
   /* 7. Repeat, while k < len */
@@ -514,26 +543,26 @@ function shift(this) {
     if (fromPresent = true) {
       /* i. Let fromVal be the result of calling the [[Get]] internal
             method of O with argument from. */
-      fromVal := {O.Get}(from);
+      fromVal := {O.Get}(O, from);
       /* ii. Call the [[Put]] internal method of O with arguments to,
              fromVal, and true. */
-      {O.Put}(to, fromVal, true)
+      {O.Put}(O, to, fromVal, true)
     }
     /* e. Else, fromPresent is false */
     else {
       /* i. Call the [[Delete]] internal method of O with arguments to
             and true. */
-      {O.Delete}(to, true)
+      {O.Delete}(O, to, true)
     };
     /* f. Increase k by 1. */
     k := k + 1
   };
   /* 8. Call the [[Delete]] internal method of O with arguments
         ToString(len–1) and true. */
-  {O.Delete}(ToString(len - 1), true);
+  {O.Delete}(O, ToString(len - 1), true);
   /* 9. Call the [[Put]] internal method of O with arguments "length",
         (len–1) , and true. */
-  {O.Put}("length", len - 1, true);
+  {O.Put}(O, "length", len - 1, true);
   /* 10. Return first. */
   return first
 };
@@ -566,7 +595,7 @@ function slice(this, start, end) {
   A := newArray([]);
   /* 3. Let lenVal be the result of calling the [[Get]] internal method of O
         with argument "length". */
-  lenVal := {O.Get}("length");
+  lenVal := {O.Get}(O, "length");
   /* 4. Let len be ToUint32(lenVal). */
   len := to_uint32 lenVal;
   /* 5. Let relativeStart be ToInteger(start). */
@@ -580,7 +609,7 @@ function slice(this, start, end) {
   };
   /* 7. If end is undefined, let relativeEnd be len; else let relativeEnd be
         ToInteger(end). */
-  if (Type(end) = "Undefined") {
+  if (end = 'Undefined) {
     relativeEnd := len
   } else {
     relativeEnd := ToInteger(end)
@@ -603,7 +632,7 @@ function slice(this, start, end) {
     if (kPresent = true) {
       /* i. Let kValue be the result of calling the [[Get]] internal method of O
             with argument Pk. */
-      kValue := {O.Get}(Pk);
+      kValue := {O.Get}(O, Pk);
       /* ii. Call the [[DefineOwnProperty]] internal method of A with arguments 
              ToString(n), Property Descriptor {[[Value]]: kValue, [[Writable]]:
              true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
@@ -714,7 +743,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     /* l. While newLen < oldLen repeat, */
     while (newLen < oldLen) {
       /* i. Set oldLen to oldLen – 1. */
-      oldLen := oldLen - 1;
+      oldLen := oldLen - 1.;
       /* ii. Let deleteSucceeded be the result of calling the
              [[Delete]] internal method of A passing ToString(oldLen)
              and false as arguments. */
@@ -722,7 +751,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       /* iii. If deleteSucceeded is false, then */
       if (deleteSucceeded = false) {
         /* 1. Set newLenDesc.[[Value] to oldLen+1. */
-        newLenDesc.Value := oldLen + 1;
+        newLenDesc.Value := oldLen + 1.;
         /* 2. If newWritable is false, set newLenDesc.[[Writable] to false. */
         if (newWritable = false) {
           newLenDesc.Writable := false
@@ -765,7 +794,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       /* e. If index ≥ oldLen */
       if (index >= oldLen) {
         /* i. Set oldLenDesc.[[Value]] to index + 1. */
-        oldLenDesc.Value := index + 1;
+        oldLenDesc.Value := (int_to_float index) + 1.;
         /* ii. Call the default [[DefineOwnProperty]] internal method (8.12.9)
               on A passing "length", oldLenDesc, and false as arguments. This
               call will always return true. */
@@ -792,8 +821,14 @@ function IsArrayIndex(P) {
 
 
 function main() {
-  arr1 := newArray([2, 3]);
+  /*arr1 := newArray([2, 3]);
   arr2 := newArray([4, 5]);
-  arr := concat(arr1, [arr2]);
+  arr := concat(arr1, [arr2]);*/
+
+  arr := newArray([2, 3, 4]);
+  arr := pop(arr);
+
+  /*arr3 := newArray([8, 9]);
+  arr4 := pop(arr3);*/
   return arr
 }
