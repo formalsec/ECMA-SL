@@ -1,3 +1,4 @@
+import "test/section_9.12.esl";
 import "test/section_15.11.esl";
 
 function GetProps(Desc) {
