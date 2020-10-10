@@ -290,7 +290,7 @@ let uopt_to_json (op : uopt) : string =
       | IntOfString -> Printf.sprintf "IntOfString\" }"
       | FloatToString -> Printf.sprintf "FloatToString\" }"
       | ObjToList -> Printf.sprintf "ObjToList\" }"
-      | Sconcat  -> Printf.sprintf "Sconcat\"")
-      | ToUint32 -> Printf.sprintf "ToUint32\" }")
+      | Sconcat  -> Printf.sprintf "Sconcat\" }"
+      | ToUint32 -> Printf.sprintf "ToUint32\" }"
       | ObjFields -> Printf.sprintf "ObjFields\"")
 

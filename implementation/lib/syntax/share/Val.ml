@@ -12,7 +12,7 @@ type t =
   | Symbol of string
 
 let rec str (v : t) : string = match v with
-  | Flt v    -> Printf.sprintf "%.12g" v
+  | Flt v    -> string_of_float v (*Printf.sprintf "%.12g" v*)
   | Int v    -> string_of_int v
   | Bool v   -> string_of_bool v
   | Str v    -> "\"" ^ v ^ "\""
