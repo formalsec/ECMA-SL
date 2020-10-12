@@ -324,7 +324,7 @@ function ImplicitThisValue(envRec) {
   return ImplicitThisValueObject(envRec)
 };
 
-function InplicitThisValueDeclarative(declarativeEnvRec) {
+function ImplicitThisValueDeclarative(declarativeEnvRec) {
   /* 10.2.1.1.6 ImplicitThisValue() */
 
   /* Declarative Environment Records always return undefined as their ImplicitThisValue. */
@@ -333,7 +333,7 @@ function InplicitThisValueDeclarative(declarativeEnvRec) {
   return 'undefined
 };
 
-function InplicitThisValueObject(objectEnvRec) {
+function ImplicitThisValueObject(objectEnvRec) {
   /* 10.2.1.2.6 ImplicitThisValue() */
 
   /* Object Environment Records return undefined as their ImplicitThisValue unless their provideThis flag is true. */
