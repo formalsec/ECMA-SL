@@ -1421,7 +1421,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* 4. Let rval be GetValue(rref). */
     rval := GetValue(rref);
     /* 5. Return the result of performing the strict equality comparison rval === lval. (See 11.9.6) */
-    return StrictEqualityOperator(rval, lval)
+    return StrictEqualityComparison(rval, lval)
   }
   | { type: "BinaryExpression", operator: "!==", left: EqualityExpression, right: RelationalExpression } -> {
     /* 11.9.5 The Strict Does-not-equal Operator ( !== ) */
@@ -1437,7 +1437,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* 4. Let rval be GetValue(rref). */
     rval := GetValue(rref);
     /* 5. Let r be the result of performing strict equality comparison rval === lval. (See 11.9.6) */
-    r := StrictEqualityOperator(rval, lval);
+    r := StrictEqualityComparison(rval, lval);
     /* 6. If r is true, return false. Otherwise, return true. */
     if (r = true) {
       return false
@@ -1806,7 +1806,7 @@ function JS_Interpreter_CaseBlock_CaseClauses(caseClauses, input, scope) {
     /* b. Let clauseSelector be the result of evaluating C. */
     clauseSelector := JS_Interpreter_SwitchCase(C, scope);
     /* c. If input is equal to clauseSelector as defined by the === operator, then */
-    if (StrictEqualityOperator(GetValue(clauseSelector), GetValue(input))) {
+    if (StrictEqualityComparison(GetValue(clauseSelector), GetValue(input))) {
       /* i. Set searching to false. */
       searching := false;
       /* ii. If C has a StatementList, then */
@@ -1867,7 +1867,7 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
         /* i. Let clauseSelector be the result of evaluating C. */
         clauseSelector := JS_Interpreter_SwitchCase(C, scope);
         /* ii. If input is equal to clauseSelector as defined by the === operator, then set found to true. */
-        if (StrictEqualityOperator(GetValue(clauseSelector), GetValue(input))) {
+        if (StrictEqualityComparison(GetValue(clauseSelector), GetValue(input))) {
           found := true
         }
       };
@@ -1903,7 +1903,7 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
         /* ii. Let clauseSelector be the result of evaluating C. */
         clauseSelector := JS_Interpreter_SwitchCase(C, scope);
         /* iii. If input is equal to clauseSelector as defined by the === operator, then */
-        if (StrictEqualityOperator(GetValue(clauseSelector), GetValue(input))) {
+        if (StrictEqualityComparison(GetValue(clauseSelector), GetValue(input))) {
           /* 1. Set foundInB to true. */
           foundInB := true;
           /* 2. If C has a StatementList, then */

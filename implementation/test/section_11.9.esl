@@ -109,7 +109,7 @@ function AbstractEqualityComparison(x, y) {
 };
 
 /* 11.9.6 The Strict Equality Comparison Algorithm */
-function StrictEqualityOperator(x, y) {
+function StrictEqualityComparison(x, y) {
   /* The comparison x === y, where x and y are values, produces true or false. Such a comparison is performed
      as follows: */
 
