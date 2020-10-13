@@ -19,7 +19,7 @@
 *)
 let digit   = ['0' - '9']
 let letter  = ['a' - 'z' 'A' - 'Z']
-let special = ('_'|' '|','|';'|'.'|':'|'\\' '"'|'/'|'*'|'-'|'+'|'<'|'>'|'='|'{'|'}'|'['|']'|'('|')'|'$'|'@'|'!'|'?'|'~')
+let special = ('_'|' '|','|';'|'.'|':'|'\\' '"'|'/'|'*'|'-'|'+'|'<'|'>'|'='|'{'|'}'|'['|']'|'('|')'|'$'|'@'|'!'|'?'|'~'|'&'|'|'|'^')
 let int     = '-'?digit+
 let float   = int('.')digit*
 let bool    = "true"|"false"
@@ -66,6 +66,8 @@ rule read =
   | '!'            { NOT }
   | '~'            { BITWISE_NOT }
   | '&'            { BITWISE_AND }
+  | '|'            { PIPE }
+  | '^'            { BITWISE_XOR }
   | "<<"           { SHIFT_LEFT }
   | ">>"           { SHIFT_RIGHT }
   | ">>>"          { SHIFT_RIGHT_LOGICAL }
@@ -97,7 +99,6 @@ rule read =
   | '}'               { RBRACE }
   | '['               { LBRACK }
   | ']'               { RBRACK }
-  | '|'               { PIPE }
   | "typeof"          { TYPEOF }
   | "__$"             { read_type lexbuf }
   | "throw"           { THROW }
