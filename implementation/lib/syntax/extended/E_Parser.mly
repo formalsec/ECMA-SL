@@ -28,7 +28,7 @@
 %token <string> LOC
 %token LAND LOR
 %token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS
-%token TO_INT32 TO_UINT32
+%token BITWISE_NOT TO_INT32 TO_UINT32
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
 %token SCONCAT
@@ -175,6 +175,8 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
   | NOT; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
+  | BITWISE_NOT; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.BitwiseNot, e) } %prec unopt_prec
   | LLEN; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ListLen, e) } %prec unopt_prec
   | TLEN; e = e_expr_target;

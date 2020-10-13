@@ -20,6 +20,7 @@ type bopt = Plus
 
 type uopt = Neg
           | Not
+          | BitwiseNot
           | Typeof
           | ListLen
           | TupleLen
@@ -51,6 +52,10 @@ let neg (v : Val.t) : Val.t = match v with
 let not (v : Val.t) : Val.t = match v with
   | Bool v -> Bool (v = false)
   | _      -> invalid_arg "Exception in Oper.not: this operation is only applicable to a boolean type argument"
+
+let bitwise_not (v : Val.t) : Val.t = match v with
+  | Flt f -> Flt (Arith_Utils.int32_bitwise_not f)
+  | _     -> invalid_arg "Exception in Oper.bitwise_not: this operation is only applicable to Float arguments"
 
 let plus (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt v1, Int v2) -> Flt (v1 +. float_of_int v2)
@@ -202,6 +207,7 @@ let to_uint32 (v : Val.t) : Val.t = match v with
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
   | Not           -> "!"
+  | BitwiseNot    -> "~"
   | Typeof        -> "typeof"
   | ListLen       -> "l_len"
   | TupleLen      -> "t_len"
@@ -282,6 +288,7 @@ let uopt_to_json (op : uopt) : string =
     (match op with
      | Neg      -> Printf.sprintf "Neg\" }"
      | Not      -> Printf.sprintf "Not\" }"
+     | BitwiseNot -> Printf.sprintf "BitwiseNot\" }"
      | Typeof   -> Printf.sprintf "Typeof\" }"
      | ListLen  -> Printf.sprintf "ListLen\" }"
      | TupleLen -> Printf.sprintf "TypleLen\" }"

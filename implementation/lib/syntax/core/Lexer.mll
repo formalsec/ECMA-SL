@@ -62,6 +62,7 @@ rule read =
   | "in_obj"       { IN_OBJ }
   | "in_list"      { IN_LIST }
   | '!'            { NOT }
+  | '~'            { BITWISE_NOT }
   | "&&"           { LAND }
   | "||"		       { LOR }
   | "l_len"        { LLEN }
