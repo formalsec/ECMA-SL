@@ -43,6 +43,7 @@ type uopt = Neg
           | ObjFields
           | ToInt32
           | ToUint32
+          | ToUint16
 
 
 type nopt = ListExpr
@@ -233,6 +234,10 @@ let to_uint32 (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_uint32 n)
   | _     -> Null
 
+let to_uint16 (v : Val.t) : Val.t = match v with
+  | Flt n -> Flt (Arith_Utils.to_uint16 n)
+  | _     -> Null
+
 
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
@@ -254,6 +259,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | ObjFields     -> "obj_fields"
   | ToInt32       -> "to_int32"
   | ToUint32      -> "to_uint32"
+  | ToUint16      -> "to_uint16"
 
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
@@ -346,5 +352,6 @@ let uopt_to_json (op : uopt) : string =
      | Sconcat  -> Printf.sprintf "Sconcat\" }"
      | ObjFields -> Printf.sprintf "ObjFields\" }"
      | ToInt32  -> Printf.sprintf "ToInt32\" }"
-     | ToUint32 -> Printf.sprintf "ToUint32\" }")
+     | ToUint32 -> Printf.sprintf "ToUint32\" }"
+     | ToUint16 -> Printf.sprintf "ToUint16\" }")
 

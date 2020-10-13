@@ -41,6 +41,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ObjFields     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjFields")
   | ToInt32       -> Oper.to_int32 v
   | ToUint32      -> Oper.to_uint32 v
+  | ToUint16      -> Oper.to_uint16 v
 
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =

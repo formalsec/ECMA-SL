@@ -91,6 +91,7 @@ rule read =
   | "obj_fields"      { OBJ_FIELDS }
   | "to_int32"        { TO_INT32 }
   | "to_uint32"       { TO_UINT32 }
+  | "to_uint16"       { TO_UINT16 }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }
