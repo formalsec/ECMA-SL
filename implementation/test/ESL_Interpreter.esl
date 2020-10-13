@@ -117,6 +117,29 @@ function JS_Interpreter_Expr(e, scope) {
           propertyNameString, and whose strict mode flag is strict. */
     return newPropertyReference(baseValue, propertyNameString, strict)
   }
+  | { type: "NewExpression", callee: MemberExpression, arguments: Arguments } -> {
+    /* 11.2.2 The new Operator */
+
+    /* The production MemberExpression : new MemberExpression Arguments is evaluated as follows: */
+
+    /* 1. Let ref be the result of evaluating MemberExpression. */
+    ref := JS_Interpreter_Expr(MemberExpression, scope);
+    /* 2. Let constructor be GetValue(ref). */
+    constructor := GetValue(ref);
+    /* 3. Let argList be the result of evaluating Arguments, producing an internal list of argument values (11.2.4). */
+    argList := JS_Interpreter_Arguments(Arguments, scope);
+    /* 4. If Type(constructor) is not Object, throw a TypeError exception. */
+    if (!(Type(constructor) = "Object")) {
+      throw TypeErrorException()
+    };
+    /* 5. If constructor does not implement the [[Construct]] internal method, throw a TypeError exception. */
+    if (!("Construct" in_obj constructor)) {
+      throw TypeErrorException()
+    };
+    /* 6. Return the result of calling the [[Construct]] internal method on constructor, providing the list argList as the
+          argument values. */
+    return Construct(constructor, argList)
+  }
   | { type: "CallExpression", callee: MemberExpression, arguments: Arguments } -> {
     /* 11.2.3 Function Calls */
 
