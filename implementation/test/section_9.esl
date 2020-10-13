@@ -124,7 +124,7 @@ function ToUint16(argument) {
 
   /* 1. Let number be the result of calling ToNumber on the input argument. */
   number := ToNumber(argument);
-  return to_uint16(number);
+  return to_uint16(number)
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
   /* 4. Let int16bit be posInt modulo 2 16 ; that is, a finite integer value k of Number type with positive sign and less
