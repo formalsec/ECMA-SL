@@ -1,0 +1,6 @@
+/* Auxiliary function used to deal with JS shift operators */
+function maskOutBits(num) {
+  /* mask out all but the least significant 5 bits of num */
+  v := num & (int_to_float 31); /* 0x1F*/
+  return v
+}
