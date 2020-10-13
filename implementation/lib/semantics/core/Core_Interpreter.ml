@@ -50,6 +50,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Minus    -> Oper.minus (v1, v2)
   | Times    -> Oper.times (v1, v2)
   | Div      -> Oper.div (v1, v2)
+  | Modulo   -> Oper.modulo (v1, v2)
   | Equal    -> Oper.equal (v1, v2)
   | Gt       -> Oper.gt (v1, v2)
   | Lt       -> Oper.lt (v1, v2)

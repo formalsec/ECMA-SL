@@ -3,6 +3,7 @@ type bopt = Plus
           | Minus
           | Times
           | Div
+          | Modulo
           | Equal
           | Gt
           | Lt
@@ -91,6 +92,10 @@ let div (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt v1, Flt v2) -> Flt (v1 /. v2)
   | (Int v1, Int v2) -> Int (v1 / v2)
   | _                -> invalid_arg "Exception in Oper.div: this operation is only applicable to Float or Int arguments"
+
+let modulo (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | (Flt f1, Flt f2) -> Flt (mod_float f1 f2)
+  | _                -> invalid_arg "Exception in Oper.modulo: this operation is only applicable to Float arguments"
 
 let equal (v1, v2 : Val.t * Val.t) : Val.t = Bool (v1 = v2)
 
@@ -267,6 +272,7 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Minus    -> e1 ^ " - " ^ e2
   | Times    -> e1 ^ " * " ^ e2
   | Div      -> e1 ^ " / " ^ e2
+  | Modulo   -> e1 ^ " % " ^ e2
   | Equal    -> e1 ^ " = " ^ e2
   | Gt       -> e1 ^ " > " ^ e2
   | Lt       -> e1 ^ " < " ^ e2
@@ -301,6 +307,7 @@ let bopt_to_json (op : bopt) : string =
      | Minus   -> Printf.sprintf "Minus\" }"
      | Times   -> Printf.sprintf "Times\" }"
      | Div     -> Printf.sprintf "Div\" }"
+     | Modulo  -> Printf.sprintf "Modulo\" }"
      | Equal   -> Printf.sprintf "Equal\" }"
      | Gt      -> Printf.sprintf "Gt\" }"
      | Lt      -> Printf.sprintf "Lt\" }"
