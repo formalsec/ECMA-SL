@@ -33,7 +33,9 @@ var h1 = 9 << 3, /* 72 */
 
 var i1 = 1 | 0,
     i2 = 0 | 0,
-    i3 = 1 | 1;
+    i3 = 1 | 1,
+    i4 = 4 % 3,
+    i5 = 4 % 2;
 
-var j1 = i1 === i3 ? "correct" : "incorrect",
-    j2 = i1 === i2 ? "incorrect" : "correct";
+var j1 = i1 === i3 && i1 === i4 ? "correct" : "incorrect",
+    j2 = i2 != i5 ? "incorrect" : "correct";
