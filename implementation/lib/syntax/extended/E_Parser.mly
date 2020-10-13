@@ -311,6 +311,8 @@ op_target:
   | LAND    { Oper.Log_And }
   | LOR     { Oper.Log_Or }
   | BITWISE_AND { Oper.BitwiseAnd }
+  | PIPE { Oper.BitwiseOr }
+  | BITWISE_XOR { Oper.BitwiseXor }
   | SHIFT_LEFT { Oper.ShiftLeft }
   | SHIFT_RIGHT { Oper.ShiftRight }
   | SHIFT_RIGHT_LOGICAL { Oper.ShiftRightLogical }
