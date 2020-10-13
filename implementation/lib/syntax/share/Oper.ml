@@ -10,6 +10,7 @@ type bopt = Plus
           | Elt
           | Log_And
           | Log_Or
+          | BitwiseAnd
           | ShiftLeft
           | ShiftRight
           | ShiftRightLogical
@@ -105,6 +106,10 @@ let log_and (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
 let log_or (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | Bool v1, Bool v2 -> Bool (v1 || v2)
   | _                -> invalid_arg "Exception in Oper.log_or: this operation is only applicable to Bool arguments"
+
+let bitwise_and (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | Flt f1, Flt f2 -> Flt (Arith_Utils.int32_bitwise_and f1 f2)
+  | _              -> invalid_arg "Exception in Oper.bitwise_and: this operation is only applicable to Float arguments"
 
 let is_true (v : Val.t) : bool = match v with
   | Bool v -> v
@@ -253,6 +258,7 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Elt      -> e1 ^ " <= " ^ e2
   | Log_And  -> e1 ^ " && " ^ e2
   | Log_Or   -> e1 ^ " || " ^ e2
+  | BitwiseAnd  -> e1 ^ " & " ^ e2
   | ShiftLeft -> e1 ^ " << " ^ e2
   | ShiftRight -> e1 ^ " >> " ^ e2
   | ShiftRightLogical -> e1 ^ " >>> " ^ e2
@@ -284,6 +290,7 @@ let bopt_to_json (op : bopt) : string =
      | Elt     -> Printf.sprintf "Elt\" }"
      | Log_And -> Printf.sprintf "Log_And\" }"
      | Log_Or  -> Printf.sprintf "Log_Or\" }"
+     | BitwiseAnd -> Printf.sprintf "BitwiseAnd\" }"
      | ShiftLeft -> Printf.sprintf "ShiftLeft\" }"
      | ShiftRight -> Printf.sprintf "ShiftRight\" }"
      | ShiftRightLogical -> Printf.sprintf "ShiftRightLogical\" }"

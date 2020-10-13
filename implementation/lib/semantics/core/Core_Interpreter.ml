@@ -56,6 +56,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Elt      -> Oper.elt (v1, v2)
   | Log_And  -> Oper.log_and (v1, v2)
   | Log_Or   -> Oper.log_or (v1, v2)
+  | BitwiseAnd -> Oper.bitwise_and (v1, v2)
   | ShiftLeft -> Oper.shift_left (v1, v2)
   | ShiftRight -> Oper.shift_right (v1, v2)
   | ShiftRightLogical -> Oper.shift_right_logical (v1, v2)
