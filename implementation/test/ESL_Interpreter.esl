@@ -416,6 +416,18 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
           sign. */
     return -(oldValue)
   }
+  | { type: "UnaryExpression", operator: "~", argument: UnaryExpression } -> {
+    /* 11.4.8 Bitwise NOT Operator ( ~ ) */
+
+    /* The production UnaryExpression : ~ UnaryExpression is evaluated as follows: */
+
+    /* Let expr be the result of evaluating UnaryExpression. */
+    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* Let oldValue be ToInt32(GetValue(expr)). */
+    oldValue := ToInt32(GetValue(expr));
+    /* Return the result of applying bitwise complement to oldValue. The result is a signed 32-bit integer. */
+    return ~oldValue
+  }
   | { type: "UnaryExpression", operator: "!", argument: UnaryExpression } -> {
     /* 11.4.9 Logical NOT Operator ( ! ) */
 
