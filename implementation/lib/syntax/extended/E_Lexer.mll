@@ -64,6 +64,7 @@ rule read =
   | "in_obj"       { IN_OBJ }
   | "in_list"      { IN_LIST }
   | '!'            { NOT }
+  | "&&&"          { SCLAND }
   | "&&"           { LAND }
   | "||"           { LOR }
   | "l_len"        { LLEN }
