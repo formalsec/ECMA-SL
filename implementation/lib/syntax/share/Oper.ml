@@ -10,6 +10,9 @@ type bopt = Plus
           | Elt
           | Log_And
           | Log_Or
+          | ShiftLeft
+          | ShiftRight
+          | ShiftRightLogical
           | InObj
           | InList
           | Lnth
@@ -195,6 +198,18 @@ let string_concat (v : Val.t) : Val.t = match v with
   | List l -> Str (String.concat "" (String.split_on_char '"' (String.concat "" (List.map Val.str l))))
   | _      -> invalid_arg "Exception in Oper.string_concat: this operation is only applicable to List arguments"
 
+let shift_left (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
+  | Flt f1, Flt f2 -> Flt (Arith_Utils.int32_left_shift f1 f2)
+  | _              -> invalid_arg "Exception in Oper.shift_left: this operation is only applicable to Float arguments"
+
+let shift_right (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
+  | Flt f1, Flt f2 -> Flt (Arith_Utils.int32_right_shift f1 f2)
+  | _              -> invalid_arg "Exception in Oper.shift_right: this operation is only applicable to Float arguments"
+
+let shift_right_logical (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
+  | Flt f1, Flt f2 -> Flt (Arith_Utils.uint32_right_shift f1 f2)
+  | _              -> invalid_arg "Exception in Oper.shift_right_logical: this operation is only applicable to Float arguments"
+
 let to_int32 (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_int32 n)
   | _     -> Null
@@ -238,6 +253,9 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Elt      -> e1 ^ " <= " ^ e2
   | Log_And  -> e1 ^ " && " ^ e2
   | Log_Or   -> e1 ^ " || " ^ e2
+  | ShiftLeft -> e1 ^ " << " ^ e2
+  | ShiftRight -> e1 ^ " >> " ^ e2
+  | ShiftRightLogical -> e1 ^ " >>> " ^ e2
   | InObj    -> e1 ^ " in_obj " ^ e2
   | InList   -> e1 ^ " in_list " ^ e2
   | Lnth     -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
@@ -266,6 +284,9 @@ let bopt_to_json (op : bopt) : string =
      | Elt     -> Printf.sprintf "Elt\" }"
      | Log_And -> Printf.sprintf "Log_And\" }"
      | Log_Or  -> Printf.sprintf "Log_Or\" }"
+     | ShiftLeft -> Printf.sprintf "ShiftLeft\" }"
+     | ShiftRight -> Printf.sprintf "ShiftRight\" }"
+     | ShiftRightLogical -> Printf.sprintf "ShiftRightLogical\" }"
      | InObj   -> Printf.sprintf "InObj\" }"
      | InList  -> Printf.sprintf "InList\" }"
      | Lnth    -> Printf.sprintf "Lnth\" }"

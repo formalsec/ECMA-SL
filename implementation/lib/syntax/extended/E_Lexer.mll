@@ -65,6 +65,9 @@ rule read =
   | "in_list"      { IN_LIST }
   | '!'            { NOT }
   | '~'            { BITWISE_NOT }
+  | "<<"           { SHIFT_LEFT }
+  | ">>"           { SHIFT_RIGHT }
+  | ">>>"          { SHIFT_RIGHT_LOGICAL }
   | "&&"           { LAND }
   | "||"           { LOR }
   | "l_len"        { LLEN }
