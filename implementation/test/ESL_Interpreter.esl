@@ -71,6 +71,11 @@ function JS_Interpreter_Expr(e, scope) {
   }
   | { type: "ObjectExpression" } -> {
     /* 11.1.5 Object Initialiser */
+
+    /* An object initialiser is an expression describing the initialisation of an Object, written in a form resembling a
+       literal. It is a list of zero or more pairs of property names and associated values, enclosed in curly braces. The
+       values need not be literals; they are evaluated each time the object initialiser is evaluated. */
+
     return JS_Interpreter_ObjectInitializer(e, scope)
   }
   | { type: "ProtoAssignment", object: Object, value: Expression } -> {
@@ -1180,7 +1185,11 @@ function JS_Interpreter_StmtList(stmts, scope) {
 
 function JS_Interpreter_BinExpr(e, scope) {
   match e with
+  /* 11.5 Multiplicative Operators */
   | { type: "BinaryExpression", operator: "*", left: MultiplicativeExpression, right: UnaryExpression } -> {
+    /* The production MultiplicativeExpression : MultiplicativeExpression @ UnaryExpression, where @ stands for one
+       of the operators in the above definitions, is evaluated as follows: */
+
     /* 1. Let left be the result of evaluating MultiplicativeExpression. */
     left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
     /* 2. Let leftValue be GetValue(left). */
@@ -1196,6 +1205,10 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* 7. Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
 
     /* 11.5.1 Applying the * Operator */
+    /* The * operator performs multiplication, producing the product of its operands. Multiplication is commutative.
+       Multiplication is not always associative in ECMAScript, because of finite precision.
+       The result of a floating-point multiplication is governed by the rules of IEEE 754 binary double-precision
+       arithmetic: */
 
     /* If either operand is NaN, the result is NaN. */
     if ((leftNum = 'NaN) && (rightNum = 'NaN)) {
@@ -1238,6 +1251,9 @@ function JS_Interpreter_BinExpr(e, scope) {
     return leftNum * rightNum
   }
   | { type: "BinaryExpression", operator: "/", left: MultiplicativeExpression, right: UnaryExpression } -> {
+    /* The production MultiplicativeExpression : MultiplicativeExpression @ UnaryExpression, where @ stands for one
+       of the operators in the above definitions, is evaluated as follows: */
+
     /* 1. Let left be the result of evaluating MultiplicativeExpression. */
     left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
     /* 2. Let leftValue be GetValue(left). */
@@ -1253,6 +1269,10 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* 7. Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
 
     /* 11.5.1 Applying the / Operator */
+    /* The / operator performs division, producing the quotient of its operands. The left operand is the dividend and
+       the right operand is the divisor. ECMAScript does not perform integer division. The operands and result of all
+       division operations are double-precision floating-point numbers. The result of division is determined by the
+       specification of IEEE 754 arithmetic: */
 
     /* If either operand is NaN, the result is NaN. */
     if ((leftNum = 'NaN) && (rightNum = 'NaN)) {
