@@ -82,6 +82,7 @@ rule read =
   | "float_to_string" { FLOAT_TO_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }
   | "obj_fields"      { OBJ_FIELDS }
+  | "to_int32"        { TO_INT32 }
   | "to_uint32"       { TO_UINT32 }
   | '('               { LPAREN }
   | ')'               { RPAREN }
