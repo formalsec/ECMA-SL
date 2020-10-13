@@ -1110,19 +1110,44 @@ function JS_Interpreter_BinExpr(e, scope) {
   match e with
   | { type: "BinaryExpression", operator: "+", left: AdditiveExpression, right: MultiplicativeExpression } -> {
     /* 11.6.1 The Addition operator ( + ) */
+
+    /* The addition operator either performs string concatenation or numeric addition. */
+
+    /* The production AdditiveExpression : AdditiveExpression + MultiplicativeExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating AdditiveExpression. */
     lref := JS_Interpreter_Expr(AdditiveExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
+    /* 3. Let rref be the result of evaluating MultiplicativeExpression. */
     rref := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    /* 4. Let rval be GetValue(rref). */
     rval := GetValue(rref);
+    /* 5. Let lprim be ToPrimitive(lval). */
     lprim := ToPrimitive(lval, "Number");
+    /* 6. Let rprim be ToPrimitive(rval). */
     rprim := ToPrimitive(rval, "Number");
+    /* 7. If Type(lprim) is String or Type(rprim) is String, then */
     if ((Type(lprim) = "String") || (Type(rprim) = "String")) {
-      return ToString(lprim) + ToString(rprim)
+      /* a. Return the String that is the result of concatenating ToString( lprim) followed by ToString(rprim) */
+      return s_concat [ToString(lprim), ToString(rprim)]
     };
-    return ToNumber(lprim) + ToNumber(rprim)
+    /* 8. Return the result of applying the addition operation to ToNumber( lprim) and ToNumber(rprim). See the
+          Note below 11.6.3. */
+    return applyingTheAdditionOperation(ToNumber(lprim), ToNumber(rprim))
+
+    /* NOTE 1 No hint is provided in the calls to ToPrimitive in steps 5 and 6. All native ECMAScript objects
+              except Date objects handle the absence of a hint as if the hint Number were given; Date objects handle the
+              absence of a hint as if the hint String were given. Host objects may handle the absence of a hint in some other manner. */
+
+    /* NOTE 2 Step 7 differs from step 3 of the comparison algorithm for the relational operators (11.8.5), by using the
+              logical-or operation instead of the logical-and operation. */
   }
   | { type: "BinaryExpression", operator: "-", left: AdditiveExpression, right: MultiplicativeExpression } -> {
-    /* 11.6.1 The Addition operator ( + ) */
+    /* 11.6.2 The Subtraction Operator ( - ) */
+
+    /* The production AdditiveExpression : AdditiveExpression - MultiplicativeExpression is evaluated as follows: */
+
     /* 1. Let lref be the result of evaluating AdditiveExpression. */
     lref := JS_Interpreter_Expr(AdditiveExpression, scope);
     /* 2. Let lval be GetValue(lref). */
@@ -1136,8 +1161,8 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* 6. Let rnum be ToNumber(rval). */
     rnum := ToNumber(rval);
     /* 7. Return the result of applying the subtraction operation to lnum and rnum.
-          See the note below 11.6.3. /* TODO */
-    return lnum - rnum
+          See the note below 11.6.3. */
+    return applyingTheAdditionOperation(lnum, rnum)
   }
   | { type: "BinaryExpression", operator: "*", left: MultiplicativeExpression, right: UnaryExpression } -> {
     /* 1. Let left be the result of evaluating MultiplicativeExpression. */

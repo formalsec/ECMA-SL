@@ -10,6 +10,7 @@ import "test/section_10.3.esl";
 import "test/section_10.4.esl";
 import "test/section_10.5.esl";
 import "test/section_10.6.esl";
+import "test/section_11.6.esl";
 import "test/section_11.8.esl";
 import "test/section_11.9.esl";
 import "test/section_12.6.esl";
