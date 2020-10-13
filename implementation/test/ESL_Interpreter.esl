@@ -223,6 +223,38 @@ function JS_Interpreter_Expr(e, scope) {
     /* 11.11 Binary Logical Operators */
     return JS_Interpreter_LogicalExpression(e, scope)
   }
+  | { type: "ConditionalExpression", test: LogicalORExpression, consequent: firstAssignmentExpression, alternate: secondAssignmentExpression } -> {
+    /* 11.12 Conditional Operator ( ? : ) */
+
+    /* The production ConditionalExpression : LogicalORExpression ? AssignmentExpression : AssignmentExpression is
+       evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating LogicalORExpression. */
+    lref := JS_Interpreter_Expr(LogicalORExpression, scope);
+    /* 2. If ToBoolean(GetValue(lref)) is true, then */
+    if (ToBoolean(GetValue(lref)) = true) {
+      /* a. Let trueRef be the result of evaluating the first AssignmentExpression. */
+      trueRef := JS_Interpreter_Expr(firstAssignmentExpression, scope);
+      /* b. Return GetValue(trueRef). */
+      return GetValue(trueRef)
+    }
+    /* 3. Else */
+    else {
+      /* a. Let falseRef be the result of evaluating the second AssignmentExpression. */
+      falseRef := JS_Interpreter_Expr(secondAssignmentExpression, scope);
+      /* b. Return GetValue(falseRef). */
+      return GetValue(falseRef)
+    }
+
+    /* The ConditionalExpressionNoIn production is evaluated in the same manner as the ConditionalExpression
+       production except that the contained LogicalORExpressionNoIn, AssignmentExpression and AssignmentExpressionNoIn
+       are evaluated instead of the contained LogicalORExpression, first AssignmentExpression and second AssignmentExpression, respectively. */
+
+    /* NOTE The grammar for a ConditionalExpression in ECMAScript is a little bit different from that in C and Java, which
+            each allow the second subexpression to be an Expression but restrict the third expression to be a ConditionalExpression.
+            The motivation for this difference in ECMAScript is to allow an assignment expression to be governed by either arm of a
+            conditional and to eliminate the confusing and fairly useless case of a comma expression as the centre expression. */
+  }
 };
 
 function JS_Interpreter_LogicalExpression(LogicalExpression, scope) {
