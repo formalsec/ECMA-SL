@@ -17,34 +17,34 @@ A file named `main.native` is created at the root of the project.
 ## Compilation of an ECMA-SL program written in Plus to one in Core
 
 ```
-./main.native -i test/plus.esl -mode c -o test/core.esl
+./main.native -mode c -i ES5_interpreter/plus.esl -o ES5_interpreter/core.esl
 ```
 
-This example expects that a file named `plus.esl` exists in the folder `./test` and the compilation output is written to a file named `core.esl` put in the folder `./test`.
+This example expects that a file named `plus.esl` exists in the folder `./ES5_interpreter` and the compilation output is written to a file named `core.esl` put in the folder `./ES5_interpreter`.
 
 ### Create the AST file
 
-The `./test/plus.esl` file that already exists in this project imports another file that contains the AST of a JavaScript program that we want to evaluate.
+The `./ES5_interpreter/plus.esl` file that already exists in this project imports another file that contains the AST of a JavaScript program that we want to evaluate.
 To generate a new one, please follow the instructions in this [file](./JS2ECMA-SL/README.md).
 
 ## Interpretation of an ECMA-SL program written in Core
 
 ```
-./main.native -i test/core.esl -mode ci
+./main.native -mode ci -i ES5_interpreter/core.esl
 ```
 
-This example expects that a file named `core.esl` exists in the folder `./test`.
-**Note:** executing this command will print an extensive list of logs to the command-line. To avoid this and to ease the analysis of the output, one should redirect it to a file. E.g., `./main.native -i test/core.esl -mode ci > output.txt`
+This example expects that a file named `core.esl` exists in the folder `./ES5_interpreter`.
+**Note:** executing this command will print an extensive list of logs to the command-line. To avoid this and to ease the analysis of the output, one should redirect it to a file. E.g., `./main.native -mode ci -i ES5_interpreter/core.esl > output.txt`
 
 To have the generated Heap written to a file, use the command-line flag `-h` followed by the name of the file:
 
 ```
-./main.native -i test/core.esl -mode ci -h test/heap.json
+./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json
 ```
 
 ## Generate the HTML representation of the resulting Heap
 
-To visualise the generated Heap in HTML, that must be previously exported to a file (in example above, the Heap is written to `test/heap.json`), please follow the instruction in this [file](./Heap2HTML/README.md).
+To visualise the generated Heap in HTML, that must be previously exported to a file (in example above, the Heap is written to `heap.json`), please follow the instruction in this [file](./Heap2HTML/README.md).
 
 ### Common Errors when interpreting an ECMA-SL program
 
