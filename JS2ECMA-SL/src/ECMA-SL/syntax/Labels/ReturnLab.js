@@ -1,3 +1,4 @@
+const UpgVarLab = require("./UpgVarLab");
 class ReturnLab{
 	constructor(expr){
 		this.expr=expr;
@@ -7,8 +8,9 @@ class ReturnLab{
   		var return_lvl = sec_conf.ssto.getExprLvl(this.expr);
   		sec_conf.ssto = frame.ssto;
   		sec_conf.pc = frame.pc;
-  		sec_conf.ssto.setVarLvl(frame.stringVar, return_lvl);
-		return sec_conf;
+  		//nsu
+  		var lab = new UpgVarLab(frame.stringvar, return_lvl);
+		return lab.interpret(sec_conf);
 	}
 }
 

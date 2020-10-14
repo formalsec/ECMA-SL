@@ -3,12 +3,14 @@ const Lattice = require("../Lattice");
 class UpgVarLab{
 	constructor(stringvar, lev){
 		this.stringvar = stringvar;
-		this.lev = Lattice.parseLvl(lev);
+		this.lev = lev;
 		
 	}
 
 
 	interpret(sec_conf){
+		console.log("You are in UpgVarLab with "+ this.stringvar+ " " +this.lev);
+
 		var pc_lvl = sec_conf.pc[0];
 		var var_lvl = sec_conf.ssto.getVarLvl(this.stringvar);
 		if(this.lev != undefined){
@@ -16,7 +18,7 @@ class UpgVarLab{
 				sec_conf.ssto.setVarLvl(this.stringvar, Lattice.lub(this.lev, pc_lvl));
 				console.log("SECSTORE = "+ this.stringvar +" <-"+ Lattice.lub(this.lev, pc_lvl) );
 			} else {
-				sec_conf.error = "Illegal UpgVarLab: " + this.stringvar + " " +  this.lev;
+				sec_conf.error = "Illegal UpgVarLab: " + this.stringvar + " " +  Lattice.str(this.lev);
 			}
 		} else{
 			sec_conf.ssto.setVarLvl(this.stringvar, Lattice.lub(this.lev, pc_lvl));

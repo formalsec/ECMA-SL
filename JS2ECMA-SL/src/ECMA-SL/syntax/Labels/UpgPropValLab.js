@@ -11,13 +11,13 @@ class UpgPropValLab{  // Val_lvl
 	}
 
 	interpret(sec_conf){
-		let lev_o = this.e_o.interpret(config.store).value;
-		let lev_f = this.e_f.interpret(config.store).value;
-		let lev_ctx = Lattice.lubn(lev_o, lev_f, sec_conf.pc[0]);
+		let lev_o = sec_conf.ssto.getExprLvl(this.e_o);
+		let lev_f = sec_conf.ssto.getExprLvl(this.e_f);
+		let lev_ctx = Lattice.lubn([lev_o, lev_f, sec_conf.pc[0]]);
 		var exists = sec_conf.sheap.fieldCheck(this.location, this.field);
 		if(exists){
 			if(Lattice.leq(lev_ctx, sec_conf.sheap.getFieldValLvl(this.location, this.field))){
-				sec_conf.sheap.setFieldValLvl(Lattice.lub(this.lvl, lev_ctx);
+				sec_conf.sheap.setFieldValLvl(this.location, this.field, Lattice.lub(this.lvl, lev_ctx));
 			} else{
 				sec_conf.error = "Illegal P_Val Upgrade";
 			}
@@ -26,4 +26,4 @@ class UpgPropValLab{  // Val_lvl
 	}
 }
 
-module.exports = 'UpgPropValLab';
+module.exports = UpgPropValLab;
