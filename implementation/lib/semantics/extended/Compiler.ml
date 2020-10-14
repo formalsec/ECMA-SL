@@ -6,6 +6,93 @@ let make_fresh_var_generator (pref : string) : (unit -> string) =
 
 let generate_fresh_var = make_fresh_var_generator "__v"
 
+(*
+  C(e1) = stmts_1, e_1'  
+  C(e2) = stmts_2, e_2' 
+  x fresh 
+------------------------
+C(e1 &&& e2) = 
+    stmts_1; 
+    /* outer_if */ 
+    if (e_1' = false) { 
+    	x := false 
+    } else {
+        stmts_2;
+        /* inner_if */
+        if (e_2' = false) {
+        	x := false
+        } else {
+        	x := true
+        }
+    }, x 
+
+*)
+let compile_sc_and 
+    (x         : string) 
+    (stmts_1   : Stmt.t list) 
+    (e1'       : Expr.t) 
+    (stmts_2   : Stmt.t list) 
+    (e2'       : Expr.t) : Stmt.t list * Expr.t = 
+  
+  let inner_if = 
+    Stmt.If (
+      Expr.BinOpt (Oper.Equal, e2', Expr.Val (Val.Bool false)), 
+      Stmt.Assign (x, Expr.Val (Val.Bool false)), 
+      Some (Stmt.Assign (x, Expr.Val (Val.Bool true)))) in  
+
+  let outer_if = 
+    Stmt.If (
+      Expr.BinOpt (Oper.Equal, e1', Expr.Val (Val.Bool false)), 
+      Stmt.Assign (x, Expr.Val (Val.Bool false)), 
+      Some (Stmt.Block (stmts_2 @ [ inner_if ]))
+    ) in 
+  
+  stmts_1 @ [ outer_if ], Expr.Var x
+
+
+
+(*
+  C(e1) = stmts_1, e_1' 
+  C(e2) = stmts_2, e_2' 
+  x fresh 
+------------------------
+C(e1 ||| e2) = 
+    stmts_1; 
+    if (e_1' = true) { 
+    	x := true 
+    } else {
+        stmts_2;
+        if (e_2' = true) {
+        	x := true
+        } else {
+        	x := false
+        }
+    }, x 
+    
+
+*)
+let compile_sc_or 
+    (x         : string) 
+    (stmts_1   : Stmt.t list) 
+    (e1'       : Expr.t) 
+    (stmts_2   : Stmt.t list) 
+    (e2'       : Expr.t) : Stmt.t list * Expr.t = 
+  
+  let inner_if = 
+    Stmt.If (
+      Expr.BinOpt (Oper.Equal, e2', Expr.Val (Val.Bool true)), 
+      Stmt.Assign (x, Expr.Val (Val.Bool true)), 
+      Some (Stmt.Assign (x, Expr.Val (Val.Bool false)))) in  
+
+  let outer_if = 
+    Stmt.If (
+      Expr.BinOpt (Oper.Equal, e1', Expr.Val (Val.Bool true)), 
+      Stmt.Assign (x, Expr.Val (Val.Bool true)), 
+      Some (Stmt.Block (stmts_2 @ [ inner_if ]))
+    ) in 
+  
+  stmts_1 @ [ outer_if ], Expr.Var x
+
 
 let rec compile_binopt (binop : Oper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
@@ -13,6 +100,13 @@ let rec compile_binopt (binop : Oper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) :
   let stmts_2, e2 = compile_expr e_e2 in
   stmts_1 @ stmts_2 @ [Stmt.Assign (var, Expr.BinOpt (binop, e1, e2))], Expr.Var var
 
+and compile_ebinopt (binop : EOper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) : Stmt.t list * Expr.t =
+  let x = generate_fresh_var () in
+  let stmts_1, e1 = compile_expr e_e1 in
+  let stmts_2, e2 = compile_expr e_e2 in
+  match binop with 
+  | SCLogAnd -> compile_sc_and x stmts_1 e1 stmts_2 e2
+  | SCLogOr -> compile_sc_or x stmts_1 e1 stmts_2 e2
 
 and compile_unopt (op : Oper.uopt) (expr : E_Expr.t) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
@@ -161,14 +255,15 @@ and compile_matchwith (expr : E_Expr.t) (pats_stmts : (E_Pat.t * E_Stmt.t) list)
 
 and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   match e_expr with
-  | Val e_v                   -> [], Expr.Val e_v
-  | Var e_v                   -> [], Expr.Var e_v
-  | BinOpt (e_op, e_e1, e_e2) -> compile_binopt e_op e_e1 e_e2
-  | UnOpt (op, e_e)           -> compile_unopt op e_e
-  | NOpt (op, e_es)           -> compile_nopt op e_es
-  | Call (f, e_es)            -> compile_call f e_es
-  | NewObj (e_fes)            -> compile_newobj e_fes
-  | Lookup (e_e, e_f)         -> compile_lookup e_e e_f
+  | Val e_v                    -> [], Expr.Val e_v
+  | Var e_v                    -> [], Expr.Var e_v
+  | BinOpt (e_op, e_e1, e_e2)  -> compile_binopt e_op e_e1 e_e2
+  | EBinOpt (e_op, e_e1, e_e2) -> compile_ebinopt e_op e_e1 e_e2 
+  | UnOpt (op, e_e)            -> compile_unopt op e_e
+  | NOpt (op, e_es)            -> compile_nopt op e_es
+  | Call (f, e_es)             -> compile_call f e_es
+  | NewObj (e_fes)             -> compile_newobj e_fes
+  | Lookup (e_e, e_f)          -> compile_lookup e_e e_f
 
 
 and compile_print (expr : E_Expr.t) : Stmt.t list =

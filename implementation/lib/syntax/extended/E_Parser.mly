@@ -26,7 +26,7 @@
 %token <string> STRING
 %token <string> SYMBOL
 %token <string> LOC
-%token LAND LOR
+%token LAND LOR SCLAND SCLOR
 %token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS
 %token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %token TO_INT32 TO_UINT32 TO_UINT16
@@ -229,6 +229,8 @@ prefix_binary_op_target:
 infix_binary_op_target:
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
     { E_Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
+  | e1 = e_expr_target; bop = e_op_target; e2 = e_expr_target;
+     { E_Expr.EBinOpt (bop, e1, e2) } %prec binopt_prec
 
 fv_target:
   | f = VAR; COLON; e = e_expr_target;
@@ -321,4 +323,8 @@ op_target:
   | SHIFT_RIGHT_LOGICAL { Oper.ShiftRightLogical }
   | IN_OBJ  { Oper.InObj }
   | IN_LIST { Oper.InList }
+
+e_op_target:
+  | SCLAND  { EOper.SCLogAnd }
+  | SCLOR   { EOper.SCLogOr }
 
