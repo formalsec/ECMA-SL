@@ -6,10 +6,12 @@ fs = require('fs');
 
 
 var file_to_parse  = process.argv[2];
+var mon = process.argv[3];
 console.log(file_to_parse);
 fs.readFile(file_to_parse, 'utf8', parseFile);
 
 function parseFile(err,obj) {
+	console.log(mon);
 	console.log("Parsing File...");
 	let jsonprog = JSON.parse(obj);
 	console.log("Parsing... [1/2] ");
@@ -18,7 +20,7 @@ function parseFile(err,obj) {
     console.log("Parsing complete.");
     //console.log(prog.toString());
     // ... chamar o interpretador 
-	Interpreter.interpretProg(prog);
+	Interpreter.interpretProg(prog, mon);
 }
 
 

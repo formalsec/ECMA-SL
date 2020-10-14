@@ -1,7 +1,6 @@
 const Lattice = require("../Lattice");
 
-class UpgStructExistsLab{  // Struct_lvl
-
+class UpgObjectLab{  // Object_lvl
 	constructor(location, e_o, lvl){
 		this.location = location;
 		this.e_o=e_o;
@@ -9,12 +8,14 @@ class UpgStructExistsLab{  // Struct_lvl
 	}
 
 	interpret(sec_conf){
-		let lev_o = this.e_o.interpret(config.store).value;
+		let lev_o = sec_conf.ssto.getExprLvl(this.e_o);
 		let lev_ctx = Lattice.lub(lev_o, sec_conf.pc[0]);
 		var exists = sec_conf.sheap.locationCheck(this.location);
 		if(exists){
-			if(Lattice.leq(lev_ctx, sec_conf.sheap.getStructLvl(this.location))){
-				sec_conf.sheap.setStructLvl(Lattice.lub(this.lvl, lev_ctx);
+			console.log(lev_ctx);
+			console.log( sec_conf.sheap.getObjectLvl(this.location));
+			if(Lattice.leq(lev_ctx, sec_conf.sheap.getObjectLvl(this.location))){
+				sec_conf.sheap.setObjectLvl(this.location, Lattice.lub(this.lvl, lev_ctx));
 			} else{
 				sec_conf.error = "Illegal P_Val Upgrade";
 			}
@@ -23,4 +24,5 @@ class UpgStructExistsLab{  // Struct_lvl
 	}
 }
 
-module.exports = 'UpgStructExistsLab';
+module.exports = UpgObjectLab;
+

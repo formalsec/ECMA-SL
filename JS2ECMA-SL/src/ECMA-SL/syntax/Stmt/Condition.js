@@ -17,11 +17,11 @@ function MakeCondition(Stmt){
 		}
 
 		interpret(config){
-
 			var v = this.expr.interpret(config.store);
 			//Needs to be bool and true
 			if(v.value){				
 				config.cont = [this.then_block].concat([new Merge()]).concat(config.cont.slice(1));
+				console.log(JSON.stringify(config.cont));
 				return {config : config, seclabel: new BranchLab(this.expr)};
 			} else{
 				if(this.else_block){

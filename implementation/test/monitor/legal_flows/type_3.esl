@@ -7,7 +7,7 @@ o.p := true;
 
 x:= "upgVar"("l", "low");
 x:= "upgVar"("h", "high");
-x:= "upgStructExists"(o, "low");
+x:= "upgStruct"(o, "low");
 
 if (h) {
   delete o["p"]

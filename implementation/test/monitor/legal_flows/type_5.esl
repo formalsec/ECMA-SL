@@ -8,7 +8,7 @@ proph := "p";
 x:= "upgVar"("l", "low");
 x:= "upgVar"("h", "high");
 x:= "upgVar"("proph", "high");
-x:= "upgStructExists"(o, "high");
+x:= "upgStruct"(o, "high");
 
 if (h) {
   proph := "q"

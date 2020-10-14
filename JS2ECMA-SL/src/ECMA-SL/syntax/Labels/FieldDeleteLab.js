@@ -13,6 +13,7 @@ class FieldDeleteLab{
 		var lev_ctx = Lattice.lubn([lev_o, lev_f, sec_conf.pc[0]]);
 		var field_check = sec_conf.sheap.fieldCheck(this.object, this.field);
 		if (field_check){
+			console.log(sec_conf.sheap.getFieldExistsLvl(this.object, this.field));
 			if(Lattice.leq(lev_ctx, sec_conf.sheap.getFieldExistsLvl(this.object, this.field))){
 				sec_conf.sheap.deleteField(this.object, this.field);
 			} else {

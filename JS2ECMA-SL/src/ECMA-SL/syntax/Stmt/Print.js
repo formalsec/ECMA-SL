@@ -1,5 +1,5 @@
 const Expr = require("../Expr/Expr");
-const EmptyLab = require("../Labels/EmptyLab");
+const PrintLab = require("../Labels/PrintLab");
 
 function MakePrint(Stmt){
 
@@ -10,9 +10,15 @@ function MakePrint(Stmt){
 		}
 
 		interpret(config){
+			config.cont = config.cont.slice(1);
 			var v = this.expression.interpret(config.store);
-			console.log("PRINT> "+ v +"/n");
-			return {config : config, seclabel: new PrintLab(this.expr)};
+			if(v != undefined){
+				console.log("PRINT> "+ v +"/n");
+				return {config : config, seclabel: new PrintLab(this.expression)};
+			} else {
+				console.log("Undefined Print");
+				return {config : config, seclabel: new PrintLab(this.expression)};
+			}
 		}
 	}
 

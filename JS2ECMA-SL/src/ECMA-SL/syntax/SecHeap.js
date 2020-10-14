@@ -1,10 +1,11 @@
 const Heap = require('./Heap');
+const Lattice = require("./Lattice");
 
 class SecHeap extends Heap{
 
 
 	createObject(location, pc_lvl){
-		this.heap[location] = {sec_object: [], struct_lvl : pc_lvl, obj_lvl : pc_lvl};
+		this.heap[location] = {sec_object: [], struct_lvl : pc_lvl, object_lvl : pc_lvl};
 	}
 
 	fieldCheck(object,field){
@@ -38,10 +39,11 @@ class SecHeap extends Heap{
 		this.heap[object].sec_object[field].val_lvl = val_lvl;
 	}
 	setStructLvl(location, lvl){
+		console.log("SET STRUCT:"+ lvl);
 		this.heap[location].struct_lvl = lvl;
 	}
 	setObjectLvl(location, lvl){
-		this.heap[location].objects_lvl = lvl;
+		this.heap[location].object_lvl = lvl;
 	}
 	setFieldLvls(location, field, lvl){
 		this.heap[location].sec_object[field] = {};

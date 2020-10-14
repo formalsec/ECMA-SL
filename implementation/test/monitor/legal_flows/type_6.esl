@@ -7,8 +7,8 @@ oh := {};
 
 x:= "upgVar"("l", "low");
 x:= "upgVar"("h", "high");
-x:= "upgStructExists"(ol, "low");
-x:= "upgStructExists"(oh, "high");
+x:= "upgStruct"(ol, "low");
+x:= "upgStruct"(oh, "high");
 oh.p := true;
 oh.p := true;
 if (h) {

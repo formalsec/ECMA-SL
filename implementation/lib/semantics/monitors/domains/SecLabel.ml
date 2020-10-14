@@ -3,6 +3,7 @@ exception Except of string
 type 'sl t =
   | AssignLab of (string * Expr.t)
   | EmptyLab
+  | PrintLab of (Expr.t)
   | BranchLab of (Expr.t * Stmt.t)
   | MergeLab
   | AssignCallLab of (string list * (Expr.t list)* string * string)
@@ -15,8 +16,8 @@ type 'sl t =
   | UpgVarLab of (string * 'sl)
   | UpgPropExistsLab of (Loc.t * string * Expr.t * Expr.t * 'sl)
   | UpgPropValLab of (Loc.t * string * Expr.t * Expr.t * 'sl)
-  | UpgStructExistsLab of (Loc.t * Expr.t * 'sl)
-  | UpgStructValLab of (Loc.t * Expr.t * 'sl)
+  | UpgStructLab of (Loc.t * Expr.t * 'sl)
+  | UpgObjectLab of (Loc.t * Expr.t * 'sl)
 
 
 
@@ -24,6 +25,8 @@ let str (sl_str : 'sl -> string) (label : 'sl t) : string =
   match label with
   | EmptyLab ->
     "EmptyLab"
+  |PrintLab e ->
+    "PrintLab ("^ (Expr.str e)^ ")"
   | MergeLab ->
     "MergeLab"
   | ReturnLab e ->
@@ -38,9 +41,11 @@ let str (sl_str : 'sl -> string) (label : 'sl t) : string =
     "UpgVarLab"
   | UpgPropValLab (loc, x, e_o, e_f, lvl) ->
     "UpgPropLab"
-  | UpgStructValLab (loc, e_o, lvl) ->
+  | UpgPropExistsLab (loc, x, e_o, e_f, lvl) ->
+    "UpgPropLab"
+  | UpgObjectLab (loc, e_o, lvl) ->
     "UpgStructLab"
-  | UpgStructExistsLab (loc, e_o, lvl) ->
+  | UpgStructLab (loc, e_o, lvl) ->
     "UpgStructLab"
   | _ ->
     "Missing str"
@@ -48,7 +53,7 @@ let str (sl_str : 'sl -> string) (label : 'sl t) : string =
 
 
 let interceptor (parse_sl : string -> 'sl) (func : string) (vs : Val.t list) (es : Expr.t list) : ('sl t) option =
-
+ print_string ("Searching.... "^ func);
   match (func, vs, es) with
   | ("upgVar",[Val.Str x; Val.Str lev_str], [Expr.Val  (Str x'); Expr.Val (Str lev_str')])
     when x = x' && lev_str = lev_str' ->  Some (UpgVarLab (x,parse_sl lev_str))
@@ -61,12 +66,12 @@ let interceptor (parse_sl : string -> 'sl) (func : string) (vs : Val.t list) (es
     when lev_str = lev_str'-> Some (UpgPropValLab (loc,x,  e_o, e_f, (parse_sl lev_str)))
   | ("upgPropVal", [Val.Loc loc; Val.Str x;  Val.Str lev_str], [e_o; e_f; _])-> raise (Except "Level is not a literal ")
 
-  | ("upgStructExists",[Val.Loc loc; Val.Str lev_str], [e_o; Expr.Val (Str lev_str')])
-    when lev_str = lev_str' -> Some (UpgStructExistsLab (loc, e_o, (parse_sl lev_str)))
-  | ("upgStructExists",[Val.Loc loc; Val.Str lev_str], [e_o; _])-> raise (Except "Level is not a literal ")
+  | ("upgStruct",[Val.Loc loc; Val.Str lev_str], [e_o; Expr.Val (Str lev_str')])
+    when lev_str = lev_str' -> Some (UpgStructLab (loc, e_o, (parse_sl lev_str)))
+  | ("upgStruct",[Val.Loc loc; Val.Str lev_str], [e_o; _])-> raise (Except "Level is not a literal ")
 
-  | ("upgStructVal",[Val.Loc loc; Val.Str lev_str], [e_o; Expr.Val (Str lev_str')])
-    when lev_str = lev_str' -> Some (UpgStructValLab (loc, e_o, (parse_sl lev_str)))
-  | ("upgStructVal",[Val.Loc loc; Val.Str lev_str], [e_o; _])-> raise (Except "Level is not a literal ")
+  | ("upgObject",[Val.Loc loc; Val.Str lev_str], [e_o; Expr.Val (Str lev_str')])
+    when lev_str = lev_str' -> Some (UpgObjectLab (loc, e_o, (parse_sl lev_str)))
+  | ("upgObject",[Val.Loc loc; Val.Str lev_str], [e_o; _])-> raise (Except "Level is not a literal ")
 
   | _ -> None

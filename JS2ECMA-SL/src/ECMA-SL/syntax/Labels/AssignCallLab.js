@@ -1,5 +1,5 @@
 const SCSFrame = require('../../SCSFrame');
-const Store = require('../../SecStore');
+const SecStore = require('../../SecStore');
 
 class AssignCallLab{
 	constructor(stringvar, f, args){

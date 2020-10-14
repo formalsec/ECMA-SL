@@ -19,7 +19,7 @@ function MakeAssignInObjCheck(Stmt){
       var field = this.expressionField.interpret(config.store).value;
       var v = config.heap.fieldCheck(object, field);
       config.store.setValue(this.stringvar, new PrimitiveVal(v));
-      return {config : config, seclabel: new AssignLab(this.variable, this.expressionObject)};;
+      return {config : config, seclabel: new AssignLab(this.stringvar, this.expressionObject)};
     }
 
    

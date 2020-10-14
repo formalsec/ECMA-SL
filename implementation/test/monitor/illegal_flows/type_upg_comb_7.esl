@@ -1,0 +1,20 @@
+function main () {
+	h:= true;
+	l:= true;
+	o := {};
+	o.p := true;
+
+	x:= "upgVar"("h","high");
+	x:= "upgPropExists"(o, "p", "high");
+	
+	
+	
+	 t:= "p" in_obj o;
+	 
+
+
+	print "DUVIDA AQUI!";
+	print t;
+	return l
+
+}
