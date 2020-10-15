@@ -5,6 +5,7 @@ const Assignment = require("./assignment");
 const FunctionLiteral = require("./functionLiteral");
 const FunctionCall = require("./functionCall");
 const Identifier = require("./identifier");
+const Literal = require("./literal");
 
 module.exports = {
   transformObject: function (obj) {
@@ -31,6 +32,9 @@ module.exports = {
     }
     if (obj.type === "Identifier") {
       return Identifier.transform(obj)
+    }
+    if (obj.type === "Literal") {
+      return Literal.transform(obj);
     }
     return obj;
   },
