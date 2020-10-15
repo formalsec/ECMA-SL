@@ -1153,7 +1153,7 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
   | { type: "VariableDeclaration", declarations: VariableDeclarationListNoIn } -> {
     /* Pattern created specifically for the ForInStatement where the VariableDeclarationListNoIn can only contain one VariableDeclarator
        and where the String returned by this function is used in the evaluation of the ForInStatement */
-    ret := null;
+    ret := 'null;
     i := 0;
     ldeclarations := l_len VariableDeclarationListNoIn;
     while (ldeclarations > i) {
@@ -1808,7 +1808,7 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
     /* 2. Let experValue be GetValue(exprRef). */
     experValue := GetValue(exprRef);
     /* 3. If experValue is null or undefined, return (normal, empty, empty). */
-    if ((experValue = null) || (experValue = 'undefined)) {
+    if ((experValue = 'null) || (experValue = 'undefined)) {
       return normalEmptyCompletion('empty)
     };
     /* 4. Let obj be ToObject(experValue). */
@@ -1863,7 +1863,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
     /* 3. Let experValue be GetValue(exprRef). */
     experValue := GetValue(exprRef);
     /* 4. If experValue is null or undefined, return (normal, empty, empty). */
-    if ((experValue = null) || (experValue = 'undefined)) {
+    if ((experValue = 'null) || (experValue = 'undefined)) {
       return normalEmptyCompletion('empty)
     };
     /* 5. Let obj be ToObject(experValue). */

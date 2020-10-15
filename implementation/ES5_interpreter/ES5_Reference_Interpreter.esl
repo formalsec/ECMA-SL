@@ -38,8 +38,8 @@ function Type(V) {
   if (v_type = __$Str) { return "String" };
   if (v_type = __$Obj) { return "Object" };
   if (v_type = __$List) { return "List" };
-  if (v_type = __$Null) { return "Null" };
   if (v_type = __$Symbol) {
+    if (V = 'null) { return "Null" };
     if (V = 'undefined) { return "Undefined" }
   };
   if (v_type = __$Tuple) {
