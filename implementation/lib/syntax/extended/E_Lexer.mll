@@ -116,6 +116,7 @@ rule read =
   | "function"        { FUNCTION }
   | "delete"          { DELETE }
   | "null"            { NULL }
+  | "undefined"       { SYMBOL ("'undefined") }
   | "repeat"          { REPEAT }
   | "until"           { UNTIL }
   | "match"           { MATCH }
@@ -129,7 +130,7 @@ rule read =
   | string            { STRING (Lexing.lexeme lexbuf) }
   | var               { VAR (Lexing.lexeme lexbuf) }
   | symbol            { SYMBOL (Lexing.lexeme lexbuf) }
-  | loc            { LOC (Lexing.lexeme lexbuf) }
+  | loc               { LOC (Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }
   | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof               { EOF }
