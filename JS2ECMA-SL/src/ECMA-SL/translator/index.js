@@ -34,9 +34,6 @@ function translateNull() {
 }
 
 function translateNumber(value) {
-  if (!Number.isFinite(value) || Number.isNaN(value)) {
-    throw new Error("Invalid number: " + value);
-  }
   if (Number.isInteger(value)) {
     if (Number.isSafeInteger(value)) {
       return translateLiteral(new PrimitiveVal(value));
