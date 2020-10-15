@@ -19,7 +19,8 @@ var f1 = typeof undefined,
   f3 = typeof false,
   f4 = typeof d,
   f5 = typeof "",
-  f6 = typeof obj;
+  f6 = typeof obj,
+  f7 = typeof NaN;
 
 delete obj.p1;
 
@@ -39,3 +40,8 @@ var i1 = 1 | 0,
 
 var j1 = i1 === i3 && i1 === i4 ? "correct" : "incorrect",
     j2 = i2 != i5 ? "incorrect" : "correct";
+
+var k1 = -null,
+    k2 = -NaN,
+    k3 = -undefined,
+    k4 = -Infinity;
