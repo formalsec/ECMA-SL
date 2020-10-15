@@ -39,6 +39,7 @@ type uopt = Neg
           | IntToString
           | IntOfString
           | FloatToString
+          | FloatOfString
           | ObjToList
           | Sconcat
           | ObjFields
@@ -217,6 +218,10 @@ let float_to_string (v : Val.t) : Val.t = match v with
     Str s'
   | _     -> invalid_arg ("Exception in Oper.float_to_string: this operation is only applicable to Flt arguments: " ^ (Val.str v))
 
+let float_of_string (v : Val.t) : Val.t = match v with
+  | Str s -> Flt (float_of_string s)
+  | _     -> invalid_arg "Exception in Oper.float_of_string: this operation is only applicable to Str arguments"
+
 let string_concat (v : Val.t) : Val.t = match v with
   | List l -> Str (String.concat "" (String.split_on_char '"' (String.concat "" (List.map Val.str l))))
   | _      -> invalid_arg "Exception in Oper.string_concat: this operation is only applicable to List arguments"
@@ -261,6 +266,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | IntToString   -> "int_to_string"
   | IntOfString   -> "int_of_string"
   | FloatToString -> "float_to_string"
+  | FloatOfString -> "float_of_string"
   | ObjToList     -> "obj_to_list"
   | Sconcat       -> "s_concat"
   | ObjFields     -> "obj_fields"
@@ -357,6 +363,7 @@ let uopt_to_json (op : uopt) : string =
      | IntToString -> Printf.sprintf "IntToString\" }"
      | IntOfString -> Printf.sprintf "IntOfString\" }"
      | FloatToString -> Printf.sprintf "FloatToString\" }"
+     | FloatOfString -> Printf.sprintf "FloatOfString\" }"
      | ObjToList -> Printf.sprintf "ObjToList\" }"
      | Sconcat  -> Printf.sprintf "Sconcat\" }"
      | ObjFields -> Printf.sprintf "ObjFields\" }"

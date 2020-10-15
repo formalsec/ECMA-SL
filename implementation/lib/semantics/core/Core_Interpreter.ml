@@ -36,6 +36,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | IntToString   -> Oper.int_to_string v
   | IntOfString   -> Oper.int_of_string v
   | FloatToString -> Oper.float_to_string v
+  | FloatOfString -> Oper.float_of_string v
   | Sconcat       -> Oper.string_concat v
   | ObjToList     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjToList")
   | ObjFields     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjFields")
