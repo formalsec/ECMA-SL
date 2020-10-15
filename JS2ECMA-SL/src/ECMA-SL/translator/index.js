@@ -33,6 +33,10 @@ function translateNull() {
   return translateLiteral(new PrimitiveVal(null));
 }
 
+function translateUndefined() {
+  return translateLiteral(new PrimitiveVal(undefined));
+}
+
 function translateNumber(value) {
   if (Number.isInteger(value)) {
     if (Number.isSafeInteger(value)) {
@@ -87,7 +91,7 @@ function translateObject(obj) {
 function traverseAndTranslate(value) {
   switch (typeof value) {
     case "undefined":
-      throw new Error("The undefined value is not supported");
+      return translateUndefined();
     case "boolean":
       return translateBoolean(value);
     case "number":
