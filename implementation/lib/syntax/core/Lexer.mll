@@ -21,7 +21,7 @@ let digit   = ['0' - '9']
 let letter  = ['a' - 'z' 'A' - 'Z']
 let special = ('_'|' '|','|';'|'.'|':'|'\\' '"'|'/'|'*'|'-'|'+'|'<'|'>'|'='|'{'|'}'|'['|']'|'('|')'|'$'|'@'|'!'|'?'|'%'|'~'|'&'|'|'|'^')
 let int     = '-'?digit+
-let float   = int('.')digit*
+let float   = int('.')digit*|"nan"|"inf"
 let bool    = "true"|"false"
 let string  = '"'(digit|letter|special)*'"'
 let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
