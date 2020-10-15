@@ -3,7 +3,7 @@ import "test/section_8.10.esl";
 import "test/section_8.12.esl";
 import "test/section_15.11.esl";
 
-/* This method is not supposed to be here. As soon 
+/* This method is not supposed to be here. As soon
    as it is placed in the right section, it should
    be replaced by an import of that section. */
 function Type(V) {
@@ -16,10 +16,7 @@ function Type(V) {
   if (v_type = __$List) { return "List" };
   if (v_type = __$Null) { return "Null" };
   if (v_type = __$Symbol) {
-    if (V = 'undefined) { return "Undefined" };
-    if (V = 'NaN) { return "Number" };
-    if ((V = '+0) || (V = '-0)) { return "Number" };
-    if ((V = '+Infinity) || (V = 'Infinity) || (V = '-Infinity)) { return "Number" }
+    if (V = 'undefined) { return "Undefined" }
   };
   if (v_type = __$Tuple) {
     ft := fst V;
@@ -65,7 +62,7 @@ function Type(V) {
  */
 
 /**
- * 15.4.2.1 new Array ( [ item0 [ , item1 [ , … ] ] ] ) # Ⓣ 
+ * 15.4.2.1 new Array ( [ item0 [ , item1 [ , … ] ] ] ) # Ⓣ
  * This description applies if and only if the Array constructor is given
  * no arguments or at least two arguments.
  */
@@ -144,7 +141,7 @@ function concat(this, items) {
           element. */
     E := hd items;
     items := tl items;
-    
+
     /* b. If the value of the [[Class]] internal property of E is "Array",
           then */
     if (E.Class = "Array") {
@@ -213,7 +210,7 @@ function concat(this, items) {
  * 15.4.4.5 Array.prototype.join (separator)
  *
  * The elements of the array are converted to Strings, and these Strings
- * are then concatenated, separated by occurrences of the separator. If 
+ * are then concatenated, separated by occurrences of the separator. If
  * no separator is provided, a single comma is used as the separator.
  *
  * The join method takes one argument, separator, and performs the
@@ -604,7 +601,7 @@ function slice(this, start, end) {
       /* i. Let kValue be the result of calling the [[Get]] internal method of O
             with argument Pk. */
       kValue := {O.Get}(Pk);
-      /* ii. Call the [[DefineOwnProperty]] internal method of A with arguments 
+      /* ii. Call the [[DefineOwnProperty]] internal method of A with arguments
              ToString(n), Property Descriptor {[[Value]]: kValue, [[Writable]]:
              true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
       descriptor = newDataPropertyDescriptorFull(kValue, true, true, true);
@@ -647,7 +644,7 @@ function slice(this, start, end) {
  * taken:
  */
 function DefineOwnPropertyArray(A, P, Desc, Throw) {
-  
+
   /* 1. Let oldLenDesc be the result of calling the [[GetOwnProperty]] internal
       method of A passing "length" as the argument. The result will never be
       undefined or an accessor descriptor because Array objects are created
@@ -687,7 +684,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     if (oldLenDesc.Writable = false) {
       Reject(Throw)
     };
-    
+
     /* h. If newLenDesc.[[Writable]] is absent or has the value true,
           let newWritable be true. */
     if (!("Writable" in_obj newLenDesc) || newLenDesc.Writable = true) {
