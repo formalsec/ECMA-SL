@@ -20,6 +20,14 @@ module.exports = {
       }
     }
 
+    if (obj.name === "undefined") {
+      return {
+        type: "Literal",
+        value: undefined,
+        raw: "undefined"
+      }
+    }
+
     return obj
   }
 }
