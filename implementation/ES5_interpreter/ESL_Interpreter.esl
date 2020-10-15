@@ -1,4 +1,4 @@
-import "test/ES5_Reference_Interpreter.esl";
+import "ES5_interpreter/ES5_Reference_Interpreter.esl";
 
 function JS_Interpreter_Program(p) {
   /* 14 Program */
