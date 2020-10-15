@@ -18,8 +18,7 @@ function ToBoolean(argument) {
     return true
   };
   if (Type(argument) = "String") {
-    /* TODO s_len */
-    if (l_len(argument) = 0) {
+    if (argument = "") {
       return false
     } else {
       return true
