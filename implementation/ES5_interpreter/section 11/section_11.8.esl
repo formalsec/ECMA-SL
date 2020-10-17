@@ -46,11 +46,17 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
     if (nx = ny) { return false };
 
     /* f. If nx is +0 and ny is -0, return false. */
+    if ((nx = 0.) && (ny = -0.)) { return false };
     /* g. If nx is -0 and ny is +0, return false. */
+    if ((nx = -0.) && (ny = 0.)) { return false };
     /* h. If nx is +Infinity, return false. */
+    if (nx = Infinity) { return false }
     /* i. If ny is +Infinity, return true. */
+    if (ny = Infinity) { return true }
     /* j. If ny is -Infinity, return false. */
+    if (ny = -Infinity) { return false }
     /* k. If nx is -Infinity, return true. */
+    if (nx = -Infinity) { return true }
     /* l. If the mathematical value of nx is less than the mathematical value of ny — note that these
           mathematical values are both finite and not both zero — return true. Otherwise, return false. */
     if (nx < ny) { return true };
