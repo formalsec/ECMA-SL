@@ -26,8 +26,8 @@
 %token <string> STRING
 %token <string> SYMBOL
 %token <string> LOC
-%token LAND LOR
-%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST TO_UINT32 OBJ_FIELDS
+%token LAND LOR SCLAND SCLOR
+%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST TO_UINT32 FLOOR OBJ_FIELDS
 
 %token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
@@ -199,6 +199,8 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
   | TO_UINT32; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ToUint32, e) } %prec unopt_prec
+  | FLOOR; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
   | OBJ_TO_LIST; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ObjToList, e) } %prec unopt_prec
 
@@ -224,6 +226,8 @@ prefix_binary_op_target:
 infix_binary_op_target:
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
     { E_Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
+  | e1 = e_expr_target; bop = e_op_target; e2 = e_expr_target;
+     { E_Expr.EBinOpt (bop, e1, e2) } %prec binopt_prec
 
 fv_target:
   | f = VAR; COLON; e = e_expr_target;
@@ -309,4 +313,8 @@ op_target:
   | LOR     { Oper.Log_Or }
   | IN_OBJ  { Oper.InObj }
   | IN_LIST { Oper.InList }
+
+e_op_target:
+  | SCLAND  { EOper.SCLogAnd }
+  | SCLOR   { EOper.SCLogOr }
 

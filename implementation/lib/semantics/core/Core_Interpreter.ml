@@ -10,6 +10,11 @@ type return =
   | Intermediate of state_t * Stmt.t list
   | Finalv of Val.t option
 
+type ctx_t = {
+  verbose : bool;
+  out : string;
+  monitor : bool;
+} 
 
 let add_fields_to (obj : Object.t) (fes : (Field.t * Expr.t) list) (eval_e : (Expr.t -> Val.t)) : unit =
   List.iter (fun (f, e) -> let e' = eval_e e in Object.set obj f e') fes
@@ -34,6 +39,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ObjToList     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjToList")
   | ObjFields     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjFields")
   | ToUint32      -> Oper.to_uint32 v
+  | Floor         -> Oper.to_floor v
 
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
@@ -142,6 +148,8 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
   match s with
   | Skip ->
     (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
+  
+  | Merge -> (Intermediate ((cs, heap, sto), cont), SecLabel.MergeLab)
 
   | Print e ->
     (let v = eval_expr sto e in
@@ -181,16 +189,19 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
     if (Oper.is_true v) then
       match s1 with
       | Block block ->
+        let blockm = (block @ (Stmt.Merge :: [])) in
         (match s2 with
-         |Some v -> Intermediate ((cs, heap, sto), (block @ cont)), SecLabel.BranchLab (e,v)
-         |None -> Intermediate ((cs, heap, sto), (block @ cont)), SecLabel.BranchLab (e,(Stmt.Skip)))
+         |Some v -> Intermediate ((cs, heap, sto), (blockm @ cont)), SecLabel.BranchLab (e,v)
+         |None -> Intermediate ((cs, heap, sto), (blockm @ cont)), SecLabel.BranchLab (e,(Stmt.Skip)))
       | _ -> raise (Except "IF block expected ")
 
     else
       (match s2 with
        | Some v ->
          (match v with
-          | Block block2 -> Intermediate ((cs, heap, sto), (block2 @ cont)),SecLabel.BranchLab (e,s1)
+          | Block block2 -> 
+          let block2m = (block2 @ (Stmt.Merge :: [])) in
+          Intermediate ((cs, heap, sto), (block2m  @ cont)), SecLabel.BranchLab (e,s1)
           |_ -> raise (Except "Not expected"))
        | None ->
          (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab))

@@ -32,7 +32,7 @@ function MakeAssignCall(Stmt){
         
       }else{
         //interceptor
-        var label = Interceptor.search(func_name.value, vs.map(v => v.value));
+        var label = Interceptor.search(func_name.value, vs.map(v => v.value), this.args);
         if(label != undefined)
           return {config : config, seclabel: label};
           

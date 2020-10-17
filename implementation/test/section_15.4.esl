@@ -31,6 +31,30 @@ function Type(V) {
 };
 
 
+/* Placeholder for ToNumber, ToInteger, min and max that will be
+  implemented in another section TODO */
+function ToNumber(V) {
+  return V
+};
+function ToInteger(V) {
+  number := ToNumber(V);
+  return number
+};
+function max(a, b) {
+  if (a > b) {
+    return a
+  } else {
+    return b
+  }
+};
+function min(a, b) {
+  if (a > b) {
+    return b
+  } else {
+    return a
+  }
+};
+
 
 
 /**
@@ -115,19 +139,210 @@ function newArray(items) {
 
 
 /**
+ * 15.4.2.2 new Array (len)
+ */
+function newArrayLen(len) {
+  arr := {
+    /* The [[Prototype]] internal property of the newly constructed object is
+      set to the original Array prototype object, the one that is the initial
+      value of Array.prototype (15.4.3.1). */
+    Prototype: null,
+    /* The [[Class]] internal property of the newly constructed object
+      is set to "Array". */
+    Class: "Array",
+    /* The [[Extensible]] internal property of the newly constructed
+      object is set to true. */
+    Extensible: true,
+    Put: "Put",
+    Get: "Get",
+    HasProperty: "HasProperty",
+    DefineOwnProperty: "DefineOwnPropertyArray",
+    GetOwnProperty: "GetOwnProperty",
+    Delete: "Delete"
+  };
+
+  lenIsNumber := (typeof len = __$Flt);
+
+  /* If the argument len is a Number and ToUint32(len) is equal to len, then
+     the length property of the newly constructed object is set to ToUint32(len). */
+  if (lenIsNumber && ((to_uint32 len) = len)) {
+    arr.length := newDataPropertyDescriptor(to_uint32 len)
+  };
+
+  /* If the argument len is a Number and ToUint32(len) is not equal to
+     len, a RangeError exception is thrown. */
+  if (lenIsNumber && !((to_uint32 len) = len)) {
+    throw RangeErrorException()
+  };
+
+  /* If the argument len is not a Number, then the length property of the
+     newly constructed object is set to 1 and the 0 property of the newly
+     constructed object is set to len with attributes {[[Writable]]: true,
+     [[Enumerable]]: true, [[Configurable]]: true}.. */
+  if (!lenIsNumber) {
+    arr.length := newDataPropertyDescriptor(to_uint32 1.);
+    arr["0"] := newDataPropertyDescriptorFull(len, true, true, true)
+  };
+
+  return arr
+};
+
+
+
+/**
+ * 15.4.3.2 Array.isArray ( arg ) 
+ *
+ * The isArray function takes one argument arg, and returns the Boolean
+ * value true if the argument is an object whose class internal property
+ * is "Array"; otherwise it returns false. The following steps are taken:
+ */
+function isArray(arg) {
+  /* 1. If Type(arg) is not Object, return false. */
+  if (!(Type(arg) = "Object")) {
+    return false
+  };
+  /* 2. If the value of the [[Class]] internal property of arg is "Array",
+        then return true. */
+  if (arg.Class = "Array") {
+    return true
+  };
+  /* 3. Return false. */
+  return false
+};
+
+
+
+
+/**
  * 15.4.4.2 Array.prototype.toString ( )
  *
  * When the toString method is called, the following steps are taken:
  */
 function toStringArray(this) {
-
+/* 1. Let array be the result of calling ToObject on the this value. */
+array := ToObject(this);
+/* 2. Let func be the result of calling the [[Get]] internal method
+      of array with argument "join". */
+func := {array.Get}(array, "join");
+/* 3. If IsCallable(func) is false, then let func be the standard
+      built-in method Object.prototype.toString (15.2.4.2). */
+if (IsCallable(func) = false) {
+  func := ToString
+};
+/* 4. Return the result of calling the [[Call]] internal method of func
+      providing array as the this value and an empty arguments list. */
+  return {func.Call}(func, array, []) /* TODO */
 };
 /**
  * NOTE The toString function is intentionally generic; it does not
  * require that its this value be an Array object. Therefore it can be
- * transferred to other kinds of objects for use as a method. Whether thetoString function can be applied successfully to a host object is implementation-dependent.
+ * transferred to other kinds of objects for use as a method. Whether
+ * the toString function can be applied successfully to a host object
+ * is implementation-dependent.
+ */
 
 
+
+
+/**
+ * 15.4.4.3 Array.prototype.toLocaleString ( )
+ *
+ * The elements of the array are converted to Strings using their
+ * toLocaleString methods, and these Strings are then concatenated,
+ * separated by occurrences of a separator String that has been derived
+ * in an implementation-defined locale-specific way. The result of calling
+ * this function is intended to be analogous to the result of toString,
+ * except that the result of this function is intended to be locale-specific.
+ *
+ * The result is calculated as follows:
+ */
+function toLocaleString(this) {
+  /* 1. Let O be the result of calling ToObject passing the this value as
+        the argument. */
+  O := ToObject(this);
+  /* 2. Let arrayLen be the result of calling the [[Get]] internal method
+        of array with argument "length". */
+  arrayLen := {O.Get}(O, "length");
+  /* 3. Let len be ToUint32(arrayLen). */
+  len := to_uint32 arrayLen;
+  /* 4. Let separator be the String value for the list-separator String
+        appropriate for the host environment’s current locale (this is
+        derived in an implementation-defined way). */
+  separator := ","; /* TODO */
+  /* 5. If len is zero, return the empty String. */
+  if (len = 0.) {
+    return ""
+  };
+  /* 6. Let firstElement be the result of calling the [[Get]] internal
+        method of array with argument "0". */
+  firstElement := {O.Get}(O, "0");
+  /* 7. If firstElement is undefined or null, then */
+  if (firstElement = 'undefined || firstElement = null) {
+    /* a. Let R be the empty String. */
+    R := ""
+  }
+  /* 8. Else */
+  else {
+    /* a. Let elementObj be ToObject(firstElement). */
+    elementObj := ToObject(firstElement);
+    /* b. Let func be the result of calling the [[Get]] internal method
+          of elementObj with argument "toLocaleString". */
+    func := {elementObj.Get}(elementObj, "toLocaleString");
+    /* c. If IsCallable(func) is false, throw a TypeError exception. */
+    if (IsCallable(func) = false) {
+      throw TypeErrorException()
+    };
+    /* d. Let R be the result of calling the [[Call]] internal method of func
+          providing elementObj as the this value and an empty arguments list. */
+    R := {func.Call}(func, elementObj, [])
+  };
+  /* 9. Let k be 1. */
+  k := 1;
+  /* 10. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let S be a String value produced by concatenating R and separator. */
+    S := s_concat([R, separator]);
+    /* b. Let nextElement be the result of calling the [[Get]] internal
+          method of array with argument ToString(k). */
+    nextElement := {O.Get}(O, ToString(k));
+    /* c. If nextElement is undefined or null, then */
+    if (nextElement = 'undefined || nextElement = null) {
+      /* i. Let R be the empty String. */
+      R := ""
+    }
+    /* d. Else */
+    else {
+      /* i. Let elementObj be ToObject(nextElement). */
+      elementObj := ToObject(nextElement);
+      /* ii. Let func be the result of calling the [[Get]] internal method of
+             elementObj with argument "toLocaleString". */
+      func := {elementObj.Get}(elementObj, "toLocaleString");
+      /* iii. If IsCallable(func) is false, throw a TypeError exception. */
+      if (IsCallable(func) = false) {
+        throw TypeErrorException()
+      };
+      /* iv. Let R be the result of calling the [[Call]] internal method of func
+             providing elementObj as the this value and an empty arguments list. */
+      R := {func.Call}(func, elementObj, [])
+    };
+    /* e. Let R be a String value produced by concatenating S and R. */
+    R := s_concat([S, R]);
+    /* f. Increase k by 1. */
+    k := k + 1
+  };
+  /* 11. Return R. */
+  return R
+};
+/**
+ * NOTE 1 The first parameter to this function is likely to be used in a
+ * future version of this standard; it is recommended that implementations
+ * do not use this parameter position for anything else.
+ *
+ * NOTE 2 The toLocaleString function is intentionally generic; it does not
+ * require that its this value be an Array object. Therefore it can be
+ * transferred to other kinds of objects for use as a method. Whether the
+ * toLocaleString function can be applied successfully to a host object is
+ * implementation-dependent.
  */
 
 
@@ -255,7 +470,7 @@ function join(this, separator) {
   /* 5. Let sep be ToString(separator). */
   sep := ToString(separator);
   /* 6. If len is zero, return the empty String. */
-  if (len = 0) {
+  if (len = 0.) {
     return ""
   };
   /* 7. Let element0 be the result of calling the [[Get]] internal method
@@ -263,13 +478,13 @@ function join(this, separator) {
   element0 := {O.Get}(O, "0");
   /* 8. If element0 is undefined or null, let R be the empty String;
         otherwise, Let R be ToString(element0). */
-  if (element0 = 'undefined || element0 = null) {
+  if ((element0 = 'undefined) || (element0 = null)) {
     R := ""
   } else {
     R := ToString(element0)
   };
   /* 9. Let k be 1. */
-  k := 1;
+  k := 1.;
   /* 10. Repeat, while k < len */
   while (k < len) {
     /* a. Let S be the String value produced by concatenating R and sep. */
@@ -279,7 +494,7 @@ function join(this, separator) {
     element := {O.Get}(O, ToString(k));
     /* c. If element is undefined or null, Let next be the empty String;
           otherwise, let next be ToString(element). */
-    if (element = 'undefined || element = null) {
+    if ((element = 'undefined) || (element = null)) {
       next := ""
     } else {
       next := ToString(element)
@@ -287,7 +502,7 @@ function join(this, separator) {
     /* d. Let R be a String value produced by concatenating S and next. */
     R := s_concat([S, next]);
     /* e. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 11. Return R. */
   return R
@@ -319,9 +534,6 @@ function pop(this) {
   /* 3. Let len be ToUint32(lenVal). */
   len := to_uint32 lenVal;
 
-  print "POP LENGTH: ";
-  print len;
-
   /* 4. If len is zero, */
   if (len = 0.) {
     /* a. Call the [[Put]] internal method of O with arguments "length",
@@ -332,25 +544,18 @@ function pop(this) {
   }
   /* 5. Else, len > 0 */
   else {
-    print "POP ELSE!";
-    print "POP ELSE2!";
     if (len > 0.) {
-      print "POP ELSE IF!";
       /* a. Let indx be ToString(len–1). */
       indx := ToString(len - 1);
-      print indx;
       /* b. Let element be the result of calling the [[Get]] internal method
             of O with argument indx. */
       element := {O.Get}(O, indx);
-      print "POP GET";
       /* c. Call the [[Delete]] internal method of O with arguments indx
             and true. */
       {O.Delete}(O, indx, true);
-      print "POP DELETE";
       /* d. Call the [[Put]] internal method of O with arguments "length",
             indx, and true. */
       {O.Put}(O, "length", indx, true);
-      print "POP PUT";
       /* e. Return element. */
       return element
     }
@@ -433,13 +638,13 @@ function reverse(this) {
   /* 3. Let len be ToUint32(lenVal). */
   len := to_uint32 lenVal;
   /* 4. Let middle be floor(len/2). */
-  middle := floor(len/2); /* TODO */
+  middle := floor(len / 2.);
   /* 5. Let lower be 0. */
-  lower := 0;
+  lower := 0.;
   /* 6. Repeat, while lower ≠ middle */
   while (!(lower = middle)) {
     /* a. Let upper be len−lower −1. */
-    upper := len - lower - 1;
+    upper := len - lower - 1.;
     /* b. Let upperP be ToString(upper). */
     upperP := ToString(upper);
     /* c. Let lowerP be ToString(lower). */
@@ -452,10 +657,10 @@ function reverse(this) {
     upperValue := {O.Get}(O, upperP);
     /* f. Let lowerExists be the result of calling the [[HasProperty]]
           internal method of O with argument lowerP. */
-    lowerExists := {O.HasProperty}(lowerP);
+    lowerExists := {O.HasProperty}(O, lowerP);
     /* g. Let upperExists be the result of calling the [[HasProperty]]
           internal method of O with argument upperP. */
-    upperExists := {O.HasProperty}(upperP);
+    upperExists := {O.HasProperty}(O, upperP);
     /* h. If lowerExists is true and upperExists is true, then */
     if (lowerExists = true && upperExists = true) {
       /* i. Call the [[Put]] internal method of O with arguments lowerP,
@@ -488,7 +693,7 @@ function reverse(this) {
       /* i. No action is required. */
     };
     /* l. Increase lower by 1. */
-    lower := lower + 1
+    lower := lower + 1.
   };
   /* 7. Return O . */
   return O
@@ -518,10 +723,10 @@ function shift(this) {
   /* 3. Let len be ToUint32(lenVal). */
   len := to_uint32 lenVal;
   /* 4. If len is zero, then */
-  if (len = 0) {
+  if (len = 0.) {
     /* a. Call the [[Put]] internal method of O with arguments "length",
           0, and true. */
-    {O.Put}(O, "length", 0, true);
+    {O.Put}(O, "length", 0., true);
     /* b. Return undefined. */
     return 'undefined
   };
@@ -529,16 +734,16 @@ function shift(this) {
         of O with argument "0". */
   first := {O.Get}(O, "0");
   /* 6. Let k be 1. */
-  k := 1;
+  k := 1.;
   /* 7. Repeat, while k < len */
   while (k < len) {
     /* a. Let from be ToString(k). */
     from := ToString(k);
     /* b. Let to be ToString(k–1). */
-    to := ToString(k - 1);
+    to := ToString(k - 1.);
     /* c. Let fromPresent be the result of calling the [[HasProperty]]
           internal method of O with argument from. */
-    fromPresent := {O.HasProperty}(from);
+    fromPresent := {O.HasProperty}(O, from);
     /* d. If fromPresent is true, then */
     if (fromPresent = true) {
       /* i. Let fromVal be the result of calling the [[Get]] internal
@@ -555,14 +760,14 @@ function shift(this) {
       {O.Delete}(O, to, true)
     };
     /* f. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 8. Call the [[Delete]] internal method of O with arguments
         ToString(len–1) and true. */
-  {O.Delete}(O, ToString(len - 1), true);
+  {O.Delete}(O, ToString(len - 1.), true);
   /* 9. Call the [[Put]] internal method of O with arguments "length",
         (len–1) , and true. */
-  {O.Put}(O, "length", len - 1, true);
+  {O.Put}(O, "length", len - 1., true);
   /* 10. Return first. */
   return first
 };
@@ -599,35 +804,37 @@ function slice(this, start, end) {
   /* 4. Let len be ToUint32(lenVal). */
   len := to_uint32 lenVal;
   /* 5. Let relativeStart be ToInteger(start). */
-  relativeStart := ToInteger(start); /* TODO */
+  relativeStart := ToInteger(start);
   /* 6. If relativeStart is negative, let k be max((len +relativeStart),0); else
         let k be min(relativeStart,len). */
-  if (relativeStart < 0) {
-    k := max((len + relativeStart), 0) /* TODO */
+  if (relativeStart < 0.) {
+    k := max((len + relativeStart), 0.)
   } else {
-    k := min(relativeStart, len) /* TODO */
+    k := min(relativeStart, len)
   };
   /* 7. If end is undefined, let relativeEnd be len; else let relativeEnd be
         ToInteger(end). */
-  if (end = 'Undefined) {
+  if (end = 'undefined) {
     relativeEnd := len
   } else {
     relativeEnd := ToInteger(end)
   };
   /* 8. If relativeEnd is negative, let final be max((len + relativeEnd),0); else
         let final be min(relativeEnd,len). */
-  if (relativeEnd < 0) {
-    final := max((len + relativeEnd), 0)
+  if (relativeEnd < 0.) {
+    final := max((len + relativeEnd), 0.)
+  } else {
+    final := min(relativeEnd, len)
   };
   /* 9. Let n be 0. */
-  n := 0;
+  n := 0.;
   /* 10. Repeat, while k < final */
   while (k < final) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
     /* b. Let kPresent be the result of calling the [[HasProperty]] internal method
           of O with argument Pk. */
-    kPresent := {O.HasProperty}(Pk);
+    kPresent := {O.HasProperty}(O, Pk);
     /* c. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be the result of calling the [[Get]] internal method of O
@@ -636,13 +843,13 @@ function slice(this, start, end) {
       /* ii. Call the [[DefineOwnProperty]] internal method of A with arguments 
              ToString(n), Property Descriptor {[[Value]]: kValue, [[Writable]]:
              true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
-      descriptor = newDataPropertyDescriptorFull(kValue, true, true, true);
+      descriptor := newDataPropertyDescriptorFull(kValue, true, true, true);
       {A.DefineOwnProperty}(A, ToString(n), descriptor, false)
     };
     /* d. Increase k by 1. */
-    k := k + 1;
+    k := k + 1.;
     /* e. Increase n by 1. */
-    n := n + 1
+    n := n + 1.
   };
   /* 11. Return A. */
   return A
@@ -654,6 +861,139 @@ function slice(this, start, end) {
  * its this value be an Array object. Therefore it can be transferred to other
  * kinds of objects for use as a method. Whether the slice function can be applied
  * successfully to a host object is implementation-dependent.
+ */
+
+
+
+
+/**
+ * 15.4.4.11 Array.prototype.sort (comparefn) TODO
+ *
+ * The elements of this array are sorted. The sort is not necessarily stable
+ * (that is, elements that compare equal do not necessarily remain in their
+ * original order). If comparefn is not undefined, it should be a function
+ * that accepts two arguments x and y and returns a negative value if x < y,
+ * zero if x = y, or a positive value if x > y.
+ */
+function sort (this, comparefn) {
+  /* Let obj be the result of calling ToObject passing the this value
+     as the argument. */
+  obj := ToObject(this);
+  /* Let len be the result of applying Uint32 to the result of calling
+     the [[Get]] internal method of obj with argument "length". */
+  len := to_uint32 {obj.Get}(obj, "length")
+  /* If comparefn is not undefined and is not a consistent comparison
+     function for the elements of this array (see below), the behaviour
+     of sort is implementation-defined. */
+};
+/**
+ * NOTE 1 Because non-existent property values always compare greater than
+ * undefined property values, and undefined always compares greater than any
+ * other value, undefined property values always sort to the end of the
+ * result, followed by non-existent property values.
+ *
+ * NOTE 2 The sort function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore, it can be transferred
+ * to other kinds of objects for use as a method. Whether the sort function
+ * can be applied successfully to a host object is implementation-dependent.
+ */
+
+
+
+
+/**
+ * 15.4.4.12 Array.prototype.splice (start, deleteCount [ , item1
+ * [ , item2 [ , … ] ] ] ) # Ⓣ ① Ⓡ
+ *
+ * When the splice method is called with two or more arguments start,
+ * deleteCount and (optionally) item1, item2, etc., the deleteCount elements
+ * of the array starting at array index start are replaced by the arguments
+ * item1, item2, etc. An Array object containing the deleted elements (if any)
+ * is returned. The following steps are taken:
+ */
+function splice (this, start, deleteCount, items) {
+  /* 1. Let O be the result of calling ToObject passing the this
+        value as the argument. */
+  O := ToObject(this)
+  /* 2. Let A be a new array created as if by the expression new Array()
+        where Array is the standard built-in constructor with that name. */
+  /* 3. Let lenVal be the result of calling the [[Get]] internal method
+        of O with argument "length". */
+  /* 4. Let len be ToUint32(lenVal). */
+  /* 5. Let relativeStart be ToInteger(start). */
+  /* 6. If relativeStart is negative, let actualStart be max((len + relativeStart),0);
+        else let actualStart be min(relativeStart, len). */
+  /* 7. Let actualDeleteCount be min(max(ToInteger(deleteCount),0),len – actualStart). */
+  /* 8. Let k be 0. */
+  /* 9. Repeat, while k < actualDeleteCount */
+    /* a. Let from be ToString(actualStart+k). */
+    /* b. Let fromPresent be the result of calling the [[HasProperty]]
+          internal method of O with argument from. */
+    /* c. If fromPresent is true, then */
+      /* i. Let fromValue be the result of calling the [[Get]] internal
+            method of O with argument from. */
+      /* ii. Call the [[DefineOwnProperty]] internal method of A with arguments
+             ToString(k), Property Descriptor {[[Value]]: fromValue,[[Writable]]:
+             true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
+    /* d. Increment k by 1. */
+  /* 10. Let items be an internal List whose elements are, in left to
+         right order, the portion of the actual argument list starting
+         with item1. The list will be empty if no such items are present. */
+  /* 11. Let itemCount be the number of elements in items. */
+  /* 12. If itemCount < actualDeleteCount, then */
+    /* a. Let k be actualStart. */
+    /* b. Repeat, while k < (len – actualDeleteCount) */
+      /* i. Let from be ToString(k+actualDeleteCount). */
+      /* ii. Let to be ToString(k+itemCount). */
+      /* iii. Let fromPresent be the result of calling the
+              [[HasProperty]] internal method of O with argument from. */
+      /* iv. If fromPresent is true, then */
+        /* 1. Let fromValue be the result of calling the [[Get]]
+              internal method of O with argument from. */
+        /* 2. Call the [[Put]] internal method of O with arguments
+              to, fromValue, and true. */
+      /* v. Else, fromPresent is false */
+        /* 1. Call the [[Delete]] internal method of O with arguments
+              to and true. */
+      /* vi. Increase k by 1. */
+    /* c. Let k be len. */
+    /* d. Repeat, while k > (len – actualDeleteCount +itemCount) */
+      /* i. Call the [[Delete]] internal method of O with arguments
+            ToString(k–1) and true. */
+      /* ii. Decrease k by 1. */
+  /* 13. Else if itemCount > actualDeleteCount, then */
+    /* a. Let k be (len – actualDeleteCount). */
+    /* b. Repeat, while k > actualStart */
+      /* i. Let from be ToString(k + actualDeleteCount – 1). */
+      /* ii. Let to be ToString(k + itemCount – 1) */
+      /* iii. Let fromPresent be the result of calling the [[HasProperty]]
+              internal method of O with argument from. */
+      /* iv. If fromPresent is true, then */
+        /* 1. Let fromValue be the result of calling the [[Get]] internal
+              method of O with argument from. */
+        /* 2. Call the [[Put]] internal method of O with arguments to,
+              fromValue, and true. */
+      /* v. Else, fromPresent is false */
+        /* 1. Call the [[Delete]] internal method of O with argument to and true. */
+      /* vi. Decrease k by 1. */
+  /* 14. Let k be actualStart. */
+  /* 15. Repeat, while items is not empty */
+    /* a. Remove the first element from items and let E be the value
+          of that element. */
+    /* b. Call the [[Put]] internal method of O with arguments
+          ToString(k), E, and true. */
+    /* c. Increase k by 1. */
+  /* 16. Call the [[Put]] internal method of O with arguments "length",
+         (len – actualDeleteCount + itemCount), and true. */
+  /* 17. Return A. */
+};
+/**
+ * The length property of the splice method is 2.
+ *
+ * NOTE The splice function is intentionally generic; it does not require that
+ * its this value be an Array object. Therefore it can be transferred to other
+ * kinds of objects for use as a method. Whether the splice function can be
+ * applied successfully to a host object is implementation-dependent.
  */
 
 
@@ -820,15 +1160,87 @@ function IsArrayIndex(P) {
 
 
 
+/* main array constructor length
 function main() {
-  /*arr1 := newArray([2, 3]);
-  arr2 := newArray([4, 5]);
-  arr := concat(arr1, [arr2]);*/
-
-  arr := newArray([2, 3, 4]);
-  arr := pop(arr);
-
-  /*arr3 := newArray([8, 9]);
-  arr4 := pop(arr3);*/
+  arr := newArrayLen(5.);
   return arr
+}*/
+
+/* main isArray 
+function main() {
+  return isArray(newArray([2., 3.]))
+}*/
+
+/* main toStringArray TODO 
+function main() {
+  return toStringArray(newArray([2., 3.]))
+}*/
+
+/* main toLocaleString TODO 
+function main() {
+  return toLocaleString(newArray([2., 3.]))
+}*/
+
+/* main concat 
+function main() {
+  arr1 := newArray([2., 3.]);
+  arr2 := newArray([4., 5.]);
+  arr := concat(arr1, [arr2]);
+  return arr
+}*/
+
+/* main join 
+function main() {
+  arr := newArray([2., 3., 4., 5.]);
+  return join (arr, "_")
+}*/
+
+/* main pop
+function main() {
+  arr := newArray([2., 3., 4.]);
+  lastEl := pop(arr);
+
+  obj := {
+    arr: arr,
+    lastEl: lastEl
+  };
+
+  return obj
+}*/
+
+/* main push 
+function main() {
+  arr := newArray([2., 3., 4.]);
+  newLen := push(arr, [5., 6.]);
+
+  obj := {
+    arr: arr,
+    newLen: newLen
+  };
+  
+  return obj
+}*/
+
+/* main reverse
+function main() {
+  return reverse(newArray([2., 3., 6., 9.]))
+}*/
+
+/* main shift
+function main() {
+  arr := newArray([2., 3., 4.]);
+  firstEl := shift(arr);
+
+  obj := {
+    arr: arr,
+    firstEl: firstEl
+  };
+  
+  return obj
+}*/
+
+/* main slice */
+function main() {
+  arr := newArray([2., 3., 4., 5., 6., 7.]);
+  return slice(arr, 2., 4.)
 }

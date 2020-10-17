@@ -83,6 +83,7 @@ rule read =
   | "obj_to_list"     { OBJ_TO_LIST }
   | "obj_fields"      { OBJ_FIELDS }
   | "to_uint32"       { TO_UINT32 }
+  | "floor"           { FLOOR }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }

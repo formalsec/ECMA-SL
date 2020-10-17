@@ -49,12 +49,12 @@ let core_interpretation () : unit =
   print_string json;
   print_string "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   let jsonfile = Filename.remove_extension !file  in
-  burn_to_disk (jsonfile^".json") json; 
-   Printf.printf "%s" jsonfile;
+  burn_to_disk (jsonfile^".json") json;
+  Printf.printf "%s" jsonfile;
   let v, heap = CoreInterp.eval_prog prog !out !verb_aux "main" in
   (match v with
-  | Some z -> print_string ("MAIN return -> "^(Val.str z))
-  | None -> print_string "ERROR HERE");
+   | Some z -> print_endline ("MAIN return -> "^(Val.str z))
+   | None -> print_endline "ERROR HERE");
   if !heap_file <> ""
   then Parsing_Utils.write_file (Heap.str heap) !heap_file
   else print_endline (Heap.str heap)

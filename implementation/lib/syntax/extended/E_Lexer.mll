@@ -64,6 +64,7 @@ rule read =
   | "in_obj"       { IN_OBJ }
   | "in_list"      { IN_LIST }
   | '!'            { NOT }
+  | "&&&"          { SCLAND }
   | "&&"           { LAND }
   | "||"           { LOR }
   | "l_len"        { LLEN }
@@ -85,6 +86,7 @@ rule read =
   | "obj_to_list"     { OBJ_TO_LIST }
   | "obj_fields"      { OBJ_FIELDS }
   | "to_uint32"       { TO_UINT32 }
+  | "floor"           { FLOOR }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }

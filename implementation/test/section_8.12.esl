@@ -511,12 +511,12 @@ function DefineOwnProperty(O, P, Desc, Throw) {
     return true
   };
   */
-  if ((!("Value" in_obj Desc) || (("Value" in_obj current) && SameValue(Desc.Value, current.Value))) &&
-      (!("Writable" in_obj Desc) || (("Writable" in_obj current) && SameValue(Desc.Writable, current.Writable))) &&
-      (!("Set" in_obj Desc) || (("Set" in_obj current) && SameValue(Desc.Set, current.Set))) &&
-      (!("Get" in_obj Desc) || (("Get" in_obj current) && SameValue(Desc.Get, current.Get))) &&
-      (!("Enumerable" in_obj Desc) || (("Enumerable" in_obj current) && SameValue(Desc.Enumerable, current.Enumerable))) &&
-      (!("Configurable" in_obj Desc) || (("Configurable" in_obj current) && SameValue(Desc.Configurable, current.Configurable)))) {
+  if ((!("Value" in_obj Desc) || (("Value" in_obj current) &&& SameValue(Desc.Value, current.Value))) &&&
+      (!("Writable" in_obj Desc) || (("Writable" in_obj current) &&& SameValue(Desc.Writable, current.Writable))) &&&
+      (!("Set" in_obj Desc) || (("Set" in_obj current) &&& SameValue(Desc.Set, current.Set))) &&&
+      (!("Get" in_obj Desc) || (("Get" in_obj current) &&& SameValue(Desc.Get, current.Get))) &&&
+      (!("Enumerable" in_obj Desc) || (("Enumerable" in_obj current) &&& SameValue(Desc.Enumerable, current.Enumerable))) &&&
+      (!("Configurable" in_obj Desc) || (("Configurable" in_obj current) &&& SameValue(Desc.Configurable, current.Configurable)))) {
     return true
   };
 

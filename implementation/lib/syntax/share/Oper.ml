@@ -35,6 +35,7 @@ type uopt = Neg
           | Sconcat
           | ObjFields
           | ToUint32
+          | Floor
 
 
 type nopt = ListExpr
@@ -196,6 +197,10 @@ let to_uint32 (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_uint32 n)
   | _     -> Null
 
+let to_floor (v : Val.t) : Val.t = match v with
+  | Flt n -> Flt (floor n)
+  | _     -> Null
+
 
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
@@ -215,6 +220,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | Sconcat       -> "s_concat"
   | ObjFields     -> "obj_fields"
   | ToUint32      -> "to_uint32"
+  | Floor         -> "floor"
 
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
@@ -244,53 +250,54 @@ let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | NAry_Or   -> String.concat " || " es
 
 let bopt_to_json (op : bopt) : string =
-  Printf.sprintf "{ \"type\" : \"Bopt\" : \"value\" : \"%s"
+  Printf.sprintf "{ \"type\" : \"binopt\", \"value\" : \"%s"
     (match op with
-     | Plus     -> Printf.sprintf "Plus\" }"
-     | Minus    -> Printf.sprintf "Minus\" }"
-     | Times    -> Printf.sprintf "Times\" }"
-     | Div      -> Printf.sprintf "Div\" }"
-     | Equal    -> Printf.sprintf "Equal\" }"
-     | Gt       -> Printf.sprintf "Gt\" }"
-     | Lt       -> Printf.sprintf "Lt\" }"
-     | Egt      -> Printf.sprintf "Egt\" }"
-     | Elt      -> Printf.sprintf "Elt\" }"
-     | Log_And  -> Printf.sprintf "Log_And\" }"
-     | Log_Or   -> Printf.sprintf "Log_Or\" }"
-     | InObj    -> Printf.sprintf "InObj\" }"
-     | InList   -> Printf.sprintf "InList\" }"
-     | Lnth     -> Printf.sprintf "Lnth\" }"
-     | Tnth     -> Printf.sprintf "Tnth\" }"
-     | Ladd     -> Printf.sprintf "Ladd\" }"
-     | Lprepend -> Printf.sprintf "Lprepend\" }"
-     | Lconcat  -> Printf.sprintf "Lconcat\" }")
+      | Plus    -> Printf.sprintf "Plus\" }"
+      | Minus   -> Printf.sprintf "Minus\" }"
+      | Times   -> Printf.sprintf "Times\" }"
+      | Div     -> Printf.sprintf "Div\" }"
+      | Equal   -> Printf.sprintf "Equal\" }"
+      | Gt      -> Printf.sprintf "Gt\" }"
+      | Lt      -> Printf.sprintf "Lt\" }"
+      | Egt     -> Printf.sprintf "Egt\" }"
+      | Elt     -> Printf.sprintf "Elt\" }"
+      | Log_And -> Printf.sprintf "Log_And\" }"
+      | Log_Or  -> Printf.sprintf "Log_Or\" }"
+      | InObj   -> Printf.sprintf "InObj\" }"
+      | InList  -> Printf.sprintf "InList\" }"
+      | Lnth    -> Printf.sprintf "Lnth\" }"
+      | Tnth    -> Printf.sprintf "Tnth\" }"
+      | Ladd    -> Printf.sprintf "Ladd\" }"
+      | Lprepend -> Printf.sprintf "Lprepend\" }"
+      | Lconcat -> Printf.sprintf "Lconcat\" }")
 
 let nopt_to_json (op : nopt) : string =
-  Printf.sprintf "{ \"type\" : \"Nopt\" : \"value\" : \"%s"
-    (match op with
-     | ListExpr -> Printf.sprintf "ListExpr\" }"
-     | TupleExpr -> Printf.sprintf "TupleExpr\" }"
-     | NAry_And -> Printf.sprintf "NAry_And\" }"
-     | NAry_Or -> Printf.sprintf "NAry_Or\" }")
+ Printf.sprintf "{ \"type\" : \"nopt\", \"value\" : \"%s"
+  (match op with
+   | ListExpr -> Printf.sprintf "ListExpr\" }"
+   | TupleExpr -> Printf.sprintf "TupleExpr\" }"
+   | NAry_And -> Printf.sprintf "NAry_And\" }"
+   | NAry_Or -> Printf.sprintf "NAry_Or\" }")
+
 
 let uopt_to_json (op : uopt) : string =
-  Printf.sprintf "{ \"type\" : \"Uopt\" : \"value\" : \"%s"
-    (match op with
-      | Neg      -> Printf.sprintf "Neg\" }"
-      | Not      -> Printf.sprintf "Not\" }"
-      | Typeof   -> Printf.sprintf "Typeof\" }"
-      | ListLen  -> Printf.sprintf "ListLen\" }"
-      | TupleLen -> Printf.sprintf "TypleLen\" }"
-      | Head     -> Printf.sprintf "Head\" }"
-      | Tail     -> Printf.sprintf "Tail\" }"
-      | First    -> Printf.sprintf "First\" }"
-      | Second   -> Printf.sprintf "Second\" }"
-      | IntToFloat -> Printf.sprintf "IntToFloat\" }"
-      | IntToString -> Printf.sprintf "IntToString\" }"
-      | IntOfString -> Printf.sprintf "IntOfString\" }"
-      | FloatToString -> Printf.sprintf "FloatToString\" }"
-      | ObjToList -> Printf.sprintf "ObjToList\" }"
-      | Sconcat  -> Printf.sprintf "Sconcat\" }"
-      | ToUint32 -> Printf.sprintf "ToUint32\" }"
-      | ObjFields -> Printf.sprintf "ObjFields\"")
-
+  Printf.sprintf "{ \"type\" : \"unopt\", \"value\" : \"%s"
+  (match op with
+    | Neg      -> Printf.sprintf "Neg\" }"
+    | Not      -> Printf.sprintf "Not\" }"
+    | Typeof   -> Printf.sprintf "Typeof\" }"
+    | ListLen  -> Printf.sprintf "ListLen\" }"
+    | TupleLen -> Printf.sprintf "TypleLen\" }"
+    | Head     -> Printf.sprintf "Head\" }"
+    | Tail     -> Printf.sprintf "Tail\" }"
+    | First    -> Printf.sprintf "First\" }"
+    | Second   -> Printf.sprintf "Second\" }"
+    | IntToFloat -> Printf.sprintf "IntToFloat\" }"
+    | IntToString -> Printf.sprintf "IntToString\" }"
+    | IntOfString -> Printf.sprintf "IntOfString\" }"
+    | FloatToString -> Printf.sprintf "FloatToString\" }"
+    | ObjToList -> Printf.sprintf "ObjToList\" }"
+    | Sconcat  -> Printf.sprintf "Sconcat\" }"
+    | ToUint32 -> Printf.sprintf "ToUint32\" }"
+    | Floor -> Printf.sprintf "Floor\" }"
+    | ObjFields -> Printf.sprintf "ObjFields\" }")
