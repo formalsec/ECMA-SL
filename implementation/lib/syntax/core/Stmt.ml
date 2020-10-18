@@ -1,6 +1,7 @@
 type t = Skip
        | Merge
        | Print            of Expr.t
+       | Throw            of Expr.t
        | Assign           of string * Expr.t
        | If               of Expr.t * t * t option
        | While            of Expr.t * t
@@ -21,6 +22,7 @@ let rec str (stmt : t) : string = match stmt with
     Skip
   | Merge                       -> ""
   | Print e                     -> "print " ^ (Expr.str e)
+  | Throw e                     -> "throw " ^ (Expr.str e)
   | Assign (v, exp)             -> v ^ " := " ^ (Expr.str exp)
   | If (e, s1, s2)              -> (let v = "if (" ^ Expr.str e ^ ") {\n" ^ str s1 ^ "\n}" in
                                     match s2 with
@@ -44,6 +46,7 @@ let rec to_json (stmt : t) : string =
   | Skip                        -> Printf.sprintf "{\"type\" : \"skip\"}"
   | Merge                       -> Printf.sprintf "{\"type\" : \"merge\"}"
   | Print e                     -> Printf.sprintf "{\"type\" : \"print\", \"expr\" :  %s }" (Expr.to_json e)
+  | Throw e                     -> Printf.sprintf "{\"type\" : \"throw\", \"expr\" :  %s }" (Expr.to_json e)
   | Assign (v, exp)             -> Printf.sprintf "{\"type\" : \"assign\", \"lhs\" :  \"%s\", \"rhs\" :  %s}" v (Expr.to_json exp)
   | If (e, s1, s2)              -> Printf.sprintf "{\"type\" : \"condition\", \"expr\" : %s, \"then\" : %s %s}" (Expr.to_json e) (to_json s1) (match s2 with
                                                                                                                                         | Some v -> Printf.sprintf ",\"else\" : %s" (to_json v)

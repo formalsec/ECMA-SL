@@ -8,6 +8,7 @@ type state_t = Callstack.t * Heap.t * Store.t
 
 type return =
   | Intermediate of state_t * Stmt.t list
+  | Errorv of Val.t option
   | Finalv of Val.t option
 
 type ctx_t = {
@@ -172,6 +173,11 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
      (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
     )
 
+  | Throw e -> (
+      let v = eval_expr sto e in
+      Errorv (Some v), SecLabel.EmptyLab
+    )
+
   | Assign (x,e) ->
     (let v = eval_expr sto e in
      Store.set sto x v;
@@ -312,6 +318,7 @@ let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> (
                     | MReturn mon_state' -> (
                         match return with
                         |Finalv v ->  Finalv v
+                        | Errorv v -> Errorv v
                         |Intermediate (state', stmts'') ->
                           small_step_iter interceptor prog state' mon_state' stmts'' verbose)
                     | MFail  (mon_state', str) ->
@@ -338,6 +345,7 @@ let eval_prog (prog : Prog.t) (out:string) (verbose:bool) (main:string) : (Val.t
   let _, heap, _ = state_0 in
   match v with
   | Finalv v -> v, heap
+  | Errorv v -> v, heap
   | _ -> raise(Except "No return value")(*ERROR*)
 
-end 
+end
