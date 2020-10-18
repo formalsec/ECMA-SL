@@ -6,6 +6,7 @@
 *)
 %token SKIP
 %token PRINT
+%token ASSERT
 %token DEFEQ
 %token WHILE
 %token IF ELSE
@@ -247,6 +248,8 @@ e_block_target:
 e_stmt_target:
   | PRINT; e = e_expr_target;
     { E_Stmt.Print e }
+  | ASSERT; e = e_expr_target;
+    { E_Stmt.Assert e }
   | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;
     { E_Stmt.FieldAssign (e1, E_Expr.Val (Str f), e2) }
   | e1 = e_expr_target; LBRACK; f = e_expr_target; RBRACK; DEFEQ; e2 = e_expr_target;

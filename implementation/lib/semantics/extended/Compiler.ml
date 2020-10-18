@@ -271,6 +271,14 @@ and compile_print (expr : E_Expr.t) : Stmt.t list =
   stmts_expr @ [Stmt.Print expr']
 
 
+and compile_assert (expr : E_Expr.t) : Stmt.t list =
+  let stmts_expr, expr' = compile_expr expr in
+  stmts_expr @ [Stmt.If (
+      Expr.UnOpt (Oper.Not, expr'),
+      Stmt.Throw (Expr.Val (Oper.string_concat (List [Str "Assert failed: "; Str (E_Expr.str expr)]))),
+      None)]
+
+
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   match e_stmt with
   | Skip                            -> [Stmt.Skip]
@@ -285,6 +293,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | ExprStmt e_e                    -> compile_exprstmt e_e
   | RepeatUntil (e_s, e_e)          -> compile_repeatuntil e_s e_e
   | MatchWith (e_e, e_pats_e_stmts) -> compile_matchwith e_e e_pats_e_stmts
+  | Assert e_e                      -> compile_assert e_e
 
 
 let compile_func (e_func : E_Func.t) : Func.t =
