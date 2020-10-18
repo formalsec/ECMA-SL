@@ -10,7 +10,7 @@
    manner in which these actions occur depend on the type of code being entered. */
 
 
-function EnteringGlobalCode(program) {
+function EnteringGlobalCode(program, strictModeCode) {
   /* 10.4.1 Entering Global Code */
   globalObject := NewObject(); /* TODO global object (15.1) */
   setAllInternalMethodsOfObject(globalObject);
@@ -19,6 +19,7 @@ function EnteringGlobalCode(program) {
 
   /* 1. Initialise the execution context using the global code as described in 10.4.1.1. */
   globalScope := InitialGlobalExecutionContext(globalObject);
+  setContainedInStrictCode(globalScope, strictModeCode);
 
   /* 2. Perform Declaration Binding Instantiation as described in 10.5 using the global code. */
   DeclarationBindingInstantiation(program, [], globalScope, null);
@@ -43,17 +44,17 @@ function InitialGlobalExecutionContext(globalObject) {
   return globalExecCtx
 };
 
-function EnteringFunctionCode(F, thisArg, argumentsList, strict) {
+function EnteringFunctionCode(F, thisArg, argumentsList, strictModeCode) {
   /* 10.4.3 Entering Function Code */
 
   functionExecCtx := createExecutionContext();
+  setContainedInStrictCode(functionExecCtx, strictModeCode);
 
   /* The following steps are performed when control enters the execution context for function code contained in
      function object F, a caller provided thisArg, and a caller provided argumentsList: */
 
   /* 1. If the function code is strict code, set the ThisBinding to thisArg. */
-  /* TODO */
-  if (strict) {
+  if (isStrictModeCode(getFunctionCode(F))) {
     setThisBinding(functionExecCtx, thisArg)
   };
   /* 2. Else if thisArg is null or undefined, set the ThisBinding to the global object. */

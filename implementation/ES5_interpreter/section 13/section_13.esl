@@ -87,21 +87,21 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) 
   return F
 };
 
-function Call(F, this, args) {
+function Call(F, this, args, strictModeCode) {
   /* When the [[Call]] internal method for a Function object F is called with a this value and a list of arguments,
     the following steps are taken: */
 
   /* 1. Let funcCtx be the result of establishing a new execution context for function code using the value of F's
         [[FormalParameters]] internal property, the passed arguments List args, and the this value as described in 10.4.3. */
-  funcCtx := EnteringFunctionCode(F, this, args, false); /* TODO strict */
+  funcCtx := EnteringFunctionCode(F, this, args, strictModeCode);
 
   /* 2. Let result be the result of evaluating the FunctionBody that is the value of F's [[Code]] internal property.
         If F does not have a [[Code]] internal property or if its value is an empty FunctionBody,
         then result is (normal, undefined, empty). */
-  if (!("Code" in_obj F) || (F.Code.body = [])) {
+  if (!("Code" in_obj F) || (F.Code.body = [])) { /* TODO isEmptyFunctionBody(F) */
     return normalEmptyCompletion('undefined)
   };
-  result := JS_Interpreter_FunctionBody(F.Code.body, funcCtx);
+  result := JS_Interpreter_FunctionBody(F.Code, funcCtx);
 
   /* 3. Exit the execution context funcCtx, restoring the previous execution context. */
 
@@ -154,6 +154,10 @@ function Construct(F, argumentList) {
   return obj
 };
 /* Auxiliary functions */
+function getFunctionCode(F) {
+  return F.Code
+};
+
 function setAllInternalMethodsExceptGet(obj) {
   obj.GetOwnProperty    := "GetOwnProperty";
   obj.GetProperty       := "GetProperty";
