@@ -271,7 +271,7 @@ e_stmt_target:
   | RETURN;
     { E_Stmt.Return (E_Expr.Val Val.Void) }
   | THROW; e = e_expr_target;
-    { E_Stmt.ExprStmt e } /* TODO */
+    { E_Stmt.Throw e }
   | e = e_expr_target;
     { E_Stmt.ExprStmt e }
   | REPEAT; s = e_block_target;

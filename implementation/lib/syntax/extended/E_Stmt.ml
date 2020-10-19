@@ -10,6 +10,7 @@ type t = Skip
        | ExprStmt    of E_Expr.t
        | RepeatUntil of t * E_Expr.t
        | MatchWith   of E_Expr.t * (E_Pat.t * t) list
+       | Throw       of E_Expr.t
        | Assert      of E_Expr.t
 
 let rec str (stmt : t) : string = match stmt with
@@ -29,4 +30,5 @@ let rec str (stmt : t) : string = match stmt with
   | RepeatUntil (s, e)        -> "repeat " ^ str s ^ " until " ^ E_Expr.str e
   | MatchWith (e, pats_stmts) -> "match " ^ E_Expr.str e ^ " with | "
                                  ^ String.concat " | " (List.map (fun (e, s) -> E_Pat.str e ^ ": " ^ str s) pats_stmts)
+  | Throw e                   -> "throw " ^ E_Expr.str e
   | Assert e                  -> "assert " ^ E_Expr.str e

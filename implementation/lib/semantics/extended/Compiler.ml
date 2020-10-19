@@ -271,6 +271,11 @@ and compile_print (expr : E_Expr.t) : Stmt.t list =
   stmts_expr @ [Stmt.Print expr']
 
 
+and compile_throw (expr : E_Expr.t) : Stmt.t list =
+  let stmts_expr, expr' = compile_expr expr in
+  stmts_expr @ [Stmt.Throw expr']
+
+
 and compile_assert (expr : E_Expr.t) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in
   stmts_expr @ [Stmt.If (
@@ -293,6 +298,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | ExprStmt e_e                    -> compile_exprstmt e_e
   | RepeatUntil (e_s, e_e)          -> compile_repeatuntil e_s e_e
   | MatchWith (e_e, e_pats_e_stmts) -> compile_matchwith e_e e_pats_e_stmts
+  | Throw e_e                       -> compile_throw e_e
   | Assert e_e                      -> compile_assert e_e
 
 
