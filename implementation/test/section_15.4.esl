@@ -48,10 +48,10 @@ function max(a, b) {
   }
 };
 function min(a, b) {
-  if (a > b) {
-    return b
-  } else {
+  if (a < b) {
     return a
+  } else {
+    return b
   }
 };
 
@@ -903,7 +903,7 @@ function sort (this, comparefn) {
 
 /**
  * 15.4.4.12 Array.prototype.splice (start, deleteCount [ , item1
- * [ , item2 [ , … ] ] ] ) # Ⓣ ① Ⓡ
+ * [ , item2 [ , … ] ] ] )
  *
  * When the splice method is called with two or more arguments start,
  * deleteCount and (optionally) item1, item2, etc., the deleteCount elements
@@ -914,78 +914,161 @@ function sort (this, comparefn) {
 function splice (this, start, deleteCount, items) {
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
-  O := ToObject(this)
+  O := ToObject(this);
   /* 2. Let A be a new array created as if by the expression new Array()
         where Array is the standard built-in constructor with that name. */
+  A := newArray([]);
   /* 3. Let lenVal be the result of calling the [[Get]] internal method
         of O with argument "length". */
+  lenVal := {O.Get}(O, "length");
   /* 4. Let len be ToUint32(lenVal). */
+  len := to_uint32 lenVal;
   /* 5. Let relativeStart be ToInteger(start). */
+  relativeStart := ToInteger(start);
   /* 6. If relativeStart is negative, let actualStart be max((len + relativeStart),0);
         else let actualStart be min(relativeStart, len). */
-  /* 7. Let actualDeleteCount be min(max(ToInteger(deleteCount),0),len – actualStart). */
+  if (relativeStart < 0.) {
+    actualStart := max((len + relativeStart), 0.)
+  } else {
+    actualStart := min(relativeStart, len)
+  };
+  /* 7. Let actualDeleteCount be min(max(ToInteger(deleteCount),0),len - actualStart). */
+  actualDeleteCount := min(max(ToInteger(deleteCount), 0.), len - actualStart);
   /* 8. Let k be 0. */
+  k := 0.;
   /* 9. Repeat, while k < actualDeleteCount */
+  while (k < actualDeleteCount) {
     /* a. Let from be ToString(actualStart+k). */
+    from := ToString(actualStart + k);
     /* b. Let fromPresent be the result of calling the [[HasProperty]]
           internal method of O with argument from. */
+    fromPresent := {O.HasProperty}(O, from);
     /* c. If fromPresent is true, then */
+    if (fromPresent = true) {
       /* i. Let fromValue be the result of calling the [[Get]] internal
             method of O with argument from. */
+      fromValue := {O.Get}(O, from);
       /* ii. Call the [[DefineOwnProperty]] internal method of A with arguments
              ToString(k), Property Descriptor {[[Value]]: fromValue,[[Writable]]:
              true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
+      descriptor := newDataPropertyDescriptorFull(fromValue, true, true, true);
+      {A.DefineOwnProperty}(A, ToString(k), descriptor, false)
+    };
     /* d. Increment k by 1. */
+    k := k + 1.
+  };
   /* 10. Let items be an internal List whose elements are, in left to
          right order, the portion of the actual argument list starting
          with item1. The list will be empty if no such items are present. */
+  if (l_len items = 0.) {
+    items := []
+  } else {
+    items := items
+  };
   /* 11. Let itemCount be the number of elements in items. */
+  itemCount := int_to_float (l_len items);
   /* 12. If itemCount < actualDeleteCount, then */
+  if (itemCount < actualDeleteCount) {
     /* a. Let k be actualStart. */
-    /* b. Repeat, while k < (len – actualDeleteCount) */
+    k := actualStart;
+    /* b. Repeat, while k < (len - actualDeleteCount) */
+    while (k < (len - actualDeleteCount)) {
       /* i. Let from be ToString(k+actualDeleteCount). */
+      from := ToString(k + actualDeleteCount);
       /* ii. Let to be ToString(k+itemCount). */
+      to := ToString(k + itemCount);
       /* iii. Let fromPresent be the result of calling the
               [[HasProperty]] internal method of O with argument from. */
+      fromPresent := {O.HasProperty}(O, from);
       /* iv. If fromPresent is true, then */
+      if (fromPresent = true) {
         /* 1. Let fromValue be the result of calling the [[Get]]
               internal method of O with argument from. */
+        fromValue := {O.Get}(O, from);
         /* 2. Call the [[Put]] internal method of O with arguments
               to, fromValue, and true. */
+        {O.Put}(O, to, fromValue, true)
+      } else {
       /* v. Else, fromPresent is false */
         /* 1. Call the [[Delete]] internal method of O with arguments
               to and true. */
+        {O.Delete}(O, to, true)
+      };
       /* vi. Increase k by 1. */
+      k := k + 1.
+    };
     /* c. Let k be len. */
-    /* d. Repeat, while k > (len – actualDeleteCount +itemCount) */
+    k := len;
+    /* d. Repeat, while k > (len - actualDeleteCount + itemCount) */
+    while (k > (len - actualDeleteCount + itemCount)) {
       /* i. Call the [[Delete]] internal method of O with arguments
-            ToString(k–1) and true. */
+            ToString(k-1) and true. */
+      {O.Delete}(O, ToString(k - 1.), true);
       /* ii. Decrease k by 1. */
+      k := k - 1.
+    }
+  }
   /* 13. Else if itemCount > actualDeleteCount, then */
-    /* a. Let k be (len – actualDeleteCount). */
-    /* b. Repeat, while k > actualStart */
-      /* i. Let from be ToString(k + actualDeleteCount – 1). */
-      /* ii. Let to be ToString(k + itemCount – 1) */
-      /* iii. Let fromPresent be the result of calling the [[HasProperty]]
-              internal method of O with argument from. */
-      /* iv. If fromPresent is true, then */
-        /* 1. Let fromValue be the result of calling the [[Get]] internal
-              method of O with argument from. */
-        /* 2. Call the [[Put]] internal method of O with arguments to,
-              fromValue, and true. */
-      /* v. Else, fromPresent is false */
-        /* 1. Call the [[Delete]] internal method of O with argument to and true. */
-      /* vi. Decrease k by 1. */
+  else {
+    if (itemCount > actualDeleteCount) {
+      /* a. Let k be (len - actualDeleteCount). */
+      k := (len - actualDeleteCount);
+      /* b. Repeat, while k > actualStart */
+      while (k > actualStart) {
+        /* i. Let from be ToString(k + actualDeleteCount - 1). */
+        from := ToString(k + actualDeleteCount - 1.);
+        /* ii. Let to be ToString(k + itemCount - 1) */
+        to := ToString(k + itemCount - 1.);
+        /* iii. Let fromPresent be the result of calling the [[HasProperty]]
+                internal method of O with argument from. */
+        fromPresent := {O.HasProperty}(O, from);
+        /* iv. If fromPresent is true, then */
+        if (fromPresent = true) {
+          /* 1. Let fromValue be the result of calling the [[Get]] internal
+                method of O with argument from. */
+          fromValue := {O.Get}(O, from);
+          /* 2. Call the [[Put]] internal method of O with arguments to,
+                fromValue, and true. */
+          {O.Put}(O, to, fromValue, true)
+        }
+        /* v. Else, fromPresent is false */
+        else {
+          /* 1. Call the [[Delete]] internal method of O with argument
+                to and true. */
+          {O.Delete}(O, to, true)
+        };
+        /* vi. Decrease k by 1. */
+        k := k - 1.
+      }
+    }
+  };
   /* 14. Let k be actualStart. */
+  k := actualStart;
   /* 15. Repeat, while items is not empty */
+  while (!(items = [])) {
     /* a. Remove the first element from items and let E be the value
           of that element. */
+    E := hd items;
+    items := tl items;
     /* b. Call the [[Put]] internal method of O with arguments
           ToString(k), E, and true. */
+    {O.Put}(O, ToString(k), E, true);
     /* c. Increase k by 1. */
+    k := k + 1.
+  };
+  print s_concat(["len: ", len]);
+  print s_concat(["lenVal: ", lenVal]);
+  print s_concat(["actualDeleteCount: ", actualDeleteCount]);
+  print s_concat(["itemCount: ", itemCount]);
+  newLen := len - actualDeleteCount;
+  newLen := newLen + itemCount;
+  print s_concat(["newLen: ", newLen]);
   /* 16. Call the [[Put]] internal method of O with arguments "length",
-         (len – actualDeleteCount + itemCount), and true. */
+         (len - actualDeleteCount + itemCount), and true. */
+  {O.Put}(O, "length", (len - actualDeleteCount + itemCount), true);
+  print "success!";
   /* 17. Return A. */
+  return A
 };
 /**
  * The length property of the splice method is 2.
@@ -994,6 +1077,31 @@ function splice (this, start, deleteCount, items) {
  * its this value be an Array object. Therefore it can be transferred to other
  * kinds of objects for use as a method. Whether the splice function can be
  * applied successfully to a host object is implementation-dependent.
+ */
+
+
+
+
+/**
+ * 15.4.4.13 Array.prototype.unshift ( [ item1 [ , item2 [ , … ] ] ] )
+ *
+ * The arguments are prepended to the start of the array, such that their
+ * order within the array is the same as the order in which they appear
+ * in the argument list.
+ *
+ * When the unshift method is called with zero or more arguments item1,
+ * item2, etc., the following steps are taken:
+ */
+function unshift(items) {
+
+};
+/**
+ * The length property of the unshift method is 1.
+ *
+ * NOTE The unshift function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore it can be transferred
+ * to other kinds of objects for use as a method. Whether the unshift function
+ * can be applied successfully to a host object is implementation-dependent.
  */
 
 
@@ -1239,8 +1347,22 @@ function main() {
   return obj
 }*/
 
-/* main slice */
+/* main slice
 function main() {
   arr := newArray([2., 3., 4., 5., 6., 7.]);
   return slice(arr, 2., 4.)
+}*/
+
+/* main splice */
+function main() {
+  arr := newArray(["Banana", "Orange", "Apple", "Mango"]);
+  items := ["Lemon", "Kiwi"];
+  removedEls := splice(arr, 2., 2., items);
+
+  obj := {
+    arr: arr,
+    removedEls: removedEls
+  };
+  
+  return obj
 }
