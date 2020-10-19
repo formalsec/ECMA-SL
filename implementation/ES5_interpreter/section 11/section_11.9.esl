@@ -135,5 +135,4 @@ function StrictEqualityComparison(x, y) {
   return x = y
 
   /* NOTE This algorithm differs from the SameValue Algorithm (9.12) in its treatment of signed zeroes and NaNs. */
-  /* TODO check this */
 }

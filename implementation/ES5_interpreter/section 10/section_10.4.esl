@@ -52,7 +52,6 @@ function EnteringFunctionCode(F, thisArg, argumentsList, strict) {
      function object F, a caller provided thisArg, and a caller provided argumentsList: */
 
   /* 1. If the function code is strict code, set the ThisBinding to thisArg. */
-  /* TODO */
   if (strict) {
     setThisBinding(functionExecCtx, thisArg)
   };

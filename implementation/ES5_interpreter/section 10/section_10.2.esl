@@ -365,7 +365,7 @@ function CreateImmutableBinding(envRec, N) {
   if (isDeclarativeEnvironmentRecord(envRec)) {
     return CreateImmutableBindingDeclarative(envRec, N)
   };
-  throw NewSyntaxErrorException() /* TODO Assert? */
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
 };
 
 function CreateImmutableBindingDeclarative(declarativeEnvRec, N) {
@@ -395,7 +395,7 @@ function InitializeImmutableBinding(envRec, N, V) {
   if (isDeclarativeEnvironmentRecord(envRec)) {
     return InitializeImmutableBindingDeclarative(envRec, N, V)
   };
-  throw NewSyntaxErrorException() /* TODO Assert? */
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
 };
 
 function InitializeImmutableBindingDeclarative(declarativeEnvRec, N, V) {

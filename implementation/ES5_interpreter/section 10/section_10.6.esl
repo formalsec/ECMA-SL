@@ -45,7 +45,7 @@ function CreateArgumentsObject(func, names, args, env, strict) {
     /* b. Call the [[DefineOwnProperty]] internal method on obj passing ToString(indx), the property
           descriptor {[[Value]]: val, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and
           false as arguments. */
-    DefineOwnProperty(obj, ToString(int_to_float indx), { /* TODO check this int_to_float */
+    DefineOwnProperty(obj, ToString(int_to_float indx), {
       Value: val,
       Writable: true,
       Enumerable: true,
@@ -68,7 +68,7 @@ function CreateArgumentsObject(func, names, args, env, strict) {
         /* 4. Call the [[DefineOwnProperty]] internal method of map passing ToString(indx), the
               Property Descriptor {[[Set]]: p, [[Get]]: g, [[Configurable]]: true}, and false as
               arguments. */
-        DefineOwnProperty(map, ToString(int_to_float indx), { /* TODO check this int_to_float */
+        DefineOwnProperty(map, ToString(int_to_float indx), {
           Set: p,
           Get: g,
           Configurable: true
@@ -90,7 +90,7 @@ function CreateArgumentsObject(func, names, args, env, strict) {
     obj.Delete            := "ArgumentsObjectDelete"
   };
   /* 13. If strict is false, then */
-  if (true) { /* TODO */
+  if (strict = false) {
     /* a. Call the [[DefineOwnProperty]] internal method on obj passing "callee", the property descriptor
           {[[Value]]: func, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false as
           arguments. */
