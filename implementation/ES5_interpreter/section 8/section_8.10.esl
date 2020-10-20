@@ -62,6 +62,24 @@ function newDataPropertyDescriptorFull(value, writable, enumerable, configurable
   return desc
 };
 
+function newGetAccessorPropertyDescriptor(get) {
+  desc := NewPropertyDescriptor();
+  desc.Get := get;
+  desc.Enumerable := true;
+  desc.Configurable := true;
+
+  return desc
+};
+
+function newSetAccessorPropertyDescriptor(set) {
+  desc := NewPropertyDescriptor();
+  desc.Set := set;
+  desc.Enumerable := true;
+  desc.Configurable := true;
+
+  return desc
+};
+
 /* Auxiliary functions created for the purposes of dealing with the Property Identifier type. */
 function newPropertyIdentifier(name, desc) {
   return ("P", name, desc)

@@ -69,6 +69,10 @@ function getVariableEnvironment(runningExecCtx) {
   return runningExecCtx.VariableEnvironment
 };
 
+function getThisBinding(runningExecCtx) {
+  return runningExecCtx.ThisBinding
+};
+
 function setLexicalEnvironment(runningExecCtx, lexicalEnvironment) {
   runningExecCtx.LexicalEnvironment := lexicalEnvironment;
   return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */

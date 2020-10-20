@@ -76,6 +76,6 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
     /* e. Let n be the integer that is the code unit value for the character at position k within py. */
     /* f. If m < n, return true. Otherwise, return false. */
 
-    throw NotImplemented()
+    throw px < py
   }
 }

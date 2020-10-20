@@ -297,7 +297,19 @@ function mapper(callback, obj) {
       };
 
     case "TryStatement":
-      throw Error("Traverse for TryStatements is not implemented!");
+      return {
+        type: "TryStatement",
+        block: mapper(callback, new_obj.block),
+        handler: mapper(callback, new_obj.handler),
+        finalizer: mapper(callback, new_obj.finalizer),
+      };
+
+    case "CatchClause":
+      return {
+        type: "CatchClause",
+        param: mapper(callback, new_obj.param),
+        body: mapper(callback, new_obj.body),
+      };
 
     default:
       return new_obj;

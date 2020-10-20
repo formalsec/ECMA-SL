@@ -24,6 +24,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   match op with
   | Neg           -> Oper.neg v
   | Not           -> Oper.not v
+  | BitwiseNot    -> Oper.bitwise_not v
   | Typeof        -> Oper.typeof v
   | ListLen       -> Oper.l_len v
   | TupleLen      -> Oper.t_len v
@@ -38,7 +39,9 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Sconcat       -> Oper.string_concat v
   | ObjToList     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjToList")
   | ObjFields     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjFields")
+  | ToInt32       -> Oper.to_int32 v
   | ToUint32      -> Oper.to_uint32 v
+  | ToUint16      -> Oper.to_uint16 v
 
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
@@ -47,6 +50,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Minus    -> Oper.minus (v1, v2)
   | Times    -> Oper.times (v1, v2)
   | Div      -> Oper.div (v1, v2)
+  | Modulo   -> Oper.modulo (v1, v2)
   | Equal    -> Oper.equal (v1, v2)
   | Gt       -> Oper.gt (v1, v2)
   | Lt       -> Oper.lt (v1, v2)
@@ -54,6 +58,12 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Elt      -> Oper.elt (v1, v2)
   | Log_And  -> Oper.log_and (v1, v2)
   | Log_Or   -> Oper.log_or (v1, v2)
+  | BitwiseAnd -> Oper.bitwise_and (v1, v2)
+  | BitwiseOr -> Oper.bitwise_or (v1, v2)
+  | BitwiseXor -> Oper.bitwise_xor (v1, v2)
+  | ShiftLeft -> Oper.shift_left (v1, v2)
+  | ShiftRight -> Oper.shift_right (v1, v2)
+  | ShiftRightLogical -> Oper.shift_right_logical (v1, v2)
   | Lnth     -> Oper.list_nth (v1, v2)
   | Tnth     -> Oper.tuple_nth (v1, v2)
   | Ladd     -> Oper.list_add (v1, v2)

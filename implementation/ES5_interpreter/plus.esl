@@ -1,5 +1,5 @@
-import "test/ast.esl";
-import "test/ESL_Interpreter.esl";
+import "ES5_interpreter/ast.esl";
+import "ES5_interpreter/ESL_Interpreter.esl";
 function main() {
     x := buildAST();
     ret := JS_Interpreter_Program(x);
