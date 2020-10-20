@@ -19,7 +19,7 @@
 *)
 let digit   = ['0' - '9']
 let letter  = ['a' - 'z' 'A' - 'Z']
-let special = ('_'|' '|','|';'|'.'|':'|'\\' '"'|'/'|'*'|'-'|'+'|'<'|'>'|'='|'{'|'}'|'['|']'|'('|')'|'$'|'@'|'!'|'?')
+let special = ('_'|' '|','|';'|'.'|':'|'\\' '"'|'/'|'*'|'-'|'+'|'<'|'>'|'='|'{'|'}'|'['|']'|'('|')'|'$'|'@'|'!'|'?'|'%'|'~'|'&'|'|'|'^')
 let int     = '-'?digit+
 let float   = int('.')digit*
 let bool    = "true"|"false"
@@ -56,6 +56,7 @@ rule read =
   | '-'            { MINUS }
   | '*'            { TIMES }
   | '/'            { DIVIDE }
+  | '%'            { MODULO }
   | '='            { EQUAL }
   | '>'            { GT }
   | '<'            { LT }
@@ -64,6 +65,13 @@ rule read =
   | "in_obj"       { IN_OBJ }
   | "in_list"      { IN_LIST }
   | '!'            { NOT }
+  | '~'            { BITWISE_NOT }
+  | '&'            { BITWISE_AND }
+  | '|'            { PIPE }
+  | '^'            { BITWISE_XOR }
+  | "<<"           { SHIFT_LEFT }
+  | ">>"           { SHIFT_RIGHT }
+  | ">>>"          { SHIFT_RIGHT_LOGICAL }
   | "&&&"          { SCLAND }
   | "&&"           { LAND }
   | "||"           { LOR }
@@ -85,15 +93,16 @@ rule read =
   | "float_to_string" { FLOAT_TO_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }
   | "obj_fields"      { OBJ_FIELDS }
+  | "to_int32"        { TO_INT32 }
   | "to_uint32"       { TO_UINT32 }
   | "floor"           { FLOOR }
+  | "to_uint16"       { TO_UINT16 }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }
   | '}'               { RBRACE }
   | '['               { LBRACK }
   | ']'               { RBRACK }
-  | '|'               { PIPE }
   | "typeof"          { TYPEOF }
   | "__$"             { read_type lexbuf }
   | "throw"           { THROW }

@@ -262,6 +262,94 @@ function GetBindingValueObject(objectEnvRec, N, S) {
   return Get(bindings, N)
 };
 
+
+/*
+  Delete a binding from an environment record. The String value N
+  is the text of the bound name If a binding for N exists, remove
+  the binding and return true. If the binding exists but cannot be
+  removed return false. If the binding does not exist return true.
+  */
+function DeleteBinding(envRec, N) {
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return DeleteBindingDeclarative(envRec, N)
+  };
+  return DeleteBindingObject(envRec, N)
+};
+
+function DeleteBindingDeclarative(declarativeEnvRec, N) {
+  /* 10.2.1.1.5 DeleteBinding (N) */
+
+  /* The concrete Environment Record method DeleteBinding for declarative environment records can only delete
+     bindings that have been explicitly designated as being subject to deletion. */
+
+  /* 1. Let envRec be the declarative environment record for which the method was invoked. */
+  envRec := declarativeEnvRec;
+  /* 2. If envRec does not have a binding for the name that is the value of N, return true. */
+  if (!(N in_obj envRec)) {
+    return true
+  };
+  /* 3. If the binding for N in envRec is cannot be deleted, return false. */
+  if (envRec[N] = "cannot be deleted") { /* TODO */
+    return false
+  };
+  /* 4. Remove the binding for N from envRec. */
+  delete envRec[N];
+  /* 5. Return true. */
+  return true
+};
+
+function DeleteBindingObject(objectEnvRec, N) {
+  /* 10.2.1.2.5 DeleteBinding (N) */
+
+  /* The concrete Environment Record method DeleteBinding for object environment records can only delete
+     bindings that correspond to properties of the environment object whose [[Configurable]] attribute have the
+     value true. */
+
+  /* 1. Let envRec be the object environment record for which the method was invoked. */
+  envRec := objectEnvRec;
+  /* 2. Let bindings be the binding object for envRec. */
+  bindings := getBindingObject(envRec);
+  /* 3. Return the result of calling the [[Delete]] internal method of bindings, passing N and false as arguments. */
+  return Delete(bindings, N, false)
+};
+
+/*
+  Returns the value to use as the this value on calls to function objects that are obtained as
+  binding values from this environment record.
+ */
+function ImplicitThisValue(envRec) {
+  if (isDeclarativeEnvironmentRecord(envRec)) {
+    return ImplicitThisValueDeclarative(envRec)
+  };
+  return ImplicitThisValueObject(envRec)
+};
+
+function ImplicitThisValueDeclarative(declarativeEnvRec) {
+  /* 10.2.1.1.6 ImplicitThisValue() */
+
+  /* Declarative Environment Records always return undefined as their ImplicitThisValue. */
+
+  /* 1. Return undefined. */
+  return 'undefined
+};
+
+function ImplicitThisValueObject(objectEnvRec) {
+  /* 10.2.1.2.6 ImplicitThisValue() */
+
+  /* Object Environment Records return undefined as their ImplicitThisValue unless their provideThis flag is true. */
+
+  /* 1. Let envRec be the object environment record for which the method was invoked. */
+  envRec := objectEnvRec;
+  /* 2. If the provideThis flag of envRec is true, return the binding object for envRec. */
+  if (getProvideThis(objectEnvRec) = true) {
+    return getBindingObject(objectEnvRec)
+  }
+  /* 3. Otherwise, return undefined. */
+  else {
+    return 'undefined
+  }
+};
+
 /* In addition to the mutable bindings supported by all Environment Records, declarative environment records
 also provide for immutable bindings. An immutable binding is one where the association between an identifier
 and a value may not be modified once it has been established. Creation and initialisation of immutable binding
@@ -446,12 +534,18 @@ function newObjectEnvironmentRecord(bindingObj) {
   /* An object environment record binds the set of identifier names that directly correspond to the property names
      of its binding object. Property names that are not an IdentifierName are not included in the set of bound identifiers.
      Both own and inherited properties are included in the set regardless of the setting of their [[Enumerable]] attribute. */
-  return bindingObj
+  objEnvRec := {
+    isObjectEnvRec: true,
+    bindingObject: bindingObj,
+    provideThis: false
+  };
+
+  return objEnvRec
 };
 
 function isDeclarativeEnvironmentRecord(envRec) {
   print "isDeclarativeEnvironmentRecord";
-  if ("Prototype" in_obj envRec) {
+  if ("isObjectEnvRec" in_obj envRec) {
     return false
   } else {
     return true
@@ -459,7 +553,17 @@ function isDeclarativeEnvironmentRecord(envRec) {
 };
 
 function getBindingObject(objectEnvRec) {
-  return objectEnvRec
+  return objectEnvRec.bindingObject
+};
+
+function setProvideThis(objectEnvironment, value) {
+  getEnvironmentRecord(objectEnvironment).provideThis := value;
+
+  return value /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function getProvideThis(objectEnvRec) {
+  return objectEnvRec.provideThis
 };
 
 function getEnvironmentRecord(lexicalEnvironment) {

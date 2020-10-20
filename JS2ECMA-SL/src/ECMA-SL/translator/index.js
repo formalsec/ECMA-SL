@@ -30,7 +30,7 @@ function translateString(value) {
 }
 
 function translateNull() {
-  return translateLiteral(new PrimitiveVal());
+  return translateLiteral(new PrimitiveVal(null));
 }
 
 function translateNumber(value) {
@@ -70,13 +70,13 @@ function translateObject(obj) {
   const newObjStmt = new Assign(varExpr, new NewObj());
 
   const objStmts = Object.keys(obj)
-    .map((prop) => ({ prop, value: traverseAndTranslate(obj[prop]) }))
+    .map((prop) => ({ prop: translateString(prop), value: traverseAndTranslate(obj[prop]) }))
     .reduce(
       (acc, propValue) =>
         acc
           .concat(propValue.value.statements)
           .concat(
-            new FieldAssign(varExpr, propValue.prop, propValue.value.expression)
+            new FieldAssign(varExpr, propValue.prop.expression, propValue.value.expression)
           ),
       [newObjStmt]
     );

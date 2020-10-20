@@ -1,0 +1,217 @@
+/* 9.2 ToBoolean */
+function ToBoolean(argument) {
+  /* The abstract operation ToBoolean converts its argument to a value of type Boolean according to Table 11: */
+
+  if ((Type(argument) = "Undefined") || (Type(argument) = "Null")) {
+    return false
+  };
+  if (Type(argument) = "Boolean") {
+    return argument
+  };
+  if (Type(argument) = "Number") {
+    if ((argument = '+0) || (argument = '-0) || (argument = 'NaN)) {
+      return false
+    } else {
+      return true
+    };
+
+    return true
+  };
+  if (Type(argument) = "String") {
+    /* TODO s_len */
+    if (l_len(argument) = 0) {
+      return false
+    } else {
+      return true
+    }
+  };
+  if (Type(argument) = "Object") {
+    return true
+  }
+};
+
+/* 9.3 ToNumber */
+function ToNumber(argument) {
+/* The abstract operation ToNumber converts its argument to a value of type Number according to Table 12: */
+
+  argument_type := Type(argument);
+  if (argument_type = "Undefined") {
+    return 'NaN
+  };
+  if (argument_type = "Null") {
+    return '+0
+  };
+  if (argument_type = "Boolean") {
+    /* The result is 1 if the argument is true. The result is +0 if the argument is false. */
+    if (argument = true) {
+      return int_to_float 1 /* TODO check this!! */
+    };
+    return '+0
+  };
+  if (argument_type = "Number") {
+    return argument
+  };
+  if (argument_type = "String") {
+    throw NotImplemented() /* TODO */
+  };
+  if (argument_type = "Object") {
+    /* Apply the following steps: */
+
+    /* 1. Let primValue be ToPrimitive(input argument, hint Number). */
+    primValue := ToPrimitive(argument, 'Number);
+    /* 2. Return ToNumber(primValue). */
+    return ToNumber(primValue)
+  }
+};
+
+/* 9.5 ToInt32: (Signed 32 Bit Integer) */
+function ToInt32(argument) {
+  /* The abstract operation ToInt32 converts its argument to one of 2^32 integer values in the range -2^31 through
+    2^31 - 1, inclusive. This abstract operation functions as follows: */
+
+  /* 1. Let number be the result of calling ToNumber on the input argument. */
+  number := ToNumber(argument);
+  /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
+  if ((number = 'NaN) || (number = '+0) || (number = '-0) || (number = '+Infinity) || (number = '-Infinity)) {
+    return 0
+  };
+  return to_int32(number)
+  /* 3. Let posInt be sign(number) * floor(abs(number)). */
+  /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
+        than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
+        multiple of 2^32 . */
+  /* 5. If int32bit is greater than or equal to 2^31 , return int32bit - 2^32 , otherwise return int32bit. */
+
+  /* NOTE Given the above definition of ToInt32:
+          * The ToInt32 abstract operation is idempotent: if applied to a result that it produced, the second application leaves that
+            value unchanged.
+          * ToInt32(ToUint32(x)) is equal to ToInt32(x) for all values of x. (It is to preserve this latter property that +Infinity and -Infinity are
+            mapped to +0.)
+          * ToInt32 maps -0 to +0. */
+};
+
+/* 9.6 ToUint32: (Unsigned 32 Bit Integer) */
+function ToUint32(argument) {
+  /* The abstract operation ToUint32 converts its argument to one of 2^32 integer values in the range 0 through 2^32 - 1,
+     inclusive. This abstraction operation functions as follows: */
+
+  /* 1. Let number be the result of calling ToNumber on the input argument. */
+  number := ToNumber(argument);
+  /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
+  if ((number = 'NaN) || (number = '+0) || (number = '-0) || (number = '+Infinity) || (number = '-Infinity)) {
+    return 0
+  };
+  return to_uint32(number)
+  /* 3. Let posInt be sign(number) x floor(abs(number)). */
+  /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
+        than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
+        multiple of 2^32 . */
+  /* 5. Return int32bit. */
+
+  /* NOTE Given the above definition of ToUint32:
+          * Step 5 is the only difference between ToUint32 and ToInt32.
+          * The ToUint32 abstract operation is idempotent: if applied to a result that it produced, the second
+            application leaves that value unchanged.
+          * ToUint32(ToInt32(x)) is equal to ToUint32(x) for all values of x. (It is to preserve this latter property
+            that +Infinity and -Infinity are mapped to +0.)
+          * ToUint32 maps -0 to +0. */
+};
+
+/* 9.7 ToUint16: (Unsigned 16 Bit Integer) */
+function ToUint16(argument) {
+  /* The abstract operation ToUint16 converts its argument to one of 2^16 integer values in the range 0 through 2^16 - 1,
+     inclusive. This abstract operation functions as follows: */
+
+  /* 1. Let number be the result of calling ToNumber on the input argument. */
+  number := ToNumber(argument);
+  return to_uint16(number)
+  /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
+  /* 3. Let posInt be sign(number) x floor(abs(number)). */
+  /* 4. Let int16bit be posInt modulo 2 16 ; that is, a finite integer value k of Number type with positive sign and less
+        than 2 16 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
+        multiple of 2^16 . */
+  /* 5. Return int16bit. */
+
+  /* NOTE Given the above definition of ToUint16:
+     * The substitution of 2 16 for 2 32 in step 4 is the only difference between ToUint32 and ToUint16.
+     * ToUint16 maps -0 to +0 */
+};
+
+/* 9.8 ToString */
+function ToString(V) {
+  v_type := Type(V);
+  if (v_type = "Undefined") {
+    return "undefined"
+  };
+  if (v_type = "Null") {
+    return "null"
+  };
+  if (v_type = "Boolean") {
+    if (V = true) {
+      return "true"
+    };
+    return "false"
+  };
+  if (v_type = "Number") {
+    return float_to_string V
+  };
+  if (v_type = "String") {
+    return V
+  };
+  if (v_type = "Object") {
+    /* Apply the following steps: */
+    /* 1. Let primValue be ToPrimitive(input argument, hint String). */
+    primValue := ToPrimitive(V, 'String);
+    /* 2. Return ToString(primValue). */
+    return ToString(primValue)
+  }
+};
+
+/* 9.9 ToObject */
+/* The abstract operation ToObject converts its argument to a value of type Object according to Table 14: */
+function ToObject(V) {
+  v_type := Type(V);
+  if ((v_type = "Undefined") || (v_type = "Null")) {
+    throw TypeErrorException()
+  };
+  if (v_type = "Boolean") {
+    return newBoolean(V)
+  };
+  if (v_type = "Number") {
+    return newNumber(V)
+  };
+  if (v_type = "String") {
+    return newString(V)
+  };
+  if (v_type = "Object") {
+    return V
+  }
+};
+
+/* 9.10 CheckObjectCoercible */
+/* The abstract operation CheckObjectCoercible throws an error if its argument is a value that cannot be
+   converted to an Object using ToObject. It is defined by Table 15: */
+function CheckObjectCoercible(V) {
+  v_type := Type(V);
+  if ((v_type = "Undefined") || (v_type = "Null")) {
+    throw TypeErrorException()
+  };
+
+  return
+};
+
+function IsCallable(V) {
+  /* 9.11 IsCallable */
+
+  /* The abstract operation IsCallable determines if its argument, which must be an ECMAScript language value,
+     is a callable function Object according to Table 16: */
+  v_type := Type(V);
+  if (v_type = "Object") {
+    if ("Call" in_obj V) {
+      return true
+    };
+    return false
+  };
+
+  return false
+}

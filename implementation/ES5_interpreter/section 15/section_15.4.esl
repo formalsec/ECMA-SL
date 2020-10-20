@@ -1,7 +1,7 @@
-import "test/section_9.esl";
-import "test/section_8.10.esl";
-import "test/section_8.12.esl";
-import "test/section_15.11.esl";
+import "ES5_interpreter/section 9/section_9.esl";
+import "ES5_interpreter/section 8/section_8.10.esl";
+import "ES5_interpreter/section 8/section_8.12.esl";
+import "ES5_interpreter/section 15/section_15.11.esl";
 
 /* This method is not supposed to be here. As soon 
    as it is placed in the right section, it should
@@ -33,9 +33,9 @@ function Type(V) {
 
 /* Placeholder for ToNumber, ToInteger, min, max and abs that will be
   implemented in another section TODO */
-function ToNumber(V) {
+/*function ToNumber(V) {
   return V
-};
+};*/
 function ToInteger(V) {
   number := ToNumber(V);
   return number

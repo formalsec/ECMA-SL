@@ -18,7 +18,7 @@
 %token PERIOD COMMA SEMICOLON COLON
 %token DELETE
 %token REPEAT UNTIL
-%token MATCH WITH PIPE RIGHT_ARROW NONE DEFAULT
+%token MATCH WITH RIGHT_ARROW NONE DEFAULT
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -27,9 +27,10 @@
 %token <string> SYMBOL
 %token <string> LOC
 %token LAND LOR SCLAND SCLOR
-%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST TO_UINT32 FLOOR OBJ_FIELDS
-
-%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
+%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS
+%token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
+%token TO_INT32 TO_UINT32 TO_UINT16 FLOOR
+%token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
 %token SCONCAT
 %token IMPORT THROW
@@ -37,10 +38,10 @@
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
 
-%left LAND LOR
+%left LAND LOR BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %left GT LT EGT ELT IN_OBJ IN_LIST
 %left PLUS MINUS
-%left TIMES DIVIDE
+%left TIMES DIVIDE MODULO
 %left EQUAL
 
 %nonassoc binopt_prec
@@ -175,6 +176,8 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
   | NOT; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
+  | BITWISE_NOT; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.BitwiseNot, e) } %prec unopt_prec
   | LLEN; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ListLen, e) } %prec unopt_prec
   | TLEN; e = e_expr_target;
@@ -197,16 +200,18 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
+  | TO_INT32; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ToInt32, e) } %prec unopt_prec
   | TO_UINT32; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ToUint32, e) } %prec unopt_prec
   | FLOOR; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
+  | TO_UINT16; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ToUint16, e) } %prec unopt_prec
   | OBJ_TO_LIST; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ObjToList, e) } %prec unopt_prec
-
   | SCONCAT; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Sconcat, e) } %prec unopt_prec
-
   | OBJ_FIELDS; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ObjFields, e) } %prec unopt_prec
 
@@ -304,6 +309,7 @@ op_target:
   | PLUS    { Oper.Plus }
   | TIMES   { Oper.Times }
   | DIVIDE  { Oper.Div }
+  | MODULO  { Oper.Modulo }
   | EQUAL   { Oper.Equal }
   | GT      { Oper.Gt }
   | LT      { Oper.Lt }
@@ -311,6 +317,12 @@ op_target:
   | ELT     { Oper.Elt }
   | LAND    { Oper.Log_And }
   | LOR     { Oper.Log_Or }
+  | BITWISE_AND { Oper.BitwiseAnd }
+  | PIPE { Oper.BitwiseOr }
+  | BITWISE_XOR { Oper.BitwiseXor }
+  | SHIFT_LEFT { Oper.ShiftLeft }
+  | SHIFT_RIGHT { Oper.ShiftRight }
+  | SHIFT_RIGHT_LOGICAL { Oper.ShiftRightLogical }
   | IN_OBJ  { Oper.InObj }
   | IN_LIST { Oper.InList }
 

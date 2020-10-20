@@ -25,19 +25,20 @@
 %token <string> SYMBOL
 %token <string> LOC
 %token LAND LOR
-%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING TO_UINT32 FLOOR OBJ_TO_LIST OBJ_FIELDS
-
-%token PLUS MINUS TIMES DIVIDE EQUAL GT LT EGT ELT IN_OBJ IN_LIST
+%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS
+%token BITWISE_NOT BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
+%token TO_INT32 TO_UINT32 TO_UINT16 FLOOR
+%token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
 %token SCONCAT
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
 
-%left LAND LOR
+%left LAND LOR BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %left GT LT EGT ELT IN_LIST
 %left PLUS MINUS
-%left TIMES DIVIDE
+%left TIMES DIVIDE MODULO
 %left EQUAL
 
 
@@ -141,6 +142,8 @@ expr_target:
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
   | NOT; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
+  | BITWISE_NOT; e = expr_target;
+    {  print_string ">UNOP\n"; Expr.UnOpt (Oper.BitwiseNot, e) } %prec unopt_prec
   | LLEN; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.ListLen, e) } %prec unopt_prec
   | TLEN; e = expr_target;
@@ -161,10 +164,14 @@ expr_target:
     { Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
   | INT_OF_STRING; e = expr_target;
     { Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
+  | TO_INT32; e = expr_target;
+    { Expr.UnOpt (Oper.ToInt32, e) } %prec unopt_prec
   | TO_UINT32; e = expr_target;
     { Expr.UnOpt (Oper.ToUint32, e) } %prec unopt_prec
   | FLOOR; e = expr_target;
     { Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
+  | TO_UINT16; e = expr_target;
+    { Expr.UnOpt (Oper.ToUint16, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
@@ -243,11 +250,18 @@ op_target:
   | PLUS    { Oper.Plus }
   | TIMES   { Oper.Times }
   | DIVIDE  { Oper.Div }
+  | MODULO  { Oper.Modulo }
   | EQUAL   { Oper.Equal }
   | GT      { Oper.Gt }
   | LT      { Oper.Lt }
   | EGT     { Oper.Egt }
   | ELT     { Oper.Elt }
   | LAND    { Oper.Log_And }
+  | BITWISE_AND { Oper.BitwiseAnd }
+  | BITWISE_OR { Oper.BitwiseOr }
+  | BITWISE_XOR { Oper.BitwiseXor }
+  | SHIFT_LEFT { Oper.ShiftLeft }
+  | SHIFT_RIGHT { Oper.ShiftRight }
+  | SHIFT_RIGHT_LOGICAL { Oper.ShiftRightLogical }
   | LOR     { Oper.Log_Or }
   | IN_LIST { Oper.InList }
