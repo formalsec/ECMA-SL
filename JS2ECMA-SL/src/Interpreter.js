@@ -15,7 +15,7 @@ Interpreter.iterate = function(config, sec_conf, mon){
 		if(mon != undefined){
 			mon_result= result.seclabel.interpret(sec_conf);
 			if(mon_result.error != undefined){
-				console.log("MONITOR EXCEPTION -> " + mon_result.error);
+				console.log("MONITOR EXCEPTION -> " + mon_result.error+"\n");
 				process.exit(1); 
 			}
 			result.sec_conf = mon_result;
@@ -31,7 +31,7 @@ Interpreter.interpretProg = function(_prog, mon){
 	console.log("=========== Running ===========\n" + _prog + "\n===============================\n")
 	var main_func= _prog.getFunc('main');
   	var final_value = this.iterate({prog:_prog, cs:[new CsFrame()], store: new Store([],[]), cont : [main_func.body], heap: new Heap()}, {ssto:new SecStore([],[]), sheap: new SecHeap(), scs:[new CsFrame()], pc : [Lattice.bottom()] }, mon); //fazer funcao 
-  	console.log("MAIN return -> "+ final_value);
+  	console.log("MAIN return -> "+ final_value +"\n");
 }
 
 module.exports = Interpreter;

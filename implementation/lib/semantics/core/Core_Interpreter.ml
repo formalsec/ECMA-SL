@@ -93,10 +93,8 @@ let prepare_call  (prog:Prog.t) (cs:Callstack.t)(sto: Store.t) (cont: Stmt.t lis
   let sto_aux = Store.create pvs in
   (cs', sto_aux, params)
 
-let eval_inobj_expr (prog: Prog.t) (heap : Heap.t) (sto : Store.t) (field : Expr.t) (loc : Expr.t) : Val.t =
-  let loc' = eval_expr sto loc in
-  let field' = eval_expr sto field in
-  let b =  match loc', field' with
+let eval_inobj_expr (prog: Prog.t) (heap : Heap.t) (sto : Store.t) (field : Val.t) (loc : Val.t) : Val.t =
+  let b =  match loc, field with
     | Loc l, Str f -> Heap.get_field heap l f
     | _            -> invalid_arg "Exception in Interpreter.eval_inobj_expr : \"loc\" is not a Loc value or \"field\" is not a string" in
   match b with
@@ -224,10 +222,16 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
       |Some lab ->
         (Intermediate((cs, heap, sto), cont),lab))
 
-  | AssignInObjCheck (st, e1, e2) ->
-    let v= eval_inobj_expr prog heap sto e1 e2 in
+  | AssignInObjCheck (st, e_f, e_o) ->
+    let f= eval_expr sto e_f in
+    let o= eval_expr sto e_o in
+    let f', o'= 
+      match f, o with
+      | Str f ,Loc o -> f, o
+      | _ -> raise (Except "Internal Error") in
+    let v= eval_inobj_expr prog heap sto f o in
     Store.set sto st v;
-    (Intermediate ((cs, heap, sto), cont), SecLabel.AssignLab (st,e1))
+    (Intermediate ((cs, heap, sto), cont), SecLabel.AssignInObjCheckLab (st, f', o', e_f, e_o))
 
 
   | AssignNewObj (x) ->

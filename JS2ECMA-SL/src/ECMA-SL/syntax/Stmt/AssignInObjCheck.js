@@ -1,5 +1,5 @@
 const Expr = require("../Expr/Expr"); 
-const AssignLab = require("../Labels/AssignLab");
+const AssignInObjCheckLab = require("../Labels/AssignInObjCheckLab");
 const Val = require("../Val/Val");
 const PrimitiveVal = require("../Val/PrimitiveVal")(Val);
 
@@ -19,7 +19,7 @@ function MakeAssignInObjCheck(Stmt){
       var field = this.expressionField.interpret(config.store).value;
       var v = config.heap.fieldCheck(object, field);
       config.store.setValue(this.stringvar, new PrimitiveVal(v));
-      return {config : config, seclabel: new AssignLab(this.stringvar, this.expressionObject)};
+      return {config : config, seclabel: new AssignInObjCheckLab(this.stringvar, field, object ,this.expressionField ,this.expressionObject)};
     }
 
    

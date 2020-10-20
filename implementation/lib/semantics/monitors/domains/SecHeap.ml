@@ -60,7 +60,7 @@ let new_sec_prop (heap : 'sl t) (loc : Loc.t) (field : Field.t) (exists_lvl : 's
   | None -> false
 
 
-let (*Verificar onde é chamado*) newSecObj (heap : 'sl t) (loc : Loc.t) (struct_lvl : 'sl) (obj_lvl : 'sl)  : unit =
+let newSecObj (heap : 'sl t) (loc : Loc.t) (struct_lvl : 'sl) (obj_lvl : 'sl)  : unit =
   let sec_obj = SecObject.create () in
   insert heap loc sec_obj struct_lvl obj_lvl
 

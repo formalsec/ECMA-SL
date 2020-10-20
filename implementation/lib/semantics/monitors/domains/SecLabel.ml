@@ -11,6 +11,7 @@ type 'sl t =
   | FieldAssignLab of (Loc.t * Field.t * Expr.t * Expr.t * Expr.t)
   | FieldLookupLab of (string * Loc.t * Field.t * Expr.t * Expr.t)
   | FieldDeleteLab of (Loc.t * Field.t * Expr.t * Expr.t)
+  | AssignInObjCheckLab of (string * Field.t * Loc.t * Expr.t * Expr.t)
   | NewLab of (string * Loc.t)
   (* Direct Security Level Upgrades *)
   | UpgVarLab of (string * 'sl)
@@ -37,6 +38,8 @@ let str (sl_str : 'sl -> string) (label : 'sl t) : string =
     "BranchLab (" ^(Expr.str exp) ^"),{ "^(Stmt.str stmt)^"}"
   | AssignCallLab (params, exp,x,f) ->
     "AssignCallLab ("^(String.concat "; " (List.map Expr.str exp))^", "^ x^")"
+  | AssignInObjCheckLab (x, field, loc, e_f, e_l) ->
+    "AssingnInObjCheckLab" 
   | UpgVarLab (x, lvl) ->
     "UpgVarLab"
   | UpgPropValLab (loc, x, e_o, e_f, lvl) ->

@@ -11,6 +11,8 @@ INV='\e[7m'         #INVERTED
 LGREEN='\e[102m'
 BOLD='\e[1m'
 DEBUG="false"
+ERRORS=0
+PROGS=0
 
 test_prog () {
 	MODE=$1
@@ -24,6 +26,10 @@ test_prog () {
 	  echo "${OCAMLRES}"
 	fi
 	OCMLRES2=$( echo "${OCAMLRES}" | grep "MAIN return"  )
+	if [[ $OCMLRES2 == "" ]]
+	then
+		OCMLRES2=$( echo "${OCAMLRES}" | grep "MONITOR EXCEPTION"  )
+	fi
 	cd ../JS2ECMA-SL
 	filename=${TESTFILE%.*}
 	JSRES=$(node src/parse_esl.js ../implementation/${filename}.json ${MON})
@@ -32,13 +38,20 @@ test_prog () {
 	  echo "{$JSRES}"
 	fi
 	JRES2=$( echo "${JSRES}" | grep "MAIN return"  )
+	if [[ $JRES2 == "" ]]
+	then
+		JRES2=$( echo "${JSRES}" | grep "MONITOR EXCEPTION"  )
+	fi
 	if [[ "${JRES2}" == "${OCMLRES2}" ]]
 	then
 		
 		printf "${BOLD}${GREEN}${INV}OK!${NC} \n(  ${JRES2}  )"
+
 	else
 		printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC} \n(  ${JRES2}  )\n(  ${OCMLRES2}  )"
+		ERRORS=$((ERRORS+1))
 	fi
+	PROGS=$((PROGS+1))
 }
 
 test_dir (){
@@ -93,6 +106,8 @@ test_dir (){
 #			fi 
 #		done
 #	fi
+printf "\n\n"
+echo "Found ${ERRORS} anomalies from ${PROGS} executions"
 }
 for arg in "$@"
 do

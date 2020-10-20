@@ -4,7 +4,7 @@ function main () {
 	y := true;
 	x:= "upgVar"("h", "high");
 	l:= true;
-	x:= "upgVar"("l", "low");
+	
 
 
 	if(h > 2){

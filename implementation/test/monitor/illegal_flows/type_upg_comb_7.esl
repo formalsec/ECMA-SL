@@ -3,17 +3,19 @@ function main () {
 	l:= true;
 	o := {};
 	o.p := true;
+	t := false;
 
 	x:= "upgVar"("h","high");
-	x:= "upgPropExists"(o, "p", "high");
 	
-	
-	
-	 t:= "p" in_obj o;
-	 
 
+	t:= "p" in_obj o;
 
-	print "DUVIDA AQUI!";
+	delete o["p"];
+	if(h){
+	o.p := 4
+	};
+	
+
 	print t;
 	return l
 

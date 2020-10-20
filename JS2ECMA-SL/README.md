@@ -6,7 +6,7 @@
 
 ###Compile Interpreter 
 
-After the corret instalation of OCAML and the needed Lybraries, compile the program:
+After the correct instalation of OCAML and the needed Lybraries, compile the program:
 
 ```
 make

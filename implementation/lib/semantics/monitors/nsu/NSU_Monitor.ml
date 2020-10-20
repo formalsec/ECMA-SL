@@ -86,16 +86,17 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
   | AssignLab (var, exp)->
     let lvl=expr_lvl ssto exp in
     let pc_lvl= check_pc pc in
-    (try (let var_lvl = Hashtbl.find ssto var in
-          if (SL.leq pc_lvl var_lvl ) then(
-            SecStore.set ssto var (SL.lub lvl  pc_lvl);
-            MReturn (scs, sheap, ssto, pc))
-
-          else MFail((scs,sheap,ssto,pc), "Illegal Assignment ")
-         )
-     with Not_found -> 	SecStore.set ssto var (SL.lub lvl  pc_lvl);
-       MReturn (scs, sheap, ssto, pc)
-    )
+    let var_lvl = SecStore.get_safe ssto var in 
+    (match var_lvl with
+    |Some var_lvl -> 
+      if (SL.leq pc_lvl var_lvl ) then(
+        SecStore.set ssto var (SL.lub lvl  pc_lvl);
+        MReturn (scs, sheap, ssto, pc))
+      else MFail((scs,sheap,ssto,pc), "Illegal Assignment")
+    | None ->  
+        SecStore.set ssto var (SL.lub lvl  pc_lvl);
+        MReturn (scs, sheap, ssto, pc))
+     
 
   | PrintLab (exp) ->
     let lvl_pc= check_pc pc in
@@ -103,8 +104,36 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
     if (SL.leq lvl_pc lvl_exp) then
     MReturn (scs, sheap, ssto, pc)
     else
-    MFail ((scs, sheap, ssto, pc), "Illegal Print ")
+    MFail ((scs, sheap, ssto, pc), "Illegal Print")
   
+  | AssignInObjCheckLab (x, f, o, e_f, e_o) ->
+    let lvl_pc= check_pc pc in
+    let ef_lvl= expr_lvl ssto e_f in
+    let eo_lvl= expr_lvl ssto e_o in
+    let ctx_lvl = SL.lubn ([lvl_pc ; ef_lvl ; eo_lvl]) in
+    let x_lvl = SecStore.get_safe ssto x in 
+    let struct_lvl = SecHeap.get_struct_lvl sheap o in
+    (match SecHeap.get_field sheap o f, x_lvl, struct_lvl with
+      | Some (lvl, _ ), Some x_lvl, _ ->
+          if (SL.leq ctx_lvl x_lvl) then (
+            SecStore.set ssto x (SL.lub lvl ctx_lvl);
+            MReturn (scs, sheap, ssto, pc))
+          else MFail((scs,sheap,ssto,pc), "Illegal Assignment")
+      | Some (lvl, _ ), None, _ ->  
+          SecStore.set ssto x (SL.lub lvl ctx_lvl);
+          MReturn (scs, sheap, ssto, pc)
+      | None, Some x_lvl, Some struct_lvl -> 
+          if (SL.leq ctx_lvl x_lvl) then (
+            SecStore.set ssto x (SL.lub ctx_lvl struct_lvl);
+            MReturn (scs, sheap, ssto, pc))
+          else MFail((scs,sheap,ssto,pc), "Illegal Assignment")
+      | None, None, Some struct_lvl ->
+          SecStore.set ssto x (SL.lub ctx_lvl struct_lvl);
+          MReturn (scs, sheap, ssto, pc)
+      | _ -> raise (Except "Internal Error"))
+
+
+
   | BranchLab (exp,st) ->
     let lev= expr_lvl ssto exp in
     let pc_lvl = check_pc pc in
@@ -174,7 +203,7 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
        if SL.leq lev_ctx prop_exists_lvl then (
          SecHeap.upg_prop_exists_lvl sheap loc field (SL.lub lvl lev_ctx);
          MReturn (scs, sheap, ssto, pc))
-       else MFail((scs,sheap,ssto,pc), "Illegal P_Existis Upgrade")
+       else MFail((scs,sheap,ssto,pc), "Illegal P_Exists Upgrade")
      |None -> raise (Except "Internal Error"))
 
   | FieldLookupLab (x,loc,field, e_o, e_f) ->
@@ -209,9 +238,6 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
     let lev_o = expr_lvl ssto e_o in
     let lev_f = expr_lvl ssto e_f in
     let lev_ctx = SL.lubn [lev_o; lev_f; (check_pc pc)] in
-    print_string (SL.str lev_o ^ "\n");
-    print_string (SL.str lev_f ^ "\n");
-    print_string (SL.str lev_ctx ^ "\n");
     let lev_exp = expr_lvl ssto exp in
     (match SecHeap.get_field sheap loc field with
      | Some (prop_exists_lvl,prop_val_lvl) ->
@@ -224,7 +250,6 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
        let lev_struct = SecHeap.get_struct_lvl sheap loc in
        (match lev_struct with
         | Some lev_struct ->
-        print_string (SL.str lev_struct);
           if (SL.leq lev_ctx lev_struct) then (
             if SecHeap.new_sec_prop sheap loc field lev_ctx (SL.lub lev_exp lev_ctx) then
               MReturn (scs, sheap, ssto, pc)
