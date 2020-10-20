@@ -7,7 +7,7 @@ class PrintLab{
 	interpret(sec_conf){
 		console.log(">PRINTLAB");
 		var expr_lvl=sec_conf.ssto.getExprLvl(this.expr);
-		let pc_lvl = sec_conf.pc[0];
+		var pc_lvl = sec_conf.pc[0];
 		if(!Lattice.leq(pc_lvl, expr_lvl)){
 			sec_conf.error = "Illegal Print";
 		}

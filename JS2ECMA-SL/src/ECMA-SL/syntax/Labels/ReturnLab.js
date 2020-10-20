@@ -1,4 +1,5 @@
 const UpgVarLab = require("./UpgVarLab");
+const Lattice = require("../Lattice");
 class ReturnLab{
 	constructor(expr){
 		this.expr=expr;
@@ -9,7 +10,7 @@ class ReturnLab{
   		sec_conf.ssto = frame.ssto;
   		sec_conf.pc = frame.pc;
   		//nsu
-  		var lab = new UpgVarLab(frame.stringvar, return_lvl);
+  		var lab = new UpgVarLab(frame.stringvar, Lattice.lub(return_lvl, sec_conf.pc[0]));
 		return lab.interpret(sec_conf);
 	}
 }
