@@ -44,6 +44,7 @@ type uopt = Neg
           | ObjFields
           | ToInt32
           | ToUint32
+          | Floor
           | ToUint16
 
 
@@ -244,6 +245,9 @@ let to_uint16 (v : Val.t) : Val.t = match v with
   | _     -> Null
 
 
+let to_floor (v : Val.t) : Val.t = match v with
+  | Flt n -> Flt (floor n)
+
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
   | Not           -> "!"
@@ -264,6 +268,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | ObjFields     -> "obj_fields"
   | ToInt32       -> "to_int32"
   | ToUint32      -> "to_uint32"
+  | Floor         -> "floor"
   | ToUint16      -> "to_uint16"
 
 
@@ -341,24 +346,25 @@ let nopt_to_json (op : nopt) : string =
 let uopt_to_json (op : uopt) : string =
   Printf.sprintf "{ \"type\" : \"unopt\", \"value\" : \"%s"
     (match op with
-     | Neg      -> Printf.sprintf "Neg\" }"
-     | Not      -> Printf.sprintf "Not\" }"
-     | BitwiseNot -> Printf.sprintf "BitwiseNot\" }"
-     | Typeof   -> Printf.sprintf "Typeof\" }"
-     | ListLen  -> Printf.sprintf "ListLen\" }"
-     | TupleLen -> Printf.sprintf "TypleLen\" }"
-     | Head     -> Printf.sprintf "Head\" }"
-     | Tail     -> Printf.sprintf "Tail\" }"
-     | First    -> Printf.sprintf "First\" }"
-     | Second   -> Printf.sprintf "Second\" }"
-     | IntToFloat -> Printf.sprintf "IntToFloat\" }"
-     | IntToString -> Printf.sprintf "IntToString\" }"
-     | IntOfString -> Printf.sprintf "IntOfString\" }"
+     | Neg           -> Printf.sprintf "Neg\" }"
+     | Not           -> Printf.sprintf "Not\" }"
+     | BitwiseNot     -> Printf.sprintf "BitwiseNot\" }"
+     | Typeof        -> Printf.sprintf "Typeof\" }"
+     | ListLen       -> Printf.sprintf "ListLen\" }"
+     | TupleLen      -> Printf.sprintf "TypleLen\" }"
+     | Head          -> Printf.sprintf "Head\" }"
+     | Tail          -> Printf.sprintf "Tail\" }"
+     | First         -> Printf.sprintf "First\" }"
+     | Second        -> Printf.sprintf "Second\" }"
+     | IntToFloat    -> Printf.sprintf "IntToFloat\" }"
+     | IntToString   -> Printf.sprintf "IntToString\" }"
+     | IntOfString   -> Printf.sprintf "IntOfString\" }"
      | FloatToString -> Printf.sprintf "FloatToString\" }"
-     | ObjToList -> Printf.sprintf "ObjToList\" }"
-     | Sconcat  -> Printf.sprintf "Sconcat\" }"
-     | ObjFields -> Printf.sprintf "ObjFields\" }"
-     | ToInt32  -> Printf.sprintf "ToInt32\" }"
-     | ToUint32 -> Printf.sprintf "ToUint32\" }"
-     | ToUint16 -> Printf.sprintf "ToUint16\" }")
+     | ObjToList     -> Printf.sprintf "ObjToList\" }"
+     | Sconcat       -> Printf.sprintf "Sconcat\" }"
+     | ObjFields     -> Printf.sprintf "ObjFields\" }"
+     | ToInt32       -> Printf.sprintf "ToInt32\" }"
+     | ToUint32      -> Printf.sprintf "ToUint32\" }"
+     | ToUint16      -> Printf.sprintf "ToUint16\" }"
+     | Floor         -> Printf.sprintf "Floor\" }")
 
