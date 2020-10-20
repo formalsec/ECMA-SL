@@ -31,7 +31,7 @@ function Type(V) {
 };
 
 
-/* Placeholder for ToNumber, ToInteger, min and max that will be
+/* Placeholder for ToNumber, ToInteger, min, max and abs that will be
   implemented in another section TODO */
 function ToNumber(V) {
   return V
@@ -52,6 +52,13 @@ function min(a, b) {
     return a
   } else {
     return b
+  }
+};
+function abs(a) {
+  if (a < 0) {
+    return a*-1
+  } else {
+    return a
   }
 };
 
@@ -611,7 +618,7 @@ function push(this, items) {
   return n
 };
 /**
- * The length property of the push method is 1.
+ * The length property of the push method is 1. TODO
  *
  * NOTE The push function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -855,7 +862,7 @@ function slice(this, start, end) {
   return A
 };
 /**
- * The length property of the slice method is 2.
+ * The length property of the slice method is 2. TODO
  *
  * NOTE The slice function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -1071,7 +1078,7 @@ function splice (this, start, deleteCount, items) {
   return A
 };
 /**
- * The length property of the splice method is 2.
+ * The length property of the splice method is 2. TODO
  *
  * NOTE The splice function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -1092,15 +1099,298 @@ function splice (this, start, deleteCount, items) {
  * When the unshift method is called with zero or more arguments item1,
  * item2, etc., the following steps are taken:
  */
-function unshift(items) {
-
+function unshift(this, items) {
+  /* 1. Let O be the result of calling ToObject passing the this
+        value as the argument. */
+  O := ToObject(this);
+  /* 2. Let lenVal be the result of calling the [[Get]] internal
+        method of O with argument "length". */
+  lenVal := {O.Get}(O, "length");
+  /* 3. Let len be ToUint32(lenVal). */
+  len := to_uint32 lenVal;
+  /* 4. Let argCount be the number of actual arguments. */
+  argCount := l_len items;
+  /* 5. Let k be len. */
+  k := len;
+  /* 6. Repeat, while k > 0, */
+  while (k > 0.) {
+    /* a. Let from be ToString(k-1). */
+    from := ToString(k - 1.);
+    /* b. Let to be ToString(k+argCount -1). */
+    to := ToString(k + argCount - 1.);
+    /* c. Let fromPresent be the result of calling the [[HasProperty]]
+          internal method of O with argument from. */
+    fromPresent := {O.HasProperty}(O, from);
+    /* d. If fromPresent is true, then */
+    if (fromPresent = true) {
+      /* i. Let fromValue be the result of calling the [[Get]]
+            internal method of O with argument from. */
+      fromValue := {O.Get}(O, from);
+      /* ii. Call the [[Put]] internal method of O with arguments
+             to, fromValue, and true. */
+      {O.Put}(O, to, fromValue, true)
+    }
+    /* e. Else, fromPresent is false */
+    else {
+      /* i. Call the [[Delete]] internal method of O with arguments
+            to, and true. */
+      {O.Delete}(O, to, true)
+    };
+    /* f. Decrease k by 1. */
+    k := k - 1.
+  };
+  /* 7. Let j be 0. */
+  j := 0.;
+  /* 8. Let items be an internal List whose elements are, in left
+        to right order, the arguments that were passed to this function
+        invocation. */
+  items := items;
+  /* 9. Repeat, while items is not empty */
+  while (!(items = [])) {
+    /* a. Remove the first element from items and let E be the value
+          of that element. */
+    E := hd items;
+    items := tl items;
+    /* b. Call the [[Put]] internal method of O with arguments
+          ToString(j), E, and true. */
+    {O.Put}(O, ToString(j), E, true);
+    /* c. Increase j by 1. */
+    j := j + 1.
+  };
+  /* 10. Call the [[Put]] internal method of O with arguments "length",
+         len+argCount, and true. */
+  {O.Put}(O, "length", len + argCount, true);
+  /* 11. Return len+argCount. */
+  return len + argCount
 };
 /**
- * The length property of the unshift method is 1.
+ * The length property of the unshift method is 1. TODO
  *
  * NOTE The unshift function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore it can be transferred
  * to other kinds of objects for use as a method. Whether the unshift function
+ * can be applied successfully to a host object is implementation-dependent.
+ */
+
+
+
+
+/**
+ * 15.4.4.14 Array.prototype.indexOf ( searchElement [ , fromIndex ] )
+ *
+ * indexOf compares searchElement to the elements of the array, in ascending
+ * order, using the internal Strict Equality Comparison Algorithm (11.9.6),
+ * and if found at one or more positions, returns the index of the first such
+ * position; otherwise, -1 is returned.
+ *
+ * The optional second argument fromIndex defaults to 0 (i.e. the whole array
+ * is searched). If it is greater than or equal to the length of the array, -1
+ * is returned, i.e. the array will not be searched. If it is negative, it is
+ * used as the offset from the end of the array to compute fromIndex. If the
+ * computed index is less than 0, the whole array will be searched.
+ *
+ * When the indexOf method is called with one or two arguments, the following
+ * steps are taken:
+ */
+function indexOf(this, searchElement, fromIndex) {
+  /* 1. Let O be the result of calling ToObject passing the this value
+        as the argument. */
+  O := ToObject(this);
+  /* 2. Let lenValue be the result of calling the [[Get]] internal method
+        of O with the argument "length". */
+  lenVal := {O.Get}(O, "length");
+  /* 3. Let len be ToUint32(lenValue). */
+  len := to_uint32 lenVal;
+  /* 4. If len is 0, return -1. */
+  if (len = 0.) {
+    return -1.
+  };
+  /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex);
+        else let n be 0. */
+  if (!(fromIndex = 'undefined)) {
+    n := ToInteger(fromIndex)
+  } else {
+    n := 0.
+  };
+  /* 6. If n ≥ len, return -1. */
+  if (n >= len) {
+    return -1.
+  };
+  /* 7. If n ≥ 0, then */
+  if (n >= 0.) {
+    /* a. Let k be n. */
+    k := n
+  } else {
+  /* 8. Else, n<0 */
+    /* a. Let k be len - abs(n). */
+    k := len - abs(n);
+    /* b. If k is less than 0, then let k be 0. */
+    if (k < 0.) {
+      k := 0.
+    }
+  };
+  /* 9. Repeat, while k<len */
+  while (k < len) {
+    /* a. Let kPresent be the result of calling the [[HasProperty]] internal
+          method of O with argument ToString(k). */
+    kPresent := {O.HasProperty}(O, ToString(k));
+    /* b. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let elementK be the result of calling the [[Get]] internal method
+            of O with the argument ToString(k). */
+      elementK := {O.Get}(O, ToString(k));
+      /* ii. Let same be the result of applying the Strict Equality Comparison
+            Algorithm to searchElement and elementK. */
+      same := (searchElement = elementK);
+      /* iii. If same is true, return k. */
+      if (same = true) {
+        return k
+      }
+    };
+    /* c. Increase k by 1. */
+    k := k + 1.
+  };
+  /* 10. Return -1. */
+  return -1.
+};
+/**
+ * The length property of the indexOf method is 1. TODO
+ *
+ * NOTE The indexOf function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore it can be transferred
+ * to other kinds of objects for use as a method. Whether the indexOf function
+ * can be applied successfully to a host object is implementation-dependent.
+ */
+
+
+
+
+/**
+ * 15.4.4.15 Array.prototype.lastIndexOf ( searchElement [ , fromIndex ] )
+ *
+ * lastIndexOf compares searchElement to the elements of the array in
+ * descending order using the internal Strict Equality Comparison Algorithm
+ * (11.9.6), and if found at one or more positions, returns the index of the
+ * last such position; otherwise, -1 is returned.
+ *
+ * The optional second argument fromIndex defaults to the array's length minus
+ * one (i.e. the whole array is searched). If it is greater than or equal to
+ * the length of the array, the whole array will be searched. If it is
+ * negative, it is used as the offset from the end of the array to compute
+ * fromIndex. If the computed index is less than 0, -1 is returned.
+ *
+ * When the lastIndexOf method is called with one or two arguments, the
+ * following steps are taken:
+ */
+function lastIndexOf(this, searchElement, fromIndex) {
+  /* 1. Let O be the result of calling ToObject passing the this
+        value as the argument. */
+  O := ToObject(this);
+  /* 2. Let lenValue be the result of calling the [[Get]] internal
+        method of O with the argument "length". */
+  lenVal := {O.Get}(O, "length");
+  /* 3. Let len be ToUint32(lenValue). */
+  len := to_uint32 lenVal;
+  /* 4. If len is 0, return -1. */
+  if (len = 0.) {
+    return -1.
+  };
+  /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex);
+        else let n be len. */
+  if (!(fromIndex = 'undefined)) {
+    n := ToInteger(fromIndex)
+  } else {
+    n := len
+  };
+  /* 6. If n ≥ 0, then let k be min(n, len - 1). */
+  if (n >= 0.) {
+    k := min(n, len - 1.)
+  }
+  /* 7. Else, n < 0 */
+  else {
+    /* a. Let k be len - abs(n). */
+    k := len - abs(n)
+  };
+  /* 8. Repeat, while k≥ 0 */
+  while (k >= 0.) {
+    /* a. Let kPresent be the result of calling the [[HasProperty]]
+          internal method of O with argument ToString(k). */
+    kPresent := {O.HasProperty}(O, ToString(k));
+    /* b. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let elementK be the result of calling the [[Get]] internal
+            method of O with the argument ToString(k). */
+      elementK := {O.Get}(O, ToString(k));
+      /* ii. Let same be the result of applying the Strict Equality
+             Comparision Algorithm to searchElement and elementK. */
+      same := (searchElement = elementK);
+      /* iii. If same is true, return k. */
+      if (same = true) {
+        return k
+      }
+    };
+    /* c. Decrease k by 1. */
+    k := k - 1.
+  };
+  /* 9. Return -1. */
+  return -1.
+};
+/**
+ * The length property of the lastIndexOf method is 1. TODO
+ *
+ * NOTE The lastIndexOf function is intentionally generic; it does not
+ * require that its this value be an Array object. Therefore it can be
+ * transferred to other kinds of objects for use as a method. Whether the
+ * lastIndexOf function can be applied successfully to a host object is
+ * implementation-dependent.
+ */
+
+
+
+
+/**
+ * 15.4.4.16 Array.prototype.every ( callbackfn [ , thisArg ] )
+ *
+ * callbackfn should be a function that accepts three arguments and returns
+ * a value that is coercible to the Boolean value true or false. every calls
+ * callbackfn once for each element present in the array, in ascending order,
+ * until it finds one where callbackfn returns false. If such an element is
+ * found, every immediately returns false. Otherwise, if callbackfn returned
+ * true for all elements, every will return true. callbackfn is called only
+ * for elements of the array which actually exist; it is not called for
+ * missing elements of the array.
+ *
+ * If a thisArg parameter is provided, it will be used as the this value
+ * for each invocation of callbackfn. If it is not provided, undefined is
+ * used instead.
+ *
+ * callbackfn is called with three arguments: the value of the element,
+ * the index of the element, and the object being traversed.
+ *
+ * every does not directly mutate the object on which it is called but the
+ * object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by every is set before the first call
+ * to callbackfn. Elements which are appended to the array after the call
+ * to every begins will not be visited by callbackfn. If existing elements
+ * of the array are changed, their value as passed to callbackfn will be the
+ * value at the time every visits them; elements that are deleted after the
+ * call to every begins and before being visited are not visited. every acts
+ * like the "for all" quantifier in mathematics. In particular, for an empty
+ * array, it returns true.
+ *
+ * When the every method is called with one or two arguments, the following
+ * steps are taken:
+ */
+function every(this, callbackfn, thisArg) {
+
+};
+/**
+ * The length property of the every method is 1. TODO
+ *
+ * NOTE The every function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore it can be transferred
+ * to other kinds of objects for use as a method. Whether the every function
  * can be applied successfully to a host object is implementation-dependent.
  */
 
@@ -1353,7 +1643,7 @@ function main() {
   return slice(arr, 2., 4.)
 }*/
 
-/* main splice */
+/* main splice TODO 
 function main() {
   arr := newArray(["Banana", "Orange", "Apple", "Mango"]);
   items := ["Lemon", "Kiwi"];
@@ -1365,4 +1655,29 @@ function main() {
   };
   
   return obj
+}*/
+
+/* main unshift 
+function main() {
+  arr := newArray([2., 3., 4., 5., 6., 7.]);
+  newLen := unshift(arr, [22., 44.]);
+
+  obj := {
+    arr: arr,
+    newLen: newLen
+  };
+
+  return obj
+}*/
+
+/* main indexOf 
+function main() {
+  arr := newArray([2., 3., 4., 5., 6., 7.]);
+  return indexOf(arr, 5., 0.)
+}*/
+
+/* main lastIndexOf */
+function main() {
+  arr := newArray([2., 3., 4., 5., 2., 7.]);
+  return lastIndexOf(arr, 2., 5.)
 }
