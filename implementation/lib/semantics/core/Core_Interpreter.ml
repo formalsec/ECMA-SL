@@ -335,7 +335,7 @@ let initial_state () : state_t =
 
 
 (*Worker class of the Interpreter*)
-let eval_prog (prog : Prog.t) (out:string) (verbose:bool) (main:string) : (Val.t option * Heap.t) =
+let eval_prog (prog : Prog.t) (out:string) (verbose:bool) (main:string) : (return * Heap.t) =
   let func = (Prog.get_func prog main(*passar como argumento valores e nome*)) in
   let state_0 = initial_state () in
   let mon_state_0 = Mon.initial_monitor_state () in
@@ -344,8 +344,8 @@ let eval_prog (prog : Prog.t) (out:string) (verbose:bool) (main:string) : (Val.t
   (*let v=  small_step_iter prog cs heap sto func.body verbose in*)
   let _, heap, _ = state_0 in
   match v with
-  | Finalv v -> v, heap
-  | Errorv v -> v, heap
+  | Finalv _
+  | Errorv _ -> v, heap
   | _ -> raise(Except "No return value")(*ERROR*)
 
 end
