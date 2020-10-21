@@ -22,14 +22,6 @@ import "ES5_interpreter/section 15/section_15.5.esl";
 import "ES5_interpreter/section 15/section_15.6.esl";
 import "ES5_interpreter/section 15/section_15.7.esl";
 
-function ToPrimitive(input, PreferredType) {
-  if (Type(input) = "Object") {
-    return DefaultValue(input, PreferredType)
-  };
-
-  return input
-};
-
 function Type(V) {
   v_type := typeof V;
   if (v_type = __$Int) { return "Number" };
