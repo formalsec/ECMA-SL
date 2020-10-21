@@ -36,7 +36,11 @@ function Type(V) {
   if (v_type = __$Flt) { return "Number" };
   if (v_type = __$Bool) { return "Boolean" };
   if (v_type = __$Str) { return "String" };
-  if (v_type = __$Obj) { return "Object" };
+  if (v_type = __$Obj) {
+    if (isJavaScriptObject(V)) { return "Object" };
+    if (isPropertyDescriptor(V)) { return "PropertyDescriptor" };
+    return "EnvironmentRecord"
+  };
   if (v_type = __$List) { return "List" };
   if (v_type = __$Symbol) {
     if (V = 'null) { return "Null" };
@@ -45,8 +49,18 @@ function Type(V) {
   if (v_type = __$Tuple) {
     ft := fst V;
     if (ft = "R") { return "Reference" };
-    if (ft = "C") { return "Completion" }
+    if (ft = "C") { return "Completion" };
+    if (ft = "P") { return "PropertyIdentifier" }
   };
 
   throw SyntaxErrorException()
+};
+
+/* Auxiliary functions */
+function isJavaScriptObject(obj) {
+  return "Prototype" in_obj obj
+};
+
+function isPropertyDescriptor(obj) {
+  return ("Enumerable" in_obj obj) || ("Configurable" in_obj obj)
 }
