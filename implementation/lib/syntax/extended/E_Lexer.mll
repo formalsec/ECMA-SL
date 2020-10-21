@@ -73,6 +73,7 @@ rule read =
   | ">>"           { SHIFT_RIGHT }
   | ">>>"          { SHIFT_RIGHT_LOGICAL }
   | "&&&"          { SCLAND }
+  | "|||"          { SCLOR }
   | "&&"           { LAND }
   | "||"           { LOR }
   | "l_len"        { LLEN }

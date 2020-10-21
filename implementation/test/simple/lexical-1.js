@@ -14,4 +14,4 @@ function top(x) {
 
 var ret1 = top(3);
 
-Assert(ret1 = "ababab")
+AssertEquals(ret1, "ababab")

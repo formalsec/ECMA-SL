@@ -12,4 +12,4 @@ function top(x) {
 
 var ret1 = top(6);
 
-Assert(ret1 = 8)
+AssertEquals(ret1, 8)

@@ -12,4 +12,4 @@ function top(n) {
 
 var ret1 = top(6);
 
-Assert(ret1 = 15)
+AssertEquals(ret1, 15)
