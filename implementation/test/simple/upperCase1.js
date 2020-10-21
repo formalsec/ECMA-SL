@@ -5,4 +5,4 @@
 var x = "xpto";
 var ret1 = x.toUpperCase()
 
-Assert (ret1 = "XPTO")
+AssertEquals(ret1, "XPTO")

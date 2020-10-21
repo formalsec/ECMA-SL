@@ -21,4 +21,4 @@ top("one", 0);
 top("two", 1);
 var ret1 = top("three", 10);
 
-Assert (ret1 = 1)
+AssertEquals(ret1, 1)
