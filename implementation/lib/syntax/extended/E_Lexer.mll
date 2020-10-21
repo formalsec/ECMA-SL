@@ -91,6 +91,7 @@ rule read =
   | "int_to_float"    { INT_TO_FLOAT }
   | "int_to_string"   { INT_TO_STRING }
   | "int_of_string"   { INT_OF_STRING }
+  | "float_of_string" { FLOAT_OF_STRING }
   | "float_to_string" { FLOAT_TO_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }
   | "obj_fields"      { OBJ_FIELDS }

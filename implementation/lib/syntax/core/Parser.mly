@@ -25,7 +25,7 @@
 %token <string> SYMBOL
 %token <string> LOC
 %token LAND LOR
-%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS
+%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS
 %token BITWISE_NOT BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %token TO_INT32 TO_UINT32 TO_UINT16 FLOOR
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
@@ -172,6 +172,8 @@ expr_target:
     { Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
   | TO_UINT16; e = expr_target;
     { Expr.UnOpt (Oper.ToUint16, e) } %prec unopt_prec
+  | FLOAT_OF_STRING; e = expr_target;
+    { Expr.UnOpt (Oper.FloatOfString, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
