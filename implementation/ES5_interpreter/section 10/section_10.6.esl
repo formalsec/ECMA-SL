@@ -39,7 +39,7 @@ function CreateArgumentsObject(func, names, args, env, strict) {
   /* 10. Let indx = len - 1. */
   indx := len - 1;
   /* 11. Repeat while indx >= 0, */
-  repeat {
+  while (indx >= 0) {
     /* a. Let val be the element of args at 0-origined list position indx. */
     val := l_nth(args, indx);
     /* b. Call the [[DefineOwnProperty]] internal method on obj passing ToString(indx), the property
@@ -77,7 +77,7 @@ function CreateArgumentsObject(func, names, args, env, strict) {
     };
     /* d. Let indx = indx - 1 */
     indx := indx - 1
-  } until indx < 0;
+  };
   /* 12. If mappedNames is not empty, then */
   if (l_len mappedNames > 0) {
     /* a. Set the [[ParameterMap]] internal property of obj to map. */
