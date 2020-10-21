@@ -1119,10 +1119,10 @@ function JS_Interpreter_Stmt(s, scope) {
     /* The production DebuggerStatement : debugger ; is evaluated as follows: */
 
     /* 1. If an implementation defined debugging facility is available and enabled, then */
-    if(existsDebuggerImplementation()) { /* TODO */
+    if(existsDebuggerImplementation()) {
       /* a. Perform an implementation defined debugging action. */
       /* b. Let result be an implementation defined Completion value. */
-      result := debuggerAction() /* TODO */
+      result := debuggerAction()
     }
     /* 2. Else */
     else {
