@@ -508,22 +508,22 @@ function DefineOwnProperty(O, P, Desc, Throw) {
     return true
   };
   */
-  if ((!("Value" in_obj Desc) || (("Value" in_obj current) &&& SameValue(Desc.Value, current.Value))) &&&
-      (!("Writable" in_obj Desc) || (("Writable" in_obj current) &&& SameValue(Desc.Writable, current.Writable))) &&&
-      (!("Set" in_obj Desc) || (("Set" in_obj current) &&& SameValue(Desc.Set, current.Set))) &&&
-      (!("Get" in_obj Desc) || (("Get" in_obj current) &&& SameValue(Desc.Get, current.Get))) &&&
-      (!("Enumerable" in_obj Desc) || (("Enumerable" in_obj current) &&& SameValue(Desc.Enumerable, current.Enumerable))) &&&
-      (!("Configurable" in_obj Desc) || (("Configurable" in_obj current) &&& SameValue(Desc.Configurable, current.Configurable)))) {
+  if ((!("Value" in_obj Desc) ||| (("Value" in_obj current) &&& SameValue(Desc.Value, current.Value))) &&&
+      (!("Writable" in_obj Desc) ||| (("Writable" in_obj current) &&& SameValue(Desc.Writable, current.Writable))) &&&
+      (!("Set" in_obj Desc) ||| (("Set" in_obj current) &&& SameValue(Desc.Set, current.Set))) &&&
+      (!("Get" in_obj Desc) ||| (("Get" in_obj current) &&& SameValue(Desc.Get, current.Get))) &&&
+      (!("Enumerable" in_obj Desc) ||| (("Enumerable" in_obj current) &&& SameValue(Desc.Enumerable, current.Enumerable))) &&&
+      (!("Configurable" in_obj Desc) ||| (("Configurable" in_obj current) &&& SameValue(Desc.Configurable, current.Configurable)))) {
     return true
   };
 
   /** 7. If the [[Configurable]] field of current is false then: */
   if (current.Configurable = false) {
-    /** a. Reject, if the[[Configurable]] field of Desc is true. */
+    /** a. Reject, if the [[Configurable]] field of Desc is true. */
     if (Desc.Configurable = true) {
       return Reject(Throw)
     };
-    /** b. Reject, if the[[Enumerable]] field of Desc is present and the [[Enumerable]] fields of current and Desc are the Boolean negation of each other. */
+    /** b. Reject, if the [[Enumerable]] field of Desc is present and the [[Enumerable]] fields of current and Desc are the Boolean negation of each other. */
     if ("Enumerable" in_obj Desc) {
       if (!Desc.Enumerable = current.Enumerable) {
         return Reject(Throw)
