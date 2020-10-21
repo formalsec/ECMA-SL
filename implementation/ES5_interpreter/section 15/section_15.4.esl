@@ -1,4 +1,5 @@
 import "ES5_interpreter/section 9/section_9.esl";
+import "ES5_interpreter/section 9/section_9.12.esl";
 import "ES5_interpreter/section 8/section_8.10.esl";
 import "ES5_interpreter/section 8/section_8.12.esl";
 import "ES5_interpreter/section 15/section_15.11.esl";
@@ -172,13 +173,13 @@ function newArrayLen(len) {
 
   /* If the argument len is a Number and ToUint32(len) is equal to len, then
      the length property of the newly constructed object is set to ToUint32(len). */
-  if (lenIsNumber && ((to_uint32 len) = len)) {
-    arr.length := newDataPropertyDescriptor(to_uint32 len)
+  if (lenIsNumber && ((ToUint32(len) = len))) {
+    arr.length := newDataPropertyDescriptor(ToUint32(len))
   };
 
   /* If the argument len is a Number and ToUint32(len) is not equal to
      len, a RangeError exception is thrown. */
-  if (lenIsNumber && !((to_uint32 len) = len)) {
+  if (lenIsNumber && !((ToUint32(len) = len))) {
     throw RangeErrorException()
   };
 
@@ -187,7 +188,7 @@ function newArrayLen(len) {
      constructed object is set to len with attributes {[[Writable]]: true,
      [[Enumerable]]: true, [[Configurable]]: true}.. */
   if (!lenIsNumber) {
-    arr.length := newDataPropertyDescriptor(to_uint32 1.);
+    arr.length := newDataPropertyDescriptor(ToUint32(1.));
     arr["0"] := newDataPropertyDescriptorFull(len, true, true, true)
   };
 
@@ -271,7 +272,7 @@ function toLocaleString(this) {
         of array with argument "length". */
   arrayLen := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(arrayLen). */
-  len := to_uint32 arrayLen;
+  len := ToUint32(arrayLen);
   /* 4. Let separator be the String value for the list-separator String
         appropriate for the host environment’s current locale (this is
         derived in an implementation-defined way). */
@@ -468,7 +469,7 @@ function join(this, separator) {
         of O with argument "length". */
   lenVal := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(lenVal). */
-  len := to_uint32 lenVal;
+  len := ToUint32(lenVal);
   /* 4. If separator is undefined, let separator be the single-character
         String ",". */
   if (separator = 'undefined) {
@@ -539,7 +540,7 @@ function pop(this) {
         O with argument "length". */
   lenVal := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(lenVal). */
-  len := to_uint32 lenVal;
+  len := ToUint32(lenVal);
 
   /* 4. If len is zero, */
   if (len = 0.) {
@@ -595,7 +596,7 @@ function push(this, items) {
         with argument "length". */
   lenVal := {O.Get}(O, "length");
   /* 3. Let n be ToUint32(lenVal). */
-  n := to_uint32 lenVal;
+  n := ToUint32(lenVal);
   /* 4. Let items be an internal List whose elements are, in left to right
         order, the arguments that were passed to this function invocation. */
   items := items;
@@ -643,7 +644,7 @@ function reverse(this) {
         with argument "length". */
   lenVal := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(lenVal). */
-  len := to_uint32 lenVal;
+  len := ToUint32(lenVal);
   /* 4. Let middle be floor(len/2). */
   middle := floor(len / 2.);
   /* 5. Let lower be 0. */
@@ -728,7 +729,7 @@ function shift(this) {
         of O with argument "length". */
   lenVal := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(lenVal). */
-  len := to_uint32 lenVal;
+  len := ToUint32(lenVal);
   /* 4. If len is zero, then */
   if (len = 0.) {
     /* a. Call the [[Put]] internal method of O with arguments "length",
@@ -809,7 +810,7 @@ function slice(this, start, end) {
         with argument "length". */
   lenVal := {O.Get}(O, "length");
   /* 4. Let len be ToUint32(lenVal). */
-  len := to_uint32 lenVal;
+  len := ToUint32(lenVal);
   /* 5. Let relativeStart be ToInteger(start). */
   relativeStart := ToInteger(start);
   /* 6. If relativeStart is negative, let k be max((len +relativeStart),0); else
@@ -888,7 +889,7 @@ function sort (this, comparefn) {
   obj := ToObject(this);
   /* Let len be the result of applying Uint32 to the result of calling
      the [[Get]] internal method of obj with argument "length". */
-  len := to_uint32 {obj.Get}(obj, "length")
+  len := ToUint32({obj.Get}(obj, "length"))
   /* If comparefn is not undefined and is not a consistent comparison
      function for the elements of this array (see below), the behaviour
      of sort is implementation-defined. */
@@ -929,7 +930,7 @@ function splice (this, start, deleteCount, items) {
         of O with argument "length". */
   lenVal := {O.Get}(O, "length");
   /* 4. Let len be ToUint32(lenVal). */
-  len := to_uint32 lenVal;
+  len := ToUint32(lenVal);
   /* 5. Let relativeStart be ToInteger(start). */
   relativeStart := ToInteger(start);
   /* 6. If relativeStart is negative, let actualStart be max((len + relativeStart),0);
@@ -1063,17 +1064,11 @@ function splice (this, start, deleteCount, items) {
     /* c. Increase k by 1. */
     k := k + 1.
   };
-  print s_concat(["len: ", len]);
-  print s_concat(["lenVal: ", lenVal]);
-  print s_concat(["actualDeleteCount: ", actualDeleteCount]);
-  print s_concat(["itemCount: ", itemCount]);
   newLen := len - actualDeleteCount;
   newLen := newLen + itemCount;
-  print s_concat(["newLen: ", newLen]);
   /* 16. Call the [[Put]] internal method of O with arguments "length",
          (len - actualDeleteCount + itemCount), and true. */
-  {O.Put}(O, "length", (len - actualDeleteCount + itemCount), true);
-  print "success!";
+  {O.Put}(O, "length", (len - (actualDeleteCount + itemCount)), true);
   /* 17. Return A. */
   return A
 };
@@ -1107,7 +1102,7 @@ function unshift(this, items) {
         method of O with argument "length". */
   lenVal := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(lenVal). */
-  len := to_uint32 lenVal;
+  len := ToUint32(lenVal);
   /* 4. Let argCount be the number of actual arguments. */
   argCount := l_len items;
   /* 5. Let k be len. */
@@ -1200,7 +1195,7 @@ function indexOf(this, searchElement, fromIndex) {
         of O with the argument "length". */
   lenVal := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(lenValue). */
-  len := to_uint32 lenVal;
+  len := ToUint32(lenVal);
   /* 4. If len is 0, return -1. */
   if (len = 0.) {
     return -1.
@@ -1290,7 +1285,7 @@ function lastIndexOf(this, searchElement, fromIndex) {
         method of O with the argument "length". */
   lenVal := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(lenValue). */
-  len := to_uint32 lenVal;
+  len := ToUint32(lenVal);
   /* 4. If len is 0, return -1. */
   if (len = 0.) {
     return -1.
@@ -1414,7 +1409,6 @@ function every(this, callbackfn, thisArg) {
  * taken:
  */
 function DefineOwnPropertyArray(A, P, Desc, Throw) {
-  
   /* 1. Let oldLenDesc be the result of calling the [[GetOwnProperty]] internal
       method of A passing "length" as the argument. The result will never be
       undefined or an accessor descriptor because Array objects are created
@@ -1422,7 +1416,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
   oldLenDesc := {A.GetOwnProperty}(A, "length");
 
   /* 2. Let oldLen be oldLenDesc.[[Value]]. */
-  oldLen := oldLenDesc;
+  oldLen := oldLenDesc.Value;
 
   /* 3. If P is "length", then */
   if (P = "length") {
@@ -1435,7 +1429,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     /* b. Let newLenDesc be a copy of Desc. */
     newLenDesc := CopyDescriptor(Desc);
     /* c. Let newLen be ToUint32(Desc.[[Value]]). */
-    newLen := to_uint32 Desc.Value;
+    newLen := ToUint32(Desc.Value);
     /* d. If newLen is not equal to ToNumber( Desc.[[Value]]), throw a RangeError
           exception.*/
     if (!(newLen = ToNumber(Desc.Value))) {
@@ -1517,7 +1511,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
   else {
     if (IsArrayIndex(P)) {
       /* a. Let index be ToUint32(P). */
-      index := to_uint32 P;
+      index := ToUint32(P);
       /* b. Reject if index ≥ oldLen and oldLenDesc.[[Writable]] is false. */
       if (index >= oldLen && oldLenDesc.Writable = false) {
         Reject(Throw)
@@ -1532,7 +1526,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       /* e. If index ≥ oldLen */
       if (index >= oldLen) {
         /* i. Set oldLenDesc.[[Value]] to index + 1. */
-        oldLenDesc.Value := (int_to_float index) + 1.;
+        oldLenDesc.Value := index + 1.;
         /* ii. Call the default [[DefineOwnProperty]] internal method (8.12.9)
               on A passing "length", oldLenDesc, and false as arguments. This
               call will always return true. */
@@ -1551,7 +1545,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
 
 
 function IsArrayIndex(P) {
-  i := to_uint32 P;
+  i := ToUint32(P);
   return !(i = null)
 };
 
@@ -1619,7 +1613,7 @@ function main() {
   return obj
 }*/
 
-/* main reverse
+/* main reverse 
 function main() {
   return reverse(newArray([2., 3., 6., 9.]))
 }*/
@@ -1637,13 +1631,13 @@ function main() {
   return obj
 }*/
 
-/* main slice
+/* main slice 
 function main() {
   arr := newArray([2., 3., 4., 5., 6., 7.]);
   return slice(arr, 2., 4.)
 }*/
 
-/* main splice TODO 
+/* main splice 
 function main() {
   arr := newArray(["Banana", "Orange", "Apple", "Mango"]);
   items := ["Lemon", "Kiwi"];
@@ -1670,14 +1664,14 @@ function main() {
   return obj
 }*/
 
-/* main indexOf 
+/* main indexOf
 function main() {
   arr := newArray([2., 3., 4., 5., 6., 7.]);
-  return indexOf(arr, 5., 0.)
+  return indexOf(arr, 5., 'undefined)
 }*/
 
 /* main lastIndexOf */
 function main() {
   arr := newArray([2., 3., 4., 5., 2., 7.]);
-  return lastIndexOf(arr, 2., 5.)
+  return lastIndexOf(arr, 2., 'undefined)
 }

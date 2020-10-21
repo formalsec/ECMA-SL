@@ -38,6 +38,7 @@ type uopt = Neg
           | IntToFloat
           | IntToString
           | IntOfString
+          | FloatOfString
           | FloatToString
           | ObjToList
           | Sconcat
@@ -207,6 +208,10 @@ let int_of_string (v : Val.t) : Val.t = match v with
   | Str s -> Int (int_of_string s)
   | _     -> invalid_arg "Exception in Oper.int_of_string: this operation is only applicable to Str arguments"
 
+let float_of_string (v : Val.t) : Val.t = match v with
+  | Str s -> Flt (float_of_string s)
+  | _     -> invalid_arg "Exception in Oper.float_of_string: this operation is only applicable to Str arguments"
+
 let float_to_string (v : Val.t) : Val.t = match v with
   | Flt i ->
     let s = string_of_float i in
@@ -247,6 +252,7 @@ let to_uint16 (v : Val.t) : Val.t = match v with
 
 let to_floor (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (floor n)
+  | _     -> Null
 
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
@@ -262,6 +268,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | IntToFloat    -> "int_to_float"
   | IntToString   -> "int_to_string"
   | IntOfString   -> "int_of_string"
+  | FloatOfString -> "float_of_string"
   | FloatToString -> "float_to_string"
   | ObjToList     -> "obj_to_list"
   | Sconcat       -> "s_concat"
@@ -359,6 +366,7 @@ let uopt_to_json (op : uopt) : string =
      | IntToFloat    -> Printf.sprintf "IntToFloat\" }"
      | IntToString   -> Printf.sprintf "IntToString\" }"
      | IntOfString   -> Printf.sprintf "IntOfString\" }"
+     | FloatOfString -> Printf.sprintf "FloatOfString\" }"
      | FloatToString -> Printf.sprintf "FloatToString\" }"
      | ObjToList     -> Printf.sprintf "ObjToList\" }"
      | Sconcat       -> Printf.sprintf "Sconcat\" }"
