@@ -1425,7 +1425,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     rnum := ToNumber(rval);
     /* 7. Return the result of applying the subtraction operation to lnum and rnum.
           See the note below 11.6.3. */
-    return applyingTheAdditionOperation(lnum, rnum)
+    return applyingTheSubtractionOperation(lnum, rnum)
   }
   /* 11.7 Bitwise Shift Operators */
   | { type: "BinaryExpression", operator: "<<", left: ShiftExpression, right: AdditiveExpression } -> {
@@ -2033,7 +2033,7 @@ function JS_Interpreter_ForStmt_VarDecl(forStmt, scope) {
        is evaluated as follows: */
 
     /* 1. Evaluate VariableDeclarationListNoIn. */
-    JS_Interpreter_Stmt(VariableDeclarationListNoIn);
+    JS_Interpreter_Stmt(VariableDeclarationListNoIn, scope);
     /* 2. Let V = empty. */
     V := 'empty;
     /* 3. Repeat */
