@@ -19,7 +19,7 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) 
   /* 7. Set the [[Construct]] internal property of F as described in 13.2.2. */
   F.Construct := "Construct"; /* TODO */
   /* 8. Set the [[HasInstance]] internal property of F as described in 15.3.5.3. */
-  F.HasInstance := null; /* TODO */
+  F.HasInstance := "HasInstance";
   /* 9. Set the [[Scope]] internal property of F to the value of Scope. */
   F.Scope := Scope;
   /* 10. Let names be a List containing, in left to right textual order, the Strings corresponding to the identifiers of

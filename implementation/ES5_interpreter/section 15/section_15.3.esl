@@ -1,5 +1,40 @@
 /* 15.3 Function Objects */
 
+/* 15.3.5.3 [[HasInstance]] (V) */
+function HasInstance(F, V) {
+  /* Assume F is a Function object. */
+
+  /* When the [[HasInstance]] internal method of F is called with value V, the following steps are taken: */
+
+  /* 1. If V is not an object, return false. */
+  if (!(Type(V) = "Object")) {
+    return false
+  };
+  /* 2. Let O be the result of calling the [[Get]] internal method of F with property name "prototype". */
+  O := {F.Get}(F, "prototype");
+  /* 3. If Type(O) is not Object, throw a TypeError exception. */
+  if (!(Type(O) = "Object")) {
+    throw TypeErrorException()
+  };
+  /* 4. Repeat */
+  repeat {
+    /* a. Let V be the value of the [[Prototype]] internal property of V. */
+    V := V.Prototype;
+    /* b. If V is null, return false. */
+    if (V = 'null) {
+      return false
+    };
+    /* c. If O and V refer to the same object, return true. */
+    if (O = V) {
+      return true
+    }
+  }
+
+  /* NOTE Function objects created using Function.prototype.bind have a different implementation of
+          [[HasInstance]] defined in 15.3.4.5.3. */
+};
+
+
 /* 15.3.5.4 [[Get]] (P) */
 function GetF(F, P) {
   /* Function objects use a variation of the [[Get]] internal method used for other native ECMAScript objects
