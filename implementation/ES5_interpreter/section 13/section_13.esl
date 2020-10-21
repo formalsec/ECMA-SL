@@ -13,7 +13,7 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) 
   /* 4. Set the [[Prototype]] internal property of F to the standard built-in Function prototype object as specified in 15.3.3.1. */
   F.Prototype := $loc_FUNC_PROTOTYPE; /* TODO */
   /* 5. Set the [[Get]] internal property of F as described in 15.3.5.4. */
-  F.Get := null; /* TODO */
+  F.Get := "GetF";
   /* 6. Set the [[Call]] internal property of F as described in 13.2.1. */
   F.Call := "Call"; /* TODO */
   /* 7. Set the [[Construct]] internal property of F as described in 13.2.2. */

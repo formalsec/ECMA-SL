@@ -1,0 +1,22 @@
+/* 15.3 Function Objects */
+
+/* 15.3.5.4 [[Get]] (P) */
+function GetF(F, P) {
+  /* Function objects use a variation of the [[Get]] internal method used for other native ECMAScript objects
+   (8.12.3). */
+
+  /* Assume F is a Function object. When the [[Get]] internal method of F is called with property name P, the
+    following steps are taken: */
+
+  /* 1. Let v be the result of calling the default [[Get]] internal method (8.12.3) on F passing P as the property name
+        argument. */
+  v := Get(F, P);
+  /* 2. If P is "caller" and v is a strict mode Function object, throw a TypeError exception. */
+  if (P = "caller" &&& isStrictModeFunctionObject(F)) {
+    throw TypeErrorException()
+  };
+  /* 3. Return v. */
+  return v
+
+  /* NOTE Function objects created using Function.prototype.bind use the default [[Get]] internal method. */
+}
