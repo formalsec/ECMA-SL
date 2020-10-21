@@ -478,7 +478,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       /* IsStrictReference(expr) is true */
       (IsStrictReference(expr) = true) &&
       /* Type(GetBase(expr)) is Environment Record */
-      (Type(GetBase(expr)) = "Environment Record") && /* TODO */
+      (Type(GetBase(expr)) = "EnvironmentRecord") &&
       /* GetReferencedName(expr) is either "eval" or "arguments" */
       ((GetReferencedName(expr) = "eval") || (GetReferencedName(expr) = "arguments"))
     ) {
@@ -508,7 +508,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       /* IsStrictReference(expr) is true */
       (IsStrictReference(expr) = true) &&
       /* Type(GetBase(expr)) is Environment Record */
-      (Type(GetBase(expr)) = "Environment Record") && /* TODO */
+      (Type(GetBase(expr)) = "EnvironmentRecord") &&
       /* GetReferencedName(expr) is either "eval" or "arguments" */
       ((GetReferencedName(expr) = "eval") || (GetReferencedName(expr) = "arguments"))
     ) {
@@ -602,7 +602,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
       /* IsStrictReference(lhs) is true */
       (IsStrictReference(lhs) = true) &&
       /* Type(GetBase(lhs)) is Environment Record */
-      (Type(GetBase(lhs)) = "Environment Record") && /* TODO */
+      (Type(GetBase(lhs)) = "EnvironmentRecord") &&
       /* GetReferencedName(lhs) is either "eval" or "arguments" */
       ((GetReferencedName(lhs) = "eval") || (GetReferencedName(lhs) = "arguments"))
     ) {
@@ -632,7 +632,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
       /* IsStrictReference(lhs) is true */
       (IsStrictReference(lhs) = true) &&
       /* Type(GetBase(lhs)) is Environment Record */
-      (Type(GetBase(lhs)) = "Environment Record") && /* TODO */
+      (Type(GetBase(lhs)) = "EnvironmentRecord") &&
       /* GetReferencedName(lhs) is either "eval" or "arguments" */
       ((GetReferencedName(lhs) = "eval") || (GetReferencedName(lhs) = "arguments"))
     ) {
