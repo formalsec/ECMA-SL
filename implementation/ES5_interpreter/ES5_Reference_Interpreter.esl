@@ -1,4 +1,5 @@
 import "ES5_interpreter/section 7/section_7.8.esl";
+import "ES5_interpreter/section 8/section_8.esl";
 import "ES5_interpreter/section 8/section_8.7.esl";
 import "ES5_interpreter/section 8/section_8.9.esl";
 import "ES5_interpreter/section 8/section_8.10.esl";
@@ -21,38 +22,3 @@ import "ES5_interpreter/section 13/section_13.esl";
 import "ES5_interpreter/section 15/section_15.5.esl";
 import "ES5_interpreter/section 15/section_15.6.esl";
 import "ES5_interpreter/section 15/section_15.7.esl";
-
-function Type(V) {
-  v_type := typeof V;
-  if (v_type = __$Int) { return "Number" };
-  if (v_type = __$Flt) { return "Number" };
-  if (v_type = __$Bool) { return "Boolean" };
-  if (v_type = __$Str) { return "String" };
-  if (v_type = __$Obj) {
-    if (isJavaScriptObject(V)) { return "Object" };
-    if (isPropertyDescriptor(V)) { return "PropertyDescriptor" };
-    return "EnvironmentRecord"
-  };
-  if (v_type = __$List) { return "List" };
-  if (v_type = __$Symbol) {
-    if (V = 'null) { return "Null" };
-    if (V = 'undefined) { return "Undefined" }
-  };
-  if (v_type = __$Tuple) {
-    ft := fst V;
-    if (ft = "R") { return "Reference" };
-    if (ft = "C") { return "Completion" };
-    if (ft = "P") { return "PropertyIdentifier" }
-  };
-
-  throw SyntaxErrorException()
-};
-
-/* Auxiliary functions */
-function isJavaScriptObject(obj) {
-  return "Prototype" in_obj obj
-};
-
-function isPropertyDescriptor(obj) {
-  return ("Enumerable" in_obj obj) || ("Configurable" in_obj obj)
-}
