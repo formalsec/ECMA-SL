@@ -204,23 +204,6 @@ function JS_Interpreter_Expr(e, scope) {
     /* 11.4 Unary Operators */
     return JS_Interpreter_UnaryOperator(e, scope)
   }
-  | { type: "AssignmentExpression", operator: op, left: l_expr, right: r_expr} -> {
-    /* 11.13.1 Simple Assignment ( = ) */
-    if (op = "=") {
-      lref := JS_Interpreter_Expr(l_expr, scope);
-      rref := JS_Interpreter_Expr(r_expr, scope);
-      rval := GetValue(rref);
-      if ((Type(lref) = "Reference") &&
-          (IsStrictReference(lref)) &&
-          (Type(GetBase(lref)) = "EnvironmentRecord") &&
-          ((GetReferencedName(lref) = "eval") || (GetReferencedName(lref) = "arguments")))
-      {
-        throw SyntaxErrorException()
-      };
-      PutValue(lref, rval, getGlobalObject(getLexicalEnvironment(scope)));
-      return rval
-    }
-  }
   | { type: "BinaryExpression" } -> {
     return JS_Interpreter_BinExpr(e, scope)
   }
@@ -259,6 +242,86 @@ function JS_Interpreter_Expr(e, scope) {
             each allow the second subexpression to be an Expression but restrict the third expression to be a ConditionalExpression.
             The motivation for this difference in ECMAScript is to allow an assignment expression to be governed by either arm of a
             conditional and to eliminate the confusing and fairly useless case of a comma expression as the centre expression. */
+  }
+  | { type: "AssignmentExpression" } -> {
+    /* 11.13 Assignment Operators */
+
+    /* The AssignmentExpressionNoIn productions are evaluated in the same manner as the AssignmentExpression
+       productions except that the contained ConditionalExpressionNoIn and AssignmentExpressionNoIn are evaluated
+       instead of the contained ConditionalExpression and AssignmentExpression, respectively. */
+    return JS_Interpreter_AssignmentExpression(e, scope)
+  }
+
+function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
+  match AssignmentExpression with
+  | { operator: "=", left: LeftHandSideExpression, right: AssignmentExpression } -> {
+    /* 11.13.1 Simple Assignment ( = ) */
+
+    /* The production AssignmentExpression : LeftHandSideExpression = AssignmentExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating LeftHandSideExpression. */
+    lref := JS_Interpreter_Expr(LeftHandSideExpression, scope);
+    /* 2. Let rref be the result of evaluating AssignmentExpression. */
+    rref := JS_Interpreter_Expr(AssignmentExpression, scope);
+    /* 3. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 4. Throw a SyntaxError exception if the following conditions are all true: */
+      /* Type(lref) is Reference is true */
+    if ((Type(lref) = "Reference") &&
+      /* IsStrictReference(lref) is true */
+        (IsStrictReference(lref)) &&
+      /* Type(GetBase(lref)) is Environment Record */
+        (Type(GetBase(lref)) = "EnvironmentRecord") &&
+      /* GetReferencedName(lref) is either "eval" or "arguments" */
+        ((GetReferencedName(lref) = "eval") || (GetReferencedName(lref) = "arguments")))
+      {
+        throw SyntaxErrorException()
+      };
+    /* 5. Call PutValue(lref, rval). */
+    PutValue(lref, rval, getGlobalObject(getLexicalEnvironment(scope)));
+    /* 6. Return rval. */
+    return rval
+
+  /* NOTE When an assignment occurs within strict mode code, its LeftHandSide must not evaluate to an unresolvable
+          reference. If it does a ReferenceError exception is thrown upon assignment. The LeftHandSide also may not be a
+          reference to a data property with the attribute value {[[Writable]]:false}, to an accessor property with the attribute value
+          {[[Set]]:undefined}, nor to a non-existent property of an object whose [[Extensible]] internal property has the value false. In
+          these cases a TypeError exception is thrown. */
+  }
+  | { operator: AssignmentOperator, left: LeftHandSideExpression, right: AssignmentExpression } -> {
+    /* 11.13.2 Compound Assignment ( op= ) */
+
+    /* The production AssignmentExpression : LeftHandSideExpression AssignmentOperator AssignmentExpression, where
+       AssignmentOperator is @= and @ represents one of the operators indicated above, is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating LeftHandSideExpression. */
+    lref :=JS_Interpreter_Expr(LeftHandSideExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. Let rref be the result of evaluating AssignmentExpression. */
+    rref := JS_Interpreter_Expr(AssignmentExpression, scope);
+    /* 4. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 5. Let r be the result of applying operator @ to lval and rval. */
+    r := applyOperator(AssignmentOperator, lval, rval);
+    /* 6. Throw a SyntaxError exception if the following conditions are all true: */
+      /* Type(lref) is Reference is true */
+    if ((Type(lref) = "Reference") &&
+      /* IsStrictReference(lref) is true */
+        (IsStrictReference(lref)) &&
+      /* Type(GetBase(lref)) is Environment Record */
+        (Type(GetBase(lref)) = "EnvironmentRecord") &&
+      /* GetReferencedName(lref) is either "eval" or "arguments" */
+        ((GetReferencedName(lref) = "eval") || (GetReferencedName(lref) = "arguments")))
+      {
+        throw SyntaxErrorException()
+      };
+    /* 7. Call PutValue(lref, r). */
+    PutValue(lref, r, getGlobalObject(getLexicalEnvironment(scope)));
+    /* 8. Return r. */
+    return r
+
+    /* NOTE See NOTE 11.13.1. */
   }
 };
 
