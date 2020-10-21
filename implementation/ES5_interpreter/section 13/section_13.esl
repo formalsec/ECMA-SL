@@ -133,7 +133,7 @@ function Construct(F, argumentList) {
   /* 4. Set the [[Extensible]] internal property of obj to true. */
   obj.Extensible := true;
   /* 5. Let proto be the value of calling the [[Get]] internal property of F with argument "prototype". */
-  proto := Get(F, "Prototype");
+  proto := {F.Get}(F, "prototype");
   /* 6. If Type(proto) is Object, set the [[Prototype]] internal property of obj to proto. */
   if (Type(proto) = "Object") {
     obj.Prototype := proto
