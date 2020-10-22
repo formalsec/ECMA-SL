@@ -14,4 +14,4 @@ var o = {
 
 var ret1 = o.top(6);
 
-Assert (ret1 = 8)
+AssertEquals(ret1, 8)

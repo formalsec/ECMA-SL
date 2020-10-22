@@ -12,4 +12,4 @@ var f = function (x) {
 var a = f("a");
 var b = f("z");
 
-Assert((a ++ b) = "abczbc")
+AssertEquals((a + b), "abczbc")

@@ -3,14 +3,14 @@ import "ES5_interpreter/ES5_Reference_Interpreter.esl";
 function JS_Interpreter_Program(p) {
   /* 14 Program */
   match p with
-  | { sourceType: "script", type: "Program", body: SourceElementsopt, variableDeclarations: vars, functionDeclarations: funcs } -> {
+  | { sourceType: "script", type: "Program", body: SourceElementsopt, strict: strict } -> {
     /* The production Program : SourceElements opt is evaluated as follows: */
 
     /* 1. The code of this Program is strict mode code if the Directive Prologue (14.1) of its SourceElements
           contains a Use Strict Directive or if any of the conditions of 10.1.1 apply. If the code of this
           Program is strict mode code, SourceElements is evaluated in the following steps as strict mode code.
           Otherwise SourceElements is evaluated in the following steps as non-strict mode code. */
-    /* TODO strict */
+
     /* 2. If SourceElements is not present, return (normal, empty, empty). */
     if (SourceElementsopt = []) {
       return normalEmptyCompletion('empty)
@@ -117,7 +117,11 @@ function JS_Interpreter_Expr(e, scope) {
     propertyNameString := ToString(propertyNameValue);
     /* 7. If the syntactic production that is being evaluated is contained in strict mode code,
           let strict be true, else let strict be false. */
-    strict := true; /* TODO */
+    if (isContainedInStrictCode(scope)) {
+      strict := true
+    } else {
+      strict := false
+    };
     /* 8. Return a value of type Reference whose base value is baseValue and whose referenced name is
           propertyNameString, and whose strict mode flag is strict. */
     return newPropertyReference(baseValue, propertyNameString, strict)
@@ -716,7 +720,7 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
           FormalParameterList opt , and body specified by FunctionBody. Pass in the VariableEnvironment of the running
           execution context as the Scope. Pass in true as the Strict flag if the FunctionDeclaration is contained in
           strict code or if its FunctionBody is strict code. */
-    return CreateFunctionObject(FormalParameterListopt, FunctionBody, getVariableEnvironment(scope), false) /* TODO strict */
+    return CreateFunctionObject(FormalParameterListopt, FunctionBody, getVariableEnvironment(scope), isStrictModeCode(FunctionBody, scope))
   }
 };
 
@@ -731,7 +735,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
           FormalParameterList opt and body specified by FunctionBody. Pass in the LexicalEnvironment of the running
           execution context as the Scope. Pass in true as the Strict flag if the FunctionExpression is contained in
           strict code or if its FunctionBody is strict code. */
-    return CreateFunctionObject(FormalParameterList, FunctionBody, getLexicalEnvironment(scope), false) /* TODO strict */
+    return CreateFunctionObject(FormalParameterList, FunctionBody, getLexicalEnvironment(scope), isStrictModeCode(FunctionBody, scope))
   }
   | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
     /* The production FunctionExpression : function Identifier ( FormalParameterList opt ) { FunctionBody }
@@ -747,7 +751,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
     /* 4. Let closure be the result of creating a new Function object as specified in 13.2 with parameters specified by
           FormalParameterList opt and body specified by FunctionBody. Pass in funcEnv as the Scope. Pass in true as the
           Strict flag if the FunctionExpression is contained in strict code or if its FunctionBody is strict code. */
-    closure := CreateFunctionObject(FormalParameterListopt, FunctionBody, funcEnv, false); /* TODO strict */
+    closure := CreateFunctionObject(FormalParameterListopt, FunctionBody, funcEnv, isStrictModeCode(FunctionBody, scope));
     /* 5. Call the InitializeImmutableBinding concrete method of envRec passing the String value of Identifier and closure
           as the arguments. */
     InitializeImmutableBinding(envRec, Identifier.name, closure);
@@ -761,23 +765,26 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
   }
 };
 
-function JS_Interpreter_FunctionBody(SourceElementsopt, scope) {
-  /* The production FunctionBody : SourceElements opt is evaluated as follows: */
+function JS_Interpreter_FunctionBody(FunctionBody, scope) {
+  match FunctionBody with
+  | { body: SourceElementsopt, strict: strict } -> {
+    /* The production FunctionBody : SourceElements opt is evaluated as follows: */
 
-  /* 1. The code of this FunctionBody is strict mode code if it is part of a FunctionDeclaration or
-        FunctionExpression that is contained in strict mode code or if the Directive Prologue (14.1)
-        of its SourceElements contains a Use Strict Directive or if any of the conditions in 10.1.1 apply.
-        If the code of this FunctionBody is strict mode code, SourceElements is evaluated in the following
-        steps as strict mode code. Otherwise, SourceElements is evaluated in the following steps as
-        non-strict mode code. */
-  /* TODO strict */
-  /* 2. If SourceElements is present return the result of evaluating SourceElements. */
-  if (!(SourceElementsopt = [])) {
-    return JS_Interpreter_SourceElements(SourceElementsopt, scope)
-  }
-  /* 3. Else return (normal, undefined, empty). */
-  else {
-    return normalEmptyCompletion('undefined)
+    /* 1. The code of this FunctionBody is strict mode code if it is part of a FunctionDeclaration or
+          FunctionExpression that is contained in strict mode code or if the Directive Prologue (14.1)
+          of its SourceElements contains a Use Strict Directive or if any of the conditions in 10.1.1 apply.
+          If the code of this FunctionBody is strict mode code, SourceElements is evaluated in the following
+          steps as strict mode code. Otherwise, SourceElements is evaluated in the following steps as
+          non-strict mode code. */
+    setContainedInStrictCode(scope, strict);
+    /* 2. If SourceElements is present return the result of evaluating SourceElements. */
+    if (!(SourceElementsopt = [])) {
+      return JS_Interpreter_SourceElements(SourceElementsopt, scope)
+    }
+    /* 3. Else return (normal, undefined, empty). */
+    else {
+      return normalEmptyCompletion('undefined)
+    }
   }
 };
 
@@ -813,7 +820,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
       if (!(previous = 'undefined)) {
         /* a. This production is contained in strict code and IsDataDescriptor(previous) is true and
               IsDataDescriptor(propId.descriptor) is true. */
-        if (/* TODO (strict = true) */ false &&
+        if (isContainedInStrictCode(scope) &&
             (IsDataPropertyDescriptor(previous) = true) &&
             (IsDataPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
           throw SyntaxErrorException()
@@ -875,7 +882,7 @@ function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) {
           and body specified by FunctionBody. Pass in the LexicalEnvironment of the running execution context as the
           Scope. Pass in true as the Strict flag if the PropertyAssignment is contained in strict code or if its
           FunctionBody is strict code. */
-    closure := JS_Interpreter_FunctionExpression(FunctionExpression, scope);
+    closure := JS_Interpreter_FunctionExpression(FunctionExpression, scope); /* TODO não será melhor chamar a função que cria o FunctionObject?*/
     /* 3. Let desc be the Property Descriptor{[[Get]]: closure, [[Enumerable]]: true, [[Configurable]]: true} */
     desc := newGetAccessorPropertyDescriptor(closure);
     /* 4. Return Property Identifier (propName, desc). */
@@ -891,7 +898,7 @@ function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) {
           PropertySetParameterList and body specified by FunctionBody. Pass in the LexicalEnvironment of the
           running execution context as the Scope. Pass in true as the Strict flag if the PropertyAssignment is contained
           in strict code or if its FunctionBody is strict code. */
-    closure := JS_Interpreter_FunctionExpression(FunctionExpression, scope);
+    closure := JS_Interpreter_FunctionExpression(FunctionExpression, scope); /* TODO não será melhor chamar a função que cria o FunctionObject?*/
     /* 3. Let desc be the Property Descriptor{[[Set]]: closure, [[Enumerable]]: true, [[Configurable]]: true} */
     desc := newSetAccessorPropertyDescriptor(closure);
     /* 4. Return Property Identifier (propName, desc). */
