@@ -73,6 +73,7 @@ rule read =
   | ">>"           { SHIFT_RIGHT }
   | ">>>"          { SHIFT_RIGHT_LOGICAL }
   | "&&&"          { SCLAND }
+  | "|||"          { SCLOR }
   | "&&"           { LAND }
   | "||"           { LOR }
   | "l_len"        { LLEN }
@@ -96,6 +97,7 @@ rule read =
   | "obj_fields"      { OBJ_FIELDS }
   | "to_int32"        { TO_INT32 }
   | "to_uint32"       { TO_UINT32 }
+  | "floor"           { FLOOR }
   | "to_uint16"       { TO_UINT16 }
   | '('               { LPAREN }
   | ')'               { RPAREN }
