@@ -61,7 +61,8 @@ function createExecutionContext() {
   return {
     LexicalEnvironment: 'undefined,
     VariableEnvironment: 'undefined,
-    ThisBinding: 'undefined
+    ThisBinding: 'undefined,
+    strictCode: false
   }
 };
 
