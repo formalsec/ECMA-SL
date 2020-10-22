@@ -27,4 +27,4 @@ function top(f) {
 
 var ret1 = top("two");
 
-Assert (ret1 = 2)
+AssertEquals (ret1, 2)

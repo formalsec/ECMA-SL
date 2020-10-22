@@ -39,4 +39,4 @@ m.put("a", "banana");
 m.put("b", "passionfruit");
 var ret1 = m.get("a");
 
-Assert(ret1 = "banana")
+AssertEquals(ret1, "banana")

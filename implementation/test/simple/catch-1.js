@@ -18,4 +18,4 @@ function top(s) {
 
 var ret1 = top(7);
 
-Assert(ret1 = 12)
+AssertEquals(ret1, 12)

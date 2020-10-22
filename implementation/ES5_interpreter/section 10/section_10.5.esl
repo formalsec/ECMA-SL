@@ -19,7 +19,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     configurableBindings := false
   };
   /* 3. If code is strict mode code, then let strict be true else let strict be false. */
-  if (isStrictModeCode(code)) {
+  if (isStrictModeCode(code, runningExecCtx)) {
     strict := true
   } else {
     strict := false
@@ -176,8 +176,8 @@ function isFunctionCode(code) {
   return code.codeType = "function"
 };
 
-function isStrictModeCode(code) {
-  return code.strict = true
+function isStrictModeCode(code, execCtx) {
+  return code.strict = true || isContainedInStrictCode(execCtx)
 };
 
 function getFunctionDeclarationsInCode(object) {

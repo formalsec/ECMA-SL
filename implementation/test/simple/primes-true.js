@@ -22,4 +22,4 @@ var n = 7;
 
 var ret1 = isPrime(n);
 
-Assert(ret1 = true)
+AssertEquals(ret1, true)

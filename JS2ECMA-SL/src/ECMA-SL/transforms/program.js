@@ -3,6 +3,7 @@ const {
   getFunctionDeclarations,
   replaceFuncDeclarations,
 } = require("../utils/getDeclarations");
+const { hasStrictDirective } = require("../utils/strict");
 
 module.exports = {
   transform: function (obj) {
@@ -22,6 +23,8 @@ module.exports = {
     obj.functionDeclarations = functionDeclarations;
 
     obj.codeType = "global";
+
+    obj.strict = hasStrictDirective(obj.body);
 
     return obj;
   },

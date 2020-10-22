@@ -28,4 +28,4 @@ f_three();
 
 var ret1 = top(2, "2");
 
-Assert(ret1 = "ten")
+AssertEquals(ret1, "ten")

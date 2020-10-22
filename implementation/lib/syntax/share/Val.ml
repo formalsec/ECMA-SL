@@ -11,8 +11,11 @@ type t =
   | Null
   | Symbol of string
 
-let rec str (v : t) : string = match v with
-  | Flt v    -> Printf.sprintf "%.12g" v
+let rec str ?(flt_with_dot=true) (v : t) : string = match v with
+  | Flt v    -> 
+      if flt_with_dot
+        then string_of_float v 
+        else Printf.sprintf "%.12g" v
   | Int v    -> string_of_int v
   | Bool v   -> string_of_bool v
   | Str v    -> "\"" ^ v ^ "\""
@@ -26,7 +29,7 @@ let rec str (v : t) : string = match v with
 
 let rec to_json (v : t): string =
   match v with
-  | Flt v    ->  Printf.sprintf "{ \"type\" : \"float\", \"value\" : %s }" (string_of_float v)
+  | Flt v    ->  Printf.sprintf "{ \"type\" : \"float\", \"value\" : %s }" (Printf.sprintf "%.12g" v)
   | Int v    ->  Printf.sprintf "{ \"type\" : \"int\", \"value\" : %s }" (string_of_int v)
   | Bool v   ->  Printf.sprintf "{ \"type\" : \"boolean\", \"value\" : %s }" (string_of_bool v)
   | Str v    ->  Printf.sprintf "{ \"type\" : \"string\", \"value\" : \"%s\" }" v
