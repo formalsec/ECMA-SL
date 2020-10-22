@@ -44,11 +44,11 @@ function InitialGlobalExecutionContext(globalObject) {
   return globalExecCtx
 };
 
-function EnteringFunctionCode(F, thisArg, argumentsList, strictModeCode) {
+function EnteringFunctionCode(F, thisArg, argumentsList) {
   /* 10.4.3 Entering Function Code */
 
   functionExecCtx := createExecutionContext();
-  setContainedInStrictCode(functionExecCtx, strictModeCode);
+  setContainedInStrictCode(functionExecCtx, isStrictFunctionObject(F));
 
   /* The following steps are performed when control enters the execution context for function code contained in
      function object F, a caller provided thisArg, and a caller provided argumentsList: */

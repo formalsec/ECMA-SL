@@ -168,7 +168,7 @@ function ArgumentsObjectGet(argumentObject, P) {
           passing P as the argument. */
     v := Get(argumentObject, P);
     /* b. If P is "caller" and v is a strict mode Function object, throw a TypeError exception. */
-    if ((P = "caller") && isStrictModeFunctionObject(v)) {
+    if ((P = "caller") && isStrictFunctionObject(v)) {
       throw TypeErrorException()
     };
     /* c. Return v. */
@@ -272,10 +272,4 @@ function ArgumentsObjectDelete(argumentsObject, P, Throw) {
   };
   /* 5. Return result. */
   return result
-};
-
-
-/* Auxiliary functions */
-function isStrictModeFunctionObject(f) {
-  return isStrictModeCode(getFunctionCode(f))
 }
