@@ -1406,10 +1406,6 @@ function every(this, callbackfn, thisArg) {
  * taken:
  */
 function DefineOwnPropertyArray(A, P, Desc, Throw) {
-<<<<<<< HEAD
-
-=======
->>>>>>> master
   /* 1. Let oldLenDesc be the result of calling the [[GetOwnProperty]] internal
       method of A passing "length" as the argument. The result will never be
       undefined or an accessor descriptor because Array objects are created
