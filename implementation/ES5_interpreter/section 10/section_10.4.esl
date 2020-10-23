@@ -57,7 +57,7 @@ function EnteringFunctionCode(F, thisArg, argumentsList, strict) {
     setThisBinding(functionExecCtx, thisArg)
   };
   /* 2. Else if thisArg is null or undefined, set the ThisBinding to the global object. */
-  if ((thisArg = null) || (thisArg = 'undefined)) {
+  if ((thisArg = 'null) || (thisArg = 'undefined)) {
     setThisBinding(functionExecCtx, getGlobalObject(F.Scope))
   }
   /* 3. Else if Type(thisArg) is not Object, set the ThisBinding to ToObject(thisArg). */

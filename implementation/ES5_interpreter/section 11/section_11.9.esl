@@ -41,11 +41,11 @@ function AbstractEqualityComparison(x, y) {
     return x = y
   };
   /* 2. If x is null and y is undefined, return true. */
-  if ((x = null) && (y = 'undefined)) {
+  if ((x = 'null) && (y = 'undefined)) {
     return true
   };
   /* 3. If x is undefined and y is null, return true. */
-  if ((x = 'undefined) && (y = null)) {
+  if ((x = 'undefined) && (y = 'null)) {
     return true
   };
   /* 4. If Type(x) is Number and Type(y) is String,

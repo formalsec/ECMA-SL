@@ -15,8 +15,8 @@ function Type(V) {
   if (v_type = __$Str) { return "String" };
   if (v_type = __$Obj) { return "Object" };
   if (v_type = __$List) { return "List" };
-  if (v_type = __$Null) { return "Null" };
   if (v_type = __$Symbol) {
+    if (V = 'null) { return "Null" }
     if (V = 'undefined) { return "Undefined" }
   };
   if (v_type = __$Tuple) {
@@ -103,7 +103,7 @@ function newArray(items) {
     /* The [[Prototype]] internal property of the newly constructed object
        is set to the original Array prototype object, the one that is the
        initial value of Array.prototype (15.4.3.1). */
-    Prototype: null,
+    Prototype: 'null,
     /* The [[Extensible]] internal property of the newly constructed object
        is set to true. */
     Extensible: true,
