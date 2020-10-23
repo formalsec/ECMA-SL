@@ -4,6 +4,7 @@ const PropertyAccessors = require("./propertyAccessors");
 const Assignment = require("./assignment");
 const FunctionLiteral = require("./functionLiteral");
 const FunctionCall = require("./functionCall");
+const Identifier = require("./identifier");
 
 module.exports = {
   transformObject: function (obj) {
@@ -25,8 +26,11 @@ module.exports = {
     ) {
       return FunctionLiteral.transform(obj);
     }
-    if (obj.type == "CallExpression") {
+    if (obj.type === "CallExpression") {
       return FunctionCall.transform(obj);
+    }
+    if (obj.type === "Identifier") {
+      return Identifier.transform(obj)
     }
     return obj;
   },
