@@ -198,10 +198,10 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
   | INT_OF_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
-  | FLOAT_OF_STRING; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.FloatOfString, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
+  | FLOAT_OF_STRING; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.FloatOfString, e) } %prec unopt_prec
   | TO_INT32; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ToInt32, e) } %prec unopt_prec
   | TO_UINT32; e = e_expr_target;

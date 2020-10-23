@@ -9,7 +9,7 @@ import "ES5_interpreter/section 10/section_10.4.esl";
 import "ES5_interpreter/section 13/section_13.esl";
 import "ES5_interpreter/section 15/section_15.11.esl";
 
-/* This method is not supposed to be here. As soon 
+/* This method is not supposed to be here. As soon
    as it is placed in the right section, it should
    be replaced by an import of that section. */
 function Type(V) {
@@ -20,12 +20,9 @@ function Type(V) {
   if (v_type = __$Str) { return "String" };
   if (v_type = __$Obj) { return "Object" };
   if (v_type = __$List) { return "List" };
-  if (v_type = __$Null) { return "Null" };
   if (v_type = __$Symbol) {
-    if (V = 'undefined) { return "Undefined" };
-    if (V = 'NaN) { return "Number" };
-    if ((V = '+0) || (V = '-0)) { return "Number" };
-    if ((V = '+Infinity) || (V = 'Infinity) || (V = '-Infinity)) { return "Number" }
+    if (V = 'null) { return "Null" };
+    if (V = 'undefined) { return "Undefined" }
   };
   if (v_type = __$Tuple) {
     ft := fst V;
@@ -102,7 +99,7 @@ function abs(a) {
  */
 
 /**
- * 15.4.2.1 new Array ( [ item0 [ , item1 [ , … ] ] ] ) # Ⓣ 
+ * 15.4.2.1 new Array ( [ item0 [ , item1 [ , … ] ] ] ) # Ⓣ
  * This description applies if and only if the Array constructor is given
  * no arguments or at least two arguments.
  */
@@ -111,7 +108,7 @@ function newArray(items) {
     /* The [[Prototype]] internal property of the newly constructed object
        is set to the original Array prototype object, the one that is the
        initial value of Array.prototype (15.4.3.1). */
-    Prototype: null,
+    Prototype: 'null,
     /* The [[Extensible]] internal property of the newly constructed object
        is set to true. */
     Extensible: true,
@@ -159,7 +156,7 @@ function newArrayLen(len) {
     /* The [[Prototype]] internal property of the newly constructed object is
       set to the original Array prototype object, the one that is the initial
       value of Array.prototype (15.4.3.1). */
-    Prototype: null,
+    Prototype: 'null,
     /* The [[Class]] internal property of the newly constructed object
       is set to "Array". */
     Class: "Array",
@@ -203,7 +200,7 @@ function newArrayLen(len) {
 
 
 /**
- * 15.4.3.2 Array.isArray ( arg ) 
+ * 15.4.3.2 Array.isArray ( arg )
  *
  * The isArray function takes one argument arg, and returns the Boolean
  * value true if the argument is an object whose class internal property
@@ -290,7 +287,7 @@ function toLocaleString(this) {
         method of array with argument "0". */
   firstElement := {O.Get}(O, "0");
   /* 7. If firstElement is undefined or null, then */
-  if (firstElement = 'undefined || firstElement = null) {
+  if (firstElement = 'undefined || firstElement = 'null) {
     /* a. Let R be the empty String. */
     R := ""
   }
@@ -319,7 +316,7 @@ function toLocaleString(this) {
           method of array with argument ToString(k). */
     nextElement := {O.Get}(O, ToString(k));
     /* c. If nextElement is undefined or null, then */
-    if (nextElement = 'undefined || nextElement = null) {
+    if (nextElement = 'undefined || nextElement = 'null) {
       /* i. Let R be the empty String. */
       R := ""
     }
@@ -391,7 +388,7 @@ function concat(this, items) {
           element. */
     E := hd items;
     items := tl items;
-    
+
     /* b. If the value of the [[Class]] internal property of E is "Array",
           then */
     if (E.Class = "Array") {
@@ -460,7 +457,7 @@ function concat(this, items) {
  * 15.4.4.5 Array.prototype.join (separator)
  *
  * The elements of the array are converted to Strings, and these Strings
- * are then concatenated, separated by occurrences of the separator. If 
+ * are then concatenated, separated by occurrences of the separator. If
  * no separator is provided, a single comma is used as the separator.
  *
  * The join method takes one argument, separator, and performs the
@@ -491,7 +488,7 @@ function join(this, separator) {
   element0 := {O.Get}(O, "0");
   /* 8. If element0 is undefined or null, let R be the empty String;
         otherwise, Let R be ToString(element0). */
-  if ((element0 = 'undefined) || (element0 = null)) {
+  if ((element0 = 'undefined) || (element0 = 'null)) {
     R := ""
   } else {
     R := ToString(element0)
@@ -507,7 +504,7 @@ function join(this, separator) {
     element := {O.Get}(O, ToString(k));
     /* c. If element is undefined or null, Let next be the empty String;
           otherwise, let next be ToString(element). */
-    if ((element = 'undefined) || (element = null)) {
+    if ((element = 'undefined) || (element = 'null)) {
       next := ""
     } else {
       next := ToString(element)
@@ -853,7 +850,7 @@ function slice(this, start, end) {
       /* i. Let kValue be the result of calling the [[Get]] internal method of O
             with argument Pk. */
       kValue := {O.Get}(O, Pk);
-      /* ii. Call the [[DefineOwnProperty]] internal method of A with arguments 
+      /* ii. Call the [[DefineOwnProperty]] internal method of A with arguments
              ToString(n), Property Descriptor {[[Value]]: kValue, [[Writable]]:
              true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
       descriptor := newDataPropertyDescriptorFull(kValue, true, true, true);
@@ -2101,7 +2098,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     if (oldLenDesc.Writable = false) {
       Reject(Throw)
     };
-    
+
     /* h. If newLenDesc.[[Writable]] is absent or has the value true,
           let newWritable be true. */
     if (!("Writable" in_obj newLenDesc) || newLenDesc.Writable = true) {
@@ -2199,7 +2196,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
 
 function IsArrayIndex(P) {
   i := ToUint32(P);
-  return !(i = null)
+  return !(i = 'null)
 };
 
 
@@ -2211,22 +2208,22 @@ function main() {
   return arr
 }*/
 
-/* main isArray 
+/* main isArray
 function main() {
   return isArray(newArray([2., 3.]))
 }*/
 
-/* main toStringArray TODO 
+/* main toStringArray TODO
 function main() {
   return toStringArray(newArray([2., 3.]))
 }*/
 
-/* main toLocaleString TODO 
+/* main toLocaleString TODO
 function main() {
   return toLocaleString(newArray([2., 3.]))
 }*/
 
-/* main concat 
+/* main concat
 function main() {
   arr1 := newArray([2., 3.]);
   arr2 := newArray([4., 5.]);
@@ -2234,7 +2231,7 @@ function main() {
   return arr
 }*/
 
-/* main join 
+/* main join
 function main() {
   arr := newArray([2., 3., 4., 5.]);
   return join (arr, "_")
@@ -2253,7 +2250,7 @@ function main() {
   return obj
 }*/
 
-/* main push 
+/* main push
 function main() {
   arr := newArray([2., 3., 4.]);
   newLen := push(arr, [5., 6.]);
@@ -2262,11 +2259,11 @@ function main() {
     arr: arr,
     newLen: newLen
   };
-  
+
   return obj
 }*/
 
-/* main reverse 
+/* main reverse
 function main() {
   return reverse(newArray([2., 3., 6., 9.]))
 }*/
@@ -2280,11 +2277,11 @@ function main() {
     arr: arr,
     firstEl: firstEl
   };
-  
+
   return obj
 }*/
 
-/* main slice 
+/* main slice
 function main() {
   arr := newArray([2., 3., 4., 5., 6., 7.]);
   return slice(arr, 2., 4.)
@@ -2306,11 +2303,11 @@ function main() {
     arr: arr,
     removedEls: removedEls
   };
-  
+
   return obj
 }*/
 
-/* main unshift 
+/* main unshift
 function main() {
   arr := newArray([2., 3., 4., 5., 6., 7.]);
   newLen := unshift(arr, [22., 44.]);
@@ -2342,7 +2339,7 @@ function callbackfn(scope, this, args) {
 };
 function main() {
   arr := newArray([2., 3., 4., 5., 2., 7.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfn", null, false);
+  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
   return every(arr, funcObj, 'undefined)
 }*/
 
@@ -2353,7 +2350,7 @@ function callbackfn(scope, this, args) {
 };
 function main() {
   arr := newArray([2., 3., 4., 5., 2., 7.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfn", null, false);
+  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
   return some(arr, funcObj, 'undefined)
 }*/
 
@@ -2365,7 +2362,7 @@ function callbackfn(scope, this, args) {
 };
 function main() {
   arr := newArray([1., 2., 3.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfn", null, false);
+  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
   forEach(arr, funcObj, 'undefined);
   return arr
 }*/
@@ -2377,7 +2374,7 @@ function callbackfn(scope, this, args) {
 };
 function main() {
   arr := newArray([1., 2., 3.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfn", null, false);
+  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
   return map(arr, funcObj, 'undefined)
 }*/
 
@@ -2388,7 +2385,7 @@ function callbackfn(scope, this, args) {
 };
 function main() {
   arr := newArray([2., 3., 4., 5., 2., 7.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfn", null, false);
+  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
   return filter(arr, funcObj, 'undefined)
 }*/
 
@@ -2400,7 +2397,7 @@ function callbackfn(scope, this, args) {
 };
 function main() {
   arr := newArray([175., 50., 25.]);
-  funcObj := CreateFunctionObject(["total", "x"], "callbackfn", null, false);
+  funcObj := CreateFunctionObject(["total", "x"], "callbackfn", 'null, false);
   return reduce(arr, funcObj, 'undefined)
 }*/
 
@@ -2412,6 +2409,6 @@ function callbackfn(scope, this, args) {
 };
 function main() {
   arr := newArray([175., 50., 25.]);
-  funcObj := CreateFunctionObject(["total", "x"], "callbackfn", null, false);
+  funcObj := CreateFunctionObject(["total", "x"], "callbackfn", 'null, false);
   return reduceRight(arr, funcObj, 'undefined)
 }

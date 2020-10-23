@@ -486,8 +486,8 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* 2. Let oldValue be ToNumber(GetValue(expr)). */
     oldValue := ToNumber(GetValue(expr));
     /* 3. If oldValue is NaN, return NaN. */
-    if (oldValue = 'NaN) {
-      return 'NaN
+    if (oldValue = NaN) {
+      return NaN
     };
     /* 4. Return the result of negating oldValue; that is, compute a Number with the same magnitude but opposite
           sign. */
@@ -1153,7 +1153,7 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
   | { type: "VariableDeclaration", declarations: VariableDeclarationListNoIn } -> {
     /* Pattern created specifically for the ForInStatement where the VariableDeclarationListNoIn can only contain one VariableDeclarator
        and where the String returned by this function is used in the evaluation of the ForInStatement */
-    ret := null;
+    ret := 'null;
     i := 0;
     ldeclarations := l_len VariableDeclarationListNoIn;
     while (ldeclarations > i) {
@@ -1211,43 +1211,14 @@ function JS_Interpreter_BinExpr(e, scope) {
        arithmetic: */
 
     /* If either operand is NaN, the result is NaN. */
-    if ((leftNum = 'NaN) && (rightNum = 'NaN)) {
-      return 'NaN
-    };
-
     /* The sign of the result is positive if both operands have the same sign, negative if the operands have different signs. */
-    /* TODO */
-
     /* Multiplication of an infinity by a zero results in NaN. */
-    if (((rightNum = 0) || (rightNum = '+0) || (rightNum = '-0)) && ((leftNum = '+Infinity) || (leftNum = '-Infinity) || (leftNum = 'Infinity))) {
-      return 'NaN
-    };
-    if (((leftNum = 0) || (leftNum = '+0) || (leftNum = '-0)) && ((rightNum = '+Infinity) || (rightNum = '-Infinity) || (rightNum = 'Infinity))) {
-      return 'NaN
-    };
-
     /* Multiplication of an infinity by an infinity results in an infinity. The sign is determined by the rule already stated above. */
-    if (((leftNum = '+Infinity) || (leftNum = 'Infinity)) && ((rightNum = '+Infinity) || (rightNum = 'Infinity))) {
-      return '+Infinity
-    };
-    if ((leftNum = '-Infinity) && (rightNum = '-Infinity)) {
-      return '+Infinity
-    };
-    if (((leftNum = '+Infinity) || (leftNum = 'Infinity)) && (rightNum = '-Infinity)) {
-      return '-Infinity
-    };
-    if ((leftNum = '-Infinity) && ((rightNum = '+Infinity) || (rightNum = 'Infinity))) {
-      return '-Infinity
-    };
-
     /* Multiplication of an infinity by a finite nonzero value results in a signed infinity. The sign is determined by the rule already stated above. */
-    /* TODO */
-
     /* In the remaining cases, where neither an infinity or NaN is involved, the product is computed and rounded to the nearest representable value
        using IEEE 754 round-to-nearest mode. If the magnitude is too large to represent, the result is then an infinity of appropriate sign.
        If the magnitude is too small to represent, the result is then a zero of appropriate sign.
        The ECMAScript language requires support of gradual underflow as defined by IEEE 754. */
-    /* TODO */
     return leftNum * rightNum
   }
   | { type: "BinaryExpression", operator: "/", left: MultiplicativeExpression, right: UnaryExpression } -> {
@@ -1275,50 +1246,19 @@ function JS_Interpreter_BinExpr(e, scope) {
        specification of IEEE 754 arithmetic: */
 
     /* If either operand is NaN, the result is NaN. */
-    if ((leftNum = 'NaN) && (rightNum = 'NaN)) {
-      return 'NaN
-    };
-
     /* The sign of the result is positive if both operands have the same sign, negative if the operands have different signs. */
-    /* TODO */
-
     /* Division of an infinity by an infinity results in NaN. */
-    if (((leftNum = '+Infinity) || (leftNum = 'Infinity) || (leftNum = '-Infinity)) && ((rightNum = '+Infinity) || (rightNum = 'Infinity) || (rightNum = '-Infinity))) {
-      return 'NaN
-    };
-
     /* Division of an infinity by a zero results in an infinity. The sign is determined by the rule already stated above. */
-    if (((leftNum = '+Infinity) || (leftNum = 'Infinity)) && ((rightNum = 0) || (rightNum = '+0))) {
-      return '+Infinity
-    };
-    if ((leftNum = '-Infinity) && (rightNum = '-0)) {
-      return '+Infinity
-    };
-    if (((leftNum = '+Infinity) || (leftNum = 'Infinity)) && (rightNum = '-0)) {
-      return '-Infinity
-    };
-    if ((leftNum = '-Infinity) && ((rightNum = 0) || (rightNum = '+0))) {
-      return '-Infinity
-    };
-
     /* Division of an infinity by a nonzero finite value results in a signed infinity. The sign is determined by the rule already stated above. */
-    /* TODO */
-
     /* Division of a finite value by an infinity results in zero. The sign is determined by the rule already stated above. */
-    /* TODO */
-
     /* Division of a zero by a zero results in NaN; division of zero by any other finite value results in zero, with the sign determined by the rule already stated above. */
-    /* TODO */
-
     /* Division of a nonzero finite value by a zero results in a signed infinity. The sign is determined by the rule already stated above. */
-    /* TODO */
 
     /* In the remaining cases, where neither an infinity, nor a zero, nor NaN is involved, the quotient is computed and rounded
        to the nearest representable value using IEEE 754 round-to-nearest mode. If the magnitude is too large to represent,
        the operation overflows; the result is then an infinity of appropriate sign. If the magnitude is too small to represent, the
        operation underflows and the result is a zero of the appropriate sign. The ECMAScript language requires support of
-       gradual underflow as defined by IEEE 754.
-    */
+       gradual underflow as defined by IEEE 754. */
     return leftNum / rightNum
   }
   | { type: "BinaryExpression", operator: "%", left: MultiplicativeExpression, right: UnaryExpression } -> {
@@ -1868,7 +1808,7 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
     /* 2. Let experValue be GetValue(exprRef). */
     experValue := GetValue(exprRef);
     /* 3. If experValue is null or undefined, return (normal, empty, empty). */
-    if ((experValue = null) || (experValue = 'undefined)) {
+    if ((experValue = 'null) || (experValue = 'undefined)) {
       return normalEmptyCompletion('empty)
     };
     /* 4. Let obj be ToObject(experValue). */
@@ -1923,7 +1863,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
     /* 3. Let experValue be GetValue(exprRef). */
     experValue := GetValue(exprRef);
     /* 4. If experValue is null or undefined, return (normal, empty, empty). */
-    if ((experValue = null) || (experValue = 'undefined)) {
+    if ((experValue = 'null) || (experValue = 'undefined)) {
       return normalEmptyCompletion('empty)
     };
     /* 5. Let obj be ToObject(experValue). */

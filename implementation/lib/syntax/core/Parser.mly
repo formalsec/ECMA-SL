@@ -172,10 +172,10 @@ expr_target:
     { Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
   | TO_UINT16; e = expr_target;
     { Expr.UnOpt (Oper.ToUint16, e) } %prec unopt_prec
-  | FLOAT_OF_STRING; e = expr_target;
-    { Expr.UnOpt (Oper.FloatOfString, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
+  | FLOAT_OF_STRING; e = expr_target;
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.FloatOfString, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
     { print_string ">BINOP\n";Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
   | LNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;

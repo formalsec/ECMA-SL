@@ -38,12 +38,9 @@ function Type(V) {
   if (v_type = __$Str) { return "String" };
   if (v_type = __$Obj) { return "Object" };
   if (v_type = __$List) { return "List" };
-  if (v_type = __$Null) { return "Null" };
   if (v_type = __$Symbol) {
-    if (V = 'undefined) { return "Undefined" };
-    if (V = 'NaN) { return "Number" };
-    if ((V = '+0) || (V = '-0)) { return "Number" };
-    if ((V = '+Infinity) || (V = 'Infinity) || (V = '-Infinity)) { return "Number" }
+    if (V = 'null) { return "Null" };
+    if (V = 'undefined) { return "Undefined" }
   };
   if (v_type = __$Tuple) {
     ft := fst V;

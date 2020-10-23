@@ -39,23 +39,24 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
     /* b. Let ny be the result of calling ToNumber(py). */
     ny := ToNumber(py);
     /* c. If nx is NaN, return undefined. */
-    if (nx = 'NaN) { return 'undefined };
+    if (nx = NaN) { return 'undefined };
     /* d. If ny is NaN, return undefined. */
-    if (ny = 'NaN) { return 'undefined };
+    if (ny = NaN) { return 'undefined };
     /* e. If nx and ny are the same Number value, return false. */
     if (nx = ny) { return false };
+
     /* f. If nx is +0 and ny is -0, return false. */
-    if ((nx = '+0) && (ny = '-0)) { return false };
+    if ((nx = 0.) && (ny = -0.)) { return false };
     /* g. If nx is -0 and ny is +0, return false. */
-    if ((nx = '-0) && (ny = '+0)) { return false };
+    if ((nx = -0.) && (ny = 0.)) { return false };
     /* h. If nx is +Infinity, return false. */
-    if (nx = '+Infinity) { return true };
+    if (nx = Infinity) { return false };
     /* i. If ny is +Infinity, return true. */
-    if (ny = '+Infinity) { return true };
+    if (ny = Infinity) { return true };
     /* j. If ny is -Infinity, return false. */
-    if (ny = '-Infinity) { return false };
+    if (ny = -Infinity) { return false };
     /* k. If nx is -Infinity, return true. */
-    if (nx = '+Infinity) { return false };
+    if (nx = -Infinity) { return true };
     /* l. If the mathematical value of nx is less than the mathematical value of ny — note that these
           mathematical values are both finite and not both zero — return true. Otherwise, return false. */
     if (nx < ny) { return true };
@@ -64,7 +65,6 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
   }
   /* 4. Else, both px and py are Strings */
   else {
-    /* TODO*/
     /* a. If py is a prefix of px, return false. (A String value p is a prefix of String value q if q can be the
           result of concatenating p and some other String r. Note that any String is a prefix of itself, because r
           may be the empty String.) */
@@ -76,6 +76,8 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
     /* e. Let n be the integer that is the code unit value for the character at position k within py. */
     /* f. If m < n, return true. Otherwise, return false. */
 
-    throw px < py
+    if (px < py) { return true };
+
+    return false
   }
 }

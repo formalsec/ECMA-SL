@@ -1,6 +1,6 @@
 function NewObject () {
   return {
-    Prototype: null,
+    Prototype: 'null,
     Extensible: true,
     Class: "Object",
     Put: "Put",
