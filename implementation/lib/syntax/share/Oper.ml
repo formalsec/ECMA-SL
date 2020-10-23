@@ -99,7 +99,9 @@ let modulo (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt f1, Flt f2) -> Flt (mod_float f1 f2)
   | _                -> invalid_arg "Exception in Oper.modulo: this operation is only applicable to Float arguments"
 
-let equal (v1, v2 : Val.t * Val.t) : Val.t = Bool (v1 = v2)
+let equal (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | (Flt f1, Flt f2) -> Bool (Float.equal f1 f2)
+  | _                -> Bool (v1 = v2)
 
 let gt (v1, v2 : Val.t * Val.t) : Val.t = Bool (v1 > v2)
 
@@ -208,10 +210,6 @@ let int_of_string (v : Val.t) : Val.t = match v with
   | Str s -> Int (int_of_string s)
   | _     -> invalid_arg "Exception in Oper.int_of_string: this operation is only applicable to Str arguments"
 
-let float_of_string (v : Val.t) : Val.t = match v with
-  | Str s -> Flt (float_of_string s)
-  | _     -> invalid_arg "Exception in Oper.float_of_string: this operation is only applicable to Str arguments"
-
 let float_to_string (v : Val.t) : Val.t = match v with
   | Flt i ->
     let s = string_of_float i in
@@ -220,6 +218,10 @@ let float_to_string (v : Val.t) : Val.t = match v with
     let s' = if c = '.' then String.sub s 0 len else s in
     Str s'
   | _     -> invalid_arg ("Exception in Oper.float_to_string: this operation is only applicable to Flt arguments: " ^ (Val.str v))
+
+let float_of_string (v : Val.t) : Val.t = match v with
+  | Str s -> Flt (float_of_string s)
+  | _     -> invalid_arg "Exception in Oper.float_of_string: this operation is only applicable to Str arguments"
 
 let string_concat (v : Val.t) : Val.t = match v with
   | List l -> Str (String.concat "" (String.split_on_char '"' (String.concat "" (List.map Val.str l))))

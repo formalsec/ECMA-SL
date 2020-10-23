@@ -25,7 +25,7 @@ let float   = int('.')digit*
 let bool    = "true"|"false"
 let string  = '"'(digit|letter|special)*'"'
 let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
-let symbol  = '\''('+'|'-')*(var|int)
+let symbol  = '\''(var|int)
 let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
 let loc     = "$loc_"(digit|letter|'_')+
@@ -91,8 +91,8 @@ rule read =
   | "int_to_float"    { INT_TO_FLOAT }
   | "int_to_string"   { INT_TO_STRING }
   | "int_of_string"   { INT_OF_STRING }
-  | "float_of_string" { FLOAT_OF_STRING }
   | "float_to_string" { FLOAT_TO_STRING }
+  | "float_of_string" { FLOAT_OF_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }
   | "obj_fields"      { OBJ_FIELDS }
   | "to_int32"        { TO_INT32 }
@@ -119,18 +119,21 @@ rule read =
   | "function"        { FUNCTION }
   | "delete"          { DELETE }
   | "null"            { NULL }
+  | "undefined"       { SYMBOL ("'undefined") }
   | "repeat"          { REPEAT }
   | "until"           { UNTIL }
   | "match"           { MATCH }
   | "with"            { WITH }
   | "print"           { PRINT }
+  | "NaN"             { FLOAT (float_of_string "nan") }
+  | "Infinity"        { FLOAT (float_of_string "infinity") }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | string            { STRING (Lexing.lexeme lexbuf) }
   | var               { VAR (Lexing.lexeme lexbuf) }
   | symbol            { SYMBOL (Lexing.lexeme lexbuf) }
-  | loc            { LOC (Lexing.lexeme lexbuf) }
+  | loc               { LOC (Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }
   | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof               { EOF }

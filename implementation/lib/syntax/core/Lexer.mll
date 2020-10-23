@@ -21,11 +21,11 @@ let digit   = ['0' - '9']
 let letter  = ['a' - 'z' 'A' - 'Z']
 let special = ('_'|' '|','|';'|'.'|':'|'\\' '"'|'/'|'*'|'-'|'+'|'<'|'>'|'='|'{'|'}'|'['|']'|'('|')'|'$'|'@'|'!'|'?'|'%'|'~'|'&'|'|'|'^')
 let int     = '-'?digit+
-let float   = int('.')digit*
+let float   = int('.')digit*|"nan"|"inf"
 let bool    = "true"|"false"
 let string  = '"'(digit|letter|special)*'"'
 let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
-let symbol  = '\''('+'|'-')*(var|int)
+let symbol  = '\''(var|int)
 let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
 let loc     = "$loc_"(digit|letter|'_')+
@@ -87,8 +87,8 @@ rule read =
   | "int_to_float"    { INT_TO_FLOAT }
   | "int_to_string"   { INT_TO_STRING }
   | "int_of_string"   { INT_OF_STRING }
-  | "float_of_string" { FLOAT_OF_STRING }
   | "float_to_string" { FLOAT_TO_STRING }
+  | "float_of_string" { FLOAT_OF_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }
   | "obj_fields"      { OBJ_FIELDS }
   | "to_int32"        { TO_INT32 }
