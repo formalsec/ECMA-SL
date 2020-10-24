@@ -13,7 +13,7 @@ if (args.length === 4 && args.indexOf("-f") !== -1) {
     let htmlStringBody = ""
     let heapObj = JSON.parse(heapData)
 
-    htmlStringBody = "<ul>"
+    htmlStringBody = '<ul style="padding: 0;">'
 
     for (let prop in heapObj) {
       let propHtmlString = ""
@@ -25,7 +25,7 @@ if (args.length === 4 && args.indexOf("-f") !== -1) {
         if (String(innerPropValue).startsWith("$loc_")) {
           innerPropHtmlString += `
           <li class="expand">
-            <span>${innerProp}:</span>
+            <span class="key">${innerProp}:</span>
             <span class="loc">${innerPropValue}</span>
             <a href="#${innerPropValue}">
               <span class="click-text"></span>
@@ -34,7 +34,7 @@ if (args.length === 4 && args.indexOf("-f") !== -1) {
         } else {
           innerPropHtmlString += `
           <li>
-            <span>${innerProp}:</span>
+            <span class="key">${innerProp}:</span>
             <span class="${typeof innerPropValue}">${innerPropValue}</span>
           </li>`
         }
@@ -49,7 +49,7 @@ if (args.length === 4 && args.indexOf("-f") !== -1) {
 
       htmlStringBody += `
       <li id="${prop}">
-        <span>${prop}: </span>
+        <span class="key">${prop}: </span>
         <span>{</span>
         ${propHtmlString}
         <span>}</span>

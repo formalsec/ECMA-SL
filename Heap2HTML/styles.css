@@ -1,3 +1,17 @@
+body {
+  font-family: monospace;
+  background: #111;
+  color: #fff;
+  margin: 1em;
+}
+
+.key {
+  color: #75bfff;
+}
+.click-text {
+  color: #75bfff;
+}
+
 li {
   list-style: none;
 }
@@ -9,7 +23,7 @@ body > ul > li {
 .collapse .click-text::after,
 .expand .click-text::after {
   margin-left: 5px;
-  font-size: 0.6em;
+  font-size: 0.8em;
   font-style: italic;
 }
 
@@ -22,16 +36,16 @@ body > ul > li {
 }
 
 .boolean {
-  color: blueviolet;
+  color: #86de74;
 }
 
 .number {
-  color: green;
+  color: #86de74;
 }
 
 .string,
 .loc {
-  color: navy;
+  color: #ff7de9;
 }
 .string::before,
 .string::after,
