@@ -8,12 +8,17 @@ body {
 .key {
   color: #75bfff;
 }
+
 .click-text {
   color: #75bfff;
 }
 
 li {
   list-style: none;
+}
+
+li:hover {
+  background: #222;
 }
 
 body > ul > li {
