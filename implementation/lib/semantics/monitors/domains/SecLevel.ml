@@ -9,6 +9,10 @@ let top () : t option ref = raise (Except "Illegal Lattice operation ")
 
 let flows () : (t * t) list ref = raise (Except "Illegal Lattice operation ")
 
+let addFlow (lst1: string list) (lst2 : string list) : unit = raise (Except "Illegal Lattice operation ")
+
+let setTop (l_top : string list): unit = raise (Except "Illegal Lattice operation ")
+
 
 let str (l:t) =
   match l with

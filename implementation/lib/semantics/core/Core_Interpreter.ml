@@ -131,6 +131,13 @@ let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : E
       | _         -> invalid_arg "Exception in Interpreter.eval_fielddelete_stmt : \"f\" didn't evaluate to Str") in
   Heap.delete_field heap loc' field'
 
+  let str_sset_to_list (str : string) : string list =
+    let rem1 = String.split_on_char '{' str in
+        let rem2 = String.split_on_char '}' (List.nth rem1 0) in
+        let finalst = String.split_on_char ',' (List.nth rem2 1) in
+        finalst
+
+
 
 
 (* \/ ======================================= Main InterpreterFunctions ======================================= \/ *)
@@ -292,6 +299,25 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
     let v = eval_objfields_oper heap sto e in
     Store.set sto st v;
     (Intermediate ((cs, heap, sto), cont), SecLabel.AssignLab (st, e))
+
+  | SetTop exp -> 
+    let st = eval_expr sto exp in
+      (match st with 
+      | Str v -> 
+        let finalst = str_sset_to_list v in
+        (Intermediate ((cs, heap, sto), cont), SecLabel.SetTopLab  finalst)
+      | _ -> raise (Except "SetTop -> not a string"))
+
+  | AllowFlow (exp1, exp2) -> 
+    let st1 = eval_expr sto exp1 in
+    let st2 = eval_expr sto exp2 in
+    (match st1, st2 with
+    | Str v1, Str v2 -> 
+      let final1 = str_sset_to_list v1 in
+      let final2 = str_sset_to_list v2 in
+      (Intermediate ((cs, heap, sto), cont), SecLabel.AllowFlowLab  (final1, final2))
+    | _, _ -> raise (Except "AllowFlow -> not a string"))
+    
 
 (*This function will iterate smallsteps in a list of functions*)
 let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> (Mon.sl SecLabel.t) option) (prog:Prog.t) (state : state_t) (mon_state:Mon.state_t) (stmts:Stmt.t list)  (context: ctx_t): return =

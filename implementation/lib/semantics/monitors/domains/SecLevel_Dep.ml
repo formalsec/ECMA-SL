@@ -35,8 +35,10 @@ let leq (set1:t) (set2:t): bool = SSet.subset set1 set2
 let str (l:t) : string =
 	"{" ^ (String.concat " " (SSet.elements l))   ^"}"
 
-let add_flow (set1: t) (set2 : t) : unit =
-	flows := !flows @ [(set1, set2)] ; ()
+let addFlow (lst1: string list) (lst2 : string list) : unit =
+	let set1, set2 = (SSet.of_list lst1), (SSet.of_list lst2) in 
+	flows := !flows @ [(set1, set2)] ; 
+	()
 
 let apply_flow (fl : flow)  (lev: t) : t =
 	match fl with 

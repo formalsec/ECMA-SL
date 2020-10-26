@@ -109,6 +109,8 @@ rule read =
   | "/*"              { read_comment lexbuf }
   | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof               { EOF }
+  | "setTop"          { SETTOP }
+  | "allowFlow"       { ALLOWFLOW}
 
 
 

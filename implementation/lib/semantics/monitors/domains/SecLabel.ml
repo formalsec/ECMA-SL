@@ -19,6 +19,9 @@ type 'sl t =
   | UpgPropValLab of (Loc.t * string * Expr.t * Expr.t * 'sl)
   | UpgStructLab of (Loc.t * Expr.t * 'sl)
   | UpgObjectLab of (Loc.t * Expr.t * 'sl)
+  (**)
+  | SetTopLab of string list
+  | AllowFlowLab of ((string list) * (string list))
 
 
 
@@ -50,6 +53,10 @@ let str (sl_str : 'sl -> string) (label : 'sl t) : string =
     "UpgStructLab"
   | UpgStructLab (loc, e_o, lvl) ->
     "UpgStructLab"
+  | SetTopLab st ->
+    "TopLevelLab ( " ^ (String.concat ", " st)^ " )"
+  | AllowFlowLab (st1, st2) ->
+    "AllowFlowLab ( "^ (String.concat ", " st1) ^ ",  "^ (String.concat ", " st2)^ " )"   
   | _ ->
     "Missing str"
 

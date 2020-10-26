@@ -6,6 +6,10 @@ val top : unit -> t option ref
 
 val flows : unit -> (t * t) list ref 
 
+val setTop : string list -> unit
+
+val addFlow : string list -> string list ->unit
+
 val str : t -> string 
 
 val parse_lvl : string -> t 

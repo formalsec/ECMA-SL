@@ -8,6 +8,8 @@
 %token PRINT
 %token DEFEQ
 %token WHILE
+%token SETTOP
+%token ALLOWFLOW
 %token IF ELSE
 %token RETURN
 %token NULL
@@ -226,6 +228,10 @@ stmt_target:
     { print_endline ">ASSIGNOBJTOLIST"; Stmt.AssignObjToList (v, e) }
   | v = VAR; DEFEQ; OBJ_FIELDS; e = expr_target;
     { print_endline ">ASSIGNOBJFIELDS"; Stmt.AssignObjFields (v, e) }
+  | SETTOP; LPAREN; e = expr_target; RPAREN;
+    { print_endline ">SETTOP"; Stmt.SetTop e}
+  | ALLOWFLOW; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    { print_endline ">ALLOWFLOW"; Stmt.AllowFlow (e1,e2)}
 
 
 

@@ -1,6 +1,7 @@
 (*Each monitor is independent of the other ones*)
 
 module M (SL : SecurityLevel.M) = struct 
+module SSet = Set.Make(String)
 
 exception Except of string
 
@@ -255,6 +256,16 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
             else raise (Except "Internal Error"))
           else MFail((scs,sheap,ssto,pc), "Illegal Field Creation")
         | None -> raise (Except "Internal Error")))
+
+  | SetTopLab e_lst ->
+    SL.setTop e_lst;
+    MReturn (scs, sheap, ssto, pc)
+
+  | AllowFlowLab (stlst1,stlst2) ->
+    (*We need to transform expr in SSet*)
+
+    SL.addFlow stlst1 stlst2;
+    MReturn (scs, sheap, ssto, pc)
 
 let initial_monitor_state (): state_t =
   let sheap = SecHeap.create () in
