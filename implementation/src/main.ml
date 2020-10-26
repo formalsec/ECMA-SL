@@ -9,6 +9,8 @@ let parse = ref false
 
 module NSU = NSU_Monitor.M(SecLevel)
 module CoreInterp = Core_Interpreter.M(NSU)
+module Dep_Lattice = SecLevel_Dep.M
+
 (*
 module DCM = Decline_Monitor.M(SecLevel)
 module CoreInterp = Core_Interpreter.M(DCM)

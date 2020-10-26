@@ -6,6 +6,10 @@ type t=
   | MidTwo
   | Low
 
+let top : SSet.t option ref = raise (Except "Illegal Lattice operation ")
+
+let flows : (Set.t * SSet.t) list ref = raise (Except "Illegal Lattice operation ")
+
 
 let str (l:t) =
   match l with

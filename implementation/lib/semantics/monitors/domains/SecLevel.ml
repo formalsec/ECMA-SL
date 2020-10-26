@@ -5,6 +5,11 @@ type t=
   | Low
 
 
+let top () : t option ref = raise (Except "Illegal Lattice operation ")
+
+let flows () : (t * t) list ref = raise (Except "Illegal Lattice operation ")
+
+
 let str (l:t) =
   match l with
   | High -> "high"

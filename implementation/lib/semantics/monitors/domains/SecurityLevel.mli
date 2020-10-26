@@ -2,6 +2,10 @@ module type M = sig
 
 type t
 
+val top : unit -> t option ref 
+
+val flows : unit -> (t * t) list ref 
+
 val str : t -> string 
 
 val parse_lvl : string -> t 

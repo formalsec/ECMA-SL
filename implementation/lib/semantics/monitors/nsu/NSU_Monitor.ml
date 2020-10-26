@@ -1,7 +1,6 @@
 (*Each monitor is independent of the other ones*)
 
-module M 
-  (SL : SecurityLevel.M) = struct 
+module M (SL : SecurityLevel.M) = struct 
 
 exception Except of string
 
