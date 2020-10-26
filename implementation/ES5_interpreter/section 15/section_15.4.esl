@@ -885,16 +885,103 @@ function slice(this, start, end) {
  * that accepts two arguments x and y and returns a negative value if x < y,
  * zero if x = y, or a positive value if x > y.
  */
-function sort (this, comparefn) {
+function sort(this, comparefn) {
   /* Let obj be the result of calling ToObject passing the this value
      as the argument. */
   obj := ToObject(this);
   /* Let len be the result of applying Uint32 to the result of calling
      the [[Get]] internal method of obj with argument "length". */
-  len := ToUint32({obj.Get}(obj, "length"))
+  len := ToUint32({obj.Get}(obj, "length"));
   /* If comparefn is not undefined and is not a consistent comparison
      function for the elements of this array (see below), the behaviour
      of sort is implementation-defined. */
+  /* TODO */
+  /* Let proto be the value of the [[Prototype]] internal property of obj. */
+  proto := obj.Prototype; /* TODO */
+  /* If proto is not null and there exists an integer j such that all of the
+     conditions below are satisfied then the behaviour of sort is
+     implementation-defined:
+     - obj is sparse (15.4)
+     - 0 ≤ j < len
+     - The result of calling the [[HasProperty]] internal method of proto
+       with argument ToString(j) is true. */
+  /* TODO */
+  /* The behaviour of sort is also implementation defined if obj is sparse
+     and any of the following conditions are true:
+     - The [[Extensible]] internal property of obj is false.
+     - Any array index property of obj whose name is a nonnegative integer
+       less than len is a data property whose [[Configurable]] attribute
+       is false. */
+  /* TODO */
+  /* The behaviour of sort is also implementation defined if any array
+     index property of obj whose name is a nonnegative integer less than
+     len is an accessor property or is a data property whose [[Writable]]
+     attribute is false. */
+  /* TODO */
+  /* Otherwise, the following steps are taken. */
+  /* 1. Perform an implementation-dependent sequence of calls to the [[Get]] ,
+        [[Put]], and [[Delete]] internal methods of obj and to SortCompare
+        (described below), where the first argument for each call to [[Get]],
+        [[Put]], or [[Delete]] is a nonnegative integer less than len and where
+        the arguments for calls to SortCompare are results of previous calls to
+        the [[Get]] internal method. The throw argument to the [[Put]] and
+        [[Delete]] internal methods will be the value true. If obj is not
+        sparse then [[Delete]] must not be called. */
+
+  /* INSERTION SORT - START */
+  k := 1.;
+  while (k < len) {
+    j := k - 1.;
+    while ((j >= 0.) && (SortCompare(obj, comparefn, j, j + 1.) > 0.)) {
+      jValNext := {obj.Get}(obj, ToString(j + 1.));
+      jVal := {obj.Get}(obj, ToString(j));
+      {obj.Put}(obj, ToString(j + 1.), jVal, true);
+      {obj.Put}(obj, ToString(j), jValNext, true);
+      j := j - 1.
+    };
+    k := k + 1.
+  };
+  /* INSERTION SORT - END */
+
+  /* 2. Return obj. */
+  return obj
+
+  /* The returned object must have the following two properties.
+     - There must be some mathematical permutation π of the nonnegative
+       integers less than len, such that for every nonnegative integer j
+       less than len, if property old[j] existed, then new[π(j)] is exactly
+       the same value as old[j],. But if property old[j] did not exist,
+       then new[π(j)] does not exist.
+     - Then for all nonnegative integers j and k, each less than len,
+       if SortCompare(j,k) < 0 (see SortCompare below), then π(j) < π(k).
+
+    Here the notation old[j] is used to refer to the hypothetical result
+    of calling the [[Get]] internal method of obj with argument j before
+    this function is executed, and the notation new[j] to refer to the
+    hypothetical result of calling the [[Get]] internal method of obj
+    with argument j after this function has been executed.
+
+    A function comparefn is a consistent comparison function for a set
+    of values S if all of the requirements below are met for all values
+    a, b, and c (possibly the same value) in the set S: The notation
+    a <CF b means comparefn(a,b) < 0; a =CF b means comparefn(a,b) = 0
+    (of either sign); and a >CF b means comparefn(a,b) > 0.
+
+    - Calling comparefn(a,b) always returns the same value v when given
+    a specific pair of values a and b as its two arguments. Furthermore,
+    Type(v) is Number, and v is not NaN. Note that this implies that
+    exactly one of a <CF b, a =CF b, and a >CF b will be true for a
+    given pair of a and b.
+    - Calling comparefn(a,b) does not modify the this object.
+    - a =CF a (reflexivity)
+    - If a =CF b, then b =CF a (symmetry)
+    - If a =CF b and b =CF c, then a =CF c (transitivity of =CF)
+    - If a <CF b and b <CF c, then a <CF c (transitivity of <CF)
+    - If a >CF b and b >CF c, then a >CF c (transitivity of >CF)
+
+    NOTE The above conditions are necessary and sufficient to ensure
+    that comparefn divides the set S into equivalence classes and that
+    these equivalence classes are totally ordered. */
 };
 /**
  * NOTE 1 Because non-existent property values always compare greater than
@@ -907,6 +994,80 @@ function sort (this, comparefn) {
  * to other kinds of objects for use as a method. Whether the sort function
  * can be applied successfully to a host object is implementation-dependent.
  */
+
+
+
+
+/**
+ * When the SortCompare abstract operation is called with two arguments
+ * j and k, the following steps are taken:
+ */
+function SortCompare(obj, comparefn, j, k) {
+  /* 1. Let jString be ToString(j). */
+  jString := ToString(j);
+  /* 2. Let kString be ToString(k). */
+  kString := ToString(k);
+  /* 3. Let hasj be the result of calling the [[HasProperty]] internal
+        method of obj with argument jString. */
+  hasj := {obj.HasProperty}(obj, jString);
+  /* 4. Let hask be the result of calling the [[HasProperty]] internal
+        method of obj with argument kString. */
+  hask := {obj.HasProperty}(obj, kString);
+  /* 5. If hasj and hask are both false, then return +0. */
+  if ((hasj = false) && (hask = false)) {
+    return 0.
+  };
+  /* 6. If hasj is false, then return 1. */
+  if (hasj = false) {
+    return 1.
+  };
+  /* 7. If hask is false, then return –1. */
+  if (hask = false) {
+    return -1.
+  };
+  /* 8. Let x be the result of calling the [[Get]] internal method of
+        obj with argument jString. */
+  x := {obj.Get}(obj, jString);
+  /* 9. Let y be the result of calling the [[Get]] internal method of
+        obj with argument kString. */
+  y := {obj.Get}(obj, kString);
+  /* 10. If x and y are both undefined, return +0. */
+  if ((x = 'undefined) && (y = 'undefined)) {
+    return 0.
+  };
+  /* 11. If x is undefined, return 1. */
+  if (x = 'undefined) {
+    return 1.
+  };
+  /* 12. If y is undefined, return −1. */
+  if (y = 'undefined) {
+    return -1.
+  };
+  /* 13. If the argument comparefn is not undefined, then */
+  if (!(comparefn = 'undefined)) {
+    /* a. If IsCallable(comparefn) is false, throw a TypeError exception. */
+    if (IsCallable(comparefn) = false) {
+      throw TypeErrorException()
+    };
+    /* b. Return the result of calling the [[Call]] internal method of
+          comparefn passing undefined as the this value and with arguments x and y. */
+    return {comparefn.Call}(comparefn, 'undefined, [x, y])
+  };
+  /* 14. Let xString be ToString(x). */
+  xString := ToString(x);
+  /* 15. Let yString be ToString(y). */
+  yString := ToString(y);
+  /* 16. If xString < yString, return −1. */
+  if (xString < yString) {
+    return -1.
+  };
+  /* 17. If xString > yString, return 1. */
+  if (xString > yString) {
+    return 1.
+  };
+  /* 18. Return +0. */
+  return 0.
+};
 
 
 
@@ -1070,7 +1231,9 @@ function splice (this, start, deleteCount, items) {
   newLen := newLen + itemCount;
   /* 16. Call the [[Put]] internal method of O with arguments "length",
          (len - actualDeleteCount + itemCount), and true. */
-  {O.Put}(O, "length", (len - (actualDeleteCount + itemCount)), true);
+  print "Before put";
+  /*{O.Put}(O, "length", (len - (actualDeleteCount + itemCount)), true);*/
+  print "After put";
   /* 17. Return A. */
   return A
 };
@@ -2287,13 +2450,31 @@ function main() {
   return slice(arr, 2., 4.)
 }*/
 
-/* main sort
+/* main sort */
+function comparefn(scope, this, args) {
+  x := l_nth (args, 0);
+  y := l_nth (args, 1);
+  if (x > y) {
+    return -1.
+  };
+  if (x < y) {
+    return 1.
+  };
+  return 0.
+};
 function main() {
-  arr := newArray([2., 3., 4., 5., 2., 7.]);
-  return sort(arr, callbackfn,'undefined)
-}*/
+  /*arr := newArray([2., 3., 4., 5., 2., 7.]);
+  return sort(arr, 'undefined)*/
 
-/* main splice 
+  /*arr := newArray([6., 5., 4., 3., 2., 1.]);
+  return sort(arr, 'undefined)*/
+
+  arr := newArray([2., 3., 4., 5., 2., 7.]);
+  funcObj := CreateFunctionObject(["x", "y"], "comparefn", 'null, false);
+  return sort(arr, funcObj)
+}
+
+/* main splice
 function main() {
   arr := newArray(["Banana", "Orange", "Apple", "Mango"]);
   items := ["Lemon", "Kiwi"];
@@ -2401,7 +2582,7 @@ function main() {
   return reduce(arr, funcObj, 'undefined)
 }*/
 
-/* main reduceRight */
+/* main reduceRight
 function callbackfn(scope, this, args) {
   total := l_nth (args, 0);
   x := l_nth (args, 1);
@@ -2411,4 +2592,4 @@ function main() {
   arr := newArray([175., 50., 25.]);
   funcObj := CreateFunctionObject(["total", "x"], "callbackfn", 'null, false);
   return reduceRight(arr, funcObj, 'undefined)
-}
+}*/
