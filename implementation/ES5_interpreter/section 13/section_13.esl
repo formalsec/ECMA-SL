@@ -88,6 +88,11 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) 
 };
 
 function Call(F, this, args) {
+
+  if (typeof F.Code = __$Str) {
+    return {F.Code}(null, this, args)
+  };
+
   /* When the [[Call]] internal method for a Function object F is called with a this value and a list of arguments,
     the following steps are taken: */
 
@@ -98,7 +103,7 @@ function Call(F, this, args) {
   /* 2. Let result be the result of evaluating the FunctionBody that is the value of F's [[Code]] internal property.
         If F does not have a [[Code]] internal property or if its value is an empty FunctionBody,
         then result is (normal, undefined, empty). */
-  if (!("Code" in_obj F) || (F.Code.body = [])) {
+  if (!("Code" in_obj F) || ((typeof F.Code = __$Obj) &&& ("body" in_obj F.Code) &&& (F.Code.body = []))) {
     return normalEmptyCompletion('undefined)
   };
   result := JS_Interpreter_FunctionBody(F.Code.body, funcCtx);
