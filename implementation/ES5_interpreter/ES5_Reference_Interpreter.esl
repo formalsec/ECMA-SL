@@ -1,4 +1,5 @@
 import "ES5_interpreter/section 7/section_7.8.esl";
+import "ES5_interpreter/section 8/section_8.6.esl";
 import "ES5_interpreter/section 8/section_8.7.esl";
 import "ES5_interpreter/section 8/section_8.9.esl";
 import "ES5_interpreter/section 8/section_8.10.esl";

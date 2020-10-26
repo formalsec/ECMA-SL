@@ -1,5 +1,6 @@
 function NewObject () {
   return {
+    JSProperties: { },
     Prototype: 'null,
     Extensible: true,
     Class: "Object",
