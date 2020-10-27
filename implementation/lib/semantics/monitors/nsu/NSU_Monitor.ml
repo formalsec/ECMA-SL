@@ -43,7 +43,6 @@ let rec expr_lvl (ssto: sl SecStore.t) (exp:Expr.t) : sl =
 
 let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
 
-
   let (scs, sheap, ssto, pc)= m_state in
   print_string ("Monitor Evaluating >> " ^ (SecLabel.str SL.str tl) ^ "\n");
   print_string "=== MONITOR STATE ===\n";
@@ -69,22 +68,9 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
      | Intermediate (pc',ssto', x) ->  eval_small_step (scs', sheap, ssto', pc') (SecLabel.UpgVarLab (x,lvl_f))
      | Toplevel -> MReturn (scs', sheap, ssto, pc))
 
-  | UpgVarLab (x,lev)->
-    let pc_lvl= check_pc pc in
-    (match SecStore.get_safe ssto x with
-     | Some x_lvl ->
-       if (SL.leq pc_lvl x_lvl ) then (
-         SecStore.set ssto x (SL.lub lev pc_lvl);
-         print_string ("SECSTORE = "^ x ^" <-"^ (SL.str (SL.lub lev pc_lvl)) ^ "\n");
-         MReturn (scs, sheap, ssto, pc)
-       ) else MFail ((scs, sheap, ssto, pc), ("Illegal UpgVarLab: " ^ x ^ " " ^ (SL.str lev)))
-     | None ->
-       SecStore.set ssto x (SL.lub lev pc_lvl);
-       print_string ("SECSTORE = "^ x ^" <-"^ (SL.str (SL.lub lev pc_lvl)) ^ "\n");
-       MReturn (scs, sheap, ssto, pc))
 
   | AssignLab (var, exp)->
-    let lvl=expr_lvl ssto exp in
+    let lvl = expr_lvl ssto exp in
     let pc_lvl= check_pc pc in
     let var_lvl = SecStore.get_safe ssto var in 
     (match var_lvl with
@@ -132,8 +118,6 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
           MReturn (scs, sheap, ssto, pc)
       | _ -> raise (Except "Internal Error"))
 
-
-
   | BranchLab (exp,st) ->
     let lev= expr_lvl ssto exp in
     let pc_lvl = check_pc pc in
@@ -153,6 +137,19 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
     SecStore.set ssto x pc_lvl;
     MReturn (scs, sheap, ssto, pc)
 
+  | UpgVarLab (x,lev)->
+      let pc_lvl= check_pc pc in
+      (match SecStore.get_safe ssto x with
+       | Some x_lvl ->
+         if (SL.leq pc_lvl x_lvl ) then (
+           SecStore.set ssto x (SL.lub lev pc_lvl);
+           print_string ("SECSTORE = "^ x ^" <-"^ (SL.str (SL.lub lev pc_lvl)) ^ "\n");
+           MReturn (scs, sheap, ssto, pc)
+         ) else MFail ((scs, sheap, ssto, pc), ("Illegal UpgVarLab: " ^ x ^ " " ^ (SL.str lev)))
+       | None ->
+         SecStore.set ssto x (SL.lub lev pc_lvl);
+         print_string ("SECSTORE = "^ x ^" <-"^ (SL.str (SL.lub lev pc_lvl)) ^ "\n");
+         MReturn (scs, sheap, ssto, pc))
 
   | UpgObjectLab (loc, e_o, lvl) -> (*UpgObjLab <- mudar*)
     let lev_o = expr_lvl ssto e_o in
@@ -262,8 +259,6 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
     MReturn (scs, sheap, ssto, pc)
 
   | AllowFlowLab (stlst1,stlst2) ->
-    (*We need to transform expr in SSet*)
-
     SL.addFlow stlst1 stlst2;
     MReturn (scs, sheap, ssto, pc)
 

@@ -133,9 +133,9 @@ let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : E
 
   let str_sset_to_list (str : string) : string list =
     let rem1 = String.split_on_char '{' str in
-        let rem2 = String.split_on_char '}' (List.nth rem1 0) in
-        let finalst = String.split_on_char ',' (List.nth rem2 1) in
-        finalst
+    let rem2 = String.split_on_char '}' (List.nth rem1 1) in
+    let finalst = String.split_on_char ',' (List.nth rem2 0) in
+      finalst
 
 
 
@@ -145,7 +145,7 @@ let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : E
 
 let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl SecLabel.t) option) (prog: Prog.t) (state : state_t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : (return * (Mon.sl SecLabel.t))  =
   let (cs, heap, sto)= state in
-  print_string ("====================================\nEvaluating >>>>> "^(Stmt.str s) ^ "\n");
+  print_string ("\n====================================\nEvaluating >>>>> "^(Stmt.str s) ^ "\n");
   match s with
   | Skip ->
     (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
@@ -216,7 +216,6 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
 
   | AssignCall (x,f,es) ->
     let f'= get_func_id sto f in
-    print_string ("FUNCTION: " ^ f');
     let vs = (List.map (eval_expr sto) es) in
     let b = interceptor f' vs es in
     ( match b with
@@ -309,6 +308,7 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
       | _ -> raise (Except "SetTop -> not a string"))
 
   | AllowFlow (exp1, exp2) -> 
+    print_string "ALLOWFLOW\n";
     let st1 = eval_expr sto exp1 in
     let st2 = eval_expr sto exp2 in
     (match st1, st2 with
@@ -332,6 +332,7 @@ let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> (
                           match return with
                           |Finalv v ->  Finalv v
                           |Intermediate (state', stmts'') ->
+                            print_string "CALLING MONITOR...\n";
                             small_step_iter interceptor prog state' mon_state' stmts'' context)
                       | MFail  (mon_state', str) ->
                         print_string ("MONITOR EXCEPTION -> "^str);

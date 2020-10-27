@@ -6,10 +6,10 @@ let out = ref ""
 let verb_aux = ref false
 let parse = ref false
 
-
-module NSU = NSU_Monitor.M(SecLevel)
-module CoreInterp = Core_Interpreter.M(NSU)
 module Dep_Lattice = SecLevel_Dep.M
+module NSU = NSU_Monitor.M(Dep_Lattice)
+module CoreInterp = Core_Interpreter.M(NSU)
+
 
 (*
 module DCM = Decline_Monitor.M(SecLevel)

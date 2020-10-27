@@ -7,7 +7,7 @@ type t = SSet.t
 
 type flow = t * t
 
-let top  : SSet.t option ref = ref None
+let top  : t option ref = ref None
 
 let flows : flow list ref = ref []
 
@@ -64,7 +64,10 @@ let close_level (lev : t) : unit =
 
 
 let parse_lvl (str : string) : t =
-	SSet.empty 
+	let rem1 = String.split_on_char '{' str in
+    let rem2 = String.split_on_char '}' (List.nth rem1 1) in
+    let finalst = String.split_on_char ',' (List.nth rem2 0) in
+	SSet.of_list  finalst 
 
 
   

@@ -8,7 +8,11 @@ type t=
 
 let top : SSet.t option ref = raise (Except "Illegal Lattice operation ")
 
-let flows : (Set.t * SSet.t) list ref = raise (Except "Illegal Lattice operation ")
+let flows : (SSet.t * SSet.t) list ref = raise (Except "Illegal Lattice operation ")
+
+let addFlow (lst1: string list) (lst2 : string list) : unit = raise (Except "Illegal Lattice operation ")
+
+let setTop (l_top : string list): unit = raise (Except "Illegal Lattice operation ")
 
 
 let str (l:t) =

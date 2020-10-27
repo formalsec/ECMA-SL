@@ -90,6 +90,8 @@ rule read =
   | '['               { LBRACK }
   | ']'               { RBRACK }
   | "typeof"          { TYPEOF }
+  | "setTop"          { SETTOP }
+  | "allowFlow"       { ALLOWFLOW}
   | "__$"             { read_type lexbuf }
   | "if"              { IF }
   | "else"            { ELSE }
@@ -109,8 +111,7 @@ rule read =
   | "/*"              { read_comment lexbuf }
   | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof               { EOF }
-  | "setTop"          { SETTOP }
-  | "allowFlow"       { ALLOWFLOW}
+  
 
 
 

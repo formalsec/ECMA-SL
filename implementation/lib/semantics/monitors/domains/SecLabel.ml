@@ -63,7 +63,6 @@ let str (sl_str : 'sl -> string) (label : 'sl t) : string =
 
 
 let interceptor (parse_sl : string -> 'sl) (func : string) (vs : Val.t list) (es : Expr.t list) : ('sl t) option =
- print_string ("Searching.... "^ func);
   match (func, vs, es) with
   | ("upgVar",[Val.Str x; Val.Str lev_str], [Expr.Val  (Str x'); Expr.Val (Str lev_str')])
     when x = x' && lev_str = lev_str' ->  Some (UpgVarLab (x,parse_sl lev_str))
