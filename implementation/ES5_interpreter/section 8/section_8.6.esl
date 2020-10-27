@@ -1,0 +1,34 @@
+/* Auxiliary functions */
+function NewECMAScriptObject() {
+  return {
+    JSProperties: {}
+  }
+};
+
+function NewECMAScriptObjectFull(prototype, class, extensible) {
+  object := NewECMAScriptObject();
+  setInternalProperty(object, "Prototype", prototype);
+  setInternalProperty(object, "Class", class);
+  setInternalProperty(object, "Extensible", extensible);
+
+  return object
+};
+
+
+function getInternalProperty(object, pname) {
+  return object[pname]
+};
+
+function getJSProperty(object, pname) {
+  return object.JSProperties[pname]
+};
+
+function setInternalProperty(object, pname, pvalue) {
+  object[pname] := pvalue;
+  return
+};
+
+function setJSProperty(object, pname, pvalue) {
+  object.JSProperties[pname] := pvalue;
+  return
+}

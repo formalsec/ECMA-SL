@@ -14,7 +14,7 @@ function CreateArgumentsObject(func, names, args, env, strict) {
   /* 1. Let len be the number of elements in args. */
   len := l_len args;
   /* 2. Let obj be the result of creating a new ECMAScript object. */
-  obj := NewObject(); /* TODO ?? */
+  obj := NewECMAScriptObject();
   /* 3. Set all the internal methods of obj as specified in 8.12. */
   setAllInternalMethodsOfObject(obj);
   /* 4. Set the [[Class]] internal property of obj to "Arguments". */
