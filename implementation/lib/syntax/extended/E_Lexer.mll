@@ -83,6 +83,9 @@ rule read =
   | "l_concat"     { LCONCAT }
   | "hd"           { HD }
   | "tl"           { TL }
+  | "s_len"        { SLEN }
+  | "s_nth"        { SNTH }
+  | "int_of_float" { INT_OF_FLOAT }
   | "t_len"        { TLEN }
   | "t_nth"        { TNTH }
   | "fst"          { FST }

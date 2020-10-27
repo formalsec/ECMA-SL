@@ -4,7 +4,7 @@ import "ES5_interpreter/section 8/section_8.10.esl";
 import "ES5_interpreter/section 8/section_8.12.esl";
 import "ES5_interpreter/section 15/section_15.11.esl";
 
-/* This method is not supposed to be here. As soon 
+/* This method is not supposed to be here. As soon
    as it is placed in the right section, it should
    be replaced by an import of that section. */
 function Type(V) {
@@ -97,7 +97,7 @@ function abs(a) {
  */
 
 /**
- * 15.4.2.1 new Array ( [ item0 [ , item1 [ , … ] ] ] ) # Ⓣ 
+ * 15.4.2.1 new Array ( [ item0 [ , item1 [ , … ] ] ] ) # Ⓣ
  * This description applies if and only if the Array constructor is given
  * no arguments or at least two arguments.
  */
@@ -198,7 +198,7 @@ function newArrayLen(len) {
 
 
 /**
- * 15.4.3.2 Array.isArray ( arg ) 
+ * 15.4.3.2 Array.isArray ( arg )
  *
  * The isArray function takes one argument arg, and returns the Boolean
  * value true if the argument is an object whose class internal property
@@ -386,7 +386,7 @@ function concat(this, items) {
           element. */
     E := hd items;
     items := tl items;
-    
+
     /* b. If the value of the [[Class]] internal property of E is "Array",
           then */
     if (E.Class = "Array") {
@@ -455,7 +455,7 @@ function concat(this, items) {
  * 15.4.4.5 Array.prototype.join (separator)
  *
  * The elements of the array are converted to Strings, and these Strings
- * are then concatenated, separated by occurrences of the separator. If 
+ * are then concatenated, separated by occurrences of the separator. If
  * no separator is provided, a single comma is used as the separator.
  *
  * The join method takes one argument, separator, and performs the
@@ -848,7 +848,7 @@ function slice(this, start, end) {
       /* i. Let kValue be the result of calling the [[Get]] internal method of O
             with argument Pk. */
       kValue := {O.Get}(O, Pk);
-      /* ii. Call the [[DefineOwnProperty]] internal method of A with arguments 
+      /* ii. Call the [[DefineOwnProperty]] internal method of A with arguments
              ToString(n), Property Descriptor {[[Value]]: kValue, [[Writable]]:
              true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
       descriptor := newDataPropertyDescriptorFull(kValue, true, true, true);
@@ -1448,7 +1448,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     if (oldLenDesc.Writable = false) {
       Reject(Throw)
     };
-    
+
     /* h. If newLenDesc.[[Writable]] is absent or has the value true,
           let newWritable be true. */
     if (!("Writable" in_obj newLenDesc) || newLenDesc.Writable = true) {
@@ -1558,22 +1558,22 @@ function main() {
   return arr
 }*/
 
-/* main isArray 
+/* main isArray
 function main() {
   return isArray(newArray([2., 3.]))
 }*/
 
-/* main toStringArray TODO 
+/* main toStringArray TODO
 function main() {
   return toStringArray(newArray([2., 3.]))
 }*/
 
-/* main toLocaleString TODO 
+/* main toLocaleString TODO
 function main() {
   return toLocaleString(newArray([2., 3.]))
 }*/
 
-/* main concat 
+/* main concat
 function main() {
   arr1 := newArray([2., 3.]);
   arr2 := newArray([4., 5.]);
@@ -1581,7 +1581,7 @@ function main() {
   return arr
 }*/
 
-/* main join 
+/* main join
 function main() {
   arr := newArray([2., 3., 4., 5.]);
   return join (arr, "_")
@@ -1600,7 +1600,7 @@ function main() {
   return obj
 }*/
 
-/* main push 
+/* main push
 function main() {
   arr := newArray([2., 3., 4.]);
   newLen := push(arr, [5., 6.]);
@@ -1609,11 +1609,11 @@ function main() {
     arr: arr,
     newLen: newLen
   };
-  
+
   return obj
 }*/
 
-/* main reverse 
+/* main reverse
 function main() {
   return reverse(newArray([2., 3., 6., 9.]))
 }*/
@@ -1627,17 +1627,17 @@ function main() {
     arr: arr,
     firstEl: firstEl
   };
-  
+
   return obj
 }*/
 
-/* main slice 
+/* main slice
 function main() {
   arr := newArray([2., 3., 4., 5., 6., 7.]);
   return slice(arr, 2., 4.)
 }*/
 
-/* main splice 
+/* main splice
 function main() {
   arr := newArray(["Banana", "Orange", "Apple", "Mango"]);
   items := ["Lemon", "Kiwi"];
@@ -1647,11 +1647,11 @@ function main() {
     arr: arr,
     removedEls: removedEls
   };
-  
+
   return obj
 }*/
 
-/* main unshift 
+/* main unshift
 function main() {
   arr := newArray([2., 3., 4., 5., 6., 7.]);
   newLen := unshift(arr, [22., 44.]);
@@ -1670,8 +1670,10 @@ function main() {
   return indexOf(arr, 5., 'undefined)
 }*/
 
-/* main lastIndexOf */
+/* main lastIndexOf
 function main() {
   arr := newArray([2., 3., 4., 5., 2., 7.]);
   return lastIndexOf(arr, 2., 'undefined)
 }
+
+*/

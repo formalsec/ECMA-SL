@@ -24,6 +24,7 @@ type bopt = Plus
           | Ladd
           | Lprepend
           | Lconcat
+          | SNth
 
 type uopt = Neg
           | Not
@@ -38,6 +39,7 @@ type uopt = Neg
           | IntToFloat
           | IntToString
           | IntOfString
+          | IntOfFloat
           | FloatOfString
           | FloatToString
           | ObjToList
@@ -47,6 +49,8 @@ type uopt = Neg
           | ToUint32
           | Floor
           | ToUint16
+          | SLen
+
 
 
 type nopt = ListExpr
@@ -208,6 +212,10 @@ let int_of_string (v : Val.t) : Val.t = match v with
   | Str s -> Int (int_of_string s)
   | _     -> invalid_arg "Exception in Oper.int_of_string: this operation is only applicable to Str arguments"
 
+let int_of_float (v : Val.t) : Val.t = match v with
+  | Flt f -> Int (int_of_float f)
+  | _     -> invalid_arg "Exception in Oper.int_of_float: this operation is only applicable to Flt arguments"
+
 let float_of_string (v : Val.t) : Val.t = match v with
   | Str s -> Flt (float_of_string s)
   | _     -> invalid_arg "Exception in Oper.float_of_string: this operation is only applicable to Str arguments"
@@ -254,6 +262,14 @@ let to_floor (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (floor n)
   | _     -> Null
 
+let s_len (v : Val.t) : Val.t = match v with
+  | Str s -> Int (String.length s)
+  | _     -> invalid_arg "Exception in Oper.s_len: this operation is only applicable to String arguments"
+
+let s_nth (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
+  | Str s, Int i -> Str (String.sub s i 1)
+  | _            -> invalid_arg "Exception in Oper.s_nth: this operation is only applicable to String and Integer arguments"
+
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
   | Not           -> "!"
@@ -268,6 +284,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | IntToFloat    -> "int_to_float"
   | IntToString   -> "int_to_string"
   | IntOfString   -> "int_of_string"
+  | IntOfFloat    -> "int_of_float"
   | FloatOfString -> "float_of_string"
   | FloatToString -> "float_to_string"
   | ObjToList     -> "obj_to_list"
@@ -277,6 +294,8 @@ let str_of_unopt (op : uopt) : string = match op with
   | ToUint32      -> "to_uint32"
   | Floor         -> "floor"
   | ToUint16      -> "to_uint16"
+  | SLen          -> "s_len"
+
 
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
@@ -305,6 +324,7 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Ladd     -> "l_add(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Lprepend -> "l_prepend(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Lconcat  -> "l_concat(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | SNth     -> "s_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | ListExpr  -> "[ " ^ (String.concat ", " es) ^ " ]"
@@ -327,19 +347,20 @@ let bopt_to_json (op : bopt) : string =
      | Elt     -> Printf.sprintf "Elt\" }"
      | Log_And -> Printf.sprintf "Log_And\" }"
      | Log_Or  -> Printf.sprintf "Log_Or\" }"
-     | BitwiseAnd -> Printf.sprintf "BitwiseAnd\" }"
-     | BitwiseOr -> Printf.sprintf "BitwiseOr\" }"
-     | BitwiseXor -> Printf.sprintf "BitwiseXor\" }"
-     | ShiftLeft -> Printf.sprintf "ShiftLeft\" }"
-     | ShiftRight -> Printf.sprintf "ShiftRight\" }"
+     | BitwiseAnd        -> Printf.sprintf "BitwiseAnd\" }"
+     | BitwiseOr         -> Printf.sprintf "BitwiseOr\" }"
+     | BitwiseXor        -> Printf.sprintf "BitwiseXor\" }"
+     | ShiftLeft         -> Printf.sprintf "ShiftLeft\" }"
+     | ShiftRight        -> Printf.sprintf "ShiftRight\" }"
      | ShiftRightLogical -> Printf.sprintf "ShiftRightLogical\" }"
-     | InObj   -> Printf.sprintf "InObj\" }"
-     | InList  -> Printf.sprintf "InList\" }"
-     | Lnth    -> Printf.sprintf "Lnth\" }"
-     | Tnth    -> Printf.sprintf "Tnth\" }"
-     | Ladd    -> Printf.sprintf "Ladd\" }"
-     | Lprepend -> Printf.sprintf "Lprepend\" }"
-     | Lconcat -> Printf.sprintf "Lconcat\" }")
+     | InObj             -> Printf.sprintf "InObj\" }"
+     | InList            -> Printf.sprintf "InList\" }"
+     | Lnth              -> Printf.sprintf "Lnth\" }"
+     | Tnth              -> Printf.sprintf "Tnth\" }"
+     | Ladd              -> Printf.sprintf "Ladd\" }"
+     | Lprepend          -> Printf.sprintf "Lprepend\" }"
+     | Lconcat           -> Printf.sprintf "Lconcat\" }"
+     | SNth              -> Printf.sprintf "SNth\" }")
 
 let nopt_to_json (op : nopt) : string =
   Printf.sprintf "{ \"type\" : \"nopt\", \"value\" : \"%s"
@@ -366,6 +387,7 @@ let uopt_to_json (op : uopt) : string =
      | IntToFloat    -> Printf.sprintf "IntToFloat\" }"
      | IntToString   -> Printf.sprintf "IntToString\" }"
      | IntOfString   -> Printf.sprintf "IntOfString\" }"
+     | IntOfFloat    -> Printf.sprintf "IntOfFloat\" }"
      | FloatOfString -> Printf.sprintf "FloatOfString\" }"
      | FloatToString -> Printf.sprintf "FloatToString\" }"
      | ObjToList     -> Printf.sprintf "ObjToList\" }"
@@ -374,5 +396,5 @@ let uopt_to_json (op : uopt) : string =
      | ToInt32       -> Printf.sprintf "ToInt32\" }"
      | ToUint32      -> Printf.sprintf "ToUint32\" }"
      | ToUint16      -> Printf.sprintf "ToUint16\" }"
-     | Floor         -> Printf.sprintf "Floor\" }")
-
+     | Floor         -> Printf.sprintf "Floor\" }"
+     | SLen          -> Printf.sprintf "SLen\" }")

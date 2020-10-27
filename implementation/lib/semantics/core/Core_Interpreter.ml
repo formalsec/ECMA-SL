@@ -1,5 +1,5 @@
-module M 
-  (Mon : SecurityMonitor.M) = struct 
+module M
+  (Mon : SecurityMonitor.M) = struct
 
 
 exception Except of string
@@ -14,7 +14,7 @@ type ctx_t = {
   verbose : bool;
   out : string;
   monitor : bool;
-} 
+}
 
 let add_fields_to (obj : Object.t) (fes : (Field.t * Expr.t) list) (eval_e : (Expr.t -> Val.t)) : unit =
   List.iter (fun (f, e) -> let e' = eval_e e in Object.set obj f e') fes
@@ -35,6 +35,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | IntToFloat    -> Oper.int_to_float v
   | IntToString   -> Oper.int_to_string v
   | IntOfString   -> Oper.int_of_string v
+  | IntOfFloat    -> Oper.int_of_float v
   | FloatOfString -> Oper.float_of_string v
   | FloatToString -> Oper.float_to_string v
   | Sconcat       -> Oper.string_concat v
@@ -44,6 +45,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ToUint32      -> Oper.to_uint32 v
   | Floor         -> Oper.to_floor v
   | ToUint16      -> Oper.to_uint16 v
+  | SLen          -> Oper.s_len v
 
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
@@ -73,6 +75,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Lconcat  -> Oper.list_concat (v1, v2)
   | InList   -> Oper.list_in (v1, v2)
   | InObj    -> raise(Except "Not expected")
+  | SNth     -> Oper.s_nth (v1,v2)
 
 
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
@@ -89,8 +92,8 @@ let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
   | Var x                -> Store.get sto x
   | UnOpt (uop, e)       -> let v = eval_expr sto e in
     eval_unop uop v
-  | BinOpt (bop, e1, e2) -> 
-    let v1 = eval_expr sto e1 in 
+  | BinOpt (bop, e1, e2) ->
+    let v1 = eval_expr sto e1 in
     let v2 = eval_expr sto e2 in
     eval_binopt_expr bop v1 v2
   | NOpt (nop, es)       -> eval_nopt_expr nop (List.map (eval_expr sto) es)
@@ -159,7 +162,7 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
   match s with
   | Skip ->
     (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
-  
+
   | Merge -> (Intermediate ((cs, heap, sto), cont), SecLabel.MergeLab)
 
   | Print e ->
@@ -210,7 +213,7 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
       (match s2 with
        | Some v ->
          (match v with
-          | Block block2 -> 
+          | Block block2 ->
           let block2m = (block2 @ (Stmt.Merge :: [])) in
           Intermediate ((cs, heap, sto), (block2m  @ cont)), SecLabel.BranchLab (e,s1)
           |_ -> raise (Except "Not expected"))
@@ -341,4 +344,4 @@ let eval_prog (prog : Prog.t) (out:string) (verbose:bool) (main:string) : (Val.t
   | Finalv v -> v, heap
   | _ -> raise(Except "No return value")(*ERROR*)
 
-end 
+end

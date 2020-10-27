@@ -25,11 +25,11 @@
 %token <string> SYMBOL
 %token <string> LOC
 %token LAND LOR
-%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS
+%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %token TO_INT32 TO_UINT32 TO_UINT16 FLOOR
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
-%token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
+%token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
 %token SCONCAT
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
@@ -154,6 +154,10 @@ expr_target:
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Head, e) } %prec unopt_prec
   | TL; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Tail, e) } %prec unopt_prec
+  | SLEN; e = expr_target;
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.SLen, e) } %prec unopt_prec
+  | INT_OF_FLOAT; e = expr_target;
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.IntOfFloat, e) } %prec unopt_prec
   | FST; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.First, e) } %prec unopt_prec
   | SND; e = expr_target;
@@ -182,6 +186,8 @@ expr_target:
     { print_string ">BINOP\n";Expr.BinOpt (Oper.Lnth, e1, e2) }
   | TNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { print_string ">BINOP\n";Expr.BinOpt (Oper.Tnth, e1, e2) }
+  | SNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    { print_string ">BINOP\n";Expr.BinOpt (Oper.SNth, e1, e2) }
   | LADD; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { print_string ">BINOP\n";Expr.BinOpt (Oper.Ladd, e1, e2) }
   | LPREPEND; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;

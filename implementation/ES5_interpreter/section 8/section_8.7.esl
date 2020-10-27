@@ -54,6 +54,7 @@ function IsUnresolvableReference (V) {
 
 function GetValue(V) {
   print "GetValue";
+  print "Inside GetValue";
   if (!(Type(V) = "Reference")) {
     return V
   };
@@ -66,6 +67,8 @@ function GetValue(V) {
 
   if (IsPropertyReference(V)) {
     if (HasPrimitiveBase(V) = false) {
+      print "Inside HasPrimitiveBase";
+      print base.Get;
       get := base["Get"]
     } else {
       /* TODO

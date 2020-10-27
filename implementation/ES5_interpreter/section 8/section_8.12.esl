@@ -101,13 +101,17 @@ function GetOwnProperty(O, P) {
  * When the [[GetProperty]] internal method of O is called with property name P, the following steps are taken:
  */
 function GetProperty (O, P) {
-  print "GetProperty";
+  print "GetProperty Started";
+  print P;
 
   /** 1. Let prop be the result of calling the [[GetOwnProperty]] internal method of O with property name P. */
   prop := GetOwnProperty(O, P);
+  print "After GetOwnProperty";
+  print prop;
 
   /** 2. If prop is not undefined, return prop. */
   if (!(prop = 'undefined)) {
+    print "Returned prop";
     return prop
   };
 
@@ -141,6 +145,7 @@ function Get(O, P) {
 
   /** 3. If IsDataDescriptor(desc) is true, return desc.[[Value]]. */
   if (IsDataPropertyDescriptor(desc)) {
+    print "Get Returning";
     return desc.Value
   }
   /** 4. Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]]. */
@@ -651,4 +656,3 @@ function setAllInternalMethodsOfObject(obj) {
 
   return obj
 }
-
