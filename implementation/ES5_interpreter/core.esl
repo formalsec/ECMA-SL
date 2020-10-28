@@ -2053,7 +2053,6 @@ __v830 := hint = 'String;
 if (__v830) {
 __v831 := "Get" (O, "toString");
 toString := __v831;
-debug;
 __v832 := "IsCallable" (toString);
 if (__v832) {
 __v834 := [  ];
