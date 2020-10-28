@@ -366,6 +366,8 @@ function DefaultValue (O, hint) {
   if (hint = 'String) {
     /** 1. Let toString be the result of calling the [[Get]] internal method of object O with argument "toString". */
     toString := Get(O, "toString");
+    
+    debug; 
 
     /** 2. If IsCallable(toString) is true then: */
     if (IsCallable(toString)) {

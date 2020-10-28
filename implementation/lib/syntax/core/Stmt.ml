@@ -14,12 +14,14 @@ type t = Skip
        | FieldAssign      of Expr.t * Expr.t * Expr.t
        | FieldDelete      of Expr.t * Expr.t
        | FieldLookup      of string * Expr.t * Expr.t
+       | Debug    
 
 (*---------------Strings------------------*)
 
 let rec str (stmt : t) : string = match stmt with
-    Skip
-  | Merge                       -> ""
+    Skip                        -> "skip"
+  | Merge                       -> "merge" 
+  | Debug                       -> "debug"
   | Print e                     -> "print " ^ (Expr.str e)
   | Assign (v, exp)             -> v ^ " := " ^ (Expr.str exp)
   | If (e, s1, s2)              -> (let v = "if (" ^ Expr.str e ^ ") {\n" ^ str s1 ^ "\n}" in
@@ -38,11 +40,13 @@ let rec str (stmt : t) : string = match stmt with
   | AssignObjToList (st, e)     -> st ^ " := obj_to_list " ^ Expr.str e
   | AssignObjFields (st, e)     -> st ^ " := obj_fields " ^ Expr.str e
 
+
 let rec to_json (stmt : t) : string =
   (*Stmts args : rhs/ lhs / expr / obj / field/ stringvar *)
   match stmt with
   | Skip                        -> Printf.sprintf "{\"type\" : \"skip\"}"
   | Merge                       -> Printf.sprintf "{\"type\" : \"merge\"}"
+  | Debug                       -> Printf.sprintf "{\"type\" : \"debug\"}"
   | Print e                     -> Printf.sprintf "{\"type\" : \"print\", \"expr\" :  %s }" (Expr.to_json e)
   | Assign (v, exp)             -> Printf.sprintf "{\"type\" : \"assign\", \"lhs\" :  \"%s\", \"rhs\" :  %s}" v (Expr.to_json exp)
   | If (e, s1, s2)              -> Printf.sprintf "{\"type\" : \"condition\", \"expr\" : %s, \"then\" : %s %s}" (Expr.to_json e) (to_json s1) (match s2 with

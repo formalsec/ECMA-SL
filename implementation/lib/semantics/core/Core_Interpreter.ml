@@ -163,6 +163,11 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
   | Skip ->
     (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
 
+  | Debug -> 
+    Inspector.inspector heap sto; 
+    (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
+
+
   | Merge -> (Intermediate ((cs, heap, sto), cont), SecLabel.MergeLab)
 
   | Print e ->

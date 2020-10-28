@@ -1,0 +1,2243 @@
+function SetMutableBindingDeclarative (declarativeEnvRec, N, V, S) { print "SetMutableBindingDeclarative";
+envRec := declarativeEnvRec;
+if (true) {
+__v0 := "setMutableBinding" (envRec, N, V)
+} else {
+__v1 := S = true;
+if (__v1) {
+__v2 := "TypeErrorException" ()
+}
+};
+return V };
+function SetMutableBinding (envRec, N, V, S) { print "SetMutableBinding";
+__v3 := "isDeclarativeEnvironmentRecord" (envRec);
+if (__v3) {
+__v4 := "SetMutableBindingDeclarative" (envRec, N, V, S);
+return __v4
+};
+__v5 := "SetMutableBindingObject" (envRec, N, V, S);
+return __v5 };
+function CreateAccessorPropertyFrom (Desc) { __v6 := { };
+__v7 := "GetValueOrDefault" (Desc, "Get");
+__v6["Get"] := __v7;
+__v8 := "GetValueOrDefault" (Desc, "Set");
+__v6["Set"] := __v8;
+__v9 := "GetValueOrDefault" (Desc, "Enumerable");
+__v6["Enumerable"] := __v9;
+__v10 := "GetValueOrDefault" (Desc, "Configurable");
+__v6["Configurable"] := __v10;
+return __v6 };
+function StringPrototypecharAt (global, this, args) { __v11 := l_nth(args, 0);
+pos := __v11;
+__v12 := "CheckObjectCoercible" (this);
+__v13 := "ToString" (this);
+S := __v13;
+__v14 := "ToInteger" (pos);
+position := __v14;
+__v15 := s_len(S);
+size := __v15;
+__v17 := position < 0;
+__v18 := position >= size;
+__v16 := __v17 || __v18;
+if (__v16) {
+return ""
+};
+__v21 := s_nth(S, position);
+__v20 := [ __v21 ];
+__v19 := "newString" (global, this, __v20);
+return __v19 };
+function newDataPropertyDescriptorFull (value, writable, enumerable, configurable) { __v22 := "NewPropertyDescriptor" ();
+desc := __v22;
+desc["Value"] := value;
+desc["Writable"] := writable;
+desc["Enumerable"] := enumerable;
+desc["Configurable"] := configurable;
+return desc };
+function GlobalEnvironment (globalObject) { __v23 := "newLexicalEnvironment" ();
+globalEnv := __v23;
+__v24 := "newObjectEnvironmentRecord" (globalObject);
+globalEnvRec := __v24;
+__v25 := "setEnvironmentRecord" (globalEnv, globalEnvRec);
+__v26 := "setOuterLexicalEnvironmentReference" (globalEnv, null);
+return globalEnv };
+function ToUint16 (argument) { __v27 := "ToNumber" (argument);
+number := __v27;
+__v28 := to_uint16(number);
+return __v28 };
+function StringPrototypelastIndexOf (global, this, args) { __v29 := l_nth(args, 0);
+searchString := __v29;
+__v30 := l_nth(args, 1);
+position := __v30;
+__v31 := "CheckObjectCoercible" (this);
+__v32 := "ToString" (this);
+S := __v32;
+__v33 := "ToString" (searchString);
+searchStr := __v33;
+__v34 := "ToNumber" (position);
+numPos := __v34;
+__v35 := numPos = 'NaN;
+if (__v35) {
+pos := '+Infinity
+} else {
+__v37 := "ToInteger" (numPos);
+__v36 := int_of_float(__v37);
+pos := __v36
+};
+__v38 := s_len(S);
+len := __v38;
+__v40 := "max" (pos, 0);
+__v39 := "min" (__v40, len);
+start := __v39;
+__v41 := s_len(searchStr);
+searchLen := __v41;
+return null };
+function initStringLib (global, functionPrototype, objectPrototype, strict) { __v42 := "initalNewString" (objectPrototype);
+stringPrototype := __v42;
+__v44 := [ "args" ];
+__v43 := "CreateFunctionObject" (__v44, "StringPrototypeconcat", global, strict);
+concatFunctionObject := __v43;
+__v45 := "newDataPropertyDescriptor" (concatFunctionObject);
+stringPrototype["concat"] := __v45;
+stringPrototype["Get"] := "Get";
+__v47 := [ "args" ];
+__v46 := "CreateFunctionObject" (__v47, "StringPrototypeToString", global, strict);
+toStringFunctionObject := __v46;
+__v48 := "newDataPropertyDescriptor" (toStringFunctionObject);
+stringPrototype["toString"] := __v48;
+__v50 := [ "args" ];
+__v49 := "CreateFunctionObject" (__v50, "StringConstructor", global, strict);
+StringConstructor := __v49;
+__v51 := "newDataPropertyDescriptorFull" (stringPrototype, false, false, false);
+StringConstructor["prototype"] := __v51;
+StringConstructor["Get"] := "Get";
+__v52 := "newDataPropertyDescriptor" (StringConstructor);
+global["String"] := __v52;
+return global };
+function Type (V) { __v53 := typeof(V);
+v_type := __v53;
+__v54 := v_type = __$Int;
+if (__v54) {
+return "Number"
+};
+__v55 := v_type = __$Flt;
+if (__v55) {
+return "Number"
+};
+__v56 := v_type = __$Bool;
+if (__v56) {
+return "Boolean"
+};
+__v57 := v_type = __$Str;
+if (__v57) {
+return "String"
+};
+__v58 := v_type = __$Obj;
+if (__v58) {
+return "Object"
+};
+__v59 := v_type = __$List;
+if (__v59) {
+return "List"
+};
+__v60 := v_type = __$Null;
+if (__v60) {
+return "Null"
+};
+__v61 := v_type = __$Symbol;
+if (__v61) {
+__v62 := V = 'undefined;
+if (__v62) {
+return "Undefined"
+};
+__v63 := V = 'NaN;
+if (__v63) {
+return "Number"
+};
+__v65 := V = '+0;
+__v66 := V = '-0;
+__v64 := __v65 || __v66;
+if (__v64) {
+return "Number"
+};
+__v69 := V = '+Infinity;
+__v70 := V = 'Infinity;
+__v68 := __v69 || __v70;
+__v71 := V = '-Infinity;
+__v67 := __v68 || __v71;
+if (__v67) {
+return "Number"
+}
+};
+__v72 := v_type = __$Tuple;
+if (__v72) {
+__v73 := fst(V);
+ft := __v73;
+__v74 := ft = "R";
+if (__v74) {
+return "Reference"
+};
+__v75 := ft = "C";
+if (__v75) {
+return "Completion"
+}
+};
+__v76 := "SyntaxErrorException" () };
+function CreateImmutableBindingDeclarative (declarativeEnvRec, N) { envRec := declarativeEnvRec;
+__v77 := "createImmutableBinding" (envRec, N);
+__v78 := "recordImmutableBindingUninitialised" (envRec, N);
+return 'undefined };
+function ToPrimitive (input, PreferredType) { __v80 := "Type" (input);
+__v79 := __v80 = "Object";
+if (__v79) {
+__v81 := "DefaultValue" (input, PreferredType);
+return __v81
+};
+return input };
+function CreateMutableBindingDeclarative (declarativeEnvRec, N, D) { envRec := declarativeEnvRec;
+__v82 := "setMutableBinding" (envRec, N, 'undefined);
+__v83 := D = true;
+if (__v83) {
+
+};
+return 'undefined };
+function HasBinding (envRec, N) { __v84 := "isDeclarativeEnvironmentRecord" (envRec);
+if (__v84) {
+__v85 := "HasBindingDeclarativeEnvRecord" (envRec, N);
+return __v85
+};
+__v86 := "HasBindingObjectEnvRecord" (envRec, N);
+return __v86 };
+function initalNewString (objectPrototype) { __v87 := { };
+__v87["Prototype"] := objectPrototype;
+__v87["Class"] := "String";
+__v87["Extensible"] := true;
+__v87["Put"] := "Put";
+__v87["Get"] := "Get";
+__v87["HasProperty"] := "HasProperty";
+__v87["DefineOwnProperty"] := "DefineOwnProperty";
+__v87["GetOwnProperty"] := "GetOwnPropertyString";
+__v87["Delete"] := "Delete";
+__v87["PrimitiveValue"] := "";
+ret := __v87;
+return ret };
+function DeleteBindingDeclarative (declarativeEnvRec, N) { envRec := declarativeEnvRec;
+__v89 := N in_obj envRec;
+__v88 := !(__v89);
+if (__v88) {
+return true
+};
+__v91 := envRec[N];
+__v90 := __v91 = "cannot be deleted";
+if (__v90) {
+return false
+};
+delete envRec[N];
+return true };
+function setOuterLexicalEnvironmentReference (lexicalEnvironment, outerLexicalEnvironment) { lexicalEnvironment["OuterEnvRef"] := outerLexicalEnvironment;
+return outerLexicalEnvironment };
+function setAllInternalMethodsExceptGet (obj) { obj["GetOwnProperty"] := "GetOwnProperty";
+obj["GetProperty"] := "GetProperty";
+obj["CanPut"] := "CanPut";
+obj["Put"] := "Put";
+obj["HasProperty"] := "HasProperty";
+obj["Delete"] := "Delete";
+obj["DefaultValue"] := "DefaultValue";
+obj["DefineOwnProperty"] := "DefineOwnProperty";
+return obj };
+function EveryFieldIsAbsent (Desc) { __v92 := "GetProps" (Desc);
+list := __v92;
+__v94 := l_len(list);
+__v93 := __v94 = 0;
+if (__v93) {
+return true
+} else {
+return false
+} };
+function newSetAccessorPropertyDescriptor (set) { __v95 := "NewPropertyDescriptor" ();
+desc := __v95;
+desc["Set"] := set;
+desc["Enumerable"] := true;
+desc["Configurable"] := true;
+return desc };
+function newPropertyIdentifier (name, desc) { __v96 := ( "P", name, desc );
+return __v96 };
+function getVariableEnvironment (runningExecCtx) { __v97 := runningExecCtx["VariableEnvironment"];
+return __v97 };
+function InitializeImmutableBindingDeclarative (declarativeEnvRec, N, V) { envRec := declarativeEnvRec;
+__v98 := "setImmutableBinding" (envRec, N, V);
+__v99 := "recordImmutableBindingInitialised" (envRec, N);
+return V };
+function min (a, b) { __v100 := a < b;
+if (__v100) {
+return a
+} else {
+return b
+} };
+function newPropertyReference (base, referencedName, strict) { __v101 := ( "R", "P", base, referencedName, strict );
+return __v101 };
+function HasBindingObjectEnvRecord (objectEnvRec, N) { envRec := objectEnvRec;
+__v102 := "getBindingObject" (envRec);
+bindings := __v102;
+__v103 := "HasProperty" (bindings, N);
+return __v103 };
+function setEnvironmentRecord (lexicalEnvironment, environmentRecord) { lexicalEnvironment["EnvRec"] := environmentRecord;
+return environmentRecord };
+function getFunctionDeclarationsInCode (object) { __v104 := object["functionDeclarations"];
+return __v104 };
+function StringPrototypesubstring (global, this, args) { __v105 := l_nth(args, 0);
+start := __v105;
+__v106 := l_nth(args, 1);
+end := __v106;
+__v107 := "CheckObjectCoercible" (this);
+__v108 := "ToString" (this);
+S := __v108;
+__v109 := s_len(S);
+len := __v109;
+__v111 := "ToInteger" (start);
+__v110 := int_of_float(__v111);
+intStart := __v110;
+__v112 := end = 'undefined;
+if (__v112) {
+intEnd := len
+} else {
+__v114 := "ToInteger" (end);
+__v113 := "in_of_float" (__v114);
+intEnd := __v113
+};
+__v116 := "max" (intStart, 0);
+__v115 := "min" (__v116, len);
+finalStart := __v115;
+__v118 := "max" (intEnd, 0);
+__v117 := "min" (__v118, len);
+finalEnd := __v117;
+__v119 := "min" (finalStart, finalEnd);
+from := __v119;
+__v120 := "max" (finalStart, finalEnd);
+to := __v120;
+return null };
+function setProvideThis (objectEnvironment, value) { __v121 := "getEnvironmentRecord" (objectEnvironment);
+__v121["provideThis"] := value;
+return value };
+function InitializeImmutableBinding (envRec, N, V) { __v122 := "isDeclarativeEnvironmentRecord" (envRec);
+if (__v122) {
+__v123 := "InitializeImmutableBindingDeclarative" (envRec, N, V);
+return __v123
+};
+__v124 := "NewSyntaxErrorException" () };
+function HasProperty (O, P) { print "HasProperty";
+__v125 := "GetProperty" (O, P);
+desc := __v125;
+__v126 := desc = 'undefined;
+if (__v126) {
+return false
+} else {
+return true
+} };
+function Get (O, P) { print "Get";
+__v127 := "GetProperty" (O, P);
+desc := __v127;
+__v128 := desc = 'undefined;
+if (__v128) {
+return 'undefined
+};
+__v129 := "IsDataPropertyDescriptor" (desc);
+if (__v129) {
+print "Get Returning";
+__v130 := desc["Value"];
+return __v130
+} else {
+__v131 := desc["Get"];
+getter := __v131;
+__v132 := getter = 'undefined;
+if (__v132) {
+return 'undefined
+};
+__v133 := "Call" (getter, O);
+return __v133
+} };
+function Put (O, P, V, Throw) { print "Put";
+__v135 := "CanPut" (O, P);
+__v134 := __v135 = false;
+if (__v134) {
+if (Throw) {
+__v136 := "TypeErrorException" ()
+} else {
+return 
+}
+};
+__v137 := "GetOwnProperty" (O, P);
+ownDesc := __v137;
+__v138 := "IsDataPropertyDescriptor" (ownDesc);
+if (__v138) {
+__v139 := { };
+__v139["Value"] := V;
+valueDesc := __v139;
+__v140 := "DefineOwnProperty" (O, P, valueDesc, Throw);
+return 
+};
+__v141 := "GetProperty" (O, P);
+desc := __v141;
+__v142 := "IsAccessorPropertyDescriptor" (desc);
+if (__v142) {
+__v143 := desc["Set"];
+setter := __v143;
+__v144 := "Call" (setter, O, V)
+} else {
+__v145 := { };
+__v145["Value"] := V;
+__v145["Writable"] := true;
+__v145["Enumerable"] := true;
+__v145["Configurable"] := true;
+newDesc := __v145;
+__v146 := "DefineOwnProperty" (O, P, newDesc, Throw)
+};
+return  };
+function StringPrototypeconcat (global, this, args) { __v147 := "CheckObjectCoercible" (this);
+print "Inside String Prototype Concat ";
+__v148 := "ToString" (this);
+S := __v148;
+__v150 := [ "Inside String Prototype Concat: ", S ];
+__v149 := s_concat(__v150);
+print __v149;
+args_ := args;
+R := S;
+__v153 := [  ];
+__v152 := args_ = __v153;
+__v151 := !(__v152);
+while (__v151) { __v154 := hd(args_);
+next := __v154;
+__v155 := tl(args_);
+args_ := __v155;
+__v158 := "ToString" (next);
+__v157 := [ R, __v158 ];
+__v156 := s_concat(__v157);
+R := __v156;
+__v153 := [  ];
+__v152 := args_ = __v153;
+__v151 := !(__v152) };
+return R };
+function ToNumber (argument) { __v159 := "Type" (argument);
+argument_type := __v159;
+__v160 := argument_type = "Undefined";
+if (__v160) {
+return 'NaN
+};
+__v161 := argument_type = "Null";
+if (__v161) {
+return '+0
+};
+__v162 := argument_type = "Boolean";
+if (__v162) {
+__v163 := argument = true;
+if (__v163) {
+__v164 := int_to_float(1);
+return __v164
+};
+return '+0
+};
+__v165 := argument_type = "Number";
+if (__v165) {
+return argument
+};
+__v166 := argument_type = "String";
+if (__v166) {
+__v167 := float_of_string(argument);
+return __v167
+};
+__v168 := argument_type = "Object";
+if (__v168) {
+__v169 := "ToPrimitive" (argument, 'Number);
+primValue := __v169;
+__v170 := "ToNumber" (primValue);
+return __v170
+} };
+function setImmutableBinding (declarativeEnvRec, name, value) { __v171 := declarativeEnvRec[name];
+__v171["value"] := value;
+return 'undefined };
+function HasPrimitiveBase (V) { print "HasPrimitiveBase";
+__v176 := "GetBase" (V);
+__v175 := "Type" (__v176);
+__v174 := __v175 = "Boolean";
+__v179 := "GetBase" (V);
+__v178 := "Type" (__v179);
+__v177 := __v178 = "String";
+__v173 := __v174 || __v177;
+__v182 := "GetBase" (V);
+__v181 := "Type" (__v182);
+__v180 := __v181 = "Number";
+__v172 := __v173 || __v180;
+if (__v172) {
+return true
+} else {
+return false
+} };
+function IsAccessorPropertyDescriptor (Desc) { __v183 := Desc = 'undefined;
+if (__v183) {
+return false
+};
+__v186 := "Get" in_obj Desc;
+__v185 := !(__v186);
+__v188 := "Set" in_obj Desc;
+__v187 := !(__v188);
+__v184 := __v185 && __v187;
+if (__v184) {
+return false
+};
+return true };
+function CheckObjectCoercible (V) { __v189 := "Type" (V);
+v_type := __v189;
+__v191 := v_type = "Undefined";
+__v192 := v_type = "Null";
+__v190 := __v191 || __v192;
+if (__v190) {
+__v193 := "TypeErrorException" ()
+};
+return  };
+function FromPropertyDescriptor (Desc) { __v194 := Desc = 'undefined;
+if (__v194) {
+return 'undefined
+};
+__v195 := "NewObject" ();
+obj := __v195;
+__v196 := "IsDataPropertyDescriptor" (Desc);
+if (__v196) {
+__v198 := { };
+__v199 := Desc["Value"];
+__v198["Value"] := __v199;
+__v198["Writable"] := true;
+__v198["Enumerable"] := true;
+__v198["Configurable"] := true;
+__v197 := "DefineOwnProperty" (obj, "value", __v198, false);
+__v201 := { };
+__v202 := Desc["Writable"];
+__v201["Value"] := __v202;
+__v201["Writable"] := true;
+__v201["Enumerable"] := true;
+__v201["Configurable"] := true;
+__v200 := "DefineOwnProperty" (obj, "writable", __v201, false)
+} else {
+__v204 := { };
+__v205 := Desc["Get"];
+__v204["Value"] := __v205;
+__v204["Writable"] := true;
+__v204["Enumerable"] := true;
+__v204["Configurable"] := true;
+__v203 := "DefineOwnProperty" (obj, "get", __v204, false);
+__v207 := { };
+__v208 := Desc["Set"];
+__v207["Value"] := __v208;
+__v207["Writable"] := true;
+__v207["Enumerable"] := true;
+__v207["Configurable"] := true;
+__v206 := "DefineOwnProperty" (obj, "set", __v207, false)
+};
+__v210 := { };
+__v211 := Desc["Enumerable"];
+__v210["Value"] := __v211;
+__v210["Writable"] := true;
+__v210["Enumerable"] := true;
+__v210["Configurable"] := true;
+__v209 := "DefineOwnProperty" (obj, "enumerable", __v210, false);
+__v213 := { };
+__v214 := Desc["Configurable"];
+__v213["Value"] := __v214;
+__v213["Writable"] := true;
+__v213["Enumerable"] := true;
+__v213["Configurable"] := true;
+__v212 := "DefineOwnProperty" (obj, "configurable", __v213, false);
+return obj };
+function abs (a) { __v215 := a < 0.;
+if (__v215) {
+__v216 := a * -1;
+return __v216
+} else {
+return a
+} };
+function String (global, this, args) { __v217 := l_nth(args, 0);
+value := __v217;
+__v218 := value = 'undefined;
+if (__v218) {
+return ""
+} else {
+__v219 := "ToString" (value);
+return __v219
+} };
+function IsPrimitiveValue (v) { __v220 := "Type" (v);
+v_type := __v220;
+__v221 := v_type = "Object";
+if (__v221) {
+return false
+} else {
+return true
+} };
+function newDataPropertyDescriptor (value) { __v222 := "NewPropertyDescriptor" ();
+desc := __v222;
+desc["Value"] := value;
+desc["Writable"] := true;
+desc["Enumerable"] := true;
+desc["Configurable"] := true;
+return desc };
+function getPropertyDescriptor (propertyIdentifier) { __v223 := t_nth(propertyIdentifier, 2);
+return __v223 };
+function CreateMutableBindingObject (objectEnvRec, N, D) { envRec := objectEnvRec;
+__v224 := "getBindingObject" (envRec);
+bindings := __v224;
+__v225 := D = true;
+if (__v225) {
+configValue := true
+} else {
+configValue := false
+};
+__v227 := { };
+__v227["Value"] := 'undefined;
+__v227["Writable"] := true;
+__v227["Enumerable"] := true;
+__v227["Configurable"] := configValue;
+__v226 := "DefineOwnProperty" (bindings, N, __v227, true);
+return 'undefined };
+function GetReferencedName (V) { print "GetReferencedName";
+__v228 := t_nth(V, 3);
+return __v228 };
+function SetMutableBindingObject (objectEnvRec, N, V, S) { envRec := objectEnvRec;
+__v229 := "getBindingObject" (envRec);
+bindings := __v229;
+__v230 := "Put" (bindings, N, V, S);
+return V };
+function ImplicitThisValueObject (objectEnvRec) { envRec := objectEnvRec;
+__v232 := "getProvideThis" (objectEnvRec);
+__v231 := __v232 = true;
+if (__v231) {
+__v233 := "getBindingObject" (objectEnvRec);
+return __v233
+} else {
+return 'undefined
+} };
+function isEvalCode (code) { __v235 := code["codeType"];
+__v234 := __v235 = "eval";
+return __v234 };
+function GetOwnProperty (O, P) { print "GetOwnProperty";
+__v237 := P in_obj O;
+__v236 := !(__v237);
+if (__v236) {
+return 'undefined
+};
+__v238 := "NewPropertyDescriptor" ();
+D := __v238;
+__v239 := O[P];
+X := __v239;
+__v240 := "IsDataPropertyDescriptor" (X);
+if (__v240) {
+__v241 := X["Value"];
+D["Value"] := __v241;
+__v242 := X["Writable"];
+D["Writable"] := __v242
+} else {
+__v243 := X["Get"];
+D["Get"] := __v243;
+__v244 := X["Set"];
+D["Set"] := __v244
+};
+__v245 := X["Enumerable"];
+D["Enumerable"] := __v245;
+__v246 := X["Configurable"];
+D["Configurable"] := __v246;
+return D };
+function HasBindingDeclarativeEnvRecord (declarativeEnvRec, N) { envRec := declarativeEnvRec;
+__v247 := N in_obj envRec;
+if (__v247) {
+return true
+};
+return false };
+function getEnvironmentRecord (lexicalEnvironment) { __v248 := lexicalEnvironment["EnvRec"];
+return __v248 };
+function getOuterEnvironmentReference (lexicalEnvironment) { __v249 := lexicalEnvironment["OuterEnvRef"];
+return __v249 };
+function GetOwnPropertyString (S, P) { __v250 := "GetOwnProperty" (S, P);
+desc := __v250;
+__v252 := desc = 'undefined;
+__v251 := !(__v252);
+if (__v251) {
+return desc
+};
+__v257 := "ToInteger" (P);
+__v256 := "abs" (__v257);
+__v255 := "ToString" (__v256);
+__v254 := __v255 = P;
+__v253 := !(__v254);
+if (__v253) {
+return 'undefined
+};
+__v258 := S["PrimitiveValue"];
+str := __v258;
+__v260 := "ToInteger" (P);
+__v259 := int_of_float(__v260);
+index := __v259;
+__v261 := s_len(str);
+len := __v261;
+print len;
+__v262 := len <= index;
+if (__v262) {
+return 'undefined
+};
+__v265 := s_nth(str, index);
+__v264 := [ __v265 ];
+__v263 := "newString" (null, null, __v264);
+resultStr := __v263;
+__v266 := "newDataPropertyDescriptorFull" (resultStr, false, true, false);
+return __v266 };
+function DeclarationBindingInstantiation (code, args, runningExecCtx, F) { __v268 := "getVariableEnvironment" (runningExecCtx);
+__v267 := "getEnvironmentRecord" (__v268);
+env := __v267;
+debug;
+__v269 := "isEvalCode" (code);
+if (__v269) {
+configurableBindings := true
+} else {
+configurableBindings := false
+};
+__v270 := "isStrictModeCode" (code);
+if (__v270) {
+strict := true
+} else {
+strict := false
+};
+__v271 := "isFunctionCode" (code);
+if (__v271) {
+func := F;
+__v272 := func["FormalParameters"];
+names := __v272;
+__v273 := l_len(args);
+argCount := __v273;
+n := 0;
+i := 0;
+__v274 := l_len(names);
+lnames := __v274;
+__v275 := lnames > i;
+while (__v275) { __v276 := l_nth(names, i);
+argName := __v276;
+__v277 := n + 1;
+n := __v277;
+__v278 := n > argCount;
+if (__v278) {
+v := 'undefined
+} else {
+__v280 := n - 1;
+__v279 := l_nth(args, __v280);
+v := __v279
+};
+__v281 := "HasBinding" (env, argName);
+argAlreadyDeclared := __v281;
+__v282 := argAlreadyDeclared = false;
+if (__v282) {
+__v283 := "CreateMutableBinding" (env, argName, false)
+};
+__v284 := "SetMutableBinding" (env, argName, v, strict);
+__v285 := i + 1;
+i := __v285;
+__v275 := lnames > i }
+};
+i := 0;
+__v286 := "getFunctionDeclarationsInCode" (code);
+functionDeclarations := __v286;
+__v287 := l_len(functionDeclarations);
+lfunctionDeclarations := __v287;
+__v288 := lfunctionDeclarations > i;
+while (__v288) { __v289 := l_nth(functionDeclarations, i);
+f := __v289;
+__v291 := f["id"];
+__v290 := __v291["name"];
+fn := __v290;
+__v292 := "JS_Interpreter_FunctionDeclaration" (f, runningExecCtx);
+fo := __v292;
+__v293 := "HasBinding" (env, fn);
+funcAlreadyDeclared := __v293;
+__v294 := funcAlreadyDeclared = false;
+if (__v294) {
+__v295 := "CreateMutableBinding" (env, fn, configurableBindings)
+} else {
+__v298 := "getLexicalEnvironment" (runningExecCtx);
+__v297 := "getGlobalObject" (__v298);
+__v296 := env = __v297;
+if (__v296) {
+__v300 := "getLexicalEnvironment" (runningExecCtx);
+__v299 := "getGlobalObject" (__v300);
+go := __v299;
+__v301 := "GetProperty" (go, fn);
+existingProp := __v301;
+__v302 := existingProp["Configurable"];
+if (__v302) {
+__v304 := { };
+__v304["Value"] := 'undefined;
+__v304["Writable"] := true;
+__v304["Enumerable"] := true;
+__v304["Configurable"] := configurableBindings;
+__v303 := "DefineOwnProperty" (go, fn, __v304, true)
+} else {
+__v306 := "IsAccessorDescriptor" (existingProp);
+__v309 := existingProp["Writable"];
+__v310 := existingProp["Enumerable"];
+__v308 := __v309 && __v310;
+__v307 := !(__v308);
+__v305 := __v306 || __v307;
+if (__v305) {
+__v311 := "TypeErrorException" ()
+}
+}
+}
+};
+__v312 := "SetMutableBinding" (env, fn, fo, strict);
+__v313 := i + 1;
+i := __v313;
+__v288 := lfunctionDeclarations > i };
+__v314 := "HasBinding" (env, "arguments");
+argumentsAlreadyDeclared := __v314;
+__v316 := "isFunctionCode" (code);
+__v317 := argumentsAlreadyDeclared = false;
+__v315 := __v316 && __v317;
+if (__v315) {
+__v318 := "CreateArgumentsObject" (func, names, args, env, strict);
+argsObj := __v318;
+__v319 := strict = true;
+if (__v319) {
+__v320 := "CreateImmutableBinding" (env, "arguments");
+__v321 := "InitializeImmutableBinding" (env, "arguments", argsObj)
+} else {
+__v322 := "CreateMutableBinding" (env, "arguments", false);
+__v323 := "SetMutableBinding" (env, "arguments", argsObj, false)
+}
+};
+i := 0;
+__v324 := "getVariableDeclarationsInCode" (code);
+variableDeclarations := __v324;
+__v325 := l_len(variableDeclarations);
+lvariableDeclarations := __v325;
+__v326 := lvariableDeclarations > i;
+while (__v326) { __v327 := l_nth(variableDeclarations, i);
+d := __v327;
+dn := d;
+__v328 := "HasBinding" (env, dn);
+varAlreadyDeclared := __v328;
+__v329 := varAlreadyDeclared = false;
+if (__v329) {
+__v330 := "CreateMutableBinding" (env, dn, configurableBindings);
+__v331 := "SetMutableBinding" (env, dn, 'undefined, strict)
+};
+__v332 := i + 1;
+i := __v332;
+__v326 := lvariableDeclarations > i };
+return 'undefined };
+function StringPrototypeToString (global, this, args) { __v333 := this["PrimitiveValue"];
+return __v333 };
+function isStrictModeCode (code) { __v335 := "strict" in_obj code;
+if (__v335 = false) {
+__v334 := false
+} else {
+__v337 := code["strict"];
+__v336 := __v337 = true;
+if (__v336 = false) {
+__v334 := false
+} else {
+__v334 := true
+}
+};
+return __v334 };
+function CreateImmutableBinding (envRec, N) { __v338 := "isDeclarativeEnvironmentRecord" (envRec);
+if (__v338) {
+__v339 := "CreateImmutableBindingDeclarative" (envRec, N);
+return __v339
+};
+__v340 := "NewSyntaxErrorException" () };
+function GetProperty (O, P) { print "GetProperty Started";
+print P;
+__v341 := "GetOwnProperty" (O, P);
+prop := __v341;
+print "After GetOwnProperty";
+print prop;
+__v343 := prop = 'undefined;
+__v342 := !(__v343);
+if (__v342) {
+print "Returned prop";
+return prop
+};
+__v344 := O["Prototype"];
+proto := __v344;
+__v345 := proto = null;
+if (__v345) {
+return 'undefined
+};
+__v346 := "GetProperty" (proto, P);
+return __v346 };
+function GetValue (V) { print "GetValue";
+print "Inside GetValue";
+__v349 := "Type" (V);
+__v348 := __v349 = "Reference";
+__v347 := !(__v348);
+if (__v347) {
+return V
+};
+__v350 := "GetBase" (V);
+base := __v350;
+__v351 := "IsUnresolvableReference" (V);
+if (__v351) {
+__v352 := "ReferenceErrorException" ()
+};
+__v353 := "IsPropertyReference" (V);
+if (__v353) {
+__v355 := "HasPrimitiveBase" (V);
+__v354 := __v355 = false;
+if (__v354) {
+print "Inside HasPrimitiveBase";
+__v356 := base["Get"];
+print __v356;
+__v357 := base["Get"];
+get := __v357
+} else {
+__v358 := "NotImplemented" ()
+};
+__v360 := "GetReferencedName" (V);
+__v359 := get (base, __v360);
+return __v359
+} else {
+__v362 := "GetReferencedName" (V);
+__v363 := "IsStrictReference" (V);
+__v361 := "GetBindingValue" (base, __v362, __v363);
+return __v361
+} };
+function newDeclarativeEnvironmentRecord () { __v364 := { };
+return __v364 };
+function isDeclarativeEnvironmentRecord (envRec) { print "isDeclarativeEnvironmentRecord";
+__v365 := "isObjectEnvRec" in_obj envRec;
+if (__v365) {
+return false
+} else {
+return true
+} };
+function main () { __v366 := "NewObject" ();
+globalObject := __v366;
+__v367 := "NewObject" ();
+functionPrototype := __v367;
+__v368 := "NewObject" ();
+objectPrototype := __v368;
+strict := true;
+__v369 := "initStringLib" (globalObject, functionPrototype, objectPrototype, strict);
+print "BeforeString";
+__v371 := [ "xpto" ];
+__v370 := "StringConstructor" (globalObject, null, __v371);
+sto := __v370;
+print "StringCreated";
+__v373 := [ "2", "as" ];
+__v372 := "StringPrototypeconcat" (null, sto, __v373);
+return __v372 };
+function NewObjectEnvironment (O, E) { __v374 := "newLexicalEnvironment" ();
+env := __v374;
+__v375 := "newObjectEnvironmentRecord" (O);
+envRec := __v375;
+__v376 := "setEnvironmentRecord" (env, envRec);
+__v377 := "setOuterLexicalEnvironmentReference" (env, E);
+return env };
+function getBindingObject (objectEnvRec) { __v378 := objectEnvRec["bindingObject"];
+return __v378 };
+function recordImmutableBindingUninitialised (declarativeEnvRec, name) { __v379 := declarativeEnvRec[name];
+__v379["initialised"] := false;
+return 'undefined };
+function recordImmutableBindingInitialised (declarativeEnvRec, name) { __v380 := declarativeEnvRec[name];
+__v380["initialised"] := true;
+return 'undefined };
+function getVariableDeclarationsInCode (object) { __v381 := object["variableDeclarations"];
+return __v381 };
+function setVariableEnvironment (runningExecCtx, variableEnvironment) { runningExecCtx["VariableEnvironment"] := variableEnvironment;
+return 'undefined };
+function isFunctionCode (code) { __v383 := code["codeType"];
+__v382 := __v383 = "function";
+return __v382 };
+function ToInteger (V) { __v384 := "ToNumber" (V);
+number := __v384;
+return number };
+function NewPropertyDescriptor () { __v385 := { };
+return __v385 };
+function GetIdentifierReference (lex, name, strict) { print "GetIdentifierReference";
+__v386 := lex = null;
+if (__v386) {
+__v387 := "newValueReference" ('undefined, name, strict);
+return __v387
+};
+__v388 := "getEnvironmentRecord" (lex);
+envRec := __v388;
+__v389 := "HasBinding" (envRec, name);
+exists := __v389;
+__v390 := exists = true;
+if (__v390) {
+__v391 := "newValueReference" (envRec, name, strict);
+return __v391
+} else {
+__v392 := "getOuterEnvironmentReference" (lex);
+outer := __v392;
+__v393 := "GetIdentifierReference" (outer, name, strict);
+return __v393
+} };
+function CreateFunctionObject (FormalParameterList, FunctionBody, Scope, Strict) { __v394 := { };
+F := __v394;
+__v395 := "setAllInternalMethodsExceptGet" (F);
+F["Class"] := "Function";
+F["Prototype"] := "$loc_FUNC_PROTOTYPE";
+F["Get"] := null;
+F["Call"] := "Call";
+F["Construct"] := "Construct";
+F["HasInstance"] := null;
+F["Scope"] := Scope;
+names := FormalParameterList;
+F["FormalParameters"] := names;
+F["Code"] := FunctionBody;
+F["Extensible"] := true;
+__v396 := l_len(FormalParameterList);
+len := __v396;
+__v398 := { };
+__v398["Value"] := len;
+__v398["Writable"] := false;
+__v398["Enumerable"] := false;
+__v398["Configurable"] := false;
+__v397 := "DefineOwnProperty" (F, "length", __v398, false);
+__v399 := "NewObject" ();
+proto := __v399;
+__v401 := { };
+__v401["Value"] := F;
+__v401["Writable"] := true;
+__v401["Enumerable"] := false;
+__v401["Configurable"] := true;
+__v400 := "DefineOwnProperty" (proto, "constructor", __v401, false);
+__v403 := { };
+__v403["Value"] := proto;
+__v403["Writable"] := true;
+__v403["Enumerable"] := false;
+__v403["Configurable"] := false;
+__v402 := "DefineOwnProperty" (F, "prototype", __v403, false);
+__v404 := Strict = true;
+if (__v404) {
+thrower := null;
+__v406 := { };
+__v406["Get"] := thrower;
+__v406["Set"] := thrower;
+__v406["Enumerable"] := false;
+__v406["Configurable"] := false;
+__v405 := "DefineOwnProperty" (F, "caller", __v406, false);
+__v408 := { };
+__v408["Get"] := thrower;
+__v408["Set"] := thrower;
+__v408["Enumerable"] := false;
+__v408["Configurable"] := false;
+__v407 := "DefineOwnProperty" (F, "arguments", __v408, false)
+};
+return F };
+function GetBase (V) { print "GetBase";
+__v409 := t_nth(V, 2);
+return __v409 };
+function CreateMutableBinding (envRec, N, D) { __v410 := "isDeclarativeEnvironmentRecord" (envRec);
+if (__v410) {
+__v411 := "CreateMutableBindingDeclarative" (envRec, N, D);
+return __v411
+};
+__v412 := "CreateMutableBindingObject" (envRec, N, D);
+return __v412 };
+function ToString (V) { __v413 := "Type" (V);
+v_type := __v413;
+__v414 := v_type = "Undefined";
+if (__v414) {
+return "undefined"
+};
+__v415 := v_type = "Null";
+if (__v415) {
+return "null"
+};
+__v416 := v_type = "Boolean";
+if (__v416) {
+__v417 := V = true;
+if (__v417) {
+return "true"
+};
+return "false"
+};
+__v418 := v_type = "Number";
+if (__v418) {
+__v419 := float_to_string(V);
+return __v419
+};
+__v420 := v_type = "String";
+if (__v420) {
+return V
+};
+__v421 := v_type = "Object";
+if (__v421) {
+__v422 := "ToPrimitive" (V, 'String);
+primValue := __v422;
+__v423 := "ToString" (primValue);
+return __v423
+} };
+function IdentifierResolution (Identifier, runningExecCtx) { __v424 := "getLexicalEnvironment" (runningExecCtx);
+env := __v424;
+strict := false;
+__v425 := "GetIdentifierReference" (env, Identifier, strict);
+return __v425 };
+function getPropertyName (propertyIdentifier) { __v426 := t_nth(propertyIdentifier, 1);
+return __v426 };
+function TypeErrorException () { __v427 := { };
+__v427["exception"] := "TypeError";
+return __v427 };
+function ToBoolean (argument) { __v430 := "Type" (argument);
+__v429 := __v430 = "Undefined";
+__v432 := "Type" (argument);
+__v431 := __v432 = "Null";
+__v428 := __v429 || __v431;
+if (__v428) {
+return false
+};
+__v434 := "Type" (argument);
+__v433 := __v434 = "Boolean";
+if (__v433) {
+return argument
+};
+__v436 := "Type" (argument);
+__v435 := __v436 = "Number";
+if (__v435) {
+__v439 := argument = '+0;
+__v440 := argument = '-0;
+__v438 := __v439 || __v440;
+__v441 := argument = 'NaN;
+__v437 := __v438 || __v441;
+if (__v437) {
+return false
+} else {
+return true
+};
+return true
+};
+__v443 := "Type" (argument);
+__v442 := __v443 = "String";
+if (__v442) {
+__v445 := l_len(argument);
+__v444 := __v445 = 0;
+if (__v444) {
+return false
+} else {
+return true
+}
+};
+__v447 := "Type" (argument);
+__v446 := __v447 = "Object";
+if (__v446) {
+return true
+} };
+function Reject (Throw) { if (Throw) {
+__v448 := "TypeErrorException" ()
+} else {
+return false
+} };
+function Delete (O, P, Throw) { print "Delete";
+__v449 := "GetOwnProperty" (O, P);
+desc := __v449;
+__v450 := desc = 'undefined;
+if (__v450) {
+return true
+};
+__v452 := desc["Configurable"];
+__v451 := __v452 = true;
+if (__v451) {
+delete O[P];
+return true
+} else {
+if (Throw) {
+__v453 := "TypeErrorException" ()
+}
+};
+return false };
+function Construct (F, argumentList) { __v454 := { };
+obj := __v454;
+__v455 := "setAllInternalMethodsOfObject" (obj);
+obj["Class"] := "Object";
+obj["Extensible"] := true;
+__v456 := "Get" (F, "Prototype");
+proto := __v456;
+__v458 := "Type" (proto);
+__v457 := __v458 = "Object";
+if (__v457) {
+obj["Prototype"] := proto
+};
+__v461 := "Type" (proto);
+__v460 := __v461 = "Object";
+__v459 := !(__v460);
+if (__v459) {
+obj["Prototype"] := "$loc_OBJ_PROTOTYPE"
+};
+__v462 := "Call" (F, obj, argumentList);
+result := __v462;
+__v464 := "Type" (result);
+__v463 := __v464 = "Object";
+if (__v463) {
+return result
+};
+return obj };
+function StringPrototypeindexOf (global, this, args) { __v465 := l_nth(args, 0);
+searchString := __v465;
+__v466 := l_nth(args, 1);
+position := __v466;
+__v467 := "CheckObjectCoercible" (this);
+debug;
+__v468 := "ToString" (this);
+S := __v468;
+__v469 := "ToString" (searchString);
+searchStr := __v469;
+__v471 := "ToInteger" (position);
+__v470 := int_of_float(__v471);
+pos := __v470;
+__v472 := s_len(S);
+len := __v472;
+__v474 := "max" (pos, 0);
+__v473 := "min" (__v474, len);
+start := __v473;
+__v475 := s_len(searchStr);
+searchLen := __v475;
+return null };
+function IsUnresolvableReference (V) { print "IsUnresolvableReference";
+__v478 := "GetBase" (V);
+__v477 := "Type" (__v478);
+__v476 := __v477 = "Undefined";
+if (__v476) {
+return true
+} else {
+return false
+} };
+function createImmutableBinding (declarativeEnvRec, name) { __v479 := { };
+declarativeEnvRec[name] := __v479;
+return 'undefined };
+function NewObject () { __v480 := { };
+__v480["Prototype"] := null;
+__v480["Extensible"] := true;
+__v480["Class"] := "Object";
+__v480["Put"] := "Put";
+__v480["Get"] := "Get";
+return __v480 };
+function DeleteBinding (envRec, N) { __v481 := "isDeclarativeEnvironmentRecord" (envRec);
+if (__v481) {
+__v482 := "DeleteBindingDeclarative" (envRec, N);
+return __v482
+};
+__v483 := "DeleteBindingObject" (envRec, N);
+return __v483 };
+function ImplicitThisValueDeclarative (declarativeEnvRec) { return 'undefined };
+function ToInt32 (argument) { __v484 := "ToNumber" (argument);
+number := __v484;
+__v489 := number = 'NaN;
+__v490 := number = '+0;
+__v488 := __v489 || __v490;
+__v491 := number = '-0;
+__v487 := __v488 || __v491;
+__v492 := number = '+Infinity;
+__v486 := __v487 || __v492;
+__v493 := number = '-Infinity;
+__v485 := __v486 || __v493;
+if (__v485) {
+return 0
+};
+__v494 := to_int32(number);
+return __v494 };
+function setMutableBinding (declarativeEnvRec, name, value) { declarativeEnvRec[name] := value;
+return value };
+function CopyDescriptor (Desc) { __v495 := "IsDataPropertyDescriptor" (Desc);
+if (__v495) {
+__v497 := Desc["Value"];
+__v498 := Desc["Writable"];
+__v499 := Desc["Enumerable"];
+__v500 := Desc["Configurable"];
+__v496 := "newDataPropertyDescriptorFull" (__v497, __v498, __v499, __v500);
+newDesc := __v496;
+return newDesc
+} };
+function InitialGlobalExecutionContext (globalObject) { __v501 := "createExecutionContext" ();
+globalExecCtx := __v501;
+__v502 := "GlobalEnvironment" (globalObject);
+globalEnv := __v502;
+__v503 := "setVariableEnvironment" (globalExecCtx, globalEnv);
+__v504 := "setLexicalEnvironment" (globalExecCtx, globalEnv);
+__v505 := "setThisBinding" (globalExecCtx, globalObject);
+return globalExecCtx };
+function IsDataPropertyDescriptor (Desc) { __v506 := Desc = 'undefined;
+if (__v506) {
+return false
+};
+__v509 := "Value" in_obj Desc;
+__v508 := !(__v509);
+__v511 := "Writable" in_obj Desc;
+__v510 := !(__v511);
+__v507 := __v508 && __v510;
+if (__v507) {
+return false
+};
+return true };
+function IsPropertyReference (V) { print "IsPropertyReference";
+__v516 := typeof(V);
+__v515 := __v516 = __$Tuple;
+__v518 := t_len(V);
+__v517 := __v518 = 5;
+__v514 := __v515 && __v517;
+__v520 := t_nth(V, 0);
+__v519 := __v520 = "R";
+__v513 := __v514 && __v519;
+__v522 := t_nth(V, 1);
+__v521 := __v522 = "P";
+__v512 := __v513 && __v521;
+return __v512 };
+function newValueReference (base, referencedName, strict) { __v523 := ( "R", "V", base, referencedName, strict );
+return __v523 };
+function GetBindingValueDeclarative (declarativeEnvRec, N, S) { envRec := declarativeEnvRec;
+__v525 := envRec[N];
+__v524 := __v525 = 'undefined;
+if (__v524) {
+__v526 := S = false;
+if (__v526) {
+return 'undefined
+};
+__v527 := "ReferenceErrorException" ()
+} else {
+__v528 := envRec[N];
+return __v528
+} };
+function StringPrototypecharCodeAt (global, this, args) { __v529 := l_nth(args, 0);
+pos := __v529;
+__v530 := "CheckObjectCoercible" (this);
+__v532 := "ToString" (this);
+__v531 := int_of_float(__v532);
+S := __v531;
+__v534 := "ToInteger" (pos);
+__v533 := int_of_float(__v534);
+position := __v533;
+__v535 := s_len(S);
+size := __v535;
+__v538 := position < 0;
+__v537 := __v538 || position;
+__v536 := __v537 >= size;
+if (__v536) {
+return 'NaN
+} };
+function IsGenericPropertyDescriptor (Desc) { __v539 := Desc = 'undefined;
+if (__v539) {
+return false
+};
+__v542 := "IsAccessorPropertyDescriptor" (Desc);
+__v541 := !(__v542);
+__v544 := "IsDataPropertyDescriptor" (Desc);
+__v543 := !(__v544);
+__v540 := __v541 && __v543;
+if (__v540) {
+return true
+};
+return false };
+function max (a, b) { __v545 := a > b;
+if (__v545) {
+return a
+} else {
+return b
+} };
+function GetBindingValue (envRec, N, S) { print "GetBindingValue";
+__v546 := "isDeclarativeEnvironmentRecord" (envRec);
+if (__v546) {
+__v547 := "GetBindingValueDeclarative" (envRec, N, S);
+return __v547
+};
+__v548 := "GetBindingValueObject" (envRec, N, S);
+return __v548 };
+function ToObject (V) { __v549 := "Type" (V);
+v_type := __v549;
+__v551 := v_type = "Undefined";
+__v552 := v_type = "Null";
+__v550 := __v551 || __v552;
+if (__v550) {
+__v553 := "TypeErrorException" ()
+};
+__v554 := v_type = "Boolean";
+if (__v554) {
+__v555 := "newBoolean" (V);
+return __v555
+};
+__v556 := v_type = "Number";
+if (__v556) {
+__v557 := "newNumber" (V);
+return __v557
+};
+__v558 := v_type = "String";
+if (__v558) {
+__v559 := "newString" (V);
+return __v559
+};
+__v560 := v_type = "Object";
+if (__v560) {
+return V
+} };
+function StringConstructor (global, this, args) { __v561 := l_nth(args, 0);
+value := __v561;
+print "Before StringPrototype";
+__v562 := "getStringPrototypeObject" (global);
+StringPrototype := __v562;
+print "Found StringPrototype";
+__v563 := { };
+__v564 := "getStringPrototypeObject" (global);
+__v563["Prototype"] := __v564;
+__v563["Class"] := "String";
+__v563["Extensible"] := true;
+__v563["Put"] := "Put";
+__v563["Get"] := "Get";
+__v563["HasProperty"] := "HasProperty";
+__v563["DefineOwnProperty"] := "DefineOwnProperty";
+__v563["GetOwnProperty"] := "GetOwnPropertyString";
+__v563["Delete"] := "Delete";
+ret := __v563;
+__v565 := value = 'undefined;
+if (__v565) {
+ret["PrimitiveValue"] := ""
+} else {
+__v566 := "ToString" (value);
+ret["PrimitiveValue"] := __v566
+};
+__v567 := { };
+ret["properties"] := __v567;
+return ret };
+function getProvideThis (objectEnvRec) { __v568 := objectEnvRec["provideThis"];
+return __v568 };
+function setLexicalEnvironment (runningExecCtx, lexicalEnvironment) { runningExecCtx["LexicalEnvironment"] := lexicalEnvironment;
+return 'undefined };
+function PutValue (V, W, globalObject) { print "PutValue";
+__v571 := "Type" (V);
+__v570 := __v571 = "Reference";
+__v569 := !(__v570);
+if (__v569) {
+__v572 := "ReferenceErrorException" ()
+};
+__v573 := "GetBase" (V);
+base := __v573;
+__v574 := "IsUnresolvableReference" (V);
+if (__v574) {
+__v575 := "IsStrictReference" (V);
+if (__v575) {
+__v576 := "ReferenceErrorException" ()
+};
+__v578 := "GetReferencedName" (V);
+__v577 := "Put" (globalObject, __v578, W, false)
+} else {
+__v579 := "IsPropertyReference" (V);
+if (__v579) {
+__v581 := "HasPrimitiveBase" (V);
+__v580 := __v581 = false;
+if (__v580) {
+__v582 := base["Put"];
+put := __v582
+} else {
+__v583 := "NotImplemented" ()
+};
+__v585 := "GetReferencedName" (V);
+__v586 := "IsStrictReference" (V);
+__v584 := put (base, __v585, W, __v586)
+} else {
+__v588 := "GetReferencedName" (V);
+__v589 := "IsStrictReference" (V);
+__v587 := "SetMutableBinding" (base, __v588, W, __v589)
+}
+};
+return  };
+function newObjectEnvironmentRecord (bindingObj) { __v590 := { };
+__v590["isObjectEnvRec"] := true;
+__v590["bindingObject"] := bindingObj;
+__v590["provideThis"] := false;
+objEnvRec := __v590;
+return objEnvRec };
+function DefineOwnProperty (O, P, Desc, Throw) { print "DefineOwnProperty";
+__v591 := "GetOwnProperty" (O, P);
+current := __v591;
+__v592 := O["Extensible"];
+extensible := __v592;
+__v594 := current = 'undefined;
+__v595 := extensible = false;
+__v593 := __v594 && __v595;
+if (__v593) {
+__v596 := "Reject" (Throw);
+return __v596
+};
+__v598 := current = 'undefined;
+__v599 := extensible = true;
+__v597 := __v598 && __v599;
+if (__v597) {
+__v601 := "IsGenericPropertyDescriptor" (Desc);
+__v602 := "IsDataPropertyDescriptor" (Desc);
+__v600 := __v601 || __v602;
+if (__v600) {
+__v603 := "CreateDataPropertyFrom" (Desc);
+O[P] := __v603
+} else {
+__v604 := "CreateAccessorPropertyFrom" (Desc);
+O[P] := __v604
+};
+return true
+};
+__v605 := "EveryFieldIsAbsent" (Desc);
+if (__v605) {
+return true
+};
+__v613 := "Value" in_obj Desc;
+__v612 := !(__v613);
+if (__v612 = true) {
+__v611 := true
+} else {
+__v615 := "Value" in_obj current;
+if (__v615 = false) {
+__v614 := false
+} else {
+__v617 := Desc["Value"];
+__v618 := current["Value"];
+__v616 := "SameValue" (__v617, __v618);
+if (__v616 = false) {
+__v614 := false
+} else {
+__v614 := true
+}
+};
+if (__v614 = true) {
+__v611 := true
+} else {
+__v611 := false
+}
+};
+if (__v611 = false) {
+__v610 := false
+} else {
+__v621 := "Writable" in_obj Desc;
+__v620 := !(__v621);
+if (__v620 = true) {
+__v619 := true
+} else {
+__v623 := "Writable" in_obj current;
+if (__v623 = false) {
+__v622 := false
+} else {
+__v625 := Desc["Writable"];
+__v626 := current["Writable"];
+__v624 := "SameValue" (__v625, __v626);
+if (__v624 = false) {
+__v622 := false
+} else {
+__v622 := true
+}
+};
+if (__v622 = true) {
+__v619 := true
+} else {
+__v619 := false
+}
+};
+if (__v619 = false) {
+__v610 := false
+} else {
+__v610 := true
+}
+};
+if (__v610 = false) {
+__v609 := false
+} else {
+__v629 := "Set" in_obj Desc;
+__v628 := !(__v629);
+if (__v628 = true) {
+__v627 := true
+} else {
+__v631 := "Set" in_obj current;
+if (__v631 = false) {
+__v630 := false
+} else {
+__v633 := Desc["Set"];
+__v634 := current["Set"];
+__v632 := "SameValue" (__v633, __v634);
+if (__v632 = false) {
+__v630 := false
+} else {
+__v630 := true
+}
+};
+if (__v630 = true) {
+__v627 := true
+} else {
+__v627 := false
+}
+};
+if (__v627 = false) {
+__v609 := false
+} else {
+__v609 := true
+}
+};
+if (__v609 = false) {
+__v608 := false
+} else {
+__v637 := "Get" in_obj Desc;
+__v636 := !(__v637);
+if (__v636 = true) {
+__v635 := true
+} else {
+__v639 := "Get" in_obj current;
+if (__v639 = false) {
+__v638 := false
+} else {
+__v641 := Desc["Get"];
+__v642 := current["Get"];
+__v640 := "SameValue" (__v641, __v642);
+if (__v640 = false) {
+__v638 := false
+} else {
+__v638 := true
+}
+};
+if (__v638 = true) {
+__v635 := true
+} else {
+__v635 := false
+}
+};
+if (__v635 = false) {
+__v608 := false
+} else {
+__v608 := true
+}
+};
+if (__v608 = false) {
+__v607 := false
+} else {
+__v645 := "Enumerable" in_obj Desc;
+__v644 := !(__v645);
+if (__v644 = true) {
+__v643 := true
+} else {
+__v647 := "Enumerable" in_obj current;
+if (__v647 = false) {
+__v646 := false
+} else {
+__v649 := Desc["Enumerable"];
+__v650 := current["Enumerable"];
+__v648 := "SameValue" (__v649, __v650);
+if (__v648 = false) {
+__v646 := false
+} else {
+__v646 := true
+}
+};
+if (__v646 = true) {
+__v643 := true
+} else {
+__v643 := false
+}
+};
+if (__v643 = false) {
+__v607 := false
+} else {
+__v607 := true
+}
+};
+if (__v607 = false) {
+__v606 := false
+} else {
+__v653 := "Configurable" in_obj Desc;
+__v652 := !(__v653);
+if (__v652 = true) {
+__v651 := true
+} else {
+__v655 := "Configurable" in_obj current;
+if (__v655 = false) {
+__v654 := false
+} else {
+__v657 := Desc["Configurable"];
+__v658 := current["Configurable"];
+__v656 := "SameValue" (__v657, __v658);
+if (__v656 = false) {
+__v654 := false
+} else {
+__v654 := true
+}
+};
+if (__v654 = true) {
+__v651 := true
+} else {
+__v651 := false
+}
+};
+if (__v651 = false) {
+__v606 := false
+} else {
+__v606 := true
+}
+};
+if (__v606) {
+return true
+};
+__v660 := current["Configurable"];
+__v659 := __v660 = false;
+if (__v659) {
+__v662 := Desc["Configurable"];
+__v661 := __v662 = true;
+if (__v661) {
+__v663 := "Reject" (Throw);
+return __v663
+};
+__v664 := "Enumerable" in_obj Desc;
+if (__v664) {
+__v667 := Desc["Enumerable"];
+__v666 := !(__v667);
+__v668 := current["Enumerable"];
+__v665 := __v666 = __v668;
+if (__v665) {
+__v669 := "Reject" (Throw);
+return __v669
+}
+}
+};
+__v670 := "IsGenericPropertyDescriptor" (Desc);
+if (__v670) {
+
+} else {
+__v673 := "IsDataPropertyDescriptor" (current);
+__v674 := "IsDataPropertyDescriptor" (Desc);
+__v672 := __v673 = __v674;
+__v671 := !(__v672);
+if (__v671) {
+__v676 := current["Configurable"];
+__v675 := __v676 = false;
+if (__v675) {
+__v677 := "Reject" (Throw);
+return __v677
+};
+__v678 := "IsDataPropertyDescriptor" (current);
+if (__v678) {
+__v679 := O[P];
+delete __v679["Value"];
+__v680 := O[P];
+delete __v680["Writable"];
+__v681 := O[P];
+__v681["Set"] := 'undefined;
+__v682 := O[P];
+__v682["Get"] := 'undefined
+} else {
+__v683 := O[P];
+delete __v683["Set"];
+__v684 := O[P];
+delete __v684["Get"];
+__v685 := O[P];
+__v685["Value"] := 'undefined;
+__v686 := O[P];
+__v686["Writable"] := false
+}
+} else {
+__v688 := "IsDataPropertyDescriptor" (current);
+__v689 := "IsDataPropertyDescriptor" (Desc);
+__v687 := __v688 && __v689;
+if (__v687) {
+__v691 := current["Configurable"];
+__v690 := __v691 = false;
+if (__v690) {
+__v694 := current["Writable"];
+__v693 := __v694 = false;
+__v696 := Desc["Writable"];
+__v695 := __v696 = true;
+__v692 := __v693 && __v695;
+if (__v692) {
+__v697 := "Reject" (Throw);
+return __v697
+};
+__v699 := current["Writable"];
+__v698 := __v699 = false;
+if (__v698) {
+__v701 := "Value" in_obj Desc;
+__v704 := Desc["Value"];
+__v705 := current["Value"];
+__v703 := "SameValue" (__v704, __v705);
+__v702 := __v703 = false;
+__v700 := __v701 && __v702;
+if (__v700) {
+__v706 := "Reject" (Throw);
+return __v706
+}
+}
+} else {
+
+}
+} else {
+__v708 := current["Configurable"];
+__v707 := __v708 = false;
+if (__v707) {
+__v710 := "Set" in_obj Desc;
+__v713 := Desc["Set"];
+__v714 := current["Set"];
+__v712 := "SameValue" (__v713, __v714);
+__v711 := __v712 = false;
+__v709 := __v710 && __v711;
+if (__v709) {
+__v715 := "Reject" (Throw);
+return __v715
+};
+__v717 := "Get" in_obj Desc;
+__v720 := Desc["Get"];
+__v721 := current["Get"];
+__v719 := "SameValue" (__v720, __v721);
+__v718 := __v719 = false;
+__v716 := __v717 && __v718;
+if (__v716) {
+__v722 := "Reject" (Throw);
+return __v722
+}
+}
+}
+}
+};
+__v723 := "Value" in_obj Desc;
+if (__v723) {
+__v724 := O[P];
+__v725 := Desc["Value"];
+__v724["Value"] := __v725
+};
+__v726 := "Writable" in_obj Desc;
+if (__v726) {
+__v727 := O[P];
+__v728 := Desc["Writable"];
+__v727["Writable"] := __v728
+};
+__v729 := "Set" in_obj Desc;
+if (__v729) {
+__v730 := O[P];
+__v731 := Desc["Set"];
+__v730["Set"] := __v731
+};
+__v732 := "Get" in_obj Desc;
+if (__v732) {
+__v733 := O[P];
+__v734 := Desc["Get"];
+__v733["Get"] := __v734
+};
+__v735 := "Enumerable" in_obj Desc;
+if (__v735) {
+__v736 := O[P];
+__v737 := Desc["Enumerable"];
+__v736["Enumerable"] := __v737
+};
+__v738 := "Configurable" in_obj Desc;
+if (__v738) {
+__v739 := O[P];
+__v740 := Desc["Configurable"];
+__v739["Configurable"] := __v740
+};
+return true };
+function IsCallable (V) { __v741 := "Type" (V);
+v_type := __v741;
+__v742 := v_type = "Object";
+if (__v742) {
+__v743 := "Call" in_obj V;
+if (__v743) {
+return true
+};
+return false
+};
+return false };
+function setThisBinding (runningExecCtx, thisBinding) { runningExecCtx["ThisBinding"] := thisBinding;
+return 'undefined };
+function RangeErrorException () { __v744 := { };
+__v744["exception"] := "RangeError";
+return __v744 };
+function createExecutionContext () { __v745 := { };
+__v745["LexicalEnvironment"] := 'undefined;
+__v745["VariableEnvironment"] := 'undefined;
+__v745["ThisBinding"] := 'undefined;
+return __v745 };
+function getStringPrototypeObject (global) { __v746 := "newPropertyReference" (global, "String", true);
+refString := __v746;
+print "RefString After";
+print refString;
+print global;
+__v747 := global["String"];
+print __v747;
+__v748 := "GetValue" (refString);
+StringConstructor := __v748;
+print "StringConstructor Found";
+__v749 := StringConstructor["prototype"];
+print __v749;
+__v750 := "newPropertyReference" (StringConstructor, "prototype", false);
+refStringPrototype := __v750;
+print "refStringPrototype Found";
+print refStringPrototype;
+__v751 := "GetValue" (refStringPrototype);
+StringPrototype := __v751;
+print "StringPrototype found";
+return StringPrototype };
+function EnteringFunctionCode (F, thisArg, argumentsList, strict) { __v752 := "createExecutionContext" ();
+functionExecCtx := __v752;
+if (strict) {
+__v753 := "setThisBinding" (functionExecCtx, thisArg)
+};
+__v755 := thisArg = null;
+__v756 := thisArg = 'undefined;
+__v754 := __v755 || __v756;
+if (__v754) {
+__v759 := F["Scope"];
+__v758 := "getGlobalObject" (__v759);
+__v757 := "setThisBinding" (functionExecCtx, __v758)
+} else {
+__v762 := "Type" (thisArg);
+__v761 := __v762 = "Object";
+__v760 := !(__v761);
+if (__v760) {
+__v764 := "ToObject" (thisArg);
+__v763 := "setThisBinding" (functionExecCtx, __v764)
+} else {
+__v765 := "setThisBinding" (functionExecCtx, thisArg)
+}
+};
+__v767 := F["Scope"];
+__v766 := "NewDeclarativeEnvironment" (__v767);
+localEnv := __v766;
+__v768 := "setLexicalEnvironment" (functionExecCtx, localEnv);
+__v769 := "setVariableEnvironment" (functionExecCtx, localEnv);
+__v770 := F["Code"];
+code := __v770;
+__v771 := "DeclarationBindingInstantiation" (code, argumentsList, functionExecCtx, F);
+return functionExecCtx };
+function newGetAccessorPropertyDescriptor (get) { __v772 := "NewPropertyDescriptor" ();
+desc := __v772;
+desc["Get"] := get;
+desc["Enumerable"] := true;
+desc["Configurable"] := true;
+return desc };
+function GetBindingValueObject (objectEnvRec, N, S) { envRec := objectEnvRec;
+__v773 := "getBindingObject" (envRec);
+bindings := __v773;
+__v774 := "HasProperty" (bindings, N);
+value := __v774;
+__v775 := value = false;
+if (__v775) {
+__v776 := S = false;
+if (__v776) {
+return 'undefined
+};
+__v777 := "ReferenceErrorException" ()
+};
+__v778 := "Get" (bindings, N);
+return __v778 };
+function newLexicalEnvironment () { __v779 := { };
+__v779["OuterEnvRef"] := 'undefined;
+__v779["EnvRec"] := 'undefined;
+return __v779 };
+function NewDeclarativeEnvironment (E) { __v780 := "newLexicalEnvironment" ();
+env := __v780;
+__v781 := "newDeclarativeEnvironmentRecord" ();
+envRec := __v781;
+__v782 := "setEnvironmentRecord" (env, envRec);
+__v783 := "setOuterLexicalEnvironmentReference" (env, E);
+return env };
+function EnteringGlobalCode (program) { __v784 := "NewObject" ();
+globalObject := __v784;
+__v785 := "setAllInternalMethodsOfObject" (globalObject);
+__v786 := "InitialGlobalExecutionContext" (globalObject);
+globalScope := __v786;
+__v788 := [  ];
+__v787 := "DeclarationBindingInstantiation" (program, __v788, globalScope, null);
+return globalScope };
+function GetValueOrDefault (propDesc, propName) { __v789 := { };
+__v789["Value"] := 'undefined;
+__v789["Get"] := 'undefined;
+__v789["Set"] := 'undefined;
+__v789["Writable"] := false;
+__v789["Enumerable"] := false;
+__v789["Configurable"] := false;
+objectDefaultAttributeValues := __v789;
+__v790 := propName in_obj propDesc;
+if (__v790) {
+__v791 := propDesc[propName];
+return __v791
+} else {
+__v792 := objectDefaultAttributeValues[propName];
+return __v792
+} };
+function getThisBinding (runningExecCtx) { __v793 := runningExecCtx["ThisBinding"];
+return __v793 };
+function CreateDataPropertyFrom (Desc) { __v794 := { };
+__v795 := "GetValueOrDefault" (Desc, "Value");
+__v794["Value"] := __v795;
+__v796 := "GetValueOrDefault" (Desc, "Writable");
+__v794["Writable"] := __v796;
+__v797 := "GetValueOrDefault" (Desc, "Enumerable");
+__v794["Enumerable"] := __v797;
+__v798 := "GetValueOrDefault" (Desc, "Configurable");
+__v794["Configurable"] := __v798;
+return __v794 };
+function StringPrototypeSlice (global, this, args) { __v799 := l_nth(args, 0);
+start := __v799;
+__v800 := l_nth(args, 1);
+end := __v800;
+__v801 := "CheckObjectCoercible" (this);
+__v802 := "ToString" (this);
+S := __v802;
+__v803 := s_len(str);
+len := __v803;
+__v805 := "ToInteger" (start);
+__v804 := int_of_float(__v805);
+intStart := __v804;
+__v806 := end = 'undefined;
+if (__v806) {
+intEnd := len
+} else {
+__v808 := "ToInteger" (end);
+__v807 := int_of_float(__v808);
+intEnd := __v807
+};
+__v809 := intStart < 0;
+if (__v809) {
+__v811 := len + intStart;
+__v810 := "max" (__v811, 0);
+from := __v810
+} else {
+__v812 := "min" (intStart, len);
+from := __v812
+};
+__v814 := to - from;
+__v813 := "max" (__v814, 0);
+span := __v813;
+return null };
+function setAllInternalMethodsOfObject (obj) { obj["GetOwnProperty"] := "GetOwnProperty";
+obj["GetProperty"] := "GetProperty";
+obj["Get"] := "Get";
+obj["CanPut"] := "CanPut";
+obj["Put"] := "Put";
+obj["HasProperty"] := "HasProperty";
+obj["Delete"] := "Delete";
+obj["DefaultValue"] := "DefaultValue";
+obj["DefineOwnProperty"] := "DefineOwnProperty";
+return obj };
+function DeleteBindingObject (objectEnvRec, N) { envRec := objectEnvRec;
+__v815 := "getBindingObject" (envRec);
+bindings := __v815;
+__v816 := "Delete" (bindings, N, false);
+return __v816 };
+function GetProps (Desc) { __v817 := [  ];
+list := __v817;
+__v818 := "Value" in_obj Desc;
+if (__v818) {
+__v819 := l_add(list, "Value");
+list := __v819
+};
+__v820 := "Writable" in_obj Desc;
+if (__v820) {
+__v821 := l_add(list, "Writable");
+list := __v821
+};
+__v822 := "Get" in_obj Desc;
+if (__v822) {
+__v823 := l_add(list, "Get");
+list := __v823
+};
+__v824 := "Set" in_obj Desc;
+if (__v824) {
+__v825 := l_add(list, "Set");
+list := __v825
+};
+__v826 := "Enumerable" in_obj Desc;
+if (__v826) {
+__v827 := l_add(list, "Enumerable");
+list := __v827
+};
+__v828 := "Configurable" in_obj Desc;
+if (__v828) {
+__v829 := l_add(list, "Configurable");
+list := __v829
+};
+return list };
+function DefaultValue (O, hint) { print "DefaultValue";
+__v830 := hint = 'String;
+if (__v830) {
+__v831 := "Get" (O, "toString");
+toString := __v831;
+debug;
+__v832 := "IsCallable" (toString);
+if (__v832) {
+__v834 := [  ];
+__v833 := "Call" (toString, O, __v834);
+str := __v833;
+__v835 := "IsPrimitiveValue" (str);
+if (__v835) {
+return str
+}
+};
+__v836 := "Get" (O, "valueOf");
+valueOf := __v836;
+__v837 := "IsCallable" (valueOf);
+if (__v837) {
+__v839 := [  ];
+__v838 := "Call" (valueOf, O, __v839);
+val := __v838;
+__v840 := "IsPrimitiveValue" (val);
+if (__v840) {
+return val
+}
+};
+__v841 := "TypeErrorException" ()
+} else {
+__v842 := hint = 'Number;
+if (__v842) {
+__v843 := "Get" (O, "valueOf");
+valueOf := __v843;
+__v844 := "IsCallable" (valueOf);
+if (__v844) {
+__v846 := [  ];
+__v845 := "Call" (valueOf, O, __v846);
+val := __v845;
+__v847 := "IsPrimitiveValue" (val);
+if (__v847) {
+return val
+}
+};
+__v848 := "Get" (O, "toString");
+toString := __v848;
+__v849 := "IsCallable" (toString);
+if (__v849) {
+__v851 := [  ];
+__v850 := "Call" (toString, O, __v851);
+str := __v850;
+__v852 := "IsPrimitiveValue" (str);
+if (__v852) {
+return str
+}
+};
+__v853 := "TypeErrorException" ()
+}
+} };
+function getLexicalEnvironment (runningExecCtx) { __v854 := runningExecCtx["LexicalEnvironment"];
+return __v854 };
+function getGlobalObject (lexicalEnvironment) { lex := lexicalEnvironment;
+__v855 := "getOuterEnvironmentReference" (lexicalEnvironment);
+outer := __v855;
+__v857 := outer = null;
+__v856 := !(__v857);
+while (__v856) { lex := outer;
+__v858 := "getOuterEnvironmentReference" (lex);
+outer := __v858;
+__v857 := outer = null;
+__v856 := !(__v857) };
+__v860 := "getEnvironmentRecord" (lex);
+__v859 := "getBindingObject" (__v860);
+return __v859 };
+function Call (F, this, args) { __v863 := F["Code"];
+__v862 := typeof(__v863);
+__v861 := __v862 = __$Str;
+if (__v861) {
+__v865 := F["Code"];
+__v864 := __v865 (null, this, args);
+return __v864
+};
+__v866 := "EnteringFunctionCode" (F, this, args, false);
+funcCtx := __v866;
+__v869 := "Code" in_obj F;
+__v868 := !(__v869);
+__v872 := F["Code"];
+__v871 := __v872["body"];
+__v873 := [  ];
+__v870 := __v871 = __v873;
+__v867 := __v868 || __v870;
+if (__v867) {
+__v874 := "normalEmptyCompletion" ('undefined);
+return __v874
+};
+__v877 := F["Code"];
+__v876 := __v877["body"];
+__v875 := "JS_Interpreter_FunctionBody" (__v876, funcCtx);
+result := __v875;
+__v879 := "getCompletionType" (result);
+__v878 := __v879 = 'throw;
+if (__v878) {
+__v880 := "getCompletionValue" (result)
+};
+__v882 := "getCompletionType" (result);
+__v881 := __v882 = 'return;
+if (__v881) {
+__v883 := "getCompletionValue" (result);
+return __v883
+};
+return 'undefined };
+function ToUint32 (argument) { __v884 := "ToNumber" (argument);
+number := __v884;
+__v889 := number = 'NaN;
+__v890 := number = '+0;
+__v888 := __v889 || __v890;
+__v891 := number = '-0;
+__v887 := __v888 || __v891;
+__v892 := number = '+Infinity;
+__v886 := __v887 || __v892;
+__v893 := number = '-Infinity;
+__v885 := __v886 || __v893;
+if (__v885) {
+return 0
+};
+__v894 := to_uint32(number);
+return __v894 };
+function ImplicitThisValue (envRec) { __v895 := "isDeclarativeEnvironmentRecord" (envRec);
+if (__v895) {
+__v896 := "ImplicitThisValueDeclarative" (envRec);
+return __v896
+};
+__v897 := "ImplicitThisValueObject" (envRec);
+return __v897 };
+function IsStrictReference (V) { print "IsStrictReference";
+__v898 := t_nth(V, 4);
+return __v898 };
+function CanPut (O, P) { print "CanPut";
+__v899 := "GetOwnProperty" (O, P);
+desc := __v899;
+__v901 := desc = 'undefined;
+__v900 := !(__v901);
+if (__v900) {
+__v902 := "IsAccessorPropertyDescriptor" (desc);
+if (__v902) {
+__v904 := desc["Set"];
+__v903 := __v904 = 'undefined;
+if (__v903) {
+return false
+} else {
+return true
+}
+} else {
+__v905 := desc["Writable"];
+return __v905
+}
+};
+__v906 := O["Prototype"];
+proto := __v906;
+__v907 := proto = null;
+if (__v907) {
+__v908 := O["Extensible"];
+return __v908
+};
+__v909 := "GetProperty" (proto, P);
+inherited := __v909;
+__v910 := inherited = 'undefined;
+if (__v910) {
+__v911 := O["Extensible"];
+return __v911
+};
+__v912 := "IsAccessorPropertyDescriptor" (inherited);
+if (__v912) {
+__v914 := inherited["Set"];
+__v913 := __v914 = 'undefined;
+if (__v913) {
+return false
+} else {
+return true
+}
+} else {
+__v915 := "IsDataPropertyDescriptor" (inherited);
+if (__v915) {
+__v917 := O["Extensible"];
+__v916 := __v917 = false;
+if (__v916) {
+return false
+} else {
+__v918 := inherited["Writable"];
+return __v918
+}
+}
+} }

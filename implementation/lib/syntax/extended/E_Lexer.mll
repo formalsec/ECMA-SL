@@ -115,6 +115,7 @@ rule read =
   | "->"              { RIGHT_ARROW }
   | "None"            { NONE }
   | "default"         { DEFAULT }
+  | "debug"           { DEBUG }
   | "if"              { IF }
   | "else"            { ELSE }
   | "while"           { WHILE }

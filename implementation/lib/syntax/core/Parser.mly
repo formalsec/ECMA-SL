@@ -6,6 +6,7 @@
 *)
 %token SKIP
 %token PRINT
+%token DEBUG
 %token DEFEQ
 %token WHILE
 %token IF ELSE
@@ -218,6 +219,8 @@ stmt_target:
     {print_string ">FIELDDELETE\n";   Stmt.FieldDelete (e, f) }
   | SKIP;
     { print_string ">SKIP\n";Stmt.Skip }
+  | DEBUG; 
+    { Stmt.Debug }
   | v = VAR; DEFEQ; e = expr_target;
     { print_string ">ASSIGN\n";Stmt.Assign (v, e) }
   | exps_stmts = ifelse_target;

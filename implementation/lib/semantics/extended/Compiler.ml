@@ -274,6 +274,7 @@ and compile_print (expr : E_Expr.t) : Stmt.t list =
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   match e_stmt with
   | Skip                            -> [Stmt.Skip]
+  | Debug                           -> [Stmt.Debug]
   | Print e                         -> compile_print e
   | Assign (v, e_exp)               -> compile_assign v e_exp
   | Block (e_stmts)                 -> compile_block e_stmts

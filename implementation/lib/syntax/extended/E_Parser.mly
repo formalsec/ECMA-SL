@@ -8,6 +8,7 @@
 %token PRINT
 %token DEFEQ
 %token WHILE
+%token DEBUG
 %token IF ELSE
 %token RETURN
 %token NULL
@@ -265,6 +266,8 @@ e_stmt_target:
     { E_Stmt.FieldDelete (e, f) }
   | SKIP;
     { E_Stmt.Skip }
+  | DEBUG; 
+    { E_Stmt.Debug }
   | v = VAR; DEFEQ; e = e_expr_target;
     { E_Stmt.Assign (v, e) }
   | e_stmt = ifelse_target;

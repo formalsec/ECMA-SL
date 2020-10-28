@@ -2,6 +2,10 @@ import "ES5_interpreter/section 9/section_9.esl";
 import "ES5_interpreter/section 8/section_8.7.esl";
 import "ES5_interpreter/section 8/section_8.10.esl";
 import "ES5_interpreter/section 8/section_8.12.esl";
+import "ES5_interpreter/section 10/section_10.2.esl";
+import "ES5_interpreter/section 10/section_10.3.esl";
+import "ES5_interpreter/section 10/section_10.4.esl";
+import "ES5_interpreter/section 10/section_10.5.esl";
 import "ES5_interpreter/section 13/section_13.esl";
 import "ES5_interpreter/section 15/section_15.11.esl";
 /* import "ES5_interpreter/ES5_Reference_Interpreter.esl"; */
@@ -32,6 +36,16 @@ function Type(V) {
 
   throw SyntaxErrorException()
 };
+
+function IsPrimitiveValue (v) {
+  v_type := Type(v); 
+  if (v_type = "Object") {
+    return false
+  } else {
+    return true
+  } 
+};
+
 
 /* Placeholder */
 function getStringPrototypeObject(global) {
@@ -94,12 +108,14 @@ function initStringLib(global, functionPrototype, objectPrototype, strict){
   stringPrototype.concat := newDataPropertyDescriptor( concatFunctionObject );
   stringPrototype.Get := "Get";
 
+  toStringFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypeToString", global, strict);
+  stringPrototype.toString := newDataPropertyDescriptor( toStringFunctionObject );
+
   StringConstructor := CreateFunctionObject( [ "args" ], "StringConstructor", global, strict);
   StringConstructor.prototype := newDataPropertyDescriptorFull( stringPrototype, false, false, false );
   StringConstructor.Get := "Get";
 
   global.String := newDataPropertyDescriptor( StringConstructor);
-
   return global
 
 
@@ -211,6 +227,11 @@ function StringConstructor (global, this, args) {
 /* 15.5.4.1 String.prototype.constructor */
 
 /* 15.5.4.2 String.prototype.toString() */
+function StringPrototypeToString (global, this, args) { 
+  return this.PrimitiveValue
+};
+
+
 
 /* 15.5.4.4 String.prototype.charAt (pos) */
 /*  Returns a String containing the character at position pos in the String resulting from converting this object to a String.
@@ -382,6 +403,7 @@ function StringPrototypeindexOf (global, this, args){
   /*Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /*Let S be the result of calling ToString, giving it the this value as its argument.*/
+  debug;
   S := ToString(this);
   /* Let searchStr be ToString(searchString). */
   searchStr := ToString(searchString);

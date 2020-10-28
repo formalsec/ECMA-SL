@@ -106,6 +106,7 @@ rule read =
   | ']'               { RBRACK }
   | "typeof"          { TYPEOF }
   | "__$"             { read_type lexbuf }
+  | "debug"           { DEBUG }
   | "if"              { IF }
   | "else"            { ELSE }
   | "while"           { WHILE }
