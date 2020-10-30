@@ -1,7 +1,12 @@
 import "ES5_interpreter/section 9/section_9.esl";
 import "ES5_interpreter/section 9/section_9.12.esl";
+import "ES5_interpreter/section 8/section_8.9.esl";
 import "ES5_interpreter/section 8/section_8.10.esl";
 import "ES5_interpreter/section 8/section_8.12.esl";
+import "ES5_interpreter/section 10/section_10.2.esl";
+import "ES5_interpreter/section 10/section_10.3.esl";
+import "ES5_interpreter/section 10/section_10.4.esl";
+import "ES5_interpreter/section 13/section_13.esl";
 import "ES5_interpreter/section 15/section_15.11.esl";
 
 /* This method is not supposed to be here. As soon
@@ -15,8 +20,8 @@ function Type(V) {
   if (v_type = __$Str) { return "String" };
   if (v_type = __$Obj) { return "Object" };
   if (v_type = __$List) { return "List" };
-  if (v_type = __$Null) { return "Null" };
   if (v_type = __$Symbol) {
+    if (V = 'null) { return "Null" };
     if (V = 'undefined) { return "Undefined" }
   };
   if (v_type = __$Tuple) {
@@ -122,7 +127,7 @@ function newArray(items) {
   /* The length property of the newly constructed object is set to the
      number of arguments. */
   len := l_len items;
-  arr.length := newDataPropertyDescriptor(int_to_float(len));
+  arr.length := newDataPropertyDescriptorFull(int_to_float(len), true, false, false);
 
   /* The 0 property of the newly constructed object is set to item0
      (if supplied); the 1 property of the newly constructed object is set
@@ -133,7 +138,7 @@ function newArray(items) {
      [[Enumerable]]: true, [[Configurable]]: true}. */
   while (i < len) {
     i_str := int_to_string i;
-    arr[i_str] := newDataPropertyDescriptor(l_nth (items, i));
+    arr[i_str] := newDataPropertyDescriptorFull(l_nth (items, i), true, true, true);
     i := i + 1
   };
 
@@ -151,7 +156,7 @@ function newArrayLen(len) {
     /* The [[Prototype]] internal property of the newly constructed object is
       set to the original Array prototype object, the one that is the initial
       value of Array.prototype (15.4.3.1). */
-    Prototype: null,
+    Prototype: 'null,
     /* The [[Class]] internal property of the newly constructed object
       is set to "Array". */
     Class: "Array",
@@ -171,7 +176,7 @@ function newArrayLen(len) {
   /* If the argument len is a Number and ToUint32(len) is equal to len, then
      the length property of the newly constructed object is set to ToUint32(len). */
   if (lenIsNumber && ((ToUint32(len) = len))) {
-    arr.length := newDataPropertyDescriptor(ToUint32(len))
+    arr.length := newDataPropertyDescriptorFull(ToUint32(len), true, false, false)
   };
 
   /* If the argument len is a Number and ToUint32(len) is not equal to
@@ -185,7 +190,7 @@ function newArrayLen(len) {
      constructed object is set to len with attributes {[[Writable]]: true,
      [[Enumerable]]: true, [[Configurable]]: true}.. */
   if (!lenIsNumber) {
-    arr.length := newDataPropertyDescriptor(ToUint32(1.));
+    arr.length := newDataPropertyDescriptorFull(ToUint32(1.), true, false, false);
     arr["0"] := newDataPropertyDescriptorFull(len, true, true, true)
   };
 
@@ -224,18 +229,18 @@ function isArray(arg) {
  * When the toString method is called, the following steps are taken:
  */
 function toStringArray(this) {
-/* 1. Let array be the result of calling ToObject on the this value. */
-array := ToObject(this);
-/* 2. Let func be the result of calling the [[Get]] internal method
-      of array with argument "join". */
-func := {array.Get}(array, "join");
-/* 3. If IsCallable(func) is false, then let func be the standard
-      built-in method Object.prototype.toString (15.2.4.2). */
-if (IsCallable(func) = false) {
-  func := ToString
-};
-/* 4. Return the result of calling the [[Call]] internal method of func
-      providing array as the this value and an empty arguments list. */
+  /* 1. Let array be the result of calling ToObject on the this value. */
+  array := ToObject(this);
+  /* 2. Let func be the result of calling the [[Get]] internal method
+        of array with argument "join". */
+  func := {array.Get}(array, "join");
+  /* 3. If IsCallable(func) is false, then let func be the standard
+        built-in method Object.prototype.toString (15.2.4.2). */
+  if (IsCallable(func) = false) {
+    func := ToString
+  };
+  /* 4. Return the result of calling the [[Call]] internal method of func
+        providing array as the this value and an empty arguments list. */
   return {func.Call}(func, array, []) /* TODO */
 };
 /**
@@ -282,7 +287,7 @@ function toLocaleString(this) {
         method of array with argument "0". */
   firstElement := {O.Get}(O, "0");
   /* 7. If firstElement is undefined or null, then */
-  if (firstElement = 'undefined || firstElement = null) {
+  if (firstElement = 'undefined || firstElement = 'null) {
     /* a. Let R be the empty String. */
     R := ""
   }
@@ -311,7 +316,7 @@ function toLocaleString(this) {
           method of array with argument ToString(k). */
     nextElement := {O.Get}(O, ToString(k));
     /* c. If nextElement is undefined or null, then */
-    if (nextElement = 'undefined || nextElement = null) {
+    if (nextElement = 'undefined || nextElement = 'null) {
       /* i. Let R be the empty String. */
       R := ""
     }
@@ -483,7 +488,7 @@ function join(this, separator) {
   element0 := {O.Get}(O, "0");
   /* 8. If element0 is undefined or null, let R be the empty String;
         otherwise, Let R be ToString(element0). */
-  if ((element0 = 'undefined) || (element0 = null)) {
+  if ((element0 = 'undefined) || (element0 = 'null)) {
     R := ""
   } else {
     R := ToString(element0)
@@ -499,7 +504,7 @@ function join(this, separator) {
     element := {O.Get}(O, ToString(k));
     /* c. If element is undefined or null, Let next be the empty String;
           otherwise, let next be ToString(element). */
-    if ((element = 'undefined) || (element = null)) {
+    if ((element = 'undefined) || (element = 'null)) {
       next := ""
     } else {
       next := ToString(element)
@@ -1375,7 +1380,52 @@ function lastIndexOf(this, searchElement, fromIndex) {
  * steps are taken:
  */
 function every(this, callbackfn, thisArg) {
-
+  /* 1. Let O be the result of calling ToObject passing the this
+        value as the argument. */
+  O := ToObject(this);
+  /* 2. Let lenValue be the result of calling the [[Get]] internal
+        method of O with the argument "length". */
+  lenVal := {O.Get}(O, "length");
+  /* 3. Let len be ToUint32(lenValue). */
+  len := ToUint32(lenVal);
+  /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallable(callbackfn) = false) {
+    throw TypeErrorException()
+  };
+  /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if (!(thisArg = 'undefined)) {
+    T := thisArg
+  } else {
+    T := 'undefined
+  };
+  /* 6. Let k be 0. */
+  k := 0.;
+  /* 7. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+    /* b. Let kPresent be the result of calling the [[HasProperty]]
+          internal method of O with argument Pk. */
+    kPresent := {O.HasProperty}(O, Pk);
+    /* c. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be the result of calling the [[Get]] internal
+            method of O with argument Pk. */
+      kValue := {O.Get}(O, Pk);
+      /* ii. Let testResult be the result of calling the [[Call]] internal
+             method of callbackfn with T as the this value and argument
+             list containing kValue, k, and O. */
+      testResult := {callbackfn.Call}(callbackfn, T, [kValue, k, O]);
+      /* iii. If ToBoolean(testResult) is false, return false. */
+      if (ToBoolean(testResult) = false) {
+        return false
+      }
+    };
+    /* d. Increase k by 1. */
+    k := k + 1.
+  };
+  /* 8. Return true. */
+  return true
 };
 /**
  * The length property of the every method is 1. TODO
@@ -1385,6 +1435,609 @@ function every(this, callbackfn, thisArg) {
  * to other kinds of objects for use as a method. Whether the every function
  * can be applied successfully to a host object is implementation-dependent.
  */
+
+
+
+
+/**
+ * 15.4.4.17 Array.prototype.some ( callbackfn [ , thisArg ] )
+ *
+ * callbackfn should be a function that accepts three arguments and returns
+ * a value that is coercible to the Boolean value true or false. some calls
+ * callbackfn once for each element present in the array, in ascending order,
+ * until it finds one where callbackfn returns true. If such an element is
+ ª found, some immediately returns true. Otherwise, some returns false.
+ * callbackfn is called only for elements of the array which actually exist;
+ * it is not called for missing elements of the array.
+ *
+ * If a thisArg parameter is provided, it will be used as the this value for
+ * each invocation of callbackfn. If it is not provided, undefined is used instead.
+ *
+ * callbackfn is called with three arguments: the value of the element, the
+ * index of the element, and the object being traversed.
+ *
+ * some does not directly mutate the object on which it is called but the
+ * object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by some is set before the first call to
+ * callbackfn. Elements that are appended to the array after the call to
+ * some begins will not be visited by callbackfn. If existing elements of
+ * the array are changed, their value as passed to callbackfn will be the
+ * value at the time that some visits them; elements that are deleted after
+ * the call to some begins and before being visited are not visited. some
+ * acts like the "exists" quantifier in mathematics. In particular, for an
+ * empty array, it returns false.
+ *
+ * When the some method is called with one or two arguments, the following
+ * steps are taken:
+ */
+function some(this, callbackfn, thisArg) {
+  /* 1. Let O be the result of calling ToObject passing the this
+        value as the argument. */
+  O := ToObject(this);
+  /* 2. Let lenValue be the result of calling the [[Get]] internal
+        method of O with the argument "length". */
+  lenVal := {O.Get}(O, "length");
+  /* 3. Let len be ToUint32(lenValue). */
+  len := ToUint32(lenVal);
+  /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallable(callbackfn) = false) {
+    throw TypeErrorException()
+  };
+  /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if (!(thisArg = 'undefined)) {
+    T := thisArg
+  } else {
+    T := 'undefined
+  };
+  /* 6. Let k be 0. */
+  k := 0.;
+  /* 7. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+    /* b. Let kPresent be the result of calling the [[HasProperty]]
+          internal method of O with argument Pk. */
+    kPresent := {O.HasProperty}(O, Pk);
+    /* c. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be the result of calling the [[Get]] internal
+            method of O with argument Pk. */
+      kValue := {O.Get}(O, Pk);
+      /* ii. Let testResult be the result of calling the [[Call]] internal
+             method of callbackfn with T as the this value and argument
+             list containing kValue, k, and O. */
+      testResult := {callbackfn.Call}(callbackfn, T, [kValue, k, O]);
+      /* iii. If ToBoolean(testResult) is true, return true. */
+      if (ToBoolean(testResult) = true) {
+        return true
+      }
+    };
+    /* d. Increase k by 1. */
+    k := k + 1.
+  };
+  /* 8. Return false. */
+  return false
+};
+/**
+ * The length property of the some method is 1. TODO
+ *
+ * NOTE The some function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore it can be transferred
+ * to other kinds of objects for use as a method. Whether the some function
+ * can be applied successfully to a host object is implementation-dependent.
+ */
+
+
+
+
+/**
+ * 15.4.4.18 Array.prototype.forEach ( callbackfn [ , thisArg ] )
+ *
+ * callbackfn should be a function that accepts three arguments. forEach
+ * calls callbackfn once for each element present in the array, in ascending
+ * order. callbackfn is called only for elements of the array which actually
+ * exist; it is not called for missing elements of the array.
+ *
+ * If a thisArg parameter is provided, it will be used as the this value for
+ * each invocation of callbackfn. If it is not provided, undefined is used
+ * instead.
+ *
+ * callbackfn is called with three arguments: the value of the element,
+ * the index of the element, and the object being traversed.
+ *
+ * forEach does not directly mutate the object on which it is called but
+ * the object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by forEach is set before the first
+ * call to callbackfn. Elements which are appended to the array after the
+ * call to forEach begins will not be visited by callbackfn. If existing
+ * elements of the array are changed, their value as passed to callback
+ * will be the value at the time forEach visits them; elements that are
+ * deleted after the call to forEach begins and before being visited are
+ * not visited.
+ *
+ * When the forEach method is called with one or two arguments, the
+ * following steps are taken:
+ */
+function forEach(this, callbackfn, thisArg) {
+  /* 1. Let O be the result of calling ToObject passing the this
+        value as the argument. */
+  O := ToObject(this);
+  /* 2. Let lenValue be the result of calling the [[Get]] internal
+        method of O with the argument "length". */
+  lenVal := {O.Get}(O, "length");
+  /* 3. Let len be ToUint32(lenValue). */
+  len := ToUint32(lenVal);
+  /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallable(callbackfn) = false) {
+    throw TypeErrorException()
+  };
+  /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if (!(thisArg = 'undefined)) { /* TODO if thisArg was supplied check with undefined? */
+    T := thisArg
+  } else {
+    T := 'undefined
+  };
+  /* 6. Let k be 0. */
+  k := 0.;
+  /* 7. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+    /* b. Let kPresent be the result of calling the [[HasProperty]]
+          internal method of O with argument Pk. */
+    kPresent := {O.HasProperty}(O, Pk);
+    /* c. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be the result of calling the [[Get]] internal
+            method of O with argument Pk. */
+      kValue := {O.Get}(O, Pk);
+      /* ii. Call the [[Call]] internal method of callbackfn with T
+             as the this value and argument list containing kValue, k, and O. */
+      {callbackfn.Call}(callbackfn, T, [kValue, k, O])
+    };
+    /* d. Increase k by 1. */
+    k := k + 1.
+  };
+  /* 8. Return undefined. */
+  return 'undefined
+};
+/**
+ * The length property of the forEach method is 1.
+ *
+ * NOTE The forEach function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore it can be transferred
+ * to other kinds of objects for use as a method. Whether the forEach function
+ * can be applied successfully to a host object is implementation-dependent.
+ */
+
+
+
+
+/**
+ * 15.4.4.19 Array.prototype.map ( callbackfn [ , thisArg ] )
+ *
+ * callbackfn should be a function that accepts three arguments. map calls
+ * callbackfn once for each element in the array, in ascending order, and
+ * constructs a new Array from the results. callbackfn is called only for
+ * elements of the array which actually exist; it is not called for missing
+ * elements of the array.
+ *
+ * If a thisArg parameter is provided, it will be used as the this value
+ * for each invocation of callbackfn. If it is not provided, undefined is
+ * used instead.
+ *
+ * callbackfn is called with three arguments: the value of the element,
+ * the index of the element, and the object being traversed.
+ *
+ * map does not directly mutate the object on which it is called but the
+ * object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by map is set before the first call
+ * to callbackfn. Elements which are appended to the array after the call
+ * to map begins will not be visited by callbackfn. If existing elements of
+ * the array are changed, their value as passed to callbackfn will be the
+ * value at the time map visits them; elements that are deleted after the
+ * call to map begins and before being visited are not visited.
+ *
+ * When the map method is called with one or two arguments, the following
+ * steps are taken:
+ */
+function map(this, callbackfn, thisArg) {
+  /* 1. Let O be the result of calling ToObject passing the this
+        value as the argument. */
+  O := ToObject(this);
+  /* 2. Let lenValue be the result of calling the [[Get]] internal
+        method of O with the argument "length". */
+  lenVal := {O.Get}(O, "length");
+  /* 3. Let len be ToUint32(lenValue). */
+  len := ToUint32(lenVal);
+  /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallable(callbackfn) = false) {
+    throw TypeErrorException()
+  };
+  /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if (!(thisArg = 'undefined)) { /* TODO if thisArg was supplied check with undefined? */
+    T := thisArg
+  } else {
+    T := 'undefined
+  };
+  /* 6. Let A be a new array created as if by the expression new Array( len)
+        where Array is the standard built-in constructor with that name and
+        len is the value of len. */
+  A := newArrayLen(len);
+  /* 7. Let k be 0. */
+  k := 0.;
+  /* 8. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+    /* b. Let kPresent be the result of calling the [[HasProperty]]
+          internal method of O with argument Pk. */
+    kPresent := {O.HasProperty}(O, Pk);
+    /* c. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be the result of calling the [[Get]] internal
+            method of O with argument Pk. */
+      kValue := {O.Get}(O, Pk);
+      /* ii. Let mappedValue be the result of calling the [[Call]] internal
+             method of callbackfn with T as the this value and argument list
+             containing kValue, k, and O. */
+      mappedValue := {callbackfn.Call}(callbackfn, T, [kValue, k, O]);
+      /* iii. Call the [[DefineOwnProperty]] internal method of A with
+              arguments Pk, Property Descriptor {[[Value]]: mappedValue,
+              [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true},
+              and false. */
+      descriptor := newDataPropertyDescriptorFull(mappedValue, true, true, true);
+      {A.DefineOwnProperty}(A, Pk, descriptor, false)
+    };
+    /* d. Increase k by 1. */
+    k := k + 1.
+  };
+  /* 9. Return A. */
+  return A
+};
+/**
+ * The length property of the map method is 1. TODO
+ *
+ * NOTE The map function is intentionally generic; it does not require that
+ * its this value be an Array object. Therefore it can be transferred to other
+ * kinds of objects for use as a method. Whether the map function can be applied
+ * successfully to a host object is implementation-dependent.
+ */
+
+
+
+
+/**
+ * 15.4.4.20 Array.prototype.filter ( callbackfn [ , thisArg ] )
+ *
+ * callbackfn should be a function that accepts three arguments and returns a
+ * value that is coercible to the Boolean value true or false. filter calls
+ * callbackfn once for each element in the array, in ascending order, and
+ * constructs a new array of all the values for which callbackfn returns true.
+ * callbackfn is called only for elements of the array which actually exist; it
+ * is not called for missing elements of the array.
+ *
+ * If a thisArg parameter is provided, it will be used as the this value for
+ * each invocation of callbackfn. If it is not provided, undefined is used instead.
+ *
+ * callbackfn is called with three arguments: the value of the element, the
+ * index of the element, and the object being traversed.
+ *
+ * filter does not directly mutate the object on which it is called but the
+ * object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by filter is set before the first call to
+ * callbackfn. Elements which are appended to the array after the call to filter
+ * begins will not be visited by callbackfn. If existing elements of the array
+ * are changed their value as passed to callbackfn will be the value at the time
+ * filter visits them; elements that are deleted after the call to filter begins
+ * and before being visited are not visited.
+ *
+ * When the filter method is called with one or two arguments, the following
+ * steps are taken:
+ */
+function filter(this, callbackfn, thisArg) {
+  /* 1. Let O be the result of calling ToObject passing the this
+        value as the argument. */
+  O := ToObject(this);
+  /* 2. Let lenValue be the result of calling the [[Get]] internal
+        method of O with the argument "length". */
+  lenVal := {O.Get}(O, "length");
+  /* 3. Let len be ToUint32(lenValue). */
+  len := ToUint32(lenVal);
+  /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallable(callbackfn) = false) {
+    throw TypeErrorException()
+  };
+  /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if (!(thisArg = 'undefined)) { /* TODO if thisArg was supplied check with undefined? */
+    T := thisArg
+  } else {
+    T := 'undefined
+  };
+  /* 6. Let A be a new array created as if by the expression new Array()
+        where Array is the standard built-in constructor with that name. */
+  A := newArray([]);
+  /* 7. Let k be 0. */
+  k := 0.;
+  /* 8. Let to be 0. */
+  to := 0.;
+  /* 9. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+    /* b. Let kPresent be the result of calling the [[HasProperty]]
+          internal method of O with argument Pk. */
+    kPresent := {O.HasProperty}(O, Pk);
+    /* c. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be the result of calling the [[Get]] internal
+            method of O with argument Pk. */
+      kValue := {O.Get}(O, Pk);
+      /* ii. Let selected be the result of calling the [[Call]] internal
+             method of callbackfn with T as the this value and argument list
+             containing kValue, k, and O. */
+      selected := {callbackfn.Call}(callbackfn, T, [kValue, k, O]);
+      /* iii. If ToBoolean(selected) is true, then */
+      if (ToBoolean(selected) = true) {
+        /* 1. Call the [[DefineOwnProperty]] internal method of A with arguments
+              ToString(to), Property Descriptor {[[Value]]: kValue, [[Writable]]:
+              true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
+        descriptor := newDataPropertyDescriptorFull(kValue, true, true, true);
+        {A.DefineOwnProperty}(A, ToString(to), descriptor, false);
+        /* 2. Increase to by 1. */
+        to := to + 1.
+      }
+    };
+    /* d. Increase k by 1. */
+    k := k + 1.
+  };
+  /* 10. Return A. */
+  return A
+};
+/**
+ * The length property of the filter method is 1.
+ *
+ * NOTE The filter function is intentionally generic; it does not require that
+ * its this value be an Array object. Therefore it can be transferred to other
+ * kinds of objects for use as a method. Whether the filter function can be
+ * applied successfully to a host object is implementation-dependent.
+ */
+
+
+
+
+/**
+ * 15.4.4.21 Array.prototype.reduce ( callbackfn [ , initialValue ] )
+ *
+ * callbackfn should be a function that takes four arguments. reduce calls
+ * the callback, as a function, once for each element present in the array,
+ * in ascending order.
+ *
+ * callbackfn is called with four arguments: the previousValue (or value
+ * from the previous call to callbackfn), the currentValue (value of the
+ * current element), the currentIndex, and the object being traversed. The
+ * first time that callback is called, the previousValue and currentValue
+ * can be one of two values. If an initialValue was provided in the call to
+ * reduce, then previousValue will be equal to initialValue and currentValue
+ * will be equal to the first value in the array. If no initialValue was
+ * provided, then previousValue will be equal to the first value in the array
+ * and currentValue will be equal to the second. It is a TypeError if the
+ * array contains no elements and initialValue is not provided.
+ *
+ * reduce does not directly mutate the object on which it is called but
+ * the object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by reduce is set before the first call
+ * to callbackfn. Elements that are appended to the array after the call to
+ * reduce begins will not be visited by callbackfn. If existing elements of
+ * the array are changed, their value as passed to callbackfn will be the
+ * value at the time reduce visits them; elements that are deleted after
+ * the call to reduce begins and before being visited are not visited.
+ *
+ * When the reduce method is called with one or two arguments, the
+ * following steps are taken:
+ */
+function reduce(this, callbackfn, initialValue) {
+  /* 1. Let O be the result of calling ToObject passing the this
+        value as the argument. */
+  O := ToObject(this);
+  /* 2. Let lenValue be the result of calling the [[Get]] internal
+        method of O with the argument "length". */
+  lenVal := {O.Get}(O, "length");
+  /* 3. Let len be ToUint32(lenValue ). */
+  len := ToUint32(lenVal);
+  /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallable(callbackfn) = false) {
+    throw TypeErrorException()
+  };
+  /* 5. If len is 0 and initialValue is not present, throw a TypeError exception. */
+  if (len = 0 && (initialValue = 'undefined)) { /* TODO if initialValue is not present check with undefined? */
+    throw TypeErrorException()
+  };
+  /* 6. Let k be 0. */
+  k := 0.;
+  /* 7. If initialValue is present, then */
+  if (!(initialValue = 'undefined)) {
+    /* a. Set accumulator to initialValue. */
+    accumulator := initialValue
+  }
+  /* 8. Else, initialValue is not present */
+  else {
+    /* a. Let kPresent be false. */
+    kPresent := false;
+    /* b. Repeat, while kPresent is false and k < len */
+    while ((kPresent = false) && (k < len)) {
+      /* i. Let Pk be ToString(k). */
+      Pk := ToString(k);
+      /* ii. Let kPresent be the result of calling the [[HasProperty]]
+             internal method of O with argument Pk. */
+      kPresent := {O.HasProperty}(O, Pk);
+      /* iii. If kPresent is true, then */
+      if (kPresent = true) {
+        /* 1. Let accumulator be the result of calling the [[Get]]
+              internal method of O with argument Pk. */
+        accumulator := {O.Get}(O, Pk)
+      };
+      /* iv. Increase k by 1. */
+      k := k + 1.
+    };
+    /* c. If kPresent is false, throw a TypeError exception. */
+    if (kPresent = false) {
+      throw TypeErrorException()
+    }
+  };
+  /* 9. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+    /* b. Let kPresent be the result of calling the [[HasProperty]]
+          internal method of O with argument Pk. */
+    kPresent := {O.HasProperty}(O, Pk);
+    /* c. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be the result of calling the [[Get]] internal
+            method of O with argument Pk. */
+      kValue := {O.Get}(O, Pk);
+      /* ii. Let accumulator be the result of calling the [[Call]] internal
+             method of callbackfn with undefined as the this value and
+             argument list containing accumulator, kValue, k, and O. */
+      accumulator := {callbackfn.Call}(callbackfn, 'undefined, [accumulator, kValue, k, O])
+    };
+    /* d. Increase k by 1. */
+    k := k + 1.
+  };
+  /* 10. Return accumulator. */
+  return accumulator
+};
+/**
+ * The length property of the reduce method is 1. TODO
+ *
+ * NOTE The reduce function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore it can be transferred
+ * to other kinds of objects for use as a method. Whether the reduce function
+ * can be applied successfully to a host object is implementation-dependent.
+ */
+
+
+
+
+/**
+ * 15.4.4.22 Array.prototype.reduceRight ( callbackfn [ , initialValue ] )
+ *
+ * callbackfn should be a function that takes four arguments. reduceRight calls
+ * the callback, as a function, once for each element present in the array, in
+ * descending order.
+ *
+ * callbackfn is called with four arguments: the previousValue (or value from
+ * the previous call to callbackfn), the currentValue (value of the current
+ * element), the currentIndex, and the object being traversed. The first time
+ * the function is called, the previousValue and currentValue can be one of two
+ * values. If an initialValue was provided in the call to reduceRight, then
+ * previousValue will be equal to initialValue and currentValue will be equal
+ * to the last value in the array. If no initialValue was provided, then
+ * previousValue will be equal to the last value in the array and currentValue
+ * will be equal to the second-to-last value. It is a TypeError if the array
+ * contains no elements and initialValue is not provided.
+ *
+ * reduceRight does not directly mutate the object on which it is called but
+ * the object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by reduceRight is set before the first call
+ * to callbackfn. Elements that are appended to the array after the call to
+ * reduceRight begins will not be visited by callbackfn. If existing elements
+ * of the array are changed by callbackfn, their value as passed to callbackfn
+ * will be the value at the time reduceRight visits them; elements that are
+ * deleted after the call to reduceRight begins and before being visited are
+ * not visited.
+ *
+ * When the reduceRight method is called with one or two arguments,
+ * the following steps are taken:
+ */
+function reduceRight(this, callbackfn, initialValue) {
+  /* 1. Let O be the result of calling ToObject passing the this
+        value as the argument. */
+  O := ToObject(this);
+  /* 2. Let lenValue be the result of calling the [[Get]] internal
+        method of O with the argument "length". */
+  lenVal := {O.Get}(O, "length");
+  /* 3. Let len be ToUint32(lenValue ). */
+  len := ToUint32(lenVal);
+  /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallable(callbackfn) = false) {
+    throw TypeErrorException()
+  };
+  /* 5. If len is 0 and initialValue is not present, throw a TypeError exception. */
+  if (len = 0 && (initialValue = 'undefined)) { /* TODO if initialValue is not present check with undefined? */
+    throw TypeErrorException()
+  };
+  /* 6. Let k be len-1. */
+  k := len - 1.;
+  /* 7. If initialValue is present, then */
+  if (!(initialValue = 'undefined)) {
+    /* a. Set accumulator to initialValue. */
+    accumulator := initialValue
+  }
+  /* 8. Else, initialValue is not present */
+  else {
+    /* a. Let kPresent be false. */
+    kPresent := false;
+    /* b. Repeat, while kPresent is false and k ≥ 0 */
+    while ((kPresent = false) && (k >= 0.)) {
+      /* i. Let Pk be ToString(k). */
+      Pk := ToString(k);
+      /* ii. Let kPresent be the result of calling the [[HasProperty]]
+             internal method of O with argument Pk. */
+      kPresent := {O.HasProperty}(O, Pk);
+      /* iii. If kPresent is true, then */
+      if (kPresent = true) {
+        /* 1. Let accumulator be the result of calling the [[Get]]
+              internal method of O with argument Pk. */
+        accumulator := {O.Get}(O, Pk)
+      };
+      /* iv. Decrease k by 1. */
+      k := k - 1.
+    };
+    /* c. If kPresent is false, throw a TypeError exception. */
+    if (kPresent = false) {
+      throw TypeErrorException()
+    }
+  };
+  /* 9. Repeat, while k ≥ 0 */
+  while (k >= 0.) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+    /* b. Let kPresent be the result of calling the [[HasProperty]]
+          internal method of O with argument Pk. */
+    kPresent := {O.HasProperty}(O, Pk);
+    /* c. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be the result of calling the [[Get]] internal
+            method of O with argument Pk. */
+      kValue := {O.Get}(O, Pk);
+      /* ii. Let accumulator be the result of calling the [[Call]] internal
+             method of callbackfn with undefined as the this value and
+             argument list containing accumulator, kValue, k, and O. */
+      accumulator := {callbackfn.Call}(callbackfn, 'undefined, [accumulator, kValue, k, O])
+    };
+    /* d. Decrease k by 1. */
+    k := k - 1.
+  };
+  /* 10. Return accumulator. */
+  return accumulator
+};
+/**
+ * The length property of the reduceRight method is 1.
+ *
+ * NOTE The reduceRight function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore it can be transferred to
+ * other kinds of objects for use as a method. Whether the reduceRight function
+ * can be applied successfully to a host object is implementation-dependent.
+ */
+
 
 
 
@@ -1406,10 +2059,6 @@ function every(this, callbackfn, thisArg) {
  * taken:
  */
 function DefineOwnPropertyArray(A, P, Desc, Throw) {
-<<<<<<< HEAD
-
-=======
->>>>>>> master
   /* 1. Let oldLenDesc be the result of calling the [[GetOwnProperty]] internal
       method of A passing "length" as the argument. The result will never be
       undefined or an accessor descriptor because Array objects are created
@@ -1547,7 +2196,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
 
 function IsArrayIndex(P) {
   i := ToUint32(P);
-  return !(i = null)
+  return !(i = 'null)
 };
 
 
@@ -1638,7 +2287,13 @@ function main() {
   return slice(arr, 2., 4.)
 }*/
 
-/* main splice
+/* main sort
+function main() {
+  arr := newArray([2., 3., 4., 5., 2., 7.]);
+  return sort(arr, callbackfn,'undefined)
+}*/
+
+/* main splice 
 function main() {
   arr := newArray(["Banana", "Orange", "Apple", "Mango"]);
   items := ["Lemon", "Kiwi"];
@@ -1671,8 +2326,89 @@ function main() {
   return indexOf(arr, 5., 'undefined)
 }*/
 
-/* main lastIndexOf */
+/* main lastIndexOf 
 function main() {
   arr := newArray([2., 3., 4., 5., 2., 7.]);
   return lastIndexOf(arr, 2., 'undefined)
+}*/
+
+/* main every 
+function callbackfn(scope, this, args) {
+  x := l_nth (args, 0);
+  return x > 1.
+};
+function main() {
+  arr := newArray([2., 3., 4., 5., 2., 7.]);
+  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
+  return every(arr, funcObj, 'undefined)
+}*/
+
+/* main some
+function callbackfn(scope, this, args) {
+  x := l_nth (args, 0);
+  return x > 9.
+};
+function main() {
+  arr := newArray([2., 3., 4., 5., 2., 7.]);
+  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
+  return some(arr, funcObj, 'undefined)
+}*/
+
+/* main forEach
+function callbackfn(scope, this, args) {
+  x := l_nth (args, 0);
+  print x;
+  return x
+};
+function main() {
+  arr := newArray([1., 2., 3.]);
+  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
+  forEach(arr, funcObj, 'undefined);
+  return arr
+}*/
+
+/* main map
+function callbackfn(scope, this, args) {
+  x := l_nth (args, 0);
+  return x * 2.
+};
+function main() {
+  arr := newArray([1., 2., 3.]);
+  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
+  return map(arr, funcObj, 'undefined)
+}*/
+
+/* main filter
+function callbackfn(scope, this, args) {
+  x := l_nth (args, 0);
+  return x > 2.
+};
+function main() {
+  arr := newArray([2., 3., 4., 5., 2., 7.]);
+  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
+  return filter(arr, funcObj, 'undefined)
+}*/
+
+/* main reduce
+function callbackfn(scope, this, args) {
+  total := l_nth (args, 0);
+  x := l_nth (args, 1);
+  return total - x
+};
+function main() {
+  arr := newArray([175., 50., 25.]);
+  funcObj := CreateFunctionObject(["total", "x"], "callbackfn", 'null, false);
+  return reduce(arr, funcObj, 'undefined)
+}*/
+
+/* main reduceRight */
+function callbackfn(scope, this, args) {
+  total := l_nth (args, 0);
+  x := l_nth (args, 1);
+  return total - x
+};
+function main() {
+  arr := newArray([175., 50., 25.]);
+  funcObj := CreateFunctionObject(["total", "x"], "callbackfn", 'null, false);
+  return reduceRight(arr, funcObj, 'undefined)
 }
