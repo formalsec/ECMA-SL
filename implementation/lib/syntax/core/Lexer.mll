@@ -110,6 +110,7 @@ rule read =
   | "function"        { FUNCTION }
   | "delete"          { DELETE }
   | "null"            { NULL }
+  | "throw"           { THROW }
   | "print"           { PRINT }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }

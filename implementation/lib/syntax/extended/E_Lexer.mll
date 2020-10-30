@@ -126,6 +126,7 @@ rule read =
   | "match"           { MATCH }
   | "with"            { WITH }
   | "print"           { PRINT }
+  | "assert"          { ASSERT }
   | "NaN"             { FLOAT (float_of_string "nan") }
   | "Infinity"        { FLOAT (float_of_string "infinity") }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
