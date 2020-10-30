@@ -12,7 +12,10 @@ cd implementation
 make
 ```
 
-A file named `main.native` is created at the root of the project.
+We use the [OCamlbuild](https://ocaml.org/learn/tutorials/ocamlbuild/) automated build system to compile this project.
+Only the OCaml modules created and present in the `lib/` and `src/` directories and their subdirectories are considered.
+
+After compiling ECMA-SL, a file named `main.native` is created at the root of the project.
 
 ## Compilation of an ECMA-SL program written in Plus to one in Core
 
