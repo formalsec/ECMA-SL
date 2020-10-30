@@ -83,6 +83,8 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) 
     }, false)
   };
 
+  F.strict := Strict;
+
   /* 20. Return F. */
   return F
 };
@@ -98,7 +100,7 @@ function Call(F, this, args) {
 
   /* 1. Let funcCtx be the result of establishing a new execution context for function code using the value of F's
         [[FormalParameters]] internal property, the passed arguments List args, and the this value as described in 10.4.3. */
-  funcCtx := EnteringFunctionCode(F, this, args, false); /* TODO strict */
+  funcCtx := EnteringFunctionCode(F, this, args);
 
   /* 2. Let result be the result of evaluating the FunctionBody that is the value of F's [[Code]] internal property.
         If F does not have a [[Code]] internal property or if its value is an empty FunctionBody,
@@ -106,7 +108,7 @@ function Call(F, this, args) {
   if (!("Code" in_obj F) || ((typeof F.Code = __$Obj) &&& ("body" in_obj F.Code) &&& (F.Code.body = []))) {
     return normalEmptyCompletion('undefined)
   };
-  result := JS_Interpreter_FunctionBody(F.Code.body, funcCtx);
+  result := JS_Interpreter_FunctionBody(F.Code, funcCtx);
 
   /* 3. Exit the execution context funcCtx, restoring the previous execution context. */
 
@@ -159,6 +161,14 @@ function Construct(F, argumentList) {
   return obj
 };
 /* Auxiliary functions */
+function getFunctionCode(F) {
+  return F.Code
+};
+
+function isStrictFunctionObject(F) {
+  return F.strict
+};
+
 function setAllInternalMethodsExceptGet(obj) {
   obj.GetOwnProperty    := "GetOwnProperty";
   obj.GetProperty       := "GetProperty";

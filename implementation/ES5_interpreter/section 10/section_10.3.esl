@@ -44,7 +44,11 @@ function IdentifierResolution(Identifier, runningExecCtx) {
 
   /* 2. If the syntactic production that is being evaluated is contained in a strict mode code,
         then let strict be true, else let strict be false. */
-  strict := false; /* TODO */
+  if (isContainedInStrictCode(runningExecCtx)) {
+    strict := true
+  } else {
+    strict := false
+  };
   /* 3. Return the result of calling GetIdentifierReference function passing env, Identifier, and strict as arguments.
         The result of evaluating an identifier is always a value of type Reference with its referenced name component
         equal to the Identifier String. */
@@ -57,7 +61,8 @@ function createExecutionContext() {
   return {
     LexicalEnvironment: 'undefined,
     VariableEnvironment: 'undefined,
-    ThisBinding: 'undefined
+    ThisBinding: 'undefined,
+    strictCode: false
   }
 };
 
@@ -86,4 +91,13 @@ function setVariableEnvironment(runningExecCtx, variableEnvironment) {
 function setThisBinding(runningExecCtx, thisBinding) {
   runningExecCtx.ThisBinding := thisBinding;
   return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function setContainedInStrictCode(execCtx, strictCode) {
+  execCtx.strictCode := strictCode;
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function isContainedInStrictCode(execCtx) {
+  return execCtx.strictCode
 }

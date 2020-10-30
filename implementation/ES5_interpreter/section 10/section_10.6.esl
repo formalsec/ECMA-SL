@@ -90,7 +90,7 @@ function CreateArgumentsObject(func, names, args, env, strict) {
     obj.Delete            := "ArgumentsObjectDelete"
   };
   /* 13. If strict is false, then */
-  if (true) { /* TODO */
+  if (strict = false) {
     /* a. Call the [[DefineOwnProperty]] internal method on obj passing "callee", the property descriptor
           {[[Value]]: func, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false as
           arguments. */
@@ -168,7 +168,7 @@ function ArgumentsObjectGet(argumentObject, P) {
           passing P as the argument. */
     v := Get(argumentObject, P);
     /* b. If P is "caller" and v is a strict mode Function object, throw a TypeError exception. */
-    if ((P = "caller") && false) { /* TODO */
+    if ((P = "caller") && isStrictFunctionObject(v)) {
       throw TypeErrorException()
     };
     /* c. Return v. */
