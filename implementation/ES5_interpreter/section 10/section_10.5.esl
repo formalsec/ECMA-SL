@@ -177,7 +177,7 @@ function isFunctionCode(code) {
 };
 
 function isStrictModeCode(code, execCtx) {
-  return code.strict = true || isContainedInStrictCode(execCtx)
+  return (code.strict = true) ||| isContainedInStrictCode(execCtx)
 };
 
 function getFunctionDeclarationsInCode(object) {
