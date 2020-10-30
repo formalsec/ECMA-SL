@@ -655,5 +655,14 @@ function setAllInternalMethodsOfObject(obj) {
   obj.DefineOwnProperty := "DefineOwnProperty";
 
   return obj
+};
+
+function IsPrimitiveValue (v) {
+  v_type := Type(v);
+  if (v_type = "Object") {
+    return false
+  } else {
+    return true
+  }
 }
 

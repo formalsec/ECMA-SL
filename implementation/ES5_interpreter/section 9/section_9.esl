@@ -72,6 +72,19 @@ function ToNumber(argument) {
   }
 };
 
+/* 9.4 ToInteger */
+function ToInteger(argument) {
+  /* The abstract operation ToInteger converts its argument to an integral numeric value. This abstract operation
+     functions as follows: */
+
+  /* Let number be the result of calling ToNumber on the input argument. */
+  number := ToNumber(argument);
+  /* If number is NaN, return +0. */
+  /* If number is +0, -0, +Infinity, or -Infinity, return number. */
+  /* Return the result of computing sign(number) x floor(abs(number)). */
+  return to_int(number)
+};
+
 /* 9.5 ToInt32: (Signed 32 Bit Integer) */
 function ToInt32(argument) {
   /* The abstract operation ToInt32 converts its argument to one of 2^32 integer values in the range -2^31 through
