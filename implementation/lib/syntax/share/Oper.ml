@@ -43,6 +43,7 @@ type uopt = Neg
           | ObjToList
           | Sconcat
           | ObjFields
+          | ToInt
           | ToInt32
           | ToUint32
           | Floor
@@ -239,6 +240,10 @@ let shift_right_logical (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
   | Flt f1, Flt f2 -> Flt (Arith_Utils.uint32_right_shift f1 f2)
   | _              -> invalid_arg "Exception in Oper.shift_right_logical: this operation is only applicable to Float arguments"
 
+let to_int (v : Val.t) : Val.t = match v with
+  | Flt n -> Flt (Arith_Utils.to_int n)
+  | _     -> Null
+
 let to_int32 (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_int32 n)
   | _     -> Null
@@ -275,6 +280,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | ObjToList     -> "obj_to_list"
   | Sconcat       -> "s_concat"
   | ObjFields     -> "obj_fields"
+  | ToInt         -> "to_int"
   | ToInt32       -> "to_int32"
   | ToUint32      -> "to_uint32"
   | Floor         -> "floor"
@@ -373,6 +379,7 @@ let uopt_to_json (op : uopt) : string =
      | ObjToList     -> Printf.sprintf "ObjToList\" }"
      | Sconcat       -> Printf.sprintf "Sconcat\" }"
      | ObjFields     -> Printf.sprintf "ObjFields\" }"
+     | ToInt         -> Printf.sprintf "ToInt\" }"
      | ToInt32       -> Printf.sprintf "ToInt32\" }"
      | ToUint32      -> Printf.sprintf "ToUint32\" }"
      | ToUint16      -> Printf.sprintf "ToUint16\" }"
