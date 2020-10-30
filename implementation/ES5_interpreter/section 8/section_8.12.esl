@@ -73,12 +73,12 @@ function Reject (Throw) {
 function GetOwnProperty(O, P) {
   print "GetOwnProperty";
 
-  if (!(P in_obj O)) {
+  if (!(P in_obj O.JSProperties)) {
     return 'undefined
   };
 
   D := NewPropertyDescriptor();
-  X := O[P];
+  X := O.JSProperties[P];
 
   if (IsDataPropertyDescriptor(X)) {
     D.Value := X.Value;
@@ -335,7 +335,7 @@ function Delete(O, P, Throw) {
   /** 3. If desc.[[Configurable]] is true, then */
   if (desc.Configurable = true) {
     /** a. Remove the own property with name P from O. */
-    delete O[P];
+    delete (O.JSProperties)[P];
 
     /** b. Return true. */
     return true
@@ -467,13 +467,13 @@ function DefineOwnProperty(O, P, Desc, Throw) {
     if (IsGenericPropertyDescriptor(Desc) || IsDataPropertyDescriptor(Desc)) {
       /** i. Create an own data property named P of object O whose [[Value]], [[Writable]], [[Enumerable]] and [[Configurable]] attribute values are described by Desc.
        *     If the value of an attribute field of Desc is absent, the attribute of the newly created property is set to its default value. */
-      O[P] := CreateDataPropertyFrom(Desc)
+      setJSProperty(O, P, CreateDataPropertyFrom(Desc))
     }
     /** b. Else, Desc must be an accessor Property Descriptor so: */
     else {
       /** i. Create an own accessor property named P of object O whose [[Get]], [[Set]], [[Enumerable]] and [[Configurable]] attribute values are described by Desc.
        *     If the value of an attribute field of Desc is absent, the attribute of the newly created property is set to its default value. */
-      O[P] := CreateAccessorPropertyFrom(Desc)
+      setJSProperty(O, P, CreateAccessorPropertyFrom(Desc))
     };
 
     /** c. Return true. */
@@ -547,20 +547,24 @@ function DefineOwnProperty(O, P, Desc, Throw) {
         /** i. Convert the property named P of object O from a data property to an accessor property.
         *     Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and
         *     set the rest of the property’s attributes to their default values. */
-        delete O[P].Value;
-        delete O[P].Writable;
-        O[P].Set := 'undefined;
-        O[P].Get := 'undefined
+        delete (O.JSProperties)[P].Value;
+        delete (O.JSProperties)[P].Writable;
+        (O.JSProperties)[P].Set := 'undefined;
+        (O.JSProperties)[P].Get := 'undefined
+        /* TODO */
+        /* convertDataPropertyDescToAccessorPropertyDesc(O, P) */
       }
       /** c. Else, */
       else {
         /** i. Convert the property named P of object O from an accessor property to a data property.
         *     Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and
         *     set the rest of the property’s attributes to their default values. */
-        delete O[P].Set;
-        delete O[P].Get;
-        O[P].Value := 'undefined;
-        O[P].Writable := false
+        delete (O.JSProperties)[P].Set;
+        delete (O.JSProperties)[P].Get;
+        (O.JSProperties)[P].Value := 'undefined;
+        (O.JSProperties)[P].Writable := false
+        /* TODO */
+        /* convertAccessorPropertyDescToDataPropertyDesc(O, P) */
       }
     }
     /** 10. Else, if IsDataDescriptor(current) and IsDataDescriptor(Desc) are both true, then: */
@@ -602,23 +606,24 @@ function DefineOwnProperty(O, P, Desc, Throw) {
     }
   };
   /** 12. For each attribute field of Desc that is present, set the correspondingly named attribute of the property named P of object O to the value of the field. */
+  /* TODO aux function */
   if ("Value" in_obj Desc) {
-    O[P].Value := Desc.Value
+    (O.JSProperties)[P].Value := Desc.Value
   };
   if ("Writable" in_obj Desc) {
-    O[P].Writable := Desc.Writable
+    (O.JSProperties)[P].Writable := Desc.Writable
   };
   if ("Set" in_obj Desc) {
-    O[P].Set := Desc.Set
+    (O.JSProperties)[P].Set := Desc.Set
   };
   if ("Get" in_obj Desc) {
-    O[P].Get := Desc.Get
+    (O.JSProperties)[P].Get := Desc.Get
   };
   if ("Enumerable" in_obj Desc) {
-    O[P].Enumerable := Desc.Enumerable
+    (O.JSProperties)[P].Enumerable := Desc.Enumerable
   };
   if ("Configurable" in_obj Desc) {
-    O[P].Configurable := Desc.Configurable
+    (O.JSProperties)[P].Configurable := Desc.Configurable
   };
 
   /** 13. Return true. */

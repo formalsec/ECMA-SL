@@ -882,7 +882,7 @@ function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) {
           and body specified by FunctionBody. Pass in the LexicalEnvironment of the running execution context as the
           Scope. Pass in true as the Strict flag if the PropertyAssignment is contained in strict code or if its
           FunctionBody is strict code. */
-    closure := JS_Interpreter_FunctionExpression(FunctionExpression, scope); /* TODO não será melhor chamar a função que cria o FunctionObject?*/
+    closure := JS_Interpreter_FunctionExpression(FunctionExpression, scope);
     /* 3. Let desc be the Property Descriptor{[[Get]]: closure, [[Enumerable]]: true, [[Configurable]]: true} */
     desc := newGetAccessorPropertyDescriptor(closure);
     /* 4. Return Property Identifier (propName, desc). */
@@ -898,7 +898,7 @@ function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) {
           PropertySetParameterList and body specified by FunctionBody. Pass in the LexicalEnvironment of the
           running execution context as the Scope. Pass in true as the Strict flag if the PropertyAssignment is contained
           in strict code or if its FunctionBody is strict code. */
-    closure := JS_Interpreter_FunctionExpression(FunctionExpression, scope); /* TODO não será melhor chamar a função que cria o FunctionObject?*/
+    closure := JS_Interpreter_FunctionExpression(FunctionExpression, scope);
     /* 3. Let desc be the Property Descriptor{[[Set]]: closure, [[Enumerable]]: true, [[Configurable]]: true} */
     desc := newSetAccessorPropertyDescriptor(closure);
     /* 4. Return Property Identifier (propName, desc). */
