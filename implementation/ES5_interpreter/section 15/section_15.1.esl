@@ -112,6 +112,10 @@ function initGlobalObject(strict) {
   /* 15.1.5.1 Math */
   /* 15.1.5.2 JSON */
 
+  /* Extras */
+  ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(globalObject, strict), strict);
+  createBuiltInProperty(globalObject, "console", ConsoleObject);
+
   return globalObject
 };
 
