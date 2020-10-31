@@ -17,6 +17,9 @@ function NewECMAScriptObjectFull(prototype, class, extensible) {
   return object
 };
 
+function getOwnProperties(object) {
+  return obj_fields obj.JSProperties
+};
 
 function getInternalProperty(object, pname) {
   return object[pname]

@@ -4,6 +4,10 @@
    Environment specified by Scope, and a Boolean flag Strict, a Function object is constructed as follows: */
 
 function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) {
+  return CreateGeneralFunctionObject(getFunctionPrototype(getGlobalObject(Scope), Strict), FormalParameterList, FunctionBody, Scope, Strict)
+};
+
+function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, FunctionBody, Scope, Strict) {
   /* 1. Create a new native ECMAScript object and let F be that object. */
   F := NewECMAScriptObject();
   /* 2. Set all the internal methods, except for [[Get]], of F as described in 8.12. */
@@ -11,13 +15,13 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) 
   /* 3. Set the [[Class]] internal property of F to "Function". */
   F.Class := "Function";
   /* 4. Set the [[Prototype]] internal property of F to the standard built-in Function prototype object as specified in 15.3.3.1. */
-  F.Prototype := $loc_FUNC_PROTOTYPE; /* TODO */
+  F.Prototype := FunctionPrototype;
   /* 5. Set the [[Get]] internal property of F as described in 15.3.5.4. */
   F.Get := "GetF";
   /* 6. Set the [[Call]] internal property of F as described in 13.2.1. */
-  F.Call := "Call"; /* TODO */
+  F.Call := "Call";
   /* 7. Set the [[Construct]] internal property of F as described in 13.2.2. */
-  F.Construct := "Construct"; /* TODO */
+  F.Construct := "Construct";
   /* 8. Set the [[HasInstance]] internal property of F as described in 15.3.5.3. */
   F.HasInstance := "HasInstance";
   /* 9. Set the [[Scope]] internal property of F to the value of Scope. */
@@ -44,23 +48,25 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) 
   }, false);
   /* 16. Let proto be the result of creating a new object as would be constructed by the expression new Object()
         where Object is the standard built-in constructor with that name. */
-  proto := NewObject();
-  /* 17. Call the [[DefineOwnProperty]] internal method of proto with arguments "constructor", Property Descriptor
-         {[[Value]]: F, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false. */
-  DefineOwnProperty(proto, "constructor", {
-    Value: F,
-    Writable: true,
-    Enumerable: false,
-    Configurable: true
-  }, false);
-  /* 18. Call the [[DefineOwnProperty]] internal method of F with arguments "prototype", Property Descriptor
-         {[[Value]]: proto, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-  DefineOwnProperty(F, "prototype", {
-    Value: proto,
-    Writable: true,
-    Enumerable: false,
-    Configurable: false
-  }, false);
+  if (!(typeof FunctionBody = __$Str)) {
+    proto := ObjectConstructor(getGlobalObject(Scope), 'null, Strict, [undefined]);
+    /* 17. Call the [[DefineOwnProperty]] internal method of proto with arguments "constructor", Property Descriptor
+          {[[Value]]: F, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false. */
+    DefineOwnProperty(proto, "constructor", {
+      Value: F,
+      Writable: true,
+      Enumerable: false,
+      Configurable: true
+    }, false);
+    /* 18. Call the [[DefineOwnProperty]] internal method of F with arguments "prototype", Property Descriptor
+          {[[Value]]: proto, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
+    DefineOwnProperty(F, "prototype", {
+      Value: proto,
+      Writable: true,
+      Enumerable: false,
+      Configurable: false
+    }, false)
+  };
   /* 19. If Strict is true, then */
   if (Strict = true) {
     /* a. Let thrower be the [[ThrowTypeError]] function Object (13.2.3). */
@@ -90,11 +96,9 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) 
 };
 
 function Call(F, this, args) {
-
-  if (typeof F.Code = __$Str) {
-    return {F.Code}(null, this, args)
+  if (("Code" in_obj F) &&& (typeof F.Code = __$Str)) {
+    return {F.Code}(F.Scope, this, F.strict, args)
   };
-
   /* When the [[Call]] internal method for a Function object F is called with a this value and a list of arguments,
     the following steps are taken: */
 
@@ -132,7 +136,7 @@ function Construct(F, argumentList) {
      the following steps are taken: */
 
   /* 1. Let obj be a newly created native ECMAScript object. */
-  obj := {};
+  obj := NewECMAScriptObject();
   /* 2. Set all the internal methods of obj as specified in 8.12. */
   setAllInternalMethodsOfObject(obj);
   /* 3. Set the [[Class]] internal property of obj to "Object". */
@@ -148,7 +152,7 @@ function Construct(F, argumentList) {
   /* 7. If Type(proto) is not Object, set the [[Prototype]] internal property of obj to the standard built-in Object prototype
         object as described in 15.2.4. */
   if (!(Type(proto) = "Object")) {
-    obj.Prototype := $loc_OBJ_PROTOTYPE /* TODO */
+    obj.Prototype := getObjectPrototype(getGlobalObject(F.Scope), F.strict)
   };
   /* 8. Let result be the result of calling the [[Call]] internal property of F, providing obj as the this value and providing the
         argument list passed into [[Construct]] as args. */

@@ -507,6 +507,7 @@ function GlobalEnvironment(globalObject) { /* TODO global object (15.1) */
 
 /* Auxiliary functions used to deal with Lexical Environments and Environment Records */
 function getGlobalObject(lexicalEnvironment) {
+  if (!("EnvRec" in_obj lexicalEnvironment)) { return lexicalEnvironment };
   lex := lexicalEnvironment;
   outer := getOuterEnvironmentReference(lexicalEnvironment);
   while(!(outer = 'null)) {
