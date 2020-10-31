@@ -14,8 +14,6 @@ type t = Skip
        | FieldAssign      of Expr.t * Expr.t * Expr.t
        | FieldDelete      of Expr.t * Expr.t
        | FieldLookup      of string * Expr.t * Expr.t
-       | SetTop           of Expr.t
-       | AllowFlow        of Expr.t * Expr.t
 (*---------------Strings------------------*)
 
 let rec str (stmt : t) : string = match stmt with
@@ -38,9 +36,7 @@ let rec str (stmt : t) : string = match stmt with
   | AssignInObjCheck (st,e1,e2) -> st ^ " := " ^ Expr.str e1 ^ " in_obj " ^ Expr.str e2
   | AssignObjToList (st, e)     -> st ^ " := obj_to_list " ^ Expr.str e
   | AssignObjFields (st, e)     -> st ^ " := obj_fields " ^ Expr.str e
-  | SetTop expr                 -> "setTop( " ^ Expr.str expr ^ ")"
-  | AllowFlow (from_exp,to_exp) -> "allowFlow ( " ^ Expr.str from_exp ^ ", " ^ Expr.str to_exp ^ ")" 
-
+  
 let rec to_json (stmt : t) : string =
   (*Stmts args : rhs/ lhs / expr / obj / field/ stringvar *)
   match stmt with
@@ -62,5 +58,4 @@ let rec to_json (stmt : t) : string =
   | AssignInObjCheck (st,e1,e2) -> Printf.sprintf "{\"type\" : \"assigninobjcheck\", \"lhs\" : \"%s\", \"field\" : %s, \"obj\" : %s}" (st) (Expr.to_json e1) (Expr.to_json e2)
   | AssignObjToList (st,e)      -> Printf.sprintf "{\"type\" : \"assigniobjtolist\", \"lhs\" : \"%s\", \"obj\" %s}" (st) (Expr.to_json e) 
   | AssignObjFields (st,e)      -> Printf.sprintf "{\"type\" : \"assignobjfields\", \"lhs\" : \"%s\", \"obj\" %s}" (st) (Expr.to_json e)
-  | SetTop exp                  -> Printf.sprintf "{\"type\" : \"settop\", \"expr\" : %s }" (Expr.to_json exp)  
-  | AllowFlow (from_exp,to_exp) -> Printf.sprintf "{\"type\" : \"allowFlow\", \"from\" : %s, \"to\" : %s}" (Expr.to_json from_exp) (Expr.to_json to_exp)
+ 

@@ -6,9 +6,9 @@ val top :  t option ref
 
 val flows :  (t * t) list ref 
 
-val setTop : string list -> unit
+val setTop : t  -> unit
 
-val addFlow : string list -> string list ->unit
+val addFlow : t -> t -> unit
 
 val str : t -> string 
 

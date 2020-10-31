@@ -90,8 +90,6 @@ rule read =
   | '['               { LBRACK }
   | ']'               { RBRACK }
   | "typeof"          { TYPEOF }
-  | "setTop"          { SETTOP }
-  | "allowFlow"       { ALLOWFLOW}
   | "__$"             { read_type lexbuf }
   | "if"              { IF }
   | "else"            { ELSE }

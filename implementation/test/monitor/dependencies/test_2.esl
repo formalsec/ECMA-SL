@@ -1,6 +1,5 @@
 function main() {
-setTop("{aux_1, aux_2}");
-allowFlow("{aux_1}", "{}");
+a := "setTop"("{aux_1, aux_2}");
 aux_1 := 1; 
 aux_2 := 2; 
 d := "upgVar"("aux_1", "{aux_1}"); 
@@ -10,6 +9,5 @@ y := 1;
 if (x = 1) { 
  y := aux_2 
 } ; 
-
 return true
 }

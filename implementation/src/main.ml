@@ -9,6 +9,7 @@ let parse = ref false
 module Dep_Lattice = SecLevel_Dep.M
 module NSU = NSU_Monitor.M(Dep_Lattice)
 module CoreInterp = Core_Interpreter.M(NSU)
+module Inliner = NSU_Inliner.M(Dep_Lattice)
 
 
 (*
@@ -54,6 +55,11 @@ let compile_from_plus_to_core () : unit =
   let e_prog_resolved = Parsing_Utils.resolve_prog_imports e_prog in
   let c_prog = Compiler.compile_prog e_prog_resolved in
   if !out <> "" then Parsing_Utils.write_file (Prog.str c_prog) !out
+
+let inline_compiler () : unit =
+  let prog_contents = Parsing_Utils.load_file !file in
+  let prog = Parsing_Utils.parse_prog prog_contents in
+  ()
 
 let core_interpretation () : unit =
   let prog_contents = Parsing_Utils.load_file !file in

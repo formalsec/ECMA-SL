@@ -20,8 +20,8 @@ type 'sl t =
   | UpgStructLab of (Loc.t * Expr.t * 'sl)
   | UpgObjectLab of (Loc.t * Expr.t * 'sl)
   (**)
-  | SetTopLab of string list
-  | AllowFlowLab of ((string list) * (string list))
+  | SetTopLab of string
+  | AllowFlowLab of string * string 
 
 
 
@@ -54,9 +54,9 @@ let str (sl_str : 'sl -> string) (label : 'sl t) : string =
   | UpgStructLab (loc, e_o, lvl) ->
     "UpgStructLab"
   | SetTopLab st ->
-    "TopLevelLab ( " ^ (String.concat ", " st)^ " )"
+    "TopLevelLab ( " ^  st ^ " )"
   | AllowFlowLab (st1, st2) ->
-    "AllowFlowLab ( "^ (String.concat ", " st1) ^ ",  "^ (String.concat ", " st2)^ " )"   
+    "AllowFlowLab ( "^ st1 ^ ",  " ^ st2 ^ " )"   
   | _ ->
     "Missing str"
 
@@ -82,5 +82,16 @@ let interceptor (parse_sl : string -> 'sl) (func : string) (vs : Val.t list) (es
   | ("upgObject",[Val.Loc loc; Val.Str lev_str], [e_o; Expr.Val (Str lev_str')])
     when lev_str = lev_str' -> Some (UpgObjectLab (loc, e_o, (parse_sl lev_str)))
   | ("upgObject",[Val.Loc loc; Val.Str lev_str], [e_o; _])-> raise (Except "Level is not a literal ")
+  
+  | ("setTop",[Val.Str str], [Expr.Val (Str str')])
+    when str = str' -> Some (SetTopLab (str))
+  | ("setTop",[Val.Str str], [_])-> raise (Except "Level is not a string ")
+
+   | ("allowFlow",[Val.Str str1; Val.Str str2], [Expr.Val (Str str1'); Expr.Val (Str str2')])
+    when str1 = str1' && str2 = str2' -> Some (AllowFlowLab (str1, str2))
+  | ("allowFlow",[_; _], [_; _])-> raise (Except "Level is not a string ")
+  
+
+
 
   | _ -> None

@@ -71,16 +71,21 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
 
   | AssignLab (var, exp)->
     let lvl = expr_lvl ssto exp in
+    print_string ("lev(" ^(Expr.str exp) ^ ") = " ^ (SL.str lvl)^ "\n");
     let pc_lvl= check_pc pc in
-    let var_lvl = SecStore.get_safe ssto var in 
+    let var_lvl = SecStore.get_safe ssto var in
     (match var_lvl with
     |Some var_lvl -> 
+      print_string ("lev(" ^(var) ^ ") = " ^ (SL.str var_lvl)^ "\n");
       if (SL.leq pc_lvl var_lvl ) then(
         SecStore.set ssto var (SL.lub lvl  pc_lvl);
+        print_string ("SECSTORE = "^ var ^" <-"^ (SL.str (SL.lub lvl pc_lvl)) ^ "\n");
         MReturn (scs, sheap, ssto, pc))
       else MFail((scs,sheap,ssto,pc), "Illegal Assignment")
-    | None ->  
+    | None ->
+        print_string ("lev(" ^(var) ^ ") = EMPTY\n");  
         SecStore.set ssto var (SL.lub lvl  pc_lvl);
+        print_string ("SECSTORE = "^ var ^" <-"^ (SL.str (SL.lub lvl pc_lvl)) ^ "\n");
         MReturn (scs, sheap, ssto, pc))
      
 
@@ -254,12 +259,13 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
           else MFail((scs,sheap,ssto,pc), "Illegal Field Creation")
         | None -> raise (Except "Internal Error")))
 
-  | SetTopLab e_lst ->
-    SL.setTop e_lst;
+  | SetTopLab st ->
+    SL.setTop (SL.parse_lvl st);
     MReturn (scs, sheap, ssto, pc)
 
-  | AllowFlowLab (stlst1,stlst2) ->
-    SL.addFlow stlst1 stlst2;
+  | AllowFlowLab (st1, st2) ->
+    SL.addFlow (SL.parse_lvl st1) (SL.parse_lvl st2);
+    print_string (">AllowFlow: " ^ st1 ^" -> {" ^ st2 ^ "}\n");
     MReturn (scs, sheap, ssto, pc)
 
 let initial_monitor_state (): state_t =
