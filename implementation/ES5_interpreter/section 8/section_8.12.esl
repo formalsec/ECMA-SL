@@ -152,8 +152,8 @@ function Get(O, P) {
       return 'undefined
     };
 
-    /** 6. Return the result calling the[[Call]] internal method of getter providing O as the this value and providing no arguments. */
-    return Call(getter, O)
+    /** 6. Return the result calling the [[Call]] internal method of getter providing O as the this value and providing no arguments. */
+    return Call(getter, O, [])
   }
 };
 
