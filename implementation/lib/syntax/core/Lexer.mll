@@ -81,15 +81,15 @@ rule read =
   | "tl"           { TL }
   | "s_len"        { SLEN }
   | "s_nth"        { SNTH }
-  | "int_of_float" { INT_OF_FLOAT }
+  | "s_concat"     { SCONCAT }
   | "t_len"        { TLEN }
   | "t_nth"        { TNTH }
   | "fst"          { FST }
   | "snd"          { SND }
-  | "s_concat"     { SCONCAT }
   | "int_to_float"    { INT_TO_FLOAT }
   | "int_to_string"   { INT_TO_STRING }
   | "int_of_string"   { INT_OF_STRING }
+  | "int_of_float"    { INT_OF_FLOAT }
   | "float_of_string" { FLOAT_OF_STRING }
   | "float_to_string" { FLOAT_TO_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }
@@ -98,6 +98,7 @@ rule read =
   | "to_uint32"       { TO_UINT32 }
   | "floor"           { FLOOR }
   | "to_uint16"       { TO_UINT16 }
+  | "from_char_code"  { FROM_CHAR_CODE }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }

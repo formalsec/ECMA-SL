@@ -49,6 +49,7 @@ type uopt = Neg
           | ToUint32
           | Floor
           | ToUint16
+          | FromCharCode
           | SLen
 
 
@@ -206,7 +207,9 @@ let int_to_string (v : Val.t) : Val.t = match v with
 
 let int_to_float (v : Val.t) : Val.t = match v with
   | Int i -> Flt (float_of_int i)
-  | _     -> invalid_arg "Exception in Oper.int_to_float: this operation is only applicable to Int arguments"
+  | _     ->
+    let msg = Printf.sprintf "Exception in Oper.int_to_float: this operation is only applicable to Int arguments. Got %s" (Val.str v) in
+    invalid_arg msg
 
 let int_of_string (v : Val.t) : Val.t = match v with
   | Str s -> Int (int_of_string s)
@@ -214,7 +217,9 @@ let int_of_string (v : Val.t) : Val.t = match v with
 
 let int_of_float (v : Val.t) : Val.t = match v with
   | Flt f -> Int (int_of_float f)
-  | _     -> invalid_arg "Exception in Oper.int_of_float: this operation is only applicable to Flt arguments"
+  | _     ->
+    let msg = Printf.sprintf "Exception in Oper.int_of_float: this operation is only applicable to Int arguments. Got %s" (Val.str v) in
+    invalid_arg msg
 
 let float_of_string (v : Val.t) : Val.t = match v with
   | Str s -> Flt (float_of_string s)
@@ -257,6 +262,9 @@ let to_uint16 (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_uint16 n)
   | _     -> Null
 
+let from_char_code (v : Val.t) : Val.t = match v with
+  | Int n -> Str (Arith_Utils.from_char_code n)
+  | _     -> invalid_arg "Exception in Oper.from_char_code: this operation is only applicable to Int arguments"
 
 let to_floor (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (floor n)
@@ -294,6 +302,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | ToUint32      -> "to_uint32"
   | Floor         -> "floor"
   | ToUint16      -> "to_uint16"
+  | FromCharCode  -> "from_char_code"
   | SLen          -> "s_len"
 
 
@@ -396,5 +405,6 @@ let uopt_to_json (op : uopt) : string =
      | ToInt32       -> Printf.sprintf "ToInt32\" }"
      | ToUint32      -> Printf.sprintf "ToUint32\" }"
      | ToUint16      -> Printf.sprintf "ToUint16\" }"
+     | FromCharCode  -> Printf.sprintf "FromCharCode\" }"
      | Floor         -> Printf.sprintf "Floor\" }"
      | SLen          -> Printf.sprintf "SLen\" }")

@@ -38,12 +38,12 @@ function Type(V) {
 };
 
 function IsPrimitiveValue (v) {
-  v_type := Type(v); 
+  v_type := Type(v);
   if (v_type = "Object") {
     return false
   } else {
     return true
-  } 
+  }
 };
 
 
@@ -101,10 +101,13 @@ function abs(a) {
   }
 };
 
+
+
 function initStringLib(global, functionPrototype, objectPrototype, strict){
   stringPrototype := initalNewString(objectPrototype);
 
   concatFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypeconcat", global, strict);
+  concatFunctionObject.length := newDataPropertyDescriptorFull( 1. , false, false, false);
   stringPrototype.concat := newDataPropertyDescriptor( concatFunctionObject );
   stringPrototype.Get := "Get";
 
@@ -124,8 +127,13 @@ function initStringLib(global, functionPrototype, objectPrototype, strict){
 
 /* 15.5 String Objects */
 
+/* 15.5.1 The String Constructor Called as a Function */
+
+/* When String is called as a function rather than as a constructor, it performs a type conversion. */
 
 /* 15.5.1.1 String ( [ value ] ) */
+
+/* Returns a String value (not a String object) computed by ToString(value). If value is not supplied, the empty String "" is returned. */
 
 function String (global, this, args) {
   value := l_nth(args, 0);
@@ -136,6 +144,9 @@ function String (global, this, args) {
   }
 };
 
+/* 15.5.2 The String Constructor */
+
+/* When String is called as part of a new expression, it is a constructor: it initialises the newly created object. */
 
 /* 15.5.2.1 new String ( [ value ] ) */
 
@@ -194,8 +205,15 @@ function StringConstructor (global, this, args) {
 };
 
 
-/* 15.5.3.1 String.prototype  */
+/* 15.5.3 Properties of the String Constructor */
 
+/* The value of the [[Prototype]] internal property of the String constructor is the standard built-in Function prototype object (15.3.4).
+Besides the internal properties and the length property (whose value is 1), the String constructor has the following properties: */
+
+
+/* 15.5.3.1 String.prototype  */
+/* The initial value of String.prototype is the standard built-in String prototype object (15.5.4).
+This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
 
 /*
 
@@ -210,6 +228,30 @@ function StringConstructor (global, this, args) {
 
 /* 15.5.3.2 String.fromCharCode ( [char0 [, char1 [, ... ]]]) */
 
+/* Returns a String value containing as many characters as the number of arguments.
+ Each argument specifies one character of the resulting String,
+ with the first argument specifying the first character, and so on, from left to right.
+  An argument is converted to a character by applying the operation ToUint16 (9.7)
+   and regarding the resulting 16-bit integer as the code unit value of a character.
+    If no arguments are supplied, the result is the empty String.
+
+    The length property of the fromCharCode function is 1.*/
+
+function StringfromCharCode (global, this, args) {
+  args_ := args;
+  R := "";
+  while (!(args_ = [])){
+    /* Remove the first element from args and let next be the value of that element. */
+    next  := hd args_;
+    args_ := tl args_;
+      /* An argument is converted to a character by applying the operation ToUint16 */
+    print "Before Touint";
+    R := s_concat([R, from_char_code ( int_of_float (ToUint16(next) )) ])
+
+  };
+  return R
+  /* The length property of the fromCharCode function is 1.*/
+};
 
 /* 15.5.4 Properties of the String Prototype Object */
 /* Verificar o true */
@@ -226,8 +268,10 @@ function StringConstructor (global, this, args) {
 
 /* 15.5.4.1 String.prototype.constructor */
 
+/* TO DO */
+
 /* 15.5.4.2 String.prototype.toString() */
-function StringPrototypeToString (global, this, args) { 
+function StringPrototypeToString (global, this, args) {
   return this.PrimitiveValue
 };
 
@@ -310,10 +354,10 @@ function StringPrototypecharCodeAt (global, this, args){
   /* If position < 0 or position ≥ size, return NaN. */
   if (position < 0 || position >= size){
     return 'NaN
-  }
+  };
   /*     Return a value of Number type, whose value is the code unit value of the character at position position
        in the String S, where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on. */
-  /* To Do */
+  return null
 };
 
 /*15.5.4.6 String.prototype.concat ( [ string1 [ , string2 [ , … ] ] ] )  */
@@ -817,9 +861,6 @@ function main () {
   objectPrototype := NewObject();
   strict := true;
   initStringLib(globalObject, functionPrototype, objectPrototype, strict);
-  print "BeforeString";
   sto := StringConstructor(globalObject, null, [ "xpto" ]);
-  print "StringCreated";
-  return StringPrototypeconcat(null, sto, ["2", "as"])
-
+  return StringfromCharCode(null, sto, [72., 69., 76., 76., 79.])
 }

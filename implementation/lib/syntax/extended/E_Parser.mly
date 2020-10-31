@@ -30,7 +30,7 @@
 %token LAND LOR SCLAND SCLOR
 %token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
-%token TO_INT32 TO_UINT32 TO_UINT16 FLOOR
+%token TO_INT32 TO_UINT32 TO_UINT16 FLOOR FROM_CHAR_CODE
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
 %token SCONCAT
@@ -211,6 +211,8 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.ToInt32, e) } %prec unopt_prec
   | TO_UINT32; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ToUint32, e) } %prec unopt_prec
+  | FROM_CHAR_CODE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.FromCharCode, e) } %prec unopt_prec
   | FLOOR; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
   | TO_UINT16; e = e_expr_target;
@@ -266,7 +268,7 @@ e_stmt_target:
     { E_Stmt.FieldDelete (e, f) }
   | SKIP;
     { E_Stmt.Skip }
-  | DEBUG; 
+  | DEBUG;
     { E_Stmt.Debug }
   | v = VAR; DEFEQ; e = e_expr_target;
     { E_Stmt.Assign (v, e) }

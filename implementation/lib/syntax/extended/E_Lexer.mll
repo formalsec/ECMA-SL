@@ -102,6 +102,7 @@ rule read =
   | "to_uint32"       { TO_UINT32 }
   | "floor"           { FLOOR }
   | "to_uint16"       { TO_UINT16 }
+  | "from_char_code"  { FROM_CHAR_CODE }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }
