@@ -796,14 +796,20 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
     /* Return a new object created as if by the expression new Object() where Object
         is the standard built-in constructor with that name. */
     if (l_len PropertyNameAndValueList = 0) {
-      return NewObject()
+      return ObjectConstructor(getGlobalObject(getLexicalEnvironment(scope)),
+                               'null,
+                               isContainedInStrictCode(scope),
+                               [undefined])
     };
 
     /* The production PropertyNameAndValueList : PropertyAssignment is evaluated as follows: */
 
     /* 1. Let obj be the result of creating a new object as if by the expression new Object()
           where Object is the standard built-in constructor with that name. */
-    obj := NewObject();
+    obj := ObjectConstructor(getGlobalObject(getLexicalEnvironment(scope)),
+                             'null,
+                             isContainedInStrictCode(scope),
+                             [undefined]);
 
     /* The production PropertyNameAndValueList : PropertyNameAndValueList , PropertyAssignment is evaluated as follows: */
 
