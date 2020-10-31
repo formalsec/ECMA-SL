@@ -14,7 +14,7 @@ function getEnumerableProperties(object, props) {
     p_name := l_nth(list, i);
     p_value := object[p_name];
     if (typeof p_value = __$Obj) {
-      if (p_name = "Prototype") {
+      if ((p_name = "Prototype") ||| (p_name = "JSProperties")) {
         props := getEnumerableProperties(p_value, props)
       } else {
         if ((p_value.Enumerable = true) && !(p_name in_list props)) {
