@@ -501,6 +501,8 @@ function GlobalEnvironment(globalObject) { /* TODO global object (15.1) */
   /* The global environment‘s outer environment reference is null. */
   setOuterLexicalEnvironmentReference(globalEnv, 'null);
 
+  setGlobalEnvironment(globalObject, globalEnv);
+
   return globalEnv
 };
 
@@ -516,6 +518,16 @@ function getGlobalObject(lexicalEnvironment) {
   };
 
   return getBindingObject(getEnvironmentRecord(lex))
+};
+
+function getGlobalEnvironment(globalObject) {
+  return globalObject.GlobalEnv
+};
+
+function setGlobalEnvironment(globalObject, globalEnv) {
+  globalObject.GlobalEnv := globalEnv;
+
+  return
 };
 
 function newLexicalEnvironment() {
