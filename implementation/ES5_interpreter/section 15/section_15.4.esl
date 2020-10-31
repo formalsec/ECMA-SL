@@ -1,5 +1,6 @@
 import "ES5_interpreter/section 9/section_9.esl";
 import "ES5_interpreter/section 9/section_9.12.esl";
+import "ES5_interpreter/section 8/section_8.6.esl";
 import "ES5_interpreter/section 8/section_8.9.esl";
 import "ES5_interpreter/section 8/section_8.10.esl";
 import "ES5_interpreter/section 8/section_8.12.esl";
@@ -7,6 +8,7 @@ import "ES5_interpreter/section 10/section_10.2.esl";
 import "ES5_interpreter/section 10/section_10.3.esl";
 import "ES5_interpreter/section 10/section_10.4.esl";
 import "ES5_interpreter/section 13/section_13.esl";
+import "ES5_interpreter/section 15/section_15.7.esl";
 import "ES5_interpreter/section 15/section_15.11.esl";
 
 /* This method is not supposed to be here. As soon
@@ -91,7 +93,7 @@ function abs(a) {
 
 
 /* An object, O, is said to be sparse if the following algorithm returns true: */
-function isSparse(O) {
+function isSparseArray(O) {
   /* 1. Let len be the result of calling the [[Get]] internal method of O with
         argument "length". */
   len := {O.Get}(O, "length");
@@ -150,8 +152,9 @@ function isSparse(O) {
  * This description applies if and only if the Array constructor is given
  * no arguments or at least two arguments.
  */
-function newArray(items) {
+function newArray(global, this, items) {
   arr := {
+    JSProperties: { },
     /* The [[Prototype]] internal property of the newly constructed object
        is set to the original Array prototype object, the one that is the
        initial value of Array.prototype (15.4.3.1). */
@@ -174,7 +177,9 @@ function newArray(items) {
   /* The length property of the newly constructed object is set to the
      number of arguments. */
   len := l_len items;
-  arr.length := newDataPropertyDescriptorFull(int_to_float(len), true, false, false);
+
+  /* length is a own property, so we use setJSProperty, instead of accessing arr.length directly */
+  setJSProperty(arr, "length", newDataPropertyDescriptorFull(int_to_float(len), true, false, false));
 
   /* The 0 property of the newly constructed object is set to item0
      (if supplied); the 1 property of the newly constructed object is set
@@ -185,7 +190,7 @@ function newArray(items) {
      [[Enumerable]]: true, [[Configurable]]: true}. */
   while (i < len) {
     i_str := int_to_string i;
-    arr[i_str] := newDataPropertyDescriptorFull(l_nth (items, i), true, true, true);
+    setJSProperty(arr, i_str, newDataPropertyDescriptorFull(l_nth (items, i), true, true, true));
     i := i + 1
   };
 
@@ -198,8 +203,11 @@ function newArray(items) {
 /**
  * 15.4.2.2 new Array (len)
  */
-function newArrayLen(len) {
+function newArrayLen(global, this, args) {
+  len := l_nth(args, 0);
+
   arr := {
+    JSProperties: { },
     /* The [[Prototype]] internal property of the newly constructed object is
       set to the original Array prototype object, the one that is the initial
       value of Array.prototype (15.4.3.1). */
@@ -223,7 +231,8 @@ function newArrayLen(len) {
   /* If the argument len is a Number and ToUint32(len) is equal to len, then
      the length property of the newly constructed object is set to ToUint32(len). */
   if (lenIsNumber && ((ToUint32(len) = len))) {
-    arr.length := newDataPropertyDescriptorFull(ToUint32(len), true, false, false)
+    /*arr.length := newDataPropertyDescriptorFull(ToUint32(len), true, false, false)*/
+    setJSProperty(arr, "length", newDataPropertyDescriptorFull(ToUint32(len), true, false, false))
   };
 
   /* If the argument len is a Number and ToUint32(len) is not equal to
@@ -237,8 +246,8 @@ function newArrayLen(len) {
      constructed object is set to len with attributes {[[Writable]]: true,
      [[Enumerable]]: true, [[Configurable]]: true}.. */
   if (!lenIsNumber) {
-    arr.length := newDataPropertyDescriptorFull(ToUint32(1.), true, false, false);
-    arr["0"] := newDataPropertyDescriptorFull(len, true, true, true)
+    setJSProperty(arr, "length", newDataPropertyDescriptorFull(ToUint32(1.), true, false, false));
+    setJSProperty(arr, "0", newDataPropertyDescriptorFull(len, true, true, true))
   };
 
   return arr
@@ -253,7 +262,8 @@ function newArrayLen(len) {
  * value true if the argument is an object whose class internal property
  * is "Array"; otherwise it returns false. The following steps are taken:
  */
-function isArray(arg) {
+function isArray(global, this, args) {
+  arg := l_nth (args, 0);
   /* 1. If Type(arg) is not Object, return false. */
   if (!(Type(arg) = "Object")) {
     return false
@@ -275,7 +285,7 @@ function isArray(arg) {
  *
  * When the toString method is called, the following steps are taken:
  */
-function toStringArray(this) {
+function toStringArray(global, this, args) {
   /* 1. Let array be the result of calling ToObject on the this value. */
   array := ToObject(this);
   /* 2. Let func be the result of calling the [[Get]] internal method
@@ -284,7 +294,7 @@ function toStringArray(this) {
   /* 3. If IsCallable(func) is false, then let func be the standard
         built-in method Object.prototype.toString (15.2.4.2). */
   if (IsCallable(func) = false) {
-    func := ToString
+    func := getObjectPrototypeToString(global) /* TODO */
   };
   /* 4. Return the result of calling the [[Call]] internal method of func
         providing array as the this value and an empty arguments list. */
@@ -313,7 +323,7 @@ function toStringArray(this) {
  *
  * The result is calculated as follows:
  */
-function toLocaleString(this) {
+function toLocaleString(global, this, args) {
   /* 1. Let O be the result of calling ToObject passing the this value as
         the argument. */
   O := ToObject(this);
@@ -334,7 +344,7 @@ function toLocaleString(this) {
         method of array with argument "0". */
   firstElement := {O.Get}(O, "0");
   /* 7. If firstElement is undefined or null, then */
-  if (firstElement = 'undefined || firstElement = 'null) {
+  if ((firstElement = 'undefined) || (firstElement = 'null)) {
     /* a. Let R be the empty String. */
     R := ""
   }
@@ -414,7 +424,7 @@ function toLocaleString(this) {
  *
  * The following steps are taken:
  */
-function concat(this, items) {
+function concat(global, this, items) {
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -510,7 +520,9 @@ function concat(this, items) {
  * The join method takes one argument, separator, and performs the
  * following steps:
  */
-function join(this, separator) {
+/* function join (global, this, [ separator ]) */
+function join(global, this, args) {
+  separator := l_nth (args, 0);
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -581,7 +593,7 @@ function join(this, separator) {
  *
  * The last element of the array is removed from the array and returned.
  */
-function pop(this) {
+function pop(global, this, args) {
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -590,6 +602,9 @@ function pop(this) {
   lenVal := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(lenVal). */
   len := ToUint32(lenVal);
+
+  print s_concat(["lenVal: ", lenVal]);
+  print s_concat(["len: ", len]);
 
   /* 4. If len is zero, */
   if (len = 0.) {
@@ -603,10 +618,12 @@ function pop(this) {
   else {
     if (len > 0.) {
       /* a. Let indx be ToString(len–1). */
-      indx := ToString(len - 1);
+      indx := ToString(len - 1.);
       /* b. Let element be the result of calling the [[Get]] internal method
             of O with argument indx. */
       element := {O.Get}(O, indx);
+      print s_concat(["indx: ", indx]);
+      print s_concat(["element: ", element]);
       /* c. Call the [[Delete]] internal method of O with arguments indx
             and true. */
       {O.Delete}(O, indx, true);
@@ -637,7 +654,7 @@ function pop(this) {
  * When the push method is called with zero or more arguments item1,item2, etc.,
  * the following steps are taken:
  */
-function push(this, items) {
+function push(global, this, items) {
   /* 1. Let O be the result of calling ToObject passing the this value as the
         argument. */
   O := ToObject(this);
@@ -685,7 +702,7 @@ function push(this, items) {
  * The elements of the array are rearranged so as to reverse their order.
  * The object is returned as the result of the call.
  */
-function reverse(this) {
+function reverse(global, this, args) {
   /* 1. Let O be the result of calling ToObject passing the this value as
         the argument. */
   O := ToObject(this);
@@ -770,7 +787,7 @@ function reverse(this) {
  *
  * The first element of the array is removed from the array and returned.
  */
-function shift(this) {
+function shift(global, this, args) {
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -848,7 +865,10 @@ function shift(this) {
  * it is treated as length+end where length is the length of the array. The following
  * steps are taken:
  */
-function slice(this, start, end) {
+function slice(global, this, args) {
+  start := l_nth (args, 0);
+  end := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -932,7 +952,9 @@ function slice(this, start, end) {
  * that accepts two arguments x and y and returns a negative value if x < y,
  * zero if x = y, or a positive value if x > y.
  */
-function sort(this, comparefn) {
+function sort(global, this, args) {
+  comparefn := l_nth (args, 0);
+
   /* Let obj be the result of calling ToObject passing the this value
      as the argument. */
   obj := ToObject(this);
@@ -1129,7 +1151,11 @@ function SortCompare(obj, comparefn, j, k) {
  * item1, item2, etc. An Array object containing the deleted elements (if any)
  * is returned. The following steps are taken:
  */
-function splice (this, start, deleteCount, items) {
+function splice(global, this, args) {
+  start := l_nth (args, 0);
+  deleteCount := l_nth (args, 1);
+  items := tl (tl args);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1274,13 +1300,9 @@ function splice (this, start, deleteCount, items) {
     /* c. Increase k by 1. */
     k := k + 1.
   };
-  newLen := len - actualDeleteCount;
-  newLen := newLen + itemCount;
   /* 16. Call the [[Put]] internal method of O with arguments "length",
          (len - actualDeleteCount + itemCount), and true. */
-  print "Before put";
-  /*{O.Put}(O, "length", (len - (actualDeleteCount + itemCount)), true);*/
-  print "After put";
+  {O.Put}(O, "length", ((len - actualDeleteCount) + itemCount), true);
   /* 17. Return A. */
   return A
 };
@@ -1306,7 +1328,7 @@ function splice (this, start, deleteCount, items) {
  * When the unshift method is called with zero or more arguments item1,
  * item2, etc., the following steps are taken:
  */
-function unshift(this, items) {
+function unshift(global, this, items) {
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1399,7 +1421,10 @@ function unshift(this, items) {
  * When the indexOf method is called with one or two arguments, the following
  * steps are taken:
  */
-function indexOf(this, searchElement, fromIndex) {
+function indexOf(global, this, args) {
+  searchElement := l_nth (args, 0);
+  fromIndex := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -1489,7 +1514,10 @@ function indexOf(this, searchElement, fromIndex) {
  * When the lastIndexOf method is called with one or two arguments, the
  * following steps are taken:
  */
-function lastIndexOf(this, searchElement, fromIndex) {
+function lastIndexOf(global, this, args) {
+  searchElement := l_nth (args, 0);
+  fromIndex := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1589,7 +1617,10 @@ function lastIndexOf(this, searchElement, fromIndex) {
  * When the every method is called with one or two arguments, the following
  * steps are taken:
  */
-function every(this, callbackfn, thisArg) {
+function every(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  thisArg := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1681,7 +1712,10 @@ function every(this, callbackfn, thisArg) {
  * When the some method is called with one or two arguments, the following
  * steps are taken:
  */
-function some(this, callbackfn, thisArg) {
+function some(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  thisArg := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1770,7 +1804,10 @@ function some(this, callbackfn, thisArg) {
  * When the forEach method is called with one or two arguments, the
  * following steps are taken:
  */
-function forEach(this, callbackfn, thisArg) {
+function forEach(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  thisArg := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1854,7 +1891,10 @@ function forEach(this, callbackfn, thisArg) {
  * When the map method is called with one or two arguments, the following
  * steps are taken:
  */
-function map(this, callbackfn, thisArg) {
+function map(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  thisArg := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1949,7 +1989,10 @@ function map(this, callbackfn, thisArg) {
  * When the filter method is called with one or two arguments, the following
  * steps are taken:
  */
-function filter(this, callbackfn, thisArg) {
+function filter(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  thisArg := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -2051,7 +2094,10 @@ function filter(this, callbackfn, thisArg) {
  * When the reduce method is called with one or two arguments, the
  * following steps are taken:
  */
-function reduce(this, callbackfn, initialValue) {
+function reduce(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  initialValue := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -2167,7 +2213,10 @@ function reduce(this, callbackfn, initialValue) {
  * When the reduceRight method is called with one or two arguments,
  * the following steps are taken:
  */
-function reduceRight(this, callbackfn, initialValue) {
+function reduceRight(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  initialValue := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -2423,7 +2472,7 @@ function main() {
   return isArray(newArray([2., 3.]))
 }*/
 
-/* main toStringArray TODO
+/* main toStringArray TODO 
 function main() {
   return toStringArray(newArray([2., 3.]))
 }*/
@@ -2447,7 +2496,7 @@ function main() {
   return join (arr, "_")
 }*/
 
-/* main pop
+/* main pop */
 function main() {
   arr := newArray([2., 3., 4.]);
   lastEl := pop(arr);
@@ -2458,9 +2507,9 @@ function main() {
   };
 
   return obj
-}*/
+}
 
-/* main push
+/* main push 
 function main() {
   arr := newArray([2., 3., 4.]);
   newLen := push(arr, [5., 6.]);
@@ -2473,7 +2522,7 @@ function main() {
   return obj
 }*/
 
-/* main reverse
+/* main reverse 
 function main() {
   return reverse(newArray([2., 3., 6., 9.]))
 }*/
@@ -2497,7 +2546,7 @@ function main() {
   return slice(arr, 2., 4.)
 }*/
 
-/* main sort */
+/* main sort 
 function comparefn(scope, this, args) {
   x := l_nth (args, 0);
   y := l_nth (args, 1);
@@ -2508,21 +2557,22 @@ function comparefn(scope, this, args) {
     return 1.
   };
   return 0.
-};
-function main() {
-  /*arr := newArray([2., 3., 4., 5., 2., 7.]);
+};*/
+
+/*function main() {
+  arr := newArray([2., 3., 4., 5., 2., 7.]);
   return sort(arr, 'undefined)*/
 
   /*arr := newArray([6., 5., 4., 3., 2., 1.]);
   return sort(arr, 'undefined)*/
 
-  arr := newArray(["Banana", "Orange", "Apple", "Mango"]);
-  return sort(arr, 'undefined)
+  /*arr := newArray(["Banana", "Orange", "Apple", "Mango"]);
+  return sort(arr, 'undefined)*/
 
   /*arr := newArray([2., 3., 4., 5., 2., 7.]);
   funcObj := CreateFunctionObject(["x", "y"], "comparefn", 'null, false);
   return sort(arr, funcObj)*/
-}
+/*}*/
 
 /* main splice
 function main() {
@@ -2585,10 +2635,10 @@ function main() {
   return some(arr, funcObj, 'undefined)
 }*/
 
-/* main forEach
+/* main forEach 
 function callbackfn(scope, this, args) {
   x := l_nth (args, 0);
-  print x;
+  print s_concat(["forEach: ", x]);
   return x
 };
 function main() {

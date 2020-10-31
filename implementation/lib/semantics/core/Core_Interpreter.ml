@@ -307,8 +307,12 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
 let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> (Mon.sl SecLabel.t) option) (prog:Prog.t) (state : state_t) (mon_state:Mon.state_t) (stmts:Stmt.t list)  (verbose:bool): return =
   match stmts with
   | [] ->  raise(Except "Empty list")
-  | s::stmts' -> ( let (return, label) = eval_small_step interceptor prog state stmts' verbose s in
-                   let mon_return : Mon.monitor_return = Mon.eval_small_step mon_state label in
+  | s::stmts' ->  let (return, label) = eval_small_step interceptor prog state stmts' verbose s in
+                    (match return with
+                    |Finalv v ->  Finalv v
+                    |Intermediate (state', stmts'') ->
+                      small_step_iter interceptor prog state' mon_state stmts'' verbose)
+                   (*let mon_return : Mon.monitor_return = Mon.eval_small_step mon_state label in
                    (match mon_return with
                     | MReturn mon_state' -> (
                         match return with
@@ -317,7 +321,7 @@ let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> (
                           small_step_iter interceptor prog state' mon_state' stmts'' verbose)
                     | MFail  (mon_state', str) ->
                       print_string ("MONITOR EXCEPTION -> "^str);
-                      exit 1;))
+                      exit 1;))*)
 
 
 let initial_state () : state_t =
