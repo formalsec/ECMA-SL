@@ -1,7 +1,10 @@
 /* Auxiliary functions */
 function NewECMAScriptObject() {
   return {
-    JSProperties: {}
+    JSProperties: {},
+    Class: "Object",
+    Extensible: true,
+    Prototype: 'null
   }
 };
 
