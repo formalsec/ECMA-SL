@@ -20,6 +20,21 @@ document object model the window property of the global object is the global obj
 function initGlobalObject(strict) {
   globalObject := NewECMAScriptObjectFull('null, "Object", true);
   setAllInternalMethodsOfObject(globalObject);
+
+  ObjectPrototype := initObjectPrototype();
+  FunctionPrototype := initFunctionPrototype(ObjectPrototype);
+  ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, strict);
+  FunctionConstructor := initFunctionConstructor(FunctionPrototype, globalObject, strict);
+
+  createBuiltInProperty(globalObject, "Object", ObjectConstructor);
+  createBuiltInProperty(globalObject, "Function", FunctionConstructor);
+
+  fillObjectPrototype(ObjectPrototype, ObjectConstructor, globalObject, strict);
+  fillFunctionPrototype(FunctionPrototype, FunctionConstructor, globalObject, strict);
+  fillObjectConstructor(ObjectConstructor, globalObject, strict);
+  fillFunctionConstructor(FunctionConstructor, globalObject, strict);
+
+
   /* 15.1.1 Value Properties of the Global Object */
   /* 15.1.1.1 NaN */
   /* The value of NaN is NaN (see 8.5). This property has the attributes { [[Writable]]: false, [[Enumerable]]: false,
