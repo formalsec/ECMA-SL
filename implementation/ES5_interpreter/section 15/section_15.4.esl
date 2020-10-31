@@ -4,7 +4,7 @@ import "ES5_interpreter/section 8/section_8.6.esl";
 import "ES5_interpreter/section 8/section_8.9.esl";
 import "ES5_interpreter/section 8/section_8.10.esl";
 import "ES5_interpreter/section 8/section_8.12.esl";
-import "ES5_interpreter/section 10/section_10.2.esl";
+/*import "ES5_interpreter/section 10/section_10.2.esl";*/
 import "ES5_interpreter/section 10/section_10.3.esl";
 import "ES5_interpreter/section 10/section_10.4.esl";
 import "ES5_interpreter/section 13/section_13.esl";
@@ -41,10 +41,6 @@ function Type(V) {
 /*function ToNumber(V) {
   return V
 };*/
-function ToInteger(V) {
-  number := ToNumber(V);
-  return number
-};
 function max(a, b) {
   if (a > b) {
     return a
@@ -133,11 +129,110 @@ function initArrayPrototype(global, objectPrototype, strict) {
 
   /* Add built-in function objects to array's prototype */
 
+  /* isArray */
+  isArrayObject := CreateFunctionObject(["items"], "isArray", global, strict);
+  descriptor := newDataPropertyDescriptorFull(isArrayObject, true, false, true);
+  setJSProperty(prototype, "isArray", descriptor);
+
+  /* toString */
+  toStringObject := CreateFunctionObject(["items"], "arrayToString", global, strict);
+  descriptor := newDataPropertyDescriptorFull(toStringObject, true, false, true);
+  setJSProperty(prototype, "toString", descriptor);
+
+  /* toLocaleString */
+  toLocaleStringObject := CreateFunctionObject(["items"], "arrayToLocaleString", global, strict);
+  descriptor := newDataPropertyDescriptorFull(toLocaleStringObject, true, false, true);
+  setJSProperty(prototype, "toLocaleString", descriptor);
+
+  /* concat */
+  concatObject := CreateFunctionObject(["items"], "arrayConcat", global, strict);
+  descriptor := newDataPropertyDescriptorFull(concatObject, true, false, true);
+  setJSProperty(prototype, "concat", descriptor);
+
+  /* join */
+  joinObject := CreateFunctionObject(["items"], "arrayJoin", global, strict);
+  descriptor := newDataPropertyDescriptorFull(joinObject, true, false, true);
+  setJSProperty(prototype, "join", descriptor);
+
+  /* pop */
+  popObject := CreateFunctionObject(["items"], "arrayPop", global, strict);
+  descriptor := newDataPropertyDescriptorFull(popObject, true, false, true);
+  setJSProperty(prototype, "pop", descriptor);
+
+  /* push */
   pushObject := CreateFunctionObject(["items"], "arrayPush", global, strict);
   descriptor := newDataPropertyDescriptorFull(pushObject, true, false, true);
   setJSProperty(prototype, "push", descriptor);
 
-  /* TODO Add all built-in functions like we did with push */
+  /* reverse */
+  reverseObject := CreateFunctionObject(["items"], "arrayReverse", global, strict);
+  descriptor := newDataPropertyDescriptorFull(reverseObject, true, false, true);
+  setJSProperty(prototype, "reverse", descriptor);
+
+  /* shift */
+  shiftObject := CreateFunctionObject(["items"], "arrayShift", global, strict);
+  descriptor := newDataPropertyDescriptorFull(shiftObject, true, false, true);
+  setJSProperty(prototype, "shift", descriptor);
+
+  /* slice */
+  sliceObject := CreateFunctionObject(["items"], "arraySlice", global, strict);
+  descriptor := newDataPropertyDescriptorFull(sliceObject, true, false, true);
+  setJSProperty(prototype, "slice", descriptor);
+
+  /* sort */
+  sortObject := CreateFunctionObject(["items"], "arraySort", global, strict);
+  descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
+  setJSProperty(prototype, "sort", descriptor);
+
+  /* splice */
+  spliceObject := CreateFunctionObject(["items"], "arraySplice", global, strict);
+  descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
+  setJSProperty(prototype, "splice", descriptor);
+
+  /* indexOf */
+  indexOfObject := CreateFunctionObject(["items"], "arrayIndexOf", global, strict);
+  descriptor := newDataPropertyDescriptorFull(indexOfObject, true, false, true);
+  setJSProperty(prototype, "indexOf", descriptor);
+
+  /* lastIndexOf */
+  lastIndexOfObject := CreateFunctionObject(["items"], "arrayLastIndexOf", global, strict);
+  descriptor := newDataPropertyDescriptorFull(lastIndexOfObject, true, false, true);
+  setJSProperty(prototype, "lastIndexOf", descriptor);
+
+  /* every */
+  everyOfObject := CreateFunctionObject(["items"], "arrayEvery", global, strict);
+  descriptor := newDataPropertyDescriptorFull(everyOfObject, true, false, true);
+  setJSProperty(prototype, "every", descriptor);
+
+  /* some */
+  someOfObject := CreateFunctionObject(["items"], "arraySome", global, strict);
+  descriptor := newDataPropertyDescriptorFull(someOfObject, true, false, true);
+  setJSProperty(prototype, "some", descriptor);
+
+  /* forEach */
+  forEachObject := CreateFunctionObject(["items"], "arrayForEach", global, strict);
+  descriptor := newDataPropertyDescriptorFull(forEachObject, true, false, true);
+  setJSProperty(prototype, "forEach", descriptor);
+
+  /* map */
+  mapObject := CreateFunctionObject(["items"], "arrayMap", global, strict);
+  descriptor := newDataPropertyDescriptorFull(mapObject, true, false, true);
+  setJSProperty(prototype, "map", descriptor);
+
+  /* filter */
+  filterObject := CreateFunctionObject(["items"], "arrayFilter", global, strict);
+  descriptor := newDataPropertyDescriptorFull(filterObject, true, false, true);
+  setJSProperty(prototype, "filter", descriptor);
+
+  /* reduce */
+  reduceObject := CreateFunctionObject(["items"], "arrayReduce", global, strict);
+  descriptor := newDataPropertyDescriptorFull(reduceObject, true, false, true);
+  setJSProperty(prototype, "reduce", descriptor);
+
+  /* reduceRight */
+  reduceRightObject := CreateFunctionObject(["items"], "arrayReduceRight", global, strict);
+  descriptor := newDataPropertyDescriptorFull(reduceRightObject, true, false, true);
+  setJSProperty(prototype, "reduceRight", descriptor);
 
   return prototype
 };
@@ -350,7 +445,7 @@ function isArray(global, this, args) {
  *
  * When the toString method is called, the following steps are taken:
  */
-function toStringArray(global, this, args) {
+function arrayToString(global, this, args) {
   /* 1. Let array be the result of calling ToObject on the this value. */
   array := ToObject(this);
   /* 2. Let func be the result of calling the [[Get]] internal method
@@ -388,7 +483,7 @@ function toStringArray(global, this, args) {
  *
  * The result is calculated as follows:
  */
-function toLocaleString(global, this, args) {
+function arrayToLocaleString(global, this, args) {
   /* 1. Let O be the result of calling ToObject passing the this value as
         the argument. */
   O := ToObject(this);
@@ -489,13 +584,13 @@ function toLocaleString(global, this, args) {
  *
  * The following steps are taken:
  */
-function concat(global, this, items) {
+function arrayConcat(global, this, items) {
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
   /* 2. Let A be a new array created as if by the expression new Array() where
         Array is the standard built-in constructor with that name. */
-  A := newArray([]);
+  A := internalNewArray([]);
   /* 3. Let n be 0. */
   n := int_to_float 0;
 
@@ -586,7 +681,7 @@ function concat(global, this, items) {
  * following steps:
  */
 /* function join (global, this, [ separator ]) */
-function join(global, this, args) {
+function arrayJoin(global, this, args) {
   separator := l_nth (args, 0);
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
@@ -658,7 +753,7 @@ function join(global, this, args) {
  *
  * The last element of the array is removed from the array and returned.
  */
-function pop(global, this, args) {
+function arrayPop(global, this, args) {
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -852,7 +947,7 @@ function arrayReverse(global, this, args) {
  *
  * The first element of the array is removed from the array and returned.
  */
-function shift(global, this, args) {
+function arrayShift(global, this, args) {
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -930,7 +1025,7 @@ function shift(global, this, args) {
  * it is treated as length+end where length is the length of the array. The following
  * steps are taken:
  */
-function slice(global, this, args) {
+function arraySlice(global, this, args) {
   start := l_nth (args, 0);
   end := l_nth (args, 1);
 
@@ -939,7 +1034,7 @@ function slice(global, this, args) {
   O := ToObject(this);
   /* 2. Let A be a new array created as if by the expression new Array() where
         Array is the standard built-in constructor with that name. */
-  A := newArray([]);
+  A := internalNewArray([]);
   /* 3. Let lenVal be the result of calling the [[Get]] internal method of O
         with argument "length". */
   lenVal := {O.Get}(O, "length");
@@ -1017,7 +1112,7 @@ function slice(global, this, args) {
  * that accepts two arguments x and y and returns a negative value if x < y,
  * zero if x = y, or a positive value if x > y.
  */
-function sort(global, this, args) {
+function arraySort(global, this, args) {
   comparefn := l_nth (args, 0);
 
   /* Let obj be the result of calling ToObject passing the this value
@@ -1216,7 +1311,7 @@ function SortCompare(obj, comparefn, j, k) {
  * item1, item2, etc. An Array object containing the deleted elements (if any)
  * is returned. The following steps are taken:
  */
-function splice(global, this, args) {
+function arraySplice(global, this, args) {
   start := l_nth (args, 0);
   deleteCount := l_nth (args, 1);
   items := tl (tl args);
@@ -1226,7 +1321,7 @@ function splice(global, this, args) {
   O := ToObject(this);
   /* 2. Let A be a new array created as if by the expression new Array()
         where Array is the standard built-in constructor with that name. */
-  A := newArray([]);
+  A := internalNewArray([]);
   /* 3. Let lenVal be the result of calling the [[Get]] internal method
         of O with argument "length". */
   lenVal := {O.Get}(O, "length");
@@ -1393,7 +1488,7 @@ function splice(global, this, args) {
  * When the unshift method is called with zero or more arguments item1,
  * item2, etc., the following steps are taken:
  */
-function unshift(global, this, items) {
+function arrayUnshift(global, this, items) {
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1486,7 +1581,7 @@ function unshift(global, this, items) {
  * When the indexOf method is called with one or two arguments, the following
  * steps are taken:
  */
-function indexOf(global, this, args) {
+function arrayIndexOf(global, this, args) {
   searchElement := l_nth (args, 0);
   fromIndex := l_nth (args, 1);
 
@@ -1579,7 +1674,7 @@ function indexOf(global, this, args) {
  * When the lastIndexOf method is called with one or two arguments, the
  * following steps are taken:
  */
-function lastIndexOf(global, this, args) {
+function arrayLastIndexOf(global, this, args) {
   searchElement := l_nth (args, 0);
   fromIndex := l_nth (args, 1);
 
@@ -1682,7 +1777,7 @@ function lastIndexOf(global, this, args) {
  * When the every method is called with one or two arguments, the following
  * steps are taken:
  */
-function every(global, this, args) {
+function arrayEvery(global, this, args) {
   callbackfn := l_nth (args, 0);
   thisArg := l_nth (args, 1);
 
@@ -1777,7 +1872,7 @@ function every(global, this, args) {
  * When the some method is called with one or two arguments, the following
  * steps are taken:
  */
-function some(global, this, args) {
+function arraySome(global, this, args) {
   callbackfn := l_nth (args, 0);
   thisArg := l_nth (args, 1);
 
@@ -1869,7 +1964,7 @@ function some(global, this, args) {
  * When the forEach method is called with one or two arguments, the
  * following steps are taken:
  */
-function forEach(global, this, args) {
+function arrayForEach(global, this, args) {
   callbackfn := l_nth (args, 0);
   thisArg := l_nth (args, 1);
 
@@ -1956,7 +2051,7 @@ function forEach(global, this, args) {
  * When the map method is called with one or two arguments, the following
  * steps are taken:
  */
-function map(global, this, args) {
+function arrayMap(global, this, args) {
   callbackfn := l_nth (args, 0);
   thisArg := l_nth (args, 1);
 
@@ -1981,7 +2076,7 @@ function map(global, this, args) {
   /* 6. Let A be a new array created as if by the expression new Array( len)
         where Array is the standard built-in constructor with that name and
         len is the value of len. */
-  A := newArrayLen(len);
+  A := internalNewArrayLen(len);
   /* 7. Let k be 0. */
   k := 0.;
   /* 8. Repeat, while k < len */
@@ -2054,7 +2149,7 @@ function map(global, this, args) {
  * When the filter method is called with one or two arguments, the following
  * steps are taken:
  */
-function filter(global, this, args) {
+function arrayFilter(global, this, args) {
   callbackfn := l_nth (args, 0);
   thisArg := l_nth (args, 1);
 
@@ -2078,7 +2173,7 @@ function filter(global, this, args) {
   };
   /* 6. Let A be a new array created as if by the expression new Array()
         where Array is the standard built-in constructor with that name. */
-  A := newArray([]);
+  A := internalNewArray([]);
   /* 7. Let k be 0. */
   k := 0.;
   /* 8. Let to be 0. */
@@ -2159,7 +2254,7 @@ function filter(global, this, args) {
  * When the reduce method is called with one or two arguments, the
  * following steps are taken:
  */
-function reduce(global, this, args) {
+function arrayReduce(global, this, args) {
   callbackfn := l_nth (args, 0);
   initialValue := l_nth (args, 1);
 
@@ -2278,7 +2373,7 @@ function reduce(global, this, args) {
  * When the reduceRight method is called with one or two arguments,
  * the following steps are taken:
  */
-function reduceRight(global, this, args) {
+function arrayReduceRight(global, this, args) {
   callbackfn := l_nth (args, 0);
   initialValue := l_nth (args, 1);
 
@@ -2528,43 +2623,43 @@ function IsArrayIndex(P) {
 
 /* main array constructor length
 function main() {
-  arr := newArrayLen(5.);
+  arr := internalNewArrayLen(5.);
   return arr
 }*/
 
 /* main isArray
 function main() {
-  return isArray(newArray([2., 3.]))
+  return isArray(internalNewArray([2., 3.]))
 }*/
 
-/* main toStringArray TODO 
+/* main arrayToString TODO 
 function main() {
-  return toStringArray(newArray([2., 3.]))
+  return arrayToString(internalNewArray([2., 3.]))
 }*/
 
-/* main toLocaleString TODO
+/* main arrayToLocaleString TODO
 function main() {
-  return toLocaleString(newArray([2., 3.]))
+  return arrayToLocaleString(internalNewArray([2., 3.]))
 }*/
 
-/* main concat
+/* main arrayConcat
 function main() {
-  arr1 := newArray([2., 3.]);
-  arr2 := newArray([4., 5.]);
-  arr := concat(arr1, [arr2]);
+  arr1 := internalNewArray([2., 3.]);
+  arr2 := internalNewArray([4., 5.]);
+  arr := arrayConcat(arr1, [arr2]);
   return arr
 }*/
 
-/* main join
+/* main arrayJoin
 function main() {
-  arr := newArray([2., 3., 4., 5.]);
-  return join (arr, "_")
+  arr := internalNewArray([2., 3., 4., 5.]);
+  return arrayJoin (arr, "_")
 }*/
 
-/* main pop */
+/* main arrayPop */
 function main() {
-  arr := newArray([2., 3., 4.]);
-  lastEl := pop(arr);
+  arr := internalNewArray('null, [2., 3., 4.]);
+  lastEl := arrayPop('null, arr, 'null);
 
   obj := {
     arr: arr,
@@ -2574,10 +2669,10 @@ function main() {
   return obj
 }
 
-/* main push 
+/* main arrayPush 
 function main() {
-  arr := newArray([2., 3., 4.]);
-  newLen := push(arr, [5., 6.]);
+  arr := internalNewArray([2., 3., 4.]);
+  newLen := arrayPush(arr, [5., 6.]);
 
   obj := {
     arr: arr,
@@ -2587,15 +2682,15 @@ function main() {
   return obj
 }*/
 
-/* main reverse 
+/* main arrayReverse 
 function main() {
-  return reverse(newArray([2., 3., 6., 9.]))
+  return arrayReverse(internalNewArray([2., 3., 6., 9.]))
 }*/
 
-/* main shift
+/* main arrayShift
 function main() {
-  arr := newArray([2., 3., 4.]);
-  firstEl := shift(arr);
+  arr := internalNewArray([2., 3., 4.]);
+  firstEl := arrayShift(arr);
 
   obj := {
     arr: arr,
@@ -2605,13 +2700,13 @@ function main() {
   return obj
 }*/
 
-/* main slice
+/* main arraySlice
 function main() {
-  arr := newArray([2., 3., 4., 5., 6., 7.]);
-  return slice(arr, 2., 4.)
+  arr := internalNewArray([2., 3., 4., 5., 6., 7.]);
+  return arraySlice(arr, 2., 4.)
 }*/
 
-/* main sort 
+/* main arraySort 
 function comparefn(scope, this, args) {
   x := l_nth (args, 0);
   y := l_nth (args, 1);
@@ -2625,25 +2720,25 @@ function comparefn(scope, this, args) {
 };*/
 
 /*function main() {
-  arr := newArray([2., 3., 4., 5., 2., 7.]);
-  return sort(arr, 'undefined)*/
+  arr := internalNewArray([2., 3., 4., 5., 2., 7.]);
+  return arraySort(arr, 'undefined)*/
 
-  /*arr := newArray([6., 5., 4., 3., 2., 1.]);
-  return sort(arr, 'undefined)*/
+  /*arr := internalNewArray([6., 5., 4., 3., 2., 1.]);
+  return arraySort(arr, 'undefined)*/
 
-  /*arr := newArray(["Banana", "Orange", "Apple", "Mango"]);
-  return sort(arr, 'undefined)*/
+  /*arr := internalNewArray(["Banana", "Orange", "Apple", "Mango"]);
+  return arraySort(arr, 'undefined)*/
 
-  /*arr := newArray([2., 3., 4., 5., 2., 7.]);
+  /*arr := internalNewArray([2., 3., 4., 5., 2., 7.]);
   funcObj := CreateFunctionObject(["x", "y"], "comparefn", 'null, false);
-  return sort(arr, funcObj)*/
+  return arraySort(arr, funcObj)*/
 /*}*/
 
-/* main splice
+/* main arraySplice
 function main() {
-  arr := newArray(["Banana", "Orange", "Apple", "Mango"]);
+  arr := internalNewArray(["Banana", "Orange", "Apple", "Mango"]);
   items := ["Lemon", "Kiwi"];
-  removedEls := splice(arr, 2., 2., items);
+  removedEls := arraySplice(arr, 2., 2., items);
 
   obj := {
     arr: arr,
@@ -2653,10 +2748,10 @@ function main() {
   return obj
 }*/
 
-/* main unshift
+/* main arrayUnshift
 function main() {
-  arr := newArray([2., 3., 4., 5., 6., 7.]);
-  newLen := unshift(arr, [22., 44.]);
+  arr := internalNewArray([2., 3., 4., 5., 6., 7.]);
+  newLen := arrayUnshift(arr, [22., 44.]);
 
   obj := {
     arr: arr,
@@ -2666,95 +2761,95 @@ function main() {
   return obj
 }*/
 
-/* main indexOf
+/* main arrayIndexOf
 function main() {
-  arr := newArray([2., 3., 4., 5., 6., 7.]);
-  return indexOf(arr, 5., 'undefined)
+  arr := internalNewArray([2., 3., 4., 5., 6., 7.]);
+  return arrayIndexOf(arr, 5., 'undefined)
 }*/
 
-/* main lastIndexOf 
+/* main arrayLastIndexOf 
 function main() {
-  arr := newArray([2., 3., 4., 5., 2., 7.]);
-  return lastIndexOf(arr, 2., 'undefined)
+  arr := internalNewArray([2., 3., 4., 5., 2., 7.]);
+  return arrayLastIndexOf(arr, 2., 'undefined)
 }*/
 
-/* main every 
+/* main arrayEvery 
 function callbackfn(scope, this, args) {
   x := l_nth (args, 0);
   return x > 1.
 };
 function main() {
-  arr := newArray([2., 3., 4., 5., 2., 7.]);
+  arr := internalNewArray([2., 3., 4., 5., 2., 7.]);
   funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
-  return every(arr, funcObj, 'undefined)
+  return arrayEvery(arr, funcObj, 'undefined)
 }*/
 
-/* main some
+/* main arraySome
 function callbackfn(scope, this, args) {
   x := l_nth (args, 0);
   return x > 9.
 };
 function main() {
-  arr := newArray([2., 3., 4., 5., 2., 7.]);
+  arr := internalNewArray([2., 3., 4., 5., 2., 7.]);
   funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
-  return some(arr, funcObj, 'undefined)
+  return arraySome(arr, funcObj, 'undefined)
 }*/
 
-/* main forEach 
+/* main arrayForEach 
 function callbackfn(scope, this, args) {
   x := l_nth (args, 0);
   print s_concat(["forEach: ", x]);
   return x
 };
 function main() {
-  arr := newArray([1., 2., 3.]);
+  arr := internalNewArray([1., 2., 3.]);
   funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
-  forEach(arr, funcObj, 'undefined);
+  arrayForEach(arr, funcObj, 'undefined);
   return arr
 }*/
 
-/* main map
+/* main arrayMap
 function callbackfn(scope, this, args) {
   x := l_nth (args, 0);
   return x * 2.
 };
 function main() {
-  arr := newArray([1., 2., 3.]);
+  arr := internalNewArray([1., 2., 3.]);
   funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
-  return map(arr, funcObj, 'undefined)
+  return arrayMap(arr, funcObj, 'undefined)
 }*/
 
-/* main filter
+/* main arrayFilter
 function callbackfn(scope, this, args) {
   x := l_nth (args, 0);
   return x > 2.
 };
 function main() {
-  arr := newArray([2., 3., 4., 5., 2., 7.]);
+  arr := internalNewArray([2., 3., 4., 5., 2., 7.]);
   funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
-  return filter(arr, funcObj, 'undefined)
+  return arrayFilter(arr, funcObj, 'undefined)
 }*/
 
-/* main reduce
+/* main arrayReduce
 function callbackfn(scope, this, args) {
   total := l_nth (args, 0);
   x := l_nth (args, 1);
   return total - x
 };
 function main() {
-  arr := newArray([175., 50., 25.]);
+  arr := internalNewArray([175., 50., 25.]);
   funcObj := CreateFunctionObject(["total", "x"], "callbackfn", 'null, false);
-  return reduce(arr, funcObj, 'undefined)
+  return arrayReduce(arr, funcObj, 'undefined)
 }*/
 
-/* main reduceRight
+/* main arrayReduceRight
 function callbackfn(scope, this, args) {
   total := l_nth (args, 0);
   x := l_nth (args, 1);
   return total - x
 };
 function main() {
-  arr := newArray([175., 50., 25.]);
+  arr := internalNewArray([175., 50., 25.]);
   funcObj := CreateFunctionObject(["total", "x"], "callbackfn", 'null, false);
-  return reduceRight(arr, funcObj, 'undefined)
+  return arrayReduceRight(arr, funcObj, 'undefined)
 }*/
