@@ -118,6 +118,63 @@ function isSparseArray(O) {
 
 
 
+function setAllInternalMethodsOfArray(arr) {
+  setAllInternalMethodsOfObject(arr);
+  arr.DefineOwnProperty := "DefineOwnPropertyArray";
+  return arr
+};
+
+
+
+
+function initArrayPrototype(global, objectPrototype, strict) {
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Array", true);
+  setAllInternalMethodsOfArray(prototype);
+
+  /* Add built-in function objects to array's prototype */
+
+  pushObject := CreateFunctionObject(["items"], "arrayPush", global, strict);
+  descriptor := newDataPropertyDescriptorFull(pushObject, true, false, true);
+  setJSProperty(prototype, "push", descriptor);
+
+  /* TODO Add all built-in functions like we did with push */
+
+  return prototype
+};
+
+
+
+
+function getArrayPrototype(globalObject, strict) {
+  refArray := newPropertyReference(globalObject, "Array", strict);
+  ArrayObject := GetValue(refArray);
+  refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
+  objectArrayProto := GetValue(refArrayProto);
+  return objectArrayProto
+}; 
+
+
+
+function initArrayLib(global, objectPrototype, strict) {
+  objArrayPrototype := initArrayPrototype(objectPrototype);
+  objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict);
+
+  descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
+  setJSProperty(objArrayConstructor, "prototype", descriptor);
+
+  /* 15.1 The Global Object
+      The unique global object is created before control enters any execution context.
+      Unless otherwise specified, the standard built-in properties of the global object have
+      attributes {[[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}. */
+  descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
+  setJSProperty(global, "Array", descriptor);
+
+  return objArrayConstructor
+};
+
+
+
+
 /**
  * 15.4.1 The Array Constructor Called as a Function
  *
@@ -152,13 +209,17 @@ function isSparseArray(O) {
  * This description applies if and only if the Array constructor is given
  * no arguments or at least two arguments.
  */
-function newArray(global, this, items) {
+function ArrayConstructor(global, this, items) {
+  prototype := getArrayPrototype(global, false);
+  return internalNewArray(prototype, items)
+};
+function internalNewArray(arrayPrototype, items) {
   arr := {
     JSProperties: { },
     /* The [[Prototype]] internal property of the newly constructed object
        is set to the original Array prototype object, the one that is the
        initial value of Array.prototype (15.4.3.1). */
-    Prototype: 'null,
+    Prototype: arrayPrototype,
     /* The [[Extensible]] internal property of the newly constructed object
        is set to true. */
     Extensible: true,
@@ -203,8 +264,12 @@ function newArray(global, this, items) {
 /**
  * 15.4.2.2 new Array (len)
  */
-function newArrayLen(global, this, args) {
-  len := l_nth(args, 0);
+function ArrayConstructorLen(global, this, args) {
+  len := l_nth (args, 0);
+  prototype := getArrayPrototype(global, false);
+  return internalNewArray(prototype, len)
+};
+function internalNewArrayLen(arrayPrototype, len) {
 
   arr := {
     JSProperties: { },
@@ -654,7 +719,7 @@ function pop(global, this, args) {
  * When the push method is called with zero or more arguments item1,item2, etc.,
  * the following steps are taken:
  */
-function push(global, this, items) {
+function arrayPush(global, this, items) {
   /* 1. Let O be the result of calling ToObject passing the this value as the
         argument. */
   O := ToObject(this);
@@ -702,7 +767,7 @@ function push(global, this, items) {
  * The elements of the array are rearranged so as to reverse their order.
  * The object is returned as the result of the call.
  */
-function reverse(global, this, args) {
+function arrayReverse(global, this, args) {
   /* 1. Let O be the result of calling ToObject passing the this value as
         the argument. */
   O := ToObject(this);

@@ -69,6 +69,32 @@ function JS_Interpreter_Expr(e, scope) {
     /* A Literal is evaluated as described in 7.8. */
     return formingTheValueOfTheNumericLiteral(value)
   }
+  | { type: "ArrayExpression", elements: ElementList } -> {
+    /* 11.1.4 Array Initialiser */
+
+    arrayPrototype := getArrayPrototype(getGlobalObject(scope), false);
+    array := internalNewArray(arrayPrototype, []);
+
+    len := l_len ElementList;
+    i := 0;
+    while (i < len) {
+      el := l_nth (ElementList, i);
+
+      if (el = null) {
+        initValue := 'undefined
+      } else {
+        initResult := JS_Interpreter_Expr(e, scope);
+        initValue := GetValue(initResult)
+      };
+
+      descriptor := newDataPropertyDescriptorFull(initValue, true, true, true);
+      {array.DefineOwnProperty}(array, ToString(ToUint32(i)), descriptor, false);
+
+      i := i + 1
+    };
+    
+    return array
+  }
   | { type: "ObjectExpression" } -> {
     /* 11.1.5 Object Initialiser */
 
