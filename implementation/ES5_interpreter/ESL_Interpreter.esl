@@ -3,14 +3,14 @@ import "ES5_interpreter/ES5_Reference_Interpreter.esl";
 function JS_Interpreter_Program(p) {
   /* 14 Program */
   match p with
-  | { sourceType: "script", type: "Program", body: SourceElementsopt, variableDeclarations: vars, functionDeclarations: funcs } -> {
+  | { sourceType: "script", type: "Program", body: SourceElementsopt, strict: strict } -> {
     /* The production Program : SourceElements opt is evaluated as follows: */
 
     /* 1. The code of this Program is strict mode code if the Directive Prologue (14.1) of its SourceElements
           contains a Use Strict Directive or if any of the conditions of 10.1.1 apply. If the code of this
           Program is strict mode code, SourceElements is evaluated in the following steps as strict mode code.
           Otherwise SourceElements is evaluated in the following steps as non-strict mode code. */
-    /* TODO strict */
+
     /* 2. If SourceElements is not present, return (normal, empty, empty). */
     if (SourceElementsopt = []) {
       return normalEmptyCompletion('empty)
@@ -117,7 +117,11 @@ function JS_Interpreter_Expr(e, scope) {
     propertyNameString := ToString(propertyNameValue);
     /* 7. If the syntactic production that is being evaluated is contained in strict mode code,
           let strict be true, else let strict be false. */
-    strict := true; /* TODO */
+    if (isContainedInStrictCode(scope)) {
+      strict := true
+    } else {
+      strict := false
+    };
     /* 8. Return a value of type Reference whose base value is baseValue and whose referenced name is
           propertyNameString, and whose strict mode flag is strict. */
     return newPropertyReference(baseValue, propertyNameString, strict)
@@ -204,23 +208,6 @@ function JS_Interpreter_Expr(e, scope) {
     /* 11.4 Unary Operators */
     return JS_Interpreter_UnaryOperator(e, scope)
   }
-  | { type: "AssignmentExpression", operator: op, left: l_expr, right: r_expr} -> {
-    /* 11.13.1 Simple Assignment ( = ) */
-    if (op = "=") {
-      lref := JS_Interpreter_Expr(l_expr, scope);
-      rref := JS_Interpreter_Expr(r_expr, scope);
-      rval := GetValue(rref);
-      if ((Type(lref) = "Reference") &&
-          (IsStrictReference(lref)) &&
-          (Type(GetBase(lref)) = "EnvironmentRecord") &&
-          ((GetReferencedName(lref) = "eval") || (GetReferencedName(lref) = "arguments")))
-      {
-        throw SyntaxErrorException()
-      };
-      PutValue(lref, rval, getGlobalObject(getLexicalEnvironment(scope)));
-      return rval
-    }
-  }
   | { type: "BinaryExpression" } -> {
     return JS_Interpreter_BinExpr(e, scope)
   }
@@ -259,6 +246,113 @@ function JS_Interpreter_Expr(e, scope) {
             each allow the second subexpression to be an Expression but restrict the third expression to be a ConditionalExpression.
             The motivation for this difference in ECMAScript is to allow an assignment expression to be governed by either arm of a
             conditional and to eliminate the confusing and fairly useless case of a comma expression as the centre expression. */
+  }
+  | { type: "AssignmentExpression" } -> {
+    /* 11.13 Assignment Operators */
+
+    /* The AssignmentExpressionNoIn productions are evaluated in the same manner as the AssignmentExpression
+       productions except that the contained ConditionalExpressionNoIn and AssignmentExpressionNoIn are evaluated
+       instead of the contained ConditionalExpression and AssignmentExpression, respectively. */
+    return JS_Interpreter_AssignmentExpression(e, scope)
+  }
+  | { type: "SequenceExpression", expressions: Expressions } -> {
+    /* 11.14 Comma Operator ( , ) */
+
+    /* The production Expression : Expression , AssignmentExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating Expression. */
+    /* 2. Call GetValue(lref). */
+    /* 3. Let rref be the result of evaluating AssignmentExpression. */
+    /* 4. Return GetValue(rref). */
+    lExpression := l_len Expressions;
+    i := 0;
+    while(i < lExpression) {
+      ref := JS_Interpreter_Expr(l_nth(Expressions, i), scope);
+      val := GetValue(ref);
+
+      i := i + 1
+    };
+
+    return val
+
+    /* The ExpressionNoIn production is evaluated in the same manner as the Expression production except that the
+        contained ExpressionNoIn and AssignmentExpressionNoIn are evaluated instead of the contained Expression and
+        AssignmentExpression, respectively. */
+
+    /* NOTE GetValue must be called even though its value is not used because it may have observable side-effects. */
+  }
+};
+
+function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
+  match AssignmentExpression with
+  | { operator: "=", left: LeftHandSideExpression, right: AssignmentExpression } -> {
+    /* 11.13.1 Simple Assignment ( = ) */
+
+    /* The production AssignmentExpression : LeftHandSideExpression = AssignmentExpression is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating LeftHandSideExpression. */
+    lref := JS_Interpreter_Expr(LeftHandSideExpression, scope);
+    /* 2. Let rref be the result of evaluating AssignmentExpression. */
+    rref := JS_Interpreter_Expr(AssignmentExpression, scope);
+    /* 3. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 4. Throw a SyntaxError exception if the following conditions are all true: */
+      /* Type(lref) is Reference is true */
+    if ((Type(lref) = "Reference") &&
+      /* IsStrictReference(lref) is true */
+        (IsStrictReference(lref)) &&
+      /* Type(GetBase(lref)) is Environment Record */
+        (Type(GetBase(lref)) = "EnvironmentRecord") &&
+      /* GetReferencedName(lref) is either "eval" or "arguments" */
+        ((GetReferencedName(lref) = "eval") || (GetReferencedName(lref) = "arguments")))
+      {
+        throw SyntaxErrorException()
+      };
+    /* 5. Call PutValue(lref, rval). */
+    PutValue(lref, rval, getGlobalObject(getLexicalEnvironment(scope)));
+    /* 6. Return rval. */
+    return rval
+
+  /* NOTE When an assignment occurs within strict mode code, its LeftHandSide must not evaluate to an unresolvable
+          reference. If it does a ReferenceError exception is thrown upon assignment. The LeftHandSide also may not be a
+          reference to a data property with the attribute value {[[Writable]]:false}, to an accessor property with the attribute value
+          {[[Set]]:undefined}, nor to a non-existent property of an object whose [[Extensible]] internal property has the value false. In
+          these cases a TypeError exception is thrown. */
+  }
+  | { operator: AssignmentOperator, left: LeftHandSideExpression, right: AssignmentExpression } -> {
+    /* 11.13.2 Compound Assignment ( op= ) */
+
+    /* The production AssignmentExpression : LeftHandSideExpression AssignmentOperator AssignmentExpression, where
+       AssignmentOperator is @= and @ represents one of the operators indicated above, is evaluated as follows: */
+
+    /* 1. Let lref be the result of evaluating LeftHandSideExpression. */
+    lref :=JS_Interpreter_Expr(LeftHandSideExpression, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. Let rref be the result of evaluating AssignmentExpression. */
+    rref := JS_Interpreter_Expr(AssignmentExpression, scope);
+    /* 4. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 5. Let r be the result of applying operator @ to lval and rval. */
+    r := applyOperator(AssignmentOperator, lval, rval);
+    /* 6. Throw a SyntaxError exception if the following conditions are all true: */
+      /* Type(lref) is Reference is true */
+    if ((Type(lref) = "Reference") &&
+      /* IsStrictReference(lref) is true */
+        (IsStrictReference(lref)) &&
+      /* Type(GetBase(lref)) is Environment Record */
+        (Type(GetBase(lref)) = "EnvironmentRecord") &&
+      /* GetReferencedName(lref) is either "eval" or "arguments" */
+        ((GetReferencedName(lref) = "eval") || (GetReferencedName(lref) = "arguments")))
+      {
+        throw SyntaxErrorException()
+      };
+    /* 7. Call PutValue(lref, r). */
+    PutValue(lref, r, getGlobalObject(getLexicalEnvironment(scope)));
+    /* 8. Return r. */
+    return r
+
+    /* NOTE See NOTE 11.13.1. */
   }
 };
 
@@ -415,7 +509,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       /* IsStrictReference(expr) is true */
       (IsStrictReference(expr) = true) &&
       /* Type(GetBase(expr)) is Environment Record */
-      (Type(GetBase(expr)) = "Environment Record") && /* TODO */
+      (Type(GetBase(expr)) = "EnvironmentRecord") &&
       /* GetReferencedName(expr) is either "eval" or "arguments" */
       ((GetReferencedName(expr) = "eval") || (GetReferencedName(expr) = "arguments"))
     ) {
@@ -445,7 +539,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       /* IsStrictReference(expr) is true */
       (IsStrictReference(expr) = true) &&
       /* Type(GetBase(expr)) is Environment Record */
-      (Type(GetBase(expr)) = "Environment Record") && /* TODO */
+      (Type(GetBase(expr)) = "EnvironmentRecord") &&
       /* GetReferencedName(expr) is either "eval" or "arguments" */
       ((GetReferencedName(expr) = "eval") || (GetReferencedName(expr) = "arguments"))
     ) {
@@ -539,7 +633,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
       /* IsStrictReference(lhs) is true */
       (IsStrictReference(lhs) = true) &&
       /* Type(GetBase(lhs)) is Environment Record */
-      (Type(GetBase(lhs)) = "Environment Record") && /* TODO */
+      (Type(GetBase(lhs)) = "EnvironmentRecord") &&
       /* GetReferencedName(lhs) is either "eval" or "arguments" */
       ((GetReferencedName(lhs) = "eval") || (GetReferencedName(lhs) = "arguments"))
     ) {
@@ -569,7 +663,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
       /* IsStrictReference(lhs) is true */
       (IsStrictReference(lhs) = true) &&
       /* Type(GetBase(lhs)) is Environment Record */
-      (Type(GetBase(lhs)) = "Environment Record") && /* TODO */
+      (Type(GetBase(lhs)) = "EnvironmentRecord") &&
       /* GetReferencedName(lhs) is either "eval" or "arguments" */
       ((GetReferencedName(lhs) = "eval") || (GetReferencedName(lhs) = "arguments"))
     ) {
@@ -626,7 +720,7 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
           FormalParameterList opt , and body specified by FunctionBody. Pass in the VariableEnvironment of the running
           execution context as the Scope. Pass in true as the Strict flag if the FunctionDeclaration is contained in
           strict code or if its FunctionBody is strict code. */
-    return CreateFunctionObject(FormalParameterListopt, FunctionBody, getVariableEnvironment(scope), false) /* TODO strict */
+    return CreateFunctionObject(FormalParameterListopt, FunctionBody, getVariableEnvironment(scope), isStrictModeCode(FunctionBody, scope))
   }
 };
 
@@ -641,7 +735,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
           FormalParameterList opt and body specified by FunctionBody. Pass in the LexicalEnvironment of the running
           execution context as the Scope. Pass in true as the Strict flag if the FunctionExpression is contained in
           strict code or if its FunctionBody is strict code. */
-    return CreateFunctionObject(FormalParameterList, FunctionBody, getLexicalEnvironment(scope), false) /* TODO strict */
+    return CreateFunctionObject(FormalParameterList, FunctionBody, getLexicalEnvironment(scope), isStrictModeCode(FunctionBody, scope))
   }
   | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
     /* The production FunctionExpression : function Identifier ( FormalParameterList opt ) { FunctionBody }
@@ -657,7 +751,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
     /* 4. Let closure be the result of creating a new Function object as specified in 13.2 with parameters specified by
           FormalParameterList opt and body specified by FunctionBody. Pass in funcEnv as the Scope. Pass in true as the
           Strict flag if the FunctionExpression is contained in strict code or if its FunctionBody is strict code. */
-    closure := CreateFunctionObject(FormalParameterListopt, FunctionBody, funcEnv, false); /* TODO strict */
+    closure := CreateFunctionObject(FormalParameterListopt, FunctionBody, funcEnv, isStrictModeCode(FunctionBody, scope));
     /* 5. Call the InitializeImmutableBinding concrete method of envRec passing the String value of Identifier and closure
           as the arguments. */
     InitializeImmutableBinding(envRec, Identifier.name, closure);
@@ -671,23 +765,26 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
   }
 };
 
-function JS_Interpreter_FunctionBody(SourceElementsopt, scope) {
-  /* The production FunctionBody : SourceElements opt is evaluated as follows: */
+function JS_Interpreter_FunctionBody(FunctionBody, scope) {
+  match FunctionBody with
+  | { body: SourceElementsopt, strict: strict } -> {
+    /* The production FunctionBody : SourceElements opt is evaluated as follows: */
 
-  /* 1. The code of this FunctionBody is strict mode code if it is part of a FunctionDeclaration or
-        FunctionExpression that is contained in strict mode code or if the Directive Prologue (14.1)
-        of its SourceElements contains a Use Strict Directive or if any of the conditions in 10.1.1 apply.
-        If the code of this FunctionBody is strict mode code, SourceElements is evaluated in the following
-        steps as strict mode code. Otherwise, SourceElements is evaluated in the following steps as
-        non-strict mode code. */
-  /* TODO strict */
-  /* 2. If SourceElements is present return the result of evaluating SourceElements. */
-  if (!(SourceElementsopt = [])) {
-    return JS_Interpreter_SourceElements(SourceElementsopt, scope)
-  }
-  /* 3. Else return (normal, undefined, empty). */
-  else {
-    return normalEmptyCompletion('undefined)
+    /* 1. The code of this FunctionBody is strict mode code if it is part of a FunctionDeclaration or
+          FunctionExpression that is contained in strict mode code or if the Directive Prologue (14.1)
+          of its SourceElements contains a Use Strict Directive or if any of the conditions in 10.1.1 apply.
+          If the code of this FunctionBody is strict mode code, SourceElements is evaluated in the following
+          steps as strict mode code. Otherwise, SourceElements is evaluated in the following steps as
+          non-strict mode code. */
+    setContainedInStrictCode(scope, strict);
+    /* 2. If SourceElements is present return the result of evaluating SourceElements. */
+    if (!(SourceElementsopt = [])) {
+      return JS_Interpreter_SourceElements(SourceElementsopt, scope)
+    }
+    /* 3. Else return (normal, undefined, empty). */
+    else {
+      return normalEmptyCompletion('undefined)
+    }
   }
 };
 
@@ -723,7 +820,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
       if (!(previous = 'undefined)) {
         /* a. This production is contained in strict code and IsDataDescriptor(previous) is true and
               IsDataDescriptor(propId.descriptor) is true. */
-        if (/* TODO (strict = true) */ false &&
+        if (isContainedInStrictCode(scope) &&
             (IsDataPropertyDescriptor(previous) = true) &&
             (IsDataPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
           throw SyntaxErrorException()
@@ -1029,10 +1126,10 @@ function JS_Interpreter_Stmt(s, scope) {
     /* The production DebuggerStatement : debugger ; is evaluated as follows: */
 
     /* 1. If an implementation defined debugging facility is available and enabled, then */
-    if(existsDebuggerImplementation()) { /* TODO */
+    if(existsDebuggerImplementation()) {
       /* a. Perform an implementation defined debugging action. */
       /* b. Let result be an implementation defined Completion value. */
-      result := debuggerAction() /* TODO */
+      result := debuggerAction()
     }
     /* 2. Else */
     else {
@@ -1362,7 +1459,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     rnum := ToNumber(rval);
     /* 7. Return the result of applying the subtraction operation to lnum and rnum.
           See the note below 11.6.3. */
-    return applyingTheAdditionOperation(lnum, rnum)
+    return applyingTheSubtractionOperation(lnum, rnum)
   }
   /* 11.7 Bitwise Shift Operators */
   | { type: "BinaryExpression", operator: "<<", left: ShiftExpression, right: AdditiveExpression } -> {
@@ -1970,7 +2067,7 @@ function JS_Interpreter_ForStmt_VarDecl(forStmt, scope) {
        is evaluated as follows: */
 
     /* 1. Evaluate VariableDeclarationListNoIn. */
-    JS_Interpreter_Stmt(VariableDeclarationListNoIn);
+    JS_Interpreter_Stmt(VariableDeclarationListNoIn, scope);
     /* 2. Let V = empty. */
     V := 'empty;
     /* 3. Repeat */

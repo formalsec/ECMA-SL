@@ -56,5 +56,4 @@ q.enqueue (3, "foo");
 q.enqueue (2, "baz");
 q.enqueue (1, "bar");
 r = (q.dequeue()).val;
-Assert (r = "foo");
-r
+AssertEquals(r, "foo");

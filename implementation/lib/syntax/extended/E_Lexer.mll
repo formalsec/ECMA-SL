@@ -19,7 +19,7 @@
 *)
 let digit   = ['0' - '9']
 let letter  = ['a' - 'z' 'A' - 'Z']
-let special = ('_'|' '|','|';'|'.'|':'|'\\' '"'|'/'|'*'|'-'|'+'|'<'|'>'|'='|'{'|'}'|'['|']'|'('|')'|'$'|'@'|'!'|'?'|'%'|'~'|'&'|'|'|'^')
+let special = ('_'|' '|','|';'|'.'|':'|'\\' '"'|'/'|'*'|'-'|'+'|'<'|'>'|'='|'{'|'}'|'['|']'|'('|')'|'$'|'@'|'!'|'?'|'%'|'~'|'&'|'|'|'^'|''')
 let int     = '-'?digit+
 let float   = int('.')digit*
 let bool    = "true"|"false"
@@ -95,6 +95,7 @@ rule read =
   | "float_of_string" { FLOAT_OF_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }
   | "obj_fields"      { OBJ_FIELDS }
+  | "to_int"          { TO_INT }
   | "to_int32"        { TO_INT32 }
   | "to_uint32"       { TO_UINT32 }
   | "floor"           { FLOOR }
@@ -126,6 +127,7 @@ rule read =
   | "match"           { MATCH }
   | "with"            { WITH }
   | "print"           { PRINT }
+  | "assert"          { ASSERT }
   | "NaN"             { FLOAT (float_of_string "nan") }
   | "Infinity"        { FLOAT (float_of_string "infinity") }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }

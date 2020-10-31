@@ -17,6 +17,7 @@
 %token LBRACK RBRACK
 %token PERIOD COMMA SEMICOLON
 %token DELETE
+%token THROW
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -27,7 +28,7 @@
 %token LAND LOR
 %token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS
 %token BITWISE_NOT BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
-%token TO_INT32 TO_UINT32 TO_UINT16 FLOOR
+%token TO_INT TO_INT32 TO_UINT32 TO_UINT16 FLOOR
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
 %token SCONCAT
@@ -164,6 +165,8 @@ expr_target:
     { Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
   | INT_OF_STRING; e = expr_target;
     { Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
+  | TO_INT; e = expr_target;
+    { Expr.UnOpt (Oper.ToInt, e) } %prec unopt_prec
   | TO_INT32; e = expr_target;
     { Expr.UnOpt (Oper.ToInt32, e) } %prec unopt_prec
   | TO_UINT32; e = expr_target;
@@ -202,6 +205,8 @@ stmt_block:
 stmt_target:
   | PRINT; e = expr_target;
     { Stmt.Print e }
+  | THROW; e = expr_target;
+    { Stmt.Throw e }
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;
     { print_string ">FIELDASSIGN\n";  Stmt.FieldAssign (e1, Expr.Val (Str f), e2) }
   | e1 = expr_target; LBRACK; f = expr_target; RBRACK; DEFEQ; e2 = expr_target;

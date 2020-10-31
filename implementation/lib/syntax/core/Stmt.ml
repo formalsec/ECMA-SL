@@ -1,6 +1,7 @@
 type t = Skip
        | Merge
        | Print            of Expr.t
+       | Throw            of Expr.t
        | Assign           of string * Expr.t
        | If               of Expr.t * t * t option
        | While            of Expr.t * t
@@ -17,26 +18,33 @@ type t = Skip
 
 (*---------------Strings------------------*)
 
-let rec str (stmt : t) : string = match stmt with
+let is_basic_stmt (s : t) : bool = match s with
+  | If _ | While _ | Block _ -> false
+  | _ -> true
+
+let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
+  let str_e = Option.default Expr.str print_expr in
+  match stmt with
     Skip
   | Merge                       -> ""
-  | Print e                     -> "print " ^ (Expr.str e)
-  | Assign (v, exp)             -> v ^ " := " ^ (Expr.str exp)
-  | If (e, s1, s2)              -> (let v = "if (" ^ Expr.str e ^ ") {\n" ^ str s1 ^ "\n}" in
+  | Print e                     -> "print " ^ (str_e e)
+  | Throw e                     -> "throw " ^ (str_e e)
+  | Assign (v, exp)             -> v ^ " := " ^ (str_e exp)
+  | If (e, s1, s2)              -> (let v = "if (" ^ str_e e ^ ") {\n" ^ str s1 ^ "\n}" in
                                     match s2 with
                                     | None   -> v
                                     | Some s -> v ^ " else {\n" ^ str s ^ "\n}" )
   | Block (block)               -> String.concat ";\n" (List.map str block)
-  | While (exp, s)              -> "while (" ^ (Expr.str exp) ^ ") { " ^ (str s) ^ " }"
-  | Return exp                  -> "return " ^ (Expr.str exp)
-  | FieldAssign (e_o, f, e_v)   -> Expr.str e_o ^ "[" ^ Expr.str f ^ "] := " ^ Expr.str e_v
-  | FieldDelete (e, f)          -> "delete " ^ Expr.str e ^ "[" ^ Expr.str f ^ "]"
-  | AssignCall (va, st, e_lst)  -> va ^ " := " ^ Expr.str st ^ " (" ^ String.concat ", " (List.map (fun e -> Expr.str e) e_lst) ^ ")"
+  | While (exp, s)              -> "while (" ^ (str_e exp) ^ ") { " ^ (str s) ^ " }"
+  | Return exp                  -> "return " ^ (str_e exp)
+  | FieldAssign (e_o, f, e_v)   -> str_e e_o ^ "[" ^ str_e f ^ "] := " ^ str_e e_v
+  | FieldDelete (e, f)          -> "delete " ^ str_e e ^ "[" ^ str_e f ^ "]"
+  | AssignCall (va, st, e_lst)  -> va ^ " := " ^ str_e st ^ " (" ^ String.concat ", " (List.map (fun e -> str_e e) e_lst) ^ ")"
   | AssignNewObj va             -> va ^ " := { }"
-  | FieldLookup (va, eo, p)     -> va ^ " := " ^ Expr.str eo ^ "[" ^ Expr.str p ^ "]"
-  | AssignInObjCheck (st,e1,e2) -> st ^ " := " ^ Expr.str e1 ^ " in_obj " ^ Expr.str e2
-  | AssignObjToList (st, e)     -> st ^ " := obj_to_list " ^ Expr.str e
-  | AssignObjFields (st, e)     -> st ^ " := obj_fields " ^ Expr.str e
+  | FieldLookup (va, eo, p)     -> va ^ " := " ^ str_e eo ^ "[" ^ str_e p ^ "]"
+  | AssignInObjCheck (st,e1,e2) -> st ^ " := " ^ str_e e1 ^ " in_obj " ^ str_e e2
+  | AssignObjToList (st, e)     -> st ^ " := obj_to_list " ^ str_e e
+  | AssignObjFields (st, e)     -> st ^ " := obj_fields " ^ str_e e
 
 let rec to_json (stmt : t) : string =
   (*Stmts args : rhs/ lhs / expr / obj / field/ stringvar *)
@@ -44,6 +52,7 @@ let rec to_json (stmt : t) : string =
   | Skip                        -> Printf.sprintf "{\"type\" : \"skip\"}"
   | Merge                       -> Printf.sprintf "{\"type\" : \"merge\"}"
   | Print e                     -> Printf.sprintf "{\"type\" : \"print\", \"expr\" :  %s }" (Expr.to_json e)
+  | Throw e                     -> Printf.sprintf "{\"type\" : \"throw\", \"expr\" :  %s }" (Expr.to_json e)
   | Assign (v, exp)             -> Printf.sprintf "{\"type\" : \"assign\", \"lhs\" :  \"%s\", \"rhs\" :  %s}" v (Expr.to_json exp)
   | If (e, s1, s2)              -> Printf.sprintf "{\"type\" : \"condition\", \"expr\" : %s, \"then\" : %s %s}" (Expr.to_json e) (to_json s1) (match s2 with
                                                                                                                                         | Some v -> Printf.sprintf ",\"else\" : %s" (to_json v)
