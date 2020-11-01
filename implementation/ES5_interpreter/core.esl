@@ -524,6 +524,7 @@ __v231 := l_nth(props, idx);
 return __v231 };
 function setAllInternalMethodsExceptGet (obj) { obj["GetOwnProperty"] := "GetOwnProperty";
 obj["GetProperty"] := "GetProperty";
+obj["Get"] := "Get";
 obj["CanPut"] := "CanPut";
 obj["Put"] := "Put";
 obj["HasProperty"] := "HasProperty";
@@ -3376,6 +3377,7 @@ descriptor := __v1556;
 __v1557 := "setJSProperty" (prototype, "reduceRight", descriptor);
 return prototype };
 function GetValue (V) { print "GetValue";
+print V;
 __v1560 := "Type" (V);
 __v1559 := __v1560 = "Reference";
 __v1558 := !(__v1559);
@@ -3384,6 +3386,7 @@ return V
 };
 __v1561 := "GetBase" (V);
 base := __v1561;
+print base;
 __v1562 := "IsUnresolvableReference" (V);
 if (__v1562) {
 __v1563 := "ReferenceErrorException" ();
@@ -4103,7 +4106,7 @@ F := __v1933;
 __v1934 := "setAllInternalMethodsExceptGet" (F);
 F["Class"] := "Function";
 F["Prototype"] := "$loc_FUNC_PROTOTYPE";
-F["Get"] := null;
+F["Get"] := "Get";
 F["Call"] := "Call";
 F["Construct"] := "Construct";
 F["HasInstance"] := null;
@@ -4261,7 +4264,7 @@ return __v1999
 };
 __v2000 := "CreateMutableBindingObject" (envRec, N, D);
 return __v2000 };
-function initArrayLib (global, objectPrototype, strict) { __v2001 := "initArrayPrototype" (gobal, objectPrototype, strict);
+function initArrayLib (global, objectPrototype, strict) { __v2001 := "initArrayPrototype" (global, objectPrototype, strict);
 objArrayPrototype := __v2001;
 __v2003 := [ "items" ];
 __v2002 := "CreateFunctionObject" (__v2003, "ArrayConstructor", global, strict);
@@ -5877,292 +5880,299 @@ __v2708 := __v2709 = "ArrayExpression";
 __v2710 := "elements" in_obj e;
 if (true && __v2707 && __v2708 && __v2710) {
 ElementList := e["elements"];
-__v2712 := "getGlobalObject" (scope);
+__v2713 := "getLexicalEnvironment" (scope);
+__v2712 := "getGlobalObject" (__v2713);
 __v2711 := "getArrayPrototype" (__v2712, false);
 arrayPrototype := __v2711;
-__v2714 := [  ];
-__v2713 := "internalNewArray" (arrayPrototype, __v2714);
-array := __v2713;
-__v2715 := l_len(ElementList);
-len := __v2715;
+__v2715 := [  ];
+__v2714 := "internalNewArray" (arrayPrototype, __v2715);
+array := __v2714;
+__v2716 := l_len(ElementList);
+len := __v2716;
 i := 0;
-__v2716 := i < len;
-while (__v2716) { __v2717 := l_nth(ElementList, i);
-el := __v2717;
-__v2718 := el = null;
-if (__v2718) {
+__v2717 := i < len;
+while (__v2717) { __v2718 := l_nth(ElementList, i);
+el := __v2718;
+print "ARRAY LOOP. BEGINNING.";
+__v2719 := el = null;
+if (__v2719) {
 initValue := 'undefined
 } else {
-__v2719 := "JS_Interpreter_Expr" (e, scope);
-initResult := __v2719;
-__v2720 := "GetValue" (initResult);
-initValue := __v2720
+__v2720 := "JS_Interpreter_Expr" (el, scope);
+initResult := __v2720;
+__v2721 := "GetValue" (initResult);
+initValue := __v2721
 };
-__v2721 := "newDataPropertyDescriptorFull" (initValue, true, true, true);
-descriptor := __v2721;
-__v2723 := array["DefineOwnProperty"];
-__v2725 := "ToUint32" (i);
-__v2724 := "ToString" (__v2725);
-__v2722 := __v2723 (array, __v2724, descriptor, false);
-__v2726 := i + 1;
-i := __v2726;
-__v2716 := i < len };
+print "ARRAY LOOP. GOT THE VALUE";
+print initValue;
+__v2722 := "newDataPropertyDescriptorFull" (initValue, true, true, true);
+descriptor := __v2722;
+__v2724 := array["DefineOwnProperty"];
+__v2727 := int_to_float(i);
+__v2726 := "ToUint32" (__v2727);
+__v2725 := "ToString" (__v2726);
+__v2723 := __v2724 (array, __v2725, descriptor, false);
+print "Array loop: END";
+print i;
+__v2728 := i + 1;
+i := __v2728;
+__v2717 := i < len };
 return array
 } else {
-__v2727 := "type" in_obj e;
-__v2729 := e["type"];
-__v2728 := __v2729 = "ObjectExpression";
-if (true && __v2727 && __v2728) {
-__v2730 := "JS_Interpreter_ObjectInitializer" (e, scope);
-return __v2730
+__v2729 := "type" in_obj e;
+__v2731 := e["type"];
+__v2730 := __v2731 = "ObjectExpression";
+if (true && __v2729 && __v2730) {
+__v2732 := "JS_Interpreter_ObjectInitializer" (e, scope);
+return __v2732
 } else {
-__v2731 := "type" in_obj e;
-__v2733 := e["type"];
-__v2732 := __v2733 = "ProtoAssignment";
-__v2734 := "object" in_obj e;
-__v2735 := "value" in_obj e;
-if (true && __v2731 && __v2732 && __v2734 && __v2735) {
+__v2733 := "type" in_obj e;
+__v2735 := e["type"];
+__v2734 := __v2735 = "ProtoAssignment";
+__v2736 := "object" in_obj e;
+__v2737 := "value" in_obj e;
+if (true && __v2733 && __v2734 && __v2736 && __v2737) {
 Object := e["object"];
 Expression := e["value"];
-__v2736 := "JS_Interpreter_Expr" (Object, scope);
-objectReference := __v2736;
-__v2737 := "GetValue" (objectReference);
-objectLocation := __v2737;
-__v2738 := "JS_Interpreter_Expr" (Expression, scope);
-valueReference := __v2738;
-__v2739 := "GetValue" (valueReference);
-value := __v2739;
+__v2738 := "JS_Interpreter_Expr" (Object, scope);
+objectReference := __v2738;
+__v2739 := "GetValue" (objectReference);
+objectLocation := __v2739;
+__v2740 := "JS_Interpreter_Expr" (Expression, scope);
+valueReference := __v2740;
+__v2741 := "GetValue" (valueReference);
+value := __v2741;
 objectLocation["Prototype"] := value;
 return value
 } else {
-__v2740 := "type" in_obj e;
-__v2742 := e["type"];
-__v2741 := __v2742 = "ESLPrint";
-__v2743 := "value" in_obj e;
-if (true && __v2740 && __v2741 && __v2743) {
+__v2742 := "type" in_obj e;
+__v2744 := e["type"];
+__v2743 := __v2744 = "ESLPrint";
+__v2745 := "value" in_obj e;
+if (true && __v2742 && __v2743 && __v2745) {
 Argument := e["value"];
-__v2744 := "JS_Interpreter_Expr" (Argument, scope);
-arg := __v2744;
-__v2745 := "GetValue" (arg);
-argValue := __v2745;
-__v2747 := [ "JSPrint - ", argValue ];
-__v2746 := s_concat(__v2747);
-print __v2746;
+__v2746 := "JS_Interpreter_Expr" (Argument, scope);
+arg := __v2746;
+__v2747 := "GetValue" (arg);
+argValue := __v2747;
+__v2749 := [ "JSPrint - ", argValue ];
+__v2748 := s_concat(__v2749);
+print __v2748;
 return argValue
 } else {
-__v2748 := "type" in_obj e;
-__v2750 := e["type"];
-__v2749 := __v2750 = "MemberExpression";
-__v2751 := "object" in_obj e;
-__v2752 := "property" in_obj e;
-if (true && __v2748 && __v2749 && __v2751 && __v2752) {
+__v2750 := "type" in_obj e;
+__v2752 := e["type"];
+__v2751 := __v2752 = "MemberExpression";
+__v2753 := "object" in_obj e;
+__v2754 := "property" in_obj e;
+if (true && __v2750 && __v2751 && __v2753 && __v2754) {
 MemberExpression := e["object"];
 Expression := e["property"];
-__v2753 := "JS_Interpreter_Expr" (MemberExpression, scope);
-baseReference := __v2753;
-__v2754 := "GetValue" (baseReference);
-baseValue := __v2754;
-__v2755 := "JS_Interpreter_Expr" (Expression, scope);
-propertyNameReference := __v2755;
-__v2756 := "GetValue" (propertyNameReference);
-propertyNameValue := __v2756;
-__v2757 := "CheckObjectCoercible" (baseValue);
-__v2758 := "ToString" (propertyNameValue);
-propertyNameString := __v2758;
-__v2759 := "isContainedInStrictCode" (scope);
-if (__v2759) {
+__v2755 := "JS_Interpreter_Expr" (MemberExpression, scope);
+baseReference := __v2755;
+__v2756 := "GetValue" (baseReference);
+baseValue := __v2756;
+__v2757 := "JS_Interpreter_Expr" (Expression, scope);
+propertyNameReference := __v2757;
+__v2758 := "GetValue" (propertyNameReference);
+propertyNameValue := __v2758;
+__v2759 := "CheckObjectCoercible" (baseValue);
+__v2760 := "ToString" (propertyNameValue);
+propertyNameString := __v2760;
+__v2761 := "isContainedInStrictCode" (scope);
+if (__v2761) {
 strict := true
 } else {
 strict := false
 };
-__v2760 := "newPropertyReference" (baseValue, propertyNameString, strict);
-return __v2760
+__v2762 := "newPropertyReference" (baseValue, propertyNameString, strict);
+return __v2762
 } else {
-__v2761 := "type" in_obj e;
-__v2763 := e["type"];
-__v2762 := __v2763 = "NewExpression";
-__v2764 := "callee" in_obj e;
-__v2765 := "arguments" in_obj e;
-if (true && __v2761 && __v2762 && __v2764 && __v2765) {
+__v2763 := "type" in_obj e;
+__v2765 := e["type"];
+__v2764 := __v2765 = "NewExpression";
+__v2766 := "callee" in_obj e;
+__v2767 := "arguments" in_obj e;
+if (true && __v2763 && __v2764 && __v2766 && __v2767) {
 MemberExpression := e["callee"];
 Arguments := e["arguments"];
-__v2766 := "JS_Interpreter_Expr" (MemberExpression, scope);
-ref := __v2766;
-__v2767 := "GetValue" (ref);
-constructor := __v2767;
-__v2768 := "JS_Interpreter_Arguments" (Arguments, scope);
-argList := __v2768;
-__v2771 := "Type" (constructor);
-__v2770 := __v2771 = "Object";
-__v2769 := !(__v2770);
-if (__v2769) {
-__v2772 := "TypeErrorException" ();
-throw __v2772
+__v2768 := "JS_Interpreter_Expr" (MemberExpression, scope);
+ref := __v2768;
+__v2769 := "GetValue" (ref);
+constructor := __v2769;
+__v2770 := "JS_Interpreter_Arguments" (Arguments, scope);
+argList := __v2770;
+__v2773 := "Type" (constructor);
+__v2772 := __v2773 = "Object";
+__v2771 := !(__v2772);
+if (__v2771) {
+__v2774 := "TypeErrorException" ();
+throw __v2774
 };
-__v2774 := "Construct" in_obj constructor;
-__v2773 := !(__v2774);
-if (__v2773) {
-__v2775 := "TypeErrorException" ();
-throw __v2775
+__v2776 := "Construct" in_obj constructor;
+__v2775 := !(__v2776);
+if (__v2775) {
+__v2777 := "TypeErrorException" ();
+throw __v2777
 };
-__v2776 := "Construct" (constructor, argList);
-return __v2776
+__v2778 := "Construct" (constructor, argList);
+return __v2778
 } else {
-__v2777 := "type" in_obj e;
-__v2779 := e["type"];
-__v2778 := __v2779 = "CallExpression";
-__v2780 := "callee" in_obj e;
-__v2781 := "arguments" in_obj e;
-if (true && __v2777 && __v2778 && __v2780 && __v2781) {
+__v2779 := "type" in_obj e;
+__v2781 := e["type"];
+__v2780 := __v2781 = "CallExpression";
+__v2782 := "callee" in_obj e;
+__v2783 := "arguments" in_obj e;
+if (true && __v2779 && __v2780 && __v2782 && __v2783) {
 MemberExpression := e["callee"];
 Arguments := e["arguments"];
-__v2782 := "JS_Interpreter_Expr" (MemberExpression, scope);
-ref := __v2782;
-__v2783 := "GetValue" (ref);
-func := __v2783;
-__v2784 := "JS_Interpreter_Arguments" (Arguments, scope);
-argList := __v2784;
-__v2787 := "Type" (func);
-__v2786 := __v2787 = "Object";
-__v2785 := !(__v2786);
-if (__v2785) {
-__v2788 := "TypeErrorException" ();
-throw __v2788
+__v2784 := "JS_Interpreter_Expr" (MemberExpression, scope);
+ref := __v2784;
+__v2785 := "GetValue" (ref);
+func := __v2785;
+__v2786 := "JS_Interpreter_Arguments" (Arguments, scope);
+argList := __v2786;
+__v2789 := "Type" (func);
+__v2788 := __v2789 = "Object";
+__v2787 := !(__v2788);
+if (__v2787) {
+__v2790 := "TypeErrorException" ();
+throw __v2790
 };
-__v2790 := "IsCallable" (func);
-__v2789 := __v2790 = false;
-if (__v2789) {
-__v2791 := "TypeErrorException" ();
-throw __v2791
+__v2792 := "IsCallable" (func);
+__v2791 := __v2792 = false;
+if (__v2791) {
+__v2793 := "TypeErrorException" ();
+throw __v2793
 };
-__v2793 := "Type" (ref);
-__v2792 := __v2793 = "Reference";
-if (__v2792) {
-__v2795 := "IsPropertyReference" (ref);
-__v2794 := __v2795 = true;
+__v2795 := "Type" (ref);
+__v2794 := __v2795 = "Reference";
 if (__v2794) {
-__v2796 := "GetBase" (ref);
-thisValue := __v2796
-} else {
+__v2797 := "IsPropertyReference" (ref);
+__v2796 := __v2797 = true;
+if (__v2796) {
 __v2798 := "GetBase" (ref);
-__v2797 := "ImplicitThisValue" (__v2798);
-thisValue := __v2797
+thisValue := __v2798
+} else {
+__v2800 := "GetBase" (ref);
+__v2799 := "ImplicitThisValue" (__v2800);
+thisValue := __v2799
 }
 } else {
 thisValue := 'undefined
 };
-__v2799 := "Call" (func, thisValue, argList);
-return __v2799
+__v2801 := "Call" (func, thisValue, argList);
+return __v2801
 } else {
-__v2800 := "type" in_obj e;
-__v2802 := e["type"];
-__v2801 := __v2802 = "FunctionExpression";
-__v2803 := "id" in_obj e;
-__v2804 := "params" in_obj e;
-__v2805 := "body" in_obj e;
-if (true && __v2800 && __v2801 && __v2803 && __v2804 && __v2805) {
+__v2802 := "type" in_obj e;
+__v2804 := e["type"];
+__v2803 := __v2804 = "FunctionExpression";
+__v2805 := "id" in_obj e;
+__v2806 := "params" in_obj e;
+__v2807 := "body" in_obj e;
+if (true && __v2802 && __v2803 && __v2805 && __v2806 && __v2807) {
 Identifier := e["id"];
 FormalParameterList := e["params"];
 FunctionBody := e["body"];
-__v2806 := "JS_Interpreter_FunctionExpression" (e, scope);
-return __v2806
+__v2808 := "JS_Interpreter_FunctionExpression" (e, scope);
+return __v2808
 } else {
-__v2807 := "type" in_obj e;
-__v2809 := e["type"];
-__v2808 := __v2809 = "UpdateExpression";
-__v2810 := "prefix" in_obj e;
-__v2812 := e["prefix"];
-__v2811 := __v2812 = false;
-if (true && __v2807 && __v2808 && __v2810 && __v2811) {
-__v2813 := "JS_Interpreter_PostfixExpressions" (e, scope);
-return __v2813
+__v2809 := "type" in_obj e;
+__v2811 := e["type"];
+__v2810 := __v2811 = "UpdateExpression";
+__v2812 := "prefix" in_obj e;
+__v2814 := e["prefix"];
+__v2813 := __v2814 = false;
+if (true && __v2809 && __v2810 && __v2812 && __v2813) {
+__v2815 := "JS_Interpreter_PostfixExpressions" (e, scope);
+return __v2815
 } else {
-__v2814 := "type" in_obj e;
-__v2816 := e["type"];
-__v2815 := __v2816 = "UpdateExpression";
-__v2817 := "prefix" in_obj e;
-__v2819 := e["prefix"];
-__v2818 := __v2819 = true;
-if (true && __v2814 && __v2815 && __v2817 && __v2818) {
-__v2820 := "JS_Interpreter_UnaryOperator" (e, scope);
-return __v2820
+__v2816 := "type" in_obj e;
+__v2818 := e["type"];
+__v2817 := __v2818 = "UpdateExpression";
+__v2819 := "prefix" in_obj e;
+__v2821 := e["prefix"];
+__v2820 := __v2821 = true;
+if (true && __v2816 && __v2817 && __v2819 && __v2820) {
+__v2822 := "JS_Interpreter_UnaryOperator" (e, scope);
+return __v2822
 } else {
-__v2821 := "type" in_obj e;
-__v2823 := e["type"];
-__v2822 := __v2823 = "UnaryExpression";
-__v2824 := "prefix" in_obj e;
-__v2826 := e["prefix"];
-__v2825 := __v2826 = true;
-if (true && __v2821 && __v2822 && __v2824 && __v2825) {
-__v2827 := "JS_Interpreter_UnaryOperator" (e, scope);
-return __v2827
+__v2823 := "type" in_obj e;
+__v2825 := e["type"];
+__v2824 := __v2825 = "UnaryExpression";
+__v2826 := "prefix" in_obj e;
+__v2828 := e["prefix"];
+__v2827 := __v2828 = true;
+if (true && __v2823 && __v2824 && __v2826 && __v2827) {
+__v2829 := "JS_Interpreter_UnaryOperator" (e, scope);
+return __v2829
 } else {
-__v2828 := "type" in_obj e;
-__v2830 := e["type"];
-__v2829 := __v2830 = "BinaryExpression";
-if (true && __v2828 && __v2829) {
-__v2831 := "JS_Interpreter_BinExpr" (e, scope);
-return __v2831
+__v2830 := "type" in_obj e;
+__v2832 := e["type"];
+__v2831 := __v2832 = "BinaryExpression";
+if (true && __v2830 && __v2831) {
+__v2833 := "JS_Interpreter_BinExpr" (e, scope);
+return __v2833
 } else {
-__v2832 := "type" in_obj e;
-__v2834 := e["type"];
-__v2833 := __v2834 = "LogicalExpression";
-if (true && __v2832 && __v2833) {
-__v2835 := "JS_Interpreter_LogicalExpression" (e, scope);
-return __v2835
+__v2834 := "type" in_obj e;
+__v2836 := e["type"];
+__v2835 := __v2836 = "LogicalExpression";
+if (true && __v2834 && __v2835) {
+__v2837 := "JS_Interpreter_LogicalExpression" (e, scope);
+return __v2837
 } else {
-__v2836 := "type" in_obj e;
-__v2838 := e["type"];
-__v2837 := __v2838 = "ConditionalExpression";
-__v2839 := "test" in_obj e;
-__v2840 := "consequent" in_obj e;
-__v2841 := "alternate" in_obj e;
-if (true && __v2836 && __v2837 && __v2839 && __v2840 && __v2841) {
+__v2838 := "type" in_obj e;
+__v2840 := e["type"];
+__v2839 := __v2840 = "ConditionalExpression";
+__v2841 := "test" in_obj e;
+__v2842 := "consequent" in_obj e;
+__v2843 := "alternate" in_obj e;
+if (true && __v2838 && __v2839 && __v2841 && __v2842 && __v2843) {
 LogicalORExpression := e["test"];
 firstAssignmentExpression := e["consequent"];
 secondAssignmentExpression := e["alternate"];
-__v2842 := "JS_Interpreter_Expr" (LogicalORExpression, scope);
-lref := __v2842;
-__v2845 := "GetValue" (lref);
-__v2844 := "ToBoolean" (__v2845);
-__v2843 := __v2844 = true;
-if (__v2843) {
-__v2846 := "JS_Interpreter_Expr" (firstAssignmentExpression, scope);
-trueRef := __v2846;
-__v2847 := "GetValue" (trueRef);
-return __v2847
-} else {
-__v2848 := "JS_Interpreter_Expr" (secondAssignmentExpression, scope);
-falseRef := __v2848;
-__v2849 := "GetValue" (falseRef);
+__v2844 := "JS_Interpreter_Expr" (LogicalORExpression, scope);
+lref := __v2844;
+__v2847 := "GetValue" (lref);
+__v2846 := "ToBoolean" (__v2847);
+__v2845 := __v2846 = true;
+if (__v2845) {
+__v2848 := "JS_Interpreter_Expr" (firstAssignmentExpression, scope);
+trueRef := __v2848;
+__v2849 := "GetValue" (trueRef);
 return __v2849
+} else {
+__v2850 := "JS_Interpreter_Expr" (secondAssignmentExpression, scope);
+falseRef := __v2850;
+__v2851 := "GetValue" (falseRef);
+return __v2851
 }
 } else {
-__v2850 := "type" in_obj e;
-__v2852 := e["type"];
-__v2851 := __v2852 = "AssignmentExpression";
-if (true && __v2850 && __v2851) {
-__v2853 := "JS_Interpreter_AssignmentExpression" (e, scope);
-return __v2853
+__v2852 := "type" in_obj e;
+__v2854 := e["type"];
+__v2853 := __v2854 = "AssignmentExpression";
+if (true && __v2852 && __v2853) {
+__v2855 := "JS_Interpreter_AssignmentExpression" (e, scope);
+return __v2855
 } else {
-__v2854 := "type" in_obj e;
-__v2856 := e["type"];
-__v2855 := __v2856 = "SequenceExpression";
-__v2857 := "expressions" in_obj e;
-if (true && __v2854 && __v2855 && __v2857) {
+__v2856 := "type" in_obj e;
+__v2858 := e["type"];
+__v2857 := __v2858 = "SequenceExpression";
+__v2859 := "expressions" in_obj e;
+if (true && __v2856 && __v2857 && __v2859) {
 Expressions := e["expressions"];
-__v2858 := l_len(Expressions);
-lExpression := __v2858;
+__v2860 := l_len(Expressions);
+lExpression := __v2860;
 i := 0;
-__v2859 := i < lExpression;
-while (__v2859) { __v2861 := l_nth(Expressions, i);
-__v2860 := "JS_Interpreter_Expr" (__v2861, scope);
-ref := __v2860;
-__v2862 := "GetValue" (ref);
-val := __v2862;
-__v2863 := i + 1;
-i := __v2863;
-__v2859 := i < lExpression };
+__v2861 := i < lExpression;
+while (__v2861) { __v2863 := l_nth(Expressions, i);
+__v2862 := "JS_Interpreter_Expr" (__v2863, scope);
+ref := __v2862;
+__v2864 := "GetValue" (ref);
+val := __v2864;
+__v2865 := i + 1;
+i := __v2865;
+__v2861 := i < lExpression };
 return val
 }
 }
@@ -6183,462 +6193,462 @@ return val
 }
 }
 } };
-function createExecutionContext () { __v2864 := { };
-__v2864["LexicalEnvironment"] := 'undefined;
-__v2864["VariableEnvironment"] := 'undefined;
-__v2864["ThisBinding"] := 'undefined;
-__v2864["strictCode"] := false;
-return __v2864 };
-function Put_internal (base, P, W, Throw) { __v2865 := "ToObject" (base);
-O := __v2865;
-__v2867 := "CanPut" (O, P);
-__v2866 := __v2867 = false;
-if (__v2866) {
-__v2868 := Throw = true;
+function createExecutionContext () { __v2866 := { };
+__v2866["LexicalEnvironment"] := 'undefined;
+__v2866["VariableEnvironment"] := 'undefined;
+__v2866["ThisBinding"] := 'undefined;
+__v2866["strictCode"] := false;
+return __v2866 };
+function Put_internal (base, P, W, Throw) { __v2867 := "ToObject" (base);
+O := __v2867;
+__v2869 := "CanPut" (O, P);
+__v2868 := __v2869 = false;
 if (__v2868) {
-__v2869 := "TypeErrorException" ();
-throw __v2869
+__v2870 := Throw = true;
+if (__v2870) {
+__v2871 := "TypeErrorException" ();
+throw __v2871
 } else {
 return 
 }
 };
-__v2870 := "GetOwnProperty" (O, P);
-ownDesc := __v2870;
-__v2872 := "IsDataPropertyDescriptor" (ownDesc);
-__v2871 := __v2872 = true;
-if (__v2871) {
-__v2873 := Throw = true;
+__v2872 := "GetOwnProperty" (O, P);
+ownDesc := __v2872;
+__v2874 := "IsDataPropertyDescriptor" (ownDesc);
+__v2873 := __v2874 = true;
 if (__v2873) {
-__v2874 := "TypeErrorException" ();
-throw __v2874
+__v2875 := Throw = true;
+if (__v2875) {
+__v2876 := "TypeErrorException" ();
+throw __v2876
 } else {
 return 
 }
 };
-__v2875 := "GetProperty" (O, P);
-desc := __v2875;
-__v2877 := "IsAccessorPropertyDescriptor" (desc);
-__v2876 := __v2877 = true;
-if (__v2876) {
-__v2878 := desc["Set"];
-setter := __v2878;
-__v2880 := [ W ];
-__v2879 := "Call" (setter, base, __v2880)
+__v2877 := "GetProperty" (O, P);
+desc := __v2877;
+__v2879 := "IsAccessorPropertyDescriptor" (desc);
+__v2878 := __v2879 = true;
+if (__v2878) {
+__v2880 := desc["Set"];
+setter := __v2880;
+__v2882 := [ W ];
+__v2881 := "Call" (setter, base, __v2882)
 } else {
-__v2881 := Throw = true;
-if (__v2881) {
-__v2882 := "TypeErrorException" ();
-throw __v2882
+__v2883 := Throw = true;
+if (__v2883) {
+__v2884 := "TypeErrorException" ();
+throw __v2884
 }
 };
 return  };
-function EnteringFunctionCode (F, thisArg, argumentsList) { __v2883 := "createExecutionContext" ();
-functionExecCtx := __v2883;
-__v2885 := "isStrictFunctionObject" (F);
-__v2884 := "setContainedInStrictCode" (functionExecCtx, __v2885);
-__v2887 := "getFunctionCode" (F);
-__v2886 := "isStrictModeCode" (__v2887, functionExecCtx);
-if (__v2886) {
-__v2888 := "setThisBinding" (functionExecCtx, thisArg)
+function EnteringFunctionCode (F, thisArg, argumentsList) { __v2885 := "createExecutionContext" ();
+functionExecCtx := __v2885;
+__v2887 := "isStrictFunctionObject" (F);
+__v2886 := "setContainedInStrictCode" (functionExecCtx, __v2887);
+__v2889 := "getFunctionCode" (F);
+__v2888 := "isStrictModeCode" (__v2889, functionExecCtx);
+if (__v2888) {
+__v2890 := "setThisBinding" (functionExecCtx, thisArg)
 };
-__v2890 := thisArg = 'null;
-__v2891 := thisArg = 'undefined;
-__v2889 := __v2890 || __v2891;
-if (__v2889) {
-__v2894 := F["Scope"];
-__v2893 := "getGlobalObject" (__v2894);
-__v2892 := "setThisBinding" (functionExecCtx, __v2893)
+__v2892 := thisArg = 'null;
+__v2893 := thisArg = 'undefined;
+__v2891 := __v2892 || __v2893;
+if (__v2891) {
+__v2896 := F["Scope"];
+__v2895 := "getGlobalObject" (__v2896);
+__v2894 := "setThisBinding" (functionExecCtx, __v2895)
 } else {
-__v2897 := "Type" (thisArg);
-__v2896 := __v2897 = "Object";
-__v2895 := !(__v2896);
-if (__v2895) {
-__v2899 := "ToObject" (thisArg);
-__v2898 := "setThisBinding" (functionExecCtx, __v2899)
+__v2899 := "Type" (thisArg);
+__v2898 := __v2899 = "Object";
+__v2897 := !(__v2898);
+if (__v2897) {
+__v2901 := "ToObject" (thisArg);
+__v2900 := "setThisBinding" (functionExecCtx, __v2901)
 } else {
-__v2900 := "setThisBinding" (functionExecCtx, thisArg)
+__v2902 := "setThisBinding" (functionExecCtx, thisArg)
 }
 };
-__v2902 := F["Scope"];
-__v2901 := "NewDeclarativeEnvironment" (__v2902);
-localEnv := __v2901;
-__v2903 := "setLexicalEnvironment" (functionExecCtx, localEnv);
-__v2904 := "setVariableEnvironment" (functionExecCtx, localEnv);
-__v2905 := F["Code"];
-code := __v2905;
-__v2906 := "DeclarationBindingInstantiation" (code, argumentsList, functionExecCtx, F);
+__v2904 := F["Scope"];
+__v2903 := "NewDeclarativeEnvironment" (__v2904);
+localEnv := __v2903;
+__v2905 := "setLexicalEnvironment" (functionExecCtx, localEnv);
+__v2906 := "setVariableEnvironment" (functionExecCtx, localEnv);
+__v2907 := F["Code"];
+code := __v2907;
+__v2908 := "DeclarationBindingInstantiation" (code, argumentsList, functionExecCtx, F);
 return functionExecCtx };
-function newGetAccessorPropertyDescriptor (get) { __v2907 := "NewPropertyDescriptor" ();
-desc := __v2907;
+function newGetAccessorPropertyDescriptor (get) { __v2909 := "NewPropertyDescriptor" ();
+desc := __v2909;
 desc["Get"] := get;
 desc["Enumerable"] := true;
 desc["Configurable"] := true;
 return desc };
-function getNextCaseClause (caseClauseItems, idx) { __v2909 := l_len(caseClauseItems);
-__v2908 := __v2909 <= idx;
-if (__v2908) {
+function getNextCaseClause (caseClauseItems, idx) { __v2911 := l_len(caseClauseItems);
+__v2910 := __v2911 <= idx;
+if (__v2910) {
 return "None"
 };
-__v2910 := l_nth(caseClauseItems, idx);
-return __v2910 };
-function AbstractEqualityComparison (x, y) { __v2912 := "Type" (x);
-__v2913 := "Type" (y);
-__v2911 := __v2912 = __v2913;
-if (__v2911) {
-__v2915 := "Type" (x);
-__v2914 := __v2915 = "Undefined";
-if (__v2914) {
-return true
-};
+__v2912 := l_nth(caseClauseItems, idx);
+return __v2912 };
+function AbstractEqualityComparison (x, y) { __v2914 := "Type" (x);
+__v2915 := "Type" (y);
+__v2913 := __v2914 = __v2915;
+if (__v2913) {
 __v2917 := "Type" (x);
-__v2916 := __v2917 = "Null";
+__v2916 := __v2917 = "Undefined";
 if (__v2916) {
 return true
 };
 __v2919 := "Type" (x);
-__v2918 := __v2919 = "Number";
+__v2918 := __v2919 = "Null";
 if (__v2918) {
-__v2920 := x = nan;
+return true
+};
+__v2921 := "Type" (x);
+__v2920 := __v2921 = "Number";
 if (__v2920) {
-return false
-};
-__v2921 := y = nan;
-if (__v2921) {
-return false
-};
-__v2922 := x = y;
+__v2922 := x = nan;
 if (__v2922) {
+return false
+};
+__v2923 := y = nan;
+if (__v2923) {
+return false
+};
+__v2924 := x = y;
+if (__v2924) {
 return true
 };
 return false
 };
-__v2924 := "Type" (x);
-__v2923 := __v2924 = "String";
-if (__v2923) {
-__v2925 := x = y;
-return __v2925
+__v2926 := "Type" (x);
+__v2925 := __v2926 = "String";
+if (__v2925) {
+__v2927 := x = y;
+return __v2927
 };
-__v2927 := "Type" (x);
-__v2926 := __v2927 = "Boolean";
-if (__v2926) {
-__v2928 := x = y;
-return __v2928
+__v2929 := "Type" (x);
+__v2928 := __v2929 = "Boolean";
+if (__v2928) {
+__v2930 := x = y;
+return __v2930
 };
-__v2929 := x = y;
-return __v2929
+__v2931 := x = y;
+return __v2931
 };
-__v2931 := x = 'null;
-__v2932 := y = 'undefined;
-__v2930 := __v2931 && __v2932;
-if (__v2930) {
+__v2933 := x = 'null;
+__v2934 := y = 'undefined;
+__v2932 := __v2933 && __v2934;
+if (__v2932) {
 return true
 };
-__v2934 := x = 'undefined;
-__v2935 := y = 'null;
-__v2933 := __v2934 && __v2935;
-if (__v2933) {
+__v2936 := x = 'undefined;
+__v2937 := y = 'null;
+__v2935 := __v2936 && __v2937;
+if (__v2935) {
 return true
 };
-__v2938 := "Type" (x);
-__v2937 := __v2938 = "Number";
-__v2940 := "Type" (y);
-__v2939 := __v2940 = "String";
-__v2936 := __v2937 && __v2939;
-if (__v2936) {
-__v2942 := "ToNumber" (y);
-__v2941 := "AbstractEqualityComparison" (x, __v2942);
-return __v2941
+__v2940 := "Type" (x);
+__v2939 := __v2940 = "Number";
+__v2942 := "Type" (y);
+__v2941 := __v2942 = "String";
+__v2938 := __v2939 && __v2941;
+if (__v2938) {
+__v2944 := "ToNumber" (y);
+__v2943 := "AbstractEqualityComparison" (x, __v2944);
+return __v2943
 };
-__v2945 := "Type" (x);
-__v2944 := __v2945 = "String";
-__v2947 := "Type" (y);
-__v2946 := __v2947 = "Number";
-__v2943 := __v2944 && __v2946;
-if (__v2943) {
-__v2949 := "ToNumber" (x);
-__v2948 := "AbstractEqualityComparison" (__v2949, y);
-return __v2948
+__v2947 := "Type" (x);
+__v2946 := __v2947 = "String";
+__v2949 := "Type" (y);
+__v2948 := __v2949 = "Number";
+__v2945 := __v2946 && __v2948;
+if (__v2945) {
+__v2951 := "ToNumber" (x);
+__v2950 := "AbstractEqualityComparison" (__v2951, y);
+return __v2950
 };
-__v2951 := "Type" (x);
-__v2950 := __v2951 = "Boolean";
-if (__v2950) {
-__v2953 := "ToNumber" (x);
-__v2952 := "AbstractEqualityComparison" (__v2953, y);
-return __v2952
+__v2953 := "Type" (x);
+__v2952 := __v2953 = "Boolean";
+if (__v2952) {
+__v2955 := "ToNumber" (x);
+__v2954 := "AbstractEqualityComparison" (__v2955, y);
+return __v2954
 };
-__v2955 := "Type" (y);
-__v2954 := __v2955 = "Boolean";
-if (__v2954) {
-__v2957 := "ToNumber" (y);
-__v2956 := "AbstractEqualityComparison" (x, __v2957);
-return __v2956
+__v2957 := "Type" (y);
+__v2956 := __v2957 = "Boolean";
+if (__v2956) {
+__v2959 := "ToNumber" (y);
+__v2958 := "AbstractEqualityComparison" (x, __v2959);
+return __v2958
 };
-__v2961 := "Type" (x);
-__v2960 := __v2961 = "String";
 __v2963 := "Type" (x);
-__v2962 := __v2963 = "Number";
-__v2959 := __v2960 || __v2962;
-__v2965 := "Type" (y);
-__v2964 := __v2965 = "Object";
-__v2958 := __v2959 && __v2964;
-if (__v2958) {
-__v2967 := "ToPrimitive" (y);
-__v2966 := "AbstractEqualityComparison" (x, __v2967);
-return __v2966
+__v2962 := __v2963 = "String";
+__v2965 := "Type" (x);
+__v2964 := __v2965 = "Number";
+__v2961 := __v2962 || __v2964;
+__v2967 := "Type" (y);
+__v2966 := __v2967 = "Object";
+__v2960 := __v2961 && __v2966;
+if (__v2960) {
+__v2969 := "ToPrimitive" (y);
+__v2968 := "AbstractEqualityComparison" (x, __v2969);
+return __v2968
 };
-__v2970 := "Type" (x);
-__v2969 := __v2970 = "Object";
-__v2973 := "Type" (y);
-__v2972 := __v2973 = "String";
+__v2972 := "Type" (x);
+__v2971 := __v2972 = "Object";
 __v2975 := "Type" (y);
-__v2974 := __v2975 = "Number";
-__v2971 := __v2972 || __v2974;
-__v2968 := __v2969 && __v2971;
-if (__v2968) {
-__v2977 := "ToPrimitive" (x);
-__v2976 := "AbstractEqualityComparison" (__v2977, y);
-return __v2976
+__v2974 := __v2975 = "String";
+__v2977 := "Type" (y);
+__v2976 := __v2977 = "Number";
+__v2973 := __v2974 || __v2976;
+__v2970 := __v2971 && __v2973;
+if (__v2970) {
+__v2979 := "ToPrimitive" (x);
+__v2978 := "AbstractEqualityComparison" (__v2979, y);
+return __v2978
 };
 return false };
 function GetBindingValueObject (objectEnvRec, N, S) { envRec := objectEnvRec;
-__v2978 := "getBindingObject" (envRec);
-bindings := __v2978;
-__v2979 := "HasProperty" (bindings, N);
-value := __v2979;
-__v2980 := value = false;
-if (__v2980) {
-__v2981 := S = false;
-if (__v2981) {
+__v2980 := "getBindingObject" (envRec);
+bindings := __v2980;
+__v2981 := "HasProperty" (bindings, N);
+value := __v2981;
+__v2982 := value = false;
+if (__v2982) {
+__v2983 := S = false;
+if (__v2983) {
 return 'undefined
 };
-__v2982 := "ReferenceErrorException" ();
-throw __v2982
+__v2984 := "ReferenceErrorException" ();
+throw __v2984
 };
-__v2983 := "Get" (bindings, N);
-return __v2983 };
-function getCompletionTarget (completion) { __v2984 := t_nth(completion, 3);
-return __v2984 };
-function getInternalProperty (object, pname) { __v2985 := object[pname];
+__v2985 := "Get" (bindings, N);
 return __v2985 };
-function arrayUnshift (global, this, items) { __v2986 := "ToObject" (this);
-O := __v2986;
-__v2988 := O["Get"];
-__v2987 := __v2988 (O, "length");
-lenVal := __v2987;
-__v2989 := "ToUint32" (lenVal);
-len := __v2989;
-__v2990 := l_len(items);
-argCount := __v2990;
+function getCompletionTarget (completion) { __v2986 := t_nth(completion, 3);
+return __v2986 };
+function getInternalProperty (object, pname) { __v2987 := object[pname];
+return __v2987 };
+function arrayUnshift (global, this, items) { __v2988 := "ToObject" (this);
+O := __v2988;
+__v2990 := O["Get"];
+__v2989 := __v2990 (O, "length");
+lenVal := __v2989;
+__v2991 := "ToUint32" (lenVal);
+len := __v2991;
+__v2992 := l_len(items);
+argCount := __v2992;
 k := len;
-__v2991 := k > 0.;
-while (__v2991) { __v2993 := k - 1.;
-__v2992 := "ToString" (__v2993);
-from := __v2992;
-__v2996 := k + argCount;
-__v2995 := __v2996 - 1.;
+__v2993 := k > 0.;
+while (__v2993) { __v2995 := k - 1.;
 __v2994 := "ToString" (__v2995);
-to := __v2994;
-__v2998 := O["HasProperty"];
-__v2997 := __v2998 (O, from);
-fromPresent := __v2997;
-__v2999 := fromPresent = true;
-if (__v2999) {
-__v3001 := O["Get"];
-__v3000 := __v3001 (O, from);
-fromValue := __v3000;
-__v3003 := O["Put"];
-__v3002 := __v3003 (O, to, fromValue, true)
+from := __v2994;
+__v2998 := k + argCount;
+__v2997 := __v2998 - 1.;
+__v2996 := "ToString" (__v2997);
+to := __v2996;
+__v3000 := O["HasProperty"];
+__v2999 := __v3000 (O, from);
+fromPresent := __v2999;
+__v3001 := fromPresent = true;
+if (__v3001) {
+__v3003 := O["Get"];
+__v3002 := __v3003 (O, from);
+fromValue := __v3002;
+__v3005 := O["Put"];
+__v3004 := __v3005 (O, to, fromValue, true)
 } else {
-__v3005 := O["Delete"];
-__v3004 := __v3005 (O, to, true)
+__v3007 := O["Delete"];
+__v3006 := __v3007 (O, to, true)
 };
-__v3006 := k - 1.;
-k := __v3006;
-__v2991 := k > 0. };
+__v3008 := k - 1.;
+k := __v3008;
+__v2993 := k > 0. };
 j := 0.;
 items := items;
-__v3009 := [  ];
-__v3008 := items = __v3009;
-__v3007 := !(__v3008);
-while (__v3007) { __v3010 := hd(items);
-E := __v3010;
-__v3011 := tl(items);
-items := __v3011;
-__v3013 := O["Put"];
-__v3014 := "ToString" (j);
-__v3012 := __v3013 (O, __v3014, E, true);
-__v3015 := j + 1.;
-j := __v3015;
-__v3009 := [  ];
-__v3008 := items = __v3009;
-__v3007 := !(__v3008) };
-__v3017 := O["Put"];
-__v3018 := len + argCount;
-__v3016 := __v3017 (O, "length", __v3018, true);
-__v3019 := len + argCount;
-return __v3019 };
-function newLexicalEnvironment () { __v3020 := { };
-__v3020["OuterEnvRef"] := 'undefined;
-__v3020["EnvRec"] := 'undefined;
-return __v3020 };
-function NewDeclarativeEnvironment (E) { __v3021 := "newLexicalEnvironment" ();
-env := __v3021;
-__v3022 := "newDeclarativeEnvironmentRecord" ();
-envRec := __v3022;
-__v3023 := "setEnvironmentRecord" (env, envRec);
-__v3024 := "setOuterLexicalEnvironmentReference" (env, E);
+__v3011 := [  ];
+__v3010 := items = __v3011;
+__v3009 := !(__v3010);
+while (__v3009) { __v3012 := hd(items);
+E := __v3012;
+__v3013 := tl(items);
+items := __v3013;
+__v3015 := O["Put"];
+__v3016 := "ToString" (j);
+__v3014 := __v3015 (O, __v3016, E, true);
+__v3017 := j + 1.;
+j := __v3017;
+__v3011 := [  ];
+__v3010 := items = __v3011;
+__v3009 := !(__v3010) };
+__v3019 := O["Put"];
+__v3020 := len + argCount;
+__v3018 := __v3019 (O, "length", __v3020, true);
+__v3021 := len + argCount;
+return __v3021 };
+function newLexicalEnvironment () { __v3022 := { };
+__v3022["OuterEnvRef"] := 'undefined;
+__v3022["EnvRec"] := 'undefined;
+return __v3022 };
+function NewDeclarativeEnvironment (E) { __v3023 := "newLexicalEnvironment" ();
+env := __v3023;
+__v3024 := "newDeclarativeEnvironmentRecord" ();
+envRec := __v3024;
+__v3025 := "setEnvironmentRecord" (env, envRec);
+__v3026 := "setOuterLexicalEnvironmentReference" (env, E);
 return env };
-function EnteringGlobalCode (program) { __v3025 := "NewObject" ();
-globalObject := __v3025;
-__v3026 := "setAllInternalMethodsOfObject" (globalObject);
-__v3027 := "initArrayLib" (globalObject, 'null, false);
-__v3028 := "InitialGlobalExecutionContext" (globalObject, program);
-globalScope := __v3028;
-__v3030 := [  ];
-__v3029 := "DeclarationBindingInstantiation" (program, __v3030, globalScope, null);
+function EnteringGlobalCode (program) { __v3027 := "NewObject" ();
+globalObject := __v3027;
+__v3028 := "setAllInternalMethodsOfObject" (globalObject);
+__v3029 := "initArrayLib" (globalObject, 'null, false);
+__v3030 := "InitialGlobalExecutionContext" (globalObject, program);
+globalScope := __v3030;
+__v3032 := [  ];
+__v3031 := "DeclarationBindingInstantiation" (program, __v3032, globalScope, null);
 return globalScope };
-function GetValueOrDefault (propDesc, propName) { __v3031 := { };
-__v3031["Value"] := 'undefined;
-__v3031["Get"] := 'undefined;
-__v3031["Set"] := 'undefined;
-__v3031["Writable"] := false;
-__v3031["Enumerable"] := false;
-__v3031["Configurable"] := false;
-objectDefaultAttributeValues := __v3031;
-__v3032 := propName in_obj propDesc;
-if (__v3032) {
-__v3033 := propDesc[propName];
-return __v3033
+function GetValueOrDefault (propDesc, propName) { __v3033 := { };
+__v3033["Value"] := 'undefined;
+__v3033["Get"] := 'undefined;
+__v3033["Set"] := 'undefined;
+__v3033["Writable"] := false;
+__v3033["Enumerable"] := false;
+__v3033["Configurable"] := false;
+objectDefaultAttributeValues := __v3033;
+__v3034 := propName in_obj propDesc;
+if (__v3034) {
+__v3035 := propDesc[propName];
+return __v3035
 } else {
-__v3034 := objectDefaultAttributeValues[propName];
-return __v3034
+__v3036 := objectDefaultAttributeValues[propName];
+return __v3036
 } };
 function getEnumerableProperties (object, props) { i := 0;
-__v3035 := obj_fields(object);
-list := __v3035;
-__v3036 := l_len(list);
-llist := __v3036;
-__v3037 := llist > i;
-while (__v3037) { __v3038 := l_nth(list, i);
-p_name := __v3038;
-__v3039 := object[p_name];
-p_value := __v3039;
-__v3041 := typeof(p_value);
-__v3040 := __v3041 = __$Obj;
-if (__v3040) {
-__v3043 := p_name = "Prototype";
-if (__v3043 = true) {
-__v3042 := true
-} else {
-__v3044 := p_name = "JSProperties";
-if (__v3044 = true) {
-__v3042 := true
-} else {
-__v3042 := false
-}
-};
+__v3037 := obj_fields(object);
+list := __v3037;
+__v3038 := l_len(list);
+llist := __v3038;
+__v3039 := llist > i;
+while (__v3039) { __v3040 := l_nth(list, i);
+p_name := __v3040;
+__v3041 := object[p_name];
+p_value := __v3041;
+__v3043 := typeof(p_value);
+__v3042 := __v3043 = __$Obj;
 if (__v3042) {
-__v3045 := "getEnumerableProperties" (p_value, props);
-props := __v3045
+__v3045 := p_name = "Prototype";
+if (__v3045 = true) {
+__v3044 := true
 } else {
-__v3048 := p_value["Enumerable"];
-__v3047 := __v3048 = true;
-__v3050 := p_name in_list props;
-__v3049 := !(__v3050);
-__v3046 := __v3047 && __v3049;
-if (__v3046) {
-__v3051 := l_add(props, p_name);
-props := __v3051
+__v3046 := p_name = "JSProperties";
+if (__v3046 = true) {
+__v3044 := true
+} else {
+__v3044 := false
+}
+};
+if (__v3044) {
+__v3047 := "getEnumerableProperties" (p_value, props);
+props := __v3047
+} else {
+__v3050 := p_value["Enumerable"];
+__v3049 := __v3050 = true;
+__v3052 := p_name in_list props;
+__v3051 := !(__v3052);
+__v3048 := __v3049 && __v3051;
+if (__v3048) {
+__v3053 := l_add(props, p_name);
+props := __v3053
 }
 }
 };
-__v3052 := i + 1;
-i := __v3052;
-__v3037 := llist > i };
+__v3054 := i + 1;
+i := __v3054;
+__v3039 := llist > i };
 return props };
 function setContainedInStrictCode (execCtx, strictCode) { execCtx["strictCode"] := strictCode;
 return 'undefined };
-function ArrayConstructorLen (global, this, args) { __v3053 := l_nth(args, 0);
-len := __v3053;
-__v3054 := "getArrayPrototype" (global, false);
-prototype := __v3054;
-__v3055 := "internalNewArray" (prototype, len);
-return __v3055 };
-function getThisBinding (runningExecCtx) { __v3056 := runningExecCtx["ThisBinding"];
-return __v3056 };
-function CreateDataPropertyFrom (Desc) { __v3057 := { };
-__v3058 := "GetValueOrDefault" (Desc, "Value");
-__v3057["Value"] := __v3058;
-__v3059 := "GetValueOrDefault" (Desc, "Writable");
-__v3057["Writable"] := __v3059;
-__v3060 := "GetValueOrDefault" (Desc, "Enumerable");
-__v3057["Enumerable"] := __v3060;
-__v3061 := "GetValueOrDefault" (Desc, "Configurable");
-__v3057["Configurable"] := __v3061;
+function ArrayConstructorLen (global, this, args) { __v3055 := l_nth(args, 0);
+len := __v3055;
+__v3056 := "getArrayPrototype" (global, false);
+prototype := __v3056;
+__v3057 := "internalNewArray" (prototype, len);
 return __v3057 };
-function SameValue (x, y) { __v3064 := "Type" (x);
-__v3065 := "Type" (y);
-__v3063 := __v3064 = __v3065;
-__v3062 := !(__v3063);
-if (__v3062) {
+function getThisBinding (runningExecCtx) { __v3058 := runningExecCtx["ThisBinding"];
+return __v3058 };
+function CreateDataPropertyFrom (Desc) { __v3059 := { };
+__v3060 := "GetValueOrDefault" (Desc, "Value");
+__v3059["Value"] := __v3060;
+__v3061 := "GetValueOrDefault" (Desc, "Writable");
+__v3059["Writable"] := __v3061;
+__v3062 := "GetValueOrDefault" (Desc, "Enumerable");
+__v3059["Enumerable"] := __v3062;
+__v3063 := "GetValueOrDefault" (Desc, "Configurable");
+__v3059["Configurable"] := __v3063;
+return __v3059 };
+function SameValue (x, y) { __v3066 := "Type" (x);
+__v3067 := "Type" (y);
+__v3065 := __v3066 = __v3067;
+__v3064 := !(__v3065);
+if (__v3064) {
 return false
 };
-__v3067 := "Type" (x);
-__v3066 := __v3067 = "Undefined";
-if (__v3066) {
-return true
-};
 __v3069 := "Type" (x);
-__v3068 := __v3069 = "Null";
+__v3068 := __v3069 = "Undefined";
 if (__v3068) {
 return true
 };
 __v3071 := "Type" (x);
-__v3070 := __v3071 = "Number";
+__v3070 := __v3071 = "Null";
 if (__v3070) {
-__v3073 := x = nan;
-__v3074 := y = nan;
-__v3072 := __v3073 && __v3074;
+return true
+};
+__v3073 := "Type" (x);
+__v3072 := __v3073 = "Number";
 if (__v3072) {
+__v3075 := x = nan;
+__v3076 := y = nan;
+__v3074 := __v3075 && __v3076;
+if (__v3074) {
 return true
 };
-__v3076 := x = 0;
-__v3077 := y = 0;
-__v3075 := __v3076 && __v3077;
-if (__v3075) {
+__v3078 := x = 0;
+__v3079 := y = 0;
+__v3077 := __v3078 && __v3079;
+if (__v3077) {
 return false
 };
-__v3079 := x = 0;
-__v3080 := y = 0;
-__v3078 := __v3079 && __v3080;
-if (__v3078) {
+__v3081 := x = 0;
+__v3082 := y = 0;
+__v3080 := __v3081 && __v3082;
+if (__v3080) {
 return false
 };
-__v3081 := x = y;
-if (__v3081) {
+__v3083 := x = y;
+if (__v3083) {
 return true
 };
 return false
 };
-__v3083 := "Type" (x);
-__v3082 := __v3083 = "String";
-if (__v3082) {
-__v3084 := x = y;
-return __v3084
+__v3085 := "Type" (x);
+__v3084 := __v3085 = "String";
+if (__v3084) {
+__v3086 := x = y;
+return __v3086
 };
-__v3086 := "Type" (x);
-__v3085 := __v3086 = "Boolean";
-if (__v3085) {
-__v3087 := x = y;
-return __v3087
+__v3088 := "Type" (x);
+__v3087 := __v3088 = "Boolean";
+if (__v3087) {
+__v3089 := x = y;
+return __v3089
 };
-__v3088 := x = y;
-return __v3088 };
-function isBindingCannotBeDeleted (envRec, name) { __v3089 := envRec[name];
-binding := __v3089;
-__v3091 := t_nth(binding, 2);
-__v3090 := !(__v3091);
+__v3090 := x = y;
 return __v3090 };
+function isBindingCannotBeDeleted (envRec, name) { __v3091 := envRec[name];
+binding := __v3091;
+__v3093 := t_nth(binding, 2);
+__v3092 := !(__v3093);
+return __v3092 };
 function setAllInternalMethodsOfObject (obj) { obj["GetOwnProperty"] := "GetOwnProperty";
 obj["GetProperty"] := "GetProperty";
 obj["Get"] := "Get";
@@ -6650,1468 +6660,1471 @@ obj["DefaultValue"] := "DefaultValue";
 obj["DefineOwnProperty"] := "DefineOwnProperty";
 return obj };
 function DeleteBindingObject (objectEnvRec, N) { envRec := objectEnvRec;
-__v3092 := "getBindingObject" (envRec);
-bindings := __v3092;
-__v3093 := "Delete" (bindings, N, false);
-return __v3093 };
+__v3094 := "getBindingObject" (envRec);
+bindings := __v3094;
+__v3095 := "Delete" (bindings, N, false);
+return __v3095 };
 function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB (clausesA, DefaultClause, clausesB, input, scope) { V := 'empty;
 A := clausesA;
 B := clausesB;
 found := false;
 i := 0;
-__v3094 := "getNextCaseClause" (A, i);
-C := __v3094;
-__v3095 := i + 1;
-i := __v3095;
-__v3097 := C = "None";
-__v3096 := !(__v3097);
-if (__v3096) {
-__v3098 := found = false;
+__v3096 := "getNextCaseClause" (A, i);
+C := __v3096;
+__v3097 := i + 1;
+i := __v3097;
+__v3099 := C = "None";
+__v3098 := !(__v3099);
 if (__v3098) {
-__v3099 := "JS_Interpreter_SwitchCase" (C, scope);
-clauseSelector := __v3099;
-__v3101 := "GetValue" (clauseSelector);
-__v3102 := "GetValue" (input);
-__v3100 := "StrictEqualityComparison" (__v3101, __v3102);
+__v3100 := found = false;
 if (__v3100) {
+__v3101 := "JS_Interpreter_SwitchCase" (C, scope);
+clauseSelector := __v3101;
+__v3103 := "GetValue" (clauseSelector);
+__v3104 := "GetValue" (input);
+__v3102 := "StrictEqualityComparison" (__v3103, __v3104);
+if (__v3102) {
 found := true
 }
 };
-__v3103 := found = true;
-if (__v3103) {
-__v3104 := "hasStatementList" (C);
-if (__v3104) {
-__v3106 := "getCaseClauseStatementList" (C);
-__v3105 := "JS_Interpreter_StmtList" (__v3106, scope);
-R := __v3105;
-__v3109 := "getCompletionValue" (R);
-__v3108 := __v3109 = 'empty;
-__v3107 := !(__v3108);
-if (__v3107) {
-__v3110 := "getCompletionValue" (R);
-V := __v3110
+__v3105 := found = true;
+if (__v3105) {
+__v3106 := "hasStatementList" (C);
+if (__v3106) {
+__v3108 := "getCaseClauseStatementList" (C);
+__v3107 := "JS_Interpreter_StmtList" (__v3108, scope);
+R := __v3107;
+__v3111 := "getCompletionValue" (R);
+__v3110 := __v3111 = 'empty;
+__v3109 := !(__v3110);
+if (__v3109) {
+__v3112 := "getCompletionValue" (R);
+V := __v3112
 };
-__v3111 := "isAnAbruptCompletion" (R);
-if (__v3111) {
-__v3113 := "getCompletionType" (R);
-__v3114 := "getCompletionTarget" (R);
-__v3112 := "newCompletion" (__v3113, V, __v3114);
-return __v3112
+__v3113 := "isAnAbruptCompletion" (R);
+if (__v3113) {
+__v3115 := "getCompletionType" (R);
+__v3116 := "getCompletionTarget" (R);
+__v3114 := "newCompletion" (__v3115, V, __v3116);
+return __v3114
 }
 }
 }
 };
-__v3115 := C = "None";
-while (!(__v3115)) { __v3094 := "getNextCaseClause" (A, i);
-C := __v3094;
-__v3095 := i + 1;
-i := __v3095;
-__v3097 := C = "None";
-__v3096 := !(__v3097);
-if (__v3096) {
-__v3098 := found = false;
+__v3117 := C = "None";
+while (!(__v3117)) { __v3096 := "getNextCaseClause" (A, i);
+C := __v3096;
+__v3097 := i + 1;
+i := __v3097;
+__v3099 := C = "None";
+__v3098 := !(__v3099);
 if (__v3098) {
-__v3099 := "JS_Interpreter_SwitchCase" (C, scope);
-clauseSelector := __v3099;
-__v3101 := "GetValue" (clauseSelector);
-__v3102 := "GetValue" (input);
-__v3100 := "StrictEqualityComparison" (__v3101, __v3102);
+__v3100 := found = false;
 if (__v3100) {
+__v3101 := "JS_Interpreter_SwitchCase" (C, scope);
+clauseSelector := __v3101;
+__v3103 := "GetValue" (clauseSelector);
+__v3104 := "GetValue" (input);
+__v3102 := "StrictEqualityComparison" (__v3103, __v3104);
+if (__v3102) {
 found := true
 }
 };
-__v3103 := found = true;
-if (__v3103) {
-__v3104 := "hasStatementList" (C);
-if (__v3104) {
-__v3106 := "getCaseClauseStatementList" (C);
-__v3105 := "JS_Interpreter_StmtList" (__v3106, scope);
-R := __v3105;
-__v3109 := "getCompletionValue" (R);
-__v3108 := __v3109 = 'empty;
-__v3107 := !(__v3108);
-if (__v3107) {
-__v3110 := "getCompletionValue" (R);
-V := __v3110
+__v3105 := found = true;
+if (__v3105) {
+__v3106 := "hasStatementList" (C);
+if (__v3106) {
+__v3108 := "getCaseClauseStatementList" (C);
+__v3107 := "JS_Interpreter_StmtList" (__v3108, scope);
+R := __v3107;
+__v3111 := "getCompletionValue" (R);
+__v3110 := __v3111 = 'empty;
+__v3109 := !(__v3110);
+if (__v3109) {
+__v3112 := "getCompletionValue" (R);
+V := __v3112
 };
-__v3111 := "isAnAbruptCompletion" (R);
-if (__v3111) {
-__v3113 := "getCompletionType" (R);
-__v3114 := "getCompletionTarget" (R);
-__v3112 := "newCompletion" (__v3113, V, __v3114);
-return __v3112
+__v3113 := "isAnAbruptCompletion" (R);
+if (__v3113) {
+__v3115 := "getCompletionType" (R);
+__v3116 := "getCompletionTarget" (R);
+__v3114 := "newCompletion" (__v3115, V, __v3116);
+return __v3114
 }
 }
 }
 };
-__v3115 := C = "None" };
+__v3117 := C = "None" };
 foundInB := false;
 i := 0;
-__v3116 := found = false;
-if (__v3116) {
-__v3117 := "getNextCaseClause" (B, i);
-C := __v3117;
-__v3118 := i + 1;
-i := __v3118;
-__v3120 := C = "None";
-__v3119 := !(__v3120);
-if (__v3119) {
-__v3121 := "JS_Interpreter_SwitchCase" (C, scope);
-clauseSelector := __v3121;
-__v3123 := "GetValue" (clauseSelector);
-__v3124 := "GetValue" (input);
-__v3122 := "StrictEqualityComparison" (__v3123, __v3124);
-if (__v3122) {
+__v3118 := found = false;
+if (__v3118) {
+__v3119 := "getNextCaseClause" (B, i);
+C := __v3119;
+__v3120 := i + 1;
+i := __v3120;
+__v3122 := C = "None";
+__v3121 := !(__v3122);
+if (__v3121) {
+__v3123 := "JS_Interpreter_SwitchCase" (C, scope);
+clauseSelector := __v3123;
+__v3125 := "GetValue" (clauseSelector);
+__v3126 := "GetValue" (input);
+__v3124 := "StrictEqualityComparison" (__v3125, __v3126);
+if (__v3124) {
 foundInB := true;
-__v3125 := "hasStatementList" (C);
-if (__v3125) {
-__v3127 := "getCaseClauseStatementList" (C);
-__v3126 := "JS_Interpreter_StmtList" (__v3127, scope);
-R := __v3126;
-__v3130 := "getCompletionValue" (R);
-__v3129 := __v3130 = 'empty;
-__v3128 := !(__v3129);
-if (__v3128) {
-__v3131 := "getCompletionValue" (R);
-V := __v3131
+__v3127 := "hasStatementList" (C);
+if (__v3127) {
+__v3129 := "getCaseClauseStatementList" (C);
+__v3128 := "JS_Interpreter_StmtList" (__v3129, scope);
+R := __v3128;
+__v3132 := "getCompletionValue" (R);
+__v3131 := __v3132 = 'empty;
+__v3130 := !(__v3131);
+if (__v3130) {
+__v3133 := "getCompletionValue" (R);
+V := __v3133
 };
-__v3132 := "isAnAbruptCompletion" (R);
-if (__v3132) {
-__v3134 := "getCompletionType" (R);
-__v3135 := "getCompletionTarget" (R);
-__v3133 := "newCompletion" (__v3134, V, __v3135);
-return __v3133
+__v3134 := "isAnAbruptCompletion" (R);
+if (__v3134) {
+__v3136 := "getCompletionType" (R);
+__v3137 := "getCompletionTarget" (R);
+__v3135 := "newCompletion" (__v3136, V, __v3137);
+return __v3135
 }
 }
 }
 };
-__v3137 := foundInB = true;
-__v3138 := C = "None";
-__v3136 := __v3137 || __v3138;
-while (!(__v3136)) { __v3117 := "getNextCaseClause" (B, i);
-C := __v3117;
-__v3118 := i + 1;
-i := __v3118;
-__v3120 := C = "None";
-__v3119 := !(__v3120);
-if (__v3119) {
-__v3121 := "JS_Interpreter_SwitchCase" (C, scope);
-clauseSelector := __v3121;
-__v3123 := "GetValue" (clauseSelector);
-__v3124 := "GetValue" (input);
-__v3122 := "StrictEqualityComparison" (__v3123, __v3124);
-if (__v3122) {
+__v3139 := foundInB = true;
+__v3140 := C = "None";
+__v3138 := __v3139 || __v3140;
+while (!(__v3138)) { __v3119 := "getNextCaseClause" (B, i);
+C := __v3119;
+__v3120 := i + 1;
+i := __v3120;
+__v3122 := C = "None";
+__v3121 := !(__v3122);
+if (__v3121) {
+__v3123 := "JS_Interpreter_SwitchCase" (C, scope);
+clauseSelector := __v3123;
+__v3125 := "GetValue" (clauseSelector);
+__v3126 := "GetValue" (input);
+__v3124 := "StrictEqualityComparison" (__v3125, __v3126);
+if (__v3124) {
 foundInB := true;
-__v3125 := "hasStatementList" (C);
-if (__v3125) {
-__v3127 := "getCaseClauseStatementList" (C);
-__v3126 := "JS_Interpreter_StmtList" (__v3127, scope);
-R := __v3126;
-__v3130 := "getCompletionValue" (R);
-__v3129 := __v3130 = 'empty;
-__v3128 := !(__v3129);
-if (__v3128) {
-__v3131 := "getCompletionValue" (R);
-V := __v3131
+__v3127 := "hasStatementList" (C);
+if (__v3127) {
+__v3129 := "getCaseClauseStatementList" (C);
+__v3128 := "JS_Interpreter_StmtList" (__v3129, scope);
+R := __v3128;
+__v3132 := "getCompletionValue" (R);
+__v3131 := __v3132 = 'empty;
+__v3130 := !(__v3131);
+if (__v3130) {
+__v3133 := "getCompletionValue" (R);
+V := __v3133
 };
-__v3132 := "isAnAbruptCompletion" (R);
-if (__v3132) {
-__v3134 := "getCompletionType" (R);
-__v3135 := "getCompletionTarget" (R);
-__v3133 := "newCompletion" (__v3134, V, __v3135);
-return __v3133
+__v3134 := "isAnAbruptCompletion" (R);
+if (__v3134) {
+__v3136 := "getCompletionType" (R);
+__v3137 := "getCompletionTarget" (R);
+__v3135 := "newCompletion" (__v3136, V, __v3137);
+return __v3135
 }
 }
 }
 };
-__v3137 := foundInB = true;
-__v3138 := C = "None";
-__v3136 := __v3137 || __v3138 }
+__v3139 := foundInB = true;
+__v3140 := C = "None";
+__v3138 := __v3139 || __v3140 }
 };
-__v3140 := foundInB = false;
-__v3141 := "hasStatementList" (DefaultClause);
-__v3139 := __v3140 && __v3141;
-if (__v3139) {
-__v3143 := "getCaseClauseStatementList" (DefaultClause);
-__v3142 := "JS_Interpreter_StmtList" (__v3143, scope);
-R := __v3142;
-__v3146 := "getCompletionValue" (R);
-__v3145 := __v3146 = 'empty;
-__v3144 := !(__v3145);
-if (__v3144) {
-__v3147 := "getCompletionValue" (R);
-V := __v3147
+__v3142 := foundInB = false;
+__v3143 := "hasStatementList" (DefaultClause);
+__v3141 := __v3142 && __v3143;
+if (__v3141) {
+__v3145 := "getCaseClauseStatementList" (DefaultClause);
+__v3144 := "JS_Interpreter_StmtList" (__v3145, scope);
+R := __v3144;
+__v3148 := "getCompletionValue" (R);
+__v3147 := __v3148 = 'empty;
+__v3146 := !(__v3147);
+if (__v3146) {
+__v3149 := "getCompletionValue" (R);
+V := __v3149
 };
-__v3148 := "isAnAbruptCompletion" (R);
-if (__v3148) {
-__v3150 := "getCompletionType" (R);
-__v3151 := "getCompletionTarget" (R);
-__v3149 := "newCompletion" (__v3150, V, __v3151);
-return __v3149
+__v3150 := "isAnAbruptCompletion" (R);
+if (__v3150) {
+__v3152 := "getCompletionType" (R);
+__v3153 := "getCompletionTarget" (R);
+__v3151 := "newCompletion" (__v3152, V, __v3153);
+return __v3151
 }
 };
-__v3152 := "getNextCaseClause" (B, i);
-C := __v3152;
-__v3153 := i + 1;
-i := __v3153;
-__v3154 := C = "None";
-if (__v3154) {
-__v3155 := "normalEmptyCompletion" (V);
-return __v3155
-};
-__v3156 := "hasStatementList" (C);
+__v3154 := "getNextCaseClause" (B, i);
+C := __v3154;
+__v3155 := i + 1;
+i := __v3155;
+__v3156 := C = "None";
 if (__v3156) {
-__v3158 := "getCaseClauseStatementList" (C);
-__v3157 := "JS_Interpreter_StmtList" (__v3158, scope);
-R := __v3157;
-__v3161 := "getCompletionValue" (R);
-__v3160 := __v3161 = 'empty;
-__v3159 := !(__v3160);
-if (__v3159) {
-__v3162 := "getCompletionValue" (R);
-V := __v3162
+__v3157 := "normalEmptyCompletion" (V);
+return __v3157
 };
-__v3163 := "isAnAbruptCompletion" (R);
-if (__v3163) {
-__v3165 := "getCompletionType" (R);
-__v3166 := "getCompletionTarget" (R);
-__v3164 := "newCompletion" (__v3165, V, __v3166);
-return __v3164
+__v3158 := "hasStatementList" (C);
+if (__v3158) {
+__v3160 := "getCaseClauseStatementList" (C);
+__v3159 := "JS_Interpreter_StmtList" (__v3160, scope);
+R := __v3159;
+__v3163 := "getCompletionValue" (R);
+__v3162 := __v3163 = 'empty;
+__v3161 := !(__v3162);
+if (__v3161) {
+__v3164 := "getCompletionValue" (R);
+V := __v3164
+};
+__v3165 := "isAnAbruptCompletion" (R);
+if (__v3165) {
+__v3167 := "getCompletionType" (R);
+__v3168 := "getCompletionTarget" (R);
+__v3166 := "newCompletion" (__v3167, V, __v3168);
+return __v3166
 }
 };
-while (!(false)) { __v3152 := "getNextCaseClause" (B, i);
-C := __v3152;
-__v3153 := i + 1;
-i := __v3153;
-__v3154 := C = "None";
-if (__v3154) {
-__v3155 := "normalEmptyCompletion" (V);
-return __v3155
-};
-__v3156 := "hasStatementList" (C);
+while (!(false)) { __v3154 := "getNextCaseClause" (B, i);
+C := __v3154;
+__v3155 := i + 1;
+i := __v3155;
+__v3156 := C = "None";
 if (__v3156) {
-__v3158 := "getCaseClauseStatementList" (C);
-__v3157 := "JS_Interpreter_StmtList" (__v3158, scope);
-R := __v3157;
-__v3161 := "getCompletionValue" (R);
-__v3160 := __v3161 = 'empty;
-__v3159 := !(__v3160);
-if (__v3159) {
-__v3162 := "getCompletionValue" (R);
-V := __v3162
+__v3157 := "normalEmptyCompletion" (V);
+return __v3157
 };
-__v3163 := "isAnAbruptCompletion" (R);
-if (__v3163) {
-__v3165 := "getCompletionType" (R);
-__v3166 := "getCompletionTarget" (R);
-__v3164 := "newCompletion" (__v3165, V, __v3166);
-return __v3164
+__v3158 := "hasStatementList" (C);
+if (__v3158) {
+__v3160 := "getCaseClauseStatementList" (C);
+__v3159 := "JS_Interpreter_StmtList" (__v3160, scope);
+R := __v3159;
+__v3163 := "getCompletionValue" (R);
+__v3162 := __v3163 = 'empty;
+__v3161 := !(__v3162);
+if (__v3161) {
+__v3164 := "getCompletionValue" (R);
+V := __v3164
+};
+__v3165 := "isAnAbruptCompletion" (R);
+if (__v3165) {
+__v3167 := "getCompletionType" (R);
+__v3168 := "getCompletionTarget" (R);
+__v3166 := "newCompletion" (__v3167, V, __v3168);
+return __v3166
 }
 } } };
-function GetProps (Desc) { __v3167 := [  ];
-list := __v3167;
-__v3168 := "Value" in_obj Desc;
-if (__v3168) {
-__v3169 := l_add(list, "Value");
-list := __v3169
-};
-__v3170 := "Writable" in_obj Desc;
+function GetProps (Desc) { __v3169 := [  ];
+list := __v3169;
+__v3170 := "Value" in_obj Desc;
 if (__v3170) {
-__v3171 := l_add(list, "Writable");
+__v3171 := l_add(list, "Value");
 list := __v3171
 };
-__v3172 := "Get" in_obj Desc;
+__v3172 := "Writable" in_obj Desc;
 if (__v3172) {
-__v3173 := l_add(list, "Get");
+__v3173 := l_add(list, "Writable");
 list := __v3173
 };
-__v3174 := "Set" in_obj Desc;
+__v3174 := "Get" in_obj Desc;
 if (__v3174) {
-__v3175 := l_add(list, "Set");
+__v3175 := l_add(list, "Get");
 list := __v3175
 };
-__v3176 := "Enumerable" in_obj Desc;
+__v3176 := "Set" in_obj Desc;
 if (__v3176) {
-__v3177 := l_add(list, "Enumerable");
+__v3177 := l_add(list, "Set");
 list := __v3177
 };
-__v3178 := "Configurable" in_obj Desc;
+__v3178 := "Enumerable" in_obj Desc;
 if (__v3178) {
-__v3179 := l_add(list, "Configurable");
+__v3179 := l_add(list, "Enumerable");
 list := __v3179
+};
+__v3180 := "Configurable" in_obj Desc;
+if (__v3180) {
+__v3181 := l_add(list, "Configurable");
+list := __v3181
 };
 return list };
 function DefaultValue (O, hint) { print "DefaultValue";
-__v3180 := hint = 'String;
-if (__v3180) {
-__v3181 := "Get" (O, "toString");
-toString := __v3181;
-__v3182 := "IsCallable" (toString);
+__v3182 := hint = 'String;
 if (__v3182) {
-__v3184 := [  ];
-__v3183 := "Call" (toString, O, __v3184);
-str := __v3183;
-__v3185 := "IsPrimitiveValue" (str);
-if (__v3185) {
-return str
-}
-};
-__v3186 := "Get" (O, "valueOf");
-valueOf := __v3186;
-__v3187 := "IsCallable" (valueOf);
+__v3183 := "Get" (O, "toString");
+toString := __v3183;
+__v3184 := "IsCallable" (toString);
+if (__v3184) {
+__v3186 := [  ];
+__v3185 := "Call" (toString, O, __v3186);
+str := __v3185;
+__v3187 := "IsPrimitiveValue" (str);
 if (__v3187) {
-__v3189 := [  ];
-__v3188 := "Call" (valueOf, O, __v3189);
-val := __v3188;
-__v3190 := "IsPrimitiveValue" (val);
-if (__v3190) {
-return val
-}
-};
-__v3191 := "TypeErrorException" ();
-throw __v3191
-} else {
-__v3192 := hint = 'Number;
-if (__v3192) {
-__v3193 := "Get" (O, "valueOf");
-valueOf := __v3193;
-__v3194 := "IsCallable" (valueOf);
-if (__v3194) {
-__v3196 := [  ];
-__v3195 := "Call" (valueOf, O, __v3196);
-val := __v3195;
-__v3197 := "IsPrimitiveValue" (val);
-if (__v3197) {
-return val
-}
-};
-__v3198 := "Get" (O, "toString");
-toString := __v3198;
-__v3199 := "IsCallable" (toString);
-if (__v3199) {
-__v3201 := [  ];
-__v3200 := "Call" (toString, O, __v3201);
-str := __v3200;
-__v3202 := "IsPrimitiveValue" (str);
-if (__v3202) {
 return str
 }
 };
-__v3203 := "TypeErrorException" ();
-throw __v3203
+__v3188 := "Get" (O, "valueOf");
+valueOf := __v3188;
+__v3189 := "IsCallable" (valueOf);
+if (__v3189) {
+__v3191 := [  ];
+__v3190 := "Call" (valueOf, O, __v3191);
+val := __v3190;
+__v3192 := "IsPrimitiveValue" (val);
+if (__v3192) {
+return val
+}
+};
+__v3193 := "TypeErrorException" ();
+throw __v3193
+} else {
+__v3194 := hint = 'Number;
+if (__v3194) {
+__v3195 := "Get" (O, "valueOf");
+valueOf := __v3195;
+__v3196 := "IsCallable" (valueOf);
+if (__v3196) {
+__v3198 := [  ];
+__v3197 := "Call" (valueOf, O, __v3198);
+val := __v3197;
+__v3199 := "IsPrimitiveValue" (val);
+if (__v3199) {
+return val
+}
+};
+__v3200 := "Get" (O, "toString");
+toString := __v3200;
+__v3201 := "IsCallable" (toString);
+if (__v3201) {
+__v3203 := [  ];
+__v3202 := "Call" (toString, O, __v3203);
+str := __v3202;
+__v3204 := "IsPrimitiveValue" (str);
+if (__v3204) {
+return str
+}
+};
+__v3205 := "TypeErrorException" ();
+throw __v3205
 }
 } };
-function getLexicalEnvironment (runningExecCtx) { __v3204 := runningExecCtx["LexicalEnvironment"];
-return __v3204 };
-function applyOperator (operator, lval, rval) { __v3207 := operator = "*=";
-__v3208 := operator = "/=";
-__v3206 := __v3207 || __v3208;
-__v3209 := operator = "%=";
-__v3205 := __v3206 || __v3209;
-if (__v3205) {
-__v3210 := "ToNumber" (leftValue);
-leftNum := __v3210;
-__v3211 := "ToNumber" (rightValue);
-rightNum := __v3211;
-__v3212 := operator = "*=";
-if (__v3212) {
-__v3213 := leftNum * rightNum;
-return __v3213
-};
-__v3214 := operator = "/=";
+function getLexicalEnvironment (runningExecCtx) { __v3206 := runningExecCtx["LexicalEnvironment"];
+return __v3206 };
+function applyOperator (operator, lval, rval) { __v3209 := operator = "*=";
+__v3210 := operator = "/=";
+__v3208 := __v3209 || __v3210;
+__v3211 := operator = "%=";
+__v3207 := __v3208 || __v3211;
+if (__v3207) {
+__v3212 := "ToNumber" (leftValue);
+leftNum := __v3212;
+__v3213 := "ToNumber" (rightValue);
+rightNum := __v3213;
+__v3214 := operator = "*=";
 if (__v3214) {
-__v3215 := leftNum / rightNum;
+__v3215 := leftNum * rightNum;
 return __v3215
 };
-__v3216 := operator = "%=";
+__v3216 := operator = "/=";
 if (__v3216) {
-__v3217 := leftNum % rightNum;
+__v3217 := leftNum / rightNum;
 return __v3217
+};
+__v3218 := operator = "%=";
+if (__v3218) {
+__v3219 := leftNum % rightNum;
+return __v3219
 }
 };
-__v3218 := operator = "+=";
-if (__v3218) {
-__v3219 := "ToPrimitive" (lval, "Number");
-lprim := __v3219;
-__v3220 := "ToPrimitive" (rval, "Number");
-rprim := __v3220;
-__v3223 := "Type" (lprim);
-__v3222 := __v3223 = "String";
-__v3225 := "Type" (rprim);
+__v3220 := operator = "+=";
+if (__v3220) {
+__v3221 := "ToPrimitive" (lval, "Number");
+lprim := __v3221;
+__v3222 := "ToPrimitive" (rval, "Number");
+rprim := __v3222;
+__v3225 := "Type" (lprim);
 __v3224 := __v3225 = "String";
-__v3221 := __v3222 || __v3224;
-if (__v3221) {
-__v3228 := "ToString" (lprim);
-__v3229 := "ToString" (rprim);
-__v3227 := [ __v3228, __v3229 ];
-__v3226 := s_concat(__v3227);
-return __v3226
+__v3227 := "Type" (rprim);
+__v3226 := __v3227 = "String";
+__v3223 := __v3224 || __v3226;
+if (__v3223) {
+__v3230 := "ToString" (lprim);
+__v3231 := "ToString" (rprim);
+__v3229 := [ __v3230, __v3231 ];
+__v3228 := s_concat(__v3229);
+return __v3228
 };
-__v3231 := "ToNumber" (lprim);
-__v3232 := "ToNumber" (rprim);
-__v3230 := "applyingTheAdditionOperation" (__v3231, __v3232);
-return __v3230
+__v3233 := "ToNumber" (lprim);
+__v3234 := "ToNumber" (rprim);
+__v3232 := "applyingTheAdditionOperation" (__v3233, __v3234);
+return __v3232
 };
-__v3233 := operator = "-=";
-if (__v3233) {
-__v3234 := "ToNumber" (lval);
-lnum := __v3234;
-__v3235 := "ToNumber" (rval);
-rnum := __v3235;
-__v3236 := "applyingTheSubtractionOperation" (lnum, rnum);
-return __v3236
+__v3235 := operator = "-=";
+if (__v3235) {
+__v3236 := "ToNumber" (lval);
+lnum := __v3236;
+__v3237 := "ToNumber" (rval);
+rnum := __v3237;
+__v3238 := "applyingTheSubtractionOperation" (lnum, rnum);
+return __v3238
 };
-__v3239 := operator = "<<=";
-__v3240 := operator = ">>=";
-__v3238 := __v3239 || __v3240;
-__v3241 := operator = ">>>=";
-__v3237 := __v3238 || __v3241;
-if (__v3237) {
-__v3242 := "ToInt32" (lval);
-lnum := __v3242;
-__v3243 := "ToUint32" (rval);
-rnum := __v3243;
-__v3244 := "maskOutBits" (rnum);
-shiftCount := __v3244;
-__v3245 := operator = "<<=";
-if (__v3245) {
-__v3246 := lnum << shiftCount;
-return __v3246
-};
-__v3247 := operator = ">>=";
+__v3241 := operator = "<<=";
+__v3242 := operator = ">>=";
+__v3240 := __v3241 || __v3242;
+__v3243 := operator = ">>>=";
+__v3239 := __v3240 || __v3243;
+if (__v3239) {
+__v3244 := "ToInt32" (lval);
+lnum := __v3244;
+__v3245 := "ToUint32" (rval);
+rnum := __v3245;
+__v3246 := "maskOutBits" (rnum);
+shiftCount := __v3246;
+__v3247 := operator = "<<=";
 if (__v3247) {
-__v3248 := lnum >> shiftCount;
+__v3248 := lnum << shiftCount;
 return __v3248
 };
-__v3249 := operator = ">>>=";
+__v3249 := operator = ">>=";
 if (__v3249) {
-__v3250 := lnum >>> shiftCount;
+__v3250 := lnum >> shiftCount;
 return __v3250
+};
+__v3251 := operator = ">>>=";
+if (__v3251) {
+__v3252 := lnum >>> shiftCount;
+return __v3252
 }
 };
-__v3253 := operator = "&=";
-__v3254 := operator = "^=";
-__v3252 := __v3253 || __v3254;
-__v3255 := operator = "|=";
-__v3251 := __v3252 || __v3255;
-if (__v3251) {
-__v3256 := "ToInt32" (lval);
-lnum := __v3256;
-__v3257 := "ToInt32" (rval);
-rnum := __v3257;
-__v3258 := "applyBitwiseOperator" (operator, lval, rval);
-return __v3258
+__v3255 := operator = "&=";
+__v3256 := operator = "^=";
+__v3254 := __v3255 || __v3256;
+__v3257 := operator = "|=";
+__v3253 := __v3254 || __v3257;
+if (__v3253) {
+__v3258 := "ToInt32" (lval);
+lnum := __v3258;
+__v3259 := "ToInt32" (rval);
+rnum := __v3259;
+__v3260 := "applyBitwiseOperator" (operator, lval, rval);
+return __v3260
 } };
-function NewECMAScriptObject () { __v3259 := { };
-__v3260 := { };
-__v3259["JSProperties"] := __v3260;
-__v3259["Class"] := "Object";
-__v3259["Extensible"] := true;
-__v3259["Prototype"] := 'null;
-return __v3259 };
-function arrayPush (global, this, items) { __v3261 := "ToObject" (this);
-O := __v3261;
-__v3263 := O["Get"];
-__v3262 := __v3263 (O, "length");
-lenVal := __v3262;
-__v3264 := "ToUint32" (lenVal);
-n := __v3264;
+function NewECMAScriptObject () { __v3261 := { };
+__v3262 := { };
+__v3261["JSProperties"] := __v3262;
+__v3261["Class"] := "Object";
+__v3261["Extensible"] := true;
+__v3261["Prototype"] := 'null;
+return __v3261 };
+function arrayPush (global, this, items) { print "array push";
+__v3263 := "ToObject" (this);
+O := __v3263;
+__v3265 := O["Get"];
+__v3264 := __v3265 (O, "length");
+lenVal := __v3264;
+__v3266 := "ToUint32" (lenVal);
+n := __v3266;
 items := items;
-__v3267 := [  ];
-__v3266 := items = __v3267;
-__v3265 := !(__v3266);
-while (__v3265) { __v3268 := hd(items);
-E := __v3268;
-__v3269 := tl(items);
-items := __v3269;
-__v3271 := O["Put"];
-__v3272 := "ToString" (n);
-__v3270 := __v3271 (O, __v3272, E, true);
-__v3273 := n + 1;
-n := __v3273;
-__v3267 := [  ];
-__v3266 := items = __v3267;
-__v3265 := !(__v3266) };
-__v3275 := O["Put"];
-__v3274 := __v3275 (O, "length", n, true);
+__v3269 := [  ];
+__v3268 := items = __v3269;
+__v3267 := !(__v3268);
+while (__v3267) { __v3270 := hd(items);
+E := __v3270;
+__v3271 := tl(items);
+items := __v3271;
+__v3273 := O["Put"];
+__v3274 := "ToString" (n);
+__v3272 := __v3273 (O, __v3274, E, true);
+__v3275 := n + 1;
+n := __v3275;
+__v3269 := [  ];
+__v3268 := items = __v3269;
+__v3267 := !(__v3268) };
+__v3277 := O["Put"];
+__v3276 := __v3277 (O, "length", n, true);
 return n };
-function getCompletionValue (completion) { __v3276 := t_nth(completion, 2);
-return __v3276 };
-function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) { __v3277 := "type" in_obj PropertyAssignment;
-__v3279 := PropertyAssignment["type"];
-__v3278 := __v3279 = "Property";
-__v3280 := "key" in_obj PropertyAssignment;
-__v3281 := "value" in_obj PropertyAssignment;
-__v3282 := "kind" in_obj PropertyAssignment;
-__v3284 := PropertyAssignment["kind"];
-__v3283 := __v3284 = "init";
-if (true && __v3277 && __v3278 && __v3280 && __v3281 && __v3282 && __v3283) {
+function getCompletionValue (completion) { __v3278 := t_nth(completion, 2);
+return __v3278 };
+function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) { __v3279 := "type" in_obj PropertyAssignment;
+__v3281 := PropertyAssignment["type"];
+__v3280 := __v3281 = "Property";
+__v3282 := "key" in_obj PropertyAssignment;
+__v3283 := "value" in_obj PropertyAssignment;
+__v3284 := "kind" in_obj PropertyAssignment;
+__v3286 := PropertyAssignment["kind"];
+__v3285 := __v3286 = "init";
+if (true && __v3279 && __v3280 && __v3282 && __v3283 && __v3284 && __v3285) {
 PropertyName := PropertyAssignment["key"];
 AssignmentExpression := PropertyAssignment["value"];
-__v3285 := "JS_Interpreter_PropertyName" (PropertyName, scope);
-propName := __v3285;
-__v3286 := "JS_Interpreter_Expr" (AssignmentExpression, scope);
-exprValue := __v3286;
-__v3287 := "GetValue" (exprValue);
-propValue := __v3287;
-__v3288 := "newDataPropertyDescriptor" (propValue);
-desc := __v3288;
-__v3289 := "newPropertyIdentifier" (propName, desc);
-return __v3289
+__v3287 := "JS_Interpreter_PropertyName" (PropertyName, scope);
+propName := __v3287;
+__v3288 := "JS_Interpreter_Expr" (AssignmentExpression, scope);
+exprValue := __v3288;
+__v3289 := "GetValue" (exprValue);
+propValue := __v3289;
+__v3290 := "newDataPropertyDescriptor" (propValue);
+desc := __v3290;
+__v3291 := "newPropertyIdentifier" (propName, desc);
+return __v3291
 } else {
-__v3290 := "type" in_obj PropertyAssignment;
-__v3292 := PropertyAssignment["type"];
-__v3291 := __v3292 = "Property";
-__v3293 := "key" in_obj PropertyAssignment;
-__v3294 := "value" in_obj PropertyAssignment;
-__v3295 := "kind" in_obj PropertyAssignment;
-__v3297 := PropertyAssignment["kind"];
-__v3296 := __v3297 = "get";
-if (true && __v3290 && __v3291 && __v3293 && __v3294 && __v3295 && __v3296) {
+__v3292 := "type" in_obj PropertyAssignment;
+__v3294 := PropertyAssignment["type"];
+__v3293 := __v3294 = "Property";
+__v3295 := "key" in_obj PropertyAssignment;
+__v3296 := "value" in_obj PropertyAssignment;
+__v3297 := "kind" in_obj PropertyAssignment;
+__v3299 := PropertyAssignment["kind"];
+__v3298 := __v3299 = "get";
+if (true && __v3292 && __v3293 && __v3295 && __v3296 && __v3297 && __v3298) {
 PropertyName := PropertyAssignment["key"];
 FunctionExpression := PropertyAssignment["value"];
-__v3298 := "JS_Interpreter_PropertyName" (PropertyName, scope);
-propName := __v3298;
-__v3299 := "JS_Interpreter_FunctionExpression" (FunctionExpression, scope);
-closure := __v3299;
-__v3300 := "newGetAccessorPropertyDescriptor" (closure);
-desc := __v3300;
-__v3301 := "newPropertyIdentifier" (propName, desc);
-return __v3301
+__v3300 := "JS_Interpreter_PropertyName" (PropertyName, scope);
+propName := __v3300;
+__v3301 := "JS_Interpreter_FunctionExpression" (FunctionExpression, scope);
+closure := __v3301;
+__v3302 := "newGetAccessorPropertyDescriptor" (closure);
+desc := __v3302;
+__v3303 := "newPropertyIdentifier" (propName, desc);
+return __v3303
 } else {
-__v3302 := "type" in_obj PropertyAssignment;
-__v3304 := PropertyAssignment["type"];
-__v3303 := __v3304 = "Property";
-__v3305 := "key" in_obj PropertyAssignment;
-__v3306 := "value" in_obj PropertyAssignment;
-__v3307 := "kind" in_obj PropertyAssignment;
-__v3309 := PropertyAssignment["kind"];
-__v3308 := __v3309 = "set";
-if (true && __v3302 && __v3303 && __v3305 && __v3306 && __v3307 && __v3308) {
+__v3304 := "type" in_obj PropertyAssignment;
+__v3306 := PropertyAssignment["type"];
+__v3305 := __v3306 = "Property";
+__v3307 := "key" in_obj PropertyAssignment;
+__v3308 := "value" in_obj PropertyAssignment;
+__v3309 := "kind" in_obj PropertyAssignment;
+__v3311 := PropertyAssignment["kind"];
+__v3310 := __v3311 = "set";
+if (true && __v3304 && __v3305 && __v3307 && __v3308 && __v3309 && __v3310) {
 PropertyName := PropertyAssignment["key"];
 FunctionExpression := PropertyAssignment["value"];
-__v3310 := "JS_Interpreter_PropertyName" (PropertyName, scope);
-propName := __v3310;
-__v3311 := "JS_Interpreter_FunctionExpression" (FunctionExpression, scope);
-closure := __v3311;
-__v3312 := "newSetAccessorPropertyDescriptor" (closure);
-desc := __v3312;
-__v3313 := "newPropertyIdentifier" (propName, desc);
-return __v3313
+__v3312 := "JS_Interpreter_PropertyName" (PropertyName, scope);
+propName := __v3312;
+__v3313 := "JS_Interpreter_FunctionExpression" (FunctionExpression, scope);
+closure := __v3313;
+__v3314 := "newSetAccessorPropertyDescriptor" (closure);
+desc := __v3314;
+__v3315 := "newPropertyIdentifier" (propName, desc);
+return __v3315
 }
 }
 } };
 function getGlobalObject (lexicalEnvironment) { lex := lexicalEnvironment;
-__v3314 := "getOuterEnvironmentReference" (lexicalEnvironment);
-outer := __v3314;
-__v3316 := outer = 'null;
-__v3315 := !(__v3316);
-while (__v3315) { lex := outer;
-__v3317 := "getOuterEnvironmentReference" (lex);
-outer := __v3317;
-__v3316 := outer = 'null;
-__v3315 := !(__v3316) };
-__v3319 := "getEnvironmentRecord" (lex);
-__v3318 := "getBindingObject" (__v3319);
-return __v3318 };
-function Call (F, this, args) { __v3322 := F["Code"];
-__v3321 := typeof(__v3322);
-__v3320 := __v3321 = __$Str;
-if (__v3320) {
-__v3324 := F["Code"];
-__v3323 := __v3324 (null, this, args);
-return __v3323
+__v3316 := "getOuterEnvironmentReference" (lexicalEnvironment);
+outer := __v3316;
+print "getGlobalObject";
+print outer;
+__v3318 := outer = 'null;
+__v3317 := !(__v3318);
+while (__v3317) { lex := outer;
+__v3319 := "getOuterEnvironmentReference" (lex);
+outer := __v3319;
+__v3318 := outer = 'null;
+__v3317 := !(__v3318) };
+__v3321 := "getEnvironmentRecord" (lex);
+__v3320 := "getBindingObject" (__v3321);
+return __v3320 };
+function Call (F, this, args) { __v3324 := F["Code"];
+__v3323 := typeof(__v3324);
+__v3322 := __v3323 = __$Str;
+if (__v3322) {
+__v3326 := F["Code"];
+__v3325 := __v3326 (null, this, args);
+return __v3325
 };
-__v3325 := "EnteringFunctionCode" (F, this, args);
-funcCtx := __v3325;
-__v3328 := "Code" in_obj F;
-__v3327 := !(__v3328);
-__v3333 := F["Code"];
-__v3332 := typeof(__v3333);
-__v3331 := __v3332 = __$Obj;
-if (__v3331 = false) {
-__v3330 := false
-} else {
+__v3327 := "EnteringFunctionCode" (F, this, args);
+funcCtx := __v3327;
+__v3330 := "Code" in_obj F;
+__v3329 := !(__v3330);
 __v3335 := F["Code"];
-__v3334 := "body" in_obj __v3335;
-if (__v3334 = false) {
-__v3330 := false
+__v3334 := typeof(__v3335);
+__v3333 := __v3334 = __$Obj;
+if (__v3333 = false) {
+__v3332 := false
 } else {
-__v3330 := true
-}
-};
-if (__v3330 = false) {
-__v3329 := false
-} else {
-__v3338 := F["Code"];
-__v3337 := __v3338["body"];
-__v3339 := [  ];
-__v3336 := __v3337 = __v3339;
+__v3337 := F["Code"];
+__v3336 := "body" in_obj __v3337;
 if (__v3336 = false) {
-__v3329 := false
+__v3332 := false
 } else {
-__v3329 := true
+__v3332 := true
 }
 };
-__v3326 := __v3327 || __v3329;
-if (__v3326) {
-__v3340 := "normalEmptyCompletion" ('undefined);
-return __v3340
+if (__v3332 = false) {
+__v3331 := false
+} else {
+__v3340 := F["Code"];
+__v3339 := __v3340["body"];
+__v3341 := [  ];
+__v3338 := __v3339 = __v3341;
+if (__v3338 = false) {
+__v3331 := false
+} else {
+__v3331 := true
+}
 };
-__v3342 := F["Code"];
-__v3341 := "JS_Interpreter_FunctionBody" (__v3342, funcCtx);
-result := __v3341;
-__v3344 := "getCompletionType" (result);
-__v3343 := __v3344 = 'throw;
-if (__v3343) {
-__v3345 := "getCompletionValue" (result);
-throw __v3345
+__v3328 := __v3329 || __v3331;
+if (__v3328) {
+__v3342 := "normalEmptyCompletion" ('undefined);
+return __v3342
 };
-__v3347 := "getCompletionType" (result);
-__v3346 := __v3347 = 'return;
-if (__v3346) {
-__v3348 := "getCompletionValue" (result);
-return __v3348
+__v3344 := F["Code"];
+__v3343 := "JS_Interpreter_FunctionBody" (__v3344, funcCtx);
+result := __v3343;
+__v3346 := "getCompletionType" (result);
+__v3345 := __v3346 = 'throw;
+if (__v3345) {
+__v3347 := "getCompletionValue" (result);
+throw __v3347
+};
+__v3349 := "getCompletionType" (result);
+__v3348 := __v3349 = 'return;
+if (__v3348) {
+__v3350 := "getCompletionValue" (result);
+return __v3350
 };
 return 'undefined };
-function newNumber (value) { __v3349 := { };
-__v3349["Prototype"] := 'null;
-__v3349["Class"] := "Number";
-__v3349["Extensible"] := true;
-ret := __v3349;
-__v3350 := value = null;
-if (__v3350) {
+function newNumber (value) { __v3351 := { };
+__v3351["Prototype"] := 'null;
+__v3351["Class"] := "Number";
+__v3351["Extensible"] := true;
+ret := __v3351;
+__v3352 := value = null;
+if (__v3352) {
 ret["PrimitiveValue"] := 0
 } else {
-__v3351 := "ToNumber" (value);
-ret["PrimitiveValue"] := __v3351
+__v3353 := "ToNumber" (value);
+ret["PrimitiveValue"] := __v3353
 };
 return ret };
-function isAnAbruptCompletion (completion) { __v3354 := "getCompletionType" (completion);
-__v3353 := __v3354 = 'normal;
-__v3352 := !(__v3353);
-if (__v3352) {
+function isAnAbruptCompletion (completion) { __v3356 := "getCompletionType" (completion);
+__v3355 := __v3356 = 'normal;
+__v3354 := !(__v3355);
+if (__v3354) {
 return true
 };
 return false };
-function MakeArgGetter (name, env) { __v3356 := [ "return ", name, ";" ];
-__v3355 := s_concat(__v3356);
-body := __v3355;
-__v3358 := [  ];
-__v3357 := "CreateFunctionObject" (__v3358, body, env, true);
-return __v3357 };
-function isSparseArray (O) { __v3360 := O["Get"];
-__v3359 := __v3360 (O, "length");
-len := __v3359;
+function MakeArgGetter (name, env) { __v3358 := [ "return ", name, ";" ];
+__v3357 := s_concat(__v3358);
+body := __v3357;
+__v3360 := [  ];
+__v3359 := "CreateFunctionObject" (__v3360, body, env, true);
+return __v3359 };
+function isSparseArray (O) { __v3362 := O["Get"];
+__v3361 := __v3362 (O, "length");
+len := __v3361;
 i := 0;
-__v3361 := "ToUint32" (len);
-lenUint := __v3361;
-__v3362 := i < lenUint;
-while (__v3362) { __v3364 := O["GetOwnProperty"];
-__v3365 := "ToString" (i);
-__v3363 := __v3364 (O, __v3365);
-elem := __v3363;
-__v3366 := elem = 'undefined;
-if (__v3366) {
+__v3363 := "ToUint32" (len);
+lenUint := __v3363;
+__v3364 := i < lenUint;
+while (__v3364) { __v3366 := O["GetOwnProperty"];
+__v3367 := "ToString" (i);
+__v3365 := __v3366 (O, __v3367);
+elem := __v3365;
+__v3368 := elem = 'undefined;
+if (__v3368) {
 return true
 };
-__v3362 := i < lenUint };
+__v3364 := i < lenUint };
 return false };
-function ToUint32 (argument) { __v3367 := "ToNumber" (argument);
-number := __v3367;
-__v3368 := to_uint32(number);
-return __v3368 };
-function ImplicitThisValue (envRec) { __v3369 := "isDeclarativeEnvironmentRecord" (envRec);
-if (__v3369) {
-__v3370 := "ImplicitThisValueDeclarative" (envRec);
-return __v3370
+function ToUint32 (argument) { __v3369 := "ToNumber" (argument);
+number := __v3369;
+__v3370 := to_uint32(number);
+return __v3370 };
+function ImplicitThisValue (envRec) { __v3371 := "isDeclarativeEnvironmentRecord" (envRec);
+if (__v3371) {
+__v3372 := "ImplicitThisValueDeclarative" (envRec);
+return __v3372
 };
-__v3371 := "ImplicitThisValueObject" (envRec);
-return __v3371 };
+__v3373 := "ImplicitThisValueObject" (envRec);
+return __v3373 };
 function IsStrictReference (V) { print "IsStrictReference";
-__v3372 := t_nth(V, 4);
-return __v3372 };
+__v3374 := t_nth(V, 4);
+return __v3374 };
 function CanPut (O, P) { print "CanPut";
-__v3373 := "GetOwnProperty" (O, P);
-desc := __v3373;
-__v3375 := desc = 'undefined;
-__v3374 := !(__v3375);
-if (__v3374) {
-__v3376 := "IsAccessorPropertyDescriptor" (desc);
+__v3375 := "GetOwnProperty" (O, P);
+desc := __v3375;
+__v3377 := desc = 'undefined;
+__v3376 := !(__v3377);
 if (__v3376) {
-__v3378 := desc["Set"];
-__v3377 := __v3378 = 'undefined;
-if (__v3377) {
+__v3378 := "IsAccessorPropertyDescriptor" (desc);
+if (__v3378) {
+__v3380 := desc["Set"];
+__v3379 := __v3380 = 'undefined;
+if (__v3379) {
 return false
 } else {
 return true
 }
 } else {
-__v3379 := desc["Writable"];
-return __v3379
+__v3381 := desc["Writable"];
+return __v3381
 }
 };
-__v3380 := O["Prototype"];
-proto := __v3380;
-__v3381 := proto = 'null;
-if (__v3381) {
-__v3382 := O["Extensible"];
-return __v3382
+__v3382 := O["Prototype"];
+proto := __v3382;
+__v3383 := proto = 'null;
+if (__v3383) {
+__v3384 := O["Extensible"];
+return __v3384
 };
-__v3383 := "GetProperty" (proto, P);
-inherited := __v3383;
-__v3384 := inherited = 'undefined;
-if (__v3384) {
-__v3385 := O["Extensible"];
-return __v3385
-};
-__v3386 := "IsAccessorPropertyDescriptor" (inherited);
+__v3385 := "GetProperty" (proto, P);
+inherited := __v3385;
+__v3386 := inherited = 'undefined;
 if (__v3386) {
-__v3388 := inherited["Set"];
-__v3387 := __v3388 = 'undefined;
-if (__v3387) {
+__v3387 := O["Extensible"];
+return __v3387
+};
+__v3388 := "IsAccessorPropertyDescriptor" (inherited);
+if (__v3388) {
+__v3390 := inherited["Set"];
+__v3389 := __v3390 = 'undefined;
+if (__v3389) {
 return false
 } else {
 return true
 }
 } else {
-__v3389 := "IsDataPropertyDescriptor" (inherited);
-if (__v3389) {
-__v3391 := O["Extensible"];
-__v3390 := __v3391 = false;
-if (__v3390) {
+__v3391 := "IsDataPropertyDescriptor" (inherited);
+if (__v3391) {
+__v3393 := O["Extensible"];
+__v3392 := __v3393 = false;
+if (__v3392) {
 return false
 } else {
-__v3392 := inherited["Writable"];
-return __v3392
+__v3394 := inherited["Writable"];
+return __v3394
 }
 }
 } };
-function arrayReduceRight (global, this, args) { __v3393 := l_nth(args, 0);
-callbackfn := __v3393;
-__v3394 := l_nth(args, 1);
-initialValue := __v3394;
-__v3395 := "ToObject" (this);
-O := __v3395;
-__v3397 := O["Get"];
-__v3396 := __v3397 (O, "length");
-lenVal := __v3396;
-__v3398 := "ToUint32" (lenVal);
-len := __v3398;
-__v3400 := "IsCallable" (callbackfn);
-__v3399 := __v3400 = false;
-if (__v3399) {
-__v3401 := "TypeErrorException" ();
-throw __v3401
+function arrayReduceRight (global, this, args) { __v3395 := l_nth(args, 0);
+callbackfn := __v3395;
+__v3396 := l_nth(args, 1);
+initialValue := __v3396;
+__v3397 := "ToObject" (this);
+O := __v3397;
+__v3399 := O["Get"];
+__v3398 := __v3399 (O, "length");
+lenVal := __v3398;
+__v3400 := "ToUint32" (lenVal);
+len := __v3400;
+__v3402 := "IsCallable" (callbackfn);
+__v3401 := __v3402 = false;
+if (__v3401) {
+__v3403 := "TypeErrorException" ();
+throw __v3403
 };
-__v3403 := len = 0;
-__v3404 := initialValue = 'undefined;
-__v3402 := __v3403 && __v3404;
-if (__v3402) {
-__v3405 := "TypeErrorException" ();
-throw __v3405
+__v3405 := len = 0;
+__v3406 := initialValue = 'undefined;
+__v3404 := __v3405 && __v3406;
+if (__v3404) {
+__v3407 := "TypeErrorException" ();
+throw __v3407
 };
-__v3406 := len - 1.;
-k := __v3406;
-__v3408 := initialValue = 'undefined;
-__v3407 := !(__v3408);
-if (__v3407) {
+__v3408 := len - 1.;
+k := __v3408;
+__v3410 := initialValue = 'undefined;
+__v3409 := !(__v3410);
+if (__v3409) {
 accumulator := initialValue
 } else {
 kPresent := false;
-__v3410 := kPresent = false;
-__v3411 := k >= 0.;
-__v3409 := __v3410 && __v3411;
-while (__v3409) { __v3412 := "ToString" (k);
-Pk := __v3412;
-__v3414 := O["HasProperty"];
-__v3413 := __v3414 (O, Pk);
-kPresent := __v3413;
-__v3415 := kPresent = true;
-if (__v3415) {
-__v3417 := O["Get"];
-__v3416 := __v3417 (O, Pk);
-accumulator := __v3416
+__v3412 := kPresent = false;
+__v3413 := k >= 0.;
+__v3411 := __v3412 && __v3413;
+while (__v3411) { __v3414 := "ToString" (k);
+Pk := __v3414;
+__v3416 := O["HasProperty"];
+__v3415 := __v3416 (O, Pk);
+kPresent := __v3415;
+__v3417 := kPresent = true;
+if (__v3417) {
+__v3419 := O["Get"];
+__v3418 := __v3419 (O, Pk);
+accumulator := __v3418
 };
-__v3418 := k - 1.;
-k := __v3418;
-__v3410 := kPresent = false;
-__v3411 := k >= 0.;
-__v3409 := __v3410 && __v3411 };
-__v3419 := kPresent = false;
-if (__v3419) {
-__v3420 := "TypeErrorException" ();
-throw __v3420
+__v3420 := k - 1.;
+k := __v3420;
+__v3412 := kPresent = false;
+__v3413 := k >= 0.;
+__v3411 := __v3412 && __v3413 };
+__v3421 := kPresent = false;
+if (__v3421) {
+__v3422 := "TypeErrorException" ();
+throw __v3422
 }
 };
-__v3421 := k >= 0.;
-while (__v3421) { __v3422 := "ToString" (k);
-Pk := __v3422;
-__v3424 := O["HasProperty"];
-__v3423 := __v3424 (O, Pk);
-kPresent := __v3423;
-__v3425 := kPresent = true;
-if (__v3425) {
-__v3427 := O["Get"];
-__v3426 := __v3427 (O, Pk);
-kValue := __v3426;
-__v3429 := callbackfn["Call"];
-__v3430 := [ accumulator, kValue, k, O ];
-__v3428 := __v3429 (callbackfn, 'undefined, __v3430);
-accumulator := __v3428
+__v3423 := k >= 0.;
+while (__v3423) { __v3424 := "ToString" (k);
+Pk := __v3424;
+__v3426 := O["HasProperty"];
+__v3425 := __v3426 (O, Pk);
+kPresent := __v3425;
+__v3427 := kPresent = true;
+if (__v3427) {
+__v3429 := O["Get"];
+__v3428 := __v3429 (O, Pk);
+kValue := __v3428;
+__v3431 := callbackfn["Call"];
+__v3432 := [ accumulator, kValue, k, O ];
+__v3430 := __v3431 (callbackfn, 'undefined, __v3432);
+accumulator := __v3430
 };
-__v3431 := k - 1.;
-k := __v3431;
-__v3421 := k >= 0. };
+__v3433 := k - 1.;
+k := __v3433;
+__v3423 := k >= 0. };
 return accumulator };
 function JS_Interpreter_FunctionDeclaration (FunctionDeclaration, scope) { print "JS_Interpreter_FunctionDeclaration";
 print FunctionDeclaration;
-__v3432 := "id" in_obj FunctionDeclaration;
-__v3433 := "params" in_obj FunctionDeclaration;
-__v3434 := "body" in_obj FunctionDeclaration;
-if (true && __v3432 && __v3433 && __v3434) {
+__v3434 := "id" in_obj FunctionDeclaration;
+__v3435 := "params" in_obj FunctionDeclaration;
+__v3436 := "body" in_obj FunctionDeclaration;
+if (true && __v3434 && __v3435 && __v3436) {
 Identifier := FunctionDeclaration["id"];
 FormalParameterListopt := FunctionDeclaration["params"];
 FunctionBody := FunctionDeclaration["body"];
-__v3436 := "getVariableEnvironment" (scope);
-__v3437 := "isStrictModeCode" (FunctionBody, scope);
-__v3435 := "CreateFunctionObject" (FormalParameterListopt, FunctionBody, __v3436, __v3437);
-return __v3435
+__v3438 := "getVariableEnvironment" (scope);
+__v3439 := "isStrictModeCode" (FunctionBody, scope);
+__v3437 := "CreateFunctionObject" (FormalParameterListopt, FunctionBody, __v3438, __v3439);
+return __v3437
 } };
-function JS_Interpreter_ObjectInitializer (objExpr, scope) { __v3438 := "type" in_obj objExpr;
-__v3440 := objExpr["type"];
-__v3439 := __v3440 = "ObjectExpression";
-__v3441 := "properties" in_obj objExpr;
-if (true && __v3438 && __v3439 && __v3441) {
+function JS_Interpreter_ObjectInitializer (objExpr, scope) { __v3440 := "type" in_obj objExpr;
+__v3442 := objExpr["type"];
+__v3441 := __v3442 = "ObjectExpression";
+__v3443 := "properties" in_obj objExpr;
+if (true && __v3440 && __v3441 && __v3443) {
 PropertyNameAndValueList := objExpr["properties"];
-__v3443 := l_len(PropertyNameAndValueList);
-__v3442 := __v3443 = 0;
-if (__v3442) {
-__v3444 := "NewObject" ();
-return __v3444
+__v3445 := l_len(PropertyNameAndValueList);
+__v3444 := __v3445 = 0;
+if (__v3444) {
+__v3446 := "NewObject" ();
+return __v3446
 };
-__v3445 := "NewObject" ();
-obj := __v3445;
-__v3446 := l_len(PropertyNameAndValueList);
-lPropList := __v3446;
+__v3447 := "NewObject" ();
+obj := __v3447;
+__v3448 := l_len(PropertyNameAndValueList);
+lPropList := __v3448;
 i := 0;
-__v3447 := i < lPropList;
-while (__v3447) { __v3449 := l_nth(PropertyNameAndValueList, i);
-__v3448 := "JS_Interpreter_PropertyAssignment" (__v3449, scope);
-propId := __v3448;
-__v3451 := "getPropertyName" (propId);
-__v3450 := "GetOwnProperty" (obj, __v3451);
-previous := __v3450;
-__v3453 := previous = 'undefined;
-__v3452 := !(__v3453);
-if (__v3452) {
-__v3456 := "isContainedInStrictCode" (scope);
-__v3458 := "IsDataPropertyDescriptor" (previous);
-__v3457 := __v3458 = true;
-__v3455 := __v3456 && __v3457;
-__v3461 := "getPropertyDescriptor" (propId);
-__v3460 := "IsDataPropertyDescriptor" (__v3461);
-__v3459 := __v3460 = true;
-__v3454 := __v3455 && __v3459;
+__v3449 := i < lPropList;
+while (__v3449) { __v3451 := l_nth(PropertyNameAndValueList, i);
+__v3450 := "JS_Interpreter_PropertyAssignment" (__v3451, scope);
+propId := __v3450;
+__v3453 := "getPropertyName" (propId);
+__v3452 := "GetOwnProperty" (obj, __v3453);
+previous := __v3452;
+__v3455 := previous = 'undefined;
+__v3454 := !(__v3455);
 if (__v3454) {
-__v3462 := "SyntaxErrorException" ();
-throw __v3462
+__v3458 := "isContainedInStrictCode" (scope);
+__v3460 := "IsDataPropertyDescriptor" (previous);
+__v3459 := __v3460 = true;
+__v3457 := __v3458 && __v3459;
+__v3463 := "getPropertyDescriptor" (propId);
+__v3462 := "IsDataPropertyDescriptor" (__v3463);
+__v3461 := __v3462 = true;
+__v3456 := __v3457 && __v3461;
+if (__v3456) {
+__v3464 := "SyntaxErrorException" ();
+throw __v3464
 };
-__v3465 := "IsDataPropertyDescriptor" (previous);
-__v3464 := __v3465 = true;
-__v3468 := "getPropertyDescriptor" (propId);
-__v3467 := "IsAccessorPropertyDescriptor" (__v3468);
+__v3467 := "IsDataPropertyDescriptor" (previous);
 __v3466 := __v3467 = true;
-__v3463 := __v3464 && __v3466;
-if (__v3463) {
-__v3469 := "SyntaxErrorException" ();
-throw __v3469
+__v3470 := "getPropertyDescriptor" (propId);
+__v3469 := "IsAccessorPropertyDescriptor" (__v3470);
+__v3468 := __v3469 = true;
+__v3465 := __v3466 && __v3468;
+if (__v3465) {
+__v3471 := "SyntaxErrorException" ();
+throw __v3471
 };
-__v3472 := "IsAccessorPropertyDescriptor" (previous);
-__v3471 := __v3472 = true;
-__v3475 := "getPropertyDescriptor" (propId);
-__v3474 := "IsDataPropertyDescriptor" (__v3475);
+__v3474 := "IsAccessorPropertyDescriptor" (previous);
 __v3473 := __v3474 = true;
-__v3470 := __v3471 && __v3473;
-if (__v3470) {
-__v3476 := "SyntaxErrorException" ();
-throw __v3476
+__v3477 := "getPropertyDescriptor" (propId);
+__v3476 := "IsDataPropertyDescriptor" (__v3477);
+__v3475 := __v3476 = true;
+__v3472 := __v3473 && __v3475;
+if (__v3472) {
+__v3478 := "SyntaxErrorException" ();
+throw __v3478
 };
-__v3480 := "IsAccessorPropertyDescriptor" (previous);
-__v3479 := __v3480 = true;
-__v3483 := "getPropertyDescriptor" (propId);
-__v3482 := "IsAccessorPropertyDescriptor" (__v3483);
+__v3482 := "IsAccessorPropertyDescriptor" (previous);
 __v3481 := __v3482 = true;
-__v3478 := __v3479 && __v3481;
-__v3488 := "Get" in_obj previous;
-__v3491 := previous["Get"];
-__v3490 := __v3491 = 'undefined;
-__v3489 := !(__v3490);
-__v3487 := __v3488 && __v3489;
-__v3493 := "getPropertyDescriptor" (propId);
-__v3492 := "Get" in_obj __v3493;
-__v3486 := __v3487 && __v3492;
-__v3497 := "getPropertyDescriptor" (propId);
-__v3496 := __v3497["Get"];
-__v3495 := __v3496 = 'undefined;
-__v3494 := !(__v3495);
-__v3485 := __v3486 && __v3494;
-__v3501 := "Set" in_obj previous;
-__v3504 := previous["Set"];
-__v3503 := __v3504 = 'undefined;
-__v3502 := !(__v3503);
-__v3500 := __v3501 && __v3502;
-__v3506 := "getPropertyDescriptor" (propId);
-__v3505 := "Set" in_obj __v3506;
-__v3499 := __v3500 && __v3505;
-__v3510 := "getPropertyDescriptor" (propId);
-__v3509 := __v3510["Set"];
-__v3508 := __v3509 = 'undefined;
-__v3507 := !(__v3508);
-__v3498 := __v3499 && __v3507;
-__v3484 := __v3485 || __v3498;
-__v3477 := __v3478 && __v3484;
-if (__v3477) {
-__v3511 := "SyntaxErrorException" ();
-throw __v3511
+__v3485 := "getPropertyDescriptor" (propId);
+__v3484 := "IsAccessorPropertyDescriptor" (__v3485);
+__v3483 := __v3484 = true;
+__v3480 := __v3481 && __v3483;
+__v3490 := "Get" in_obj previous;
+__v3493 := previous["Get"];
+__v3492 := __v3493 = 'undefined;
+__v3491 := !(__v3492);
+__v3489 := __v3490 && __v3491;
+__v3495 := "getPropertyDescriptor" (propId);
+__v3494 := "Get" in_obj __v3495;
+__v3488 := __v3489 && __v3494;
+__v3499 := "getPropertyDescriptor" (propId);
+__v3498 := __v3499["Get"];
+__v3497 := __v3498 = 'undefined;
+__v3496 := !(__v3497);
+__v3487 := __v3488 && __v3496;
+__v3503 := "Set" in_obj previous;
+__v3506 := previous["Set"];
+__v3505 := __v3506 = 'undefined;
+__v3504 := !(__v3505);
+__v3502 := __v3503 && __v3504;
+__v3508 := "getPropertyDescriptor" (propId);
+__v3507 := "Set" in_obj __v3508;
+__v3501 := __v3502 && __v3507;
+__v3512 := "getPropertyDescriptor" (propId);
+__v3511 := __v3512["Set"];
+__v3510 := __v3511 = 'undefined;
+__v3509 := !(__v3510);
+__v3500 := __v3501 && __v3509;
+__v3486 := __v3487 || __v3500;
+__v3479 := __v3480 && __v3486;
+if (__v3479) {
+__v3513 := "SyntaxErrorException" ();
+throw __v3513
 }
 };
-__v3513 := "getPropertyName" (propId);
-__v3514 := "getPropertyDescriptor" (propId);
-__v3512 := "DefineOwnProperty" (obj, __v3513, __v3514, false);
-__v3515 := i + 1;
-i := __v3515;
-__v3447 := i < lPropList };
+__v3515 := "getPropertyName" (propId);
+__v3516 := "getPropertyDescriptor" (propId);
+__v3514 := "DefineOwnProperty" (obj, __v3515, __v3516, false);
+__v3517 := i + 1;
+i := __v3517;
+__v3449 := i < lPropList };
 return obj
 } };
-function newMutableBinding (value) { __v3516 := "newBinding" (true, value, false, true);
-return __v3516 };
-function JS_Interpreter_BinExpr (e, scope) { __v3517 := "type" in_obj e;
-__v3519 := e["type"];
-__v3518 := __v3519 = "BinaryExpression";
-__v3520 := "operator" in_obj e;
-__v3522 := e["operator"];
-__v3521 := __v3522 = "*";
-__v3523 := "left" in_obj e;
-__v3524 := "right" in_obj e;
-if (true && __v3517 && __v3518 && __v3520 && __v3521 && __v3523 && __v3524) {
+function newMutableBinding (value) { __v3518 := "newBinding" (true, value, false, true);
+return __v3518 };
+function JS_Interpreter_BinExpr (e, scope) { __v3519 := "type" in_obj e;
+__v3521 := e["type"];
+__v3520 := __v3521 = "BinaryExpression";
+__v3522 := "operator" in_obj e;
+__v3524 := e["operator"];
+__v3523 := __v3524 = "*";
+__v3525 := "left" in_obj e;
+__v3526 := "right" in_obj e;
+if (true && __v3519 && __v3520 && __v3522 && __v3523 && __v3525 && __v3526) {
 MultiplicativeExpression := e["left"];
 UnaryExpression := e["right"];
-__v3525 := "JS_Interpreter_Expr" (MultiplicativeExpression, scope);
-left := __v3525;
-__v3526 := "GetValue" (left);
-leftValue := __v3526;
-__v3527 := "JS_Interpreter_Expr" (UnaryExpression, scope);
-right := __v3527;
-__v3528 := "GetValue" (right);
-rightValue := __v3528;
-__v3529 := "ToNumber" (leftValue);
-leftNum := __v3529;
-__v3530 := "ToNumber" (rightValue);
-rightNum := __v3530;
-__v3531 := leftNum * rightNum;
-return __v3531
+__v3527 := "JS_Interpreter_Expr" (MultiplicativeExpression, scope);
+left := __v3527;
+__v3528 := "GetValue" (left);
+leftValue := __v3528;
+__v3529 := "JS_Interpreter_Expr" (UnaryExpression, scope);
+right := __v3529;
+__v3530 := "GetValue" (right);
+rightValue := __v3530;
+__v3531 := "ToNumber" (leftValue);
+leftNum := __v3531;
+__v3532 := "ToNumber" (rightValue);
+rightNum := __v3532;
+__v3533 := leftNum * rightNum;
+return __v3533
 } else {
-__v3532 := "type" in_obj e;
-__v3534 := e["type"];
-__v3533 := __v3534 = "BinaryExpression";
-__v3535 := "operator" in_obj e;
-__v3537 := e["operator"];
-__v3536 := __v3537 = "/";
-__v3538 := "left" in_obj e;
-__v3539 := "right" in_obj e;
-if (true && __v3532 && __v3533 && __v3535 && __v3536 && __v3538 && __v3539) {
+__v3534 := "type" in_obj e;
+__v3536 := e["type"];
+__v3535 := __v3536 = "BinaryExpression";
+__v3537 := "operator" in_obj e;
+__v3539 := e["operator"];
+__v3538 := __v3539 = "/";
+__v3540 := "left" in_obj e;
+__v3541 := "right" in_obj e;
+if (true && __v3534 && __v3535 && __v3537 && __v3538 && __v3540 && __v3541) {
 MultiplicativeExpression := e["left"];
 UnaryExpression := e["right"];
-__v3540 := "JS_Interpreter_Expr" (MultiplicativeExpression, scope);
-left := __v3540;
-__v3541 := "GetValue" (left);
-leftValue := __v3541;
-__v3542 := "JS_Interpreter_Expr" (UnaryExpression, scope);
-right := __v3542;
-__v3543 := "GetValue" (right);
-rightValue := __v3543;
-__v3544 := "ToNumber" (leftValue);
-leftNum := __v3544;
-__v3545 := "ToNumber" (rightValue);
-rightNum := __v3545;
-__v3546 := leftNum / rightNum;
-return __v3546
+__v3542 := "JS_Interpreter_Expr" (MultiplicativeExpression, scope);
+left := __v3542;
+__v3543 := "GetValue" (left);
+leftValue := __v3543;
+__v3544 := "JS_Interpreter_Expr" (UnaryExpression, scope);
+right := __v3544;
+__v3545 := "GetValue" (right);
+rightValue := __v3545;
+__v3546 := "ToNumber" (leftValue);
+leftNum := __v3546;
+__v3547 := "ToNumber" (rightValue);
+rightNum := __v3547;
+__v3548 := leftNum / rightNum;
+return __v3548
 } else {
-__v3547 := "type" in_obj e;
-__v3549 := e["type"];
-__v3548 := __v3549 = "BinaryExpression";
-__v3550 := "operator" in_obj e;
-__v3552 := e["operator"];
-__v3551 := __v3552 = "%";
-__v3553 := "left" in_obj e;
-__v3554 := "right" in_obj e;
-if (true && __v3547 && __v3548 && __v3550 && __v3551 && __v3553 && __v3554) {
+__v3549 := "type" in_obj e;
+__v3551 := e["type"];
+__v3550 := __v3551 = "BinaryExpression";
+__v3552 := "operator" in_obj e;
+__v3554 := e["operator"];
+__v3553 := __v3554 = "%";
+__v3555 := "left" in_obj e;
+__v3556 := "right" in_obj e;
+if (true && __v3549 && __v3550 && __v3552 && __v3553 && __v3555 && __v3556) {
 MultiplicativeExpression := e["left"];
 UnaryExpression := e["right"];
-__v3555 := "JS_Interpreter_Expr" (MultiplicativeExpression, scope);
-left := __v3555;
-__v3556 := "GetValue" (left);
-leftValue := __v3556;
-__v3557 := "JS_Interpreter_Expr" (UnaryExpression, scope);
-right := __v3557;
-__v3558 := "GetValue" (right);
-rightValue := __v3558;
-__v3559 := "ToNumber" (leftValue);
-leftNum := __v3559;
-__v3560 := "ToNumber" (rightValue);
-rightNum := __v3560;
-__v3561 := leftNum % rightNum;
-return __v3561
+__v3557 := "JS_Interpreter_Expr" (MultiplicativeExpression, scope);
+left := __v3557;
+__v3558 := "GetValue" (left);
+leftValue := __v3558;
+__v3559 := "JS_Interpreter_Expr" (UnaryExpression, scope);
+right := __v3559;
+__v3560 := "GetValue" (right);
+rightValue := __v3560;
+__v3561 := "ToNumber" (leftValue);
+leftNum := __v3561;
+__v3562 := "ToNumber" (rightValue);
+rightNum := __v3562;
+__v3563 := leftNum % rightNum;
+return __v3563
 } else {
-__v3562 := "type" in_obj e;
-__v3564 := e["type"];
-__v3563 := __v3564 = "BinaryExpression";
-__v3565 := "operator" in_obj e;
-__v3567 := e["operator"];
-__v3566 := __v3567 = "+";
-__v3568 := "left" in_obj e;
-__v3569 := "right" in_obj e;
-if (true && __v3562 && __v3563 && __v3565 && __v3566 && __v3568 && __v3569) {
+__v3564 := "type" in_obj e;
+__v3566 := e["type"];
+__v3565 := __v3566 = "BinaryExpression";
+__v3567 := "operator" in_obj e;
+__v3569 := e["operator"];
+__v3568 := __v3569 = "+";
+__v3570 := "left" in_obj e;
+__v3571 := "right" in_obj e;
+if (true && __v3564 && __v3565 && __v3567 && __v3568 && __v3570 && __v3571) {
 AdditiveExpression := e["left"];
 MultiplicativeExpression := e["right"];
-__v3570 := "JS_Interpreter_Expr" (AdditiveExpression, scope);
-lref := __v3570;
-__v3571 := "GetValue" (lref);
-lval := __v3571;
-__v3572 := "JS_Interpreter_Expr" (MultiplicativeExpression, scope);
-rref := __v3572;
-__v3573 := "GetValue" (rref);
-rval := __v3573;
-__v3574 := "ToPrimitive" (lval, "Number");
-lprim := __v3574;
-__v3575 := "ToPrimitive" (rval, "Number");
-rprim := __v3575;
-__v3578 := "Type" (lprim);
-__v3577 := __v3578 = "String";
-__v3580 := "Type" (rprim);
+__v3572 := "JS_Interpreter_Expr" (AdditiveExpression, scope);
+lref := __v3572;
+__v3573 := "GetValue" (lref);
+lval := __v3573;
+__v3574 := "JS_Interpreter_Expr" (MultiplicativeExpression, scope);
+rref := __v3574;
+__v3575 := "GetValue" (rref);
+rval := __v3575;
+__v3576 := "ToPrimitive" (lval, "Number");
+lprim := __v3576;
+__v3577 := "ToPrimitive" (rval, "Number");
+rprim := __v3577;
+__v3580 := "Type" (lprim);
 __v3579 := __v3580 = "String";
-__v3576 := __v3577 || __v3579;
-if (__v3576) {
-__v3583 := "ToString" (lprim);
-__v3584 := "ToString" (rprim);
-__v3582 := [ __v3583, __v3584 ];
-__v3581 := s_concat(__v3582);
-return __v3581
+__v3582 := "Type" (rprim);
+__v3581 := __v3582 = "String";
+__v3578 := __v3579 || __v3581;
+if (__v3578) {
+__v3585 := "ToString" (lprim);
+__v3586 := "ToString" (rprim);
+__v3584 := [ __v3585, __v3586 ];
+__v3583 := s_concat(__v3584);
+return __v3583
 };
-__v3586 := "ToNumber" (lprim);
-__v3587 := "ToNumber" (rprim);
-__v3585 := "applyingTheAdditionOperation" (__v3586, __v3587);
-return __v3585
+__v3588 := "ToNumber" (lprim);
+__v3589 := "ToNumber" (rprim);
+__v3587 := "applyingTheAdditionOperation" (__v3588, __v3589);
+return __v3587
 } else {
-__v3588 := "type" in_obj e;
-__v3590 := e["type"];
-__v3589 := __v3590 = "BinaryExpression";
-__v3591 := "operator" in_obj e;
-__v3593 := e["operator"];
-__v3592 := __v3593 = "-";
-__v3594 := "left" in_obj e;
-__v3595 := "right" in_obj e;
-if (true && __v3588 && __v3589 && __v3591 && __v3592 && __v3594 && __v3595) {
+__v3590 := "type" in_obj e;
+__v3592 := e["type"];
+__v3591 := __v3592 = "BinaryExpression";
+__v3593 := "operator" in_obj e;
+__v3595 := e["operator"];
+__v3594 := __v3595 = "-";
+__v3596 := "left" in_obj e;
+__v3597 := "right" in_obj e;
+if (true && __v3590 && __v3591 && __v3593 && __v3594 && __v3596 && __v3597) {
 AdditiveExpression := e["left"];
 MultiplicativeExpression := e["right"];
-__v3596 := "JS_Interpreter_Expr" (AdditiveExpression, scope);
-lref := __v3596;
-__v3597 := "GetValue" (lref);
-lval := __v3597;
-__v3598 := "JS_Interpreter_Expr" (MultiplicativeExpression, scope);
-rref := __v3598;
-__v3599 := "GetValue" (rref);
-rval := __v3599;
-__v3600 := "ToNumber" (lval);
-lnum := __v3600;
-__v3601 := "ToNumber" (rval);
-rnum := __v3601;
-__v3602 := "applyingTheSubtractionOperation" (lnum, rnum);
-return __v3602
+__v3598 := "JS_Interpreter_Expr" (AdditiveExpression, scope);
+lref := __v3598;
+__v3599 := "GetValue" (lref);
+lval := __v3599;
+__v3600 := "JS_Interpreter_Expr" (MultiplicativeExpression, scope);
+rref := __v3600;
+__v3601 := "GetValue" (rref);
+rval := __v3601;
+__v3602 := "ToNumber" (lval);
+lnum := __v3602;
+__v3603 := "ToNumber" (rval);
+rnum := __v3603;
+__v3604 := "applyingTheSubtractionOperation" (lnum, rnum);
+return __v3604
 } else {
-__v3603 := "type" in_obj e;
-__v3605 := e["type"];
-__v3604 := __v3605 = "BinaryExpression";
-__v3606 := "operator" in_obj e;
-__v3608 := e["operator"];
-__v3607 := __v3608 = "<<";
-__v3609 := "left" in_obj e;
-__v3610 := "right" in_obj e;
-if (true && __v3603 && __v3604 && __v3606 && __v3607 && __v3609 && __v3610) {
+__v3605 := "type" in_obj e;
+__v3607 := e["type"];
+__v3606 := __v3607 = "BinaryExpression";
+__v3608 := "operator" in_obj e;
+__v3610 := e["operator"];
+__v3609 := __v3610 = "<<";
+__v3611 := "left" in_obj e;
+__v3612 := "right" in_obj e;
+if (true && __v3605 && __v3606 && __v3608 && __v3609 && __v3611 && __v3612) {
 ShiftExpression := e["left"];
 AdditiveExpression := e["right"];
-__v3611 := "JS_Interpreter_Expr" (ShiftExpression, scope);
-lref := __v3611;
-__v3612 := "GetValue" (lref);
-lval := __v3612;
-__v3613 := "JS_Interpreter_Expr" (AdditiveExpression, scope);
-rref := __v3613;
-__v3614 := "GetValue" (rref);
-rval := __v3614;
-__v3615 := "ToInt32" (lval);
-lnum := __v3615;
-__v3616 := "ToUint32" (rval);
-rnum := __v3616;
-__v3617 := "maskOutBits" (rnum);
-shiftCount := __v3617;
-__v3618 := lnum << shiftCount;
-return __v3618
+__v3613 := "JS_Interpreter_Expr" (ShiftExpression, scope);
+lref := __v3613;
+__v3614 := "GetValue" (lref);
+lval := __v3614;
+__v3615 := "JS_Interpreter_Expr" (AdditiveExpression, scope);
+rref := __v3615;
+__v3616 := "GetValue" (rref);
+rval := __v3616;
+__v3617 := "ToInt32" (lval);
+lnum := __v3617;
+__v3618 := "ToUint32" (rval);
+rnum := __v3618;
+__v3619 := "maskOutBits" (rnum);
+shiftCount := __v3619;
+__v3620 := lnum << shiftCount;
+return __v3620
 } else {
-__v3619 := "type" in_obj e;
-__v3621 := e["type"];
-__v3620 := __v3621 = "BinaryExpression";
-__v3622 := "operator" in_obj e;
-__v3624 := e["operator"];
-__v3623 := __v3624 = ">>";
-__v3625 := "left" in_obj e;
-__v3626 := "right" in_obj e;
-if (true && __v3619 && __v3620 && __v3622 && __v3623 && __v3625 && __v3626) {
+__v3621 := "type" in_obj e;
+__v3623 := e["type"];
+__v3622 := __v3623 = "BinaryExpression";
+__v3624 := "operator" in_obj e;
+__v3626 := e["operator"];
+__v3625 := __v3626 = ">>";
+__v3627 := "left" in_obj e;
+__v3628 := "right" in_obj e;
+if (true && __v3621 && __v3622 && __v3624 && __v3625 && __v3627 && __v3628) {
 ShiftExpression := e["left"];
 AdditiveExpression := e["right"];
-__v3627 := "JS_Interpreter_Expr" (ShiftExpression, scope);
-lref := __v3627;
-__v3628 := "GetValue" (lref);
-lval := __v3628;
-__v3629 := "JS_Interpreter_Expr" (AdditiveExpression, scope);
-rref := __v3629;
-__v3630 := "GetValue" (rref);
-rval := __v3630;
-__v3631 := "ToInt32" (lval);
-lnum := __v3631;
-__v3632 := "ToUint32" (rval);
-rnum := __v3632;
-__v3633 := "maskOutBits" (rnum);
-shiftCount := __v3633;
-__v3634 := lnum >> shiftCount;
-return __v3634
+__v3629 := "JS_Interpreter_Expr" (ShiftExpression, scope);
+lref := __v3629;
+__v3630 := "GetValue" (lref);
+lval := __v3630;
+__v3631 := "JS_Interpreter_Expr" (AdditiveExpression, scope);
+rref := __v3631;
+__v3632 := "GetValue" (rref);
+rval := __v3632;
+__v3633 := "ToInt32" (lval);
+lnum := __v3633;
+__v3634 := "ToUint32" (rval);
+rnum := __v3634;
+__v3635 := "maskOutBits" (rnum);
+shiftCount := __v3635;
+__v3636 := lnum >> shiftCount;
+return __v3636
 } else {
-__v3635 := "type" in_obj e;
-__v3637 := e["type"];
-__v3636 := __v3637 = "BinaryExpression";
-__v3638 := "operator" in_obj e;
-__v3640 := e["operator"];
-__v3639 := __v3640 = ">>>";
-__v3641 := "left" in_obj e;
-__v3642 := "right" in_obj e;
-if (true && __v3635 && __v3636 && __v3638 && __v3639 && __v3641 && __v3642) {
+__v3637 := "type" in_obj e;
+__v3639 := e["type"];
+__v3638 := __v3639 = "BinaryExpression";
+__v3640 := "operator" in_obj e;
+__v3642 := e["operator"];
+__v3641 := __v3642 = ">>>";
+__v3643 := "left" in_obj e;
+__v3644 := "right" in_obj e;
+if (true && __v3637 && __v3638 && __v3640 && __v3641 && __v3643 && __v3644) {
 ShiftExpression := e["left"];
 AdditiveExpression := e["right"];
-__v3643 := "JS_Interpreter_Expr" (ShiftExpression, scope);
-lref := __v3643;
-__v3644 := "GetValue" (lref);
-lval := __v3644;
-__v3645 := "JS_Interpreter_Expr" (AdditiveExpression, scope);
-rref := __v3645;
-__v3646 := "GetValue" (rref);
-rval := __v3646;
-__v3647 := "ToInt32" (lval);
-lnum := __v3647;
-__v3648 := "ToUint32" (rval);
-rnum := __v3648;
-__v3649 := "maskOutBits" (rnum);
-shiftCount := __v3649;
-__v3650 := lnum >>> shiftCount;
-return __v3650
+__v3645 := "JS_Interpreter_Expr" (ShiftExpression, scope);
+lref := __v3645;
+__v3646 := "GetValue" (lref);
+lval := __v3646;
+__v3647 := "JS_Interpreter_Expr" (AdditiveExpression, scope);
+rref := __v3647;
+__v3648 := "GetValue" (rref);
+rval := __v3648;
+__v3649 := "ToInt32" (lval);
+lnum := __v3649;
+__v3650 := "ToUint32" (rval);
+rnum := __v3650;
+__v3651 := "maskOutBits" (rnum);
+shiftCount := __v3651;
+__v3652 := lnum >>> shiftCount;
+return __v3652
 } else {
-__v3651 := "type" in_obj e;
-__v3653 := e["type"];
-__v3652 := __v3653 = "BinaryExpression";
-__v3654 := "operator" in_obj e;
-__v3656 := e["operator"];
-__v3655 := __v3656 = "<";
-__v3657 := "left" in_obj e;
-__v3658 := "right" in_obj e;
-if (true && __v3651 && __v3652 && __v3654 && __v3655 && __v3657 && __v3658) {
+__v3653 := "type" in_obj e;
+__v3655 := e["type"];
+__v3654 := __v3655 = "BinaryExpression";
+__v3656 := "operator" in_obj e;
+__v3658 := e["operator"];
+__v3657 := __v3658 = "<";
+__v3659 := "left" in_obj e;
+__v3660 := "right" in_obj e;
+if (true && __v3653 && __v3654 && __v3656 && __v3657 && __v3659 && __v3660) {
 RelationalExpression := e["left"];
 ShiftExpression := e["right"];
-__v3659 := "JS_Interpreter_Expr" (RelationalExpression, scope);
-lref := __v3659;
-__v3660 := "GetValue" (lref);
-lval := __v3660;
-__v3661 := "JS_Interpreter_Expr" (ShiftExpression, scope);
-rref := __v3661;
-__v3662 := "GetValue" (rref);
-rval := __v3662;
-__v3663 := "AbstractRelationalComparison" (lval, rval, true);
-r := __v3663;
-__v3664 := r = 'undefined;
-if (__v3664) {
+__v3661 := "JS_Interpreter_Expr" (RelationalExpression, scope);
+lref := __v3661;
+__v3662 := "GetValue" (lref);
+lval := __v3662;
+__v3663 := "JS_Interpreter_Expr" (ShiftExpression, scope);
+rref := __v3663;
+__v3664 := "GetValue" (rref);
+rval := __v3664;
+__v3665 := "AbstractRelationalComparison" (lval, rval, true);
+r := __v3665;
+__v3666 := r = 'undefined;
+if (__v3666) {
 return false
 };
 return r
 } else {
-__v3665 := "type" in_obj e;
-__v3667 := e["type"];
-__v3666 := __v3667 = "BinaryExpression";
-__v3668 := "operator" in_obj e;
-__v3670 := e["operator"];
-__v3669 := __v3670 = ">";
-__v3671 := "left" in_obj e;
-__v3672 := "right" in_obj e;
-if (true && __v3665 && __v3666 && __v3668 && __v3669 && __v3671 && __v3672) {
+__v3667 := "type" in_obj e;
+__v3669 := e["type"];
+__v3668 := __v3669 = "BinaryExpression";
+__v3670 := "operator" in_obj e;
+__v3672 := e["operator"];
+__v3671 := __v3672 = ">";
+__v3673 := "left" in_obj e;
+__v3674 := "right" in_obj e;
+if (true && __v3667 && __v3668 && __v3670 && __v3671 && __v3673 && __v3674) {
 RelationalExpression := e["left"];
 ShiftExpression := e["right"];
-__v3673 := "JS_Interpreter_Expr" (RelationalExpression, scope);
-lref := __v3673;
-__v3674 := "GetValue" (lref);
-lval := __v3674;
-__v3675 := "JS_Interpreter_Expr" (ShiftExpression, scope);
-rref := __v3675;
-__v3676 := "GetValue" (rref);
-rval := __v3676;
-__v3677 := "AbstractRelationalComparison" (rval, lval, false);
-r := __v3677;
-__v3678 := r = 'undefined;
-if (__v3678) {
+__v3675 := "JS_Interpreter_Expr" (RelationalExpression, scope);
+lref := __v3675;
+__v3676 := "GetValue" (lref);
+lval := __v3676;
+__v3677 := "JS_Interpreter_Expr" (ShiftExpression, scope);
+rref := __v3677;
+__v3678 := "GetValue" (rref);
+rval := __v3678;
+__v3679 := "AbstractRelationalComparison" (rval, lval, false);
+r := __v3679;
+__v3680 := r = 'undefined;
+if (__v3680) {
 return false
 };
 return r
 } else {
-__v3679 := "type" in_obj e;
-__v3681 := e["type"];
-__v3680 := __v3681 = "BinaryExpression";
-__v3682 := "operator" in_obj e;
-__v3684 := e["operator"];
-__v3683 := __v3684 = "<=";
-__v3685 := "left" in_obj e;
-__v3686 := "right" in_obj e;
-if (true && __v3679 && __v3680 && __v3682 && __v3683 && __v3685 && __v3686) {
+__v3681 := "type" in_obj e;
+__v3683 := e["type"];
+__v3682 := __v3683 = "BinaryExpression";
+__v3684 := "operator" in_obj e;
+__v3686 := e["operator"];
+__v3685 := __v3686 = "<=";
+__v3687 := "left" in_obj e;
+__v3688 := "right" in_obj e;
+if (true && __v3681 && __v3682 && __v3684 && __v3685 && __v3687 && __v3688) {
 RelationalExpression := e["left"];
 ShiftExpression := e["right"];
-__v3687 := "JS_Interpreter_Expr" (RelationalExpression, scope);
-lref := __v3687;
-__v3688 := "GetValue" (lref);
-lval := __v3688;
-__v3689 := "JS_Interpreter_Expr" (ShiftExpression, scope);
-rref := __v3689;
-__v3690 := "GetValue" (rref);
-rval := __v3690;
-__v3691 := "AbstractRelationalComparison" (rval, lval, false);
-r := __v3691;
-__v3693 := r = true;
-__v3694 := r = 'undefined;
-__v3692 := __v3693 || __v3694;
-if (__v3692) {
+__v3689 := "JS_Interpreter_Expr" (RelationalExpression, scope);
+lref := __v3689;
+__v3690 := "GetValue" (lref);
+lval := __v3690;
+__v3691 := "JS_Interpreter_Expr" (ShiftExpression, scope);
+rref := __v3691;
+__v3692 := "GetValue" (rref);
+rval := __v3692;
+__v3693 := "AbstractRelationalComparison" (rval, lval, false);
+r := __v3693;
+__v3695 := r = true;
+__v3696 := r = 'undefined;
+__v3694 := __v3695 || __v3696;
+if (__v3694) {
 return false
 };
 return true
 } else {
-__v3695 := "type" in_obj e;
-__v3697 := e["type"];
-__v3696 := __v3697 = "BinaryExpression";
-__v3698 := "operator" in_obj e;
-__v3700 := e["operator"];
-__v3699 := __v3700 = ">=";
-__v3701 := "left" in_obj e;
-__v3702 := "right" in_obj e;
-if (true && __v3695 && __v3696 && __v3698 && __v3699 && __v3701 && __v3702) {
+__v3697 := "type" in_obj e;
+__v3699 := e["type"];
+__v3698 := __v3699 = "BinaryExpression";
+__v3700 := "operator" in_obj e;
+__v3702 := e["operator"];
+__v3701 := __v3702 = ">=";
+__v3703 := "left" in_obj e;
+__v3704 := "right" in_obj e;
+if (true && __v3697 && __v3698 && __v3700 && __v3701 && __v3703 && __v3704) {
 RelationalExpression := e["left"];
 ShiftExpression := e["right"];
-__v3703 := "JS_Interpreter_Expr" (RelationalExpression, scope);
-lref := __v3703;
-__v3704 := "GetValue" (lref);
-lval := __v3704;
-__v3705 := "JS_Interpreter_Expr" (ShiftExpression, scope);
-rref := __v3705;
-__v3706 := "GetValue" (rref);
-rval := __v3706;
-__v3707 := "AbstractRelationalComparison" (lval, rval);
-r := __v3707;
-__v3709 := r = true;
-__v3710 := r = 'undefined;
-__v3708 := __v3709 || __v3710;
-if (__v3708) {
+__v3705 := "JS_Interpreter_Expr" (RelationalExpression, scope);
+lref := __v3705;
+__v3706 := "GetValue" (lref);
+lval := __v3706;
+__v3707 := "JS_Interpreter_Expr" (ShiftExpression, scope);
+rref := __v3707;
+__v3708 := "GetValue" (rref);
+rval := __v3708;
+__v3709 := "AbstractRelationalComparison" (lval, rval);
+r := __v3709;
+__v3711 := r = true;
+__v3712 := r = 'undefined;
+__v3710 := __v3711 || __v3712;
+if (__v3710) {
 return false
 };
 return true
 } else {
-__v3711 := "type" in_obj e;
-__v3713 := e["type"];
-__v3712 := __v3713 = "BinaryExpression";
-__v3714 := "operator" in_obj e;
-__v3716 := e["operator"];
-__v3715 := __v3716 = "instanceof";
-__v3717 := "left" in_obj e;
-__v3718 := "right" in_obj e;
-if (true && __v3711 && __v3712 && __v3714 && __v3715 && __v3717 && __v3718) {
+__v3713 := "type" in_obj e;
+__v3715 := e["type"];
+__v3714 := __v3715 = "BinaryExpression";
+__v3716 := "operator" in_obj e;
+__v3718 := e["operator"];
+__v3717 := __v3718 = "instanceof";
+__v3719 := "left" in_obj e;
+__v3720 := "right" in_obj e;
+if (true && __v3713 && __v3714 && __v3716 && __v3717 && __v3719 && __v3720) {
 RelationalExpression := e["left"];
 ShiftExpression := e["right"];
-__v3719 := "JS_Interpreter_Expr" (RelationalExpression, scope);
-lref := __v3719;
-__v3720 := "GetValue" (lref);
-lval := __v3720;
-__v3721 := "JS_Interpreter_Expr" (ShiftExpression, scope);
-rref := __v3721;
-__v3722 := "GetValue" (rref);
-rval := __v3722;
-__v3725 := "Type" (rval);
-__v3724 := __v3725 = "Object";
-__v3723 := !(__v3724);
-if (__v3723) {
-__v3726 := "TypeErrorException" ();
-throw __v3726
-};
-__v3727 := "HasInstance" in_obj rval;
-if (__v3727) {
+__v3721 := "JS_Interpreter_Expr" (RelationalExpression, scope);
+lref := __v3721;
+__v3722 := "GetValue" (lref);
+lval := __v3722;
+__v3723 := "JS_Interpreter_Expr" (ShiftExpression, scope);
+rref := __v3723;
+__v3724 := "GetValue" (rref);
+rval := __v3724;
+__v3727 := "Type" (rval);
+__v3726 := __v3727 = "Object";
+__v3725 := !(__v3726);
+if (__v3725) {
 __v3728 := "TypeErrorException" ();
 throw __v3728
 };
-__v3729 := "HasInstance" (rval, lval);
-return __v3729
+__v3729 := "HasInstance" in_obj rval;
+if (__v3729) {
+__v3730 := "TypeErrorException" ();
+throw __v3730
+};
+__v3731 := "HasInstance" (rval, lval);
+return __v3731
 } else {
-__v3730 := "type" in_obj e;
-__v3732 := e["type"];
-__v3731 := __v3732 = "BinaryExpression";
-__v3733 := "operator" in_obj e;
-__v3735 := e["operator"];
-__v3734 := __v3735 = "in";
-__v3736 := "left" in_obj e;
-__v3737 := "right" in_obj e;
-if (true && __v3730 && __v3731 && __v3733 && __v3734 && __v3736 && __v3737) {
+__v3732 := "type" in_obj e;
+__v3734 := e["type"];
+__v3733 := __v3734 = "BinaryExpression";
+__v3735 := "operator" in_obj e;
+__v3737 := e["operator"];
+__v3736 := __v3737 = "in";
+__v3738 := "left" in_obj e;
+__v3739 := "right" in_obj e;
+if (true && __v3732 && __v3733 && __v3735 && __v3736 && __v3738 && __v3739) {
 RelationalExpression := e["left"];
 ShiftExpression := e["right"];
-__v3738 := "JS_Interpreter_Expr" (RelationalExpression, scope);
-lref := __v3738;
-__v3739 := "GetValue" (lref);
-lval := __v3739;
-__v3740 := "JS_Interpreter_Expr" (ShiftExpression, scope);
-rref := __v3740;
-__v3741 := "GetValue" (rref);
-rval := __v3741;
-__v3744 := "Type" (rval);
-__v3743 := __v3744 = "Object";
-__v3742 := !(__v3743);
-if (__v3742) {
-__v3745 := "TypeErrorException" ();
-throw __v3745
+__v3740 := "JS_Interpreter_Expr" (RelationalExpression, scope);
+lref := __v3740;
+__v3741 := "GetValue" (lref);
+lval := __v3741;
+__v3742 := "JS_Interpreter_Expr" (ShiftExpression, scope);
+rref := __v3742;
+__v3743 := "GetValue" (rref);
+rval := __v3743;
+__v3746 := "Type" (rval);
+__v3745 := __v3746 = "Object";
+__v3744 := !(__v3745);
+if (__v3744) {
+__v3747 := "TypeErrorException" ();
+throw __v3747
 };
-__v3747 := "ToString" (lval);
-__v3746 := "HasProperty" (rval, __v3747);
-return __v3746
+__v3749 := "ToString" (lval);
+__v3748 := "HasProperty" (rval, __v3749);
+return __v3748
 } else {
-__v3748 := "type" in_obj e;
-__v3750 := e["type"];
-__v3749 := __v3750 = "BinaryExpression";
-__v3751 := "operator" in_obj e;
-__v3753 := e["operator"];
-__v3752 := __v3753 = "==";
-__v3754 := "left" in_obj e;
-__v3755 := "right" in_obj e;
-if (true && __v3748 && __v3749 && __v3751 && __v3752 && __v3754 && __v3755) {
+__v3750 := "type" in_obj e;
+__v3752 := e["type"];
+__v3751 := __v3752 = "BinaryExpression";
+__v3753 := "operator" in_obj e;
+__v3755 := e["operator"];
+__v3754 := __v3755 = "==";
+__v3756 := "left" in_obj e;
+__v3757 := "right" in_obj e;
+if (true && __v3750 && __v3751 && __v3753 && __v3754 && __v3756 && __v3757) {
 EqualityExpression := e["left"];
 RelationalExpression := e["right"];
-__v3756 := "JS_Interpreter_Expr" (EqualityExpression, scope);
-lref := __v3756;
-__v3757 := "GetValue" (lref);
-lval := __v3757;
-__v3758 := "JS_Interpreter_Expr" (RelationalExpression, scope);
-rref := __v3758;
-__v3759 := "GetValue" (rref);
-rval := __v3759;
-__v3760 := "AbstractEqualityComparison" (rval, lval);
-return __v3760
+__v3758 := "JS_Interpreter_Expr" (EqualityExpression, scope);
+lref := __v3758;
+__v3759 := "GetValue" (lref);
+lval := __v3759;
+__v3760 := "JS_Interpreter_Expr" (RelationalExpression, scope);
+rref := __v3760;
+__v3761 := "GetValue" (rref);
+rval := __v3761;
+__v3762 := "AbstractEqualityComparison" (rval, lval);
+return __v3762
 } else {
-__v3761 := "type" in_obj e;
-__v3763 := e["type"];
-__v3762 := __v3763 = "BinaryExpression";
-__v3764 := "operator" in_obj e;
-__v3766 := e["operator"];
-__v3765 := __v3766 = "!=";
-__v3767 := "left" in_obj e;
-__v3768 := "right" in_obj e;
-if (true && __v3761 && __v3762 && __v3764 && __v3765 && __v3767 && __v3768) {
+__v3763 := "type" in_obj e;
+__v3765 := e["type"];
+__v3764 := __v3765 = "BinaryExpression";
+__v3766 := "operator" in_obj e;
+__v3768 := e["operator"];
+__v3767 := __v3768 = "!=";
+__v3769 := "left" in_obj e;
+__v3770 := "right" in_obj e;
+if (true && __v3763 && __v3764 && __v3766 && __v3767 && __v3769 && __v3770) {
 EqualityExpression := e["left"];
 RelationalExpression := e["right"];
-__v3769 := "JS_Interpreter_Expr" (EqualityExpression, scope);
-lref := __v3769;
-__v3770 := "GetValue" (lref);
-lval := __v3770;
-__v3771 := "JS_Interpreter_Expr" (RelationalExpression, scope);
-rref := __v3771;
-__v3772 := "GetValue" (rref);
-rval := __v3772;
-__v3773 := "AbstractEqualityComparison" (rval, lval);
-r := __v3773;
-__v3774 := r = true;
-if (__v3774) {
+__v3771 := "JS_Interpreter_Expr" (EqualityExpression, scope);
+lref := __v3771;
+__v3772 := "GetValue" (lref);
+lval := __v3772;
+__v3773 := "JS_Interpreter_Expr" (RelationalExpression, scope);
+rref := __v3773;
+__v3774 := "GetValue" (rref);
+rval := __v3774;
+__v3775 := "AbstractEqualityComparison" (rval, lval);
+r := __v3775;
+__v3776 := r = true;
+if (__v3776) {
 return false
 };
 return true
 } else {
-__v3775 := "type" in_obj e;
-__v3777 := e["type"];
-__v3776 := __v3777 = "BinaryExpression";
-__v3778 := "operator" in_obj e;
-__v3780 := e["operator"];
-__v3779 := __v3780 = "===";
-__v3781 := "left" in_obj e;
-__v3782 := "right" in_obj e;
-if (true && __v3775 && __v3776 && __v3778 && __v3779 && __v3781 && __v3782) {
+__v3777 := "type" in_obj e;
+__v3779 := e["type"];
+__v3778 := __v3779 = "BinaryExpression";
+__v3780 := "operator" in_obj e;
+__v3782 := e["operator"];
+__v3781 := __v3782 = "===";
+__v3783 := "left" in_obj e;
+__v3784 := "right" in_obj e;
+if (true && __v3777 && __v3778 && __v3780 && __v3781 && __v3783 && __v3784) {
 EqualityExpression := e["left"];
 RelationalExpression := e["right"];
-__v3783 := "JS_Interpreter_Expr" (EqualityExpression, scope);
-lref := __v3783;
-__v3784 := "GetValue" (lref);
-lval := __v3784;
-__v3785 := "JS_Interpreter_Expr" (RelationalExpression, scope);
-rref := __v3785;
-__v3786 := "GetValue" (rref);
-rval := __v3786;
-__v3787 := "StrictEqualityComparison" (rval, lval);
-return __v3787
+__v3785 := "JS_Interpreter_Expr" (EqualityExpression, scope);
+lref := __v3785;
+__v3786 := "GetValue" (lref);
+lval := __v3786;
+__v3787 := "JS_Interpreter_Expr" (RelationalExpression, scope);
+rref := __v3787;
+__v3788 := "GetValue" (rref);
+rval := __v3788;
+__v3789 := "StrictEqualityComparison" (rval, lval);
+return __v3789
 } else {
-__v3788 := "type" in_obj e;
-__v3790 := e["type"];
-__v3789 := __v3790 = "BinaryExpression";
-__v3791 := "operator" in_obj e;
-__v3793 := e["operator"];
-__v3792 := __v3793 = "!==";
-__v3794 := "left" in_obj e;
-__v3795 := "right" in_obj e;
-if (true && __v3788 && __v3789 && __v3791 && __v3792 && __v3794 && __v3795) {
+__v3790 := "type" in_obj e;
+__v3792 := e["type"];
+__v3791 := __v3792 = "BinaryExpression";
+__v3793 := "operator" in_obj e;
+__v3795 := e["operator"];
+__v3794 := __v3795 = "!==";
+__v3796 := "left" in_obj e;
+__v3797 := "right" in_obj e;
+if (true && __v3790 && __v3791 && __v3793 && __v3794 && __v3796 && __v3797) {
 EqualityExpression := e["left"];
 RelationalExpression := e["right"];
-__v3796 := "JS_Interpreter_Expr" (EqualityExpression, scope);
-lref := __v3796;
-__v3797 := "GetValue" (lref);
-lval := __v3797;
-__v3798 := "JS_Interpreter_Expr" (RelationalExpression, scope);
-rref := __v3798;
-__v3799 := "GetValue" (rref);
-rval := __v3799;
-__v3800 := "StrictEqualityComparison" (rval, lval);
-r := __v3800;
-__v3801 := r = true;
-if (__v3801) {
+__v3798 := "JS_Interpreter_Expr" (EqualityExpression, scope);
+lref := __v3798;
+__v3799 := "GetValue" (lref);
+lval := __v3799;
+__v3800 := "JS_Interpreter_Expr" (RelationalExpression, scope);
+rref := __v3800;
+__v3801 := "GetValue" (rref);
+rval := __v3801;
+__v3802 := "StrictEqualityComparison" (rval, lval);
+r := __v3802;
+__v3803 := r = true;
+if (__v3803) {
 return false
 };
 return true
 } else {
-__v3802 := "type" in_obj e;
-__v3804 := e["type"];
-__v3803 := __v3804 = "BinaryExpression";
-__v3805 := "operator" in_obj e;
-__v3806 := "left" in_obj e;
-__v3807 := "right" in_obj e;
-if (true && __v3802 && __v3803 && __v3805 && __v3806 && __v3807) {
+__v3804 := "type" in_obj e;
+__v3806 := e["type"];
+__v3805 := __v3806 = "BinaryExpression";
+__v3807 := "operator" in_obj e;
+__v3808 := "left" in_obj e;
+__v3809 := "right" in_obj e;
+if (true && __v3804 && __v3805 && __v3807 && __v3808 && __v3809) {
 operator := e["operator"];
 A := e["left"];
 B := e["right"];
-__v3808 := "JS_Interpreter_Expr" (A, scope);
-lref := __v3808;
-__v3809 := "GetValue" (lref);
-lval := __v3809;
-__v3810 := "JS_Interpreter_Expr" (B, scope);
-rref := __v3810;
-__v3811 := "GetValue" (rref);
-rval := __v3811;
-__v3812 := "ToInt32" (lval);
-lnum := __v3812;
-__v3813 := "ToInt32" (rval);
-rnum := __v3813;
-__v3814 := "applyBitwiseOperator" (operator, lnum, rnum);
-return __v3814
+__v3810 := "JS_Interpreter_Expr" (A, scope);
+lref := __v3810;
+__v3811 := "GetValue" (lref);
+lval := __v3811;
+__v3812 := "JS_Interpreter_Expr" (B, scope);
+rref := __v3812;
+__v3813 := "GetValue" (rref);
+rval := __v3813;
+__v3814 := "ToInt32" (lval);
+lnum := __v3814;
+__v3815 := "ToInt32" (rval);
+rnum := __v3815;
+__v3816 := "applyBitwiseOperator" (operator, lnum, rnum);
+return __v3816
 }
 }
 }
@@ -8131,5 +8144,5 @@ return __v3814
 }
 }
 } };
-function newBinding (initialised, value, deletable, modifiable) { __v3815 := ( initialised, value, deletable, modifiable );
-return __v3815 }
+function newBinding (initialised, value, deletable, modifiable) { __v3817 := ( initialised, value, deletable, modifiable );
+return __v3817 }

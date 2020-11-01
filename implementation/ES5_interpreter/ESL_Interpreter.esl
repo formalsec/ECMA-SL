@@ -71,25 +71,29 @@ function JS_Interpreter_Expr(e, scope) {
   }
   | { type: "ArrayExpression", elements: ElementList } -> {
     /* 11.1.4 Array Initialiser */
-
-    arrayPrototype := getArrayPrototype(getGlobalObject(scope), false);
+    arrayPrototype := getArrayPrototype(getGlobalObject(getLexicalEnvironment(scope)), false);
     array := internalNewArray(arrayPrototype, []);
-
     len := l_len ElementList;
     i := 0;
     while (i < len) {
       el := l_nth (ElementList, i);
+      print "ARRAY LOOP. BEGINNING.";
 
       if (el = null) {
         initValue := 'undefined
       } else {
-        initResult := JS_Interpreter_Expr(e, scope);
+        initResult := JS_Interpreter_Expr(el, scope);
         initValue := GetValue(initResult)
       };
 
-      descriptor := newDataPropertyDescriptorFull(initValue, true, true, true);
-      {array.DefineOwnProperty}(array, ToString(ToUint32(i)), descriptor, false);
+      print "ARRAY LOOP. GOT THE VALUE"; 
+      print initValue; 
 
+      descriptor := newDataPropertyDescriptorFull(initValue, true, true, true);
+      {array.DefineOwnProperty}(array, ToString(ToUint32(int_to_float i)), descriptor, false);
+
+      print "Array loop: END"; 
+      print i; 
       i := i + 1
     };
     

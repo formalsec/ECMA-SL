@@ -250,6 +250,7 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
         let (cs', sto_aux, params) = prepare_call prog f cs sto cont x es f' vs in
         (let (cont':Stmt.t) = func.body in
          let aux_list= (cont'::[]) in
+          Printf.printf "Going to execute %s\n" f'; 
          (Intermediate ((cs', heap, sto_aux, f'), aux_list), SecLabel.AssignCallLab (params, es, x, f')))
       |Some lab ->
         (Intermediate((cs, heap, sto, f), cont),lab))
