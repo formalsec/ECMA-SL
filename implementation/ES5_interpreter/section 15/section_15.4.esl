@@ -562,7 +562,7 @@ function arrayConcat(global, this, items) {
   O := ToObject(this);
   /* 2. Let A be a new array created as if by the expression new Array() where
         Array is the standard built-in constructor with that name. */
-  A := internalNewArray([]);
+  A := internalNewArray('null, []);
   /* 3. Let n be 0. */
   n := int_to_float 0;
 
@@ -1007,7 +1007,7 @@ function arraySlice(global, this, args) {
   O := ToObject(this);
   /* 2. Let A be a new array created as if by the expression new Array() where
         Array is the standard built-in constructor with that name. */
-  A := internalNewArray([]);
+  A := internalNewArray('null, []);
   /* 3. Let lenVal be the result of calling the [[Get]] internal method of O
         with argument "length". */
   lenVal := {O.Get}(O, "length");
@@ -1287,14 +1287,14 @@ function SortCompare(obj, comparefn, j, k) {
 function arraySplice(global, this, args) {
   start := l_nth (args, 0);
   deleteCount := l_nth (args, 1);
-  items := tl (tl args);
+  items := l_nth (args, 2);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
   /* 2. Let A be a new array created as if by the expression new Array()
         where Array is the standard built-in constructor with that name. */
-  A := internalNewArray([]);
+  A := internalNewArray('null, []);
   /* 3. Let lenVal be the result of calling the [[Get]] internal method
         of O with argument "length". */
   lenVal := {O.Get}(O, "length");
@@ -2049,7 +2049,7 @@ function arrayMap(global, this, args) {
   /* 6. Let A be a new array created as if by the expression new Array( len)
         where Array is the standard built-in constructor with that name and
         len is the value of len. */
-  A := internalNewArrayLen(len);
+  A := internalNewArrayLen('null, len);
   /* 7. Let k be 0. */
   k := 0.;
   /* 8. Repeat, while k < len */
@@ -2146,7 +2146,7 @@ function arrayFilter(global, this, args) {
   };
   /* 6. Let A be a new array created as if by the expression new Array()
         where Array is the standard built-in constructor with that name. */
-  A := internalNewArray([]);
+  A := internalNewArray('null, []);
   /* 7. Let k be 0. */
   k := 0.;
   /* 8. Let to be 0. */
@@ -2587,4 +2587,7 @@ function IsArrayIndex(P) {
   i := ToUint32(P);
   return !(i = 'null)
 }
+
+
+
 
