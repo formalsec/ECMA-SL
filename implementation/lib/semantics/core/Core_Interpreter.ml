@@ -88,7 +88,12 @@ let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
 let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
   match e with
   | Val n                -> n
-  | Var x                -> Store.get sto x
+  | Var x                -> 
+    (match Store.get sto x with 
+      | Some v -> v 
+      | None -> 
+          let msg = Printf.sprintf "Cannot find variable %s" x in 
+          raise (Failure msg))
   | UnOpt (uop, e)       -> let v = eval_expr sto e in
     eval_unop uop v
   | BinOpt (bop, e1, e2) -> 

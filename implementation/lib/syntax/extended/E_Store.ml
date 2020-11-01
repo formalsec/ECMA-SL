@@ -5,7 +5,7 @@ let create (varvals : (string * Val.t) list) : t =
   List.iter (fun (x, v) -> Hashtbl.replace sto x v) varvals;
   sto
 
-let get (sto : t) (name : string) : Val.t = Hashtbl.find sto name
+let get (sto : t) (name : string) : Val.t option = Hashtbl.find_opt sto name
 
 let set (sto : t) (name : string) (value : Val.t) : unit = Hashtbl.replace sto name value
 
