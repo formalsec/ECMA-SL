@@ -54,7 +54,6 @@ function IsUnresolvableReference (V) {
 
 function GetValue(V) {
   print "GetValue";
-  
   if (!(Type(V) = "Reference")) {
     return V
   };
