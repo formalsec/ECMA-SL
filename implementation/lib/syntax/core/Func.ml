@@ -1,3 +1,6 @@
+exception Except of string
+module StringSet = Set.Make(String)
+
 type t = {
   name   : string;
   params : string list;
@@ -32,3 +35,25 @@ let str (func : t) : string =
 
 let to_json (func : t) : string =
   Printf.sprintf "{\"type\" : \"function\", \"name\" : \"%s\", \"params\" : [ %s ], \"body\" :  %s }" (func.name) (String.concat ", " (List.map (fun str -> Printf.sprintf "\"%s\"" str) func.params)) (Stmt.to_json func.body)
+
+let rec asgn_search (stmts: Stmt.t list) : StringSet.t =
+  let set = List.fold_left (fun ac stmt -> match stmt with
+                       | Stmt.Assign (x,e)->  StringSet.add x ac
+                       | Stmt.If (e, _s1, _s2) -> ( match _s1, _s2 with 
+                        | Block s1, Some (Block s2) ->  StringSet.union (StringSet.union (asgn_search s1) (asgn_search s2)) ac
+                        | Block s1, None -> StringSet.union (asgn_search s1) (ac))
+                       | Stmt.While (e,_s) -> ( match _s with 
+                        | Block s ->StringSet.union (asgn_search s) ac
+                        | _ -> ac )
+                       |_ -> ac
+                       ) StringSet.empty stmts
+                       in
+                       set
+
+let asgn_vars (stmt: Stmt.t ) : string list =
+  match stmt with
+  Block stmts -> 
+    let set = asgn_search stmts in
+    let list = StringSet.to_seq set in
+    List.of_seq list
+  | _ -> raise (Except "Func.asgn_vars not a block!")

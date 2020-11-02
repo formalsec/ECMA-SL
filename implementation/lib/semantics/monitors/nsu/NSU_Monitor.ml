@@ -1,7 +1,7 @@
 (*Each monitor is independent of the other ones*)
 
 module M (SL : SecurityLevel.M) = struct 
-module SSet = Set.Make(String)
+(*module SSet = Set.Make(String)*)
 
 exception Except of string
 

@@ -17,6 +17,8 @@ type bopt = Plus
           | Ladd
           | Lprepend
           | Lconcat
+          | Lub
+          | Leq
 
 type uopt = Neg
           | Not
@@ -35,6 +37,7 @@ type uopt = Neg
           | Sconcat
           | ObjFields
           | ToUint32
+          
 
 
 type nopt = ListExpr
@@ -217,6 +220,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | ToUint32      -> "to_uint32"
 
 
+
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
   | Minus    -> e1 ^ " - " ^ e2
@@ -236,6 +240,8 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Ladd     -> "l_add(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Lprepend -> "l_prepend(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Lconcat  -> "l_concat(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Lub      -> "lub(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Leq      -> "lub(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | ListExpr  -> "[ " ^ (String.concat ", " es) ^ " ]"
@@ -263,7 +269,9 @@ let bopt_to_json (op : bopt) : string =
       | Tnth    -> Printf.sprintf "Tnth\" }"
       | Ladd    -> Printf.sprintf "Ladd\" }"
       | Lprepend -> Printf.sprintf "Lprepend\" }"
-      | Lconcat -> Printf.sprintf "Lconcat\" }")
+      | Lconcat -> Printf.sprintf "Lconcat\" }"
+      | Lub     -> Printf.sprintf "Lub\" }"
+      | Leq     -> Printf.sprintf "Leq\" }")
 
 let nopt_to_json (op : nopt) : string =
  Printf.sprintf "{ \"type\" : \"nopt\", \"value\" : \"%s"
