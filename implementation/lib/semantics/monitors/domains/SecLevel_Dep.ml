@@ -11,6 +11,8 @@ let top  : t option ref = ref None
 
 let flows : flow list ref = ref []
 
+let all_levels : t list ref = ref []
+
 let setTop (l_top : t): unit =
 	top  := Some (l_top);
 	()

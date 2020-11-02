@@ -56,11 +56,11 @@ let compile_from_plus_to_core () : unit =
   let c_prog = Compiler.compile_prog e_prog_resolved in
   if !out <> "" then Parsing_Utils.write_file (Prog.str c_prog) !out
 
-let inline_compiler () : unit =
+let inline_compiler () : Prog.t =
   let prog_contents = Parsing_Utils.load_file !file in
   let prog = Parsing_Utils.parse_prog prog_contents in
   let inlined_prog = Inliner.compile_functions prog "inlined.esl"  in
-  ()
+  inlined_prog
 
 let core_interpretation () : unit =
   let prog_contents = Parsing_Utils.load_file !file in
@@ -84,6 +84,9 @@ let run ()=
   else if (!file = "") then (print_string "No input file. Use -i\n=====================\n\tFINISHED\n=====================\n";exit 1)
   else if (!mode = "") then (print_string "No mode selected. Use -mode\n=====================\n\tFINISHED\n=====================\n";exit 1)
   else if (!mode = "ci") then (print_string "======================= CORE =======================\n"; core_interpretation ())
+  else if (!mode = "ic") then (print_string "======================= Inlining Monitor =======================\n";
+    let prog = inline_compiler () 
+    in ())
   else (compile_from_plus_to_core ());
 
 

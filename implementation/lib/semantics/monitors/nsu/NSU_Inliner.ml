@@ -106,7 +106,7 @@ let rec compile (pc:string) (stmt: Stmt.t ): Stmt.t list=
 
 
 
-    |_ ->		raise(Except "Unknown Op")(*ERROR*)
+    |_ ->		raise(Except ("Unknown Op -> " ^ Stmt.str stmt))(*ERROR*)
 
 
 and translist (pc:string) (_stmts: Stmt.t ) : Stmt.t list=
@@ -116,7 +116,7 @@ Block stmts -> List.fold_left (fun ac s -> ac @ compile pc s) [] stmts
 
 let compile_functions (prog : Prog.t) (out_file : string): Prog.t =
   print_string ("Transpiling Program with Inlined Monitor...\n---------- New Code ---------- \n\n\n");
-  let new_prog = Prog.create [] in
+  let new_prog = Prog.create_empty () in
   Hashtbl.iter (fun k v ->  let (f: Func.t)= v in
                             let pc = fresh_pc () in
                             let new_params = List.fold_left (fun ac param-> ac @ [param] @ [Val.shadowvar param] ) [] f.params in

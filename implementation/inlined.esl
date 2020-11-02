@@ -1,0 +1,30 @@
+function main (_pc_2) { y_lev := _pc_2;
+if (lub(x_lev, _pc_2)) {
+_freshvariable_1 := "empty";
+_freshvariable_1 := "value" (20, "{}", _pc_2);
+x := fst(_freshvariable_1);
+x_lev := snd(_freshvariable_1)
+} else {
+exception( MONITOR BLOCK - pc bigger than x )
+};
+if (lub(y_lev, _pc_2)) {
+y_lev := lub(_pc_2, "{}");
+y := 1
+} else {
+exception( MONITOR BLOCK - pc bigger than x )
+};
+_pc_3 := lub(_pc_2, lub("{}", y_lev));
+while (y < 3) { if (lub(y_lev, _pc_3)) {
+y_lev := lub(_pc_3, lub("{}", y_lev));
+y := y + 1
+} else {
+exception( MONITOR BLOCK - pc bigger than x )
+} };
+return ( x, lub(lub("{}", x_lev), _pc_2) ) };
+function value (x, x_lev, _pc_1) { if (lub(x_lev, _pc_1)) {
+x_lev := lub(_pc_1, lub("{}", x_lev));
+x := x * 2
+} else {
+exception( MONITOR BLOCK - pc bigger than x )
+};
+return ( x, lub(lub("{}", x_lev), _pc_1) ) }
