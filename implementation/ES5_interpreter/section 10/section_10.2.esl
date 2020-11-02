@@ -509,7 +509,6 @@ function GlobalEnvironment(globalObject) { /* TODO global object (15.1) */
 function getGlobalObject(lexicalEnvironment) {
   lex := lexicalEnvironment;
   outer := getOuterEnvironmentReference(lexicalEnvironment);
-  
   while(!(outer = 'null)) {
     lex := outer;
     outer := getOuterEnvironmentReference(lex)
