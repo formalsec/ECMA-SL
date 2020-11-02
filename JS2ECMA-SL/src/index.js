@@ -28,7 +28,7 @@ fs.readFile(argv.input, "utf-8", (err, data) => {
   );
 
   if (argv.output) {
-    fs.writeFile(argv.output, func, "utf8", (err) => {
+    fs.writeFile(argv.output, func.toString(), "utf8", (err) => {
       if (err) throw err;
       console.log("The file has been saved!");
     });

@@ -1,5 +1,8 @@
 import "ES5_interpreter/section 9/section_9.esl";
 import "ES5_interpreter/section 9/section_9.12.esl";
+import "ES5_interpreter/section 8/section_8.esl";
+import "ES5_interpreter/section 8/section_8.6.esl";
+import "ES5_interpreter/section 8/section_8.7.esl";
 import "ES5_interpreter/section 8/section_8.9.esl";
 import "ES5_interpreter/section 8/section_8.10.esl";
 import "ES5_interpreter/section 8/section_8.12.esl";
@@ -7,42 +10,12 @@ import "ES5_interpreter/section 10/section_10.2.esl";
 import "ES5_interpreter/section 10/section_10.3.esl";
 import "ES5_interpreter/section 10/section_10.4.esl";
 import "ES5_interpreter/section 13/section_13.esl";
+import "ES5_interpreter/section 15/section_15.7.esl";
 import "ES5_interpreter/section 15/section_15.11.esl";
 
-/* This method is not supposed to be here. As soon
-   as it is placed in the right section, it should
-   be replaced by an import of that section. */
-function Type(V) {
-  v_type := typeof V;
-  if (v_type = __$Int) { return "Number" };
-  if (v_type = __$Flt) { return "Number" };
-  if (v_type = __$Bool) { return "Boolean" };
-  if (v_type = __$Str) { return "String" };
-  if (v_type = __$Obj) { return "Object" };
-  if (v_type = __$List) { return "List" };
-  if (v_type = __$Symbol) {
-    if (V = 'null) { return "Null" };
-    if (V = 'undefined) { return "Undefined" }
-  };
-  if (v_type = __$Tuple) {
-    ft := fst V;
-    if (ft = "R") { return "Reference" };
-    if (ft = "C") { return "Completion" }
-  };
-
-  throw SyntaxErrorException()
-};
-
-
-/* Placeholder for ToNumber, ToInteger, min, max and abs that will be
+/* Placeholder for min, max and abs that will be
   implemented in another section TODO */
-/*function ToNumber(V) {
-  return V
-};*/
-function ToInteger(V) {
-  number := ToNumber(V);
-  return number
-};
+
 function max(a, b) {
   if (a > b) {
     return a
@@ -86,29 +59,237 @@ function abs(a) {
  * smaller than the new length is automatically deleted. This constraint
  * applies only to own properties of an Array object and is unaffected by
  * length or array index properties that may be inherited from its prototypes.
- *
- * An object, O, is said to be sparse if the following algorithm returns true:
- *
- * 1. Let len be the result of calling the [[Get]] internal method of O with
- *    argument "length".
- * 2. For each integer i in the range 0≤i<ToUint32(len)
- *    a. Let elem be the result of calling the [[GetOwnProperty]] internal
- *       method of O with argument ToString(i).
- *    b. If elem is undefined, return true.
- * 3. Return false.
  */
+
+
+
+/* An object, O, is said to be sparse if the following algorithm returns true: */
+function isSparseArray(O) {
+  /* 1. Let len be the result of calling the [[Get]] internal method of O with
+        argument "length". */
+  len := {O.Get}(O, "length");
+  /* 2. For each integer i in the range 0≤i<ToUint32(len) */
+  i := 0;
+  lenUint := ToUint32(len);
+
+  while (i < lenUint) {
+    /* a. Let elem be the result of calling the [[GetOwnProperty]] internal
+          method of O with argument ToString(i). */
+    elem := {O.GetOwnProperty}(O, ToString(i));
+    /* b. If elem is undefined, return true. */
+    if (elem = 'undefined) {
+      return true
+    }
+  };
+
+  /* 3. Return false. */
+  return false
+};
+
+
+
+
+function setAllInternalMethodsOfArray(arr) {
+  setAllInternalMethodsOfObject(arr);
+  arr.DefineOwnProperty := "DefineOwnPropertyArray";
+  return arr
+};
+
+
+
+
+function initArrayPrototype(global, objectPrototype, strict) {
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Array", true);
+  setAllInternalMethodsOfArray(prototype);
+
+  /* Add built-in function objects to array's prototype */
+  /* isArray */
+  isArrayObject := CreateFunctionObject(["items"], "isArray", global, strict);
+  descriptor := newDataPropertyDescriptorFull(isArrayObject, true, false, true);
+  setJSProperty(prototype, "isArray", descriptor);
+
+  /* toString */
+  toStringObject := CreateFunctionObject(["items"], "arrayToString", global, strict);
+  descriptor := newDataPropertyDescriptorFull(toStringObject, true, false, true);
+  setJSProperty(prototype, "toString", descriptor);
+
+  /* toLocaleString */
+  toLocaleStringObject := CreateFunctionObject(["items"], "arrayToLocaleString", global, strict);
+  descriptor := newDataPropertyDescriptorFull(toLocaleStringObject, true, false, true);
+  setJSProperty(prototype, "toLocaleString", descriptor);
+
+  /* concat */
+  concatObject := CreateFunctionObject(["items"], "arrayConcat", global, strict);
+  descriptor := newDataPropertyDescriptorFull(concatObject, true, false, true);
+  setJSProperty(prototype, "concat", descriptor);
+
+  /* join */
+  joinObject := CreateFunctionObject(["items"], "arrayJoin", global, strict);
+  descriptor := newDataPropertyDescriptorFull(joinObject, true, false, true);
+  setJSProperty(prototype, "join", descriptor);
+
+  /* pop */
+  popObject := CreateFunctionObject(["items"], "arrayPop", global, strict);
+  descriptor := newDataPropertyDescriptorFull(popObject, true, false, true);
+  setJSProperty(prototype, "pop", descriptor);
+
+  /* push */
+  pushObject := CreateFunctionObject(["items"], "arrayPush", global, strict);
+  descriptor := newDataPropertyDescriptorFull(pushObject, true, false, true);
+  setJSProperty(prototype, "push", descriptor);
+
+  /* reverse */
+  reverseObject := CreateFunctionObject(["items"], "arrayReverse", global, strict);
+  descriptor := newDataPropertyDescriptorFull(reverseObject, true, false, true);
+  setJSProperty(prototype, "reverse", descriptor);
+
+  /* shift */
+  shiftObject := CreateFunctionObject(["items"], "arrayShift", global, strict);
+  descriptor := newDataPropertyDescriptorFull(shiftObject, true, false, true);
+  setJSProperty(prototype, "shift", descriptor);
+
+  /* slice */
+  sliceObject := CreateFunctionObject(["items"], "arraySlice", global, strict);
+  descriptor := newDataPropertyDescriptorFull(sliceObject, true, false, true);
+  setJSProperty(prototype, "slice", descriptor);
+
+  /* sort */
+  sortObject := CreateFunctionObject(["items"], "arraySort", global, strict);
+  descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
+  setJSProperty(prototype, "sort", descriptor);
+
+  /* splice */
+  spliceObject := CreateFunctionObject(["items"], "arraySplice", global, strict);
+  descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
+  setJSProperty(prototype, "splice", descriptor);
+
+  /* indexOf */
+  indexOfObject := CreateFunctionObject(["items"], "arrayIndexOf", global, strict);
+  descriptor := newDataPropertyDescriptorFull(indexOfObject, true, false, true);
+  setJSProperty(prototype, "indexOf", descriptor);
+
+  /* lastIndexOf */
+  lastIndexOfObject := CreateFunctionObject(["items"], "arrayLastIndexOf", global, strict);
+  descriptor := newDataPropertyDescriptorFull(lastIndexOfObject, true, false, true);
+  setJSProperty(prototype, "lastIndexOf", descriptor);
+
+  /* every */
+  everyOfObject := CreateFunctionObject(["items"], "arrayEvery", global, strict);
+  descriptor := newDataPropertyDescriptorFull(everyOfObject, true, false, true);
+  setJSProperty(prototype, "every", descriptor);
+
+  /* some */
+  someOfObject := CreateFunctionObject(["items"], "arraySome", global, strict);
+  descriptor := newDataPropertyDescriptorFull(someOfObject, true, false, true);
+  setJSProperty(prototype, "some", descriptor);
+
+  /* forEach */
+  forEachObject := CreateFunctionObject(["items"], "arrayForEach", global, strict);
+  descriptor := newDataPropertyDescriptorFull(forEachObject, true, false, true);
+  setJSProperty(prototype, "forEach", descriptor);
+
+  /* map */
+  mapObject := CreateFunctionObject(["items"], "arrayMap", global, strict);
+  descriptor := newDataPropertyDescriptorFull(mapObject, true, false, true);
+  setJSProperty(prototype, "map", descriptor);
+
+  /* filter */
+  filterObject := CreateFunctionObject(["items"], "arrayFilter", global, strict);
+  descriptor := newDataPropertyDescriptorFull(filterObject, true, false, true);
+  setJSProperty(prototype, "filter", descriptor);
+
+  /* reduce */
+  reduceObject := CreateFunctionObject(["items"], "arrayReduce", global, strict);
+  descriptor := newDataPropertyDescriptorFull(reduceObject, true, false, true);
+  setJSProperty(prototype, "reduce", descriptor);
+
+  /* reduceRight */
+  reduceRightObject := CreateFunctionObject(["items"], "arrayReduceRight", global, strict);
+  descriptor := newDataPropertyDescriptorFull(reduceRightObject, true, false, true);
+  setJSProperty(prototype, "reduceRight", descriptor);
+
+  return prototype
+};
+
+
+
+function getArrayPrototype(globalObject, strict) {
+  refArray := newPropertyReference(globalObject, "Array", strict);
+  ArrayObject := GetValue(refArray);
+  refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
+  objectArrayProto := GetValue(refArrayProto);
+  return objectArrayProto
+}; 
+
+
+
+
+function initArrayLib(global, objectPrototype, strict) {
+  objArrayPrototype := initArrayPrototype(global, objectPrototype, strict);
+  objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict);
+
+  descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
+  setJSProperty(objArrayConstructor, "prototype", descriptor);
+
+  /* 15.1 The Global Object
+      The unique global object is created before control enters any execution context.
+      Unless otherwise specified, the standard built-in properties of the global object have
+      attributes {[[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}. */
+  descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
+  setJSProperty(global, "Array", descriptor);
+
+  return objArrayConstructor
+};
+
+
+
+
+
+/**
+ * 15.4.1 The Array Constructor Called as a Function
+ *
+ * When Array is called as a function rather than as a constructor, it
+ * creates and initialises a new Array object. Thus the function call
+ * Array(…) is equivalent to the object creation expression new Array(…)
+ * with the same arguments.
+ */
+
+/**
+ * 15.4.1.1 Array ( [ item1 [ , item2 [ , … ] ] ] )
+ *
+ * When the Array function is called the following steps are taken:
+ *
+ * Create and return a new Array object exactly as if the standard
+ * built-in constructor Array was used in a new expression with the
+ * same arguments (15.4.2).
+ */
+
+/**
+ * 15.4.2 The Array Constructor
+ *
+ * When Array is called as part of a new expression, it is a constructor:
+ * it initialises the newly created object.
+ */
+
+
+
 
 /**
  * 15.4.2.1 new Array ( [ item0 [ , item1 [ , … ] ] ] ) # Ⓣ
  * This description applies if and only if the Array constructor is given
  * no arguments or at least two arguments.
  */
-function newArray(items) {
+function ArrayConstructor(global, this, items) {
+  prototype := getArrayPrototype(global, false);
+  return internalNewArray(prototype, items)
+};
+function internalNewArray(arrayPrototype, items) {
   arr := {
+    JSProperties: { },
     /* The [[Prototype]] internal property of the newly constructed object
        is set to the original Array prototype object, the one that is the
        initial value of Array.prototype (15.4.3.1). */
-    Prototype: 'null,
+    Prototype: arrayPrototype,
     /* The [[Extensible]] internal property of the newly constructed object
        is set to true. */
     Extensible: true,
@@ -127,7 +308,9 @@ function newArray(items) {
   /* The length property of the newly constructed object is set to the
      number of arguments. */
   len := l_len items;
-  arr.length := newDataPropertyDescriptorFull(int_to_float(len), true, false, false);
+
+  /* length is a own property, so we use setJSProperty, instead of accessing arr.length directly */
+  setJSProperty(arr, "length", newDataPropertyDescriptorFull(int_to_float(len), true, false, false));
 
   /* The 0 property of the newly constructed object is set to item0
      (if supplied); the 1 property of the newly constructed object is set
@@ -138,7 +321,7 @@ function newArray(items) {
      [[Enumerable]]: true, [[Configurable]]: true}. */
   while (i < len) {
     i_str := int_to_string i;
-    arr[i_str] := newDataPropertyDescriptorFull(l_nth (items, i), true, true, true);
+    setJSProperty(arr, i_str, newDataPropertyDescriptorFull(l_nth (items, i), true, true, true));
     i := i + 1
   };
 
@@ -151,8 +334,15 @@ function newArray(items) {
 /**
  * 15.4.2.2 new Array (len)
  */
-function newArrayLen(len) {
+function ArrayConstructorLen(global, this, args) {
+  len := l_nth (args, 0);
+  prototype := getArrayPrototype(global, false);
+  return internalNewArrayLen(prototype, len)
+};
+function internalNewArrayLen(arrayPrototype, len) {
+
   arr := {
+    JSProperties: { },
     /* The [[Prototype]] internal property of the newly constructed object is
       set to the original Array prototype object, the one that is the initial
       value of Array.prototype (15.4.3.1). */
@@ -176,7 +366,8 @@ function newArrayLen(len) {
   /* If the argument len is a Number and ToUint32(len) is equal to len, then
      the length property of the newly constructed object is set to ToUint32(len). */
   if (lenIsNumber && ((ToUint32(len) = len))) {
-    arr.length := newDataPropertyDescriptorFull(ToUint32(len), true, false, false)
+    /*arr.length := newDataPropertyDescriptorFull(ToUint32(len), true, false, false)*/
+    setJSProperty(arr, "length", newDataPropertyDescriptorFull(ToUint32(len), true, false, false))
   };
 
   /* If the argument len is a Number and ToUint32(len) is not equal to
@@ -190,8 +381,8 @@ function newArrayLen(len) {
      constructed object is set to len with attributes {[[Writable]]: true,
      [[Enumerable]]: true, [[Configurable]]: true}.. */
   if (!lenIsNumber) {
-    arr.length := newDataPropertyDescriptorFull(ToUint32(1.), true, false, false);
-    arr["0"] := newDataPropertyDescriptorFull(len, true, true, true)
+    setJSProperty(arr, "length", newDataPropertyDescriptorFull(ToUint32(1.), true, false, false));
+    setJSProperty(arr, "0", newDataPropertyDescriptorFull(len, true, true, true))
   };
 
   return arr
@@ -206,7 +397,8 @@ function newArrayLen(len) {
  * value true if the argument is an object whose class internal property
  * is "Array"; otherwise it returns false. The following steps are taken:
  */
-function isArray(arg) {
+function isArray(global, this, args) {
+  arg := l_nth (args, 0);
   /* 1. If Type(arg) is not Object, return false. */
   if (!(Type(arg) = "Object")) {
     return false
@@ -228,7 +420,7 @@ function isArray(arg) {
  *
  * When the toString method is called, the following steps are taken:
  */
-function toStringArray(this) {
+function arrayToString(global, this, args) {
   /* 1. Let array be the result of calling ToObject on the this value. */
   array := ToObject(this);
   /* 2. Let func be the result of calling the [[Get]] internal method
@@ -237,7 +429,7 @@ function toStringArray(this) {
   /* 3. If IsCallable(func) is false, then let func be the standard
         built-in method Object.prototype.toString (15.2.4.2). */
   if (IsCallable(func) = false) {
-    func := ToString
+    func := getObjectPrototypeToString(global) /* TODO */
   };
   /* 4. Return the result of calling the [[Call]] internal method of func
         providing array as the this value and an empty arguments list. */
@@ -266,7 +458,7 @@ function toStringArray(this) {
  *
  * The result is calculated as follows:
  */
-function toLocaleString(this) {
+function arrayToLocaleString(global, this, args) {
   /* 1. Let O be the result of calling ToObject passing the this value as
         the argument. */
   O := ToObject(this);
@@ -287,7 +479,7 @@ function toLocaleString(this) {
         method of array with argument "0". */
   firstElement := {O.Get}(O, "0");
   /* 7. If firstElement is undefined or null, then */
-  if (firstElement = 'undefined || firstElement = 'null) {
+  if ((firstElement = 'undefined) || (firstElement = 'null)) {
     /* a. Let R be the empty String. */
     R := ""
   }
@@ -367,13 +559,13 @@ function toLocaleString(this) {
  *
  * The following steps are taken:
  */
-function concat(this, items) {
+function arrayConcat(global, this, items) {
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
   /* 2. Let A be a new array created as if by the expression new Array() where
         Array is the standard built-in constructor with that name. */
-  A := newArray([]);
+  A := ArrayConstructor(global, this, []);
   /* 3. Let n be 0. */
   n := int_to_float 0;
 
@@ -463,7 +655,9 @@ function concat(this, items) {
  * The join method takes one argument, separator, and performs the
  * following steps:
  */
-function join(this, separator) {
+/* function join (global, this, [ separator ]) */
+function arrayJoin(global, this, args) {
+  separator := l_nth (args, 0);
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -534,7 +728,7 @@ function join(this, separator) {
  *
  * The last element of the array is removed from the array and returned.
  */
-function pop(this) {
+function arrayPop(global, this, args) {
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -543,6 +737,9 @@ function pop(this) {
   lenVal := {O.Get}(O, "length");
   /* 3. Let len be ToUint32(lenVal). */
   len := ToUint32(lenVal);
+
+  print s_concat(["lenVal: ", lenVal]);
+  print s_concat(["len: ", len]);
 
   /* 4. If len is zero, */
   if (len = 0.) {
@@ -556,10 +753,12 @@ function pop(this) {
   else {
     if (len > 0.) {
       /* a. Let indx be ToString(len–1). */
-      indx := ToString(len - 1);
+      indx := ToString(len - 1.);
       /* b. Let element be the result of calling the [[Get]] internal method
             of O with argument indx. */
       element := {O.Get}(O, indx);
+      print s_concat(["indx: ", indx]);
+      print s_concat(["element: ", element]);
       /* c. Call the [[Delete]] internal method of O with arguments indx
             and true. */
       {O.Delete}(O, indx, true);
@@ -590,7 +789,8 @@ function pop(this) {
  * When the push method is called with zero or more arguments item1,item2, etc.,
  * the following steps are taken:
  */
-function push(this, items) {
+function arrayPush(global, this, items) {
+  print "array push"; 
   /* 1. Let O be the result of calling ToObject passing the this value as the
         argument. */
   O := ToObject(this);
@@ -638,7 +838,7 @@ function push(this, items) {
  * The elements of the array are rearranged so as to reverse their order.
  * The object is returned as the result of the call.
  */
-function reverse(this) {
+function arrayReverse(global, this, args) {
   /* 1. Let O be the result of calling ToObject passing the this value as
         the argument. */
   O := ToObject(this);
@@ -723,7 +923,7 @@ function reverse(this) {
  *
  * The first element of the array is removed from the array and returned.
  */
-function shift(this) {
+function arrayShift(global, this, args) {
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -801,13 +1001,16 @@ function shift(this) {
  * it is treated as length+end where length is the length of the array. The following
  * steps are taken:
  */
-function slice(this, start, end) {
+function arraySlice(global, this, args) {
+  start := l_nth (args, 0);
+  end := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
   /* 2. Let A be a new array created as if by the expression new Array() where
         Array is the standard built-in constructor with that name. */
-  A := newArray([]);
+  A := ArrayConstructor(global, this, []);
   /* 3. Let lenVal be the result of calling the [[Get]] internal method of O
         with argument "length". */
   lenVal := {O.Get}(O, "length");
@@ -885,16 +1088,105 @@ function slice(this, start, end) {
  * that accepts two arguments x and y and returns a negative value if x < y,
  * zero if x = y, or a positive value if x > y.
  */
-function sort (this, comparefn) {
+function arraySort(global, this, args) {
+  comparefn := l_nth (args, 0);
+
   /* Let obj be the result of calling ToObject passing the this value
      as the argument. */
   obj := ToObject(this);
   /* Let len be the result of applying Uint32 to the result of calling
      the [[Get]] internal method of obj with argument "length". */
-  len := ToUint32({obj.Get}(obj, "length"))
+  len := ToUint32({obj.Get}(obj, "length"));
   /* If comparefn is not undefined and is not a consistent comparison
      function for the elements of this array (see below), the behaviour
      of sort is implementation-defined. */
+  /* TODO */
+  /* Let proto be the value of the [[Prototype]] internal property of obj. */
+  proto := obj.Prototype; /* TODO */
+  /* If proto is not null and there exists an integer j such that all of the
+     conditions below are satisfied then the behaviour of sort is
+     implementation-defined:
+     - obj is sparse (15.4)
+     - 0 ≤ j < len
+     - The result of calling the [[HasProperty]] internal method of proto
+       with argument ToString(j) is true. */
+  /* TODO */
+  /* The behaviour of sort is also implementation defined if obj is sparse
+     and any of the following conditions are true:
+     - The [[Extensible]] internal property of obj is false.
+     - Any array index property of obj whose name is a nonnegative integer
+       less than len is a data property whose [[Configurable]] attribute
+       is false. */
+  /* TODO */
+  /* The behaviour of sort is also implementation defined if any array
+     index property of obj whose name is a nonnegative integer less than
+     len is an accessor property or is a data property whose [[Writable]]
+     attribute is false. */
+  /* TODO */
+  /* Otherwise, the following steps are taken. */
+  /* 1. Perform an implementation-dependent sequence of calls to the [[Get]] ,
+        [[Put]], and [[Delete]] internal methods of obj and to SortCompare
+        (described below), where the first argument for each call to [[Get]],
+        [[Put]], or [[Delete]] is a nonnegative integer less than len and where
+        the arguments for calls to SortCompare are results of previous calls to
+        the [[Get]] internal method. The throw argument to the [[Put]] and
+        [[Delete]] internal methods will be the value true. If obj is not
+        sparse then [[Delete]] must not be called. */
+
+  /* INSERTION SORT - START */
+  k := 1.;
+  while (k < len) {
+    j := k - 1.;
+    while ((j >= 0.) && (SortCompare(obj, comparefn, j, j + 1.) > 0.)) {
+      jValNext := {obj.Get}(obj, ToString(j + 1.));
+      jVal := {obj.Get}(obj, ToString(j));
+      {obj.Put}(obj, ToString(j + 1.), jVal, true);
+      {obj.Put}(obj, ToString(j), jValNext, true);
+      j := j - 1.
+    };
+    k := k + 1.
+  };
+  /* INSERTION SORT - END */
+
+  /* 2. Return obj. */
+  return obj
+
+  /* The returned object must have the following two properties.
+     - There must be some mathematical permutation π of the nonnegative
+       integers less than len, such that for every nonnegative integer j
+       less than len, if property old[j] existed, then new[π(j)] is exactly
+       the same value as old[j],. But if property old[j] did not exist,
+       then new[π(j)] does not exist.
+     - Then for all nonnegative integers j and k, each less than len,
+       if SortCompare(j,k) < 0 (see SortCompare below), then π(j) < π(k).
+
+    Here the notation old[j] is used to refer to the hypothetical result
+    of calling the [[Get]] internal method of obj with argument j before
+    this function is executed, and the notation new[j] to refer to the
+    hypothetical result of calling the [[Get]] internal method of obj
+    with argument j after this function has been executed.
+
+    A function comparefn is a consistent comparison function for a set
+    of values S if all of the requirements below are met for all values
+    a, b, and c (possibly the same value) in the set S: The notation
+    a <CF b means comparefn(a,b) < 0; a =CF b means comparefn(a,b) = 0
+    (of either sign); and a >CF b means comparefn(a,b) > 0.
+
+    - Calling comparefn(a,b) always returns the same value v when given
+    a specific pair of values a and b as its two arguments. Furthermore,
+    Type(v) is Number, and v is not NaN. Note that this implies that
+    exactly one of a <CF b, a =CF b, and a >CF b will be true for a
+    given pair of a and b.
+    - Calling comparefn(a,b) does not modify the this object.
+    - a =CF a (reflexivity)
+    - If a =CF b, then b =CF a (symmetry)
+    - If a =CF b and b =CF c, then a =CF c (transitivity of =CF)
+    - If a <CF b and b <CF c, then a <CF c (transitivity of <CF)
+    - If a >CF b and b >CF c, then a >CF c (transitivity of >CF)
+
+    NOTE The above conditions are necessary and sufficient to ensure
+    that comparefn divides the set S into equivalence classes and that
+    these equivalence classes are totally ordered. */
 };
 /**
  * NOTE 1 Because non-existent property values always compare greater than
@@ -912,6 +1204,80 @@ function sort (this, comparefn) {
 
 
 /**
+ * When the SortCompare abstract operation is called with two arguments
+ * j and k, the following steps are taken:
+ */
+function SortCompare(obj, comparefn, j, k) {
+  /* 1. Let jString be ToString(j). */
+  jString := ToString(j);
+  /* 2. Let kString be ToString(k). */
+  kString := ToString(k);
+  /* 3. Let hasj be the result of calling the [[HasProperty]] internal
+        method of obj with argument jString. */
+  hasj := {obj.HasProperty}(obj, jString);
+  /* 4. Let hask be the result of calling the [[HasProperty]] internal
+        method of obj with argument kString. */
+  hask := {obj.HasProperty}(obj, kString);
+  /* 5. If hasj and hask are both false, then return +0. */
+  if ((hasj = false) && (hask = false)) {
+    return 0.
+  };
+  /* 6. If hasj is false, then return 1. */
+  if (hasj = false) {
+    return 1.
+  };
+  /* 7. If hask is false, then return –1. */
+  if (hask = false) {
+    return -1.
+  };
+  /* 8. Let x be the result of calling the [[Get]] internal method of
+        obj with argument jString. */
+  x := {obj.Get}(obj, jString);
+  /* 9. Let y be the result of calling the [[Get]] internal method of
+        obj with argument kString. */
+  y := {obj.Get}(obj, kString);
+  /* 10. If x and y are both undefined, return +0. */
+  if ((x = 'undefined) && (y = 'undefined)) {
+    return 0.
+  };
+  /* 11. If x is undefined, return 1. */
+  if (x = 'undefined) {
+    return 1.
+  };
+  /* 12. If y is undefined, return −1. */
+  if (y = 'undefined) {
+    return -1.
+  };
+  /* 13. If the argument comparefn is not undefined, then */
+  if (!(comparefn = 'undefined)) {
+    /* a. If IsCallable(comparefn) is false, throw a TypeError exception. */
+    if (IsCallable(comparefn) = false) {
+      throw TypeErrorException()
+    };
+    /* b. Return the result of calling the [[Call]] internal method of
+          comparefn passing undefined as the this value and with arguments x and y. */
+    return {comparefn.Call}(comparefn, 'undefined, [x, y])
+  };
+  /* 14. Let xString be ToString(x). */
+  xString := ToString(x);
+  /* 15. Let yString be ToString(y). */
+  yString := ToString(y);
+  /* 16. If xString < yString, return −1. */
+  if (xString < yString) {
+    return -1.
+  };
+  /* 17. If xString > yString, return 1. */
+  if (xString > yString) {
+    return 1.
+  };
+  /* 18. Return +0. */
+  return 0.
+};
+
+
+
+
+/**
  * 15.4.4.12 Array.prototype.splice (start, deleteCount [ , item1
  * [ , item2 [ , … ] ] ] )
  *
@@ -921,13 +1287,17 @@ function sort (this, comparefn) {
  * item1, item2, etc. An Array object containing the deleted elements (if any)
  * is returned. The following steps are taken:
  */
-function splice (this, start, deleteCount, items) {
+function arraySplice(global, this, args) {
+  start := l_nth (args, 0);
+  deleteCount := l_nth (args, 1);
+  items := l_nth (args, 2);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
   /* 2. Let A be a new array created as if by the expression new Array()
         where Array is the standard built-in constructor with that name. */
-  A := newArray([]);
+  A := ArrayConstructor(global, this, []);
   /* 3. Let lenVal be the result of calling the [[Get]] internal method
         of O with argument "length". */
   lenVal := {O.Get}(O, "length");
@@ -1066,11 +1436,9 @@ function splice (this, start, deleteCount, items) {
     /* c. Increase k by 1. */
     k := k + 1.
   };
-  newLen := len - actualDeleteCount;
-  newLen := newLen + itemCount;
   /* 16. Call the [[Put]] internal method of O with arguments "length",
          (len - actualDeleteCount + itemCount), and true. */
-  {O.Put}(O, "length", (len - (actualDeleteCount + itemCount)), true);
+  {O.Put}(O, "length", ((len - actualDeleteCount) + itemCount), true);
   /* 17. Return A. */
   return A
 };
@@ -1096,7 +1464,7 @@ function splice (this, start, deleteCount, items) {
  * When the unshift method is called with zero or more arguments item1,
  * item2, etc., the following steps are taken:
  */
-function unshift(this, items) {
+function arrayUnshift(global, this, items) {
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1189,7 +1557,10 @@ function unshift(this, items) {
  * When the indexOf method is called with one or two arguments, the following
  * steps are taken:
  */
-function indexOf(this, searchElement, fromIndex) {
+function arrayIndexOf(global, this, args) {
+  searchElement := l_nth (args, 0);
+  fromIndex := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -1279,7 +1650,10 @@ function indexOf(this, searchElement, fromIndex) {
  * When the lastIndexOf method is called with one or two arguments, the
  * following steps are taken:
  */
-function lastIndexOf(this, searchElement, fromIndex) {
+function arrayLastIndexOf(global, this, args) {
+  searchElement := l_nth (args, 0);
+  fromIndex := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1379,7 +1753,10 @@ function lastIndexOf(this, searchElement, fromIndex) {
  * When the every method is called with one or two arguments, the following
  * steps are taken:
  */
-function every(this, callbackfn, thisArg) {
+function arrayEvery(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  thisArg := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1471,7 +1848,10 @@ function every(this, callbackfn, thisArg) {
  * When the some method is called with one or two arguments, the following
  * steps are taken:
  */
-function some(this, callbackfn, thisArg) {
+function arraySome(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  thisArg := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1560,7 +1940,10 @@ function some(this, callbackfn, thisArg) {
  * When the forEach method is called with one or two arguments, the
  * following steps are taken:
  */
-function forEach(this, callbackfn, thisArg) {
+function arrayForEach(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  thisArg := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1644,7 +2027,10 @@ function forEach(this, callbackfn, thisArg) {
  * When the map method is called with one or two arguments, the following
  * steps are taken:
  */
-function map(this, callbackfn, thisArg) {
+function arrayMap(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  thisArg := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1666,7 +2052,7 @@ function map(this, callbackfn, thisArg) {
   /* 6. Let A be a new array created as if by the expression new Array( len)
         where Array is the standard built-in constructor with that name and
         len is the value of len. */
-  A := newArrayLen(len);
+  A := ArrayConstructorLen(global, this, [len]);
   /* 7. Let k be 0. */
   k := 0.;
   /* 8. Repeat, while k < len */
@@ -1739,7 +2125,10 @@ function map(this, callbackfn, thisArg) {
  * When the filter method is called with one or two arguments, the following
  * steps are taken:
  */
-function filter(this, callbackfn, thisArg) {
+function arrayFilter(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  thisArg := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1760,7 +2149,7 @@ function filter(this, callbackfn, thisArg) {
   };
   /* 6. Let A be a new array created as if by the expression new Array()
         where Array is the standard built-in constructor with that name. */
-  A := newArray([]);
+  A := ArrayConstructor(global, this, []);
   /* 7. Let k be 0. */
   k := 0.;
   /* 8. Let to be 0. */
@@ -1841,7 +2230,10 @@ function filter(this, callbackfn, thisArg) {
  * When the reduce method is called with one or two arguments, the
  * following steps are taken:
  */
-function reduce(this, callbackfn, initialValue) {
+function arrayReduce(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  initialValue := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1957,7 +2349,10 @@ function reduce(this, callbackfn, initialValue) {
  * When the reduceRight method is called with one or two arguments,
  * the following steps are taken:
  */
-function reduceRight(this, callbackfn, initialValue) {
+function arrayReduceRight(global, this, args) {
+  callbackfn := l_nth (args, 0);
+  initialValue := l_nth (args, 1);
+
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -2191,224 +2586,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
   return DefineOwnProperty(A, P, Desc, Throw)
 };
 
-
-
-
 function IsArrayIndex(P) {
   i := ToUint32(P);
   return !(i = 'null)
-};
-
-
-
-
-/* main array constructor length
-function main() {
-  arr := newArrayLen(5.);
-  return arr
-}*/
-
-/* main isArray
-function main() {
-  return isArray(newArray([2., 3.]))
-}*/
-
-/* main toStringArray TODO
-function main() {
-  return toStringArray(newArray([2., 3.]))
-}*/
-
-/* main toLocaleString TODO
-function main() {
-  return toLocaleString(newArray([2., 3.]))
-}*/
-
-/* main concat
-function main() {
-  arr1 := newArray([2., 3.]);
-  arr2 := newArray([4., 5.]);
-  arr := concat(arr1, [arr2]);
-  return arr
-}*/
-
-/* main join
-function main() {
-  arr := newArray([2., 3., 4., 5.]);
-  return join (arr, "_")
-}*/
-
-/* main pop
-function main() {
-  arr := newArray([2., 3., 4.]);
-  lastEl := pop(arr);
-
-  obj := {
-    arr: arr,
-    lastEl: lastEl
-  };
-
-  return obj
-}*/
-
-/* main push
-function main() {
-  arr := newArray([2., 3., 4.]);
-  newLen := push(arr, [5., 6.]);
-
-  obj := {
-    arr: arr,
-    newLen: newLen
-  };
-
-  return obj
-}*/
-
-/* main reverse
-function main() {
-  return reverse(newArray([2., 3., 6., 9.]))
-}*/
-
-/* main shift
-function main() {
-  arr := newArray([2., 3., 4.]);
-  firstEl := shift(arr);
-
-  obj := {
-    arr: arr,
-    firstEl: firstEl
-  };
-
-  return obj
-}*/
-
-/* main slice
-function main() {
-  arr := newArray([2., 3., 4., 5., 6., 7.]);
-  return slice(arr, 2., 4.)
-}*/
-
-/* main sort
-function main() {
-  arr := newArray([2., 3., 4., 5., 2., 7.]);
-  return sort(arr, callbackfn,'undefined)
-}*/
-
-/* main splice 
-function main() {
-  arr := newArray(["Banana", "Orange", "Apple", "Mango"]);
-  items := ["Lemon", "Kiwi"];
-  removedEls := splice(arr, 2., 2., items);
-
-  obj := {
-    arr: arr,
-    removedEls: removedEls
-  };
-
-  return obj
-}*/
-
-/* main unshift
-function main() {
-  arr := newArray([2., 3., 4., 5., 6., 7.]);
-  newLen := unshift(arr, [22., 44.]);
-
-  obj := {
-    arr: arr,
-    newLen: newLen
-  };
-
-  return obj
-}*/
-
-/* main indexOf
-function main() {
-  arr := newArray([2., 3., 4., 5., 6., 7.]);
-  return indexOf(arr, 5., 'undefined)
-}*/
-
-/* main lastIndexOf 
-function main() {
-  arr := newArray([2., 3., 4., 5., 2., 7.]);
-  return lastIndexOf(arr, 2., 'undefined)
-}*/
-
-/* main every 
-function callbackfn(scope, this, args) {
-  x := l_nth (args, 0);
-  return x > 1.
-};
-function main() {
-  arr := newArray([2., 3., 4., 5., 2., 7.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
-  return every(arr, funcObj, 'undefined)
-}*/
-
-/* main some
-function callbackfn(scope, this, args) {
-  x := l_nth (args, 0);
-  return x > 9.
-};
-function main() {
-  arr := newArray([2., 3., 4., 5., 2., 7.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
-  return some(arr, funcObj, 'undefined)
-}*/
-
-/* main forEach
-function callbackfn(scope, this, args) {
-  x := l_nth (args, 0);
-  print x;
-  return x
-};
-function main() {
-  arr := newArray([1., 2., 3.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
-  forEach(arr, funcObj, 'undefined);
-  return arr
-}*/
-
-/* main map
-function callbackfn(scope, this, args) {
-  x := l_nth (args, 0);
-  return x * 2.
-};
-function main() {
-  arr := newArray([1., 2., 3.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
-  return map(arr, funcObj, 'undefined)
-}*/
-
-/* main filter
-function callbackfn(scope, this, args) {
-  x := l_nth (args, 0);
-  return x > 2.
-};
-function main() {
-  arr := newArray([2., 3., 4., 5., 2., 7.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfn", 'null, false);
-  return filter(arr, funcObj, 'undefined)
-}*/
-
-/* main reduce
-function callbackfn(scope, this, args) {
-  total := l_nth (args, 0);
-  x := l_nth (args, 1);
-  return total - x
-};
-function main() {
-  arr := newArray([175., 50., 25.]);
-  funcObj := CreateFunctionObject(["total", "x"], "callbackfn", 'null, false);
-  return reduce(arr, funcObj, 'undefined)
-}*/
-
-/* main reduceRight */
-function callbackfn(scope, this, args) {
-  total := l_nth (args, 0);
-  x := l_nth (args, 1);
-  return total - x
-};
-function main() {
-  arr := newArray([175., 50., 25.]);
-  funcObj := CreateFunctionObject(["total", "x"], "callbackfn", 'null, false);
-  return reduceRight(arr, funcObj, 'undefined)
 }

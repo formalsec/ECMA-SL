@@ -21,6 +21,7 @@ import "ES5_interpreter/section 11/section_11.13.esl";
 import "ES5_interpreter/section 12/section_12.6.esl";
 import "ES5_interpreter/section 12/section_12.11.esl";
 import "ES5_interpreter/section 13/section_13.esl";
+import "ES5_interpreter/section 15/section_15.4.esl";
 import "ES5_interpreter/section 15/section_15.5.esl";
 import "ES5_interpreter/section 15/section_15.6.esl";
 import "ES5_interpreter/section 15/section_15.7.esl";
