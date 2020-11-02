@@ -88,7 +88,12 @@ let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
 let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
   match e with
   | Val n                -> n
-  | Var x                -> Store.get sto x
+  | Var x                -> 
+    (match Store.get sto x with 
+      | Some v -> v 
+      | None -> 
+          let msg = Printf.sprintf "Cannot find variable %s" x in 
+          raise (Failure msg))
   | UnOpt (uop, e)       -> let v = eval_expr sto e in
     eval_unop uop v
   | BinOpt (bop, e1, e2) -> 
@@ -245,6 +250,7 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
         let (cs', sto_aux, params) = prepare_call prog f cs sto cont x es f' vs in
         (let (cont':Stmt.t) = func.body in
          let aux_list= (cont'::[]) in
+          Printf.printf "Going to execute %s\n" f'; 
          (Intermediate ((cs', heap, sto_aux, f'), aux_list), SecLabel.AssignCallLab (params, es, x, f')))
       |Some lab ->
         (Intermediate((cs, heap, sto, f), cont),lab))
@@ -318,8 +324,13 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
 let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> (Mon.sl SecLabel.t) option) (prog:Prog.t) (state : state_t) (mon_state:Mon.state_t) (stmts:Stmt.t list)  (verbose:bool): return =
   match stmts with
   | [] ->  raise(Except "Empty list")
-  | s::stmts' -> ( let (return, label) = eval_small_step interceptor prog state stmts' verbose s in
-                   let mon_return : Mon.monitor_return = Mon.eval_small_step mon_state label in
+  | s::stmts' ->  let (return, label) = eval_small_step interceptor prog state stmts' verbose s in
+                    (match return with
+                    | Finalv v ->  Finalv v
+                    | Errorv v -> Errorv v
+                    | Intermediate (state', stmts'') ->
+                      small_step_iter interceptor prog state' mon_state stmts'' verbose)
+                   (*let mon_return : Mon.monitor_return = Mon.eval_small_step mon_state label in
                    (match mon_return with
                     | MReturn mon_state' -> (
                         match return with
@@ -329,7 +340,7 @@ let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> (
                           small_step_iter interceptor prog state' mon_state' stmts'' verbose)
                     | MFail  (mon_state', str) ->
                       print_string ("MONITOR EXCEPTION -> "^str);
-                      exit 1;))
+                      exit 1;))*)
 
 
 let initial_state () : state_t =

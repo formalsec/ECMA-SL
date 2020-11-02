@@ -10,6 +10,17 @@ function RangeErrorException() {
 };
 
 /**
+ * 15.11.6.3 ReferenceError
+ * 
+ * Indicate that an invalid reference value has been detected.
+ */
+function ReferenceErrorException() {
+  return {
+    exception: "ReferenceError"
+  }
+};
+
+/**
  * 15.11.6.5 TypeError
  *
  * Indicates the actual type of an operand is different than the expected type.
