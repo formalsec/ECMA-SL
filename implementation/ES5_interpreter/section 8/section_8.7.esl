@@ -54,13 +54,12 @@ function IsUnresolvableReference (V) {
 
 function GetValue(V) {
   print "GetValue";
-  print V; 
+  
   if (!(Type(V) = "Reference")) {
     return V
   };
 
   base := GetBase(V);
-  print base; 
 
   if (IsUnresolvableReference(V)) {
     throw ReferenceErrorException()
