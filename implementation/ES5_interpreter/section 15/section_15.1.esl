@@ -69,8 +69,8 @@ function initGlobalObject(strict) {
   /* 15.1.4.1 Object ( . . . ) */
   /* 15.1.4.2 Function ( . . . ) */
   /* 15.1.4.3 Array ( . . . ) */
-  /* ArrayObject := initArrayObject();
-  createBuiltInProperty(globalObject, "Array", ArrayObject); */
+  ArrayObject := initArrayObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Array", ArrayObject);
   /* 15.1.4.4 String ( . . . ) */
   /* StringObject := initStringObject();
   createBuiltInProperty(globalObject, "String", StringObject); */

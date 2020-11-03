@@ -219,24 +219,17 @@ function getArrayPrototype(globalObject, strict) {
   refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
   objectArrayProto := GetValue(refArrayProto);
   return objectArrayProto
-}; 
+};
 
 
 
 
-function initArrayLib(global, objectPrototype, strict) {
+function initArrayObject(global, objectPrototype, strict) {
   objArrayPrototype := initArrayPrototype(global, objectPrototype, strict);
   objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict);
 
   descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
   setJSProperty(objArrayConstructor, "prototype", descriptor);
-
-  /* 15.1 The Global Object
-      The unique global object is created before control enters any execution context.
-      Unless otherwise specified, the standard built-in properties of the global object have
-      attributes {[[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}. */
-  descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
-  setJSProperty(global, "Array", descriptor);
 
   return objArrayConstructor
 };
@@ -790,7 +783,7 @@ function arrayPop(global, this, args) {
  * the following steps are taken:
  */
 function arrayPush(global, this, items) {
-  print "array push"; 
+  print "array push";
   /* 1. Let O be the result of calling ToObject passing the this value as the
         argument. */
   O := ToObject(this);
