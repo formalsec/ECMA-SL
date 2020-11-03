@@ -18,7 +18,7 @@ function ToBoolean(argument) {
     return argument
   };
   if (Type(argument) = "Number") {
-    if ((argument = 0) || (argument = -0) || (argument = NaN)) {
+    if ((argument = 0.) || (argument = -0.) || (argument = NaN)) {
       return false
     } else {
       return true
@@ -47,14 +47,14 @@ function ToNumber(argument) {
     return NaN
   };
   if (argument_type = "Null") {
-    return 0
+    return 0.
   };
   if (argument_type = "Boolean") {
     /* The result is 1 if the argument is true. The result is +0 if the argument is false. */
     if (argument = true) {
       return int_to_float 1
     };
-    return 0
+    return 0.
   };
   if (argument_type = "Number") {
     return argument
