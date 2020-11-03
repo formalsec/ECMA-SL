@@ -1,12 +1,140 @@
-/**
- * 15.11.6.2 RangeError
- *
- * Indicates a numeric value has exceeded the allowable range.
- */
-function RangeErrorException() {
-  return {
-    exception: "RangeError"
-  }
+/* 15.11 Error Objects */
+
+/* Instances of Error objects are thrown as exceptions when runtime errors occur. The Error objects may also
+   serve as base objects for user-defined exception classes. */
+
+function initErrorObject(ObjectPrototype, globalObject, strict) {
+  errorPrototype := initErrorPrototype(ObjectPrototype);
+  errorConstructor := initErrorConstructor(errorPrototype, globalObject, strict);
+
+  fillErrorPrototype(errorPrototype, errorConstructor, globalObject, strict);
+
+  return errorConstructor
+};
+
+/* 15.11.1 The Error Constructor Called as a Function */
+/* When Error is called as a function rather than as a constructor, it creates and initialises a new Error object.
+   Thus the function call Error(...) is equivalent to the object creation expression new Error(...) with the
+   same arguments. */
+
+/* 15.11.1.1 Error (message) */
+/* The [[Prototype]] internal property of the newly constructed object is set to the original Error prototype object,
+   the one that is the initial value of Error.prototype (15.11.3.1). */
+/* The [[Class]] internal property of the newly constructed object is set to "Error". */
+/* The [[Extensible]] internal property of the newly constructed object is set to true. */
+/* If the argument message is not undefined, the message own property of the newly constructed object is set to
+   ToString(message). */
+
+/* 15.11.2 The Error Constructor */
+function initErrorConstructor(ErrorPrototype, globalObject, strict) {
+  /* When Error is called as part of a new expression, it is a constructor: it initialises the newly created object. */
+  /* The value of the [[Prototype]] internal property of the Error constructor is the Function prototype object (15.3.4). */
+  ErrorConstructor := CreateFunctionObject(["message"], "ErrorConstructor", globalObject, strict);
+
+  /* 15.11.3.1 Error.prototype */
+  /* The initial value of Error.prototype is the Error prototype object (15.11.4). */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(ErrorConstructor, "prototype", ErrorPrototype, false, false, false);
+
+  return ErrorConstructor
+};
+
+
+/* 15.11.4 Error Prototype Object */
+function initErrorPrototype(objectPrototypeObject) {
+  errorPrototypeObject := NewECMAScriptObject();
+  /* The Error prototype object is itself an Error object (its [[Class]] is "Error"). */
+  setInternalProperty(errorPrototypeObject, "Class", "Error");
+  /* The value of the [[Prototype]] internal property of the Error prototype object is the standard built-in Object
+     prototype object (15.2.4). */
+  setInternalProperty(errorPrototypeObject, "Prototype", objectPrototypeObject);
+
+  return errorPrototypeObject
+};
+
+/* 15.11.4 Properties of the Error Prototype Object */
+function fillErrorPrototype(errorPrototypeObject, ErrorConstructor, globalObject, strict) {
+  /* 15.11.4.1 Error.prototype.constructor */
+  /* The initial value of Error.prototype.constructor is the built-in Error constructor. */
+  createBuiltInProperty(errorPrototypeObject, "constructor", ErrorConstructor);
+
+  /* 15.11.4.2 Error.prototype.name */
+  /* The initial value of Error.prototype.name is "Error". */
+  createBuiltInProperty(errorPrototypeObject, "name", "Error");
+
+  /* 15.11.4.3 Error.prototype.message */
+  /* The initial value of Error.prototype.message is the empty String. */
+  createBuiltInProperty(errorPrototypeObject, "message", "");
+
+  /* 15.11.4.4 Error.prototype.toString ( ) */
+  toString := CreateFunctionObject([], "ErrorPrototypeToString", globalObject, strict);
+  createBuiltInProperty(errorPrototypeObject, "toString", toString);
+
+  return
+};
+
+/* 15.11.5 Properties of Error Instances */
+/* Error instances inherit properties from the Error prototype object and their [[Class]] internal property value is
+   "Error". Error instances have no special properties. */
+
+/* 15.11.2.1 new Error (message) */
+function ErrorConstructor(globalObject, this, strict, params) {
+  message := l_nth(params, 0);
+  assert !(message = undefined);
+
+  /* When Error is called as part of a new expression, it is a constructor: it initialises the newly created object. */
+  newlyConstructoredObject := NewECMAScriptObject();
+
+  /* The [[Prototype]] internal property of the newly constructed object is set to the original Error prototype object,
+     the one that is the initial value of Error.prototype (15.11.3.1). */
+  setInternalProperty(newlyConstructoredObject, "Prototype", getErrorPrototype(globalObject, strict));
+  /* The [[Class]] internal property of the newly constructed Error object is set to "Error". */
+  setInternalProperty(newlyConstructoredObject, "Class", "Error");
+  /* The [[Extensible]] internal property of the newly constructed object is set to true. */
+  setInternalProperty(newlyConstructoredObject, "Extensible", true);
+
+  /* If the argument message is not undefined, the message own property of the newly constructed object is set to
+     ToString(message). */
+  if (!(message = 'undefined)) {
+    createBuiltInProperty(newlyConstructoredObject, "message", ToString(message))
+  };
+
+  return newlyConstructoredObject
+};
+
+/* 15.11.4.4 Error.prototype.toString ( ) */
+function ErrorPrototypeToString(globalObject, this, strict, params) {
+  /* The following steps are taken: */
+
+  /* 1. Let O be the this value. */
+  O := this;
+  /* 2. If Type(O) is not Object, throw a TypeError exception. */
+  if (!(Type(O) = "Object")) {
+    throw TypeErrorException()
+  };
+  /* 3. Let name be the result of calling the [[Get]] internal method of O with argument "name". */
+  name := {O.Get}(O, "name");
+  /* 4. If name is undefined, then let name be "Error"; else let name be ToString(name). */
+  if (name = 'undefined) {
+    name := "Error"
+  } else {
+    name := ToString(name)
+  };
+  /* 5. Let msg be the result of calling the [[Get]] internal method of O with argument "message". */
+  msg := {O.Get}(O, "message");
+  /* 6. If msg is undefined, then let msg be the empty String; else let msg be ToString(msg). */
+  /* 7. If msg is undefined, then let msg be the empty String; else let msg be ToString(msg). */
+  if (msg = 'undefined) {
+    msg := ""
+  } else {
+    msg := ToString(msg)
+  };
+  /* 8. If name is the empty String, return msg. */
+  if (name = "") { return msg };
+  /* 9. If msg is the empty String, return name. */
+  if (msg = "") { return name };
+  /* 10. Return the result of concatenating name, ":", a single space character, and msg. */
+  return s_concat [name, ":", " ", msg]
 };
 
 /**
