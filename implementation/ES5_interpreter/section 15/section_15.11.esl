@@ -222,7 +222,7 @@ function initNativeErrorObject(ErrorPrototype, nativeErrorName, globalObject, st
 
   fillNativeErrorPrototype(nativeErrorPrototype, nativeErrorConstructor, nativeErrorName);
 
-  return nativeErrorPrototype
+  return nativeErrorConstructor
 };
 
 /* 15.11.7.1 NativeError Constructors Called as Functions */
