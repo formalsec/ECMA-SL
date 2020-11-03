@@ -1,30 +1,70 @@
-function main (_pc_2) { y_lev := _pc_2;
-if (lub(x_lev, _pc_2)) {
-_freshvariable_1 := "empty";
-_freshvariable_1 := "value" (20, "{}", _pc_2);
-x := fst(_freshvariable_1);
-x_lev := snd(_freshvariable_1)
+function main (_pc_1) { aux_1_lev := _pc_1;
+aux_2_lev := _pc_1;
+x_lev := _pc_1;
+y_lev := _pc_1;
+if (lub(a_lev, _pc_1)) {
+_freshvariable_0 := "empty";
+_freshvariable_0 := "setTop" ("{aux_1, aux_2}", "{}", _pc_1);
+a := fst(_freshvariable_0);
+a_lev := snd(_freshvariable_0)
 } else {
 exception( MONITOR BLOCK - pc bigger than x )
 };
-if (lub(y_lev, _pc_2)) {
-y_lev := lub(_pc_2, "{}");
+if (lub(a_lev, _pc_1)) {
+_freshvariable_1 := "empty";
+_freshvariable_1 := "allowFlow" ("{aux_1}", "{}", "{}", "{}", _pc_1);
+a := fst(_freshvariable_1);
+a_lev := snd(_freshvariable_1)
+} else {
+exception( MONITOR BLOCK - pc bigger than x )
+};
+if (lub(aux_1_lev, _pc_1)) {
+aux_1_lev := lub(_pc_1, "{}");
+aux_1 := 1
+} else {
+exception( MONITOR BLOCK - pc bigger than x )
+};
+if (lub(aux_2_lev, _pc_1)) {
+aux_2_lev := lub(_pc_1, "{}");
+aux_2 := 2
+} else {
+exception( MONITOR BLOCK - pc bigger than x )
+};
+if (lub(d_lev, _pc_1)) {
+_freshvariable_4 := "empty";
+_freshvariable_4 := "upgVar" ("aux_1", "{}", "{}", "{}", _pc_1);
+d := fst(_freshvariable_4);
+d_lev := snd(_freshvariable_4)
+} else {
+exception( MONITOR BLOCK - pc bigger than x )
+};
+if (lub(d_lev, _pc_1)) {
+_freshvariable_5 := "empty";
+_freshvariable_5 := "upgVar" ("aux_2", "{}", "{}", "{}", _pc_1);
+d := fst(_freshvariable_5);
+d_lev := snd(_freshvariable_5)
+} else {
+exception( MONITOR BLOCK - pc bigger than x )
+};
+if (lub(x_lev, _pc_1)) {
+x_lev := lub(_pc_1, lub("{}", aux_1_lev));
+x := aux_1
+} else {
+exception( MONITOR BLOCK - pc bigger than x )
+};
+if (lub(y_lev, _pc_1)) {
+y_lev := lub(_pc_1, "{}");
 y := 1
 } else {
 exception( MONITOR BLOCK - pc bigger than x )
 };
-_pc_3 := lub(_pc_2, lub("{}", y_lev));
-while (y < 3) { if (lub(y_lev, _pc_3)) {
-y_lev := lub(_pc_3, lub("{}", y_lev));
-y := y + 1
+_pc_2 := lub(_pc_1, lub("{}", x_lev));
+if (x = 1) {
+if (lub(y_lev, _pc_2)) {
+y_lev := lub(_pc_2, lub("{}", aux_2_lev));
+y := aux_2
 } else {
 exception( MONITOR BLOCK - pc bigger than x )
-} };
-return ( x, lub(lub("{}", x_lev), _pc_2) ) };
-function value (x, x_lev, _pc_1) { if (lub(x_lev, _pc_1)) {
-x_lev := lub(_pc_1, lub("{}", x_lev));
-x := x * 2
-} else {
-exception( MONITOR BLOCK - pc bigger than x )
+}
 };
-return ( x, lub(lub("{}", x_lev), _pc_1) ) }
+return ( true, lub("{}", _pc_1) ) }

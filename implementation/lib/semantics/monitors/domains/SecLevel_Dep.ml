@@ -3,7 +3,7 @@ module SSet = Set.Make(String)
  
 module M = struct
 
-type t = SSet.t
+type t = SSet.t ref
 
 type flow = t * t
 
@@ -11,17 +11,27 @@ let top  : t option ref = ref None
 
 let flows : flow list ref = ref []
 
-let all_levels : t list ref = ref []
+let all_levels : t list ref = ref [ref SSet.empty]
+
+let find_ref (lev : SSet.t) : t =
+	List.fold_left (fun ac ele -> 
+						if !ele = lev then (
+						 Printf.printf "Existing ref >>>>>%d\n" (Obj.magic ele);
+						 ele
+						)
+						else (
+						ref lev)) (ref SSet.empty) !all_levels
+						(* Gives an existent ref or a new ref *) 
 
 let setTop (l_top : t): unit =
 	top  := Some (l_top);
 	()
 
 let print_set (set : t) : unit =
-	SSet.iter (fun str -> Printf.printf "# %s\n" str) set ;
+	SSet.iter (fun str -> Printf.printf "# %s\n" str) !set ;
 	()
 
-let get_low () : t =  SSet.empty 
+let get_low () : t =  find_ref SSet.empty 
 
 let get_high () : t =
 	match !top with
@@ -29,23 +39,24 @@ let get_high () : t =
 	| Some v -> v
 
 let str (l:t) : string =
-	"{" ^ (String.concat " " (SSet.elements l))   ^"}"
+	"{" ^ (String.concat " " (SSet.elements !l))   ^"}"
 
 let flow_to_str (fl : flow) : string =
 	match fl with 
 	(fromset, toset) -> Printf.sprintf "%s -> %s" (str fromset) (str toset)
 
-let apply_flow (fl : flow)  (lev: t) : t =
-	Printf.printf "\tApplying flow %s to lev %s\n" (flow_to_str fl) (str lev);
+let apply_flow (fl : flow)  (lev: SSet.t) : SSet.t =
+	Printf.printf "\tApplying flow %s to lev %s\n" (flow_to_str fl) (str (ref lev));
 	match fl with 
 	(fromset, toset) ->
-	 	if( SSet.subset toset lev) then SSet.union fromset lev
+	 	if( SSet.subset !toset lev) then ( SSet.union !fromset lev )
  		else lev
  	
 
-let close_level (lev : t) : t =
-	Printf.printf "Closing level %s\n" (str lev);
-	let rec loop (chng : bool) (level : t) : t =
+
+let close_level (lev : SSet.t) : SSet.t =
+	Printf.printf "Closing level %s\n" (str (ref lev));
+	let rec loop (chng : bool) (level : SSet.t) : SSet.t =
 		let old_lev = level in 
 		let lev2 =  List.fold_left (fun ac flow  ->  apply_flow flow ac) level !flows in
 		let chng = not (SSet.equal level  old_lev) in
@@ -53,35 +64,51 @@ let close_level (lev : t) : t =
 			loop chng lev2 )
 		else (
 			
-	 		lev2)
-	in
-	let res = loop true lev in 
-		print_string ("\tResulting level: " ^ (str res ^ "\n"));
-		res 
+	 		lev2) in
+		let res = loop true lev in 
+			print_string ("\tResulting level: " ^ (str (ref res) ^ "\n"));
+
+			res 
 	
 
 
 let lub (set1:t) (set2:t): t = 
-	close_level (SSet.union set1 set2)
+	 find_ref (SSet.union !set1 !set2)
 	  
 let lubn (lst : t list): t =
-  List.fold_left lub SSet.empty lst
+  List.fold_left lub (ref SSet.empty) lst
 
 
 let leq (set1:t) (set2:t): bool = 
-	SSet.subset set1 set2 
-	
+	SSet.subset !set1 !set2 
+
+
+let update_levels  () : unit =
+		 List.iter (fun refer -> refer := close_level !refer) !all_levels; 
+		 ()
+
 let addFlow (set1: t) (set2 : t) : unit =
 	flows := !flows @ [(set1, set2)] ;
-	() 
+	update_levels ();
+	()
 	
 
 let parse_lvl (str : string) : t =
 	let rem1 = String.split_on_char '{' str in
     let rem2 = String.split_on_char '}' (List.nth rem1 1) in
     let finalst = String.split_on_char ',' (List.nth rem2 0) in
+    (*Find de correct re*)
     if finalst = [""] then
-    	close_level (SSet.of_list  [])
+
+    	(let close = close_level (SSet.of_list  []) in
+		let refer = find_ref close in 
+		Printf.printf ">>>>>>>>>>>>%d\n" (Obj.magic refer);
+		refer) 
+
     else
-	close_level (SSet.of_list finalst) 
+    	(let close = close_level (SSet.of_list finalst) in
+		let refer = find_ref close in 
+			Printf.printf ">>>>>>>>>>>>%d\n" (Obj.magic refer);
+			refer) 
+
 end
