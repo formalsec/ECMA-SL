@@ -90,23 +90,23 @@ function initGlobalObject(strict) {
   ErrorObject := initErrorObject(ObjectPrototype, globalObject, strict);
   createBuiltInProperty(globalObject, "Error", ErrorObject);
   /* 15.1.4.10 EvalError ( . . . ) */
-  /* EvalErrorObject := initEvalErrorObject();
-  createBuiltInProperty(globalObject, "EvalError", EvalErrorObject); */
+  EvalErrorObject := initEvalErrorObject(getErrorPrototype(globalObject, strict), globalObject, strict);
+  createBuiltInProperty(globalObject, "EvalError", EvalErrorObject);
   /* 15.1.4.11 RangeError ( . . . ) */
-  /* RangeErrorObject := initRangeErrorObject();
-  createBuiltInProperty(globalObject, "RangeError", RangeErrorObject); */
+  RangeErrorObject := initRangeErrorObject(getErrorPrototype(globalObject, strict), globalObject, strict);
+  createBuiltInProperty(globalObject, "RangeError", RangeErrorObject);
   /* 15.1.4.12 ReferenceError ( . . . ) */
-  /* ReferenceErrorObject := initReferenceErrorObject();
-  createBuiltInProperty(globalObject, "ReferenceError", ReferenceErrorObject); */
+  ReferenceErrorObject := initReferenceErrorObject(getErrorPrototype(globalObject, strict), globalObject, strict);
+  createBuiltInProperty(globalObject, "ReferenceError", ReferenceErrorObject);
   /* 15.1.4.13 SyntaxError ( . . . ) */
-  /* SyntaxErrorObject := initSyntaxErrorObject();
-  createBuiltInProperty(globalObject, "SyntaxError", SyntaxErrorObject); */
+  SyntaxErrorObject := initSyntaxErrorObject(getErrorPrototype(globalObject, strict), globalObject, strict);
+  createBuiltInProperty(globalObject, "SyntaxError", SyntaxErrorObject);
   /* 15.1.4.14 TypeError ( . . . ) */
-  /* TypeErrorObject := initTypeErrorObject();
-  createBuiltInProperty(globalObject, "TypeError", TypeErrorObject); */
+  TypeErrorObject := initTypeErrorObject(getErrorPrototype(globalObject, strict), globalObject, strict);
+  createBuiltInProperty(globalObject, "TypeError", TypeErrorObject);
   /* 15.1.4.15 URIError ( . . . ) */
-  /* URIErrorObject := initURIErrorObject();
-  createBuiltInProperty(globalObject, "URIError", URIErrorObject); */
+  URIErrorObject := initURIErrorObject(getErrorPrototype(globalObject, strict), globalObject, strict);
+  createBuiltInProperty(globalObject, "URIError", URIErrorObject);
 
   /* 15.1.5 Other Properties of the Global Object*/
   /* 15.1.5.1 Math */
