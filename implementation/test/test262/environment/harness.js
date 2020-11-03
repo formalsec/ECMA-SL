@@ -1,6 +1,6 @@
 var NotEarlyErrorString = "NotEarlyError";
 var EarlyErrorRePat = "^((?!" + NotEarlyErrorString + ").)*$";
-// var NotEarlyError = new Error(NotEarlyErrorString); /* TODO temp fix while Error built-in object is not implemented */
+var NotEarlyError = new Error(NotEarlyErrorString);
 
 function Test262Error(message) {
     this.message = message || "";
