@@ -148,8 +148,11 @@ function ErrorPrototypeToString(globalObject, this, strict, params) {
 function initEvalErrorObject(ErrorPrototype, globalObject, strict) {
   return initNativeErrorObject(ErrorPrototype, "EvalError", globalObject, strict)
 };
-function EvalErrorException(globalObject, strict) {
-  return NativeErrorConstructor(globalObject, strict, ['undefined], "EvalError")
+function EvalErrorConstructor(globalObject, this, strict, params) {
+  message := l_nth(params, 0);
+  assert !(message = undefined);
+
+  return NativeErrorConstructor(globalObject, strict, message, "EvalError")
 };
 
 /* 15.11.6.2 RangeError */
@@ -158,8 +161,11 @@ function EvalErrorException(globalObject, strict) {
 function initRangeErrorObject(ErrorPrototype, globalObject, strict) {
   return initNativeErrorObject(ErrorPrototype, "RangeError", globalObject, strict)
 };
-function RangeErrorException(globalObject, strict) {
-  return NativeErrorConstructor(globalObject, strict, ['undefined], "RangeError")
+function RangeErrorConstructor(globalObject, this, strict, params) {
+  message := l_nth(params, 0);
+  assert !(message = undefined);
+
+  return NativeErrorConstructor(globalObject, strict, message, "RangeError")
 };
 
 /* 15.11.6.3 ReferenceError */
@@ -168,8 +174,11 @@ function RangeErrorException(globalObject, strict) {
 function initReferenceErrorObject(ErrorPrototype, globalObject, strict) {
   return initNativeErrorObject(ErrorPrototype, "ReferenceError", globalObject, strict)
 };
-function ReferenceErrorException(globalObject, strict) {
-  return NativeErrorConstructor(globalObject, strict, ['undefined], "ReferenceError")
+function ReferenceErrorConstructor(globalObject, this, strict, params) {
+  message := l_nth(params, 0);
+  assert !(message = undefined);
+
+  return NativeErrorConstructor(globalObject, strict, message, "ReferenceError")
 };
 
 /* 15.11.6.4 SyntaxError */
@@ -179,8 +188,11 @@ function ReferenceErrorException(globalObject, strict) {
 function initSyntaxErrorObject(ErrorPrototype, globalObject, strict) {
   return initNativeErrorObject(ErrorPrototype, "SyntaxError", globalObject, strict)
 };
-function SyntaxErrorException(globalObject, strict) {
-  return NativeErrorConstructor(globalObject, strict, ['undefined], "SyntaxError")
+function SyntaxErrorConstructor(globalObject, this, strict, params) {
+  message := l_nth(params, 0);
+  assert !(message = undefined);
+
+  return NativeErrorConstructor(globalObject, strict, message, "SyntaxError")
 };
 
 /* 15.11.6.5 TypeError */
@@ -194,8 +206,12 @@ function SyntaxErrorException(globalObject, strict) {
 function initTypeErrorObject(ErrorPrototype, globalObject, strict) {
   return initNativeErrorObject(ErrorPrototype, "TypeError", globalObject, strict)
 };
-function TypeErrorException(globalObject, strict) {
-  return NativeErrorConstructor(globalObject, strict, ['undefined], "TypeError")
+function TypeErrorConstructor(globalObject, this, strict, params) {
+  message := l_nth(params, 0);
+  assert !(message = undefined);
+
+  return NativeErrorConstructor(globalObject, strict, message, "TypeError")
+};
 };
 
 /* 15.11.6.6 URIError */
@@ -204,8 +220,11 @@ function TypeErrorException(globalObject, strict) {
 function initURIErrorObject(ErrorPrototype, globalObject, strict) {
   return initNativeErrorObject(ErrorPrototype, "URIError", globalObject, strict)
 };
-function URIErrorException(globalObject, strict) {
-  return NativeErrorConstructor(globalObject, strict, ['undefined], "URIError")
+function URIErrorConstructor(globalObject, this, strict, params) {
+  message := l_nth(params, 0);
+  assert !(message = undefined);
+
+  return NativeErrorConstructor(globalObject, strict, message, "URIError")
 };
 
 
@@ -295,10 +314,7 @@ function fillNativeErrorPrototype(nativeErrorPrototypeObject, NativeErrorConstru
 
 
 /* 15.11.7.4 new NativeError (message) */
-function NativeErrorConstructor(globalObject, strict, params, nativeErrorName) {
-  message := l_nth(params, 0);
-  assert !(message = undefined);
-
+function NativeErrorConstructor(globalObject, strict, message, nativeErrorName) {
   /* When a NativeError constructor is called as part of a new expression, it is a constructor: it initialises the newly
       created object. */
   newlyConstructoredObject := NewECMAScriptObject();
