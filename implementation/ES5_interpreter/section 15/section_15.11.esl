@@ -154,6 +154,9 @@ function EvalErrorConstructor(globalObject, this, strict, params) {
 
   return NativeErrorConstructor(globalObject, strict, message, "EvalError")
 };
+function EvalErrorConstructorInternal() {
+  return NativeErrorConstructor('null, false, 'undefined, "EvalError")
+};
 
 /* 15.11.6.2 RangeError */
 /* Indicates a numeric value has exceeded the allowable range. See 15.4.2.2, 15.4.5.1, 15.7.4.2, 15.7.4.5,
@@ -166,6 +169,9 @@ function RangeErrorConstructor(globalObject, this, strict, params) {
   assert !(message = undefined);
 
   return NativeErrorConstructor(globalObject, strict, message, "RangeError")
+};
+function RangeErrorConstructorInternal() {
+  return NativeErrorConstructor('null, false, 'undefined, "RangeError")
 };
 
 /* 15.11.6.3 ReferenceError */
@@ -180,6 +186,9 @@ function ReferenceErrorConstructor(globalObject, this, strict, params) {
 
   return NativeErrorConstructor(globalObject, strict, message, "ReferenceError")
 };
+function ReferenceErrorConstructorInternal() {
+  return NativeErrorConstructor('null, false, 'undefined, "ReferenceError")
+};
 
 /* 15.11.6.4 SyntaxError */
 /* Indicates that a parsing error has occurred. See 11.1.5, 11.3.1, 11.3.2, 11.4.1, 11.4.4, 11.4.5, 11.13.1, 11.13.2,
@@ -193,6 +202,9 @@ function SyntaxErrorConstructor(globalObject, this, strict, params) {
   assert !(message = undefined);
 
   return NativeErrorConstructor(globalObject, strict, message, "SyntaxError")
+};
+function SyntaxErrorConstructorInternal() {
+  return NativeErrorConstructor('null, false, 'undefined, "SyntaxError")
 };
 
 /* 15.11.6.5 TypeError */
@@ -212,6 +224,8 @@ function TypeErrorConstructor(globalObject, this, strict, params) {
 
   return NativeErrorConstructor(globalObject, strict, message, "TypeError")
 };
+function TypeErrorConstructorInternal() {
+  return NativeErrorConstructor('null, strict, 'undefined, "TypeError")
 };
 
 /* 15.11.6.6 URIError */
@@ -225,6 +239,9 @@ function URIErrorConstructor(globalObject, this, strict, params) {
   assert !(message = undefined);
 
   return NativeErrorConstructor(globalObject, strict, message, "URIError")
+};
+function URIErrorConstructorInternal() {
+  return NativeErrorConstructor('null, strict, 'undefined, "URIError")
 };
 
 
