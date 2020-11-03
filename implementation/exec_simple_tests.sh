@@ -14,6 +14,10 @@ INV='\e[7m'         #INVERTED
 LGREEN='\e[102m'
 BOLD='\e[1m'
 
+function writeToMDFile() {
+  echo $1 >> simple_tests_result.md
+}
+
 # 1. Create the file that will be compiled from "Plus" to "Core" in step 3.4.
 echo "import \"ES5_interpreter/test_ast.esl\";" > "ES5_interpreter/test.esl"
 echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "ES5_interpreter/test.esl"
@@ -34,6 +38,10 @@ then
   exit
 fi
 
+echo "" > simple_tests_result.md
+# Write table header to MD file
+writeToMDFile "File path | Result | Observations"
+writeToMDFile "--- | --- | ---"
 
 # 3. Loop over listed files
 for f in $(ls test/simple/*.js)
@@ -66,11 +74,11 @@ do
   cd "../implementation"
 
   # 3.4. Compile program written in "Plus" to "Core"
-  ECMALSLC=$(./main.native -mode c -i ES5_interpreter/test.esl -o ES5_interpreter/core.esl)
+  ECMASLC=$(./main.native -mode c -i ES5_interpreter/test.esl -o ES5_interpreter/core.esl)
 
   if [ $? -ne 0 ]
   then
-    echo $ECMALSLC
+    writeToMDFile "${FILENAME} | **ERROR** | ${ECMASLC}"
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
     continue
   fi
@@ -81,7 +89,7 @@ do
 
   if [ $? -ne 0 ]
   then
-    echo $ECMASLCI
+    writeToMDFile "${FILENAME} | **ERROR** | ${ECMASLCI}"
     # echo "Check file result.txt"
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
     continue
@@ -93,12 +101,17 @@ do
   if [[ "${RESULT}" == "MAIN return -> (\"C\", 'normal, true, 'empty)" ]]
   then
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
+    writeToMDFile "${FILENAME} | _OK_ | "
   else
     printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC}\n"
+    writeToMDFile "${FILENAME} | **FAIL** | ${RESULT}"
   fi
+
 done
 
 
 # 4. Remove temporary files previously created
 rm "test/main.js"
 rm "ES5_interpreter/test.esl"
+rm "ES5_interpreter/test_ast.esl"
+rm "../JS2ECMA-SL/test_ast.esl"
