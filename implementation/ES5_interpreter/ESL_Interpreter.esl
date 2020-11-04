@@ -17,6 +17,7 @@ function JS_Interpreter_Program(p) {
     };
     /* 3. Let progCxt be a new execution context for global code as described in 10.4.1. */
     progCxt := EnteringGlobalCode(p);
+    |global| := getGlobalObject(getLexicalEnvironment(progCxt)); 
     /* 4. Let result be the result of evaluating SourceElements. */
     result := JS_Interpreter_SourceElements(SourceElementsopt, progCxt);
     /* 5. Exit the execution context progCxt. */
@@ -1690,7 +1691,7 @@ function JS_Interpreter_BinExpr(e, scope) {
       throw TypeErrorException()
     };
     /* 6. If rval does not have a [[HasInstance]] internal method, throw a TypeError exception. */
-    if ("HasInstance" in_obj rval) {
+    if (!("HasInstance" in_obj rval)) {
       throw TypeErrorException()
     };
     /* 7. Return the result of calling the [[HasInstance]] internal method of rval with argument lval. */

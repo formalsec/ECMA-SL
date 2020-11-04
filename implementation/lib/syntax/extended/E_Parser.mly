@@ -24,6 +24,7 @@
 %token <int> INT
 %token <bool> BOOLEAN
 %token <string> VAR
+%token <string> GVAR
 %token <string> STRING
 %token <string> SYMBOL
 %token <string> LOC
@@ -151,6 +152,8 @@ e_expr_target:
     { E_Expr.Val v }
   | v = VAR;
     { E_Expr.Var v }
+  | v = GVAR; 
+    { E_Expr.GVar v }
   | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Expr.Call (E_Expr.Val (Val.Str f), es) }
   | LBRACE; f = e_expr_target; RBRACE; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
@@ -165,6 +168,7 @@ e_expr_target:
     { pre_bin_op_expr }
   | in_bin_op_expr = infix_binary_op_target;
     { in_bin_op_expr }
+  
 
 nary_op_target:
   | LBRACK; es = separated_list (COMMA, e_expr_target); RBRACK;
@@ -266,6 +270,8 @@ e_stmt_target:
     { E_Stmt.Skip }
   | v = VAR; DEFEQ; e = e_expr_target;
     { E_Stmt.Assign (v, e) }
+  | v = GVAR; DEFEQ; e = e_expr_target;
+    { E_Stmt.GlobAssign (v, e) }
   | e_stmt = ifelse_target;
     { e_stmt }
   | WHILE; LPAREN; e = e_expr_target; RPAREN; s = e_block_target;
