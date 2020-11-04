@@ -273,7 +273,7 @@ function initArrayObject(global, objectPrototype, strict) {
  * no arguments or at least two arguments.
  */
 function ArrayConstructor(global, this, strict, items) {
-  prototype := getArrayPrototype(global, , strict);
+  prototype := getArrayPrototype(global, strict);
   return internalNewArray(prototype, items)
 };
 function internalNewArray(arrayPrototype, items) {
