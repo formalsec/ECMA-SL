@@ -1684,7 +1684,7 @@ function JS_Interpreter_BinExpr(e, scope) {
       throw TypeErrorException()
     };
     /* 6. If rval does not have a [[HasInstance]] internal method, throw a TypeError exception. */
-    if ("HasInstance" in_obj rval) {
+    if (!("HasInstance" in_obj rval)) {
       throw TypeErrorException()
     };
     /* 7. Return the result of calling the [[HasInstance]] internal method of rval with argument lval. */
