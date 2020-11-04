@@ -83,23 +83,23 @@ function ErrorConstructor(globalObject, this, strict, params) {
   assert !(message = undefined);
 
   /* When Error is called as part of a new expression, it is a constructor: it initialises the newly created object. */
-  newlyConstructoredObject := NewECMAScriptObject();
+  newlyConstructedObject := NewECMAScriptObject();
 
   /* The [[Prototype]] internal property of the newly constructed object is set to the original Error prototype object,
      the one that is the initial value of Error.prototype (15.11.3.1). */
-  setInternalProperty(newlyConstructoredObject, "Prototype", getErrorPrototype(globalObject, strict));
+  setInternalProperty(newlyConstructedObject, "Prototype", getErrorPrototype(globalObject, strict));
   /* The [[Class]] internal property of the newly constructed Error object is set to "Error". */
-  setInternalProperty(newlyConstructoredObject, "Class", "Error");
+  setInternalProperty(newlyConstructedObject, "Class", "Error");
   /* The [[Extensible]] internal property of the newly constructed object is set to true. */
-  setInternalProperty(newlyConstructoredObject, "Extensible", true);
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
 
   /* If the argument message is not undefined, the message own property of the newly constructed object is set to
      ToString(message). */
   if (!(message = 'undefined)) {
-    createBuiltInProperty(newlyConstructoredObject, "message", ToString(message))
+    createBuiltInProperty(newlyConstructedObject, "message", ToString(message))
   };
 
-  return newlyConstructoredObject
+  return newlyConstructedObject
 };
 
 /* 15.11.4.4 Error.prototype.toString ( ) */
@@ -334,22 +334,22 @@ function fillNativeErrorPrototype(nativeErrorPrototypeObject, NativeErrorConstru
 function NativeErrorConstructor(globalObject, strict, message, nativeErrorName) {
   /* When a NativeError constructor is called as part of a new expression, it is a constructor: it initialises the newly
       created object. */
-  newlyConstructoredObject := NewECMAScriptObject();
+  newlyConstructedObject := NewECMAScriptObject();
 
   /* The [[Prototype]] internal property of the newly constructed object is set to the prototype object for this
       NativeError constructor. The [[Class]] internal property of the newly constructed object is set to "Error". The
       [[Extensible]] internal property of the newly constructed object is set to true. */
-  setInternalProperty(newlyConstructoredObject, "Prototype", getNativeErrorPrototype(globalObject, strict, nativeErrorName));
-  setInternalProperty(newlyConstructoredObject, "Class", "Error");
-  setInternalProperty(newlyConstructoredObject, "Extensible", true);
+  setInternalProperty(newlyConstructedObject, "Prototype", getNativeErrorPrototype(globalObject, strict, nativeErrorName));
+  setInternalProperty(newlyConstructedObject, "Class", "Error");
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
 
   /* If the argument message is not undefined, the message own property of the newly constructed object is set to
       ToString(message). */
   if (!(message = 'undefined)) {
-    createBuiltInProperty(newlyConstructoredObject, "message", ToString(message))
+    createBuiltInProperty(newlyConstructedObject, "message", ToString(message))
   };
 
-  return newlyConstructoredObject
+  return newlyConstructedObject
 };
 
 /* 15.11.7.5 Properties of the NativeError Constructors */
