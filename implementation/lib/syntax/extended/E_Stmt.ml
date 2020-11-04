@@ -1,6 +1,7 @@
 type t = Skip
        | Print       of E_Expr.t
        | Assign      of string * E_Expr.t
+       | GlobAssign  of string * E_Expr.t 
        | Block       of t list
        | If          of E_Expr.t * t * t option
        | While       of E_Expr.t * t
@@ -16,7 +17,8 @@ type t = Skip
 let rec str (stmt : t) : string = match stmt with
     Skip                      -> ""
   | Print e                   -> "print " ^ (E_Expr.str e)
-  | Assign (v, exp)           -> v ^ " := " ^ (E_Expr.str exp)
+  | Assign (x, exp)           -> x ^ " := " ^ (E_Expr.str exp)
+  | GlobAssign (x, exp)       -> "|" ^ x ^ "| := " ^ (E_Expr.str exp)
   | Block stmts               -> "{ " ^ String.concat ";" (List.map str stmts) ^ " }"
   | If (e, s1, s2)            -> (let v = "if (" ^ E_Expr.str e ^ ") " ^ str s1 in
                                   match s2 with

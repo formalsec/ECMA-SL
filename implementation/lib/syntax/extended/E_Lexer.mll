@@ -25,6 +25,7 @@ let float   = int('.')digit*
 let bool    = "true"|"false"
 let string  = '"'(digit|letter|special)*'"'
 let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
+let gvar    = '|'(var)'|'
 let symbol  = '\''(var|int)
 let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
@@ -134,6 +135,7 @@ rule read =
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | string            { STRING (Lexing.lexeme lexbuf) }
+  | gvar              { GVAR (String_Utils.trim_ends (Lexing.lexeme lexbuf))}
   | var               { VAR (Lexing.lexeme lexbuf) }
   | symbol            { SYMBOL (Lexing.lexeme lexbuf) }
   | loc               { LOC (Lexing.lexeme lexbuf) }

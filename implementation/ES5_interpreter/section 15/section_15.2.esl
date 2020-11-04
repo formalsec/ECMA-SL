@@ -702,6 +702,19 @@ function getObjectPrototype(globalObject, strict) {
   return objectObjectProto
 };
 
+function getObjectPrototypeToString(globalObject, strict) {
+  refObj := newPropertyReference(globalObject, "Object", strict);
+  ObjectObject := GetValue(refObj);
+
+  refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
+  objectObjectProto := GetValue(refObjProto);
+
+  refToStringObjProto := newPropertyReference(objectObjectProto, "toString", strict);
+  objectObjectToString := GetValue(refToStringObjProto);
+
+  return objectObjectToString
+};
+
 function isHostObject() {
   return false
 };

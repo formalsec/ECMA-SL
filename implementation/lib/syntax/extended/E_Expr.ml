@@ -1,6 +1,7 @@
 type t =
   | Val     of Val.t
   | Var     of string
+  | GVar    of string 
   | BinOpt  of Oper.bopt * t * t
   | EBinOpt of EOper.bopt * t * t    (** non-shared binary operators *) 
   | UnOpt   of Oper.uopt * t
@@ -13,6 +14,7 @@ type t =
 let rec str (e : t) : string = match e with
   | Val n                 -> Val.str n
   | Var x                 -> x
+  | GVar x                -> "|" ^ x ^ "|"
   | UnOpt (op, e)         -> (Oper.str_of_unopt op) ^ "(" ^ (str e) ^ ")"
   | EBinOpt (op, e1, e2)  -> EOper.str_of_binopt op (str e1) (str e2)
   | BinOpt (op, e1, e2)   -> Oper.str_of_binopt op (str e1) (str e2)
