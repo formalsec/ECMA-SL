@@ -86,7 +86,7 @@ let run ()=
   else if (!mode = "ci") then (print_string "======================= CORE =======================\n"; core_interpretation ())
   else if (!mode = "ic") then (print_string "======================= Inlining Monitor =======================\n";
     let prog = inline_compiler () 
-    in ())
+    in () (*Run the ci in inlined prog*))
   else (compile_from_plus_to_core ());
 
 

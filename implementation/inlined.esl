@@ -1,20 +1,14 @@
 function main (_pc_1) { aux_1_lev := _pc_1;
 aux_2_lev := _pc_1;
+aux_3_lev := _pc_1;
 x_lev := _pc_1;
 y_lev := _pc_1;
+z_lev := _pc_1;
 if (lub(a_lev, _pc_1)) {
 _freshvariable_0 := "empty";
 _freshvariable_0 := "setTop" ("{aux_1, aux_2}", "{}", _pc_1);
 a := fst(_freshvariable_0);
 a_lev := snd(_freshvariable_0)
-} else {
-exception( MONITOR BLOCK - pc bigger than x )
-};
-if (lub(a_lev, _pc_1)) {
-_freshvariable_1 := "empty";
-_freshvariable_1 := "allowFlow" ("{aux_1}", "{}", "{}", "{}", _pc_1);
-a := fst(_freshvariable_1);
-a_lev := snd(_freshvariable_1)
 } else {
 exception( MONITOR BLOCK - pc bigger than x )
 };
@@ -26,13 +20,19 @@ exception( MONITOR BLOCK - pc bigger than x )
 };
 if (lub(aux_2_lev, _pc_1)) {
 aux_2_lev := lub(_pc_1, "{}");
-aux_2 := 2
+aux_2 := 1
+} else {
+exception( MONITOR BLOCK - pc bigger than x )
+};
+if (lub(aux_3_lev, _pc_1)) {
+aux_3_lev := lub(_pc_1, "{}");
+aux_3 := 3
 } else {
 exception( MONITOR BLOCK - pc bigger than x )
 };
 if (lub(d_lev, _pc_1)) {
 _freshvariable_4 := "empty";
-_freshvariable_4 := "upgVar" ("aux_1", "{}", "{}", "{}", _pc_1);
+_freshvariable_4 := "upgVar" ("aux_1", "{}", "{aux_1}", "{}", _pc_1);
 d := fst(_freshvariable_4);
 d_lev := snd(_freshvariable_4)
 } else {
@@ -40,29 +40,44 @@ exception( MONITOR BLOCK - pc bigger than x )
 };
 if (lub(d_lev, _pc_1)) {
 _freshvariable_5 := "empty";
-_freshvariable_5 := "upgVar" ("aux_2", "{}", "{}", "{}", _pc_1);
+_freshvariable_5 := "upgVar" ("aux_2", "{}", "{aux_2}", "{}", _pc_1);
 d := fst(_freshvariable_5);
 d_lev := snd(_freshvariable_5)
 } else {
 exception( MONITOR BLOCK - pc bigger than x )
 };
+if (lub(d_lev, _pc_1)) {
+_freshvariable_6 := "empty";
+_freshvariable_6 := "upgVar" ("aux_3", "{}", "{aux_3}", "{}", _pc_1);
+d := fst(_freshvariable_6);
+d_lev := snd(_freshvariable_6)
+} else {
+exception( MONITOR BLOCK - pc bigger than x )
+};
+x_p_l := "o"["o_lev"];
 if (lub(x_lev, _pc_1)) {
 x_lev := lub(_pc_1, lub("{}", aux_1_lev));
 x := aux_1
 } else {
 exception( MONITOR BLOCK - pc bigger than x )
 };
-if (lub(y_lev, _pc_1)) {
-y_lev := lub(_pc_1, "{}");
-y := 1
+if (lub(z_lev, _pc_1)) {
+z_lev := lub(_pc_1, lub("{}", aux_3_lev));
+z := aux_3
 } else {
 exception( MONITOR BLOCK - pc bigger than x )
 };
-_pc_2 := lub(_pc_1, lub("{}", x_lev));
-if (x = 1) {
-if (lub(y_lev, _pc_2)) {
-y_lev := lub(_pc_2, lub("{}", aux_2_lev));
-y := aux_2
+if (lub(y_lev, _pc_1)) {
+y_lev := lub(_pc_1, lub("{}", aux_2_lev));
+y := 1 + aux_2
+} else {
+exception( MONITOR BLOCK - pc bigger than x )
+};
+_pc_2 := lub(_pc_1, lub("{}", y_lev));
+if (y = 2) {
+if (lub(z_lev, _pc_2)) {
+z_lev := lub(_pc_2, lub("{}", aux_3_lev));
+z := aux_3
 } else {
 exception( MONITOR BLOCK - pc bigger than x )
 }

@@ -10,6 +10,8 @@ d := "upgVar"("aux_1", "{aux_1}");
 d := "upgVar"("aux_2", "{aux_2}"); 
 d := "upgVar"("aux_3", "{aux_3}"); 
 
+d:= "o"[p];
+
 x := aux_1;
 z := aux_3;
 y := 1 + aux_2;
