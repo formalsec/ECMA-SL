@@ -1,0 +1,21 @@
+function initConsoleObject(globalObject, objectPrototype, strict) {
+  console := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(console);
+
+  internalLog := CreateFunctionObject(["str"], "__internalLog", globalObject, strict);
+
+  createBuiltInProperty(console, "log", internalLog);
+  createBuiltInProperty(internalLog, "prototype", objectPrototype);
+  setInternalProperty(console, "Prototype", objectPrototype);
+
+  return console
+};
+
+function __internalLog(globalObject, this, strict, params) {
+  str := l_nth(params, 0);
+  assert !(str = undefined);
+
+  print s_concat ["JS Log: ", str];
+
+  return 'null
+}

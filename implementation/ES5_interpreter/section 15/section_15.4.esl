@@ -1,4 +1,4 @@
-import "ES5_interpreter/section 9/section_9.esl";
+/* import "ES5_interpreter/section 9/section_9.esl";
 import "ES5_interpreter/section 9/section_9.12.esl";
 import "ES5_interpreter/section 8/section_8.esl";
 import "ES5_interpreter/section 8/section_8.6.esl";
@@ -11,7 +11,7 @@ import "ES5_interpreter/section 10/section_10.3.esl";
 import "ES5_interpreter/section 10/section_10.4.esl";
 import "ES5_interpreter/section 13/section_13.esl";
 import "ES5_interpreter/section 15/section_15.7.esl";
-import "ES5_interpreter/section 15/section_15.11.esl";
+import "ES5_interpreter/section 15/section_15.11.esl"; */
 
 /* Placeholder for min, max and abs that will be
   implemented in another section TODO */
@@ -219,24 +219,17 @@ function getArrayPrototype(globalObject, strict) {
   refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
   objectArrayProto := GetValue(refArrayProto);
   return objectArrayProto
-}; 
+};
 
 
 
 
-function initArrayLib(global, objectPrototype, strict) {
+function initArrayObject(global, objectPrototype, strict) {
   objArrayPrototype := initArrayPrototype(global, objectPrototype, strict);
   objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict);
 
   descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
   setJSProperty(objArrayConstructor, "prototype", descriptor);
-
-  /* 15.1 The Global Object
-      The unique global object is created before control enters any execution context.
-      Unless otherwise specified, the standard built-in properties of the global object have
-      attributes {[[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}. */
-  descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
-  setJSProperty(global, "Array", descriptor);
 
   return objArrayConstructor
 };
@@ -279,8 +272,8 @@ function initArrayLib(global, objectPrototype, strict) {
  * This description applies if and only if the Array constructor is given
  * no arguments or at least two arguments.
  */
-function ArrayConstructor(global, this, items) {
-  prototype := getArrayPrototype(global, false);
+function ArrayConstructor(global, this, strict, items) {
+  prototype := getArrayPrototype(global, strict);
   return internalNewArray(prototype, items)
 };
 function internalNewArray(arrayPrototype, items) {
@@ -334,9 +327,9 @@ function internalNewArray(arrayPrototype, items) {
 /**
  * 15.4.2.2 new Array (len)
  */
-function ArrayConstructorLen(global, this, args) {
+function ArrayConstructorLen(global, this, strict, args) {
   len := l_nth (args, 0);
-  prototype := getArrayPrototype(global, false);
+  prototype := getArrayPrototype(global, strict);
   return internalNewArrayLen(prototype, len)
 };
 function internalNewArrayLen(arrayPrototype, len) {
@@ -397,7 +390,7 @@ function internalNewArrayLen(arrayPrototype, len) {
  * value true if the argument is an object whose class internal property
  * is "Array"; otherwise it returns false. The following steps are taken:
  */
-function isArray(global, this, args) {
+function isArray(global, this, strict, args) {
   arg := l_nth (args, 0);
   /* 1. If Type(arg) is not Object, return false. */
   if (!(Type(arg) = "Object")) {
@@ -420,7 +413,7 @@ function isArray(global, this, args) {
  *
  * When the toString method is called, the following steps are taken:
  */
-function arrayToString(global, this, args) {
+function arrayToString(global, this, strict, args) {
   /* 1. Let array be the result of calling ToObject on the this value. */
   array := ToObject(this);
   /* 2. Let func be the result of calling the [[Get]] internal method
@@ -429,7 +422,7 @@ function arrayToString(global, this, args) {
   /* 3. If IsCallable(func) is false, then let func be the standard
         built-in method Object.prototype.toString (15.2.4.2). */
   if (IsCallable(func) = false) {
-    func := getObjectPrototypeToString(global) /* TODO */
+    func := getObjectPrototypeToString(global, strict)
   };
   /* 4. Return the result of calling the [[Call]] internal method of func
         providing array as the this value and an empty arguments list. */
@@ -458,7 +451,7 @@ function arrayToString(global, this, args) {
  *
  * The result is calculated as follows:
  */
-function arrayToLocaleString(global, this, args) {
+function arrayToLocaleString(global, this, strict, args) {
   /* 1. Let O be the result of calling ToObject passing the this value as
         the argument. */
   O := ToObject(this);
@@ -559,13 +552,13 @@ function arrayToLocaleString(global, this, args) {
  *
  * The following steps are taken:
  */
-function arrayConcat(global, this, items) {
+function arrayConcat(global, this, strict, items) {
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
   /* 2. Let A be a new array created as if by the expression new Array() where
         Array is the standard built-in constructor with that name. */
-  A := ArrayConstructor(global, this, []);
+  A := ArrayConstructor(global, this, strict, []);
   /* 3. Let n be 0. */
   n := int_to_float 0;
 
@@ -656,7 +649,7 @@ function arrayConcat(global, this, items) {
  * following steps:
  */
 /* function join (global, this, [ separator ]) */
-function arrayJoin(global, this, args) {
+function arrayJoin(global, this, strict, args) {
   separator := l_nth (args, 0);
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
@@ -728,7 +721,7 @@ function arrayJoin(global, this, args) {
  *
  * The last element of the array is removed from the array and returned.
  */
-function arrayPop(global, this, args) {
+function arrayPop(global, this, strict, args) {
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -789,8 +782,8 @@ function arrayPop(global, this, args) {
  * When the push method is called with zero or more arguments item1,item2, etc.,
  * the following steps are taken:
  */
-function arrayPush(global, this, items) {
-  print "array push"; 
+function arrayPush(global, this, strict, items) {
+  print "array push";
   /* 1. Let O be the result of calling ToObject passing the this value as the
         argument. */
   O := ToObject(this);
@@ -838,7 +831,7 @@ function arrayPush(global, this, items) {
  * The elements of the array are rearranged so as to reverse their order.
  * The object is returned as the result of the call.
  */
-function arrayReverse(global, this, args) {
+function arrayReverse(global, this, strict, args) {
   /* 1. Let O be the result of calling ToObject passing the this value as
         the argument. */
   O := ToObject(this);
@@ -923,7 +916,7 @@ function arrayReverse(global, this, args) {
  *
  * The first element of the array is removed from the array and returned.
  */
-function arrayShift(global, this, args) {
+function arrayShift(global, this, strict, args) {
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -1001,7 +994,7 @@ function arrayShift(global, this, args) {
  * it is treated as length+end where length is the length of the array. The following
  * steps are taken:
  */
-function arraySlice(global, this, args) {
+function arraySlice(global, this, strict, args) {
   start := l_nth (args, 0);
   end := l_nth (args, 1);
 
@@ -1010,7 +1003,7 @@ function arraySlice(global, this, args) {
   O := ToObject(this);
   /* 2. Let A be a new array created as if by the expression new Array() where
         Array is the standard built-in constructor with that name. */
-  A := ArrayConstructor(global, this, []);
+  A := ArrayConstructor(global, this, strict, []);
   /* 3. Let lenVal be the result of calling the [[Get]] internal method of O
         with argument "length". */
   lenVal := {O.Get}(O, "length");
@@ -1088,7 +1081,7 @@ function arraySlice(global, this, args) {
  * that accepts two arguments x and y and returns a negative value if x < y,
  * zero if x = y, or a positive value if x > y.
  */
-function arraySort(global, this, args) {
+function arraySort(global, this, strict, args) {
   comparefn := l_nth (args, 0);
 
   /* Let obj be the result of calling ToObject passing the this value
@@ -1287,7 +1280,7 @@ function SortCompare(obj, comparefn, j, k) {
  * item1, item2, etc. An Array object containing the deleted elements (if any)
  * is returned. The following steps are taken:
  */
-function arraySplice(global, this, args) {
+function arraySplice(global, this, strict, args) {
   start := l_nth (args, 0);
   deleteCount := l_nth (args, 1);
   items := l_nth (args, 2);
@@ -1297,7 +1290,7 @@ function arraySplice(global, this, args) {
   O := ToObject(this);
   /* 2. Let A be a new array created as if by the expression new Array()
         where Array is the standard built-in constructor with that name. */
-  A := ArrayConstructor(global, this, []);
+  A := ArrayConstructor(global, this, strict, []);
   /* 3. Let lenVal be the result of calling the [[Get]] internal method
         of O with argument "length". */
   lenVal := {O.Get}(O, "length");
@@ -1464,7 +1457,7 @@ function arraySplice(global, this, args) {
  * When the unshift method is called with zero or more arguments item1,
  * item2, etc., the following steps are taken:
  */
-function arrayUnshift(global, this, items) {
+function arrayUnshift(global, this, strict, items) {
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1557,7 +1550,7 @@ function arrayUnshift(global, this, items) {
  * When the indexOf method is called with one or two arguments, the following
  * steps are taken:
  */
-function arrayIndexOf(global, this, args) {
+function arrayIndexOf(global, this, strict, args) {
   searchElement := l_nth (args, 0);
   fromIndex := l_nth (args, 1);
 
@@ -1650,7 +1643,7 @@ function arrayIndexOf(global, this, args) {
  * When the lastIndexOf method is called with one or two arguments, the
  * following steps are taken:
  */
-function arrayLastIndexOf(global, this, args) {
+function arrayLastIndexOf(global, this, strict, args) {
   searchElement := l_nth (args, 0);
   fromIndex := l_nth (args, 1);
 
@@ -1753,7 +1746,7 @@ function arrayLastIndexOf(global, this, args) {
  * When the every method is called with one or two arguments, the following
  * steps are taken:
  */
-function arrayEvery(global, this, args) {
+function arrayEvery(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
   thisArg := l_nth (args, 1);
 
@@ -1848,7 +1841,7 @@ function arrayEvery(global, this, args) {
  * When the some method is called with one or two arguments, the following
  * steps are taken:
  */
-function arraySome(global, this, args) {
+function arraySome(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
   thisArg := l_nth (args, 1);
 
@@ -1940,7 +1933,7 @@ function arraySome(global, this, args) {
  * When the forEach method is called with one or two arguments, the
  * following steps are taken:
  */
-function arrayForEach(global, this, args) {
+function arrayForEach(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
   thisArg := l_nth (args, 1);
 
@@ -2027,7 +2020,7 @@ function arrayForEach(global, this, args) {
  * When the map method is called with one or two arguments, the following
  * steps are taken:
  */
-function arrayMap(global, this, args) {
+function arrayMap(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
   thisArg := l_nth (args, 1);
 
@@ -2052,7 +2045,7 @@ function arrayMap(global, this, args) {
   /* 6. Let A be a new array created as if by the expression new Array( len)
         where Array is the standard built-in constructor with that name and
         len is the value of len. */
-  A := ArrayConstructorLen(global, this, [len]);
+  A := ArrayConstructorLen(global, this, strict, [len]);
   /* 7. Let k be 0. */
   k := 0.;
   /* 8. Repeat, while k < len */
@@ -2125,7 +2118,7 @@ function arrayMap(global, this, args) {
  * When the filter method is called with one or two arguments, the following
  * steps are taken:
  */
-function arrayFilter(global, this, args) {
+function arrayFilter(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
   thisArg := l_nth (args, 1);
 
@@ -2149,7 +2142,7 @@ function arrayFilter(global, this, args) {
   };
   /* 6. Let A be a new array created as if by the expression new Array()
         where Array is the standard built-in constructor with that name. */
-  A := ArrayConstructor(global, this, []);
+  A := ArrayConstructor(global, this, strict, []);
   /* 7. Let k be 0. */
   k := 0.;
   /* 8. Let to be 0. */
@@ -2230,7 +2223,7 @@ function arrayFilter(global, this, args) {
  * When the reduce method is called with one or two arguments, the
  * following steps are taken:
  */
-function arrayReduce(global, this, args) {
+function arrayReduce(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
   initialValue := l_nth (args, 1);
 
@@ -2349,7 +2342,7 @@ function arrayReduce(global, this, args) {
  * When the reduceRight method is called with one or two arguments,
  * the following steps are taken:
  */
-function arrayReduceRight(global, this, args) {
+function arrayReduceRight(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
   initialValue := l_nth (args, 1);
 
