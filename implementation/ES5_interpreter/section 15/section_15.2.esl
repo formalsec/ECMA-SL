@@ -215,7 +215,7 @@ function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
   };
   /* 2. Let array be the result of creating a new object as if by the expression new Array () where Array is the
         standard built-in constructor with that name. */
-  array := newArray([]); /* TODO ArrayConstructor */
+  array := ArrayConstructor(globalObject, this, strict, []);
   /* 3. Let n be 0. */
   n := 0.;
 
