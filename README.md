@@ -49,6 +49,14 @@ To have the generated Heap written to a file, use the command-line flag `-h` fol
 
 To visualise the generated Heap in HTML, that must be previously exported to a file (in example above, the Heap is written to `heap.json`), please follow the instruction in this [file](./Heap2HTML/README.md).
 
+## Testing
+To test the implementation of the reference interpreter (files present in the directory `implementation/ES5_interpreter`) two bash script files are provided:
+* `implementation/exec_simple_tests.sh`: executes the tests that are available in the directory `implementation/test/simple`
+  * e.g., `sh exec_simple_tests`
+* `implementation/exec_test262_tests.sh`: executed the tests that are availabe in the directory `implementation/test/test262/tests`
+  * e.g., `sh exec_test262_tests.sh -d test/test262/tests/language/expressions/array` to execute all the Test262 files in the directory `test/test262/tests/language/expressions/array`
+  * e.g., `sh exec_test262_tests.sh -f test/test262/tests/language/types/reference/8.7.2-2-s.js` to execute a specific Test262 file
+
 ### Common Errors when interpreting an ECMA-SL program
 
 TODO
