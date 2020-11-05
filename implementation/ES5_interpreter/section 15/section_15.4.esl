@@ -219,7 +219,7 @@ function getArrayPrototype(globalObject, strict) {
   refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
   objectArrayProto := GetValue(refArrayProto);
   return objectArrayProto
-}; 
+};
 
 
 

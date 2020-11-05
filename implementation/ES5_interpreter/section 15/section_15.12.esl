@@ -1,0 +1,57 @@
+import "ES5_interpreter/section 8/section_8.esl";
+
+
+function initJSONPrototype(global, objectPrototype, strict) {
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  setAllInternalMethodsOfJSON(prototype);
+
+};
+
+function initJSONLib(global, objectPrototype, strict) {
+  objArrayPrototype := initJSONPrototype(global, objectPrototype, strict);
+
+  descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
+
+  return objArrayConstructor
+};
+
+/**
+ * 15.12.3 stringify ( value [ , replacer [ , space ] ] )
+ *
+ * The stringify function returns a String in JSON format representing
+ * an ECMAScript value. It can take three parameters. The first parameter
+ * is required. The value parameter is an ECMAScript value, which is usually
+ * an object or array, although it can also be a String, Boolean, Number or
+ * null. The optional replacer parameter is either a function that alters
+ * the way objects and arrays are stringified, or an array of Strings and
+ * Numbers that acts as a white list for selecting the object properties
+ * that will be stringified. The optional space parameter is a String or
+ * Number that allows the result to have white space injected into it to
+ * improve human readability.
+ *
+ * These are the steps in stringifying an object:
+ */
+function stringify (global, this, args) {
+  value := l_nth(args, 0);
+  replacer := l_nth(args, 1);
+  space := l_nth(args, 2);
+
+  /* 1. Let stack be an empty List. */
+  stack := [];
+  /* 2. Let indent be the empty String. */
+  indent := "";
+  /* 3. Let PropertyList and ReplacerFunction be undefined. */
+  PropertyList := 'undefined;
+  ReplacerFunction := 'undefined;
+  /* 4. If Type(replacer) is Object, then */
+  if (Type(replacer) = "Object") {
+    /* a. If IsCallable(replacer) is true, then */
+    if (IsCallable(replacer) = true) {
+      
+    }
+  }
+};
+
+function main() {
+
+}
