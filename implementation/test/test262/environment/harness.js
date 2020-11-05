@@ -1,6 +1,6 @@
 var NotEarlyErrorString = "NotEarlyError";
 var EarlyErrorRePat = "^((?!" + NotEarlyErrorString + ").)*$";
-var NotEarlyError = new Error(NotEarlyErrorString);
+// var NotEarlyError = new Error(NotEarlyErrorString); /* TODO temp fix while Error built-in object is not implemented */
 
 function Test262Error(message) {
     this.message = message || "";
@@ -239,7 +239,7 @@ function isEqual(num1, num2)
         {
                 return(true);
         }
-        prec = getPrecision(Math.min(Math.abs(num1), Math.abs(num2)));  
+        prec = getPrecision(Math.min(Math.abs(num1), Math.abs(num2)));
         return(Math.abs(num1 - num2) <= prec);
         //return(num1 === num2);
 }
