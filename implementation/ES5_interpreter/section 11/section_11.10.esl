@@ -10,5 +10,5 @@ function applyBitwiseOperator(operator, lnum, rnum) {
     return lnum | rnum
   };
 
-  throw TypeErrorException()
+  throw TypeErrorConstructorInternal()
 }

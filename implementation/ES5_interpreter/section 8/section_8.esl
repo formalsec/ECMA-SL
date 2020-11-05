@@ -42,7 +42,7 @@ function Type(V) {
     if (ft = "P") { return "PropertyIdentifier" }
   };
 
-  throw SyntaxErrorException()
+  throw SyntaxErrorConstructorInternal()
 };
 
 /* Auxiliary functions */

@@ -178,7 +178,7 @@ function SetMutableBindingDeclarative(declarativeEnvRec, N, V, S) {
   } else {
   /* 4. Else this must be an attempt to change the value of an immutable binding so if S if true throw a TypeError exception. */
     if (S = true) {
-      throw TypeErrorException()
+      throw TypeErrorConstructorInternal()
     }
   };
 
@@ -229,7 +229,7 @@ function GetBindingValueDeclarative(declarativeEnvRec, N, S) {
     if (S = false) {
       return 'undefined
     };
-    throw ReferenceErrorException()
+    throw ReferenceErrorConstructorInternal()
   }
   /* 4. Else, return the value currently bound to N in envRec. */
   else {
@@ -256,7 +256,7 @@ function GetBindingValueObject(objectEnvRec, N, S) {
     if (S = false) {
       return 'undefined
     };
-    throw ReferenceErrorException()
+    throw ReferenceErrorConstructorInternal()
   };
   /* 5. Return the result of calling the [[Get]] internal method of bindings, passing N for the argument. */
   return Get(bindings, N)

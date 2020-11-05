@@ -110,7 +110,7 @@ function ErrorPrototypeToString(globalObject, this, strict, params) {
   O := this;
   /* 2. If Type(O) is not Object, throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    throw TypeErrorException()
+    throw TypeErrorConstructorInternal()
   };
   /* 3. Let name be the result of calling the [[Get]] internal method of O with argument "name". */
   name := {O.Get}(O, "name");
