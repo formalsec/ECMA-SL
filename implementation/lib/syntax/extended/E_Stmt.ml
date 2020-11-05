@@ -13,6 +13,7 @@ type t = Skip
        | MatchWith   of E_Expr.t * (E_Pat.t * t) list
        | Throw       of E_Expr.t
        | Assert      of E_Expr.t
+       | MacroApply  of string * string list
 
 let rec str (stmt : t) : string = match stmt with
     Skip                      -> ""
@@ -34,3 +35,4 @@ let rec str (stmt : t) : string = match stmt with
                                  ^ String.concat " | " (List.map (fun (e, s) -> E_Pat.str e ^ ": " ^ str s) pats_stmts)
   | Throw e                   -> "throw " ^ E_Expr.str e
   | Assert e                  -> "assert " ^ E_Expr.str e
+  | MacroApply (m, vars)      -> "@" ^ m ^ " (" ^ String.concat ", " vars ^ ")"

@@ -343,6 +343,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | MatchWith (e_e, e_pats_e_stmts) -> compile_matchwith e_e e_pats_e_stmts
   | Throw e_e                       -> compile_throw e_e
   | Assert e_e                      -> compile_assert e_e
+  | MacroApply (_, _)               -> invalid_arg "Macros are not valid compilable statements."
 
 (*
 C(s) = s', _

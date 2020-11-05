@@ -1,7 +1,8 @@
 type t = {
   mutable file_name : string;
   imports           : string list;
-  funcs             : (string, E_Func.t) Hashtbl.t
+  funcs             : (string, E_Func.t) Hashtbl.t;
+  macros            : (string, E_Macro.t) Hashtbl.t
 }
 
 let add_funcs (prog : t) (funcs : E_Func.t list) : unit =
@@ -10,24 +11,38 @@ let add_funcs (prog : t) (funcs : E_Func.t list) : unit =
       | Some _ -> invalid_arg ("Function \"" ^ f.name ^ "\" already exists in the program")
     ) funcs
 
-let create (imports : string list) (funcs : E_Func.t list) : t =
+let add_macros (prog : t) (macros : E_Macro.t list) : unit =
+  List.iter (fun (m : E_Macro.t) -> match Hashtbl.find_opt prog.macros m.name with
+      | None   -> Hashtbl.replace prog.macros m.name m
+      | Some _ -> invalid_arg ("Macro \"" ^ m.name ^ "\" already exists in the program")
+    ) macros
+
+let create (imports : string list) (funcs : E_Func.t list) (macros : E_Macro.t list) : t =
   let prog = {
     file_name = "temporary name";
     imports;
-    funcs = Hashtbl.create 511
+    funcs = Hashtbl.create 511;
+    macros = Hashtbl.create 511
   } in
   add_funcs prog funcs;
+  add_macros prog macros;
   prog
 
 let get_file_name (prog : t) : string = prog.file_name
 
 let get_func (prog : t) (func : string) : E_Func.t = Hashtbl.find prog.funcs func
 
-let get_funcs (prog : t) : E_Func.t list = 
-  Hashtbl.fold 
+let get_funcs (prog : t) : E_Func.t list =
+  Hashtbl.fold
     (fun _ f fs -> f::fs)
-    prog.funcs 
-    []     
+    prog.funcs
+    []
+
+let get_macros (prog : t) : E_Macro.t list =
+  Hashtbl.fold
+    (fun _ m ms -> m::ms)
+    prog.macros
+    []
 
 let get_imports (prog : t) : string list = prog.imports
 

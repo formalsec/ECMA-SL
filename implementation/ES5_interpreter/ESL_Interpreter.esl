@@ -1,5 +1,12 @@
 import "ES5_interpreter/ES5_Reference_Interpreter.esl";
 
+macro JS_Interpreter_Expr_Check_Throw(ref, Expression, scope) {
+  ref := JS_Interpreter_Expr(Expression, scope);
+  if (isErrorCompletion(ref)) {
+    return ref
+  }
+};
+
 function JS_Interpreter_Program(p) {
   /* 14 Program */
   match p with
@@ -989,7 +996,7 @@ function JS_Interpreter_Stmt(s, scope) {
   }
   | { type: "ExpressionStatement", expression: Expression } -> {
     /* 1. Let exprRef be the result of evaluating Expression. */
-    exprRef := JS_Interpreter_Expr(Expression, scope);
+    @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     /* 2. Return (normal, GetValue(exprRef), empty). */
     return normalEmptyCompletion(GetValue(exprRef))
   }

@@ -132,5 +132,9 @@ let rec resolve_imports (to_resolve : string list list) (resolved : StrSet.t) (p
 let resolve_prog_imports (prog : E_Prog.t) : E_Prog.t =
   let file_name = E_Prog.get_file_name prog in
   let total_funcs = resolve_imports  [ E_Prog.get_imports prog ] StrSet.empty [ E_Prog.get_file_name prog ] (E_Prog.get_funcs prog) in
-  let new_prog = E_Prog.create [] total_funcs in
+  let new_prog = E_Prog.create [] total_funcs (E_Prog.get_macros prog) in
   E_Prog.set_file_name new_prog file_name; new_prog
+
+
+let apply_prog_macros (prog : E_Prog.t) : E_Prog.t =
+  prog
