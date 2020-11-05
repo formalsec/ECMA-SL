@@ -26,6 +26,11 @@ function JS_Interpreter_Program(p) {
     print progCxt;
     return result
   }
+  | { sourceType: "script", type: "EarlySyntaxError" } -> {
+    progCxt := EnteringGlobalCode(p);
+
+    throw SyntaxErrorConstructorInternal()
+  }
 };
 
 function JS_Interpreter_SourceElements(SourceElements, scope) {

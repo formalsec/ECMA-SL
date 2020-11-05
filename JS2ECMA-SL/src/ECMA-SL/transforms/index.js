@@ -6,11 +6,15 @@ const FunctionLiteral = require("./functionLiteral");
 const FunctionCall = require("./functionCall");
 const Identifier = require("./identifier");
 const Literal = require("./literal");
+const EarlySyntaxError = require("./earlySyntaxError");
 
 module.exports = {
   transformObject: function (obj) {
     if (obj.type === "Program") {
       return Program.transform(obj);
+    }
+    if (obj.type === "EarlySyntaxError") {
+      return EarlySyntaxError.transform(obj);
     }
     if (obj.type === "SwitchStatement") {
       return Switch.transform(obj);
