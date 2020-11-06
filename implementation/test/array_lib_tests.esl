@@ -10,12 +10,15 @@ import "ES5_interpreter/section 10/section_10.2.esl";
 import "ES5_interpreter/section 10/section_10.3.esl";
 import "ES5_interpreter/section 10/section_10.4.esl";
 import "ES5_interpreter/section 13/section_13.esl";
+import "ES5_interpreter/section 15/section_15.esl";
+import "ES5_interpreter/section 15/section_15.1.esl";
 import "ES5_interpreter/section 15/section_15.2.esl";
 import "ES5_interpreter/section 15/section_15.3.esl";
+import "ES5_interpreter/section 15/section_15.4.esl";
 import "ES5_interpreter/section 15/section_15.7.esl";
 import "ES5_interpreter/section 15/section_15.11.esl";
+import "ES5_interpreter/extras/section_extras.esl";
 
-import "../implementation/ES5_interpreter/section 15/section_15.4.esl";
 
 /* TESTING FUNCTIONS */
 
@@ -36,7 +39,7 @@ function testIsArray(global) {
   return (ret = true)
 };
 
-/* arrayToString TODO 
+/* arrayToString TODO
 function testArrayToString(global) {
   str := arrayToString(global, ArrayConstructor(global, 'null, false, [2., 3.]), 'null);
   print "Assert arrayToString";
@@ -57,7 +60,7 @@ function testArrayConcat(global) {
   arr1 := ArrayConstructor(global, 'null, false, [2., 3.]);
   arr2 := ArrayConstructor(global, 'null, false, [4., 5.]);
   arr := arrayConcat(global, arr1, false, [arr2]);
-  
+
   return (({arr.Get}(arr, ToString(0.)) = 2.) && ({arr.Get}(arr, ToString(1.)) = 3.)
     && ({arr.Get}(arr, ToString(2.)) = 4.) && ({arr.Get}(arr, ToString(3.)) = 5.))
 };
@@ -80,7 +83,7 @@ function testArrayPop(global) {
     lastEl: lastEl
   };
 
-  return ((obj.lastEl = 4.) && 
+  return ((obj.lastEl = 4.) &&
     ({arr.Get}(arr, ToString(0.)) = 2.) && ({arr.Get}(arr, ToString(1.)) = 3.))
 };
 
@@ -94,17 +97,17 @@ function testArrayPush(global) {
     newLen: newLen
   };
 
-  return ((obj.newLen = 5.) && 
-    ({arr.Get}(arr, ToString(0.)) = 2.) && ({arr.Get}(arr, ToString(1.)) = 3.) && 
+  return ((obj.newLen = 5.) &&
+    ({arr.Get}(arr, ToString(0.)) = 2.) && ({arr.Get}(arr, ToString(1.)) = 3.) &&
     ({arr.Get}(arr, ToString(2.)) = 4.) && ({arr.Get}(arr, ToString(3.)) = 5.) &&
     ({arr.Get}(arr, ToString(4.)) = 6.))
 };
 
 /* main arrayReverse */
 function testArrayReverse(global) {
-  arr := arrayReverse(global, ArrayConstructor(global, 'null, false, [2., 3., 6., 9.]), 'null);
+  arr := arrayReverse(global, ArrayConstructor(global, 'null, false, [2., 3., 6., 9.]), false, 'null);
 
-  return (({arr.Get}(arr, ToString(0.)) = 9.) && ({arr.Get}(arr, ToString(1.)) = 6.) && 
+  return (({arr.Get}(arr, ToString(0.)) = 9.) && ({arr.Get}(arr, ToString(1.)) = 6.) &&
     ({arr.Get}(arr, ToString(2.)) = 3.) && ({arr.Get}(arr, ToString(3.)) = 2.))
 };
 
@@ -134,7 +137,7 @@ function testArraySort1(global) {
   arr := ArrayConstructor(global, 'null, false, [2., 3., 4., 5., 2., 7.]);
   sorted := arraySort(global, arr, false, ['undefined]);
 
-  return (({arr.Get}(arr, ToString(0.)) = 2.) && ({arr.Get}(arr, ToString(1.)) = 2.) && 
+  return (({arr.Get}(arr, ToString(0.)) = 2.) && ({arr.Get}(arr, ToString(1.)) = 2.) &&
     ({arr.Get}(arr, ToString(2.)) = 3.) && ({arr.Get}(arr, ToString(3.)) = 4.) &&
     ({arr.Get}(arr, ToString(4.)) = 5.) && ({arr.Get}(arr, ToString(5.)) = 7.))
 };
@@ -143,7 +146,7 @@ function testArraySort2(global) {
   arr := ArrayConstructor(global, 'null, false, [6., 5., 4., 3., 2., 1.]);
   sorted := arraySort(global, arr, false, ['undefined]);
 
-  return (({arr.Get}(arr, ToString(0.)) = 1.) && ({arr.Get}(arr, ToString(1.)) = 2.) && 
+  return (({arr.Get}(arr, ToString(0.)) = 1.) && ({arr.Get}(arr, ToString(1.)) = 2.) &&
     ({arr.Get}(arr, ToString(2.)) = 3.) && ({arr.Get}(arr, ToString(3.)) = 4.) &&
     ({arr.Get}(arr, ToString(4.)) = 5.) && ({arr.Get}(arr, ToString(5.)) = 6.))
 };
@@ -152,11 +155,11 @@ function testArraySort3(global) {
   arr := ArrayConstructor(global, 'null, false, ["Banana", "Orange", "Apple", "Mango"]);
   sorted := arraySort(global, arr, false, ['undefined]);
 
-  return (({arr.Get}(arr, ToString(0.)) = "Apple") && ({arr.Get}(arr, ToString(1.)) = "Banana") && 
+  return (({arr.Get}(arr, ToString(0.)) = "Apple") && ({arr.Get}(arr, ToString(1.)) = "Banana") &&
     ({arr.Get}(arr, ToString(2.)) = "Mango") && ({arr.Get}(arr, ToString(3.)) = "Orange"))
 };
 
-function comparefn(scope, this, args) {
+function comparefn(globalobject, this, strict, args) {
   x := l_nth (args, 0);
   y := l_nth (args, 1);
   if (x > y) {
@@ -173,7 +176,7 @@ function testArraySort4(global) {
   funcObj := CreateFunctionObject(["x", "y"], "comparefn", global, false);
   sorted := arraySort(global, arr, false, [funcObj]);
 
-  return (({arr.Get}(arr, ToString(0.)) = 7.) && ({arr.Get}(arr, ToString(1.)) = 5.) && 
+  return (({arr.Get}(arr, ToString(0.)) = 7.) && ({arr.Get}(arr, ToString(1.)) = 5.) &&
     ({arr.Get}(arr, ToString(2.)) = 4.) && ({arr.Get}(arr, ToString(3.)) = 3.) &&
     ({arr.Get}(arr, ToString(4.)) = 2.) && ({arr.Get}(arr, ToString(5.)) = 2.))
 };
@@ -189,7 +192,7 @@ function testArraySplice(global) {
     removedEls: removedEls
   };
 
-  return (({arr.Get}(arr, ToString(0.)) = "Banana") && ({arr.Get}(arr, ToString(1.)) = "Orange") && 
+  return (({arr.Get}(arr, ToString(0.)) = "Banana") && ({arr.Get}(arr, ToString(1.)) = "Orange") &&
     ({arr.Get}(arr, ToString(2.)) = "Lemon") && ({arr.Get}(arr, ToString(3.)) = "Kiwi") &&
     ({removedEls.Get}(removedEls, ToString(0.)) = "Apple") && ({removedEls.Get}(removedEls, ToString(1.)) = "Mango"))
 };
@@ -205,7 +208,7 @@ function testArrayUnshift(global) {
   };
 
   return ((newLen = 5.) && ({arr.Get}(arr, ToString(0.)) = 22.) &&
-    ({arr.Get}(arr, ToString(1.)) = 44.) && ({arr.Get}(arr, ToString(2.)) = 2.) && 
+    ({arr.Get}(arr, ToString(1.)) = 44.) && ({arr.Get}(arr, ToString(2.)) = 2.) &&
     ({arr.Get}(arr, ToString(3.)) = 3.) && ({arr.Get}(arr, ToString(4.)) = 4.))
 };
 
@@ -226,7 +229,7 @@ function testArrayLastIndexOf(global) {
 };
 
 /* main arrayEvery */
-function callbackfnEvery(scope, this, args) {
+function callbackfnEvery(globalobject, this, strict, args) {
   x := l_nth (args, 0);
   return x > 1.
 };
@@ -237,7 +240,7 @@ function testArrayEvery(global) {
 };
 
 /* main arraySome */
-function callbackfnSome(scope, this, args) {
+function callbackfnSome(globalobject, this, strict, args) {
   x := l_nth (args, 0);
   return x > 6.
 };
@@ -248,7 +251,7 @@ function testArraySome(global) {
 };
 
 /* main arrayForEach */
-function callbackfnForEach(scope, this, args) {
+function callbackfnForEach(globalobject, this, strict, args) {
   x := l_nth (args, 0);
   print s_concat(["forEach: ", x]);
   return x
@@ -261,7 +264,7 @@ function testArrayForEach(global) {
 };
 
 /* main arrayMap */
-function callbackfnMap(scope, this, args) {
+function callbackfnMap(globalobject, this, strict, args) {
   x := l_nth (args, 0);
   return x * 2.
 };
@@ -270,12 +273,12 @@ function testArrayMap(global) {
   funcObj := CreateFunctionObject(["x"], "callbackfnMap", global, false);
   arr2 := arrayMap(global, arr, false, [funcObj, 'undefined]);
 
-  return (({arr2.Get}(arr2, ToString(0.)) = 2.) && ({arr2.Get}(arr2, ToString(1.)) = 4.) && 
+  return (({arr2.Get}(arr2, ToString(0.)) = 2.) && ({arr2.Get}(arr2, ToString(1.)) = 4.) &&
     ({arr2.Get}(arr2, ToString(2.)) = 6.))
 };
 
 /* main arrayFilter */
-function callbackfnFilter(scope, this, args) {
+function callbackfnFilter(globalobject, this, strict, args) {
   x := l_nth (args, 0);
   return x > 2.
 };
@@ -284,12 +287,12 @@ function testArrayFilter(global) {
   funcObj := CreateFunctionObject(["x"], "callbackfnFilter", global, false);
   arr2 := arrayFilter(global, arr, false, [funcObj, 'undefined]);
 
-  return (({arr2.Get}(arr2, ToString(0.)) = 3.) && ({arr2.Get}(arr2, ToString(1.)) = 4.) && 
+  return (({arr2.Get}(arr2, ToString(0.)) = 3.) && ({arr2.Get}(arr2, ToString(1.)) = 4.) &&
     ({arr2.Get}(arr2, ToString(2.)) = 5.) && ({arr2.Get}(arr2, ToString(3.)) = 7.))
 };
 
 /* main arrayReduce */
-function callbackfnReduce(scope, this, args) {
+function callbackfnReduce(globalobject, this, strict, args) {
   total := l_nth (args, 0);
   x := l_nth (args, 1);
   return total - x
@@ -303,7 +306,7 @@ function testArrayReduce(global) {
 };
 
 /* main arrayReduceRight */
-function callbackfnReduceRight(scope, this, args) {
+function callbackfnReduceRight(globalobject, this, strict, args) {
   total := l_nth (args, 0);
   x := l_nth (args, 1);
   return total - x
@@ -333,10 +336,7 @@ function runTests(global, tests) {
 };
 
 function main() {
-  globalObject := NewObject(); /* TODO global object (15.1) */
-  setAllInternalMethodsOfObject(globalObject);
-
-  initArrayObject(globalObject, 'null, false);
+  globalObject := initGlobalObject(false);
 
   tests := ["testArrayConstructorLen",
     "testIsArray",
