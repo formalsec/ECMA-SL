@@ -52,3 +52,11 @@ let str (prog : t) : string =
   prog.file_name ^ "\n" ^
   (String.concat " " (List.map (fun i -> "import " ^ i) prog.imports)) ^
   Hashtbl.fold (fun n v ac -> (if ac <> "" then ac ^ "\n" else ac) ^ (Printf.sprintf "(%s -> %s)" n (E_Func.str v))) prog.funcs ""
+
+let apply_macros (prog : t) : t = 
+  let new_funcs = 
+    Hashtbl.fold 
+      (fun _ f ac -> (E_Func.apply_macros f (Hashtbl.find_opt prog.macros))::ac)
+      prog.funcs
+      [] in 
+  create prog.imports new_funcs [] 

@@ -23,3 +23,7 @@ let str (func : t) : string =
   ^ print_list func.params
   ^ ") "
   ^ E_Stmt.str func.body
+
+let apply_macros (f : t) (macros : string -> E_Macro.t option) : t = 
+  let new_body = E_Macro.apply_macros_stmt macros f.body in 
+  { f with body = new_body }
