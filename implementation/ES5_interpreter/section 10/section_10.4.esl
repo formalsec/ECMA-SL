@@ -12,9 +12,7 @@
 
 function EnteringGlobalCode(program) {
   /* 10.4.1 Entering Global Code */
-  globalObject := NewObject(); /* TODO global object (15.1) */
-  setAllInternalMethodsOfObject(globalObject);
-  initArrayLib(globalObject, 'null, false); /* TODO */
+  globalObject := initGlobalObject(program.strict);
 
   /* The following steps are performed when control enters the execution context for global code: */
 

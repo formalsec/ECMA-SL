@@ -10,7 +10,7 @@
    function code, and strict a Boolean that indicates whether or not the function code is strict code. When
    CreateArgumentsObject is called the following steps are performed: */
 
-function CreateArgumentsObject(func, names, args, env, strict) {
+function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, strict) {
   /* 1. Let len be the number of elements in args. */
   len := l_len args;
   /* 2. Let obj be the result of creating a new ECMAScript object. */
@@ -18,11 +18,11 @@ function CreateArgumentsObject(func, names, args, env, strict) {
   /* 3. Set all the internal methods of obj as specified in 8.12. */
   setAllInternalMethodsOfObject(obj);
   /* 4. Set the [[Class]] internal property of obj to "Arguments". */
-  obj.Class := "Arguments";
+  setInternalProperty(obj, "Class", "Arguments");
   /* 5. Let Object be the standard built-in Object constructor (15.2.2). */
   /* TODO */
   /* 6. Set the [[Prototype]] internal property of obj to the standard built-in Object prototype object (15.2.4). */
-  obj.Prototype := $loc_OBJ_PROTOTYPE; /* TODO */
+  setInternalProperty(obj, "Prototype", getObjectPrototype(getGlobalObject(func.Scope), strict));
   /* 7. Call the [[DefineOwnProperty]] internal method on obj passing "length", the Property Descriptor
         {[[Value]]: len, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false as arguments. */
   DefineOwnProperty(obj, "length", {
@@ -33,7 +33,7 @@ function CreateArgumentsObject(func, names, args, env, strict) {
   }, false);
   /* 8. Let map be the result of creating a new object as if by the expression new Object() where Object is
         the standard built-in constructor with that name */
-  map := NewObject();
+  map := ObjectConstructor(getGlobalObject(func.Scope), 'null, strict, [undefined]);
   /* 9. Let mappedNames be an empty List. */
   mappedNames := [];
   /* 10. Let indx = len - 1. */
@@ -61,10 +61,10 @@ function CreateArgumentsObject(func, names, args, env, strict) {
         mappedNames := l_add(mappedNames, name);
         /* 2. Let g be the result of calling the MakeArgGetter abstract operation with arguments
               name and env. */
-        g := MakeArgGetter(name, env);
+        g := MakeArgGetter(name, lexicalEnvironment);
         /* 3. Let p be the result of calling the MakeArgSetter abstract operation with arguments
               name and env. */
-        p := MakeArgSetter(name, env);
+        p := MakeArgSetter(name, lexicalEnvironment);
         /* 4. Call the [[DefineOwnProperty]] internal method of map passing ToString(indx), the
               Property Descriptor {[[Set]]: p, [[Get]]: g, [[Configurable]]: true}, and false as
               arguments. */
@@ -128,7 +128,7 @@ function CreateArgumentsObject(func, names, args, env, strict) {
   return obj
 };
 
-function MakeArgGetter(name, env) {
+function MakeArgGetter(name, lexicalEnvironment) {
   /* The abstract operation MakeArgGetter called with String name and environment record env creates a function
      object that when executed returns the value bound for name in env. It performs the following steps: */
 
@@ -136,10 +136,10 @@ function MakeArgGetter(name, env) {
   body := s_concat(["return ", name, ";"]);
   /* 2. Return the result of creating a function object as described in 13.2 using no FormalParameterList, body for
         FunctionBody, env as Scope, and true for Strict. */
-  return CreateFunctionObject([], body, env, true)
+  return CreateFunctionObject([], body, lexicalEnvironment, true)
 };
 
-function MakeArgSetter(name, env) {
+function MakeArgSetter(name, lexicalEnvironment) {
   /* The abstract operation MakeArgSetter called with String name and environment record env creates a function
      object that when executed sets the value bound for name in env. It performs the following steps: */
 
@@ -150,7 +150,7 @@ function MakeArgSetter(name, env) {
   body := s_concat([name, " = ", param, ";"]);
   /* 3. Return the result of creating a function object as described in 13.2 using a List containing the single String
         param as FormalParameterList, body for FunctionBody, env as Scope, and true for Strict. */
-  return CreateFunctionObject([param], body, env, true)
+  return CreateFunctionObject([param], body, lexicalEnvironment, true)
 };
 
 function ArgumentsObjectGet(argumentObject, P) {
