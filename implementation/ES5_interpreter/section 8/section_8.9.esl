@@ -16,6 +16,12 @@ function isAnAbruptCompletion (completion) {
 };
 
 /* Auxiliary functions created for the purposes of accessing the values of the triple that form the completion type. */
+function isErrorCompletion(completion) {
+  if ((Type(completion) = "Completion")) {
+    return (getCompletionType(completion) = 'throw)
+  };
+  return false
+};
 function getCompletionType(completion) {
   return t_nth(completion, 1)
 };
