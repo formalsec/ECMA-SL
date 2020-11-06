@@ -118,7 +118,7 @@ function Call(F, this, args) {
 
   /* 4. If result.type is throw then throw result.value. */
   if (getCompletionType(result) = 'throw) {
-    throw getCompletionValue(result)
+    return result
   };
   /* 5. If result.type is return then return result.value. */
   if (getCompletionType(result) = 'return) {
