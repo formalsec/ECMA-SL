@@ -159,7 +159,7 @@ function ObjectConstructor(globalObject, this, strict, params) {
   /* 3. Let obj be a newly created native ECMAScript object. */
   obj := NewECMAScriptObject();
   /* 4. Set the [[Prototype]] internal property of obj to the standard built-in Object prototype object (15.2.4). */
-  setInternalProperty(obj, "Prototype", getObjectPrototype(globalObject, strict));
+  setInternalProperty(obj, "Prototype", getObjectPrototype(strict));
   /* 5. Set the [[Class]] internal property of obj to "Object". */
   setInternalProperty(obj, "Class", "Object");
   /* 6. Set the [[Extensible]] internal property of obj to true. */
@@ -692,8 +692,8 @@ function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params)
 
 
 /* Auxiliary functions */
-function getObjectPrototype(globalObject, strict) {
-  refObj := newPropertyReference(globalObject, "Object", strict);
+function getObjectPrototype(strict) {
+  refObj := newPropertyReference(|global|, "Object", strict);
   ObjectObject := GetValue(refObj);
 
   refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
@@ -702,8 +702,8 @@ function getObjectPrototype(globalObject, strict) {
   return objectObjectProto
 };
 
-function getObjectPrototypeToString(globalObject, strict) {
-  refObj := newPropertyReference(globalObject, "Object", strict);
+function getObjectPrototypeToString(strict) {
+  refObj := newPropertyReference(|global|, "Object", strict);
   ObjectObject := GetValue(refObj);
 
   refObjProto := newPropertyReference(ObjectObject, "prototype", strict);

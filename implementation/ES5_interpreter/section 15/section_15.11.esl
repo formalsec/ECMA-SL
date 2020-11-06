@@ -155,7 +155,7 @@ function EvalErrorConstructor(globalObject, this, strict, params) {
   return NativeErrorConstructor(globalObject, strict, message, "EvalError")
 };
 function EvalErrorConstructorInternal() {
-  return NativeErrorConstructor('null, false, 'undefined, "EvalError")
+  return NativeErrorConstructor(|global|, false, 'undefined, "EvalError")
 };
 
 /* 15.11.6.2 RangeError */
@@ -171,7 +171,7 @@ function RangeErrorConstructor(globalObject, this, strict, params) {
   return NativeErrorConstructor(globalObject, strict, message, "RangeError")
 };
 function RangeErrorConstructorInternal() {
-  return NativeErrorConstructor('null, false, 'undefined, "RangeError")
+  return NativeErrorConstructor(|global|, false, 'undefined, "RangeError")
 };
 
 /* 15.11.6.3 ReferenceError */
@@ -187,7 +187,7 @@ function ReferenceErrorConstructor(globalObject, this, strict, params) {
   return NativeErrorConstructor(globalObject, strict, message, "ReferenceError")
 };
 function ReferenceErrorConstructorInternal() {
-  return NativeErrorConstructor('null, false, 'undefined, "ReferenceError")
+  return NativeErrorConstructor(|global|, false, 'undefined, "ReferenceError")
 };
 
 /* 15.11.6.4 SyntaxError */
@@ -204,7 +204,7 @@ function SyntaxErrorConstructor(globalObject, this, strict, params) {
   return NativeErrorConstructor(globalObject, strict, message, "SyntaxError")
 };
 function SyntaxErrorConstructorInternal() {
-  return NativeErrorConstructor('null, false, 'undefined, "SyntaxError")
+  return NativeErrorConstructor(|global|, false, 'undefined, "SyntaxError")
 };
 
 /* 15.11.6.5 TypeError */
@@ -225,7 +225,7 @@ function TypeErrorConstructor(globalObject, this, strict, params) {
   return NativeErrorConstructor(globalObject, strict, message, "TypeError")
 };
 function TypeErrorConstructorInternal() {
-  return NativeErrorConstructor('null, strict, 'undefined, "TypeError")
+  return NativeErrorConstructor(|global|, strict, 'undefined, "TypeError")
 };
 
 /* 15.11.6.6 URIError */
@@ -241,7 +241,7 @@ function URIErrorConstructor(globalObject, this, strict, params) {
   return NativeErrorConstructor(globalObject, strict, message, "URIError")
 };
 function URIErrorConstructorInternal() {
-  return NativeErrorConstructor('null, strict, 'undefined, "URIError")
+  return NativeErrorConstructor(|global|, strict, 'undefined, "URIError")
 };
 
 

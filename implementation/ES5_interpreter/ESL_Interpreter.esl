@@ -17,7 +17,6 @@ function JS_Interpreter_Program(p) {
     };
     /* 3. Let progCxt be a new execution context for global code as described in 10.4.1. */
     progCxt := EnteringGlobalCode(p);
-    |global| := getGlobalObject(getLexicalEnvironment(progCxt)); 
     /* 4. Let result be the result of evaluating SourceElements. */
     result := JS_Interpreter_SourceElements(SourceElementsopt, progCxt);
     /* 5. Exit the execution context progCxt. */
@@ -77,7 +76,7 @@ function JS_Interpreter_Expr(e, scope) {
   }
   | { type: "ArrayExpression", elements: ElementList } -> {
     /* 11.1.4 Array Initialiser */
-    arrayPrototype := getArrayPrototype(getGlobalObject(getLexicalEnvironment(scope)), false);
+    arrayPrototype := getArrayPrototype(false);
     array := internalNewArray(arrayPrototype, []);
     len := l_len ElementList;
     i := 0;
@@ -345,7 +344,7 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
         throw SyntaxErrorConstructorInternal()
       };
     /* 5. Call PutValue(lref, rval). */
-    PutValue(lref, rval, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(lref, rval);
     /* 6. Return rval. */
     return rval
 
@@ -384,7 +383,7 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
         throw SyntaxErrorConstructorInternal()
       };
     /* 7. Call PutValue(lref, r). */
-    PutValue(lref, r, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(lref, r);
     /* 8. Return r. */
     return r
 
@@ -557,7 +556,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
           (see 11.6.3). */
     newValue := oldValue + 1;
     /* 5. Call PutValue(expr, newValue). */
-    PutValue(expr, newValue, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(expr, newValue);
     /* 6. Return newValue.*/
     return newValue
   }
@@ -587,7 +586,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
           operator (see 11.6.3). */
     newValue := oldValue - 1;
     /* 5. Call PutValue(expr, newValue). */
-    PutValue(expr, newValue, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(expr, newValue);
     /* 6. Return newValue.*/
     return newValue
   }
@@ -681,7 +680,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
           (see 11.6.3). */
     newValue := oldValue + 1;
     /* 5. Call PutValue(lhs, newValue). */
-    PutValue(lhs, newValue, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(lhs, newValue);
     /* 6. Return oldValue. */
     return oldValue
   }
@@ -711,7 +710,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
           operator (11.6.3). */
     newValue := oldValue - 1;
     /* 5. Call PutValue(lhs, newValue). */
-    PutValue(lhs, newValue, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(lhs, newValue);
     /* 6. Return oldValue. */
     return oldValue
   }
@@ -832,7 +831,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
     /* Return a new object created as if by the expression new Object() where Object
         is the standard built-in constructor with that name. */
     if (l_len PropertyNameAndValueList = 0) {
-      return ObjectConstructor(getGlobalObject(getLexicalEnvironment(scope)),
+      return ObjectConstructor(|global|,
                                'null,
                                isContainedInStrictCode(scope),
                                [undefined])
@@ -842,7 +841,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
 
     /* 1. Let obj be the result of creating a new object as if by the expression new Object()
           where Object is the standard built-in constructor with that name. */
-    obj := ObjectConstructor(getGlobalObject(getLexicalEnvironment(scope)),
+    obj := ObjectConstructor(|global|,
                              'null,
                              isContainedInStrictCode(scope),
                              [undefined]);
@@ -1284,7 +1283,7 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
     /* 3. Let value be GetValue(rhs). */
     value := GetValue(rhs);
     /* 4. Call PutValue(lhs, value). */
-    PutValue(lhs, value, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(lhs, value);
     /* 5. Return a String value containing the same sequence of characters as in the Identifier. */
     /* return Identifier.name */
     return Identifier
@@ -1968,7 +1967,7 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
       /* b. Let lhsRef be the result of evaluating the LeftHandSideExpression ( it may be evaluated repeatedly). */
       lhsRef := JS_Interpreter_Expr(LeftHandSideExpression, scope);
       /* c. Call PutValue(lhsRef, P). */
-      PutValue(lhsRef, P, getGlobalObject(getLexicalEnvironment(scope)));
+      PutValue(lhsRef, P);
       /* d. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope);
       /* e. If stmt.value is not empty, let V = stmt.value. */
@@ -2024,7 +2023,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
             it may be evaluated repeatedly. */
       varRef := JS_Interpreter_Expr(varName, scope);
       /* c. Call PutValue(varRef, P). */
-      PutValue(varRef, P, getGlobalObject(getLexicalEnvironment(scope)));
+      PutValue(varRef, P);
       /* d. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope);
       /* e. If stmt.value is not empty, let V = stmt.value. */

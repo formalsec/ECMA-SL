@@ -77,7 +77,7 @@ function GetValue(V) {
   }
 };
 
-function PutValue(V, W, globalObject) {
+function PutValue(V, W) {
   print "PutValue";
   if (!(Type(V) = "Reference")) {
     throw ReferenceErrorConstructorInternal()
@@ -90,7 +90,7 @@ function PutValue(V, W, globalObject) {
       throw ReferenceErrorConstructorInternal()
     };
 
-    Put(globalObject, GetReferencedName(V), W, false)
+    Put(|global|, GetReferencedName(V), W, false)
   } else {
     if (IsPropertyReference(V)) {
       if (HasPrimitiveBase(V) = false) {

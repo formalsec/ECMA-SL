@@ -19,6 +19,8 @@ document object model the window property of the global object is the global obj
 
 function initGlobalObject(strict) {
   globalObject := NewECMAScriptObjectFull('null, "Object", true);
+  |global| := globalObject;
+
   setAllInternalMethodsOfObject(globalObject);
 
   ObjectPrototype := initObjectPrototype();
@@ -113,7 +115,7 @@ function initGlobalObject(strict) {
   /* 15.1.5.2 JSON */
 
   /* Extras */
-  ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(globalObject, strict), strict);
+  ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);
   createBuiltInProperty(globalObject, "console", ConsoleObject);
 
   return globalObject

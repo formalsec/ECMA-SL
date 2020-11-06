@@ -213,7 +213,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
 
 
 
-function getArrayPrototype(globalObject, strict) {
+function getArrayPrototype(strict) {
   refArray := newPropertyReference(|global|, "Array", strict);
   ArrayObject := GetValue(refArray);
   refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
@@ -273,7 +273,7 @@ function initArrayObject(global, objectPrototype, strict) {
  * no arguments or at least two arguments.
  */
 function ArrayConstructor(global, this, strict, items) {
-  prototype := getArrayPrototype(global, strict);
+  prototype := getArrayPrototype(strict);
   return internalNewArray(prototype, items)
 };
 function internalNewArray(arrayPrototype, items) {
@@ -329,7 +329,7 @@ function internalNewArray(arrayPrototype, items) {
  */
 function ArrayConstructorLen(global, this, strict, args) {
   len := l_nth (args, 0);
-  prototype := getArrayPrototype(global, strict);
+  prototype := getArrayPrototype(strict);
   return internalNewArrayLen(prototype, len)
 };
 function internalNewArrayLen(arrayPrototype, len) {
@@ -422,7 +422,7 @@ function arrayToString(global, this, strict, args) {
   /* 3. If IsCallable(func) is false, then let func be the standard
         built-in method Object.prototype.toString (15.2.4.2). */
   if (IsCallable(func) = false) {
-    func := getObjectPrototypeToString(global, strict)
+    func := getObjectPrototypeToString(strict)
   };
   /* 4. Return the result of calling the [[Call]] internal method of func
         providing array as the this value and an empty arguments list. */
