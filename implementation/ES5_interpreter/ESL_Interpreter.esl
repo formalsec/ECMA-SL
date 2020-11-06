@@ -1007,7 +1007,7 @@ function JS_Interpreter_Stmt(s, scope) {
     return normalEmptyCompletion(GetValue(exprRef))
   }
   | { type: "IfStatement", test: Expression, consequent: Statement1, alternate: Statement2 } -> {
-    exprRef := JS_Interpreter_Expr(Expression, scope);
+    @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     if (ToBoolean(GetValue(exprRef))) {
       return JS_Interpreter_Stmt(Statement1, scope)
     }
