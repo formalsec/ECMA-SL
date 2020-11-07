@@ -59,6 +59,10 @@ let from_char_code = fun (n : int) : string ->
   let c = Char.chr n in
   String.make 1 c
 
+let to_char_code = fun (s : string ) : int ->
+  let c = Char.code (s.[0]) in
+  c
+
 let modulo_32 = (fun x -> let r = mod_float x 32. in if x < 0. then r +. 32. else r)
 
 let int32_bitwise_not = fun x -> Int32.to_float (Int32.lognot (Int32.of_float x))

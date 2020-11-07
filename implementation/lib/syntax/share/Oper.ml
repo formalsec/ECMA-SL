@@ -50,6 +50,7 @@ type uopt = Neg
           | Floor
           | ToUint16
           | FromCharCode
+          | ToCharCode
           | SLen
 
 
@@ -266,6 +267,10 @@ let from_char_code (v : Val.t) : Val.t = match v with
   | Int n -> Str (Arith_Utils.from_char_code n)
   | _     -> invalid_arg "Exception in Oper.from_char_code: this operation is only applicable to Int arguments"
 
+let to_char_code (v : Val.t) : Val.t = match v with
+  | Str s -> Flt (float_of_int (Arith_Utils.to_char_code s))
+  | _     -> invalid_arg "Exception in Oper.to_char_code: this operation is only applicable to Str arguments"
+
 let to_floor (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (floor n)
   | _     -> Null
@@ -303,6 +308,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | Floor         -> "floor"
   | ToUint16      -> "to_uint16"
   | FromCharCode  -> "from_char_code"
+  | ToCharCode    -> "to_char_code"
   | SLen          -> "s_len"
 
 
@@ -406,5 +412,6 @@ let uopt_to_json (op : uopt) : string =
      | ToUint32      -> Printf.sprintf "ToUint32\" }"
      | ToUint16      -> Printf.sprintf "ToUint16\" }"
      | FromCharCode  -> Printf.sprintf "FromCharCode\" }"
+     | ToCharCode    -> Printf.sprintf "ToCharCode\" }"
      | Floor         -> Printf.sprintf "Floor\" }"
      | SLen          -> Printf.sprintf "SLen\" }")

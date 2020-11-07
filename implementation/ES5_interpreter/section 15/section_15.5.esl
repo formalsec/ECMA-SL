@@ -346,18 +346,18 @@ function StringPrototypecharCodeAt (global, this, args){
   /*Call CheckObjectCoercible passing the this value as its argument.*/
   CheckObjectCoercible(this);
   /*Let S be the result of calling ToString, giving it the this value as its argument.*/
-  S := int_of_float(ToString(this));
+  S := ToString(this);
   /*Let position be ToInteger(pos).*/
   position := int_of_float(ToInteger(pos));
   /*Let size be the number of characters in S.*/
   size := s_len S;
   /* If position < 0 or position ≥ size, return NaN. */
-  if (position < 0 || position >= size){
+  if (position < 0 || (position >= size)){
     return 'NaN
   };
   /*     Return a value of Number type, whose value is the code unit value of the character at position position
        in the String S, where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on. */
-  return null
+  return to_char_code (s_nth (S, position))
 };
 
 /*15.5.4.6 String.prototype.concat ( [ string1 [ , string2 [ , … ] ] ] )  */
@@ -861,6 +861,53 @@ function main () {
   objectPrototype := NewObject();
   strict := true;
   initStringLib(globalObject, functionPrototype, objectPrototype, strict);
-  sto := StringConstructor(globalObject, null, [ "xpto" ]);
-  return StringfromCharCode(null, sto, [72., 69., 76., 76., 79.])
+
+
+  /* String
+  return String(23123.);
+  */
+
+  /*StringConstructor */
+  sto := StringConstructor(globalObject, null, [ "HELLO" ]);
+
+
+  /* StringfromCharCode   */
+  /* return StringfromCharCode(null, sto, [72., 69., 76., 76., 79.]) */
+
+
+
+  /*StringPrototypecharCodeAt*/
+  return StringPrototypecharCodeAt(null, sto, [3.])
+
+
+  /*StringPrototypeconcat
+  return StringPrototypeconcat(null,sto,[" WORLD"])
+  */
+
+  /*StringPrototypeindexOf */
+
+  /*StringPrototypelastIndexOf */
+
+  /*StringPrototypelocaleCompare -> RegExp*/
+
+  /*StringPrototypematch -> RegExp*/
+
+  /*StringPrototypesearch -> RegExp */
+
+  /* StringPrototypeSlice */
+
+  /* StringPrototypeSplit -> RegExp */
+
+  /* StringPrototypesubstring */
+
+  /* StringPrototypetoLowerCase */
+
+  /* StringPrototypetoLocaleLowerCase */
+
+  /* StringPrototypetoUpperCase */
+
+  /* StringPrototypetoLocaleUpperCase */
+
+
+
 }

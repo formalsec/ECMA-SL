@@ -99,6 +99,7 @@ rule read =
   | "floor"           { FLOOR }
   | "to_uint16"       { TO_UINT16 }
   | "from_char_code"  { FROM_CHAR_CODE }
+  | "to_char_code"    { TO_CHAR_CODE }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }
