@@ -56,6 +56,9 @@ To test the implementation of the reference interpreter (files present in the di
 * `implementation/exec_test262_tests.sh`: executed the tests that are availabe in the directory `implementation/test/test262/tests`
   * e.g., `sh exec_test262_tests.sh -d test/test262/tests/language/expressions/array` to execute all the Test262 files in the directory `test/test262/tests/language/expressions/array`
   * e.g., `sh exec_test262_tests.sh -f test/test262/tests/language/types/reference/8.7.2-2-s.js` to execute a specific Test262 file
+  * for both `-d` and `-f` arguments, one is allowed to pass multiple files/directories:
+    * e.g., `sh exec_test262_tests.sh -f test/test262/tests/language/statements/if/S12.5_A3.js test/test262/tests/language/statements/if/S12.5_A4.js`
+    * e.g., `sh exec_test262_tests.sh -d test/test262/tests/language/expressions/array/ test/test262/tests/language/statements/if/`
 
 ### Common Errors when interpreting an ECMA-SL program
 
