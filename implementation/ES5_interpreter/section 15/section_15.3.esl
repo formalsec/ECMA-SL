@@ -383,7 +383,7 @@ function HasInstanceBind(F, V) {
   /* 1. Let target be the value of F’s [[TargetFunction]] internal property. */
   target := F.TargetFunction;
   /* 2. If target has no [[HasInstance]] internal method, a TypeError exception is thrown. */
-  if ("HasInstance" in_obj target) {
+  if (!("HasInstance" in_obj target)) {
     throw TypeErrorConstructorInternal()
   };
   /* 3. Return the result of calling the [[HasInstance]] internal method of target providing V as the argument. */
