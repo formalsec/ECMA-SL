@@ -85,6 +85,20 @@ function handleSingleFile() {
   fi
 }
 
+function handleFiles() {
+  files=($@)
+  for file in "${files[@]}"; do
+    handleSingleFile $file
+  done
+}
+
+function handleDirectories() {
+  directories=($@)
+  for directory in "${directories[@]}"; do
+    handleDirectory $directory
+  done
+}
+
 function usage {
   echo "Usage: $(basename $0) [-df]" 2>&1
   echo '   -d   path to a directory containing test files. All the present test files are used.'
@@ -125,9 +139,11 @@ writeToMDFile "--- | --- | ---"
 optstring=":df"
 
 while getopts ${optstring} arg; do
-  case "${arg}" in
-    d) handleDirectory $2 ;;
-    f) handleSingleFile $2 ;;
+  numarr=($@)
+  unset numarr[0] # the first item of the array is the "arg". We don't want to pass it to the functions being called.
+  case $arg in
+    d) handleDirectories ${numarr[@]} ;;
+    f) handleFiles ${numarr[@]} ;;
 
     ?)
       echo "Invalid option: -${OPTARG}."
