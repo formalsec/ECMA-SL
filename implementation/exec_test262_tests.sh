@@ -99,6 +99,20 @@ function handleDirectories() {
   done
 }
 
+function handleRecursively() {
+  if [ -d $1 ]; then
+    local dir=$1
+    local lastChar=${dir: -1}
+    for f in $(ls $dir); do
+      [[ $lastChar == "/" ]] && handleRecursively "$dir$f" || handleRecursively "$dir/$f"
+    done
+  elif [ -f $1 ]; then
+    handleSingleFile $1
+  else
+    echo "$1 is neither a directory nor a file."
+  fi
+}
+
 function usage {
   echo "Usage: $(basename $0) [-df]" 2>&1
   echo '   -d   path to a directory containing test files. All the present test files are used.'
@@ -136,7 +150,7 @@ writeToMDFile "File path | Result | Observations"
 writeToMDFile "--- | --- | ---"
 
 # Define list of arguments expected in the input
-optstring=":df"
+optstring=":dfr"
 
 while getopts ${optstring} arg; do
   numarr=($@)
@@ -144,6 +158,7 @@ while getopts ${optstring} arg; do
   case $arg in
     d) handleDirectories ${numarr[@]} ;;
     f) handleFiles ${numarr[@]} ;;
+    r) handleRecursively $2 ;;
 
     ?)
       echo "Invalid option: -${OPTARG}."
