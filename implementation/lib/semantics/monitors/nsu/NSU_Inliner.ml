@@ -75,8 +75,7 @@ C(x := e1[e2]) =
    }
 *)
 let c_fieldlookup (pc : string) (x : string) (e_o : Expr.t) (e_f : Expr.t) : Stmt.t list = 
-  print_string "FieldLookup\n";
-
+ 
   let e_o_lev = c_expr e_o in
   let e_f_lev = c_expr e_f in
   let x_o = fresh_obj () in
@@ -242,33 +241,37 @@ prop_exists_lev_name fresh
 struct_lvl_name struct_lvl fresh
 -------------------------------------
 C(e_o[e_f]:= e_v)=
+  x_o := e_o;
+  x_f := e_f;
   ctx := lub(lub(e_o_lev, e_f_lev), pc);
-  prop_val_lev_name := propVal(e_f);
-  prop_val_lev := e_o[prop_val_lev_name];
+  prop_val_lev_name := propVal(x_f);
+  prop_val_lev := x_o[prop_val_lev_name];
   if(prop_val_lev != null){
     if(leq(ctx, prop_val_lev)){
-      e_o[prop_val_lev_name] := lub(ctx, e_v_lev);
-      e_o[e_f] := e_v;
+      x_o[prop_val_lev_name] := lub(ctx, e_v_lev);
+      x_o[x_f] := e_v;
     } else {
       throw("Illegal Field Assign")
     }
   } else{
     struct_lev_name := structLevName();
-    struct_lev := e_o[struct_lev_name];
+    struct_lev := x_o[struct_lev_name];
     if(leq(ctx, struct_lev)){
-    prop_exists_lev_name := propExists(e_f);
-    e_o[prop_val_lev_name] := lub(ctx, e_v_lev)
-    e_o[prop_exists_lev_name] := ctx
+    prop_exists_lev_name := propExists(x_f);
+    x_o[prop_val_lev_name] := lub(ctx, e_v_lev)
+    x_o[prop_exists_lev_name] := ctx
     } else{
       throw("Illegal Field Creation")
     }
   }
 *)
 let c_fieldassign (pc : string) (e_o : Expr.t) (e_f : Expr.t) (e_v : Expr.t) : Stmt.t list =
-  (*E SE A PROP NAO EXISTIR?*)
   let e_o_lev = c_expr e_o in
   let e_f_lev = c_expr e_f in
   let e_v_lev = c_expr e_v in
+  let x_o = e_o in
+  let x_f = e_f in
+  let x_v = e_v in
   let ctx1 = binopt_e Oper.Lub e_o_lev e_f_lev in
   let ctx = binopt_e Oper.Lub (Expr.Var pc) ctx1 in
   let prop_val_lev_name = fresh_var () in
@@ -277,23 +280,23 @@ let c_fieldassign (pc : string) (e_o : Expr.t) (e_f : Expr.t) (e_v : Expr.t) : S
   let prop_exists_lev = fresh_field_lev () in
   let struct_lev = fresh_field_lev () in
    [
-    Stmt.AssignCall(prop_val_lev_name, Expr.Val (Val.Str "propVal"), [e_f]);
-    Stmt.FieldLookup(prop_val_lev, e_o, Expr.Var prop_val_lev_name);
+    Stmt.AssignCall(prop_val_lev_name, Expr.Val (Val.Str "propVal"), [x_f]);
+    Stmt.FieldLookup(prop_val_lev, x_o, Expr.Var prop_val_lev_name);
     Stmt.If (binopt_e Oper.Equal (Expr.Var prop_val_lev) (Expr.Val (Val.Null)),
       Stmt.Block ([ 
-        Stmt.FieldLookup(struct_lev, e_o, (Expr.Var "struct_lev"));
+        Stmt.FieldLookup(struct_lev, x_o, (Expr.Var "struct_lev"));
         Stmt.If(binopt_e Oper.Leq ctx (Expr.Var struct_lev),
           Stmt.Block([
-            Stmt.AssignCall(prop_exists_lev_name, Expr.Val (Val.Str "propExists"), [e_f]);
-            Stmt.FieldAssign(e_o, Expr.Var prop_val_lev_name, binopt_e Oper.Lub ctx e_v_lev);
-            Stmt.FieldAssign(e_o, Expr.Var prop_exists_lev_name, ctx)]) ,
+            Stmt.AssignCall(prop_exists_lev_name, Expr.Val (Val.Str "propExists"), [x_f]);
+            Stmt.FieldAssign(x_o, Expr.Var prop_val_lev_name, binopt_e Oper.Lub ctx e_v_lev);
+            Stmt.FieldAssign(x_o, Expr.Var prop_exists_lev_name, ctx)]) ,
           Some ( Stmt.Block [
         Stmt.Exception ("Illegal Field Creation")]))
       ]),Some (Stmt.Block ([
         Stmt.If (binopt_e Oper.Leq ctx (Expr.Var prop_val_lev), 
           Stmt.Block ([
-            Stmt.FieldAssign (e_o, Expr.Var prop_val_lev_name, (binopt_e Oper.Lub ctx e_v_lev));
-            Stmt.FieldAssign (e_o, e_f, e_v)
+            Stmt.FieldAssign (x_o, Expr.Var prop_val_lev_name, (binopt_e Oper.Lub ctx e_v_lev));
+            Stmt.FieldAssign (x_o, x_f, x_v)
           ]), Some (Stmt.Block ([
             Stmt.Exception ("Illegal Field Assign")
           ])))])))
@@ -306,12 +309,14 @@ C(e_f) = e_f_lev
 prop_exists_lev prop_exists_lev_name fresh
 ------------------------------------------
 C(delete(e_o[e_f]))=
+  x_o := e_o;
+  x_f := e_f;
   ctx=lub(lub(e_o_lev, e_f_lev), pc);
-  prop_exists_lev_name := propExists(e_f);
-  prop_exists_lev := e_o[prop_exists_lev_name];
+  prop_exists_lev_name := propExists(x_f);
+  prop_exists_lev := x_o[prop_exists_lev_name];
   if(prop_exists_lev == null){
     if(leq(ctx, prop_exists_lev)){
-      delete(e_o[e_f])
+      delete(x_o[x_f])
     } else{
       throw("Illegal Field Delete")
     }
@@ -322,20 +327,22 @@ C(delete(e_o[e_f]))=
 let c_fielddelete (pc : string) (e_o : Expr.t) (e_f : Expr.t) : Stmt.t list =
   let e_o_lev = c_expr e_o in
   let e_f_lev = c_expr e_f in
+  let x_o = e_o in
+  let x_f = e_f in
   let ctx1 = binopt_e Oper.Leq e_o_lev e_f_lev in
   let ctx = binopt_e Oper.Leq (Expr.Var pc) ctx1 in
   let prop_exists_lev_name = fresh_var () in
   let prop_exists_lev = fresh_field_lev () in
   [
-   Stmt.AssignCall (prop_exists_lev_name, Expr.Val (Val.Str "propExists"), [e_f]);
-   Stmt.FieldLookup (prop_exists_lev, e_o, Expr.Var prop_exists_lev_name);
+   Stmt.AssignCall (prop_exists_lev_name, Expr.Val (Val.Str "propExists"), [x_f]);
+   Stmt.FieldLookup (prop_exists_lev, x_o, Expr.Var prop_exists_lev_name);
    Stmt.If(binopt_e Oper.Equal (Expr.Var prop_exists_lev) (Expr.Val (Val.Null)),
    Stmt.Block [
     Stmt.Exception("Internal Error")], 
    Some(Stmt.Block [
     Stmt.If (binopt_e Oper.Leq ctx (Expr.Var prop_exists_lev), 
     Stmt.Block ([
-      Stmt.FieldDelete (e_o, e_f)]),
+      Stmt.FieldDelete (x_o, x_f)]),
     Some (Stmt.Block ([
       Stmt.Exception ("Illegal Field Delete")
    ])))]))
@@ -344,81 +351,53 @@ let c_fielddelete (pc : string) (e_o : Expr.t) (e_f : Expr.t) : Stmt.t list =
 
 
 (*
-  C(e_o)= e_o_lev
+   C(e_o)= e_o_lev
   C(e_f)= e_f_lev
   struct_lev fresh
   prop_exists_lev prop_exists_lev_name fresh
   ----------------------
   C(x := e_f in(e_o)) =
+  x_o := e_o;
+  x_f := e_f;
   ctx := lub(lub(e_o_lev, e_f_lev), pc);
-  struct_lev_name := structLevName();
-  struct_lev := e_o[struct_lev_name];
-  prop_exists_lev_name := propExists(e_f);
-  prop_exists_lev := e_o[prop_exists_lev_name];
-  if(prop_exists_lev == null){
-    if(x_lev == null){
-      x_lev := lub(ctx, struct_lev);
-    } else{
-      if(leq(ctx, x_lev)){
-        x_lev := lub(ctx, struct_lev);    
-      }else {
-        throw("Illegal Assignment")
-      }
+  struct_lev := x_o[struct_lev_name];
+  prop_exists_lev_name := shadowPropExists(x_f);
+  prop_exists_lev := x_o[prop_exists_lev_name];
+  if(leq(ctx, x_lev)){
+    if(prop_exists_lev == null){
+      x_lev := lub(ctx, struct_lev);    
+    }else {
+      x_lev := lub(prop_exists_lev, ctx)
     }
   }else{
-    if(x_lev == null){
-      x_lev := lub(prop_exists_lev, ctx)
-    } else{
-      if(leq(ctx, x_lev)){
-        x_lev := lub(prop_exists_lev, ctx)
-      } else{ 
-        throw("Illegal Assignment")
-      }
+      throw("Illegal Assignment")
     }
   }
-  x := e_f in(e_o);
-
+  x := e_f in(x_o);
 *)
 let c_assinginobjcheck (pc : string) (x : string) (e_f : Expr.t) (e_o : Expr.t) : Stmt.t list =
   let e_o_lev = c_expr e_o in
   let e_f_lev = c_expr e_f in
+  let x_o = e_o in
+  let x_f = e_f in
   let ctx1 = binopt_e Oper.Leq e_o_lev e_f_lev in
   let ctx = binopt_e Oper.Leq (Expr.Var pc) ctx1 in
   let prop_exists_lev_name = fresh_var () in
   let prop_exists_lev = fresh_field_lev () in
   let struct_lev = fresh_field_lev () in
   [
-   Stmt.AssignCall(prop_exists_lev_name,Expr.Val (Val.Str "propExists"), [e_f]);
-   Stmt.FieldLookup (prop_exists_lev, e_o, Expr.Var prop_exists_lev_name);
-   Stmt.FieldLookup (struct_lev, e_o, (Expr.Var "struct_lev"));
-   Stmt.If (binopt_e Oper.Equal (Expr.Var prop_exists_lev) (Expr.Val (Val.Null)), 
-   Stmt.Block ([
-      Stmt.If(binopt_e Oper.Equal (shadow_var_e x) (Expr.Val (Val.Null)),
-      Stmt.Block [
-        Stmt.Assign (Val.shadowvar x, binopt_e Oper.Lub ctx (Expr.Var struct_lev))
-      ], Some(Stmt.Block [
-        Stmt.If(binopt_e Oper.Leq ctx (Expr.Var struct_lev),
-        Stmt.Block [
-          Stmt.Assign (Val.shadowvar x, binopt_e Oper.Lub ctx (Expr.Var struct_lev))
-        ],
-        Some (Stmt.Block [
-          Stmt.Exception "Illegal Assignment"
-        ]))   
-      ]))
-    ]), Some (Stmt.Block ([
-      Stmt.If(binopt_e Oper.Equal (shadow_var_e x) (Expr.Val (Val.Null)),
-      Stmt.Block [
-        Stmt.Assign (Val.shadowvar x, binopt_e Oper.Lub ctx (Expr.Var prop_exists_lev))
-      ], Some (Stmt.Block [
-        Stmt.If (binopt_e Oper.Leq ctx (shadow_var_e x),
-        Stmt.Block [
-          Stmt.Assign (Val.shadowvar x, binopt_e Oper.Lub ctx (Expr.Var prop_exists_lev))
-        ], Some (Stmt.Block [
-          Stmt.Exception "Illegal Assignment"
-        ]))
-      ]))  
-    ]))) 
 
+    Stmt.AssignCall(prop_exists_lev_name,Expr.Val (Val.Str "propExists"), [x_f]);
+    Stmt.FieldLookup (prop_exists_lev, x_o, Expr.Var prop_exists_lev_name);
+    Stmt.FieldLookup (struct_lev, x_o, (Expr.Var "struct_lev"));
+    Stmt.If (binopt_e Oper.Leq ctx (shadow_var_e x), 
+    Stmt.Block ([
+      Stmt.If (binopt_e Oper.Equal (Expr.Var prop_exists_lev) (Expr.Val (Val.Null)),
+        Stmt.Assign (Val.shadowvar x, binopt_e Oper.Lub ctx (Expr.Var struct_lev))
+        ,
+        Some (Stmt.Assign (Val.shadowvar x, binopt_e Oper.Lub ctx (Expr.Var prop_exists_lev))))
+    ]), Some ( Stmt.Exception "Illegal Assignment"));
+    Stmt.AssignInObjCheck (x, x_f, x_o)
   ]
 
 
