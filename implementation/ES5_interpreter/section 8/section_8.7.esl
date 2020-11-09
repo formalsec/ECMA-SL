@@ -61,7 +61,7 @@ function GetValue(V) {
   base := GetBase(V);
 
   if (IsUnresolvableReference(V)) {
-    throw ReferenceErrorException()
+    return throwEmptyCompletion(ReferenceErrorException())
   };
 
   if (IsPropertyReference(V)) {
@@ -80,14 +80,14 @@ function GetValue(V) {
 function PutValue(V, W, globalObject) {
   print "PutValue";
   if (!(Type(V) = "Reference")) {
-    throw ReferenceErrorException()
+    return throwEmptyCompletion(ReferenceErrorException())
   };
 
   base := GetBase(V);
 
   if (IsUnresolvableReference(V)) {
     if (IsStrictReference(V)) {
-      throw ReferenceErrorException()
+      return throwEmptyCompletion(ReferenceErrorException())
     };
 
     Put(globalObject, GetReferencedName(V), W, false)
@@ -153,7 +153,7 @@ function Put_internal(base, P, W, Throw) {
   /* 2. If the result of calling the [[CanPut]] internal method of O with argument P is false, then */
   if (CanPut(O, P) = false) {
     /* a. If Throw is true, then throw a TypeError exception. */
-    if (Throw = true) { throw TypeErrorException() }
+    if (Throw = true) { return throwEmptyCompletion(TypeErrorException()) }
     /* b. Else return. */
     else { return }
   };
@@ -162,7 +162,7 @@ function Put_internal(base, P, W, Throw) {
   /* 4. If IsDataDescriptor(ownDesc) is true, then */
   if (IsDataPropertyDescriptor(ownDesc) = true) {
     /* a. If Throw is true, then throw a TypeError exception. */
-    if (Throw = true) { throw TypeErrorException() }
+    if (Throw = true) { return throwEmptyCompletion(TypeErrorException()) }
     /* b. Else return. */
     else { return }
   };
@@ -181,7 +181,7 @@ function Put_internal(base, P, W, Throw) {
     /* a. If Throw is true, then throw a TypeError exception. */
   else {
     if (Throw = true) {
-      throw TypeErrorException()
+      return throwEmptyCompletion(TypeErrorException())
     }
   };
   /* 8. Return. */
