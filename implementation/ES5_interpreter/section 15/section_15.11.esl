@@ -225,7 +225,7 @@ function TypeErrorConstructor(globalObject, this, strict, params) {
   return NativeErrorConstructor(globalObject, strict, message, "TypeError")
 };
 function TypeErrorConstructorInternal() {
-  return NativeErrorConstructor(|global|, strict, 'undefined, "TypeError")
+  return NativeErrorConstructor(|global|, false, 'undefined, "TypeError")
 };
 
 /* 15.11.6.6 URIError */
@@ -241,7 +241,7 @@ function URIErrorConstructor(globalObject, this, strict, params) {
   return NativeErrorConstructor(globalObject, strict, message, "URIError")
 };
 function URIErrorConstructorInternal() {
-  return NativeErrorConstructor(|global|, strict, 'undefined, "URIError")
+  return NativeErrorConstructor(|global|, false, 'undefined, "URIError")
 };
 
 
