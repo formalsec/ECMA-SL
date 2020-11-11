@@ -39,21 +39,17 @@ function testIsArray(global) {
   return (ret = true)
 };
 
-/* arrayToString TODO
+/* arrayToString */
 function testArrayToString(global) {
-  str := arrayToString(global, ArrayConstructor(global, 'null, false, [2., 3.]), 'null);
-  print "Assert arrayToString";
-  assert (str = "2.,3.");
-  return null
-};*/
+  str := arrayToString(global, ArrayConstructor(global, 'null, false, [2., 3.]), false, []);
+  return str = "2,3"
+};
 
-/* arrayToLocaleString TODO
+/* arrayToLocaleString */
 function testArrayToLocaleString(global) {
-  return arrayToLocaleString(global, ArrayConstructor(global, 'null, false, [2., 3.]), 'null);
-  print "Assert arrayToLocaleString";
-  assert (str = "2.,3.");
-  return null
-};*/
+  str := arrayToLocaleString(global, ArrayConstructor(global, 'null, false, [2., 3.]), false, []);
+  return str = "2,3"
+};
 
 /* main arrayConcat */
 function testArrayConcat(global) {
@@ -338,10 +334,12 @@ function runTests(global, tests) {
 function main() {
   globalObject := initGlobalObject(false);
 
+  |global| := globalObject;
+
   tests := ["testArrayConstructorLen",
     "testIsArray",
-    /*"testArrayToString",
-    "testArrayToLocaleString"*/
+    "testArrayToString",
+    "testArrayToLocaleString",
     "testArrayConcat",
     "testArrayJoin",
     "testArrayPop",
