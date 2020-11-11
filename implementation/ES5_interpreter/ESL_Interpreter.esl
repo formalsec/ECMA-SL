@@ -36,6 +36,17 @@ macro ToBooleanGetValueReturnNormalEmptyCompletion(ref) {
   }
 };
 
+/* If ToBoolean(GetValue(exprRef)) is false, set iterating to false. */
+macro ToBooleanGetValueIsFalseSetVarToFalse(x, ref) {
+  val := GetValue(ref);
+  if (isErrorCompletion(val)) {
+    return val
+  };
+  if (ToBoolean(val) = false) {
+    x := false
+  }
+};
+
 function JS_Interpreter_Program(p) {
   /* 14 Program */
   match p with
@@ -1884,9 +1895,7 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
       /* d. Let exprRef be the result of evaluating Expression. */
       @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
       /* e. If ToBoolean(GetValue(exprRef)) is false, set iterating to false. */
-      if (ToBoolean(GetValue(exprRef)) = false) {
-        iterating := false
-      }
+      @ToBooleanGetValueIsFalseSetVarToFalse(iterating, exprRef)
     } until iterating = false;
     /* 4. Return (normal, V, empty); */
     return normalEmptyCompletion(V)
