@@ -215,9 +215,9 @@ function initArrayPrototype(global, objectPrototype, strict) {
 
 function getArrayPrototype(globalObject, strict) {
   refArray := newPropertyReference(|global|, "Array", strict);
-  ArrayObject := GetValue(refArray);
+  @GetValue(ArrayObject, refArray);
   refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
-  objectArrayProto := GetValue(refArrayProto);
+  @GetValue(objectArrayProto, refArrayProto);
   return objectArrayProto
 };
 

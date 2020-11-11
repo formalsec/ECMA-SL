@@ -477,10 +477,10 @@ function GetF(F, P) {
 /* Auxiliary functions */
 function getFunctionPrototype(globalObject, strict) {
   refObj := newPropertyReference(globalObject, "Function", strict);
-  FunctionObject := GetValue(refObj);
+  @GetValue(FunctionObject, refObj);
 
   refObjProto := newPropertyReference(FunctionObject, "prototype", strict);
-  functionObjectProto := GetValue(refObjProto);
+  @GetValue(functionObjectProto, refObjProto);
 
   return functionObjectProto
 };

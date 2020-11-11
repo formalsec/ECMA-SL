@@ -694,23 +694,23 @@ function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params)
 /* Auxiliary functions */
 function getObjectPrototype(globalObject, strict) {
   refObj := newPropertyReference(globalObject, "Object", strict);
-  ObjectObject := GetValue(refObj);
+  @GetValue(ObjectObject, refObj);
 
   refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
-  objectObjectProto := GetValue(refObjProto);
+  @GetValue(objectObjectProto, refObjProto);
 
   return objectObjectProto
 };
 
 function getObjectPrototypeToString(globalObject, strict) {
   refObj := newPropertyReference(globalObject, "Object", strict);
-  ObjectObject := GetValue(refObj);
+  @GetValue(ObjectObject, refObj);
 
   refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
-  objectObjectProto := GetValue(refObjProto);
+  @GetValue(objectObjectProto, refObjProto);
 
   refToStringObjProto := newPropertyReference(objectObjectProto, "toString", strict);
-  objectObjectToString := GetValue(refToStringObjProto);
+  @GetValue(objectObjectToString, refToStringObjProto);
 
   return objectObjectToString
 };
