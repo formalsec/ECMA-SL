@@ -16,6 +16,15 @@ macro GetValue(val, ref) {
   }
 };
 
+/* Let oldValue be ToBoolean(GetValue(expr)). */
+macro ToBooleanGetValue(x, ref) {
+  val := GetValue(ref);
+  if (isErrorCompletion(val)) {
+    return val
+  };
+  x := ToBoolean(val)
+};
+
 function JS_Interpreter_Program(p) {
   /* 14 Program */
   match p with
@@ -654,7 +663,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* 1. Let expr be the result of evaluating UnaryExpression. */
     @JS_Interpreter_Expr_Check_Throw(expr, UnaryExpression, scope);
     /* 2. Let oldValue be ToBoolean(GetValue(expr)). */
-    oldValue := ToBoolean(GetValue(expr));
+    @ToBooleanGetValue(oldValue, expr);
     /* 3. If oldValue is true, return false. */
     if (oldValue = true) {
       return false
