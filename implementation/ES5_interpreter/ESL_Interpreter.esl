@@ -47,6 +47,22 @@ macro ToBooleanGetValueIsFalseSetVarToFalse(x, ref) {
   }
 };
 
+/* If ToBoolean(GetValue(exprRef)) is true, then */
+  /* a. Return the result of evaluating the first Statement. */
+/* Else, */
+  /* a. Return the result of evaluating the second Statement. */
+macro ToBooleanGetValueIfElseReturn(ref, test, stmt1, stmt2) {
+  val := GetValue(ref);
+  if (isErrorCompletion(val)) {
+    return val
+  };
+  if (ToBoolean(val) = test) {
+    return stmt1
+  } else {
+    return stmt2
+  }
+};
+
 function JS_Interpreter_Program(p) {
   /* 14 Program */
   match p with
@@ -1045,18 +1061,11 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 2. Return (normal, GetValue(exprRef), empty). */
     return normalEmptyCompletion(GetValue(exprRef))
   }
-  | { type: "IfStatement", test: Expression, consequent: Statement1, alternate: Statement2 } -> {
-    @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
-    if (ToBoolean(GetValue(exprRef))) {
-      return JS_Interpreter_Stmt(Statement1, scope)
-    }
-    else {
-      if (!(Statement2 = null)) {
-        return JS_Interpreter_Stmt(Statement2, scope)
-      };
-
-      return normalEmptyCompletion('empty)
-    }
+  | { type: "IfStatement" } -> {
+    /* 12.5 The if Statement */
+    /* Each else for which the choice of associated if is ambiguous shall be associated with the nearest possible
+       if that would otherwise have no corresponding else. */
+    return JS_Interpreter_IfStatement(s, scope)
   }
   | { type: "LabeledStatement", label: Identifier, body: Statement } -> {
     /* 12.12 Labelled Statements */
@@ -1221,6 +1230,30 @@ function JS_Interpreter_Stmt(s, scope) {
     };
     /* 3. Return result. */
     return result
+  }
+};
+
+function JS_Interpreter_IfStatement(IfStatement, scope) {
+  match IfStatement with
+  | { type: "IfStatement", test: Expression, consequent: Statement, alternate: null } -> {
+    /* The production IfStatement : if ( Expression ) Statement is evaluated as follows: */
+
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
+    /* 2. If ToBoolean(GetValue(exprRef)) is false, return (normal, empty, empty). */
+    /* 3. Return the result of evaluating Statement. */
+    @ToBooleanGetValueIfElseReturn(exprRef, false, normalEmptyCompletion('empty), JS_Interpreter_Stmt(Statement, scope))
+  }
+  | { type: "IfStatement", test: Expression, consequent: Statement1, alternate: Statement2 } -> {
+    /* The production IfStatement : if ( Expression ) Statement else Statement is evaluated as follows: */
+
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
+    /* 2. If ToBoolean(GetValue(exprRef)) is true, then */
+      /* a. Return the result of evaluating the first Statement. */
+    /* 3. Else, */
+      /* a. Return the result of evaluating the second Statement. */
+    @ToBooleanGetValueIfElseReturn(exprRef, true, JS_Interpreter_Stmt(Statement1, scope), JS_Interpreter_Stmt(Statement2, scope))
   }
 };
 
