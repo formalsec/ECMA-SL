@@ -111,7 +111,9 @@ let get_func_id (sto:Store.t) (exp:Expr.t) :string=
 let prepare_call (prog:Prog.t) (calling_f : string) (cs:Callstack.t) (sto: Store.t) (cont: Stmt.t list) (x:string) (es:Expr.t list) (f:string) (vs: Val.t list) : (Callstack.t * Store.t * string list) =
   let cs' = Callstack.push cs (Callstack.Intermediate (cont, sto, x, calling_f)) in
   let params = Prog.get_params prog f in
-  let pvs = List.combine params vs in
+  let pvs = try
+    List.combine params vs
+  with _ -> raise (Failure ("Invalid number of arguments: " ^ f)) in
   let sto_aux = Store.create pvs in
   (cs', sto_aux, params)
 
