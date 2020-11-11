@@ -257,7 +257,7 @@ function URIErrorConstructorInternal() {
     object name from 15.11.6. */
 function initNativeErrorObject(ErrorPrototype, nativeErrorName, globalObject, strict) {
   nativeErrorPrototype := initNativeErrorPrototype(ErrorPrototype);
-  nativeErrorConstructor := initNativeErrorConstructor(nativeErrorPrototype, globalObject, strict);
+  nativeErrorConstructor := initNativeErrorConstructor(nativeErrorPrototype, nativeErrorName, globalObject, strict);
 
   fillNativeErrorPrototype(nativeErrorPrototype, nativeErrorConstructor, nativeErrorName);
 
@@ -277,7 +277,7 @@ function initNativeErrorObject(ErrorPrototype, nativeErrorName, globalObject, st
    ToString(message). */
 
 /* 15.11.7.3 The NativeError Constructors */
-function initNativeErrorConstructor(NativeErrorPrototype, globalObject, strict) {
+function initNativeErrorConstructor(NativeErrorPrototype, nativeErrorName, globalObject, strict) {
   /* When a NativeError constructor is called as part of a new expression, it is a constructor: it initialises the newly
       created object. */
   /* The value of the [[Prototype]] internal property of a NativeError constructor is the Function prototype object
@@ -289,6 +289,8 @@ function initNativeErrorConstructor(NativeErrorPrototype, globalObject, strict) 
      constructor has a separate prototype object. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(NativeErrorConstructor, "prototype", NativeErrorPrototype, false, false, false);
+
+  createBuiltInProperty(NativeErrorConstructor, "name", nativeErrorName);
 
   return NativeErrorConstructor
 };
