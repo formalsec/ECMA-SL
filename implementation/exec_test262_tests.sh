@@ -18,6 +18,37 @@ function writeToMDFile() {
   echo $1 >> test262_tests_result.md
 }
 
+# Checks:
+# - file is a valid ES5 test (search for the key "es5id" in the frontmatter)
+# - file doesn't use the built-in eval function
+# - file is not a negative test (search for the key "negative" in the frontmatter)
+function checkConstraints() {
+  FILENAME=$1
+  # check if it's a es5id test
+  ises5id=$(awk '/es5id:/ {print $0}' $FILENAME)
+  if [[ "${ises5id}" == "" ]]; then
+    printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: not ES5 test${NC}\n"
+    writeToMDFile "${FILENAME} | **NOT EXECUTED** | Is not a ES5 test"
+    return 1
+  fi
+  # check if it uses/contains a call the built-in eval function
+  iseval=$(awk '/eval\(/ {print $0}' $FILENAME)
+  if [[ "${iseval}" != "" ]]; then
+    printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: eval test${NC}\n"
+    writeToMDFile "${FILENAME} | **NOT EXECUTED** | Is an \"eval\" test"
+    return 1
+  fi
+  # check if it's a negative test
+  isnegative=$(awk '/negative:/ {print $2}' $FILENAME)
+  if [[ "${isnegative}" != "" ]]; then
+    printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: negative test${NC}\n"
+    writeToMDFile "${FILENAME} | **NOT EXECUTED** | ${isnegative}"
+    return 1
+  fi
+
+  return 0
+}
+
 function handleDirectory() {
   printf "Test Folder:\t $1\n\n"
 
@@ -32,9 +63,18 @@ function handleSingleFile() {
   FILENAME=$1
   echo "Testing ${FILENAME}"
 
+  checkConstraints $FILENAME
+  if [[ $? -ne 0 ]]; then
+    return
+  fi
+
   #echo "3.1. Copy contents to temporary file"
   cat "test/test262/environment/harness.js" > "test/main262.js"
   cat "${FILENAME}" >> "test/main262.js"
+
+  if [ $? -ne 0 ]; then
+    exit 1
+  fi
 
   #echo "3.2. Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program"
   cd "../JS2ECMA-SL"
