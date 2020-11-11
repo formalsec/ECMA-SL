@@ -43,6 +43,8 @@ function initErrorConstructor(ErrorPrototype, globalObject, strict) {
 /* 15.11.4 Error Prototype Object */
 function initErrorPrototype(objectPrototypeObject) {
   errorPrototypeObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(errorPrototypeObject);
+
   /* The Error prototype object is itself an Error object (its [[Class]] is "Error"). */
   setInternalProperty(errorPrototypeObject, "Class", "Error");
   /* The value of the [[Prototype]] internal property of the Error prototype object is the standard built-in Object
@@ -84,6 +86,7 @@ function ErrorConstructor(globalObject, this, strict, params) {
 
   /* When Error is called as part of a new expression, it is a constructor: it initialises the newly created object. */
   newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
 
   /* The [[Prototype]] internal property of the newly constructed object is set to the original Error prototype object,
      the one that is the initial value of Error.prototype (15.11.3.1). */
@@ -293,6 +296,8 @@ function initNativeErrorConstructor(NativeErrorPrototype, globalObject, strict) 
 /* 15.11.7.7 NativeError Prototype Object */
 function initNativeErrorPrototype(errorPrototypeObject) {
   nativeErrorPrototypeObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(nativeErrorPrototypeObject);
+
   /* Each NativeError prototype object is an Error object (its [[Class]] is "Error"). */
   setInternalProperty(nativeErrorPrototypeObject, "Class", "Error");
   /* The value of the [[Prototype]] internal property of each NativeError prototype object is the standard built-in
@@ -335,6 +340,7 @@ function NativeErrorConstructor(globalObject, strict, message, nativeErrorName) 
   /* When a NativeError constructor is called as part of a new expression, it is a constructor: it initialises the newly
       created object. */
   newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
 
   /* The [[Prototype]] internal property of the newly constructed object is set to the prototype object for this
       NativeError constructor. The [[Class]] internal property of the newly constructed object is set to "Error". The
