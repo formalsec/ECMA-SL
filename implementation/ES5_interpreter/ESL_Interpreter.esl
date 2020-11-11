@@ -80,7 +80,6 @@ function JS_Interpreter_Program(p) {
     };
     /* 3. Let progCxt be a new execution context for global code as described in 10.4.1. */
     progCxt := EnteringGlobalCode(p);
-    |global| := getGlobalObject(getLexicalEnvironment(progCxt)); 
     /* 4. Let result be the result of evaluating SourceElements. */
     result := JS_Interpreter_SourceElements(SourceElementsopt, progCxt);
     /* 5. Exit the execution context progCxt. */
@@ -88,6 +87,11 @@ function JS_Interpreter_Program(p) {
     /* 6. Return result. */
     print progCxt;
     return result
+  }
+  | { sourceType: "script", type: "EarlySyntaxError" } -> {
+    progCxt := EnteringGlobalCode(p);
+
+    throw SyntaxErrorConstructorInternal()
   }
 };
 
@@ -135,7 +139,7 @@ function JS_Interpreter_Expr(e, scope) {
   }
   | { type: "ArrayExpression", elements: ElementList } -> {
     /* 11.1.4 Array Initialiser */
-    arrayPrototype := getArrayPrototype(getGlobalObject(getLexicalEnvironment(scope)), false);
+    arrayPrototype := getArrayPrototype(false);
     array := internalNewArray(arrayPrototype, []);
     len := l_len ElementList;
     i := 0;
@@ -150,17 +154,17 @@ function JS_Interpreter_Expr(e, scope) {
         @GetValue(initValue, initResult)
       };
 
-      print "ARRAY LOOP. GOT THE VALUE"; 
-      print initValue; 
+      print "ARRAY LOOP. GOT THE VALUE";
+      print initValue;
 
       descriptor := newDataPropertyDescriptorFull(initValue, true, true, true);
       {array.DefineOwnProperty}(array, ToString(ToUint32(int_to_float i)), descriptor, false);
 
-      print "Array loop: END"; 
-      print i; 
+      print "Array loop: END";
+      print i;
       i := i + 1
     };
-    
+
     return array
   }
   | { type: "ObjectExpression" } -> {
@@ -233,11 +237,11 @@ function JS_Interpreter_Expr(e, scope) {
     argList := JS_Interpreter_Arguments(Arguments, scope);
     /* 4. If Type(constructor) is not Object, throw a TypeError exception. */
     if (!(Type(constructor) = "Object")) {
-      return throwEmptyCompletion(TypeErrorException())
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 5. If constructor does not implement the [[Construct]] internal method, throw a TypeError exception. */
     if (!("Construct" in_obj constructor)) {
-      return throwEmptyCompletion(TypeErrorException())
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 6. Return the result of calling the [[Construct]] internal method on constructor, providing the list argList as the
           argument values. */
@@ -255,11 +259,11 @@ function JS_Interpreter_Expr(e, scope) {
     argList := JS_Interpreter_Arguments(Arguments, scope);
     /* 4. If Type(func) is not Object, throw a TypeError exception. */
     if (!(Type(func) = "Object")) {
-      return throwEmptyCompletion(TypeErrorException())
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 5. If IsCallable(func) is false, throw a TypeError exception. */
     if (IsCallable(func) = false) {
-      return throwEmptyCompletion(TypeErrorException())
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 6. If Type(ref) is Reference, then */
     if (Type(ref) = "Reference") {
@@ -400,10 +404,10 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
       /* GetReferencedName(lref) is either "eval" or "arguments" */
         ((GetReferencedName(lref) = "eval") || (GetReferencedName(lref) = "arguments")))
       {
-        return throwEmptyCompletion(SyntaxErrorException())
+        return throwEmptyCompletion(SyntaxErrorConstructorInternal())
       };
     /* 5. Call PutValue(lref, rval). */
-    PutValue(lref, rval, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(lref, rval);
     /* 6. Return rval. */
     return rval
 
@@ -439,10 +443,10 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
       /* GetReferencedName(lref) is either "eval" or "arguments" */
         ((GetReferencedName(lref) = "eval") || (GetReferencedName(lref) = "arguments")))
       {
-        return throwEmptyCompletion(SyntaxErrorException())
+        return throwEmptyCompletion(SyntaxErrorConstructorInternal())
       };
     /* 7. Call PutValue(lref, r). */
-    PutValue(lref, r, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(lref, r);
     /* 8. Return r. */
     return r
 
@@ -503,7 +507,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     if (IsUnresolvableReference(ref)) {
       /* a. If IsStrictReference(ref) is true, throw a SyntaxError exception. */
       if (IsStrictReference(ref) = true) {
-        return throwEmptyCompletion(SyntaxErrorException())
+        return throwEmptyCompletion(SyntaxErrorConstructorInternal())
       }
       /* b. Else, return true. */
       else {
@@ -520,7 +524,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     else {
       /* a. If IsStrictReference(ref) is true, throw a SyntaxError exception. */
       if (IsStrictReference(ref) = true) {
-        return throwEmptyCompletion(SyntaxErrorException())
+        return throwEmptyCompletion(SyntaxErrorConstructorInternal())
       };
       /* b. Let bindings be GetBase(ref). */
       bindings := GetBase(ref);
@@ -607,7 +611,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       /* GetReferencedName(expr) is either "eval" or "arguments" */
       ((GetReferencedName(expr) = "eval") || (GetReferencedName(expr) = "arguments"))
     ) {
-      return throwEmptyCompletion(SyntaxErrorException())
+      return throwEmptyCompletion(SyntaxErrorConstructorInternal())
     };
     /* 3. Let oldValue be ToNumber(GetValue(expr)). */
     oldValue := ToNumber(GetValue(expr));
@@ -615,7 +619,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
           (see 11.6.3). */
     newValue := oldValue + 1;
     /* 5. Call PutValue(expr, newValue). */
-    PutValue(expr, newValue, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(expr, newValue);
     /* 6. Return newValue.*/
     return newValue
   }
@@ -637,7 +641,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       /* GetReferencedName(expr) is either "eval" or "arguments" */
       ((GetReferencedName(expr) = "eval") || (GetReferencedName(expr) = "arguments"))
     ) {
-      return throwEmptyCompletion(SyntaxErrorException())
+      return throwEmptyCompletion(SyntaxErrorConstructorInternal())
     };
     /* 3. Let oldValue be ToNumber(GetValue(expr)). */
     oldValue := ToNumber(GetValue(expr));
@@ -645,7 +649,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
           operator (see 11.6.3). */
     newValue := oldValue - 1;
     /* 5. Call PutValue(expr, newValue). */
-    PutValue(expr, newValue, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(expr, newValue);
     /* 6. Return newValue.*/
     return newValue
   }
@@ -731,7 +735,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
       /* GetReferencedName(lhs) is either "eval" or "arguments" */
       ((GetReferencedName(lhs) = "eval") || (GetReferencedName(lhs) = "arguments"))
     ) {
-      return throwEmptyCompletion(SyntaxErrorException())
+      return throwEmptyCompletion(SyntaxErrorConstructorInternal())
     };
     /* 3. Let oldValue be ToNumber(GetValue(lhs)). */
     oldValue := ToNumber(GetValue(lhs));
@@ -739,7 +743,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
           (see 11.6.3). */
     newValue := oldValue + 1;
     /* 5. Call PutValue(lhs, newValue). */
-    PutValue(lhs, newValue, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(lhs, newValue);
     /* 6. Return oldValue. */
     return oldValue
   }
@@ -761,7 +765,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
       /* GetReferencedName(lhs) is either "eval" or "arguments" */
       ((GetReferencedName(lhs) = "eval") || (GetReferencedName(lhs) = "arguments"))
     ) {
-      return throwEmptyCompletion(SyntaxErrorException())
+      return throwEmptyCompletion(SyntaxErrorConstructorInternal())
     };
     /* 3. Let oldValue be ToNumber(GetValue(lhs)). */
     oldValue := ToNumber(GetValue(lhs));
@@ -769,7 +773,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
           operator (11.6.3). */
     newValue := oldValue - 1;
     /* 5. Call PutValue(lhs, newValue). */
-    PutValue(lhs, newValue, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(lhs, newValue);
     /* 6. Return oldValue. */
     return oldValue
   }
@@ -889,7 +893,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
     /* Return a new object created as if by the expression new Object() where Object
         is the standard built-in constructor with that name. */
     if (l_len PropertyNameAndValueList = 0) {
-      return ObjectConstructor(getGlobalObject(getLexicalEnvironment(scope)),
+      return ObjectConstructor(|global|,
                                'null,
                                isContainedInStrictCode(scope),
                                [undefined])
@@ -899,7 +903,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
 
     /* 1. Let obj be the result of creating a new object as if by the expression new Object()
           where Object is the standard built-in constructor with that name. */
-    obj := ObjectConstructor(getGlobalObject(getLexicalEnvironment(scope)),
+    obj := ObjectConstructor(|global|,
                              'null,
                              isContainedInStrictCode(scope),
                              [undefined]);
@@ -922,17 +926,17 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
         if (isContainedInStrictCode(scope) &&
             (IsDataPropertyDescriptor(previous) = true) &&
             (IsDataPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
-          return throwEmptyCompletion(SyntaxErrorException())
+          return throwEmptyCompletion(SyntaxErrorConstructorInternal())
         };
         /* b. IsDataDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true. */
         if ((IsDataPropertyDescriptor(previous) = true) &&
             (IsAccessorPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
-          return throwEmptyCompletion(SyntaxErrorException())
+          return throwEmptyCompletion(SyntaxErrorConstructorInternal())
         };
         /* c. IsAccessorDescriptor(previous) is true and IsDataDescriptor(propId.descriptor) is true. */
         if ((IsAccessorPropertyDescriptor(previous) = true) &&
             (IsDataPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
-          return throwEmptyCompletion(SyntaxErrorException())
+          return throwEmptyCompletion(SyntaxErrorConstructorInternal())
         };
         /* d. IsAccessorDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true and
               either both previous and propId.descriptor have [[Get]] fields or both previous and propId.descriptor
@@ -941,7 +945,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
             (IsAccessorPropertyDescriptor(getPropertyDescriptor(propId)) = true) &&
             ((("Get" in_obj previous) && (!(previous.Get = 'undefined)) && ("Get" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Get = 'undefined)) ||
              (("Set" in_obj previous) && (!(previous.Set = 'undefined)) && ("Set" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Set = 'undefined)))) {
-          return throwEmptyCompletion(SyntaxErrorException())
+          return throwEmptyCompletion(SyntaxErrorConstructorInternal())
         }
       };
 
@@ -1358,7 +1362,7 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
     /* 3. Let value be GetValue(rhs). */
     @GetValue(value, rhs);
     /* 4. Call PutValue(lhs, value). */
-    PutValue(lhs, value, getGlobalObject(getLexicalEnvironment(scope)));
+    PutValue(lhs, value);
     /* 5. Return a String value containing the same sequence of characters as in the Identifier. */
     /* return Identifier.name */
     return Identifier
@@ -1767,11 +1771,11 @@ function JS_Interpreter_BinExpr(e, scope) {
     @GetValue(rval, rref);
     /* 5. If Type(rval) is not Object, throw a TypeError exception. */
     if (!(Type(rval) = "Object")) {
-      return throwEmptyCompletion(TypeErrorException())
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 6. If rval does not have a [[HasInstance]] internal method, throw a TypeError exception. */
     if (!("HasInstance" in_obj rval)) {
-      return throwEmptyCompletion(TypeErrorException())
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 7. Return the result of calling the [[HasInstance]] internal method of rval with argument lval. */
     return HasInstance(rval, lval)
@@ -1791,7 +1795,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     @GetValue(rval, rref);
     /* 5. If Type(rval) is not Object, throw a TypeError exception. */
     if (!(Type(rval) = "Object")) {
-      return throwEmptyCompletion(TypeErrorException())
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 6. Return the result of calling the [[HasProperty]] internal method of rval with argument ToString(lval). */
     return HasProperty(rval, ToString(lval))
@@ -2038,7 +2042,7 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
       /* b. Let lhsRef be the result of evaluating the LeftHandSideExpression ( it may be evaluated repeatedly). */
       @JS_Interpreter_Expr_Check_Throw(lhsRef, LeftHandSideExpression, scope);
       /* c. Call PutValue(lhsRef, P). */
-      PutValue(lhsRef, P, getGlobalObject(getLexicalEnvironment(scope)));
+      PutValue(lhsRef, P);
       /* d. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope);
       /* e. If stmt.value is not empty, let V = stmt.value. */
@@ -2094,7 +2098,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
             it may be evaluated repeatedly. */
       @JS_Interpreter_Expr_Check_Throw(varRef, varName, scope);
       /* c. Call PutValue(varRef, P). */
-      PutValue(varRef, P, getGlobalObject(getLexicalEnvironment(scope)));
+      PutValue(varRef, P);
       /* d. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope);
       /* e. If stmt.value is not empty, let V = stmt.value. */

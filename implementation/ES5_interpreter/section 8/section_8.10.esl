@@ -238,7 +238,7 @@ function FromPropertyDescriptor (Desc) {
 function ToPropertyDescriptor (Obj) {
   /** 1. If Type(Obj) is not Object throw a TypeError exception. */
   if (!(Type(Obj) = "Object")) {
-    return throwEmptyCompletion(TypeErrorException())
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
 
   /** 2. Let desc be the result of creating a new Property Descriptor that initially has no fields. */
@@ -282,7 +282,7 @@ function ToPropertyDescriptor (Obj) {
     getter := Get(Obj, "get");
     /** b. If IsCallable(getter) is false and getter is not undefined, then throw a TypeError exception. */
     if ((IsCallable(getter) = false) && !(getter = 'undefined)) {
-      return throwEmptyCompletion(TypeErrorException())
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /** c. Set the [[Get]] field of desc to getter. */
     desc.Get := getter
@@ -294,7 +294,7 @@ function ToPropertyDescriptor (Obj) {
     setter := Get(Obj, "set");
     /** b. If IsCallable(setter) is false and setter is not undefined, then throw a TypeError exception. */
     if ((IsCallable(setter) = false) && !(setter = undefined)) {
-      return throwEmptyCompletion(TypeErrorException())
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /** c. Set the [[Set]] field of desc to setter. */
     desc.Set := setter
@@ -304,7 +304,7 @@ function ToPropertyDescriptor (Obj) {
   if (("Get" in_obj desc) || ("Set" in_obj desc)) {
     /** a. If either desc.[[Value]] or desc.[[Writable]] are present, then throw a TypeError exception. */
     if (("Value" in_obj desc) || ("Writable" in_obj desc)) {
-      return throwEmptyCompletion(TypeErrorException())
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     }
   };
 

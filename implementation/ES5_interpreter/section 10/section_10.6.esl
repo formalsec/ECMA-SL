@@ -22,7 +22,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
   /* 5. Let Object be the standard built-in Object constructor (15.2.2). */
   /* TODO */
   /* 6. Set the [[Prototype]] internal property of obj to the standard built-in Object prototype object (15.2.4). */
-  setInternalProperty(obj, "Prototype", getObjectPrototype(getGlobalObject(func.Scope), strict));
+  setInternalProperty(obj, "Prototype", getObjectPrototype(strict));
   /* 7. Call the [[DefineOwnProperty]] internal method on obj passing "length", the Property Descriptor
         {[[Value]]: len, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false as arguments. */
   DefineOwnProperty(obj, "length", {
@@ -33,7 +33,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
   }, false);
   /* 8. Let map be the result of creating a new object as if by the expression new Object() where Object is
         the standard built-in constructor with that name */
-  map := ObjectConstructor(getGlobalObject(func.Scope), 'null, strict, [undefined]);
+  map := ObjectConstructor(|global|, 'null, strict, [undefined]);
   /* 9. Let mappedNames be an empty List. */
   mappedNames := [];
   /* 10. Let indx = len - 1. */
@@ -169,7 +169,7 @@ function ArgumentsObjectGet(argumentObject, P) {
     v := Get(argumentObject, P);
     /* b. If P is "caller" and v is a strict mode Function object, throw a TypeError exception. */
     if ((P = "caller") && isStrictFunctionObject(v)) {
-      return throwEmptyCompletion(TypeErrorException())
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* c. Return v. */
     return v
@@ -223,7 +223,7 @@ function ArgumentsObjectDefineOwnProperty(argumentsObject, P, Desc, Throw) {
   if (allowed = false) {
     /* a. If Throw is true then throw a TypeError exception, otherwise return false. */
     if (Throw = true) {
-      return throwEmptyCompletion(TypeErrorException())
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     } else {
       return false
     }
