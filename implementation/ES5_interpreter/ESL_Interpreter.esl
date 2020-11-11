@@ -25,6 +25,17 @@ macro ToBooleanGetValue(x, ref) {
   x := ToBoolean(val)
 };
 
+/* If ToBoolean(GetValue(exprRef)) is false, return (normal, V, empty). */
+macro ToBooleanGetValueReturnNormalEmptyCompletion(ref) {
+  val := GetValue(ref);
+  if (isErrorCompletion(val)) {
+    return val
+  };
+  if (ToBoolean(val) = false) {
+    return normalEmptyCompletion(V)
+  }
+};
+
 function JS_Interpreter_Program(p) {
   /* 14 Program */
   match p with
@@ -1889,9 +1900,7 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
       /* a. Let exprRef be the result of evaluating Expression. */
       @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
       /* b. If ToBoolean(GetValue(exprRef)) is false, return (normal, V, empty). */
-      if (ToBoolean(GetValue(exprRef)) = false) {
-        return normalEmptyCompletion(V)
-      };
+      @ToBooleanGetValueReturnNormalEmptyCompletion(exprRef);
       /* c. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope);
       /* d. If stmt.value is not empty, let V = stmt.value. */
@@ -2088,9 +2097,7 @@ function JS_Interpreter_ForStmt_Expr(forStmt, scope) {
         /* i. Let testExprRef be the result of evaluating the first Expression. */
         @JS_Interpreter_Expr_Check_Throw(testExprRef, Expression1, scope);
         /* ii. If ToBoolean(GetValue(testExprRef)) is false, return (normal, V, empty). */
-        if (ToBoolean(GetValue(testExprRef)) = false) {
-          return normalEmptyCompletion(V)
-        }
+        @ToBooleanGetValueReturnNormalEmptyCompletion(testExprRef)
       };
       /* b. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope);
@@ -2138,9 +2145,7 @@ function JS_Interpreter_ForStmt_VarDecl(forStmt, scope) {
         /* i. Let testExprRef be the result of evaluating the first Expression. */
         @JS_Interpreter_Expr_Check_Throw(testExprRef, Expression1, scope);
         /* ii. If ToBoolean(GetValue(testExprRef)) is false, return (normal, V, empty). */
-        if (ToBoolean(GetValue(testExprRef)) = false) {
-          return normalEmptyCompletion(V)
-        }
+        @ToBooleanGetValueReturnNormalEmptyCompletion(testExprRef)
       };
       /* b. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope);
