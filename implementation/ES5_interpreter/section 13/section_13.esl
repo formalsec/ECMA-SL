@@ -4,7 +4,7 @@
    Environment specified by Scope, and a Boolean flag Strict, a Function object is constructed as follows: */
 
 function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) {
-  return CreateGeneralFunctionObject(getFunctionPrototype(|global|, Strict), FormalParameterList, FunctionBody, Scope, Strict)
+  return CreateGeneralFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict)
 };
 
 function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, FunctionBody, Scope, Strict) {

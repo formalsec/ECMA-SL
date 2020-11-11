@@ -283,7 +283,7 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
   F.Class := "Function";
   /* 11. Set the [[Prototype]] internal property of F to the standard built-in Function prototype object as specified in
          15.3.3.1. */
-  F.Prototype := getFunctionPrototype(globalObject, strict);
+  F.Prototype := getFunctionPrototype(strict);
   /* 12. Set the [[Call]] internal property of F as described in 15.3.4.5.1. */
   F.Call := "CallBind";
   /* 13. Set the [[Construct]] internal property of F as described in 15.3.4.5.2. */
@@ -475,8 +475,8 @@ function GetF(F, P) {
 
 
 /* Auxiliary functions */
-function getFunctionPrototype(globalObject, strict) {
-  refObj := newPropertyReference(globalObject, "Function", strict);
+function getFunctionPrototype(strict) {
+  refObj := newPropertyReference(|global|, "Function", strict);
   FunctionObject := GetValue(refObj);
 
   refObjProto := newPropertyReference(FunctionObject, "prototype", strict);
