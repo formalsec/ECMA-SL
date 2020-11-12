@@ -5,8 +5,8 @@ module.exports = {
     }
 
     if (obj.value === null) {
-      obj.value = "null";
-      obj.raw = "\"null\""
+      obj.value = "'null";
+      obj.raw = "\"'null\""
     }
 
     return obj
