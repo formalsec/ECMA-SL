@@ -1955,7 +1955,7 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
     V := 'empty;
     /* 6. Repeat */
     i := 0;
-    obj_enums := getEnumerableProperties(obj, []);
+    obj_enums := getEnumerableProperties(obj);
     repeat {
       /* a. Let P be the name of the next property of obj whose [[Enumerable]] attribute is true.
             If there is no such property, return (normal, V, empty). */
@@ -2010,7 +2010,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
     V := 'empty;
     /* 7. Repeat */
     i := 0;
-    obj_enums := getEnumerableProperties(obj, []);
+    obj_enums := getEnumerableProperties(obj);
     repeat {
       /* a. Let P be the name of the next property of obj whose [[Enumerable]] attribute is true.
             If there is no such property, return (normal, V, empty). */

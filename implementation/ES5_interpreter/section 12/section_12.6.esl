@@ -6,7 +6,13 @@
    because some previous object in the prototype chain has a property with the same name. The values of
    [[Enumerable]] attributes are not considered when determining if a property of a prototype object is shadowed
    by a previous object on the prototype chain. */
-function getEnumerableProperties(object, props) {
+function getEnumerableProperties(object) {
+  props := getEnumerablePropertiesRecursive(object, [], []);
+
+  return fst props
+};
+
+function getEnumerablePropertiesRecursive(object, enumProps, checkedProps) {
   i := 0;
   list := obj_fields object;
   llist := l_len list;
@@ -15,17 +21,20 @@ function getEnumerableProperties(object, props) {
     p_value := object[p_name];
     if (typeof p_value = __$Obj) {
       if ((p_name = "Prototype") ||| (p_name = "JSProperties")) {
-        props := getEnumerableProperties(p_value, props)
+        props := getEnumerablePropertiesRecursive(p_value, enumProps, checkedProps);
+        enumProps := fst props;
+        checkedProps := t_nth(props, 1)
       } else {
-        if ((p_value.Enumerable = true) && !(p_name in_list props)) {
-          props := l_add(props, p_name)
-        }
+        if ((p_value.Enumerable = true) &&& !(p_name in_list enumProps) &&& !(p_name in_list checkedProps)) {
+          enumProps := l_add(enumProps, p_name)
+        };
+        checkedProps := l_add(checkedProps, p_name)
       }
     };
     i := i + 1
   };
 
-  return props
+  return (enumProps, checkedProps)
 };
 
 function getNextPropertyName(props, idx) {
