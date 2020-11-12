@@ -1669,7 +1669,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* 4. Let rval be GetValue(rref). */
     rval := GetValue(rref);
     /* 5. Let r be the result of performing abstract relational comparison lval < rval. (see 11.8.5) */
-    r := AbstractRelationalComparison(lval, rval);
+    r := AbstractRelationalComparison(lval, rval, true);
     /* 6. If r is true or undefined, return false. Otherwise, return true. */
     if ((r = true) || (r = 'undefined)) {
       return false
