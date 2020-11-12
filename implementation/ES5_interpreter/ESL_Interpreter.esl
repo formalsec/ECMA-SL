@@ -16,6 +16,15 @@ macro GetValue(val, ref) {
   }
 };
 
+/* Return (normal, GetValue(exprRef), empty). */
+macro ReturnCompletionGetValue(ref) {
+  val := GetValue(ref);
+  if (isErrorCompletion(val)) {
+    return val
+  };
+  return normalEmptyCompletion(val)
+};
+
 /* Let oldValue be ToBoolean(GetValue(expr)). */
 macro ToBooleanGetValue(x, ref) {
   val := GetValue(ref);
@@ -1063,7 +1072,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 1. Let exprRef be the result of evaluating Expression. */
     @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     /* 2. Return (normal, GetValue(exprRef), empty). */
-    return normalEmptyCompletion(GetValue(exprRef))
+    @ReturnCompletionGetValue(exprRef)
   }
   | { type: "IfStatement" } -> {
     /* 12.5 The if Statement */
