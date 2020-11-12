@@ -121,7 +121,7 @@ rule read =
   | "function"        { FUNCTION }
   | "delete"          { DELETE }
   | "null"            { NULL }
-  | "\"null\""        { SYMBOL ("'null") }
+  | "\"'null\""       { SYMBOL ("'null") }
   | "undefined"       { SYMBOL ("'undefined") }
   | "repeat"          { REPEAT }
   | "until"           { UNTIL }
