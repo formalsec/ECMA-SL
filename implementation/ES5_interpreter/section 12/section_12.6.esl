@@ -13,25 +13,31 @@ function getEnumerableProperties(object) {
 };
 
 function getEnumerablePropertiesRecursive(object, enumProps, checkedProps) {
-  i := 0;
-  list := obj_fields object;
-  llist := l_len list;
-  while(llist > i) {
-    p_name := l_nth(list, i);
-    p_value := object[p_name];
-    if (typeof p_value = __$Obj) {
-      if ((p_name = "Prototype") ||| (p_name = "JSProperties")) {
-        props := getEnumerablePropertiesRecursive(p_value, enumProps, checkedProps);
-        enumProps := fst props;
-        checkedProps := t_nth(props, 1)
-      } else {
-        if ((p_value.Enumerable = true) &&& !(p_name in_list enumProps) &&& !(p_name in_list checkedProps)) {
+  if (object = 'null) {
+    return (enumProps, checkedProps)
+  };
+  if ("JSProperties" in_obj object) {
+    namedPropertiesObj := object.JSProperties;
+    list := obj_fields namedPropertiesObj;
+    llist := l_len list;
+
+    i := 0;
+    while(llist > i) {
+      p_name := l_nth(list, i);
+      p_value := namedPropertiesObj[p_name];
+      if (isPropertyDescriptor(p_value)) {
+        if ((p_value.Enumerable = true) &&& !(p_name in_list checkedProps)) {
           enumProps := l_add(enumProps, p_name)
         };
         checkedProps := l_add(checkedProps, p_name)
-      }
-    };
-    i := i + 1
+      };
+      i := i + 1
+    }
+  };
+  if ("Prototype" in_obj object) {
+    props := getEnumerablePropertiesRecursive(object.Prototype, enumProps, checkedProps);
+    enumProps := fst props;
+    checkedProps := t_nth(props, 1)
   };
 
   return (enumProps, checkedProps)
