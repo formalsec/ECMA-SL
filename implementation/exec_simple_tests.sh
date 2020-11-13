@@ -14,8 +14,35 @@ INV='\e[7m'         #INVERTED
 LGREEN='\e[102m'
 BOLD='\e[1m'
 
+
+declare -i total_tests=0
+declare -i ok_tests=0
+declare -i fail_tests=0
+declare -i error_tests=0
+
 function writeToMDFile() {
-  echo $1 >> simple_tests_result.md
+  local INDIVIDUAL_RESULTS=("$@")
+  ((last_idx=${#INDIVIDUAL_RESULTS[@]} - 1))
+  local TEST_FOLDER=${INDIVIDUAL_RESULTS[last_idx]}
+  unset INDIVIDUAL_RESULTS[last_idx]
+
+  local FILE=simple_tests_result.md
+
+  echo "## Report of the execution of the tests available in \"$TEST_FOLDER\"" > $FILE
+  echo "### Summary" >> $FILE
+  echo "OK | FAIL | ERROR | Total" >> $FILE
+  echo "--- | --- | --- | ---" >> $FILE
+  echo "$ok_tests | $fail_tests | $error_tests | $total_tests" >> $FILE
+  echo "### Individual results" >> $FILE
+  echo "File path | Result | Observations" >> $FILE
+  echo "--- | --- | ---" >> $FILE
+
+  for r in "${INDIVIDUAL_RESULTS[@]}" ; do
+    echo "$r" >> $FILE
+  done
+
+  echo ""
+  echo "MD file saved!"
 }
 
 # 1. Create the file that will be compiled from "Plus" to "Core" in step 3.4.
@@ -38,21 +65,19 @@ then
   exit
 fi
 
-echo "" > simple_tests_result.md
-# Write table header to MD file
-writeToMDFile "File path | Result | Observations"
-writeToMDFile "--- | --- | ---"
-
+declare -a results=()
 # 3. Loop over listed files
-for f in $(ls test/simple/*.js)
-do
+for f in $(ls test/simple/*.js); do
+
   if [[ $f =~ .*harness.* ]]
   then
     continue
   fi
 
+  total_tests+=1
+
   FILENAME=$f
-  echo "Testing ${FILENAME}"
+  printf "Testing ${FILENAME} ... "
 
   # 3.1. Copy contents to temporary file
   cat "test/simple/harness.js" > "test/main.js"
@@ -74,24 +99,28 @@ do
   cd "../implementation"
 
   # 3.4. Compile program written in "Plus" to "Core"
-  ECMASLC=$(./main.native -mode c -i ES5_interpreter/test.esl -o ES5_interpreter/core.esl)
+  ECMASLC=$(./main.native -mode c -i ES5_interpreter/test.esl -o ES5_interpreter/test_core.esl)
 
   if [ $? -ne 0 ]
   then
-    writeToMDFile "${FILENAME} | **ERROR** | ${ECMASLC}"
+    results+=("${FILENAME} | **ERROR** | ${ECMASLC}")
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
+
+    error_tests+=1
     continue
   fi
 
   # 3.5. Evaluate program and write the computed heap to the file heap.json.
   #    Output of the execution is written to the file result.txt
-  ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json > result.txt)
+  ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/test_core.esl -h heap.json > result.txt)
 
   if [ $? -ne 0 ]
   then
-    writeToMDFile "${FILENAME} | **ERROR** | ${ECMASLCI}"
+    results+=("${FILENAME} | **ERROR** | ${ECMASLCI}")
     # echo "Check file result.txt"
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
+
+    error_tests+=1
     continue
   fi
 
@@ -100,18 +129,24 @@ do
 
   if [[ "${RESULT}" == "MAIN return -> (\"C\", 'normal, true, 'empty)" ]]
   then
+    results+=("${FILENAME} | _OK_ | ")
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
-    writeToMDFile "${FILENAME} | _OK_ | "
+
+    ok_tests+=1
   else
+    results+=("${FILENAME} | **FAIL** | ${RESULT}")
     printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC}\n"
-    writeToMDFile "${FILENAME} | **FAIL** | ${RESULT}"
+
+    fail_tests+=1
   fi
 
 done
 
+writeToMDFile "${results[@]}" "/test/simple/"
 
 # 4. Remove temporary files previously created
 rm "test/main.js"
 rm "ES5_interpreter/test.esl"
+rm "ES5_interpreter/test_core.esl"
 rm "ES5_interpreter/test_ast.esl"
 rm "../JS2ECMA-SL/test_ast.esl"
