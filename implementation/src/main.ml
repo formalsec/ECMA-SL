@@ -62,9 +62,8 @@ let inline_compiler () : Prog.t =
   let inlined_prog = Inliner.compile_functions prog "inlined.esl"  in
   inlined_prog
 
-let core_interpretation () : unit =
-  let prog_contents = Parsing_Utils.load_file !file in
-  let prog = Parsing_Utils.parse_prog prog_contents in
+let core_interpretation (prog : Prog.t) : unit =
+  
   if !parse then parse_program prog;
   let v, heap = CoreInterp.eval_prog prog (!out, !mon, !verb_aux) "main"  in
   (match v with
@@ -83,10 +82,15 @@ let run ()=
   if (!file = "" && !mode = "" && !out = "") then print_string "No option selected. Use -h"
   else if (!file = "") then (print_string "No input file. Use -i\n=====================\n\tFINISHED\n=====================\n";exit 1)
   else if (!mode = "") then (print_string "No mode selected. Use -mode\n=====================\n\tFINISHED\n=====================\n";exit 1)
-  else if (!mode = "ci") then (print_string "======================= CORE =======================\n"; core_interpretation ())
+  else if (!mode = "ci") then (print_string "======================= CORE =======================\n"; 
+    let prog_contents = Parsing_Utils.load_file !file in
+    let prog = Parsing_Utils.parse_prog prog_contents in
+    core_interpretation (prog))
   else if (!mode = "ic") then (print_string "======================= Inlining Monitor =======================\n";
-    let prog = inline_compiler () 
-    in () (*Run the ci in inlined prog*))
+    let prog = inline_compiler () in 
+     (*Run the ci in inlined prog*)
+     core_interpretation (prog)
+    )
   else (compile_from_plus_to_core ());
 
 

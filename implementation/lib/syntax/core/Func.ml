@@ -41,9 +41,10 @@ let rec asgn_search (stmts: Stmt.t list) : StringSet.t =
                        | Stmt.Assign (x,e)->  StringSet.add x ac
                        | Stmt.If (e, _s1, _s2) -> ( match _s1, _s2 with 
                         | Block s1, Some (Block s2) ->  StringSet.union (StringSet.union (asgn_search s1) (asgn_search s2)) ac
-                        | Block s1, None -> StringSet.union (asgn_search s1) (ac))
+                        | Block s1, None -> StringSet.union (asgn_search s1) (ac)
+                        | _, _ -> ac)
                        | Stmt.While (e,_s) -> ( match _s with 
-                        | Block s ->StringSet.union (asgn_search s) ac
+                        | Block s -> StringSet.union (asgn_search s) ac
                         | _ -> ac )
                        |_ -> ac
                        ) StringSet.empty stmts

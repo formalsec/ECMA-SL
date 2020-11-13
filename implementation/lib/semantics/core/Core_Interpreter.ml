@@ -78,7 +78,7 @@ let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
     let v1 = eval_expr sto e1 in 
     let v2 = eval_expr sto e2 in
     eval_binopt_expr bop v1 v2
-  | NOpt (nop, es)       -> eval_nopt_expr nop (List.map (eval_expr sto) es)
+  | NOpt (nop, es) -> eval_nopt_expr nop (List.map (eval_expr sto) es)
 
 let get_func_id (sto:Store.t) (exp:Expr.t) :string=
   let res= eval_expr sto exp in
@@ -141,6 +141,8 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
   match s with
   | Skip ->
     (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
+
+  | Exception str -> raise (Except str)
   
   | Merge -> (Intermediate ((cs, heap, sto), cont), SecLabel.MergeLab)
 
