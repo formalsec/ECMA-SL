@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 RED='\033[0;31m'   	# RED
 NC='\033[0m'       	# No Color
 GREEN='\033[0;32m' 	# GREEN
@@ -14,7 +13,7 @@ DEBUG="false"
 ERRORS=0
 PROGS=0
 
-test_prog () {
+test_OCAML_JS () {
 	MODE=$1
 	TESTFILE=$2
 	DEBUG=$3
@@ -53,6 +52,64 @@ test_prog () {
 	fi
 	PROGS=$((PROGS+1))
 }
+test_OCAML_inline () {
+	TESTFILE=$1
+	DEBUG=$2
+
+	
+	OCAMLRES=$(./main.native -mode ci -i ${TESTFILE} -mon nsu)
+	if [[ $DEBUG == "true" ]]
+	then
+	  echo "${OCAMLRES}"
+	fi
+	OCMLRES2=$( echo "${OCAMLRES}" | grep "MAIN return"  )
+	if [[ $OCMLRES2 == "" ]]
+	then
+		OCMLRES2=$( echo "${OCAMLRES}" | grep "MONITOR EXCEPTION"  )
+	fi
+
+	OCAML_INL_RES=$(./main.native -mode ic -i ${TESTFILE} )
+	if [[ $DEBUG == "true" ]]
+	then
+	  echo "${OCAML_INL_RES}"
+	fi
+	OCML_INL_RES2=$( echo "${OCAML_INL_RES}" | grep "MAIN return"  )
+	if [[ $OCML_INL_RES2 == "" ]]
+	then
+		OCML_INL_RES2=$( echo "${OCAML_INL_RES}" | grep "MONITOR EXCEPTION"  )
+	fi
+	if [[ "${OCAML_INL_RES2}" == "${OCMLRES2}" ]]
+	then
+		
+		printf "${BOLD}${GREEN}${INV}OK!${NC} \n(  ${OCAML_INL_RES2}  )"
+
+	else
+		printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC} \n(  ${OCAML_INL_RES2}  )\n(  ${OCMLRES2}  )"
+		ERRORS=$((ERRORS+1))
+	fi
+	PROGS=$((PROGS+1))
+}
+
+test_ic (){
+	MODE=$1
+	DEBUG=$2
+	POSITIVEDIR=$3
+	NEGATIVEDIR=$4
+
+	echo "Testing Inlining Compiler..."
+	for fullpath in $POSITIVEDIR/*.esl
+	do
+		# File identifier
+		cd ../implementation
+		fullpath_aux=${fullpath#"../implementation/"}
+		IFS='/' read -r -a array <<< "$fullpath" 
+		printf "${YELLOW}\n${array[3]}${NC} "
+		echo "${fullpath_aux}"
+		# Program run
+		test_OCAML_inline $fullpath_aux $DEBUG
+	done
+
+}
 
 test_dir (){
 	MODE=$1
@@ -72,17 +129,8 @@ test_dir (){
 		printf "${YELLOW}\n${array[3]}${NC} "
 		echo "${fullpath_aux}"
 		# Program run
-		test_prog $MODE $fullpath_aux $DEBUG
-		#MAINGREP=$(grep "MAIN return" <<< "${RESULT}")
-		#IFS='->' read -r -a mainarray <<< "${MAINGREP}"	
-		#if [[ "${mainarray[0]}" == "MAIN return " ]]
-		#then
-		#	printf "${GREEN}${INV}OK${NC} \t-> ${mainarray[2]}"
-		#else
-		#	monitor=`grep "MONITOR EXCEPTION" <<< "${RESULT}"`
-		#	IFS='->' read -r -a monitor_array <<< "$monitor"
-		#	printf "${RED}${BLINK1}${INV}FAIL${BLINK2}${NC}\t-> ${monitor_array[2]}"
-		#fi 
+		test_OCAML_JS $MODE $fullpath_aux $DEBUG
+		
 	done
 	#if [[ $3 != "" ]]
 	#then
@@ -178,6 +226,10 @@ then
 	test_dir $MODE $DEBUG $POSITIVEDIR 
 	printf "Testing Negative Directories...\n"
 	test_dir $MODE $DEBUG $NEGATIVEDIR
+elif [[ $POSITIVEDIR != "" && $MODE = "ic" ]]
+then
+	printf "Testing Inlining Copiler Directories...\n"
+	test_dir $MODE $DEBUG $POSITIVEDIR 	
 elif [[ $POSITIVEDIR != "" ]]
 then
 	printf "Testing Prositive Directories...\n"
