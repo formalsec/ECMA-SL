@@ -250,7 +250,7 @@ function Put(O, P, V, Throw) {
     }
   };
   /** 2. Let ownDesc be the result of calling the [[GetOwnProperty]] internal method of O with argument P. */
-  ownDesc := GetOwnProperty(O, P);
+  ownDesc := {O.GetOwnProperty}(O, P);
 
   /** 3. If IsDataDescriptor(ownDesc) is true, then: */
   if (IsDataPropertyDescriptor(ownDesc)) {
@@ -259,7 +259,7 @@ function Put(O, P, V, Throw) {
       Value: V
     };
     /** b. Call the [[DefineOwnProperty]] internal method of O passing P, valueDesc, and Throw as arguments. */
-    DefineOwnProperty(O, P, valueDesc, Throw);
+    {O.DefineOwnProperty}(O, P, valueDesc, Throw);
 
     /** c. Return. */
     return
