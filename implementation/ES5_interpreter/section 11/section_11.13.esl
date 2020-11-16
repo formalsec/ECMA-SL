@@ -2,9 +2,9 @@
 function applyOperator(operator, lval, rval) {
   if ((operator = "*=") || (operator = "/=") || (operator = "%=")) {
     /* Let leftNum be ToNumber(leftValue). */
-    leftNum := ToNumber(leftValue);
+    leftNum := ToNumber(lval);
     /* Let rightNum be ToNumber(rightValue). */
-    rightNum := ToNumber(rightValue);
+    rightNum := ToNumber(rval);
     /* Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
     if (operator = "*=") {
       return leftNum * rightNum
