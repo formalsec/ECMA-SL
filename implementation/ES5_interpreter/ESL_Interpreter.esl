@@ -1040,6 +1040,19 @@ function JS_Interpreter_PropertyName(PropertyName, scope) {
   }
 };
 
+macro PropagateBlockLabelSet(Block, Stmts) {
+  if ("labelSet" in_obj Block) {
+    labelSet := Block.labelSet;
+
+    s := l_nth(Stmts, 0);
+    if ("labelSet" in_obj s) {
+      s.labelSet := l_concat(s.labelSet, labelSet)
+    } else {
+      s.labelSet := labelSet
+    }
+  }
+};
+
 function JS_Interpreter_Stmt(s, scope) {
   match s with
   | { type: "BlockStatement", body: StatementList } -> {
@@ -1047,6 +1060,8 @@ function JS_Interpreter_Stmt(s, scope) {
     if ((l_len StatementList) = 0) {
       return normalEmptyCompletion('empty)
     };
+
+    @PropagateBlockLabelSet(s, StatementList);
 
     return JS_Interpreter_StmtList(StatementList, scope)
   }
