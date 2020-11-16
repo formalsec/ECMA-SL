@@ -7,40 +7,10 @@ import "ES5_interpreter/section 15/section_15.11.esl";
 /* This method is not supposed to be here. As soon
    as it is placed in the right section, it should
    be replaced by an import of that section. */
-function Type(V) {
-  v_type := typeof V;
-  if (v_type = __$Int) { return "Number" };
-  if (v_type = __$Flt) { return "Number" };
-  if (v_type = __$Bool) { return "Boolean" };
-  if (v_type = __$Str) { return "String" };
-  if (v_type = __$Obj) { return "Object" };
-  if (v_type = __$List) { return "List" };
-  if (v_type = __$Null) { return "Null" };
-  if (v_type = __$Symbol) {
-    if (V = 'undefined) { return "Undefined" };
-    if (V = 'NaN) { return "Number" };
-    if ((V = '+0) || (V = '-0)) { return "Number" };
-    if ((V = '+Infinity) || (V = 'Infinity) || (V = '-Infinity)) { return "Number" }
-  };
-  if (v_type = __$Tuple) {
-    ft := fst V;
-    if (ft = "R") { return "Reference" };
-    if (ft = "C") { return "Completion" }
-  };
-
-  throw SyntaxErrorException()
-};
 
 
-/* Placeholder for ToNumber, ToInteger, min, max and abs that will be
-  implemented in another section TODO */
-/*function ToNumber(V) {
-  return V
-};*/
-function ToInteger(V) {
-  number := ToNumber(V);
-  return number
-};
+
+
 function max(a, b) {
   if (a > b) {
     return a
@@ -87,13 +57,9 @@ function abs(a) {
  *
  * An object, O, is said to be sparse if the following algorithm returns true:
  *
- * 1. Let len be the result of calling the [[Get]] internal method of O with
- *    argument "length".
- * 2. For each integer i in the range 0≤i<ToUint32(len)
- *    a. Let elem be the result of calling the [[GetOwnProperty]] internal
- *       method of O with argument ToString(i).
- *    b. If elem is undefined, return true.
- * 3. Return false.
+ * Create and return a new Array object exactly as if the standard
+ * built-in constructor Array was used in a new expression with the
+ * same arguments (15.4.2).
  */
 
 /**
