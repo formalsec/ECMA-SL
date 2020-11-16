@@ -4,7 +4,7 @@
    Environment specified by Scope, and a Boolean flag Strict, a Function object is constructed as follows: */
 
 function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) {
-  return CreateGeneralFunctionObject(getFunctionPrototype(getGlobalObject(Scope), Strict), FormalParameterList, FunctionBody, Scope, Strict)
+  return CreateGeneralFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict)
 };
 
 function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, FunctionBody, Scope, Strict) {
@@ -49,7 +49,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   /* 16. Let proto be the result of creating a new object as would be constructed by the expression new Object()
         where Object is the standard built-in constructor with that name. */
   if (!(typeof FunctionBody = __$Str)) {
-    proto := ObjectConstructor(getGlobalObject(Scope), 'null, Strict, [undefined]);
+    proto := ObjectConstructor(|global|, 'null, Strict, [undefined]);
     /* 17. Call the [[DefineOwnProperty]] internal method of proto with arguments "constructor", Property Descriptor
           {[[Value]]: F, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false. */
     DefineOwnProperty(proto, "constructor", {
@@ -118,7 +118,7 @@ function Call(F, this, args) {
 
   /* 4. If result.type is throw then throw result.value. */
   if (getCompletionType(result) = 'throw) {
-    throw getCompletionValue(result)
+    return throwEmptyCompletion(getCompletionValue(result))
   };
   /* 5. If result.type is return then return result.value. */
   if (getCompletionType(result) = 'return) {
@@ -152,7 +152,7 @@ function Construct(F, argumentList) {
   /* 7. If Type(proto) is not Object, set the [[Prototype]] internal property of obj to the standard built-in Object prototype
         object as described in 15.2.4. */
   if (!(Type(proto) = "Object")) {
-    obj.Prototype := getObjectPrototype(getGlobalObject(F.Scope), F.strict)
+    obj.Prototype := getObjectPrototype(F.strict)
   };
   /* 8. Let result be the result of calling the [[Call]] internal property of F, providing obj as the this value and providing the
         argument list passed into [[Construct]] as args. */

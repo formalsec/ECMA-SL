@@ -82,9 +82,9 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
       CreateMutableBinding(env, fn, configurableBindings)
     } else {
       /* e. Else if env is the environment record component of the global environment then */
-      if (env = getGlobalObject(getLexicalEnvironment(runningExecCtx))) {
+      if (env = |global|) {
         /* i. Let go be the global object. */
-        go := getGlobalObject(getLexicalEnvironment(runningExecCtx));
+        go := |global|;
         /* ii. Let existingProp be the resulting of calling the [[GetProperty]] internal method of go with
               argument fn. */
         existingProp := GetProperty(go, fn);
@@ -104,7 +104,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
                   {[[Writable]]: true, [[Enumerable]]: true}, then */
           if (IsAccessorDescriptor(existingProp) || !(existingProp.Writable && existingProp.Enumerable)) {
             /* 1. Throw a TypeError exception. */
-            throw TypeErrorException()
+            return throwEmptyCompletion(TypeErrorConstructorInternal())
           }
         }
       }

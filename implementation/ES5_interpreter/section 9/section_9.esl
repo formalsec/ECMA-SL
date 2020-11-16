@@ -187,7 +187,7 @@ function ToString(V) {
 function ToObject(V) {
   v_type := Type(V);
   if ((v_type = "Undefined") || (v_type = "Null")) {
-    throw TypeErrorException()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   if (v_type = "Boolean") {
     return newBoolean(V)
@@ -209,7 +209,7 @@ function ToObject(V) {
 function CheckObjectCoercible(V) {
   v_type := Type(V);
   if ((v_type = "Undefined") || (v_type = "Null")) {
-    throw TypeErrorException()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
 
   return

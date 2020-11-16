@@ -10,6 +10,7 @@ type t =
   | NewObj  of (string * t) list
   | Lookup  of t * t
 
+type subst_t = (string, t) Hashtbl.t 
 
 let rec str (e : t) : string = match e with
   | Val n                 -> Val.str n
@@ -27,3 +28,49 @@ let rec str (e : t) : string = match e with
 and fields_list_to_string (fes : (string * t) list) : string =
   let strs = List.map (fun (f, e) -> f ^ ": " ^ (str e)) fes in
   String.concat ", " strs
+
+let make_subst (xs_es : (string * t) list) : subst_t = 
+  let subst = Hashtbl.create 31 in 
+  List.iter (fun (x, e) -> 
+    Hashtbl.replace subst x e 
+  ) xs_es; 
+  subst 
+
+let get_subst_o (sbst : subst_t) (x : string) : t option = 
+  Hashtbl.find_opt sbst x 
+
+let get_subst (sbst : subst_t) (x : string) : t = 
+  let eo = get_subst_o sbst x in 
+  Option.default (Var x) eo  
+
+let rec map (f : (t -> t)) (e : t) : t = 
+  let mapf = map f in 
+  let map_obj = List.map (fun (x, e) -> (x, mapf e)) in 
+  let e' = 
+    match e with
+      | Val _ | Var _ | GVar _   -> e 
+      | UnOpt (op, e)            -> UnOpt (op, mapf e)
+      | EBinOpt (op, e1, e2)     -> EBinOpt (op, mapf e1, mapf e2)
+      | BinOpt (op, e1, e2)      -> BinOpt (op, mapf e1, mapf e2)
+      | NOpt (op, es)            -> NOpt (op, List.map mapf es)
+      | Call (ef, es)            -> Call (mapf ef, List.map mapf es) 
+      | NewObj (fes)             -> NewObj (map_obj fes)
+      | Lookup (e, ef)           -> Lookup (mapf e, mapf ef) in 
+  f e' 
+
+let subst (sbst : subst_t) (e: t) : t =
+  (* Printf.printf "In subst expr\n"; *)
+  let f e' = 
+    match e' with 
+    | Var x -> get_subst sbst x 
+    | _ -> e' in 
+  map f e 
+
+let string_of_subst (sbst : subst_t) : string = 
+  let strs = 
+    Hashtbl.fold 
+      (fun x e ac -> (x ^ ": " ^ (str e))::ac)
+      sbst
+      [] in 
+  String.concat ", " strs 
+            

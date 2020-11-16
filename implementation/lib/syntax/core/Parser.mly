@@ -119,9 +119,7 @@ val_target:
   | b = BOOLEAN;
     { print_string ">BOOL\n";Val.Bool b }
   | s = STRING;
-    { let len = String.length s in
-      let sub = String.sub s 1 (len - 2) in
-      print_string ">STR\n";Val.Str sub } (* Remove the double-quote characters from the parsed string *)
+    { print_string ">STR\n";Val.Str s }
   | s = SYMBOL;
     { print_string ">SYMBOL\n";Val.Symbol s }
   | l = LOC;

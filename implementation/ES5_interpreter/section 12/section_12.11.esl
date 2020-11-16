@@ -19,7 +19,7 @@ function hasStatementList(caseClause) {
     return (l_len StatementList) > 0
   }
   | default -> {
-    throw SyntaxErrorException()
+    throw SyntaxErrorConstructorInternal()
   }
 };
 
@@ -29,6 +29,6 @@ function getCaseClauseStatementList(caseClause) {
     return StatementList
   }
   | default -> {
-    throw SyntaxErrorException()
+    throw SyntaxErrorConstructorInternal()
   }
 }

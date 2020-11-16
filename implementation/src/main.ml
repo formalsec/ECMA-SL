@@ -36,8 +36,9 @@ let arguments () =
 let compile_from_plus_to_core () : unit =
   let e_prog_contents = Parsing_Utils.load_file !file in
   let e_prog = Parsing_Utils.parse_e_prog !file e_prog_contents in
-  let e_prog_resolved = Parsing_Utils.resolve_prog_imports e_prog in
-  let c_prog = Compiler.compile_prog e_prog_resolved in
+  let e_prog_imports_resolved = Parsing_Utils.resolve_prog_imports e_prog in
+  let e_prog_macros_applied = Parsing_Utils.apply_prog_macros e_prog_imports_resolved in
+  let c_prog = Compiler.compile_prog e_prog_macros_applied in
   if !out <> "" then Parsing_Utils.write_file (Prog.str c_prog) !out
 
 let core_interpretation () : unit =

@@ -8,3 +8,5 @@ sed -i "s/'null\b/\"'null\"/g" heap.json
 sed -i "s/nan\b/\"NaN\"/g" heap.json
 sed -i "s/-inf\b/\"-Infinity\"/g" heap.json
 sed -i "s/inf\b/\"Infinity\"/g" heap.json
+sed -i "s/(/[/g" heap.json
+sed -i "s/)/]/g" heap.json
