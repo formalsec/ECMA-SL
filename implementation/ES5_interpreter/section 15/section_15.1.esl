@@ -77,8 +77,8 @@ function initGlobalObject(strict) {
   /* StringObject := initStringObject();
   createBuiltInProperty(globalObject, "String", StringObject); */
   /* 15.1.4.5 Boolean ( . . . ) */
-  /* BooleanObject := initBooleanObject();
-  createBuiltInProperty(globalObject, "Boolean", BooleanObject); */
+  BooleanObject := initBooleanObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Boolean", BooleanObject);
   /* 15.1.4.6 Number ( . . . ) */
   /* NumberObject := initNumberObject();
   createBuiltInProperty(globalObject, "Number", NumberObject); */

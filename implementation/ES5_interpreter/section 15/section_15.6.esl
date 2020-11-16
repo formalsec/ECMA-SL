@@ -1,16 +1,159 @@
 /* 15.6 Boolean Objects */
 
+function initBooleanObject(ObjectPrototype, globalObject, strict) {
+  booleanPrototype := initBooleanPrototype(ObjectPrototype);
+  booleanConstructor := initBooleanConstructor(booleanPrototype, globalObject, strict);
+
+  fillBooleanPrototype(booleanPrototype, booleanConstructor, globalObject, strict);
+
+  return booleanConstructor
+};
+
+/* 15.6.1 The Boolean Constructor Called as a Function */
+/* When Boolean is called as a function rather than as a constructor, it performs a type conversion. */
+
+/* 15.6.1.1 Boolean (value) */
+/* Returns a Boolean value (not a Boolean object) computed by ToBoolean(value). */
+
+/* 15.6.2 The Boolean Constructor */
+function initBooleanConstructor(BooleanPrototype, globalObject, strict) {
+  /* When Boolean is called as part of a new expression it is a constructor: it initialises the newly created object. */
+
+  /* 15.6.3 Properties of the Boolean Constructor */
+  /* The value of the [[Prototype]] internal property of the Boolean constructor is the Function prototype object
+     (15.3.4). */
+  BooleanConstructor := CreateFunctionObject(["value"], "BooleanConstructor", globalObject, strict);
+  /* Besides the internal properties and the length property (whose value is 1), the Boolean constructor has the
+     following property: */
+
+  /* 15.6.3.1 Boolean.prototype */
+  /* The initial value of Boolean.prototype is the Boolean prototype object (15.6.4). */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(BooleanConstructor, "prototype", BooleanPrototype, false, false, false);
+
+  return BooleanConstructor
+};
+
+
+function initBooleanPrototype(objectPrototypeObject) {
+  booleanPrototypeObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(booleanPrototypeObject);
+
+  /* The Boolean prototype object is itself a Boolean object (its [[Class]] is "Boolean") whose value is false. */
+  setInternalProperty(booleanPrototypeObject, "Class", "Boolean");
+  setInternalProperty(booleanPrototypeObject, "PrimitiveValue", false);
+  /* The value of the [[Prototype]] internal property of the Boolean prototype object is the standard built-in Object
+     prototype object (15.2.4). */
+  setInternalProperty(booleanPrototypeObject, "Prototype", objectPrototypeObject);
+
+  return booleanPrototypeObject
+};
+
+/* 15.6.4 Properties of the Boolean Prototype Object */
+function fillBooleanPrototype(booleanPrototypeObject, BooleanConstructor, globalObject, strict) {
+  /* 15.6.4.1 Boolean.prototype.constructor */
+  /* The initial value of Boolean.prototype.constructor is the built-in Boolean constructor. */
+  createBuiltInProperty(booleanPrototypeObject, "constructor", BooleanConstructor);
+
+  /* 15.6.4.2 Boolean.prototype.toString ( ) */
+  toString := CreateFunctionObject([], "BooleanPrototypeToString", globalObject, strict);
+  createBuiltInProperty(booleanPrototypeObject, "toString", toString);
+
+  /* 15.6.4.3 Boolean.prototype.valueOf ( ) */
+  valueOf := CreateFunctionObject([], "BooleanPrototypeValueOf", globalObject, strict);
+  createBuiltInProperty(booleanPrototypeObject, "valueOf", valueOf);
+
+  return
+};
+
+/* 15.6.5 Properties of Boolean Instances */
+/* Boolean instances inherit properties from the Boolean prototype object and their [[Class]] internal property
+   value is "Boolean". Boolean instances also have a [[PrimitiveValue]] internal property. */
+/* The [[PrimitiveValue]] internal property is the Boolean value represented by this Boolean object. */
+
 /* 15.6.2.1 new Boolean (value) */
-function newBoolean(value) {
-  return {
-    /* The [[Prototype]] internal property of the newly constructed object is set to the original Boolean prototype
-       object, the one that is the initial value of Boolean.prototype (15.6.3.1). */
-    Prototype: 'null, /* TODO */
-    /* The [[Class]] internal property of the newly constructed Boolean object is set to "Boolean". */
-    Class: "Boolean",
-    /* The [[PrimitiveValue]] internal property of the newly constructed Boolean object is set to ToBoolean(value). */
-    PrimitiveValue: ToBoolean(value),
-    /* The [[Extensible]] internal property of the newly constructed object is set to true. */
-    Extensible: true
+function BooleanConstructor(globalObject, this, strict, params) {
+  if (l_len params = 0) {
+    value := 'undefined
+  } else {
+    value := l_nth(params, 0)
+  };
+  assert !(value = undefined);
+
+  /* When Boolean is called as part of a new expression it is a constructor: it initialises the newly created object. */
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+  /* The [[Prototype]] internal property of the newly constructed object is set to the original Boolean prototype
+     object, the one that is the initial value of Boolean.prototype (15.6.3.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", getBooleanPrototype(strict));
+  /* The [[Class]] internal property of the newly constructed Boolean object is set to "Boolean". */
+  setInternalProperty(newlyConstructedObject, "Class", "Boolean");
+  /* The [[PrimitiveValue]] internal property of the newly constructed Boolean object is set to ToBoolean(value). */
+  setInternalProperty(newlyConstructedObject, "PrimitiveValue", ToBoolean(value));
+  /* The [[Extensible]] internal property of the newly constructed object is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+
+  return newlyConstructedObject
+};
+
+/* 15.6.4.2 Boolean.prototype.toString ( ) */
+function BooleanPrototypeToString(globalObject, this, strict, params) {
+  /* The following steps are taken: */
+
+  /* 1. Let B be the this value. */
+  B := this;
+  /* 2. If Type(B) is Boolean, then let b be B. */
+  if (Type(B) = "Boolean") {
+    b := B
+  } else {
+  /* 3. Else if Type(B) is Object and the value of the [[Class]] internal property of B is "Boolean", then let b be
+        the value of the [[PrimitiveValue]] internal property of B. */
+    if ((Type(B) = "Object") &&& (getInternalProperty(B, "Class") = "Boolean")) {
+      b := getInternalProperty(B, "PrimitiveValue")
+    } else {
+    /* 4. Else throw a TypeError exception. */
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
+    }
+  };
+  /* 5. If b is true, then return "true"; else return "false". */
+  if (b = true) {
+    return "true"
+  } else {
+    return "false"
   }
+};
+
+/* 15.6.4.3 Boolean.prototype.valueOf ( ) */
+function BooleanPrototypeValueOf(globalObject, this, strict, params) {
+  /* The following steps are taken: */
+
+  /* 1. Let B be the this value. */
+  B := this;
+  /* 2. If Type(B) is Boolean, then let b be B. */
+  if (Type(B) = "Boolean") {
+    b := B
+  } else {
+    /* 3. Else if Type(B) is Object and the value of the [[Class]] internal property of B is "Boolean", then let b be
+          the value of the [[PrimitiveValue]] internal property of B. */
+    if ((Type(B) = "Object") &&& (getInternalProperty(B, "Class") = "Boolean")) {
+      b := getInternalProperty(B, "PrimitiveValue")
+    } else {
+    /* 4. Else throw a TypeError exception. */
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
+    }
+  };
+  /* 5. Return b. */
+  return b
+};
+
+/* Auxiliary functions */
+function getBooleanPrototype(strict) {
+  refError := newPropertyReference(|global|, "Boolean", strict);
+  BooleanObject := GetValue(refError);
+
+  refBooleanProto := newPropertyReference(BooleanObject, "prototype", strict);
+  booleanObjectProto := GetValue(refBooleanProto);
+
+  return booleanObjectProto
 }
