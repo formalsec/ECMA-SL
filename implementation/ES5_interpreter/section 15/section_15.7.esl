@@ -1,15 +1,66 @@
 /* 15.7 Number Objects */
 
+function initNumberObject(global, objectPrototype, strict) {
+  objNumberPrototype := initNumberPrototype(global, objectPrototype, strict);
+  objNumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", global, strict);
+
+  descriptor := newDataPropertyDescriptorFull(objNumberPrototype, false, false, false);
+  setJSProperty(objNumberConstructor, "prototype", descriptor);
+
+  return objNumberConstructor
+};
+
+
+function getNumberPrototype(globalObject, strict) {
+  refNumber := newPropertyReference(globalObject, "Number", strict);
+  NumberObject := GetValue(refNumber);
+  refNumberProto := newPropertyReference(NumberObject, "prototype", strict);
+  objectNumberProto := GetValue(refNumberProto);
+  return objectNumberProto
+};
+
+
+function initNumberPrototype(global, objectPrototype, strict) {
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Number", true);
+  setAllInternalMethodsOfObject(prototype);
+
+  /* Add built-in function objects to Number's prototype */
+  /* isNumber */
+  isNumberObject := CreateFunctionObject(["items"], "numberToLocaleString", global, strict);
+  descriptor := newDataPropertyDescriptorFull(isNumberObject, true, false, true);
+  setJSProperty(prototype, "toLocaleString", descriptor);
+
+  return prototype
+};
+
+
+function NumberConstructor(global, this, strict, value) {
+  prototype := getNumberPrototype(global, strict);
+  return newNumber(prototype, items)
+};
+
+
+function numberToLocaleString(global, this, strict, args) {
+  num := this.PrimitiveValue;
+  return ToString(num)
+};
+
+
 /* 15.7.2.1 new Number ( [ value ] ) */
 function newNumber(value) {
+
+  print s_concat(["newNumber", |global|]);
+  prototype := getNumberPrototype(|global|, false); /* TODO strict */
+
   ret := {
     /* The [[Prototype]] internal property of the newly constructed object is set to the original Number prototype
        object, the one that is the initial value of Number.prototype (15.7.3.1). */
-    Prototype: 'null, /* TODO */
+    Prototype: prototype,
     /* The [[Class]] internal property of the newly constructed object is set to "Number". */
     Class: "Number",
     /* The [[Extensible]] internal property of the newly constructed object is set to true. */
-    Extensible: true
+    Extensible: true,
+    JSProperties: { }
   };
   /* The [[PrimitiveValue]] internal property of the newly constructed object is set to ToNumber(value)
       if value was supplied, else to +0. */
@@ -18,6 +69,9 @@ function newNumber(value) {
   } else {
     ret.PrimitiveValue := ToNumber(value)
   };
+
+  setAllInternalMethodsOfObject(ret);
+
   return ret
 }
 

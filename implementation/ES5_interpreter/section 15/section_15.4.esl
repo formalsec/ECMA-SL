@@ -1,18 +1,3 @@
-/* import "ES5_interpreter/section 9/section_9.esl";
-import "ES5_interpreter/section 9/section_9.12.esl";
-import "ES5_interpreter/section 8/section_8.esl";
-import "ES5_interpreter/section 8/section_8.6.esl";
-import "ES5_interpreter/section 8/section_8.7.esl";
-import "ES5_interpreter/section 8/section_8.9.esl";
-import "ES5_interpreter/section 8/section_8.10.esl";
-import "ES5_interpreter/section 8/section_8.12.esl";
-import "ES5_interpreter/section 10/section_10.2.esl";
-import "ES5_interpreter/section 10/section_10.3.esl";
-import "ES5_interpreter/section 10/section_10.4.esl";
-import "ES5_interpreter/section 13/section_13.esl";
-import "ES5_interpreter/section 15/section_15.7.esl";
-import "ES5_interpreter/section 15/section_15.11.esl"; */
-
 /* Placeholder for min, max and abs that will be
   implemented in another section TODO */
 
@@ -210,6 +195,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
 
   return prototype
 };
+
 
 
 
@@ -426,7 +412,8 @@ function arrayToString(global, this, strict, args) {
   };
   /* 4. Return the result of calling the [[Call]] internal method of func
         providing array as the this value and an empty arguments list. */
-  return {func.Call}(func, array, []) /* TODO */
+  return {func.Call}(func, array, ['undefined])
+    /*global, array, strict, ['undefined]])*/ /* TODO 'undefined as empty? */
 };
 /**
  * NOTE The toString function is intentionally generic; it does not
@@ -492,7 +479,7 @@ function arrayToLocaleString(global, this, strict, args) {
     R := {func.Call}(func, elementObj, [])
   };
   /* 9. Let k be 1. */
-  k := 1;
+  k := 1.;
   /* 10. Repeat, while k < len */
   while (k < len) {
     /* a. Let S be a String value produced by concatenating R and separator. */
@@ -501,7 +488,7 @@ function arrayToLocaleString(global, this, strict, args) {
           method of array with argument ToString(k). */
     nextElement := {O.Get}(O, ToString(k));
     /* c. If nextElement is undefined or null, then */
-    if (nextElement = 'undefined || nextElement = 'null) {
+    if ((nextElement = 'undefined) || (nextElement = 'null)) {
       /* i. Let R be the empty String. */
       R := ""
     }
@@ -523,7 +510,7 @@ function arrayToLocaleString(global, this, strict, args) {
     /* e. Let R be a String value produced by concatenating S and R. */
     R := s_concat([S, R]);
     /* f. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 11. Return R. */
   return R
