@@ -47,6 +47,7 @@ rule read =
   | white          { read lexbuf }
   | newline        { new_line lexbuf; read lexbuf }
   | ":="           { DEFEQ }
+  | '@'            { AT_SIGN }
   | '.'            { PERIOD }
   | ';'            { SEMICOLON }
   | ':'            { COLON }
@@ -117,6 +118,7 @@ rule read =
   | "while"           { WHILE }
   | "return"          { RETURN }
   | "function"        { FUNCTION }
+  | "macro"           { MACRO }
   | "delete"          { DELETE }
   | "null"            { NULL }
   | "\"'null\""       { SYMBOL ("'null") }

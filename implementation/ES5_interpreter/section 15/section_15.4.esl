@@ -215,9 +215,9 @@ function initArrayPrototype(global, objectPrototype, strict) {
 
 function getArrayPrototype(strict) {
   refArray := newPropertyReference(|global|, "Array", strict);
-  ArrayObject := GetValue(refArray);
+  @GetValue(ArrayObject, refArray);
   refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
-  objectArrayProto := GetValue(refArrayProto);
+  @GetValue(objectArrayProto, refArrayProto);
   return objectArrayProto
 };
 
@@ -366,7 +366,7 @@ function internalNewArrayLen(arrayPrototype, len) {
   /* If the argument len is a Number and ToUint32(len) is not equal to
      len, a RangeError exception is thrown. */
   if (lenIsNumber && !((ToUint32(len) = len))) {
-    throw RangeErrorConstructorInternal()
+    return throwEmptyCompletion(RangeErrorConstructorInternal())
   };
 
   /* If the argument len is not a Number, then the length property of the
@@ -485,7 +485,7 @@ function arrayToLocaleString(global, this, strict, args) {
     func := {elementObj.Get}(elementObj, "toLocaleString");
     /* c. If IsCallable(func) is false, throw a TypeError exception. */
     if (IsCallable(func) = false) {
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* d. Let R be the result of calling the [[Call]] internal method of func
           providing elementObj as the this value and an empty arguments list. */
@@ -514,7 +514,7 @@ function arrayToLocaleString(global, this, strict, args) {
       func := {elementObj.Get}(elementObj, "toLocaleString");
       /* iii. If IsCallable(func) is false, throw a TypeError exception. */
       if (IsCallable(func) = false) {
-        throw TypeErrorConstructorInternal()
+        return throwEmptyCompletion(TypeErrorConstructorInternal())
       };
       /* iv. Let R be the result of calling the [[Call]] internal method of func
              providing elementObj as the this value and an empty arguments list. */
@@ -1245,7 +1245,7 @@ function SortCompare(obj, comparefn, j, k) {
   if (!(comparefn = 'undefined)) {
     /* a. If IsCallable(comparefn) is false, throw a TypeError exception. */
     if (IsCallable(comparefn) = false) {
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* b. Return the result of calling the [[Call]] internal method of
           comparefn passing undefined as the this value and with arguments x and y. */
@@ -1760,7 +1760,7 @@ function arrayEvery(global, this, strict, args) {
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
   if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
   if (!(thisArg = 'undefined)) {
@@ -1855,7 +1855,7 @@ function arraySome(global, this, strict, args) {
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
   if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
   if (!(thisArg = 'undefined)) {
@@ -1947,7 +1947,7 @@ function arrayForEach(global, this, strict, args) {
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
   if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
   if (!(thisArg = 'undefined)) { /* TODO if thisArg was supplied check with undefined? */
@@ -2034,7 +2034,7 @@ function arrayMap(global, this, strict, args) {
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
   if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
   if (!(thisArg = 'undefined)) { /* TODO if thisArg was supplied check with undefined? */
@@ -2132,7 +2132,7 @@ function arrayFilter(global, this, strict, args) {
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
   if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
   if (!(thisArg = 'undefined)) { /* TODO if thisArg was supplied check with undefined? */
@@ -2237,11 +2237,11 @@ function arrayReduce(global, this, strict, args) {
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
   if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 5. If len is 0 and initialValue is not present, throw a TypeError exception. */
   if (len = 0 && (initialValue = 'undefined)) { /* TODO if initialValue is not present check with undefined? */
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 6. Let k be 0. */
   k := 0.;
@@ -2272,7 +2272,7 @@ function arrayReduce(global, this, strict, args) {
     };
     /* c. If kPresent is false, throw a TypeError exception. */
     if (kPresent = false) {
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     }
   };
   /* 9. Repeat, while k < len */
@@ -2356,11 +2356,11 @@ function arrayReduceRight(global, this, strict, args) {
   len := ToUint32(lenVal);
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
   if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 5. If len is 0 and initialValue is not present, throw a TypeError exception. */
   if (len = 0 && (initialValue = 'undefined)) { /* TODO if initialValue is not present check with undefined? */
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 6. Let k be len-1. */
   k := len - 1.;
@@ -2391,7 +2391,7 @@ function arrayReduceRight(global, this, strict, args) {
     };
     /* c. If kPresent is false, throw a TypeError exception. */
     if (kPresent = false) {
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     }
   };
   /* 9. Repeat, while k ≥ 0 */
@@ -2471,7 +2471,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     /* d. If newLen is not equal to ToNumber( Desc.[[Value]]), throw a RangeError
           exception.*/
     if (!(newLen = ToNumber(Desc.Value))) {
-      throw RangeErrorConstructorInternal()
+      return throwEmptyCompletion(RangeErrorConstructorInternal())
     };
     /* e. Set newLenDesc.[[Value]] to newLen. */
     newLenDesc.Value := newLen;
@@ -2540,7 +2540,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
             and false as arguments. This call will always return true. */
       /*descriptor := newDataPropertyDescriptorFull(??, false, true, true); TODO*/
       /*DefineOwnProperty(A, "length", descriptor, false)*/
-      throw "TODO"
+      return throwEmptyCompletion("TODO")
     };
     /* n. Return true. */
     return true
