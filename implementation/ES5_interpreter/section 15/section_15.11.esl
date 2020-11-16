@@ -90,7 +90,7 @@ function ErrorConstructor(globalObject, this, strict, params) {
 
   /* The [[Prototype]] internal property of the newly constructed object is set to the original Error prototype object,
      the one that is the initial value of Error.prototype (15.11.3.1). */
-  setInternalProperty(newlyConstructedObject, "Prototype", getErrorPrototype(globalObject, strict));
+  setInternalProperty(newlyConstructedObject, "Prototype", getErrorPrototype(strict));
   /* The [[Class]] internal property of the newly constructed Error object is set to "Error". */
   setInternalProperty(newlyConstructedObject, "Class", "Error");
   /* The [[Extensible]] internal property of the newly constructed object is set to true. */
@@ -347,7 +347,7 @@ function NativeErrorConstructor(globalObject, strict, message, nativeErrorName) 
   /* The [[Prototype]] internal property of the newly constructed object is set to the prototype object for this
       NativeError constructor. The [[Class]] internal property of the newly constructed object is set to "Error". The
       [[Extensible]] internal property of the newly constructed object is set to true. */
-  setInternalProperty(newlyConstructedObject, "Prototype", getNativeErrorPrototype(globalObject, strict, nativeErrorName));
+  setInternalProperty(newlyConstructedObject, "Prototype", getNativeErrorPrototype(strict, nativeErrorName));
   setInternalProperty(newlyConstructedObject, "Class", "Error");
   setInternalProperty(newlyConstructedObject, "Extensible", true);
 
@@ -366,8 +366,8 @@ function NativeErrorConstructor(globalObject, strict, message, nativeErrorName) 
 
 
 /* Auxiliary functions */
-function getErrorPrototype(globalObject, strict) {
-  refError := newPropertyReference(globalObject, "Error", strict);
+function getErrorPrototype(strict) {
+  refError := newPropertyReference(|global|, "Error", strict);
   ErrorObject := GetValue(refError);
 
   refErrorProto := newPropertyReference(ErrorObject, "prototype", strict);
@@ -376,8 +376,8 @@ function getErrorPrototype(globalObject, strict) {
   return errorObjectProto
 };
 
-function getNativeErrorPrototype(globalObject, strict, nativeErrorName) {
-  refNativeError := newPropertyReference(globalObject, nativeErrorName, strict);
+function getNativeErrorPrototype(strict, nativeErrorName) {
+  refNativeError := newPropertyReference(|global|, nativeErrorName, strict);
   NativeErrorObject := GetValue(refNativeError);
 
   refNativeErrorProto := newPropertyReference(NativeErrorObject, "prototype", strict);
