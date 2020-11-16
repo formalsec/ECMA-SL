@@ -7,7 +7,7 @@ function testArrayConstructorLen(global) {
   arr := ArrayConstructorLen(global, 'null, [5.]);
 
   refLen := newPropertyReference(arr, "length", false);
-  len := GetValue(refLen);
+  @GetValue(len, refLen);
 
   print "Asserting len";
   assert (len = 5.);
@@ -44,7 +44,7 @@ function main() {
   return isArray('null, 'null, [ArrayConstructor('null, 'null, [2., 3.])])
 }*/
 
-/* main arrayToString TODO 
+/* main arrayToString TODO
 function main() {
   return arrayToString('null, ArrayConstructor('null, 'null, [2., 3.]), 'null)
 }*/
@@ -81,7 +81,7 @@ function main() {
   return obj
 }*/
 
-/* main arrayPush 
+/* main arrayPush
 function main() {
   arr := ArrayConstructor('null, 'null, [2., 3., 4.]);
   newLen := arrayPush('null, arr, [5., 6.]);
@@ -118,7 +118,7 @@ function main() {
   return arraySlice('null, arr, [2., 4.])
 }*/
 
-/* main arraySort 
+/* main arraySort
 function comparefn(scope, this, args) {
   x := l_nth (args, 0);
   y := l_nth (args, 1);
@@ -180,13 +180,13 @@ function main() {
   return arrayIndexOf('null, arr, [5., 'undefined])
 }*/
 
-/* main arrayLastIndexOf 
+/* main arrayLastIndexOf
 function main() {
   arr := ArrayConstructor('null, 'null, [2., 3., 4., 5., 2., 7.]);
   return arrayLastIndexOf('null, arr, [2., 'undefined])
 }*/
 
-/* main arrayEvery 
+/* main arrayEvery
 function callbackfn(scope, this, args) {
   x := l_nth (args, 0);
   return x > 1.
@@ -208,7 +208,7 @@ function main() {
   return arraySome('null, arr, [funcObj, 'undefined])
 }*/
 
-/* main arrayForEach 
+/* main arrayForEach
 function callbackfn(scope, this, args) {
   x := l_nth (args, 0);
   print s_concat(["forEach: ", x]);
@@ -221,7 +221,7 @@ function main() {
   return arr
 }*/
 
-/* main arrayMap 
+/* main arrayMap
 function callbackfn(scope, this, args) {
   x := l_nth (args, 0);
   return x * 2.
@@ -255,7 +255,7 @@ function main() {
   return arrayReduce('null, arr, [funcObj, 'undefined])
 }*/
 
-/* main arrayReduceRight 
+/* main arrayReduceRight
 function callbackfn(scope, this, args) {
   total := l_nth (args, 0);
   x := l_nth (args, 1);

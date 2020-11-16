@@ -13,6 +13,8 @@
 %token RETURN
 %token NULL
 %token FUNCTION
+%token MACRO
+%token AT_SIGN
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
@@ -72,8 +74,13 @@ e_prog_e_stmt_target:
   | s = e_block_target; EOF; { s }
 
 e_prog_target:
-  | imports = list (import_target); funcs = separated_list (SEMICOLON, proc_target); EOF;
-   { E_Prog.create imports funcs }
+  | imports = list (import_target); macros_funcs = separated_list (SEMICOLON, e_prog_elem_target); EOF;
+   {
+    let (funcs, macros) = List.split macros_funcs in 
+    let funcs' = List.concat (List.map (fun o -> Option.map_default (fun x -> [ x ]) [] o) funcs) in
+    let macros' = List.concat (List.map (fun o -> Option.map_default (fun x -> [ x ]) [] o) macros) in  
+    E_Prog.create imports funcs' macros' 
+   }
 
 import_target:
   | IMPORT; fname = STRING; SEMICOLON;
@@ -81,9 +88,19 @@ import_target:
       let sub = String.sub fname 1 (len - 2) in
       sub }
 
+e_prog_elem_target: 
+  | f = proc_target; 
+    { (Some f, None) }
+  | m = macro_target; 
+    { (None, Some m) }
+
 proc_target:
   | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; s = e_block_target;
    { E_Func.create f vars s }
+
+macro_target:
+  | MACRO; m = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; s = e_block_target;
+   { E_Macro.create m vars s }
 
 (*
   The pipes separate the individual productions, and the curly braces contain a semantic action:
@@ -290,6 +307,8 @@ e_stmt_target:
     { E_Stmt.RepeatUntil (s, e) }
   | MATCH; e = e_expr_target; WITH; PIPE; pat_stmts = separated_list (PIPE, pat_stmt_target);
     { E_Stmt.MatchWith (e, pat_stmts) }
+  | AT_SIGN; m = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
+    { E_Stmt.MacroApply (m, es) }
 
 (* if (e) { s } | if (e) { s } else { s } *)
 ifelse_target:
