@@ -89,7 +89,7 @@ function initGlobalObject(strict) {
   /* RegExpObject := initRegExpObject();
   createBuiltInProperty(globalObject, "RegExp", RegExpObject); */
   /* 15.1.4.9 Error ( . . . ) */
-  ErrorObject := initErrorObject(ObjectPrototype, globalObject, strict);
+  ErrorObject := initErrorObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Error", ErrorObject);
   /* 15.1.4.10 EvalError ( . . . ) */
   EvalErrorObject := initEvalErrorObject(getErrorPrototype(globalObject, strict), globalObject, strict);

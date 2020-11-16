@@ -3,7 +3,7 @@
 /* Instances of Error objects are thrown as exceptions when runtime errors occur. The Error objects may also
    serve as base objects for user-defined exception classes. */
 
-function initErrorObject(ObjectPrototype, globalObject, strict) {
+function initErrorObject(globalObject, ObjectPrototype, strict) {
   errorPrototype := initErrorPrototype(ObjectPrototype);
   errorConstructor := initErrorConstructor(errorPrototype, globalObject, strict);
 
