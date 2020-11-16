@@ -77,9 +77,7 @@ e_prog_target:
 
 import_target:
   | IMPORT; fname = STRING; SEMICOLON;
-    { let len = String.length fname in
-      let sub = String.sub fname 1 (len - 2) in
-      sub }
+    { fname }
 
 proc_target:
   | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; s = e_block_target;
@@ -129,9 +127,10 @@ val_target:
   | b = BOOLEAN;
     { Val.Bool b }
   | s = STRING;
-    { let len = String.length s in
-      let sub = String.sub s 1 (len - 2) in
-      Val.Str sub } (* Remove the double-quote characters from the parsed string *)
+    (* This replaces helps on fixing errors when parsing some escape characters. *)
+    { let s' = Str.global_replace (Str.regexp "\\") "\\\\\\\\" s in
+      let s'' = Str.global_replace (Str.regexp "\"") "\\\"" s' in
+      Val.Str s'' }
   | s = SYMBOL;
     { Val.Symbol s }
   | l = LOC;
@@ -152,7 +151,7 @@ e_expr_target:
     { E_Expr.Val v }
   | v = VAR;
     { E_Expr.Var v }
-  | v = GVAR; 
+  | v = GVAR;
     { E_Expr.GVar v }
   | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Expr.Call (E_Expr.Val (Val.Str f), es) }
@@ -168,7 +167,7 @@ e_expr_target:
     { pre_bin_op_expr }
   | in_bin_op_expr = infix_binary_op_target;
     { in_bin_op_expr }
-  
+
 
 nary_op_target:
   | LBRACK; es = separated_list (COMMA, e_expr_target); RBRACK;
