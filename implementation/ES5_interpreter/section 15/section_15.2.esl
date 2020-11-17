@@ -680,7 +680,7 @@ function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params)
   /* 2. Let O be the result of calling ToObject passing the this value as the argument. */
   O := ToObject(this);
   /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O passing P as the argument. */
-  dsc := GetOwnProperty(O, P);
+  desc := GetOwnProperty(O, P);
   /* 4. If desc is undefined, return false. */
   if (desc = 'undefined) { return false };
   /* 5. Return the value of desc.[[Enumerable]]. */
@@ -716,10 +716,10 @@ function getObjectPrototypeToString(strict) {
   return objectObjectToString
 };
 
-function isHostObject() {
+function isHostObject(obj, this) {
   return false
 };
 
-function hostObjectValueOf() {
+function hostObjectValueOf(obj, this) {
   return
 }
