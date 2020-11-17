@@ -1,6 +1,6 @@
 /* 15.6 Boolean Objects */
 
-function initBooleanObject(ObjectPrototype, globalObject, strict) {
+function initBooleanObject(globalObject, ObjectPrototype, strict) {
   booleanPrototype := initBooleanPrototype(ObjectPrototype);
   booleanConstructor := initBooleanConstructor(booleanPrototype, globalObject, strict);
 
