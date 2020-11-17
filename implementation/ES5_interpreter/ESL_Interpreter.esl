@@ -19,10 +19,9 @@ macro JS_Interpreter_VarDecl_Check_Throw(varDecl, scope) {
 /* Let varName be the result of evaluating VariableDeclarationNoIn. */
 macro JS_Interpreter_VarDecl_Check_Throw_Set_Var(var, varDecl, scope) {
   var := JS_Interpreter_VarDecl(varDecl, scope);
-  if (isErrorCompletion(id)) {
-    return id
-  };
-  return var
+  if (isErrorCompletion(var)) {
+    return var
+  }
 };
 
 /* Let func be GetValue(ref). */
