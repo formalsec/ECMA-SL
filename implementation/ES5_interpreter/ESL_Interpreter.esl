@@ -1565,9 +1565,9 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* 4. Let rval be GetValue(rref). */
     @GetValue(rval, rref);
     /* 5. Let lprim be ToPrimitive(lval). */
-    lprim := ToPrimitive(lval, "Number");
+    lprim := ToPrimitive(lval, undefined);
     /* 6. Let rprim be ToPrimitive(rval). */
-    rprim := ToPrimitive(rval, "Number");
+    rprim := ToPrimitive(rval, undefined);
     /* 7. If Type(lprim) is String or Type(rprim) is String, then */
     if ((Type(lprim) = "String") || (Type(rprim) = "String")) {
       /* a. Return the String that is the result of concatenating ToString( lprim) followed by ToString(rprim) */

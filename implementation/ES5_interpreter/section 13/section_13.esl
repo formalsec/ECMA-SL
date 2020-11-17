@@ -95,6 +95,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   return F
 };
 
+/* 13.2.1 [[Call]] */
 function Call(F, this, args) {
   if (("Code" in_obj F) &&& (typeof F.Code = __$Str)) {
     return {F.Code}(F.Scope, this, F.strict, args)
@@ -110,7 +111,7 @@ function Call(F, this, args) {
         If F does not have a [[Code]] internal property or if its value is an empty FunctionBody,
         then result is (normal, undefined, empty). */
   if (!("Code" in_obj F) || ((typeof F.Code = __$Obj) &&& ("body" in_obj F.Code) &&& (F.Code.body = []))) {
-    return normalEmptyCompletion('undefined)
+    result := normalEmptyCompletion('undefined)
   };
   result := JS_Interpreter_FunctionBody(F.Code, funcCtx);
 
