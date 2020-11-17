@@ -1,77 +1,152 @@
 /* 15.7 Number Objects */
 
-function initNumberObject(global, objectPrototype, strict) {
-  objNumberPrototype := initNumberPrototype(global, objectPrototype, strict);
-  objNumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", global, strict);
+function initNumberObject(globalObject, ObjectPrototype, strict) {
+  numberPrototype := initNumberPrototype(ObjectPrototype);
+  numberConstructor := initNumberConstructor(numberPrototype, globalObject, strict);
 
-  descriptor := newDataPropertyDescriptorFull(objNumberPrototype, false, false, false);
-  setJSProperty(objNumberConstructor, "prototype", descriptor);
+  fillNumberPrototype(numberPrototype, numberConstructor, globalObject, strict);
 
-  return objNumberConstructor
+  return numberConstructor
+};
+
+/* 15.7.1 The Number Constructor Called as a Function */
+/* When Number is called as a function rather than as a constructor, it performs a type conversion. */
+
+/* 15.7.1.1 Number ( [ value ] ) */
+/* Returns a Number value (not a Number object) computed by ToNumber(value) if value was supplied, else
+   returns +0. */
+function NumberConstructorCalledAsFunction(value) {
+  if (value = 'undefined) {
+    return 0.
+  };
+  return ToNumber(value)
+};
+
+/* 15.7.2 The Number Constructor */
+function initNumberConstructor(NumberPrototype, globalObject, strict) {
+  /* When Number is called as part of a new expression it is a constructor: it initialises the newly created object. */
+
+  /* 15.7.3 Properties of the Number Constructor */
+  /* The value of the [[Prototype]] internal property of the Number constructor is the Function prototype object
+     (15.3.4). */
+  NumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", globalObject, strict);
+  /* Besides the internal properties and the length property (whose value is 1), the Number constructor has the
+     following properties: */
+
+  /* 15.7.3.1 Number.prototype */
+  /* The initial value of Number.prototype is the Number prototype object (15.7.4). */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "prototype", NumberPrototype, false, false, false);
+
+  return NumberConstructor
 };
 
 
-function getNumberPrototype(globalObject, strict) {
-  refNumber := newPropertyReference(globalObject, "Number", strict);
-  NumberObject := GetValue(refNumber);
-  refNumberProto := newPropertyReference(NumberObject, "prototype", strict);
-  objectNumberProto := GetValue(refNumberProto);
-  return objectNumberProto
+/* 15.7.4 Properties of the Number Prototype Object */
+function initNumberPrototype(objectPrototypeObject) {
+  numberPrototypeObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(numberPrototypeObject);
+
+  /* The Number prototype object is itself a Number object (its [[Class]] is "Number") whose value is +0. */
+  setInternalProperty(numberPrototypeObject, "Class", "Number");
+  setInternalProperty(numberPrototypeObject, "PrimitiveValue", 0.);
+  /* The value of the [[Prototype]] internal property of the Number prototype object is the standard built-in Object
+     prototype object (15.2.4). */
+  setInternalProperty(numberPrototypeObject, "Prototype", objectPrototypeObject);
+
+  return numberPrototypeObject
+};
+
+/* 15.7.4 Properties of the Number Prototype Object */
+function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObject, strict) {
+  /* Unless explicitly stated otherwise, the methods of the Number prototype object defined below are not generic
+     and the this value passed to them must be either a Number value or an Object for which the value of the
+     [[Class]] internal property is "Number". */
+
+  /* In the following descriptions of functions that are properties of the Number prototype object, the phrase "this
+     Number object" refers to either the object that is the this value for the invocation of the function or, if
+     Type(this value) is Number, an object that is created as if by the expression new Number(this value)
+     where Number is the standard built-in constructor with that name. Also, the phrase "this Number value" refers
+     to either the Number value represented by this Number object, that is, the value of the [[PrimitiveValue]]
+     internal property of this Number object or the this value if its type is Number. A TypeError exception is
+     thrown if the this value is neither an object for which the value of the [[Class]] internal property is "Number"
+     or a value whose type is Number. */
+
+  /* 15.7.4.1 Number.prototype.constructor */
+  /* The initial value of Number.prototype.constructor is the built-in Number constructor. */
+  createBuiltInProperty(numberPrototypeObject, "constructor", NumberConstructor);
+
+  /* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
+
+  /* 15.7.4.3 Number.prototype.toLocaleString() */
+  toLocaleString := CreateFunctionObject(["items"], "numberToLocaleString", globalObject, strict);
+  createBuiltInProperty(numberPrototypeObject, "toLocaleString", toLocaleString);
+
+  /* 15.7.4.4 Number.prototype.valueOf ( ) */
+
+  /* 15.7.4.5 Number.prototype.toFixed (fractionDigits) */
+
+  /* 15.7.4.6 Number.prototype.toExponential (fractionDigits) */
+
+  /* 15.7.4.7 Number.prototype.toPrecision (precision) */
+
+  return
+};
+
+/* 15.7.5 Properties of Number Instances */
+/* Number instances inherit properties from the Number prototype object and their [[Class]] internal property
+   value is "Number". Number instances also have a [[PrimitiveValue]] internal property. */
+/* The [[PrimitiveValue]] internal property is the Number value represented by this Number object. */
+
+/* 15.7.2.1 new Number ( [ value ] ) */
+function NumberConstructor(globalObject, this, strict, params) {
+  if (l_len params = 0) {
+    value := undefined
+  } else {
+    value := l_nth(params, 0)
+  };
+
+  if (this = 'undefined) {
+    return BooleanConstructorCalledAsFunction(value)
+  };
+
+  /* When Number is called as part of a new expression it is a constructor: it initialises the newly created object. */
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+  /* The [[Prototype]] internal property of the newly constructed object is set to the original Number prototype
+     object, the one that is the initial value of Number.prototype (15.7.3.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", getNumberPrototype(strict));
+  /* The [[Class]] internal property of the newly constructed object is set to "Number". */
+  setInternalProperty(newlyConstructedObject, "Class", "Number");
+  /* The [[PrimitiveValue]] internal property of the newly constructed object is set to ToNumber(value) if value was
+     supplied, else to +0. */
+  if (value = undefined) {
+    setInternalProperty(newlyConstructedObject, "PrimitiveValue", 0.)
+  } else {
+    setInternalProperty(newlyConstructedObject, "PrimitiveValue", ToNumber(value))
+  };
+  /* The [[Extensible]] internal property of the newly constructed object is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+
+  return newlyConstructedObject
 };
 
 
-function initNumberPrototype(global, objectPrototype, strict) {
-  prototype := NewECMAScriptObjectFull(objectPrototype, "Number", true);
-  setAllInternalMethodsOfObject(prototype);
-
-  /* Add built-in function objects to Number's prototype */
-  /* isNumber */
-  isNumberObject := CreateFunctionObject(["items"], "numberToLocaleString", global, strict);
-  descriptor := newDataPropertyDescriptorFull(isNumberObject, true, false, true);
-  setJSProperty(prototype, "toLocaleString", descriptor);
-
-  return prototype
-};
-
-
-function NumberConstructor(global, this, strict, value) {
-  prototype := getNumberPrototype(global, strict);
-  return newNumber(prototype, items)
-};
-
-
+/* 15.7.4.3 Number.prototype.toLocaleString() */
 function numberToLocaleString(global, this, strict, args) {
   num := this.PrimitiveValue;
   return ToString(num)
 };
 
 
-/* 15.7.2.1 new Number ( [ value ] ) */
-function newNumber(value) {
+/* Auxiliary functions */
+function getNumberPrototype(strict) {
+  refNumber := newPropertyReference(|global|, "Number", strict);
+  NumberObject := GetValue(refNumber);
 
-  print s_concat(["newNumber", |global|]);
-  prototype := getNumberPrototype(|global|, false); /* TODO strict */
+  refNumberProto := newPropertyReference(NumberObject, "prototype", strict);
+  objectNumberProto := GetValue(refNumberProto);
 
-  ret := {
-    /* The [[Prototype]] internal property of the newly constructed object is set to the original Number prototype
-       object, the one that is the initial value of Number.prototype (15.7.3.1). */
-    Prototype: prototype,
-    /* The [[Class]] internal property of the newly constructed object is set to "Number". */
-    Class: "Number",
-    /* The [[Extensible]] internal property of the newly constructed object is set to true. */
-    Extensible: true,
-    JSProperties: { }
-  };
-  /* The [[PrimitiveValue]] internal property of the newly constructed object is set to ToNumber(value)
-      if value was supplied, else to +0. */
-  if (value = null) {
-    ret.PrimitiveValue := 0
-  } else {
-    ret.PrimitiveValue := ToNumber(value)
-  };
-
-  setAllInternalMethodsOfObject(ret);
-
-  return ret
+  return objectNumberProto
 }
-
