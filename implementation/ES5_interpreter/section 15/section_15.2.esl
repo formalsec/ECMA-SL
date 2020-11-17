@@ -124,7 +124,11 @@ function fillObjectPrototype(objectPrototypeObject, ObjectConstructor, globalObj
 
 /* 15.2.2.1 new Object ( [ value ] ) */
 function ObjectConstructor(globalObject, this, strict, params) {
-  value := l_nth(params, 0);
+  if (l_len params = 0) {
+    value := undefined
+  } else {
+    value := l_nth(params, 0)
+  };
   /* When the Object constructor is called with no arguments or with one argument value, the following steps are
       taken: */
 

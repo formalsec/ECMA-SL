@@ -81,7 +81,7 @@ function BooleanConstructor(globalObject, this, strict, params) {
   } else {
     value := l_nth(params, 0)
   };
-  assert !(value = undefined);
+
   if (this = 'undefined) {
     return BooleanConstructorCalledAsFunction(value)
   };
