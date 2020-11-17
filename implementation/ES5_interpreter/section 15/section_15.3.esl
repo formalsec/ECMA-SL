@@ -41,6 +41,7 @@ function initFunctionPrototype(objectPrototype) {
      property from the Object prototype Object. */
   /* The length property of the Function prototype object is 0. */
   functionPrototypeObject := NewECMAScriptObjectFull(objectPrototype, "Function", true);
+  setAllInternalMethodsOfObject(functionPrototypeObject);
 
   return functionPrototypeObject
 };

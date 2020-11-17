@@ -83,6 +83,7 @@ function initObjectPrototype() {
   /* The value of the [[Prototype]] internal property of the Object prototype object is null, the value of the [[Class]]
      internal property is "Object", and the initial value of the [[Extensible]] internal property is true. */
   objectPrototypeObject := NewECMAScriptObjectFull('null, "Object", true);
+  setAllInternalMethodsOfObject(objectPrototypeObject);
 
   return objectPrototypeObject
 };
