@@ -69,12 +69,12 @@ function AbstractEqualityComparison(x, y) {
   /* 8. If Type(x) is either String or Number and Type(y) is Object,
         return the result of the comparison x == ToPrimitive(y). */
   if (((Type(x) = "String") || (Type(x) = "Number")) && (Type(y) = "Object")) {
-    return AbstractEqualityComparison(x, ToPrimitive(y))
+    return AbstractEqualityComparison(x, ToPrimitive(y, undefined))
   };
   /* 9. If Type(x) is Object and Type(y) is either String or Number,
         return the result of the comparison ToPrimitive(x) == y. */
   if ((Type(x) = "Object") && ((Type(y) = "String") || (Type(y) = "Number"))) {
-    return AbstractEqualityComparison(ToPrimitive(x), y)
+    return AbstractEqualityComparison(ToPrimitive(x, undefined), y)
   };
   /* 10. Return false. */
   return false

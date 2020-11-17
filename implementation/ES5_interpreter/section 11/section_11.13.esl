@@ -19,9 +19,9 @@ function applyOperator(operator, lval, rval) {
 
   if (operator = "+=") {
     /* Let lprim be ToPrimitive(lval). */
-    lprim := ToPrimitive(lval, "Number");
+    lprim := ToPrimitive(lval, undefined);
     /* Let rprim be ToPrimitive(rval). */
-    rprim := ToPrimitive(rval, "Number");
+    rprim := ToPrimitive(rval, undefined);
     /* If Type(lprim) is String or Type(rprim) is String, then */
     if ((Type(lprim) = "String") || (Type(rprim) = "String")) {
       /* Return the String that is the result of concatenating ToString( lprim) followed by ToString(rprim) */

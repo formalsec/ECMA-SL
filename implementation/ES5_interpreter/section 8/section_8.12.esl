@@ -356,6 +356,13 @@ function Delete(O, P, Throw) {
  */
 function DefaultValue (O, hint) {
   print "DefaultValue";
+  if (hint = undefined) {
+    if (getInternalProperty(O, "Class") = "Date") {
+      hint := 'String
+    } else {
+      hint := 'Number
+    }
+  };
 
   /** When the [[DefaultValue]] internal method of O is called with hint String, the following steps are taken: */
   if (hint = 'String) {
