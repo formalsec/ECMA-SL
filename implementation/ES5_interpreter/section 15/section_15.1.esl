@@ -80,8 +80,8 @@ function initGlobalObject(strict) {
   /* BooleanObject := initBooleanObject();
   createBuiltInProperty(globalObject, "Boolean", BooleanObject); */
   /* 15.1.4.6 Number ( . . . ) */
-  /* NumberObject := initNumberObject();
-  createBuiltInProperty(globalObject, "Number", NumberObject); */
+  NumberObject := initNumberObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Number", NumberObject);
   /* 15.1.4.7 Date ( . . . ) */
   /* DateObject := initDateObject();
   createBuiltInProperty(globalObject, "Date", DateObject); */
