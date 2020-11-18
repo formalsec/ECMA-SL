@@ -270,7 +270,7 @@ function ObjectCreate(globalObject, this, strict, params) {
   /* 4. If the argument Properties is present and not undefined, add own properties to obj as if by calling the
         standard built-in function Object.defineProperties with arguments obj and Properties. */
   if (!(Properties = undefined) &&& !(Properties = 'undefined)) {
-    ObjectDefineProperties(obj, Properties)
+    ObjectDefineProperties(globalObject, this, strict, [obj, Properties])
   };
   /* 5. Return obj. */
   return obj
