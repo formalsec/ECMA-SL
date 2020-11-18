@@ -259,7 +259,7 @@ function Put(O, P, V, Throw) {
       Value: V
     };
     /** b. Call the [[DefineOwnProperty]] internal method of O passing P, valueDesc, and Throw as arguments. */
-    DefineOwnProperty(O, P, valueDesc, Throw);
+    {O.DefineOwnProperty}(O, P, valueDesc, Throw);
 
     /** c. Return. */
     return
@@ -288,7 +288,7 @@ function Put(O, P, V, Throw) {
     };
 
     /** b. Call the [[DefineOwnProperty]] internal method of O passing P, newDesc, and Throw as arguments. */
-    DefineOwnProperty(O, P, newDesc, Throw)
+    {O.DefineOwnProperty}(O, P, newDesc, Throw)
   };
 
   /** 7. Return. */
