@@ -320,7 +320,7 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
   /* 5. For each element P of names in list order, */
   i := 0;
   lnames := l_len names;
-  while(i < names) {
+  while(i < lnames) {
     P := l_nth(names, i);
     i := i + 1;
     /* a. Let descObj be the result of calling the [[Get]] internal method of props with P as the argument. */
@@ -333,7 +333,7 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
   /* 6. For each pair from descriptors in list order, */
   i := 0;
   ldescriptors := l_len descriptors;
-  while(i < descriptors) {
+  while(i < ldescriptors) {
     pair := l_nth(descriptors, i);
     i := i + 1;
     /* a. Let P be the first element of pair. */
