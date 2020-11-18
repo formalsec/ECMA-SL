@@ -592,9 +592,9 @@ function arrayConcat(global, this, strict, items) {
         };
 
         /* 4. Increase n by 1. */
-        n := n + 1;
+        n := n + 1.;
         /* 5. Increase k by 1. */
-        k := k + 1
+        k := k + 1.
       }
     }
     /* c. Else, E is not an Array */
@@ -606,7 +606,7 @@ function arrayConcat(global, this, strict, items) {
       descriptor := newDataPropertyDescriptorFull(E, true, true, true);
       {A.DefineOwnProperty}(A, ToString(n), descriptor, false);
       /* ii. Increase n by 1. */
-      n := n + 1
+      n := n + 1.
     }
   };
 
