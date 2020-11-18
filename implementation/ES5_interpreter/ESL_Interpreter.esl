@@ -33,12 +33,13 @@ macro GetValue(val, ref) {
 };
 
 /* Return (normal, GetValue(exprRef), empty). */
-macro ReturnCompletionGetValue(ref) {
+/* or return newCompletion('return, GetValue(exprRef), 'empty) */
+macro ReturnCompletionGetValue(ref, type) {
   val := GetValue(ref);
   if (isErrorCompletion(val)) {
     return val
   };
-  return normalEmptyCompletion(val)
+  return newCompletion(type, val, 'empty)
 };
 
 /* Let oldValue be ToBoolean(GetValue(expr)). */
@@ -1103,7 +1104,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 1. Let exprRef be the result of evaluating Expression. */
     @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     /* 2. Return (normal, GetValue(exprRef), empty). */
-    @ReturnCompletionGetValue(exprRef)
+    @ReturnCompletionGetValue(exprRef, 'normal)
   }
   | { type: "IfStatement" } -> {
     /* 12.5 The if Statement */
@@ -1197,7 +1198,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 2. Let exprRef be the result of evaluating Expression. */
     @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     /* 3. Return (return, GetValue(exprRef), empty). */
-    return newCompletion('return, GetValue(exprRef), 'empty)
+    @ReturnCompletionGetValue(exprRef, 'return)
   }
   | { type: "WithStatement", object: Expression, body: Statement } -> {
     /* 12.10 The with Statement */
