@@ -59,7 +59,7 @@ function CreateDataPropertyFrom(Desc) {
 /** See 8.12.9 */
 function Reject (Throw) {
   if (Throw) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   } else {
     return false
   }
@@ -242,7 +242,7 @@ function Put(O, P, V, Throw) {
   if (CanPut(O, P) = false) {
     /** a. If Throw is true, then throw a TypeError exception. */
     if (Throw) {
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     }
     /** b. Else return. */
     else {
@@ -343,7 +343,7 @@ function Delete(O, P, Throw) {
   /** 4. Else if Throw, then throw a TypeError exception. */
   else {
     if (Throw) {
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     }
   };
 
@@ -356,6 +356,13 @@ function Delete(O, P, Throw) {
  */
 function DefaultValue (O, hint) {
   print "DefaultValue";
+  if (hint = undefined) {
+    if (getInternalProperty(O, "Class") = "Date") {
+      hint := 'String
+    } else {
+      hint := 'Number
+    }
+  };
 
   /** When the [[DefaultValue]] internal method of O is called with hint String, the following steps are taken: */
   if (hint = 'String) {
@@ -388,7 +395,7 @@ function DefaultValue (O, hint) {
     };
 
     /** 5. Throw a TypeError exception. */
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   }
   else {
     /** When the [[DefaultValue]] internal method of O is called with hint Number, the following steps are taken: */
@@ -422,7 +429,7 @@ function DefaultValue (O, hint) {
       };
 
       /** 5. Throw a TypeError exception. */
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     }
   }
 

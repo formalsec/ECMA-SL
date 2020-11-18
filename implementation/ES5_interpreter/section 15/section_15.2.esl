@@ -83,6 +83,7 @@ function initObjectPrototype() {
   /* The value of the [[Prototype]] internal property of the Object prototype object is null, the value of the [[Class]]
      internal property is "Object", and the initial value of the [[Extensible]] internal property is true. */
   objectPrototypeObject := NewECMAScriptObjectFull('null, "Object", true);
+  setAllInternalMethodsOfObject(objectPrototypeObject);
 
   return objectPrototypeObject
 };
@@ -178,7 +179,7 @@ function ObjectGetPrototypeOf(globalObject, this, strict, params) {
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 2. Return the value of the [[Prototype]] internal property of O. */
   return getInternalProperty(O, "Prototype")
@@ -193,7 +194,7 @@ function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 2. Let name be ToString(P). */
   name := ToString(P);
@@ -211,7 +212,7 @@ function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 2. Let array be the result of creating a new object as if by the expression new Array () where Array is the
         standard built-in constructor with that name. */
@@ -255,7 +256,7 @@ function ObjectCreate(globalObject, this, strict, params) {
 
   /* 1. If Type(O) is not Object or Null throw a TypeError exception. */
   if (!(Type(O) = "Object") && !(Type(O) = "Null")) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 2. Let obj be the result of creating a new object as if by the expression new Object() where Object is the
         standard built-in constructor with that name */
@@ -265,7 +266,7 @@ function ObjectCreate(globalObject, this, strict, params) {
   /* 4. If the argument Properties is present and not undefined, add own properties to obj as if by calling the
         standard built-in function Object.defineProperties with arguments obj and Properties. */
   if (!(Properties = undefined) &&& !(Properties = 'undefined)) {
-    ObjectDefineProperties(obj, Properties)
+    ObjectDefineProperties(globalObject, this, strict, [obj, Properties])
   };
   /* 5. Return obj. */
   return obj
@@ -282,7 +283,7 @@ function ObjectDefineProperty(globalObject, this, strict, params) {
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 2. Let name be ToString(P). */
   name := ToString(P);
@@ -304,7 +305,7 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 2. Let props be ToObject(Properties). */
   props := ToObject(Properties);
@@ -315,7 +316,7 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
   /* 5. For each element P of names in list order, */
   i := 0;
   lnames := l_len names;
-  while(i < names) {
+  while(i < lnames) {
     P := l_nth(names, i);
     i := i + 1;
     /* a. Let descObj be the result of calling the [[Get]] internal method of props with P as the argument. */
@@ -328,7 +329,7 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
   /* 6. For each pair from descriptors in list order, */
   i := 0;
   ldescriptors := l_len descriptors;
-  while(i < descriptors) {
+  while(i < ldescriptors) {
     pair := l_nth(descriptors, i);
     i := i + 1;
     /* a. Let P be the first element of pair. */
@@ -353,7 +354,7 @@ function ObjectSeal(globalObject, this, strict, params) {
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 2. For each named own property name P of O, */
   i := 0;
@@ -385,7 +386,7 @@ function ObjectFreeze(globalObject, this, strict, params) {
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 2. For each named own property name P of O, */
   i := 0;
@@ -424,7 +425,7 @@ function ObjectPreventExtensions(globalObject, this, strict, params) {
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 2. Set the [[Extensible]] internal property of O to false. */
   setInternalProperty(O, "Extensible", false);
@@ -440,7 +441,7 @@ function ObjectIsSealed(globalObject, this, strict, params) {
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 2. For each named own property name P of O, */
   i := 0;
@@ -472,7 +473,7 @@ function ObjectIsFrozen(globalObject, this, strict, params) {
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 2. For each named own property name P of O, */
   i := 0;
@@ -511,7 +512,7 @@ function ObjectIsExtensible(globalObject, this, strict, params) {
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 2. Return the Boolean value of the [[Extensible]] internal property of O. */
   return getInternalProperty(O, "Extensible")
@@ -525,7 +526,7 @@ function ObjectKeys(globalObject, this, strict, params) {
 
   /* 1. If the Type(O) is not Object, throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 2. Let n be the number of own enumerable properties of O */
   n := l_len getOwnProperties(O);
@@ -592,7 +593,7 @@ function ObjectPrototypeToLocaleString(globalObject, this, strict, params) {
   toString := Get(O, "toString");
   /* 3. If IsCallable(toString) is false, throw a TypeError exception. */
   if (IsCallable(toString) = false) {
-    throw TypeErrorConstructorInternal()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   /* 4. Return the result of calling the [[Call]] internal method of toString passing O as the this value and no
         arguments. */
@@ -679,7 +680,7 @@ function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params)
   /* 2. Let O be the result of calling ToObject passing the this value as the argument. */
   O := ToObject(this);
   /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O passing P as the argument. */
-  dsc := GetOwnProperty(O, P);
+  desc := GetOwnProperty(O, P);
   /* 4. If desc is undefined, return false. */
   if (desc = 'undefined) { return false };
   /* 5. Return the value of desc.[[Enumerable]]. */
@@ -694,31 +695,31 @@ function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params)
 /* Auxiliary functions */
 function getObjectPrototype(strict) {
   refObj := newPropertyReference(|global|, "Object", strict);
-  ObjectObject := GetValue(refObj);
+  @GetValue(ObjectObject, refObj);
 
   refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
-  objectObjectProto := GetValue(refObjProto);
+  @GetValue(objectObjectProto, refObjProto);
 
   return objectObjectProto
 };
 
 function getObjectPrototypeToString(strict) {
   refObj := newPropertyReference(|global|, "Object", strict);
-  ObjectObject := GetValue(refObj);
+  @GetValue(ObjectObject, refObj);
 
   refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
-  objectObjectProto := GetValue(refObjProto);
+  @GetValue(objectObjectProto, refObjProto);
 
   refToStringObjProto := newPropertyReference(objectObjectProto, "toString", strict);
-  objectObjectToString := GetValue(refToStringObjProto);
+  @GetValue(objectObjectToString, refToStringObjProto);
 
   return objectObjectToString
 };
 
-function isHostObject() {
+function isHostObject(obj, this) {
   return false
 };
 
-function hostObjectValueOf() {
+function hostObjectValueOf(obj, this) {
   return
 }

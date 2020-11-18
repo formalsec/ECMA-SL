@@ -1,5 +1,77 @@
 import "ES5_interpreter/ES5_Reference_Interpreter.esl";
 
+/* Let ref be the result of evaluating Expression. */
+macro JS_Interpreter_Expr_Check_Throw(ref, Expression, scope) {
+  ref := JS_Interpreter_Expr(Expression, scope);
+  if (isErrorCompletion(ref)) {
+    return ref
+  }
+};
+
+/* Let func be GetValue(ref). */
+macro GetValue(val, ref) {
+  val := GetValue(ref);
+  if (isErrorCompletion(val)) {
+    return val
+  }
+};
+
+/* Return (normal, GetValue(exprRef), empty). */
+macro ReturnCompletionGetValue(ref) {
+  val := GetValue(ref);
+  if (isErrorCompletion(val)) {
+    return val
+  };
+  return normalEmptyCompletion(val)
+};
+
+/* Let oldValue be ToBoolean(GetValue(expr)). */
+macro ToBooleanGetValue(x, ref) {
+  val := GetValue(ref);
+  if (isErrorCompletion(val)) {
+    return val
+  };
+  x := ToBoolean(val)
+};
+
+/* If ToBoolean(GetValue(exprRef)) is false, return (normal, V, empty). */
+macro ToBooleanGetValueReturnNormalEmptyCompletion(ref) {
+  val := GetValue(ref);
+  if (isErrorCompletion(val)) {
+    return val
+  };
+  if (ToBoolean(val) = false) {
+    return normalEmptyCompletion(V)
+  }
+};
+
+/* If ToBoolean(GetValue(exprRef)) is false, set iterating to false. */
+macro ToBooleanGetValueIsFalseSetVarToFalse(x, ref) {
+  val := GetValue(ref);
+  if (isErrorCompletion(val)) {
+    return val
+  };
+  if (ToBoolean(val) = false) {
+    x := false
+  }
+};
+
+/* If ToBoolean(GetValue(exprRef)) is true, then */
+  /* a. Return the result of evaluating the first Statement. */
+/* Else, */
+  /* a. Return the result of evaluating the second Statement. */
+macro ToBooleanGetValueIfElseReturn(ref, test, stmt1, stmt2) {
+  val := GetValue(ref);
+  if (isErrorCompletion(val)) {
+    return val
+  };
+  if (ToBoolean(val) = test) {
+    return stmt1
+  } else {
+    return stmt2
+  }
+};
+
 function JS_Interpreter_Program(p) {
   /* 14 Program */
   match p with
@@ -87,21 +159,21 @@ function JS_Interpreter_Expr(e, scope) {
       if (el = null) {
         initValue := 'undefined
       } else {
-        initResult := JS_Interpreter_Expr(el, scope);
-        initValue := GetValue(initResult)
+        @JS_Interpreter_Expr_Check_Throw(initResult, el, scope);
+        @GetValue(initValue, initResult)
       };
 
-      print "ARRAY LOOP. GOT THE VALUE"; 
-      print initValue; 
+      print "ARRAY LOOP. GOT THE VALUE";
+      print initValue;
 
       descriptor := newDataPropertyDescriptorFull(initValue, true, true, true);
       {array.DefineOwnProperty}(array, ToString(ToUint32(int_to_float i)), descriptor, false);
 
-      print "Array loop: END"; 
-      print i; 
+      print "Array loop: END";
+      print i;
       i := i + 1
     };
-    
+
     return array
   }
   | { type: "ObjectExpression" } -> {
@@ -117,18 +189,18 @@ function JS_Interpreter_Expr(e, scope) {
     /* This pattern match is specific to this implementation and
        does not exist specified in the ES5 standard.
        Was created to test the assignment of a value to the Prototype of an object. */
-    objectReference := JS_Interpreter_Expr(Object, scope);
-    objectLocation := GetValue(objectReference);
-    valueReference := JS_Interpreter_Expr(Expression, scope);
-    value := GetValue(valueReference);
+    @JS_Interpreter_Expr_Check_Throw(objectReference, Object, scope);
+    @GetValue(objectLocation, objectReference);
+    @JS_Interpreter_Expr_Check_Throw(valueReference, Expression, scope);
+    @GetValue(value, valueReference);
 
     objectLocation.Prototype := value;
 
     return value
   }
   | { type: "ESLPrint", value: Argument } -> {
-    arg := JS_Interpreter_Expr(Argument, scope);
-    argValue := GetValue(arg);
+    @JS_Interpreter_Expr_Check_Throw(arg, Argument, scope);
+    @GetValue(argValue, arg);
 
     print s_concat ["JSPrint - ", argValue];
 
@@ -139,13 +211,13 @@ function JS_Interpreter_Expr(e, scope) {
 
     /* The production MemberExpression : MemberExpression [ Expression ] is evaluated as follows: */
     /* 1. Let baseReference be the result of evaluating MemberExpression. */
-    baseReference := JS_Interpreter_Expr(MemberExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(baseReference, MemberExpression, scope);
     /* 2. Let baseValue be GetValue(baseReference). */
-    baseValue := GetValue(baseReference);
+    @GetValue(baseValue, baseReference);
     /* 3. Let propertyNameReference be the result of evaluating Expression. */
-    propertyNameReference := JS_Interpreter_Expr(Expression, scope);
+    @JS_Interpreter_Expr_Check_Throw(propertyNameReference, Expression, scope);
     /* 4. Let propertyNameValue be GetValue(propertyNameReference). */
-    propertyNameValue := GetValue(propertyNameReference);
+    @GetValue(propertyNameValue, propertyNameReference);
     /* 5. Call CheckObjectCoercible(baseValue). */
     CheckObjectCoercible(baseValue);
     /* 6. Let propertyNameString be ToString(propertyNameValue). */
@@ -167,18 +239,18 @@ function JS_Interpreter_Expr(e, scope) {
     /* The production MemberExpression : new MemberExpression Arguments is evaluated as follows: */
 
     /* 1. Let ref be the result of evaluating MemberExpression. */
-    ref := JS_Interpreter_Expr(MemberExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(ref, MemberExpression, scope);
     /* 2. Let constructor be GetValue(ref). */
-    constructor := GetValue(ref);
+    @GetValue(constructor, ref);
     /* 3. Let argList be the result of evaluating Arguments, producing an internal list of argument values (11.2.4). */
     argList := JS_Interpreter_Arguments(Arguments, scope);
     /* 4. If Type(constructor) is not Object, throw a TypeError exception. */
     if (!(Type(constructor) = "Object")) {
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 5. If constructor does not implement the [[Construct]] internal method, throw a TypeError exception. */
     if (!("Construct" in_obj constructor)) {
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 6. Return the result of calling the [[Construct]] internal method on constructor, providing the list argList as the
           argument values. */
@@ -189,18 +261,18 @@ function JS_Interpreter_Expr(e, scope) {
 
     /* The production CallExpression : MemberExpression Arguments is evaluated as follows: */
     /* 1. Let ref be the result of evaluating MemberExpression. */
-    ref := JS_Interpreter_Expr(MemberExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(ref, MemberExpression, scope);
     /* 2. Let func be GetValue(ref). */
-    func := GetValue(ref);
+    @GetValue(func, ref);
     /* 3. Let argList be the result of evaluating Arguments, producing an internal list of argument values (see 11.2.4). */
     argList := JS_Interpreter_Arguments(Arguments, scope);
     /* 4. If Type(func) is not Object, throw a TypeError exception. */
     if (!(Type(func) = "Object")) {
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 5. If IsCallable(func) is false, throw a TypeError exception. */
     if (IsCallable(func) = false) {
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 6. If Type(ref) is Reference, then */
     if (Type(ref) = "Reference") {
@@ -257,18 +329,18 @@ function JS_Interpreter_Expr(e, scope) {
        evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating LogicalORExpression. */
-    lref := JS_Interpreter_Expr(LogicalORExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, LogicalORExpression, scope);
     /* 2. If ToBoolean(GetValue(lref)) is true, then */
     if (ToBoolean(GetValue(lref)) = true) {
       /* a. Let trueRef be the result of evaluating the first AssignmentExpression. */
-      trueRef := JS_Interpreter_Expr(firstAssignmentExpression, scope);
+      @JS_Interpreter_Expr_Check_Throw(trueRef, firstAssignmentExpression, scope);
       /* b. Return GetValue(trueRef). */
       return GetValue(trueRef)
     }
     /* 3. Else */
     else {
       /* a. Let falseRef be the result of evaluating the second AssignmentExpression. */
-      falseRef := JS_Interpreter_Expr(secondAssignmentExpression, scope);
+      @JS_Interpreter_Expr_Check_Throw(falseRef, secondAssignmentExpression, scope);
       /* b. Return GetValue(falseRef). */
       return GetValue(falseRef)
     }
@@ -302,8 +374,8 @@ function JS_Interpreter_Expr(e, scope) {
     lExpression := l_len Expressions;
     i := 0;
     while(i < lExpression) {
-      ref := JS_Interpreter_Expr(l_nth(Expressions, i), scope);
-      val := GetValue(ref);
+      @JS_Interpreter_Expr_Check_Throw(ref, l_nth(Expressions, i), scope);
+      @GetValue(val, ref);
 
       i := i + 1
     };
@@ -326,11 +398,11 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
     /* The production AssignmentExpression : LeftHandSideExpression = AssignmentExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating LeftHandSideExpression. */
-    lref := JS_Interpreter_Expr(LeftHandSideExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, LeftHandSideExpression, scope);
     /* 2. Let rref be the result of evaluating AssignmentExpression. */
-    rref := JS_Interpreter_Expr(AssignmentExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, AssignmentExpression, scope);
     /* 3. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 4. Throw a SyntaxError exception if the following conditions are all true: */
       /* Type(lref) is Reference is true */
     if ((Type(lref) = "Reference") &&
@@ -341,7 +413,7 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
       /* GetReferencedName(lref) is either "eval" or "arguments" */
         ((GetReferencedName(lref) = "eval") || (GetReferencedName(lref) = "arguments")))
       {
-        throw SyntaxErrorConstructorInternal()
+        return throwEmptyCompletion(SyntaxErrorConstructorInternal())
       };
     /* 5. Call PutValue(lref, rval). */
     PutValue(lref, rval);
@@ -361,13 +433,13 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
        AssignmentOperator is @= and @ represents one of the operators indicated above, is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating LeftHandSideExpression. */
-    lref :=JS_Interpreter_Expr(LeftHandSideExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, LeftHandSideExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating AssignmentExpression. */
-    rref := JS_Interpreter_Expr(AssignmentExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, AssignmentExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Let r be the result of applying operator @ to lval and rval. */
     r := applyOperator(AssignmentOperator, lval, rval);
     /* 6. Throw a SyntaxError exception if the following conditions are all true: */
@@ -380,7 +452,7 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
       /* GetReferencedName(lref) is either "eval" or "arguments" */
         ((GetReferencedName(lref) = "eval") || (GetReferencedName(lref) = "arguments")))
       {
-        throw SyntaxErrorConstructorInternal()
+        return throwEmptyCompletion(SyntaxErrorConstructorInternal())
       };
     /* 7. Call PutValue(lref, r). */
     PutValue(lref, r);
@@ -397,15 +469,15 @@ function JS_Interpreter_LogicalExpression(LogicalExpression, scope) {
     /* The production LogicalANDExpression : LogicalANDExpression && BitwiseORExpression is evaluated as follows:
 
     /* 1. Let lref be the result of evaluating LogicalANDExpression. */
-    lref := JS_Interpreter_Expr(LogicalANDExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, LogicalANDExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. If ToBoolean(lval) is false, return lval. */
     if (ToBoolean(lval) = false) {
       return lval
     };
     /* 4. Let rref be the result of evaluating BitwiseORExpression. */
-    rref := JS_Interpreter_Expr(BitwiseORExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, BitwiseORExpression, scope);
     /* 5. Return GetValue(rref). */
     return GetValue(rref)
   }
@@ -413,15 +485,15 @@ function JS_Interpreter_LogicalExpression(LogicalExpression, scope) {
     /* The production LogicalORExpression : LogicalORExpression || LogicalANDExpression is evaluated as follows:
 
     /* 1. Let lref be the result of evaluating LogicalORExpression. */
-    lref := JS_Interpreter_Expr(LogicalORExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, LogicalORExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. If ToBoolean(lval) is true, return lval. */
     if (ToBoolean(lval) = true) {
       return lval
     };
     /* 4. Let rref be the result of evaluating LogicalANDExpression. */
-    rref := JS_Interpreter_Expr(LogicalANDExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, LogicalANDExpression, scope);
     /* 5. Return GetValue(rref). */
     return GetValue(rref)
   }
@@ -435,7 +507,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* The production UnaryExpression : delete UnaryExpression is evaluated as follows: */
 
     /* 1. Let ref be the result of evaluating UnaryExpression. */
-    ref := JS_Interpreter_Expr(UnaryExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(ref, UnaryExpression, scope);
     /* 2. If Type(ref) is not Reference, return true. */
     if (!(Type(ref) = "Reference")) {
       return true
@@ -444,7 +516,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     if (IsUnresolvableReference(ref)) {
       /* a. If IsStrictReference(ref) is true, throw a SyntaxError exception. */
       if (IsStrictReference(ref) = true) {
-        throw SyntaxErrorConstructorInternal()
+        return throwEmptyCompletion(SyntaxErrorConstructorInternal())
       }
       /* b. Else, return true. */
       else {
@@ -461,7 +533,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     else {
       /* a. If IsStrictReference(ref) is true, throw a SyntaxError exception. */
       if (IsStrictReference(ref) = true) {
-        throw SyntaxErrorConstructorInternal()
+        return throwEmptyCompletion(SyntaxErrorConstructorInternal())
       };
       /* b. Let bindings be GetBase(ref). */
       bindings := GetBase(ref);
@@ -481,7 +553,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* The production UnaryExpression : void UnaryExpression is evaluated as follows: */
 
     /* 1. Let expr be the result of evaluating UnaryExpression. */
-    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(expr, UnaryExpression, scope);
     /* 2. Call GetValue(expr). */
     GetValue(expr);
     /* 3. Return undefined. */
@@ -493,7 +565,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* The production UnaryExpression : typeof UnaryExpression is evaluated as follows: */
 
     /* 1. Let val be the result of evaluating UnaryExpression. */
-    val := JS_Interpreter_Expr(UnaryExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(val, UnaryExpression, scope);
     /* 2. If Type(val) is Reference, then */
     if (Type(val) = "Reference") {
       /* a. If IsUnresolvableReference(val) is true, return "undefined". */
@@ -501,7 +573,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
         return "undefined"
       };
       /* b. Let val be GetValue(val). */
-      val := GetValue(val)
+      @GetValue(val, val)
     };
     /* 3. Return a String determined by Type(val) according to Table 20. */
     if (Type(val) = "Undefined") {
@@ -536,7 +608,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* The production UnaryExpression : ++ UnaryExpression is evaluated as follows: */
 
     /* 1. Let expr be the result of evaluating UnaryExpression. */
-    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(expr, UnaryExpression, scope);
     /* 2. Throw a SyntaxError exception if the following conditions are all true: */
     if (
       /* Type(expr) is Reference is true */
@@ -548,7 +620,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       /* GetReferencedName(expr) is either "eval" or "arguments" */
       ((GetReferencedName(expr) = "eval") || (GetReferencedName(expr) = "arguments"))
     ) {
-      throw SyntaxErrorConstructorInternal()
+      return throwEmptyCompletion(SyntaxErrorConstructorInternal())
     };
     /* 3. Let oldValue be ToNumber(GetValue(expr)). */
     oldValue := ToNumber(GetValue(expr));
@@ -566,7 +638,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* The production UnaryExpression : -- UnaryExpression is evaluated as follows: */
 
     /* 1. Let expr be the result of evaluating UnaryExpression. */
-    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(expr, UnaryExpression, scope);
     /* 2. Throw a SyntaxError exception if the following conditions are all true: */
     if (
       /* Type(expr) is Reference is true */
@@ -578,7 +650,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       /* GetReferencedName(expr) is either "eval" or "arguments" */
       ((GetReferencedName(expr) = "eval") || (GetReferencedName(expr) = "arguments"))
     ) {
-      throw SyntaxErrorConstructorInternal()
+      return throwEmptyCompletion(SyntaxErrorConstructorInternal())
     };
     /* 3. Let oldValue be ToNumber(GetValue(expr)). */
     oldValue := ToNumber(GetValue(expr));
@@ -598,7 +670,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* The production UnaryExpression : + UnaryExpression is evaluated as follows: */
 
     /* 1. Let expr be the result of evaluating UnaryExpression. */
-    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(expr, UnaryExpression, scope);
     /* 2. Return ToNumber(GetValue(expr)). */
     return ToNumber(GetValue(expr))
   }
@@ -611,7 +683,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* The production UnaryExpression : - UnaryExpression is evaluated as follows: */
 
     /* 1. Let expr be the result of evaluating UnaryExpression. */
-    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(expr, UnaryExpression, scope);
     /* 2. Let oldValue be ToNumber(GetValue(expr)). */
     oldValue := ToNumber(GetValue(expr));
     /* 3. If oldValue is NaN, return NaN. */
@@ -628,7 +700,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* The production UnaryExpression : ~ UnaryExpression is evaluated as follows: */
 
     /* Let expr be the result of evaluating UnaryExpression. */
-    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(expr, UnaryExpression, scope);
     /* Let oldValue be ToInt32(GetValue(expr)). */
     oldValue := ToInt32(GetValue(expr));
     /* Return the result of applying bitwise complement to oldValue. The result is a signed 32-bit integer. */
@@ -640,9 +712,9 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* The production UnaryExpression : ! UnaryExpression is evaluated as follows: */
 
     /* 1. Let expr be the result of evaluating UnaryExpression. */
-    expr := JS_Interpreter_Expr(UnaryExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(expr, UnaryExpression, scope);
     /* 2. Let oldValue be ToBoolean(GetValue(expr)). */
-    oldValue := ToBoolean(GetValue(expr));
+    @ToBooleanGetValue(oldValue, expr);
     /* 3. If oldValue is true, return false. */
     if (oldValue = true) {
       return false
@@ -660,7 +732,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
     /* The production PostfixExpression : LeftHandSideExpression [no LineTerminator here] ++ is evaluated as follows: */
 
     /* 1. Let lhs be the result of evaluating LeftHandSideExpression. */
-    lhs := JS_Interpreter_Expr(LeftHandSideExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lhs, LeftHandSideExpression, scope);
     /* 2. Throw a SyntaxError exception if the following conditions are all true: */
     if (
       /* Type(lhs) is Reference is true */
@@ -672,7 +744,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
       /* GetReferencedName(lhs) is either "eval" or "arguments" */
       ((GetReferencedName(lhs) = "eval") || (GetReferencedName(lhs) = "arguments"))
     ) {
-      throw SyntaxErrorConstructorInternal()
+      return throwEmptyCompletion(SyntaxErrorConstructorInternal())
     };
     /* 3. Let oldValue be ToNumber(GetValue(lhs)). */
     oldValue := ToNumber(GetValue(lhs));
@@ -690,7 +762,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
     /* The production PostfixExpression : LeftHandSideExpression [no LineTerminator here] -- is evaluated as follows: */
 
     /* 1. Let lhs be the result of evaluating LeftHandSideExpression. */
-    lhs := JS_Interpreter_Expr(LeftHandSideExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lhs, LeftHandSideExpression, scope);
     /* 2. Throw a SyntaxError exception if the following conditions are all true: */
     if (
       /* Type(lhs) is Reference is true */
@@ -702,7 +774,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
       /* GetReferencedName(lhs) is either "eval" or "arguments" */
       ((GetReferencedName(lhs) = "eval") || (GetReferencedName(lhs) = "arguments"))
     ) {
-      throw SyntaxErrorConstructorInternal()
+      return throwEmptyCompletion(SyntaxErrorConstructorInternal())
     };
     /* 3. Let oldValue be ToNumber(GetValue(lhs)). */
     oldValue := ToNumber(GetValue(lhs));
@@ -728,9 +800,9 @@ function JS_Interpreter_Arguments(ArgumentsList, scope) {
   /* 1. Let precedingArgs be the result of evaluating ArgumentList. */
   while(lArguments > i) {
     /* 2. Let ref be the result of evaluating AssignmentExpression. */
-    ref := JS_Interpreter_Expr(l_nth(ArgumentsList, i), scope);
+    @JS_Interpreter_Expr_Check_Throw(ref, l_nth(ArgumentsList, i), scope);
     /* 3. Let arg be GetValue(ref). */
-    arg := GetValue(ref);
+    @GetValue(arg, ref);
 
     args := l_add(args, arg);
 
@@ -744,7 +816,6 @@ function JS_Interpreter_Arguments(ArgumentsList, scope) {
 
 function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
   print "JS_Interpreter_FunctionDeclaration";
-  print FunctionDeclaration;
   /* 13 Function Definition */
   match FunctionDeclaration with
   | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
@@ -864,17 +935,17 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
         if (isContainedInStrictCode(scope) &&
             (IsDataPropertyDescriptor(previous) = true) &&
             (IsDataPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
-          throw SyntaxErrorConstructorInternal()
+          return throwEmptyCompletion(SyntaxErrorConstructorInternal())
         };
         /* b. IsDataDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true. */
         if ((IsDataPropertyDescriptor(previous) = true) &&
             (IsAccessorPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
-          throw SyntaxErrorConstructorInternal()
+          return throwEmptyCompletion(SyntaxErrorConstructorInternal())
         };
         /* c. IsAccessorDescriptor(previous) is true and IsDataDescriptor(propId.descriptor) is true. */
         if ((IsAccessorPropertyDescriptor(previous) = true) &&
             (IsDataPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
-          throw SyntaxErrorConstructorInternal()
+          return throwEmptyCompletion(SyntaxErrorConstructorInternal())
         };
         /* d. IsAccessorDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true and
               either both previous and propId.descriptor have [[Get]] fields or both previous and propId.descriptor
@@ -883,7 +954,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
             (IsAccessorPropertyDescriptor(getPropertyDescriptor(propId)) = true) &&
             ((("Get" in_obj previous) && (!(previous.Get = 'undefined)) && ("Get" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Get = 'undefined)) ||
              (("Set" in_obj previous) && (!(previous.Set = 'undefined)) && ("Set" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Set = 'undefined)))) {
-          throw SyntaxErrorConstructorInternal()
+          return throwEmptyCompletion(SyntaxErrorConstructorInternal())
         }
       };
 
@@ -906,9 +977,9 @@ function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) {
     /* 1. Let propName be the result of evaluating PropertyName. */
     propName := JS_Interpreter_PropertyName(PropertyName, scope);
     /* 2. Let exprValue be the result of evaluating AssignmentExpression. */
-    exprValue := JS_Interpreter_Expr(AssignmentExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(exprValue, AssignmentExpression, scope);
     /* 3. Let propValue be GetValue(exprValue). */
-    propValue := GetValue(exprValue);
+    @GetValue(propValue, exprValue);
     /* 4. Let desc be the Property Descriptor{[[Value]]: propValue, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true} */
     desc := newDataPropertyDescriptor(propValue);
     /* 5. Return Property Identifier (propName, desc). */
@@ -969,6 +1040,19 @@ function JS_Interpreter_PropertyName(PropertyName, scope) {
   }
 };
 
+macro PropagateBlockLabelSet(Block, Stmts) {
+  if ("labelSet" in_obj Block) {
+    labelSet := Block.labelSet;
+
+    s := l_nth(Stmts, 0);
+    if ("labelSet" in_obj s) {
+      s.labelSet := l_concat(s.labelSet, labelSet)
+    } else {
+      s.labelSet := labelSet
+    }
+  }
+};
+
 function JS_Interpreter_Stmt(s, scope) {
   match s with
   | { type: "BlockStatement", body: StatementList } -> {
@@ -976,6 +1060,8 @@ function JS_Interpreter_Stmt(s, scope) {
     if ((l_len StatementList) = 0) {
       return normalEmptyCompletion('empty)
     };
+
+    @PropagateBlockLabelSet(s, StatementList);
 
     return JS_Interpreter_StmtList(StatementList, scope)
   }
@@ -999,22 +1085,15 @@ function JS_Interpreter_Stmt(s, scope) {
   }
   | { type: "ExpressionStatement", expression: Expression } -> {
     /* 1. Let exprRef be the result of evaluating Expression. */
-    exprRef := JS_Interpreter_Expr(Expression, scope);
+    @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     /* 2. Return (normal, GetValue(exprRef), empty). */
-    return normalEmptyCompletion(GetValue(exprRef))
+    @ReturnCompletionGetValue(exprRef)
   }
-  | { type: "IfStatement", test: Expression, consequent: Statement1, alternate: Statement2 } -> {
-    exprRef := JS_Interpreter_Expr(Expression, scope);
-    if (ToBoolean(GetValue(exprRef))) {
-      return JS_Interpreter_Stmt(Statement1, scope)
-    }
-    else {
-      if (!(Statement2 = null)) {
-        return JS_Interpreter_Stmt(Statement2, scope)
-      };
-
-      return normalEmptyCompletion('empty)
-    }
+  | { type: "IfStatement" } -> {
+    /* 12.5 The if Statement */
+    /* Each else for which the choice of associated if is ambiguous shall be associated with the nearest possible
+       if that would otherwise have no corresponding else. */
+    return JS_Interpreter_IfStatement(s, scope)
   }
   | { type: "LabeledStatement", label: Identifier, body: Statement } -> {
     /* 12.12 Labelled Statements */
@@ -1100,7 +1179,7 @@ function JS_Interpreter_Stmt(s, scope) {
       return newCompletion('return, 'undefined, 'empty)
     };
     /* 2. Let exprRef be the result of evaluating Expression. */
-    exprRef := JS_Interpreter_Expr(Expression, scope);
+    @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     /* 3. Return (return, GetValue(exprRef), empty). */
     return newCompletion('return, GetValue(exprRef), 'empty)
   }
@@ -1114,7 +1193,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* The production WithStatement : with ( Expression ) Statement is evaluated as follows: */
 
     /* 1. Let val be the result of evaluating Expression. */
-    val := JS_Interpreter_Expr(Expression, scope);
+    @JS_Interpreter_Expr_Check_Throw(val, Expression, scope);
     /* 2. Let obj be ToObject(GetValue(val)). */
     obj := ToObject(GetValue(val));
     /* 3. Let oldEnv be the running execution context‘s LexicalEnvironment. */
@@ -1145,7 +1224,7 @@ function JS_Interpreter_Stmt(s, scope) {
   | { type: "ThrowStatement", argument: Expression } -> {
     /* 12.13 The throw Statement */
     /* 1. Let exprRef be the result of evaluating Expression. */
-    exprRef := JS_Interpreter_Expr(Expression, scope);
+    @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     /* 2. Return (throw, GetValue(exprRef), empty). */
     return newCompletion('throw, GetValue(exprRef), 'empty)
   }
@@ -1179,6 +1258,30 @@ function JS_Interpreter_Stmt(s, scope) {
     };
     /* 3. Return result. */
     return result
+  }
+};
+
+function JS_Interpreter_IfStatement(IfStatement, scope) {
+  match IfStatement with
+  | { type: "IfStatement", test: Expression, consequent: Statement, alternate: null } -> {
+    /* The production IfStatement : if ( Expression ) Statement is evaluated as follows: */
+
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
+    /* 2. If ToBoolean(GetValue(exprRef)) is false, return (normal, empty, empty). */
+    /* 3. Return the result of evaluating Statement. */
+    @ToBooleanGetValueIfElseReturn(exprRef, false, normalEmptyCompletion('empty), JS_Interpreter_Stmt(Statement, scope))
+  }
+  | { type: "IfStatement", test: Expression, consequent: Statement1, alternate: Statement2 } -> {
+    /* The production IfStatement : if ( Expression ) Statement else Statement is evaluated as follows: */
+
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
+    /* 2. If ToBoolean(GetValue(exprRef)) is true, then */
+      /* a. Return the result of evaluating the first Statement. */
+    /* 3. Else, */
+      /* a. Return the result of evaluating the second Statement. */
+    @ToBooleanGetValueIfElseReturn(exprRef, true, JS_Interpreter_Stmt(Statement1, scope), JS_Interpreter_Stmt(Statement2, scope))
   }
 };
 
@@ -1277,11 +1380,11 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
     /* The production VariableDeclaration : Identifier Initialiser is evaluated as follows: */
 
     /* 1. Let lhs be the result of evaluating Identifier as described in 11.1.2. */
-    lhs := JS_Interpreter_Expr(Identifier, scope);
+    @JS_Interpreter_Expr_Check_Throw(lhs, Identifier, scope);
     /* 2. Let rhs be the result of evaluating Initialiser. */
-    rhs := JS_Interpreter_Expr(Initialiser, scope);
+    @JS_Interpreter_Expr_Check_Throw(rhs, Initialiser, scope);
     /* 3. Let value be GetValue(rhs). */
-    value := GetValue(rhs);
+    @GetValue(value, rhs);
     /* 4. Call PutValue(lhs, value). */
     PutValue(lhs, value);
     /* 5. Return a String value containing the same sequence of characters as in the Identifier. */
@@ -1329,13 +1432,13 @@ function JS_Interpreter_BinExpr(e, scope) {
        of the operators in the above definitions, is evaluated as follows: */
 
     /* 1. Let left be the result of evaluating MultiplicativeExpression. */
-    left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(left, MultiplicativeExpression, scope);
     /* 2. Let leftValue be GetValue(left). */
-    leftValue := GetValue(left);
+    @GetValue(leftValue, left);
     /* 3. Let right be the result of evaluating UnaryExpression. */
-    right := JS_Interpreter_Expr(UnaryExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(right, UnaryExpression, scope);
     /* 4. Let rightValue be GetValue(right). */
-    rightValue := GetValue(right);
+    @GetValue(rightValue, right);
     /* 5. Let leftNum be ToNumber(leftValue). */
     leftNum := ToNumber(leftValue);
     /* 6. Let rightNum be ToNumber(rightValue). */
@@ -1364,13 +1467,13 @@ function JS_Interpreter_BinExpr(e, scope) {
        of the operators in the above definitions, is evaluated as follows: */
 
     /* 1. Let left be the result of evaluating MultiplicativeExpression. */
-    left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(left, MultiplicativeExpression, scope);
     /* 2. Let leftValue be GetValue(left). */
-    leftValue := GetValue(left);
+    @GetValue(leftValue, left);
     /* 3. Let right be the result of evaluating UnaryExpression. */
-    right := JS_Interpreter_Expr(UnaryExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(right, UnaryExpression, scope);
     /* 4. Let rightValue be GetValue(right). */
-    rightValue := GetValue(right);
+    @GetValue(rightValue, right);
     /* 5. Let leftNum be ToNumber(leftValue). */
     leftNum := ToNumber(leftValue);
     /* 6. Let rightNum be ToNumber(rightValue). */
@@ -1404,13 +1507,13 @@ function JS_Interpreter_BinExpr(e, scope) {
        of the operators in the above definitions, is evaluated as follows: */
 
     /* 1. Let left be the result of evaluating MultiplicativeExpression. */
-    left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(left, MultiplicativeExpression, scope);
     /* 2. Let leftValue be GetValue(left). */
-    leftValue := GetValue(left);
+    @GetValue(leftValue, left);
     /* 3. Let right be the result of evaluating UnaryExpression. */
-    right := JS_Interpreter_Expr(UnaryExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(right, UnaryExpression, scope);
     /* 4. Let rightValue be GetValue(right). */
-    rightValue := GetValue(right);
+    @GetValue(rightValue, right);
     /* 5. Let leftNum be ToNumber(leftValue). */
     leftNum := ToNumber(leftValue);
     /* 6. Let rightNum be ToNumber(rightValue). */
@@ -1454,17 +1557,17 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production AdditiveExpression : AdditiveExpression + MultiplicativeExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating AdditiveExpression. */
-    lref := JS_Interpreter_Expr(AdditiveExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, AdditiveExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating MultiplicativeExpression. */
-    rref := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, MultiplicativeExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Let lprim be ToPrimitive(lval). */
-    lprim := ToPrimitive(lval, "Number");
+    lprim := ToPrimitive(lval, undefined);
     /* 6. Let rprim be ToPrimitive(rval). */
-    rprim := ToPrimitive(rval, "Number");
+    rprim := ToPrimitive(rval, undefined);
     /* 7. If Type(lprim) is String or Type(rprim) is String, then */
     if ((Type(lprim) = "String") || (Type(rprim) = "String")) {
       /* a. Return the String that is the result of concatenating ToString( lprim) followed by ToString(rprim) */
@@ -1487,13 +1590,13 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production AdditiveExpression : AdditiveExpression - MultiplicativeExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating AdditiveExpression. */
-    lref := JS_Interpreter_Expr(AdditiveExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, AdditiveExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating MultiplicativeExpression. */
-    rref := JS_Interpreter_Expr(MultiplicativeExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, MultiplicativeExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Let lnum be ToNumber(lval). */
     lnum := ToNumber(lval);
     /* 6. Let rnum be ToNumber(rval). */
@@ -1511,13 +1614,13 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production ShiftExpression : ShiftExpression << AdditiveExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating ShiftExpression. */
-    lref := JS_Interpreter_Expr(ShiftExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, ShiftExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating AdditiveExpression. */
-    rref := JS_Interpreter_Expr(AdditiveExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, AdditiveExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Let lnum be ToInt32(lval). */
     lnum := ToInt32(lval);
     /* 6. Let rnum be ToUint32(rval). */
@@ -1537,13 +1640,13 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production ShiftExpression : ShiftExpression >> AdditiveExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating ShiftExpression. */
-    lref := JS_Interpreter_Expr(ShiftExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, ShiftExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating AdditiveExpression. */
-    rref := JS_Interpreter_Expr(AdditiveExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, AdditiveExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Let lnum be ToInt32(lval). */
     lnum := ToInt32(lval);
     /* 6. Let rnum be ToUint32(rval). */
@@ -1564,13 +1667,13 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production ShiftExpression : ShiftExpression >>> AdditiveExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating ShiftExpression. */
-    lref := JS_Interpreter_Expr(ShiftExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, ShiftExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating AdditiveExpression. */
-    rref := JS_Interpreter_Expr(AdditiveExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, AdditiveExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Let lnum be ToInt32(lval). */
     lnum := ToInt32(lval);
     /* 6. Let rnum be ToUint32(rval). */
@@ -1594,13 +1697,13 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production RelationalExpression : RelationalExpression < ShiftExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating RelationalExpression. */
-    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, RelationalExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating ShiftExpression. */
-    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, ShiftExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Let r be the result of performing abstract relational comparison lval < rval. (see 11.8.5) */
     r := AbstractRelationalComparison(lval, rval, true);
     /* 6. If r is undefined, return false. Otherwise, return r.*/
@@ -1616,13 +1719,13 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production RelationalExpression : RelationalExpression > ShiftExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating RelationalExpression. */
-    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, RelationalExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating ShiftExpression. */
-    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, ShiftExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Let r be the result of performing abstract relational comparison rval < lval with LeftFirst equal to false. (see 11.8.5). */
     r := AbstractRelationalComparison(rval, lval, false);
     /* 6. If r is undefined, return false. Otherwise, return r. */
@@ -1638,13 +1741,13 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production RelationalExpression : RelationalExpression <= ShiftExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating RelationalExpression. */
-    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, RelationalExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating ShiftExpression. */
-    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, ShiftExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Let r be the result of performing abstract relational comparison rval < lval with LeftFirst equal to false.
           (see 11.8.5). */
     r := AbstractRelationalComparison(rval, lval, false);
@@ -1661,15 +1764,15 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production RelationalExpression : RelationalExpression >= ShiftExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating RelationalExpression. */
-    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, RelationalExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating ShiftExpression. */
-    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, ShiftExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Let r be the result of performing abstract relational comparison lval < rval. (see 11.8.5) */
-    r := AbstractRelationalComparison(lval, rval);
+    r := AbstractRelationalComparison(lval, rval, true);
     /* 6. If r is true or undefined, return false. Otherwise, return true. */
     if ((r = true) || (r = 'undefined)) {
       return false
@@ -1683,20 +1786,20 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production RelationalExpression: RelationalExpression instanceof ShiftExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating RelationalExpression. */
-    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, RelationalExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating ShiftExpression. */
-    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, ShiftExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. If Type(rval) is not Object, throw a TypeError exception. */
     if (!(Type(rval) = "Object")) {
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 6. If rval does not have a [[HasInstance]] internal method, throw a TypeError exception. */
     if (!("HasInstance" in_obj rval)) {
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 7. Return the result of calling the [[HasInstance]] internal method of rval with argument lval. */
     return HasInstance(rval, lval)
@@ -1707,16 +1810,16 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production RelationalExpression : RelationalExpression in ShiftExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating RelationalExpression. */
-    lref := JS_Interpreter_Expr(RelationalExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, RelationalExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating ShiftExpression. */
-    rref := JS_Interpreter_Expr(ShiftExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, ShiftExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. If Type(rval) is not Object, throw a TypeError exception. */
     if (!(Type(rval) = "Object")) {
-      throw TypeErrorConstructorInternal()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     };
     /* 6. Return the result of calling the [[HasProperty]] internal method of rval with argument ToString(lval). */
     return HasProperty(rval, ToString(lval))
@@ -1733,13 +1836,13 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production EqualityExpression : EqualityExpression == RelationalExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating EqualityExpression. */
-    lref := JS_Interpreter_Expr(EqualityExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, EqualityExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating RelationalExpression. */
-    rref := JS_Interpreter_Expr(RelationalExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, RelationalExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Return the result of performing abstract equality comparison rval == lval. (see 11.9.3). */
     return AbstractEqualityComparison(rval, lval)
   }
@@ -1749,13 +1852,13 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production EqualityExpression : EqualityExpression != RelationalExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating EqualityExpression. */
-    lref := JS_Interpreter_Expr(EqualityExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, EqualityExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating RelationalExpression. */
-    rref := JS_Interpreter_Expr(RelationalExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, RelationalExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Let r be the result of performing abstract equality comparison rval == lval. (see 11.9.3). */
     r := AbstractEqualityComparison(rval, lval);
     /* 6. If r is true, return false. Otherwise, return true. */
@@ -1770,13 +1873,13 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production EqualityExpression : EqualityExpression === RelationalExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating EqualityExpression. */
-    lref := JS_Interpreter_Expr(EqualityExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, EqualityExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating RelationalExpression. */
-    rref := JS_Interpreter_Expr(RelationalExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, RelationalExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Return the result of performing the strict equality comparison rval === lval. (See 11.9.6) */
     return StrictEqualityComparison(rval, lval)
   }
@@ -1786,13 +1889,13 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* The production EqualityExpression : EqualityExpression !== RelationalExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating EqualityExpression. */
-    lref := JS_Interpreter_Expr(EqualityExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, EqualityExpression, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating RelationalExpression. */
-    rref := JS_Interpreter_Expr(RelationalExpression, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, RelationalExpression, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Let r be the result of performing strict equality comparison rval === lval. (See 11.9.6) */
     r := StrictEqualityComparison(rval, lval);
     /* 6. If r is true, return false. Otherwise, return true. */
@@ -1807,13 +1910,13 @@ function JS_Interpreter_BinExpr(e, scope) {
       follows: */
 
     /* 1. Let lref be the result of evaluating A. */
-    lref := JS_Interpreter_Expr(A, scope);
+    @JS_Interpreter_Expr_Check_Throw(lref, A, scope);
     /* 2. Let lval be GetValue(lref). */
-    lval := GetValue(lref);
+    @GetValue(lval, lref);
     /* 3. Let rref be the result of evaluating B. */
-    rref := JS_Interpreter_Expr(B, scope);
+    @JS_Interpreter_Expr_Check_Throw(rref, B, scope);
     /* 4. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
+    @GetValue(rval, rref);
     /* 5. Let lnum be ToInt32(lval). */
     lnum := ToInt32(lval);
     /* 6. Let rnum be ToInt32(rval). */
@@ -1851,11 +1954,9 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
         }
       };
       /* d. Let exprRef be the result of evaluating Expression. */
-      exprRef := JS_Interpreter_Expr(Expression, scope);
+      @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
       /* e. If ToBoolean(GetValue(exprRef)) is false, set iterating to false. */
-      if (ToBoolean(GetValue(exprRef)) = false) {
-        iterating := false
-      }
+      @ToBooleanGetValueIsFalseSetVarToFalse(iterating, exprRef)
     } until iterating = false;
     /* 4. Return (normal, V, empty); */
     return normalEmptyCompletion(V)
@@ -1867,11 +1968,9 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
     /* 2. Repeat */
     repeat {
       /* a. Let exprRef be the result of evaluating Expression. */
-      exprRef := JS_Interpreter_Expr(Expression, scope);
+      @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
       /* b. If ToBoolean(GetValue(exprRef)) is false, return (normal, V, empty). */
-      if (ToBoolean(GetValue(exprRef)) = false) {
-        return normalEmptyCompletion(V)
-      };
+      @ToBooleanGetValueReturnNormalEmptyCompletion(exprRef);
       /* c. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope);
       /* d. If stmt.value is not empty, let V = stmt.value. */
@@ -1924,7 +2023,7 @@ function JS_Interpreter_SwitchStatement(switchStmt, scope) {
   | { type: "SwitchStatement", discriminant: Expression, cases: CaseBlock, labelSet: currentLabelSet } -> {
     /* 12.11 The switch Statement */
     /* 1. Let exprRef be the result of evaluating Expression. */
-    exprRef := JS_Interpreter_Expr(Expression, scope);
+    @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     /* 2. Let R be the result of evaluating CaseBlock, passing it GetValue(exprRef) as a parameter. */
     R := JS_Interpreter_CaseBlock(CaseBlock, GetValue(exprRef), scope);
     /* 3. If R.type is break and R.target is in the current label set, return (normal, R.value, empty). */
@@ -1942,9 +2041,9 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
     /* The production IterationStatement : for ( LeftHandSideExpression in Expression ) Statement is evaluated as follows: */
 
     /* 1. Let exprRef be the result of evaluating the Expression. */
-    exprRef := JS_Interpreter_Expr(Expression, scope);
+    @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     /* 2. Let experValue be GetValue(exprRef). */
-    experValue := GetValue(exprRef);
+    @GetValue(experValue, exprRef);
     /* 3. If experValue is null or undefined, return (normal, empty, empty). */
     if ((experValue = 'null) || (experValue = 'undefined)) {
       return normalEmptyCompletion('empty)
@@ -1955,7 +2054,7 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
     V := 'empty;
     /* 6. Repeat */
     i := 0;
-    obj_enums := getEnumerableProperties(obj, []);
+    obj_enums := getEnumerableProperties(obj);
     repeat {
       /* a. Let P be the name of the next property of obj whose [[Enumerable]] attribute is true.
             If there is no such property, return (normal, V, empty). */
@@ -1965,7 +2064,7 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
         return normalEmptyCompletion(V)
       };
       /* b. Let lhsRef be the result of evaluating the LeftHandSideExpression ( it may be evaluated repeatedly). */
-      lhsRef := JS_Interpreter_Expr(LeftHandSideExpression, scope);
+      @JS_Interpreter_Expr_Check_Throw(lhsRef, LeftHandSideExpression, scope);
       /* c. Call PutValue(lhsRef, P). */
       PutValue(lhsRef, P);
       /* d. Let stmt be the result of evaluating Statement. */
@@ -1997,9 +2096,9 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
     /* 1. Let varName be the result of evaluating VariableDeclarationNoIn. */
     varName := JS_Interpreter_VarDecl(VariableDeclarationNoIn, scope);
     /* 2. Let exprRef be the result of evaluating the Expression. */
-    exprRef := JS_Interpreter_Expr(Expression, scope);
+    @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     /* 3. Let experValue be GetValue(exprRef). */
-    experValue := GetValue(exprRef);
+    @GetValue(experValue, exprRef);
     /* 4. If experValue is null or undefined, return (normal, empty, empty). */
     if ((experValue = 'null) || (experValue = 'undefined)) {
       return normalEmptyCompletion('empty)
@@ -2010,7 +2109,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
     V := 'empty;
     /* 7. Repeat */
     i := 0;
-    obj_enums := getEnumerableProperties(obj, []);
+    obj_enums := getEnumerableProperties(obj);
     repeat {
       /* a. Let P be the name of the next property of obj whose [[Enumerable]] attribute is true.
             If there is no such property, return (normal, V, empty). */
@@ -2021,7 +2120,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
       };
       /* b. Let varRef be the result of evaluating varName as if it were an Identifier Reference (11.1.2);
             it may be evaluated repeatedly. */
-      varRef := JS_Interpreter_Expr(varName, scope);
+      @JS_Interpreter_Expr_Check_Throw(varRef, varName, scope);
       /* c. Call PutValue(varRef, P). */
       PutValue(varRef, P);
       /* d. Let stmt be the result of evaluating Statement. */
@@ -2055,7 +2154,7 @@ function JS_Interpreter_ForStmt_Expr(forStmt, scope) {
     /* 1. If ExpressionNoIn is present, then. */
     if (!(ExpressionNoIn = null)) {
       /* a. Let exprRef be the result of evaluating ExpressionNoIn. */
-      exprRef := JS_Interpreter_Expr(ExpressionNoIn, scope);
+      @JS_Interpreter_Expr_Check_Throw(exprRef, ExpressionNoIn, scope);
       /* b. Call GetValue(exprRef). (This value is not used but the call may have side-effects.) */
       GetValue(exprRef)
     };
@@ -2066,11 +2165,9 @@ function JS_Interpreter_ForStmt_Expr(forStmt, scope) {
       /* a. If the first Expression is present, then */
       if (!(Expression1 = null)) {
         /* i. Let testExprRef be the result of evaluating the first Expression. */
-        testExprRef := JS_Interpreter_Expr(Expression1, scope);
+        @JS_Interpreter_Expr_Check_Throw(testExprRef, Expression1, scope);
         /* ii. If ToBoolean(GetValue(testExprRef)) is false, return (normal, V, empty). */
-        if (ToBoolean(GetValue(testExprRef)) = false) {
-          return normalEmptyCompletion(V)
-        }
+        @ToBooleanGetValueReturnNormalEmptyCompletion(testExprRef)
       };
       /* b. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope);
@@ -2092,7 +2189,7 @@ function JS_Interpreter_ForStmt_Expr(forStmt, scope) {
       /* f. If the second Expression is present, then */
       if (!(Expression2 = null)) {
         /* i. Let incExprRef be the result of evaluating the second Expression. */
-        incExprRef := JS_Interpreter_Expr(Expression2, scope);
+        @JS_Interpreter_Expr_Check_Throw(incExprRef, Expression2, scope);
         /* ii. Call GetValue(incExprRef). (This value is not used.) */
         GetValue(incExprRef)
       }
@@ -2116,11 +2213,9 @@ function JS_Interpreter_ForStmt_VarDecl(forStmt, scope) {
       /* a. If the first Expression is present, then */
       if (!(Expression1 = null)) {
         /* i. Let testExprRef be the result of evaluating the first Expression. */
-        testExprRef := JS_Interpreter_Expr(Expression1, scope);
+        @JS_Interpreter_Expr_Check_Throw(testExprRef, Expression1, scope);
         /* ii. If ToBoolean(GetValue(testExprRef)) is false, return (normal, V, empty). */
-        if (ToBoolean(GetValue(testExprRef)) = false) {
-          return normalEmptyCompletion(V)
-        }
+        @ToBooleanGetValueReturnNormalEmptyCompletion(testExprRef)
       };
       /* b. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope);
@@ -2142,7 +2237,7 @@ function JS_Interpreter_ForStmt_VarDecl(forStmt, scope) {
       /* f. If the second Expression is present, then */
       if (!(Expression2 = null)) {
         /* i. Let incExprRef be the result of evaluating the second Expression. */
-        incExprRef := JS_Interpreter_Expr(Expression2, scope);
+        @JS_Interpreter_Expr_Check_Throw(incExprRef, Expression2, scope);
         /* ii. Call GetValue(incExprRef). (This value is not used.) */
         GetValue(incExprRef)
       }
@@ -2340,6 +2435,7 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
 function JS_Interpreter_SwitchCase(switchCase, scope) {
   match switchCase with
   | { type: "SwitchCase", test: Expression } -> {
-    return JS_Interpreter_Expr(Expression, scope)
+    @JS_Interpreter_Expr_Check_Throw(ref, Expression, scope);
+    return ref
   }
 }
