@@ -1,0 +1,368 @@
+/* 15.8 The Math Object */
+
+function initMathObject(globalObject, ObjectPrototype, strict) {
+  /* The Math object is a single object that has some named properties, some of which are functions. */
+  MathObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(MathObject);
+  /* The value of the [[Prototype]] internal property of the Math object is the standard built-in Object prototype
+    object (15.2.4). The value of the [[Class]] internal property of the Math object is "Math". */
+  setInternalProperty(MathObject, "Prototype", ObjectPrototype);
+  setInternalProperty(MathObject, "Class", "Math");
+
+  /* 15.8.1 Value Properties of the Math Object */
+  setValuePropertiesOfMathObject(MathObject);
+  /* 15.8.2 Function Properties of the Math Object */
+  setFunctionPropertiesOfMathObject(MathObject, globalObject, strict);
+
+  /* The Math object does not have a [[Construct]] internal property; it is not possible to use the Math object as a
+    constructor with the new operator. */
+
+  /* The Math object does not have a [[Call]] internal property; it is not possible to invoke the Math object as a
+    function. */
+
+  /* NOTE In this specification, the phrase "the Number value for x" has a technical meaning defined in 8.5. */
+
+  return MathObject
+};
+
+/* 15.8.1 Value Properties of the Math Object */
+function setValuePropertiesOfMathObject(mathObject) {
+
+  return
+};
+
+/* 15.8.2 Function Properties of the Math Object */
+function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
+  /* Each of the following Math object functions applies the ToNumber abstract operator to each of its arguments
+     (in left-to-right order if there is more than one) and then performs a computation on the resulting Number
+     value(s). */
+
+  /* In the function descriptions below, the symbols NaN, -0, +0, -Infinity and +Infinity refer to the Number
+     values described in 8.5. */
+
+  /* NOTE The behaviour of the functions acos, asin, atan, atan2, cos, exp, log, pow, sin, sqrt, and tan is not
+          precisely specified here except to require specific results for certain argument values that represent boundary cases of
+          interest. For other argument values, these functions are intended to compute approximations to the results of familiar
+          mathematical functions, but some latitude is allowed in the choice of approximation algorithms. The general intent is that
+          an implementer should be able to use the same mathematical library for ECMAScript on a given hardware platform that is
+          available to C programmers on that platform. */
+
+       /* Although the choice of algorithms is left to the implementation, it is recommended (but not specified by this standard) that
+          implementations use the approximation algorithms for IEEE 754 arithmetic contained in fdlibm, the freely distributable
+          mathematical library from Sun Microsystems (http://www.netlib.org/fdlibm). */
+
+  /* 15.8.2.1 abs (x) */
+  /* abs_fo := CreateFunctionObject(["x"], "MathAbs", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "abs", abs_fo); */
+  /* 15.8.2.2 acos (x) */
+  /* acos_fo := CreateFunctionObject(["x"], "MathACos", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "acos", acos_fo); */
+  /* 15.8.2.3 asin (x) */
+  /* asin_fo := CreateFunctionObject(["x"], "MathASin", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "asin", asin_fo); */
+  /* 15.8.2.4 atan (x) */
+  /* atan_fo := CreateFunctionObject(["x"], "MathATan", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "atan", atan_fo); */
+  /* 15.8.2.5 atan2 (y, x) */
+  /* atan2_fo := CreateFunctionObject(["y", "x"], "MathATan2", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "atan2", atan2_fo); */
+  /* 15.8.2.6 ceil (x) */
+  /* ceil_fo := CreateFunctionObject(["x"], "MathCeil", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "ceil", ceil_fo); */
+  /* 15.8.2.7 cos (x) */
+  /* cos_fo := CreateFunctionObject(["x"], "MathCos", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "cos", cos_fo); */
+  /* 15.8.2.8 exp (x) */
+  /* exp_fo := CreateFunctionObject(["x"], "MathExp", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "exp", exp_fo); */
+  /* 15.8.2.9 floor (x) */
+  floor_fo := CreateFunctionObject(["x"], "MathFloor", globalObject, strict);
+  createBuiltInProperty(mathObject, "floor", floor_fo);
+  /* 15.8.2.10 log (x) */
+  /* log_fo := CreateFunctionObject(["x"], "MathLog", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "log", log_fo); */
+  /* 15.8.2.11 max ( [ value1 [ , value2 [ , ... ] ] ] ) */
+  /* max_fo := CreateFunctionObject(["values"], "MathMax", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "max", max_fo); */
+  /* 15.8.2.12 min ( [ value1 [ , value2 [ , ... ] ] ] ) */
+  /* min_fo := CreateFunctionObject(["values"], "MathMin", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "min", min_fo); */
+  /* 15.8.2.13 pow (x, y) */
+  /* pow_fo := CreateFunctionObject(["x", "y"], "MathPow", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "pow", pow_fo); */
+  /* 15.8.2.14 random ( ) */
+  /* random_fo := CreateFunctionObject([], "MathRandom", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "random", random_fo); */
+  /* 15.8.2.15 round (x) */
+  /* round_fo := CreateFunctionObject(["x"], "MathRound", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "round", round_fo); */
+  /* 15.8.2.16 sin (x) */
+  /* sin_fo := CreateFunctionObject(["x"], "MathSin", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "sin", sin_fo); */
+  /* 15.8.2.17 sqrt (x) */
+  /* sqrt_fo := CreateFunctionObject(["x"], "MathSqrt", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "sqrt", sqrt_fo); */
+  /* 15.8.2.18 tan (x) */
+  /* tan_fo := CreateFunctionObject(["x"], "MathTan", globalObject, strict); */
+  /* createBuiltInProperty(mathObject, "tan", tan_fo); */
+
+  return
+};
+
+/* 15.8.2.1 abs (x) */
+function MathAbs(globalObject, this, stric, params) {
+  /* Returns the absolute value of x; the result has the same magnitude as x but has positive sign. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is -0, the result is +0. */
+  /* If x is -Infinity, the result is +Infinity. */
+
+  return
+};
+
+/* 15.8.2.2 acos (x) */
+function MathACos(globalObject, this, stric, params) {
+  /* Returns an implementation-dependent approximation to the arc cosine of x. The result is expressed in radians
+     and ranges from +0 to +pi. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is greater than 1, the result is NaN. */
+  /* If x is less than -1, the result is NaN. */
+  /* If x is exactly 1, the result is +0. */
+  return
+};
+
+/* 15.8.2.3 asin (x) */
+function MathASin(globalObject, this, stric, params) {
+  /* Returns an implementation-dependent approximation to the arc sine of x. The result is expressed in radians
+     and ranges from -pi/2 to +pi/2. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is greater than 1, the result is NaN. */
+  /* If x is less than –1, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is -0, the result is -0. */
+  return
+};
+
+/* 15.8.2.4 atan (x) */
+function MathATan(globalObject, this, stric, params) {
+  /* Returns an implementation-dependent approximation to the arc tangent of x. The result is expressed in
+     radians and ranges from -pi/2 to +pi/2. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is -0, the result is -0. */
+  /* If x is +Infinity, the result is an implementation-dependent approximation to +pi/2. */
+  /* If x is -Infinity, the result is an implementation-dependent approximation to -pi/2. */
+  return
+};
+
+/* 15.8.2.5 atan2 (y, x) */
+function MathATan2(globalObject, this, stric, params) {
+  /* Returns an implementation-dependent approximation to the arc tangent of the quotient y/x of the arguments y
+     and x, where the signs of y and x are used to determine the quadrant of the result. Note that it is intentional
+     and traditional for the two-argument arc tangent function that the argument named y be first and the argument
+     named x be second. The result is expressed in radians and ranges from -pi to +pi. */
+  /* If either x or y is NaN, the result is NaN. */
+  /* If y>0 and x is +0, the result is an implementation-dependent approximation to +pi/2. */
+  /* If y>0 and x is -0, the result is an implementation-dependent approximation to +pi/2. */
+  /* If y is +0 and x>0, the result is +0. */
+  /* If y is +0 and x is +0, the result is +0. */
+  /* If y is +0 and x is -0, the result is an implementation-dependent approximation to +pi. */
+  /* If y is +0 and x<0, the result is an implementation-dependent approximation to +pi. */
+  /* If y is -0 and x>0, the result is -0. */
+  /* If y is -0 and x is +0, the result is -0. */
+  /* If y is -0 and x is -0, the result is an implementation-dependent approximation to -pi. */
+  /* If y is -0 and x<0, the result is an implementation-dependent approximation to -pi. */
+  /* If y<0 and x is +0, the result is an implementation-dependent approximation to -pi/2. */
+  /* If y<0 and x is -0, the result is an implementation-dependent approximation to -pi/2. */
+  /* If y>0 and y is finite and x is +Infinity, the result is +0. */
+  /* If y>0 and y is finite and x is -Infinity, the result if an implementation-dependent approximation to +pi. */
+  /* If y<0 and y is finite and x is +Infinity, the result is -0. */
+  /* If y<0 and y is finite and x is -Infinity, the result is an implementation-dependent approximation to -pi. */
+  /* If y is +Infinity and x is finite, the result is an implementation-dependent approximation to +pi/2. */
+  /* If y is -Infinity and x is finite, the result is an implementation-dependent approximation to -pi/2. */
+  /* If y is +Infinity and x is +Infinity, the result is an implementation-dependent approximation to +pi/4. */
+  /* If y is +Infinity and x is -Infinity, the result is an implementation-dependent approximation to +3pi/4. */
+  /* If y is -Infinity and x is +Infinity, the result is an implementation-dependent approximation to -pi/4. */
+  /* If y is -Infinity and x is -Infinity, the result is an implementation-dependent approximation to -3pi/4. */
+  return
+};
+
+/* 15.8.2.6 ceil (x) */
+function MathCeil(globalObject, this, stric, params) {
+  /* Returns the smallest (closest to -Infinity) Number value that is not less than x and is equal to a mathematical
+     integer. If x is already an integer, the result is x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is -0, the result is -0. */
+  /* If x is +Infinity, the result is +Infinity. */
+  /* If x is -Infinity, the result is -Infinity. */
+  /* If x is less than 0 but greater than -1, the result is -0. */
+  return
+};
+
+/* 15.8.2.7 cos (x) */
+function MathCos(globalObject, this, stric, params) {
+  /* Returns an implementation-dependent approximation to the cosine of x. The argument is expressed in radians. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is 1. */
+  /* If x is -0, the result is 1. */
+  /* If x is +Infinity, the result is NaN. */
+  /* If x is -Infinity, the result is NaN. */
+  return
+};
+
+/* 15.8.2.8 exp (x) */
+function MathExp(globalObject, this, stric, params) {
+  /* Returns an implementation-dependent approximation to the exponential function of x (e raised to the power of
+     x, where e is the base of the natural logarithms). */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is 1. */
+  /* If x is -0, the result is 1. */
+  /* If x is +Infinity, the result is +Infinity. */
+  /* If x is -Infinity, the result is +0. */
+  return
+};
+
+/* 15.8.2.9 floor (x) */
+function MathFloor(globalObject, this, stric, params) {
+  assert (l_len params) > 0;
+  x := l_nth (params, 0);
+  x := ToNumber(x);
+
+  /* Returns the greatest (closest to +Infinity) Number value that is not greater than x and is equal to a mathematical
+     integer. If x is already an integer, the result is x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is -0, the result is -0. */
+  /* If x is +Infinity, the result is +Infinity. */
+  /* If x is -Infinity, the result is -Infinity. */
+  /* If x is greater than 0 but less than 1, the result is +0. */
+  return floor(x)
+
+  /* NOTE The value of Math.floor(x) is the same as the value of -Math.ceil(-x). */
+};
+
+/* 15.8.2.10 log (x) */
+function MathLog(globalObject, this, stric, params) {
+  /* Returns an implementation-dependent approximation to the natural logarithm of x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is less than 0, the result is NaN. */
+  /* If x is +0 or -0, the result is -Infinity. */
+  /* If x is 1, the result is +0. */
+  /* If x is +Infinity, the result is +Infinity. */
+  return
+};
+
+/* 15.8.2.11 max ( [ value1 [ , value2 [ , ... ] ] ] ) */
+function MathMax(globalObject, this, stric, params) {
+  /* Given zero or more arguments, calls ToNumber on each of the arguments and returns the largest of the
+     resulting values. */
+  /* If no arguments are given, the result is -Infinity. */
+  /* If any value is NaN, the result is NaN. */
+  /* The comparison of values to determine the largest value is done as in 11.8.5 except that +0 is considered to
+     be larger than -0. */
+
+  /* The length property of the max method is 2. */
+  return
+};
+
+/* 15.8.2.12 min ( [ value1 [ , value2 [ , ... ] ] ] ) */
+function MathMin(globalObject, this, stric, params) {
+  /* Given zero or more arguments, calls ToNumber on each of the arguments and returns the smallest of the
+     resulting values. */
+  /* If no arguments are given, the result is +Infinity. */
+  /* If any value is NaN, the result is NaN. */
+  /* The comparison of values to determine the smallest value is done as in 11.8.5 except that +0 is considered
+     to be larger than -0. */
+  /* The length property of the min method is 2. */
+  return
+};
+
+/* 15.8.2.13 pow (x, y) */
+function MathPow(globalObject, this, stric, params) {
+  /* Returns an implementation-dependent approximation to the result of raising x to the power y. */
+  /* If y is NaN, the result is NaN. */
+  /* If y is +0, the result is 1, even if x is NaN. */
+  /* If y is -0, the result is 1, even if x is NaN. */
+  /* If x is NaN and y is nonzero, the result is NaN. */
+  /* If abs(x)>1 and y is +Infinity, the result is +Infinity. */
+  /* If abs(x)>1 and y is -Infinity, the result is +0. */
+  /* If abs(x)==1 and y is +Infinity, the result is NaN. */
+  /* If abs(x)==1 and y is -Infinity, the result is NaN. */
+  /* If abs(x)<1 and y is +Infinity, the result is +0. */
+  /* If abs(x)<1 and y is -Infinity, the result is +Infinity. */
+  /* If x is +Infinity and y>0, the result is +Infinity. */
+  /* If x is +Infinity and y<0, the result is +0. */
+  /* If x is -Infinity and y>0 and y is an odd integer, the result is -Infinity. */
+  /* If x is -Infinity and y>0 and y is not an odd integer, the result is +Infinity. */
+  /* If x is -Infinity and y<0 and y is an odd integer, the result is -0. */
+  /* If x is -Infinity and y<0 and y is not an odd integer, the result is +0. */
+  /* If x is +0 and y>0, the result is +0. */
+  /* If x is +0 and y<0, the result is +Infinity. */
+  /* If x is -0 and y>0 and y is an odd integer, the result is -0. */
+  /* If x is -0 and y>0 and y is not an odd integer, the result is +0. */
+  /* If x is -0 and y<0 and y is an odd integer, the result is -Infinity. */
+  /* If x is -0 and y<0 and y is not an odd integer, the result is +Infinity. */
+  /* If x<0 and x is finite and y is finite and y is not an integer, the result is NaN. */
+  return
+};
+
+/* 15.8.2.14 random ( ) */
+function MathRandom(globalObject, this, stric, params) {
+  /* Returns a Number value with positive sign, greater than or equal to 0 but less than 1, chosen randomly or
+     pseudo randomly with approximately uniform distribution over that range, using an implementation-dependent
+     algorithm or strategy. This function takes no arguments. */
+  return
+};
+
+/* 15.8.2.15 round (x) */
+function MathRound(globalObject, this, stric, params) {
+  /* Returns the Number value that is closest to x and is equal to a mathematical integer. If two integer Number
+     values are equally close to x, then the result is the Number value that is closer to +Infinity. If x is already an integer,
+     the result is x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is -0, the result is -0. */
+  /* If x is +Infinity, the result is +Infinity. */
+  /* If x is -Infinity, the result is -Infinity. */
+  /* If x is greater than 0 but less than 0.5, the result is +0. */
+  /* If x is less than 0 but greater than or equal to -0.5, the result is -0. */
+
+  /* NOTE 1 Math.round(3.5) returns 4, but Math.round(–3.5) returns –3. */
+
+  /* NOTE 2 The value of Math.round(x) is the same as the value of Math.floor(x+0.5), except when x is -0 or is
+            less than 0 but greater than or equal to -0.5; for these cases Math.round(x) returns -0, but Math.floor(x+0.5)
+            returns +0. */
+  return
+};
+
+/* 15.8.2.16 sin (x) */
+function MathSin(globalObject, this, stric, params) {
+  /* Returns an implementation-dependent approximation to the sine of x. The argument is expressed in radians. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is -0, the result is -0. */
+  /* If x is +Infinity or -Infinity, the result is NaN. */
+  return
+};
+
+/* 15.8.2.17 sqrt (x) */
+function MathSqrt(globalObject, this, stric, params) {
+  /* Returns an implementation-dependent approximation to the square root of x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is less than 0, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is -0, the result is -0. */
+  /* If x is +Infinity, the result is +Infinity. */
+  return
+};
+
+/* 15.8.2.18 tan (x) */
+function MathTan(globalObject, this, stric, params) {
+  /* Returns an implementation-dependent approximation to the tangent of x. The argument is expressed in
+     radians. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is -0, the result is -0. */
+  /* If x is +Infinity or -Infinity, the result is NaN. */
+  return
+}
