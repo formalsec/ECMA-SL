@@ -215,7 +215,7 @@ function traverse(callback, obj) {
 
     case "CatchClause": {
       const resultParam = traverse(callback, obj.param);
-      const resultBlock = traverse(callback, obj.block);
+      const resultBlock = traverse(callback, obj.body);
 
       resultData = resultParam.data.concat(resultBlock.data);
       break;
