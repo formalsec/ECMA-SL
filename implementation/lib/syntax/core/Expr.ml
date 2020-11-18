@@ -14,7 +14,8 @@ let rec str (e : t) : string =
   | BinOpt (op, e1, e2) -> (Oper.str_of_binopt op (str e1) (str e2))
   | NOpt (op, es)       -> (Oper.str_of_nopt op (List.map str es))
 
-
+let rec js (e : t) : string =
+  "missing js"
 
 
 let rec vars (exp:t): string list =

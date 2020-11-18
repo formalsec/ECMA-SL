@@ -1,44 +1,19 @@
 (*Each monitor is independent of the other ones*)
 exception Except of string
+open NSU_CompilerConstants
 
 module M (SL : SecurityLevel.M) = struct 
 
-let _SHADOW_FUN_NAME_ = "shadow"
 
-
-let mk_fresh_var (str : string) : (unit -> string)=
-  let counter = ref 0 in
-  let rec f () =
-    (let v = str ^ (string_of_int !counter) in
-    counter := !counter +1;
-    v)
-  in f
-
-let fresh_var  = mk_fresh_var "_freshvar_"
-let fresh_var_lev = mk_fresh_var "_freshvar_lev_"
-let fresh_expr_lev = mk_fresh_var "_fresh_lev_var"
-let fresh_obj  = mk_fresh_var "_freshobj_"
-let fresh_field  = mk_fresh_var "_freshfield_"
-let fresh_field_lev  = mk_fresh_var "_freshfield_lev_"
-
-let mk_fresh_pc (): (unit -> string)=
-  let counterpc = ref 1 in
-  let rec f () =
-    (let v = "_pc_" ^ (string_of_int !counterpc) in
-    counterpc := !counterpc +1;
-    v)
-  in f
-
-let  fresh_pc  = mk_fresh_pc ()
 (*
 let level_list (list:string list) : Expr.t=
 match list with
 |[]-> Expr.Val (Val.Str (SL.str (SL.get_low ())))
-|_-> let ac = List.fold_left (fun ac s -> Expr.BinOpt (Oper.Lub ,ac ,(Expr.Var (Val.shadowvar s))) ) (Expr.Val (Val.Str (SL.str (SL.get_low ())))) list in
+|_-> let ac = List.fold_left (fun ac s -> Expr.BinOpt (Oper.Lub ,ac ,(Expr.Var (shadowvar s))) ) (Expr.Val (Val.Str (SL.str (SL.get_low ())))) list in
 ac
 *)
 
-let shadow_var_e (s : string) : Expr.t = Expr.Var (Val.shadowvar s)
+let shadow_var_e (s : string) : Expr.t = Expr.Var (shadowvar s)
 
 let binopt_e (op : Oper.bopt) (e1 : Expr.t) (e2: Expr.t) : Expr.t = Expr.BinOpt (op, e1, e2)
 
@@ -48,11 +23,11 @@ let shadow_fun_e () : Expr.t = Expr.Val (Val.Str _SHADOW_FUN_NAME_)
 
 let block_s (stmts : Stmt.t list) : Stmt.t = Stmt.Block stmts
 
-let lub_func () : Expr.t = Expr.Val (Val.Str "lub")
+let lub_func () : Expr.t = Expr.Val (Val.Str _LUB_)
 
-let lubn_func () : Expr.t = Expr.Val (Val.Str "lubn")
+let lubn_func () : Expr.t = Expr.Val (Val.Str _LUBN_)
 
-let leq_func () : Expr.t = Expr.Val (Val.Str "leq") 
+let leq_func () : Expr.t = Expr.Val (Val.Str _LEQ_) 
 
 let c_expr (e : Expr.t) : Stmt.t * string =
   let xs = Expr.vars e in
@@ -111,17 +86,17 @@ let c_fieldlookup (pc : string) (x : string) (e_o : Expr.t) (e_f : Expr.t) : Stm
     Stmt.AssignCall (f_shadow, shadow_fun_e (), [Expr.Var x_f]);
     Stmt.FieldLookup (x_f_lev, Expr.Var x_o, Expr.Var f_shadow);
     Stmt.AssignCall (lub_1, lubn_func (), [Expr.Var x_1_lev; Expr.Var x_2_lev; (Expr.Var pc)]);
-    Stmt.AssignCall (leq_1, leq_func (), [Expr.Var lub_1; Expr.Var (Val.shadowvar x)]);
+    Stmt.AssignCall (leq_1, leq_func (), [Expr.Var lub_1; Expr.Var (shadowvar x)]);
     Stmt.If (Expr.Var leq_1, 
     Stmt.Block ([
       Stmt.AssignCall (lub_2, lub_func (), [Expr.Var x_f_lev; Expr.Var lub_1]);
-      Stmt.Assign (Val.shadowvar x, Expr.Var lub_2);
+      Stmt.Assign (shadowvar x, Expr.Var lub_2);
       FieldLookup (x, Expr.Var x_o, Expr.Var x_f)
       ]
-   ), 
-    Some (Stmt.Block ([
-      Stmt.Exception ("Illegal Field Lookup")
-      ])))] in
+    ), 
+      Some (Stmt.Block ([
+        Stmt.Exception ("Illegal Field Lookup")
+        ])))] in
 
     assigns
 
@@ -211,7 +186,7 @@ let c_assign (pc : string) (x : string) (e : Expr.t) : Stmt.t list=
   let st1 = 
   Stmt.Block ([
     stmt_e;
-    Stmt.AssignCall (Val.shadowvar x, lub_func (), [Expr.Var pc; Expr.Var x_e_lev]); 
+    Stmt.AssignCall (shadowvar x, lub_func (), [Expr.Var pc; Expr.Var x_e_lev]); 
     Stmt.Assign (x,e)
   ]) in
   [
@@ -246,7 +221,7 @@ let c_assigncall (pc : string) (x : string) (f : Expr.t) (args : Expr.t list) : 
   let st1 = ([
     Stmt.AssignCall (res, f , (new_args @ [Expr.Var pc])); 
     Stmt.Assign (x, (Expr.UnOpt (Oper.First ,Expr.Var res)));
-    Stmt.Assign (Val.shadowvar x, (Expr.UnOpt (Oper.Second, Expr.Var res)))
+    Stmt.Assign (shadowvar x, (Expr.UnOpt (Oper.Second, Expr.Var res)))
   ]) in 
   stmt_args @
   [ 
@@ -290,8 +265,8 @@ C(x:={})=
 *)
 let c_assignnewobj (pc : string) (x : string) : Stmt.t list =
   [Stmt.AssignNewObj x;
-  Stmt.FieldAssign (Expr.Var x, Expr.Var ("struct_lev"), Expr.Var pc);  (*CONSTS*)
-  Stmt.FieldAssign (Expr.Var x, Expr.Var ("object_lev"), Expr.Var pc);]
+  Stmt.FieldAssign (Expr.Var x, Expr.Var _OBJ_STRUCT_LEV_PROP_, Expr.Var pc);
+  Stmt.FieldAssign (Expr.Var x, Expr.Var _OBJ_VALUE_LEV_PROP_, Expr.Var pc)]
 
 
 (*
@@ -354,15 +329,15 @@ let c_fieldassign (pc : string) (e_o : Expr.t) (e_f : Expr.t) (e_v : Expr.t) : S
     stmt_x_f;
     stmt_x_v;
     Stmt.AssignCall (ctx, lubn_func (), [Expr.Var x_o_lev; Expr.Var x_f_lev; (Expr.Var pc)]);
-    Stmt.AssignCall(prop_val_lev_name, Expr.Val (Val.Str "propVal"), [x_f]);
+    Stmt.AssignCall(prop_val_lev_name, Expr.Val (Val.Str _SHADOW_PROP_VALUE_), [x_f]);
     Stmt.FieldLookup(prop_val_lev, x_o, Expr.Var prop_val_lev_name);
     Stmt.If (binopt_e Oper.Equal (Expr.Var prop_val_lev) (Expr.Val (Val.Null)),
       Stmt.Block ([ 
-        Stmt.FieldLookup (struct_lev, x_o, (Expr.Var "struct_lev"));
+        Stmt.FieldLookup (struct_lev, x_o, (Expr.Var _OBJ_STRUCT_LEV_PROP_));
         Stmt.AssignCall (leq_1, leq_func (), [Expr.Var ctx; Expr.Var struct_lev]);
         Stmt.If(Expr.Var leq_1,
           Stmt.Block([
-            Stmt.AssignCall (prop_exists_lev_name, Expr.Val (Val.Str "propExists"), [x_f]);
+            Stmt.AssignCall (prop_exists_lev_name, Expr.Val (Val.Str _SHADOW_PROP_EXISTS_), [x_f]);
             Stmt.AssignCall (lub_1, lub_func (), [Expr.Var ctx; Expr.Var x_v_lev]); 
             Stmt.FieldAssign (x_o, Expr.Var prop_val_lev_name, Expr.Var lub_1);
             Stmt.FieldAssign (x_o, Expr.Var prop_exists_lev_name, Expr.Var ctx)]) ,
@@ -418,7 +393,7 @@ let c_fielddelete (pc : string) (e_o : Expr.t) (e_f : Expr.t) : Stmt.t list =
    stmt_x_o;
    stmt_x_f;
    Stmt.AssignCall (ctx, lubn_func (), [Expr.Var x_o_lev; Expr.Var x_f_lev; Expr.Var pc ]);
-   Stmt.AssignCall (prop_exists_lev_name, Expr.Val (Val.Str "propExists"), [x_f]);
+   Stmt.AssignCall (prop_exists_lev_name, Expr.Val (Val.Str _SHADOW_PROP_EXISTS_), [x_f]);
    Stmt.FieldLookup (prop_exists_lev, x_o, Expr.Var prop_exists_lev_name);
    Stmt.If(binopt_e Oper.Equal (Expr.Var prop_exists_lev) (Expr.Val (Val.Null)),
    Stmt.Block [
@@ -474,19 +449,50 @@ let c_assinginobjcheck (pc : string) (x : string) (e_f : Expr.t) (e_o : Expr.t) 
     stmt_x_o;
     stmt_x_f;
     Stmt.AssignCall (ctx, lubn_func (), [Expr.Var x_o_lev; Expr.Var x_f_lev; Expr.Var pc]);
-    Stmt.AssignCall (prop_exists_lev_name,Expr.Val (Val.Str "propExists"), [x_f]);
+    Stmt.AssignCall (prop_exists_lev_name,Expr.Val (Val.Str _SHADOW_PROP_EXISTS_), [x_f]);
     Stmt.FieldLookup (prop_exists_lev, x_o, Expr.Var prop_exists_lev_name);
-    Stmt.FieldLookup (struct_lev, x_o, (Expr.Var "struct_lev"));
+    Stmt.FieldLookup (struct_lev, x_o, (Expr.Var _OBJ_STRUCT_LEV_PROP_));
     Stmt.AssignCall (leq_1, leq_func (), [Expr.Var ctx; shadow_var_e x]);
     Stmt.If (Expr.Var leq_1, 
     Stmt.Block ([
       Stmt.If (binopt_e Oper.Equal (Expr.Var prop_exists_lev) (Expr.Val (Val.Null)),
-        Stmt.AssignCall (Val.shadowvar x, lub_func (), [Expr.Var ctx; Expr.Var struct_lev]),
+        Stmt.AssignCall (shadowvar x, lub_func (), [Expr.Var ctx; Expr.Var struct_lev]),
         Some ( 
-        Stmt.AssignCall (Val.shadowvar x, lub_func (), [Expr.Var ctx; Expr.Var prop_exists_lev])))
+        Stmt.AssignCall (shadowvar x, lub_func (), [Expr.Var ctx; Expr.Var prop_exists_lev])))
     ]), Some ( Stmt.Exception "Illegal Assignment"));
     Stmt.AssignInObjCheck (x, x_f, x_o)
   ]
+
+
+(*
+  x_shadow = shadow(x)
+  ret_shadow = shadow(ret)
+  leq_1 lub_1 fresh
+  __________________________
+  C(ret := upgVar(x, lev_str))=
+    lev := parse_lvl(lev_str);
+    x_shadow := lev;
+    ret_shadow := pc;
+    ret := null
+
+
+*)
+let c_upgVar (pc : string) (ret : string) (x_name : string) (lev_str : string) : Stmt.t list =
+  let x_shadow = shadowvar x_name in
+  let ret_shadow = shadowvar ret in
+  let leq_1 = fresh_var () in
+    [
+      Stmt.AssignCall (leq_1, leq_func (), [Expr.Var pc; shadow_var_e x_name]);
+      Stmt.If (Expr.Var leq_1,
+          Stmt.AssignCall (x_shadow, lub_func (), [shadow_var_e x_name; Expr.Var pc]),
+          Some (
+            Stmt.Exception "Illegal UpgVarLab"
+          )
+        );
+      Stmt.Assign (ret_shadow, Expr.Var pc);
+      Stmt.Return (Expr.NOpt (Oper.TupleExpr, [Expr.Val (Val.Null); Expr.Var ret_shadow]))
+    ]  
+
 
 
 
@@ -514,6 +520,8 @@ let rec compile (pc:string) (stmt: Stmt.t ): Stmt.t list=
       let pc' = fresh_var () in
       let stmts = compile pc' s in
       c_while pc pc' e stmts
+
+    | AssignCall (ret, Expr.Val (Val.Str f), [Expr.Val (Val.Str x_name); Expr.Val (Val.Str lev_str)]) when f = _upgVar_ -> c_upgVar pc ret x_name lev_str
 
     | AssignCall (x,f,args) -> c_assigncall pc x f args
 
@@ -555,9 +563,9 @@ let compile_functions (prog : Prog.t) (out_file : string): Prog.t =
   let new_prog = Prog.create_empty () in
   Hashtbl.iter (fun k v ->  let (f: Func.t)= v in
                             let pc = fresh_pc () in
-                            let new_params = List.fold_left (fun ac param-> ac @ [param] @ [Val.shadowvar param] ) [] f.params in
+                            let new_params = List.fold_left (fun ac param-> ac @ [param] @ [shadowvar param] ) [] f.params in
                             let asgn_vars: string list = Func.asgn_vars (f.body) in
-                            let asgn_vars_clean = List.fold_left (fun ac var ->  if (List.exists (fun var2 -> if var = var2 then true else false ) new_params) then ac else ac @ [Stmt.Assign (Val.shadowvar var, (Expr.Var pc))] ) [] asgn_vars in
+                            let asgn_vars_clean = List.fold_left (fun ac var ->  if (List.exists (fun var2 -> if var = var2 then true else false ) new_params) then ac else ac @ [Stmt.Assign (shadowvar var, (Expr.Var pc))] ) [] asgn_vars in
 
                             let new_body= translist pc (f.body) in
 

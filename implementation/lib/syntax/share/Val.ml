@@ -37,6 +37,3 @@ let rec to_json (v : t): string =
   | Void     ->  Printf.sprintf "{ \"type\" : \"void\" }"
   | Null     ->  Printf.sprintf "{ \"type\" : \"null\" }"
   | Symbol s ->  Printf.sprintf "{ \"type\" : \"symbol\", \"value\" : \"%s\" }" s
-
-let shadowvar (var:string):string =
-    (var ^ "_lev")

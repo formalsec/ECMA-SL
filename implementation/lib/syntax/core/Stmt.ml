@@ -43,7 +43,7 @@ let rec js (stmt : t) : string =
 match stmt with
 | Skip                            -> Printf.sprintf ""
 | Merge                           -> Printf.sprintf ""
-| Assign (x, e)                   -> Printf.sprint "%s = %s" x (Expr.js e)
+| Assign (x, e)                   -> Printf.sprintf "%s = %s" x (Expr.js e)
 | Print e                         -> Printf.sprintf "console.log( %s )" (Expr.js e)
 | If (e, s1, s2)                  -> Printf.sprintf "if ( %s ) { %s } %s" (Expr.js e) (js s1)
                                       (match s2 with
@@ -52,9 +52,9 @@ match stmt with
 | Block (block)                   -> String.concat ";\n" (List.map js block)
 | While (exp, s)                  -> Printf.sprintf "while ( %s ) { %s } " (Expr.js exp) (js s)
 | Return exp                      -> Printf.sprintf "return %s" (Expr.js exp)
-| FieldAssign (e_o, e_f, e_v)     -> Printf.sprintf "%s.%s = $s" (Expr.js e_o) (Expr.js e_f) (Expr.js e_v)
+| FieldAssign (e_o, e_f, e_v)     -> Printf.sprintf "%s.%s = %s" (Expr.js e_o) (Expr.js e_f) (Expr.js e_v)
 | FieldDelete (e_o, e_f)          -> Printf.sprintf "delete %s.%s" (Expr.js e_o) (Expr.js e_f)
-| AssignCall (x, st, e_lst)       -> Printf.sprintf "%s = %s( %s )" x st (String.concat ", " (List.map Expr.js e_lst))
+| AssignCall (x, st, e_lst)       -> Printf.sprintf "%s = %s( %s )" x (Expr.js st) (String.concat ", " (List.map Expr.js e_lst))
 | AssignNewObj x                  -> Printf.sprintf "var %s = {}" x
 | FieldLookup (x, e_o, e_f)       -> Printf.sprintf "%s = %s.%s" x (Expr.js e_o) (Expr.js e_f)
 | AssignInObjCheck (x, e_o, e_f)  -> Printf.sprintf "%s = %s.hasOwnProperty( %s )" x (Expr.js e_o) (Expr.js e_f)

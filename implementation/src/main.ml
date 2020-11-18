@@ -60,6 +60,8 @@ let inline_compiler () : Prog.t =
   let prog_contents = Parsing_Utils.load_file !file in
   let prog = Parsing_Utils.parse_prog prog_contents in
   let inlined_prog = Inliner.compile_functions prog "inlined.esl"  in
+  (* Add Security funcs. H-L-Lattice.esl*)
+  
   inlined_prog
 
 let core_interpretation (prog : Prog.t) : unit =
