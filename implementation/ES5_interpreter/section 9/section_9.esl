@@ -193,7 +193,7 @@ function ToObject(V) {
     return BooleanConstructor(|global|, 'undefined, false, [V])
   };
   if (v_type = "Number") {
-    return newNumber(V)
+    return NumberConstructor(|global|, 'undefined, false, [V])
   };
   if (v_type = "String") {
     return newString(V)
