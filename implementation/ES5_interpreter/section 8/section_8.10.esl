@@ -81,6 +81,12 @@ function newSetAccessorPropertyDescriptor(set) {
   return desc
 };
 
+function isEnumerablePropertyDescriptor(desc) {
+  assert Type(desc) = "PropertyDescriptor";
+
+  return desc.Enumerable
+};
+
 /* Auxiliary functions created for the purposes of dealing with the Property Identifier type. */
 function newPropertyIdentifier(name, desc) {
   return ("P", name, desc)
