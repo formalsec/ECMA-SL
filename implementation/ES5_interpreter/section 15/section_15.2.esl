@@ -1,5 +1,12 @@
 /* 15.2 Object Objects */
 
+macro ToPropertyDescriptor(desc, descObj) {
+  desc := ToPropertyDescriptor(descObj);
+  if (isErrorCompletion(desc)) {
+    return desc
+  }
+};
+
 /* 15.2.2 The Object Constructor */
 function initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, strict) {
   /* When Object is called as part of a new expression, it is a constructor that may create an object. */
@@ -322,7 +329,7 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
     /* a. Let descObj be the result of calling the [[Get]] internal method of props with P as the argument. */
     descObj := Get(props, P);
     /* b. Let desc be the result of calling ToPropertyDescriptor with descObj as the argument. */
-    desc := ToPropertyDescriptor(descObj);
+    @ToPropertyDescriptor(desc, descObj);
     /* c. Append the pair (a two element List) consisting of P and desc to the end of descriptors. */
     descriptors := l_add(descriptors, [P, desc])
   };
