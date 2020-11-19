@@ -229,11 +229,11 @@ function Str(key, holder, ReplacerFunction) {
     /* a. If the [[Class]] internal property of value is "Array" then */
     if (value.Class = "Array") {
       /* i. Return the result of calling the abstract operation JA with argument value. */
-      return JA(value)
+      return JA(value, stack, indent, gap, space)
     }
     /* b. Else, return the result of calling the abstract operation JO with argument value. */
     else {
-      return JO(value)
+      return JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space)
     }
   };
   /* 11. Return undefined. */
@@ -323,37 +323,125 @@ function Quote(value) {
  * the stack, indent, gap, PropertyList, ReplacerFunction, and space of the
  * invocation of the stringify method.
  */
-function JO(value) {
-  /* 1. If stack contains value then throw a TypeError exception because the structure is cyclical. */
+function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
+  /* 1. If stack contains value then throw a TypeError exception because
+        the structure is cyclical. */
+  if (value in_list stack) {
+    throw TypeErrorException()
+  };
   /* 2. Append value to stack. */
+  stack := l_add(stack, value);
   /* 3. Let stepback be indent. */
+  stepback := indent;
   /* 4. Let indent be the concatenation of indent and gap. */
+  indent := s_concat([indent, gap]);
   /* 5. If PropertyList is not undefined, then */
+  if (!(PropertyList = 'undefined)) {
     /* a. Let K be PropertyList. */
+    K := PropertyList
+  }
   /* 6. Else */
-    /* a. Let K be an internal List of Strings consisting of the names of all the own properties of value whose [[Enumerable]] attribute is true. The ordering of the Strings should be the same as that used by the Object.keys standard built-in function. */
+  else {
+    /* a. Let K be an internal List of Strings consisting of the names of
+          all the own properties of value whose [[Enumerable]] attribute
+          is true. The ordering of the Strings should be the same as that
+          used by the Object.keys standard built-in function. */
+    K := []; /* TODO check if this code is correct */
+    namedOwnProperties := getOwnProperties(value);
+    lnamedOwnProperties := int_to_float (l_len namedOwnProperties);
+    index := 0.;
+    while(index < lnamedOwnProperties) {
+      P := l_nth(namedOwnProperties, index);
+      if (P.Enumerable = true) {
+        K := l_add(K, P)
+      };
+      index := index + 1.
+    }
+  };
   /* 7. Let partial be an empty List. */
+  partial := [];
   /* 8. For each element P of K. */
-    /* a. Let strP be the result of calling the abstract operation Str with arguments P and value. */
+  i := 0.;
+  kLen := l_len K;
+  while (i < kLen) {
+    /* a. Let strP be the result of calling the abstract operation Str
+          with arguments P and value. */
+    strP := Str(P, value, ReplacerFunction);
     /* b. If strP is not undefined */
-      /* i. Let member be the result of calling the abstract operation Quote with argument P. */
+    if (!(strP = 'undefined)) {
+      /* i. Let member be the result of calling the abstract operation
+            Quote with argument P. */
+      member := Quote(P);
       /* ii. Let member be the concatenation of member and the colon character. */
+      member := s_concat([member, ":"]);
       /* iii. If gap is not the empty String */
+      if (!(gap = "")) {
         /* 1. Let member be the concatenation of member and the space character. */
+        member := s_concat([member, " "])
+      };
       /* iv. Let member be the concatenation of member and strP. */
-    /* v. Append member to partial. */
+      member := s_concat([member, strP]);
+      /* v. Append member to partial. */
+      partial := l_add(partial, member)
+    };
+    i := i + 1.
+  };
   /* 9. If partial is empty, then */
+  if ((l_len partial) = 0.) {
     /* a. Let final be "{}". */
+    final := "{}"
+  }
   /* 10. Else */
+  else {
     /* a. If gap is the empty String */
-      /* i. Let properties be a String formed by concatenating all the element Strings of partial with each adjacent pair of Strings separated with the comma character. A comma is not inserted either before the first String or after the last String. */
+    if (gap = "") {
+      /* i. Let properties be a String formed by concatenating all the
+            element Strings of partial with each adjacent pair of Strings
+            separated with the comma character. A comma is not inserted either
+            before the first String or after the last String. */
+      j := 0.;
+      pLen := l_len partial;
+      properties := "";
+      while (j < pLen) {
+        el := l_nth(partial, j);
+        properties := s_concat([properties, el]);
+        if (j < pLen - 1.) {
+           properties := s_concat([properties, ","])
+        };
+        j := j + 1.
+      };
       /* ii. Let final be the result of concatenating "{", properties, and "}". */
+      final := s_concat(["{", properties, "}"])
+    }
     /* b. Else gap is not the empty String */
-      /* i. Let separator be the result of concatenating the comma character, the line feed character, and indent. */
-      /* ii. Let properties be a String formed by concatenating all the element Strings of partial with each adjacent pair of Strings separated with separator. The separator String is not inserted either before the first String or after the last String. */
-      /* iii. Let final be the result of concatenating "{", the line feed character, indent, properties, the line feed character, stepback, and "}". */
+    else {
+      /* i. Let separator be the result of concatenating the comma character,
+            the line feed character, and indent. */
+      separator := s_concat([",", "n", indent]); /* TODO \n */
+      /* ii. Let properties be a String formed by concatenating all the element
+             Strings of partial with each adjacent pair of Strings separated
+             with separator. The separator String is not inserted either before
+             the first String or after the last String. */
+      j := 0.;
+      pLen := l_len partial;
+      properties := "";
+      while (j < pLen) {
+        el := l_nth(partial, j);
+        properties := s_concat([properties, el]);
+        if (j < pLen - 1.) {
+           properties := s_concat([properties, separator])
+        };
+        j := j + 1.
+      };
+      /* iii. Let final be the result of concatenating "{", the line feed
+              character, indent, properties, the line feed character, stepback, and "}". */
+      final := s_concat(["{", "n", indent, properties, "n", stepback, "}"]) /* TODO \n */
+    }
+  };
   /* 11. Remove the last element of stack. */
+  /* TODO */
   /* 12. Let indent be stepback. */
+  indent := stepback;
   /* 13. Return final. */
   return final
 };
@@ -368,44 +456,99 @@ function JO(value) {
  * stringification. An array is stringified as an open left bracket, elements
  * separated by comma, and a closing right bracket.
  */
-function JA(value) {
+function JA(value, stack, indent, gap, space) {
   /* 1. If stack contains value then throw a TypeError exception because
         the structure is cyclical. */
+  if (value in_list stack) {
+    throw TypeErrorException()
+  };
   /* 2. Append value to stack. */
+  stack := l_add(stack, value);
   /* 3. Let stepback be indent. */
+  stepback := indent;
   /* 4. Let indent be the concatenation of indent and gap. */
+  indent := s_concat([indent, gap]);
   /* 5. Let partial be an empty List. */
+  partial := [];
   /* 6. Let len be the result of calling the [[Get]] internal method of
         value with argument "length". */
+  len := {value.Get}(value, "length");
   /* 7. Let index be 0. */
+  index := 0.;
   /* 8. Repeat while index < len */
+  while (index < len) {
     /* a. Let strP be the result of calling the abstract operation Str
           with arguments ToString(index) and value. */
+    strP := Str(ToString(index), value, 'undefined);
     /* b. If strP is undefined */
+    if (strP = 'undefined) {
       /* i. Append "null" to partial. */
+      partial := l_add(partial, 'null)
+    }
     /* c. Else */
+    else {
       /* i. Append strP to partial. */
+      partial := l_add(partial, strP)
+    };
     /* d. Increment index by 1. */
+    index := index + 1.
+  };
   /* 9. If partial is empty ,then */
+  if ((l_len partial) = 0.) {
     /* a. Let final be "[]". */
+    final := "[]"
+  }
   /* 10. Else */
+  else {
     /* a. If gap is the empty String */
+    if (gap = "") {
       /* i. Let properties be a String formed by concatenating all the element
             Strings of partial with each adjacent pair of Strings separated with
             the comma character. A comma is not inserted either before the first
             String or after the last String. */
+      j := 0.;
+      pLen := l_len partial;
+      properties := "";
+      while (j < pLen) {
+        el := l_nth(partial, j);
+        properties := s_concat([properties, el]);
+        if (j < pLen - 1.) {
+           properties := s_concat([properties, ","])
+        };
+        j := j + 1.
+      };
       /* ii. Let final be the result of concatenating "[", properties, and "]". */
+      final := s_concat(["[", properties, "]"])
+    }
     /* b. Else */
+    else {
       /* i. Let separator be the result of concatenating the comma character,
             the line feed character, and indent. */
+      separator := s_concat([",", "n", indent]); /* TODO \n */
       /* ii. Let properties be a String formed by concatenating all the element
              Strings of partial with each adjacent pair of Strings separated with
              separator. The separator String is not inserted either before the
              first String or after the last String. */
+      j := 0.;
+      pLen := l_len partial;
+      properties := "";
+      while (j < pLen) {
+        el := l_nth(partial, j);
+        properties := s_concat([properties, el]);
+        if (j < pLen - 1.) {
+           properties := s_concat([properties, separator])
+        };
+        j := j + 1.
+      };
       /* iii. Let final be the result of concatenating "[", the line feed character,
               indent, properties, the line feed character, stepback, and "]". */
+      final := s_concat(["[", "n", indent, properties, "n", stepback, "]"]) /* TODO \n */
+    }
+  };
   /* 11. Remove the last element of stack. */
+  /* TODO */
   /* 12. Let indent be stepback. */
+  indent := stepback;
   /* 13. Return final. */
   return final
 };
