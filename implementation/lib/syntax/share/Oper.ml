@@ -245,24 +245,23 @@ let shift_right_logical (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
 
 let to_int (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_int n)
-  | _     -> Null
+  | _     -> invalid_arg "Exception in Oper.to_int: this operation is only applicable to Float arguments"
 
 let to_int32 (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_int32 n)
-  | _     -> Null
+  | _     -> invalid_arg "Exception in Oper.to_int32: this operation is only applicable to Float arguments"
 
 let to_uint32 (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_uint32 n)
-  | _     -> Null
+  | _     -> invalid_arg "Exception in Oper.to_uint32: this operation is only applicable to Float arguments"
 
 let to_uint16 (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_uint16 n)
-  | _     -> Null
-
+  | _     -> invalid_arg "Exception in Oper.to_uint16: this operation is only applicable to Float arguments"
 
 let to_floor (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (floor n)
-  | _     -> Null
+  | _     -> invalid_arg "Exception in Oper.to_floor: this operation is only applicable to Float arguments"
 
 let log_e (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Float.log n)

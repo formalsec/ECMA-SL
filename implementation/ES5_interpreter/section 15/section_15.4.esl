@@ -280,7 +280,8 @@ function internalNewArray(arrayPrototype, items) {
     HasProperty: "HasProperty",
     DefineOwnProperty: "DefineOwnPropertyArray",
     GetOwnProperty: "GetOwnProperty",
-    Delete: "Delete"
+    Delete: "Delete",
+    CanPut: "CanPut"
   };
 
   i := 0;
@@ -337,7 +338,8 @@ function internalNewArrayLen(arrayPrototype, len) {
     HasProperty: "HasProperty",
     DefineOwnProperty: "DefineOwnPropertyArray",
     GetOwnProperty: "GetOwnProperty",
-    Delete: "Delete"
+    Delete: "Delete",
+    CanPut: "CanPut"
   };
 
   lenIsNumber := (typeof len = __$Flt);
@@ -718,9 +720,6 @@ function arrayPop(global, this, strict, args) {
   /* 3. Let len be ToUint32(lenVal). */
   len := ToUint32(lenVal);
 
-  print s_concat(["lenVal: ", lenVal]);
-  print s_concat(["len: ", len]);
-
   /* 4. If len is zero, */
   if (len = 0.) {
     /* a. Call the [[Put]] internal method of O with arguments "length",
@@ -737,8 +736,6 @@ function arrayPop(global, this, strict, args) {
       /* b. Let element be the result of calling the [[Get]] internal method
             of O with argument indx. */
       element := {O.Get}(O, indx);
-      print s_concat(["indx: ", indx]);
-      print s_concat(["element: ", element]);
       /* c. Call the [[Delete]] internal method of O with arguments indx
             and true. */
       {O.Delete}(O, indx, true);
@@ -770,7 +767,6 @@ function arrayPop(global, this, strict, args) {
  * the following steps are taken:
  */
 function arrayPush(global, this, strict, items) {
-  print "array push";
   /* 1. Let O be the result of calling ToObject passing the this value as the
         argument. */
   O := ToObject(this);
