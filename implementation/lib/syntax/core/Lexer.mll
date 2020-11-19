@@ -92,8 +92,9 @@ rule read =
   | "to_int"          { TO_INT }
   | "to_int32"        { TO_INT32 }
   | "to_uint32"       { TO_UINT32 }
-  | "floor"           { FLOOR }
   | "to_uint16"       { TO_UINT16 }
+  | "floor"           { FLOOR }
+  | "log_e"           { LOG_E }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }

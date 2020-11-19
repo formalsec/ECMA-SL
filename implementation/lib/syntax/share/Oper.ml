@@ -46,8 +46,9 @@ type uopt = Neg
           | ToInt
           | ToInt32
           | ToUint32
-          | Floor
           | ToUint16
+          | Floor
+          | Log_e
 
 
 type nopt = ListExpr
@@ -261,6 +262,10 @@ let to_floor (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (floor n)
   | _     -> Null
 
+let log_e (v : Val.t) : Val.t = match v with
+  | Flt n -> Flt (Float.log n)
+  | _     -> invalid_arg "Exception in Oper.log_e: this operation is only applicable to Float arguments"
+
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
   | Not           -> "!"
@@ -283,9 +288,9 @@ let str_of_unopt (op : uopt) : string = match op with
   | ToInt         -> "to_int"
   | ToInt32       -> "to_int32"
   | ToUint32      -> "to_uint32"
-  | Floor         -> "floor"
   | ToUint16      -> "to_uint16"
-
+  | Floor         -> "floor"
+  | Log_e         -> "log_e"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
@@ -363,7 +368,7 @@ let uopt_to_json (op : uopt) : string =
     (match op with
      | Neg           -> Printf.sprintf "Neg\" }"
      | Not           -> Printf.sprintf "Not\" }"
-     | BitwiseNot     -> Printf.sprintf "BitwiseNot\" }"
+     | BitwiseNot    -> Printf.sprintf "BitwiseNot\" }"
      | Typeof        -> Printf.sprintf "Typeof\" }"
      | ListLen       -> Printf.sprintf "ListLen\" }"
      | TupleLen      -> Printf.sprintf "TypleLen\" }"
@@ -383,5 +388,6 @@ let uopt_to_json (op : uopt) : string =
      | ToInt32       -> Printf.sprintf "ToInt32\" }"
      | ToUint32      -> Printf.sprintf "ToUint32\" }"
      | ToUint16      -> Printf.sprintf "ToUint16\" }"
-     | Floor         -> Printf.sprintf "Floor\" }")
+     | Floor         -> Printf.sprintf "Floor\" }"
+     | Log_e         -> Printf.sprintf "Log_e\" }")
 
