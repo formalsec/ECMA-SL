@@ -89,6 +89,14 @@ macro ToBooleanGetValueIfElseReturn(ref, test, stmt1, stmt2) {
   }
 };
 
+/* Let rprim be ToPrimitive(rval). */
+macro ToPrimitive(prim, val, preferredType) {
+  prim := ToPrimitive(val, preferredType);
+  if (isErrorCompletion(prim)) {
+    return prim
+  }
+};
+
 function JS_Interpreter_Program(p) {
   /* 14 Program */
   match p with
@@ -1582,9 +1590,9 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* 4. Let rval be GetValue(rref). */
     @GetValue(rval, rref);
     /* 5. Let lprim be ToPrimitive(lval). */
-    lprim := ToPrimitive(lval, undefined);
+    @ToPrimitive(lprim, lval, undefined);
     /* 6. Let rprim be ToPrimitive(rval). */
-    rprim := ToPrimitive(rval, undefined);
+    @ToPrimitive(rprim, rval, undefined);
     /* 7. If Type(lprim) is String or Type(rprim) is String, then */
     if ((Type(lprim) = "String") || (Type(rprim) = "String")) {
       /* a. Return the String that is the result of concatenating ToString( lprim) followed by ToString(rprim) */

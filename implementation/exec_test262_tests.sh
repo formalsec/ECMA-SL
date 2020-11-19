@@ -106,6 +106,9 @@ function handleSingleFile() {
     incError
 
     result=("${FILENAME}" "**ERROR**" "$JS2ECMASL")
+
+    # Go back to previous/default directory before returning
+    cd "../implementation"
     return
   fi
 
@@ -408,6 +411,7 @@ done
 
 # 4. Remove temporary files previously created
 rm "test/main262.js"
+rm "ES5_interpreter/core.esl"
 rm "ES5_interpreter/test262.esl"
 rm "ES5_interpreter/test262_ast.esl"
 rm "../JS2ECMA-SL/test262_ast.esl"
