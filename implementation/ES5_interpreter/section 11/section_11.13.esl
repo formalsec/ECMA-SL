@@ -1,0 +1,79 @@
+/* Auxiliary function */
+function applyOperator(operator, lval, rval) {
+  if ((operator = "*=") || (operator = "/=") || (operator = "%=")) {
+    /* Let leftNum be ToNumber(leftValue). */
+    leftNum := ToNumber(lval);
+    /* Let rightNum be ToNumber(rightValue). */
+    rightNum := ToNumber(rval);
+    /* Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
+    if (operator = "*=") {
+      return leftNum * rightNum
+    };
+    if (operator = "/=") {
+      return leftNum / rightNum
+    };
+    if (operator = "%=") {
+      return leftNum % rightNum
+    }
+  };
+
+  if (operator = "+=") {
+    /* Let lprim be ToPrimitive(lval). */
+    lprim := ToPrimitive(lval, undefined);
+    /* Let rprim be ToPrimitive(rval). */
+    rprim := ToPrimitive(rval, undefined);
+    /* If Type(lprim) is String or Type(rprim) is String, then */
+    if ((Type(lprim) = "String") || (Type(rprim) = "String")) {
+      /* Return the String that is the result of concatenating ToString( lprim) followed by ToString(rprim) */
+      return s_concat [ToString(lprim), ToString(rprim)]
+    };
+    /* Return the result of applying the addition operation to ToNumber( lprim) and ToNumber(rprim). See the
+       Note below 11.6.3. */
+    return applyingTheAdditionOperation(ToNumber(lprim), ToNumber(rprim))
+  };
+  if (operator = "-=") {
+    /* Check 11.6.2 */
+    /* Let lnum be ToNumber(lval). */
+    lnum := ToNumber(lval);
+    /* Let rnum be ToNumber(rval). */
+    rnum := ToNumber(rval);
+    /* Return the result of applying the subtraction operation to lnum and rnum.
+       See the note below 11.6.3. */
+    return applyingTheSubtractionOperation(lnum, rnum)
+  };
+
+  if ((operator = "<<=") || (operator = ">>=") || (operator = ">>>=")) {
+    /* Check 11.7.1, 11.7.2, and 11.7.3 */
+    /* Let lnum be ToInt32(lval). */
+    lnum := ToInt32(lval);
+    /* Let rnum be ToUint32(rval). */
+    rnum := ToUint32(rval);
+    /* Let shiftCount be the result of masking out all but the least significant 5 bits of rnum, that is,
+       compute rnum & 0x1F. */
+    shiftCount := maskOutBits(rnum);
+    if (operator = "<<=") {
+      /* Return the result of left shifting lnum by shiftCount bits. The result is a signed 32-bit integer. */
+      return lnum << shiftCount
+    };
+    if (operator = ">>=") {
+      /* Return the result of performing a sign-extending right shift of lnum by shiftCount bits. The most
+         significant bit is propagated. The result is a signed 32-bit integer. */
+      return lnum >> shiftCount
+    };
+    if (operator = ">>>=") {
+      /* Return the result of performing a zero-filling right shift of lnum by shiftCount bits. Vacated bits are
+        filled with zero. The result is an unsigned 32-bit integer. */
+      return lnum >>> shiftCount
+    }
+  };
+
+  if ((operator = "&=") || (operator = "^=") || (operator = "|=")) {
+    /* Check 11.10 */
+    /* Let lnum be ToInt32(lval). */
+    lnum := ToInt32(lval);
+    /* Let rnum be ToInt32(rval). */
+    rnum := ToInt32(rval);
+    /* Return the result of applying the bitwise operator @ to lnum and rnum. The result is a signed 32 bit integer */
+    return applyBitwiseOperator(operator, lval, rval)
+  }
+}

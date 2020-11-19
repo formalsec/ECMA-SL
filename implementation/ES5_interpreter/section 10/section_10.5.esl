@@ -20,7 +20,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     configurableBindings := false
   };
   /* 3. If code is strict mode code, then let strict be true else let strict be false. */
-  if (isStrictModeCode(code)) {
+  if (isStrictModeCode(code, runningExecCtx)) {
     strict := true
   } else {
     strict := false
@@ -83,9 +83,9 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
       CreateMutableBinding(env, fn, configurableBindings)
     } else {
       /* e. Else if env is the environment record component of the global environment then */
-      if (env = getGlobalObject(getLexicalEnvironment(runningExecCtx))) {
+      if (env = |global|) {
         /* i. Let go be the global object. */
-        go := getGlobalObject(getLexicalEnvironment(runningExecCtx));
+        go := |global|;
         /* ii. Let existingProp be the resulting of calling the [[GetProperty]] internal method of go with
               argument fn. */
         existingProp := GetProperty(go, fn);
@@ -105,7 +105,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
                   {[[Writable]]: true, [[Enumerable]]: true}, then */
           if (IsAccessorDescriptor(existingProp) || !(existingProp.Writable && existingProp.Enumerable)) {
             /* 1. Throw a TypeError exception. */
-            throw TypeErrorException()
+            return throwEmptyCompletion(TypeErrorConstructorInternal())
           }
         }
       }
@@ -119,10 +119,10 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
       "arguments" as the argument. */
   argumentsAlreadyDeclared := HasBinding(env, "arguments");
   /* 7. If code is function code and argumentsAlreadyDeclared is false, then */
-  if (isFunctionCode(code) && (argumentsAlreadyDeclared = false)) { /* TODO */
+  if (isFunctionCode(code) && (argumentsAlreadyDeclared = false)) {
     /* a. Let argsObj be the result of calling the abstract operation CreateArgumentsObject (10.6) passing
           func, names, args, env and strict as arguments. */
-    argsObj := CreateArgumentsObject(func, names, args, env, strict);
+    argsObj := CreateArgumentsObject(func, names, args, env, getVariableEnvironment(runningExecCtx), strict);
     /* b. If strict is true, then */
     if (strict = true) {
       /* i. Call env‘s CreateImmutableBinding concrete method passing the String "arguments" as
@@ -170,15 +170,15 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
 
 /* Auxiliary functions */
 function isEvalCode(code) {
-  return code.codeType = "eval"
+  return !(typeof code = __$Str) &&& (code.codeType = "eval")
 };
 
 function isFunctionCode(code) {
-  return code.codeType = "function"
+  return !(typeof code = __$Str) &&& (code.codeType = "function")
 };
 
-function isStrictModeCode(code) {
-  return ("strict" in_obj code) &&& (code.strict = true)
+function isStrictModeCode(code, execCtx) {
+  return (code.strict = true) ||| isContainedInStrictCode(execCtx)
 };
 
 function getFunctionDeclarationsInCode(object) {

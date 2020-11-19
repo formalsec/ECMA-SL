@@ -3,6 +3,9 @@ let make_fresh_var_generator (pref : string) : (unit -> string) =
   fun () -> let x = !count in
     count := x+1; pref ^ (string_of_int x)
 
+let __INTERNAL_ESL_GLOBAL__ = "___internal_esl_global"
+
+let __MAIN_FUNC__ = "main"
 
 let generate_fresh_var = make_fresh_var_generator "__v"
 
@@ -94,13 +97,34 @@ let compile_sc_or
   stmts_1 @ [ outer_if ], Expr.Var x
 
 
-let rec compile_binopt (binop : Oper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) : Stmt.t list * Expr.t =
+let compile_binopt (binop : Oper.bopt) ((stmts_1, e1)  : (Stmt.t list * Expr.t)) ((stmts_2, e2) : (Stmt.t list * Expr.t)) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
-  let stmts_1, e1 = compile_expr e_e1 in
-  let stmts_2, e2 = compile_expr e_e2 in
   stmts_1 @ stmts_2 @ [Stmt.Assign (var, Expr.BinOpt (binop, e1, e2))], Expr.Var var
 
-and compile_ebinopt (binop : EOper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) : Stmt.t list * Expr.t =
+(*
+ y fresh
+-------------------------
+C_e(|x|) =
+   y := ___internal_esl_global["x"], y
+*)
+let compile_gvar (x : string) :  Stmt.t list * Expr.t =
+  let y = generate_fresh_var () in
+  let f_lookup = Stmt.FieldLookup (y, Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str x)) in
+  [ f_lookup ], Expr.Var y
+
+
+(*
+C_e(e) = stmts_e, x_e
+----------------------
+C(|x| := e) =
+  stmts_e;
+  ___internal_esl_global["x"] := x_e
+*)
+let compile_glob_assign (x : string) (stmts_e : Stmt.t list) (e : Expr.t) : Stmt.t list =
+  let f_asgn = Stmt.FieldAssign (Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str x), e) in
+  stmts_e @ [ f_asgn ]
+
+let rec compile_ebinopt (binop : EOper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) : Stmt.t list * Expr.t =
   let x = generate_fresh_var () in
   let stmts_1, e1 = compile_expr e_e1 in
   let stmts_2, e2 = compile_expr e_e2 in
@@ -122,13 +146,25 @@ and compile_nopt (nop : Oper.nopt) (e_exprs : E_Expr.t list) : Stmt.t list * Exp
   let stmts, exprs = List.split stmts_exprs in
   (List.concat stmts) @ [Stmt.Assign (var, Expr.NOpt (nop, exprs))], Expr.Var var
 
-
+(*
+C_e(e) = stmts', x'
+C_e(e_i) = stmts_i, x_i
+x fresh
+-----------------------------------------
+C_s({e}(e1, ..., en)) =
+ 	stmts';
+    stmts_1;
+    ...
+    stmts_n;
+    x := x' (___internal_esl_global, x_1, ..., x_n), x
+*)
 and compile_call (fname : E_Expr.t) (fargs : E_Expr.t list) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   let fname_stmts, fname_expr = compile_expr fname in
   let fargs_stmts_exprs = List.map compile_expr fargs in
   let fargs_stmts, fargs_exprs = List.split fargs_stmts_exprs in
-  fname_stmts @ List.concat fargs_stmts @ [Stmt.AssignCall (var, fname_expr, fargs_exprs)], Expr.Var var
+  let fargs_exprs' = (Expr.Var __INTERNAL_ESL_GLOBAL__)::fargs_exprs in
+  fname_stmts @ List.concat fargs_stmts @ [Stmt.AssignCall (var, fname_expr, fargs_exprs')], Expr.Var var
 
 
 and compile_newobj (e_fes : (string * E_Expr.t) list) : Stmt.t list * Expr.t =
@@ -255,9 +291,13 @@ and compile_matchwith (expr : E_Expr.t) (pats_stmts : (E_Pat.t * E_Stmt.t) list)
 
 and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   match e_expr with
-  | Val e_v                    -> [], Expr.Val e_v
-  | Var e_v                    -> [], Expr.Var e_v
-  | BinOpt (e_op, e_e1, e_e2)  -> compile_binopt e_op e_e1 e_e2
+  | Val x               -> [], Expr.Val x
+  | Var x               -> [], Expr.Var x
+  | GVar x              -> compile_gvar x
+  | BinOpt (op, e1, e2) ->
+      let (stmts_1, e1') = compile_expr e1 in
+      let (stmts_2, e2') = compile_expr e2 in
+      compile_binopt op (stmts_1, e1') (stmts_2, e2')
   | EBinOpt (e_op, e_e1, e_e2) -> compile_ebinopt e_op e_e1 e_e2
   | UnOpt (op, e_e)            -> compile_unopt op e_e
   | NOpt (op, e_es)            -> compile_nopt op e_es
@@ -271,12 +311,28 @@ and compile_print (expr : E_Expr.t) : Stmt.t list =
   stmts_expr @ [Stmt.Print expr']
 
 
+and compile_throw (expr : E_Expr.t) : Stmt.t list =
+  let stmts_expr, expr' = compile_expr expr in
+  stmts_expr @ [Stmt.Throw expr']
+
+
+and compile_assert (expr : E_Expr.t) : Stmt.t list =
+  let stmts_expr, expr' = compile_expr expr in
+  stmts_expr @ [Stmt.If (
+      Expr.UnOpt (Oper.Not, expr'),
+      Stmt.Throw (Expr.Val (Oper.string_concat (List [Str "Assert failed: "; Str (E_Expr.str expr)]))),
+      None)]
+
+
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   match e_stmt with
   | Skip                            -> [Stmt.Skip]
   | Debug                           -> [Stmt.Debug]
   | Print e                         -> compile_print e
   | Assign (v, e_exp)               -> compile_assign v e_exp
+  | GlobAssign(x, e)                ->
+      let (stmts_e, e') = compile_expr e in
+      compile_glob_assign x stmts_e e'
   | Block (e_stmts)                 -> compile_block e_stmts
   | If (e_e, e_s1, e_s2)            -> compile_if e_e e_s1 e_s2
   | While (e_exp, e_s)              -> compile_while e_exp e_s
@@ -286,14 +342,40 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | ExprStmt e_e                    -> compile_exprstmt e_e
   | RepeatUntil (e_s, e_e)          -> compile_repeatuntil e_s e_e
   | MatchWith (e_e, e_pats_e_stmts) -> compile_matchwith e_e e_pats_e_stmts
+  | Throw e_e                       -> compile_throw e_e
+  | Assert e_e                      -> compile_assert e_e
+  | MacroApply (_, _)               -> invalid_arg "Macros are not valid compilable statements."
+
+(*
+C(s) = s', _
+---------------------------------------
+C_f(function f (x1, ..., xn) { s }) =
+   function f (___internal_esl_global, x1, ..., xn) { s' }
 
 
+C(s) = s', _
+---------------------------------------
+C_f(function main () { s }) =
+   function f () {
+      ___internal_esl_global := {};
+      s'
+   }
+*)
 let compile_func (e_func : E_Func.t) : Func.t =
   let fname = E_Func.get_name e_func in
   let fparams = E_Func.get_params e_func in
   let fbody = E_Func.get_body e_func in
   let stmt_list = compile_stmt fbody in
-  Func.create fname fparams (Stmt.Block stmt_list)
+  if (fname = __MAIN_FUNC__)
+    then (
+      let asgn_new_obj = Stmt.AssignNewObj __INTERNAL_ESL_GLOBAL__ in
+      let stmt_list' = asgn_new_obj :: stmt_list in
+      Func.create fname fparams (Stmt.Block stmt_list')
+    )
+    else (
+      let fparams' = __INTERNAL_ESL_GLOBAL__::fparams in
+      Func.create fname fparams' (Stmt.Block stmt_list)
+    )
 
 
 let compile_prog (e_prog : E_Prog.t) : Prog.t =

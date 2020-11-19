@@ -1,7 +1,7 @@
 exception Except of string
 
 type sft =
-  | Intermediate of (Stmt.t list * Store.t * string)
+  | Intermediate of (Stmt.t list * Store.t * string * string)
   | Toplevel
 
 type t = sft list

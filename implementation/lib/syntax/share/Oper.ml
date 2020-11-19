@@ -45,6 +45,7 @@ type uopt = Neg
           | ObjToList
           | Sconcat
           | ObjFields
+          | ToInt
           | ToInt32
           | ToUint32
           | Floor
@@ -105,7 +106,9 @@ let modulo (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt f1, Flt f2) -> Flt (mod_float f1 f2)
   | _                -> invalid_arg "Exception in Oper.modulo: this operation is only applicable to Float arguments"
 
-let equal (v1, v2 : Val.t * Val.t) : Val.t = Bool (v1 = v2)
+let equal (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | (Flt f1, Flt f2) -> Bool (Float.equal f1 f2)
+  | _                -> Bool (v1 = v2)
 
 let gt (v1, v2 : Val.t * Val.t) : Val.t = Bool (v1 > v2)
 
@@ -222,10 +225,6 @@ let int_of_float (v : Val.t) : Val.t = match v with
     let msg = Printf.sprintf "Exception in Oper.int_of_float: this operation is only applicable to Int arguments. Got %s" (Val.str v) in
     invalid_arg msg
 
-let float_of_string (v : Val.t) : Val.t = match v with
-  | Str s -> Flt (float_of_string s)
-  | _     -> invalid_arg "Exception in Oper.float_of_string: this operation is only applicable to Str arguments"
-
 let float_to_string (v : Val.t) : Val.t = match v with
   | Flt i ->
     let s = string_of_float i in
@@ -234,6 +233,10 @@ let float_to_string (v : Val.t) : Val.t = match v with
     let s' = if c = '.' then String.sub s 0 len else s in
     Str s'
   | _     -> invalid_arg ("Exception in Oper.float_to_string: this operation is only applicable to Flt arguments: " ^ (Val.str v))
+
+let float_of_string (v : Val.t) : Val.t = match v with
+  | Str s -> Flt (float_of_string s)
+  | _     -> invalid_arg "Exception in Oper.float_of_string: this operation is only applicable to Str arguments"
 
 let string_concat (v : Val.t) : Val.t = match v with
   | List l -> Str (String.concat "" (String.split_on_char '"' (String.concat "" (List.map Val.str l))))
@@ -250,6 +253,10 @@ let shift_right (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
 let shift_right_logical (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
   | Flt f1, Flt f2 -> Flt (Arith_Utils.uint32_right_shift f1 f2)
   | _              -> invalid_arg "Exception in Oper.shift_right_logical: this operation is only applicable to Float arguments"
+
+let to_int (v : Val.t) : Val.t = match v with
+  | Flt n -> Flt (Arith_Utils.to_int n)
+  | _     -> Null
 
 let to_int32 (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_int32 n)
@@ -303,6 +310,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | ObjToList     -> "obj_to_list"
   | Sconcat       -> "s_concat"
   | ObjFields     -> "obj_fields"
+  | ToInt         -> "to_int"
   | ToInt32       -> "to_int32"
   | ToUint32      -> "to_uint32"
   | Floor         -> "floor"
@@ -408,6 +416,7 @@ let uopt_to_json (op : uopt) : string =
      | ObjToList     -> Printf.sprintf "ObjToList\" }"
      | Sconcat       -> Printf.sprintf "Sconcat\" }"
      | ObjFields     -> Printf.sprintf "ObjFields\" }"
+     | ToInt         -> Printf.sprintf "ToInt\" }"
      | ToInt32       -> Printf.sprintf "ToInt32\" }"
      | ToUint32      -> Printf.sprintf "ToUint32\" }"
      | ToUint16      -> Printf.sprintf "ToUint16\" }"

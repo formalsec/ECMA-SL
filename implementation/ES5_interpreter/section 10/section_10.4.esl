@@ -12,13 +12,12 @@
 
 function EnteringGlobalCode(program) {
   /* 10.4.1 Entering Global Code */
-  globalObject := NewObject(); /* TODO global object (15.1) */
-  setAllInternalMethodsOfObject(globalObject);
+  globalObject := initGlobalObject(program.strict);
 
   /* The following steps are performed when control enters the execution context for global code: */
 
   /* 1. Initialise the execution context using the global code as described in 10.4.1.1. */
-  globalScope := InitialGlobalExecutionContext(globalObject);
+  globalScope := InitialGlobalExecutionContext(globalObject, program);
 
   /* 2. Perform Declaration Binding Instantiation as described in 10.5 using the global code. */
   DeclarationBindingInstantiation(program, [], globalScope, null);
@@ -26,7 +25,7 @@ function EnteringGlobalCode(program) {
   return globalScope
 };
 
-function InitialGlobalExecutionContext(globalObject) {
+function InitialGlobalExecutionContext(globalObject, program) {
   /* 10.4.1.1 Initial Global Execution Context */
 
   globalExecCtx := createExecutionContext();
@@ -40,25 +39,27 @@ function InitialGlobalExecutionContext(globalObject) {
   /* 3. Set the ThisBinding to the global object. */
   setThisBinding(globalExecCtx, globalObject);
 
+  setContainedInStrictCode(globalExecCtx, isStrictModeCode(program, globalExecCtx));
+
   return globalExecCtx
 };
 
-function EnteringFunctionCode(F, thisArg, argumentsList, strict) {
+function EnteringFunctionCode(F, thisArg, argumentsList) {
   /* 10.4.3 Entering Function Code */
 
   functionExecCtx := createExecutionContext();
+  setContainedInStrictCode(functionExecCtx, isStrictFunctionObject(F));
 
   /* The following steps are performed when control enters the execution context for function code contained in
      function object F, a caller provided thisArg, and a caller provided argumentsList: */
 
   /* 1. If the function code is strict code, set the ThisBinding to thisArg. */
-  /* TODO */
-  if (strict) {
+  if (isStrictModeCode(getFunctionCode(F), functionExecCtx)) {
     setThisBinding(functionExecCtx, thisArg)
   };
   /* 2. Else if thisArg is null or undefined, set the ThisBinding to the global object. */
-  if ((thisArg = null) || (thisArg = 'undefined)) {
-    setThisBinding(functionExecCtx, getGlobalObject(F.Scope))
+  if ((thisArg = 'null) || (thisArg = 'undefined)) {
+    setThisBinding(functionExecCtx, |global|)
   }
   /* 3. Else if Type(thisArg) is not Object, set the ThisBinding to ToObject(thisArg). */
   else {

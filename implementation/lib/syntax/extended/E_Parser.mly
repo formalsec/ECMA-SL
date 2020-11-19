@@ -6,6 +6,7 @@
 *)
 %token SKIP
 %token PRINT
+%token ASSERT
 %token DEFEQ
 %token WHILE
 %token DEBUG
@@ -13,6 +14,8 @@
 %token RETURN
 %token NULL
 %token FUNCTION
+%token MACRO
+%token AT_SIGN
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
@@ -24,13 +27,14 @@
 %token <int> INT
 %token <bool> BOOLEAN
 %token <string> VAR
+%token <string> GVAR
 %token <string> STRING
 %token <string> SYMBOL
 %token <string> LOC
 %token LAND LOR SCLAND SCLOR
 %token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
-%token TO_INT32 TO_UINT32 TO_UINT16 FLOOR FROM_CHAR_CODE TO_CHAR_CODE
+%token TO_INT TO_INT32 TO_UINT32 TO_UINT16 FLOOR FROM_CHAR_CODE TO_CHAR_CODE
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
 %token SCONCAT
@@ -71,18 +75,31 @@ e_prog_e_stmt_target:
   | s = e_block_target; EOF; { s }
 
 e_prog_target:
-  | imports = list (import_target); funcs = separated_list (SEMICOLON, proc_target); EOF;
-   { E_Prog.create imports funcs }
+  | imports = list (import_target); macros_funcs = separated_list (SEMICOLON, e_prog_elem_target); EOF;
+   {
+    let (funcs, macros) = List.split macros_funcs in
+    let funcs' = List.concat (List.map (fun o -> Option.map_default (fun x -> [ x ]) [] o) funcs) in
+    let macros' = List.concat (List.map (fun o -> Option.map_default (fun x -> [ x ]) [] o) macros) in
+    E_Prog.create imports funcs' macros'
+   }
 
 import_target:
   | IMPORT; fname = STRING; SEMICOLON;
-    { let len = String.length fname in
-      let sub = String.sub fname 1 (len - 2) in
-      sub }
+    { fname }
+
+e_prog_elem_target:
+  | f = proc_target;
+    { (Some f, None) }
+  | m = macro_target;
+    { (None, Some m) }
 
 proc_target:
   | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; s = e_block_target;
    { E_Func.create f vars s }
+
+macro_target:
+  | MACRO; m = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; s = e_block_target;
+   { E_Macro.create m vars s }
 
 (*
   The pipes separate the individual productions, and the curly braces contain a semantic action:
@@ -128,9 +145,10 @@ val_target:
   | b = BOOLEAN;
     { Val.Bool b }
   | s = STRING;
-    { let len = String.length s in
-      let sub = String.sub s 1 (len - 2) in
-      Val.Str sub } (* Remove the double-quote characters from the parsed string *)
+    (* This replaces helps on fixing errors when parsing some escape characters. *)
+    { let s' = Str.global_replace (Str.regexp "\\") "\\\\\\\\" s in
+      let s'' = Str.global_replace (Str.regexp "\"") "\\\"" s' in
+      Val.Str s'' }
   | s = SYMBOL;
     { Val.Symbol s }
   | l = LOC;
@@ -151,6 +169,8 @@ e_expr_target:
     { E_Expr.Val v }
   | v = VAR;
     { E_Expr.Var v }
+  | v = GVAR;
+    { E_Expr.GVar v }
   | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Expr.Call (E_Expr.Val (Val.Str f), es) }
   | LBRACE; f = e_expr_target; RBRACE; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
@@ -165,6 +185,7 @@ e_expr_target:
     { pre_bin_op_expr }
   | in_bin_op_expr = infix_binary_op_target;
     { in_bin_op_expr }
+
 
 nary_op_target:
   | LBRACK; es = separated_list (COMMA, e_expr_target); RBRACK;
@@ -203,10 +224,12 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
   | INT_OF_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
-  | FLOAT_OF_STRING; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.FloatOfString, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
+  | FLOAT_OF_STRING; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.FloatOfString, e) } %prec unopt_prec
+  | TO_INT; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ToInt, e) } %prec unopt_prec
   | TO_INT32; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ToInt32, e) } %prec unopt_prec
   | TO_UINT32; e = e_expr_target;
@@ -260,6 +283,8 @@ e_block_target:
 e_stmt_target:
   | PRINT; e = e_expr_target;
     { E_Stmt.Print e }
+  | ASSERT; e = e_expr_target;
+    { E_Stmt.Assert e }
   | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;
     { E_Stmt.FieldAssign (e1, E_Expr.Val (Str f), e2) }
   | e1 = e_expr_target; LBRACK; f = e_expr_target; RBRACK; DEFEQ; e2 = e_expr_target;
@@ -274,6 +299,8 @@ e_stmt_target:
     { E_Stmt.Debug }
   | v = VAR; DEFEQ; e = e_expr_target;
     { E_Stmt.Assign (v, e) }
+  | v = GVAR; DEFEQ; e = e_expr_target;
+    { E_Stmt.GlobAssign (v, e) }
   | e_stmt = ifelse_target;
     { e_stmt }
   | WHILE; LPAREN; e = e_expr_target; RPAREN; s = e_block_target;
@@ -283,7 +310,7 @@ e_stmt_target:
   | RETURN;
     { E_Stmt.Return (E_Expr.Val Val.Void) }
   | THROW; e = e_expr_target;
-    { E_Stmt.ExprStmt e } /* TODO */
+    { E_Stmt.Throw e }
   | e = e_expr_target;
     { E_Stmt.ExprStmt e }
   | REPEAT; s = e_block_target;
@@ -292,6 +319,8 @@ e_stmt_target:
     { E_Stmt.RepeatUntil (s, e) }
   | MATCH; e = e_expr_target; WITH; PIPE; pat_stmts = separated_list (PIPE, pat_stmt_target);
     { E_Stmt.MatchWith (e, pat_stmts) }
+  | AT_SIGN; m = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
+    { E_Stmt.MacroApply (m, es) }
 
 (* if (e) { s } | if (e) { s } else { s } *)
 ifelse_target:

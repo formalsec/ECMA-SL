@@ -12,11 +12,11 @@ function SameValue (x, y) {
   /* 4. If Type(x) is Number, then. */
   if (Type(x) = "Number") {
     /* a. If x is NaN and y is NaN, return true. */
-    if ((x = 'NaN) && (y = 'NaN)) { return true };
+    if ((x = NaN) && (y = NaN)) { return true };
     /* b. If x is +0 and y is -0, return false. */
-    if ((x = '+0) && (y = '-0)) { return true };
+    if ((x = 0) && (y = -0)) { return false };
     /* c. If x is -0 and y is +0, return false. */
-    if ((x = '-0) && (y = '+0)) { return true };
+    if ((x = -0) && (y = 0)) { return false };
     /* d. If x is the same Number value as y, return true. */
     if (x = y) { return true };
     /* e. Return false. */
@@ -24,15 +24,9 @@ function SameValue (x, y) {
   };
   /* 5. If Type(x) is String, then return true if x and y are exactly the same sequence of characters
     (same length and same characters in corresponding positions); otherwise, return false. */
-  if (Type(x) = "String") {
-    /* TODO */
-    return x = y
-  };
+  if (Type(x) = "String") { return x = y };
   /* 6. If Type(x) is Boolean, return true if x and y are both true or both false; otherwise, return false. */
-  if (Type(x) = "Boolean") {
-    /* TODO */
-    return x = y
-  };
+  if (Type(x) = "Boolean") { return x = y };
   /* 7. Return true if x and y refer to the same object. Otherwise, return false. */
   return x = y
 }

@@ -12,13 +12,13 @@ type t =
   | Symbol of string
 
 let rec str ?(flt_with_dot=true) (v : t) : string = match v with
-  | Flt v    -> 
+  | Flt v    ->
       if flt_with_dot
-        then string_of_float v 
+        then string_of_float v
         else Printf.sprintf "%.12g" v
   | Int v    -> string_of_int v
   | Bool v   -> string_of_bool v
-  | Str v    -> "\"" ^ v ^ "\""
+  | Str v    -> Printf.sprintf "\"%s\"" v
   | Loc v    -> Loc.str v
   | List vs  -> "[" ^ (String.concat ", " (List.map str vs)) ^ "]"
   | Type v   -> Type.str v

@@ -1,8 +1,9 @@
 true: use_menhir, table, explain
 true: package(batteries)
+true: package(ppx_import), package(ppx_compare), package(ppx_deriving.std)
 true: package(extlib)
 true: package(menhirLib)
 true: package(containers)
 true: package(yojson)
-<*>: include
-<**/*>: include
+<lib/**>: include
+<src>: include

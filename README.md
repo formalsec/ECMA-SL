@@ -12,7 +12,10 @@ cd implementation
 make
 ```
 
-A file named `main.native` is created at the root of the project.
+We use the [OCamlbuild](https://ocaml.org/learn/tutorials/ocamlbuild/) automated build system to compile this project.
+Only the OCaml modules created and present in the `lib/` and `src/` directories and their subdirectories are considered.
+
+After compiling ECMA-SL, a file named `main.native` is created at the root of the project.
 
 ## Compilation of an ECMA-SL program written in Plus to one in Core
 
@@ -45,6 +48,17 @@ To have the generated Heap written to a file, use the command-line flag `-h` fol
 ## Generate the HTML representation of the resulting Heap
 
 To visualise the generated Heap in HTML, that must be previously exported to a file (in example above, the Heap is written to `heap.json`), please follow the instruction in this [file](./Heap2HTML/README.md).
+
+## Testing
+To test the implementation of the reference interpreter (files present in the directory `implementation/ES5_interpreter`) two bash script files are provided:
+* `implementation/exec_simple_tests.sh`: executes the tests that are available in the directory `implementation/test/simple`
+  * e.g., `sh exec_simple_tests`
+* `implementation/exec_test262_tests.sh`: executed the tests that are availabe in the directory `implementation/test/test262/tests`
+  * e.g., `sh exec_test262_tests.sh -d test/test262/tests/language/expressions/array` to execute all the Test262 files in the directory `test/test262/tests/language/expressions/array`
+  * e.g., `sh exec_test262_tests.sh -f test/test262/tests/language/types/reference/8.7.2-2-s.js` to execute a specific Test262 file
+  * for both `-d` and `-f` arguments, one is allowed to pass multiple files/directories:
+    * e.g., `sh exec_test262_tests.sh -f test/test262/tests/language/statements/if/S12.5_A3.js test/test262/tests/language/statements/if/S12.5_A4.js`
+    * e.g., `sh exec_test262_tests.sh -d test/test262/tests/language/expressions/array/ test/test262/tests/language/statements/if/`
 
 ### Common Errors when interpreting an ECMA-SL program
 

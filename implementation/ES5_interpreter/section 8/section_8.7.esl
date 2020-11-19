@@ -62,7 +62,7 @@ function GetValue(V) {
   base := GetBase(V);
 
   if (IsUnresolvableReference(V)) {
-    throw ReferenceErrorException()
+    return throwEmptyCompletion(ReferenceErrorConstructorInternal())
   };
 
   if (IsPropertyReference(V)) {
@@ -71,9 +71,7 @@ function GetValue(V) {
       print base.Get;
       get := base["Get"]
     } else {
-      /* TODO
-      get := Get; */
-      throw NotImplemented()
+      get := "Get_internal"
     };
 
     return {get}(base, GetReferencedName(V))
@@ -82,28 +80,26 @@ function GetValue(V) {
   }
 };
 
-function PutValue(V, W, globalObject) {
+function PutValue(V, W) {
   print "PutValue";
   if (!(Type(V) = "Reference")) {
-    throw ReferenceErrorException()
+    return throwEmptyCompletion(ReferenceErrorConstructorInternal())
   };
 
   base := GetBase(V);
 
   if (IsUnresolvableReference(V)) {
     if (IsStrictReference(V)) {
-      throw ReferenceErrorException()
+      return throwEmptyCompletion(ReferenceErrorConstructorInternal())
     };
 
-    Put(globalObject, GetReferencedName(V), W, false)
+    Put(|global|, GetReferencedName(V), W, false)
   } else {
     if (IsPropertyReference(V)) {
       if (HasPrimitiveBase(V) = false) {
         put := base["Put"]
       } else {
-        /* TODO
-        put := Put; */
-        throw NotImplemented()
+        put := "Put_internal"
       };
 
       {put}(base, GetReferencedName(V), W, IsStrictReference(V))
@@ -113,4 +109,90 @@ function PutValue(V, W, globalObject) {
   };
 
   return
+};
+
+function Get_internal(base, P) {
+  /* The following [[Get]] internal method is used by GetValue when V is a property reference with a primitive base
+     value. It is called using base as its this value and with property P as its argument. The following steps are
+     taken: */
+
+  /* 1. Let O be ToObject(base). */
+  O := ToObject(base);
+  /* 2. Let desc be the result of calling the [[GetProperty]] internal method of O with property name P. */
+  desc := GetProperty(O, P);
+  /* 3. If desc is undefined, return undefined. */
+  if (desc = 'undefined) {
+    return 'undefined
+  };
+  /* 4. If IsDataDescriptor(desc) is true, return desc.[[Value]]. */
+  if (IsDataPropertyDescriptor(desc) = true) {
+    return desc.Value
+  }
+  /* 5. Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]] (see 8.10). */
+  else {
+    getter := desc.Get
+  };
+  /* 6. If getter is undefined, return undefined. */
+  if (getter = 'undefined) {
+    return 'undefined
+  };
+  /* 7. Return the result calling the [[Call]] internal method of getter providing base as the this value and providing
+  no arguments. */
+  return Call(getter, base, [])
+
+  /* NOTE The object that may be created in step 1 is not accessible outside of the above method. An implementation
+          might choose to avoid the actual creation of the object. The only situation where such an actual property access that uses
+          this internal method can have visible effect is when it invokes an accessor function. */
+
+};
+
+function Put_internal(base, P, W, Throw) {
+  /* The following [[Put]] internal method is used by PutValue when V is a property reference with a primitive base
+     value. It is called using base as its this value and with property P, value W, and Boolean flag Throw as
+     arguments. The following steps are taken: */
+
+  /* 1. Let O be ToObject(base). */
+  O := ToObject(base);
+  /* 2. If the result of calling the [[CanPut]] internal method of O with argument P is false, then */
+  if (CanPut(O, P) = false) {
+    /* a. If Throw is true, then throw a TypeError exception. */
+    if (Throw = true) { return throwEmptyCompletion(TypeErrorConstructorInternal()) }
+    /* b. Else return. */
+    else { return }
+  };
+  /* 3. Let ownDesc be the result of calling the [[GetOwnProperty]] internal method of O with argument P. */
+  ownDesc := GetOwnProperty(O, P);
+  /* 4. If IsDataDescriptor(ownDesc) is true, then */
+  if (IsDataPropertyDescriptor(ownDesc) = true) {
+    /* a. If Throw is true, then throw a TypeError exception. */
+    if (Throw = true) { return throwEmptyCompletion(TypeErrorConstructorInternal()) }
+    /* b. Else return. */
+    else { return }
+  };
+  /* 5. Let desc be the result of calling the [[GetProperty]] internal method of O with argument P. This may be
+        either an own or inherited accessor property descriptor or an inherited data property descriptor. */
+  desc := GetProperty(O, P);
+  /* 6. If IsAccessorDescriptor(desc) is true, then */
+  if (IsAccessorPropertyDescriptor(desc) = true) {
+    /* a. Let setter be desc.[[Set]] (see 8.10) which cannot be undefined. */
+    setter := desc.Set;
+    /* b. Call the [[Call]] internal method of setter providing base as the this value and an argument list
+          containing only W. */
+    Call(setter, base, [W])
+  }
+  /* 7. Else, this is a request to create an own property on the transient object O */
+    /* a. If Throw is true, then throw a TypeError exception. */
+  else {
+    if (Throw = true) {
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
+    }
+  };
+  /* 8. Return. */
+  return
+
+  /* NOTE The object that may be created in step 1 is not accessible outside of the above method. An implementation
+          might choose to avoid the actual creation of that transient object. The only situations where such an actual property
+          assignment that uses this internal method can have visible effect are when it either invokes an accessor function or is in
+          violation of a Throw predicated error check. When Throw is true any property assignment that would create a new property
+          on the transient object throws an error. */
 }

@@ -18,6 +18,7 @@
 %token LBRACK RBRACK
 %token PERIOD COMMA SEMICOLON
 %token DELETE
+%token THROW
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -28,7 +29,7 @@
 %token LAND LOR
 %token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
-%token TO_INT32 TO_UINT32 TO_UINT16 FLOOR FROM_CHAR_CODE TO_CHAR_CODE
+%token TO_INT TO_INT32 TO_UINT32 TO_UINT16 FLOOR FROM_CHAR_CODE TO_CHAR_CODE
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
 %token SCONCAT
@@ -119,9 +120,7 @@ val_target:
   | b = BOOLEAN;
     { print_string ">BOOL\n";Val.Bool b }
   | s = STRING;
-    { let len = String.length s in
-      let sub = String.sub s 1 (len - 2) in
-      print_string ">STR\n";Val.Str sub } (* Remove the double-quote characters from the parsed string *)
+    { print_string ">STR\n";Val.Str s }
   | s = SYMBOL;
     { print_string ">SYMBOL\n";Val.Symbol s }
   | l = LOC;
@@ -169,6 +168,8 @@ expr_target:
     { Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
   | INT_OF_STRING; e = expr_target;
     { Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
+  | TO_INT; e = expr_target;
+    { Expr.UnOpt (Oper.ToInt, e) } %prec unopt_prec
   | TO_INT32; e = expr_target;
     { Expr.UnOpt (Oper.ToInt32, e) } %prec unopt_prec
   | TO_UINT32; e = expr_target;
@@ -181,10 +182,10 @@ expr_target:
     { Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
   | TO_UINT16; e = expr_target;
     { Expr.UnOpt (Oper.ToUint16, e) } %prec unopt_prec
-  | FLOAT_OF_STRING; e = expr_target;
-    { Expr.UnOpt (Oper.FloatOfString, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
+  | FLOAT_OF_STRING; e = expr_target;
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.FloatOfString, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
     { print_string ">BINOP\n";Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
   | LNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
@@ -213,6 +214,8 @@ stmt_block:
 stmt_target:
   | PRINT; e = expr_target;
     { Stmt.Print e }
+  | THROW; e = expr_target;
+    { Stmt.Throw e }
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;
     { print_string ">FIELDASSIGN\n";  Stmt.FieldAssign (e1, Expr.Val (Str f), e2) }
   | e1 = expr_target; LBRACK; f = expr_target; RBRACK; DEFEQ; e2 = expr_target;

@@ -19,13 +19,12 @@
 *)
 let digit   = ['0' - '9']
 let letter  = ['a' - 'z' 'A' - 'Z']
-let special = ('_'|' '|','|';'|'.'|':'|'\\' '"'|'/'|'*'|'-'|'+'|'<'|'>'|'='|'{'|'}'|'['|']'|'('|')'|'$'|'@'|'!'|'?'|'%'|'~'|'&'|'|'|'^')
 let int     = '-'?digit+
 let float   = int('.')digit*
 let bool    = "true"|"false"
-let string  = '"'(digit|letter|special)*'"'
 let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
-let symbol  = '\''('+'|'-')*(var|int)
+let gvar    = '|'(var)'|'
+let symbol  = '\''(var|int)
 let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
 let loc     = "$loc_"(digit|letter|'_')+
@@ -46,8 +45,9 @@ rule read =
   parse
 
   | white          { read lexbuf }
-  | newline        { read lexbuf }
+  | newline        { new_line lexbuf; read lexbuf }
   | ":="           { DEFEQ }
+  | '@'            { AT_SIGN }
   | '.'            { PERIOD }
   | ';'            { SEMICOLON }
   | ':'            { COLON }
@@ -94,10 +94,11 @@ rule read =
   | "int_to_float"    { INT_TO_FLOAT }
   | "int_to_string"   { INT_TO_STRING }
   | "int_of_string"   { INT_OF_STRING }
-  | "float_of_string" { FLOAT_OF_STRING }
   | "float_to_string" { FLOAT_TO_STRING }
+  | "float_of_string" { FLOAT_OF_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }
   | "obj_fields"      { OBJ_FIELDS }
+  | "to_int"          { TO_INT }
   | "to_int32"        { TO_INT32 }
   | "to_uint32"       { TO_UINT32 }
   | "floor"           { FLOOR }
@@ -123,32 +124,60 @@ rule read =
   | "while"           { WHILE }
   | "return"          { RETURN }
   | "function"        { FUNCTION }
+  | "macro"           { MACRO }
   | "delete"          { DELETE }
   | "null"            { NULL }
+  | "\"'null\""       { SYMBOL ("'null") }
+  | "undefined"       { SYMBOL ("'undefined") }
   | "repeat"          { REPEAT }
   | "until"           { UNTIL }
   | "match"           { MATCH }
   | "with"            { WITH }
   | "print"           { PRINT }
+  | "assert"          { ASSERT }
+  | "NaN"             { FLOAT (float_of_string "nan") }
+  | "Infinity"        { FLOAT (float_of_string "infinity") }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
-  | string            { STRING (Lexing.lexeme lexbuf) }
+  | '"'               { read_string (Buffer.create 16) lexbuf }
+  | gvar              { GVAR (String_Utils.trim_ends (Lexing.lexeme lexbuf))}
   | var               { VAR (Lexing.lexeme lexbuf) }
   | symbol            { SYMBOL (Lexing.lexeme lexbuf) }
-  | loc            { LOC (Lexing.lexeme lexbuf) }
+  | loc               { LOC (Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }
   | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof               { EOF }
 
 
+(* Read strings *)
+and read_string buf =
+  parse
+  | '"'                  { STRING (Buffer.contents buf) }
+  | '\\' '/'             { Buffer.add_char buf '/'; read_string buf lexbuf }
+  | '\\' '\\'            { Buffer.add_char buf '\\'; read_string buf lexbuf }
+  | '\\' 'b'             { Buffer.add_char buf '\b'; read_string buf lexbuf }
+  | '\\' 'f'             { Buffer.add_char buf '\012'; read_string buf lexbuf }
+  | '\\' 'n'             { Buffer.add_char buf '\n'; read_string buf lexbuf }
+  | '\\' 'r'             { Buffer.add_char buf '\r'; read_string buf lexbuf }
+  | '\\' 't'             { Buffer.add_char buf '\t'; read_string buf lexbuf }
+  | '\\' '\"'            { Buffer.add_char buf '\"'; read_string buf lexbuf }
+  | '\\' '\''            { Buffer.add_char buf '\''; read_string buf lexbuf }
+  | [^ '"' '\\']+        {
+                           Buffer.add_string buf (Lexing.lexeme lexbuf);
+                           read_string buf lexbuf
+                         }
+  | _                    { raise (Syntax_error ("Illegal string character: " ^ Lexing.lexeme lexbuf)) }
+  | eof                  { raise (Syntax_error ("String is not terminated")) }
+
 
 and read_comment =
 (* Read comments *)
   parse
-  | "*/" { read lexbuf }
-  | _    { read_comment lexbuf }
-  | eof  { raise (Syntax_error ("Comment is not terminated."))}
+  | "*/"      { read lexbuf }
+  | newline   { new_line lexbuf; read_comment lexbuf }
+  | _         { read_comment lexbuf }
+  | eof       { raise (Syntax_error ("Comment is not terminated."))}
 
 and read_type =
 (* Read Language Types *)

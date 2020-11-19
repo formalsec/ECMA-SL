@@ -1,3 +1,12 @@
+/* 9.1 ToPrimitive */
+function ToPrimitive(input, PreferredType) {
+  if (Type(input) = "Object") {
+    return DefaultValue(input, PreferredType)
+  };
+
+  return input
+};
+
 /* 9.2 ToBoolean */
 function ToBoolean(argument) {
   /* The abstract operation ToBoolean converts its argument to a value of type Boolean according to Table 11: */
@@ -9,7 +18,7 @@ function ToBoolean(argument) {
     return argument
   };
   if (Type(argument) = "Number") {
-    if ((argument = '+0) || (argument = '-0) || (argument = 'NaN)) {
+    if ((argument = 0.) || (argument = -0.) || (argument = NaN)) {
       return false
     } else {
       return true
@@ -18,8 +27,7 @@ function ToBoolean(argument) {
     return true
   };
   if (Type(argument) = "String") {
-    /* TODO s_len */
-    if (l_len(argument) = 0) {
+    if (argument = "") {
       return false
     } else {
       return true
@@ -36,17 +44,17 @@ function ToNumber(argument) {
 
   argument_type := Type(argument);
   if (argument_type = "Undefined") {
-    return 'NaN
+    return NaN
   };
   if (argument_type = "Null") {
-    return '+0
+    return 0.
   };
   if (argument_type = "Boolean") {
     /* The result is 1 if the argument is true. The result is +0 if the argument is false. */
     if (argument = true) {
-      return int_to_float 1 /* TODO check this!! */
+      return int_to_float 1
     };
-    return '+0
+    return 0.
   };
   if (argument_type = "Number") {
     return argument
@@ -64,6 +72,19 @@ function ToNumber(argument) {
   }
 };
 
+/* 9.4 ToInteger */
+function ToInteger(argument) {
+  /* The abstract operation ToInteger converts its argument to an integral numeric value. This abstract operation
+     functions as follows: */
+
+  /* Let number be the result of calling ToNumber on the input argument. */
+  number := ToNumber(argument);
+  /* If number is NaN, return +0. */
+  /* If number is +0, -0, +Infinity, or -Infinity, return number. */
+  /* Return the result of computing sign(number) x floor(abs(number)). */
+  return to_int(number)
+};
+
 /* 9.5 ToInt32: (Signed 32 Bit Integer) */
 function ToInt32(argument) {
   /* The abstract operation ToInt32 converts its argument to one of 2^32 integer values in the range -2^31 through
@@ -72,9 +93,6 @@ function ToInt32(argument) {
   /* 1. Let number be the result of calling ToNumber on the input argument. */
   number := ToNumber(argument);
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
-  if ((number = 'NaN) || (number = '+0) || (number = '-0) || (number = '+Infinity) || (number = '-Infinity)) {
-    return 0
-  };
   return to_int32(number)
   /* 3. Let posInt be sign(number) * floor(abs(number)). */
   /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
@@ -98,9 +116,6 @@ function ToUint32(argument) {
   /* 1. Let number be the result of calling ToNumber on the input argument. */
   number := ToNumber(argument);
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
-  if ((number = 'NaN) || (number = '+0) || (number = '-0) || (number = '+Infinity) || (number = '-Infinity)) {
-    return 0
-  };
   return to_uint32(number)
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
   /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
@@ -174,7 +189,7 @@ function ToString(V) {
 function ToObject(V) {
   v_type := Type(V);
   if ((v_type = "Undefined") || (v_type = "Null")) {
-    throw TypeErrorException()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   if (v_type = "Boolean") {
     return newBoolean(V)
@@ -196,7 +211,7 @@ function ToObject(V) {
 function CheckObjectCoercible(V) {
   v_type := Type(V);
   if ((v_type = "Undefined") || (v_type = "Null")) {
-    throw TypeErrorException()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
 
   return

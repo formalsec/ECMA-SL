@@ -18,7 +18,12 @@ const argv = yargs
 fs.readFile(argv.input, "utf-8", (err, data) => {
   if (err) throw err;
 
-  const prog = esprima.parseScript(data);
+  let prog;
+  try {
+    prog = esprima.parseScript(data);
+  } catch(ex) {
+    prog = newEarlySyntaxError()
+  }
 
   const statements = translator.fromJSObjectToESLStatements(prog);
   const func = translator.fromESLStatementsToESLFunction(
@@ -28,7 +33,7 @@ fs.readFile(argv.input, "utf-8", (err, data) => {
   );
 
   if (argv.output) {
-    fs.writeFile(argv.output, func, "utf8", (err) => {
+    fs.writeFile(argv.output, func.toString(), "utf8", (err) => {
       if (err) throw err;
       console.log("The file has been saved!");
     });
@@ -36,3 +41,10 @@ fs.readFile(argv.input, "utf-8", (err, data) => {
     console.log(func.toString());
   }
 });
+
+function newEarlySyntaxError() {
+  return {
+    sourceType: "script",
+    type: "EarlySyntaxError"
+  };
+}

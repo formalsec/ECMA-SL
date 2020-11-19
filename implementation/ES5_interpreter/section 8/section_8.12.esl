@@ -59,7 +59,7 @@ function CreateDataPropertyFrom(Desc) {
 /** See 8.12.9 */
 function Reject (Throw) {
   if (Throw) {
-    throw TypeErrorException()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   } else {
     return false
   }
@@ -73,12 +73,12 @@ function Reject (Throw) {
 function GetOwnProperty(O, P) {
   print "GetOwnProperty";
 
-  if (!(P in_obj O)) {
+  if (!(P in_obj O.JSProperties)) {
     return 'undefined
   };
 
   D := NewPropertyDescriptor();
-  X := O[P];
+  X := O.JSProperties[P];
 
   if (IsDataPropertyDescriptor(X)) {
     D.Value := X.Value;
@@ -119,7 +119,7 @@ function GetProperty (O, P) {
   proto := O.Prototype;
 
   /** 4. If proto is null, return undefined. */
-  if (proto = null) {
+  if (proto = 'null) {
     return 'undefined
   };
 
@@ -157,8 +157,8 @@ function Get(O, P) {
       return 'undefined
     };
 
-    /** 6. Return the result calling the[[Call]] internal method of getter providing O as the this value and providing no arguments. */
-    return Call(getter, O)
+    /** 6. Return the result calling the [[Call]] internal method of getter providing O as the this value and providing no arguments. */
+    return Call(getter, O, [])
   }
 };
 
@@ -195,7 +195,7 @@ function CanPut(O, P) {
   proto := O.Prototype;
 
   /** 4. If proto is null, then return the value of the [[Extensible]] internal property of O. */
-  if (proto = null) {
+  if (proto = 'null) {
     return O.Extensible
   };
 
@@ -247,7 +247,7 @@ function Put(O, P, V, Throw) {
   if (CanPut(O, P) = false) {
     /** a. If Throw is true, then throw a TypeError exception. */
     if (Throw) {
-      throw TypeErrorException()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     }
     /** b. Else return. */
     else {
@@ -264,7 +264,7 @@ function Put(O, P, V, Throw) {
       Value: V
     };
     /** b. Call the [[DefineOwnProperty]] internal method of O passing P, valueDesc, and Throw as arguments. */
-    DefineOwnProperty(O, P, valueDesc, Throw);
+    {O.DefineOwnProperty}(O, P, valueDesc, Throw);
 
     /** c. Return. */
     return
@@ -293,7 +293,7 @@ function Put(O, P, V, Throw) {
     };
 
     /** b. Call the [[DefineOwnProperty]] internal method of O passing P, newDesc, and Throw as arguments. */
-    DefineOwnProperty(O, P, newDesc, Throw)
+    {O.DefineOwnProperty}(O, P, newDesc, Throw)
   };
 
   /** 7. Return. */
@@ -340,7 +340,7 @@ function Delete(O, P, Throw) {
   /** 3. If desc.[[Configurable]] is true, then */
   if (desc.Configurable = true) {
     /** a. Remove the own property with name P from O. */
-    delete O[P];
+    delete (O.JSProperties)[P];
 
     /** b. Return true. */
     return true
@@ -348,7 +348,7 @@ function Delete(O, P, Throw) {
   /** 4. Else if Throw, then throw a TypeError exception. */
   else {
     if (Throw) {
-      throw TypeErrorException()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     }
   };
 
@@ -361,6 +361,13 @@ function Delete(O, P, Throw) {
  */
 function DefaultValue (O, hint) {
   print "DefaultValue";
+  if (hint = undefined) {
+    if (getInternalProperty(O, "Class") = "Date") {
+      hint := 'String
+    } else {
+      hint := 'Number
+    }
+  };
 
   /** When the [[DefaultValue]] internal method of O is called with hint String, the following steps are taken: */
   if (hint = 'String) {
@@ -393,7 +400,7 @@ function DefaultValue (O, hint) {
     };
 
     /** 5. Throw a TypeError exception. */
-    throw TypeErrorException()
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
   }
   else {
     /** When the [[DefaultValue]] internal method of O is called with hint Number, the following steps are taken: */
@@ -427,7 +434,7 @@ function DefaultValue (O, hint) {
       };
 
       /** 5. Throw a TypeError exception. */
-      throw TypeErrorException()
+      return throwEmptyCompletion(TypeErrorConstructorInternal())
     }
   }
 
@@ -472,13 +479,13 @@ function DefineOwnProperty(O, P, Desc, Throw) {
     if (IsGenericPropertyDescriptor(Desc) || IsDataPropertyDescriptor(Desc)) {
       /** i. Create an own data property named P of object O whose [[Value]], [[Writable]], [[Enumerable]] and [[Configurable]] attribute values are described by Desc.
        *     If the value of an attribute field of Desc is absent, the attribute of the newly created property is set to its default value. */
-      O[P] := CreateDataPropertyFrom(Desc)
+      setJSProperty(O, P, CreateDataPropertyFrom(Desc))
     }
     /** b. Else, Desc must be an accessor Property Descriptor so: */
     else {
       /** i. Create an own accessor property named P of object O whose [[Get]], [[Set]], [[Enumerable]] and [[Configurable]] attribute values are described by Desc.
        *     If the value of an attribute field of Desc is absent, the attribute of the newly created property is set to its default value. */
-      O[P] := CreateAccessorPropertyFrom(Desc)
+      setJSProperty(O, P, CreateAccessorPropertyFrom(Desc))
     };
 
     /** c. Return true. */
@@ -552,20 +559,24 @@ function DefineOwnProperty(O, P, Desc, Throw) {
         /** i. Convert the property named P of object O from a data property to an accessor property.
         *     Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and
         *     set the rest of the property’s attributes to their default values. */
-        delete O[P].Value;
-        delete O[P].Writable;
-        O[P].Set := 'undefined;
-        O[P].Get := 'undefined
+        delete (O.JSProperties)[P].Value;
+        delete (O.JSProperties)[P].Writable;
+        (O.JSProperties)[P].Set := 'undefined;
+        (O.JSProperties)[P].Get := 'undefined
+        /* TODO */
+        /* convertDataPropertyDescToAccessorPropertyDesc(O, P) */
       }
       /** c. Else, */
       else {
         /** i. Convert the property named P of object O from an accessor property to a data property.
         *     Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and
         *     set the rest of the property’s attributes to their default values. */
-        delete O[P].Set;
-        delete O[P].Get;
-        O[P].Value := 'undefined;
-        O[P].Writable := false
+        delete (O.JSProperties)[P].Set;
+        delete (O.JSProperties)[P].Get;
+        (O.JSProperties)[P].Value := 'undefined;
+        (O.JSProperties)[P].Writable := false
+        /* TODO */
+        /* convertAccessorPropertyDescToDataPropertyDesc(O, P) */
       }
     }
     /** 10. Else, if IsDataDescriptor(current) and IsDataDescriptor(Desc) are both true, then: */
@@ -607,23 +618,24 @@ function DefineOwnProperty(O, P, Desc, Throw) {
     }
   };
   /** 12. For each attribute field of Desc that is present, set the correspondingly named attribute of the property named P of object O to the value of the field. */
+  /* TODO aux function */
   if ("Value" in_obj Desc) {
-    O[P].Value := Desc.Value
+    (O.JSProperties)[P].Value := Desc.Value
   };
   if ("Writable" in_obj Desc) {
-    O[P].Writable := Desc.Writable
+    (O.JSProperties)[P].Writable := Desc.Writable
   };
   if ("Set" in_obj Desc) {
-    O[P].Set := Desc.Set
+    (O.JSProperties)[P].Set := Desc.Set
   };
   if ("Get" in_obj Desc) {
-    O[P].Get := Desc.Get
+    (O.JSProperties)[P].Get := Desc.Get
   };
   if ("Enumerable" in_obj Desc) {
-    O[P].Enumerable := Desc.Enumerable
+    (O.JSProperties)[P].Enumerable := Desc.Enumerable
   };
   if ("Configurable" in_obj Desc) {
-    O[P].Configurable := Desc.Configurable
+    (O.JSProperties)[P].Configurable := Desc.Configurable
   };
 
   /** 13. Return true. */
@@ -655,4 +667,13 @@ function setAllInternalMethodsOfObject(obj) {
   obj.DefineOwnProperty := "DefineOwnProperty";
 
   return obj
+};
+
+function IsPrimitiveValue (v) {
+  v_type := Type(v);
+  if (v_type = "Object") {
+    return false
+  } else {
+    return true
+  }
 }
