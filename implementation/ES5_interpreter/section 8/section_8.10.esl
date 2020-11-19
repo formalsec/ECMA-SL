@@ -318,7 +318,7 @@ function ToPropertyDescriptor (Obj) {
   return desc
 };
 
-
+/*
 function CopyDescriptor(Desc) {
 
   if (IsDataPropertyDescriptor(Desc)) {
@@ -327,4 +327,18 @@ function CopyDescriptor(Desc) {
   };
 
   return throwEmptyCompletion("Incomplete CopyDescriptor - TODO")
+}
+*/
+
+function CopyDescriptor(Desc) {
+  newDesc := {};
+  i := 0;
+  list := obj_fields Desc;
+  llist := l_len list;
+  while(i < llist) {
+    P := l_nth (list, i);
+    newDesc[P] := Desc[P];
+    i := i + 1
+  };
+  return newDesc
 }
