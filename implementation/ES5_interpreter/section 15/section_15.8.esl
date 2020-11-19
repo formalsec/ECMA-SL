@@ -138,8 +138,8 @@ function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
   /* round_fo := CreateFunctionObject(["x"], "MathRound", globalObject, strict); */
   /* createBuiltInProperty(mathObject, "round", round_fo); */
   /* 15.8.2.16 sin (x) */
-  /* sin_fo := CreateFunctionObject(["x"], "MathSin", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "sin", sin_fo); */
+  sin_fo := CreateFunctionObject(["x"], "MathSin", globalObject, strict);
+  createBuiltInProperty(mathObject, "sin", sin_fo);
   /* 15.8.2.17 sqrt (x) */
   /* sqrt_fo := CreateFunctionObject(["x"], "MathSqrt", globalObject, strict); */
   /* createBuiltInProperty(mathObject, "sqrt", sqrt_fo); */
@@ -378,12 +378,16 @@ function MathRound(globalObject, this, stric, params) {
 
 /* 15.8.2.16 sin (x) */
 function MathSin(globalObject, this, stric, params) {
+  assert (l_len params) > 0;
+  x := l_nth (params, 0);
+  x := ToNumber(x);
+
   /* Returns an implementation-dependent approximation to the sine of x. The argument is expressed in radians. */
   /* If x is NaN, the result is NaN. */
   /* If x is +0, the result is +0. */
   /* If x is -0, the result is -0. */
   /* If x is +Infinity or -Infinity, the result is NaN. */
-  return
+  return sin(x)
 };
 
 /* 15.8.2.17 sqrt (x) */

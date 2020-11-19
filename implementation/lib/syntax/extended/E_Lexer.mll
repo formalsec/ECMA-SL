@@ -101,6 +101,7 @@ rule read =
   | "to_uint16"       { TO_UINT16 }
   | "floor"           { FLOOR }
   | "log_e"           { LOG_E }
+  | "sin"             { SIN }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }

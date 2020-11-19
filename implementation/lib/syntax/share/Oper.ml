@@ -49,6 +49,7 @@ type uopt = Neg
           | ToUint16
           | Floor
           | Log_e
+          | Sin
 
 
 type nopt = ListExpr
@@ -266,6 +267,11 @@ let log_e (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Float.log n)
   | _     -> invalid_arg "Exception in Oper.log_e: this operation is only applicable to Float arguments"
 
+let sin (v : Val.t) : Val.t = match v with
+  | Flt n -> Flt (Float.sin n)
+  | _     -> invalid_arg "Exception in Oper.sin: this operation is only applicable to Float arguments"
+
+
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
   | Not           -> "!"
@@ -291,6 +297,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | ToUint16      -> "to_uint16"
   | Floor         -> "floor"
   | Log_e         -> "log_e"
+  | Sin           -> "sin"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
@@ -389,5 +396,6 @@ let uopt_to_json (op : uopt) : string =
      | ToUint32      -> Printf.sprintf "ToUint32\" }"
      | ToUint16      -> Printf.sprintf "ToUint16\" }"
      | Floor         -> Printf.sprintf "Floor\" }"
-     | Log_e         -> Printf.sprintf "Log_e\" }")
+     | Log_e         -> Printf.sprintf "Log_e\" }"
+     | Sin           -> Printf.sprintf "Sin\" }")
 
