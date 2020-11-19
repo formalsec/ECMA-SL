@@ -102,6 +102,7 @@ rule read =
   | "floor"           { FLOOR }
   | "log_e"           { LOG_E }
   | "sin"             { SIN }
+  | "PI"              { PI }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }

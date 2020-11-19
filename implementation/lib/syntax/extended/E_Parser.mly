@@ -34,6 +34,7 @@
 %token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS
 %token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16 FLOOR LOG_E SIN
+%token PI
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
 %token SCONCAT
@@ -170,6 +171,8 @@ e_expr_target:
     { E_Expr.Var v }
   | v = GVAR;
     { E_Expr.GVar v }
+  | PI;
+    { E_Expr.Const Oper.PI }
   | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Expr.Call (E_Expr.Val (Val.Str f), es) }
   | LBRACE; f = e_expr_target; RBRACE; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;

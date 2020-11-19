@@ -58,6 +58,7 @@ function setValuePropertiesOfMathObject(mathObject) {
   /* The Number value for pi, the ratio of the circumference of a circle to its diameter, which is approximately
      3.1415926535897932. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(mathObject, "PI", PI, false, false, false);
 
   /* 15.8.1.7 SQRT1_2 */
   /* The Number value for the square root of 1⁄2, which is approximately 0.7071067811865476. */

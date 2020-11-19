@@ -1,3 +1,4 @@
+type const = PI
 
 type bopt = Plus
           | Minus
@@ -271,6 +272,9 @@ let sin (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Float.sin n)
   | _     -> invalid_arg "Exception in Oper.sin: this operation is only applicable to Float arguments"
 
+
+let str_of_const (c : const) : string = match c with
+  | PI -> "PI"
 
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
