@@ -8,6 +8,22 @@ macro JS_Interpreter_Expr_Check_Throw(ref, Expression, scope) {
   }
 };
 
+/* Evaluate VariableDeclarationList. */
+macro JS_Interpreter_VarDecl_Check_Throw(varDecl, scope) {
+  id := JS_Interpreter_VarDecl(varDecl, scope);
+  if (isErrorCompletion(id)) {
+    return id
+  }
+};
+
+/* Let varName be the result of evaluating VariableDeclarationNoIn. */
+macro JS_Interpreter_VarDecl_Check_Throw_Set_Var(var, varDecl, scope) {
+  var := JS_Interpreter_VarDecl(varDecl, scope);
+  if (isErrorCompletion(var)) {
+    return var
+  }
+};
+
 /* Let func be GetValue(ref). */
 macro GetValue(val, ref) {
   val := GetValue(ref);
@@ -17,12 +33,13 @@ macro GetValue(val, ref) {
 };
 
 /* Return (normal, GetValue(exprRef), empty). */
-macro ReturnCompletionGetValue(ref) {
+/* or return newCompletion('return, GetValue(exprRef), 'empty) */
+macro ReturnCompletionGetValue(ref, type) {
   val := GetValue(ref);
   if (isErrorCompletion(val)) {
     return val
   };
-  return normalEmptyCompletion(val)
+  return newCompletion(type, val, 'empty)
 };
 
 /* Let oldValue be ToBoolean(GetValue(expr)). */
@@ -1082,7 +1099,7 @@ function JS_Interpreter_Stmt(s, scope) {
     lVarDecl := l_len VariableDeclarationList;
     while(lVarDecl > i) {
       /* 1. Evaluate VariableDeclarationList. */
-      JS_Interpreter_VarDecl(l_nth(VariableDeclarationList, i), scope);
+      @JS_Interpreter_VarDecl_Check_Throw(l_nth(VariableDeclarationList, i), scope);
       i := i + 1
     };
     /* 2. Return (normal, empty, empty).*/
@@ -1095,7 +1112,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 1. Let exprRef be the result of evaluating Expression. */
     @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     /* 2. Return (normal, GetValue(exprRef), empty). */
-    @ReturnCompletionGetValue(exprRef)
+    @ReturnCompletionGetValue(exprRef, 'normal)
   }
   | { type: "IfStatement" } -> {
     /* 12.5 The if Statement */
@@ -1189,7 +1206,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 2. Let exprRef be the result of evaluating Expression. */
     @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     /* 3. Return (return, GetValue(exprRef), empty). */
-    return newCompletion('return, GetValue(exprRef), 'empty)
+    @ReturnCompletionGetValue(exprRef, 'return)
   }
   | { type: "WithStatement", object: Expression, body: Statement } -> {
     /* 12.10 The with Statement */
@@ -1406,7 +1423,7 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
     i := 0;
     ldeclarations := l_len VariableDeclarationListNoIn;
     while (ldeclarations > i) {
-      ret := JS_Interpreter_VarDecl(l_nth(VariableDeclarationListNoIn, i), scope);
+      @JS_Interpreter_VarDecl_Check_Throw_Set_Var(ret, l_nth(VariableDeclarationListNoIn, i), scope);
       i := i + 1
     };
 
@@ -2102,7 +2119,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
     /* The production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement is evaluated as follows: */
 
     /* 1. Let varName be the result of evaluating VariableDeclarationNoIn. */
-    varName := JS_Interpreter_VarDecl(VariableDeclarationNoIn, scope);
+    @JS_Interpreter_VarDecl_Check_Throw_Set_Var(varName, VariableDeclarationNoIn, scope);
     /* 2. Let exprRef be the result of evaluating the Expression. */
     @JS_Interpreter_Expr_Check_Throw(exprRef, Expression, scope);
     /* 3. Let experValue be GetValue(exprRef). */

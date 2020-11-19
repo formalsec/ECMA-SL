@@ -77,8 +77,8 @@ function initGlobalObject(strict) {
   /* StringObject := initStringObject();
   createBuiltInProperty(globalObject, "String", StringObject); */
   /* 15.1.4.5 Boolean ( . . . ) */
-  /* BooleanObject := initBooleanObject();
-  createBuiltInProperty(globalObject, "Boolean", BooleanObject); */
+  BooleanObject := initBooleanObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Boolean", BooleanObject);
   /* 15.1.4.6 Number ( . . . ) */
   NumberObject := initNumberObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Number", NumberObject);
@@ -89,25 +89,25 @@ function initGlobalObject(strict) {
   /* RegExpObject := initRegExpObject();
   createBuiltInProperty(globalObject, "RegExp", RegExpObject); */
   /* 15.1.4.9 Error ( . . . ) */
-  ErrorObject := initErrorObject(ObjectPrototype, globalObject, strict);
+  ErrorObject := initErrorObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Error", ErrorObject);
   /* 15.1.4.10 EvalError ( . . . ) */
-  EvalErrorObject := initEvalErrorObject(getErrorPrototype(globalObject, strict), globalObject, strict);
+  EvalErrorObject := initEvalErrorObject(globalObject, getErrorPrototype(strict), strict);
   createBuiltInProperty(globalObject, "EvalError", EvalErrorObject);
   /* 15.1.4.11 RangeError ( . . . ) */
-  RangeErrorObject := initRangeErrorObject(getErrorPrototype(globalObject, strict), globalObject, strict);
+  RangeErrorObject := initRangeErrorObject(globalObject, getErrorPrototype(strict), strict);
   createBuiltInProperty(globalObject, "RangeError", RangeErrorObject);
   /* 15.1.4.12 ReferenceError ( . . . ) */
-  ReferenceErrorObject := initReferenceErrorObject(getErrorPrototype(globalObject, strict), globalObject, strict);
+  ReferenceErrorObject := initReferenceErrorObject(globalObject, getErrorPrototype(strict), strict);
   createBuiltInProperty(globalObject, "ReferenceError", ReferenceErrorObject);
   /* 15.1.4.13 SyntaxError ( . . . ) */
-  SyntaxErrorObject := initSyntaxErrorObject(getErrorPrototype(globalObject, strict), globalObject, strict);
+  SyntaxErrorObject := initSyntaxErrorObject(globalObject, getErrorPrototype(strict), strict);
   createBuiltInProperty(globalObject, "SyntaxError", SyntaxErrorObject);
   /* 15.1.4.14 TypeError ( . . . ) */
-  TypeErrorObject := initTypeErrorObject(getErrorPrototype(globalObject, strict), globalObject, strict);
+  TypeErrorObject := initTypeErrorObject(globalObject, getErrorPrototype(strict), strict);
   createBuiltInProperty(globalObject, "TypeError", TypeErrorObject);
   /* 15.1.4.15 URIError ( . . . ) */
-  URIErrorObject := initURIErrorObject(getErrorPrototype(globalObject, strict), globalObject, strict);
+  URIErrorObject := initURIErrorObject(globalObject, getErrorPrototype(strict), strict);
   createBuiltInProperty(globalObject, "URIError", URIErrorObject);
 
   /* 15.1.5 Other Properties of the Global Object*/
