@@ -15,11 +15,19 @@ BOLD='\e[1m'
 
 
 function usage {
-  echo "Usage: $(basename $0) [-dfir]" 2>&1
-  echo '   -d   one or multiple paths to directories containing test files. All the present test files are used.'
-  echo '   -f   one or multiple paths to test files.'
-  echo '   -i   path to a file containing the list of files to test.'
-  echo '   -r   path to a directory containing test files. If the directory contains other directories, all the tests availableion those directories are also executed.'
+  echo -e 'Usage: $(basename $0) [OPTION]... [-dfir]
+
+  -d <dir>   Directory containing test files.
+             All the tests available in the directory are executed.
+  -f <file>  File to test.
+  -i <file>  File containing the list of files to test.
+  -r <dir>   Directory containing test files and/or directories.
+             If the directories contain other directories, all the tests available in those directories are also executed.
+
+  Options:
+  -E         Enable logging to file the tests executed with errors. File is "errors.log"
+  -F         Enable logging to file the failed tests. File is "failures.log"
+  -O         Enable logging to file the passed tests. File is "oks.log"'
   exit 1
 }
 
