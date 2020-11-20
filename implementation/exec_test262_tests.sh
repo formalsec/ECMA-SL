@@ -40,8 +40,8 @@ function checkConstraints() {
   FILENAME=$1
   declare -n ret=$2
   # check if it's a es5id test
-  ises5id=$(awk '/es5id:/ {print $0}' $FILENAME)
-  if [[ "${ises5id}" == "" ]]; then
+  ises5id=$(awk '/es6id:|esid:/ {print $0}' $FILENAME)
+  if [[ "${ises5id}" != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: not ES5 test${NC}\n"
 
     ret="${FILENAME} | **NOT EXECUTED** | Is not a ES5 test"
@@ -96,6 +96,7 @@ function handleSingleFile() {
   #echo "3.2. Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program"
   cd "../JS2ECMA-SL"
   JS2ECMASL=$(node src/index.js -i ../implementation/test/main262.js -o test262_ast.esl)
+  cd "../implementation"
 
   if [[ "${JS2ECMASL}" != "The file has been saved!" ]]
   then
@@ -107,14 +108,11 @@ function handleSingleFile() {
 
     result=("${FILENAME}" "**ERROR**" "$JS2ECMASL")
 
-    # Go back to previous/default directory before returning
-    cd "../implementation"
     return
   fi
 
   #echo "3.3. Copy compiled file to directory where to execute the tests"
-  cp "test262_ast.esl" "../implementation/ES5_interpreter/test262_ast.esl"
-  cd "../implementation"
+  cp "../implementation/test262_ast.esl" "ES5_interpreter/test262_ast.esl"
 
   #echo "3.4. Compile program written in \"Plus\" to \"Core\""
   ECMALSLC=$(./main.native -mode c -i ES5_interpreter/test262.esl -o ES5_interpreter/core.esl)
