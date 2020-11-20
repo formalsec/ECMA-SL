@@ -15,10 +15,11 @@ BOLD='\e[1m'
 
 
 function usage {
-  echo "Usage: $(basename $0) [-dfr]" 2>&1
+  echo "Usage: $(basename $0) [-dfir]" 2>&1
   echo '   -d   one or multiple paths to directories containing test files. All the present test files are used.'
   echo '   -f   one or multiple paths to test files.'
-  echo '   -r   path to a direcotry containing test files. If the directory contains other direcotries, all the tests present in those directories are also executed.'
+  echo '   -i   path to a file containing the list of files to test.'
+  echo '   -r   path to a directory containing test files. If the directory contains other directories, all the tests availableion those directories are also executed.'
   exit 1
 }
 
@@ -416,6 +417,17 @@ function initVars() {
 }
 
 
+function processFromInputFile() {
+  local INPUT_FILE=$1
+  LOG_ERRORS=1
+  LOG_FAILURES=1
+  LOG_OKS=1
+
+  handleFiles $OUTPUT_FILE "$(cat $INPUT_FILE)"
+
+  logStatusToFiles
+}
+
 function processRecursively() {
   local dirs=($@)
   RECURSIVE=1
@@ -471,15 +483,16 @@ fi
 echo ""
 
 # Define list of arguments expected in the input
-optstring=":dfr"
+optstring=":dfir"
 
 while getopts ${optstring} arg; do
   local numarr=($@)
   unset numarr[0] # the first item of the array is the "arg". We don't want to pass it to the functions being called.
   case $arg in
-    r) processRecursively ${numarr[@]}; break;;
     d) processDirectories ${numarr[@]}; break;;
     f) handleFiles $OUTPUT_FILE ${numarr[@]}; break;;
+    i) processFromInputFile $2; break;;
+    r) processRecursively ${numarr[@]}; break;;
 
     ?)
       echo "Invalid option: -${OPTARG}."
