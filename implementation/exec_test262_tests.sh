@@ -32,6 +32,29 @@ function writeToFile() {
   done
 }
 
+function logStatusToFiles() {
+  if [ $LOG_ERRORS -eq 1 ]; then
+    cat /dev/null > $LOG_ERRORS_FILE
+    for error in "${log_errors_arr[@]}"; do
+      echo "$error" >> $LOG_ERRORS_FILE
+    done
+  fi
+
+  if [ $LOG_FAILURES -eq 1 ]; then
+    cat /dev/null > $LOG_FAILURES_FILE
+    for failure in "${log_failures_arr[@]}"; do
+      echo "$failure" >> $LOG_FAILURES_FILE
+    done
+  fi
+
+  if [ $LOG_OKS -eq 1 ]; then
+    cat /dev/null > $LOG_OKS_FILE
+    for ok in "${log_oks_arr[@]}"; do
+      echo "$ok" >> $LOG_OKS_FILE
+    done
+  fi
+}
+
 # Checks:
 # - file is a valid ES5 test (search for the key "es5id" in the frontmatter)
 # - file doesn't use the built-in eval function
@@ -106,6 +129,10 @@ function handleSingleFile() {
     # increment number of tests with error
     incError
 
+    if [ $LOG_ERRORS -eq 1 ]; then
+      log_errors_arr+=("$FILENAME")
+    fi
+
     result=("${FILENAME}" "**ERROR**" "$JS2ECMASL")
 
     return
@@ -123,6 +150,10 @@ function handleSingleFile() {
 
     # increment number of tests with error
     incError
+
+    if [ $LOG_ERRORS -eq 1 ]; then
+      log_errors_arr+=("$FILENAME")
+    fi
 
     result=("${FILENAME}" "**ERROR**" "${ECMASLC}")
     return
@@ -146,6 +177,10 @@ function handleSingleFile() {
     # increment number of tests with error
     incError
 
+    if [ $LOG_ERRORS -eq 1 ]; then
+      log_errors_arr+=("$FILENAME")
+    fi
+
     result=("${FILENAME}" "**ERROR**" "${ECMASLCI}")
     return
   elif [[ "${RESULT}" =~ "MAIN return -> (\"C\", 'normal," ]]; then
@@ -154,6 +189,10 @@ function handleSingleFile() {
     # increment number of tests successfully executed
     incOk
 
+    if [ $LOG_OKS -eq 1 ]; then
+      log_oks_arr+=("$FILENAME")
+    fi
+
     result=("${FILENAME}" "_OK_" "")
     return
   else
@@ -161,6 +200,10 @@ function handleSingleFile() {
 
     # increment number of tests failed
     incFail
+
+    if [ $LOG_FAILURES -eq 1 ]; then
+      log_failures_arr+=("$FILENAME")
+    fi
 
     result=("${FILENAME}" "**FAIL**" "${RESULT}")
     return
@@ -358,10 +401,43 @@ function initVars() {
 
   declare -g -i LOG_ENTIRE_EVAL_OUTPUT=0
 
+  declare -g -i LOG_ERRORS=0
+  declare -g -i LOG_FAILURES=0
+  declare -g -i LOG_OKS=0
+  declare -g -r LOG_ERRORS_FILE=errors.log
+  declare -g -r LOG_FAILURES_FILE=failures.log
+  declare -g -r LOG_OKS_FILE=oks.log
+  declare -g -a log_errors_arr=()
+  declare -g -a log_failures_arr=()
+  declare -g -a log_ok_arr=()
+
   # Empty the contents of the output file
   cat /dev/null > $OUTPUT_FILE
 }
 
+
+function processRecursively() {
+  local dirs=($@)
+  RECURSIVE=1
+  LOG_ERRORS=1
+  LOG_FAILURES=1
+  LOG_OKS=1
+
+  handleDirectories $OUTPUT_FILE ${dirs[@]}
+
+  logStatusToFiles
+}
+
+function processDirectories() {
+  local dirs=($@)
+  LOG_ERRORS=1
+  LOG_FAILURES=1
+  LOG_OKS=1
+
+  handleDirectories $OUTPUT_FILE ${dirs[@]}
+
+  logStatusToFiles
+}
 
 #
 # BEGIN
@@ -398,12 +474,11 @@ echo ""
 optstring=":dfr"
 
 while getopts ${optstring} arg; do
-  numarr=($@)
+  local numarr=($@)
   unset numarr[0] # the first item of the array is the "arg". We don't want to pass it to the functions being called.
   case $arg in
-    # r) handleRecursively $2 ;;
-    r) RECURSIVE=1; handleDirectories $OUTPUT_FILE ${numarr[@]}; break;;
-    d) handleDirectories $OUTPUT_FILE ${numarr[@]}; break;;
+    r) processRecursively ${numarr[@]}; break;;
+    d) processDirectories ${numarr[@]}; break;;
     f) handleFiles $OUTPUT_FILE ${numarr[@]}; break;;
 
     ?)
