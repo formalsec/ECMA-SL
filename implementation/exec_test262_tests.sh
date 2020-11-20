@@ -418,12 +418,12 @@ function initVars() {
 
 
 function processFromInputFile() {
-  local INPUT_FILE=$1
+  local INPUT_FILES=($@)
   LOG_ERRORS=1
   LOG_FAILURES=1
   LOG_OKS=1
 
-  handleFiles $OUTPUT_FILE "$(cat $INPUT_FILE)"
+  handleFiles $OUTPUT_FILE "$(cat ${INPUT_FILES[@]})"
 
   logStatusToFiles
 }
@@ -483,16 +483,19 @@ fi
 echo ""
 
 # Define list of arguments expected in the input
-optstring=":dfir"
+optstring=":d:f:i:r:"
+
+declare -a dDirs=() # Array that will contain the directories to use with the arg "-d"
+declare -a fFiles=() # Array that will contain the files to use with the arg "-f"
+declare -a iFiles=() # Array that will contain the files to use with the arg "-i"
+declare -a rDirs=() # Array that will contain the directories to use with the arg "-r"
 
 while getopts ${optstring} arg; do
-  numarr=($@)
-  unset numarr[0] # the first item of the array is the "arg". We don't want to pass it to the functions being called.
   case $arg in
-    d) processDirectories ${numarr[@]}; break;;
-    f) handleFiles $OUTPUT_FILE ${numarr[@]}; break;;
-    i) processFromInputFile $2; break;;
-    r) processRecursively ${numarr[@]}; break;;
+    d) dDirs+=("$OPTARG") ;;
+    f) fFiles+=("$OPTARG") ;;
+    i) iFiles+=("$OPTARG") ;;
+    r) rDirs+=("$OPTARG") ;;
 
     ?)
       echo "Invalid option: -${OPTARG}."
@@ -501,6 +504,22 @@ while getopts ${optstring} arg; do
       ;;
   esac
 done
+
+if [ ${#dDirs[@]} -ne 0 ]; then
+  processDirectories ${dDirs[@]}
+fi
+
+if [ ${#fFiles[@]} -ne 0 ]; then
+  handleFiles $OUTPUT_FILE ${fFiles[@]}
+fi
+
+if [ ${#iFiles[@]} -ne 0 ]; then
+  processFromInputFile ${iFiles[@]}
+fi
+
+if [ ${#rDirs[@]} -ne 0 ]; then
+  processRecursively ${rDirs[@]}
+fi
 
 
 # 4. Remove temporary files previously created
