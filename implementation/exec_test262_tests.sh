@@ -419,9 +419,6 @@ function initVars() {
 
 function processFromInputFile() {
   local INPUT_FILES=($@)
-  LOG_ERRORS=1
-  LOG_FAILURES=1
-  LOG_OKS=1
 
   handleFiles $OUTPUT_FILE "$(cat ${INPUT_FILES[@]})"
 
@@ -431,9 +428,6 @@ function processFromInputFile() {
 function processRecursively() {
   local dirs=($@)
   RECURSIVE=1
-  LOG_ERRORS=1
-  LOG_FAILURES=1
-  LOG_OKS=1
 
   handleDirectories $OUTPUT_FILE ${dirs[@]}
 
@@ -442,9 +436,6 @@ function processRecursively() {
 
 function processDirectories() {
   local dirs=($@)
-  LOG_ERRORS=1
-  LOG_FAILURES=1
-  LOG_OKS=1
 
   handleDirectories $OUTPUT_FILE ${dirs[@]}
 
@@ -483,7 +474,7 @@ fi
 echo ""
 
 # Define list of arguments expected in the input
-optstring=":d:f:i:r:"
+optstring=":EFOd:f:i:r:"
 
 declare -a dDirs=() # Array that will contain the directories to use with the arg "-d"
 declare -a fFiles=() # Array that will contain the files to use with the arg "-f"
@@ -492,6 +483,9 @@ declare -a rDirs=() # Array that will contain the directories to use with the ar
 
 while getopts ${optstring} arg; do
   case $arg in
+    E) LOG_ERRORS=1 ;;
+    F) LOG_FAILURES=1 ;;
+    O) LOG_OKS=1 ;;
     d) dDirs+=("$OPTARG") ;;
     f) fFiles+=("$OPTARG") ;;
     i) iFiles+=("$OPTARG") ;;
