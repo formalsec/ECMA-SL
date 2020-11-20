@@ -129,10 +129,17 @@ function handleSingleFile() {
   fi
 
   #echo "3.5. Evaluate program and write the computed heap to the file heap.json. Output of the execution is written to the file result.txt"
-  ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json > result.txt)
+  if [ $LOG_ENTIRE_EVAL_OUTPUT -eq 1 ]; then
+    ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json > result.txt)
+    # 3.6. Check the result of the execution
+    RESULT=$(tail -n 10 result.txt | grep "MAIN return -> ")
+  else
+    ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json | tail -n 10 > result.txt)
+    # 3.6. Check the result of the execution
+    RESULT=$(grep "MAIN return -> " result.txt)
+  fi
 
-  if [ $? -ne 0 ]
-  then
+  if [[ "${RESULT}" == "" ]]; then
     # echo "Check file result.txt"
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
 
@@ -141,13 +148,7 @@ function handleSingleFile() {
 
     result=("${FILENAME}" "**ERROR**" "${ECMASLCI}")
     return
-  fi
-
-  # 3.6. Check the result of the execution
-  RESULT=$(tail -n 10 result.txt | grep "MAIN return -> ")
-
-  if [[ "${RESULT}" =~ "MAIN return -> (\"C\", 'normal," ]]
-  then
+  elif [[ "${RESULT}" =~ "MAIN return -> (\"C\", 'normal," ]]; then
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
 
     # increment number of tests successfully executed
@@ -199,6 +200,11 @@ function handleFiles() {
   local output_file=$1
   local files=($@)
   unset files[0]
+
+  # log evaluation output to a file
+  if [[ ${#files[@]} -eq 1 ]]; then
+    LOG_ENTIRE_EVAL_OUTPUT=1
+  fi
 
   # Write header to file
   local params=()
@@ -349,6 +355,8 @@ function initVars() {
 
   declare -g -i RECURSIVE=0
   declare -g -r OUTPUT_FILE=results.md
+
+  declare -g -i LOG_ENTIRE_EVAL_OUTPUT=0
 
   # Empty the contents of the output file
   cat /dev/null > $OUTPUT_FILE
