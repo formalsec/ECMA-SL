@@ -87,7 +87,7 @@ let interceptor (parse_sl : string -> 'sl) (func : string) (vs : Val.t list) (es
     when str = str' -> Some (SetTopLab (str))
   | ("setTop",[Val.Str str], [_])-> raise (Except "Level is not a string ")
 
-   | ("allowFlow",[Val.Str str1; Val.Str str2], [Expr.Val (Str str1'); Expr.Val (Str str2')])
+  | ("allowFlow",[Val.Str str1; Val.Str str2], [Expr.Val (Str str1'); Expr.Val (Str str2')])
     when str1 = str1' && str2 = str2' -> Some (AllowFlowLab (str1, str2))
   | ("allowFlow",[_; _], [_; _])-> raise (Except "Level is not a string ")
   

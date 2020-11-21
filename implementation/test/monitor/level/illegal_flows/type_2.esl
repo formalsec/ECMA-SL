@@ -1,24 +1,24 @@
 function main () {
-h:= true;
+	h:= true;
+	l:= true;
+	o := {};
+	o.p := true;
 
-l:= true;
-o := {};
-o.p := true;
-x:= "upgVar"("h", "high");
-
-
-
-if (h) {
-  o.p := false
-};
-x:= o.p;
-
-if(x){
-  l := false
-};
+	x:= "upgVar"("h", "high");
 
 
 
-return l
+	if (h) {
+	  o.p := false
+	};
+	x:= o.p;	
+
+	if(x){
+	  l := false
+	};
+
+
+
+	return l
 
 }

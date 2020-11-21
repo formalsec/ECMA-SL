@@ -37,8 +37,7 @@ let rec str (stmt : t) : string = match stmt with
   | AssignInObjCheck (st,e1,e2) -> st ^ " := " ^ Expr.str e1 ^ " in_obj " ^ Expr.str e2
   | AssignObjToList (st, e)     -> st ^ " := obj_to_list " ^ Expr.str e
   | AssignObjFields (st, e)     -> st ^ " := obj_fields " ^ Expr.str e
-  | Exception st                 -> "exception( " ^ st ^ " )"
-
+  | Exception st                 -> "throw " ^ st 
 let rec js (stmt : t) : string = 
 match stmt with
 | Skip                            -> Printf.sprintf ""

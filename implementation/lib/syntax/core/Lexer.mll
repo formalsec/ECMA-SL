@@ -97,6 +97,7 @@ rule read =
   | "return"          { RETURN }
   | "function"        { FUNCTION }
   | "delete"          { DELETE }
+  | "throw"           { THROW }
   | "null"            { NULL }
   | "print"           { PRINT }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }

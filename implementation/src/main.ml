@@ -6,9 +6,16 @@ let out = ref ""
 let verb_aux = ref false
 let parse = ref false
 
+let _INLINE_LATTICE_ = "lib/semantics/monitors/nsu_compiler/runtime/H-L-Lattice.esl"
+
+(*(*DEP_LATTICE*)
 module Dep_Lattice = SecLevel_Dep.M
 module NSU = NSU_Monitor.M(Dep_Lattice)
-module Inliner = NSU_Inliner.M(Dep_Lattice)
+
+*)
+
+module NSU = NSU_Monitor.M(SecLevel)
+module Inliner = NSU_Inliner.M(SecLevel)
 module CoreInterp = Core_Interpreter.M(NSU)
 
 
@@ -40,6 +47,11 @@ let arguments () =
     (fun s -> Printf.printf "Ignored Argument: %s" s)
     usage_msg
 
+let combine_progs (prog1 : Prog.t) (prog2 : Prog.t) : Prog.t =
+  Hashtbl.iter (fun k v -> 
+    Prog.add_func prog1 k v) prog2;
+  prog1 
+
 let parse_program (prog) : unit =
   print_string "+++++++++++++++++++++++++ JSON +++++++++++++++++++++++++\n";
   let json = Prog.to_json prog in
@@ -59,15 +71,21 @@ let compile_from_plus_to_core () : unit =
 let inline_compiler () : Prog.t =
   let prog_contents = Parsing_Utils.load_file !file in
   let prog = Parsing_Utils.parse_prog prog_contents in
-  let inlined_prog = Inliner.compile_functions prog "inlined.esl"  in
+  let inlined_prog = Inliner.compile_functions prog in
   (* Add Security funcs. H-L-Lattice.esl*)
+  let sec_prog_contents = Parsing_Utils.load_file _INLINE_LATTICE_ in
+  let lattice_prog = Parsing_Utils.parse_prog sec_prog_contents in
+  let final_prog = combine_progs inlined_prog lattice_prog in
+  Inliner.save_file final_prog "inlined.esl";
+  Printf.printf "================= FINAL PROGRAM ================= \n %s \n=================================" (Prog.str final_prog);
+  final_prog
+
   
-  inlined_prog
 
 let core_interpretation (prog : Prog.t) : unit =
   
   if !parse then parse_program prog;
-  let v, heap = CoreInterp.eval_prog prog (!out, !mon, !verb_aux) "main"  in
+  let v, heap = CoreInterp.eval_prog prog (!out, !mon, !verb_aux) "main" in
   (match v with
   | Some z -> print_string ("MAIN return -> "^(Val.str z));
   | None -> print_string "ERROR HERE");

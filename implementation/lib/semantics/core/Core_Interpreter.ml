@@ -330,7 +330,7 @@ let initial_state () : state_t =
 
 
 (*Worker class of the Interpreter*)
-let eval_prog (prog : Prog.t) (context : ctx_t) (main:string) : (Val.t option * Heap.t) =
+let eval_prog (prog : Prog.t) (context : ctx_t) (main : string) : (Val.t option * Heap.t) =
   match context with (out, mon, verbose) -> 
     let func = (Prog.get_func prog main) in
     let state_0 = initial_state () in

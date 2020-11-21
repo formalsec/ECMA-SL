@@ -7,9 +7,7 @@ let create_empty () : t =
 let create (funcs : Func.t list) : t =
   let prog = Hashtbl.create 511 in
   List.iter (fun (f : Func.t) -> Hashtbl.replace prog f.name f) funcs;
-  match Hashtbl.find_opt prog "main" with
-    None   -> invalid_arg "Missing main function"
-  | Some _ -> prog
+  prog
 
 
 let get_func (prog : t ) (id : string) : Func.t =

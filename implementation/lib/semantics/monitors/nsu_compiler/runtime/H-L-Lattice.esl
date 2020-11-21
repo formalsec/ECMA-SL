@@ -1,63 +1,78 @@
+function shadowPropValue (prop_str) {
+	result := s_concat([prop_str, "_prop_value_lvl"]);
+	return result
+};
+
+function shadowPropExists (prop_str) {
+	result := s_concat([prop_str, "_prop_exists_lvl"]);
+	return result
+};
+
 function lub (lev1, lev2){
 	return (lev1 || lev2)	
 };
 
+
 function leq (lev1, lev2){
-	return (lev2 || ((not lev1) && (not lev2)))
+	return (lev2 || ((! lev1) && (! lev2)))
 };
 
 function parse_lvl (lev_str){
-	if (lev_str == "high") {return true}
-	else{
-	if(lev_str == "low") {return false}
-	else { throw "parselvl - Unkown Security Level"}
+	if (lev_str = "high") {
+		return true
+	} else {
+		if	(lev_str = "low") {
+			return false
+		} else { 
+			throw "parselvl - Unkown Security Level" 
+		}
 	}
 };
 
 function lubn (levs){
+	print("DEBUG");
+	print(levs);
 	i := 0;
 	acc := false;
-	while (i < l_len levs){
-		lubn_acc := lub(acc, l_nth i levs)
+	while (i < l_len(levs)){
+		acc := "lub"(acc,  l_nth(levs, i));
+		i := i +1
 	};
 	return acc
 };
 
 
-
-##UPGS E SHADOWS vao para outro ficheiro
-fazer append destes ficheiros ao prog resultante
-
 function upgPropExists (obj, lev_obj, prop, lev_prop, lev_str, lev_lev_str, pc){ 
-	lev := parse_lvl(lev_str);
-	leq_1 := leq(lev_lev_str, pc);
-	if(not leq_1){
+	lev := "parse_lvl"(lev_str);
+	leq_1 := "leq"(lev_lev_str, pc);
+	if(! leq_1){
 		throw "upgPropExists - Levels must be literals"
 	};
-	lev_ctx := lubn([lev_obj, lev_prop, pc]);
-	prop_2 := shadowPropExists(prop);
+	lev_ctx := "lubn"(lev_obj, lev_prop, pc);
+	prop_2 := "shadowPropExists"(prop);
 	lev_2 := obj[prop_2];
-	leq_2 := leq(lev_ctx, lev_2);
+	leq_2 := "leq"(lev_ctx, lev_2);
 	if(leq_2){
-		lev_3 := lub(lev_ctx, lev);
+		lev_3 := "lub"(lev_ctx, lev);
 		obj[prop_2] := lev_3
 	} else{
 		throw "Illegal P_Exists Upgrade"
-	}
+	};
+	return 0
 };
 
 function upgPropVal (obj, lev_obj, prop, lev_prop, lev_str, lev_lev_str, pc){ 
-	lev := parse_lvl(lev_str);
-	leq_1 := leq(lev_lev_str, pc);
-	if(not leq_1){
+	lev := "parse_lvl"(lev_str);
+	leq_1 := "leq"(lev_lev_str, pc);
+	if(! leq_1){
 		throw "upgPropExists - Levels must be literals"
 	};
-	lev_ctx := lubn([lev_obj, lev_prop, pc]);
-	prop_2 := shadowPropVal(prop);
+	lev_ctx := "lubn"(lev_obj, lev_prop, pc);
+	prop_2 := "shadowPropVal"(prop);
 	lev_2 := obj[prop_2];
 	leq_2 := leq(lev_ctx, lev_2);
 	if(leq_2){
-		lev_3 := lub(lev_ctx, lev);
+		lev_3 := "lub"(lev_ctx, lev);
 		obj[prop_2] := lev_3
 	} else{
 		throw "Illegal P_Val Upgrade"
@@ -65,16 +80,16 @@ function upgPropVal (obj, lev_obj, prop, lev_prop, lev_str, lev_lev_str, pc){
 };
 
 function upgStruct (obj, lev_obj, lev_str, lev_lev_str, pc){ 
-	lev := parse_lvl(lev_str);
-	leq_1 := leq(lev_lev_str, pc);
-	if(not leq_1){
+	lev := "parse_lvl"(lev_str);
+	leq_1 := "leq"(lev_lev_str, pc);
+	if(! leq_1){
 		throw "upgStruct - Levels must be literals"
 	};
-	lev_ctx := lub(lev_obj, pc);
+	lev_ctx := "lub"(lev_obj, pc);
 	lev_2 := obj["structLev"];
-	leq_2 := leq(lev_ctx, lev_2);
+	leq_2 := "leq"(lev_ctx, lev_2);
 	if(leq_2){
-		lev_3 := lub(lev_ctx, lev);
+		lev_3 := "lub"(lev_ctx, lev);
 		obj["structLev"] := lev_3
 	} else{
 		throw "Illegal P_Val Upgrade"
@@ -82,22 +97,21 @@ function upgStruct (obj, lev_obj, lev_str, lev_lev_str, pc){
 };
 
 function upgObject (obj, lev_obj, lev_str, lev_lev_str, pc){ 
-	lev := parse_lvl(lev_str);
-	leq_1 := leq(lev_lev_str, pc);
-	if(not leq_1){
+	lev := "parse_lvl"(lev_str);
+	leq_1 := "leq"(lev_lev_str, pc);
+	if(! leq_1){
 		throw "upgObject - Levels must be literals"
 	};
-	lev_ctx := lub(lev_obj, pc);
+	lev_ctx := "lub"(lev_obj, pc);
 	lev_2 := obj["objLev"];
-	leq_2 := leq(lev_ctx, lev_2);
+	leq_2 := "leq"(lev_ctx, lev_2);
 	if(leq_2){
-		lev_3 := lub(lev_ctx, lev);
+		lev_3 := "lub"(lev_ctx, lev);
 		obj["objLev"] := lev_3
 	} else{
 		throw "Illegal P_Val Upgrade"
 	}
 }
-
 
 
 
