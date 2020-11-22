@@ -41,7 +41,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   /* 15. Call the [[DefineOwnProperty]] internal method of F with arguments "length", Property Descriptor {[[Value]]:
         len, [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
   DefineOwnProperty(F, "length", {
-    Value: len,
+    Value: int_to_float len,
     Writable: false,
     Enumerable: false,
     Configurable: false
