@@ -9,7 +9,6 @@
 %token ASSERT
 %token DEFEQ
 %token WHILE
-%token DEBUG
 %token IF ELSE
 %token RETURN
 %token NULL
@@ -34,7 +33,7 @@
 %token LAND LOR SCLAND SCLOR
 %token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
-%token TO_INT TO_INT32 TO_UINT32 TO_UINT16 FLOOR FROM_CHAR_CODE TO_CHAR_CODE
+%token TO_INT TO_INT32 TO_UINT32 TO_UINT16 FLOOR FROM_CHAR_CODE TO_CHAR_CODE TO_LOWER_CASE TO_UPPER_CASE TRIM
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
 %token SCONCAT
@@ -204,16 +203,14 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.ListLen, e) } %prec unopt_prec
   | TLEN; e = e_expr_target;
     { E_Expr.UnOpt (Oper.TupleLen, e) } %prec unopt_prec
+  | SLEN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.StringLen, e) } %prec unopt_prec
   | TYPEOF; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Typeof, e) } %prec unopt_prec
   | HD; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Head, e) } %prec unopt_prec
   | TL; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Tail, e) } %prec unopt_prec
-  | SLEN; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.SLen, e) } %prec unopt_prec
-  | INT_OF_FLOAT; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.IntOfFloat, e) } %prec unopt_prec
   | FST; e = e_expr_target;
     { E_Expr.UnOpt (Oper.First, e) } %prec unopt_prec
   | SND; e = e_expr_target;
@@ -224,6 +221,8 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
   | INT_OF_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
+  | INT_OF_FLOAT; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.IntOfFloat, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
   | FLOAT_OF_STRING; e = e_expr_target;
@@ -238,6 +237,12 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.FromCharCode, e) } %prec unopt_prec
   | TO_CHAR_CODE; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ToCharCode, e) } %prec unopt_prec
+  | TO_LOWER_CASE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ToLowerCase, e) } %prec unopt_prec
+  | TO_UPPER_CASE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ToUpperCase, e) } %prec unopt_prec
+  | TRIM; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Trim, e) } %prec unopt_prec
   | FLOOR; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
   | TO_UINT16; e = e_expr_target;
@@ -256,7 +261,7 @@ prefix_binary_op_target:
   | TNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Tnth, e1, e2) }
   | SNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.SNth, e1, e2) }
+    { E_Expr.BinOpt (Oper.Snth, e1, e2) }
   | LADD; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Ladd, e1, e2) }
   | LPREPEND; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
@@ -295,8 +300,6 @@ e_stmt_target:
     { E_Stmt.FieldDelete (e, f) }
   | SKIP;
     { E_Stmt.Skip }
-  | DEBUG;
-    { E_Stmt.Debug }
   | v = VAR; DEFEQ; e = e_expr_target;
     { E_Stmt.Assign (v, e) }
   | v = GVAR; DEFEQ; e = e_expr_target;

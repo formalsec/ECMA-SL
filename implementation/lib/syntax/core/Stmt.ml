@@ -15,7 +15,6 @@ type t = Skip
        | FieldAssign      of Expr.t * Expr.t * Expr.t
        | FieldDelete      of Expr.t * Expr.t
        | FieldLookup      of string * Expr.t * Expr.t
-       | Debug
 
 (*---------------Strings------------------*)
 
@@ -26,9 +25,8 @@ let is_basic_stmt (s : t) : bool = match s with
 let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   let str_e = Option.default Expr.str print_expr in
   match stmt with
-    Skip                        -> "skip"
-  | Merge                       -> "merge"
-  | Debug                       -> "debug"
+    Skip
+  | Merge                       -> ""
   | Print e                     -> "print " ^ (str_e e)
   | Throw e                     -> "throw " ^ (str_e e)
   | Assign (v, exp)             -> v ^ " := " ^ (str_e exp)
@@ -48,13 +46,11 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | AssignObjToList (st, e)     -> st ^ " := obj_to_list " ^ str_e e
   | AssignObjFields (st, e)     -> st ^ " := obj_fields " ^ str_e e
 
-
 let rec to_json (stmt : t) : string =
   (*Stmts args : rhs/ lhs / expr / obj / field/ stringvar *)
   match stmt with
   | Skip                        -> Printf.sprintf "{\"type\" : \"skip\"}"
   | Merge                       -> Printf.sprintf "{\"type\" : \"merge\"}"
-  | Debug                       -> Printf.sprintf "{\"type\" : \"debug\"}"
   | Print e                     -> Printf.sprintf "{\"type\" : \"print\", \"expr\" :  %s }" (Expr.to_json e)
   | Throw e                     -> Printf.sprintf "{\"type\" : \"throw\", \"expr\" :  %s }" (Expr.to_json e)
   | Assign (v, exp)             -> Printf.sprintf "{\"type\" : \"assign\", \"lhs\" :  \"%s\", \"rhs\" :  %s}" v (Expr.to_json exp)
@@ -70,6 +66,6 @@ let rec to_json (stmt : t) : string =
   | AssignNewObj va             -> Printf.sprintf "{\"type\" : \"assignnewobject\", \"lhs\" : \"%s\" }" (va)
   | FieldLookup (va, eo, p)     -> Printf.sprintf "{\"type\" : \"fieldlookup\", \"lhs\" : \"%s\", \"obj\" : %s, \"field\" : %s}" (va) (Expr.to_json eo) (Expr.to_json p)
   | AssignInObjCheck (st,e1,e2) -> Printf.sprintf "{\"type\" : \"assigninobjcheck\", \"lhs\" : \"%s\", \"field\" : %s, \"obj\" : %s}" (st) (Expr.to_json e1) (Expr.to_json e2)
-  | AssignObjToList (st,e)      -> Printf.sprintf "{\"type\" : \"assigniobjtolist\", \"lhs\" : \"%s\", \"obj\" %s}" (st) (Expr.to_json e)
+  | AssignObjToList (st,e)      -> Printf.sprintf "{\"type\" : \"assigniobjtolist\", \"lhs\" : \"%s\", \"obj\" %s}" (st) (Expr.to_json e) 
   | AssignObjFields (st,e)      -> Printf.sprintf "{\"type\" : \"assignobjfields\", \"lhs\" : \"%s\", \"obj\" %s}" (st) (Expr.to_json e)
 

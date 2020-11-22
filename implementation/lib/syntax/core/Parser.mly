@@ -6,7 +6,6 @@
 *)
 %token SKIP
 %token PRINT
-%token DEBUG
 %token DEFEQ
 %token WHILE
 %token IF ELSE
@@ -29,7 +28,7 @@
 %token LAND LOR
 %token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
-%token TO_INT TO_INT32 TO_UINT32 TO_UINT16 FLOOR FROM_CHAR_CODE TO_CHAR_CODE
+%token TO_INT TO_INT32 TO_UINT32 TO_UINT16 FLOOR FROM_CHAR_CODE TO_CHAR_CODE TO_LOWER_CASE TO_UPPER_CASE TRIM
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
 %token SCONCAT
@@ -148,16 +147,14 @@ expr_target:
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.ListLen, e) } %prec unopt_prec
   | TLEN; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.TupleLen, e) } %prec unopt_prec
+  | SLEN; e = expr_target;
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.StringLen, e) } %prec unopt_prec
   | TYPEOF; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Typeof, e) } %prec unopt_prec
   | HD; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Head, e) } %prec unopt_prec
   | TL; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Tail, e) } %prec unopt_prec
-  | SLEN; e = expr_target;
-    { print_string ">UNOP\n"; Expr.UnOpt (Oper.SLen, e) } %prec unopt_prec
-  | INT_OF_FLOAT; e = expr_target;
-    { print_string ">UNOP\n"; Expr.UnOpt (Oper.IntOfFloat, e) } %prec unopt_prec
   | FST; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.First, e) } %prec unopt_prec
   | SND; e = expr_target;
@@ -168,6 +165,8 @@ expr_target:
     { Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
   | INT_OF_STRING; e = expr_target;
     { Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
+  | INT_OF_FLOAT; e = expr_target;
+    { print_string ">UNOP\n"; Expr.UnOpt (Oper.IntOfFloat, e) } %prec unopt_prec
   | TO_INT; e = expr_target;
     { Expr.UnOpt (Oper.ToInt, e) } %prec unopt_prec
   | TO_INT32; e = expr_target;
@@ -178,6 +177,12 @@ expr_target:
     { Expr.UnOpt (Oper.FromCharCode, e) } %prec unopt_prec
   | TO_CHAR_CODE; e = expr_target;
     { Expr.UnOpt (Oper.ToCharCode, e) } %prec unopt_prec
+  | TO_LOWER_CASE; e = expr_target;
+    { Expr.UnOpt (Oper.ToLowerCase, e) } %prec unopt_prec
+  | TO_UPPER_CASE; e = expr_target;
+    { Expr.UnOpt (Oper.ToUpperCase, e) } %prec unopt_prec
+  | TRIM; e = expr_target;
+    { Expr.UnOpt (Oper.Trim, e) } %prec unopt_prec
   | FLOOR; e = expr_target;
     { Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
   | TO_UINT16; e = expr_target;
@@ -193,7 +198,7 @@ expr_target:
   | TNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { print_string ">BINOP\n";Expr.BinOpt (Oper.Tnth, e1, e2) }
   | SNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
-    { print_string ">BINOP\n";Expr.BinOpt (Oper.SNth, e1, e2) }
+    { print_string ">BINOP\n";Expr.BinOpt (Oper.Snth, e1, e2) }
   | LADD; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { print_string ">BINOP\n";Expr.BinOpt (Oper.Ladd, e1, e2) }
   | LPREPEND; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
@@ -226,8 +231,6 @@ stmt_target:
     {print_string ">FIELDDELETE\n";   Stmt.FieldDelete (e, f) }
   | SKIP;
     { print_string ">SKIP\n";Stmt.Skip }
-  | DEBUG;
-    { Stmt.Debug }
   | v = VAR; DEFEQ; e = expr_target;
     { print_string ">ASSIGN\n";Stmt.Assign (v, e) }
   | exps_stmts = ifelse_target;

@@ -21,10 +21,11 @@ type bopt = Plus
           | InList
           | Lnth
           | Tnth
+          | Snth
           | Ladd
           | Lprepend
           | Lconcat
-          | SNth
+
 
 type uopt = Neg
           | Not
@@ -32,6 +33,7 @@ type uopt = Neg
           | Typeof
           | ListLen
           | TupleLen
+          | StringLen
           | Head
           | Tail
           | First
@@ -52,8 +54,9 @@ type uopt = Neg
           | ToUint16
           | FromCharCode
           | ToCharCode
-          | SLen
-
+          | ToLowerCase
+          | ToUpperCase
+          | Trim
 
 
 type nopt = ListExpr
@@ -163,6 +166,10 @@ let t_len (v : Val.t) : Val.t = match v with
   | Tuple t -> Val.Int (List.length t)
   | _       -> invalid_arg "Exception in Oper.t_len: this operation is only applicable to Tuple arguments"
 
+let s_len (v : Val.t) : Val.t = match v with
+  | Str s -> Int (String.length s)
+  | _     -> invalid_arg "Exception in Oper.s_len: this operation is only applicable to String arguments"
+
 let list_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | List l, Int i -> List.nth l i
   | _             -> invalid_arg "Exception in Oper.list_nth: this operation is only applicable to List and Int arguments"
@@ -170,6 +177,10 @@ let list_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
 let tuple_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | Tuple l, Int i -> List.nth l i
   | _              -> invalid_arg "Exception in Oper.tuple_nth: this operation is only applicable to Tuple and Int arguments"
+
+let s_nth (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
+  | Str s, Int i -> Str (String.sub s i 1)
+  | _            -> invalid_arg "Exception in Oper.s_nth: this operation is only applicable to String and Integer arguments"
 
 let list_in (v1, v2 : Val.t * Val.t) : Val.t = match v2 with
   | List l -> Bool (List.mem v1 l)
@@ -211,9 +222,7 @@ let int_to_string (v : Val.t) : Val.t = match v with
 
 let int_to_float (v : Val.t) : Val.t = match v with
   | Int i -> Flt (float_of_int i)
-  | _     ->
-    let msg = Printf.sprintf "Exception in Oper.int_to_float: this operation is only applicable to Int arguments. Got %s" (Val.str v) in
-    invalid_arg msg
+  | _     -> invalid_arg "Exception in Oper.int_to_float: this operation is only applicable to Int arguments"
 
 let int_of_string (v : Val.t) : Val.t = match v with
   | Str s -> Int (int_of_string s)
@@ -221,9 +230,7 @@ let int_of_string (v : Val.t) : Val.t = match v with
 
 let int_of_float (v : Val.t) : Val.t = match v with
   | Flt f -> Int (int_of_float f)
-  | _     ->
-    let msg = Printf.sprintf "Exception in Oper.int_of_float: this operation is only applicable to Int arguments. Got %s" (Val.str v) in
-    invalid_arg msg
+  | _     -> invalid_arg "Exception in Oper.int_of_float: this operation is only applicable to Int arguments."
 
 let float_to_string (v : Val.t) : Val.t = match v with
   | Flt i ->
@@ -256,39 +263,43 @@ let shift_right_logical (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
 
 let to_int (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_int n)
-  | _     -> Null
+  | _     -> invalid_arg "Exception in Oper.to_int: this operation is only applicable to Float arguments"
 
 let to_int32 (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_int32 n)
-  | _     -> Null
+  | _     -> invalid_arg "Exception in Oper.to_int32: this operation is only applicable to Float arguments"
 
 let to_uint32 (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_uint32 n)
-  | _     -> Null
-
-let to_uint16 (v : Val.t) : Val.t = match v with
-  | Flt n -> Flt (Arith_Utils.to_uint16 n)
-  | _     -> Null
+  | _     -> invalid_arg "Exception in Oper.to_uint32: this operation is only applicable to Float arguments"
 
 let from_char_code (v : Val.t) : Val.t = match v with
-  | Int n -> Str (Arith_Utils.from_char_code n)
+  | Int n -> Str (String_Utils.from_char_code n)
   | _     -> invalid_arg "Exception in Oper.from_char_code: this operation is only applicable to Int arguments"
 
 let to_char_code (v : Val.t) : Val.t = match v with
-  | Str s -> Flt (float_of_int (Arith_Utils.to_char_code s))
+  | Str s -> Flt (float_of_int (String_Utils.to_char_code s))
   | _     -> invalid_arg "Exception in Oper.to_char_code: this operation is only applicable to Str arguments"
+
+let to_lower_case (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_lower_case s)
+  | _     -> invalid_arg "Exception in Oper.to_lower_case: this operation is only applicable to Str arguments"
+
+let to_upper_case (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _     -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let trim (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.trim s)
+  | _     -> invalid_arg "Exception in Oper.trim: this operation is only applicable to Str arguments"
+
+let to_uint16 (v : Val.t) : Val.t = match v with
+  | Flt n -> Flt (Arith_Utils.to_uint16 n)
+  | _     -> invalid_arg "Exception in Oper.to_uint16: this operation is only applicable to Float arguments"
 
 let to_floor (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (floor n)
-  | _     -> Null
-
-let s_len (v : Val.t) : Val.t = match v with
-  | Str s -> Int (String.length s)
-  | _     -> invalid_arg "Exception in Oper.s_len: this operation is only applicable to String arguments"
-
-let s_nth (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
-  | Str s, Int i -> Str (String.sub s i 1)
-  | _            -> invalid_arg "Exception in Oper.s_nth: this operation is only applicable to String and Integer arguments"
+  | _     -> invalid_arg "Exception in Oper.to_floor: this operation is only applicable to Float arguments"
 
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
@@ -297,6 +308,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | Typeof        -> "typeof"
   | ListLen       -> "l_len"
   | TupleLen      -> "t_len"
+  | StringLen          -> "s_len"
   | Head          -> "hd"
   | Tail          -> "tl"
   | First         -> "fst"
@@ -313,11 +325,13 @@ let str_of_unopt (op : uopt) : string = match op with
   | ToInt         -> "to_int"
   | ToInt32       -> "to_int32"
   | ToUint32      -> "to_uint32"
-  | Floor         -> "floor"
+  | Floor         -> "to_floor"
   | ToUint16      -> "to_uint16"
   | FromCharCode  -> "from_char_code"
   | ToCharCode    -> "to_char_code"
-  | SLen          -> "s_len"
+  | ToLowerCase   -> "to_lower_case"
+  | ToUpperCase   -> "to_upper_case"
+  | Trim          -> "trim"
 
 
 
@@ -344,10 +358,10 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | InList   -> e1 ^ " in_list " ^ e2
   | Lnth     -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Tnth     -> "t_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Snth     -> "s_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Ladd     -> "l_add(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Lprepend -> "l_prepend(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Lconcat  -> "l_concat(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | SNth     -> "s_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | ListExpr  -> "[ " ^ (String.concat ", " es) ^ " ]"
@@ -370,20 +384,20 @@ let bopt_to_json (op : bopt) : string =
      | Elt     -> Printf.sprintf "Elt\" }"
      | Log_And -> Printf.sprintf "Log_And\" }"
      | Log_Or  -> Printf.sprintf "Log_Or\" }"
-     | BitwiseAnd        -> Printf.sprintf "BitwiseAnd\" }"
-     | BitwiseOr         -> Printf.sprintf "BitwiseOr\" }"
-     | BitwiseXor        -> Printf.sprintf "BitwiseXor\" }"
-     | ShiftLeft         -> Printf.sprintf "ShiftLeft\" }"
-     | ShiftRight        -> Printf.sprintf "ShiftRight\" }"
+     | BitwiseAnd -> Printf.sprintf "BitwiseAnd\" }"
+     | BitwiseOr -> Printf.sprintf "BitwiseOr\" }"
+     | BitwiseXor -> Printf.sprintf "BitwiseXor\" }"
+     | ShiftLeft -> Printf.sprintf "ShiftLeft\" }"
+     | ShiftRight -> Printf.sprintf "ShiftRight\" }"
      | ShiftRightLogical -> Printf.sprintf "ShiftRightLogical\" }"
-     | InObj             -> Printf.sprintf "InObj\" }"
-     | InList            -> Printf.sprintf "InList\" }"
-     | Lnth              -> Printf.sprintf "Lnth\" }"
-     | Tnth              -> Printf.sprintf "Tnth\" }"
-     | Ladd              -> Printf.sprintf "Ladd\" }"
-     | Lprepend          -> Printf.sprintf "Lprepend\" }"
-     | Lconcat           -> Printf.sprintf "Lconcat\" }"
-     | SNth              -> Printf.sprintf "SNth\" }")
+     | InObj   -> Printf.sprintf "InObj\" }"
+     | InList  -> Printf.sprintf "InList\" }"
+     | Lnth    -> Printf.sprintf "Lnth\" }"
+     | Tnth    -> Printf.sprintf "Tnth\" }"
+     | Snth    -> Printf.sprintf "Snth\" }"
+     | Ladd    -> Printf.sprintf "Ladd\" }"
+     | Lprepend -> Printf.sprintf "Lprepend\" }"
+     | Lconcat -> Printf.sprintf "Lconcat\" }")
 
 let nopt_to_json (op : nopt) : string =
   Printf.sprintf "{ \"type\" : \"nopt\", \"value\" : \"%s"
@@ -403,6 +417,7 @@ let uopt_to_json (op : uopt) : string =
      | Typeof        -> Printf.sprintf "Typeof\" }"
      | ListLen       -> Printf.sprintf "ListLen\" }"
      | TupleLen      -> Printf.sprintf "TypleLen\" }"
+     | StringLen          -> Printf.sprintf "StringLen\" }"
      | Head          -> Printf.sprintf "Head\" }"
      | Tail          -> Printf.sprintf "Tail\" }"
      | First         -> Printf.sprintf "First\" }"
@@ -422,5 +437,7 @@ let uopt_to_json (op : uopt) : string =
      | ToUint16      -> Printf.sprintf "ToUint16\" }"
      | FromCharCode  -> Printf.sprintf "FromCharCode\" }"
      | ToCharCode    -> Printf.sprintf "ToCharCode\" }"
-     | Floor         -> Printf.sprintf "Floor\" }"
-     | SLen          -> Printf.sprintf "SLen\" }")
+     | ToLowerCase   -> Printf.sprintf "ToLowerCase\" }"
+     | ToUpperCase   -> Printf.sprintf "ToUpperCase\" }"
+     | Trim          -> Printf.sprintf "Trim\" }"
+     | Floor         -> Printf.sprintf "Floor\" }")

@@ -29,6 +29,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Typeof        -> Oper.typeof v
   | ListLen       -> Oper.l_len v
   | TupleLen      -> Oper.t_len v
+  | StringLen          -> Oper.s_len v
   | Head          -> Oper.head v
   | Tail          -> Oper.tail v
   | First         -> Oper.first v
@@ -47,9 +48,11 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ToUint32      -> Oper.to_uint32 v
   | FromCharCode  -> Oper.from_char_code v
   | ToCharCode    -> Oper.to_char_code v
+  | ToLowerCase   -> Oper.to_lower_case v
+  | ToUpperCase   -> Oper.to_upper_case v
+  | Trim          -> Oper.trim v
   | Floor         -> Oper.to_floor v
   | ToUint16      -> Oper.to_uint16 v
-  | SLen          -> Oper.s_len v
 
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
@@ -74,12 +77,12 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ShiftRightLogical -> Oper.shift_right_logical (v1, v2)
   | Lnth     -> Oper.list_nth (v1, v2)
   | Tnth     -> Oper.tuple_nth (v1, v2)
+  | Snth     -> Oper.s_nth (v1,v2)
   | Ladd     -> Oper.list_add (v1, v2)
   | Lprepend -> Oper.list_prepend (v1, v2)
   | Lconcat  -> Oper.list_concat (v1, v2)
   | InList   -> Oper.list_in (v1, v2)
   | InObj    -> raise(Except "Not expected")
-  | SNth     -> Oper.s_nth (v1,v2)
 
 
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
@@ -176,10 +179,6 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
 
   match s with
   | Skip ->
-    (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
-
-  | Debug ->
-    Inspector.inspector heap sto;
     (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
 
   | Merge -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.MergeLab)

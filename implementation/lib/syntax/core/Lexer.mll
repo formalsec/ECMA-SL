@@ -77,13 +77,13 @@ rule read =
   | "l_concat"     { LCONCAT }
   | "hd"           { HD }
   | "tl"           { TL }
-  | "s_len"        { SLEN }
-  | "s_nth"        { SNTH }
-  | "s_concat"     { SCONCAT }
   | "t_len"        { TLEN }
   | "t_nth"        { TNTH }
   | "fst"          { FST }
   | "snd"          { SND }
+  | "s_concat"     { SCONCAT }
+  | "s_len"        { SLEN }
+  | "s_nth"        { SNTH }
   | "int_to_float"    { INT_TO_FLOAT }
   | "int_to_string"   { INT_TO_STRING }
   | "int_of_string"   { INT_OF_STRING }
@@ -99,6 +99,9 @@ rule read =
   | "to_uint16"       { TO_UINT16 }
   | "from_char_code"  { FROM_CHAR_CODE }
   | "to_char_code"    { TO_CHAR_CODE }
+  | "to_lower_case"   { TO_LOWER_CASE }
+  | "to_upper_case"   { TO_UPPER_CASE }
+  | "trim"            { TRIM }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }
@@ -107,7 +110,6 @@ rule read =
   | ']'               { RBRACK }
   | "typeof"          { TYPEOF }
   | "__$"             { read_type lexbuf }
-  | "debug"           { DEBUG }
   | "if"              { IF }
   | "else"            { ELSE }
   | "while"           { WHILE }

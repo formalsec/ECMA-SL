@@ -55,14 +55,6 @@ let to_uint16 = fun n ->
     int16bit
   | _ -> 0.
 
-let from_char_code = fun (n : int) : string ->
-  let c = Char.chr n in
-  String.make 1 c
-
-let to_char_code = fun (s : string ) : int ->
-  let c = Char.code (s.[0]) in
-  c
-
 let modulo_32 = (fun x -> let r = mod_float x 32. in if x < 0. then r +. 32. else r)
 
 let int32_bitwise_not = fun x -> Int32.to_float (Int32.lognot (Int32.of_float x))
@@ -98,11 +90,11 @@ let string_of_pos_float num =
 		let inum = int_of_float num in
     if (is_int num) then string_of_int inum
 		(* It is not an integer *)
-    else
-			if num > 1e+9 && num < 1e+21
+    else 
+			if num > 1e+9 && num < 1e+21 
 				then Printf.sprintf "%.0f" num
 			else
-			if ((1e-5 <= num) && (num < 1e-4))
+			if ((1e-5 <= num) && (num < 1e-4)) 
 			then
 			begin
 				let s = (string_of_float (num *. 10.)) in
@@ -110,7 +102,7 @@ let string_of_pos_float num =
 				"0.0" ^ (String.sub s 2 (len - 2))
 			end
 			else
-			if ((1e-6 <= num) && (num < 1e-5))
+			if ((1e-6 <= num) && (num < 1e-5)) 
 			then
 			begin
 				let s = (string_of_float (num *. 100.)) in
@@ -120,7 +112,7 @@ let string_of_pos_float num =
 			else
 			let re = Str.regexp "e\\([-+]\\)0" in (* e+0 -> e+ *)
       	Str.replace_first re "e\\1" (string_of_float num)
-
+	
 let rec float_to_string_inner n =
   if Float.is_nan n then "NaN"
   else if ((n = 0.0) || (n = -0.0)) then "0"

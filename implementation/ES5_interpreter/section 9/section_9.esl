@@ -139,8 +139,6 @@ function ToUint16(argument) {
 
   /* 1. Let number be the result of calling ToNumber on the input argument. */
   number := ToNumber(argument);
-  print "Inside ToUint";
-  print number;
   return to_uint16(number)
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
@@ -192,10 +190,10 @@ function ToObject(V) {
     return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   if (v_type = "Boolean") {
-    return newBoolean(V)
+    return BooleanConstructor(|global|, 'undefined, false, [V])
   };
   if (v_type = "Number") {
-    return newNumber(V)
+    return NumberConstructor(|global|, 'undefined, false, [V])
   };
   if (v_type = "String") {
     return newString(V)

@@ -13,7 +13,6 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
   /* 1. Let env be the environment record component of the running execution context‘s VariableEnvironment. */
   env := getEnvironmentRecord(getVariableEnvironment(runningExecCtx));
   /* 2. If code is eval code, then let configurableBindings be true else let configurableBindings be false. */
-  debug; 
   if (isEvalCode(code)) {
     configurableBindings := true
   } else {

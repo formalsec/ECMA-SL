@@ -1,7 +1,7 @@
 type t = Skip
        | Print       of E_Expr.t
        | Assign      of string * E_Expr.t
-       | GlobAssign  of string * E_Expr.t
+       | GlobAssign  of string * E_Expr.t 
        | Block       of t list
        | If          of E_Expr.t * t * t option
        | While       of E_Expr.t * t
@@ -11,7 +11,6 @@ type t = Skip
        | ExprStmt    of E_Expr.t
        | RepeatUntil of t * E_Expr.t
        | MatchWith   of E_Expr.t * (E_Pat.t * t) list
-       | Debug
        | Throw       of E_Expr.t
        | Assert      of E_Expr.t
        | MacroApply  of string * E_Expr.t list
@@ -35,28 +34,27 @@ let rec str (stmt : t) : string = match stmt with
   | RepeatUntil (s, e)        -> "repeat " ^ str s ^ " until " ^ E_Expr.str e
   | MatchWith (e, pats_stmts) -> "match " ^ E_Expr.str e ^ " with | "
                                  ^ String.concat " | " (List.map (fun (e, s) -> E_Pat.str e ^ ": " ^ str s) pats_stmts)
-  | Debug                     -> "debug"
   | Throw e                   -> "throw " ^ E_Expr.str e
   | Assert e                  -> "assert " ^ E_Expr.str e
   | MacroApply (m, es)        -> "@" ^ m ^ " (" ^ String.concat ", " (List.map E_Expr.str es) ^ ")"
 
 
 let rec map
-      ?(fe : (E_Expr.t -> E_Expr.t) option)
-      (f : (t -> t)) (s : t) : t =
+      ?(fe : (E_Expr.t -> E_Expr.t) option) 
+      (f : (t -> t)) (s : t) : t = 
+  
+  let fe = Option.default (fun x -> x) fe in 
+  let f_pat = List.map (fun (epat, s) -> (epat, map ~fe f s)) in 
 
-  let fe = Option.default (fun x -> x) fe in
-  let f_pat = List.map (fun (epat, s) -> (epat, map ~fe f s)) in
-
-  let fx (x : string) : string =
-    let e' = fe (E_Expr.Var x) in
-    match (e' : E_Expr.t) with
-      | Var y -> y
-      | _ -> raise (Failure "Substituting non-var expression on LHS") in
-
-  let s' =
-    match s with
-    | Skip                        -> Skip
+  let fx (x : string) : string = 
+    let e' = fe (E_Expr.Var x) in 
+    match (e' : E_Expr.t) with 
+      | Var y -> y 
+      | _ -> raise (Failure "Substituting non-var expression on LHS") in 
+ 
+  let s' = 
+    match s with 
+    | Skip                        -> Skip 
     | Print e                     -> Print (fe e)
     | Assign (x, e)               -> Assign (fx x, fe e)
     | GlobAssign (x, e)           -> GlobAssign (fx x, fe e)
@@ -65,19 +63,18 @@ let rec map
     | While (e, s)                -> While(fe e, map ~fe f s)
     | Return e                    -> Return (fe e)
     | FieldAssign (e_o, e_f, e_v) -> FieldAssign (fe e_o, fe e_f, fe e_v)
-    | FieldDelete (e, f)          -> FieldDelete (fe e, fe f)
+    | FieldDelete (e, f)          -> FieldDelete (fe e, fe f) 
     | ExprStmt e                  -> ExprStmt (fe e)
     | RepeatUntil (s, e)          -> RepeatUntil (map ~fe f s, fe e)
     | MatchWith (e, pats_stmts)   -> MatchWith (fe e, f_pat pats_stmts)
-    | Debug                       -> Debug
     | Throw e                     -> Throw (fe e)
     | Assert e                    -> Assert (fe e)
-    | MacroApply (m, es)          -> MacroApply (m, List.map fe es) in
-  f s'
+    | MacroApply (m, es)          -> MacroApply (m, List.map fe es) in 
+  f s' 
 
-let subst (sbst : E_Expr.subst_t) (s : t) : t =
+let subst (sbst : E_Expr.subst_t) (s : t) : t = 
   (*Printf.printf "Applying the subst: %s\nOn statement:\n%s\n" (E_Expr.string_of_subst sbst) (str s); *)
-  let ret = map ~fe:(E_Expr.subst sbst) (fun x -> x) s in
+  let ret = map ~fe:(E_Expr.subst sbst) (fun x -> x) s in 
   (* Printf.printf "Obtained: %s\n" (str ret);  *)
-  ret
+  ret 
 

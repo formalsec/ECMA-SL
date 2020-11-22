@@ -101,17 +101,13 @@ function GetOwnProperty(O, P) {
  * When the [[GetProperty]] internal method of O is called with property name P, the following steps are taken:
  */
 function GetProperty (O, P) {
-  print "GetProperty Started";
-  print P;
+  print "GetProperty";
 
   /** 1. Let prop be the result of calling the [[GetOwnProperty]] internal method of O with property name P. */
   prop := GetOwnProperty(O, P);
-  print "After GetOwnProperty";
-  print prop;
 
   /** 2. If prop is not undefined, return prop. */
   if (!(prop = 'undefined)) {
-    print "Returned prop";
     return prop
   };
 
@@ -145,7 +141,6 @@ function Get(O, P) {
 
   /** 3. If IsDataDescriptor(desc) is true, return desc.[[Value]]. */
   if (IsDataPropertyDescriptor(desc)) {
-    print "Get Returning";
     return desc.Value
   }
   /** 4. Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]]. */
@@ -255,7 +250,7 @@ function Put(O, P, V, Throw) {
     }
   };
   /** 2. Let ownDesc be the result of calling the [[GetOwnProperty]] internal method of O with argument P. */
-  ownDesc := GetOwnProperty(O, P);
+  ownDesc := {O.GetOwnProperty}(O, P);
 
   /** 3. If IsDataDescriptor(ownDesc) is true, then: */
   if (IsDataPropertyDescriptor(ownDesc)) {
@@ -532,11 +527,11 @@ function DefineOwnProperty(O, P, Desc, Throw) {
   /** 7. If the [[Configurable]] field of current is false then: */
   if (current.Configurable = false) {
     /** a. Reject, if the [[Configurable]] field of Desc is true. */
-    if (Desc.Configurable = true) {
+    if (("Configurable" in_obj Desc) &&& (Desc.Configurable = true)) {
       return Reject(Throw)
     };
     /** b. Reject, if the [[Enumerable]] field of Desc is present and the [[Enumerable]] fields of current and Desc are the Boolean negation of each other. */
-    if ("Enumerable" in_obj Desc) {
+    if (("Enumerable" in_obj Desc) &&& !(current.Enumerable = Desc.Enumerable)) {
       if (!Desc.Enumerable = current.Enumerable) {
         return Reject(Throw)
       }
@@ -677,3 +672,4 @@ function IsPrimitiveValue (v) {
     return true
   }
 }
+

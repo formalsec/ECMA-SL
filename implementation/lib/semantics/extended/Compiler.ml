@@ -10,15 +10,15 @@ let __MAIN_FUNC__ = "main"
 let generate_fresh_var = make_fresh_var_generator "__v"
 
 (*
-  C(e1) = stmts_1, e_1'
-  C(e2) = stmts_2, e_2'
-  x fresh
+  C(e1) = stmts_1, e_1'  
+  C(e2) = stmts_2, e_2' 
+  x fresh 
 ------------------------
-C(e1 &&& e2) =
-    stmts_1;
-    /* outer_if */
-    if (e_1' = false) {
-    	x := false
+C(e1 &&& e2) = 
+    stmts_1; 
+    /* outer_if */ 
+    if (e_1' = false) { 
+    	x := false 
     } else {
         stmts_2;
         /* inner_if */
@@ -27,42 +27,42 @@ C(e1 &&& e2) =
         } else {
         	x := true
         }
-    }, x
+    }, x 
 
 *)
-let compile_sc_and
-    (x         : string)
-    (stmts_1   : Stmt.t list)
-    (e1'       : Expr.t)
-    (stmts_2   : Stmt.t list)
-    (e2'       : Expr.t) : Stmt.t list * Expr.t =
-
-  let inner_if =
+let compile_sc_and 
+    (x         : string) 
+    (stmts_1   : Stmt.t list) 
+    (e1'       : Expr.t) 
+    (stmts_2   : Stmt.t list) 
+    (e2'       : Expr.t) : Stmt.t list * Expr.t = 
+  
+  let inner_if = 
     Stmt.If (
-      Expr.BinOpt (Oper.Equal, e2', Expr.Val (Val.Bool false)),
-      Stmt.Assign (x, Expr.Val (Val.Bool false)),
-      Some (Stmt.Assign (x, Expr.Val (Val.Bool true)))) in
+      Expr.BinOpt (Oper.Equal, e2', Expr.Val (Val.Bool false)), 
+      Stmt.Assign (x, Expr.Val (Val.Bool false)), 
+      Some (Stmt.Assign (x, Expr.Val (Val.Bool true)))) in  
 
-  let outer_if =
+  let outer_if = 
     Stmt.If (
-      Expr.BinOpt (Oper.Equal, e1', Expr.Val (Val.Bool false)),
-      Stmt.Assign (x, Expr.Val (Val.Bool false)),
+      Expr.BinOpt (Oper.Equal, e1', Expr.Val (Val.Bool false)), 
+      Stmt.Assign (x, Expr.Val (Val.Bool false)), 
       Some (Stmt.Block (stmts_2 @ [ inner_if ]))
-    ) in
-
+    ) in 
+  
   stmts_1 @ [ outer_if ], Expr.Var x
 
 
 
 (*
-  C(e1) = stmts_1, e_1'
-  C(e2) = stmts_2, e_2'
-  x fresh
+  C(e1) = stmts_1, e_1' 
+  C(e2) = stmts_2, e_2' 
+  x fresh 
 ------------------------
-C(e1 ||| e2) =
-    stmts_1;
-    if (e_1' = true) {
-    	x := true
+C(e1 ||| e2) = 
+    stmts_1; 
+    if (e_1' = true) { 
+    	x := true 
     } else {
         stmts_2;
         if (e_2' = true) {
@@ -70,30 +70,30 @@ C(e1 ||| e2) =
         } else {
         	x := false
         }
-    }, x
-
+    }, x 
+    
 
 *)
-let compile_sc_or
-    (x         : string)
-    (stmts_1   : Stmt.t list)
-    (e1'       : Expr.t)
-    (stmts_2   : Stmt.t list)
-    (e2'       : Expr.t) : Stmt.t list * Expr.t =
-
-  let inner_if =
+let compile_sc_or 
+    (x         : string) 
+    (stmts_1   : Stmt.t list) 
+    (e1'       : Expr.t) 
+    (stmts_2   : Stmt.t list) 
+    (e2'       : Expr.t) : Stmt.t list * Expr.t = 
+  
+  let inner_if = 
     Stmt.If (
-      Expr.BinOpt (Oper.Equal, e2', Expr.Val (Val.Bool true)),
-      Stmt.Assign (x, Expr.Val (Val.Bool true)),
-      Some (Stmt.Assign (x, Expr.Val (Val.Bool false)))) in
+      Expr.BinOpt (Oper.Equal, e2', Expr.Val (Val.Bool true)), 
+      Stmt.Assign (x, Expr.Val (Val.Bool true)), 
+      Some (Stmt.Assign (x, Expr.Val (Val.Bool false)))) in  
 
-  let outer_if =
+  let outer_if = 
     Stmt.If (
-      Expr.BinOpt (Oper.Equal, e1', Expr.Val (Val.Bool true)),
-      Stmt.Assign (x, Expr.Val (Val.Bool true)),
+      Expr.BinOpt (Oper.Equal, e1', Expr.Val (Val.Bool true)), 
+      Stmt.Assign (x, Expr.Val (Val.Bool true)), 
       Some (Stmt.Block (stmts_2 @ [ inner_if ]))
-    ) in
-
+    ) in 
+  
   stmts_1 @ [ outer_if ], Expr.Var x
 
 
@@ -104,31 +104,31 @@ let compile_binopt (binop : Oper.bopt) ((stmts_1, e1)  : (Stmt.t list * Expr.t))
 (*
  y fresh
 -------------------------
-C_e(|x|) =
+C_e(|x|) = 
    y := ___internal_esl_global["x"], y
 *)
-let compile_gvar (x : string) :  Stmt.t list * Expr.t =
-  let y = generate_fresh_var () in
-  let f_lookup = Stmt.FieldLookup (y, Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str x)) in
+let compile_gvar (x : string) :  Stmt.t list * Expr.t = 
+  let y = generate_fresh_var () in 
+  let f_lookup = Stmt.FieldLookup (y, Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str x)) in 
   [ f_lookup ], Expr.Var y
 
 
 (*
-C_e(e) = stmts_e, x_e
+C_e(e) = stmts_e, x_e 
 ----------------------
-C(|x| := e) =
-  stmts_e;
+C(|x| := e) = 
+  stmts_e; 
   ___internal_esl_global["x"] := x_e
 *)
 let compile_glob_assign (x : string) (stmts_e : Stmt.t list) (e : Expr.t) : Stmt.t list =
-  let f_asgn = Stmt.FieldAssign (Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str x), e) in
+  let f_asgn = Stmt.FieldAssign (Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str x), e) in 
   stmts_e @ [ f_asgn ]
 
 let rec compile_ebinopt (binop : EOper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) : Stmt.t list * Expr.t =
   let x = generate_fresh_var () in
   let stmts_1, e1 = compile_expr e_e1 in
   let stmts_2, e2 = compile_expr e_e2 in
-  match binop with
+  match binop with 
   | SCLogAnd -> compile_sc_and x stmts_1 e1 stmts_2 e2
   | SCLogOr -> compile_sc_or x stmts_1 e1 stmts_2 e2
 
@@ -147,23 +147,23 @@ and compile_nopt (nop : Oper.nopt) (e_exprs : E_Expr.t list) : Stmt.t list * Exp
   (List.concat stmts) @ [Stmt.Assign (var, Expr.NOpt (nop, exprs))], Expr.Var var
 
 (*
-C_e(e) = stmts', x'
+C_e(e) = stmts', x' 
 C_e(e_i) = stmts_i, x_i
 x fresh
 -----------------------------------------
-C_s({e}(e1, ..., en)) =
- 	stmts';
-    stmts_1;
+C_s({e}(e1, ..., en)) = 
+ 	stmts'; 
+    stmts_1; 
     ...
-    stmts_n;
-    x := x' (___internal_esl_global, x_1, ..., x_n), x
+    stmts_n; 
+    x := x' (___internal_esl_global, x_1, ..., x_n), x 
 *)
 and compile_call (fname : E_Expr.t) (fargs : E_Expr.t list) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   let fname_stmts, fname_expr = compile_expr fname in
   let fargs_stmts_exprs = List.map compile_expr fargs in
   let fargs_stmts, fargs_exprs = List.split fargs_stmts_exprs in
-  let fargs_exprs' = (Expr.Var __INTERNAL_ESL_GLOBAL__)::fargs_exprs in
+  let fargs_exprs' = (Expr.Var __INTERNAL_ESL_GLOBAL__)::fargs_exprs in 
   fname_stmts @ List.concat fargs_stmts @ [Stmt.AssignCall (var, fname_expr, fargs_exprs')], Expr.Var var
 
 
@@ -293,12 +293,12 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   match e_expr with
   | Val x               -> [], Expr.Val x
   | Var x               -> [], Expr.Var x
-  | GVar x              -> compile_gvar x
-  | BinOpt (op, e1, e2) ->
-      let (stmts_1, e1') = compile_expr e1 in
-      let (stmts_2, e2') = compile_expr e2 in
+  | GVar x              -> compile_gvar x 
+  | BinOpt (op, e1, e2) -> 
+      let (stmts_1, e1') = compile_expr e1 in 
+      let (stmts_2, e2') = compile_expr e2 in 
       compile_binopt op (stmts_1, e1') (stmts_2, e2')
-  | EBinOpt (e_op, e_e1, e_e2) -> compile_ebinopt e_op e_e1 e_e2
+  | EBinOpt (e_op, e_e1, e_e2) -> compile_ebinopt e_op e_e1 e_e2 
   | UnOpt (op, e_e)            -> compile_unopt op e_e
   | NOpt (op, e_es)            -> compile_nopt op e_es
   | Call (f, e_es)             -> compile_call f e_es
@@ -327,12 +327,11 @@ and compile_assert (expr : E_Expr.t) : Stmt.t list =
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   match e_stmt with
   | Skip                            -> [Stmt.Skip]
-  | Debug                           -> [Stmt.Debug]
   | Print e                         -> compile_print e
   | Assign (v, e_exp)               -> compile_assign v e_exp
-  | GlobAssign(x, e)                ->
-      let (stmts_e, e') = compile_expr e in
-      compile_glob_assign x stmts_e e'
+  | GlobAssign(x, e)                -> 
+      let (stmts_e, e') = compile_expr e in 
+      compile_glob_assign x stmts_e e'  
   | Block (e_stmts)                 -> compile_block e_stmts
   | If (e_e, e_s1, e_s2)            -> compile_if e_e e_s1 e_s2
   | While (e_exp, e_s)              -> compile_while e_exp e_s
@@ -349,18 +348,18 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
 (*
 C(s) = s', _
 ---------------------------------------
-C_f(function f (x1, ..., xn) { s }) =
+C_f(function f (x1, ..., xn) { s }) = 
    function f (___internal_esl_global, x1, ..., xn) { s' }
 
 
 C(s) = s', _
 ---------------------------------------
-C_f(function main () { s }) =
-   function f () {
-      ___internal_esl_global := {};
-      s'
+C_f(function main () { s }) = 
+   function f () { 
+      ___internal_esl_global := {}; 
+      s' 
    }
-*)
+*)  
 let compile_func (e_func : E_Func.t) : Func.t =
   let fname = E_Func.get_name e_func in
   let fparams = E_Func.get_params e_func in
@@ -368,12 +367,12 @@ let compile_func (e_func : E_Func.t) : Func.t =
   let stmt_list = compile_stmt fbody in
   if (fname = __MAIN_FUNC__)
     then (
-      let asgn_new_obj = Stmt.AssignNewObj __INTERNAL_ESL_GLOBAL__ in
-      let stmt_list' = asgn_new_obj :: stmt_list in
+      let asgn_new_obj = Stmt.AssignNewObj __INTERNAL_ESL_GLOBAL__ in 
+      let stmt_list' = asgn_new_obj :: stmt_list in 
       Func.create fname fparams (Stmt.Block stmt_list')
-    )
+    ) 
     else (
-      let fparams' = __INTERNAL_ESL_GLOBAL__::fparams in
+      let fparams' = __INTERNAL_ESL_GLOBAL__::fparams in 
       Func.create fname fparams' (Stmt.Block stmt_list)
     )
 
