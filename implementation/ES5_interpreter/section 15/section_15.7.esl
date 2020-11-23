@@ -79,7 +79,7 @@ function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObj
   /* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
 
   /* 15.7.4.3 Number.prototype.toLocaleString() */
-  toLocaleString := CreateFunctionObject(["items"], "numberToLocaleString", globalObject, strict);
+  toLocaleString := CreateFunctionObject([], "numberToLocaleString", globalObject, strict);
   createBuiltInProperty(numberPrototypeObject, "toLocaleString", toLocaleString);
 
   /* 15.7.4.4 Number.prototype.valueOf ( ) */
