@@ -233,9 +233,7 @@ let float_to_string (v : Val.t) : Val.t = match v with
   | _     -> invalid_arg ("Exception in Oper.float_to_string: this operation is only applicable to Flt arguments: " ^ (Val.str v))
 
 let float_of_string (v : Val.t) : Val.t = match v with
-  | Str s -> (try
-                Flt (float_of_string s)
-              with _ -> Val.Flt nan)
+  | Str s -> (try Flt (float_of_string s) with _ -> Flt nan)
   | _     -> invalid_arg "Exception in Oper.float_of_string: this operation is only applicable to Str arguments"
 
 let string_concat (v : Val.t) : Val.t = match v with

@@ -56,10 +56,29 @@ function setAllInternalMethodsOfArray(arr) {
 
 
 
-
+/**
+ * 15.4.4 Properties of the Array Prototype Object
+ *
+ * The value of the [[Prototype]] internal property of the Array prototype object
+ * is the standard built-in Object prototype object (15.2.4).
+ *
+ * The Array prototype object is itself an array; its [[Class]] is "Array", and it
+ * has a length property (whose initial value is +0) and the special [[DefineOwnProperty]]
+ * internal method described in 15.4.5.1.
+ *
+ * In following descriptions of functions that are properties of the Array prototype
+ * object, the phrase "this object" refers to the object that is the this value for
+ * the invocation of the function. It is permitted for the this to be an
+ * object for which the value of the [[Class]] internal property is not "Array".
+ *
+ * NOTE The Array prototype object does not have a valueOf property of its own; however,
+ * it inherits the valueOf property from the standard built-in Object prototype Object.
+ */
 function initArrayPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "Array", true);
   setAllInternalMethodsOfArray(prototype);
+
+  setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));
 
   /* Add built-in function objects to array's prototype */
   /* isArray */
@@ -233,6 +252,10 @@ function initArrayObject(global, objectPrototype, strict) {
  * no arguments or at least two arguments.
  */
 function ArrayConstructor(global, this, strict, items) {
+  if ((l_len items) = 1) {
+    return ArrayConstructorLen(global, this, strict, items)
+  };
+
   prototype := getArrayPrototype(strict);
   return internalNewArray(prototype, items)
 };
@@ -2446,7 +2469,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
 
     /* h. If newLenDesc.[[Writable]] is absent or has the value true,
           let newWritable be true. */
-    if (!("Writable" in_obj newLenDesc) || newLenDesc.Writable = true) {
+    if (!("Writable" in_obj newLenDesc) ||| newLenDesc.Writable = true) {
       newWritable := true
     }
     /* i. Else, */
@@ -2518,10 +2541,12 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       if (succeeded = false) {
         Reject(Throw)
       };
+      /* STANDARD IS WRONG */
+      newLen := ToUint32(index + 1.);
       /* e. If index ≥ oldLen */
-      if (index >= oldLen) {
+      if (newLen > oldLen) {
         /* i. Set oldLenDesc.[[Value]] to index + 1. */
-        oldLenDesc.Value := index + 1.;
+        oldLenDesc.Value := newLen;
         /* ii. Call the default [[DefineOwnProperty]] internal method (8.12.9)
               on A passing "length", oldLenDesc, and false as arguments. This
               call will always return true. */
@@ -2536,7 +2561,12 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
   return DefineOwnProperty(A, P, Desc, Throw)
 };
 
+/**
+ * A property name P (in the form of a String value) is an array index if and
+ * only if ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal to 2^32−1. 
+ */
 function IsArrayIndex(P) {
-  i := ToUint32(P);
-  return !(i = 'null)
+  p_uint := ToUint32(P);
+  p_str := ToString(p_uint);
+  return ((p_str = P) && !(p_uint = 4294967295)) /* TODO 2^32-1*/
 }
