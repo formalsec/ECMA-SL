@@ -222,7 +222,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
 /* 15.3.4.4 Function.prototype.call (thisArg [ , arg1 [ , arg2, ... ] ] ) */
 function FunctionPrototypeCall(globalObject, func, strict, params) {
   thisArg := l_nth(params, 0);
-  args := l_nth(params, 1);
+  args := tl params;
   assert !(thisArg = undefined) &&& !(args = undefined);
   /* When the call method is called on an object func with argument thisArg and optional arguments arg1, arg2
      etc, the following steps are taken: */
