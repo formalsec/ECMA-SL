@@ -38,13 +38,6 @@ function translateUndefined() {
 }
 
 function translateNumber(value) {
-  if (Number.isInteger(value)) {
-    if (Number.isSafeInteger(value)) {
-      return translateLiteral(new PrimitiveVal(value));
-    }
-
-    throw new Error("This number is not a safe integer: " + value);
-  }
   return translateLiteral(new PrimitiveVal(value));
 }
 
