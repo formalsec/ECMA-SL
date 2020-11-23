@@ -15,10 +15,19 @@ BOLD='\e[1m'
 
 
 function usage {
-  echo "Usage: $(basename $0) [-dfr]" 2>&1
-  echo '   -d   one or multiple paths to directories containing test files. All the present test files are used.'
-  echo '   -f   one or multiple paths to test files.'
-  echo '   -r   path to a direcotry containing test files. If the directory contains other direcotries, all the tests present in those directories are also executed.'
+  echo -e 'Usage: $(basename $0) [OPTION]... [-dfir]
+
+  -d <dir>   Directory containing test files.
+             All the tests available in the directory are executed.
+  -f <file>  File to test.
+  -i <file>  File containing the list of files to test.
+  -r <dir>   Directory containing test files and/or directories.
+             If the directories contain other directories, all the tests available in those directories are also executed.
+
+  Options:
+  -E         Enable logging to file the tests executed with errors. File is "errors.log"
+  -F         Enable logging to file the failed tests. File is "failures.log"
+  -O         Enable logging to file the passed tests. File is "oks.log"'
   exit 1
 }
 
@@ -32,6 +41,29 @@ function writeToFile() {
   done
 }
 
+function logStatusToFiles() {
+  if [ $LOG_ERRORS -eq 1 ]; then
+    cat /dev/null > $LOG_ERRORS_FILE
+    for error in "${log_errors_arr[@]}"; do
+      echo "$error" >> $LOG_ERRORS_FILE
+    done
+  fi
+
+  if [ $LOG_FAILURES -eq 1 ]; then
+    cat /dev/null > $LOG_FAILURES_FILE
+    for failure in "${log_failures_arr[@]}"; do
+      echo "$failure" >> $LOG_FAILURES_FILE
+    done
+  fi
+
+  if [ $LOG_OKS -eq 1 ]; then
+    cat /dev/null > $LOG_OKS_FILE
+    for ok in "${log_oks_arr[@]}"; do
+      echo "$ok" >> $LOG_OKS_FILE
+    done
+  fi
+}
+
 # Checks:
 # - file is a valid ES5 test (search for the key "es5id" in the frontmatter)
 # - file doesn't use the built-in eval function
@@ -40,8 +72,8 @@ function checkConstraints() {
   FILENAME=$1
   declare -n ret=$2
   # check if it's a es5id test
-  ises5id=$(awk '/es5id:/ {print $0}' $FILENAME)
-  if [[ "${ises5id}" == "" ]]; then
+  ises5id=$(awk '/es6id:|esid:/ {print $0}' $FILENAME)
+  if [[ "${ises5id}" != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: not ES5 test${NC}\n"
 
     ret="${FILENAME} | **NOT EXECUTED** | Is not a ES5 test"
@@ -96,6 +128,7 @@ function handleSingleFile() {
   #echo "3.2. Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program"
   cd "../JS2ECMA-SL"
   JS2ECMASL=$(node src/index.js -i ../implementation/test/main262.js -o test262_ast.esl)
+  cd "../implementation"
 
   if [[ "${JS2ECMASL}" != "The file has been saved!" ]]
   then
@@ -105,16 +138,17 @@ function handleSingleFile() {
     # increment number of tests with error
     incError
 
+    if [ $LOG_ERRORS -eq 1 ]; then
+      log_errors_arr+=("$FILENAME")
+    fi
+
     result=("${FILENAME}" "**ERROR**" "$JS2ECMASL")
 
-    # Go back to previous/default directory before returning
-    cd "../implementation"
     return
   fi
 
   #echo "3.3. Copy compiled file to directory where to execute the tests"
-  cp "test262_ast.esl" "../implementation/ES5_interpreter/test262_ast.esl"
-  cd "../implementation"
+  cp "../JS2ECMA-SL/test262_ast.esl" "ES5_interpreter/test262_ast.esl"
 
   #echo "3.4. Compile program written in \"Plus\" to \"Core\""
   ECMALSLC=$(./main.native -mode c -i ES5_interpreter/test262.esl -o ES5_interpreter/core.esl)
@@ -126,34 +160,47 @@ function handleSingleFile() {
     # increment number of tests with error
     incError
 
+    if [ $LOG_ERRORS -eq 1 ]; then
+      log_errors_arr+=("$FILENAME")
+    fi
+
     result=("${FILENAME}" "**ERROR**" "${ECMASLC}")
     return
   fi
 
   #echo "3.5. Evaluate program and write the computed heap to the file heap.json. Output of the execution is written to the file result.txt"
-  ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json > result.txt)
+  if [ $LOG_ENTIRE_EVAL_OUTPUT -eq 1 ]; then
+    ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json > result.txt)
+    # 3.6. Check the result of the execution
+    RESULT=$(tail -n 10 result.txt | grep "MAIN return -> ")
+  else
+    ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json | tail -n 10 > result.txt)
+    # 3.6. Check the result of the execution
+    RESULT=$(grep "MAIN return -> " result.txt)
+  fi
 
-  if [ $? -ne 0 ]
-  then
+  if [[ "${RESULT}" == "" ]]; then
     # echo "Check file result.txt"
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
 
     # increment number of tests with error
     incError
 
+    if [ $LOG_ERRORS -eq 1 ]; then
+      log_errors_arr+=("$FILENAME")
+    fi
+
     result=("${FILENAME}" "**ERROR**" "${ECMASLCI}")
     return
-  fi
-
-  # 3.6. Check the result of the execution
-  RESULT=$(tail -n 10 result.txt | grep "MAIN return -> ")
-
-  if [[ "${RESULT}" =~ "MAIN return -> (\"C\", 'normal," ]]
-  then
+  elif [[ "${RESULT}" =~ "MAIN return -> (\"C\", 'normal," ]]; then
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
 
     # increment number of tests successfully executed
     incOk
+
+    if [ $LOG_OKS -eq 1 ]; then
+      log_oks_arr+=("$FILENAME")
+    fi
 
     result=("${FILENAME}" "_OK_" "")
     return
@@ -162,6 +209,10 @@ function handleSingleFile() {
 
     # increment number of tests failed
     incFail
+
+    if [ $LOG_FAILURES -eq 1 ]; then
+      log_failures_arr+=("$FILENAME")
+    fi
 
     result=("${FILENAME}" "**FAIL**" "${RESULT}")
     return
@@ -201,6 +252,11 @@ function handleFiles() {
   local output_file=$1
   local files=($@)
   unset files[0]
+
+  # log evaluation output to a file
+  if [[ ${#files[@]} -eq 1 ]]; then
+    LOG_ENTIRE_EVAL_OUTPUT=1
+  fi
 
   # Write header to file
   local params=()
@@ -352,10 +408,47 @@ function initVars() {
   declare -g -i RECURSIVE=0
   declare -g -r OUTPUT_FILE=results.md
 
+  declare -g -i LOG_ENTIRE_EVAL_OUTPUT=0
+
+  declare -g -i LOG_ERRORS=0
+  declare -g -i LOG_FAILURES=0
+  declare -g -i LOG_OKS=0
+  declare -g -r LOG_ERRORS_FILE=errors.log
+  declare -g -r LOG_FAILURES_FILE=failures.log
+  declare -g -r LOG_OKS_FILE=oks.log
+  declare -g -a log_errors_arr=()
+  declare -g -a log_failures_arr=()
+  declare -g -a log_ok_arr=()
+
   # Empty the contents of the output file
   cat /dev/null > $OUTPUT_FILE
 }
 
+
+function processFromInputFile() {
+  local INPUT_FILES=($@)
+
+  handleFiles $OUTPUT_FILE "$(cat ${INPUT_FILES[@]})"
+
+  logStatusToFiles
+}
+
+function processRecursively() {
+  local dirs=($@)
+  RECURSIVE=1
+
+  handleDirectories $OUTPUT_FILE ${dirs[@]}
+
+  logStatusToFiles
+}
+
+function processDirectories() {
+  local dirs=($@)
+
+  handleDirectories $OUTPUT_FILE ${dirs[@]}
+
+  logStatusToFiles
+}
 
 #
 # BEGIN
@@ -389,16 +482,22 @@ fi
 echo ""
 
 # Define list of arguments expected in the input
-optstring=":dfr"
+optstring=":EFOd:f:i:r:"
+
+declare -a dDirs=() # Array that will contain the directories to use with the arg "-d"
+declare -a fFiles=() # Array that will contain the files to use with the arg "-f"
+declare -a iFiles=() # Array that will contain the files to use with the arg "-i"
+declare -a rDirs=() # Array that will contain the directories to use with the arg "-r"
 
 while getopts ${optstring} arg; do
-  numarr=($@)
-  unset numarr[0] # the first item of the array is the "arg". We don't want to pass it to the functions being called.
   case $arg in
-    # r) handleRecursively $2 ;;
-    r) RECURSIVE=1; handleDirectories $OUTPUT_FILE ${numarr[@]}; break;;
-    d) handleDirectories $OUTPUT_FILE ${numarr[@]}; break;;
-    f) handleFiles $OUTPUT_FILE ${numarr[@]}; break;;
+    E) LOG_ERRORS=1 ;;
+    F) LOG_FAILURES=1 ;;
+    O) LOG_OKS=1 ;;
+    d) dDirs+=("$OPTARG") ;;
+    f) fFiles+=("$OPTARG") ;;
+    i) iFiles+=("$OPTARG") ;;
+    r) rDirs+=("$OPTARG") ;;
 
     ?)
       echo "Invalid option: -${OPTARG}."
@@ -407,6 +506,22 @@ while getopts ${optstring} arg; do
       ;;
   esac
 done
+
+if [ ${#dDirs[@]} -ne 0 ]; then
+  processDirectories ${dDirs[@]}
+fi
+
+if [ ${#fFiles[@]} -ne 0 ]; then
+  handleFiles $OUTPUT_FILE ${fFiles[@]}
+fi
+
+if [ ${#iFiles[@]} -ne 0 ]; then
+  processFromInputFile ${iFiles[@]}
+fi
+
+if [ ${#rDirs[@]} -ne 0 ]; then
+  processRecursively ${rDirs[@]}
+fi
 
 
 # 4. Remove temporary files previously created
