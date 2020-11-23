@@ -89,29 +89,21 @@ let bitwise_not (v : Val.t) : Val.t = match v with
   | _     -> invalid_arg "Exception in Oper.bitwise_not: this operation is only applicable to Float arguments"
 
 let plus (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
-  | (Flt v1, Int v2) -> Flt (v1 +. float_of_int v2)
-  | (Int v1, Flt v2) -> Flt (float_of_int v1 +. v2)
   | (Flt v1, Flt v2) -> Flt (v1 +. v2)
   | (Int v1, Int v2) -> Int (v1 + v2)
   | _                -> invalid_arg "Exception in Oper.plus: this operation is only applicable to Float or Int arguments"
 
 let minus (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
-  | (Flt v1, Int v2) -> Flt (v1 -. float_of_int v2)
-  | (Int v1, Flt v2) -> Flt (float_of_int v1 -. v2)
   | (Flt v1, Flt v2) -> Flt (v1 -. v2)
   | (Int v1, Int v2) -> Int (v1 - v2)
   | _                -> invalid_arg "Exception in Oper.minus: this operation is only applicable to Float or Int arguments"
 
 let times (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
-  | (Flt v1, Int v2) -> Flt (v1 *. float_of_int v2)
-  | (Int v1, Flt v2) -> Flt (float_of_int v1 *. v2)
   | (Flt v1, Flt v2) -> Flt (v1 *. v2)
   | (Int v1, Int v2) -> Int (v1 * v2)
   | _                -> invalid_arg "Exception in Oper.times: this operation is only applicable to Float or Int arguments"
 
 let div (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
-  | (Flt v1, Int v2) -> Flt (v1 /. float_of_int v2)
-  | (Int v1, Flt v2) -> Flt (float_of_int v1 /. v2)
   | (Flt v1, Flt v2) -> Flt (v1 /. v2)
   | (Int v1, Int v2) -> Int (v1 / v2)
   | _                -> invalid_arg "Exception in Oper.div: this operation is only applicable to Float or Int arguments"
