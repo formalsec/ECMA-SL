@@ -276,18 +276,6 @@ let to_uint16 (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_uint16 n)
   | _     -> invalid_arg "Exception in Oper.to_uint16: this operation is only applicable to Float arguments"
 
-let to_floor (v : Val.t) : Val.t = match v with
-  | Flt n -> Flt (floor n)
-  | _     -> invalid_arg "Exception in Oper.to_floor: this operation is only applicable to Float arguments"
-
-let log_e (v : Val.t) : Val.t = match v with
-  | Flt n -> Flt (Float.log n)
-  | _     -> invalid_arg "Exception in Oper.log_e: this operation is only applicable to Float arguments"
-
-let sin (v : Val.t) : Val.t = match v with
-  | Flt n -> Flt (Float.sin n)
-  | _     -> invalid_arg "Exception in Oper.sin: this operation is only applicable to Float arguments"
-
 
 let str_of_const (c : const) : string = match c with
   | PI -> "PI"
@@ -385,9 +373,12 @@ let apply_uopt_oper (oper : uopt) (v : Val.t) : Val.t = match oper with
   | Ceil   -> unary_float_call Float.ceil v   "Ceil"
   | Cos    -> unary_float_call Float.cos v    "Cosine"
   | Exp    -> unary_float_call Float.exp v    "Exponential"
+  | Floor  -> unary_float_call Float.floor v  "Floor"
+  | Log_e  -> unary_float_call Float.log v    "Natural logarithm"
   | Log_10 -> unary_float_call Float.log10 v  "Base-10 logarithm"
   | Round  -> unary_float_call Float.round v  "Round"
   | Random -> unary_float_call Random.float v "Random"
+  | Sin    -> unary_float_call Float.sin v    "Sine"
   | Sqrt   -> unary_float_call Float.sqrt v   "Square root"
   | Tan    -> unary_float_call Float.tan v    "Tangent"
   | _      -> invalid_arg ("Exception in Oper.apply_uopt_oper: unexpected unary operator: " ^ (str_of_unopt oper))

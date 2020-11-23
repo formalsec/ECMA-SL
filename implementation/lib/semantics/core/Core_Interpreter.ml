@@ -45,9 +45,6 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ToInt32       -> Oper.to_int32 v
   | ToUint32      -> Oper.to_uint32 v
   | ToUint16      -> Oper.to_uint16 v
-  | Floor         -> Oper.to_floor v
-  | Log_e         -> Oper.log_e v
-  | Sin           -> Oper.sin v
   | _             -> Oper.apply_uopt_oper op v
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
