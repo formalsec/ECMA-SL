@@ -46,9 +46,9 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
     if (nx = ny) { return false };
 
     /* f. If nx is +0 and ny is -0, return false. */
-    if ((nx = 0.) && (ny = -0.)) { return false };
+    if ((nx = 0.) && (ny = -(0.))) { return false };
     /* g. If nx is -0 and ny is +0, return false. */
-    if ((nx = -0.) && (ny = 0.)) { return false };
+    if ((nx = -(0.)) && (ny = 0.)) { return false };
     /* h. If nx is +Infinity, return false. */
     if (nx = Infinity) { return false };
     /* i. If ny is +Infinity, return true. */

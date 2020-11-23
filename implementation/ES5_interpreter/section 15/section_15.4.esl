@@ -1204,7 +1204,7 @@ function SortCompare(obj, comparefn, j, k) {
   };
   /* 7. If hask is false, then return –1. */
   if (hask = false) {
-    return -1.
+    return -(1.)
   };
   /* 8. Let x be the result of calling the [[Get]] internal method of
         obj with argument jString. */
@@ -1222,7 +1222,7 @@ function SortCompare(obj, comparefn, j, k) {
   };
   /* 12. If y is undefined, return −1. */
   if (y = 'undefined) {
-    return -1.
+    return -(1.)
   };
   /* 13. If the argument comparefn is not undefined, then */
   if (!(comparefn = 'undefined)) {
@@ -1240,7 +1240,7 @@ function SortCompare(obj, comparefn, j, k) {
   yString := ToString(y);
   /* 16. If xString < yString, return −1. */
   if (xString < yString) {
-    return -1.
+    return -(1.)
   };
   /* 17. If xString > yString, return 1. */
   if (xString > yString) {
@@ -1547,7 +1547,7 @@ function arrayIndexOf(global, this, strict, args) {
   len := ToUint32(lenVal);
   /* 4. If len is 0, return -1. */
   if (len = 0.) {
-    return -1.
+    return -(1.)
   };
   /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex);
         else let n be 0. */
@@ -1558,7 +1558,7 @@ function arrayIndexOf(global, this, strict, args) {
   };
   /* 6. If n ≥ len, return -1. */
   if (n >= len) {
-    return -1.
+    return -(1.)
   };
   /* 7. If n ≥ 0, then */
   if (n >= 0.) {
@@ -1595,7 +1595,7 @@ function arrayIndexOf(global, this, strict, args) {
     k := k + 1.
   };
   /* 10. Return -1. */
-  return -1.
+  return -(1.)
 };
 /**
  * The length property of the indexOf method is 1. TODO
@@ -1640,7 +1640,7 @@ function arrayLastIndexOf(global, this, strict, args) {
   len := ToUint32(lenVal);
   /* 4. If len is 0, return -1. */
   if (len = 0.) {
-    return -1.
+    return -(1.)
   };
   /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex);
         else let n be len. */
@@ -1680,7 +1680,7 @@ function arrayLastIndexOf(global, this, strict, args) {
     k := k - 1.
   };
   /* 9. Return -1. */
-  return -1.
+  return -(1.)
 };
 /**
  * The length property of the lastIndexOf method is 1. TODO
