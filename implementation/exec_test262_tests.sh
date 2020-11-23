@@ -15,8 +15,8 @@ BOLD='\e[1m'
 
 
 function usage {
-  echo -e 'Usage: $(basename $0) [OPTION]... [-dfir]
-
+  echo -e "Usage: $(basename $0) [OPTION]... [-dfir]"
+  echo -e '
   -d <dir>   Directory containing test files.
              All the tests available in the directory are executed.
   -f <file>  File to test.
