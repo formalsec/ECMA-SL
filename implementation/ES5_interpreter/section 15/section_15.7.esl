@@ -83,6 +83,8 @@ function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObj
   createBuiltInProperty(numberPrototypeObject, "toLocaleString", toLocaleString);
 
   /* 15.7.4.4 Number.prototype.valueOf ( ) */
+  valueOf := CreateFunctionObject([], "NumberPrototypeValueOf", globalObject, strict);
+  createBuiltInProperty(numberPrototypeObject, "valueOf", valueOf);
 
   /* 15.7.4.5 Number.prototype.toFixed (fractionDigits) */
 
@@ -139,6 +141,18 @@ function numberToLocaleString(global, this, strict, args) {
   return ToString(num)
 };
 
+/* 15.7.4.4 Number.prototype.valueOf ( ) */
+function NumberPrototypeValueOf(global, this, strict, params) {
+  /* Returns this Number value. */
+
+  /* The valueOf function is not generic; it throws a TypeError exception if its this value is not a Number or a
+     Number object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
+  if (!isNumberOrNumberObjectObject(this)) {
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
+  };
+  return getInternalProperty(this, "PrimitiveValue")
+};
+
 
 /* Auxiliary functions */
 function getNumberPrototype(strict) {
@@ -149,4 +163,14 @@ function getNumberPrototype(strict) {
   objectNumberProto := GetValue(refNumberProto);
 
   return objectNumberProto
+};
+
+if (!isNumberOrNumberObject(this)) {
+  if (typeof this = __$Flt) {
+    return true
+  };
+  if ((typeof this = __$Obj) &&& (isJavaScriptObject(this)) &&& (getInternalProperty(this, "Class") = "Number")) {
+    return true
+  };
+  return false
 }
