@@ -30,10 +30,12 @@ function setValuePropertiesOfMathObject(mathObject) {
   /* 15.8.1.1 E */
   /* The Number value for e, the base of the natural logarithms, which is approximately 2.7182818284590452354. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(mathObject, "E", exp 1., false, false, false);
 
   /* 15.8.1.2 LN10 */
   /* The Number value for the natural logarithm of 10, which is approximately 2.302585092994046. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(mathObject, "LN10", log_e 10., false, false, false);
 
   /* 15.8.1.3 LN2 */
   /* The Number value for the natural logarithm of 2, which is approximately 0.6931471805599453. */
@@ -44,14 +46,14 @@ function setValuePropertiesOfMathObject(mathObject) {
   /* The Number value for the base-2 logarithm of e, the base of the natural logarithms; this value is approximately
      1.4426950408889634. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
-
+  createBuiltInPropertyWithFullDescriptor(mathObject, "LOG2E", (log_10 (exp 1.)) / (log_10 2.), false, false, false);
   /* NOTE The value of Math.LOG2E is approximately the reciprocal of the value of Math.LN2. */
 
   /* 15.8.1.5 LOG10E */
   /* The Number value for the base-10 logarithm of e, the base of the natural logarithms; this value is
      approximately 0.4342944819032518. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
-
+  createBuiltInPropertyWithFullDescriptor(mathObject, "LOG10E", log_10 (exp 1.), false, false, false);
   /* NOTE The value of Math.LOG10E is approximately the reciprocal of the value of Math.LN10. */
 
   /* 15.8.1.6 PI */
@@ -63,12 +65,13 @@ function setValuePropertiesOfMathObject(mathObject) {
   /* 15.8.1.7 SQRT1_2 */
   /* The Number value for the square root of 1⁄2, which is approximately 0.7071067811865476. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
-
+  createBuiltInPropertyWithFullDescriptor(mathObject, "SQRT1_2", sqrt 0.5, false, false, false);
   /* NOTE The value of Math.SQRT1_2 is approximately the reciprocal of the value of Math.SQRT2. */
 
   /* 15.8.1.8 SQRT2 */
   /* The Number value for the square root of 2, which is approximately 1.4142135623730951. */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(mathObject, "SQRT2", sqrt 2., false, false, false);
 
   return
 };
@@ -94,86 +97,110 @@ function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
           mathematical library from Sun Microsystems (http://www.netlib.org/fdlibm). */
 
   /* 15.8.2.1 abs (x) */
-  /* abs_fo := CreateFunctionObject(["x"], "MathAbs", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "abs", abs_fo); */
+  abs_fo := CreateFunctionObject(["x"], "MathAbs", globalObject, strict);
+  createBuiltInProperty(mathObject, "abs", abs_fo);
   /* 15.8.2.2 acos (x) */
-  /* acos_fo := CreateFunctionObject(["x"], "MathACos", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "acos", acos_fo); */
+  acos_fo := CreateFunctionObject(["x"], "MathACos", globalObject, strict);
+  createBuiltInProperty(mathObject, "acos", acos_fo);
   /* 15.8.2.3 asin (x) */
-  /* asin_fo := CreateFunctionObject(["x"], "MathASin", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "asin", asin_fo); */
+  asin_fo := CreateFunctionObject(["x"], "MathASin", globalObject, strict);
+  createBuiltInProperty(mathObject, "asin", asin_fo);
   /* 15.8.2.4 atan (x) */
-  /* atan_fo := CreateFunctionObject(["x"], "MathATan", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "atan", atan_fo); */
+  atan_fo := CreateFunctionObject(["x"], "MathATan", globalObject, strict);
+  createBuiltInProperty(mathObject, "atan", atan_fo);
   /* 15.8.2.5 atan2 (y, x) */
-  /* atan2_fo := CreateFunctionObject(["y", "x"], "MathATan2", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "atan2", atan2_fo); */
+  atan2_fo := CreateFunctionObject(["y", "x"], "MathATan2", globalObject, strict);
+  createBuiltInProperty(mathObject, "atan2", atan2_fo);
   /* 15.8.2.6 ceil (x) */
-  /* ceil_fo := CreateFunctionObject(["x"], "MathCeil", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "ceil", ceil_fo); */
+  ceil_fo := CreateFunctionObject(["x"], "MathCeil", globalObject, strict);
+  createBuiltInProperty(mathObject, "ceil", ceil_fo);
   /* 15.8.2.7 cos (x) */
-  /* cos_fo := CreateFunctionObject(["x"], "MathCos", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "cos", cos_fo); */
+  cos_fo := CreateFunctionObject(["x"], "MathCos", globalObject, strict);
+  createBuiltInProperty(mathObject, "cos", cos_fo);
   /* 15.8.2.8 exp (x) */
-  /* exp_fo := CreateFunctionObject(["x"], "MathExp", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "exp", exp_fo); */
+  exp_fo := CreateFunctionObject(["x"], "MathExp", globalObject, strict);
+  createBuiltInProperty(mathObject, "exp", exp_fo);
   /* 15.8.2.9 floor (x) */
   floor_fo := CreateFunctionObject(["x"], "MathFloor", globalObject, strict);
   createBuiltInProperty(mathObject, "floor", floor_fo);
   /* 15.8.2.10 log (x) */
-  /* log_fo := CreateFunctionObject(["x"], "MathLog", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "log", log_fo); */
+  log_fo := CreateFunctionObject(["x"], "MathLog", globalObject, strict);
+  createBuiltInProperty(mathObject, "log", log_fo);
   /* 15.8.2.11 max ( [ value1 [ , value2 [ , ... ] ] ] ) */
-  /* max_fo := CreateFunctionObject(["values"], "MathMax", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "max", max_fo); */
+  max_fo := CreateFunctionObject(["values"], "MathMax", globalObject, strict);
+  createBuiltInPropertyWithFullDescriptor(max_fo, "length", 2., false, false, false);
+  createBuiltInProperty(mathObject, "max", max_fo);
   /* 15.8.2.12 min ( [ value1 [ , value2 [ , ... ] ] ] ) */
-  /* min_fo := CreateFunctionObject(["values"], "MathMin", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "min", min_fo); */
+  min_fo := CreateFunctionObject(["values"], "MathMin", globalObject, strict);
+  createBuiltInPropertyWithFullDescriptor(min_fo, "length", 2., false, false, false);
+  createBuiltInProperty(mathObject, "min", min_fo);
   /* 15.8.2.13 pow (x, y) */
-  /* pow_fo := CreateFunctionObject(["x", "y"], "MathPow", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "pow", pow_fo); */
+  pow_fo := CreateFunctionObject(["x", "y"], "MathPow", globalObject, strict);
+  createBuiltInProperty(mathObject, "pow", pow_fo);
   /* 15.8.2.14 random ( ) */
-  /* random_fo := CreateFunctionObject([], "MathRandom", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "random", random_fo); */
+  random_fo := CreateFunctionObject([], "MathRandom", globalObject, strict);
+  createBuiltInProperty(mathObject, "random", random_fo);
   /* 15.8.2.15 round (x) */
-  /* round_fo := CreateFunctionObject(["x"], "MathRound", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "round", round_fo); */
+  round_fo := CreateFunctionObject(["x"], "MathRound", globalObject, strict);
+  createBuiltInProperty(mathObject, "round", round_fo);
   /* 15.8.2.16 sin (x) */
   sin_fo := CreateFunctionObject(["x"], "MathSin", globalObject, strict);
   createBuiltInProperty(mathObject, "sin", sin_fo);
   /* 15.8.2.17 sqrt (x) */
-  /* sqrt_fo := CreateFunctionObject(["x"], "MathSqrt", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "sqrt", sqrt_fo); */
+  sqrt_fo := CreateFunctionObject(["x"], "MathSqrt", globalObject, strict);
+  createBuiltInProperty(mathObject, "sqrt", sqrt_fo);
   /* 15.8.2.18 tan (x) */
-  /* tan_fo := CreateFunctionObject(["x"], "MathTan", globalObject, strict); */
-  /* createBuiltInProperty(mathObject, "tan", tan_fo); */
+  tan_fo := CreateFunctionObject(["x"], "MathTan", globalObject, strict);
+  createBuiltInProperty(mathObject, "tan", tan_fo);
 
   return
 };
 
 /* 15.8.2.1 abs (x) */
 function MathAbs(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    x := 'undefined
+  } else {
+    x := l_nth(params, 0)
+  };
+  x := ToNumber(x);
+
   /* Returns the absolute value of x; the result has the same magnitude as x but has positive sign. */
   /* If x is NaN, the result is NaN. */
   /* If x is -0, the result is +0. */
   /* If x is -Infinity, the result is +Infinity. */
 
-  return
+  return abs x
 };
 
 /* 15.8.2.2 acos (x) */
 function MathACos(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    x := 'undefined
+  } else {
+    x := l_nth(params, 0)
+  };
+  x := ToNumber(x);
+
   /* Returns an implementation-dependent approximation to the arc cosine of x. The result is expressed in radians
      and ranges from +0 to +pi. */
   /* If x is NaN, the result is NaN. */
   /* If x is greater than 1, the result is NaN. */
   /* If x is less than -1, the result is NaN. */
   /* If x is exactly 1, the result is +0. */
-  return
+
+  return acos x
 };
 
 /* 15.8.2.3 asin (x) */
 function MathASin(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    x := 'undefined
+  } else {
+    x := l_nth(params, 0)
+  };
+  x := ToNumber(x);
+
   /* Returns an implementation-dependent approximation to the arc sine of x. The result is expressed in radians
      and ranges from -pi/2 to +pi/2. */
   /* If x is NaN, the result is NaN. */
@@ -181,11 +208,19 @@ function MathASin(globalObject, this, stric, params) {
   /* If x is less than –1, the result is NaN. */
   /* If x is +0, the result is +0. */
   /* If x is -0, the result is -0. */
-  return
+
+  return asin x
 };
 
 /* 15.8.2.4 atan (x) */
 function MathATan(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    x := 'undefined
+  } else {
+    x := l_nth(params, 0)
+  };
+  x := ToNumber(x);
+
   /* Returns an implementation-dependent approximation to the arc tangent of x. The result is expressed in
      radians and ranges from -pi/2 to +pi/2. */
   /* If x is NaN, the result is NaN. */
@@ -193,11 +228,26 @@ function MathATan(globalObject, this, stric, params) {
   /* If x is -0, the result is -0. */
   /* If x is +Infinity, the result is an implementation-dependent approximation to +pi/2. */
   /* If x is -Infinity, the result is an implementation-dependent approximation to -pi/2. */
-  return
+
+  return atan x
 };
 
 /* 15.8.2.5 atan2 (y, x) */
 function MathATan2(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    y := 'undefined;
+    x := 'undefined
+  } else {
+    y := l_nth(params, 0);
+    if (l_len params = 1) {
+      x := 'undefined
+    } else {
+      x := l_nth(params, 1)
+    }
+  };
+  y := ToNumber(y);
+  x := ToNumber(x);
+
   /* Returns an implementation-dependent approximation to the arc tangent of the quotient y/x of the arguments y
      and x, where the signs of y and x are used to determine the quadrant of the result. Note that it is intentional
      and traditional for the two-argument arc tangent function that the argument named y be first and the argument
@@ -225,11 +275,19 @@ function MathATan2(globalObject, this, stric, params) {
   /* If y is +Infinity and x is -Infinity, the result is an implementation-dependent approximation to +3pi/4. */
   /* If y is -Infinity and x is +Infinity, the result is an implementation-dependent approximation to -pi/4. */
   /* If y is -Infinity and x is -Infinity, the result is an implementation-dependent approximation to -3pi/4. */
-  return
+
+  return atan2(y, x)
 };
 
 /* 15.8.2.6 ceil (x) */
 function MathCeil(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    x := 'undefined
+  } else {
+    x := l_nth(params, 0)
+  };
+  x := ToNumber(x);
+
   /* Returns the smallest (closest to -Infinity) Number value that is not less than x and is equal to a mathematical
      integer. If x is already an integer, the result is x. */
   /* If x is NaN, the result is NaN. */
@@ -238,22 +296,38 @@ function MathCeil(globalObject, this, stric, params) {
   /* If x is +Infinity, the result is +Infinity. */
   /* If x is -Infinity, the result is -Infinity. */
   /* If x is less than 0 but greater than -1, the result is -0. */
-  return
+
+  return ceil x
 };
 
 /* 15.8.2.7 cos (x) */
 function MathCos(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    x := 'undefined
+  } else {
+    x := l_nth(params, 0)
+  };
+  x := ToNumber(x);
+
   /* Returns an implementation-dependent approximation to the cosine of x. The argument is expressed in radians. */
   /* If x is NaN, the result is NaN. */
   /* If x is +0, the result is 1. */
   /* If x is -0, the result is 1. */
   /* If x is +Infinity, the result is NaN. */
   /* If x is -Infinity, the result is NaN. */
-  return
+
+  return cos x
 };
 
 /* 15.8.2.8 exp (x) */
 function MathExp(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    x := 'undefined
+  } else {
+    x := l_nth(params, 0)
+  };
+  x := ToNumber(x);
+
   /* Returns an implementation-dependent approximation to the exponential function of x (e raised to the power of
      x, where e is the base of the natural logarithms). */
   /* If x is NaN, the result is NaN. */
@@ -261,13 +335,17 @@ function MathExp(globalObject, this, stric, params) {
   /* If x is -0, the result is 1. */
   /* If x is +Infinity, the result is +Infinity. */
   /* If x is -Infinity, the result is +0. */
-  return
+
+  return exp x
 };
 
 /* 15.8.2.9 floor (x) */
 function MathFloor(globalObject, this, stric, params) {
-  assert (l_len params) > 0;
-  x := l_nth (params, 0);
+  if (l_len params = 0) {
+    x := 'undefined
+  } else {
+    x := l_nth(params, 0)
+  };
   x := ToNumber(x);
 
   /* Returns the greatest (closest to +Infinity) Number value that is not greater than x and is equal to a mathematical
@@ -278,6 +356,7 @@ function MathFloor(globalObject, this, stric, params) {
   /* If x is +Infinity, the result is +Infinity. */
   /* If x is -Infinity, the result is -Infinity. */
   /* If x is greater than 0 but less than 1, the result is +0. */
+
   return floor(x)
 
   /* NOTE The value of Math.floor(x) is the same as the value of -Math.ceil(-x). */
@@ -285,42 +364,98 @@ function MathFloor(globalObject, this, stric, params) {
 
 /* 15.8.2.10 log (x) */
 function MathLog(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    x := 'undefined
+  } else {
+    x := l_nth(params, 0)
+  };
+  x := ToNumber(x);
+
   /* Returns an implementation-dependent approximation to the natural logarithm of x. */
   /* If x is NaN, the result is NaN. */
   /* If x is less than 0, the result is NaN. */
   /* If x is +0 or -0, the result is -Infinity. */
   /* If x is 1, the result is +0. */
   /* If x is +Infinity, the result is +Infinity. */
-  return
+
+  return log_e x
 };
 
 /* 15.8.2.11 max ( [ value1 [ , value2 [ , ... ] ] ] ) */
 function MathMax(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    params := [-Infinity, -Infinity]
+  } else {
+    if (l_len params = 1) {
+      params := l_add(params, -Infinity)
+    }
+  };
   /* Given zero or more arguments, calls ToNumber on each of the arguments and returns the largest of the
      resulting values. */
+  max_value := ToNumber(l_nth(params, 0));
+  i := 1;
+  lparams := l_len params;
+  while(i < lparams) {
+    value := ToNumber(l_nth(params, i));
+
+    max_value := max(max_value, value);
+
+    i := i + 1
+  };
   /* If no arguments are given, the result is -Infinity. */
   /* If any value is NaN, the result is NaN. */
   /* The comparison of values to determine the largest value is done as in 11.8.5 except that +0 is considered to
      be larger than -0. */
 
   /* The length property of the max method is 2. */
-  return
+  return max_value
 };
 
 /* 15.8.2.12 min ( [ value1 [ , value2 [ , ... ] ] ] ) */
 function MathMin(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    params := [Infinity, Infinity]
+  } else {
+    if (l_len params = 1) {
+      params := l_add(params, Infinity)
+    }
+  };
   /* Given zero or more arguments, calls ToNumber on each of the arguments and returns the smallest of the
      resulting values. */
+  min_value := ToNumber(l_nth(params, 0));
+  i := 1;
+  lparams := l_len params;
+  while(i < lparams) {
+    value := ToNumber(l_nth(params, i));
+
+    min_value := min(min_value, value);
+
+    i := i + 1
+  };
   /* If no arguments are given, the result is +Infinity. */
   /* If any value is NaN, the result is NaN. */
   /* The comparison of values to determine the smallest value is done as in 11.8.5 except that +0 is considered
      to be larger than -0. */
   /* The length property of the min method is 2. */
-  return
+  return min_value
 };
 
 /* 15.8.2.13 pow (x, y) */
 function MathPow(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    x := 'undefined;
+    y := 'undefined
+  } else {
+    x := l_nth(params, 0);
+    if (l_len params = 1) {
+      y := 'undefined
+    } else {
+      y := l_nth(params, 1)
+    }
+  };
+  x := ToNumber(x);
+  y := ToNumber(y);
+
   /* Returns an implementation-dependent approximation to the result of raising x to the power y. */
   /* If y is NaN, the result is NaN. */
   /* If y is +0, the result is 1, even if x is NaN. */
@@ -345,7 +480,8 @@ function MathPow(globalObject, this, stric, params) {
   /* If x is -0 and y<0 and y is an odd integer, the result is -Infinity. */
   /* If x is -0 and y<0 and y is not an odd integer, the result is +Infinity. */
   /* If x<0 and x is finite and y is finite and y is not an integer, the result is NaN. */
-  return
+
+  return x ** y
 };
 
 /* 15.8.2.14 random ( ) */
@@ -353,11 +489,18 @@ function MathRandom(globalObject, this, stric, params) {
   /* Returns a Number value with positive sign, greater than or equal to 0 but less than 1, chosen randomly or
      pseudo randomly with approximately uniform distribution over that range, using an implementation-dependent
      algorithm or strategy. This function takes no arguments. */
-  return
+  return random 1.
 };
 
 /* 15.8.2.15 round (x) */
 function MathRound(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    x := 'undefined
+  } else {
+    x := l_nth(params, 0)
+  };
+  x := ToNumber(x);
+
   /* Returns the Number value that is closest to x and is equal to a mathematical integer. If two integer Number
      values are equally close to x, then the result is the Number value that is closer to +Infinity. If x is already an integer,
      the result is x. */
@@ -374,13 +517,17 @@ function MathRound(globalObject, this, stric, params) {
   /* NOTE 2 The value of Math.round(x) is the same as the value of Math.floor(x+0.5), except when x is -0 or is
             less than 0 but greater than or equal to -0.5; for these cases Math.round(x) returns -0, but Math.floor(x+0.5)
             returns +0. */
-  return
+
+  return round x
 };
 
 /* 15.8.2.16 sin (x) */
 function MathSin(globalObject, this, stric, params) {
-  assert (l_len params) > 0;
-  x := l_nth (params, 0);
+  if (l_len params = 0) {
+    x := 'undefined
+  } else {
+    x := l_nth(params, 0)
+  };
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the sine of x. The argument is expressed in radians. */
@@ -388,27 +535,44 @@ function MathSin(globalObject, this, stric, params) {
   /* If x is +0, the result is +0. */
   /* If x is -0, the result is -0. */
   /* If x is +Infinity or -Infinity, the result is NaN. */
+
   return sin(x)
 };
 
 /* 15.8.2.17 sqrt (x) */
 function MathSqrt(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    x := 'undefined
+  } else {
+    x := l_nth(params, 0)
+  };
+  x := ToNumber(x);
+
   /* Returns an implementation-dependent approximation to the square root of x. */
   /* If x is NaN, the result is NaN. */
   /* If x is less than 0, the result is NaN. */
   /* If x is +0, the result is +0. */
   /* If x is -0, the result is -0. */
   /* If x is +Infinity, the result is +Infinity. */
-  return
+
+  return sqrt x
 };
 
 /* 15.8.2.18 tan (x) */
 function MathTan(globalObject, this, stric, params) {
+  if (l_len params = 0) {
+    x := 'undefined
+  } else {
+    x := l_nth(params, 0)
+  };
+  x := ToNumber(x);
+
   /* Returns an implementation-dependent approximation to the tangent of x. The argument is expressed in
      radians. */
   /* If x is NaN, the result is NaN. */
   /* If x is +0, the result is +0. */
   /* If x is -0, the result is -0. */
   /* If x is +Infinity or -Infinity, the result is NaN. */
-  return
+
+  return tan x
 }
