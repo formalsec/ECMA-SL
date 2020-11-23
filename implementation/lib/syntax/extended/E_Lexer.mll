@@ -99,9 +99,25 @@ rule read =
   | "to_int32"        { TO_INT32 }
   | "to_uint32"       { TO_UINT32 }
   | "to_uint16"       { TO_UINT16 }
+  | "abs"             { ABS }
+  | "acos"            { ACOS }
+  | "asin"            { ASIN }
+  | "atan"            { ATAN }
+  | "atan2"           { ATAN_2 }
+  | "ceil"            { CEIL }
+  | "cos"             { COS }
+  | "exp"             { EXP }
   | "floor"           { FLOOR }
   | "log_e"           { LOG_E }
+  | "log_10"          { LOG_10 }
+  | "max"             { MAX }
+  | "min"             { MIN }
+  | "**"              { POW }
+  | "random"          { RANDOM }
+  | "round"           { ROUND }
   | "sin"             { SIN }
+  | "sqrt"            { SQRT }
+  | "tan"             { TAN }
   | "PI"              { PI }
   | '('               { LPAREN }
   | ')'               { RPAREN }

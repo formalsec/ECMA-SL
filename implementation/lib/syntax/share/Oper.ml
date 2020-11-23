@@ -25,6 +25,10 @@ type bopt = Plus
           | Ladd
           | Lprepend
           | Lconcat
+          | Atan2
+          | Max
+          | Min
+          | Pow
 
 type uopt = Neg
           | Not
@@ -48,15 +52,28 @@ type uopt = Neg
           | ToInt32
           | ToUint32
           | ToUint16
+          | Abs
+          | Acos
+          | Asin
+          | Atan
+          | Ceil
+          | Cos
+          | Exp
           | Floor
           | Log_e
+          | Log_10
+          | Round
+          | Random
           | Sin
+          | Sqrt
+          | Tan
 
 
 type nopt = ListExpr
           | TupleExpr
           | NAry_And
           | NAry_Or
+
 
 let neg (v : Val.t) : Val.t = match v with
   | Flt v    -> Flt (-.v)
@@ -298,9 +315,21 @@ let str_of_unopt (op : uopt) : string = match op with
   | ToInt32       -> "to_int32"
   | ToUint32      -> "to_uint32"
   | ToUint16      -> "to_uint16"
+  | Abs           -> "abs"
+  | Acos          -> "acos"
+  | Asin          -> "asin"
+  | Atan          -> "atan"
+  | Ceil          -> "ceil"
+  | Cos           -> "cos"
+  | Exp           -> "exp"
   | Floor         -> "floor"
   | Log_e         -> "log_e"
+  | Log_10        -> "log_10"
+  | Round         -> "round"
+  | Random        -> "random"
   | Sin           -> "sin"
+  | Sqrt          -> "sqrt"
+  | Tan           -> "tan"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
@@ -328,12 +357,48 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Ladd     -> "l_add(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Lprepend -> "l_prepend(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Lconcat  -> "l_concat(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Atan2    -> "atan2(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Max      -> "max(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Min      -> "min(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Pow      -> e1 ^ " ** " ^ e2
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | ListExpr  -> "[ " ^ (String.concat ", " es) ^ " ]"
   | TupleExpr -> "( " ^ (String.concat ", " es) ^ " )"
   | NAry_And  -> String.concat " && " es
   | NAry_Or   -> String.concat " || " es
+
+
+let unary_float_call (func : float -> float) (v : Val.t) (failure_msg : string) : Val.t = match v with
+  | Flt f -> Flt (func f)
+  | _     -> invalid_arg (Printf.sprintf "Exception in %s: expected float, got %s" failure_msg (Val.str v))
+
+let binary_float_call (func : float -> float -> float) (v1 : Val.t) (v2 : Val.t) (failure_msg : string) : Val.t = match v1, v2 with
+  | Flt f1, Flt f2 -> Flt (func f1 f2)
+  | _              -> invalid_arg (Printf.sprintf "Exception in %s: expected floats, got %s and %s" failure_msg (Val.str v1) (Val.str v2))
+
+let apply_uopt_oper (oper : uopt) (v : Val.t) : Val.t = match oper with
+  | Abs    -> unary_float_call Float.abs v    "Absolute value"
+  | Acos   -> unary_float_call Float.acos v   "Arc cosine"
+  | Asin   -> unary_float_call Float.asin v   "Arc sine"
+  | Atan   -> unary_float_call Float.atan v   "Arc tangent"
+  | Ceil   -> unary_float_call Float.ceil v   "Ceil"
+  | Cos    -> unary_float_call Float.cos v    "Cosine"
+  | Exp    -> unary_float_call Float.exp v    "Exponential"
+  | Log_10 -> unary_float_call Float.log10 v  "Base-10 logarithm"
+  | Round  -> unary_float_call Float.round v  "Round"
+  | Random -> unary_float_call Random.float v "Random"
+  | Sqrt   -> unary_float_call Float.sqrt v   "Square root"
+  | Tan    -> unary_float_call Float.tan v    "Tangent"
+  | _      -> invalid_arg ("Exception in Oper.apply_uopt_oper: unexpected unary operator: " ^ (str_of_unopt oper))
+
+let apply_bopt_oper (oper : bopt) (v1 : Val.t) (v2 : Val.t) : Val.t = match oper with
+  | Atan2 -> binary_float_call Float.atan2 v1 v2 "Arc tangent of quotient y/x"
+  | Max   -> binary_float_call Float.max v1 v2   "Max"
+  | Min   -> binary_float_call Float.min v1 v2   "Min"
+  | Pow   -> binary_float_call Float.pow v1 v2   "Power"
+  | _     -> invalid_arg ("Exception in Oper.apply_bopt_oper: unexpected binary operator: " ^ (str_of_binopt oper (Val.str v1) (Val.str v2)))
+
 
 let bopt_to_json (op : bopt) : string =
   Printf.sprintf "{ \"type\" : \"binopt\", \"value\" : \"%s"
@@ -362,7 +427,11 @@ let bopt_to_json (op : bopt) : string =
      | Tnth    -> Printf.sprintf "Tnth\" }"
      | Ladd    -> Printf.sprintf "Ladd\" }"
      | Lprepend -> Printf.sprintf "Lprepend\" }"
-     | Lconcat -> Printf.sprintf "Lconcat\" }")
+     | Lconcat  -> Printf.sprintf "Lconcat\" }"
+     | Atan2    -> Printf.sprintf "Atan2\" }"
+     | Max      -> Printf.sprintf "Max\" }"
+     | Min      -> Printf.sprintf "Min\" }"
+     | Pow      -> Printf.sprintf "Pow\" }")
 
 let nopt_to_json (op : nopt) : string =
   Printf.sprintf "{ \"type\" : \"nopt\", \"value\" : \"%s"
@@ -398,7 +467,19 @@ let uopt_to_json (op : uopt) : string =
      | ToInt32       -> Printf.sprintf "ToInt32\" }"
      | ToUint32      -> Printf.sprintf "ToUint32\" }"
      | ToUint16      -> Printf.sprintf "ToUint16\" }"
+     | Abs           -> Printf.sprintf "Abs\" }"
+     | Acos          -> Printf.sprintf "Acos\" }"
+     | Asin          -> Printf.sprintf "Asin\" }"
+     | Atan          -> Printf.sprintf "Atan\" }"
+     | Ceil          -> Printf.sprintf "Ceil\" }"
+     | Cos           -> Printf.sprintf "Cos\" }"
+     | Exp           -> Printf.sprintf "Exp\" }"
      | Floor         -> Printf.sprintf "Floor\" }"
      | Log_e         -> Printf.sprintf "Log_e\" }"
-     | Sin           -> Printf.sprintf "Sin\" }")
+     | Log_10        -> Printf.sprintf "Log_10\" }"
+     | Round         -> Printf.sprintf "Round\" }"
+     | Random        -> Printf.sprintf "Random\" }"
+     | Sin           -> Printf.sprintf "Sin\" }"
+     | Sqrt          -> Printf.sprintf "Sqrt\" }"
+     | Tan           -> Printf.sprintf "Tan\" }")
 
