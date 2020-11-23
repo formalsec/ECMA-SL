@@ -6,7 +6,6 @@ import "ES5_interpreter/section 8/section_8.9.esl";
 import "ES5_interpreter/section 8/section_8.10.esl";
 import "ES5_interpreter/section 8/section_8.12.esl";
 import "ES5_interpreter/section 9/section_9.esl";
-import "ES5_interpreter/section 9/section_9.3.esl";
 import "ES5_interpreter/section 9/section_9.12.esl";
 import "ES5_interpreter/section 10/section_10.2.esl";
 import "ES5_interpreter/section 10/section_10.3.esl";
