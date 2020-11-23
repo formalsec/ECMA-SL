@@ -60,7 +60,7 @@ function ToNumber(argument) {
     return argument
   };
   if (argument_type = "String") {
-    return float_of_string argument
+    return toNumberAppliedToTheStringType(argument)
   };
   if (argument_type = "Object") {
     /* Apply the following steps: */
