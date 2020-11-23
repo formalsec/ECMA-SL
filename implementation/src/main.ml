@@ -87,8 +87,11 @@ let core_interpretation (prog : Prog.t) : unit =
   if !parse then parse_program prog;
   let v, heap = CoreInterp.eval_prog prog (!out, !mon, !verb_aux) "main" in
   (match v with
-  | Some z -> print_string ("MAIN return -> "^(Val.str z));
-  | None -> print_string "ERROR HERE");
+  | Some z -> (match z with
+                | Val.Tuple (ret) -> print_string ("MAIN return -> "^ (Val.str (List.nth ret 0))^ "\n");
+                                print_string ("MAIN pc -> " ^ (Val.str (List.nth ret 1)) ^ "\n"); 
+                | ret -> print_string ("MAIN return -> "^(Val.str z));)
+  | None -> print_string "ERROR Core_Interpretation");
   if !heap_file <> ""
   then Parsing_Utils.write_file (Heap.str heap) !heap_file
   else print_string "\n"; print_endline (Heap.str heap)

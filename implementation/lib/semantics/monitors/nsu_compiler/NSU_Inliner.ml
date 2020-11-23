@@ -91,7 +91,7 @@ let c_fieldlookup (pc : string) (x : string) (e_o : Expr.t) (e_f : Expr.t) : Stm
       ]
     ), 
       Some (Stmt.Block ([
-        Stmt.Exception ("\"Illegal Field Lookup\"")
+        Stmt.Exception ("\"MONITOR EXCEPTION -> Illegal Field Lookup\"")
         ])))] in
 
     assigns
@@ -190,7 +190,7 @@ let c_assign (pc : string) (x : string) (e : Expr.t) : Stmt.t list=
   Stmt.If (Expr.Var leq_1, 
     st1 ,
     Some (Stmt.Block ([
-      Stmt.Exception "\"Illegal Assignment\""
+      Stmt.Exception "\"MONITOR EXCEPTION -> Illegal Assignment\""
     ])))
   ]
 
@@ -222,7 +222,7 @@ let c_assigncall (pc : string) (x : string) (f : Expr.t) (args : Expr.t list) : 
   stmt_args @
   [ 
     Stmt.AssignCall (leq_1, leq_func (), [Expr.Var pc; shadow_var_e x]);
-    Stmt.If (Expr.Var leq_1, Stmt.Block st1, Some (Stmt.Block ([Stmt.Exception "\"MONITOR BLOCK - pc bigger than x\""])))
+    Stmt.If (Expr.Var leq_1, Stmt.Block st1, Some (Stmt.Block ([Stmt.Exception "\"MONITOR EXCEPTION -> MONITOR BLOCK - pc bigger than x\""])))
   ]
 
 
@@ -304,7 +304,8 @@ C(e_o[e_f]:= e_v)=
     prop_exists_lev_name := propExists(x_f);
     lub_1 := lub(ctx, x_v_lev);
     x_o[prop_val_lev_name] := lub_1;
-    x_o[prop_exists_lev_name] := ctx
+    x_o[prop_exists_lev_name] := ctx;
+    x_o[x_f] := x_v;
     } else{
       throw("Illegal Field Creation")
     }
@@ -340,9 +341,10 @@ let c_fieldassign (pc : string) (e_o : Expr.t) (e_f : Expr.t) (e_v : Expr.t) : S
             Stmt.AssignCall (prop_exists_lev_name, Expr.Val (Val.Str _SHADOW_PROP_EXISTS_), [x_f]);
             Stmt.AssignCall (lub_1, lub_func (), [Expr.Var ctx; Expr.Var x_v_lev]); 
             Stmt.FieldAssign (x_o, Expr.Var prop_val_lev_name, Expr.Var lub_1);
-            Stmt.FieldAssign (x_o, Expr.Var prop_exists_lev_name, Expr.Var ctx)]) ,
+            Stmt.FieldAssign (x_o, Expr.Var prop_exists_lev_name, Expr.Var ctx);
+            Stmt.FieldAssign (x_o, x_f, x_v)]) ,
           Some ( Stmt.Block [
-        Stmt.Exception ("\"Illegal Field Creation\"")]))
+        Stmt.Exception ("\"MONITOR EXCEPTION -> Illegal Field Creation\"")]))
       ]),Some (Stmt.Block ([
         Stmt.AssignCall (leq_1, leq_func (), [Expr.Var ctx; Expr.Var prop_val_lev]);
         Stmt.If (Expr.Var leq_1, 
@@ -351,7 +353,7 @@ let c_fieldassign (pc : string) (e_o : Expr.t) (e_f : Expr.t) (e_v : Expr.t) : S
             Stmt.FieldAssign (x_o, Expr.Var prop_val_lev_name, Expr.Var lub_1);
             Stmt.FieldAssign (x_o, x_f, x_v)
           ]), Some (Stmt.Block ([
-            Stmt.Exception ("\"Illegal Field Assign\"")
+            Stmt.Exception ("\"MONITOR EXCEPTION -> Illegal Field Assign\"")
           ])))])))
     ]
 
@@ -404,7 +406,7 @@ let c_fielddelete (pc : string) (e_o : Expr.t) (e_f : Expr.t) : Stmt.t list =
     Stmt.Block ([
       Stmt.FieldDelete (x_o, x_f)]),
     Some (Stmt.Block ([
-      Stmt.Exception ("\"Illegal Field Delete\"")
+      Stmt.Exception ("\"MONITOR EXCEPTION -> Illegal Field Delete\"")
    ])))]))
 
   ]
@@ -451,7 +453,7 @@ let c_assinginobjcheck (pc : string) (x : string) (e_f : Expr.t) (e_o : Expr.t) 
     Stmt.AssignCall (ctx, lubn_func (), [Expr.NOpt (Oper.ListExpr, [Expr.Var x_o_lev; Expr.Var x_f_lev; Expr.Var pc])]);
     Stmt.AssignCall (prop_exists_lev_name,Expr.Val (Val.Str _SHADOW_PROP_EXISTS_), [x_f]);
     Stmt.FieldLookup (prop_exists_lev, x_o, Expr.Var prop_exists_lev_name);
-    Stmt.FieldLookup (struct_lev, x_o, (Expr.Var _OBJ_STRUCT_LEV_PROP_));
+    Stmt.FieldLookup (struct_lev, x_o, (Expr.Val  (Val.Str _OBJ_STRUCT_LEV_PROP_)));
     Stmt.AssignCall (leq_1, leq_func (), [Expr.Var ctx; shadow_var_e x]);
     Stmt.If (Expr.Var leq_1, 
     Stmt.Block ([
@@ -459,21 +461,23 @@ let c_assinginobjcheck (pc : string) (x : string) (e_f : Expr.t) (e_o : Expr.t) 
         Stmt.Block [Stmt.AssignCall (shadowvar x, lub_func (), [Expr.Var ctx; Expr.Var struct_lev])],
         Some ( 
         Stmt.Block [Stmt.AssignCall (shadowvar x, lub_func (), [Expr.Var ctx; Expr.Var prop_exists_lev])]))
-    ]), Some ( Stmt.Block [Stmt.Exception "\"Illegal Assignment\""]));
+    ]), Some ( Stmt.Block [Stmt.Exception "\"MONITOR EXCEPTION -> Illegal Assignment\""]));
     Stmt.AssignInObjCheck (x, x_f, x_o)
   ]
 
 
 (*
   x_shadow = shadow(x)
-  ret_shadow = shadow(ret)
   leq_1 lub_1 fresh
   __________________________
   C(ret := upgVar(x, lev_str))=
-    lev := parse_lvl(lev_str);
-    x_shadow := lev;
-    ret_shadow := pc;
-    ret := null
+    level := parse_lvl(lev_str);
+    leq_1 := leq(pc, x_shadow);
+    if (leq_1){
+      x_shadow := lub(level, pc)
+    } else {
+      throw "MONITOR EXCEPTION -> Illegal UpgVarLab"
+    }
 
 
 *)
@@ -487,12 +491,243 @@ let c_upgVar (pc : string) (ret : string) (x_name : string) (lev_str : string) :
       Stmt.If (Expr.Var leq_1,
           Stmt.Block [Stmt.AssignCall (x_shadow, lub_func (), [Expr.Var level; Expr.Var pc])],
           Some (
-            Stmt.Block [Stmt.Exception "\"Illegal UpgVarLab\""]
+            Stmt.Block [Stmt.Exception "\"MONITOR EXCEPTION -> Illegal UpgVarLab\""]
           )
         )
     ]  
+(*
+  C(e_o) = (stmt_x_o, x_o_lev)
+  C(e_f) = (stmt_x_f, x_f_lev)
+  x_shadow = shadow(x)
+  leq_1 lub_1 lev_ctx leq_2 prop_2 fresh
+  __________________________
+  C( ret := upgPropExists (e_o, e_f, lev_str)) =
+  stmt_x_o;
+  stmt_x_f; 
+  x_o := e_o;
+  x_f := e_f;
+  lev := parse_lvl(lev_str);
+  leq_1 := leq(lev_str_lev, pc);
+  if(! leq_1){
+    throw "upgPropExists - Levels must be literals"
+  };
+  lev_ctx := lubn(x_o_lev, x_f_lev, pc);
+  prop_2 := shadowPropExists(x_f);
+  lev_2 := x_o[prop_2];
+  leq_2 := leq(lev_ctx, lev_2);
+  if(leq_2){
+    lev_3 := lub(lev_ctx, lev);
+    x_o[prop_2] := lev_3
+  } else{
+    throw "MONITOR EXCEPTION -> Illegal P_Exists Upgrade"
+  }
+}
 
+*)
 
+let c_upgPropExists (pc : string) (ret : string) (e_o : Expr.t) (e_f : Expr.t) (lev_str : string) : Stmt.t list = 
+  let (stmt_x_o, x_o_lev) = c_expr e_o in
+  let (stmt_x_f, x_f_lev) = c_expr e_f in
+  let x_o = e_o in
+  let x_f = e_f in
+  let lev_ctx = fresh_var_lev () in
+  let lev = fresh_var_lev () in
+  let lev_2 = fresh_var_lev () in
+  let lev_3 = fresh_var_lev () in
+  let leq_1 = fresh_var () in
+  let leq_2 = fresh_var () in
+  let prop_2 = fresh_var () in
+  [
+    stmt_x_o;
+    stmt_x_f;
+    Stmt.AssignCall (lev, parse_lvl_func (), [Expr.Val (Val.Str lev_str)]);
+    Stmt.AssignCall (leq_1, leq_func (), [Expr.Val (Val.Str lev_str); Expr.Var pc]); (* uma vez estando sempre a ler strings isto nao e preciso*)
+    Stmt.If (Expr.Var leq_1, 
+      Stmt.Block [
+        Stmt.Exception "\"upgPropExists - Levels must be literals\""
+      ], None);
+    Stmt.AssignCall (lev_ctx, lubn_func (), [Expr.Var x_o_lev; Expr.Var x_f_lev; Expr.Var pc]);
+    Stmt.AssignCall (prop_2, Expr.Val (Val.Str _SHADOW_PROP_EXISTS_), [x_f]);
+    Stmt.FieldLookup (lev_2, x_o, Expr.Var prop_2);
+    Stmt.AssignCall (leq_2, leq_func (), [Expr.Var lev_ctx; Expr.Var lev_2]);
+    Stmt.If (Expr.Var leq_2, 
+      Stmt.Block [
+        Stmt.AssignCall (lev_3, lub_func (), [Expr.Var lev_ctx; Expr.Var lev]);
+        Stmt.FieldAssign(x_o, Expr.Var prop_2, Expr.Var lev_3)
+      ], Some (Stmt.Block [
+        Stmt.Exception "\"MONITOR EXCEPTION -> Illegal P_Exists Upgrade\""
+      ]))
+  ]
+
+(*C(lev_str) = (stmt_lev_str, lev_str_lev)
+  C(e_o) = (stmt_x_o, x_o_lev)
+  C(e_f) = (stmt_x_f, x_f_lev)
+  x_shadow = shadow(x)
+  leq_1 lub_1 lev_ctx leq_2 prop_2 fresh
+  -------------------------------------
+  C(ret := upgPropVal (e_o, e_f, lev_str)) =
+  stmt_x_o;
+  stmt_x_f; 
+  x_o := e_o;
+  x_f := e_f; 
+  lev := parse_lvl(lev_str);
+  leq_1 := leq(lev_str_lev, pc);
+  if(! leq_1){
+    throw "upgPropExists - Levels must be literals"
+  };
+  lev_ctx := lubn(x_o_lev, x_f_lev, pc);
+  prop_2 := shadowPropVal(prop);
+  lev_2 := obj[prop_2];
+  leq_2 := leq(lev_ctx, lev_2);
+  if(leq_2){
+    lev_3 := lub(lev_ctx, lev);
+    obj[prop_2] := lev_3
+  } else{
+    throw "MONITOR EXCEPTION -> Illegal P_Val Upgrade"
+  }
+};*)
+
+let c_upgPropVal (pc : string) (ret : string) (e_o : Expr.t) (e_f : Expr.t) (lev_str : string) : Stmt.t list = 
+  let (stmt_x_o, x_o_lev) = c_expr e_o in
+  let (stmt_x_f, x_f_lev) = c_expr e_f in
+  let x_o = e_o in
+  let x_f = e_f in
+  let lev_ctx = fresh_var_lev () in
+  let lev = fresh_var_lev () in
+  let lev_2 = fresh_var_lev () in
+  let lev_3 = fresh_var_lev () in
+  let leq_1 = fresh_var () in
+  let leq_2 = fresh_var () in
+  let prop_2 = fresh_var () in
+  [
+    stmt_x_o;
+    stmt_x_f;
+    Stmt.AssignCall (lev, parse_lvl_func (), [Expr.Val (Val.Str lev_str)]);
+    Stmt.AssignCall (leq_1, leq_func (), [Expr.Val (Val.Str lev_str); Expr.Var pc]); (* uma vez estando sempre a ler strings isto nao e preciso*)
+    Stmt.If (Expr.Var leq_1, 
+      Stmt.Block [
+        Stmt.Exception "\"upgPropExists - Levels must be literals\""
+      ], None);
+    Stmt.AssignCall (lev_ctx, lubn_func (), [Expr.Var x_o_lev; Expr.Var x_f_lev; Expr.Var pc]);
+    Stmt.AssignCall (prop_2, Expr.Val (Val.Str _SHADOW_PROP_VALUE_), [x_f]);
+    Stmt.FieldLookup (lev_2, x_o, Expr.Var prop_2);
+    Stmt.AssignCall (leq_2, leq_func (), [Expr.Var lev_ctx; Expr.Var lev_2]);
+    Stmt.If (Expr.Var leq_2, 
+      Stmt.Block [
+        Stmt.AssignCall (lev_3, lub_func (), [Expr.Var lev_ctx; Expr.Var lev]);
+        Stmt.FieldAssign(x_o, Expr.Var prop_2, Expr.Var lev_3)
+      ], Some (Stmt.Block [
+        Stmt.Exception "\"MONITOR EXCEPTION -> Illegal P_Val Upgrade\""
+      ]))
+  ]
+
+(*
+  C(e_o) = (stmt_x_o, x_o_lev)
+  leq_1  lvl_ctx fresh
+  ----------------------
+  C( upgStruct (e_o, lev_str))=
+  stmt_x_o;
+  x_o := e_o; 
+  lev := parse_lvl(lev_str);
+  leq_1 := leq(lev_str_lev, pc);
+  if(! leq_1){
+    throw "upgStruct - Levels must be literals"
+  };
+  lev_ctx := lub(x_o_lev, pc);
+  lev_2 := x_o["structLev"];
+  leq_2 := leq(lev_ctx, lev_2);
+  if(leq_2){
+    lev_3 := lub(lev_ctx, lev);
+    x_o["structLev"] := lev_3
+  } else{
+    throw "MONITOR EXCEPTION -> Illegal P_Val Upgrade"
+  }
+
+*)
+
+let c_upgStruct (pc : string) (ret : string) (e_o : Expr.t) (lev_str : string) : Stmt.t list =
+  let (stmt_x_o, x_o_lev) = c_expr e_o in
+  let x_o = e_o in
+  let lev_ctx = fresh_var_lev () in
+  let lev = fresh_var_lev () in
+  let lev_2 = fresh_var_lev () in
+  let lev_3 = fresh_var_lev () in
+  let leq_1 = fresh_var () in
+  let leq_2 = fresh_var () in
+  [
+    stmt_x_o;
+    Stmt.AssignCall (lev, parse_lvl_func (), [Expr.Val (Val.Str lev_str)]);
+    Stmt.AssignCall (leq_1, leq_func (), [Expr.Val (Val.Str lev_str); Expr.Var pc]); (* uma vez estando sempre a ler strings isto nao e preciso*)
+    Stmt.If (Expr.Var leq_1, 
+      Stmt.Block [
+        Stmt.Exception "\"upgPropExists - Levels must be literals\""
+      ], None);
+    Stmt.AssignCall (lev_ctx, lub_func (), [Expr.Var x_o_lev; Expr.Var pc]);
+    Stmt.FieldLookup (lev_2, x_o, Expr.Val (Val.Str _OBJ_STRUCT_LEV_PROP_));
+    Stmt.AssignCall (leq_2, leq_func (), [Expr.Var lev_ctx; Expr.Var lev_2]);
+    Stmt.If (Expr.Var leq_2, 
+      Stmt.Block [
+        Stmt.AssignCall (lev_3, lub_func (), [Expr.Var lev_ctx; Expr.Var lev]);
+        Stmt.FieldAssign(x_o, Expr.Val (Val.Str _OBJ_STRUCT_LEV_PROP_), Expr.Var lev_3)
+      ], Some (Stmt.Block [
+        Stmt.Exception "\"MONITOR EXCEPTION -> Illegal P_Val Upgrade\""
+      ]))
+
+  ]
+
+  (*
+  C(e_o) = (stmt_x_o, x_o_lev)
+  leq_1  lvl_ctx fresh
+  ----------------------
+  C( upgObject (e_o, lev_str))=
+  stmt_x_o;
+  x_o := e_o; 
+  lev := parse_lvl(lev_str);
+  leq_1 := leq(lev_str_lev, pc);
+  if(! leq_1){
+    throw "upgObject - Levels must be literals"
+  };
+  lev_ctx := lub(x_o_lev, pc);
+  lev_2 := x_o["objLev"];
+  leq_2 := leq(lev_ctx, lev_2);
+  if(leq_2){
+    lev_3 := lub(lev_ctx, lev);
+    x_o["objLev"] := lev_3
+  } else{
+    throw "MONITOR EXCEPTION -> Illegal P_Val Upgrade"
+  }
+
+*)
+
+let c_upgStruct (pc : string) (ret : string) (e_o : Expr.t) (lev_str : string) : Stmt.t list =
+  let (stmt_x_o, x_o_lev) = c_expr e_o in
+  let x_o = e_o in
+  let lev_ctx = fresh_var_lev () in
+  let lev = fresh_var_lev () in
+  let lev_2 = fresh_var_lev () in
+  let lev_3 = fresh_var_lev () in
+  let leq_1 = fresh_var () in
+  let leq_2 = fresh_var () in
+  [
+    stmt_x_o;
+    Stmt.AssignCall (lev, parse_lvl_func (), [Expr.Val (Val.Str lev_str)]);
+    Stmt.AssignCall (leq_1, leq_func (), [Expr.Val (Val.Str lev_str); Expr.Var pc]); (* uma vez estando sempre a ler strings isto nao e preciso*)
+    Stmt.If (Expr.Var leq_1, 
+      Stmt.Block [
+        Stmt.Exception "\"upgPropExists - Levels must be literals\""
+      ], None);
+    Stmt.AssignCall (lev_ctx, lub_func (), [Expr.Var x_o_lev; Expr.Var pc]);
+    Stmt.FieldLookup (lev_2, x_o, Expr.Val (Val.Str _OBJ_STRUCT_LEV_PROP_));
+    Stmt.AssignCall (leq_2, leq_func (), [Expr.Var lev_ctx; Expr.Var lev_2]);
+    Stmt.If (Expr.Var leq_2, 
+      Stmt.Block [
+        Stmt.AssignCall (lev_3, lub_func (), [Expr.Var lev_ctx; Expr.Var lev]);
+        Stmt.FieldAssign(x_o, Expr.Val (Val.Str _OBJ_STRUCT_LEV_PROP_), Expr.Var lev_3)
+      ], Some (Stmt.Block [
+        Stmt.Exception "\"MONITOR EXCEPTION -> Illegal P_Val Upgrade\""
+      ]))
+
+  ]
 
 
 
@@ -521,7 +756,15 @@ let rec compile (pc:string) (stmt: Stmt.t ): Stmt.t list=
       c_while pc pc' e stmts
 
     | AssignCall (ret, Expr.Val (Val.Str f), [Expr.Val (Val.Str x_name); Expr.Val (Val.Str lev_str)]) when f = _upgVar_ -> c_upgVar pc ret x_name lev_str
+(*
+    | AssignCall (ret, Expr.Val (Val.Str f), [x_o; x_f; Expr.Val (Val.Str lev_str)]) when f = _upgPropExists_ -> c_upgPropExists pc ret x_o x_f lev_str
+    
+    | AssignCall (ret, Expr.Val (Val.Str f), [x_o; x_f; Expr.Val (Val.Str lev_str)]) when f = _upgPropVal_ -> c_upgPropVal pc ret x_o x_f lev_str
 
+    | AssignCall (ret, Expr.Val (Val.Str f), [x_o;  Expr.Val (Val.Str lev_str)]) when f = _upgStruct_ -> c_upgStruct pc ret x_o lev_str
+
+    | AssignCall (ret, Expr.Val (Val.Str f), [x_o;  Expr.Val (Val.Str lev_str)]) when f = _upgObject_ -> c_upgSObject pc ret x_o lev_str
+*)
     | AssignCall (x,f,args) -> c_assigncall pc x f args
 
     | Print (e) -> c_print pc e

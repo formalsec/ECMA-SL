@@ -142,7 +142,11 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
   | Skip ->
     (Intermediate ((cs, heap, sto), cont), SecLabel.EmptyLab)
 
-  | Exception str -> raise (Except str)
+  | Exception str -> print_string "Exception thrown:\n"; 
+                     let string_1 = String.split_on_char '\"' str in
+                     let string_2 = String.split_on_char '\"' (List.nth string_1 1) in 
+                     print_string (List.nth string_2 0);
+                     exit 1
   
   | Merge -> (Intermediate ((cs, heap, sto), cont), SecLabel.MergeLab)
 

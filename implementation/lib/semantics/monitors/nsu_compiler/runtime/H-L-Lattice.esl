@@ -30,8 +30,6 @@ function parse_lvl (lev_str){
 };
 
 function lubn (levs){
-	print("DEBUG");
-	print(levs);
 	i := 0;
 	acc := false;
 	while (i < l_len(levs)){
@@ -41,7 +39,7 @@ function lubn (levs){
 	return acc
 };
 
-
+/*
 function upgPropExists (obj, lev_obj, prop, lev_prop, lev_str, lev_lev_str, pc){ 
 	lev := "parse_lvl"(lev_str);
 	leq_1 := "leq"(lev_lev_str, pc);
@@ -58,8 +56,9 @@ function upgPropExists (obj, lev_obj, prop, lev_prop, lev_str, lev_lev_str, pc){
 	} else{
 		throw "Illegal P_Exists Upgrade"
 	};
-	return 0
+	return (0,pc)
 };
+*/
 
 function upgPropVal (obj, lev_obj, prop, lev_prop, lev_str, lev_lev_str, pc){ 
 	lev := "parse_lvl"(lev_str);
@@ -76,7 +75,8 @@ function upgPropVal (obj, lev_obj, prop, lev_prop, lev_str, lev_lev_str, pc){
 		obj[prop_2] := lev_3
 	} else{
 		throw "Illegal P_Val Upgrade"
-	}
+	};
+	return (0,pc)
 };
 
 function upgStruct (obj, lev_obj, lev_str, lev_lev_str, pc){ 
@@ -93,7 +93,9 @@ function upgStruct (obj, lev_obj, lev_str, lev_lev_str, pc){
 		obj["structLev"] := lev_3
 	} else{
 		throw "Illegal P_Val Upgrade"
-	}
+	};
+	print pc;
+	return (0,pc)
 };
 
 function upgObject (obj, lev_obj, lev_str, lev_lev_str, pc){ 
@@ -110,7 +112,8 @@ function upgObject (obj, lev_obj, lev_str, lev_lev_str, pc){
 		obj["objLev"] := lev_3
 	} else{
 		throw "Illegal P_Val Upgrade"
-	}
+	}; 
+	return (0,pc)
 }
 
 

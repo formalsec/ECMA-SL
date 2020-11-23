@@ -162,7 +162,7 @@ let first (v : Val.t) : Val.t = match v with
   | _       -> invalid_arg "Exception in Oper.first: this operation is only applicable to Tuple arguments"
 
 let second (v : Val.t) : Val.t = match v with
-  | Tuple t -> Tuple (List.tl t)
+  | Tuple t -> List.nth t 1
   | _       -> invalid_arg "Exception in Oper.second: this operation is only applicable to Tuple arguments"
 
 let int_to_string (v : Val.t) : Val.t = match v with
