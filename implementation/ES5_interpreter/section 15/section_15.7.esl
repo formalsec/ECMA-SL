@@ -165,11 +165,11 @@ function getNumberPrototype(strict) {
   return objectNumberProto
 };
 
-if (!isNumberOrNumberObject(this)) {
-  if (typeof this = __$Flt) {
+function isNumberOrNumberObject(arg) {
+  if (typeof arg = __$Flt) {
     return true
   };
-  if ((typeof this = __$Obj) &&& (isJavaScriptObject(this)) &&& (getInternalProperty(this, "Class") = "Number")) {
+  if ((typeof arg = __$Obj) &&& (isJavaScriptObject(arg)) &&& (getInternalProperty(arg, "Class") = "Number")) {
     return true
   };
   return false
