@@ -20,7 +20,9 @@
 let digit   = ['0' - '9']
 let letter  = ['a' - 'z' 'A' - 'Z']
 let int     = '-'?digit+
-let float   = int('.')digit*
+let frac    = '.' digit*
+let exp     = ['e' 'E'] ['-' '+']? digit+
+let float   = digit* frac? exp?
 let bool    = "true"|"false"
 let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
 let gvar    = '|'(var)'|'
