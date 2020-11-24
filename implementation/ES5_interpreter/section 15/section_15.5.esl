@@ -1,59 +1,3 @@
-/* import "ES5_interpreter/section 9/section_9.esl";
-import "ES5_interpreter/extras/section_extras.esl";
-import "ES5_interpreter/section 8/section_8.6.esl";
-import "ES5_interpreter/section 8/section_8.7.esl";
-import "ES5_interpreter/section 8/section_8.10.esl";
-import "ES5_interpreter/section 8/section_8.12.esl";
-import "ES5_interpreter/section 10/section_10.2.esl";
-import "ES5_interpreter/section 10/section_10.3.esl";
-import "ES5_interpreter/section 10/section_10.4.esl";
-import "ES5_interpreter/section 10/section_10.5.esl";
-import "ES5_interpreter/section 13/section_13.esl";
-import "ES5_interpreter/section 15/section_15.esl";
-import "ES5_interpreter/section 15/section_15.1.esl";
-import "ES5_interpreter/section 15/section_15.2.esl";
-import "ES5_interpreter/section 15/section_15.3.esl";
-import "ES5_interpreter/section 15/section_15.4.esl";
-import "ES5_interpreter/section 15/section_15.11.esl"; */
-/* import "ES5_interpreter/ES5_Reference_Interpreter.esl"; */
-
-/* This method is not supposed to be here. As soon
-   as it is placed in the right section, it should
-   be replaced by an import of that section. */
-/* function Type(V) {
-  v_type := typeof V;
-  if (v_type = __$Int) { return "Number" };
-  if (v_type = __$Flt) { return "Number" };
-  if (v_type = __$Bool) { return "Boolean" };
-  if (v_type = __$Str) { return "String" };
-  if (v_type = __$Obj) { return "Object" };
-  if (v_type = __$List) { return "List" };
-  if (v_type = __$Null) { return "Null" };
-  if (v_type = __$Symbol) {
-    if (V = "undefined") { return "Undefined" };
-    if (V = "NaN") { return "Number" };
-    if ((V = "+0") || (V = "-0")) { return "Number" };
-    if ((V = "+Infinity") || (V = "Infinity") || (V = "-Infinity")) { return "Number" }
-  };
-  if (v_type = __$Tuple) {
-    ft := fst V;
-    if (ft = "R") { return "Reference" };
-    if (ft = "C") { return "Completion" }
-  };
-
-  throw SyntaxErrorException()
-}; */
-/*
-function IsPrimitiveValue (v) {
-  v_type := Type(v);
-  if (v_type = "Object") {
-    return false
-  } else {
-    return true
-  }
-};
-*/
-
 /* Placeholder */
 
 function getStringPrototype(global) {
@@ -332,7 +276,7 @@ function StringPrototypecharCodeAt (global, this, strict, args){
   size := s_len(S);
   /* If position < 0 or position ≥ size, return NaN. */
   if (position < 0 || (position >= size)){
-    return "NaN"
+    return NaN
   };
   /*     Return a value of Number type, whose value is the code unit value of the character at position position
        in the String S, where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on. */
@@ -424,7 +368,6 @@ function StringPrototypeindexOf (global, this, strict, args){
   /*Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /*Let S be the result of calling ToString, giving it the this value as its argument.*/
-  debug;
   S := ToString(this);
   /* Let searchStr be ToString(searchString). */
   searchStr := ToString(searchString);
@@ -492,9 +435,9 @@ function StringPrototypelastIndexOf(global, this, strict, args){
   /*  Let numPos be ToNumber(position). (If position is undefined, this step produces the value NaN). */
   numPos := ToNumber(position);
   /*  If numPos is NaN, let pos be +∞; otherwise, let pos be ToInteger(numPos).*/
-  if (numPos = "NaN") {
-    pos := "+Infinity"
-  } else{
+  if (numPos = NaN) {
+    pos := Infinity
+  } else {
     pos := int_of_float (ToInteger(numPos))
   };
   /* Let len be the number of characters in S.*/
