@@ -1,4 +1,4 @@
-import "ES5_interpreter/section 8/section_8.esl";
+/* import "ES5_interpreter/section 8/section_8.esl"; */
 
 
 
@@ -760,11 +760,4 @@ function JA(value, stack, indent, gap, space) {
   indent := stepback;
   /* 13. Return final. */
   return final
-};
-
-
-
-
-function main() {
-
 }

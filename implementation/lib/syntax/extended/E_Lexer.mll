@@ -90,9 +90,12 @@ rule read =
   | "fst"          { FST }
   | "snd"          { SND }
   | "s_concat"     { SCONCAT }
+  | "s_len"        { SLEN }
+  | "s_nth"        { SNTH }
   | "int_to_float"    { INT_TO_FLOAT }
   | "int_to_string"   { INT_TO_STRING }
   | "int_of_string"   { INT_OF_STRING }
+  | "int_of_float"    { INT_OF_FLOAT }
   | "float_to_string" { FLOAT_TO_STRING }
   | "float_of_string" { FLOAT_OF_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }
@@ -101,6 +104,11 @@ rule read =
   | "to_int32"        { TO_INT32 }
   | "to_uint32"       { TO_UINT32 }
   | "to_uint16"       { TO_UINT16 }
+  | "from_char_code"  { FROM_CHAR_CODE }
+  | "to_char_code"    { TO_CHAR_CODE }
+  | "to_lower_case"   { TO_LOWER_CASE }
+  | "to_upper_case"   { TO_UPPER_CASE }
+  | "trim"            { TRIM }
   | "abs"             { ABS }
   | "acos"            { ACOS }
   | "asin"            { ASIN }

@@ -31,12 +31,13 @@
 %token <string> SYMBOL
 %token <string> LOC
 %token LAND LOR SCLAND SCLOR
-%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS
+%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
+%token FROM_CHAR_CODE TO_CHAR_CODE TO_LOWER_CASE TO_UPPER_CASE TRIM
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16
 %token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM ROUND SIN SQRT TAN PI
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
-%token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
+%token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
 %token SCONCAT
 %token IMPORT THROW
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
@@ -77,20 +78,20 @@ e_prog_e_stmt_target:
 e_prog_target:
   | imports = list (import_target); macros_funcs = separated_list (SEMICOLON, e_prog_elem_target); EOF;
    {
-    let (funcs, macros) = List.split macros_funcs in 
+    let (funcs, macros) = List.split macros_funcs in
     let funcs' = List.concat (List.map (fun o -> Option.map_default (fun x -> [ x ]) [] o) funcs) in
-    let macros' = List.concat (List.map (fun o -> Option.map_default (fun x -> [ x ]) [] o) macros) in  
-    E_Prog.create imports funcs' macros' 
+    let macros' = List.concat (List.map (fun o -> Option.map_default (fun x -> [ x ]) [] o) macros) in
+    E_Prog.create imports funcs' macros'
    }
 
 import_target:
   | IMPORT; fname = STRING; SEMICOLON;
     { fname }
 
-e_prog_elem_target: 
-  | f = proc_target; 
+e_prog_elem_target:
+  | f = proc_target;
     { (Some f, None) }
-  | m = macro_target; 
+  | m = macro_target;
     { (None, Some m) }
 
 proc_target:
@@ -206,6 +207,8 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.ListLen, e) } %prec unopt_prec
   | TLEN; e = e_expr_target;
     { E_Expr.UnOpt (Oper.TupleLen, e) } %prec unopt_prec
+  | SLEN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.StringLen, e) } %prec unopt_prec
   | TYPEOF; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Typeof, e) } %prec unopt_prec
   | HD; e = e_expr_target;
@@ -222,6 +225,8 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
   | INT_OF_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
+  | INT_OF_FLOAT; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.IntOfFloat, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
   | FLOAT_OF_STRING; e = e_expr_target;
@@ -232,6 +237,16 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.ToInt32, e) } %prec unopt_prec
   | TO_UINT32; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ToUint32, e) } %prec unopt_prec
+  | FROM_CHAR_CODE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.FromCharCode, e) } %prec unopt_prec
+  | TO_CHAR_CODE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ToCharCode, e) } %prec unopt_prec
+  | TO_LOWER_CASE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ToLowerCase, e) } %prec unopt_prec
+  | TO_UPPER_CASE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ToUpperCase, e) } %prec unopt_prec
+  | TRIM; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Trim, e) } %prec unopt_prec
   | TO_UINT16; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ToUint16, e) } %prec unopt_prec
   | ABS; e = e_expr_target;
@@ -277,6 +292,8 @@ prefix_binary_op_target:
     { E_Expr.BinOpt (Oper.Lnth, e1, e2) }
   | TNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Tnth, e1, e2) }
+  | SNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Snth, e1, e2) }
   | LADD; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Ladd, e1, e2) }
   | LPREPEND; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
@@ -398,4 +415,3 @@ op_target:
 e_op_target:
   | SCLAND  { EOper.SCLogAnd }
   | SCLOR   { EOper.SCLogOr }
-
