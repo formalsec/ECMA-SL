@@ -28,7 +28,9 @@
 %token LAND LOR
 %token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
-%token TO_INT TO_INT32 TO_UINT32 TO_UINT16 FLOOR FROM_CHAR_CODE TO_CHAR_CODE TO_LOWER_CASE TO_UPPER_CASE TRIM
+%token FROM_CHAR_CODE TO_CHAR_CODE TO_LOWER_CASE TO_UPPER_CASE TRIM
+%token TO_INT TO_INT32 TO_UINT32 TO_UINT16
+%token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM ROUND SIN SQRT TAN
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
 %token SCONCAT
@@ -36,7 +38,7 @@
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
 
-%left LAND LOR BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
+%left LAND LOR BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL POW
 %left GT LT EGT ELT IN_LIST
 %left PLUS MINUS
 %left TIMES DIVIDE MODULO
@@ -183,10 +185,38 @@ expr_target:
     { Expr.UnOpt (Oper.ToUpperCase, e) } %prec unopt_prec
   | TRIM; e = expr_target;
     { Expr.UnOpt (Oper.Trim, e) } %prec unopt_prec
-  | FLOOR; e = expr_target;
-    { Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
   | TO_UINT16; e = expr_target;
     { Expr.UnOpt (Oper.ToUint16, e) } %prec unopt_prec
+  | ABS; e = expr_target;
+    { Expr.UnOpt (Oper.Abs, e) } %prec unopt_prec
+  | ACOS; e = expr_target;
+    { Expr.UnOpt (Oper.Acos, e) } %prec unopt_prec
+  | ASIN; e = expr_target;
+    { Expr.UnOpt (Oper.Asin, e) } %prec unopt_prec
+  | ATAN; e = expr_target;
+    { Expr.UnOpt (Oper.Atan, e) } %prec unopt_prec
+  | CEIL; e = expr_target;
+    { Expr.UnOpt (Oper.Ceil, e) } %prec unopt_prec
+  | COS; e = expr_target;
+    { Expr.UnOpt (Oper.Cos, e) } %prec unopt_prec
+  | EXP; e = expr_target;
+    { Expr.UnOpt (Oper.Exp, e) } %prec unopt_prec
+  | FLOOR; e = expr_target;
+    { Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
+  | LOG_E; e = expr_target;
+    { Expr.UnOpt (Oper.Log_e, e) } %prec unopt_prec
+  | LOG_10; e = expr_target;
+    { Expr.UnOpt (Oper.Log_10, e) } %prec unopt_prec
+  | ROUND; e = expr_target;
+    { Expr.UnOpt (Oper.Round, e) } %prec unopt_prec
+  | RANDOM; e = expr_target;
+    { Expr.UnOpt (Oper.Random, e) } %prec unopt_prec
+  | SIN; e = expr_target;
+    { Expr.UnOpt (Oper.Sin, e) } %prec unopt_prec
+  | SQRT; e = expr_target;
+    { Expr.UnOpt (Oper.Sqrt, e) } %prec unopt_prec
+  | TAN; e = expr_target;
+    { Expr.UnOpt (Oper.Tan, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
   | FLOAT_OF_STRING; e = expr_target;
@@ -209,6 +239,12 @@ expr_target:
     { print_string ">PAREN\n";e }
   | SCONCAT; e = expr_target;
     { print_string ">UNOP\n";Expr.UnOpt (Oper.Sconcat, e) } %prec unopt_prec
+  | ATAN_2; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    { Expr.BinOpt (Oper.Atan2, e1, e2) }
+  | MAX; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    { Expr.BinOpt (Oper.Max, e1, e2) }
+  | MIN; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    { Expr.BinOpt (Oper.Min, e1, e2) }
 
 stmt_block:
 | s= separated_list (SEMICOLON, stmt_target);
@@ -286,3 +322,4 @@ op_target:
   | SHIFT_RIGHT_LOGICAL { Oper.ShiftRightLogical }
   | LOR     { Oper.Log_Or }
   | IN_LIST { Oper.InList }
+  | POW     { Oper.Pow }

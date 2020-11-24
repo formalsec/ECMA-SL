@@ -2,6 +2,7 @@ type t =
   | Val     of Val.t
   | Var     of string
   | GVar    of string 
+  | Const   of Oper.const
   | BinOpt  of Oper.bopt * t * t
   | EBinOpt of EOper.bopt * t * t    (** non-shared binary operators *) 
   | UnOpt   of Oper.uopt * t
@@ -16,6 +17,7 @@ let rec str (e : t) : string = match e with
   | Val n                 -> Val.str n
   | Var x                 -> x
   | GVar x                -> "|" ^ x ^ "|"
+  | Const c               -> Oper.str_of_const c
   | UnOpt (op, e)         -> (Oper.str_of_unopt op) ^ "(" ^ (str e) ^ ")"
   | EBinOpt (op, e1, e2)  -> EOper.str_of_binopt op (str e1) (str e2)
   | BinOpt (op, e1, e2)   -> Oper.str_of_binopt op (str e1) (str e2)
@@ -48,7 +50,8 @@ let rec map (f : (t -> t)) (e : t) : t =
   let map_obj = List.map (fun (x, e) -> (x, mapf e)) in 
   let e' = 
     match e with
-      | Val _ | Var _ | GVar _   -> e 
+      | Val _ | Var _
+      | Const _ | GVar _         -> e
       | UnOpt (op, e)            -> UnOpt (op, mapf e)
       | EBinOpt (op, e1, e2)     -> EBinOpt (op, mapf e1, mapf e2)
       | BinOpt (op, e1, e2)      -> BinOpt (op, mapf e1, mapf e2)

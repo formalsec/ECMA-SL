@@ -33,7 +33,9 @@
 %token LAND LOR SCLAND SCLOR
 %token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
-%token TO_INT TO_INT32 TO_UINT32 TO_UINT16 FLOOR FROM_CHAR_CODE TO_CHAR_CODE TO_LOWER_CASE TO_UPPER_CASE TRIM
+%token FROM_CHAR_CODE TO_CHAR_CODE TO_LOWER_CASE TO_UPPER_CASE TRIM
+%token TO_INT TO_INT32 TO_UINT32 TO_UINT16
+%token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM ROUND SIN SQRT TAN PI
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
 %token SCONCAT
@@ -42,7 +44,7 @@
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
 
-%left SCLAND SCLOR LAND LOR BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
+%left SCLAND SCLOR LAND LOR BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL POW
 %left GT LT EGT ELT IN_OBJ IN_LIST
 %left PLUS MINUS
 %left TIMES DIVIDE MODULO
@@ -170,6 +172,8 @@ e_expr_target:
     { E_Expr.Var v }
   | v = GVAR;
     { E_Expr.GVar v }
+  | PI;
+    { E_Expr.Const Oper.PI }
   | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Expr.Call (E_Expr.Val (Val.Str f), es) }
   | LBRACE; f = e_expr_target; RBRACE; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
@@ -243,10 +247,38 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.ToUpperCase, e) } %prec unopt_prec
   | TRIM; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Trim, e) } %prec unopt_prec
-  | FLOOR; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
   | TO_UINT16; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ToUint16, e) } %prec unopt_prec
+  | ABS; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Abs, e) } %prec unopt_prec
+  | ACOS; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Acos, e) } %prec unopt_prec
+  | ASIN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Asin, e) } %prec unopt_prec
+  | ATAN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Atan, e) } %prec unopt_prec
+  | CEIL; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Ceil, e) } %prec unopt_prec
+  | COS; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Cos, e) } %prec unopt_prec
+  | EXP; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Exp, e) } %prec unopt_prec
+  | FLOOR; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
+  | LOG_E; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Log_e, e) } %prec unopt_prec
+  | LOG_10; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Log_10, e) } %prec unopt_prec
+  | ROUND; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Round, e) } %prec unopt_prec
+  | RANDOM; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Random, e) } %prec unopt_prec
+  | SIN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Sin, e) } %prec unopt_prec
+  | SQRT; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Sqrt, e) } %prec unopt_prec
+  | TAN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Tan, e) } %prec unopt_prec
   | OBJ_TO_LIST; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ObjToList, e) } %prec unopt_prec
   | SCONCAT; e = e_expr_target;
@@ -268,12 +300,18 @@ prefix_binary_op_target:
     { E_Expr.BinOpt (Oper.Lprepend, e1, e2) }
   | LCONCAT; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Lconcat, e1, e2) }
+  | ATAN_2; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Atan2, e1, e2) }
+  | MAX; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Max, e1, e2) }
+  | MIN; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Min, e1, e2) }
 
 infix_binary_op_target:
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
     { E_Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
   | e1 = e_expr_target; bop = e_op_target; e2 = e_expr_target;
-     { E_Expr.EBinOpt (bop, e1, e2) } %prec binopt_prec
+    { E_Expr.EBinOpt (bop, e1, e2) } %prec binopt_prec
 
 fv_target:
   | f = VAR; COLON; e = e_expr_target;
@@ -372,6 +410,7 @@ op_target:
   | SHIFT_RIGHT_LOGICAL { Oper.ShiftRightLogical }
   | IN_OBJ  { Oper.InObj }
   | IN_LIST { Oper.InList }
+  | POW     { Oper.Pow }
 
 e_op_target:
   | SCLAND  { EOper.SCLogAnd }

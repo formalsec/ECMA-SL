@@ -112,6 +112,8 @@ function initGlobalObject(strict) {
 
   /* 15.1.5 Other Properties of the Global Object*/
   /* 15.1.5.1 Math */
+  MathObject := initMathObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Math", MathObject);
   /* 15.1.5.2 JSON */
 
   /* Extras */

@@ -1,19 +1,190 @@
 /* import "ES5_interpreter/section 8/section_8.esl"; */
 
 
-function initJSONPrototype(global, objectPrototype, strict) {
+
+/* TODO */
+function setAllInternalMethodsOfJson(json) {
+  setAllInternalMethodsOfObject(json);
+  return json
+};
+/* TODO */
+function initJsonPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfJSON(prototype)
-
+  setAllInternalMethodsOfJson(prototype);
+  return prototype
+};
+/* TODO */
+function getJsonPrototype(strict) {
+  refJson := newPropertyReference(|global|, "Object", strict);
+  @GetValue(JsonObject, refJson);
+  refJsonProto := newPropertyReference(JsonObject, "prototype", strict);
+  @GetValue(objectJsonProto, refJsonProto);
+  return objectJsonProto
+};
+/* TODO */
+function initJsonObject(global, objectPrototype, strict) {
+  objJsonPrototype := initJsonPrototype(global, objectPrototype, strict);
+  return objJsonPrototype
 };
 
-function initJSONLib(global, objectPrototype, strict) {
-  objArrayPrototype := initJSONPrototype(global, objectPrototype, strict);
 
-  descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
 
-  return objArrayConstructor
+
+/**
+ * 5.12.2 parse ( text [ , reviver ] )
+ *
+ * The parse function parses a JSON text (a JSON-formatted String) and produces
+ * an ECMAScript value. The JSON format is a restricted form of ECMAScript literal.
+ * JSON objects are realized as ECMAScript objects. JSON arrays are realized as
+ * ECMAScript arrays. JSON strings, numbers, booleans, and null are realized as
+ * ECMAScript Strings, Numbers, Booleans, and null. JSON uses a more limited set
+ * of white space characters than WhiteSpace and allows Unicode code points U+2028
+ * and U+2029 to directly appear in JSONString literals without using an escape
+ * sequence. The process of parsing is similar to 11.1.4 and 11.1.5 as constrained
+ * by the JSON grammar.
+ *
+ * The optional reviver parameter is a function that takes two parameters, (key
+ * and value). It can filter and transform the results. It is called with each of
+ * the key/value pairs produced by the parse, and its return value is used instead
+ * of the original value. If it returns what it received, the structure is not
+ * modified. If it returns undefined then the property is deleted from the result.
+ */
+function jsonParse(global, this, strict, args) {
+  /* 1. Let JText be ToString(text). */
+  JText := ToString(text);
+  /* 2. Parse JText using the grammars in 15.12.1. Throw a SyntaxError exception
+        if JText did not conform to the JSON grammar for the goal symbol JSONText. */
+  /* TODO */
+  /* 3. Let unfiltered be the result of parsing and evaluating JText as if it
+        was the source text of an ECMAScript Program but using JSONString in place
+        of StringLiteral. Note that since JText conforms to the JSON grammar this
+        result will be either a primitive value or an object that is defined by
+        either an ArrayLiteral or an ObjectLiteral. */
+  /* TODO */
+  /* 4. If IsCallable(reviver) is true, then */
+  if (IsCallable(reviver) = true) {
+    /* a. Let root be a new object created as if by the expression new Object(),
+          where Object is the standard built-in constructor with that name. */
+    root := ObjectConstructor(|global|, 'null, strict, [undefined]);
+    /* b. Call the [[DefineOwnProperty]] internal method of root with the empty
+          String, the PropertyDescriptor {[[Value]]: unfiltered, [[Writable]]: true,
+          [[Enumerable]]: true, [[Configurable]]: true}, and false as arguments. */
+    descriptor := newDataPropertyDescriptorFull(unfiltered, true, true, true);
+    {root.DefineOwnProperty}(root, "", descriptor, false);
+    /* c. Return the result of calling the abstract operation Walk, passing root and
+          the empty String. The abstract operation Walk is described below. */
+    return Walk(root, "")
+  }
+  /* 5. Else */
+  else {
+  /* a. Return unfiltered. */
+    return unfiltered
+  }
 };
+/**
+ * It is not permitted for a conforming implementation of JSON.parse to extend
+ * the JSON grammars. If an implementation wishes to support a modified or extended
+ * JSON interchange format it must do so by defining a different parse function.
+ *
+ * NOTE In the case where there are duplicate name Strings within an object,
+ * lexically preceding values for the same key shall be overwritten.
+ */
+
+
+
+
+/**
+ * The abstract operation Walk is a recursive abstract operation that takes two
+ * parameters: a holder object and the String name of a property in that object.
+ * Walk uses the value of reviver that was originally passed to the above parse
+ * function.
+ */
+function Walk(holder, name) {
+  /* 1. Let val be the result of calling the [[Get]] internal method of
+        holder with argument name. */
+  val := {holder.Get}(holder, name);
+  /* 2. If val is an object, then */
+  if (Type(arg) = "Object") { /* TODO */
+    /* a. If the [[Class]] internal property of val is "Array" */
+    if (val.Class = "Array") {
+      /* i. Set I to 0. */
+      I := 0;
+      /* ii. Let len be the result of calling the [[Get]] internal method
+            of val with argument "length". */
+      len := {val.Get}(val, "length");
+      /* iii. Repeat while I < len, */
+      while (I < len) {
+        /* 1. Let newElement be the result of calling the abstract operation
+              Walk, passing val and ToString(I). */
+        newElement := Walk(val, ToString(I));
+        /* 2. If newElement is undefined, then */
+        if (newElement = 'undefined) {
+          /* a. Call the [[Delete]] internal method of val with ToString(I)
+                and false as arguments. */
+          {val.Delete}(val, ToString(I), false)
+        }
+        /* 3. Else */
+        else {
+          /* a. Call the [[DefineOwnProperty]] internal method of val with arguments
+                ToString(I), the Property Descriptor {[[Value]]: newElement,
+                [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
+          descriptor := newDataPropertyDescriptorFull(newElement, true, true, true);
+          {val.DefineOwnProperty}(val, ToString(I), descriptor, false)
+        };
+        /* 4. Add 1 to I. */
+        I := I + 1
+      }
+    }
+    /* b. Else */
+    else {
+      /* i. Let keys be an internal List of String values consisting of the
+            names of all the own properties of val whose [[Enumerable]] attribute
+            is true. The ordering of the Strings should be the same as that used
+            by the Object.keys standard built-in function. */
+      keys := []; /* TODO check if this code is correct */
+      namedOwnProperties := getOwnProperties(val);
+      lnamedOwnProperties := int_to_float (l_len namedOwnProperties);
+      index := 0.;
+      while(index < lnamedOwnProperties) {
+        P := l_nth(namedOwnProperties, index);
+        if (P.Enumerable = true) {
+          keys := l_add(keys, P)
+        };
+        index := index + 1.
+      };
+      /* ii. For each String P in keys do, */
+      index := 0.;
+      while(index < lnamedOwnProperties) {
+        /* 1. Let newElement be the result of calling the abstract operation
+              Walk, passing val and P. */
+        newElement := Walk(val, P);
+        /* 2. If newElement is undefined, then */
+        if (newElement = 'undefined) {
+          /* a. Call the [[Delete]] internal method of val with P and false
+                as arguments. */
+          {val.Delete}(val, P, false)
+        }
+        /* 3. Else */
+        else {
+          /* a. Call the [[DefineOwnProperty]] internal method of val with
+                arguments P, the Property Descriptor {[[Value]]: newElement,
+                [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]:
+                true}, and false. */
+          descriptor := newDataPropertyDescriptorFull(newElement, true, true, true);
+          {val.DefineOwnProperty}(val, P, descriptor, false)
+        };
+        index := index + 1.
+      }
+    }
+  };
+  /* 3. Return the result of calling the [[Call]] internal method of reviver
+        passing holder as the this value and with an argument list consisting
+        of name and val. */
+  return {reviver.Call}(reviver, holder, [name, val])
+};
+
+
+
 
 /**
  * 15.12.3 stringify ( value [ , replacer [ , space ] ] )
@@ -31,7 +202,7 @@ function initJSONLib(global, objectPrototype, strict) {
  *
  * These are the steps in stringifying an object:
  */
-function stringify (global, this, strict, args) {
+function jsonStringify(global, this, strict, args) {
   value := l_nth(args, 0);
   replacer := l_nth(args, 1);
   space := l_nth(args, 2);
@@ -148,6 +319,43 @@ function stringify (global, this, strict, args) {
          String and wrapper. */
   return Str("", wrapper, ReplacerFunction)
 };
+/**
+ * NOTE 1 JSON structures are allowed to be nested to any depth, but they must be
+ * acyclic. If value is or contains a cyclic structure, then the stringify function
+ * must throw a TypeError exception. This is an example of a value that cannot be stringified:
+ *
+ * a = [];
+ * a[0] = a;
+ * my_text = JSON.stringify(a); // This must throw an TypeError.
+ *
+ * NOTE 2 Symbolic primitive values are rendered as follows:
+ * - The null value is rendered in JSON text as the String null.
+ * - The undefined value is not rendered.
+ * - The true value is rendered in JSON text as the String true.
+ * - The false value is rendered in JSON text as the String false.
+ *
+ * NOTE 3 String values are wrapped in double quotes. The characters " and \ are
+ * escaped with \ prefixes. Control characters are replaced with escape sequences
+ * \uHHHH, or with the shorter forms, \b (backspace), \f (formfeed), \n (newline),
+ * \r (carriage return), \t (tab).
+ *
+ * NOTE 4 Finite numbers are stringified as if by calling ToString(number).
+ * NaN and Infinity regardless of sign are represented as the String null.
+ *
+ * NOTE 5 Values that do not have a JSON representation (such as undefined and
+ * functions) do not produce a String. Instead they produce the undefined value.
+ * In arrays these values are represented as the String null. In objects an
+ * unrepresentable value causes the property to be excluded from stringification.
+ *
+ * NOTE 6 An object is rendered as an opening left brace followed by zero or more
+ * properties, separated with commas, closed with a right brace. A property is a
+ * quoted String representing the key or property name, a colon, and then the
+ * stringified property value. An array is rendered as an opening left bracket
+ * followed by zero or more values, separated with commas, closed with a right bracket.
+ */
+
+
+
 
 /* The abstract operation Str(key, holder) has access to ReplacerFunction
    from the invocation of the stringify method. Its algorithm is as follows: */
@@ -445,6 +653,7 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
   /* 13. Return final. */
   return final
 };
+
 
 
 

@@ -124,6 +124,10 @@ let compile_glob_assign (x : string) (stmts_e : Stmt.t list) (e : Expr.t) : Stmt
   let f_asgn = Stmt.FieldAssign (Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str x), e) in 
   stmts_e @ [ f_asgn ]
 
+let compile_const (c : Oper.const) : Stmt.t list * Expr.t =
+  match c with
+  | PI -> [], Expr.Val (Val.Flt Float.pi)
+
 let rec compile_ebinopt (binop : EOper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) : Stmt.t list * Expr.t =
   let x = generate_fresh_var () in
   let stmts_1, e1 = compile_expr e_e1 in
@@ -294,6 +298,7 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | Val x               -> [], Expr.Val x
   | Var x               -> [], Expr.Var x
   | GVar x              -> compile_gvar x 
+  | Const c             -> compile_const c
   | BinOpt (op, e1, e2) -> 
       let (stmts_1, e1') = compile_expr e1 in 
       let (stmts_2, e2') = compile_expr e2 in 
