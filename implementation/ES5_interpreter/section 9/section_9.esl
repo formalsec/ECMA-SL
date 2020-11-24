@@ -196,7 +196,7 @@ function ToObject(V) {
     return NumberConstructor(|global|, 'undefined, false, [V])
   };
   if (v_type = "String") {
-    return newString(V)
+    return StringConstructor(|global|, 'undefined, false, [V])
   };
   if (v_type = "Object") {
     return V
