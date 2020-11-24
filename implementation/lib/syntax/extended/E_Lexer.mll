@@ -20,7 +20,9 @@
 let digit   = ['0' - '9']
 let letter  = ['a' - 'z' 'A' - 'Z']
 let int     = '-'?digit+
-let float   = int('.')digit*
+let frac    = '.' digit*
+let exp     = ['e' 'E'] ['-' '+']? digit+
+let float   = digit* frac? exp?
 let bool    = "true"|"false"
 let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
 let gvar    = '|'(var)'|'
@@ -98,8 +100,27 @@ rule read =
   | "to_int"          { TO_INT }
   | "to_int32"        { TO_INT32 }
   | "to_uint32"       { TO_UINT32 }
-  | "floor"           { FLOOR }
   | "to_uint16"       { TO_UINT16 }
+  | "abs"             { ABS }
+  | "acos"            { ACOS }
+  | "asin"            { ASIN }
+  | "atan"            { ATAN }
+  | "atan2"           { ATAN_2 }
+  | "ceil"            { CEIL }
+  | "cos"             { COS }
+  | "exp"             { EXP }
+  | "floor"           { FLOOR }
+  | "log_e"           { LOG_E }
+  | "log_10"          { LOG_10 }
+  | "max"             { MAX }
+  | "min"             { MIN }
+  | "**"              { POW }
+  | "random"          { RANDOM }
+  | "round"           { ROUND }
+  | "sin"             { SIN }
+  | "sqrt"            { SQRT }
+  | "tan"             { TAN }
+  | "PI"              { PI }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }

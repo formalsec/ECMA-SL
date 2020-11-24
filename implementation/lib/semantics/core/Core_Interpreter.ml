@@ -44,9 +44,8 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ToInt         -> Oper.to_int v
   | ToInt32       -> Oper.to_int32 v
   | ToUint32      -> Oper.to_uint32 v
-  | Floor         -> Oper.to_floor v
   | ToUint16      -> Oper.to_uint16 v
-
+  | _             -> Oper.apply_uopt_oper op v
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   match op with
@@ -75,6 +74,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Lconcat  -> Oper.list_concat (v1, v2)
   | InList   -> Oper.list_in (v1, v2)
   | InObj    -> raise(Except "Not expected")
+  | _        -> Oper.apply_bopt_oper op v1 v2
 
 
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =

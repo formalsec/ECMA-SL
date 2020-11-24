@@ -159,7 +159,7 @@ function comparefn(globalobject, this, strict, args) {
   x := l_nth (args, 0);
   y := l_nth (args, 1);
   if (x > y) {
-    return -1.
+    return -(1.)
   };
   if (x < y) {
     return 1.

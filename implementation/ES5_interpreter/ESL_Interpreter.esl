@@ -651,7 +651,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     oldValue := ToNumber(GetValue(expr));
     /* 4. Let newValue be the result of adding the value 1 to oldValue, using the same rules as for the + operator
           (see 11.6.3). */
-    newValue := oldValue + 1;
+    newValue := oldValue + 1.;
     /* 5. Call PutValue(expr, newValue). */
     PutValue(expr, newValue);
     /* 6. Return newValue.*/
@@ -681,7 +681,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     oldValue := ToNumber(GetValue(expr));
     /* 4. Let newValue be the result of subtracting the value 1 from oldValue, using the same rules as for the -
           operator (see 11.6.3). */
-    newValue := oldValue - 1;
+    newValue := oldValue - 1.;
     /* 5. Call PutValue(expr, newValue). */
     PutValue(expr, newValue);
     /* 6. Return newValue.*/
@@ -775,7 +775,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
     oldValue := ToNumber(GetValue(lhs));
     /* 4. Let newValue be the result of adding the value 1 to oldValue, using the same rules as for the + operator
           (see 11.6.3). */
-    newValue := oldValue + 1;
+    newValue := oldValue + 1.;
     /* 5. Call PutValue(lhs, newValue). */
     PutValue(lhs, newValue);
     /* 6. Return oldValue. */
@@ -805,7 +805,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
     oldValue := ToNumber(GetValue(lhs));
     /* 4. Let newValue be the result of subtracting the value 1 from oldValue, using the same rules as for the -
           operator (11.6.3). */
-    newValue := oldValue - 1;
+    newValue := oldValue - 1.;
     /* 5. Call PutValue(lhs, newValue). */
     PutValue(lhs, newValue);
     /* 6. Return oldValue. */
