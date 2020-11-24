@@ -118,8 +118,12 @@ function handleSingleFile() {
   fi
 
   #echo "3.1. Copy contents to temporary file"
-  cat "test/test262/environment/harness.js" > "test/main262.js"
-  cat "${FILENAME}" >> "test/main262.js"
+  cat /dev/null > "test/main262.js"
+  if [[ $(awk '/flags: \[onlyStrict\]/ {print $0}' $FILENAME) != "" ]]; then
+    echo "\"use strict\";" >> test/main262.js
+  fi
+  cat "test/test262/environment/harness.js" >> test/main262.js
+  cat "${FILENAME}" >> test/main262.js
 
   if [ $? -ne 0 ]; then
     exit 1
