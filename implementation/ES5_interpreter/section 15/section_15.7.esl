@@ -38,6 +38,16 @@ function initNumberConstructor(NumberPrototype, globalObject, strict) {
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "prototype", NumberPrototype, false, false, false);
 
+  /* 15.7.3.6 Number.NEGATIVE_INFINITY
+   * The value of Number.NEGATIVE_INFINITY is -∞.
+   * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NEGATIVE_INFINITY", -Infinity, false, false, false);
+
+  /* 15.7.3.6 Number.POSITIVE_INFINITY
+   * The value of Number.POSITIVE_INFINITY is +∞.
+   * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "POSITIVE_INFINITY", Infinity, false, false, false);
+
   return NumberConstructor
 };
 
