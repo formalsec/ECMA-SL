@@ -246,11 +246,16 @@ let int_of_float (v : Val.t) : Val.t = match v with
 
 let float_to_string (v : Val.t) : Val.t = match v with
   | Flt i ->
-    let s = string_of_float i in
-    let len = String.length s - 1 in
-    let c = String.get s len in
-    let s' = if c = '.' then String.sub s 0 len else s in
-    Str s'
+    if ((compare i nan) = 0) then Str "NaN"
+    else if ((compare i infinity) = 0) then Str "Infinity"
+    else if ((compare i neg_infinity) = 0) then Str "-Infinity"
+    else (
+      let s = string_of_float i in
+      let len = String.length s - 1 in
+      let c = String.get s len in
+      let s' = if c = '.' then String.sub s 0 len else s in
+      Str s'
+    )
   | _     -> invalid_arg ("Exception in Oper.float_to_string: this operation is only applicable to Flt arguments: " ^ (Val.str v))
 
 let float_of_string (v : Val.t) : Val.t = match v with

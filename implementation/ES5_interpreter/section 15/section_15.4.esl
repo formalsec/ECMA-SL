@@ -785,7 +785,7 @@ function arrayPush(global, this, strict, items) {
           E, and true. */
     {O.Put}(O, ToString(n), E, true);
     /* c. Increase n by 1. */
-    n := n + 1
+    n := n + 1.
   };
   /* 6. Call the [[Put]] internal method of O with arguments "length", n,
         and true. */
