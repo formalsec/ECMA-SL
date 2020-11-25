@@ -18,7 +18,7 @@ class UpgVarLab{
 				sec_conf.ssto.setVarLvl(this.stringvar, Lattice.lub(this.lev, pc_lvl));
 				console.log("SECSTORE = "+ this.stringvar +" <-"+ Lattice.lub(this.lev, pc_lvl));
 			} else {
-				sec_conf.error = "Illegal UpgVarLab: " + this.stringvar + " " +  Lattice.str(this.lev);
+				sec_conf.error = "Illegal UpgVarLab";
 			}
 		} else{
 			sec_conf.ssto.setVarLvl(this.stringvar, Lattice.lub(this.lev, pc_lvl));

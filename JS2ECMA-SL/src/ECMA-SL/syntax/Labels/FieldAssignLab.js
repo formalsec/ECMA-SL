@@ -35,7 +35,7 @@ class FieldAssignLab{
 					sec_conf.sheap.setFieldLvls(this.object, this.field, Lattice.lub(lev_expr, lev_ctx));
 					
 				} else{
-					sec_conf.error = "Illegal Field Creation";
+					sec_conf.error = "Illegal Field Assign";
 				}
 			}else{
 				throw Error("Internal Error");
