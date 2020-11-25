@@ -147,7 +147,7 @@ function NumberPrototypeValueOf(global, this, strict, params) {
 
   /* The valueOf function is not generic; it throws a TypeError exception if its this value is not a Number or a
      Number object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
-  if (!isNumberOrNumberObjectObject(this)) {
+  if (!isNumberOrNumberObject(this)) {
     return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   return getInternalProperty(this, "PrimitiveValue")
