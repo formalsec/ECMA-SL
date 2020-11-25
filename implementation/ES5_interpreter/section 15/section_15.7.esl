@@ -38,6 +38,16 @@ function initNumberConstructor(NumberPrototype, globalObject, strict) {
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "prototype", NumberPrototype, false, false, false);
 
+  /* 15.7.3.6 Number.NEGATIVE_INFINITY
+   * The value of Number.NEGATIVE_INFINITY is -∞.
+   * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NEGATIVE_INFINITY", -Infinity, false, false, false);
+
+  /* 15.7.3.6 Number.POSITIVE_INFINITY
+   * The value of Number.POSITIVE_INFINITY is +∞.
+   * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "POSITIVE_INFINITY", Infinity, false, false, false);
+
   return NumberConstructor
 };
 
@@ -77,6 +87,8 @@ function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObj
   createBuiltInProperty(numberPrototypeObject, "constructor", NumberConstructor);
 
   /* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
+  toString := CreateFunctionObject([], "numberToString", globalObject, strict);
+  createBuiltInProperty(numberPrototypeObject, "toString", toString);
 
   /* 15.7.4.3 Number.prototype.toLocaleString() */
   toLocaleString := CreateFunctionObject([], "numberToLocaleString", globalObject, strict);
@@ -134,6 +146,30 @@ function NumberConstructor(globalObject, this, strict, params) {
   return newlyConstructedObject
 };
 
+/* Luis TODO */
+/**
+ * 15.7.4.2 Number.prototype.toString ( [ radix ] )
+ *
+ * The optional radix should be an integer value in the inclusive range 2 to 36.
+ * If radix not present or is undefined the Number 10 is used as the value of radix.
+ * If ToInteger(radix) is the Number 10 then this Number value is given as an argument
+ * to the ToString abstract operation; the resulting String value is returned.
+ *
+ * If ToInteger(radix) is not an integer between 2 and 36 inclusive throw a RangeError
+ * exception. If ToInteger(radix) is an integer from 2 to 36, but not 10, the result is
+ * a String representation of this Number value using the specified radix. Letters a-z
+ * are used for digits with values 10 through 35. The precise algorithm is
+ * implementation-dependent if the radix is not 10, however the algorithm should be a
+ * generalization of that specified in 9.8.1.
+ *
+ * The toString function is not generic; it throws a TypeError exception if its this
+ * value is not a Number or a Number object. Therefore, it cannot be transferred to other
+ * kinds of objects for use as a method.
+ */
+function numberToString(global, this, strict, args) {
+  num := this.PrimitiveValue;
+  return ToString(num)
+};
 
 /* 15.7.4.3 Number.prototype.toLocaleString() */
 function numberToLocaleString(global, this, strict, args) {
@@ -147,7 +183,7 @@ function NumberPrototypeValueOf(global, this, strict, params) {
 
   /* The valueOf function is not generic; it throws a TypeError exception if its this value is not a Number or a
      Number object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
-  if (!isNumberOrNumberObjectObject(this)) {
+  if (!isNumberOrNumberObject(this)) {
     return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
   return getInternalProperty(this, "PrimitiveValue")
