@@ -26,6 +26,10 @@ function initStringPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "String", true);
   setAllInternalMethodsOfObject(prototype);
 
+  /* 15.5.4.7 String.prototype.indexOf (searchString, position) */
+  indexOf := CreateFunctionObject(["searchString", "position"], "StringPrototypeIndexOf", global, strict);
+  createBuiltInProperty(prototype, "indexOf", indexOf);
+
   concatFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypeconcat", global, strict);
   setJSProperty(concatFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
   setJSProperty(prototype, "concat", newDataPropertyDescriptor( concatFunctionObject ));
@@ -362,9 +366,18 @@ The length property of the indexOf method is 1.
 NOTE The indexOf function is intentionally generic; it does not require that its this value be a String object. Therefore, it can be transferred to other kinds of objects for use as a method.
 */
 
-function StringPrototypeindexOf (global, this, strict, args){
-  searchString := l_nth(args,0);
-  position := l_nth(args,1);
+function StringPrototypeIndexOf (global, this, strict, args){
+  if (l_len args = 0) {
+    searchString := 'undefined;
+    position := 'undefined
+  } else {
+    searchString := l_nth(args, 0);
+    if (l_len args = 1) {
+      position := 'undefined
+    } else {
+      position := l_nth(args, 1)
+    }
+  };
   /*Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /*Let S be the result of calling ToString, giving it the this value as its argument.*/
@@ -372,11 +385,11 @@ function StringPrototypeindexOf (global, this, strict, args){
   /* Let searchStr be ToString(searchString). */
   searchStr := ToString(searchString);
   /* Let pos be ToInteger(position). (If position is undefined, this step produces the value 0). */
-  pos := int_of_float (ToInteger(position));
+  pos := ToInteger(position);
   /* Let len be the number of characters in S. */
   len := s_len(S);
   /* Let start be min(max(pos, 0), len). */
-  start := min(max(pos,0), len);
+  start := min(max(pos, 0.), int_to_float len);
   /* Let searchLen be the number of characters in searchStr. */
   searchLen := s_len(searchStr);
   /*     Return the smallest possible integer k not smaller than start such that k+ searchLen is not greater than len,
@@ -384,27 +397,26 @@ function StringPrototypeindexOf (global, this, strict, args){
       the character at position k+j of S is the same as the character at position j of searchStr);
       but if there is no such integer k, then return the value -1. */
   /* the smallest possible integer k not smaller than start */
-  k := start;
+  k := int_of_float start;
   /* for all nonnegative integers j */
   j := 0;
   /* such that k+ searchLen is not greater than len */
-  while(k+searchLen <=len){
+  while((k + searchLen) <= len){
   /* for all nonnegative integers j less than searchLen*/
-    if(j<searchLen){
+    if(j < searchLen){
       /* the character at position k+j of S is the same as the character at position j of searchStr */
-      if(s_nth (S, k+j) = s_nth (searchStr,j)){
-        j := j+1
-      }
-      else {
+      if(s_nth (S, k + j) = s_nth(searchStr, j)) {
+        j := j + 1
+      } else {
         j := 0;
-        k := k+1
+        k := k + 1
       }
-    } else{
-      return k
+    } else {
+      return int_to_float k
     }
   };
   /* but if there is no such integer k, then return the value -1. */
-  return -1
+  return -(1.)
 };
 
 /* 15.5.4.8 String.prototype.lastIndexOf (searchString, position) */
