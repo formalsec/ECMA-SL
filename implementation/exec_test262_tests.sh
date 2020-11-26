@@ -410,16 +410,16 @@ function initVars() {
   declare -g -a results=()
 
   declare -g -i RECURSIVE=0
-  declare -g -r OUTPUT_FILE=results.md
+  declare -g -r OUTPUT_FILE="results_$(date +%d%m%yT%H%M%S).md"
 
   declare -g -i LOG_ENTIRE_EVAL_OUTPUT=0
 
   declare -g -i LOG_ERRORS=0
   declare -g -i LOG_FAILURES=0
   declare -g -i LOG_OKS=0
-  declare -g -r LOG_ERRORS_FILE=errors.log
-  declare -g -r LOG_FAILURES_FILE=failures.log
-  declare -g -r LOG_OKS_FILE=oks.log
+  declare -g -r LOG_ERRORS_FILE="errors_$(date +%d%m%yT%H%M%S).log"
+  declare -g -r LOG_FAILURES_FILE="failures_$(date +%d%m%yT%H%M%S).log"
+  declare -g -r LOG_OKS_FILE="oks_$(date +%d%m%yT%H%M%S).log"
   declare -g -a log_errors_arr=()
   declare -g -a log_failures_arr=()
   declare -g -a log_ok_arr=()
