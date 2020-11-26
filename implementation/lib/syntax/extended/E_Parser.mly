@@ -358,7 +358,7 @@ e_stmt_target:
   | RETURN; e = e_expr_target;
     { E_Stmt.Return e }
   | RETURN;
-    { E_Stmt.Return (E_Expr.Val Val.Void) }
+    { E_Stmt.Return (E_Expr.Val (Val.Symbol "'undefined")) }
   | THROW; e = e_expr_target;
     { E_Stmt.Throw e }
   | FAIL; e = e_expr_target;
