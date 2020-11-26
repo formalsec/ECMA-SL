@@ -129,6 +129,8 @@ rule read =
   | "sqrt"            { SQRT }
   | "tan"             { TAN }
   | "PI"              { PI }
+  | "MAX_VALUE"       { MAX_VALUE}
+  | "MIN_VALUE"       { MIN_VALUE}
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }
