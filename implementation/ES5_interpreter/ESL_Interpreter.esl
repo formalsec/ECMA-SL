@@ -898,7 +898,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
 
 function JS_Interpreter_FunctionBody(FunctionBody, scope) {
   match FunctionBody with
-  | { body: SourceElementsopt, strict: strict } -> {
+  | { body: SourceElementsopt } -> {
     /* The production FunctionBody : SourceElements opt is evaluated as follows: */
 
     /* 1. The code of this FunctionBody is strict mode code if it is part of a FunctionDeclaration or
@@ -907,7 +907,6 @@ function JS_Interpreter_FunctionBody(FunctionBody, scope) {
           If the code of this FunctionBody is strict mode code, SourceElements is evaluated in the following
           steps as strict mode code. Otherwise, SourceElements is evaluated in the following steps as
           non-strict mode code. */
-    setContainedInStrictCode(scope, strict);
     /* 2. If SourceElements is present return the result of evaluating SourceElements. */
     if (!(SourceElementsopt = [])) {
       return JS_Interpreter_SourceElements(SourceElementsopt, scope)
