@@ -335,11 +335,15 @@ let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> (
   match stmts with
   | [] ->  raise(Except "Empty list")
   | s::stmts' ->  let (return, label) = eval_small_step interceptor prog state stmts' verbose s in
-                    (match return with
-                    | Finalv v ->  Finalv v
-                    | Errorv v -> Errorv v
-                    | Intermediate (state', stmts'') ->
-                      small_step_iter interceptor prog state' mon_state stmts'' verbose)
+    (match return with
+     | Finalv v -> (match v with
+         | Some v -> (match v with
+             | Tuple t -> Finalv (Some (List.nth t 1))
+             | _       -> Finalv (Some v))
+         | None   -> Finalv v)
+     | Errorv v -> Errorv v
+     | Intermediate (state', stmts'') ->
+       small_step_iter interceptor prog state' mon_state stmts'' verbose)
                    (*let mon_return : Mon.monitor_return = Mon.eval_small_step mon_state label in
                    (match mon_return with
                     | MReturn mon_state' -> (
