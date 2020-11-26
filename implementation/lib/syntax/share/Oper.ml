@@ -1,4 +1,6 @@
-type const = PI
+type const = MAX_VALUE
+           | MIN_VALUE
+           | PI
 
 type bopt = Plus
           | Minus
@@ -316,7 +318,9 @@ let trim (v : Val.t) : Val.t = match v with
 
 
 let str_of_const (c : const) : string = match c with
-  | PI -> "PI"
+  | MAX_VALUE -> "MAX_VALUE"
+  | MIN_VALUE -> "MIN_VALUE"
+  | PI        -> "PI"
 
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
