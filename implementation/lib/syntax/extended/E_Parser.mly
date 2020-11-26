@@ -11,6 +11,7 @@
 %token WHILE
 %token IF ELSE
 %token RETURN
+%token SWITCH SDEFAULT
 %token NULL
 %token FUNCTION
 %token MACRO
@@ -21,7 +22,7 @@
 %token PERIOD COMMA SEMICOLON COLON
 %token DELETE
 %token REPEAT UNTIL
-%token MATCH WITH RIGHT_ARROW NONE DEFAULT
+%token MATCH WITH RIGHT_ARROW NONE DEFAULT CASE
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -308,6 +309,14 @@ e_stmt_target:
     { E_Stmt.MatchWith (e, pat_stmts) }
   | AT_SIGN; m = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Stmt.MacroApply (m, es) }
+  | SWITCH; LPAREN; e=e_expr_target; RPAREN; LBRACE; cases = list (switch_case_target); RBRACE 
+    { E_Stmt.Switch(e, cases, None) }
+  | SWITCH; LPAREN; e=e_expr_target; RPAREN; LBRACE; cases = list (switch_case_target); SDEFAULT; COLON; s = e_stmt_target; RBRACE 
+    { E_Stmt.Switch(e, cases, Some s) }
+
+switch_case_target: 
+  | CASE; e = e_expr_target; COLON; s = e_stmt_target; 
+    { (e, s) }
 
 (* if (e) { s } | if (e) { s } else { s } *)
 ifelse_target:

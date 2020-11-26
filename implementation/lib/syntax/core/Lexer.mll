@@ -21,6 +21,7 @@ let digit   = ['0' - '9']
 let letter  = ['a' - 'z' 'A' - 'Z']
 let int     = '-'?digit+
 let float   = int('.')digit*|"nan"|"inf"
+let efloat  = int('.')digit*'e''+'digit+
 let bool    = "true"|"false"
 let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
 let symbol  = '\''(var|int)
@@ -113,6 +114,7 @@ rule read =
   | "print"           { PRINT }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
+  | efloat            { FLOAT (Arith_Utils.parse_efloat (Lexing.lexeme lexbuf)) }
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | '"'               { read_string (Buffer.create 16) lexbuf }
   | var               { VAR (Lexing.lexeme lexbuf) }

@@ -146,7 +146,15 @@ let resolve_prog_imports (prog : E_Prog.t) : E_Prog.t =
   let new_prog = E_Prog.create [] total_funcs total_macros in
   E_Prog.set_file_name new_prog file_name; new_prog
 
-
-
 let apply_prog_macros (prog : E_Prog.t) : E_Prog.t =
   E_Prog.apply_macros prog 
+
+(*
+   "1.2343434e+15" -> appropriate float 
+*)
+let parse_efloat (f_str : string) : float = 
+  let i    = String.rindex f_str 'e' in 
+  let b    = float_of_string (String.sub f_str 0 i) in 
+  let len' = (String.length f_str) - i - 2 in 
+  let exp  = float_of_string (String.sub f_str (i+2) len') in 
+  b *. (10. ** exp) 

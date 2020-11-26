@@ -124,6 +124,68 @@ let compile_glob_assign (x : string) (stmts_e : Stmt.t list) (e : Expr.t) : Stmt
   let f_asgn = Stmt.FieldAssign (Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str x), e) in 
   stmts_e @ [ f_asgn ]
 
+
+(*
+C(e) = stmts, e' 
+C(e_i) = stmts_i, e_i' | i=1, ..., n
+C(s_i) = stmts_i' | i=1, ..., n
+C(s') = stmts'
+x_done fresh
+-------------------------------------------------------------
+   C(switch(e) { case e1: s1  case en: sn default: s'}) = 
+     stmts
+      stmts_1
+      if (e' = e_1') { 
+        stmts_1' 
+      } else {
+        stmts_2
+        if (e' = e_2') {
+          stmts_2'
+        } else {
+          ...
+          stmts'
+        }
+      }
+
+   Compilation 2:   
+     stmts
+      stmts_1
+      if (e' = e_1' && ! x_done) { 
+        x_done := true;
+        stmts_1' 
+      }
+      stmts_2 
+      if (e' = e_2' && ! x_done) {
+         x_done := true;
+        stmts_2' 
+      }
+      ... 
+      if (! x_done) {
+        stmts'
+      }
+*)
+let compile_switch 
+      (ret_e     : (Stmt.t list * Expr.t)) 
+      (ret_cases : (Stmt.t list * Expr.t * Stmt.t list) list) 
+      (ret_so    : Stmt.t list) : Stmt.t list =
+  
+  let (stmts, e') = ret_e in 
+  let stmts'' = 
+    List.fold_right
+      (fun (stmts_i, e_i', stmts_i') stmts_else -> 
+        let guard_i = Expr.BinOpt (Oper.Equal, e_i', e') in 
+        let stmt_if = Stmt.If (guard_i, Stmt.Block stmts_i', Some (Stmt.Block stmts_else)) in 
+        stmts_i @ [ stmt_if ] 
+      )
+      ret_cases 
+      ret_so in 
+  stmts @ stmts'' 
+
+
+
+
+
+
 let rec compile_ebinopt (binop : EOper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t) : Stmt.t list * Expr.t =
   let x = generate_fresh_var () in
   let stmts_1, e1 = compile_expr e_e1 in
@@ -325,6 +387,15 @@ and compile_assert (expr : E_Expr.t) : Stmt.t list =
 
 
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
+
+  let compile_cases = 
+    List.map 
+      (fun (e, s) -> 
+        let (stmts_e, e') = compile_expr e in 
+        let stmts_s = compile_stmt s in 
+        (stmts_e, e', stmts_s)
+      ) in 
+
   match e_stmt with
   | Skip                            -> [Stmt.Skip]
   | Print e                         -> compile_print e
@@ -344,6 +415,11 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | Throw e_e                       -> compile_throw e_e
   | Assert e_e                      -> compile_assert e_e
   | MacroApply (_, _)               -> invalid_arg "Macros are not valid compilable statements."
+  | Switch (e, cases, so)           -> 
+      let ret_e = compile_expr e in 
+      let ret_cases = compile_cases cases in 
+      let ret_so = Option.map_default compile_stmt [] so in 
+      compile_switch ret_e ret_cases ret_so 
 
 (*
 C(s) = s', _
