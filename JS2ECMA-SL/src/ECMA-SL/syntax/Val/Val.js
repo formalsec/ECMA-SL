@@ -35,6 +35,7 @@ Val.Str = class {
 
 
 Val.fromJSON = function(obj){
+  console.log(obj);
   switch(obj.type){
     case "float":  
     case "int":

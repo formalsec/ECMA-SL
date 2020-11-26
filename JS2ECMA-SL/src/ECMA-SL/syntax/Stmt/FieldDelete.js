@@ -11,6 +11,7 @@ function MakeFieldDelete(Stmt){
 		    }
 
     	interpret(config){
+    		console.log(">FIELD DELETE");
     		config.cont=config.cont.slice(1);
     		var object = this.expressionObject.interpret(config.store).value;
       		var field = this.expressionField.interpret(config.store).value;

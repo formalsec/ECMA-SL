@@ -15,6 +15,8 @@ function MakeReturn(Stmt){
 	  }
 
 	  interpret(config){
+	  	console.log(">RETURN");
+
 	  	if (config.cs.length > 1){
 	  		var frame = config.cs.pop();
 	  		var return_value = this.expression.interpret(config.store);
@@ -23,6 +25,9 @@ function MakeReturn(Stmt){
 	  		config.cont = frame.cont;
 	  		//console.log("config.cont = "+ config.cont);
 	  		config.store.sto[frame.stringVar]=return_value;
+	  		console.log("*********** RETURN DEBUG *********");
+	        console.log(return_value);
+	        console.log("***************************");
 	  		return {config : config, seclabel: new ReturnLab(this.expression)};
 	  	}
 	  	else{

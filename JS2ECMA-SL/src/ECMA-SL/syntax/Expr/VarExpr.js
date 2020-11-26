@@ -1,3 +1,5 @@
+const Val = require("../Val/Val");
+const SymbolVal = require("../Val/SymbolVal")(Val);
 function MakeVarExpr(Expr){
 
 	class VarExpr extends Expr {
@@ -11,7 +13,11 @@ function MakeVarExpr(Expr){
 	  }
 
 	  interpret(store){
-	  	return store.sto[this.variable];
+	  	console.log("++ VAR EXPR");
+	  	var val = store.sto[this.variable];
+	    if (val == undefined)  return new SymbolVal("'undefined");
+	    else
+	  	return val;
 	  }
 	  getVars(){
 	  	return [this.variable];

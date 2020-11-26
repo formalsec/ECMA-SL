@@ -11,6 +11,7 @@ function MakeBlock(Stmt){
 	    return `${this.statements.map((stmt) => stmt.toString()).join(";\n")}`;
 	  }
 	  interpret(config){
+	  	console.log(">BLOCK");
 	  	config.cont = this.statements.concat(config.cont.slice(1)) ;
       	return {config : config, seclabel: new EmptyLab()};
 	  }

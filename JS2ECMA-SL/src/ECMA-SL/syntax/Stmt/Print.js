@@ -10,6 +10,7 @@ function MakePrint(Stmt){
 		}
 
 		interpret(config){
+			console.log(">PRINT");	
 			config.cont = config.cont.slice(1);
 			var v = this.expression.interpret(config.store);
 			if(v != undefined){
