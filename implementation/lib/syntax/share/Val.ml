@@ -12,20 +12,23 @@ type t =
   | Symbol of string
 
 
-let add_final_dot (s : string) : string = 
-  try 
-    let _ = String.rindex s '.' in s
-  with _ -> s ^ "."
+let is_special_number (s : string) : bool =
+  s = "nan" || s = "inf" || String.contains s 'e' ||  String.contains s 'E'
+
+let add_final_dot (s : string) : string =
+  if is_special_number s
+  then s
+  else
+    try
+      let _ = String.rindex s '.' in s
+    with _ -> s ^ "."
 
 let rec str ?(flt_with_dot=true) (v : t) : string = match v with
-  | Flt v    -> 
-    let s = Printf.sprintf "%.15g" v in 
+  | Flt v    ->
+    let s = Printf.sprintf "%.15g" v in
     if flt_with_dot
-      then add_final_dot (Printf.sprintf "%.15g" v)
-      else s 
-     (* if flt_with_dot
-        then string_of_float v
-        else Printf.sprintf "%.12g" v *)
+    then add_final_dot s
+    else s
   | Int v    -> string_of_int v
   | Bool v   -> string_of_bool v
   | Str v    -> Printf.sprintf "\"%s\"" v
