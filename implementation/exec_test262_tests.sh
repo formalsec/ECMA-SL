@@ -410,22 +410,26 @@ function initVars() {
   declare -g -a results=()
 
   declare -g -i RECURSIVE=0
-  declare -g -r OUTPUT_FILE="results_$(date +%d%m%yT%H%M%S).md"
+  declare -g -r OUTPUT_FILE="logs/results_$(date +%d%m%yT%H%M%S).md"
 
   declare -g -i LOG_ENTIRE_EVAL_OUTPUT=0
 
   declare -g -i LOG_ERRORS=0
   declare -g -i LOG_FAILURES=0
   declare -g -i LOG_OKS=0
-  declare -g -r LOG_ERRORS_FILE="errors_$(date +%d%m%yT%H%M%S).log"
-  declare -g -r LOG_FAILURES_FILE="failures_$(date +%d%m%yT%H%M%S).log"
-  declare -g -r LOG_OKS_FILE="oks_$(date +%d%m%yT%H%M%S).log"
+  declare -g -r LOG_ERRORS_FILE="logs/errors_$(date +%d%m%yT%H%M%S).log"
+  declare -g -r LOG_FAILURES_FILE="logs/failures_$(date +%d%m%yT%H%M%S).log"
+  declare -g -r LOG_OKS_FILE="logs/oks_$(date +%d%m%yT%H%M%S).log"
   declare -g -a log_errors_arr=()
   declare -g -a log_failures_arr=()
   declare -g -a log_ok_arr=()
 
   # Empty the contents of the output file
   cat /dev/null > $OUTPUT_FILE
+  # Check that "logs" directory exists and, if not, create it
+  if [ ! -d "logs" ]; then
+    mkdir logs
+  fi
 }
 
 
