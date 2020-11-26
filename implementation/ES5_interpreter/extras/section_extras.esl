@@ -3,9 +3,12 @@ function initConsoleObject(globalObject, objectPrototype, strict) {
   setAllInternalMethodsOfObject(console);
 
   internalLog := CreateFunctionObject(["str"], "__internalLog", globalObject, strict);
+  internalLogObject := CreateFunctionObject(["obj"], "__internalLogObject", globalObject, strict);
 
   createBuiltInProperty(console, "log", internalLog);
+  createBuiltInProperty(console, "logObject", internalLogObject);
   createBuiltInProperty(internalLog, "prototype", objectPrototype);
+  createBuiltInProperty(internalLogObject, "prototype", objectPrototype);
   setInternalProperty(console, "Prototype", objectPrototype);
 
   return console
@@ -16,6 +19,38 @@ function __internalLog(globalObject, this, strict, params) {
   assert !(str = undefined);
 
   print s_concat ["JS Log: ", str];
+
+  return 'null
+};
+
+function __internalLogObject(globalObject, this, strict, params) {
+  obj := l_nth(params, 0);
+  assert !(obj = undefined);
+
+  if (!((typeof obj) = __$Obj)) {
+    print "INSIDE IF";
+    return __internalLog(globalObject, this, strict, params)
+  };
+
+  /*props := getOwnProperties(obj);*/ /* Doesn't print all because enumerable */
+/*
+  i := 0;
+  len := l_len props;
+  str := "";
+  while (i < len ) {
+    P := l_nth(props, i);
+    str := s_concat([str, P]);
+    if (!(i = (len - 1))) {
+      str := s_concat([str, ", "])
+    };
+    i := i + 1
+  };
+
+  print s_concat ["JS Log: [", str, "]"];*/
+
+  oProps := obj.JSProperties;
+  print "JS Log Object: ";
+  print oProps;
 
   return 'null
 }

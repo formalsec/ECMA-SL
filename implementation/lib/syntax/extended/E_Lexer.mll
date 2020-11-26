@@ -20,8 +20,9 @@
 let digit   = ['0' - '9']
 let letter  = ['a' - 'z' 'A' - 'Z']
 let int     = '-'?digit+
-let efloat  = int('.')digit*'e''+'digit+
-let float   = int('.')digit*
+let frac    = '.' digit*
+let exp     = ['e' 'E'] ['-' '+']? digit+
+let float   = digit* frac? exp?
 let bool    = "true"|"false"
 let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
 let gvar    = '|'(var)'|'
@@ -89,9 +90,12 @@ rule read =
   | "fst"          { FST }
   | "snd"          { SND }
   | "s_concat"     { SCONCAT }
+  | "s_len"        { SLEN }
+  | "s_nth"        { SNTH }
   | "int_to_float"    { INT_TO_FLOAT }
   | "int_to_string"   { INT_TO_STRING }
   | "int_of_string"   { INT_OF_STRING }
+  | "int_of_float"    { INT_OF_FLOAT }
   | "float_to_string" { FLOAT_TO_STRING }
   | "float_of_string" { FLOAT_OF_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }
@@ -99,8 +103,34 @@ rule read =
   | "to_int"          { TO_INT }
   | "to_int32"        { TO_INT32 }
   | "to_uint32"       { TO_UINT32 }
-  | "floor"           { FLOOR }
   | "to_uint16"       { TO_UINT16 }
+  | "from_char_code"  { FROM_CHAR_CODE }
+  | "to_char_code"    { TO_CHAR_CODE }
+  | "to_lower_case"   { TO_LOWER_CASE }
+  | "to_upper_case"   { TO_UPPER_CASE }
+  | "trim"            { TRIM }
+  | "abs"             { ABS }
+  | "acos"            { ACOS }
+  | "asin"            { ASIN }
+  | "atan"            { ATAN }
+  | "atan2"           { ATAN_2 }
+  | "ceil"            { CEIL }
+  | "cos"             { COS }
+  | "exp"             { EXP }
+  | "floor"           { FLOOR }
+  | "log_e"           { LOG_E }
+  | "log_10"          { LOG_10 }
+  | "max"             { MAX }
+  | "min"             { MIN }
+  | "**"              { POW }
+  | "random"          { RANDOM }
+  | "round"           { ROUND }
+  | "sin"             { SIN }
+  | "sqrt"            { SQRT }
+  | "tan"             { TAN }
+  | "PI"              { PI }
+  | "MAX_VALUE"       { MAX_VALUE}
+  | "MIN_VALUE"       { MIN_VALUE}
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }
@@ -138,7 +168,6 @@ rule read =
   | "NaN"             { FLOAT (float_of_string "nan") }
   | "Infinity"        { FLOAT (float_of_string "infinity") }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
-  | efloat            { FLOAT (Arith_Utils.parse_efloat (Lexing.lexeme lexbuf)) }
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | '"'               { read_string (Buffer.create 16) lexbuf }

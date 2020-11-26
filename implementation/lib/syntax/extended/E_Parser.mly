@@ -32,18 +32,20 @@
 %token <string> SYMBOL
 %token <string> LOC
 %token LAND LOR SCLAND SCLOR
-%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS
+%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
-%token TO_INT TO_INT32 TO_UINT32 TO_UINT16 FLOOR
+%token FROM_CHAR_CODE TO_CHAR_CODE TO_LOWER_CASE TO_UPPER_CASE TRIM
+%token TO_INT TO_INT32 TO_UINT32 TO_UINT16
+%token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM ROUND SIN SQRT TAN PI MAX_VALUE MIN_VALUE
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
-%token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
+%token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
 %token SCONCAT
 %token IMPORT THROW FAIL CATCH
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
 
-%left SCLAND SCLOR LAND LOR BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
+%left SCLAND SCLOR LAND LOR BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL POW
 %left GT LT EGT ELT IN_OBJ IN_LIST
 %left PLUS MINUS
 %left TIMES DIVIDE MODULO
@@ -77,20 +79,20 @@ e_prog_e_stmt_target:
 e_prog_target:
   | imports = list (import_target); macros_funcs = separated_list (SEMICOLON, e_prog_elem_target); EOF;
    {
-    let (funcs, macros) = List.split macros_funcs in 
+    let (funcs, macros) = List.split macros_funcs in
     let funcs' = List.concat (List.map (fun o -> Option.map_default (fun x -> [ x ]) [] o) funcs) in
-    let macros' = List.concat (List.map (fun o -> Option.map_default (fun x -> [ x ]) [] o) macros) in  
-    E_Prog.create imports funcs' macros' 
+    let macros' = List.concat (List.map (fun o -> Option.map_default (fun x -> [ x ]) [] o) macros) in
+    E_Prog.create imports funcs' macros'
    }
 
 import_target:
   | IMPORT; fname = STRING; SEMICOLON;
     { fname }
 
-e_prog_elem_target: 
-  | f = proc_target; 
+e_prog_elem_target:
+  | f = proc_target;
     { (Some f, None) }
-  | m = macro_target; 
+  | m = macro_target;
     { (None, Some m) }
 
 proc_target:
@@ -171,10 +173,14 @@ e_expr_target:
     { E_Expr.Var v }
   | v = GVAR;
     { E_Expr.GVar v }
-  | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; CATCH; g=VAR; 
-    { 
-      Printf.printf "Got a catch\n"; 
-      E_Expr.Call (E_Expr.Val (Val.Str f), es, Some g) }
+  | MAX_VALUE;
+    { E_Expr.Const Oper.MAX_VALUE }
+  | MIN_VALUE;
+    { E_Expr.Const Oper.MIN_VALUE }
+  | PI;
+    { E_Expr.Const Oper.PI }
+  | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; CATCH; g = VAR;
+    { E_Expr.Call (E_Expr.Val (Val.Str f), es, Some g) }
   | LBRACE; f = e_expr_target; RBRACE; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; CATCH; g=VAR;
     { E_Expr.Call (f, es, Some g) }
   | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
@@ -210,6 +216,8 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.ListLen, e) } %prec unopt_prec
   | TLEN; e = e_expr_target;
     { E_Expr.UnOpt (Oper.TupleLen, e) } %prec unopt_prec
+  | SLEN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.StringLen, e) } %prec unopt_prec
   | TYPEOF; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Typeof, e) } %prec unopt_prec
   | HD; e = e_expr_target;
@@ -226,6 +234,8 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
   | INT_OF_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
+  | INT_OF_FLOAT; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.IntOfFloat, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
   | FLOAT_OF_STRING; e = e_expr_target;
@@ -236,10 +246,48 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.ToInt32, e) } %prec unopt_prec
   | TO_UINT32; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ToUint32, e) } %prec unopt_prec
-  | FLOOR; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
+  | FROM_CHAR_CODE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.FromCharCode, e) } %prec unopt_prec
+  | TO_CHAR_CODE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ToCharCode, e) } %prec unopt_prec
+  | TO_LOWER_CASE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ToLowerCase, e) } %prec unopt_prec
+  | TO_UPPER_CASE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ToUpperCase, e) } %prec unopt_prec
+  | TRIM; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Trim, e) } %prec unopt_prec
   | TO_UINT16; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ToUint16, e) } %prec unopt_prec
+  | ABS; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Abs, e) } %prec unopt_prec
+  | ACOS; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Acos, e) } %prec unopt_prec
+  | ASIN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Asin, e) } %prec unopt_prec
+  | ATAN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Atan, e) } %prec unopt_prec
+  | CEIL; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Ceil, e) } %prec unopt_prec
+  | COS; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Cos, e) } %prec unopt_prec
+  | EXP; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Exp, e) } %prec unopt_prec
+  | FLOOR; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
+  | LOG_E; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Log_e, e) } %prec unopt_prec
+  | LOG_10; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Log_10, e) } %prec unopt_prec
+  | ROUND; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Round, e) } %prec unopt_prec
+  | RANDOM; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Random, e) } %prec unopt_prec
+  | SIN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Sin, e) } %prec unopt_prec
+  | SQRT; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Sqrt, e) } %prec unopt_prec
+  | TAN; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Tan, e) } %prec unopt_prec
   | OBJ_TO_LIST; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ObjToList, e) } %prec unopt_prec
   | SCONCAT; e = e_expr_target;
@@ -253,18 +301,26 @@ prefix_binary_op_target:
     { E_Expr.BinOpt (Oper.Lnth, e1, e2) }
   | TNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Tnth, e1, e2) }
+  | SNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Snth, e1, e2) }
   | LADD; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Ladd, e1, e2) }
   | LPREPEND; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Lprepend, e1, e2) }
   | LCONCAT; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Lconcat, e1, e2) }
+  | ATAN_2; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Atan2, e1, e2) }
+  | MAX; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Max, e1, e2) }
+  | MIN; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Min, e1, e2) }
 
 infix_binary_op_target:
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
     { E_Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
   | e1 = e_expr_target; bop = e_op_target; e2 = e_expr_target;
-     { E_Expr.EBinOpt (bop, e1, e2) } %prec binopt_prec
+    { E_Expr.EBinOpt (bop, e1, e2) } %prec binopt_prec
 
 fv_target:
   | f = VAR; COLON; e = e_expr_target;
@@ -317,13 +373,13 @@ e_stmt_target:
     { E_Stmt.MatchWith (e, pat_stmts) }
   | AT_SIGN; m = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Stmt.MacroApply (m, es) }
-  | SWITCH; LPAREN; e=e_expr_target; RPAREN; LBRACE; cases = list (switch_case_target); RBRACE 
+  | SWITCH; LPAREN; e=e_expr_target; RPAREN; LBRACE; cases = list (switch_case_target); RBRACE
     { E_Stmt.Switch(e, cases, None) }
-  | SWITCH; LPAREN; e=e_expr_target; RPAREN; LBRACE; cases = list (switch_case_target); SDEFAULT; COLON; s = e_stmt_target; RBRACE 
+  | SWITCH; LPAREN; e=e_expr_target; RPAREN; LBRACE; cases = list (switch_case_target); SDEFAULT; COLON; s = e_stmt_target; RBRACE
     { E_Stmt.Switch(e, cases, Some s) }
 
-switch_case_target: 
-  | CASE; e = e_expr_target; COLON; s = e_stmt_target; 
+switch_case_target:
+  | CASE; e = e_expr_target; COLON; s = e_stmt_target;
     { (e, s) }
 
 (* if (e) { s } | if (e) { s } else { s } *)
@@ -373,8 +429,8 @@ op_target:
   | SHIFT_RIGHT_LOGICAL { Oper.ShiftRightLogical }
   | IN_OBJ  { Oper.InObj }
   | IN_LIST { Oper.InList }
+  | POW     { Oper.Pow }
 
 e_op_target:
   | SCLAND  { EOper.SCLogAnd }
   | SCLOR   { EOper.SCLogOr }
-

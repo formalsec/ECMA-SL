@@ -18,7 +18,7 @@ function ToBoolean(argument) {
     return argument
   };
   if (Type(argument) = "Number") {
-    if ((argument = 0.) || (argument = -0.) || (argument = NaN)) {
+    if ((argument = 0.) || (argument = -(0.)) || (argument = NaN)) {
       return false
     } else {
       return true
@@ -196,7 +196,7 @@ function ToObject(V) {
     return NumberConstructor(|global|, 'undefined, false, [V])
   };
   if (v_type = "String") {
-    return newString(V)
+    return StringConstructor(|global|, 'undefined, false, [V])
   };
   if (v_type = "Object") {
     return V

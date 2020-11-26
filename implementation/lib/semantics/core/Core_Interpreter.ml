@@ -1,5 +1,5 @@
-module M 
-  (Mon : SecurityMonitor.M) = struct 
+module M
+  (Mon : SecurityMonitor.M) = struct
 
 
 exception Except of string
@@ -15,7 +15,7 @@ type ctx_t = {
   verbose : bool;
   out : string;
   monitor : bool;
-} 
+}
 
 let add_fields_to (obj : Object.t) (fes : (Field.t * Expr.t) list) (eval_e : (Expr.t -> Val.t)) : unit =
   List.iter (fun (f, e) -> let e' = eval_e e in Object.set obj f e') fes
@@ -29,6 +29,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Typeof        -> Oper.typeof v
   | ListLen       -> Oper.l_len v
   | TupleLen      -> Oper.t_len v
+  | StringLen     -> Oper.s_len v
   | Head          -> Oper.head v
   | Tail          -> Oper.tail v
   | First         -> Oper.first v
@@ -36,6 +37,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | IntToFloat    -> Oper.int_to_float v
   | IntToString   -> Oper.int_to_string v
   | IntOfString   -> Oper.int_of_string v
+  | IntOfFloat    -> Oper.int_of_float v
   | FloatToString -> Oper.float_to_string v
   | FloatOfString -> Oper.float_of_string v
   | Sconcat       -> Oper.string_concat v
@@ -44,9 +46,13 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ToInt         -> Oper.to_int v
   | ToInt32       -> Oper.to_int32 v
   | ToUint32      -> Oper.to_uint32 v
-  | Floor         -> Oper.to_floor v
+  | FromCharCode  -> Oper.from_char_code v
+  | ToCharCode    -> Oper.to_char_code v
+  | ToLowerCase   -> Oper.to_lower_case v
+  | ToUpperCase   -> Oper.to_upper_case v
+  | Trim          -> Oper.trim v
   | ToUint16      -> Oper.to_uint16 v
-
+  | _             -> Oper.apply_uopt_oper op v
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   match op with
@@ -70,11 +76,13 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ShiftRightLogical -> Oper.shift_right_logical (v1, v2)
   | Lnth     -> Oper.list_nth (v1, v2)
   | Tnth     -> Oper.tuple_nth (v1, v2)
+  | Snth     -> Oper.s_nth (v1,v2)
   | Ladd     -> Oper.list_add (v1, v2)
   | Lprepend -> Oper.list_prepend (v1, v2)
   | Lconcat  -> Oper.list_concat (v1, v2)
   | InList   -> Oper.list_in (v1, v2)
   | InObj    -> raise(Except "Not expected")
+  | _        -> Oper.apply_bopt_oper op v1 v2
 
 
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
@@ -88,16 +96,16 @@ let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
 let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
   match e with
   | Val n                -> n
-  | Var x                -> 
-    (match Store.get sto x with 
-      | Some v -> v 
-      | None -> 
-          let msg = Printf.sprintf "Cannot find variable %s" x in 
+  | Var x                ->
+    (match Store.get sto x with
+      | Some v -> v
+      | None ->
+          let msg = Printf.sprintf "Cannot find variable %s" x in
           raise (Failure msg))
   | UnOpt (uop, e)       -> let v = eval_expr sto e in
     eval_unop uop v
-  | BinOpt (bop, e1, e2) -> 
-    let v1 = eval_expr sto e1 in 
+  | BinOpt (bop, e1, e2) ->
+    let v1 = eval_expr sto e1 in
     let v2 = eval_expr sto e2 in
     eval_binopt_expr bop v1 v2
   | NOpt (nop, es)       -> eval_nopt_expr nop (List.map (eval_expr sto) es)
@@ -252,7 +260,7 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
         let (cs', sto_aux, params) = prepare_call prog f cs sto cont x es f' vs in
         (let (cont':Stmt.t) = func.body in
          let aux_list= (cont'::[]) in
-          Printf.printf "Going to execute %s\n" f'; 
+          Printf.printf "Going to execute %s\n" f';
          (Intermediate ((cs', heap, sto_aux, f'), aux_list), SecLabel.AssignCallLab (params, es, x, f')))
       |Some lab ->
         (Intermediate((cs, heap, sto, f), cont),lab))

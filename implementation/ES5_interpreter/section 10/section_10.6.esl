@@ -26,7 +26,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
   /* 7. Call the [[DefineOwnProperty]] internal method on obj passing "length", the Property Descriptor
         {[[Value]]: len, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false as arguments. */
   DefineOwnProperty(obj, "length", {
-    Value: len,
+    Value: int_to_float len,
     Writable: true,
     Enumerable: false,
     Configurable: true

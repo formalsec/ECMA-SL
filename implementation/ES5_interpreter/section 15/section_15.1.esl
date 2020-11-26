@@ -74,8 +74,8 @@ function initGlobalObject(strict) {
   ArrayObject := initArrayObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Array", ArrayObject);
   /* 15.1.4.4 String ( . . . ) */
-  /* StringObject := initStringObject();
-  createBuiltInProperty(globalObject, "String", StringObject); */
+  StringObject := initStringObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "String", StringObject);
   /* 15.1.4.5 Boolean ( . . . ) */
   BooleanObject := initBooleanObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Boolean", BooleanObject);
@@ -112,6 +112,8 @@ function initGlobalObject(strict) {
 
   /* 15.1.5 Other Properties of the Global Object*/
   /* 15.1.5.1 Math */
+  MathObject := initMathObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Math", MathObject);
   /* 15.1.5.2 JSON */
 
   /* Extras */

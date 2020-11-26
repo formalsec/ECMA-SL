@@ -1,23 +1,1181 @@
+/* Placeholder */
+
+function getStringPrototype(global) {
+
+  refString := newPropertyReference(global, "String", true);
+  StringObject := GetValue(refString);
+  refStringProto := newPropertyReference(StringObject, "prototype", false);
+  StringProto := GetValue(refStringProto);
+
+  return StringProto
+
+};
+
+
+function initStringObject(global, objectPrototype, strict) {
+  objStringPrototype := initStringPrototype(global, objectPrototype, strict);
+  objStringConstructor := CreateFunctionObject( [ "value" ], "StringConstructor", global, strict);
+
+  descriptor := newDataPropertyDescriptorFull(objStringPrototype, false, false, false);
+  setJSProperty(objStringConstructor, "prototype", descriptor);
+
+  return objStringConstructor
+};
+
+function initStringPrototype(global, objectPrototype, strict) {
+  prototype := NewECMAScriptObjectFull(objectPrototype, "String", true);
+  setAllInternalMethodsOfObject(prototype);
+
+  /* 15.5.4.7 String.prototype.indexOf (searchString, position) */
+  indexOf := CreateFunctionObject(["searchString", "position"], "StringPrototypeIndexOf", global, strict);
+  createBuiltInProperty(prototype, "indexOf", indexOf);
+
+  concatFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypeconcat", global, strict);
+  setJSProperty(concatFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
+  setJSProperty(prototype, "concat", newDataPropertyDescriptor( concatFunctionObject ));
+
+  charCodeAtFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypecharCodeAt", global, strict);
+  setJSProperty(charCodeAtFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
+  setJSProperty(prototype, "charCodeAt", newDataPropertyDescriptor( charCodeAtFunctionObject ));
+
+  charAtFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypecharAt", global, strict);
+  setJSProperty(charAtFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
+  setJSProperty(prototype, "charAt", newDataPropertyDescriptor( charAtFunctionObject ));
+
+  toStringFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypetoString", global, strict);
+  setJSProperty(toStringFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
+  setJSProperty(prototype, "toString", newDataPropertyDescriptor( toStringFunctionObject ));
+
+  toLowerCaseFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypetoLowerCase", global, strict);
+  setJSProperty(toLowerCaseFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
+  setJSProperty(prototype, "toLowerCase", newDataPropertyDescriptor( toLowerCaseFunctionObject ));
+
+  substringFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypesubstring", global, strict);
+  setJSProperty(substringFunctionObject, "length", newDataPropertyDescriptorFull( 2. , false, false, false));
+  setJSProperty(prototype, "toLowerCase", newDataPropertyDescriptor( substringFunctionObject ));
+
+  return prototype
+
+};
+
+
+
 /* 15.5 String Objects */
 
+/* 15.5.1 The String Constructor Called as a Function */
+
+/* When String is called as a function rather than as a constructor, it performs a type conversion. */
+
+/* 15.5.1.1 String ( [ value ] ) */
+
+/* Returns a String value (not a String object) computed by ToString(value). If value is not supplied, the empty String "" is returned. */
+
+function String (global, this, strict, args) {
+  value := l_nth(args, 0);
+  if (value = "undefined") {
+    return ""
+  } else {
+    return ToString(value)
+  }
+};
+
+/* 15.5.2 The String Constructor */
+
+/* When String is called as part of a new expression, it is a constructor: it initialises the newly created object. */
+
 /* 15.5.2.1 new String ( [ value ] ) */
-function newString(value) {
+
+function initalNewString (objectPrototype){
   ret := {
     /* The [[Prototype]] internal property of the newly constructed object is set to the standard built-in String
-       prototype object that is the initial value of String.prototype (15.5.3.1). */
-    Prototype: 'null, /* TODO */
+     prototype object that is the initial value of String.prototype (15.5.3.1). */
+    Prototype: objectPrototype,
     /* The [[Class]] internal property of the newly constructed object is set to "String". */
     Class: "String",
     /* The [[Extensible]] internal property of the newly constructed object is set to true. */
-    Extensible: true
+    Extensible: true,
+    Put: "Put",
+    Get: "Get",
+    HasProperty: "HasProperty",
+    DefineOwnProperty: "DefineOwnProperty",
+    GetOwnProperty: "GetOwnPropertyString",
+    Delete: "Delete",
+    PrimitiveValue: ""
+  };
+  return ret
+};
+
+
+function StringConstructor (global, this, strict, args) {
+  value := l_nth(args, 0);
+  StringPrototype := getStringPrototype(global);
+  ret := {
+    /* The [[Prototype]] internal property of the newly constructed object is set to the standard built-in String
+     prototype object that is the initial value of String.prototype (15.5.3.1). */
+    Prototype: StringPrototype,
+    /* The [[Class]] internal property of the newly constructed object is set to "String". */
+    Class: "String",
+    /* The [[Extensible]] internal property of the newly constructed object is set to true. */
+    Extensible: true,
+    Put: "Put",
+    Get: "Get",
+    HasProperty: "HasProperty",
+    DefineOwnProperty: "DefineOwnProperty",
+    GetOwnProperty: "GetOwnPropertyString",
+    Delete: "Delete",
+    JSProperties : {}
   };
   /* The [[PrimitiveValue]] internal property of the newly constructed object is set to ToString(value),
      or to the empty String if value is not supplied. */
-  if (value = null) {
+  if (value = "undefined") {
     ret.PrimitiveValue := ""
   } else {
     ret.PrimitiveValue := ToString(value)
   };
-  return ret
-}
 
+  ret.properties := {};
+
+  return ret
+};
+
+
+/* 15.5.3 Properties of the String Constructor */
+
+/* The value of the [[Prototype]] internal property of the String constructor is the standard built-in Function prototype object (15.3.4).
+Besides the internal properties and the length property (whose value is 1), the String constructor has the following properties: */
+
+
+/* 15.5.3.1 String.prototype  */
+/* The initial value of String.prototype is the standard built-in String prototype object (15.5.4).
+This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+
+
+
+
+/* 15.5.3.2 String.fromCharCode ( [char0 [, char1 [, ... ]]]) */
+
+/* Returns a String value containing as many characters as the number of arguments.
+ Each argument specifies one character of the resulting String,
+ with the first argument specifying the first character, and so on, from left to right.
+  An argument is converted to a character by applying the operation ToUint16 (9.7)
+   and regarding the resulting 16-bit integer as the code unit value of a character.
+    If no arguments are supplied, the result is the empty String.
+
+    The length property of the fromCharCode function is 1.*/
+
+function StringfromCharCode (global, this, strict, args) {
+  args_ := args;
+  R := "";
+  while (!(args_ = [])){
+    /* Remove the first element from args and let next be the value of that element. */
+    next  := hd args_;
+    args_ := tl args_;
+      /* An argument is converted to a character by applying the operation ToUint16 */
+    R := s_concat([R, from_char_code ( int_of_float (ToUint16(next) )) ])
+
+  };
+  return R
+  /* The length property of the fromCharCode function is 1.*/
+};
+
+/* 15.5.4 Properties of the String Prototype Object */
+/* Verificar o true */
+/* function String.prototype(){
+  ret := {
+    Prototype: "Object.Prototype",
+    Class: "String",
+    Extensible: true,
+    PrimitiveValue: ""
+  };
+  return ret
+};
+*/
+
+/* 15.5.4.1 String.prototype.constructor */
+
+
+/* 15.5.4.2 String.prototype.toString() */
+function StringPrototypetoString (global, this, strict, args) {
+  return this.PrimitiveValue
+};
+
+/* 15.5.4.3 String.prototype.valueOf ( ) */
+function StringPrototypevalueOf (global, this, strict, args) {
+  return this.PrimitiveValue
+};
+
+/* 15.5.4.4 String.prototype.charAt (pos) */
+/*  Returns a String containing the character at position pos in the String resulting from converting this object to a String.
+If there is no character at that position, the result is the empty String. The result is a String value, not a String object.
+
+If pos is a value of Number type that is an integer, then the result of x.charAt( pos) is equal to the result of x.substring( pos, pos+1).
+
+When the charAt method is called with one argument pos, the following steps are taken:
+
+    Call CheckObjectCoercible passing the this value as its argument.
+
+    Let S be the result of calling ToString, giving it the this value as its argument.
+
+    Let position be ToInteger(pos).
+
+    Let size be the number of characters in S.
+
+    If position < 0 or position ≥ size, return the empty String.
+
+    Return a String of length 1, containing one character from S, namely the character at position position,
+    where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on.
+
+NOTE The charAt function is intentionally generic; it does not require that its this value be a String object. Therefore, it can be transferred to other kinds of objects for use as a method. */
+
+function StringPrototypecharAt(global, this, strict, args){
+  pos := l_nth(args, 0);
+  /* Call CheckObjectCoercible passing the this value as its argument. */
+  CheckObjectCoercible(this);
+  /* Let S be the result of calling ToString, giving it the this value as its argument. */
+  S := ToString(this);
+  /* Let position be ToInteger(pos). */
+  position := int_of_float(ToInteger(pos));
+  /* Let size be the number of characters in S. */
+  size := s_len(S);
+  /* If position < 0 or position ≥ size, return the empty String. */
+  if ((position < 0) || (position >= size)){
+    return ""
+  };
+  /* Return a String of length 1, containing one character from S, namely the character at position position
+  where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on.*/
+  return (s_nth (S, position))
+};
+
+/* 15.5.4.5 String.prototype.charCodeAt (pos) */
+
+/*Returns a Number (a nonnegative integer less than 2^16) representing the code unit value of the character at position pos in the String resulting from converting this object to a String. If there is no character at that position, the result is NaN.
+
+When the charCodeAt method is called with one argument pos, the following steps are taken:
+
+    Call CheckObjectCoercible passing the this value as its argument.
+
+    Let S be the result of calling ToString, giving it the this value as its argument.
+
+    Let position be ToInteger(pos).
+
+    Let size be the number of characters in S.
+
+    If position < 0 or position ≥ size, return NaN.
+
+    Return a value of Number type, whose value is the code unit value of the character at position position
+     in the String S, where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on.
+
+NOTE The charCodeAt function is intentionally generic; it does not require that its this value be a String object. Therefore it can be transferred to other kinds of objects for use as a method.
+*/
+
+function StringPrototypecharCodeAt (global, this, strict, args){
+  pos := l_nth(args,0);
+  /*Call CheckObjectCoercible passing the this value as its argument.*/
+  CheckObjectCoercible(this);
+  /*Let S be the result of calling ToString, giving it the this value as its argument.*/
+  S := ToString(this);
+  /*Let position be ToInteger(pos).*/
+  position := int_of_float(ToInteger(pos));
+  /*Let size be the number of characters in S.*/
+  size := s_len(S);
+  /* If position < 0 or position ≥ size, return NaN. */
+  if (position < 0 || (position >= size)){
+    return NaN
+  };
+  /*     Return a value of Number type, whose value is the code unit value of the character at position position
+       in the String S, where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on. */
+  return to_char_code (s_nth (S, position))
+};
+
+/*15.5.4.6 String.prototype.concat ( [ string1 [ , string2 [ , … ] ] ] )  */
+/*
+When the concat method is called with zero or more arguments string1, string2, etc., it returns a String consisting of the characters of this object (converted to a String) followed by the characters of each of string1, string2, etc. (where each argument is converted to a String). The result is a String value, not a String object. The following steps are taken:
+
+   Call CheckObjectCoercible passing the this value as its argument.
+
+   Let S be the result of calling ToString, giving it the this value as its argument.
+
+   Let args be an internal list that is a copy of the argument list passed to this function.
+
+   Let R be S.
+
+   Repeat, while args is not empty
+
+       Remove the first element from args and let next be the value of that element.
+
+       Let R be the String value consisting of the characters in the previous value of R followed by the characters of ToString(next).
+
+   Return R.
+
+The length property of the concat method is 1.
+
+NOTE The concat function is intentionally generic; it does not require that its this value be a String object.
+Therefore it can be transferred to other kinds of objects for use as a method.
+*/
+
+function StringPrototypeconcat(global, this, strict, args){
+  /*Call CheckObjectCoercible passing the this value as its argument.*/
+  CheckObjectCoercible(this);
+  /*Let S be the result of calling ToString, giving it the this value as its argument.*/
+  S := ToString(this);
+  /* Let args be an internal list that is a copy of the argument list passed to this function. */
+  /* TO DO, both require args name) */
+  args_ := args;
+  /* Let R be S. */
+  R := S;
+  /* Repeat, while args is not empty */
+  while (!(args_ = [])){
+    /* Remove the first element from args and let next be the value of that element. */
+    next  := hd args_;
+    args_ := tl args_;
+    /* Let R be the String value consisting of the characters in the previous value of R followed by the characters of ToString(next). */
+    R := s_concat([R, ToString(next)])
+  };
+  /* Return R. */
+  return R
+  /* The length property of the concat method is 1. */
+  /* To Do */
+};
+
+/* 15.5.4.7 String.prototype.indexOf (searchString, position) */
+
+/*  If searchString appears as a substring of the result of converting this object to a String, at one or more positions that are greater than or equal to position, then the index of the smallest such position is returned; otherwise, -1 is returned. If position is undefined, 0 is assumed, so as to search all of the String.
+
+The indexOf method takes two arguments, searchString and position, and performs the following steps:
+
+    Call CheckObjectCoercible passing the this value as its argument.
+
+    Let S be the result of calling ToString, giving it the this value as its argument.
+
+    Let searchStr be ToString(searchString).
+
+    Let pos be ToInteger(position). (If position is undefined, this step produces the value 0).
+
+    Let len be the number of characters in S.
+
+    Let start be min(max(pos, 0), len).
+
+    Let searchLen be the number of characters in searchStr.
+
+    Return the smallest possible integer k not smaller than start such that k+ searchLen is not greater than len,
+    and for all nonnegative integers j less than searchLen, the character at position k+j of S is the same as the character at position j of searchStr);
+    but if there is no such integer k, then return the value -1.
+
+The length property of the indexOf method is 1.
+
+NOTE The indexOf function is intentionally generic; it does not require that its this value be a String object. Therefore, it can be transferred to other kinds of objects for use as a method.
+*/
+
+function StringPrototypeIndexOf (global, this, strict, args){
+  if (l_len args = 0) {
+    searchString := 'undefined;
+    position := 'undefined
+  } else {
+    searchString := l_nth(args, 0);
+    if (l_len args = 1) {
+      position := 'undefined
+    } else {
+      position := l_nth(args, 1)
+    }
+  };
+  /*Call CheckObjectCoercible passing the this value as its argument. */
+  CheckObjectCoercible(this);
+  /*Let S be the result of calling ToString, giving it the this value as its argument.*/
+  S := ToString(this);
+  /* Let searchStr be ToString(searchString). */
+  searchStr := ToString(searchString);
+  /* Let pos be ToInteger(position). (If position is undefined, this step produces the value 0). */
+  pos := ToInteger(position);
+  /* Let len be the number of characters in S. */
+  len := s_len(S);
+  /* Let start be min(max(pos, 0), len). */
+  start := min(max(pos, 0.), int_to_float len);
+  /* Let searchLen be the number of characters in searchStr. */
+  searchLen := s_len(searchStr);
+  /*     Return the smallest possible integer k not smaller than start such that k+ searchLen is not greater than len,
+      and for all nonnegative integers j less than searchLen,
+      the character at position k+j of S is the same as the character at position j of searchStr);
+      but if there is no such integer k, then return the value -1. */
+  /* the smallest possible integer k not smaller than start */
+  k := int_of_float start;
+  /* for all nonnegative integers j */
+  j := 0;
+  /* such that k+ searchLen is not greater than len */
+  while((k + searchLen) <= len){
+  /* for all nonnegative integers j less than searchLen*/
+    if(j < searchLen){
+      /* the character at position k+j of S is the same as the character at position j of searchStr */
+      if(s_nth (S, k + j) = s_nth(searchStr, j)) {
+        j := j + 1
+      } else {
+        j := 0;
+        k := k + 1
+      }
+    } else {
+      return int_to_float k
+    }
+  };
+  /* but if there is no such integer k, then return the value -1. */
+  return -(1.)
+};
+
+/* 15.5.4.8 String.prototype.lastIndexOf (searchString, position) */
+/*
+If searchString appears as a substring of the result of converting this object to a String at one or more positions that are smaller than or equal to position, then the index of the greatest such position is returned; otherwise, -1 is returned. If position is undefined, the length of the String value is assumed, so as to search all of the String.
+
+The lastIndexOf method takes two arguments, searchString and position, and performs the following steps:
+
+   Return the largest possible nonnegative integer k not larger than start such that k+ searchLen is not greater than len,
+   and for all nonnegative integers j less than searchLen, the character at position k+j of S is the same
+    as the character at position j of searchStr;
+   but if there is no such integer k, then return the value -1.
+
+The length property of the lastIndexOf method is 1.
+
+NOTE The lastIndexOf function is intentionally generic; it does not require that its this value be a String object. Therefore, it can be transferred to other kinds of objects for use as a method.
+*/
+
+function StringPrototypelastIndexOf(global, this, strict, args){
+  searchString := l_nth(args,0);
+  position := l_nth(args,1);
+  /*Call CheckObjectCoercible passing the this value as its argument.*/
+  CheckObjectCoercible(this);
+  /* Let S be the result of calling ToString, giving it the this value as its argument. */
+  S := ToString(this);
+  /* Let searchStr be ToString(searchString). */
+  searchStr := ToString(searchString);
+  /*  Let numPos be ToNumber(position). (If position is undefined, this step produces the value NaN). */
+  numPos := ToNumber(position);
+  /*  If numPos is NaN, let pos be +∞; otherwise, let pos be ToInteger(numPos).*/
+  if (numPos = NaN) {
+    pos := Infinity
+  } else {
+    pos := int_of_float (ToInteger(numPos))
+  };
+  /* Let len be the number of characters in S.*/
+  len := s_len(S);
+  /* Let start min(max(pos, 0), len). */
+  start := min(max(pos, 0), len);
+  /* Let searchLen be the number of characters in searchStr. */
+  searchLen := s_len(searchStr);
+  /* k not larger than start */
+  k := start;
+  /* for all nonnegative integers j */
+  j := 0;
+  /* nonnegative integer k */
+  while (k>=0){
+     /* and for all nonnegative integers j less than searchLen */
+     if(j<searchLen){
+       /* k+ searchLen is not greater than len */
+       if(k+searchLen <=len){
+         /* the character at position k+j of S is the same as the character at position j of searchStr */
+         if(s_nth (S, k+j) = s_nth (searchStr,j)){
+           j := j+1
+         }
+         else {
+           j := 0;
+           k := k - 1
+         }
+       }
+       else{
+         k := k - 1
+       }
+     }
+     else{
+       /* Return the largest possible nonnegative integer k */
+       return k
+     }
+  };
+  /* but if there is no such integer k, then return the value -1. */
+  return -1
+};
+
+/* 15.5.4.9 String.prototype.localeCompare (that) */
+
+/* When the localeCompare method is called with one argument that,
+it returns a Number other than NaN that represents the result of a locale-sensitive String
+ comparison of the this value (converted to a String) with that (converted to a String).
+  The two Strings are S and That. The two Strings are compared in an implementation-defined fashion.
+  The result is intended to order String values in the sort order specified by the system default locale,
+  and will be negative, zero, or positive, depending on whether S comes before That in the sort order,
+   the Strings are equal, or S comes after That in the sort order, respectively.*/
+
+function StringPrototypelocaleCompare (global, this, strict, args){
+  that := l_nth(args, 0);
+  /* Call CheckObjectCoercible passing the this value as its argument. */
+  CheckObjectCoercible(this);
+  /* Let S be the result of calling ToString, giving it the this value as its argument. */
+  S := ToString(this);
+  /* Let That be ToString(that). */
+  That := ToString(that);
+  /* The result is intended to order String values and
+  will be negative, zero, or positive, depending on whether S comes before That in the sort order*/
+  SLen := s_len S;
+  ThatLen := s_len That;
+  j := 0;
+  while ((j<SLen) && (j<ThatLen)){
+    if(to_char_code(s_nth(S,j)) < to_char_code(s_nth(That,j))){
+      return -1
+    }
+    else{
+      if(to_char_code(s_nth(S,j)) > to_char_code(s_nth(That,j))){
+        return 1
+      }
+      else{
+        j := j + 1
+      }
+    }
+  };
+  if((j<SLen) && !(j<ThatLen)){
+    return -1
+  }
+  else{
+    if(!(j<SLen) && (j<ThatLen)){
+      return 1
+    }
+    else{
+      return 0
+    }
+  }
+};
+
+/* 15.5.4.10 String.prototype.match (regexp) */
+/* TO DO -> Requires RegExp */
+
+/* 15.5.4.11 String.prototype.replace (searchValue, replaceValue) */
+
+function StringPrototypereplace (global, this, strict, args){
+  searchValue := l_nth(args, 0);
+  replaceValue := l_nth(args, 1);
+  /* Call CheckObjectCoercible passing the this value as its argument. */
+  CheckObjectCoercible(this);
+  /* Let string be the result of calling ToString, giving it the this value as its argument. */
+  string := ToString(this);
+  /* If searchValue is a regular expression (an object whose [[Class]] internal property is "RegExp") */
+  if (searchValue.class = "RegExp"){
+    /* TO DO */
+    return null
+  }
+  /* If searchValue is not a regular expression */
+  else{
+    /* let searchString be ToString(searchValue) */
+    searchString := ToString(searchValue);
+    /* search string for the first occurrence of searchString. */
+    first := StringPrototypeindexOf(globa, this, strict, [searchString]);
+    /* Let m be 0 */
+    m := 0
+  };
+  /* If replaceValue is a function, */
+  if(replaceValue.class = "Function"){
+    /* TO DO */
+    return null
+  }
+  else{
+    newstring := ToString(replaceValue);
+    /* TO DO */
+    return null
+
+  }
+};
+
+
+/* 15.5.4.12 String.prototype.search (regexp) */
+/* TO DO -> Requires RegExp */
+
+/* 15.5.4.13 String.prototype.slice (start, end)  */
+/*
+The slice method takes two arguments, start and end, and returns a substring of the result of converting this object to a String,
+ starting from character position start and running to, but not including, character position end (or through the end of the String if end is undefined).
+If start is negative, it is treated as sourceLength+start where sourceLength is the length of the String.
+If end is negative, it is treated as sourceLength+end where sourceLength is the length of the String.
+ The result is a String value, not a String object.
+
+The length property of the slice method is 2.
+
+NOTE The slice function is intentionally generic; it does not require that its this value be a String object. Therefore it can be transferred to other kinds of objects for use as a method. */
+
+function StringPrototypeslice (global, this, strict, args){
+  start := l_nth(args, 0);
+  end := l_nth(args, 1);
+  /*Call CheckObjectCoercible passing the this value as its argument. */
+  CheckObjectCoercible(this);
+  /* Let S be the result of calling ToString, giving it the this value as its argument. */
+  S := ToString(this);
+  /* Let len be the number of characters in S. */
+  len := s_len(S);
+  /* Let intStart be ToInteger(start). */
+  intStart := int_of_float (ToInteger(start));
+  /* If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
+  if (end = "undefined"){
+    intEnd := len
+  } else{
+    intEnd := int_of_float (ToInteger(end))
+  };
+  /* If intStart is negative, let from be max(len + intStart,0); else let from be min(intStart,len). */
+  if (intStart < 0){
+    from := max(len + intStart,0)
+  } else{
+    from := min(intStart, len)
+  };
+  /* If intEnd is negative, let to be max(len +intEnd,0); else let to be min(intEnd, len). */
+  if (intEnd<0){
+    to := max(len + intEnd,0)
+  } else{
+    to := min(intEnd, len)
+  };
+  /* Let span be max(to – from,0). */
+  span := max(to - from, 0);
+  /* Return a String containing span consecutive characters from S beginning with the character at position from.*/
+  substring := "";
+  j := 0;
+  while(j<span){
+    substring := s_concat ([substring, s_nth (S, from+j)]);
+    j := j + 1
+  };
+  return substring
+};
+
+/* 15.5.4.14 String.prototype.split (separator, limit)
+/*
+Returns an Array object into which substrings of the result of converting this object to a String have been stored. The substrings are determined by searching from left to right for occurrences of separator; these occurrences are not part of any substring in the returned array, but serve to divide up the String value. The value of separator may be a String of any length or it may be a RegExp object (i.e., an object whose [[Class]] internal property is "RegExp"; see 15.10).
+
+The value of separator may be an empty String, an empty regular expression, or a regular expression that can match an empty String. In this case, separator does not match the empty substring at the beginning or end of the input String, nor does it match the empty substring at the end of the previous separator match. (For example, if separator is the empty String, the String is split up into individual characters; the length of the result array equals the length of the String, and each substring contains one character.) If separator is a regular expression, only the first match at a given position of the this String is considered, even if backtracking could yield a non-empty-substring match at that position. (For example, "ab".split(/a*?/) evaluates to the array ["a","b"], while "ab".split(/a* /) evaluates to the array["","b"].)
+
+If the this object is (or converts to) the empty String, the result depends on whether separator can match the empty String. If it can, the result array contains no elements. Otherwise, the result array contains one element, which is the empty String.
+
+If separator is a regular expression that contains capturing parentheses, then each time separator is matched the results (including any undefined results) of the capturing parentheses are spliced into the output array. For example,
+
+"A<B>bold</B>and<CODE>coded</CODE>".split(/<(\/)?([^<>]+)>/)
+
+evaluates to the array
+
+["A", undefined, "B", "bold", "/", "B", "and", undefined,
+"CODE", "coded", "/", "CODE", ""]
+
+If separator is undefined, then the result array contains just one String, which is the this value (converted to a String). If limit is not undefined, then the output array is truncated so that it contains no more than limit elements.
+
+When the split method is called, the following steps are taken:
+
+    Call CheckObjectCoercible passing the this value as its argument.
+
+    Let S be the result of calling ToString, giving it the this value as its argument.
+
+    Let A be a new array created as if by the expression new Array()where Array is the standard built-in constructor with that name.
+
+    Let lengthA be 0.
+
+    If limit is undefined, let lim = 232–1; else let lim = ToUint32(limit).
+
+    Let s be the number of characters in S.
+
+    Let p = 0.
+
+    If separator is a RegExp object (its [[Class]] is "RegExp"), let R = separator; otherwise let R = ToString(separator).
+
+    If lim = 0, return A.
+
+    If separator is undefined, then
+
+        Call the [[DefineOwnProperty]] internal method of A with arguments "0", Property Descriptor {[[Value]]: S, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false.
+
+        Return A.
+
+    If s = 0, then
+
+        Call SplitMatch(S, 0, R) and let z be its MatchResult result.
+
+        If z is not failure, return A.
+
+        Call the [[DefineOwnProperty]] internal method of A with arguments "0", Property Descriptor {[[Value]]: S, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false.
+
+        Return A.
+
+    Let q = p.
+
+    Repeat, while q ≠ s
+
+        Call SplitMatch(S, q, R) and let z be its MatchResult result.
+
+        If z is failure, then let q = q+1.
+
+        Else, z is not failure
+
+            z must be a State. Let e be z's endIndex and let cap be z's captures array.
+
+            If e = p, then let q = q+1.
+
+            Else, e ≠ p
+
+                Let T be a String value equal to the substring of S consisting of the characters at positions p (inclusive) through q (exclusive).
+
+                Call the [[DefineOwnProperty]] internal method of A with arguments ToString(lengthA), Property Descriptor {[[Value]]: T, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false.
+
+                Increment lengthA by 1.
+
+                If lengthA = lim, return A.
+
+                Let p = e.
+
+                Let i = 0.
+
+                Repeat, while i is not equal to the number of elements in cap.
+
+                    Let i = i+1.
+
+                    Call the [[DefineOwnProperty]] internal method of A with arguments ToString(lengthA), Property Descriptor {[[Value]]: cap[i], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false.
+
+                    Increment lengthA by 1.
+
+                    If lengthA = lim, return A.
+
+                Let q = p.
+
+    Let T be a String value equal to the substring of S consisting of the characters at positions p (inclusive) through s (exclusive).
+
+    Call the [[DefineOwnProperty]] internal method of A with arguments ToString(lengthA), Property Descriptor {[[Value]]: T, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false.
+
+    Return A.
+
+The abstract operation SplitMatch takes three parameters, a String S, an integer q, and a String or RegExp R, and performs the following in order to return a MatchResult (see 15.10.2.1):
+
+    If R is a RegExp object (its [[Class]] is "RegExp"), then
+
+        Call the [[Match]] internal method of R giving it the arguments S and q, and return the MatchResult result.
+
+    Type(R) must be String. Let r be the number of characters in R.
+
+    Let s be the number of characters in S.
+
+    If q+r > s then return the MatchResult failure.
+
+    If there exists an integer i between 0 (inclusive) and r (exclusive) such that the character at position q+i of S is different from the character at position i of R, then return failure.
+
+    Let cap be an empty array of captures (see 15.10.2.1).
+
+    Return the State (q+r, cap). (see 15.10.2.1)
+
+The length property of the split method is 2.
+
+NOTE 1 The split method ignores the value of separator.global for separators that are RegExp objects.
+
+NOTE 2 The split function is intentionally generic; it does not require that its this value be a String object. Therefore, it can be transferred to other kinds of objects for use as a method.
+
+*/
+
+/* TO DO  -> Requires 15.10*/
+
+function StringPrototypesplit (global, this, strict, args){
+  separator := l_nth(args, 0);
+  limit := l_nth(args, 1);
+  /* Call CheckObjectCoercible passing the this value as its argument. */
+  CheckObjectCoercible(this);
+  /* Let S be the result of calling ToString, giving it the this value as its argument. */
+  S := ToString(this);
+  /* Let A be a new array created as if by the expression new Array()where Array is the standard built-in constructor with that name. */
+  A := ArrayConstructor(global, this, strict, []);
+  /* Let lengthA be 0. */
+  lengthA := 0;
+  /* If limit is undefined, let lim = 2^32–1;   /* else let lim = ToUint32(limit). */
+  if(limit = 'undefined){
+    /* TO DO 2^32 (exponenciação) */
+    lim := 4294967296 - 1
+  }
+  else{
+    lim := ToUint32(limit)
+  };
+  /* Let s be the number of characters in S. */
+  s := s_len S;
+  /* Let p = 0. */
+  p := 0;
+  /* If separator is a RegExp object (its [[Class]] is "RegExp"), let R = separator; otherwise let R = ToString(separator). */
+  if( (typeof separator = __$Obj) &&& (separator.Class = "RegExp")){
+    R := separator
+  }
+  else{
+    R := ToString(separator)
+  };
+  /* If lim = 0, return A. */
+  if (lim = 0){
+    return A
+  };
+  /* If separator is undefined */
+  if (separator = 'undefined){
+    /* Call the [[DefineOwnProperty]] internal method of A with arguments "0",
+    Property Descriptor {[[Value]]: S, [[Writable]]: true, [[Enumerable]]: true,
+     [[Configurable]]: true}, and false. */
+    {A.DefineOwnProperty}( "0", newDataPropertyDescriptorFull(S, true, true, true), false);
+    /* Return A. */
+    return A
+  };
+  /* If s = 0 */
+  if (s = 0){
+    /* Call SplitMatch(S, 0, R) and let z be its MatchResult result. */
+    z := SplitMatch(S, 0, R);
+    if (!(z = failure)){
+      return A
+    }
+    else{
+      /* Call the [[DefineOwnProperty]] internal method of A with arguments "0",
+      Property Descriptor {[[Value]]: S, [[Writable]]: true, [[Enumerable]]: true,
+       [[Configurable]]: true}, and false. */
+      {A.DefineOwnProperty}("0",newDataPropertyDescriptorFull(S, true, true, true), false);
+      /* Return A. */
+      return A
+    }
+  };
+  /* Let q = p */
+  q := p;
+  /* Repeat, while q ≠ s */
+  while (!(q=s)){
+    /* Call SplitMatch(S, q, R) and let z be its MatchResult result. */
+    z := SplitMatch(S, q, R);
+    /* If z is failure */
+    if (z = failure){
+      /* then let q = q+1. */
+      q := q + 1
+    }
+    /* Else, z is not failure */
+    else{
+      /* TO DO -> Requires RegExp */
+      return null
+    }
+  }
+};
+
+/* The abstract operation SplitMatch takes three parameters, a String S, an integer q, and a String or RegExp R, and performs the following in order to return a MatchResult */
+/* TO DO -> Requires RegExp */
+function SplitMatch (global, this, strict, args){
+  S := l_nth(args, 0);
+  q := l_nth(args, 1);
+  R := l_nth(args, 2);
+  /* If R is a RegExp object (its [[Class]] is "RegExp"),  */
+  if( (typeof separator = __$Obj) &&& (separator.Class = "RegExp")){
+    /* Call the [[Match]] internal method of R giving it the arguments S and q, and return the MatchResult result. */
+    /* TO DO -> Requires RegExp */
+    return null
+  };
+  /* Type(R) must be String. Let r be the number of characters in R. */
+  r := s_len R;
+  /* Let s be the number of characters in S. */
+  s := s_len S;
+  /* If q+r > s then return the MatchResult failure. */
+  if( q+r > s){
+    return 'failure
+  };
+  /* If there exists an integer i between 0 (inclusive) and r (exclusive)  */
+  i := 0;
+  while (!(i=r)){
+    /* such that the character at position q+i of S is different from the character at position i of R, */
+    if(!( (q+i) = (s_nth (R, i) ) )){
+      /* then return failure. */
+      return 'failure
+    }
+  };
+  /*  Let cap be an empty array of captures (see 15.10.2.1).
+      Return the State (q+r, cap). (see 15.10.2.1) */
+  /* TO DO -> Requires RegExp */
+  return null
+};
+
+/* 15.5.4.15 String.prototype.substring (start, end) */
+
+/*  The substring method takes two arguments, start and end, and returns a substring of the result of converting this object to a String, starting from character position start and running to, but not including, character position end of the String (or through the end of the String is end is undefined). The result is a String value, not a String object.
+
+If either argument is NaN or negative, it is replaced with zero; if either argument is larger than the length of the String, it is replaced with the length of the String.
+
+If start is larger than end, they are swapped.
+
+The following steps are taken:
+
+    Call CheckObjectCoercible passing the this value as its argument.
+
+    Let S be the result of calling ToString, giving it the this value as its argument.
+
+    Let len be the number of characters in S.
+
+    Let intStart be ToInteger(start).
+
+    If end is undefined, let intEnd be len; else let intEnd be ToInteger(end).
+
+    Let finalStart be min(max(intStart, 0), len).
+
+    Let finalEnd be min(max(intEnd, 0), len).
+
+    Let from be min(finalStart, finalEnd).
+
+    Let to be max(finalStart, finalEnd).
+
+    Return a String whose length is to - from, containing characters from S, namely the characters with indices from through to −1, in ascending order.
+
+The length property of the substring method is 2.
+
+NOTE The substring function is intentionally generic; it does not require that its this value be a String object. Therefore, it can be transferred to other kinds of objects for use as a method.
+*/
+
+function StringPrototypesubstring (global, this, strict, args){
+  start := l_nth(args,0);
+  end := l_nth(args,1);
+  /* Call CheckObjectCoercible passing the this value as its argument. */
+  CheckObjectCoercible(this);
+  /* Let S be the result of calling ToString, giving it the this value as its argument.*/
+  S := ToString(this);
+  /* Let len be the number of characters in S. */
+  len := s_len(S);
+  /* Let intStart be ToInteger(start). */
+  intStart := int_of_float (ToInteger(start));
+  /* If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
+  if (end = "undefined"){
+    intEnd := len
+  } else {
+    intEnd := int_of_float (ToInteger(end))
+  };
+  /* Let finalStart be min(max(intStart, 0), len).*/
+  finalStart := min(max(intStart, 0), len);
+  /* Let finalEnd be min(max(intEnd, 0), len). */
+  finalEnd := min(max(intEnd, 0), len);
+  /* Let from be min(finalStart, finalEnd). */
+  from := min(finalStart, finalEnd);
+  /* Let to be max(finalStart, finalEnd). */
+  to := max(finalStart, finalEnd);
+  /* Return a String whose length is to - from, containing characters from S,
+  namely the characters with indices from through to −1, in ascending order. */
+  substring := "";
+  j := from;
+  while (j<to){
+    substring := s_concat ([substring, s_nth (S, j)]);
+    j := j + 1
+  };
+
+  return substring
+
+};
+
+/* 15.5.4.16 String.prototype.toLowerCase ( ) */
+/* The following steps are taken:
+
+  1. Call CheckObjectCoercible passing the this value as its argument.
+
+  2. Let S be the result of calling ToString, giving it the this value as its argument.
+
+  3. Let L be a String where each character of L is either the Unicode lowercase equivalent
+    of the corresponding character of S or the actual corresponding character of S
+    if no Unicode lowercase equivalent exists.
+
+  4. Return L.
+
+For the purposes of this operation, the 16-bit code units of the Strings
+are treated as code points in the Unicode Basic Multilingual Plane.
+Surrogate code points are directly transferred from S to L without any mapping.
+
+The result must be derived according to the case mappings in the Unicode character database
+(this explicitly includes not only the UnicodeData.txt file,
+but also the SpecialCasings.txt file that accompanies it in Unicode 2.1.8 and later).
+
+NOTE 1 The case mapping of some characters may produce multiple characters.
+In this case the result String may not be the same length as the source String.
+Because both toUpperCase and toLowerCase have context-sensitive behaviour,
+the functions are not symmetrical.
+In other words, s.toUpperCase().toLowerCase() is not necessarily equal to s.toLowerCase().
+
+NOTE 2 The toLowerCase function is intentionally generic;
+it does not require that its this value be a String object.
+Therefore, it can be transferred to other kinds of objects for use as a method.
+*/
+
+function StringPrototypetoLowerCase (global, this, strict, args){
+  /* Call CheckObjectCoercible passing the this value as its argument. */
+  CheckObjectCoercible(this);
+  /* Let S be the result of calling ToString, giving it the this value as its argument. */
+  S := ToString(this);
+  /*Let L be a String where each character of L is either the Unicode lowercase equivalent
+    of the corresponding character of S or the actual corresponding character of S
+    if no Unicode lowercase equivalent exists. */
+  L := to_lower_case S;
+  /* Return L. */
+  return L
+};
+
+/* 15.5.4.17 String.prototype.toLocaleLowerCase ( ) */
+/* This function works exactly the same as toLowerCase except that its result is intended
+to yield the correct result for the host environment’s current locale, rather than a locale-independent result.
+There will only be a difference in the few cases (such as Turkish) where the rules for that
+language conflict with the regular Unicode case mappings.
+
+NOTE 1 The first parameter to this function is likely to be used in a future version of this standard;
+it is recommended that implementations do not use this parameter position for anything else.
+
+NOTE 2 The toLocaleLowerCase function is intentionally generic; it does not require that its this value be a String object.
+Therefore, it can be transferred to other kinds of objects for use as a method. */
+
+function StringPrototypetoLocaleLowerCase (global, this, strict, args){
+  /* Call CheckObjectCoercible passing the this value as its argument. */
+  CheckObjectCoercible(this);
+  /* Let S be the result of calling ToString, giving it the this value as its argument. */
+  S := ToString(this);
+  /*Let L be a String where each character of L is either the Unicode lowercase equivalent
+    of the corresponding character of S or the actual corresponding character of S
+    if no Unicode lowercase equivalent exists. */
+  L := to_lower_case S; /* TO DO -> Passar isto tendo em conta a linguagem do ambiente */
+  /* Return L. */
+  return L
+};
+
+/* 15.5.4.18 String.prototype.toUpperCase ( ) */
+/* This function behaves in exactly the same way as String.prototype.toLowerCase,
+except that characters are mapped to their uppercase equivalents as specified in the Unicode Character Database.
+
+NOTE The toUpperCase function is intentionally generic;
+it does not require that its this value be a String object.
+Therefore, it can be transferred to other kinds of objects for use as a method */
+
+function StringPrototypetoUpperCase (global, this, strict, args){
+  /* Call CheckObjectCoercible passing the this value as its argument. */
+  CheckObjectCoercible(this);
+  /* Let S be the result of calling ToString, giving it the this value as its argument. */
+  S := ToString(this);
+  /*Let L be a String where each character of L is either the Unicode uppercase equivalent
+    of the corresponding character of S or the actual corresponding character of S
+    if no Unicode uppercase equivalent exists. */
+  L := to_upper_case S;
+  /* Return L. */
+  return L
+};
+
+/* 15.5.4.19 String.prototype.toLocaleUpperCase ( ) */
+/* This function works exactly the same as toUpperCase except that its result is intended to yield
+the correct result for the host environment’s current locale, rather than a locale-independent result.
+There will only be a difference in the few cases (such as Turkish) where the rules for that language conflict with the regular Unicode case mappings.
+
+NOTE 1 The first parameter to this function is likely to be used in a future version of this standard;
+it is recommended that implementations do not use this parameter position for anything else.
+
+NOTE 2 The toLocaleUpperCase function is intentionally generic;
+it does not require that its this value be a String object.
+Therefore, it can be transferred to other kinds of objects for use as a method.
+*/
+
+function StringPrototypetoLocaleUpperCase (global, this, strict, args){
+  /* Call CheckObjectCoercible passing the this value as its argument. */
+  CheckObjectCoercible(this);
+  /* Let S be the result of calling ToString, giving it the this value as its argument. */
+  S := ToString(this);
+  /*Let L be a String where each character of L is either the Unicode lowercase equivalent
+    of the corresponding character of S or the actual corresponding character of S
+    if no Unicode lowercase equivalent exists. */
+  L := to_upper_case S; /* TO DO -> Passar isto tendo em conta a linguagem do ambiente */
+  /* Return L. */
+  return L
+};
+
+
+/*
+/* 15.5.5.2 [[GetOwnProperty]] ( P ) */
+/*
+String objects use a variation of the [[GetOwnProperty]] internal method used for other native ECMAScript objects (8.12.1).
+This special internal method is used to add access for named properties corresponding to individual characters of String objects.
+
+Assume S is a String object and P is a String.
+
+When the [[GetOwnProperty]] internal method of S is called with property name P, the following steps are taken:
+
+   Let desc be the result of calling the default [[GetOwnProperty]] internal method (8.12.1) on S with argument P.
+
+   If desc is not undefined return desc.
+
+   If ToString(abs(ToInteger(P))) is not the same value as P, return undefined.
+
+   Let str be the String value of the [[PrimitiveValue]] internal property of S.
+
+   Let index be ToInteger(P).
+
+   Let len be the number of characters in str.
+
+   If len ≤ index, return undefined.
+
+   Let resultStr be a String of length 1, containing one character from str,
+   specifically the character at position index, where the first (leftmost) character
+   in str is considered to be at position 0, the next one at position 1, and so on.
+
+   Return a Property Descriptor { [[Value]]: resultStr, [[Enumerable]]: true,
+    [[Writable]]: false, [[Configurable]]: false }
+*/
+
+
+
+/* 15.5.4.20 String.prototype.trim ( ) */
+/*The following steps are taken:*/
+function StringPrototypetrim (global, this, strict, args){
+  /* Call CheckObjectCoercible passing the this value as its argument. */
+  CheckObjectCoercible(this);
+  /* Let S be the result of calling ToString, giving it the this value as its argument. */
+  S := ToString(this);
+  /* Let T be a String value that is a copy of S with both leading and trailing white space removed.
+     The definition of white space is the union of WhiteSpace and LineTerminator. */
+  T := trim S;
+  /* Return T. */
+  return T
+
+};
+
+
+/* 15.5.5.2 [[GetOwnProperty]] ( P ) */
+/*
+String objects use a variation of the [[GetOwnProperty]] internal method used for other native ECMAScript objects (8.12.1).
+This special internal method is used to add access for named properties corresponding to individual characters of String objects.
+
+Assume S is a String object and P is a String.
+
+When the [[GetOwnProperty]] internal method of S is called with property name P, the following steps are taken:
+
+   Let desc be the result of calling the default [[GetOwnProperty]] internal method (8.12.1) on S with argument P.
+
+   If desc is not undefined return desc.
+
+   If ToString(abs(ToInteger(P))) is not the same value as P, return undefined.
+
+   Let str be the String value of the [[PrimitiveValue]] internal property of S.
+
+   Let index be ToInteger(P).
+
+   Let len be the number of characters in str.
+
+   If len ≤ index, return undefined.
+
+   Let resultStr be a String of length 1, containing one character from str,
+   specifically the character at position index, where the first (leftmost) character
+   in str is considered to be at position 0, the next one at position 1, and so on.
+
+   Return a Property Descriptor { [[Value]]: resultStr, [[Enumerable]]: true,
+    [[Writable]]: false, [[Configurable]]: false }
+*/
+
+function GetOwnPropertyString (S, P) {
+  /* Assume S is a String object and P is a String. */
+  /* Let desc be the result of calling the default [[GetOwnProperty]] internal method (8.12.1) on S with argument P. */
+  desc := GetOwnProperty (S, P);
+  /*   If desc is not undefined return desc. */
+  if (!(desc = "undefined")){
+    return desc
+  };
+  /* If ToString(abs(ToInteger(P))) is not the same value as P, return undefined. */
+  if (!((ToString(abs(ToInteger(P)))) = P)){
+    return "undefined"
+  };
+  /* Let str be the String value of the [[PrimitiveValue]] internal property of S. */
+  str := S.PrimitiveValue;
+  /* Let index be ToInteger(P).*/
+  index := int_of_float (ToInteger(P));
+  /* Let len be the number of characters in str. */
+  len := s_len(str);
+  /* If len ≤ index, return undefined. */
+  if (len <= index){
+    return "undefined"
+  };
+  /*    Let resultStr be a String of length 1, containing one character from str,
+     specifically the character at position index, where the first (leftmost) character
+     in str is considered to be at position 0, the next one at position 1, and so on. */
+  resultStr := newString(null, null, null, [ s_nth (str, index)]);
+  /* Return a Property Descriptor { [[Value]]: resultStr, [[Enumerable]]: true,
+   [[Writable]]: false, [[Configurable]]: false } */
+   return newDataPropertyDescriptorFull( resultStr, false, true, false)
+}

@@ -38,6 +38,33 @@ function initNumberConstructor(NumberPrototype, globalObject, strict) {
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "prototype", NumberPrototype, false, false, false);
 
+  /* 15.7.3.2 Number.MAX_VALUE */
+  /* The value of Number.MAX_VALUE is the largest positive finite value of the Number type, which is
+     approximately 1.7976931348623157 x 10^308 . */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_VALUE", MAX_VALUE, false, false, false);
+
+  /* 15.7.3.3 Number.MIN_VALUE */
+  /* The value of Number.MIN_VALUE is the smallest positive value of the Number type, which is approximately
+     5 x 10^-324 . */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MIN_VALUE", MIN_VALUE, false, false, false);
+
+  /* 15.7.3.4 Number.NaN */
+  /* The value of Number.NaN is NaN. */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NaN", NaN, false, false, false);
+
+  /* 15.7.3.5 Number.NEGATIVE_INFINITY
+   * The value of Number.NEGATIVE_INFINITY is -∞.
+   * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NEGATIVE_INFINITY", -Infinity, false, false, false);
+
+  /* 15.7.3.6 Number.POSITIVE_INFINITY
+   * The value of Number.POSITIVE_INFINITY is +∞.
+   * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "POSITIVE_INFINITY", Infinity, false, false, false);
+
   return NumberConstructor
 };
 
@@ -77,12 +104,16 @@ function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObj
   createBuiltInProperty(numberPrototypeObject, "constructor", NumberConstructor);
 
   /* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
+  toString := CreateFunctionObject([], "numberToString", globalObject, strict);
+  createBuiltInProperty(numberPrototypeObject, "toString", toString);
 
   /* 15.7.4.3 Number.prototype.toLocaleString() */
-  toLocaleString := CreateFunctionObject(["items"], "numberToLocaleString", globalObject, strict);
+  toLocaleString := CreateFunctionObject([], "numberToLocaleString", globalObject, strict);
   createBuiltInProperty(numberPrototypeObject, "toLocaleString", toLocaleString);
 
   /* 15.7.4.4 Number.prototype.valueOf ( ) */
+  valueOf := CreateFunctionObject([], "NumberPrototypeValueOf", globalObject, strict);
+  createBuiltInProperty(numberPrototypeObject, "valueOf", valueOf);
 
   /* 15.7.4.5 Number.prototype.toFixed (fractionDigits) */
 
@@ -107,7 +138,7 @@ function NumberConstructor(globalObject, this, strict, params) {
   };
 
   if (this = 'undefined) {
-    return BooleanConstructorCalledAsFunction(value)
+    return NumberConstructorCalledAsFunction(value)
   };
 
   /* When Number is called as part of a new expression it is a constructor: it initialises the newly created object. */
@@ -132,11 +163,70 @@ function NumberConstructor(globalObject, this, strict, params) {
   return newlyConstructedObject
 };
 
+/* Luis TODO */
+/**
+ * 15.7.4.2 Number.prototype.toString ( [ radix ] )
+ *
+ * The optional radix should be an integer value in the inclusive range 2 to 36.
+ * If radix not present or is undefined the Number 10 is used as the value of radix.
+ * If ToInteger(radix) is the Number 10 then this Number value is given as an argument
+ * to the ToString abstract operation; the resulting String value is returned.
+ *
+ * If ToInteger(radix) is not an integer between 2 and 36 inclusive throw a RangeError
+ * exception. If ToInteger(radix) is an integer from 2 to 36, but not 10, the result is
+ * a String representation of this Number value using the specified radix. Letters a-z
+ * are used for digits with values 10 through 35. The precise algorithm is
+ * implementation-dependent if the radix is not 10, however the algorithm should be a
+ * generalization of that specified in 9.8.1.
+ *
+ * The toString function is not generic; it throws a TypeError exception if its this
+ * value is not a Number or a Number object. Therefore, it cannot be transferred to other
+ * kinds of objects for use as a method.
+ */
+function numberToString(global, this, strict, args) {
+  if (!isNumberOrNumberObject(this)) {
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
+  };
+  if (Type(this) = "Number") {
+    num := this
+  } else {
+    num := this.PrimitiveValue
+  };
+  return ToString(num)
+};
 
 /* 15.7.4.3 Number.prototype.toLocaleString() */
 function numberToLocaleString(global, this, strict, args) {
-  num := this.PrimitiveValue;
+  /* Produces a String value that represents this Number value formatted according to the conventions of the host
+     environment‘s current locale. This function is implementation-dependent, and it is permissible, but not
+     encouraged, for it to return the same thing as toString. */
+
+  /* NOTE The first parameter to this function is likely to be used in a future version of this standard; it is recommended
+          that implementations do not use this parameter position for anything else. */
+  if (!isNumberOrNumberObject(this)) {
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
+  };
+  if (Type(this) = "Number") {
+    num := this
+  } else {
+    num := this.PrimitiveValue
+  };
   return ToString(num)
+};
+
+/* 15.7.4.4 Number.prototype.valueOf ( ) */
+function NumberPrototypeValueOf(global, this, strict, params) {
+  /* Returns this Number value. */
+
+  /* The valueOf function is not generic; it throws a TypeError exception if its this value is not a Number or a
+     Number object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
+  if (!isNumberOrNumberObject(this)) {
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
+  };
+  if (Type(this) = "Number") {
+    return this
+  };
+  return getInternalProperty(this, "PrimitiveValue")
 };
 
 
@@ -149,4 +239,14 @@ function getNumberPrototype(strict) {
   objectNumberProto := GetValue(refNumberProto);
 
   return objectNumberProto
+};
+
+function isNumberOrNumberObject(arg) {
+  if (Type(arg) = "Number") {
+    return true
+  };
+  if ((Type(arg) = "Object") &&& (getInternalProperty(arg, "Class") = "Number")) {
+    return true
+  };
+  return false
 }
