@@ -38,7 +38,24 @@ function initNumberConstructor(NumberPrototype, globalObject, strict) {
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "prototype", NumberPrototype, false, false, false);
 
-  /* 15.7.3.6 Number.NEGATIVE_INFINITY
+  /* 15.7.3.2 Number.MAX_VALUE */
+  /* The value of Number.MAX_VALUE is the largest positive finite value of the Number type, which is
+     approximately 1.7976931348623157 x 10^308 . */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_VALUE", MAX_VALUE, false, false, false);
+
+  /* 15.7.3.3 Number.MIN_VALUE */
+  /* The value of Number.MIN_VALUE is the smallest positive value of the Number type, which is approximately
+     5 x 10^-324 . */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MIN_VALUE", MIN_VALUE, false, false, false);
+
+  /* 15.7.3.4 Number.NaN */
+  /* The value of Number.NaN is NaN. */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NaN", NaN, false, false, false);
+
+  /* 15.7.3.5 Number.NEGATIVE_INFINITY
    * The value of Number.NEGATIVE_INFINITY is -∞.
    * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NEGATIVE_INFINITY", -Infinity, false, false, false);
