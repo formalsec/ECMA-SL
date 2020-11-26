@@ -38,7 +38,24 @@ function initNumberConstructor(NumberPrototype, globalObject, strict) {
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "prototype", NumberPrototype, false, false, false);
 
-  /* 15.7.3.6 Number.NEGATIVE_INFINITY
+  /* 15.7.3.2 Number.MAX_VALUE */
+  /* The value of Number.MAX_VALUE is the largest positive finite value of the Number type, which is
+     approximately 1.7976931348623157 x 10^308 . */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_VALUE", MAX_VALUE, false, false, false);
+
+  /* 15.7.3.3 Number.MIN_VALUE */
+  /* The value of Number.MIN_VALUE is the smallest positive value of the Number type, which is approximately
+     5 x 10^-324 . */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MIN_VALUE", MIN_VALUE, false, false, false);
+
+  /* 15.7.3.4 Number.NaN */
+  /* The value of Number.NaN is NaN. */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NaN", NaN, false, false, false);
+
+  /* 15.7.3.5 Number.NEGATIVE_INFINITY
    * The value of Number.NEGATIVE_INFINITY is -∞.
    * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NEGATIVE_INFINITY", -Infinity, false, false, false);
@@ -167,13 +184,33 @@ function NumberConstructor(globalObject, this, strict, params) {
  * kinds of objects for use as a method.
  */
 function numberToString(global, this, strict, args) {
-  num := this.PrimitiveValue;
+  if (!isNumberOrNumberObject(this)) {
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
+  };
+  if (Type(this) = "Number") {
+    num := this
+  } else {
+    num := this.PrimitiveValue
+  };
   return ToString(num)
 };
 
 /* 15.7.4.3 Number.prototype.toLocaleString() */
 function numberToLocaleString(global, this, strict, args) {
-  num := this.PrimitiveValue;
+  /* Produces a String value that represents this Number value formatted according to the conventions of the host
+     environment‘s current locale. This function is implementation-dependent, and it is permissible, but not
+     encouraged, for it to return the same thing as toString. */
+
+  /* NOTE The first parameter to this function is likely to be used in a future version of this standard; it is recommended
+          that implementations do not use this parameter position for anything else. */
+  if (!isNumberOrNumberObject(this)) {
+    return throwEmptyCompletion(TypeErrorConstructorInternal())
+  };
+  if (Type(this) = "Number") {
+    num := this
+  } else {
+    num := this.PrimitiveValue
+  };
   return ToString(num)
 };
 
@@ -185,6 +222,9 @@ function NumberPrototypeValueOf(global, this, strict, params) {
      Number object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
   if (!isNumberOrNumberObject(this)) {
     return throwEmptyCompletion(TypeErrorConstructorInternal())
+  };
+  if (Type(this) = "Number") {
+    return this
   };
   return getInternalProperty(this, "PrimitiveValue")
 };
@@ -202,10 +242,10 @@ function getNumberPrototype(strict) {
 };
 
 function isNumberOrNumberObject(arg) {
-  if (typeof arg = __$Flt) {
+  if (Type(arg) = "Number") {
     return true
   };
-  if ((typeof arg = __$Obj) &&& (isJavaScriptObject(arg)) &&& (getInternalProperty(arg, "Class") = "Number")) {
+  if ((Type(arg) = "Object") &&& (getInternalProperty(arg, "Class") = "Number")) {
     return true
   };
   return false
