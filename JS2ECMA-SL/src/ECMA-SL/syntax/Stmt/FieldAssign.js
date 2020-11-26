@@ -20,7 +20,7 @@ function MakeFieldAssign(Stmt){
       config.cont = config.cont.slice(1) ;
       var object = this.expressionObject.interpret(config.store).value;
       var field = this.expressionField.interpret(config.store).value;
-      config.heap.setFieldValue(object, field, this.expressionValue.interpret(config));
+      config.heap.setFieldValue(object, field, this.expressionValue.interpret(config.store));
       return {config : config, seclabel: new FieldAssignLab(object, field, this.expressionObject, this.expressionField, this.expressionValue)};
     }
   }

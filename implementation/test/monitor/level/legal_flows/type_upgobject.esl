@@ -4,11 +4,11 @@ function main () {
 	o := {};
 	o.p := true;
 	x := true;
-	x:= "upgObject"(o, "high");
-	x:= "upgVar"("h", "high");
+	aux1:= "upgObject"(o, "high");
+	aux2:= "upgVar"("h", "high");
 
 	if (h) {
-	  x:= "upgObject"(o, "low")
+	  aux3:= "upgObject"(o, "low")
 	};
 	
 	if(!h) {

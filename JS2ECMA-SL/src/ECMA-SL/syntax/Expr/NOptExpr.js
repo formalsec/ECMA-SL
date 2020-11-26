@@ -15,7 +15,8 @@ function MakeNOptExpr(Expr){
     }
 
     interpret(store){
-      var v_list = this.expressionsList.map(interpret(store));
+      console.log("++ NOPT");
+      var v_list = this.expressionsList.map((expr) => expr.interpret(store));
       return this.n_aryOperator.interpret(v_list); 
     }
     getVars(){

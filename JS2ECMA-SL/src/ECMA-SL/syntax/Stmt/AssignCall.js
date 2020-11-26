@@ -19,6 +19,12 @@ function MakeAssignCall(Stmt){
     }
 
     interpret(config){
+      console.log(">ASSIGN CALL");
+      console.log("*********** DEBUG ASSIGN CALL*********");
+          console.log(this.stringvar);
+          console.log(this.func);
+          console.log(this.args);
+          console.log("***************************");
       config.cont=config.cont.slice(1);
       var func_name = this.func.interpret(config.store);
       var f = config.prog.getFunc(func_name.value);

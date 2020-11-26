@@ -4,11 +4,11 @@ function main () {
 	o := {};
 	o.p := true;
 	x := true;
-	x:= "upgStruct"(o, "high");
-	x:= "upgVar"("h", "high");
+	aux1:= "upgStruct"(o, "high");
+	aux2:= "upgVar"("h", "high");
 
 	if (h) {
-	  x:= "upgStruct"(o, "low")
+	  aux3:= "upgStruct"(o, "low")
 	};
 	
 	if(!h) {

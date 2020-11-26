@@ -5,7 +5,7 @@ function main () {
 	o.p := true;
 	t := false;
 
-	x:= "upgVar"("h","high");
+	aux1:= "upgVar"("h","high");
 	
 
 	t:= "p" in_obj o;

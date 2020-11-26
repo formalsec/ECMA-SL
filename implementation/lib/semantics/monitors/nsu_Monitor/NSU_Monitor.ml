@@ -130,11 +130,24 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
     MReturn (scs, sheap, ssto, pc')
 
   | AssignCallLab (params, exp,x,f)->
-    let scs'=SecCallStack.push scs (SecCallStack.Intermediate (pc,ssto,x)) in
-    let lvls = List.map (expr_lvl ssto) exp in
-    let pvs = List.combine params lvls in
-    let ssto_aux = SecStore.create pvs in
-    MReturn (scs', sheap, ssto_aux, [check_pc pc])
+    (match SecStore.get_safe ssto x with
+       | Some x_lvl -> 
+          if (SL.leq (check_pc pc) x_lvl) then
+            let scs'=SecCallStack.push scs (SecCallStack.Intermediate (pc,ssto,x)) in
+            let lvls = List.map (expr_lvl ssto) exp in
+            let pvs = List.combine params lvls in
+            let ssto_aux = SecStore.create pvs in
+            MReturn (scs', sheap, ssto_aux, [check_pc pc])
+          else 
+            MFail ((scs, sheap, ssto, pc), ("Pc bigger than x in AssignCall"))
+       | None ->
+          let scs'=SecCallStack.push scs (SecCallStack.Intermediate (pc,ssto,x)) in
+            let lvls = List.map (expr_lvl ssto) exp in
+            let pvs = List.combine params lvls in
+            let ssto_aux = SecStore.create pvs in
+            MReturn (scs', sheap, ssto_aux, [check_pc pc]))
+      
+    
 
   | NewLab (x, loc) ->
     let pc_lvl = check_pc pc in
@@ -150,7 +163,7 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
            SecStore.set ssto x (SL.lub lev pc_lvl);
            print_string ("SECSTORE = "^ x ^" <-"^ (SL.str (SL.lub lev pc_lvl)) ^ "\n");
            MReturn (scs, sheap, ssto, pc)
-         ) else MFail ((scs, sheap, ssto, pc), ("Illegal UpgVarLab: " ^ x ^ " " ^ (SL.str lev)))
+         ) else MFail ((scs, sheap, ssto, pc), ("Illegal UpgVarLab"))
        | None ->
          SecStore.set ssto x (SL.lub lev pc_lvl);
          print_string ("SECSTORE = "^ x ^" <-"^ (SL.str (SL.lub lev pc_lvl)) ^ "\n");
@@ -256,7 +269,7 @@ let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
             if SecHeap.new_sec_prop sheap loc field lev_ctx (SL.lub lev_exp lev_ctx) then
               MReturn (scs, sheap, ssto, pc)
             else raise (Except "Internal Error"))
-          else MFail((scs,sheap,ssto,pc), "Illegal Field Creation")
+          else MFail((scs,sheap,ssto,pc), "Illegal Field Assign")
         | None -> raise (Except "Internal Error")))
 
   | SetTopLab st ->

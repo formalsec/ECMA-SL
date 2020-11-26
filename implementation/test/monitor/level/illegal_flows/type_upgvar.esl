@@ -2,11 +2,11 @@ function main () {
 	h:= true;
 	l:= true;
 
-	x:= "upgVar"("h", "high");
+	aux1:= "upgVar"("h", "high");
 
 
 	if (h) {
-	  x:= "upgVar"("l", "low")
+	  aux2:= "upgVar"("l", "low")
 	};
 	
 	if(!h) {

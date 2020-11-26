@@ -14,12 +14,11 @@ ERRORS=0
 PROGS=0
 
 complete_test () {
- MODE=$1
- TESTFILE=$2
- DEGUB=$3
-
+	TESTFILE=$1
+	DEGUB=$2
+printf "Results:\n"
 ##OCAML CI + mon (parse)
- OCAMLmonRes=$(./main.native -mode ci -i ${TESTFILE} -mon nsu --parse)
+ 	OCAMLmonRes=$(./main.native -mode ci -i ${TESTFILE} -mon nsu --parse)
 	if [[ $DEBUG == "true" ]]
 	then
 	  echo "${OCAMLmonRES}"
@@ -27,11 +26,13 @@ complete_test () {
 	OCAMLmonRes2=$( echo "${OCAMLmonRes}" | grep "MAIN return"  )
 	if [[ $OCAMLmonRes2 == "" ]]
 	then
-		OCAMLmonRes2=$( echo "${OCAMLmonRes}" | grep "MONITOR EXCEPTION"  )
+		OCAMLmonRes2=$( echo "${OCAMLmonRes}" | grep "MONITOR EXCEPTION" | tail -1 )
 	fi
+printf "\tOCAML CI+mon      : ${OCAMLmonRes2}\n"
+
 
 ## OCAML Inline + CI
-	OCAMLinlineRes=$(./main.native -i ${TESTFILE} -mode ic)
+	OCAMLinlineRes=$(./main.native -i ${TESTFILE} -mode ic --parse)
 	if [[ $DEBUG == "true" ]]
 	then
 	  echo "${OCAMLinlineRes}"
@@ -39,13 +40,15 @@ complete_test () {
 	OCAMLinlineRes2=$( echo "${OCAMLinlineRes}" | grep "MAIN return"  )
 	if [[ $OCAMLinlineRes2 == "" ]]
 	then
-		OCAMLinlineRes2=$( echo "${OCAMLinlineRES}" | grep "MONITOR EXCEPTION" | tail -1 )
+		OCAMLinlineRes2=$( echo "${OCAMLinlineRes}" | grep "MONITOR EXCEPTION" | tail -1 )
 	fi
+printf "\tOCAML IC + CI     : ${OCAMLinlineRes2}\n"
+
 
 ## OCAML parse -> JS + mon 
 	cd ../JS2ECMA-SL
 	filename=${TESTFILE%.*}
-	JSRES=$(node src/parse_esl.js ../implementation/${filename}.json ${MON})
+	JSRES=$(node src/parse_esl.js ../implementation/${filename}.json nsu)
 	if [[ $DEBUG == "true" ]]
 	then
 	  echo "{$JSRES}"
@@ -53,32 +56,29 @@ complete_test () {
 	JRES2=$( echo "${JSRES}" | grep "MAIN return"  )
 	if [[ $JRES2 == "" ]]
 	then
-		JRES2=$( echo "${JSRES}" | grep "MONITOR EXCEPTION"  )
+		JRES2=$( echo "${JSRES}" | grep "MONITOR EXCEPTION" | tail -1  )
 	fi
-
+printf "\t(PARSE) JS+mon    : ${JRES2}\n"
 ## OCAML inline -> parse -> JS
-	cd ../JS2ECMA-SL
-	filename=${TESTFILE%.*}
-	JSinlineRES=$(node src/parse_esl.js ../implementation/${filename}.json)
+	
+	JSinlinedRes=$(node src/parse_esl.js ../implementation/${filename}_inlined.json)
 	if [[ $DEBUG == "true" ]]
 	then
-	  echo "{$JSinlineRES}"
+	  echo "{$JSinlinedRes}"
 	fi
-	JSinlineRES2=$( echo "${JSinlineRES}" | grep "MAIN return"  )
-	if [[ $JSinlineRES2 == "" ]]
+	JSinlinedRes2=$( echo "${JSinlinedRes}" | grep "MAIN return"  )
+	if [[ $JSinlinedRes2 == "" ]]
 	then
-		JSinlineRES2=$( echo "${JSinlineRES}" | grep "MONITOR EXCEPTION"  )
+		JSinlinedRes2=$( echo "${JSinlinedRes}" | grep "MONITOR EXCEPTION" | tail -1 )
 	fi
+	printf "\tIC (PARSE) + JS   : ${JSinlinedRes2}\n"
+	
 
-	printf "Results:"
-	printf "\tOCAML CI+mon =\t${OCAMLmonRes2}"
-	printf "\tOCAML IC + CI =\t${OCAMLinlineRes2}"
-	printf "\t(PARSE) JS+mon =\t${JRES2}"
-	printf "\tIC (PARSE) + JS =\t${JSinlineRes2}"
 	PROGS=$((PROGS+1))
 
 
 }
+
 test_OCAML_JS () {
 	MODE=$1
 	TESTFILE=$2
@@ -118,7 +118,6 @@ test_OCAML_JS () {
 	fi
 	PROGS=$((PROGS+1))
 }
-
 test_OCAML_inline () {
 	TESTFILE=$1
 	DEBUG=$2
@@ -155,6 +154,27 @@ test_OCAML_inline () {
 		ERRORS=$((ERRORS+1))
 	fi
 	PROGS=$((PROGS+1))
+}
+
+test_complete (){
+	POSITIVEDIR=$1
+	DEBUG=$2
+	for fullpath in $POSITIVEDIR/*.esl
+	do
+		# File identifier
+		cd ../implementation
+		fullpath_aux=${fullpath#"../implementation/"}
+		IFS='/' read -r -a array <<< "$fullpath" 
+		printf "${YELLOW}\n${array[3]}${NC} "
+		echo "${fullpath_aux}"
+		# Program run
+		if [[ "$fullpath_aux" ==  *_inlined.esl ]]
+		then echo ""	
+		else
+			complete_test $fullpath_aux $DEBUG
+		fi
+	done
+
 }
 
 test_ic (){
@@ -288,17 +308,17 @@ then
 	cd ../implementation
 	TESTFILE_aux=${TESTFILE#"../implementation/"}
 	test_prog $MODE $TESTFILE_aux $DEBUG
-elif [[ $POSITIVEDIR != "" && $NEGATIVEDIR != "" ]]
-then
-	printf "Testing Prositive Directories...\n"
-	test_dir $MODE $DEBUG $POSITIVEDIR 
-	printf "Testing Negative Directories...\n"
-	test_dir $MODE $DEBUG $NEGATIVEDIR
+
 elif [[ $POSITIVEDIR != "" && $MODE = "ic" ]]
 then
 	printf "Testing Inlining Copiler Directories...\n"
-	test_ic $MODE $DEBUG $POSITIVEDIR 	
+	test_ic $MODE $DEBUG $POSITIVEDIR 
 elif [[ $POSITIVEDIR != "" ]]
+then
+	printf "(COMPLETE) Testing Directories...\n"
+	test_complete $POSITIVEDIR $DEBUG
+
+elif [[ $POSITIVEDIR != ""  && $MODE = "ci" ]]
 then
 	printf "Testing Prositive Directories...\n"
 	test_dir $MODE $DEBUG $POSITIVEDIR 

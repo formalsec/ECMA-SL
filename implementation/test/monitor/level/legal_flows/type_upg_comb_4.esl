@@ -4,11 +4,11 @@ function main () {
 	o := {};
 	o.p := true;
 
-	x:= "upgVar"("h", "high");
-	x:= "upgPropExists"(o,"p", "high");
+	aux1:= "upgVar"("h", "high");
+	aux2:= "upgPropExists"(o,"p", "high");
 	
 	if(h) {
-	 x:= "upgPropExists"(o,"p", "low")
+	 aux3:= "upgPropExists"(o,"p", "low")
 	};
 
 

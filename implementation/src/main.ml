@@ -52,13 +52,13 @@ let combine_progs (prog1 : Prog.t) (prog2 : Prog.t) : Prog.t =
     Prog.add_func prog1 k v) prog2;
   prog1 
 
-let parse_program (prog) : unit =
+let parse_program (prog : Prog.t) (inline : string) : unit =
   print_string "+++++++++++++++++++++++++ JSON +++++++++++++++++++++++++\n";
   let json = Prog.to_json prog in
   print_string json;
   print_string "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   let jsonfile = Filename.remove_extension !file  in
-  burn_to_disk (jsonfile^".json") json; 
+  burn_to_disk (jsonfile ^inline^".json") json; 
    Printf.printf "%s" jsonfile
 
 let compile_from_plus_to_core () : unit =
@@ -76,7 +76,8 @@ let inline_compiler () : Prog.t =
   let sec_prog_contents = Parsing_Utils.load_file _INLINE_LATTICE_ in
   let lattice_prog = Parsing_Utils.parse_prog sec_prog_contents in
   let final_prog = combine_progs inlined_prog lattice_prog in
-  Inliner.save_file final_prog "inlined.esl";
+  let inlinedfile = Filename.remove_extension !file  in
+  burn_to_disk (inlinedfile^"_inlined.esl") (Prog.str final_prog);
   Printf.printf "================= FINAL PROGRAM ================= \n %s \n=================================" (Prog.str final_prog);
   final_prog
 
@@ -84,7 +85,6 @@ let inline_compiler () : Prog.t =
 
 let core_interpretation (prog : Prog.t) : unit =
   
-  if !parse then parse_program prog;
   let v, heap = CoreInterp.eval_prog prog (!out, !mon, !verb_aux) "main" in
   (match v with
   | Some z -> (match z with
@@ -108,14 +108,21 @@ let run ()=
   else if (!mode = "ci") then (print_string "======================= CORE =======================\n"; 
     let prog_contents = Parsing_Utils.load_file !file in
     let prog = Parsing_Utils.parse_prog prog_contents in
-    core_interpretation (prog))
+    if !parse then (parse_program prog "");
+    core_interpretation (prog)
+    )
+  else if (!mode = "parse") then( 
+    let prog_contents = Parsing_Utils.load_file !file in
+    let prog = Parsing_Utils.parse_prog prog_contents in
+    parse_program prog "")
   else if (!mode = "ic") then (print_string "======================= Inlining Monitor =======================\n";
     let prog = inline_compiler () in 
      (*Run the ci in inlined prog*)
+     if !parse then (parse_program prog "_inlined");
      core_interpretation (prog)
     )
   else (compile_from_plus_to_core ());
-
+  
 
   print_string "\n=====================\n\tFINISHED\n=====================\n"
 

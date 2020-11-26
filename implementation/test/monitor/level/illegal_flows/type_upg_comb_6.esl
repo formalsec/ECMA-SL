@@ -4,7 +4,7 @@ function main () {
 	o := {};
 	o.p := true;
 
-	x:= "upgVar"("h", "high");
+	aux1:= "upgVar"("h", "high");
 	
 	if(h) {
 	 print l

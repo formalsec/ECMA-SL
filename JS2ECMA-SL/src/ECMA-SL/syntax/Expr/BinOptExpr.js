@@ -12,8 +12,15 @@ function MakeBinOptExpr(Expr){
     }
 
     interpret(store){
+      console.log("++BINOPT");
+
       var v1 = this.expr_lhs.interpret(store);
       var v2 = this.expr_rhs.interpret(store);
+      console.log("*********** DEBUG BINOPT *********");
+      console.log(this.operator);
+      console.log(v1);
+      console.log(v2);
+      console.log("***************************");
       return this.operator.interpret(v1,v2); 
     }
     getVars(){
@@ -24,9 +31,7 @@ function MakeBinOptExpr(Expr){
 
     BinOptExpr.fromJSON = function(obj){
     	expr_lhs =  Expr.fromJSON(obj.lhs);
-      console.log(expr_lhs);
     	expr_rhs =  Expr.fromJSON(obj.rhs);
-      console.log(expr_rhs);
     	oper = Oper.fromJSON(obj.op);
     	return new BinOptExpr(oper,expr_lhs, expr_rhs);
   }

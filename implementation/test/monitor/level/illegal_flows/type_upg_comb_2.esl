@@ -4,8 +4,8 @@ function main () {
 	o := {};
 	o.p := true;
 
-	x:= "upgVar"("h", "high");
-	x:= "upgObject"(o, "high");
+	aux1:= "upgVar"("h", "high");
+	aux2:= "upgObject"(o, "high");
 
 	
 	

@@ -51,6 +51,7 @@ let rec asgn_search (stmts: Stmt.t list) : StringSet.t =
                        | AssignInObjCheck (x, e_o, e_f)   -> StringSet.add x ac
                        | AssignObjToList (x, e)           -> StringSet.add x ac
                        | AssignObjFields (x, e)           -> StringSet.add x ac
+                       | AssignCall (x, _, _)             -> StringSet.add x ac
                        |_ -> ac
                        ) StringSet.empty stmts
                        in

@@ -222,7 +222,7 @@ let c_assigncall (pc : string) (x : string) (f : Expr.t) (args : Expr.t list) : 
   stmt_args @
   [ 
     Stmt.AssignCall (leq_1, leq_func (), [Expr.Var pc; shadow_var_e x]);
-    Stmt.If (Expr.Var leq_1, Stmt.Block st1, Some (Stmt.Block ([Stmt.Exception "\"MONITOR EXCEPTION -> MONITOR BLOCK - pc bigger than x\""])))
+    Stmt.If (Expr.Var leq_1, Stmt.Block st1, Some (Stmt.Block ([Stmt.Exception "\"MONITOR EXCEPTION -> Pc bigger than x in AssignCall\""])))
   ]
 
 
@@ -248,7 +248,7 @@ let c_print (pc : string) (e : Expr.t) : Stmt.t list =
     Stmt.AssignCall (leq_1, leq_func (), [Expr.Var pc; Expr.Var x_e_lev]);
     Stmt.If (Expr.Var leq_1, 
       (Stmt.Block ([Stmt.Print e])), 
-      Some (Stmt.Block ([Stmt.Exception "\"Illegal Print\""])))
+      Some (Stmt.Block ([Stmt.Exception "\"MONITOR EXCEPTION -> Illegal Print\""])))
   ]
 
 
@@ -256,7 +256,7 @@ let c_print (pc : string) (e : Expr.t) : Stmt.t list =
 ------------
 C(x:={})=
   x:= {};
-  x["strunct_lev"] := pc;
+  x["struct_lev"] := pc;
   x["object_lev"] := pc
 *)
 let c_assignnewobj (pc : string) (x : string) : Stmt.t list =
@@ -344,7 +344,7 @@ let c_fieldassign (pc : string) (e_o : Expr.t) (e_f : Expr.t) (e_v : Expr.t) : S
             Stmt.FieldAssign (x_o, Expr.Var prop_exists_lev_name, Expr.Var ctx);
             Stmt.FieldAssign (x_o, x_f, x_v)]) ,
           Some ( Stmt.Block [
-        Stmt.Exception ("\"MONITOR EXCEPTION -> Illegal Field Creation\"")]))
+        Stmt.Exception ("\"MONITOR EXCEPTION -> Illegal Field Assign\"")]))
       ]),Some (Stmt.Block ([
         Stmt.AssignCall (leq_1, leq_func (), [Expr.Var ctx; Expr.Var prop_val_lev]);
         Stmt.If (Expr.Var leq_1, 
@@ -495,7 +495,7 @@ let c_upgVar (pc : string) (ret : string) (x_name : string) (lev_str : string) :
           )
         )
     ]  
-(*
+(*(*
   C(e_o) = (stmt_x_o, x_o_lev)
   C(e_f) = (stmt_x_f, x_f_lev)
   x_shadow = shadow(x)
@@ -729,7 +729,7 @@ let c_upgStruct (pc : string) (ret : string) (e_o : Expr.t) (lev_str : string) :
 
   ]
 
-
+*)
 
 let rec compile (pc:string) (stmt: Stmt.t ): Stmt.t list=
 
@@ -756,15 +756,7 @@ let rec compile (pc:string) (stmt: Stmt.t ): Stmt.t list=
       c_while pc pc' e stmts
 
     | AssignCall (ret, Expr.Val (Val.Str f), [Expr.Val (Val.Str x_name); Expr.Val (Val.Str lev_str)]) when f = _upgVar_ -> c_upgVar pc ret x_name lev_str
-(*
-    | AssignCall (ret, Expr.Val (Val.Str f), [x_o; x_f; Expr.Val (Val.Str lev_str)]) when f = _upgPropExists_ -> c_upgPropExists pc ret x_o x_f lev_str
-    
-    | AssignCall (ret, Expr.Val (Val.Str f), [x_o; x_f; Expr.Val (Val.Str lev_str)]) when f = _upgPropVal_ -> c_upgPropVal pc ret x_o x_f lev_str
 
-    | AssignCall (ret, Expr.Val (Val.Str f), [x_o;  Expr.Val (Val.Str lev_str)]) when f = _upgStruct_ -> c_upgStruct pc ret x_o lev_str
-
-    | AssignCall (ret, Expr.Val (Val.Str f), [x_o;  Expr.Val (Val.Str lev_str)]) when f = _upgObject_ -> c_upgSObject pc ret x_o lev_str
-*)
     | AssignCall (x,f,args) -> c_assigncall pc x f args
 
     | Print (e) -> c_print pc e
@@ -809,7 +801,7 @@ let compile_functions (prog : Prog.t): Prog.t =
                             Printf.printf "PC: %s\n" pc;
                             let new_params = List.fold_left (fun ac param-> ac @ [param] @ [shadowvar param] ) [] f.params in
                             let asgn_vars: string list = Func.asgn_vars (f.body) in
-                            let asgn_vars_clean = List.fold_left (fun ac var ->  if (List.exists (fun var2 -> if var = var2 then true else false ) new_params) then ac else ac @ [Stmt.Assign (shadowvar var, (Expr.Var pc))] ) [] asgn_vars in
+                            let asgn_vars_clean = List.fold_left (fun ac var ->  if (List.exists (fun var2 -> if var = var2 then true else false ) new_params) then ac else ac @ [Stmt.Assign (shadowvar var, Expr.Val (Val.Bool true))] ) [] asgn_vars in
                             let new_body= translist pc (f.body) in
                             Printf.printf "Transforming function...\tFUNC NAME: %s" (f.name);
                             if (f.name = "main") then
@@ -824,13 +816,7 @@ let compile_functions (prog : Prog.t): Prog.t =
   
   new_prog
 
-let save_file  (new_prog : Prog.t) (out_file : string) : unit = 
-  if(out_file = "") then () else(
-    let oc = open_out out_file in    (* create or truncate file, return channel *)
-      print_string ("Printing output to : "^out_file^"...\nNumber of functions : "^string_of_int (Hashtbl.length new_prog)^"\n");
-      Printf.fprintf oc "%s\n" (Prog.str new_prog);   (* write something *)
-      close_out oc
-  )
+
 
 
 end 
