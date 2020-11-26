@@ -12,6 +12,7 @@ type t = Skip
        | RepeatUntil of t * E_Expr.t
        | MatchWith   of E_Expr.t * (E_Pat.t * t) list
        | Throw       of E_Expr.t
+       | Fail        of E_Expr.t 
        | Assert      of E_Expr.t
        | MacroApply  of string * E_Expr.t list
        | Switch      of E_Expr.t * (E_Expr.t * t) list * t option
@@ -55,7 +56,8 @@ let rec str (stmt : t) : string =
     | RepeatUntil (s, e)        -> "repeat " ^ str s ^ " until " ^ E_Expr.str e
     | MatchWith (e, pats_stmts) -> "match " ^ E_Expr.str e ^ " with | "
                                   ^ String.concat " | " (List.map (fun (e, s) -> E_Pat.str e ^ ": " ^ str s) pats_stmts)
-    | Throw e                   -> "throw " ^ E_Expr.str e
+    | Fail e                   -> "fail " ^ E_Expr.str e
+    | Throw e                  -> "throw " ^ E_Expr.str e
     | Assert e                  -> "assert " ^ E_Expr.str e
     | MacroApply (m, es)        -> "@" ^ m ^ " (" ^ String.concat ", " (List.map E_Expr.str es) ^ ")"
     | Switch (e, cases, so)     -> Printf.sprintf "switch (%s) { %s %s }" (E_Expr.str e) (str_cases cases) (str_o so)
@@ -90,6 +92,7 @@ let rec map
     | ExprStmt e                  -> ExprStmt (fe e)
     | RepeatUntil (s, e)          -> RepeatUntil (map ~fe f s, fe e)
     | MatchWith (e, pats_stmts)   -> MatchWith (fe e, f_pat pats_stmts)
+    | Fail e                      -> Fail (fe e)
     | Throw e                     -> Throw (fe e)
     | Assert e                    -> Assert (fe e)
     | MacroApply (m, es)          -> MacroApply (m, List.map fe es)  

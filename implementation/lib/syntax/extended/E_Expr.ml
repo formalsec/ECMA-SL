@@ -1,14 +1,14 @@
 type t =
-  | Val     of Val.t
-  | Var     of string
-  | GVar    of string 
-  | BinOpt  of Oper.bopt * t * t
-  | EBinOpt of EOper.bopt * t * t    (** non-shared binary operators *) 
-  | UnOpt   of Oper.uopt * t
-  | NOpt    of Oper.nopt * t list
-  | Call    of t * t list
-  | NewObj  of (string * t) list
-  | Lookup  of t * t
+  | Val          of Val.t
+  | Var          of string
+  | GVar         of string 
+  | BinOpt       of Oper.bopt * t * t
+  | EBinOpt      of EOper.bopt * t * t    (** non-shared binary operators *) 
+  | UnOpt        of Oper.uopt * t
+  | NOpt         of Oper.nopt * t list
+  | Call         of t * t list * string option 
+  | NewObj       of (string * t) list
+  | Lookup       of t * t
 
 type subst_t = (string, t) Hashtbl.t 
 
@@ -20,7 +20,8 @@ let rec str (e : t) : string = match e with
   | EBinOpt (op, e1, e2)  -> EOper.str_of_binopt op (str e1) (str e2)
   | BinOpt (op, e1, e2)   -> Oper.str_of_binopt op (str e1) (str e2)
   | NOpt (op, es)         -> Oper.str_of_nopt op (List.map str es)
-  | Call (f, es)          -> (str f) ^ " (" ^ String.concat ", " (List.map str es) ^ ")"
+  | Call (f, es, None)    -> Printf.sprintf "%s(%s)" (str f) (String.concat ", " (List.map str es))
+  | Call (f, es, Some g)  -> Printf.sprintf "%s(%s) catch %s" (str f) (String.concat ", " (List.map str es)) g 
   | NewObj (fes)          -> "{ " ^ fields_list_to_string fes ^ " }"
   | Lookup (e, f)         -> str e ^ "[" ^ str f ^ "]"
 
@@ -53,7 +54,7 @@ let rec map (f : (t -> t)) (e : t) : t =
       | EBinOpt (op, e1, e2)     -> EBinOpt (op, mapf e1, mapf e2)
       | BinOpt (op, e1, e2)      -> BinOpt (op, mapf e1, mapf e2)
       | NOpt (op, es)            -> NOpt (op, List.map mapf es)
-      | Call (ef, es)            -> Call (mapf ef, List.map mapf es) 
+      | Call (ef, es, g)         -> Call (mapf ef, List.map mapf es, g) 
       | NewObj (fes)             -> NewObj (map_obj fes)
       | Lookup (e, ef)           -> Lookup (mapf e, mapf ef) in 
   f e' 

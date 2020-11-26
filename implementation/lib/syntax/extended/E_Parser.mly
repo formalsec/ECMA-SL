@@ -38,7 +38,7 @@
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND
 %token SCONCAT
-%token IMPORT THROW
+%token IMPORT THROW FAIL CATCH
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
@@ -171,10 +171,16 @@ e_expr_target:
     { E_Expr.Var v }
   | v = GVAR;
     { E_Expr.GVar v }
+  | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; CATCH; g=VAR; 
+    { 
+      Printf.printf "Got a catch\n"; 
+      E_Expr.Call (E_Expr.Val (Val.Str f), es, Some g) }
+  | LBRACE; f = e_expr_target; RBRACE; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; CATCH; g=VAR;
+    { E_Expr.Call (f, es, Some g) }
   | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
-    { E_Expr.Call (E_Expr.Val (Val.Str f), es) }
+    { E_Expr.Call (E_Expr.Val (Val.Str f), es, None) }
   | LBRACE; f = e_expr_target; RBRACE; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
-    { E_Expr.Call (f, es) }
+    { E_Expr.Call (f, es, None) }
   | LPAREN; e = e_expr_target; RPAREN;
     { e }
   | nary_op_expr = nary_op_target;
@@ -299,6 +305,8 @@ e_stmt_target:
     { E_Stmt.Return (E_Expr.Val Val.Void) }
   | THROW; e = e_expr_target;
     { E_Stmt.Throw e }
+  | FAIL; e = e_expr_target;
+    { E_Stmt.Fail e }
   | e = e_expr_target;
     { E_Stmt.ExprStmt e }
   | REPEAT; s = e_block_target;

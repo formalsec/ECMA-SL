@@ -186,7 +186,7 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
      (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
     )
 
-  | Throw e -> (
+  | Fail e -> (
       let v = eval_expr sto e in
       Errorv (Some v), SecLabel.EmptyLab
     )

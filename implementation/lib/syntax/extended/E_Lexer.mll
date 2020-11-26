@@ -109,7 +109,9 @@ rule read =
   | ']'               { RBRACK }
   | "typeof"          { TYPEOF }
   | "__$"             { read_type lexbuf }
+  | "catch"           { CATCH }
   | "throw"           { THROW }
+  | "fail"            { FAIL }
   | "import"          { IMPORT }
   | "->"              { RIGHT_ARROW }
   | "None"            { NONE }

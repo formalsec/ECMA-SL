@@ -181,8 +181,84 @@ let compile_switch
       ret_so in 
   stmts @ stmts'' 
 
+ let compile_fail (ret_e : (Stmt.t list * Expr.t)) : Stmt.t list =
+  let stmts_expr, expr' = ret_e in
+  stmts_expr @ [Stmt.Fail expr']
+
+ let compile_throw (ret_e : (Stmt.t list * Expr.t)) : Stmt.t list =
+  let stmts_expr, e' = ret_e in
+  let ret_stmt = Stmt.Return (Expr.NOpt (Oper.TupleExpr, [(Expr.Val (Val.Bool true)); e'])) in 
+  stmts_expr @ [ ret_stmt ]
+
+let compile_return (ret_e : (Stmt.t list * Expr.t)) : Stmt.t list =
+  let stmts_expr, e' = ret_e in
+  let ret_stmt = Stmt.Return (Expr.NOpt (Oper.TupleExpr, [(Expr.Val (Val.Bool false)); e'])) in
+  stmts_expr @ [ ret_stmt ]
 
 
+(*
+C_e(e) = stmts', x' 
+C_e(e_i) = stmts_i, x_i
+x fresh
+-----------------------------------------
+C_s({e}(e1, ..., en)) = 
+ 	stmts'; 
+    stmts_1; 
+    ...
+    stmts_n; 
+    x := x' (___internal_esl_global, x_1, ..., x_n)
+    if (first(x)) {
+      return x
+    } else {
+      x := second(x)
+    }, x 
+
+
+C_s({e}(e1, ..., en) catch g) = 
+ 	stmts'; 
+    stmts_1; 
+    ...
+    stmts_n; 
+    x := x' (___internal_esl_global, x_1, ..., x_n)
+    if (first(x)) {
+      x := "g" (___internal_esl_global, second(x)) 
+      if (first(x)) {
+        return x
+      } else {
+        x := second (x)
+      }
+    } else {
+      x := second(x)
+    }, x 
+
+
+*)
+let build_if_throw_basic (x : string) (s_then : Stmt.t) : Stmt.t =
+  let guard = Expr.UnOpt (Oper.First, Expr.Var x) in 
+  let s_else = Stmt.Assign (x, Expr.UnOpt (Oper.Second, Expr.Var x)) in 
+  Stmt.If (guard, s_then, Some s_else)
+
+let build_if_throw (x : string) (g : string option) : Stmt.t =
+  match g with 
+    | None   -> build_if_throw_basic x (Stmt.Return (Expr.Var x))
+    | Some g -> 
+        let args = [Expr.Var __INTERNAL_ESL_GLOBAL__; Expr.UnOpt (Oper.Second, Expr.Var x) ] in 
+        let call_stmt = Stmt.AssignCall (x, Expr.Val (Val.Str g), args) in 
+        let inner_if = build_if_throw_basic x (Stmt.Return (Expr.Var x)) in 
+        build_if_throw_basic x (Stmt.Block [call_stmt; inner_if])
+
+
+let compile_call 
+      (ret_f : (Stmt.t list * Expr.t)) 
+      (ret_args :(Stmt.t list * Expr.t) list)  
+      (g : string option) : Stmt.t list * Expr.t =
+  let x = generate_fresh_var () in
+  let fname_stmts, fname_expr = ret_f in
+  let fargs_stmts_exprs = ret_args in
+  let fargs_stmts, fargs_exprs = List.split fargs_stmts_exprs in
+  let fargs_exprs' = (Expr.Var __INTERNAL_ESL_GLOBAL__)::fargs_exprs in 
+  let stmt_if = build_if_throw x g in 
+  fname_stmts @ List.concat fargs_stmts @ [Stmt.AssignCall (x, fname_expr, fargs_exprs'); stmt_if], Expr.Var x
 
 
 
@@ -207,26 +283,6 @@ and compile_nopt (nop : Oper.nopt) (e_exprs : E_Expr.t list) : Stmt.t list * Exp
   let stmts_exprs = List.map compile_expr e_exprs in
   let stmts, exprs = List.split stmts_exprs in
   (List.concat stmts) @ [Stmt.Assign (var, Expr.NOpt (nop, exprs))], Expr.Var var
-
-(*
-C_e(e) = stmts', x' 
-C_e(e_i) = stmts_i, x_i
-x fresh
------------------------------------------
-C_s({e}(e1, ..., en)) = 
- 	stmts'; 
-    stmts_1; 
-    ...
-    stmts_n; 
-    x := x' (___internal_esl_global, x_1, ..., x_n), x 
-*)
-and compile_call (fname : E_Expr.t) (fargs : E_Expr.t list) : Stmt.t list * Expr.t =
-  let var = generate_fresh_var () in
-  let fname_stmts, fname_expr = compile_expr fname in
-  let fargs_stmts_exprs = List.map compile_expr fargs in
-  let fargs_stmts, fargs_exprs = List.split fargs_stmts_exprs in
-  let fargs_exprs' = (Expr.Var __INTERNAL_ESL_GLOBAL__)::fargs_exprs in 
-  fname_stmts @ List.concat fargs_stmts @ [Stmt.AssignCall (var, fname_expr, fargs_exprs')], Expr.Var var
 
 
 and compile_newobj (e_fes : (string * E_Expr.t) list) : Stmt.t list * Expr.t =
@@ -267,12 +323,6 @@ and compile_while (expr : E_Expr.t) (stmt : E_Stmt.t) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in
   let stmts_stmt = compile_stmt stmt in
   stmts_expr @ [Stmt.While (expr', Stmt.Block (stmts_stmt @ stmts_expr))]
-
-
-and compile_return (expr : E_Expr.t) : Stmt.t list =
-  let stmts_expr, expr' = compile_expr expr in
-  stmts_expr @ [Stmt.Return (expr')]
-
 
 and compile_fieldassign (e_eo : E_Expr.t) (e_f : E_Expr.t) (e_ev : E_Expr.t) : Stmt.t list =
   let stmts_eo, expr_eo = compile_expr e_eo in
@@ -363,26 +413,23 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | EBinOpt (e_op, e_e1, e_e2) -> compile_ebinopt e_op e_e1 e_e2 
   | UnOpt (op, e_e)            -> compile_unopt op e_e
   | NOpt (op, e_es)            -> compile_nopt op e_es
-  | Call (f, e_es)             -> compile_call f e_es
   | NewObj (e_fes)             -> compile_newobj e_fes
   | Lookup (e_e, e_f)          -> compile_lookup e_e e_f
-
+  | Call (f, e_es, g) -> 
+    let ret_f = compile_expr f in 
+    let ret_es = List.map compile_expr e_es in 
+    compile_call ret_f ret_es g
 
 and compile_print (expr : E_Expr.t) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in
   stmts_expr @ [Stmt.Print expr']
 
 
-and compile_throw (expr : E_Expr.t) : Stmt.t list =
-  let stmts_expr, expr' = compile_expr expr in
-  stmts_expr @ [Stmt.Throw expr']
-
-
 and compile_assert (expr : E_Expr.t) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in
   stmts_expr @ [Stmt.If (
       Expr.UnOpt (Oper.Not, expr'),
-      Stmt.Throw (Expr.Val (Oper.string_concat (List [Str "Assert failed: "; Str (E_Expr.str expr)]))),
+      Stmt.Fail (Expr.Val (Oper.string_concat (List [Str "Assert failed: "; Str (E_Expr.str expr)]))),
       None)]
 
 
@@ -406,20 +453,31 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | Block (e_stmts)                 -> compile_block e_stmts
   | If (e_e, e_s1, e_s2)            -> compile_if e_e e_s1 e_s2
   | While (e_exp, e_s)              -> compile_while e_exp e_s
-  | Return e_exp                    -> compile_return e_exp
   | FieldAssign (e_eo, e_f, e_ev)   -> compile_fieldassign e_eo e_f e_ev
   | FieldDelete (e_e, e_f)          -> compile_fielddelete e_e e_f
   | ExprStmt e_e                    -> compile_exprstmt e_e
   | RepeatUntil (e_s, e_e)          -> compile_repeatuntil e_s e_e
   | MatchWith (e_e, e_pats_e_stmts) -> compile_matchwith e_e e_pats_e_stmts
-  | Throw e_e                       -> compile_throw e_e
   | Assert e_e                      -> compile_assert e_e
   | MacroApply (_, _)               -> invalid_arg "Macros are not valid compilable statements."
+  
+  | Throw e_e -> 
+    let ret_e = compile_expr e_e in 
+    compile_throw ret_e  
+  
+  | Fail e_e -> 
+    let ret_e = compile_expr e_e in 
+    compile_fail ret_e  
+  
   | Switch (e, cases, so)           -> 
       let ret_e = compile_expr e in 
       let ret_cases = compile_cases cases in 
       let ret_so = Option.map_default compile_stmt [] so in 
       compile_switch ret_e ret_cases ret_so 
+
+  | Return e_e -> 
+      let ret_e = compile_expr e_e in 
+      compile_return ret_e 
 
 (*
 C(s) = s', _
