@@ -32,6 +32,11 @@ function JS_Interpreter_Program(p) {
   }
 };
 
+function Interpreter_Statement_Guard(error) {
+  return throwEmptyCompletion(error)
+};
+
+
 function JS_Interpreter_SourceElements(SourceElements, scope) {
   /* The production SourceElements : SourceElements SourceElement is evaluated as follows: */
 
@@ -42,7 +47,7 @@ function JS_Interpreter_SourceElements(SourceElements, scope) {
     /* 2. If headResult is an abrupt completion, return headResult. */
     /* 3. Let tailResult be result of evaluating SourceElement. */
     /* 4. If tailResult.value is empty, let V = headResult.value, otherwise let V = tailResult.value. */
-    result := JS_Interpreter_Stmt(l_nth(SourceElements, i), scope);
+    result := JS_Interpreter_Stmt(l_nth(SourceElements, i), scope) catch Interpreter_Statement_Guard;
     if (isAnAbruptCompletion(result)) {
       return result
     };
@@ -1133,7 +1138,7 @@ function JS_Interpreter_Stmt(s, scope) {
     setLexicalEnvironment(scope, newEnv);
     /* 7. Let C be the result of evaluating Statement but if an exception is thrown during the evaluation, let C be
           (throw, V, empty), where V is the exception. (Execution now proceeds as if no exception were thrown.) */
-    C := JS_Interpreter_Stmt(Statement, scope);
+    C := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
     /* 8. Set the running execution context‘s Lexical Environment to oldEnv. */
     setLexicalEnvironment(scope, oldEnv);
     /* 9. Return C. */
@@ -1226,7 +1231,7 @@ function JS_Interpreter_TryStatement(TryStatement, scope) {
     /* The production TryStatement : try Block Catch is evaluated as follows: */
 
     /* 1. Let B be the result of evaluating Block. */
-    B := JS_Interpreter_Stmt(Block, scope);
+    B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
     /* 2. If B.type is not throw, return B. */
     if (!(getCompletionType(B) = 'throw)) {
       return B
@@ -1238,9 +1243,9 @@ function JS_Interpreter_TryStatement(TryStatement, scope) {
     /* The production TryStatement : try Block Finally is evaluated as follows: */
 
     /* 1. Let B be the result of evaluating Block. */
-    B := JS_Interpreter_Stmt(Block, scope);
+    B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
     /* 2. Let F be the result of evaluating Finally. */
-    F := JS_Interpreter_Stmt(Finally, scope);
+    F := JS_Interpreter_Stmt(Finally, scope) catch Interpreter_Statement_Guard;
     /* 3. If F.type is normal, return B. */
     if (getCompletionType(F) = 'normal) {
       return B
@@ -1252,7 +1257,7 @@ function JS_Interpreter_TryStatement(TryStatement, scope) {
     /* The production TryStatement : try Block Catch Finally is evaluated as follows: */
 
     /* 1. Let B be the result of evaluating Block. */
-    B := JS_Interpreter_Stmt(Block, scope);
+    B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
     /* 2. If B.type is throw, then */
     if (getCompletionType(B) = 'throw) {
       /* a. Let C be the result of evaluating Catch with parameter B.value. */
@@ -1264,7 +1269,7 @@ function JS_Interpreter_TryStatement(TryStatement, scope) {
       C := B
     };
     /* 4. Let F be the result of evaluating Finally. */
-    F := JS_Interpreter_Stmt(Finally, scope);
+    F := JS_Interpreter_Stmt(Finally, scope) catch Interpreter_Statement_Guard;
     /* 5. If F.type is normal, return C. */
     if (getCompletionType(F) = 'normal) {
       return C
@@ -1294,7 +1299,7 @@ function JS_Interpreter_Catch(Catch, parameter, scope) {
     /* 6. Set the running execution context‘s LexicalEnvironment to catchEnv. */
     setLexicalEnvironment(scope, catchEnv);
     /* 7. Let B be the result of evaluating Block. */
-    B := JS_Interpreter_Stmt(Block, scope);
+    B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
     /* 8. Set the running execution context‘s LexicalEnvironment to oldEnv. */
     setLexicalEnvironment(scope, oldEnv);
     /* 9. Return B. */
@@ -1346,7 +1351,7 @@ function JS_Interpreter_StmtList(stmts, scope) {
   i := 0;
   lstmts := l_len stmts;
   while (i < lstmts) {
-    stmt := JS_Interpreter_Stmt(l_nth(stmts, i), scope);
+    stmt := JS_Interpreter_Stmt(l_nth(stmts, i), scope) catch Interpreter_Statement_Guard;
     if (isAnAbruptCompletion(stmt)) {
       return stmt
     };
@@ -1872,7 +1877,7 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
     /* 3. Repeat, while iterating is true */
     repeat {
       /* a. Let stmt be the result of evaluating Statement. */
-      stmt := JS_Interpreter_Stmt(Statement, scope);
+      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
       /* b. If stmt.value is not empty, let V = stmt.value. */
       if (!(getCompletionValue(stmt) = 'empty)) {
         V := getCompletionValue(stmt)
@@ -1911,7 +1916,7 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
         return normalEmptyCompletion(V)
       };
       /* c. Let stmt be the result of evaluating Statement. */
-      stmt := JS_Interpreter_Stmt(Statement, scope);
+      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
       /* d. If stmt.value is not empty, let V = stmt.value. */
       if (!(getCompletionValue(stmt) = 'empty)) {
         V := getCompletionValue(stmt)
@@ -2007,7 +2012,7 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
       /* c. Call PutValue(lhsRef, P). */
       PutValue(lhsRef, P);
       /* d. Let stmt be the result of evaluating Statement. */
-      stmt := JS_Interpreter_Stmt(Statement, scope);
+      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
       /* e. If stmt.value is not empty, let V = stmt.value. */
       if (!(getCompletionValue(stmt) = 'empty)) {
         V := getCompletionValue(stmt)
@@ -2063,7 +2068,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
       /* c. Call PutValue(varRef, P). */
       PutValue(varRef, P);
       /* d. Let stmt be the result of evaluating Statement. */
-      stmt := JS_Interpreter_Stmt(Statement, scope);
+      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
       /* e. If stmt.value is not empty, let V = stmt.value. */
       if (!(getCompletionValue(stmt) = 'empty)) {
         V := getCompletionValue(stmt)
@@ -2111,7 +2116,7 @@ function JS_Interpreter_ForStmt_Expr(forStmt, scope) {
         }
       };
       /* b. Let stmt be the result of evaluating Statement. */
-      stmt := JS_Interpreter_Stmt(Statement, scope);
+      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
       /* c. If stmt.value is not empty, let V = stmt.value */
       if (!(getCompletionValue(stmt) = 'empty)) {
         V = getCompletionValue(stmt)
@@ -2161,7 +2166,7 @@ function JS_Interpreter_ForStmt_VarDecl(forStmt, scope) {
         }
       };
       /* b. Let stmt be the result of evaluating Statement. */
-      stmt := JS_Interpreter_Stmt(Statement, scope);
+      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
       /* c. If stmt.value is not empty, let V = stmt.value */
       if (!(getCompletionValue(stmt) = 'empty)) {
         V = getCompletionValue(stmt)
