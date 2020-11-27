@@ -1,0 +1,14 @@
+
+function f() {
+    throw "bananas"
+}; 
+
+function g(x) {
+    print x; 
+    return 2
+};
+
+function main () {  
+    z := f() catch g; 
+    return z
+}

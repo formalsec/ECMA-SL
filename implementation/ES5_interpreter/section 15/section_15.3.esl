@@ -122,11 +122,11 @@ function FunctionConstructor(globalObject, this, strict, params) {
   /* TODO parseBody and parseParams */
   /* 7. If P is not parsable as a FormalParameterList opt then throw a SyntaxError exception. */
   if (!isParsableAsFormalParametersList(P)) { /* TODO */
-    return throwEmptyCompletion(SyntaxErrorConstructorInternal())
+    throw SyntaxErrorConstructorInternal()
   };
   /* 8. If body is not parsable as FunctionBody then throw a SyntaxError exception. */
   if (!isParsableAsFunctionBody(body)) { /* TODO */
-    return throwEmptyCompletion(SyntaxErrorConstructorInternal())
+    throw SyntaxErrorConstructorInternal()
   };
   /* 9. If body is strict mode code (see 10.1.1) then let strict be true, else let strict be false. */
   if (isBuiltInFunctionBodyStrictModeCode(body)) { /* TODO */
@@ -160,7 +160,7 @@ function FunctionPrototypeToString(globalObject, this, strict, params) {
      object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
   /* TODO */
   if (!isFunctionObject(this)) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   return "function () {}"
   /* TODO section_15.3_implementation_dependent */
@@ -176,7 +176,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
 
   /* 1. If IsCallable(func) is false, then throw a TypeError exception. */
   if (IsCallable(func) = false) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   /* 2. If argArray is null or undefined, then */
   if ((argArray = 'null) ||| (argArray = 'undefined)) {
@@ -186,7 +186,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
   };
   /* 3. If Type(argArray) is not Object, then throw a TypeError exception. */
   if (!(Type(argArray) = "Object")) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   /* 4. Let len be the result of calling the [[Get]] internal method of argArray with argument "length". */
   len := {argArray.Get}(argArray, "length");
@@ -229,7 +229,7 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
 
   /* 1. If IsCallable(func) is false, then throw a TypeError exception. */
   if (IsCallable(func) = false) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   /* 2. Let argList be an empty List. */
   argList := [];
@@ -238,7 +238,8 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
   i := 1;
   largs := l_len args;
   while(i < largs) {
-    argList := l_add(argList, l_nth(args, i))
+    argList := l_add(argList, l_nth(args, i));
+    i := i + 1
   };
   /* 4. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
@@ -263,7 +264,7 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
   Target := this;
   /* 2. If IsCallable(Target) is false, throw a TypeError exception. */
   if (IsCallable(Target) = false) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   /* 3. Let A be a new (possibly empty) internal list of all of the argument values provided after thisArg (arg1, arg2
         etc), in order. */
@@ -365,7 +366,7 @@ function ConstructBind(F, ExtraArgs) {
   target := F.TargetFunction;
   /* 2. If target has no [[Construct]] internal method, a TypeError exception is thrown. */
   if (!("Construct" in_obj target)) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   /* 3. Let boundArgs be the value of F’s [[BoundArgs]] internal property. */
   boundArgs := F.BoundArgs;
@@ -385,7 +386,7 @@ function HasInstanceBind(F, V) {
   target := F.TargetFunction;
   /* 2. If target has no [[HasInstance]] internal method, a TypeError exception is thrown. */
   if (!("HasInstance" in_obj target)) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   /* 3. Return the result of calling the [[HasInstance]] internal method of target providing V as the argument. */
   return {target.HasInstance}(target, V)
@@ -433,7 +434,7 @@ function HasInstance(F, V) {
   O := {F.Get}(F, "prototype");
   /* 3. If Type(O) is not Object, throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   /* 4. Repeat */
   repeat {
@@ -466,7 +467,7 @@ function GetF(F, P) {
   v := Get(F, P);
   /* 2. If P is "caller" and v is a strict mode Function object, throw a TypeError exception. */
   if ((P = "caller") &&& isStrictModeFunctionObject(F)) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   /* 3. Return v. */
   return v
@@ -478,10 +479,10 @@ function GetF(F, P) {
 /* Auxiliary functions */
 function getFunctionPrototype(strict) {
   refObj := newPropertyReference(|global|, "Function", strict);
-  @GetValue(FunctionObject, refObj);
+  FunctionObject := GetValue(refObj);
 
   refObjProto := newPropertyReference(FunctionObject, "prototype", strict);
-  @GetValue(functionObjectProto, refObjProto);
+  functionObjectProto := GetValue(refObjProto);
 
   return functionObjectProto
 };
