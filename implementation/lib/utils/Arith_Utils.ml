@@ -119,3 +119,14 @@ let rec float_to_string_inner n =
   else if (n < 0.0) then "-" ^ (float_to_string_inner (-. n))
   else if (n = Float.infinity) then "Infinity"
   else string_of_pos_float n
+
+
+(*
+   "1.2343434e+15" -> appropriate float 
+*)
+let parse_efloat (f_str : string) : float = 
+  let i    = String.rindex f_str 'e' in 
+  let b    = float_of_string (String.sub f_str 0 i) in 
+  let len' = (String.length f_str) - i - 2 in 
+  let exp  = float_of_string (String.sub f_str (i+2) len') in 
+  b *. (10. ** exp) 

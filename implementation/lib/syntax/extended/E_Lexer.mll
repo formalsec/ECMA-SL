@@ -9,6 +9,92 @@
   open E_Parser
 
 
+  (* https://www.ocaml.org/releases/4.11/htmlman/lexyacc.html#s:lexyacc-common-errors *)
+  let keyword_table = Hashtbl.create 53
+    let _ =
+      List.iter (fun (kwd, tok) -> Hashtbl.add keyword_table kwd tok)
+              [
+                "float_to_string" , FLOAT_TO_STRING;
+                "float_of_string" , FLOAT_OF_STRING;
+                "obj_to_list"     , OBJ_TO_LIST;
+                "obj_fields"      , OBJ_FIELDS;
+                "to_int"          , TO_INT;
+                "to_int32"        , TO_INT32;
+                "to_uint32"       , TO_UINT32;
+                "to_uint16"       , TO_UINT16;
+                "from_char_code"  , FROM_CHAR_CODE;
+                "to_char_code"    , TO_CHAR_CODE;
+                "to_lower_case"   , TO_LOWER_CASE;
+                "to_upper_case"   , TO_UPPER_CASE;
+                "trim"            , TRIM;
+                "abs"             , ABS;
+                "acos"            , ACOS;
+                "asin"            , ASIN;
+                "atan"            , ATAN;
+                "atan2"           , ATAN_2;
+                "ceil"            , CEIL;
+                "cos"             , COS;
+                "exp"             , EXP;
+                "floor"           , FLOOR;
+                "log_e"           , LOG_E;
+                "log_10"          , LOG_10;
+                "max"             , MAX;
+                "min"             , MIN;
+                "random"          , RANDOM;
+                "round"           , ROUND;
+                "sin"             , SIN;
+                "sqrt"            , SQRT;
+                "tan"             , TAN;
+                "PI"              , PI;
+                "MAX_VALUE"       , MAX_VALUE;
+                "MIN_VALUE"       , MIN_VALUE;
+                "in_obj"          , IN_OBJ;
+                "in_list"         , IN_LIST;
+                "l_len"           , LLEN;
+                "l_nth"           , LNTH;
+                "l_add"           , LADD;
+                "l_prepend"       , LPREPEND;
+                "l_concat"        , LCONCAT;
+                "hd"              , HD;
+                "tl"              , TL;
+                "t_len"           , TLEN;
+                "t_nth"           , TNTH;
+                "fst"             , FST;
+                "snd"             , SND;
+                "s_concat"        , SCONCAT;
+                "s_len"           , SLEN;
+                "s_nth"           , SNTH;
+                "int_to_float"    , INT_TO_FLOAT;
+                "int_to_string"   , INT_TO_STRING;
+                "int_of_string"   , INT_OF_STRING;
+                "int_of_float"    , INT_OF_FLOAT;
+                "typeof"          , TYPEOF;
+                "catch"           , CATCH;
+                "throw"           , THROW;
+                "fail"            , FAIL;
+                "import"          , IMPORT;
+                "None"            , NONE;
+                "default"         , DEFAULT;
+                "if"              , IF;
+                "else"            , ELSE;
+                "while"           , WHILE;
+                "return"          , RETURN;
+                "function"        , FUNCTION;
+                "macro"           , MACRO;
+                "delete"          , DELETE;
+                "null"            , NULL;
+                "repeat"          , REPEAT;
+                "until"           , UNTIL;
+                "match"           , MATCH;
+                "with"            , WITH;
+                "print"           , PRINT;
+                "assert"          , ASSERT;
+                "switch"          , SWITCH;
+                "case"            , CASE;
+                "sdefault"        , SDEFAULT;
+                "NaN"             , FLOAT (float_of_string "nan");
+                "Infinity"        , FLOAT (float_of_string "infinity")
+                ]
 
   exception Syntax_error of string
 }
@@ -64,8 +150,6 @@ rule read =
   | '<'            { LT }
   | ">="           { EGT }
   | "<="           { ELT }
-  | "in_obj"       { IN_OBJ }
-  | "in_list"      { IN_LIST }
   | '!'            { NOT }
   | '~'            { BITWISE_NOT }
   | '&'            { BITWISE_AND }
@@ -78,101 +162,31 @@ rule read =
   | "|||"          { SCLOR }
   | "&&"           { LAND }
   | "||"           { LOR }
-  | "l_len"        { LLEN }
-  | "l_nth"        { LNTH }
-  | "l_add"        { LADD }
-  | "l_prepend"    { LPREPEND }
-  | "l_concat"     { LCONCAT }
-  | "hd"           { HD }
-  | "tl"           { TL }
-  | "t_len"        { TLEN }
-  | "t_nth"        { TNTH }
-  | "fst"          { FST }
-  | "snd"          { SND }
-  | "s_concat"     { SCONCAT }
-  | "s_len"        { SLEN }
-  | "s_nth"        { SNTH }
-  | "int_to_float"    { INT_TO_FLOAT }
-  | "int_to_string"   { INT_TO_STRING }
-  | "int_of_string"   { INT_OF_STRING }
-  | "int_of_float"    { INT_OF_FLOAT }
-  | "float_to_string" { FLOAT_TO_STRING }
-  | "float_of_string" { FLOAT_OF_STRING }
-  | "obj_to_list"     { OBJ_TO_LIST }
-  | "obj_fields"      { OBJ_FIELDS }
-  | "to_int"          { TO_INT }
-  | "to_int32"        { TO_INT32 }
-  | "to_uint32"       { TO_UINT32 }
-  | "to_uint16"       { TO_UINT16 }
-  | "from_char_code"  { FROM_CHAR_CODE }
-  | "to_char_code"    { TO_CHAR_CODE }
-  | "to_lower_case"   { TO_LOWER_CASE }
-  | "to_upper_case"   { TO_UPPER_CASE }
-  | "trim"            { TRIM }
-  | "abs"             { ABS }
-  | "acos"            { ACOS }
-  | "asin"            { ASIN }
-  | "atan"            { ATAN }
-  | "atan2"           { ATAN_2 }
-  | "ceil"            { CEIL }
-  | "cos"             { COS }
-  | "exp"             { EXP }
-  | "floor"           { FLOOR }
-  | "log_e"           { LOG_E }
-  | "log_10"          { LOG_10 }
-  | "max"             { MAX }
-  | "min"             { MIN }
-  | "**"              { POW }
-  | "random"          { RANDOM }
-  | "round"           { ROUND }
-  | "sin"             { SIN }
-  | "sqrt"            { SQRT }
-  | "tan"             { TAN }
-  | "PI"              { PI }
-  | "MAX_VALUE"       { MAX_VALUE}
-  | "MIN_VALUE"       { MIN_VALUE}
-  | '('               { LPAREN }
-  | ')'               { RPAREN }
-  | '{'               { LBRACE }
-  | '}'               { RBRACE }
-  | '['               { LBRACK }
-  | ']'               { RBRACK }
-  | "typeof"          { TYPEOF }
-  | "__$"             { read_type lexbuf }
-  | "throw"           { THROW }
-  | "import"          { IMPORT }
-  | "->"              { RIGHT_ARROW }
-  | "None"            { NONE }
-  | "default"         { DEFAULT }
-  | "if"              { IF }
-  | "else"            { ELSE }
-  | "while"           { WHILE }
-  | "return"          { RETURN }
-  | "function"        { FUNCTION }
-  | "macro"           { MACRO }
-  | "delete"          { DELETE }
-  | "null"            { NULL }
-  | "\"'null\""       { SYMBOL ("'null") }
-  | "undefined"       { SYMBOL ("'undefined") }
-  | "repeat"          { REPEAT }
-  | "until"           { UNTIL }
-  | "match"           { MATCH }
-  | "with"            { WITH }
-  | "print"           { PRINT }
-  | "assert"          { ASSERT }
-  | "NaN"             { FLOAT (float_of_string "nan") }
-  | "Infinity"        { FLOAT (float_of_string "infinity") }
-  | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
-  | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
-  | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
-  | '"'               { read_string (Buffer.create 16) lexbuf }
-  | gvar              { GVAR (String_Utils.trim_ends (Lexing.lexeme lexbuf))}
-  | var               { VAR (Lexing.lexeme lexbuf) }
-  | symbol            { SYMBOL (Lexing.lexeme lexbuf) }
-  | loc               { LOC (Lexing.lexeme lexbuf) }
-  | "/*"              { read_comment lexbuf }
-  | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
-  | eof               { EOF }
+  | "**"           { POW }
+  | "->"           { RIGHT_ARROW }
+  | '('            { LPAREN }
+  | ')'            { RPAREN }
+  | '{'            { LBRACE }
+  | '}'            { RBRACE }
+  | '['            { LBRACK }
+  | ']'            { RBRACK }
+  | "__$"          { read_type lexbuf }
+  | "\"'null\""    { SYMBOL ("'null") }
+  | "undefined"    { SYMBOL ("'undefined") }
+  | int            { INT (int_of_string (Lexing.lexeme lexbuf)) }
+  | float          { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
+  | bool           { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
+  | '"'            { read_string (Buffer.create 16) lexbuf }
+  | gvar           { GVAR (String_Utils.trim_ends (Lexing.lexeme lexbuf))}
+  | letter(letter|digit|'_')* as id { try
+                                        Hashtbl.find keyword_table id
+                                      with Not_found -> VAR id }
+  | var            { VAR (Lexing.lexeme lexbuf) }
+  | symbol         { SYMBOL (Lexing.lexeme lexbuf) }
+  | loc            { LOC (Lexing.lexeme lexbuf) }
+  | "/*"           { read_comment lexbuf }
+  | _              { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
+  | eof            { EOF }
 
 
 (* Read strings *)
