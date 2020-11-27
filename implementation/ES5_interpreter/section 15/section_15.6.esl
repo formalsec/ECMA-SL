@@ -119,7 +119,7 @@ function BooleanPrototypeToString(globalObject, this, strict, params) {
       b := getInternalProperty(B, "PrimitiveValue")
     } else {
     /* 4. Else throw a TypeError exception. */
-      return throwEmptyCompletion(TypeErrorConstructorInternal())
+      throw TypeErrorConstructorInternal()
     }
   };
   /* 5. If b is true, then return "true"; else return "false". */
@@ -146,7 +146,7 @@ function BooleanPrototypeValueOf(globalObject, this, strict, params) {
       b := getInternalProperty(B, "PrimitiveValue")
     } else {
     /* 4. Else throw a TypeError exception. */
-      return throwEmptyCompletion(TypeErrorConstructorInternal())
+      throw TypeErrorConstructorInternal()
     }
   };
   /* 5. Return b. */

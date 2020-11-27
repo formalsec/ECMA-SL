@@ -59,7 +59,7 @@ function CreateDataPropertyFrom(Desc) {
 /** See 8.12.9 */
 function Reject (Throw) {
   if (Throw) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   } else {
     return false
   }
@@ -242,7 +242,7 @@ function Put(O, P, V, Throw) {
   if (CanPut(O, P) = false) {
     /** a. If Throw is true, then throw a TypeError exception. */
     if (Throw) {
-      return throwEmptyCompletion(TypeErrorConstructorInternal())
+      throw TypeErrorConstructorInternal()
     }
     /** b. Else return. */
     else {
@@ -343,7 +343,7 @@ function Delete(O, P, Throw) {
   /** 4. Else if Throw, then throw a TypeError exception. */
   else {
     if (Throw) {
-      return throwEmptyCompletion(TypeErrorConstructorInternal())
+      throw TypeErrorConstructorInternal()
     }
   };
 
@@ -395,7 +395,7 @@ function DefaultValue (O, hint) {
     };
 
     /** 5. Throw a TypeError exception. */
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   }
   else {
     /** When the [[DefaultValue]] internal method of O is called with hint Number, the following steps are taken: */
@@ -429,7 +429,7 @@ function DefaultValue (O, hint) {
       };
 
       /** 5. Throw a TypeError exception. */
-      return throwEmptyCompletion(TypeErrorConstructorInternal())
+      throw TypeErrorConstructorInternal()
     }
   }
 
