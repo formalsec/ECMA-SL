@@ -636,7 +636,12 @@ function arrayConcat(global, this, strict, items) {
  */
 /* function join (global, this, [ separator ]) */
 function arrayJoin(global, this, strict, args) {
-  separator := l_nth (args, 0);
+  if (l_len args = 0) {
+    separator := 'undefined
+  } else {
+    separator := l_nth (args, 0)
+  };
+  
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -975,8 +980,17 @@ function arrayShift(global, this, strict, args) {
  * steps are taken:
  */
 function arraySlice(global, this, strict, args) {
-  start := l_nth (args, 0);
-  end := l_nth (args, 1);
+  if (l_len args = 0) {
+    start := 'undefined;
+    end := 'undefined
+  } else {
+    start := l_nth(args, 0);
+    if (l_len args = 1) {
+      end := 'undefined
+    } else {
+      end := l_nth(args, 1)
+    }
+  };
 
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
@@ -1062,7 +1076,11 @@ function arraySlice(global, this, strict, args) {
  * zero if x = y, or a positive value if x > y.
  */
 function arraySort(global, this, strict, args) {
-  comparefn := l_nth (args, 0);
+  if (l_len args = 0) {
+    comparefn := 'undefined
+  } else {
+    comparefn := l_nth (args, 0)
+  };
 
   /* Let obj be the result of calling ToObject passing the this value
      as the argument. */
@@ -1262,8 +1280,18 @@ function SortCompare(obj, comparefn, j, k) {
  */
 function arraySplice(global, this, strict, args) {
   start := l_nth (args, 0);
-  deleteCount := l_nth (args, 1);
-  items := l_nth (args, 2);
+
+  if (l_len args = 1) {
+    deleteCount := 'undefined;
+    items := 'undefined
+  } else {
+    deleteCount := l_nth(args, 1);
+    if (l_len args = 2) {
+      items := 'undefined
+    } else {
+      items := tl(tl args)
+    }
+  };
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1532,7 +1560,11 @@ function arrayUnshift(global, this, strict, items) {
  */
 function arrayIndexOf(global, this, strict, args) {
   searchElement := l_nth (args, 0);
-  fromIndex := l_nth (args, 1);
+  if (l_len args = 1) {
+    fromIndex := 'undefined
+  } else {
+    fromIndex := l_nth (args, 1)
+  };
 
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
@@ -1625,7 +1657,11 @@ function arrayIndexOf(global, this, strict, args) {
  */
 function arrayLastIndexOf(global, this, strict, args) {
   searchElement := l_nth (args, 0);
-  fromIndex := l_nth (args, 1);
+  if (l_len args = 1) {
+    fromIndex := 'undefined
+  } else {
+    fromIndex := l_nth (args, 1)
+  };
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1728,7 +1764,11 @@ function arrayLastIndexOf(global, this, strict, args) {
  */
 function arrayEvery(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
-  thisArg := l_nth (args, 1);
+  if (l_len args = 1) {
+    thisArg := 'undefined
+  } else {
+    thisArg := l_nth (args, 1)
+  };
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1823,7 +1863,11 @@ function arrayEvery(global, this, strict, args) {
  */
 function arraySome(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
-  thisArg := l_nth (args, 1);
+  if (l_len args = 1) {
+    thisArg := 'undefined
+  } else {
+    thisArg := l_nth (args, 1)
+  };
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1915,7 +1959,11 @@ function arraySome(global, this, strict, args) {
  */
 function arrayForEach(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
-  thisArg := l_nth (args, 1);
+  if (l_len args = 1) {
+    thisArg := 'undefined
+  } else {
+    thisArg := l_nth (args, 1)
+  };
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -2002,7 +2050,11 @@ function arrayForEach(global, this, strict, args) {
  */
 function arrayMap(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
-  thisArg := l_nth (args, 1);
+  if (l_len args = 1) {
+    thisArg := 'undefined
+  } else {
+    thisArg := l_nth (args, 1)
+  };
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -2100,7 +2152,11 @@ function arrayMap(global, this, strict, args) {
  */
 function arrayFilter(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
-  thisArg := l_nth (args, 1);
+  if (l_len args = 1) {
+    thisArg := 'undefined
+  } else {
+    thisArg := l_nth (args, 1)
+  };
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -2205,7 +2261,11 @@ function arrayFilter(global, this, strict, args) {
  */
 function arrayReduce(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
-  initialValue := l_nth (args, 1);
+  if (l_len args = 1) {
+    initialValue := 'undefined
+  } else {
+    initialValue := l_nth (args, 1)
+  };
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -2324,7 +2384,11 @@ function arrayReduce(global, this, strict, args) {
  */
 function arrayReduceRight(global, this, strict, args) {
   callbackfn := l_nth (args, 0);
-  initialValue := l_nth (args, 1);
+  if (l_len args = 1) {
+    initialValue := 'undefined
+  } else {
+    initialValue := l_nth (args, 1)
+  };
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
