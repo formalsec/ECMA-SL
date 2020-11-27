@@ -169,7 +169,7 @@ function ArgumentsObjectGet(argumentObject, P) {
     v := Get(argumentObject, P);
     /* b. If P is "caller" and v is a strict mode Function object, throw a TypeError exception. */
     if ((P = "caller") && isStrictFunctionObject(v)) {
-      return throwEmptyCompletion(TypeErrorConstructorInternal())
+      throw TypeErrorConstructorInternal()
     };
     /* c. Return v. */
     return v
@@ -223,7 +223,7 @@ function ArgumentsObjectDefineOwnProperty(argumentsObject, P, Desc, Throw) {
   if (allowed = false) {
     /* a. If Throw is true then throw a TypeError exception, otherwise return false. */
     if (Throw = true) {
-      return throwEmptyCompletion(TypeErrorConstructorInternal())
+      throw TypeErrorConstructorInternal()
     } else {
       return false
     }

@@ -11,6 +11,7 @@
 %token WHILE
 %token IF ELSE
 %token RETURN
+%token SWITCH SDEFAULT
 %token NULL
 %token FUNCTION
 %token MACRO
@@ -21,7 +22,7 @@
 %token PERIOD COMMA SEMICOLON COLON
 %token DELETE
 %token REPEAT UNTIL
-%token MATCH WITH RIGHT_ARROW NONE DEFAULT
+%token MATCH WITH RIGHT_ARROW NONE DEFAULT CASE
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -39,7 +40,7 @@
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
 %token SCONCAT
-%token IMPORT THROW
+%token IMPORT THROW FAIL CATCH
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
 %token EOF
@@ -178,10 +179,14 @@ e_expr_target:
     { E_Expr.Const Oper.MIN_VALUE }
   | PI;
     { E_Expr.Const Oper.PI }
+  | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; CATCH; g = VAR;
+    { E_Expr.Call (E_Expr.Val (Val.Str f), es, Some g) }
+  | LBRACE; f = e_expr_target; RBRACE; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; CATCH; g=VAR;
+    { E_Expr.Call (f, es, Some g) }
   | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
-    { E_Expr.Call (E_Expr.Val (Val.Str f), es) }
+    { E_Expr.Call (E_Expr.Val (Val.Str f), es, None) }
   | LBRACE; f = e_expr_target; RBRACE; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
-    { E_Expr.Call (f, es) }
+    { E_Expr.Call (f, es, None) }
   | LPAREN; e = e_expr_target; RPAREN;
     { e }
   | nary_op_expr = nary_op_target;
@@ -353,9 +358,11 @@ e_stmt_target:
   | RETURN; e = e_expr_target;
     { E_Stmt.Return e }
   | RETURN;
-    { E_Stmt.Return (E_Expr.Val Val.Void) }
+    { E_Stmt.Return (E_Expr.Val (Val.Symbol "'undefined")) }
   | THROW; e = e_expr_target;
     { E_Stmt.Throw e }
+  | FAIL; e = e_expr_target;
+    { E_Stmt.Fail e }
   | e = e_expr_target;
     { E_Stmt.ExprStmt e }
   | REPEAT; s = e_block_target;
@@ -366,6 +373,14 @@ e_stmt_target:
     { E_Stmt.MatchWith (e, pat_stmts) }
   | AT_SIGN; m = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Stmt.MacroApply (m, es) }
+  | SWITCH; LPAREN; e=e_expr_target; RPAREN; LBRACE; cases = list (switch_case_target); RBRACE
+    { E_Stmt.Switch(e, cases, None) }
+  | SWITCH; LPAREN; e=e_expr_target; RPAREN; LBRACE; cases = list (switch_case_target); SDEFAULT; COLON; s = e_stmt_target; RBRACE
+    { E_Stmt.Switch(e, cases, Some s) }
+
+switch_case_target:
+  | CASE; e = e_expr_target; COLON; s = e_stmt_target;
+    { (e, s) }
 
 (* if (e) { s } | if (e) { s } else { s } *)
 ifelse_target:

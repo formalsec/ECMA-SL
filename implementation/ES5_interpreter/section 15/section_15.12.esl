@@ -16,9 +16,9 @@ function initJsonPrototype(global, objectPrototype, strict) {
 /* TODO */
 function getJsonPrototype(strict) {
   refJson := newPropertyReference(|global|, "Object", strict);
-  @GetValue(JsonObject, refJson);
+  JsonObject := GetValue(refJson);
   refJsonProto := newPropertyReference(JsonObject, "prototype", strict);
-  @GetValue(objectJsonProto, refJsonProto);
+  objectJsonProto := GetValue(refJsonProto);
   return objectJsonProto
 };
 /* TODO */

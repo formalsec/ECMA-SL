@@ -17,7 +17,7 @@
 %token LBRACK RBRACK
 %token PERIOD COMMA SEMICOLON
 %token DELETE
-%token THROW
+%token FAIL
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -255,8 +255,8 @@ stmt_block:
 stmt_target:
   | PRINT; e = expr_target;
     { Stmt.Print e }
-  | THROW; e = expr_target;
-    { Stmt.Throw e }
+  | FAIL; e = expr_target;
+    { Stmt.Fail e }
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;
     { print_string ">FIELDASSIGN\n";  Stmt.FieldAssign (e1, Expr.Val (Str f), e2) }
   | e1 = expr_target; LBRACK; f = expr_target; RBRACK; DEFEQ; e2 = expr_target;

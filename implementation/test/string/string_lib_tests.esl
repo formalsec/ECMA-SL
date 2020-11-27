@@ -1,4 +1,3 @@
-import "ES5_interpreter/extras/section_8_macros.esl";
 import "ES5_interpreter/section 9/section_9.esl";
 import "ES5_interpreter/section 9/section_9.12.esl";
 import "ES5_interpreter/section 8/section_8.esl";
