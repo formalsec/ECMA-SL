@@ -238,7 +238,8 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
   i := 1;
   largs := l_len args;
   while(i < largs) {
-    argList := l_add(argList, l_nth(args, i))
+    argList := l_add(argList, l_nth(args, i));
+    i := i + 1
   };
   /* 4. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
