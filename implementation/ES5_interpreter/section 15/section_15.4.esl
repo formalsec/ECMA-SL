@@ -81,10 +81,6 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));
 
   /* Add built-in function objects to array's prototype */
-  /* isArray */
-  isArrayObject := CreateFunctionObject(["items"], "isArray", global, strict);
-  descriptor := newDataPropertyDescriptorFull(isArrayObject, true, false, true);
-  setJSProperty(prototype, "isArray", descriptor);
 
   /* toString */
   toStringObject := CreateFunctionObject(["items"], "arrayToString", global, strict);
@@ -207,6 +203,14 @@ function initArrayObject(global, objectPrototype, strict) {
   objArrayPrototype := initArrayPrototype(global, objectPrototype, strict);
   objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict);
 
+  descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
+  setJSProperty(objArrayPrototype, "constructor", descriptor);
+
+  /* isArray */
+  isArrayObject := CreateFunctionObject(["items"], "isArray", global, strict);
+  descriptor := newDataPropertyDescriptorFull(isArrayObject, true, false, true);
+  setJSProperty(objArrayConstructor, "isArray", descriptor);
+
   descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
   setJSProperty(objArrayConstructor, "prototype", descriptor);
 
@@ -251,12 +255,12 @@ function initArrayObject(global, objectPrototype, strict) {
  * This description applies if and only if the Array constructor is given
  * no arguments or at least two arguments.
  */
-function ArrayConstructor(global, this, strict, items) {
-  if ((l_len items) = 1) {
-    return ArrayConstructorLen(global, this, strict, items)
-  };
-
+function ArrayConstructor(isNew, global, this, strict, items) {
   prototype := getArrayPrototype(strict);
+  if ((l_len items) = 1) {
+    len := l_nth (items, 0);
+    return internalNewArrayLen(prototype, len)
+  };
   return internalNewArray(prototype, items)
 };
 function internalNewArray(arrayPrototype, items) {
@@ -311,19 +315,13 @@ function internalNewArray(arrayPrototype, items) {
 /**
  * 15.4.2.2 new Array (len)
  */
-function ArrayConstructorLen(global, this, strict, args) {
-  len := l_nth (args, 0);
-  prototype := getArrayPrototype(strict);
-  return internalNewArrayLen(prototype, len)
-};
 function internalNewArrayLen(arrayPrototype, len) {
-
   arr := {
     JSProperties: { },
     /* The [[Prototype]] internal property of the newly constructed object is
       set to the original Array prototype object, the one that is the initial
       value of Array.prototype (15.4.3.1). */
-    Prototype: 'null,
+    Prototype: arrayPrototype,
     /* The [[Class]] internal property of the newly constructed object
       is set to "Array". */
     Class: "Array",
@@ -375,7 +373,10 @@ function internalNewArrayLen(arrayPrototype, len) {
  * value true if the argument is an object whose class internal property
  * is "Array"; otherwise it returns false. The following steps are taken:
  */
-function isArray(global, this, strict, args) {
+function isArray(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   arg := l_nth (args, 0);
   /* 1. If Type(arg) is not Object, return false. */
   if (!(Type(arg) = "Object")) {
@@ -398,7 +399,10 @@ function isArray(global, this, strict, args) {
  *
  * When the toString method is called, the following steps are taken:
  */
-function arrayToString(global, this, strict, args) {
+function arrayToString(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* 1. Let array be the result of calling ToObject on the this value. */
   array := ToObject(this);
   /* 2. Let func be the result of calling the [[Get]] internal method
@@ -411,7 +415,7 @@ function arrayToString(global, this, strict, args) {
   };
   /* 4. Return the result of calling the [[Call]] internal method of func
         providing array as the this value and an empty arguments list. */
-  return {func.Call}(func, array, ['undefined])
+  return {func.Call}(false, func, array, ['undefined])
     /*global, array, strict, ['undefined]])*/ /* TODO 'undefined as empty? */
 };
 /**
@@ -437,7 +441,10 @@ function arrayToString(global, this, strict, args) {
  *
  * The result is calculated as follows:
  */
-function arrayToLocaleString(global, this, strict, args) {
+function arrayToLocaleString(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* 1. Let O be the result of calling ToObject passing the this value as
         the argument. */
   O := ToObject(this);
@@ -475,7 +482,7 @@ function arrayToLocaleString(global, this, strict, args) {
     };
     /* d. Let R be the result of calling the [[Call]] internal method of func
           providing elementObj as the this value and an empty arguments list. */
-    R := {func.Call}(func, elementObj, [])
+    R := {func.Call}(false, func, elementObj, [])
   };
   /* 9. Let k be 1. */
   k := 1.;
@@ -504,7 +511,7 @@ function arrayToLocaleString(global, this, strict, args) {
       };
       /* iv. Let R be the result of calling the [[Call]] internal method of func
              providing elementObj as the this value and an empty arguments list. */
-      R := {func.Call}(func, elementObj, [])
+      R := {func.Call}(false, func, elementObj, [])
     };
     /* e. Let R be a String value produced by concatenating S and R. */
     R := s_concat([S, R]);
@@ -538,7 +545,10 @@ function arrayToLocaleString(global, this, strict, args) {
  *
  * The following steps are taken:
  */
-function arrayConcat(global, this, strict, items) {
+function arrayConcat(isNew, global, this, strict, items) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -635,7 +645,10 @@ function arrayConcat(global, this, strict, items) {
  * following steps:
  */
 /* function join (global, this, [ separator ]) */
-function arrayJoin(global, this, strict, args) {
+function arrayJoin(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   if (l_len args = 0) {
     separator := 'undefined
   } else {
@@ -712,7 +725,10 @@ function arrayJoin(global, this, strict, args) {
  *
  * The last element of the array is removed from the array and returned.
  */
-function arrayPop(global, this, strict, args) {
+function arrayPop(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -768,7 +784,10 @@ function arrayPop(global, this, strict, args) {
  * When the push method is called with zero or more arguments item1,item2, etc.,
  * the following steps are taken:
  */
-function arrayPush(global, this, strict, items) {
+function arrayPush(isNew, global, this, strict, items) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* 1. Let O be the result of calling ToObject passing the this value as the
         argument. */
   O := ToObject(this);
@@ -816,7 +835,10 @@ function arrayPush(global, this, strict, items) {
  * The elements of the array are rearranged so as to reverse their order.
  * The object is returned as the result of the call.
  */
-function arrayReverse(global, this, strict, args) {
+function arrayReverse(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* 1. Let O be the result of calling ToObject passing the this value as
         the argument. */
   O := ToObject(this);
@@ -901,7 +923,10 @@ function arrayReverse(global, this, strict, args) {
  *
  * The first element of the array is removed from the array and returned.
  */
-function arrayShift(global, this, strict, args) {
+function arrayShift(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -979,7 +1004,10 @@ function arrayShift(global, this, strict, args) {
  * it is treated as length+end where length is the length of the array. The following
  * steps are taken:
  */
-function arraySlice(global, this, strict, args) {
+function arraySlice(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   if (l_len args = 0) {
     start := 'undefined;
     end := 'undefined
@@ -1075,7 +1103,10 @@ function arraySlice(global, this, strict, args) {
  * that accepts two arguments x and y and returns a negative value if x < y,
  * zero if x = y, or a positive value if x > y.
  */
-function arraySort(global, this, strict, args) {
+function arraySort(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   if (l_len args = 0) {
     comparefn := 'undefined
   } else {
@@ -1247,7 +1278,7 @@ function SortCompare(obj, comparefn, j, k) {
     };
     /* b. Return the result of calling the [[Call]] internal method of
           comparefn passing undefined as the this value and with arguments x and y. */
-    return {comparefn.Call}(comparefn, 'undefined, [x, y])
+    return {comparefn.Call}(false, comparefn, 'undefined, [x, y])
   };
   /* 14. Let xString be ToString(x). */
   xString := ToString(x);
@@ -1278,7 +1309,10 @@ function SortCompare(obj, comparefn, j, k) {
  * item1, item2, etc. An Array object containing the deleted elements (if any)
  * is returned. The following steps are taken:
  */
-function arraySplice(global, this, strict, args) {
+function arraySplice(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   start := l_nth (args, 0);
 
   if (l_len args = 1) {
@@ -1465,7 +1499,10 @@ function arraySplice(global, this, strict, args) {
  * When the unshift method is called with zero or more arguments item1,
  * item2, etc., the following steps are taken:
  */
-function arrayUnshift(global, this, strict, items) {
+function arrayUnshift(isNew, global, this, strict, items) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
   O := ToObject(this);
@@ -1558,7 +1595,10 @@ function arrayUnshift(global, this, strict, items) {
  * When the indexOf method is called with one or two arguments, the following
  * steps are taken:
  */
-function arrayIndexOf(global, this, strict, args) {
+function arrayIndexOf(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   searchElement := l_nth (args, 0);
   if (l_len args = 1) {
     fromIndex := 'undefined
@@ -1655,7 +1695,10 @@ function arrayIndexOf(global, this, strict, args) {
  * When the lastIndexOf method is called with one or two arguments, the
  * following steps are taken:
  */
-function arrayLastIndexOf(global, this, strict, args) {
+function arrayLastIndexOf(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   searchElement := l_nth (args, 0);
   if (l_len args = 1) {
     fromIndex := 'undefined
@@ -1762,7 +1805,10 @@ function arrayLastIndexOf(global, this, strict, args) {
  * When the every method is called with one or two arguments, the following
  * steps are taken:
  */
-function arrayEvery(global, this, strict, args) {
+function arrayEvery(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   callbackfn := l_nth (args, 0);
   if (l_len args = 1) {
     thisArg := 'undefined
@@ -1805,7 +1851,7 @@ function arrayEvery(global, this, strict, args) {
       /* ii. Let testResult be the result of calling the [[Call]] internal
              method of callbackfn with T as the this value and argument
              list containing kValue, k, and O. */
-      testResult := {callbackfn.Call}(callbackfn, T, [kValue, k, O]);
+      testResult := {callbackfn.Call}(false, callbackfn, T, [kValue, k, O]);
       /* iii. If ToBoolean(testResult) is false, return false. */
       if (ToBoolean(testResult) = false) {
         return false
@@ -1861,7 +1907,10 @@ function arrayEvery(global, this, strict, args) {
  * When the some method is called with one or two arguments, the following
  * steps are taken:
  */
-function arraySome(global, this, strict, args) {
+function arraySome(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   callbackfn := l_nth (args, 0);
   if (l_len args = 1) {
     thisArg := 'undefined
@@ -1904,7 +1953,7 @@ function arraySome(global, this, strict, args) {
       /* ii. Let testResult be the result of calling the [[Call]] internal
              method of callbackfn with T as the this value and argument
              list containing kValue, k, and O. */
-      testResult := {callbackfn.Call}(callbackfn, T, [kValue, k, O]);
+      testResult := {callbackfn.Call}(false, callbackfn, T, [kValue, k, O]);
       /* iii. If ToBoolean(testResult) is true, return true. */
       if (ToBoolean(testResult) = true) {
         return true
@@ -1957,7 +2006,10 @@ function arraySome(global, this, strict, args) {
  * When the forEach method is called with one or two arguments, the
  * following steps are taken:
  */
-function arrayForEach(global, this, strict, args) {
+function arrayForEach(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   callbackfn := l_nth (args, 0);
   if (l_len args = 1) {
     thisArg := 'undefined
@@ -1999,7 +2051,7 @@ function arrayForEach(global, this, strict, args) {
       kValue := {O.Get}(O, Pk);
       /* ii. Call the [[Call]] internal method of callbackfn with T
              as the this value and argument list containing kValue, k, and O. */
-      {callbackfn.Call}(callbackfn, T, [kValue, k, O])
+      {callbackfn.Call}(false, callbackfn, T, [kValue, k, O])
     };
     /* d. Increase k by 1. */
     k := k + 1.
@@ -2048,7 +2100,10 @@ function arrayForEach(global, this, strict, args) {
  * When the map method is called with one or two arguments, the following
  * steps are taken:
  */
-function arrayMap(global, this, strict, args) {
+function arrayMap(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   callbackfn := l_nth (args, 0);
   if (l_len args = 1) {
     thisArg := 'undefined
@@ -2077,7 +2132,7 @@ function arrayMap(global, this, strict, args) {
   /* 6. Let A be a new array created as if by the expression new Array( len)
         where Array is the standard built-in constructor with that name and
         len is the value of len. */
-  A := ArrayConstructorLen(global, this, strict, [len]);
+  A := ArrayConstructor(global, this, strict, [len]);
   /* 7. Let k be 0. */
   k := 0.;
   /* 8. Repeat, while k < len */
@@ -2095,7 +2150,7 @@ function arrayMap(global, this, strict, args) {
       /* ii. Let mappedValue be the result of calling the [[Call]] internal
              method of callbackfn with T as the this value and argument list
              containing kValue, k, and O. */
-      mappedValue := {callbackfn.Call}(callbackfn, T, [kValue, k, O]);
+      mappedValue := {callbackfn.Call}(false, callbackfn, T, [kValue, k, O]);
       /* iii. Call the [[DefineOwnProperty]] internal method of A with
               arguments Pk, Property Descriptor {[[Value]]: mappedValue,
               [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true},
@@ -2150,7 +2205,10 @@ function arrayMap(global, this, strict, args) {
  * When the filter method is called with one or two arguments, the following
  * steps are taken:
  */
-function arrayFilter(global, this, strict, args) {
+function arrayFilter(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   callbackfn := l_nth (args, 0);
   if (l_len args = 1) {
     thisArg := 'undefined
@@ -2198,7 +2256,7 @@ function arrayFilter(global, this, strict, args) {
       /* ii. Let selected be the result of calling the [[Call]] internal
              method of callbackfn with T as the this value and argument list
              containing kValue, k, and O. */
-      selected := {callbackfn.Call}(callbackfn, T, [kValue, k, O]);
+      selected := {callbackfn.Call}(false, callbackfn, T, [kValue, k, O]);
       /* iii. If ToBoolean(selected) is true, then */
       if (ToBoolean(selected) = true) {
         /* 1. Call the [[DefineOwnProperty]] internal method of A with arguments
@@ -2259,7 +2317,10 @@ function arrayFilter(global, this, strict, args) {
  * When the reduce method is called with one or two arguments, the
  * following steps are taken:
  */
-function arrayReduce(global, this, strict, args) {
+function arrayReduce(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   callbackfn := l_nth (args, 0);
   if (l_len args = 1) {
     initialValue := 'undefined
@@ -2330,7 +2391,7 @@ function arrayReduce(global, this, strict, args) {
       /* ii. Let accumulator be the result of calling the [[Call]] internal
              method of callbackfn with undefined as the this value and
              argument list containing accumulator, kValue, k, and O. */
-      accumulator := {callbackfn.Call}(callbackfn, 'undefined, [accumulator, kValue, k, O])
+      accumulator := {callbackfn.Call}(false, callbackfn, 'undefined, [accumulator, kValue, k, O])
     };
     /* d. Increase k by 1. */
     k := k + 1.
@@ -2382,7 +2443,10 @@ function arrayReduce(global, this, strict, args) {
  * When the reduceRight method is called with one or two arguments,
  * the following steps are taken:
  */
-function arrayReduceRight(global, this, strict, args) {
+function arrayReduceRight(isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   callbackfn := l_nth (args, 0);
   if (l_len args = 1) {
     initialValue := 'undefined
@@ -2453,7 +2517,7 @@ function arrayReduceRight(global, this, strict, args) {
       /* ii. Let accumulator be the result of calling the [[Call]] internal
              method of callbackfn with undefined as the this value and
              argument list containing accumulator, kValue, k, and O. */
-      accumulator := {callbackfn.Call}(callbackfn, 'undefined, [accumulator, kValue, k, O])
+      accumulator := {callbackfn.Call}(false, callbackfn, 'undefined, [accumulator, kValue, k, O])
     };
     /* d. Decrease k by 1. */
     k := k - 1.

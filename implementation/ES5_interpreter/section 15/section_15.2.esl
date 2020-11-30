@@ -123,7 +123,7 @@ function fillObjectPrototype(objectPrototypeObject, ObjectConstructor, globalObj
 
 
 /* 15.2.2.1 new Object ( [ value ] ) */
-function ObjectConstructor(globalObject, this, strict, params) {
+function ObjectConstructor(isNew, globalObject, this, strict, params){
   if (l_len params = 0) {
     value := undefined
   } else {
@@ -176,7 +176,10 @@ function ObjectConstructor(globalObject, this, strict, params) {
 };
 
 /* 15.2.3.2 Object.getPrototypeOf ( O ) */
-function ObjectGetPrototypeOf(globalObject, this, strict, params) {
+function ObjectGetPrototypeOf(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   O := l_nth(params, 0);
   assert !(O = undefined);
   /* When the getPrototypeOf function is called with argument O, the following steps are taken: */
@@ -190,7 +193,10 @@ function ObjectGetPrototypeOf(globalObject, this, strict, params) {
 };
 
 /* 15.2.3.3 Object.getOwnPropertyDescriptor ( O, P ) */
-function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
+function ObjectGetOwnPropertyDescriptor(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   O := l_nth(params, 0);
   P := l_nth(params, 1);
   assert (!(O = undefined) &&& !(P = undefined));
@@ -209,7 +215,10 @@ function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
 };
 
 /* 15.2.3.4 Object.getOwnPropertyNames ( O ) */
-function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
+function ObjectGetOwnPropertyNames(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   O := l_nth(params, 0);
   assert !(O = undefined);
   /* When the getOwnPropertyNames function is called, the following steps are taken: */
@@ -251,7 +260,10 @@ function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
 };
 
 /* 15.2.3.5 Object.create ( O [, Properties] ) */
-function ObjectCreate(globalObject, this, strict, params) {
+function ObjectCreate(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   O := l_nth(params, 0);
   Properties := l_nth(params, 1);
   assert !(O = undefined);
@@ -264,7 +276,7 @@ function ObjectCreate(globalObject, this, strict, params) {
   };
   /* 2. Let obj be the result of creating a new object as if by the expression new Object() where Object is the
         standard built-in constructor with that name */
-  obj := ObjectConstructor(globalObject, this, strict, [undefined]);
+  obj := ObjectConstructor(false, globalObject, this, strict, [undefined]);
   /* 3. Set the [[Prototype]] internal property of obj to O. */
   setInternalProperty(obj, "Prototype", O);
   /* 4. If the argument Properties is present and not undefined, add own properties to obj as if by calling the
@@ -277,7 +289,10 @@ function ObjectCreate(globalObject, this, strict, params) {
 };
 
 /* 15.2.3.6 Object.defineProperty ( O, P, Attributes ) */
-function ObjectDefineProperty(globalObject, this, strict, params) {
+function ObjectDefineProperty(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   O := l_nth(params, 0);
   P := l_nth(params, 1);
   Attributes := l_nth(params, 2);
@@ -300,7 +315,10 @@ function ObjectDefineProperty(globalObject, this, strict, params) {
 };
 
 /* 15.2.3.7 Object.defineProperties ( O, Properties ) */
-function ObjectDefineProperties(globalObject, this, strict, params) {
+function ObjectDefineProperties(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   O := l_nth(params, 0);
   Properties := l_nth(params, 1);
   assert !(O = undefined) &&& !(Properties = undefined);
@@ -351,7 +369,10 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
 };
 
 /* 15.2.3.8 Object.seal ( O ) */
-function ObjectSeal(globalObject, this, strict, params) {
+function ObjectSeal(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   O := l_nth(params, 0);
   assert !(O = undefined);
   /* When the seal function is called, the following steps are taken: */
@@ -383,7 +404,10 @@ function ObjectSeal(globalObject, this, strict, params) {
 };
 
 /* 15.2.3.9 Object.freeze ( O ) */
-function ObjectFreeze(globalObject, this, strict, params) {
+function ObjectFreeze(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   O := l_nth(params, 0);
   assert !(O = undefined);
   /* When the freeze function is called, the following steps are taken: */
@@ -422,7 +446,10 @@ function ObjectFreeze(globalObject, this, strict, params) {
 };
 
 /* 15.2.3.10 Object.preventExtensions ( O ) */
-function ObjectPreventExtensions(globalObject, this, strict, params) {
+function ObjectPreventExtensions(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   O := l_nth(params, 0);
   assert !(O = undefined);
   /* When the preventExtensions function is called, the following steps are taken: */
@@ -438,7 +465,10 @@ function ObjectPreventExtensions(globalObject, this, strict, params) {
 };
 
 /* 15.2.3.11 Object.isSealed ( O ) */
-function ObjectIsSealed(globalObject, this, strict, params) {
+function ObjectIsSealed(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   O := l_nth(params, 0);
   assert !(O = undefined);
   /* When the isSealed function is called with argument O, the following steps are taken: */
@@ -470,7 +500,10 @@ function ObjectIsSealed(globalObject, this, strict, params) {
 };
 
 /* 15.2.3.12 Object.isFrozen ( O ) */
-function ObjectIsFrozen(globalObject, this, strict, params) {
+function ObjectIsFrozen(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   O := l_nth(params, 0);
   assert !(O = undefined);
   /* When the isFrozen function is called with argument O, the following steps are taken: */
@@ -509,7 +542,10 @@ function ObjectIsFrozen(globalObject, this, strict, params) {
 };
 
 /* 15.2.3.13 Object.isExtensible ( O ) */
-function ObjectIsExtensible(globalObject, this, strict, params) {
+function ObjectIsExtensible(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   O := l_nth(params, 0);
   assert !(O = undefined);
   /* When the isExtensible function is called with argument O, the following steps are taken: */
@@ -523,7 +559,10 @@ function ObjectIsExtensible(globalObject, this, strict, params) {
 };
 
 /* 15.2.3.14 Object.keys ( O ) */
-function ObjectKeys(globalObject, this, strict, params) {
+function ObjectKeys(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   O := l_nth(params, 0);
   assert !(O = undefined);
   /* When the keys function is called with argument O, the following steps are taken: */
@@ -568,7 +607,10 @@ function ObjectKeys(globalObject, this, strict, params) {
 
 
 /* 15.2.4.2 Object.prototype.toString ( ) */
-function ObjectPrototypeToString(globalObject, this, strict, params) {
+function ObjectPrototypeToString(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* When the toString method is called, the following steps are taken: */
 
   /* 1. If the this value is undefined, return "[object Undefined]". */
@@ -588,7 +630,10 @@ function ObjectPrototypeToString(globalObject, this, strict, params) {
 };
 
 /* 15.2.4.3 Object.prototype.toLocaleString ( ) */
-function ObjectPrototypeToLocaleString(globalObject, this, strict, params) {
+function ObjectPrototypeToLocaleString(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* When the toLocaleString method is called, the following steps are taken: */
 
   /* 1. Let O be the result of calling ToObject passing the this value as the argument. */
@@ -601,7 +646,7 @@ function ObjectPrototypeToLocaleString(globalObject, this, strict, params) {
   };
   /* 4. Return the result of calling the [[Call]] internal method of toString passing O as the this value and no
         arguments. */
-  return Call(toString, O, [])
+  return Call(false, toString, O, [])
 
   /* NOTE 1 This function is provided to give all Objects a generic toLocaleString interface, even though not all may
             use it. Currently, Array, Number, and Date provide their own locale-sensitive toLocaleString methods. */
@@ -611,7 +656,10 @@ function ObjectPrototypeToLocaleString(globalObject, this, strict, params) {
 };
 
 /* 15.2.4.4 Object.prototype.valueOf ( ) */
-function ObjectPrototypeValueOf(globalObject, this, strict, params) {
+function ObjectPrototypeValueOf(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* When the valueOf method is called, the following steps are taken: */
 
   /* 1. Let O be the result of calling ToObject passing the this value as the argument. */
@@ -627,7 +675,10 @@ function ObjectPrototypeValueOf(globalObject, this, strict, params) {
 };
 
 /* 15.2.4.5 Object.prototype.hasOwnProperty (V) */
-function ObjectPrototypeHasOwnProperty(globalObject, this, strict, params) {
+function ObjectPrototypeHasOwnProperty(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   V := l_nth(params, 0);
   assert !(V = undefined);
   /* When the hasOwnProperty method is called with argument V, the following steps are taken: */
@@ -650,7 +701,10 @@ function ObjectPrototypeHasOwnProperty(globalObject, this, strict, params) {
 };
 
 /* 15.2.4.6 Object.prototype.isPrototypeOf (V) */
-function ObjectPrototypeIsPrototypeOf(globalObject, this, strict, params) {
+function ObjectPrototypeIsPrototypeOf(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   V := l_nth(params, 0);
   assert !(V = undefined);
   /* When the isPrototypeOf method is called with argument V, the following steps are taken: */
@@ -674,7 +728,10 @@ function ObjectPrototypeIsPrototypeOf(globalObject, this, strict, params) {
 };
 
 /* 15.2.4.7 Object.prototype.propertyIsEnumerable (V) */
-function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params) {
+function ObjectPrototypePropertyIsEnumerable(isNew, globalObject, this, strict, params){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   V := l_nth(params, 0);
   assert !(V = undefined);
   /* When the propertyIsEnumerable method is called with argument V, the following steps are taken: */

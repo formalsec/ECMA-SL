@@ -80,7 +80,7 @@ function fillErrorPrototype(errorPrototypeObject, ErrorConstructor, globalObject
    "Error". Error instances have no special properties. */
 
 /* 15.11.2.1 new Error (message) */
-function ErrorConstructor(globalObject, this, strict, params) {
+function ErrorConstructor(isNew, globalObject, this, strict, params) {
   if (l_len params = 0) {
     message := 'undefined
   } else {
@@ -109,7 +109,10 @@ function ErrorConstructor(globalObject, this, strict, params) {
 };
 
 /* 15.11.4.4 Error.prototype.toString ( ) */
-function ErrorPrototypeToString(globalObject, this, strict, params) {
+function ErrorPrototypeToString(isNew, globalObject, this, strict, params) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* The following steps are taken: */
 
   /* 1. Let O be the this value. */
@@ -154,7 +157,7 @@ function ErrorPrototypeToString(globalObject, this, strict, params) {
 function initEvalErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "EvalError", "EvalErrorConstructor", globalObject, strict)
 };
-function EvalErrorConstructor(globalObject, this, strict, params) {
+function EvalErrorConstructor(isNew, globalObject, this, strict, params) {
   if (l_len params = 0) {
     message := 'undefined
   } else {
@@ -173,7 +176,7 @@ function EvalErrorConstructorInternal() {
 function initRangeErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "RangeError", "RangeErrorConstructor", globalObject, strict)
 };
-function RangeErrorConstructor(globalObject, this, strict, params) {
+function RangeErrorConstructor(isNew, globalObject, this, strict, params) {
   if (l_len params = 0) {
     message := 'undefined
   } else {
@@ -192,7 +195,7 @@ function RangeErrorConstructorInternal() {
 function initReferenceErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "ReferenceError", "ReferenceErrorConstructor", globalObject, strict)
 };
-function ReferenceErrorConstructor(globalObject, this, strict, params) {
+function ReferenceErrorConstructor(isNew, globalObject, this, strict, params) {
   if (l_len params = 0) {
     message := 'undefined
   } else {
@@ -212,7 +215,7 @@ function ReferenceErrorConstructorInternal() {
 function initSyntaxErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "SyntaxError", "SyntaxErrorConstructor", globalObject, strict)
 };
-function SyntaxErrorConstructor(globalObject, this, strict, params) {
+function SyntaxErrorConstructor(isNew, globalObject, this, strict, params) {
   if (l_len params = 0) {
     message := 'undefined
   } else {
@@ -236,7 +239,7 @@ function SyntaxErrorConstructorInternal() {
 function initTypeErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "TypeError", "TypeErrorConstructor", globalObject, strict)
 };
-function TypeErrorConstructor(globalObject, this, strict, params) {
+function TypeErrorConstructor(isNew, globalObject, this, strict, params) {
   if (l_len params = 0) {
     message := 'undefined
   } else {
@@ -255,7 +258,7 @@ function TypeErrorConstructorInternal() {
 function initURIErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "URIError", "URIErrorConstructor", globalObject, strict)
 };
-function URIErrorConstructor(globalObject, this, strict, params) {
+function URIErrorConstructor(isNew, globalObject, this, strict, params) {
   if (l_len params = 0) {
     message := 'undefined
   } else {

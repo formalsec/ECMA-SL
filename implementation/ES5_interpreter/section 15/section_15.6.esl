@@ -75,7 +75,7 @@ function fillBooleanPrototype(booleanPrototypeObject, BooleanConstructor, global
 /* The [[PrimitiveValue]] internal property is the Boolean value represented by this Boolean object. */
 
 /* 15.6.2.1 new Boolean (value) */
-function BooleanConstructor(globalObject, this, strict, params) {
+function BooleanConstructor(isNew, globalObject, this, strict, params) {
   if (l_len params = 0) {
     value := 'undefined
   } else {
@@ -104,7 +104,10 @@ function BooleanConstructor(globalObject, this, strict, params) {
 };
 
 /* 15.6.4.2 Boolean.prototype.toString ( ) */
-function BooleanPrototypeToString(globalObject, this, strict, params) {
+function BooleanPrototypeToString(isNew, globalObject, this, strict, params) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* The following steps are taken: */
 
   /* 1. Let B be the this value. */
@@ -131,7 +134,10 @@ function BooleanPrototypeToString(globalObject, this, strict, params) {
 };
 
 /* 15.6.4.3 Boolean.prototype.valueOf ( ) */
-function BooleanPrototypeValueOf(globalObject, this, strict, params) {
+function BooleanPrototypeValueOf(isNew, globalObject, this, strict, params) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* The following steps are taken: */
 
   /* 1. Let B be the this value. */

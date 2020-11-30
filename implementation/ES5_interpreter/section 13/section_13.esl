@@ -49,7 +49,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   /* 16. Let proto be the result of creating a new object as would be constructed by the expression new Object()
         where Object is the standard built-in constructor with that name. */
   if (!(typeof FunctionBody = __$Str)) {
-    proto := ObjectConstructor(|global|, 'null, Strict, [undefined]);
+    proto := ObjectConstructor(false, |global|, 'null, Strict, [undefined]);
     /* 17. Call the [[DefineOwnProperty]] internal method of proto with arguments "constructor", Property Descriptor
           {[[Value]]: F, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false. */
     DefineOwnProperty(proto, "constructor", {
@@ -96,9 +96,9 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
 };
 
 /* 13.2.1 [[Call]] */
-function Call(F, this, args) {
+function Call(isNew, F, this, args) {
   if (("Code" in_obj F) &&& (typeof F.Code = __$Str)) {
-    return {F.Code}(F.Scope, this, F.strict, args)
+    return {F.Code}(isNew, F.Scope, this, F.strict, args)
   };
   /* When the [[Call]] internal method for a Function object F is called with a this value and a list of arguments,
     the following steps are taken: */
@@ -157,7 +157,7 @@ function Construct(F, argumentList) {
   };
   /* 8. Let result be the result of calling the [[Call]] internal property of F, providing obj as the this value and providing the
         argument list passed into [[Construct]] as args. */
-  result := Call(F, obj, argumentList);
+  result := Call(true, F, obj, argumentList);
   /* 9. If Type(result) is Object then return result. */
   if (Type(result) = "Object") {
     return result

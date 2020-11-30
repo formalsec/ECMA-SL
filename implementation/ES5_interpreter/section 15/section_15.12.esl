@@ -65,7 +65,7 @@ function jsonParse(global, this, strict, args) {
   if (IsCallable(reviver) = true) {
     /* a. Let root be a new object created as if by the expression new Object(),
           where Object is the standard built-in constructor with that name. */
-    root := ObjectConstructor(|global|, 'null, strict, [undefined]);
+    root := ObjectConstructor(false, |global|, 'null, strict, [undefined]);
     /* b. Call the [[DefineOwnProperty]] internal method of root with the empty
           String, the PropertyDescriptor {[[Value]]: unfiltered, [[Writable]]: true,
           [[Enumerable]]: true, [[Configurable]]: true}, and false as arguments. */
@@ -180,7 +180,7 @@ function Walk(holder, name) {
   /* 3. Return the result of calling the [[Call]] internal method of reviver
         passing holder as the this value and with an argument list consisting
         of name and val. */
-  return {reviver.Call}(reviver, holder, [name, val])
+  return {reviver.Call}(false, reviver, holder, [name, val])
 };
 
 
@@ -373,7 +373,7 @@ function Str(key, holder, ReplacerFunction) {
       /* i. Let value be the result of calling the [[Call]] internal
             method of toJSON passing value as the this value and with
             an argument list consisting of key. */
-      value := {toJSON.Call}(toJSON, value, [key])
+      value := {toJSON.Call}(false, toJSON, value, [key])
     }
   };
   /* 3. If ReplacerFunction is not undefined, then */
@@ -381,7 +381,7 @@ function Str(key, holder, ReplacerFunction) {
     /* a. Let value be the result of calling the [[Call]] internal
           method of ReplacerFunction passing holder as the this value
           and with an argument list consisting of key and value. */
-    value := {ReplacerFunction.Call}(ReplacerFunction, holder, [key, value])
+    value := {ReplacerFunction.Call}(false, ReplacerFunction, holder, [key, value])
   };
   /* 4. If Type(value) is Object then, */
   if (Type(value) = "Object") {

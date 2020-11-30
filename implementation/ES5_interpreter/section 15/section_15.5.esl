@@ -70,7 +70,10 @@ function initStringPrototype(global, objectPrototype, strict) {
 
 /* Returns a String value (not a String object) computed by ToString(value). If value is not supplied, the empty String "" is returned. */
 
-function String (global, this, strict, args) {
+function String (isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   value := l_nth(args, 0);
   if (value = "undefined") {
     return ""
@@ -106,7 +109,7 @@ function initalNewString (objectPrototype){
 };
 
 
-function StringConstructor (global, this, strict, args) {
+function StringConstructor (isNew, global, this, strict, args) {
   value := l_nth(args, 0);
   StringPrototype := getStringPrototype(global);
   ret := {
@@ -163,7 +166,10 @@ This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [
 
     The length property of the fromCharCode function is 1.*/
 
-function StringfromCharCode (global, this, strict, args) {
+function StringfromCharCode (isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   args_ := args;
   R := "";
   while (!(args_ = [])){
@@ -195,12 +201,18 @@ function StringfromCharCode (global, this, strict, args) {
 
 
 /* 15.5.4.2 String.prototype.toString() */
-function StringPrototypetoString (global, this, strict, args) {
+function StringPrototypetoString (isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   return this.PrimitiveValue
 };
 
 /* 15.5.4.3 String.prototype.valueOf ( ) */
-function StringPrototypevalueOf (global, this, strict, args) {
+function StringPrototypevalueOf (isNew, global, this, strict, args) {
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   return this.PrimitiveValue
 };
 
@@ -227,7 +239,10 @@ When the charAt method is called with one argument pos, the following steps are 
 
 NOTE The charAt function is intentionally generic; it does not require that its this value be a String object. Therefore, it can be transferred to other kinds of objects for use as a method. */
 
-function StringPrototypecharAt(global, this, strict, args){
+function StringPrototypecharAt(isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   pos := l_nth(args, 0);
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
@@ -268,7 +283,10 @@ When the charCodeAt method is called with one argument pos, the following steps 
 NOTE The charCodeAt function is intentionally generic; it does not require that its this value be a String object. Therefore it can be transferred to other kinds of objects for use as a method.
 */
 
-function StringPrototypecharCodeAt (global, this, strict, args){
+function StringPrototypecharCodeAt (isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   pos := l_nth(args,0);
   /*Call CheckObjectCoercible passing the this value as its argument.*/
   CheckObjectCoercible(this);
@@ -313,7 +331,10 @@ NOTE The concat function is intentionally generic; it does not require that its 
 Therefore it can be transferred to other kinds of objects for use as a method.
 */
 
-function StringPrototypeconcat(global, this, strict, args){
+function StringPrototypeconcat(isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /*Call CheckObjectCoercible passing the this value as its argument.*/
   CheckObjectCoercible(this);
   /*Let S be the result of calling ToString, giving it the this value as its argument.*/
@@ -366,7 +387,10 @@ The length property of the indexOf method is 1.
 NOTE The indexOf function is intentionally generic; it does not require that its this value be a String object. Therefore, it can be transferred to other kinds of objects for use as a method.
 */
 
-function StringPrototypeIndexOf (global, this, strict, args){
+function StringPrototypeIndexOf (isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   if (l_len args = 0) {
     searchString := 'undefined;
     position := 'undefined
@@ -435,7 +459,10 @@ The length property of the lastIndexOf method is 1.
 NOTE The lastIndexOf function is intentionally generic; it does not require that its this value be a String object. Therefore, it can be transferred to other kinds of objects for use as a method.
 */
 
-function StringPrototypelastIndexOf(global, this, strict, args){
+function StringPrototypelastIndexOf(isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   searchString := l_nth(args,0);
   position := l_nth(args,1);
   /*Call CheckObjectCoercible passing the this value as its argument.*/
@@ -500,7 +527,10 @@ it returns a Number other than NaN that represents the result of a locale-sensit
   and will be negative, zero, or positive, depending on whether S comes before That in the sort order,
    the Strings are equal, or S comes after That in the sort order, respectively.*/
 
-function StringPrototypelocaleCompare (global, this, strict, args){
+function StringPrototypelocaleCompare (isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   that := l_nth(args, 0);
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
@@ -544,7 +574,10 @@ function StringPrototypelocaleCompare (global, this, strict, args){
 
 /* 15.5.4.11 String.prototype.replace (searchValue, replaceValue) */
 
-function StringPrototypereplace (global, this, strict, args){
+function StringPrototypereplace (isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   searchValue := l_nth(args, 0);
   replaceValue := l_nth(args, 1);
   /* Call CheckObjectCoercible passing the this value as its argument. */
@@ -594,7 +627,10 @@ The length property of the slice method is 2.
 
 NOTE The slice function is intentionally generic; it does not require that its this value be a String object. Therefore it can be transferred to other kinds of objects for use as a method. */
 
-function StringPrototypeslice (global, this, strict, args){
+function StringPrototypeslice (isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   start := l_nth(args, 0);
   end := l_nth(args, 1);
   /*Call CheckObjectCoercible passing the this value as its argument. */
@@ -764,7 +800,10 @@ NOTE 2 The split function is intentionally generic; it does not require that its
 
 /* TO DO  -> Requires 15.10*/
 
-function StringPrototypesplit (global, this, strict, args){
+function StringPrototypesplit (isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   separator := l_nth(args, 0);
   limit := l_nth(args, 1);
   /* Call CheckObjectCoercible passing the this value as its argument. */
@@ -844,7 +883,10 @@ function StringPrototypesplit (global, this, strict, args){
 
 /* The abstract operation SplitMatch takes three parameters, a String S, an integer q, and a String or RegExp R, and performs the following in order to return a MatchResult */
 /* TO DO -> Requires RegExp */
-function SplitMatch (global, this, strict, args){
+function SplitMatch (isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   S := l_nth(args, 0);
   q := l_nth(args, 1);
   R := l_nth(args, 2);
@@ -912,7 +954,10 @@ The length property of the substring method is 2.
 NOTE The substring function is intentionally generic; it does not require that its this value be a String object. Therefore, it can be transferred to other kinds of objects for use as a method.
 */
 
-function StringPrototypesubstring (global, this, strict, args){
+function StringPrototypesubstring (isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   start := l_nth(args,0);
   end := l_nth(args,1);
   /* Call CheckObjectCoercible passing the this value as its argument. */
@@ -982,7 +1027,10 @@ it does not require that its this value be a String object.
 Therefore, it can be transferred to other kinds of objects for use as a method.
 */
 
-function StringPrototypetoLowerCase (global, this, strict, args){
+function StringPrototypetoLowerCase (isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /* Let S be the result of calling ToString, giving it the this value as its argument. */
@@ -1007,7 +1055,10 @@ it is recommended that implementations do not use this parameter position for an
 NOTE 2 The toLocaleLowerCase function is intentionally generic; it does not require that its this value be a String object.
 Therefore, it can be transferred to other kinds of objects for use as a method. */
 
-function StringPrototypetoLocaleLowerCase (global, this, strict, args){
+function StringPrototypetoLocaleLowerCase (isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /* Let S be the result of calling ToString, giving it the this value as its argument. */
@@ -1028,7 +1079,10 @@ NOTE The toUpperCase function is intentionally generic;
 it does not require that its this value be a String object.
 Therefore, it can be transferred to other kinds of objects for use as a method */
 
-function StringPrototypetoUpperCase (global, this, strict, args){
+function StringPrototypetoUpperCase (isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /* Let S be the result of calling ToString, giving it the this value as its argument. */
@@ -1054,7 +1108,10 @@ it does not require that its this value be a String object.
 Therefore, it can be transferred to other kinds of objects for use as a method.
 */
 
-function StringPrototypetoLocaleUpperCase (global, this, strict, args){
+function StringPrototypetoLocaleUpperCase (isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /* Let S be the result of calling ToString, giving it the this value as its argument. */
@@ -1104,7 +1161,10 @@ When the [[GetOwnProperty]] internal method of S is called with property name P,
 
 /* 15.5.4.20 String.prototype.trim ( ) */
 /*The following steps are taken:*/
-function StringPrototypetrim (global, this, strict, args){
+function StringPrototypetrim (isNew, global, this, strict, args){
+  if (isNew) {
+    throw TypeErrorConstructorInternal()
+  };
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /* Let S be the result of calling ToString, giving it the this value as its argument. */

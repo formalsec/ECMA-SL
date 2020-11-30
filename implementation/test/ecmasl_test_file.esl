@@ -396,7 +396,7 @@ function Get(O, P) {
     };
 
     /** 6. Return the result calling the[[Call]] internal method of getter providing O as the this value and providing no arguments. */
-    return Call(getter, O)
+    return Call(false, getter, O)
   }
 };
 
@@ -512,7 +512,7 @@ function Put(O, P, V, Throw) {
     setter := desc.Set;
 
     /** b. Call the [[Call]] internal method of setter providing O as the this value and providing V as the sole argument. */
-    Call(setter, O, V);
+    Call(false, setter, O, V);
   }
   /** 6. Else, create a named data property named P on object O as follows */
   else {
@@ -594,7 +594,7 @@ function DefaultValue (O, hint) {
     /** 2. If IsCallable(toString) is true then: */
     if (IsCallable(toString)) {
       /** a. Let str be the result of calling the [[Call]] internal method of toString, with O as the this value and an empty argument list. */
-      str := Call(toString, O, []);
+      str := Call(false, toString, O, []);
 
       /** b. If str is a primitive value, return str. */
       if (IsPrimitiveValue(str)) {
@@ -608,7 +608,7 @@ function DefaultValue (O, hint) {
     /** 4. If IsCallable(valueOf) is true then: */
     if (IsCallable(valueOf)) {
       /** a. Let val be the result of calling the [[Call]] internal method of valueOf, with O as the this value and an empty argument list. */
-      val := Call(valueOf, O, []);
+      val := Call(false, valueOf, O, []);
 
       /** b. If val is a primitive value, return val. */
       if (IsPrimitiveValue(val)) {
@@ -627,7 +627,7 @@ function DefaultValue (O, hint) {
     /** 2. If IsCallable(valueOf) is true then: */
     if (IsCallable(valueOf)) {
       /** a. Let val be the result of calling the [[Call]] internal method of valueOf, with O as the this value and an empty argument list. */
-      val := Call(valueOf, O, []);
+      val := Call(false, valueOf, O, []);
 
       /** b. If val is a primitive value, return val. */
       if (IsPrimitiveValue(val)) {
@@ -641,7 +641,7 @@ function DefaultValue (O, hint) {
     /** 4. If IsCallable(toString) is true then: */
     if (IsCallable(toString)) {
       /** a. Let str be the result of calling the [[Call]] internal method of toString, with O as the this value and an empty argument list. */
-      str := Call(toString, O, []);
+      str := Call(false, toString, O, []);
 
       /** b. If str is a primitive value, return str. */
       if (IsPrimitiveValue(str)) {
