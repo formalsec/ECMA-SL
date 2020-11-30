@@ -98,6 +98,13 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
 /* 13.2.1 [[Call]] */
 function Call(F, this, args) {
   if (("Code" in_obj F) &&& (typeof F.Code = __$Str)) {
+    names := F.FormalParameters;
+    argCount := l_len args;
+    lnames := l_len names;
+    while (lnames > argCount) {
+      args := l_add(args, undefined);
+      argCount := argCount + 1
+    };
     return {F.Code}(F.Scope, this, F.strict, args)
   };
   /* When the [[Call]] internal method for a Function object F is called with a this value and a list of arguments,
