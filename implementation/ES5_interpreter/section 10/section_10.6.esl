@@ -33,7 +33,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
   }, false);
   /* 8. Let map be the result of creating a new object as if by the expression new Object() where Object is
         the standard built-in constructor with that name */
-  map := ObjectConstructor(false, |global|, 'null, strict, [undefined]);
+  map := ObjectConstructor(|global|, 'null, strict, [undefined]);
   /* 9. Let mappedNames be an empty List. */
   mappedNames := [];
   /* 10. Let indx = len - 1. */

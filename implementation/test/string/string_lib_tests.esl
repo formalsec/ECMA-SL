@@ -35,8 +35,8 @@ function testString(global) {
 };
 
 /* StringConstructor */
-function testStringConstructor(false, global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+function testStringConstructor(global) {
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
   pv := sto.PrimitiveValue;
 
   return (pv = "HELLO world ! HELLO")
@@ -46,7 +46,7 @@ function testStringConstructor(false, global) {
 
 /* StringfromCharCode */
 function testStringFromCharCode(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
   ret := StringfromCharCode(null, sto, false, [72., 69., 76., 76., 79.]);
 
   return (ret = "HELLO")
@@ -54,7 +54,7 @@ function testStringFromCharCode(global) {
 
 /* StringPrototypetoString */
 function testStringPrototypetoString(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
   ret := StringPrototypetoString(null, sto, false, []);
 
   return (ret = "HELLO world ! HELLO")
@@ -62,7 +62,7 @@ function testStringPrototypetoString(global) {
 
 /* StringPrototypevalueOf */
 function testStringPrototypevalueOf(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
   ret := StringPrototypevalueOf(null, sto, false, []);
 
   return (ret = "HELLO world ! HELLO")
@@ -70,7 +70,7 @@ function testStringPrototypevalueOf(global) {
 
 /* StringPrototypecharAt */
 function testStringPrototypecharAt(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
   ret := StringPrototypecharAt(null, sto, false, [3.]);
 
   return (ret = "L")
@@ -78,7 +78,7 @@ function testStringPrototypecharAt(global) {
 
 /* StringPrototypecharCodeAt */
 function testStringcharCodeAt(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
   ret := StringPrototypecharCodeAt(null, sto, false, [4.]);
 
   return (ret = 79.)
@@ -86,7 +86,7 @@ function testStringcharCodeAt(global) {
 
 /* StringPrototypeconcat */
 function testStringPrototypeconcat(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
   ret := StringPrototypeconcat(null, sto, false, [" WORLD!"]);
 
   return (ret = "HELLO world ! HELLO WORLD!")
@@ -94,7 +94,7 @@ function testStringPrototypeconcat(global) {
 
 /* StringPrototypeindexOf */
 function testStringPrototypeindexOf(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
   ret := StringPrototypeindexOf(null,sto,false, ["LLO",2.]);
 
   return (ret = 2)
@@ -102,7 +102,7 @@ function testStringPrototypeindexOf(global) {
 
 /* StringPrototypelastIndexOfindexOf */
 function testStringPrototypelastIndexOf(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
   ret := StringPrototypelastIndexOf(null,sto,false, ["LLO",25.]);
 
   return (ret = 16)
@@ -110,7 +110,7 @@ function testStringPrototypelastIndexOf(global) {
 
 /* StringPrototypelocaleCompare */
 function testStringPrototypelocaleCompare(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
   ret := StringPrototypelocaleCompare(global, sto, false, ["HELLO world ! HELLO!"]);
 
   return (ret = 1)
@@ -118,28 +118,28 @@ function testStringPrototypelocaleCompare(global) {
 
 /* StringPrototypematch */
 function testStringPrototypematch(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
 
   return false
 };
 
 /* StringPrototypereplace */
 function testStringPrototypereplace(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
 
   return false
 };
 
 /* StringPrototypesearch */
 function testtringPrototypesearch(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
 
   return false
 };
 
 /* StringPrototypeslice */
 function testStringPrototypeslice(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
   ret := StringPrototypeslice(global, sto, false, [0.,5.]);
 
   return (ret = "HELLO")
@@ -147,7 +147,7 @@ function testStringPrototypeslice(global) {
 
 /* StringPrototypesplit */
 function testStringPrototypesplit(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
 
 
   return false
@@ -155,7 +155,7 @@ function testStringPrototypesplit(global) {
 
 /* StringPrototypesubstring */
 function testStringPrototypesubstring(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELLO world ! HELLO" ]);
+  sto := StringConstructor(global, null, false, [ "HELLO world ! HELLO" ]);
   ret := StringPrototypesubstring(global, sto, false, [0.,5.]);
 
   return (ret = "HELLO")
@@ -163,7 +163,7 @@ function testStringPrototypesubstring(global) {
 
 /* StringPrototypetoLowerCase */
 function testStringPrototypetoLowerCase(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELlO" ]);
+  sto := StringConstructor(global, null, false, [ "HELlO" ]);
   ret := StringPrototypetoLowerCase(null, sto, false, []);
 
   return (ret = "hello")
@@ -171,7 +171,7 @@ function testStringPrototypetoLowerCase(global) {
 
 /* StringPrototypetoLocaleLowerCase */
 function testStringPrototypetoLocaleLowerCase(global) {
-  sto := StringConstructor(false, global, null, false, [ "HELlO" ]);
+  sto := StringConstructor(global, null, false, [ "HELlO" ]);
   ret := StringPrototypetoLocaleLowerCase(null, sto, false, []);
 
   return (ret = "hello")
@@ -179,7 +179,7 @@ function testStringPrototypetoLocaleLowerCase(global) {
 
 /* StringPrototypetoUpperCase */
 function testStringPrototypetoUpperCase(global) {
-  sto := StringConstructor(false, global, null, false, [ "Hello" ]);
+  sto := StringConstructor(global, null, false, [ "Hello" ]);
   ret := StringPrototypetoUpperCase(null, sto, false, []);
 
   return (ret = "HELLO")
@@ -187,7 +187,7 @@ function testStringPrototypetoUpperCase(global) {
 
 /* StringPrototypetoLocaleUpperCase */
 function testStringPrototypetoLocaleUpperCase(global) {
-  sto := StringConstructor(false, global, null, false, [ "Hello" ]);
+  sto := StringConstructor(global, null, false, [ "Hello" ]);
   ret := StringPrototypetoLocaleUpperCase(null, sto, false, []);
 
   return (ret = "HELLO")
@@ -195,7 +195,7 @@ function testStringPrototypetoLocaleUpperCase(global) {
 
 /* StringPrototypetrim */
 function testStringPrototypetrim(global) {
-  sto := StringConstructor(false, global, null, false, [ " HELLO world ! HELLO " ]);
+  sto := StringConstructor(global, null, false, [ " HELLO world ! HELLO " ]);
   ret := StringPrototypetrim(null, sto, false, []);
 
   return (ret = "HELLO world ! HELLO")

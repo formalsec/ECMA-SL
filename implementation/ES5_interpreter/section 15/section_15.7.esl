@@ -130,7 +130,7 @@ function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObj
 /* The [[PrimitiveValue]] internal property is the Number value represented by this Number object. */
 
 /* 15.7.2.1 new Number ( [ value ] ) */
-function NumberConstructor(isNew, globalObject, this, strict, params) {
+function NumberConstructor(globalObject, this, strict, params) {
   if (l_len params = 0) {
     value := undefined
   } else {
@@ -183,10 +183,7 @@ function NumberConstructor(isNew, globalObject, this, strict, params) {
  * value is not a Number or a Number object. Therefore, it cannot be transferred to other
  * kinds of objects for use as a method.
  */
-function numberToString(isNew, global, this, strict, args) {
-  if (isNew) {
-    throw TypeErrorConstructorInternal()
-  };
+function numberToString(global, this, strict, args) {
   if (!isNumberOrNumberObject(this)) {
     return throwEmptyCompletion(TypeErrorConstructorInternal())
   };
@@ -199,10 +196,7 @@ function numberToString(isNew, global, this, strict, args) {
 };
 
 /* 15.7.4.3 Number.prototype.toLocaleString() */
-function numberToLocaleString(isNew, global, this, strict, args) {
-  if (isNew) {
-    throw TypeErrorConstructorInternal()
-  };
+function numberToLocaleString(global, this, strict, args) {
   /* Produces a String value that represents this Number value formatted according to the conventions of the host
      environment‘s current locale. This function is implementation-dependent, and it is permissible, but not
      encouraged, for it to return the same thing as toString. */
@@ -221,10 +215,7 @@ function numberToLocaleString(isNew, global, this, strict, args) {
 };
 
 /* 15.7.4.4 Number.prototype.valueOf ( ) */
-function NumberPrototypeValueOf(isNew, global, this, strict, params) {
-  if (isNew) {
-    throw TypeErrorConstructorInternal()
-  };
+function NumberPrototypeValueOf(global, this, strict, params) {
   /* Returns this Number value. */
 
   /* The valueOf function is not generic; it throws a TypeError exception if its this value is not a Number or a

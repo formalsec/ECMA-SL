@@ -227,7 +227,7 @@ function JS_Interpreter_Expr(e, scope) {
     };
     /* 8. Return the result of calling the [[Call]] internal method on func, providing thisValue as the this value
           and providing the list argList as the argument values. */
-    return Call(false, func, thisValue, argList)
+    return Call(func, thisValue, argList)
   }
   | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
     /* 11.2.5 Function Expressions */
@@ -834,8 +834,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
     /* Return a new object created as if by the expression new Object() where Object
         is the standard built-in constructor with that name. */
     if (l_len PropertyNameAndValueList = 0) {
-      return ObjectConstructor(false,
-                               |global|,
+      return ObjectConstructor(|global|,
                                'null,
                                isContainedInStrictCode(scope),
                                [undefined])
@@ -845,8 +844,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
 
     /* 1. Let obj be the result of creating a new object as if by the expression new Object()
           where Object is the standard built-in constructor with that name. */
-    obj := ObjectConstructor(false,
-                             |global|,
+    obj := ObjectConstructor(|global|,
                              'null,
                              isContainedInStrictCode(scope),
                              [undefined]);

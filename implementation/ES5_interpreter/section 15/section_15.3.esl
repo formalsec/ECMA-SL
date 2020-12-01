@@ -76,7 +76,7 @@ function fillFunctionPrototype(functionPrototypeObject, FunctionConstructor, glo
 };
 
 /* 15.3.2.1 new Function (p1, p2, ... , pn, body) */
-function FunctionConstructor(isNew, globalObject, this, strict, params) {
+function FunctionConstructor(globalObject, this, strict, params) {
   /* The last argument specifies the body (executable code) of a function; any preceding arguments specify formal
      parameters. */
 
@@ -152,10 +152,7 @@ function FunctionConstructor(isNew, globalObject, this, strict, params) {
 };
 
 /* 15.3.4.2 Function.prototype.toString ( ) */
-function FunctionPrototypeToString(isNew, globalObject, this, strict, params) {
-  if (isNew) {
-    throw TypeErrorConstructorInternal()
-  };
+function FunctionPrototypeToString(globalObject, this, strict, params) {
   /* An implementation-dependent representation of the function is returned. This representation has the syntax of
      a FunctionDeclaration. Note in particular that the use and placement of white space, line terminators, and
      semicolons within the representation String is implementation-dependent. */
@@ -170,10 +167,7 @@ function FunctionPrototypeToString(isNew, globalObject, this, strict, params) {
 };
 
 /* 15.3.4.3 Function.prototype.apply (thisArg, argArray) */
-function FunctionPrototypeApply(isNew, globalObject, func, strict, params) {
-  if (isNew) {
-    throw TypeErrorConstructorInternal()
-  };
+function FunctionPrototypeApply(globalObject, func, strict, params) {
   thisArg := l_nth(params, 0);
   argArray := l_nth(params, 1);
   assert !(thisArg = undefined) &&& !(argArray = undefined);
@@ -188,7 +182,7 @@ function FunctionPrototypeApply(isNew, globalObject, func, strict, params) {
   if ((argArray = 'null) ||| (argArray = 'undefined)) {
     /* a. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value
           and an empty list of arguments. */
-    return {func.Call}(false, func, thisArg, [])
+    return {func.Call}(func, thisArg, [])
   };
   /* 3. If Type(argArray) is not Object, then throw a TypeError exception. */
   if (!(Type(argArray) = "Object")) {
@@ -216,7 +210,7 @@ function FunctionPrototypeApply(isNew, globalObject, func, strict, params) {
   };
   /* 9. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
-  return {func.Call}(false, func, thisArg, argList)
+  return {func.Call}(func, thisArg, argList)
 
   /* The length property of the apply method is 2. */
 
@@ -226,10 +220,7 @@ function FunctionPrototypeApply(isNew, globalObject, func, strict, params) {
 };
 
 /* 15.3.4.4 Function.prototype.call (thisArg [ , arg1 [ , arg2, ... ] ] ) */
-function FunctionPrototypeCall(isNew, globalObject, func, strict, params) {
-  if (isNew) {
-    throw TypeErrorConstructorInternal()
-  };
+function FunctionPrototypeCall(globalObject, func, strict, params) {
   thisArg := l_nth(params, 0);
   args := tl params;
   assert !(thisArg = undefined) &&& !(args = undefined);
@@ -252,7 +243,7 @@ function FunctionPrototypeCall(isNew, globalObject, func, strict, params) {
   };
   /* 4. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
-  return {func.Call}(false, func, thisArg, argList)
+  return {func.Call}(func, thisArg, argList)
 
   /* The length property of the call method is 1. */
 
@@ -262,10 +253,7 @@ function FunctionPrototypeCall(isNew, globalObject, func, strict, params) {
 };
 
 /* 15.3.4.5 Function.prototype.bind (thisArg [, arg1 [, arg2, ...]]) */
-function FunctionPrototypeBind(isNew, globalObject, this, strict, params) {
-  if (isNew) {
-    throw TypeErrorConstructorInternal()
-  };
+function FunctionPrototypeBind(globalObject, this, strict, params) {
   thisArg := l_nth(params, 0);
   args := l_nth(params, 1);
   assert !(thisArg = undefined) &&& !(args = undefined);
@@ -366,7 +354,7 @@ function CallBind(F, this, ExtraArgs) {
   args := l_concat(boundArgs, ExtraArgs);
   /* 5. Return the result of calling the [[Call]] internal method of target providing boundThis as the this value and
         providing args as the arguments. */
-  return {target.Call}(false, target, boundThis, args)
+  return {target.Call}(target, boundThis, args)
 };
 
 /* 15.3.4.5.2 [[Construct]] */

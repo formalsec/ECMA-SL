@@ -124,10 +124,7 @@ function initGlobalObject(strict) {
 };
 
 /* 15.1.2.2 parseInt (string , radix) */
-function GlobalObjectParseInt(isNew, globalObject, this, strict, params) {
-  if (isNew) {
-    throw TypeErrorConstructorInternal()
-  };
+function GlobalObjectParseInt(globalObject, this, strict, params) {
   string := l_nth(params, 0);
   radix := l_nth(params, 1);
   assert !(string = undefined) &&& !(radix = undefined);
@@ -171,10 +168,7 @@ function GlobalObjectParseInt(isNew, globalObject, this, strict, params) {
 };
 
 /* 15.1.2.3 parseFloat (string) */
-function GlobalObjectParseFloat(isNew, globalObject, this, strict, params) {
-  if (isNew) {
-    throw TypeErrorConstructorInternal()
-  };
+function GlobalObjectParseFloat(globalObject, this, strict, params) {
   string := l_nth(params, 0);
   assert !(string = undefined);
   /* The parseFloat function produces a Number value dictated by interpretation of the contents of the string
@@ -200,10 +194,7 @@ function GlobalObjectParseFloat(isNew, globalObject, this, strict, params) {
 };
 
 /* 15.1.2.4 isNaN (number) */
-function GlobalObjectIsNaN(isNew, globalObject, this, strict, params) {
-  if (isNew) {
-    throw TypeErrorConstructorInternal()
-  };
+function GlobalObjectIsNaN(globalObject, this, strict, params) {
   number := l_nth(params, 0);
   assert !(number = undefined);
   /* Returns true if the argument coerces to NaN, and otherwise returns false. */
@@ -220,10 +211,7 @@ function GlobalObjectIsNaN(isNew, globalObject, this, strict, params) {
 };
 
 /* 15.1.2.5 isFinite (number) */
-function GlobalObjectIsFinite(isNew, globalObject, this, strict, params) {
-  if (isNew) {
-    throw TypeErrorConstructorInternal()
-  };
+function GlobalObjectIsFinite(globalObject, this, strict, params) {
   number := l_nth(params, 0);
   assert !(number = undefined);
   /* Returns false if the argument coerces to NaN, +Infinity, or -Infinity, and otherwise returns true. */

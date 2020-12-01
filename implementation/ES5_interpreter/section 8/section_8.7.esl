@@ -135,7 +135,7 @@ function Get_internal(base, P) {
   };
   /* 7. Return the result calling the [[Call]] internal method of getter providing base as the this value and providing
   no arguments. */
-  return Call(false, getter, base, [])
+  return Call(getter, base, [])
 
   /* NOTE The object that may be created in step 1 is not accessible outside of the above method. An implementation
           might choose to avoid the actual creation of the object. The only situation where such an actual property access that uses
@@ -175,7 +175,7 @@ function Put_internal(base, P, W, Throw) {
     setter := desc.Set;
     /* b. Call the [[Call]] internal method of setter providing base as the this value and an argument list
           containing only W. */
-    Call(false, setter, base, [W])
+    Call(setter, base, [W])
   }
   /* 7. Else, this is a request to create an own property on the transient object O */
     /* a. If Throw is true, then throw a TypeError exception. */
