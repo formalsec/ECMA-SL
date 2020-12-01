@@ -63,16 +63,13 @@ function initStringPrototype(global, objectPrototype, strict) {
 /* 15.5 String Objects */
 
 /* 15.5.1 The String Constructor Called as a Function */
-
 /* When String is called as a function rather than as a constructor, it performs a type conversion. */
 
 /* 15.5.1.1 String ( [ value ] ) */
-
-/* Returns a String value (not a String object) computed by ToString(value). If value is not supplied, the empty String "" is returned. */
-
-function String (global, this, strict, args) {
-  value := l_nth(args, 0);
-  if (value = "undefined") {
+/* Returns a String value (not a String object) computed by ToString(value). If value is not supplied,
+   the empty String "" is returned. */
+function StringConstructorCalledAsFunction(value) {
+  if (value = undefined) {
     return ""
   } else {
     return ToString(value)
@@ -108,6 +105,11 @@ function initalNewString (objectPrototype){
 
 function StringConstructor (global, this, strict, args) {
   value := l_nth(args, 0);
+
+  if (this = 'undefined) {
+    return StringConstructorCalledAsFunction(value)
+  };
+
   StringPrototype := getStringPrototype(global);
   ret := {
     /* The [[Prototype]] internal property of the newly constructed object is set to the standard built-in String
