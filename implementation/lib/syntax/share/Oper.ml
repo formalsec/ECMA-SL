@@ -169,6 +169,7 @@ let typeof (v : Val.t) : Val.t = match v with
   | Type _   -> Type (Type.TypeType)
   | Tuple _  -> Type (Type.TupleType)
   | Null     -> Type (Type.NullType)
+  | Undef    -> Type (Type.UndefType)
   | Symbol _ -> Type (Type.SymbolType)
   | Void     -> invalid_arg ("Exception in Oper.typeof: unexpected void value")
 

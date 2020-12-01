@@ -83,6 +83,7 @@
                 "macro"           , MACRO;
                 "delete"          , DELETE;
                 "null"            , NULL;
+                "undefined"       , UNDEFINED;
                 "repeat"          , REPEAT;
                 "until"           , UNTIL;
                 "match"           , MATCH;

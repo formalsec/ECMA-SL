@@ -9,6 +9,7 @@ type t =
   | Tuple  of t list
   | Void
   | Null
+  | Undef
   | Symbol of string
 
 
@@ -38,6 +39,7 @@ let rec str ?(flt_with_dot=true) (v : t) : string = match v with
   | Tuple vs -> "(" ^ (String.concat ", " (List.map str vs)) ^ ")"
   | Void     -> ""
   | Null     -> "null"
+  | Undef    -> "undefined"
   | Symbol s -> s
 
 let rec to_json (v : t): string =
@@ -52,4 +54,5 @@ let rec to_json (v : t): string =
   | Tuple vs ->  Printf.sprintf "{ \"type\" : \"tuple\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
   | Void     ->  Printf.sprintf "{ \"type\" : \"void\" }"
   | Null     ->  Printf.sprintf "{ \"type\" : \"null\" }"
+  | Undef    ->  Printf.sprintf "{ \"type\" : \"undefined\" }"
   | Symbol s ->  Printf.sprintf "{ \"type\" : \"symbol\", \"value\" : \"%s\" }" s
