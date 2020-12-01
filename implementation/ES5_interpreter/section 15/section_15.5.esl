@@ -104,7 +104,11 @@ function initalNewString (objectPrototype){
 
 
 function StringConstructor (global, this, strict, args) {
-  value := l_nth(args, 0);
+  if (l_len args = 0) {
+    value := undefined
+  } else {
+    value := l_nth(args, 0)
+  };
 
   if (this = 'undefined) {
     return StringConstructorCalledAsFunction(value)
@@ -129,7 +133,7 @@ function StringConstructor (global, this, strict, args) {
   };
   /* The [[PrimitiveValue]] internal property of the newly constructed object is set to ToString(value),
      or to the empty String if value is not supplied. */
-  if (value = "undefined") {
+  if (value = undefined) {
     ret.PrimitiveValue := ""
   } else {
     ret.PrimitiveValue := ToString(value)
