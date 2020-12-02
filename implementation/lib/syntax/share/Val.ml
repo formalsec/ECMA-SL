@@ -26,7 +26,7 @@ let add_final_dot (s : string) : string =
 
 let rec str ?(flt_with_dot=true) (v : t) : string = match v with
   | Flt v    ->
-    let s = Printf.sprintf "%.15g" v in
+    let s = Printf.sprintf "%.17g" v in
     if flt_with_dot
     then add_final_dot s
     else s
