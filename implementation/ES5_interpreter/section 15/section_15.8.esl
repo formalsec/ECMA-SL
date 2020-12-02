@@ -97,60 +97,60 @@ function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
           mathematical library from Sun Microsystems (http://www.netlib.org/fdlibm). */
 
   /* 15.8.2.1 abs (x) */
-  abs_fo := CreateFunctionObject(["x"], "MathAbs", globalObject, strict);
+  abs_fo := CreateBuiltInFunctionObject(["x"], "MathAbs", globalObject, strict);
   createBuiltInProperty(mathObject, "abs", abs_fo);
   /* 15.8.2.2 acos (x) */
-  acos_fo := CreateFunctionObject(["x"], "MathACos", globalObject, strict);
+  acos_fo := CreateBuiltInFunctionObject(["x"], "MathACos", globalObject, strict);
   createBuiltInProperty(mathObject, "acos", acos_fo);
   /* 15.8.2.3 asin (x) */
-  asin_fo := CreateFunctionObject(["x"], "MathASin", globalObject, strict);
+  asin_fo := CreateBuiltInFunctionObject(["x"], "MathASin", globalObject, strict);
   createBuiltInProperty(mathObject, "asin", asin_fo);
   /* 15.8.2.4 atan (x) */
-  atan_fo := CreateFunctionObject(["x"], "MathATan", globalObject, strict);
+  atan_fo := CreateBuiltInFunctionObject(["x"], "MathATan", globalObject, strict);
   createBuiltInProperty(mathObject, "atan", atan_fo);
   /* 15.8.2.5 atan2 (y, x) */
-  atan2_fo := CreateFunctionObject(["y", "x"], "MathATan2", globalObject, strict);
+  atan2_fo := CreateBuiltInFunctionObject(["y", "x"], "MathATan2", globalObject, strict);
   createBuiltInProperty(mathObject, "atan2", atan2_fo);
   /* 15.8.2.6 ceil (x) */
-  ceil_fo := CreateFunctionObject(["x"], "MathCeil", globalObject, strict);
+  ceil_fo := CreateBuiltInFunctionObject(["x"], "MathCeil", globalObject, strict);
   createBuiltInProperty(mathObject, "ceil", ceil_fo);
   /* 15.8.2.7 cos (x) */
-  cos_fo := CreateFunctionObject(["x"], "MathCos", globalObject, strict);
+  cos_fo := CreateBuiltInFunctionObject(["x"], "MathCos", globalObject, strict);
   createBuiltInProperty(mathObject, "cos", cos_fo);
   /* 15.8.2.8 exp (x) */
-  exp_fo := CreateFunctionObject(["x"], "MathExp", globalObject, strict);
+  exp_fo := CreateBuiltInFunctionObject(["x"], "MathExp", globalObject, strict);
   createBuiltInProperty(mathObject, "exp", exp_fo);
   /* 15.8.2.9 floor (x) */
-  floor_fo := CreateFunctionObject(["x"], "MathFloor", globalObject, strict);
+  floor_fo := CreateBuiltInFunctionObject(["x"], "MathFloor", globalObject, strict);
   createBuiltInProperty(mathObject, "floor", floor_fo);
   /* 15.8.2.10 log (x) */
-  log_fo := CreateFunctionObject(["x"], "MathLog", globalObject, strict);
+  log_fo := CreateBuiltInFunctionObject(["x"], "MathLog", globalObject, strict);
   createBuiltInProperty(mathObject, "log", log_fo);
   /* 15.8.2.11 max ( [ value1 [ , value2 [ , ... ] ] ] ) */
-  max_fo := CreateFunctionObject(["values"], "MathMax", globalObject, strict);
+  max_fo := CreateBuiltInFunctionObject(["values"], "MathMax", globalObject, strict);
   createBuiltInPropertyWithFullDescriptor(max_fo, "length", 2., false, false, false);
   createBuiltInProperty(mathObject, "max", max_fo);
   /* 15.8.2.12 min ( [ value1 [ , value2 [ , ... ] ] ] ) */
-  min_fo := CreateFunctionObject(["values"], "MathMin", globalObject, strict);
+  min_fo := CreateBuiltInFunctionObject(["values"], "MathMin", globalObject, strict);
   createBuiltInPropertyWithFullDescriptor(min_fo, "length", 2., false, false, false);
   createBuiltInProperty(mathObject, "min", min_fo);
   /* 15.8.2.13 pow (x, y) */
-  pow_fo := CreateFunctionObject(["x", "y"], "MathPow", globalObject, strict);
+  pow_fo := CreateBuiltInFunctionObject(["x", "y"], "MathPow", globalObject, strict);
   createBuiltInProperty(mathObject, "pow", pow_fo);
   /* 15.8.2.14 random ( ) */
-  random_fo := CreateFunctionObject([], "MathRandom", globalObject, strict);
+  random_fo := CreateBuiltInFunctionObject([], "MathRandom", globalObject, strict);
   createBuiltInProperty(mathObject, "random", random_fo);
   /* 15.8.2.15 round (x) */
-  round_fo := CreateFunctionObject(["x"], "MathRound", globalObject, strict);
+  round_fo := CreateBuiltInFunctionObject(["x"], "MathRound", globalObject, strict);
   createBuiltInProperty(mathObject, "round", round_fo);
   /* 15.8.2.16 sin (x) */
-  sin_fo := CreateFunctionObject(["x"], "MathSin", globalObject, strict);
+  sin_fo := CreateBuiltInFunctionObject(["x"], "MathSin", globalObject, strict);
   createBuiltInProperty(mathObject, "sin", sin_fo);
   /* 15.8.2.17 sqrt (x) */
-  sqrt_fo := CreateFunctionObject(["x"], "MathSqrt", globalObject, strict);
+  sqrt_fo := CreateBuiltInFunctionObject(["x"], "MathSqrt", globalObject, strict);
   createBuiltInProperty(mathObject, "sqrt", sqrt_fo);
   /* 15.8.2.18 tan (x) */
-  tan_fo := CreateFunctionObject(["x"], "MathTan", globalObject, strict);
+  tan_fo := CreateBuiltInFunctionObject(["x"], "MathTan", globalObject, strict);
   createBuiltInProperty(mathObject, "tan", tan_fo);
 
   return
