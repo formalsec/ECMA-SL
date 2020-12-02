@@ -13,8 +13,8 @@ function getStringPrototype(global) {
 
 
 function initStringObject(global, objectPrototype, strict) {
-  objStringPrototype := initStringPrototype(global, objectPrototype, strict);
   objStringConstructor := CreateFunctionObject( [ "value" ], "StringConstructor", global, strict);
+  objStringPrototype := initStringPrototype(global, objectPrototype, objStringConstructor, strict);
 
   descriptor := newDataPropertyDescriptorFull(objStringPrototype, false, false, false);
   setJSProperty(objStringConstructor, "prototype", descriptor);
@@ -27,7 +27,7 @@ function initStringObject(global, objectPrototype, strict) {
 };
 
 /* 15.5.4 Properties of the String Prototype Object */
-function initStringPrototype(global, objectPrototype, strict) {
+function initStringPrototype(global, objectPrototype, StringConstructor, strict) {
   prototype := NewECMAScriptObject();
   setAllInternalMethodsOfObject(prototype);
 
@@ -37,6 +37,11 @@ function initStringPrototype(global, objectPrototype, strict) {
   /* The value of the [[Prototype]] internal property of the String prototype object is the standard built-in Object
      prototype object (15.2.4). */
   setInternalProperty(prototype, "Prototype", objectPrototype);
+
+
+  /* 15.5.4.1 String.prototype.constructor /
+  /* The initial value of String.prototype.constructor is the built-in String constructor. */
+  createBuiltInProperty(prototype, "constructor", StringConstructor);
 
   /* 15.5.4.7 String.prototype.indexOf (searchString, position) */
   indexOf := CreateFunctionObject(["searchString", "position"], "StringPrototypeIndexOf", global, strict);
