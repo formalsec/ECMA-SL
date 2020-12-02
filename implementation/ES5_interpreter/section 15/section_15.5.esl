@@ -26,9 +26,17 @@ function initStringObject(global, objectPrototype, strict) {
   return objStringConstructor
 };
 
+/* 15.5.4 Properties of the String Prototype Object */
 function initStringPrototype(global, objectPrototype, strict) {
-  prototype := NewECMAScriptObjectFull(objectPrototype, "String", true);
+  prototype := NewECMAScriptObject();
   setAllInternalMethodsOfObject(prototype);
+
+  /* The String prototype object is itself a String object (its [[Class]] is "String") whose value is an empty String. */
+  setInternalProperty(prototype. "Class", "String");
+  setInternalProperty(prototype, "PrimitiveValue", "");
+  /* The value of the [[Prototype]] internal property of the String prototype object is the standard built-in Object
+     prototype object (15.2.4). */
+  setInternalProperty(prototype, "Prototype", objectPrototype);
 
   /* 15.5.4.7 String.prototype.indexOf (searchString, position) */
   indexOf := CreateFunctionObject(["searchString", "position"], "StringPrototypeIndexOf", global, strict);
