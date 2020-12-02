@@ -103,7 +103,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "join", descriptor);
 
   /* pop */
-  popObject := CreateBuiltInFunctionObject(["items"], "arrayPop", global, strict);
+  popObject := CreateBuiltInFunctionObject([], "arrayPop", global, strict);
   descriptor := newDataPropertyDescriptorFull(popObject, true, false, true);
   setJSProperty(prototype, "pop", descriptor);
 
@@ -342,14 +342,14 @@ function internalNewArrayLen(arrayPrototype, len) {
 
   /* If the argument len is a Number and ToUint32(len) is equal to len, then
      the length property of the newly constructed object is set to ToUint32(len). */
-  if (lenIsNumber && ((ToUint32(len) = len))) {
+  if (lenIsNumber &&& ((ToUint32(len) = len))) {
     /*arr.length := newDataPropertyDescriptorFull(ToUint32(len), true, false, false)*/
     setJSProperty(arr, "length", newDataPropertyDescriptorFull(ToUint32(len), true, false, false))
   };
 
   /* If the argument len is a Number and ToUint32(len) is not equal to
      len, a RangeError exception is thrown. */
-  if (lenIsNumber && !((ToUint32(len) = len))) {
+  if (lenIsNumber &&& !((ToUint32(len) = len))) {
     throw RangeErrorConstructorInternal()
   };
 
@@ -742,7 +742,9 @@ function arrayPop(global, this, strict, args) {
       {O.Delete}(O, indx, true);
       /* d. Call the [[Put]] internal method of O with arguments "length",
             indx, and true. */
-      {O.Put}(O, "length", indx, true);
+      /* POSSIBLE ERROR IN THE STANDARD
+        len - 1 instead of indx.*/
+      {O.Put}(O, "length", len - 1., true);
       /* e. Return element. */
       return element
     }
