@@ -21,7 +21,7 @@ function initStringObject(global, objectPrototype, strict) {
 
   /* 15.5.3.2 String.fromCharCode ( [ char0 [ , char1 [ , ... ] ] ] ) */
   fromCharCode := CreateFunctionObject(["chars"], "StringfromCharCode", global, strict);
-  createBuiltInProperty(prototype, "fromCharCode", fromCharCode);
+  createBuiltInProperty(objStringConstructor, "fromCharCode", fromCharCode);
 
   return objStringConstructor
 };
@@ -32,7 +32,7 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
   setAllInternalMethodsOfObject(prototype);
 
   /* The String prototype object is itself a String object (its [[Class]] is "String") whose value is an empty String. */
-  setInternalProperty(prototype. "Class", "String");
+  setInternalProperty(prototype, "Class", "String");
   setInternalProperty(prototype, "PrimitiveValue", "");
   /* The value of the [[Prototype]] internal property of the String prototype object is the standard built-in Object
      prototype object (15.2.4). */
