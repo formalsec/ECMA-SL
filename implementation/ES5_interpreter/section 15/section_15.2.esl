@@ -24,55 +24,55 @@ function fillObjectConstructor(ObjectConstructor, globalObject, strict) {
      following properties: */
 
   /* 15.2.3.2 Object.getPrototypeOf ( O ) */
-  getPrototypeOf := CreateFunctionObject(["O"], "ObjectGetPrototypeOf", globalObject, strict);
+  getPrototypeOf := CreateBuiltInFunctionObject(["O"], "ObjectGetPrototypeOf", globalObject, strict);
   createBuiltInProperty(ObjectConstructor, "getPrototypeOf", getPrototypeOf);
 
   /* 15.2.3.3 Object.getOwnPropertyDescriptor ( O, P ) */
-  getOwnPropertyDescriptor := CreateFunctionObject(["O", "P"], "ObjectGetOwnPropertyDescriptor", globalObject, strict);
+  getOwnPropertyDescriptor := CreateBuiltInFunctionObject(["O", "P"], "ObjectGetOwnPropertyDescriptor", globalObject, strict);
   createBuiltInProperty(ObjectConstructor, "getOwnPropertyDescriptor", getOwnPropertyDescriptor);
 
   /* 15.2.3.4 Object.getOwnPropertyNames ( O ) */
-  getOwnPropertyNames := CreateFunctionObject(["O"], "ObjectGetOwnPropertyNames", globalObject, strict);
+  getOwnPropertyNames := CreateBuiltInFunctionObject(["O"], "ObjectGetOwnPropertyNames", globalObject, strict);
   createBuiltInProperty(ObjectConstructor, "getOwnPropertyNames", getOwnPropertyNames);
 
   /* 15.2.3.5 Object.create ( O [, Properties] ) */
-  create := CreateFunctionObject(["O", "Properties"], "ObjectCreate", globalObject, strict);
+  create := CreateBuiltInFunctionObject(["O", "Properties"], "ObjectCreate", globalObject, strict);
   createBuiltInProperty(ObjectConstructor, "create", create);
 
   /* 15.2.3.6 Object.defineProperty ( O, P, Attributes ) */
-  defineProperty := CreateFunctionObject(["O", "P", "Attributes"], "ObjectDefineProperty", globalObject, strict);
+  defineProperty := CreateBuiltInFunctionObject(["O", "P", "Attributes"], "ObjectDefineProperty", globalObject, strict);
   createBuiltInProperty(ObjectConstructor, "defineProperty", defineProperty);
 
   /* 15.2.3.7 Object.defineProperties ( O, Properties ) */
-  defineProperties := CreateFunctionObject(["O", "Properties"], "ObjectDefineProperties", globalObject, strict);
+  defineProperties := CreateBuiltInFunctionObject(["O", "Properties"], "ObjectDefineProperties", globalObject, strict);
   createBuiltInProperty(ObjectConstructor, "defineProperties", defineProperties);
 
   /* 15.2.3.8 Object.seal ( O ) */
-  seal := CreateFunctionObject(["O"], "ObjectSeal", globalObject, strict);
+  seal := CreateBuiltInFunctionObject(["O"], "ObjectSeal", globalObject, strict);
   createBuiltInProperty(ObjectConstructor, "seal", seal);
 
   /* 15.2.3.9 Object.freeze ( O ) */
-  freeze := CreateFunctionObject(["O"], "ObjectFreeze", globalObject, strict);
+  freeze := CreateBuiltInFunctionObject(["O"], "ObjectFreeze", globalObject, strict);
   createBuiltInProperty(ObjectConstructor, "freeze", freeze);
 
   /* 15.2.3.10 Object.preventExtensions ( O ) */
-  preventExtensions := CreateFunctionObject(["O"], "ObjectPreventExtensions", globalObject, strict);
+  preventExtensions := CreateBuiltInFunctionObject(["O"], "ObjectPreventExtensions", globalObject, strict);
   createBuiltInProperty(ObjectConstructor, "preventExtensions", preventExtensions);
 
   /* 15.2.3.11 Object.isSealed ( O ) */
-  isSealed := CreateFunctionObject(["O"], "ObjectIsSealed", globalObject, strict);
+  isSealed := CreateBuiltInFunctionObject(["O"], "ObjectIsSealed", globalObject, strict);
   createBuiltInProperty(ObjectConstructor, "isSealed", isSealed);
 
   /* 15.2.3.12 Object.isFrozen ( O ) */
-  isFrozen := CreateFunctionObject(["O"], "ObjectIsFrozen", globalObject, strict);
+  isFrozen := CreateBuiltInFunctionObject(["O"], "ObjectIsFrozen", globalObject, strict);
   createBuiltInProperty(ObjectConstructor, "isFrozen", isFrozen);
 
   /* 15.2.3.13 Object.isExtensible ( O ) */
-  isExtensible := CreateFunctionObject(["O"], "ObjectIsExtensible", globalObject, strict);
+  isExtensible := CreateBuiltInFunctionObject(["O"], "ObjectIsExtensible", globalObject, strict);
   createBuiltInProperty(ObjectConstructor, "isExtensible", isExtensible);
 
   /* 15.2.3.14 Object.keys ( O ) */
-  keys := CreateFunctionObject(["O"], "ObjectKeys", globalObject, strict);
+  keys := CreateBuiltInFunctionObject(["O"], "ObjectKeys", globalObject, strict);
   createBuiltInProperty(ObjectConstructor, "keys", keys);
 
   return 'null
@@ -95,27 +95,27 @@ function fillObjectPrototype(objectPrototypeObject, ObjectConstructor, globalObj
   createBuiltInProperty(objectPrototypeObject, "constructor", ObjectConstructor);
 
   /* 15.2.4.2 Object.prototype.toString ( ) */
-  toString := CreateFunctionObject([], "ObjectPrototypeToString", globalObject, strict);
+  toString := CreateBuiltInFunctionObject([], "ObjectPrototypeToString", globalObject, strict);
   createBuiltInProperty(objectPrototypeObject, "toString", toString);
 
   /* 15.2.4.3 Object.prototype.toLocaleString ( ) */
-  toLocaleString := CreateFunctionObject([], "ObjectPrototypeToLocaleString", globalObject, strict);
+  toLocaleString := CreateBuiltInFunctionObject([], "ObjectPrototypeToLocaleString", globalObject, strict);
   createBuiltInProperty(objectPrototypeObject, "toLocaleString", toLocaleString);
 
   /* 15.2.4.4 Object.prototype.valueOf ( ) */
-  valueOf := CreateFunctionObject([], "ObjectPrototypeValueOf", globalObject, strict);
+  valueOf := CreateBuiltInFunctionObject([], "ObjectPrototypeValueOf", globalObject, strict);
   createBuiltInProperty(objectPrototypeObject, "valueOf", valueOf);
 
   /* 15.2.4.5 Object.prototype.hasOwnProperty (V) */
-  hasOwnProperty := CreateFunctionObject(["V"], "ObjectPrototypeHasOwnProperty", globalObject, strict);
+  hasOwnProperty := CreateBuiltInFunctionObject(["V"], "ObjectPrototypeHasOwnProperty", globalObject, strict);
   createBuiltInProperty(objectPrototypeObject, "hasOwnProperty", hasOwnProperty);
 
   /* 15.2.4.6 Object.prototype.isPrototypeOf (V) */
-  isPrototypeOf := CreateFunctionObject(["V"], "ObjectPrototypeIsPrototypeOf", globalObject, strict);
+  isPrototypeOf := CreateBuiltInFunctionObject(["V"], "ObjectPrototypeIsPrototypeOf", globalObject, strict);
   createBuiltInProperty(objectPrototypeObject, "isPrototypeOf", isPrototypeOf);
 
   /* 15.2.4.7 Object.prototype.propertyIsEnumerable (V) */
-  propertyIsEnumerable := CreateFunctionObject(["V"], "ObjectPrototypePropertyIsEnumerable", globalObject, strict);
+  propertyIsEnumerable := CreateBuiltInFunctionObject(["V"], "ObjectPrototypePropertyIsEnumerable", globalObject, strict);
   createBuiltInProperty(objectPrototypeObject, "propertyIsEnumerable", propertyIsEnumerable);
 
   return

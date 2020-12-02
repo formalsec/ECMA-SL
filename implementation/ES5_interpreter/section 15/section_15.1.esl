@@ -54,16 +54,16 @@ function initGlobalObject(strict) {
   /* 15.1.2 Function Properties of the Global Object */
   /* 15.1.2.1 eval (x) */ /* TODO */
   /* 15.1.2.2 parseInt (string , radix) */
-  parseInt := CreateFunctionObject(["string", "radix"], "GlobalObjectParseInt", globalObject, strict);
+  parseInt := CreateBuiltInFunctionObject(["string", "radix"], "GlobalObjectParseInt", globalObject, strict);
   createBuiltInProperty(globalObject, "parseInt", parseInt);
   /* 15.1.2.3 parseFloat (string) */
-  parseFloat := CreateFunctionObject(["string"], "GlobalObjectParseFloat", globalObject, strict);
+  parseFloat := CreateBuiltInFunctionObject(["string"], "GlobalObjectParseFloat", globalObject, strict);
   createBuiltInProperty(globalObject, "parseFloat", parseFloat);
   /* 15.1.2.4 isNaN (number) */
-  isNaN := CreateFunctionObject(["number"], "GlobalObjectIsNaN", globalObject, strict);
+  isNaN := CreateBuiltInFunctionObject(["number"], "GlobalObjectIsNaN", globalObject, strict);
   createBuiltInProperty(globalObject, "isNaN", isNaN);
   /* 15.1.2.5 isFinite (number) */
-  isFinite := CreateFunctionObject(["number"], "GlobalObjectIsFinite", globalObject, strict);
+  isFinite := CreateBuiltInFunctionObject(["number"], "GlobalObjectIsFinite", globalObject, strict);
   createBuiltInProperty(globalObject, "isFinite", isFinite);
   /* 15.1.3 URI Handling Function Properties */ /* TODO */
 
