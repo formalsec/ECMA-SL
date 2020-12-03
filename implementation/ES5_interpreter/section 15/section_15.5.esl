@@ -68,8 +68,8 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
   setJSProperty(prototype, "concat", newDataPropertyDescriptor( concatFunctionObject ));
 
   /* 15.5.4.7 String.prototype.indexOf (searchString, position) */
-  indexOf := CreateFunctionObject(["searchString", "position"], "StringPrototypeIndexOf", global, strict);
-  createBuiltInProperty(prototype, "indexOf", indexOf);
+  indexOfFunctionObject := CreateFunctionObject(["searchString", "position"], "StringPrototypeIndexOf", global, strict);
+  createBuiltInProperty(prototype, "indexOf", indexOfFunctionObject);
 
   /* 15.5.4.8 String.prototype.lastIndexOf (searchString, position) */
   lastIndexOfFunctionObject := CreateFunctionObject(["searchString", "position"], "StringPrototypelastIndexOf", global, strict);
