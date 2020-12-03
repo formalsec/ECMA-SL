@@ -48,6 +48,10 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
   setJSProperty(toStringFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
   setJSProperty(prototype, "toString", newDataPropertyDescriptor( toStringFunctionObject ));
 
+  /* 15.5.4.3 String.prototype.valueOf ( ) */
+  valueOfFunctionObject := CreateFunctionObject([], "StringPrototypevalueOf", global, strict);
+  createBuiltInProperty(prototype, "valueOf", valueOfFunctionObject);
+
   /* 15.5.4.4 String.prototype.charAt (pos) */
   charAtFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypecharAt", global, strict);
   setJSProperty(charAtFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
@@ -67,6 +71,34 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
   indexOf := CreateFunctionObject(["searchString", "position"], "StringPrototypeIndexOf", global, strict);
   createBuiltInProperty(prototype, "indexOf", indexOf);
 
+  /* 15.5.4.8 String.prototype.lastIndexOf (searchString, position) */
+  lastIndexOfFunctionObject := CreateFunctionObject(["searchString", "position"], "StringPrototypelastIndexOf", global, strict);
+  createBuiltInProperty(prototype, "lastIndexOf", lastIndexOfFunctionObject);
+
+  /* 15.5.4.9 String.prototype.localeCompare (that) */
+  localeCompareFunctionObject := CreateFunctionObject(["that"], "StringPrototypelocaleCompare", global, strict);
+  createBuiltInProperty(prototype, "localeCompare", localeCompareFunctionObject);
+
+  /* 15.5.4.10 String.prototype.match (regexp) */
+  matchFunctionObject := CreateFunctionObject(["regexp"], "StringPrototypematch", global, strict);
+  createBuiltInProperty(prototype, "match", matchFunctionObject);
+
+  /* 15.5.4.11 String.prototype.replace (searchValue, replaceValue) */
+  replaceFunctionObject := CreateFunctionObject(["searchValue", "replaceValue"], "StringPrototypereplace", global, strict);
+  createBuiltInProperty(prototype, "lastIndexOf", replaceFunctionObject);
+
+  /* 15.5.4.12 String.prototype.search (regexp) */
+  searchFunctionObject := CreateFunctionObject(["regexp"], "StringPrototypesearch", global, strict);
+  createBuiltInProperty(prototype, "search", searchFunctionObject);
+
+  /* 15.5.4.13 String.prototype.slice (start, end) */
+  sliceFunctionObject := CreateFunctionObject(["start", "end"], "StringPrototypeslice", global, strict);
+  createBuiltInProperty(prototype, "slice", sliceFunctionObject);
+
+  /* 15.5.4.14 String.prototype.split (separator, limit) */
+  splitFunctionObject := CreateFunctionObject(["separator", "limit"], "StringPrototypesplit", global, strict);
+  createBuiltInProperty(prototype, "split", splitFunctionObject);
+
   /* 15.5.4.15 String.prototype.substring (start, end) */
   substringFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypesubstring", global, strict);
   setJSProperty(substringFunctionObject, "length", newDataPropertyDescriptorFull( 2. , false, false, false));
@@ -76,6 +108,30 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
   toLowerCaseFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypetoLowerCase", global, strict);
   setJSProperty(toLowerCaseFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
   setJSProperty(prototype, "toLowerCase", newDataPropertyDescriptor( toLowerCaseFunctionObject ));
+
+  /* 15.5.4.17 String.prototype.toLocaleLowerCase ( ) */
+  toLocaleLowerCaseFunctionObject := CreateFunctionObject([], "StringPrototypetoLocaleLowerCase", global, strict);
+  createBuiltInProperty(prototype, "toLocaleLowerCase", toLocaleLowerCaseFunctionObject);
+
+  /* 15.5.4.18 String.prototype.toUpperCase ( ) */
+  toUpperCaseFunctionObject := CreateFunctionObject([], "StringPrototypetoUpperCase", global, strict);
+  createBuiltInProperty(prototype, "toUpperCase", toUpperCaseFunctionObject);
+
+  /* 15.5.4.19 String.prototype.toLocaleUpperCase ( ) */
+  toLocaleUpperCaseFunctionObject := CreateFunctionObject([], "StringPrototypetoLocaleUpperCase", global, strict);
+  createBuiltInProperty(prototype, "toLocaleUpperCase", toLocaleUpperCaseFunctionObject);
+
+  /* 15.5.4.20 String.prototype.trim ( ) */
+  trimFunctionObject := CreateFunctionObject([], "StringPrototypetrim", global, strict);
+  createBuiltInProperty(prototype, "trim", trimFunctionObject);
+
+
+  /* 15.5.5.1 length */
+  /* The number of characters in the String value represented by this String object. */
+  /* Once a String object is created, this property is unchanging. It has the attributes { [[Writable]]: false,
+     [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(prototype, "length", 0, false, false, false);
+
 
   return prototype
 };
