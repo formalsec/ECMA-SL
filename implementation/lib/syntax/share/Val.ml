@@ -14,7 +14,7 @@ type t =
 
 
 let is_special_number (s : string) : bool =
-  s = "nan" || s = "inf" || String.contains s 'e' ||  String.contains s 'E'
+  List.mem s ["nan" ; "inf" ; "-inf" ] || String.contains s 'e' ||  String.contains s 'E'
 
 let add_final_dot (s : string) : string =
   if is_special_number s
