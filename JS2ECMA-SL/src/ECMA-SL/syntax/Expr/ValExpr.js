@@ -12,6 +12,10 @@ function MakeValExpr(Expr){
 	  	return this.value.toString();
 	  }
 
+	  toJS(){
+	  	return this.value.toJS();
+	  }
+
 	  interpret(store){
 	  	console.log("++ VAL EXPR");
 	  	return this.value;

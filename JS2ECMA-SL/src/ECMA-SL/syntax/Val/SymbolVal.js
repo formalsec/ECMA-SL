@@ -4,6 +4,14 @@ function MakeSymbolVal(Val){
 	  	super();
 	    this.value = value;
 	  }
+
+	  toJS(){
+      return {
+        "type": "Literal",
+        "value": this.value,
+        "raw": ""+this.value
+      }
+    }
 	}
 
 	 SymbolVal.fromJSON = function(value) {

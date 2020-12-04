@@ -10,6 +10,15 @@ class Prog {
   	return funcs_str.join("\n");
   }
 
+  toJS(){
+    var funcs_js = this.funcs.map((func) => func.toJS());
+    return {
+      "type": "Program",
+      "body": funcs_js,
+      "sourceType": "script"
+    }
+  }
+
   getFunc(name){
     return this.funcs.find(func => func.name === name);   
   }

@@ -15,6 +15,26 @@ function MakeFieldAssign(Stmt){
       return `${this.expressionObject.toString()}[${this.expressionField.toString()}] := ${this.expressionValue.toString()}`;
     }
 
+    toJS(){
+      var obj_js = this.expressionObject.toJS();
+      var field_js = this.expressionField.toJS();
+      var expr_js = this.expressionValue.toJS();
+      return {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "AssignmentExpression",
+          "operator": "=",
+          "left": {
+            "type": "MemberExpression",
+            "computed": true,
+            "object": obj_js,
+            "property": field_js
+          },
+          "right": expr_js
+        }
+      }
+    }
+
     interpret(config) {
       console.log('>FIELD ASSIGN');
       config.cont = config.cont.slice(1) ;

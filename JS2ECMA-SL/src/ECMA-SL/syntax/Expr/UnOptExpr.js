@@ -13,6 +13,17 @@ function MakeUnOptExpr(Expr){
 	  	return ("(" + this.operator.toString() + " " + this.expr_rhs.toString() + ")");
 	  }
 
+	  toJS(){
+	  	var oper_js = this.operator.toJS();
+	  	var expr_js = this.expr_rhs.toJS();
+	  	return {
+      	"type": "UnaryExpression",
+        "operator": oper_js,
+        "argument": expr_js,
+        "prefix": true
+      }
+	  }
+
 	  interpret(store){
 	  	console.log("++ UNOPT");
 	  	var v = this.expr_rhs.interpret(store);

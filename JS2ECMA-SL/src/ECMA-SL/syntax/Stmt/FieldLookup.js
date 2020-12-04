@@ -11,20 +11,37 @@ function MakeFieldLookup(Stmt){
       this.stringvar = stringvar;
     }
 
+    toString(){
+      return (this.stringvar + " = "+ this.expressionObject.toString() + "["+ this.expressionField+"]");
+    }
+
+    toJS(){
+      var obj_js = this.expressionObject.toJS();
+      var field_js = this.expressionField.toJS();
+      return {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "AssignmentExpression",
+          "operator": "=",
+          "left": {
+            "type": "Identifier",
+            "name": this.stringvar
+          },
+          "right": {
+            "type": "MemberExpression",
+            "computed": true,
+            "object": obj_js,
+            "property": field_js
+          }
+        }
+      }
+    }
+
     interpret(config){
       console.log(">FIELD LOOKUP");
-      console.log("*********** DEBUG *********");
-      console.log(this.stringvar);
-      console.log(this.expressionObject);
-      console.log(this.expressionField);
-      
       config.cont=config.cont.slice(1);
       var object = this.expressionObject.interpret(config.store).value;
       var field = this.expressionField.interpret(config.store).value;
-      console.log(object);
-      console.log(field);
-      console.log(config.heap.getField(object, field));
-      console.log("***************************");
       config.store.sto[this.stringvar] = config.heap.getField(object, field);
       
      return {config : config, seclabel: new FieldLookupLab(this.stringvar, object, field, this.expressionObject, this.expressionField)};

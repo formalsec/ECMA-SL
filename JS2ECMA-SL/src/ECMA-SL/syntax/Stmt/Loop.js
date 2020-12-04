@@ -13,6 +13,20 @@ function MakeLoop(Stmt){
 		    this.block = block;
 		}
 
+		toString(){
+			return ("while ("+this.expr.toString() +")\n{"+ this.block.toString()+"\n}");
+		}
+
+		toJS(){
+			var expr_js = this.expr.toJS();
+			var block_js = this.block.toJS();
+			return {
+	      "type": "WhileStatement",
+	      "test": expr_js,
+	      "body": block_js
+	    }
+		}
+
 		interpret(config){
 			console.log(">LOOP");
 			config.cont=config.cont.slice(1);

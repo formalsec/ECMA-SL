@@ -16,11 +16,33 @@ function MakeCondition(Stmt){
 			return "if(" + this.expr.toString() + ") {\n" +this.then_block.toString() + "\n}" + else_str;
 		}
 
+		toJS(){
+			var expr_js = this.expr.toJS();
+			var then_js = this.then_block.toJS();
+			console.log("HEEEREEEE");
+			console.log(then_js);
+
+			var else_js = {
+        "type": "BlockStatement",
+        "body": []
+      };
+			if(this.else_block != null){
+				else_js = this.else_block.toJS();
+				console.log(else_js);
+			}
+
+			
+			
+			return  {
+	      "type": "IfStatement",
+	      "test": expr_js,
+	      "consequent": then_js,
+     	 	"alternate": else_js
+		}
+	}
+
 		interpret(config){
 			console.log(">CONDITION");
-			console.log("*********** DEBUG *********");
-	        console.log(this.expr);
-	        console.log("***************************");
 			var v = this.expr.interpret(config.store);
 			//Needs to be bool and true
 			if(v.value){				

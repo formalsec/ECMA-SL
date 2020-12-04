@@ -11,16 +11,17 @@ function MakeBinOptExpr(Expr){
 
     }
 
+    toJS(){
+      var left_js = this.expr_lhs.toJS();
+      var right_js = this.expr_rhs.toJS();
+      var oper_js = this.operator.toJS(left_js,right_js);
+      return oper_js
+    }
+
     interpret(store){
       console.log("++BINOPT");
-
       var v1 = this.expr_lhs.interpret(store);
       var v2 = this.expr_rhs.interpret(store);
-      console.log("*********** DEBUG BINOPT *********");
-      console.log(this.operator);
-      console.log(v1);
-      console.log(v2);
-      console.log("***************************");
       return this.operator.interpret(v1,v2); 
     }
     getVars(){
@@ -35,6 +36,11 @@ function MakeBinOptExpr(Expr){
     	oper = Oper.fromJSON(obj.op);
     	return new BinOptExpr(oper,expr_lhs, expr_rhs);
   }
+
+  BinOptExpr.toString = function(){
+    return ("("+this.expr_lhs.toString()+" "+this.operator.toString()+" " +this.expr_rhs.toString() + ")");
+  }
+
   return BinOptExpr;
 }
 

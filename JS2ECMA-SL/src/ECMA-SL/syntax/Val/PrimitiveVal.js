@@ -12,6 +12,16 @@ function MakePrimitiveVal(Val){
       
       return ("" + this.value);
     }
+
+    toJS(){
+      return {
+        "type": "Literal",
+        "value": this.value,
+        "raw": ""+this.value
+      }
+    }
+
+
   }
 
   PrimitiveVal.fromJSON = function(value) {

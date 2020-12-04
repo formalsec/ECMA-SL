@@ -14,6 +14,14 @@ function MakeReturn(Stmt){
 	    return `return ${this.expression.toString()}`
 	  }
 
+	  toJS(){
+	  	var expr_ast = this.expression.toJS();
+	  	return {
+            "type": "ReturnStatement",
+            "argument": expr_ast
+          }
+	  }
+
 	  interpret(config){
 	  	console.log(">RETURN");
 

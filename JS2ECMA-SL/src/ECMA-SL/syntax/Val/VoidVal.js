@@ -4,6 +4,14 @@ function MakeVoidVal(Val){
 	  constructor() {
 	  	super();
 	  }
+
+	  toJS(){
+      return {
+        "type": "Literal",
+        "value": "void",
+        "raw": "void"
+      }
+    }
 	}
 
 	 VoidVal.fromJSON = function() {

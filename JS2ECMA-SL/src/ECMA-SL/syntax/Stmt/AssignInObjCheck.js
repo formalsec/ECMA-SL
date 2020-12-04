@@ -23,6 +23,37 @@ function MakeAssignInObjCheck(Stmt){
       return {config : config, seclabel: new AssignInObjCheckLab(this.stringvar, field, object ,this.expressionField ,this.expressionObject)};
     }
 
+    toJS(){
+      var obj_js = this.expressionObject.toJS();
+      var field_js = this.expressionField.toJS();
+      return {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "AssignmentExpression",
+          "operator": "=",
+          "left": {
+            "type": "Identifier",
+            "name": this.stringvar
+          },
+          "right": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": obj_js,
+              "property": {
+                "type": "Identifier",
+                "name": "hasOwnProperty"
+              }
+            },
+            "arguments": [
+              field_js
+            ]
+          }
+        }
+      }
+    }
+
    
   }
   AssignInObjCheck.fromJSON = function(obj) {
