@@ -9,6 +9,35 @@ function MakePrint(Stmt){
 			this.expression = expression;
 		}
 
+		toString(){
+			return ("console.log( "+this.expression.toString()+" )");
+		}
+
+		toJS(){
+			var expr_js = this.expression.toJS();
+			return {
+  			"type": "ExpressionStatement",
+  			"expression": {
+		        "type": "CallExpression",
+		        "callee": {
+		          "type": "MemberExpression",
+		          "computed": false,
+		          "object": {
+		            "type": "Identifier",
+		            "name": "console"
+		          },
+		          "property": {
+		            "type": "Identifier",
+		            "name": "log"
+		          }
+		        },
+		        "arguments": [
+		          expr_js
+		        ]
+		      }
+		    }
+		}
+
 		interpret(config){
 			console.log(">PRINT");	
 			config.cont = config.cont.slice(1);

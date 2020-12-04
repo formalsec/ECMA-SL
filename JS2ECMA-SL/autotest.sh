@@ -165,12 +165,14 @@ test_complete (){
 		cd ../implementation
 		fullpath_aux=${fullpath#"../implementation/"}
 		IFS='/' read -r -a array <<< "$fullpath" 
-		printf "${YELLOW}\n${array[3]}${NC} "
-		echo "${fullpath_aux}"
+		
+		
 		# Program run
 		if [[ "$fullpath_aux" ==  *_inlined.esl ]]
 		then echo ""	
 		else
+			printf "${YELLOW}\n${array[3]}${NC} "
+			echo "${fullpath_aux}"
 			complete_test $fullpath_aux $DEBUG
 		fi
 	done

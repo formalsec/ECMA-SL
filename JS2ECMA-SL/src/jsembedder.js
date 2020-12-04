@@ -1,27 +1,34 @@
 
 // node parse_esl <file_to_parse>
+const escodegen = require("escodegen");
 const Prog = require("./ECMA-SL/syntax/Prog");
-const Interpreter = require("./Interpreter");
+const option = {
+    format : {
+      quotes : 'single',
+      indent : {
+        style : '\t'
+      }
+    }
+}
+
 fs = require('fs');
 
 
 var file_to_parse  = process.argv[2];
-var mon = process.argv[3];
 console.log(file_to_parse);
 fs.readFile(file_to_parse, 'utf8', parseFile);
 
 function parseFile(err,obj) {
-	console.log(mon);
 	console.log("Parsing File...");
 	let jsonprog = JSON.parse(obj);
 	console.log("Parsing... [1/2] ");
     var prog = Prog.fromJSON(jsonprog);
     console.log("Parsing... [2/2] ");
     console.log("Parsing complete.");
-    console.log(prog.toString());
-    // ... chamar o interpretador 
-	Interpreter.interpretProg(prog, mon);
-	console.log("asd\n");
+    var js_prog = prog.toJS();
+    console.log(escodegen.generate(js_prog, option));
+   
+   
 }
 
 

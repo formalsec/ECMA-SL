@@ -10,6 +10,23 @@ class Func {
   toString() {
     return `function ${this.name} (${this.params}) {\n${this.body.toString()}\n}`;
   }
+
+  toJS(){
+    var params = this.params.map((param) => {return {type: "Identifier", name: param}});
+    var body_js = this.body.toJS();
+    return {
+        type: "FunctionDeclaration",
+        id: {
+          type: "Identifier",
+          name: this.name
+        },
+        params: params,
+        body: body_js,
+        generator: false,
+        expression: false,
+        async: false
+      }
+    }
 }
 
 Func.fromJSON = function (obj) { 

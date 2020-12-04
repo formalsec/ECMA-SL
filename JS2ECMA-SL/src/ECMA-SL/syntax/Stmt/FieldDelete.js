@@ -10,6 +10,29 @@ function MakeFieldDelete(Stmt){
 		    this.expressionField = expressionField;
 		    }
 
+		toString(){
+			return ("delete " + this.expressionObject.toString() + "[ " + this.expressionField.toString() + "]");
+		}
+
+		toJS(){
+			var obj_js = this.expressionObject.toJS();
+			var field_js = this.expressionField.toJS();
+			return {
+	      "type": "ExpressionStatement",
+	      "expression": {
+	        "type": "UnaryExpression",
+	        "operator": "delete",
+	        "argument": {
+	          "type": "MemberExpression",
+	          "computed": true,
+	          "object": obj_js,
+	          "property": field_js
+	        },
+	        "prefix": true
+	      }
+	    }
+		}
+
     	interpret(config){
     		console.log(">FIELD DELETE");
     		config.cont=config.cont.slice(1);

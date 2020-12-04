@@ -1,4 +1,4 @@
-../implementation/test/monitor/level/illegal_flows/type_2_inlined.json
+../implementation/test/monitor/level/legal_flows/type_2_inlined.json
 undefined
 Parsing File...
 Parsing... [1/2] 
@@ -21,28 +21,16 @@ Parsing... [1/2]
 { type: 'boolean', value: true }
 { type: 'boolean', value: true }
 { type: 'boolean', value: true }
-{ type: 'string', value: 'lubn' }
 { type: 'string', value: 'leq' }
-{ type: 'string', value: '0' }
+{ type: 'string', value: 'lubn' }
+{ type: 'string', value: 'lub' }
+{ type: 'boolean', value: false }
 { type: 'string', value: 'leq' }
 { type: 'string', value: 'lubn' }
 { type: 'string', value: 'lub' }
 { type: 'boolean', value: true }
-{ type: 'string', value: 'lubn' }
-{ type: 'string', value: 'leq' }
-{ type: 'string', value: '1' }
-{ type: 'string', value: 'leq' }
-{ type: 'string', value: 'lubn' }
-{ type: 'string', value: 'lub' }
-{ type: 'boolean', value: true }
-{ type: 'string', value: 'lubn' }
-{ type: 'string', value: 'leq' }
-{ type: 'string', value: '2' }
 { type: 'string', value: 'structLev' }
 { type: 'string', value: 'objLev' }
-{ type: 'string', value: 'lubn' }
-{ type: 'string', value: 'leq' }
-{ type: 'string', value: '3' }
 { type: 'string', value: 'lubn' }
 { type: 'string', value: 'lubn' }
 { type: 'string', value: 'lubn' }
@@ -52,7 +40,6 @@ Parsing... [1/2]
 { type: 'symbol', value: "'undefined" }
 { type: 'string', value: 'structLev' }
 { type: 'string', value: 'leq' }
-{ type: 'string', value: 'DEVS' }
 { type: 'string', value: 'shadowPropExists' }
 { type: 'string', value: 'p' }
 { type: 'string', value: 'lub' }
@@ -62,21 +49,12 @@ Parsing... [1/2]
 { type: 'string', value: 'lubn' }
 { type: 'string', value: 'p' }
 { type: 'boolean', value: true }
-{ type: 'string', value: 'lubn' }
-{ type: 'string', value: 'leq' }
-{ type: 'string', value: '4' }
 { type: 'string', value: 'parse_lvl' }
 { type: 'string', value: 'high' }
 { type: 'string', value: 'leq' }
 { type: 'string', value: 'lub' }
 { type: 'string', value: 'lubn' }
-{ type: 'string', value: 'leq' }
-{ type: 'string', value: '5' }
-{ type: 'string', value: 'lubn' }
 { type: 'string', value: 'lub' }
-{ type: 'string', value: 'lubn' }
-{ type: 'string', value: 'leq' }
-{ type: 'string', value: '6' }
 { type: 'string', value: 'lubn' }
 { type: 'string', value: 'lubn' }
 { type: 'string', value: 'lubn' }
@@ -143,6 +121,248 @@ Parsing... [1/2]
 { type: 'string', value: 'FINAL LUBN' }
 Parsing... [2/2] 
 Parsing complete.
+function parse_lvl (lev_str) {
+if([object Object]) {
+return true
+}else {
+if([object Object]) {
+return false
+}else {
+throw MONITOR EXCEPTION -> parselvl - Unkown Security Level
+}
+}
+}
+function upgObject (obj,lev_obj,lev_str,lev_lev_str,pc) {
+lev := "parse_lvl"( lev_str );
+leq_1 := "leq"( lev_lev_str, pc );
+if(([object Object] leq_1)) {
+throw MONITOR EXCEPTION -> upgObject - Levels must be literals
+};
+lev_ctx := "lub"( lev_obj, pc );
+[object Object];
+leq_2 := "leq"( lev_ctx, lev_2 );
+if(leq_2) {
+lev_3 := "lub"( lev_ctx, lev );
+obj["objLev"] := lev_3
+}else {
+throw MONITOR EXCEPTION -> Illegal P_Val Upgrade
+};
+return [object Object]
+}
+function shadowPropExists (prop_str) {
+result := ([object Object] [object Object]);
+return result
+}
+function main (_pc_1) {
+_pc_1 := "parse_lvl"( "low" );
+h_lev := true;
+l_lev := true;
+o_lev := true;
+x_lev := true;
+_freshvar_0 := "leq"( _pc_1, h_lev );
+if(_freshvar_0) {
+_fresh_lev_var0 := "lubn"( [object Object] );
+h_lev := "lub"( _pc_1, _fresh_lev_var0 );
+h := false
+}else {
+throw MONITOR EXCEPTION -> Illegal Assignment
+};
+_freshvar_1 := "leq"( _pc_1, l_lev );
+if(_freshvar_1) {
+_fresh_lev_var1 := "lubn"( [object Object] );
+l_lev := "lub"( _pc_1, _fresh_lev_var1 );
+l := true
+}else {
+throw MONITOR EXCEPTION -> Illegal Assignment
+};
+[object Object];
+o["structLev"] := _pc_1;
+o["objLev"] := _pc_1;
+o_lev := _pc_1;
+_fresh_lev_var2 := "lubn"( [object Object] );
+_fresh_lev_var3 := "lubn"( [object Object] );
+_fresh_lev_var4 := "lubn"( [object Object] );
+_freshvar_lev_0 := "lubn"( [object Object] );
+_freshvar_3 := "shadowPropValue"( "p" );
+[object Object];
+if([object Object]) {
+[object Object];
+_freshvar_2 := "leq"( _freshvar_lev_0, _fresh_field_lev_1 );
+if(_freshvar_2) {
+_freshvar_4 := "shadowPropExists"( "p" );
+_freshvar_lev_1 := "lub"( _freshvar_lev_0, _fresh_lev_var4 );
+o[_freshvar_3] := _freshvar_lev_1;
+o[_freshvar_4] := _freshvar_lev_0;
+o["p"] := true
+}else {
+throw MONITOR EXCEPTION -> Illegal Field Assign
+}
+}else {
+_freshvar_2 := "leq"( _freshvar_lev_0, _fresh_field_lev_0 );
+if(_freshvar_2) {
+_freshvar_lev_1 := "lubn"( [object Object] );
+o[_freshvar_3] := _freshvar_lev_1;
+o["p"] := true
+}else {
+throw MONITOR EXCEPTION -> Illegal Field Assign
+}
+};
+_freshvar_lev_2 := "parse_lvl"( "high" );
+_freshvar_5 := "leq"( _pc_1, h_lev );
+if(_freshvar_5) {
+h_lev := "lub"( _freshvar_lev_2, _pc_1 )
+}else {
+throw MONITOR EXCEPTION -> Illegal UpgVarLab
+};
+_fresh_lev_var8 := "lubn"( [object Object] );
+_freshvar_lev_5 := "lub"( _pc_1, _fresh_lev_var8 );
+_freshvar_6 := _freshvar_lev_5;
+if(h) {
+_fresh_lev_var5 := "lubn"( [object Object] );
+_fresh_lev_var6 := "lubn"( [object Object] );
+_fresh_lev_var7 := "lubn"( [object Object] );
+_freshvar_lev_3 := "lubn"( [object Object] );
+_freshvar_8 := "shadowPropValue"( "p" );
+[object Object];
+if([object Object]) {
+[object Object];
+_freshvar_7 := "leq"( _freshvar_lev_3, _fresh_field_lev_3 );
+if(_freshvar_7) {
+_freshvar_9 := "shadowPropExists"( "p" );
+_freshvar_lev_4 := "lub"( _freshvar_lev_3, _fresh_lev_var7 );
+o[_freshvar_8] := _freshvar_lev_4;
+o[_freshvar_9] := _freshvar_lev_3;
+o["p"] := false
+}else {
+throw MONITOR EXCEPTION -> Illegal Field Assign
+}
+}else {
+_freshvar_7 := "leq"( _freshvar_lev_3, _fresh_field_lev_2 );
+if(_freshvar_7) {
+_freshvar_lev_4 := "lubn"( [object Object] );
+o[_freshvar_8] := _freshvar_lev_4;
+o["p"] := false
+}else {
+throw MONITOR EXCEPTION -> Illegal Field Assign
+}
+}
+};
+_fresh_lev_var9 := "lubn"( [object Object] );
+_fresh_lev_var10 := "lubn"( [object Object] );
+_fresh_obj_0 := o;
+_fresh_field_0 := "p";
+_freshvar_10 := "shadowPropValue"( _fresh_field_0 );
+[object Object];
+_freshvar_lev_6 := "lubn"( [object Object] );
+_freshvar_11 := "leq"( _freshvar_lev_6, x_lev );
+if(_freshvar_11) {
+_freshvar_lev_7 := "lub"( _fresh_field_lev_4, _freshvar_lev_6 );
+x_lev := _freshvar_lev_7;
+[object Object]
+}else {
+throw MONITOR EXCEPTION -> Illegal Field Lookup
+};
+_fresh_lev_var12 := "lubn"( [object Object] );
+_freshvar_lev_8 := "lub"( _pc_1, _fresh_lev_var12 );
+_freshvar_12 := _freshvar_lev_8;
+if(x) {
+_freshvar_13 := "leq"( _freshvar_12, l_lev );
+if(_freshvar_13) {
+_fresh_lev_var11 := "lubn"( [object Object] );
+l_lev := "lub"( _freshvar_12, _fresh_lev_var11 );
+l := false
+}else {
+throw MONITOR EXCEPTION -> Illegal Assignment
+}
+};
+_fresh_lev_var13 := "lubn"( [object Object] );
+_freshvar_lev_9 := "lub"( _fresh_lev_var13, _pc_1 );
+return [object Object]
+}
+function lub (lev1,lev2) {
+return [object Object]
+}
+function upgPropExists (obj,lev_obj,prop,lev_prop,lev_str,lev_lev_str,pc) {
+lev := "parse_lvl"( lev_str );
+leq_1 := "leq"( lev_lev_str, pc );
+if(([object Object] leq_1)) {
+throw MONITOR EXCEPTION -> upgPropExists - Levels must be literals
+};
+lev_ctx := "lubn"( [object Object] );
+prop_2 := "shadowPropExists"( prop );
+[object Object];
+leq_2 := "leq"( lev_ctx, lev_2 );
+if(leq_2) {
+lev_3 := "lub"( lev_ctx, lev );
+obj[prop_2] := lev_3
+}else {
+throw MONITOR EXCEPTION -> Illegal P_Exists Upgrade
+};
+return [object Object]
+}
+function shadowPropValue (prop_str) {
+result := ([object Object] [object Object]);
+return result
+}
+function get_top () {
+return true
+}
+function upgPropVal (obj,lev_obj,prop,lev_prop,lev_str,lev_lev_str,pc) {
+lev := "parse_lvl"( lev_str );
+leq_1 := "leq"( lev_lev_str, pc );
+if(([object Object] leq_1)) {
+throw MONITOR EXCEPTION -> upgPropExists - Levels must be literals
+};
+lev_ctx := "lubn"( [object Object] );
+prop_2 := "shadowPropValue"( prop );
+[object Object];
+leq_2 := "leq"( lev_ctx, lev_2 );
+if(leq_2) {
+lev_3 := "lub"( lev_ctx, lev );
+obj[prop_2] := lev_3
+}else {
+throw MONITOR EXCEPTION -> Illegal P_Val Upgrade
+};
+return [object Object]
+}
+function upgStruct (obj,lev_obj,lev_str,lev_lev_str,pc) {
+lev := "parse_lvl"( lev_str );
+leq_1 := "leq"( lev_lev_str, pc );
+if(([object Object] leq_1)) {
+throw MONITOR EXCEPTION -> upgStruct - Levels must be literals
+};
+lev_ctx := "lub"( lev_obj, pc );
+[object Object];
+leq_2 := "leq"( lev_ctx, lev_2 );
+if(leq_2) {
+lev_3 := "lub"( lev_ctx, lev );
+obj["structLev"] := lev_3
+}else {
+throw MONITOR EXCEPTION -> Illegal P_Val Upgrade
+};
+[object Object];
+return [object Object]
+}
+function leq (lev1,lev2) {
+[object Object];
+[object Object];
+[object Object];
+nlev1 := ([object Object] lev1);
+nlev2 := ([object Object] lev2);
+[object Object];
+[object Object];
+aux := [object Object];
+[object Object];
+return [object Object]
+}
+function lubn (levs) {
+i := 0;
+acc := false;
+[object Object];
+[object Object];
+[object Object];
+return acc
+}
 =========== Running ===========
 function parse_lvl (lev_str) {
 if([object Object]) {
@@ -182,175 +402,124 @@ h_lev := true;
 l_lev := true;
 o_lev := true;
 x_lev := true;
-_fresh_lev_var0 := "lubn"( [object Object] );
-_freshvar_0 := "leq"( _pc_1, _fresh_lev_var0 );
+_freshvar_0 := "leq"( _pc_1, h_lev );
 if(_freshvar_0) {
-[object Object]
-}else {
-throw MONITOR EXCEPTION -> Illegal Print
-};
-_freshvar_1 := "leq"( _pc_1, h_lev );
-if(_freshvar_1) {
-_fresh_lev_var1 := "lubn"( [object Object] );
-h_lev := "lub"( _pc_1, _fresh_lev_var1 );
-h := true
+_fresh_lev_var0 := "lubn"( [object Object] );
+h_lev := "lub"( _pc_1, _fresh_lev_var0 );
+h := false
 }else {
 throw MONITOR EXCEPTION -> Illegal Assignment
 };
-_fresh_lev_var2 := "lubn"( [object Object] );
-_freshvar_2 := "leq"( _pc_1, _fresh_lev_var2 );
-if(_freshvar_2) {
-[object Object]
-}else {
-throw MONITOR EXCEPTION -> Illegal Print
-};
-_freshvar_3 := "leq"( _pc_1, l_lev );
-if(_freshvar_3) {
-_fresh_lev_var3 := "lubn"( [object Object] );
-l_lev := "lub"( _pc_1, _fresh_lev_var3 );
+_freshvar_1 := "leq"( _pc_1, l_lev );
+if(_freshvar_1) {
+_fresh_lev_var1 := "lubn"( [object Object] );
+l_lev := "lub"( _pc_1, _fresh_lev_var1 );
 l := true
 }else {
 throw MONITOR EXCEPTION -> Illegal Assignment
-};
-_fresh_lev_var4 := "lubn"( [object Object] );
-_freshvar_4 := "leq"( _pc_1, _fresh_lev_var4 );
-if(_freshvar_4) {
-[object Object]
-}else {
-throw MONITOR EXCEPTION -> Illegal Print
 };
 [object Object];
 o["structLev"] := _pc_1;
 o["objLev"] := _pc_1;
 o_lev := _pc_1;
-_fresh_lev_var5 := "lubn"( [object Object] );
-_freshvar_5 := "leq"( _pc_1, _fresh_lev_var5 );
-if(_freshvar_5) {
-[object Object]
-}else {
-throw MONITOR EXCEPTION -> Illegal Print
-};
-_fresh_lev_var6 := "lubn"( [object Object] );
-_fresh_lev_var7 := "lubn"( [object Object] );
-_fresh_lev_var8 := "lubn"( [object Object] );
+_fresh_lev_var2 := "lubn"( [object Object] );
+_fresh_lev_var3 := "lubn"( [object Object] );
+_fresh_lev_var4 := "lubn"( [object Object] );
 _freshvar_lev_0 := "lubn"( [object Object] );
-_freshvar_7 := "shadowPropValue"( "p" );
+_freshvar_3 := "shadowPropValue"( "p" );
 [object Object];
 if([object Object]) {
 [object Object];
-_freshvar_6 := "leq"( _freshvar_lev_0, _fresh_field_lev_1 );
-[object Object];
-[object Object];
-if(_freshvar_6) {
-_freshvar_8 := "shadowPropExists"( "p" );
-_freshvar_lev_1 := "lub"( _freshvar_lev_0, _fresh_lev_var8 );
-o[_freshvar_7] := _freshvar_lev_1;
-o[_freshvar_8] := _freshvar_lev_0;
+_freshvar_2 := "leq"( _freshvar_lev_0, _fresh_field_lev_1 );
+if(_freshvar_2) {
+_freshvar_4 := "shadowPropExists"( "p" );
+_freshvar_lev_1 := "lub"( _freshvar_lev_0, _fresh_lev_var4 );
+o[_freshvar_3] := _freshvar_lev_1;
+o[_freshvar_4] := _freshvar_lev_0;
 o["p"] := true
 }else {
 throw MONITOR EXCEPTION -> Illegal Field Assign
 }
 }else {
-_freshvar_6 := "leq"( _freshvar_lev_0, _fresh_field_lev_0 );
-if(_freshvar_6) {
+_freshvar_2 := "leq"( _freshvar_lev_0, _fresh_field_lev_0 );
+if(_freshvar_2) {
 _freshvar_lev_1 := "lubn"( [object Object] );
-o[_freshvar_7] := _freshvar_lev_1;
+o[_freshvar_3] := _freshvar_lev_1;
 o["p"] := true
 }else {
 throw MONITOR EXCEPTION -> Illegal Field Assign
 }
-};
-_fresh_lev_var9 := "lubn"( [object Object] );
-_freshvar_9 := "leq"( _pc_1, _fresh_lev_var9 );
-if(_freshvar_9) {
-[object Object]
-}else {
-throw MONITOR EXCEPTION -> Illegal Print
 };
 _freshvar_lev_2 := "parse_lvl"( "high" );
-_freshvar_10 := "leq"( _pc_1, h_lev );
-if(_freshvar_10) {
+_freshvar_5 := "leq"( _pc_1, h_lev );
+if(_freshvar_5) {
 h_lev := "lub"( _freshvar_lev_2, _pc_1 )
 }else {
 throw MONITOR EXCEPTION -> Illegal UpgVarLab
 };
-_fresh_lev_var10 := "lubn"( [object Object] );
-_freshvar_11 := "leq"( _pc_1, _fresh_lev_var10 );
-if(_freshvar_11) {
-[object Object]
-}else {
-throw MONITOR EXCEPTION -> Illegal Print
-};
-_fresh_lev_var15 := "lubn"( [object Object] );
-_freshvar_lev_5 := "lub"( _pc_1, _fresh_lev_var15 );
-_freshvar_12 := _freshvar_lev_5;
+_fresh_lev_var8 := "lubn"( [object Object] );
+_freshvar_lev_5 := "lub"( _pc_1, _fresh_lev_var8 );
+_freshvar_6 := _freshvar_lev_5;
 if(h) {
-_fresh_lev_var11 := "lubn"( [object Object] );
-_freshvar_13 := "leq"( _freshvar_12, _fresh_lev_var11 );
-if(_freshvar_13) {
-[object Object]
-}else {
-throw MONITOR EXCEPTION -> Illegal Print
-};
-_fresh_lev_var12 := "lubn"( [object Object] );
-_fresh_lev_var13 := "lubn"( [object Object] );
-_fresh_lev_var14 := "lubn"( [object Object] );
+_fresh_lev_var5 := "lubn"( [object Object] );
+_fresh_lev_var6 := "lubn"( [object Object] );
+_fresh_lev_var7 := "lubn"( [object Object] );
 _freshvar_lev_3 := "lubn"( [object Object] );
-_freshvar_15 := "shadowPropValue"( "p" );
+_freshvar_8 := "shadowPropValue"( "p" );
 [object Object];
 if([object Object]) {
 [object Object];
-_freshvar_14 := "leq"( _freshvar_lev_3, _fresh_field_lev_3 );
-if(_freshvar_14) {
-_freshvar_16 := "shadowPropExists"( "p" );
-_freshvar_lev_4 := "lub"( _freshvar_lev_3, _fresh_lev_var14 );
-o[_freshvar_15] := _freshvar_lev_4;
-o[_freshvar_16] := _freshvar_lev_3;
+_freshvar_7 := "leq"( _freshvar_lev_3, _fresh_field_lev_3 );
+if(_freshvar_7) {
+_freshvar_9 := "shadowPropExists"( "p" );
+_freshvar_lev_4 := "lub"( _freshvar_lev_3, _fresh_lev_var7 );
+o[_freshvar_8] := _freshvar_lev_4;
+o[_freshvar_9] := _freshvar_lev_3;
 o["p"] := false
 }else {
 throw MONITOR EXCEPTION -> Illegal Field Assign
 }
 }else {
-_freshvar_14 := "leq"( _freshvar_lev_3, _fresh_field_lev_2 );
-if(_freshvar_14) {
+_freshvar_7 := "leq"( _freshvar_lev_3, _fresh_field_lev_2 );
+if(_freshvar_7) {
 _freshvar_lev_4 := "lubn"( [object Object] );
-o[_freshvar_15] := _freshvar_lev_4;
+o[_freshvar_8] := _freshvar_lev_4;
 o["p"] := false
 }else {
 throw MONITOR EXCEPTION -> Illegal Field Assign
 }
 }
 };
-_fresh_lev_var16 := "lubn"( [object Object] );
-_fresh_lev_var17 := "lubn"( [object Object] );
+_fresh_lev_var9 := "lubn"( [object Object] );
+_fresh_lev_var10 := "lubn"( [object Object] );
 _fresh_obj_0 := o;
 _fresh_field_0 := "p";
-_freshvar_17 := "shadowPropValue"( _fresh_field_0 );
+_freshvar_10 := "shadowPropValue"( _fresh_field_0 );
 [object Object];
 _freshvar_lev_6 := "lubn"( [object Object] );
-_freshvar_18 := "leq"( _freshvar_lev_6, x_lev );
-if(_freshvar_18) {
+_freshvar_11 := "leq"( _freshvar_lev_6, x_lev );
+if(_freshvar_11) {
 _freshvar_lev_7 := "lub"( _fresh_field_lev_4, _freshvar_lev_6 );
 x_lev := _freshvar_lev_7;
 [object Object]
 }else {
 throw MONITOR EXCEPTION -> Illegal Field Lookup
 };
-_fresh_lev_var19 := "lubn"( [object Object] );
-_freshvar_lev_8 := "lub"( _pc_1, _fresh_lev_var19 );
-_freshvar_19 := _freshvar_lev_8;
+_fresh_lev_var12 := "lubn"( [object Object] );
+_freshvar_lev_8 := "lub"( _pc_1, _fresh_lev_var12 );
+_freshvar_12 := _freshvar_lev_8;
 if(x) {
-_freshvar_20 := "leq"( _freshvar_19, l_lev );
-if(_freshvar_20) {
-_fresh_lev_var18 := "lubn"( [object Object] );
-l_lev := "lub"( _freshvar_19, _fresh_lev_var18 );
+_freshvar_13 := "leq"( _freshvar_12, l_lev );
+if(_freshvar_13) {
+_fresh_lev_var11 := "lubn"( [object Object] );
+l_lev := "lub"( _freshvar_12, _fresh_lev_var11 );
 l := false
 }else {
 throw MONITOR EXCEPTION -> Illegal Assignment
 }
 };
-_fresh_lev_var20 := "lubn"( [object Object] );
-_freshvar_lev_9 := "lub"( _fresh_lev_var20, _pc_1 );
+_fresh_lev_var13 := "lubn"( [object Object] );
+_freshvar_lev_9 := "lub"( _fresh_lev_var13, _pc_1 );
 return [object Object]
 }
 function lub (lev1,lev2) {
@@ -503,6 +672,72 @@ PrimitiveVal { value: false }
 ++ VAL EXPR
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
+_freshvar_0
+ValExpr { value: PrimitiveVal { value: 'leq' } }
+[ VarExpr { variable: '_pc_1' }, VarExpr { variable: 'h_lev' } ]
+***************************
+++ VAL EXPR
+++ VAR EXPR
+++ VAR EXPR
+[ 'lev1', 'lev2' ]
+>BLOCK
+>PRINT
+++ VAL EXPR
+PRINT> "LEQQQ"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>PRINT
+++ VAR EXPR
+PRINT> true/n
+>ASSIGN
+++ UNOPT
+++ VAR EXPR
+==== Not
+>ASSIGN
+++ UNOPT
+++ VAR EXPR
+==== Not
+>PRINT
+++ VAR EXPR
+PRINT> true/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>ASSIGN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_And', type: 'binopt' }
+PrimitiveVal { value: true }
+PrimitiveVal { value: false }
+***************************
+==== Log_And
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>RETURN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_Or', type: 'binopt' }
+PrimitiveVal { value: true }
+PrimitiveVal { value: false }
+***************************
+==== Log_Or
+*********** RETURN DEBUG *********
+PrimitiveVal { value: true }
+***************************
+>CONDITION
+*********** DEBUG *********
+VarExpr { variable: '_freshvar_0' }
+***************************
+++ VAR EXPR
+>BLOCK
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
 _fresh_lev_var0
 ValExpr { value: PrimitiveVal { value: 'lubn' } }
 [
@@ -557,8 +792,8 @@ PrimitiveVal { value: false }
 ***************************
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
-_freshvar_0
-ValExpr { value: PrimitiveVal { value: 'leq' } }
+h_lev
+ValExpr { value: PrimitiveVal { value: 'lub' } }
 [
   VarExpr { variable: '_pc_1' },
   VarExpr { variable: '_fresh_lev_var0' }
@@ -569,46 +804,6 @@ ValExpr { value: PrimitiveVal { value: 'leq' } }
 ++ VAR EXPR
 [ 'lev1', 'lev2' ]
 >BLOCK
->PRINT
-++ VAL EXPR
-PRINT> "LEQQQ"/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->PRINT
-++ VAR EXPR
-PRINT> true/n
->PRINT
-++ VAR EXPR
-PRINT> true/n
->ASSIGN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_And', type: 'binopt' }
-PrimitiveVal { value: true }
-PrimitiveVal { value: true }
-***************************
-==== Log_And
->PRINT
-++ VAR EXPR
-PRINT> true/n
 >RETURN
 ++BINOPT
 ++ VAR EXPR
@@ -616,27 +811,20 @@ PRINT> true/n
 *********** DEBUG BINOPT *********
 Oper { operator: 'Log_Or', type: 'binopt' }
 PrimitiveVal { value: false }
-PrimitiveVal { value: true }
+PrimitiveVal { value: false }
 ***************************
 ==== Log_Or
 *********** RETURN DEBUG *********
-PrimitiveVal { value: true }
+PrimitiveVal { value: false }
 ***************************
->CONDITION
-*********** DEBUG *********
-VarExpr { variable: '_freshvar_0' }
-***************************
-++ VAR EXPR
->BLOCK
->PRINT
+>ASSIGN
 ++ VAL EXPR
-PRINT> "0"/n
 >MERGE
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
 _freshvar_1
 ValExpr { value: PrimitiveVal { value: 'leq' } }
-[ VarExpr { variable: '_pc_1' }, VarExpr { variable: 'h_lev' } ]
+[ VarExpr { variable: '_pc_1' }, VarExpr { variable: 'l_lev' } ]
 ***************************
 ++ VAL EXPR
 ++ VAR EXPR
@@ -656,14 +844,10 @@ PRINT> true/n
 ++ UNOPT
 ++ VAR EXPR
 ==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
 >ASSIGN
 ++ UNOPT
 ++ VAR EXPR
 ==== Not
-PrimitiveVal { value: true }
-USING NOT IN trueRESULTS IN false
 >PRINT
 ++ VAR EXPR
 PRINT> true/n
@@ -758,7 +942,7 @@ PrimitiveVal { value: false }
 ***************************
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
-h_lev
+l_lev
 ValExpr { value: PrimitiveVal { value: 'lub' } }
 [
   VarExpr { variable: '_pc_1' },
@@ -786,422 +970,6 @@ PrimitiveVal { value: false }
 >ASSIGN
 ++ VAL EXPR
 >MERGE
->ASSIGN CALL
-*********** DEBUG ASSIGN CALL*********
-_fresh_lev_var2
-ValExpr { value: PrimitiveVal { value: 'lubn' } }
-[
-  NOptExpr {
-    n_aryOperator: Oper { operator: 'ListExpr', type: 'nopt' },
-    expressionsList: []
-  }
-]
-***************************
-++ VAL EXPR
-++ NOPT
-==== ListExpr
-[ 'levs' ]
->BLOCK
->ASSIGN
-++ VAL EXPR
->ASSIGN
-++ VAL EXPR
->LOOP
->CONDITION
-*********** DEBUG *********
-BinOptExpr {
-  operator: Oper { operator: 'Lt', type: 'binopt' },
-  expr_lhs: VarExpr { variable: 'i' },
-  expr_rhs: UnOptExpr {
-    operator: Oper { operator: 'ListLen', type: 'unopt' },
-    expr_rhs: VarExpr { variable: 'levs' }
-  }
-}
-***************************
-++BINOPT
-++ VAR EXPR
-++ UNOPT
-++ VAR EXPR
-==== ListLen
-*********** DEBUG BINOPT *********
-Oper { operator: 'Lt', type: 'binopt' }
-PrimitiveVal { value: 0 }
-PrimitiveVal { value: 0 }
-***************************
-==== Lt
->PRINT
-++ VAL EXPR
-PRINT> "FINAL LUBN"/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->RETURN
-++ VAR EXPR
-*********** RETURN DEBUG *********
-PrimitiveVal { value: false }
-***************************
->ASSIGN CALL
-*********** DEBUG ASSIGN CALL*********
-_freshvar_2
-ValExpr { value: PrimitiveVal { value: 'leq' } }
-[
-  VarExpr { variable: '_pc_1' },
-  VarExpr { variable: '_fresh_lev_var2' }
-]
-***************************
-++ VAL EXPR
-++ VAR EXPR
-++ VAR EXPR
-[ 'lev1', 'lev2' ]
->BLOCK
->PRINT
-++ VAL EXPR
-PRINT> "LEQQQ"/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->PRINT
-++ VAR EXPR
-PRINT> true/n
->PRINT
-++ VAR EXPR
-PRINT> true/n
->ASSIGN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_And', type: 'binopt' }
-PrimitiveVal { value: true }
-PrimitiveVal { value: true }
-***************************
-==== Log_And
->PRINT
-++ VAR EXPR
-PRINT> true/n
->RETURN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_Or', type: 'binopt' }
-PrimitiveVal { value: false }
-PrimitiveVal { value: true }
-***************************
-==== Log_Or
-*********** RETURN DEBUG *********
-PrimitiveVal { value: true }
-***************************
->CONDITION
-*********** DEBUG *********
-VarExpr { variable: '_freshvar_2' }
-***************************
-++ VAR EXPR
->BLOCK
->PRINT
-++ VAL EXPR
-PRINT> "1"/n
->MERGE
->ASSIGN CALL
-*********** DEBUG ASSIGN CALL*********
-_freshvar_3
-ValExpr { value: PrimitiveVal { value: 'leq' } }
-[ VarExpr { variable: '_pc_1' }, VarExpr { variable: 'l_lev' } ]
-***************************
-++ VAL EXPR
-++ VAR EXPR
-++ VAR EXPR
-[ 'lev1', 'lev2' ]
->BLOCK
->PRINT
-++ VAL EXPR
-PRINT> "LEQQQ"/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->PRINT
-++ VAR EXPR
-PRINT> true/n
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: true }
-USING NOT IN trueRESULTS IN false
->PRINT
-++ VAR EXPR
-PRINT> true/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->ASSIGN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_And', type: 'binopt' }
-PrimitiveVal { value: true }
-PrimitiveVal { value: false }
-***************************
-==== Log_And
->PRINT
-++ VAR EXPR
-PRINT> false/n
->RETURN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_Or', type: 'binopt' }
-PrimitiveVal { value: true }
-PrimitiveVal { value: false }
-***************************
-==== Log_Or
-*********** RETURN DEBUG *********
-PrimitiveVal { value: true }
-***************************
->CONDITION
-*********** DEBUG *********
-VarExpr { variable: '_freshvar_3' }
-***************************
-++ VAR EXPR
->BLOCK
->ASSIGN CALL
-*********** DEBUG ASSIGN CALL*********
-_fresh_lev_var3
-ValExpr { value: PrimitiveVal { value: 'lubn' } }
-[
-  NOptExpr {
-    n_aryOperator: Oper { operator: 'ListExpr', type: 'nopt' },
-    expressionsList: []
-  }
-]
-***************************
-++ VAL EXPR
-++ NOPT
-==== ListExpr
-[ 'levs' ]
->BLOCK
->ASSIGN
-++ VAL EXPR
->ASSIGN
-++ VAL EXPR
->LOOP
->CONDITION
-*********** DEBUG *********
-BinOptExpr {
-  operator: Oper { operator: 'Lt', type: 'binopt' },
-  expr_lhs: VarExpr { variable: 'i' },
-  expr_rhs: UnOptExpr {
-    operator: Oper { operator: 'ListLen', type: 'unopt' },
-    expr_rhs: VarExpr { variable: 'levs' }
-  }
-}
-***************************
-++BINOPT
-++ VAR EXPR
-++ UNOPT
-++ VAR EXPR
-==== ListLen
-*********** DEBUG BINOPT *********
-Oper { operator: 'Lt', type: 'binopt' }
-PrimitiveVal { value: 0 }
-PrimitiveVal { value: 0 }
-***************************
-==== Lt
->PRINT
-++ VAL EXPR
-PRINT> "FINAL LUBN"/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->RETURN
-++ VAR EXPR
-*********** RETURN DEBUG *********
-PrimitiveVal { value: false }
-***************************
->ASSIGN CALL
-*********** DEBUG ASSIGN CALL*********
-l_lev
-ValExpr { value: PrimitiveVal { value: 'lub' } }
-[
-  VarExpr { variable: '_pc_1' },
-  VarExpr { variable: '_fresh_lev_var3' }
-]
-***************************
-++ VAL EXPR
-++ VAR EXPR
-++ VAR EXPR
-[ 'lev1', 'lev2' ]
->BLOCK
->RETURN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_Or', type: 'binopt' }
-PrimitiveVal { value: false }
-PrimitiveVal { value: false }
-***************************
-==== Log_Or
-*********** RETURN DEBUG *********
-PrimitiveVal { value: false }
-***************************
->ASSIGN
-++ VAL EXPR
->MERGE
->ASSIGN CALL
-*********** DEBUG ASSIGN CALL*********
-_fresh_lev_var4
-ValExpr { value: PrimitiveVal { value: 'lubn' } }
-[
-  NOptExpr {
-    n_aryOperator: Oper { operator: 'ListExpr', type: 'nopt' },
-    expressionsList: []
-  }
-]
-***************************
-++ VAL EXPR
-++ NOPT
-==== ListExpr
-[ 'levs' ]
->BLOCK
->ASSIGN
-++ VAL EXPR
->ASSIGN
-++ VAL EXPR
->LOOP
->CONDITION
-*********** DEBUG *********
-BinOptExpr {
-  operator: Oper { operator: 'Lt', type: 'binopt' },
-  expr_lhs: VarExpr { variable: 'i' },
-  expr_rhs: UnOptExpr {
-    operator: Oper { operator: 'ListLen', type: 'unopt' },
-    expr_rhs: VarExpr { variable: 'levs' }
-  }
-}
-***************************
-++BINOPT
-++ VAR EXPR
-++ UNOPT
-++ VAR EXPR
-==== ListLen
-*********** DEBUG BINOPT *********
-Oper { operator: 'Lt', type: 'binopt' }
-PrimitiveVal { value: 0 }
-PrimitiveVal { value: 0 }
-***************************
-==== Lt
->PRINT
-++ VAL EXPR
-PRINT> "FINAL LUBN"/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->RETURN
-++ VAR EXPR
-*********** RETURN DEBUG *********
-PrimitiveVal { value: false }
-***************************
->ASSIGN CALL
-*********** DEBUG ASSIGN CALL*********
-_freshvar_4
-ValExpr { value: PrimitiveVal { value: 'leq' } }
-[
-  VarExpr { variable: '_pc_1' },
-  VarExpr { variable: '_fresh_lev_var4' }
-]
-***************************
-++ VAL EXPR
-++ VAR EXPR
-++ VAR EXPR
-[ 'lev1', 'lev2' ]
->BLOCK
->PRINT
-++ VAL EXPR
-PRINT> "LEQQQ"/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->PRINT
-++ VAR EXPR
-PRINT> true/n
->PRINT
-++ VAR EXPR
-PRINT> true/n
->ASSIGN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_And', type: 'binopt' }
-PrimitiveVal { value: true }
-PrimitiveVal { value: true }
-***************************
-==== Log_And
->PRINT
-++ VAR EXPR
-PRINT> true/n
->RETURN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_Or', type: 'binopt' }
-PrimitiveVal { value: false }
-PrimitiveVal { value: true }
-***************************
-==== Log_Or
-*********** RETURN DEBUG *********
-PrimitiveVal { value: true }
-***************************
->CONDITION
-*********** DEBUG *********
-VarExpr { variable: '_freshvar_4' }
-***************************
-++ VAR EXPR
->BLOCK
->PRINT
-++ VAL EXPR
-PRINT> "2"/n
->MERGE
 >ASSIGN NEW OBJ
 >FIELD ASSIGN
 ++ VAR EXPR
@@ -1215,138 +983,7 @@ PRINT> "2"/n
 ++ VAR EXPR
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
-_fresh_lev_var5
-ValExpr { value: PrimitiveVal { value: 'lubn' } }
-[
-  NOptExpr {
-    n_aryOperator: Oper { operator: 'ListExpr', type: 'nopt' },
-    expressionsList: []
-  }
-]
-***************************
-++ VAL EXPR
-++ NOPT
-==== ListExpr
-[ 'levs' ]
->BLOCK
->ASSIGN
-++ VAL EXPR
->ASSIGN
-++ VAL EXPR
->LOOP
->CONDITION
-*********** DEBUG *********
-BinOptExpr {
-  operator: Oper { operator: 'Lt', type: 'binopt' },
-  expr_lhs: VarExpr { variable: 'i' },
-  expr_rhs: UnOptExpr {
-    operator: Oper { operator: 'ListLen', type: 'unopt' },
-    expr_rhs: VarExpr { variable: 'levs' }
-  }
-}
-***************************
-++BINOPT
-++ VAR EXPR
-++ UNOPT
-++ VAR EXPR
-==== ListLen
-*********** DEBUG BINOPT *********
-Oper { operator: 'Lt', type: 'binopt' }
-PrimitiveVal { value: 0 }
-PrimitiveVal { value: 0 }
-***************************
-==== Lt
->PRINT
-++ VAL EXPR
-PRINT> "FINAL LUBN"/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->RETURN
-++ VAR EXPR
-*********** RETURN DEBUG *********
-PrimitiveVal { value: false }
-***************************
->ASSIGN CALL
-*********** DEBUG ASSIGN CALL*********
-_freshvar_5
-ValExpr { value: PrimitiveVal { value: 'leq' } }
-[
-  VarExpr { variable: '_pc_1' },
-  VarExpr { variable: '_fresh_lev_var5' }
-]
-***************************
-++ VAL EXPR
-++ VAR EXPR
-++ VAR EXPR
-[ 'lev1', 'lev2' ]
->BLOCK
->PRINT
-++ VAL EXPR
-PRINT> "LEQQQ"/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->PRINT
-++ VAR EXPR
-PRINT> true/n
->PRINT
-++ VAR EXPR
-PRINT> true/n
->ASSIGN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_And', type: 'binopt' }
-PrimitiveVal { value: true }
-PrimitiveVal { value: true }
-***************************
-==== Log_And
->PRINT
-++ VAR EXPR
-PRINT> true/n
->RETURN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_Or', type: 'binopt' }
-PrimitiveVal { value: false }
-PrimitiveVal { value: true }
-***************************
-==== Log_Or
-*********** RETURN DEBUG *********
-PrimitiveVal { value: true }
-***************************
->CONDITION
-*********** DEBUG *********
-VarExpr { variable: '_freshvar_5' }
-***************************
-++ VAR EXPR
->BLOCK
->PRINT
-++ VAL EXPR
-PRINT> "3"/n
->MERGE
->ASSIGN CALL
-*********** DEBUG ASSIGN CALL*********
-_fresh_lev_var6
+_fresh_lev_var2
 ValExpr { value: PrimitiveVal { value: 'lubn' } }
 [
   NOptExpr {
@@ -1414,10 +1051,6 @@ ListVal { value: undefined, list: [ PrimitiveVal { value: false } ] }
 PrimitiveVal { value: 0 }
 ***************************
 ==== Lnth
-BABABABABABABABABABABA
-ListVal { value: undefined, list: [ PrimitiveVal { value: false } ] }
-PrimitiveVal { value: 0 }
-false
 [ 'lev1', 'lev2' ]
 >BLOCK
 >RETURN
@@ -1486,7 +1119,7 @@ PrimitiveVal { value: false }
 ***************************
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
-_fresh_lev_var7
+_fresh_lev_var3
 ValExpr { value: PrimitiveVal { value: 'lubn' } }
 [
   NOptExpr {
@@ -1540,7 +1173,7 @@ PrimitiveVal { value: false }
 ***************************
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
-_fresh_lev_var8
+_fresh_lev_var4
 ValExpr { value: PrimitiveVal { value: 'lubn' } }
 [
   NOptExpr {
@@ -1671,17 +1304,6 @@ ListVal {
 PrimitiveVal { value: 0 }
 ***************************
 ==== Lnth
-BABABABABABABABABABABA
-ListVal {
-  value: undefined,
-  list: [
-    PrimitiveVal { value: false },
-    PrimitiveVal { value: false },
-    PrimitiveVal { value: false }
-  ]
-}
-PrimitiveVal { value: 0 }
-false
 [ 'lev1', 'lev2' ]
 >BLOCK
 >RETURN
@@ -1769,17 +1391,6 @@ ListVal {
 PrimitiveVal { value: 1 }
 ***************************
 ==== Lnth
-BABABABABABABABABABABA
-ListVal {
-  value: undefined,
-  list: [
-    PrimitiveVal { value: false },
-    PrimitiveVal { value: false },
-    PrimitiveVal { value: false }
-  ]
-}
-PrimitiveVal { value: 1 }
-false
 [ 'lev1', 'lev2' ]
 >BLOCK
 >RETURN
@@ -1867,17 +1478,6 @@ ListVal {
 PrimitiveVal { value: 2 }
 ***************************
 ==== Lnth
-BABABABABABABABABABABA
-ListVal {
-  value: undefined,
-  list: [
-    PrimitiveVal { value: false },
-    PrimitiveVal { value: false },
-    PrimitiveVal { value: false }
-  ]
-}
-PrimitiveVal { value: 2 }
-false
 [ 'lev1', 'lev2' ]
 >BLOCK
 >RETURN
@@ -1948,7 +1548,7 @@ PrimitiveVal { value: false }
 ***************************
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
-_freshvar_7
+_freshvar_3
 ValExpr { value: PrimitiveVal { value: 'shadowPropValue' } }
 [ ValExpr { value: PrimitiveVal { value: 'p' } } ]
 ***************************
@@ -1972,7 +1572,7 @@ PrimitiveVal { value: 'p_prop_value_lvl' }
 *********** DEBUG *********
 _fresh_field_lev_0
 VarExpr { variable: 'o' }
-VarExpr { variable: '_freshvar_7' }
+VarExpr { variable: '_freshvar_3' }
 ++ VAR EXPR
 ++ VAR EXPR
 _obj_0
@@ -2010,7 +1610,7 @@ PrimitiveVal { value: false }
 ***************************
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
-_freshvar_6
+_freshvar_2
 ValExpr { value: PrimitiveVal { value: 'leq' } }
 [
   VarExpr { variable: '_freshvar_lev_0' },
@@ -2035,14 +1635,10 @@ PRINT> false/n
 ++ UNOPT
 ++ VAR EXPR
 ==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
 >ASSIGN
 ++ UNOPT
 ++ VAR EXPR
 ==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
 >PRINT
 ++ VAR EXPR
 PRINT> true/n
@@ -2075,21 +1671,15 @@ PrimitiveVal { value: true }
 *********** RETURN DEBUG *********
 PrimitiveVal { value: true }
 ***************************
->PRINT
-++ VAL EXPR
-PRINT> "DEVS"/n
->PRINT
-++ VAR EXPR
-PRINT> true/n
 >CONDITION
 *********** DEBUG *********
-VarExpr { variable: '_freshvar_6' }
+VarExpr { variable: '_freshvar_2' }
 ***************************
 ++ VAR EXPR
 >BLOCK
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
-_freshvar_8
+_freshvar_4
 ValExpr { value: PrimitiveVal { value: 'shadowPropExists' } }
 [ ValExpr { value: PrimitiveVal { value: 'p' } } ]
 ***************************
@@ -2115,7 +1705,7 @@ _freshvar_lev_1
 ValExpr { value: PrimitiveVal { value: 'lub' } }
 [
   VarExpr { variable: '_freshvar_lev_0' },
-  VarExpr { variable: '_fresh_lev_var8' }
+  VarExpr { variable: '_fresh_lev_var4' }
 ]
 ***************************
 ++ VAL EXPR
@@ -2149,137 +1739,6 @@ PrimitiveVal { value: false }
 ++ VAL EXPR
 ++ VAL EXPR
 >MERGE
->MERGE
->ASSIGN CALL
-*********** DEBUG ASSIGN CALL*********
-_fresh_lev_var9
-ValExpr { value: PrimitiveVal { value: 'lubn' } }
-[
-  NOptExpr {
-    n_aryOperator: Oper { operator: 'ListExpr', type: 'nopt' },
-    expressionsList: []
-  }
-]
-***************************
-++ VAL EXPR
-++ NOPT
-==== ListExpr
-[ 'levs' ]
->BLOCK
->ASSIGN
-++ VAL EXPR
->ASSIGN
-++ VAL EXPR
->LOOP
->CONDITION
-*********** DEBUG *********
-BinOptExpr {
-  operator: Oper { operator: 'Lt', type: 'binopt' },
-  expr_lhs: VarExpr { variable: 'i' },
-  expr_rhs: UnOptExpr {
-    operator: Oper { operator: 'ListLen', type: 'unopt' },
-    expr_rhs: VarExpr { variable: 'levs' }
-  }
-}
-***************************
-++BINOPT
-++ VAR EXPR
-++ UNOPT
-++ VAR EXPR
-==== ListLen
-*********** DEBUG BINOPT *********
-Oper { operator: 'Lt', type: 'binopt' }
-PrimitiveVal { value: 0 }
-PrimitiveVal { value: 0 }
-***************************
-==== Lt
->PRINT
-++ VAL EXPR
-PRINT> "FINAL LUBN"/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->RETURN
-++ VAR EXPR
-*********** RETURN DEBUG *********
-PrimitiveVal { value: false }
-***************************
->ASSIGN CALL
-*********** DEBUG ASSIGN CALL*********
-_freshvar_9
-ValExpr { value: PrimitiveVal { value: 'leq' } }
-[
-  VarExpr { variable: '_pc_1' },
-  VarExpr { variable: '_fresh_lev_var9' }
-]
-***************************
-++ VAL EXPR
-++ VAR EXPR
-++ VAR EXPR
-[ 'lev1', 'lev2' ]
->BLOCK
->PRINT
-++ VAL EXPR
-PRINT> "LEQQQ"/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->PRINT
-++ VAR EXPR
-PRINT> true/n
->PRINT
-++ VAR EXPR
-PRINT> true/n
->ASSIGN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_And', type: 'binopt' }
-PrimitiveVal { value: true }
-PrimitiveVal { value: true }
-***************************
-==== Log_And
->PRINT
-++ VAR EXPR
-PRINT> true/n
->RETURN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_Or', type: 'binopt' }
-PrimitiveVal { value: false }
-PrimitiveVal { value: true }
-***************************
-==== Log_Or
-*********** RETURN DEBUG *********
-PrimitiveVal { value: true }
-***************************
->CONDITION
-*********** DEBUG *********
-VarExpr { variable: '_freshvar_9' }
-***************************
-++ VAR EXPR
->BLOCK
->PRINT
-++ VAL EXPR
-PRINT> "4"/n
 >MERGE
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
@@ -2316,7 +1775,7 @@ PrimitiveVal { value: true }
 ***************************
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
-_freshvar_10
+_freshvar_5
 ValExpr { value: PrimitiveVal { value: 'leq' } }
 [ VarExpr { variable: '_pc_1' }, VarExpr { variable: 'h_lev' } ]
 ***************************
@@ -2338,14 +1797,10 @@ PRINT> false/n
 ++ UNOPT
 ++ VAR EXPR
 ==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
 >ASSIGN
 ++ UNOPT
 ++ VAR EXPR
 ==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
 >PRINT
 ++ VAR EXPR
 PRINT> true/n
@@ -2380,7 +1835,7 @@ PrimitiveVal { value: true }
 ***************************
 >CONDITION
 *********** DEBUG *********
-VarExpr { variable: '_freshvar_10' }
+VarExpr { variable: '_freshvar_5' }
 ***************************
 ++ VAR EXPR
 >BLOCK
@@ -2414,138 +1869,7 @@ PrimitiveVal { value: true }
 >MERGE
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
-_fresh_lev_var10
-ValExpr { value: PrimitiveVal { value: 'lubn' } }
-[
-  NOptExpr {
-    n_aryOperator: Oper { operator: 'ListExpr', type: 'nopt' },
-    expressionsList: []
-  }
-]
-***************************
-++ VAL EXPR
-++ NOPT
-==== ListExpr
-[ 'levs' ]
->BLOCK
->ASSIGN
-++ VAL EXPR
->ASSIGN
-++ VAL EXPR
->LOOP
->CONDITION
-*********** DEBUG *********
-BinOptExpr {
-  operator: Oper { operator: 'Lt', type: 'binopt' },
-  expr_lhs: VarExpr { variable: 'i' },
-  expr_rhs: UnOptExpr {
-    operator: Oper { operator: 'ListLen', type: 'unopt' },
-    expr_rhs: VarExpr { variable: 'levs' }
-  }
-}
-***************************
-++BINOPT
-++ VAR EXPR
-++ UNOPT
-++ VAR EXPR
-==== ListLen
-*********** DEBUG BINOPT *********
-Oper { operator: 'Lt', type: 'binopt' }
-PrimitiveVal { value: 0 }
-PrimitiveVal { value: 0 }
-***************************
-==== Lt
->PRINT
-++ VAL EXPR
-PRINT> "FINAL LUBN"/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->RETURN
-++ VAR EXPR
-*********** RETURN DEBUG *********
-PrimitiveVal { value: false }
-***************************
->ASSIGN CALL
-*********** DEBUG ASSIGN CALL*********
-_freshvar_11
-ValExpr { value: PrimitiveVal { value: 'leq' } }
-[
-  VarExpr { variable: '_pc_1' },
-  VarExpr { variable: '_fresh_lev_var10' }
-]
-***************************
-++ VAL EXPR
-++ VAR EXPR
-++ VAR EXPR
-[ 'lev1', 'lev2' ]
->BLOCK
->PRINT
-++ VAL EXPR
-PRINT> "LEQQQ"/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->PRINT
-++ VAR EXPR
-PRINT> true/n
->PRINT
-++ VAR EXPR
-PRINT> true/n
->ASSIGN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_And', type: 'binopt' }
-PrimitiveVal { value: true }
-PrimitiveVal { value: true }
-***************************
-==== Log_And
->PRINT
-++ VAR EXPR
-PRINT> true/n
->RETURN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_Or', type: 'binopt' }
-PrimitiveVal { value: false }
-PrimitiveVal { value: true }
-***************************
-==== Log_Or
-*********** RETURN DEBUG *********
-PrimitiveVal { value: true }
-***************************
->CONDITION
-*********** DEBUG *********
-VarExpr { variable: '_freshvar_11' }
-***************************
-++ VAR EXPR
->BLOCK
->PRINT
-++ VAL EXPR
-PRINT> "5"/n
->MERGE
->ASSIGN CALL
-*********** DEBUG ASSIGN CALL*********
-_fresh_lev_var15
+_fresh_lev_var8
 ValExpr { value: PrimitiveVal { value: 'lubn' } }
 [
   NOptExpr {
@@ -2613,10 +1937,6 @@ ListVal { value: undefined, list: [ PrimitiveVal { value: true } ] }
 PrimitiveVal { value: 0 }
 ***************************
 ==== Lnth
-BABABABABABABABABABABA
-ListVal { value: undefined, list: [ PrimitiveVal { value: true } ] }
-PrimitiveVal { value: 0 }
-true
 [ 'lev1', 'lev2' ]
 >BLOCK
 >RETURN
@@ -2689,7 +2009,7 @@ _freshvar_lev_5
 ValExpr { value: PrimitiveVal { value: 'lub' } }
 [
   VarExpr { variable: '_pc_1' },
-  VarExpr { variable: '_fresh_lev_var15' }
+  VarExpr { variable: '_fresh_lev_var8' }
 ]
 ***************************
 ++ VAL EXPR
@@ -2715,6 +2035,900 @@ PrimitiveVal { value: true }
 >CONDITION
 *********** DEBUG *********
 VarExpr { variable: 'h' }
+***************************
+++ VAR EXPR
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+_fresh_lev_var9
+ValExpr { value: PrimitiveVal { value: 'lubn' } }
+[
+  NOptExpr {
+    n_aryOperator: Oper { operator: 'ListExpr', type: 'nopt' },
+    expressionsList: [ [VarExpr] ]
+  }
+]
+***************************
+++ VAL EXPR
+++ NOPT
+++ VAR EXPR
+==== ListExpr
+[ 'levs' ]
+>BLOCK
+>ASSIGN
+++ VAL EXPR
+>ASSIGN
+++ VAL EXPR
+>LOOP
+>CONDITION
+*********** DEBUG *********
+BinOptExpr {
+  operator: Oper { operator: 'Lt', type: 'binopt' },
+  expr_lhs: VarExpr { variable: 'i' },
+  expr_rhs: UnOptExpr {
+    operator: Oper { operator: 'ListLen', type: 'unopt' },
+    expr_rhs: VarExpr { variable: 'levs' }
+  }
+}
+***************************
+++BINOPT
+++ VAR EXPR
+++ UNOPT
+++ VAR EXPR
+==== ListLen
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lt', type: 'binopt' }
+PrimitiveVal { value: 0 }
+PrimitiveVal { value: 1 }
+***************************
+==== Lt
+>BLOCK
+>BLOCK
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+acc
+ValExpr { value: PrimitiveVal { value: 'lub' } }
+[
+  VarExpr { variable: 'acc' },
+  BinOptExpr {
+    operator: Oper { operator: 'Lnth', type: 'binopt' },
+    expr_lhs: VarExpr { variable: 'levs' },
+    expr_rhs: VarExpr { variable: 'i' }
+  }
+]
+***************************
+++ VAL EXPR
+++ VAR EXPR
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lnth', type: 'binopt' }
+ListVal { value: undefined, list: [ PrimitiveVal { value: false } ] }
+PrimitiveVal { value: 0 }
+***************************
+==== Lnth
+[ 'lev1', 'lev2' ]
+>BLOCK
+>RETURN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_Or', type: 'binopt' }
+PrimitiveVal { value: false }
+PrimitiveVal { value: false }
+***************************
+==== Log_Or
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>PRINT
+++ VAL EXPR
+PRINT> "DEBUGGING LUBN"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>ASSIGN
+++BINOPT
+++ VAR EXPR
+++ VAL EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Plus', type: 'binopt' }
+PrimitiveVal { value: 0 }
+PrimitiveVal { value: 1 }
+***************************
+==== Plus
+>LOOP
+>CONDITION
+*********** DEBUG *********
+BinOptExpr {
+  operator: Oper { operator: 'Lt', type: 'binopt' },
+  expr_lhs: VarExpr { variable: 'i' },
+  expr_rhs: UnOptExpr {
+    operator: Oper { operator: 'ListLen', type: 'unopt' },
+    expr_rhs: VarExpr { variable: 'levs' }
+  }
+}
+***************************
+++BINOPT
+++ VAR EXPR
+++ UNOPT
+++ VAR EXPR
+==== ListLen
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lt', type: 'binopt' }
+PrimitiveVal { value: 1 }
+PrimitiveVal { value: 1 }
+***************************
+==== Lt
+>MERGE
+>PRINT
+++ VAL EXPR
+PRINT> "FINAL LUBN"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>RETURN
+++ VAR EXPR
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+_fresh_lev_var10
+ValExpr { value: PrimitiveVal { value: 'lubn' } }
+[
+  NOptExpr {
+    n_aryOperator: Oper { operator: 'ListExpr', type: 'nopt' },
+    expressionsList: []
+  }
+]
+***************************
+++ VAL EXPR
+++ NOPT
+==== ListExpr
+[ 'levs' ]
+>BLOCK
+>ASSIGN
+++ VAL EXPR
+>ASSIGN
+++ VAL EXPR
+>LOOP
+>CONDITION
+*********** DEBUG *********
+BinOptExpr {
+  operator: Oper { operator: 'Lt', type: 'binopt' },
+  expr_lhs: VarExpr { variable: 'i' },
+  expr_rhs: UnOptExpr {
+    operator: Oper { operator: 'ListLen', type: 'unopt' },
+    expr_rhs: VarExpr { variable: 'levs' }
+  }
+}
+***************************
+++BINOPT
+++ VAR EXPR
+++ UNOPT
+++ VAR EXPR
+==== ListLen
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lt', type: 'binopt' }
+PrimitiveVal { value: 0 }
+PrimitiveVal { value: 0 }
+***************************
+==== Lt
+>PRINT
+++ VAL EXPR
+PRINT> "FINAL LUBN"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>RETURN
+++ VAR EXPR
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>ASSIGN
+++ VAR EXPR
+>ASSIGN
+++ VAL EXPR
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+_freshvar_10
+ValExpr { value: PrimitiveVal { value: 'shadowPropValue' } }
+[ VarExpr { variable: '_fresh_field_0' } ]
+***************************
+++ VAL EXPR
+++ VAR EXPR
+[ 'prop_str' ]
+>BLOCK
+>ASSIGN
+++ UNOPT
+++ NOPT
+++ VAR EXPR
+++ VAL EXPR
+==== ListExpr
+==== Sconcat
+>RETURN
+++ VAR EXPR
+*********** RETURN DEBUG *********
+PrimitiveVal { value: 'p_prop_value_lvl' }
+***************************
+>FIELD LOOKUP
+*********** DEBUG *********
+_fresh_field_lev_4
+VarExpr { variable: '_fresh_obj_0' }
+VarExpr { variable: '_freshvar_10' }
+++ VAR EXPR
+++ VAR EXPR
+_obj_0
+p_prop_value_lvl
+PrimitiveVal { value: false }
+***************************
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+_freshvar_lev_6
+ValExpr { value: PrimitiveVal { value: 'lubn' } }
+[
+  NOptExpr {
+    n_aryOperator: Oper { operator: 'ListExpr', type: 'nopt' },
+    expressionsList: [ [VarExpr], [VarExpr], [VarExpr] ]
+  }
+]
+***************************
+++ VAL EXPR
+++ NOPT
+++ VAR EXPR
+++ VAR EXPR
+++ VAR EXPR
+==== ListExpr
+[ 'levs' ]
+>BLOCK
+>ASSIGN
+++ VAL EXPR
+>ASSIGN
+++ VAL EXPR
+>LOOP
+>CONDITION
+*********** DEBUG *********
+BinOptExpr {
+  operator: Oper { operator: 'Lt', type: 'binopt' },
+  expr_lhs: VarExpr { variable: 'i' },
+  expr_rhs: UnOptExpr {
+    operator: Oper { operator: 'ListLen', type: 'unopt' },
+    expr_rhs: VarExpr { variable: 'levs' }
+  }
+}
+***************************
+++BINOPT
+++ VAR EXPR
+++ UNOPT
+++ VAR EXPR
+==== ListLen
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lt', type: 'binopt' }
+PrimitiveVal { value: 0 }
+PrimitiveVal { value: 3 }
+***************************
+==== Lt
+>BLOCK
+>BLOCK
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+acc
+ValExpr { value: PrimitiveVal { value: 'lub' } }
+[
+  VarExpr { variable: 'acc' },
+  BinOptExpr {
+    operator: Oper { operator: 'Lnth', type: 'binopt' },
+    expr_lhs: VarExpr { variable: 'levs' },
+    expr_rhs: VarExpr { variable: 'i' }
+  }
+]
+***************************
+++ VAL EXPR
+++ VAR EXPR
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lnth', type: 'binopt' }
+ListVal {
+  value: undefined,
+  list: [
+    PrimitiveVal { value: false },
+    PrimitiveVal { value: false },
+    PrimitiveVal { value: false }
+  ]
+}
+PrimitiveVal { value: 0 }
+***************************
+==== Lnth
+[ 'lev1', 'lev2' ]
+>BLOCK
+>RETURN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_Or', type: 'binopt' }
+PrimitiveVal { value: false }
+PrimitiveVal { value: false }
+***************************
+==== Log_Or
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>PRINT
+++ VAL EXPR
+PRINT> "DEBUGGING LUBN"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>ASSIGN
+++BINOPT
+++ VAR EXPR
+++ VAL EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Plus', type: 'binopt' }
+PrimitiveVal { value: 0 }
+PrimitiveVal { value: 1 }
+***************************
+==== Plus
+>LOOP
+>CONDITION
+*********** DEBUG *********
+BinOptExpr {
+  operator: Oper { operator: 'Lt', type: 'binopt' },
+  expr_lhs: VarExpr { variable: 'i' },
+  expr_rhs: UnOptExpr {
+    operator: Oper { operator: 'ListLen', type: 'unopt' },
+    expr_rhs: VarExpr { variable: 'levs' }
+  }
+}
+***************************
+++BINOPT
+++ VAR EXPR
+++ UNOPT
+++ VAR EXPR
+==== ListLen
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lt', type: 'binopt' }
+PrimitiveVal { value: 1 }
+PrimitiveVal { value: 3 }
+***************************
+==== Lt
+>BLOCK
+>BLOCK
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+acc
+ValExpr { value: PrimitiveVal { value: 'lub' } }
+[
+  VarExpr { variable: 'acc' },
+  BinOptExpr {
+    operator: Oper { operator: 'Lnth', type: 'binopt' },
+    expr_lhs: VarExpr { variable: 'levs' },
+    expr_rhs: VarExpr { variable: 'i' }
+  }
+]
+***************************
+++ VAL EXPR
+++ VAR EXPR
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lnth', type: 'binopt' }
+ListVal {
+  value: undefined,
+  list: [
+    PrimitiveVal { value: false },
+    PrimitiveVal { value: false },
+    PrimitiveVal { value: false }
+  ]
+}
+PrimitiveVal { value: 1 }
+***************************
+==== Lnth
+[ 'lev1', 'lev2' ]
+>BLOCK
+>RETURN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_Or', type: 'binopt' }
+PrimitiveVal { value: false }
+PrimitiveVal { value: false }
+***************************
+==== Log_Or
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>PRINT
+++ VAL EXPR
+PRINT> "DEBUGGING LUBN"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>ASSIGN
+++BINOPT
+++ VAR EXPR
+++ VAL EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Plus', type: 'binopt' }
+PrimitiveVal { value: 1 }
+PrimitiveVal { value: 1 }
+***************************
+==== Plus
+>LOOP
+>CONDITION
+*********** DEBUG *********
+BinOptExpr {
+  operator: Oper { operator: 'Lt', type: 'binopt' },
+  expr_lhs: VarExpr { variable: 'i' },
+  expr_rhs: UnOptExpr {
+    operator: Oper { operator: 'ListLen', type: 'unopt' },
+    expr_rhs: VarExpr { variable: 'levs' }
+  }
+}
+***************************
+++BINOPT
+++ VAR EXPR
+++ UNOPT
+++ VAR EXPR
+==== ListLen
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lt', type: 'binopt' }
+PrimitiveVal { value: 2 }
+PrimitiveVal { value: 3 }
+***************************
+==== Lt
+>BLOCK
+>BLOCK
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+acc
+ValExpr { value: PrimitiveVal { value: 'lub' } }
+[
+  VarExpr { variable: 'acc' },
+  BinOptExpr {
+    operator: Oper { operator: 'Lnth', type: 'binopt' },
+    expr_lhs: VarExpr { variable: 'levs' },
+    expr_rhs: VarExpr { variable: 'i' }
+  }
+]
+***************************
+++ VAL EXPR
+++ VAR EXPR
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lnth', type: 'binopt' }
+ListVal {
+  value: undefined,
+  list: [
+    PrimitiveVal { value: false },
+    PrimitiveVal { value: false },
+    PrimitiveVal { value: false }
+  ]
+}
+PrimitiveVal { value: 2 }
+***************************
+==== Lnth
+[ 'lev1', 'lev2' ]
+>BLOCK
+>RETURN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_Or', type: 'binopt' }
+PrimitiveVal { value: false }
+PrimitiveVal { value: false }
+***************************
+==== Log_Or
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>PRINT
+++ VAL EXPR
+PRINT> "DEBUGGING LUBN"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>ASSIGN
+++BINOPT
+++ VAR EXPR
+++ VAL EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Plus', type: 'binopt' }
+PrimitiveVal { value: 2 }
+PrimitiveVal { value: 1 }
+***************************
+==== Plus
+>LOOP
+>CONDITION
+*********** DEBUG *********
+BinOptExpr {
+  operator: Oper { operator: 'Lt', type: 'binopt' },
+  expr_lhs: VarExpr { variable: 'i' },
+  expr_rhs: UnOptExpr {
+    operator: Oper { operator: 'ListLen', type: 'unopt' },
+    expr_rhs: VarExpr { variable: 'levs' }
+  }
+}
+***************************
+++BINOPT
+++ VAR EXPR
+++ UNOPT
+++ VAR EXPR
+==== ListLen
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lt', type: 'binopt' }
+PrimitiveVal { value: 3 }
+PrimitiveVal { value: 3 }
+***************************
+==== Lt
+>MERGE
+>MERGE
+>MERGE
+>PRINT
+++ VAL EXPR
+PRINT> "FINAL LUBN"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>RETURN
+++ VAR EXPR
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+_freshvar_11
+ValExpr { value: PrimitiveVal { value: 'leq' } }
+[
+  VarExpr { variable: '_freshvar_lev_6' },
+  VarExpr { variable: 'x_lev' }
+]
+***************************
+++ VAL EXPR
+++ VAR EXPR
+++ VAR EXPR
+[ 'lev1', 'lev2' ]
+>BLOCK
+>PRINT
+++ VAL EXPR
+PRINT> "LEQQQ"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>PRINT
+++ VAR EXPR
+PRINT> true/n
+>ASSIGN
+++ UNOPT
+++ VAR EXPR
+==== Not
+>ASSIGN
+++ UNOPT
+++ VAR EXPR
+==== Not
+>PRINT
+++ VAR EXPR
+PRINT> true/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>ASSIGN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_And', type: 'binopt' }
+PrimitiveVal { value: true }
+PrimitiveVal { value: false }
+***************************
+==== Log_And
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>RETURN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_Or', type: 'binopt' }
+PrimitiveVal { value: true }
+PrimitiveVal { value: false }
+***************************
+==== Log_Or
+*********** RETURN DEBUG *********
+PrimitiveVal { value: true }
+***************************
+>CONDITION
+*********** DEBUG *********
+VarExpr { variable: '_freshvar_11' }
+***************************
+++ VAR EXPR
+>BLOCK
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+_freshvar_lev_7
+ValExpr { value: PrimitiveVal { value: 'lub' } }
+[
+  VarExpr { variable: '_fresh_field_lev_4' },
+  VarExpr { variable: '_freshvar_lev_6' }
+]
+***************************
+++ VAL EXPR
+++ VAR EXPR
+++ VAR EXPR
+[ 'lev1', 'lev2' ]
+>BLOCK
+>RETURN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_Or', type: 'binopt' }
+PrimitiveVal { value: false }
+PrimitiveVal { value: false }
+***************************
+==== Log_Or
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>ASSIGN
+++ VAR EXPR
+>FIELD LOOKUP
+*********** DEBUG *********
+x
+VarExpr { variable: '_fresh_obj_0' }
+VarExpr { variable: '_fresh_field_0' }
+++ VAR EXPR
+++ VAR EXPR
+_obj_0
+p
+PrimitiveVal { value: true }
+***************************
+>MERGE
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+_fresh_lev_var12
+ValExpr { value: PrimitiveVal { value: 'lubn' } }
+[
+  NOptExpr {
+    n_aryOperator: Oper { operator: 'ListExpr', type: 'nopt' },
+    expressionsList: [ [VarExpr] ]
+  }
+]
+***************************
+++ VAL EXPR
+++ NOPT
+++ VAR EXPR
+==== ListExpr
+[ 'levs' ]
+>BLOCK
+>ASSIGN
+++ VAL EXPR
+>ASSIGN
+++ VAL EXPR
+>LOOP
+>CONDITION
+*********** DEBUG *********
+BinOptExpr {
+  operator: Oper { operator: 'Lt', type: 'binopt' },
+  expr_lhs: VarExpr { variable: 'i' },
+  expr_rhs: UnOptExpr {
+    operator: Oper { operator: 'ListLen', type: 'unopt' },
+    expr_rhs: VarExpr { variable: 'levs' }
+  }
+}
+***************************
+++BINOPT
+++ VAR EXPR
+++ UNOPT
+++ VAR EXPR
+==== ListLen
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lt', type: 'binopt' }
+PrimitiveVal { value: 0 }
+PrimitiveVal { value: 1 }
+***************************
+==== Lt
+>BLOCK
+>BLOCK
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+acc
+ValExpr { value: PrimitiveVal { value: 'lub' } }
+[
+  VarExpr { variable: 'acc' },
+  BinOptExpr {
+    operator: Oper { operator: 'Lnth', type: 'binopt' },
+    expr_lhs: VarExpr { variable: 'levs' },
+    expr_rhs: VarExpr { variable: 'i' }
+  }
+]
+***************************
+++ VAL EXPR
+++ VAR EXPR
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lnth', type: 'binopt' }
+ListVal { value: undefined, list: [ PrimitiveVal { value: false } ] }
+PrimitiveVal { value: 0 }
+***************************
+==== Lnth
+[ 'lev1', 'lev2' ]
+>BLOCK
+>RETURN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_Or', type: 'binopt' }
+PrimitiveVal { value: false }
+PrimitiveVal { value: false }
+***************************
+==== Log_Or
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>PRINT
+++ VAL EXPR
+PRINT> "DEBUGGING LUBN"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>ASSIGN
+++BINOPT
+++ VAR EXPR
+++ VAL EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Plus', type: 'binopt' }
+PrimitiveVal { value: 0 }
+PrimitiveVal { value: 1 }
+***************************
+==== Plus
+>LOOP
+>CONDITION
+*********** DEBUG *********
+BinOptExpr {
+  operator: Oper { operator: 'Lt', type: 'binopt' },
+  expr_lhs: VarExpr { variable: 'i' },
+  expr_rhs: UnOptExpr {
+    operator: Oper { operator: 'ListLen', type: 'unopt' },
+    expr_rhs: VarExpr { variable: 'levs' }
+  }
+}
+***************************
+++BINOPT
+++ VAR EXPR
+++ UNOPT
+++ VAR EXPR
+==== ListLen
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lt', type: 'binopt' }
+PrimitiveVal { value: 1 }
+PrimitiveVal { value: 1 }
+***************************
+==== Lt
+>MERGE
+>PRINT
+++ VAL EXPR
+PRINT> "FINAL LUBN"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>RETURN
+++ VAR EXPR
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+_freshvar_lev_8
+ValExpr { value: PrimitiveVal { value: 'lub' } }
+[
+  VarExpr { variable: '_pc_1' },
+  VarExpr { variable: '_fresh_lev_var12' }
+]
+***************************
+++ VAL EXPR
+++ VAR EXPR
+++ VAR EXPR
+[ 'lev1', 'lev2' ]
+>BLOCK
+>RETURN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_Or', type: 'binopt' }
+PrimitiveVal { value: false }
+PrimitiveVal { value: false }
+***************************
+==== Log_Or
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>ASSIGN
+++ VAR EXPR
+>CONDITION
+*********** DEBUG *********
+VarExpr { variable: 'x' }
+***************************
+++ VAR EXPR
+>BLOCK
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+_freshvar_13
+ValExpr { value: PrimitiveVal { value: 'leq' } }
+[ VarExpr { variable: '_freshvar_12' }, VarExpr { variable: 'l_lev' } ]
+***************************
+++ VAL EXPR
+++ VAR EXPR
+++ VAR EXPR
+[ 'lev1', 'lev2' ]
+>BLOCK
+>PRINT
+++ VAL EXPR
+PRINT> "LEQQQ"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>ASSIGN
+++ UNOPT
+++ VAR EXPR
+==== Not
+>ASSIGN
+++ UNOPT
+++ VAR EXPR
+==== Not
+>PRINT
+++ VAR EXPR
+PRINT> true/n
+>PRINT
+++ VAR EXPR
+PRINT> true/n
+>ASSIGN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_And', type: 'binopt' }
+PrimitiveVal { value: true }
+PrimitiveVal { value: true }
+***************************
+==== Log_And
+>PRINT
+++ VAR EXPR
+PRINT> true/n
+>RETURN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_Or', type: 'binopt' }
+PrimitiveVal { value: false }
+PrimitiveVal { value: true }
+***************************
+==== Log_Or
+*********** RETURN DEBUG *********
+PrimitiveVal { value: true }
+***************************
+>CONDITION
+*********** DEBUG *********
+VarExpr { variable: '_freshvar_13' }
 ***************************
 ++ VAR EXPR
 >BLOCK
@@ -2774,8 +2988,8 @@ PrimitiveVal { value: false }
 ***************************
 >ASSIGN CALL
 *********** DEBUG ASSIGN CALL*********
-_freshvar_13
-ValExpr { value: PrimitiveVal { value: 'leq' } }
+l_lev
+ValExpr { value: PrimitiveVal { value: 'lub' } }
 [
   VarExpr { variable: '_freshvar_12' },
   VarExpr { variable: '_fresh_lev_var11' }
@@ -2786,46 +3000,6 @@ ValExpr { value: PrimitiveVal { value: 'leq' } }
 ++ VAR EXPR
 [ 'lev1', 'lev2' ]
 >BLOCK
->PRINT
-++ VAL EXPR
-PRINT> "LEQQQ"/n
->PRINT
-++ VAR EXPR
-PRINT> true/n
->PRINT
-++ VAR EXPR
-PRINT> false/n
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: true }
-USING NOT IN trueRESULTS IN false
->ASSIGN
-++ UNOPT
-++ VAR EXPR
-==== Not
-PrimitiveVal { value: false }
-USING NOT IN falseRESULTS IN true
->PRINT
-++ VAR EXPR
-PRINT> false/n
->PRINT
-++ VAR EXPR
-PRINT> true/n
->ASSIGN
-++BINOPT
-++ VAR EXPR
-++ VAR EXPR
-*********** DEBUG BINOPT *********
-Oper { operator: 'Log_And', type: 'binopt' }
-PrimitiveVal { value: false }
-PrimitiveVal { value: true }
-***************************
-==== Log_And
->PRINT
-++ VAR EXPR
-PRINT> false/n
 >RETURN
 ++BINOPT
 ++ VAR EXPR
@@ -2839,11 +3013,182 @@ PrimitiveVal { value: false }
 *********** RETURN DEBUG *********
 PrimitiveVal { value: false }
 ***************************
+>ASSIGN
+++ VAL EXPR
+>MERGE
+>MERGE
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+_fresh_lev_var13
+ValExpr { value: PrimitiveVal { value: 'lubn' } }
+[
+  NOptExpr {
+    n_aryOperator: Oper { operator: 'ListExpr', type: 'nopt' },
+    expressionsList: [ [VarExpr] ]
+  }
+]
+***************************
+++ VAL EXPR
+++ NOPT
+++ VAR EXPR
+==== ListExpr
+[ 'levs' ]
+>BLOCK
+>ASSIGN
+++ VAL EXPR
+>ASSIGN
+++ VAL EXPR
+>LOOP
 >CONDITION
 *********** DEBUG *********
-VarExpr { variable: '_freshvar_13' }
+BinOptExpr {
+  operator: Oper { operator: 'Lt', type: 'binopt' },
+  expr_lhs: VarExpr { variable: 'i' },
+  expr_rhs: UnOptExpr {
+    operator: Oper { operator: 'ListLen', type: 'unopt' },
+    expr_rhs: VarExpr { variable: 'levs' }
+  }
+}
 ***************************
+++BINOPT
 ++ VAR EXPR
+++ UNOPT
+++ VAR EXPR
+==== ListLen
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lt', type: 'binopt' }
+PrimitiveVal { value: 0 }
+PrimitiveVal { value: 1 }
+***************************
+==== Lt
 >BLOCK
->EXCEPTION
-MONITOR EXCEPTION -> Illegal Print
+>BLOCK
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+acc
+ValExpr { value: PrimitiveVal { value: 'lub' } }
+[
+  VarExpr { variable: 'acc' },
+  BinOptExpr {
+    operator: Oper { operator: 'Lnth', type: 'binopt' },
+    expr_lhs: VarExpr { variable: 'levs' },
+    expr_rhs: VarExpr { variable: 'i' }
+  }
+]
+***************************
+++ VAL EXPR
+++ VAR EXPR
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lnth', type: 'binopt' }
+ListVal { value: undefined, list: [ PrimitiveVal { value: false } ] }
+PrimitiveVal { value: 0 }
+***************************
+==== Lnth
+[ 'lev1', 'lev2' ]
+>BLOCK
+>RETURN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_Or', type: 'binopt' }
+PrimitiveVal { value: false }
+PrimitiveVal { value: false }
+***************************
+==== Log_Or
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>PRINT
+++ VAL EXPR
+PRINT> "DEBUGGING LUBN"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>ASSIGN
+++BINOPT
+++ VAR EXPR
+++ VAL EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Plus', type: 'binopt' }
+PrimitiveVal { value: 0 }
+PrimitiveVal { value: 1 }
+***************************
+==== Plus
+>LOOP
+>CONDITION
+*********** DEBUG *********
+BinOptExpr {
+  operator: Oper { operator: 'Lt', type: 'binopt' },
+  expr_lhs: VarExpr { variable: 'i' },
+  expr_rhs: UnOptExpr {
+    operator: Oper { operator: 'ListLen', type: 'unopt' },
+    expr_rhs: VarExpr { variable: 'levs' }
+  }
+}
+***************************
+++BINOPT
+++ VAR EXPR
+++ UNOPT
+++ VAR EXPR
+==== ListLen
+*********** DEBUG BINOPT *********
+Oper { operator: 'Lt', type: 'binopt' }
+PrimitiveVal { value: 1 }
+PrimitiveVal { value: 1 }
+***************************
+==== Lt
+>MERGE
+>PRINT
+++ VAL EXPR
+PRINT> "FINAL LUBN"/n
+>PRINT
+++ VAR EXPR
+PRINT> false/n
+>RETURN
+++ VAR EXPR
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>ASSIGN CALL
+*********** DEBUG ASSIGN CALL*********
+_freshvar_lev_9
+ValExpr { value: PrimitiveVal { value: 'lub' } }
+[
+  VarExpr { variable: '_fresh_lev_var13' },
+  VarExpr { variable: '_pc_1' }
+]
+***************************
+++ VAL EXPR
+++ VAR EXPR
+++ VAR EXPR
+[ 'lev1', 'lev2' ]
+>BLOCK
+>RETURN
+++BINOPT
+++ VAR EXPR
+++ VAR EXPR
+*********** DEBUG BINOPT *********
+Oper { operator: 'Log_Or', type: 'binopt' }
+PrimitiveVal { value: false }
+PrimitiveVal { value: false }
+***************************
+==== Log_Or
+*********** RETURN DEBUG *********
+PrimitiveVal { value: false }
+***************************
+>RETURN
+++ NOPT
+++ VAR EXPR
+++ VAR EXPR
+==== TupleExpr
+TupleVal {
+  value: [ PrimitiveVal { value: false }, PrimitiveVal { value: false } ]
+}
+MAIN return -> false,false
+
+asd
+

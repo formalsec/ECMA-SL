@@ -14,6 +14,22 @@ function MakeAssign(Stmt){
       return `${this.variable.toString()} := ${this.expression.toString()}`;
     }
 
+    toJS(){
+      var expr_js = this.expression.toJS();
+      return {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "AssignmentExpression",
+          "operator": "=",
+          "left": {
+            "type": "Identifier",
+            "name": this.variable
+          },
+          "right": expr_js
+        }
+      }
+    }
+
     interpret(config){
       console.log(">ASSIGN")
       config.cont=config.cont.slice(1);

@@ -12,6 +12,7 @@ function MakeNewObj(Expr){
         .map((fieldValue) => fieldValue.toString())
         .join(", ")} }`;
     }
+
   }
 
   NewObj.FieldValue = class {

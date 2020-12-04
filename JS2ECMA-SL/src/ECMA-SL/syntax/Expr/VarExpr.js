@@ -12,6 +12,13 @@ function MakeVarExpr(Expr){
 	    return this.variable;
 	  }
 
+	  toJS(){
+	  	return {
+        "type": "Identifier",
+        "name": this.variable
+	    }
+	  }
+
 	  interpret(store){
 	  	console.log("++ VAR EXPR");
 	  	var val = store.sto[this.variable];

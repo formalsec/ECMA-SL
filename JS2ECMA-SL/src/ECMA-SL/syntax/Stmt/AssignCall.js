@@ -18,13 +18,31 @@ function MakeAssignCall(Stmt){
       return this.stringvar + " := " + this.func.toString() + "( " + args_str.join(", ") + " )";
     }
 
+    toJS(){
+      var args_js = this.args.map((arg) => arg.toJS());
+      return {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "AssignmentExpression",
+          "operator": "=",
+          "left": {
+            "type": "Identifier",
+            "name": this.stringvar
+          },
+          "right": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": this.func 
+            },
+            "arguments": args_js
+          }
+        }
+      }
+    }
+
     interpret(config){
       console.log(">ASSIGN CALL");
-      console.log("*********** DEBUG ASSIGN CALL*********");
-          console.log(this.stringvar);
-          console.log(this.func);
-          console.log(this.args);
-          console.log("***************************");
       config.cont=config.cont.slice(1);
       var func_name = this.func.interpret(config.store);
       var f = config.prog.getFunc(func_name.value);

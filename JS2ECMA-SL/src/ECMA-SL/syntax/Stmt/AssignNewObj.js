@@ -18,11 +18,28 @@ function MakeAssignNewObj(Stmt){
 	  	config.cont=config.cont.slice(1);
 	  	return {config : config, seclabel: new AssignNewObjLab(this.stringvar, obj_name)};
 	  }
+
+	  toJS(){
+	  	return {
+	      "type": "ExpressionStatement",
+	      "expression": {
+	        "type": "AssignmentExpression",
+	        "operator": "=",
+	        "left": {
+	          "type": "Identifier",
+	          "name": this.stringvar
+	        },
+	        "right": {
+	          "type": "ObjectExpression",
+	          "properties": []
+	        }
+	      }
+	    }
+		}
 	}
 
 	AssignNewObj.fromJSON = function(obj) {
 		stringvar = obj.lhs;
-		
 		return new AssignNewObj(stringvar);
 
 	}

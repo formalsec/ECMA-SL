@@ -11,6 +11,7 @@
   "author": "Luís Loureiro",
   "license": "MIT",
   "dependencies": {
+    "escodegen": "^2.0.0",
     "esprima": "^4.0.1",
     "yargs": "^15.4.1"
   }
