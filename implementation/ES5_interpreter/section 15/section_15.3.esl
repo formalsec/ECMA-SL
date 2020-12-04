@@ -53,21 +53,21 @@ function fillFunctionPrototype(functionPrototypeObject, FunctionConstructor, glo
   createBuiltInProperty(functionPrototypeObject, "constructor", FunctionConstructor);
 
   /* 15.3.4.2 Function.prototype.toString ( ) */
-  toString := CreateFunctionObject([], "FunctionPrototypeToString", globalObject, strict);
+  toString := CreateBuiltInFunctionObject([], "FunctionPrototypeToString", globalObject, strict);
   createBuiltInProperty(functionPrototypeObject, "toString", toString);
 
   /* 15.3.4.3 Function.prototype.apply (thisArg, argArray) */
-  apply := CreateFunctionObject(["thisArg", "argArray"], "FunctionPrototypeApply", globalObject, strict);
+  apply := CreateBuiltInFunctionObject(["thisArg", "argArray"], "FunctionPrototypeApply", globalObject, strict);
   createBuiltInProperty(functionPrototypeObject, "apply", apply);
 
   /* 15.3.4.4 Function.prototype.call (thisArg [ , arg1 [ , arg2, ... ] ] ) */
-  call := CreateFunctionObject(["thisArg", "args"], "FunctionPrototypeCall", globalObject, strict);
+  call := CreateBuiltInFunctionObject(["thisArg", "args"], "FunctionPrototypeCall", globalObject, strict);
   /* The length property of the call method is 1. */
   createBuiltInPropertyWithFullDescriptor(call, "length", 1, false, false, false);
   createBuiltInProperty(functionPrototypeObject, "call", call);
 
   /* 15.3.4.5 Function.prototype.bind (thisArg [, arg1 [, arg2, ...]]) */
-  bind := CreateFunctionObject(["thisArg", "args"], "FunctionPrototypeBind", globalObject, strict);
+  bind := CreateBuiltInFunctionObject(["thisArg", "args"], "FunctionPrototypeBind", globalObject, strict);
   /* The length property of the bind method is 1. */
   createBuiltInPropertyWithFullDescriptor(bind, "length", 1, false, false, false);
   createBuiltInProperty(functionPrototypeObject, "bind", bind);
@@ -138,7 +138,7 @@ function FunctionConstructor(globalObject, this, strict, params) {
   /* TODO */
   /* 11. Return a new Function object created as specified in 13.2 passing P as the FormalParameterList opt and body
          as the FunctionBody. Pass in the Global Environment as the Scope parameter and strict as the Strict flag. */
-  return CreateFunctionObject(P, body, getGlobalEnvironment(globalObject), strict)
+  return CreateBuiltInFunctionObject(P, body, getGlobalEnvironment(globalObject), strict)
 
   /* A prototype property is automatically created for every function, to provide for the possibility that the
      function will be used as a constructor. */
