@@ -299,7 +299,7 @@ function ToPropertyDescriptor (Obj) {
     /** a. Let setter be the result of calling the [[Get]] internal method of Obj with argument "set". */
     setter := Get(Obj, "set");
     /** b. If IsCallable(setter) is false and setter is not undefined, then throw a TypeError exception. */
-    if ((IsCallable(setter) = false) && !(setter = undefined)) {
+    if ((IsCallable(setter) = false) && !(setter = 'undefined)) {
       throw TypeErrorConstructorInternal()
     };
     /** c. Set the [[Set]] field of desc to setter. */
