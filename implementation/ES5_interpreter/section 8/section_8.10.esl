@@ -287,7 +287,7 @@ function ToPropertyDescriptor (Obj) {
     /** a. Let getter be the result of calling the [[Get]] internal method of Obj with argument "get". */
     getter := Get(Obj, "get");
     /** b. If IsCallable(getter) is false and getter is not undefined, then throw a TypeError exception. */
-    if ((IsCallable(getter) = false) && !(getter = 'undefined)) {
+    if ((IsCallable(getter) = false) &&& !(getter = 'undefined)) {
       throw TypeErrorConstructorInternal()
     };
     /** c. Set the [[Get]] field of desc to getter. */
@@ -299,7 +299,7 @@ function ToPropertyDescriptor (Obj) {
     /** a. Let setter be the result of calling the [[Get]] internal method of Obj with argument "set". */
     setter := Get(Obj, "set");
     /** b. If IsCallable(setter) is false and setter is not undefined, then throw a TypeError exception. */
-    if ((IsCallable(setter) = false) && !(setter = 'undefined)) {
+    if ((IsCallable(setter) = false) &&& !(setter = 'undefined)) {
       throw TypeErrorConstructorInternal()
     };
     /** c. Set the [[Set]] field of desc to setter. */
@@ -307,9 +307,9 @@ function ToPropertyDescriptor (Obj) {
   };
 
   /** 9. If either desc.[[Get]] or desc.[[Set]] are present, then: */
-  if (("Get" in_obj desc) || ("Set" in_obj desc)) {
+  if (("Get" in_obj desc) ||| ("Set" in_obj desc)) {
     /** a. If either desc.[[Value]] or desc.[[Writable]] are present, then throw a TypeError exception. */
-    if (("Value" in_obj desc) || ("Writable" in_obj desc)) {
+    if (("Value" in_obj desc) ||| ("Writable" in_obj desc)) {
       throw TypeErrorConstructorInternal()
     }
   };
