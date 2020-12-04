@@ -304,7 +304,7 @@ function initNativeErrorConstructor(NativeErrorPrototype, nativeErrorName, const
       created object. */
   /* The value of the [[Prototype]] internal property of a NativeError constructor is the Function prototype object
     (15.3.4). */
-  NativeErrorConstructor := CreateBuiltInFunctionObject(["message"], constructorFunction, globalObject, strict);
+  NativeErrorConstructor := CreateFunctionObject(["message"], constructorFunction, globalObject, strict);
 
   /* 15.11.7.6 NativeError.prototype */
   /* The initial value of NativeError.prototype is a NativeError prototype object (15.11.7.7). Each NativeError
