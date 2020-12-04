@@ -7,9 +7,10 @@ function MakePrimitiveVal(Val){
 
     toString() {
       if ((typeof this.value) === "string") {
-        return `"${this.value.split('"').join('\\"')}"`;
+        return `"${this.value.split('\\').join('\\\\')
+                             .split('"').join('\\"')}"`
       }
-      
+
       return ("" + this.value);
     }
   }
