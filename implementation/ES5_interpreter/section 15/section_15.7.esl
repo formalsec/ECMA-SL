@@ -104,15 +104,15 @@ function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObj
   createBuiltInProperty(numberPrototypeObject, "constructor", NumberConstructor);
 
   /* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
-  toString := CreateFunctionObject([], "numberToString", globalObject, strict);
+  toString := CreateBuiltInFunctionObject([], "numberToString", globalObject, strict);
   createBuiltInProperty(numberPrototypeObject, "toString", toString);
 
   /* 15.7.4.3 Number.prototype.toLocaleString() */
-  toLocaleString := CreateFunctionObject([], "numberToLocaleString", globalObject, strict);
+  toLocaleString := CreateBuiltInFunctionObject([], "numberToLocaleString", globalObject, strict);
   createBuiltInProperty(numberPrototypeObject, "toLocaleString", toLocaleString);
 
   /* 15.7.4.4 Number.prototype.valueOf ( ) */
-  valueOf := CreateFunctionObject([], "NumberPrototypeValueOf", globalObject, strict);
+  valueOf := CreateBuiltInFunctionObject([], "NumberPrototypeValueOf", globalObject, strict);
   createBuiltInProperty(numberPrototypeObject, "valueOf", valueOf);
 
   /* 15.7.4.5 Number.prototype.toFixed (fractionDigits) */

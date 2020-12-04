@@ -81,108 +81,104 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));
 
   /* Add built-in function objects to array's prototype */
-  /* isArray */
-  isArrayObject := CreateFunctionObject(["items"], "isArray", global, strict);
-  descriptor := newDataPropertyDescriptorFull(isArrayObject, true, false, true);
-  setJSProperty(prototype, "isArray", descriptor);
 
   /* toString */
-  toStringObject := CreateFunctionObject(["items"], "arrayToString", global, strict);
+  toStringObject := CreateBuiltInFunctionObject(["items"], "arrayToString", global, strict);
   descriptor := newDataPropertyDescriptorFull(toStringObject, true, false, true);
   setJSProperty(prototype, "toString", descriptor);
 
   /* toLocaleString */
-  toLocaleStringObject := CreateFunctionObject(["items"], "arrayToLocaleString", global, strict);
+  toLocaleStringObject := CreateBuiltInFunctionObject(["items"], "arrayToLocaleString", global, strict);
   descriptor := newDataPropertyDescriptorFull(toLocaleStringObject, true, false, true);
   setJSProperty(prototype, "toLocaleString", descriptor);
 
   /* concat */
-  concatObject := CreateFunctionObject(["items"], "arrayConcat", global, strict);
+  concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict);
   descriptor := newDataPropertyDescriptorFull(concatObject, true, false, true);
   setJSProperty(prototype, "concat", descriptor);
 
   /* join */
-  joinObject := CreateFunctionObject(["items"], "arrayJoin", global, strict);
+  joinObject := CreateBuiltInFunctionObject(["items"], "arrayJoin", global, strict);
   descriptor := newDataPropertyDescriptorFull(joinObject, true, false, true);
   setJSProperty(prototype, "join", descriptor);
 
   /* pop */
-  popObject := CreateFunctionObject(["items"], "arrayPop", global, strict);
+  popObject := CreateBuiltInFunctionObject([], "arrayPop", global, strict);
   descriptor := newDataPropertyDescriptorFull(popObject, true, false, true);
   setJSProperty(prototype, "pop", descriptor);
 
   /* push */
-  pushObject := CreateFunctionObject(["items"], "arrayPush", global, strict);
+  pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict);
   descriptor := newDataPropertyDescriptorFull(pushObject, true, false, true);
   setJSProperty(prototype, "push", descriptor);
 
   /* reverse */
-  reverseObject := CreateFunctionObject(["items"], "arrayReverse", global, strict);
+  reverseObject := CreateBuiltInFunctionObject(["items"], "arrayReverse", global, strict);
   descriptor := newDataPropertyDescriptorFull(reverseObject, true, false, true);
   setJSProperty(prototype, "reverse", descriptor);
 
   /* shift */
-  shiftObject := CreateFunctionObject(["items"], "arrayShift", global, strict);
+  shiftObject := CreateBuiltInFunctionObject(["items"], "arrayShift", global, strict);
   descriptor := newDataPropertyDescriptorFull(shiftObject, true, false, true);
   setJSProperty(prototype, "shift", descriptor);
 
   /* slice */
-  sliceObject := CreateFunctionObject(["items"], "arraySlice", global, strict);
+  sliceObject := CreateBuiltInFunctionObject(["items"], "arraySlice", global, strict);
   descriptor := newDataPropertyDescriptorFull(sliceObject, true, false, true);
   setJSProperty(prototype, "slice", descriptor);
 
   /* sort */
-  sortObject := CreateFunctionObject(["items"], "arraySort", global, strict);
+  sortObject := CreateBuiltInFunctionObject(["items"], "arraySort", global, strict);
   descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
   setJSProperty(prototype, "sort", descriptor);
 
   /* splice */
-  spliceObject := CreateFunctionObject(["items"], "arraySplice", global, strict);
+  spliceObject := CreateBuiltInFunctionObject(["items"], "arraySplice", global, strict);
   descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
   setJSProperty(prototype, "splice", descriptor);
 
   /* indexOf */
-  indexOfObject := CreateFunctionObject(["items"], "arrayIndexOf", global, strict);
+  indexOfObject := CreateBuiltInFunctionObject(["items"], "arrayIndexOf", global, strict);
   descriptor := newDataPropertyDescriptorFull(indexOfObject, true, false, true);
   setJSProperty(prototype, "indexOf", descriptor);
 
   /* lastIndexOf */
-  lastIndexOfObject := CreateFunctionObject(["items"], "arrayLastIndexOf", global, strict);
+  lastIndexOfObject := CreateBuiltInFunctionObject(["items"], "arrayLastIndexOf", global, strict);
   descriptor := newDataPropertyDescriptorFull(lastIndexOfObject, true, false, true);
   setJSProperty(prototype, "lastIndexOf", descriptor);
 
   /* every */
-  everyOfObject := CreateFunctionObject(["items"], "arrayEvery", global, strict);
+  everyOfObject := CreateBuiltInFunctionObject(["items"], "arrayEvery", global, strict);
   descriptor := newDataPropertyDescriptorFull(everyOfObject, true, false, true);
   setJSProperty(prototype, "every", descriptor);
 
   /* some */
-  someOfObject := CreateFunctionObject(["items"], "arraySome", global, strict);
+  someOfObject := CreateBuiltInFunctionObject(["items"], "arraySome", global, strict);
   descriptor := newDataPropertyDescriptorFull(someOfObject, true, false, true);
   setJSProperty(prototype, "some", descriptor);
 
   /* forEach */
-  forEachObject := CreateFunctionObject(["items"], "arrayForEach", global, strict);
+  forEachObject := CreateBuiltInFunctionObject(["items"], "arrayForEach", global, strict);
   descriptor := newDataPropertyDescriptorFull(forEachObject, true, false, true);
   setJSProperty(prototype, "forEach", descriptor);
 
   /* map */
-  mapObject := CreateFunctionObject(["items"], "arrayMap", global, strict);
+  mapObject := CreateBuiltInFunctionObject(["items"], "arrayMap", global, strict);
   descriptor := newDataPropertyDescriptorFull(mapObject, true, false, true);
   setJSProperty(prototype, "map", descriptor);
 
   /* filter */
-  filterObject := CreateFunctionObject(["items"], "arrayFilter", global, strict);
+  filterObject := CreateBuiltInFunctionObject(["items"], "arrayFilter", global, strict);
   descriptor := newDataPropertyDescriptorFull(filterObject, true, false, true);
   setJSProperty(prototype, "filter", descriptor);
 
   /* reduce */
-  reduceObject := CreateFunctionObject(["items"], "arrayReduce", global, strict);
+  reduceObject := CreateBuiltInFunctionObject(["items"], "arrayReduce", global, strict);
   descriptor := newDataPropertyDescriptorFull(reduceObject, true, false, true);
   setJSProperty(prototype, "reduce", descriptor);
 
   /* reduceRight */
-  reduceRightObject := CreateFunctionObject(["items"], "arrayReduceRight", global, strict);
+  reduceRightObject := CreateBuiltInFunctionObject(["items"], "arrayReduceRight", global, strict);
   descriptor := newDataPropertyDescriptorFull(reduceRightObject, true, false, true);
   setJSProperty(prototype, "reduceRight", descriptor);
 
@@ -206,6 +202,14 @@ function getArrayPrototype(strict) {
 function initArrayObject(global, objectPrototype, strict) {
   objArrayPrototype := initArrayPrototype(global, objectPrototype, strict);
   objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict);
+
+  descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
+  setJSProperty(objArrayPrototype, "constructor", descriptor);
+
+  /* isArray */
+  isArrayObject := CreateBuiltInFunctionObject(["items"], "isArray", global, strict);
+  descriptor := newDataPropertyDescriptorFull(isArrayObject, true, false, true);
+  setJSProperty(objArrayConstructor, "isArray", descriptor);
 
   descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
   setJSProperty(objArrayConstructor, "prototype", descriptor);
@@ -252,11 +256,11 @@ function initArrayObject(global, objectPrototype, strict) {
  * no arguments or at least two arguments.
  */
 function ArrayConstructor(global, this, strict, items) {
-  if ((l_len items) = 1) {
-    return ArrayConstructorLen(global, this, strict, items)
-  };
-
   prototype := getArrayPrototype(strict);
+  if ((l_len items) = 1) {
+    len := l_nth (items, 0);
+    return internalNewArrayLen(prototype, len)
+  };
   return internalNewArray(prototype, items)
 };
 function internalNewArray(arrayPrototype, items) {
@@ -311,11 +315,6 @@ function internalNewArray(arrayPrototype, items) {
 /**
  * 15.4.2.2 new Array (len)
  */
-function ArrayConstructorLen(global, this, strict, args) {
-  len := l_nth (args, 0);
-  prototype := getArrayPrototype(strict);
-  return internalNewArrayLen(prototype, len)
-};
 function internalNewArrayLen(arrayPrototype, len) {
 
   arr := {
@@ -323,7 +322,7 @@ function internalNewArrayLen(arrayPrototype, len) {
     /* The [[Prototype]] internal property of the newly constructed object is
       set to the original Array prototype object, the one that is the initial
       value of Array.prototype (15.4.3.1). */
-    Prototype: 'null,
+    Prototype: arrayPrototype,
     /* The [[Class]] internal property of the newly constructed object
       is set to "Array". */
     Class: "Array",
@@ -343,14 +342,14 @@ function internalNewArrayLen(arrayPrototype, len) {
 
   /* If the argument len is a Number and ToUint32(len) is equal to len, then
      the length property of the newly constructed object is set to ToUint32(len). */
-  if (lenIsNumber && ((ToUint32(len) = len))) {
+  if (lenIsNumber &&& ((ToUint32(len) = len))) {
     /*arr.length := newDataPropertyDescriptorFull(ToUint32(len), true, false, false)*/
     setJSProperty(arr, "length", newDataPropertyDescriptorFull(ToUint32(len), true, false, false))
   };
 
   /* If the argument len is a Number and ToUint32(len) is not equal to
      len, a RangeError exception is thrown. */
-  if (lenIsNumber && !((ToUint32(len) = len))) {
+  if (lenIsNumber &&& !((ToUint32(len) = len))) {
     throw RangeErrorConstructorInternal()
   };
 
@@ -743,7 +742,9 @@ function arrayPop(global, this, strict, args) {
       {O.Delete}(O, indx, true);
       /* d. Call the [[Put]] internal method of O with arguments "length",
             indx, and true. */
-      {O.Put}(O, "length", indx, true);
+      /* POSSIBLE ERROR IN THE STANDARD
+        len - 1 instead of indx.*/
+      {O.Put}(O, "length", len - 1., true);
       /* e. Return element. */
       return element
     }
@@ -2077,7 +2078,7 @@ function arrayMap(global, this, strict, args) {
   /* 6. Let A be a new array created as if by the expression new Array( len)
         where Array is the standard built-in constructor with that name and
         len is the value of len. */
-  A := ArrayConstructorLen(global, this, strict, [len]);
+  A := ArrayConstructor(global, this, strict, [len]);
   /* 7. Let k be 0. */
   k := 0.;
   /* 8. Repeat, while k < len */
