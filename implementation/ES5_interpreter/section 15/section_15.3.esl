@@ -30,18 +30,23 @@ function fillFunctionConstructor(FunctionConstructor, globalObject, strict) {
   return
 };
 
+/* The Function prototype object is itself a Function object (its [[Class]] is "Function") that, when invoked,
+   accepts any arguments and returns undefined. */
+function functionPrototypeFunction(globalObject, this, strict, params) {
+  return 'undefined
+};
+
 /* 15.3.4 Function Prototype Object */
-function initFunctionPrototype(objectPrototype) {
+function initFunctionPrototype(objectPrototype, globalObject, strict) {
   /* The Function prototype object is itself a Function object (its [[Class]] is "Function") that, when invoked,
-     accepts any arguments and returns undefined. */ /* TODO */
+     accepts any arguments and returns undefined. */
+  functionPrototypeObject := CreateGeneralBuiltInFunctionObject(objectPrototype, [], "functionPrototypeFunction", globalObject, strict);
   /* The value of the [[Prototype]] internal property of the Function prototype object is the standard built-in Object
      prototype object (15.2.4). The initial value of the [[Extensible]] internal property of the Function prototype
      object is true.*/
   /* The Function prototype object does not have a valueOf property of its own; however, it inherits the valueOf
      property from the Object prototype Object. */
   /* The length property of the Function prototype object is 0. */
-  functionPrototypeObject := NewECMAScriptObjectFull(objectPrototype, "Function", true);
-  setAllInternalMethodsOfObject(functionPrototypeObject);
 
   return functionPrototypeObject
 };

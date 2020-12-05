@@ -24,7 +24,7 @@ function initGlobalObject(strict) {
   setAllInternalMethodsOfObject(globalObject);
 
   ObjectPrototype := initObjectPrototype();
-  FunctionPrototype := initFunctionPrototype(ObjectPrototype);
+  FunctionPrototype := initFunctionPrototype(ObjectPrototype, globalObject, strict);
   ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, strict);
   FunctionConstructor := initFunctionConstructor(FunctionPrototype, globalObject, strict);
 

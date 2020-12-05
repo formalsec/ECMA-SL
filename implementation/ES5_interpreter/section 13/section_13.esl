@@ -7,10 +7,14 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) 
   return CreateGeneralFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict)
 };
 
-function CreateBuiltInFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) {
-  F := CreateGeneralFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict);
+function CreateGeneralBuiltInFunctionObject(prototype, FormalParameterList, FunctionBody, Scope, Strict) {
+  F := CreateGeneralFunctionObject(prototype, FormalParameterList, FunctionBody, Scope, Strict);
   delete F.Construct;
   return F
+};
+
+function CreateBuiltInFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) {
+  return CreateGeneralBuiltInFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict)
 };
 
 function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, FunctionBody, Scope, Strict) {
