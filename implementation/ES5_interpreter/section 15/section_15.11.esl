@@ -69,7 +69,7 @@ function fillErrorPrototype(errorPrototypeObject, ErrorConstructor, globalObject
   createBuiltInProperty(errorPrototypeObject, "message", "");
 
   /* 15.11.4.4 Error.prototype.toString ( ) */
-  toString := CreateFunctionObject([], "ErrorPrototypeToString", globalObject, strict);
+  toString := CreateBuiltInFunctionObject([], "ErrorPrototypeToString", globalObject, strict);
   createBuiltInProperty(errorPrototypeObject, "toString", toString);
 
   return

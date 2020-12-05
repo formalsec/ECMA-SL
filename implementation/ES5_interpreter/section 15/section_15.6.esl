@@ -59,11 +59,11 @@ function fillBooleanPrototype(booleanPrototypeObject, BooleanConstructor, global
   createBuiltInProperty(booleanPrototypeObject, "constructor", BooleanConstructor);
 
   /* 15.6.4.2 Boolean.prototype.toString ( ) */
-  toString := CreateFunctionObject([], "BooleanPrototypeToString", globalObject, strict);
+  toString := CreateBuiltInFunctionObject([], "BooleanPrototypeToString", globalObject, strict);
   createBuiltInProperty(booleanPrototypeObject, "toString", toString);
 
   /* 15.6.4.3 Boolean.prototype.valueOf ( ) */
-  valueOf := CreateFunctionObject([], "BooleanPrototypeValueOf", globalObject, strict);
+  valueOf := CreateBuiltInFunctionObject([], "BooleanPrototypeValueOf", globalObject, strict);
   createBuiltInProperty(booleanPrototypeObject, "valueOf", valueOf);
 
   return

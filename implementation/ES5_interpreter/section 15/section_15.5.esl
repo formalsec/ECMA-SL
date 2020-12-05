@@ -27,30 +27,30 @@ function initStringPrototype(global, objectPrototype, strict) {
   setAllInternalMethodsOfObject(prototype);
 
   /* 15.5.4.7 String.prototype.indexOf (searchString, position) */
-  indexOf := CreateFunctionObject(["searchString", "position"], "StringPrototypeIndexOf", global, strict);
+  indexOf := CreateBuiltInFunctionObject(["searchString", "position"], "StringPrototypeIndexOf", global, strict);
   createBuiltInProperty(prototype, "indexOf", indexOf);
 
-  concatFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypeconcat", global, strict);
+  concatFunctionObject:= CreateBuiltInFunctionObject( [ "args" ], "StringPrototypeconcat", global, strict);
   setJSProperty(concatFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
   setJSProperty(prototype, "concat", newDataPropertyDescriptor( concatFunctionObject ));
 
-  charCodeAtFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypecharCodeAt", global, strict);
+  charCodeAtFunctionObject:= CreateBuiltInFunctionObject( [ "args" ], "StringPrototypecharCodeAt", global, strict);
   setJSProperty(charCodeAtFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
   setJSProperty(prototype, "charCodeAt", newDataPropertyDescriptor( charCodeAtFunctionObject ));
 
-  charAtFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypecharAt", global, strict);
+  charAtFunctionObject:= CreateBuiltInFunctionObject( [ "args" ], "StringPrototypecharAt", global, strict);
   setJSProperty(charAtFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
   setJSProperty(prototype, "charAt", newDataPropertyDescriptor( charAtFunctionObject ));
 
-  toStringFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypetoString", global, strict);
+  toStringFunctionObject:= CreateBuiltInFunctionObject( [ "args" ], "StringPrototypetoString", global, strict);
   setJSProperty(toStringFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
   setJSProperty(prototype, "toString", newDataPropertyDescriptor( toStringFunctionObject ));
 
-  toLowerCaseFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypetoLowerCase", global, strict);
+  toLowerCaseFunctionObject:= CreateBuiltInFunctionObject( [ "args" ], "StringPrototypetoLowerCase", global, strict);
   setJSProperty(toLowerCaseFunctionObject, "length", newDataPropertyDescriptorFull( 1. , false, false, false));
   setJSProperty(prototype, "toLowerCase", newDataPropertyDescriptor( toLowerCaseFunctionObject ));
 
-  substringFunctionObject:= CreateFunctionObject( [ "args" ], "StringPrototypesubstring", global, strict);
+  substringFunctionObject:= CreateBuiltInFunctionObject( [ "args" ], "StringPrototypesubstring", global, strict);
   setJSProperty(substringFunctionObject, "length", newDataPropertyDescriptorFull( 2. , false, false, false));
   setJSProperty(prototype, "toLowerCase", newDataPropertyDescriptor( substringFunctionObject ));
 

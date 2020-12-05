@@ -7,6 +7,12 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) 
   return CreateGeneralFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict)
 };
 
+function CreateBuiltInFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) {
+  F := CreateGeneralFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict);
+  delete F.Construct;
+  return F
+};
+
 function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, FunctionBody, Scope, Strict) {
   /* 1. Create a new native ECMAScript object and let F be that object. */
   F := NewECMAScriptObject();
