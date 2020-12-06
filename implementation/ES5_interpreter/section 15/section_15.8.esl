@@ -156,10 +156,7 @@ function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
 
 /* 15.8.2.1 abs (x) */
 function MathAbs(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  if (x = undefined) {
-    x := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
   x := ToNumber(x);
 
   /* Returns the absolute value of x; the result has the same magnitude as x but has positive sign. */
@@ -172,10 +169,7 @@ function MathAbs(globalObject, this, stric, params) {
 
 /* 15.8.2.2 acos (x) */
 function MathACos(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  if (x = undefined) {
-    x := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the arc cosine of x. The result is expressed in radians
@@ -190,10 +184,7 @@ function MathACos(globalObject, this, stric, params) {
 
 /* 15.8.2.3 asin (x) */
 function MathASin(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  if (x = undefined) {
-    x := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the arc sine of x. The result is expressed in radians
@@ -209,10 +200,7 @@ function MathASin(globalObject, this, stric, params) {
 
 /* 15.8.2.4 atan (x) */
 function MathATan(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  if (x = undefined) {
-    x := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the arc tangent of x. The result is expressed in
@@ -228,14 +216,8 @@ function MathATan(globalObject, this, stric, params) {
 
 /* 15.8.2.5 atan2 (y, x) */
 function MathATan2(globalObject, this, stric, params) {
-  y := l_nth(params, 0);
-  x := l_nth(params, 1);
-  if (y = undefined) {
-    y := 'undefined
-  };
-  if (x = undefined) {
-    x := 'undefined
-  };
+  y := getParamValueOrDefault(params, 0, 'undefined);
+  x := getParamValueOrDefault(params, 1, 'undefined);
   y := ToNumber(y);
   x := ToNumber(x);
 
@@ -272,10 +254,7 @@ function MathATan2(globalObject, this, stric, params) {
 
 /* 15.8.2.6 ceil (x) */
 function MathCeil(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  if (x = undefined) {
-    x := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
   x := ToNumber(x);
 
   /* Returns the smallest (closest to -Infinity) Number value that is not less than x and is equal to a mathematical
@@ -292,10 +271,7 @@ function MathCeil(globalObject, this, stric, params) {
 
 /* 15.8.2.7 cos (x) */
 function MathCos(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  if (x = undefined) {
-    x := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the cosine of x. The argument is expressed in radians. */
@@ -310,10 +286,7 @@ function MathCos(globalObject, this, stric, params) {
 
 /* 15.8.2.8 exp (x) */
 function MathExp(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  if (x = undefined) {
-    x := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the exponential function of x (e raised to the power of
@@ -329,10 +302,7 @@ function MathExp(globalObject, this, stric, params) {
 
 /* 15.8.2.9 floor (x) */
 function MathFloor(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  if (x = undefined) {
-    x := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
   x := ToNumber(x);
 
   /* Returns the greatest (closest to +Infinity) Number value that is not greater than x and is equal to a mathematical
@@ -351,10 +321,7 @@ function MathFloor(globalObject, this, stric, params) {
 
 /* 15.8.2.10 log (x) */
 function MathLog(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  if (x = undefined) {
-    x := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the natural logarithm of x. */
@@ -371,11 +338,13 @@ function MathLog(globalObject, this, stric, params) {
 function MathMax(globalObject, this, stric, params) {
   /* Given zero or more arguments, calls ToNumber on each of the arguments and returns the largest of the
      resulting values. */
-  if (l_nth(params, 0) = undefined) {
+  /* If no arguments are given, the result is -Infinity. */
+  if (l_len params = 0) {
     return -Infinity
-  } else {
-    max_value := ToNumber(l_nth(params, 0))
   };
+
+  max_value := ToNumber(l_nth(params, 0));
+
   i := 1;
   lparams := l_len params;
   while(i < lparams) {
@@ -386,11 +355,9 @@ function MathMax(globalObject, this, stric, params) {
 
     i := i + 1
   };
-  /* If no arguments are given, the result is -Infinity. */
   /* If any value is NaN, the result is NaN. */
   /* The comparison of values to determine the largest value is done as in 11.8.5 except that +0 is considered to
      be larger than -0. */
-
   /* The length property of the max method is 2. */
   return max_value
 };
@@ -399,11 +366,13 @@ function MathMax(globalObject, this, stric, params) {
 function MathMin(globalObject, this, stric, params) {
   /* Given zero or more arguments, calls ToNumber on each of the arguments and returns the smallest of the
      resulting values. */
-  if (l_nth(params, 0) = undefined) {
+  /* If no arguments are given, the result is +Infinity. */
+  if (l_len params = 0) {
     return Infinity
-  } else {
-    min_value := ToNumber(l_nth(params, 0))
   };
+
+  min_value := ToNumber(l_nth(params, 0));
+
   i := 1;
   lparams := l_len params;
   while(i < lparams) {
@@ -414,7 +383,6 @@ function MathMin(globalObject, this, stric, params) {
 
     i := i + 1
   };
-  /* If no arguments are given, the result is +Infinity. */
   /* If any value is NaN, the result is NaN. */
   /* The comparison of values to determine the smallest value is done as in 11.8.5 except that +0 is considered
      to be larger than -0. */
@@ -424,14 +392,8 @@ function MathMin(globalObject, this, stric, params) {
 
 /* 15.8.2.13 pow (x, y) */
 function MathPow(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  y := l_nth(params, 1);
-  if (x = undefined) {
-    x := 'undefined
-  };
-  if (y = undefined) {
-    y := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
+  y := getParamValueOrDefault(params, 1, 'undefined);
   x := ToNumber(x);
   y := ToNumber(y);
 
@@ -473,10 +435,7 @@ function MathRandom(globalObject, this, stric, params) {
 
 /* 15.8.2.15 round (x) */
 function MathRound(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  if (x = undefined) {
-    x := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
   x := ToNumber(x);
 
   /* Returns the Number value that is closest to x and is equal to a mathematical integer. If two integer Number
@@ -501,10 +460,7 @@ function MathRound(globalObject, this, stric, params) {
 
 /* 15.8.2.16 sin (x) */
 function MathSin(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  if (x = undefined) {
-    x := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the sine of x. The argument is expressed in radians. */
@@ -518,10 +474,7 @@ function MathSin(globalObject, this, stric, params) {
 
 /* 15.8.2.17 sqrt (x) */
 function MathSqrt(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  if (x = undefined) {
-    x := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the square root of x. */
@@ -536,10 +489,7 @@ function MathSqrt(globalObject, this, stric, params) {
 
 /* 15.8.2.18 tan (x) */
 function MathTan(globalObject, this, stric, params) {
-  x := l_nth(params, 0);
-  if (x = undefined) {
-    x := 'undefined
-  };
+  x := getParamValueOrDefault(params, 0, 'undefined);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the tangent of x. The argument is expressed in

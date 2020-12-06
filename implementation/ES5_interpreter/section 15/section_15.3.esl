@@ -168,9 +168,8 @@ function FunctionPrototypeToString(globalObject, this, strict, params) {
 
 /* 15.3.4.3 Function.prototype.apply (thisArg, argArray) */
 function FunctionPrototypeApply(globalObject, func, strict, params) {
-  thisArg := l_nth(params, 0);
-  argArray := l_nth(params, 1);
-  assert !(thisArg = undefined) &&& !(argArray = undefined);
+  thisArg := getParamValueOrDefault(params, 0, 'undefined);
+  argArray := getParamValueOrDefault(params, 1, 'undefined);
   /* When the apply method is called on an object func with arguments thisArg and argArray, the following steps
    are taken: */
 
@@ -221,9 +220,8 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
 
 /* 15.3.4.4 Function.prototype.call (thisArg [ , arg1 [ , arg2, ... ] ] ) */
 function FunctionPrototypeCall(globalObject, func, strict, params) {
-  thisArg := l_nth(params, 0);
+  thisArg := getParamValueOrDefault(params, 0, 'undefined);
   args := tl params;
-  assert !(thisArg = undefined) &&& !(args = undefined);
   /* When the call method is called on an object func with argument thisArg and optional arguments arg1, arg2
      etc, the following steps are taken: */
 
@@ -254,9 +252,8 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
 
 /* 15.3.4.5 Function.prototype.bind (thisArg [, arg1 [, arg2, ...]]) */
 function FunctionPrototypeBind(globalObject, this, strict, params) {
-  thisArg := l_nth(params, 0);
-  args := l_nth(params, 1);
-  assert !(thisArg = undefined) &&& !(args = undefined);
+  thisArg := getParamValueOrDefault(params, 0, 'undefined);
+  args := getParamValueOrDefault(params, 1, undefined);
   /* The bind method takes one or more arguments, thisArg and (optionally) arg1, arg2, etc, and returns a new
      function object by performing the following steps: */
 

@@ -76,11 +76,7 @@ function fillBooleanPrototype(booleanPrototypeObject, BooleanConstructor, global
 
 /* 15.6.2.1 new Boolean (value) */
 function BooleanConstructor(globalObject, this, strict, params) {
-  if (l_len params = 0) {
-    value := 'undefined
-  } else {
-    value := l_nth(params, 0)
-  };
+  value := getParamValueOrDefault(params, 0, 'undefined);
 
   if (this = 'undefined) {
     return BooleanConstructorCalledAsFunction(value)

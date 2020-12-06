@@ -16,7 +16,7 @@ function initNumberObject(globalObject, ObjectPrototype, strict) {
 /* Returns a Number value (not a Number object) computed by ToNumber(value) if value was supplied, else
    returns +0. */
 function NumberConstructorCalledAsFunction(value) {
-  if (value = 'undefined) {
+  if (value = undefined) {
     return 0.
   };
   return ToNumber(value)
@@ -131,11 +131,7 @@ function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObj
 
 /* 15.7.2.1 new Number ( [ value ] ) */
 function NumberConstructor(globalObject, this, strict, params) {
-  if (l_len params = 0) {
-    value := undefined
-  } else {
-    value := l_nth(params, 0)
-  };
+  value := getParamValueOrDefault(params, 0, undefined);
 
   if (this = 'undefined) {
     return NumberConstructorCalledAsFunction(value)

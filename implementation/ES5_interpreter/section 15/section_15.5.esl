@@ -70,9 +70,9 @@ function initStringPrototype(global, objectPrototype, strict) {
 
 /* Returns a String value (not a String object) computed by ToString(value). If value is not supplied, the empty String "" is returned. */
 
-function String (global, this, strict, args) {
-  value := l_nth(args, 0);
-  if (value = "undefined") {
+function String(global, this, strict, args) {
+  value := getParamValueOrDefault(args, 0, undefined);
+  if (value = undefined) {
     return ""
   } else {
     return ToString(value)
@@ -107,8 +107,9 @@ function initalNewString (objectPrototype){
 
 
 function StringConstructor (global, this, strict, args) {
-  value := l_nth(args, 0);
+  value := getParamValueOrDefault(args, 0, undefined);
   StringPrototype := getStringPrototype(global);
+
   ret := {
     /* The [[Prototype]] internal property of the newly constructed object is set to the standard built-in String
      prototype object that is the initial value of String.prototype (15.5.3.1). */
@@ -127,7 +128,7 @@ function StringConstructor (global, this, strict, args) {
   };
   /* The [[PrimitiveValue]] internal property of the newly constructed object is set to ToString(value),
      or to the empty String if value is not supplied. */
-  if (value = "undefined") {
+  if (value = undefined) {
     ret.PrimitiveValue := ""
   } else {
     ret.PrimitiveValue := ToString(value)
@@ -228,7 +229,8 @@ When the charAt method is called with one argument pos, the following steps are 
 NOTE The charAt function is intentionally generic; it does not require that its this value be a String object. Therefore, it can be transferred to other kinds of objects for use as a method. */
 
 function StringPrototypecharAt(global, this, strict, args){
-  pos := l_nth(args, 0);
+  pos := getParamValueOrDefault(args, 0, 'undefined);
+
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /* Let S be the result of calling ToString, giving it the this value as its argument. */
@@ -269,7 +271,8 @@ NOTE The charCodeAt function is intentionally generic; it does not require that 
 */
 
 function StringPrototypecharCodeAt (global, this, strict, args){
-  pos := l_nth(args,0);
+  pos := getParamValueOrDefault(args, 0, 'undefined);
+
   /*Call CheckObjectCoercible passing the this value as its argument.*/
   CheckObjectCoercible(this);
   /*Let S be the result of calling ToString, giving it the this value as its argument.*/
@@ -367,17 +370,9 @@ NOTE The indexOf function is intentionally generic; it does not require that its
 */
 
 function StringPrototypeIndexOf (global, this, strict, args){
-  if (l_len args = 0) {
-    searchString := 'undefined;
-    position := 'undefined
-  } else {
-    searchString := l_nth(args, 0);
-    if (l_len args = 1) {
-      position := 'undefined
-    } else {
-      position := l_nth(args, 1)
-    }
-  };
+  searchString := getParamValueOrDefault(args, 0, 'undefined);
+  position := getParamValueOrDefault(args, 1, 'undefined);
+
   /*Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /*Let S be the result of calling ToString, giving it the this value as its argument.*/
@@ -436,8 +431,9 @@ NOTE The lastIndexOf function is intentionally generic; it does not require that
 */
 
 function StringPrototypelastIndexOf(global, this, strict, args){
-  searchString := l_nth(args,0);
-  position := l_nth(args,1);
+  searchString := getParamValueOrDefault(args, 0, 'undefined);
+  position := getParamValueOrDefault(args, 1, 'undefined);
+
   /*Call CheckObjectCoercible passing the this value as its argument.*/
   CheckObjectCoercible(this);
   /* Let S be the result of calling ToString, giving it the this value as its argument. */
@@ -501,7 +497,8 @@ it returns a Number other than NaN that represents the result of a locale-sensit
    the Strings are equal, or S comes after That in the sort order, respectively.*/
 
 function StringPrototypelocaleCompare (global, this, strict, args){
-  that := l_nth(args, 0);
+  that := getParamValueOrDefault(args, 0, 'undefined);
+
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /* Let S be the result of calling ToString, giving it the this value as its argument. */
@@ -545,8 +542,9 @@ function StringPrototypelocaleCompare (global, this, strict, args){
 /* 15.5.4.11 String.prototype.replace (searchValue, replaceValue) */
 
 function StringPrototypereplace (global, this, strict, args){
-  searchValue := l_nth(args, 0);
-  replaceValue := l_nth(args, 1);
+  searchValue := getParamValueOrDefault(args, 0, 'undefined);
+  replaceValue := getParamValueOrDefault(args, 1, 'undefined);
+
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /* Let string be the result of calling ToString, giving it the this value as its argument. */
@@ -574,7 +572,6 @@ function StringPrototypereplace (global, this, strict, args){
     newstring := ToString(replaceValue);
     /* TO DO */
     return null
-
   }
 };
 
@@ -595,8 +592,9 @@ The length property of the slice method is 2.
 NOTE The slice function is intentionally generic; it does not require that its this value be a String object. Therefore it can be transferred to other kinds of objects for use as a method. */
 
 function StringPrototypeslice (global, this, strict, args){
-  start := l_nth(args, 0);
-  end := l_nth(args, 1);
+  start := getParamValueOrDefault(args, 0, 'undefined);
+  end := getParamValueOrDefault(args, 1, 'undefined);
+
   /*Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /* Let S be the result of calling ToString, giving it the this value as its argument. */
@@ -606,7 +604,7 @@ function StringPrototypeslice (global, this, strict, args){
   /* Let intStart be ToInteger(start). */
   intStart := int_of_float (ToInteger(start));
   /* If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
-  if (end = "undefined"){
+  if (end = 'undefined){
     intEnd := len
   } else{
     intEnd := int_of_float (ToInteger(end))
@@ -765,8 +763,9 @@ NOTE 2 The split function is intentionally generic; it does not require that its
 /* TO DO  -> Requires 15.10*/
 
 function StringPrototypesplit (global, this, strict, args){
-  separator := l_nth(args, 0);
-  limit := l_nth(args, 1);
+  separator := getParamValueOrDefault(args, 0, 'undefined);
+  limit := getParamValueOrDefault(args, 1, 'undefined);
+
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /* Let S be the result of calling ToString, giving it the this value as its argument. */
@@ -913,8 +912,9 @@ NOTE The substring function is intentionally generic; it does not require that i
 */
 
 function StringPrototypesubstring (global, this, strict, args){
-  start := l_nth(args,0);
-  end := l_nth(args,1);
+  start := getParamValueOrDefault(args, 0, 'undefined);
+  end := getParamValueOrDefault(args, 1, 'undefined);
+
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /* Let S be the result of calling ToString, giving it the this value as its argument.*/
@@ -924,7 +924,7 @@ function StringPrototypesubstring (global, this, strict, args){
   /* Let intStart be ToInteger(start). */
   intStart := int_of_float (ToInteger(start));
   /* If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
-  if (end = "undefined"){
+  if (end = 'undefined){
     intEnd := len
   } else {
     intEnd := int_of_float (ToInteger(end))
@@ -1154,12 +1154,12 @@ function GetOwnPropertyString (S, P) {
   /* Let desc be the result of calling the default [[GetOwnProperty]] internal method (8.12.1) on S with argument P. */
   desc := GetOwnProperty (S, P);
   /*   If desc is not undefined return desc. */
-  if (!(desc = "undefined")){
+  if (!(desc = 'undefined)){
     return desc
   };
   /* If ToString(abs(ToInteger(P))) is not the same value as P, return undefined. */
   if (!((ToString(abs(ToInteger(P)))) = P)){
-    return "undefined"
+    return 'undefined
   };
   /* Let str be the String value of the [[PrimitiveValue]] internal property of S. */
   str := S.PrimitiveValue;
@@ -1169,7 +1169,7 @@ function GetOwnPropertyString (S, P) {
   len := s_len(str);
   /* If len ≤ index, return undefined. */
   if (len <= index){
-    return "undefined"
+    return 'undefined
   };
   /*    Let resultStr be a String of length 1, containing one character from str,
      specifically the character at position index, where the first (leftmost) character
