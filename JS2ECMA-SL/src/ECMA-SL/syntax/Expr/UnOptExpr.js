@@ -14,14 +14,9 @@ function MakeUnOptExpr(Expr){
 	  }
 
 	  toJS(){
-	  	var oper_js = this.operator.toJS();
+	  	console.log("UNOP - " + this.operator);
 	  	var expr_js = this.expr_rhs.toJS();
-	  	return {
-      	"type": "UnaryExpression",
-        "operator": oper_js,
-        "argument": expr_js,
-        "prefix": true
-      }
+	  	return this.operator.toJS(expr_js);
 	  }
 
 	  interpret(store){

@@ -12,6 +12,7 @@ class Func {
   }
 
   toJS(){
+    console.log(">>> FUNCTION "+this.name);
     var params = this.params.map((param) => {return {type: "Identifier", name: param}});
     var body_js = this.body.toJS();
     return {

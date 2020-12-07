@@ -15,6 +15,7 @@ function MakeReturn(Stmt){
 	  }
 
 	  toJS(){
+	  	console.log("Return toJS");
 	  	var expr_ast = this.expression.toJS();
 	  	return {
             "type": "ReturnStatement",

@@ -16,6 +16,7 @@ function MakeFieldLookup(Stmt){
     }
 
     toJS(){
+      console.log("FieldLookup toJS");
       var obj_js = this.expressionObject.toJS();
       var field_js = this.expressionField.toJS();
       return {

@@ -14,6 +14,7 @@ function MakePrint(Stmt){
 		}
 
 		toJS(){
+			console.log("Print toJS");
 			var expr_js = this.expression.toJS();
 			return {
   			"type": "ExpressionStatement",

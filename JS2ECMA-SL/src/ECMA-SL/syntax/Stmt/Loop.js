@@ -18,6 +18,7 @@ function MakeLoop(Stmt){
 		}
 
 		toJS(){
+			console.log("Loop toJS");
 			var expr_js = this.expr.toJS();
 			var block_js = this.block.toJS();
 			return {

@@ -19,6 +19,7 @@ function MakeAssignCall(Stmt){
     }
 
     toJS(){
+      console.log("AssignCall " + this.func + " toJS");
       var args_js = this.args.map((arg) => arg.toJS());
       return {
         "type": "ExpressionStatement",

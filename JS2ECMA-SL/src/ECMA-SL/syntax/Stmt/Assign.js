@@ -15,6 +15,8 @@ function MakeAssign(Stmt){
     }
 
     toJS(){
+      console.log("Assign "+ this.variable +" toJS ");
+      console.log(this.expression);
       var expr_js = this.expression.toJS();
       return {
         "type": "ExpressionStatement",
