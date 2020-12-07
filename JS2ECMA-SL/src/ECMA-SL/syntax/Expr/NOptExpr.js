@@ -15,18 +15,11 @@ function MakeNOptExpr(Expr){
     }
 
     toJS(){
-      var expr_list_js = this.expressionsList.map((expr) => expr.toJS());
-      var oper_js = this.n_aryOperator.toJS();
-      var acc = expr_list_js[0];
-      for (var i=1;i < expr_list_js.length; i++){
-        acc = {
-          "type": "BinaryExpression",
-          "operator": oper_js,
-          "left": acc,
-          "right": expr_list_js[i]
-        }
-      }
-
+      console.log("=============DEBUG=============");
+      console.log(this.n_aryOperator);
+      console.log(this.expressionsList);
+      console.log("===============================");
+      return this.n_aryOperator.toJS(this.expressionsList);
     }
 
     interpret(store){

@@ -12,11 +12,12 @@ function MakeBlock(Stmt){
 	  }
 
 	  toJS(){
+	  
 	  	var stmts = this.statements.map((stmt) => stmt.toJS());
 	  	return {
-        "type": "BlockStatement",
-        "body": stmts
-      }
+	        "type": "BlockStatement",
+	        "body": stmts
+      	}
 	  }
 
 	  interpret(config){

@@ -1,7 +1,7 @@
 const Store = require("../../Store");
 const Heap = require("../Heap");
-const Val =require("../Val/Val");
-const LocationVal = require("../Val/LocationVal")(Val);
+const ValModule =require("../Val/Val");
+const LocationVal = ValModule.LocationVal;
 const AssignNewObjLab = require("../Labels/AssignNewObjLab");
 
 function MakeAssignNewObj(Stmt){
@@ -20,6 +20,7 @@ function MakeAssignNewObj(Stmt){
 	  }
 
 	  toJS(){
+	  	console.log("AssignNewObj toJS");
 	  	return {
 	      "type": "ExpressionStatement",
 	      "expression": {

@@ -1,5 +1,4 @@
 class Val{
-  
 
   constructor(value) {
     this.value = value;
@@ -53,4 +52,14 @@ Val.fromJSON = function(obj){
   
 }
 
-module.exports = Val;
+module.exports = {
+  PrimitiveVal,
+  ListVal,
+  LocationVal,
+  PrimitiveVal,
+  SymbolVal,
+  TupleVal,
+  TypeVal,
+  Val,
+  VoidVal
+};

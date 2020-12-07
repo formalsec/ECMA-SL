@@ -21,7 +21,6 @@ function parseFile(err,obj) {
     console.log(prog.toString());
     // ... chamar o interpretador 
 	Interpreter.interpretProg(prog, mon);
-	console.log("asd\n");
 }
 
 

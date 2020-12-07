@@ -17,10 +17,9 @@ function MakeCondition(Stmt){
 		}
 
 		toJS(){
+			console.log("Condition toJS");
 			var expr_js = this.expr.toJS();
 			var then_js = this.then_block.toJS();
-			console.log("HEEEREEEE");
-			console.log(then_js);
 
 			var else_js = {
         "type": "BlockStatement",
@@ -28,11 +27,7 @@ function MakeCondition(Stmt){
       };
 			if(this.else_block != null){
 				else_js = this.else_block.toJS();
-				console.log(else_js);
 			}
-
-			
-			
 			return  {
 	      "type": "IfStatement",
 	      "test": expr_js,

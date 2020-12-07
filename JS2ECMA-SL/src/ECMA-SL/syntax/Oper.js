@@ -1,24 +1,33 @@
 
-const Val = require("./Val/Val");
-const PrimitiveVal = require("./Val/PrimitiveVal")(Val);
-const ListVal = require("./Val/ListVal")(Val);
-const TupleVal = require("./Val/TupleVal")(Val);
+const ValModule = require("./Val/Val");
+const Val = ValModule.Val;
+const PrimitiveVal = ValModule.PrimitiveVal;
+const ListVal = ValModule.ListVal;
+const TupleVal = ValModule.TupleVal;
 
 var binary_dictionary = {
-    "Plus": "+", 
-    "Minus": "-",
-    "Times": "*",
-    "Div": "/",
-    "Equal": "==",
-    "Gt": ">",
-    "Lt": "<",
-    "Egt": ">=",
-    "Elt": "<=",
-    "FloatToString": "+"};
+  "Plus": "+", 
+  "Minus": "-",
+  "Times": "*",
+  "Div": "/",
+  "Equal": "==",
+  "Gt": ">",
+  "Lt": "<",
+  "Egt": ">=",
+  "Elt": "<=",
+  "FloatToString": "+"};
+
+var unary_dictionary = {
+  "Neg" : "-", 
+  "Not" : "!",
+  "Typeof" : "typeof",
+  "Sconcat": "+"
+}
   var logical_dictionary = {
     "Log_And": "&&",
     "Log_Or": "||"
   };
+  
   var function_dictionary = {
     "InObj": "hasOwnProperty",
     "Lconcat": "concat",
@@ -27,6 +36,10 @@ var binary_dictionary = {
     "Tail": "slice",
     "IntToFloat": "toFixed"
   }; 
+  var nary_opr = {
+    "NAry_And": "&&",
+    "NAry_Or": "||"
+  }
 
 class Oper{
   constructor(operator, type) {
@@ -79,7 +92,6 @@ class Oper{
                       return new PrimitiveVal(val1.list.reduce(reducer,""));
   		default: throw new Error("Unsupported Argument"+ this.operator)
   	}
-
   }
 
   
@@ -119,7 +131,7 @@ class Oper{
     };
   }
 
-  toJS(e1, e2){    
+  toJS(e1, e2 = null){
     switch(this.operator){
       //BinOpt
       case "Plus":  
@@ -149,27 +161,47 @@ class Oper{
               "value": 1,
               "raw": "1"
             };
-        return callExpression(e1,e2);
+        return this.callExpression(e1,e2);
       case "IntToFloat":
         e2 = {
               "type": "Literal",
               "value": 2,
               "raw": "2"
             };
-        return callExpression(e1,e2);
+        return this.callExpression(e1,e2);
       case "InObj": 
       case "Lconcat": 
       case "Ladd":
       case "InList":
-        return callExpression(e1,e2);
+        return this.callExpression(e1,e2);
 
       case "Lnth": 
       case "Tnth":
-        return memberExpression(e1,e2);
+        return this.memberExpression(e1,e2);
       //UnOpt
-      case "Neg": return "-";
-      case "Not": return "!";
-      case "Typeof": return "typeof";
+      case "Neg": 
+      case "Not": 
+      case "Typeof": 
+        return {
+          "type": "UnaryExpression",
+          "operator": unary_dictionary[this.operator],
+          "argument": e1,
+          "prefix": true
+        }
+      case "Sconcat":
+      console.log(e1);
+        var oper_js = unary_dictionary[this.operator];
+        var acc = e1.elements[0];
+        for (var i=1;i < e1.elements.length; i++){
+          acc = {
+            "type": "BinaryExpression",
+            "operator": oper_js,
+            "left": acc,
+            "right": e1.elements[i]
+          }
+        }
+        return acc;
+
       case "ListLen":
       case "TupleLen": 
         return {
@@ -188,31 +220,47 @@ class Oper{
           "value": 0,
           "raw": "0"
         };
-        return memberExpression(e1,e2); //JS does not have tuples
+        return this.memberExpression(e1,e2); //JS does not have tuples
       case "Second": 
         e2 = {
           "type": "Literal",
-          "value": 0,
-          "raw": "0"
+          "value": 1,
+          "raw": "1"
         };
-        return memberExpression(e1,e2);// JS does not have tuples
+        return this.memberExpression(e1,e2);// JS does not have tuples
       case "FloatToString": 
         e2 = {
             "type": "Literal",
             "value": "",
             "raw": "\"\""
           };
-        return binaryExpression(e2,e1);
-      case "ObjToList": return "PROBLEM";//TODO
+        return this.binaryExpression(e2,e1);
       //NOpt
-      case "ListExpr":  return "DONT KNOW";
-      case "TupleExpr": return "DONT KNOW";
+      case "ListExpr":  
+      case "TupleExpr": 
+        var expr_list_js = e1.map((expr) => expr.toJS());
+        return {
+          "type": "ArrayExpression",
+          "elements": expr_list_js
+        }
+      case "NAry_And": 
+      case "NAry_Or": 
+        var expr_list_js = e1.map((expr) => expr.toJS());
+        var oper_js = nary_opr[this.operator];
+        var acc = expr_list_js[0];
+        for (var i=1;i < expr_list_js.length; i++){
+          acc = {
+            "type": "BinaryExpression",
+            "operator": oper_js,
+            "left": acc,
+            "right": expr_list_js[i]
+          }
+        }
+        return acc;
 
+        
 
-      case "NAry_And": "&&";
-      case "NAry_Or": "||";
-      case "Sconcat": "+";
-      default: throw new Error("Unsupported Argument"+ this.operator)
+      default: throw new Error("Unsupported Argument "+ this.operator)
     }
   }
 }

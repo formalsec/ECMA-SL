@@ -1,5 +1,3 @@
-const Val= require("./Val");
-
 function MakeListVal(Val){
 	class ListVal extends Val{
 	  constructor(list) {

@@ -6,6 +6,7 @@ class Skip {
   	return "skip";
   }
   toJS(){
+    console.log("Skip toJS");
   	return {
       "type": "ExpressionStatement",
       "expression": {

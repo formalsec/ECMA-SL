@@ -1,5 +1,7 @@
-const Val = require("../Val/Val");
-const SymbolVal = require("../Val/SymbolVal")(Val);
+const ValModule = require("../Val/Val");
+const Val = ValModule.Val;
+const SymbolVal = ValModule.SymbolVal;
+
 function MakeVarExpr(Expr){
 
 	class VarExpr extends Expr {

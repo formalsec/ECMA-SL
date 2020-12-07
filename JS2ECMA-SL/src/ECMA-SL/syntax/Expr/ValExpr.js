@@ -1,4 +1,4 @@
-const Val = require("../Val/Val");
+const Val = require("../Val/Val").Val;
 
 function MakeValExpr(Expr){
 	class ValExpr extends Expr {

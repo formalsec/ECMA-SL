@@ -4,8 +4,8 @@ const CsFrame = require("./ECMA-SL/CsFrame");
 const Heap = require("./ECMA-SL/syntax/Heap");
 const SecHeap = require("./ECMA-SL/syntax/SecHeap");
 const Lattice = require("./ECMA-SL/syntax/Lattice");
-const Val = require("./ECMA-SL/syntax/Val/Val");
-const TupleVal = require("./ECMA-SL/syntax/Val/TupleVal")(Val);
+const ValModule = require("./ECMA-SL/syntax/Val/Val");
+const TupleVal = ValModule.TupleVal;
 class Interpreter {
 
 }
@@ -34,6 +34,7 @@ Interpreter.interpretProg = function(_prog, mon){
 	var main_func= _prog.getFunc('main');
   	var final_value = this.iterate({prog:_prog, cs:[new CsFrame()], store: new Store([],[]), cont : [main_func.body], heap: new Heap()}, {ssto:new SecStore([],[]), sheap: new SecHeap(), scs:[new CsFrame()], pc : [Lattice.bottom()] }, mon); //fazer funcao 
   	console.log(final_value);
+  	console.log(JSON.stringify(final_value));
   	if (final_value instanceof TupleVal) {
   		console.log("MAIN return -> "+ final_value.value[0] +"\n");
   	} else {
