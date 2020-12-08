@@ -300,17 +300,17 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
   /* 15. If the [[Class]] internal property of Target is "Function", then */
   if (getInternalProperty(Target, "Class") = "Function") {
     /* a. Let L be the length property of Target minus the length of A. */
-    L := getJSProperty(Target, "length") - (l_len A);
+    L := getDescriptorValue(getJSProperty(Target, "length")) - (int_to_float (l_len A));
     /* b. Set the length own property of F to either 0 or L, whichever is larger. */
-    if (L > 0) {
+    if (L > 0.) {
       setJSProperty(F, "length", newDataPropertyDescriptorFull(L, false, false, false))
     } else {
-      setJSProperty(F, "length", newDataPropertyDescriptorFull(0, false, false, false))
+      setJSProperty(F, "length", newDataPropertyDescriptorFull(0., false, false, false))
     }
   }
   /* 16. Else set the length own property of F to 0. */
   else {
-    setJSProperty(F, "length", newDataPropertyDescriptorFull(0, false, false, false))
+    setJSProperty(F, "length", newDataPropertyDescriptorFull(0., false, false, false))
   };
   /* 17. Set the attributes of the length own property of F to the values specified in 15.3.5.1. */
 
