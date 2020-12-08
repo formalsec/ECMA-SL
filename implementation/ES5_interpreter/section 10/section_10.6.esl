@@ -168,7 +168,7 @@ function ArgumentsObjectGet(argumentObject, P) {
           passing P as the argument. */
     v := Get(argumentObject, P);
     /* b. If P is "caller" and v is a strict mode Function object, throw a TypeError exception. */
-    if ((P = "caller") && isStrictFunctionObject(v)) {
+    if ((P = "caller") &&& isStrictFunctionObject(v)) {
       throw TypeErrorConstructorInternal()
     };
     /* c. Return v. */
