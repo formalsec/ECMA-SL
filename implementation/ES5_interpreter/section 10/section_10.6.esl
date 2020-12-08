@@ -104,7 +104,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
   /* 14. Else, strict is true so */
   else {
     /* a. Let thrower be the [[ThrowTypeError]] function Object (13.2.3). */
-    thrower := null; /* TODO */
+    thrower := createThrowTypeErrorFunctionObject(getFunctionPrototype(strict), strict);
     /* b. Call the [[DefineOwnProperty]] internal method of obj with arguments "caller",
           PropertyDescriptor {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]:
           false}, and false. */
