@@ -138,7 +138,7 @@ function FunctionConstructor(globalObject, this, strict, params) {
   /* TODO */
   /* 11. Return a new Function object created as specified in 13.2 passing P as the FormalParameterList opt and body
          as the FunctionBody. Pass in the Global Environment as the Scope parameter and strict as the Strict flag. */
-  return CreateBuiltInFunctionObject(P, body, getGlobalEnvironment(globalObject), strict)
+  return CreateFunctionObject(P, body, getGlobalEnvironment(globalObject), strict)
 
   /* A prototype property is automatically created for every function, to provide for the possibility that the
      function will be used as a constructor. */

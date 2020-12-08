@@ -120,9 +120,9 @@ function StrictEqualityComparison(x, y) {
     /* c. If x is the same Number value as y, return true. */
     if (x = y) { return true };
     /* d. If x is +0 and y is -0, return true. */
-    if ((x = 0) && (y = -0)) { return true };
+    if ((x = 0.) && (y = -(0.))) { return true };
     /* e. If x is -0 and y is +0, return true. */
-    if ((x = -0) && (y = 0)) { return false };
+    if ((x = -(0.)) && (y = 0.)) { return false };
     /* f. Return false. */
     return false
   };

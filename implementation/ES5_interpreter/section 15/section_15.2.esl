@@ -215,26 +215,26 @@ function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
         standard built-in constructor with that name. */
   array := ArrayConstructor(globalObject, this, strict, []);
   /* 3. Let n be 0. */
-  n := 0.;
+  n := 0;
 
   /* 4. For each named own property P of O */
   ownProperties := getOwnProperties(O);
-  lownProperties := int_to_float (l_len ownProperties);
+  lownProperties := l_len ownProperties;
   while(n < lownProperties) {
-    P := l_nth(ownProperties, i);
+    P := l_nth(ownProperties, n);
     /* a. Let name be the String value that is the name of P. */
     name := P;
     /* b. Call the [[DefineOwnProperty]] internal method of array with arguments ToString(n), the
           PropertyDescriptor {[[Value]]: name, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]:
           true}, and false. */
-    {array.DefineOwnProperty}(array, ToString(n), {
+    {array.DefineOwnProperty}(array, ToString(int_to_float n), {
       Value: name,
       Writable: true,
       Enumerable: true,
       Configurable: true
     }, false);
     /* c. Increment n by 1. */
-    n := n + 1.
+    n := n + 1
   };
   /* 5. Return array. */
   return array
@@ -519,27 +519,25 @@ function ObjectKeys(globalObject, this, strict, params) {
   n := l_len getOwnProperties(O);
   /* 3. Let array be the result of creating a new Object as if by the expression new Array(n) where Array is
         the standard built-in constructor with that name. */
-  array := newArray([]); /* ArrayConstructor*/
+  array := ArrayConstructor(globalObject, this, strict, []);
   /* 4. Let index be 0. */
-  index := 0.;
-
+  index := 0;
   /* 5. For each own enumerable property of O whose name String is P */
   namedOwnProperties := getOwnProperties(O);
-  lnamedOwnProperties := int_to_float (l_len namedOwnProperties);
+  lnamedOwnProperties := l_len namedOwnProperties;
   while(index < lnamedOwnProperties) {
-    P := l_nth(namedOwnProperties, i);
-    i := i + 1;
+    P := l_nth(namedOwnProperties, index);
     /* a. Call the [[DefineOwnProperty]] internal method of array with arguments ToString(index), the
           PropertyDescriptor {[[Value]]: P, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true},
           and false. */
-    {array.DefineOwnProperty}(array, ToString(index), {
+    {array.DefineOwnProperty}(array, ToString(int_to_float index), {
       Value: P,
       Writable: true,
       Enumerable: true,
       Configurable: true
     }, false);
     /* b. Increment index by 1. */
-    index := index + 1.
+    index := index + 1
   };
   /* 6. Return array. */
   return array
