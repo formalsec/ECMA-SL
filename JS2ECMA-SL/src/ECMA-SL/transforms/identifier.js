@@ -7,8 +7,8 @@ module.exports = {
     if (obj.name === "undefined") {
       return {
         type: "Literal",
-        value: undefined,
-        raw: "undefined"
+        value: "'undefined",
+        raw: "\"'undefined\""
       }
     }
 

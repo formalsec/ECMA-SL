@@ -2596,7 +2596,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       /* a. Let index be ToUint32(P). */
       index := ToUint32(P);
       /* b. Reject if index ≥ oldLen and oldLenDesc.[[Writable]] is false. */
-      if (index >= oldLen && oldLenDesc.Writable = false) {
+      if ((index >= oldLen) &&& (oldLenDesc.Writable = false)) {
         Reject(Throw)
       };
       /* c. Let succeeded be the result of calling the default [[DefineOwnProperty]]

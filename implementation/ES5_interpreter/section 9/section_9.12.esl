@@ -14,9 +14,9 @@ function SameValue (x, y) {
     /* a. If x is NaN and y is NaN, return true. */
     if ((x = NaN) && (y = NaN)) { return true };
     /* b. If x is +0 and y is -0, return false. */
-    if ((x = 0) && (y = -0)) { return false };
+    if ((x = 0.) && (y = -(0.))) { return false };
     /* c. If x is -0 and y is +0, return false. */
-    if ((x = -0) && (y = 0)) { return false };
+    if ((x = -(0.)) && (y = 0.)) { return false };
     /* d. If x is the same Number value as y, return true. */
     if (x = y) { return true };
     /* e. Return false. */

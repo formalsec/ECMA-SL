@@ -190,13 +190,13 @@ function ToObject(V) {
     throw TypeErrorConstructorInternal()
   };
   if (v_type = "Boolean") {
-    return BooleanConstructor(|global|, 'undefined, false, [V])
+    return BooleanConstructor(|global|, true, false, [V])
   };
   if (v_type = "Number") {
-    return NumberConstructor(|global|, 'undefined, false, [V])
+    return NumberConstructor(|global|, true, false, [V])
   };
   if (v_type = "String") {
-    return StringConstructor(|global|, 'undefined, false, [V])
+    return StringConstructor(|global|, true, false, [V])
   };
   if (v_type = "Object") {
     return V

@@ -83,6 +83,7 @@
                 "macro"           , MACRO;
                 "delete"          , DELETE;
                 "null"            , NULL;
+                "undefined"       , UNDEFINED;
                 "repeat"          , REPEAT;
                 "until"           , UNTIL;
                 "match"           , MATCH;
@@ -172,7 +173,7 @@ rule read =
   | ']'            { RBRACK }
   | "__$"          { read_type lexbuf }
   | "\"'null\""    { SYMBOL ("'null") }
-  | "undefined"    { SYMBOL ("'undefined") }
+  | "\"'undefined\"" { SYMBOL ("'undefined") }
   | int            { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float          { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool           { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }

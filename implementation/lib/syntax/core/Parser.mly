@@ -11,6 +11,7 @@
 %token IF ELSE
 %token RETURN
 %token NULL
+%token UNDEFINED
 %token FUNCTION
 %token LPAREN RPAREN
 %token LBRACE RBRACE
@@ -35,7 +36,7 @@
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
 %token SCONCAT
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
-%token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE
+%token LIST_TYPE TUPLE_TYPE NULL_TYPE UNDEF_TYPE SYMBOL_TYPE
 %token EOF
 
 %left LAND LOR BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL POW
@@ -107,6 +108,8 @@ type_target:
     { print_string ">TUPLE_TYPE\n"; Type.TupleType }
   | NULL_TYPE;
     { print_string ">NULL_TYPE\n"; Type.NullType }
+  | UNDEF_TYPE;
+    { print_string ">UNDEF_TYPE\n"; Type.UndefType }
   | SYMBOL_TYPE;
     { print_string ">SYMBOL_TYPE\n"; Type.SymbolType }
 
@@ -114,6 +117,8 @@ type_target:
 val_target:
   | NULL;
     { print_string ">NULL\n";Val.Null }
+  | UNDEFINED;
+    { print_string ">UNDEFINED\n";Val.Undef }
   | f = FLOAT;
     { print_string ">FLOAT\n";Val.Flt f }
   | i = INT;
