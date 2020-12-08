@@ -147,7 +147,7 @@ function mapper(callback, obj) {
     case "SequenceExpression":
       return {
         type: "SequenceExpression",
-        Expressions: new_obj.Expressions.map((expr) => mapper(callback, expr)),
+        expressions: new_obj.expressions.map((expr) => mapper(callback, expr)),
       };
 
     //
