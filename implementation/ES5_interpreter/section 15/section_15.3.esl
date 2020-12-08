@@ -221,7 +221,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
 /* 15.3.4.4 Function.prototype.call (thisArg [ , arg1 [ , arg2, ... ] ] ) */
 function FunctionPrototypeCall(globalObject, func, strict, params) {
   thisArg := getParamValueOrDefault(params, 0, 'undefined);
-  args := tl params;
+  args := getOptionalParams(params, 1);
   /* When the call method is called on an object func with argument thisArg and optional arguments arg1, arg2
      etc, the following steps are taken: */
 
@@ -233,7 +233,7 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
   argList := [];
   /* 3. If this method was called with more than one argument then in left to right order starting with arg1 append
         each argument as the last element of argList */
-  i := 1;
+  i := 0;
   largs := l_len args;
   while(i < largs) {
     argList := l_add(argList, l_nth(args, i));
@@ -253,7 +253,7 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
 /* 15.3.4.5 Function.prototype.bind (thisArg [, arg1 [, arg2, ...]]) */
 function FunctionPrototypeBind(globalObject, this, strict, params) {
   thisArg := getParamValueOrDefault(params, 0, 'undefined);
-  args := getParamValueOrDefault(params, 1, undefined);
+  args := getOptionalParams(params, 1);
   /* The bind method takes one or more arguments, thisArg and (optionally) arg1, arg2, etc, and returns a new
      function object by performing the following steps: */
 

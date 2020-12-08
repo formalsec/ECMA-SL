@@ -92,4 +92,18 @@ function getParamValueOrDefault(params, idx, defaultValue) {
   };
 
   return defaultValue
+};
+
+function getOptionalParams(params, fromIdx) {
+  if (l_len params > fromIdx) {
+    optionals := [];
+    i := l_len params;
+    while(i > fromIdx) {
+      optionals := l_prepend(l_nth(params, i), optionals)
+    };
+
+    return optionals
+  };
+
+  return []
 }
