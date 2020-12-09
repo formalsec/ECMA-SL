@@ -83,12 +83,12 @@ function initArrayPrototype(global, objectPrototype, strict) {
   /* Add built-in function objects to array's prototype */
 
   /* toString */
-  toStringObject := CreateBuiltInFunctionObject(["items"], "arrayToString", global, strict);
+  toStringObject := CreateBuiltInFunctionObject([], "arrayToString", global, strict);
   descriptor := newDataPropertyDescriptorFull(toStringObject, true, false, true);
   setJSProperty(prototype, "toString", descriptor);
 
   /* toLocaleString */
-  toLocaleStringObject := CreateBuiltInFunctionObject(["items"], "arrayToLocaleString", global, strict);
+  toLocaleStringObject := CreateBuiltInFunctionObject([], "arrayToLocaleString", global, strict);
   descriptor := newDataPropertyDescriptorFull(toLocaleStringObject, true, false, true);
   setJSProperty(prototype, "toLocaleString", descriptor);
 
@@ -113,12 +113,12 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "push", descriptor);
 
   /* reverse */
-  reverseObject := CreateBuiltInFunctionObject(["items"], "arrayReverse", global, strict);
+  reverseObject := CreateBuiltInFunctionObject([], "arrayReverse", global, strict);
   descriptor := newDataPropertyDescriptorFull(reverseObject, true, false, true);
   setJSProperty(prototype, "reverse", descriptor);
 
   /* shift */
-  shiftObject := CreateBuiltInFunctionObject(["items"], "arrayShift", global, strict);
+  shiftObject := CreateBuiltInFunctionObject([], "arrayShift", global, strict);
   descriptor := newDataPropertyDescriptorFull(shiftObject, true, false, true);
   setJSProperty(prototype, "shift", descriptor);
 
@@ -612,7 +612,7 @@ function arrayConcat(global, this, strict, items) {
   return A
 };
 /**
- * The length property of the concat method is 1. TODO
+ * The length property of the concat method is 1.
  *
  * NOTE The concat function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore it can be transferred
@@ -695,7 +695,7 @@ function arrayJoin(global, this, strict, args) {
   return R
 };
 /**
- * The length property of the join method is 1. TODO
+ * The length property of the join method is 1.
  *
  * NOTE The join function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore, it can be transferred
@@ -800,7 +800,7 @@ function arrayPush(global, this, strict, items) {
   return n
 };
 /**
- * The length property of the push method is 1. TODO
+ * The length property of the push method is 1.
  *
  * NOTE The push function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
