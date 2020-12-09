@@ -98,7 +98,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "concat", descriptor);
 
   /* join */
-  joinObject := CreateBuiltInFunctionObject(["items"], "arrayJoin", global, strict);
+  joinObject := CreateBuiltInFunctionObject(["separator"], "arrayJoin", global, strict);
   descriptor := newDataPropertyDescriptorFull(joinObject, true, false, true);
   setJSProperty(prototype, "join", descriptor);
 
@@ -123,62 +123,67 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "shift", descriptor);
 
   /* slice */
-  sliceObject := CreateBuiltInFunctionObject(["items"], "arraySlice", global, strict);
+  sliceObject := CreateBuiltInFunctionObject(["start", "end"], "arraySlice", global, strict);
   descriptor := newDataPropertyDescriptorFull(sliceObject, true, false, true);
   setJSProperty(prototype, "slice", descriptor);
 
   /* sort */
-  sortObject := CreateBuiltInFunctionObject(["items"], "arraySort", global, strict);
+  sortObject := CreateBuiltInFunctionObject(["comparefn"], "arraySort", global, strict);
   descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
   setJSProperty(prototype, "sort", descriptor);
 
   /* splice */
-  spliceObject := CreateBuiltInFunctionObject(["items"], "arraySplice", global, strict);
+  spliceObject := CreateBuiltInFunctionObject(["start", "deleteCount"], "arraySplice", global, strict);
   descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
   setJSProperty(prototype, "splice", descriptor);
 
+  /* unshift */
+  spliceObject := CreateBuiltInFunctionObject(["items"], "arrayUnshift", global, strict);
+  descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
+  setJSProperty(prototype, "unshift", descriptor);
+
   /* indexOf */
-  indexOfObject := CreateBuiltInFunctionObject(["items"], "arrayIndexOf", global, strict);
+  indexOfObject := CreateBuiltInFunctionObject(["searchElement"], "arrayIndexOf", global, strict);
   descriptor := newDataPropertyDescriptorFull(indexOfObject, true, false, true);
   setJSProperty(prototype, "indexOf", descriptor);
 
   /* lastIndexOf */
-  lastIndexOfObject := CreateBuiltInFunctionObject(["items"], "arrayLastIndexOf", global, strict);
+  lastIndexOfObject := CreateBuiltInFunctionObject(["searchElement"], "arrayLastIndexOf", global, strict);
   descriptor := newDataPropertyDescriptorFull(lastIndexOfObject, true, false, true);
   setJSProperty(prototype, "lastIndexOf", descriptor);
 
   /* every */
-  everyOfObject := CreateBuiltInFunctionObject(["items"], "arrayEvery", global, strict);
+  everyOfObject := CreateBuiltInFunctionObject(["callbackfn"], "arrayEvery", global, strict);
   descriptor := newDataPropertyDescriptorFull(everyOfObject, true, false, true);
   setJSProperty(prototype, "every", descriptor);
 
   /* some */
-  someOfObject := CreateBuiltInFunctionObject(["items"], "arraySome", global, strict);
+  someOfObject := CreateBuiltInFunctionObject(["callbackfn"], "arraySome", global, strict);
   descriptor := newDataPropertyDescriptorFull(someOfObject, true, false, true);
   setJSProperty(prototype, "some", descriptor);
 
   /* forEach */
-  forEachObject := CreateBuiltInFunctionObject(["items"], "arrayForEach", global, strict);
+  forEachObject := CreateBuiltInFunctionObject(["callbackfn"], "arrayForEach", global, strict);
   descriptor := newDataPropertyDescriptorFull(forEachObject, true, false, true);
   setJSProperty(prototype, "forEach", descriptor);
 
   /* map */
-  mapObject := CreateBuiltInFunctionObject(["items"], "arrayMap", global, strict);
+  mapObject := CreateBuiltInFunctionObject(["callbackfn"], "arrayMap", global, strict);
   descriptor := newDataPropertyDescriptorFull(mapObject, true, false, true);
   setJSProperty(prototype, "map", descriptor);
 
   /* filter */
-  filterObject := CreateBuiltInFunctionObject(["items"], "arrayFilter", global, strict);
+  filterObject := CreateBuiltInFunctionObject(["callbackfn"], "arrayFilter", global, strict);
   descriptor := newDataPropertyDescriptorFull(filterObject, true, false, true);
   setJSProperty(prototype, "filter", descriptor);
 
   /* reduce */
-  reduceObject := CreateBuiltInFunctionObject(["items"], "arrayReduce", global, strict);
+  reduceObject := CreateBuiltInFunctionObject(["callbackfn"], "arrayReduce", global, strict);
   descriptor := newDataPropertyDescriptorFull(reduceObject, true, false, true);
   setJSProperty(prototype, "reduce", descriptor);
 
   /* reduceRight */
-  reduceRightObject := CreateBuiltInFunctionObject(["items"], "arrayReduceRight", global, strict);
+  reduceRightObject := CreateBuiltInFunctionObject(["callbackfn"], "arrayReduceRight", global, strict);
   descriptor := newDataPropertyDescriptorFull(reduceRightObject, true, false, true);
   setJSProperty(prototype, "reduceRight", descriptor);
 
@@ -1480,11 +1485,11 @@ function arrayUnshift(global, this, strict, items) {
   /* 5. Let k be len. */
   k := len;
   /* 6. Repeat, while k > 0, */
-  while (k > 0.) {
+  while (k > 0) {
     /* a. Let from be ToString(k-1). */
-    from := ToString(k - 1.);
+    from := ToString(k - 1);
     /* b. Let to be ToString(k+argCount -1). */
-    to := ToString(k + argCount - 1.);
+    to := ToString(k + argCount - 1);
     /* c. Let fromPresent be the result of calling the [[HasProperty]]
           internal method of O with argument from. */
     fromPresent := {O.HasProperty}(O, from);
@@ -1504,10 +1509,10 @@ function arrayUnshift(global, this, strict, items) {
       {O.Delete}(O, to, true)
     };
     /* f. Decrease k by 1. */
-    k := k - 1.
+    k := k - 1
   };
   /* 7. Let j be 0. */
-  j := 0.;
+  j := 0;
   /* 8. Let items be an internal List whose elements are, in left
         to right order, the arguments that were passed to this function
         invocation. */
@@ -1522,7 +1527,7 @@ function arrayUnshift(global, this, strict, items) {
           ToString(j), E, and true. */
     {O.Put}(O, ToString(j), E, true);
     /* c. Increase j by 1. */
-    j := j + 1.
+    j := j + 1
   };
   /* 10. Call the [[Put]] internal method of O with arguments "length",
          len+argCount, and true. */
