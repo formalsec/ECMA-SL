@@ -510,9 +510,4 @@ function isParsableAsFunctionBody(str) {
 function isBuiltInFunctionBodyStrictModeCode(code) {
   /* TODO */
   return false
-};
-
-function createFunctionBody(str) {
-  /* TODO */
-  return str
 }

@@ -198,7 +198,7 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
   setInternalProperty(F, "FormalParameters", []);
   /* 8. Set the [[Code]] internal property of F to be a FunctionBody that unconditionally throws a TypeError exception and
         performs no other action. */
-  setInternalProperty(F, "Code", createFunctionBody("throw TypeErrorConstructorInternal()"));
+  setInternalProperty(F, "Code", "internalTypeErrorThrower");
   /* 9. Call the [[DefineOwnProperty]] internal method of F with arguments "length", Property Descriptor {[[Value]]: 0,
         [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
   DefineOwnProperty(F, "length", {
@@ -214,6 +214,10 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
 };
 
 /* Auxiliary functions */
+function internalTypeErrorThrower(globalObject, this, strict, args) {
+  throw TypeErrorConstructorInternal()
+};
+
 function getFunctionCode(F) {
   return F.Code
 };
