@@ -169,6 +169,7 @@ let typeof (v : Val.t) : Val.t = match v with
   | Type _   -> Type (Type.TypeType)
   | Tuple _  -> Type (Type.TupleType)
   | Null     -> Type (Type.NullType)
+  | Undef    -> Type (Type.UndefType)
   | Symbol _ -> Type (Type.SymbolType)
   | Void     -> invalid_arg ("Exception in Oper.typeof: unexpected void value")
 
@@ -261,7 +262,9 @@ let float_to_string (v : Val.t) : Val.t = match v with
   | _     -> invalid_arg ("Exception in Oper.float_to_string: this operation is only applicable to Flt arguments: " ^ (Val.str v))
 
 let float_of_string (v : Val.t) : Val.t = match v with
-  | Str s -> (try Flt (float_of_string s) with _ -> Flt nan)
+  | Str s -> (if String.length (String.trim s) == 0
+              then Flt 0.
+              else (try Flt (float_of_string s) with _ -> Flt nan))
   | _     -> invalid_arg "Exception in Oper.float_of_string: this operation is only applicable to Str arguments"
 
 let string_concat (v : Val.t) : Val.t = match v with

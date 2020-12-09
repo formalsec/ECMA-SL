@@ -1,6 +1,7 @@
 /* Auxiliary function used to deal with JS shift operators */
 function maskOutBits(num) {
-  /* mask out all but the least significant 5 bits of num */
-  v := num & (int_to_float 31); /* 0x1F*/
+  /* maskOutBits is only called with an argument that is the result of calling the ToUInt32 function. */
+  /* Do not perform any mask out action here since the ToUInt32 function is already doing this. */
+  v := num;
   return v
 }

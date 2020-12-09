@@ -137,6 +137,7 @@ rule read =
   | "function"        { FUNCTION }
   | "delete"          { DELETE }
   | "null"            { NULL }
+  | "undefined"       { UNDEFINED }
   | "fail"            { FAIL }
   | "print"           { PRINT }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }

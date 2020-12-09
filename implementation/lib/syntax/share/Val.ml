@@ -9,11 +9,12 @@ type t =
   | Tuple  of t list
   | Void
   | Null
+  | Undef
   | Symbol of string
 
 
 let is_special_number (s : string) : bool =
-  s = "nan" || s = "inf" || String.contains s 'e' ||  String.contains s 'E'
+  List.mem s ["nan" ; "inf" ; "-inf" ] || String.contains s 'e' ||  String.contains s 'E'
 
 let add_final_dot (s : string) : string =
   if is_special_number s
@@ -25,7 +26,7 @@ let add_final_dot (s : string) : string =
 
 let rec str ?(flt_with_dot=true) (v : t) : string = match v with
   | Flt v    ->
-    let s = Printf.sprintf "%.15g" v in
+    let s = Printf.sprintf "%.17g" v in
     if flt_with_dot
     then add_final_dot s
     else s
@@ -38,6 +39,7 @@ let rec str ?(flt_with_dot=true) (v : t) : string = match v with
   | Tuple vs -> "(" ^ (String.concat ", " (List.map str vs)) ^ ")"
   | Void     -> ""
   | Null     -> "null"
+  | Undef    -> "undefined"
   | Symbol s -> s
 
 let rec to_json (v : t): string =
@@ -52,4 +54,5 @@ let rec to_json (v : t): string =
   | Tuple vs ->  Printf.sprintf "{ \"type\" : \"tuple\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
   | Void     ->  Printf.sprintf "{ \"type\" : \"void\" }"
   | Null     ->  Printf.sprintf "{ \"type\" : \"null\" }"
+  | Undef    ->  Printf.sprintf "{ \"type\" : \"undefined\" }"
   | Symbol s ->  Printf.sprintf "{ \"type\" : \"symbol\", \"value\" : \"%s\" }" s

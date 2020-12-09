@@ -8,6 +8,7 @@ type t =
   | TypeType
   | TupleType
   | NullType
+  | UndefType
   | SymbolType
 
 let str (v : t) : string = match v with
@@ -20,6 +21,7 @@ let str (v : t) : string = match v with
   | TypeType   -> "__$Type"
   | TupleType  -> "__$Tuple"
   | NullType   -> "__$Null"
+  | UndefType  -> "__$Undef"
   | SymbolType -> "__$Symbol"
 
 
