@@ -136,7 +136,7 @@ function MakeArgGetter(name, lexicalEnvironment) {
   body := s_concat(["return ", name, ";"]);
   /* 2. Return the result of creating a function object as described in 13.2 using no FormalParameterList, body for
         FunctionBody, env as Scope, and true for Strict. */
-  return CreateFunctionObject([], body, lexicalEnvironment, true)
+  return CreateFunctionObject([], body, lexicalEnvironment, true, null)
 };
 
 function MakeArgSetter(name, lexicalEnvironment) {
@@ -150,7 +150,7 @@ function MakeArgSetter(name, lexicalEnvironment) {
   body := s_concat([name, " = ", param, ";"]);
   /* 3. Return the result of creating a function object as described in 13.2 using a List containing the single String
         param as FormalParameterList, body for FunctionBody, env as Scope, and true for Strict. */
-  return CreateFunctionObject([param], body, lexicalEnvironment, true)
+  return CreateFunctionObject([param], body, lexicalEnvironment, true, null)
 };
 
 function ArgumentsObjectGet(argumentObject, P) {

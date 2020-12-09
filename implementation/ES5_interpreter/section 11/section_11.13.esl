@@ -74,6 +74,6 @@ function applyOperator(operator, lval, rval) {
     /* Let rnum be ToInt32(rval). */
     rnum := ToInt32(rval);
     /* Return the result of applying the bitwise operator @ to lnum and rnum. The result is a signed 32 bit integer */
-    return applyBitwiseOperator(s_nth(operator, 0), lval, rval)
+    return applyBitwiseOperator(s_nth(operator, 0), lnum, rnum)
   }
 }

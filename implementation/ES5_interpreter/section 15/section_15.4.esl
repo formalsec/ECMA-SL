@@ -83,102 +83,102 @@ function initArrayPrototype(global, objectPrototype, strict) {
   /* Add built-in function objects to array's prototype */
 
   /* toString */
-  toStringObject := CreateBuiltInFunctionObject(["items"], "arrayToString", global, strict);
+  toStringObject := CreateBuiltInFunctionObject(["items"], "arrayToString", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(toStringObject, true, false, true);
   setJSProperty(prototype, "toString", descriptor);
 
   /* toLocaleString */
-  toLocaleStringObject := CreateBuiltInFunctionObject(["items"], "arrayToLocaleString", global, strict);
+  toLocaleStringObject := CreateBuiltInFunctionObject(["items"], "arrayToLocaleString", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(toLocaleStringObject, true, false, true);
   setJSProperty(prototype, "toLocaleString", descriptor);
 
   /* concat */
-  concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict);
+  concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(concatObject, true, false, true);
   setJSProperty(prototype, "concat", descriptor);
 
   /* join */
-  joinObject := CreateBuiltInFunctionObject(["items"], "arrayJoin", global, strict);
+  joinObject := CreateBuiltInFunctionObject(["items"], "arrayJoin", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(joinObject, true, false, true);
   setJSProperty(prototype, "join", descriptor);
 
   /* pop */
-  popObject := CreateBuiltInFunctionObject([], "arrayPop", global, strict);
+  popObject := CreateBuiltInFunctionObject([], "arrayPop", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(popObject, true, false, true);
   setJSProperty(prototype, "pop", descriptor);
 
   /* push */
-  pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict);
+  pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(pushObject, true, false, true);
   setJSProperty(prototype, "push", descriptor);
 
   /* reverse */
-  reverseObject := CreateBuiltInFunctionObject(["items"], "arrayReverse", global, strict);
+  reverseObject := CreateBuiltInFunctionObject(["items"], "arrayReverse", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(reverseObject, true, false, true);
   setJSProperty(prototype, "reverse", descriptor);
 
   /* shift */
-  shiftObject := CreateBuiltInFunctionObject(["items"], "arrayShift", global, strict);
+  shiftObject := CreateBuiltInFunctionObject(["items"], "arrayShift", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(shiftObject, true, false, true);
   setJSProperty(prototype, "shift", descriptor);
 
   /* slice */
-  sliceObject := CreateBuiltInFunctionObject(["items"], "arraySlice", global, strict);
+  sliceObject := CreateBuiltInFunctionObject(["items"], "arraySlice", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(sliceObject, true, false, true);
   setJSProperty(prototype, "slice", descriptor);
 
   /* sort */
-  sortObject := CreateBuiltInFunctionObject(["items"], "arraySort", global, strict);
+  sortObject := CreateBuiltInFunctionObject(["items"], "arraySort", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
   setJSProperty(prototype, "sort", descriptor);
 
   /* splice */
-  spliceObject := CreateBuiltInFunctionObject(["items"], "arraySplice", global, strict);
+  spliceObject := CreateBuiltInFunctionObject(["items"], "arraySplice", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
   setJSProperty(prototype, "splice", descriptor);
 
   /* indexOf */
-  indexOfObject := CreateBuiltInFunctionObject(["items"], "arrayIndexOf", global, strict);
+  indexOfObject := CreateBuiltInFunctionObject(["items"], "arrayIndexOf", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(indexOfObject, true, false, true);
   setJSProperty(prototype, "indexOf", descriptor);
 
   /* lastIndexOf */
-  lastIndexOfObject := CreateBuiltInFunctionObject(["items"], "arrayLastIndexOf", global, strict);
+  lastIndexOfObject := CreateBuiltInFunctionObject(["items"], "arrayLastIndexOf", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(lastIndexOfObject, true, false, true);
   setJSProperty(prototype, "lastIndexOf", descriptor);
 
   /* every */
-  everyOfObject := CreateBuiltInFunctionObject(["items"], "arrayEvery", global, strict);
+  everyOfObject := CreateBuiltInFunctionObject(["items"], "arrayEvery", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(everyOfObject, true, false, true);
   setJSProperty(prototype, "every", descriptor);
 
   /* some */
-  someOfObject := CreateBuiltInFunctionObject(["items"], "arraySome", global, strict);
+  someOfObject := CreateBuiltInFunctionObject(["items"], "arraySome", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(someOfObject, true, false, true);
   setJSProperty(prototype, "some", descriptor);
 
   /* forEach */
-  forEachObject := CreateBuiltInFunctionObject(["items"], "arrayForEach", global, strict);
+  forEachObject := CreateBuiltInFunctionObject(["items"], "arrayForEach", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(forEachObject, true, false, true);
   setJSProperty(prototype, "forEach", descriptor);
 
   /* map */
-  mapObject := CreateBuiltInFunctionObject(["items"], "arrayMap", global, strict);
+  mapObject := CreateBuiltInFunctionObject(["items"], "arrayMap", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(mapObject, true, false, true);
   setJSProperty(prototype, "map", descriptor);
 
   /* filter */
-  filterObject := CreateBuiltInFunctionObject(["items"], "arrayFilter", global, strict);
+  filterObject := CreateBuiltInFunctionObject(["items"], "arrayFilter", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(filterObject, true, false, true);
   setJSProperty(prototype, "filter", descriptor);
 
   /* reduce */
-  reduceObject := CreateBuiltInFunctionObject(["items"], "arrayReduce", global, strict);
+  reduceObject := CreateBuiltInFunctionObject(["items"], "arrayReduce", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(reduceObject, true, false, true);
   setJSProperty(prototype, "reduce", descriptor);
 
   /* reduceRight */
-  reduceRightObject := CreateBuiltInFunctionObject(["items"], "arrayReduceRight", global, strict);
+  reduceRightObject := CreateBuiltInFunctionObject(["items"], "arrayReduceRight", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(reduceRightObject, true, false, true);
   setJSProperty(prototype, "reduceRight", descriptor);
 
@@ -201,13 +201,13 @@ function getArrayPrototype(strict) {
 
 function initArrayObject(global, objectPrototype, strict) {
   objArrayPrototype := initArrayPrototype(global, objectPrototype, strict);
-  objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict);
+  objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict, 0);
 
   descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
   setJSProperty(objArrayPrototype, "constructor", descriptor);
 
   /* isArray */
-  isArrayObject := CreateBuiltInFunctionObject(["items"], "isArray", global, strict);
+  isArrayObject := CreateBuiltInFunctionObject(["items"], "isArray", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(isArrayObject, true, false, true);
   setJSProperty(objArrayConstructor, "isArray", descriptor);
 
@@ -375,7 +375,7 @@ function internalNewArrayLen(arrayPrototype, len) {
  * is "Array"; otherwise it returns false. The following steps are taken:
  */
 function isArray(global, this, strict, args) {
-  arg := l_nth (args, 0);
+  arg := l_nth(args, 0);
   /* 1. If Type(arg) is not Object, return false. */
   if (!(Type(arg) = "Object")) {
     return false
@@ -635,12 +635,8 @@ function arrayConcat(global, this, strict, items) {
  */
 /* function join (global, this, [ separator ]) */
 function arrayJoin(global, this, strict, args) {
-  if (l_len args = 0) {
-    separator := 'undefined
-  } else {
-    separator := l_nth (args, 0)
-  };
-  
+  separator := l_nth(args, 0);
+
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
   O := ToObject(this);
@@ -981,17 +977,8 @@ function arrayShift(global, this, strict, args) {
  * steps are taken:
  */
 function arraySlice(global, this, strict, args) {
-  if (l_len args = 0) {
-    start := 'undefined;
-    end := 'undefined
-  } else {
-    start := l_nth(args, 0);
-    if (l_len args = 1) {
-      end := 'undefined
-    } else {
-      end := l_nth(args, 1)
-    }
-  };
+  start := l_nth(args, 0);
+  end := l_nth(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
@@ -1077,11 +1064,7 @@ function arraySlice(global, this, strict, args) {
  * zero if x = y, or a positive value if x > y.
  */
 function arraySort(global, this, strict, args) {
-  if (l_len args = 0) {
-    comparefn := 'undefined
-  } else {
-    comparefn := l_nth (args, 0)
-  };
+  comparefn := l_nth(args, 0);
 
   /* Let obj be the result of calling ToObject passing the this value
      as the argument. */
@@ -1280,19 +1263,9 @@ function SortCompare(obj, comparefn, j, k) {
  * is returned. The following steps are taken:
  */
 function arraySplice(global, this, strict, args) {
-  start := l_nth (args, 0);
-
-  if (l_len args = 1) {
-    deleteCount := 'undefined;
-    items := 'undefined
-  } else {
-    deleteCount := l_nth(args, 1);
-    if (l_len args = 2) {
-      items := 'undefined
-    } else {
-      items := tl(tl args)
-    }
-  };
+  start := l_nth(args, 0);
+  deleteCount := l_nth(args, 1);
+  items := tl (tl args);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1342,11 +1315,7 @@ function arraySplice(global, this, strict, args) {
   /* 10. Let items be an internal List whose elements are, in left to
          right order, the portion of the actual argument list starting
          with item1. The list will be empty if no such items are present. */
-  if (l_len items = 0.) {
-    items := []
-  } else {
-    items := items
-  };
+  items := items;
   /* 11. Let itemCount be the number of elements in items. */
   itemCount := int_to_float (l_len items);
   /* 12. If itemCount < actualDeleteCount, then */
@@ -1560,12 +1529,8 @@ function arrayUnshift(global, this, strict, items) {
  * steps are taken:
  */
 function arrayIndexOf(global, this, strict, args) {
-  searchElement := l_nth (args, 0);
-  if (l_len args = 1) {
-    fromIndex := 'undefined
-  } else {
-    fromIndex := l_nth (args, 1)
-  };
+  searchElement := l_nth(args, 0);
+  fromIndex := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
@@ -1581,7 +1546,7 @@ function arrayIndexOf(global, this, strict, args) {
   };
   /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex);
         else let n be 0. */
-  if (!(fromIndex = 'undefined)) {
+  if (!(fromIndex = undefined)) {
     n := ToInteger(fromIndex)
   } else {
     n := 0.
@@ -1657,12 +1622,8 @@ function arrayIndexOf(global, this, strict, args) {
  * following steps are taken:
  */
 function arrayLastIndexOf(global, this, strict, args) {
-  searchElement := l_nth (args, 0);
-  if (l_len args = 1) {
-    fromIndex := 'undefined
-  } else {
-    fromIndex := l_nth (args, 1)
-  };
+  searchElement := l_nth(args, 0);
+  fromIndex := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1678,7 +1639,7 @@ function arrayLastIndexOf(global, this, strict, args) {
   };
   /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex);
         else let n be len. */
-  if (!(fromIndex = 'undefined)) {
+  if (!(fromIndex = undefined)) {
     n := ToInteger(fromIndex)
   } else {
     n := len
@@ -1764,12 +1725,8 @@ function arrayLastIndexOf(global, this, strict, args) {
  * steps are taken:
  */
 function arrayEvery(global, this, strict, args) {
-  callbackfn := l_nth (args, 0);
-  if (l_len args = 1) {
-    thisArg := 'undefined
-  } else {
-    thisArg := l_nth (args, 1)
-  };
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1784,7 +1741,7 @@ function arrayEvery(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = 'undefined)) {
+  if (!(thisArg = undefined)) {
     T := thisArg
   } else {
     T := 'undefined
@@ -1863,12 +1820,8 @@ function arrayEvery(global, this, strict, args) {
  * steps are taken:
  */
 function arraySome(global, this, strict, args) {
-  callbackfn := l_nth (args, 0);
-  if (l_len args = 1) {
-    thisArg := 'undefined
-  } else {
-    thisArg := l_nth (args, 1)
-  };
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1883,7 +1836,7 @@ function arraySome(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = 'undefined)) {
+  if (!(thisArg = undefined)) {
     T := thisArg
   } else {
     T := 'undefined
@@ -1959,12 +1912,8 @@ function arraySome(global, this, strict, args) {
  * following steps are taken:
  */
 function arrayForEach(global, this, strict, args) {
-  callbackfn := l_nth (args, 0);
-  if (l_len args = 1) {
-    thisArg := 'undefined
-  } else {
-    thisArg := l_nth (args, 1)
-  };
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1979,7 +1928,7 @@ function arrayForEach(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = 'undefined)) { /* TODO if thisArg was supplied check with undefined? */
+  if (!(thisArg = undefined)) {
     T := thisArg
   } else {
     T := 'undefined
@@ -2050,12 +1999,8 @@ function arrayForEach(global, this, strict, args) {
  * steps are taken:
  */
 function arrayMap(global, this, strict, args) {
-  callbackfn := l_nth (args, 0);
-  if (l_len args = 1) {
-    thisArg := 'undefined
-  } else {
-    thisArg := l_nth (args, 1)
-  };
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -2070,7 +2015,7 @@ function arrayMap(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = 'undefined)) { /* TODO if thisArg was supplied check with undefined? */
+  if (!(thisArg = undefined)) {
     T := thisArg
   } else {
     T := 'undefined
@@ -2152,12 +2097,8 @@ function arrayMap(global, this, strict, args) {
  * steps are taken:
  */
 function arrayFilter(global, this, strict, args) {
-  callbackfn := l_nth (args, 0);
-  if (l_len args = 1) {
-    thisArg := 'undefined
-  } else {
-    thisArg := l_nth (args, 1)
-  };
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -2172,7 +2113,7 @@ function arrayFilter(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = 'undefined)) { /* TODO if thisArg was supplied check with undefined? */
+  if (!(thisArg = undefined)) {
     T := thisArg
   } else {
     T := 'undefined
@@ -2261,12 +2202,8 @@ function arrayFilter(global, this, strict, args) {
  * following steps are taken:
  */
 function arrayReduce(global, this, strict, args) {
-  callbackfn := l_nth (args, 0);
-  if (l_len args = 1) {
-    initialValue := 'undefined
-  } else {
-    initialValue := l_nth (args, 1)
-  };
+  callbackfn := l_nth(args, 0);
+  initialValue := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -2281,13 +2218,13 @@ function arrayReduce(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 5. If len is 0 and initialValue is not present, throw a TypeError exception. */
-  if (len = 0 && (initialValue = 'undefined)) { /* TODO if initialValue is not present check with undefined? */
+  if ((len = 0) &&& (initialValue = undefined)) {
     throw TypeErrorConstructorInternal()
   };
   /* 6. Let k be 0. */
   k := 0.;
   /* 7. If initialValue is present, then */
-  if (!(initialValue = 'undefined)) {
+  if (!(initialValue = undefined)) {
     /* a. Set accumulator to initialValue. */
     accumulator := initialValue
   }
@@ -2384,12 +2321,8 @@ function arrayReduce(global, this, strict, args) {
  * the following steps are taken:
  */
 function arrayReduceRight(global, this, strict, args) {
-  callbackfn := l_nth (args, 0);
-  if (l_len args = 1) {
-    initialValue := 'undefined
-  } else {
-    initialValue := l_nth (args, 1)
-  };
+  callbackfn := l_nth(args, 0);
+  initialValue := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -2404,13 +2337,13 @@ function arrayReduceRight(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 5. If len is 0 and initialValue is not present, throw a TypeError exception. */
-  if (len = 0 && (initialValue = 'undefined)) { /* TODO if initialValue is not present check with undefined? */
+  if ((len = 0) &&& (initialValue = undefined)) {
     throw TypeErrorConstructorInternal()
   };
   /* 6. Let k be len-1. */
   k := len - 1.;
   /* 7. If initialValue is present, then */
-  if (!(initialValue = 'undefined)) {
+  if (!(initialValue = undefined)) {
     /* a. Set accumulator to initialValue. */
     accumulator := initialValue
   }
