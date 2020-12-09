@@ -217,6 +217,9 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
   /* 10. Set the [[Extensible]] internal property of F to false. */
   setInternalProperty(F, "Extensible", false);
   /* 11. Let [[ThrowTypeError]] be F. */
+
+  setInternalProperty(F, "internalLength", 0);
+
   return F
 };
 
