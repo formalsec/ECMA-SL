@@ -40,7 +40,7 @@ function functionPrototypeFunction(globalObject, this, strict, params) {
 function initFunctionPrototype(objectPrototype, globalObject, strict) {
   /* The Function prototype object is itself a Function object (its [[Class]] is "Function") that, when invoked,
      accepts any arguments and returns undefined. */
-  functionPrototypeObject := CreateGeneralBuiltInFunctionObject(objectPrototype, [], "functionPrototypeFunction", globalObject, strict);
+  functionPrototypeObject := CreateGeneralBuiltInFunctionObject(objectPrototype, [], "functionPrototypeFunction", globalObject, strict, null);
   /* The value of the [[Prototype]] internal property of the Function prototype object is the standard built-in Object
      prototype object (15.2.4). The initial value of the [[Extensible]] internal property of the Function prototype
      object is true.*/
