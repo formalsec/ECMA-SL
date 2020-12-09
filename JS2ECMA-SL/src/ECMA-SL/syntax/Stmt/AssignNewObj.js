@@ -12,7 +12,7 @@ function MakeAssignNewObj(Stmt){
 	  }
 
 	  interpret(config){
-	  	console.log(">ASSIGN NEW OBJ");
+	  	//console.log(">ASSIGN NEW OBJ");
 	  	var obj_name = config.heap.createObject();
 	  	config.store.sto[this.stringvar] = new LocationVal(obj_name);
 	  	config.cont=config.cont.slice(1);

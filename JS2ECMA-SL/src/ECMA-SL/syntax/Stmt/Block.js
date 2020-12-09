@@ -12,7 +12,7 @@ function MakeBlock(Stmt){
 	  }
 
 	  toJS(){
-	  
+
 	  	var stmts = this.statements.map((stmt) => stmt.toJS());
 	  	return {
 	        "type": "BlockStatement",
@@ -21,7 +21,7 @@ function MakeBlock(Stmt){
 	  }
 
 	  interpret(config){
-	  	console.log(">BLOCK");
+	  	//console.log(">BLOCK");
 	  	config.cont = this.statements.concat(config.cont.slice(1)) ;
       	return {config : config, seclabel: new EmptyLab()};
 	  }

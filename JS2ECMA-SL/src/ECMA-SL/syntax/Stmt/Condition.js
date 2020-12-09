@@ -37,7 +37,7 @@ function MakeCondition(Stmt){
 	}
 
 		interpret(config){
-			console.log(">CONDITION");
+			//console.log(">CONDITION");
 			var v = this.expr.interpret(config.store);
 			//Needs to be bool and true
 			if(v.value){				

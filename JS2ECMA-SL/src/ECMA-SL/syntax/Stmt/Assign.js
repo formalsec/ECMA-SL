@@ -31,7 +31,7 @@ function MakeAssign(Stmt){
     }
 
     interpret(config){
-      console.log(">ASSIGN")
+      //console.log(">ASSIGN")
       config.cont=config.cont.slice(1);
       var v = this.expression.interpret(config.store);
       config.store.setValue(this.variable, v);

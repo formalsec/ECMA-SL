@@ -14,7 +14,7 @@ function MakeAssignInObjCheck(Stmt){
     }
 
     interpret(config){
-      console.log(">ASSIGN IN OBJ CHECK");
+      //console.log(">ASSIGN IN OBJ CHECK");
       config.cont = config.cont.slice(1) ;
       var object = this.expressionObject.interpret(config.store).value;
       var field = this.expressionField.interpret(config.store).value;
