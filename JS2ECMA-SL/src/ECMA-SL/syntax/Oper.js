@@ -48,7 +48,7 @@ class Oper{
   }
 
   interpret(val1,val2){
-    console.log("==== "+ this.operator);
+    //console.log("==== "+ this.operator);
   	switch(this.operator){
   		//BinOpt
   		case "Plus":  return new PrimitiveVal(val1.value + val2.value);
@@ -189,7 +189,7 @@ class Oper{
           "prefix": true
         }
       case "Sconcat":
-      console.log(e1);
+      //console.log(e1);
         var oper_js = unary_dictionary[this.operator];
         var acc = e1.elements[0];
         for (var i=1;i < e1.elements.length; i++){

@@ -18,7 +18,7 @@ class Skip {
   }
 
   interpret(config){
-  	console.log(">SKIP");
+  	//console.log(">SKIP");
   	return {config : config, seclabel: new EmptyLab()};
   }
 }

@@ -143,24 +143,13 @@ obj["structLev"] := lev_3
 } else {
 throw "MONITOR EXCEPTION -> Illegal P_Val Upgrade"
 };
-print pc;
 return ( 0, pc ) };
-function leq (lev1, lev2) { print "LEQQQ";
-print lev1;
-print lev2;
-nlev1 := !(lev1);
+function leq (lev1, lev2) { nlev1 := !(lev1);
 nlev2 := !(lev2);
-print nlev1;
-print nlev2;
 aux := nlev1 && nlev2;
-print aux;
 return lev2 || aux };
 function lubn (levs) { i := 0;
 acc := false;
 while (i < l_len(levs)) { acc := "lub" (acc, l_nth(levs, i));
-print "DEBUGGING LUBN";
-print acc;
 i := i + 1 };
-print "FINAL LUBN";
-print acc;
 return acc }

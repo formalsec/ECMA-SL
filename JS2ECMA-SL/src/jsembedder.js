@@ -1,7 +1,9 @@
 
 // node parse_esl <file_to_parse>
 const escodegen = require("escodegen");
+const { PerformanceObserver, performance } = require('perf_hooks');
 const Prog = require("./ECMA-SL/syntax/Prog");
+const _EXCEPTION_INTERRUPTION_ = "__exception_interruption__";
 const option = {
     format : {
       quotes : 'single',
@@ -28,13 +30,19 @@ function parseFile(err,obj) {
     var js_prog = prog.toJS();
     var js_prog_emb = escodegen.generate(js_prog, option);
     console.log(js_prog_emb);
+    console.log("===============================\n");
+    var t_execution0 = performance.now()
     var result = eval(js_prog_emb);
-    if(Array.isArray(result)){
-      console.log("MAIN return -> "+ result[0]);
+    var t_execution1 = performance.now()
+    if(result != _EXCEPTION_INTERRUPTION_){
+      if(Array.isArray(result)){
+        console.log("MAIN return -> "+ result[0]);
+      }
+      else{
+        console.log("MAIN return -> "+ result);
+      }
     }
-    else{
-      console.log("MAIN return -> "+ result);
-    }
+    console.log("\n===============================\nInterpretation Time : " + (t_execution1 - t_execution0));
     
 
    

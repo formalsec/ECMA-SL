@@ -5,10 +5,10 @@ o := {};
 o.q := false;
 proph := "p";
 
-x:= "upgVar"("l", "low");
-x:= "upgVar"("h", "high");
-x:= "upgVar"("proph", "high");
-x:= "upgStruct"(o, "high");
+aux1:= "upgVar"("l", "low");
+aux2:= "upgVar"("h", "high");
+aux3:= "upgVar"("proph", "high");
+aux4:= "upgStruct"(o, "high");
 
 if (h) {
   proph := "q"

@@ -17,7 +17,7 @@ function MakeValExpr(Expr){
 	  }
 
 	  interpret(store){
-	  	console.log("++ VAL EXPR");
+	  	//console.log("++ VAL EXPR");
 	  	return this.value;
 	  }
 

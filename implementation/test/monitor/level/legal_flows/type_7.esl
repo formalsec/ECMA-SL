@@ -1,12 +1,12 @@
 function main () {
 h:= false;
-x:= "upgVar"("h", "high");
+aux1:= "upgVar"("h", "high");
 l:= true;
-x:= "upgVar"("l", "low");
+aux2:= "upgVar"("l", "low");
 o := {};
-x:= "upgStruct"(o, "high");
+aux3:= "upgStruct"(o, "high");
 proph := "q";
-x:= "upgVar"("proph", "high");
+aux4:= "upgVar"("proph", "high");
 o.p :=true;
 o[proph] := true;
 

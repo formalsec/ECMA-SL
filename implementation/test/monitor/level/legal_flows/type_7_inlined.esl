@@ -25,6 +25,10 @@ return ( 0, pc ) };
 function shadowPropExists (prop_str) { result := s_concat([ prop_str, "_prop_exists_lvl" ]);
 return result };
 function main (_pc_1) { _pc_1 := "parse_lvl" ("low");
+aux1_lev := true;
+aux2_lev := true;
+aux3_lev := true;
+aux4_lev := true;
 h_lev := true;
 l_lev := true;
 o_lev := true;
@@ -66,11 +70,11 @@ o["objLev"] := _pc_1;
 o_lev := _pc_1;
 _fresh_lev_var2 := "lubn" ([ o_lev ]);
 _fresh_lev_var3 := "lubn" ([  ]);
-_freshvar_5 := "leq" (_pc_1, x_lev);
+_freshvar_5 := "leq" (_pc_1, aux3_lev);
 if (_freshvar_5) {
 _freshvar_4 := "upgStruct" (o, _fresh_lev_var2, "high", _fresh_lev_var3, _pc_1);
-x := fst(_freshvar_4);
-x_lev := snd(_freshvar_4)
+aux3 := fst(_freshvar_4);
+aux3_lev := snd(_freshvar_4)
 } else {
 throw "MONITOR EXCEPTION -> Pc bigger than x in AssignCall"
 };
@@ -256,24 +260,13 @@ obj["structLev"] := lev_3
 } else {
 throw "MONITOR EXCEPTION -> Illegal P_Val Upgrade"
 };
-print pc;
 return ( 0, pc ) };
-function leq (lev1, lev2) { print "LEQQQ";
-print lev1;
-print lev2;
-nlev1 := !(lev1);
+function leq (lev1, lev2) { nlev1 := !(lev1);
 nlev2 := !(lev2);
-print nlev1;
-print nlev2;
 aux := nlev1 && nlev2;
-print aux;
 return lev2 || aux };
 function lubn (levs) { i := 0;
 acc := false;
 while (i < l_len(levs)) { acc := "lub" (acc, l_nth(levs, i));
-print "DEBUGGING LUBN";
-print acc;
 i := i + 1 };
-print "FINAL LUBN";
-print acc;
 return acc }

@@ -29,7 +29,7 @@ function MakeLoop(Stmt){
 		}
 
 		interpret(config){
-			console.log(">LOOP");
+			//console.log(">LOOP");
 			config.cont=config.cont.slice(1);
 			var result = [new Condition(this.expr, new Block([this.block].concat([new Loop(this.expr,this.block)])),null)];
 			config.cont= result.concat(config.cont);

@@ -19,7 +19,7 @@ function MakeBinOptExpr(Expr){
     }
 
     interpret(store){
-      console.log("++BINOPT");
+      //console.log("++BINOPT");
       var v1 = this.expr_lhs.interpret(store);
       var v2 = this.expr_rhs.interpret(store);
       return this.operator.interpret(v1,v2); 

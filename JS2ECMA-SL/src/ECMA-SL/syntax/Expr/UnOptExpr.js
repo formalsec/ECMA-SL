@@ -20,7 +20,7 @@ function MakeUnOptExpr(Expr){
 	  }
 
 	  interpret(store){
-	  	console.log("++ UNOPT");
+	  	//console.log("++ UNOPT");
 	  	var v = this.expr_rhs.interpret(store);
 	  	return this.operator.interpret(v); 
 	  }

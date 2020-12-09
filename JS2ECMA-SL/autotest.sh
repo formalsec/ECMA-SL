@@ -58,7 +58,8 @@ printf "\tOCAML IC + CI     	: 	${OCAMLinlineRes2}\n"
 	then
 		JRES2=$( echo "${JSRES}" | grep "MONITOR EXCEPTION" | tail -1  )
 	fi
-printf "\t(PARSE) JS+mon    	: 	${JRES2}\n"
+	TIME=$(echo "${JSRES}" | grep "Interpretation Time :" )
+	printf "\t(PARSE) JS+mon    	: 	${JRES2}			${TIME}\n"
 ## OCAML inline -> parse -> JS
 	
 	JSinlinedRes=$(node src/parse_esl.js ../implementation/${filename}_inlined.json)
@@ -71,7 +72,8 @@ printf "\t(PARSE) JS+mon    	: 	${JRES2}\n"
 	then
 		JSinlinedRes2=$( echo "${JSinlinedRes}" | grep "MONITOR EXCEPTION" | tail -1 )
 	fi
-	printf "\tIC (PARSE) + JS   	: 	${JSinlinedRes2}\n"
+	TIME=$(echo "${JSinlinedRes}" | grep "Interpretation Time :" )
+	printf "\tIC (PARSE) + JS   	: 	${JSinlinedRes2}			${TIME}\n"
 
 ## OCAML inline -> parse -> JS EMBEDDER
 	
@@ -85,7 +87,8 @@ printf "\t(PARSE) JS+mon    	: 	${JRES2}\n"
 	then
 		JSEmbinlinedRes2=$( echo "${JSEmbinlinedRes}" | grep "MONITOR EXCEPTION" | tail -1 )
 	fi
-	printf "\tIC (PARSE) + JS EMBEDDER: 	${JSEmbinlinedRes2}\n"
+	TIME=$(echo "${JSEmbinlinedRes}" | grep "Interpretation Time :" )
+	printf "\tIC (PARSE) + JS EMBEDDER: 	${JSEmbinlinedRes2}			${TIME}\n"
 	
 
 	PROGS=$((PROGS+1))

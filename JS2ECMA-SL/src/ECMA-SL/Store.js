@@ -2,7 +2,7 @@ const Lattice = require('./syntax/Lattice');
 class Store{
 
 constructor(params, vs){
-	console.log(params);
+	//console.log(params);
 	var result = {};
 	params.forEach((param, i) => result[param]= vs[i]);
 	this.sto = result;

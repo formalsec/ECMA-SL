@@ -1,4 +1,6 @@
 const Expr = require("../Expr/Expr").Expr;
+const EmptyLab = require("../Labels/EmptyLab");
+const _EXCEPTION_INTERRUPTION_ = "__exception_interruption__";
 
 function MakeException(Stmt){
 
@@ -41,30 +43,13 @@ function MakeException(Stmt){
           }
         },
         {
-          "type": "ExpressionStatement",
-          "expression": {
-            "type": "CallExpression",
-            "callee": {
-              "type": "MemberExpression",
-              "computed": false,
-              "object": {
-                "type": "Identifier",
-                "name": "process"
-              },
-              "property": {
-                "type": "Identifier",
-                "name": "exit"
-              }
-            },
-            "arguments": [
-              {
-                "type": "Literal",
-                "value": 1,
-                "raw": "1"
-              }
-            ]
+            "type": "ReturnStatement",
+            "argument": {
+              "type": "Literal",
+              "value": _EXCEPTION_INTERRUPTION_,
+              "raw": "\""+_EXCEPTION_INTERRUPTION_+"\""
+            }
           }
-        }
       ]
     }
 }
@@ -72,9 +57,10 @@ function MakeException(Stmt){
 
 
 	interpret(config){
-		console.log(">EXCEPTION");
-		console.log(this.string);
-		process.exit(1)
+		//console.log(">EXCEPTION");
+		console.log(this.string+"\n\n===============================");
+    config.exit = true;
+    return {config : config, seclabel: new EmptyLab()};
 	}
 }
 
