@@ -25,7 +25,7 @@ function initBooleanConstructor(BooleanPrototype, globalObject, strict) {
   /* 15.6.3 Properties of the Boolean Constructor */
   /* The value of the [[Prototype]] internal property of the Boolean constructor is the Function prototype object
      (15.3.4). */
-  BooleanConstructor := CreateFunctionObject(["value"], "BooleanConstructor", globalObject, strict);
+  BooleanConstructor := CreateFunctionObject(["value"], "BooleanConstructor", globalObject, strict, null);
   /* Besides the internal properties and the length property (whose value is 1), the Boolean constructor has the
      following property: */
 
@@ -59,11 +59,11 @@ function fillBooleanPrototype(booleanPrototypeObject, BooleanConstructor, global
   createBuiltInProperty(booleanPrototypeObject, "constructor", BooleanConstructor);
 
   /* 15.6.4.2 Boolean.prototype.toString ( ) */
-  toString := CreateBuiltInFunctionObject([], "BooleanPrototypeToString", globalObject, strict);
+  toString := CreateBuiltInFunctionObject([], "BooleanPrototypeToString", globalObject, strict, null);
   createBuiltInProperty(booleanPrototypeObject, "toString", toString);
 
   /* 15.6.4.3 Boolean.prototype.valueOf ( ) */
-  valueOf := CreateBuiltInFunctionObject([], "BooleanPrototypeValueOf", globalObject, strict);
+  valueOf := CreateBuiltInFunctionObject([], "BooleanPrototypeValueOf", globalObject, strict, null);
   createBuiltInProperty(booleanPrototypeObject, "valueOf", valueOf);
 
   return

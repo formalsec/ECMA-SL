@@ -2,8 +2,8 @@ function initConsoleObject(globalObject, objectPrototype, strict) {
   console := NewECMAScriptObject();
   setAllInternalMethodsOfObject(console);
 
-  internalLog := CreateFunctionObject(["str"], "__internalLog", globalObject, strict);
-  internalLogObject := CreateFunctionObject(["obj"], "__internalLogObject", globalObject, strict);
+  internalLog := CreateFunctionObject(["str"], "__internalLog", globalObject, strict, null);
+  internalLogObject := CreateFunctionObject(["obj"], "__internalLogObject", globalObject, strict, null);
 
   createBuiltInProperty(console, "log", internalLog);
   createBuiltInProperty(console, "logObject", internalLogObject);

@@ -83,102 +83,102 @@ function initArrayPrototype(global, objectPrototype, strict) {
   /* Add built-in function objects to array's prototype */
 
   /* toString */
-  toStringObject := CreateBuiltInFunctionObject(["items"], "arrayToString", global, strict);
+  toStringObject := CreateBuiltInFunctionObject(["items"], "arrayToString", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(toStringObject, true, false, true);
   setJSProperty(prototype, "toString", descriptor);
 
   /* toLocaleString */
-  toLocaleStringObject := CreateBuiltInFunctionObject(["items"], "arrayToLocaleString", global, strict);
+  toLocaleStringObject := CreateBuiltInFunctionObject(["items"], "arrayToLocaleString", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(toLocaleStringObject, true, false, true);
   setJSProperty(prototype, "toLocaleString", descriptor);
 
   /* concat */
-  concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict);
+  concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(concatObject, true, false, true);
   setJSProperty(prototype, "concat", descriptor);
 
   /* join */
-  joinObject := CreateBuiltInFunctionObject(["items"], "arrayJoin", global, strict);
+  joinObject := CreateBuiltInFunctionObject(["items"], "arrayJoin", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(joinObject, true, false, true);
   setJSProperty(prototype, "join", descriptor);
 
   /* pop */
-  popObject := CreateBuiltInFunctionObject([], "arrayPop", global, strict);
+  popObject := CreateBuiltInFunctionObject([], "arrayPop", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(popObject, true, false, true);
   setJSProperty(prototype, "pop", descriptor);
 
   /* push */
-  pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict);
+  pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(pushObject, true, false, true);
   setJSProperty(prototype, "push", descriptor);
 
   /* reverse */
-  reverseObject := CreateBuiltInFunctionObject(["items"], "arrayReverse", global, strict);
+  reverseObject := CreateBuiltInFunctionObject(["items"], "arrayReverse", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(reverseObject, true, false, true);
   setJSProperty(prototype, "reverse", descriptor);
 
   /* shift */
-  shiftObject := CreateBuiltInFunctionObject(["items"], "arrayShift", global, strict);
+  shiftObject := CreateBuiltInFunctionObject(["items"], "arrayShift", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(shiftObject, true, false, true);
   setJSProperty(prototype, "shift", descriptor);
 
   /* slice */
-  sliceObject := CreateBuiltInFunctionObject(["items"], "arraySlice", global, strict);
+  sliceObject := CreateBuiltInFunctionObject(["items"], "arraySlice", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(sliceObject, true, false, true);
   setJSProperty(prototype, "slice", descriptor);
 
   /* sort */
-  sortObject := CreateBuiltInFunctionObject(["items"], "arraySort", global, strict);
+  sortObject := CreateBuiltInFunctionObject(["items"], "arraySort", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
   setJSProperty(prototype, "sort", descriptor);
 
   /* splice */
-  spliceObject := CreateBuiltInFunctionObject(["items"], "arraySplice", global, strict);
+  spliceObject := CreateBuiltInFunctionObject(["items"], "arraySplice", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
   setJSProperty(prototype, "splice", descriptor);
 
   /* indexOf */
-  indexOfObject := CreateBuiltInFunctionObject(["items"], "arrayIndexOf", global, strict);
+  indexOfObject := CreateBuiltInFunctionObject(["items"], "arrayIndexOf", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(indexOfObject, true, false, true);
   setJSProperty(prototype, "indexOf", descriptor);
 
   /* lastIndexOf */
-  lastIndexOfObject := CreateBuiltInFunctionObject(["items"], "arrayLastIndexOf", global, strict);
+  lastIndexOfObject := CreateBuiltInFunctionObject(["items"], "arrayLastIndexOf", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(lastIndexOfObject, true, false, true);
   setJSProperty(prototype, "lastIndexOf", descriptor);
 
   /* every */
-  everyOfObject := CreateBuiltInFunctionObject(["items"], "arrayEvery", global, strict);
+  everyOfObject := CreateBuiltInFunctionObject(["items"], "arrayEvery", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(everyOfObject, true, false, true);
   setJSProperty(prototype, "every", descriptor);
 
   /* some */
-  someOfObject := CreateBuiltInFunctionObject(["items"], "arraySome", global, strict);
+  someOfObject := CreateBuiltInFunctionObject(["items"], "arraySome", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(someOfObject, true, false, true);
   setJSProperty(prototype, "some", descriptor);
 
   /* forEach */
-  forEachObject := CreateBuiltInFunctionObject(["items"], "arrayForEach", global, strict);
+  forEachObject := CreateBuiltInFunctionObject(["items"], "arrayForEach", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(forEachObject, true, false, true);
   setJSProperty(prototype, "forEach", descriptor);
 
   /* map */
-  mapObject := CreateBuiltInFunctionObject(["items"], "arrayMap", global, strict);
+  mapObject := CreateBuiltInFunctionObject(["items"], "arrayMap", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(mapObject, true, false, true);
   setJSProperty(prototype, "map", descriptor);
 
   /* filter */
-  filterObject := CreateBuiltInFunctionObject(["items"], "arrayFilter", global, strict);
+  filterObject := CreateBuiltInFunctionObject(["items"], "arrayFilter", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(filterObject, true, false, true);
   setJSProperty(prototype, "filter", descriptor);
 
   /* reduce */
-  reduceObject := CreateBuiltInFunctionObject(["items"], "arrayReduce", global, strict);
+  reduceObject := CreateBuiltInFunctionObject(["items"], "arrayReduce", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(reduceObject, true, false, true);
   setJSProperty(prototype, "reduce", descriptor);
 
   /* reduceRight */
-  reduceRightObject := CreateBuiltInFunctionObject(["items"], "arrayReduceRight", global, strict);
+  reduceRightObject := CreateBuiltInFunctionObject(["items"], "arrayReduceRight", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(reduceRightObject, true, false, true);
   setJSProperty(prototype, "reduceRight", descriptor);
 
@@ -201,13 +201,13 @@ function getArrayPrototype(strict) {
 
 function initArrayObject(global, objectPrototype, strict) {
   objArrayPrototype := initArrayPrototype(global, objectPrototype, strict);
-  objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict);
+  objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict, 0);
 
   descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
   setJSProperty(objArrayPrototype, "constructor", descriptor);
 
   /* isArray */
-  isArrayObject := CreateBuiltInFunctionObject(["items"], "isArray", global, strict);
+  isArrayObject := CreateBuiltInFunctionObject(["items"], "isArray", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(isArrayObject, true, false, true);
   setJSProperty(objArrayConstructor, "isArray", descriptor);
 
