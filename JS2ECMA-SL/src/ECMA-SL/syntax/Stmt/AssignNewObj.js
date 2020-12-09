@@ -20,7 +20,7 @@ function MakeAssignNewObj(Stmt){
 	  }
 
 	  toJS(){
-	  	console.log("AssignNewObj toJS");
+	  	//console.log("AssignNewObj toJS");
 	  	return {
 	      "type": "ExpressionStatement",
 	      "expression": {

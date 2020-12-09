@@ -1,4 +1,4 @@
-const Expr = require("../Expr/Expr");
+const Expr = require("../Expr/Expr").Expr;
 const BranchLab = require("../Labels/BranchLab");
 const EmptyLab = require("../Labels/EmptyLab");
 const Merge = require("./Merge");
@@ -17,7 +17,7 @@ function MakeCondition(Stmt){
 		}
 
 		toJS(){
-			console.log("Condition toJS");
+			//console.log("Condition toJS");
 			var expr_js = this.expr.toJS();
 			var then_js = this.then_block.toJS();
 

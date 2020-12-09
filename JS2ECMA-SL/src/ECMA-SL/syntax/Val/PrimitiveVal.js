@@ -17,7 +17,7 @@ function MakePrimitiveVal(Val){
       return {
         "type": "Literal",
         "value": this.value,
-        "raw": ""+this.value
+        "raw": "\""+this.value+"\""
       }
     }
 

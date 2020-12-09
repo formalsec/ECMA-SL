@@ -1,5 +1,5 @@
 
-const Expr = require("../Expr/Expr");
+const Expr = require("../Expr/Expr").Expr;
 const Condition = require("./Condition")(Expr);
 const Block = require("./Block")(Expr);
 const EmptyLab = require("../Labels/EmptyLab");
@@ -18,7 +18,7 @@ function MakeLoop(Stmt){
 		}
 
 		toJS(){
-			console.log("Loop toJS");
+			//console.log("Loop toJS");
 			var expr_js = this.expr.toJS();
 			var block_js = this.block.toJS();
 			return {

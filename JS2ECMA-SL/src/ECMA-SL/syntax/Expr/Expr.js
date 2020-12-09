@@ -21,4 +21,11 @@ Expr.fromJSON = function(obj) {
 
 
 
-module.exports = Expr;
+module.exports = {
+	Expr,
+	Val,
+	Var,
+	UnOpt,
+	BinOpt,
+	NOpt
+	};

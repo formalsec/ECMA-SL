@@ -1,4 +1,4 @@
-const Expr = require("../Expr/Expr"); 
+const Expr = require("../Expr/Expr").Expr; 
 const FieldAssignLab = require("../Labels/FieldAssignLab");
 
 
@@ -16,11 +16,16 @@ function MakeFieldAssign(Stmt){
     }
 
     toJS(){
-      console.log("FieldAssign toJS");
+      //console.log("FieldAssign toJS");
       var obj_js = this.expressionObject.toJS();
       var field_js = this.expressionField.toJS();
       var expr_js = this.expressionValue.toJS();
-      return {
+      console.log("---------------");
+      console.log (obj_js);
+      console.log(field_js);
+      console.log(expr_js);
+      console.log("===============");
+      return{
         "type": "ExpressionStatement",
         "expression": {
           "type": "AssignmentExpression",

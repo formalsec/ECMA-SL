@@ -1,4 +1,4 @@
-const Expr = require("../Expr/Expr");
+const Expr = require("../Expr/Expr").Expr;
 const ReturnLab = require("../Labels/ReturnLab");
 const EmptyLab = require("../Labels/EmptyLab");
 
@@ -15,7 +15,7 @@ function MakeReturn(Stmt){
 	  }
 
 	  toJS(){
-	  	console.log("Return toJS");
+	  	//console.log("Return toJS");
 	  	var expr_ast = this.expression.toJS();
 	  	return {
             "type": "ReturnStatement",

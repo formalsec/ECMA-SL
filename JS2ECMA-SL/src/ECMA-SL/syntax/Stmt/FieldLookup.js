@@ -1,4 +1,4 @@
-const Expr = require("../Expr/Expr");
+const Expr = require("../Expr/Expr").Expr;
 const FieldLookupLab = require("../Labels/FieldLookupLab");
 
 function MakeFieldLookup(Stmt){
@@ -16,7 +16,7 @@ function MakeFieldLookup(Stmt){
     }
 
     toJS(){
-      console.log("FieldLookup toJS");
+      //console.log("FieldLookup toJS");
       var obj_js = this.expressionObject.toJS();
       var field_js = this.expressionField.toJS();
       return {

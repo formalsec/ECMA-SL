@@ -1,4 +1,4 @@
-const Expr = require("../Expr/Expr"); 
+const Expr = require("../Expr/Expr").Expr; 
 const AssignLab = require("../Labels/AssignLab");
 
 function MakeAssign(Stmt){
@@ -15,8 +15,6 @@ function MakeAssign(Stmt){
     }
 
     toJS(){
-      console.log("Assign "+ this.variable +" toJS ");
-      console.log(this.expression);
       var expr_js = this.expression.toJS();
       return {
         "type": "ExpressionStatement",

@@ -14,7 +14,7 @@ function MakeUnOptExpr(Expr){
 	  }
 
 	  toJS(){
-	  	console.log("UNOP - " + this.operator);
+	  	//console.log("UNOP - " + this.operator);
 	  	var expr_js = this.expr_rhs.toJS();
 	  	return this.operator.toJS(expr_js);
 	  }
