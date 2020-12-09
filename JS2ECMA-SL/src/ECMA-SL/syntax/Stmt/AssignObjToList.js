@@ -1,4 +1,4 @@
-	const Expr = require("../Expr/Expr"); 
+	const Expr = require("../Expr/Expr").Expr; 
 	const EmptyLab = require("../Labels/EmptyLab");
 
 function MakeAssignObjToList(Stmt){

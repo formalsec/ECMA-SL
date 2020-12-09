@@ -1,4 +1,4 @@
-const Expr = require("../Expr/Expr");
+const Expr = require("../Expr/Expr").Expr;
 
 function MakeException(Stmt){
 
@@ -12,7 +12,7 @@ function MakeException(Stmt){
 	}
 
 	toJS(){
-    console.log("Exception toJS");
+    //console.log("Exception toJS");
 		return { "type": "BlockStatement",
       "body": [
         {

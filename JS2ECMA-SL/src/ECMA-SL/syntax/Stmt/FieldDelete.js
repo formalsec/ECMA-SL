@@ -1,4 +1,4 @@
-const Expr = require("../Expr/Expr");
+const Expr = require("../Expr/Expr").Expr;
 const FieldDeleteLab = require("../Labels/FieldDeleteLab");
 
 function MakeFieldDelete(Stmt){
@@ -15,7 +15,7 @@ function MakeFieldDelete(Stmt){
 		}
 
 		toJS(){
-			console.log("FieldDelete toJS");
+			//console.log("FieldDelete toJS");
 			var obj_js = this.expressionObject.toJS();
 			var field_js = this.expressionField.toJS();
 			return {

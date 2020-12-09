@@ -1,4 +1,4 @@
-const Expr = require("../Expr/Expr");
+const Expr = require("../Expr/Expr").Expr;
 const PrintLab = require("../Labels/PrintLab");
 
 function MakePrint(Stmt){
@@ -14,7 +14,7 @@ function MakePrint(Stmt){
 		}
 
 		toJS(){
-			console.log("Print toJS");
+			//console.log("Print toJS");
 			var expr_js = this.expression.toJS();
 			return {
   			"type": "ExpressionStatement",

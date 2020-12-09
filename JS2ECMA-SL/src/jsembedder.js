@@ -26,8 +26,17 @@ function parseFile(err,obj) {
     console.log("Parsing... [2/2] ");
     console.log("Parsing complete.");
     var js_prog = prog.toJS();
-    console.log(escodegen.generate(js_prog, option));
-   
+    var js_prog_emb = escodegen.generate(js_prog, option);
+    console.log(js_prog_emb);
+    var result = eval(js_prog_emb);
+    if(Array.isArray(result)){
+      console.log("MAIN return -> "+ result[0]);
+    }
+    else{
+      console.log("MAIN return -> "+ result);
+    }
+    
+
    
 }
 

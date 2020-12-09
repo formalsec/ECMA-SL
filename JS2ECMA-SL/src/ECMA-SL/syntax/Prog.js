@@ -12,6 +12,19 @@ class Prog {
 
   toJS(){
     var funcs_js = this.funcs.map((func) => func.toJS());
+    var main_add = funcs_js.push(
+         {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "main"
+        },
+        "arguments": []
+      }
+    }
+        );
     return {
       "type": "Program",
       "body": funcs_js,

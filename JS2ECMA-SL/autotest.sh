@@ -28,7 +28,7 @@ printf "Results:\n"
 	then
 		OCAMLmonRes2=$( echo "${OCAMLmonRes}" | grep "MONITOR EXCEPTION" | tail -1 )
 	fi
-printf "\tOCAML CI+mon      : ${OCAMLmonRes2}\n"
+printf "\tOCAML CI+mon      	: 	${OCAMLmonRes2}\n"
 
 
 ## OCAML Inline + CI
@@ -42,7 +42,7 @@ printf "\tOCAML CI+mon      : ${OCAMLmonRes2}\n"
 	then
 		OCAMLinlineRes2=$( echo "${OCAMLinlineRes}" | grep "MONITOR EXCEPTION" | tail -1 )
 	fi
-printf "\tOCAML IC + CI     : ${OCAMLinlineRes2}\n"
+printf "\tOCAML IC + CI     	: 	${OCAMLinlineRes2}\n"
 
 
 ## OCAML parse -> JS + mon 
@@ -58,7 +58,7 @@ printf "\tOCAML IC + CI     : ${OCAMLinlineRes2}\n"
 	then
 		JRES2=$( echo "${JSRES}" | grep "MONITOR EXCEPTION" | tail -1  )
 	fi
-printf "\t(PARSE) JS+mon    : ${JRES2}\n"
+printf "\t(PARSE) JS+mon    	: 	${JRES2}\n"
 ## OCAML inline -> parse -> JS
 	
 	JSinlinedRes=$(node src/parse_esl.js ../implementation/${filename}_inlined.json)
@@ -71,7 +71,21 @@ printf "\t(PARSE) JS+mon    : ${JRES2}\n"
 	then
 		JSinlinedRes2=$( echo "${JSinlinedRes}" | grep "MONITOR EXCEPTION" | tail -1 )
 	fi
-	printf "\tIC (PARSE) + JS   : ${JSinlinedRes2}\n"
+	printf "\tIC (PARSE) + JS   	: 	${JSinlinedRes2}\n"
+
+## OCAML inline -> parse -> JS EMBEDDER
+	
+	JSEmbinlinedRes=$(node src/jsembedder.js ../implementation/${filename}_inlined.json)
+	if [[ $DEBUG == "true" ]]
+	then
+	  echo "{$JSEmbinlinedRes}"
+	fi
+	JSEmbinlinedRes2=$( echo "${JSEmbinlinedRes}" | grep "MAIN return"  )
+	if [[ $JSEmbinlinedRes2 == "" ]]
+	then
+		JSEmbinlinedRes2=$( echo "${JSEmbinlinedRes}" | grep "MONITOR EXCEPTION" | tail -1 )
+	fi
+	printf "\tIC (PARSE) + JS EMBEDDER: 	${JSEmbinlinedRes2}\n"
 	
 
 	PROGS=$((PROGS+1))

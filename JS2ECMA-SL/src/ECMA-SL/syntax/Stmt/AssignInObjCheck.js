@@ -1,4 +1,4 @@
-const Expr = require("../Expr/Expr"); 
+const Expr = require("../Expr/Expr").Expr; 
 const AssignInObjCheckLab = require("../Labels/AssignInObjCheckLab");
 const ValModule = require("../Val/Val");
 const PrimitiveVal = ValModule.PrimitiveVal;
@@ -24,7 +24,7 @@ function MakeAssignInObjCheck(Stmt){
     }
 
     toJS(){
-      console.log("AssignInObjCheck toJS");
+      //console.log("AssignInObjCheck toJS");
       var obj_js = this.expressionObject.toJS();
       var field_js = this.expressionField.toJS();
       return {
