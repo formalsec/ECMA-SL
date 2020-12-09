@@ -124,7 +124,7 @@ function fillObjectPrototype(objectPrototypeObject, ObjectConstructor, globalObj
 
 /* 15.2.2.1 new Object ( [ value ] ) */
 function ObjectConstructor(globalObject, this, strict, params) {
-  value := getParamValueOrDefault(params, 0, undefined);
+  value := getOptionalParam(params, 0);
   /* When the Object constructor is called with no arguments or with one argument value, the following steps are
       taken: */
 
@@ -173,7 +173,7 @@ function ObjectConstructor(globalObject, this, strict, params) {
 
 /* 15.2.3.2 Object.getPrototypeOf ( O ) */
 function ObjectGetPrototypeOf(globalObject, this, strict, params) {
-  O := getParamValueOrDefault(params, 0, 'undefined);
+  O := l_nth(params, 0);
   /* When the getPrototypeOf function is called with argument O, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
@@ -186,8 +186,8 @@ function ObjectGetPrototypeOf(globalObject, this, strict, params) {
 
 /* 15.2.3.3 Object.getOwnPropertyDescriptor ( O, P ) */
 function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
-  O := getParamValueOrDefault(params, 0, 'undefined);
-  P := getParamValueOrDefault(params, 1, 'undefined);
+  O := l_nth(params, 0);
+  P := l_nth(params, 1);
   /* When the getOwnPropertyDescriptor function is called, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
@@ -204,7 +204,7 @@ function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
 
 /* 15.2.3.4 Object.getOwnPropertyNames ( O ) */
 function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
-  O := getParamValueOrDefault(params, 0, 'undefined);
+  O := l_nth(params, 0);
   /* When the getOwnPropertyNames function is called, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
@@ -245,8 +245,8 @@ function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
 
 /* 15.2.3.5 Object.create ( O [, Properties] ) */
 function ObjectCreate(globalObject, this, strict, params) {
-  O := getParamValueOrDefault(params, 0, 'undefined);
-  Properties := getParamValueOrDefault(params, 1, undefined);
+  O := l_nth(params, 0);
+  Properties := getOptionalParam(params, 1);
   /* The create function creates a new object with a specified prototype. When the create function is called, the
     following steps are taken: */
 
@@ -270,9 +270,9 @@ function ObjectCreate(globalObject, this, strict, params) {
 
 /* 15.2.3.6 Object.defineProperty ( O, P, Attributes ) */
 function ObjectDefineProperty(globalObject, this, strict, params) {
-  O := getParamValueOrDefault(params, 0, 'undefined);
-  P := getParamValueOrDefault(params, 1, 'undefined);
-  Attributes := getParamValueOrDefault(params, 2, 'undefined);
+  O := l_nth(params, 0);
+  P := l_nth(params, 1);
+  Attributes := l_nth(params, 2);
   /* The defineProperty function is used to add an own property and/or update the attributes of an existing own
     property of an object. When the defineProperty function is called, the following steps are taken: */
 
@@ -292,8 +292,8 @@ function ObjectDefineProperty(globalObject, this, strict, params) {
 
 /* 15.2.3.7 Object.defineProperties ( O, Properties ) */
 function ObjectDefineProperties(globalObject, this, strict, params) {
-  O := getParamValueOrDefault(params, 0, 'undefined);
-  Properties := getParamValueOrDefault(params, 1, 'undefined);
+  O := l_nth(params, 0);
+  Properties := l_nth(params, 1);
   /* The defineProperties function is used to add own properties and/or update the attributes of existing own
      properties of an object. When the defineProperties function is called, the following steps are taken: */
 
@@ -342,7 +342,7 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
 
 /* 15.2.3.8 Object.seal ( O ) */
 function ObjectSeal(globalObject, this, strict, params) {
-  O := getParamValueOrDefault(params, 0, 'undefined);
+  O := l_nth(params, 0);
   /* When the seal function is called, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
@@ -373,7 +373,7 @@ function ObjectSeal(globalObject, this, strict, params) {
 
 /* 15.2.3.9 Object.freeze ( O ) */
 function ObjectFreeze(globalObject, this, strict, params) {
-  O := getParamValueOrDefault(params, 0, 'undefined);
+  O := l_nth(params, 0);
   /* When the freeze function is called, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
@@ -411,7 +411,7 @@ function ObjectFreeze(globalObject, this, strict, params) {
 
 /* 15.2.3.10 Object.preventExtensions ( O ) */
 function ObjectPreventExtensions(globalObject, this, strict, params) {
-  O := getParamValueOrDefault(params, 0, 'undefined);
+  O := l_nth(params, 0);
   /* When the preventExtensions function is called, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
@@ -426,7 +426,7 @@ function ObjectPreventExtensions(globalObject, this, strict, params) {
 
 /* 15.2.3.11 Object.isSealed ( O ) */
 function ObjectIsSealed(globalObject, this, strict, params) {
-  O := getParamValueOrDefault(params, 0, 'undefined);
+  O := l_nth(params, 0);
   /* When the isSealed function is called with argument O, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
@@ -457,7 +457,7 @@ function ObjectIsSealed(globalObject, this, strict, params) {
 
 /* 15.2.3.12 Object.isFrozen ( O ) */
 function ObjectIsFrozen(globalObject, this, strict, params) {
-  O := getParamValueOrDefault(params, 0, 'undefined);
+  O := l_nth(params, 0);
   /* When the isFrozen function is called with argument O, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
@@ -495,7 +495,7 @@ function ObjectIsFrozen(globalObject, this, strict, params) {
 
 /* 15.2.3.13 Object.isExtensible ( O ) */
 function ObjectIsExtensible(globalObject, this, strict, params) {
-  O := getParamValueOrDefault(params, 0, 'undefined);
+  O := l_nth(params, 0);
   /* When the isExtensible function is called with argument O, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
@@ -508,7 +508,7 @@ function ObjectIsExtensible(globalObject, this, strict, params) {
 
 /* 15.2.3.14 Object.keys ( O ) */
 function ObjectKeys(globalObject, this, strict, params) {
-  O := getParamValueOrDefault(params, 0, 'undefined);
+  O := l_nth(params, 0);
   /* When the keys function is called with argument O, the following steps are taken: */
 
   /* 1. If the Type(O) is not Object, throw a TypeError exception. */
@@ -609,7 +609,7 @@ function ObjectPrototypeValueOf(globalObject, this, strict, params) {
 
 /* 15.2.4.5 Object.prototype.hasOwnProperty (V) */
 function ObjectPrototypeHasOwnProperty(globalObject, this, strict, params) {
-  V := getParamValueOrDefault(params, 0, 'undefined);
+  V := l_nth(params, 0);
   /* When the hasOwnProperty method is called with argument V, the following steps are taken: */
 
   /* 1. Let P be ToString(V). */
@@ -631,7 +631,7 @@ function ObjectPrototypeHasOwnProperty(globalObject, this, strict, params) {
 
 /* 15.2.4.6 Object.prototype.isPrototypeOf (V) */
 function ObjectPrototypeIsPrototypeOf(globalObject, this, strict, params) {
-  V := getParamValueOrDefault(params, 0, 'undefined);
+  V := l_nth(params, 0);
   /* When the isPrototypeOf method is called with argument V, the following steps are taken: */
 
   /* 1. If V is not an object, return false. */
@@ -654,7 +654,7 @@ function ObjectPrototypeIsPrototypeOf(globalObject, this, strict, params) {
 
 /* 15.2.4.7 Object.prototype.propertyIsEnumerable (V) */
 function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params) {
-  V := getParamValueOrDefault(params, 0, 'undefined);
+  V := l_nth(params, 0);
   /* When the propertyIsEnumerable method is called with argument V, the following steps are taken: */
 
   /* 1. Let P be ToString(V). */

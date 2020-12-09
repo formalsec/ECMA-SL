@@ -131,7 +131,7 @@ function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObj
 
 /* 15.7.2.1 new Number ( [ value ] ) */
 function NumberConstructor(globalObject, this, strict, params) {
-  value := getParamValueOrDefault(params, 0, undefined);
+  value := getOptionalParam(params, 0);
 
   if (this = 'undefined) {
     return NumberConstructorCalledAsFunction(value)

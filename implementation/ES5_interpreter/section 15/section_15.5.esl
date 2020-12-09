@@ -176,7 +176,7 @@ function initalNewString (objectPrototype){
 
 
 function StringConstructor (global, this, strict, args) {
-  value := getParamValueOrDefault(args, 0, undefined);
+  value := getOptionalParam(args, 0);
 
   if (this = 'undefined) {
     return StringConstructorCalledAsFunction(value)
@@ -317,7 +317,7 @@ When the charAt method is called with one argument pos, the following steps are 
 NOTE The charAt function is intentionally generic; it does not require that its this value be a String object. Therefore, it can be transferred to other kinds of objects for use as a method. */
 
 function StringPrototypecharAt(global, this, strict, args){
-  pos := getParamValueOrDefault(args, 0, 'undefined);
+  pos := l_nth(args, 0);
 
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
@@ -359,7 +359,7 @@ NOTE The charCodeAt function is intentionally generic; it does not require that 
 */
 
 function StringPrototypecharCodeAt (global, this, strict, args){
-  pos := getParamValueOrDefault(args, 0, 'undefined);
+  pos := l_nth(args, 0);
 
   /*Call CheckObjectCoercible passing the this value as its argument.*/
   CheckObjectCoercible(this);
@@ -458,8 +458,8 @@ NOTE The indexOf function is intentionally generic; it does not require that its
 */
 
 function StringPrototypeIndexOf (global, this, strict, args){
-  searchString := getParamValueOrDefault(args, 0, 'undefined);
-  position := getParamValueOrDefault(args, 1, 'undefined);
+  searchString := l_nth(args, 0);
+  position := l_nth(args, 1);
 
   /*Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
@@ -519,8 +519,8 @@ NOTE The lastIndexOf function is intentionally generic; it does not require that
 */
 
 function StringPrototypelastIndexOf(global, this, strict, args){
-  searchString := getParamValueOrDefault(args, 0, 'undefined);
-  position := getParamValueOrDefault(args, 1, 'undefined);
+  searchString := l_nth(args, 0);
+  position := l_nth(args, 1);
 
   /*Call CheckObjectCoercible passing the this value as its argument.*/
   CheckObjectCoercible(this);
@@ -585,7 +585,7 @@ it returns a Number other than NaN that represents the result of a locale-sensit
    the Strings are equal, or S comes after That in the sort order, respectively.*/
 
 function StringPrototypelocaleCompare (global, this, strict, args){
-  that := getParamValueOrDefault(args, 0, 'undefined);
+  that := l_nth(args, 0);
 
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
@@ -630,8 +630,8 @@ function StringPrototypelocaleCompare (global, this, strict, args){
 /* 15.5.4.11 String.prototype.replace (searchValue, replaceValue) */
 
 function StringPrototypereplace (global, this, strict, args){
-  searchValue := getParamValueOrDefault(args, 0, 'undefined);
-  replaceValue := getParamValueOrDefault(args, 1, 'undefined);
+  searchValue := l_nth(args, 0);
+  replaceValue := l_nth(args, 1);
 
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
@@ -680,8 +680,8 @@ The length property of the slice method is 2.
 NOTE The slice function is intentionally generic; it does not require that its this value be a String object. Therefore it can be transferred to other kinds of objects for use as a method. */
 
 function StringPrototypeslice (global, this, strict, args){
-  start := getParamValueOrDefault(args, 0, 'undefined);
-  end := getParamValueOrDefault(args, 1, 'undefined);
+  start := l_nth(args, 0);
+  end := l_nth(args, 1);
 
   /*Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
@@ -851,8 +851,8 @@ NOTE 2 The split function is intentionally generic; it does not require that its
 /* TO DO  -> Requires 15.10*/
 
 function StringPrototypesplit (global, this, strict, args){
-  separator := getParamValueOrDefault(args, 0, 'undefined);
-  limit := getParamValueOrDefault(args, 1, 'undefined);
+  separator := l_nth(args, 0);
+  limit := l_nth(args, 1);
 
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
@@ -1000,8 +1000,8 @@ NOTE The substring function is intentionally generic; it does not require that i
 */
 
 function StringPrototypesubstring (global, this, strict, args){
-  start := getParamValueOrDefault(args, 0, 'undefined);
-  end := getParamValueOrDefault(args, 1, 'undefined);
+  start := l_nth(args, 0);
+  end := l_nth(args, 1);
 
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);

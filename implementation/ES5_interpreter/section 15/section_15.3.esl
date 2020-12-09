@@ -164,8 +164,8 @@ function FunctionPrototypeToString(globalObject, this, strict, params) {
 
 /* 15.3.4.3 Function.prototype.apply (thisArg, argArray) */
 function FunctionPrototypeApply(globalObject, func, strict, params) {
-  thisArg := getParamValueOrDefault(params, 0, 'undefined);
-  argArray := getParamValueOrDefault(params, 1, 'undefined);
+  thisArg := l_nth(params, 0);
+  argArray := l_nth(params, 1);
   /* When the apply method is called on an object func with arguments thisArg and argArray, the following steps
    are taken: */
 
@@ -216,8 +216,8 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
 
 /* 15.3.4.4 Function.prototype.call (thisArg [ , arg1 [ , arg2, ... ] ] ) */
 function FunctionPrototypeCall(globalObject, func, strict, params) {
-  thisArg := getParamValueOrDefault(params, 0, 'undefined);
-  args := getOptionalParams(params, 1);
+  thisArg := l_nth(params, 0);
+  args := tl params;
   /* When the call method is called on an object func with argument thisArg and optional arguments arg1, arg2
      etc, the following steps are taken: */
 
@@ -229,11 +229,8 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
   argList := [];
   /* 3. If this method was called with more than one argument then in left to right order starting with arg1 append
         each argument as the last element of argList */
-  i := 0;
-  largs := l_len args;
-  while(i < largs) {
-    argList := l_add(argList, l_nth(args, i));
-    i := i + 1
+  if (!(args = [])) {
+    argList := args
   };
   /* 4. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
@@ -248,8 +245,8 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
 
 /* 15.3.4.5 Function.prototype.bind (thisArg [, arg1 [, arg2, ...]]) */
 function FunctionPrototypeBind(globalObject, this, strict, params) {
-  thisArg := getParamValueOrDefault(params, 0, 'undefined);
-  args := getOptionalParams(params, 1);
+  thisArg := l_nth(params, 0);
+  args := tl params;
   /* The bind method takes one or more arguments, thisArg and (optionally) arg1, arg2, etc, and returns a new
      function object by performing the following steps: */
 

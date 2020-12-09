@@ -375,7 +375,7 @@ function internalNewArrayLen(arrayPrototype, len) {
  * is "Array"; otherwise it returns false. The following steps are taken:
  */
 function isArray(global, this, strict, args) {
-  arg := getParamValueOrDefault(args, 0, 'undefined);
+  arg := l_nth(args, 0);
   /* 1. If Type(arg) is not Object, return false. */
   if (!(Type(arg) = "Object")) {
     return false
@@ -635,7 +635,7 @@ function arrayConcat(global, this, strict, items) {
  */
 /* function join (global, this, [ separator ]) */
 function arrayJoin(global, this, strict, args) {
-  separator := getParamValueOrDefault(args, 0, 'undefined);
+  separator := l_nth(args, 0);
 
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
@@ -977,8 +977,8 @@ function arrayShift(global, this, strict, args) {
  * steps are taken:
  */
 function arraySlice(global, this, strict, args) {
-  start := getParamValueOrDefault(args, 0, 'undefined);
-  end := getParamValueOrDefault(args, 1, 'undefined);
+  start := l_nth(args, 0);
+  end := l_nth(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
@@ -1064,7 +1064,7 @@ function arraySlice(global, this, strict, args) {
  * zero if x = y, or a positive value if x > y.
  */
 function arraySort(global, this, strict, args) {
-  comparefn := getParamValueOrDefault(args, 0, 'undefined);
+  comparefn := l_nth(args, 0);
 
   /* Let obj be the result of calling ToObject passing the this value
      as the argument. */
@@ -1263,9 +1263,9 @@ function SortCompare(obj, comparefn, j, k) {
  * is returned. The following steps are taken:
  */
 function arraySplice(global, this, strict, args) {
-  start := getParamValueOrDefault(args, 0, 'undefined);
-  deleteCount := getParamValueOrDefault(args, 1, 'undefined);
-  items := getOptionalParams(args, 2);
+  start := l_nth(args, 0);
+  deleteCount := l_nth(args, 1);
+  items := tl (tl args);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1529,8 +1529,8 @@ function arrayUnshift(global, this, strict, items) {
  * steps are taken:
  */
 function arrayIndexOf(global, this, strict, args) {
-  searchElement := getParamValueOrDefault(args, 0, 'undefined);
-  fromIndex := getParamValueOrDefault(args, 1, undefined);
+  searchElement := l_nth(args, 0);
+  fromIndex := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this value
         as the argument. */
@@ -1622,8 +1622,8 @@ function arrayIndexOf(global, this, strict, args) {
  * following steps are taken:
  */
 function arrayLastIndexOf(global, this, strict, args) {
-  searchElement := getParamValueOrDefault(args, 0, 'undefined);
-  fromIndex := getParamValueOrDefault(args, 1, undefined);
+  searchElement := l_nth(args, 0);
+  fromIndex := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1639,7 +1639,7 @@ function arrayLastIndexOf(global, this, strict, args) {
   };
   /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex);
         else let n be len. */
-  if (!(fromIndex = 'undefined)) {
+  if (!(fromIndex = undefined)) {
     n := ToInteger(fromIndex)
   } else {
     n := len
@@ -1725,8 +1725,8 @@ function arrayLastIndexOf(global, this, strict, args) {
  * steps are taken:
  */
 function arrayEvery(global, this, strict, args) {
-  callbackfn := getParamValueOrDefault(args, 0, 'undefined);
-  thisArg := getParamValueOrDefault(args, 1, undefined);
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1820,8 +1820,8 @@ function arrayEvery(global, this, strict, args) {
  * steps are taken:
  */
 function arraySome(global, this, strict, args) {
-  callbackfn := getParamValueOrDefault(args, 0, 'undefined);
-  thisArg := getParamValueOrDefault(args, 1, undefined);
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1912,8 +1912,8 @@ function arraySome(global, this, strict, args) {
  * following steps are taken:
  */
 function arrayForEach(global, this, strict, args) {
-  callbackfn := getParamValueOrDefault(args, 0, 'undefined);
-  thisArg := getParamValueOrDefault(args, 1, undefined);
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1999,8 +1999,8 @@ function arrayForEach(global, this, strict, args) {
  * steps are taken:
  */
 function arrayMap(global, this, strict, args) {
-  callbackfn := getParamValueOrDefault(args, 0, 'undefined);
-  thisArg := getParamValueOrDefault(args, 1, undefined);
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -2097,8 +2097,8 @@ function arrayMap(global, this, strict, args) {
  * steps are taken:
  */
 function arrayFilter(global, this, strict, args) {
-  callbackfn := getParamValueOrDefault(args, 0, 'undefined);
-  thisArg := getParamValueOrDefault(args, 1, undefined);
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -2202,8 +2202,8 @@ function arrayFilter(global, this, strict, args) {
  * following steps are taken:
  */
 function arrayReduce(global, this, strict, args) {
-  callbackfn := getParamValueOrDefault(args, 0, 'undefined);
-  initialValue := getParamValueOrDefault(args, 1, undefined);
+  callbackfn := l_nth(args, 0);
+  initialValue := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -2321,8 +2321,8 @@ function arrayReduce(global, this, strict, args) {
  * the following steps are taken:
  */
 function arrayReduceRight(global, this, strict, args) {
-  callbackfn := getParamValueOrDefault(args, 0, 'undefined);
-  initialValue := getParamValueOrDefault(args, 1, undefined);
+  callbackfn := l_nth(args, 0);
+  initialValue := getOptionalParam(args, 1);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
