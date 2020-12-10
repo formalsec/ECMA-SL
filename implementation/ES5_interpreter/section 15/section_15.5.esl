@@ -81,7 +81,7 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
 
   /* 15.5.4.11 String.prototype.replace (searchValue, replaceValue) */
   replaceFunctionObject := CreateBuiltInFunctionObject(["searchValue", "replaceValue"], "StringPrototypereplace", global, strict, null);
-  createBuiltInProperty(prototype, "lastIndexOf", replaceFunctionObject);
+  createBuiltInProperty(prototype, "replace", replaceFunctionObject);
 
   /* 15.5.4.12 String.prototype.search (regexp) */
   searchFunctionObject := CreateBuiltInFunctionObject(["regexp"], "StringPrototypesearch", global, strict, null);
