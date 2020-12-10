@@ -103,7 +103,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
 
 /* 13.2.1 [[Call]] */
 function Call(F, this, args) {
-  if (("Code" in_obj F) &&& (typeof F.Code = __$Str)) {
+  if (("Code" in_obj F) &&& ((typeof F.Code = __$Str) || (typeof F.Code = __$Curry))) {
     return {F.Code}(F.Scope, this, F.strict, args)
   };
   /* When the [[Call]] internal method for a Function object F is called with a this value and a list of arguments,

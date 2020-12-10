@@ -94,7 +94,9 @@
                 "case"            , CASE;
                 "sdefault"        , SDEFAULT;
                 "NaN"             , FLOAT (float_of_string "nan");
-                "Infinity"        , FLOAT (float_of_string "infinity")
+                "Infinity"        , FLOAT (float_of_string "infinity"); 
+                "code_point"      , CODE_POINT; 
+                "lambda"          , LAMBDA
                 ]
 
   exception Syntax_error of string
@@ -231,4 +233,5 @@ and read_type =
   | "Tuple"  { TUPLE_TYPE }
   | "Null"   { NULL_TYPE }
   | "Symbol" { SYMBOL_TYPE }
+  | "Curry"  { CURRY_TYPE }
   | _        { raise (Syntax_error ("Unexpected type: " ^ Lexing.lexeme lexbuf)) }

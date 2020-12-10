@@ -24,3 +24,8 @@ let to_lower_case (s : string) : string =
 let trim (s : string) : string =
   let s = String.trim s in
   s
+
+let make_fresh_var_generator (pref : string) : (unit -> string) =
+  let count = ref 0 in
+  fun () -> let x = !count in
+    count := x+1; pref ^ (string_of_int x)

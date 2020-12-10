@@ -1,5 +1,10 @@
 (* parser-specification file *)
 
+
+%{
+  let fresh_lambda_id_gen = String_Utils.make_fresh_var_generator "__lambda__"
+%}
+
 (*
   BEGIN first section - declarations
   - token and type specifications, precedence directives and other output directives
@@ -23,7 +28,7 @@
 %token PERIOD COMMA SEMICOLON COLON
 %token DELETE
 %token REPEAT UNTIL
-%token MATCH WITH RIGHT_ARROW NONE DEFAULT CASE
+%token MATCH WITH RIGHT_ARROW NONE DEFAULT CASE LAMBDA CODE_POINT
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -43,7 +48,7 @@
 %token SCONCAT
 %token IMPORT THROW FAIL CATCH
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
-%token LIST_TYPE TUPLE_TYPE NULL_TYPE UNDEF_TYPE SYMBOL_TYPE
+%token LIST_TYPE TUPLE_TYPE NULL_TYPE UNDEF_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
 
 %left SCLAND SCLOR LAND LOR BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL POW
@@ -138,6 +143,8 @@ type_target:
     { Type.UndefType }
   | SYMBOL_TYPE;
     { Type.SymbolType }
+  | CURRY_TYPE; 
+    { Type.CurryType }
 
 (* v ::= f | i | b | s *)
 val_target:
@@ -192,6 +199,8 @@ e_expr_target:
     { E_Expr.Call (E_Expr.Val (Val.Str f), es, None) }
   | LBRACE; f = e_expr_target; RBRACE; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Expr.Call (f, es, None) }
+  | LBRACE; f = e_expr_target; RBRACE; AT_SIGN; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
+    { E_Expr.Curry (f, es) }
   | LPAREN; e = e_expr_target; RPAREN;
     { e }
   | nary_op_expr = nary_op_target;
@@ -376,6 +385,8 @@ e_stmt_target:
     { E_Stmt.RepeatUntil (s, e) }
   | MATCH; e = e_expr_target; WITH; PIPE; pat_stmts = separated_list (PIPE, pat_stmt_target);
     { E_Stmt.MatchWith (e, pat_stmts) }
+  | x = VAR; DEFEQ; LAMBDA; LPAREN;  xs = separated_list (COMMA, VAR); RPAREN; LBRACK; ys = separated_list (COMMA, VAR); RBRACK; s = e_block_target;  
+    { E_Stmt.Lambda (x, fresh_lambda_id_gen (), xs, ys, s) } 
   | AT_SIGN; m = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Stmt.MacroApply (m, es) }
   | SWITCH; LPAREN; e=e_expr_target; RPAREN; LBRACE; cases = list (switch_case_target); RBRACE

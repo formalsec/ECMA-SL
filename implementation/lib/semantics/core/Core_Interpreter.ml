@@ -109,11 +109,18 @@ let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
     let v2 = eval_expr sto e2 in
     eval_binopt_expr bop v1 v2
   | NOpt (nop, es)       -> eval_nopt_expr nop (List.map (eval_expr sto) es)
+  | Curry (f, es)        -> 
+      let fv = eval_expr sto f in 
+      let vs = List.map (eval_expr sto) es in 
+      (match fv with 
+        | Str s -> Val.Curry (s, vs)
+        | _ -> failwith "Illegal Curry Expression")
 
-let get_func_id (sto:Store.t) (exp:Expr.t) :string=
+let get_func_id (sto:Store.t) (exp:Expr.t) : (string * Val.t list) =
   let res= eval_expr sto exp in
   match res with
-  | Val.Str f -> f
+  | Val.Str f -> (f, [])
+  | Val.Curry (f, vs) -> (f, vs)
   | _ -> raise (Except "Wrong/Invalid Function ID")
 
 let prepare_call (prog:Prog.t) (calling_f : string) (cs:Callstack.t) (sto: Store.t) (cont: Stmt.t list) (x:string) (es:Expr.t list) (f:string) (vs: Val.t list) : (Callstack.t * Store.t * string list) =
@@ -251,8 +258,9 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
     (Intermediate ((cs, heap, sto, f), (stms :: cont)), SecLabel.EmptyLab)
 
   | AssignCall (x,func,es) ->
-    let f'= get_func_id sto func in
-    let vs = (List.map (eval_expr sto) es) in
+    let (f', vs') = get_func_id sto func in
+    let vs'' = (List.map (eval_expr sto) es) in
+    let vs = vs' @ vs'' in 
     let b = interceptor f' vs es in
     ( match b with
       |None ->

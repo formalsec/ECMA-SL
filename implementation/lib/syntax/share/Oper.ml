@@ -171,6 +171,7 @@ let typeof (v : Val.t) : Val.t = match v with
   | Null     -> Type (Type.NullType)
   | Undef    -> Type (Type.UndefType)
   | Symbol _ -> Type (Type.SymbolType)
+  | Curry _  -> Type (Type.CurryType)
   | Void     -> invalid_arg ("Exception in Oper.typeof: unexpected void value")
 
 let l_len (v : Val.t) : Val.t = match v with
