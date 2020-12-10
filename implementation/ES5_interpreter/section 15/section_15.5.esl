@@ -547,31 +547,31 @@ function StringPrototypelastIndexOf(global, this, strict, args){
   /* for all nonnegative integers j */
   j := 0;
   /* nonnegative integer k */
-  while (k>=0){
+  while (k >= 0){
      /* and for all nonnegative integers j less than searchLen */
-     if(j<searchLen){
+     if(j < searchLen){
        /* k+ searchLen is not greater than len */
-       if(k+searchLen <=len){
+       if((k + searchLen) <= len){
          /* the character at position k+j of S is the same as the character at position j of searchStr */
-         if(s_nth (S, k+j) = s_nth (searchStr,j)){
-           j := j+1
+         if(s_nth(S, k + j) = s_nth(searchStr, j)) {
+           j := j + 1
          }
          else {
            j := 0;
            k := k - 1
          }
        }
-       else{
+       else {
          k := k - 1
        }
      }
-     else{
+     else {
        /* Return the largest possible nonnegative integer k */
-       return k
+       return int_to_float k
      }
   };
   /* but if there is no such integer k, then return the value -1. */
-  return -1
+  return -(1.)
 };
 
 /* 15.5.4.9 String.prototype.localeCompare (that) */
@@ -598,28 +598,28 @@ function StringPrototypelocaleCompare (global, this, strict, args){
   SLen := s_len S;
   ThatLen := s_len That;
   j := 0;
-  while ((j<SLen) &&& (j<ThatLen)){
-    if(to_char_code(s_nth(S,j)) < to_char_code(s_nth(That,j))){
-      return -1
+  while ((j < SLen) &&& (j < ThatLen)){
+    if(to_char_code(s_nth(S, j)) < to_char_code(s_nth(That, j))){
+      return -(1.)
     }
     else{
-      if(to_char_code(s_nth(S,j)) > to_char_code(s_nth(That,j))){
-        return 1
+      if(to_char_code(s_nth(S, j)) > to_char_code(s_nth(That, j))){
+        return 1.
       }
-      else{
+      else {
         j := j + 1
       }
     }
   };
-  if((j<SLen) &&& !(j<ThatLen)){
-    return -1
+  if((j < SLen) &&& !(j < ThatLen)){
+    return -(1.)
   }
-  else{
-    if(!(j<SLen) &&& (j<ThatLen)){
-      return 1
+  else {
+    if(!(j < SLen) &&& (j < ThatLen)){
+      return 1.
     }
-    else{
-      return 0
+    else {
+      return 0.
     }
   }
 };
