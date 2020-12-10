@@ -181,7 +181,7 @@ function NumberConstructor(globalObject, this, strict, params) {
  */
 function numberToString(global, this, strict, args) {
   if (!isNumberOrNumberObject(this)) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   if (Type(this) = "Number") {
     num := this
@@ -200,7 +200,7 @@ function numberToLocaleString(global, this, strict, args) {
   /* NOTE The first parameter to this function is likely to be used in a future version of this standard; it is recommended
           that implementations do not use this parameter position for anything else. */
   if (!isNumberOrNumberObject(this)) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   if (Type(this) = "Number") {
     num := this
@@ -217,7 +217,7 @@ function NumberPrototypeValueOf(global, this, strict, params) {
   /* The valueOf function is not generic; it throws a TypeError exception if its this value is not a Number or a
      Number object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
   if (!isNumberOrNumberObject(this)) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   if (Type(this) = "Number") {
     return this
