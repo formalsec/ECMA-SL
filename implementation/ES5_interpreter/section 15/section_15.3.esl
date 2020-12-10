@@ -159,7 +159,6 @@ function FunctionPrototypeToString(globalObject, this, strict, params) {
      semicolons within the representation String is implementation-dependent. */
   /* The toString function is not generic; it throws a TypeError exception if its this value is not a Function
      object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
-  /* TODO */
   if (!isFunctionObject(this)) {
     throw TypeErrorConstructorInternal()
   };
@@ -483,8 +482,11 @@ function getFunctionPrototype(strict) {
 };
 
 function isFunctionObject(object) {
-  /* TODO check this! */
-  return "Call" in_obj object
+  if ((Type(object) = "Object") &&& (getInternalProperty(arg, "Class") = "Function")) {
+    return true
+  };
+
+  return false
 };
 
 function isParsableAsFormalParametersList(str) {
