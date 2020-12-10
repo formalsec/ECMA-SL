@@ -285,12 +285,33 @@ function StringfromCharCode (global, this, strict, args) {
 
 /* 15.5.4.2 String.prototype.toString() */
 function StringPrototypetoString (global, this, strict, args) {
-  return this.PrimitiveValue
+  /* Returns this String value. (Note that, for a String object, the toString method happens to return the same
+     thing as the valueOf method.) */
+
+  /* The toString function is not generic; it throws a TypeError exception if its this value is not a String or a
+     String object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
+  if (!isStringOrStringObject(this)) {
+    throw TypeErrorConstructorInternal()
+  };
+  if (Type(this) = "String") {
+    return this
+  };
+  return getInternalProperty(this, "PrimitiveValue")
 };
 
 /* 15.5.4.3 String.prototype.valueOf ( ) */
 function StringPrototypevalueOf (global, this, strict, args) {
-  return this.PrimitiveValue
+  /* Returns this String value. */
+
+  /* The valueOf function is not generic; it throws a TypeError exception if its this value is not a String or String
+     object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
+  if (!isStringOrStringObject(this)) {
+    throw TypeErrorConstructorInternal()
+  };
+  if (Type(this) = "String") {
+    return this
+  };
+  return getInternalProperty(this, "PrimitiveValue")
 };
 
 /* 15.5.4.4 String.prototype.charAt (pos) */
@@ -1266,4 +1287,14 @@ function GetOwnPropertyString (S, P) {
   /* Return a Property Descriptor { [[Value]]: resultStr, [[Enumerable]]: true,
    [[Writable]]: false, [[Configurable]]: false } */
    return newDataPropertyDescriptorFull( resultStr, false, true, false)
+};
+
+function isStringOrStringObject(arg) {
+  if (Type(arg) = "String") {
+    return true
+  };
+  if ((Type(arg) = "Object") &&& (getInternalProperty(arg, "Class") = "String")) {
+    return true
+  };
+  return false
 }
