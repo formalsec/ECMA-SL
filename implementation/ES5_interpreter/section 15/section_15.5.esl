@@ -534,12 +534,12 @@ function StringPrototypelastIndexOf(global, this, strict, args){
   if (numPos = NaN) {
     pos := Infinity
   } else {
-    pos := int_of_float (ToInteger(numPos))
+    pos := ToInteger(numPos)
   };
   /* Let len be the number of characters in S.*/
   len := s_len(S);
   /* Let start min(max(pos, 0), len). */
-  start := min(max(pos, 0), len);
+  start := int_of_float (min(max(pos, 0.), int_to_float len));
   /* Let searchLen be the number of characters in searchStr. */
   searchLen := s_len(searchStr);
   /* k not larger than start */
@@ -688,35 +688,35 @@ function StringPrototypeslice (global, this, strict, args){
   /* Let S be the result of calling ToString, giving it the this value as its argument. */
   S := ToString(this);
   /* Let len be the number of characters in S. */
-  len := s_len(S);
+  len := int_to_float s_len(S);
   /* Let intStart be ToInteger(start). */
-  intStart := int_of_float (ToInteger(start));
+  intStart := ToInteger(start);
   /* If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
   if (end = 'undefined){
     intEnd := len
   } else{
-    intEnd := int_of_float (ToInteger(end))
+    intEnd := ToInteger(end)
   };
   /* If intStart is negative, let from be max(len + intStart,0); else let from be min(intStart,len). */
-  if (intStart < 0){
-    from := max(len + intStart,0)
+  if (intStart < 0.){
+    from := max(len + intStart, 0.)
   } else{
     from := min(intStart, len)
   };
   /* If intEnd is negative, let to be max(len +intEnd,0); else let to be min(intEnd, len). */
-  if (intEnd<0){
-    to := max(len + intEnd,0)
+  if (intEnd < 0.){
+    to := max(len + intEnd, 0.)
   } else{
     to := min(intEnd, len)
   };
   /* Let span be max(to – from,0). */
-  span := max(to - from, 0);
+  span := max(to - from, 0.);
   /* Return a String containing span consecutive characters from S beginning with the character at position from.*/
   substring := "";
-  j := 0;
-  while(j<span){
-    substring := s_concat ([substring, s_nth (S, from+j)]);
-    j := j + 1
+  j := 0.;
+  while(j < span){
+    substring := s_concat ([substring, s_nth (S, int_of_float (from + j))]);
+    j := j + 1.
   };
   return substring
 };
@@ -1008,19 +1008,19 @@ function StringPrototypesubstring (global, this, strict, args){
   /* Let S be the result of calling ToString, giving it the this value as its argument.*/
   S := ToString(this);
   /* Let len be the number of characters in S. */
-  len := s_len(S);
+  len := int_to_float s_len(S);
   /* Let intStart be ToInteger(start). */
-  intStart := int_of_float (ToInteger(start));
+  intStart := ToInteger(start);
   /* If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
   if (end = 'undefined){
     intEnd := len
   } else {
-    intEnd := int_of_float (ToInteger(end))
+    intEnd := ToInteger(end)
   };
   /* Let finalStart be min(max(intStart, 0), len).*/
-  finalStart := min(max(intStart, 0), len);
+  finalStart := min(max(intStart, 0.), len);
   /* Let finalEnd be min(max(intEnd, 0), len). */
-  finalEnd := min(max(intEnd, 0), len);
+  finalEnd := min(max(intEnd, 0.), len);
   /* Let from be min(finalStart, finalEnd). */
   from := min(finalStart, finalEnd);
   /* Let to be max(finalStart, finalEnd). */
@@ -1029,9 +1029,9 @@ function StringPrototypesubstring (global, this, strict, args){
   namely the characters with indices from through to −1, in ascending order. */
   substring := "";
   j := from;
-  while (j<to){
-    substring := s_concat ([substring, s_nth (S, j)]);
-    j := j + 1
+  while (j < to){
+    substring := s_concat ([substring, s_nth (S, int_of_float j)]);
+    j := j + 1.
   };
 
   return substring
