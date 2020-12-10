@@ -647,7 +647,7 @@ function StringPrototypereplace (global, this, strict, args){
     /* let searchString be ToString(searchValue) */
     searchString := ToString(searchValue);
     /* search string for the first occurrence of searchString. */
-    first := StringPrototypeindexOf(global, this, strict, [searchString]);
+    first := StringPrototypeindexOf(global, this, strict, [searchString, 'undefined]);
     /* Let m be 0 */
     m := 0
   };
