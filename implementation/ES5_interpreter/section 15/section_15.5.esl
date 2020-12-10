@@ -328,7 +328,7 @@ function StringPrototypecharAt(global, this, strict, args){
   /* Let size be the number of characters in S. */
   size := s_len(S);
   /* If position < 0 or position ≥ size, return the empty String. */
-  if ((position < 0) || (position >= size)){
+  if ((position < 0) ||| (position >= size)){
     return ""
   };
   /* Return a String of length 1, containing one character from S, namely the character at position position
@@ -370,7 +370,7 @@ function StringPrototypecharCodeAt (global, this, strict, args){
   /*Let size be the number of characters in S.*/
   size := s_len(S);
   /* If position < 0 or position ≥ size, return NaN. */
-  if (position < 0 || (position >= size)){
+  if ((position < 0) ||| (position >= size)){
     return NaN
   };
   /*     Return a value of Number type, whose value is the code unit value of the character at position position
@@ -598,7 +598,7 @@ function StringPrototypelocaleCompare (global, this, strict, args){
   SLen := s_len S;
   ThatLen := s_len That;
   j := 0;
-  while ((j<SLen) && (j<ThatLen)){
+  while ((j<SLen) &&& (j<ThatLen)){
     if(to_char_code(s_nth(S,j)) < to_char_code(s_nth(That,j))){
       return -1
     }
@@ -611,11 +611,11 @@ function StringPrototypelocaleCompare (global, this, strict, args){
       }
     }
   };
-  if((j<SLen) && !(j<ThatLen)){
+  if((j<SLen) &&& !(j<ThatLen)){
     return -1
   }
   else{
-    if(!(j<SLen) && (j<ThatLen)){
+    if(!(j<SLen) &&& (j<ThatLen)){
       return 1
     }
     else{
