@@ -212,7 +212,7 @@ function initArrayObject(global, objectPrototype, strict) {
   setJSProperty(objArrayPrototype, "constructor", descriptor);
 
   /* isArray */
-  isArrayObject := CreateBuiltInFunctionObject(["items"], "isArray", global, strict);
+  isArrayObject := CreateBuiltInFunctionObject(["arg"], "isArray", global, strict);
   descriptor := newDataPropertyDescriptorFull(isArrayObject, true, false, true);
   setJSProperty(objArrayConstructor, "isArray", descriptor);
 
