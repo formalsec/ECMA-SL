@@ -1053,7 +1053,7 @@ function arraySlice(global, this, strict, args) {
   return A
 };
 /**
- * The length property of the slice method is 2. TODO
+ * The length property of the slice method is 2.
  *
  * NOTE The slice function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -1424,7 +1424,7 @@ function arraySplice(global, this, strict, args) {
   return A
 };
 /**
- * The length property of the splice method is 2. TODO
+ * The length property of the splice method is 2.
  *
  * NOTE The splice function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -1455,15 +1455,15 @@ function arrayUnshift(global, this, strict, items) {
   /* 3. Let len be ToUint32(lenVal). */
   len := ToUint32(lenVal);
   /* 4. Let argCount be the number of actual arguments. */
-  argCount := l_len items;
+  argCount := int_to_float (l_len items);
   /* 5. Let k be len. */
   k := len;
   /* 6. Repeat, while k > 0, */
-  while (k > 0) {
+  while (k > 0.) {
     /* a. Let from be ToString(k-1). */
-    from := ToString(k - 1);
+    from := ToString(k - 1.);
     /* b. Let to be ToString(k+argCount -1). */
-    to := ToString(k + argCount - 1);
+    to := ToString(k + argCount - 1.);
     /* c. Let fromPresent be the result of calling the [[HasProperty]]
           internal method of O with argument from. */
     fromPresent := {O.HasProperty}(O, from);
@@ -1483,10 +1483,10 @@ function arrayUnshift(global, this, strict, items) {
       {O.Delete}(O, to, true)
     };
     /* f. Decrease k by 1. */
-    k := k - 1
+    k := k - 1.
   };
   /* 7. Let j be 0. */
-  j := 0;
+  j := 0.;
   /* 8. Let items be an internal List whose elements are, in left
         to right order, the arguments that were passed to this function
         invocation. */
@@ -1501,7 +1501,7 @@ function arrayUnshift(global, this, strict, items) {
           ToString(j), E, and true. */
     {O.Put}(O, ToString(j), E, true);
     /* c. Increase j by 1. */
-    j := j + 1
+    j := j + 1.
   };
   /* 10. Call the [[Put]] internal method of O with arguments "length",
          len+argCount, and true. */
@@ -1510,7 +1510,7 @@ function arrayUnshift(global, this, strict, items) {
   return len + argCount
 };
 /**
- * The length property of the unshift method is 1. TODO
+ * The length property of the unshift method is 1.
  *
  * NOTE The unshift function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore it can be transferred
@@ -1603,7 +1603,7 @@ function arrayIndexOf(global, this, strict, args) {
   return -(1.)
 };
 /**
- * The length property of the indexOf method is 1. TODO
+ * The length property of the indexOf method is 1.
  *
  * NOTE The indexOf function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore it can be transferred
@@ -1688,7 +1688,7 @@ function arrayLastIndexOf(global, this, strict, args) {
   return -(1.)
 };
 /**
- * The length property of the lastIndexOf method is 1. TODO
+ * The length property of the lastIndexOf method is 1.
  *
  * NOTE The lastIndexOf function is intentionally generic; it does not
  * require that its this value be an Array object. Therefore it can be
@@ -1786,7 +1786,7 @@ function arrayEvery(global, this, strict, args) {
   return true
 };
 /**
- * The length property of the every method is 1. TODO
+ * The length property of the every method is 1.
  *
  * NOTE The every function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore it can be transferred
@@ -1881,7 +1881,7 @@ function arraySome(global, this, strict, args) {
   return false
 };
 /**
- * The length property of the some method is 1. TODO
+ * The length property of the some method is 1.
  *
  * NOTE The some function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore it can be transferred
@@ -2066,7 +2066,7 @@ function arrayMap(global, this, strict, args) {
   return A
 };
 /**
- * The length property of the map method is 1. TODO
+ * The length property of the map method is 1.
  *
  * NOTE The map function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -2287,7 +2287,7 @@ function arrayReduce(global, this, strict, args) {
   return accumulator
 };
 /**
- * The length property of the reduce method is 1. TODO
+ * The length property of the reduce method is 1.
  *
  * NOTE The reduce function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore it can be transferred
