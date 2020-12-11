@@ -7,7 +7,7 @@ function initFunctionConstructor(FunctionPrototype, globalObject, strict) {
      [[Prototype]] internal property of the Function constructor is the standard built-in Function prototype object
      (15.3.4). */
   /* The value of the [[Extensible]] internal property of the Function constructor is true. */
-  FunctionConstructor := CreateGeneralFunctionObject(FunctionPrototype, [], "FunctionConstructor", globalObject, strict);
+  FunctionConstructor := CreateGeneralFunctionObject(FunctionPrototype, [], "FunctionConstructor", globalObject, strict, null);
 
   /* 15.3.3.1 Function.prototype */
   /* The initial value of Function.prototype is the standard built-in Function prototype object (15.3.4). */
@@ -53,23 +53,19 @@ function fillFunctionPrototype(functionPrototypeObject, FunctionConstructor, glo
   createBuiltInProperty(functionPrototypeObject, "constructor", FunctionConstructor);
 
   /* 15.3.4.2 Function.prototype.toString ( ) */
-  toString := CreateBuiltInFunctionObject([], "FunctionPrototypeToString", globalObject, strict);
+  toString := CreateBuiltInFunctionObject([], "FunctionPrototypeToString", globalObject, strict, null);
   createBuiltInProperty(functionPrototypeObject, "toString", toString);
 
   /* 15.3.4.3 Function.prototype.apply (thisArg, argArray) */
-  apply := CreateBuiltInFunctionObject(["thisArg", "argArray"], "FunctionPrototypeApply", globalObject, strict);
+  apply := CreateBuiltInFunctionObject(["thisArg", "argArray"], "FunctionPrototypeApply", globalObject, strict, null);
   createBuiltInProperty(functionPrototypeObject, "apply", apply);
 
   /* 15.3.4.4 Function.prototype.call (thisArg [ , arg1 [ , arg2, ... ] ] ) */
-  call := CreateBuiltInFunctionObject(["thisArg", "args"], "FunctionPrototypeCall", globalObject, strict);
-  /* The length property of the call method is 1. */
-  createBuiltInPropertyWithFullDescriptor(call, "length", 1, false, false, false);
+  call := CreateBuiltInFunctionObject(["thisArg"], "FunctionPrototypeCall", globalObject, strict, null);
   createBuiltInProperty(functionPrototypeObject, "call", call);
 
   /* 15.3.4.5 Function.prototype.bind (thisArg [, arg1 [, arg2, ...]]) */
-  bind := CreateBuiltInFunctionObject(["thisArg", "args"], "FunctionPrototypeBind", globalObject, strict);
-  /* The length property of the bind method is 1. */
-  createBuiltInPropertyWithFullDescriptor(bind, "length", 1, false, false, false);
+  bind := CreateBuiltInFunctionObject(["thisArg"], "FunctionPrototypeBind", globalObject, strict, null);
   createBuiltInProperty(functionPrototypeObject, "bind", bind);
 
   return
@@ -138,7 +134,7 @@ function FunctionConstructor(globalObject, this, strict, params) {
   /* TODO */
   /* 11. Return a new Function object created as specified in 13.2 passing P as the FormalParameterList opt and body
          as the FunctionBody. Pass in the Global Environment as the Scope parameter and strict as the Strict flag. */
-  return CreateFunctionObject(P, body, getGlobalEnvironment(globalObject), strict)
+  return CreateFunctionObject(P, body, getGlobalEnvironment(globalObject), strict, null)
 
   /* A prototype property is automatically created for every function, to provide for the possibility that the
      function will be used as a constructor. */
@@ -170,7 +166,6 @@ function FunctionPrototypeToString(globalObject, this, strict, params) {
 function FunctionPrototypeApply(globalObject, func, strict, params) {
   thisArg := l_nth(params, 0);
   argArray := l_nth(params, 1);
-  assert !(thisArg = undefined) &&& !(argArray = undefined);
   /* When the apply method is called on an object func with arguments thisArg and argArray, the following steps
    are taken: */
 
@@ -223,7 +218,6 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
 function FunctionPrototypeCall(globalObject, func, strict, params) {
   thisArg := l_nth(params, 0);
   args := tl params;
-  assert !(thisArg = undefined) &&& !(args = undefined);
   /* When the call method is called on an object func with argument thisArg and optional arguments arg1, arg2
      etc, the following steps are taken: */
 
@@ -235,11 +229,8 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
   argList := [];
   /* 3. If this method was called with more than one argument then in left to right order starting with arg1 append
         each argument as the last element of argList */
-  i := 1;
-  largs := l_len args;
-  while(i < largs) {
-    argList := l_add(argList, l_nth(args, i));
-    i := i + 1
+  if (!(args = [])) {
+    argList := args
   };
   /* 4. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
@@ -255,8 +246,7 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
 /* 15.3.4.5 Function.prototype.bind (thisArg [, arg1 [, arg2, ...]]) */
 function FunctionPrototypeBind(globalObject, this, strict, params) {
   thisArg := l_nth(params, 0);
-  args := l_nth(params, 1);
-  assert !(thisArg = undefined) &&& !(args = undefined);
+  args := tl params;
   /* The bind method takes one or more arguments, thisArg and (optionally) arg1, arg2, etc, and returns a new
      function object by performing the following steps: */
 

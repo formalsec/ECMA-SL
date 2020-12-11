@@ -97,60 +97,58 @@ function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
           mathematical library from Sun Microsystems (http://www.netlib.org/fdlibm). */
 
   /* 15.8.2.1 abs (x) */
-  abs_fo := CreateBuiltInFunctionObject(["x"], "MathAbs", globalObject, strict);
+  abs_fo := CreateBuiltInFunctionObject(["x"], "MathAbs", globalObject, strict, null);
   createBuiltInProperty(mathObject, "abs", abs_fo);
   /* 15.8.2.2 acos (x) */
-  acos_fo := CreateBuiltInFunctionObject(["x"], "MathACos", globalObject, strict);
+  acos_fo := CreateBuiltInFunctionObject(["x"], "MathACos", globalObject, strict, null);
   createBuiltInProperty(mathObject, "acos", acos_fo);
   /* 15.8.2.3 asin (x) */
-  asin_fo := CreateBuiltInFunctionObject(["x"], "MathASin", globalObject, strict);
+  asin_fo := CreateBuiltInFunctionObject(["x"], "MathASin", globalObject, strict, null);
   createBuiltInProperty(mathObject, "asin", asin_fo);
   /* 15.8.2.4 atan (x) */
-  atan_fo := CreateBuiltInFunctionObject(["x"], "MathATan", globalObject, strict);
+  atan_fo := CreateBuiltInFunctionObject(["x"], "MathATan", globalObject, strict, null);
   createBuiltInProperty(mathObject, "atan", atan_fo);
   /* 15.8.2.5 atan2 (y, x) */
-  atan2_fo := CreateBuiltInFunctionObject(["y", "x"], "MathATan2", globalObject, strict);
+  atan2_fo := CreateBuiltInFunctionObject(["y", "x"], "MathATan2", globalObject, strict, null);
   createBuiltInProperty(mathObject, "atan2", atan2_fo);
   /* 15.8.2.6 ceil (x) */
-  ceil_fo := CreateBuiltInFunctionObject(["x"], "MathCeil", globalObject, strict);
+  ceil_fo := CreateBuiltInFunctionObject(["x"], "MathCeil", globalObject, strict, null);
   createBuiltInProperty(mathObject, "ceil", ceil_fo);
   /* 15.8.2.7 cos (x) */
-  cos_fo := CreateBuiltInFunctionObject(["x"], "MathCos", globalObject, strict);
+  cos_fo := CreateBuiltInFunctionObject(["x"], "MathCos", globalObject, strict, null);
   createBuiltInProperty(mathObject, "cos", cos_fo);
   /* 15.8.2.8 exp (x) */
-  exp_fo := CreateBuiltInFunctionObject(["x"], "MathExp", globalObject, strict);
+  exp_fo := CreateBuiltInFunctionObject(["x"], "MathExp", globalObject, strict, null);
   createBuiltInProperty(mathObject, "exp", exp_fo);
   /* 15.8.2.9 floor (x) */
-  floor_fo := CreateBuiltInFunctionObject(["x"], "MathFloor", globalObject, strict);
+  floor_fo := CreateBuiltInFunctionObject(["x"], "MathFloor", globalObject, strict, null);
   createBuiltInProperty(mathObject, "floor", floor_fo);
   /* 15.8.2.10 log (x) */
-  log_fo := CreateBuiltInFunctionObject(["x"], "MathLog", globalObject, strict);
+  log_fo := CreateBuiltInFunctionObject(["x"], "MathLog", globalObject, strict, null);
   createBuiltInProperty(mathObject, "log", log_fo);
   /* 15.8.2.11 max ( [ value1 [ , value2 [ , ... ] ] ] ) */
-  max_fo := CreateBuiltInFunctionObject(["values"], "MathMax", globalObject, strict);
-  createBuiltInPropertyWithFullDescriptor(max_fo, "length", 2., false, false, false);
+  max_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathMax", globalObject, strict, 0);
   createBuiltInProperty(mathObject, "max", max_fo);
   /* 15.8.2.12 min ( [ value1 [ , value2 [ , ... ] ] ] ) */
-  min_fo := CreateBuiltInFunctionObject(["values"], "MathMin", globalObject, strict);
-  createBuiltInPropertyWithFullDescriptor(min_fo, "length", 2., false, false, false);
+  min_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathMin", globalObject, strict, 0);
   createBuiltInProperty(mathObject, "min", min_fo);
   /* 15.8.2.13 pow (x, y) */
-  pow_fo := CreateBuiltInFunctionObject(["x", "y"], "MathPow", globalObject, strict);
+  pow_fo := CreateBuiltInFunctionObject(["x", "y"], "MathPow", globalObject, strict, null);
   createBuiltInProperty(mathObject, "pow", pow_fo);
   /* 15.8.2.14 random ( ) */
-  random_fo := CreateBuiltInFunctionObject([], "MathRandom", globalObject, strict);
+  random_fo := CreateBuiltInFunctionObject([], "MathRandom", globalObject, strict, null);
   createBuiltInProperty(mathObject, "random", random_fo);
   /* 15.8.2.15 round (x) */
-  round_fo := CreateBuiltInFunctionObject(["x"], "MathRound", globalObject, strict);
+  round_fo := CreateBuiltInFunctionObject(["x"], "MathRound", globalObject, strict, null);
   createBuiltInProperty(mathObject, "round", round_fo);
   /* 15.8.2.16 sin (x) */
-  sin_fo := CreateBuiltInFunctionObject(["x"], "MathSin", globalObject, strict);
+  sin_fo := CreateBuiltInFunctionObject(["x"], "MathSin", globalObject, strict, null);
   createBuiltInProperty(mathObject, "sin", sin_fo);
   /* 15.8.2.17 sqrt (x) */
-  sqrt_fo := CreateBuiltInFunctionObject(["x"], "MathSqrt", globalObject, strict);
+  sqrt_fo := CreateBuiltInFunctionObject(["x"], "MathSqrt", globalObject, strict, null);
   createBuiltInProperty(mathObject, "sqrt", sqrt_fo);
   /* 15.8.2.18 tan (x) */
-  tan_fo := CreateBuiltInFunctionObject(["x"], "MathTan", globalObject, strict);
+  tan_fo := CreateBuiltInFunctionObject(["x"], "MathTan", globalObject, strict, null);
   createBuiltInProperty(mathObject, "tan", tan_fo);
 
   return
@@ -158,11 +156,7 @@ function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
 
 /* 15.8.2.1 abs (x) */
 function MathAbs(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined
-  } else {
-    x := l_nth(params, 0)
-  };
+  x := l_nth(params, 0);
   x := ToNumber(x);
 
   /* Returns the absolute value of x; the result has the same magnitude as x but has positive sign. */
@@ -175,11 +169,7 @@ function MathAbs(globalObject, this, stric, params) {
 
 /* 15.8.2.2 acos (x) */
 function MathACos(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined
-  } else {
-    x := l_nth(params, 0)
-  };
+  x := l_nth(params, 0);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the arc cosine of x. The result is expressed in radians
@@ -194,11 +184,7 @@ function MathACos(globalObject, this, stric, params) {
 
 /* 15.8.2.3 asin (x) */
 function MathASin(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined
-  } else {
-    x := l_nth(params, 0)
-  };
+  x := l_nth(params, 0);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the arc sine of x. The result is expressed in radians
@@ -214,11 +200,7 @@ function MathASin(globalObject, this, stric, params) {
 
 /* 15.8.2.4 atan (x) */
 function MathATan(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined
-  } else {
-    x := l_nth(params, 0)
-  };
+  x := l_nth(params, 0);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the arc tangent of x. The result is expressed in
@@ -234,17 +216,8 @@ function MathATan(globalObject, this, stric, params) {
 
 /* 15.8.2.5 atan2 (y, x) */
 function MathATan2(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    y := 'undefined;
-    x := 'undefined
-  } else {
-    y := l_nth(params, 0);
-    if (l_len params = 1) {
-      x := 'undefined
-    } else {
-      x := l_nth(params, 1)
-    }
-  };
+  y := l_nth(params, 0);
+  x := l_nth(params, 1);
   y := ToNumber(y);
   x := ToNumber(x);
 
@@ -281,11 +254,7 @@ function MathATan2(globalObject, this, stric, params) {
 
 /* 15.8.2.6 ceil (x) */
 function MathCeil(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined
-  } else {
-    x := l_nth(params, 0)
-  };
+  x := l_nth(params, 0);
   x := ToNumber(x);
 
   /* Returns the smallest (closest to -Infinity) Number value that is not less than x and is equal to a mathematical
@@ -302,11 +271,7 @@ function MathCeil(globalObject, this, stric, params) {
 
 /* 15.8.2.7 cos (x) */
 function MathCos(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined
-  } else {
-    x := l_nth(params, 0)
-  };
+  x := l_nth(params, 0);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the cosine of x. The argument is expressed in radians. */
@@ -321,11 +286,7 @@ function MathCos(globalObject, this, stric, params) {
 
 /* 15.8.2.8 exp (x) */
 function MathExp(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined
-  } else {
-    x := l_nth(params, 0)
-  };
+  x := l_nth(params, 0);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the exponential function of x (e raised to the power of
@@ -341,11 +302,7 @@ function MathExp(globalObject, this, stric, params) {
 
 /* 15.8.2.9 floor (x) */
 function MathFloor(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined
-  } else {
-    x := l_nth(params, 0)
-  };
+  x := l_nth(params, 0);
   x := ToNumber(x);
 
   /* Returns the greatest (closest to +Infinity) Number value that is not greater than x and is equal to a mathematical
@@ -364,11 +321,7 @@ function MathFloor(globalObject, this, stric, params) {
 
 /* 15.8.2.10 log (x) */
 function MathLog(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined
-  } else {
-    x := l_nth(params, 0)
-  };
+  x := l_nth(params, 0);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the natural logarithm of x. */
@@ -383,56 +336,53 @@ function MathLog(globalObject, this, stric, params) {
 
 /* 15.8.2.11 max ( [ value1 [ , value2 [ , ... ] ] ] ) */
 function MathMax(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    params := [-Infinity, -Infinity]
-  } else {
-    if (l_len params = 1) {
-      params := l_add(params, -Infinity)
-    }
-  };
   /* Given zero or more arguments, calls ToNumber on each of the arguments and returns the largest of the
      resulting values. */
+  /* If no arguments are given, the result is -Infinity. */
+  if (l_len params = 0) {
+    return -Infinity
+  };
+
   max_value := ToNumber(l_nth(params, 0));
+
   i := 1;
   lparams := l_len params;
   while(i < lparams) {
-    value := ToNumber(l_nth(params, i));
+    arg := l_nth(params, i);
+    value := ToNumber(arg);
 
     max_value := max(max_value, value);
 
     i := i + 1
   };
-  /* If no arguments are given, the result is -Infinity. */
   /* If any value is NaN, the result is NaN. */
   /* The comparison of values to determine the largest value is done as in 11.8.5 except that +0 is considered to
      be larger than -0. */
-
   /* The length property of the max method is 2. */
   return max_value
 };
 
 /* 15.8.2.12 min ( [ value1 [ , value2 [ , ... ] ] ] ) */
 function MathMin(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    params := [Infinity, Infinity]
-  } else {
-    if (l_len params = 1) {
-      params := l_add(params, Infinity)
-    }
-  };
   /* Given zero or more arguments, calls ToNumber on each of the arguments and returns the smallest of the
      resulting values. */
+  /* If no arguments are given, the result is +Infinity. */
+  if (l_len params = 0) {
+    return Infinity
+  };
+
   min_value := ToNumber(l_nth(params, 0));
+
   i := 1;
   lparams := l_len params;
   while(i < lparams) {
-    value := ToNumber(l_nth(params, i));
+    arg := l_nth(params, i);
+    value := ToNumber(arg);
 
     min_value := min(min_value, value);
 
     i := i + 1
   };
-  /* If no arguments are given, the result is +Infinity. */
   /* If any value is NaN, the result is NaN. */
   /* The comparison of values to determine the smallest value is done as in 11.8.5 except that +0 is considered
      to be larger than -0. */
@@ -442,17 +392,8 @@ function MathMin(globalObject, this, stric, params) {
 
 /* 15.8.2.13 pow (x, y) */
 function MathPow(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined;
-    y := 'undefined
-  } else {
-    x := l_nth(params, 0);
-    if (l_len params = 1) {
-      y := 'undefined
-    } else {
-      y := l_nth(params, 1)
-    }
-  };
+  x := l_nth(params, 0);
+  y := l_nth(params, 1);
   x := ToNumber(x);
   y := ToNumber(y);
 
@@ -494,11 +435,7 @@ function MathRandom(globalObject, this, stric, params) {
 
 /* 15.8.2.15 round (x) */
 function MathRound(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined
-  } else {
-    x := l_nth(params, 0)
-  };
+  x := l_nth(params, 0);
   x := ToNumber(x);
 
   /* Returns the Number value that is closest to x and is equal to a mathematical integer. If two integer Number
@@ -523,11 +460,7 @@ function MathRound(globalObject, this, stric, params) {
 
 /* 15.8.2.16 sin (x) */
 function MathSin(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined
-  } else {
-    x := l_nth(params, 0)
-  };
+  x := l_nth(params, 0);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the sine of x. The argument is expressed in radians. */
@@ -541,11 +474,7 @@ function MathSin(globalObject, this, stric, params) {
 
 /* 15.8.2.17 sqrt (x) */
 function MathSqrt(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined
-  } else {
-    x := l_nth(params, 0)
-  };
+  x := l_nth(params, 0);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the square root of x. */
@@ -560,11 +489,7 @@ function MathSqrt(globalObject, this, stric, params) {
 
 /* 15.8.2.18 tan (x) */
 function MathTan(globalObject, this, stric, params) {
-  if (l_len params = 0) {
-    x := 'undefined
-  } else {
-    x := l_nth(params, 0)
-  };
+  x := l_nth(params, 0);
   x := ToNumber(x);
 
   /* Returns an implementation-dependent approximation to the tangent of x. The argument is expressed in

@@ -29,7 +29,7 @@ function initErrorObject(globalObject, ObjectPrototype, strict) {
 function initErrorConstructor(ErrorPrototype, globalObject, strict) {
   /* When Error is called as part of a new expression, it is a constructor: it initialises the newly created object. */
   /* The value of the [[Prototype]] internal property of the Error constructor is the Function prototype object (15.3.4). */
-  ErrorConstructor := CreateFunctionObject(["message"], "ErrorConstructor", globalObject, strict);
+  ErrorConstructor := CreateFunctionObject(["message"], "ErrorConstructor", globalObject, strict, null);
 
   /* 15.11.3.1 Error.prototype */
   /* The initial value of Error.prototype is the Error prototype object (15.11.4). */
@@ -69,7 +69,7 @@ function fillErrorPrototype(errorPrototypeObject, ErrorConstructor, globalObject
   createBuiltInProperty(errorPrototypeObject, "message", "");
 
   /* 15.11.4.4 Error.prototype.toString ( ) */
-  toString := CreateBuiltInFunctionObject([], "ErrorPrototypeToString", globalObject, strict);
+  toString := CreateBuiltInFunctionObject([], "ErrorPrototypeToString", globalObject, strict, null);
   createBuiltInProperty(errorPrototypeObject, "toString", toString);
 
   return
@@ -81,11 +81,7 @@ function fillErrorPrototype(errorPrototypeObject, ErrorConstructor, globalObject
 
 /* 15.11.2.1 new Error (message) */
 function ErrorConstructor(globalObject, this, strict, params) {
-  if (l_len params = 0) {
-    message := 'undefined
-  } else {
-    message := l_nth(params, 0)
-  };
+  message := l_nth(params, 0);
 
   /* When Error is called as part of a new expression, it is a constructor: it initialises the newly created object. */
   newlyConstructedObject := NewECMAScriptObject();
@@ -155,11 +151,7 @@ function initEvalErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "EvalError", "EvalErrorConstructor", globalObject, strict)
 };
 function EvalErrorConstructor(globalObject, this, strict, params) {
-  if (l_len params = 0) {
-    message := 'undefined
-  } else {
-    message := l_nth(params, 0)
-  };
+  message := l_nth(params, 0);
 
   return NativeErrorConstructor(globalObject, strict, message, "EvalError")
 };
@@ -174,11 +166,7 @@ function initRangeErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "RangeError", "RangeErrorConstructor", globalObject, strict)
 };
 function RangeErrorConstructor(globalObject, this, strict, params) {
-  if (l_len params = 0) {
-    message := 'undefined
-  } else {
-    message := l_nth(params, 0)
-  };
+  message := l_nth(params, 0);
 
   return NativeErrorConstructor(globalObject, strict, message, "RangeError")
 };
@@ -193,11 +181,7 @@ function initReferenceErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "ReferenceError", "ReferenceErrorConstructor", globalObject, strict)
 };
 function ReferenceErrorConstructor(globalObject, this, strict, params) {
-  if (l_len params = 0) {
-    message := 'undefined
-  } else {
-    message := l_nth(params, 0)
-  };
+  message := l_nth(params, 0);
 
   return NativeErrorConstructor(globalObject, strict, message, "ReferenceError")
 };
@@ -213,11 +197,7 @@ function initSyntaxErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "SyntaxError", "SyntaxErrorConstructor", globalObject, strict)
 };
 function SyntaxErrorConstructor(globalObject, this, strict, params) {
-  if (l_len params = 0) {
-    message := 'undefined
-  } else {
-    message := l_nth(params, 0)
-  };
+  message := l_nth(params, 0);
 
   return NativeErrorConstructor(globalObject, strict, message, "SyntaxError")
 };
@@ -237,11 +217,7 @@ function initTypeErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "TypeError", "TypeErrorConstructor", globalObject, strict)
 };
 function TypeErrorConstructor(globalObject, this, strict, params) {
-  if (l_len params = 0) {
-    message := 'undefined
-  } else {
-    message := l_nth(params, 0)
-  };
+  message := l_nth(params, 0);
 
   return NativeErrorConstructor(globalObject, strict, message, "TypeError")
 };
@@ -256,11 +232,7 @@ function initURIErrorObject(globalObject, ErrorPrototype, strict) {
   return initNativeErrorObject(ErrorPrototype, "URIError", "URIErrorConstructor", globalObject, strict)
 };
 function URIErrorConstructor(globalObject, this, strict, params) {
-  if (l_len params = 0) {
-    message := 'undefined
-  } else {
-    message := l_nth(params, 0)
-  };
+  message := l_nth(params, 0);
 
   return NativeErrorConstructor(globalObject, strict, message, "URIError")
 };
@@ -304,7 +276,7 @@ function initNativeErrorConstructor(NativeErrorPrototype, nativeErrorName, const
       created object. */
   /* The value of the [[Prototype]] internal property of a NativeError constructor is the Function prototype object
     (15.3.4). */
-  NativeErrorConstructor := CreateFunctionObject(["message"], constructorFunction, globalObject, strict);
+  NativeErrorConstructor := CreateFunctionObject(["message"], constructorFunction, globalObject, strict, null);
 
   /* 15.11.7.6 NativeError.prototype */
   /* The initial value of NativeError.prototype is a NativeError prototype object (15.11.7.7). Each NativeError
@@ -361,6 +333,9 @@ function fillNativeErrorPrototype(nativeErrorPrototypeObject, NativeErrorConstru
 
 /* 15.11.7.4 new NativeError (message) */
 function NativeErrorConstructor(globalObject, strict, message, nativeErrorName) {
+  if (message = undefined) {
+    message := 'undefined
+  };
   /* When a NativeError constructor is called as part of a new expression, it is a constructor: it initialises the newly
       created object. */
   newlyConstructedObject := NewECMAScriptObject();
