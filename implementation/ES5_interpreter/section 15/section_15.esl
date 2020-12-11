@@ -92,4 +92,19 @@ function getOptionalParam(params, idx) {
   };
 
   return undefined
+};
+
+/* Using this function is cleaner than having many 'tl's, but costs in performance  */
+function getOptionalParamList(params, start_idx) {
+  if (l_len params > start_idx) {
+    i := 0;
+    paramList := params;
+    while (i < start_idx) {
+       paramList := tl paramList;
+       i := i + 1
+    };
+    return paramList
+  };
+
+  return []
 }
