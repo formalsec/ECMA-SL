@@ -93,7 +93,12 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "toLocaleString", descriptor);
 
   /* 15.4.4.4 Array.prototype.concat ( [ item1 [ , item2 [ , ... ] ] ] ) */
-  concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict, null);
+  /* We pass 0 to the `internalLength` because while `items` is optional, the length of the 
+     function is 1. We have `items` in the `FormalParameterList` which makes the length of
+     the function to be 1, but if we did not have the `internalLength` to be 0, then
+     'undefined would be passed to items when no parameter is provided to `concat`, and
+     this is not desired for optional parameters. */
+  concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict, 0);
   descriptor := newDataPropertyDescriptorFull(concatObject, true, false, true);
   setJSProperty(prototype, "concat", descriptor);
 
@@ -108,7 +113,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "pop", descriptor);
 
   /* 15.4.4.7 Array.prototype.push ( [ item1 [ , item2 [ , ... ] ] ] ) */
-  pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict, null);
+  pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict, 0);
   descriptor := newDataPropertyDescriptorFull(pushObject, true, false, true);
   setJSProperty(prototype, "push", descriptor);
 
@@ -134,11 +139,11 @@ function initArrayPrototype(global, objectPrototype, strict) {
 
   /* 15.4.4.12 Array.prototype.splice (start, deleteCount [ , item1 [ , item2 [ , ... ] ] ] ) */
   spliceObject := CreateBuiltInFunctionObject(["start", "deleteCount"], "arraySplice", global, strict, null);
-  descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
+  descriptor := newDataPropertyDescriptorFull(spliceObject, true, false, true);
   setJSProperty(prototype, "splice", descriptor);
 
   /* 15.4.4.13 Array.prototype.unshift ( [ item1 [ , item2 [ , ... ] ] ] ) */
-  unshiftObject := CreateBuiltInFunctionObject(["items"], "arrayUnshift", global, strict, null);
+  unshiftObject := CreateBuiltInFunctionObject(["items"], "arrayUnshift", global, strict, 0);
   descriptor := newDataPropertyDescriptorFull(unshiftObject, true, false, true);
   setJSProperty(prototype, "unshift", descriptor);
 
@@ -1270,7 +1275,7 @@ function SortCompare(obj, comparefn, j, k) {
 function arraySplice(global, this, strict, args) {
   start := l_nth(args, 0);
   deleteCount := l_nth(args, 1);
-  items := tl (tl args);
+  items := getOptionalParamList(args, 2);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
