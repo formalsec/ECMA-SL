@@ -80,4 +80,16 @@ function createBuiltInPropertyWithFullDescriptor(builtInObject, propertyName, de
   );
 
   return
+};
+
+/* Unless otherwise specified in the description of a particular function, if a function or constructor described in
+   this clause is given fewer arguments than the function is specified to require, the function or constructor shall
+   behave exactly as if it had been given sufficient additional arguments, each such argument being the
+   undefined value. */
+function getOptionalParam(params, idx) {
+  if (l_len params > idx) {
+    return l_nth(params, idx)
+  };
+
+  return undefined
 }
