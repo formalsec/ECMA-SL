@@ -111,6 +111,8 @@ rule read =
   | "ceil"            { CEIL }
   | "cos"             { COS }
   | "exp"             { EXP }
+  | "code_point"      { CODE_POINT }  
+  | "@"               { AT_SIGN }
   | "floor"           { FLOOR }
   | "log_e"           { LOG_E }
   | "log_10"          { LOG_10 }
@@ -193,4 +195,5 @@ and read_type =
   | "Tuple"  { TUPLE_TYPE }
   | "Null"   { NULL_TYPE }
   | "Symbol" { SYMBOL_TYPE }
+  | "Curry"  { CURRY_TYPE }
   | _        { raise (Syntax_error ("Unexpected type: " ^ Lexing.lexeme lexbuf)) }

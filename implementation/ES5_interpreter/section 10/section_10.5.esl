@@ -100,9 +100,9 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
             Configurable: configurableBindings
           }, true)
         } else {
-          /* iv. Else if IsAccessorDescriptor(existingProp) or existingProp does not have attribute values
+          /* iv. Else if IsAccessorPropertyDescriptor(existingProp) or existingProp does not have attribute values
                   {[[Writable]]: true, [[Enumerable]]: true}, then */
-          if (IsAccessorDescriptor(existingProp) || !(existingProp.Writable && existingProp.Enumerable)) {
+          if (IsAccessorPropertyDescriptor(existingProp) || !(existingProp.Writable && existingProp.Enumerable)) {
             /* 1. Throw a TypeError exception. */
             throw TypeErrorConstructorInternal()
           }

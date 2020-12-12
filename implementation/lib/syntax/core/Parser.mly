@@ -34,9 +34,9 @@
 %token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM ROUND SIN SQRT TAN
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
-%token SCONCAT
+%token SCONCAT AT_SIGN CODE_POINT
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
-%token LIST_TYPE TUPLE_TYPE NULL_TYPE UNDEF_TYPE SYMBOL_TYPE
+%token LIST_TYPE TUPLE_TYPE NULL_TYPE UNDEF_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
 
 %left LAND LOR BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL POW
@@ -112,6 +112,8 @@ type_target:
     { print_string ">UNDEF_TYPE\n"; Type.UndefType }
   | SYMBOL_TYPE;
     { print_string ">SYMBOL_TYPE\n"; Type.SymbolType }
+  | CURRY_TYPE; 
+    { Type.CurryType }
 
 (* v ::= f | i | b | s *)
 val_target:
@@ -144,6 +146,8 @@ expr_target:
     { print_string ">VAL\n"; Expr.Val v }
   | v = VAR;
     { print_string ">VAR\n";  Expr.Var v }
+  | LBRACE; e = expr_target; RBRACE; AT_SIGN; LPAREN; es = separated_list (COMMA, expr_target); RPAREN; 
+    { Expr.Curry (e, es) }
   | MINUS; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
   | NOT; e = expr_target;

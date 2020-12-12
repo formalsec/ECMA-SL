@@ -60,3 +60,10 @@ let apply_macros (prog : t) : t =
       prog.funcs
       [] in 
   create prog.imports new_funcs [] 
+
+let lambdas (p : t) : (string * string list * string list * E_Stmt.t) list =  
+  Hashtbl.fold 
+    (fun _ f ac -> (E_Func.lambdas f) @ ac)
+    p.funcs 
+    []
+ 
