@@ -176,11 +176,11 @@ function handleSingleFile() {
   if [ $LOG_ENTIRE_EVAL_OUTPUT -eq 1 ]; then
     ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json > result.txt)
     # 3.6. Check the result of the execution
-    RESULT=$(tail -n 10 result.txt | grep "MAIN return -> ")
+    RESULT=$(tail -n 10 result.txt | grep "MAIN pc -> ")
   else
     ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json | tail -n 10 > result.txt)
     # 3.6. Check the result of the execution
-    RESULT=$(grep "MAIN return -> " result.txt)
+    RESULT=$(grep "MAIN pc -> " result.txt)
   fi
 
   if [[ "${RESULT}" == "" ]]; then
@@ -196,7 +196,7 @@ function handleSingleFile() {
 
     result=("${FILENAME}" "**ERROR**" "${ECMASLCI}")
     return
-  elif [[ "${RESULT}" =~ "MAIN return -> (\"C\", 'normal," ]]; then
+  elif [[ "${RESULT}" =~ "MAIN pc -> (\"C\", 'normal," ]]; then
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
 
     # increment number of tests successfully executed
