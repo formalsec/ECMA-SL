@@ -20,7 +20,7 @@ function initStringObject(global, objectPrototype, strict) {
   setJSProperty(objStringConstructor, "prototype", descriptor);
 
   /* 15.5.3.2 String.fromCharCode ( [ char0 [ , char1 [ , ... ] ] ] ) */
-  fromCharCode := CreateBuiltInFunctionObject(["chars"], "StringfromCharCode", global, strict, null);
+  fromCharCode := CreateBuiltInFunctionObject(["chars"], "StringfromCharCode", global, strict, 0);
   createBuiltInProperty(objStringConstructor, "fromCharCode", fromCharCode);
 
   return objStringConstructor
@@ -60,7 +60,7 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
   setJSProperty(prototype, "charCodeAt", newDataPropertyDescriptor( charCodeAtFunctionObject ));
 
   /* 15.5.4.6 String.prototype.concat ( [ string1 [ , string2 [ , ... ] ] ] ) */
-  concatFunctionObject:= CreateBuiltInFunctionObject( [ "args" ], "StringPrototypeconcat", global, strict, null);
+  concatFunctionObject:= CreateBuiltInFunctionObject( [ "strings" ], "StringPrototypeconcat", global, strict, 0);
   setJSProperty(prototype, "concat", newDataPropertyDescriptor( concatFunctionObject ));
 
   /* 15.5.4.7 String.prototype.indexOf (searchString, position) */

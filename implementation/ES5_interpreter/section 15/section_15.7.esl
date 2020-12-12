@@ -29,7 +29,7 @@ function initNumberConstructor(NumberPrototype, globalObject, strict) {
   /* 15.7.3 Properties of the Number Constructor */
   /* The value of the [[Prototype]] internal property of the Number constructor is the Function prototype object
      (15.3.4). */
-  NumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", globalObject, strict, null);
+  NumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", globalObject, strict, 0);
   /* Besides the internal properties and the length property (whose value is 1), the Number constructor has the
      following properties: */
 
@@ -104,7 +104,7 @@ function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObj
   createBuiltInProperty(numberPrototypeObject, "constructor", NumberConstructor);
 
   /* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
-  toString := CreateBuiltInFunctionObject([ "radix" ], "numberToString", globalObject, strict, null);
+  toString := CreateBuiltInFunctionObject([ "radix" ], "numberToString", globalObject, strict, 0);
   createBuiltInProperty(numberPrototypeObject, "toString", toString);
 
   /* 15.7.4.3 Number.prototype.toLocaleString() */
