@@ -274,15 +274,15 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
         (Intermediate((cs, heap, sto, f), cont),lab))
 
   | AssignInObjCheck (st, e_f, e_o) ->
-    let f= eval_expr sto e_f in
-    let o= eval_expr sto e_o in
-    let f', o'=
-      match f, o with
-      | Str f ,Loc o -> f, o
+    let field = eval_expr sto e_f in
+    let obj = eval_expr sto e_o in
+    let field', obj' =
+      match field, obj with
+      | Str f, Loc o -> f, o
       | _ -> raise (Except "Internal Error") in
-    let v= eval_inobj_expr prog heap sto f o in
+    let v = eval_inobj_expr prog heap sto field obj in
     Store.set sto st v;
-    (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignInObjCheckLab (st, f', o', e_f, e_o))
+    (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignInObjCheckLab (st, field', obj', e_f, e_o))
 
 
   | AssignNewObj (x) ->
