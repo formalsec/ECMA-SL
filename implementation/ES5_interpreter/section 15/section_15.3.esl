@@ -30,18 +30,23 @@ function fillFunctionConstructor(FunctionConstructor, globalObject, strict) {
   return
 };
 
+/* The Function prototype object is itself a Function object (its [[Class]] is "Function") that, when invoked,
+   accepts any arguments and returns undefined. */
+function functionPrototypeFunction(globalObject, this, strict, params) {
+  return 'undefined
+};
+
 /* 15.3.4 Function Prototype Object */
-function initFunctionPrototype(objectPrototype) {
+function initFunctionPrototype(objectPrototype, globalObject, strict) {
   /* The Function prototype object is itself a Function object (its [[Class]] is "Function") that, when invoked,
-     accepts any arguments and returns undefined. */ /* TODO */
+     accepts any arguments and returns undefined. */
+  functionPrototypeObject := CreateGeneralBuiltInFunctionObject(objectPrototype, [], "functionPrototypeFunction", globalObject, strict, null);
   /* The value of the [[Prototype]] internal property of the Function prototype object is the standard built-in Object
      prototype object (15.2.4). The initial value of the [[Extensible]] internal property of the Function prototype
      object is true.*/
   /* The Function prototype object does not have a valueOf property of its own; however, it inherits the valueOf
      property from the Object prototype Object. */
   /* The length property of the Function prototype object is 0. */
-  functionPrototypeObject := NewECMAScriptObjectFull(objectPrototype, "Function", true);
-  setAllInternalMethodsOfObject(functionPrototypeObject);
 
   return functionPrototypeObject
 };
@@ -154,7 +159,6 @@ function FunctionPrototypeToString(globalObject, this, strict, params) {
      semicolons within the representation String is implementation-dependent. */
   /* The toString function is not generic; it throws a TypeError exception if its this value is not a Function
      object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
-  /* TODO */
   if (!isFunctionObject(this)) {
     throw TypeErrorConstructorInternal()
   };
@@ -285,24 +289,27 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
   /* 15. If the [[Class]] internal property of Target is "Function", then */
   if (getInternalProperty(Target, "Class") = "Function") {
     /* a. Let L be the length property of Target minus the length of A. */
-    L := getJSProperty(Target, "length") - (l_len A);
+    L := getDescriptorValue(getJSProperty(Target, "length")) - (int_to_float (l_len A));
     /* b. Set the length own property of F to either 0 or L, whichever is larger. */
-    if (L > 0) {
-      setJSProperty(F, "length", newDataPropertyDescriptorFull(L, false, false, false))
+    if (L > 0.) {
+      setJSProperty(F, "length", newDataPropertyDescriptorFull(L, false, false, false));
+      setInternalProperty(F, "internalLength", int_of_float L)
     } else {
-      setJSProperty(F, "length", newDataPropertyDescriptorFull(0, false, false, false))
+      setJSProperty(F, "length", newDataPropertyDescriptorFull(0., false, false, false));
+      setInternalProperty(F, "internalLength", 0)
     }
   }
   /* 16. Else set the length own property of F to 0. */
   else {
-    setJSProperty(F, "length", newDataPropertyDescriptorFull(0, false, false, false))
+    setJSProperty(F, "length", newDataPropertyDescriptorFull(0., false, false, false));
+    setInternalProperty(F, "internalLength", 0)
   };
   /* 17. Set the attributes of the length own property of F to the values specified in 15.3.5.1. */
 
   /* 18. Set the [[Extensible]] internal property of F to true. */
   F.Extensible := true;
   /* 19. Let thrower be the [[ThrowTypeError]] function Object (13.2.3). */
-  thrower := ThrowTypeError(FunctionPrototype, Scope, Strict);
+  thrower := createThrowTypeErrorFunctionObject(getFunctionPrototype(strict), strict);
   /* 20. Call the [[DefineOwnProperty]] internal method of F with arguments "caller", PropertyDescriptor
         {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
   DefineOwnProperty(F, "caller", {
@@ -478,8 +485,11 @@ function getFunctionPrototype(strict) {
 };
 
 function isFunctionObject(object) {
-  /* TODO check this! */
-  return "Call" in_obj object
+  if ((Type(object) = "Object") &&& (getInternalProperty(arg, "Class") = "Function")) {
+    return true
+  };
+
+  return false
 };
 
 function isParsableAsFormalParametersList(str) {

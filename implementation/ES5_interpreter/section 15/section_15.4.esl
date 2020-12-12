@@ -93,7 +93,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "toLocaleString", descriptor);
 
   /* 15.4.4.4 Array.prototype.concat ( [ item1 [ , item2 [ , ... ] ] ] ) */
-  /* We pass 0 to the `internalLength` because while `items` is optional, the length of the 
+  /* We pass 0 to the `internalLength` because while `items` is optional, the length of the
      function is 1. We have `items` in the `FormalParameterList` which makes the length of
      the function to be 1, but if we did not have the `internalLength` to be 0, then
      'undefined would be passed to items when no parameter is provided to `concat`, and

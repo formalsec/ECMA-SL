@@ -460,7 +460,8 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     if (IsPropertyReference(ref) = true) {
       /* a. Return the result of calling the [[Delete]] internal method on ToObject(GetBase(ref)) providing
             GetReferencedName(ref) and IsStrictReference(ref) as the arguments. */
-      return Delete(ToObject(GetBase(ref)), GetReferencedName(ref), IsStrictReference(ref))
+      obj := ToObject(GetBase(ref));
+      return {obj.Delete}(obj, GetReferencedName(ref), IsStrictReference(ref))
     }
     /* 5. Else, ref is a Reference to an Environment Record binding, so */
     else {

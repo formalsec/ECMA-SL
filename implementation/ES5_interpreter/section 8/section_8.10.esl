@@ -87,6 +87,10 @@ function isEnumerablePropertyDescriptor(desc) {
   return desc.Enumerable
 };
 
+function getDescriptorValue(desc) {
+  return desc.Value
+};
+
 /* Auxiliary functions created for the purposes of dealing with the Property Identifier type. */
 function newPropertyIdentifier(name, desc) {
   return ("P", name, desc)

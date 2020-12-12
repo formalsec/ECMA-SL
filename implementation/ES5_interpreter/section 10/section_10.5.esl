@@ -169,21 +169,27 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
 
 /* Auxiliary functions */
 function isEvalCode(code) {
-  return !(typeof code = __$Str) &&& (code.codeType = "eval")
+  return (typeof code = __$Obj) &&& (code.codeType = "eval")
 };
 
 function isFunctionCode(code) {
-  return !(typeof code = __$Str) &&& (code.codeType = "function")
+  return (typeof code = __$Obj) &&& (code.codeType = "function")
 };
 
 function isStrictModeCode(code, execCtx) {
-  return (code.strict = true) ||| isContainedInStrictCode(execCtx)
+  return (!(code = 'undefined) &&& (code.strict = true)) ||| isContainedInStrictCode(execCtx)
 };
 
 function getFunctionDeclarationsInCode(object) {
+  if (object = 'undefined) {
+    return []
+  };
   return object.functionDeclarations
 };
 
 function getVariableDeclarationsInCode(object) {
+  if (object = 'undefined) {
+    return []
+  };
   return object.variableDeclarations
 }
