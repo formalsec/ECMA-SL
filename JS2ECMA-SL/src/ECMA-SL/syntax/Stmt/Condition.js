@@ -1,4 +1,4 @@
-const Expr = require("../Expr/Expr");
+const Expr = require("../Expr/Expr").Expr;
 const BranchLab = require("../Labels/BranchLab");
 const EmptyLab = require("../Labels/EmptyLab");
 const Merge = require("./Merge");
@@ -16,8 +16,28 @@ function MakeCondition(Stmt){
 			return "if(" + this.expr.toString() + ") {\n" +this.then_block.toString() + "\n}" + else_str;
 		}
 
-		interpret(config){
+		toJS(){
+			//console.log("Condition toJS");
+			var expr_js = this.expr.toJS();
+			var then_js = this.then_block.toJS();
 
+			var else_js = {
+        "type": "BlockStatement",
+        "body": []
+      };
+			if(this.else_block != null){
+				else_js = this.else_block.toJS();
+			}
+			return  {
+	      "type": "IfStatement",
+	      "test": expr_js,
+	      "consequent": then_js,
+     	 	"alternate": else_js
+		}
+	}
+
+		interpret(config){
+			//console.log(">CONDITION");
 			var v = this.expr.interpret(config.store);
 			//Needs to be bool and true
 			if(v.value){				

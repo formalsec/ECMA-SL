@@ -15,6 +15,7 @@ const AssignNewObj = require("./AssignNewObj")(Stmt);
 const FieldLookup = require("./FieldLookup")(Stmt);
 const AssignInObjCheck = require("./AssignInObjCheck")(Stmt);
 const AssignObjToList = require("./AssignObjToList")(Stmt);
+const Exception = require("./Exception")(Stmt);
 
 
 Stmt.fromJSON = function(obj) {
@@ -33,6 +34,7 @@ Stmt.fromJSON = function(obj) {
        case "fieldlookup": return FieldLookup.fromJSON(obj);
        case "assigninobjcheck": return AssignInObjCheck.fromJSON(obj);
        case "assignobjtolist": return AssignObjToList.fromJSON(obj);
+       case "exception": return Exception.fromJSON(obj);
        default: throw new Error("Unsupported statement: "+obj.type); 
    }
 }

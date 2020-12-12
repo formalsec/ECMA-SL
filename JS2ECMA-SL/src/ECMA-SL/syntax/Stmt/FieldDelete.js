@@ -1,4 +1,4 @@
-const Expr = require("../Expr/Expr");
+const Expr = require("../Expr/Expr").Expr;
 const FieldDeleteLab = require("../Labels/FieldDeleteLab");
 
 function MakeFieldDelete(Stmt){
@@ -10,7 +10,32 @@ function MakeFieldDelete(Stmt){
 		    this.expressionField = expressionField;
 		    }
 
+		toString(){
+			return ("delete " + this.expressionObject.toString() + "[ " + this.expressionField.toString() + "]");
+		}
+
+		toJS(){
+			//console.log("FieldDelete toJS");
+			var obj_js = this.expressionObject.toJS();
+			var field_js = this.expressionField.toJS();
+			return {
+	      "type": "ExpressionStatement",
+	      "expression": {
+	        "type": "UnaryExpression",
+	        "operator": "delete",
+	        "argument": {
+	          "type": "MemberExpression",
+	          "computed": true,
+	          "object": obj_js,
+	          "property": field_js
+	        },
+	        "prefix": true
+	      }
+	    }
+		}
+
     	interpret(config){
+    		//console.log(">FIELD DELETE");
     		config.cont=config.cont.slice(1);
     		var object = this.expressionObject.interpret(config.store).value;
       		var field = this.expressionField.interpret(config.store).value;

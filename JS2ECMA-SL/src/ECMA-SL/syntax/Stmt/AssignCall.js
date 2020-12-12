@@ -1,8 +1,12 @@
-const Expr = require("../Expr/Expr"); 
+const ExprModule = require("../Expr/Expr"); 
 const Store = require("../../Store");
 const CsFrame = require("../../CsFrame");
 const AssignCallLab = require("../Labels/AssignCallLab");
 const Interceptor = require("../Interceptor");
+const ValModule = require("../Val/Val");
+const ValExpr = ExprModule.Val;
+const Expr = ExprModule.Expr;
+const PrimitiveVal = ValModule.PrimitiveVal;
 
 function MakeAssignCall(Stmt){
   class AssignCall extends Stmt {
@@ -18,7 +22,45 @@ function MakeAssignCall(Stmt){
       return this.stringvar + " := " + this.func.toString() + "( " + args_str.join(", ") + " )";
     }
 
+    toJS(){
+      //console.log("AssignCall " + this.func+ " toJS");
+      var args_js = this.args.map((arg) => arg.toJS());
+      //console.log(">>>DEBUG");
+      //console.log(JSON.stringify(this.func));
+      var func; 
+      //console.log(this.func instanceof ValExpr);
+      //console.log(this.func.constructor);
+      if((this.func instanceof ValExpr) && (this.func.value instanceof PrimitiveVal) && ((typeof this.func.value.value) === "string")){
+        //console.log("#AssignCall IF #");
+        //console.log(this.func);
+        func = {
+          "type": "Identifier",
+          "name": this.func.value.value
+        }
+      } else {
+        func = this.func.toJS(); 
+      }
+      
+      return {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "AssignmentExpression",
+          "operator": "=",
+          "left": {
+            "type": "Identifier",
+            "name": this.stringvar
+          },
+          "right": {
+            "type": "CallExpression",
+            "callee": func,
+            "arguments": args_js
+          }
+        }
+      }
+    }
+
     interpret(config){
+      //console.log(">ASSIGN CALL");
       config.cont=config.cont.slice(1);
       var func_name = this.func.interpret(config.store);
       var f = config.prog.getFunc(func_name.value);

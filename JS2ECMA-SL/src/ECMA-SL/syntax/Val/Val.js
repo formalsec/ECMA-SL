@@ -1,5 +1,4 @@
 class Val{
-  
 
   constructor(value) {
     this.value = value;
@@ -35,6 +34,7 @@ Val.Str = class {
 
 
 Val.fromJSON = function(obj){
+  console.log(obj);
   switch(obj.type){
     case "float":  
     case "int":
@@ -52,4 +52,14 @@ Val.fromJSON = function(obj){
   
 }
 
-module.exports = Val;
+module.exports = {
+  PrimitiveVal,
+  ListVal,
+  LocationVal,
+  PrimitiveVal,
+  SymbolVal,
+  TupleVal,
+  TypeVal,
+  Val,
+  VoidVal
+};
