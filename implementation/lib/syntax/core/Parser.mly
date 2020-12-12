@@ -19,6 +19,7 @@
 %token PERIOD COMMA SEMICOLON
 %token DELETE
 %token FAIL
+%token THROW
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -112,7 +113,7 @@ type_target:
     { print_string ">UNDEF_TYPE\n"; Type.UndefType }
   | SYMBOL_TYPE;
     { print_string ">SYMBOL_TYPE\n"; Type.SymbolType }
-  | CURRY_TYPE; 
+  | CURRY_TYPE;
     { Type.CurryType }
 
 (* v ::= f | i | b | s *)
@@ -146,7 +147,7 @@ expr_target:
     { print_string ">VAL\n"; Expr.Val v }
   | v = VAR;
     { print_string ">VAR\n";  Expr.Var v }
-  | LBRACE; e = expr_target; RBRACE; AT_SIGN; LPAREN; es = separated_list (COMMA, expr_target); RPAREN; 
+  | LBRACE; e = expr_target; RBRACE; AT_SIGN; LPAREN; es = separated_list (COMMA, expr_target); RPAREN;
     { Expr.Curry (e, es) }
   | MINUS; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
@@ -266,6 +267,8 @@ stmt_target:
     { Stmt.Print e }
   | FAIL; e = expr_target;
     { Stmt.Fail e }
+  | THROW; str = STRING;
+    { Stmt.Exception str}
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;
     { print_string ">FIELDASSIGN\n";  Stmt.FieldAssign (e1, Expr.Val (Str f), e2) }
   | e1 = expr_target; LBRACK; f = expr_target; RBRACK; DEFEQ; e2 = expr_target;

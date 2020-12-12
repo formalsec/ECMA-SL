@@ -4,6 +4,14 @@ function MakeTypeVal(Val){
   			super();
     		this.value = value;
 	  }
+
+	  toJS(){
+    	return {
+        "type": "Literal",
+        "value": this.value,
+        "raw": ""+this.value
+    	}
+  	}
 	}
 
 	 TypeVal.fromJSON = function(value) {

@@ -11,11 +11,8 @@ type return =
   | Errorv of Val.t option
   | Finalv of Val.t option
 
-type ctx_t = {
-  verbose : bool;
-  out : string;
-  monitor : bool;
-}
+type ctx_t = string * string * bool
+
 
 let add_fields_to (obj : Object.t) (fes : (Field.t * Expr.t) list) (eval_e : (Expr.t -> Val.t)) : unit =
   List.iter (fun (f, e) -> let e' = eval_e e in Object.set obj f e') fes
@@ -109,12 +106,12 @@ let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
     let v2 = eval_expr sto e2 in
     eval_binopt_expr bop v1 v2
   | NOpt (nop, es)       -> eval_nopt_expr nop (List.map (eval_expr sto) es)
-  | Curry (f, es)        -> 
-      let fv = eval_expr sto f in 
-      let vs = List.map (eval_expr sto) es in 
-      (match fv with 
+  | Curry (f, es)        ->
+      let fv = eval_expr sto f in
+      let vs = List.map (eval_expr sto) es in
+      (match fv with
         | Str s -> Val.Curry (s, vs)
-        | _ -> failwith "Illegal Curry Expression")
+        | _     -> failwith "Illegal Curry Expression")
 
 let get_func_id (sto:Store.t) (exp:Expr.t) : (string * Val.t list) =
   let res= eval_expr sto exp in
@@ -132,10 +129,8 @@ let prepare_call (prog:Prog.t) (calling_f : string) (cs:Callstack.t) (sto: Store
   let sto_aux = Store.create pvs in
   (cs', sto_aux, params)
 
-let eval_inobj_expr (prog: Prog.t) (heap : Heap.t) (sto : Store.t) (field : Expr.t) (loc : Expr.t) : Val.t =
-  let loc' = eval_expr sto loc in
-  let field' = eval_expr sto field in
-  let b =  match loc', field' with
+let eval_inobj_expr (prog: Prog.t) (heap : Heap.t) (sto : Store.t) (field : Val.t) (loc : Val.t) : Val.t =
+  let b =  match loc, field with
     | Loc l, Str f -> Heap.get_field heap l f
     | _            -> invalid_arg "Exception in Interpreter.eval_inobj_expr : \"loc\" is not a Loc value or \"field\" is not a string" in
   match b with
@@ -173,7 +168,6 @@ let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : E
   Heap.delete_field heap loc' field'
 
 
-
 (* \/ ======================================= Main InterpreterFunctions ======================================= \/ *)
 
 
@@ -188,6 +182,12 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
   | Skip ->
     (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
 
+  | Exception str -> (print_string "Exception thrown:\n";
+                      let string_1 = String.split_on_char '\"' str in
+                      let string_2 = String.split_on_char '\"' (List.nth string_1 1) in
+                      print_string (List.nth string_2 0);
+                      exit 1)
+
   | Merge -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.MergeLab)
 
   | Print e ->
@@ -196,9 +196,9 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
     | Loc l ->
       (match Heap.get heap l with
         | Some o -> print_endline ("PROGRAM PRINT: " ^ Object.str o)
-        | None   -> print_endline "PROGRAM PRINT: Nonexistent location" )
+        | None   -> print_endline "PROGRAM PRINT: Non-existent location" )
     | _     -> print_endline ("PROGRAM PRINT: " ^ (Val.str v)));
-     (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
+     (Intermediate ((cs, heap, sto, f), cont), SecLabel.PrintLab (e))
     )
 
   | Fail e -> (
@@ -260,7 +260,7 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
   | AssignCall (x,func,es) ->
     let (f', vs') = get_func_id sto func in
     let vs'' = (List.map (eval_expr sto) es) in
-    let vs = vs' @ vs'' in 
+    let vs = vs' @ vs'' in
     let b = interceptor f' vs es in
     ( match b with
       |None ->
@@ -273,10 +273,16 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
       |Some lab ->
         (Intermediate((cs, heap, sto, f), cont),lab))
 
-  | AssignInObjCheck (st, e1, e2) ->
-    let v= eval_inobj_expr prog heap sto e1 e2 in
+  | AssignInObjCheck (st, e_f, e_o) ->
+    let f= eval_expr sto e_f in
+    let o= eval_expr sto e_o in
+    let f', o'=
+      match f, o with
+      | Str f ,Loc o -> f, o
+      | _ -> raise (Except "Internal Error") in
+    let v= eval_inobj_expr prog heap sto f o in
     Store.set sto st v;
-    (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (st,e1))
+    (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignInObjCheckLab (st, f', o', e_f, e_o))
 
 
   | AssignNewObj (x) ->
@@ -338,31 +344,38 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
     Store.set sto st v;
     (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (st, e))
 
+
 (*This function will iterate smallsteps in a list of functions*)
-let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> (Mon.sl SecLabel.t) option) (prog:Prog.t) (state : state_t) (mon_state:Mon.state_t) (stmts:Stmt.t list)  (verbose:bool): return =
-  match stmts with
-  | [] ->  raise(Except "Empty list")
-  | s::stmts' ->  let (return, label) = eval_small_step interceptor prog state stmts' verbose s in
-    (match return with
-     | Finalv v -> (match v with
-         | Some v -> (match v with
-             | Tuple t -> Finalv (Some (List.nth t 1))
-             | _       -> Finalv (Some v))
-         | None   -> Finalv v)
-     | Errorv v -> Errorv v
-     | Intermediate (state', stmts'') ->
-       small_step_iter interceptor prog state' mon_state stmts'' verbose)
-                   (*let mon_return : Mon.monitor_return = Mon.eval_small_step mon_state label in
-                   (match mon_return with
-                    | MReturn mon_state' -> (
-                        match return with
-                        |Finalv v ->  Finalv v
-                        | Errorv v -> Errorv v
-                        |Intermediate (state', stmts'') ->
-                          small_step_iter interceptor prog state' mon_state' stmts'' verbose)
-                    | MFail  (mon_state', str) ->
-                      print_string ("MONITOR EXCEPTION -> "^str);
-                      exit 1;))*)
+let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> (Mon.sl SecLabel.t) option) (prog:Prog.t) (state : state_t) (mon_state:Mon.state_t) (stmts:Stmt.t list)  (context: ctx_t): return =
+  match context with (out, mon, verbose) ->(
+    match stmts with
+    | [] ->  raise(Except "Empty list")
+    | s::stmts' -> ( let (return, label) = eval_small_step interceptor prog state stmts' verbose s in
+                    if (mon = "nsu") then (
+                     let mon_return : Mon.monitor_return = Mon.eval_small_step mon_state label in
+                     (match mon_return with
+                      | MReturn mon_state' -> (
+                          match return with
+                          | Finalv v -> Finalv v
+                          | Errorv v -> Errorv v
+                          | Intermediate (state', stmts'') ->
+                            small_step_iter interceptor prog state' mon_state' stmts'' context)
+                      | MFail  (mon_state', str) ->
+                        print_string ("MONITOR EXCEPTION -> "^str);
+                        exit 1;))
+                  else (
+                    match return with
+                          | Finalv v ->  Finalv v
+                          (* | Finalv v -> (match v with
+                              | Some v -> (match v with
+                                  | Tuple t -> Finalv (Some (List.nth t 1))
+                                  | _       -> Finalv (Some v))
+                              | None   -> Finalv v) *)
+                          | Errorv v -> Errorv v
+                          | Intermediate (state', stmts'') ->
+                            small_step_iter interceptor prog state' mon_state stmts'' context
+                  )))
+
 
 
 let initial_state () : state_t =
@@ -374,17 +387,16 @@ let initial_state () : state_t =
 
 
 (*Worker class of the Interpreter*)
-let eval_prog (prog : Prog.t) (out:string) (verbose:bool) (main:string) : (return * Heap.t) =
-  let func = (Prog.get_func prog main(*passar como argumento valores e nome*)) in
-  let state_0 = initial_state () in
-  let mon_state_0 = Mon.initial_monitor_state () in
-  let interceptor = SecLabel.interceptor Mon.parse_lvl in
-  let v = small_step_iter interceptor prog state_0 mon_state_0 [func.body] verbose in
-  (*let v=  small_step_iter prog cs heap sto func.body verbose in*)
-  let _, heap, _, _ = state_0 in
-  match v with
-  | Finalv _
-  | Errorv _ -> v, heap
-  | _ -> raise(Except "No return value")(*ERROR*)
+let eval_prog (prog : Prog.t) (context : ctx_t) (main : string) : (Val.t option * Heap.t) =
+  match context with (out, mon, verbose) ->
+    let func = (Prog.get_func prog main) in
+    let state_0 = initial_state () in
+    let mon_state_0 = Mon.initial_monitor_state () in
+    let interceptor = SecLabel.interceptor Mon.parse_lvl in
+    let v = small_step_iter interceptor prog state_0 mon_state_0 [func.body] context in
+    let _, heap, _, _= state_0 in
+    match v with
+    | Finalv v -> v, heap
+    | _ -> raise(Except "No return value")(*ERROR*)
 
 end

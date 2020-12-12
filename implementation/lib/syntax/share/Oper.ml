@@ -372,6 +372,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | Sqrt          -> "sqrt"
   | Tan           -> "tan"
 
+
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
   | Minus    -> e1 ^ " - " ^ e2

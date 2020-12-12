@@ -1,8 +1,4 @@
 #!/bin/bash
-printf "\t-------------------------------\n"
-printf "\t\tJS Test Tool\n"
-printf "\t-------------------------------\n"
-printf "Test File:\t\test/basic2.esl\n"
 
 RED='\033[0;31m'   	# RED
 NC='\033[0m'       	# No Color
@@ -13,31 +9,343 @@ BLINK2='\e[25m'	   	#BLINK
 INV='\e[7m'         #INVERTED
 LGREEN='\e[102m'
 BOLD='\e[1m'
+DEBUG="false"
+ERRORS=0
+PROGS=0
 
-cd ../implementation
-OCAMLRES=$(./main.native -mode ci -i test/basic2.esl)
-if [[ $1 == "debug" ]]
-then
-  echo "${OCAMLRES}"
-fi
-OCMLRES2=$( echo "${OCAMLRES}" | grep "MAIN return"  )
+complete_test () {
+	TESTFILE=$1
+	DEGUB=$2
+printf "Results:\n"
+##OCAML CI + mon (parse)
+ 	OCAMLmonRes=$(./main.native -mode ci -i ${TESTFILE} -mon nsu --parse)
+	if [[ $DEBUG == "true" ]]
+	then
+	  echo "${OCAMLmonRES}"
+	fi
+	OCAMLmonRes2=$( echo "${OCAMLmonRes}" | grep "MAIN return"  )
+	if [[ $OCAMLmonRes2 == "" ]]
+	then
+		OCAMLmonRes2=$( echo "${OCAMLmonRes}" | grep "MONITOR EXCEPTION" | tail -1 )
+	fi
+printf "\tOCAML CI+mon      	: 	${OCAMLmonRes2}\n"
 
 
-cd ../JS2ECMA-SL
+## OCAML Inline + CI
+	OCAMLinlineRes=$(./main.native -i ${TESTFILE} -mode ic --parse)
+	if [[ $DEBUG == "true" ]]
+	then
+	  echo "${OCAMLinlineRes}"
+	fi
+	OCAMLinlineRes2=$( echo "${OCAMLinlineRes}" | grep "MAIN return"  )
+	if [[ $OCAMLinlineRes2 == "" ]]
+	then
+		OCAMLinlineRes2=$( echo "${OCAMLinlineRes}" | grep "MONITOR EXCEPTION" | tail -1 )
+	fi
+printf "\tOCAML IC + CI     	: 	${OCAMLinlineRes2}\n"
 
-JSRES=$(node src/parse_esl.js ../implementation/test/basic2.json)
 
-if [[ $1 == "debug" ]]
-then
-  echo "{$JSRES}"
-fi
-JRES2=$( echo "${JSRES}" | grep "MAIN return"  )
-
-
-if [[ "${JRES2}" == "${OCMLRES2}" ]]
-then
+## OCAML parse -> JS + mon 
+	cd ../JS2ECMA-SL
+	filename=${TESTFILE%.*}
+	JSRES=$(node src/parse_esl.js ../implementation/${filename}.json nsu)
+	if [[ $DEBUG == "true" ]]
+	then
+	  echo "{$JSRES}"
+	fi
+	JRES2=$( echo "${JSRES}" | grep "MAIN return"  )
+	if [[ $JRES2 == "" ]]
+	then
+		JRES2=$( echo "${JSRES}" | grep "MONITOR EXCEPTION" | tail -1  )
+	fi
+	TIME=$(echo "${JSRES}" | grep "Interpretation Time :" )
+	printf "\t(PARSE) JS+mon    	: 	${JRES2}			${TIME}\n"
+## OCAML inline -> parse -> JS
 	
-	printf "${BOLD}${GREEN}${INV}OK!${NC} \n(  ${JRES2}  )"
-else
-	printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC} \n(  ${JRES2}  )\n(  ${OCMLRES2}  )"
+	JSinlinedRes=$(node src/parse_esl.js ../implementation/${filename}_inlined.json)
+	if [[ $DEBUG == "true" ]]
+	then
+	  echo "{$JSinlinedRes}"
+	fi
+	JSinlinedRes2=$( echo "${JSinlinedRes}" | grep "MAIN return"  )
+	if [[ $JSinlinedRes2 == "" ]]
+	then
+		JSinlinedRes2=$( echo "${JSinlinedRes}" | grep "MONITOR EXCEPTION" | tail -1 )
+	fi
+	TIME=$(echo "${JSinlinedRes}" | grep "Interpretation Time :" )
+	printf "\tIC (PARSE) + JS   	: 	${JSinlinedRes2}			${TIME}\n"
+
+## OCAML inline -> parse -> JS EMBEDDER
+	
+	JSEmbinlinedRes=$(node src/jsembedder.js ../implementation/${filename}_inlined.json)
+	if [[ $DEBUG == "true" ]]
+	then
+	  echo "{$JSEmbinlinedRes}"
+	fi
+	JSEmbinlinedRes2=$( echo "${JSEmbinlinedRes}" | grep "MAIN return"  )
+	if [[ $JSEmbinlinedRes2 == "" ]]
+	then
+		JSEmbinlinedRes2=$( echo "${JSEmbinlinedRes}" | grep "MONITOR EXCEPTION" | tail -1 )
+	fi
+	TIME=$(echo "${JSEmbinlinedRes}" | grep "Interpretation Time :" )
+	printf "\tIC (PARSE) + JS EMBEDDER: 	${JSEmbinlinedRes2}			${TIME}\n"
+	
+
+	PROGS=$((PROGS+1))
+
+
+}
+
+test_OCAML_JS () {
+	MODE=$1
+	TESTFILE=$2
+	DEBUG=$3
+	
+	
+	OCAMLRES=$(./main.native -mode ${MODE} -i ${TESTFILE} -mon ${MON} --parse)
+	if [[ $DEBUG == "true" ]]
+	then
+	  echo "${OCAMLRES}"
+	fi
+	OCMLRES2=$( echo "${OCAMLRES}" | grep "MAIN return"  )
+	if [[ $OCMLRES2 == "" ]]
+	then
+		OCMLRES2=$( echo "${OCAMLRES}" | grep "MONITOR EXCEPTION"  )
+	fi
+	cd ../JS2ECMA-SL
+	filename=${TESTFILE%.*}
+	JSRES=$(node src/parse_esl.js ../implementation/${filename}.json ${MON})
+	if [[ $DEBUG == "true" ]]
+	then
+	  echo "{$JSRES}"
+	fi
+	JRES2=$( echo "${JSRES}" | grep "MAIN return"  )
+	if [[ $JRES2 == "" ]]
+	then
+		JRES2=$( echo "${JSRES}" | grep "MONITOR EXCEPTION"  )
+	fi
+	if [[ "${JRES2}" == "${OCMLRES2}" ]]
+	then
+		
+		printf "${BOLD}${GREEN}${INV}OK!${NC} \n(  ${JRES2}  )"
+
+	else
+		printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC} \n(  ${JRES2}  )\n(  ${OCMLRES2}  )"
+		ERRORS=$((ERRORS+1))
+	fi
+	PROGS=$((PROGS+1))
+}
+test_OCAML_inline () {
+	TESTFILE=$1
+	DEBUG=$2
+
+	
+	OCAMLRES=$(./main.native -mode ci -i ${TESTFILE} -mon nsu)
+	if [[ $DEBUG == "true" ]]
+	then
+	  echo "${OCAMLRES}"
+	fi
+	OCAMLRES2=$( echo "${OCAMLRES}" | grep "MAIN return"  )
+	if [[ $OCAMLRES2 == "" ]]
+	then
+		OCAMLRES2=$( echo "${OCAMLRES}" | grep "MONITOR EXCEPTION"  )
+	fi
+
+	OCAML_INL_RES=$(./main.native -i ${TESTFILE} -mode ic  )
+	if [[ $DEBUG == "true" ]]
+	then
+	  echo "${OCAML_INL_RES}"
+	fi
+	OCAML_INL_RES2=$( echo "${OCAML_INL_RES}" | grep "MAIN return"  )
+	if [[ $OCAML_INL_RES2 == "" ]]
+	then
+		OCAML_INL_RES2=$( echo "${OCAML_INL_RES}" | grep "MONITOR EXCEPTION" | tail -1 )
+	fi
+	if [[ "${OCAML_INL_RES2}" == "${OCAMLRES2}" ]]
+	then
+		
+		printf "${BOLD}${GREEN}${INV}OK!${NC} \n(  ${OCAML_INL_RES2}  )"
+
+	else
+		printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC} \n(  ${OCAML_INL_RES2}  )\n(  ${OCAMLRES2}  )"
+		ERRORS=$((ERRORS+1))
+	fi
+	PROGS=$((PROGS+1))
+}
+
+test_complete (){
+	POSITIVEDIR=$1
+	DEBUG=$2
+	for fullpath in $POSITIVEDIR/*.esl
+	do
+		# File identifier
+		cd ../implementation
+		fullpath_aux=${fullpath#"../implementation/"}
+		IFS='/' read -r -a array <<< "$fullpath" 
+		
+		
+		# Program run
+		if [[ "$fullpath_aux" ==  *_inlined.esl ]]
+		then echo ""	
+		else
+			printf "${YELLOW}\n${array[3]}${NC} "
+			echo "${fullpath_aux}"
+			complete_test $fullpath_aux $DEBUG
+		fi
+	done
+
+}
+
+test_ic (){
+	MODE=$1
+	DEBUG=$2
+	POSITIVEDIR=$3
+	NEGATIVEDIR=$4
+
+	echo "Testing Inlining Compiler..."
+	for fullpath in $POSITIVEDIR/*.esl
+	do
+		# File identifier
+		cd ../implementation
+		fullpath_aux=${fullpath#"../implementation/"}
+		IFS='/' read -r -a array <<< "$fullpath" 
+		printf "${YELLOW}\n${array[3]}${NC} "
+		echo "${fullpath_aux}"
+		# Program run
+		test_OCAML_inline $fullpath_aux $DEBUG
+	done
+
+}
+
+test_dir (){
+	MODE=$1
+	DEBUG=$2
+	POSITIVEDIR=$3
+	NEGATIVEDIR=$4
+
+
+	
+	echo "${POSITIVEDIR_aux}"
+	for fullpath in $POSITIVEDIR/*.esl
+	do
+		# File identifier
+		cd ../implementation
+		fullpath_aux=${fullpath#"../implementation/"}
+		IFS='/' read -r -a array <<< "$fullpath" 
+		printf "${YELLOW}\n${array[3]}${NC} "
+		echo "${fullpath_aux}"
+		# Program run
+		
+			test_OCAML_JS $MODE $fullpath_aux $DEBUG
+		
+	done
+	#if [[ $3 != "" ]]
+	#then
+	#	printf "\n\n${BOLD}_____________ ILLEGAL FLOWS _____________${NC}"
+#
+#		for fullpath in $3/*.esl
+#		do
+#			# File identifier
+#			IFS='/' read -r -a array <<< "$fullpath" 
+#			printf "${YELLOW}\n${array[3]}${NC} "
+#			
+#			# Program run
+#			RESULT=$(./main.native -i ${fullpath} -mode $1) 
+#			MONGREP=$(grep "MONITOR EXCEPTION" <<< "${RESULT}")
+#			IFS='->' read -r -a mainarray <<< "${MONGREP}"	
+#			if [[ "${mainarray[0]}" == "MONITOR EXCEPTION " ]]
+#			then
+#				printf "${GREEN}${INV}OK${NC} \t-> ${mainarray[2]}"
+#			else
+#				printf "${RED}${BLINK1}${INV}FAIL${BLINK2}${NC}\t-> ${monitor_array[2]}"
+#			fi 
+#		done
+#	fi
+printf "\n\n"
+echo "Found ${ERRORS} anomalies from ${PROGS} executions"
+}
+for arg in "$@"
+do
+	case $arg in
+		-i)
+		TESTFILE="$2"
+		shift
+		shift
+		;;
+		-pd)
+		POSITIVEDIR="$2"
+		shift
+		shift
+		;;
+		-nd)
+		NEGATIVEDIR="$2"
+		shift
+		shift
+		;;
+		-m)
+		MODE="$2"
+		shift
+		shift
+		;;
+		-d|--debug)
+		DEBUG="true"
+		shift
+		;;
+		-mon)
+		MON="$2"
+		shift
+		shift
+		;;
+	esac
+done
+
+printf "\t${RED}-------------------------------${NC}\n"
+printf "\t\tJS Test Tool\n"
+printf "\t${RED}-------------------------------${NC}\n"
+if [[ ${TESTFILE} != "" ]]
+then
+	printf "${YELLOW}Test File:${NC}\t\t${TESTFILE}\n"
+elif [[ ${POSITIVEDIR} != "" ]] 
+	then
+	printf "${YELLOW}Positive Test Directory:${NC}\t${POSITIVEDIR}\n"
+	if [[ ${NEGATIVEDIR} != "" ]]
+		then	
+		printf "${YELLOW}Negative Test Directory:${NC}\t${NEGATIVEDIR}\n"
+	fi
+elif [[ ${NEGATIVEDIR} != "" ]]
+	then	
+	printf "${YELLOW}Negative Test Directory:${NC}\t${NEGATIVEDIR}\n"
 fi
+printf "${YELLOW}Interpretation Mode:${NC}\t\t$MODE\n"
+printf "${YELLOW}DEBUG:${NC}\t\t\t\t${DEBUG}\t\n"
+printf "${YELLOW}Monitor Mode:${NC}\t\t\t${MON}\n"
+
+
+
+if [[ ${TESTFILE} != "" ]]
+then
+	cd ../implementation
+	TESTFILE_aux=${TESTFILE#"../implementation/"}
+	test_prog $MODE $TESTFILE_aux $DEBUG
+
+elif [[ $POSITIVEDIR != "" && $MODE = "ic" ]]
+then
+	printf "Testing Inlining Copiler Directories...\n"
+	test_ic $MODE $DEBUG $POSITIVEDIR 
+elif [[ $POSITIVEDIR != "" ]]
+then
+	printf "(COMPLETE) Testing Directories...\n"
+	test_complete $POSITIVEDIR $DEBUG
+
+elif [[ $POSITIVEDIR != ""  && $MODE = "ci" ]]
+then
+	printf "Testing Prositive Directories...\n"
+	test_dir $MODE $DEBUG $POSITIVEDIR 
+elif [[ $NEGATIVEDIR != "" ]]
+then
+	printf "Testing Negative Directories...\n"
+	test_dir $MODE $DEBUG $NEGATIVEDIR
+else
+	printf "Test files missing, use [-i], [-pt] and [-nt]"
+fi
+

@@ -138,6 +138,7 @@ rule read =
   | "return"          { RETURN }
   | "function"        { FUNCTION }
   | "delete"          { DELETE }
+  | "throw"           { THROW }
   | "null"            { NULL }
   | "undefined"       { UNDEFINED }
   | "fail"            { FAIL }
@@ -152,6 +153,7 @@ rule read =
   | "/*"              { read_comment lexbuf }
   | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof               { EOF }
+  
 
 
 (* Read strings *)

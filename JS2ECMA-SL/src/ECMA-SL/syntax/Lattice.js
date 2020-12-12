@@ -40,6 +40,13 @@ function parseLvl(str){
 	}
 }
 
+function str(bool){
+	if(bool == false){
+		return "low";
+	} else if(bool == true){
+		return "high";
+	}
+}
 module.exports = { 
 	lub : lub, 
 	leq : leq,
@@ -47,5 +54,6 @@ module.exports = {
 	bottom : bottom,
 	top : top,
 	parseLvl : parseLvl,
+	str : str,
 
 };
