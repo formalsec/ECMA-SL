@@ -406,6 +406,11 @@ function MathPow(globalObject, this, stric, params) {
   /* If abs(x)>1 and y is -Infinity, the result is +0. */
   /* If abs(x)==1 and y is +Infinity, the result is NaN. */
   /* If abs(x)==1 and y is -Infinity, the result is NaN. */
+  if (abs(x) = 1.) {
+    if ((y = Infinity) ||| (y = -Infinity)) {
+      return NaN
+    }
+  };
   /* If abs(x)<1 and y is +Infinity, the result is +0. */
   /* If abs(x)<1 and y is -Infinity, the result is +Infinity. */
   /* If x is +Infinity and y>0, the result is +Infinity. */
