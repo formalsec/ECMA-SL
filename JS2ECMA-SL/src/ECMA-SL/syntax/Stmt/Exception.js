@@ -43,13 +43,30 @@ function MakeException(Stmt){
           }
         },
         {
-            "type": "ReturnStatement",
-            "argument": {
-              "type": "Literal",
-              "value": _EXCEPTION_INTERRUPTION_,
-              "raw": "\""+_EXCEPTION_INTERRUPTION_+"\""
-            }
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "process"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "exit"
           }
+        },
+        "arguments": [
+          {
+            "type": "Literal",
+            "value": 1,
+            "raw": "1"
+          }
+        ]
+      }
+    }
       ]
     }
 }
