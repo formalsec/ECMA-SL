@@ -111,6 +111,8 @@ rule read =
   | "ceil"            { CEIL }
   | "cos"             { COS }
   | "exp"             { EXP }
+  | "code_point"      { CODE_POINT }  
+  | "@"               { AT_SIGN }
   | "floor"           { FLOOR }
   | "log_e"           { LOG_E }
   | "log_10"          { LOG_10 }
@@ -136,6 +138,7 @@ rule read =
   | "return"          { RETURN }
   | "function"        { FUNCTION }
   | "delete"          { DELETE }
+  | "throw"           { THROW }
   | "null"            { NULL }
   | "undefined"       { UNDEFINED }
   | "fail"            { FAIL }
@@ -150,6 +153,7 @@ rule read =
   | "/*"              { read_comment lexbuf }
   | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof               { EOF }
+  
 
 
 (* Read strings *)
@@ -193,4 +197,5 @@ and read_type =
   | "Tuple"  { TUPLE_TYPE }
   | "Null"   { NULL_TYPE }
   | "Symbol" { SYMBOL_TYPE }
+  | "Curry"  { CURRY_TYPE }
   | _        { raise (Syntax_error ("Unexpected type: " ^ Lexing.lexeme lexbuf)) }

@@ -30,7 +30,7 @@ do
 	printf "${YELLOW}\n${array[3]}${NC} "
 	
 	# Program run
-	RESULT=$(./main.native -i ${fullpath} -mode $1) 
+	RESULT=$(./main.native -i ${fullpath} -mode $1 -mon nsu --parse) 
 	MAINGREP=$(grep "MAIN return" <<< "${RESULT}")
 	IFS='->' read -r -a mainarray <<< "${MAINGREP}"	
 	if [[ "${mainarray[0]}" == "MAIN return " ]]

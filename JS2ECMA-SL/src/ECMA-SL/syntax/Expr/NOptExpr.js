@@ -14,8 +14,17 @@ function MakeNOptExpr(Expr){
       );
     }
 
+    toJS(){
+      //console.log("=============DEBUG=============");
+      //console.log(this.n_aryOperator);
+     // console.log(this.expressionsList);
+      //console.log("===============================");
+      return this.n_aryOperator.toJS(this.expressionsList);
+    }
+
     interpret(store){
-      var v_list = this.expressionsList.map(interpret(store));
+      //console.log("++ NOPT");
+      var v_list = this.expressionsList.map((expr) => expr.interpret(store));
       return this.n_aryOperator.interpret(v_list); 
     }
     getVars(){

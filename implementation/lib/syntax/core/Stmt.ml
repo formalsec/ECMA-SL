@@ -15,7 +15,7 @@ type t = Skip
        | FieldAssign      of Expr.t * Expr.t * Expr.t
        | FieldDelete      of Expr.t * Expr.t
        | FieldLookup      of string * Expr.t * Expr.t
-
+       | Exception        of string
 (*---------------Strings------------------*)
 
 let is_basic_stmt (s : t) : bool = match s with
@@ -45,6 +45,32 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | AssignInObjCheck (st,e1,e2) -> st ^ " := " ^ str_e e1 ^ " in_obj " ^ str_e e2
   | AssignObjToList (st, e)     -> st ^ " := obj_to_list " ^ str_e e
   | AssignObjFields (st, e)     -> st ^ " := obj_fields " ^ str_e e
+  | Exception st                -> "throw " ^ st
+
+
+let rec js (stmt : t) : string =
+  match stmt with
+  | Skip                            -> Printf.sprintf ""
+  | Merge                           -> Printf.sprintf ""
+  | Assign (x, e)                   -> Printf.sprintf "%s = %s" x (Expr.js e)
+  | Print e                         -> Printf.sprintf "console.log( %s )" (Expr.js e)
+  | If (e, s1, s2)                  -> Printf.sprintf "if ( %s ) { %s } %s" (Expr.js e) (js s1)
+                                        (match s2 with
+                                        | None   -> Printf.sprintf ""
+                                        | Some s -> Printf.sprintf " else { %s }" (js s))
+  | Block (block)                   -> String.concat ";\n" (List.map js block)
+  | While (exp, s)                  -> Printf.sprintf "while ( %s ) { %s } " (Expr.js exp) (js s)
+  | Return exp                      -> Printf.sprintf "return %s" (Expr.js exp)
+  | FieldAssign (e_o, e_f, e_v)     -> Printf.sprintf "%s.%s = %s" (Expr.js e_o) (Expr.js e_f) (Expr.js e_v)
+  | FieldDelete (e_o, e_f)          -> Printf.sprintf "delete %s.%s" (Expr.js e_o) (Expr.js e_f)
+  | AssignCall (x, st, e_lst)       -> Printf.sprintf "%s = %s( %s )" x (Expr.js st) (String.concat ", " (List.map Expr.js e_lst))
+  | AssignNewObj x                  -> Printf.sprintf "var %s = {}" x
+  | FieldLookup (x, e_o, e_f)       -> Printf.sprintf "%s = %s.%s" x (Expr.js e_o) (Expr.js e_f)
+  | AssignInObjCheck (x, e_o, e_f)  -> Printf.sprintf "%s = %s.hasOwnProperty( %s )" x (Expr.js e_o) (Expr.js e_f)
+  | AssignObjToList (x, e)          -> Printf.sprintf "%s = Object.values(%s)" x (Expr.js e)
+  | AssignObjFields (x, e)          -> Printf.sprintf "%s = Object.keys(%s)" x (Expr.js e)
+  | Exception st                    -> Printf.sprintf "throw \"%s\"" st
+  | Fail e                          -> Printf.sprintf "throw %s" (Expr.js e)
 
 let rec to_json (stmt : t) : string =
   (*Stmts args : rhs/ lhs / expr / obj / field/ stringvar *)
@@ -66,6 +92,6 @@ let rec to_json (stmt : t) : string =
   | AssignNewObj va             -> Printf.sprintf "{\"type\" : \"assignnewobject\", \"lhs\" : \"%s\" }" (va)
   | FieldLookup (va, eo, p)     -> Printf.sprintf "{\"type\" : \"fieldlookup\", \"lhs\" : \"%s\", \"obj\" : %s, \"field\" : %s}" (va) (Expr.to_json eo) (Expr.to_json p)
   | AssignInObjCheck (st,e1,e2) -> Printf.sprintf "{\"type\" : \"assigninobjcheck\", \"lhs\" : \"%s\", \"field\" : %s, \"obj\" : %s}" (st) (Expr.to_json e1) (Expr.to_json e2)
-  | AssignObjToList (st,e)      -> Printf.sprintf "{\"type\" : \"assigniobjtolist\", \"lhs\" : \"%s\", \"obj\" %s}" (st) (Expr.to_json e) 
-  | AssignObjFields (st,e)      -> Printf.sprintf "{\"type\" : \"assignobjfields\", \"lhs\" : \"%s\", \"obj\" %s}" (st) (Expr.to_json e)
-
+  | AssignObjToList (st,e)      -> Printf.sprintf "{\"type\" : \"assigniobjtolist\", \"lhs\" : \"%s\", \"obj\" : %s}" (st) (Expr.to_json e)
+  | AssignObjFields (st,e)      -> Printf.sprintf "{\"type\" : \"assignobjfields\", \"lhs\" : \"%s\", \"obj\" : %s}" (st) (Expr.to_json e)
+  | Exception st                -> Printf.sprintf "{\"type\" : \"exception\", \"value\" : \"%s\"}" (st)

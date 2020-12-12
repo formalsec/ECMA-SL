@@ -125,9 +125,9 @@ for f in $(ls test/simple/*.js); do
   fi
 
   # 3.6. Check the result of the execution
-  RESULT=$(tail -n 10 result.txt | grep "MAIN return -> ")
+  RESULT=$(tail -n 10 result.txt | grep "MAIN pc -> ")
 
-  if [[ "${RESULT}" == "MAIN return -> (\"C\", 'normal, true, 'empty)" ]]
+  if [[ "${RESULT}" == "MAIN pc -> (\"C\", 'normal, true, 'empty)" ]]
   then
     results+=("${FILENAME} | _OK_ | ")
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"

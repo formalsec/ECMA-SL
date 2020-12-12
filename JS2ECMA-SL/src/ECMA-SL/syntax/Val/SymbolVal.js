@@ -4,6 +4,15 @@ function MakeSymbolVal(Val){
 	  	super();
 	    this.value = value;
 	  }
+
+	  toJS(){
+	  	console.log("HELLLOI");
+	  	console.log(this.value);
+      return {
+        "type": "Identifier",
+        "name": "undefined"
+      }
+    }
 	}
 
 	 SymbolVal.fromJSON = function(value) {

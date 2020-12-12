@@ -1,19 +1,14 @@
 function main() {
-print "Before function call";
  x:="value"(20);
- print "After function call";
  y := 1;
-
  while(y<3){
   y:=y +1
  };
- print "Before last return";
  return x
 }
 ;
 
 function value(x) {
-print "Inside call";
  x:=x*2;
  return x
 

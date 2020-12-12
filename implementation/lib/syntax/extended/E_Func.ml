@@ -27,3 +27,6 @@ let str (func : t) : string =
 let apply_macros (f : t) (macros : string -> E_Macro.t option) : t = 
   let new_body = E_Macro.apply_macros_stmt macros f.body in 
   { f with body = new_body }
+
+let lambdas (f : t) : (string * string list * string list * E_Stmt.t) list =  
+  E_Stmt.lambdas (f.body)

@@ -108,7 +108,7 @@ function getPropertyDescriptor(propertyIdentifier) {
 /**
  * 8.10.1 IsAccessorDescriptor ( Desc )
  *
- * When the abstract operation IsAccessorDescriptor is called with property descriptor Desc, the following steps are taken:
+ * When the abstract operation IsAccessorPropertyDescriptor is called with property descriptor Desc, the following steps are taken:
  */
 function IsAccessorPropertyDescriptor (Desc) {
   /** 1. If Desc is undefined, then return false. */

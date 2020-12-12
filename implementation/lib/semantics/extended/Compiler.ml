@@ -52,8 +52,6 @@ let compile_sc_and
 
   stmts_1 @ [ outer_if ], Expr.Var x
 
-
-
 (*
   C(e1) = stmts_1, e_1'
   C(e2) = stmts_2, e_2'
@@ -71,8 +69,6 @@ C(e1 ||| e2) =
         	x := false
         }
     }, x
-
-
 *)
 let compile_sc_or
     (x         : string)
@@ -112,7 +108,6 @@ let compile_gvar (x : string) :  Stmt.t list * Expr.t =
   let f_lookup = Stmt.FieldLookup (y, Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str x)) in
   [ f_lookup ], Expr.Var y
 
-
 (*
 C_e(e) = stmts_e, x_e
 ----------------------
@@ -124,6 +119,34 @@ let compile_glob_assign (x : string) (stmts_e : Stmt.t list) (e : Expr.t) : Stmt
   let f_asgn = Stmt.FieldAssign (Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str x), e) in
   stmts_e @ [ f_asgn ]
 
+(*
+  C(x := lambda_{id_x} (xs) [ys] {s}) := x := {"id_x"}@(ys)
+*)
+let compile_lambda_call (x : string) (f : string) (ys : string list) : Stmt.t list =
+  let e = Expr.Curry ((Expr.Val (Val.Str f)), (List.map (fun v -> Expr.Var v) ys)) in 
+  [ Stmt.Assign (x, e) ] 
+
+(*
+C_e(e_f) = stmts_f, e_f' 
+C_e(e_i) = stmts_i, e_i' | i = 1, ..., n 
+x fresh 
+----------------------
+C(e_f@(e1, ..., en)) = 
+   stmts_f; 
+   stmts_1; 
+   ...
+   stmts_n; 
+   x := e_f'@(e1', ..., en'), 
+      x 
+*)
+let compile_curry ((stmts_f, e_f)  : ((Stmt.t list) * Expr.t)) (args  : ((Stmt.t list) * Expr.t) list) : (Stmt.t list * Expr.t) = 
+  let x = generate_fresh_var () in
+  let (stmtss, es) = List.split args in 
+  let stmts = List.concat stmtss in 
+  let stmts' = stmts_f @ stmts in 
+  let e_call = Expr.Curry (e_f, es) in 
+  let asgn = Stmt.Assign (x, e_call) in 
+  stmts' @ [ asgn ], Expr.Var x  
 
 (*
 C(e) = stmts, e'
@@ -406,7 +429,11 @@ and compile_matchwith (expr : E_Expr.t) (pats_stmts : (E_Pat.t * E_Stmt.t) list)
   stmts_expr @ chained_ifs
 
 
+
+
 and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
+  let c = compile_expr in 
+  let cs = List.map compile_expr in 
   match e_expr with
   | Val x               -> [], Expr.Val x
   | Var x               -> [], Expr.Var x
@@ -421,6 +448,7 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | NOpt (op, e_es)            -> compile_nopt op e_es
   | NewObj (e_fes)             -> compile_newobj e_fes
   | Lookup (e_e, e_f)          -> compile_lookup e_e e_f
+  | Curry (f, es)              -> compile_curry (c f) (cs es) 
   | Call (f, e_es, g) ->
     let ret_f = compile_expr f in
     let ret_es = List.map compile_expr e_es in
@@ -430,14 +458,12 @@ and compile_print (expr : E_Expr.t) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in
   stmts_expr @ [Stmt.Print expr']
 
-
 and compile_assert (expr : E_Expr.t) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in
   stmts_expr @ [Stmt.If (
       Expr.UnOpt (Oper.Not, expr'),
       Stmt.Fail (Expr.Val (Oper.string_concat (List [Str "Assert failed: "; Str (E_Expr.str expr)]))),
       None)]
-
 
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
 
@@ -465,6 +491,12 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | RepeatUntil (e_s, e_e)          -> compile_repeatuntil e_s e_e
   | MatchWith (e_e, e_pats_e_stmts) -> compile_matchwith e_e e_pats_e_stmts
   | Assert e_e                      -> compile_assert e_e
+  | Lambda (x, f, xs, ys, s)        -> 
+      Printf.printf "compiling lambda\n"; 
+      let ret = compile_lambda_call x f ys in 
+      Printf.printf "after compiling lambda\n"; 
+      ret 
+ 
   | MacroApply (_, _)               -> invalid_arg "Macros are not valid compilable statements."
 
   | Throw e_e ->
@@ -516,7 +548,14 @@ let compile_func (e_func : E_Func.t) : Func.t =
       Func.create fname fparams' (Stmt.Block stmt_list)
     )
 
+let compile_lambda ((f_id, params, params', s) : (string * string list * string list * E_Stmt.t)) : Func.t = 
+  let stmt_list = compile_stmt s in
+  let params'' = params @ [ __INTERNAL_ESL_GLOBAL__ ] @ params' in 
+  Func.create f_id params'' (Stmt.Block stmt_list)
 
 let compile_prog (e_prog : E_Prog.t) : Prog.t =
   let funcs = List.fold_left (fun acc func -> acc @ [compile_func func]) [] (E_Prog.get_funcs e_prog) in
-  Prog.create funcs
+  let lambdas = E_Prog.lambdas e_prog in 
+  Printf.printf "Numero de lambdas encontrados: %d\n" (List.length lambdas); 
+  let lambda_funcs = List.map compile_lambda lambdas in 
+  Prog.create (lambda_funcs @ funcs)

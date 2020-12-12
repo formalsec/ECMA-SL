@@ -10,10 +10,13 @@ type t =
   | Call    of t * t list * string option
   | NewObj  of (string * t) list
   | Lookup  of t * t
+  | Curry   of t * t list 
 
 type subst_t = (string, t) Hashtbl.t
 
-let rec str (e : t) : string = match e with
+let rec str (e : t) : string =
+  let str_es es = String.concat ", " (List.map str es) in 
+  match e with
   | Val n                 -> Val.str n
   | Var x                 -> x
   | GVar x                -> "|" ^ x ^ "|"
@@ -24,13 +27,9 @@ let rec str (e : t) : string = match e with
   | NOpt (op, es)         -> Oper.str_of_nopt op (List.map str es)
   | Call (f, es, None)    -> Printf.sprintf "%s(%s)" (str f) (String.concat ", " (List.map str es))
   | Call (f, es, Some g)  -> Printf.sprintf "%s(%s) catch %s" (str f) (String.concat ", " (List.map str es)) g
-  | NewObj (fes)          -> "{ " ^ fields_list_to_string fes ^ " }"
+  | NewObj (fes)          -> "{ " ^ (String.concat ", " (List.map (fun (f, e) -> f ^ ": " ^ (str e)) fes)) ^ " }"
   | Lookup (e, f)         -> str e ^ "[" ^ str f ^ "]"
-
-
-and fields_list_to_string (fes : (string * t) list) : string =
-  let strs = List.map (fun (f, e) -> f ^ ": " ^ (str e)) fes in
-  String.concat ", " strs
+  | Curry (f, es)         -> Printf.sprintf "%s@(%s)" (str f) (str_es es)
 
 let make_subst (xs_es : (string * t) list) : subst_t =
   let subst = Hashtbl.create 31 in
@@ -46,6 +45,7 @@ let get_subst (sbst : subst_t) (x : string) : t =
   let eo = get_subst_o sbst x in
   Option.default (Var x) eo
 
+
 let rec map (f : (t -> t)) (e : t) : t =
   let mapf = map f in
   let map_obj = List.map (fun (x, e) -> (x, mapf e)) in
@@ -59,7 +59,8 @@ let rec map (f : (t -> t)) (e : t) : t =
       | NOpt (op, es)            -> NOpt (op, List.map mapf es)
       | Call (ef, es, g)         -> Call (mapf ef, List.map mapf es, g)
       | NewObj (fes)             -> NewObj (map_obj fes)
-      | Lookup (e, ef)           -> Lookup (mapf e, mapf ef) in
+      | Lookup (e, ef)           -> Lookup (mapf e, mapf ef) 
+      | Curry (e, es)            -> Curry (mapf e, List.map mapf es) in
   f e'
 
 let subst (sbst : subst_t) (e: t) : t =

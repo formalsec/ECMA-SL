@@ -93,7 +93,12 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "toLocaleString", descriptor);
 
   /* 15.4.4.4 Array.prototype.concat ( [ item1 [ , item2 [ , ... ] ] ] ) */
-  concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict, null);
+  /* We pass 0 to the `internalLength` because while `items` is optional, the length of the
+     function is 1. We have `items` in the `FormalParameterList` which makes the length of
+     the function to be 1, but if we did not have the `internalLength` to be 0, then
+     'undefined would be passed to items when no parameter is provided to `concat`, and
+     this is not desired for optional parameters. */
+  concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict, 0);
   descriptor := newDataPropertyDescriptorFull(concatObject, true, false, true);
   setJSProperty(prototype, "concat", descriptor);
 
@@ -108,7 +113,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "pop", descriptor);
 
   /* 15.4.4.7 Array.prototype.push ( [ item1 [ , item2 [ , ... ] ] ] ) */
-  pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict, null);
+  pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict, 0);
   descriptor := newDataPropertyDescriptorFull(pushObject, true, false, true);
   setJSProperty(prototype, "push", descriptor);
 
@@ -134,11 +139,11 @@ function initArrayPrototype(global, objectPrototype, strict) {
 
   /* 15.4.4.12 Array.prototype.splice (start, deleteCount [ , item1 [ , item2 [ , ... ] ] ] ) */
   spliceObject := CreateBuiltInFunctionObject(["start", "deleteCount"], "arraySplice", global, strict, null);
-  descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
+  descriptor := newDataPropertyDescriptorFull(spliceObject, true, false, true);
   setJSProperty(prototype, "splice", descriptor);
 
   /* 15.4.4.13 Array.prototype.unshift ( [ item1 [ , item2 [ , ... ] ] ] ) */
-  unshiftObject := CreateBuiltInFunctionObject(["items"], "arrayUnshift", global, strict, null);
+  unshiftObject := CreateBuiltInFunctionObject(["items"], "arrayUnshift", global, strict, 0);
   descriptor := newDataPropertyDescriptorFull(unshiftObject, true, false, true);
   setJSProperty(prototype, "unshift", descriptor);
 
@@ -617,7 +622,7 @@ function arrayConcat(global, this, strict, items) {
   return A
 };
 /**
- * The length property of the concat method is 1. TODO
+ * The length property of the concat method is 1.
  *
  * NOTE The concat function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore it can be transferred
@@ -696,7 +701,7 @@ function arrayJoin(global, this, strict, args) {
   return R
 };
 /**
- * The length property of the join method is 1. TODO
+ * The length property of the join method is 1.
  *
  * NOTE The join function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore, it can be transferred
@@ -801,7 +806,7 @@ function arrayPush(global, this, strict, items) {
   return n
 };
 /**
- * The length property of the push method is 1. TODO
+ * The length property of the push method is 1.
  *
  * NOTE The push function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -1048,7 +1053,7 @@ function arraySlice(global, this, strict, args) {
   return A
 };
 /**
- * The length property of the slice method is 2. TODO
+ * The length property of the slice method is 2.
  *
  * NOTE The slice function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -1270,7 +1275,7 @@ function SortCompare(obj, comparefn, j, k) {
 function arraySplice(global, this, strict, args) {
   start := l_nth(args, 0);
   deleteCount := l_nth(args, 1);
-  items := tl (tl args);
+  items := getOptionalParamList(args, 2);
 
   /* 1. Let O be the result of calling ToObject passing the this
         value as the argument. */
@@ -1419,7 +1424,7 @@ function arraySplice(global, this, strict, args) {
   return A
 };
 /**
- * The length property of the splice method is 2. TODO
+ * The length property of the splice method is 2.
  *
  * NOTE The splice function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -1450,7 +1455,7 @@ function arrayUnshift(global, this, strict, items) {
   /* 3. Let len be ToUint32(lenVal). */
   len := ToUint32(lenVal);
   /* 4. Let argCount be the number of actual arguments. */
-  argCount := l_len items;
+  argCount := int_to_float (l_len items);
   /* 5. Let k be len. */
   k := len;
   /* 6. Repeat, while k > 0, */
@@ -1505,7 +1510,7 @@ function arrayUnshift(global, this, strict, items) {
   return len + argCount
 };
 /**
- * The length property of the unshift method is 1. TODO
+ * The length property of the unshift method is 1.
  *
  * NOTE The unshift function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore it can be transferred
@@ -1598,7 +1603,7 @@ function arrayIndexOf(global, this, strict, args) {
   return -(1.)
 };
 /**
- * The length property of the indexOf method is 1. TODO
+ * The length property of the indexOf method is 1.
  *
  * NOTE The indexOf function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore it can be transferred
@@ -1683,7 +1688,7 @@ function arrayLastIndexOf(global, this, strict, args) {
   return -(1.)
 };
 /**
- * The length property of the lastIndexOf method is 1. TODO
+ * The length property of the lastIndexOf method is 1.
  *
  * NOTE The lastIndexOf function is intentionally generic; it does not
  * require that its this value be an Array object. Therefore it can be
@@ -1781,7 +1786,7 @@ function arrayEvery(global, this, strict, args) {
   return true
 };
 /**
- * The length property of the every method is 1. TODO
+ * The length property of the every method is 1.
  *
  * NOTE The every function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore it can be transferred
@@ -1876,7 +1881,7 @@ function arraySome(global, this, strict, args) {
   return false
 };
 /**
- * The length property of the some method is 1. TODO
+ * The length property of the some method is 1.
  *
  * NOTE The some function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore it can be transferred
@@ -2061,7 +2066,7 @@ function arrayMap(global, this, strict, args) {
   return A
 };
 /**
- * The length property of the map method is 1. TODO
+ * The length property of the map method is 1.
  *
  * NOTE The map function is intentionally generic; it does not require that
  * its this value be an Array object. Therefore it can be transferred to other
@@ -2282,7 +2287,7 @@ function arrayReduce(global, this, strict, args) {
   return accumulator
 };
 /**
- * The length property of the reduce method is 1. TODO
+ * The length property of the reduce method is 1.
  *
  * NOTE The reduce function is intentionally generic; it does not require
  * that its this value be an Array object. Therefore it can be transferred

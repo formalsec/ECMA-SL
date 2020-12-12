@@ -13,7 +13,14 @@ function MakeUnOptExpr(Expr){
 	  	return ("(" + this.operator.toString() + " " + this.expr_rhs.toString() + ")");
 	  }
 
+	  toJS(){
+	  	//console.log("UNOP - " + this.operator);
+	  	var expr_js = this.expr_rhs.toJS();
+	  	return this.operator.toJS(expr_js);
+	  }
+
 	  interpret(store){
+	  	//console.log("++ UNOPT");
 	  	var v = this.expr_rhs.interpret(store);
 	  	return this.operator.interpret(v); 
 	  }

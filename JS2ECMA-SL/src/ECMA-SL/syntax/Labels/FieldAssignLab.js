@@ -24,14 +24,18 @@ class FieldAssignLab{
 			}
 		} else{
 			var struct_lvl = sec_conf.sheap.getStructLvl(this.object);
+			console.log(struct_lvl);
+			console.log(lev_ctx);
 			if(struct_lvl != undefined){
 				
 				if(Lattice.leq(lev_ctx, struct_lvl)){
-					
+					console.log(lev_expr);
+					console.log(lev_ctx);
+					Lattice.lub(lev_expr, lev_ctx)
 					sec_conf.sheap.setFieldLvls(this.object, this.field, Lattice.lub(lev_expr, lev_ctx));
 					
 				} else{
-					sec_conf.error = "Illegal Field Creation";
+					sec_conf.error = "Illegal Field Assign";
 				}
 			}else{
 				throw Error("Internal Error");
