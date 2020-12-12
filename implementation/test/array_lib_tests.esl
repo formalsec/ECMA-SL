@@ -169,7 +169,7 @@ function comparefn(globalobject, this, strict, args) {
 
 function testArraySort4(global) {
   arr := ArrayConstructor(global, 'null, false, [2., 3., 4., 5., 2., 7.]);
-  funcObj := CreateFunctionObject(["x", "y"], "comparefn", global, false);
+  funcObj := CreateFunctionObject(["x", "y"], "comparefn", global, false, null);
   sorted := arraySort(global, arr, false, [funcObj]);
 
   return (({arr.Get}(arr, ToString(0.)) = 7.) && ({arr.Get}(arr, ToString(1.)) = 5.) &&
@@ -231,7 +231,7 @@ function callbackfnEvery(globalobject, this, strict, args) {
 };
 function testArrayEvery(global) {
   arr := ArrayConstructor(global, 'null, false, [2., 3., 4., 5., 2., 7.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfnEvery", global, false);
+  funcObj := CreateFunctionObject(["x"], "callbackfnEvery", global, false, null);
   return arrayEvery(global, arr, false, [funcObj, 'undefined])
 };
 
@@ -242,7 +242,7 @@ function callbackfnSome(globalobject, this, strict, args) {
 };
 function testArraySome(global) {
   arr := ArrayConstructor(global, 'null, false, [2., 3., 4., 5., 2., 7.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfnSome", global, false);
+  funcObj := CreateFunctionObject(["x"], "callbackfnSome", global, false, null);
   return arraySome(global, arr, false, [funcObj, 'undefined])
 };
 
@@ -254,7 +254,7 @@ function callbackfnForEach(globalobject, this, strict, args) {
 };
 function testArrayForEach(global) {
   arr := ArrayConstructor(global, 'null, false, [1., 2., 3.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfnForEach", global, false);
+  funcObj := CreateFunctionObject(["x"], "callbackfnForEach", global, false, null);
   ret := arrayForEach(global, arr, false, [funcObj, 'undefined]);
   return ret = 'undefined
 };
@@ -266,7 +266,7 @@ function callbackfnMap(globalobject, this, strict, args) {
 };
 function testArrayMap(global) {
   arr := ArrayConstructor(global, 'null, false, [1., 2., 3.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfnMap", global, false);
+  funcObj := CreateFunctionObject(["x"], "callbackfnMap", global, false, null);
   arr2 := arrayMap(global, arr, false, [funcObj, 'undefined]);
 
   return (({arr2.Get}(arr2, ToString(0.)) = 2.) && ({arr2.Get}(arr2, ToString(1.)) = 4.) &&
@@ -280,7 +280,7 @@ function callbackfnFilter(globalobject, this, strict, args) {
 };
 function testArrayFilter(global) {
   arr := ArrayConstructor(global, 'null, false, [2., 3., 4., 5., 2., 7.]);
-  funcObj := CreateFunctionObject(["x"], "callbackfnFilter", global, false);
+  funcObj := CreateFunctionObject(["x"], "callbackfnFilter", global, false, null);
   arr2 := arrayFilter(global, arr, false, [funcObj, 'undefined]);
 
   return (({arr2.Get}(arr2, ToString(0.)) = 3.) && ({arr2.Get}(arr2, ToString(1.)) = 4.) &&
@@ -295,7 +295,7 @@ function callbackfnReduce(globalobject, this, strict, args) {
 };
 function testArrayReduce(global) {
   arr := ArrayConstructor(global, 'null, false, [175., 50., 25.]);
-  funcObj := CreateFunctionObject(["total", "x"], "callbackfnReduce", global, false);
+  funcObj := CreateFunctionObject(["total", "x"], "callbackfnReduce", global, false, null);
   ret := arrayReduce(global, arr, false, [funcObj, 'undefined]);
 
   return ret = 100.
@@ -309,7 +309,7 @@ function callbackfnReduceRight(globalobject, this, strict, args) {
 };
 function testArrayReduceRight(global) {
   arr := ArrayConstructor(global, 'null, false, [175., 50., 25.]);
-  funcObj := CreateFunctionObject(["total", "x"], "callbackfnReduceRight", global, false);
+  funcObj := CreateFunctionObject(["total", "x"], "callbackfnReduceRight", global, false, null);
   ret := arrayReduceRight(global, arr, false, [funcObj, 'undefined]);
 
   return ret = -200.

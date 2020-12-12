@@ -16,7 +16,7 @@ function initNumberObject(globalObject, ObjectPrototype, strict) {
 /* Returns a Number value (not a Number object) computed by ToNumber(value) if value was supplied, else
    returns +0. */
 function NumberConstructorCalledAsFunction(value) {
-  if (value = 'undefined) {
+  if (value = undefined) {
     return 0.
   };
   return ToNumber(value)
@@ -29,7 +29,7 @@ function initNumberConstructor(NumberPrototype, globalObject, strict) {
   /* 15.7.3 Properties of the Number Constructor */
   /* The value of the [[Prototype]] internal property of the Number constructor is the Function prototype object
      (15.3.4). */
-  NumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", globalObject, strict);
+  NumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", globalObject, strict, null);
   /* Besides the internal properties and the length property (whose value is 1), the Number constructor has the
      following properties: */
 
@@ -104,15 +104,15 @@ function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObj
   createBuiltInProperty(numberPrototypeObject, "constructor", NumberConstructor);
 
   /* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
-  toString := CreateBuiltInFunctionObject([], "numberToString", globalObject, strict);
+  toString := CreateBuiltInFunctionObject([ "radix" ], "numberToString", globalObject, strict, null);
   createBuiltInProperty(numberPrototypeObject, "toString", toString);
 
   /* 15.7.4.3 Number.prototype.toLocaleString() */
-  toLocaleString := CreateBuiltInFunctionObject([], "numberToLocaleString", globalObject, strict);
+  toLocaleString := CreateBuiltInFunctionObject([], "numberToLocaleString", globalObject, strict, null);
   createBuiltInProperty(numberPrototypeObject, "toLocaleString", toLocaleString);
 
   /* 15.7.4.4 Number.prototype.valueOf ( ) */
-  valueOf := CreateBuiltInFunctionObject([], "NumberPrototypeValueOf", globalObject, strict);
+  valueOf := CreateBuiltInFunctionObject([], "NumberPrototypeValueOf", globalObject, strict, null);
   createBuiltInProperty(numberPrototypeObject, "valueOf", valueOf);
 
   /* 15.7.4.5 Number.prototype.toFixed (fractionDigits) */
@@ -131,11 +131,7 @@ function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObj
 
 /* 15.7.2.1 new Number ( [ value ] ) */
 function NumberConstructor(globalObject, this, strict, params) {
-  if (l_len params = 0) {
-    value := undefined
-  } else {
-    value := l_nth(params, 0)
-  };
+  value := getOptionalParam(params, 0);
 
   if (this = 'undefined) {
     return NumberConstructorCalledAsFunction(value)

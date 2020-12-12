@@ -3,17 +3,17 @@
 /* Given an optional parameter list specified by FormalParameterList, a body specified by FunctionBody, a Lexical
    Environment specified by Scope, and a Boolean flag Strict, a Function object is constructed as follows: */
 
-function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) {
-  return CreateGeneralFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict)
+function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, n) {
+  return CreateGeneralFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict, n)
 };
 
-function CreateBuiltInFunctionObject(FormalParameterList, FunctionBody, Scope, Strict) {
-  F := CreateGeneralFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict);
+function CreateBuiltInFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, n) {
+  F := CreateGeneralFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict, n);
   delete F.Construct;
   return F
 };
 
-function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, FunctionBody, Scope, Strict) {
+function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, FunctionBody, Scope, Strict, n) {
   /* 1. Create a new native ECMAScript object and let F be that object. */
   F := NewECMAScriptObject();
   /* 2. Set all the internal methods, except for [[Get]], of F as described in 8.12. */
@@ -95,7 +95,13 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
     }, false)
   };
 
-  F.strict := Strict;
+  if (n = null) {
+    setInternalProperty(F, "internalLength", len)
+  } else {
+    setInternalProperty(F, "internalLength", n)
+  };
+
+  setInternalProperty(F, "strict", Strict);
 
   /* 20. Return F. */
   return F
@@ -103,6 +109,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
 
 /* 13.2.1 [[Call]] */
 function Call(F, this, args) {
+  args := completeArgs(args, F);
   if (("Code" in_obj F) &&& ((typeof F.Code = __$Str) || (typeof F.Code = __$Curry))) {
     return {F.Code}(F.Scope, this, F.strict, args)
   };
@@ -171,7 +178,28 @@ function Construct(F, argumentList) {
   /* 10. Return obj */
   return obj
 };
+
 /* Auxiliary functions */
+
+/* Unless otherwise specified in the description of a particular function, if a function or constructor described in
+   this clause is given fewer arguments than the function is specified to require, the function or constructor shall
+   behave exactly as if it had been given sufficient additional arguments, each such argument being the
+   undefined value. */
+function completeArgs(args, functionObject) {
+  lParams := getInternalProperty(functionObject, "internalLength");
+  if (l_len args >= lParams) {
+    return args
+  };
+  i := lParams - l_len args;
+  aux := [];
+  while(i > 0) {
+    aux := l_prepend('undefined, aux);
+    i := i - 1
+  };
+
+  return l_concat (args, aux)
+};
+
 function getFunctionCode(F) {
   return F.Code
 };
