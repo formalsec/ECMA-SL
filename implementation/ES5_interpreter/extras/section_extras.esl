@@ -28,7 +28,6 @@ function __internalLogObject(globalObject, this, strict, params) {
   assert !(obj = undefined);
 
   if (!((typeof obj) = __$Obj)) {
-    print "INSIDE IF";
     return __internalLog(globalObject, this, strict, params)
   };
 

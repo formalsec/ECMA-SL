@@ -133,14 +133,9 @@ function MakeArgGetter(name, lexicalEnvironment) {
      object that when executed returns the value bound for name in env. It performs the following steps: */
 
   /* 1. Let body be the result of concatenating the Strings "return ", name, and ";". */
-  /*  s_concat(["return ", name, ";"]); */
   body := lambda (scope, this, strict, args) [name] {
-    print "INSIDE LAMBDA GET!!!!";
     envRec := scope.EnvRec;
     val := t_nth(envRec[name], 1);
-    print scope;
-    print envRec;
-    print val;
     return val
   };
   /* 2. Return the result of creating a function object as described in 13.2 using no FormalParameterList, body for
@@ -156,7 +151,6 @@ function MakeArgSetter(name, lexicalEnvironment) {
   /* param := s_concat([name, "_arg"]); */
   /* 2. Let body be the String "<name> = <param>;" with <name> replaced by the value of name and <param>
         replaced by the value of param. */
-  /* body := s_concat([name, " = ", param, ";"]); */
   body := lambda (scope, this, strict, args) [name] {
     envRec := scope.EnvRec;
     param := l_nth(args, 0);
