@@ -28,7 +28,8 @@ printf "Results:\n"
 	then
 		OCAMLmonRes2=$( echo "${OCAMLmonRes}" | grep "MONITOR EXCEPTION" | tail -1 )
 	fi
-printf "\tOCAML CI+mon      	: 	${OCAMLmonRes2}\n"
+	TIME0=$(echo "${OCAMLmonRES}" | grep "Interpretation Time :" )
+	printf "\tOCAML CI+mon     	: 	${OCAMLmonRes2}			${TIME0}\n"
 
 
 ## OCAML Inline + CI
@@ -42,7 +43,8 @@ printf "\tOCAML CI+mon      	: 	${OCAMLmonRes2}\n"
 	then
 		OCAMLinlineRes2=$( echo "${OCAMLinlineRes}" | grep "MONITOR EXCEPTION" | tail -1 )
 	fi
-printf "\tOCAML IC + CI     	: 	${OCAMLinlineRes2}\n"
+	TIME=$(echo "${OCAMLinlineRes}" | grep "Interpretation Time :" )
+	printf "\tOCAML IC + CI     	: 	${OCAMLinlineRes2}			${TIME}\n"
 
 
 ## OCAML parse -> JS + mon 
