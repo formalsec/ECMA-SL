@@ -292,14 +292,17 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
     L := getDescriptorValue(getJSProperty(Target, "length")) - (int_to_float (l_len A));
     /* b. Set the length own property of F to either 0 or L, whichever is larger. */
     if (L > 0.) {
-      setJSProperty(F, "length", newDataPropertyDescriptorFull(L, false, false, false))
+      setJSProperty(F, "length", newDataPropertyDescriptorFull(L, false, false, false));
+      setInternalProperty(F, "internalLength", int_of_float L)
     } else {
-      setJSProperty(F, "length", newDataPropertyDescriptorFull(0., false, false, false))
+      setJSProperty(F, "length", newDataPropertyDescriptorFull(0., false, false, false));
+      setInternalProperty(F, "internalLength", 0)
     }
   }
   /* 16. Else set the length own property of F to 0. */
   else {
-    setJSProperty(F, "length", newDataPropertyDescriptorFull(0., false, false, false))
+    setJSProperty(F, "length", newDataPropertyDescriptorFull(0., false, false, false));
+    setInternalProperty(F, "internalLength", 0)
   };
   /* 17. Set the attributes of the length own property of F to the values specified in 15.3.5.1. */
 
