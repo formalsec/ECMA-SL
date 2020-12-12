@@ -134,8 +134,8 @@ function MakeArgGetter(name, lexicalEnvironment) {
 
   /* 1. Let body be the result of concatenating the Strings "return ", name, and ";". */
   body := lambda (scope, this, strict, args) [name] {
-    envRec := scope.EnvRec;
-    val := t_nth(envRec[name], 1);
+    envRec := getEnvironmentRecord(scope);
+    val := getBindingValue(envRec, name);
     return val
   };
   /* 2. Return the result of creating a function object as described in 13.2 using no FormalParameterList, body for
@@ -148,14 +148,13 @@ function MakeArgSetter(name, lexicalEnvironment) {
      object that when executed sets the value bound for name in env. It performs the following steps: */
 
   /* 1. Let param be the String name concatenated with the String "_arg". */
-  /* param := s_concat([name, "_arg"]); */
   /* 2. Let body be the String "<name> = <param>;" with <name> replaced by the value of name and <param>
         replaced by the value of param. */
   body := lambda (scope, this, strict, args) [name] {
-    envRec := scope.EnvRec;
     param := l_nth(args, 0);
-    scope.EnvRec[name] := (true, param, false, true);
-    return param
+    envRec := getEnvironmentRecord(scope);
+    setBindingValue(envRec, name, param);
+    return 'undefined
   };
 
   /* 3. Return the result of creating a function object as described in 13.2 using a List containing the single String
