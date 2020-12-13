@@ -7,6 +7,7 @@ type t = Skip
        | While            of Expr.t * t
        | Return           of Expr.t
        | AssignCall       of string * Expr.t * Expr.t list
+       | AssignECall      of string * string * Expr.t list 
        | AssignNewObj     of string
        | AssignInObjCheck of string * Expr.t * Expr.t
        | AssignObjToList  of string * Expr.t
@@ -24,6 +25,7 @@ let is_basic_stmt (s : t) : bool = match s with
 
 let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   let str_e = Option.default Expr.str print_expr in
+  let str_es es = String.concat ", " (List.map str_e es) in 
   match stmt with
     Skip
   | Merge                       -> ""
@@ -40,6 +42,7 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | FieldAssign (e_o, f, e_v)   -> str_e e_o ^ "[" ^ str_e f ^ "] := " ^ str_e e_v
   | FieldDelete (e, f)          -> "delete " ^ str_e e ^ "[" ^ str_e f ^ "]"
   | AssignCall (va, st, e_lst)  -> va ^ " := " ^ str_e st ^ " (" ^ String.concat ", " (List.map (fun e -> str_e e) e_lst) ^ ")"
+  | AssignECall (x, f, es)      -> Printf.sprintf "%s := %s(%s)" x f (str_es es)
   | AssignNewObj va             -> va ^ " := { }"
   | FieldLookup (va, eo, p)     -> va ^ " := " ^ str_e eo ^ "[" ^ str_e p ^ "]"
   | AssignInObjCheck (st,e1,e2) -> st ^ " := " ^ str_e e1 ^ " in_obj " ^ str_e e2
@@ -49,6 +52,8 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
 
 
 let rec js (stmt : t) : string =
+  let str_es es = String.concat ", " (List.map Expr.js es) in 
+
   match stmt with
   | Skip                            -> Printf.sprintf ""
   | Merge                           -> Printf.sprintf ""
@@ -63,7 +68,8 @@ let rec js (stmt : t) : string =
   | Return exp                      -> Printf.sprintf "return %s" (Expr.js exp)
   | FieldAssign (e_o, e_f, e_v)     -> Printf.sprintf "%s.%s = %s" (Expr.js e_o) (Expr.js e_f) (Expr.js e_v)
   | FieldDelete (e_o, e_f)          -> Printf.sprintf "delete %s.%s" (Expr.js e_o) (Expr.js e_f)
-  | AssignCall (x, st, e_lst)       -> Printf.sprintf "%s = %s( %s )" x (Expr.js st) (String.concat ", " (List.map Expr.js e_lst))
+  | AssignCall (x, st, es)          -> Printf.sprintf "%s = %s( %s )" x (Expr.js st) (str_es es)
+  | AssignECall (x, f, es)          -> Printf.sprintf "%s := %s(%s)" x f (str_es es)
   | AssignNewObj x                  -> Printf.sprintf "var %s = {}" x
   | FieldLookup (x, e_o, e_f)       -> Printf.sprintf "%s = %s.%s" x (Expr.js e_o) (Expr.js e_f)
   | AssignInObjCheck (x, e_o, e_f)  -> Printf.sprintf "%s = %s.hasOwnProperty( %s )" x (Expr.js e_o) (Expr.js e_f)
@@ -89,6 +95,7 @@ let rec to_json (stmt : t) : string =
   | FieldAssign (e_o, f, e_v)   -> Printf.sprintf "{\"type\" : \"fieldassign\", \"obj\" : %s, \"field\" : %s, \"value\" : %s}" (Expr.to_json e_o) (Expr.to_json f) (Expr.to_json e_v)
   | FieldDelete (e, f)          -> Printf.sprintf "{\"type\" : \"fielddelete\", \"obj\" : %s, \"field\" : %s}" (Expr.to_json e) (Expr.to_json f)
   | AssignCall (va, st, e_lst)  -> Printf.sprintf "{\"type\" : \"assigncall\", \"lhs\" : \"%s\", \"func\" : %s, \"args\" : [%s]}" (va) (Expr.to_json st) (String.concat ", " (List.map Expr.to_json e_lst))
+  | AssignECall (x, f, e_lst)   -> Printf.sprintf "{\"type\" : \"assign_e_call\", \"lhs\" : \"%s\", \"func\" : \"%s\", \"args\" : [%s]}" x f (String.concat ", " (List.map Expr.to_json e_lst))
   | AssignNewObj va             -> Printf.sprintf "{\"type\" : \"assignnewobject\", \"lhs\" : \"%s\" }" (va)
   | FieldLookup (va, eo, p)     -> Printf.sprintf "{\"type\" : \"fieldlookup\", \"lhs\" : \"%s\", \"obj\" : %s, \"field\" : %s}" (va) (Expr.to_json eo) (Expr.to_json p)
   | AssignInObjCheck (st,e1,e2) -> Printf.sprintf "{\"type\" : \"assigninobjcheck\", \"lhs\" : \"%s\", \"field\" : %s, \"obj\" : %s}" (st) (Expr.to_json e1) (Expr.to_json e2)

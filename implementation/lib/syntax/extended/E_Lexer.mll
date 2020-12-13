@@ -95,7 +95,8 @@
                 "NaN"             , FLOAT (float_of_string "nan");
                 "Infinity"        , FLOAT (float_of_string "infinity");
                 "code_point"      , CODE_POINT;
-                "lambda"          , LAMBDA
+                "lambda"          , LAMBDA; 
+                "extern"          , EXTERN
                 ]
 
   exception Syntax_error of string

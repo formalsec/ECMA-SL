@@ -27,7 +27,7 @@
 %token PERIOD COMMA SEMICOLON COLON
 %token DELETE
 %token REPEAT UNTIL
-%token MATCH WITH RIGHT_ARROW NONE DEFAULT CASE LAMBDA CODE_POINT
+%token MATCH WITH RIGHT_ARROW NONE DEFAULT CASE LAMBDA CODE_POINT EXTERN
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -62,9 +62,10 @@
 
 %type <E_Expr.t> e_prog_e_expr_target
 %type <E_Stmt.t> e_prog_e_stmt_target
+%type <E_Func.t> e_prog_e_func_target
 %type <E_Prog.t> e_prog_target
 
-%start e_prog_target e_prog_e_expr_target e_prog_e_stmt_target
+%start e_prog_target e_prog_e_expr_target e_prog_e_stmt_target e_prog_e_func_target
 %% (* separator line *)
 (* END first section - declarations *)
 
@@ -80,6 +81,9 @@ e_prog_e_expr_target:
 
 e_prog_e_stmt_target:
   | s = e_block_target; EOF; { s }
+
+e_prog_e_func_target:
+  | f = proc_target; EOF; { f }
 
 e_prog_target:
   | imports = list (import_target); macros_funcs = separated_list (SEMICOLON, e_prog_elem_target); EOF;
@@ -186,6 +190,8 @@ e_expr_target:
     { E_Expr.Const Oper.MIN_VALUE }
   | PI;
     { E_Expr.Const Oper.PI }
+  | EXTERN; f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; 
+    { E_Expr.ECall (f, es) }
   | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; CATCH; g = VAR;
     { E_Expr.Call (E_Expr.Val (Val.Str f), es, Some g) }
   | LBRACE; f = e_expr_target; RBRACE; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; CATCH; g=VAR;

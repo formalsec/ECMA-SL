@@ -271,6 +271,12 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
       |Some lab ->
         (Intermediate((cs, heap, sto, f), cont),lab))
 
+  | AssignECall (x,func,es) ->
+    let vs = List.map (eval_expr sto) es in
+    let v = External.execute prog heap func vs in 
+    Store.set sto x v;
+    Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab
+
   | AssignInObjCheck (st, e_f, e_o) ->
     let field = eval_expr sto e_f in
     let obj = eval_expr sto e_o in

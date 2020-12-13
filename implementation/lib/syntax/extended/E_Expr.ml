@@ -8,6 +8,7 @@ type t =
   | UnOpt   of Oper.uopt * t
   | NOpt    of Oper.nopt * t list
   | Call    of t * t list * string option
+  | ECall   of string * t list 
   | NewObj  of (string * t) list
   | Lookup  of t * t
   | Curry   of t * t list 
@@ -25,6 +26,7 @@ let rec str (e : t) : string =
   | EBinOpt (op, e1, e2)  -> EOper.str_of_binopt op (str e1) (str e2)
   | BinOpt (op, e1, e2)   -> Oper.str_of_binopt op (str e1) (str e2)
   | NOpt (op, es)         -> Oper.str_of_nopt op (List.map str es)
+  | ECall (f, es)         -> Printf.sprintf "%s(%s)" f (str_es es)
   | Call (f, es, None)    -> Printf.sprintf "%s(%s)" (str f) (String.concat ", " (List.map str es))
   | Call (f, es, Some g)  -> Printf.sprintf "%s(%s) catch %s" (str f) (String.concat ", " (List.map str es)) g
   | NewObj (fes)          -> "{ " ^ (String.concat ", " (List.map (fun (f, e) -> f ^ ": " ^ (str e)) fes)) ^ " }"
@@ -58,6 +60,7 @@ let rec map (f : (t -> t)) (e : t) : t =
       | BinOpt (op, e1, e2)      -> BinOpt (op, mapf e1, mapf e2)
       | NOpt (op, es)            -> NOpt (op, List.map mapf es)
       | Call (ef, es, g)         -> Call (mapf ef, List.map mapf es, g)
+      | ECall (f, es)            -> ECall (f, List.map mapf es)
       | NewObj (fes)             -> NewObj (map_obj fes)
       | Lookup (e, ef)           -> Lookup (mapf e, mapf ef) 
       | Curry (e, es)            -> Curry (mapf e, List.map mapf es) in

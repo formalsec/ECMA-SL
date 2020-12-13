@@ -112,6 +112,7 @@ rule read =
   | "cos"             { COS }
   | "exp"             { EXP }
   | "code_point"      { CODE_POINT }
+  | "extern"          { EXTERN }
   | "@"               { AT_SIGN }
   | "floor"           { FLOOR }
   | "log_e"           { LOG_E }
