@@ -6,12 +6,14 @@ function MakeSymbolVal(Val){
 	  }
 
 	  toJS(){
-	  	console.log("HELLLOI");
-	  	console.log(this.value);
       return {
-        "type": "Identifier",
-        "name": "undefined"
+        "type": "Literal",
+        "name": "'" + this.value,
       }
+    }
+
+    toString() {
+      return "'" + this.value
     }
 	}
 
