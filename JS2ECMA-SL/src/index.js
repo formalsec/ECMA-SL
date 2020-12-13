@@ -10,6 +10,11 @@ const argv = yargs
     description: "ECMA-SL output file",
     type: "string",
   })
+  .option("name", {
+    alias: "n",
+    description: "Name of the function that creates the AST object",
+    type: "string"
+  })
   .demandOption("input")
   .usage("Usage: $0 -i [filepath]")
   .help()
@@ -17,6 +22,7 @@ const argv = yargs
 
 fs.readFile(argv.input, "utf-8", (err, data) => {
   if (err) throw err;
+  const FUNC_NAME = argv.name ? argv.name : "buildAST";
 
   let prog;
   try {
@@ -27,7 +33,7 @@ fs.readFile(argv.input, "utf-8", (err, data) => {
 
   const statements = translator.fromJSObjectToESLStatements(prog);
   const func = translator.fromESLStatementsToESLFunction(
-    "buildAST",
+    FUNC_NAME,
     [],
     statements
   );
