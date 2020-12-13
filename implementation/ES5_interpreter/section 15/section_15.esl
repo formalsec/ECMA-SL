@@ -91,7 +91,7 @@ function getOptionalParam(params, idx) {
     return l_nth(params, idx)
   };
 
-  return undefined
+  return null
 };
 
 /* Using this function is cleaner than having many 'tl's, but costs in performance  */

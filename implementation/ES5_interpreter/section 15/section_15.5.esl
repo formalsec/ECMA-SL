@@ -141,7 +141,7 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
 /* Returns a String value (not a String object) computed by ToString(value). If value is not supplied,
    the empty String "" is returned. */
 function StringConstructorCalledAsFunction(value) {
-  if (value = undefined) {
+  if (value = null) {
     return ""
   } else {
     return ToString(value)
@@ -202,7 +202,7 @@ function StringConstructor (global, this, strict, args) {
   };
   /* The [[PrimitiveValue]] internal property of the newly constructed object is set to ToString(value),
      or to the empty String if value is not supplied. */
-  if (value = undefined) {
+  if (value = null) {
     ret.PrimitiveValue := ""
   } else {
     ret.PrimitiveValue := ToString(value)

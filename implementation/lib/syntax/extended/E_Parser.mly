@@ -18,7 +18,6 @@
 %token RETURN
 %token SWITCH SDEFAULT
 %token NULL
-%token UNDEFINED
 %token FUNCTION
 %token MACRO
 %token AT_SIGN
@@ -48,7 +47,7 @@
 %token SCONCAT
 %token IMPORT THROW FAIL CATCH
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
-%token LIST_TYPE TUPLE_TYPE NULL_TYPE UNDEF_TYPE SYMBOL_TYPE CURRY_TYPE
+%token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
 
 %left SCLAND SCLOR LAND LOR BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL POW
@@ -139,19 +138,15 @@ type_target:
     { Type.TupleType }
   | NULL_TYPE;
     { Type.NullType }
-  | UNDEF_TYPE;
-    { Type.UndefType }
   | SYMBOL_TYPE;
     { Type.SymbolType }
-  | CURRY_TYPE; 
+  | CURRY_TYPE;
     { Type.CurryType }
 
 (* v ::= f | i | b | s *)
 val_target:
   | NULL;
     { Val.Null }
-  | UNDEFINED;
-    { Val.Undef }
   | f = FLOAT;
     { Val.Flt f }
   | i = INT;

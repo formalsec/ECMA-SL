@@ -129,7 +129,7 @@ function ObjectConstructor(globalObject, this, strict, params) {
       taken: */
 
   /* 1. If value is supplied, then */
-  if (!(value = undefined)) {
+  if (!(value = null)) {
     /* a. If Type(value) is Object, then */
     if (Type(value) = "Object") {
       /* i. If the value is a native ECMAScript object, do not create a new object but simply return value. */
@@ -156,7 +156,7 @@ function ObjectConstructor(globalObject, this, strict, params) {
     }
   };
   /* 2. Assert: The argument value was not supplied or its type was Null or Undefined. */
-  assert((value = undefined) ||| (Type(value) = "Null") ||| (Type(value) = "Undefined"));
+  assert((value = null) ||| (Type(value) = "Null") ||| (Type(value) = "Undefined"));
   /* 3. Let obj be a newly created native ECMAScript object. */
   obj := NewECMAScriptObject();
   /* 4. Set the [[Prototype]] internal property of obj to the standard built-in Object prototype object (15.2.4). */
@@ -261,7 +261,7 @@ function ObjectCreate(globalObject, this, strict, params) {
   setInternalProperty(obj, "Prototype", O);
   /* 4. If the argument Properties is present and not undefined, add own properties to obj as if by calling the
         standard built-in function Object.defineProperties with arguments obj and Properties. */
-  if (!(Properties = undefined) &&& !(Properties = 'undefined)) {
+  if (!(Properties = null) &&& !(Properties = 'undefined)) {
     ObjectDefineProperties(globalObject, this, strict, [obj, Properties])
   };
   /* 5. Return obj. */

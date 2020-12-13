@@ -14,6 +14,7 @@ const PrimitiveVal = ValModule.PrimitiveVal;
 const Return = require("../syntax/Stmt/Return")(Stmt);
 const Function = require("../syntax/Func");
 const Block = require("../syntax/Stmt/Block")(Stmt);
+const SymbolVal = require("../syntax/Val/SymbolVal")(Stmt);
 
 function translateLiteral(eslVal) {
   return {
@@ -35,7 +36,7 @@ function translateNull() {
 }
 
 function translateUndefined() {
-  return translateLiteral(new PrimitiveVal(undefined));
+  return translateLiteral(new SymbolVal("undefined"));
 }
 
 function translateNumber(value) {

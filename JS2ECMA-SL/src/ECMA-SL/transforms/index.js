@@ -34,9 +34,6 @@ module.exports = {
     if (obj.type === "CallExpression") {
       return FunctionCall.transform(obj);
     }
-    if (obj.type === "Identifier") {
-      return Identifier.transform(obj)
-    }
     if (obj.type === "Literal") {
       return Literal.transform(obj);
     }

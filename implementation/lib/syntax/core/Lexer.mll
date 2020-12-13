@@ -111,7 +111,7 @@ rule read =
   | "ceil"            { CEIL }
   | "cos"             { COS }
   | "exp"             { EXP }
-  | "code_point"      { CODE_POINT }  
+  | "code_point"      { CODE_POINT }
   | "@"               { AT_SIGN }
   | "floor"           { FLOOR }
   | "log_e"           { LOG_E }
@@ -140,7 +140,6 @@ rule read =
   | "delete"          { DELETE }
   | "throw"           { THROW }
   | "null"            { NULL }
-  | "undefined"       { UNDEFINED }
   | "fail"            { FAIL }
   | "print"           { PRINT }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
@@ -153,7 +152,7 @@ rule read =
   | "/*"              { read_comment lexbuf }
   | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof               { EOF }
-  
+
 
 
 (* Read strings *)

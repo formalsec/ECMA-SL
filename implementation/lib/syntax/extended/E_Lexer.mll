@@ -83,7 +83,6 @@
                 "macro"           , MACRO;
                 "delete"          , DELETE;
                 "null"            , NULL;
-                "undefined"       , UNDEFINED;
                 "repeat"          , REPEAT;
                 "until"           , UNTIL;
                 "match"           , MATCH;
@@ -94,8 +93,8 @@
                 "case"            , CASE;
                 "sdefault"        , SDEFAULT;
                 "NaN"             , FLOAT (float_of_string "nan");
-                "Infinity"        , FLOAT (float_of_string "infinity"); 
-                "code_point"      , CODE_POINT; 
+                "Infinity"        , FLOAT (float_of_string "infinity");
+                "code_point"      , CODE_POINT;
                 "lambda"          , LAMBDA
                 ]
 
@@ -174,8 +173,6 @@ rule read =
   | '['            { LBRACK }
   | ']'            { RBRACK }
   | "__$"          { read_type lexbuf }
-  | "\"'null\""    { SYMBOL ("'null") }
-  | "\"'undefined\"" { SYMBOL ("'undefined") }
   | int            { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float          { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool           { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }

@@ -65,7 +65,7 @@ function jsonParse(global, this, strict, args) {
   if (IsCallable(reviver) = true) {
     /* a. Let root be a new object created as if by the expression new Object(),
           where Object is the standard built-in constructor with that name. */
-    root := ObjectConstructor(|global|, 'null, strict, [undefined]);
+    root := ObjectConstructor(|global|, 'null, strict, [null]);
     /* b. Call the [[DefineOwnProperty]] internal method of root with the empty
           String, the PropertyDescriptor {[[Value]]: unfiltered, [[Writable]]: true,
           [[Enumerable]]: true, [[Configurable]]: true}, and false as arguments. */

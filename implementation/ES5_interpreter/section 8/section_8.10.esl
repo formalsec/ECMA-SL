@@ -177,7 +177,7 @@ function FromPropertyDescriptor (Desc) {
   };
 
   /** 2. Let obj be the result of creating a new object as if by the expression new Object() where Object is the standard built-in constructor with that name. */
-  obj := ObjectConstructor(|global|, 'null, false, [undefined]);
+  obj := ObjectConstructor(|global|, 'null, false, [null]);
 
   /** 3. If IsDataDescriptor(Desc) is true, then: */
   if (IsDataPropertyDescriptor(Desc)) {
