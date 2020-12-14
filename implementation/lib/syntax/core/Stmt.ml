@@ -45,7 +45,7 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | AssignInObjCheck (st,e1,e2) -> st ^ " := " ^ str_e e1 ^ " in_obj " ^ str_e e2
   | AssignObjToList (st, e)     -> st ^ " := obj_to_list " ^ str_e e
   | AssignObjFields (st, e)     -> st ^ " := obj_fields " ^ str_e e
-  | Exception st                -> "throw " ^ st
+  | Exception st                -> Printf.sprintf "throw \"%s\""  st
 
 
 let rec js (stmt : t) : string =

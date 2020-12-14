@@ -182,7 +182,7 @@ rule read =
                                         Hashtbl.find keyword_table id
                                       with Not_found -> VAR id }
   | var            { VAR (Lexing.lexeme lexbuf) }
-  | symbol         { SYMBOL (Lexing.lexeme lexbuf) }
+  | symbol         { SYMBOL (String_Utils.chop_first_char (Lexing.lexeme lexbuf)) }
   | loc            { LOC (Lexing.lexeme lexbuf) }
   | "/*"           { read_comment lexbuf }
   | _              { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
