@@ -1,3 +1,6 @@
+const ValModule = require("./Val/Val");
+const SymbolVal = ValModule.SymbolVal;
+
 class Heap{
 
 	constructor(){
@@ -21,7 +24,13 @@ class Heap{
 			}
 	}
 	getField(object,field){
-		return this.heap[object][field];
+		var result = this.heap[object][field];
+		if(result === undefined){
+			console.log(SymbolVal);
+			return new SymbolVal("undefined");
+		} else{
+			return this.heap[object][field];
+		}
 	}
 	getObject(object){
 		return this.heap[object];
