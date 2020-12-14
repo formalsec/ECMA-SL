@@ -79,5 +79,7 @@ The following monitor modes are available:
 ./autotest.sh (-i <input filename> || -pd <directory path> [-nd <directory path>]) -mon <monitor mode> -m <interpreter mode> [-d/--debug]
 ```
 
-
-
+Compiler Overall Tests
+```
+./autotest.sh -pd <test directory>
+```
