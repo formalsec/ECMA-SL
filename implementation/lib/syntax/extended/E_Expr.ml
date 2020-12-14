@@ -26,7 +26,7 @@ let rec str (e : t) : string =
   | EBinOpt (op, e1, e2)  -> EOper.str_of_binopt op (str e1) (str e2)
   | BinOpt (op, e1, e2)   -> Oper.str_of_binopt op (str e1) (str e2)
   | NOpt (op, es)         -> Oper.str_of_nopt op (List.map str es)
-  | ECall (f, es)         -> Printf.sprintf "%s(%s)" f (str_es es)
+  | ECall (f, es)         -> Printf.sprintf "extern %s(%s)" f (str_es es)
   | Call (f, es, None)    -> Printf.sprintf "%s(%s)" (str f) (String.concat ", " (List.map str es))
   | Call (f, es, Some g)  -> Printf.sprintf "%s(%s) catch %s" (str f) (String.concat ", " (List.map str es)) g
   | NewObj (fes)          -> "{ " ^ (String.concat ", " (List.map (fun (f, e) -> f ^ ": " ^ (str e)) fes)) ^ " }"

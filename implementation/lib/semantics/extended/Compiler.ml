@@ -296,6 +296,7 @@ x fresh
 let compile_e_call
       (f : string)
       (ret_args : (Stmt.t list * Expr.t) list) : Stmt.t list * Expr.t =
+  Printf.printf "compile_e_call\n"; 
   let x = generate_fresh_var () in
   let fargs_stmts, fargs_exprs = List.split ret_args in
   (List.concat fargs_stmts) @ [Stmt.AssignECall (x, f, fargs_exprs)], Expr.Var x

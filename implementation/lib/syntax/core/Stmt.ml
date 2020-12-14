@@ -42,7 +42,7 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | FieldAssign (e_o, f, e_v)   -> str_e e_o ^ "[" ^ str_e f ^ "] := " ^ str_e e_v
   | FieldDelete (e, f)          -> "delete " ^ str_e e ^ "[" ^ str_e f ^ "]"
   | AssignCall (va, st, e_lst)  -> va ^ " := " ^ str_e st ^ " (" ^ String.concat ", " (List.map (fun e -> str_e e) e_lst) ^ ")"
-  | AssignECall (x, f, es)      -> Printf.sprintf "%s := %s(%s)" x f (str_es es)
+  | AssignECall (x, f, es)      -> Printf.sprintf "%s := extern %s(%s)" x f (str_es es)
   | AssignNewObj va             -> va ^ " := { }"
   | FieldLookup (va, eo, p)     -> va ^ " := " ^ str_e eo ^ "[" ^ str_e p ^ "]"
   | AssignInObjCheck (st,e1,e2) -> st ^ " := " ^ str_e e1 ^ " in_obj " ^ str_e e2
@@ -69,7 +69,7 @@ let rec js (stmt : t) : string =
   | FieldAssign (e_o, e_f, e_v)     -> Printf.sprintf "%s.%s = %s" (Expr.js e_o) (Expr.js e_f) (Expr.js e_v)
   | FieldDelete (e_o, e_f)          -> Printf.sprintf "delete %s.%s" (Expr.js e_o) (Expr.js e_f)
   | AssignCall (x, st, es)          -> Printf.sprintf "%s = %s( %s )" x (Expr.js st) (str_es es)
-  | AssignECall (x, f, es)          -> Printf.sprintf "%s := %s(%s)" x f (str_es es)
+  | AssignECall (x, f, es)          -> Printf.sprintf "%s := extern %s(%s)" x f (str_es es)
   | AssignNewObj x                  -> Printf.sprintf "var %s = {}" x
   | FieldLookup (x, e_o, e_f)       -> Printf.sprintf "%s = %s.%s" x (Expr.js e_o) (Expr.js e_f)
   | AssignInObjCheck (x, e_o, e_f)  -> Printf.sprintf "%s = %s.hasOwnProperty( %s )" x (Expr.js e_o) (Expr.js e_f)

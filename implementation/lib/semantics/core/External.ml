@@ -12,7 +12,7 @@ let parseJS
   
   File_Utils.burn_to_disk aux_input_file str; 
   let func_id = eval_build_ast_func () in 
-  let command = Printf.sprintf "node ../JS2ECMA-SL/src/index.js -i %s -o %s -name %s" aux_input_file aux_output_file func_id in 
+  let command = Printf.sprintf "node ../JS2ECMA-SL/src/index.js -i %s -o %s -n %s" aux_input_file aux_output_file func_id in 
   let _ = Sys.command command in 
   let parsed_str = Parsing_Utils.load_file aux_output_file in 
   let efunc = Parsing_Utils.parse_e_func parsed_str in 
