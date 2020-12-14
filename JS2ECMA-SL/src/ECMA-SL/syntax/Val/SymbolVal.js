@@ -6,10 +6,15 @@ function MakeSymbolVal(Val){
 	  }
 
 	  toJS(){
-      return {
-        "type": "Literal",
-        "name": "'" + this.value,
-      }
+	  	if(this.value === "undefined"){
+	  		return {
+	        "type": "Identifier",
+	        "name": "undefined",
+	      }
+	  	} else {
+	  		throw "Unsupported Symbol " + this.value+ " (SymbolVal)";
+	  	}
+	      
     }
 
     toString() {

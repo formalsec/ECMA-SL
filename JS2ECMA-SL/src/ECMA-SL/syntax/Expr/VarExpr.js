@@ -24,7 +24,7 @@ function MakeVarExpr(Expr){
 	  interpret(store){
 	  	//console.log("++ VAR EXPR");
 	  	var val = store.sto[this.variable];
-	    if (val == undefined)  return new SymbolVal("'undefined");
+	    if (val == undefined)  return new SymbolVal("undefined");
 	    else
 	  	return val;
 	  }

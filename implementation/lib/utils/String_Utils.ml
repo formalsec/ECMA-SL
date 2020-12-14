@@ -25,6 +25,9 @@ let trim (s : string) : string =
   let s = String.trim s in
   s
 
+let chop_first_char (s : string) : string =
+  String.sub s 1 ((String.length s) - 1)
+
 let make_fresh_var_generator (pref : string) : (unit -> string) =
   let count = ref 0 in
   fun () -> let x = !count in

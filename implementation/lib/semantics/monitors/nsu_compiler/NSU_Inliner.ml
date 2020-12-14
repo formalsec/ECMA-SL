@@ -332,7 +332,7 @@ let c_fieldassign (pc : string) (e_o : Expr.t) (e_f : Expr.t) (e_v : Expr.t) : S
     Stmt.AssignCall (ctx, lubn_func (), [Expr.NOpt (Oper.ListExpr, [Expr.Var x_o_lev; Expr.Var x_f_lev; (Expr.Var pc)])]);
     Stmt.AssignCall(prop_val_lev_name, Expr.Val (Val.Str _SHADOW_PROP_VALUE_), [x_f]);
     Stmt.FieldLookup(prop_val_lev, x_o, Expr.Var prop_val_lev_name);
-    Stmt.If (binopt_e Oper.Equal (Expr.Var prop_val_lev) (Expr.Val (Val.Symbol "'undefined")),
+    Stmt.If (binopt_e Oper.Equal (Expr.Var prop_val_lev) (Expr.Val (Val.Symbol "undefined")),
       Stmt.Block ([
         Stmt.FieldLookup (struct_lev, x_o, (Expr.Val (Val.Str _OBJ_STRUCT_LEV_PROP_)));
         Stmt.AssignCall (leq_1, leq_func (), [Expr.Var ctx; Expr.Var struct_lev]);
@@ -397,7 +397,7 @@ let c_fielddelete (pc : string) (e_o : Expr.t) (e_f : Expr.t) : Stmt.t list =
    Stmt.AssignCall (ctx, lubn_func (), [Expr.NOpt (Oper.ListExpr, [Expr.Var x_o_lev; Expr.Var x_f_lev; Expr.Var pc ])]);
    Stmt.AssignCall (prop_exists_lev_name, Expr.Val (Val.Str _SHADOW_PROP_EXISTS_), [x_f]);
    Stmt.FieldLookup (prop_exists_lev, x_o, Expr.Var prop_exists_lev_name);
-   Stmt.If(binopt_e Oper.Equal (Expr.Var prop_exists_lev) (Expr.Val (Val.Symbol "'undefined")),
+   Stmt.If(binopt_e Oper.Equal (Expr.Var prop_exists_lev) (Expr.Val (Val.Symbol "undefined")),
    Stmt.Block [
     Stmt.Exception("Internal Error")],
    Some(Stmt.Block [
@@ -457,7 +457,7 @@ let c_assinginobjcheck (pc : string) (x : string) (e_f : Expr.t) (e_o : Expr.t) 
     Stmt.AssignCall (leq_1, leq_func (), [Expr.Var ctx; shadow_var_e x]);
     Stmt.If (Expr.Var leq_1,
     Stmt.Block ([
-      Stmt.If (binopt_e Oper.Equal (Expr.Var prop_exists_lev) (Expr.Val (Val.Symbol "'undefined")),
+      Stmt.If (binopt_e Oper.Equal (Expr.Var prop_exists_lev) (Expr.Val (Val.Symbol "undefined")),
         Stmt.Block [Stmt.AssignCall (shadowvar x, lub_func (), [Expr.Var ctx; Expr.Var struct_lev])],
         Some (
         Stmt.Block [Stmt.AssignCall (shadowvar x, lub_func (), [Expr.Var ctx; Expr.Var prop_exists_lev])]))

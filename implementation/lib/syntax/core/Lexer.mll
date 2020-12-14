@@ -148,7 +148,9 @@ rule read =
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | '"'               { read_string (Buffer.create 16) lexbuf }
   | var               { VAR (Lexing.lexeme lexbuf) }
-  | symbol            { SYMBOL (Lexing.lexeme lexbuf) }
+  | symbol            { let str = String_Utils.chop_first_char (Lexing.lexeme lexbuf) in
+                          print_string ("Symbol : " ^ str);
+                          SYMBOL str }
   | loc               { LOC (Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }
   | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }

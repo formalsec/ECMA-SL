@@ -304,7 +304,7 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
      | Loc loc', Str field' ->
        (let v = Heap.get_field heap loc' field' in
         let v' =(match v with
-            | None     -> Val.Symbol "'undefined"
+            | None     -> Val.Symbol "undefined"
             | Some v'' -> v''
           ) in
         Store.set sto x v';

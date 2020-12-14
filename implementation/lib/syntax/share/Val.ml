@@ -39,7 +39,7 @@ let rec str ?(flt_with_dot=true) (v : t) : string = match v with
   | Tuple vs -> "(" ^ (String.concat ", " (List.map str vs)) ^ ")"
   | Void     -> ""
   | Null     -> "null"
-  | Symbol s -> s
+  | Symbol s -> "'" ^ s
   | Curry (s, vs) -> Printf.sprintf "{\"%s\"}@(%s)" s (String.concat ", " (List.map str vs))
 
 
