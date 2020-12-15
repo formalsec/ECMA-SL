@@ -111,7 +111,6 @@ rule read =
   | "ceil"            { CEIL }
   | "cos"             { COS }
   | "exp"             { EXP }
-  | "code_point"      { CODE_POINT }
   | "@"               { AT_SIGN }
   | "floor"           { FLOOR }
   | "log_e"           { LOG_E }
