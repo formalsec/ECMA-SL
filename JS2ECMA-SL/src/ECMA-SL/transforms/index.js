@@ -4,7 +4,6 @@ const PropertyAccessors = require("./propertyAccessors");
 const Assignment = require("./assignment");
 const FunctionLiteral = require("./functionLiteral");
 const FunctionCall = require("./functionCall");
-const Identifier = require("./identifier");
 const Literal = require("./literal");
 const EarlySyntaxError = require("./earlySyntaxError");
 
