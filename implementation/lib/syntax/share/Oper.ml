@@ -259,7 +259,18 @@ let float_of_string (v : Val.t) : Val.t = match v with
   | _     -> invalid_arg "Exception in Oper.float_of_string: this operation is only applicable to Str arguments"
 
 let string_concat (v : Val.t) : Val.t = match v with
-  | List l -> Str (String.concat "" (String.split_on_char '"' (String.concat "" (List.map Val.str l))))
+  | List l ->
+    let strs =
+      List.fold_left
+        (fun acc v ->
+           match acc, v with
+           | Some strs, Val.Str s -> Some (strs @ [s])
+           | _                    -> None)
+        (Some [])
+        l in
+    (match strs with
+     | None      -> invalid_arg "Exception.Oper.string_concat: this operation is only applicable to List of string arguments"
+     | Some strs -> Str (String.concat "" strs))
   | _      -> invalid_arg "Exception in Oper.string_concat: this operation is only applicable to List arguments"
 
 let shift_left (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with

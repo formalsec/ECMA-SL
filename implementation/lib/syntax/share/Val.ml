@@ -32,7 +32,7 @@ let rec str ?(flt_with_dot=true) (v : t) : string = match v with
     else s
   | Int v    -> string_of_int v
   | Bool v   -> string_of_bool v
-  | Str v    -> Printf.sprintf "\"%s\"" v
+  | Str v    -> Printf.sprintf "%S" v
   | Loc v    -> Loc.str v
   | List vs  -> "[" ^ (String.concat ", " (List.map str vs)) ^ "]"
   | Type v   -> Type.str v
