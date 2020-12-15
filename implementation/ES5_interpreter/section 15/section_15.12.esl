@@ -487,7 +487,7 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
  */
 function Quote(value) {
   /* 1. Let product be the double quote character. */
-  product := "\""; /* " TODO quote char */
+  product := "\""; /* " quote char */
 
   print "Quote1 - before product";
   print product;
@@ -500,7 +500,7 @@ function Quote(value) {
     C := s_nth(value, i);
 
     /* a. If C is the double quote character or the backslash character */
-    if ((C = "\"") ||| (C = "\\")) { /* " TODO quote char */
+    if ((C = "\"") ||| (C = "\\")) { /* " quote char */
       /* i. Let product be the concatenation of product and the backslash character. */
       product := s_concat([product, "\\"]);
       /* ii. Let product be the concatenation of product and C. */
@@ -508,9 +508,9 @@ function Quote(value) {
     }
     /* b. Else if C is backspace, formfeed, newline, carriage return, or tab */
     else {
-      if ((C = "\b") ||| (C = "\f") ||| (C = "\n") ||| (C = "\r") ||| (C = "\t")) { /* TODO */
+      if ((C = "\b") ||| (C = "\f") ||| (C = "\n") ||| (C = "\r") ||| (C = "\t")) {
         /* i. Let product be the concatenation of product and the backslash character. */
-        product := s_concat([product, "\\"]); /* TODO backlash char */
+        product := s_concat([product, "\\"]); /* backlash char */
         /* ii. Let abbrev be the character corresponding to the value of C as follows: */
           /*  backspace        "b" */
           /*  formfeed         "f" */
@@ -539,7 +539,7 @@ function Quote(value) {
       else {
         if ((to_char_code C) < (to_char_code " ")) {
           /* i. Let product be the concatenation of product and the backslash character. */
-          product := s_concat([product, "\\"]); /* TODO backlash char */
+          product := s_concat([product, "\\"]); /* backlash char */
           /* ii. Let product be the concatenation of product and "u". */
           product := s_concat([product, "u"]);
           /* iii. Let hex be the result of converting the numeric code unit value of
@@ -563,7 +563,7 @@ function Quote(value) {
     i := i + 1
   };
   /* 3. Let product be the concatenation of product and the double quote character. */
-  product := s_concat([product, "\""]); /* " TODO quote char */
+  product := s_concat([product, "\""]); /* " quote char */
   print "Quote3 - before product";
   print product;
   print (s_len product);
@@ -683,7 +683,7 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
     else {
       /* i. Let separator be the result of concatenating the comma character,
             the line feed character, and indent. */
-      separator := s_concat([",", "n", indent]); /* TODO \n */
+      separator := s_concat([",", "\n", indent]); /* TODO \n */
       /* ii. Let properties be a String formed by concatenating all the element
              Strings of partial with each adjacent pair of Strings separated
              with separator. The separator String is not inserted either before
@@ -701,7 +701,7 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
       };
       /* iii. Let final be the result of concatenating "{", the line feed
               character, indent, properties, the line feed character, stepback, and "}". */
-      final := s_concat(["{", "n", indent, properties, "n", stepback, "}"]) /* TODO \n */
+      final := s_concat(["{", "\n", indent, properties, "\n", stepback, "}"]) /* TODO \n */
     }
   };
   /* 11. Remove the last element of stack. */
