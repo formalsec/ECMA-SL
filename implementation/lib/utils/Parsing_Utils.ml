@@ -70,7 +70,7 @@ module StrSet = Set.Make(String)
 
 let parse_prog (str : string) : Prog.t  =
   let lexbuf = Lexing.from_string str in
-  let funcs= Parser.prog_target Lexer.read lexbuf in
+  let funcs = parse Parser.Incremental.prog_target lexbuf in
   Prog.create funcs
 
 let parse_e_expr (str : string) : E_Expr.t =
@@ -158,4 +158,3 @@ let parse_efloat (f_str : string) : float =
   let len' = (String.length f_str) - i - 2 in
   let exp  = float_of_string (String.sub f_str (i+2) len') in
   b *. (10. ** exp)
-

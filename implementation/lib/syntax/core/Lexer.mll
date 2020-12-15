@@ -45,7 +45,7 @@ let loc     = "$loc_"(digit|letter|'_')+
 rule read =
   parse
   | white          { read lexbuf }
-  | newline        { read lexbuf }
+  | newline        { new_line lexbuf; read lexbuf }
   | ":="           { DEFEQ }
   | '.'            { PERIOD }
   | ';'            { SEMICOLON }
@@ -180,9 +180,10 @@ and read_string buf =
 and read_comment =
 (* Read comments *)
   parse
-  | "*/" { read lexbuf }
-  | _    { read_comment lexbuf }
-  | eof  { raise (Syntax_error ("Comment is not terminated."))}
+  | "*/"    { read lexbuf }
+  | newline { new_line lexbuf; read_comment lexbuf }
+  | _       { read_comment lexbuf }
+  | eof     { raise (Syntax_error ("Comment is not terminated."))}
 
 and read_type =
 (* Read Language Types *)
