@@ -34,6 +34,3 @@ _opam/
 results/
 logs/
 
-# files created during program interpretation
-__parse_js_aux_input_file__.js
-__parse_js_aux_output_file__.js
