@@ -1,7 +1,7 @@
 type t = Skip
        | Print       of E_Expr.t
        | Assign      of string * E_Expr.t
-       | GlobAssign  of string * E_Expr.t 
+       | GlobAssign  of string * E_Expr.t
        | Block       of t list
        | If          of E_Expr.t * t * t option
        | While       of E_Expr.t * t
@@ -12,24 +12,24 @@ type t = Skip
        | RepeatUntil of t * E_Expr.t
        | MatchWith   of E_Expr.t * (E_Pat.t * t) list
        | Throw       of E_Expr.t
-       | Fail        of E_Expr.t 
+       | Fail        of E_Expr.t
        | Assert      of E_Expr.t
        | MacroApply  of string * E_Expr.t list
        | Switch      of E_Expr.t * (E_Expr.t * t) list * t option
-       | Lambda      of string * string * string list * string list * t 
+       | Lambda      of string * string * string list * string list * t
 
-let rec str (stmt : t) : string = 
-  let str_cases cases = 
-    let strs = 
-      List.map 
-        (fun (e, s) -> Printf.sprintf "case %s: %s" (E_Expr.str e) (str s)) 
-        cases in 
-    String.concat "\n" strs in 
+let rec str (stmt : t) : string =
+  let str_cases cases =
+    let strs =
+      List.map
+        (fun (e, s) -> Printf.sprintf "case %s: %s" (E_Expr.str e) (str s))
+        cases in
+    String.concat "\n" strs in
 
-  let str_o = 
-    Option.map_default  
+  let str_o =
+    Option.map_default
       (fun s -> Printf.sprintf "default: %s" (str s))
-      "" in   
+      "" in
 
   match stmt with
       Skip                       -> ""
@@ -54,25 +54,25 @@ let rec str (stmt : t) : string =
     | Assert e                   -> "assert " ^ E_Expr.str e
     | MacroApply (m, es)         -> "@" ^ m ^ " (" ^ String.concat ", " (List.map E_Expr.str es) ^ ")"
     | Switch (e, cases, so)      -> Printf.sprintf "switch (%s) { %s %s }" (E_Expr.str e) (str_cases cases) (str_o so)
-    | Lambda (x, fid, xs, ys, s) -> Printf.sprintf "%s := lambda <%s> (%s; %s) { %s }" x fid (String.concat ", " xs) (String.concat ", " ys) (str s) 
+    | Lambda (x, fid, xs, ys, s) -> Printf.sprintf "%s := lambda <%s> (%s; %s) { %s }" x fid (String.concat ", " xs) (String.concat ", " ys) (str s)
 
 let rec map
-      ?(fe : (E_Expr.t -> E_Expr.t) option) 
-      (f : (t -> t)) (s : t) : t = 
-  
-  let fe = Option.default (fun x -> x) fe in 
-  let f_pat = List.map (fun (epat, s) -> (epat, map ~fe f s)) in 
-  let f_cases =  List.map (fun (e, s) -> (fe e, map ~fe f s)) in 
+      ?(fe : (E_Expr.t -> E_Expr.t) option)
+      (f : (t -> t)) (s : t) : t =
 
-  let fx (x : string) : string = 
-    let e' = fe (E_Expr.Var x) in 
-    match (e' : E_Expr.t) with 
-      | Var y -> y 
-      | _ -> raise (Failure "Substituting non-var expression on LHS") in 
- 
-  let s' = 
-    match s with 
-    | Skip                        -> Skip 
+  let fe = Option.default (fun x -> x) fe in
+  let f_pat = List.map (fun (epat, s) -> (epat, map ~fe f s)) in
+  let f_cases =  List.map (fun (e, s) -> (fe e, map ~fe f s)) in
+
+  let fx (x : string) : string =
+    let e' = fe (E_Expr.Var x) in
+    match (e' : E_Expr.t) with
+      | Var y -> y
+      | _ -> raise (Failure "Substituting non-var expression on LHS") in
+
+  let s' =
+    match s with
+    | Skip                        -> Skip
     | Print e                     -> Print (fe e)
     | Assign (x, e)               -> Assign (fx x, fe e)
     | GlobAssign (x, e)           -> GlobAssign (fx x, fe e)
@@ -81,54 +81,54 @@ let rec map
     | While (e, s)                -> While(fe e, map ~fe f s)
     | Return e                    -> Return (fe e)
     | FieldAssign (e_o, e_f, e_v) -> FieldAssign (fe e_o, fe e_f, fe e_v)
-    | FieldDelete (e, f)          -> FieldDelete (fe e, fe f) 
+    | FieldDelete (e, f)          -> FieldDelete (fe e, fe f)
     | ExprStmt e                  -> ExprStmt (fe e)
     | RepeatUntil (s, e)          -> RepeatUntil (map ~fe f s, fe e)
     | MatchWith (e, pats_stmts)   -> MatchWith (fe e, f_pat pats_stmts)
     | Fail e                      -> Fail (fe e)
     | Throw e                     -> Throw (fe e)
     | Assert e                    -> Assert (fe e)
-    | MacroApply (m, es)          -> MacroApply (m, List.map fe es)  
-    | Switch (e, cases, so)       -> Switch (fe e, f_cases cases, Option.map (map ~fe f) so) 
-    | Lambda (z, id, xs, ys, s)   -> Lambda (z, id, xs, ys, map ~fe f s) in 
-  f s' 
+    | MacroApply (m, es)          -> MacroApply (m, List.map fe es)
+    | Switch (e, cases, so)       -> Switch (fe e, f_cases cases, Option.map (map ~fe f) so)
+    | Lambda (z, id, xs, ys, s)   -> Lambda (z, id, xs, ys, map ~fe f s) in
+  f s'
 
-let subst (sbst : E_Expr.subst_t) (s : t) : t = 
+let subst (sbst : E_Expr.subst_t) (s : t) : t =
   (*Printf.printf "Applying the subst: %s\nOn statement:\n%s\n" (E_Expr.string_of_subst sbst) (str s); *)
-  let ret = map ~fe:(E_Expr.subst sbst) (fun x -> x) s in 
+  let ret = map ~fe:(E_Expr.subst sbst) (fun x -> x) s in
   (* Printf.printf "Obtained: %s\n" (str ret);  *)
-  ret 
+  ret
 
-let rec to_list (is_rec : (t -> bool)) (f : (t -> 'a list)) (s : t) : 'a list = 
-  let f' = to_list is_rec f in 
-  let f_stmts stmts = List.concat (List.map f' stmts) in 
+let rec to_list (is_rec : (t -> bool)) (f : (t -> 'a list)) (s : t) : 'a list =
+  let f' = to_list is_rec f in
+  let f_stmts stmts = List.concat (List.map f' stmts) in
   let f_o so = Option.map_default f' [] so in
-  let f_pat pats = List.concat (List.map (fun (_, s) -> f' s) pats) in    
-  let f_cases cases = List.map (fun (_, s) -> s) cases in 
-  let ret = f s in 
+  let f_pat pats = List.concat (List.map (fun (_, s) -> f' s) pats) in
+  let f_cases cases = List.map (fun (_, s) -> s) cases in
+  let ret = f s in
   if (not (is_rec s)) then ret else (
-    let ret_rec = 
-      match s with 
-        | Skip | Print _ | Assign _    
-        | GlobAssign _   | Return _ 
-        | FieldAssign _  | FieldDelete _ 
-        | ExprStmt _     | Throw _ | Fail _ 
+    let ret_rec =
+      match s with
+        | Skip | Print _ | Assign _
+        | GlobAssign _   | Return _
+        | FieldAssign _  | FieldDelete _
+        | ExprStmt _     | Throw _ | Fail _
         | Assert _                -> []
         | Block stmts             -> f_stmts stmts
-        | If (e, st, sf)          -> (f' st) @ (f_o sf) 
+        | If (e, st, sf)          -> (f' st) @ (f_o sf)
         | While (e, s)            -> f' s
-        | RepeatUntil (s, e)      -> f' s 
+        | RepeatUntil (s, e)      -> f' s
         | MatchWith (e, (pats))   -> f_pat pats
-        | Lambda (_, _, _, _, s)  -> Printf.printf "I got one lambda\n"; f' s
-        | MacroApply _            -> failwith "S_Stmt.map on MacroApply" 
-        | Switch(_, cases, so)    -> f_stmts ((f_cases cases) @ (Option.map_default (fun x -> [x]) [] so)) in 
+        | Lambda (_, _, _, _, s)  -> f' s
+        | MacroApply _            -> failwith "S_Stmt.map on MacroApply"
+        | Switch(_, cases, so)    -> f_stmts ((f_cases cases) @ (Option.map_default (fun x -> [x]) [] so)) in
     ret @ ret_rec
   )
 
-let lambdas (s : t) : (string * string list * string list * t) list = 
-  let f_l s = 
-    match s with 
+let lambdas (s : t) : (string * string list * string list * t) list =
+  let f_l s =
+    match s with
       | Lambda (_, fid, xs, ys, s) -> [ (fid, ys, xs, s) ]
-      | _ -> [] in 
-  let f_rec s = true in 
+      | _ -> [] in
+  let f_rec s = true in
   to_list f_rec f_l s
