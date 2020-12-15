@@ -252,10 +252,9 @@ expr_target:
     { Expr.BinOpt (Oper.Min, e1, e2) }
 
 stmt_block:
-| s= separated_list (SEMICOLON, stmt_target);
-{
-    print_string ">BLOCK\n";Stmt.Block s
-}
+  | s = separated_list (SEMICOLON, stmt_target);
+    { print_string ">BLOCK\n";Stmt.Block s }
+
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return *)
 stmt_target:
   | PRINT; e = expr_target;
@@ -265,37 +264,36 @@ stmt_target:
   | THROW; str = STRING;
     { Stmt.Exception str}
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;
-    { print_string ">FIELDASSIGN\n";  Stmt.FieldAssign (e1, Expr.Val (Str f), e2) }
+    { print_string ">FIELDASSIGN\n"; Stmt.FieldAssign (e1, Expr.Val (Str f), e2) }
   | e1 = expr_target; LBRACK; f = expr_target; RBRACK; DEFEQ; e2 = expr_target;
-    { print_string ">FIELDASSIGN\n";Stmt.FieldAssign (e1, f, e2) }
+    { print_string ">FIELDASSIGN\n"; Stmt.FieldAssign (e1, f, e2) }
   | DELETE; e = expr_target; PERIOD; f = VAR;
     { print_string ">FIELDDELETE\n"; Stmt.FieldDelete (e, Expr.Val (Str f)) }
   | DELETE; e = expr_target; LBRACK; f = expr_target; RBRACK;
-    {print_string ">FIELDDELETE\n";   Stmt.FieldDelete (e, f) }
+    { print_string ">FIELDDELETE\n"; Stmt.FieldDelete (e, f) }
   | SKIP;
     { print_string ">SKIP\n";Stmt.Skip }
   | v = VAR; DEFEQ; e = expr_target;
-    { print_string ">ASSIGN\n";Stmt.Assign (v, e) }
+    { print_string ">ASSIGN\n"; Stmt.Assign (v, e) }
   | exps_stmts = ifelse_target;
     { exps_stmts }
   | WHILE; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block; RBRACE;
-    { print_string ">WHILE\n";Stmt.While (e, s) }
+    { print_string ">WHILE\n"; Stmt.While (e, s) }
   | RETURN; e = expr_target;
-    { print_string ">RETURN\n";Stmt.Return e }
+    { print_string ">RETURN\n"; Stmt.Return e }
   | RETURN;
     { print_string ">RETURN\n";Stmt.Return (Expr.Val Val.Void) }
-  | v=VAR; DEFEQ; f=expr_target; LPAREN;vs= separated_list(COMMA, expr_target);RPAREN;
-  {print_string ">ASSIGNCALL\n";Stmt.AssignCall (v,f,vs)}
-  | x=VAR; DEFEQ; EXTERN; f=VAR; LPAREN;vs= separated_list(COMMA, expr_target);RPAREN;
-  {print_string ">ASSIGNCALL\n";Stmt.AssignECall (x,f,vs)}
-  | v=VAR; DEFEQ; e1=expr_target; IN_OBJ; e2= expr_target;
-  {print_string ">ASSIGNINOBJCHECK\n";Stmt.AssignInObjCheck (v,e1,e2)}
-
-  | v=VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;
+  | v = VAR; DEFEQ; f = expr_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
+    { print_string ">ASSIGNCALL\n";Stmt.AssignCall (v,f,vs)}
+  | x = VAR; DEFEQ; EXTERN; f = VAR; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
+    { print_string ">ASSIGNEXTERNCALL\n";Stmt.AssignECall (x,f,vs)}
+  | v = VAR; DEFEQ; e1 = expr_target; IN_OBJ; e2 = expr_target;
+    { print_string ">ASSIGNINOBJCHECK\n";Stmt.AssignInObjCheck (v,e1,e2)}
+  | v = VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;
     { print_string ">ASSIGNACCESS\n";Stmt.FieldLookup (v,e, Expr.Val (Str f)) }
-  | v=VAR; DEFEQ;e = expr_target; LBRACK; f = expr_target; RBRACK;
+  | v = VAR; DEFEQ; e = expr_target; LBRACK; f = expr_target; RBRACK;
     { print_string ">ASSIGNACCESS\n";Stmt.FieldLookup (v,e, f) }
-  | v=VAR; DEFEQ;LBRACE; RBRACE;
+  | v = VAR; DEFEQ; LBRACE; RBRACE;
     { print_string ">ASSIGNNEWOBJ\n";Stmt.AssignNewObj (v) }
   | v = VAR; DEFEQ; OBJ_TO_LIST; e = expr_target;
     { print_endline ">ASSIGNOBJTOLIST"; Stmt.AssignObjToList (v, e) }
