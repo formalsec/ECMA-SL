@@ -485,7 +485,7 @@ function getFunctionPrototype(strict) {
 };
 
 function isFunctionObject(object) {
-  if ((Type(object) = "Object") &&& (getInternalProperty(arg, "Class") = "Function")) {
+  if ((Type(object) = "Object") &&& (getInternalProperty(object, "Class") = "Function")) {
     return true
   };
 

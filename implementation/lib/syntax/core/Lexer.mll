@@ -45,7 +45,7 @@ let loc     = "$loc_"(digit|letter|'_')+
 rule read =
   parse
   | white          { read lexbuf }
-  | newline        { read lexbuf }
+  | newline        { new_line lexbuf; read lexbuf }
   | ":="           { DEFEQ }
   | '.'            { PERIOD }
   | ';'            { SEMICOLON }
@@ -147,9 +147,7 @@ rule read =
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | '"'               { read_string (Buffer.create 16) lexbuf }
   | var               { VAR (Lexing.lexeme lexbuf) }
-  | symbol            { let str = String_Utils.chop_first_char (Lexing.lexeme lexbuf) in
-                          print_string ("Symbol : " ^ str);
-                          SYMBOL str }
+  | symbol            { SYMBOL (String_Utils.chop_first_char (Lexing.lexeme lexbuf)) }
   | loc               { LOC (Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }
   | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
@@ -182,9 +180,10 @@ and read_string buf =
 and read_comment =
 (* Read comments *)
   parse
-  | "*/" { read lexbuf }
-  | _    { read_comment lexbuf }
-  | eof  { raise (Syntax_error ("Comment is not terminated."))}
+  | "*/"    { read lexbuf }
+  | newline { new_line lexbuf; read_comment lexbuf }
+  | _       { read_comment lexbuf }
+  | eof     { raise (Syntax_error ("Comment is not terminated."))}
 
 and read_type =
 (* Read Language Types *)

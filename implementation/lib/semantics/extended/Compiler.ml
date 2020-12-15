@@ -188,27 +188,27 @@ x_done fresh
       }
 *)
 let compile_switch
-      (ret_e     : (Stmt.t list * Expr.t))
-      (ret_cases : (Stmt.t list * Expr.t * Stmt.t list) list)
-      (ret_so    : Stmt.t list) : Stmt.t list =
+    (ret_e     : (Stmt.t list * Expr.t))
+    (ret_cases : (Stmt.t list * Expr.t * Stmt.t list) list)
+    (ret_so    : Stmt.t list) : Stmt.t list =
 
   let (stmts, e') = ret_e in
   let stmts'' =
     List.fold_right
       (fun (stmts_i, e_i', stmts_i') stmts_else ->
-        let guard_i = Expr.BinOpt (Oper.Equal, e_i', e') in
-        let stmt_if = Stmt.If (guard_i, Stmt.Block stmts_i', Some (Stmt.Block stmts_else)) in
-        stmts_i @ [ stmt_if ]
+         let guard_i = Expr.BinOpt (Oper.Equal, e_i', e') in
+         let stmt_if = Stmt.If (guard_i, Stmt.Block stmts_i', Some (Stmt.Block stmts_else)) in
+         stmts_i @ [ stmt_if ]
       )
       ret_cases
       ret_so in
   stmts @ stmts''
 
- let compile_fail (ret_e : (Stmt.t list * Expr.t)) : Stmt.t list =
+let compile_fail (ret_e : (Stmt.t list * Expr.t)) : Stmt.t list =
   let stmts_expr, expr' = ret_e in
   stmts_expr @ [Stmt.Fail expr']
 
- let compile_throw (ret_e : (Stmt.t list * Expr.t)) : Stmt.t list =
+let compile_throw (ret_e : (Stmt.t list * Expr.t)) : Stmt.t list =
   let stmts_expr, e' = ret_e in
   let ret_stmt = Stmt.Return (Expr.NOpt (Oper.TupleExpr, [(Expr.Val (Val.Bool true)); e'])) in
   stmts_expr @ [ ret_stmt ]
@@ -263,18 +263,18 @@ let build_if_throw_basic (x : string) (s_then : Stmt.t) : Stmt.t =
 
 let build_if_throw (x : string) (g : string option) : Stmt.t =
   match g with
-    | None   -> build_if_throw_basic x (Stmt.Return (Expr.Var x))
-    | Some g ->
-        let args = [Expr.Var __INTERNAL_ESL_GLOBAL__; Expr.UnOpt (Oper.Second, Expr.Var x) ] in
-        let call_stmt = Stmt.AssignCall (x, Expr.Val (Val.Str g), args) in
-        let inner_if = build_if_throw_basic x (Stmt.Return (Expr.Var x)) in
-        build_if_throw_basic x (Stmt.Block [call_stmt; inner_if])
+  | None   -> build_if_throw_basic x (Stmt.Return (Expr.Var x))
+  | Some g ->
+    let args = [Expr.Var __INTERNAL_ESL_GLOBAL__; Expr.UnOpt (Oper.Second, Expr.Var x) ] in
+    let call_stmt = Stmt.AssignCall (x, Expr.Val (Val.Str g), args) in
+    let inner_if = build_if_throw_basic x (Stmt.Return (Expr.Var x)) in
+    build_if_throw_basic x (Stmt.Block [call_stmt; inner_if])
 
 
 let compile_call
-      (ret_f : (Stmt.t list * Expr.t))
-      (ret_args :(Stmt.t list * Expr.t) list)
-      (g : string option) : Stmt.t list * Expr.t =
+    (ret_f : (Stmt.t list * Expr.t))
+    (ret_args :(Stmt.t list * Expr.t) list)
+    (g : string option) : Stmt.t list * Expr.t =
   let x = generate_fresh_var () in
   let fname_stmts, fname_expr = ret_f in
   let fargs_stmts_exprs = ret_args in
@@ -440,9 +440,9 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | GVar x              -> compile_gvar x
   | Const c             -> compile_const c
   | BinOpt (op, e1, e2) ->
-      let (stmts_1, e1') = compile_expr e1 in
-      let (stmts_2, e2') = compile_expr e2 in
-      compile_binopt op (stmts_1, e1') (stmts_2, e2')
+    let (stmts_1, e1') = compile_expr e1 in
+    let (stmts_2, e2') = compile_expr e2 in
+    compile_binopt op (stmts_1, e1') (stmts_2, e2')
   | EBinOpt (e_op, e_e1, e_e2) -> compile_ebinopt e_op e_e1 e_e2
   | UnOpt (op, e_e)            -> compile_unopt op e_e
   | NOpt (op, e_es)            -> compile_nopt op e_es
@@ -470,9 +470,9 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   let compile_cases =
     List.map
       (fun (e, s) ->
-        let (stmts_e, e') = compile_expr e in
-        let stmts_s = compile_stmt s in
-        (stmts_e, e', stmts_s)
+         let (stmts_e, e') = compile_expr e in
+         let stmts_s = compile_stmt s in
+         (stmts_e, e', stmts_s)
       ) in
 
   match e_stmt with
@@ -480,8 +480,8 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | Print e                         -> compile_print e
   | Assign (v, e_exp)               -> compile_assign v e_exp
   | GlobAssign(x, e)                ->
-      let (stmts_e, e') = compile_expr e in
-      compile_glob_assign x stmts_e e'
+    let (stmts_e, e') = compile_expr e in
+    compile_glob_assign x stmts_e e'
   | Block (e_stmts)                 -> compile_block e_stmts
   | If (e_e, e_s1, e_s2)            -> compile_if e_e e_s1 e_s2
   | While (e_exp, e_s)              -> compile_while e_exp e_s
@@ -492,8 +492,8 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | MatchWith (e_e, e_pats_e_stmts) -> compile_matchwith e_e e_pats_e_stmts
   | Assert e_e                      -> compile_assert e_e
   | Lambda (x, f, xs, ys, s)        ->
-      let ret = compile_lambda_call x f ys in
-      ret
+    let ret = compile_lambda_call x f ys in
+    ret
   | MacroApply (_, _)               -> invalid_arg "Macros are not valid compilable statements."
 
   | Throw e_e ->
@@ -505,14 +505,14 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
     compile_fail ret_e
 
   | Switch (e, cases, so)           ->
-      let ret_e = compile_expr e in
-      let ret_cases = compile_cases cases in
-      let ret_so = Option.map_default compile_stmt [] so in
-      compile_switch ret_e ret_cases ret_so
+    let ret_e = compile_expr e in
+    let ret_cases = compile_cases cases in
+    let ret_so = Option.map_default compile_stmt [] so in
+    compile_switch ret_e ret_cases ret_so
 
   | Return e_e ->
-      let ret_e = compile_expr e_e in
-      compile_return ret_e
+    let ret_e = compile_expr e_e in
+    compile_return ret_e
 
 (*
 C(s) = s', _
@@ -535,15 +535,15 @@ let compile_func (e_func : E_Func.t) : Func.t =
   let fbody = E_Func.get_body e_func in
   let stmt_list = compile_stmt fbody in
   if (fname = __MAIN_FUNC__)
-    then (
-      let asgn_new_obj = Stmt.AssignNewObj __INTERNAL_ESL_GLOBAL__ in
-      let stmt_list' = asgn_new_obj :: stmt_list in
-      Func.create fname fparams (Stmt.Block stmt_list')
-    )
-    else (
-      let fparams' = __INTERNAL_ESL_GLOBAL__::fparams in
-      Func.create fname fparams' (Stmt.Block stmt_list)
-    )
+  then (
+    let asgn_new_obj = Stmt.AssignNewObj __INTERNAL_ESL_GLOBAL__ in
+    let stmt_list' = asgn_new_obj :: stmt_list in
+    Func.create fname fparams (Stmt.Block stmt_list')
+  )
+  else (
+    let fparams' = __INTERNAL_ESL_GLOBAL__::fparams in
+    Func.create fname fparams' (Stmt.Block stmt_list)
+  )
 
 let compile_lambda ((f_id, params, params', s) : (string * string list * string list * E_Stmt.t)) : Func.t =
   let stmt_list = compile_stmt s in

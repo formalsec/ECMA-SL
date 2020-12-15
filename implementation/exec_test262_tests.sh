@@ -151,8 +151,8 @@ function handleSingleFile() {
     return
   fi
 
-  #echo "3.3. Copy compiled file to directory where to execute the tests"
-  cp "../JS2ECMA-SL/test262_ast.esl" "ES5_interpreter/test262_ast.esl"
+  #echo "3.3. Move compiled file to directory where to execute the tests"
+  mv "../JS2ECMA-SL/test262_ast.esl" "ES5_interpreter/test262_ast.esl"
 
   #echo "3.4. Compile program written in \"Plus\" to \"Core\""
   ECMALSLC=$(./main.native -mode c -i ES5_interpreter/test262.esl -o ES5_interpreter/core.esl)
@@ -530,11 +530,3 @@ fi
 if [ ${#rDirs[@]} -ne 0 ]; then
   processRecursively ${rDirs[@]}
 fi
-
-
-# 4. Remove temporary files previously created
-rm "test/main262.js"
-rm "ES5_interpreter/core.esl"
-rm "ES5_interpreter/test262.esl"
-rm "ES5_interpreter/test262_ast.esl"
-rm "../JS2ECMA-SL/test262_ast.esl"
