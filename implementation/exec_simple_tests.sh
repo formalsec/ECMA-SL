@@ -26,7 +26,7 @@ function writeToMDFile() {
   local TEST_FOLDER=${INDIVIDUAL_RESULTS[last_idx]}
   unset INDIVIDUAL_RESULTS[last_idx]
 
-  local FILE=simple_tests_result.md
+  local FILE=logs/simple_tests_result.md
 
   echo "## Report of the execution of the tests available in \"$TEST_FOLDER\"" > $FILE
   echo "### Summary" >> $FILE
