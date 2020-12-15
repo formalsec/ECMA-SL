@@ -10,7 +10,18 @@ function MakeBlock(Stmt){
 	  toString() {
 	    return `${this.statements.map((stmt) => stmt.toString()).join(";\n")}`;
 	  }
+
+	  toJS(){
+
+	  	var stmts = this.statements.map((stmt) => stmt.toJS());
+	  	return {
+	        "type": "BlockStatement",
+	        "body": stmts
+      	}
+	  }
+
 	  interpret(config){
+	  	//console.log(">BLOCK");
 	  	config.cont = this.statements.concat(config.cont.slice(1)) ;
       	return {config : config, seclabel: new EmptyLab()};
 	  }

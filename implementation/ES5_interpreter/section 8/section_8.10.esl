@@ -87,6 +87,10 @@ function isEnumerablePropertyDescriptor(desc) {
   return desc.Enumerable
 };
 
+function getDescriptorValue(desc) {
+  return desc.Value
+};
+
 /* Auxiliary functions created for the purposes of dealing with the Property Identifier type. */
 function newPropertyIdentifier(name, desc) {
   return ("P", name, desc)
@@ -104,7 +108,7 @@ function getPropertyDescriptor(propertyIdentifier) {
 /**
  * 8.10.1 IsAccessorDescriptor ( Desc )
  *
- * When the abstract operation IsAccessorDescriptor is called with property descriptor Desc, the following steps are taken:
+ * When the abstract operation IsAccessorPropertyDescriptor is called with property descriptor Desc, the following steps are taken:
  */
 function IsAccessorPropertyDescriptor (Desc) {
   /** 1. If Desc is undefined, then return false. */
@@ -173,7 +177,7 @@ function FromPropertyDescriptor (Desc) {
   };
 
   /** 2. Let obj be the result of creating a new object as if by the expression new Object() where Object is the standard built-in constructor with that name. */
-  obj := ObjectConstructor(|global|, 'null, false, [undefined]);
+  obj := ObjectConstructor(|global|, 'null, false, [null]);
 
   /** 3. If IsDataDescriptor(Desc) is true, then: */
   if (IsDataPropertyDescriptor(Desc)) {

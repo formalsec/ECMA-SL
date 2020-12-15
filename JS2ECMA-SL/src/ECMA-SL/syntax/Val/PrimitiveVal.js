@@ -11,8 +11,22 @@ function MakePrimitiveVal(Val){
                              .split('"').join('\\"')}"`
       }
 
+      if (((typeof this.value) === "number") && (this.value === Math.floor(this.value)) && (this.value < 1000000000000000000000)){
+        return "" + this.value + "."
+      }
+
       return ("" + this.value);
     }
+
+    toJS(){
+      return {
+        "type": "Literal",
+        "value": this.value,
+        "raw": "\""+this.value+"\""
+      }
+    }
+
+
   }
 
   PrimitiveVal.fromJSON = function(value) {

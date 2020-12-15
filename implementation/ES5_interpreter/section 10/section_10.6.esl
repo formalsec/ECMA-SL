@@ -33,7 +33,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
   }, false);
   /* 8. Let map be the result of creating a new object as if by the expression new Object() where Object is
         the standard built-in constructor with that name */
-  map := ObjectConstructor(|global|, 'null, strict, [undefined]);
+  map := ObjectConstructor(|global|, 'null, strict, [null]);
   /* 9. Let mappedNames be an empty List. */
   mappedNames := [];
   /* 10. Let indx = len - 1. */
@@ -104,7 +104,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
   /* 14. Else, strict is true so */
   else {
     /* a. Let thrower be the [[ThrowTypeError]] function Object (13.2.3). */
-    thrower := null; /* TODO */
+    thrower := createThrowTypeErrorFunctionObject(getFunctionPrototype(strict), strict);
     /* b. Call the [[DefineOwnProperty]] internal method of obj with arguments "caller",
           PropertyDescriptor {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]:
           false}, and false. */
@@ -133,7 +133,11 @@ function MakeArgGetter(name, lexicalEnvironment) {
      object that when executed returns the value bound for name in env. It performs the following steps: */
 
   /* 1. Let body be the result of concatenating the Strings "return ", name, and ";". */
-  body := s_concat(["return ", name, ";"]);
+  body := lambda (scope, this, strict, args) [name] {
+    envRec := getEnvironmentRecord(scope);
+    val := getBindingValue(envRec, name);
+    return val
+  };
   /* 2. Return the result of creating a function object as described in 13.2 using no FormalParameterList, body for
         FunctionBody, env as Scope, and true for Strict. */
   return CreateFunctionObject([], body, lexicalEnvironment, true, null)
@@ -144,13 +148,18 @@ function MakeArgSetter(name, lexicalEnvironment) {
      object that when executed sets the value bound for name in env. It performs the following steps: */
 
   /* 1. Let param be the String name concatenated with the String "_arg". */
-  param := s_concat([name, "_arg"]);
   /* 2. Let body be the String "<name> = <param>;" with <name> replaced by the value of name and <param>
         replaced by the value of param. */
-  body := s_concat([name, " = ", param, ";"]);
+  body := lambda (scope, this, strict, args) [name] {
+    param := l_nth(args, 0);
+    envRec := getEnvironmentRecord(scope);
+    setBindingValue(envRec, name, param);
+    return 'undefined
+  };
+
   /* 3. Return the result of creating a function object as described in 13.2 using a List containing the single String
         param as FormalParameterList, body for FunctionBody, env as Scope, and true for Strict. */
-  return CreateFunctionObject([param], body, lexicalEnvironment, true, null)
+  return CreateFunctionObject(["param"], body, lexicalEnvironment, true, null)
 };
 
 function ArgumentsObjectGet(argumentObject, P) {
@@ -168,7 +177,7 @@ function ArgumentsObjectGet(argumentObject, P) {
           passing P as the argument. */
     v := Get(argumentObject, P);
     /* b. If P is "caller" and v is a strict mode Function object, throw a TypeError exception. */
-    if ((P = "caller") && isStrictFunctionObject(v)) {
+    if ((P = "caller") &&& isStrictFunctionObject(v)) {
       throw TypeErrorConstructorInternal()
     };
     /* c. Return v. */
@@ -231,7 +240,7 @@ function ArgumentsObjectDefineOwnProperty(argumentsObject, P, Desc, Throw) {
   /* 5. If the value of isMapped is not undefined, then */
   if (!(isMapped = 'undefined)) {
     /* a. If IsAccessorDescriptor(Desc) is true, then */
-    if (IsAccessorDescriptor(Desc)) {
+    if (IsAccessorPropertyDescriptor(Desc)) {
       /* i. Call the [[Delete]] internal method of map passing P, and false as the arguments. */
       Delete(map, P, false)
     }

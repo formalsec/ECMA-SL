@@ -239,5 +239,10 @@ __v26[body] := __v28;
 __v1 := [ __v2, __v6, __v10, __v22, __v26 ];
 __v0[body] := __v1;
 __v0[sourceType] := "script";
+__v66 := [  ];
+__v0[variableDeclarations] := __v66;
+__v67 := [  ];
+__v0[functionDeclarations] := __v67;
+__v0[codeType] := "global";
 return __v0
 }

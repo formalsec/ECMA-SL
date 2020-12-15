@@ -9,8 +9,8 @@ type t =
   | Tuple  of t list
   | Void
   | Null
-  | Undef
   | Symbol of string
+  | Curry  of string * t list
 
 
 let is_special_number (s : string) : bool =
@@ -32,15 +32,16 @@ let rec str ?(flt_with_dot=true) (v : t) : string = match v with
     else s
   | Int v    -> string_of_int v
   | Bool v   -> string_of_bool v
-  | Str v    -> Printf.sprintf "\"%s\"" v
+  | Str v    -> Printf.sprintf "%S" v
   | Loc v    -> Loc.str v
   | List vs  -> "[" ^ (String.concat ", " (List.map str vs)) ^ "]"
   | Type v   -> Type.str v
   | Tuple vs -> "(" ^ (String.concat ", " (List.map str vs)) ^ ")"
   | Void     -> ""
   | Null     -> "null"
-  | Undef    -> "undefined"
-  | Symbol s -> s
+  | Symbol s -> "'" ^ s
+  | Curry (s, vs) -> Printf.sprintf "{\"%s\"}@(%s)" s (String.concat ", " (List.map str vs))
+
 
 let rec to_json (v : t): string =
   match v with
@@ -54,5 +55,5 @@ let rec to_json (v : t): string =
   | Tuple vs ->  Printf.sprintf "{ \"type\" : \"tuple\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
   | Void     ->  Printf.sprintf "{ \"type\" : \"void\" }"
   | Null     ->  Printf.sprintf "{ \"type\" : \"null\" }"
-  | Undef    ->  Printf.sprintf "{ \"type\" : \"undefined\" }"
   | Symbol s ->  Printf.sprintf "{ \"type\" : \"symbol\", \"value\" : \"%s\" }" s
+  | Curry (s, vs) -> Printf.sprintf "{ \"type\" : \"curry\", \"fun\" : \"%s\", \"args\" : [ %s ] }" s (String.concat ", " (List.map to_json vs))

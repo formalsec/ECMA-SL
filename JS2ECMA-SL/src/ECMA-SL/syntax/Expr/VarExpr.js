@@ -1,3 +1,7 @@
+const ValModule = require("../Val/Val");
+const Val = ValModule.Val;
+const SymbolVal = ValModule.SymbolVal;
+
 function MakeVarExpr(Expr){
 
 	class VarExpr extends Expr {
@@ -10,8 +14,19 @@ function MakeVarExpr(Expr){
 	    return this.variable;
 	  }
 
+	  toJS(){
+	  	return {
+        "type": "Identifier",
+        "name": this.variable
+	    }
+	  }
+
 	  interpret(store){
-	  	return store.sto[this.variable];
+	  	//console.log("++ VAR EXPR");
+	  	var val = store.sto[this.variable];
+	    if (val == undefined)  return new SymbolVal("undefined");
+	    else
+	  	return val;
 	  }
 	  getVars(){
 	  	return [this.variable];

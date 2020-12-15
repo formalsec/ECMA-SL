@@ -11,7 +11,6 @@
 %token IF ELSE
 %token RETURN
 %token NULL
-%token UNDEFINED
 %token FUNCTION
 %token LPAREN RPAREN
 %token LBRACE RBRACE
@@ -19,6 +18,7 @@
 %token PERIOD COMMA SEMICOLON
 %token DELETE
 %token FAIL
+%token THROW
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -34,9 +34,9 @@
 %token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM ROUND SIN SQRT TAN
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
-%token SCONCAT
+%token SCONCAT AT_SIGN CODE_POINT
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
-%token LIST_TYPE TUPLE_TYPE NULL_TYPE UNDEF_TYPE SYMBOL_TYPE
+%token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
 
 %left LAND LOR BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL POW
@@ -108,17 +108,15 @@ type_target:
     { print_string ">TUPLE_TYPE\n"; Type.TupleType }
   | NULL_TYPE;
     { print_string ">NULL_TYPE\n"; Type.NullType }
-  | UNDEF_TYPE;
-    { print_string ">UNDEF_TYPE\n"; Type.UndefType }
   | SYMBOL_TYPE;
     { print_string ">SYMBOL_TYPE\n"; Type.SymbolType }
+  | CURRY_TYPE;
+    { Type.CurryType }
 
 (* v ::= f | i | b | s *)
 val_target:
   | NULL;
     { print_string ">NULL\n";Val.Null }
-  | UNDEFINED;
-    { print_string ">UNDEFINED\n";Val.Undef }
   | f = FLOAT;
     { print_string ">FLOAT\n";Val.Flt f }
   | i = INT;
@@ -144,6 +142,8 @@ expr_target:
     { print_string ">VAL\n"; Expr.Val v }
   | v = VAR;
     { print_string ">VAR\n";  Expr.Var v }
+  | LBRACE; e = expr_target; RBRACE; AT_SIGN; LPAREN; es = separated_list (COMMA, expr_target); RPAREN;
+    { Expr.Curry (e, es) }
   | MINUS; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
   | NOT; e = expr_target;
@@ -252,46 +252,46 @@ expr_target:
     { Expr.BinOpt (Oper.Min, e1, e2) }
 
 stmt_block:
-| s= separated_list (SEMICOLON, stmt_target);
-{
-    print_string ">BLOCK\n";Stmt.Block s
-}
+  | s = separated_list (SEMICOLON, stmt_target);
+    { print_string ">BLOCK\n";Stmt.Block s }
+
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return *)
 stmt_target:
   | PRINT; e = expr_target;
     { Stmt.Print e }
   | FAIL; e = expr_target;
     { Stmt.Fail e }
+  | THROW; str = STRING;
+    { Stmt.Exception str}
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;
-    { print_string ">FIELDASSIGN\n";  Stmt.FieldAssign (e1, Expr.Val (Str f), e2) }
+    { print_string ">FIELDASSIGN\n"; Stmt.FieldAssign (e1, Expr.Val (Str f), e2) }
   | e1 = expr_target; LBRACK; f = expr_target; RBRACK; DEFEQ; e2 = expr_target;
-    { print_string ">FIELDASSIGN\n";Stmt.FieldAssign (e1, f, e2) }
+    { print_string ">FIELDASSIGN\n"; Stmt.FieldAssign (e1, f, e2) }
   | DELETE; e = expr_target; PERIOD; f = VAR;
     { print_string ">FIELDDELETE\n"; Stmt.FieldDelete (e, Expr.Val (Str f)) }
   | DELETE; e = expr_target; LBRACK; f = expr_target; RBRACK;
-    {print_string ">FIELDDELETE\n";   Stmt.FieldDelete (e, f) }
+    { print_string ">FIELDDELETE\n"; Stmt.FieldDelete (e, f) }
   | SKIP;
     { print_string ">SKIP\n";Stmt.Skip }
   | v = VAR; DEFEQ; e = expr_target;
-    { print_string ">ASSIGN\n";Stmt.Assign (v, e) }
+    { print_string ">ASSIGN\n"; Stmt.Assign (v, e) }
   | exps_stmts = ifelse_target;
     { exps_stmts }
   | WHILE; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block; RBRACE;
-    { print_string ">WHILE\n";Stmt.While (e, s) }
+    { print_string ">WHILE\n"; Stmt.While (e, s) }
   | RETURN; e = expr_target;
-    { print_string ">RETURN\n";Stmt.Return e }
+    { print_string ">RETURN\n"; Stmt.Return e }
   | RETURN;
     { print_string ">RETURN\n";Stmt.Return (Expr.Val Val.Void) }
-  | v=VAR; DEFEQ; f=expr_target; LPAREN;vs= separated_list(COMMA, expr_target);RPAREN;
-  {print_string ">ASSIGNCALL\n";Stmt.AssignCall (v,f,vs)}
-  | v=VAR; DEFEQ; e1=expr_target; IN_OBJ; e2= expr_target;
-  {print_string ">ASSIGNINOBJCHECK\n";Stmt.AssignInObjCheck (v,e1,e2)}
-
-  | v=VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;
+  | v = VAR; DEFEQ; f = expr_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
+    { print_string ">ASSIGNCALL\n";Stmt.AssignCall (v,f,vs)}
+  | v = VAR; DEFEQ; e1 = expr_target; IN_OBJ; e2 = expr_target;
+    { print_string ">ASSIGNINOBJCHECK\n";Stmt.AssignInObjCheck (v,e1,e2)}
+  | v = VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;
     { print_string ">ASSIGNACCESS\n";Stmt.FieldLookup (v,e, Expr.Val (Str f)) }
-  | v=VAR; DEFEQ;e = expr_target; LBRACK; f = expr_target; RBRACK;
+  | v = VAR; DEFEQ; e = expr_target; LBRACK; f = expr_target; RBRACK;
     { print_string ">ASSIGNACCESS\n";Stmt.FieldLookup (v,e, f) }
-  | v=VAR; DEFEQ;LBRACE; RBRACE;
+  | v = VAR; DEFEQ; LBRACE; RBRACE;
     { print_string ">ASSIGNNEWOBJ\n";Stmt.AssignNewObj (v) }
   | v = VAR; DEFEQ; OBJ_TO_LIST; e = expr_target;
     { print_endline ">ASSIGNOBJTOLIST"; Stmt.AssignObjToList (v, e) }

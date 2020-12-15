@@ -16,7 +16,7 @@ function initNumberObject(globalObject, ObjectPrototype, strict) {
 /* Returns a Number value (not a Number object) computed by ToNumber(value) if value was supplied, else
    returns +0. */
 function NumberConstructorCalledAsFunction(value) {
-  if (value = undefined) {
+  if (value = null) {
     return 0.
   };
   return ToNumber(value)
@@ -29,7 +29,7 @@ function initNumberConstructor(NumberPrototype, globalObject, strict) {
   /* 15.7.3 Properties of the Number Constructor */
   /* The value of the [[Prototype]] internal property of the Number constructor is the Function prototype object
      (15.3.4). */
-  NumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", globalObject, strict, null);
+  NumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", globalObject, strict, 0);
   /* Besides the internal properties and the length property (whose value is 1), the Number constructor has the
      following properties: */
 
@@ -104,7 +104,7 @@ function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObj
   createBuiltInProperty(numberPrototypeObject, "constructor", NumberConstructor);
 
   /* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
-  toString := CreateBuiltInFunctionObject([ "radix" ], "numberToString", globalObject, strict, null);
+  toString := CreateBuiltInFunctionObject([ "radix" ], "numberToString", globalObject, strict, 0);
   createBuiltInProperty(numberPrototypeObject, "toString", toString);
 
   /* 15.7.4.3 Number.prototype.toLocaleString() */
@@ -148,7 +148,7 @@ function NumberConstructor(globalObject, this, strict, params) {
   setInternalProperty(newlyConstructedObject, "Class", "Number");
   /* The [[PrimitiveValue]] internal property of the newly constructed object is set to ToNumber(value) if value was
      supplied, else to +0. */
-  if (value = undefined) {
+  if (value = null) {
     setInternalProperty(newlyConstructedObject, "PrimitiveValue", 0.)
   } else {
     setInternalProperty(newlyConstructedObject, "PrimitiveValue", ToNumber(value))
@@ -181,7 +181,7 @@ function NumberConstructor(globalObject, this, strict, params) {
  */
 function numberToString(global, this, strict, args) {
   if (!isNumberOrNumberObject(this)) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   if (Type(this) = "Number") {
     num := this
@@ -200,7 +200,7 @@ function numberToLocaleString(global, this, strict, args) {
   /* NOTE The first parameter to this function is likely to be used in a future version of this standard; it is recommended
           that implementations do not use this parameter position for anything else. */
   if (!isNumberOrNumberObject(this)) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   if (Type(this) = "Number") {
     num := this
@@ -217,7 +217,7 @@ function NumberPrototypeValueOf(global, this, strict, params) {
   /* The valueOf function is not generic; it throws a TypeError exception if its this value is not a Number or a
      Number object. Therefore, it cannot be transferred to other kinds of objects for use as a method. */
   if (!isNumberOrNumberObject(this)) {
-    return throwEmptyCompletion(TypeErrorConstructorInternal())
+    throw TypeErrorConstructorInternal()
   };
   if (Type(this) = "Number") {
     return this

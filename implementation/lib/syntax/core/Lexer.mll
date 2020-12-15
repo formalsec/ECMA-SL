@@ -45,7 +45,7 @@ let loc     = "$loc_"(digit|letter|'_')+
 rule read =
   parse
   | white          { read lexbuf }
-  | newline        { read lexbuf }
+  | newline        { new_line lexbuf; read lexbuf }
   | ":="           { DEFEQ }
   | '.'            { PERIOD }
   | ';'            { SEMICOLON }
@@ -111,6 +111,8 @@ rule read =
   | "ceil"            { CEIL }
   | "cos"             { COS }
   | "exp"             { EXP }
+  | "code_point"      { CODE_POINT }
+  | "@"               { AT_SIGN }
   | "floor"           { FLOOR }
   | "log_e"           { LOG_E }
   | "log_10"          { LOG_10 }
@@ -136,8 +138,8 @@ rule read =
   | "return"          { RETURN }
   | "function"        { FUNCTION }
   | "delete"          { DELETE }
+  | "throw"           { THROW }
   | "null"            { NULL }
-  | "undefined"       { UNDEFINED }
   | "fail"            { FAIL }
   | "print"           { PRINT }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
@@ -145,11 +147,12 @@ rule read =
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | '"'               { read_string (Buffer.create 16) lexbuf }
   | var               { VAR (Lexing.lexeme lexbuf) }
-  | symbol            { SYMBOL (Lexing.lexeme lexbuf) }
+  | symbol            { SYMBOL (String_Utils.chop_first_char (Lexing.lexeme lexbuf)) }
   | loc               { LOC (Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }
   | _                 { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof               { EOF }
+
 
 
 (* Read strings *)
@@ -177,9 +180,10 @@ and read_string buf =
 and read_comment =
 (* Read comments *)
   parse
-  | "*/" { read lexbuf }
-  | _    { read_comment lexbuf }
-  | eof  { raise (Syntax_error ("Comment is not terminated."))}
+  | "*/"    { read lexbuf }
+  | newline { new_line lexbuf; read_comment lexbuf }
+  | _       { read_comment lexbuf }
+  | eof     { raise (Syntax_error ("Comment is not terminated."))}
 
 and read_type =
 (* Read Language Types *)
@@ -193,4 +197,5 @@ and read_type =
   | "Tuple"  { TUPLE_TYPE }
   | "Null"   { NULL_TYPE }
   | "Symbol" { SYMBOL_TYPE }
+  | "Curry"  { CURRY_TYPE }
   | _        { raise (Syntax_error ("Unexpected type: " ^ Lexing.lexeme lexbuf)) }

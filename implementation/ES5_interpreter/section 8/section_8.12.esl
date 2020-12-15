@@ -356,7 +356,7 @@ function Delete(O, P, Throw) {
  */
 function DefaultValue (O, hint) {
   print "DefaultValue";
-  if (hint = undefined) {
+  if (hint = null) {
     if (getInternalProperty(O, "Class") = "Date") {
       hint := 'String
     } else {

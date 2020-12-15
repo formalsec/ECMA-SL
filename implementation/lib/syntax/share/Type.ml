@@ -8,8 +8,8 @@ type t =
   | TypeType
   | TupleType
   | NullType
-  | UndefType
   | SymbolType
+  | CurryType
 
 let str (v : t) : string = match v with
   | IntType    -> "__$Int"
@@ -21,8 +21,8 @@ let str (v : t) : string = match v with
   | TypeType   -> "__$Type"
   | TupleType  -> "__$Tuple"
   | NullType   -> "__$Null"
-  | UndefType  -> "__$Undef"
   | SymbolType -> "__$Symbol"
+  | CurryType  -> "__$Curry"
 
 
 

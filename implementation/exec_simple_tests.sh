@@ -26,7 +26,7 @@ function writeToMDFile() {
   local TEST_FOLDER=${INDIVIDUAL_RESULTS[last_idx]}
   unset INDIVIDUAL_RESULTS[last_idx]
 
-  local FILE=simple_tests_result.md
+  local FILE=logs/simple_tests_result.md
 
   echo "## Report of the execution of the tests available in \"$TEST_FOLDER\"" > $FILE
   echo "### Summary" >> $FILE
@@ -125,9 +125,9 @@ for f in $(ls test/simple/*.js); do
   fi
 
   # 3.6. Check the result of the execution
-  RESULT=$(tail -n 10 result.txt | grep "MAIN return -> ")
+  RESULT=$(tail -n 10 result.txt | grep "MAIN pc -> ")
 
-  if [[ "${RESULT}" == "MAIN return -> (\"C\", 'normal, true, 'empty)" ]]
+  if [[ "${RESULT}" == "MAIN pc -> (\"C\", 'normal, true, 'empty)" ]]
   then
     results+=("${FILENAME} | _OK_ | ")
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"

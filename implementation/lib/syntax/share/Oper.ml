@@ -93,7 +93,8 @@ let neg (v : Val.t) : Val.t = match v with
 
 let not (v : Val.t) : Val.t = match v with
   | Bool v -> Bool (v = false)
-  | _      -> invalid_arg "Exception in Oper.not: this operation is only applicable to a boolean type argument"
+  | _      -> Printf.printf "%s" (Val.str v);
+              invalid_arg "Exception in Oper.not: this operation is only applicable to a boolean type argument"
 
 let bitwise_not (v : Val.t) : Val.t = match v with
   | Flt f -> Flt (Arith_Utils.int32_bitwise_not f)
@@ -169,8 +170,8 @@ let typeof (v : Val.t) : Val.t = match v with
   | Type _   -> Type (Type.TypeType)
   | Tuple _  -> Type (Type.TupleType)
   | Null     -> Type (Type.NullType)
-  | Undef    -> Type (Type.UndefType)
   | Symbol _ -> Type (Type.SymbolType)
+  | Curry _  -> Type (Type.CurryType)
   | Void     -> invalid_arg ("Exception in Oper.typeof: unexpected void value")
 
 let l_len (v : Val.t) : Val.t = match v with
@@ -248,17 +249,7 @@ let int_of_float (v : Val.t) : Val.t = match v with
   | _     -> invalid_arg "Exception in Oper.int_of_float: this operation is only applicable to Int arguments."
 
 let float_to_string (v : Val.t) : Val.t = match v with
-  | Flt i ->
-    if ((compare i nan) = 0) then Str "NaN"
-    else if ((compare i infinity) = 0) then Str "Infinity"
-    else if ((compare i neg_infinity) = 0) then Str "-Infinity"
-    else (
-      let s = string_of_float i in
-      let len = String.length s - 1 in
-      let c = String.get s len in
-      let s' = if c = '.' then String.sub s 0 len else s in
-      Str s'
-    )
+  | Flt i -> Str (Arith_Utils.float_to_string_inner i)
   | _     -> invalid_arg ("Exception in Oper.float_to_string: this operation is only applicable to Flt arguments: " ^ (Val.str v))
 
 let float_of_string (v : Val.t) : Val.t = match v with
@@ -268,7 +259,18 @@ let float_of_string (v : Val.t) : Val.t = match v with
   | _     -> invalid_arg "Exception in Oper.float_of_string: this operation is only applicable to Str arguments"
 
 let string_concat (v : Val.t) : Val.t = match v with
-  | List l -> Str (String.concat "" (String.split_on_char '"' (String.concat "" (List.map Val.str l))))
+  | List l ->
+    let strs =
+      List.fold_left
+        (fun acc v ->
+           match acc, v with
+           | Some strs, Val.Str s -> Some (strs @ [s])
+           | _                    -> None)
+        (Some [])
+        l in
+    (match strs with
+     | None      -> invalid_arg "Exception.Oper.string_concat: this operation is only applicable to List of string arguments"
+     | Some strs -> Str (String.concat "" strs))
   | _      -> invalid_arg "Exception in Oper.string_concat: this operation is only applicable to List arguments"
 
 let shift_left (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
@@ -370,6 +372,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | Sin           -> "sin"
   | Sqrt          -> "sqrt"
   | Tan           -> "tan"
+
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2

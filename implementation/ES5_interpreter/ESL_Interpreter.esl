@@ -460,7 +460,8 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     if (IsPropertyReference(ref) = true) {
       /* a. Return the result of calling the [[Delete]] internal method on ToObject(GetBase(ref)) providing
             GetReferencedName(ref) and IsStrictReference(ref) as the arguments. */
-      return Delete(ToObject(GetBase(ref)), GetReferencedName(ref), IsStrictReference(ref))
+      obj := ToObject(GetBase(ref));
+      return {obj.Delete}(obj, GetReferencedName(ref), IsStrictReference(ref))
     }
     /* 5. Else, ref is a Reference to an Environment Record binding, so */
     else {
@@ -837,7 +838,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
       return ObjectConstructor(|global|,
                                'null,
                                isContainedInStrictCode(scope),
-                               [undefined])
+                               [null])
     };
 
     /* The production PropertyNameAndValueList : PropertyAssignment is evaluated as follows: */
@@ -847,7 +848,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
     obj := ObjectConstructor(|global|,
                              'null,
                              isContainedInStrictCode(scope),
-                             [undefined]);
+                             [null]);
 
     /* The production PropertyNameAndValueList : PropertyNameAndValueList , PropertyAssignment is evaluated as follows: */
 
@@ -1505,9 +1506,9 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* 4. Let rval be GetValue(rref). */
     rval := GetValue(rref);
     /* 5. Let lprim be ToPrimitive(lval). */
-    lprim := ToPrimitive(lval, undefined);
+    lprim := ToPrimitive(lval, null);
     /* 6. Let rprim be ToPrimitive(rval). */
-    rprim := ToPrimitive(rval, undefined);
+    rprim := ToPrimitive(rval, null);
     /* 7. If Type(lprim) is String or Type(rprim) is String, then */
     if ((Type(lprim) = "String") || (Type(rprim) = "String")) {
       /* a. Return the String that is the result of concatenating ToString( lprim) followed by ToString(rprim) */

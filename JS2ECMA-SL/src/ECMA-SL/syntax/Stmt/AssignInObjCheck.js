@@ -1,7 +1,7 @@
-const Expr = require("../Expr/Expr"); 
-const AssignLab = require("../Labels/AssignLab");
-const Val = require("../Val/Val");
-const PrimitiveVal = require("../Val/PrimitiveVal")(Val);
+const Expr = require("../Expr/Expr").Expr; 
+const AssignInObjCheckLab = require("../Labels/AssignInObjCheckLab");
+const ValModule = require("../Val/Val");
+const PrimitiveVal = ValModule.PrimitiveVal;
 
 
 function MakeAssignInObjCheck(Stmt){
@@ -14,12 +14,45 @@ function MakeAssignInObjCheck(Stmt){
     }
 
     interpret(config){
+      //console.log(">ASSIGN IN OBJ CHECK");
       config.cont = config.cont.slice(1) ;
       var object = this.expressionObject.interpret(config.store).value;
       var field = this.expressionField.interpret(config.store).value;
       var v = config.heap.fieldCheck(object, field);
       config.store.setValue(this.stringvar, new PrimitiveVal(v));
-      return {config : config, seclabel: new AssignLab(this.variable, this.expressionObject)};;
+      return {config : config, seclabel: new AssignInObjCheckLab(this.stringvar, field, object ,this.expressionField ,this.expressionObject)};
+    }
+
+    toJS(){
+      //console.log("AssignInObjCheck toJS");
+      var obj_js = this.expressionObject.toJS();
+      var field_js = this.expressionField.toJS();
+      return {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "AssignmentExpression",
+          "operator": "=",
+          "left": {
+            "type": "Identifier",
+            "name": this.stringvar
+          },
+          "right": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": obj_js,
+              "property": {
+                "type": "Identifier",
+                "name": "hasOwnProperty"
+              }
+            },
+            "arguments": [
+              field_js
+            ]
+          }
+        }
+      }
     }
 
    
