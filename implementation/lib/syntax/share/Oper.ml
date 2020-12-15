@@ -304,7 +304,7 @@ let from_char_code (v : Val.t) : Val.t = match v with
   | _     -> invalid_arg "Exception in Oper.from_char_code: this operation is only applicable to Int arguments"
 
 let to_char_code (v : Val.t) : Val.t = match v with
-  | Str s -> Flt (float_of_int (String_Utils.to_char_code s))
+  | Str s -> Int (String_Utils.to_char_code s)
   | _     -> invalid_arg "Exception in Oper.to_char_code: this operation is only applicable to Str arguments"
 
 let to_lower_case (v : Val.t) : Val.t = match v with
