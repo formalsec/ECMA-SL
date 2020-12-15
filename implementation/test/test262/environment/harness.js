@@ -54,7 +54,7 @@ assert.sameValue = function (actual, expected, message) {
         message += ' ';
     }
 
-    message += 'Expected SameValue(«' + String(actual) + '», «' + String(expected) + '») to be true';
+    message += 'Expected SameValue(<<' + String(actual) + '>>, <<' + String(expected) + '>>) to be true';
 
     $ERROR(message);
 };
@@ -71,7 +71,7 @@ assert.notSameValue = function (actual, unexpected, message) {
         message += ' ';
     }
 
-    message += 'Expected SameValue(«' + String(actual) + '», «' + String(unexpected) + '») to be false';
+    message += 'Expected SameValue(<<' + String(actual) + '>>, <<' + String(unexpected) + '>>) to be false';
 
     $ERROR(message);
 };
