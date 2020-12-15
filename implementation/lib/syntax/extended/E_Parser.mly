@@ -159,9 +159,7 @@ val_target:
     { Val.Bool b }
   | s = STRING;
     (* This replaces helps on fixing errors when parsing some escape characters. *)
-    { let s' = Str.global_replace (Str.regexp "\\") "\\\\\\\\" s in
-      let s'' = Str.global_replace (Str.regexp "\"") "\\\"" s' in
-      Val.Str s'' }
+    { Val.Str s }
   | s = SYMBOL;
     { Val.Symbol s }
   | l = LOC;
@@ -190,7 +188,7 @@ e_expr_target:
     { E_Expr.Const Oper.MIN_VALUE }
   | PI;
     { E_Expr.Const Oper.PI }
-  | EXTERN; f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; 
+  | EXTERN; f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Expr.ECall (f, es) }
   | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; CATCH; g = VAR;
     { E_Expr.Call (E_Expr.Val (Val.Str f), es, Some g) }
@@ -386,8 +384,8 @@ e_stmt_target:
     { E_Stmt.RepeatUntil (s, e) }
   | MATCH; e = e_expr_target; WITH; PIPE; pat_stmts = separated_list (PIPE, pat_stmt_target);
     { E_Stmt.MatchWith (e, pat_stmts) }
-  | x = VAR; DEFEQ; LAMBDA; LPAREN;  xs = separated_list (COMMA, VAR); RPAREN; LBRACK; ys = separated_list (COMMA, VAR); RBRACK; s = e_block_target;  
-    { E_Stmt.Lambda (x, fresh_lambda_id_gen (), xs, ys, s) } 
+  | x = VAR; DEFEQ; LAMBDA; LPAREN;  xs = separated_list (COMMA, VAR); RPAREN; LBRACK; ys = separated_list (COMMA, VAR); RBRACK; s = e_block_target;
+    { E_Stmt.Lambda (x, fresh_lambda_id_gen (), xs, ys, s) }
   | AT_SIGN; m = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Stmt.MacroApply (m, es) }
   | SWITCH; LPAREN; e=e_expr_target; RPAREN; LBRACE; cases = list (switch_case_target); RBRACE
