@@ -28,7 +28,7 @@ fs.readFile(argv.input, "utf-8", (err, data) => {
   try {
     prog = esprima.parseScript(data);
   } catch(ex) {
-    prog = newEarlySyntaxError()
+    prog = newEarlySyntaxError(ex.description)
   }
 
   const statements = translator.fromJSObjectToESLStatements(prog);
@@ -48,9 +48,10 @@ fs.readFile(argv.input, "utf-8", (err, data) => {
   }
 });
 
-function newEarlySyntaxError() {
+function newEarlySyntaxError(message) {
   return {
     sourceType: "script",
-    type: "EarlySyntaxError"
+    type: "EarlySyntaxError",
+    message: message || ""
   };
 }
