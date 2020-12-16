@@ -582,7 +582,7 @@ function ObjectPrototypeToLocaleString(globalObject, this, strict, params) {
   };
   /* 4. Return the result of calling the [[Call]] internal method of toString passing O as the this value and no
         arguments. */
-  return Call(toString, O, [])
+  return Call(null, null, toString, O, [])
 
   /* NOTE 1 This function is provided to give all Objects a generic toLocaleString interface, even though not all may
             use it. Currently, Array, Number, and Date provide their own locale-sensitive toLocaleString methods. */

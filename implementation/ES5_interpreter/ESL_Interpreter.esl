@@ -187,7 +187,7 @@ function JS_Interpreter_Expr(e, scope) {
     };
     /* 6. Return the result of calling the [[Construct]] internal method on constructor, providing the list argList as the
           argument values. */
-    return Construct(constructor, argList)
+    return Construct(scope, ref, constructor, argList)
   }
   | { type: "CallExpression", callee: MemberExpression, arguments: Arguments } -> {
     /* 11.2.3 Function Calls */
@@ -227,7 +227,7 @@ function JS_Interpreter_Expr(e, scope) {
     };
     /* 8. Return the result of calling the [[Call]] internal method on func, providing thisValue as the this value
           and providing the list argList as the argument values. */
-    return Call(func, thisValue, argList)
+    return Call(scope, ref, func, thisValue, argList)
   }
   | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
     /* 11.2.5 Function Expressions */
