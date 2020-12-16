@@ -1348,21 +1348,45 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
 };
 
 function JS_Interpreter_StmtList(stmts, scope) {
-  V := 'empty;
-  i := 0;
-  lstmts := l_len stmts;
-  while (i < lstmts) {
-    stmt := JS_Interpreter_Stmt(l_nth(stmts, i), scope) catch Interpreter_Statement_Guard;
-    if (isAnAbruptCompletion(stmt)) {
-      return stmt
-    };
-    if (!(getCompletionValue(stmt) = 'empty)) {
-      V := getCompletionValue(stmt)
-    };
-    i := i + 1
+  if (l_len stmts = 1) {
+  Statement := l_nth(stmts, 0);
+    /* The production StatementList : Statement is evaluated as follows: */
+
+    /* 1. Let s be the result of evaluating Statement. */
+    /* 2. If an exception was thrown, return (throw, V, empty) where V is the exception. (Execution now proceeds as
+          if no exception were thrown.) */
+    s := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+    /* 3. Return s. */
+    return s
   };
 
-  return newCompletion(getCompletionType(stmt), V, getCompletionTarget(stmt))
+  i := (l_len stmts) - 1;
+  Statement := l_nth(stmts, i);
+  StatementList := [];
+  while(i > 0) {
+    i := i - 1;
+    StatementList := l_prepend(l_nth(stmts, i), StatementList)
+  };
+  /* The production StatementList : StatementList Statement is evaluated as follows: */
+
+  /* 1. Let sl be the result of evaluating StatementList. */
+  sl := JS_Interpreter_StmtList(StatementList, scope);
+  /* 2. If sl is an abrupt completion, return sl. */
+  if (isAnAbruptCompletion(sl)) {
+    return sl
+  };
+  /* 3. Let s be the result of evaluating Statement. */
+  /* 4. If an exception was thrown, return (throw, V, empty) where V is the exception. (Execution now proceeds as
+        if no exception were thrown.) */
+  s := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+  /* 5. If s.value is empty, let V = sl.value, otherwise let V = s.value. */
+  if (getCompletionValue(s) = 'empty) {
+    V := getCompletionValue(sl)
+  } else {
+    V := getCompletionValue(s)
+  };
+  /* 6. Return (s.type, V, s.target). */
+  return newCompletion(getCompletionType(s), V, getCompletionTarget(s))
 };
 
 function JS_Interpreter_BinExpr(e, scope) {
