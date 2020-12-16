@@ -28,6 +28,9 @@ function translateBoolean(value) {
 }
 
 function translateString(value) {
+  if (value === "'null") {
+    return translateLiteral(new SymbolVal("null"));
+  }
   return translateLiteral(new PrimitiveVal(value));
 }
 
