@@ -64,6 +64,7 @@
                 "s_concat"        , SCONCAT;
                 "s_len"           , SLEN;
                 "s_nth"           , SNTH;
+                "s_substr"        , SSUBSTR;
                 "int_to_float"    , INT_TO_FLOAT;
                 "int_to_string"   , INT_TO_STRING;
                 "int_of_string"   , INT_OF_STRING;

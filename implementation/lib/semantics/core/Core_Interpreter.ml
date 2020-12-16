@@ -81,6 +81,9 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | InObj    -> raise(Except "Not expected")
   | _        -> Oper.apply_bopt_oper op v1 v2
 
+let eval_triopt_expr (op : Oper.topt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : Val.t =
+  match op with
+  | Ssubstr  -> Oper.s_substr (v1,v2,v3)
 
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   match op with
@@ -105,6 +108,11 @@ let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
     let v1 = eval_expr sto e1 in
     let v2 = eval_expr sto e2 in
     eval_binopt_expr bop v1 v2
+  | TriOpt (top, e1, e2, e3) ->
+    let v1 = eval_expr sto e1 in
+    let v2 = eval_expr sto e2 in
+    let v3 = eval_expr sto e3 in
+    eval_triopt_expr top v1 v2 v3
   | NOpt (nop, es)       -> eval_nopt_expr nop (List.map (eval_expr sto) es)
   | Curry (f, es)        ->
       let fv = eval_expr sto f in

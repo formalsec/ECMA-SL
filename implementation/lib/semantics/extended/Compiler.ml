@@ -97,6 +97,11 @@ let compile_binopt (binop : Oper.bopt) ((stmts_1, e1)  : (Stmt.t list * Expr.t))
   let var = generate_fresh_var () in
   stmts_1 @ stmts_2 @ [Stmt.Assign (var, Expr.BinOpt (binop, e1, e2))], Expr.Var var
 
+let compile_triopt (triop : Oper.topt) ((stmts_1, e1)  : (Stmt.t list * Expr.t)) ((stmts_2, e2) : (Stmt.t list * Expr.t)) ((stmts_3, e3) : (Stmt.t list * Expr.t)) : Stmt.t list * Expr.t =
+  let var = generate_fresh_var () in
+  stmts_1 @ stmts_2 @ stmts_3 @ [Stmt.Assign (var, Expr.TriOpt (triop, e1, e2, e3))], Expr.Var var
+
+
 (*
  y fresh
 -------------------------
@@ -443,6 +448,11 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
     let (stmts_1, e1') = compile_expr e1 in
     let (stmts_2, e2') = compile_expr e2 in
     compile_binopt op (stmts_1, e1') (stmts_2, e2')
+  | TriOpt (op, e1, e2, e3) ->
+    let (stmts_1, e1') = compile_expr e1 in
+    let (stmts_2, e2') = compile_expr e2 in
+    let (stmts_3, e3') = compile_expr e3 in
+    compile_triopt op (stmts_1, e1') (stmts_2, e2') (stmts_3, e3')
   | EBinOpt (e_op, e_e1, e_e2) -> compile_ebinopt e_op e_e1 e_e2
   | UnOpt (op, e_e)            -> compile_unopt op e_e
   | NOpt (op, e_es)            -> compile_nopt op e_es

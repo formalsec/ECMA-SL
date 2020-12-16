@@ -4,6 +4,7 @@ type t =
   | GVar    of string
   | Const   of Oper.const
   | BinOpt  of Oper.bopt * t * t
+  | TriOpt  of Oper.topt * t * t * t
   | EBinOpt of EOper.bopt * t * t    (** non-shared binary operators *)
   | UnOpt   of Oper.uopt * t
   | NOpt    of Oper.nopt * t list
@@ -17,19 +18,20 @@ type subst_t = (string, t) Hashtbl.t
 let rec str (e : t) : string =
   let str_es es = String.concat ", " (List.map str es) in 
   match e with
-  | Val n                 -> Val.str n
-  | Var x                 -> x
-  | GVar x                -> "|" ^ x ^ "|"
-  | Const c               -> Oper.str_of_const c
-  | UnOpt (op, e)         -> (Oper.str_of_unopt op) ^ "(" ^ (str e) ^ ")"
-  | EBinOpt (op, e1, e2)  -> EOper.str_of_binopt op (str e1) (str e2)
-  | BinOpt (op, e1, e2)   -> Oper.str_of_binopt op (str e1) (str e2)
-  | NOpt (op, es)         -> Oper.str_of_nopt op (List.map str es)
-  | Call (f, es, None)    -> Printf.sprintf "%s(%s)" (str f) (String.concat ", " (List.map str es))
-  | Call (f, es, Some g)  -> Printf.sprintf "%s(%s) catch %s" (str f) (String.concat ", " (List.map str es)) g
-  | NewObj (fes)          -> "{ " ^ (String.concat ", " (List.map (fun (f, e) -> f ^ ": " ^ (str e)) fes)) ^ " }"
-  | Lookup (e, f)         -> str e ^ "[" ^ str f ^ "]"
-  | Curry (f, es)         -> Printf.sprintf "%s@(%s)" (str f) (str_es es)
+  | Val n                   -> Val.str n
+  | Var x                   -> x
+  | GVar x                  -> "|" ^ x ^ "|"
+  | Const c                 -> Oper.str_of_const c
+  | UnOpt (op, e)           -> (Oper.str_of_unopt op) ^ "(" ^ (str e) ^ ")"
+  | EBinOpt (op, e1, e2)    -> EOper.str_of_binopt op (str e1) (str e2)
+  | BinOpt (op, e1, e2)     -> Oper.str_of_binopt op (str e1) (str e2)
+  | TriOpt (op, e1, e2, e3) -> Oper.str_of_triopt op (str e1) (str e2) (str e3)
+  | NOpt (op, es)           -> Oper.str_of_nopt op (List.map str es)
+  | Call (f, es, None)      -> Printf.sprintf "%s(%s)" (str f) (String.concat ", " (List.map str es))
+  | Call (f, es, Some g)    -> Printf.sprintf "%s(%s) catch %s" (str f) (String.concat ", " (List.map str es)) g
+  | NewObj (fes)            -> "{ " ^ (String.concat ", " (List.map (fun (f, e) -> f ^ ": " ^ (str e)) fes)) ^ " }"
+  | Lookup (e, f)           -> str e ^ "[" ^ str f ^ "]"
+  | Curry (f, es)           -> Printf.sprintf "%s@(%s)" (str f) (str_es es)
 
 let make_subst (xs_es : (string * t) list) : subst_t =
   let subst = Hashtbl.create 31 in
@@ -56,6 +58,7 @@ let rec map (f : (t -> t)) (e : t) : t =
       | UnOpt (op, e)            -> UnOpt (op, mapf e)
       | EBinOpt (op, e1, e2)     -> EBinOpt (op, mapf e1, mapf e2)
       | BinOpt (op, e1, e2)      -> BinOpt (op, mapf e1, mapf e2)
+      | TriOpt (op, e1, e2, e3)  -> TriOpt (op, mapf e1, mapf e2, mapf e3)
       | NOpt (op, es)            -> NOpt (op, List.map mapf es)
       | Call (ef, es, g)         -> Call (mapf ef, List.map mapf es, g)
       | NewObj (fes)             -> NewObj (map_obj fes)

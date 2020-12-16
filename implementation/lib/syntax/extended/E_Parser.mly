@@ -43,7 +43,7 @@
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16
 %token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM ROUND SIN SQRT TAN PI MAX_VALUE MIN_VALUE
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
-%token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
+%token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH SSUBSTR
 %token SCONCAT
 %token IMPORT THROW FAIL CATCH
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
@@ -202,6 +202,8 @@ e_expr_target:
     { pre_un_op_expr }
   | pre_bin_op_expr = prefix_binary_op_target;
     { pre_bin_op_expr }
+  | pre_tri_op_expr = prefix_trinary_op_target;
+    { pre_tri_op_expr }
   | in_bin_op_expr = infix_binary_op_target;
     { in_bin_op_expr }
 
@@ -322,6 +324,10 @@ prefix_binary_op_target:
     { E_Expr.BinOpt (Oper.Max, e1, e2) }
   | MIN; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Min, e1, e2) }
+
+prefix_trinary_op_target:
+  | SSUBSTR; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
+    { E_Expr.TriOpt (Oper.Ssubstr, e1, e2, e3) }
 
 infix_binary_op_target:
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
