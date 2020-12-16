@@ -472,7 +472,7 @@ echo "import \"ES5_interpreter/test262_ast.esl\";" > "ES5_interpreter/test262.es
 echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "ES5_interpreter/test262.esl"
 echo "function main() {
   x := buildAST();
-  ret := JS_Interpreter_Program(x);
+  ret := JS_Interpreter_Program(x, null);
   return ret
 }" >> "ES5_interpreter/test262.esl"
 

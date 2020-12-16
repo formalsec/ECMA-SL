@@ -1,8 +1,16 @@
 import "ES5_interpreter/ES5_Reference_Interpreter.esl";
 
-function JS_Interpreter_Program(p) {
+function JS_Interpreter_Program(p, callingExecCtx) {
   /* 14 Program */
   match p with
+  | { sourceType: "script", type: "Program", codeType: "eval", body: SourceElementsopt, strict: strict } -> {
+    if (SourceElementsopt = []) {
+      return normalEmptyCompletion('empty)
+    };
+
+    result := JS_Interpreter_SourceElements(SourceElementsopt, callingExecCtx);
+    return result
+  }
   | { sourceType: "script", type: "Program", body: SourceElementsopt, strict: strict } -> {
     /* The production Program : SourceElements opt is evaluated as follows: */
 
