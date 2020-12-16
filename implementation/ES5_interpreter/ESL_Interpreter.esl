@@ -33,10 +33,11 @@ function JS_Interpreter_Program(p, callingExecCtx) {
     print progCxt;
     return result
   }
-  | { sourceType: "script", type: "EarlySyntaxError" } -> {
-    progCxt := EnteringGlobalCode(p);
-
-    throw SyntaxErrorConstructorInternal()
+  | { sourceType: "script", type: "EarlySyntaxError", message: message } -> {
+    if (message = "Invalid left-hand side in assignment") {
+      return throwEmptyCompletion(ReferenceErrorConstructorInternal())
+    };
+    return throwEmptyCompletion(SyntaxErrorConstructorInternal())
   }
 };
 
