@@ -3,7 +3,7 @@ function makeFreshVarGenerator(pref) {
   return () => pref + count++;
 }
 
-const generateFreshVar = makeFreshVarGenerator("__v");
+const generateFreshVar = makeFreshVarGenerator("__n");
 
 module.exports = {
   generateFreshVar,

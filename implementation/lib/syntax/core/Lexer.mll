@@ -111,7 +111,6 @@ rule read =
   | "ceil"            { CEIL }
   | "cos"             { COS }
   | "exp"             { EXP }
-  | "code_point"      { CODE_POINT }
   | "extern"          { EXTERN }
   | "@"               { AT_SIGN }
   | "floor"           { FLOOR }
@@ -163,7 +162,8 @@ and read_string buf =
   | '\\' '/'             { Buffer.add_char buf '/'; read_string buf lexbuf }
   | '\\' '\\'            { Buffer.add_char buf '\\'; read_string buf lexbuf }
   | '\\' 'b'             { Buffer.add_char buf '\b'; read_string buf lexbuf }
-  | '\\' 'f'             { Buffer.add_char buf '\012'; read_string buf lexbuf }
+  | '\\' "011"           { Buffer.add_char buf '\011'; read_string buf lexbuf }
+  | '\\' "012"           { Buffer.add_char buf '\012'; read_string buf lexbuf }
   | '\\' 'n'             { Buffer.add_char buf '\n'; read_string buf lexbuf }
   | '\\' 'r'             { Buffer.add_char buf '\r'; read_string buf lexbuf }
   | '\\' 't'             { Buffer.add_char buf '\t'; read_string buf lexbuf }
