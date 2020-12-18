@@ -308,7 +308,6 @@ function jsonStringify(global, this, strict, args) {
       }
     }
   };
-  print "Stringify: Before Number";
   /* 6. If Type(space) is Number */
   if (Type(space) = "Number") {
     /* a. Let space be min(10, ToInteger(space)). */
@@ -357,8 +356,6 @@ function jsonStringify(global, this, strict, args) {
 
   /* 11. Return the result of calling the abstract operation Str with the empty
          String and wrapper. */
-  print "Stringify: Before Str";
-  print wrapper;
   return Str("", wrapper, stack, indent, gap, PropertyList, space, ReplacerFunction)
 };
 /**
@@ -405,20 +402,12 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
   /* 1. Let value be the result of calling the [[Get]] internal method
         of holder with argument key. */
   value := {holder.Get}(holder, key);
-  print "Str begin";
-  print value;
   value := value.Value;
-  print holder;
-  print holder.JSProperties;
-  print key;
-  print value;
   /* 2. If Type(value) is Object, then */
   if (Type(value) = "Object") {
     /* a. Let toJSON be the result of calling the [[Get]] internal
           method of value with argument "toJSON". */
-    print "Function Str - Type(value) = Object";
     toJSON := {value.Get}(value, "toJSON");
-    print toJSON;
     /* b. If IsCallable(toJSON) is true */
     if (IsCallable(toJSON) = true) {
       /* i. Let value be the result of calling the [[Call]] internal
@@ -485,7 +474,6 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
   };
   /* 10. If Type(value) is Object, and IsCallable(value) is false */
   if ((Type(value) = "Object") && (IsCallable(value) = false)) {
-    print "Function Str - case 10";
     /* a. If the [[Class]] internal property of value is "Array" then */
     if (value.Class = "Array") {
       /* i. Return the result of calling the abstract operation JA with argument value. */
@@ -510,10 +498,6 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
 function Quote(value) {
   /* 1. Let product be the double quote character. */
   product := "\""; /* " quote char */
-
-  print "Quote1 - before product";
-  print product;
-  print (s_len product);
 
   /* 2. For each character C in value */
   valueLen := s_len value;
@@ -573,10 +557,7 @@ function Quote(value) {
         /* d. Else */
         else {
           /* i. Let product be the concatenation of product and C. */
-          product := s_concat([product, C]);
-          print "Quote2 - before product";
-          print product;
-          print (s_len product)
+          product := s_concat([product, C])
         }
       }
     };
@@ -585,9 +566,6 @@ function Quote(value) {
   };
   /* 3. Let product be the concatenation of product and the double quote character. */
   product := s_concat([product, "\""]); /* " quote char */
-  print "Quote3 - before product";
-  print product;
-  print (s_len product);
   /* 4. Return product. */
   return product
 };
@@ -603,7 +581,6 @@ function Quote(value) {
 function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
   /* 1. If stack contains value then throw a TypeError exception because
         the structure is cyclical. */
-  print "inside JO";
   if (value in_list stack) {
     throw TypeErrorException()
   };
@@ -626,8 +603,6 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
           used by the Object.keys standard built-in function. */
     K := getOwnEnumerablePropertiesNames(value)
   };
-  print "JO after computing k ";
-  print K;
   /* 7. Let partial be an empty List. */
   partial := [];
   /* 8. For each element P of K. */
@@ -635,14 +610,9 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
   kLen := l_len K;
   while (i < kLen) {
     P := l_nth(K, i);
-    print "JO inside main loop P";
-    print P;
-    print value.JSProperties;
     /* a. Let strP be the result of calling the abstract operation Str
           with arguments P and value. */
     strP := Str(P, value, stack, indent, gap, PropertyList, space, ReplacerFunction);
-    print "JO inside main loop strP";
-    print strP;
     /* b. If strP is not undefined */
     if (!(strP = 'undefined)) {
       /* i. Let member be the result of calling the abstract operation
@@ -789,28 +759,3 @@ function JA(value, stack, indent, gap, space) {
   /* 13. Return final. */
   return final
 }
-
-/*
-;function main() {
-  globalObject := initGlobalObject(false);
-
-  |global| := globalObject;
-
-  O1 := ObjectConstructor(|global|, 'null, false, [null]);
-  refA := newPropertyReference(O1, "a", false);
-  descA := newDataPropertyDescriptorFull(1., true, true, true);
-  PutValue(refA, descA);
-
-  O2 := ObjectConstructor(|global|, 'null, false, [null]);
-  refC := newPropertyReference(O2, "c", false);
-  descC := newDataPropertyDescriptorFull(2., true, true, true);
-  PutValue(refC, descC);
-
-  refB := newPropertyReference(O1, "b", false);
-  descB := newDataPropertyDescriptorFull(O2, true, true, true);
-  PutValue(refB, descB);
-
-  str := jsonStringify(null, null, false, [O1, 'undefined, 'undefined]);
-  print str;
-  return 
-}*/
