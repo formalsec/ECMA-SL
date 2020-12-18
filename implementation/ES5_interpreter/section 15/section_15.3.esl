@@ -181,7 +181,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
   if ((argArray = 'null) ||| (argArray = 'undefined)) {
     /* a. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value
           and an empty list of arguments. */
-    return {func.Call}(func, thisArg, [])
+    return {func.Call}(null, null, func, thisArg, [])
   };
   /* 3. If Type(argArray) is not Object, then throw a TypeError exception. */
   if (!(Type(argArray) = "Object")) {
@@ -209,7 +209,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
   };
   /* 9. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
-  return {func.Call}(func, thisArg, argList)
+  return {func.Call}(null, null, func, thisArg, argList)
 
   /* The length property of the apply method is 2. */
 
@@ -238,7 +238,7 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
   };
   /* 4. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
-  return {func.Call}(func, thisArg, argList)
+  return {func.Call}(null, null, func, thisArg, argList)
 
   /* The length property of the call method is 1. */
 
@@ -336,7 +336,7 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
 };
 
 /* 15.3.4.5.1 [[Call]] */
-function CallBind(F, this, ExtraArgs) {
+function CallBind(externalScope, ref, F, this, ExtraArgs) {
   /* When the [[Call]] internal method of a function object, F, which was created using the bind function is called
      with a this value and a list of arguments ExtraArgs, the following steps are taken: */
 
@@ -351,11 +351,11 @@ function CallBind(F, this, ExtraArgs) {
   args := l_concat(boundArgs, ExtraArgs);
   /* 5. Return the result of calling the [[Call]] internal method of target providing boundThis as the this value and
         providing args as the arguments. */
-  return {target.Call}(target, boundThis, args)
+  return {target.Call}(externalScope, ref, target, boundThis, args)
 };
 
 /* 15.3.4.5.2 [[Construct]] */
-function ConstructBind(F, ExtraArgs) {
+function ConstructBind(externalScope, ref, F, ExtraArgs) {
   /* When the [[Construct]] internal method of a function object, F that was created using the bind function is called
      with a list of arguments ExtraArgs, the following steps are taken: */
 
@@ -371,7 +371,7 @@ function ConstructBind(F, ExtraArgs) {
         same values as the list ExtraArgs in the same order. */
   args := l_concat(boundArgs, ExtraArgs);
   /* 5. Return the result of calling the [[Construct]] internal method of target providing args as the arguments. */
-  return {target.Construct}(target, args)
+  return {target.Construct}(externalScope, ref, target, args)
 };
 
 /* 15.3.4.5.3 [[HasInstance]] (V) */
