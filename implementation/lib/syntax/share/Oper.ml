@@ -46,8 +46,10 @@ type uopt = Neg
           | Tail
           | First
           | Second
+          | LRemoveLast
           | IntToFloat
           | IntToString
+          | IntToFourHex
           | IntOfString
           | IntOfFloat
           | FloatOfString
@@ -229,6 +231,14 @@ let tail (v : Val.t) : Val.t = match v with
   | List l -> List (List.tl l)
   | _      -> invalid_arg "Exception in Oper.tail: this operation is only applicable to List arguments"
 
+let list_remove_last (v : Val.t) : Val.t = match v with
+| List l  ->
+  let l' = List.rev l in
+  (match l' with
+    | _ :: l'' -> List (List.rev l'')
+    | _ -> List [])
+| _       -> invalid_arg "Exception in Oper.list_remove_last: this operation is only applicable to List arguments"
+
 let first (v : Val.t) : Val.t = match v with
   | Tuple t -> List.hd t
   | _       -> invalid_arg "Exception in Oper.first: this operation is only applicable to Tuple arguments"
@@ -314,6 +324,10 @@ let to_char_code (v : Val.t) : Val.t = match v with
   | Str s -> Int (String_Utils.to_char_code s)
   | _     -> invalid_arg "Exception in Oper.to_char_code: this operation is only applicable to Str arguments"
 
+let int_to_four_hex (v : Val.t) : Val.t = match v with
+| Int i -> Str (Printf.sprintf "%04x" i)
+| _     -> invalid_arg "Exception in Oper.int_to_four_hex: this operation is only applicable to Int arguments"
+
 let to_lower_case (v : Val.t) : Val.t = match v with
   | Str s -> Str (String_Utils.to_lower_case s)
   | _     -> invalid_arg "Exception in Oper.to_lower_case: this operation is only applicable to Str arguments"
@@ -344,8 +358,10 @@ let str_of_unopt (op : uopt) : string = match op with
   | Tail          -> "tl"
   | First         -> "fst"
   | Second        -> "snd"
+  | LRemoveLast   -> "l_remove_last"
   | IntToFloat    -> "int_to_float"
   | IntToString   -> "int_to_string"
+  | IntToFourHex  -> "int_to_four_hex"
   | IntOfString   -> "int_of_string"
   | IntOfFloat    -> "int_of_float"
   | FloatOfString -> "float_of_string"
@@ -512,13 +528,15 @@ let uopt_to_json (op : uopt) : string =
      | Typeof        -> Printf.sprintf "Typeof\" }"
      | ListLen       -> Printf.sprintf "ListLen\" }"
      | TupleLen      -> Printf.sprintf "TypleLen\" }"
-     | StringLen          -> Printf.sprintf "StringLen\" }"
+     | StringLen     -> Printf.sprintf "StringLen\" }"
      | Head          -> Printf.sprintf "Head\" }"
      | Tail          -> Printf.sprintf "Tail\" }"
      | First         -> Printf.sprintf "First\" }"
      | Second        -> Printf.sprintf "Second\" }"
+     | LRemoveLast   -> Printf.sprintf "LRemoveLast\" }"
      | IntToFloat    -> Printf.sprintf "IntToFloat\" }"
      | IntToString   -> Printf.sprintf "IntToString\" }"
+     | IntToFourHex  -> Printf.sprintf "IntToFourHex\" }"
      | IntOfString   -> Printf.sprintf "IntOfString\" }"
      | IntOfFloat    -> Printf.sprintf "IntOfFloat\" }"
      | FloatOfString -> Printf.sprintf "FloatOfString\" }"

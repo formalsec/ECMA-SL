@@ -31,8 +31,10 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Tail          -> Oper.tail v
   | First         -> Oper.first v
   | Second        -> Oper.second v
+  | LRemoveLast   -> Oper.list_remove_last v
   | IntToFloat    -> Oper.int_to_float v
   | IntToString   -> Oper.int_to_string v
+  | IntToFourHex  -> Oper.int_to_four_hex v
   | IntOfString   -> Oper.int_of_string v
   | IntOfFloat    -> Oper.int_of_float v
   | FloatToString -> Oper.float_to_string v
