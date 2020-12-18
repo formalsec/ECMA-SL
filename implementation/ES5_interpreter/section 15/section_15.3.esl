@@ -120,23 +120,27 @@ function FunctionConstructor(globalObject, this, strict, params) {
   };
   /* 6. Let body be ToString(body). */
   body := ToString(body);
-  /* TODO parseBody and parseParams */
+
+  body := parseBody(P, body, strict);
+  P := parseParams(P);
   /* 7. If P is not parsable as a FormalParameterList opt then throw a SyntaxError exception. */
   if (!isParsableAsFormalParametersList(P)) { /* TODO */
     throw SyntaxErrorConstructorInternal()
   };
   /* 8. If body is not parsable as FunctionBody then throw a SyntaxError exception. */
-  if (!isParsableAsFunctionBody(body)) { /* TODO */
+  if (!isParsableAsFunctionBody(body)) {
     throw SyntaxErrorConstructorInternal()
   };
   /* 9. If body is strict mode code (see 10.1.1) then let strict be true, else let strict be false. */
-  if (isBuiltInFunctionBodyStrictModeCode(body)) { /* TODO */
+  if (isBuiltInFunctionBodyStrictModeCode(body)) {
     strict := true
   } else {
     strict := false
   };
   /* 10. If strict is true, throw any exceptions specified in 13.1 that apply. */
-  /* TODO */
+  if ((strict = true) &&& anyStrictModeRestrictionApplicable(body)) {
+    throw SyntaxErrorConstructorInternal()
+  };
   /* 11. Return a new Function object created as specified in 13.2 passing P as the FormalParameterList opt and body
          as the FunctionBody. Pass in the Global Environment as the Scope parameter and strict as the Strict flag. */
   return CreateFunctionObject(P, body, getGlobalEnvironment(globalObject), strict, null)
@@ -497,12 +501,51 @@ function isParsableAsFormalParametersList(str) {
   return true
 };
 
-function isParsableAsFunctionBody(str) {
-  /* TODO */
-  return true
+function isParsableAsFunctionBody(bodyObj) {
+  return ("type" in_obj bodyObj) &&& !(bodyObj.type = "EarlySyntaxError")
 };
 
-function isBuiltInFunctionBodyStrictModeCode(code) {
-  /* TODO */
-  return false
+function isBuiltInFunctionBodyStrictModeCode(bodyObj) {
+  return ("strict" in_obj bodyObj) &&& (bodyObj.strict)
+};
+
+function anyStrictModeRestrictionApplicable(bodyObj) {
+  return ("type" in_obj bodyObj) &&& (bodyObj.type = "EarlySyntaxError")
+};
+
+function parseParams(paramsStr) {
+  if (s_len paramsStr = 0) {
+    return []
+  };
+  params := s_split(paramsStr, ",");
+
+  /* Remove leading and trailing spaces */
+  lparams := l_len params;
+  i := 0;
+  ret := [];
+  while(i < lparams) {
+    param := l_nth(params, i);
+    ret := l_add(ret, trim param);
+    i := i + 1
+  };
+
+  return ret
+};
+
+function parseBody(params, bodyStr, strict) {
+  /* Wrap bodyStr in a function to avoid parsing errors in statements like return that is invalid outside of a function body */
+  bodyStr := s_concat ["function f(", params, ") {", bodyStr, "}"];
+  if (strict) {
+    bodyStr := s_concat ["\"use strict\";", bodyStr]
+  };
+  buildAST := extern parseJS(bodyStr);
+  bodyObj := {buildAST}();
+
+  if (bodyObj.type = "Program") {
+    programBody := l_nth(bodyObj.functionDeclarations, 0);
+    /* Access the body of the function we wrapped around the bodyStr */
+    return programBody.body
+  };
+  /* else we have an EarlySyntaxError */
+  return bodyObj
 }
