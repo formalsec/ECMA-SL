@@ -515,6 +515,9 @@ while getopts ${optstring} arg; do
   esac
 done
 
+# Record duration
+declare -i startTime=$(date +%s)
+
 if [ ${#dDirs[@]} -ne 0 ]; then
   processDirectories ${dDirs[@]}
 fi
@@ -530,3 +533,9 @@ fi
 if [ ${#rDirs[@]} -ne 0 ]; then
   processRecursively ${rDirs[@]}
 fi
+
+declare -i endTime=$(date +%s)
+declare -i duration=($endTime-$startTime)
+echo ""
+printf 'Execution duration: %02dh:%02dm:%02ds' $(($duration/3600)) $(($duration%3600/60)) $(($duration%60))
+echo ""
