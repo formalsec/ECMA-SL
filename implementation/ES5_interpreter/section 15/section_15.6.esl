@@ -78,7 +78,7 @@ function fillBooleanPrototype(booleanPrototypeObject, BooleanConstructor, global
 function BooleanConstructor(globalObject, this, strict, params) {
   value := l_nth(params, 0);
 
-  if (this = 'undefined) {
+  if ((this = 'undefined) ||| (this = 'null)) {
     return BooleanConstructorCalledAsFunction(value)
   };
 
