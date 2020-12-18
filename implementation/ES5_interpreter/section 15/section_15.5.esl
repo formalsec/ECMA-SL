@@ -178,7 +178,7 @@ function initalNewString (objectPrototype){
 function StringConstructor (global, this, strict, args) {
   value := getOptionalParam(args, 0);
 
-  if (this = 'undefined) {
+  if ((this = 'undefined) ||| (this = 'null)) {
     return StringConstructorCalledAsFunction(value)
   };
 
