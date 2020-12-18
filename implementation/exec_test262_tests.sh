@@ -169,6 +169,9 @@ function handleSingleFile() {
     return
   fi
 
+  # Record duration of the program interpretation
+  declare -i start_time=$(date +%s)
+
   #echo "3.5. Evaluate program and write the computed heap to the file heap.json. Output of the execution is written to the file result.txt"
   if [ $LOG_ENTIRE_EVAL_OUTPUT -eq 1 ]; then
     ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json > result.txt)
@@ -179,6 +182,10 @@ function handleSingleFile() {
     # 3.6. Check the result of the execution
     RESULT=$(grep "MAIN pc -> " result.txt)
   fi
+
+  declare -i end_time=$(date +%s)
+  declare -i duration=$end_time-$start_time
+  duration_str=$(printf '%02dh:%02dm:%02ds' $(($duration/3600)) $(($duration%3600/60)) $(($duration%60)))
 
   if [[ "${RESULT}" == "" ]]; then
     # echo "Check file result.txt"
@@ -274,8 +281,8 @@ function handleFiles() {
   params+=(":---: | :---: | :---: | :---: | :---:")
   params+=("$ok_tests | $fail_tests | $error_tests | $not_executed_tests | $total_tests")
   params+=("### Individual results")
-  params+=("File path | Result | Observations")
-  params+=("--- | :---: | ---")
+  params+=("File path | Result | Observations | Duration")
+  params+=("--- | :---: | :---: | ---")
   params+=("${files_results[@]}")
 
   writeToFile $output_file "${params[@]}"
@@ -331,9 +338,9 @@ function handleDirectories() {
         params+=("$dir_ok_tests | $dir_fail_tests | $dir_error_tests | $dir_not_executed_tests | $dir_total_tests")
         params+=("")
         params+=("### Individual results")
-        params+=("File path | Result | Observations")
-        params+=("--- | :---: | ---")
-        params+=("${dir_results[@]}")
+        params+=("File path | Result | Observations | Duration")
+        params+=("--- | :---: | :---: | ---")
+        params+=("${files_results[@]}")
         params+=("")
 
         writeToFile $output_file "${params[@]}"
