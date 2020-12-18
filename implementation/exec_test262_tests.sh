@@ -70,13 +70,12 @@ function logStatusToFiles() {
 # - file is not a negative test (search for the key "negative" in the frontmatter)
 function checkConstraints() {
   FILENAME=$1
-  declare -n ret=$2
   # check if it's a es5id test
   ises5id=$(awk '/es6id:|esid:/ {print $0}' $FILENAME)
   if [[ "${ises5id}" != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: not ES5 test${NC}\n"
 
-    ret="${FILENAME} | **NOT EXECUTED** | Is not a ES5 test"
+    checkConstraints_return="${FILENAME} | **NOT EXECUTED** | Is not a ES5 test"
     return 1
   fi
   # check if it uses/contains a call the built-in eval function
@@ -84,7 +83,7 @@ function checkConstraints() {
   if [[ "${iseval}" != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: eval test${NC}\n"
 
-    ret="${FILENAME} | **NOT EXECUTED** | Is an \"eval\" test"
+    checkConstraints_return="${FILENAME} | **NOT EXECUTED** | Is an \"eval\" test"
     return 1
   fi
   # check if it's a negative test
@@ -92,7 +91,7 @@ function checkConstraints() {
   if [[ "${isnegative}" != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: negative test${NC}\n"
 
-    ret="${FILENAME} | **NOT EXECUTED** | ${isnegative}"
+    checkConstraints_return="${FILENAME} | **NOT EXECUTED** | ${isnegative}"
     return 1
   fi
 
@@ -100,20 +99,18 @@ function checkConstraints() {
 }
 
 function handleSingleFile() {
-  declare -n result=$1
   # increment number of files being tested.
   incTotal
 
-  FILENAME=$2
+  FILENAME=$1
   printf "Testing ${FILENAME} ... "
 
-  local checkConstraints_return=""
-  checkConstraints $FILENAME "checkConstraints_return"
+  checkConstraints $FILENAME
   if [[ $? -ne 0 ]]; then
     # increment number of tests not executed
     incNotExecuted
 
-    result=("$checkConstraints_return")
+    test_result=("$checkConstraints_return")
     return
   fi
 
@@ -168,7 +165,7 @@ function handleSingleFile() {
       log_errors_arr+=("$FILENAME")
     fi
 
-    result=("${FILENAME}" "**ERROR**" "${ECMASLC}")
+    test_result=("${FILENAME}" "**ERROR**" "${ECMASLC}")
     return
   fi
 
@@ -194,7 +191,7 @@ function handleSingleFile() {
       log_errors_arr+=("$FILENAME")
     fi
 
-    result=("${FILENAME}" "**ERROR**" "${ECMASLCI}")
+    test_result=("${FILENAME}" "**ERROR**" "${ECMASLCI}" "${duration_str}")
     return
   elif [[ "${RESULT}" =~ "MAIN pc -> (\"C\", 'normal," ]]; then
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
@@ -206,7 +203,7 @@ function handleSingleFile() {
       log_oks_arr+=("$FILENAME")
     fi
 
-    result=("${FILENAME}" "_OK_" "")
+    test_result=("${FILENAME}" "_OK_" "" "${duration_str}")
     return
   else
     printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC}\n"
@@ -218,7 +215,7 @@ function handleSingleFile() {
       log_failures_arr+=("$FILENAME")
     fi
 
-    result=("${FILENAME}" "**FAIL**" "${RESULT}")
+    test_result=("${FILENAME}" "**FAIL**" "${RESULT}" "${duration_str}")
     return
   fi
 
@@ -227,15 +224,12 @@ function handleSingleFile() {
 }
 
 function testFiles() {
-  declare -n results=$1
   local files=($@)
-  unset files[0] # corresponds to the results var.
 
   for file in "${files[@]}"; do
-    local test_result=()
     if [ -f $file ]; then
       # Test file
-      handleSingleFile "test_result" $file
+      handleSingleFile $file
     else
       echo "Ignoring \"$file\". It's not a valid file."
       continue
@@ -248,7 +242,7 @@ function testFiles() {
       str+=" | "
       str+=$s
     done
-    results+=("$str")
+    files_results+=("$str")
   done
 }
 
@@ -272,8 +266,7 @@ function handleFiles() {
   params+=("---")
   writeToFile $output_file "${params[@]}"
 
-  local files_results=()
-  testFiles "files_results" "${files[@]}"
+  testFiles "${files[@]}"
 
   local params=()
   params+=("### Summary")
@@ -296,11 +289,10 @@ function handleSingleDirectory() {
     dir=$dir"/"
   fi
 
-  declare -n files_results=$3
   # Tests existence of JS files and avoids logging errors to the console.
   ls $dir*.js > /dev/null 2>&1
   if [[ $? -eq 0 ]]; then
-    testFiles "files_results" "$(ls $dir*.js)"
+    testFiles "$(ls $dir*.js)"
   fi
 
   if [[ $RECURSIVE -ne 0 ]]; then
@@ -328,8 +320,8 @@ function handleDirectories() {
       # Reset directories' counters
       resetDirCounters
       # Test directory
-      local -a dir_results=()
-      handleSingleDirectory $output_file $dir "dir_results"
+      files_results=()
+      handleSingleDirectory $output_file $dir
 
       if [[ $dir_total_tests -ne 0 ]]; then
         local params=()
@@ -440,7 +432,10 @@ declare -i dir_fail_tests=0
 declare -i dir_error_tests=0
 declare -i dir_not_executed_tests=0
 
+declare checkConstraints_return=""
 declare -a results=()
+declare -a files_results=()
+declare -a test_result=()
 
 declare -i RECURSIVE=0
 declare -r OUTPUT_FILE="logs/results_$(date +%d%m%yT%H%M%S).md"
