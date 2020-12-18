@@ -393,45 +393,6 @@ function resetDirCounters() {
   dir_not_executed_tests=0
 }
 
-function initVars() {
-  # Counters
-  declare -g -i total_tests=0
-  declare -g -i ok_tests=0
-  declare -g -i fail_tests=0
-  declare -g -i error_tests=0
-  declare -g -i not_executed_tests=0
-  # Counters used in the directories
-  declare -g -i dir_total_tests=0
-  declare -g -i dir_ok_tests=0
-  declare -g -i dir_fail_tests=0
-  declare -g -i dir_error_tests=0
-  declare -g -i dir_not_executed_tests=0
-
-  declare -g -a results=()
-
-  declare -g -i RECURSIVE=0
-  declare -g -r OUTPUT_FILE="logs/results_$(date +%d%m%yT%H%M%S).md"
-
-  declare -g -i LOG_ENTIRE_EVAL_OUTPUT=0
-
-  declare -g -i LOG_ERRORS=0
-  declare -g -i LOG_FAILURES=0
-  declare -g -i LOG_OKS=0
-  declare -g -r LOG_ERRORS_FILE="logs/errors_$(date +%d%m%yT%H%M%S).log"
-  declare -g -r LOG_FAILURES_FILE="logs/failures_$(date +%d%m%yT%H%M%S).log"
-  declare -g -r LOG_OKS_FILE="logs/oks_$(date +%d%m%yT%H%M%S).log"
-  declare -g -a log_errors_arr=()
-  declare -g -a log_failures_arr=()
-  declare -g -a log_ok_arr=()
-
-  # Empty the contents of the output file
-  cat /dev/null > $OUTPUT_FILE
-  # Check that "logs" directory exists and, if not, create it
-  if [ ! -d "logs" ]; then
-    mkdir logs
-  fi
-}
-
 
 function processFromInputFile() {
   local INPUT_FILES=($@)
@@ -461,11 +422,48 @@ function processDirectories() {
 #
 # BEGIN
 #
-initVars
-
 if [[ ${#} -eq 0 ]]; then
    usage
 fi
+
+# Initialise global variables
+# Counters
+declare -i total_tests=0
+declare -i ok_tests=0
+declare -i fail_tests=0
+declare -i error_tests=0
+declare -i not_executed_tests=0
+# Counters used in the directories
+declare -i dir_total_tests=0
+declare -i dir_ok_tests=0
+declare -i dir_fail_tests=0
+declare -i dir_error_tests=0
+declare -i dir_not_executed_tests=0
+
+declare -a results=()
+
+declare -i RECURSIVE=0
+declare -r OUTPUT_FILE="logs/results_$(date +%d%m%yT%H%M%S).md"
+
+declare -i LOG_ENTIRE_EVAL_OUTPUT=0
+
+declare -i LOG_ERRORS=0
+declare -i LOG_FAILURES=0
+declare -i LOG_OKS=0
+declare -r LOG_ERRORS_FILE="logs/errors_$(date +%d%m%yT%H%M%S).log"
+declare -r LOG_FAILURES_FILE="logs/failures_$(date +%d%m%yT%H%M%S).log"
+declare -r LOG_OKS_FILE="logs/oks_$(date +%d%m%yT%H%M%S).log"
+declare -a log_errors_arr=()
+declare -a log_failures_arr=()
+declare -a log_ok_arr=()
+
+# Empty the contents of the output file
+cat /dev/null > $OUTPUT_FILE
+# Check that "logs" directory exists and, if not, create it
+if [ ! -d "logs" ]; then
+  mkdir logs
+fi
+
 
 #echo "1. Create the file that will be compiled from \"Plus\" to \"Core\" in step 3.4."
 echo "import \"ES5_interpreter/test262_ast.esl\";" > "ES5_interpreter/test262.esl"
