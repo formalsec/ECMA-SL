@@ -79,14 +79,7 @@ function checkConstraints() {
     ret="${FILENAME} | **NOT EXECUTED** | Is not a ES5 test"
     return 1
   fi
-  # check if it uses/contains a call the built-in eval function
-  iseval=$(awk '/eval\(/ {print $0}' $FILENAME)
-  if [[ "${iseval}" != "" ]]; then
-    printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: eval test${NC}\n"
 
-    ret="${FILENAME} | **NOT EXECUTED** | Is an \"eval\" test"
-    return 1
-  fi
   # check if it's a negative test
   isnegative=$(awk '/negative:/ {print $2}' $FILENAME)
   if [[ "${isnegative}" != "" ]]; then
