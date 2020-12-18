@@ -180,7 +180,7 @@ function Walk(holder, name) {
   /* 3. Return the result of calling the [[Call]] internal method of reviver
         passing holder as the this value and with an argument list consisting
         of name and val. */
-  return {reviver.Call}(reviver, holder, [name, val])
+  return {reviver.Call}(null, null, reviver, holder, [name, val])
 };
 
 
@@ -402,7 +402,7 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
       /* i. Let value be the result of calling the [[Call]] internal
             method of toJSON passing value as the this value and with
             an argument list consisting of key. */
-      value := {toJSON.Call}(toJSON, value, [key])
+      value := {toJSON.Call}(null, null, toJSON, value, [key])
     }
   };
   /* 3. If ReplacerFunction is not undefined, then */
@@ -410,7 +410,7 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
     /* a. Let value be the result of calling the [[Call]] internal
           method of ReplacerFunction passing holder as the this value
           and with an argument list consisting of key and value. */
-    value := {ReplacerFunction.Call}(ReplacerFunction, holder, [key, value])
+    value := {ReplacerFunction.Call}(null, null, ReplacerFunction, holder, [key, value])
   };
   /* 4. If Type(value) is Object then, */
   if (Type(value) = "Object") {
@@ -841,5 +841,5 @@ function main() {
 
   str := jsonStringify(null, null, false, [O1, 'undefined, 'undefined]);
   print str;
-  return 
+  return
 }
