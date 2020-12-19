@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 printf " -------------------------------\n"
 printf " \tECMA-SL JS Test262 Tool\n"
 printf " -------------------------------\n"
@@ -70,25 +70,24 @@ function logStatusToFiles() {
 # - file is not a negative test (search for the key "negative" in the frontmatter)
 function checkConstraints() {
   FILENAME=$1
+
+  METADATA=$2
   # check if it's a es5id test
-  ises5id=$(awk '/es6id:|esid:/ {print $0}' $FILENAME)
-  if [[ "${ises5id}" != "" ]]; then
+  if [[ $(echo -e "$METADATA" | awk '/es6id:|esid:/ {print $0}') != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: not ES5 test${NC}\n"
 
     checkConstraints_return="${FILENAME} | **NOT EXECUTED** | Is not a ES5 test"
     return 1
   fi
   # check if it uses/contains a call the built-in eval function
-  iseval=$(awk '/eval\(/ {print $0}' $FILENAME)
-  if [[ "${iseval}" != "" ]]; then
+  if [[ $(echo -e "$METADATA" | awk '/eval\(/ {print $0}') != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: eval test${NC}\n"
 
     checkConstraints_return="${FILENAME} | **NOT EXECUTED** | Is an \"eval\" test"
     return 1
   fi
   # check if it's a negative test
-  isnegative=$(awk '/negative:/ {print $2}' $FILENAME)
-  if [[ "${isnegative}" != "" ]]; then
+  if [[ $(echo -e "$METADATA" | awk '/negative:/ {print $2}') != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: negative test${NC}\n"
 
     checkConstraints_return="${FILENAME} | **NOT EXECUTED** | ${isnegative}"
@@ -105,7 +104,10 @@ function handleSingleFile() {
   FILENAME=$1
   printf "Testing ${FILENAME} ... "
 
-  checkConstraints $FILENAME
+  METADATA=$(cat "$FILENAME" | awk '/\/\*---/,/---\*\//')
+
+  checkConstraints $FILENAME "$METADATA"
+
   if [[ $? -ne 0 ]]; then
     # increment number of tests not executed
     incNotExecuted
@@ -116,7 +118,7 @@ function handleSingleFile() {
 
   #echo "3.1. Copy contents to temporary file"
   cat /dev/null > "test/main262.js"
-  if [[ $(awk '/flags: \[onlyStrict\]/ {print $0}' $FILENAME) != "" ]]; then
+  if [[ $(echo -e "$METADATA" | awk '/flags: \[onlyStrict\]/ {print $1}') != "" ]]; then
     echo "\"use strict\";" >> test/main262.js
   fi
   cat "test/test262/environment/harness.js" >> test/main262.js
