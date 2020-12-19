@@ -186,8 +186,8 @@ function handleSingleFile() {
   fi
 
   declare -i end_time=$(date +%s)
-  declare -i duration=$end_time-$start_time
-  duration_str=$(printf '%02dh:%02dm:%02ds' $(($duration/3600)) $(($duration%3600/60)) $(($duration%60)))
+  declare -i duration=$((end_time-start_time))
+  duration_str=$(printf '%02dh:%02dm:%02ds' $((duration/3600)) $((duration%3600/60)) $((duration%60)))
 
   if [[ "${RESULT}" == "" ]]; then
     # echo "Check file result.txt"
@@ -537,7 +537,6 @@ if [ ${#rDirs[@]} -ne 0 ]; then
 fi
 
 declare -i endTime=$(date +%s)
-declare -i duration=($endTime-$startTime)
+declare -i duration=$((endTime-startTime))
 echo ""
-printf 'Execution duration: %02dh:%02dm:%02ds' $(($duration/3600)) $(($duration%3600/60)) $(($duration%60))
-echo ""
+echo $(printf 'Execution duration: %02dh:%02dm:%02ds' $((duration/3600)) $((duration%3600/60)) $((duration%60)))
