@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 printf " -------------------------------\n"
 printf " \tECMA-SL JS Test262 Tool\n"
 printf " -------------------------------\n"
@@ -37,7 +37,7 @@ function writeToFile() {
   unset params[0] # is the output file
 
   for s in "${params[@]}"; do
-    echo $s >> $output_file
+    echo -e "$s" >> $output_file
   done
 }
 
@@ -70,29 +70,27 @@ function logStatusToFiles() {
 # - file is not a negative test (search for the key "negative" in the frontmatter)
 function checkConstraints() {
   FILENAME=$1
-  declare -n ret=$2
+
+  METADATA=$2
   # check if it's a es5id test
-  ises5id=$(awk '/es6id:|esid:/ {print $0}' $FILENAME)
-  if [[ "${ises5id}" != "" ]]; then
+  if [[ $(echo -e "$METADATA" | awk '/es6id:|esid:/ {print $0}') != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: not ES5 test${NC}\n"
 
-    ret="${FILENAME} | **NOT EXECUTED** | Is not a ES5 test"
+    checkConstraints_return="${FILENAME} | **NOT EXECUTED** | Is not a ES5 test"
     return 1
   fi
   # check if it uses/contains a call the built-in eval function
-  iseval=$(awk '/eval\(/ {print $0}' $FILENAME)
-  if [[ "${iseval}" != "" ]]; then
+  if [[ $(echo -e "$METADATA" | awk '/eval\(/ {print $0}') != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: eval test${NC}\n"
 
-    ret="${FILENAME} | **NOT EXECUTED** | Is an \"eval\" test"
+    checkConstraints_return="${FILENAME} | **NOT EXECUTED** | Is an \"eval\" test"
     return 1
   fi
   # check if it's a negative test
-  isnegative=$(awk '/negative:/ {print $2}' $FILENAME)
-  if [[ "${isnegative}" != "" ]]; then
+  if [[ $(echo -e "$METADATA" | awk '/negative:/ {print $2}') != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: negative test${NC}\n"
 
-    ret="${FILENAME} | **NOT EXECUTED** | ${isnegative}"
+    checkConstraints_return="${FILENAME} | **NOT EXECUTED** | ${isnegative}"
     return 1
   fi
 
@@ -100,30 +98,31 @@ function checkConstraints() {
 }
 
 function handleSingleFile() {
-  declare -n result=$1
   # increment number of files being tested.
   incTotal
 
-  FILENAME=$2
+  FILENAME=$1
   printf "Testing ${FILENAME} ... "
 
-  local checkConstraints_return=""
-  checkConstraints $FILENAME "checkConstraints_return"
+  METADATA=$(cat "$FILENAME" | awk '/\/\*---/,/---\*\//')
+
+  checkConstraints $FILENAME "$METADATA"
+
   if [[ $? -ne 0 ]]; then
     # increment number of tests not executed
     incNotExecuted
 
-    result=("$checkConstraints_return")
+    test_result=("$checkConstraints_return")
     return
   fi
 
   #echo "3.1. Copy contents to temporary file"
-  cat /dev/null > "test/main262.js"
-  if [[ $(awk '/flags: \[onlyStrict\]/ {print $0}' $FILENAME) != "" ]]; then
-    echo "\"use strict\";" >> test/main262.js
+  cat /dev/null > "output/main262_$now.js"
+  if [[ $(echo -e "$METADATA" | awk '/flags: \[onlyStrict\]/ {print $1}') != "" ]]; then
+    echo "\"use strict\";" >> "output/main262_$now.js"
   fi
-  cat "test/test262/environment/harness.js" >> test/main262.js
-  cat "${FILENAME}" >> test/main262.js
+  cat "test/test262/environment/harness.js" >> "output/main262_$now.js"
+  cat "${FILENAME}" >> "output/main262_$now.js"
 
   if [ $? -ne 0 ]; then
     exit 1
@@ -131,12 +130,10 @@ function handleSingleFile() {
 
   #echo "3.2. Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program"
   cd "../JS2ECMA-SL"
-  JS2ECMASL=$(node src/index.js -i ../implementation/test/main262.js -o test262_ast.esl)
+  JS2ECMASL=$(node src/index.js -i ../implementation/output/main262_$now.js -o ../implementation/output/test262_ast_$now.esl 2>&1)
   cd "../implementation"
 
-  if [[ "${JS2ECMASL}" != "The file has been saved!" ]]
-  then
-    echo $JS2ECMASL
+  if [[ "${JS2ECMASL}" != "The file has been saved!" ]]; then
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
 
     # increment number of tests with error
@@ -146,19 +143,16 @@ function handleSingleFile() {
       log_errors_arr+=("$FILENAME")
     fi
 
-    result=("${FILENAME}" "**ERROR**" "$JS2ECMASL")
+    ERROR_MESSAGE=$(echo -e "$JS2ECMASL" | head -n 1)
 
+    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "")
     return
   fi
-
-  #echo "3.3. Move compiled file to directory where to execute the tests"
-  mv "../JS2ECMA-SL/test262_ast.esl" "ES5_interpreter/test262_ast.esl"
 
   #echo "3.4. Compile program written in \"Plus\" to \"Core\""
-  ECMALSLC=$(./main.native -mode c -i ES5_interpreter/test262.esl -o ES5_interpreter/core.esl)
+  ECMASLC=$(./main.native -mode c -i output/test262_$now.esl -o output/core_$now.esl 2>&1)
 
-  if [ $? -ne 0 ]
-  then
+  if [ $? -ne 0 ]; then
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
 
     # increment number of tests with error
@@ -168,35 +162,27 @@ function handleSingleFile() {
       log_errors_arr+=("$FILENAME")
     fi
 
-    result=("${FILENAME}" "**ERROR**" "${ECMASLC}")
+    ERROR_MESSAGE=$(echo -e "$ECMASLC" | head -n 1)
+
+    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "")
     return
   fi
 
-  #echo "3.5. Evaluate program and write the computed heap to the file heap.json. Output of the execution is written to the file result.txt"
-  if [ $LOG_ENTIRE_EVAL_OUTPUT -eq 1 ]; then
-    ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json > result.txt)
-    # 3.6. Check the result of the execution
-    RESULT=$(tail -n 10 result.txt | grep "MAIN pc -> ")
-  else
-    ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json | tail -n 10 > result.txt)
-    # 3.6. Check the result of the execution
-    RESULT=$(grep "MAIN pc -> " result.txt)
-  fi
+  # Record duration of the program interpretation
+  declare -i start_time=$(date +%s%N)
 
-  if [[ "${RESULT}" == "" ]]; then
-    # echo "Check file result.txt"
-    printf "${BOLD}${RED}${INV}ERROR${NC}\n"
+  #echo "3.5. Evaluate program and write the computed heap to the file heap.json."
+  ECMASLCI=$(./main.native -mode ci -i output/core_$now.esl -h heap.json 2>&1)
 
-    # increment number of tests with error
-    incError
+  local EXIT_CODE=$?
 
-    if [ $LOG_ERRORS -eq 1 ]; then
-      log_errors_arr+=("$FILENAME")
-    fi
+  # Calc duration
+  declare -i end_time=$(date +%s%N)
+  declare -i duration=$((end_time-start_time))
+  # The amount of zeros is necessary because we're dealing with seconds and nanoseconds
+  duration_str=$(echo $duration | awk '{printf "%02dh:%02dm:%06.3fs\n", $0/3600000000000, $0%3600000000000/60000000000, $0/1000000000%60}')
 
-    result=("${FILENAME}" "**ERROR**" "${ECMASLCI}")
-    return
-  elif [[ "${RESULT}" =~ "MAIN pc -> (\"C\", 'normal," ]]; then
+  if [ $EXIT_CODE -eq 0 ]; then
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
 
     # increment number of tests successfully executed
@@ -206,9 +192,8 @@ function handleSingleFile() {
       log_oks_arr+=("$FILENAME")
     fi
 
-    result=("${FILENAME}" "_OK_" "")
-    return
-  else
+    test_result=("$FILENAME" "_OK_" "" "$duration_str")
+  elif [ $EXIT_CODE -eq 1 ]; then
     printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC}\n"
 
     # increment number of tests failed
@@ -218,24 +203,36 @@ function handleSingleFile() {
       log_failures_arr+=("$FILENAME")
     fi
 
-    result=("${FILENAME}" "**FAIL**" "${RESULT}")
-    return
+    test_result=("$FILENAME" "**FAIL**" "$RESULT" "$duration_str")
+  else
+    printf "${BOLD}${RED}${INV}ERROR${NC}\n"
+
+    # increment number of tests with error
+    incError
+
+    if [ $LOG_ERRORS -eq 1 ]; then
+      log_errors_arr+=("$FILENAME")
+    fi
+
+    ERROR_MESSAGE=$(echo -e "$ECMASLCI" | tail -n 1)
+
+    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "$duration_str")
   fi
 
-  echo "Not suppose to reach here."
-  exit 1
+  if [ $LOG_ENTIRE_EVAL_OUTPUT -eq 1 ]; then
+    # Output of the execution is written to the file result.txt
+    echo "Writing interpretation output to file..."
+    echo "$ECMASLCI" > result.txt
+  fi
 }
 
 function testFiles() {
-  declare -n results=$1
   local files=($@)
-  unset files[0] # corresponds to the results var.
 
   for file in "${files[@]}"; do
-    local test_result=()
     if [ -f $file ]; then
       # Test file
-      handleSingleFile "test_result" $file
+      handleSingleFile $file
     else
       echo "Ignoring \"$file\". It's not a valid file."
       continue
@@ -248,7 +245,7 @@ function testFiles() {
       str+=" | "
       str+=$s
     done
-    results+=("$str")
+    files_results+=("$str")
   done
 }
 
@@ -272,8 +269,7 @@ function handleFiles() {
   params+=("---")
   writeToFile $output_file "${params[@]}"
 
-  local files_results=()
-  testFiles "files_results" "${files[@]}"
+  testFiles "${files[@]}"
 
   local params=()
   params+=("### Summary")
@@ -281,8 +277,8 @@ function handleFiles() {
   params+=(":---: | :---: | :---: | :---: | :---:")
   params+=("$ok_tests | $fail_tests | $error_tests | $not_executed_tests | $total_tests")
   params+=("### Individual results")
-  params+=("File path | Result | Observations")
-  params+=("--- | :---: | ---")
+  params+=("File path | Result | Observations | Duration")
+  params+=("--- | :---: | :---: | ---")
   params+=("${files_results[@]}")
 
   writeToFile $output_file "${params[@]}"
@@ -296,11 +292,10 @@ function handleSingleDirectory() {
     dir=$dir"/"
   fi
 
-  declare -n files_results=$3
   # Tests existence of JS files and avoids logging errors to the console.
   ls $dir*.js > /dev/null 2>&1
   if [[ $? -eq 0 ]]; then
-    testFiles "files_results" "$(ls $dir*.js)"
+    testFiles "$(ls $dir*.js)"
   fi
 
   if [[ $RECURSIVE -ne 0 ]]; then
@@ -328,8 +323,8 @@ function handleDirectories() {
       # Reset directories' counters
       resetDirCounters
       # Test directory
-      local -a dir_results=()
-      handleSingleDirectory $output_file $dir "dir_results"
+      files_results=()
+      handleSingleDirectory $output_file $dir
 
       if [[ $dir_total_tests -ne 0 ]]; then
         local params=()
@@ -339,9 +334,9 @@ function handleDirectories() {
         params+=("$dir_ok_tests | $dir_fail_tests | $dir_error_tests | $dir_not_executed_tests | $dir_total_tests")
         params+=("")
         params+=("### Individual results")
-        params+=("File path | Result | Observations")
-        params+=("--- | :---: | ---")
-        params+=("${dir_results[@]}")
+        params+=("File path | Result | Observations | Duration")
+        params+=("--- | :---: | :---: | ---")
+        params+=("${files_results[@]}")
         params+=("")
 
         writeToFile $output_file "${params[@]}"
@@ -393,45 +388,6 @@ function resetDirCounters() {
   dir_not_executed_tests=0
 }
 
-function initVars() {
-  # Counters
-  declare -g -i total_tests=0
-  declare -g -i ok_tests=0
-  declare -g -i fail_tests=0
-  declare -g -i error_tests=0
-  declare -g -i not_executed_tests=0
-  # Counters used in the directories
-  declare -g -i dir_total_tests=0
-  declare -g -i dir_ok_tests=0
-  declare -g -i dir_fail_tests=0
-  declare -g -i dir_error_tests=0
-  declare -g -i dir_not_executed_tests=0
-
-  declare -g -a results=()
-
-  declare -g -i RECURSIVE=0
-  declare -g -r OUTPUT_FILE="logs/results_$(date +%d%m%yT%H%M%S).md"
-
-  declare -g -i LOG_ENTIRE_EVAL_OUTPUT=0
-
-  declare -g -i LOG_ERRORS=0
-  declare -g -i LOG_FAILURES=0
-  declare -g -i LOG_OKS=0
-  declare -g -r LOG_ERRORS_FILE="logs/errors_$(date +%d%m%yT%H%M%S).log"
-  declare -g -r LOG_FAILURES_FILE="logs/failures_$(date +%d%m%yT%H%M%S).log"
-  declare -g -r LOG_OKS_FILE="logs/oks_$(date +%d%m%yT%H%M%S).log"
-  declare -g -a log_errors_arr=()
-  declare -g -a log_failures_arr=()
-  declare -g -a log_ok_arr=()
-
-  # Empty the contents of the output file
-  cat /dev/null > $OUTPUT_FILE
-  # Check that "logs" directory exists and, if not, create it
-  if [ ! -d "logs" ]; then
-    mkdir logs
-  fi
-}
-
 
 function processFromInputFile() {
   local INPUT_FILES=($@)
@@ -461,20 +417,65 @@ function processDirectories() {
 #
 # BEGIN
 #
-initVars
-
 if [[ ${#} -eq 0 ]]; then
    usage
 fi
 
+# Initialise global variables
+declare now=$(date +%y%m%dT%H%M%S)
+# Counters
+declare -i total_tests=0
+declare -i ok_tests=0
+declare -i fail_tests=0
+declare -i error_tests=0
+declare -i not_executed_tests=0
+# Counters used in the directories
+declare -i dir_total_tests=0
+declare -i dir_ok_tests=0
+declare -i dir_fail_tests=0
+declare -i dir_error_tests=0
+declare -i dir_not_executed_tests=0
+
+declare checkConstraints_return=""
+declare -a results=()
+declare -a files_results=()
+declare -a test_result=()
+
+declare -i RECURSIVE=0
+declare -r OUTPUT_FILE="logs/results_$now.md"
+
+declare -i LOG_ENTIRE_EVAL_OUTPUT=0
+
+declare -i LOG_ERRORS=0
+declare -i LOG_FAILURES=0
+declare -i LOG_OKS=0
+declare -r LOG_ERRORS_FILE="logs/errors_$now.log"
+declare -r LOG_FAILURES_FILE="logs/failures_$now.log"
+declare -r LOG_OKS_FILE="logs/oks_$now.log"
+declare -a log_errors_arr=()
+declare -a log_failures_arr=()
+declare -a log_ok_arr=()
+
+# Empty the contents of the output file
+cat /dev/null > $OUTPUT_FILE
+# Check that "logs" directory exists and, if not, create it
+if [ ! -d "logs" ]; then
+  mkdir "logs"
+fi
+# Check that "output" directory exists and, if not, create it
+if [ ! -d "output" ]; then
+  mkdir "output"
+fi
+
+
 #echo "1. Create the file that will be compiled from \"Plus\" to \"Core\" in step 3.4."
-echo "import \"ES5_interpreter/test262_ast.esl\";" > "ES5_interpreter/test262.esl"
-echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "ES5_interpreter/test262.esl"
+echo "import \"output/test262_ast_$now.esl\";" > "output/test262_$now.esl"
+echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "output/test262_$now.esl"
 echo "function main() {
   x := buildAST();
   ret := JS_Interpreter_Program(x);
   return ret
-}" >> "ES5_interpreter/test262.esl"
+}" >> "output/test262_$now.esl"
 
 
 #echo "2. Compile the ECMA-SL language"
@@ -515,6 +516,9 @@ while getopts ${optstring} arg; do
   esac
 done
 
+# Record duration
+declare -i startTime=$(date +%s%N)
+
 if [ ${#dDirs[@]} -ne 0 ]; then
   processDirectories ${dDirs[@]}
 fi
@@ -530,3 +534,10 @@ fi
 if [ ${#rDirs[@]} -ne 0 ]; then
   processRecursively ${rDirs[@]}
 fi
+
+declare -i endTime=$(date +%s%N)
+declare -i duration=$((endTime-startTime))
+echo ""
+# The amount of zeros is necessary because we're dealing with seconds and nanoseconds
+echo $duration | awk '{printf "Execution duration: %02dh:%02dm:%06.3fs\n", $0/3600000000000, $0%3600000000000/60000000000, $0/1000000000%60}'
+
