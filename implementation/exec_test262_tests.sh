@@ -117,12 +117,12 @@ function handleSingleFile() {
   fi
 
   #echo "3.1. Copy contents to temporary file"
-  cat /dev/null > "test/main262.js"
+  cat /dev/null > "output/main262.js"
   if [[ $(echo -e "$METADATA" | awk '/flags: \[onlyStrict\]/ {print $1}') != "" ]]; then
-    echo "\"use strict\";" >> test/main262.js
+    echo "\"use strict\";" >> output/main262.js
   fi
-  cat "test/test262/environment/harness.js" >> test/main262.js
-  cat "${FILENAME}" >> test/main262.js
+  cat "test/test262/environment/harness.js" >> output/main262.js
+  cat "${FILENAME}" >> output/main262.js
 
   if [ $? -ne 0 ]; then
     exit 1
@@ -130,7 +130,7 @@ function handleSingleFile() {
 
   #echo "3.2. Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program"
   cd "../JS2ECMA-SL"
-  JS2ECMASL=$(node src/index.js -i ../implementation/test/main262.js -o test262_ast.esl 2>&1)
+  JS2ECMASL=$(node src/index.js -i ../implementation/output/main262.js -o ../implementation/output/test262_ast.esl 2>&1)
   cd "../implementation"
 
   if [[ "${JS2ECMASL}" != "The file has been saved!" ]]; then
@@ -149,11 +149,8 @@ function handleSingleFile() {
     return
   fi
 
-  #echo "3.3. Move compiled file to directory where to execute the tests"
-  mv "../JS2ECMA-SL/test262_ast.esl" "ES5_interpreter/test262_ast.esl"
-
   #echo "3.4. Compile program written in \"Plus\" to \"Core\""
-  ECMASLC=$(./main.native -mode c -i ES5_interpreter/test262.esl -o ES5_interpreter/core.esl 2>&1)
+  ECMASLC=$(./main.native -mode c -i output/test262.esl -o output/core.esl 2>&1)
 
   if [ $? -ne 0 ]; then
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
@@ -175,7 +172,7 @@ function handleSingleFile() {
   declare -i start_time=$(date +%s%N)
 
   #echo "3.5. Evaluate program and write the computed heap to the file heap.json."
-  ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json 2>&1)
+  ECMASLCI=$(./main.native -mode ci -i output/core.esl -h heap.json 2>&1)
 
   local EXIT_CODE=$?
 
@@ -462,18 +459,22 @@ declare -a log_ok_arr=()
 cat /dev/null > $OUTPUT_FILE
 # Check that "logs" directory exists and, if not, create it
 if [ ! -d "logs" ]; then
-  mkdir logs
+  mkdir "logs"
+fi
+# Check that "output" directory exists and, if not, create it
+if [ ! -d "output" ]; then
+  mkdir "output"
 fi
 
 
 #echo "1. Create the file that will be compiled from \"Plus\" to \"Core\" in step 3.4."
-echo "import \"ES5_interpreter/test262_ast.esl\";" > "ES5_interpreter/test262.esl"
-echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "ES5_interpreter/test262.esl"
+echo "import \"output/test262_ast.esl\";" > "output/test262.esl"
+echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "output/test262.esl"
 echo "function main() {
   x := buildAST();
   ret := JS_Interpreter_Program(x);
   return ret
-}" >> "ES5_interpreter/test262.esl"
+}" >> "output/test262.esl"
 
 
 #echo "2. Compile the ECMA-SL language"
