@@ -117,12 +117,12 @@ function handleSingleFile() {
   fi
 
   #echo "3.1. Copy contents to temporary file"
-  cat /dev/null > "output/main262.js"
+  cat /dev/null > "output/main262_$now.js"
   if [[ $(echo -e "$METADATA" | awk '/flags: \[onlyStrict\]/ {print $1}') != "" ]]; then
-    echo "\"use strict\";" >> output/main262.js
+    echo "\"use strict\";" >> "output/main262_$now.js"
   fi
-  cat "test/test262/environment/harness.js" >> output/main262.js
-  cat "${FILENAME}" >> output/main262.js
+  cat "test/test262/environment/harness.js" >> "output/main262_$now.js"
+  cat "${FILENAME}" >> "output/main262_$now.js"
 
   if [ $? -ne 0 ]; then
     exit 1
@@ -130,7 +130,7 @@ function handleSingleFile() {
 
   #echo "3.2. Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program"
   cd "../JS2ECMA-SL"
-  JS2ECMASL=$(node src/index.js -i ../implementation/output/main262.js -o ../implementation/output/test262_ast.esl 2>&1)
+  JS2ECMASL=$(node src/index.js -i ../implementation/output/main262_$now.js -o ../implementation/output/test262_ast_$now.esl 2>&1)
   cd "../implementation"
 
   if [[ "${JS2ECMASL}" != "The file has been saved!" ]]; then
@@ -150,7 +150,7 @@ function handleSingleFile() {
   fi
 
   #echo "3.4. Compile program written in \"Plus\" to \"Core\""
-  ECMASLC=$(./main.native -mode c -i output/test262.esl -o output/core.esl 2>&1)
+  ECMASLC=$(./main.native -mode c -i output/test262_$now.esl -o output/core_$now.esl 2>&1)
 
   if [ $? -ne 0 ]; then
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
@@ -172,7 +172,7 @@ function handleSingleFile() {
   declare -i start_time=$(date +%s%N)
 
   #echo "3.5. Evaluate program and write the computed heap to the file heap.json."
-  ECMASLCI=$(./main.native -mode ci -i output/core.esl -h heap.json 2>&1)
+  ECMASLCI=$(./main.native -mode ci -i output/core_$now.esl -h heap.json 2>&1)
 
   local EXIT_CODE=$?
 
@@ -422,6 +422,7 @@ if [[ ${#} -eq 0 ]]; then
 fi
 
 # Initialise global variables
+declare now=$(date +%y%m%dT%H%M%S)
 # Counters
 declare -i total_tests=0
 declare -i ok_tests=0
@@ -441,16 +442,16 @@ declare -a files_results=()
 declare -a test_result=()
 
 declare -i RECURSIVE=0
-declare -r OUTPUT_FILE="logs/results_$(date +%d%m%yT%H%M%S).md"
+declare -r OUTPUT_FILE="logs/results_$now.md"
 
 declare -i LOG_ENTIRE_EVAL_OUTPUT=0
 
 declare -i LOG_ERRORS=0
 declare -i LOG_FAILURES=0
 declare -i LOG_OKS=0
-declare -r LOG_ERRORS_FILE="logs/errors_$(date +%d%m%yT%H%M%S).log"
-declare -r LOG_FAILURES_FILE="logs/failures_$(date +%d%m%yT%H%M%S).log"
-declare -r LOG_OKS_FILE="logs/oks_$(date +%d%m%yT%H%M%S).log"
+declare -r LOG_ERRORS_FILE="logs/errors_$now.log"
+declare -r LOG_FAILURES_FILE="logs/failures_$now.log"
+declare -r LOG_OKS_FILE="logs/oks_$now.log"
 declare -a log_errors_arr=()
 declare -a log_failures_arr=()
 declare -a log_ok_arr=()
@@ -468,13 +469,13 @@ fi
 
 
 #echo "1. Create the file that will be compiled from \"Plus\" to \"Core\" in step 3.4."
-echo "import \"output/test262_ast.esl\";" > "output/test262.esl"
-echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "output/test262.esl"
+echo "import \"output/test262_ast_$now.esl\";" > "output/test262_$now.esl"
+echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "output/test262_$now.esl"
 echo "function main() {
   x := buildAST();
   ret := JS_Interpreter_Program(x);
   return ret
-}" >> "output/test262.esl"
+}" >> "output/test262_$now.esl"
 
 
 #echo "2. Compile the ECMA-SL language"
