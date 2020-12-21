@@ -172,7 +172,7 @@ function handleSingleFile() {
   fi
 
   # Record duration of the program interpretation
-  declare -i start_time=$(date +%s)
+  declare -i start_time=$(date +%s%N)
 
   #echo "3.5. Evaluate program and write the computed heap to the file heap.json. Output of the execution is written to the file result.txt"
   if [ $LOG_ENTIRE_EVAL_OUTPUT -eq 1 ]; then
@@ -185,9 +185,12 @@ function handleSingleFile() {
     RESULT=$(grep "MAIN pc -> " result.txt)
   fi
 
-  declare -i end_time=$(date +%s)
+
+  # Calc duration
+  declare -i end_time=$(date +%s%N)
   declare -i duration=$((end_time-start_time))
-  duration_str=$(printf '%02dh:%02dm:%02ds' $((duration/3600)) $((duration%3600/60)) $((duration%60)))
+  # The amount of zeros is necessary because we're dealing with seconds and nanoseconds
+  duration_str=$(echo $duration | awk '{printf "%02dh:%02dm:%06.3fs\n", $0/3600000000000, $0%3600000000000/60000000000, $0/1000000000%60}')
 
   if [[ "${RESULT}" == "" ]]; then
     # echo "Check file result.txt"
@@ -518,7 +521,7 @@ while getopts ${optstring} arg; do
 done
 
 # Record duration
-declare -i startTime=$(date +%s)
+declare -i startTime=$(date +%s%N)
 
 if [ ${#dDirs[@]} -ne 0 ]; then
   processDirectories ${dDirs[@]}
@@ -536,7 +539,9 @@ if [ ${#rDirs[@]} -ne 0 ]; then
   processRecursively ${rDirs[@]}
 fi
 
-declare -i endTime=$(date +%s)
+declare -i endTime=$(date +%s%N)
 declare -i duration=$((endTime-startTime))
 echo ""
-echo $(printf 'Execution duration: %02dh:%02dm:%02ds' $((duration/3600)) $((duration%3600/60)) $((duration%60)))
+# The amount of zeros is necessary because we're dealing with seconds and nanoseconds
+echo $duration | awk '{printf "Execution duration: %02dh:%02dm:%06.3fs\n", $0/3600000000000, $0%3600000000000/60000000000, $0/1000000000%60}'
+
