@@ -37,7 +37,7 @@ function writeToFile() {
   unset params[0] # is the output file
 
   for s in "${params[@]}"; do
-    echo $s >> $output_file
+    echo -e "$s" >> $output_file
   done
 }
 
@@ -130,12 +130,10 @@ function handleSingleFile() {
 
   #echo "3.2. Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program"
   cd "../JS2ECMA-SL"
-  JS2ECMASL=$(node src/index.js -i ../implementation/test/main262.js -o test262_ast.esl)
+  JS2ECMASL=$(node src/index.js -i ../implementation/test/main262.js -o test262_ast.esl 2>&1)
   cd "../implementation"
 
-  if [[ "${JS2ECMASL}" != "The file has been saved!" ]]
-  then
-    echo $JS2ECMASL
+  if [[ "${JS2ECMASL}" != "The file has been saved!" ]]; then
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
 
     # increment number of tests with error
@@ -145,8 +143,9 @@ function handleSingleFile() {
       log_errors_arr+=("$FILENAME")
     fi
 
-    result=("${FILENAME}" "**ERROR**" "$JS2ECMASL")
+    ERROR_MESSAGE=$(echo -e "$JS2ECMASL" | head -n 1)
 
+    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "")
     return
   fi
 
@@ -154,10 +153,9 @@ function handleSingleFile() {
   mv "../JS2ECMA-SL/test262_ast.esl" "ES5_interpreter/test262_ast.esl"
 
   #echo "3.4. Compile program written in \"Plus\" to \"Core\""
-  ECMALSLC=$(./main.native -mode c -i ES5_interpreter/test262.esl -o ES5_interpreter/core.esl)
+  ECMASLC=$(./main.native -mode c -i ES5_interpreter/test262.esl -o ES5_interpreter/core.esl 2>&1)
 
-  if [ $? -ne 0 ]
-  then
+  if [ $? -ne 0 ]; then
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
 
     # increment number of tests with error
@@ -167,24 +165,19 @@ function handleSingleFile() {
       log_errors_arr+=("$FILENAME")
     fi
 
-    test_result=("${FILENAME}" "**ERROR**" "${ECMASLC}")
+    ERROR_MESSAGE=$(echo -e "$ECMASLC" | head -n 1)
+
+    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "")
     return
   fi
 
   # Record duration of the program interpretation
   declare -i start_time=$(date +%s%N)
 
-  #echo "3.5. Evaluate program and write the computed heap to the file heap.json. Output of the execution is written to the file result.txt"
-  if [ $LOG_ENTIRE_EVAL_OUTPUT -eq 1 ]; then
-    ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json > result.txt)
-    # 3.6. Check the result of the execution
-    RESULT=$(tail -n 10 result.txt | grep "MAIN pc -> ")
-  else
-    ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json | tail -n 10 > result.txt)
-    # 3.6. Check the result of the execution
-    RESULT=$(grep "MAIN pc -> " result.txt)
-  fi
+  #echo "3.5. Evaluate program and write the computed heap to the file heap.json."
+  ECMASLCI=$(./main.native -mode ci -i ES5_interpreter/core.esl -h heap.json 2>&1)
 
+  local EXIT_CODE=$?
 
   # Calc duration
   declare -i end_time=$(date +%s%N)
@@ -192,20 +185,7 @@ function handleSingleFile() {
   # The amount of zeros is necessary because we're dealing with seconds and nanoseconds
   duration_str=$(echo $duration | awk '{printf "%02dh:%02dm:%06.3fs\n", $0/3600000000000, $0%3600000000000/60000000000, $0/1000000000%60}')
 
-  if [[ "${RESULT}" == "" ]]; then
-    # echo "Check file result.txt"
-    printf "${BOLD}${RED}${INV}ERROR${NC}\n"
-
-    # increment number of tests with error
-    incError
-
-    if [ $LOG_ERRORS -eq 1 ]; then
-      log_errors_arr+=("$FILENAME")
-    fi
-
-    test_result=("${FILENAME}" "**ERROR**" "${ECMASLCI}" "${duration_str}")
-    return
-  elif [[ "${RESULT}" =~ "MAIN pc -> (\"C\", 'normal," ]]; then
+  if [ $EXIT_CODE -eq 0 ]; then
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
 
     # increment number of tests successfully executed
@@ -215,9 +195,8 @@ function handleSingleFile() {
       log_oks_arr+=("$FILENAME")
     fi
 
-    test_result=("${FILENAME}" "_OK_" "" "${duration_str}")
-    return
-  else
+    test_result=("$FILENAME" "_OK_" "" "$duration_str")
+  elif [ $EXIT_CODE -eq 1 ]; then
     printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC}\n"
 
     # increment number of tests failed
@@ -227,12 +206,27 @@ function handleSingleFile() {
       log_failures_arr+=("$FILENAME")
     fi
 
-    test_result=("${FILENAME}" "**FAIL**" "${RESULT}" "${duration_str}")
-    return
+    test_result=("$FILENAME" "**FAIL**" "$RESULT" "$duration_str")
+  else
+    printf "${BOLD}${RED}${INV}ERROR${NC}\n"
+
+    # increment number of tests with error
+    incError
+
+    if [ $LOG_ERRORS -eq 1 ]; then
+      log_errors_arr+=("$FILENAME")
+    fi
+
+    ERROR_MESSAGE=$(echo -e "$ECMASLCI" | tail -n 1)
+
+    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "$duration_str")
   fi
 
-  echo "Not suppose to reach here."
-  exit 1
+  if [ $LOG_ENTIRE_EVAL_OUTPUT -eq 1 ]; then
+    # Output of the execution is written to the file result.txt
+    echo "Writing interpretation output to file..."
+    echo "$ECMASLCI" > result.txt
+  fi
 }
 
 function testFiles() {
