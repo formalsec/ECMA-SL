@@ -1,3 +1,14 @@
+type exit_code =
+  | SUCCESS
+  | FAILURE
+  | ERROR
+
+let exit_prog (code : exit_code) : unit =
+  match code with
+  | SUCCESS -> exit 0
+  | FAILURE -> exit 1
+  | ERROR   -> exit 2
+
 let file = ref ""
 let heap_file = ref ""
 let mode = ref ""
@@ -9,8 +20,8 @@ let parse = ref false
 let _INLINE_LATTICE_ = "lib/semantics/monitors/nsu_compiler/runtime/H-L-Lattice.esl"
 
 (*(*DEP_LATTICE*)
-module Dep_Lattice = SecLevel_Dep.M
-module NSU = NSU_Monitor.M(Dep_Lattice)
+  module Dep_Lattice = SecLevel_Dep.M
+  module NSU = NSU_Monitor.M(Dep_Lattice)
 
 *)
 
@@ -49,7 +60,7 @@ let arguments () =
 
 let combine_progs (prog1 : Prog.t) (prog2 : Prog.t) : Prog.t =
   Hashtbl.iter (fun k v ->
-    Prog.add_func prog1 k v) prog2;
+      Prog.add_func prog1 k v) prog2;
   prog1
 
 let parse_program (prog : Prog.t) (inline : string) : unit =
@@ -59,7 +70,7 @@ let parse_program (prog : Prog.t) (inline : string) : unit =
   print_string "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   let jsonfile = Filename.remove_extension !file  in
   burn_to_disk (jsonfile ^inline^".json") json;
-   Printf.printf "%s" jsonfile
+  Printf.printf "%s" jsonfile
 
 let compile_from_plus_to_core () : unit =
   let e_prog_contents = Parsing_Utils.load_file !file in
@@ -84,48 +95,56 @@ let inline_compiler () : Prog.t =
 
 
 
-let core_interpretation (prog : Prog.t) : unit =
+let core_interpretation (prog : Prog.t) : exit_code =
 
   let v, heap = CoreInterp.eval_prog prog (!out, !mon, !verb_aux) "main" in
-  (match v with
-  | Some z -> (match z with
-                | Val.Tuple (ret) -> print_string ("MAIN return -> "^ (Val.str (List.nth ret 0))^ "\n");
-                                print_string ("MAIN pc -> " ^ (Val.str (List.nth ret 1)) ^ "\n");
-                | ret -> print_string ("MAIN return -> "^(Val.str z));)
-  | None -> print_string "ERROR Core_Interpretation");
   if !heap_file <> ""
   then Parsing_Utils.write_file (Heap.str heap) !heap_file
-  else print_endline (Heap.str heap)
+  else print_endline (Heap.str heap);
+  (match v with
+   | Some z -> (match z with
+       | Val.Tuple (ret) -> (let completion = List.nth ret 1 in
+                             print_string ("MAIN return -> "^ (Val.str (List.nth ret 0))^ "\n");
+                             print_string ("MAIN pc -> " ^ (Val.str completion) ^ "\n");
+                             match completion with
+                             | Val.Tuple c -> if ((List.nth c 1) <> Val.Symbol "normal") then FAILURE else SUCCESS
+                             | _           -> SUCCESS
+                            )
+       | ret -> print_string ("MAIN return -> "^(Val.str z)); SUCCESS
+     )
+   | None -> print_string "ERROR Core_Interpretation"; ERROR
+  )
 
 
 
 (* Main function - Run *)
-let run ()=
+let run () =
   print_string "=====================\n\tECMA-SL\n=====================\n";
   arguments();
-  if (!file = "" && !mode = "" && !out = "") then print_string "No option selected. Use -h"
-  else if (!file = "") then (print_string "No input file. Use -i\n=====================\n\tFINISHED\n=====================\n";exit 1)
-  else if (!mode = "") then (print_string "No mode selected. Use -mode\n=====================\n\tFINISHED\n=====================\n";exit 1)
+  let code : exit_code =
+  if (!file = "" && !mode = "" && !out = "") then (print_string "No option selected. Use -h"; FAILURE)
+  else if (!file = "") then (print_string "No input file. Use -i\n=====================\n\tFINISHED\n=====================\n"; FAILURE)
+  else if (!mode = "") then (print_string "No mode selected. Use -mode\n=====================\n\tFINISHED\n=====================\n"; FAILURE)
   else if (!mode = "ci") then (print_string "======================= CORE =======================\n";
+                               let prog_contents = Parsing_Utils.load_file !file in
+                               let prog = Parsing_Utils.parse_prog prog_contents in
+                               if !parse then (parse_program prog "");
+                               core_interpretation (prog)
+                              )
+  else if (!mode = "parse") then (
     let prog_contents = Parsing_Utils.load_file !file in
     let prog = Parsing_Utils.parse_prog prog_contents in
-    if !parse then (parse_program prog "");
-    core_interpretation (prog)
-    )
-  else if (!mode = "parse") then(
-    let prog_contents = Parsing_Utils.load_file !file in
-    let prog = Parsing_Utils.parse_prog prog_contents in
-    parse_program prog "")
+    parse_program prog ""; SUCCESS)
   else if (!mode = "ic") then (print_string "======================= Inlining Monitor =======================\n";
-    let prog = inline_compiler () in
-     (*Run the ci in inlined prog*)
-     if !parse then (parse_program prog "_inlined");
-     core_interpretation (prog)
-    )
-  else (compile_from_plus_to_core ());
+                               let prog = inline_compiler () in
+                               (*Run the ci in inlined prog*)
+                               if !parse then (parse_program prog "_inlined");
+                               core_interpretation (prog)
+                              )
+  else (compile_from_plus_to_core (); SUCCESS) in
 
-
-  print_string "\n=====================\n\tFINISHED\n=====================\n"
+  print_string "\n=====================\n\tFINISHED\n=====================\n";
+  exit_prog code
 
 
 let _ = run ()
