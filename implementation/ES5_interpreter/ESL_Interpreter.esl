@@ -869,7 +869,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
       propId := JS_Interpreter_PropertyAssignment(l_nth(PropertyNameAndValueList, i), scope);
       /* 3. Let previous be the result of calling the [[GetOwnProperty]] internal method of obj with argument
             propId.name. */
-      previous := GetOwnProperty(obj, getPropertyName(propId));
+      previous := {obj.GetOwnProperty}(obj, getPropertyName(propId));
       /* 4. If previous is not undefined then throw a SyntaxError exception if any of the following conditions are true */
       if (!(previous = 'undefined)) {
         /* a. This production is contained in strict code and IsDataDescriptor(previous) is true and
@@ -902,7 +902,7 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
 
       /* 5. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and
             false. */
-      DefineOwnProperty(obj, getPropertyName(propId), getPropertyDescriptor(propId), false);
+      {obj.DefineOwnProperty}(obj, getPropertyName(propId), getPropertyDescriptor(propId), false);
 
       i := i + 1
     };
@@ -1776,7 +1776,7 @@ function JS_Interpreter_BinExpr(e, scope) {
       throw TypeErrorConstructorInternal()
     };
     /* 7. Return the result of calling the [[HasInstance]] internal method of rval with argument lval. */
-    return HasInstance(rval, lval)
+    return {rval.HasInstance}(rval, lval)
   }
   | { type: "BinaryExpression", operator: "in", left: RelationalExpression, right: ShiftExpression } -> {
     /* 11.8.7 The in operator */
@@ -1796,7 +1796,7 @@ function JS_Interpreter_BinExpr(e, scope) {
       throw TypeErrorConstructorInternal()
     };
     /* 6. Return the result of calling the [[HasProperty]] internal method of rval with argument ToString(lval). */
-    return HasProperty(rval, ToString(lval))
+    return {rval.HasProperty}(rval, ToString(lval))
   }
   /* 11.9 Equality Operators */
   /* The result of evaluating an equality operator is always of type Boolean, reflecting whether the relationship

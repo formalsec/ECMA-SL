@@ -316,7 +316,7 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
   thrower := createThrowTypeErrorFunctionObject(getFunctionPrototype(strict), strict);
   /* 20. Call the [[DefineOwnProperty]] internal method of F with arguments "caller", PropertyDescriptor
         {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-  DefineOwnProperty(F, "caller", {
+  {F.DefineOwnProperty}(F, "caller", {
     Get: thrower,
     Set: thrower,
     Enumerable: false,
@@ -324,7 +324,7 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
   }, false);
   /* 21. Call the [[DefineOwnProperty]] internal method of F with arguments "arguments", PropertyDescriptor
         {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-  DefineOwnProperty(F, "arguments", {
+  {F.DefineOwnProperty}(F, "arguments", {
     Get: thrower,
     Set: thrower,
     Enumerable: false,

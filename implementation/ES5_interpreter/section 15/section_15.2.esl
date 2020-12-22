@@ -197,7 +197,7 @@ function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
   /* 2. Let name be ToString(P). */
   name := ToString(P);
   /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with argument name. */
-  desc := GetOwnProperty(O, name);
+  desc := {O.GetOwnProperty}(O, name);
   /* 4. Return the result of calling FromPropertyDescriptor(desc) (8.10.4). */
   return FromPropertyDescriptor(desc)
 };
@@ -285,7 +285,7 @@ function ObjectDefineProperty(globalObject, this, strict, params) {
   /* 3. Let desc be the result of calling ToPropertyDescriptor with Attributes as the argument. */
   desc := ToPropertyDescriptor(Attributes);
   /* 4. Call the [[DefineOwnProperty]] internal method of O with arguments name, desc, and true. */
-  DefineOwnProperty(O, name, desc, true);
+  {O.DefineOwnProperty}(O, name, desc, true);
   /* 5. Return O. */
   return O
 };
@@ -314,7 +314,7 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
     P := l_nth(names, i);
     i := i + 1;
     /* a. Let descObj be the result of calling the [[Get]] internal method of props with P as the argument. */
-    descObj := Get(props, P);
+    descObj := {props.Get}(props, P);
     /* b. Let desc be the result of calling ToPropertyDescriptor with descObj as the argument. */
     desc := ToPropertyDescriptor(descObj);
     /* c. Append the pair (a two element List) consisting of P and desc to the end of descriptors. */
@@ -331,7 +331,7 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
     /* b. Let desc be the second element of pair. */
     desc := l_nth(pair, 1);
     /* c. Call the [[DefineOwnProperty]] internal method of O with arguments P, desc, and true. */
-    DefineOwnProperty(O, P, desc, true)
+    {O.DefineOwnProperty}(O, P, desc, true)
   };
   /* 7. Return O. */
   return O
@@ -357,13 +357,13 @@ function ObjectSeal(globalObject, this, strict, params) {
     P := l_nth(namedOwnProperties, i);
     i := i + 1;
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
-    desc := GetOwnProperty(O, P);
+    desc := {O.GetOwnProperty}(O, P);
     /* b. If desc.[[Configurable]] is true, set desc.[[Configurable]] to false. */
     if (getInternalProperty(desc, "Configurable") = true) {
       setInternalProperty(desc, "Configurable", false)
     };
     /* c. Call the [[DefineOwnProperty]] internal method of O with P, desc, and true as arguments. */
-    DefineOwnProperty(O, P, desc, true)
+    {O.DefineOwnProperty}(O, P, desc, true)
   };
   /* 3. Set the [[Extensible]] internal property of O to false. */
   setInternalProperty(O, "Extensible", false);
@@ -388,7 +388,7 @@ function ObjectFreeze(globalObject, this, strict, params) {
     P := l_nth(namedOwnProperties, i);
     i := i + 1;
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
-    desc := GetOwnProperty(O, P);
+    desc := {O.GetOwnProperty}(O, P);
     /* b. If IsDataDescriptor(desc) is true, then */
     if (IsDataPropertyDescriptor(desc) = true) {
       /* i. If desc.[[Writable]] is true, set desc.[[Writable]] to false. */
@@ -401,7 +401,7 @@ function ObjectFreeze(globalObject, this, strict, params) {
       setInternalProperty(desc, "Configurable", false)
     };
     /* d. Call the [[DefineOwnProperty]] internal method of O with P, desc, and true as arguments. */
-    DefineOwnProperty(O, P, desc, true)
+    {O.DefineOwnProperty}(O, P, desc, true)
   };
   /* 3. Set the [[Extensible]] internal property of O to false. */
   setInternalProperty(O, "Extensible", false);
@@ -441,7 +441,7 @@ function ObjectIsSealed(globalObject, this, strict, params) {
     P := l_nth(namedOwnProperties, i);
     i := i + 1;
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
-    desc := GetOwnProperty(O, P);
+    desc := {O.GetOwnProperty}(O, P);
     /* b. If desc.[[Configurable]] is true, then return false. */
     if (getInternalProperty(desc, "Configurable") = true) {
       return false
@@ -472,7 +472,7 @@ function ObjectIsFrozen(globalObject, this, strict, params) {
     P := l_nth(namedOwnProperties, i);
     i := i + 1;
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
-    desc := GetOwnProperty(O, P);
+    desc := {O.GetOwnProperty}(O, P);
     /* b. If IsDataDescriptor(desc) is true then */
     if (IsDataPropertyDescriptor(desc) = true) {
       /* i. If desc.[[Writable]] is true, return false. */
@@ -575,14 +575,14 @@ function ObjectPrototypeToLocaleString(globalObject, this, strict, params) {
   /* 1. Let O be the result of calling ToObject passing the this value as the argument. */
   O := ToObject(this);
   /* 2. Let toString be the result of calling the [[Get]] internal method of O passing "toString" as the argument. */
-  toString := Get(O, "toString");
+  toString := {O.Get}(O, "toString");
   /* 3. If IsCallable(toString) is false, throw a TypeError exception. */
   if (IsCallable(toString) = false) {
     throw TypeErrorConstructorInternal()
   };
   /* 4. Return the result of calling the [[Call]] internal method of toString passing O as the this value and no
         arguments. */
-  return Call(null, null, toString, O, [])
+  return {O.Call}(null, null, toString, O, [])
 
   /* NOTE 1 This function is provided to give all Objects a generic toLocaleString interface, even though not all may
             use it. Currently, Array, Number, and Date provide their own locale-sensitive toLocaleString methods. */
@@ -617,7 +617,7 @@ function ObjectPrototypeHasOwnProperty(globalObject, this, strict, params) {
   /* 2. Let O be the result of calling ToObject passing the this value as the argument. */
   O := ToObject(this);
   /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O passing P as the argument. */
-  desc := GetOwnProperty(O, P);
+  desc := {O.GetOwnProperty}(O, P);
   /* 4. If desc is undefined, return false. */
   if (desc = 'undefined) { return false };
   /* 5. Return true. */
@@ -662,7 +662,7 @@ function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params)
   /* 2. Let O be the result of calling ToObject passing the this value as the argument. */
   O := ToObject(this);
   /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O passing P as the argument. */
-  desc := GetOwnProperty(O, P);
+  desc := {O.GetOwnProperty}(O, P);
   /* 4. If desc is undefined, return false. */
   if (desc = 'undefined) { return false };
   /* 5. Return the value of desc.[[Enumerable]]. */

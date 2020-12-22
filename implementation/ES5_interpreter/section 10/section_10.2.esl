@@ -81,7 +81,7 @@ function HasBindingObjectEnvRecord(objectEnvRec, N) {
   /* 2. Let bindings be the binding object for envRec. */
   bindings := getBindingObject(envRec);
   /* 3. Return the result of calling the [[HasProperty]] internal method of bindings, passing N as the property name. */
-  return HasProperty(bindings, N)
+  return {bindings.HasProperty}(bindings, N)
 };
 
 /*
@@ -130,7 +130,7 @@ function CreateMutableBindingObject(objectEnvRec, N, D) {
   bindings := getBindingObject(envRec);
   /* 3. Assert: The result of calling the [[HasProperty]] internal method of bindings,
         passing N as the property name, is false. */
-  assert (HasProperty(bindings, N) = false);
+  assert ({bindings.HasProperty}(bindings, N) = false);
   /* 4. If D is true then let configValue be true otherwise let configValue be false. */
   if (D = true) {
     configValue := true
@@ -140,7 +140,7 @@ function CreateMutableBindingObject(objectEnvRec, N, D) {
   /* 5. Call the [[DefineOwnProperty]] internal method of bindings, passing N, Property Descriptor
         {[[Value]]:undefined, [[Writable]]: true, [[Enumerable]]: true , [[Configurable]]: configValue},
         and true as arguments. */
-  DefineOwnProperty(bindings, N, {
+  {bindings.DefineOwnProperty}(bindings, N, {
     Value: 'undefined,
     Writable: true,
     Enumerable: true,
@@ -198,7 +198,7 @@ function SetMutableBindingObject(objectEnvRec, N, V, S) {
   /* 2. Let bindings be the binding object for envRec. */
   bindings := getBindingObject(envRec);
   /* 3. Call the [[Put]] internal method of bindings with arguments N, V, and S. */
-  Put(bindings, N, V, S);
+  {bindings.Put}(bindings, N, V, S);
 
   return V /* TODO the return statement is necessary because of the Monitor. Check why! */
 };
@@ -249,7 +249,7 @@ function GetBindingValueObject(objectEnvRec, N, S) {
   /* 2. Let bindings be the binding object for envRec. */
   bindings := getBindingObject(envRec);
   /* 3. Let value be the result of calling the [[HasProperty]] internal method of bindings, passing N as the property name. */
-  value := HasProperty(bindings, N);
+  value := {bindings.HasProperty}(bindings, N);
   /* 4. If value is false, then */
   if (value = false) {
     /* a. If S is false, return the value undefined, otherwise throw a ReferenceError exception. */
@@ -259,7 +259,7 @@ function GetBindingValueObject(objectEnvRec, N, S) {
     throw ReferenceErrorConstructorInternal()
   };
   /* 5. Return the result of calling the [[Get]] internal method of bindings, passing N for the argument. */
-  return Get(bindings, N)
+  return {bindings.Get}(bindings, N)
 };
 
 
@@ -310,7 +310,7 @@ function DeleteBindingObject(objectEnvRec, N) {
   /* 2. Let bindings be the binding object for envRec. */
   bindings := getBindingObject(envRec);
   /* 3. Return the result of calling the [[Delete]] internal method of bindings, passing N and false as arguments. */
-  return Delete(bindings, N, false)
+  return {bindings.Delete}(bindings, N, false)
 };
 
 /*
