@@ -1,10 +1,10 @@
 /* Placeholder */
 
-function getStringPrototype(global) {
+function getStringPrototype(strict) {
 
-  refString := newPropertyReference(global, "String", true);
+  refString := newPropertyReference(|global|, "String", strict);
   StringObject := GetValue(refString);
-  refStringProto := newPropertyReference(StringObject, "prototype", false);
+  refStringProto := newPropertyReference(StringObject, "prototype", strict);
   StringProto := GetValue(refStringProto);
 
   return StringProto
@@ -154,27 +154,6 @@ function StringConstructorCalledAsFunction(value) {
 
 /* 15.5.2.1 new String ( [ value ] ) */
 
-function initalNewString (objectPrototype){
-  ret := {
-    /* The [[Prototype]] internal property of the newly constructed object is set to the standard built-in String
-     prototype object that is the initial value of String.prototype (15.5.3.1). */
-    Prototype: objectPrototype,
-    /* The [[Class]] internal property of the newly constructed object is set to "String". */
-    Class: "String",
-    /* The [[Extensible]] internal property of the newly constructed object is set to true. */
-    Extensible: true,
-    Put: "Put",
-    Get: "Get",
-    HasProperty: "HasProperty",
-    DefineOwnProperty: "DefineOwnProperty",
-    GetOwnProperty: "GetOwnPropertyString",
-    Delete: "Delete",
-    PrimitiveValue: ""
-  };
-  return ret
-};
-
-
 function StringConstructor (global, this, strict, args) {
   value := getOptionalParam(args, 0);
 
@@ -182,30 +161,23 @@ function StringConstructor (global, this, strict, args) {
     return StringConstructorCalledAsFunction(value)
   };
 
-  StringPrototype := getStringPrototype(global);
+  /* When String is called as part of a new expression, it is a constructor: it initialises the newly created object. */
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfString(newlyConstructedObject);
 
-  ret := {
-    /* The [[Prototype]] internal property of the newly constructed object is set to the standard built-in String
-     prototype object that is the initial value of String.prototype (15.5.3.1). */
-    Prototype: StringPrototype,
-    /* The [[Class]] internal property of the newly constructed object is set to "String". */
-    Class: "String",
-    /* The [[Extensible]] internal property of the newly constructed object is set to true. */
-    Extensible: true,
-    Put: "Put",
-    Get: "Get",
-    HasProperty: "HasProperty",
-    DefineOwnProperty: "DefineOwnProperty",
-    GetOwnProperty: "GetOwnPropertyString",
-    Delete: "Delete",
-    JSProperties : {}
-  };
+  /* The [[Prototype]] internal property of the newly constructed object is set to the standard built-in String
+    prototype object that is the initial value of String.prototype (15.5.3.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", getStringPrototype(strict));
+  /* The [[Class]] internal property of the newly constructed object is set to "String". */
+  setInternalProperty(newlyConstructedObject, "Class", "String");
+  /* The [[Extensible]] internal property of the newly constructed object is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
   /* The [[PrimitiveValue]] internal property of the newly constructed object is set to ToString(value),
      or to the empty String if value is not supplied. */
   if (value = null) {
-    ret.PrimitiveValue := ""
+    newlyConstructedObject.PrimitiveValue := ""
   } else {
-    ret.PrimitiveValue := ToString(value)
+    newlyConstructedObject.PrimitiveValue := ToString(value)
   };
 
   /* 15.5.5 Properties of String Instances */
@@ -220,11 +192,9 @@ function StringConstructor (global, this, strict, args) {
   /* The number of characters in the String value represented by this String object. */
   /* Once a String object is created, this property is unchanging. It has the attributes { [[Writable]]: false,
      [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(ret, "length", int_to_float (s_len ret.PrimitiveValue), false, false, false);
+  createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", int_to_float (s_len newlyConstructedObject.PrimitiveValue), false, false, false);
 
-  ret.properties := {};
-
-  return ret
+  return newlyConstructedObject
 };
 
 
@@ -1177,40 +1147,6 @@ function StringPrototypetoLocaleUpperCase (global, this, strict, args){
 };
 
 
-/*
-/* 15.5.5.2 [[GetOwnProperty]] ( P ) */
-/*
-String objects use a variation of the [[GetOwnProperty]] internal method used for other native ECMAScript objects (8.12.1).
-This special internal method is used to add access for named properties corresponding to individual characters of String objects.
-
-Assume S is a String object and P is a String.
-
-When the [[GetOwnProperty]] internal method of S is called with property name P, the following steps are taken:
-
-   Let desc be the result of calling the default [[GetOwnProperty]] internal method (8.12.1) on S with argument P.
-
-   If desc is not undefined return desc.
-
-   If ToString(abs(ToInteger(P))) is not the same value as P, return undefined.
-
-   Let str be the String value of the [[PrimitiveValue]] internal property of S.
-
-   Let index be ToInteger(P).
-
-   Let len be the number of characters in str.
-
-   If len ≤ index, return undefined.
-
-   Let resultStr be a String of length 1, containing one character from str,
-   specifically the character at position index, where the first (leftmost) character
-   in str is considered to be at position 0, the next one at position 1, and so on.
-
-   Return a Property Descriptor { [[Value]]: resultStr, [[Enumerable]]: true,
-    [[Writable]]: false, [[Configurable]]: false }
-*/
-
-
-
 /* 15.5.4.20 String.prototype.trim ( ) */
 /*The following steps are taken:*/
 function StringPrototypetrim (global, this, strict, args){
@@ -1289,6 +1225,7 @@ function GetOwnPropertyString (S, P) {
    return newDataPropertyDescriptorFull( resultStr, false, true, false)
 };
 
+/* Auxiliary function */
 function isStringOrStringObject(arg) {
   if (Type(arg) = "String") {
     return true
@@ -1297,4 +1234,10 @@ function isStringOrStringObject(arg) {
     return true
   };
   return false
+};
+
+function setAllInternalMethodsOfString(str) {
+  setAllInternalMethodsOfObject(str);
+  str.GetOwnProperty := "GetOwnPropertyString";
+  return str
 }

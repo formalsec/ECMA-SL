@@ -274,34 +274,25 @@ function ArrayConstructor(global, this, strict, items) {
   return internalNewArray(prototype, items)
 };
 function internalNewArray(arrayPrototype, items) {
-  arr := {
-    JSProperties: { },
-    /* The [[Prototype]] internal property of the newly constructed object
-       is set to the original Array prototype object, the one that is the
-       initial value of Array.prototype (15.4.3.1). */
-    Prototype: arrayPrototype,
-    /* The [[Extensible]] internal property of the newly constructed object
-       is set to true. */
-    Extensible: true,
-    /* The [[Class]] internal property of the newly constructed object is
-       set to "Array". */
-    Class: "Array",
-    Put: "Put",
-    Get: "Get",
-    HasProperty: "HasProperty",
-    DefineOwnProperty: "DefineOwnPropertyArray",
-    GetOwnProperty: "GetOwnProperty",
-    Delete: "Delete",
-    CanPut: "CanPut"
-  };
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfArray(newlyConstructedObject);
+
+  /* The [[Prototype]] internal property of the newly constructed object
+      is set to the original Array prototype object, the one that is the
+      initial value of Array.prototype (15.4.3.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", arrayPrototype);
+  /* The [[Extensible]] internal property of the newly constructed object
+      is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  /* The [[Class]] internal property of the newly constructed object is
+      set to "Array". */
+  setInternalProperty(newlyConstructedObject, "Class", "Number");
 
   i := 0;
   /* The length property of the newly constructed object is set to the
      number of arguments. */
   len := l_len items;
-
-  /* length is a own property, so we use setJSProperty, instead of accessing arr.length directly */
-  setJSProperty(arr, "length", newDataPropertyDescriptorFull(int_to_float(len), true, false, false));
+  createBuiltInProperty(newlyConstructedObject, "length", int_to_float len);
 
   /* The 0 property of the newly constructed object is set to item0
      (if supplied); the 1 property of the newly constructed object is set
@@ -312,11 +303,11 @@ function internalNewArray(arrayPrototype, items) {
      [[Enumerable]]: true, [[Configurable]]: true}. */
   while (i < len) {
     i_str := int_to_string i;
-    setJSProperty(arr, i_str, newDataPropertyDescriptorFull(l_nth (items, i), true, true, true));
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, i_str, l_nth (items, i), true, true, true);
     i := i + 1
   };
 
-  return arr
+  return newlyConstructedObject
 };
 
 
@@ -326,35 +317,26 @@ function internalNewArray(arrayPrototype, items) {
  * 15.4.2.2 new Array (len)
  */
 function internalNewArrayLen(arrayPrototype, len) {
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfArray(newlyConstructedObject);
 
-  arr := {
-    JSProperties: { },
-    /* The [[Prototype]] internal property of the newly constructed object is
-      set to the original Array prototype object, the one that is the initial
-      value of Array.prototype (15.4.3.1). */
-    Prototype: arrayPrototype,
-    /* The [[Class]] internal property of the newly constructed object
-      is set to "Array". */
-    Class: "Array",
-    /* The [[Extensible]] internal property of the newly constructed
-      object is set to true. */
-    Extensible: true,
-    Put: "Put",
-    Get: "Get",
-    HasProperty: "HasProperty",
-    DefineOwnProperty: "DefineOwnPropertyArray",
-    GetOwnProperty: "GetOwnProperty",
-    Delete: "Delete",
-    CanPut: "CanPut"
-  };
+  /* The [[Prototype]] internal property of the newly constructed object
+      is set to the original Array prototype object, the one that is the
+      initial value of Array.prototype (15.4.3.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", arrayPrototype);
+  /* The [[Extensible]] internal property of the newly constructed object
+      is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  /* The [[Class]] internal property of the newly constructed object is
+      set to "Array". */
+  setInternalProperty(newlyConstructedObject, "Class", "Number");
 
   lenIsNumber := (typeof len = __$Flt);
-
   /* If the argument len is a Number and ToUint32(len) is equal to len, then
      the length property of the newly constructed object is set to ToUint32(len). */
   if (lenIsNumber &&& ((ToUint32(len) = len))) {
     /*arr.length := newDataPropertyDescriptorFull(ToUint32(len), true, false, false)*/
-    setJSProperty(arr, "length", newDataPropertyDescriptorFull(ToUint32(len), true, false, false))
+    createBuiltInProperty(newlyConstructedObject, "length", ToUint32(len))
   };
 
   /* If the argument len is a Number and ToUint32(len) is not equal to
@@ -368,11 +350,11 @@ function internalNewArrayLen(arrayPrototype, len) {
      constructed object is set to len with attributes {[[Writable]]: true,
      [[Enumerable]]: true, [[Configurable]]: true}.. */
   if (!lenIsNumber) {
-    setJSProperty(arr, "length", newDataPropertyDescriptorFull(ToUint32(1.), true, false, false));
-    setJSProperty(arr, "0", newDataPropertyDescriptorFull(len, true, true, true))
+    createBuiltInProperty(newlyConstructedObject, "length", ToUint32(1.));
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "0", ToUint32(len), true, true, true)
   };
 
-  return arr
+  return newlyConstructedObject
 };
 
 
@@ -420,8 +402,7 @@ function arrayToString(global, this, strict, args) {
   };
   /* 4. Return the result of calling the [[Call]] internal method of func
         providing array as the this value and an empty arguments list. */
-  return {func.Call}(null, null, func, array, ['undefined])
-    /*global, array, strict, ['undefined]])*/ /* TODO 'undefined as empty? */
+  return {func.Call}(null, null, func, array, [])
 };
 /**
  * NOTE The toString function is intentionally generic; it does not
