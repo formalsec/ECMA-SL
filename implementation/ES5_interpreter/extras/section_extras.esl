@@ -16,8 +16,10 @@ function initConsoleObject(globalObject, objectPrototype, strict) {
 
 function __internalLog(globalObject, this, strict, params) {
   str := l_nth(params, 0);
-  assert !(str = null);
 
+  if (!(typeof str = __$Str)) {
+    str := ToString(str)
+  };
   print s_concat ["JS Log: ", str];
 
   return 'null
@@ -25,7 +27,6 @@ function __internalLog(globalObject, this, strict, params) {
 
 function __internalLogObject(globalObject, this, strict, params) {
   obj := l_nth(params, 0);
-  assert !(obj = null);
 
   if (!((typeof obj) = __$Obj)) {
     return __internalLog(globalObject, this, strict, params)
