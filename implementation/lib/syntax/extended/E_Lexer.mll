@@ -98,6 +98,15 @@
                 ]
 
   exception Syntax_error of string
+
+
+  let create_syntax_error ?(eof=false) (msg : string) (lexbuf : Lexing.lexbuf) : exn =
+    let c = Lexing.lexeme lexbuf in
+    let formatted_msg = (
+      match eof with
+      | true  -> Printf.sprintf "%s. Line number: %d. File: %s" msg (lexbuf.lex_curr_p.pos_lnum) (lexbuf.lex_curr_p.pos_fname)
+      | false -> Printf.sprintf "%s: %s. Line number: %d. File: %s" msg c (lexbuf.lex_curr_p.pos_lnum) (lexbuf.lex_curr_p.pos_fname)
+    ) in (Syntax_error formatted_msg)
 }
 
 (*
@@ -184,7 +193,7 @@ rule read =
   | symbol         { SYMBOL (String_Utils.chop_first_char (Lexing.lexeme lexbuf)) }
   | loc            { LOC (Lexing.lexeme lexbuf) }
   | "/*"           { read_comment lexbuf }
-  | _              { raise (Syntax_error ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
+  | _              { raise (create_syntax_error "Unexpected char" lexbuf) }
   | eof            { EOF }
 
 
@@ -206,8 +215,8 @@ and read_string buf =
                            Buffer.add_string buf (Lexing.lexeme lexbuf);
                            read_string buf lexbuf
                          }
-  | _                    { raise (Syntax_error ("Illegal string character: " ^ Lexing.lexeme lexbuf)) }
-  | eof                  { raise (Syntax_error ("String is not terminated")) }
+  | _                    { raise (create_syntax_error "Illegal string character" lexbuf) }
+  | eof                  { raise (create_syntax_error ~eof:true "String is not terminated" lexbuf) }
 
 
 and read_comment =
@@ -216,7 +225,7 @@ and read_comment =
   | "*/"      { read lexbuf }
   | newline   { new_line lexbuf; read_comment lexbuf }
   | _         { read_comment lexbuf }
-  | eof       { raise (Syntax_error ("Comment is not terminated."))}
+  | eof       { raise (create_syntax_error ~eof:true "Comment is not terminated" lexbuf)}
 
 and read_type =
 (* Read Language Types *)
@@ -231,4 +240,4 @@ and read_type =
   | "Null"   { NULL_TYPE }
   | "Symbol" { SYMBOL_TYPE }
   | "Curry"  { CURRY_TYPE }
-  | _        { raise (Syntax_error ("Unexpected type: " ^ Lexing.lexeme lexbuf)) }
+  | _        { raise (create_syntax_error "Unexpected type" lexbuf) }
