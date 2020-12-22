@@ -198,7 +198,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
   /* 6. Let argList be an empty List. */
   argList := [];
   /* 7. Let index be 0. */
-  index := 0;
+  index := 0.;
   /* 8. Repeat while index < n */
   while(index < n) {
     /* a. Let indexName be ToString(index). */
@@ -209,7 +209,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
     /* c. Append nextArg as the last element of argList. */
     argList := l_add(argList, nextArg);
     /* d. Set index to index + 1. */
-    index := index + 1
+    index := index + 1.
   };
   /* 9. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
