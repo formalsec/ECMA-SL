@@ -96,23 +96,14 @@ function JS_Interpreter_Expr(e, scope) {
     i := 0;
     while (i < len) {
       el := l_nth (ElementList, i);
-      print "ARRAY LOOP. BEGINNING.";
 
-      if (el = null) {
-        initValue := 'undefined
-      } else {
+      if (!(el = null)) {
         initResult := JS_Interpreter_Expr(el, scope);
-        initValue := GetValue(initResult)
+        initValue := GetValue(initResult);
+
+        descriptor := newDataPropertyDescriptorFull(initValue, true, true, true);
+        {array.DefineOwnProperty}(array, ToString(ToUint32(int_to_float i)), descriptor, false)
       };
-
-      print "ARRAY LOOP. GOT THE VALUE";
-      print initValue;
-
-      descriptor := newDataPropertyDescriptorFull(initValue, true, true, true);
-      {array.DefineOwnProperty}(array, ToString(ToUint32(int_to_float i)), descriptor, false);
-
-      print "Array loop: END";
-      print i;
       i := i + 1
     };
 
