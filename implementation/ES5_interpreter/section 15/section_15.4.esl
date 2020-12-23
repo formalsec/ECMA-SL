@@ -286,13 +286,13 @@ function internalNewArray(arrayPrototype, items) {
   setInternalProperty(newlyConstructedObject, "Extensible", true);
   /* The [[Class]] internal property of the newly constructed object is
       set to "Array". */
-  setInternalProperty(newlyConstructedObject, "Class", "Number");
+  setInternalProperty(newlyConstructedObject, "Class", "Array");
 
   i := 0;
   /* The length property of the newly constructed object is set to the
      number of arguments. */
   len := l_len items;
-  createBuiltInProperty(newlyConstructedObject, "length", int_to_float len);
+  createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", int_to_float len, true, false, false);
 
   /* The 0 property of the newly constructed object is set to item0
      (if supplied); the 1 property of the newly constructed object is set
@@ -329,14 +329,13 @@ function internalNewArrayLen(arrayPrototype, len) {
   setInternalProperty(newlyConstructedObject, "Extensible", true);
   /* The [[Class]] internal property of the newly constructed object is
       set to "Array". */
-  setInternalProperty(newlyConstructedObject, "Class", "Number");
+  setInternalProperty(newlyConstructedObject, "Class", "Array");
 
   lenIsNumber := (typeof len = __$Flt);
   /* If the argument len is a Number and ToUint32(len) is equal to len, then
      the length property of the newly constructed object is set to ToUint32(len). */
   if (lenIsNumber &&& ((ToUint32(len) = len))) {
-    /*arr.length := newDataPropertyDescriptorFull(ToUint32(len), true, false, false)*/
-    createBuiltInProperty(newlyConstructedObject, "length", ToUint32(len))
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(len), true, false, false)
   };
 
   /* If the argument len is a Number and ToUint32(len) is not equal to
@@ -350,7 +349,7 @@ function internalNewArrayLen(arrayPrototype, len) {
      constructed object is set to len with attributes {[[Writable]]: true,
      [[Enumerable]]: true, [[Configurable]]: true}.. */
   if (!lenIsNumber) {
-    createBuiltInProperty(newlyConstructedObject, "length", ToUint32(1.));
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(1.), true, false, false);
     createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "0", ToUint32(len), true, true, true)
   };
 
