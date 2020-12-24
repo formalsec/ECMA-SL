@@ -55,6 +55,7 @@
                 "l_add"           , LADD;
                 "l_prepend"       , LPREPEND;
                 "l_concat"        , LCONCAT;
+                "l_remove_last"   , LREMOVELAST;
                 "hd"              , HD;
                 "tl"              , TL;
                 "t_len"           , TLEN;
@@ -64,10 +65,12 @@
                 "s_concat"        , SCONCAT;
                 "s_len"           , SLEN;
                 "s_nth"           , SNTH;
+                "s_substr"        , SSUBSTR;
                 "int_to_float"    , INT_TO_FLOAT;
                 "int_to_string"   , INT_TO_STRING;
                 "int_of_string"   , INT_OF_STRING;
                 "int_of_float"    , INT_OF_FLOAT;
+                "int_to_four_hex" , INT_TO_FOUR_HEX;
                 "typeof"          , TYPEOF;
                 "catch"           , CATCH;
                 "throw"           , THROW;

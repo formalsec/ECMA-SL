@@ -37,13 +37,13 @@
 %token <string> SYMBOL
 %token <string> LOC
 %token LAND LOR SCLAND SCLOR
-%token INT_TO_FLOAT INT_TO_STRING INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
+%token INT_TO_FLOAT INT_TO_STRING INT_TO_FOUR_HEX INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %token FROM_CHAR_CODE TO_CHAR_CODE TO_LOWER_CASE TO_UPPER_CASE TRIM
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16
 %token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM ROUND SIN SQRT TAN PI MAX_VALUE MIN_VALUE
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
-%token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND SLEN SNTH
+%token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND LREMOVELAST SLEN SNTH SSUBSTR
 %token SCONCAT
 %token IMPORT THROW FAIL CATCH
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
@@ -202,6 +202,8 @@ e_expr_target:
     { pre_un_op_expr }
   | pre_bin_op_expr = prefix_binary_op_target;
     { pre_bin_op_expr }
+  | pre_tri_op_expr = prefix_trinary_op_target;
+    { pre_tri_op_expr }
   | in_bin_op_expr = infix_binary_op_target;
     { in_bin_op_expr }
 
@@ -235,10 +237,14 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.First, e) } %prec unopt_prec
   | SND; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Second, e) } %prec unopt_prec
+  | LREMOVELAST; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.LRemoveLast, e) } %prec unopt_prec
   | INT_TO_FLOAT; e = e_expr_target;
     { E_Expr.UnOpt (Oper.IntToFloat, e) } %prec unopt_prec
   | INT_TO_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
+  | INT_TO_FOUR_HEX; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.IntToFourHex, e) } %prec unopt_prec
   | INT_OF_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
   | INT_OF_FLOAT; e = e_expr_target;
@@ -322,6 +328,10 @@ prefix_binary_op_target:
     { E_Expr.BinOpt (Oper.Max, e1, e2) }
   | MIN; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
     { E_Expr.BinOpt (Oper.Min, e1, e2) }
+
+prefix_trinary_op_target:
+  | SSUBSTR; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
+    { E_Expr.TriOpt (Oper.Ssubstr, e1, e2, e3) }
 
 infix_binary_op_target:
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;

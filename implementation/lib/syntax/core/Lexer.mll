@@ -53,52 +53,55 @@ let loc     = "$loc_"(digit|letter|'_')+
 *)
 rule read =
   parse
-  | white          { read lexbuf }
-  | newline        { new_line lexbuf; read lexbuf }
-  | ":="           { DEFEQ }
-  | '.'            { PERIOD }
-  | ';'            { SEMICOLON }
-  | ','            { COMMA }
-  | '+'            { PLUS }
-  | '-'            { MINUS }
-  | '*'            { TIMES }
-  | '/'            { DIVIDE }
-  | '%'            { MODULO }
-  | '='            { EQUAL }
-  | '>'            { GT }
-  | '<'            { LT }
-  | ">="           { EGT }
-  | "<="           { ELT }
-  | "in_obj"       { IN_OBJ }
-  | "in_list"      { IN_LIST }
-  | '!'            { NOT }
-  | '~'            { BITWISE_NOT }
-  | '&'            { BITWISE_AND }
-  | '|'            { BITWISE_OR }
-  | '^'            { BITWISE_XOR }
-  | "<<"           { SHIFT_LEFT }
-  | ">>"           { SHIFT_RIGHT }
-  | ">>>"          { SHIFT_RIGHT_LOGICAL }
-  | "&&"           { LAND }
-  | "||"		       { LOR }
-  | "l_len"        { LLEN }
-  | "l_nth"        { LNTH }
-  | "l_add"        { LADD }
-  | "l_prepend"    { LPREPEND }
-  | "l_concat"     { LCONCAT }
-  | "hd"           { HD }
-  | "tl"           { TL }
-  | "t_len"        { TLEN }
-  | "t_nth"        { TNTH }
-  | "fst"          { FST }
-  | "snd"          { SND }
-  | "s_concat"     { SCONCAT }
-  | "s_len"        { SLEN }
-  | "s_nth"        { SNTH }
+  | white             { read lexbuf }
+  | newline           { new_line lexbuf; read lexbuf }
+  | ":="              { DEFEQ }
+  | '.'               { PERIOD }
+  | ';'               { SEMICOLON }
+  | ','               { COMMA }
+  | '+'               { PLUS }
+  | '-'               { MINUS }
+  | '*'               { TIMES }
+  | '/'               { DIVIDE }
+  | '%'               { MODULO }
+  | '='               { EQUAL }
+  | '>'               { GT }
+  | '<'               { LT }
+  | ">="              { EGT }
+  | "<="              { ELT }
+  | "in_obj"          { IN_OBJ }
+  | "in_list"         { IN_LIST }
+  | '!'               { NOT }
+  | '~'               { BITWISE_NOT }
+  | '&'               { BITWISE_AND }
+  | '|'               { BITWISE_OR }
+  | '^'               { BITWISE_XOR }
+  | "<<"              { SHIFT_LEFT }
+  | ">>"              { SHIFT_RIGHT }
+  | ">>>"             { SHIFT_RIGHT_LOGICAL }
+  | "&&"              { LAND }
+  | "||"		          { LOR }
+  | "l_len"           { LLEN }
+  | "l_nth"           { LNTH }
+  | "l_add"           { LADD }
+  | "l_prepend"       { LPREPEND }
+  | "l_concat"        { LCONCAT }
+  | "l_remove_last"   { LREMOVELAST }
+  | "hd"              { HD }
+  | "tl"              { TL }
+  | "t_len"           { TLEN }
+  | "t_nth"           { TNTH }
+  | "fst"             { FST }
+  | "snd"             { SND }
+  | "s_concat"        { SCONCAT }
+  | "s_len"           { SLEN }
+  | "s_nth"           { SNTH }
+  | "s_substr"        { SSUBSTR }
   | "int_to_float"    { INT_TO_FLOAT }
   | "int_to_string"   { INT_TO_STRING }
   | "int_of_string"   { INT_OF_STRING }
   | "int_of_float"    { INT_OF_FLOAT }
+  | "int_to_four_hex" { INT_TO_FOUR_HEX }
   | "float_to_string" { FLOAT_TO_STRING }
   | "float_of_string" { FLOAT_OF_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }

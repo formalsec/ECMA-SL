@@ -1,30 +1,62 @@
-import "ES5_interpreter/ES5_Reference_Interpreter.esl";
+/* Auxiliary functions */
+function getOwnEnumerablePropertiesNames(obj) {
+  K := [];
+  namedOwnProperties := getOwnProperties(obj);
+  lnamedOwnProperties := l_len namedOwnProperties;
+  index := 0;
+  while(index < lnamedOwnProperties) {
+    P := l_nth(namedOwnProperties, index);
+    P_desc := obj.JSProperties[P];
+    if (isEnumerablePropertyDescriptor(P_desc)) {
+      K := l_add(K, P)
+    };
+    index := index + 1
+  };
+  return K
+};
+function concatenateListStrElmsWithComma(list) {
+  j := 0;
+  pLen := l_len list;
+  properties := "";
+  while (j < pLen) {
+    el := l_nth(list, j);
+    properties := s_concat([properties, el]);
+    if (j < (pLen - 1)) {
+        properties := s_concat([properties, ","])
+    };
+    j := j + 1
+  };
+  return properties
+};
 
 
 
-/* TODO */
-function setAllInternalMethodsOfJson(json) {
-  setAllInternalMethodsOfObject(json);
-  return json
-};
-/* TODO */
-function initJsonPrototype(global, objectPrototype, strict) {
-  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfJson(prototype);
-  return prototype
-};
-/* TODO */
-function getJsonPrototype(strict) {
-  refJson := newPropertyReference(|global|, "Object", strict);
-  JsonObject := GetValue(refJson);
-  refJsonProto := newPropertyReference(JsonObject, "prototype", strict);
-  objectJsonProto := GetValue(refJsonProto);
-  return objectJsonProto
-};
-/* TODO */
-function initJsonObject(global, objectPrototype, strict) {
-  objJsonPrototype := initJsonPrototype(global, objectPrototype, strict);
-  return objJsonPrototype
+
+function initJsonObject(globalObject, ObjectPrototype, strict) {
+  JsonObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(JsonObject);
+
+  /* The value of the [[Prototype]] internal property of the JSON object is
+     the standard built-in Object prototype object (15.2.4). 
+     The value of the [[Class]] internal property of the JSON object is "JSON".
+     The value of the [[Extensible]] internal property of the JSON object is set to true. */
+  setInternalProperty(JsonObject, "Prototype", ObjectPrototype);
+  setInternalProperty(JsonObject, "Class", "JSON");
+  setInternalProperty(JsonObject, "Extensible", true);
+
+  /* The JSON object does not have a [[Construct]] internal property; it is
+     not possible to use the JSON object as a constructor with the new operator.
+
+     The JSON object does not have a [[Call]] internal property; it is not possible
+     to invoke the JSON object as a function. */
+
+  parse_fo := CreateBuiltInFunctionObject(["text", "reviver"], "jsonParse", globalObject, strict, null);
+  createBuiltInProperty(JsonObject, "parse", parse_fo);
+  
+  stringify_fo := CreateBuiltInFunctionObject(["value", "replacer", "space"], "jsonStringify", globalObject, strict, null);
+  createBuiltInProperty(JsonObject, "stringify", stringify_fo);
+
+  return JsonObject
 };
 
 
@@ -141,17 +173,7 @@ function Walk(holder, name) {
             names of all the own properties of val whose [[Enumerable]] attribute
             is true. The ordering of the Strings should be the same as that used
             by the Object.keys standard built-in function. */
-      keys := [];
-      namedOwnProperties := getOwnProperties(val);
-      lnamedOwnProperties := int_to_float (l_len namedOwnProperties);
-      index := 0.;
-      while(index < lnamedOwnProperties) {
-        P := l_nth(namedOwnProperties, index);
-        if (P.Enumerable = true) {
-          keys := l_add(keys, P)
-        };
-        index := index + 1.
-      };
+      keys := getOwnEnumerablePropertiesNames(val);
       /* ii. For each String P in keys do, */
       index := 0.;
       while(index < lnamedOwnProperties) {
@@ -286,7 +308,6 @@ function jsonStringify(global, this, strict, args) {
       }
     }
   };
-  print "Stringify: Before Number";
   /* 6. If Type(space) is Number */
   if (Type(space) = "Number") {
     /* a. Let space be min(10, ToInteger(space)). */
@@ -309,7 +330,7 @@ function jsonStringify(global, this, strict, args) {
       if (spaceLen <= 10) {
         gap := space
       } else {
-        /* TODO: ECMA-SL truncate string operator. Ask Pedro. */
+        gap := s_substr(space, 0, 10)
       }
     }
     /* 8. Else */
@@ -320,7 +341,7 @@ function jsonStringify(global, this, strict, args) {
   };
   /* 9. Let wrapper be a new object created as if by the expression new Object(),
         where Object is the standard built-in constructor with that name. */
-  wrapper := ObjectConstructor(|global|, 'null, strict, [undefined]);
+  wrapper := ObjectConstructor(|global|, 'null, strict, [null]);
   /* 10. Call the [[DefineOwnProperty]] internal method of wrapper with arguments
          the empty String, the Property Descriptor {[[Value]]: value, [[Writable]]:
          true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
@@ -335,8 +356,6 @@ function jsonStringify(global, this, strict, args) {
 
   /* 11. Return the result of calling the abstract operation Str with the empty
          String and wrapper. */
-  print "Stringify: Before Str";
-  print wrapper;
   return Str("", wrapper, stack, indent, gap, PropertyList, space, ReplacerFunction)
 };
 /**
@@ -383,20 +402,12 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
   /* 1. Let value be the result of calling the [[Get]] internal method
         of holder with argument key. */
   value := {holder.Get}(holder, key);
-  print "Str begin";
-  print value;
   value := value.Value;
-  print holder;
-  print holder.JSProperties;
-  print key;
-  print value;
   /* 2. If Type(value) is Object, then */
   if (Type(value) = "Object") {
     /* a. Let toJSON be the result of calling the [[Get]] internal
           method of value with argument "toJSON". */
-    print "Function Str - Type(value) = Object";
     toJSON := {value.Get}(value, "toJSON");
-    print toJSON;
     /* b. If IsCallable(toJSON) is true */
     if (IsCallable(toJSON) = true) {
       /* i. Let value be the result of calling the [[Call]] internal
@@ -463,7 +474,6 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
   };
   /* 10. If Type(value) is Object, and IsCallable(value) is false */
   if ((Type(value) = "Object") && (IsCallable(value) = false)) {
-    print "Function Str - case 10";
     /* a. If the [[Class]] internal property of value is "Array" then */
     if (value.Class = "Array") {
       /* i. Return the result of calling the abstract operation JA with argument value. */
@@ -488,10 +498,6 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
 function Quote(value) {
   /* 1. Let product be the double quote character. */
   product := "\""; /* " quote char */
-
-  print "Quote1 - before product";
-  print product;
-  print (s_len product);
 
   /* 2. For each character C in value */
   valueLen := s_len value;
@@ -544,18 +550,14 @@ function Quote(value) {
           product := s_concat([product, "u"]);
           /* iii. Let hex be the result of converting the numeric code unit value of
                   C to a String of four hexadecimal digits. */
-          /* TODO */
-
+          hex := int_to_four_hex (to_char_code C);
           /* iv. Let product be the concatenation of product and hex. */
           product := s_concat([product, hex])
         }
         /* d. Else */
         else {
           /* i. Let product be the concatenation of product and C. */
-          product := s_concat([product, C]);
-          print "Quote2 - before product";
-          print product;
-          print (s_len product)
+          product := s_concat([product, C])
         }
       }
     };
@@ -564,9 +566,6 @@ function Quote(value) {
   };
   /* 3. Let product be the concatenation of product and the double quote character. */
   product := s_concat([product, "\""]); /* " quote char */
-  print "Quote3 - before product";
-  print product;
-  print (s_len product);
   /* 4. Return product. */
   return product
 };
@@ -582,7 +581,6 @@ function Quote(value) {
 function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
   /* 1. If stack contains value then throw a TypeError exception because
         the structure is cyclical. */
-  print "inside JO";
   if (value in_list stack) {
     throw TypeErrorException()
   };
@@ -603,21 +601,8 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
           all the own properties of value whose [[Enumerable]] attribute
           is true. The ordering of the Strings should be the same as that
           used by the Object.keys standard built-in function. */
-    K := []; /* TODO check if this code is correct. Put this code in a function. */
-    namedOwnProperties := getOwnProperties(value);
-    lnamedOwnProperties := l_len namedOwnProperties;
-    index := 0;
-    while(index < lnamedOwnProperties) {
-      P := l_nth(namedOwnProperties, index);
-      P_desc := value.JSProperties[P];
-      if (isEnumerablePropertyDescriptor(P_desc)) {
-        K := l_add(K, P)
-      };
-      index := index + 1
-    }
+    K := getOwnEnumerablePropertiesNames(value)
   };
-  print "JO after computing k ";
-  print K;
   /* 7. Let partial be an empty List. */
   partial := [];
   /* 8. For each element P of K. */
@@ -625,14 +610,9 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
   kLen := l_len K;
   while (i < kLen) {
     P := l_nth(K, i);
-    print "JO inside main loop P";
-    print P;
-    print value.JSProperties;
     /* a. Let strP be the result of calling the abstract operation Str
           with arguments P and value. */
     strP := Str(P, value, stack, indent, gap, PropertyList, space, ReplacerFunction);
-    print "JO inside main loop strP";
-    print strP;
     /* b. If strP is not undefined */
     if (!(strP = 'undefined)) {
       /* i. Let member be the result of calling the abstract operation
@@ -665,17 +645,7 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
             element Strings of partial with each adjacent pair of Strings
             separated with the comma character. A comma is not inserted either
             before the first String or after the last String. */
-      j := 0;
-      pLen := l_len partial;
-      properties := "";
-      while (j < pLen) {
-        el := l_nth(partial, j);
-        properties := s_concat([properties, el]);
-        if (j < (pLen - 1)) {
-           properties := s_concat([properties, ","])
-        };
-        j := j + 1
-      };
+      properties := concatenateListStrElmsWithComma(partial);
       /* ii. Let final be the result of concatenating "{", properties, and "}". */
       final := s_concat(["{", properties, "}"])
     }
@@ -683,29 +653,19 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
     else {
       /* i. Let separator be the result of concatenating the comma character,
             the line feed character, and indent. */
-      separator := s_concat([",", "\n", indent]); /* TODO \n */
+      separator := s_concat([",", "\n", indent]);
       /* ii. Let properties be a String formed by concatenating all the element
              Strings of partial with each adjacent pair of Strings separated
              with separator. The separator String is not inserted either before
              the first String or after the last String. */
-      j := 0;
-      pLen := l_len partial;
-      properties := "";
-      while (j < pLen) {
-        el := l_nth(partial, j);
-        properties := s_concat([properties, el]);
-        if (j < (pLen - 1)) {
-           properties := s_concat([properties, separator])
-        };
-        j := j + 1
-      };
+      properties := concatenateListStrElmsWithComma(partial);
       /* iii. Let final be the result of concatenating "{", the line feed
               character, indent, properties, the line feed character, stepback, and "}". */
-      final := s_concat(["{", "\n", indent, properties, "\n", stepback, "}"]) /* TODO \n */
+      final := s_concat(["{", "\n", indent, properties, "\n", stepback, "}"])
     }
   };
   /* 11. Remove the last element of stack. */
-  /* TODO */
+  l_remove_last stack;  
   /* 12. Let indent be stepback. */
   indent := stepback;
   /* 13. Return final. */
@@ -773,17 +733,7 @@ function JA(value, stack, indent, gap, space) {
             Strings of partial with each adjacent pair of Strings separated with
             the comma character. A comma is not inserted either before the first
             String or after the last String. */
-      j := 0;
-      pLen := l_len partial;
-      properties := "";
-      while (j < pLen) {
-        el := l_nth(partial, j);
-        properties := s_concat([properties, el]);
-        if (j < (pLen - 1)) {
-           properties := s_concat([properties, ","])
-        };
-        j := j + 1
-      };
+      properties := concatenateListStrElmsWithComma(partial);
       /* ii. Let final be the result of concatenating "[", properties, and "]". */
       final := s_concat(["[", properties, "]"])
     }
@@ -791,55 +741,21 @@ function JA(value, stack, indent, gap, space) {
     else {
       /* i. Let separator be the result of concatenating the comma character,
             the line feed character, and indent. */
-      separator := s_concat([",", "n", indent]); /* TODO \n */
+      separator := s_concat([",", "\n", indent]);
       /* ii. Let properties be a String formed by concatenating all the element
              Strings of partial with each adjacent pair of Strings separated with
              separator. The separator String is not inserted either before the
              first String or after the last String. */
-      j := 0;
-      pLen := l_len partial;
-      properties := "";
-      while (j < pLen) {
-        el := l_nth(partial, j);
-        properties := s_concat([properties, el]);
-        if (j < (pLen - 1)) {
-           properties := s_concat([properties, separator])
-        };
-        j := j + 1
-      };
+      properties := concatenateListStrElmsWithComma(partial);
       /* iii. Let final be the result of concatenating "[", the line feed character,
               indent, properties, the line feed character, stepback, and "]". */
-      final := s_concat(["[", "n", indent, properties, "n", stepback, "]"]) /* TODO \n */
+      final := s_concat(["[", "\n", indent, properties, "\n", stepback, "]"])
     }
   };
   /* 11. Remove the last element of stack. */
-  /* TODO */
+  l_remove_last stack;
   /* 12. Let indent be stepback. */
   indent := stepback;
   /* 13. Return final. */
   return final
-};
-
-function main() {
-  globalObject := initGlobalObject(false);
-
-  |global| := globalObject;
-
-  O1 := ObjectConstructor(|global|, 'null, false, [undefined]);
-  refA := newPropertyReference(O1, "a", false);
-  descA := newDataPropertyDescriptorFull(1., true, true, true);
-  PutValue(refA, descA);
-
-  O2 := ObjectConstructor(|global|, 'null, false, [undefined]);
-  refC := newPropertyReference(O2, "c", false);
-  descC := newDataPropertyDescriptorFull(2., true, true, true);
-  PutValue(refC, descC);
-
-  refB := newPropertyReference(O1, "b", false);
-  descB := newDataPropertyDescriptorFull(O2, true, true, true);
-  PutValue(refB, descB);
-
-  str := jsonStringify(null, null, false, [O1, 'undefined, 'undefined]);
-  print str;
-  return 
 }

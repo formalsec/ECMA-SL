@@ -1,23 +1,4 @@
-import "ES5_interpreter/section 9/section_9.esl";
-import "ES5_interpreter/section 9/section_9.12.esl";
-import "ES5_interpreter/section 8/section_8.esl";
-import "ES5_interpreter/section 8/section_8.6.esl";
-import "ES5_interpreter/section 8/section_8.7.esl";
-import "ES5_interpreter/section 8/section_8.9.esl";
-import "ES5_interpreter/section 8/section_8.10.esl";
-import "ES5_interpreter/section 8/section_8.12.esl";
-import "ES5_interpreter/section 10/section_10.2.esl";
-import "ES5_interpreter/section 10/section_10.3.esl";
-import "ES5_interpreter/section 10/section_10.4.esl";
-import "ES5_interpreter/section 13/section_13.esl";
-import "ES5_interpreter/section 15/section_15.esl";
-import "ES5_interpreter/section 15/section_15.1.esl";
-import "ES5_interpreter/section 15/section_15.2.esl";
-import "ES5_interpreter/section 15/section_15.3.esl";
-import "ES5_interpreter/section 15/section_15.4.esl";
-import "ES5_interpreter/section 15/section_15.7.esl";
-import "ES5_interpreter/section 15/section_15.11.esl";
-import "ES5_interpreter/extras/section_extras.esl";
+import "ES5_interpreter/ES5_Reference_Interpreter.esl"
 
 
 /* TESTING FUNCTIONS */
