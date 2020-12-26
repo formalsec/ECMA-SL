@@ -62,6 +62,7 @@
                 "t_nth"           , TNTH;
                 "fst"             , FST;
                 "snd"             , SND;
+                "s_split"         , SSPLIT;
                 "s_concat"        , SCONCAT;
                 "s_len"           , SLEN;
                 "s_nth"           , SNTH;
