@@ -104,7 +104,7 @@ function GetProperty (O, P) {
   print "GetProperty";
 
   /** 1. Let prop be the result of calling the [[GetOwnProperty]] internal method of O with property name P. */
-  prop := GetOwnProperty(O, P);
+  prop := {O.GetOwnProperty}(O, P);
 
   /** 2. If prop is not undefined, return prop. */
   if (!(prop = 'undefined)) {
@@ -120,7 +120,7 @@ function GetProperty (O, P) {
   };
 
   /** 5. Return the result of calling the [[GetProperty]] internal method of proto with argument P. */
-  return GetProperty(proto, P)
+  return {proto.GetProperty}(proto, P)
 };
 
 /**
@@ -132,7 +132,7 @@ function Get(O, P) {
   print "Get";
 
   /** 1. Let desc be the result of calling the [[GetProperty]] internal method of O with property name P. */
-  desc := GetProperty(O, P);
+  desc := {O.GetProperty}(O, P);
 
   /** 2. If desc is undefined, return undefined. */
   if (desc = 'undefined) {
@@ -153,7 +153,7 @@ function Get(O, P) {
     };
 
     /** 6. Return the result calling the [[Call]] internal method of getter providing O as the this value and providing no arguments. */
-    return Call(null, null, getter, O, [])
+    return {getter.Call}(null, null, getter, O, [])
   }
 };
 
@@ -166,7 +166,7 @@ function CanPut(O, P) {
   print "CanPut";
 
   /** 1. Let desc be the result of calling the[[GetOwnProperty]] internal method of O with argument P. */
-  desc := GetOwnProperty(O, P);
+  desc := {O.GetOwnProperty}(O, P);
 
   /** 2. If desc is not undefined, then: */
   if (!(desc = 'undefined)) {
@@ -195,7 +195,7 @@ function CanPut(O, P) {
   };
 
   /** 5. Let inherited be the result of calling the [[GetProperty]] internal method of proto with property name P. */
-  inherited := GetProperty(proto, P);
+  inherited := {proto.GetProperty}(proto, P);
 
   /** 6. If inherited is undefined, return the value of the [[Extensible]] internal property of O. */
   if (inherited = 'undefined) {
@@ -239,7 +239,7 @@ function Put(O, P, V, Throw) {
   print "Put";
 
   /** 1. If the result of calling the [[CanPut]] internal method of O with argument P is false, then: */
-  if (CanPut(O, P) = false) {
+  if ({O.CanPut}(O, P) = false) {
     /** a. If Throw is true, then throw a TypeError exception. */
     if (Throw) {
       throw TypeErrorConstructorInternal()
@@ -267,7 +267,7 @@ function Put(O, P, V, Throw) {
 
   /** 4. Let desc be the result of calling the [[GetProperty]] internal method of O with argument P.
    *     This may be either an own or inherited accessor property descriptor or an inherited data property descriptor. */
-  desc := GetProperty(O, P);
+  desc := {O.GetProperty}(O, P);
 
   /** 5. If IsAccessorDescriptor(desc) is true, then: */
   if (IsAccessorPropertyDescriptor(desc)) {
@@ -275,7 +275,7 @@ function Put(O, P, V, Throw) {
     setter := desc.Set;
 
     /** b. Call the [[Call]] internal method of setter providing O as the this value and providing V as the sole argument. */
-    Call(null, null, setter, O, [V])
+    {setter.Call}(null, null, setter, O, [V])
   }
   /** 6. Else, create a named data property named P on object O as follows */
   else {
@@ -304,7 +304,7 @@ function HasProperty(O, P) {
   print "HasProperty";
 
   /** 1. Let desc be the result of calling the [[GetProperty]] internal method of O with property name P. */
-  desc := GetProperty(O, P);
+  desc := {O.GetProperty}(O, P);
 
   /** 2. If desc is undefined, then return false. */
   if (desc = 'undefined) {
@@ -325,7 +325,7 @@ function Delete(O, P, Throw) {
   print "Delete";
 
   /** 1. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with property name P. */
-  desc := GetOwnProperty(O, P);
+  desc := {O.GetOwnProperty}(O, P);
 
   /** 2. If desc is undefined, then return true. */
   if (desc = 'undefined) {
@@ -367,12 +367,12 @@ function DefaultValue (O, hint) {
   /** When the [[DefaultValue]] internal method of O is called with hint String, the following steps are taken: */
   if (hint = 'String) {
     /** 1. Let toString be the result of calling the [[Get]] internal method of object O with argument "toString". */
-    toString := Get(O, "toString");
+    toString := {O.Get}(O, "toString");
 
     /** 2. If IsCallable(toString) is true then: */
     if (IsCallable(toString)) {
       /** a. Let str be the result of calling the [[Call]] internal method of toString, with O as the this value and an empty argument list. */
-      str := Call(null, null, toString, O, []);
+      str := {O.Call}(null, null, toString, O, []);
 
       /** b. If str is a primitive value, return str. */
       if (IsPrimitiveValue(str)) {
@@ -381,12 +381,12 @@ function DefaultValue (O, hint) {
     };
 
     /** 3. Let valueOf be the result of calling the [[Get]] internal method of object O with argument "valueOf". */
-    valueOf := Get(O, "valueOf");
+    valueOf := {O.Get}(O, "valueOf");
 
     /** 4. If IsCallable(valueOf) is true then: */
     if (IsCallable(valueOf)) {
       /** a. Let val be the result of calling the [[Call]] internal method of valueOf, with O as the this value and an empty argument list. */
-      val := Call(null, null, valueOf, O, []);
+      val := {valueOf.Call}(null, null, valueOf, O, []);
 
       /** b. If val is a primitive value, return val. */
       if (IsPrimitiveValue(val)) {
@@ -401,12 +401,12 @@ function DefaultValue (O, hint) {
     /** When the [[DefaultValue]] internal method of O is called with hint Number, the following steps are taken: */
     if (hint = 'Number) {
       /** 1. Let valueOf be the result of calling the [[Get]] internal method of object O with argument "valueOf". */
-      valueOf := Get(O, "valueOf");
+      valueOf := {O.Get}(O, "valueOf");
 
       /** 2. If IsCallable(valueOf) is true then: */
       if (IsCallable(valueOf)) {
         /** a. Let val be the result of calling the [[Call]] internal method of valueOf, with O as the this value and an empty argument list. */
-        val := Call(null, null, valueOf, O, []);
+        val := {valueOf.Call}(null, null, valueOf, O, []);
 
         /** b. If val is a primitive value, return val. */
         if (IsPrimitiveValue(val)) {
@@ -415,12 +415,12 @@ function DefaultValue (O, hint) {
       };
 
       /** 3. Let toString be the result of calling the [[Get]] internal method of object O with argument "toString". */
-      toString := Get(O, "toString");
+      toString := {O.Get}(O, "toString");
 
       /** 4. If IsCallable(toString) is true then: */
       if (IsCallable(toString)) {
         /** a. Let str be the result of calling the [[Call]] internal method of toString, with O as the this value and an empty argument list. */
-        str := Call(null, null, toString, O, []);
+        str := {toString.Call}(null, null, toString, O, []);
 
         /** b. If str is a primitive value, return str. */
         if (IsPrimitiveValue(str)) {
@@ -458,7 +458,7 @@ function DefineOwnProperty(O, P, Desc, Throw) {
   print "DefineOwnProperty";
 
   /** 1. Let current be the result of calling the [[GetOwnProperty]] internal method of O with property name P. */
-  current := GetOwnProperty(O, P);
+  current := {O.GetOwnProperty}(O, P);
 
   /** 2. Let extensible be the value of the [[Extensible]] internal property of O. */
   extensible := O.Extensible;
