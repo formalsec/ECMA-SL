@@ -73,6 +73,11 @@ let parse_prog (str : string) : Prog.t  =
   let funcs = parse Parser.Incremental.prog_target lexbuf in
   Prog.create funcs
 
+let parse_e_func (str : string) : E_Func.t =
+  let lexbuf = Lexing.from_string str in
+  E_Parser.e_prog_e_func_target E_Lexer.read lexbuf
+
+
 let parse_e_expr (str : string) : E_Expr.t =
   let lexbuf = Lexing.from_string str in
   E_Parser.e_prog_e_expr_target E_Lexer.read lexbuf

@@ -1,0 +1,8 @@
+
+function main() {
+  x := extern parseJS("x + 1"); 
+  print x; 
+  y := {x}();
+  print y;  
+  return 
+}

@@ -44,6 +44,55 @@ function InitialGlobalExecutionContext(globalObject, program) {
   return globalExecCtx
 };
 
+/* 10.4.2 Entering Eval Code */
+function EnteringEvalCode(evalCode, ref, callingExecCtx) {
+  isStrict := evalCode.strict ||| isContainedInStrictCode(callingExecCtx);
+  evalCode.strict := isStrict;
+
+  /* The following steps are performed when control enters the execution context for eval code: */
+
+  /* 1. If there is no calling context or if the eval code is not being evaluated by a direct call (15.1.2.1.1) to the eval
+        function then, */
+  if (!isDirectCall(ref, callingExecCtx)) {
+    /* a. Initialise the execution context as if it was a global execution context using the eval code as C as
+          described in 10.4.1.1. */
+    evalExecCtx := InitialGlobalExecutionContext(|global|, evalCode)
+  /* 2. Else, */
+  } else {
+    evalExecCtx := createExecutionContext();
+    /* a. Set the ThisBinding to the same value as the ThisBinding of the calling execution context. */
+    setThisBinding(evalExecCtx, getThisBinding(callingExecCtx));
+    /* b. Set the LexicalEnvironment to the same value as the LexicalEnvironment of the calling execution
+          context. */
+    setLexicalEnvironment(evalExecCtx, getLexicalEnvironment(callingExecCtx));
+    /* c. Set the VariableEnvironment to the same value as the VariableEnvironment of the calling execution
+          context. */
+    setVariableEnvironment(evalExecCtx, getVariableEnvironment(callingExecCtx));
+
+    setContainedInStrictCode(evalExecCtx, isStrict)
+  };
+  /* 3. If the eval code is strict code, then */
+  if (isStrict) {
+    /* a. Let strictVarEnv be the result of calling NewDeclarativeEnvironment passing the
+          LexicalEnvironment as the argument. */
+    strictVarEnv := NewDeclarativeEnvironment(getLexicalEnvironment(evalExecCtx));
+    /* b. Set the LexicalEnvironment to strictVarEnv. */
+    setLexicalEnvironment(evalExecCtx, strictVarEnv);
+    /* c. Set the VariableEnvironment to strictVarEnv. */
+    setVariableEnvironment(evalExecCtx, strictVarEnv)
+  };
+  /* 4. Perform Declaration Binding Instantiation as described in 10.5 using the eval code. */
+  DeclarationBindingInstantiation(evalCode, [], evalExecCtx, null);
+
+  return evalExecCtx
+};
+
+
+/* 10.4.2.1 Strict Mode Restrictions */
+/* The eval code cannot instantiate variable or function bindings in the variable environment of the calling
+   context that invoked the eval if either the code of the calling context or the eval code is strict code. Instead
+   such bindings are instantiated in a new VariableEnvironment that is only accessible to the eval code. */
+
 function EnteringFunctionCode(F, thisArg, argumentsList) {
   /* 10.4.3 Entering Function Code */
 
@@ -86,4 +135,23 @@ function EnteringFunctionCode(F, thisArg, argumentsList) {
   DeclarationBindingInstantiation(code, argumentsList, functionExecCtx, F);
 
   return functionExecCtx
+};
+
+/* Auxiliary functions */
+
+/* 15.1.2.1.1 Direct Call to Eval */
+function isDirectCall(ref, callingExecCtx) {
+  if (callingExecCtx = null) {
+    return false
+  };
+
+  /* A direct call to the eval function is one that is expressed as a CallExpression that meets the following two
+    conditions: */
+  /* The Reference that is the result of evaluating the MemberExpression in the CallExpression has an environment
+    record as its base value and its reference name is "eval". */
+  baseValue := GetBase(ref);
+  referencedName := GetReferencedName(ref);
+  return (Type(baseValue) = "EnvironmentRecord") && (referencedName = "eval")
+  /* The result of calling the abstract operation GetValue with that Reference as the argument is the standard built-
+    in function defined in 15.1.2.1. */
 }

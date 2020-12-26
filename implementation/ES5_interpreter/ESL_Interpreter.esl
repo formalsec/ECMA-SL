@@ -1,8 +1,16 @@
 import "ES5_interpreter/ES5_Reference_Interpreter.esl";
 
-function JS_Interpreter_Program(p) {
+function JS_Interpreter_Program(p, callingExecCtx) {
   /* 14 Program */
   match p with
+  | { sourceType: "script", type: "Program", codeType: "eval", body: SourceElementsopt, strict: strict } -> {
+    if (SourceElementsopt = []) {
+      return normalEmptyCompletion('empty)
+    };
+
+    result := JS_Interpreter_SourceElements(SourceElementsopt, callingExecCtx);
+    return result
+  }
   | { sourceType: "script", type: "Program", body: SourceElementsopt, strict: strict } -> {
     /* The production Program : SourceElements opt is evaluated as follows: */
 
@@ -25,10 +33,11 @@ function JS_Interpreter_Program(p) {
     print progCxt;
     return result
   }
-  | { sourceType: "script", type: "EarlySyntaxError" } -> {
-    progCxt := EnteringGlobalCode(p);
-
-    throw SyntaxErrorConstructorInternal()
+  | { sourceType: "script", type: "EarlySyntaxError", message: message } -> {
+    if (message = "Invalid left-hand side in assignment") {
+      return throwEmptyCompletion(ReferenceErrorConstructorInternal())
+    };
+    return throwEmptyCompletion(SyntaxErrorConstructorInternal())
   }
 };
 
@@ -187,7 +196,7 @@ function JS_Interpreter_Expr(e, scope) {
     };
     /* 6. Return the result of calling the [[Construct]] internal method on constructor, providing the list argList as the
           argument values. */
-    return Construct(constructor, argList)
+    return {constructor.Construct}(scope, ref, constructor, argList)
   }
   | { type: "CallExpression", callee: MemberExpression, arguments: Arguments } -> {
     /* 11.2.3 Function Calls */
@@ -227,7 +236,7 @@ function JS_Interpreter_Expr(e, scope) {
     };
     /* 8. Return the result of calling the [[Call]] internal method on func, providing thisValue as the this value
           and providing the list argList as the argument values. */
-    return Call(func, thisValue, argList)
+    return {func.Call}(scope, ref, func, thisValue, argList)
   }
   | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
     /* 11.2.5 Function Expressions */

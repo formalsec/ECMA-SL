@@ -36,11 +36,6 @@ module CoreInterp = Core_Interpreter.M(DCM)
 *)
 (* Argument read function *)
 
-let burn_to_disk (path : string) (data : string) : unit =
-  let oc = open_out path in
-  output_string oc data;
-  close_out oc
-
 let arguments () =
 
   let usage_msg = "Usage: -i <path> -mode <c/p> -o <path> [-v] -h <path> [--parse]" in
@@ -69,7 +64,7 @@ let parse_program (prog : Prog.t) (inline : string) : unit =
   print_string json;
   print_string "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   let jsonfile = Filename.remove_extension !file  in
-  burn_to_disk (jsonfile ^inline^".json") json;
+  File_Utils.burn_to_disk (jsonfile ^inline^".json") json;
   Printf.printf "%s" jsonfile
 
 let compile_from_plus_to_core () : unit =
@@ -89,7 +84,7 @@ let inline_compiler () : Prog.t =
   let lattice_prog = Parsing_Utils.parse_prog sec_prog_contents in
   let final_prog = combine_progs inlined_prog lattice_prog in
   let inlinedfile = Filename.remove_extension !file  in
-  burn_to_disk (inlinedfile^"_inlined.esl") (Prog.str final_prog);
+  File_Utils.burn_to_disk (inlinedfile^"_inlined.esl") (Prog.str final_prog);
   Printf.printf "================= FINAL PROGRAM ================= \n %s \n=================================" (Prog.str final_prog);
   final_prog
 

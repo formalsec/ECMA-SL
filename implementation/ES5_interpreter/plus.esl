@@ -2,6 +2,6 @@ import "ES5_interpreter/ast.esl";
 import "ES5_interpreter/ESL_Interpreter.esl";
 function main() {
     x := buildAST();
-    ret := JS_Interpreter_Program(x);
+    ret := JS_Interpreter_Program(x, null);
     return ret
 }

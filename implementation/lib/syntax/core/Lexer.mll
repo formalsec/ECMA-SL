@@ -123,6 +123,7 @@ rule read =
   | "ceil"            { CEIL }
   | "cos"             { COS }
   | "exp"             { EXP }
+  | "extern"          { EXTERN }
   | "@"               { AT_SIGN }
   | "floor"           { FLOOR }
   | "log_e"           { LOG_E }

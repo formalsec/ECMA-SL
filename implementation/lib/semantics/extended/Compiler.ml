@@ -289,6 +289,25 @@ let compile_call
   fname_stmts @ List.concat fargs_stmts @ [Stmt.AssignCall (x, fname_expr, fargs_exprs'); stmt_if], Expr.Var x
 
 
+(*
+C(e_i) = stmts_i, x_i ,e_i|i=1^n = es
+x fresh
+------------------------------
+ C(extern f(es)) =
+     stmts_i |i=1^n
+     x := extern f(x_i|i=1^n), x
+*)
+
+let compile_e_call
+    (f : string)
+    (ret_args : (Stmt.t list * Expr.t) list) : Stmt.t list * Expr.t =
+  let x = generate_fresh_var () in
+  let fargs_stmts, fargs_exprs = List.split ret_args in
+  (List.concat fargs_stmts) @ [Stmt.AssignECall (x, f, fargs_exprs)], Expr.Var x
+
+
+
+
 let compile_const (c : Oper.const) : Stmt.t list * Expr.t =
   match c with
   | MAX_VALUE -> [], Expr.Val (Val.Flt Float.max_float)
@@ -463,6 +482,9 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
     let ret_f = compile_expr f in
     let ret_es = List.map compile_expr e_es in
     compile_call ret_f ret_es g
+  | ECall (f, es) ->
+    let ret_es = List.map compile_expr es in
+    compile_e_call f ret_es
 
 and compile_print (expr : E_Expr.t) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in

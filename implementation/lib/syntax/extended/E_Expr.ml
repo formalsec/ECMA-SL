@@ -9,14 +9,15 @@ type t =
   | UnOpt   of Oper.uopt * t
   | NOpt    of Oper.nopt * t list
   | Call    of t * t list * string option
+  | ECall   of string * t list
   | NewObj  of (string * t) list
   | Lookup  of t * t
-  | Curry   of t * t list 
+  | Curry   of t * t list
 
 type subst_t = (string, t) Hashtbl.t
 
 let rec str (e : t) : string =
-  let str_es es = String.concat ", " (List.map str es) in 
+  let str_es es = String.concat ", " (List.map str es) in
   match e with
   | Val n                   -> Val.str n
   | Var x                   -> x
@@ -27,6 +28,7 @@ let rec str (e : t) : string =
   | BinOpt (op, e1, e2)     -> Oper.str_of_binopt op (str e1) (str e2)
   | TriOpt (op, e1, e2, e3) -> Oper.str_of_triopt op (str e1) (str e2) (str e3)
   | NOpt (op, es)           -> Oper.str_of_nopt op (List.map str es)
+  | ECall (f, es)           -> Printf.sprintf "extern %s(%s)" f (str_es es)
   | Call (f, es, None)      -> Printf.sprintf "%s(%s)" (str f) (String.concat ", " (List.map str es))
   | Call (f, es, Some g)    -> Printf.sprintf "%s(%s) catch %s" (str f) (String.concat ", " (List.map str es)) g
   | NewObj (fes)            -> "{ " ^ (String.concat ", " (List.map (fun (f, e) -> f ^ ": " ^ (str e)) fes)) ^ " }"
@@ -61,8 +63,9 @@ let rec map (f : (t -> t)) (e : t) : t =
       | TriOpt (op, e1, e2, e3)  -> TriOpt (op, mapf e1, mapf e2, mapf e3)
       | NOpt (op, es)            -> NOpt (op, List.map mapf es)
       | Call (ef, es, g)         -> Call (mapf ef, List.map mapf es, g)
+      | ECall (f, es)            -> ECall (f, List.map mapf es)
       | NewObj (fes)             -> NewObj (map_obj fes)
-      | Lookup (e, ef)           -> Lookup (mapf e, mapf ef) 
+      | Lookup (e, ef)           -> Lookup (mapf e, mapf ef)
       | Curry (e, es)            -> Curry (mapf e, List.map mapf es) in
   f e'
 

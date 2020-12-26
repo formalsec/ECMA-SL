@@ -112,7 +112,11 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
 };
 
 /* 13.2.1 [[Call]] */
-function Call(F, this, args) {
+function Call(externalScope, ref, F, this, args) {
+  if (("Code" in_obj F) &&& (typeof F.Code = __$Str) &&& (F.Code = "GlobalObjectEval")) {
+    args := completeArgs(args, F);
+    return {F.Code}(externalScope, ref, this, F.strict, args)
+  };
   if (("Code" in_obj F) &&& ((typeof F.Code = __$Str) || (typeof F.Code = __$Curry))) {
     args := completeArgs(args, F);
     return {F.Code}(F.Scope, this, F.strict, args)
@@ -148,7 +152,7 @@ function Call(F, this, args) {
 };
 
 
-function Construct(F, argumentList) {
+function Construct(externalScope, ref, F, argumentList) {
   /* 13.2.2 [[Construct]] */
 
   /* When the [[Construct]] internal method for a Function object F is called with a possibly empty list of arguments,
@@ -175,7 +179,7 @@ function Construct(F, argumentList) {
   };
   /* 8. Let result be the result of calling the [[Call]] internal property of F, providing obj as the this value and providing the
         argument list passed into [[Construct]] as args. */
-  result := Call(F, obj, argumentList);
+  result := Call(externalScope, ref, F, obj, argumentList);
   /* 9. If Type(result) is Object then return result. */
   if (Type(result) = "Object") {
     return result

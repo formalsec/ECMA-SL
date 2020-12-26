@@ -79,13 +79,6 @@ function checkConstraints() {
     checkConstraints_return="${FILENAME} | **NOT EXECUTED** | Is not a ES5 test"
     return 1
   fi
-  # check if it uses/contains a call the built-in eval function
-  if [[ $(echo -e "$METADATA" | awk '/eval\(/ {print $0}') != "" ]]; then
-    printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: eval test${NC}\n"
-
-    checkConstraints_return="${FILENAME} | **NOT EXECUTED** | Is an \"eval\" test"
-    return 1
-  fi
   # check if it's a negative test
   if [[ $(echo -e "$METADATA" | awk '/negative:/ {print $2}') != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: negative test${NC}\n"
@@ -473,7 +466,7 @@ echo "import \"output/test262_ast_$now.esl\";" > "output/test262_$now.esl"
 echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "output/test262_$now.esl"
 echo "function main() {
   x := buildAST();
-  ret := JS_Interpreter_Program(x);
+  ret := JS_Interpreter_Program(x, null);
   return ret
 }" >> "output/test262_$now.esl"
 
@@ -540,4 +533,3 @@ declare -i duration=$((endTime-startTime))
 echo ""
 # The amount of zeros is necessary because we're dealing with seconds and nanoseconds
 echo $duration | awk '{printf "Execution duration: %02dh:%02dm:%06.3fs\n", $0/3600000000000, $0%3600000000000/60000000000, $0/1000000000%60}'
-
