@@ -72,13 +72,6 @@ function checkConstraints() {
   FILENAME=$1
 
   METADATA=$2
-  # check if it's a es5id test
-  if [[ $(echo -e "$METADATA" | awk '/es6id:|esid:/ {print $0}') != "" ]]; then
-    printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: not ES5 test${NC}\n"
-
-    checkConstraints_return="${FILENAME} | **NOT EXECUTED** | Is not a ES5 test"
-    return 1
-  fi
   # check if it's a negative test
   if [[ $(echo -e "$METADATA" | awk '/negative:/ {print $2}') != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: negative test${NC}\n"
