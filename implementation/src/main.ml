@@ -93,9 +93,7 @@ let inline_compiler () : Prog.t =
 let core_interpretation (prog : Prog.t) : exit_code =
 
   let v, heap = CoreInterp.eval_prog prog (!out, !mon, !verb_aux) "main" in
-  if !heap_file <> ""
-  then File_Utils.burn_to_disk !heap_file (Heap.str heap)
-  else print_endline (Heap.str heap);
+  if !heap_file <> "" then File_Utils.burn_to_disk !heap_file (Heap.str heap);
   (match v with
    | Some z -> (match z with
        | Val.Tuple (ret) -> (let completion = List.nth ret 1 in
