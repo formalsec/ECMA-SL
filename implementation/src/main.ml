@@ -73,7 +73,7 @@ let compile_from_plus_to_core () : unit =
   let e_prog_imports_resolved = Parsing_Utils.resolve_prog_imports e_prog in
   let e_prog_macros_applied = Parsing_Utils.apply_prog_macros e_prog_imports_resolved in
   let c_prog = Compiler.compile_prog e_prog_macros_applied in
-  if !out <> "" then Parsing_Utils.write_file (Prog.str c_prog) !out
+  if !out <> "" then File_Utils.burn_to_disk !out (Prog.str c_prog)
 
 let inline_compiler () : Prog.t =
   let prog_contents = Parsing_Utils.load_file !file in
@@ -94,7 +94,7 @@ let core_interpretation (prog : Prog.t) : exit_code =
 
   let v, heap = CoreInterp.eval_prog prog (!out, !mon, !verb_aux) "main" in
   if !heap_file <> ""
-  then Parsing_Utils.write_file (Heap.str heap) !heap_file
+  then File_Utils.burn_to_disk !heap_file (Heap.str heap)
   else print_endline (Heap.str heap);
   (match v with
    | Some z -> (match z with

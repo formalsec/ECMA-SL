@@ -104,11 +104,6 @@ let load_file f : string =
   close_in ic;
   Bytes.to_string s
 
-let write_file (s : string) (f : string) : unit =
-  let oc = open_out f in
-  output_string oc s;
-  close_out oc
-
 let parse_file str : Prog.t =
   let str = load_file str in
   let fs = parse_prog str in
