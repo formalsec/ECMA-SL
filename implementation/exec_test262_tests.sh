@@ -158,7 +158,7 @@ function handleSingleFile() {
   declare -i start_time=$(date +%s%N)
 
   #echo "3.5. Evaluate program and write the computed heap to the file heap.json."
-  ECMASLCI=$(./main.native -mode ci -i output/core_$now.esl -h heap.json 2>&1)
+  ECMASLCI=$(./main.native -mode ci -i output/core_$now.esl 2>&1)
 
   local EXIT_CODE=$?
 
