@@ -148,7 +148,7 @@ function handleSingleFile() {
       log_errors_arr+=("$FILENAME")
     fi
 
-    ERROR_MESSAGE=$(echo -e "$ECMASLC" | head -n 1)
+    ERROR_MESSAGE=$(echo -e "$ECMASLC" | tail -n 1)
 
     test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "")
     return
