@@ -1980,7 +1980,7 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
       /* production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement */
       return JS_Interpreter_ForInStmt_VarDecl(iterStmt, scope)
     }
-    | { type: "Identifier" } -> {
+    | default -> {
       /* production IterationStatement : for ( LeftHandSideExpression in Expression ) Statement */
       return JS_Interpreter_ForInStmt_lhsExpr(iterStmt, scope)
     }
