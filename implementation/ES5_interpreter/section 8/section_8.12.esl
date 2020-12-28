@@ -372,7 +372,7 @@ function DefaultValue (O, hint) {
     /** 2. If IsCallable(toString) is true then: */
     if (IsCallable(toString)) {
       /** a. Let str be the result of calling the [[Call]] internal method of toString, with O as the this value and an empty argument list. */
-      str := {O.Call}(null, null, toString, O, []);
+      str := {toString.Call}(null, null, toString, O, []);
 
       /** b. If str is a primitive value, return str. */
       if (IsPrimitiveValue(str)) {
