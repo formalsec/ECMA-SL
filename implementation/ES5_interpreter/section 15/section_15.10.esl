@@ -1,0 +1,211 @@
+/* 15.10 RegExp (Regular Expression) Objects */
+function initRegExpObject(globalObject, ObjectPrototype, strict) {
+  regExpPrototype := initRegExpPrototype(ObjectPrototype);
+  regExpConstructor := initRegExpConstructor(regExpPrototype, globalObject, strict);
+
+  fillRegExpPrototype(regExpPrototype, regExpConstructor, globalObject, strict);
+
+  return regExpConstructor
+};
+
+/* 15.10.3 The RegExp Constructor Called as a Function */
+
+/* 15.10.3.1 RegExp(pattern, flags) */
+/* If pattern is an object R whose [[Class]] internal property is "RegExp" and flags is undefined, then return R
+   unchanged. Otherwise call the standard built-in RegExp constructor (15.10.4.1) as if by the expression new
+   RegExp(pattern, flags) and return the object constructed by that constructor. */
+function RegExpConstructorCalledAsFunction(strict, pattern, flags) {
+  if (isRegExpObject(pattern) &&& (flags = 'undefined)) {
+    return pattern
+  };
+
+  return newRegExp(strict, pattern, flags)
+};
+
+/* 15.10.4 The RegExp Constructor */
+/* When RegExp is called as part of a new expression, it is a constructor: it initialises the newly created object. */
+function RegExpConstructor(global, this, strict, args) {
+  pattern := l_nth(args, 0);
+  flags := l_nth(args, 1);
+
+  if ((this = 'undefined) ||| (this = 'null)) {
+    return RegExpConstructorCalledAsFunction(strict, pattern, flags)
+  };
+
+  return newRegExp(strict, pattern, flags)
+};
+
+/* 15.10.4.1 new RegExp(pattern, flags) */
+function newRegExp(strict, pattern, flags) {
+  /* If pattern is an object R whose [[Class]] internal property is "RegExp" and flags is undefined, then let P be the
+    pattern used to construct R and let F be the flags used to construct R. If pattern is an object R whose [[Class]]
+    internal property is "RegExp" and flags is not undefined, then throw a TypeError exception. Otherwise, let P
+    be the empty String if pattern is undefined and ToString(pattern) otherwise, and let F be the empty String if
+    flags is undefined and ToString(flags) otherwise. */
+
+  /* If the characters of P do not have the syntactic form Pattern, then throw a SyntaxError exception. Otherwise
+    let the newly constructed object have a [[Match]] internal property obtained by evaluating ("compiling") the
+    characters of P as a Pattern as described in 15.10.2. */
+
+  /* If F contains any character other than "g", "i", or "m", or if it contains the same character more than once,
+    then throw a SyntaxError exception. */
+
+  /* If a SyntaxError exception is not thrown, then: */
+
+  /* Let S be a String in the form of a Pattern equivalent to P, in which certain characters are escaped as described
+    below. S may or may not be identical to P or pattern; however, the internal procedure that would result from
+    evaluating S as a Pattern must behave identically to the internal procedure given by the constructed object's
+    [[Match]] internal property. */
+
+  /* The characters / occurring in the pattern shall be escaped in S as necessary to ensure that the String value
+    formed by concatenating the Strings "/", S, "/", and F can be parsed (in an appropriate lexical context) as a
+    RegularExpressionLiteral that behaves identically to the constructed regular expression. For example, if P is
+    "/", then S could be "\/" or "\u002F", among other possibilities, but not "/", because /// followed by F
+    would be parsed as a SingleLineComment rather than a RegularExpressionLiteral. If P is the empty String, this
+    specification can be met by letting S be "(?:)". */
+
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+  /* The following properties of the newly constructed object are data properties with the attributes that are
+    specified in 15.10.7. The [[Value]] of each property is set as follows: */
+  /* The source property of the newly constructed object is set to S. */
+  /* The global property of the newly constructed object is set to a Boolean value that is true if F contains the
+    character "g" and false otherwise. */
+  /* The ignoreCase property of the newly constructed object is set to a Boolean value that is true if F contains
+    the character "i" and false otherwise. */
+  /* The multiline property of the newly constructed object is set to a Boolean value that is true if F contains
+    the character "m" and false otherwise. */
+  /* The lastIndex property of the newly constructed object is set to 0. */
+  /* The [[Prototype]] internal property of the newly constructed object is set to the standard built-in RegExp
+    prototype object as specified in 15.10.6. */
+  setInternalProperty(newlyConstructedObject, "Prototype", getRegExpPrototype(strict));
+  /* The [[Class]] internal property of the newly constructed object is set to "RegExp". */
+  setInternalProperty(newlyConstructedObject, "Class", "RegExp");
+
+  /* NOTE If pattern is a StringLiteral, the usual escape sequence substitutions are performed before the String is
+          processed by RegExp. If pattern must contain an escape sequence to be recognised by RegExp, any backslash
+          \ characters must be escaped within the StringLiteral to prevent them being removed when the contents of the StringLiteral
+          are formed. */
+
+  return newlyConstructedObject
+};
+
+/* 15.10.5 Properties of the RegExp Constructor */
+function initRegExpConstructor(RegExpPrototype, globalObject, strict) {
+  /* The value of the [[Prototype]] internal property of the RegExp constructor is the standard built-in Function
+     prototype object (15.3.4). */
+  RegExpConstructor := CreateFunctionObject(["pattern", "flags"], "RegExpConstructor", globalObject, strict, null);
+  /* Besides the internal properties and the length property (whose value is 2), the RegExp constructor has the
+    following properties: */
+
+  /* 15.10.5.1 RegExp.prototype */
+  /* The initial value of RegExp.prototype is the RegExp prototype object (15.10.6). */
+  /* This property shall have the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(RegExpConstructor, "prototype", RegExpPrototype, false, false, false);
+
+  return RegExpConstructor
+};
+
+/* 15.10.6 Properties of the RegExp Prototype Object */
+function initRegExpPrototype(objectPrototypeObject) {
+  regExpPrototypeObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(regExpPrototypeObject);
+
+/* The value of the [[Prototype]] internal property of the RegExp prototype object is the standard built-in Object
+   prototype object (15.2.4). The RegExp prototype object is itself a regular expression object; its [[Class]] is
+   "RegExp". The initial values of the RegExp prototype object‘s data properties (15.10.7) are set as if the
+   object was created by the expression new RegExp() where RegExp is that standard built-in constructor with
+   that name. */
+  setInternalProperty(regExpPrototypeObject, "Class", "RegExp");
+  setInternalProperty(regExpPrototypeObject, "Prototype", objectPrototypeObject);
+
+  return regExpPrototypeObject
+};
+
+/* 15.10.6 Properties of the RegExp Prototype Object */
+function fillRegExpPrototype(regExpPrototypeObject, RegExpConstructor, globalObject, strict) {
+  /* The RegExp prototype object does not have a valueOf property of its own; however, it inherits the valueOf
+    property from the Object prototype object. */
+
+  /* In the following descriptions of functions that are properties of the RegExp prototype object, the phrase "this
+    RegExp object" refers to the object that is the this value for the invocation of the function; a TypeError
+    exception is thrown if the this value is not an object or an object for which the value of the [[Class]] internal
+    property is not "RegExp". */
+
+  /* 15.10.6.1 RegExp.prototype.constructor */
+  /* The initial value of RegExp.prototype.constructor is the standard built-in RegExp constructor. */
+  createBuiltInProperty(regExpPrototypeObject, "constructor", RegExpConstructor);
+
+  /* TODO */
+  /* 15.10.6.2 RegExp.prototype.exec(string) */
+  exec := CreateBuiltInFunctionObject(["string"], "RegExpPrototypeExec", globalObject, strict, null);
+  createBuiltInProperty(regExpPrototypeObject, "exec", exec);
+
+  /* 15.10.6.3 RegExp.prototype.test(string) */
+  test := CreateBuiltInFunctionObject(["string"], "RegExpPrototypeExec", globalObject, strict, null);
+  createBuiltInProperty(regExpPrototypeObject, "test", test);
+
+  /* 15.10.6.4 RegExp.prototype.toString() */
+  toString := CreateBuiltInFunctionObject([], "RegExpPrototypeToString", globalObject, strict, null);
+  createBuiltInProperty(regExpPrototypeObject, "toString", toString);
+
+  return
+};
+
+/* 15.10.7 Properties of RegExp Instances */
+/* RegExp instances inherit properties from the RegExp prototype object and their [[Class]] internal property
+   value is "RegExp". RegExp instances also have a [[Match]] internal property and a length property. */
+
+/* The value of the [[Match]] internal property is an implementation dependent representation of the Pattern of the
+   RegExp object. */
+/* RegExp instances also have the following properties. */
+
+/* 15.10.7.1 source */
+/* The value of the source property is a String in the form of a Pattern representing the current regular
+   expression. This property shall have the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]:
+   false }. */
+
+/* 15.10.7.2 global */
+/* The value of the global property is a Boolean value indicating whether the flags contained the character “g”. */
+/* This property shall have the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+
+/* 15.10.7.3 ignoreCase */
+/* The value of the ignoreCase property is a Boolean value indicating whether the flags contained the
+   character “i”. This property shall have the attributes { [[Writable]]: false, [[Enumerable]]: false,
+   [[Configurable]]: false }. */
+
+/* 15.10.7.4 multiline */
+/* The value of the multiline property is a Boolean value indicating whether the flags contained the character
+   “m”. This property shall have the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+
+/* 15.10.7.5 lastIndex */
+/* The value of the lastIndex property specifies the String position at which to start the next match. It is
+   coerced to an integer when used (see 15.10.6.2). This property shall have the attributes { [[Writable]]: true,
+   [[Enumerable]]: false, [[Configurable]]: false }. */
+
+/* NOTE Unlike the other standard built-in properties of RegExp instances, lastIndex is writable. */
+
+
+
+/* Auxiliary functions */
+function getRegExpPrototype(strict) {
+  refRegExp := newPropertyReference(|global|, "RegExp", strict);
+  RegExpObject := GetValue(refRegExp);
+
+  refRegExpProto := newPropertyReference(RegExpObject, "prototype", strict);
+  objectRegExpProto := GetValue(refRegExpProto);
+
+  return objectRegExpProto
+};
+
+/* In the following descriptions of functions that are properties of the RegExp prototype object, the phrase "this
+  RegExp object" refers to the object that is the this value for the invocation of the function; a TypeError
+  exception is thrown if the this value is not an object or an object for which the value of the [[Class]] internal
+  property is not "RegExp". */
+function isRegExpObject(arg) {
+  if ((Type(arg) = "Object") &&& (getInternalProperty(arg, "Class") = "RegExp")) {
+    return true
+  };
+  return false
+}
