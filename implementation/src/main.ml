@@ -36,11 +36,6 @@ module CoreInterp = Core_Interpreter.M(DCM)
 *)
 (* Argument read function *)
 
-let burn_to_disk (path : string) (data : string) : unit =
-  let oc = open_out path in
-  output_string oc data;
-  close_out oc
-
 let arguments () =
 
   let usage_msg = "Usage: -i <path> -mode <c/p> -o <path> [-v] -h <path> [--parse]" in
@@ -69,7 +64,7 @@ let parse_program (prog : Prog.t) (inline : string) : unit =
   print_string json;
   print_string "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   let jsonfile = Filename.remove_extension !file  in
-  burn_to_disk (jsonfile ^inline^".json") json;
+  File_Utils.burn_to_disk (jsonfile ^inline^".json") json;
   Printf.printf "%s" jsonfile
 
 let compile_from_plus_to_core () : unit =
@@ -78,7 +73,7 @@ let compile_from_plus_to_core () : unit =
   let e_prog_imports_resolved = Parsing_Utils.resolve_prog_imports e_prog in
   let e_prog_macros_applied = Parsing_Utils.apply_prog_macros e_prog_imports_resolved in
   let c_prog = Compiler.compile_prog e_prog_macros_applied in
-  if !out <> "" then Parsing_Utils.write_file (Prog.str c_prog) !out
+  if !out <> "" then File_Utils.burn_to_disk !out (Prog.str c_prog)
 
 let inline_compiler () : Prog.t =
   let prog_contents = Parsing_Utils.load_file !file in
@@ -89,7 +84,7 @@ let inline_compiler () : Prog.t =
   let lattice_prog = Parsing_Utils.parse_prog sec_prog_contents in
   let final_prog = combine_progs inlined_prog lattice_prog in
   let inlinedfile = Filename.remove_extension !file  in
-  burn_to_disk (inlinedfile^"_inlined.esl") (Prog.str final_prog);
+  File_Utils.burn_to_disk (inlinedfile^"_inlined.esl") (Prog.str final_prog);
   Printf.printf "================= FINAL PROGRAM ================= \n %s \n=================================" (Prog.str final_prog);
   final_prog
 
@@ -98,9 +93,7 @@ let inline_compiler () : Prog.t =
 let core_interpretation (prog : Prog.t) : exit_code =
 
   let v, heap = CoreInterp.eval_prog prog (!out, !mon, !verb_aux) "main" in
-  if !heap_file <> ""
-  then Parsing_Utils.write_file (Heap.str heap) !heap_file
-  else print_endline (Heap.str heap);
+  if !heap_file <> "" then File_Utils.burn_to_disk !heap_file (Heap.str heap);
   (match v with
    | Some z -> (match z with
        | Val.Tuple (ret) -> (let completion = List.nth ret 1 in

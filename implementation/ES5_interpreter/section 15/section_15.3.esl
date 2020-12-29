@@ -120,23 +120,27 @@ function FunctionConstructor(globalObject, this, strict, params) {
   };
   /* 6. Let body be ToString(body). */
   body := ToString(body);
-  /* TODO parseBody and parseParams */
+
+  body := parseBody(P, body, strict);
+  P := parseParams(P);
   /* 7. If P is not parsable as a FormalParameterList opt then throw a SyntaxError exception. */
   if (!isParsableAsFormalParametersList(P)) { /* TODO */
     throw SyntaxErrorConstructorInternal()
   };
   /* 8. If body is not parsable as FunctionBody then throw a SyntaxError exception. */
-  if (!isParsableAsFunctionBody(body)) { /* TODO */
+  if (!isParsableAsFunctionBody(body)) {
     throw SyntaxErrorConstructorInternal()
   };
   /* 9. If body is strict mode code (see 10.1.1) then let strict be true, else let strict be false. */
-  if (isBuiltInFunctionBodyStrictModeCode(body)) { /* TODO */
+  if (isBuiltInFunctionBodyStrictModeCode(body)) {
     strict := true
   } else {
     strict := false
   };
   /* 10. If strict is true, throw any exceptions specified in 13.1 that apply. */
-  /* TODO */
+  if ((strict = true) &&& anyStrictModeRestrictionApplicable(body)) {
+    throw SyntaxErrorConstructorInternal()
+  };
   /* 11. Return a new Function object created as specified in 13.2 passing P as the FormalParameterList opt and body
          as the FunctionBody. Pass in the Global Environment as the Scope parameter and strict as the Strict flag. */
   return CreateFunctionObject(P, body, getGlobalEnvironment(globalObject), strict, null)
@@ -181,7 +185,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
   if ((argArray = 'null) ||| (argArray = 'undefined)) {
     /* a. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value
           and an empty list of arguments. */
-    return {func.Call}(func, thisArg, [])
+    return {func.Call}(null, null, func, thisArg, [])
   };
   /* 3. If Type(argArray) is not Object, then throw a TypeError exception. */
   if (!(Type(argArray) = "Object")) {
@@ -194,7 +198,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
   /* 6. Let argList be an empty List. */
   argList := [];
   /* 7. Let index be 0. */
-  index := 0;
+  index := 0.;
   /* 8. Repeat while index < n */
   while(index < n) {
     /* a. Let indexName be ToString(index). */
@@ -205,11 +209,11 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
     /* c. Append nextArg as the last element of argList. */
     argList := l_add(argList, nextArg);
     /* d. Set index to index + 1. */
-    index := index + 1
+    index := index + 1.
   };
   /* 9. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
-  return {func.Call}(func, thisArg, argList)
+  return {func.Call}(null, null, func, thisArg, argList)
 
   /* The length property of the apply method is 2. */
 
@@ -238,7 +242,7 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
   };
   /* 4. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
-  return {func.Call}(func, thisArg, argList)
+  return {func.Call}(null, null, func, thisArg, argList)
 
   /* The length property of the call method is 1. */
 
@@ -312,7 +316,7 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
   thrower := createThrowTypeErrorFunctionObject(getFunctionPrototype(strict), strict);
   /* 20. Call the [[DefineOwnProperty]] internal method of F with arguments "caller", PropertyDescriptor
         {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-  DefineOwnProperty(F, "caller", {
+  {F.DefineOwnProperty}(F, "caller", {
     Get: thrower,
     Set: thrower,
     Enumerable: false,
@@ -320,7 +324,7 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
   }, false);
   /* 21. Call the [[DefineOwnProperty]] internal method of F with arguments "arguments", PropertyDescriptor
         {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-  DefineOwnProperty(F, "arguments", {
+  {F.DefineOwnProperty}(F, "arguments", {
     Get: thrower,
     Set: thrower,
     Enumerable: false,
@@ -336,7 +340,7 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
 };
 
 /* 15.3.4.5.1 [[Call]] */
-function CallBind(F, this, ExtraArgs) {
+function CallBind(externalScope, ref, F, this, ExtraArgs) {
   /* When the [[Call]] internal method of a function object, F, which was created using the bind function is called
      with a this value and a list of arguments ExtraArgs, the following steps are taken: */
 
@@ -351,11 +355,11 @@ function CallBind(F, this, ExtraArgs) {
   args := l_concat(boundArgs, ExtraArgs);
   /* 5. Return the result of calling the [[Call]] internal method of target providing boundThis as the this value and
         providing args as the arguments. */
-  return {target.Call}(target, boundThis, args)
+  return {target.Call}(externalScope, ref, target, boundThis, args)
 };
 
 /* 15.3.4.5.2 [[Construct]] */
-function ConstructBind(F, ExtraArgs) {
+function ConstructBind(externalScope, ref, F, ExtraArgs) {
   /* When the [[Construct]] internal method of a function object, F that was created using the bind function is called
      with a list of arguments ExtraArgs, the following steps are taken: */
 
@@ -371,7 +375,7 @@ function ConstructBind(F, ExtraArgs) {
         same values as the list ExtraArgs in the same order. */
   args := l_concat(boundArgs, ExtraArgs);
   /* 5. Return the result of calling the [[Construct]] internal method of target providing args as the arguments. */
-  return {target.Construct}(target, args)
+  return {target.Construct}(externalScope, ref, target, args)
 };
 
 /* 15.3.4.5.3 [[HasInstance]] (V) */
@@ -497,12 +501,51 @@ function isParsableAsFormalParametersList(str) {
   return true
 };
 
-function isParsableAsFunctionBody(str) {
-  /* TODO */
-  return true
+function isParsableAsFunctionBody(bodyObj) {
+  return ("type" in_obj bodyObj) &&& !(bodyObj.type = "EarlySyntaxError")
 };
 
-function isBuiltInFunctionBodyStrictModeCode(code) {
-  /* TODO */
-  return false
+function isBuiltInFunctionBodyStrictModeCode(bodyObj) {
+  return ("strict" in_obj bodyObj) &&& (bodyObj.strict)
+};
+
+function anyStrictModeRestrictionApplicable(bodyObj) {
+  return ("type" in_obj bodyObj) &&& (bodyObj.type = "EarlySyntaxError")
+};
+
+function parseParams(paramsStr) {
+  if (s_len paramsStr = 0) {
+    return []
+  };
+  params := s_split(paramsStr, ",");
+
+  /* Remove leading and trailing spaces */
+  lparams := l_len params;
+  i := 0;
+  ret := [];
+  while(i < lparams) {
+    param := l_nth(params, i);
+    ret := l_add(ret, trim param);
+    i := i + 1
+  };
+
+  return ret
+};
+
+function parseBody(params, bodyStr, strict) {
+  /* Wrap bodyStr in a function to avoid parsing errors in statements like return that is invalid outside of a function body */
+  bodyStr := s_concat ["function f(", params, ") {", bodyStr, "}"];
+  if (strict) {
+    bodyStr := s_concat ["\"use strict\";", bodyStr]
+  };
+  buildAST := extern parseJS(bodyStr);
+  bodyObj := {buildAST}();
+
+  if (bodyObj.type = "Program") {
+    programBody := l_nth(bodyObj.functionDeclarations, 0);
+    /* Access the body of the function we wrapped around the bodyStr */
+    return programBody.body
+  };
+  /* else we have an EarlySyntaxError */
+  return bodyObj
 }

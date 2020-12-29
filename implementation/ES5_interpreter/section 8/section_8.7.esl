@@ -116,7 +116,7 @@ function Get_internal(base, P) {
   /* 1. Let O be ToObject(base). */
   O := ToObject(base);
   /* 2. Let desc be the result of calling the [[GetProperty]] internal method of O with property name P. */
-  desc := GetProperty(O, P);
+  desc := {O.GetProperty}(O, P);
   /* 3. If desc is undefined, return undefined. */
   if (desc = 'undefined) {
     return 'undefined
@@ -135,7 +135,7 @@ function Get_internal(base, P) {
   };
   /* 7. Return the result calling the [[Call]] internal method of getter providing base as the this value and providing
   no arguments. */
-  return Call(getter, base, [])
+  return {getter.Call}(null, null, getter, base, [])
 
   /* NOTE The object that may be created in step 1 is not accessible outside of the above method. An implementation
           might choose to avoid the actual creation of the object. The only situation where such an actual property access that uses
@@ -151,14 +151,14 @@ function Put_internal(base, P, W, Throw) {
   /* 1. Let O be ToObject(base). */
   O := ToObject(base);
   /* 2. If the result of calling the [[CanPut]] internal method of O with argument P is false, then */
-  if (CanPut(O, P) = false) {
+  if ({O.CanPut}(O, P) = false) {
     /* a. If Throw is true, then throw a TypeError exception. */
     if (Throw = true) { throw TypeErrorConstructorInternal() }
     /* b. Else return. */
     else { return }
   };
   /* 3. Let ownDesc be the result of calling the [[GetOwnProperty]] internal method of O with argument P. */
-  ownDesc := GetOwnProperty(O, P);
+  ownDesc := {O.GetOwnProperty}(O, P);
   /* 4. If IsDataDescriptor(ownDesc) is true, then */
   if (IsDataPropertyDescriptor(ownDesc) = true) {
     /* a. If Throw is true, then throw a TypeError exception. */
@@ -168,14 +168,14 @@ function Put_internal(base, P, W, Throw) {
   };
   /* 5. Let desc be the result of calling the [[GetProperty]] internal method of O with argument P. This may be
         either an own or inherited accessor property descriptor or an inherited data property descriptor. */
-  desc := GetProperty(O, P);
+  desc := {O.GetProperty}(O, P);
   /* 6. If IsAccessorDescriptor(desc) is true, then */
   if (IsAccessorPropertyDescriptor(desc) = true) {
     /* a. Let setter be desc.[[Set]] (see 8.10) which cannot be undefined. */
     setter := desc.Set;
     /* b. Call the [[Call]] internal method of setter providing base as the this value and an argument list
           containing only W. */
-    Call(setter, base, [W])
+    {setter.Call}(null, null, setter, base, [W])
   }
   /* 7. Else, this is a request to create an own property on the transient object O */
     /* a. If Throw is true, then throw a TypeError exception. */

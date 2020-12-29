@@ -33,8 +33,8 @@
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16
 %token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM ROUND SIN SQRT TAN
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
-%token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND LREMOVELAST SLEN SNTH SSUBSTR
-%token SCONCAT AT_SIGN
+%token NOT LLEN LNTH LADD LPREPEND LCONCAT LREMOVELAST HD TL TLEN TNTH FST SND SLEN SNTH SSUBSTR
+%token SCONCAT SSPLIT AT_SIGN EXTERN
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
@@ -238,6 +238,8 @@ expr_target:
     { print_string ">BINOP\n";Expr.BinOpt (Oper.Tnth, e1, e2) }
   | SNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { print_string ">BINOP\n";Expr.BinOpt (Oper.Snth, e1, e2) }
+  | SSPLIT; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    { Expr.BinOpt (Oper.Ssplit, e1, e2) }
   | SSUBSTR; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
     { Expr.TriOpt (Oper.Ssubstr, e1, e2, e3) }
   | LADD; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
@@ -291,6 +293,8 @@ stmt_target:
     { print_string ">RETURN\n";Stmt.Return (Expr.Val Val.Void) }
   | v = VAR; DEFEQ; f = expr_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
     { print_string ">ASSIGNCALL\n";Stmt.AssignCall (v,f,vs)}
+  | x = VAR; DEFEQ; EXTERN; f = VAR; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
+    { print_string ">ASSIGNEXTERNCALL\n";Stmt.AssignECall (x,f,vs)}
   | v = VAR; DEFEQ; e1 = expr_target; IN_OBJ; e2 = expr_target;
     { print_string ">ASSIGNINOBJCHECK\n";Stmt.AssignInObjCheck (v,e1,e2)}
   | v = VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;

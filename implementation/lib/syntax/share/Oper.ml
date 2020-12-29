@@ -25,6 +25,7 @@ type bopt = Plus
           | Lnth
           | Tnth
           | Snth
+          | Ssplit
           | Ladd
           | Lprepend
           | Lconcat
@@ -288,6 +289,13 @@ let string_concat (v : Val.t) : Val.t = match v with
      | Some strs -> Str (String.concat "" strs))
   | _      -> invalid_arg "Exception in Oper.string_concat: this operation is only applicable to List arguments"
 
+let string_split (v, c : Val.t * Val.t) : Val.t = match v, c with
+  | _, Str ""        -> invalid_arg "Exception in Oper.string_split: separator cannot be the empty string"
+  | Str str, Str sep ->
+    let c = String.get sep 0 in
+    Val.List (List.map (fun str -> Val.Str str) (String.split_on_char c str))
+  | _                -> invalid_arg "Exception in Oper.string_split: this operation is only applicable to String arguments"
+
 let shift_left (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
   | Flt f1, Flt f2 -> Flt (Arith_Utils.int32_left_shift f1 f2)
   | _              -> invalid_arg "Exception in Oper.shift_left: this operation is only applicable to Float arguments"
@@ -419,6 +427,7 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Lnth     -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Tnth     -> "t_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Snth     -> "s_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | Ssplit   -> Printf.sprintf "s_split(%s, %s)" e1 e2
   | Ladd     -> "l_add(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Lprepend -> "l_prepend(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Lconcat  -> "l_concat(" ^ e1 ^ ", " ^ e2 ^ ")"
@@ -497,6 +506,7 @@ let bopt_to_json (op : bopt) : string =
      | Lnth    -> Printf.sprintf "Lnth\" }"
      | Tnth    -> Printf.sprintf "Tnth\" }"
      | Snth    -> Printf.sprintf "Snth\" }"
+     | Ssplit  -> Printf.sprintf "Ssplit\" }"
      | Ladd    -> Printf.sprintf "Ladd\" }"
      | Lprepend -> Printf.sprintf "Lprepend\" }"
      | Lconcat  -> Printf.sprintf "Lconcat\" }"

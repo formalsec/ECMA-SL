@@ -62,6 +62,7 @@
                 "t_nth"           , TNTH;
                 "fst"             , FST;
                 "snd"             , SND;
+                "s_split"         , SSPLIT;
                 "s_concat"        , SCONCAT;
                 "s_len"           , SLEN;
                 "s_nth"           , SNTH;
@@ -97,7 +98,8 @@
                 "sdefault"        , SDEFAULT;
                 "NaN"             , FLOAT (float_of_string "nan");
                 "Infinity"        , FLOAT (float_of_string "infinity");
-                "lambda"          , LAMBDA
+                "lambda"          , LAMBDA;
+                "extern"          , EXTERN
                 ]
 
   exception Syntax_error of string

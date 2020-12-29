@@ -72,20 +72,6 @@ function checkConstraints() {
   FILENAME=$1
 
   METADATA=$2
-  # check if it's a es5id test
-  if [[ $(echo -e "$METADATA" | awk '/es6id:|esid:/ {print $0}') != "" ]]; then
-    printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: not ES5 test${NC}\n"
-
-    checkConstraints_return="${FILENAME} | **NOT EXECUTED** | Is not a ES5 test"
-    return 1
-  fi
-  # check if it uses/contains a call the built-in eval function
-  if [[ $(echo -e "$METADATA" | awk '/eval\(/ {print $0}') != "" ]]; then
-    printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: eval test${NC}\n"
-
-    checkConstraints_return="${FILENAME} | **NOT EXECUTED** | Is an \"eval\" test"
-    return 1
-  fi
   # check if it's a negative test
   if [[ $(echo -e "$METADATA" | awk '/negative:/ {print $2}') != "" ]]; then
     printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: negative test${NC}\n"
@@ -162,7 +148,7 @@ function handleSingleFile() {
       log_errors_arr+=("$FILENAME")
     fi
 
-    ERROR_MESSAGE=$(echo -e "$ECMASLC" | head -n 1)
+    ERROR_MESSAGE=$(echo -e "$ECMASLC" | tail -n 1)
 
     test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "")
     return
@@ -172,7 +158,7 @@ function handleSingleFile() {
   declare -i start_time=$(date +%s%N)
 
   #echo "3.5. Evaluate program and write the computed heap to the file heap.json."
-  ECMASLCI=$(./main.native -mode ci -i output/core_$now.esl -h heap.json 2>&1)
+  ECMASLCI=$(./main.native -mode ci -i output/core_$now.esl 2>&1)
 
   local EXIT_CODE=$?
 
@@ -473,7 +459,7 @@ echo "import \"output/test262_ast_$now.esl\";" > "output/test262_$now.esl"
 echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "output/test262_$now.esl"
 echo "function main() {
   x := buildAST();
-  ret := JS_Interpreter_Program(x);
+  ret := JS_Interpreter_Program(x, null);
   return ret
 }" >> "output/test262_$now.esl"
 
@@ -540,4 +526,3 @@ declare -i duration=$((endTime-startTime))
 echo ""
 # The amount of zeros is necessary because we're dealing with seconds and nanoseconds
 echo $duration | awk '{printf "Execution duration: %02dh:%02dm:%06.3fs\n", $0/3600000000000, $0%3600000000000/60000000000, $0/1000000000%60}'
-

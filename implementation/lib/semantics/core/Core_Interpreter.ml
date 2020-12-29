@@ -76,6 +76,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Lnth     -> Oper.list_nth (v1, v2)
   | Tnth     -> Oper.tuple_nth (v1, v2)
   | Snth     -> Oper.s_nth (v1,v2)
+  | Ssplit   -> Oper.string_split (v1, v2)
   | Ladd     -> Oper.list_add (v1, v2)
   | Lprepend -> Oper.list_prepend (v1, v2)
   | Lconcat  -> Oper.list_concat (v1, v2)
@@ -280,6 +281,12 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
          (Intermediate ((cs', heap, sto_aux, f'), aux_list), SecLabel.AssignCallLab (params, es, x, f')))
       |Some lab ->
         (Intermediate((cs, heap, sto, f), cont),lab))
+
+  | AssignECall (x,func,es) ->
+    let vs = List.map (eval_expr sto) es in
+    let v = External.execute prog heap func vs in
+    Store.set sto x v;
+    Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab
 
   | AssignInObjCheck (st, e_f, e_o) ->
     let field = eval_expr sto e_f in

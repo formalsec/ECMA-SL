@@ -50,7 +50,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   len := l_len FormalParameterList;
   /* 15. Call the [[DefineOwnProperty]] internal method of F with arguments "length", Property Descriptor {[[Value]]:
         len, [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-  DefineOwnProperty(F, "length", {
+  {F.DefineOwnProperty}(F, "length", {
     Value: int_to_float len,
     Writable: false,
     Enumerable: false,
@@ -62,7 +62,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
     proto := ObjectConstructor(|global|, 'null, Strict, [null]);
     /* 17. Call the [[DefineOwnProperty]] internal method of proto with arguments "constructor", Property Descriptor
           {[[Value]]: F, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false. */
-    DefineOwnProperty(proto, "constructor", {
+    {proto.DefineOwnProperty}(proto, "constructor", {
       Value: F,
       Writable: true,
       Enumerable: false,
@@ -70,7 +70,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
     }, false);
     /* 18. Call the [[DefineOwnProperty]] internal method of F with arguments "prototype", Property Descriptor
           {[[Value]]: proto, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-    DefineOwnProperty(F, "prototype", {
+    {F.DefineOwnProperty}(F, "prototype", {
       Value: proto,
       Writable: true,
       Enumerable: false,
@@ -83,7 +83,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
     thrower := createThrowTypeErrorFunctionObject(FunctionPrototype, Strict);
     /* b. Call the [[DefineOwnProperty]] internal method of F with arguments "caller", PropertyDescriptor
           {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-    DefineOwnProperty(F, "caller", {
+    {F.DefineOwnProperty}(F, "caller", {
       Get: thrower,
       Set: thrower,
       Enumerable: false,
@@ -91,7 +91,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
     }, false);
     /* c. Call the [[DefineOwnProperty]] internal method of F with arguments "arguments", PropertyDescriptor
           {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-    DefineOwnProperty(F, "arguments", {
+    {F.DefineOwnProperty}(F, "arguments", {
       Get: thrower,
       Set: thrower,
       Enumerable: false,
@@ -112,7 +112,11 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
 };
 
 /* 13.2.1 [[Call]] */
-function Call(F, this, args) {
+function Call(externalScope, ref, F, this, args) {
+  if (("Code" in_obj F) &&& (typeof F.Code = __$Str) &&& (F.Code = "GlobalObjectEval")) {
+    args := completeArgs(args, F);
+    return {F.Code}(externalScope, ref, this, F.strict, args)
+  };
   if (("Code" in_obj F) &&& ((typeof F.Code = __$Str) || (typeof F.Code = __$Curry))) {
     args := completeArgs(args, F);
     return {F.Code}(F.Scope, this, F.strict, args)
@@ -148,7 +152,7 @@ function Call(F, this, args) {
 };
 
 
-function Construct(F, argumentList) {
+function Construct(externalScope, ref, F, argumentList) {
   /* 13.2.2 [[Construct]] */
 
   /* When the [[Construct]] internal method for a Function object F is called with a possibly empty list of arguments,
@@ -175,7 +179,7 @@ function Construct(F, argumentList) {
   };
   /* 8. Let result be the result of calling the [[Call]] internal property of F, providing obj as the this value and providing the
         argument list passed into [[Construct]] as args. */
-  result := Call(F, obj, argumentList);
+  result := {F.Call}(externalScope, ref, F, obj, argumentList);
   /* 9. If Type(result) is Object then return result. */
   if (Type(result) = "Object") {
     return result
@@ -208,7 +212,7 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
   setInternalProperty(F, "Code", "internalTypeErrorThrower");
   /* 9. Call the [[DefineOwnProperty]] internal method of F with arguments "length", Property Descriptor {[[Value]]: 0,
         [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-  DefineOwnProperty(F, "length", {
+  {F.DefineOwnProperty}(F, "length", {
     Value: 0.,
     Writable: false,
     Enumerable: false,

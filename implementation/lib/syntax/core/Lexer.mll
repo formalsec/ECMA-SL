@@ -93,6 +93,7 @@ rule read =
   | "t_nth"           { TNTH }
   | "fst"             { FST }
   | "snd"             { SND }
+  | "s_split"         { SSPLIT }
   | "s_concat"        { SCONCAT }
   | "s_len"           { SLEN }
   | "s_nth"           { SNTH }
@@ -123,6 +124,7 @@ rule read =
   | "ceil"            { CEIL }
   | "cos"             { COS }
   | "exp"             { EXP }
+  | "extern"          { EXTERN }
   | "@"               { AT_SIGN }
   | "floor"           { FLOOR }
   | "log_e"           { LOG_E }

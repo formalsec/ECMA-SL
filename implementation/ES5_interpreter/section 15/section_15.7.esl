@@ -115,11 +115,20 @@ function fillNumberPrototype(numberPrototypeObject, NumberConstructor, globalObj
   valueOf := CreateBuiltInFunctionObject([], "NumberPrototypeValueOf", globalObject, strict, null);
   createBuiltInProperty(numberPrototypeObject, "valueOf", valueOf);
 
+  /* TODO */
   /* 15.7.4.5 Number.prototype.toFixed (fractionDigits) */
+  toFixed := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToFixed", globalObject, strict, null);
+  createBuiltInProperty(numberPrototypeObject, "toFixed", toFixed);
 
+  /* TODO */
   /* 15.7.4.6 Number.prototype.toExponential (fractionDigits) */
+  toExponential := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToExponential", globalObject, strict, null);
+  createBuiltInProperty(numberPrototypeObject, "toExponential", toExponential);
 
+  /* TODO */
   /* 15.7.4.7 Number.prototype.toPrecision (precision) */
+  toPrecision := CreateBuiltInFunctionObject(["precision"], "NumberPrototypeToPrecision", globalObject, strict, null);
+  createBuiltInProperty(numberPrototypeObject, "toPrecision", toPrecision);
 
   return
 };

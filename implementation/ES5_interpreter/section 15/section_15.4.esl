@@ -274,34 +274,25 @@ function ArrayConstructor(global, this, strict, items) {
   return internalNewArray(prototype, items)
 };
 function internalNewArray(arrayPrototype, items) {
-  arr := {
-    JSProperties: { },
-    /* The [[Prototype]] internal property of the newly constructed object
-       is set to the original Array prototype object, the one that is the
-       initial value of Array.prototype (15.4.3.1). */
-    Prototype: arrayPrototype,
-    /* The [[Extensible]] internal property of the newly constructed object
-       is set to true. */
-    Extensible: true,
-    /* The [[Class]] internal property of the newly constructed object is
-       set to "Array". */
-    Class: "Array",
-    Put: "Put",
-    Get: "Get",
-    HasProperty: "HasProperty",
-    DefineOwnProperty: "DefineOwnPropertyArray",
-    GetOwnProperty: "GetOwnProperty",
-    Delete: "Delete",
-    CanPut: "CanPut"
-  };
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfArray(newlyConstructedObject);
+
+  /* The [[Prototype]] internal property of the newly constructed object
+      is set to the original Array prototype object, the one that is the
+      initial value of Array.prototype (15.4.3.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", arrayPrototype);
+  /* The [[Extensible]] internal property of the newly constructed object
+      is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  /* The [[Class]] internal property of the newly constructed object is
+      set to "Array". */
+  setInternalProperty(newlyConstructedObject, "Class", "Array");
 
   i := 0;
   /* The length property of the newly constructed object is set to the
      number of arguments. */
   len := l_len items;
-
-  /* length is a own property, so we use setJSProperty, instead of accessing arr.length directly */
-  setJSProperty(arr, "length", newDataPropertyDescriptorFull(int_to_float(len), true, false, false));
+  createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", int_to_float len, true, false, false);
 
   /* The 0 property of the newly constructed object is set to item0
      (if supplied); the 1 property of the newly constructed object is set
@@ -312,11 +303,11 @@ function internalNewArray(arrayPrototype, items) {
      [[Enumerable]]: true, [[Configurable]]: true}. */
   while (i < len) {
     i_str := int_to_string i;
-    setJSProperty(arr, i_str, newDataPropertyDescriptorFull(l_nth (items, i), true, true, true));
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, i_str, l_nth (items, i), true, true, true);
     i := i + 1
   };
 
-  return arr
+  return newlyConstructedObject
 };
 
 
@@ -326,35 +317,25 @@ function internalNewArray(arrayPrototype, items) {
  * 15.4.2.2 new Array (len)
  */
 function internalNewArrayLen(arrayPrototype, len) {
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfArray(newlyConstructedObject);
 
-  arr := {
-    JSProperties: { },
-    /* The [[Prototype]] internal property of the newly constructed object is
-      set to the original Array prototype object, the one that is the initial
-      value of Array.prototype (15.4.3.1). */
-    Prototype: arrayPrototype,
-    /* The [[Class]] internal property of the newly constructed object
-      is set to "Array". */
-    Class: "Array",
-    /* The [[Extensible]] internal property of the newly constructed
-      object is set to true. */
-    Extensible: true,
-    Put: "Put",
-    Get: "Get",
-    HasProperty: "HasProperty",
-    DefineOwnProperty: "DefineOwnPropertyArray",
-    GetOwnProperty: "GetOwnProperty",
-    Delete: "Delete",
-    CanPut: "CanPut"
-  };
+  /* The [[Prototype]] internal property of the newly constructed object
+      is set to the original Array prototype object, the one that is the
+      initial value of Array.prototype (15.4.3.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", arrayPrototype);
+  /* The [[Extensible]] internal property of the newly constructed object
+      is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  /* The [[Class]] internal property of the newly constructed object is
+      set to "Array". */
+  setInternalProperty(newlyConstructedObject, "Class", "Array");
 
   lenIsNumber := (typeof len = __$Flt);
-
   /* If the argument len is a Number and ToUint32(len) is equal to len, then
      the length property of the newly constructed object is set to ToUint32(len). */
   if (lenIsNumber &&& ((ToUint32(len) = len))) {
-    /*arr.length := newDataPropertyDescriptorFull(ToUint32(len), true, false, false)*/
-    setJSProperty(arr, "length", newDataPropertyDescriptorFull(ToUint32(len), true, false, false))
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(len), true, false, false)
   };
 
   /* If the argument len is a Number and ToUint32(len) is not equal to
@@ -368,11 +349,11 @@ function internalNewArrayLen(arrayPrototype, len) {
      constructed object is set to len with attributes {[[Writable]]: true,
      [[Enumerable]]: true, [[Configurable]]: true}.. */
   if (!lenIsNumber) {
-    setJSProperty(arr, "length", newDataPropertyDescriptorFull(ToUint32(1.), true, false, false));
-    setJSProperty(arr, "0", newDataPropertyDescriptorFull(len, true, true, true))
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(1.), true, false, false);
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "0", ToUint32(len), true, true, true)
   };
 
-  return arr
+  return newlyConstructedObject
 };
 
 
@@ -420,7 +401,7 @@ function arrayToString(global, this, strict, args) {
   };
   /* 4. Return the result of calling the [[Call]] internal method of func
         providing array as the this value and an empty arguments list. */
-  return {func.Call}(func, array, ['undefined])
+  return {func.Call}(null, null, func, array, [])
 };
 /**
  * NOTE The toString function is intentionally generic; it does not
@@ -483,7 +464,7 @@ function arrayToLocaleString(global, this, strict, args) {
     };
     /* d. Let R be the result of calling the [[Call]] internal method of func
           providing elementObj as the this value and an empty arguments list. */
-    R := {func.Call}(func, elementObj, [])
+    R := {func.Call}(null, null, func, elementObj, [])
   };
   /* 9. Let k be 1. */
   k := 1.;
@@ -512,7 +493,7 @@ function arrayToLocaleString(global, this, strict, args) {
       };
       /* iv. Let R be the result of calling the [[Call]] internal method of func
              providing elementObj as the this value and an empty arguments list. */
-      R := {func.Call}(func, elementObj, [])
+      R := {func.Call}(null, null, func, elementObj, [])
     };
     /* e. Let R be a String value produced by concatenating S and R. */
     R := s_concat([S, R]);
@@ -1240,7 +1221,7 @@ function SortCompare(obj, comparefn, j, k) {
     };
     /* b. Return the result of calling the [[Call]] internal method of
           comparefn passing undefined as the this value and with arguments x and y. */
-    return {comparefn.Call}(comparefn, 'undefined, [x, y])
+    return {comparefn.Call}(null, null, comparefn, 'undefined, [x, y])
   };
   /* 14. Let xString be ToString(x). */
   xString := ToString(x);
@@ -1772,7 +1753,7 @@ function arrayEvery(global, this, strict, args) {
       /* ii. Let testResult be the result of calling the [[Call]] internal
              method of callbackfn with T as the this value and argument
              list containing kValue, k, and O. */
-      testResult := {callbackfn.Call}(callbackfn, T, [kValue, k, O]);
+      testResult := {callbackfn.Call}(null, null, callbackfn, T, [kValue, k, O]);
       /* iii. If ToBoolean(testResult) is false, return false. */
       if (ToBoolean(testResult) = false) {
         return false
@@ -1867,7 +1848,7 @@ function arraySome(global, this, strict, args) {
       /* ii. Let testResult be the result of calling the [[Call]] internal
              method of callbackfn with T as the this value and argument
              list containing kValue, k, and O. */
-      testResult := {callbackfn.Call}(callbackfn, T, [kValue, k, O]);
+      testResult := {callbackfn.Call}(null, null, callbackfn, T, [kValue, k, O]);
       /* iii. If ToBoolean(testResult) is true, return true. */
       if (ToBoolean(testResult) = true) {
         return true
@@ -1958,7 +1939,7 @@ function arrayForEach(global, this, strict, args) {
       kValue := {O.Get}(O, Pk);
       /* ii. Call the [[Call]] internal method of callbackfn with T
              as the this value and argument list containing kValue, k, and O. */
-      {callbackfn.Call}(callbackfn, T, [kValue, k, O])
+      {callbackfn.Call}(null, null, callbackfn, T, [kValue, k, O])
     };
     /* d. Increase k by 1. */
     k := k + 1.
@@ -2050,7 +2031,7 @@ function arrayMap(global, this, strict, args) {
       /* ii. Let mappedValue be the result of calling the [[Call]] internal
              method of callbackfn with T as the this value and argument list
              containing kValue, k, and O. */
-      mappedValue := {callbackfn.Call}(callbackfn, T, [kValue, k, O]);
+      mappedValue := {callbackfn.Call}(null, null, callbackfn, T, [kValue, k, O]);
       /* iii. Call the [[DefineOwnProperty]] internal method of A with
               arguments Pk, Property Descriptor {[[Value]]: mappedValue,
               [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true},
@@ -2149,7 +2130,7 @@ function arrayFilter(global, this, strict, args) {
       /* ii. Let selected be the result of calling the [[Call]] internal
              method of callbackfn with T as the this value and argument list
              containing kValue, k, and O. */
-      selected := {callbackfn.Call}(callbackfn, T, [kValue, k, O]);
+      selected := {callbackfn.Call}(null, null, callbackfn, T, [kValue, k, O]);
       /* iii. If ToBoolean(selected) is true, then */
       if (ToBoolean(selected) = true) {
         /* 1. Call the [[DefineOwnProperty]] internal method of A with arguments
@@ -2277,7 +2258,7 @@ function arrayReduce(global, this, strict, args) {
       /* ii. Let accumulator be the result of calling the [[Call]] internal
              method of callbackfn with undefined as the this value and
              argument list containing accumulator, kValue, k, and O. */
-      accumulator := {callbackfn.Call}(callbackfn, 'undefined, [accumulator, kValue, k, O])
+      accumulator := {callbackfn.Call}(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O])
     };
     /* d. Increase k by 1. */
     k := k + 1.
@@ -2396,7 +2377,7 @@ function arrayReduceRight(global, this, strict, args) {
       /* ii. Let accumulator be the result of calling the [[Call]] internal
              method of callbackfn with undefined as the this value and
              argument list containing accumulator, kValue, k, and O. */
-      accumulator := {callbackfn.Call}(callbackfn, 'undefined, [accumulator, kValue, k, O])
+      accumulator := {callbackfn.Call}(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O])
     };
     /* d. Decrease k by 1. */
     k := k - 1.
