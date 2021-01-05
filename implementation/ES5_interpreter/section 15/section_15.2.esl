@@ -304,7 +304,7 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
   /* 2. Let props be ToObject(Properties). */
   props := ToObject(Properties);
   /* 3. Let names be an internal list containing the names of each enumerable own property of props. */
-  names := getOwnProperties(props);
+  names := getOwnEnumerableProperties(props);
   /* 4. Let descriptors be an empty internal List. */
   descriptors := [];
   /* 5. For each element P of names in list order, */
@@ -516,14 +516,14 @@ function ObjectKeys(globalObject, this, strict, params) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Let n be the number of own enumerable properties of O */
-  n := l_len getOwnProperties(O);
+  n := l_len getOwnEnumerableProperties(O);
   /* 3. Let array be the result of creating a new Object as if by the expression new Array(n) where Array is
         the standard built-in constructor with that name. */
   array := ArrayConstructor(globalObject, this, strict, []);
   /* 4. Let index be 0. */
   index := 0;
   /* 5. For each own enumerable property of O whose name String is P */
-  namedOwnProperties := getOwnProperties(O);
+  namedOwnProperties := getOwnEnumerableProperties(O);
   lnamedOwnProperties := l_len namedOwnProperties;
   while(index < lnamedOwnProperties) {
     P := l_nth(namedOwnProperties, index);

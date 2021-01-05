@@ -20,11 +20,11 @@ function AbstractEqualityComparison(x, y) {
       /* ii. If y is NaN, return false. */
       if (y = NaN) { return false };
       /* iii. If x is the same Number value as y, return true. */
-      if (x = y) {
-        return true
-      };
+      if (x = y) { return true };
       /* iv. If x is +0 and y is -0, return true. */
+      if ((x = 0.) && (y = -(0.))) { return true };
       /* v. If x is -0 and y is +0, return true. */
+      if ((x = -(0.)) && (y = 0.)) { return true };
       /* vi. Return false. */
       return false
     };
@@ -122,7 +122,7 @@ function StrictEqualityComparison(x, y) {
     /* d. If x is +0 and y is -0, return true. */
     if ((x = 0.) && (y = -(0.))) { return true };
     /* e. If x is -0 and y is +0, return true. */
-    if ((x = -(0.)) && (y = 0.)) { return false };
+    if ((x = -(0.)) && (y = 0.)) { return true };
     /* f. Return false. */
     return false
   };

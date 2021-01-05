@@ -31,6 +31,19 @@ function usage {
   exit 1
 }
 
+function start_timer() {
+  start_time=$(date +%s%N)
+}
+
+function stop_timer() {
+  end_time=$(date +%s%N)
+}
+
+function set_duration_str() {
+  local duration=$((end_time-start_time))
+  duration_str=$(echo $duration | awk '{printf "%02dh:%02dm:%06.3fs\n", $0/3600000000000, $0%3600000000000/60000000000, $0/1000000000%60}')
+}
+
 function writeToFile() {
   local output_file=$1
   local params=("$@")
@@ -114,10 +127,14 @@ function handleSingleFile() {
     exit 1
   fi
 
+  start_timer
+
   #echo "3.2. Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program"
-  cd "../JS2ECMA-SL"
-  JS2ECMASL=$(node src/index.js -i ../implementation/output/main262_$now.js -o ../implementation/output/test262_ast_$now.esl 2>&1)
-  cd "../implementation"
+  JS2ECMASL=$(node ../JS2ECMA-SL/src/index.js -i output/main262_$now.js -o output/test262_ast_$now.esl 2>&1)
+
+  stop_timer
+  set_duration_str
+  ast_duration_str=$duration_str
 
   if [[ "${JS2ECMASL}" != "The file has been saved!" ]]; then
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
@@ -131,14 +148,22 @@ function handleSingleFile() {
 
     ERROR_MESSAGE=$(echo -e "$JS2ECMASL" | head -n 1)
 
-    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "")
+    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "$ast_duration_str" "" "")
     return
   fi
+
+  start_timer
 
   #echo "3.4. Compile program written in \"Plus\" to \"Core\""
   ECMASLC=$(./main.native -mode c -i output/test262_$now.esl -o output/core_$now.esl 2>&1)
 
-  if [ $? -ne 0 ]; then
+  local EXIT_CODE=$?
+
+  stop_timer
+  set_duration_str
+  plus2core_duration_str=$duration_str
+
+  if [ $EXIT_CODE -ne 0 ]; then
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
 
     # increment number of tests with error
@@ -150,23 +175,21 @@ function handleSingleFile() {
 
     ERROR_MESSAGE=$(echo -e "$ECMASLC" | tail -n 1)
 
-    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "")
+    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "$ast_duration_str" "$plus2core_duration_str" "")
     return
   fi
 
   # Record duration of the program interpretation
-  declare -i start_time=$(date +%s%N)
+  start_timer
 
   #echo "3.5. Evaluate program and write the computed heap to the file heap.json."
   ECMASLCI=$(./main.native -mode ci -i output/core_$now.esl 2>&1)
 
   local EXIT_CODE=$?
 
+  stop_timer
   # Calc duration
-  declare -i end_time=$(date +%s%N)
-  declare -i duration=$((end_time-start_time))
-  # The amount of zeros is necessary because we're dealing with seconds and nanoseconds
-  duration_str=$(echo $duration | awk '{printf "%02dh:%02dm:%06.3fs\n", $0/3600000000000, $0%3600000000000/60000000000, $0/1000000000%60}')
+  set_duration_str
 
   if [ $EXIT_CODE -eq 0 ]; then
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
@@ -178,7 +201,7 @@ function handleSingleFile() {
       log_oks_arr+=("$FILENAME")
     fi
 
-    test_result=("$FILENAME" "_OK_" "" "$duration_str")
+    test_result=("$FILENAME" "_OK_" "" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
   elif [ $EXIT_CODE -eq 1 ]; then
     printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC}\n"
 
@@ -189,7 +212,7 @@ function handleSingleFile() {
       log_failures_arr+=("$FILENAME")
     fi
 
-    test_result=("$FILENAME" "**FAIL**" "$RESULT" "$duration_str")
+    test_result=("$FILENAME" "**FAIL**" "$RESULT" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
   else
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
 
@@ -202,7 +225,7 @@ function handleSingleFile() {
 
     ERROR_MESSAGE=$(echo -e "$ECMASLCI" | tail -n 1)
 
-    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "$duration_str")
+    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
   fi
 
   if [ $LOG_ENTIRE_EVAL_OUTPUT -eq 1 ]; then
@@ -263,8 +286,8 @@ function handleFiles() {
   params+=(":---: | :---: | :---: | :---: | :---:")
   params+=("$ok_tests | $fail_tests | $error_tests | $not_executed_tests | $total_tests")
   params+=("### Individual results")
-  params+=("File path | Result | Observations | Duration")
-  params+=("--- | :---: | :---: | ---")
+  params+=("File path | Result | Observations | Creation of the AST | Plus to Core | Interpretation")
+  params+=("--- | :---: | :---: | :---: | :---: | :---:")
   params+=("${files_results[@]}")
 
   writeToFile $output_file "${params[@]}"
@@ -320,8 +343,8 @@ function handleDirectories() {
         params+=("$dir_ok_tests | $dir_fail_tests | $dir_error_tests | $dir_not_executed_tests | $dir_total_tests")
         params+=("")
         params+=("### Individual results")
-        params+=("File path | Result | Observations | Duration")
-        params+=("--- | :---: | :---: | ---")
+        params+=("File path | Result | Observations | Creation of the AST | Plus to Core | Interpretation")
+        params+=("--- | :---: | :---: | :---: | :---: | :---:")
         params+=("${files_results[@]}")
         params+=("")
 
@@ -409,6 +432,9 @@ fi
 
 # Initialise global variables
 declare now=$(date +%y%m%dT%H%M%S)
+declare -i start_time=0
+declare -i end_time=0
+declare duration_str=""
 # Counters
 declare -i total_tests=0
 declare -i ok_tests=0
