@@ -17,9 +17,14 @@ function NewECMAScriptObjectFull(prototype, class, extensible) {
   return object
 };
 
-/* Returns a list containing the names of each enumerable own property of object. */
+/* Returns a list containing the names of each own property of object. */
 function getOwnProperties(object) {
-  ownProperties := obj_fields object.JSProperties;
+  return obj_fields object.JSProperties
+};
+
+/* Returns a list containing the names of each enumerable own property of object. */
+function getOwnEnumerableProperties(object) {
+  ownProperties := getOwnProperties(object);
   ownEnumerableProperties := [];
 
   lownProperties := l_len ownProperties;

@@ -350,7 +350,7 @@ function internalNewArrayLen(arrayPrototype, len) {
      [[Enumerable]]: true, [[Configurable]]: true}.. */
   if (!lenIsNumber) {
     createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(1.), true, false, false);
-    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "0", ToUint32(len), true, true, true)
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "0", len, true, true, true)
   };
 
   return newlyConstructedObject
@@ -471,7 +471,7 @@ function arrayToLocaleString(global, this, strict, args) {
   /* 10. Repeat, while k < len */
   while (k < len) {
     /* a. Let S be a String value produced by concatenating R and separator. */
-    S := s_concat([R, separator]);
+    S := s_concat([ToString(R), separator]);
     /* b. Let nextElement be the result of calling the [[Get]] internal
           method of array with argument ToString(k). */
     nextElement := {O.Get}(O, ToString(k));
@@ -496,7 +496,7 @@ function arrayToLocaleString(global, this, strict, args) {
       R := {func.Call}(null, null, func, elementObj, [])
     };
     /* e. Let R be a String value produced by concatenating S and R. */
-    R := s_concat([S, R]);
+    R := s_concat([S, ToString(R)]);
     /* f. Increase k by 1. */
     k := k + 1.
   };
@@ -844,28 +844,29 @@ function arrayReverse(global, this, strict, args) {
       /* ii. Call the [[Put]] internal method of O with arguments upperP,
              lowerValue, and true . */
       {O.Put}(O, upperP, lowerValue, true)
-    };
-    /* i. Else if lowerExists is false and upperExists is true, then */
-    if (lowerExists = false && upperExists = true) {
-      /* i. Call the [[Put]] internal method of O with arguments lowerP,
-            upperValue, and true . */
-      {O.Put}(O, lowerP, upperValue, true);
-      /* ii. Call the [[Delete]] internal method of O, with arguments upperP
-             and true. */
-      {O.Delete}(O, upperP, true)
-    };
-    /* j. Else if lowerExists is true and upperExists is false, then */
-    if (lowerExists = true && upperExists = false) {
-      /* i. Call the [[Delete]] internal method of O, with arguments lowerP
-            and true . */
-      {O.Delete}(O, lowerP, true);
-      /* ii. Call the [[Put]] internal method of O with arguments upperP,
-             lowerValue, and true . */
-      {O.Put}(O, upperP, lowerValue, true)
-    };
-    /* k. Else, both lowerExists and upperExists are false */
-    if (lowerExists = false && upperExists = false) {
-      /* i. No action is required. */
+    } else {
+      /* i. Else if lowerExists is false and upperExists is true, then */
+      if (lowerExists = false && upperExists = true) {
+        /* i. Call the [[Put]] internal method of O with arguments lowerP,
+              upperValue, and true . */
+        {O.Put}(O, lowerP, upperValue, true);
+        /* ii. Call the [[Delete]] internal method of O, with arguments upperP
+              and true. */
+        {O.Delete}(O, upperP, true)
+      } else {
+        /* j. Else if lowerExists is true and upperExists is false, then */
+        if (lowerExists = true && upperExists = false) {
+          /* i. Call the [[Delete]] internal method of O, with arguments lowerP
+                and true . */
+          {O.Delete}(O, lowerP, true);
+          /* ii. Call the [[Put]] internal method of O with arguments upperP,
+                lowerValue, and true . */
+          {O.Put}(O, upperP, lowerValue, true)
+        } else {
+          /* k. Else, both lowerExists and upperExists are false */
+          /* i. No action is required. */
+        }
+      }
     };
     /* l. Increase lower by 1. */
     lower := lower + 1.
@@ -1103,10 +1104,27 @@ function arraySort(global, this, strict, args) {
   while (k < len) {
     j := k - 1.;
     while ((j >= 0.) && (SortCompare(obj, comparefn, j, j + 1.) > 0.)) {
-      jValNext := {obj.Get}(obj, ToString(j + 1.));
-      jVal := {obj.Get}(obj, ToString(j));
-      {obj.Put}(obj, ToString(j + 1.), jVal, true);
-      {obj.Put}(obj, ToString(j), jValNext, true);
+      /* This algorithm is similar to the one in Array.prototype.reverse, step 6. */
+      inext_str := ToString(j + 1.);
+      i_str := ToString(j);
+      jValNextExists := {obj.HasProperty}(obj, inext_str);
+      jValExists := {obj.HasProperty}(obj, i_str);
+      jValNext := {obj.Get}(obj, inext_str);
+      jVal := {obj.Get}(obj, i_str);
+      if (jValExists &&& jValNextExists) {
+        {obj.Put}(obj, inext_str, jVal, true);
+        {obj.Put}(obj, i_str, jValNext, true)
+      } else {
+        if (!jValExists &&& jValNextExists) {
+          {obj.Put}(obj, i_str, jValNext, true);
+          {obj.Delete}(obj, inext_str, true)
+        } else {
+          if (jValExists &&& !jValNextExists) {
+            {obj.Put}(obj, inext_str, jVal, true);
+            {obj.Delete}(obj, i_str, true)
+          }
+        }
+      };
       j := j - 1.
     };
     k := k + 1.
@@ -1570,7 +1588,7 @@ function arrayIndexOf(global, this, strict, args) {
       elementK := {O.Get}(O, ToString(k));
       /* ii. Let same be the result of applying the Strict Equality Comparison
             Algorithm to searchElement and elementK. */
-      same := (searchElement = elementK);
+      same := StrictEqualityComparison(searchElement, elementK);
       /* iii. If same is true, return k. */
       if (same = true) {
         return k
@@ -1655,7 +1673,7 @@ function arrayLastIndexOf(global, this, strict, args) {
       elementK := {O.Get}(O, ToString(k));
       /* ii. Let same be the result of applying the Strict Equality
              Comparision Algorithm to searchElement and elementK. */
-      same := (searchElement = elementK);
+      same := StrictEqualityComparison(searchElement, elementK);
       /* iii. If same is true, return k. */
       if (same = true) {
         return k
@@ -2506,9 +2524,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       /* i. Call the default [[DefineOwnProperty]] internal method (8.12.9)
             on A passing "length", Property Descriptor{[[Writable]]: false},
             and false as arguments. This call will always return true. */
-      /*descriptor := newDataPropertyDescriptorFull(??, false, true, true); TODO*/
-      /*DefineOwnProperty(A, "length", descriptor, false)*/
-      throw "TODO"
+      DefineOwnProperty(A, "length", { Writable: false }, false)
     };
     /* n. Return true. */
     return true
