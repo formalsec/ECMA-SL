@@ -494,6 +494,11 @@ echo "function main() {
 # OCAMLMAKE=$(make)
 make
 
+#echo "3. Install JS2ECMA-SL dependencies"
+cd ../JS2ECMA-SL
+npm install > /dev/null 2>&1
+cd ../implementation
+
 if [ $? -ne 0 ]
 then
   # echo $OCAMLMAKE
