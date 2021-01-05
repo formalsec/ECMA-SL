@@ -552,6 +552,14 @@ if [ ${#rDirs[@]} -ne 0 ]; then
   processRecursively ${rDirs[@]}
 fi
 
+
+printf "\n${BOLD}SUMMARY:${NC}\n\n"
+printf "OK: $ok_tests    "
+printf "FAIL: $fail_tests    "
+printf "ERROR: $error_tests    "
+printf "NOT EXECUTED: $not_executed_tests    "
+printf "Total: $total_tests\n"
+
 declare -i endTime=$(date +%s%N)
 declare -i duration=$((endTime-startTime))
 echo ""
