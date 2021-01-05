@@ -1104,10 +1104,27 @@ function arraySort(global, this, strict, args) {
   while (k < len) {
     j := k - 1.;
     while ((j >= 0.) && (SortCompare(obj, comparefn, j, j + 1.) > 0.)) {
-      jValNext := {obj.Get}(obj, ToString(j + 1.));
-      jVal := {obj.Get}(obj, ToString(j));
-      {obj.Put}(obj, ToString(j + 1.), jVal, true);
-      {obj.Put}(obj, ToString(j), jValNext, true);
+      /* This algorithm is similar to the one in Array.prototype.reverse, step 6. */
+      inext_str := ToString(j + 1.);
+      i_str := ToString(j);
+      jValNextExists := {obj.HasProperty}(obj, inext_str);
+      jValExists := {obj.HasProperty}(obj, i_str);
+      jValNext := {obj.Get}(obj, inext_str);
+      jVal := {obj.Get}(obj, i_str);
+      if (jValExists &&& jValNextExists) {
+        {obj.Put}(obj, inext_str, jVal, true);
+        {obj.Put}(obj, i_str, jValNext, true)
+      } else {
+        if (!jValExists &&& jValNextExists) {
+          {obj.Put}(obj, i_str, jValNext, true);
+          {obj.Delete}(obj, inext_str, true)
+        } else {
+          if (jValExists &&& !jValNextExists) {
+            {obj.Put}(obj, inext_str, jVal, true);
+            {obj.Delete}(obj, i_str, true)
+          }
+        }
+      };
       j := j - 1.
     };
     k := k + 1.
