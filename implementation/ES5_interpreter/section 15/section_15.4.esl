@@ -2506,9 +2506,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       /* i. Call the default [[DefineOwnProperty]] internal method (8.12.9)
             on A passing "length", Property Descriptor{[[Writable]]: false},
             and false as arguments. This call will always return true. */
-      /*descriptor := newDataPropertyDescriptorFull(??, false, true, true); TODO*/
-      /*DefineOwnProperty(A, "length", descriptor, false)*/
-      throw "TODO"
+      DefineOwnProperty(A, "length", { Writable: false }, false)
     };
     /* n. Return true. */
     return true
