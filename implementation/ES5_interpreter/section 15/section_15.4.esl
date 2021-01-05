@@ -471,7 +471,7 @@ function arrayToLocaleString(global, this, strict, args) {
   /* 10. Repeat, while k < len */
   while (k < len) {
     /* a. Let S be a String value produced by concatenating R and separator. */
-    S := s_concat([R, separator]);
+    S := s_concat([ToString(R), separator]);
     /* b. Let nextElement be the result of calling the [[Get]] internal
           method of array with argument ToString(k). */
     nextElement := {O.Get}(O, ToString(k));
@@ -496,7 +496,7 @@ function arrayToLocaleString(global, this, strict, args) {
       R := {func.Call}(null, null, func, elementObj, [])
     };
     /* e. Let R be a String value produced by concatenating S and R. */
-    R := s_concat([S, R]);
+    R := s_concat([S, ToString(R)]);
     /* f. Increase k by 1. */
     k := k + 1.
   };
