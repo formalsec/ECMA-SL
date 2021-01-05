@@ -350,7 +350,7 @@ function internalNewArrayLen(arrayPrototype, len) {
      [[Enumerable]]: true, [[Configurable]]: true}.. */
   if (!lenIsNumber) {
     createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(1.), true, false, false);
-    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "0", ToUint32(len), true, true, true)
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "0", len, true, true, true)
   };
 
   return newlyConstructedObject
