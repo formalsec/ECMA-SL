@@ -45,7 +45,7 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
 
   /* 15.5.4.2 String.prototype.toString ( ) */
   toStringFunctionObject:= CreateBuiltInFunctionObject( [], "StringPrototypetoString", global, strict, null);
-  setJSProperty(prototype, "toString", newDataPropertyDescriptor( toStringFunctionObject ));
+  setJSProperty(prototype, "toString", newDataPropertyDescriptorFull( toStringFunctionObject, true, false, true ));
 
   /* 15.5.4.3 String.prototype.valueOf ( ) */
   valueOfFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypevalueOf", global, strict, null);
@@ -53,22 +53,26 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
 
   /* 15.5.4.4 String.prototype.charAt (pos) */
   charAtFunctionObject:= CreateBuiltInFunctionObject( [ "pos" ], "StringPrototypecharAt", global, strict, null);
-  setJSProperty(prototype, "charAt", newDataPropertyDescriptor( charAtFunctionObject ));
+  setJSProperty(prototype, "charAt", newDataPropertyDescriptorFull( charAtFunctionObject, true, false, true ));
 
   /* 15.5.4.5 String.prototype.charCodeAt (pos) */
   charCodeAtFunctionObject:= CreateBuiltInFunctionObject( [ "pos" ], "StringPrototypecharCodeAt", global, strict, null);
-  setJSProperty(prototype, "charCodeAt", newDataPropertyDescriptor( charCodeAtFunctionObject ));
+  setJSProperty(prototype, "charCodeAt", newDataPropertyDescriptorFull( charCodeAtFunctionObject, true, false, true ));
 
   /* 15.5.4.6 String.prototype.concat ( [ string1 [ , string2 [ , ... ] ] ] ) */
   concatFunctionObject:= CreateBuiltInFunctionObject( [ "strings" ], "StringPrototypeconcat", global, strict, 0);
-  setJSProperty(prototype, "concat", newDataPropertyDescriptor( concatFunctionObject ));
+  setJSProperty(prototype, "concat", newDataPropertyDescriptorFull( concatFunctionObject, true, false, true ));
 
   /* 15.5.4.7 String.prototype.indexOf (searchString, position) */
   indexOfFunctionObject := CreateBuiltInFunctionObject(["searchString", "position"], "StringPrototypeIndexOf", global, strict, null);
+  /* The length property of the indexOf method is 1. */
+  setJSProperty(indexOfFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
   createBuiltInProperty(prototype, "indexOf", indexOfFunctionObject);
 
   /* 15.5.4.8 String.prototype.lastIndexOf (searchString, position) */
   lastIndexOfFunctionObject := CreateBuiltInFunctionObject(["searchString", "position"], "StringPrototypelastIndexOf", global, strict, null);
+  /* The length property of the lastIndexOf method is 1. */
+  setJSProperty(lastIndexOfFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
   createBuiltInProperty(prototype, "lastIndexOf", lastIndexOfFunctionObject);
 
   /* 15.5.4.9 String.prototype.localeCompare (that) */
@@ -97,11 +101,11 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
 
   /* 15.5.4.15 String.prototype.substring (start, end) */
   substringFunctionObject:= CreateBuiltInFunctionObject( [ "start", "end" ], "StringPrototypesubstring", global, strict, null);
-  setJSProperty(prototype, "substring", newDataPropertyDescriptor( substringFunctionObject ));
+  setJSProperty(prototype, "substring", newDataPropertyDescriptorFull( substringFunctionObject , true, false, true));
 
   /* 15.5.4.16 String.prototype.toLowerCase ( ) */
   toLowerCaseFunctionObject:= CreateBuiltInFunctionObject( [], "StringPrototypetoLowerCase", global, strict, null);
-  setJSProperty(prototype, "toLowerCase", newDataPropertyDescriptor( toLowerCaseFunctionObject ));
+  setJSProperty(prototype, "toLowerCase", newDataPropertyDescriptorFull( toLowerCaseFunctionObject, true, false, true ));
 
   /* 15.5.4.17 String.prototype.toLocaleLowerCase ( ) */
   toLocaleLowerCaseFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetoLocaleLowerCase", global, strict, null);
