@@ -41,7 +41,6 @@
                 "max"             , MAX;
                 "min"             , MIN;
                 "random"          , RANDOM;
-                "round"           , ROUND;
                 "sin"             , SIN;
                 "sqrt"            , SQRT;
                 "tan"             , TAN;

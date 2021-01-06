@@ -452,15 +452,20 @@ function MathRound(globalObject, this, stric, params) {
   /* If x is +Infinity, the result is +Infinity. */
   /* If x is -Infinity, the result is -Infinity. */
   /* If x is greater than 0 but less than 0.5, the result is +0. */
+  if ((x > 0.) &&& (x < 0.5)) {
+    return 0.
+  };
   /* If x is less than 0 but greater than or equal to -0.5, the result is -0. */
+  if ((x < 0.) &&& (x >= -(0.5))) {
+    return -(0.)
+  };
 
   /* NOTE 1 Math.round(3.5) returns 4, but Math.round(–3.5) returns –3. */
 
   /* NOTE 2 The value of Math.round(x) is the same as the value of Math.floor(x+0.5), except when x is -0 or is
             less than 0 but greater than or equal to -0.5; for these cases Math.round(x) returns -0, but Math.floor(x+0.5)
             returns +0. */
-
-  return round x
+  return MathFloor(globalObject, this, stric, [x + 0.5])
 };
 
 /* 15.8.2.16 sin (x) */

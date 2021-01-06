@@ -133,7 +133,6 @@ rule read =
   | "min"             { MIN }
   | "**"              { POW }
   | "random"          { RANDOM }
-  | "round"           { ROUND }
   | "sin"             { SIN }
   | "sqrt"            { SQRT }
   | "tan"             { TAN }

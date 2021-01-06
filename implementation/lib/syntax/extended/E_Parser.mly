@@ -41,7 +41,7 @@
 %token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %token FROM_CHAR_CODE TO_CHAR_CODE TO_LOWER_CASE TO_UPPER_CASE TRIM
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16
-%token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM ROUND SIN SQRT TAN PI MAX_VALUE MIN_VALUE
+%token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM SIN SQRT TAN PI MAX_VALUE MIN_VALUE
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT HD TL TLEN TNTH FST SND LREMOVELAST SLEN SNTH SSUBSTR
 %token SCONCAT SSPLIT
@@ -297,8 +297,6 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.Log_e, e) } %prec unopt_prec
   | LOG_10; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Log_10, e) } %prec unopt_prec
-  | ROUND; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Round, e) } %prec unopt_prec
   | RANDOM; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Random, e) } %prec unopt_prec
   | SIN; e = e_expr_target;
