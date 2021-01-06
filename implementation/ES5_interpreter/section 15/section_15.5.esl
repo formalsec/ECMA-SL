@@ -1220,17 +1220,17 @@ function GetOwnPropertyString (S, P) {
   /* Let str be the String value of the [[PrimitiveValue]] internal property of S. */
   str := S.PrimitiveValue;
   /* Let index be ToInteger(P).*/
-  index := int_of_float (ToInteger(P));
+  index := ToInteger(P);
   /* Let len be the number of characters in str. */
   len := s_len(str);
   /* If len ≤ index, return undefined. */
-  if (len <= index){
+  if ((int_to_float len) <= index){
     return 'undefined
   };
   /*    Let resultStr be a String of length 1, containing one character from str,
      specifically the character at position index, where the first (leftmost) character
      in str is considered to be at position 0, the next one at position 1, and so on. */
-  resultStr := s_nth (str, index);
+  resultStr := s_nth (str, int_of_float index);
   /* Return a Property Descriptor { [[Value]]: resultStr, [[Enumerable]]: true,
    [[Writable]]: false, [[Configurable]]: false } */
    return newDataPropertyDescriptorFull(resultStr, false, true, false)
