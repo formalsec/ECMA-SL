@@ -314,9 +314,8 @@ function MathFloor(globalObject, this, stric, params) {
   /* If x is -Infinity, the result is -Infinity. */
   /* If x is greater than 0 but less than 1, the result is +0. */
 
-  return floor(x)
-
   /* NOTE The value of Math.floor(x) is the same as the value of -Math.ceil(-x). */
+  return -(MathCeil(globalObject, this, stric, [-x]))
 };
 
 /* 15.8.2.10 log (x) */
