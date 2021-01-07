@@ -106,6 +106,8 @@ function JS_Interpreter_Expr(e, scope) {
       };
       i := i + 1
     };
+    descriptor := newDataPropertyDescriptorFull(int_to_float i, true, false, false);
+    {array.DefineOwnProperty}(array, "length", descriptor, false);
 
     return array
   }
