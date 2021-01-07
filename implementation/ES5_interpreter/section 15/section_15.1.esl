@@ -28,6 +28,8 @@ function initGlobalObject(strict) {
   ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, strict);
   FunctionConstructor := initFunctionConstructor(FunctionPrototype, globalObject, strict);
 
+  setInternalProperty(globalObject, "Prototype", ObjectPrototype);
+
   createBuiltInProperty(globalObject, "Object", ObjectConstructor);
   createBuiltInProperty(globalObject, "Function", FunctionConstructor);
 
