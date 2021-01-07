@@ -2572,5 +2572,5 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
 function IsArrayIndex(P) {
   p_uint := ToUint32(P);
   p_str := ToString(p_uint);
-  return ((p_str = P) && !(p_uint = 4294967295)) /* TODO 2^32-1*/
+  return ((p_str = P) && !(p_uint = ((2. ** 32.) - 1.) )) /* (2^32)-1 = 4294967295 */
 }
