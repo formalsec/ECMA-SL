@@ -33,7 +33,7 @@
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16
 %token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM SIN SQRT TAN
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
-%token NOT LLEN LNTH LADD LPREPEND LCONCAT LREMOVELAST HD TL TLEN TNTH FST SND SLEN SNTH SSUBSTR
+%token NOT LLEN LNTH LADD LPREPEND LCONCAT LREMOVELAST LSORT HD TL TLEN TNTH FST SND SLEN SNTH SSUBSTR
 %token SCONCAT SSPLIT AT_SIGN EXTERN
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
@@ -168,6 +168,8 @@ expr_target:
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.Second, e) } %prec unopt_prec
   | LREMOVELAST; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.LRemoveLast, e) } %prec unopt_prec
+  | LSORT; e = expr_target;
+    { Expr.UnOpt (Oper.LSort, e) } %prec unopt_prec
   | INT_TO_FLOAT; e = expr_target;
     { print_string ">UNOP\n"; Expr.UnOpt (Oper.IntToFloat, e) } %prec unopt_prec
   | INT_TO_STRING; e = expr_target;
