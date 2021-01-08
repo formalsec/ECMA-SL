@@ -1,6 +1,6 @@
 type t = (Loc.t, Object.t) Hashtbl.t
 
-let create () : t = Hashtbl.create 511
+let create () : t = Hashtbl.create Common.default_hashtable_size
 
 let insert  (heap : t) (obj : Object.t) : Loc.t =
   let loc = Loc.newloc () in

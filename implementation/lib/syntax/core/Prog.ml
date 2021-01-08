@@ -1,11 +1,11 @@
 type t = (string, Func.t) Hashtbl.t
 
 let create_empty () : t =
-   Hashtbl.create 511 
- 
+  Hashtbl.create Common.default_hashtable_size
+
 
 let create (funcs : Func.t list) : t =
-  let prog = Hashtbl.create 511 in
+  let prog = Hashtbl.create Common.default_hashtable_size in
   List.iter (fun (f : Func.t) -> Hashtbl.replace prog f.name f) funcs;
   prog
 
@@ -33,11 +33,11 @@ let get_name (prog: t ) (id: string) : string  =
 let add_func (prog:t) (k: string) (v : Func.t): unit =
   Hashtbl.replace prog k v
 
-let get_funcs (prog : t) : Func.t list = 
-  Hashtbl.fold 
+let get_funcs (prog : t) : Func.t list =
+  Hashtbl.fold
     (fun _ f fs -> f::fs)
-    prog 
-    []   
+    prog
+    []
 
 
 (*------------Strings----------*)
