@@ -38,7 +38,8 @@ let symbol  = '\''(var|int)
 let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
 let loc     = "$loc_"(digit|letter|'_')+
-
+let three_d = digit digit digit
+let c_code  = '\\'three_d
 (*
   The third section is
     the one with the lexing rules: functions that consume the data,
@@ -175,13 +176,19 @@ and read_string buf =
   | '\\' '/'             { Buffer.add_char buf '/'; read_string buf lexbuf }
   | '\\' '\\'            { Buffer.add_char buf '\\'; read_string buf lexbuf }
   | '\\' 'b'             { Buffer.add_char buf '\b'; read_string buf lexbuf }
-  | '\\' "011"           { Buffer.add_char buf '\011'; read_string buf lexbuf }
-  | '\\' "012"           { Buffer.add_char buf '\012'; read_string buf lexbuf }
   | '\\' 'n'             { Buffer.add_char buf '\n'; read_string buf lexbuf }
   | '\\' 'r'             { Buffer.add_char buf '\r'; read_string buf lexbuf }
   | '\\' 't'             { Buffer.add_char buf '\t'; read_string buf lexbuf }
   | '\\' '\"'            { Buffer.add_char buf '\"'; read_string buf lexbuf }
   | '\\' '\''            { Buffer.add_char buf '\''; read_string buf lexbuf }
+  | '\\' (three_d as c)  { Buffer.add_char buf (Char.chr (int_of_string c)); read_string buf lexbuf }
+  | c_code c_code        {
+                           let s = Lexing.lexeme lexbuf in
+                           let s' = "\"" ^ s ^ "\"" in
+                           let s'' = Scanf.sscanf s' "%S" (fun s -> s) in
+                           Buffer.add_string buf s'';
+                           read_string buf lexbuf
+                         }
   | [^ '"' '\\']+        {
                            Buffer.add_string buf (Lexing.lexeme lexbuf);
                            read_string buf lexbuf
