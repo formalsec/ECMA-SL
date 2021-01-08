@@ -85,13 +85,8 @@ function checkConstraints() {
   FILENAME=$1
 
   METADATA=$2
-  # check if it's a negative test
-  if [[ $(echo -e "$METADATA" | awk '/negative:/ {print $2}') != "" ]]; then
-    printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: negative test${NC}\n"
-
-    checkConstraints_return="${FILENAME} | **NOT EXECUTED** | ${isnegative}"
-    return 1
-  fi
+  # in case it's a negative test, save its expected error name in a variable to be used later.
+  NEGATIVE=$(echo -e "$METADATA" | awk '/negative:/ {print $2}')
 
   return 0
 }
@@ -106,14 +101,6 @@ function handleSingleFile() {
   METADATA=$(cat "$FILENAME" | awk '/\/\*---/,/---\*\//')
 
   checkConstraints $FILENAME "$METADATA"
-
-  if [[ $? -ne 0 ]]; then
-    # increment number of tests not executed
-    incNotExecuted
-
-    test_result=("$checkConstraints_return")
-    return
-  fi
 
   #echo "3.1. Copy contents to temporary file"
   cat /dev/null > "output/main262_$now.js"
@@ -191,7 +178,35 @@ function handleSingleFile() {
   # Calc duration
   set_duration_str
 
-  if [ $EXIT_CODE -eq 0 ]; then
+  # In case of a negative test, we're expecting to have a failure in the interpretation
+  if [ -n "$NEGATIVE" ]; then
+    # the "print substr" part of the piped awk command is to remove the double-quotes present in the string we're extracting
+    local completion_value=$(echo -e "$ECMASLCI" | tail -n 10 | awk -F ", " '/MAIN pc ->/ {print substr($3, 2, length($3)-2)}')
+    if [[ $NEGATIVE == $completion_value ]]; then
+      printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
+
+      # increment number of tests successfully executed
+      incOk
+
+      if [ $LOG_OKS -eq 1 ]; then
+        log_oks_arr+=("$FILENAME")
+      fi
+
+      test_result=("$FILENAME" "_OK_" "" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
+    else
+      printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC}\n"
+
+      # increment number of tests failed
+      incFail
+
+      if [ $LOG_FAILURES -eq 1 ]; then
+        log_failures_arr+=("$FILENAME")
+      fi
+
+      test_result=("$FILENAME" "**FAIL**" "$RESULT" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
+    fi
+    break
+  elif [ $EXIT_CODE -eq 0 ]; then
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
 
     # increment number of tests successfully executed
@@ -448,7 +463,7 @@ declare -i dir_fail_tests=0
 declare -i dir_error_tests=0
 declare -i dir_not_executed_tests=0
 
-declare checkConstraints_return=""
+declare NEGATIVE=""
 declare -a results=()
 declare -a files_results=()
 declare -a test_result=()
@@ -482,12 +497,7 @@ fi
 
 #echo "1. Create the file that will be compiled from \"Plus\" to \"Core\" in step 3.4."
 echo "import \"output/test262_ast_$now.esl\";" > "output/test262_$now.esl"
-echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "output/test262_$now.esl"
-echo "function main() {
-  x := buildAST();
-  ret := JS_Interpreter_Program(x, null);
-  return ret
-}" >> "output/test262_$now.esl"
+sed '1d' "ES5_interpreter/plus.esl" >> "output/test262_$now.esl"
 
 
 #echo "2. Compile the ECMA-SL language"
