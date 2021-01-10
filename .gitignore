@@ -41,3 +41,4 @@ _opam/
 results/
 logs/
 output/
+ast/
