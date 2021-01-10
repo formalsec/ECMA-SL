@@ -292,7 +292,7 @@ function internalNewArray(arrayPrototype, items) {
   /* The length property of the newly constructed object is set to the
      number of arguments. */
   len := l_len items;
-  createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", int_to_float len, true, false, false);
+  createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(int_to_float len), true, false, false);
 
   /* The 0 property of the newly constructed object is set to item0
      (if supplied); the 1 property of the newly constructed object is set
