@@ -41,7 +41,6 @@
                 "max"             , MAX;
                 "min"             , MIN;
                 "random"          , RANDOM;
-                "round"           , ROUND;
                 "sin"             , SIN;
                 "sqrt"            , SQRT;
                 "tan"             , TAN;
@@ -56,6 +55,7 @@
                 "l_prepend"       , LPREPEND;
                 "l_concat"        , LCONCAT;
                 "l_remove_last"   , LREMOVELAST;
+                "l_sort"          , LSORT;
                 "hd"              , HD;
                 "tl"              , TL;
                 "t_len"           , TLEN;

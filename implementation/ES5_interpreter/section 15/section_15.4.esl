@@ -292,7 +292,7 @@ function internalNewArray(arrayPrototype, items) {
   /* The length property of the newly constructed object is set to the
      number of arguments. */
   len := l_len items;
-  createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", int_to_float len, true, false, false);
+  createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(int_to_float len), true, false, false);
 
   /* The 0 property of the newly constructed object is set to item0
      (if supplied); the 1 property of the newly constructed object is set
@@ -1565,8 +1565,13 @@ function arrayIndexOf(global, this, strict, args) {
   };
   /* 7. If n ≥ 0, then */
   if (n >= 0.) {
-    /* a. Let k be n. */
-    k := n
+    /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
+    /* a. If n is -0, let k be +0; else let k be n. */
+    if (isMinusZero(n)) {
+      k := 0.
+    } else {
+      k := n
+    }
   } else {
   /* 8. Else, n<0 */
     /* a. Let k be len - abs(n). */
@@ -1654,7 +1659,13 @@ function arrayLastIndexOf(global, this, strict, args) {
   };
   /* 6. If n ≥ 0, then let k be min(n, len - 1). */
   if (n >= 0.) {
-    k := min(n, len - 1.)
+    /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
+    /* a. If n is -0, let k be +0; else let k be min(n, len - 1). */
+    if (isMinusZero(n)) {
+      k := 0.
+    } else {
+      k := min(n, len - 1.)
+    }
   }
   /* 7. Else, n < 0 */
   else {
