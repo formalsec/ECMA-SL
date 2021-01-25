@@ -13,7 +13,6 @@ INV='\e[7m'         #INVERTED
 LGREEN='\e[102m'
 BOLD='\e[1m'
 
-TIMEFORMAT='%3lR'
 
 function usage {
   echo -e "Usage: $(basename $0) [OPTION]... [-dfirp]"
@@ -575,6 +574,9 @@ while getopts ${optstring} arg; do
 done
 
 function process() {
+  # Environment variable used by the "time" tool
+  TIMEFORMAT='%3lR'
+
   if [ ${#dDirs[@]} -ne 0 ]; then
     processDirectories ${dDirs[@]}
   fi
@@ -594,9 +596,13 @@ function process() {
   if [ ${#preCompiledDirs[@]} -ne 0 ]; then
     processFromPreCompiled ${preCompiledDirs[@]}
   fi
+
+  # To make sure that the final time statistics are printed
+  # differently when compared to those printed in inner executions.
+  TIMEFORMAT='Executed in %3lR'
 }
 
-TIMEFORMAT='Executed in %3lR' && time process
+time process
 
 printf "\n${BOLD}SUMMARY:${NC}\n\n"
 printf "OK: $ok_tests    "
