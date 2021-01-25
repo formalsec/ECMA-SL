@@ -30,7 +30,8 @@ function usage {
   Options:
   -E         Enable logging to file the tests executed with errors. File is "errors.log"
   -F         Enable logging to file the failed tests. File is "failures.log"
-  -O         Enable logging to file the passed tests. File is "oks.log"'
+  -O         Enable logging to file the passed tests. File is "oks.log"
+  -H         Consider harness file during execution with pre-generated ASTs.'
   exit 1
 }
 
@@ -101,7 +102,11 @@ function createMain262JSFile() {
   if [[ $(echo -e "$2" | awk '/flags: \[onlyStrict\]/ {print $1}') != "" ]]; then
     echo "\"use strict\";" >> "output/main262_$now.js"
   fi
-  cat "test/test262/environment/harness.js" >> "output/main262_$now.js"
+  # Only include harness file if not using pre-compiled ASTs or
+  # if using pre-compiled ASTs and they do not include the harness
+  if [[ $WITH_PRE_COMPILED -ne 1 || $WITH_HARNESS -ne 1 ]]; then
+    cat "test/test262/environment/harness.js" >> "output/main262_$now.js"
+  fi
   cat "$1" >> "output/main262_$now.js"
 
   if [ $? -ne 0 ]; then
@@ -121,7 +126,11 @@ function handleSingleFile() {
   checkConstraints $FILENAME "$METADATA"
 
   if [ $WITH_PRE_COMPILED -eq 1 ]; then
-    cp "ast/$FILENAME.esl" "output/test262_ast_$now.esl"
+    if [ $WITH_HARNESS -eq 1 ]; then
+      cp "$OUTPUT_FOLDER_WITH_HARNESS$FILENAME.esl" "output/test262_ast_$now.esl"
+    else
+      cp "$OUTPUT_FOLDER$FILENAME.esl" "output/test262_ast_$now.esl"
+    fi
   else
     #echo "3.1. Copy contents to temporary file"
     createMain262JSFile $FILENAME "$METADATA"
@@ -540,6 +549,9 @@ declare -a test_result=()
 
 declare -i RECURSIVE=0
 declare -i WITH_PRE_COMPILED=0
+declare -i WITH_HARNESS=0
+declare OUTPUT_FOLDER="generated_ASTs/"
+declare OUTPUT_FOLDER_WITH_HARNESS=$OUTPUT_FOLDER"with_harness/"
 declare -r OUTPUT_FILE="logs/results_$now.md"
 
 declare -i LOG_ENTIRE_EVAL_OUTPUT=0
@@ -589,7 +601,7 @@ fi
 echo ""
 
 # Define list of arguments expected in the input
-optstring=":EFOd:f:i:r:g:p:"
+optstring=":EFOHd:f:i:r:p:"
 
 declare -a dDirs=() # Array that will contain the directories to use with the arg "-d"
 declare -a fFiles=() # Array that will contain the files to use with the arg "-f"
@@ -602,6 +614,7 @@ while getopts ${optstring} arg; do
     E) LOG_ERRORS=1 ;;
     F) LOG_FAILURES=1 ;;
     O) LOG_OKS=1 ;;
+    H) WITH_HARNESS=1 ;;
     d) dDirs+=("$OPTARG") ;;
     f) fFiles+=("$OPTARG") ;;
     i) iFiles+=("$OPTARG") ;;
