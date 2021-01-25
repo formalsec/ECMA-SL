@@ -32,19 +32,19 @@ let delete_field (heap : t) (loc : Loc.t) (field : Field.t) : unit =
   | None   -> ()
   | Some o -> Object.delete o field
 
-let str (heap : t) : string = (Hashtbl.fold (fun n v ac -> (if ac <> "{ " then ac ^ ", " else ac) ^ (Printf.sprintf "%s: %s" (Loc.str n) (Object.str v))) heap "{ ") ^ " }"
+let str (heap : t) : string =
+  "{ " ^ (
+    String.concat
+      ", "
+      (Hashtbl.fold (fun n v acc -> (Printf.sprintf "%s: %s" (Loc.str n) (Object.str v))::acc) heap [])
+  ) ^ " }"
 
-                                (*
-let from_list_to_hashtbl (h_list : (string * (Field.t * Val.t) list) list) : t =
-  let heap = create () in
-  List.iter (fun (o : (string * (Field.t * Val.t) list)) ->
-      let lo = fst o and fvs = snd o in
-      let obj = Object.create() in
-      List.iter (fun (fv : Field.t * Val.t) -> Object.set obj (fst fv) (snd fv)) fvs;
-      ignore (insert loc:lo heap obj)
-    ) h_list; heap
-
-let from_json_file (filename : string) : t =
-  let h_list = Parse_Heap.parse filename in
-  from_list_to_hashtbl h_list
-*)
+let str_with_global (heap : t) : string =
+  let global = Hashtbl.fold (fun loc obj acc ->
+      match acc with
+      | Some _ -> acc
+      | None   -> Object.get obj "global"
+    ) heap None in
+  match global with
+  | Some loc -> Printf.sprintf "{ \"heap\": %s, \"global\": %s }" (str heap) (Val.str loc)
+  | None     -> raise (Failure "Heap with no global")
