@@ -5,7 +5,7 @@ function initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject,
   /* When Object is called as part of a new expression, it is a constructor that may create an object. */
   /* The value of the [[Prototype]] internal property of the Object constructor is the standard built-in Function
      prototype object. */
-  ObjectConstructor := CreateGeneralFunctionObject(FunctionPrototype, ["value"], "ObjectConstructor", globalObject, strict, 0);
+  ObjectConstructor := CreateGeneralFunctionObject(FunctionPrototype, ["value"], "ObjectConstructor", globalObject, strict, 0.);
 
   /* 15.2.3.1 Object.prototype */
   /* The initial value of Object.prototype is the standard built-in Object prototype object (15.2.4). */
@@ -36,7 +36,7 @@ function fillObjectConstructor(ObjectConstructor, globalObject, strict) {
   createBuiltInProperty(ObjectConstructor, "getOwnPropertyNames", getOwnPropertyNames);
 
   /* 15.2.3.5 Object.create ( O [, Properties] ) */
-  create := CreateBuiltInFunctionObject(["O", "Properties"], "ObjectCreate", globalObject, strict, 1);
+  create := CreateBuiltInFunctionObject(["O", "Properties"], "ObjectCreate", globalObject, strict, 1.);
   createBuiltInProperty(ObjectConstructor, "create", create);
 
   /* 15.2.3.6 Object.defineProperty ( O, P, Attributes ) */
