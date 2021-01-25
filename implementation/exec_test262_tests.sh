@@ -15,7 +15,7 @@ BOLD='\e[1m'
 
 
 function usage {
-  echo -e "Usage: $(basename $0) [OPTION]... [-dfirgp]"
+  echo -e "Usage: $(basename $0) [OPTION]... [-dfirp]"
   echo -e '
   -d <dir>   Directory containing test files.
              All the tests available in the directory are executed.
@@ -23,8 +23,6 @@ function usage {
   -i <file>  File containing the list of files to test.
   -r <dir>   Directory containing test files and/or directories.
              If the directories contain other directories, all the tests available in those directories are also executed.
-  -g <dir>   Generates the ASTs for all the test files (.js) that are contained in the directory passed as argument.
-             These ASTs are stored in the folder "ast/".
   -p <dir>   Same as "-r" but using the pre-generated ASTs for the test files available in the directory passed as argument.
 
   Options:
@@ -470,53 +468,6 @@ function processFromPreCompiled() {
   logStatusToFiles
 }
 
-function generateAST() {
-  local FILENAME=$1
-
-  local initChars=${FILENAME:0:2}
-  local output_esl="ast/"
-  if [[ $initChars == "./" ]]; then
-    output_esl+=${FILENAME:2}".esl"
-  else
-    output_esl+=$FILENAME".esl"
-  fi
-
-  METADATA=$(cat "$FILENAME" | awk '/\/\*---/,/---\*\//')
-
-  # echo "3.1. Copy contents to temporary file"
-  createMain262JSFile $FILENAME "$METADATA"
-
-  # echo "3.2. Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program"
-  JS2ECMASL=$(node ../JS2ECMA-SL/src/index.js -i output/main262_$now.js -o $output_esl 2>&1)
-
-  if [[ "${JS2ECMASL}" != "The file has been saved!" ]]; then
-    printf "$FILENAME ... ${BOLD}${RED}${INV}ERROR${NC}\n"
-
-    echo -e "$JS2ECMASL"
-  fi
-}
-
-function generateASTs() {
-  local initial_folder=$1
-
-  # Create folders if don't exist
-  local all_dirs=($(find $initial_folder -type d))
-
-  for dir in "${all_dirs[@]}"; do
-    if [ ! -d "ast/$dir" ]; then
-      mkdir -p "ast/$dir"
-    fi
-  done
-
-  # process files
-  local all_files=($(find $initial_folder -type f -name '*.js'))
-
-  for file in "${all_files[@]}"; do
-    printf "."
-    generateAST $file
-  done
-}
-
 #
 # BEGIN
 #
@@ -619,7 +570,6 @@ while getopts ${optstring} arg; do
     f) fFiles+=("$OPTARG") ;;
     i) iFiles+=("$OPTARG") ;;
     r) rDirs+=("$OPTARG") ;;
-    g) generateASTs "$OPTARG"; exit 0 ;;
     p) preCompiledDirs+=("$OPTARG");;
 
     ?)
