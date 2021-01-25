@@ -533,9 +533,9 @@ sed '1d' "ES5_interpreter/plus.esl" >> "output/test262_$now.esl"
 make
 
 #echo "3. Install JS2ECMA-SL dependencies"
-# cd ../JS2ECMA-SL
-# npm install
-# cd ../implementation
+cd ../JS2ECMA-SL
+npm install
+cd ../implementation
 
 if [ $? -ne 0 ]
 then
