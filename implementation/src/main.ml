@@ -15,6 +15,7 @@ let mode = ref ""
 let mon = ref ""
 let out = ref ""
 let verb_aux = ref false
+let silent_aux = ref false
 let parse = ref false
 
 let _INLINE_LATTICE_ = "lib/semantics/monitors/nsu_compiler/runtime/H-L-Lattice.esl"
@@ -38,7 +39,7 @@ module CoreInterp = Core_Interpreter.M(DCM)
 
 let arguments () =
 
-  let usage_msg = "Usage: -i <path> -mode <c/p> -o <path> [-v] -h <path> [--parse]" in
+  let usage_msg = "Usage: -i <path> -mode <c/p> -o <path> [-v|-s] -h <path> [--parse]" in
   Arg.parse
     [
       ("-i", Arg.String (fun f -> file := f), "Input file")
@@ -46,6 +47,7 @@ let arguments () =
     ;("-h", Arg.String(fun f -> heap_file := f), "File where to write the computed heap")
     ;("-o", Arg.String (fun o -> out := o ), "Output file")
     ;("-v", Arg.Set verb_aux, "Verbose")
+    ;("-s", Arg.Set silent_aux, "Silent mode")
     ;("-mon", Arg.String(fun m -> mon := m), "Monitor mode")
     ;("--parse", Arg.Set parse, "Parse to JSON")
 
@@ -114,6 +116,7 @@ let core_interpretation (prog : Prog.t) : exit_code =
 let run () =
   print_string "=====================\n\tECMA-SL\n=====================\n";
   arguments();
+  if !silent_aux then Logging.set_silent ();       (* Disable logging (when using "print_endline" and/or "print_string") *)
   let code : exit_code =
   if (!file = "" && !mode = "" && !out = "") then (print_string "No option selected. Use -h"; FAILURE)
   else if (!file = "") then (print_string "No input file. Use -i\n=====================\n\tFINISHED\n=====================\n"; FAILURE)

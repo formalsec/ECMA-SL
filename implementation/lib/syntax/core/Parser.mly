@@ -1,5 +1,9 @@
 (* parser-specification file *)
 
+%{
+  open Logging
+%}
+
 (*
   BEGIN first section - declarations
   - token and type specifications, precedence directives and other output directives

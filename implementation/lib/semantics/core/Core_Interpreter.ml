@@ -1,3 +1,5 @@
+open Logging
+
 module M
   (Mon : SecurityMonitor.M) = struct
 
@@ -188,7 +190,7 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
   let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
   if Stmt.is_basic_stmt s
     then
-      Printf.printf "====================================\nEvaluating >>>>> %s: %s (%s)\n" f (Stmt.str s) (Stmt.str ~print_expr:str_e s);
+      print_endline (Printf.sprintf "====================================\nEvaluating >>>>> %s: %s (%s)" f (Stmt.str s) (Stmt.str ~print_expr:str_e s));
 
   match s with
   | Skip ->
@@ -201,7 +203,7 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
   | Merge -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.MergeLab)
 
   | Print e ->
-    (let v = eval_expr sto e in
+    let v = eval_expr sto e in
     (match v with
     | Loc l ->
       (match Heap.get heap l with
@@ -209,7 +211,6 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
         | None   -> print_endline "PROGRAM PRINT: Non-existent location" )
     | _     -> print_endline ("PROGRAM PRINT: " ^ (Val.str v)));
      (Intermediate ((cs, heap, sto, f), cont), SecLabel.PrintLab (e))
-    )
 
   | Fail e -> (
       let v = eval_expr sto e in
@@ -278,7 +279,7 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
         let (cs', sto_aux, params) = prepare_call prog f cs sto cont x es f' vs in
         (let (cont':Stmt.t) = func.body in
          let aux_list= (cont'::[]) in
-          Printf.printf "Going to execute %s\n" f';
+          print_endline ("Going to execute " ^ f');
          (Intermediate ((cs', heap, sto_aux, f'), aux_list), SecLabel.AssignCallLab (params, es, x, f')))
       |Some lab ->
         (Intermediate((cs, heap, sto, f), cont),lab))

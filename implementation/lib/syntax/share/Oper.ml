@@ -97,8 +97,7 @@ let neg (v : Val.t) : Val.t = match v with
 
 let not (v : Val.t) : Val.t = match v with
   | Bool v -> Bool (v = false)
-  | _      -> Printf.printf "%s" (Val.str v);
-              invalid_arg "Exception in Oper.not: this operation is only applicable to a boolean type argument"
+  | _      -> invalid_arg "Exception in Oper.not: this operation is only applicable to a boolean type argument"
 
 let bitwise_not (v : Val.t) : Val.t = match v with
   | Flt f -> Flt (Arith_Utils.int32_bitwise_not f)
