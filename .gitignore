@@ -41,4 +41,4 @@ _opam/
 results/
 logs/
 output/
-generated_ASTs/
+generated_ASTs/with_harness/
