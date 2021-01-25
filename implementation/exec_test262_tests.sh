@@ -13,6 +13,7 @@ INV='\e[7m'         #INVERTED
 LGREEN='\e[102m'
 BOLD='\e[1m'
 
+TIMEFORMAT='%3lR'
 
 function usage {
   echo -e "Usage: $(basename $0) [OPTION]... [-dfirp]"
@@ -133,16 +134,14 @@ function handleSingleFile() {
     #echo "3.1. Copy contents to temporary file"
     createMain262JSFile $FILENAME "$METADATA"
 
-    start_timer
 
     #echo "3.2. Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program"
-    JS2ECMASL=$(node ../JS2ECMA-SL/src/index.js -i output/main262_$now.js -o output/test262_ast_$now.esl 2>&1)
+    JS2ECMASL=$(time (node ../JS2ECMA-SL/src/index.js -i output/main262_$now.js -o output/test262_ast_$now.esl) 2>&1 1>&1)
 
-    stop_timer
-    set_duration_str
-    ast_duration_str=$duration_str
+    ast_duration_str=$(echo "$JS2ECMASL" | sed '$!d')
 
-    if [[ "${JS2ECMASL}" != "The file has been saved!" ]]; then
+    # The asterisk is to ignore the timing statistics appended by the "time" command
+    if [[ "$JS2ECMASL" != "The file has been saved!"* ]]; then
       printf "${BOLD}${RED}${INV}ERROR${NC}\n"
 
       # increment number of tests with error
@@ -159,16 +158,12 @@ function handleSingleFile() {
     fi
   fi
 
-  start_timer
-
   #echo "3.4. Compile program written in \"Plus\" to \"Core\""
-  ECMASLC=$(./main.native -mode c -i output/test262_$now.esl -o output/core_$now.esl 2>&1)
+  ECMASLC=$(time (./main.native -mode c -i output/test262_$now.esl -o output/core_$now.esl) 2>&1 1>/dev/null)
 
   local EXIT_CODE=$?
 
-  stop_timer
-  set_duration_str
-  plus2core_duration_str=$duration_str
+  plus2core_duration_str=$(echo "$ECMASLC" | sed '$!d')
 
   if [ $EXIT_CODE -ne 0 ]; then
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
@@ -186,17 +181,14 @@ function handleSingleFile() {
     return
   fi
 
-  # Record duration of the program interpretation
-  start_timer
-
   #echo "3.5. Evaluate program and write the computed heap to the file heap.json."
-  ECMASLCI=$(./main.native -mode ci -i output/core_$now.esl 2>&1)
+  ECMASLCI=$(time (./main.native -mode ci -i output/core_$now.esl) 2>&1 1>&1)
 
   local EXIT_CODE=$?
 
-  stop_timer
-  # Calc duration
-  set_duration_str
+  duration_str=$(echo "$ECMASLCI" | sed '$!d')
+  # Remove timing statistics appended by the "time" command
+  ECMASLCI=$(echo "$ECMASLCI" | sed '$d')
 
   # In case of a negative test, we're expecting to have a failure in the interpretation
   if [ -n "$NEGATIVE" ]; then
@@ -539,9 +531,9 @@ sed '1d' "ES5_interpreter/plus.esl" >> "output/test262_$now.esl"
 make
 
 #echo "3. Install JS2ECMA-SL dependencies"
-cd ../JS2ECMA-SL
-npm install
-cd ../implementation
+# cd ../JS2ECMA-SL
+# npm install
+# cd ../implementation
 
 if [ $? -ne 0 ]
 then
@@ -580,28 +572,29 @@ while getopts ${optstring} arg; do
   esac
 done
 
-# Record duration
-declare -i startTime=$(date +%s%N)
+function process() {
+  if [ ${#dDirs[@]} -ne 0 ]; then
+    processDirectories ${dDirs[@]}
+  fi
 
-if [ ${#dDirs[@]} -ne 0 ]; then
-  processDirectories ${dDirs[@]}
-fi
+  if [ ${#fFiles[@]} -ne 0 ]; then
+    handleFiles $OUTPUT_FILE ${fFiles[@]}
+  fi
 
-if [ ${#fFiles[@]} -ne 0 ]; then
-  handleFiles $OUTPUT_FILE ${fFiles[@]}
-fi
+  if [ ${#iFiles[@]} -ne 0 ]; then
+    processFromInputFile ${iFiles[@]}
+  fi
 
-if [ ${#iFiles[@]} -ne 0 ]; then
-  processFromInputFile ${iFiles[@]}
-fi
+  if [ ${#rDirs[@]} -ne 0 ]; then
+    processRecursively ${rDirs[@]}
+  fi
 
-if [ ${#rDirs[@]} -ne 0 ]; then
-  processRecursively ${rDirs[@]}
-fi
+  if [ ${#preCompiledDirs[@]} -ne 0 ]; then
+    processFromPreCompiled ${preCompiledDirs[@]}
+  fi
+}
 
-if [ ${#preCompiledDirs[@]} -ne 0 ]; then
-  processFromPreCompiled ${preCompiledDirs[@]}
-fi
+TIMEFORMAT='Executed in %3lR' && time process
 
 printf "\n${BOLD}SUMMARY:${NC}\n\n"
 printf "OK: $ok_tests    "
@@ -610,8 +603,3 @@ printf "ERROR: $error_tests    "
 printf "NOT EXECUTED: $not_executed_tests    "
 printf "Total: $total_tests\n"
 
-declare -i endTime=$(date +%s%N)
-declare -i duration=$((endTime-startTime))
-echo ""
-# The amount of zeros is necessary because we're dealing with seconds and nanoseconds
-echo $duration | awk '{printf "Execution duration: %02dh:%02dm:%06.3fs\n", $0/3600000000000, $0%3600000000000/60000000000, $0/1000000000%60}'
