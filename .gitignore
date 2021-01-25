@@ -41,4 +41,4 @@ _opam/
 results/
 logs/
 output/
-ast/
+generated_ASTs/
