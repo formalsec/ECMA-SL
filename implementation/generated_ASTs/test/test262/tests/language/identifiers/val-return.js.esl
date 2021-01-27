@@ -1,4 +1,4 @@
-function buildAST () {
+function buildAST (ignored_arg) {
 __n0 := {  };
 __n0["sourceType"] := "script";
 __n0["type"] := "EarlySyntaxError";
@@ -9,5 +9,5 @@ __n2 := [  ];
 __n0["variableDeclarations"] := __n2;
 __n3 := [  ];
 __n0["functionDeclarations"] := __n3;
-return __n0
+return ( false, __n0 )
 }

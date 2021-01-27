@@ -1,4 +1,4 @@
-function buildAST () {
+function buildAST (ignored_arg) {
 __n0 := {  };
 __n0["type"] := "Program";
 __n2 := {  };
@@ -1584,5 +1584,5 @@ __n322 := [ __n323, __n343, __n365, __n385, __n409, __n433, __n459, __n481 ];
 __n0["functionDeclarations"] := __n322;
 __n0["codeType"] := "global";
 __n0["strict"] := false;
-return __n0
+return ( false, __n0 )
 }
