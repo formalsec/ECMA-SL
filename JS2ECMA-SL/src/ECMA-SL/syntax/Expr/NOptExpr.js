@@ -25,7 +25,7 @@ function MakeNOptExpr(Expr){
     interpret(store){
       //console.log("++ NOPT");
       var v_list = this.expressionsList.map((expr) => expr.interpret(store));
-      return this.n_aryOperator.interpret(v_list); 
+      return this.n_aryOperator.interpret(v_list);
     }
     getVars(){
       var vars = this.expressionsList.map(getVars());
@@ -50,6 +50,12 @@ function MakeNOptExpr(Expr){
           return elem;
         })
         .join(", ")} ]`;
+    }
+  }
+
+  NOptExpr.TupleExpr = class {
+    toString(elements) {
+      return `( ${elements.join(", ")} )`
     }
   }
 
