@@ -9,6 +9,13 @@ module.exports = {
       obj.raw = "\"'null\""
     }
 
+    if (obj.value === Infinity) {
+      return {
+        type: "Identifier",
+        name: "Infinity"
+      }
+    }
+
     return obj
   }
 }
