@@ -1,4 +1,4 @@
-function buildAST (ignored_arg) {
+function buildAST (___internal_esl_global) {
 __n0 := {  };
 __n0["type"] := "Program";
 __n2 := {  };
@@ -473,9 +473,8 @@ __n135 := {  };
 __n135["type"] := "BinaryExpression";
 __n135["operator"] := "===";
 __n136 := {  };
-__n136["type"] := "Literal";
-__n136["value"] := Infinity;
-__n136["raw"] := "1.797693134862315808e+308";
+__n136["type"] := "Identifier";
+__n136["name"] := "Infinity";
 __n135["left"] := __n136;
 __n137 := {  };
 __n137["type"] := "UnaryExpression";

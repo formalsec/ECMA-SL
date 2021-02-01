@@ -1,4 +1,4 @@
-function buildAST (ignored_arg) {
+function buildAST (___internal_esl_global) {
 __n0 := {  };
 __n0["type"] := "Program";
 __n2 := {  };

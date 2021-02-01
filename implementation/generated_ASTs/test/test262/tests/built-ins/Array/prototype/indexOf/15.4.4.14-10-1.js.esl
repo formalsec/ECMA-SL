@@ -1,4 +1,4 @@
-function buildAST (ignored_arg) {
+function buildAST (___internal_esl_global) {
 __n0 := {  };
 __n0["type"] := "Program";
 __n2 := {  };
@@ -164,9 +164,8 @@ __n45["raw"] := "5";
 __n43["property"] := __n45;
 __n42["left"] := __n43;
 __n46 := {  };
-__n46["type"] := "Literal";
-__n46["value"] := Infinity;
-__n46["raw"] := "1E+309";
+__n46["type"] := "Identifier";
+__n46["name"] := "Infinity";
 __n42["right"] := __n46;
 __n41["expression"] := __n42;
 __n47 := {  };
@@ -349,9 +348,8 @@ __n96["property"] := __n98;
 __n96["computed"] := true;
 __n95["callee"] := __n96;
 __n100 := {  };
-__n100["type"] := "Literal";
-__n100["value"] := Infinity;
-__n100["raw"] := "1E+309";
+__n100["type"] := "Identifier";
+__n100["name"] := "Infinity";
 __n99 := [ __n100 ];
 __n95["arguments"] := __n99;
 __n101 := {  };
