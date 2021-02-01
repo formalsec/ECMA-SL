@@ -20,7 +20,7 @@ echo ""
 if [[ $with_harness == "y" ]]; then
 
   echo ""
-  echo -e "2.1. Guarantee that the \"EnteringGlobalCode\" function in the \"ES5_interpreter/section\ 10/section_10.4.esl\" calls the function \"initGlobalObject\" and not the function \"optimizeInitGlobalObject\"."
+  echo -e "2.1. Guarantee that the \"EnteringGlobalCode\" function in the \"ES5_interpreter/section 10/section_10.4.esl\" calls the function \"initGlobalObject\" and not the function \"optimizeInitGlobalObject\"."
   printf "(Press any key when it's done)"
   read -n 1
 
@@ -40,10 +40,8 @@ if [[ $with_harness == "y" ]]; then
     exit 1
   fi
 
-  echo "import \"output/harness_ast_strict.esl\";" > "output/optimize_heap_strict.esl"
-  echo "import \"output/harness_ast.esl\";" > "output/optimize_heap.esl"
-  echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "output/optimize_heap_strict.esl"
-  echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "output/optimize_heap.esl"
+  echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" > "output/optimize_heap_strict.esl"
+  echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" > "output/optimize_heap.esl"
   echo -e 'function main() {
     x := buildAST();
     ret := JS_Interpreter_Program(x, null);
@@ -84,6 +82,14 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 echo -e "\toutput/core_optimize_heap.esl generated!"
+
+
+if [[ $with_harness == "y" ]]; then
+  echo ";" >> "output/core_optimize_heap_strict.esl"
+  cat "output/harness_ast_strict.esl" >> "output/core_optimize_heap_strict.esl"
+  echo ";" >> "output/core_optimize_heap.esl"
+  cat "output/harness_ast.esl" >> "output/core_optimize_heap.esl"
+fi
 
 ./main.native -mode ci -i "output/core_optimize_heap_strict.esl" -h "globalHeap_strict.json" > /dev/null
 if [ $? -ne 0 ]; then
