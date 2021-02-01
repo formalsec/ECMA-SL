@@ -79,10 +79,6 @@ function logStatusToFiles() {
   fi
 }
 
-# Checks:
-# - file is a valid ES5 test (search for the key "es5id" in the frontmatter)
-# - file doesn't use the built-in eval function
-# - file is not a negative test (search for the key "negative" in the frontmatter)
 function checkConstraints() {
   FILENAME=$1
 
@@ -97,11 +93,12 @@ function checkConstraints() {
 function createMain262JSFile() {
   # echo "3.1. Copy contents to temporary file"
   cat /dev/null > "output/main262_$now.js"
+  # Check if test is to run in strict code mode.
   if [[ $(echo -e "$2" | awk '/flags: \[onlyStrict\]/ {print $1}') != "" ]]; then
     echo "\"use strict\";" >> "output/main262_$now.js"
   fi
   # Only include harness file if not using pre-compiled ASTs or
-  # if using pre-compiled ASTs and they do not include the harness
+  # if using pre-compiled ASTs they do not include the harness
   if [[ $WITH_PRE_COMPILED -ne 1 || $WITH_HARNESS -ne 1 ]]; then
     cat "test/test262/environment/harness.js" >> "output/main262_$now.js"
   fi
@@ -123,18 +120,17 @@ function handleSingleFile() {
 
   checkConstraints $FILENAME "$METADATA"
 
-  if [ $WITH_PRE_COMPILED -eq 1 ]; then
+  if [ $WITH_PRE_COMPILED -eq 1 ]; then # Copy pre-compiled AST file contents to target file.
     if [ $WITH_HARNESS -eq 1 ]; then
       cp "$OUTPUT_FOLDER_WITH_HARNESS$FILENAME.esl" "output/test262_ast_$now.esl"
     else
       cp "$OUTPUT_FOLDER$FILENAME.esl" "output/test262_ast_$now.esl"
     fi
   else
-    #echo "3.1. Copy contents to temporary file"
+    # Copy contents to temporary file
     createMain262JSFile $FILENAME "$METADATA"
 
-
-    #echo "3.2. Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program"
+    # Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program
     JS2ECMASL=$(time (node ../JS2ECMA-SL/src/index.js -i output/main262_$now.js -o output/test262_ast_$now.esl) 2>&1 1>&1)
 
     ast_duration_str=$(echo "$JS2ECMASL" | sed '$!d')
@@ -157,30 +153,12 @@ function handleSingleFile() {
     fi
   fi
 
-  #echo "3.4. Compile program written in \"Plus\" to \"Core\""
-  ECMASLC=$(time (./main.native -mode c -i output/test262_$now.esl -o output/core_$now.esl) 2>&1 1>/dev/null)
+  # Create the Core file by concatenating the AST and Interpreter Core version files."
+  cat "output/test262_ast_$now.esl" > "output/core_$now.esl"
+  echo ";" >> "output/core_$now.esl"
+  cat "output/interpreter_$now.esl" >> "output/core_$now.esl"
 
-  local EXIT_CODE=$?
-
-  plus2core_duration_str=$(echo "$ECMASLC" | sed '$!d')
-
-  if [ $EXIT_CODE -ne 0 ]; then
-    printf "${BOLD}${RED}${INV}ERROR${NC}\n"
-
-    # increment number of tests with error
-    incError
-
-    if [ $LOG_ERRORS -eq 1 ]; then
-      log_errors_arr+=("$FILENAME")
-    fi
-
-    ERROR_MESSAGE=$(echo -e "$ECMASLC" | tail -n 1)
-
-    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "$ast_duration_str" "$plus2core_duration_str" "")
-    return
-  fi
-
-  #echo "3.5. Evaluate program and write the computed heap to the file heap.json."
+  # Evaluate program and write the computed heap to the file heap.json."
   local toggle_silent_mode=""
   [ $LOG_ENTIRE_EVAL_OUTPUT -eq 0 ] && toggle_silent_mode="-s"
   ECMASLCI=$(time (./main.native -mode ci -i output/core_$now.esl $toggle_silent_mode) 2>&1 1>&1)
@@ -522,25 +500,20 @@ if [ ! -d "output" ]; then
 fi
 
 
-#echo "1. Create the file that will be compiled from \"Plus\" to \"Core\" in step 3.4."
-echo "import \"output/test262_ast_$now.esl\";" > "output/test262_$now.esl"
-sed '1d' "ES5_interpreter/plus.esl" >> "output/test262_$now.esl"
-
-
-#echo "2. Compile the ECMA-SL language"
+#echo "1. Compile the ECMA-SL language"
 # OCAMLMAKE=$(make)
 make
-
-#echo "3. Install JS2ECMA-SL dependencies"
-cd ../JS2ECMA-SL
-npm install
-cd ../implementation
 
 if [ $? -ne 0 ]
 then
   # echo $OCAMLMAKE
   exit 1
 fi
+
+#echo "2. Install JS2ECMA-SL dependencies"
+cd ../JS2ECMA-SL
+npm install
+cd ../implementation
 
 echo ""
 
@@ -576,6 +549,26 @@ done
 function process() {
   # Environment variable used by the "time" tool
   TIMEFORMAT='%3lR'
+
+
+  #echo "3. Create the file that will be compiled from \"Plus\" to \"Core\" in step 3.4."
+  sed '1d' "ES5_interpreter/plus.esl" >> "output/test262_$now.esl"
+
+  # Compile program written in \"Plus\" to \"Core\
+  ECMASLC=$(time (./main.native -mode c -i output/test262_$now.esl -o output/interpreter_$now.esl) 2>&1 1>/dev/null)
+
+  EXIT_CODE=$?
+
+  plus2core_duration_str=$(echo "$ECMASLC" | sed '$!d')
+
+  if [ $EXIT_CODE -ne 0 ]; then
+    printf "${BOLD}${RED}${INV}ERROR${NC} during compilation of the \"ES5_interpreter/plus.esl\" file\n"
+
+    echo -e "$ECMASLC" | sed '$d'
+
+    exit 2
+  fi
+
 
   if [ ${#dDirs[@]} -ne 0 ]; then
     processDirectories ${dDirs[@]}
