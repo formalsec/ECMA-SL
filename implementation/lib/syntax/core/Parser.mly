@@ -57,7 +57,7 @@
 %type <Func.t > proc_target
 %type <Func.t list> prog_target
 
-%start prog_target
+%start prog_target proc_target
 %% (* separator line *)
 (* END first section - declarations *)
 

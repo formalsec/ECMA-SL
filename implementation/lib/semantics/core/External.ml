@@ -15,8 +15,7 @@ let parseJS
   let command = Printf.sprintf "node ../JS2ECMA-SL/src/index.js -i %s -o %s -n %s" aux_input_file aux_output_file func_id in
   let _ = Sys.command command in
   let parsed_str = Parsing_Utils.load_file aux_output_file in
-  let efunc = Parsing_Utils.parse_e_func parsed_str in
-  let func = Compiler.compile_func efunc in
+  let func = Parsing_Utils.parse_func parsed_str in
   Prog.add_func prog func_id func;
   Val.Str func_id
 
