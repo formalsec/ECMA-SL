@@ -127,10 +127,10 @@ function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
   log_fo := CreateBuiltInFunctionObject(["x"], "MathLog", globalObject, strict, null);
   createBuiltInProperty(mathObject, "log", log_fo);
   /* 15.8.2.11 max ( [ value1 [ , value2 [ , ... ] ] ] ) */
-  max_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathMax", globalObject, strict, 0);
+  max_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathMax", globalObject, strict, 0.);
   createBuiltInProperty(mathObject, "max", max_fo);
   /* 15.8.2.12 min ( [ value1 [ , value2 [ , ... ] ] ] ) */
-  min_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathMin", globalObject, strict, 0);
+  min_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathMin", globalObject, strict, 0.);
   createBuiltInProperty(mathObject, "min", min_fo);
   /* 15.8.2.13 pow (x, y) */
   pow_fo := CreateBuiltInFunctionObject(["x", "y"], "MathPow", globalObject, strict, null);

@@ -69,13 +69,20 @@ function translateObject(obj) {
   const newObjStmt = new Assign(varExpr, new NewObj());
 
   const objStmts = Object.keys(obj)
-    .map((prop) => ({ prop: translateString(prop), value: traverseAndTranslate(obj[prop]) }))
+    .map((prop) => ({
+      prop: translateString(prop),
+      value: traverseAndTranslate(obj[prop]),
+    }))
     .reduce(
       (acc, propValue) =>
         acc
           .concat(propValue.value.statements)
           .concat(
-            new FieldAssign(varExpr, propValue.prop.expression, propValue.value.expression)
+            new FieldAssign(
+              varExpr,
+              propValue.prop.expression,
+              propValue.value.expression
+            )
           ),
       [newObjStmt]
     );
@@ -122,7 +129,7 @@ function traverseAndTranslate(value) {
 function fromJSObjectToESLStatements(objProg = {}) {
   const { expression, statements } = traverseAndTranslate(objProg);
 
-  return statements.concat(new Return(expression));
+  return statements.concat(createReturnStmt(expression));
 }
 
 function fromESLStatementsToESLFunction(
@@ -131,6 +138,18 @@ function fromESLStatementsToESLFunction(
   statements = []
 ) {
   return new Function(name, params, new Block(statements));
+}
+
+function createReturnStmt(expression) {
+  // This returning pair complies with the return statement that is expected by the Core Interpreter.
+  // The first element of the pair indicates that the returning expression (second element of the pair)
+  // is not part of a thrown exception.
+  const return_pair = new NOpt(new NOpt.TupleExpr(), [
+    new ValExpr(new Val(new PrimitiveVal(false))),
+    expression,
+  ]);
+
+  return new Return(return_pair);
 }
 
 module.exports = {

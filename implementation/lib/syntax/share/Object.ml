@@ -1,6 +1,6 @@
 type t = (Field.t, Val.t) Hashtbl.t
 
-let create () : t = Hashtbl.create 511
+let create () : t = Hashtbl.create Common.default_hashtable_size
 
 let get (obj : t) (f : Field.t) : Val.t option = Hashtbl.find_opt obj f
 

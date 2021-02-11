@@ -100,7 +100,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   };
 
   if (n = null) {
-    setInternalProperty(F, "internalLength", len)
+    setInternalProperty(F, "internalLength", int_to_float len)
   } else {
     setInternalProperty(F, "internalLength", n)
   };
@@ -222,7 +222,7 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
   setInternalProperty(F, "Extensible", false);
   /* 11. Let [[ThrowTypeError]] be F. */
 
-  setInternalProperty(F, "internalLength", 0);
+  setInternalProperty(F, "internalLength", 0.);
 
   return F
 };
@@ -236,14 +236,15 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
    undefined value. */
 function completeArgs(args, functionObject) {
   lParams := getInternalProperty(functionObject, "internalLength");
-  if (l_len args >= lParams) {
+  lArgs := int_to_float (l_len args);
+  if (lArgs >= lParams) {
     return args
   };
-  i := lParams - l_len args;
+  i := lParams - lArgs;
   aux := [];
-  while(i > 0) {
+  while(i > 0.) {
     aux := l_prepend('undefined, aux);
-    i := i - 1
+    i := i - 1.
   };
 
   return l_concat (args, aux)

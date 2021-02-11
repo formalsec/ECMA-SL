@@ -98,7 +98,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
      the function to be 1, but if we did not have the `internalLength` to be 0, then
      'undefined would be passed to items when no parameter is provided to `concat`, and
      this is not desired for optional parameters. */
-  concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict, 0);
+  concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(concatObject, true, false, true);
   setJSProperty(prototype, "concat", descriptor);
 
@@ -113,7 +113,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "pop", descriptor);
 
   /* 15.4.4.7 Array.prototype.push ( [ item1 [ , item2 [ , ... ] ] ] ) */
-  pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict, 0);
+  pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(pushObject, true, false, true);
   setJSProperty(prototype, "push", descriptor);
 
@@ -143,7 +143,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "splice", descriptor);
 
   /* 15.4.4.13 Array.prototype.unshift ( [ item1 [ , item2 [ , ... ] ] ] ) */
-  unshiftObject := CreateBuiltInFunctionObject(["items"], "arrayUnshift", global, strict, 0);
+  unshiftObject := CreateBuiltInFunctionObject(["items"], "arrayUnshift", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(unshiftObject, true, false, true);
   setJSProperty(prototype, "unshift", descriptor);
 
@@ -211,7 +211,7 @@ function getArrayPrototype(strict) {
 
 function initArrayObject(global, objectPrototype, strict) {
   objArrayPrototype := initArrayPrototype(global, objectPrototype, strict);
-  objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict, 0);
+  objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict, 0.);
 
   descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
   setJSProperty(objArrayPrototype, "constructor", descriptor);
