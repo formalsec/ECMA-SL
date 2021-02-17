@@ -15,7 +15,7 @@ BOLD='\e[1m'
 
 
 function usage {
-  echo -e "Usage: $(basename $0) [OPTION]... [-dfir]"
+  echo -e "Usage: $(basename $0) [OPTION]... [-dfirp]"
   echo -e '
   -d <dir>   Directory containing test files.
              All the tests available in the directory are executed.
@@ -23,11 +23,13 @@ function usage {
   -i <file>  File containing the list of files to test.
   -r <dir>   Directory containing test files and/or directories.
              If the directories contain other directories, all the tests available in those directories are also executed.
+  -p <dir>   Same as "-r" but using the pre-generated ASTs for the test files available in the directory passed as argument.
 
   Options:
   -E         Enable logging to file the tests executed with errors. File is "errors.log"
   -F         Enable logging to file the failed tests. File is "failures.log"
-  -O         Enable logging to file the passed tests. File is "oks.log"'
+  -O         Enable logging to file the passed tests. File is "oks.log"
+  -H         Consider harness file during execution with pre-generated ASTs.'
   exit 1
 }
 
@@ -77,23 +79,34 @@ function logStatusToFiles() {
   fi
 }
 
-# Checks:
-# - file is a valid ES5 test (search for the key "es5id" in the frontmatter)
-# - file doesn't use the built-in eval function
-# - file is not a negative test (search for the key "negative" in the frontmatter)
 function checkConstraints() {
   FILENAME=$1
 
   METADATA=$2
-  # check if it's a negative test
-  if [[ $(echo -e "$METADATA" | awk '/negative:/ {print $2}') != "" ]]; then
-    printf "${BOLD}${YELLOW}${BLINK2}${INV}NOT EXECUTED: negative test${NC}\n"
-
-    checkConstraints_return="${FILENAME} | **NOT EXECUTED** | ${isnegative}"
-    return 1
-  fi
+  # in case it's a negative test, save its expected error name in a variable to be used later.
+  NEGATIVE=$(echo -e "$METADATA" | awk '/negative:/ {print $2}')
 
   return 0
+}
+
+
+function createMain262JSFile() {
+  # echo "3.1. Copy contents to temporary file"
+  cat /dev/null > "output/main262_$now.js"
+  # Check if test is to run in strict code mode.
+  if [[ $(echo -e "$2" | awk '/flags: \[onlyStrict\]/ {print $1}') != "" ]]; then
+    echo "\"use strict\";" >> "output/main262_$now.js"
+  fi
+  # Only include harness file if not using pre-compiled ASTs or
+  # if using pre-compiled ASTs they do not include the harness
+  if [[ $WITH_PRE_COMPILED -ne 1 || $WITH_HARNESS -ne 1 ]]; then
+    cat "test/test262/environment/harness.js" >> "output/main262_$now.js"
+  fi
+  cat "$1" >> "output/main262_$now.js"
+
+  if [ $? -ne 0 ]; then
+    exit 1
+  fi
 }
 
 function handleSingleFile() {
@@ -107,91 +120,84 @@ function handleSingleFile() {
 
   checkConstraints $FILENAME "$METADATA"
 
-  if [[ $? -ne 0 ]]; then
-    # increment number of tests not executed
-    incNotExecuted
-
-    test_result=("$checkConstraints_return")
-    return
-  fi
-
-  #echo "3.1. Copy contents to temporary file"
-  cat /dev/null > "output/main262_$now.js"
-  if [[ $(echo -e "$METADATA" | awk '/flags: \[onlyStrict\]/ {print $1}') != "" ]]; then
-    echo "\"use strict\";" >> "output/main262_$now.js"
-  fi
-  cat "test/test262/environment/harness.js" >> "output/main262_$now.js"
-  cat "${FILENAME}" >> "output/main262_$now.js"
-
-  if [ $? -ne 0 ]; then
-    exit 1
-  fi
-
-  start_timer
-
-  #echo "3.2. Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program"
-  JS2ECMASL=$(node ../JS2ECMA-SL/src/index.js -i output/main262_$now.js -o output/test262_ast_$now.esl 2>&1)
-
-  stop_timer
-  set_duration_str
-  ast_duration_str=$duration_str
-
-  if [[ "${JS2ECMASL}" != "The file has been saved!" ]]; then
-    printf "${BOLD}${RED}${INV}ERROR${NC}\n"
-
-    # increment number of tests with error
-    incError
-
-    if [ $LOG_ERRORS -eq 1 ]; then
-      log_errors_arr+=("$FILENAME")
+  if [ $WITH_PRE_COMPILED -eq 1 ]; then # Copy pre-compiled AST file contents to target file.
+    if [ $WITH_HARNESS -eq 1 ]; then
+      cp "$OUTPUT_FOLDER_WITH_HARNESS$FILENAME.esl" "output/test262_ast_$now.esl"
+    else
+      cp "$OUTPUT_FOLDER$FILENAME.esl" "output/test262_ast_$now.esl"
     fi
+  else
+    # Copy contents to temporary file
+    createMain262JSFile $FILENAME "$METADATA"
 
-    ERROR_MESSAGE=$(echo -e "$JS2ECMASL" | head -n 1)
+    # Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program
+    JS2ECMASL=$(time (node ../JS2ECMA-SL/src/index.js -i output/main262_$now.js -o output/test262_ast_$now.esl) 2>&1 1>&1)
 
-    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "$ast_duration_str" "" "")
-    return
+    ast_duration_str=$(echo "$JS2ECMASL" | sed '$!d')
+
+    # The asterisk is to ignore the timing statistics appended by the "time" command
+    if [[ "$JS2ECMASL" != "The file has been saved!"* ]]; then
+      printf "${BOLD}${RED}${INV}ERROR${NC}\n"
+
+      # increment number of tests with error
+      incError
+
+      if [ $LOG_ERRORS -eq 1 ]; then
+        log_errors_arr+=("$FILENAME")
+      fi
+
+      ERROR_MESSAGE=$(echo -e "$JS2ECMASL" | head -n 1)
+
+      test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "$ast_duration_str" "" "")
+      return
+    fi
   fi
 
-  start_timer
+  # Create the Core file by concatenating the AST and Interpreter Core version files."
+  cat "output/test262_ast_$now.esl" > "output/core_$now.esl"
+  echo ";" >> "output/core_$now.esl"
+  cat "output/interpreter_$now.esl" >> "output/core_$now.esl"
 
-  #echo "3.4. Compile program written in \"Plus\" to \"Core\""
-  ECMASLC=$(./main.native -mode c -i output/test262_$now.esl -o output/core_$now.esl 2>&1)
+  # Evaluate program and write the computed heap to the file heap.json."
+  local toggle_silent_mode=""
+  [ $LOG_ENTIRE_EVAL_OUTPUT -eq 0 ] && toggle_silent_mode="-s"
+  ECMASLCI=$(time (./main.native -mode ci -i output/core_$now.esl $toggle_silent_mode) 2>&1 1>&1)
 
   local EXIT_CODE=$?
 
-  stop_timer
-  set_duration_str
-  plus2core_duration_str=$duration_str
+  duration_str=$(echo "$ECMASLCI" | sed '$!d')
+  # Remove timing statistics appended by the "time" command
+  ECMASLCI=$(echo "$ECMASLCI" | sed '$d')
 
-  if [ $EXIT_CODE -ne 0 ]; then
-    printf "${BOLD}${RED}${INV}ERROR${NC}\n"
+  # In case of a negative test, we're expecting to have a failure in the interpretation
+  if [ -n "$NEGATIVE" ]; then
+    # the "print substr" part of the piped awk command is to remove the double-quotes present in the string we're extracting
+    local completion_value=$(echo -e "$ECMASLCI" | tail -n 10 | awk -F ", " '/MAIN pc ->/ {print substr($3, 2, length($3)-2)}')
+    if [[ $NEGATIVE == $completion_value ]]; then
+      printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
 
-    # increment number of tests with error
-    incError
+      # increment number of tests successfully executed
+      incOk
 
-    if [ $LOG_ERRORS -eq 1 ]; then
-      log_errors_arr+=("$FILENAME")
+      if [ $LOG_OKS -eq 1 ]; then
+        log_oks_arr+=("$FILENAME")
+      fi
+
+      test_result=("$FILENAME" "_OK_" "" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
+    else
+      printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC}\n"
+
+      # increment number of tests failed
+      incFail
+
+      if [ $LOG_FAILURES -eq 1 ]; then
+        log_failures_arr+=("$FILENAME")
+      fi
+
+      test_result=("$FILENAME" "**FAIL**" "$RESULT" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
     fi
-
-    ERROR_MESSAGE=$(echo -e "$ECMASLC" | tail -n 1)
-
-    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "$ast_duration_str" "$plus2core_duration_str" "")
-    return
-  fi
-
-  # Record duration of the program interpretation
-  start_timer
-
-  #echo "3.5. Evaluate program and write the computed heap to the file heap.json."
-  ECMASLCI=$(./main.native -mode ci -i output/core_$now.esl 2>&1)
-
-  local EXIT_CODE=$?
-
-  stop_timer
-  # Calc duration
-  set_duration_str
-
-  if [ $EXIT_CODE -eq 0 ]; then
+    break
+  elif [ $EXIT_CODE -eq 0 ]; then
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
 
     # increment number of tests successfully executed
@@ -423,6 +429,16 @@ function processDirectories() {
   logStatusToFiles
 }
 
+function processFromPreCompiled() {
+  local dirs=($@)
+  RECURSIVE=1
+  WITH_PRE_COMPILED=1
+
+  handleDirectories $OUTPUT_FILE ${dirs[@]}
+
+  logStatusToFiles
+}
+
 #
 # BEGIN
 #
@@ -448,12 +464,16 @@ declare -i dir_fail_tests=0
 declare -i dir_error_tests=0
 declare -i dir_not_executed_tests=0
 
-declare checkConstraints_return=""
+declare NEGATIVE=""
 declare -a results=()
 declare -a files_results=()
 declare -a test_result=()
 
 declare -i RECURSIVE=0
+declare -i WITH_PRE_COMPILED=0
+declare -i WITH_HARNESS=0
+declare OUTPUT_FOLDER="generated_ASTs/"
+declare OUTPUT_FOLDER_WITH_HARNESS=$OUTPUT_FOLDER"with_harness/"
 declare -r OUTPUT_FILE="logs/results_$now.md"
 
 declare -i LOG_ENTIRE_EVAL_OUTPUT=0
@@ -480,24 +500,9 @@ if [ ! -d "output" ]; then
 fi
 
 
-#echo "1. Create the file that will be compiled from \"Plus\" to \"Core\" in step 3.4."
-echo "import \"output/test262_ast_$now.esl\";" > "output/test262_$now.esl"
-echo "import \"ES5_interpreter/ESL_Interpreter.esl\";" >> "output/test262_$now.esl"
-echo "function main() {
-  x := buildAST();
-  ret := JS_Interpreter_Program(x, null);
-  return ret
-}" >> "output/test262_$now.esl"
-
-
-#echo "2. Compile the ECMA-SL language"
+#echo "1. Compile the ECMA-SL language"
 # OCAMLMAKE=$(make)
 make
-
-#echo "3. Install JS2ECMA-SL dependencies"
-cd ../JS2ECMA-SL
-npm install > /dev/null 2>&1
-cd ../implementation
 
 if [ $? -ne 0 ]
 then
@@ -505,25 +510,33 @@ then
   exit 1
 fi
 
+#echo "2. Install JS2ECMA-SL dependencies"
+cd ../JS2ECMA-SL
+npm install
+cd ../implementation
+
 echo ""
 
 # Define list of arguments expected in the input
-optstring=":EFOd:f:i:r:"
+optstring=":EFOHd:f:i:r:p:"
 
 declare -a dDirs=() # Array that will contain the directories to use with the arg "-d"
 declare -a fFiles=() # Array that will contain the files to use with the arg "-f"
 declare -a iFiles=() # Array that will contain the files to use with the arg "-i"
 declare -a rDirs=() # Array that will contain the directories to use with the arg "-r"
+declare -a preCompiledDirs=() # Array that will contain the directories to use with the arg "-p"
 
 while getopts ${optstring} arg; do
   case $arg in
     E) LOG_ERRORS=1 ;;
     F) LOG_FAILURES=1 ;;
     O) LOG_OKS=1 ;;
+    H) WITH_HARNESS=1 ;;
     d) dDirs+=("$OPTARG") ;;
     f) fFiles+=("$OPTARG") ;;
     i) iFiles+=("$OPTARG") ;;
     r) rDirs+=("$OPTARG") ;;
+    p) preCompiledDirs+=("$OPTARG");;
 
     ?)
       echo "Invalid option: -${OPTARG}."
@@ -533,25 +546,56 @@ while getopts ${optstring} arg; do
   esac
 done
 
-# Record duration
-declare -i startTime=$(date +%s%N)
+function process() {
+  # Environment variable used by the "time" tool
+  TIMEFORMAT='%3lR'
 
-if [ ${#dDirs[@]} -ne 0 ]; then
-  processDirectories ${dDirs[@]}
-fi
 
-if [ ${#fFiles[@]} -ne 0 ]; then
-  handleFiles $OUTPUT_FILE ${fFiles[@]}
-fi
+  #echo "3. Create the file that will be compiled from \"Plus\" to \"Core\" in step 3.4."
+  sed '1d' "ES5_interpreter/plus.esl" >> "output/test262_$now.esl"
 
-if [ ${#iFiles[@]} -ne 0 ]; then
-  processFromInputFile ${iFiles[@]}
-fi
+  # Compile program written in \"Plus\" to \"Core\
+  ECMASLC=$(time (./main.native -mode c -i output/test262_$now.esl -o output/interpreter_$now.esl) 2>&1 1>/dev/null)
 
-if [ ${#rDirs[@]} -ne 0 ]; then
-  processRecursively ${rDirs[@]}
-fi
+  EXIT_CODE=$?
 
+  plus2core_duration_str=$(echo "$ECMASLC" | sed '$!d')
+
+  if [ $EXIT_CODE -ne 0 ]; then
+    printf "${BOLD}${RED}${INV}ERROR${NC} during compilation of the \"ES5_interpreter/plus.esl\" file\n"
+
+    echo -e "$ECMASLC" | sed '$d'
+
+    exit 2
+  fi
+
+
+  if [ ${#dDirs[@]} -ne 0 ]; then
+    processDirectories ${dDirs[@]}
+  fi
+
+  if [ ${#fFiles[@]} -ne 0 ]; then
+    handleFiles $OUTPUT_FILE ${fFiles[@]}
+  fi
+
+  if [ ${#iFiles[@]} -ne 0 ]; then
+    processFromInputFile ${iFiles[@]}
+  fi
+
+  if [ ${#rDirs[@]} -ne 0 ]; then
+    processRecursively ${rDirs[@]}
+  fi
+
+  if [ ${#preCompiledDirs[@]} -ne 0 ]; then
+    processFromPreCompiled ${preCompiledDirs[@]}
+  fi
+
+  # To make sure that the final time statistics are printed
+  # differently when compared to those printed in inner executions.
+  TIMEFORMAT='Executed in %3lR'
+}
+
+time process
 
 printf "\n${BOLD}SUMMARY:${NC}\n\n"
 printf "OK: $ok_tests    "
@@ -560,8 +604,3 @@ printf "ERROR: $error_tests    "
 printf "NOT EXECUTED: $not_executed_tests    "
 printf "Total: $total_tests\n"
 
-declare -i endTime=$(date +%s%N)
-declare -i duration=$((endTime-startTime))
-echo ""
-# The amount of zeros is necessary because we're dealing with seconds and nanoseconds
-echo $duration | awk '{printf "Execution duration: %02dh:%02dm:%06.3fs\n", $0/3600000000000, $0%3600000000000/60000000000, $0/1000000000%60}'

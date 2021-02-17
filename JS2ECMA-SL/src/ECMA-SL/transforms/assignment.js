@@ -10,7 +10,7 @@ module.exports = {
     }
     if (
       obj.left.type === "MemberExpression" &&
-      obj.left.property.name === "__proto__"
+      obj.left.property.name === "__ecmasl_proto__"
     ) {
       return {
         type: "ProtoAssignment",

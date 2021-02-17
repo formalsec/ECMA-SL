@@ -38,6 +38,7 @@ _opam/
 .DS_Store
 .vscode
 
-results/
-logs/
-output/
+implementation/results/
+implementation/logs/
+implementation/output/
+implementation/generated_ASTs/with_harness/

@@ -406,7 +406,7 @@ function internalNewDateWithoutValue(datePrototypeObject) {
 /* 15.9.4 Properties of the Date Constructor */
 function initDateConstructor(DatePrototype, globalObject, strict) {
   /* The value of the [[Prototype]] internal property of the Date constructor is the Function prototype object (15.3.4). */
-  DateConstructor := CreateFunctionObject(["year", "month", "date", "hours", "minutes", "seconds", "ms"], "DateConstructor", globalObject, strict, 2);
+  DateConstructor := CreateFunctionObject(["year", "month", "date", "hours", "minutes", "seconds", "ms"], "DateConstructor", globalObject, strict, 2.);
 
   /* Besides the internal properties and the length property (whose value is 7), the Date constructor has the
      following properties: */
@@ -421,7 +421,7 @@ function initDateConstructor(DatePrototype, globalObject, strict) {
   createBuiltInProperty(DateConstructor, "parse", parse);
 
   /* 15.9.4.3 Date.UTC (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ) */
-  UTC := CreateBuiltInFunctionObject(["year", "month", "date", "hours", "minutes", "seconds", "ms"], "DateUTC", globalObject, strict, 2);
+  UTC := CreateBuiltInFunctionObject(["year", "month", "date", "hours", "minutes", "seconds", "ms"], "DateUTC", globalObject, strict, 2.);
   createBuiltInProperty(DateConstructor, "UTC", UTC);
 
   /* 15.9.4.4 Date.now ( ) */
@@ -667,7 +667,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
   /* 5. Return v. */
 
   /* 15.9.5.30 Date.prototype.setSeconds (sec [, ms ] ) */
-  setSeconds := CreateBuiltInFunctionObject(["sec", "ms"], "DatePrototypeSetSeconds", globalObject, strict, 1);
+  setSeconds := CreateBuiltInFunctionObject(["sec", "ms"], "DatePrototypeSetSeconds", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setSeconds", setSeconds);
   /* If ms is not specified, this behaves as if ms were specified with the value getMilliseconds(). */
   /* 1. Let t be the result of LocalTime(this time value). */
@@ -681,7 +681,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
   /* The length property of the setSeconds method is 2. */
 
   /* 15.9.5.31 Date.prototype.setUTCSeconds (sec [, ms ] ) */
-  setUTCSeconds := CreateBuiltInFunctionObject(["sec", "ms"], "DatePrototypeSetUTCSeconds", globalObject, strict, 1);
+  setUTCSeconds := CreateBuiltInFunctionObject(["sec", "ms"], "DatePrototypeSetUTCSeconds", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setUTCSeconds", setUTCSeconds);
   /* If ms is not specified, this behaves as if ms were specified with the value getUTCMilliseconds(). */
   /* 1. Let t be this time value. */
@@ -695,7 +695,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
   /* The length property of the setUTCSeconds method is 2. */
 
   /* 15.9.5.32 Date.prototype.setMinutes (min [, sec [, ms ] ] ) */
-  setMinutes := CreateBuiltInFunctionObject(["min", "sec", "ms"], "DatePrototypeSetMinutes", globalObject, strict, 1);
+  setMinutes := CreateBuiltInFunctionObject(["min", "sec", "ms"], "DatePrototypeSetMinutes", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setMinutes", setMinutes);
   /* If sec is not specified, this behaves as if sec were specified with the value getSeconds(). */
   /* If ms is not specified, this behaves as if ms were specified with the value getMilliseconds(). */
@@ -711,7 +711,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
   /* The length property of the setMinutes method is 3. */
 
   /* 15.9.5.33 Date.prototype.setUTCMinutes (min [, sec [, ms ] ] ) */
-  setUTCMinutes := CreateBuiltInFunctionObject(["min", "sec", "ms"], "DatePrototypeSetUTCMinutes", globalObject, strict, 1);
+  setUTCMinutes := CreateBuiltInFunctionObject(["min", "sec", "ms"], "DatePrototypeSetUTCMinutes", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setUTCMinutes", setUTCMinutes);
   /* If sec is not specified, this behaves as if sec were specified with the value getUTCSeconds(). */
   /* If ms is not specified, this function behaves as if ms were specified with the value return by
@@ -728,7 +728,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
   /* The length property of the setUTCMinutes method is 3. */
 
   /* 15.9.5.34 Date.prototype.setHours (hour [, min [, sec [, ms ] ] ] ) */
-  setHours := CreateBuiltInFunctionObject(["hour", "min", "sec", "ms"], "DatePrototypeSetHours", globalObject, strict, 1);
+  setHours := CreateBuiltInFunctionObject(["hour", "min", "sec", "ms"], "DatePrototypeSetHours", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setHours", setHours);
   /* If min is not specified, this behaves as if min were specified with the value getMinutes(). */
   /* If sec is not specified, this behaves as if sec were specified with the value getSeconds(). */
@@ -746,7 +746,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
   /* The length property of the setHours method is 4. */
 
   /* 15.9.5.35 Date.prototype.setUTCHours (hour [, min [, sec [, ms ] ] ] ) */
-  setUTCHours := CreateBuiltInFunctionObject(["hour", "min", "sec", "ms"], "DatePrototypeSetUTCHours", globalObject, strict, 1);
+  setUTCHours := CreateBuiltInFunctionObject(["hour", "min", "sec", "ms"], "DatePrototypeSetUTCHours", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setUTCHours", setUTCHours);
   /* If min is not specified, this behaves as if min were specified with the value getUTCMinutes(). */
   /* If sec is not specified, this behaves as if sec were specified with the value getUTCSeconds(). */
@@ -784,7 +784,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
   /* 6. Return v. */
 
   /* 15.9.5.38 Date.prototype.setMonth (month [, date ] ) */
-  setMonth := CreateBuiltInFunctionObject(["month", "date"], "DatePrototypeSetMonth", globalObject, strict, 1);
+  setMonth := CreateBuiltInFunctionObject(["month", "date"], "DatePrototypeSetMonth", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setMonth", setMonth);
   /* If date is not specified, this behaves as if date were specified with the value getDate(). */
   /* 1. Let t be the result of LocalTime(this time value). */
@@ -798,7 +798,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
   /* The length property of the setMonth method is 2. */
 
   /* 15.9.5.39 Date.prototype.setUTCMonth (month [, date ] ) */
-  setUTCMonth := CreateBuiltInFunctionObject(["month", "date"], "DatePrototypeS-etUTCMonth", globalObject, strict, 1);
+  setUTCMonth := CreateBuiltInFunctionObject(["month", "date"], "DatePrototypeS-etUTCMonth", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setUTCMonth", setUTCMonth);
   /* If date is not specified, this behaves as if date were specified with the value getUTCDate(). */
   /* 1. Let t be this time value. */
@@ -812,7 +812,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
   /* The length property of the setUTCMonth method is 2. */
 
   /* 15.9.5.40 Date.prototype.setFullYear (year [, month [, date ] ] ) */
-  setFullYear := CreateBuiltInFunctionObject(["year", "month", "date"], "DatePrototypeSetFullYear", globalObject, strict, 1);
+  setFullYear := CreateBuiltInFunctionObject(["year", "month", "date"], "DatePrototypeSetFullYear", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setFullYear", setFullYear);
   /* If month is not specified, this behaves as if month were specified with the value getMonth(). */
   /* If date is not specified, this behaves as if date were specified with the value getDate(). */
@@ -828,7 +828,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
   /* The length property of the setFullYear method is 3. */
 
   /* 15.9.5.41 Date.prototype.setUTCFullYear (year [, month [, date ] ] ) */
-  setUTCFullYear := CreateBuiltInFunctionObject(["year", "month", "date"], "DatePrototypeSetUTCFullYear", globalObject, strict, 1);
+  setUTCFullYear := CreateBuiltInFunctionObject(["year", "month", "date"], "DatePrototypeSetUTCFullYear", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setUTCFullYear", setUTCFullYear);
   /* If month is not specified, this behaves as if month were specified with the value getUTCMonth(). */
   /* If date is not specified, this behaves as if date were specified with the value getUTCDate(). */
@@ -863,7 +863,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
      RangeError exception is thrown. */
 
   /* 15.9.5.44 Date.prototype.toJSON ( key ) */
-  toJSON := CreateBuiltInFunctionObject([], "DatePrototypeToJSON", globalObject, strict, null);
+  toJSON := CreateBuiltInFunctionObject(["key"], "DatePrototypeToJSON", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toJSON", toJSON);
   /* This function provides a String representation of a Date object for use by JSON.stringify (15.12.3). */
   /* When the toJSON method is called with argument key, the following steps are taken: */

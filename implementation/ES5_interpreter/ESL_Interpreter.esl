@@ -11,6 +11,12 @@ function JS_Interpreter_Program(p, callingExecCtx) {
     result := JS_Interpreter_SourceElements(SourceElementsopt, callingExecCtx);
     return result
   }
+  | { sourceType: "script", type: "EarlySyntaxError", codeType: "eval", message: message } -> {
+    if (message = "Invalid left-hand side in assignment") {
+      return throwEmptyCompletion(ReferenceErrorConstructorInternal())
+    };
+    return throwEmptyCompletion(SyntaxErrorConstructorInternal())
+  }
   | { sourceType: "script", type: "Program", body: SourceElementsopt, strict: strict } -> {
     /* The production Program : SourceElements opt is evaluated as follows: */
 
@@ -34,6 +40,7 @@ function JS_Interpreter_Program(p, callingExecCtx) {
     return result
   }
   | { sourceType: "script", type: "EarlySyntaxError", message: message } -> {
+    EnteringGlobalCode(p);
     if (message = "Invalid left-hand side in assignment") {
       return throwEmptyCompletion(ReferenceErrorConstructorInternal())
     };
@@ -106,7 +113,7 @@ function JS_Interpreter_Expr(e, scope) {
       };
       i := i + 1
     };
-    descriptor := newDataPropertyDescriptorFull(int_to_float i, true, false, false);
+    descriptor := newDataPropertyDescriptorFull(ToUint32(int_to_float i), true, false, false);
     {array.DefineOwnProperty}(array, "length", descriptor, false);
 
     return array

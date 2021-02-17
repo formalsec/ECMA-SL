@@ -48,6 +48,7 @@ type uopt = Neg
           | First
           | Second
           | LRemoveLast
+          | LSort
           | IntToFloat
           | IntToString
           | IntToFourHex
@@ -77,7 +78,6 @@ type uopt = Neg
           | Floor
           | Log_e
           | Log_10
-          | Round
           | Random
           | Sin
           | Sqrt
@@ -97,8 +97,7 @@ let neg (v : Val.t) : Val.t = match v with
 
 let not (v : Val.t) : Val.t = match v with
   | Bool v -> Bool (v = false)
-  | _      -> Printf.printf "%s" (Val.str v);
-              invalid_arg "Exception in Oper.not: this operation is only applicable to a boolean type argument"
+  | _      -> invalid_arg "Exception in Oper.not: this operation is only applicable to a boolean type argument"
 
 let bitwise_not (v : Val.t) : Val.t = match v with
   | Flt f -> Flt (Arith_Utils.int32_bitwise_not f)
@@ -240,6 +239,21 @@ let list_remove_last (v : Val.t) : Val.t = match v with
     | _ -> List [])
 | _       -> invalid_arg "Exception in Oper.list_remove_last: this operation is only applicable to List arguments"
 
+let list_sort (v : Val.t) : Val.t = match v with
+  | List l ->
+    let strs =
+      List.fold_left
+        (fun acc v ->
+           match acc, v with
+           | Some strs, Val.Str s -> Some (strs @ [s])
+           | _                    -> None)
+        (Some [])
+        l in
+    (match strs with
+     | None      -> invalid_arg "Exception in Oper.list_sort: this operation is only applicable to List of string arguments"
+     | Some strs -> List (List.map (fun s -> Val.Str s) (List.fast_sort (String.compare) strs)))
+  | _      -> invalid_arg "Exception in Oper.list_sort: this operation is only applicable to List arguments"
+
 let first (v : Val.t) : Val.t = match v with
   | Tuple t -> List.hd t
   | _       -> invalid_arg "Exception in Oper.first: this operation is only applicable to Tuple arguments"
@@ -367,6 +381,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | First         -> "fst"
   | Second        -> "snd"
   | LRemoveLast   -> "l_remove_last"
+  | LSort         -> "l_sort"
   | IntToFloat    -> "int_to_float"
   | IntToString   -> "int_to_string"
   | IntToFourHex  -> "int_to_four_hex"
@@ -396,7 +411,6 @@ let str_of_unopt (op : uopt) : string = match op with
   | Floor         -> "floor"
   | Log_e         -> "log_e"
   | Log_10        -> "log_10"
-  | Round         -> "round"
   | Random        -> "random"
   | Sin           -> "sin"
   | Sqrt          -> "sqrt"
@@ -465,7 +479,6 @@ let apply_uopt_oper (oper : uopt) (v : Val.t) : Val.t = match oper with
   | Floor  -> unary_float_call Float.floor v  "Floor"
   | Log_e  -> unary_float_call Float.log v    "Natural logarithm"
   | Log_10 -> unary_float_call Float.log10 v  "Base-10 logarithm"
-  | Round  -> unary_float_call Float.round v  "Round"
   | Random -> unary_float_call Random.float v "Random"
   | Sin    -> unary_float_call Float.sin v    "Sine"
   | Sqrt   -> unary_float_call Float.sqrt v   "Square root"
@@ -544,6 +557,7 @@ let uopt_to_json (op : uopt) : string =
      | First         -> Printf.sprintf "First\" }"
      | Second        -> Printf.sprintf "Second\" }"
      | LRemoveLast   -> Printf.sprintf "LRemoveLast\" }"
+     | LSort         -> Printf.sprintf "LSort\" }"
      | IntToFloat    -> Printf.sprintf "IntToFloat\" }"
      | IntToString   -> Printf.sprintf "IntToString\" }"
      | IntToFourHex  -> Printf.sprintf "IntToFourHex\" }"
@@ -573,7 +587,6 @@ let uopt_to_json (op : uopt) : string =
      | Floor         -> Printf.sprintf "Floor\" }"
      | Log_e         -> Printf.sprintf "Log_e\" }"
      | Log_10        -> Printf.sprintf "Log_10\" }"
-     | Round         -> Printf.sprintf "Round\" }"
      | Random        -> Printf.sprintf "Random\" }"
      | Sin           -> Printf.sprintf "Sin\" }"
      | Sqrt          -> Printf.sprintf "Sqrt\" }"

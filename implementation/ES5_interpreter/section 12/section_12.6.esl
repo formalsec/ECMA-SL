@@ -18,7 +18,7 @@ function getEnumerablePropertiesRecursive(object, enumProps, checkedProps) {
   };
   if ("JSProperties" in_obj object) {
     namedPropertiesObj := object.JSProperties;
-    list := obj_fields namedPropertiesObj;
+    list := l_sort (obj_fields namedPropertiesObj);
     llist := l_len list;
 
     i := 0;

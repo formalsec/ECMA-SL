@@ -21,8 +21,8 @@ let create (imports : string list) (funcs : E_Func.t list) (macros : E_Macro.t l
   let prog = {
     file_name = "temporary name";
     imports;
-    funcs = Hashtbl.create 511;
-    macros = Hashtbl.create 511
+    funcs = Hashtbl.create Common.default_hashtable_size;
+    macros = Hashtbl.create Common.default_hashtable_size
   } in
   add_funcs prog funcs;
   add_macros prog macros;
@@ -53,17 +53,16 @@ let str (prog : t) : string =
   (String.concat " " (List.map (fun i -> "import " ^ i) prog.imports)) ^
   Hashtbl.fold (fun n v ac -> (if ac <> "" then ac ^ "\n" else ac) ^ (Printf.sprintf "(%s -> %s)" n (E_Func.str v))) prog.funcs ""
 
-let apply_macros (prog : t) : t = 
-  let new_funcs = 
-    Hashtbl.fold 
+let apply_macros (prog : t) : t =
+  let new_funcs =
+    Hashtbl.fold
       (fun _ f ac -> (E_Func.apply_macros f (Hashtbl.find_opt prog.macros))::ac)
       prog.funcs
-      [] in 
-  create prog.imports new_funcs [] 
+      [] in
+  create prog.imports new_funcs []
 
-let lambdas (p : t) : (string * string list * string list * E_Stmt.t) list =  
-  Hashtbl.fold 
+let lambdas (p : t) : (string * string list * string list * E_Stmt.t) list =
+  Hashtbl.fold
     (fun _ f ac -> (E_Func.lambdas f) @ ac)
-    p.funcs 
+    p.funcs
     []
- 

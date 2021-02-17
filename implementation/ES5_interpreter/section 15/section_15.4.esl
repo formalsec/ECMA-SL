@@ -98,7 +98,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
      the function to be 1, but if we did not have the `internalLength` to be 0, then
      'undefined would be passed to items when no parameter is provided to `concat`, and
      this is not desired for optional parameters. */
-  concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict, 0);
+  concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(concatObject, true, false, true);
   setJSProperty(prototype, "concat", descriptor);
 
@@ -113,7 +113,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "pop", descriptor);
 
   /* 15.4.4.7 Array.prototype.push ( [ item1 [ , item2 [ , ... ] ] ] ) */
-  pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict, 0);
+  pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(pushObject, true, false, true);
   setJSProperty(prototype, "push", descriptor);
 
@@ -143,7 +143,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "splice", descriptor);
 
   /* 15.4.4.13 Array.prototype.unshift ( [ item1 [ , item2 [ , ... ] ] ] ) */
-  unshiftObject := CreateBuiltInFunctionObject(["items"], "arrayUnshift", global, strict, 0);
+  unshiftObject := CreateBuiltInFunctionObject(["items"], "arrayUnshift", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(unshiftObject, true, false, true);
   setJSProperty(prototype, "unshift", descriptor);
 
@@ -211,7 +211,7 @@ function getArrayPrototype(strict) {
 
 function initArrayObject(global, objectPrototype, strict) {
   objArrayPrototype := initArrayPrototype(global, objectPrototype, strict);
-  objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict, 0);
+  objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict, 0.);
 
   descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
   setJSProperty(objArrayPrototype, "constructor", descriptor);
@@ -292,7 +292,7 @@ function internalNewArray(arrayPrototype, items) {
   /* The length property of the newly constructed object is set to the
      number of arguments. */
   len := l_len items;
-  createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", int_to_float len, true, false, false);
+  createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", ToUint32(int_to_float len), true, false, false);
 
   /* The 0 property of the newly constructed object is set to item0
      (if supplied); the 1 property of the newly constructed object is set
@@ -1565,8 +1565,13 @@ function arrayIndexOf(global, this, strict, args) {
   };
   /* 7. If n ≥ 0, then */
   if (n >= 0.) {
-    /* a. Let k be n. */
-    k := n
+    /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
+    /* a. If n is -0, let k be +0; else let k be n. */
+    if (isMinusZero(n)) {
+      k := 0.
+    } else {
+      k := n
+    }
   } else {
   /* 8. Else, n<0 */
     /* a. Let k be len - abs(n). */
@@ -1654,7 +1659,13 @@ function arrayLastIndexOf(global, this, strict, args) {
   };
   /* 6. If n ≥ 0, then let k be min(n, len - 1). */
   if (n >= 0.) {
-    k := min(n, len - 1.)
+    /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
+    /* a. If n is -0, let k be +0; else let k be min(n, len - 1). */
+    if (isMinusZero(n)) {
+      k := 0.
+    } else {
+      k := min(n, len - 1.)
+    }
   }
   /* 7. Else, n < 0 */
   else {

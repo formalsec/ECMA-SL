@@ -36,7 +36,7 @@ let rec str (e : t) : string =
   | Curry (f, es)           -> Printf.sprintf "%s@(%s)" (str f) (str_es es)
 
 let make_subst (xs_es : (string * t) list) : subst_t =
-  let subst = Hashtbl.create 31 in
+  let subst = Hashtbl.create Common.default_hashtable_size in
   List.iter (fun (x, e) ->
     Hashtbl.replace subst x e
   ) xs_es;
