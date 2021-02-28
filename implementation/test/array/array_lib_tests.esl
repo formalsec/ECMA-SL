@@ -1,3 +1,9 @@
+/**
+ * Compile:
+ * ./main.native -i test/array_lib_tests.esl -mode c -o output.esl
+ * ./main.native -i output.esl -mode ci -h final_heap.json > output.log
+ */
+
 import "ES5_interpreter/ES5_Reference_Interpreter.esl"
 
 
