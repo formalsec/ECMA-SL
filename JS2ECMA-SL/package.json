@@ -13,6 +13,7 @@
   "dependencies": {
     "escodegen": "^2.0.0",
     "esprima": "^4.0.1",
+    "regexp-tree": "^0.1.23",
     "yargs": "^15.4.1"
   }
 }
