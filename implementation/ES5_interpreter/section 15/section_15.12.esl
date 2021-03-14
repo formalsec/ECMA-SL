@@ -20,6 +20,9 @@ function concatenateListStrElmsWithComma(list) {
   properties := "";
   while (j < pLen) {
     el := l_nth(list, j);
+    if (el = 'null) {
+      el := "null"
+    };
     properties := s_concat([properties, el]);
     if (j < (pLen - 1)) {
         properties := s_concat([properties, ","])
@@ -54,6 +57,8 @@ function initJsonObject(globalObject, ObjectPrototype, strict) {
   createBuiltInProperty(JsonObject, "parse", parse_fo);
 
   stringify_fo := CreateBuiltInFunctionObject(["value", "replacer", "space"], "jsonStringify", globalObject, strict, null);
+  setConfigurability(stringify_fo, "length", true);
+  createBuiltInPropertyWithFullDescriptor(stringify_fo, "name", "stringify", false, false, true);
   createBuiltInProperty(JsonObject, "stringify", stringify_fo);
 
   return JsonObject
@@ -82,17 +87,30 @@ function initJsonObject(globalObject, ObjectPrototype, strict) {
  * modified. If it returns undefined then the property is deleted from the result.
  */
 function jsonParse(global, this, strict, args) {
+  text := l_nth(args, 0);
+  /*reviver := getOptionalParam(args, 1); - not passing 'null*/
+  reviver := l_nth(args, 1);
+
   /* 1. Let JText be ToString(text). */
   JText := ToString(text);
   /* 2. Parse JText using the grammars in 15.12.1. Throw a SyntaxError exception
         if JText did not conform to the JSON grammar for the goal symbol JSONText. */
-  /* TODO */
+  JText := s_concat(["x=", JText]);
+  buildJSON := extern parseJS(JText, true);
+  program := {buildJSON}();
+  objJSON := l_nth(program.body, 0);
+  objJSON := objJSON.expression;
+  objJSON := objJSON.right;
+  /* TODO
+  throw SyntaxErrorConstructor(global, this, strict, ["JSON.parse"]);*/
+
   /* 3. Let unfiltered be the result of parsing and evaluating JText as if it
         was the source text of an ECMAScript Program but using JSONString in place
         of StringLiteral. Note that since JText conforms to the JSON grammar this
         result will be either a primitive value or an object that is defined by
         either an ArrayLiteral or an ObjectLiteral. */
-  /* TODO */
+  globalScope := InitialGlobalExecutionContext(|global|, program);
+  unfiltered := JS_Interpreter_Expr(objJSON, globalScope); /* throws EarlySyntaxError if not valid */
   /* 4. If IsCallable(reviver) is true, then */
   if (IsCallable(reviver) = true) {
     /* a. Let root be a new object created as if by the expression new Object(),
@@ -105,7 +123,7 @@ function jsonParse(global, this, strict, args) {
     {root.DefineOwnProperty}(root, "", descriptor, false);
     /* c. Return the result of calling the abstract operation Walk, passing root and
           the empty String. The abstract operation Walk is described below. */
-    return Walk(root, "")
+    return Walk(root, "", reviver)
   }
   /* 5. Else */
   else {
@@ -131,12 +149,12 @@ function jsonParse(global, this, strict, args) {
  * Walk uses the value of reviver that was originally passed to the above parse
  * function.
  */
-function Walk(holder, name) {
+function Walk(holder, name, reviver) {
   /* 1. Let val be the result of calling the [[Get]] internal method of
         holder with argument name. */
   val := {holder.Get}(holder, name);
   /* 2. If val is an object, then */
-  if (Type(arg) = "Object") { /* TODO */
+  if (Type(val) = "Object") { /* TODO */
     /* a. If the [[Class]] internal property of val is "Array" */
     if (val.Class = "Array") {
       /* i. Set I to 0. */
@@ -148,7 +166,7 @@ function Walk(holder, name) {
       while (I < len) {
         /* 1. Let newElement be the result of calling the abstract operation
               Walk, passing val and ToString(I). */
-        newElement := Walk(val, ToString(I));
+        newElement := Walk(val, ToString(I), reviver);
         /* 2. If newElement is undefined, then */
         if (newElement = 'undefined) {
           /* a. Call the [[Delete]] internal method of val with ToString(I)
@@ -175,11 +193,13 @@ function Walk(holder, name) {
             by the Object.keys standard built-in function. */
       keys := getOwnEnumerablePropertiesNames(val);
       /* ii. For each String P in keys do, */
-      index := 0.;
-      while(index < lnamedOwnProperties) {
+      keysLen := l_len keys;
+      index := 0;
+      while(index < keysLen) {
+        P := l_nth(keys, index);
         /* 1. Let newElement be the result of calling the abstract operation
               Walk, passing val and P. */
-        newElement := Walk(val, P);
+        newElement := Walk(val, P, reviver);
         /* 2. If newElement is undefined, then */
         if (newElement = 'undefined) {
           /* a. Call the [[Delete]] internal method of val with P and false
@@ -195,7 +215,7 @@ function Walk(holder, name) {
           descriptor := newDataPropertyDescriptorFull(newElement, true, true, true);
           {val.DefineOwnProperty}(val, P, descriptor, false)
         };
-        index := index + 1.
+        index := index + 1
       }
     }
   };
@@ -226,8 +246,12 @@ function Walk(holder, name) {
  */
 function jsonStringify(global, this, strict, args) {
   value := l_nth(args, 0);
-  replacer := l_nth(args, 1);
-  space := l_nth(args, 2);
+
+  replacer := getOptionalParam(args, 1);
+  space := getOptionalParam(args, 2);
+
+  /*replacer := l_nth(args, 1);
+  space := l_nth(args, 2);*/
 
   /* 1. Let stack be an empty List. */
   stack := [];
@@ -346,13 +370,8 @@ function jsonStringify(global, this, strict, args) {
          the empty String, the Property Descriptor {[[Value]]: value, [[Writable]]:
          true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
 
-  /* Todo - why doesn't this work? */
-  /*descriptor := newDataPropertyDescriptorFull(value, true, true, true);
-  {wrapper.DefineOwnProperty}(wrapper, "", descriptor, false);*/
-
-  refA := newPropertyReference(wrapper, "", false);
   descA := newDataPropertyDescriptorFull(value, true, true, true);
-  PutValue(refA, descA);
+  {wrapper.DefineOwnProperty}(wrapper, "", descA, false);
 
   /* 11. Return the result of calling the abstract operation Str with the empty
          String and wrapper. */
@@ -402,7 +421,12 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
   /* 1. Let value be the result of calling the [[Get]] internal method
         of holder with argument key. */
   value := {holder.Get}(holder, key);
-  value := value.Value;
+  print "holder: ";
+  print holder;
+  print "value1: ";
+  print value;
+  /*value := value.Value;*/
+  
   /* 2. If Type(value) is Object, then */
   if (Type(value) = "Object") {
     /* a. Let toJSON be the result of calling the [[Get]] internal
@@ -477,7 +501,7 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
     /* a. If the [[Class]] internal property of value is "Array" then */
     if (value.Class = "Array") {
       /* i. Return the result of calling the abstract operation JA with argument value. */
-      return JA(value, stack, indent, gap, space)
+      return JA(value, stack, indent, gap, PropertyList, space)
     }
     /* b. Else, return the result of calling the abstract operation JO with argument value. */
     else {
@@ -683,7 +707,7 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
  * stringification. An array is stringified as an open left bracket, elements
  * separated by comma, and a closing right bracket.
  */
-function JA(value, stack, indent, gap, space) {
+function JA(value, stack, indent, gap, PropertyList, space) {
   /* 1. If stack contains value then throw a TypeError exception because
         the structure is cyclical. */
   if (value in_list stack) {
