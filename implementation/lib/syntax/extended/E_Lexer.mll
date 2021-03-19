@@ -81,7 +81,9 @@
                 "default"         , DEFAULT;
                 "if"              , IF;
                 "else"            , ELSE;
+                "elif"            , ELIF;
                 "while"           , WHILE;
+                "foreach"         , FOREACH;
                 "return"          , RETURN;
                 "function"        , FUNCTION;
                 "macro"           , MACRO;
@@ -92,6 +94,7 @@
                 "match"           , MATCH;
                 "with"            , WITH;
                 "print"           , PRINT;
+                "gen_wrapper"     , WRAPPER;
                 "assert"          , ASSERT;
                 "switch"          , SWITCH;
                 "case"            , CASE;
