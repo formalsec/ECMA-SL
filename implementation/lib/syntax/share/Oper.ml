@@ -417,6 +417,39 @@ let str_of_unopt (op : uopt) : string = match op with
   | Tan           -> "tan"
 
 
+let str_of_binopt_single (op : bopt) : string = match op with
+  | Plus     -> "+"
+  | Minus    -> "-"
+  | Times    -> "*"
+  | Div      -> "/"
+  | Modulo   -> "%"
+  | Equal    -> "="
+  | Gt       -> ">"
+  | Lt       -> "<"
+  | Egt      -> ">="
+  | Elt      -> "<="
+  | Log_And  -> "&&"
+  | Log_Or   -> "||"
+  | BitwiseAnd  -> "&"
+  | BitwiseOr  -> "|"
+  | BitwiseXor  -> "^"
+  | ShiftLeft -> "<<"
+  | ShiftRight -> ">>"
+  | ShiftRightLogical -> ">>>"
+  | InObj    -> "in_obj"
+  | InList   -> "in_list"
+  | Lnth     -> "l_nth"
+  | Tnth     -> "t_nth"
+  | Snth     -> "s_nth"
+  | Ssplit   -> "s_split"
+  | Ladd     -> "l_add"
+  | Lprepend -> "l_prepend"
+  | Lconcat  -> "l_concat"
+  | Atan2    -> "atan2"
+  | Max      -> "max"
+  | Min      -> "min"
+  | Pow      -> "**"
+
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
   | Minus    -> e1 ^ " - " ^ e2
