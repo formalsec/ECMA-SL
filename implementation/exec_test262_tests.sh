@@ -196,7 +196,6 @@ function handleSingleFile() {
 
       test_result=("$FILENAME" "**FAIL**" "$RESULT" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
     fi
-    break
   elif [ $EXIT_CODE -eq 0 ]; then
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
 
