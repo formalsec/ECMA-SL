@@ -31,7 +31,13 @@ fs.readFile(argv.input, "utf-8", (err, data) => {
     prog = newEarlySyntaxError(ex.description)
   }
 
-  const statements = translator.fromJSObjectToESLStatements(prog);
+  let statements;
+  try {
+    statements = translator.fromJSObjectToESLStatements(prog);
+  } catch(ex) {
+    statements = translator.fromJSObjectToESLStatements(newEarlySyntaxError(ex.description));
+  }
+
   const func = translator.fromESLStatementsToESLFunction(
     FUNC_NAME,
     ["___internal_esl_global"],
