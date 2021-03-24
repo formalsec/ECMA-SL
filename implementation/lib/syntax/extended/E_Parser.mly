@@ -10,11 +10,11 @@
   - token and type specifications, precedence directives and other output directives
 *)
 %token SKIP
-%token PRINT
+%token PRINT WRAPPER
 %token ASSERT
 %token DEFEQ
-%token WHILE
-%token IF ELSE
+%token WHILE FOREACH
+%token IF ELSE ELIF
 %token RETURN
 %token SWITCH SDEFAULT
 %token NULL
@@ -105,12 +105,40 @@ e_prog_elem_target:
     { (None, Some m) }
 
 proc_target:
-  | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; s = e_block_target;
-   { E_Func.create f vars s }
+  | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; s = e_block_target;
+   { E_Func.create None f vars s }
+  | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; meta = metadata_target; vars_meta_opt = option(vars_metadata_target); s = e_block_target;
+   {
+     let vars_meta = Option.default [] vars_meta_opt in
+     let metadata = E_Func_Metadata.build_func_metadata meta vars_meta in
+     E_Func.create (Some metadata) f vars s }
+
+proc_params_target:
+  | params = separated_list (COMMA, VAR);
+    { params }
+  /* | params = separated_list (COMMA, VAR); COMMA; LBRACK; fparams = separated_list(COMMA, VAR); RBRACK;
+    { params @ fparams } */
 
 macro_target:
   | MACRO; m = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; s = e_block_target;
    { E_Macro.create m vars s }
+
+metadata_target:
+  | LBRACK; meta = separated_list (COMMA, val_target); RBRACK;
+    { meta }
+
+vars_metadata_target:
+  | LBRACK; meta = separated_list (COMMA, var_metadata_target); RBRACK;
+    { meta }
+
+var_metadata_target:
+  | meta = STRING;
+    {
+      let param_alt = String.split_on_char ':' meta in
+      match List.length param_alt with
+      | 2 -> ( List.nth param_alt 0, List.nth param_alt 1 )
+      | _ -> raise (Failure "Invalid function's variables metadata")
+    }
 
 (*
   The pipes separate the individual productions, and the curly braces contain a semantic action:
@@ -354,12 +382,14 @@ fv_target:
 (* { s1; ...; sn } *)
 e_block_target:
   | LBRACE; stmts = separated_list (SEMICOLON, e_stmt_target); RBRACE;
-    { E_Stmt.Block stmts }
+    { if List.length stmts = 1 then List.nth stmts 0 else E_Stmt.Block stmts }
 
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return | repeat s until e*)
 e_stmt_target:
   | PRINT; e = e_expr_target;
     { E_Stmt.Print e }
+  | WRAPPER; meta = e_stmt_metadata_target; s = e_block_target;
+    { E_Stmt.Wrapper (meta, s) }
   | ASSERT; e = e_expr_target;
     { E_Stmt.Assert e }
   | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;
@@ -378,12 +408,24 @@ e_stmt_target:
     { E_Stmt.GlobAssign (v, e) }
   | e_stmt = ifelse_target;
     { e_stmt }
+  | IF; LPAREN; e1 = e_expr_target; RPAREN; meta1 = option(e_stmt_metadata_target); s1 = e_block_target;
+    es2 = elif_target; ess = list(elif_target); else_stmt = option(final_else_target);
+    {
+      let meta1' = Option.default [] meta1 in
+      let ess' = (e1, s1, meta1')::es2::ess in
+      E_Stmt.EIf (ess', else_stmt)
+    }
   | WHILE; LPAREN; e = e_expr_target; RPAREN; s = e_block_target;
     { E_Stmt.While (e, s) }
+  | FOREACH; LPAREN; x = VAR; COLON; e = e_expr_target; RPAREN; s = e_block_target;
+    { E_Stmt.ForEach (x, e, s, [], None) }
+  | FOREACH; LPAREN; x = VAR; COLON; e = e_expr_target; RPAREN; meta = e_stmt_metadata_target; var_meta_opt = option(delimited(LBRACK, var_metadata_target, RBRACK)); s = e_block_target;
+    { E_Stmt.ForEach (x, e, s, meta, var_meta_opt) }
   | RETURN; e = e_expr_target;
     { E_Stmt.Return e }
   | RETURN;
-    { E_Stmt.Return (E_Expr.Val (Val.Symbol "undefined")) }
+    /* { E_Stmt.Return (E_Expr.Val (Val.Void)) } */
+    { E_Stmt.Return (E_Expr.Val Val.Null) }
   | THROW; e = e_expr_target;
     { E_Stmt.Throw e }
   | FAIL; e = e_expr_target;
@@ -400,40 +442,87 @@ e_stmt_target:
     { E_Stmt.Lambda (x, fresh_lambda_id_gen (), xs, ys, s) }
   | AT_SIGN; m = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Stmt.MacroApply (m, es) }
-  | SWITCH; LPAREN; e=e_expr_target; RPAREN; LBRACE; cases = list (switch_case_target); RBRACE
-    { E_Stmt.Switch(e, cases, None) }
-  | SWITCH; LPAREN; e=e_expr_target; RPAREN; LBRACE; cases = list (switch_case_target); SDEFAULT; COLON; s = e_stmt_target; RBRACE
-    { E_Stmt.Switch(e, cases, Some s) }
+  | SWITCH; LPAREN; e=e_expr_target; RPAREN; meta = option(case_metadata_target); LBRACE; cases = list (switch_case_target); RBRACE
+    { let m = Option.default "" meta in
+      E_Stmt.Switch(e, cases, None, m) }
+  | SWITCH; LPAREN; e=e_expr_target; RPAREN; meta = option(case_metadata_target); LBRACE; cases = list (switch_case_target); SDEFAULT; COLON; s = e_stmt_target; RBRACE
+    { let m = Option.default "" meta in
+      E_Stmt.Switch(e, cases, Some s, m) }
 
 switch_case_target:
-  | CASE; e = e_expr_target; COLON; s = e_stmt_target;
+  | CASE; e = e_expr_target; COLON; s = e_block_target;
     { (e, s) }
 
-(* if (e) { s } | if (e) { s } else { s } *)
-ifelse_target:
-  | IF; LPAREN; e = e_expr_target; RPAREN; s1 = e_block_target; ELSE; s2 = e_block_target;
-    { E_Stmt.If (e, s1, Some s2) }
-  | IF; LPAREN; e = e_expr_target; RPAREN; s = e_block_target;
-    { E_Stmt.If (e, s, None) }
+case_metadata_target:
+  | LBRACK; s = STRING; RBRACK;
+    { s }
 
-(* { p: v | "x" ! None } -> s | default -> s *)
+(* if (e) { s } | if (e) { s } else { s } | if (e) { s } else if (e) { s } *)
+ifelse_target:
+  | IF; LPAREN; e = e_expr_target; RPAREN; meta_if = option(e_stmt_metadata_target); s1 = e_block_target; ELSE; meta_else = option(e_stmt_metadata_target); s2 = e_block_target;
+    {
+      let meta_if' = Option.default [] meta_if in
+      let meta_else' = Option.default [] meta_else in
+      E_Stmt.If (e, s1, Some s2, meta_if', meta_else')
+    }
+  | IF; LPAREN; e = e_expr_target; RPAREN; meta_if = option(e_stmt_metadata_target); s = e_block_target;
+    {
+      let meta_if' = Option.default [] meta_if in
+      E_Stmt.If (e, s, None, meta_if', [])
+    }
+
+elif_target:
+  | ELIF; LPAREN; e = e_expr_target; RPAREN; meta = option(e_stmt_metadata_target); s = e_block_target;
+    { (e, s, Option.map_default (fun x -> x) [] meta) }
+
+final_else_target:
+  | ELSE; meta = option(e_stmt_metadata_target); s = e_block_target;
+    { (s, Option.map_default (fun x -> x) [] meta) }
+
+e_stmt_metadata_target:
+  | LBRACK; meta = separated_list (COMMA, STRING); RBRACK;
+    { List.map (
+        fun (m : string) : E_Stmt.metadata_t ->
+          let sep_idx = String.index_opt m ':' in
+          match sep_idx with
+          | None   -> { where=m; html="" }
+          | Some idx ->
+            let where = String.sub m 0 idx in
+            let html = String.sub m (idx+1) ((String.length m)-idx-1) in
+            { where; html }
+      ) meta
+    }
+(* { p: v | "x" ! None } [ "", ...] -> s | default -> s *)
 pat_stmt_target:
   | p = e_pat_target; RIGHT_ARROW; s = e_block_target;
     { (p, s) }
 
 e_pat_target:
-  | LBRACE; pn_patv = separated_list (COMMA, e_pat_v_target); RBRACE;
-    { E_Pat.ObjPat pn_patv }
+  | LBRACE; pn_patv = separated_list (COMMA, e_pat_v_target); RBRACE; meta = option(pat_metadata_target);
+    { E_Pat.ObjPat (pn_patv, meta) }
   | DEFAULT;
     { E_Pat.DefaultPat }
 
+pat_metadata_target:
+  | LBRACK; meta = separated_list(COMMA, val_target); RBRACK; vars_meta_opt = option(vars_metadata_target);
+    {
+      let vars_meta = Option.default [] vars_meta_opt in
+      E_Pat_Metadata.build_pat_metadata meta vars_meta
+    }
+
 e_pat_v_target:
-  | pn = VAR; COLON; v = VAR;
-    { (pn, E_Pat_v.PatVar v) }
-  | pn = VAR; COLON; v = val_target;
-    { (pn, E_Pat_v.PatVal v) }
-  | pn = VAR; COLON; NONE;
-    { (pn, E_Pat_v.PatNone) }
+  | pn = VAR; COLON; pv = e_pat_v_pat_target;
+    { (pn, pv) }
+
+e_pat_v_pat_target:
+  | v = VAR;
+    { E_Pat_v.PatVar v }
+  | v = val_target;
+    { E_Pat_v.PatVal v }
+  /* | LBRACK; vs = separated_list (COMMA, e_pat_v_pat_target); RBRACK;
+    { E_Pat_v.PatVal (Val.List vs) } */
+  | NONE;
+    { E_Pat_v.PatNone }
 
 op_target:
   | MINUS   { Oper.Minus }

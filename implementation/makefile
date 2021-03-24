@@ -1,7 +1,7 @@
 OCAMLBUILDFLAGS=-use-ocamlfind
 
 default:
-	ocamlbuild ${OCAMLBUILDFLAGS} main.native
+	ocamlbuild ${OCAMLBUILDFLAGS} ecmasl.otarget
 
 clean:
 	ocamlbuild ${OCAMLBUILDFLAGS} -clean

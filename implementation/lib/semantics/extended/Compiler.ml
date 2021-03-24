@@ -423,14 +423,14 @@ and compile_pn_pat (expr: Expr.t) (pn, patv : string * E_Pat_v.t) : string list 
 
 and compile_pat (expr : Expr.t) (e_pat : E_Pat.t) : string list * Stmt.t list * Stmt.t list =
   match e_pat with
-  | DefaultPat     -> [], [], []
-  | ObjPat pn_pats -> (let bs, pre_stmts, in_stmts =
-                         List.fold_left (
-                           fun (bs, pre_stmts, in_stmts) pn_pat ->
-                             let bs', pre_stmts', in_stmts' = compile_pn_pat expr pn_pat in
-                             (bs @ bs', pre_stmts @ pre_stmts', in_stmts @ in_stmts')
-                         ) ([],[],[]) pn_pats in
-                       bs, pre_stmts, in_stmts)
+  | DefaultPat         -> [], [], []
+  | ObjPat (pn_pats, _) -> (let bs, pre_stmts, in_stmts =
+                              List.fold_left (
+                                fun (bs, pre_stmts, in_stmts) pn_pat ->
+                                  let bs', pre_stmts', in_stmts' = compile_pn_pat expr pn_pat in
+                                  (bs @ bs', pre_stmts @ pre_stmts', in_stmts @ in_stmts')
+                              ) ([],[],[]) pn_pats in
+                            bs, pre_stmts, in_stmts)
 
 
 and compile_pats_stmts (expr : Expr.t) (pat, stmt : E_Pat.t * E_Stmt.t) : Stmt.t list * Expr.t * Stmt.t list =
@@ -510,13 +510,33 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   match e_stmt with
   | Skip                            -> [Stmt.Skip]
   | Print e                         -> compile_print e
+  | Wrapper (_, s)                  -> compile_stmt s
   | Assign (v, e_exp)               -> compile_assign v e_exp
   | GlobAssign(x, e)                ->
     let (stmts_e, e') = compile_expr e in
     compile_glob_assign x stmts_e e'
   | Block (e_stmts)                 -> compile_block e_stmts
-  | If (e_e, e_s1, e_s2)            -> compile_if e_e e_s1 e_s2
+  | If (e_e, e_s1, e_s2, _, _)      -> compile_if e_e e_s1 e_s2
+  | EIf (ifs, final_else)           ->
+    (let acc = (Option.map_default (fun (s, _) -> compile_stmt s) [] final_else) in
+     let ifs' = List.rev ifs in
+     List.fold_left (fun acc (e, s, _) ->
+         let (stmts_e, e') = compile_expr e in
+         let stmts_s = compile_stmt s in
+         stmts_e @ [Stmt.If (e', Stmt.Block stmts_s, Some (Stmt.Block acc))]
+       ) acc ifs')
   | While (e_exp, e_s)              -> compile_while e_exp e_s
+
+  | ForEach (x, e_e, e_s, _, _)     ->
+    let len_str = "list_length" in
+    let e_test = E_Expr.BinOpt (Oper.Gt, Var len_str, Var "i") in
+    let stmt_inc = Stmt.Assign ("i", (Expr.BinOpt (Oper.Plus, Var "i", Val (Int 1)))) in
+    let (stmts_e_test, e_test') = compile_expr e_test in
+    let (stmts_e, e_e') = compile_expr e_e in
+    let stmts_before = Stmt.Assign ("i", Val (Int 0)) :: [Stmt.Assign (len_str, Expr.UnOpt (Oper.ListLen, e_e'))] in
+    let stmts_s = compile_stmt e_s in
+    stmts_e @ stmts_before @ stmts_e_test @ [Stmt.While (e_test', Stmt.Block (stmts_s @ (stmt_inc :: stmts_e_test)))]
+
   | FieldAssign (e_eo, e_f, e_ev)   -> compile_fieldassign e_eo e_f e_ev
   | FieldDelete (e_e, e_f)          -> compile_fielddelete e_e e_f
   | ExprStmt e_e                    -> compile_exprstmt e_e
@@ -536,7 +556,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
     let ret_e = compile_expr e_e in
     compile_fail ret_e
 
-  | Switch (e, cases, so)           ->
+  | Switch (e, cases, so, _)        ->
     let ret_e = compile_expr e in
     let ret_cases = compile_cases cases in
     let ret_so = Option.map_default compile_stmt [] so in
