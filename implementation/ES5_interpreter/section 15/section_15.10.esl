@@ -1,4 +1,11 @@
-/* 15.10 RegExp (Regular Expression) Objects */
+/**
+ * 15.10 RegExp (Regular Expression) Objects
+ *
+ * A RegExp object contains a regular expression and the associated flags.
+ *
+ * NOTE The form and functionality of regular expressions is modelled after
+ * the regular expression facility in the Perl 5 programming language.
+ */
 function initRegExpObject(globalObject, ObjectPrototype, strict) {
   regExpPrototype := initRegExpPrototype(ObjectPrototype);
   regExpConstructor := initRegExpConstructor(regExpPrototype, globalObject, strict);
@@ -8,12 +15,17 @@ function initRegExpObject(globalObject, ObjectPrototype, strict) {
   return regExpConstructor
 };
 
-/* 15.10.3 The RegExp Constructor Called as a Function */
-
-/* 15.10.3.1 RegExp(pattern, flags) */
-/* If pattern is an object R whose [[Class]] internal property is "RegExp" and flags is undefined, then return R
-   unchanged. Otherwise call the standard built-in RegExp constructor (15.10.4.1) as if by the expression new
-   RegExp(pattern, flags) and return the object constructed by that constructor. */
+/**
+ * 15.10.3 The RegExp Constructor Called as a Function
+ *
+ * 15.10.3.1 RegExp(pattern, flags)
+ *
+ * If pattern is an object R whose [[Class]] internal property is
+ * "RegExp" and flags is undefined, then return R unchanged. Otherwise
+ * call the standard built-in RegExp constructor (15.10.4.1) as if by
+ * the expression new RegExp(pattern, flags) and return the object
+ * constructed by that constructor.
+ */
 function RegExpConstructorCalledAsFunction(strict, pattern, flags) {
   if (isRegExpObject(pattern) &&& (flags = 'undefined)) {
     return pattern
@@ -22,8 +34,12 @@ function RegExpConstructorCalledAsFunction(strict, pattern, flags) {
   return newRegExp(strict, pattern, flags)
 };
 
-/* 15.10.4 The RegExp Constructor */
-/* When RegExp is called as part of a new expression, it is a constructor: it initialises the newly created object. */
+/**
+ * 15.10.4 The RegExp Constructor
+ *
+ * When RegExp is called as part of a new expression, it is a
+ * constructor: it initialises the newly created object.
+ */
 function RegExpConstructor(global, this, strict, args) {
   pattern := l_nth(args, 0);
   flags := l_nth(args, 1);
@@ -35,13 +51,40 @@ function RegExpConstructor(global, this, strict, args) {
   return newRegExp(strict, pattern, flags)
 };
 
-/* 15.10.4.1 new RegExp(pattern, flags) */
+/**
+ * 15.10.4.1 new RegExp(pattern, flags)
+ */
 function newRegExp(strict, pattern, flags) {
-  /* If pattern is an object R whose [[Class]] internal property is "RegExp" and flags is undefined, then let P be the
-    pattern used to construct R and let F be the flags used to construct R. If pattern is an object R whose [[Class]]
-    internal property is "RegExp" and flags is not undefined, then throw a TypeError exception. Otherwise, let P
-    be the empty String if pattern is undefined and ToString(pattern) otherwise, and let F be the empty String if
-    flags is undefined and ToString(flags) otherwise. */
+  /* If pattern is an object R whose [[Class]] internal property is "RegExp"
+    and flags is undefined, then let P be the pattern used to construct R
+    and let F be the flags used to construct R. */
+  /*R := pattern;
+  P := null;
+  F := null;
+  if (isRegExpObject(R) &&& (flags = undefined)) {
+    P := getInternalProperty(R, "Match"); 
+    F := getInternalProperty(R, "flags") 
+  }*/
+  /* If pattern is an object R whose [[Class]] internal property is "RegExp"
+    and flags is not undefined, then throw a TypeError exception. Otherwise,
+    let P be the empty String if pattern is undefined and ToString(pattern)
+    otherwise, and let F be the empty String if flags is undefined and
+    ToString(flags) otherwise. */
+  /*elif (isRegExpObject(R) &&& !(flags = undefined)) {
+    throw TypeErrorConstructorInternal()
+  } else {
+    if (pattern = undefined) {
+      P := ""
+    } else {
+      P := ToString(pattern)
+    }
+    if (flags = undefined) {
+      F := ""
+    } else {
+      F := ToString(flags)
+    }
+  }*/
+
 
   /* If the characters of P do not have the syntactic form Pattern, then throw a SyntaxError exception. Otherwise
     let the newly constructed object have a [[Match]] internal property obtained by evaluating ("compiling") the
@@ -91,7 +134,9 @@ function newRegExp(strict, pattern, flags) {
   return newlyConstructedObject
 };
 
-/* 15.10.5 Properties of the RegExp Constructor */
+/**
+ * 15.10.5 Properties of the RegExp Constructor
+ */
 function initRegExpConstructor(RegExpPrototype, globalObject, strict) {
   /* The value of the [[Prototype]] internal property of the RegExp constructor is the standard built-in Function
      prototype object (15.3.4). */
@@ -107,7 +152,9 @@ function initRegExpConstructor(RegExpPrototype, globalObject, strict) {
   return RegExpConstructor
 };
 
-/* 15.10.6 Properties of the RegExp Prototype Object */
+/**
+ * 15.10.6 Properties of the RegExp Prototype Object
+ */
 function initRegExpPrototype(objectPrototypeObject) {
   regExpPrototypeObject := NewECMAScriptObject();
   setAllInternalMethodsOfObject(regExpPrototypeObject);
@@ -123,7 +170,9 @@ function initRegExpPrototype(objectPrototypeObject) {
   return regExpPrototypeObject
 };
 
-/* 15.10.6 Properties of the RegExp Prototype Object */
+/**
+ * 15.10.6 Properties of the RegExp Prototype Object
+ */
 function fillRegExpPrototype(regExpPrototypeObject, RegExpConstructor, globalObject, strict) {
   /* The RegExp prototype object does not have a valueOf property of its own; however, it inherits the valueOf
     property from the Object prototype object. */
@@ -187,6 +236,159 @@ function fillRegExpPrototype(regExpPrototypeObject, RegExpConstructor, globalObj
 /* NOTE Unlike the other standard built-in properties of RegExp instances, lastIndex is writable. */
 
 
+function RegExpPrototypeExecFAKE(global, this, strict, args) {
+
+  str := l_nth(args, 0);
+  m := this.Match;
+
+  k := lambda(st') [] {
+    return st'
+  };
+
+  len := s_len str;
+  i := 0;
+  while (i < len) {
+    
+    ret := {m}(this, str, i);
+
+    if (ret = null) {
+      i := i + 1
+    } else {
+      o := ObjectConstructor(|global|, 'null, false, ['undefined]);
+      
+      desc_i := newDataPropertyDescriptorFull(int_to_float i, true, true, true);
+      setJSProperty(o, "i", desc_i);
+
+      str_m := s_substr(str, i, ret.i - i);
+      desc_m := newDataPropertyDescriptorFull(str_m, true, true, true);
+      setJSProperty(o, "m", desc_m);
+
+      return o
+    }
+  };
+
+  return 'null
+};
+
+
+
+
+/**
+ * 15.10.6.2 RegExp.prototype.exec(string)
+ *
+ * Performs a regular expression match of string against the regular expression
+ * and returns an Array object containing the results of the match, or null if
+ * string did not match.
+ *
+ * The String ToString(string) is searched for an occurrence of the regular
+ * expression pattern as follows:
+ */
+function RegExpPrototypeExec(global, this, strict, args) {
+
+  string := l_nth (args, 0);
+
+  /* 1. Let R be this RegExp object. */
+  R := this;
+  /* 2. Let S be the value of ToString(string). */
+  S := ToString(string);
+  /* 3. Let length be the length of S. */
+  length := s_len S;
+  /* 4. Let lastIndex be the result of calling the [[Get]]
+    internal method of R with argument "lastIndex".. */
+  lastIndex := {R.Get}(R, "lastIndex");
+  /* 5. Let i be the value of ToInteger(lastIndex). */
+  i := int_of_float (ToInteger(lastIndex));
+  /* 6. Let global be the result of calling the [[Get]]
+    internal method of R with argument "global". */
+  global := {R.Get}(R, "global");
+  /* 7. If global is false, then let i = 0. */
+  if (global = false) {
+    i := 0
+  };
+  /* 8. Let matchSucceeded be false. */
+  matchSucceeded := false;
+  /* 9. Repeat, while matchSucceeded is false */
+  while (matchSucceeded = false) {
+    /* a. If i < 0 or i > length, then */
+    if ((i < 0) || (i > length)) {
+      /* i. Call the [[Put]] internal method of R with
+          arguments "lastIndex", 0, and true. */
+      {R.Put}(R, "lastIndex", 0., true);
+      /* ii. Return null. */
+      return 'null
+    };
+    /* b. Call the [[Match]] internal method of R with
+        arguments S and i. */
+    ret := {R.Match}(R, S, i);
+    /* c. If [[Match]] returned failure, then */
+    if (isFailure(ret)) {
+      /* i. Let i = i+1. */
+      i := i + 1
+    }
+    /* d. else */
+    else {
+      /* i. Let r be the State result of the call to [[Match]]. */
+      r := ret;
+      /* ii. Set matchSucceeded to true. */
+      matchSucceeded := true
+    }
+  };
+  /* 10. Let e be r's endIndex value. */
+  e := int_to_float r.i;
+  /* 11. If global is true, */
+  if (global = true) {
+    /* a. Call the [[Put]] internal method of R with
+      arguments "lastIndex", e, and true. */
+    {R.Put}(R, "lastIndex", e, true)
+  };
+  /* 12. Let n be the length of r's captures array.
+    (This is the same value as 15.10.2.1's NCapturingParens.) */
+  n := int_to_float r.caps.len;
+  /* 13. Let A be a new array created as if by the expression new Array()
+    where Array is the standard built-in constructor with that name. */
+  A := ArrayConstructor(global, this, strict, []);
+  /* 14. Let matchIndex be the position of the matched substring within
+    the complete String S. */
+  matchIndex := int_to_float i;
+  /* 15. Call the [[DefineOwnProperty]] internal method of A with arguments
+      "index", Property Descriptor {[[Value]]: matchIndex, [[Writable]: true,
+      [[Enumerable]]: true, [[Configurable]]: true}, and true. */
+  descriptorIndex := newDataPropertyDescriptorFull(matchIndex, true, true, true);
+  {A.DefineOwnProperty}(A, "index", descriptorIndex, true);
+  /* 16. Call the [[DefineOwnProperty]] internal method of A with arguments
+      "input", Property Descriptor {[[Value]]: S, [[Writable]: true,
+      [[Enumerable]]: true, [[Configurable]]: true}, and true. */
+  descriptorInput := newDataPropertyDescriptorFull(S, true, true, true);
+  {A.DefineOwnProperty}(A, "input", descriptorInput, true);
+  /* 17. Call the [[DefineOwnProperty]] internal method of A with arguments
+      "length", Property Descriptor {[[Value]]: n + 1}, and true. */
+  descriptorLength := newDataPropertyDescriptorFull(n + 1., true, false, false);
+  {A.DefineOwnProperty}(A, "length", descriptorLength, true);
+  /* 18. Let matchedSubstr be the matched substring (i.e. the portion of S
+    between offset i inclusive and offset e exclusive). */
+  matchedSubstr := s_substr(S, i, (int_of_float e) - i);
+  /* 19. Call the [[DefineOwnProperty]] internal method of A with arguments
+    "0", Property Descriptor {[[Value]]: matchedSubstr, [[Writable]: true,
+    [[Enumerable]]: true, [[Configurable]]: true}, and true. */
+  descriptorZero := newDataPropertyDescriptorFull(matchedSubstr, true, true, true);
+  {A.DefineOwnProperty}(A, "0", descriptorZero, true);
+  /* 20. For each integer i such that I > 0 and I ≤ n */
+  i := 1;
+  n := r.caps.len;
+  while (i <= n) {
+    /* a. Let captureI be ith element of r's captures array. */
+    i_str := int_to_string i;
+    captureI := r.caps[i_str];
+    /* b. Call the [[DefineOwnProperty]] internal method of A with arguments
+      ToString(i), Property Descriptor {[[Value]]: captureI, [[Writable]: true,
+      [[Enumerable]]: true, [[Configurable]]: true}, and true. */
+    descriptorI := newDataPropertyDescriptorFull(captureI, true, true, true);
+    {A.DefineOwnProperty}(A, ToString(int_to_float i), descriptorI, true);
+    i := i + 1
+  };
+  /* 21. Return A. */
+  return A
+};
 
 /* Auxiliary functions */
 function getRegExpPrototype(strict) {
@@ -208,4 +410,676 @@ function isRegExpObject(arg) {
     return true
   };
   return false
+};
+
+
+
+function JS_Interpreter_RegEx_TopLevel(re, value) {
+
+  obj := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(obj);
+  setInternalProperty(obj, "Prototype", getRegExpPrototype(false));
+  setInternalProperty(obj, "Extensible", true);
+  setInternalProperty(obj, "Class", "RegExp");
+
+  /*setJSProperty(obj, "length", newDataPropertyDescriptorFull(0., true, false, false)); TODO ??? */
+  setJSProperty(obj, "source", newDataPropertyDescriptorFull(value, false, false, false));
+  setFlags(obj, re.flags);
+  setJSProperty(obj, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false));
+
+  m := JS_Interpreter_RegEx(re.body);
+
+  k_id := lambda(st') [] {
+    caps := st'.caps;
+    len := caps.len;
+    caps.len := len - 1;
+    return st'
+  };
+
+  m' := lambda(R, S, i) [m, k_id] {
+    st := initialState(S, i,
+      getJSProperty(R, "global").Value,
+      getJSProperty(R, "ignoreCase").Value,
+      getJSProperty(R, "multiline").Value);
+    return {m}(st, k_id)
+  };
+
+  setInternalProperty(obj, "Match", m');
+
+  return obj
+};
+
+function setFlags(obj, flags) {
+  g := false;
+  i := false;
+  m := false;
+
+  len := s_len flags;
+  index := 0;
+  while (index < len) {
+    flag := s_nth(flags, index);
+
+    if ((flag = "g") &&& (g = false)) {
+      g := true
+    } elif ((flag = "i") &&& (i = false)) {
+      i := true
+    } elif ((flag = "m") &&& (m = false)) {
+        m := true
+    } else {
+      throw SyntaxErrorConstructorInternal()
+    };
+
+    index := index + 1
+  };
+
+  setJSProperty(obj, "global", newDataPropertyDescriptorFull(g, false, false, false));
+  setJSProperty(obj, "ignoreCase", newDataPropertyDescriptorFull(i, false, false, false));
+  setJSProperty(obj, "multiline", newDataPropertyDescriptorFull(m, false, false, false));
+
+  return null
+};
+
+function isFailure(st) {
+  return st = null
+};
+
+function initialState(str, i, gb, ic, ml) {
+  o := { str: str, i: i, caps: initialCaps(), gb: gb, ic: ic, ml: ml };
+  return o
+};
+
+function initialCaps() {
+  caps := {};
+  caps.len := 0;
+  return caps
+};
+
+function stateGetChar(st) {
+  i := st.i;
+  str := st.str;
+
+  if (i < (s_len str)) {
+    return s_nth(str, i)
+  };
+  return null
+};
+
+function stateNext(st) {
+  st.i := st.i + 1;
+  return null
+};
+
+function stateGetIndex(st) {
+  return st.i
+};
+
+function stateSetIndex(st, i) {
+  st.i := i;
+  return null
+};
+
+function stateGetStr(st) {
+  return st.str
+};
+
+function stateGetSubStr(st, i) {
+  len := st.i - i;
+  return s_substr(st.str, i, len)
+};
+
+function stateGetCap(st, i) {
+  i_str := int_to_string i;
+  return st.caps[i_str]
+};
+
+function stateSetCap(st, i, str) {
+
+  caps := st.caps;
+  i_str := int_to_string i;
+  caps[i_str] := str;
+  len := caps.len;
+
+  if (len <= i) {
+    len := i + 1;
+    caps.len := len
+  };
+
+  return null
+};
+
+function copyState(st) {
+  st' := {};
+  st'.i := st.i;
+  st'.str := st.str;
+  st'.gb := st.gb;
+  st'.ic := st.ic;
+  st'.ml := st.ml;
+  st'.caps := copyCaps(st.caps);
+  return st'
+};
+
+function copyCaps(caps) {
+  caps' := {};
+  caps'.len := caps.len;
+  i := 0;
+  len := caps.len;
+
+  while (i < len) {
+    i_str := int_to_string i;
+    if (i_str in_obj caps) {
+      caps'[i_str] := caps[i_str]
+    };
+    i := i + 1
+  };
+  
+  return caps'
+};
+
+function JS_Interpreter_Quant(qt) {
+  match (qt) with
+  | { type: "Quantifier", kind: "+", greedy: b } -> {
+    bounds := { inf: 1., sup: Infinity, greedy: b };
+    return bounds
+  }
+  | { type: "Quantifier", kind: "*", greedy: b } -> {
+    bounds := { inf: 0., sup: Infinity, greedy: b };
+    return bounds
+  }
+  | { type: "Quantifier", kind: "?", greedy: b } -> {
+    bounds := { inf: 0., sup: 1., greedy: b };
+    return bounds
+  }
+  | { type: "Quantifier", kind: "Range", from: from, to: to, greedy: b } -> {
+    bounds := { inf: from, sup: to, greedy: b };
+    return bounds
+  }
+  | { type: "Quantifier", kind: "Range", from: from, greedy: b } -> {
+    bounds := { inf: from, sup: Infinity, greedy: b };
+    return bounds
+  }
+  | default -> {
+    throw "Quantifier Not Supported!!"
+  }
+};
+
+/* 
+m = matcher
+k = continuation
+st = state
+*/
+function JS_Interpreter_Repetition_Greedy(m, bounds, st, k) {
+  if (bounds.sup = 0.) {
+    return {k}(st)
+  } else {
+
+    k' := lambda (st') [m, bounds, k] {
+      bounds' := decrementBounds(bounds);
+      return JS_Interpreter_Repetition_Greedy(m, bounds', st', k)
+    };
+
+    if (bounds.inf > 0.) {
+      return {m}(st, k')
+    } else {
+      oldSt := copyState(st);
+      ret := {m}(st, k');
+
+      if (isFailure(ret)) {
+        return {k}(oldSt)
+      } else {
+        return ret
+      }
+    }
+  }
+};
+
+
+
+function JS_Interpreter_Repetition_NonGreedy(m, bounds, st, k) {
+  if (bounds.sup = 0.) {
+    return {k}(st)
+  } else {
+
+    k' := lambda (st') [m, bounds, k] {
+      bounds' := decrementBounds(bounds);
+      return JS_Interpreter_Repetition_NonGreedy(m, bounds', st', k)
+    };
+
+    if (bounds.inf > 0.) {
+      return {m}(st, k')
+    } else {
+      oldSt := copyState(st);
+      ret := {k}(st);
+
+      if (isFailure(ret)) {
+        return {m}(oldSt, k')
+      } else {
+        return ret
+      }
+    }
+  }
+};
+
+
+
+function decrementBounds(bounds) {
+  x_inf := bounds.inf;
+  x_sup := bounds.sup;
+  if (x_inf > 0.) {
+    x_inf := x_inf - 1.
+  };
+  if (!(x_sup = Infinity)) {
+    x_sup := x_sup - 1.
+  };
+  return { inf: x_inf, sup: x_sup, greedy: bounds.greedy }
+};
+
+/* 15.10.2.6 Assertion */
+function JS_Interpreter_Assertion(ba) {
+  if (ba.kind = "^") {
+    t := lambda (st) [] {
+      /* 1. Let e be x's endIndex. */
+      e := st.i;
+      /* 2. If e is zero, return true. */
+      if (e = 0) {
+        return true
+      };
+      /* 3. If Multiline is false, return false. */
+      if (!st.ml) {
+        return false
+      }
+      /* 4. If the character Input[e–1] is one of LineTerminator, return true. */
+      else {
+        c := s_nth(st.str, e - 1);
+        return isLineTerminator(c)
+      }
+    };
+
+    return t
+  } elif (ba.kind = "$") {
+    t := lambda (st) [] {
+      /* 1. Let e be x's endIndex. */
+      e := st.i;
+      /* 2. If e is equal to InputLength, return true. */
+      len := s_len st.str;
+      if (e = len) {
+        return true
+      };
+      /* 3. If multiline is false, return false. */
+      if (st.ml = false) {
+        return false
+      };
+      /* 4. If the character Input[e] is one of LineTerminator, return true. */
+      if (e < len) {
+        c := s_nth(st.str, e);
+        return isLineTerminator(c)
+      };
+      /* 5. Return false. */
+      return false
+    };
+
+    return t
+  } elif (ba.kind = "\\b") {
+    /* The production Assertion :: \ b evaluates by returning
+      an internal AssertionTester closure that takes a State
+      argument x and performs the following: */
+    t := lambda (st) [] {
+      /* 1. Let e be x's endIndex. */
+      e := st.i;
+      /* 2. Call IsWordChar(e-1) and let a be the Boolean result. */
+      a := IsWordChar(e - 1, st.str);
+      /* 3. Call IsWordChar(e) and let b be the Boolean result. */
+      b := IsWordChar(e, st.str);
+      /* 4. If a is true and b is false, return true. */
+      if ((a = true) &&& (b = false)) {
+        return true
+      };
+      /* 5. If a is false and b is true, return true. */
+      if ((a = false) &&& (b = true)) {
+        return true
+      };
+      /* 6. Return false. */
+      return false
+    };
+
+    return t
+  } elif (ba.kind = "\\B") {
+    /* The production Assertion :: \ B evaluates by returning an
+        internal AssertionTester closure that takes a State argument
+        x and performs the following: */
+    t := lambda (st) [] {
+      /* 1. Let e be x's endIndex. */
+      e := st.i;
+      /* 2. Call IsWordChar(e-1) and let a be the Boolean result. */
+      a := IsWordChar(e - 1, st.str);
+      /* 3. Call IsWordChar(e) and let b be the Boolean result. */
+      b := IsWordChar(e, st.str);
+      /* 4. If a is true and b is false, return false. */
+      if ((a = true) &&& (b = false)) {
+        return false
+      };
+      /* 5. If a is false and b is true, return false. */
+      if ((a = false) &&& (b = true)) {
+        return false
+      };
+      /* 6. Return true. */
+      return true
+    };
+
+    return t
+  }
+};
+
+function isLineTerminator(c) {
+  /* Table 3 — Line Terminator Characters
+  Code Unit Value     Name                 Formal Name
+  \u000A              Line Feed            <LF>
+  \u000D              Carriage Return      <CR>
+  \u2028              Line separator       <LS>
+  \u2029              Paragraph separator  <PS> */
+  hex := int_to_four_hex (to_char_code c);
+  if ((hex = "000a") ||| (hex = "000d") ||| (hex = "2028") ||| (hex = "2029")) {
+    return true
+  };
+  return false
+};
+
+/**
+ * The abstract operation IsWordChar takes an integer parameter e
+ * and performs the following
+ */
+function IsWordChar(e, input) {
+  /* 1. If e == –1 or e == InputLength, return false. */
+  if ((e = -1) ||| (e = (s_len input))) {
+    return false
+  };
+  /* 2. Let c be the character Input[e]. */
+  c := s_nth(input, e);
+  /* 3. If c is one of the sixty-three characters below, return true.
+    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+    0 1 2 3 4 5 6 7 8 9 _ */
+  code := to_char_code c;
+  if (((code >= 48) &&& (code <= 57)) ||| ((code >= 65) &&& (code <= 90)) |||
+      ((code >= 97) &&& (code <= 122)) ||| (code = 95)) {
+    return true
+  };
+
+  /* 4. Return false. */
+  return false
+};
+
+
+
+function EmptyCharacterClass() {
+  return { positive: {}, negative: {} }
+};
+
+
+function CharacterClassUnion(cs1, cs2) {
+  i := 0;
+  list := obj_fields cs2.positive;
+  len := l_len list;
+  while(i < len) {
+    P := l_nth (list, i);
+    CP := cs2.positive[P];
+    cs1.positive[P] := CP;
+    i := i + 1
+  };
+  return null
+};
+
+
+function IsInCharacterClass(cs, c) {
+  code := to_char_code c;
+  code_str := int_to_string code;
+  return (code_str in_obj cs.positive)
+};
+
+
+function AddCharacterPoint(cs, c, code_str) {
+  cs.positive[code_str] := c;
+  return null
+};
+
+
+function JS_Interpreter_CharacterClassElement(el) {
+  match (el) with
+  | { type: "Char", value: c} -> { /*TODO Use codepoint*/
+
+    code := to_char_code c;
+    code_str := int_to_string code;
+    cs := EmptyCharacterClass();
+    AddCharacterPoint(cs, c, code_str);
+    return cs
+  }
+  | { type: "ClassRange", from: from, to: to } -> {
+
+    from := from.codePoint;
+    to := to.codePoint;
+    cs := EmptyCharacterClass();
+    while (from <= to) {
+      from_str := float_to_string from;
+      c := from_char_code (int_of_float from);
+      AddCharacterPoint(cs, c, from_str);
+      from := from + 1.
+    };
+    return cs
+  }
+  | default -> {
+    throw "CharacterClass Not Supported!!"
+  }
+};
+
+
+function JS_Interpreter_RegEx(re) {
+
+  match (re) with
+  | { type: "CharacterClass", expressions: res} -> {
+
+    cs := EmptyCharacterClass();
+
+    len := l_len res;
+    i := 0;
+    while (i < len) {
+      el := l_nth(res, i);
+      cs' := JS_Interpreter_CharacterClassElement(el);
+      CharacterClassUnion(cs, cs');
+      i := i + 1
+    };
+
+    m := lambda (st, k) [cs] {
+      c := stateGetChar(st);
+      if (IsInCharacterClass(cs, c)) {
+        stateNext(st);
+        return {k}(st)
+      } else {
+        return null
+      }
+    };
+
+    return m
+  }
+  /* Negative look-ahead */
+  | { type: "Assertion", kind: "Lookahead", negative: true, assertion: re'} -> {
+
+    m' := JS_Interpreter_RegEx(re');
+
+    m := lambda (st, k) [m'] {
+      oldSt := copyState(st);
+
+      k_id := lambda(st') [] {
+        return st'
+      };
+
+      r := {m'}(st, k_id);
+
+      if (isFailure(r)) {
+        return {k}(oldSt)
+      };
+
+      return null
+    };
+
+    return m
+  }
+  /* Positive look-ahead */
+  | { type: "Assertion", kind: "Lookahead", assertion: re'} -> {
+
+    m' := JS_Interpreter_RegEx(re');
+
+    m := lambda (st, k) [m'] {
+      oldIndex := st.i;
+
+      k_id := lambda(st') [] {
+        return st'
+      };
+
+      r := {m'}(st, k_id);
+
+      if (isFailure(r)) {
+        return r
+      };
+
+      r.i := oldIndex;
+
+      return {k}(r)
+    };
+
+    return m
+  }
+  /* Begin, end, boundary, non-boundary */
+  | { type: "Assertion", kind: kind} -> {
+
+    t := JS_Interpreter_Assertion(re);
+
+    m := lambda (st, k) [t] {
+        if ({t}(st)) {
+          return {k}(st)
+        };
+        return null
+    };
+
+    return m
+
+  }
+  /* Repetition */
+  | { type: "Repetition", expression: re', quantifier: qt} -> {
+
+    m' := JS_Interpreter_RegEx(re');
+    bounds := JS_Interpreter_Quant(qt);
+
+    if (qt.greedy = true) {
+      m := lambda (st, k) [m', bounds] {
+        return JS_Interpreter_Repetition_Greedy(m', bounds, st, k)
+      }
+    } else {
+      m := lambda (st, k) [m', bounds] {
+        return JS_Interpreter_Repetition_NonGreedy(m', bounds, st, k)
+      }
+    };
+
+    return m
+  }
+  /* Backreference */
+  | { type: "Backreference", number: i } -> {
+
+    m := lambda (st, k) [i] {
+
+      str_c := stateGetCap(st, int_of_float i);
+      len := s_len str_c;
+      j1 := stateGetIndex(st);
+      str := stateGetStr(st);
+      str' := s_substr(str, j1, len);
+
+      if (str_c = str') {
+        stateSetIndex(st, j1 + len);
+        return {k}(st)
+      };
+      return null
+    };
+
+    return m
+
+  }
+  /* Capturing group */
+  | { type: "Group", capturing: true, number: i, expression: re' } -> {
+
+    m' := JS_Interpreter_RegEx(re');
+
+    m := lambda (st, k) [m', i] {
+
+      old_i := st.i;
+
+      k' := lambda (st') [st, k, old_i, i] {
+        str := stateGetSubStr(st', old_i);
+        stateSetCap(st', int_of_float i, str);
+        return {k}(st')
+      };
+
+      return {m'}(st, k')
+    };
+
+    return m
+  }
+  /* Non-capturing group */
+  | { type: "Group", capturing: false, expression: re' } -> {
+
+    return JS_Interpreter_RegEx(re')
+  }
+  /* Disjunction */
+  | { type: "Disjunction", left: re_l, right: re_r } -> {
+
+    m_l := JS_Interpreter_RegEx(re_l);
+    m_r := JS_Interpreter_RegEx(re_r);
+
+    m_or := lambda (st, k) [m_l, m_r] {
+      st' := copyState(st);
+      r := {m_l}(st, k);
+      if (isFailure(r)) {
+        return {m_r}(st, k)
+      };
+      return r
+    };
+
+    return m_or
+  }
+  /* Sequence */
+  | { type: "Alternative", expressions: res } -> {
+
+    if ((l_len res) = 1) {
+      return JS_Interpreter_RegEx(l_nth(res, 0))
+    } else {
+      re_hd := l_nth(res, 0);
+      re_tl := { type: "Alternative", expressions: tl res };
+
+      m_hd := JS_Interpreter_RegEx(re_hd);
+      m_tl := JS_Interpreter_RegEx(re_tl);
+
+      m := lambda (st, k) [m_hd, m_tl] { 
+        k' := lambda (st') [m_tl, k] {
+          return {m_tl}(st', k)
+        };
+        return {m_hd}(st, k')
+      };
+
+      return m
+    }
+  }
+  /* Character */
+  | { type: "Char", value: v } -> {
+      m := lambda (st, k) [v] {
+        c := stateGetChar(st);
+        if (c = v) {
+          stateNext(st);
+          return {k}(st)
+        } else {
+          return null
+        }
+      };
+
+      return m
+  }
+  | default -> {
+    throw "Regex Not Supported!!"
+  }
 }

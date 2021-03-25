@@ -276,7 +276,7 @@ let int_of_string (v : Val.t) : Val.t = match v with
 
 let int_of_float (v : Val.t) : Val.t = match v with
   | Flt f -> Int (int_of_float f)
-  | _     -> invalid_arg "Exception in Oper.int_of_float: this operation is only applicable to Int arguments."
+  | _     -> invalid_arg "Exception in Oper.int_of_float: this operation is only applicable to Flt arguments."
 
 let float_to_string (v : Val.t) : Val.t = match v with
   | Flt i -> Str (Arith_Utils.float_to_string_inner i)
