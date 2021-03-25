@@ -89,6 +89,10 @@ function JS_Interpreter_Expr(e, scope) {
        Identifier is always a value of type Reference. */
     return IdentifierResolution(name, scope)
   }
+  | { type: "Literal", regex: re, value: value } -> {
+
+    return JS_Interpreter_RegEx_TopLevel(re, value)
+  }
   | { type: "Literal", value: value } -> {
     /* 11.1.3 Literal Reference */
 

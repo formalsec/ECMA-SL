@@ -140,11 +140,7 @@ function Get(O, P) {
   };
 
   /** 3. If IsDataDescriptor(desc) is true, return desc.[[Value]]. */
-  print "Banana";
   if (IsDataPropertyDescriptor(desc)) {
-    print "Banana true";
-    print desc;
-    print desc.Value;
     return desc.Value
   }
   /** 4. Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]]. */
