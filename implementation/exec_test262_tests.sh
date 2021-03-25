@@ -29,7 +29,8 @@ function usage {
   -E         Enable logging to file the tests executed with errors. File is "errors.log"
   -F         Enable logging to file the failed tests. File is "failures.log"
   -O         Enable logging to file the passed tests. File is "oks.log"
-  -H         Consider harness file during execution with pre-generated ASTs.'
+  -H         Consider harness file during execution with pre-generated ASTs.
+  -S         Skip OCaml compilation.'
   exit 1
 }
 
@@ -477,6 +478,7 @@ declare -r OUTPUT_FILE="logs/results_$now.md"
 
 declare -i LOG_ENTIRE_EVAL_OUTPUT=0
 
+declare -i SKIP_COMPILATION=0
 declare -i LOG_ERRORS=0
 declare -i LOG_FAILURES=0
 declare -i LOG_OKS=0
@@ -498,26 +500,30 @@ if [ ! -d "output" ]; then
   mkdir "output"
 fi
 
+# Set OPAM environment variables
+eval `opam env`
 
-#echo "1. Compile the ECMA-SL language"
-# OCAMLMAKE=$(make)
-make
+function compile() {
+  #echo "1. Compile the ECMA-SL language"
+  # OCAMLMAKE=$(make)
+  make
 
-if [ $? -ne 0 ]
-then
-  # echo $OCAMLMAKE
-  exit 1
-fi
+  if [ $? -ne 0 ]
+  then
+    # echo $OCAMLMAKE
+    exit 1
+  fi
 
-#echo "2. Install JS2ECMA-SL dependencies"
-cd ../JS2ECMA-SL
-npm install
-cd ../implementation
+  #echo "2. Install JS2ECMA-SL dependencies"
+  cd ../JS2ECMA-SL
+  npm install
+  cd ../implementation
 
-echo ""
+  echo ""
+}
 
 # Define list of arguments expected in the input
-optstring=":EFOHd:f:i:r:p:"
+optstring=":EFOHSd:f:i:r:p:"
 
 declare -a dDirs=() # Array that will contain the directories to use with the arg "-d"
 declare -a fFiles=() # Array that will contain the files to use with the arg "-f"
@@ -531,6 +537,7 @@ while getopts ${optstring} arg; do
     F) LOG_FAILURES=1 ;;
     O) LOG_OKS=1 ;;
     H) WITH_HARNESS=1 ;;
+    S) SKIP_COMPILATION=1 ;;
     d) dDirs+=("$OPTARG") ;;
     f) fFiles+=("$OPTARG") ;;
     i) iFiles+=("$OPTARG") ;;
@@ -544,6 +551,11 @@ while getopts ${optstring} arg; do
       ;;
   esac
 done
+
+if [ $SKIP_COMPILATION -ne 1 ]; then
+  compile
+fi
+
 
 function process() {
   # Environment variable used by the "time" tool
