@@ -15,7 +15,6 @@ const Return = require("../syntax/Stmt/Return")(Stmt);
 const Function = require("../syntax/Func");
 const Block = require("../syntax/Stmt/Block")(Stmt);
 const SymbolVal = require("../syntax/Val/SymbolVal")(Stmt);
-const ParseRegExps = require("../utils/parse_regexp");
 
 function translateLiteral(eslVal) {
   return {
@@ -128,8 +127,7 @@ function traverseAndTranslate(value) {
 }
 
 function fromJSObjectToESLStatements(objProg = {}) {
-  const progObj = ParseRegExps(objProg);
-  const { expression, statements } = traverseAndTranslate(progObj);
+  const { expression, statements } = traverseAndTranslate(objProg);
 
   return statements.concat(createReturnStmt(expression));
 }
