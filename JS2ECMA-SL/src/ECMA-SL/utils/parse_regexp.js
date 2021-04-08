@@ -1,6 +1,18 @@
 const regexpTree = require("regexp-tree");
 const mapper = require("./mapper");
 
+function countGroups(re) {
+  var count = 0;
+  regexpTree.traverse(re, {
+    Group({node}) {
+      if (node.capturing) {
+        count +=1;
+      }
+    }
+  });
+  return count;
+}
+
 function parseRegExps(obj) {
   function callback(obj) {
     if (!obj)
@@ -12,12 +24,16 @@ function parseRegExps(obj) {
     switch (obj.type) {
       case "Literal":
         if (obj.hasOwnProperty("regex")) {
+
+          let re = regexpTree.parse(obj.raw);
+          re.nCaps = countGroups(re);
+
           return {
             obj: {
               type: "Literal",
               value: obj.raw,
               raw: obj.raw,
-              regex: regexpTree.parse(obj.raw),
+              regex: re,
             },
             recurse: false,
           };
