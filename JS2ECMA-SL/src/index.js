@@ -2,6 +2,7 @@ const esprima = require("esprima");
 const yargs = require("yargs");
 const fs = require("fs");
 const translator = require("./ECMA-SL/translator");
+const ParseRegExps = require("./ECMA-SL/utils/parse_regexp");
 
 const argv = yargs
   .option("input", { alias: "i", description: "JS input file", type: "string" })
@@ -26,18 +27,13 @@ fs.readFile(argv.input, "utf-8", (err, data) => {
 
   let prog;
   try {
-    prog = esprima.parseScript(data);
-  } catch(ex) {
-    prog = newEarlySyntaxError(ex.description)
+    progObj = esprima.parseScript(data);
+    prog = ParseRegExps(progObj);
+  } catch (ex) {
+    prog = newEarlySyntaxError(ex.description);
   }
 
-  let statements;
-  try {
-    statements = translator.fromJSObjectToESLStatements(prog);
-  } catch(ex) {
-    statements = translator.fromJSObjectToESLStatements(newEarlySyntaxError(ex.description));
-  }
-
+  const statements = translator.fromJSObjectToESLStatements(prog);
   const func = translator.fromESLStatementsToESLFunction(
     FUNC_NAME,
     ["___internal_esl_global"],
