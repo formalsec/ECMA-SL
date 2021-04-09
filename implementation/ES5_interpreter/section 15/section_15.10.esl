@@ -1512,21 +1512,21 @@ function JS_Interpreter_RegEx(re, flags) {
 
     return m
   }
-  /* Decimal Character */
+  /* Decimal Character (e.g.: '\\0') */
   | { type: "Char", value: v, kind: "decimal" } -> {
 
-    cs := {};
-
     if (v = "\\0") {
-      cs["0"] := "\0";
-      cs := { positive: cs, negative: null }
+      v := "\0"
     } else {
       throw s_concat(["Unimplemented decimal character: ", v])
     };
 
-    m := lambda (st, k) [cs, v] {
+    m := lambda (st, k) [v] {
       c := stateGetChar(st);
-      if (IsInCharacterClass(cs, c, st.ic)) {
+      if (c = null) {
+        return null
+      };
+      if (c = v) {
         stateNext(st);
         return {k}(st)
       } else {
