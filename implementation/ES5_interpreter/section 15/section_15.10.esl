@@ -1008,13 +1008,14 @@ function IsInCharacterClass(cs, c, ic) {
   code := to_char_code c;
   code := canonicalise(c, code, ic);
   code_str := int_to_string code;
+  ret := false;
   if (!(cs.positive = null)) {
-    return (code_str in_obj cs.positive)
-  } elif (!(cs.negative = null)) {
-    return !(code_str in_obj cs.negative)
-  } else {
-    return false
-  }  
+    ret := (code_str in_obj cs.positive)
+  };
+  if (!(cs.negative = null)) {
+    ret := (ret ||| !(code_str in_obj cs.negative))
+  };
+  return ret  
 };
 
 
@@ -1281,6 +1282,7 @@ function JS_Interpreter_RegEx(re, flags) {
 
     m := lambda (st, k) [cs] {
       c := stateGetChar(st);
+
       if (IsInCharacterClass(cs, c, st.ic)) {
         stateNext(st);
         return {k}(st)
@@ -1563,7 +1565,6 @@ function JS_Interpreter_RegEx(re, flags) {
     return m
   }
   | default -> {
-    print re;
     throw "Regex Not Supported!!"
   }
 }
