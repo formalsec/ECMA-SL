@@ -81,10 +81,11 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
 
   /* 15.5.4.10 String.prototype.match (regexp) */
   matchFunctionObject := CreateBuiltInFunctionObject(["regexp"], "StringPrototypeMatch", global, strict, null);
+  setConfigurability(matchFunctionObject, "length", true);
   createBuiltInProperty(prototype, "match", matchFunctionObject);
 
   /* 15.5.4.11 String.prototype.replace (searchValue, replaceValue) */
-  replaceFunctionObject := CreateBuiltInFunctionObject(["searchValue", "replaceValue"], "StringPrototypereplace", global, strict, null);
+  replaceFunctionObject := CreateBuiltInFunctionObject(["searchValue", "replaceValue"], "StringPrototypeReplace", global, strict, null);
   createBuiltInProperty(prototype, "replace", replaceFunctionObject);
 
   /* 15.5.4.12 String.prototype.search (regexp) */
@@ -728,42 +729,87 @@ function StringPrototypeMatch(global, this, strict, args) {
 
 
 
-/* 15.5.4.11 String.prototype.replace (searchValue, replaceValue) */
-
-function StringPrototypereplace (global, this, strict, args) {
+/**
+ * 15.5.4.11 String.prototype.replace (searchValue, replaceValue)
+ */
+function StringPrototypeReplace (global, this, strict, args) {
   searchValue := l_nth(args, 0);
   replaceValue := l_nth(args, 1);
 
-  /* Call CheckObjectCoercible passing the this value as its argument. */
+  /* 1. Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
-  /* Let string be the result of calling ToString, giving it the this value as its argument. */
+  /* 2. Let string be the result of calling ToString, giving it the this
+        value as its argument. */
   string := ToString(this);
-  /* If searchValue is a regular expression (an object whose [[Class]] internal property is "RegExp") */
-  if (searchValue.class = "RegExp"){
-    /* TO DO */
-    return null
+
+  /* If searchValue is a regular expression (an object whose [[Class]]
+    internal property is "RegExp"), do the following: If searchValue.global
+    is false, then search string for the first match of the regular expression
+    searchValue. If searchValue.global is true, then search string for all
+    matches of the regular expression searchValue. Do the search in the same
+    manner as in String.prototype.match, including the update of
+    searchValue.lastIndex. Let m be the number of left capturing parentheses
+    in searchValue (using NcapturingParens as specified in 15.10.2.1). */
+  if (isRegExpObject(searchValue)) {
+    global := getJSProperty(searchValue, "global").Value;
+    matchArr := RegExpPrototypeExec(global, rx, strict, [string]);
+    m := getJSProperty(matchArr, "length").Value - 1. /* TO DO */
   }
   /* If searchValue is not a regular expression */
   else{
     /* let searchString be ToString(searchValue) */
     searchString := ToString(searchValue);
     /* search string for the first occurrence of searchString. */
-    first := StringPrototypeindexOf(global, this, strict, [searchString, 'undefined]);
+    first := StringPrototypeIndexOf(global, this, strict, [searchString, 'undefined]);
     /* Let m be 0 */
-    m := 0
+    m := 0.
   };
-  /* If replaceValue is a function, */
-  if(replaceValue.class = "Function"){
+  /* If replaceValue is a function, then for each matched substring, call the
+  function with the following m + 3 arguments. Argument 1 is the substring that
+  matched. If searchValue is a regular expression, the next m arguments are all
+  of the captures in the MatchResult (see 15.10.2.1). Argument m + 2 is the offset
+  within string where the match occurred, and argument m + 3 is string. The result
+  is a String value derived from the original input by replacing each matched
+  substring with the corresponding return value of the function call, converted
+  to a String if need be. */
+  if((Type(replaceValue) = "Object") &&& (replaceValue.Class = "Function")) {
     /* TO DO */
     return null
   }
-  else{
+  /* Otherwise, let newstring denote the result of converting replaceValue to a
+  String. The result is a String value derived from the original input String by
+  replacing each matched substring with a String derived from newstring by replacing
+  characters in newstring by replacement text as specified in Table 22. These $
+  replacements are done left-to-right, and, once such a replacement is performed,
+  the new replacement text is not subject to further replacements. For example,
+  "$1,$2".replace(/(\$(\d))/g, "$$1-$1$2") returns "$1-$11,$1-$22". A $ in newstring
+  that does not match any of the forms below is left as is. */
+  /* Table 22 — Replacement Text Symbol Substitutions
+
+    Characters    Replacement text
+
+    $$            $
+    $&            The matched substring.
+    $‘            The portion of string that precedes the matched substring.
+    $’            The portion of string that follows the matched substring.
+    $n            The nth capture, where n is a single digit in the range 1 to 9
+                  and $ n is not followed by a decimal digit. If n≤m and the nth
+                  capture is undefined, use the empty String instead. If n>m, the
+                  result is implementation-defined.
+    $nn           The nnth capture, where nn is a two-digit decimal number in the
+                  range 01 to 99. If nn≤m and the nnth capture is undefined, use
+                  the empty String instead. If nn>m, the result is implementation-defined. */
+  else {
     newstring := ToString(replaceValue);
     /* TO DO */
     return null
   }
 };
-
+/**
+ * NOTE The replace function is intentionally generic; it does not require that its
+ * this value be a String object. Therefore, it can be transferred to other kinds of
+ * objects for use as a method.
+ */
 
 
 
@@ -795,6 +841,11 @@ function StringPrototypeSearch(global, this, strict, args) {
     within string where the pattern matched, or –1 if there was no match. The
     lastIndex and global properties of regexp are ignored when performing the
     search. The lastIndex property of regexp is left unchanged. */
+  matchArr := RegExpPrototypeExec(global, rx, strict, [string]);
+  result := -(1.);
+  if (!(matchArr = 'null)) {
+    result := getJSProperty(matchArr, "index").Value
+  };
 
   /* 6. Return result. */
   return result

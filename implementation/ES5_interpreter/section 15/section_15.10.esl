@@ -16,8 +16,6 @@ function initRegExpObject(globalObject, ObjectPrototype, strict) {
 };
 
 
-
-
 /**
  * 15.10.3 The RegExp Constructor Called as a Function
  *
@@ -31,14 +29,12 @@ function initRegExpObject(globalObject, ObjectPrototype, strict) {
  */
 function RegExpConstructorCalledAsFunction(strict, pattern, flags) {
   R := pattern;
-  if ((R.Class = "RegExp") &&& (flags = 'undefined)) {
+  if (isRegExpObject(R) &&& (flags = 'undefined)) {
     return R
   };
 
   return newRegExp(strict, pattern, flags)
 };
-
-
 
 
 /**
@@ -49,13 +45,31 @@ function RegExpConstructorCalledAsFunction(strict, pattern, flags) {
  */
 function RegExpConstructor(global, this, strict, args) {
   pattern := l_nth(args, 0);
-  flags := l_nth(args, 1);
+  flags := getOptionalParam(args, 1);
 
   if ((this = 'undefined) ||| (this = 'null)) {
     return RegExpConstructorCalledAsFunction(strict, pattern, flags)
   };
 
   return newRegExp(strict, pattern, flags)
+};
+
+
+/**
+ * Receives a string with the pattern and a string with the flags.
+ * Returns a RegExp object.
+ */
+function parsePattern(pattern, flags) {
+  progStr := s_concat(["/", pattern, "/", flags]);
+  prog := extern parseJS(progStr);
+  progObj := {prog}();
+  if ((l_len progObj.body) = 0) {
+    throw SyntaxErrorConstructorInternal()
+  };
+  expression := (l_nth(progObj.body, 0)).expression;
+  regex := expression.regex;
+  source := expression.source;
+  return JS_Interpreter_RegEx_TopLevel(regex, source)
 };
 
 
@@ -69,18 +83,21 @@ function newRegExp(strict, pattern, flags) {
     and flags is undefined, then let P be the pattern used to construct R
     and let F be the flags used to construct R. */
   R := pattern;
-  if ((R.Class = "RegExp") &&& (flags = 'undefined)) {
-    P := getInternalProperty(R, "source"); 
-    F := getInternalProperty(R, "flags") 
+  if (isRegExpObject(R)) {
+    if(flags = 'undefined) {
+      P := getInternalProperty(R, "source");
+      F := getInternalProperty(R, "flags") 
+    }
+    /* If pattern is an object R whose [[Class]] internal property is "RegExp"
+      and flags is not undefined, then throw a TypeError exception. */
+    else {
+      throw TypeErrorConstructorInternal()
+    }
   }
-  /* If pattern is an object R whose [[Class]] internal property is "RegExp"
-    and flags is not undefined, then throw a TypeError exception. Otherwise,
-    let P be the empty String if pattern is undefined and ToString(pattern)
-    otherwise, and let F be the empty String if flags is undefined and
-    ToString(flags) otherwise. */
-  elif ((R.Class = "RegExp") &&& !(flags = 'undefined)) {
-    throw TypeErrorConstructorInternal()
-  } else {
+  /* Otherwise, let P be the empty String if pattern is undefined
+     and ToString(pattern) otherwise, and let F be the empty String
+     if flags is undefined and ToString(flags) otherwise. */
+  else {
     if (pattern = 'undefined) {
       P := ""
     } else {
@@ -90,62 +107,43 @@ function newRegExp(strict, pattern, flags) {
       F := ""
     } else {
       F := ToString(flags)
-    }
-  };
-  /* If the characters of P do not have the syntactic form Pattern, then
-    throw a SyntaxError exception. Otherwise let the newly constructed
-    object have a [[Match]] internal property obtained by evaluating ("compiling") the
-    characters of P as a Pattern as described in 15.10.2. */
+    };
 
-  /* If F contains any character other than "g", "i", or "m", or if it
-    contains the same character more than once,
-    then throw a SyntaxError exception. */
-  validateFlags(F);
-  /* If a SyntaxError exception is not thrown, then: */
-  /* Let S be a String in the form of a Pattern equivalent to P, in which
-    certain characters are escaped as described below. S may or may not be
-    identical to P or pattern; however, the internal procedure that would
-    result from evaluating S as a Pattern must behave identically to the
-    internal procedure given by the constructed object's
-    [[Match]] internal property. */
-  S := R;
-  /* The characters / occurring in the pattern shall be escaped in S as necessary to ensure that the String value
-    formed by concatenating the Strings "/", S, "/", and F can be parsed (in an appropriate lexical context) as a
-    RegularExpressionLiteral that behaves identically to the constructed regular expression. For example, if P is
-    "/", then S could be "\/" or "\u002F", among other possibilities, but not "/", because /// followed by F
-    would be parsed as a SingleLineComment rather than a RegularExpressionLiteral. If P is the empty String, this
+    /* If the characters of P do not have the syntactic form Pattern, then
+      throw a SyntaxError exception. Otherwise let the newly constructed
+      object have a [[Match]] internal property obtained by evaluating
+      ("compiling") the characters of P as a Pattern as described in 15.10.2. */
+    /* If F contains any character other than "g", "i", or "m", or if it contains
+      the same character more than once, then throw a SyntaxError exception. */
+    /* If a SyntaxError exception is not thrown, then: */
+    /* Let S be a String in the form of a Pattern equivalent to P, in which
+      certain characters are escaped as described below. S may or may not be
+      identical to P or pattern; however, the internal procedure that would
+      result from evaluating S as a Pattern must behave identically to the
+      internal procedure given by the constructed object's
+      [[Match]] internal property. */
+    /* The characters / occurring in the pattern shall be escaped in S as
+    necessary to ensure that the String value formed by concatenating the
+    Strings "/", S, "/", and F can be parsed (in an appropriate lexical
+    context) as a RegularExpressionLiteral that behaves identically to the
+    constructed regular expression. For example, if P is "/", then S could
+    be "\/" or "\u002F", among other possibilities, but not "/", because
+    /// followed by F would be parsed as a SingleLineComment rather than
+    a RegularExpressionLiteral. If P is the empty String, this
     specification can be met by letting S be "(?:)". */
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
-  /* The following properties of the newly constructed object are data properties
-    with the attributes that are specified in 15.10.7. The [[Value]] of each
-    property is set as follows: */
-  /* The source property of the newly constructed object is set to S. */
-  setJSProperty(newlyConstructedObject, "source", newDataPropertyDescriptorFull(S, false, false, false));
-  /* The global property of the newly constructed object is set to a
-    Boolean value that is true if F contains the character "g" and false otherwise. */
-  /* The ignoreCase property of the newly constructed object is set to a
-    Boolean value that is true if F contains the character "i" and false otherwise. */
-  /* The multiline property of the newly constructed object is set to a Boolean
-    value that is true if F contains the character "m" and false otherwise. */
-  setFlags(newlyConstructedObject, F);
-  /* The lastIndex property of the newly constructed object is set to 0. */
-  setJSProperty(newlyConstructedObject, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false));
+    R := parsePattern(P, F)
+  };
 
-  /* The [[Prototype]] internal property of the newly constructed object is
-    set to the standard built-in RegExp prototype object as specified in 15.10.6. */
-  setInternalProperty(newlyConstructedObject, "Prototype", getRegExpPrototype(strict));
-  /* The [[Class]] internal property of the newly constructed object is set to "RegExp". */
-  setInternalProperty(newlyConstructedObject, "Class", "RegExp");
-
-  /* NOTE If pattern is a StringLiteral, the usual escape sequence
-    substitutions are performed before the String is processed by RegExp.
-    If pattern must contain an escape sequence to be recognised by RegExp,
-    any backslash \ characters must be escaped within the StringLiteral to
-    prevent them being removed when the contents of the StringLiteral are formed. */
-
-  return newlyConstructedObject
+  return R
 };
+/**
+ * NOTE If pattern is a StringLiteral, the usual escape sequence
+ * substitutions are performed before the String is processed by RegExp.
+ * If pattern must contain an escape sequence to be recognised by RegExp,
+ * any backslash \ characters must be escaped within the StringLiteral to
+ * prevent them being removed when the contents of the StringLiteral are formed.
+ */
+
 
 /**
  * 15.10.5 Properties of the RegExp Constructor
@@ -249,43 +247,6 @@ function fillRegExpPrototype(regExpPrototypeObject, RegExpConstructor, globalObj
 /* NOTE Unlike the other standard built-in properties of RegExp instances, lastIndex is writable. */
 
 
-function RegExpPrototypeExecFAKE(global, this, strict, args) {
-
-  str := l_nth(args, 0);
-  m := this.Match;
-
-  k := lambda(st') [] {
-    return st'
-  };
-
-  len := s_len str;
-  i := 0;
-  while (i < len) {
-    
-    ret := {m}(this, str, i);
-
-    if (ret = null) {
-      i := i + 1
-    } else {
-      o := ObjectConstructor(|global|, 'null, false, ['undefined]);
-      
-      desc_i := newDataPropertyDescriptorFull(int_to_float i, true, true, true);
-      setJSProperty(o, "i", desc_i);
-
-      str_m := s_substr(str, i, ret.i - i);
-      desc_m := newDataPropertyDescriptorFull(str_m, true, true, true);
-      setJSProperty(o, "m", desc_m);
-
-      return o
-    }
-  };
-
-  return 'null
-};
-
-
-
-
 function getRegExpPrototypeExec(strict) {
   refObj := newPropertyReference(|global|, "RegExp", strict);
   RegExpObject := GetValue(refObj);
@@ -298,8 +259,6 @@ function getRegExpPrototypeExec(strict) {
 
   return regExpObjectExec
 };
-
-
 
 
 /**
@@ -315,9 +274,12 @@ function getRegExpPrototypeExec(strict) {
 function RegExpPrototypeExec(global, this, strict, args) {
 
   string := l_nth (args, 0);
-
+  
   /* 1. Let R be this RegExp object. */
   R := this;
+  if (!isRegExpObject(R)) {
+    throw TypeErrorConstructorInternal()
+  };
   /* 2. Let S be the value of ToString(string). */
   S := ToString(string);
   /* 3. Let length be the length of S. */
@@ -502,13 +464,29 @@ function JS_Interpreter_RegEx_TopLevel(re, source) {
 
   obj := NewECMAScriptObject();
   setAllInternalMethodsOfObject(obj);
+
+  /* The following properties of the newly constructed object are data properties
+    with the attributes that are specified in 15.10.7. The [[Value]] of each
+    property is set as follows: */
+
+  /* The [[Prototype]] internal property of the newly constructed object is
+    set to the standard built-in RegExp prototype object as specified in 15.10.6. */
   setInternalProperty(obj, "Prototype", getRegExpPrototype(false));
   setInternalProperty(obj, "Extensible", true);
+  /* The [[Class]] internal property of the newly constructed object is set to "RegExp". */
   setInternalProperty(obj, "Class", "RegExp");
 
   /*setJSProperty(obj, "length", newDataPropertyDescriptorFull(0., true, false, false)); TODO ??? */
+  /* The source property of the newly constructed object is set to S. */
   setJSProperty(obj, "source", newDataPropertyDescriptorFull(source, false, false, false));
+  /* The global property of the newly constructed object is set to a
+    Boolean value that is true if F contains the character "g" and false otherwise. */
+  /* The ignoreCase property of the newly constructed object is set to a
+    Boolean value that is true if F contains the character "i" and false otherwise. */
+  /* The multiline property of the newly constructed object is set to a Boolean
+    value that is true if F contains the character "m" and false otherwise. */
   flags := setFlags(obj, re.flags);
+  /* The lastIndex property of the newly constructed object is set to 0. */
   setJSProperty(obj, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false));
 
   m := JS_Interpreter_RegEx(re.body, flags);
@@ -536,6 +514,9 @@ function JS_Interpreter_RegEx_TopLevel(re, source) {
   return obj
 };
 
+/**
+ * Not being used because JS2ECMA-SL's regexp-tree takes care of this.
+ */
 function validateFlags(flags) {
   g := false;
   i := false;
@@ -1237,6 +1218,13 @@ function wordCharSet(negative) {
 
 function JS_Interpreter_RegEx(re, flags) {
 
+  if (re = null) {
+    m := lambda (st, k) [] {
+      return {k}(st)
+    };
+    return m
+  };
+
   match (re) with
   /* Negative Character Range */
   | { type: "CharacterClass", negative: true, expressions: res} -> {
@@ -1435,7 +1423,7 @@ function JS_Interpreter_RegEx(re, flags) {
       st' := copyState(st);
       r := {m_l}(st, k);
       if (isFailure(r)) {
-        return {m_r}(st, k)
+        return {m_r}(st', k)
       };
       return r
     };
