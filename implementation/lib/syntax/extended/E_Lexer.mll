@@ -219,6 +219,7 @@ and read_string buf =
   | '\\' 't'             { Buffer.add_char buf '\t'; read_string buf lexbuf }
   | '\\' '\"'            { Buffer.add_char buf '\"'; read_string buf lexbuf }
   | '\\' '\''            { Buffer.add_char buf '\''; read_string buf lexbuf }
+  | '\\' '0'             { Buffer.add_char buf '\000'; read_string buf lexbuf }
   | [^ '"' '\\']+        {
                            Buffer.add_string buf (Lexing.lexeme lexbuf);
                            read_string buf lexbuf
