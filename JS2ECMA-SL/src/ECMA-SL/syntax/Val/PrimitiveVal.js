@@ -11,7 +11,13 @@ function MakePrimitiveVal(Val){
                              .split('"').join('\\"')}"`
       }
 
-      if (((typeof this.value) === "number") && (this.value === Math.floor(this.value)) && (this.value < 1000000000000000000000)){
+      if (this.value !== this.value) {
+        return "nan";
+      }
+
+      if (((typeof this.value) === "number") &&
+          (this.value === Math.floor(this.value)) &&
+          (this.value < 1000000000000000000000)){
         return "" + this.value + "."
       }
 
