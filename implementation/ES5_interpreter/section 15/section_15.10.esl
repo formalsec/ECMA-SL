@@ -325,7 +325,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
     }
   };
   /* 10. Let e be r's endIndex value. */
-  e := int_to_float r.i;
+  e := int_to_float r.endIndex;
   /* 11. If global is true, */
   if (global = true) {
     /* a. Call the [[Put]] internal method of R with
@@ -577,8 +577,8 @@ function isFailure(st) {
   return st = null
 };
 
-function initialState(str, i, gb, ic, ml, nCaps) {
-  o := { str: str, i: i, caps: initialCaps(nCaps), gb: gb, ic: ic, ml: ml };
+function initialState(str, endIndex, gb, ic, ml, nCaps) {
+  o := { str: str, endIndex: endIndex, caps: initialCaps(nCaps), gb: gb, ic: ic, ml: ml };
   return o
 };
 
@@ -589,7 +589,7 @@ function initialCaps(nCaps) {
 };
 
 function stateGetChar(st) {
-  i := st.i;
+  i := st.endIndex;
   str := st.str;
 
   if (i < (s_len str)) {
@@ -599,16 +599,16 @@ function stateGetChar(st) {
 };
 
 function stateNext(st) {
-  st.i := st.i + 1;
+  st.endIndex := st.endIndex + 1;
   return null
 };
 
 function stateGetIndex(st) {
-  return st.i
+  return st.endIndex
 };
 
 function stateSetIndex(st, i) {
-  st.i := i;
+  st.endIndex := i;
   return null
 };
 
@@ -617,7 +617,7 @@ function stateGetStr(st) {
 };
 
 function stateGetSubStr(st, i) {
-  len := st.i - i;
+  len := st.endIndex - i;
   return s_substr(st.str, i, len)
 };
 
@@ -643,7 +643,7 @@ function stateSetCap(st, i, str) {
 
 function copyState(st) {
   st' := {};
-  st'.i := st.i;
+  st'.endIndex := st.endIndex;
   st'.str := st.str;
   st'.gb := st.gb;
   st'.ic := st.ic;
@@ -738,16 +738,41 @@ function JS_Interpreter_Repetition_Greedy(m, bounds, st, k) {
     return {k}(st)
   } else {
 
-    k' := lambda (st') [m, bounds, k] {
+    k' := lambda (st') [st, m, bounds, k] {
+      print "INSIDE K'";
+      print bounds.sup;
+      print bounds.inf;
+      print st;
+      print st.caps;
+      print st';
+      print st'.caps;
+      /* TODO - Added this if, show prof */
+      /*if ((bounds.inf = 0) &&& (st.endIndex = st'.endIndex)) {
+        return null
+      };*/
       bounds' := decrementBounds(bounds);
       return JS_Interpreter_Repetition_Greedy(m, bounds', st', k)
     };
 
+    /* TODO - Added this st2, show prof */
+    /*st2 := copyState(st);
+    i := st2.endIndex;
+    len := st2.caps.len;
+    while (i < len) {
+      i_str := int_to_string i;
+      if (i_str in_obj st2.caps) {
+        delete st2.caps[i_str]
+      };
+      i := i + 1
+    };*/
+
     if (bounds.inf > 0.) {
       return {m}(st, k')
+      /*return {m}(st2, k')*/
     } else {
       oldSt := copyState(st);
       ret := {m}(st, k');
+      /*ret := {m}(st2, k');*/
 
       if (isFailure(ret)) {
         return {k}(oldSt)
@@ -804,7 +829,7 @@ function JS_Interpreter_Assertion(ba) {
   if (ba.kind = "^") {
     t := lambda (st) [] {
       /* 1. Let e be x's endIndex. */
-      e := st.i;
+      e := st.endIndex;
       /* 2. If e is zero, return true. */
       if (e = 0) {
         return true
@@ -824,7 +849,7 @@ function JS_Interpreter_Assertion(ba) {
   } elif (ba.kind = "$") {
     t := lambda (st) [] {
       /* 1. Let e be x's endIndex. */
-      e := st.i;
+      e := st.endIndex;
       /* 2. If e is equal to InputLength, return true. */
       len := s_len st.str;
       if (e = len) {
@@ -850,7 +875,7 @@ function JS_Interpreter_Assertion(ba) {
       argument x and performs the following: */
     t := lambda (st) [] {
       /* 1. Let e be x's endIndex. */
-      e := st.i;
+      e := st.endIndex;
       /* 2. Call IsWordChar(e-1) and let a be the Boolean result. */
       a := IsWordChar(e - 1, st.str);
       /* 3. Call IsWordChar(e) and let b be the Boolean result. */
@@ -874,7 +899,7 @@ function JS_Interpreter_Assertion(ba) {
         x and performs the following: */
     t := lambda (st) [] {
       /* 1. Let e be x's endIndex. */
-      e := st.i;
+      e := st.endIndex;
       /* 2. Call IsWordChar(e-1) and let a be the Boolean result. */
       a := IsWordChar(e - 1, st.str);
       /* 3. Call IsWordChar(e) and let b be the Boolean result. */
@@ -1019,9 +1044,9 @@ function canonicalise(c, c_cp, ic) {
   if (!((s_len u) = 1)) {
     return c_cp
   };
-  u_cp := to_char_code u;
+  u_cp := int_to_float (to_char_code u);
 
-  if ((c_cp >= 128) && (u_cp < 128)) {
+  if ((c_cp >= 128.) && (u_cp < 128.)) {
     return c_cp
   } else {
     return u_cp
@@ -1310,7 +1335,7 @@ function JS_Interpreter_RegEx(re, flags) {
     m' := JS_Interpreter_RegEx(re', flags);
 
     m := lambda (st, k) [m'] {
-      oldIndex := st.i;
+      oldIndex := st.endIndex;
 
       k_id := lambda(st') [] {
         return st'
@@ -1322,7 +1347,7 @@ function JS_Interpreter_RegEx(re, flags) {
         return r
       };
 
-      r.i := oldIndex;
+      r.endIndex := oldIndex;
 
       return {k}(r)
     };
@@ -1395,7 +1420,7 @@ function JS_Interpreter_RegEx(re, flags) {
 
     m := lambda (st, k) [m', i] {
 
-      old_i := st.i;
+      old_i := st.endIndex;
 
       k' := lambda (st') [st, k, old_i, i] {
         str := stateGetSubStr(st', old_i);
