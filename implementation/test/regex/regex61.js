@@ -1,5 +1,13 @@
-var __replaced = "abc".replace(/a/ig, 'd');
+var ret = "abcA".replace(/a/ig, foo);
 
-var __expected = 'dbc';
+console.log(ret);
 
-assert.sameValue(__replaced, __expected);
+assert.sameValue(ret, 'yobcyo');
+
+function foo(str, index, input) {
+	return "yo";
+}
+
+var ret = "abcA".replace(/a/ig, "d");
+
+assert.sameValue(ret, 'dbcd');

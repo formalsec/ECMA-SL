@@ -732,7 +732,7 @@ function StringPrototypeMatch(global, this, strict, args) {
 /**
  * 15.5.4.11 String.prototype.replace (searchValue, replaceValue)
  */
-function StringPrototypeReplace (global, this, strict, args) {
+function StringPrototypeReplace(global, this, strict, args) {
   searchValue := l_nth(args, 0);
   replaceValue := l_nth(args, 1);
 
@@ -751,17 +751,38 @@ function StringPrototypeReplace (global, this, strict, args) {
     searchValue.lastIndex. Let m be the number of left capturing parentheses
     in searchValue (using NcapturingParens as specified in 15.10.2.1). */
   if (isRegExpObject(searchValue)) {
-    global := getJSProperty(searchValue, "global").Value;
-    matchArr := RegExpPrototypeExec(global, rx, strict, [string]);
-    m := getJSProperty(matchArr, "length").Value - 1. /* TO DO */
+    g := getJSProperty(searchValue, "global").Value;
+    matchArr := RegExpPrototypeExec(global, searchValue, strict, [string]);
+    m := {matchArr.Get}(matchArr, "length") - 1.; /* TODO: review */
+    
+    matches := [matchArr];
+
+    if (g = true) {
+      while (!(matchArr = 'null)) {
+        matchArr := RegExpPrototypeExec(global, searchValue, strict, [string]);
+        if (!(matchArr = 'null)) {
+          matches := l_concat(matches, [matchArr])
+        }
+      }
+    }
   }
-  /* If searchValue is not a regular expression */
-  else{
-    /* let searchString be ToString(searchValue) */
+  /* If searchValue is not a regular expression, let searchString be
+    ToString(searchValue) and search string for the first occurrence
+    of searchString. Let m be 0. */
+  else {
     searchString := ToString(searchValue);
-    /* search string for the first occurrence of searchString. */
-    first := StringPrototypeIndexOf(global, this, strict, [searchString, 'undefined]);
-    /* Let m be 0 */
+    matches := [];
+    indexFound := StringPrototypeSearch(global, string, strict, [searchString]);
+
+    if (indexFound >= 0.) {
+      A := ArrayConstructor(global, this, strict, []);
+      {A.DefineOwnProperty}(A, "index", newDataPropertyDescriptorFull(indexFound, true, true, true), true);
+      {A.DefineOwnProperty}(A, "input", newDataPropertyDescriptorFull(string, true, true, true), true);
+      {A.DefineOwnProperty}(A, "length", newDataPropertyDescriptorFull(1., true, false, false), true);
+      {A.DefineOwnProperty}(A, "0", newDataPropertyDescriptorFull(searchString, true, true, true), true);
+
+      matches := l_concat(matches, [A])
+    };
     m := 0.
   };
   /* If replaceValue is a function, then for each matched substring, call the
@@ -772,10 +793,6 @@ function StringPrototypeReplace (global, this, strict, args) {
   is a String value derived from the original input by replacing each matched
   substring with the corresponding return value of the function call, converted
   to a String if need be. */
-  if ((Type(replaceValue) = "Object") &&& (replaceValue.Class = "Function")) {
-    /* TO DO */
-    return null
-  }
   /* Otherwise, let newstring denote the result of converting replaceValue to a
   String. The result is a String value derived from the original input String by
   replacing each matched substring with a String derived from newstring by replacing
@@ -799,11 +816,62 @@ function StringPrototypeReplace (global, this, strict, args) {
     $nn           The nnth capture, where nn is a two-digit decimal number in the
                   range 01 to 99. If nn≤m and the nnth capture is undefined, use
                   the empty String instead. If nn>m, the result is implementation-defined. */
-  else {
-    newstring := ToString(replaceValue);
-    /* TO DO */
-    return null
-  }
+
+  afterStr := string;
+  prevOffset := 0;
+  resultParts := [];
+
+  i := 0;
+  len := l_len matches;
+  while (i < len) {
+    A := l_nth(matches, i);
+    args2 := [];
+
+    matchStr := {A.Get}(A, "0");
+    args2 := l_concat(args2, [matchStr]);
+
+    j := 1.;
+    while (j <= m) {
+      j_str := float_to_string j;
+      matchStr2 := {A.Get}(A, j_str);
+      args2 := l_concat(args2, [matchStr2]);
+      j := j + 1.
+    };
+
+    offset := {A.Get}(A, "index");
+    args2 := l_concat(args2, [offset]);
+    input := {A.Get}(A, "input");
+    args2 := l_concat(args2, [input]);
+
+    if ((Type(replaceValue) = "Object") &&& (replaceValue.Class = "Function")) {
+      /* TODO - review "this" arg passed to the replace function is 'undefined 
+      according to test test/test262/tests/built-ins/String/prototype/replace/15.5.4.11-1.js
+      and test/test262/tests/built-ins/String/prototype/replace/15.5.4.11-1.js */
+      newstring := {replaceValue.Call}(null, null, replaceValue, 'undefined, [args2]);
+      newstring := ToString(newstring)
+    } else {
+      newstring := ToString(replaceValue)
+    };
+
+    startOffset := int_of_float offset;
+    if (i > 0) {
+      startOffset := startOffset - prevOffset
+    };
+
+    beforeStr := s_substr(afterStr, 0, startOffset);
+    matchStrLen := s_len matchStr;
+    afterStrLen := (s_len afterStr) - startOffset - 1;
+    afterStr := s_substr(afterStr, startOffset + matchStrLen, afterStrLen);
+
+    resultParts := l_concat (resultParts, [beforeStr, newstring]);
+
+    prevOffset := startOffset + matchStrLen;
+
+    i := i + 1
+  };
+
+  resultParts := l_concat (resultParts, [afterStr]);
+  return s_concat resultParts
 };
 /**
  * NOTE The replace function is intentionally generic; it does not require that its
