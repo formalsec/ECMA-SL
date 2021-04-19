@@ -403,6 +403,10 @@ function RegExpPrototypeExec(global, this, strict, args) {
   {A.DefineOwnProperty}(A, "length", descriptorLength, true);
   /* 18. Let matchedSubstr be the matched substring (i.e. the portion of S
     between offset i inclusive and offset e exclusive). */
+   /* print "INSIDE EXEC";
+    print S; // baaaac
+    print i; // 0
+    print e; // 7*/
   matchedSubstr := s_substr(S, i, (int_of_float e) - i);
   /* 19. Call the [[DefineOwnProperty]] internal method of A with arguments
     "0", Property Descriptor {[[Value]]: matchedSubstr, [[Writable]: true,
@@ -780,22 +784,22 @@ k = continuation
 st = state
 */
 function JS_Interpreter_Repetition_Greedy(m, bounds, st, k) {
+
+  print "INSIDE REP GREEDY";
+  print st.endIndex;
+
   if (bounds.sup = 0.) {
     return {k}(st)
   } else {
 
     k' := lambda (st') [st, m, bounds, k] {
-      print "INSIDE K'";
-      print bounds.sup;
-      print bounds.inf;
-      print st;
-      print st.caps;
-      print st';
-      print st'.caps;
       /* TODO - Added this if, show prof */
       /*if ((bounds.inf = 0) &&& (st.endIndex = st'.endIndex)) {
         return null
       };*/
+      if (st'.endIndex = st.endIndex) {
+        return {k}(st')
+      };
       bounds' := decrementBounds(bounds);
       return JS_Interpreter_Repetition_Greedy(m, bounds', st', k)
     };
@@ -811,6 +815,8 @@ function JS_Interpreter_Repetition_Greedy(m, bounds, st, k) {
       };
       i := i + 1
     };*/
+
+
 
     if (bounds.inf > 0.) {
       return {m}(st, k')
