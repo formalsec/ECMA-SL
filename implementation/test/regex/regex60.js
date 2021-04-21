@@ -1,5 +1,19 @@
-var __replaced = "abc".replace(/a/ig, 'd');
+var ret = "abc".split(/a/ig);
 
-var __expected = 'dbc';
+var expected = ['', 'bc'];
 
-assert.sameValue(__replaced, __expected);
+checkRes();
+
+ret = "abc".split("b");
+
+expected = ['a', 'c'];
+
+checkRes();
+
+function checkRes() {
+	for (var index = 0; index < expected.length; index++) {
+		if (ret[index] !== expected[index]) {
+			$ERROR('#3.' + index + ': ret[index] === ' + expected[index] + '. Actual: ' + ret[index]);
+		}
+	}
+}
