@@ -44,8 +44,12 @@ function RegExpConstructorCalledAsFunction(strict, pattern, flags) {
  * constructor: it initialises the newly created object.
  */
 function RegExpConstructor(global, this, strict, args) {
-  pattern := l_nth(args, 0);
+  pattern := getOptionalParam(args, 0);
   flags := getOptionalParam(args, 1);
+
+  if (pattern = null) {
+    pattern := ""
+  };
 
   if ((this = 'undefined) ||| (this = 'null)) {
     return RegExpConstructorCalledAsFunction(strict, pattern, flags)
@@ -403,10 +407,6 @@ function RegExpPrototypeExec(global, this, strict, args) {
   {A.DefineOwnProperty}(A, "length", descriptorLength, true);
   /* 18. Let matchedSubstr be the matched substring (i.e. the portion of S
     between offset i inclusive and offset e exclusive). */
-   /* print "INSIDE EXEC";
-    print S; // baaaac
-    print i; // 0
-    print e; // 7*/
   matchedSubstr := s_substr(S, i, (int_of_float e) - i);
   /* 19. Call the [[DefineOwnProperty]] internal method of A with arguments
     "0", Property Descriptor {[[Value]]: matchedSubstr, [[Writable]: true,
@@ -649,7 +649,10 @@ function stateGetChar(st) {
 };
 
 function stateNext(st) {
-  st.endIndex := st.endIndex + 1;
+  len := s_len st.str;
+  if (st.endIndex < len) {
+    st.endIndex := st.endIndex + 1
+  };
   return null
 };
 
@@ -785,19 +788,14 @@ st = state
 */
 function JS_Interpreter_Repetition_Greedy(m, bounds, st, k) {
 
-  print "INSIDE REP GREEDY";
-  print st.endIndex;
-
   if (bounds.sup = 0.) {
     return {k}(st)
   } else {
 
-    k' := lambda (st') [st, m, bounds, k] {
-      /* TODO - Added this if, show prof */
-      /*if ((bounds.inf = 0) &&& (st.endIndex = st'.endIndex)) {
-        return null
-      };*/
-      if (st'.endIndex = st.endIndex) {
+    index := st.endIndex;
+
+    k' := lambda (st') [st, m, bounds, k, index] {
+      if ((bounds.inf = 0.) &&& (index = st'.endIndex)) {
         return {k}(st')
       };
       bounds' := decrementBounds(bounds);
@@ -1148,11 +1146,40 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
 
     cs := EmptyCharacterClass(negative);
 
-    if (v = "\\0") {
-      AddCharacterPoint(cs, "\0", "0", negative)
-    } else {
-      throw s_concat(["Unimplemented decimal character inside character class: ", c])
-    };
+    /* remove \ */
+    len := s_len c;
+    c := s_substr(c, 1, len - 1);
+    dec_code := octal_to_decimal (int_of_string c);
+    dec_code_str := int_to_string dec_code;
+    c := from_char_code dec_code;
+
+    AddCharacterPoint(cs, c, dec_code_str, negative);
+
+    return cs
+  }
+  | { type: "Char", value: c, kind: "hex" } -> {
+
+    cs := EmptyCharacterClass(negative);
+
+    c := hex_decode c;
+
+    code := to_char_code c;
+    code_str := int_to_string code;
+
+    AddCharacterPoint(cs, c, code_str, negative);
+
+    return cs
+  }
+  | { type: "Char", value: c, kind: "unicode" } -> {
+
+    cs := EmptyCharacterClass(negative);
+
+    c := utf8_decode c;
+
+    code := to_char_code c;
+    code_str := int_to_string code;
+
+    AddCharacterPoint(cs, c, code_str, negative);
 
     return cs
   }
@@ -1580,13 +1607,54 @@ function JS_Interpreter_RegEx(re, flags) {
     return m
   }
   /* Decimal Character (e.g.: '\\0') */
-  | { type: "Char", value: v, kind: "decimal" } -> {
+  | { type: "Char", value: c, kind: "decimal" } -> {
 
-    if (v = "\\0") {
-      v := "\0"
-    } else {
-      throw s_concat(["Unimplemented decimal character: ", v])
+    /* remove \ */
+    len := s_len c;
+    c := s_substr(c, 1, len - 1);
+
+    dec_code := octal_to_decimal (int_of_string c);
+    c := from_char_code dec_code;
+
+    m := lambda (st, k) [c] {
+      c2 := stateGetChar(st);
+      if (c = null) {
+        return null
+      };
+      if (c2 = c) {
+        stateNext(st);
+        return {k}(st)
+      } else {
+        return null
+      }
     };
+
+    return m
+  }
+  /* Hexadecimal Character (e.g.: '\\x41') */
+  | { type: "Char", value: v, kind: "hex" } -> {
+
+    v := hex_decode v;
+
+    m := lambda (st, k) [v] {
+      c := stateGetChar(st);
+      if (c = null) {
+        return null
+      };
+      if (c = v) {
+        stateNext(st);
+        return {k}(st)
+      } else {
+        return null
+      }
+    };
+
+    return m
+  }
+  /* Unicode Character (e.g.: '\\u0041') */
+  | { type: "Char", value: v, kind: "unicode" } -> {
+
+    v := utf8_decode v;
 
     m := lambda (st, k) [v] {
       c := stateGetChar(st);

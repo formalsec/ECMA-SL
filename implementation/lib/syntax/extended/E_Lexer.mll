@@ -14,6 +14,9 @@
     let _ =
       List.iter (fun (kwd, tok) -> Hashtbl.add keyword_table kwd tok)
               [
+                "octal_to_decimal", OCTAL_TO_DECIMAL;
+                "hex_decode"      , HEX_DECODE;
+                "utf8_decode"     , UTF8_DECODE;
                 "float_to_string" , FLOAT_TO_STRING;
                 "float_of_string" , FLOAT_OF_STRING;
                 "obj_to_list"     , OBJ_TO_LIST;

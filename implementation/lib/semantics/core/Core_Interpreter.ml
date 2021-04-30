@@ -42,6 +42,9 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | IntOfFloat    -> Oper.int_of_float v
   | FloatToString -> Oper.float_to_string v
   | FloatOfString -> Oper.float_of_string v
+  | HexDecode     -> Oper.hex_decode v
+  | Utf8Decode     -> Oper.utf8_decode v
+  | OctalToDecimal-> Oper.octal_to_decimal v
   | Sconcat       -> Oper.string_concat v
   | ObjToList     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjToList")
   | ObjFields     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjFields")

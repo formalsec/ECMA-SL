@@ -105,6 +105,9 @@ rule read =
   | "int_of_string"   { INT_OF_STRING }
   | "int_of_float"    { INT_OF_FLOAT }
   | "int_to_four_hex" { INT_TO_FOUR_HEX }
+  | "hex_decode"      { HEX_DECODE }
+  | "utf8_decode"     { UTF8_DECODE }
+  | "octal_to_decimal"{ OCTAL_TO_DECIMAL }
   | "float_to_string" { FLOAT_TO_STRING }
   | "float_of_string" { FLOAT_OF_STRING }
   | "obj_to_list"     { OBJ_TO_LIST }

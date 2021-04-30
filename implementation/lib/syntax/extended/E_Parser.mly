@@ -37,7 +37,8 @@
 %token <string> SYMBOL
 %token <string> LOC
 %token LAND LOR SCLAND SCLOR
-%token INT_TO_FLOAT INT_TO_STRING INT_TO_FOUR_HEX INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
+%token INT_TO_FLOAT INT_TO_STRING INT_TO_FOUR_HEX HEX_DECODE UTF8_DECODE OCTAL_TO_DECIMAL
+%token INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %token FROM_CHAR_CODE TO_CHAR_CODE TO_LOWER_CASE TO_UPPER_CASE TRIM
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16
@@ -281,6 +282,12 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
   | INT_TO_FOUR_HEX; e = e_expr_target;
     { E_Expr.UnOpt (Oper.IntToFourHex, e) } %prec unopt_prec
+  | HEX_DECODE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.HexDecode, e) } %prec unopt_prec
+  | UTF8_DECODE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Utf8Decode, e) } %prec unopt_prec
+  | OCTAL_TO_DECIMAL; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.OctalToDecimal, e) } %prec unopt_prec
   | INT_OF_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
   | INT_OF_FLOAT; e = e_expr_target;
