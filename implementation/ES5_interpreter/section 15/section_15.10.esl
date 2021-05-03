@@ -61,10 +61,10 @@ function RegExpConstructor(global, this, strict, args) {
 
 function escapePattern(P) {
   i := 0;
-  len := s_len(P);
+  len := s_len_u(P);
   S := "";
   while (i < len) {
-    c := s_nth(P, i);
+    c := s_nth_u(P, i);
     /* the backlash is already escaped in the given string */
     /*if ((c = "\\") ||| (c = "/")) {*/
     if (c = "/") {
@@ -138,11 +138,20 @@ function newRegExp(strict, pattern, flags) {
       };
       R := parsePattern(P, F)
     }
+    /* ES6 - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/15.10.4.1-1.js */
+    else {
+      if (getJSProperty(R, "source") = 'undefined) {
+        P := ""
+      } else {
+        P := getJSProperty(R, "source").Value
+      };
+      R := parsePattern(P, ToString(flags))
+    }
     /* If pattern is an object R whose [[Class]] internal property is "RegExp"
       and flags is not undefined, then throw a TypeError exception. */
-    else {
+    /*else {
       throw TypeErrorConstructorInternal()
-    }
+    }*/
   }
   /* Otherwise, let P be the empty String if pattern is undefined
      and ToString(pattern) otherwise, and let F be the empty String
@@ -333,7 +342,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
   /* 2. Let S be the value of ToString(string). */
   S := ToString(string);
   /* 3. Let length be the length of S. */
-  length := s_len S;
+  length := s_len_u S;
   /* 4. Let lastIndex be the result of calling the [[Get]]
     internal method of R with argument "lastIndex".. */
   lastIndex := {R.Get}(R, "lastIndex");
@@ -572,10 +581,10 @@ function validateFlags(flags) {
   i := false;
   m := false;
 
-  len := s_len flags;
+  len := s_len_u flags;
   index := 0;
   while (index < len) {
-    flag := s_nth(flags, index);
+    flag := s_nth_u(flags, index);
 
     if ((flag = "g") &&& (g = false)) {
       g := true
@@ -598,10 +607,10 @@ function setFlags(obj, flags) {
   i := false;
   m := false;
 
-  len := s_len flags;
+  len := s_len_u flags;
   index := 0;
   while (index < len) {
-    flag := s_nth(flags, index);
+    flag := s_nth_u(flags, index);
 
     if ((flag = "g") &&& (g = false)) {
       g := true
@@ -619,6 +628,13 @@ function setFlags(obj, flags) {
   setJSProperty(obj, "global", newDataPropertyDescriptorFull(g, false, false, false));
   setJSProperty(obj, "ignoreCase", newDataPropertyDescriptorFull(i, false, false, false));
   setJSProperty(obj, "multiline", newDataPropertyDescriptorFull(m, false, false, false));
+
+  /* ES6? - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/S15.10.4.1_A1_T1.js */
+  flags := "";
+  if (g) { flags := s_concat [flags, "g"] };
+  if (i) { flags := s_concat [flags, "i"] };
+  if (m) { flags := s_concat [flags, "m"] };
+  setJSProperty(obj, "flags", newDataPropertyDescriptorFull(flags, false, false, false));
 
   return { gb: g, ic: i, ml: m }
 };
@@ -642,14 +658,28 @@ function stateGetChar(st) {
   i := st.endIndex;
   str := st.str;
 
-  if (i < (s_len str)) {
-    return s_nth(str, i)
+  if (i < (s_len_u str)) {
+    return s_nth_u(str, i)
+  };
+  return null
+};
+
+/* Get char code instead of the char because the
+  internal representation can be different. E.g.
+  \255 vs \195\191 in the case of \xFF and \u00FF */
+function stateGetCharCode(st) {
+  i := st.endIndex;
+  str := st.str;
+
+  if (i < (s_len_u str)) {
+    c := s_nth_u(str, i);
+    return to_char_code_u c
   };
   return null
 };
 
 function stateNext(st) {
-  len := s_len st.str;
+  len := s_len_u st.str;
   if (st.endIndex < len) {
     st.endIndex := st.endIndex + 1
   };
@@ -890,7 +920,7 @@ function JS_Interpreter_Assertion(ba) {
       }
       /* 4. If the character Input[e–1] is one of LineTerminator, return true. */
       else {
-        c := s_nth(st.str, e - 1);
+        c := s_nth_u(st.str, e - 1);
         return isLineTerminator(c)
       }
     };
@@ -901,7 +931,7 @@ function JS_Interpreter_Assertion(ba) {
       /* 1. Let e be x's endIndex. */
       e := st.endIndex;
       /* 2. If e is equal to InputLength, return true. */
-      len := s_len st.str;
+      len := s_len_u st.str;
       if (e = len) {
         return true
       };
@@ -911,7 +941,7 @@ function JS_Interpreter_Assertion(ba) {
       };
       /* 4. If the character Input[e] is one of LineTerminator, return true. */
       if (e < len) {
-        c := s_nth(st.str, e);
+        c := s_nth_u(st.str, e);
         return isLineTerminator(c)
       };
       /* 5. Return false. */
@@ -977,7 +1007,7 @@ function isLineTerminator(c) {
   \u000D              Carriage Return      <CR>
   \u2028              Line separator       <LS>
   \u2029              Paragraph separator  <PS> */
-  hex := int_to_four_hex (to_char_code c);
+  hex := int_to_four_hex (to_char_code_u c);
   if ((hex = "000a") ||| (hex = "000d") ||| (hex = "2028") ||| (hex = "2029")) {
     return true
   };
@@ -990,16 +1020,16 @@ function isLineTerminator(c) {
  */
 function IsWordChar(e, input) {
   /* 1. If e == –1 or e == InputLength, return false. */
-  if ((e = -1) ||| (e = (s_len input))) {
+  if ((e = -1) ||| (e = (s_len_u input))) {
     return false
   };
   /* 2. Let c be the character Input[e]. */
-  c := s_nth(input, e);
+  c := s_nth_u(input, e);
   /* 3. If c is one of the sixty-three characters below, return true.
     a b c d e f g h i j k l m n o p q r s t u v w x y z
     A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
     0 1 2 3 4 5 6 7 8 9 _ */
-  code := to_char_code c;
+  code := to_char_code_u c;
   if (((code >= 48) &&& (code <= 57)) ||| ((code >= 65) &&& (code <= 90)) |||
       ((code >= 97) &&& (code <= 122)) ||| (code = 95)) {
     return true
@@ -1061,7 +1091,7 @@ function IsInCharacterClass(cs, c, ic) {
   if (c = null) {
     return false
   };
-  code := int_to_float (to_char_code c);
+  code := int_to_float (to_char_code_u c);
   code := canonicalise(c, code, ic);
   code_str := float_to_string code;
   ret := false;
@@ -1091,10 +1121,10 @@ function canonicalise(c, c_cp, ic) {
   };
 
   u := to_upper_case c;
-  if (!((s_len u) = 1)) {
+  if (!((s_len_u u) = 1)) {
     return c_cp
   };
-  u_cp := int_to_float (to_char_code u);
+  u_cp := int_to_float (to_char_code_u u);
 
   if ((c_cp >= 128.) && (u_cp < 128.)) {
     return c_cp
@@ -1147,7 +1177,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
     cs := EmptyCharacterClass(negative);
 
     /* remove \ */
-    len := s_len c;
+    len := s_len_u c;
     c := s_substr(c, 1, len - 1);
     dec_code := octal_to_decimal (int_of_string c);
     dec_code_str := int_to_string dec_code;
@@ -1160,12 +1190,9 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
   | { type: "Char", value: c, kind: "hex" } -> {
 
     cs := EmptyCharacterClass(negative);
-
     c := hex_decode c;
-
-    code := to_char_code c;
+    code := to_char_code_u c;
     code_str := int_to_string code;
-
     AddCharacterPoint(cs, c, code_str, negative);
 
     return cs
@@ -1176,9 +1203,22 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
 
     c := utf8_decode c;
 
-    code := to_char_code c;
+    code := to_char_code_u c;
     code_str := int_to_string code;
 
+    AddCharacterPoint(cs, c, code_str, negative);
+
+    return cs
+  }
+  | { type: "Char", value: c, kind: "control" } -> {
+
+    c := to_upper_case c;
+    c := s_nth_u(c, 2);
+    code := int_to_float (to_char_code_u c);
+    code := code % 32.;
+    code_str := float_to_string code;
+
+    cs := EmptyCharacterClass(negative);
     AddCharacterPoint(cs, c, code_str, negative);
 
     return cs
@@ -1474,10 +1514,10 @@ function JS_Interpreter_RegEx(re, flags) {
       if (str_c = 'undefined) {
         return {k}(st)
       };
-      len := s_len str_c;
+      len := s_len_u str_c;
       j1 := stateGetIndex(st);
       str := stateGetStr(st);
-      if ((j1 + len) > (s_len str)) {
+      if ((j1 + len) > (s_len_u str)) {
         return null
       };
       str' := s_substr(str, j1, len);
@@ -1610,7 +1650,7 @@ function JS_Interpreter_RegEx(re, flags) {
   | { type: "Char", value: c, kind: "decimal" } -> {
 
     /* remove \ */
-    len := s_len c;
+    len := s_len_u c;
     c := s_substr(c, 1, len - 1);
 
     dec_code := octal_to_decimal (int_of_string c);
@@ -1634,14 +1674,17 @@ function JS_Interpreter_RegEx(re, flags) {
   /* Hexadecimal Character (e.g.: '\\x41') */
   | { type: "Char", value: v, kind: "hex" } -> {
 
-    v := hex_decode v;
-
     m := lambda (st, k) [v] {
-      c := stateGetChar(st);
-      if (c = null) {
+      c_code := stateGetCharCode(st);
+
+      if (c_code = null) {
         return null
       };
-      if (c = v) {
+
+      v := hex_decode v;
+      v_code := to_char_code_u v;
+
+      if (c_code = v_code) {
         stateNext(st);
         return {k}(st)
       } else {
@@ -1658,10 +1701,36 @@ function JS_Interpreter_RegEx(re, flags) {
 
     m := lambda (st, k) [v] {
       c := stateGetChar(st);
+
       if (c = null) {
         return null
       };
       if (c = v) {
+        stateNext(st);
+        return {k}(st)
+      } else {
+        return null
+      }
+    };
+
+    return m
+  }
+  /* Control Character (e.g.: '\\cA') */
+  | { type: "Char", value: v, kind: "control" } -> {
+
+    m := lambda (st, k) [v] {
+
+      v := to_upper_case v;
+      v := s_nth_u(v, 2);
+      v_code := int_to_float (to_char_code_u v);
+      v_code := v_code % 32.;
+
+      c := stateGetChar(st);
+      c_code := int_to_float (to_char_code_u c);
+      if (c = null) {
+        return null
+      };
+      if (c_code = v_code) {
         stateNext(st);
         return {k}(st)
       } else {
@@ -1681,10 +1750,10 @@ function JS_Interpreter_RegEx(re, flags) {
         return null
       };
 
-      c_code := int_to_float (to_char_code c);
+      c_code := int_to_float (to_char_code_u c);
       c_code := canonicalise(c, c_code, st.ic);
 
-      v_code := int_to_float (to_char_code v);
+      v_code := int_to_float (to_char_code_u v);
       v_code := canonicalise(v, v_code, st.ic);
 
       if (c_code = v_code) {

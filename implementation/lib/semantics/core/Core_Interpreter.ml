@@ -29,6 +29,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ListLen       -> Oper.l_len v
   | TupleLen      -> Oper.t_len v
   | StringLen     -> Oper.s_len v
+  | StringLenU    -> Oper.s_len_u v
   | Head          -> Oper.head v
   | Tail          -> Oper.tail v
   | First         -> Oper.first v
@@ -53,6 +54,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ToUint32      -> Oper.to_uint32 v
   | FromCharCode  -> Oper.from_char_code v
   | ToCharCode    -> Oper.to_char_code v
+  | ToCharCodeU    -> Oper.to_char_code_u v
   | ToLowerCase   -> Oper.to_lower_case v
   | ToUpperCase   -> Oper.to_upper_case v
   | Trim          -> Oper.trim v
@@ -82,6 +84,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Lnth     -> Oper.list_nth (v1, v2)
   | Tnth     -> Oper.tuple_nth (v1, v2)
   | Snth     -> Oper.s_nth (v1,v2)
+  | Snth_u   -> Oper.s_nth_u (v1,v2)
   | Ssplit   -> Oper.string_split (v1, v2)
   | Ladd     -> Oper.list_add (v1, v2)
   | Lprepend -> Oper.list_prepend (v1, v2)

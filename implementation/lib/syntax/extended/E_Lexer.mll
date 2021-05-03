@@ -27,6 +27,7 @@
                 "to_uint16"       , TO_UINT16;
                 "from_char_code"  , FROM_CHAR_CODE;
                 "to_char_code"    , TO_CHAR_CODE;
+                "to_char_code_u"  , TO_CHAR_CODE_U;
                 "to_lower_case"   , TO_LOWER_CASE;
                 "to_upper_case"   , TO_UPPER_CASE;
                 "trim"            , TRIM;
@@ -68,7 +69,9 @@
                 "s_split"         , SSPLIT;
                 "s_concat"        , SCONCAT;
                 "s_len"           , SLEN;
+                "s_len_u"         , SLEN_U;
                 "s_nth"           , SNTH;
+                "s_nth_u"         , SNTH_U;
                 "s_substr"        , SSUBSTR;
                 "int_to_float"    , INT_TO_FLOAT;
                 "int_to_string"   , INT_TO_STRING;
