@@ -1,21 +1,17 @@
-// Hexadecimal
-var str = '\x41';
+// Octal
+var str = '\101';
 var str2 = 'A';
 
 assert.sameValue(str, str2);
 
-var re = /\x41/;
+var re = /\101/;
+
 var ret = re.test("A");
+
 assert.sameValue(ret, true);
 
-re = /[\x41]/;
+re = /[\101]/;
+
 ret = re.test("A");
-assert.sameValue(ret, true);
 
-str = "\xe0\xa4\xb1";
-str2 = "à¤±";
-assert.sameValue(str, str2);
-
-re = /[\xe0\xa4\xb1]/;
-ret = re.test("à¤±");
 assert.sameValue(ret, true);

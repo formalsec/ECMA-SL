@@ -354,7 +354,7 @@ function jsonStringify(global, this, strict, args) {
       if (spaceLen <= 10) {
         gap := space
       } else {
-        gap := s_substr(space, 0, 10)
+        gap := s_substr_u(space, 0, 10)
       }
     }
     /* 8. Else */

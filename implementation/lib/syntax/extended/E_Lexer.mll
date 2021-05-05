@@ -73,6 +73,7 @@
                 "s_nth"           , SNTH;
                 "s_nth_u"         , SNTH_U;
                 "s_substr"        , SSUBSTR;
+                "s_substr_u"      , SSUBSTR_U;
                 "int_to_float"    , INT_TO_FLOAT;
                 "int_to_string"   , INT_TO_STRING;
                 "int_of_string"   , INT_OF_STRING;

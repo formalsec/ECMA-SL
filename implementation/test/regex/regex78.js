@@ -1,11 +1,7 @@
-var A = 0x0041;
-assert.sameValue(A, 65);
+assert.sameValue("\xFF", "\u00FF");
 
-var str = String.fromCharCode(A);
-assert.sameValue(str, "A");
+var arr = /\xFF/.exec("\u00FF");
+assert.sameValue(arr[0], "\u00FF");
 
-var re = /\cA/;
-var ret = re.exec(String.fromCharCode(1));
-
-var re = /[\cA]/;
-var ret = re.exec(String.fromCharCode(1));
+var arr = /\u00FF/.exec("\xFF");
+assert.sameValue(arr[0], "\u00FF");

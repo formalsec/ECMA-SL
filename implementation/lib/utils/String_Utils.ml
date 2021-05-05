@@ -77,6 +77,26 @@ let s_len_u = fun (s : string) : int ->
       else loop s (cur_i_u + 1) (cur_i + 4)
   in loop s 0 0
 
+(* TODO: Check if following characters start with bits 10, if not return the first character *)
+let s_substr_u = fun (s : string) (i_u : int) (len_u : int) : string ->
+  let rec loop s cur_i_u cur_i i_u len_u =
+    if cur_i_u = i_u then
+      let rec loop' s cur_i len_u0 len_i len_u =
+        if len_u0 = len_u then String.sub s cur_i len_i
+        else let c = Char.code (s.[len_i]) in
+          if c <= 0x7f then loop' s cur_i (len_u0 + 1) (len_i + 1) len_u
+          else if c <= 0xdf then loop' s cur_i (len_u0 + 1) (len_i + 2) len_u
+          else if c <= 0xef then loop' s cur_i (len_u0 + 1) (len_i + 3) len_u
+          else loop' s cur_i (len_u0 + 1) (len_i + 4) len_u
+      in loop' s cur_i 0 0 len_u
+    else
+      let c = Char.code (s.[cur_i]) in
+        if c <= 0x7f then loop s (cur_i_u + 1) (cur_i + 1) i_u len_u
+        else if c <= 0xdf then loop s (cur_i_u + 1) (cur_i + 2) i_u len_u
+        else if c <= 0xef then loop s (cur_i_u + 1) (cur_i + 3) i_u len_u
+        else loop s (cur_i_u + 1) (cur_i + 4) i_u len_u
+  in loop s 0 0 i_u len_u
+
 let to_upper_case (s : string) : string =
   let s = String.uppercase_ascii s in
   s

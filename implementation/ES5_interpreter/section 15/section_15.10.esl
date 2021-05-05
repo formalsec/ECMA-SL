@@ -416,7 +416,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
   {A.DefineOwnProperty}(A, "length", descriptorLength, true);
   /* 18. Let matchedSubstr be the matched substring (i.e. the portion of S
     between offset i inclusive and offset e exclusive). */
-  matchedSubstr := s_substr(S, i, (int_of_float e) - i);
+  matchedSubstr := s_substr_u(S, i, (int_of_float e) - i);
   /* 19. Call the [[DefineOwnProperty]] internal method of A with arguments
     "0", Property Descriptor {[[Value]]: matchedSubstr, [[Writable]: true,
     [[Enumerable]]: true, [[Configurable]]: true}, and true. */
@@ -701,7 +701,7 @@ function stateGetStr(st) {
 
 function stateGetSubStr(st, i) {
   len := st.endIndex - i;
-  return s_substr(st.str, i, len)
+  return s_substr_u(st.str, i, len)
 };
 
 function stateGetCap(st, i) {
@@ -1178,7 +1178,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
 
     /* remove \ */
     len := s_len_u c;
-    c := s_substr(c, 1, len - 1);
+    c := s_substr_u(c, 1, len - 1);
     dec_code := octal_to_decimal (int_of_string c);
     dec_code_str := int_to_string dec_code;
     c := from_char_code dec_code;
@@ -1520,7 +1520,7 @@ function JS_Interpreter_RegEx(re, flags) {
       if ((j1 + len) > (s_len_u str)) {
         return null
       };
-      str' := s_substr(str, j1, len);
+      str' := s_substr_u(str, j1, len);
 
       if (str_c = str') {
         stateSetIndex(st, j1 + len);
@@ -1651,7 +1651,7 @@ function JS_Interpreter_RegEx(re, flags) {
 
     /* remove \ */
     len := s_len_u c;
-    c := s_substr(c, 1, len - 1);
+    c := s_substr_u(c, 1, len - 1);
 
     dec_code := octal_to_decimal (int_of_string c);
     c := from_char_code dec_code;

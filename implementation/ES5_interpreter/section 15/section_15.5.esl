@@ -864,10 +864,10 @@ function StringPrototypeReplace(global, this, strict, args) {
     offset := int_of_float offset;
     startOffset := offset - prevOffset;
 
-    beforeStr := s_substr(string, 0, startOffset);
+    beforeStr := s_substr_u(string, 0, startOffset);
     matchStrLen := s_len matchStr;
     stringLen := (s_len string) - (s_len beforeStr) - matchStrLen;
-    string := s_substr(string, startOffset + matchStrLen, stringLen);
+    string := s_substr_u(string, startOffset + matchStrLen, stringLen);
 
     if ((Type(replaceValue) = "Object") &&& (replaceValue.Class = "Function")) {
       /* TODO - review "this" arg passed to the replace function is 'undefined 
@@ -877,10 +877,10 @@ function StringPrototypeReplace(global, this, strict, args) {
       newstring := ToString(newstring)
     } else {
       newstring := ToString(replaceValue);
-      beforeStr2 := s_substr(originalString, 0, offset);
+      beforeStr2 := s_substr_u(originalString, 0, offset);
       off1 := offset + matchStrLen;
       off2 := (s_len originalString) - off1;
-      afterStr2 := s_substr(originalString, off1, off2);
+      afterStr2 := s_substr_u(originalString, off1, off2);
       newstring := resolveDollars(newstring, matchStr, beforeStr2, afterStr2, captures)
     };
 
@@ -910,45 +910,45 @@ function resolveDollars(newstring, matchStr, beforeStr, afterStr, captures) {
     c2 := s_nth(newstring, i + 1);
     c2_code := to_char_code c2;
     if ((c1 = "$") &&& (c2 = "$")) {
-      str1 := s_substr(newstring, 0, i + 1);
+      str1 := s_substr_u(newstring, 0, i + 1);
       startIndex := i + 2;
       if (startIndex > len) {
         str2 := ""
       } else {
-        str2 := s_substr(newstring, startIndex, len + 1 - startIndex)
+        str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
       };
       newstring := s_concat [str1, str2];
       i := i + 1
 
     } elif ((c1 = "$") &&& (c2 = "&")) {
-      str1 := s_substr(newstring, 0, i);
+      str1 := s_substr_u(newstring, 0, i);
       startIndex := i + 2;
       if (startIndex > len) {
         str2 := ""
       } else {
-        str2 := s_substr(newstring, startIndex, len + 1 - startIndex)
+        str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
       };
       newstring := s_concat [str1, matchStr, str2];
       i := i + (s_len matchStr)
 
     } elif ((c1 = "$") &&& (c2 = "`")) {
-      str1 := s_substr(newstring, 0, i);
+      str1 := s_substr_u(newstring, 0, i);
       startIndex := i + 2;
       if (startIndex > len) {
         str2 := ""
       } else {
-        str2 := s_substr(newstring, startIndex, len + 1 - startIndex)
+        str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
       };
       newstring := s_concat [str1, beforeStr, str2];
       i := i + (s_len beforeStr)
 
     } elif ((c1 = "$") &&& (c2 = "'")) {
-      str1 := s_substr(newstring, 0, i);
+      str1 := s_substr_u(newstring, 0, i);
       startIndex := i + 2;
       if (startIndex > len) {
         str2 := ""
       } else {
-        str2 := s_substr(newstring, startIndex, len + 1 - startIndex)
+        str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
       };
       newstring := s_concat [str1, afterStr, str2];
       i := i + (s_len afterStr)
@@ -971,11 +971,11 @@ function resolveDollars(newstring, matchStr, beforeStr, afterStr, captures) {
         startIndex := i + 2
       };
       if (!(num > (l_len captures))) {
-        str1 := s_substr(newstring, 0, i);
+        str1 := s_substr_u(newstring, 0, i);
         if (startIndex > len) {
           str2 := ""
         } else {
-          str2 := s_substr(newstring, startIndex, len + 1 - startIndex)
+          str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
         };
         m := l_nth(captures, num - 1);
         if (m = 'undefined) {
@@ -1227,7 +1227,7 @@ function StringPrototypeSplit (global, this, strict, args) {
       else {
         /* 1. Let T be a String value equal to the substring of S consisting of
           the characters at positions p (inclusive) through q (exclusive). */
-        T := s_substr(S, p, q - p);
+        T := s_substr_u(S, p, q - p);
         /* 2. Call the [[DefineOwnProperty]] internal method of A with arguments
           ToString(lengthA), Property Descriptor {[[Value]]: T, [[Writable]]: true,
           [[Enumerable]]: true, [[Configurable]]: true}, and false. */
@@ -1266,7 +1266,7 @@ function StringPrototypeSplit (global, this, strict, args) {
   };
   /* 14. Let T be a String value equal to the substring of S consisting
     of the characters at positions p (inclusive) through s (exclusive). */
-  T := s_substr(S, p, s - p);
+  T := s_substr_u(S, p, s - p);
   /* 15. Call the [[DefineOwnProperty]] internal method of A with arguments
     ToString(lengthA), Property Descriptor {[[Value]]: T, [[Writable]]: true,
     [[Enumerable]]: true, [[Configurable]]: true}, and false. */

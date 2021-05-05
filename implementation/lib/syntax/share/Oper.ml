@@ -36,6 +36,7 @@ type bopt = Plus
           | Pow
 
 type topt = Ssubstr
+          | SsubstrU
 
 type uopt = Neg
           | Not
@@ -218,6 +219,10 @@ let s_nth_u (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
 let s_substr (v1, v2, v3: Val.t * Val.t * Val.t) : Val.t = match v1, v2, v3 with
   | Str s, Int i, Int j -> Str (String.sub s i j)
   | _                   -> invalid_arg "Exception in Oper.s_substr: this operation is only applicable to String and two Integer arguments"
+
+let s_substr_u (v1, v2, v3: Val.t * Val.t * Val.t) : Val.t = match v1, v2, v3 with
+  | Str s, Int i, Int j -> Str (String_Utils.s_substr_u s i j)
+  | _                   -> invalid_arg "Exception in Oper.s_substr_u: this operation is only applicable to String and two Integer arguments"
 
 let list_in (v1, v2 : Val.t * Val.t) : Val.t = match v2 with
   | List l -> Bool (List.mem v1 l)
@@ -546,6 +551,7 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
 
 let str_of_triopt (op : topt) (e1 : string) (e2 : string) (e3 : string) : string = match op with
   | Ssubstr  -> "s_substr(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
+  | SsubstrU  -> "s_substr_u(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | ListExpr  -> "[ " ^ (String.concat ", " es) ^ " ]"
@@ -626,7 +632,8 @@ let bopt_to_json (op : bopt) : string =
 let topt_to_json (op : topt) : string =
   Printf.sprintf "{ \"type\" : \"triopt\", \"value\" : \"%s"
     (match op with
-      | Ssubstr -> Printf.sprintf "Ssubstr\" }")
+      | Ssubstr -> Printf.sprintf "Ssubstr\" }"
+      | SsubstrU -> Printf.sprintf "SsubstrU\" }")
 
 let nopt_to_json (op : nopt) : string =
   Printf.sprintf "{ \"type\" : \"nopt\", \"value\" : \"%s"

@@ -1,20 +1,11 @@
-// Unicode
-var str = '\u0041';
-var str2 = 'A';
-assert.sameValue(str, str2);
+var A = 0x0041;
+assert.sameValue(A, 65);
 
-var re = /\u0041/;
-var ret = re.test("A");
-assert.sameValue(ret, true);
+var str = String.fromCharCode(A);
+assert.sameValue(str, "A");
 
-re = /[\u0041]/;
-ret = re.test("A");
-assert.sameValue(ret, true);
+var re = /\cA/;
+var ret = re.exec(String.fromCharCode(1));
 
-str = '\u0931';
-str2 = "ऱ";
-assert.sameValue(str, str2);
-
-re = /[\u0931]/;
-ret = re.test("ऱ");
-assert.sameValue(ret, true);
+var re = /[\cA]/;
+var ret = re.exec(String.fromCharCode(1));
