@@ -259,14 +259,17 @@ function fillRegExpPrototype(regExpPrototypeObject, RegExpConstructor, globalObj
   /* TODO */
   /* 15.10.6.2 RegExp.prototype.exec(string) */
   exec := CreateBuiltInFunctionObject(["string"], "RegExpPrototypeExec", globalObject, strict, null);
+  setConfigurability(exec, "length", true);
   createBuiltInProperty(regExpPrototypeObject, "exec", exec);
 
   /* 15.10.6.3 RegExp.prototype.test(string) */
   test := CreateBuiltInFunctionObject(["string"], "RegExpPrototypeTest", globalObject, strict, null);
+  setConfigurability(test, "length", true);
   createBuiltInProperty(regExpPrototypeObject, "test", test);
 
   /* 15.10.6.4 RegExp.prototype.toString() */
   toString := CreateBuiltInFunctionObject([], "RegExpPrototypeToString", globalObject, strict, null);
+  setConfigurability(toString, "length", true);
   createBuiltInProperty(regExpPrototypeObject, "toString", toString);
 
   return
@@ -664,20 +667,6 @@ function stateGetChar(st) {
   return null
 };
 
-/* Get char code instead of the char because the
-  internal representation can be different. E.g.
-  \255 vs \195\191 in the case of \xFF and \u00FF */
-function stateGetCharCode(st) {
-  i := st.endIndex;
-  str := st.str;
-
-  if (i < (s_len_u str)) {
-    c := s_nth_u(str, i);
-    return to_char_code_u c
-  };
-  return null
-};
-
 function stateNext(st) {
   len := s_len_u st.str;
   if (st.endIndex < len) {
@@ -697,11 +686,6 @@ function stateSetIndex(st, i) {
 
 function stateGetStr(st) {
   return st.str
-};
-
-function stateGetSubStr(st, i) {
-  len := st.endIndex - i;
-  return s_substr_u(st.str, i, len)
 };
 
 function stateGetCap(st, i) {
@@ -1030,6 +1014,7 @@ function IsWordChar(e, input) {
     A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
     0 1 2 3 4 5 6 7 8 9 _ */
   code := to_char_code_u c;
+
   if (((code >= 48) &&& (code <= 57)) ||| ((code >= 65) &&& (code <= 90)) |||
       ((code >= 97) &&& (code <= 122)) ||| (code = 95)) {
     return true
@@ -1181,7 +1166,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
     c := s_substr_u(c, 1, len - 1);
     dec_code := octal_to_decimal (int_of_string c);
     dec_code_str := int_to_string dec_code;
-    c := from_char_code dec_code;
+    c := from_char_code_u dec_code;
 
     AddCharacterPoint(cs, c, dec_code_str, negative);
 
@@ -1241,7 +1226,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
     cs := EmptyCharacterClass(negative);
     while (from <= to) {
       from_str := float_to_string from;
-      c := from_char_code (int_of_float from);
+      c := from_char_code_u (int_of_float from);
       AddCharacterPoint(cs, c, from_str, negative);
       from := from + 1.
     };
@@ -1301,7 +1286,7 @@ function getSpaceCharacters() {
 function getCharacterRangeASCII(cs, from_code, to_code) {
   while (from_code <= to_code) {
     code_str := int_to_string from_code;
-    char_str := from_char_code from_code;
+    char_str := from_char_code_u from_code;
     cs[code_str] := char_str;
     from_code := from_code + 1
   };
@@ -1542,7 +1527,8 @@ function JS_Interpreter_RegEx(re, flags) {
       old_i := st.endIndex;
 
       k' := lambda (st') [st, k, old_i, i] {
-        str := stateGetSubStr(st', old_i);
+        len := st'.endIndex - old_i;
+        str := s_substr_u (st'.str, old_i, len);
         stateSetCap(st', int_of_float i, str);
         return {k}(st')
       };
@@ -1654,7 +1640,7 @@ function JS_Interpreter_RegEx(re, flags) {
     c := s_substr_u(c, 1, len - 1);
 
     dec_code := octal_to_decimal (int_of_string c);
-    c := from_char_code dec_code;
+    c := from_char_code_u dec_code;
 
     m := lambda (st, k) [c] {
       c2 := stateGetChar(st);
@@ -1675,16 +1661,15 @@ function JS_Interpreter_RegEx(re, flags) {
   | { type: "Char", value: v, kind: "hex" } -> {
 
     m := lambda (st, k) [v] {
-      c_code := stateGetCharCode(st);
+      c := stateGetChar(st);
 
-      if (c_code = null) {
+      if (c = null) {
         return null
       };
 
       v := hex_decode v;
-      v_code := to_char_code_u v;
 
-      if (c_code = v_code) {
+      if (c = v) {
         stateNext(st);
         return {k}(st)
       } else {

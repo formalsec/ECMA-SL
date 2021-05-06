@@ -20,7 +20,7 @@ function initStringObject(global, objectPrototype, strict) {
   setJSProperty(objStringConstructor, "prototype", descriptor);
 
   /* 15.5.3.2 String.fromCharCode ( [ char0 [ , char1 [ , ... ] ] ] ) */
-  fromCharCode := CreateBuiltInFunctionObject(["chars"], "StringfromCharCode", global, strict, 0.);
+  fromCharCode := CreateBuiltInFunctionObject(["chars"], "StringFromCharCode", global, strict, 0.);
   createBuiltInProperty(objStringConstructor, "fromCharCode", fromCharCode);
 
   return objStringConstructor
@@ -226,30 +226,30 @@ This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [
 
 
 
-/* 15.5.3.2 String.fromCharCode ( [char0 [, char1 [, ... ]]]) */
-
-/* Returns a String value containing as many characters as the number of arguments.
- Each argument specifies one character of the resulting String,
- with the first argument specifying the first character, and so on, from left to right.
-  An argument is converted to a character by applying the operation ToUint16 (9.7)
-   and regarding the resulting 16-bit integer as the code unit value of a character.
-    If no arguments are supplied, the result is the empty String.
-
-    The length property of the fromCharCode function is 1.*/
-
-function StringfromCharCode (global, this, strict, args) {
+/**
+ * 15.5.3.2 String.fromCharCode ( [char0 [, char1 [, ... ]]])
+ *
+ * Returns a String value containing as many characters as the number of arguments.
+ * Each argument specifies one character of the resulting String,
+ * with the first argument specifying the first character, and so on, from left to right.
+ * An argument is converted to a character by applying the operation ToUint16 (9.7)
+ * and regarding the resulting 16-bit integer as the code unit value of a character.
+ * If no arguments are supplied, the result is the empty String.
+ *
+ * The length property of the fromCharCode function is 1.
+ */
+function StringFromCharCode (global, this, strict, args) {
   args_ := args;
   R := "";
   while (!(args_ = [])) {
     /* Remove the first element from args and let next be the value of that element. */
     next  := hd args_;
     args_ := tl args_;
-      /* An argument is converted to a character by applying the operation ToUint16 */
-    R := s_concat([R, from_char_code ( int_of_float (ToUint16(next) )) ])
+    /* An argument is converted to a character by applying the operation ToUint16 */
+    R := s_concat([R, from_char_code_u ( int_of_float (ToUint16(next) )) ])
 
   };
   return R
-  /* The length property of the fromCharCode function is 1.*/
 };
 
 /* 15.5.4 Properties of the String Prototype Object */

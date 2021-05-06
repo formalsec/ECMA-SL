@@ -70,6 +70,7 @@ type uopt = Neg
           | ToUint32
           | ToUint16
           | FromCharCode
+          | FromCharCodeU
           | ToCharCode
           | ToCharCodeU
           | ToLowerCase
@@ -361,6 +362,10 @@ let from_char_code (v : Val.t) : Val.t = match v with
   | Int n -> Str (String_Utils.from_char_code n)
   | _     -> invalid_arg "Exception in Oper.from_char_code: this operation is only applicable to Int arguments"
 
+let from_char_code_u (v : Val.t) : Val.t = match v with
+  | Int n -> Str (String_Utils.from_char_code_u n)
+  | _     -> invalid_arg "Exception in Oper.from_char_code_u: this operation is only applicable to Int arguments"
+
 let to_char_code (v : Val.t) : Val.t = match v with
   | Str s -> Int (String_Utils.to_char_code s)
   | _     -> invalid_arg "Exception in Oper.to_char_code: this operation is only applicable to Str arguments"
@@ -397,7 +402,7 @@ let utf8_decode (v : Val.t) : Val.t = match v with
   | _     -> invalid_arg "Exception in Oper.utf8_decode: this operation is only applicable to Str arguments"
 
 let hex_decode (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.from_char_code (Stdlib.int_of_string ("0x" ^ (String.sub s 2 2))))
+  | Str s -> Str (String_Utils.from_char_code_u (Stdlib.int_of_string ("0x" ^ (String.sub s 2 2))))
   | _     -> invalid_arg "Exception in Oper.hex_decode: this operation is only applicable to Str arguments"
 
 let octal_to_decimal (v : Val.t) : Val.t = match v with
@@ -460,6 +465,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | ToUint32      -> "to_uint32"
   | ToUint16      -> "to_uint16"
   | FromCharCode  -> "from_char_code"
+  | FromCharCodeU -> "from_char_code_u"
   | ToCharCode    -> "to_char_code"
   | ToCharCodeU   -> "to_char_code_u"
   | ToLowerCase   -> "to_lower_case"
@@ -679,6 +685,7 @@ let uopt_to_json (op : uopt) : string =
      | ToUint32      -> Printf.sprintf "ToUint32\" }"
      | ToUint16      -> Printf.sprintf "ToUint16\" }"
      | FromCharCode  -> Printf.sprintf "FromCharCode\" }"
+     | FromCharCodeU -> Printf.sprintf "FromCharCodeU\" }"
      | ToCharCode    -> Printf.sprintf "ToCharCode\" }"
      | ToCharCodeU   -> Printf.sprintf "ToCharCodeU\" }"
      | ToLowerCase   -> Printf.sprintf "ToLowerCase\" }"

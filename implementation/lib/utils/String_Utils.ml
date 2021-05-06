@@ -9,6 +9,11 @@ let from_char_code = fun (n : int) : string ->
   let c = Char.chr n in
   String.make 1 c
 
+let from_char_code_u = fun (n : int) : string ->
+  let b = Buffer.create 16 in
+    Buffer.add_utf_8_uchar b (Uchar.of_int n);
+    Buffer.contents b
+
 let to_char_code = fun (s : string ) : int ->
   let c = Char.code (s.[0]) in
   c
@@ -82,8 +87,9 @@ let s_substr_u = fun (s : string) (i_u : int) (len_u : int) : string ->
   let rec loop s cur_i_u cur_i i_u len_u =
     if cur_i_u = i_u then
       let rec loop' s cur_i len_u0 len_i len_u =
-        if len_u0 = len_u then String.sub s cur_i len_i
-        else let c = Char.code (s.[len_i]) in
+        if len_u0 = len_u then
+          String.sub s cur_i len_i
+        else let c = Char.code (s.[cur_i + len_i]) in
           if c <= 0x7f then loop' s cur_i (len_u0 + 1) (len_i + 1) len_u
           else if c <= 0xdf then loop' s cur_i (len_u0 + 1) (len_i + 2) len_u
           else if c <= 0xef then loop' s cur_i (len_u0 + 1) (len_i + 3) len_u

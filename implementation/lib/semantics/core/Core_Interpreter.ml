@@ -53,8 +53,9 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ToInt32       -> Oper.to_int32 v
   | ToUint32      -> Oper.to_uint32 v
   | FromCharCode  -> Oper.from_char_code v
+  | FromCharCodeU -> Oper.from_char_code_u v
   | ToCharCode    -> Oper.to_char_code v
-  | ToCharCodeU    -> Oper.to_char_code_u v
+  | ToCharCodeU   -> Oper.to_char_code_u v
   | ToLowerCase   -> Oper.to_lower_case v
   | ToUpperCase   -> Oper.to_upper_case v
   | Trim          -> Oper.trim v
