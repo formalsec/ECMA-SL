@@ -142,6 +142,7 @@ let symbol  = '\''(var|int)
 let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
 let loc     = "$loc_"(digit|letter|'_')+
+let hex_digit = (digit | ['a'-'f' 'A'-'F'])
 
 (*
   The third section is
@@ -228,6 +229,16 @@ and read_string buf =
   | '\\' '\"'            { Buffer.add_char buf '\"'; read_string buf lexbuf }
   | '\\' '\''            { Buffer.add_char buf '\''; read_string buf lexbuf }
   | '\\' '0'             { Buffer.add_char buf '\000'; read_string buf lexbuf }
+  | '\\' 'x' hex_digit as h1 hex_digit as h2
+                         {
+                           Buffer.add_string buf (String_Utils.hexdecode ("\\x" ^ h1 ^ h2));
+                           read_string buf lexbuf
+                         }
+  | '\\' 'u' hex_digit as h1 hex_digit as h2 hex_digit as h3 hex_digit as h4
+                         {
+                           Buffer.add_string buf (String_Utils.utf8decode ("\\u" ^ h1 ^ h2 ^ h3 ^ h4));
+                           read_string buf lexbuf
+                         }
   | [^ '"' '\\']+        {
                            Buffer.add_string buf (Lexing.lexeme lexbuf);
                            read_string buf lexbuf

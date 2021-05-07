@@ -256,7 +256,6 @@ function fillRegExpPrototype(regExpPrototypeObject, RegExpConstructor, globalObj
   /* The initial value of RegExp.prototype.constructor is the standard built-in RegExp constructor. */
   createBuiltInProperty(regExpPrototypeObject, "constructor", RegExpConstructor);
 
-  /* TODO */
   /* 15.10.6.2 RegExp.prototype.exec(string) */
   exec := CreateBuiltInFunctionObject(["string"], "RegExpPrototypeExec", globalObject, strict, null);
   setConfigurability(exec, "length", true);
@@ -991,10 +990,13 @@ function isLineTerminator(c) {
   \u000D              Carriage Return      <CR>
   \u2028              Line separator       <LS>
   \u2029              Paragraph separator  <PS> */
-  hex := int_to_four_hex (to_char_code_u c);
-  if ((hex = "000a") ||| (hex = "000d") ||| (hex = "2028") ||| (hex = "2029")) {
+  if ((c = "\u000a") ||| (c = "\u000d") ||| (c = "\u2028") ||| (c = "\u2029")) {
     return true
   };
+  /*hex := int_to_four_hex (to_char_code_u c);
+  if ((hex = "000a") ||| (hex = "000d") ||| (hex = "2028") ||| (hex = "2029")) {
+    return true
+  };*/
   return false
 };
 
@@ -1136,7 +1138,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
       cs := wordCharSet(negative)
     } elif (c = "\\W") {
       cs := wordCharSet(!negative)
-    }  elif ((c = "\\n") ||| (c = "\\f") ||| (c = "\\r") ||| (c = "\\t") ||| (c = "\\v")) {
+    } elif ((c = "\\n") ||| (c = "\\f") ||| (c = "\\r") ||| (c = "\\t") ||| (c = "\\v") ||| (c = "\\b")) {
       cs := EmptyCharacterClass(negative);
       if (c = "\\n") {
         AddCharacterPoint(cs, "\n", "10", negative)
@@ -1148,12 +1150,19 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
         AddCharacterPoint(cs, "\t", "9", negative)
       } elif (c = "\\v") {
         AddCharacterPoint(cs, "\v", "11", negative)
-      } else {
-        throw s_concat(["Meta character inside character class not implemented: ", c])
+      } elif (c = "\\b") {
+        AddCharacterPoint(cs, "\b", "8", negative)
       }
     } else {
       throw s_concat(["Meta character inside character class not implemented: ", c])
     };
+
+    /**
+     * NOTE A ClassAtom can use any of the escape sequences that are allowed in the 
+     * rest of the regular expression except for \b, \B, and backreferences.
+     * Inside a CharacterClass, \b means the backspace character, while \B and backreferences
+     * raise errors. Using a backreference inside a ClassAtom causes an error.
+     */
 
     return cs
   }
@@ -1248,8 +1257,8 @@ function getLineTerminators() {
   cs := {};
   cs["10"] := "\n";
   cs["13"] := "\r";
-  /*cs["8232"] := "\n";
-  cs["8233"] := "\n";TODO*/
+  cs["8232"] := "\u2028";
+  cs["8233"] := "\u2029";
 
   return cs
 };
@@ -1274,11 +1283,30 @@ function getSpaceCharacters() {
   cs["11"] := "\v";
   cs["12"] := "\f";
   cs["32"] := " ";
-  /*TODO*/
-  cs["10"] := "\n";
-  cs["13"] := "\r";
-  /*cs["8232"] := "\n";
-  cs["8233"] := "\n";TODO*/
+  cs["160"] := "\u00A0";
+  cs["65279"] := "\uFEFF";
+
+  /* https://www.compart.com/en/unicode/category/Zs */
+  /*
+   * \u0020 \u00A0 \u1680 \u2000 \u2001 \u2002
+   * \u2003 \u2004 \u2005 \u2006 \u2007 \u2008
+   * \u2009 \u200A \u202F \u205F \u3000
+   */
+  cs["5760"] := "\u1680";
+  cs["8192"] := "\u2000";
+  cs["8193"] := "\u2001";
+  cs["8194"] := "\u2002";
+  cs["8195"] := "\u2003";
+  cs["8196"] := "\u2004";
+  cs["8197"] := "\u2005";
+  cs["8198"] := "\u2006";
+  cs["8199"] := "\u2007";
+  cs["8200"] := "\u2008";
+  cs["8201"] := "\u2009";
+  cs["8202"] := "\u200A";
+  cs["8239"] := "\u202F";
+  cs["8287"] := "\u205F";
+  cs["12288"] := "\u3000";
 
   return cs
 };

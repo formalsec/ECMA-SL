@@ -378,31 +378,12 @@ let int_to_four_hex (v : Val.t) : Val.t = match v with
 | Int i -> Str (Printf.sprintf "%04x" i)
 | _     -> invalid_arg "Exception in Oper.int_to_four_hex: this operation is only applicable to Int arguments"
 
-(* Taken from: https://stackoverflow.com/a/42431362/3049315 *)
-let utf8encode s =
-    let prefs = [| 0x0; 0xc0; 0xe0 |] in
-    let s1 n = String.make 1 (Char.chr n) in
-    let rec ienc k sofar resid =
-        let bct = if k = 0 then 7 else 6 - k in
-        if resid < 1 lsl bct then
-            (s1 (prefs.(k) + resid)) ^ sofar
-        else
-            ienc (k + 1) (s1 (0x80 + resid mod 64) ^ sofar) (resid / 64)
-    in
-    ienc 0 "" (Stdlib.int_of_string ("0x" ^ s))
-
 let utf8_decode (v : Val.t) : Val.t = match v with
-  | Str s ->
-    let re = Str.regexp "\\\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]" in
-    let subst = function
-    | Str.Delim u -> utf8encode (String.sub u 2 4)
-    | Str.Text t -> t
-    in
-    Str(String.concat "" (List.map subst (Str.full_split re s)))
+  | Str s -> Str(String_Utils.utf8decode s)
   | _     -> invalid_arg "Exception in Oper.utf8_decode: this operation is only applicable to Str arguments"
 
 let hex_decode (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.from_char_code_u (Stdlib.int_of_string ("0x" ^ (String.sub s 2 2))))
+  | Str s -> Str (String_Utils.hexdecode s)
   | _     -> invalid_arg "Exception in Oper.hex_decode: this operation is only applicable to Str arguments"
 
 let octal_to_decimal (v : Val.t) : Val.t = match v with
