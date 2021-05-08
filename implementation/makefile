@@ -26,3 +26,4 @@ clean:
 	rm -f test/main.js
 	rm -f test/main262.js
 	rm -f test262_tests_result.md
+	rm -rf output

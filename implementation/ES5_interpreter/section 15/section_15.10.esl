@@ -258,17 +258,17 @@ function fillRegExpPrototype(regExpPrototypeObject, RegExpConstructor, globalObj
 
   /* 15.10.6.2 RegExp.prototype.exec(string) */
   exec := CreateBuiltInFunctionObject(["string"], "RegExpPrototypeExec", globalObject, strict, null);
-  setConfigurability(exec, "length", true);
+  setConfigurability(exec, "length", true); /* ES6 */
   createBuiltInProperty(regExpPrototypeObject, "exec", exec);
 
   /* 15.10.6.3 RegExp.prototype.test(string) */
   test := CreateBuiltInFunctionObject(["string"], "RegExpPrototypeTest", globalObject, strict, null);
-  setConfigurability(test, "length", true);
+  setConfigurability(test, "length", true); /* ES6 */
   createBuiltInProperty(regExpPrototypeObject, "test", test);
 
   /* 15.10.6.4 RegExp.prototype.toString() */
   toString := CreateBuiltInFunctionObject([], "RegExpPrototypeToString", globalObject, strict, null);
-  setConfigurability(toString, "length", true);
+  setConfigurability(toString, "length", true); /* ES6 */
   createBuiltInProperty(regExpPrototypeObject, "toString", toString);
 
   return
@@ -993,10 +993,6 @@ function isLineTerminator(c) {
   if ((c = "\u000a") ||| (c = "\u000d") ||| (c = "\u2028") ||| (c = "\u2029")) {
     return true
   };
-  /*hex := int_to_four_hex (to_char_code_u c);
-  if ((hex = "000a") ||| (hex = "000d") ||| (hex = "2028") ||| (hex = "2029")) {
-    return true
-  };*/
   return false
 };
 
@@ -1669,6 +1665,10 @@ function JS_Interpreter_RegEx(re, flags) {
 
     dec_code := octal_to_decimal (int_of_string c);
     c := from_char_code_u dec_code;
+
+print "INSIDE DECIMAL";
+print dec_code;
+print c;
 
     m := lambda (st, k) [c] {
       c2 := stateGetChar(st);
