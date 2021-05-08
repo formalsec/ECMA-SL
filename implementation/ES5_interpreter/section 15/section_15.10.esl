@@ -1304,6 +1304,16 @@ function getSpaceCharacters() {
   cs["8287"] := "\u205F";
   cs["12288"] := "\u3000";
 
+  /**
+   * 7.3 Line Terminators
+   * Line terminators are included in the set of white
+   * space characters that are matched by the \s class in regular expressions.
+   */
+  cs["10"] := "\n";
+  cs["13"] := "\r";
+  cs["8232"] := "\u2028";
+  cs["8233"] := "\u2029";
+
   return cs
 };
 
