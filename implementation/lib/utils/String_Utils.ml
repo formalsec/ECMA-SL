@@ -53,54 +53,142 @@ let to_char_code_u = fun (s : string ) : int ->
           else
             c
 
-(* TODO: Check if following characters start with bits 10, if not return the first character *)
 let s_nth_u = fun (s : string) (i : int) : string ->
   let rec loop s cur_i_u cur_i i =
-    let c = Char.code (s.[cur_i]) in
-      if c <= 0x7f then
+    let c = Char.code (s.[cur_i]) and sLen = ((String.length s) - cur_i)  in
+      if (c <= 0x7f) || (sLen = 1) then
         if cur_i_u = i then String.sub s cur_i 1
         else loop s (cur_i_u + 1) (cur_i + 1) i
-      else if c <= 0xdf then
-        if cur_i_u = i then String.sub s cur_i 2
-        else loop s (cur_i_u + 1) (cur_i + 2) i
-      else if c <= 0xef then
-        if cur_i_u = i then String.sub s cur_i 3
-        else loop s (cur_i_u + 1) (cur_i + 3) i
       else
-        if cur_i_u = i then String.sub s cur_i 4
-        else loop s (cur_i_u + 1) (cur_i + 4) i
+        let c2 = Char.code (s.[cur_i+1]) in
+          if c <= 0xdf then
+            if (c2 > 0x7f) && (c2 <= 0xbf) then
+              if cur_i_u = i then String.sub s cur_i 2
+              else loop s (cur_i_u + 1) (cur_i + 2) i
+            else
+              if cur_i_u = i then String.sub s cur_i 1
+              else loop s (cur_i_u + 1) (cur_i + 1) i
+          else if c <= 0xef then
+            if (sLen >= 3) then
+              let c3 = Char.code (s.[cur_i+2]) in
+                if (c2 > 0x7f) && (c2 <= 0xbf) && (c3 > 0x7f) && (c3 <= 0xbf) then
+                  if cur_i_u = i then String.sub s cur_i 3
+                  else loop s (cur_i_u + 1) (cur_i + 3) i
+                else
+                  if cur_i_u = i then String.sub s cur_i 1
+                  else loop s (cur_i_u + 1) (cur_i + 1) i
+            else
+              if cur_i_u = i then String.sub s cur_i 1
+              else loop s (cur_i_u + 1) (cur_i + 1) i
+          else
+            if (sLen >= 4) then
+              let c3 = Char.code (s.[cur_i+2]) and c4 = Char.code (s.[cur_i+3]) in
+                if (c2 > 0x7f) && (c2 <= 0xbf) && (c3 > 0x7f) && (c3 <= 0xbf) && (c4 > 0x7f) && (c4 <= 0xbf) then
+                  if cur_i_u = i then String.sub s cur_i 4
+                  else loop s (cur_i_u + 1) (cur_i + 4) i
+                else
+                  if cur_i_u = i then String.sub s cur_i 1
+                  else loop s (cur_i_u + 1) (cur_i + 1) i
+            else
+              if cur_i_u = i then String.sub s cur_i 1
+              else loop s (cur_i_u + 1) (cur_i + 1) i
   in loop s 0 0 i
 
-(* TODO: Check if following characters start with bits 10, if not return the first character *)
 let s_len_u = fun (s : string) : int ->
   let rec loop s cur_i_u cur_i =
     if cur_i >= (String.length s) then (cur_i_u) else
-    let c = Char.code (s.[cur_i]) in
-      if c <= 0x7f then loop s (cur_i_u + 1) (cur_i + 1)
-      else if c <= 0xdf then loop s (cur_i_u + 1) (cur_i + 2)
-      else if c <= 0xef then loop s (cur_i_u + 1) (cur_i + 3)
-      else loop s (cur_i_u + 1) (cur_i + 4)
+    let c = Char.code (s.[cur_i]) and sLen = ((String.length s) - cur_i) in
+      if (c <= 0x7f) || (sLen = 1) then
+        loop s (cur_i_u + 1) (cur_i + 1)
+      else
+        let c2 = Char.code (s.[cur_i+1]) in
+          if c <= 0xdf then
+            if (c2 > 0x7f) && (c2 <= 0xbf) then
+              loop s (cur_i_u + 1) (cur_i + 2)
+            else
+              loop s (cur_i_u + 1) (cur_i + 1)
+          else if c <= 0xef then
+            if (sLen >= 3) then
+              let c3 = Char.code (s.[cur_i+2]) in
+                if (c2 > 0x7f) && (c2 <= 0xbf) && (c3 > 0x7f) && (c3 <= 0xbf) then
+                  loop s (cur_i_u + 1) (cur_i + 3)
+                else
+                  loop s (cur_i_u + 1) (cur_i + 1)
+            else
+              loop s (cur_i_u + 1) (cur_i + 1)
+          else
+            if (sLen >= 4) then
+              let c3 = Char.code (s.[cur_i+2]) and c4 = Char.code (s.[cur_i+3]) in
+                if (c2 > 0x7f) && (c2 <= 0xbf) && (c3 > 0x7f) && (c3 <= 0xbf) && (c4 > 0x7f) && (c4 <= 0xbf) then
+                  loop s (cur_i_u + 1) (cur_i + 4)
+                else
+                  loop s (cur_i_u + 1) (cur_i + 1)
+            else
+              loop s (cur_i_u + 1) (cur_i + 1)
   in loop s 0 0
 
-(* TODO: Check if following characters start with bits 10, if not return the first character *)
 let s_substr_u = fun (s : string) (i_u : int) (len_u : int) : string ->
   let rec loop s cur_i_u cur_i i_u len_u =
     if cur_i_u = i_u then
       let rec loop' s cur_i len_u0 len_i len_u =
         if len_u0 = len_u then
           String.sub s cur_i len_i
-        else let c = Char.code (s.[cur_i + len_i]) in
-          if c <= 0x7f then loop' s cur_i (len_u0 + 1) (len_i + 1) len_u
-          else if c <= 0xdf then loop' s cur_i (len_u0 + 1) (len_i + 2) len_u
-          else if c <= 0xef then loop' s cur_i (len_u0 + 1) (len_i + 3) len_u
-          else loop' s cur_i (len_u0 + 1) (len_i + 4) len_u
+        else let c = Char.code (s.[cur_i + len_i]) and sLen = ((String.length s) - cur_i - len_i) in
+          if (c <= 0x7f) || (sLen = 1) then loop' s cur_i (len_u0 + 1) (len_i + 1) len_u
+          else
+            let c2 = Char.code (s.[cur_i+len_i+1]) in
+              if c <= 0xdf then
+                if (c2 > 0x7f) && (c2 <= 0xbf) then
+                  loop' s cur_i (len_u0 + 1) (len_i + 2) len_u
+                else
+                  loop' s cur_i (len_u0 + 1) (len_i + 1) len_u
+              else if c <= 0xef then
+                if (sLen >= 3) then
+                  let c3 = Char.code (s.[cur_i+len_i+2]) in
+                    if (c2 > 0x7f) && (c2 <= 0xbf) && (c3 > 0x7f) && (c3 <= 0xbf) then
+                      loop' s cur_i (len_u0 + 1) (len_i + 3) len_u
+                    else
+                      loop' s cur_i (len_u0 + 1) (len_i + 1) len_u
+                else
+                  loop' s cur_i (len_u0 + 1) (len_i + 1) len_u
+              else
+                if (sLen >= 4) then
+                  let c3 = Char.code (s.[cur_i+len_i+2]) and c4 = Char.code (s.[cur_i+len_i+3]) in
+                    if (c2 > 0x7f) && (c2 <= 0xbf) && (c3 > 0x7f) && (c3 <= 0xbf) && (c4 > 0x7f) && (c4 <= 0xbf) then
+                      loop' s cur_i (len_u0 + 1) (len_i + 4) len_u
+                    else
+                      loop' s cur_i (len_u0 + 1) (len_i + 1) len_u
+                else
+                  loop' s cur_i (len_u0 + 1) (len_i + 1) len_u
       in loop' s cur_i 0 0 len_u
     else
-      let c = Char.code (s.[cur_i]) in
-        if c <= 0x7f then loop s (cur_i_u + 1) (cur_i + 1) i_u len_u
-        else if c <= 0xdf then loop s (cur_i_u + 1) (cur_i + 2) i_u len_u
-        else if c <= 0xef then loop s (cur_i_u + 1) (cur_i + 3) i_u len_u
-        else loop s (cur_i_u + 1) (cur_i + 4) i_u len_u
+      let c = Char.code (s.[cur_i]) and sLen = ((String.length s) - cur_i) in
+        if (c <= 0x7f) || (sLen = 1) then loop s (cur_i_u + 1) (cur_i + 1) i_u len_u
+        else
+          let c2 = Char.code (s.[cur_i+1]) in
+            if c <= 0xdf then
+              if (c2 > 0x7f) && (c2 <= 0xbf) then
+                loop s (cur_i_u + 1) (cur_i + 2) i_u len_u
+              else
+                loop s (cur_i_u + 1) (cur_i + 1) i_u len_u
+            else if c <= 0xef then
+              if (sLen >= 3) then
+                let c3 = Char.code (s.[cur_i+2]) in
+                  if (c2 > 0x7f) && (c2 <= 0xbf) && (c3 > 0x7f) && (c3 <= 0xbf) then
+                    loop s (cur_i_u + 1) (cur_i + 3) i_u len_u
+                  else
+                    loop s (cur_i_u + 1) (cur_i + 1) i_u len_u
+              else
+                loop s (cur_i_u + 1) (cur_i + 1) i_u len_u
+            else
+              if (sLen >= 4) then
+                let c3 = Char.code (s.[cur_i+2]) and c4 = Char.code (s.[cur_i+3]) in
+                  if (c2 > 0x7f) && (c2 <= 0xbf) && (c3 > 0x7f) && (c3 <= 0xbf) && (c4 > 0x7f) && (c4 <= 0xbf) then
+                    loop s (cur_i_u + 1) (cur_i + 4) i_u len_u
+                  else
+                    loop s (cur_i_u + 1) (cur_i + 1) i_u len_u
+              else
+                loop s (cur_i_u + 1) (cur_i + 1) i_u len_u
   in loop s 0 0 i_u len_u
 
 let to_upper_case (s : string) : string =
