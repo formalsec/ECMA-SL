@@ -828,7 +828,6 @@ function JS_Interpreter_Repetition_Greedy(m, bounds, st, k) {
     };*/
 
 
-
     if (bounds.inf > 0.) {
       return {m}(st, k')
       /*return {m}(st2, k')*/
