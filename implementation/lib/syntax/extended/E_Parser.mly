@@ -50,13 +50,13 @@
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
 
-%left SCLAND SCLOR LAND LOR BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL POW
-%left GT LT EGT ELT IN_OBJ IN_LIST
+%left SCLAND SCLOR LAND LOR
+%left EQUAL
+%left GT LT EGT ELT IN_OBJ IN_LIST BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %left PLUS MINUS
 %left TIMES DIVIDE MODULO
-%left EQUAL
+%right POW
 
-%nonassoc binopt_prec
 %nonassoc unopt_prec
 %nonassoc PERIOD LBRACK
 
@@ -371,9 +371,9 @@ prefix_trinary_op_target:
 
 infix_binary_op_target:
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
-    { E_Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
+    { E_Expr.BinOpt (bop, e1, e2) }
   | e1 = e_expr_target; bop = e_op_target; e2 = e_expr_target;
-    { E_Expr.EBinOpt (bop, e1, e2) } %prec binopt_prec
+    { E_Expr.EBinOpt (bop, e1, e2) }
 
 fv_target:
   | f = VAR; COLON; e = e_expr_target;
@@ -524,7 +524,7 @@ e_pat_v_pat_target:
   | NONE;
     { E_Pat_v.PatNone }
 
-op_target:
+%inline op_target:
   | MINUS   { Oper.Minus }
   | PLUS    { Oper.Plus }
   | TIMES   { Oper.Times }
@@ -547,6 +547,6 @@ op_target:
   | IN_LIST { Oper.InList }
   | POW     { Oper.Pow }
 
-e_op_target:
+%inline e_op_target:
   | SCLAND  { EOper.SCLogAnd }
   | SCLOR   { EOper.SCLogOr }
