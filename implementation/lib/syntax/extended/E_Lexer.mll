@@ -14,6 +14,9 @@
     let _ =
       List.iter (fun (kwd, tok) -> Hashtbl.add keyword_table kwd tok)
               [
+                "octal_to_decimal", OCTAL_TO_DECIMAL;
+                "hex_decode"      , HEX_DECODE;
+                "utf8_decode"     , UTF8_DECODE;
                 "float_to_string" , FLOAT_TO_STRING;
                 "float_of_string" , FLOAT_OF_STRING;
                 "obj_to_list"     , OBJ_TO_LIST;
@@ -23,7 +26,9 @@
                 "to_uint32"       , TO_UINT32;
                 "to_uint16"       , TO_UINT16;
                 "from_char_code"  , FROM_CHAR_CODE;
+                "from_char_code_u", FROM_CHAR_CODE_U;
                 "to_char_code"    , TO_CHAR_CODE;
+                "to_char_code_u"  , TO_CHAR_CODE_U;
                 "to_lower_case"   , TO_LOWER_CASE;
                 "to_upper_case"   , TO_UPPER_CASE;
                 "trim"            , TRIM;
@@ -65,8 +70,11 @@
                 "s_split"         , SSPLIT;
                 "s_concat"        , SCONCAT;
                 "s_len"           , SLEN;
+                "s_len_u"         , SLEN_U;
                 "s_nth"           , SNTH;
+                "s_nth_u"         , SNTH_U;
                 "s_substr"        , SSUBSTR;
+                "s_substr_u"      , SSUBSTR_U;
                 "int_to_float"    , INT_TO_FLOAT;
                 "int_to_string"   , INT_TO_STRING;
                 "int_of_string"   , INT_OF_STRING;
@@ -134,6 +142,7 @@ let symbol  = '\''(var|int)
 let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
 let loc     = "$loc_"(digit|letter|'_')+
+let hex_digit = (digit | ['a' - 'f' 'A' - 'F'])
 
 (*
   The third section is
@@ -220,6 +229,16 @@ and read_string buf =
   | '\\' '\"'            { Buffer.add_char buf '\"'; read_string buf lexbuf }
   | '\\' '\''            { Buffer.add_char buf '\''; read_string buf lexbuf }
   | '\\' '0'             { Buffer.add_char buf '\000'; read_string buf lexbuf }
+  | '\\' 'x' hex_digit hex_digit as h
+                         {
+                           Buffer.add_string buf (String_Utils.hexdecode h);
+                           read_string buf lexbuf
+                         }
+  | '\\' 'u' hex_digit hex_digit hex_digit hex_digit as h
+                         {
+                           Buffer.add_string buf (String_Utils.utf8decode h);
+                           read_string buf lexbuf
+                         }
   | [^ '"' '\\']+        {
                            Buffer.add_string buf (Lexing.lexeme lexbuf);
                            read_string buf lexbuf

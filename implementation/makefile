@@ -3,6 +3,10 @@ OCAMLBUILDFLAGS=-use-ocamlfind
 default:
 	ocamlbuild ${OCAMLBUILDFLAGS} ecmasl.otarget
 
+test:
+	ocamlbuild ${OCAMLBUILDFLAGS} -pkgs oUnit test/String_Utils_test.byte
+	./String_Utils_test.byte
+
 clean:
 	ocamlbuild ${OCAMLBUILDFLAGS} -clean
 	rm -f ../JS2ECMA-SL/ast.esl
@@ -26,3 +30,7 @@ clean:
 	rm -f test/main.js
 	rm -f test/main262.js
 	rm -f test262_tests_result.md
+	rm -rf output
+	rm *.byte
+
+.PHONY: test

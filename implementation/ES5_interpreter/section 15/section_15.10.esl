@@ -44,8 +44,12 @@ function RegExpConstructorCalledAsFunction(strict, pattern, flags) {
  * constructor: it initialises the newly created object.
  */
 function RegExpConstructor(global, this, strict, args) {
-  pattern := l_nth(args, 0);
+  pattern := getOptionalParam(args, 0);
   flags := getOptionalParam(args, 1);
+
+  if (pattern = null) {
+    pattern := ""
+  };
 
   if ((this = 'undefined) ||| (this = 'null)) {
     return RegExpConstructorCalledAsFunction(strict, pattern, flags)
@@ -57,10 +61,10 @@ function RegExpConstructor(global, this, strict, args) {
 
 function escapePattern(P) {
   i := 0;
-  len := s_len(P);
+  len := s_len_u(P);
   S := "";
   while (i < len) {
-    c := s_nth(P, i);
+    c := s_nth_u(P, i);
     /* the backlash is already escaped in the given string */
     /*if ((c = "\\") ||| (c = "/")) {*/
     if (c = "/") {
@@ -134,11 +138,20 @@ function newRegExp(strict, pattern, flags) {
       };
       R := parsePattern(P, F)
     }
+    /* ES6 - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/15.10.4.1-1.js */
+    else {
+      if (getJSProperty(R, "source") = 'undefined) {
+        P := ""
+      } else {
+        P := getJSProperty(R, "source").Value
+      };
+      R := parsePattern(P, ToString(flags))
+    }
     /* If pattern is an object R whose [[Class]] internal property is "RegExp"
       and flags is not undefined, then throw a TypeError exception. */
-    else {
+    /*else {
       throw TypeErrorConstructorInternal()
-    }
+    }*/
   }
   /* Otherwise, let P be the empty String if pattern is undefined
      and ToString(pattern) otherwise, and let F be the empty String
@@ -243,17 +256,19 @@ function fillRegExpPrototype(regExpPrototypeObject, RegExpConstructor, globalObj
   /* The initial value of RegExp.prototype.constructor is the standard built-in RegExp constructor. */
   createBuiltInProperty(regExpPrototypeObject, "constructor", RegExpConstructor);
 
-  /* TODO */
   /* 15.10.6.2 RegExp.prototype.exec(string) */
   exec := CreateBuiltInFunctionObject(["string"], "RegExpPrototypeExec", globalObject, strict, null);
+  setConfigurability(exec, "length", true); /* ES6 */
   createBuiltInProperty(regExpPrototypeObject, "exec", exec);
 
   /* 15.10.6.3 RegExp.prototype.test(string) */
   test := CreateBuiltInFunctionObject(["string"], "RegExpPrototypeTest", globalObject, strict, null);
+  setConfigurability(test, "length", true); /* ES6 */
   createBuiltInProperty(regExpPrototypeObject, "test", test);
 
   /* 15.10.6.4 RegExp.prototype.toString() */
   toString := CreateBuiltInFunctionObject([], "RegExpPrototypeToString", globalObject, strict, null);
+  setConfigurability(toString, "length", true); /* ES6 */
   createBuiltInProperty(regExpPrototypeObject, "toString", toString);
 
   return
@@ -329,7 +344,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
   /* 2. Let S be the value of ToString(string). */
   S := ToString(string);
   /* 3. Let length be the length of S. */
-  length := s_len S;
+  length := s_len_u S;
   /* 4. Let lastIndex be the result of calling the [[Get]]
     internal method of R with argument "lastIndex".. */
   lastIndex := {R.Get}(R, "lastIndex");
@@ -403,11 +418,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
   {A.DefineOwnProperty}(A, "length", descriptorLength, true);
   /* 18. Let matchedSubstr be the matched substring (i.e. the portion of S
     between offset i inclusive and offset e exclusive). */
-   /* print "INSIDE EXEC";
-    print S; // baaaac
-    print i; // 0
-    print e; // 7*/
-  matchedSubstr := s_substr(S, i, (int_of_float e) - i);
+  matchedSubstr := s_substr_u(S, i, (int_of_float e) - i);
   /* 19. Call the [[DefineOwnProperty]] internal method of A with arguments
     "0", Property Descriptor {[[Value]]: matchedSubstr, [[Writable]: true,
     [[Enumerable]]: true, [[Configurable]]: true}, and true. */
@@ -572,10 +583,10 @@ function validateFlags(flags) {
   i := false;
   m := false;
 
-  len := s_len flags;
+  len := s_len_u flags;
   index := 0;
   while (index < len) {
-    flag := s_nth(flags, index);
+    flag := s_nth_u(flags, index);
 
     if ((flag = "g") &&& (g = false)) {
       g := true
@@ -598,10 +609,10 @@ function setFlags(obj, flags) {
   i := false;
   m := false;
 
-  len := s_len flags;
+  len := s_len_u flags;
   index := 0;
   while (index < len) {
-    flag := s_nth(flags, index);
+    flag := s_nth_u(flags, index);
 
     if ((flag = "g") &&& (g = false)) {
       g := true
@@ -619,6 +630,13 @@ function setFlags(obj, flags) {
   setJSProperty(obj, "global", newDataPropertyDescriptorFull(g, false, false, false));
   setJSProperty(obj, "ignoreCase", newDataPropertyDescriptorFull(i, false, false, false));
   setJSProperty(obj, "multiline", newDataPropertyDescriptorFull(m, false, false, false));
+
+  /* ES6? - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/S15.10.4.1_A1_T1.js */
+  flags := "";
+  if (g) { flags := s_concat [flags, "g"] };
+  if (i) { flags := s_concat [flags, "i"] };
+  if (m) { flags := s_concat [flags, "m"] };
+  setJSProperty(obj, "flags", newDataPropertyDescriptorFull(flags, false, false, false));
 
   return { gb: g, ic: i, ml: m }
 };
@@ -642,14 +660,17 @@ function stateGetChar(st) {
   i := st.endIndex;
   str := st.str;
 
-  if (i < (s_len str)) {
-    return s_nth(str, i)
+  if (i < (s_len_u str)) {
+    return s_nth_u(str, i)
   };
   return null
 };
 
 function stateNext(st) {
-  st.endIndex := st.endIndex + 1;
+  len := s_len_u st.str;
+  if (st.endIndex < len) {
+    st.endIndex := st.endIndex + 1
+  };
   return null
 };
 
@@ -664,11 +685,6 @@ function stateSetIndex(st, i) {
 
 function stateGetStr(st) {
   return st.str
-};
-
-function stateGetSubStr(st, i) {
-  len := st.endIndex - i;
-  return s_substr(st.str, i, len)
 };
 
 function stateGetCap(st, i) {
@@ -785,19 +801,14 @@ st = state
 */
 function JS_Interpreter_Repetition_Greedy(m, bounds, st, k) {
 
-  print "INSIDE REP GREEDY";
-  print st.endIndex;
-
   if (bounds.sup = 0.) {
     return {k}(st)
   } else {
 
-    k' := lambda (st') [st, m, bounds, k] {
-      /* TODO - Added this if, show prof */
-      /*if ((bounds.inf = 0) &&& (st.endIndex = st'.endIndex)) {
-        return null
-      };*/
-      if (st'.endIndex = st.endIndex) {
+    index := st.endIndex;
+
+    k' := lambda (st') [st, m, bounds, k, index] {
+      if ((bounds.inf = 0.) &&& (index = st'.endIndex)) {
         return {k}(st')
       };
       bounds' := decrementBounds(bounds);
@@ -815,7 +826,6 @@ function JS_Interpreter_Repetition_Greedy(m, bounds, st, k) {
       };
       i := i + 1
     };*/
-
 
 
     if (bounds.inf > 0.) {
@@ -892,7 +902,7 @@ function JS_Interpreter_Assertion(ba) {
       }
       /* 4. If the character Input[e–1] is one of LineTerminator, return true. */
       else {
-        c := s_nth(st.str, e - 1);
+        c := s_nth_u(st.str, e - 1);
         return isLineTerminator(c)
       }
     };
@@ -903,7 +913,7 @@ function JS_Interpreter_Assertion(ba) {
       /* 1. Let e be x's endIndex. */
       e := st.endIndex;
       /* 2. If e is equal to InputLength, return true. */
-      len := s_len st.str;
+      len := s_len_u st.str;
       if (e = len) {
         return true
       };
@@ -913,7 +923,7 @@ function JS_Interpreter_Assertion(ba) {
       };
       /* 4. If the character Input[e] is one of LineTerminator, return true. */
       if (e < len) {
-        c := s_nth(st.str, e);
+        c := s_nth_u(st.str, e);
         return isLineTerminator(c)
       };
       /* 5. Return false. */
@@ -979,8 +989,7 @@ function isLineTerminator(c) {
   \u000D              Carriage Return      <CR>
   \u2028              Line separator       <LS>
   \u2029              Paragraph separator  <PS> */
-  hex := int_to_four_hex (to_char_code c);
-  if ((hex = "000a") ||| (hex = "000d") ||| (hex = "2028") ||| (hex = "2029")) {
+  if ((c = "\u000a") ||| (c = "\u000d") ||| (c = "\u2028") ||| (c = "\u2029")) {
     return true
   };
   return false
@@ -992,16 +1001,17 @@ function isLineTerminator(c) {
  */
 function IsWordChar(e, input) {
   /* 1. If e == –1 or e == InputLength, return false. */
-  if ((e = -1) ||| (e = (s_len input))) {
+  if ((e = -1) ||| (e = (s_len_u input))) {
     return false
   };
   /* 2. Let c be the character Input[e]. */
-  c := s_nth(input, e);
+  c := s_nth_u(input, e);
   /* 3. If c is one of the sixty-three characters below, return true.
     a b c d e f g h i j k l m n o p q r s t u v w x y z
     A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
     0 1 2 3 4 5 6 7 8 9 _ */
-  code := to_char_code c;
+  code := to_char_code_u c;
+
   if (((code >= 48) &&& (code <= 57)) ||| ((code >= 65) &&& (code <= 90)) |||
       ((code >= 97) &&& (code <= 122)) ||| (code = 95)) {
     return true
@@ -1063,7 +1073,7 @@ function IsInCharacterClass(cs, c, ic) {
   if (c = null) {
     return false
   };
-  code := int_to_float (to_char_code c);
+  code := int_to_float (to_char_code_u c);
   code := canonicalise(c, code, ic);
   code_str := float_to_string code;
   ret := false;
@@ -1093,10 +1103,10 @@ function canonicalise(c, c_cp, ic) {
   };
 
   u := to_upper_case c;
-  if (!((s_len u) = 1)) {
+  if (!((s_len_u u) = 1)) {
     return c_cp
   };
-  u_cp := int_to_float (to_char_code u);
+  u_cp := int_to_float (to_char_code_u u);
 
   if ((c_cp >= 128.) && (u_cp < 128.)) {
     return c_cp
@@ -1123,7 +1133,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
       cs := wordCharSet(negative)
     } elif (c = "\\W") {
       cs := wordCharSet(!negative)
-    }  elif ((c = "\\n") ||| (c = "\\f") ||| (c = "\\r") ||| (c = "\\t") ||| (c = "\\v")) {
+    } elif ((c = "\\n") ||| (c = "\\f") ||| (c = "\\r") ||| (c = "\\t") ||| (c = "\\v") ||| (c = "\\b")) {
       cs := EmptyCharacterClass(negative);
       if (c = "\\n") {
         AddCharacterPoint(cs, "\n", "10", negative)
@@ -1135,12 +1145,19 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
         AddCharacterPoint(cs, "\t", "9", negative)
       } elif (c = "\\v") {
         AddCharacterPoint(cs, "\v", "11", negative)
-      } else {
-        throw s_concat(["Meta character inside character class not implemented: ", c])
+      } elif (c = "\\b") {
+        AddCharacterPoint(cs, "\b", "8", negative)
       }
     } else {
       throw s_concat(["Meta character inside character class not implemented: ", c])
     };
+
+    /**
+     * NOTE A ClassAtom can use any of the escape sequences that are allowed in the 
+     * rest of the regular expression except for \b, \B, and backreferences.
+     * Inside a CharacterClass, \b means the backspace character, while \B and backreferences
+     * raise errors. Using a backreference inside a ClassAtom causes an error.
+     */
 
     return cs
   }
@@ -1148,11 +1165,50 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
 
     cs := EmptyCharacterClass(negative);
 
-    if (v = "\\0") {
-      AddCharacterPoint(cs, "\0", "0", negative)
-    } else {
-      throw s_concat(["Unimplemented decimal character inside character class: ", c])
-    };
+    /* remove \ */
+    len := s_len_u c;
+    c := s_substr_u(c, 1, len - 1);
+    dec_code := octal_to_decimal (int_of_string c);
+    dec_code_str := int_to_string dec_code;
+    c := from_char_code_u dec_code;
+
+    AddCharacterPoint(cs, c, dec_code_str, negative);
+
+    return cs
+  }
+  | { type: "Char", value: c, kind: "hex" } -> {
+
+    cs := EmptyCharacterClass(negative);
+    c := hex_decode c;
+    code := to_char_code_u c;
+    code_str := int_to_string code;
+    AddCharacterPoint(cs, c, code_str, negative);
+
+    return cs
+  }
+  | { type: "Char", value: c, kind: "unicode" } -> {
+
+    cs := EmptyCharacterClass(negative);
+
+    c := utf8_decode c;
+
+    code := to_char_code_u c;
+    code_str := int_to_string code;
+
+    AddCharacterPoint(cs, c, code_str, negative);
+
+    return cs
+  }
+  | { type: "Char", value: c, kind: "control" } -> {
+
+    c := to_upper_case c;
+    c := s_nth_u(c, 2);
+    code := int_to_float (to_char_code_u c);
+    code := code % 32.;
+    code_str := float_to_string code;
+
+    cs := EmptyCharacterClass(negative);
+    AddCharacterPoint(cs, c, code_str, negative);
 
     return cs
   }
@@ -1174,7 +1230,7 @@ function JS_Interpreter_CharacterClassElement(el, ic, negative) {
     cs := EmptyCharacterClass(negative);
     while (from <= to) {
       from_str := float_to_string from;
-      c := from_char_code (int_of_float from);
+      c := from_char_code_u (int_of_float from);
       AddCharacterPoint(cs, c, from_str, negative);
       from := from + 1.
     };
@@ -1196,8 +1252,8 @@ function getLineTerminators() {
   cs := {};
   cs["10"] := "\n";
   cs["13"] := "\r";
-  /*cs["8232"] := "\n";
-  cs["8233"] := "\n";TODO*/
+  cs["8232"] := "\u2028";
+  cs["8233"] := "\u2029";
 
   return cs
 };
@@ -1222,11 +1278,40 @@ function getSpaceCharacters() {
   cs["11"] := "\v";
   cs["12"] := "\f";
   cs["32"] := " ";
-  /*TODO*/
+  cs["160"] := "\u00A0";
+  cs["65279"] := "\uFEFF";
+
+  /* https://www.compart.com/en/unicode/category/Zs */
+  /*
+   * \u0020 \u00A0 \u1680 \u2000 \u2001 \u2002
+   * \u2003 \u2004 \u2005 \u2006 \u2007 \u2008
+   * \u2009 \u200A \u202F \u205F \u3000
+   */
+  cs["5760"] := "\u1680";
+  cs["8192"] := "\u2000";
+  cs["8193"] := "\u2001";
+  cs["8194"] := "\u2002";
+  cs["8195"] := "\u2003";
+  cs["8196"] := "\u2004";
+  cs["8197"] := "\u2005";
+  cs["8198"] := "\u2006";
+  cs["8199"] := "\u2007";
+  cs["8200"] := "\u2008";
+  cs["8201"] := "\u2009";
+  cs["8202"] := "\u200A";
+  cs["8239"] := "\u202F";
+  cs["8287"] := "\u205F";
+  cs["12288"] := "\u3000";
+
+  /**
+   * 7.3 Line Terminators
+   * Line terminators are included in the set of white
+   * space characters that are matched by the \s class in regular expressions.
+   */
   cs["10"] := "\n";
   cs["13"] := "\r";
-  /*cs["8232"] := "\n";
-  cs["8233"] := "\n";TODO*/
+  cs["8232"] := "\u2028";
+  cs["8233"] := "\u2029";
 
   return cs
 };
@@ -1234,7 +1319,7 @@ function getSpaceCharacters() {
 function getCharacterRangeASCII(cs, from_code, to_code) {
   while (from_code <= to_code) {
     code_str := int_to_string from_code;
-    char_str := from_char_code from_code;
+    char_str := from_char_code_u from_code;
     cs[code_str] := char_str;
     from_code := from_code + 1
   };
@@ -1447,13 +1532,13 @@ function JS_Interpreter_RegEx(re, flags) {
       if (str_c = 'undefined) {
         return {k}(st)
       };
-      len := s_len str_c;
+      len := s_len_u str_c;
       j1 := stateGetIndex(st);
       str := stateGetStr(st);
-      if ((j1 + len) > (s_len str)) {
+      if ((j1 + len) > (s_len_u str)) {
         return null
       };
-      str' := s_substr(str, j1, len);
+      str' := s_substr_u(str, j1, len);
 
       if (str_c = str') {
         stateSetIndex(st, j1 + len);
@@ -1475,7 +1560,8 @@ function JS_Interpreter_RegEx(re, flags) {
       old_i := st.endIndex;
 
       k' := lambda (st') [st, k, old_i, i] {
-        str := stateGetSubStr(st', old_i);
+        len := st'.endIndex - old_i;
+        str := s_substr_u (st'.str, old_i, len);
         stateSetCap(st', int_of_float i, str);
         return {k}(st')
       };
@@ -1580,20 +1666,93 @@ function JS_Interpreter_RegEx(re, flags) {
     return m
   }
   /* Decimal Character (e.g.: '\\0') */
-  | { type: "Char", value: v, kind: "decimal" } -> {
+  | { type: "Char", value: c, kind: "decimal" } -> {
 
-    if (v = "\\0") {
-      v := "\0"
-    } else {
-      throw s_concat(["Unimplemented decimal character: ", v])
+    /* remove \ */
+    len := s_len_u c;
+    c := s_substr_u(c, 1, len - 1);
+
+    dec_code := octal_to_decimal (int_of_string c);
+    c := from_char_code_u dec_code;
+
+print "INSIDE DECIMAL";
+print dec_code;
+print c;
+
+    m := lambda (st, k) [c] {
+      c2 := stateGetChar(st);
+      if (c = null) {
+        return null
+      };
+      if (c2 = c) {
+        stateNext(st);
+        return {k}(st)
+      } else {
+        return null
+      }
     };
+
+    return m
+  }
+  /* Hexadecimal Character (e.g.: '\\x41') */
+  | { type: "Char", value: v, kind: "hex" } -> {
 
     m := lambda (st, k) [v] {
       c := stateGetChar(st);
+
+      if (c = null) {
+        return null
+      };
+
+      v := hex_decode v;
+
+      if (c = v) {
+        stateNext(st);
+        return {k}(st)
+      } else {
+        return null
+      }
+    };
+
+    return m
+  }
+  /* Unicode Character (e.g.: '\\u0041') */
+  | { type: "Char", value: v, kind: "unicode" } -> {
+
+    v := utf8_decode v;
+
+    m := lambda (st, k) [v] {
+      c := stateGetChar(st);
+
       if (c = null) {
         return null
       };
       if (c = v) {
+        stateNext(st);
+        return {k}(st)
+      } else {
+        return null
+      }
+    };
+
+    return m
+  }
+  /* Control Character (e.g.: '\\cA') */
+  | { type: "Char", value: v, kind: "control" } -> {
+
+    m := lambda (st, k) [v] {
+
+      v := to_upper_case v;
+      v := s_nth_u(v, 2);
+      v_code := int_to_float (to_char_code_u v);
+      v_code := v_code % 32.;
+
+      c := stateGetChar(st);
+      c_code := int_to_float (to_char_code_u c);
+      if (c = null) {
+        return null
+      };
+      if (c_code = v_code) {
         stateNext(st);
         return {k}(st)
       } else {
@@ -1613,10 +1772,10 @@ function JS_Interpreter_RegEx(re, flags) {
         return null
       };
 
-      c_code := int_to_float (to_char_code c);
+      c_code := int_to_float (to_char_code_u c);
       c_code := canonicalise(c, c_code, st.ic);
 
-      v_code := int_to_float (to_char_code v);
+      v_code := int_to_float (to_char_code_u v);
       v_code := canonicalise(v, v_code, st.ic);
 
       if (c_code = v_code) {

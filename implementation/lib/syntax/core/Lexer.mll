@@ -8,7 +8,85 @@
   open Lexing
   open Parser
 
-
+  (* https://www.ocaml.org/releases/4.11/htmlman/lexyacc.html#s:lexyacc-common-errors *)
+  let keyword_table = Hashtbl.create 53
+    let _ =
+      List.iter (fun (kwd, tok) -> Hashtbl.add keyword_table kwd tok)
+                [
+                  "l_len"           , LLEN;
+                  "l_nth"           , LNTH;
+                  "l_add"           , LADD;
+                  "l_prepend"       , LPREPEND;
+                  "l_concat"        , LCONCAT;
+                  "l_remove_last"   , LREMOVELAST;
+                  "l_sort"          , LSORT;
+                  "hd"              , HD;
+                  "tl"              , TL;
+                  "t_len"           , TLEN;
+                  "t_nth"           , TNTH;
+                  "fst"             , FST;
+                  "snd"             , SND;
+                  "s_split"         , SSPLIT;
+                  "s_concat"        , SCONCAT;
+                  "s_len"           , SLEN;
+                  "s_len_u"         , SLEN_U;
+                  "s_nth"           , SNTH;
+                  "s_nth_u"         , SNTH_U;
+                  "s_substr"        , SSUBSTR;
+                  "s_substr_u"      , SSUBSTR_U;
+                  "int_to_float"    , INT_TO_FLOAT;
+                  "int_to_string"   , INT_TO_STRING;
+                  "int_of_string"   , INT_OF_STRING;
+                  "int_of_float"    , INT_OF_FLOAT;
+                  "int_to_four_hex" , INT_TO_FOUR_HEX;
+                  "hex_decode"      , HEX_DECODE;
+                  "utf8_decode"     , UTF8_DECODE;
+                  "octal_to_decimal", OCTAL_TO_DECIMAL;
+                  "float_to_string" , FLOAT_TO_STRING;
+                  "float_of_string" , FLOAT_OF_STRING;
+                  "obj_to_list"     , OBJ_TO_LIST;
+                  "obj_fields"      , OBJ_FIELDS;
+                  "to_int"          , TO_INT;
+                  "to_int32"        , TO_INT32;
+                  "to_uint32"       , TO_UINT32;
+                  "to_uint16"       , TO_UINT16;
+                  "from_char_code"  , FROM_CHAR_CODE;
+                  "from_char_code_u", FROM_CHAR_CODE_U;
+                  "to_char_code"    , TO_CHAR_CODE;
+                  "to_char_code_u"  , TO_CHAR_CODE_U;
+                  "to_lower_case"   , TO_LOWER_CASE;
+                  "to_upper_case"   , TO_UPPER_CASE;
+                  "trim"            , TRIM;
+                  "abs"             , ABS;
+                  "acos"            , ACOS;
+                  "asin"            , ASIN;
+                  "atan"            , ATAN;
+                  "atan2"           , ATAN_2;
+                  "ceil"            , CEIL;
+                  "cos"             , COS;
+                  "exp"             , EXP;
+                  "extern"          , EXTERN;
+                  "floor"           , FLOOR;
+                  "log_e"           , LOG_E;
+                  "log_10"          , LOG_10;
+                  "max"             , MAX;
+                  "min"             , MIN;
+                  "random"          , RANDOM;
+                  "sin"             , SIN;
+                  "sqrt"            , SQRT;
+                  "tan"             , TAN;
+                  "typeof"          , TYPEOF;
+                  "if"              , IF;
+                  "else"            , ELSE;
+                  "while"           , WHILE;
+                  "return"          , RETURN;
+                  "function"        , FUNCTION;
+                  "delete"          , DELETE;
+                  "throw"           , THROW;
+                  "null"            , NULL;
+                  "fail"            , FAIL;
+                  "print"           , PRINT
+                ]
 
   exception Syntax_error of string
 
@@ -57,6 +135,7 @@ rule read =
   | white             { read lexbuf }
   | newline           { new_line lexbuf; read lexbuf }
   | ":="              { DEFEQ }
+  | "@"               { AT_SIGN }
   | '.'               { PERIOD }
   | ';'               { SEMICOLON }
   | ','               { COMMA }
@@ -82,84 +161,21 @@ rule read =
   | ">>>"             { SHIFT_RIGHT_LOGICAL }
   | "&&"              { LAND }
   | "||"		          { LOR }
-  | "l_len"           { LLEN }
-  | "l_nth"           { LNTH }
-  | "l_add"           { LADD }
-  | "l_prepend"       { LPREPEND }
-  | "l_concat"        { LCONCAT }
-  | "l_remove_last"   { LREMOVELAST }
-  | "l_sort"          { LSORT }
-  | "hd"              { HD }
-  | "tl"              { TL }
-  | "t_len"           { TLEN }
-  | "t_nth"           { TNTH }
-  | "fst"             { FST }
-  | "snd"             { SND }
-  | "s_split"         { SSPLIT }
-  | "s_concat"        { SCONCAT }
-  | "s_len"           { SLEN }
-  | "s_nth"           { SNTH }
-  | "s_substr"        { SSUBSTR }
-  | "int_to_float"    { INT_TO_FLOAT }
-  | "int_to_string"   { INT_TO_STRING }
-  | "int_of_string"   { INT_OF_STRING }
-  | "int_of_float"    { INT_OF_FLOAT }
-  | "int_to_four_hex" { INT_TO_FOUR_HEX }
-  | "float_to_string" { FLOAT_TO_STRING }
-  | "float_of_string" { FLOAT_OF_STRING }
-  | "obj_to_list"     { OBJ_TO_LIST }
-  | "obj_fields"      { OBJ_FIELDS }
-  | "to_int"          { TO_INT }
-  | "to_int32"        { TO_INT32 }
-  | "to_uint32"       { TO_UINT32 }
-  | "to_uint16"       { TO_UINT16 }
-  | "from_char_code"  { FROM_CHAR_CODE }
-  | "to_char_code"    { TO_CHAR_CODE }
-  | "to_lower_case"   { TO_LOWER_CASE }
-  | "to_upper_case"   { TO_UPPER_CASE }
-  | "trim"            { TRIM }
-  | "abs"             { ABS }
-  | "acos"            { ACOS }
-  | "asin"            { ASIN }
-  | "atan"            { ATAN }
-  | "atan2"           { ATAN_2 }
-  | "ceil"            { CEIL }
-  | "cos"             { COS }
-  | "exp"             { EXP }
-  | "extern"          { EXTERN }
-  | "@"               { AT_SIGN }
-  | "floor"           { FLOOR }
-  | "log_e"           { LOG_E }
-  | "log_10"          { LOG_10 }
-  | "max"             { MAX }
-  | "min"             { MIN }
   | "**"              { POW }
-  | "random"          { RANDOM }
-  | "sin"             { SIN }
-  | "sqrt"            { SQRT }
-  | "tan"             { TAN }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   | '{'               { LBRACE }
   | '}'               { RBRACE }
   | '['               { LBRACK }
   | ']'               { RBRACK }
-  | "typeof"          { TYPEOF }
   | "__$"             { read_type lexbuf }
-  | "if"              { IF }
-  | "else"            { ELSE }
-  | "while"           { WHILE }
-  | "return"          { RETURN }
-  | "function"        { FUNCTION }
-  | "delete"          { DELETE }
-  | "throw"           { THROW }
-  | "null"            { NULL }
-  | "fail"            { FAIL }
-  | "print"           { PRINT }
   | int               { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | '"'               { read_string (Buffer.create 16) lexbuf }
+  | letter(letter|digit|'_')* as id { try
+                                        Hashtbl.find keyword_table id
+                                      with Not_found -> VAR id }
   | var               { VAR (Lexing.lexeme lexbuf) }
   | symbol            { SYMBOL (String_Utils.chop_first_char (Lexing.lexeme lexbuf)) }
   | loc               { LOC (Lexing.lexeme lexbuf) }

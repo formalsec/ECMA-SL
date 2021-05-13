@@ -31,13 +31,14 @@
 %token <string> SYMBOL
 %token <string> LOC
 %token LAND LOR
-%token INT_TO_FLOAT INT_TO_STRING INT_TO_FOUR_HEX INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
+%token INT_TO_FLOAT INT_TO_STRING INT_TO_FOUR_HEX HEX_DECODE UTF8_DECODE OCTAL_TO_DECIMAL
+%token INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
-%token FROM_CHAR_CODE TO_CHAR_CODE TO_LOWER_CASE TO_UPPER_CASE TRIM
+%token FROM_CHAR_CODE FROM_CHAR_CODE_U TO_CHAR_CODE TO_CHAR_CODE_U TO_LOWER_CASE TO_UPPER_CASE TRIM
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16
 %token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM SIN SQRT TAN
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST
-%token NOT LLEN LNTH LADD LPREPEND LCONCAT LREMOVELAST LSORT HD TL TLEN TNTH FST SND SLEN SNTH SSUBSTR
+%token NOT LLEN LNTH LADD LPREPEND LCONCAT LREMOVELAST LSORT HD TL TLEN TNTH FST SND SLEN SLEN_U SNTH SNTH_U SSUBSTR SSUBSTR_U
 %token SCONCAT SSPLIT AT_SIGN EXTERN
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
@@ -159,6 +160,8 @@ expr_target:
     { Expr.UnOpt (Oper.TupleLen, e) } %prec unopt_prec
   | SLEN; e = expr_target;
     { Expr.UnOpt (Oper.StringLen, e) } %prec unopt_prec
+  | SLEN_U; e = expr_target;
+    { Expr.UnOpt (Oper.StringLenU, e) } %prec unopt_prec
   | TYPEOF; e = expr_target;
     { Expr.UnOpt (Oper.Typeof, e) } %prec unopt_prec
   | HD; e = expr_target;
@@ -179,6 +182,12 @@ expr_target:
     { Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
   | INT_TO_FOUR_HEX; e = expr_target;
     { Expr.UnOpt (Oper.IntToFourHex, e) } %prec unopt_prec
+  | HEX_DECODE; e = expr_target;
+    { Expr.UnOpt (Oper.HexDecode, e) } %prec unopt_prec
+  | UTF8_DECODE; e = expr_target;
+    { Expr.UnOpt (Oper.Utf8Decode, e) } %prec unopt_prec
+  | OCTAL_TO_DECIMAL; e = expr_target;
+    { Expr.UnOpt (Oper.OctalToDecimal, e) } %prec unopt_prec
   | INT_OF_STRING; e = expr_target;
     { Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
   | INT_OF_FLOAT; e = expr_target;
@@ -191,8 +200,12 @@ expr_target:
     { Expr.UnOpt (Oper.ToUint32, e) } %prec unopt_prec
   | FROM_CHAR_CODE; e = expr_target;
     { Expr.UnOpt (Oper.FromCharCode, e) } %prec unopt_prec
+  | FROM_CHAR_CODE_U; e = expr_target;
+    { Expr.UnOpt (Oper.FromCharCodeU, e) } %prec unopt_prec
   | TO_CHAR_CODE; e = expr_target;
     { Expr.UnOpt (Oper.ToCharCode, e) } %prec unopt_prec
+  | TO_CHAR_CODE_U; e = expr_target;
+    { Expr.UnOpt (Oper.ToCharCodeU, e) } %prec unopt_prec
   | TO_LOWER_CASE; e = expr_target;
     { Expr.UnOpt (Oper.ToLowerCase, e) } %prec unopt_prec
   | TO_UPPER_CASE; e = expr_target;
@@ -241,10 +254,14 @@ expr_target:
     { Expr.BinOpt (Oper.Tnth, e1, e2) }
   | SNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { Expr.BinOpt (Oper.Snth, e1, e2) }
+  | SNTH_U; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    { Expr.BinOpt (Oper.Snth_u, e1, e2) }
   | SSPLIT; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { Expr.BinOpt (Oper.Ssplit, e1, e2) }
   | SSUBSTR; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
     { Expr.TriOpt (Oper.Ssubstr, e1, e2, e3) }
+  | SSUBSTR_U; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
+    { Expr.TriOpt (Oper.SsubstrU, e1, e2, e3) }
   | LADD; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { Expr.BinOpt (Oper.Ladd, e1, e2) }
   | LPREPEND; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;

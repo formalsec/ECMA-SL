@@ -20,7 +20,7 @@ function initStringObject(global, objectPrototype, strict) {
   setJSProperty(objStringConstructor, "prototype", descriptor);
 
   /* 15.5.3.2 String.fromCharCode ( [ char0 [ , char1 [ , ... ] ] ] ) */
-  fromCharCode := CreateBuiltInFunctionObject(["chars"], "StringfromCharCode", global, strict, 0.);
+  fromCharCode := CreateBuiltInFunctionObject(["chars"], "StringFromCharCode", global, strict, 0.);
   createBuiltInProperty(objStringConstructor, "fromCharCode", fromCharCode);
 
   return objStringConstructor
@@ -193,10 +193,10 @@ function StringConstructor (global, this, strict, args) {
      "String". String instances also have a [[PrimitiveValue]] internal property, a length property, and a set of
      enumerable properties with array index names. */
   i := 0;
-  len := s_len newlyConstructedObject.PrimitiveValue;
+  len := s_len_u newlyConstructedObject.PrimitiveValue;
   while (i < len) {
     i_str := int_to_string i;
-    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, i_str, s_nth (newlyConstructedObject.PrimitiveValue, i), true, true, true);
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, i_str, s_nth_u (newlyConstructedObject.PrimitiveValue, i), true, true, true);
     i := i + 1
   };
   /* The [[PrimitiveValue]] internal property is the String value represented by this String object. The array index
@@ -207,7 +207,7 @@ function StringConstructor (global, this, strict, args) {
   /* The number of characters in the String value represented by this String object. */
   /* Once a String object is created, this property is unchanging. It has the attributes { [[Writable]]: false,
      [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", int_to_float (s_len newlyConstructedObject.PrimitiveValue), false, false, false);
+  createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, "length", int_to_float (s_len_u newlyConstructedObject.PrimitiveValue), false, false, false);
 
   return newlyConstructedObject
 };
@@ -226,30 +226,30 @@ This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [
 
 
 
-/* 15.5.3.2 String.fromCharCode ( [char0 [, char1 [, ... ]]]) */
-
-/* Returns a String value containing as many characters as the number of arguments.
- Each argument specifies one character of the resulting String,
- with the first argument specifying the first character, and so on, from left to right.
-  An argument is converted to a character by applying the operation ToUint16 (9.7)
-   and regarding the resulting 16-bit integer as the code unit value of a character.
-    If no arguments are supplied, the result is the empty String.
-
-    The length property of the fromCharCode function is 1.*/
-
-function StringfromCharCode (global, this, strict, args) {
+/**
+ * 15.5.3.2 String.fromCharCode ( [char0 [, char1 [, ... ]]])
+ *
+ * Returns a String value containing as many characters as the number of arguments.
+ * Each argument specifies one character of the resulting String,
+ * with the first argument specifying the first character, and so on, from left to right.
+ * An argument is converted to a character by applying the operation ToUint16 (9.7)
+ * and regarding the resulting 16-bit integer as the code unit value of a character.
+ * If no arguments are supplied, the result is the empty String.
+ *
+ * The length property of the fromCharCode function is 1.
+ */
+function StringFromCharCode (global, this, strict, args) {
   args_ := args;
   R := "";
   while (!(args_ = [])) {
     /* Remove the first element from args and let next be the value of that element. */
     next  := hd args_;
     args_ := tl args_;
-      /* An argument is converted to a character by applying the operation ToUint16 */
-    R := s_concat([R, from_char_code ( int_of_float (ToUint16(next) )) ])
+    /* An argument is converted to a character by applying the operation ToUint16 */
+    R := s_concat([R, from_char_code_u ( int_of_float (ToUint16(next) )) ])
 
   };
   return R
-  /* The length property of the fromCharCode function is 1.*/
 };
 
 /* 15.5.4 Properties of the String Prototype Object */
@@ -332,14 +332,14 @@ function StringPrototypecharAt(global, this, strict, args) {
   /* Let position be ToInteger(pos). */
   position := int_of_float(ToInteger(pos));
   /* Let size be the number of characters in S. */
-  size := s_len(S);
+  size := s_len_u(S);
   /* If position < 0 or position ≥ size, return the empty String. */
   if ((position < 0) ||| (position >= size)) {
     return ""
   };
   /* Return a String of length 1, containing one character from S, namely the character at position position
   where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on.*/
-  return (s_nth (S, position))
+  return (s_nth_u (S, position))
 };
 
 /* 15.5.4.5 String.prototype.charCodeAt (pos) */
@@ -374,14 +374,14 @@ function StringPrototypecharCodeAt (global, this, strict, args) {
   /*Let position be ToInteger(pos).*/
   position := int_of_float(ToInteger(pos));
   /*Let size be the number of characters in S.*/
-  size := s_len(S);
+  size := s_len_u(S);
   /* If position < 0 or position ≥ size, return NaN. */
   if ((position < 0) ||| (position >= size)) {
     return NaN
   };
   /*     Return a value of Number type, whose value is the code unit value of the character at position position
        in the String S, where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on. */
-  return to_char_code (s_nth (S, position))
+  return to_char_code_u (s_nth_u (S, position))
 };
 
 /*15.5.4.6 String.prototype.concat ( [ string1 [ , string2 [ , … ] ] ] )  */
@@ -476,11 +476,11 @@ function StringPrototypeIndexOf (global, this, strict, args) {
   /* Let pos be ToInteger(position). (If position is undefined, this step produces the value 0). */
   pos := ToInteger(position);
   /* Let len be the number of characters in S. */
-  len := s_len(S);
+  len := s_len_u(S);
   /* Let start be min(max(pos, 0), len). */
   start := min(max(pos, 0.), int_to_float len);
   /* Let searchLen be the number of characters in searchStr. */
-  searchLen := s_len(searchStr);
+  searchLen := s_len_u(searchStr);
   /*     Return the smallest possible integer k not smaller than start such that k+ searchLen is not greater than len,
       and for all nonnegative integers j less than searchLen,
       the character at position k+j of S is the same as the character at position j of searchStr);
@@ -494,7 +494,7 @@ function StringPrototypeIndexOf (global, this, strict, args) {
   /* for all nonnegative integers j less than searchLen*/
     if (j < searchLen) {
       /* the character at position k+j of S is the same as the character at position j of searchStr */
-      if (s_nth (S, k + j) = s_nth(searchStr, j)) {
+      if (s_nth_u (S, k + j) = s_nth_u(searchStr, j)) {
         j := j + 1
       } else {
         j := 0;
@@ -543,11 +543,11 @@ function StringPrototypelastIndexOf(global, this, strict, args) {
     pos := ToInteger(numPos)
   };
   /* Let len be the number of characters in S.*/
-  len := s_len(S);
+  len := s_len_u(S);
   /* Let start min(max(pos, 0), len). */
   start := int_of_float (min(max(pos, 0.), int_to_float len));
   /* Let searchLen be the number of characters in searchStr. */
-  searchLen := s_len(searchStr);
+  searchLen := s_len_u(searchStr);
   /* k not larger than start */
   k := start;
   /* for all nonnegative integers j */
@@ -559,7 +559,7 @@ function StringPrototypelastIndexOf(global, this, strict, args) {
        /* k+ searchLen is not greater than len */
        if ((k + searchLen) <= len) {
          /* the character at position k+j of S is the same as the character at position j of searchStr */
-         if (s_nth(S, k + j) = s_nth(searchStr, j)) {
+         if (s_nth_u(S, k + j) = s_nth_u(searchStr, j)) {
            j := j + 1
          }
          else {
@@ -601,15 +601,15 @@ function StringPrototypelocaleCompare (global, this, strict, args) {
   That := ToString(that);
   /* The result is intended to order String values and
   will be negative, zero, or positive, depending on whether S comes before That in the sort order*/
-  SLen := s_len S;
-  ThatLen := s_len That;
+  SLen := s_len_u S;
+  ThatLen := s_len_u That;
   j := 0;
   while ((j < SLen) &&& (j < ThatLen)) {
-    if (to_char_code(s_nth(S, j)) < to_char_code(s_nth(That, j))) {
+    if (to_char_code_u(s_nth_u(S, j)) < to_char_code_u(s_nth_u(That, j))) {
       return -(1.)
     }
     else{
-      if (to_char_code(s_nth(S, j)) > to_char_code(s_nth(That, j))) {
+      if (to_char_code_u(s_nth_u(S, j)) > to_char_code_u(s_nth_u(That, j))) {
         return 1.
       }
       else {
@@ -864,10 +864,10 @@ function StringPrototypeReplace(global, this, strict, args) {
     offset := int_of_float offset;
     startOffset := offset - prevOffset;
 
-    beforeStr := s_substr(string, 0, startOffset);
-    matchStrLen := s_len matchStr;
-    stringLen := (s_len string) - (s_len beforeStr) - matchStrLen;
-    string := s_substr(string, startOffset + matchStrLen, stringLen);
+    beforeStr := s_substr_u(string, 0, startOffset);
+    matchStrLen := s_len_u matchStr;
+    stringLen := (s_len_u string) - (s_len_u beforeStr) - matchStrLen;
+    string := s_substr_u(string, startOffset + matchStrLen, stringLen);
 
     if ((Type(replaceValue) = "Object") &&& (replaceValue.Class = "Function")) {
       /* TODO - review "this" arg passed to the replace function is 'undefined 
@@ -877,10 +877,10 @@ function StringPrototypeReplace(global, this, strict, args) {
       newstring := ToString(newstring)
     } else {
       newstring := ToString(replaceValue);
-      beforeStr2 := s_substr(originalString, 0, offset);
+      beforeStr2 := s_substr_u(originalString, 0, offset);
       off1 := offset + matchStrLen;
-      off2 := (s_len originalString) - off1;
-      afterStr2 := s_substr(originalString, off1, off2);
+      off2 := (s_len_u originalString) - off1;
+      afterStr2 := s_substr_u(originalString, off1, off2);
       newstring := resolveDollars(newstring, matchStr, beforeStr2, afterStr2, captures)
     };
 
@@ -903,62 +903,62 @@ function StringPrototypeReplace(global, this, strict, args) {
 
 
 function resolveDollars(newstring, matchStr, beforeStr, afterStr, captures) {
-  len := (s_len newstring) - 1;
+  len := (s_len_u newstring) - 1;
   i := 0;
   while (i < len) {
-    c1 := s_nth(newstring, i);
-    c2 := s_nth(newstring, i + 1);
-    c2_code := to_char_code c2;
+    c1 := s_nth_u(newstring, i);
+    c2 := s_nth_u(newstring, i + 1);
+    c2_code := to_char_code_u c2;
     if ((c1 = "$") &&& (c2 = "$")) {
-      str1 := s_substr(newstring, 0, i + 1);
+      str1 := s_substr_u(newstring, 0, i + 1);
       startIndex := i + 2;
       if (startIndex > len) {
         str2 := ""
       } else {
-        str2 := s_substr(newstring, startIndex, len + 1 - startIndex)
+        str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
       };
       newstring := s_concat [str1, str2];
       i := i + 1
 
     } elif ((c1 = "$") &&& (c2 = "&")) {
-      str1 := s_substr(newstring, 0, i);
+      str1 := s_substr_u(newstring, 0, i);
       startIndex := i + 2;
       if (startIndex > len) {
         str2 := ""
       } else {
-        str2 := s_substr(newstring, startIndex, len + 1 - startIndex)
+        str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
       };
       newstring := s_concat [str1, matchStr, str2];
-      i := i + (s_len matchStr)
+      i := i + (s_len_u matchStr)
 
     } elif ((c1 = "$") &&& (c2 = "`")) {
-      str1 := s_substr(newstring, 0, i);
+      str1 := s_substr_u(newstring, 0, i);
       startIndex := i + 2;
       if (startIndex > len) {
         str2 := ""
       } else {
-        str2 := s_substr(newstring, startIndex, len + 1 - startIndex)
+        str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
       };
       newstring := s_concat [str1, beforeStr, str2];
-      i := i + (s_len beforeStr)
+      i := i + (s_len_u beforeStr)
 
     } elif ((c1 = "$") &&& (c2 = "'")) {
-      str1 := s_substr(newstring, 0, i);
+      str1 := s_substr_u(newstring, 0, i);
       startIndex := i + 2;
       if (startIndex > len) {
         str2 := ""
       } else {
-        str2 := s_substr(newstring, startIndex, len + 1 - startIndex)
+        str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
       };
       newstring := s_concat [str1, afterStr, str2];
-      i := i + (s_len afterStr)
+      i := i + (s_len_u afterStr)
 
     } elif ((c1 = "$") &&& (c2_code >= 48) &&& (c2_code <= 57)) {
       startIndex := i + 2;
       c3 := "";
       if ((i + 2) <= len) {
-        c3 := s_nth(newstring, i + 2);
-        c3_code := to_char_code c3;
+        c3 := s_nth_u(newstring, i + 2);
+        c3_code := to_char_code_u c3;
         if ((c3_code >= 48) &&& (c3_code <= 57)) {
           startIndex := i + 3
         } else {
@@ -971,25 +971,25 @@ function resolveDollars(newstring, matchStr, beforeStr, afterStr, captures) {
         startIndex := i + 2
       };
       if (!(num > (l_len captures))) {
-        str1 := s_substr(newstring, 0, i);
+        str1 := s_substr_u(newstring, 0, i);
         if (startIndex > len) {
           str2 := ""
         } else {
-          str2 := s_substr(newstring, startIndex, len + 1 - startIndex)
+          str2 := s_substr_u(newstring, startIndex, len + 1 - startIndex)
         };
         m := l_nth(captures, num - 1);
         if (m = 'undefined) {
           m := ""
         };
         newstring := s_concat [str1, m, str2];
-        i := i + (s_len m)
+        i := i + (s_len_u m)
       } else {
         i := i + 1
       }
     } else {
       i := i + 1
     };
-    len := (s_len newstring) - 1
+    len := (s_len_u newstring) - 1
   };
   return newstring
 };
@@ -1063,7 +1063,7 @@ function StringPrototypeSlice (global, this, strict, args) {
   /* Let S be the result of calling ToString, giving it the this value as its argument. */
   S := ToString(this);
   /* Let len be the number of characters in S. */
-  len := int_to_float s_len(S);
+  len := int_to_float s_len_u(S);
   /* Let intStart be ToInteger(start). */
   intStart := ToInteger(start);
   /* If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
@@ -1090,7 +1090,7 @@ function StringPrototypeSlice (global, this, strict, args) {
   substring := "";
   j := 0.;
   while(j < span) {
-    substring := s_concat ([substring, s_nth (S, int_of_float (from + j))]);
+    substring := s_concat ([substring, s_nth_u (S, int_of_float (from + j))]);
     j := j + 1.
   };
   return substring
@@ -1163,7 +1163,7 @@ function StringPrototypeSplit (global, this, strict, args) {
     lim := ToUint32(limit)
   };
   /* 6. Let s be the number of characters in S. */
-  s := s_len S;
+  s := s_len_u S;
   /* 7. Let p = 0. */
   p := 0;
   /* 8. If separator is a RegExp object (its [[Class]] is "RegExp"),
@@ -1227,7 +1227,7 @@ function StringPrototypeSplit (global, this, strict, args) {
       else {
         /* 1. Let T be a String value equal to the substring of S consisting of
           the characters at positions p (inclusive) through q (exclusive). */
-        T := s_substr(S, p, q - p);
+        T := s_substr_u(S, p, q - p);
         /* 2. Call the [[DefineOwnProperty]] internal method of A with arguments
           ToString(lengthA), Property Descriptor {[[Value]]: T, [[Writable]]: true,
           [[Enumerable]]: true, [[Configurable]]: true}, and false. */
@@ -1266,7 +1266,7 @@ function StringPrototypeSplit (global, this, strict, args) {
   };
   /* 14. Let T be a String value equal to the substring of S consisting
     of the characters at positions p (inclusive) through s (exclusive). */
-  T := s_substr(S, p, s - p);
+  T := s_substr_u(S, p, s - p);
   /* 15. Call the [[DefineOwnProperty]] internal method of A with arguments
     ToString(lengthA), Property Descriptor {[[Value]]: T, [[Writable]]: true,
     [[Enumerable]]: true, [[Configurable]]: true}, and false. */
@@ -1299,9 +1299,9 @@ function SplitMatch (S, q, R) {
     return {R.Match}(R, S, q)
   };
   /* 2. Type(R) must be String. Let r be the number of characters in R. */
-  r := s_len R;
+  r := s_len_u R;
   /* 3. Let s be the number of characters in S. */
-  s := s_len S;
+  s := s_len_u S;
   /* 4. If q+r > s then return the MatchResult failure. */
   if ((q + r) > s) {
     return null
@@ -1311,8 +1311,8 @@ function SplitMatch (S, q, R) {
     character at position i of R, then return failure. */
   i := 0;
   while (!(i = r)) {
-    posA := s_nth(S, q + i);
-    posB := s_nth(R, i);
+    posA := s_nth_u(S, q + i);
+    posB := s_nth_u(R, i);
     if (!(posA = posB)) {
       return null
     };
@@ -1368,7 +1368,7 @@ function StringPrototypesubstring (global, this, strict, args) {
   /* Let S be the result of calling ToString, giving it the this value as its argument.*/
   S := ToString(this);
   /* Let len be the number of characters in S. */
-  len := int_to_float s_len(S);
+  len := int_to_float s_len_u(S);
   /* Let intStart be ToInteger(start). */
   intStart := ToInteger(start);
   /* If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
@@ -1390,7 +1390,7 @@ function StringPrototypesubstring (global, this, strict, args) {
   substring := "";
   j := from;
   while (j < to) {
-    substring := s_concat ([substring, s_nth (S, int_of_float j)]);
+    substring := s_concat ([substring, s_nth_u (S, int_of_float j)]);
     j := j + 1.
   };
 
@@ -1580,7 +1580,7 @@ function GetOwnPropertyString (S, P) {
   /* Let index be ToInteger(P).*/
   index := ToInteger(P);
   /* Let len be the number of characters in str. */
-  len := s_len(str);
+  len := s_len_u(str);
   /* If len ≤ index, return undefined. */
   if ((int_to_float len) <= index) {
     return 'undefined
@@ -1588,7 +1588,7 @@ function GetOwnPropertyString (S, P) {
   /*    Let resultStr be a String of length 1, containing one character from str,
      specifically the character at position index, where the first (leftmost) character
      in str is considered to be at position 0, the next one at position 1, and so on. */
-  resultStr := s_nth (str, int_of_float index);
+  resultStr := s_nth_u (str, int_of_float index);
   /* Return a Property Descriptor { [[Value]]: resultStr, [[Enumerable]]: true,
    [[Writable]]: false, [[Configurable]]: false } */
    return newDataPropertyDescriptorFull(resultStr, false, true, false)
