@@ -31,6 +31,6 @@ clean:
 	rm -f test/main262.js
 	rm -f test262_tests_result.md
 	rm -rf output
-	rm *.byte
+	rm -f *.byte
 
 .PHONY: test

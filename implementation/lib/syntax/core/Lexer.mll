@@ -13,6 +13,7 @@
     let _ =
       List.iter (fun (kwd, tok) -> Hashtbl.add keyword_table kwd tok)
                 [
+                  "re_exec"         , RE_EXEC;
                   "l_len"           , LLEN;
                   "l_nth"           , LNTH;
                   "l_add"           , LADD;

@@ -44,7 +44,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | FloatToString -> Oper.float_to_string v
   | FloatOfString -> Oper.float_of_string v
   | HexDecode     -> Oper.hex_decode v
-  | Utf8Decode     -> Oper.utf8_decode v
+  | Utf8Decode    -> Oper.utf8_decode v
   | OctalToDecimal-> Oper.octal_to_decimal v
   | Sconcat       -> Oper.string_concat v
   | ObjToList     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjToList")
@@ -98,6 +98,7 @@ let eval_triopt_expr (op : Oper.topt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : V
   match op with
   | Ssubstr  -> Oper.s_substr (v1,v2,v3)
   | SsubstrU  -> Oper.s_substr_u (v1,v2,v3)
+  | ReExec   -> Oper.re_exec (v1,v2,v3)
 
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   match op with
