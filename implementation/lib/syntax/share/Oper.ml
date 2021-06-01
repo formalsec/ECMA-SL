@@ -37,7 +37,6 @@ type bopt = Plus
 
 type topt = Ssubstr
           | SsubstrU
-          | ReExec
 
 type uopt = Neg
           | Not
@@ -91,6 +90,8 @@ type uopt = Neg
           | Sin
           | Sqrt
           | Tan
+          | ParseNumber
+          | ParseString
 
 
 type nopt = ListExpr
@@ -226,7 +227,7 @@ let s_substr_u (v1, v2, v3: Val.t * Val.t * Val.t) : Val.t = match v1, v2, v3 wi
   | Str s, Int i, Int j -> Str (String_Utils.s_substr_u s i j)
   | _                   -> invalid_arg "Exception in Oper.s_substr_u: this operation is only applicable to String and two Integer arguments"
 
-(* TODO: i should be unicode index *)
+(* TODO: i should be unicode index
 let re_exec (v1, v2, v3: Val.t * Val.t * Val.t) : Val.t = match v1, v2, v3 with
   | Str re, Str s, Int i -> 
     let regex = Str.regexp re in
@@ -236,6 +237,32 @@ let re_exec (v1, v2, v3: Val.t * Val.t * Val.t) : Val.t = match v1, v2, v3 with
           Str (Str.matched_string s))
         else Str("")
   | _             -> invalid_arg "Exception in Oper.re_exec: this operation is only applicable to two String arguments and one Int argument"
+*)
+
+(**
+ * JSON number regex: https://stackoverflow.com/a/13340826/3049315
+ * Recognized Regexp constructs in OCaml Str: https://ocaml.org/api/Str.html
+ *)
+let parse_number (v : Val.t) : Val.t = match v with
+| Str s ->
+    let regex = Str.regexp "-?\\(0\\|[1-9][0-9]*\\)\\(\\.[0-9]+\\)?\\([eE][+-]?[0-9]+\\)?" in
+      let matched = Str.string_match regex s 0 in
+        if matched then
+          Str (Str.matched_string s)
+        else Str("")
+| _  -> invalid_arg "Exception in Oper.parse_number: this operation is only applicable to a String argument"
+
+(**
+ * JSON string regex: https://stackoverflow.com/a/32155765/3049315
+ *)
+let parse_string (v : Val.t) : Val.t = match v with
+| Str s ->
+    let regex = Str.regexp "\"\\(\\\\\\([\"\\\\\\/bfnrt]\\|u[a-fA-F0-9][a-fA-F0-9][a-fA-F0-9][a-fA-F0-9]\\)\\|[^\"\\\\\000-\031\127]+\\)*\"" in
+      let matched = Str.string_match regex s 0 in
+        if matched then
+          Str (Str.matched_string s)
+        else Str("")
+| _  -> invalid_arg "Exception in Oper.parse_string: this operation is only applicable to a String argument"
 
 let list_in (v1, v2 : Val.t * Val.t) : Val.t = match v2 with
   | List l -> Bool (List.mem v1 l)
@@ -335,7 +362,7 @@ let string_concat (v : Val.t) : Val.t = match v with
      | Some strs -> Str (String.concat "" strs))
   | _      -> invalid_arg "Exception in Oper.string_concat: this operation is only applicable to List arguments"
 
-(*
+(* Splits on character:
 let string_split (v, c : Val.t * Val.t) : Val.t = match v, c with
   | _, Str ""        -> invalid_arg "Exception in Oper.string_split: separator cannot be the empty string"
   | Str str, Str sep ->
@@ -344,7 +371,7 @@ let string_split (v, c : Val.t * Val.t) : Val.t = match v, c with
   | _                -> invalid_arg "Exception in Oper.string_split: this operation is only applicable to String arguments"
 *)
 
-(* Inspired by: https://stackoverflow.com/a/39814087/3049315 *)
+(* Splits on RegExp. Inspired by: https://stackoverflow.com/a/39814087/3049315 *)
 let string_split (v, c : Val.t * Val.t) : Val.t = match v, c with
   | _, Str ""        -> invalid_arg "Exception in Oper.string_split: separator cannot be the empty string"
   | Str str, Str sep ->
@@ -487,6 +514,8 @@ let str_of_unopt (op : uopt) : string = match op with
   | Sin           -> "sin"
   | Sqrt          -> "sqrt"
   | Tan           -> "tan"
+  | ParseNumber   -> "parse_number"
+  | ParseString   -> "parse_string"
 
 
 let str_of_binopt_single (op : bopt) : string = match op with
@@ -560,7 +589,6 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
 let str_of_triopt (op : topt) (e1 : string) (e2 : string) (e3 : string) : string = match op with
   | Ssubstr  -> "s_substr(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
   | SsubstrU  -> "s_substr_u(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
-  | ReExec   -> "re_exec(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | ListExpr  -> "[ " ^ (String.concat ", " es) ^ " ]"
@@ -642,8 +670,7 @@ let topt_to_json (op : topt) : string =
   Printf.sprintf "{ \"type\" : \"triopt\", \"value\" : \"%s"
     (match op with
       | Ssubstr -> Printf.sprintf "Ssubstr\" }"
-      | SsubstrU -> Printf.sprintf "SsubstrU\" }"
-      | ReExec   -> Printf.sprintf "ReExec\" }")
+      | SsubstrU -> Printf.sprintf "SsubstrU\" }")
 
 let nopt_to_json (op : nopt) : string =
   Printf.sprintf "{ \"type\" : \"nopt\", \"value\" : \"%s"
@@ -708,5 +735,7 @@ let uopt_to_json (op : uopt) : string =
      | Random        -> Printf.sprintf "Random\" }"
      | Sin           -> Printf.sprintf "Sin\" }"
      | Sqrt          -> Printf.sprintf "Sqrt\" }"
-     | Tan           -> Printf.sprintf "Tan\" }")
+     | Tan           -> Printf.sprintf "Tan\" }"
+     | ParseNumber   -> Printf.sprintf "ParseNumber\" }"
+     | ParseString   -> Printf.sprintf "ParseString\" }")
 

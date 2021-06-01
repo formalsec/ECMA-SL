@@ -60,6 +60,8 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ToUpperCase   -> Oper.to_upper_case v
   | Trim          -> Oper.trim v
   | ToUint16      -> Oper.to_uint16 v
+  | ParseNumber   -> Oper.parse_number v
+  | ParseString   -> Oper.parse_string v
   | _             -> Oper.apply_uopt_oper op v
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
@@ -98,7 +100,6 @@ let eval_triopt_expr (op : Oper.topt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : V
   match op with
   | Ssubstr  -> Oper.s_substr (v1,v2,v3)
   | SsubstrU  -> Oper.s_substr_u (v1,v2,v3)
-  | ReExec   -> Oper.re_exec (v1,v2,v3)
 
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   match op with

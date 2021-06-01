@@ -53,10 +53,11 @@ function initJsonObject(globalObject, ObjectPrototype, strict) {
      to invoke the JSON object as a function. */
 
   parse_fo := CreateBuiltInFunctionObject(["text", "reviver"], "jsonParse", globalObject, strict, null);
+  setConfigurability(parse_fo, "length", true); /* ES6 */
   createBuiltInProperty(JsonObject, "parse", parse_fo);
 
   stringify_fo := CreateBuiltInFunctionObject(["value", "replacer", "space"], "jsonStringify", globalObject, strict, null);
-  setConfigurability(stringify_fo, "length", true);
+  setConfigurability(stringify_fo, "length", true); /* ES6 */
   createBuiltInPropertyWithFullDescriptor(stringify_fo, "name", "stringify", false, false, true);
   createBuiltInProperty(JsonObject, "stringify", stringify_fo);
 
@@ -93,6 +94,48 @@ function isDigit(c) {
   return ((c_code >= 48) &&& (c_code <= 57))
 };
 
+function unescapeJSONString(S) {
+  i := 0;
+  len := s_len_u(S);
+  S2 := "";
+  while (i < len) {
+    c := s_nth_u(S, i);
+    if (c = "\\") {
+      if (i < (len - 1)) {
+        c2 := s_nth_u(S, i + 1);
+        if (c2 = "u") {
+          if (i < (len - 5)) {
+            str := s_substr_u(S, i, 6);
+            u := utf8_decode str;
+            S2 := s_concat([S2, u]);
+            i := i + 4
+          } else {
+            throw SyntaxErrorConstructor(global, this, strict,
+              ["JSON.parse: Invalid unicode escape sequence."])
+          }
+        } elif ((c2 = "\\") ||| (c2 = "/") ||| (c2 = "\x22")) {
+          S2 := s_concat([S2, c2])
+        } elif (c2 = "b") {
+          S2 := s_concat([S2, "\b"])
+        } elif (c2 = "f") {
+          S2 := s_concat([S2, "\f"])
+        } elif (c2 = "n") {
+          S2 := s_concat([S2, "\n"])
+        } elif (c2 = "r") {
+          S2 := s_concat([S2, "\r"])
+        } elif (c2 = "t") {
+          S2 := s_concat([S2, "\t"])
+        };
+        i := i + 2
+      }
+    } else {
+      S2 := s_concat([S2, c]);
+      i := i + 1
+    }
+  };
+  return S2
+};
+
 function getTokens(global, this, strict, args) {
   JText := l_nth(args, 0);
 
@@ -126,8 +169,9 @@ function getTokens(global, this, strict, args) {
        * - non-capturing groups not recognized
        * - (, ) and | must be escaped
        */
-      re := "-?\\(0\\|[1-9][0-9]*\\)\\(\\.[0-9]+\\)?\\([eE][+-]?[0-9]+\\)?";
-      number := re_exec (re, JText, i);
+      /*re := "-?\\(0\\|[1-9][0-9]*\\)\\(\\.[0-9]+\\)?\\([eE][+-]?[0-9]+\\)?";
+      number := re_exec (re, JText, i);*/
+      number := parse_number (s_substr_u (JText, i, (s_len_u JText) - i));
       num_len := s_len_u number;
       if (num_len = 0) {
         throw SyntaxErrorConstructor(global, this, strict,
@@ -142,8 +186,9 @@ function getTokens(global, this, strict, args) {
        * JSON string regex: https://stackoverflow.com/a/32155765/3049315
        * "(\\(["\\\/bfnrt]|u[a-fA-F0-9]{4})|[^"\\\0-\x1F\x7F]+)*"
        */
-      re := "\x22\\(\\\\\\([\x22\\\/bfnrt]\\|u[a-fA-F0-9]{4}\\)\\|[^\x22\\\0-\x1F\x7F]+\\)*\x22";
-      string := re_exec (re, JText, i);
+      /*re := "\x22\\(\\\\\\([\x22\\\/bfnrt]\\|u[a-fA-F0-9]{4}\\)\\|[^\x22\\\0-\x1F\x7F]+\\)*\x22";
+      string := re_exec (re, JText, i);*/
+      string := parse_string (s_substr_u (JText, i, (s_len_u JText) - i));
       str_len := s_len_u string;
 
       if (str_len = 0) {
@@ -151,20 +196,39 @@ function getTokens(global, this, strict, args) {
           [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
       };
       i := i + str_len;
+      string := unescapeJSONString(string);
+      print "INSIDE STR";
+      print string;
       tokens := l_add(tokens, string)
     }
     /* literal name tokens */
     else {
-      re := "true\\|false\\|null";
-      tok := re_exec (re, JText, i);
-      tok_len := s_len_u tok;
+      /*re := "true\\|false\\|null";
+      tok := re_exec (re, JText, i);*/
 
-      if (tok_len = 0) {
+      valid_tok := false;
+      len := s_len_u JText;
+      if (i < (len - 4)) {
+        tok := s_substr_u (JText, i, 4);
+        if ((tok = "true") ||| (tok = "null")) {
+          i := i + 4;
+          tokens := l_add(tokens, tok);
+          valid_tok := true
+        }
+      };
+      if (!valid_tok &&& (i < (len - 5))) {
+        tok := s_substr_u (JText, i, 5);
+        if (tok = "false") {
+          i := i + 5;
+          tokens := l_add(tokens, tok);
+          valid_tok := true
+        }
+      };
+
+      if (!valid_tok) {
         throw SyntaxErrorConstructor(global, this, strict,
           [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
-      };
-      i := i + tok_len;
-      tokens := l_add(tokens, tok)
+      }
     }
   };
   return tokens
@@ -181,7 +245,7 @@ function parseJSONValue(global, this, strict, tokens) {
   } elif (!(ToNumber(token) = NaN)) {
     return [ToNumber(token), tokens]
   } elif ((s_nth_u(token, 0)) = "\x22") { /* quotation mark */
-    return [ToString(token), tokens]
+    return [ToString(s_substr_u(token, 1, ((s_len_u token) - 2))), tokens]
   } elif (token = "{") {
     ret := findClosingCurlyBracket(tokens);
     obj_tokens := l_nth(ret, 0);
