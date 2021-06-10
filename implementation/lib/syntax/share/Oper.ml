@@ -52,6 +52,7 @@ type uopt = Neg
           | Second
           | LRemoveLast
           | LSort
+          | LReverse
           | IntToFloat
           | IntToString
           | IntToFourHex
@@ -282,6 +283,15 @@ let list_concat (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | List l1, List l2 -> Val.List (l1 @ l2)
   | _                -> invalid_arg "Exception in Oper.list_concat: this operation is only applicable to List arguments"
 
+let list_reverse (v : Val.t) : Val.t = match v with
+  | List l ->
+    let rec rev_acc acc = function
+      | [] -> acc
+      | hd::tl -> rev_acc (hd::acc) tl
+    in 
+    Val.List(rev_acc [] l)
+  | _                -> invalid_arg "Exception in Oper.list_reverse: this operation is only applicable to a List argument"
+
 let head (v : Val.t) : Val.t = match v with
   | List l -> List.hd l
   | _      -> invalid_arg "Exception in Oper.head: this operation is only applicable to List arguments"
@@ -476,6 +486,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | Second        -> "snd"
   | LRemoveLast   -> "l_remove_last"
   | LSort         -> "l_sort"
+  | LReverse      -> "l_reverse"
   | IntToFloat    -> "int_to_float"
   | IntToString   -> "int_to_string"
   | IntToFourHex  -> "int_to_four_hex"
@@ -698,6 +709,7 @@ let uopt_to_json (op : uopt) : string =
      | Second        -> Printf.sprintf "Second\" }"
      | LRemoveLast   -> Printf.sprintf "LRemoveLast\" }"
      | LSort         -> Printf.sprintf "LSort\" }"
+     | LReverse      -> Printf.sprintf "LReverse\" }"
      | IntToFloat    -> Printf.sprintf "IntToFloat\" }"
      | IntToString   -> Printf.sprintf "IntToString\" }"
      | IntToFourHex  -> Printf.sprintf "IntToFourHex\" }"

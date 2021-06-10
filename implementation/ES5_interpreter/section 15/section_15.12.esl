@@ -1,10 +1,31 @@
 /* Auxiliary functions */
+function sortProprtiesES6(internalSlotsList) {
+  num_list := [];
+  str_list := [];
+  i := 0;
+  len := l_len internalSlotsList;
+  while (i < len) {
+    P := l_nth(internalSlotsList, i);
+    num := ToNumber(P);
+    if (!(num = NaN) &&& !(P in_list num_list)) {
+      num_list := l_add(num_list, P)
+    } elif (!(P in_list str_list)) {
+      str_list := l_add(str_list, P)
+    };
+    i := i + 1
+  };
+  num_list := l_sort num_list;
+  str_list := l_reverse str_list;
+  return l_concat(num_list, str_list)
+};
 function getOwnEnumerablePropertiesNames(obj) {
+  sortedPeoperties := sortProprtiesES6(obj.internalSlotsList); /* ordered properties according to ES6 */
+
   K := [];
-  namedOwnProperties := getOwnProperties(obj);
+  namedOwnProperties := sortedPeoperties;
   lnamedOwnProperties := l_len namedOwnProperties;
   index := 0;
-  while(index < lnamedOwnProperties) {
+  while (index < lnamedOwnProperties) {
     P := l_nth(namedOwnProperties, index);
     P_desc := obj.JSProperties[P];
     if (isEnumerablePropertyDescriptor(P_desc)) {
@@ -197,8 +218,6 @@ function getTokens(global, this, strict, args) {
       };
       i := i + str_len;
       string := unescapeJSONString(string);
-      print "INSIDE STR";
-      print string;
       tokens := l_add(tokens, string)
     }
     /* literal name tokens */
@@ -242,10 +261,14 @@ function parseJSONValue(global, this, strict, tokens) {
     return ['null, tokens]
   } elif (token = "true") {
     return [true, tokens]
+  } elif (token = "false") {
+    return [false, tokens]
   } elif (!(ToNumber(token) = NaN)) {
-    return [ToNumber(token), tokens]
+    num := ToNumber(token);
+    return [num, tokens]
   } elif ((s_nth_u(token, 0)) = "\x22") { /* quotation mark */
-    return [ToString(s_substr_u(token, 1, ((s_len_u token) - 2))), tokens]
+    str := ToString(s_substr_u(token, 1, ((s_len_u token) - 2)));
+    return [str, tokens]
   } elif (token = "{") {
     ret := findClosingCurlyBracket(tokens);
     obj_tokens := l_nth(ret, 0);
@@ -264,7 +287,7 @@ function parseJSONValue(global, this, strict, tokens) {
 };
 
 function parseJSONObject(global, this, strict, tokens) {
-  obj := {};
+  obj := ObjectConstructor(global, this, strict, [null]);
   while ((l_len tokens) > 2) {
 
     key := hd tokens;
@@ -280,7 +303,14 @@ function parseJSONObject(global, this, strict, tokens) {
       throw SyntaxErrorConstructor(global, this, strict, [s_concat(["JSON.parse: Invalid syntax. Invalid value for JSON key: ", key])])
     };
     value := l_nth (ret, 0);
-    obj[key] := value;
+
+    {obj.DefineOwnProperty}(obj, ToString(key), {
+      Value: value,
+      Writable: true,
+      Enumerable: true,
+      Configurable: true
+    }, false);
+
     if ((l_len ret) = 2) {
       tokens := l_nth (ret, 1);
       if ((l_len tokens) > 0) {
@@ -303,14 +333,23 @@ function parseJSONObject(global, this, strict, tokens) {
 };
 
 function parseJSONArray(global, this, strict, tokens) {
-  arr := [];
+  arr := ArrayConstructor(global, this, strict, []);
+  i := 0.;
   while ((l_len tokens) > 0) {
     ret := parseJSONValue(global, this, strict, tokens);
     if ((l_len ret) = 0) {
       throw SyntaxErrorConstructor(global, this, strict, ["JSON.parse: Invalid syntax. Invalid value in JSON array."])
     };
     value := l_nth (ret, 0);
-    arr := l_add(arr, value);
+
+    {arr.DefineOwnProperty}(arr, ToString(i), {
+      Value: value,
+      Writable: true,
+      Enumerable: true,
+      Configurable: true
+    }, false);
+    i := i + 1.;
+
     if ((l_len ret) = 2) {
       tokens := l_nth (ret, 1);
       if ((l_len tokens) > 0) {

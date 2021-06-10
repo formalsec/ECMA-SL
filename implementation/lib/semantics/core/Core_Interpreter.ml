@@ -36,6 +36,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Second        -> Oper.second v
   | LRemoveLast   -> Oper.list_remove_last v
   | LSort         -> Oper.list_sort v
+  | LReverse -> Oper.list_reverse (v)
   | IntToFloat    -> Oper.int_to_float v
   | IntToString   -> Oper.int_to_string v
   | IntToFourHex  -> Oper.int_to_four_hex v

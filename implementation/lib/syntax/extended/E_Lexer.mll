@@ -63,6 +63,7 @@
                 "l_concat"        , LCONCAT;
                 "l_remove_last"   , LREMOVELAST;
                 "l_sort"          , LSORT;
+                "l_reverse"       , LREVERSE;
                 "hd"              , HD;
                 "tl"              , TL;
                 "t_len"           , TLEN;

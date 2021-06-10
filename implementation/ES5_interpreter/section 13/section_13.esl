@@ -272,5 +272,7 @@ function setAllInternalMethodsExceptGet(obj) {
   obj.DefaultValue      := "DefaultValue";
   obj.DefineOwnProperty := "DefineOwnProperty";
 
+  obj.internalSlotsList := [];
+
   return obj
 }
