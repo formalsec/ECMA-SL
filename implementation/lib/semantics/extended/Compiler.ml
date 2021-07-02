@@ -534,8 +534,9 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
     let (stmts_e_test, e_test') = compile_expr e_test in
     let (stmts_e, e_e') = compile_expr e_e in
     let stmts_before = Stmt.Assign ("i", Val (Int 0)) :: [Stmt.Assign (len_str, Expr.UnOpt (Oper.ListLen, e_e'))] in
+    let stmt_assign_x = Stmt.Assign (x, Expr.BinOpt (Oper.Lnth, e_e', Var "i")) in
     let stmts_s = compile_stmt e_s in
-    stmts_e @ stmts_before @ stmts_e_test @ [Stmt.While (e_test', Stmt.Block (stmts_s @ (stmt_inc :: stmts_e_test)))]
+    stmts_e @ stmts_before @ stmts_e_test @ [Stmt.While (e_test', Stmt.Block (stmt_assign_x :: stmts_s @ (stmt_inc :: stmts_e_test)))]
 
   | FieldAssign (e_eo, e_f, e_ev)   -> compile_fieldassign e_eo e_f e_ev
   | FieldDelete (e_e, e_f)          -> compile_fielddelete e_e e_f

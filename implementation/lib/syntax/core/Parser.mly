@@ -44,14 +44,13 @@
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
 
-%left LAND LOR BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL POW
-%left GT LT EGT ELT IN_LIST
+%left LAND LOR
+%left EQUAL
+%left GT LT EGT ELT IN_LIST BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %left PLUS MINUS
 %left TIMES DIVIDE MODULO
-%left EQUAL
+%right POW
 
-
-%nonassoc binopt_prec
 %nonassoc unopt_prec
 
 
@@ -248,7 +247,7 @@ expr_target:
   | FLOAT_OF_STRING; e = expr_target;
     { Expr.UnOpt (Oper.FloatOfString, e) } %prec unopt_prec
   | e1 = expr_target; bop = op_target; e2 = expr_target;
-    { Expr.BinOpt (bop, e1, e2) } %prec binopt_prec
+    { Expr.BinOpt (bop, e1, e2) }
   | LNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
     { Expr.BinOpt (Oper.Lnth, e1, e2) }
   | TNTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
@@ -344,7 +343,7 @@ ifelse_target:
   | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block; RBRACE;
     { Stmt.If(e, s, None) }
 
-op_target:
+%inline op_target:
   | MINUS   { Oper.Minus }
   | PLUS    { Oper.Plus }
   | TIMES   { Oper.Times }
