@@ -1,4 +1,6 @@
 /* Auxiliary functions */
+
+/* Sort according to section 9.1.12 of ES6 */
 function sortProprtiesES6(internalSlotsList) {
   num_list := [];
   str_list := [];
@@ -7,7 +9,8 @@ function sortProprtiesES6(internalSlotsList) {
   while (i < len) {
     P := l_nth(internalSlotsList, i);
     num := ToNumber(P);
-    if (!(num = NaN) &&& !(P in_list num_list)) {
+    /* Only positive integer numbers are */
+    if (!(num = NaN) &&& (ToUint32(num) = num) &&& !(P in_list num_list)) {
       num_list := l_add(num_list, P)
     } elif (!(P in_list str_list)) {
       str_list := l_add(str_list, P)
@@ -35,7 +38,7 @@ function getOwnEnumerablePropertiesNames(obj) {
   };
   return K
 };
-function concatenateListStrElmsWithComma(list) {
+function concatenateListStrElmsWithSeparator(list, separator) {
   j := 0;
   pLen := l_len list;
   properties := "";
@@ -46,7 +49,7 @@ function concatenateListStrElmsWithComma(list) {
     };
     properties := s_concat([properties, el]);
     if (j < (pLen - 1)) {
-        properties := s_concat([properties, ","])
+        properties := s_concat([properties, separator])
     };
     j := j + 1
   };
@@ -136,7 +139,7 @@ function unescapeJSONString(S) {
             throw SyntaxErrorConstructor(global, this, strict,
               ["JSON.parse: Invalid unicode escape sequence."])
           }
-        } elif ((c2 = "\\") ||| (c2 = "/") ||| (c2 = "\x22")) {
+        } elif ((c2 = "\\") ||| (c2 = "/") ||| (c2 = "\"")) {
           S2 := s_concat([S2, c2])
         } elif (c2 = "b") {
           S2 := s_concat([S2, "\b"])
@@ -203,8 +206,8 @@ function getTokens(global, this, strict, args) {
       i := i + num_len;
       tokens := l_add(tokens, number)
     }
-    /* Strings. \0x22 - quote character */
-    elif (c = "\x22") {
+    /* Strings. */
+    elif (c = "\"") {
       /**
        * JSON string regex: https://stackoverflow.com/a/32155765/3049315
        * "(\\(["\\\/bfnrt]|u[a-fA-F0-9]{4})|[^"\\\0-\x1F\x7F]+)*"
@@ -268,7 +271,7 @@ function parseJSONValue(global, this, strict, tokens) {
   } elif (!(ToNumber(token) = NaN)) {
     num := ToNumber(token);
     return [num, tokens]
-  } elif ((s_nth_u(token, 0)) = "\x22") { /* quotation mark */
+  } elif ((s_nth_u(token, 0)) = "\"") {
     str := ToString(s_substr_u(token, 1, ((s_len_u token) - 2)));
     return [str, tokens]
   } elif (token = "{") {
@@ -310,27 +313,12 @@ function parseJSONObject(global, this, strict, tokens) {
     };
     value := l_nth (ret, 0);
 
-    /* Verify if key exists, delete previous key-value if it does */
-    /*if (key in_list keys) {
-      {obj.Delete}(obj, key, true)
-    } else {
-      keys := l_add(keys, key)
-    };*/
-    print "INSIDE PARSE";
-    /*print keys;*/
-
-    print key;
-    print value;
-
     {obj.DefineOwnProperty}(obj, key, {
       Value: value,
       Writable: true,
       Enumerable: true,
       Configurable: true
     }, false);
-
-    print "INSIDE PARSE 2";
-    print getJSProperty(obj, "\"__proto__\"");
 
     if ((l_len ret) = 2) {
       tokens := l_nth (ret, 1);
@@ -453,32 +441,11 @@ function jsonParse(global, this, strict, args) {
         if JText did not conform to the JSON grammar for the goal symbol JSONText. */
   objJSON := parseJSONText(global, this, strict, [JText]);
 
-  /*JText := s_concat(["x=", JText]);
-  buildJSON := extern parseJS(JText, true);
-  program := {buildJSON}();
-  if (program.type = "EarlySyntaxError") {
-    throw SyntaxErrorConstructor(global, this, strict, [s_concat(["JSON.parse: ", program.message])])
-  };
-  objJSON := l_nth(program.body, 0);
-  objJSON := objJSON.expression;
-  objJSON := objJSON.right;
-
-  print "INSIDE PARSE";
-  print objJSON;*/
-
-  /* TODO
-  throw SyntaxErrorConstructor(global, this, strict, ["JSON.parse"]);*/
-  /*if (objJSON = 'undefined) {
-    throw SyntaxErrorConstructor(global, this, strict, ["JSON.parse"])
-  };*/
-
   /* 3. Let unfiltered be the result of parsing and evaluating JText as if it
         was the source text of an ECMAScript Program but using JSONString in place
         of StringLiteral. Note that since JText conforms to the JSON grammar this
         result will be either a primitive value or an object that is defined by
         either an ArrayLiteral or an ObjectLiteral. */
-  /*globalScope := InitialGlobalExecutionContext(|global|, program);
-  unfiltered := JS_Interpreter_Expr(objJSON, globalScope); /* throws EarlySyntaxError if not valid */
 
   unfiltered := objJSON;
   
@@ -620,9 +587,6 @@ function jsonStringify(global, this, strict, args) {
 
   replacer := getOptionalParam(args, 1);
   space := getOptionalParam(args, 2);
-
-  /*replacer := l_nth(args, 1);
-  space := l_nth(args, 2);*/
 
   /* 1. Let stack be an empty List. */
   stack := [];
@@ -823,17 +787,13 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
       value := ToNumber(value)
     }
     /* b. Else if the [[Class]] internal property of value is "String" then, */
-    else {
-      if (value.Class = "String") {
-        /* i. Let value be ToString(value). */
-        value := ToString(value)
-        /* c. Else if the [[Class]] internal property of value is "Boolean" then, */
-      } else {
-        if (value.Class = "Boolean") {
-          /* i. Let value be the value of the [[PrimitiveValue]] internal property of value. */
-          value := value.PrimitiveValue
-        }
-      }
+    elif (value.Class = "String") {
+      /* i. Let value be ToString(value). */
+      value := ToString(value)
+      /* c. Else if the [[Class]] internal property of value is "Boolean" then, */
+    } elif (value.Class = "Boolean") {
+      /* i. Let value be the value of the [[PrimitiveValue]] internal property of value. */
+      value := value.PrimitiveValue
     }
   };
   /* 5. If value is null then return "null". */
@@ -869,7 +829,7 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
     /* a. If the [[Class]] internal property of value is "Array" then */
     if (value.Class = "Array") {
       /* i. Return the result of calling the abstract operation JA with argument value. */
-      return JA(value, stack, indent, gap, PropertyList, space)
+      return JA(value, stack, indent, gap, PropertyList, ReplacerFunction, space)
     }
     /* b. Else, return the result of calling the abstract operation JO with argument value. */
     else {
@@ -881,6 +841,23 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
 };
 
 
+ /**
+  * In section 6.1.4 of ECMA 2019
+  * every code unit with a numeric value in the inclusive range 0xD800 to 0xDBFF (defined
+  * by the Unicode Standard as a leading surrogate, or more formally as a high-surrogate
+  * code unit) and every code unit with a numeric value in the inclusive range 0xDC00 to
+  * 0xDFFF (defined as a trailing surrogate, or more formally as a low-surrogate code unit) 
+  */
+function isLeadingSurrogate(code) {
+  start := to_char_code_u "\uD800";
+  end := to_char_code_u "\uD8FF";
+  if ((code >= start) &&& (code <= end)) {
+    return true
+  } else {
+    return false
+  }
+};
+
 
 
 /**
@@ -889,75 +866,71 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
  */
 function Quote(value) {
   /* 1. Let product be the double quote character. */
-  product := "\""; /* " quote char */
-
+  product := "\"";
   /* 2. For each character C in value */
   valueLen := s_len_u value;
   i := 0;
   while (i < valueLen) {
     C := s_nth_u(value, i);
+    C_code := to_char_code_u C;
 
     /* a. If C is the double quote character or the backslash character */
-    if ((C = "\"") ||| (C = "\\")) { /* " quote char */
+    if ((C = "\"") ||| (C = "\\")) {
       /* i. Let product be the concatenation of product and the backslash character. */
       product := s_concat([product, "\\"]);
       /* ii. Let product be the concatenation of product and C. */
       product := s_concat([product, C])
     }
     /* b. Else if C is backspace, formfeed, newline, carriage return, or tab */
+    elif ((C = "\b") ||| (C = "\f") ||| (C = "\n") ||| (C = "\r") ||| (C = "\t")) {
+      /* i. Let product be the concatenation of product and the backslash character. */
+      product := s_concat([product, "\\"]);
+      /* ii. Let abbrev be the character corresponding to the value of C as follows: */
+        /*  backspace        "b" */
+        /*  formfeed         "f" */
+        /*  newline          "n" */
+        /*  carriage return  "r" */
+        /*  tab              "t" */
+      if (C = "\b") {
+        abbrev := "b"
+      } elif (C = "\f") {
+        abbrev := "f"
+      } elif (C = "\n") {
+        abbrev := "n"
+      } elif (C = "\r") {
+        abbrev := "r"
+      } elif (C = "\t") {
+        abbrev := "t"
+      };
+      /* iii. Let product be the concatenation of product and abbrev. */
+      product := s_concat([product, abbrev])
+    }
+    /* ES5: c. Else if C is a control character having a code unit value less than the space character */
+    /* ES 2019: Else if C has a numeric value less than 0x0020 (SPACE), or
+       if C has the same numeric value as a leading surrogate or trailing surrogate, then */
+    elif ((C_code < 32) ||| isLeadingSurrogate(C_code)) {
+      print "INSIDE QUOTE";
+      print C_code;
+      /* i. Let product be the concatenation of product and the backslash character. */
+      product := s_concat([product, "\\"]);
+      /* ii. Let product be the concatenation of product and "u". */
+      product := s_concat([product, "u"]);
+      /* iii. Let hex be the result of converting the numeric code unit value of
+              C to a String of four hexadecimal digits. */
+      hex := int_to_four_hex (to_char_code_u C);
+      /* iv. Let product be the concatenation of product and hex. */
+      product := s_concat([product, hex])
+    }
+    /* d. Else */
     else {
-      if ((C = "\b") ||| (C = "\f") ||| (C = "\n") ||| (C = "\r") ||| (C = "\t")) {
-        /* i. Let product be the concatenation of product and the backslash character. */
-        product := s_concat([product, "\\"]); /* backlash char */
-        /* ii. Let abbrev be the character corresponding to the value of C as follows: */
-          /*  backspace        "b" */
-          /*  formfeed         "f" */
-          /*  newline          "n" */
-          /*  carriage return  "r" */
-          /*  tab              "t" */
-        if (C = "\b") {
-          abbrev := "b"
-        };
-        if (C = "\f") {
-          abbrev := "f"
-        };
-        if (C = "\n") {
-          abbrev := "n"
-        };
-        if (C = "\r") {
-          abbrev := "r"
-        };
-        if (C = "\t") {
-          abbrev := "t"
-        };
-        /* iii. Let product be the concatenation of product and abbrev. */
-        product := s_concat([product, abbrev])
-      }
-      /* c. Else if C is a control character having a code unit value less than the space character */
-      else {
-        if ((to_char_code_u C) < (to_char_code_u " ")) {
-          /* i. Let product be the concatenation of product and the backslash character. */
-          product := s_concat([product, "\\"]); /* backlash char */
-          /* ii. Let product be the concatenation of product and "u". */
-          product := s_concat([product, "u"]);
-          /* iii. Let hex be the result of converting the numeric code unit value of
-                  C to a String of four hexadecimal digits. */
-          hex := int_to_four_hex (to_char_code_u C);
-          /* iv. Let product be the concatenation of product and hex. */
-          product := s_concat([product, hex])
-        }
-        /* d. Else */
-        else {
-          /* i. Let product be the concatenation of product and C. */
-          product := s_concat([product, C])
-        }
-      }
+      /* i. Let product be the concatenation of product and C. */
+      product := s_concat([product, C])
     };
 
     i := i + 1
   };
   /* 3. Let product be the concatenation of product and the double quote character. */
-  product := s_concat([product, "\""]); /* " quote char */
+  product := s_concat([product, "\""]);
   /* 4. Return product. */
   return product
 };
@@ -1025,7 +998,7 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
     i := i + 1
   };
   /* 9. If partial is empty, then */
-  if ((l_len partial) = 0.) {
+  if ((l_len partial) = 0) {
     /* a. Let final be "{}". */
     final := "{}"
   }
@@ -1037,7 +1010,7 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
             element Strings of partial with each adjacent pair of Strings
             separated with the comma character. A comma is not inserted either
             before the first String or after the last String. */
-      properties := concatenateListStrElmsWithComma(partial);
+      properties := concatenateListStrElmsWithSeparator(partial, ",");
       /* ii. Let final be the result of concatenating "{", properties, and "}". */
       final := s_concat(["{", properties, "}"])
     }
@@ -1050,7 +1023,7 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
              Strings of partial with each adjacent pair of Strings separated
              with separator. The separator String is not inserted either before
              the first String or after the last String. */
-      properties := concatenateListStrElmsWithComma(partial);
+      properties := concatenateListStrElmsWithSeparator(partial, separator);
       /* iii. Let final be the result of concatenating "{", the line feed
               character, indent, properties, the line feed character, stepback, and "}". */
       final := s_concat(["{", "\n", indent, properties, "\n", stepback, "}"])
@@ -1075,7 +1048,7 @@ function JO(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
  * stringification. An array is stringified as an open left bracket, elements
  * separated by comma, and a closing right bracket.
  */
-function JA(value, stack, indent, gap, PropertyList, space) {
+function JA(value, stack, indent, gap, PropertyList, ReplacerFunction, space) {
   /* 1. If stack contains value then throw a TypeError exception because
         the structure is cyclical. */
   if (value in_list stack) {
@@ -1098,7 +1071,7 @@ function JA(value, stack, indent, gap, PropertyList, space) {
   while (index < len) {
     /* a. Let strP be the result of calling the abstract operation Str
           with arguments ToString(index) and value. */
-    strP := Str(ToString(index), value, stack, indent, gap, PropertyList, space, 'undefined);
+    strP := Str(ToString(index), value, stack, indent, gap, PropertyList, space, ReplacerFunction);
     /* b. If strP is undefined */
     if (strP = 'undefined) {
       /* i. Append "null" to partial. */
@@ -1113,7 +1086,7 @@ function JA(value, stack, indent, gap, PropertyList, space) {
     index := index + 1.
   };
   /* 9. If partial is empty ,then */
-  if ((l_len partial) = 0.) {
+  if ((l_len partial) = 0) {
     /* a. Let final be "[]". */
     final := "[]"
   }
@@ -1125,7 +1098,7 @@ function JA(value, stack, indent, gap, PropertyList, space) {
             Strings of partial with each adjacent pair of Strings separated with
             the comma character. A comma is not inserted either before the first
             String or after the last String. */
-      properties := concatenateListStrElmsWithComma(partial);
+      properties := concatenateListStrElmsWithSeparator(partial, ",");
       /* ii. Let final be the result of concatenating "[", properties, and "]". */
       final := s_concat(["[", properties, "]"])
     }
@@ -1138,7 +1111,7 @@ function JA(value, stack, indent, gap, PropertyList, space) {
              Strings of partial with each adjacent pair of Strings separated with
              separator. The separator String is not inserted either before the
              first String or after the last String. */
-      properties := concatenateListStrElmsWithComma(partial);
+      properties := concatenateListStrElmsWithSeparator(partial, separator);
       /* iii. Let final be the result of concatenating "[", the line feed character,
               indent, properties, the line feed character, stepback, and "]". */
       final := s_concat(["[", "\n", indent, properties, "\n", stepback, "]"])
