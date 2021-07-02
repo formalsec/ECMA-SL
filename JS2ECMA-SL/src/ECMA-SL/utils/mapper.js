@@ -39,7 +39,6 @@ function mapper(callback, obj) {
         : {
             type: "Literal",
             value: new_obj.value,
-            source: obj.raw.substring(1, obj.raw.lastIndexOf("/")),
             raw: new_obj.raw,
           };
 
