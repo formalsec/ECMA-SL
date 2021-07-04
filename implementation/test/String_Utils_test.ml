@@ -58,6 +58,19 @@ let tests =
 	"s_substr_u - unicode escape substring"  >:: (fun _ ->
       assert_equal "\u{1234}\u{00FF}" (s_substr_u "\u{00FF}\u{00FF}\u{1234}\195\191" 2 2)
     );
+  "utf8decode - \\u1234"  >:: (fun _ ->
+      assert_equal "\u{1234}" (utf8decode "\\u1234")
+    );
+  (* Ocaml does not support high-surrogate code points: http://unicode.org/glossary/#unicode_scalar_value *)
+  "utf8decode and to_char_code_u - \\u1234"  >:: (fun _ ->
+    assert_equal 4660 (to_char_code_u (utf8decode "\\u1234"))
+  );
+  "high-surrogate - \\uD834"  >:: (fun _ ->
+    assert_equal 55348 (to_char_code_u (utf8decode "\\uD834"))
+  );
+  "hexdecode - unicode escape substring"  >:: (fun _ ->
+      assert_equal "\x20" (hexdecode "\\x20")
+    );
 ]
 
 let _ = run_test_tt_main tests

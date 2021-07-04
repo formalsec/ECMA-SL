@@ -655,7 +655,7 @@ function StringPrototypeMatch(global, this, strict, args) {
   };
   /* 5. Let global be the result of calling the [[Get]] internal method of
     rx with argument "global". */
-  global := getJSProperty(rx, "global").Value;
+  global := rx.OriginalFlags.gb;
   /* 6. Let exec be the standard built-in function RegExp.prototype.exec
     (see 15.10.6.2) */
   exec := getRegExpPrototypeExec(strict);
@@ -754,7 +754,7 @@ function StringPrototypeReplace(global, this, strict, args) {
     searchValue.lastIndex. Let m be the number of left capturing parentheses
     in searchValue (using NcapturingParens as specified in 15.10.2.1). */
   if (isRegExpObject(searchValue)) {
-    g := getJSProperty(searchValue, "global").Value;
+    g := searchValue.OriginalFlags.gb;
     matchArr := RegExpPrototypeExec(global, searchValue, strict, [string]);
     m := {matchArr.Get}(matchArr, "length") - 1.;
     

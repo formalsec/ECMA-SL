@@ -52,6 +52,7 @@ type uopt = Neg
           | Second
           | LRemoveLast
           | LSort
+          | LReverse
           | IntToFloat
           | IntToString
           | IntToFourHex
@@ -90,6 +91,8 @@ type uopt = Neg
           | Sin
           | Sqrt
           | Tan
+          | ParseNumber
+          | ParseString
 
 
 type nopt = ListExpr
@@ -225,6 +228,43 @@ let s_substr_u (v1, v2, v3: Val.t * Val.t * Val.t) : Val.t = match v1, v2, v3 wi
   | Str s, Int i, Int j -> Str (String_Utils.s_substr_u s i j)
   | _                   -> invalid_arg "Exception in Oper.s_substr_u: this operation is only applicable to String and two Integer arguments"
 
+(* TODO: i should be unicode index
+let re_exec (v1, v2, v3: Val.t * Val.t * Val.t) : Val.t = match v1, v2, v3 with
+  | Str re, Str s, Int i -> 
+    let regex = Str.regexp re in
+      let matched = Str.string_match regex s i in
+        if matched then
+          (Printf.printf "%s\n" (Str.matched_string s);
+          Str (Str.matched_string s))
+        else Str("")
+  | _             -> invalid_arg "Exception in Oper.re_exec: this operation is only applicable to two String arguments and one Int argument"
+*)
+
+(**
+ * JSON number regex: https://stackoverflow.com/a/13340826/3049315
+ * Recognized Regexp constructs in OCaml Str: https://ocaml.org/api/Str.html
+ *)
+let parse_number (v : Val.t) : Val.t = match v with
+| Str s ->
+    let regex = Str.regexp "-?\\(0\\|[1-9][0-9]*\\)\\(\\.[0-9]+\\)?\\([eE][+-]?[0-9]+\\)?" in
+      let matched = Str.string_match regex s 0 in
+        if matched then
+          Str (Str.matched_string s)
+        else Str("")
+| _  -> invalid_arg "Exception in Oper.parse_number: this operation is only applicable to a String argument"
+
+(**
+ * JSON string regex: https://stackoverflow.com/a/32155765/3049315
+ *)
+let parse_string (v : Val.t) : Val.t = match v with
+| Str s ->
+    let regex = Str.regexp "\"\\(\\\\\\([\"\\\\\\/bfnrt]\\|u[a-fA-F0-9][a-fA-F0-9][a-fA-F0-9][a-fA-F0-9]\\)\\|[^\"\\\\\000-\031\127]+\\)*\"" in
+      let matched = Str.string_match regex s 0 in
+        if matched then
+          Str (Str.matched_string s)
+        else Str("")
+| _  -> invalid_arg "Exception in Oper.parse_string: this operation is only applicable to a String argument"
+
 let list_in (v1, v2 : Val.t * Val.t) : Val.t = match v2 with
   | List l -> Bool (List.mem v1 l)
   | _      -> invalid_arg "Exception in Oper.list_in: this operation is only applicable to List arguments"
@@ -242,6 +282,15 @@ let list_prepend (v1, v2 : Val.t * Val.t) : Val.t =
 let list_concat (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | List l1, List l2 -> Val.List (l1 @ l2)
   | _                -> invalid_arg "Exception in Oper.list_concat: this operation is only applicable to List arguments"
+
+let list_reverse (v : Val.t) : Val.t = match v with
+  | List l ->
+    let rec rev_acc acc = function
+      | [] -> acc
+      | hd::tl -> rev_acc (hd::acc) tl
+    in 
+    Val.List(rev_acc [] l)
+  | _                -> invalid_arg "Exception in Oper.list_reverse: this operation is only applicable to a List argument"
 
 let head (v : Val.t) : Val.t = match v with
   | List l -> List.hd l
@@ -323,11 +372,20 @@ let string_concat (v : Val.t) : Val.t = match v with
      | Some strs -> Str (String.concat "" strs))
   | _      -> invalid_arg "Exception in Oper.string_concat: this operation is only applicable to List arguments"
 
+(* Splits on character:
 let string_split (v, c : Val.t * Val.t) : Val.t = match v, c with
   | _, Str ""        -> invalid_arg "Exception in Oper.string_split: separator cannot be the empty string"
   | Str str, Str sep ->
     let c = String.get sep 0 in
     Val.List (List.map (fun str -> Val.Str str) (String.split_on_char c str))
+  | _                -> invalid_arg "Exception in Oper.string_split: this operation is only applicable to String arguments"
+*)
+
+(* Splits on RegExp. Inspired by: https://stackoverflow.com/a/39814087/3049315 *)
+let string_split (v, c : Val.t * Val.t) : Val.t = match v, c with
+  | _, Str ""        -> invalid_arg "Exception in Oper.string_split: separator cannot be the empty string"
+  | Str str, Str sep ->
+    Val.List (List.map (fun str -> Val.Str str) (Str.split (Str.regexp sep) str))
   | _                -> invalid_arg "Exception in Oper.string_split: this operation is only applicable to String arguments"
 
 let shift_left (v1, v2: Val.t * Val.t) : Val.t = match v1, v2 with
@@ -428,6 +486,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | Second        -> "snd"
   | LRemoveLast   -> "l_remove_last"
   | LSort         -> "l_sort"
+  | LReverse      -> "l_reverse"
   | IntToFloat    -> "int_to_float"
   | IntToString   -> "int_to_string"
   | IntToFourHex  -> "int_to_four_hex"
@@ -466,6 +525,8 @@ let str_of_unopt (op : uopt) : string = match op with
   | Sin           -> "sin"
   | Sqrt          -> "sqrt"
   | Tan           -> "tan"
+  | ParseNumber   -> "parse_number"
+  | ParseString   -> "parse_string"
 
 
 let str_of_binopt_single (op : bopt) : string = match op with
@@ -648,6 +709,7 @@ let uopt_to_json (op : uopt) : string =
      | Second        -> Printf.sprintf "Second\" }"
      | LRemoveLast   -> Printf.sprintf "LRemoveLast\" }"
      | LSort         -> Printf.sprintf "LSort\" }"
+     | LReverse      -> Printf.sprintf "LReverse\" }"
      | IntToFloat    -> Printf.sprintf "IntToFloat\" }"
      | IntToString   -> Printf.sprintf "IntToString\" }"
      | IntToFourHex  -> Printf.sprintf "IntToFourHex\" }"
@@ -685,5 +747,7 @@ let uopt_to_json (op : uopt) : string =
      | Random        -> Printf.sprintf "Random\" }"
      | Sin           -> Printf.sprintf "Sin\" }"
      | Sqrt          -> Printf.sprintf "Sqrt\" }"
-     | Tan           -> Printf.sprintf "Tan\" }")
+     | Tan           -> Printf.sprintf "Tan\" }"
+     | ParseNumber   -> Printf.sprintf "ParseNumber\" }"
+     | ParseString   -> Printf.sprintf "ParseString\" }")
 

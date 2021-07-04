@@ -36,6 +36,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Second        -> Oper.second v
   | LRemoveLast   -> Oper.list_remove_last v
   | LSort         -> Oper.list_sort v
+  | LReverse -> Oper.list_reverse (v)
   | IntToFloat    -> Oper.int_to_float v
   | IntToString   -> Oper.int_to_string v
   | IntToFourHex  -> Oper.int_to_four_hex v
@@ -44,7 +45,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | FloatToString -> Oper.float_to_string v
   | FloatOfString -> Oper.float_of_string v
   | HexDecode     -> Oper.hex_decode v
-  | Utf8Decode     -> Oper.utf8_decode v
+  | Utf8Decode    -> Oper.utf8_decode v
   | OctalToDecimal-> Oper.octal_to_decimal v
   | Sconcat       -> Oper.string_concat v
   | ObjToList     -> raise (Failure "Unexpected call to Core_Interpreter.eval_unop with operator ObjToList")
@@ -60,6 +61,8 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ToUpperCase   -> Oper.to_upper_case v
   | Trim          -> Oper.trim v
   | ToUint16      -> Oper.to_uint16 v
+  | ParseNumber   -> Oper.parse_number v
+  | ParseString   -> Oper.parse_string v
   | _             -> Oper.apply_uopt_oper op v
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =

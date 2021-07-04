@@ -337,6 +337,19 @@ function Delete(O, P, Throw) {
     /** a. Remove the own property with name P from O. */
     delete (O.JSProperties)[P];
 
+    /* ES6 property order temporary fix for JSON.stringify */
+    newInternalSlotsList := [];
+    len := l_len O.internalSlotsList;
+    i := 0;
+    while (i < len) {
+      P2 := l_nth(O.internalSlotsList, i);
+      if (!(P2 = P)) {
+        newInternalSlotsList := l_add(newInternalSlotsList, P2)
+      };
+      i := i + 1
+    };
+    O.internalSlotsList := newInternalSlotsList;
+
     /** b. Return true. */
     return true
   }
@@ -470,6 +483,7 @@ function DefineOwnProperty(O, P, Desc, Throw) {
 
   /** 4. If current is undefined and extensible is true, then: */
   if ((current = 'undefined) && (extensible = true)) {
+    O.internalSlotsList := l_prepend(P, O.internalSlotsList);
     /** a. If IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then: */
     if (IsGenericPropertyDescriptor(Desc) || IsDataPropertyDescriptor(Desc)) {
       /** i. Create an own data property named P of object O whose [[Value]], [[Writable]], [[Enumerable]] and [[Configurable]] attribute values are described by Desc.
@@ -660,6 +674,8 @@ function setAllInternalMethodsOfObject(obj) {
   obj.Delete            := "Delete";
   obj.DefaultValue      := "DefaultValue";
   obj.DefineOwnProperty := "DefineOwnProperty";
+
+  obj.internalSlotsList := [];
 
   return obj
 };

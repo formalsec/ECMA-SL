@@ -8,16 +8,11 @@ let eval_build_ast_func = String_Utils.make_fresh_var_generator "eval_func_"
 let parseJS
     (prog  : Prog.t)
     (heap  : Heap.t)
-    (str   : string)
-    (b     : bool) : Val.t =
+    (str   : string) : Val.t =
 
   File_Utils.burn_to_disk aux_input_file str;
   let func_id = eval_build_ast_func () in
-  let command = 
-    if b then
-      Printf.sprintf "node ../JS2ECMA-SL/src/index.js -i %s -o %s -n %s -json" aux_input_file aux_output_file func_id
-    else
-      Printf.sprintf "node ../JS2ECMA-SL/src/index.js -i %s -o %s -n %s" aux_input_file aux_output_file func_id in
+  let command = Printf.sprintf "node ../JS2ECMA-SL/src/index.js -i %s -o %s -n %s" aux_input_file aux_output_file func_id in
   let _ = Sys.command command in
   let parsed_str = Parsing_Utils.load_file aux_output_file in
   let func = Parsing_Utils.parse_func parsed_str in
@@ -37,7 +32,6 @@ let execute
     (f     : string)
     (vs    : Val.t list) : Val.t =
   match f, vs with
-  | "parseJS", [ (Val.Str str) ]             -> parseJS prog heap str false
-  | "parseJS", [ (Val.Str str); Val.Bool b ] -> parseJS prog heap str b
+  | "parseJS", [ (Val.Str str) ]             -> parseJS prog heap str
   | "loadInitialHeap", [ (Val.Str file) ] -> let loc = loadInitialHeap prog heap file in loc
   | _ -> failwith "UNKNOWN external function"

@@ -126,25 +126,13 @@ function newRegExp(strict, pattern, flags) {
   R := pattern;
   if (isRegExpObject(R)) {
     if(flags = 'undefined) {
-      if (getJSProperty(R, "source") = 'undefined) {
-        P := ""
-      } else {
-        P := getJSProperty(R, "source").Value
-      };
-      if (getJSProperty(R, "flags") = 'undefined) {
-        F := ""
-      } else {
-        F := getJSProperty(R, "flags").Value
-      };
+      P := R.OriginalSource;
+      F := R.OriginalFlags.flags;
       R := parsePattern(P, F)
     }
     /* ES6 - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/15.10.4.1-1.js */
     else {
-      if (getJSProperty(R, "source") = 'undefined) {
-        P := ""
-      } else {
-        P := getJSProperty(R, "source").Value
-      };
+      P := R.OriginalSource;
       R := parsePattern(P, ToString(flags))
     }
     /* If pattern is an object R whose [[Class]] internal property is "RegExp"
@@ -237,7 +225,40 @@ function initRegExpPrototype(objectPrototypeObject) {
   setInternalProperty(regExpPrototypeObject, "Class", "RegExp");
   setInternalProperty(regExpPrototypeObject, "Prototype", objectPrototypeObject);
 
+  getGlobalFunc := CreateFunctionObject([], "getRegExpGlobalAccessorProperty", |global|, false, null);
+  gDesc := newGetAccessorPropertyDescriptorFull(getGlobalFunc, false, true);
+
+  getIgnoreCaseFunc := CreateFunctionObject([], "getRegExpIgnoreCaseAccessorProperty", |global|, false, null);
+  iDesc := newGetAccessorPropertyDescriptorFull(getIgnoreCaseFunc, false, true);
+
+  getMultilineFunc := CreateFunctionObject([], "getRegExpMultilineAccessorProperty", |global|, false, null);
+  mDesc := newGetAccessorPropertyDescriptorFull(getMultilineFunc, false, true);
+
+  getSourceFunc := CreateFunctionObject([], "getRegExpSourceAccessorProperty", |global|, false, null);
+  sDesc := newGetAccessorPropertyDescriptorFull(getSourceFunc, false, true);
+
+  setJSProperty(regExpPrototypeObject, "global", gDesc);
+  setJSProperty(regExpPrototypeObject, "ignoreCase", iDesc);
+  setJSProperty(regExpPrototypeObject, "multiline", mDesc);
+  setJSProperty(regExpPrototypeObject, "source", sDesc);
+
   return regExpPrototypeObject
+};
+
+function getRegExpGlobalAccessorProperty(global, this, strict, args) {
+  return this.OriginalFlags.gb
+};
+
+function getRegExpIgnoreCaseAccessorProperty(global, this, strict, args) {
+  return this.OriginalFlags.ic
+};
+
+function getRegExpMultilineAccessorProperty(global, this, strict, args) {
+  return this.OriginalFlags.ml
+};
+
+function getRegExpSourceAccessorProperty(global, this, strict, args) {
+  return this.OriginalSource
 };
 
 /**
@@ -502,10 +523,10 @@ function RegExpPrototypeTest(global, this, strict, args) {
  * evaluates to another RegExp object with the same behaviour as this object. 
  */
 function RegExpPrototypeToString(global, this, strict, args) {
-  source := s_concat(["/", getJSProperty(this, "source").Value, "/"]);
-  g := getJSProperty(this, "global").Value;
-  i := getJSProperty(this, "ignoreCase").Value;
-  m := getJSProperty(this, "multiline").Value;
+  source := s_concat(["/", this.OriginalSource, "/"]);
+  g := this.OriginalFlags.gb;
+  i := this.OriginalFlags.ic;
+  m := this.OriginalFlags.ml;
   if (g = true) {
     source := s_concat([source, "g"])
   };
@@ -539,7 +560,10 @@ function JS_Interpreter_RegEx_TopLevel(re, source) {
 
   /*setJSProperty(obj, "length", newDataPropertyDescriptorFull(0., true, false, false)); TODO ??? */
   /* The source property of the newly constructed object is set to S. */
-  setJSProperty(obj, "source", newDataPropertyDescriptorFull(source, false, false, false));
+
+  /* TODO - put in internal property as ES6 constructor*/
+  /*setJSProperty(obj, "source", newDataPropertyDescriptorFull(source, false, false, false));*/
+  obj.OriginalSource := source;
   /* The global property of the newly constructed object is set to a
     Boolean value that is true if F contains the character "g" and false otherwise. */
   /* The ignoreCase property of the newly constructed object is set to a
@@ -547,6 +571,7 @@ function JS_Interpreter_RegEx_TopLevel(re, source) {
   /* The multiline property of the newly constructed object is set to a Boolean
     value that is true if F contains the character "m" and false otherwise. */
   flags := setFlags(obj, re.flags);
+  obj.OriginalFlags := flags;
   /* The lastIndex property of the newly constructed object is set to 0. */
   setJSProperty(obj, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false));
 
@@ -560,12 +585,15 @@ function JS_Interpreter_RegEx_TopLevel(re, source) {
   };
 
   nCaps := int_of_float (re.nCaps + 1.);
-
+/*
+  |parenIndex| := 0;
+  |parenCount| := 0;
+*/
   m' := lambda(R, S, i) [m, k_id, nCaps] {
     st := initialState(S, i,
-      getJSProperty(R, "global").Value,
-      getJSProperty(R, "ignoreCase").Value,
-      getJSProperty(R, "multiline").Value,
+      R.OriginalFlags.gb,
+      R.OriginalFlags.ic,
+      R.OriginalFlags.ml,
       nCaps);
     return {m}(st, k_id)
   };
@@ -627,18 +655,18 @@ function setFlags(obj, flags) {
     index := index + 1
   };
 
-  setJSProperty(obj, "global", newDataPropertyDescriptorFull(g, false, false, false));
+/*  setJSProperty(obj, "global", newDataPropertyDescriptorFull(g, false, false, false));
   setJSProperty(obj, "ignoreCase", newDataPropertyDescriptorFull(i, false, false, false));
   setJSProperty(obj, "multiline", newDataPropertyDescriptorFull(m, false, false, false));
-
-  /* ES6? - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/S15.10.4.1_A1_T1.js */
+*/
   flags := "";
   if (g) { flags := s_concat [flags, "g"] };
   if (i) { flags := s_concat [flags, "i"] };
   if (m) { flags := s_concat [flags, "m"] };
-  setJSProperty(obj, "flags", newDataPropertyDescriptorFull(flags, false, false, false));
+  /*setJSProperty(obj, "flags", newDataPropertyDescriptorFull(flags, false, false, false));*/
+  /* ES6? - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/S15.10.4.1_A1_T1.js */
 
-  return { gb: g, ic: i, ml: m }
+  return { gb: g, ic: i, ml: m, flags: flags }
 };
 
 function isFailure(st) {
@@ -1552,6 +1580,9 @@ function JS_Interpreter_RegEx(re, flags) {
   }
   /* Capturing group */
   | { type: "Group", capturing: true, number: i, expression: re' } -> {
+/*
+    |parenIndex| := |parenIndex| + 1;
+    |parenCount| := |parenCount| + 1;*/
 
     m' := JS_Interpreter_RegEx(re', flags);
 
