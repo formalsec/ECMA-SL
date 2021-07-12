@@ -1,9 +1,5 @@
 (* parser-specification file *)
 
-%{
-  open Logging
-%}
-
 (*
   BEGIN first section - declarations
   - token and type specifications, precedence directives and other output directives
@@ -330,9 +326,9 @@ stmt_target:
   | v = VAR; DEFEQ; LBRACE; RBRACE;
     { Stmt.AssignNewObj (v) }
   | v = VAR; DEFEQ; OBJ_TO_LIST; e = expr_target;
-    { print_endline ">ASSIGNOBJTOLIST"; Stmt.AssignObjToList (v, e) }
+    { Stmt.AssignObjToList (v, e) }
   | v = VAR; DEFEQ; OBJ_FIELDS; e = expr_target;
-    { print_endline ">ASSIGNOBJFIELDS"; Stmt.AssignObjFields (v, e) }
+    { Stmt.AssignObjFields (v, e) }
 
 
 
