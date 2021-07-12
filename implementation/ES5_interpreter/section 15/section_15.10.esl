@@ -125,10 +125,6 @@ function parsePattern(P, F) {
   prog := extern parseJS(progStr);
   progObj := {prog}();
 
-  print "inside parse";
-print prog;
-print progObj;
-
   if ((l_len progObj.body) = 0) {
     throw SyntaxErrorConstructorInternal()
   };
@@ -876,17 +872,20 @@ function JS_Interpreter_Repetition_Greedy(m, bounds, st, k, parenIndex, parenCou
     };
 
     st2 := copyState(st);
-    i := parenIndex + 1.;
-    len := parenIndex + parenCount;
-    while (i <= len) {
-      i_str := float_to_string i;
-      if (i_str in_obj st2.caps) {
-        delete st2.caps[i_str]
+    
+    if (!(parenIndex = 'undefined)) {
+      i := parenIndex + 1.;
+      len := parenIndex + parenCount;
+      while (i <= len) {
+        i_str := float_to_string i;
+        if (i_str in_obj st2.caps) {
+          delete st2.caps[i_str]
+        };
+        i := i + 1.
       };
-      i := i + 1.
-    };
-    if (bounds.inf > 0.) {
-      return {m}(st2, k')
+      if (bounds.inf > 0.) {
+        return {m}(st2, k')
+      }
     };
 
 

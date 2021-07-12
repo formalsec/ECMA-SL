@@ -27,8 +27,14 @@ function map(re, st, callbackPre, callbackPost) {
 			break;
 
 		case 'Disjunction':
-			let stDis =  map(re.left, st1, callbackPre, callbackPost);
-			st2 = map(re.right, stDis, callbackPre, callbackPost);
+			let stDis = st1;
+			if (re.left !== null) {
+				stDis = map(re.left, st1, callbackPre, callbackPost);
+			}
+			st2 = stDis;
+			if (re.right !== null) { // Can be null. E.g.: /()|/
+				st2 = map(re.right, stDis, callbackPre, callbackPost);
+			}
 			break;
 
 		case 'RegExp':
