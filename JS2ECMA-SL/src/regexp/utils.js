@@ -22,8 +22,8 @@ function map(re, st, callbackPre, callbackPost) {
 
 		case 'Group':
 		case 'Repetition':
-			if (re.expression === null) return st1;
-			st2 = map(re.expression, st1, callbackPre, callbackPost);
+			if (re.expression === null) st2 = st1;
+			else st2 = map(re.expression, st1, callbackPre, callbackPost);
 			break;
 
 		case 'Disjunction':
@@ -38,7 +38,8 @@ function map(re, st, callbackPre, callbackPost) {
 			break;
 
 		case 'RegExp':
-			st2 = map(re.body, st1, callbackPre, callbackPost);
+			if (re.body === null) st2 = st1;
+			else st2 = map(re.body, st1, callbackPre, callbackPost);
 			break;
 
 		default:
