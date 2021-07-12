@@ -113,12 +113,21 @@ function parsePattern(P, F) {
     F would be parsed as a SingleLineComment rather than a RegularExpressionLiteral.
     If P is the empty String, this specification can be met by letting S be "(?:)". */
   S := escapePattern(P);
-  if (S = "") {
+
+  if ((S = "") ||| (S = 'undefined)) {
     S := "(?:)"
   };
+  if (F = 'undefined) {
+    F := ""
+  };
   progStr := s_concat(["/", S, "/", F]);
+
   prog := extern parseJS(progStr);
   progObj := {prog}();
+
+  print "inside parse";
+print prog;
+print progObj;
 
   if ((l_len progObj.body) = 0) {
     throw SyntaxErrorConstructorInternal()
