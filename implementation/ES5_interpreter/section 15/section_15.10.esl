@@ -67,10 +67,25 @@ function escapePattern(P) {
     c := s_nth_u(P, i);
     /* the backlash is already escaped in the given string */
     /*if ((c = "\\") ||| (c = "/")) {*/
-    if (c = "/") {
-      S := s_concat([S, "\\"])
+
+    if ((c = "/")) {
+      S := s_concat([S, "\\"]);
+      S := s_concat([S, c])
+    } elif (c = "\r") {
+      S := s_concat([S, "\\r"])
+    } elif (c = "\n") {
+      S := s_concat([S, "\\n"])
+    } elif (c = "\f") {
+      S := s_concat([S, "\\f"])
+    } elif (c = "\t") {
+      S := s_concat([S, "\\t"])
+    } elif (c = "\v") {
+      S := s_concat([S, "\\v"])
+    } elif (c = "\b") {
+      S := s_concat([S, "\\b"])
+    } else {
+      S := s_concat([S, c])
     };
-    S := s_concat([S, c]);
     i := i + 1
   };
   return S
@@ -82,6 +97,7 @@ function escapePattern(P) {
  * Returns a RegExp object.
  */
 function parsePattern(P, F) {
+
   /*  Let S be a String in the form of a Pattern equivalent to P, in which
     certain characters are escaped as described below. S may or may not be
     identical to P or pattern; however, the internal procedure that would
@@ -103,12 +119,14 @@ function parsePattern(P, F) {
   progStr := s_concat(["/", S, "/", F]);
   prog := extern parseJS(progStr);
   progObj := {prog}();
+
   if ((l_len progObj.body) = 0) {
     throw SyntaxErrorConstructorInternal()
   };
   expression := (l_nth(progObj.body, 0)).expression;
   regex := expression.regex;
   source := expression.source;
+
   return JS_Interpreter_RegEx_TopLevel(regex, source)
 };
 
@@ -371,6 +389,14 @@ function RegExpPrototypeExec(global, this, strict, args) {
   lastIndex := {R.Get}(R, "lastIndex");
   /* 5. Let i be the value of ToInteger(lastIndex). */
   i := int_of_float (ToInteger(lastIndex));
+
+  /* ES6: i < 0 becomes 0, but don't return null */
+  /* test/test262/tests/built-ins/RegExp/prototype/test/S15.10.6.3_A1_T22.js */
+  if (i < 0) {
+    i := 0;
+    {R.Put}(R, "lastIndex", 0., true)
+  };
+
   /* 6. Let global be the result of calling the [[Get]]
     internal method of R with argument "global". */
   global := {R.Get}(R, "global");
@@ -846,7 +872,6 @@ function JS_Interpreter_Repetition_Greedy(m, bounds, st, k, parenIndex, parenCou
     while (i <= len) {
       i_str := float_to_string i;
       if (i_str in_obj st2.caps) {
-        print "HELLOOOOO";
         delete st2.caps[i_str]
       };
       i := i + 1.
