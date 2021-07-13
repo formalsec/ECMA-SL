@@ -1,8 +1,8 @@
-var executed = /(z)((a+)?(b+)?(c))*/.exec("zaacbbbcac");
-var expected = ["zaacbbbcac", "z", "ac", "a", undefined, "c"];
+var __executed = /(z)((a+)?(b+)?(c))*/.exec("zaacbbbcac");
+var __expected = ["zaacbbbcac", "z", "ac", "a", undefined, "c"];
 
-console.log(executed);
-
-assert.sameValue(executed, expected);
-
-// "JS Log: zaacbbbcac,z,ac,a,bbb,c"
+for(var index=0; index<__expected.length; index++) {
+	if (__executed[index] !== __expected[index]) {
+		$ERROR('#4: __executed = /(z)((a+)?(b+)?(c))*/.exec("zaacbbbcac"); __executed[' + index + '] === ' + __expected[index] + '. Actual: ' + __executed[index]);
+	}
+}
