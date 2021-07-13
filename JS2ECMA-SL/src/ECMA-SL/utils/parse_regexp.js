@@ -1,5 +1,6 @@
 const regexpTree = require("regexp-tree");
 const mapper = require("./mapper");
+const addParenIndexAndParenCount = require("../../regexp/utils");
 
 function countGroups(re) {
   var count = 0;
@@ -27,6 +28,7 @@ function parseRegExps(obj) {
 
           let re = regexpTree.parse(obj.raw);
           re.nCaps = countGroups(re);
+          addParenIndexAndParenCount(re);
 
           return {
             obj: {
