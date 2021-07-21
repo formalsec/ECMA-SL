@@ -1,0 +1,41 @@
+/* 9.12 The SameValue Algorithm
+
+  The internal comparison abstract operation SameValue(x, y), where x and y are ECMAScript language values, produces true or false.
+  Such a comparison is performed as follows: */
+function SameValue (x, y) {
+  /* 1. If Type(x) is different from Type(y), return false. */
+  if (!(Type(x) = Type(y))) { return false };
+  /* 2. If Type(x) is Undefined, return true. */
+  if (Type(x) = "Undefined") { return true };
+  /* 3. If Type(x) is Null, return true. */
+  if (Type(x) = "Null") { return true };
+  /* 4. If Type(x) is Number, then. */
+  if (Type(x) = "Number") {
+    /* a. If x is NaN and y is NaN, return true. */
+    if ((x = NaN) && (y = NaN)) { return true };
+    /* b. If x is +0 and y is -0, return false. */
+    if (isZero(x) && isMinusZero(y)) { return false };
+    /* c. If x is -0 and y is +0, return false. */
+    if (isMinusZero(x) && isZero(y)) { return false };
+    /* d. If x is the same Number value as y, return true. */
+    if (x = y) { return true };
+    /* e. Return false. */
+    return false
+  };
+  /* 5. If Type(x) is String, then return true if x and y are exactly the same sequence of characters
+    (same length and same characters in corresponding positions); otherwise, return false. */
+  if (Type(x) = "String") { return x = y };
+  /* 6. If Type(x) is Boolean, return true if x and y are both true or both false; otherwise, return false. */
+  if (Type(x) = "Boolean") { return x = y };
+  /* 7. Return true if x and y refer to the same object. Otherwise, return false. */
+  return x = y
+};
+
+/* Auxiliary functions */
+function isZero(x) {
+  return (x = 0.) && ((1. / x) = Infinity)
+};
+
+function isMinusZero(x) {
+  return (x = 0.) && ((1. / x) = -Infinity)
+}
