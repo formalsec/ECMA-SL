@@ -67,10 +67,25 @@ function escapePattern(P) {
     c := s_nth_u(P, i);
     /* the backlash is already escaped in the given string */
     /*if ((c = "\\") ||| (c = "/")) {*/
-    if (c = "/") {
-      S := s_concat([S, "\\"])
+
+    if ((c = "/")) {
+      S := s_concat([S, "\\"]);
+      S := s_concat([S, c])
+    } elif (c = "\r") {
+      S := s_concat([S, "\\r"])
+    } elif (c = "\n") {
+      S := s_concat([S, "\\n"])
+    } elif (c = "\f") {
+      S := s_concat([S, "\\f"])
+    } elif (c = "\t") {
+      S := s_concat([S, "\\t"])
+    } elif (c = "\v") {
+      S := s_concat([S, "\\v"])
+    } elif (c = "\b") {
+      S := s_concat([S, "\\b"])
+    } else {
+      S := s_concat([S, c])
     };
-    S := s_concat([S, c]);
     i := i + 1
   };
   return S
@@ -82,6 +97,7 @@ function escapePattern(P) {
  * Returns a RegExp object.
  */
 function parsePattern(P, F) {
+
   /*  Let S be a String in the form of a Pattern equivalent to P, in which
     certain characters are escaped as described below. S may or may not be
     identical to P or pattern; however, the internal procedure that would
@@ -97,18 +113,25 @@ function parsePattern(P, F) {
     F would be parsed as a SingleLineComment rather than a RegularExpressionLiteral.
     If P is the empty String, this specification can be met by letting S be "(?:)". */
   S := escapePattern(P);
-  if (S = "") {
+
+  if ((S = "") ||| (S = 'undefined)) {
     S := "(?:)"
   };
+  if (F = 'undefined) {
+    F := ""
+  };
   progStr := s_concat(["/", S, "/", F]);
+
   prog := extern parseJS(progStr);
   progObj := {prog}();
+
   if ((l_len progObj.body) = 0) {
     throw SyntaxErrorConstructorInternal()
   };
   expression := (l_nth(progObj.body, 0)).expression;
   regex := expression.regex;
   source := expression.source;
+
   return JS_Interpreter_RegEx_TopLevel(regex, source)
 };
 
@@ -371,6 +394,14 @@ function RegExpPrototypeExec(global, this, strict, args) {
   lastIndex := {R.Get}(R, "lastIndex");
   /* 5. Let i be the value of ToInteger(lastIndex). */
   i := int_of_float (ToInteger(lastIndex));
+
+  /* ES6: i < 0 becomes 0, but don't return null */
+  /* test/test262/tests/built-ins/RegExp/prototype/test/S15.10.6.3_A1_T22.js */
+  if (i < 0) {
+    i := 0;
+    {R.Put}(R, "lastIndex", 0., true)
+  };
+
   /* 6. Let global be the result of calling the [[Get]]
     internal method of R with argument "global". */
   global := {R.Get}(R, "global");
@@ -585,10 +616,7 @@ function JS_Interpreter_RegEx_TopLevel(re, source) {
   };
 
   nCaps := int_of_float (re.nCaps + 1.);
-/*
-  |parenIndex| := 0;
-  |parenCount| := 0;
-*/
+
   m' := lambda(R, S, i) [m, k_id, nCaps] {
     st := initialState(S, i,
       R.OriginalFlags.gb,
@@ -827,7 +855,7 @@ m = matcher
 k = continuation
 st = state
 */
-function JS_Interpreter_Repetition_Greedy(m, bounds, st, k) {
+function JS_Interpreter_Repetition_Greedy(m, bounds, st, k, parenIndex, parenCount) {
 
   if (bounds.sup = 0.) {
     return {k}(st)
@@ -835,37 +863,41 @@ function JS_Interpreter_Repetition_Greedy(m, bounds, st, k) {
 
     index := st.endIndex;
 
-    k' := lambda (st') [st, m, bounds, k, index] {
+    k' := lambda (st') [st, m, bounds, k, index, parenIndex, parenCount] {
       if ((bounds.inf = 0.) &&& (index = st'.endIndex)) {
         return {k}(st')
       };
       bounds' := decrementBounds(bounds);
-      return JS_Interpreter_Repetition_Greedy(m, bounds', st', k)
+      return JS_Interpreter_Repetition_Greedy(m, bounds', st', k, parenIndex, parenCount)
     };
 
-    /* TODO - Added this st2, show prof */
-    /*st2 := copyState(st);
-    i := st2.endIndex;
-    len := st2.caps.len;
-    while (i < len) {
-      i_str := int_to_string i;
-      if (i_str in_obj st2.caps) {
-        delete st2.caps[i_str]
+    st2 := copyState(st);
+    
+    if (!(parenIndex = 'undefined)) {
+      i := parenIndex + 1.;
+      len := parenIndex + parenCount;
+      while (i <= len) {
+        i_str := float_to_string i;
+        if (i_str in_obj st2.caps) {
+          delete st2.caps[i_str]
+        };
+        i := i + 1.
       };
-      i := i + 1
-    };*/
+      if (bounds.inf > 0.) {
+        return {m}(st2, k')
+      }
+    };
 
 
     if (bounds.inf > 0.) {
-      return {m}(st, k')
-      /*return {m}(st2, k')*/
+      /*return {m}(st, k')*/
+      return {m}(st2, k')
     } else {
-      oldSt := copyState(st);
-      ret := {m}(st, k');
-      /*ret := {m}(st2, k');*/
+      /*ret := {m}(st, k');*/
+      ret := {m}(st2, k');
 
       if (isFailure(ret)) {
-        return {k}(oldSt)
+        return {k}(st)
       } else {
         return ret
       }
@@ -1540,9 +1572,12 @@ function JS_Interpreter_RegEx(re, flags) {
     m' := JS_Interpreter_RegEx(re', flags);
     bounds := JS_Interpreter_Quant(qt);
 
+    parenIndex := re.parenIndex;
+    parenCount := re.parenCount;
+
     if (qt.greedy = true) {
-      m := lambda (st, k) [m', bounds] {
-        return JS_Interpreter_Repetition_Greedy(m', bounds, st, k)
+      m := lambda (st, k) [m', bounds, parenIndex, parenCount] {
+        return JS_Interpreter_Repetition_Greedy(m', bounds, st, k, parenIndex, parenCount)
       }
     } else {
       m := lambda (st, k) [m', bounds] {
@@ -1580,9 +1615,6 @@ function JS_Interpreter_RegEx(re, flags) {
   }
   /* Capturing group */
   | { type: "Group", capturing: true, number: i, expression: re' } -> {
-/*
-    |parenIndex| := |parenIndex| + 1;
-    |parenCount| := |parenCount| + 1;*/
 
     m' := JS_Interpreter_RegEx(re', flags);
 

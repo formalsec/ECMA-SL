@@ -32,5 +32,6 @@ clean:
 	rm -f test262_tests_result.md
 	rm -rf output
 	rm -f *.byte
+	rm -rf logs
 
 .PHONY: test

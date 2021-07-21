@@ -199,9 +199,8 @@ let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : E
 let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl SecLabel.t) option) (prog: Prog.t) (state : state_t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : (return * (Mon.sl SecLabel.t))  =
   let (cs, heap, sto, f) = state in
   let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
-  if Stmt.is_basic_stmt s
-    then
-      print_endline (Printf.sprintf "====================================\nEvaluating >>>>> %s: %s (%s)" f (Stmt.str s) (Stmt.str ~print_expr:str_e s));
+  if Stmt.is_basic_stmt s then
+    print_endline (lazy (Printf.sprintf "====================================\nEvaluating >>>>> %s: %s (%s)" f (Stmt.str s) (Stmt.str ~print_expr:str_e s)));
 
   match s with
   | Skip ->
@@ -218,9 +217,9 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
     (match v with
     | Loc l ->
       (match Heap.get heap l with
-        | Some o -> print_endline ("PROGRAM PRINT: " ^ Object.str o)
-        | None   -> print_endline "PROGRAM PRINT: Non-existent location" )
-    | _     -> print_endline ("PROGRAM PRINT: " ^ (Val.str v)));
+        | Some o -> print_endline (lazy ("PROGRAM PRINT: " ^ Object.str o))
+        | None   -> print_endline (lazy "PROGRAM PRINT: Non-existent location" ))
+    | _     -> print_endline (lazy ("PROGRAM PRINT: " ^ (Val.str v))));
      (Intermediate ((cs, heap, sto, f), cont), SecLabel.PrintLab (e))
 
   | Fail e -> (
