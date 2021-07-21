@@ -1,0 +1,8 @@
+/* Auxiliary functions used in the interpretation of the DebuggerStatement */
+function existsDebuggerImplementation() {
+  return false
+};
+
+function debuggerAction() {
+
+}
