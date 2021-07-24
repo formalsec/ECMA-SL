@@ -138,6 +138,9 @@ function initGlobalObject(strict) {
   ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);
   createBuiltInProperty(globalObject, "console", ConsoleObject);
 
+  MapObject := initMapObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Map", MapObject);
+
   return globalObject
 };
 
