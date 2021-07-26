@@ -26,6 +26,7 @@ function usage {
   -p <dir>   Same as "-r" but using the pre-generated ASTs for the test files available in the directory passed as argument.
 
   Options:
+  -6         Uses reference interpreter created for version 6 of the standard (in folder "ES6_interpreter")
   -E         Enable logging to file the tests executed with errors. File is "errors.log"
   -F         Enable logging to file the failed tests. File is "failures.log"
   -O         Enable logging to file the passed tests. File is "oks.log"
@@ -478,6 +479,8 @@ declare -r OUTPUT_FILE="logs/results_$now.md"
 
 declare -i LOG_ENTIRE_EVAL_OUTPUT=0
 
+declare -i ES6=0
+
 declare -i SKIP_COMPILATION=0
 declare -i LOG_ERRORS=0
 declare -i LOG_FAILURES=0
@@ -523,7 +526,7 @@ function compile() {
 }
 
 # Define list of arguments expected in the input
-optstring=":EFOHSd:f:i:r:p:"
+optstring=":6EFOHSd:f:i:r:p:"
 
 declare -a dDirs=() # Array that will contain the directories to use with the arg "-d"
 declare -a fFiles=() # Array that will contain the files to use with the arg "-f"
@@ -533,6 +536,7 @@ declare -a preCompiledDirs=() # Array that will contain the directories to use w
 
 while getopts ${optstring} arg; do
   case $arg in
+    6) ES6=1 ;;
     E) LOG_ERRORS=1 ;;
     F) LOG_FAILURES=1 ;;
     O) LOG_OKS=1 ;;
@@ -563,7 +567,11 @@ function process() {
 
 
   #echo "3. Create the file that will be compiled from \"Plus\" to \"Core\" in step 3.4."
-  sed '1d' "ES5_interpreter/plus.esl" >> "output/test262_$now.esl"
+  if [ $ES6 -eq 1 ]; then
+    sed '1d' "ES6_interpreter/plus.esl" >> "output/test262_$now.esl"
+  else
+    sed '1d' "ES5_interpreter/plus.esl" >> "output/test262_$now.esl"
+  fi
 
   # Compile program written in \"Plus\" to \"Core\
   ECMASLC=$(time (./main.native -mode c -i output/test262_$now.esl -o output/interpreter_$now.esl) 2>&1 1>/dev/null)
@@ -573,7 +581,7 @@ function process() {
   plus2core_duration_str=$(echo "$ECMASLC" | sed '$!d')
 
   if [ $EXIT_CODE -ne 0 ]; then
-    printf "${BOLD}${RED}${INV}ERROR${NC} during compilation of the \"ES5_interpreter/plus.esl\" file\n"
+    printf "${BOLD}${RED}${INV}ERROR${NC} during compilation of the \"ES_interpreter/plus.esl\" file\n"
 
     echo -e "$ECMASLC" | sed '$d'
 
