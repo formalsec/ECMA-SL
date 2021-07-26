@@ -36,3 +36,4 @@ import "ES5_interpreter/section 15/section_15.11.esl";
 import "ES5_interpreter/section 15/section_15.12.esl";
 import "ES5_interpreter/extras/section_extras.esl";
 import "ES5_interpreter/section_23.1.esl"; 
+import "ES5_interpreter/es6_section_7.4.esl";

@@ -2,7 +2,7 @@ import "ES5_interpreter/ES5_Reference_Interpreter.esl";
 
 function JS_Interpreter_Program(p, callingExecCtx) {
 
-  print "primeiro print de debug";
+  print "primeiro print de debug 123";
 
   /* 14 Program */
   match p with
