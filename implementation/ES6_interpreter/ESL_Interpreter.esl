@@ -1,6 +1,9 @@
 import "ES6_interpreter/ES6_Reference_Interpreter.esl";
 
 function JS_Interpreter_Program(p, callingExecCtx) {
+
+  print "primeira sessao de debugging de verao"; 
+
   /* 14 Program */
   match p with
   | { sourceType: "script", type: "Program", codeType: "eval", body: SourceElementsopt, strict: strict } -> {
