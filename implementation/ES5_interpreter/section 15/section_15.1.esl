@@ -142,7 +142,11 @@ function initGlobalObject(strict) {
 
   MapObject := initMapObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Map", MapObject);
-  initMapIteratorPrototype(globalObject, ObjectPrototype, strict); 
+  initMapIteratorPrototype(globalObject, ObjectPrototype, strict);
+
+  /* 23.4 WeakSet Objects */
+  WeakSetObject := initWeakSetObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "WeakSet", WeakSetObject);
 
 
   return globalObject
