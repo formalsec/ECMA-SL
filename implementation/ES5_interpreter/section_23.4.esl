@@ -55,28 +55,6 @@ function initWeakSetObject(global, objectPrototype, strict) {
 
 
 /*
-*   6.2.2.4 ReturnIfAbrupt
-*/
-macro ReturnIfAbruptWSet (argument) {
-
-    /* 1. If argument is an abrupt completion, return argument. */
-    if (!(Type(argument) = "Completion")) {
-    /* 2. Else if argument is a Completion Record, let argument be argument.[[value]]. */
-    } elif (isAnAbruptCompletion(argument)) {
-        return argument
-    } else {
-        argument := getCompletionValue(argument)
-    }
-};
-
-
-function GetWSet (O, P) { 
-    ref := newPropertyReference(O, P, false);
-    v := GetValue(ref);
-    return v 
-}; 
-
-/*
 *   23.4.1.1 WeakSet ( [ iterable ] )
 */
 
@@ -91,7 +69,7 @@ function WeakSetConstructorNew(global, this, strict, items) {
     /*set := OrdinaryCreateFromConstructor(NewTarget, getWeakSetPrototype(strict), «‍[[WeakSetData]]» );*/
     
     /* 3. ReturnIfAbrupt(set). */
-    ReturnIfAbrupt(set);
+    @ReturnIfAbrupt(set);
 
     /* 4. Set set’s [[WeakSetData]] internal slot to a new empty List. */
     set.WeakSetData = [];

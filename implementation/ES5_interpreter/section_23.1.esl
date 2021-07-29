@@ -101,6 +101,8 @@ function MapConstructor(global, this, strict, items) {
 
   newlyConstructedObject.MapData := []; 
 
+  newlyConstructedObject.IteratorFunction := "createMapIterator"; 
+
   return newlyConstructedObject
 }; 
 

@@ -1,0 +1,33 @@
+
+
+function GetES6 (O, P) { 
+    ref := newPropertyReference(O, P, false);
+    v := GetValue(ref);
+    return v 
+}; 
+
+
+/*
+Assert: IsPropertyKey(P) is true.
+Let func be GetV(O, P).
+ReturnIfAbrupt(func).
+If func is either undefined or null, return undefined.
+If IsCallable(func) is false, throw a TypeError exception.
+Return func.
+
+*/
+function GetMethod(O, P) {
+    func := GetES6(O, P); 
+    @ReturnIfAbrupt(func);
+
+    if ((func = 'undefined) || (fun = 'null)) {
+        return 'undefined
+    }; 
+
+    if (IsCallable(func) = false) { 
+        throw TypeErrorConstructorInternal() 
+    }; 
+
+    return func 
+}
+
