@@ -1,0 +1,436 @@
+/* ?? The value of the [[Prototype]] internal slot of the Set constructor is the 
+intrinsic object %FunctionPrototype% (19.2.3). ??
+ O que e' que isto significa?
+*/
+
+/**
+ * 23.2.3 Properties of the Set Prototype Object
+ *
+ * The Set prototype object is the intrinsic object %SetPrototype%. The value of the [[Prototype]] internal slot of the Set prototype object is the intrinsic object %ObjectPrototype% (19.1.3). The Set prototype object is an ordinary object. It does not have a [[SetData]] internal slot.
+ */
+function initSetPrototype(global, objectPrototype, strict) {
+  print "inside initSetPrototype";
+
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  
+  setAllInternalMethodsOfObject(prototype);
+
+  setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));   
+
+  /* 23.2.3.1 Set.prototype.add ( value ) */
+  addObject := CreateBuiltInFunctionObject(["items"], "setAddObject", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(addObject, true, false, true);
+  setJSProperty(prototype, "add", descriptor);
+
+  /* 23.2.3.2 Set.prototype.clear ( ) */
+  clearObject := CreateBuiltInFunctionObject([], "setClearObject", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(clearObject, true, false, true);
+  setJSProperty(prototype, "clear", descriptor);   
+
+  /* 23.2.3.4 Set.prototype.delete ( value ) */
+  deleteObject := CreateBuiltInFunctionObject(["items"], "setDeleteObject", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(deleteObject, true, false, true);
+  setJSProperty(prototype, "delete", descriptor);
+
+
+  /* 23.2.3.6 Set.prototype.forEach ( callbackfn [ , thisArg ] ) */
+  forEachObject := CreateBuiltInFunctionObject(["items"], "setForEachObject", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(forEachObject, true, false, true);
+  setJSProperty(prototype, "forEach", descriptor);
+
+
+  /* 23.2.3.7 Set.prototype.has ( value ) */
+  hasObject := CreateBuiltInFunctionObject(["items"], "setHasObject", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(hasObject, true, false, true);
+  setJSProperty(prototype, "has", descriptor);
+
+  return prototype
+};
+
+function getSetPrototype (strict) { 
+  print "inside getSetPrototype";
+
+  refSet := newPropertyReference(|global|, "Set", strict);
+  SetObject := GetValue(refSet);
+  refSetProto := newPropertyReference(SetObject, "prototype", strict);
+  objectSetProto := GetValue(refSetProto);
+  return objectSetProto
+}; 
+
+
+function initSetObject(global, objectPrototype, strict) {
+  print "inside initSetObject";
+
+  /* The initial value of Set.prototype is the intrinsic %SetPrototype% object (23.2.3). */
+  objSetPrototype := initSetPrototype(global, objectPrototype, strict);
+
+  /* The value of the [[Prototype]] internal slot of the Set constructor is the intrinsic object %FunctionPrototype% (19.2.3).*/
+  /* e' o que esta linha faz??! */
+  objSetConstructor := CreateFunctionObject(["items"], "SetConstructor", global, strict, 0.);
+
+  descriptor := newDataPropertyDescriptorFull(objSetConstructor, true, false, true);
+  setJSProperty(objSetPrototype, "constructor", descriptor);
+
+  descriptor := newDataPropertyDescriptorFull(objSetPrototype, false, false, false);
+  setJSProperty(objSetConstructor, "prototype", descriptor);
+
+  return objSetConstructor
+};
+
+/**
+ * 23.2.1 The Set Constructor
+ * 
+ * The Set constructor is the %Set% intrinsic object and the initial value of the Set property of the global object. When called as a constructor it creates and initializes a new Set object. Set is not intended to be called as a function and will throw an exception when called in that manner.
+ * 
+ * The Set constructor is designed to be subclassable. 
+ * It may be used as the value in an extends clause of a class definition. 
+ * Subclass constructors that intend to inherit the specified Set behaviour must include 
+ * a super call to the Set constructor to create and initialize the subclass instance
+ * with the internal state necessary to support the Set.prototype built-in methods.
+ */
+function SetConstructor(global, this, strict, items) {
+  setPrototype := getSetPrototype(strict);
+
+  print "inside Set constructor with prototype";
+  print setPrototype.JSProperties; 
+
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+  
+  setInternalProperty(newlyConstructedObject, "Prototype", setPrototype);
+  /* The [[Extensible]] internal property of the newly constructed object
+      is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  /* The [[Class]] internal property of the newly constructed object is
+      set to "Array". */
+  setInternalProperty(newlyConstructedObject, "Class", "Object");
+
+  newlyConstructedObject.SetData := []; 
+
+  print "Constructed Set:";
+  print newlyConstructedObject;
+
+  return newlyConstructedObject
+};
+
+
+/**
+ * 23.2.2.2 get Set [ @@species ]
+ *
+ * Set[@@species] is an accessor property whose set accessor function is undefined. Its get accessor function performs the following steps:
+ *
+ *    Return the this value.
+ *
+ * The value of the name property of this function is "get [Symbol.species]".
+ *
+ * NOTE Methods that create derived collection objects should call @@species to determine the constructor to use to create the derived objects. Subclass constructor may over-ride @@species to change the default constructor assignment.
+ */
+
+
+
+/**
+ * 
+ * 23.2.3 Properties of the Set Prototype Object
+ * 
+ * The Set prototype object is the intrinsic object %SetPrototype%. 
+ * The value of the [[Prototype]] internal slot of the Set prototype object is the
+ * intrinsic object %ObjectPrototype% (19.1.3). 
+ * The Set prototype object is an ordinary object. 
+ * It does not have a [[SetData]] internal slot.
+ * 
+ */
+
+
+/**
+ * 
+ * 23.2.3.1 Set.prototype.add ( value )
+ *  
+ */
+function setAddObject(global, this, strict, args) {
+  value := l_nth(args, 0);
+  
+  /* 1. Let S be the this value. */
+  S := this;
+
+  /* 2. If Type(S) is not Object, throw a TypeError exception. */
+  if (!(Type(S) = "Object")) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
+  if (!("SetData" in_obj S)) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 4. Let entries be the List that is the value of S’s [[SetData]] internal slot. */
+  entries := S.SetData;
+
+  /* 5. Repeat for each e that is an element of entries */
+  len := l_len(entries);
+  index := 0;
+  
+  while (index < len) {
+    
+    e := l_nth(entries, index);
+    
+    /* a. If e is not empty and SameValueZero(e, value) is true, then */
+    if (!(e = 'emmpty) &&& (SameValue(e, value) = true)) {
+      
+      /* i. Return S. */
+      return S
+    };
+
+    index := index + 1
+  };
+
+  /* 6. If value is −0, let value be +0. */
+  if (value = -(0.)) {
+    value := 0.
+  };
+
+  /* 7. Append value as the last element of entries. */
+  S.SetData := l_add(entries, value);
+  
+  /* 8.  Return S. */
+  return S
+};
+
+
+/**
+ * 
+ * 23.2.3.2 Set.prototype.clear ( )
+ *    
+ */
+function setClearObject(global, this, strict, args) {
+  print("in clearSetObject");
+
+  /* 1. Let S be the this value. */
+  S := this;
+
+  /* 2. If Type(S) is not Object, throw a TypeError exception. */
+  if (!(Type(S) = "Object")) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
+  if (!("SetData" in_obj S)) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 4. Let entries be the List that is the value of S’s [[SetData]] internal slot. */
+  entries := S.SetData;
+
+  /* 5. Repeat for each e that is an element of entries */
+  len := l_len(entries);
+  index := 0;
+
+  this.SetData := [];  /* TODO fix this */
+  while (index < len) {
+    
+    e := l_nth(entries, index);
+    
+    /* a. Replace the element of entries whose value is e with an element whose value is empty. */
+    e := 'empty;
+
+    
+    print("OTAVIO");
+    print(this.SetData);
+    index := index + 1
+  };
+  
+
+  /* 6. Return undefined.*/
+  return 'undefined
+};
+
+
+/**
+ *
+ * 23.2.3.4 Set.prototype.delete ( value )
+ *
+ *The following steps are taken:
+ *
+ *    Let S be the this value.
+ *    If Type(S) is not Object, throw a TypeError exception.
+ *    If S does not have a [[SetData]] internal slot, throw a TypeError exception.
+ *    Let entries be the List that is the value of S’s [[SetData]] internal slot.
+ *    Repeat for each e that is an element of entries,
+ *        If e is not empty and SameValueZero(e, value) is true, then
+ *            Replace the element of entries whose value is e with an element whose value is empty.
+ *            Return true.
+ *    Return false.
+ *
+ * NOTE The value empty is used as a specification device to indicate that an entry has been deleted. Actual implementations may take other actions such as physically removing the entry from internal data structures.
+ */
+function setDeleteObject(global, this, strict, args) {
+  value := l_nth(args, 0);
+  
+  /* 1. Let S be the this value. */
+  S := this;
+
+  /* 2. If Type(S) is not Object, throw a TypeError exception. */
+  if (!(Type(S) = "Object")) {
+    throw TypeErrorConstructorInternal
+  };
+  
+  /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
+  if (!("SetData" in_obj S)) {
+    throw TypeErrorConstructorInternal
+  };
+  
+  /* 4. Let entries be the List that is the value of S’s [[SetData]] internal slot. */
+  entries := S.SetData;
+
+  /* 5. Repeat for each e that is an element of entries */
+  len := l_len(entries);
+  index := 0;
+  
+  while (index < len) {
+    
+    e := l_nth(entries, index);
+    
+    /* a. If e is not empty and SameValueZero(e, value) is true, then */
+    if (!(e = 'emmpty) &&& (SameValue(e, value) = true)) {
+      
+      /* i. Replace the element of entries whose value is e with an element whose value is empty. */
+      /* TODO !! */
+      
+      /* ii. Return true. */
+      return true
+    };
+
+    index := index + 1
+  };
+  
+  /* Return false*/
+  return false
+};
+
+
+/**
+ * 
+ * 23.2.3.5 Set.prototype.entries ( )
+ * 
+ * The following steps are taken:
+ * 
+ *     Let S be the this value.
+ *     Return CreateSetIterator(S, "key+value").
+ * 
+ * NOTE For iteration purposes, a Set appears similar to a Map where each entry has the same value for its key and value.
+ * 
+ */
+
+
+/**
+ * 23.2.3.6 Set.prototype.forEach ( callbackfn [ , thisArg ] )
+ * 
+ * When the forEach method is called with one or two arguments, the following steps are taken:
+ *
+ *     
+ *     Repeat for each e that is an element of entries, in original insertion order
+ *         If e is not empty, then
+ *             Let funcResult be Call(callbackfn, T, «e, e, S»).
+ *             ReturnIfAbrupt(funcResult).
+ *     Return undefined.
+ *
+ */
+/* TODO test ForEach function */
+function setForEachObject(global, this, strict, args) {
+  callbackfn := l_nth(args, 0);
+
+  /* 1. Let S be the this value. */
+   S := this;
+ 
+  /* 2. If Type(S) is not Object, throw a TypeError exception. */
+  if (!(Type(S) = "Object")) {
+    throw TypeErrorConstructorInternal
+  };
+   
+  /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
+  if (!("SetData" in_obj S)) {
+    throw TypeErrorConstructorInternal
+  };
+ 
+  /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallable(callbackfn) = false) {
+    throw TypeErrorConstructorInternal
+  };
+
+  /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if(l_len(args) > 1) {
+    T := l_nth(args, 1)
+  }
+  else {
+    T := 'undefined
+  };
+
+  /* 6. Let entries be the List that is the value of S’s [[SetData]] internal slot. */
+  entries := S.SetData;
+
+  /* 7. Repeat for each e that is an element of entries, in original insertion order */
+  len := l_len(entries);
+  index := 0;
+
+  while(index < len) {
+    e := l_nth(entries, index);
+
+    /* a. If e is not empty, then */
+    if (!(e = empty)) {
+      /* i. Let funcResult be Call(callbackfn, T, «e, e, S»). */
+      funcResult := Call(callbackfn, T, [e, e, S]);
+      
+      /* ii. ReturnIfAbrupt(funcResult). */
+      ReturnIfAbrupt(funcResult)
+    };
+
+    index := index + 1
+  };
+
+  /* 8. Return undefined.*/
+  return 'undefined
+};
+ 
+
+/**
+ * 23.2.3.7 Set.prototype.has ( value )
+ */
+function setHasObject(global, this, strict, args) {
+  value := l_nth(args, 0);
+  
+  /* 1. Let S be the this value. */
+  S := this;
+
+  /* 2. If Type(S) is not Object, throw a TypeError exception. */
+  if (!(Type(S) = "Object")) {
+    throw TypeErrorConstructorInternal
+  };
+  
+  /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
+  if (!("SetData" in_obj S)) {
+    throw TypeErrorConstructorInternal
+  };
+  
+  /* 4. Let entries be the List that is the value of S’s [[SetData]] internal slot. */
+  entries := S.SetData;
+
+  /* 5. Repeat for each e that is an element of entries */
+  len := l_len(entries);
+  index := 0;
+  
+  while (index < len) {
+    
+    e := l_nth(entries, index);
+    
+    /* a. If e is not empty and SameValueZero(e, value) is true, then */
+    if (!(e = 'emmpty) &&& (SameValue(e, value) = true)) {
+      
+      /* i. Return true. */
+      return true
+    };
+
+    index := index + 1
+  };
+  
+  return false
+}
