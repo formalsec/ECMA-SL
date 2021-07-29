@@ -134,6 +134,9 @@ function initGlobalObject(strict) {
   JsonObject := initJsonObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "JSON", JsonObject);
 
+  symbolObject := initSymbolObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Symbol", symbolObject);
+
   /* Extras */
   ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);
   createBuiltInProperty(globalObject, "console", ConsoleObject);

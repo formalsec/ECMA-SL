@@ -57,17 +57,16 @@ function initWeakSetObject(global, objectPrototype, strict) {
 /*
 *   6.2.2.4 ReturnIfAbrupt
 */
-function ReturnIfAbrupt (argument) {
+macro ReturnIfAbruptWSet (argument) {
 
     /* 1. If argument is an abrupt completion, return argument. */
-    if (true) {
-        return argument
+    if (!(Type(argument) = "Completion")) {
     /* 2. Else if argument is a Completion Record, let argument be argument.[[value]]. */
-    } elif (true) {
-        argument := argument.value
-    };
-
-    return null
+    } elif (isAnAbruptCompletion(argument)) {
+        return argument
+    } else {
+        argument := getCompletionValue(argument)
+    }
 };
 
 /*
