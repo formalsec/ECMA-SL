@@ -1,0 +1,84 @@
+
+
+function initSymbolPrototype(global, objectPrototype, strict) {
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Symbol", true);
+  setAllInternalMethodsOfObject(prototype);
+
+  /* 19.4.3.3 Symbol.prototype.valueOf ( ) */
+  valueOfFunctionObject := CreateBuiltInFunctionObject([], "symbolValueOf", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(valueOfFunctionObject, true, false, true);
+  setJSProperty(prototype, "valueOf", descriptor);    
+
+  /* Terminar: outros metodos do prototipo */
+
+  return prototype
+};
+
+function initSymbolObject(global, objectPrototype, strict) {
+  objSymbolPrototype := initSymbolPrototype(global, objectPrototype, strict);
+  objSymbolConstructor := CreateFunctionObject(["items"], "SymbolConstructor", global, strict, 0.);
+
+  descriptor := newDataPropertyDescriptorFull(objSymbolConstructor, true, false, true);
+  setJSProperty(objSymbolPrototype, "constructor", descriptor);
+
+  descriptor := newDataPropertyDescriptorFull(objSymbolPrototype, false, false, false);
+  setJSProperty(objSymbolConstructor, "prototype", descriptor);
+
+  return objSymbolConstructor
+};
+
+function getSymbolPrototype (strict) { 
+  refSymbol := newPropertyReference(|global|, "Symbol", strict);
+  SymbolObject := GetValue(refSymbol);
+  refSymbolProto := newPropertyReference(SymbolObject, "prototype", strict);
+  objectSymbolProto := GetValue(refSymbolProto);
+  return objectSymbolProto
+}; 
+
+function newSymbolData() {
+  cur := |__CUR__SYMB__|; 
+  |__CUR__SYMB__| := cur + 1; 
+  return cur
+};
+
+function internalSymbolConstructor(descString, strict) { 
+  symbolPrototype := getSymbolPrototype(strict);
+
+  print "inside Symbol constructor with prototype";
+
+  newlyConstructedSymbol := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedSymbol);
+
+  setInternalProperty(newlyConstructedSymbol, "Prototype", symbolPrototype);
+  setInternalProperty(newlyConstructedSymbol, "Extensible", false);
+  setInternalProperty(newlyConstructedSymbol, "Class", "Symbol");
+
+  newlyConstructedSymbol.Description := descString;
+  newlyConstructedSymbol.SymbolData := newSymbolData(); 
+
+  return newlyConstructedSymbol
+};
+
+function SymbolConstructor(global, NewTarget, strict, args) {
+  description := getOptionalParam(args, 0); 
+
+  /* 1. If NewTarget is not undefined, throw a TypeError exception. */ 
+  if (!(NewTarget = 'undefined)) {
+    throw TypeErrorConstructorInternal()
+  }; 
+
+  /* 2.  If description is undefined, let descString be undefined. */
+  if (description = null) { 
+    descString := "undefined"
+  } else {
+    descString := ToString(description)
+  }; 
+
+  /* 3. ReturnIfAbrupt(descString). */
+
+  /* 4. Return a new unique Symbol value whose [[Description]] value is descString. */
+  return internalSymbolConstructor(descString, strict)
+}
+
+
+

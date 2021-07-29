@@ -32,6 +32,10 @@ function JS_Interpreter_Program(p, callingExecCtx) {
     if (SourceElementsopt = []) {
       return normalEmptyCompletion('empty)
     };
+    
+    |__CUR__SYMB__| := 0; 
+    |GlobalSymbolRegistry| := []; 
+
     /* 3. Let progCxt be a new execution context for global code as described in 10.4.1. */
     progCxt := EnteringGlobalCode(p);
     /* 4. Let result be the result of evaluating SourceElements. */
