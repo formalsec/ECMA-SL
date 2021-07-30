@@ -68,18 +68,20 @@ function WeakSetConstructorNew(global, this, strict, items) {
     };
     
     /* 2. Let set be OrdinaryCreateFromConstructor(NewTarget, "%WeakSetPrototype%", «‍[[WeakSetData]]» ). */
-    set := OrdinaryCreateFromConstructor(global, this, strict, items);
+    set := OrdinaryCreateFromConstructor(strict);
     
     /* 3. ReturnIfAbrupt(set). */
     @ReturnIfAbrupt(set);
 
     /* 4. Set set’s [[WeakSetData]] internal slot to a new empty List. */
-    set.WeakSetData = [];
+    set.WeakSetData := [];
 
     /* 5. If iterable is not present, let iterable be undefined. */
     len := l_len items;
     if (len = 0) {
-        iterable = 'undefined
+        iterable := 'undefined
+    } else {
+        iterable := l_nth(items, 0)
     };
 
     /* 6. If iterable is either undefined or null, let iter be undefined. */
@@ -87,12 +89,24 @@ function WeakSetConstructorNew(global, this, strict, items) {
         iter := 'undefined
     } else {
         /* 7. Else, */
-        print "else"
+
         /* a. Let adder be Get(set, "add"). */
+        adder := GetES6(set, "add");
+        
         /* b. ReturnIfAbrupt(adder). */
+        @ReturnIfAbrupt(adder);
+
         /* c. If IsCallable(adder) is false, throw a TypeError exception. */
+        if (IsCallable(adder) = false) {
+            throw TypeErrorConstructorInternal()
+        };
+
         /* d. Let iter be GetIterator(iterable). */
+        iter := GetIterator(iterable);
+
         /* e. ReturnIfAbrupt(iter). */
+        @ReturnIfAbrupt(iter);
+
     };
 
     /* 8. If iter is undefined, return set. */
@@ -104,30 +118,42 @@ function WeakSetConstructorNew(global, this, strict, items) {
     while (true) {
 
         /* a. Let next be IteratorStep(iter). */
-        /* b. ReturnIfAbrupt(next). */
-        /* c. If next is false, return set. */
-        /* d. Let nextValue be IteratorValue(next). */
-        /* e. ReturnIfAbrupt(nextValue). */
-        /* f. Let status be Call(adder, set, «nextValue »). */
-        /* g. If status is an abrupt completion, return IteratorClose(iter, status). */
-    };
+        next := IteratorStep(iter);
 
-    return null
+        /* b. ReturnIfAbrupt(next). */
+        @ReturnIfAbrupt(next);
+        
+        /* c. If next is false, return set. */
+        if (next = false) {
+            return set
+        };
+
+        /* d. Let nextValue be IteratorValue(next). */
+        nextValue := IteratorValue(next);
+
+        /* e. ReturnIfAbrupt(nextValue). */
+        @ReturnIfAbrupt(nextValue);
+        /* f. Let status be Call(adder, set, «nextValue »). */
+
+        /* g. If status is an abrupt completion, return IteratorClose(iter, status). */
+        if (isAnAbruptCompletion(status)) {
+            return IteratorClose(iter, status)
+        }
+    }
 };
 
-function OrdinaryCreateFromConstructor(global, this, strict, items) {
+function OrdinaryCreateFromConstructor(strict) {
 
-    weakSetPrototype := getWeakSetPrototype(strict);
+    objPrototype := getWeakSetPrototype(strict);
 
     newlyConstructedObject := NewECMAScriptObject();
     setAllInternalMethodsOfObject(newlyConstructedObject);
 
 
-    setInternalProperty(newlyConstructedObject, "Prototype", weakSetPrototype);
+    setInternalProperty(newlyConstructedObject, "Prototype", objPrototype);
     setInternalProperty(newlyConstructedObject, "Extensible", true);
     setInternalProperty(newlyConstructedObject, "Class", "Object");
 
-    newlyConstructedObject.WeakSetData := [];
 
     return newlyConstructedObject
 };
