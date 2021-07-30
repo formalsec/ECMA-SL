@@ -134,8 +134,17 @@ function initGlobalObject(strict) {
   JsonObject := initJsonObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "JSON", JsonObject);
 
+  /* 23.1 Map */
+  MapObject := initMapObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Map", MapObject);
+  initMapIteratorPrototype(globalObject, ObjectPrototype, strict);
+  
   symbolObject := initSymbolObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Symbol", symbolObject);
+
+  /* 23.4 WeakSet Objects */
+  WeakSetObject := initWeakSetObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "WeakSet", WeakSetObject);
 
   /* Extras */
   ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);
