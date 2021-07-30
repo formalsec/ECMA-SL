@@ -1,0 +1,6 @@
+Como adicionar uma nova biblioteca: 
+
+ - Criar o ficheiro 
+ - Incluir o import no ficheiro ES6_Reference_Interpreter.esl 
+ - Invocar o método init correspondente no codigo que faz a inicializacao do global object 
+   na seccao 15.1.esl
