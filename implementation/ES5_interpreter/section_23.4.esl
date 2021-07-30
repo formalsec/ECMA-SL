@@ -42,7 +42,7 @@ function getWeakSetPrototype (strict) {
 function initWeakSetObject(global, objectPrototype, strict) {
 
     objWeakSetPrototype := initWeakSetPrototype(global, objectPrototype, strict);
-    objWeakSetConstructor := CreateFunctionObject(["items"], "OrdinaryCreateFromConstructor", global, strict, 0.);
+    objWeakSetConstructor := CreateFunctionObject(["items"], "WeakSetConstructor", global, strict, 0.);
 
     descriptor := newDataPropertyDescriptorFull(objWeakSetConstructor, true, false, true);
     setJSProperty(objWeakSetPrototype, "constructor", descriptor);
@@ -57,8 +57,7 @@ function initWeakSetObject(global, objectPrototype, strict) {
 /*
 *   23.4.1.1 WeakSet ( [ iterable ] )
 */
-
-function WeakSetConstructorNew(global, this, strict, items) {
+function WeakSetConstructor(global, this, strict, items) {
 
     NewTarget := this;
 
@@ -105,7 +104,7 @@ function WeakSetConstructorNew(global, this, strict, items) {
         iter := GetIterator(iterable);
 
         /* e. ReturnIfAbrupt(iter). */
-        @ReturnIfAbrupt(iter);
+        @ReturnIfAbrupt(iter)
 
     };
 
