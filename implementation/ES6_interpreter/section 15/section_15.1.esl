@@ -134,6 +134,11 @@ function initGlobalObject(strict) {
   JsonObject := initJsonObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "JSON", JsonObject);
 
+  /* 23.1 Map */
+  MapObject := initMapObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Map", MapObject);
+  initMapIteratorPrototype(globalObject, ObjectPrototype, strict);
+
   /* Extras */
   ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);
   createBuiltInProperty(globalObject, "console", ConsoleObject);
