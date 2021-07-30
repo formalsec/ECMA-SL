@@ -148,11 +148,10 @@ function initGlobalObject(strict) {
   WeakSetObject := initWeakSetObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "WeakSet", WeakSetObject);
 
-  /* 23.2 Set
+  /* 23.2 Set */
   SetObject := initSetObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Set", SetObject);
-  */
-
+  
   return globalObject
 };
 
