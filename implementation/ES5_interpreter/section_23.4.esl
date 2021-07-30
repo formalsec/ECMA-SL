@@ -15,7 +15,7 @@ function initWeakSetPrototype(global, objectPrototype, strict) {
     setJSProperty(prototype, "add", descriptor);
 
     /* 23.4.3.3 WeakSet.prototype.delete ( value ) */
-    deleteObject := CreateBuiltInFunctionObject(["items"], "deleteTest", global, strict, 0.);
+    deleteObject := CreateBuiltInFunctionObject(["items"], "weakSetDelete", global, strict, 0.);
     descriptor := newDataPropertyDescriptorFull(deleteObject, true, false, true);
     setJSProperty(prototype, "delete", descriptor);
 
@@ -57,8 +57,9 @@ function initWeakSetObject(global, objectPrototype, strict) {
 /*
 *   23.4.1.1 WeakSet ( [ iterable ] )
 */
+function WeakSetConstructor(global, this, strict, items) {
 
-function WeakSetConstructorNew(global, this, strict, items) {
+    NewTarget := this;
 
     /* 1. If NewTarget is undefined, throw a TypeError exception. */
     if (NewTarget = 'undefined) {
@@ -66,18 +67,20 @@ function WeakSetConstructorNew(global, this, strict, items) {
     };
     
     /* 2. Let set be OrdinaryCreateFromConstructor(NewTarget, "%WeakSetPrototype%", «‍[[WeakSetData]]» ). */
-    /*set := OrdinaryCreateFromConstructor(NewTarget, getWeakSetPrototype(strict), «‍[[WeakSetData]]» );*/
+    set := OrdinaryCreateFromConstructor(strict);
     
     /* 3. ReturnIfAbrupt(set). */
     @ReturnIfAbrupt(set);
 
     /* 4. Set set’s [[WeakSetData]] internal slot to a new empty List. */
-    set.WeakSetData = [];
+    set.WeakSetData := [];
 
     /* 5. If iterable is not present, let iterable be undefined. */
     len := l_len items;
     if (len = 0) {
-        iterable = 'undefined
+        iterable := 'undefined
+    } else {
+        iterable := l_nth(items, 0)
     };
 
     /* 6. If iterable is either undefined or null, let iter be undefined. */
@@ -85,12 +88,24 @@ function WeakSetConstructorNew(global, this, strict, items) {
         iter := 'undefined
     } else {
         /* 7. Else, */
-        print "else"
+
         /* a. Let adder be Get(set, "add"). */
+        adder := GetES6(set, "add");
+        
         /* b. ReturnIfAbrupt(adder). */
+        @ReturnIfAbrupt(adder);
+
         /* c. If IsCallable(adder) is false, throw a TypeError exception. */
+        if (IsCallable(adder) = false) {
+            throw TypeErrorConstructorInternal()
+        };
+
         /* d. Let iter be GetIterator(iterable). */
+        iter := GetIterator(iterable);
+
         /* e. ReturnIfAbrupt(iter). */
+        @ReturnIfAbrupt(iter)
+
     };
 
     /* 8. If iter is undefined, return set. */
@@ -102,30 +117,42 @@ function WeakSetConstructorNew(global, this, strict, items) {
     while (true) {
 
         /* a. Let next be IteratorStep(iter). */
-        /* b. ReturnIfAbrupt(next). */
-        /* c. If next is false, return set. */
-        /* d. Let nextValue be IteratorValue(next). */
-        /* e. ReturnIfAbrupt(nextValue). */
-        /* f. Let status be Call(adder, set, «nextValue »). */
-        /* g. If status is an abrupt completion, return IteratorClose(iter, status). */
-    };
+        next := IteratorStep(iter);
 
-    return null
+        /* b. ReturnIfAbrupt(next). */
+        @ReturnIfAbrupt(next);
+        
+        /* c. If next is false, return set. */
+        if (next = false) {
+            return set
+        };
+
+        /* d. Let nextValue be IteratorValue(next). */
+        nextValue := IteratorValue(next);
+
+        /* e. ReturnIfAbrupt(nextValue). */
+        @ReturnIfAbrupt(nextValue);
+        /* f. Let status be Call(adder, set, «nextValue »). */
+
+        /* g. If status is an abrupt completion, return IteratorClose(iter, status). */
+        if (isAnAbruptCompletion(status)) {
+            return IteratorClose(iter, status)
+        }
+    }
 };
 
-function WeakSetConstructor(global, this, strict, items) {
+function OrdinaryCreateFromConstructor(strict) {
 
-    weakSetPrototype := getWeakSetPrototype(strict);
+    objPrototype := getWeakSetPrototype(strict);
 
     newlyConstructedObject := NewECMAScriptObject();
     setAllInternalMethodsOfObject(newlyConstructedObject);
 
 
-    setInternalProperty(newlyConstructedObject, "Prototype", weakSetPrototype);
+    setInternalProperty(newlyConstructedObject, "Prototype", objPrototype);
     setInternalProperty(newlyConstructedObject, "Extensible", true);
     setInternalProperty(newlyConstructedObject, "Class", "Object");
 
-    newlyConstructedObject.WeakSetData := [];
 
     return newlyConstructedObject
 };
@@ -216,54 +243,6 @@ function weakSetDelete (global, this, strict, args) {
     i := 0;
     len := l_len entries;
 
-    while (i < len) {
-        e := l_nth(entries, i);
-        
-        /* a. If e is not empty and SameValue(e, value) is true, then */
-        if (!(e = 'empty) &&& (SameValue(e, value) = true)) {
-            /* i. Replace the element of entries whose value is e with an element whose value is empty. */
-            e := 'empty;
-            
-            /* ii. Return true. */
-            return true
-        };
-
-        i := i + 1
-    };
-
-    /* 7. Return false*/
-    return false
-};
-
-function deleteTest (global, this, strict, args) {
-    
-    value := l_nth(args, 0);
-
-    /* 1. Let S be the this value. */
-    S := this;
-
-    /* 2. If Type(S) is not Object, throw a TypeError exception. */
-    if (!(Type(S) = "Object")) {
-        throw TypeErrorConstructorInternal()
-    };
-
-    /* 3. If S does not have a [[WeakSetData]] internal slot, throw a TypeError exception. */
-    if (!("WeakSetData" in_obj S)) {
-        throw TypeErrorConstructorInternal()
-    };
-
-    /* 4. If Type(value) is not Object, return false. */
-    if (!(Type(value) = "Object")) {
-        return false
-    };
-
-    /* 5. Let entries be the List that is the value of S’s [[WeakSetData]] internal slot. */
-    entries := S.WeakSetData;
-
-    /* 6. Repeat for each e that is an element of entries, */
-    i := 0;
-    len := l_len entries;
-
     newWeakSetData := [];
     removed := false;
 
@@ -272,14 +251,19 @@ function deleteTest (global, this, strict, args) {
         
         /* a. If e is not empty and SameValue(e, value) is true, then */
         if (!(e = 'empty) &&& (SameValue(e, value) = true)) {
+            
+            /* i. Replace the element of entries whose value is e with an element whose value is empty.
+            ii .Return true. */
             removed := true
         } else {
+            /* Add the not removed elements to the new list*/
             newWeakSetData := l_prepend(e, newWeakSetData)
         };
 
         i := i + 1
     };
 
+    /* Set the WeakSetData to the new list*/
     S.WeakSetData := l_reverse(newWeakSetData);
     return removed
 };
