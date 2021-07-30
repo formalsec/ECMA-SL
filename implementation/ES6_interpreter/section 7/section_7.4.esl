@@ -35,7 +35,7 @@ function CreateIterResultObject ( value, done ) {
 };
 
 /*
-*   7.4.1 GetIterator ( obj, method )
+* 7.4.1 GetIterator ( obj, method )
 */
 function GetIterator(obj, method) {
 
@@ -64,4 +64,26 @@ function GetIterator(obj, method) {
 
     /* Return iterator. */
     return iterator
+}
+
+/*
+* 7.4.5 IteratorStep ( iterator )
+*/
+function IteratorStep(iterator) {
+    result := IteratorNext(iterator);
+    ReturnIfAbrupt(result);
+    done := IteratorComplete(result);
+    ReturnIfAbrupt(done);
+    if (done = true) {
+        return false
+    };
+    return result;
+}
+
+/*
+* 7.4.4 IteratorValue ( iterResult )
+*/
+function IteratorValue(iterResult) {
+    assert Type(iterResult) = "Object";
+    return Get(iterResult, "value");
 }
