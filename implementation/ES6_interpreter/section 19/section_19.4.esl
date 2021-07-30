@@ -80,6 +80,7 @@ function SymbolConstructor(global, NewTarget, strict, args) {
   }; 
 
   /* 3. ReturnIfAbrupt(descString). */
+  @ReturnIfAbrupt(descString);
 
   /* 4. Return a new unique Symbol value whose [[Description]] value is descString. */
   return internalSymbolConstructor(descString, strict)
@@ -95,7 +96,7 @@ function symbolFor(global, this, strict, args) {
   stringKey := ToString(key);
 
   /* 2. ReturnIfAbrupt(stringKey). */
-  /* ReturnIfAbrupt(stringKey); */
+  @ReturnIfAbrupt(stringKey);
 
   /* 3. For each element e of the GlobalSymbolRegistry List */
   i := 0;
