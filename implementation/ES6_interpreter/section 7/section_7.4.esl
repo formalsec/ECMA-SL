@@ -67,7 +67,6 @@ function GetIterator(obj, method) {
 };
 
 /*
-<<<<<<< HEAD
 *   7.4.6 IteratorClose( iterator, completion )
 */
 
@@ -110,8 +109,9 @@ function IteratorClose(iterator, completion) {
 
     /* 10. Return Completion(completion). */
     return completion
-}
-=======
+};
+
+/*
 * 7.4.2 IteratorNext ( iterator, value )
 */
 function IteratorNext(iterator, value) {
@@ -181,4 +181,3 @@ function IteratorStep(iterator) {
     /* 6. Return result. */ 
     return result
 }
->>>>>>> 837b825481ea0343faf37cb8acc496ac6eb79ce3

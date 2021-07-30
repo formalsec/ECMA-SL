@@ -101,7 +101,7 @@ function WeakSetConstructor(global, this, strict, items) {
         };
 
         /* d. Let iter be GetIterator(iterable). */
-        iter := GetIterator(iterable);
+        iter := GetIterator(iterable, null);
 
         /* e. ReturnIfAbrupt(iter). */
         @ReturnIfAbrupt(iter)
