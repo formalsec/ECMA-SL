@@ -143,10 +143,6 @@ function initGlobalObject(strict) {
   MapObject := initMapObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Map", MapObject);
   initMapIteratorPrototype(globalObject, ObjectPrototype, strict);
-
-  /* 23.2 Set */
-  SetObject := initSetObject(globalObject, ObjectPrototype, strict);
-  createBuiltInProperty(globalObject, "Set", SetObject);
   
   return globalObject
 };

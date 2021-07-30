@@ -373,20 +373,10 @@ function setForEachObject(global, this, strict, args) {
     /* a. If e is not empty, then */
     if (!(e = 'empty)) {
       /* i. Let funcResult be Call(callbackfn, T, «e, e, S»). */
-      funcResult := {callbackfn.Call}(null, null, callbackfn, T, [e, e, S])
+      funcResult := {callbackfn.Call}(null, null, callbackfn, T, [e, e, S]);
       
-
       /* ii. ReturnIfAbrupt(funcResult). */
-      /* (means the same thing as:) */
-      /* TODO */
-      /* If funcResult is an abrupt completion, return funcResult. */
-      /*if (isAnAbruptCompletion(funcResult)) {
-        return funcResult
-      }*/
-      /* Else if funcResult is a Completion Record, let funcResult be funcResult.[[value]]. */
-      /*elif () {
-        funcResult := funcResult.value
-      } */
+      @ReturnIfAbrupt(funcResult)
       
     };
 
