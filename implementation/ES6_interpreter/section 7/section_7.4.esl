@@ -45,7 +45,7 @@ function GetIterator(obj, method) {
     /* 2. If method was not passed, then */
     if(method = null) {
         /* a. Let method be GetMethod(obj, @@iterator). */
-        method := GetMethodWSet(obj, obj.IteratorFunction);
+        method := GetMethod(obj, obj.IteratorFunction);
 
         /* b. ReturnIfAbrupt(method). */
         @ReturnIfAbrupt(method)
@@ -64,4 +64,49 @@ function GetIterator(obj, method) {
 
     /* Return iterator. */
     return iterator
+};
+
+/*
+*   7.4.6 IteratorClose( iterator, completion )
+*/
+
+function IteratorClose(iterator, completion) {
+
+    /* 1. Assert: Type(iterator) is Object. */
+    assert(Type(iterator) = "Object");
+
+    /* 2. Assert: completion is a Completion Record. */
+    assert(Type(completion) = "Completion");
+    
+    /* 3. Let return be GetMethod(iterator, "return"). */
+    returnVar := GetMethod(iterator, "return");
+
+    /* 4. ReturnIfAbrupt(return). */
+    @ReturnIfAbrupt(returnVar);
+
+    /* 5. If return is undefined, return Completion(completion). */
+    if (returnVar = 'undefined) {
+        return completion
+    };
+
+    /* 6. Let innerResult be Call(return, iterator, «‍ »). */
+    innerResult := Call(null, null, returnVar, iterator, []);
+
+    /* 7. If completion.[[type]] is throw, return Completion(completion). */
+    if (getCompletionType(completion) = 'throw) {
+        return completion
+    };
+
+    /* 8. If innerResult.[[type]] is throw, return Completion(innerResult). */
+    if (getCompletionType(getCompletionValue(innerResult)) = 'throw) {
+        return innerResult
+    };
+
+    /* 9. If Type(innerResult.[[value]]) is not Object, throw a TypeError exception. */
+    if (!(Type(getCompletionValue(innerResult)) = "Object")) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 10. Return Completion(completion). */
+    return completion
 }
