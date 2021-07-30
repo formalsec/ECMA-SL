@@ -138,6 +138,9 @@ function initGlobalObject(strict) {
   MapObject := initMapObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Map", MapObject);
   initMapIteratorPrototype(globalObject, ObjectPrototype, strict);
+  
+  symbolObject := initSymbolObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Symbol", symbolObject);
 
   /* Extras */
   ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);

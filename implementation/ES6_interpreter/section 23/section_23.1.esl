@@ -1,16 +1,3 @@
-function initMapIteratorPrototype (global, objectPrototype, strict) { 
-  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(prototype);
-
-  nextObject := CreateBuiltInFunctionObject([], "MapIteratorPrototypeNext", global, strict, null);
-  descriptor := newDataPropertyDescriptorFull(nextObject, true, false, true);
-  setJSProperty(prototype, "next", descriptor);
-
-  |MapIteratorPrototype| := prototype; 
-  return null
-}; 
-
-
 function initMapPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
   setAllInternalMethodsOfObject(prototype);
@@ -18,14 +5,24 @@ function initMapPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));
 
   /* 23.1.3.1 Map.prototype.clear ( ) */
-  clearObject := CreateBuiltInFunctionObject([], "mapClear", global, strict, null);
+  clearObject := CreateBuiltInFunctionObject([], "mapClearObject", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(clearObject, true, false, true);
   setJSProperty(prototype, "clear", descriptor);    
 
   /* 23.1.3.3 Map.prototype.delete ( key )*/
   deleteObject := CreateBuiltInFunctionObject(["items"], "mapDeleteObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(deleteObject, true, false, true);
-  setJSProperty(prototype, "delete", descriptor); 
+  setJSProperty(prototype, "delete", descriptor);
+
+  /* 23.1.3.4 Map.prototype.entries ( ) */
+  entriesObject := CreateBuiltInFunctionObject([], "mapEntriesObject", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(entriesObject, true, false, true);
+  setJSProperty(prototype, "entries", descriptor);  
+
+  /* 23.1.3.5 Map.prototype.forEach ( callbackfn [ , thisArg ] ) */
+  forEachObject := CreateBuiltInFunctionObject(["items"], "mapForEachObject", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(forEachObject, true, false, true);
+  setJSProperty(prototype, "forEach", descriptor); 
 
   /* 23.1.3.6 Map.prototype.get ( key ) */
   getObject := CreateBuiltInFunctionObject(["items"], "mapGetObject", global, strict, 0.);
@@ -37,12 +34,17 @@ function initMapPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(hasObject, true, false, true);
   setJSProperty(prototype, "has", descriptor);   
 
+  /* 23.1.3.8 Map.prototype.keys ( ) */
+  keysObject := CreateBuiltInFunctionObject([], "mapKeysObject", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(keysObject, true, false, true);
+  setJSProperty(prototype, "keys", descriptor);
+
   /* 23.1.3.9 Map.prototype.set ( key , value ) */
   setObject := CreateBuiltInFunctionObject(["items"], "mapSetObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(setObject, true, false, true);
   setJSProperty(prototype, "set", descriptor);  
 
-  /* 23.1.3.10get Map.prototype.size */
+  /* 23.1.3.10 get Map.prototype.size */
   sizeObject := CreateBuiltInFunctionObject([], "mapSizeObject", global, strict, 0.);
   descriptor := newGetAccessorPropertyDescriptor(sizeObject);
   setJSProperty(prototype, "size", descriptor); 
@@ -56,18 +58,9 @@ function initMapPrototype(global, objectPrototype, strict) {
 };
 
 
-function getMapPrototype (strict) { 
-  refMap := newPropertyReference(|global|, "Map", strict);
-  MapObject := GetValue(refMap);
-  refMapProto := newPropertyReference(MapObject, "prototype", strict);
-  objectMapProto := GetValue(refMapProto);
-  return objectMapProto
-}; 
-
-
 function initMapObject(global, objectPrototype, strict) {
   objMapPrototype := initMapPrototype(global, objectPrototype, strict);
-  objMapConstructor := CreateFunctionObject(["items"], "MapConstructor", global, strict, 0.);
+  objMapConstructor := CreateFunctionObject(["items"], "MapConstructorAlt", global, strict, 0.);
 
   descriptor := newDataPropertyDescriptorFull(objMapConstructor, true, false, true);
   setJSProperty(objMapPrototype, "constructor", descriptor);
@@ -79,35 +72,123 @@ function initMapObject(global, objectPrototype, strict) {
 };
 
 
-function MapConstructor(global, this, strict, items) {
-  mapPrototype := getMapPrototype(strict);
-
-  print "inside Map constructor with prototype";
-  print mapPrototype.JSProperties; 
-
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
-
-  /* The [[Prototype]] internal property of the newly constructed object
-      is set to the original Array prototype object, the one that is the
-      initial value of Array.prototype (15.4.3.1). */
-  setInternalProperty(newlyConstructedObject, "Prototype", mapPrototype);
-  /* The [[Extensible]] internal property of the newly constructed object
-      is set to true. */
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  /* The [[Class]] internal property of the newly constructed object is
-      set to "Array". */
-  setInternalProperty(newlyConstructedObject, "Class", "Object");
-
-  newlyConstructedObject.MapData := []; 
-
-  newlyConstructedObject.IteratorFunction := "createMapIterator"; 
-
-  return newlyConstructedObject
+function getMapPrototype(strict) { 
+  refMap := newPropertyReference(|global|, "Map", strict);
+  MapObject := GetValue(refMap);
+  refMapProto := newPropertyReference(MapObject, "prototype", strict);
+  objectMapProto := GetValue(refMapProto);
+  return objectMapProto
 }; 
 
 
-function mapClear(global, this, strict, args) {
+/*
+23.1.1.1 Map ( [ iterable ] )
+*/
+function MapConstructor(global, this, strict, items) {
+  iterable := items;
+
+  /* TODO 1. If NewTarget is undefined, throw a TypeError exception. */
+  /* if (NewTarget is undefined) {
+    return TypeErrorConstructorInternal()
+  }; */
+  
+  /* 2. Let map be OrdinaryCreateFromConstructor(NewTarget, "%MapPrototype%", «‍[[MapData]]» ). */
+  map := OrdinaryCreateFromConstructorMap(global, this, strict, iterable);
+  
+  /* 3. ReturnIfAbrupt(map). */
+  @ReturnIfAbruptMap(map);
+
+  /* 4. Set map’s [[MapData]] internal slot to a new empty List. */
+  map.MapData := []; 
+  
+  /* 5. If iterable is not present, let iterable be undefined. */
+  if (iterable = null) {
+    iterable := 'undefined
+  };
+  
+  /* 6. If iterable is either undefined or null, let iter be undefined. */
+  if (iterable = 'undefined || iterable = null) {
+    iter := 'undefined
+  /* 7. Else, */
+  } else {
+    /* a. Let adder be Get(map, "set"). */
+    adder := Get(map, "set");
+    
+    /* b. ReturnIfAbrupt(adder). */
+    @ReturnIfAbruptMap(adder);
+    
+    /* c. If IsCallable(adder) is false, throw a TypeError exception. */
+    if (IsCallable(adder) = false) {
+      throw TypeErrorConstructorInternal()
+    };
+    
+    /* d. TODO Let iter be GetIterator(iterable) */
+    iter := GetIterator(iterable);
+    
+    /* e. ReturnIfAbrupt(iter). */
+    @ReturnIfAbruptMap(iter)
+  };
+  
+  /* 9. TODO Repeat (while true ??) */
+  while(true) {
+    /* a. TODO Let next be IteratorStep(iter). */
+    next := IteratorStep(iter);
+    
+    /* b. ReturnIfAbrupt(next). */
+    ReturnIfAbrupt(next);
+    
+    /* c. If next is false, return map */
+    if (next = false) {
+      return map
+    };
+    
+    /* d. Let nextItem be IteratorValue(next) */
+    nextItem := IteratorValue(next);
+    
+    /* e. ReturnIfAbrupt(nextItem). */
+    @ReturnIfAbruptMap(nextItem);
+    
+    /* f. If Type(nextItem) is not Object,  */
+    if(!(Type(nextItem) = "Object")) {
+      /* i. TODO Let error be Completion{[[type]]: throw, 
+      [[value]]: a newly created TypeError object, [[target]]:empty}. */
+      error := newCompletion("throw", TypeErrorConstructorInternal(), 0.);
+      
+      /* ii. Return IteratorClose(iter, error) */
+      return IteratorClose(iter, error)
+    };
+    
+    /* g.Let k be Get(nextItem, "0") */
+    k := Get(nextItem, "0");
+    
+    /* h. If k in an abrupt completion, return IteratorClose(iter, k) */
+    if (isAnAbruptCompletion(k)) {
+     IteratorClose(iter, k) 
+    };
+    
+    /* i. Let v be Get(nextItem, "1"). */
+    v := Get(nextItem, "1");
+    
+    /* j. TODO If v is an abrupt completion, return IteratorClose(iter, v). */
+    if (isAnAbruptCompletion(v)) {
+      return IteratorClose(iter, v)
+    };
+
+    /* k. Let status be Call(adder, map, «k.[[value]], v.[[value]]»). */
+    status := Call(adder, map, k.value, v.value);
+    
+    /* l. TODO If status is an abrupt completion, return IteratorClose(iter, status). */
+    if (isAnAbruptCompletion(status)) {
+      return IterClose(iter, status)
+    }
+  }
+};
+
+
+/*
+23.1.3.1 Map.prototype.clear ( )
+*/
+function mapClearObject(global, this, strict, args) {
   /* Let M be the this value. */
   M := this;
   
@@ -143,6 +224,9 @@ function mapClear(global, this, strict, args) {
 };
 
 
+/*
+23.1.3.3 Map.prototype.delete ( key )
+*/
 function mapDeleteObject(global, this, strict, args) {
 
   key := l_nth(args, 0);
@@ -193,11 +277,85 @@ function mapDeleteObject(global, this, strict, args) {
 }; 
 
 
+/*
+23.1.3.4 Map.prototype.entries ( )
+*/
+function mapEntriesObject(global, this, strict, args) {
+  /* 1. Let M be the this value. */
+  M := this;
+  /* 2. Return CreateMapIterator(M, "key+value"). */
+  return createMapIterator(M, "key+value")
+};
 
+
+/*
+23.1.3.5 Map.prototype.forEach ( callbackfn [ , thisArg ] )
+*/
+function mapForEachObject(global, this, strict, args) {
+    /* Preparing Args */
+    callbackfn := l_nth(args, 0);
+    if (l_len args > 1) {
+      thisArg := l_nth(args, 1)
+    } else {
+      thisArg := null
+    };
+    
+    /* 1. Let M be the this value. */
+    M := this;
+    
+    /* 2. If Type(M) is not Object, throw a TypeError exception. */
+    if (!(Type(M) = "Object")) {
+      throw TypeErrorConstructorInternal()
+    };
+    
+    /* 3. If M does not have a [[MapData]] internal slot, throw a TypeError exception. */
+    if (!("MapData" in_obj M)) {
+      throw TypeErrorConstructorInternal()
+    };
+    
+    /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+    if (IsCallable(callbackfn) = false) {
+      throw TypeErrorConstructorInternal()
+    }; 
+    
+    /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+    if (!(thisArg = null)) {
+      T := thisArg
+    } else {
+      T := 'undefined
+    };
+    
+    /* 6. Let entries be the List that is the value of M’s [[MapData]] internal slot. */
+    entries := M.MapData;
+    
+    /* 7. Repeat for each Record {[[key]], [[value]]} e that is an element of entries, in original key insertion order */
+    i := 0; 
+    len := l_len(entries);
+    while(i < len) {
+      e := l_nth(entries, i);
+      
+      /* a. If e.[[key]] is not empty, then */
+      if (!(e.key = 'empty)) {
+        
+        /* i. Let funcResult be Call(callbackfn, T, «e.[[value]], e.[[key]], M»). */
+        funcResult := Call(null, null, callbackfn, this, [e.value, e.key, M]);
+
+        /* ii. ReturnIfAbrupt(funcResult). */
+        @ReturnIfAbruptMap(funcResult)
+      };
+
+      i := i + 1
+    };
+    
+    /* 8. Return undefined. */
+    return 'undefined
+};
+
+
+/*
+23.1.3.6 Map.prototype.get ( key )
+*/
 function mapGetObject(global, this, strict, args) {
-
-  print "inside get function";
-
   key := l_nth(args, 0);
 
   /* Let M be the this value. */
@@ -236,11 +394,63 @@ function mapGetObject(global, this, strict, args) {
 }; 
 
 
+/* 
+23.3.3.4 Map.prototype.has ( key ) 
+*/
+function mapHasObject(global, this, strict, args) {
+  
+  key := l_nth(args, 0);
+
+  /* Let M be the this value. */
+  M := this; 
+
+  /* If Type(M) is not Object, throw a TypeError exception. */
+  if (!(Type(M) = "Object")) {
+    throw TypeErrorConstructorInternal()
+  }; 
+
+  /* If M does not have a [[MapData]] internal slot, throw a TypeError exception. */  
+  if (!("MapData" in_obj M)) { 
+    throw TypeErrorConstructorInternal()
+  }; 
+
+  /* Let entries be the List that is the value of M’s [[MapData]] internal slot. */
+  entries := M.MapData; 
+
+  /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
+  i := 0; 
+  len := l_len entries;
+
+  while (i < len) { 
+    p := l_nth(entries, i); 
+
+    /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true */
+    if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)) { 
+      /* return true. */
+      return true 
+    }; 
+
+    i := i + 1
+  }; 
+
+  /* Return false. */
+  return false 
+}; 
+
+
+/*
+23.1.3.8 Map.prototype.keys ( )
+*/
+function mapKeysObject(global, this, strict, args) {
+  M := this;
+  return createMapIterator(M, "key")
+};
+
+
+/* 
+23.1.3.9 Map.prototype.set ( key , value )
+*/
 function mapSetObject(global, this, strict, args) {
-
-  print "inside set function"; 
-  print this; 
-
   key := l_nth(args, 0);
   value := l_nth (args, 1); 
   
@@ -291,6 +501,10 @@ function mapSetObject(global, this, strict, args) {
   return M
 };
 
+
+/*
+23.1.3.10 get Map.prototype.size
+*/
 function mapSizeObject(global, this, strict, args) {
 
   /* Let M be the this value. */
@@ -331,46 +545,6 @@ function mapSizeObject(global, this, strict, args) {
   return (int_to_float count)
 };
 
-function mapHasObject(global, this, strict, args) {
-  
-  key := l_nth(args, 0);
-
-  /* Let M be the this value. */
-  M := this; 
-
-  /* If Type(M) is not Object, throw a TypeError exception. */
-  if (!(Type(M) = "Object")) {
-    throw TypeErrorConstructorInternal()
-  }; 
-
-  /* If M does not have a [[MapData]] internal slot, throw a TypeError exception. */  
-  if (!("MapData" in_obj M)) { 
-    throw TypeErrorConstructorInternal()
-  }; 
-
-  /* Let entries be the List that is the value of M’s [[MapData]] internal slot. */
-  entries := M.MapData; 
-
-  /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
-  i := 0; 
-  len := l_len entries;
-
-  while (i < len) { 
-    p := l_nth(entries, i); 
-
-    /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true */
-    if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)) { 
-      /* return true. */
-      return true 
-    }; 
-
-    i := i + 1
-  }; 
-
-  /* Return false. */
-  return false 
-}; 
-
 
 /*
 23.1.3.11 Map.prototype.values ( )
@@ -385,11 +559,10 @@ function mapValuesObject(global, this, strict, args) {
 };
 
 
-
 /*
 23.1.5.2 CreateMapIterator Abstract Operation
 */
-function createMapIterator (map, kind) { 
+function createMapIterator(map, kind) { 
 
   /* 1. If Type(map) is not Object, throw a TypeError exception. */
   if (!(Type(map) = "Object")) { 
@@ -418,6 +591,21 @@ function createMapIterator (map, kind) {
 };
 
 
+/*
+23.1.3.12Map.prototype [ @@iterator ]( )
+*/
+function initMapIteratorPrototype(global, objectPrototype, strict) { 
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  setAllInternalMethodsOfObject(prototype);
+
+  nextObject := CreateBuiltInFunctionObject([], "MapIteratorPrototypeNext", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(nextObject, true, false, true);
+  setJSProperty(prototype, "next", descriptor);
+
+  |MapIteratorPrototype| := prototype; 
+  return null
+}; 
+
 function createMapIteratorObject() {
 
   newlyConstructedObject := NewECMAScriptObject();
@@ -433,14 +621,13 @@ function createMapIteratorObject() {
   return newlyConstructedObject
 };
 
-
 function isMapIteratorInstance(obj) {
   return ("Map" in_obj obj) &&& ("MapNextIndex" in_obj obj) &&& ("MapIterationKind" in_obj obj)
 };
 
 
 /* 23.1.5.2.1 %MapIteratorPrototype%.next ( ) */
-function MapIteratorPrototypeNext (global, this, strict, args) { 
+function MapIteratorPrototypeNext(global, this, strict, args) { 
   /* 1. Let O be the this value. */
   O := this; 
 
@@ -469,6 +656,7 @@ function MapIteratorPrototypeNext (global, this, strict, args) {
   }; 
 
   /* 8. Assert: m has a [[MapData]] internal slot.*/
+  assert ("MapData" in_obj m);
 
   /* 9. Let entries be the List that is the value of the [[MapData]] internal slot of m.*/
   entries := m.MapData; 
@@ -494,6 +682,7 @@ function MapIteratorPrototypeNext (global, this, strict, args) {
         result := e.value 
       } else {
         /* Assert: itemKind is "key+value".*/
+        assert (itemKind = "key+value"); 
         /* Let result be CreateArrayFromList(«e.[[key]], e.[[value]]»). */
         result :=  CreateArrayFromList( [e.key, e.value ] )
       };
@@ -508,4 +697,66 @@ function MapIteratorPrototypeNext (global, this, strict, args) {
 
   /* 12. Return CreateIterResultObject(undefined, true).*/
   return CreateIterResultObject('undefined, true)
+};
+
+/* Temporary Code */
+
+/*
+  Macro for ReturnIfAbrupt()
+*/
+macro ReturnIfAbruptMap(arg) {
+  if (!(Type(arg) = "Completion")) {
+  } elif (isAnAbruptCompletion(arg)) {
+    return arg
+  } else {
+    arg := getCompletionValue(arg)
+  }
+};
+
+/*
+  OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList ) 
+*/
+function OrdinaryCreateFromConstructorMap(global, this, strict, items) {
+  mapPrototype := getMapPrototype(strict);
+
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+  /* The [[Prototype]] internal property of the newly constructed object
+      is set to the original Array prototype object, the one that is the
+      initial value of Array.prototype (15.4.3.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", mapPrototype);
+  /* The [[Extensible]] internal property of the newly constructed object
+      is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  /* The [[Class]] internal property of the newly constructed object is
+      set to "Array". */
+  setInternalProperty(newlyConstructedObject, "Class", "Object");
+
+  return newlyConstructedObject
+};
+
+/*
+  OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList ) 
+*/
+function MapConstructorAlt(global, this, strict, items) {
+  mapPrototype := getMapPrototype(strict);
+
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+  /* The [[Prototype]] internal property of the newly constructed object
+      is set to the original Array prototype object, the one that is the
+      initial value of Array.prototype (15.4.3.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", mapPrototype);
+  /* The [[Extensible]] internal property of the newly constructed object
+      is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  /* The [[Class]] internal property of the newly constructed object is
+      set to "Array". */
+  setInternalProperty(newlyConstructedObject, "Class", "Object");
+
+  newlyConstructedObject.MapData := []; 
+
+  return newlyConstructedObject
 }

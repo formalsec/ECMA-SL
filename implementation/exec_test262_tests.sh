@@ -568,6 +568,7 @@ function process() {
 
   #echo "3. Create the file that will be compiled from \"Plus\" to \"Core\" in step 3.4."
   if [ $ES6 -eq 1 ]; then
+    echo "GOING TO RUN ES6"
     sed '1d' "ES6_interpreter/plus.esl" >> "output/test262_$now.esl"
   else
     sed '1d' "ES5_interpreter/plus.esl" >> "output/test262_$now.esl"

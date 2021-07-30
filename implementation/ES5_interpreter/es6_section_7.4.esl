@@ -32,4 +32,36 @@ function CreateIterResultObject ( value, done ) {
 
     /* 4. Return obj. */
     return obj 
+};
+
+/*
+*   7.4.1 GetIterator ( obj, method )
+*/
+function GetIterator(obj, method) {
+
+    /* 1. ReturnIfAbrupt(obj). */
+    @ReturnIfAbrupt(obj); 
+
+    /* 2. If method was not passed, then */
+    if(method = null) {
+        /* a. Let method be GetMethod(obj, @@iterator). */
+        method := GetMethodWSet(obj, obj.IteratorFunction);
+
+        /* b. ReturnIfAbrupt(method). */
+        @ReturnIfAbrupt(method)
+    }; 
+
+    /* 3. Let iterator be Call(method,obj). */
+    iterator := Call(null, null, method, obj, []); 
+    
+    /* 4. ReturnIfAbrupt(iterator). */
+    @ReturnIfAbrupt(obj); 
+
+    /* If Type(iterator) is not Object, throw a TypeError exception. */
+    if (!(Type(iterator) = "Object")) {
+        throw TypeErrorConstructorInternal() 
+    }; 
+
+    /* Return iterator. */
+    return iterator
 }
