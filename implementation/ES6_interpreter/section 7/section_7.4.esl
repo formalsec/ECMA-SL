@@ -45,6 +45,7 @@ function GetIterator(obj, method) {
     /* 2. If method was not passed, then */
     if(method = null) {
         /* a. Let method be GetMethod(obj, @@iterator). */
+        method := GetMethod(obj, obj.IteratorFunction);
 
         /* b. ReturnIfAbrupt(method). */
         @ReturnIfAbrupt(method)
