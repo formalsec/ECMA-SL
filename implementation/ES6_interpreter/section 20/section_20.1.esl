@@ -1,0 +1,232 @@
+/* 20.1 Number Objects */
+function initNumberObject(globalObject, ObjectPrototype, strict) {
+  numberPrototype := initNumberPrototype(ObjectPrototype);
+  numberConstructor := initNumberConstructor(numberPrototype, globalObject, strict);
+
+  return numberConstructor
+};
+
+
+/* 20.1.3 Properties of the Number Prototype Object */
+function initNumberPrototype(global, objectPrototype, strict) {
+  numberPrototypeObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(numberPrototypeObject);
+
+  /* The Number prototype object is itself a Number object (its [[Class]] is "Number") whose value is +0. */
+  setInternalProperty(numberPrototypeObject, "Class", "Number");
+  setInternalProperty(numberPrototypeObject, "PrimitiveValue", 0.);
+  
+  /* The value of the [[Prototype]] internal property of the Number prototype object is the standard built-in Object prototype object (15.2.4). */
+  setInternalProperty(numberPrototypeObject, "Prototype", objectPrototypeObject);
+
+  /* 15.7.4.1 Number.prototype.constructor */
+  /* The initial value of Number.prototype.constructor is the built-in Number constructor. */
+  createBuiltInProperty(numberPrototypeObject, "constructor", NumberConstructor);
+
+  /* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
+  toString := CreateBuiltInFunctionObject([ "radix" ], "numberToString", globalObject, strict, 0.);
+  createBuiltInProperty(numberPrototypeObject, "toString", toString);
+
+  /* 15.7.4.3 Number.prototype.toLocaleString() */
+  toLocaleString := CreateBuiltInFunctionObject([], "numberToLocaleString", globalObject, strict, null);
+  createBuiltInProperty(numberPrototypeObject, "toLocaleString", toLocaleString);
+
+  /* 15.7.4.4 Number.prototype.valueOf ( ) */
+  valueOf := CreateBuiltInFunctionObject([], "NumberPrototypeValueOf", globalObject, strict, null);
+  createBuiltInProperty(numberPrototypeObject, "valueOf", valueOf);
+
+  /* TODO */
+  /* 15.7.4.5 Number.prototype.toFixed (fractionDigits) */
+  toFixed := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToFixed", globalObject, strict, null);
+  createBuiltInProperty(numberPrototypeObject, "toFixed", toFixed);
+
+  /* TODO */
+  /* 15.7.4.6 Number.prototype.toExponential (fractionDigits) */
+  toExponential := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToExponential", globalObject, strict, null);
+  createBuiltInProperty(numberPrototypeObject, "toExponential", toExponential);
+
+  /* TODO */
+  /* 15.7.4.7 Number.prototype.toPrecision (precision) */
+  toPrecision := CreateBuiltInFunctionObject(["precision"], "NumberPrototypeToPrecision", globalObject, strict, null);
+  createBuiltInProperty(numberPrototypeObject, "toPrecision", toPrecision);
+
+  return prototype
+};
+
+
+function getNumberPrototype(strict) { 
+  refNumber := newPropertyReference(|global|, "Number", strict);
+  NumberObject := GetValue(refNumber);
+  refNumberProto := newPropertyReference(NumberObject, "prototype", strict);
+  objectNumberProto := GetValue(refNumberProto);
+  return objectNumberProto
+}; 
+
+
+/* 20.1.1.1 Number ( [ value ] ) */
+function NumberConstructor(global, this, strict, items) {
+  NewTarget := this;
+  
+  /* 1. If no arguments were passed to this function invocation, let n be +0. */
+  if (value = null) {
+    return 0.
+  
+  /* 2. Else, let n be ToNumber(value). */
+  } else {
+    n := ToNumber(value);
+    
+    /* 3. ReturnIfAbrupt(n). */
+    @ReturnIfAbrupt(n);
+    
+    /* 4. If NewTarget is undefined, return n. */
+    if (NewTarget = 'undefined) {
+      return n;
+    };
+    
+    /* 5. Let O be OrdinaryCreateFromConstructor(NewTarget, "%NumberPrototype%", «[[NumberData]]» ). */
+    O := OrdinaryCreateFromConstructorNumber(NewTarget, this, strict, items);
+    
+    /* 6. ReturnIfAbrupt(O). */
+    @ReturnIfAbrupt(O);
+    
+    /* 7. Set the value of O’s [[NumberData]] internal slot to n. */
+    O.NumberData := n;
+    
+    /* 8. Return O. */
+    return O;
+  }
+};
+
+
+/* 20.1.1 The Number Constructor */
+function initNumberConstructor(NumberPrototype, globalObject, strict) {
+  /* 20.1.2 Properties of the Number Constructor */
+  NumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", globalObject, strict, 0.);
+
+  /* The value of the [[Prototype]] internal slot of the Number constructor is the intrinsic object %FunctionPrototype% */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "prototype", NumberPrototype, false, false, false);
+
+  /* TODO 20.1.2.2 Number.isFinite ( number ) */
+  isFiniteObject := CreateBuiltInFunctionObject(["items"], "numberConstructorIsfinite", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(isFiniteObject, true, false, true);
+  setJSProperty(prototype, "isFinite", descriptor);
+
+  /* 20.1.2.4 Number.isNaN ( number ) */
+  isNaNObject := CreateBuiltInFunctionObject(["items"], "numberConstructorIsNaN", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(isNaNObject, true, false, true);
+  setJSProperty(prototype, "isNaN", descriptor);
+
+  /* 20.1.2.5 Number.isSafeInteger ( number ) */
+  isSafeIntegerObject := CreateBuiltInFunctionObject(["items"], "numberConstructorIsSafeInteger", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(isSafeIntegerObject, true, false, true);
+  setJSProperty(prototype, "isNaN", descriptor);
+
+  /* TODO 20.1.2.6 Number.MAX_SAFE_INTEGER */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_SAFE_INTEGER", MAX_SAFE_INTEGER, false, false, false);
+
+  /* 20.1.2.7 Number.MAX_VALUE */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_VALUE", MAX_VALUE, false, false, false);
+
+  /* 20.1.2.8 Number.MIN_SAFE_INTEGER */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MIN_SAFE_INTEGER", MIN_SAFE_INTEGER, false, false, false);
+
+  /* 20.1.2.9 Number.MIN_VALUE */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MIN_VALUE", MIN_VALUE, false, false, false);
+
+  /* 20.1.2.10 Number.NaN */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NaN", NaN, false, false, false);
+
+  /* 20.1.2.11 Number.NEGATIVE_INFINITY */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NEGATIVE_INFINITY", -Infinity, false, false, false);
+
+  /* TODO 20.1.2.12 Number.parseFloat ( string ) */
+
+  /* TODO 20.1.2.13 Number.parseInt ( string, radix ) */
+
+  /* 20.1.2.14 Number.POSITIVE_INFINITY */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "POSITIVE_INFINITY", Infinity, false, false, false);
+
+  return NumberConstructor
+};
+
+
+/* 20.1.2.2 Number.isFinite ( number ) */
+function numberConstructorIsFinite(global, this, strict, args) {
+  number := l_nth(args, 0);
+  /* 1. If Type(number) is not Number, return false. */ 
+  if (!(Type(number) = "Number")) {
+    return false
+  };
+  /* 2. If number is NaN, +∞, or −∞, return false. */ 
+  if (number = NaN || number = Infinity || number = -Infinity) {
+    return false;
+  };
+  /* 3. Otherwise, return true. */ 
+  return true;
+}
+
+
+/* 20.1.2.2 Number.isFinite ( number ) */
+function numberConstructorIsNaN(global, this, strict, args) {
+  number := l_nth(args, 0);
+  /* 1. If Type(number) is not Number, return false. */
+  if (!(Type(number) = "Number")) {
+    return false
+  };
+  /* 2. If number is NaN, return true. */
+  if (number = NaN) {
+    return true
+  };
+  /* 3. Otherwise, return false. */
+  return false
+}
+
+
+/* 20.1.2.5 Number.isSafeInteger ( number ) */
+function numberConstructorIsSafeInteger(global, this, strict, args) {
+  number := l_nth(args, 0);
+  /* 1. If Type(number) is not Number, return false. */
+  if (!(Type(number) = "Number")) {
+    return false
+  };
+  /* 2. If number is NaN, +∞, or −∞, return false. */
+  if (number = NaN || number = Infinity || number = -Infinity) {
+    return false
+  };
+  /* 3. Let integer be ToInteger(number). */
+  integer := ToInteger(number);
+  /* 4. If integer is not equal to number, return false. */
+  if (!(integer = number)) {
+    return false
+  };
+  /* 5. TODO If abs(integer) ≤ 2^53 − 1, return true. */
+  if (abs(integer) <=  (2^53 - 1)) {
+    return true
+  };
+  /* 6. Otherwise, return false. */
+  return false
+}
+
+
+/* Temporary Code */
+
+/* OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList ) */
+function OrdinaryCreateFromConstructorNumber(global, this, strict, items) {
+  numberPrototype := getNumberPrototype(strict);
+
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+  /* The [[Prototype]] internal property of the newly constructed object
+      is set to the original Array prototype object, the one that is the
+      initial value of Array.prototype (15.4.3.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", numberPrototype);
+  /* The [[Extensible]] internal property of the newly constructed object
+      is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  /* The [[Class]] internal property of the newly constructed object is
+      set to "Array". */
+  setInternalProperty(newlyConstructedObject, "Class", "Object");
+
+  return newlyConstructedObject
+}

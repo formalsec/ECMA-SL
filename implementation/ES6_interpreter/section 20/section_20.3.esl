@@ -411,20 +411,20 @@ function initDateConstructor(DatePrototype, globalObject, strict) {
   /* Besides the internal properties and the length property (whose value is 7), the Date constructor has the
      following properties: */
 
-  /* 15.9.4.1 Date.prototype */
+  /* 15.9.4.1 -> 20.3.3.3 Date.prototype */
   /* The initial value of Date.prototype is the built-in Date prototype object (15.9.5). */
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(DateConstructor, "prototype", DatePrototype, false, false, false);
 
-  /* 15.9.4.2 Date.parse (string) */
+  /* 15.9.4.2 -> 20.3.3.2  Date.parse (string) */
   parse := CreateBuiltInFunctionObject([ "string" ], "DateParse", globalObject, strict, null);
   createBuiltInProperty(DateConstructor, "parse", parse);
 
-  /* 15.9.4.3 Date.UTC (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ) */
+  /* 15.9.4.3 -> 20.3.3.4 Date.UTC (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ) */
   UTC := CreateBuiltInFunctionObject(["year", "month", "date", "hours", "minutes", "seconds", "ms"], "DateUTC", globalObject, strict, 2.);
   createBuiltInProperty(DateConstructor, "UTC", UTC);
 
-  /* 15.9.4.4 Date.now ( ) */
+  /* 15.9.4.4 -> 20.3.3.1  Date.now ( ) */
   now := CreateBuiltInFunctionObject([], "DateNow", globalObject, strict, null);
   createBuiltInProperty(DateConstructor, "now", now);
 
@@ -892,7 +892,7 @@ function fillDatePrototype(datePrototypeObject, DateConstructor, globalObject, s
 /* 15.9.5.8 Date.prototype.valueOf ( ) */
 function DatePrototypeValueOf(globalObject, this, strict, args) {
   /* The valueOf function returns a Number, which is this time value. */
-   return getInternalProperty(this, "PrimtiveValue")
+   return getInternalProperty(this, "PrimitiveValue")
 };
 
 /* 15.9.4.2 Date.parse (string) */
@@ -955,15 +955,64 @@ function DateNow(globalObject, this, strict, args) {
   return 0.
 };
 
+/**
+ *
+ * 20.3.4.35 Date.prototype.toDateString ( )
+ * 
+ * This function returns a String value. 
+ * The contents of the String are implementation-dependent, 
+ * but are intended to represent the “date” portion of the Date in the current time zone 
+ * in a convenient, human-readable form.
+ * 
+ */
+/*function DatePrototypeToDateString(globalObject, this, strict, args) {*/
+function toDateString(tv){
+   print("in toDateString");
+   /*tv := getInternalProperty(this, "PrimitiveValue");*/
 
-/* 15.9.5.2 Date.prototype.toString ( ) */
+   /* 1. Assert: Type(tv) is Number. */
+   assert((Type(tv) = "Number"));
+
+   /* 2. If tv is NaN, return "Invalid Date". */
+   if (tv = NaN) {
+      return "Invalid Date"
+   };
+   
+   /* 3. TODO Return an implementation-dependent String value that represents tv as a date and time in the current time zone using a convenient, human-readable form.*/
+   return "tv: " + tv
+};
+
+
+/**
+ * 20.3.4.41  Date.prototype.toString ( ) 
+ *
+ * NOTE 1 For any Date object d whose milliseconds amount is zero, the result of Date.parse(d.toString()) is equal to d.valueOf(). See 20.3.3.2.
+ *
+ * NOTE 2 The toString function is intentionally generic; it does not require that its this value be a Date object. Therefore, it can be transferred to other kinds of objects for use as a method.
+ *
+ */
 function DatePrototypeToString(globalObject, this, strict, args) {
-  /* This function returns a String value. The contents of the String are implementation-dependent, but are
-     intended to represent the Date in the current time zone in a convenient, human-readable form. */
-  /* TODO */
-  return ""
-  /* NOTE For any Date value d whose milliseconds amount is zero, the result of Date.parse(d.toString()) is
-          equal to d.valueOf(). See 15.9.4.2. */
+   print("in DatePrototypeToString");
+  
+   /* 1. Let O be this Date object. */
+   O := this;
+
+   print("DateValue in_obj O");
+   print("DateValue" in_obj O);
+   /* 2. If O does not have a [[DateValue]] internal slot, then */
+   if (!("DateValue" in_obj O)) {
+      /* a. Let tv be NaN. */
+      tv := NaN
+   }
+   /* 3. Else, */
+   else{
+      /* a. Let tv be this time value. */
+      tv := getInternalProperty(this, "PrimitiveValue")
+   };
+
+   /* 4. Return ToDateString(tv). */
+   return  toDateString(tv)
+
 };
 
 /* Auxiliary functions */
