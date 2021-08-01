@@ -14,13 +14,13 @@ function GetMethod(O, P) {
     /* 1.Assert: IsPropertyKey(P) is true. */
     
     /* 2. Let func be GetV(O, P). */
-    func := GetES6(O, P); 
+    func := GetES6(O, P);
 
     /* 3. ReturnIfAbrupt(func). */
     @ReturnIfAbrupt(func);
 
     /* 4. If func is either undefined or null, return undefined. */
-    if ((func = 'undefined) || (fun = 'null)) {
+    if ((func = 'undefined) || (func = 'null)) {
         return 'undefined
     }; 
 
