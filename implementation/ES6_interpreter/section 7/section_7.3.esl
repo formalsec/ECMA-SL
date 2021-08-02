@@ -31,5 +31,30 @@ function GetMethod(O, P) {
 
     /* 6. Return func. */
     return func 
+}; 
+
+function Invoke(O, P, argumentsList) {
+  func := GetES6(O, P);
+  return Call(null, null, func, O, argumentsList)
+}; 
+
+function CreateArrayFromList(elements) {
+  arrayPrototype := getArrayPrototype(false);
+  array := internalNewArray(arrayPrototype, []);
+  len := l_len elements;
+  i := 0;
+  while (i < len) {
+    vl := l_nth (elements, i);
+
+    if (!(vl = null)) {
+      descriptor := newDataPropertyDescriptorFull(vl, true, true, true);
+      {array.DefineOwnProperty}(array, ToString(ToUint32(int_to_float i)), descriptor, false)
+    };
+    i := i + 1
+  };
+  descriptor := newDataPropertyDescriptorFull(ToUint32(int_to_float i), true, false, false);
+  {array.DefineOwnProperty}(array, "length", descriptor, false);
+
+  return array
 }
 

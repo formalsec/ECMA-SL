@@ -45,12 +45,16 @@ function GetIterator(obj, method) {
     /* 2. If method was not passed, then */
     if(method = null) {
         /* a. Let method be GetMethod(obj, @@iterator). */
+        print "ICHECKPOINT 3.1";
+        print obj.IteratorFunction; 
         method := GetMethod(obj, obj.IteratorFunction);
-        
+
+        print "ICHECKPOINT 3.2";
         /* b. ReturnIfAbrupt(method). */
-        @ReturnIfAbrupt(method);
+        @ReturnIfAbrupt(method)
     }; 
 
+    print "ICHECKPOINT 3.3";
     /* 3. Let iterator be Call(method,obj). */
     iterator := Call(null, null, method, obj, []); 
     
@@ -125,7 +129,7 @@ function IteratorNext(iterator, value) {
         result := Invoke(iterator, "next", [value])
     };
     /* 3. ReturnIfAbrupt(result). */
-    ReturnIfAbrupt(result);
+    @ReturnIfAbrupt(result);
     /* 4. If Type(result) is not Object, throw a TypeError exception. */
     if (!(Type(result) = "Object")) {
         throw TypeErrorConstructorInternal()
@@ -162,16 +166,16 @@ function IteratorValue(iterResult) {
 function IteratorStep(iterator) {
     
     /* 1. Let result be IteratorNext(iterator). */
-    result := IteratorNext(iterator);
+    result := IteratorNext(iterator, null);
     
     /* 2. ReturnIfAbrupt(result). */
-    ReturnIfAbrupt(result);
+    @ReturnIfAbrupt(result);
     
     /* 3. Let done be IteratorComplete(result). */
     done := IteratorComplete(result);
     
     /* 4. ReturnIfAbrupt(done). */
-    ReturnIfAbrupt(done);
+    @ReturnIfAbrupt(done);
     
     /* 5. If done is true, return false. */
     if (done = true) {

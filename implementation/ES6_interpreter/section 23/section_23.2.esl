@@ -17,15 +17,24 @@ function initSetPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(addObject, true, false, true);
   setJSProperty(prototype, "add", descriptor);
 
+  /* TODO 23.2.2.2 get Set [ @@species ] */
+
   /* 23.2.3.2 Set.prototype.clear ( ) */
   clearObject := CreateBuiltInFunctionObject([], "setClearObject", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(clearObject, true, false, true);
   setJSProperty(prototype, "clear", descriptor);   
 
+  /*23.2.3.3 Set.prototype.constructor */
+
   /* 23.2.3.4 Set.prototype.delete ( value ) */
   deleteObject := CreateBuiltInFunctionObject(["items"], "setDeleteObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(deleteObject, true, false, true);
   setJSProperty(prototype, "delete", descriptor);
+
+  /* 23.2.3.5 Set.prototype.entries ( ) */
+  entriesObject := CreateBuiltInFunctionObject([], "setEntriesObject", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(entriesObject, true, false, true);
+  setJSProperty(prototype, "entries", descriptor);
 
 
   /* 23.2.3.6 Set.prototype.forEach ( callbackfn [ , thisArg ] ) */
@@ -39,10 +48,29 @@ function initSetPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(hasObject, true, false, true);
   setJSProperty(prototype, "has", descriptor);
 
+  /* 23.2.3.8 Set.prototype.keys ( ) */
+  keysObject := CreateBuiltInFunctionObject([], "setKeysObject", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(keysObject, true, false, true);
+  setJSProperty(prototype, "keys", descriptor);
+
+
   /* 23.2.3.9 get Set.prototype.size */
   sizeObject := CreateBuiltInFunctionObject([], "setSizeObject", global, strict, 0.);
   descriptor := newGetAccessorPropertyDescriptor(sizeObject);
   setJSProperty(prototype, "size", descriptor); 
+  
+
+  /* 23.2.3.10 Set.prototype.values ( ) */
+  valuesObject := CreateBuiltInFunctionObject([], "setValuesObject", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(valuesObject, true, false, true);
+  setJSProperty(prototype, "values", descriptor);
+
+  /* TODO 23.2.3.11 Set.prototype [ @@iterator ] ( ) */
+
+  /* TODO 23.2.3.12 Set.prototype [ @@toStringTag ] */
+
+
+  
   return prototype
 };
 
@@ -72,7 +100,35 @@ function initSetObject(global, objectPrototype, strict) {
 
   return objSetConstructor
 };
+/*
 
+23.2.1.1 Set ( [ iterable ] )
+
+When the Set function is called with optional argument iterable the following steps are taken:
+
+    If NewTarget is undefined, throw a TypeError exception.
+    Let set be OrdinaryCreateFromConstructor(NewTarget, "%SetPrototype%", «‍[[SetData]]» ).
+    ReturnIfAbrupt(set).
+    Set set’s [[SetData]] internal slot to a new empty List.
+    If iterable is not present, let iterable be undefined.
+    If iterable is either undefined or null, let iter be undefined.
+    Else,
+        Let adder be Get(set, "add").
+        ReturnIfAbrupt(adder).
+        If IsCallable(adder) is false, throw a TypeError exception.
+        Let iter be GetIterator(iterable).
+        ReturnIfAbrupt(iter).
+    If iter is undefined, return set.
+    Repeat
+        Let next be IteratorStep(iter).
+        ReturnIfAbrupt(next).
+        If next is false, return set.
+        Let nextValue be IteratorValue(next).
+        ReturnIfAbrupt(nextValue).
+        Let status be Call(adder, set, «nextValue.[[value]]»).
+        If status is an abrupt completion, return IteratorClose(iter, status).
+
+*/
 /**
  * 23.2.1 The Set Constructor
  * 
@@ -83,7 +139,7 @@ function initSetObject(global, objectPrototype, strict) {
  * Subclass constructors that intend to inherit the specified Set behaviour must include 
  * a super call to the Set constructor to create and initialize the subclass instance
  * with the internal state necessary to support the Set.prototype built-in methods.
- */
+ */ /* TODO */
 function SetConstructor(global, this, strict, items) {
   setPrototype := getSetPrototype(strict);
 
@@ -106,6 +162,23 @@ function SetConstructor(global, this, strict, items) {
   return newlyConstructedObject
 };
 
+/**
+ *
+ * 23.2.2 Properties of the Set Constructor
+ * 
+ * The value of the [[Prototype]] internal slot of the Set constructor is the intrinsic object %FunctionPrototype% (19.2.3).
+ * 
+ * Besides the length property (whose value is 0), the Set constructor has the following properties:
+ */
+
+/**
+ * 23.2.2.1 Set.prototype
+ * 
+ * The initial value of Set.prototype is the intrinsic %SetPrototype% object (23.2.3).
+ * 
+ * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.
+ *
+*/
 
 /**
  * 23.2.2.2 get Set [ @@species ]
@@ -306,29 +379,23 @@ function setDeleteObject(global, this, strict, args) {
 /**
  * 
  * 23.2.3.5 Set.prototype.entries ( )
- * 
- * The following steps are taken:
- * 
- *     Let S be the this value.
- *     Return CreateSetIterator(S, "key+value").
- * 
- * NOTE For iteration purposes, a Set appears similar to a Map where each entry has the same value for its key and value.
+ *
+ * NOTE For iteration purposes, a Set appears similar to a Set where each entry has the same value for its key and value.
  * 
  */
+function setEntriesObject(global, this, strict, args) {
+  print("in setEntriesObject");
+  /* 1. Let S be the this value. */
+  S := this;
 
+  /* 2. Return CreateSetIterator(S, "key+value"). */
+  return createSetIterator(S, "key+value")
+};
 
 /**
+ *
  * 23.2.3.6 Set.prototype.forEach ( callbackfn [ , thisArg ] )
  * 
- * When the forEach method is called with one or two arguments, the following steps are taken:
- *
- *     
- *     Repeat for each e that is an element of entries, in original insertion order
- *         If e is not empty, then
- *             Let funcResult be Call(callbackfn, T, «e, e, S»).
- *             ReturnIfAbrupt(funcResult).
- *     Return undefined.
- *
  */
 function setForEachObject(global, this, strict, args) {
   callbackfn := l_nth(args, 0);
@@ -438,9 +505,16 @@ function setHasObject(global, this, strict, args) {
  *
  * The initial value of the keys property is the same function object as the initial value of the values property.
  *
- * NOTE For iteration purposes, a Set appears similar to a Map where each entry has the same value for its key and value.
+ * NOTE For iteration purposes, a Set appears similar to a Set where each entry has the same value for its key and value.
  *
-*/
+ */
+function setKeysObject(global, this, strict, args) {
+  /* 1. Let S be the this value. */
+  S := this;
+  
+  /* 2. Return CreateSetIterator(S, "value"). */
+  return createSetIterator(S, "value")
+};
 
 /**
  * 
@@ -487,4 +561,218 @@ function setSizeObject(global, this, strict, args) {
   
   /* 7. return count */
   return (int_to_float(count))
+};
+
+/**
+ * 
+ * 23.2.3.10 Set.prototype.values ( )
+ * 
+ * The following steps are taken:
+ * 
+ *     Let S be the this value.
+ *     Return CreateSetIterator(S, "value").
+ * 
+ * 
+ */
+function setValuesObject(global, this, strict, args) {
+  /* 1. Let S be the this value. */
+  S := this;
+  
+  /* 2. Return CreateSetIterator(S, "value"). */
+  return createSetIterator(S, "value")
+};
+
+/**
+ * 
+ * 23.2.3.11 Set.prototype [ @@iterator ] ( )
+ * 
+ * The initial value of the @@iterator property is the same function object as the initial value of the values property.
+ */
+
+
+/**
+ * 23.2.3.12 Set.prototype [ @@toStringTag ]
+ * 
+ * The initial value of the @@toStringTag property is the String value "Set".
+ * 
+ * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true }.
+ */
+ 
+ 
+/**
+ * 23.2.4 Properties of Set Instances
+ * 
+ * Set instances are ordinary objects that inherit properties from the Set prototype. Set instances also have a [[SetData]] internal slot.
+ * 
+ */
+
+/**
+ *  
+ * 23.2.5.1 CreateSetIterator Abstract Operation
+ * 
+ * Several methods of Set objects return Iterator objects.
+ * The abstract operation CreateSetIterator with arguments set and kind is used to create such iterator objects.
+ *
+ * 
+*/
+function createSetIterator(set, kind) {
+  print("in createSetIterator");
+  /* 1. If Type(set) is not Object, throw a TypeError exception. */
+  if (!(Type(set) = "Object")) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 2. If set does not have a [[SetData]] internal slot, throw a TypeError exception. */
+  if (!("SetData" in_obj set )) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 3. Let iterator be ObjectCreate(%SetIteratorPrototype%, «‍[[IteratedSet]], [[SetNextIndex]], [[SetIterationKind]]»). */  
+  iterator := createSetIteratorObject();
+
+  /* 4. Set iterator’s [[IteratedSet]] internal slot to set. */
+  iterator.IteratedSet := set;
+
+  /* 5. Set iterator’s [[SetNextIndex]] internal slot to 0. */
+  iterator.SetNextIndex := 0;
+  
+  /* 6. Set iterator’s [[SetIterationKind]] internal slot to kind. */
+  iterator.SetIterationKind := kind;
+  
+  /* 7. Return iterator. */
+  return iterator
+};
+
+/**
+ * 23.2.5.2 The %SetIteratorPrototype% Object
+ * 
+ * All Set Iterator Objects inherit properties from the %SetIteratorPrototype% intrinsic object.
+ * The %SetIteratorPrototype% intrinsic object is an ordinary object and its 
+ * [[Prototype]] internal slot is the %IteratorPrototype% intrinsic object (25.1.2).
+ * In addition, %SetIteratorPrototype% has the following properties:
+ */
+
+
+/**
+ *   23.2.5.2.1 %SetIteratorPrototype%.next ( )
+ *    
+ */
+ function setIteratorPrototypeNext(global, this, strict, args) {
+    print("in setIteratorPrototypeNext");
+    
+    /* 1. Let O be the this value. */
+    O := this;
+    
+    /* 2. If Type(O) is not Object, throw a TypeError exception. */
+    if (!(Type(O) = "Object")){
+      throw TypeErrorConstructorInternal()
+    };
+
+    /* 3. If O does not have all of the internal slots of a Set Iterator Instance (23.2.5.3), throw a TypeError exception. */
+    if (!(isSetIteratorInstance(O))){
+      throw TypeErrorConstructorInternal()
+    };
+
+    /* 4. Let s be the value of the [[IteratedSet]] internal slot of O. */
+    s := O.IteratedSet;
+
+    /* 5. Let index be the value of the [[SetNextIndex]] internal slot of O. */
+    index := O.SetNextIndex;
+    
+    /* 6. Let itemKind be the value of the [[SetIterationKind]] internal slot of O. */
+    itemKind := O.SetIterationKind;
+
+    /* 7. If s is undefined, return CreateIterResultObject(undefined, true). */
+    if (s = 'undefined){
+      return CreateIterResultObject(undefined, true)
+    };
+    
+    /* 8. Assert: s has a [[SetData]] internal slot. */
+    assert ("SetData" in_obj s);
+
+    /* 9. Let entries be the List that is the value of the [[SetData]] internal slot of s. */
+    entries := s.SetData;
+
+    /* 10. Repeat while index is less than the total number of elements of entries. The number of elements must be redetermined each time this method is evaluated. */
+    len := l_len(entries);
+    while(index < len) {
+      /* a. Let e be entries[index]. */
+      e := l_nth(entries, index);
+      
+      /* b. Set index to index+1; */
+      index := index + 1;
+
+      /* c. Set the [[SetNextIndex]] internal slot of O to index. */
+      O.SetNextIndex := index;
+
+      /* d. If e is not empty, then */
+      if(!(e = 'empty)) {
+
+        /* i. If itemKind is "key+value", then */
+        if (itemKind = "key+value") {
+
+          /* 1. Return CreateIterResultObject(CreateArrayFromList(«e, e»), false). */
+          return CreateIterResultObject(CreateArrayFromList([e,e]), false)
+        };
+
+        /* ii. Return CreateIterResultObject(e, false). */  
+        return CreateIterResultObject(e, false)
+      }
+      
+    };
+    
+    /* 11. Set the [[IteratedSet]] internal slot of O to undefined. */
+    O.IteratedSet = 'undefined;
+
+    /* 12. Return CreateIterResultObject(undefined, true). */
+    return CreateIterResultObject('undefined, true) 
+
+};
+
+/**
+ * 
+ * 23.2.5.2.2 %SetIteratorPrototype% [ @@toStringTag ]
+ * 
+ * The initial value of the @@toStringTag property is the String value "Set Iterator".
+ * 
+ * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true }.
+ * 
+ */
+
+function initSetIteratorPrototype(global, objectPrototype, strict) { 
+  print("in initSetIteratorPrototype");
+  
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  setAllInternalMethodsOfObject(prototype);
+
+  /* 23.2.5.2.1 %SetIteratorPrototype%.next ( )*/
+  nextObject := CreateBuiltInFunctionObject([], "setIteratorPrototypeNext", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(nextObject, true, false, true);
+  setJSProperty(prototype, "next", descriptor);
+
+  /* TODO 23.2.5.2.2 %SetIteratorPrototype% [ @@toStringTag ]*/
+  |SetIteratorPrototype| := prototype; 
+  nextObject.IteratorFunction := "createSetIteratorObject"; 
+  return null
+};
+
+function createSetIteratorObject() {
+  print("in createSetIteratorObject");
+
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+  setInternalProperty(newlyConstructedObject, "Prototype", |SetIteratorPrototype|);
+  
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  
+  setInternalProperty(newlyConstructedObject, "Class", "Object");
+
+  return newlyConstructedObject
+};
+
+function isSetIteratorInstance(obj) {
+  return ("IteratedSet" in_obj obj) &&& ("SetNextIndex" in_obj obj) &&& ("SetIterationKind" in_obj obj)
 }
+
+

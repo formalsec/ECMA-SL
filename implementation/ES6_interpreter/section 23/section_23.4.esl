@@ -132,10 +132,12 @@ function WeakSetConstructor(global, this, strict, items) {
 
         /* e. ReturnIfAbrupt(nextValue). */
         @ReturnIfAbrupt(nextValue);
+
         /* f. Let status be Call(adder, set, «nextValue »). */
+        status := Call(null, null, adder, set, [nextValue]);
 
         /* g. If status is an abrupt completion, return IteratorClose(iter, status). */
-        if (isAnAbruptCompletion(status)) {
+        if ((Type(status) = "Completion") &&& (isAnAbruptCompletion(status))) {
             return IteratorClose(iter, status)
         }
     }
