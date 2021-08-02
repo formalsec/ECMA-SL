@@ -297,6 +297,11 @@ function initArrayObject(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(isArrayObject, true, false, true);
   setJSProperty(objArrayConstructor, "isArray", descriptor);
 
+  /* 22.1.2.3 Array.of ( ...items ) */
+  ofObject := CreateBuiltInFunctionObject([], "arrayOf", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(ofObject, true, false, true);
+  setJSProperty(objArrayConstructor, "of", descriptor);
+
   descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
   setJSProperty(objArrayConstructor, "prototype", descriptor);
 
@@ -2666,6 +2671,76 @@ function IsArrayIndex(P) {
 };
 
 /**
+*  22.1.2.3 Array.of ( ...items )
+*
+*  method is called with any number of arguments
+*
+*  The length property of the of method is 0.
+*
+*  NOTE 1 The items argument is assumed to be a well-formed rest argument value.
+*
+*  NOTE 2 The of function is an intentionally generic factory method; it does not 
+*  require that its this value be the Array constructor. Therefore it can be transferred
+*  to or inherited by other constructors that may be called with a single numeric argument.
+*/
+
+function arrayOf (global, this, strict, args) {
+
+  /* 1. Let len be the actual number of arguments passed to this function. */
+  len := l_len args;
+  
+  /* 2. Let items be the List of arguments passed to this function. */
+  items := args;
+
+  /* 3. Let C be the this value. */
+  C := this;
+
+  /* 4. If IsConstructor(C) is true, then */
+  if (IsConstructor(C) = true) {   
+    /* a. Let A be Construct(C, «len»). */
+    A := Construct(C, [len]);
+
+  /* 5. Else, */
+  } else {
+    /* a. Let A be ArrayCreate(len). */
+    A := naoexisteestafuncoainda(len);
+  };
+
+  /* 6. ReturnIfAbrupt(A). */
+  @ReturnIfAbrupt(A);
+
+  /* 7. Let k be 0. */
+  k := 0;
+
+  /* 8. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let kValue be items[k]. */
+    kValue := l_nth(items, k);
+
+    /* b. Let Pk be ToString(k). */
+    Pk := ToString(k);
+
+    /* c. Let defineStatus be CreateDataPropertyOrThrow(A,Pk, kValue). */
+    defineStatus := CreateDataPropertyOrThrow(A, Pk, kValue);
+
+    /* d. ReturnIfAbrupt(defineStatus). */
+    @ReturnIfAbrupt(defineStatus);
+
+    /* e. Increase k by 1. */
+    k := k + 1
+  };
+
+  /* 9. Let setStatus be Set(A, "length", len, true). */
+  setStatus = Set(A, "length", len, true);
+
+  /* 10. ReturnIfAbrupt(setStatus). */
+  @ReturnIfAbrupt(setStatus);
+
+  /* 11. Return A. */
+  return A
+};
+
+/**
 * 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] )
 *
 *  NOTE 1 The end argument is optional with the length of the this object as its default value. If target is negative, 
@@ -3010,7 +3085,7 @@ function arrayFind (global, this, strict, args) {
 *  as a method.
 */
 
-function arrayFindIndex () {
+function arrayFindIndex (global, this, strict, args) {
     /* The find method is called with one or two arguments, predicate and thisArg. */
   predicate := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
