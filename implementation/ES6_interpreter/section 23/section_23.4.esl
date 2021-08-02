@@ -10,17 +10,17 @@ function initWeakSetPrototype(global, objectPrototype, strict) {
     setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));
 
     /* 23.4.3.1 WeakSet.prototype.add ( value ) */
-    addObject := CreateBuiltInFunctionObject(["items"], "weakSetAdd", global, strict, 0.);
+    addObject := CreateBuiltInFunctionObject(["value"], "weakSetAdd", global, strict, 0.);
     descriptor := newDataPropertyDescriptorFull(addObject, true, false, true);
     setJSProperty(prototype, "add", descriptor);
 
     /* 23.4.3.3 WeakSet.prototype.delete ( value ) */
-    deleteObject := CreateBuiltInFunctionObject(["items"], "weakSetDelete", global, strict, 0.);
+    deleteObject := CreateBuiltInFunctionObject(["value"], "weakSetDelete", global, strict, 0.);
     descriptor := newDataPropertyDescriptorFull(deleteObject, true, false, true);
     setJSProperty(prototype, "delete", descriptor);
 
     /* 23.4.3.4 WeakSet.prototype.has ( value ) */
-    hasObject := CreateBuiltInFunctionObject(["items"], "weakSetHas", global, strict, 0.);
+    hasObject := CreateBuiltInFunctionObject(["value"], "weakSetHas", global, strict, 0.);
     descriptor := newDataPropertyDescriptorFull(hasObject, true, false, true);
     setJSProperty(prototype, "has", descriptor);
 
@@ -59,6 +59,7 @@ function initWeakSetObject(global, objectPrototype, strict) {
 */
 function WeakSetConstructor(global, this, strict, items) {
 
+    iterable := getOptionalParam(items, 0);
     NewTarget := this;
 
     /* 1. If NewTarget is undefined, throw a TypeError exception. */
@@ -79,8 +80,6 @@ function WeakSetConstructor(global, this, strict, items) {
     len := l_len items;
     if (len = 0) {
         iterable := 'undefined
-    } else {
-        iterable := l_nth(items, 0)
     };
 
     /* 6. If iterable is either undefined or null, let iter be undefined. */

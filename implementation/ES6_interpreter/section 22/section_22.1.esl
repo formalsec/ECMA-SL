@@ -19,6 +19,63 @@
  * length or array index properties that may be inherited from its prototypes.
  */
 
+/*
+  No ES6 mas não no ES5 :
+    DONE:
+
+    TESTING:
+    - 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] )
+    - 22.1.3.6 Array.prototype.fill (value [ , start [ , end ] ] )
+    
+    TODO : 
+    - 22.1.1.1 Array ( )
+    - 22.1.2.1 Array.from ( items [ , mapfn [ , thisArg ] ] )
+    - 22.1.2.3 Array.of ( ...items )
+    - 22.1.2.5 get Array [ @@species ]
+    - 22.1.3.1.1 Runtime Semantics: IsConcatSpreadable ( O )
+
+    - 22.1.3.4 Array.prototype.entries ( )
+    - 22.1.3.8 Array.prototype.find ( predicate [ , thisArg ] )
+    - 22.1.3.9 Array.prototype.findIndex ( predicate [ , thisArg ] )
+    - 22.1.3.13 Array.prototype.keys ( )
+    - 22.1.3.24.1 Runtime Semantics: SortCompare( x, y )
+    - 22.1.3.29 Array.prototype.values ( )
+
+    - 22.1.3.30 Array.prototype [ @@iterator ] ( )
+    - 22.1.3.31 Array.prototype [ @@unscopables ]
+    - 22.1.4.1 length
+    - 22.1.5.1 CreateArrayIterator Abstract Operation
+    - 22.1.5.2.1 %ArrayIteratorPrototype%.next( )
+    - 22.1.5.2.2 %ArrayIteratorPrototype% [ @@toStringTag ]
+    - 22.1.5.3 Properties of Array Iterator Instances
+
+  Em ambos os standards :
+    TODO : 
+    - 22.1.1.2 Array (len)
+    - 22.1.1.3 Array (...items )
+    - 22.1.3.1 Array.prototype.concat ( ...arguments )
+    - 22.1.3.5 Array.prototype.every ( callbackfn [ , thisArg] )
+    - 22.1.3.7 Array.prototype.filter ( callbackfn [ , thisArg ] )
+    - 22.1.3.10 Array.prototype.forEach ( callbackfn [ , thisArg ] )
+    - 22.1.3.11 Array.prototype.indexOf ( searchElement [ , fromIndex ] )
+    - 22.1.3.12 Array.prototype.join (separator)
+    - 22.1.3.14 Array.prototype.lastIndexOf ( searchElement [ , fromIndex ] )
+    - 22.1.3.15 Array.prototype.map ( callbackfn [ , thisArg ] )
+    - 22.1.3.16 Array.prototype.pop ( )
+    - 22.1.3.17 Array.prototype.push ( ...items )
+    - 22.1.3.18 Array.prototype.reduce ( callbackfn [ , initialValue ] )
+    - 22.1.3.19 Array.prototype.reduceRight ( callbackfn [ , initialValue ] )
+    - 22.1.3.20 Array.prototype.reverse ( )
+    - 22.1.3.21 Array.prototype.shift ( )
+    - 22.1.3.22 Array.prototype.slice (start, end)
+    - 22.1.3.23 Array.prototype.some ( callbackfn [ , thisArg ] )
+    - 22.1.3.24 Array.prototype.sort (comparefn)
+    - 22.1.3.25 Array.prototype.splice (start, deleteCount , ...items )
+    - 22.1.3.26 Array.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ] )
+    - 22.1.3.27 Array.prototype.toString ( )
+    - 22.1.3.28 Array.prototype.unshift ( ...items )
+    - 22.1.2.2 Array.isArray ( arg )
+*/
 
 
 /* An object, O, is said to be sparse if the following algorithm returns true: */
@@ -190,6 +247,21 @@ function initArrayPrototype(global, objectPrototype, strict) {
   reduceRightObject := CreateBuiltInFunctionObject(["callbackfn"], "arrayReduceRight", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(reduceRightObject, true, false, true);
   setJSProperty(prototype, "reduceRight", descriptor);
+
+  /* 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] ) */
+  copyWithinObject := CreateBuiltInFunctionObject(["target", "start", "end"], "arraycopyWithin", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(copyWithinObject, true, false, true);
+  setJSProperty(prototype, "copyWithin", descriptor);
+
+  /* 22.1.3.6 Array.prototype.fill (value [ , start [ , end ] ] ) */
+  fillObject := CreateBuiltInFunctionObject(["value", "start", "end"], "arrayFill", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(fillObject, true, false, true);
+  setJSProperty(prototype, "fill", descriptor);
+
+  /* 22.1.3.8 Array.prototype.find ( predicate [ , thisArg ] ) */
+  findObject := CreateBuiltInFunctionObject(["predicate", "thisArg"], "arrayFind", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(findObject, true, false, true);
+  setJSProperty(prototype, "find", descriptor);
 
   return prototype
 };
@@ -2586,4 +2658,309 @@ function IsArrayIndex(P) {
   p_uint := ToUint32(P);
   p_str := ToString(p_uint);
   return ((p_str = P) && !(p_uint = ((2. ** 32.) - 1.) )) /* (2^32)-1 = 4294967295 */
+};
+
+/**
+* 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] )
+*
+*  NOTE 1 The end argument is optional with the length of the this object as its default value. If target is negative, 
+*  it is treated as length+target where length is the length of the array. If start is negative, it is treated as 
+*  length+start. If end is negative, it is treated as length+end.
+*
+*  The length property of the copyWithin method is 2.
+*
+*  NOTE 2 The copyWithin function is intentionally generic; it does not require that its this value be an Array object. Therefore it can be transferred to other kinds of objects for use as a method.
+*/
+
+function arraycopyWithin (global, this, strict, args) {
+
+  /* The copyWithin method takes up to three arguments target, start and end. */
+  target := l_nth(args, 0);
+  start := l_nth(args, 1);
+  end := getOptionalParam(args, 2);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+  
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength({O.Get}(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. Let relativeTarget be ToInteger(target). */
+  relativeTarget := ToInteger(target);
+
+  /* 6. ReturnIfAbrupt(relativeTarget). */
+  @ReturnIfAbrupt(relativeTarget);
+
+  /* 7. If relativeTarget < 0, let to be max((len + relativeTarget),0); else let to be min(relativeTarget, len). */
+  if (relativeTarget < 0.) {
+    to := max((len + relativeTarget), 0.)
+  } else {
+    to := min(relativeTarget, len)
+  };
+
+  /* 8. Let relativeStart be ToInteger(start). */
+  relativeStart := ToInteger(start);
+
+  /* 9. ReturnIfAbrupt(relativeStart). */
+  @ReturnIfAbrupt(relativeStart);
+
+  /* 10. If relativeStart < 0, let from be max((len + relativeStart),0); else let from be min(relativeStart, len). */
+  if (relativeStart < 0) {
+    from := max((len + relativeStart), 0.)
+  } else {
+    from := min(relativeStart, len)
+  };
+
+  /* 11. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
+  if (end = 'undefined) {
+    relativeEnd := len
+  };
+
+  /* 12. ReturnIfAbrupt(relativeEnd). */
+  @ReturnIfAbrupt(relativeEnd);
+
+  /* 13. If relativeEnd < 0, let final be max((len + relativeEnd),0); else let final be min(relativeEnd, len). */
+  if (relativeEnd < 0) {
+    final := max((len + relativeEnd), 0.)
+  } else {
+    final := min(relativeEnd, len)
+  };
+
+  /* 14. Let count be min(final-from, len-to). */
+  count := min(final - from, len - to);
+
+  /* 15. If from<to and to<from+count */
+  if ((from < to) &&& (to < (from + count))) {
+    /* a. Let direction be -1. */
+    direction := -1;
+    /* b. Let from be from + count -1. */
+    from := from + count - 1;
+    /* c. Let to be to + count -1. */
+    to := to + count - 1
+
+  /* 16. Else, */
+  } else {
+    /* a. Let direction = 1. */
+    direction := 1
+  };
+
+  /* 17. Repeat, while count > 0 */
+  while (count > 0) {
+    /* a. Let fromKey be ToString(from). */
+    fromKey := ToString(from);
+
+    /* b. Let toKey be ToString(to). */
+    toKey := ToString(to);
+
+    /* c. Let fromPresent be HasProperty(O, fromKey). */
+    fromPresent := {O.HasProperty}(O, from);
+
+    /* d. ReturnIfAbrupt(fromPresent). */
+    @ReturnIfAbrupt(fromPresent);
+
+    /* e. If fromPresent is true, then */
+    if (fromPresent = true) {
+      /* i. Let fromVal be Get(O, fromKey). */
+      fromVal := {O.Get}(O, fromKey);
+
+      /* ii. ReturnIfAbrupt(fromVal). */
+      @ReturnIfAbrupt(fromVal);
+
+      /* iii. Let setStatus be Set(O, toKey, fromVal, true). */
+      setStatus := Set(O, toKey, fromVal, true);
+
+      /* iv. ReturnIfAbrupt(setStatus). */
+      @ReturnIfAbrupt(setStatus)
+
+    /* f. Else fromPresent is false, */
+    } else {
+      /* i. Let deleteStatus be DeletePropertyOrThrow(O, toKey). */
+      deleteStatus := DeletePropertyOrThrow(O, toKey);
+
+      /* ii. ReturnIfAbrupt(deleteStatus). */
+      @ReturnIfAbrupt(deleteStatus)
+    };
+
+    /* g. Let from be from + direction. */
+    from := from + direction;
+
+    /* h. Let to be to + direction. */
+    to := to + direction;
+
+    /* i. Let count be count − 1. */
+    count := count - 1
+  };
+
+  /* 18. Return O. */
+  return O
+};
+
+/**
+*   22.1.3.6 Array.prototype.fill (value [ , start [ , end ] ] )
+*
+*  NOTE 1 The start and end arguments are optional with default values of 0 and the length
+*  of the this object. If start is negative, it is treated as length+start where length is the
+*  length of the array. If end is negative, it is treated as length+end.
+*
+*  The length property of the fill method is 1.
+*
+*  NOTE 2 The fill function is intentionally generic; it does not require that its this value be
+*  an Array object. Therefore it can be transferred to other kinds of objects for use as a method.
+*/
+function arrayFill (global, this, strict, args) {
+  
+  /* The fill method takes up to three arguments value, start and end. */
+  value := l_nth(args, 0);
+  start := getOptionalParam(args, 1);
+  end := getOptionalParam(args, 2);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength({O.Get}(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. Let relativeStart be ToInteger(start). */
+  relativeStart := ToInteger(start);
+
+  /* 6. ReturnIfAbrupt(relativeStart). */
+  @ReturnIfAbrupt(relativeStart);
+
+  /* 7. If relativeStart < 0, let k be max((len + relativeStart),0); else let k be min(relativeStart, len). */
+  if (relativeStart < 0.) {
+    k := max((len + relativeStart), 0.)
+  } else {
+    k := min(relativeStart, len)
+  };
+
+  /* 8. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
+  if (end = 'undefined) {
+    relativeEnd := len
+  } else {
+    relativeEnd := ToInteger(end)
+  };
+
+  /* 9. ReturnIfAbrupt(relativeEnd). */
+  @ReturnIfAbrupt(relativeEnd);
+
+  /* 10. If relativeEnd < 0, let final be max((len + relativeEnd),0); else let final be min(relativeEnd, len). */
+  if (relativeEnd < 0.) {
+    final := max((len + relativeEnd), 0.)
+  } else {
+    final := min(relativeEnd, len)
+  };
+
+  /* 11. Repeat, while k < final */
+  while (k < final) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+
+    /* b. Let setStatus be Set(O, Pk, value, true). */
+    setStatus := Set(O, Pk, value, true);
+
+    /* c. ReturnIfAbrupt(setStatus). */
+    @ReturnIfAbrupt(setStatus);
+
+    /* d. Increase k by 1. */
+    k := k - 1
+  };
+
+  /* 12. Return O. */
+  return O
+};
+
+/**
+* 22.1.3.8 Array.prototype.find ( predicate [ , thisArg ] )
+
+NOTE 1 predicate should be a function that accepts three arguments and returns a value that is coercible to a Boolean value. find calls predicate once for each element of the array, in ascending order, until it finds one where predicate returns true. If such an element is found, find immediately returns that element value. Otherwise, find returns undefined.
+
+If a thisArg parameter is provided, it will be used as the this value for each invocation of predicate. If it is not provided, undefined is used instead.
+
+predicate is called with three arguments: the value of the element, the index of the element, and the object being traversed.
+
+find does not directly mutate the object on which it is called but the object may be mutated by the calls to predicate.
+
+The range of elements processed by find is set before the first call to callbackfn. Elements that are appended to the array after the call to find begins will not be visited by callbackfn. If existing elements of the array are changed, their value as passed to predicate will be the value at the time that find visits them.
+
+When the find method is called, the following steps are taken:
+
+The length property of the find method is 1.
+
+NOTE 2 The find function is intentionally generic; it does not require that its this value be an Array object. Therefore it can be transferred to other kinds of objects for use as a method.
+
+*/
+
+function arrayFind (global, this, strict, args) {
+
+  /* The find method is called with one or two arguments, predicate and thisArg. */
+  predicate := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength({O.Get}(O, "length"));
+  
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. If IsCallable(predicate) is false, throw a TypeError exception. */
+  if (IsCallable(predicate) = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if (!(thisArg = 'null)) {
+    T := thisArg
+  } else {
+    T := 'undefined
+  };
+
+  /* 7. Let k be 0. */
+  k := 0;
+  
+  /* 8. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+
+    /* b. Let kValue be Get(O, Pk). */
+    kValue := {O.Get}(O, Pk);
+
+    /* c. ReturnIfAbrupt(kValue). */
+    @ReturnIfAbrupt(kValue);
+
+    /* d. Let testResult be ToBoolean(Call(predicate, T, «kValue, k, O»)). */
+    testResult := ToBoolean(Call(null, null, predicate, T, [kValue, k, O]));
+
+    /* e. ReturnIfAbrupt(testResult). */
+    @ReturnIfAbrupt(testResult);
+
+    /* f. If testResult is true, return kValue. */
+    if (testResult = true) {
+      return kValue
+    };
+
+    /* g. Increase k by 1. */
+    k := k + 1
+  };
+  
+  /* 9. Return undefined. */
+  return 'undefined
 }
