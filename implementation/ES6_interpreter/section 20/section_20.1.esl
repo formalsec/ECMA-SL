@@ -1,8 +1,7 @@
 /* 20.1 Number Objects */
-function initNumberObject(globalObject, ObjectPrototype, strict) {
-  numberPrototype := initNumberPrototype(ObjectPrototype);
-  numberConstructor := initNumberConstructor(numberPrototype, globalObject, strict);
-
+function initNumberObject(global, objectPrototype, strict) {
+  numberPrototype := initNumberPrototype(global, objectPrototype, strict);
+  numberConstructor := initNumberConstructor(numberPrototype, global, strict);
   return numberConstructor
 };
 
@@ -11,43 +10,38 @@ function initNumberObject(globalObject, ObjectPrototype, strict) {
 function initNumberPrototype(global, objectPrototype, strict) {
   numberPrototypeObject := NewECMAScriptObject();
   setAllInternalMethodsOfObject(numberPrototypeObject);
-
-  /* The Number prototype object is itself a Number object (its [[Class]] is "Number") whose value is +0. */
-  setInternalProperty(numberPrototypeObject, "Class", "Number");
-  setInternalProperty(numberPrototypeObject, "PrimitiveValue", 0.);
   
-  /* The value of the [[Prototype]] internal property of the Number prototype object is the standard built-in Object prototype object (15.2.4). */
+  /* The value of the [[Prototype]] internal slot of the Number prototype object is the intrinsic object %ObjectPrototype% */
   setInternalProperty(numberPrototypeObject, "Prototype", objectPrototypeObject);
 
-  /* 15.7.4.1 Number.prototype.constructor */
-  /* The initial value of Number.prototype.constructor is the built-in Number constructor. */
+  /* TODO 20.1.3.1 Number.prototype.constructor */
   createBuiltInProperty(numberPrototypeObject, "constructor", NumberConstructor);
 
+  /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
+  toExponential := CreateBuiltInFunctionObject(["items"], "NumberPrototypeToExponential", global, strict, null);
+  setJSProperty(toExponential, "length", newDataPropertyDescriptorFull(1, true, false, false));
+  createBuiltInProperty(numberPrototypeObject, "toExponential", toExponential);
+
+  /* 20.1.3.3Number.prototype.toFixed ( fractionDigits ) */
+  toFixed := CreateBuiltInFunctionObject(["items"], "NumberPrototypeToFixed", global, strict, null);
+  createBuiltInProperty(numberPrototypeObject, "toFixed", toFixed);
+
   /* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
-  toString := CreateBuiltInFunctionObject([ "radix" ], "numberToString", globalObject, strict, 0.);
+  toString := CreateBuiltInFunctionObject([ "radix" ], "numberToString", global, strict, 0.);
   createBuiltInProperty(numberPrototypeObject, "toString", toString);
 
   /* 15.7.4.3 Number.prototype.toLocaleString() */
-  toLocaleString := CreateBuiltInFunctionObject([], "numberToLocaleString", globalObject, strict, null);
+  toLocaleString := CreateBuiltInFunctionObject([], "numberToLocaleString", global, strict, null);
   createBuiltInProperty(numberPrototypeObject, "toLocaleString", toLocaleString);
 
   /* 15.7.4.4 Number.prototype.valueOf ( ) */
-  valueOf := CreateBuiltInFunctionObject([], "NumberPrototypeValueOf", globalObject, strict, null);
+  valueOf := CreateBuiltInFunctionObject([], "NumberPrototypeValueOf", global, strict, null);
   createBuiltInProperty(numberPrototypeObject, "valueOf", valueOf);
 
-  /* TODO */
-  /* 15.7.4.5 Number.prototype.toFixed (fractionDigits) */
-  toFixed := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToFixed", globalObject, strict, null);
-  createBuiltInProperty(numberPrototypeObject, "toFixed", toFixed);
-
-  /* TODO */
-  /* 15.7.4.6 Number.prototype.toExponential (fractionDigits) */
-  toExponential := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToExponential", globalObject, strict, null);
-  createBuiltInProperty(numberPrototypeObject, "toExponential", toExponential);
 
   /* TODO */
   /* 15.7.4.7 Number.prototype.toPrecision (precision) */
-  toPrecision := CreateBuiltInFunctionObject(["precision"], "NumberPrototypeToPrecision", globalObject, strict, null);
+  toPrecision := CreateBuiltInFunctionObject(["precision"], "NumberPrototypeToPrecision", global, strict, null);
   createBuiltInProperty(numberPrototypeObject, "toPrecision", toPrecision);
 
   return prototype
@@ -106,10 +100,18 @@ function initNumberConstructor(NumberPrototype, globalObject, strict) {
   /* The value of the [[Prototype]] internal slot of the Number constructor is the intrinsic object %FunctionPrototype% */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "prototype", NumberPrototype, false, false, false);
 
-  /* TODO 20.1.2.2 Number.isFinite ( number ) */
+  /* TODO 20.1.2.1 Number.EPSILON */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "EPSILON", EPSILON, false, false, false);
+
+  /* 20.1.2.2 Number.isFinite ( number ) */
   isFiniteObject := CreateBuiltInFunctionObject(["items"], "numberConstructorIsfinite", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(isFiniteObject, true, false, true);
   setJSProperty(prototype, "isFinite", descriptor);
+
+  /* TODO 20.1.2.3 Number.isInteger ( number ) */
+  isIntegerObject := CreateBuiltInFunctionObject(["items"], "numberConstructorIsInteger", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(isIntegerObject, true, false, true);
+  setJSProperty(prototype, "isInteger", descriptor);
 
   /* 20.1.2.4 Number.isNaN ( number ) */
   isNaNObject := CreateBuiltInFunctionObject(["items"], "numberConstructorIsNaN", global, strict, 0.);
@@ -119,7 +121,7 @@ function initNumberConstructor(NumberPrototype, globalObject, strict) {
   /* 20.1.2.5 Number.isSafeInteger ( number ) */
   isSafeIntegerObject := CreateBuiltInFunctionObject(["items"], "numberConstructorIsSafeInteger", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(isSafeIntegerObject, true, false, true);
-  setJSProperty(prototype, "isNaN", descriptor);
+  setJSProperty(prototype, "isSafeInteger", descriptor);
 
   /* TODO 20.1.2.6 Number.MAX_SAFE_INTEGER */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_SAFE_INTEGER", MAX_SAFE_INTEGER, false, false, false);
@@ -163,10 +165,37 @@ function numberConstructorIsFinite(global, this, strict, args) {
   };
   /* 3. Otherwise, return true. */ 
   return true;
-}
+};
 
 
-/* 20.1.2.2 Number.isFinite ( number ) */
+/* 20.1.2.3 Number.isInteger ( number ) */
+function numberConstructorIsInteger(global, this, strict, args) {
+  number := l_nth(args, 0);
+  
+  /* If Type(number) is not Number, return false. */
+  if (!(Type(number) = "Number")) {
+    return false
+  };
+  
+  /* If number is NaN, +∞, or −∞, return false. */
+  if (number = NaN || number = Infinity || number = -Infinity) {
+    return false
+  };
+  
+  /* Let integer be ToInteger(number). */
+  integer := ToInteger(number);
+  
+  /* If integer is not equal to number, return false. */
+  if (!(integer = number)) {
+    return false
+  };
+  
+  /* Otherwise, return true. */
+  return true
+};
+
+
+/* 20.1.2.4 Number.isNaN ( number ) */
 function numberConstructorIsNaN(global, this, strict, args) {
   number := l_nth(args, 0);
   /* 1. If Type(number) is not Number, return false. */
@@ -179,7 +208,7 @@ function numberConstructorIsNaN(global, this, strict, args) {
   };
   /* 3. Otherwise, return false. */
   return false
-}
+};
 
 
 /* 20.1.2.5 Number.isSafeInteger ( number ) */
@@ -205,7 +234,158 @@ function numberConstructorIsSafeInteger(global, this, strict, args) {
   };
   /* 6. Otherwise, return false. */
   return false
-}
+};
+
+
+/* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
+function NumberPrototypeToExponential(global, this, strict, args) {
+  fractionDigits := l_nth(args, 0);
+  /* 1. Let x be thisNumberValue(this value). */
+  x := @thisNumberValue(this.value);
+  /* 2. ReturnIfAbrupt(x). */
+  ReturnIfAbrupt(x);
+  /* 3. Let f be ToInteger(fractionDigits). */
+  f := ToInteger(fractionDigits); 
+  /* 4. Assert: f is 0, when fractionDigits is undefined. */
+  if (fractionDigits = 'undefined) {
+    assert f = 0
+  };
+  /* 5. ReturnIfAbrupt(f). */
+  ReturnIfAbrupt(f);
+  /* 6. TODO If x is NaN, return the String "NaN". */
+  if (x = NaN) {
+    return "NaN"
+  };
+  /* 7. Let s be the empty String. */
+  s := "";
+  /* 8. If x < 0, then */
+  if (x < 0) {
+    /* a. Let s be "-". */
+    s := "-";
+    /* b. Let x = –x. */
+    x := -x
+  };
+  /* 9. If x = +∞, then */
+  if (x = Infinity) {
+    /* a. TODO Return the concatenation of the Strings s and "Infinity". */
+    return s + "Infinity";
+  };
+  /* 10. If f < 0 or f > 20, throw a RangeError exception. 
+  /* However, an implementation is permitted to extend the behaviour of toExponential 
+  for values of f less than 0 or greater than 20. In this case toExponential would not 
+  necessarily throw RangeError for such values. */
+  if (f < 0 || f > 20) {
+    throw RangeErrorConstructorInternal();
+  }
+  /* 11. If x = 0, then */
+  if (x = 0) {
+    /* a. TODO Let m be the String consisting of f+1 occurrences of the code unit 0x0030. */
+    /* b. Let e = 0. */
+  /* 12. Else x ≠ 0, */
+  } else {
+    /* a. If fractionDigits is not undefined, then */
+    if (!(fractionDigits = 'undefined)) {
+      /* 
+      i. TODO Let e and n be integers such that 10f ≤ n < 10f+1 and for which the exact mathematical
+      value of n × 10e–f – x is as close to zero as possible. If there are two such sets of e and n,
+      pick the e and n for which n × 10e–f is larger. 
+      */
+    /* b. Else fractionDigits is undefined, */
+    } else {
+      /* 
+      i. TODO Let e, n, and f be integers such that f ≥ 0, 10f ≤ n < 10f+1,
+      the Number value for n × 10e–f is x, and f is as small as possible.
+      Note that the decimal representation of n has f+1 digits, n is not divisible by 10,
+      and the least significant digit of n is not necessarily uniquely determined by these criteria.
+      */
+    }
+    /* 
+    c. TODO Let m be the String consisting of the digits of the decimal representation of n
+    (in order, with no leading zeroes). 
+    */
+  }
+  /* 13. If f ≠ 0, then */
+  if (!(f = 0)) {
+    /* a. TODO Let a be the first element of m, and let b be the remaining f elements of m. */
+    a := l_nth(m, 0);
+    /* b. TODO Let m be the concatenation of the three Strings a, ".", and b. */
+  };
+  /* 14. If e = 0, then */
+  if (e = 0) {
+    /* Let c = "+". */
+    c := "+";
+    /* Let d = "0". */
+    d := "0"
+  /* 15. Else */
+  } else {
+    /* a. If e > 0, let c = "+". */
+    if (e > 0) {
+      c := "+";
+    /* b. Else e ≤ 0, */
+    } else {
+      /* i. Let c = "-". */
+      c := "-";
+      /* ii. Let e = –e. */
+      e := -e;
+    }
+    /* 
+    c. TODO Let d be the String consisting of the digits of the decimal representation of e
+    (in order, with no leading zeroes). 
+    */
+  }
+  /* 16. TODO Let m be the concatenation of the four Strings m, "e", c, and d. */
+  /* 17. TODO Return the concatenation of the Strings s and m. */
+};
+
+
+/* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
+function NumberPrototypeToFixed(global, this, strict, args) {
+  /* 1. Let x be thisNumberValue(this value). */
+  /* 2. ReturnIfAbrupt(x). */
+  /* 3. Let f be ToInteger(fractionDigits). (If fractionDigits is undefined, this step produces the value 0). */
+  /* 4. ReturnIfAbrupt(f). */
+  /* 5. If f < 0 or f > 20, throw a RangeError exception. However, an implementation is permitted to extend the behaviour of toFixed for values of f less than 0 or greater than 20. In this case toFixed would not necessarily throw RangeError for such values. */
+  /* 6. If x is NaN, return the String "NaN". */
+  /* 7. Let s be the empty String. */
+  /* 8. If x < 0, then */
+  /* a. Let s be "-". */
+  /* b. Let x = –x. */
+  /* 9. If x ≥ 10^21, then */
+  /* a. Let m = ToString(x). */
+  /* 10. Else x < 1021, */
+  /* a. Let n be an integer for which the exact mathematical value of n ÷ 10f – x is as close to zero as possible. If there are two such n, pick the larger n. */
+  /* b. If n = 0, let m be the String "0". Otherwise, let m be the String consisting of the digits of the decimal representation of n (in order, with no leading zeroes). */
+  /* c. If f ≠ 0, then */
+  /* i. Let k be the number of elements in m. */
+  /* ii. If k ≤ f, then */
+  /* 1.Let z be the String consisting of f+1–k occurrences of the code unit 0x0030. */
+  /* 2. Let m be the concatenation of Strings z and m. */
+  /* 3. Let k = f + 1. */
+  /* iii. Let a be the first k–f elements of m, and let b be the remaining f elements of m. */
+  /* iv. Let m be the concatenation of the three Strings a, ".", and b. */
+  /* 11. Return the concatenation of the Strings s and m. */
+};
+
+/* 20.1.3 Abstract Operation thisNumberValue(value) */
+macro thisNumberValue(value) {
+  /* 1. If Type(value) is Number, return value. */
+  if (Type(value) = "Number") {
+    return value
+  };
+  
+  /* 2. If Type(value) is Object and value has a [[NumberData]] internal slot, then */
+  if (Type(Value) = "Object" &&& "NumberData" in_obj value) {
+    
+    /* a. Assert: value’s [[NumberData]] internal slot is a Number value. */
+    assert Type(value.NumberData) = "Number";
+    
+    /* b. Return the value of value’s [[NumberData]] internal slot. */
+    return value.NumberData
+  };
+  
+  /* 3. Throw a TypeError exception. */
+  throw TypeErrorConstructorInternal();
+};
 
 
 /* Temporary Code */
