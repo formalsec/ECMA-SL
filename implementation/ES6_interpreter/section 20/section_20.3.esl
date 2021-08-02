@@ -311,6 +311,69 @@ function DateConstructor(global, this, strict, args) {
   return internalNewDate(prototype, args)
 };
 
+
+
+function OrdinaryCreateDataConstructor(global, this, strict, items) {
+  datePrototype := getDatePrototype(strict);
+
+  print "inside Date constructor with prototype";
+  print datePrototype.JSProperties; 
+
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+
+  dateInternalProperty(newlyConstructedObject, "Prototype", setPrototype);
+  dateInternalProperty(newlyConstructedObject, "Extensible", true);
+  dateInternalProperty(newlyConstructedObject, "Class", "Object");
+
+  return newlyConstructedObject
+};
+
+/**
+ * 
+ * 20.3.2.3 Date ( )
+ * 
+ * This description applies only if the Date constructor is called with no arguments.
+ * 
+ * When the Date function is called the following steps are taken:
+ * 
+ *     1. Let numberOfArgs be the number of arguments passed to this function call.
+ *     2. Assert: numberOfArgs = 0.
+ *     3. If NewTarget is not undefined, then
+ *        a. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»).
+ *        b. ReturnIfAbrupt(O).
+ *        c. Set the [[DateValue]] internal slot of O to the time value (UTC) identifying the current time.
+ *       d. Return O.
+ *    4. Else,
+ *       a. Let now be the Number that is the time value (UTC) identifying the current time.
+ *       b. Return ToDateString (now).
+ */
+function newDateConstructor(global, this, strict, args){
+   /* 1. Let numberOfArgs be the number of arguments passed to this function call. */
+   numberOfArgs := l_len(args);
+
+   /* 2. Assert: numberOfArgs = 0. */
+   assert(numberOfArgs = 0);
+   
+   /* 3. If NewTarget is not undefined, then */
+   if (!(NewTarget = 'undefined)) {
+      /* a. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»). */
+      O := OrdinaryCreateFromConstructor(NewTarget, this, strict, items);
+      
+      /* b. ReturnIfAbrupt(O). */
+      @ReturnIfAbrupt(O);
+      
+      /* c. Set the [[DateValue]] internal slot of O to the time value (UTC) identifying the current time. */
+      O.DateValue := 20; /* TODO */
+      
+      /* d. Return O. */
+      return O
+   }
+/* 4. Else, */
+/*    a. Let now be the Number that is the time value (UTC) identifying the current time. */
+/*    b. Return ToDateString (now). */
+};
 /* 15.9.3.1 new Date (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ) */
 function internalNewDate(datePrototypeObject, args) {
   year := l_nth(args, 0);
