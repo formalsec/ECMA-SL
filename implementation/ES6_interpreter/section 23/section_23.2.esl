@@ -65,6 +65,13 @@ function initSetPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(valuesObject, true, false, true);
   setJSProperty(prototype, "values", descriptor);
 
+  /* Martelada Provisoria */
+  /*   newlyConstructedObject.IteratorFunction := "CreateMapIteratorJS"; */
+  CreateSetIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateSetIteratorJS", global, strict, 1.);
+  descriptor := newDataPropertyDescriptorFull(CreateSetIteratorJSObject, true, false, true);
+  setJSProperty(prototype, "iterator", descriptor); 
+
+
   /* TODO 23.2.3.11 Set.prototype [ @@iterator ] ( ) */
 
   /* TODO 23.2.3.12 Set.prototype [ @@toStringTag ] */
@@ -91,6 +98,9 @@ function initSetObject(global, objectPrototype, strict) {
   objSetPrototype := initSetPrototype(global, objectPrototype, strict);
 
   objSetConstructor := CreateFunctionObject(["items"], "SetConstructor", global, strict, 0.);
+
+  descriptor := newDataPropertyDescriptorFull(0., false, false, false);
+  setJSProperty(objSetConstructor, "length", descriptor);
 
   descriptor := newDataPropertyDescriptorFull(objSetConstructor, true, false, true);
   setJSProperty(objSetPrototype, "constructor", descriptor);
@@ -155,6 +165,7 @@ function SetConstructor(global, this, strict, items) {
   setInternalProperty(newlyConstructedObject, "Class", "Object");
 
   newlyConstructedObject.SetData := []; 
+  newlyConstructedObject.IteratorFunction := "iterator"; 
 
   return newlyConstructedObject
 };
@@ -749,7 +760,7 @@ function initSetIteratorPrototype(global, objectPrototype, strict) {
 
   /* TODO 23.2.5.2.2 %SetIteratorPrototype% [ @@toStringTag ]*/
   |SetIteratorPrototype| := prototype; 
-  nextObject.IteratorFunction := "createSetIteratorObject"; 
+  nextObject.IteratorFunction := "iterator"; 
   return null
 };
 
@@ -770,6 +781,10 @@ function createSetIteratorObject() {
 
 function isSetIteratorInstance(obj) {
   return ("IteratedSet" in_obj obj) &&& ("SetNextIndex" in_obj obj) &&& ("SetIterationKind" in_obj obj)
+};
+
+function CreateSetIteratorJSObject(global, this, strict, args) {
+  createSetIterator(this, "key+value")
 }
 
 
