@@ -156,9 +156,6 @@ function SetConstructor(global, this, strict, items) {
 
   newlyConstructedObject.SetData := []; 
 
-  print "Constructed Set:";
-  print newlyConstructedObject;
-
   return newlyConstructedObject
 };
 
@@ -505,7 +502,7 @@ function setHasObject(global, this, strict, args) {
  *
  * The initial value of the keys property is the same function object as the initial value of the values property.
  *
- * NOTE For iteration purposes, a Set appears similar to a Set where each entry has the same value for its key and value.
+ * NOTE For iteration purposes, a Set appears similar to a Map where each entry has the same value for its key and value.
  *
  */
 function setKeysObject(global, this, strict, args) {
