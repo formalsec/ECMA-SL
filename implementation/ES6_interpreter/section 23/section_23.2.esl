@@ -66,7 +66,7 @@ function initSetPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "values", descriptor);
 
   /* Martelada Provisoria */
-  /*   newlyConstructedObject.IteratorFunction := "CreateMapIteratorJS"; */
+  /* newlyConstructedObject.IteratorFunction := "CreateMapIteratorJS"; */
   CreateSetIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateSetIteratorJS", global, strict, 1.);
   descriptor := newDataPropertyDescriptorFull(CreateSetIteratorJSObject, true, false, true);
   setJSProperty(prototype, "iterator", descriptor); 
@@ -97,7 +97,7 @@ function initSetObject(global, objectPrototype, strict) {
 
   objSetPrototype := initSetPrototype(global, objectPrototype, strict);
 
-  objSetConstructor := CreateFunctionObject(["items"], "SetConstructor", global, strict, 0.);
+  objSetConstructor := CreateFunctionObject(["items"], "setConstructor", global, strict, 0.);
 
   descriptor := newDataPropertyDescriptorFull(0., false, false, false);
   setJSProperty(objSetConstructor, "length", descriptor);
@@ -110,35 +110,7 @@ function initSetObject(global, objectPrototype, strict) {
 
   return objSetConstructor
 };
-/*
 
-23.2.1.1 Set ( [ iterable ] )
-
-When the Set function is called with optional argument iterable the following steps are taken:
-
-    If NewTarget is undefined, throw a TypeError exception.
-    Let set be OrdinaryCreateFromConstructor(NewTarget, "%SetPrototype%", «‍[[SetData]]» ).
-    ReturnIfAbrupt(set).
-    Set set’s [[SetData]] internal slot to a new empty List.
-    If iterable is not present, let iterable be undefined.
-    If iterable is either undefined or null, let iter be undefined.
-    Else,
-        Let adder be Get(set, "add").
-        ReturnIfAbrupt(adder).
-        If IsCallable(adder) is false, throw a TypeError exception.
-        Let iter be GetIterator(iterable).
-        ReturnIfAbrupt(iter).
-    If iter is undefined, return set.
-    Repeat
-        Let next be IteratorStep(iter).
-        ReturnIfAbrupt(next).
-        If next is false, return set.
-        Let nextValue be IteratorValue(next).
-        ReturnIfAbrupt(nextValue).
-        Let status be Call(adder, set, «nextValue.[[value]]»).
-        If status is an abrupt completion, return IteratorClose(iter, status).
-
-*/
 /**
  * 23.2.1 The Set Constructor
  * 
@@ -149,8 +121,102 @@ When the Set function is called with optional argument iterable the following st
  * Subclass constructors that intend to inherit the specified Set behaviour must include 
  * a super call to the Set constructor to create and initialize the subclass instance
  * with the internal state necessary to support the Set.prototype built-in methods.
- */ /* TODO */
-function SetConstructor(global, this, strict, items) {
+ */
+
+
+/*
+
+23.2.1.1 Set ( [ iterable ] )
+
+When the Set function is called with optional argument iterable the following steps are taken:
+*/
+
+function setConstructor(global, this, strict, items) {
+  NewTarget := this;
+  iterable := getOptionalParam(items, 0);
+
+  /* 1. If NewTarget is undefined, throw a TypeError exception. */
+  if (NewTarget = 'undefined) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 2. Let set be OrdinaryCreateFromConstructor(NewTarget, "%SetPrototype%", «‍[[SetData]]» ). */
+  set := OrdinaryCreateFromConstructorSet(global, this, strict, iterable);
+
+  /* 3. ReturnIfAbrupt(set). */
+  @ReturnIfAbrupt(set);
+
+  /* 4. Set set’s [[SetData]] internal slot to a new empty List. */
+  set.SetData := [];
+
+  /* 5. If iterable is not present, let iterable be undefined. */
+  if (iterable = null) {
+    iterable := 'undefined
+  };
+  
+  /* 6. If iterable is either undefined or null, let iter be undefined. */
+  if (iterable = 'undefined || iterable = null) {
+    iter := 'undefined
+  }
+  /* 7. Else, */
+  else {
+    /* a. Let adder be Get(set, "add"). */
+    adder := Get(set, "add");
+
+    /* b. ReturnIfAbrupt(adder). */
+    @ReturnIfAbrupt(adder);
+
+    /* c. If IsCallable(adder) is false, throw a TypeError exception. */
+    if (IsCallable(adder) = false) {
+      throw TypeErrorConstructorInternal()
+    };
+
+    /* d. Let iter be GetIterator(iterable). */
+    iter := GetIterator(iterable, null);
+
+    /* e. ReturnIfAbrupt(iter). */
+    @ReturnIfAbrupt(iter)
+  };
+
+  /* 8. If iter is undefined, return set. */
+  if (iter = 'undefined) {
+    return set
+  };
+
+  /* 9. Repeat */
+  while (true) {
+    /* a. Let next be IteratorStep(iter). */
+    next := IteratorStep(iter);
+
+    /* b. ReturnIfAbrupt(next). */
+    @ReturnIfAbrupt(next);
+
+    /* c. If next is false, return set. */
+    if (next = false) {
+      return set
+    };
+
+    /* d. Let nextValue be IteratorValue(next). */
+    nextValue := IteratorValue(next);
+
+    /* e. ReturnIfAbrupt(nextValue). */
+    @ReturnIfAbrupt(nextValue);
+
+    /* f. Let status be Call(adder, set, «nextValue.[[value]]»). */
+    status := Call(adder, map, [nextValues.value]);
+    
+    /* g. If status is an abrupt completion, return IteratorClose(iter, status). */
+    if (isAnAbruptCompletion(status)) {
+      return IteratorClose(iter, status)
+    }
+  }
+
+};
+
+/**
+ * OrdinaryCreateFromConstructor
+ */
+function OrdinaryCreateFromConstructorSet(global, this, strict, items) {
   setPrototype := getSetPrototype(strict);
 
   print "inside Set constructor with prototype";
@@ -299,13 +365,13 @@ function setClearObject(global, this, strict, args) {
   index := 0;
 
   S.SetData := [];
-  /*while (index < len) {
+  /*while (index < len) { TODO 
     
     e := l_nth(entries, index);
     
     /* a. Replace the element of entries whose value is e with an element whose value is empty. */
     
-  /*  index := index + 1
+  /* index := index + 1
   };*/
   
 
@@ -635,7 +701,7 @@ function createSetIterator(set, kind) {
     throw TypeErrorConstructorInternal()
   };
 
-  /* 3. Let iterator be ObjectCreate(%SetIteratorPrototype%, «‍[[IteratedSet]], [[SetNextIndex]], [[SetIterationKind]]»). */  
+  /* 3. Let iterator be ObjectCreate(%SetIteratorPrototype%, «‍[[IteratedSet]], [[SetNextIndex]], [[SetIterationKind]]»). */
   iterator := createSetIteratorObject();
 
   /* 4. Set iterator’s [[IteratedSet]] internal slot to set. */
@@ -723,7 +789,7 @@ function createSetIterator(set, kind) {
           return CreateIterResultObject(CreateArrayFromList([e,e]), false)
         };
 
-        /* ii. Return CreateIterResultObject(e, false). */  
+        /* ii. Return CreateIterResultObject(e, false). */
         return CreateIterResultObject(e, false)
       }
       
