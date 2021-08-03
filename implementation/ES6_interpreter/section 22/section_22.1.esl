@@ -2918,7 +2918,11 @@ function arrayOf (global, this, strict, args) {
   /* 5. Else, */
   } else {
     /* a. Let A be ArrayCreate(len). */
+<<<<<<< HEAD
     A := ArrayCreate(len)
+=======
+    A := naoexisteestafuncoainda(len)
+>>>>>>> 68b33f342a0a64956244a80afc41c2dcd285daf0
   };
 
   /* 6. ReturnIfAbrupt(A). */

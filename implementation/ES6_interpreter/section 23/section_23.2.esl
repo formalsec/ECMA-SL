@@ -66,7 +66,7 @@ function initSetPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "values", descriptor);
 
   /* Martelada Provisoria */
-  /* newlyConstructedObject.IteratorFunction := "CreateMapIteratorJS"; */
+  /* newlyConstructedObject.IteratorFunction := "CreateSetIteratorJS"; */
   CreateSetIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateSetIteratorJS", global, strict, 1.);
   descriptor := newDataPropertyDescriptorFull(CreateSetIteratorJSObject, true, false, true);
   setJSProperty(prototype, "iterator", descriptor); 
@@ -134,79 +134,87 @@ When the Set function is called with optional argument iterable the following st
 function setConstructor(global, this, strict, items) {
   NewTarget := this;
   iterable := getOptionalParam(items, 0);
-
+  print("Debug1");
   /* 1. If NewTarget is undefined, throw a TypeError exception. */
   if (NewTarget = 'undefined) {
     throw TypeErrorConstructorInternal()
   };
-
+print("Debug2");
   /* 2. Let set be OrdinaryCreateFromConstructor(NewTarget, "%SetPrototype%", «‍[[SetData]]» ). */
   set := OrdinaryCreateFromConstructorSet(global, this, strict, iterable);
-
+print("Debug3");
   /* 3. ReturnIfAbrupt(set). */
   @ReturnIfAbrupt(set);
-
+print("Debug4");
   /* 4. Set set’s [[SetData]] internal slot to a new empty List. */
   set.SetData := [];
-
+print("Debug5");
   /* 5. If iterable is not present, let iterable be undefined. */
   if (iterable = null) {
     iterable := 'undefined
   };
-  
+  print("Debug6");
   /* 6. If iterable is either undefined or null, let iter be undefined. */
   if (iterable = 'undefined || iterable = null) {
     iter := 'undefined
-  }
+  }  
   /* 7. Else, */
   else {
     /* a. Let adder be Get(set, "add"). */
     adder := Get(set, "add");
-
+  print("Debug8");
     /* b. ReturnIfAbrupt(adder). */
     @ReturnIfAbrupt(adder);
-
+print("Debug9");
     /* c. If IsCallable(adder) is false, throw a TypeError exception. */
     if (IsCallable(adder) = false) {
       throw TypeErrorConstructorInternal()
     };
-
+  print("Debug10");
+  print(iterable);
     /* d. Let iter be GetIterator(iterable). */
     iter := GetIterator(iterable, null);
-
+print("Debug11");
     /* e. ReturnIfAbrupt(iter). */
     @ReturnIfAbrupt(iter)
   };
-
+  print("Debug12");
   /* 8. If iter is undefined, return set. */
   if (iter = 'undefined) {
     return set
   };
-
+print("Debug13, iter");
+print(iter);
   /* 9. Repeat */
   while (true) {
     /* a. Let next be IteratorStep(iter). */
     next := IteratorStep(iter);
-
+print("Debug14");
     /* b. ReturnIfAbrupt(next). */
     @ReturnIfAbrupt(next);
-
+print("Debug15");
     /* c. If next is false, return set. */
     if (next = false) {
       return set
     };
-
+print("Debug16");
     /* d. Let nextValue be IteratorValue(next). */
     nextValue := IteratorValue(next);
-
+print("Debug17");
+print(nextValue);
     /* e. ReturnIfAbrupt(nextValue). */
     @ReturnIfAbrupt(nextValue);
+print("Debug18");
+print(adder);
+print(set);
+print(nextValue.value);
 
     /* f. Let status be Call(adder, set, «nextValue.[[value]]»). */
-    status := Call(adder, map, [nextValues.value]);
-    
+    /*TODO verificar se nextValue.[[value]] e supostor ser Get(nextValue, "0") ou nextValue.value */
+    status := Call(null, null, adder, set, [Get(nextValue, "0")]); 
+    print("Debug19");
     /* g. If status is an abrupt completion, return IteratorClose(iter, status). */
-    if (isAnAbruptCompletion(status)) {
+    if ((Type(status) = "Completion") &&& (isAnAbruptCompletion(status))) {
       return IteratorClose(iter, status)
     }
   }
@@ -219,7 +227,7 @@ function setConstructor(global, this, strict, items) {
 function OrdinaryCreateFromConstructorSet(global, this, strict, items) {
   setPrototype := getSetPrototype(strict);
 
-  print "inside Set constructor with prototype";
+  print "inside Ordinary Set constructor with prototype";
   print setPrototype.JSProperties; 
 
   newlyConstructedObject := NewECMAScriptObject();
@@ -230,7 +238,6 @@ function OrdinaryCreateFromConstructorSet(global, this, strict, items) {
   setInternalProperty(newlyConstructedObject, "Extensible", true);
   setInternalProperty(newlyConstructedObject, "Class", "Object");
 
-  newlyConstructedObject.SetData := []; 
   newlyConstructedObject.IteratorFunction := "iterator"; 
 
   return newlyConstructedObject
@@ -287,6 +294,8 @@ function OrdinaryCreateFromConstructorSet(global, this, strict, items) {
  *  
  */
 function setAddObject(global, this, strict, args) {
+  print("in setAddObject: args, value");
+  
   value := l_nth(args, 0);
   
   /* 1. Let S be the this value. */
@@ -308,14 +317,14 @@ function setAddObject(global, this, strict, args) {
   /* 5. Repeat for each e that is an element of entries */
   len := l_len(entries);
   index := 0;
-  
+
   while (index < len) {
     
     e := l_nth(entries, index);
     
     /* a. If e is not empty and SameValueZero(e, value) is true, then */
-    if (!(e = 'empty) &&& (SameValue(e, value) = true)) {
-      
+    if (!(e = 'empty) &&& (SameValueZero(e, value) = true)) {
+      print("inside if blah");
       /* i. Return S. */
       return S
     };
@@ -323,6 +332,8 @@ function setAddObject(global, this, strict, args) {
     index := index + 1
   };
 
+  print("Debug setAddObject Value = ");
+  print(value);
   /* 6. If value is −0, let value be +0. */
   if (isMinusZero(value)) {
     value := 0.
@@ -418,7 +429,7 @@ function setDeleteObject(global, this, strict, args) {
     e := l_nth(entries, index);
     
     /* a. If e is not empty and SameValueZero(e, value) is true, then */
-    if (!(e = 'empty) &&& (SameValue(e, value) = true)) {
+    if (!(e = 'empty) &&& (SameValueZero(e, value) = true)) {
       
       /* i. Replace the element of entries whose value is e with an element whose value is empty. */
       newSetData := l_add(newSetData, 'empty);
@@ -560,7 +571,7 @@ function setHasObject(global, this, strict, args) {
     e := l_nth(entries, index);
     
     /* a. If e is not empty and SameValueZero(e, value) is true, then */
-    if (!(e = 'empty) &&& (SameValue(e, value) = true)) {
+    if (!(e = 'empty) &&& (SameValueZero(e, value) = true)) {
       
       /* i. Return true. */
       return true
@@ -641,12 +652,6 @@ function setSizeObject(global, this, strict, args) {
  * 
  * 23.2.3.10 Set.prototype.values ( )
  * 
- * The following steps are taken:
- * 
- *     Let S be the this value.
- *     Return CreateSetIterator(S, "value").
- * 
- * 
  */
 function setValuesObject(global, this, strict, args) {
   /* 1. Let S be the this value. */
@@ -691,6 +696,9 @@ function setValuesObject(global, this, strict, args) {
 */
 function createSetIterator(set, kind) {
   print("in createSetIterator");
+  print("set, kind");
+  print(set);
+  print(kind);
   /* 1. If Type(set) is not Object, throw a TypeError exception. */
   if (!(Type(set) = "Object")) {
     throw TypeErrorConstructorInternal()
@@ -713,6 +721,8 @@ function createSetIterator(set, kind) {
   /* 6. Set iterator’s [[SetIterationKind]] internal slot to kind. */
   iterator.SetIterationKind := kind;
   
+  print("Iterator: ");
+  print(iterator);
   /* 7. Return iterator. */
   return iterator
 };
@@ -825,6 +835,14 @@ function initSetIteratorPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "next", descriptor);
 
   /* TODO 23.2.5.2.2 %SetIteratorPrototype% [ @@toStringTag ]*/
+
+
+  /* temporary code*/
+  CreateSetIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateSetIteratorFromIterator", global, strict, 1.);
+  descriptor := newDataPropertyDescriptorFull(CreateSetIteratorJSObject, true, false, true);
+  setJSProperty(prototype, "iterator", descriptor); 
+
+
   |SetIteratorPrototype| := prototype; 
   nextObject.IteratorFunction := "iterator"; 
   return null
@@ -849,8 +867,9 @@ function isSetIteratorInstance(obj) {
   return ("IteratedSet" in_obj obj) &&& ("SetNextIndex" in_obj obj) &&& ("SetIterationKind" in_obj obj)
 };
 
-function CreateSetIteratorJSObject(global, this, strict, args) {
-  createSetIterator(this, "key+value")
+function CreateSetIteratorJS(global, this, strict, args) {
+  print("in CreateSetIteratorJS");
+  return createSetIterator(this, "key+value")
 }
 
 
