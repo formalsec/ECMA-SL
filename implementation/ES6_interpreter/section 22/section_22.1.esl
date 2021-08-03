@@ -24,6 +24,7 @@
     DONE:
 
     TESTING:
+    - 22.1.2.3 Array.of ( ...items )
     - 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] )
     - 22.1.3.6 Array.prototype.fill (value [ , start [ , end ] ] )
     - 22.1.3.8 Array.prototype.find ( predicate [ , thisArg ] )
@@ -32,7 +33,6 @@
     TODO : 
     - 22.1.1.1 Array ( )
     - 22.1.2.1 Array.from ( items [ , mapfn [ , thisArg ] ] )
-    - 22.1.2.3 Array.of ( ...items )
     - 22.1.2.5 get Array [ @@species ]
     - 22.1.3.1.1 Runtime Semantics: IsConcatSpreadable ( O )
 
@@ -291,6 +291,11 @@ function initArrayObject(global, objectPrototype, strict) {
 
   descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
   setJSProperty(objArrayPrototype, "constructor", descriptor);
+
+  /* 22.1.2.1 Array.from ( items [ , mapfn [ , thisArg ] ] ) */
+  fromObject := CreateBuiltInFunctionObject(["items"], "arrayFrom", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(fromObject, true, false, true);
+  setJSProperty(objArrayConstructor, "from", descriptor);
 
   /* 15.4.3.2 Array.isArray ( arg ) */
   isArrayObject := CreateBuiltInFunctionObject(["arg"], "isArray", global, strict, null);
@@ -2671,6 +2676,216 @@ function IsArrayIndex(P) {
 };
 
 /**
+*  22.1.2.1 Array.from ( items [ , mapfn [ , thisArg ] ] )
+*    
+*  The length property of the from method is 1.
+*
+*  NOTE The from function is an intentionally generic factory method; it does not require that
+*  its this value be the Array constructor. Therefore it can be transferred to or inherited by 
+*  any other constructors that may be called with a single numeric argument.
+*
+*/
+function arrayFrom (global, this, strict, args) {
+
+  /* method is called with argument items and optional arguments mapfn and thisArg */
+  items := l_nth(args, 0);
+  mapfn := getOptionalParam(args, 1);
+  thisArg := getOptionalParam(args, 2);
+
+  /* 1. Let C be the this value. */
+  C := this;
+
+  /* 2. If mapfn is undefined, let mapping be false. */
+  if (mapfn = 'undefined) {
+    mapping := false
+
+  /* 3. else */
+  } else {
+    /* a. If IsCallable(mapfn) is false, throw a TypeError exception. */
+    if (IsCallable(mapfn) = false) {
+      throw TypeErrorConstructorInternal()
+    };
+
+    /* b. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+    if (!(thisArg = 'null)) {
+      T := thisArg
+    } else {
+      T := 'undefined
+    };
+
+    /* c. Let mapping be true */
+    mapping := true
+  };
+
+  /* 4. Let usingIterator be GetMethod(items, @@iterator). */
+  usingIterator := GetMethod(items, null);
+
+  /* 5. ReturnIfAbrupt(usingIterator). */
+  @ReturnIfAbrupt(usingIterator);
+
+  /* 6. If usingIterator is not undefined, then */
+  if (!(usingIterator = 'undefined)) {
+    /* a. If IsConstructor(C) is true, then */
+    if (IsConstructor(C) = true) {
+      /* i. Let A be Construct(C). */
+      A := Construct(C)
+
+    /* b. Else, */
+    } else {
+      /* i. Let A be ArrayCreate(0). */
+      A := ArrayCreate(0)
+    };
+   
+    /* c. ReturnIfAbrupt(A). */
+    @ReturnIfAbrupt(A);
+
+    /* d. Let iterator be GetIterator(items, usingIterator). */
+    iterator := GetIterator(items, usingIterator);
+
+    /* e. ReturnIfAbrupt(iterator). */
+    @ReturnIfAbrupt(iterator);
+
+    /* f. Let k be 0. */
+    k := 0;
+
+    /* g. Repeat */
+    while (true) {
+      /* i. Let Pk be ToString(k). */
+      Pk := ToString(k);
+
+      /* ii. Let next be IteratorStep(iterator). */
+      next := IteratorStep(iterator);
+
+      /* iii. ReturnIfAbrupt(next). */
+      @ReturnIfAbrupt(next);
+
+      /* iv. If next is false, then */
+      if (next = false) {
+        /* 1. Let setStatus be Set(A, "length", k, true). */
+        setStatus := Set(A, "length", k, true);
+
+        /* 2. ReturnIfAbrupt(setStatus). */
+        @ReturnIfAbrupt(setStatus);
+
+        /* 3. Return A. */
+        return A
+      };
+
+      /* v. Let nextValue be IteratorValue(next). */
+      nextValue := IteratorValue(next);
+
+      /* vi. ReturnIfAbrupt(nextValue). */
+      @ReturnIfAbrupt(nextValue);
+
+      /* vii. If mapping is true, then */
+      if (mapping = true) {
+        /* 1. Let mappedValue be Call(mapfn, T, «nextValue, k»). */
+        mappedValue := Call(null, null, mapfn, T, [nextValue, k]);
+
+        /* 2. If mappedValue is an abrupt completion, return IteratorClose(iterator, mappedValue). */
+        if ((Type(mappedValue) = "Completion") &&& (isAnAbruptCompletion(mappedValue))) {
+          return IteratorClose(iterator, mappedValue)
+        };
+
+        /* 3. Let mappedValue be mappedValue.[[value]]. */
+        mappedValue := mappedValue.value
+
+      /* viii. Else, let mappedValue be nextValue. */
+      } else {
+        mappedValue := nextValue
+      };
+      
+      /* ix. Let defineStatus be CreateDataPropertyOrThrow(A, Pk, mappedValue). */
+      defineStatus := CreateDataPropertyOrThrow(A, Pk, mappedValue);
+      
+      /* x. If defineStatus is an abrupt completion, return IteratorClose(iterator, defineStatus). */
+      if ((Type(defineStatus) = "Completion") &&& (isAnAbruptCompletion(defineStatus))) {
+        return IteratorClose(iterator, defineStatus)
+      };
+
+      /* xi. Increase k by 1. */
+      k := k + 1
+    }
+  };
+
+  /* 7. Assert: items is not an Iterable so assume it is an array-like object. */
+  assert(isIterable(array));
+
+  /* 8. Let arrayLike be ToObject(items). */
+  arrayLike := ToObject(items);
+
+  /* 9. ReturnIfAbrupt(arrayLike). */
+  @ReturnIfAbrupt(arrayLike);
+
+  /* 10. Let len be ToLength(Get(arrayLike, "length")). */
+  len := ToLength({arrayLike.Get}(arrayLike, "length"));
+
+
+  /* 11. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 12. If IsConstructor(C) is true, then */
+  if (IsConstructor(C) = true) {
+    /* a. Let A be Construct(C, «len»). */
+    A := Construct(C, [len])
+
+  /* 13. Else, */
+  } else {
+    /* a. Let A be ArrayCreate(len). */
+    A := ArrayCreate(len)
+  };
+
+  /* 14. ReturnIfAbrupt(A). */
+  @ReturnIfAbrupt(A);
+
+  /* 15. Let k be 0. */
+  k := 0;
+
+  /* 16. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+
+    /* b. Let kValue be Get(arrayLike, Pk). */
+    kValue := {arrayLike.Get}(arrayLike, Pk);
+
+    /* c. ReturnIfAbrupt(kValue). */
+    @ReturnIfAbrupt(kValue);
+
+    /* d. If mapping is true, then */
+    if (mapping = true) {
+      /* i. Let mappedValue be Call(mapfn, T, «kValue, k»). */
+      mappedValue := Call(null, null, mapfn, T, [kValue, k]);
+
+      /* ii. ReturnIfAbrupt(mappedValue). */
+      @ReturnIfAbrupt(mappedValue)
+
+    /* e. Else, let mappedValue be kValue. */
+    } else {
+      mappedValue := kValue
+    };
+
+    /* f. Let defineStatus be CreateDataPropertyOrThrow(A, Pk, mappedValue). */
+    defineStatus := CreateDataPropertyOrThrow(A, Pk, mappedValue);
+
+    /* g. ReturnIfAbrupt(defineStatus). */
+    @ReturnIfAbrupt(defineStatus);
+
+    /* h. Increase k by 1. */
+    k := k + 1
+  };
+  
+  /* 17. Let setStatus be Set(A, "length", len, true). */
+  setStatus := Set(A, "length", len, true);
+
+  /* 18. ReturnIfAbrupt(setStatus). */
+  @ReturnIfAbrupt(setStatus);
+
+  /* 19. Return A. */
+  return A
+};
+
+/**
 *  22.1.2.3 Array.of ( ...items )
 *
 *  method is called with any number of arguments
@@ -2682,8 +2897,8 @@ function IsArrayIndex(P) {
 *  NOTE 2 The of function is an intentionally generic factory method; it does not 
 *  require that its this value be the Array constructor. Therefore it can be transferred
 *  to or inherited by other constructors that may be called with a single numeric argument.
+*
 */
-
 function arrayOf (global, this, strict, args) {
 
   /* 1. Let len be the actual number of arguments passed to this function. */
@@ -2698,12 +2913,12 @@ function arrayOf (global, this, strict, args) {
   /* 4. If IsConstructor(C) is true, then */
   if (IsConstructor(C) = true) {   
     /* a. Let A be Construct(C, «len»). */
-    A := Construct(C, [len]);
+    A := Construct(C, [len])
 
   /* 5. Else, */
   } else {
     /* a. Let A be ArrayCreate(len). */
-    A := naoexisteestafuncoainda(len);
+    A := ArrayCreate(len)
   };
 
   /* 6. ReturnIfAbrupt(A). */
@@ -2749,9 +2964,10 @@ function arrayOf (global, this, strict, args) {
 *
 *  The length property of the copyWithin method is 2.
 *
-*  NOTE 2 The copyWithin function is intentionally generic; it does not require that its this value be an Array object. Therefore it can be transferred to other kinds of objects for use as a method.
+*  NOTE 2 The copyWithin function is intentionally generic; it does not require that its this value be an Array
+*  object. Therefore it can be transferred to other kinds of objects for use as a method.
+*
 */
-
 function arraycopyWithin (global, this, strict, args) {
 
   /* The copyWithin method takes up to three arguments target, start and end. */
@@ -2892,8 +3108,8 @@ function arraycopyWithin (global, this, strict, args) {
 *
 *  NOTE 2 The fill function is intentionally generic; it does not require that its this value be
 *  an Array object. Therefore it can be transferred to other kinds of objects for use as a method.
+*
 */
-
 function arrayFill (global, this, strict, args) {
   
   /* The fill method takes up to three arguments value, start and end. */
@@ -2990,8 +3206,8 @@ function arrayFill (global, this, strict, args) {
 *
 *  NOTE 2 The find function is intentionally generic; it does not require that its this value
 *  be an Array object. Therefore it can be transferred to other kinds of objects for use as a method.
+*
 */
-
 function arrayFind (global, this, strict, args) {
 
   /* The find method is called with one or two arguments, predicate and thisArg. */
@@ -3083,8 +3299,8 @@ function arrayFind (global, this, strict, args) {
 *  NOTE 2 The findIndex function is intentionally generic; it does not require that its this
 *  value be an Array object. Therefore it can be transferred to other kinds of objects for use
 *  as a method.
+*
 */
-
 function arrayFindIndex (global, this, strict, args) {
     /* The find method is called with one or two arguments, predicate and thisArg. */
   predicate := l_nth(args, 0);
