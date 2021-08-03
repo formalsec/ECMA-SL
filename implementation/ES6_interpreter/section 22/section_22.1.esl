@@ -2698,12 +2698,12 @@ function arrayOf (global, this, strict, args) {
   /* 4. If IsConstructor(C) is true, then */
   if (IsConstructor(C) = true) {   
     /* a. Let A be Construct(C, «len»). */
-    A := Construct(C, [len]);
+    A := Construct(C, [len])
 
   /* 5. Else, */
   } else {
     /* a. Let A be ArrayCreate(len). */
-    A := naoexisteestafuncoainda(len);
+    A := naoexisteestafuncoainda(len)
   };
 
   /* 6. ReturnIfAbrupt(A). */

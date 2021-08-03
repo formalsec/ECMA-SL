@@ -1,13 +1,16 @@
-/* 9.12 The SameValue Algorithm
-
-  The internal comparison abstract operation SameValue(x, y), where x and y are ECMAScript language values, produces true or false.
-  Such a comparison is performed as follows: */
-function SameValue (x, y) {
+/**
+ * 7.2.10 SameValueZero(x, y)
+ *
+ * The internal comparison abstract operation SameValueZero(x, y), where x and y are ECMAScript language values,
+ * produces true or false. Such a comparison is performed as follows:
+ *
+ * NOTE SameValueZero differs from SameValue only in its treatment of +0 and −0.
+ */
+function SameValueZero (x, y) {
   /* 1. ReturnIfAbrupt(x). */
   @ReturnIfAbrupt(x);
   /* 2. ReturnIfAbrupt(y). */
   @ReturnIfAbrupt(y);
-  
   /* 3. If Type(x) is different from Type(y), return false. */
   if (!(Type(x) = Type(y))) { return false };
   /* 4. If Type(x) is Undefined, return true. */
@@ -18,15 +21,16 @@ function SameValue (x, y) {
   if (Type(x) = "Number") {
     /* a. If x is NaN and y is NaN, return true. */
     if ((x = NaN) && (y = NaN)) { return true };
-    /* b. If x is +0 and y is -0, return false. */
-    if (isZero(x) && isMinusZero(y)) { return false };
-    /* c. If x is -0 and y is +0, return false. */
-    if (isMinusZero(x) && isZero(y)) { return false };
+    /* b. If x is +0 and y is -0, return true. */
+    if (isZero(x) && isMinusZero(y)) { return true };
+    /* c. If x is -0 and y is +0, return true. */
+    if (isMinusZero(x) && isZero(y)) { return true };
     /* d. If x is the same Number value as y, return true. */
     if (x = y) { return true };
     /* e. Return false. */
     return false
   };
+  
   /* 7. If Type(x) is String, then */
   if (Type(x) = "String"){
     /* a. If x and y are exactly the same sequence of code units (same length and same code units at corresponding indices) return true; otherwise, return false. */
@@ -47,13 +51,4 @@ function SameValue (x, y) {
 
   /* 10. Return true if x and y are the same Object value. Otherwise, return false.  */
   return x = y   
-};
-
-/* Auxiliary functions */
-function isZero(x) {
-  return (x = 0.) && ((1. / x) = Infinity)
-};
-
-function isMinusZero(x) {
-  return (x = 0.) && ((1. / x) = -Infinity)
 }

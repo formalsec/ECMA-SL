@@ -1,5 +1,6 @@
 import "ES6_interpreter/section 6/section_6.2.esl";
-import "ES6_interpreter/section 7/section_7.1.esl";
+/* import "ES6_interpreter/section 7/section_7.1.esl";*/
+import "ES6_interpreter/section 7/section_7.2.esl";
 import "ES6_interpreter/section 7/section_7.3.esl";
 import "ES6_interpreter/section 7/section_7.4.esl";
 import "ES6_interpreter/section 7/section_7.8.esl";
