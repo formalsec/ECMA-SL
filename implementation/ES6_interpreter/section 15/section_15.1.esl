@@ -134,6 +134,10 @@ function initGlobalObject(strict) {
   JsonObject := initJsonObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "JSON", JsonObject);
 
+  /* 20.1 Number Objects */
+  NumberObject := initNumberObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Number", NumberObject);
+
   /* 23.1 Map */
   MapObject := initMapObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Map", MapObject);
