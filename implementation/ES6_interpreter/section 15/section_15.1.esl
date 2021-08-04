@@ -95,9 +95,6 @@ function initGlobalObject(strict) {
   /* 15.1.4.5 Boolean ( . . . ) */
   BooleanObject := initBooleanObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Boolean", BooleanObject);
-  /* 15.1.4.6 Number ( . . . ) */
-  NumberObject := initNumberObject(globalObject, ObjectPrototype, strict);
-  createBuiltInProperty(globalObject, "Number", NumberObject);
   /* 15.1.4.7 Date ( . . . ) */
   DateObject := initDateObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Date", DateObject);
