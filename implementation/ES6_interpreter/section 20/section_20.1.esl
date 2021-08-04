@@ -1,49 +1,55 @@
 /* 20.1 Number Objects */
 function initNumberObject(global, objectPrototype, strict) {
-  numberPrototype := initNumberPrototype(global, objectPrototype, strict);
-  numberConstructor := initNumberConstructor(numberPrototype, global, strict);
-  return numberConstructor
+  objNumberPrototype := initNumberPrototype(global, objectPrototype, strict);
+  objNumberConstructor := initNumberConstructor(objNumberPrototype, global, strict);
+
+  /* 20.1.3.1 Number.prototype.constructor */
+  descriptor := newDataPropertyDescriptorFull(objNumberConstructor, true, false, true);
+  setJSProperty(objNumberPrototype, "constructor", descriptor);
+
+  /* The value of the [[Prototype]] internal slot of the Number constructor is the intrinsic object %FunctionPrototype% (19.2.3) */
+  descriptor := newDataPropertyDescriptorFull(objNumberPrototype, false, false, false);
+  setJSProperty(objNumberConstructor, "prototype", descriptor);
+
+  /* Length Property of Constructor is 1 */
+  setJSProperty(objNumberConstructor, "length", newDataPropertyDescriptorFull(1, true, false, false));
+
+  return objNumberConstructor
 };
 
 
 /* 20.1.3 Properties of the Number Prototype Object */
 function initNumberPrototype(global, objectPrototype, strict) {
-  numberPrototypeObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(numberPrototypeObject);
-
-  /* The value of the [[Prototype]] internal slot of the Number prototype object is the intrinsic object %ObjectPrototype% */
-  setInternalProperty(numberPrototypeObject, "Prototype", objectPrototypeObject);
-
-  /* TODO 20.1.3.1 Number.prototype.constructor */
-  createBuiltInProperty(numberPrototypeObject, "constructor", NumberConstructor);
+  prototype := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(prototype);
 
   /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
-  toExponential := CreateBuiltInFunctionObject(["items"], "NumberPrototypeToExponential", global, strict, null);
+  toExponential := CreateBuiltInFunctionObject(["args"], "NumberPrototypeToExponential", global, strict, null);
   setJSProperty(toExponential, "length", newDataPropertyDescriptorFull(1, true, false, false));
-  createBuiltInProperty(numberPrototypeObject, "toExponential", toExponential);
+  createBuiltInProperty(prototype, "toExponential", toExponential);
 
   /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
-  toFixed := CreateBuiltInFunctionObject(["items"], "NumberPrototypeToFixed", global, strict, null);
+  toFixed := CreateBuiltInFunctionObject(["args"], "NumberPrototypeToFixed", global, strict, null);
   setJSProperty(toFixed, "length", newDataPropertyDescriptorFull(1, true, false, false));
-  createBuiltInProperty(numberPrototypeObject, "toFixed", toFixed);
+  createBuiltInProperty(prototype, "toFixed", toFixed);
 
   /* 20.1.3.4 Number.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ]) */
-  toLocaleString := CreateBuiltInFunctionObject(["items"], "NumberPrototypeToLocaleString", global, strict, null);
+  toLocaleString := CreateBuiltInFunctionObject(["args"], "NumberPrototypeToLocaleString", global, strict, null);
   setJSProperty(toFixed, "length", newDataPropertyDescriptorFull(0, true, false, false));
-  createBuiltInProperty(numberPrototypeObject, "toLocaleString", toLocaleString);
+  createBuiltInProperty(prototype, "toLocaleString", toLocaleString);
 
   /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
-  toPrecision := CreateBuiltInFunctionObject(["items"], "NumberPrototypeToPrecision", global, strict, null);
+  toPrecision := CreateBuiltInFunctionObject(["args"], "NumberPrototypeToPrecision", global, strict, null);
   setJSProperty(toFixed, "length", newDataPropertyDescriptorFull(1, true, false, false));
-  createBuiltInProperty(numberPrototypeObject, "toPrecision", toPrecision);
+  createBuiltInProperty(prototype, "toPrecision", toPrecision);
 
   /* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
-  toString := CreateBuiltInFunctionObject([ "radix" ], "NumberProtoypeToString", global, strict, 0.);
-  createBuiltInProperty(numberPrototypeObject, "toString", toString);
+  toString := CreateBuiltInFunctionObject([ "args" ], "NumberProtoypeToString", global, strict, 0.);
+  createBuiltInProperty(prototype, "toString", toString);
 
   /* 20.1.3.7 Number.prototype.valueOf ( ) */
   valueOf := CreateBuiltInFunctionObject([], "NumberPrototypeValueOf", global, strict, null);
-  createBuiltInProperty(numberPrototypeObject, "valueOf", valueOf);
+  createBuiltInProperty(prototype, "valueOf", valueOf);
 
   return prototype
 };
@@ -59,8 +65,9 @@ function getNumberPrototype(strict) {
 
 
 /* 20.1.1.1 Number ( [ value ] ) */
-function NumberConstructor(global, this, strict, items) {
+function NumberConstructor(global, this, strict, args) {
   NewTarget := this;
+  value := l_nth(args, 0);
 
   /* 1. If no arguments were passed to this function invocation, let n be +0. */
   if (value = null) {
@@ -79,7 +86,7 @@ function NumberConstructor(global, this, strict, items) {
     };
 
     /* 5. Let O be OrdinaryCreateFromConstructor(NewTarget, "%NumberPrototype%", «[[NumberData]]» ). */
-    O := OrdinaryCreateFromConstructorNumber(NewTarget, this, strict, items);
+    O := OrdinaryCreateFromConstructorNumber(NewTarget, this, strict, args);
 
     /* 6. ReturnIfAbrupt(O). */
     @ReturnIfAbrupt(O);
@@ -94,15 +101,15 @@ function NumberConstructor(global, this, strict, items) {
 
 
 /* 20.1.1 The Number Constructor */
-function initNumberConstructor(NumberPrototype, globalObject, strict) {
+function initNumberConstructor(prototype, global, strict) {
   /* 20.1.2 Properties of the Number Constructor */
-  NumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", globalObject, strict, 0.);
+  NumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", global, strict, 0.);
 
   /* The value of the [[Prototype]] internal slot of the Number constructor is the intrinsic object %FunctionPrototype% */
-  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "prototype", NumberPrototype, false, false, false);
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "prototype", prototype, false, false, false);
 
   /* TODO 20.1.2.1 Number.EPSILON */
-  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "EPSILON", EPSILON, false, false, false);
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "EPSILON", 0, false, false, false);
 
   /* 20.1.2.2 Number.isFinite ( number ) */
   isFiniteObject := CreateBuiltInFunctionObject(["items"], "numberConstructorIsfinite", global, strict, 0.);
@@ -125,13 +132,13 @@ function initNumberConstructor(NumberPrototype, globalObject, strict) {
   setJSProperty(prototype, "isSafeInteger", descriptor);
 
   /* 20.1.2.6 TODO Number.MAX_SAFE_INTEGER */
-  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_SAFE_INTEGER", MAX_SAFE_INTEGER, false, false, false);
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_SAFE_INTEGER", 0, false, false, false);
 
   /* 20.1.2.7 Number.MAX_VALUE */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_VALUE", MAX_VALUE, false, false, false);
 
   /* 20.1.2.8 TODO Number.MIN_SAFE_INTEGER */
-  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MIN_SAFE_INTEGER", MIN_SAFE_INTEGER, false, false, false);
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MIN_SAFE_INTEGER", 0, false, false, false);
 
   /* 20.1.2.9 Number.MIN_VALUE */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MIN_VALUE", MIN_VALUE, false, false, false);
@@ -523,7 +530,7 @@ function numberPrototypeToString(global, this, strict, args) {
 
 
 /* 20.1.3.7 Number.prototype.valueOf ( ) */
-function NumberProtoypeValueOf(global, this, strict, items) {
+function NumberProtoypeValueOf(global, this, strict, args) {
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. Return x. */
