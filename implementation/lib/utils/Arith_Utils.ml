@@ -92,6 +92,7 @@ let string_of_pos_float num =
 		(* It is not an integer *)
     else 
 			if num > 1e+9 && num < 1e+21 
+        (*  %.0f fails test/test262/tests/built-ins/String/prototype/split/S15.5.4.14_A1_T18.js *)
 				then Printf.sprintf "%.0f" num
 			else
 			if ((1e-5 <= num) && (num < 1e-4)) 
