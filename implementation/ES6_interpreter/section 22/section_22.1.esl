@@ -22,14 +22,14 @@
 /*
   No ES6 mas não no ES5 :
     DONE:
+    - 22.1.3.6 Array.prototype.fill (value [ , start [ , end ] ] ) [NOT FINAL]
+    - 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] ) [NOT FINAL]
+    - 22.1.3.8 Array.prototype.find ( predicate [ , thisArg ] ) [DOESNT WORK WITH => FUNCTIONS]
+    - 22.1.3.9 Array.prototype.findIndex ( predicate [ , thisArg ] ) [DOESNT WORK WITH => FUNCTIONS]
 
     TESTING:
     - 22.1.2.1 Array.from ( items [ , mapfn [ , thisArg ] ] )
     - 22.1.2.3 Array.of ( ...items )
-    - 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] )
-    - 22.1.3.6 Array.prototype.fill (value [ , start [ , end ] ] )
-    - 22.1.3.8 Array.prototype.find ( predicate [ , thisArg ] )
-    - 22.1.3.9 Array.prototype.findIndex ( predicate [ , thisArg ] )
     
     TODO : 
     - 22.1.1.1 Array ( )
@@ -49,17 +49,21 @@
     - 22.1.3.29 Array.prototype.values ( )
 
   Em ambos os standards :
+    DONE : 
+    - 22.1.3.11 Array.prototype.indexOf ( searchElement [ , fromIndex ] )
+    - 22.1.3.14 Array.prototype.lastIndexOf ( searchElement [ , fromIndex ] )
+
+    TESTING : 
+    - 22.1.2.2 Array.isArray ( arg )
+
     TODO : 
     - 22.1.1.2 Array (len)
     - 22.1.1.3 Array (...items )
-    - 22.1.2.2 Array.isArray ( arg )
     - 22.1.3.1 Array.prototype.concat ( ...arguments )
     - 22.1.3.5 Array.prototype.every ( callbackfn [ , thisArg] )
     - 22.1.3.7 Array.prototype.filter ( callbackfn [ , thisArg ] )
     - 22.1.3.10 Array.prototype.forEach ( callbackfn [ , thisArg ] )
-    - 22.1.3.11 Array.prototype.indexOf ( searchElement [ , fromIndex ] )
     - 22.1.3.12 Array.prototype.join (separator)
-    - 22.1.3.14 Array.prototype.lastIndexOf ( searchElement [ , fromIndex ] )
     - 22.1.3.15 Array.prototype.map ( callbackfn [ , thisArg ] )
     - 22.1.3.16 Array.prototype.pop ( )
     - 22.1.3.17 Array.prototype.push ( ...items )
@@ -203,12 +207,12 @@ function initArrayPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(unshiftObject, true, false, true);
   setJSProperty(prototype, "unshift", descriptor);
 
-  /* 15.4.4.14 Array.prototype.indexOf ( searchElement [ , fromIndex ] ) */
+  /* 22.1.3.11 Array.prototype.indexOf ( searchElement [ , fromIndex ] ) */
   indexOfObject := CreateBuiltInFunctionObject(["searchElement"], "arrayIndexOf", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(indexOfObject, true, false, true);
   setJSProperty(prototype, "indexOf", descriptor);
 
-  /* 15.4.4.15 Array.prototype.lastIndexOf ( searchElement [ , fromIndex ] ) */
+  /* 21.1.3.9 String.prototype.lastIndexOf ( searchString [ , position ] ) */
   lastIndexOfObject := CreateBuiltInFunctionObject(["searchElement"], "arrayLastIndexOf", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(lastIndexOfObject, true, false, true);
   setJSProperty(prototype, "lastIndexOf", descriptor);
@@ -297,7 +301,7 @@ function initArrayObject(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(fromObject, true, false, true);
   setJSProperty(objArrayConstructor, "from", descriptor);
 
-  /* 15.4.3.2 Array.isArray ( arg ) */
+  /* 22.1.2.2 Array.isArray ( arg ) */
   isArrayObject := CreateBuiltInFunctionObject(["arg"], "isArray", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(isArrayObject, true, false, true);
   setJSProperty(objArrayConstructor, "isArray", descriptor);
@@ -448,25 +452,18 @@ function internalNewArrayLen(arrayPrototype, len) {
 
 
 /**
- * 15.4.3.2 Array.isArray ( arg )
+ * 22.1.2.2 Array.isArray ( arg )
  *
  * The isArray function takes one argument arg, and returns the Boolean
  * value true if the argument is an object whose class internal property
  * is "Array"; otherwise it returns false. The following steps are taken:
  */
 function isArray(global, this, strict, args) {
+  
   arg := l_nth(args, 0);
-  /* 1. If Type(arg) is not Object, return false. */
-  if (!(Type(arg) = "Object")) {
-    return false
-  };
-  /* 2. If the value of the [[Class]] internal property of arg is "Array",
-        then return true. */
-  if (arg.Class = "Array") {
-    return true
-  };
-  /* 3. Return false. */
-  return false
+
+  /* Return IsArray(arg).*/
+  return IsArray(arg)
 };
 
 
@@ -1609,7 +1606,7 @@ function arrayUnshift(global, this, strict, items) {
 
 
 /**
- * 15.4.4.14 Array.prototype.indexOf ( searchElement [ , fromIndex ] )
+ * 22.1.3.11 Array.prototype.indexOf ( searchElement [ , fromIndex ] )
  *
  * indexOf compares searchElement to the elements of the array, in ascending
  * order, using the internal Strict Equality Comparison Algorithm (11.9.6),
@@ -1629,30 +1626,40 @@ function arrayIndexOf(global, this, strict, args) {
   searchElement := l_nth(args, 0);
   fromIndex := getOptionalParam(args, 1);
 
-  /* 1. Let O be the result of calling ToObject passing the this value
-        as the argument. */
+  /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-  /* 2. Let lenValue be the result of calling the [[Get]] internal method
-        of O with the argument "length". */
-  lenVal := {O.Get}(O, "length");
-  /* 3. Let len be ToUint32(lenValue). */
-  len := ToUint32(lenVal);
-  /* 4. If len is 0, return -1. */
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := {O.Get}(O, "length");
+
+  /* 4. ReturnIfAbrupt(len).*/
+  @ReturnIfAbrupt(len);
+
+  /* 5. If len is 0, return -1. */
   if (len = 0.) {
     return -(1.)
   };
-  /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex);
+
+  /* 6. If argument fromIndex was passed let n be ToInteger(fromIndex);
         else let n be 0. */
   if (!(fromIndex = null)) {
     n := ToInteger(fromIndex)
   } else {
     n := 0.
   };
-  /* 6. If n ≥ len, return -1. */
+
+  /* 7. ReturnIfAbrupt(n). */
+  @ReturnIfAbrupt(n);
+
+  /* 8. If n ≥ len, return -1. */
   if (n >= len) {
     return -(1.)
   };
-  /* 7. If n ≥ 0, then */
+
+  /* 9. If n ≥ 0, then */
   if (n >= 0.) {
     /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
     /* a. If n is -0, let k be +0; else let k be n. */
@@ -1661,8 +1668,9 @@ function arrayIndexOf(global, this, strict, args) {
     } else {
       k := n
     }
+
+  /* 10. Else, n<0 */
   } else {
-  /* 8. Else, n<0 */
     /* a. Let k be len - abs(n). */
     k := len - abs(n);
     /* b. If k is less than 0, then let k be 0. */
@@ -1670,27 +1678,37 @@ function arrayIndexOf(global, this, strict, args) {
       k := 0.
     }
   };
-  /* 9. Repeat, while k<len */
+
+  /* 11. Repeat, while k<len */
   while (k < len) {
-    /* a. Let kPresent be the result of calling the [[HasProperty]] internal
-          method of O with argument ToString(k). */
+    /* a. Let kPresent be HasProperty(O, ToString(k)). */
     kPresent := {O.HasProperty}(O, ToString(k));
-    /* b. If kPresent is true, then */
+
+    /* b. ReturnIfAbrupt(kPresent).*/
+    @ReturnIfAbrupt(kPresent);
+
+    /* c. If kPresent is true, then */
     if (kPresent = true) {
-      /* i. Let elementK be the result of calling the [[Get]] internal method
-            of O with the argument ToString(k). */
+      /* i. Let elementK be Get(O, ToString(k)). */
       elementK := {O.Get}(O, ToString(k));
-      /* ii. Let same be the result of applying the Strict Equality Comparison
+
+      /* ii. ReturnIfAbrupt(elementK). */
+      @ReturnIfAbrupt(elementK);
+
+      /* iii. Let same be the result of applying the Strict Equality Comparison
             Algorithm to searchElement and elementK. */
       same := StrictEqualityComparison(searchElement, elementK);
-      /* iii. If same is true, return k. */
+
+      /* iv. If same is true, return k. */
       if (same = true) {
         return k
       }
     };
-    /* c. Increase k by 1. */
+
+    /* d. Increase k by 1. */
     k := k + 1.
   };
+
   /* 10. Return -1. */
   return -(1.)
 };
@@ -1707,7 +1725,7 @@ function arrayIndexOf(global, this, strict, args) {
 
 
 /**
- * 15.4.4.15 Array.prototype.lastIndexOf ( searchElement [ , fromIndex ] )
+ * 21.1.3.9 String.prototype.lastIndexOf ( searchString [ , position ] )
  *
  * lastIndexOf compares searchElement to the elements of the array in
  * descending order using the internal Strict Equality Comparison Algorithm
@@ -1727,26 +1745,35 @@ function arrayLastIndexOf(global, this, strict, args) {
   searchElement := l_nth(args, 0);
   fromIndex := getOptionalParam(args, 1);
 
-  /* 1. Let O be the result of calling ToObject passing the this
-        value as the argument. */
+  /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
-  /* 2. Let lenValue be the result of calling the [[Get]] internal
-        method of O with the argument "length". */
-  lenVal := {O.Get}(O, "length");
-  /* 3. Let len be ToUint32(lenValue). */
-  len := ToUint32(lenVal);
-  /* 4. If len is 0, return -1. */
+
+  /* 2. ReturnIfAbrupt(O).*/
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToInteger({O.Get}(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. If len is 0, return -1. */
   if (len = 0.) {
     return -(1.)
   };
-  /* 5. If argument fromIndex was passed let n be ToInteger(fromIndex);
+
+  /* 6. If argument fromIndex was passed let n be ToInteger(fromIndex);
         else let n be len. */
   if (!(fromIndex = null)) {
     n := ToInteger(fromIndex)
   } else {
-    n := len
+    n := len - 1.
   };
-  /* 6. If n ≥ 0, then let k be min(n, len - 1). */
+
+  /* 7. ReturnIfAbrupt(n). */
+  @ReturnIfAbrupt(n);
+
+  /* 8. If n ≥ 0, then let k be min(n, len - 1). */
   if (n >= 0.) {
     /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
     /* a. If n is -0, let k be +0; else let k be min(n, len - 1). */
@@ -1756,33 +1783,42 @@ function arrayLastIndexOf(global, this, strict, args) {
       k := min(n, len - 1.)
     }
   }
-  /* 7. Else, n < 0 */
+  /* 9. Else, n < 0 */
   else {
     /* a. Let k be len - abs(n). */
     k := len - abs(n)
   };
-  /* 8. Repeat, while k≥ 0 */
+  /* 10. Repeat, while k≥ 0 */
   while (k >= 0.) {
-    /* a. Let kPresent be the result of calling the [[HasProperty]]
-          internal method of O with argument ToString(k). */
+    /* a. Let kPresent be HasProperty(O, ToString(k)). */
     kPresent := {O.HasProperty}(O, ToString(k));
-    /* b. If kPresent is true, then */
+
+    /* b. ReturnIfAbrupt(kPresent). */
+    @ReturnIfAbrupt(kPresent);
+
+    /* c. If kPresent is true, then */
     if (kPresent = true) {
-      /* i. Let elementK be the result of calling the [[Get]] internal
-            method of O with the argument ToString(k). */
+      /* i. Let elementK be Get(O, ToString(k)). */
       elementK := {O.Get}(O, ToString(k));
-      /* ii. Let same be the result of applying the Strict Equality
-             Comparision Algorithm to searchElement and elementK. */
+
+      /* ii. ReturnIfAbrupt(elementK).*/
+      @ReturnIfAbrupt(elementK);
+
+      /* iii. Let same be the result of performing Strict Equality Comparison
+              searchElement === elementK. */
       same := StrictEqualityComparison(searchElement, elementK);
-      /* iii. If same is true, return k. */
+
+      /* iv. If same is true, return k. */
       if (same = true) {
         return k
       }
     };
-    /* c. Decrease k by 1. */
+
+    /* d. Decrease k by 1. */
     k := k - 1.
   };
-  /* 9. Return -1. */
+
+  /* 11. Return -1. */
   return -(1.)
 };
 /**
@@ -2702,7 +2738,7 @@ function arrayFrom (global, this, strict, args) {
   /* 3. else */
   } else {
     /* a. If IsCallable(mapfn) is false, throw a TypeError exception. */
-    if (IsCallable(mapfn) = false) {
+    if (IsCallableNew(mapfn) = false) {
       throw TypeErrorConstructorInternal()
     };
 
@@ -2728,12 +2764,12 @@ function arrayFrom (global, this, strict, args) {
     /* a. If IsConstructor(C) is true, then */
     if (IsConstructor(C) = true) {
       /* i. Let A be Construct(C). */
-      A := Construct(C)
+      A := ConstructNew(C, null, null)
 
     /* b. Else, */
     } else {
       /* i. Let A be ArrayCreate(0). */
-      A := ArrayCreate(0)
+      A := ArrayCreate(0.)
     };
    
     /* c. ReturnIfAbrupt(A). */
@@ -2746,7 +2782,7 @@ function arrayFrom (global, this, strict, args) {
     @ReturnIfAbrupt(iterator);
 
     /* f. Let k be 0. */
-    k := 0;
+    k := 0.;
 
     /* g. Repeat */
     while (true) {
@@ -2804,7 +2840,7 @@ function arrayFrom (global, this, strict, args) {
       };
 
       /* xi. Increase k by 1. */
-      k := k + 1
+      k := k + 1.
     }
   };
 
@@ -2827,7 +2863,7 @@ function arrayFrom (global, this, strict, args) {
   /* 12. If IsConstructor(C) is true, then */
   if (IsConstructor(C) = true) {
     /* a. Let A be Construct(C, «len»). */
-    A := Construct(C, [len])
+    A := ConstructNew(C, [len], null)
 
   /* 13. Else, */
   } else {
@@ -2839,7 +2875,7 @@ function arrayFrom (global, this, strict, args) {
   @ReturnIfAbrupt(A);
 
   /* 15. Let k be 0. */
-  k := 0;
+  k := 0.;
 
   /* 16. Repeat, while k < len */
   while (k < len) {
@@ -2872,7 +2908,7 @@ function arrayFrom (global, this, strict, args) {
     @ReturnIfAbrupt(defineStatus);
 
     /* h. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   
   /* 17. Let setStatus be Set(A, "length", len, true). */
@@ -2913,7 +2949,7 @@ function arrayOf (global, this, strict, args) {
   /* 4. If IsConstructor(C) is true, then */
   if (IsConstructor(C) = true) {   
     /* a. Let A be Construct(C, «len»). */
-    A := Construct(C, [len])
+    A := ConstructNew(C, [len], null)
 
   /* 5. Else, */
   } else {
@@ -2925,7 +2961,7 @@ function arrayOf (global, this, strict, args) {
   @ReturnIfAbrupt(A);
 
   /* 7. Let k be 0. */
-  k := 0;
+  k := 0.;
 
   /* 8. Repeat, while k < len */
   while (k < len) {
@@ -2942,7 +2978,7 @@ function arrayOf (global, this, strict, args) {
     @ReturnIfAbrupt(defineStatus);
 
     /* e. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
 
   /* 9. Let setStatus be Set(A, "length", len, true). */
@@ -3007,7 +3043,7 @@ function arraycopyWithin (global, this, strict, args) {
   @ReturnIfAbrupt(relativeStart);
 
   /* 10. If relativeStart < 0, let from be max((len + relativeStart),0); else let from be min(relativeStart, len). */
-  if (relativeStart < 0) {
+  if (relativeStart < 0.) {
     from := max((len + relativeStart), 0.)
   } else {
     from := min(relativeStart, len)
@@ -3016,13 +3052,15 @@ function arraycopyWithin (global, this, strict, args) {
   /* 11. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
   if (end = 'undefined) {
     relativeEnd := len
+  } else {
+    relativeEnd := ToInteger(end)
   };
 
   /* 12. ReturnIfAbrupt(relativeEnd). */
   @ReturnIfAbrupt(relativeEnd);
 
   /* 13. If relativeEnd < 0, let final be max((len + relativeEnd),0); else let final be min(relativeEnd, len). */
-  if (relativeEnd < 0) {
+  if (relativeEnd < 0.) {
     final := max((len + relativeEnd), 0.)
   } else {
     final := min(relativeEnd, len)
@@ -3034,20 +3072,20 @@ function arraycopyWithin (global, this, strict, args) {
   /* 15. If from<to and to<from+count */
   if ((from < to) &&& (to < (from + count))) {
     /* a. Let direction be -1. */
-    direction := -1;
+    direction := -(1.);
     /* b. Let from be from + count -1. */
-    from := from + count - 1;
+    from := from + count - 1.;
     /* c. Let to be to + count -1. */
-    to := to + count - 1
+    to := to + count - 1.
 
   /* 16. Else, */
   } else {
     /* a. Let direction = 1. */
-    direction := 1
+    direction := 1.
   };
 
   /* 17. Repeat, while count > 0 */
-  while (count > 0) {
+  while (count > 0.) {
     /* a. Let fromKey be ToString(from). */
     fromKey := ToString(from);
 
@@ -3055,7 +3093,7 @@ function arraycopyWithin (global, this, strict, args) {
     toKey := ToString(to);
 
     /* c. Let fromPresent be HasProperty(O, fromKey). */
-    fromPresent := {O.HasProperty}(O, from);
+    fromPresent := {O.HasProperty}(O, fromKey);
 
     /* d. ReturnIfAbrupt(fromPresent). */
     @ReturnIfAbrupt(fromPresent);
@@ -3069,10 +3107,9 @@ function arraycopyWithin (global, this, strict, args) {
       @ReturnIfAbrupt(fromVal);
 
       /* iii. Let setStatus be Set(O, toKey, fromVal, true). */
-      setStatus := Set(O, toKey, fromVal, true);
+      {O.Put}(O, toKey, fromVal, O)
 
       /* iv. ReturnIfAbrupt(setStatus). */
-      @ReturnIfAbrupt(setStatus)
 
     /* f. Else fromPresent is false, */
     } else {
@@ -3083,14 +3120,17 @@ function arraycopyWithin (global, this, strict, args) {
       @ReturnIfAbrupt(deleteStatus)
     };
 
+    print "testee 1";
     /* g. Let from be from + direction. */
     from := from + direction;
-
+    
+    print "testee 2";
     /* h. Let to be to + direction. */
     to := to + direction;
-
+    
+    print "testee 3";
     /* i. Let count be count − 1. */
-    count := count - 1
+    count := count - 1.
   };
 
   /* 18. Return O. */
@@ -3165,13 +3205,12 @@ function arrayFill (global, this, strict, args) {
     Pk := ToString(k);
 
     /* b. Let setStatus be Set(O, Pk, value, true). */
-    setStatus := Set(O, Pk, value, true);
+    {O.Put}(O, Pk, value, O);
 
     /* c. ReturnIfAbrupt(setStatus). */
-    @ReturnIfAbrupt(setStatus);
 
     /* d. Increase k by 1. */
-    k := k - 1
+    k := k + 1.
   };
 
   /* 12. Return O. */
@@ -3227,7 +3266,7 @@ function arrayFind (global, this, strict, args) {
   @ReturnIfAbrupt(len);
 
   /* 5. If IsCallable(predicate) is false, throw a TypeError exception. */
-  if (IsCallable(predicate) = false) {
+  if (IsCallableNew(predicate) = false) {
     throw TypeErrorConstructorInternal()
   };
 
@@ -3239,7 +3278,7 @@ function arrayFind (global, this, strict, args) {
   };
 
   /* 7. Let k be 0. */
-  k := 0;
+  k := 0.;
   
   /* 8. Repeat, while k < len */
   while (k < len) {
@@ -3264,7 +3303,7 @@ function arrayFind (global, this, strict, args) {
     };
 
     /* g. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
 
   /* 9. Return undefined. */
@@ -3319,7 +3358,7 @@ function arrayFindIndex (global, this, strict, args) {
   @ReturnIfAbrupt(len);
 
   /* 5. If IsCallable(predicate) is false, throw a TypeError exception. */
-  if (IsCallable(predicate) = false) {
+  if (IsCallableNew(predicate) = false) {
     throw TypeErrorConstructorInternal()
   };
 
@@ -3331,7 +3370,7 @@ function arrayFindIndex (global, this, strict, args) {
   };
 
   /* 7. Let k be 0. */
-  k := 0;
+  k := 0.;
   
   /* 8. Repeat, while k < len */
   while (k < len) {
@@ -3356,9 +3395,9 @@ function arrayFindIndex (global, this, strict, args) {
     };
 
     /* g. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
 
-  /* 9. Return undefined. */
-  return -1
+  /* 9. Return -1. */
+  return -(1.)
 }
