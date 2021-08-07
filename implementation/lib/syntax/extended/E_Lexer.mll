@@ -113,7 +113,8 @@
                 "NaN"             , FLOAT (float_of_string "nan");
                 "Infinity"        , FLOAT (float_of_string "infinity");
                 "lambda"          , LAMBDA;
-                "extern"          , EXTERN
+                "extern"          , EXTERN; 
+                "to_precision"    , TO_PRECISION
                 ]
 
   exception Syntax_error of string

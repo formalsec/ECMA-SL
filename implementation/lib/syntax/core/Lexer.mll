@@ -88,7 +88,8 @@
                   "throw"           , THROW;
                   "null"            , NULL;
                   "fail"            , FAIL;
-                  "print"           , PRINT
+                  "print"           , PRINT; 
+                  "to_precision"    , TO_PRECISION 
                 ]
 
   exception Syntax_error of string
