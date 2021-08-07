@@ -674,7 +674,7 @@ function MapIteratorPrototypeNext(global, this, strict, args) {
 
   /* 3. If O does not have all of the internal slots of a Map Iterator Instance (23.1.5.3), throw a TypeError exception. */
   if (!isMapIteratorInstance(O)) {
-    throw TypeErrorCon
+    throw TypeErrorConstructorInternal()
   }; 
 
   /* 4. Let m be the value of the [[Map]] internal slot of O. */
