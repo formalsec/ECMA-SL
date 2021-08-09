@@ -1,0 +1,76 @@
+/* 9.1 Ordinary Object Internal Methods and Internal Slots */
+
+/* 9.1.5.1 OrdinaryGetOwnProperty (O, P) */
+function OrdinaryGetOwnProperty(O, P){
+    /* 1. Assert: IsPropertyKey(P) is true. */
+    assert(IsPropertyKey(P) = true);
+
+    /* 2. If O does not have an own property with key P, return undefined. */
+    if (!(P in_obj O.JSProperties)) {
+        return 'undefined
+    };
+
+    /* 3. Let D be a newly created Property Descriptor with no fields. */
+    D := NewPropertyDescriptor();
+
+    /* 4. Let X be O’s own property whose key is P. */
+    X := O.JSProperties[P];
+
+    /* 5. If X is a data property, then */
+    if (IsDataPropertyDescriptor(X)){
+        /* a. Set D.[[Value]] to the value of X’s [[Value]] attribute. */
+        D.Value := X.Value;
+
+        /* b. Set D.[[Writable]] to the value of X’s [[Writable]] attribute */
+        D.Writable := X.Writable
+    }
+    /* 6. Else X is an accessor property, so */
+    else{
+        /* a. Set D.[[Get]] to the value of X’s [[Get]] attribute. */
+        D.Get := X.Get;
+
+        /* b. Set D.[[Set]] to the value of X’s [[Set]] attribute. */
+        D.Set := X.Set
+    };
+
+    /* 7. Set D.[[Enumerable]] to the value of X’s [[Enumerable]] attribute. */
+    D.Enumerable := X.Enumerable;
+
+    /* 8. Set D.[[Configurable]] to the value of X’s [[Configurable]] attribute. */
+    D.Configurable := X.Configurable;
+
+    /* 9. Return D. */
+    return D
+};
+
+/* 9.1.7.1 OrdinaryHasProperty (O, P) */
+function OrdinaryHasProperty(O, P){
+    /* 1. Assert: IsPropertyKey(P) is true. */
+    assert(IsPropertyKey(P) = true);
+
+    /* 2. Let hasOwn be OrdinaryGetOwnProperty(O, P). */
+    hasOwn := OrdinaryGetOwnProperty(O, P);
+
+    /* 3. If hasOwn is not undefined, return true. */
+    if (!(hasOwn) = 'undefined){
+        return true
+    };
+
+    /* 4. Let parent be O.[[GetPrototypeOf]](). */
+    parent := {O.GetPrototypeOf}();
+
+    /* 5. ReturnIfAbrupt(parent). */
+    @ReturnIfAbrupt(parent);
+
+    /* 6. If parent is not null, then */
+    if (!(parent = null)){
+        /* a. Return parent.[[HasProperty]](P). */
+        return {parent.HasProperty}(P)
+    };
+
+    /* 8. Return false. */
+    return false
+}
+
+
+
