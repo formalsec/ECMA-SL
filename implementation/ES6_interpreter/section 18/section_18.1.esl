@@ -242,6 +242,85 @@ function GlobalObjectParseInt(globalObject, this, strict, params) {
   /* 15. Return sign x number. */
 };
 
+/* 15.1.2.2 parseInt (string , radix) */
+function GlobalObjectParseIntAlt(globalObject, this, strict, params) {
+  string := l_nth(0, params);
+  radix := l_nth(1, params);
+  /* 1. Let inputString be ToString(string). */
+  inputString := ToString(string);
+  /* 2. ReturnIfAbrupt(string). */
+  @ReturnIfAbrupt(string);
+  /* 3. Let S be a newly created substring of inputString consisting
+  of the first code unit that is not a StrWhiteSpaceChar and all code 
+  units following that code unit. 
+  (In other words, remove leading white space.) 
+  If inputString does not contain any such code unit, let S be the empty string. */
+  S := inputString;
+  len := s_len_u(inputString);
+  while (s_nth(inputString, index) = " ") {
+    if (len = 0) {
+      S := ""
+      /* TODO break */
+    };
+    S := s_substr_u(S, 1, len - 1);
+    len := len - 1
+  };
+  /* 4. Let sign be 1. */
+  sign := 1;
+  /* 5. PARSING ERROR If S is not empty and the first code unit of S is 0x002D
+  (HYPHEN-MINUS), let sign be −1. */
+  /* if (!(S = "")) &&& s_nth(0, S) = "-" {
+    sign := -1
+  };*/
+  /* 6. PARSING ERROR If S is not empty and the first code unit of S is 0x002B (PLUS SIGN)
+  or 0x002D (HYPHEN-MINUS), remove the first code unit from S. */
+  /* if (!(S = "")) &&& s_nth(0, S) = "+" || s_nth(0, S) = "-" {
+    S := s_substr_u(1, S)
+  }; */
+  /* 7. Let R = ToInt32(radix). */
+  R := ToInt32(radix);
+  /* 8. ReturnIfAbrupt(R). */
+  @ReturnIfAbrupt(R);
+  /* 9. Let stripPrefix be true. */
+  stripPrefix := true;
+  /* 10. If R ≠ 0, then */
+  if (!(R = 0)) {
+    /* a. If R < 2 or R > 36, return NaN. */
+    if (R < 2 || R > 36) {
+      return NaN
+    };
+    /* b.If R ≠ 16, let stripPrefix be false. */
+    if (!(R = 16)) {
+      stripPrefix = false
+    }
+  /* 11. Else R = 0, */
+  } else {
+    /* a. Let R = 10. */
+    R := 10
+  };
+  /* 12. If stripPrefix is true, then */
+  if (stripPrefix = true) {
+    /* a. If the length of S is at least 2 and the first
+    two code units of S are either "0x" or "0X", remove the
+    first two code units from S and let R = 16. */
+    len := s_len_u(S);
+    if (len >= 2 &&& (s_nth(0, S) = "0x" || s_nth(0, S) ="0X") &&& (s_nth(1, S) = "0x" || s_nth(1, S) ="0X")) {
+      S := s_nth(2, len);
+      R := 16
+    }
+  }
+  /* 13. TODO If S contains a code unit that is not a radix-R digit,
+  let Z be the substring of S consisting of all code units before
+  the first such code unit; otherwise, let Z be S. */
+  /* 14. If Z is empty, return NaN. */
+  /* 15. Let mathInt be the mathematical integer value that is represented by Z in radix-R notation, using the letters A-Z and a-z for digits with values 10 through 35. (However, if R is 10 and Z contains more than 20 significant digits, every significant digit after the 20th may be replaced by a 0 digit, at the option of the implementation; and if R is not 2, 4, 8, 10, 16, or 32, then mathInt may be an implementation-dependent approximation to the mathematical integer value that is represented by Z in radix-R notation.) */
+  /* 16. If mathInt = 0, then */
+  /* a. If sign = −1, return −0. */
+  /* b. Return +0. */
+  /* 17. Let number be the Number value for mathInt. */
+  /* 18. Return sign × number. */
+};
+
 /* 15.1.2.3 parseFloat (string) */
 function GlobalObjectParseFloat(globalObject, this, strict, params) {
   string := l_nth(params, 0);
@@ -267,9 +346,52 @@ function GlobalObjectParseFloat(globalObject, this, strict, params) {
           ignored. */
 };
 
+/* 15.1.2.3 parseFloat (string) */
+function GlobalObjectParseFloatAlt(globalObject, this, strict, params) {
+  string := l_nth(params, 0);
+  /* 1. Let inputString be ToString(string). */
+  inputString := ToString(string);
+  /* 2. ReturnIfAbrupt(inputString). */
+  @ReturnIfAbrupt(inputString);
+  /* 3. Let trimmedString be a substring of inputString
+  consisting of the leftmost code unit that is not a StrWhiteSpaceChar
+  and all code units to the right of that code unit.
+  (In other words, remove leading white space.) 
+  If inputString does not contain any such code units, let trimmedString be the empty string. */
+  trimmedString := inputString;
+  len := s_len_u(inputString);
+  while (s_nth(inputString, index) = " ") {
+    if (len = 0) {
+      trimmedString := ""
+      /* TODO break */
+    };
+    trimmedString := s_substr_u(trimmedString, 1, len - 1);
+    len := len - 1
+  };
+  /* TODO */
+  /* 4. If neither trimmedString nor any prefix of trimmedString satisfies
+  the syntax of a StrDecimalLiteral (see 7.1.3.1), return NaN. */
+  /* 5. Let numberString be the longest prefix of trimmedString, which might be trimmedString itself,
+  that satisfies the syntax of a StrDecimalLiteral. */
+
+  /* 6. TODO Let mathFloat be MV of numberString. */
+  
+  /* 7. If mathFloat=0, then */
+  if (mathFloat = 0) {
+    /* a. If the first code unit of trimmedString is "-", return −0. */
+    if (s_nth(0, trimmedString) =  "-") {
+      return -(0.)
+    };
+    /* b. Return +0. */
+    return 0.
+  };
+  /* 8. Return the Number value for mathFloat. */
+  return mathFloat
+};
+
 /* 15.1.2.4 isNaN (number) */
 function GlobalObjectIsNaN(globalObject, this, strict, params) {
-  number := l_nth(params, 0);
+  number := s_nth(params, 0);
   /* Returns true if the argument coerces to NaN, and otherwise returns false. */
 
   /* 1. If ToNumber(number) is NaN, return true. */
@@ -285,7 +407,7 @@ function GlobalObjectIsNaN(globalObject, this, strict, params) {
 
 /* 15.1.2.5 isFinite (number) */
 function GlobalObjectIsFinite(globalObject, this, strict, params) {
-  number := l_nth(params, 0);
+  number := s_nth(params, 0);
   /* Returns false if the argument coerces to NaN, +Infinity, or -Infinity, and otherwise returns true. */
 
   /* 1. If ToNumber(number) is NaN, +Infinity, or -Infinity, return false.*/
