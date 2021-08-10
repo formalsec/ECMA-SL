@@ -1,3 +1,85 @@
+/* 7.2 Testing and Comparison Operations */
+
+/**
+ * 7.2.1 RequireObjectCoercible ( argument )
+ *
+ * The abstract operation RequireObjectCoercible throws an error if argument is a value that cannot be converted
+ * to an Object using ToObject. It is defined by Table 14:
+ *
+ * Table 14 — RequireObjectCoercible Results
+ * Argument Type	       | Result
+ * ______________________|_______________________________________________________________
+ * Completion Record     | If argument is an abrupt completion, return argument. 
+                         | Otherwise return RequireObjectCoercible(argument.[[value]]).
+ * ______________________|_______________________________________________________________
+ * Undefined             | Throw a TypeError exception.
+ * ______________________|_______________________________________________________________
+ * Null                  | Throw a TypeError exception.
+ * ______________________|_______________________________________________________________
+ * Boolean	             | Return argument.
+ * ______________________|_______________________________________________________________
+ * Number	               | Return argument.
+ * ______________________|_______________________________________________________________
+ * String	               | Return argument.
+ * ______________________|_______________________________________________________________
+ * Symbol	               | Return argument.
+ * ______________________|_______________________________________________________________
+ * Object	               | Return argument.
+ * ______________________|_______________________________________________________________
+ */
+ 
+function RequireObjectCoercible(argument){
+  if(Type(argument) = "Completion"){
+    if(isAnAbruptCompletion(argument)){
+      return argument
+    }else{
+      return RequireObjectCoercible(argument.value)
+    }
+  }elif(Type(argument) = "Undefined"){
+    throw TypeErrorConstructorInternal()
+  }elif(Type(argument) = "Null"){
+    throw TypeErrorConstructorInternal()
+  }elif(Type(argument) = "Boolean"){
+    return argument
+  }elif(Type(argument) = "Number"){
+    return argument
+  }elif(Type(argument) = "String"){
+    return argument
+  }elif(Type(argument) = "Symbol"){
+    return argument
+  }elif(Type(argument) = "Object"){
+    return argument
+  }
+};
+
+
+
+/**
+ * 7.2.7 IsPropertyKey ( argument )
+ *
+ * The abstract operation IsPropertyKey determines if argument, which must be an ECMAScript language value or a
+ * Completion Record, is a value that may be used as a property key.
+ */
+ function IsPropertyKey(argument){
+  /* 1. ReturnIfAbrupt(argument). */
+  @ReturnIfAbrupt(argument);
+
+  /* 2. If Type(argument) is String, return true. */
+  if (Type(argument) = "String"){
+    return true
+  };
+  
+  /* 3. If Type(argument) is Symbol, return true. */
+  if (Type(argument) = "Symbol"){
+    return true
+  };
+
+  /* 4. Return false. */
+  return false
+ };
+
+
+
 /**
  * 7.2.10 SameValueZero(x, y)
  *
