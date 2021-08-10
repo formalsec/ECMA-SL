@@ -30,14 +30,14 @@
     - 22.1.3.29 Array.prototype.values ( ) [DOESNT WORK WITH "for (let letter of iterator)" ]
     - 22.1.3.13 Array.prototype.keys ( ) [DOESNT WORK WITH "for (let letter of iterator)" ]
     - 22.1.3.4 Array.prototype.entries ( ) [DOESNT WORK WITH "for (let letter of iterator)" ]
+    - 22.1.5.1 CreateArrayIterator Abstract Operation
+    - 22.1.3.30 Array.prototype [ @@iterator ] ( )
 
     TESTING:
     - 22.1.2.1 Array.from ( items [ , mapfn [ , thisArg ] ] ) [NOT FINAL]
     - 22.1.2.3 Array.of ( ...items ) [NOT FINAL]
-    
-    - 22.1.5.1 CreateArrayIterator Abstract Operation
-    - 22.1.3.30 Array.prototype [ @@iterator ] ( )
     - 22.1.5.2.1 %ArrayIteratorPrototype%.next( )
+    
 
     TODO : 
     - 22.1.1.1 Array ( )
@@ -91,7 +91,6 @@ function isSparseArray(O) {
   /* 2. For each integer i in the range 0≤i<ToUint32(len) */
   i := 0;
   lenUint := ToUint32(len);
-
   while (i < lenUint) {
     /* a. Let elem be the result of calling the [[GetOwnProperty]] internal
           method of O with argument ToString(i). */
@@ -1008,7 +1007,7 @@ function arrayReverse(global, this, strict, args) {
 
 
     /* d. Let lowerExists be HasProperty(O, lowerP). */
-    lowerExists := {O.HasProperty}(O, lowerP);
+    lowerExists := HasPropertyNew(O, lowerP);
 
     /* e. ReturnIfAbrupt(lowerExists). */
     @ReturnIfAbrupt(lowerExists);
@@ -1023,7 +1022,7 @@ function arrayReverse(global, this, strict, args) {
     };
 
     /* g. Let upperExists be HasProperty(O, upperP). */
-    upperExists := {O.HasProperty}(O, upperP);
+    upperExists := HasPropertyNew(O, upperP);
 
     /* h. ReturnIfAbrupt(upperExists). */
     @ReturnIfAbrupt(upperExists);
@@ -1144,7 +1143,7 @@ function arrayShift(global, this, strict, args) {
     to := ToString(k - 1.);
     
     /* c. Let fromPresent be HasProperty(O, from). */
-    fromPresent := {O.HasProperty}(O, from);
+    fromPresent := HasPropertyNew(O, from);
 
     /* d. ReturnIfAbrupt(fromPresent). */
     @ReturnIfAbrupt(fromPresent);
@@ -1732,7 +1731,7 @@ function arrayUnshift(global, this, strict, items) {
       to := ToString(k + argCount - 1.);
 
       /* iii. Let fromPresent be HasProperty(O, from).*/
-      fromPresent := {O.HasProperty}(O, from);
+      fromPresent := HasPropertyNew(O, from);
 
       /* iv. ReturnIfAbrupt(fromPresent). */
       @ReturnIfAbrupt(fromPresent);
@@ -1885,7 +1884,7 @@ function arrayIndexOf(global, this, strict, args) {
   /* 11. Repeat, while k<len */
   while (k < len) {
     /* a. Let kPresent be HasProperty(O, ToString(k)). */
-    kPresent := {O.HasProperty}(O, ToString(k));
+    kPresent := HasPropertyNew(O, ToString(k));
 
     /* b. ReturnIfAbrupt(kPresent).*/
     @ReturnIfAbrupt(kPresent);
@@ -1994,7 +1993,7 @@ function arrayLastIndexOf(global, this, strict, args) {
   /* 10. Repeat, while k≥ 0 */
   while (k >= 0.) {
     /* a. Let kPresent be HasProperty(O, ToString(k)). */
-    kPresent := {O.HasProperty}(O, ToString(k));
+    kPresent := HasPropertyNew(O, ToString(k));
 
     /* b. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
@@ -2108,7 +2107,7 @@ function arrayEvery(global, this, strict, args) {
     Pk := ToString(k);
 
     /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := {O.HasProperty}(O, Pk);
+    kPresent := HasPropertyNew(O, Pk);
 
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
@@ -2221,7 +2220,7 @@ function arraySome(global, this, strict, args) {
     Pk := ToString(k);
     
     /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := {O.HasProperty}(O, Pk);
+    kPresent := HasPropertyNew(O, Pk);
     
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
@@ -2331,7 +2330,7 @@ function arrayForEach(global, this, strict, args) {
     Pk := ToString(k);
     
     /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := {O.HasProperty}(O, Pk);
+    kPresent := HasPropertyNew(O, Pk);
 
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
@@ -2647,7 +2646,7 @@ function arrayReduce(global, this, strict, args) {
       Pk := ToString(k);
 
       /* ii. Let kPresent be HasProperty(O, Pk). */
-      kPresent := {O.HasProperty}(O, Pk);
+      kPresent := HasPropertyNew(O, Pk);
 
       /* iii. ReturnIfAbrupt(kPresent). */
       @ReturnIfAbrupt(kPresent);
@@ -2677,7 +2676,7 @@ function arrayReduce(global, this, strict, args) {
     Pk := ToString(k);
 
     /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := {O.HasProperty}(O, Pk);
+    kPresent := HasPropertyNew(O, Pk);
 
     /* c. ReturnIfAbrupt(kPresent).*/
     @ReturnIfAbrupt(kPresent);
@@ -2793,7 +2792,7 @@ function arrayReduceRight(global, this, strict, args) {
       Pk := ToString(k);
 
       /* ii. Let kPresent be HasProperty(O, Pk). */
-      kPresent := {O.HasProperty}(O, Pk);
+      kPresent := HasPropertyNew(O, Pk);
 
       /* iii. ReturnIfAbrupt(kPresent). */
       @ReturnIfAbrupt(kPresent);
@@ -2823,7 +2822,7 @@ function arrayReduceRight(global, this, strict, args) {
     Pk := ToString(k);
 
     /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := {O.HasProperty}(O, Pk);
+    kPresent := HasPropertyNew(O, Pk);
 
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
@@ -3080,7 +3079,7 @@ function arrayFrom (global, this, strict, args) {
     /* b. Else, */
     } else {
       /* i. Let A be ArrayCreate(0). */
-      A := ArrayCreate(0.)
+      A := ArrayConstructor(global, this, strict, [])
     };
    
     /* c. ReturnIfAbrupt(A). */
@@ -3178,7 +3177,7 @@ function arrayFrom (global, this, strict, args) {
   /* 13. Else, */
   } else {
     /* a. Let A be ArrayCreate(len). */
-    A := ArrayCreate(len)
+    A := ArrayConstructor(global, this, strict, [len])
   };
 
   /* 14. ReturnIfAbrupt(A). */
@@ -3264,7 +3263,7 @@ function arrayOf (global, this, strict, args) {
   /* 5. Else, */
   } else {
     /* a. Let A be ArrayCreate(len). */
-    A := ArrayCreate(len)
+    A := ArrayConstructor(global, this, strict, [len])
   };
 
   /* 6. ReturnIfAbrupt(A). */
@@ -3403,7 +3402,7 @@ function arraycopyWithin (global, this, strict, args) {
     toKey := ToString(to);
 
     /* c. Let fromPresent be HasProperty(O, fromKey). */
-    fromPresent := {O.HasProperty}(O, fromKey);
+    fromPresent := HasPropertyNew(O, fromKey);
 
     /* d. ReturnIfAbrupt(fromPresent). */
     @ReturnIfAbrupt(fromPresent);
@@ -3511,10 +3510,15 @@ function arrayFill (global, this, strict, args) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
 
-    /* b. Let setStatus be Set(O, Pk, value, true). */
     {O.Put}(O, Pk, value, O);
 
-    /* c. ReturnIfAbrupt(setStatus). */
+    /*
+    b. Let setStatus be Set(O, Pk, value, true). 
+    setStatus := SetNew(O, Pk, value, true);
+
+    c. ReturnIfAbrupt(setStatus). 
+    @ReturnIfAbrupt(setStatus);
+    */
 
     /* d. Increase k by 1. */
     k := k + 1.
