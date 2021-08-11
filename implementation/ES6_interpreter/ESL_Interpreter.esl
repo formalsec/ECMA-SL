@@ -25,6 +25,12 @@ function JS_Interpreter_Program(p, callingExecCtx) {
           Program is strict mode code, SourceElements is evaluated in the following steps as strict mode code.
           Otherwise SourceElements is evaluated in the following steps as non-strict mode code. */
 
+
+
+    initJobQueue();
+
+
+
     /* 2. If SourceElements is not present, return (normal, empty, empty). */
     if (SourceElementsopt = []) {
       return normalEmptyCompletion('empty)
@@ -34,6 +40,10 @@ function JS_Interpreter_Program(p, callingExecCtx) {
     /* 4. Let result be the result of evaluating SourceElements. */
     result := JS_Interpreter_SourceElements(SourceElementsopt, progCxt);
     /* 5. Exit the execution context progCxt. */
+
+
+    executeJobs();
+
 
     /* 6. Return result. */
     print progCxt;

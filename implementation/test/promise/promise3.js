@@ -1,8 +1,8 @@
 var p = new Promise(function (resolve, reject) {
-	resolve(5);
+	throw Error("whoops!");
 });
 
-p.then(function (v) {
-	assert.sameValue(v, 5);
+p.catch(function (v) {
+	//assert.sameValue(v, 4);
 	console.log("I got: " + v);
 });

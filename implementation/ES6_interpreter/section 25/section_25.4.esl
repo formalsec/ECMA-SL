@@ -46,7 +46,7 @@ function initPromisePrototype(globalObject, ObjectPrototype, strict) {
 
   /* 25.4.5.1 Promise.prototype.catch ( onRejected ) */
   catchFunctionObject := CreateBuiltInFunctionObject(["onRejected"],
-    "PromisePrototypeThen", globalObject, strict, null);
+    "PromisePrototypeCatch", globalObject, strict, null);
   descriptor := newDataPropertyDescriptorFull(catchFunctionObject, true, false, true);
   setJSProperty(prototype, "catch", descriptor);
 
@@ -158,6 +158,82 @@ macro ReturnIfAbrupt(argument) {
 };
 
 
+function initJobQueue() {
+  |JobQueue| := [];
+  return
+};
+
+function appendToJobQueue(job) {
+  |JobQueue| := l_add(|JobQueue|, job);
+  return
+};
+
+function executeJobs() {
+  while (!(|JobQueue| = [])) {
+    job := hd |JobQueue|;
+    |JobQueue| := tl |JobQueue|;
+
+    switch (job.Job) {
+      case "PromiseResolveThenableJob": {
+        strict := l_nth(job.Arguments, 0);
+        promise := l_nth(job.Arguments, 1);
+        resolution := l_nth(job.Arguments, 2);
+        thenAction := l_nth(job.Arguments, 3);
+        PromiseResolveThenableJob(strict, promise, resolution, thenAction)
+      }
+      case "PromiseReactionJob": {
+        reaction := l_nth(job.Arguments, 0);
+        argument := l_nth(job.Arguments, 1);
+        PromiseReactionJob(reaction, argument)
+      }
+      sdefault: throw "Job not implemented."  
+    }
+  };
+  return
+};
+
+function newPendingJob(Job, Arguments, realm, HostDefined) {
+  return { Job: Job,
+    Arguments: Arguments,
+    realm: realm,
+    HostDefined: HostDefined }
+};
+/**
+ * 8.4.1 EnqueueJob (queueName, job, arguments)
+ *
+ * The EnqueueJob abstract operation requires three arguments: queueName, job, 
+ * and arguments. It performs the following steps: 
+ */
+function EnqueueJob(queueName, job, arguments) {
+  /* 1. Assert: Type(queueName) is String and its value is the name of a Job 
+     Queue recognized by this implementation. */
+  assert((Type(queueName) = "String") &&& ((queueName = "ScriptJobs") ||| (queueName = "PromiseJobs")));
+  /* 2. Assert: job is the name of a Job. */
+  assert((queueName = "ScriptJobs") ||| (queueName = "PromiseJobs"));
+  /* 3. Assert: arguments is a List that has the same number of elements as 
+     the number of parameters required by job. */
+  /*assert((l_len arguments) = )*/
+  /* 4. Let callerContext be the running execution context. */
+  /* TODO */
+  /* 5. Let callerRealm be callerContext’s Realm. */
+  /* TODO */
+  /* 6. Let pending be PendingJob{ [[Job]]: job, [[Arguments]]: arguments, 
+     [[Realm]]: callerRealm, [[HostDefined]]: undefined }. */
+  pending := newPendingJob(job, arguments, null, 'undefined);
+  /* 7. Perform any implementation or host environment defined processing of 
+     pending. This may include modifying the [[HostDefined]] field or any 
+     other field of pending. */
+  /* TODO */
+  /* 8. Add pending at the back of the Job Queue named by queueName. */
+  appendToJobQueue(pending);
+  /* 9. Return NormalCompletion(empty). */
+  return NormalCompletion('empty)
+};
+
+function NextJob(completion) {
+ /* TODO */
+ return
+};
 
 
 
@@ -257,7 +333,8 @@ function IfAbruptRejectPromise(value, capability) {
   elif (isCompletionRecord(value)) {
     /* let value be value.[[value]] */
     value := value.value
-  }
+  };
+  return
 };
 
 
@@ -414,7 +491,7 @@ function PromiseResolveFunctions(F, global, this, strict, args) {
   };
   /* 12. Perform EnqueueJob ("PromiseJobs", PromiseResolveThenableJob, 
      «‍promise, resolution, thenAction») */
-  EnqueueJob("PromiseJobs", PromiseResolveThenableJob, [strict, promise, resolution, thenAction]);
+  EnqueueJob("PromiseJobs", "PromiseResolveThenableJob", [strict, promise, resolution, thenAction]);
   /* 13. Return undefined. */
   return 'undefined
 };
@@ -482,7 +559,7 @@ function NewPromiseCapability(strict, C) {
   promiseCapability := { Promise: 'undefined, Resolve: 'undefined, Reject: 'undefined };
   /* 4. Let executor be a new built-in function object as defined in 
      GetCapabilitiesExecutor Functions (25.4.1.5.1). */
-  executor := CreateBuiltInFunctionObject(["resolve","reject"],, "GetCapabilitiesExecutorFunctions", |global|, strict, null);
+  executor := CreateBuiltInFunctionObject(["resolve","reject"], "GetCapabilitiesExecutorFunctions", |global|, strict, null);
   executorFun := lambda(global, this, strict, args)[executor] {
     return GetCapabilitiesExecutorFunctions(executor, global, this, strict, args)
   };
@@ -631,7 +708,7 @@ function TriggerPromiseReactions(reactions, argument) {
   foreach (reaction : reactions) {
     /* a. Perform EnqueueJob("PromiseJobs", PromiseReactionJob, «‍reaction, 
        argument»). */
-    EnqueueJob("PromiseJobs", PromiseReactionJob, [reaction, argument])
+    EnqueueJob("PromiseJobs", "PromiseReactionJob", [reaction, argument])
   };
   /* 2. Return undefined. */
   return 'undefined
@@ -679,15 +756,16 @@ function PromiseReactionJob(reaction, argument) {
   if (isAnAbruptCompletion(handlerResult)) {
     /* a. Let status be Call(promiseCapability.[[Reject]], undefined, 
        «handlerResult.[[value]]»). */
-    status := Call(null, null, promiseCapability.Reject, 'undefined, [handlerResult.value]);
+    status := Call(null, null, promiseCapability.Reject, 'undefined, [handlerResult]);
     /* b. NextJob Completion(status). */
     NextJob(Completion(status))
   };
   /* 8. Let status be Call(promiseCapability.[[Resolve]], undefined, 
      «handlerResult.[[value]]»). */
-  status := Call(null, null, promiseCapability.Resolve, 'undefined, [handlerResult.value]);
+  status := Call(null, null, promiseCapability.Resolve, 'undefined, [handlerResult]);
   /* 9. NextJob Completion(status). */
-  NextJob(Completion(status))
+  NextJob(Completion(status));
+  return
 };
 
 
@@ -715,7 +793,8 @@ function PromiseResolveThenableJob(strict, promiseToResolve, thenable, then) {
     NextJob(Completion(status))
   };
   /* 4. NextJob Completion(thenCallResult). */
-  NextJob(Completion(thenCallResult))
+  NextJob(Completion(thenCallResult));
+  return
 };
 /**
  * NOTE This Job uses the supplied thenable and its then method to resolve the 
@@ -1001,7 +1080,8 @@ function PerformPromiseAll(iteratorRecord, constructor, resultCapability) {
     @ReturnIfAbrupt(result);
     /* t. Set index to index + 1. */
     index := index + 1.
-  }
+  };
+  return
 };
 
 
@@ -1187,7 +1267,8 @@ function PerformPromiseRace(iteratorRecord, promiseCapability, C) {
     result := Invoke(nextPromise, "then", [promiseCapability.Resolve, promiseCapability.Reject]);
     /* k. ReturnIfAbrupt(result). */
     @ReturnIfAbrupt(result)
-  }
+  };
+  return
 };
 
 
@@ -1357,10 +1438,8 @@ function PromisePrototypeThen(global, this, strict, args) {
   @ReturnIfAbrupt(C);
   /* 5. Let resultCapability be NewPromiseCapability(C). */
   resultCapability := NewPromiseCapability(strict, C);
-  print "INSIDE THIS C";
   /* 6. ReturnIfAbrupt(resultCapability). */
   @ReturnIfAbrupt(resultCapability);
-  print "INSIDE THIS D";
   /* 7. Return PerformPromiseThen(promise, onFulfilled, onRejected, 
      resultCapability). */
   return PerformPromiseThen(promise, onFulfilled, onRejected, resultCapability)
