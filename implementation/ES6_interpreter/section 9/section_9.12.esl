@@ -51,9 +51,9 @@ function SameValue (x, y) {
 
 /* Auxiliary functions */
 function isZero(x) {
-  return (x = 0.) && ((1. / x) = Infinity)
+  return (x = 0.) &&& ((1. / x) = Infinity)
 };
 
 function isMinusZero(x) {
-  return (x = 0.) && ((1. / x) = -Infinity)
+  return (x = 0.) &&& ((1. / x) = -Infinity)
 }

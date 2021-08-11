@@ -153,6 +153,10 @@ function ObjectConstructor(globalObject, this, strict, params) {
     /* d. If Type(value) is Number, return ToObject(value). */
     if (Type(value) = "Number") {
       return ToObject(value)
+    };
+    /* e. If Type(value) is Symbol, return value. */
+    if (Type(value) = "Symbol") {
+      return value
     }
   };
   /* 2. Assert: The argument value was not supplied or its type was Null or Undefined. */

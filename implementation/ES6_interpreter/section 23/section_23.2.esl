@@ -354,7 +354,7 @@ function setAddObject(global, this, strict, args) {
  */
 function setClearObject(global, this, strict, args) {
   print("in clearSetObject");
-
+  newSetData := [];
   /* 1. Let S be the this value. */
   S := this;
 
@@ -375,17 +375,18 @@ function setClearObject(global, this, strict, args) {
   len := l_len(entries);
   index := 0;
 
-  S.SetData := [];
-  /*while (index < len) { TODO 
+  
+  while (index < len) { 
     
     e := l_nth(entries, index);
     
     /* a. Replace the element of entries whose value is e with an element whose value is empty. */
-    
-  /* index := index + 1
-  };*/
-  
+    newSetData := l_add(newSetData, 'empty);
 
+    index := index + 1
+  };
+  
+  S.SetData := newSetData;
   /* 6. Return undefined.*/
   return 'undefined
 };
@@ -442,8 +443,6 @@ function setDeleteObject(global, this, strict, args) {
       };
 
       S.SetData := newSetData;
-      print("debugmanel: ");
-      print(S.SetData);
       /* ii. Return true. */
       return true
     }
@@ -638,6 +637,8 @@ function setSizeObject(global, this, strict, args) {
     
     /* a. If e is not empty, set count to count+1.*/
     if (!(e = 'empty)) {
+      print(" e != empty");
+      print(e);
       count := count + 1
     };
 
@@ -838,9 +839,9 @@ function initSetIteratorPrototype(global, objectPrototype, strict) {
 
 
   /* temporary code*/
-  CreateSetIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateSetIteratorFromIterator", global, strict, 1.);
+  /*CreateSetIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateSetIteratorFromIterator", global, strict, 1.);
   descriptor := newDataPropertyDescriptorFull(CreateSetIteratorJSObject, true, false, true);
-  setJSProperty(prototype, "iterator", descriptor); 
+  setJSProperty(prototype, "iterator", descriptor); */
 
 
   |SetIteratorPrototype| := prototype; 
