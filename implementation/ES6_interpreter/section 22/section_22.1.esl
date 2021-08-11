@@ -1656,11 +1656,7 @@ function SortCompareNew(x, y) {
 
   /* 9. If xString < yString, return −1. */
   if (xString < yString) {
-<<<<<<< HEAD
-    return - (1.)
-=======
     return -(1.)
->>>>>>> 669e167b5f6edaae6ca253f632acc6c5829a6956
   };
 
   /* 10. If xString > yString, return 1. */
