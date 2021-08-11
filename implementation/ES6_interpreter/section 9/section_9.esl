@@ -173,6 +173,9 @@ function ToString(V) {
   if (v_type = "String") {
     return V
   };
+  if (v_type = "Symbol") {
+    return s_concat ["Symbol(", V.Description, ")"]
+  };
   if (v_type = "Object") {
     /* Apply the following steps: */
     /* 1. Let primValue be ToPrimitive(input argument, hint String). */

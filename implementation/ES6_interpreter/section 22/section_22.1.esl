@@ -1609,7 +1609,7 @@ function SortCompare(obj, comparefn, j, k) {
 *  comparison function.
 */
 
-function SortCompare (x, y) {
+function SortCompare2 (x, y) {
 
   /* 1. If x and y are both undefined, return +0. */
   if ((x = 'undefined) &&& (y = 'undefined)) {
@@ -1657,7 +1657,7 @@ function SortCompare (x, y) {
 
   /* 9. If xString < yString, return −1. */
   if (xString < yString) {
-    return -1.
+    return -(1.)
   };
 
   /* 10. If xString > yString, return 1. */

@@ -3,16 +3,16 @@
 
 /*---
 info: Boolean() returns false
-es5id: 15.6.1.1_A2
+esid: sec-terms-and-definitions-boolean-value
 description: Call Boolean() and check result
 ---*/
 
 //CHECK#1
-if( typeof Boolean() !== "boolean" ) {
-  $ERROR('#1: typeof Boolean() should be "boolean", actual is "'+typeof Boolean()+'"');
+if (typeof Boolean() !== "boolean") {
+  throw new Test262Error('#1: typeof Boolean() should be "boolean", actual is "' + typeof Boolean() + '"');
 }
 
 //CHECK#2
-if( Boolean() !== false ) {
-  $ERROR('#2: Boolean() should be false');
+if (Boolean() !== false) {
+  throw new Test262Error('#2: Boolean() should be false');
 }
