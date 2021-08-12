@@ -5,7 +5,9 @@ function initSymbolPrototype(global, objectPrototype, strict) {
   /* 19.4.3.2 Symbol.prototype.toString () */
   toStringFunctionObject := CreateBuiltInFunctionObject([], "symbolToString", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(toStringFunctionObject, true, false, true);
-  setJSProperty(prototype, "toString", descriptor); 
+  setJSProperty(prototype, "toString", descriptor);
+  setJSProperty(toStringFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toStringFunctionObject, "name", newDataPropertyDescriptorFull("toString", false, false, true));
   
   /* 19.4.3.3 Symbol.prototype.valueOf () */
   valueOfFunctionObject := CreateBuiltInFunctionObject([], "symbolValueOf", global, strict, null);
@@ -14,10 +16,12 @@ function initSymbolPrototype(global, objectPrototype, strict) {
   setJSProperty(valueOfFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
   setJSProperty(valueOfFunctionObject, "name", newDataPropertyDescriptorFull("valueOf", false, false, true));
 
-  /* 19.4.3.4 Symbol.prototype [@@toPrimitive] () */
-  valueOfFunctionObject := CreateBuiltInFunctionObject([], "symbolValueOf", global, strict, null);
-  descriptor := newDataPropertyDescriptorFull(valueOfFunctionObject, true, false, true);
-  setJSProperty(prototype, "toPrimitive", descriptor);   
+  /* 19.4.3.4 Symbol.prototype [@@toPrimitive] () - Ainda nao funciona!!! */
+  toPrimitiveFunctionObject := CreateBuiltInFunctionObject([], "symbolValueOf", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(toPrimitiveFunctionObject, true, false, true);
+  setJSProperty(prototype, "[Symbol.toPrimitive]", descriptor);
+  setJSProperty(toPrimitiveFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(toPrimitiveFunctionObject, "name", newDataPropertyDescriptorFull("[Symbol.toPrimitive]", false, false, true));
 
   /* Terminar: outros metodos do prototipo */
 
@@ -27,6 +31,8 @@ function initSymbolPrototype(global, objectPrototype, strict) {
 function initSymbolObject(global, objectPrototype, strict) {
   objSymbolPrototype := initSymbolPrototype(global, objectPrototype, strict);
   objSymbolConstructor := CreateFunctionObject(["items"], "SymbolConstructor", global, strict, 0.);
+  setJSProperty(objSymbolConstructor, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(objSymbolConstructor, "name", newDataPropertyDescriptorFull("Symbol", false, false, true));
 
   descriptor := newDataPropertyDescriptorFull(objSymbolConstructor, true, false, true);
   setJSProperty(objSymbolPrototype, "constructor", descriptor);
@@ -38,11 +44,15 @@ function initSymbolObject(global, objectPrototype, strict) {
   forFunctionObject := CreateBuiltInFunctionObject([], "symbolFor", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(forFunctionObject, true, false, true);
   setJSProperty(objSymbolConstructor, "for", descriptor);
+  setJSProperty(forFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(forFunctionObject, "name", newDataPropertyDescriptorFull("for", false, false, true));
 
   /* 19.4.2.5 Symbol.keyFor (key) */
   keyForFunctionObject := CreateBuiltInFunctionObject([], "symbolKeyFor", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(keyForFunctionObject, true, false, true);
   setJSProperty(objSymbolConstructor, "keyFor", descriptor);
+  setJSProperty(keyForFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(keyForFunctionObject, "name", newDataPropertyDescriptorFull("keyFor", false, false, true));
 
   return objSymbolConstructor
 };
