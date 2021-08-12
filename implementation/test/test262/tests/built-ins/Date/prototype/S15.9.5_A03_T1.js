@@ -3,10 +3,10 @@
 
 /*---
 info: The Date.prototype has the property "toDateString"
-es5id: 15.9.5_A03_T1
+esid: sec-properties-of-the-date-prototype-object
 description: The Date.prototype has the property "toDateString"
 ---*/
 
-if(Date.prototype.hasOwnProperty("toDateString") !== true){
-  $ERROR('#1: The Date.prototype has the property "toDateString"');
+if (Date.prototype.hasOwnProperty("toDateString") !== true) {
+  throw new Test262Error('#1: The Date.prototype has the property "toDateString"');
 }

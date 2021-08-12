@@ -3,15 +3,15 @@
 
 /*---
 info: The Date.prototype property "setMilliseconds" has { DontEnum } attributes
-es5id: 15.9.5.28_A1_T1
+esid: sec-date.prototype.setmilliseconds
 description: Checking absence of ReadOnly attribute
 ---*/
 
 var x = Date.prototype.setMilliseconds;
-if(x === 1)
+if (x === 1)
   Date.prototype.setMilliseconds = 2;
 else
   Date.prototype.setMilliseconds = 1;
 if (Date.prototype.setMilliseconds === x) {
-  $ERROR('#1: The Date.prototype.setMilliseconds has not the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.prototype.setMilliseconds has not the attribute ReadOnly');
 }

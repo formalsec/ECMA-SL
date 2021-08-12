@@ -3,16 +3,16 @@
 
 /*---
 info: The Date.prototype property "getUTCHours" has { DontEnum } attributes
-es5id: 15.9.5.19_A1_T3
+esid: sec-date.prototype.getutchours
 description: Checking DontEnum attribute
 ---*/
 
 if (Date.prototype.propertyIsEnumerable('getUTCHours')) {
-  $ERROR('#1: The Date.prototype.getUTCHours property has the attribute DontEnum');
+  throw new Test262Error('#1: The Date.prototype.getUTCHours property has the attribute DontEnum');
 }
 
-for(var x in Date.prototype) {
-  if(x === "getUTCHours") {
-    $ERROR('#2: The Date.prototype.getUTCHours has the attribute DontEnum');
+for (var x in Date.prototype) {
+  if (x === "getUTCHours") {
+    throw new Test262Error('#2: The Date.prototype.getUTCHours has the attribute DontEnum');
   }
 }

@@ -2,61 +2,50 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The [[Value]] property of the newly constructed object
     with supplied "undefined" argument should be NaN
-es5id: 15.9.3.1_A6_T2
+esid: sec-date-year-month-date-hours-minutes-seconds-ms
 description: 3 arguments, (year, month, date)
 ---*/
 
-function DateValue(year, month, date, hours, minutes, seconds, ms){
+function DateValue(year, month, date, hours, minutes, seconds, ms) {
   return new Date(year, month, date, hours, minutes, seconds, ms).valueOf();
 }
 
-if (!isNaN(DateValue(1899, 11, 31))) {
-  $ERROR("#1: The value should be NaN");
-}
+var x;
+x = DateValue(1899, 11, 31);
+assert.sameValue(x, NaN, "(1899, 11, 31)");
 
-if (!isNaN(DateValue(1899, 12, 1))) {
-  $ERROR("#2: The value should be NaN");
-}
+x = DateValue(1899, 12, 1);
+assert.sameValue(x, NaN, "(1899, 12, 1)");
 
-if (!isNaN(DateValue(1900, 0, 1))) {
-  $ERROR("#3: The value should be NaN");
-}
+x = DateValue(1900, 0, 1);
+assert.sameValue(x, NaN, "(1900, 0, 1)");
 
-if (!isNaN(DateValue(1969, 11, 31))) {
-  $ERROR("#4: The value should be NaN");
-}
+x = DateValue(1969, 11, 31);
+assert.sameValue(x, NaN, "(1969, 11, 31)");
 
-if (!isNaN(DateValue(1969, 12, 1))) {
-  $ERROR("#5: The value should be NaN");
-}
+x = DateValue(1969, 12, 1);
+assert.sameValue(x, NaN, "(1969, 12, 1)");
 
-if (!isNaN(DateValue(1970, 0, 1))) {
-  $ERROR("#6: The value should be NaN");
-}
+x = DateValue(1970, 0, 1);
+assert.sameValue(x, NaN, "(1970, 0, 1)");
 
-if (!isNaN(DateValue(1999, 11, 31))) {
-  $ERROR("#7: The value should be NaN");
-}
+x = DateValue(1999, 11, 31);
+assert.sameValue(x, NaN, "(1999, 11, 31)");
 
-if (!isNaN(DateValue(1999, 12, 1))) {
-  $ERROR("#8: The value should be NaN");
-}
+x = DateValue(1999, 12, 1);
+assert.sameValue(x, NaN, "(1999, 12, 1)");
 
-if (!isNaN(DateValue(2000, 0, 1))) {
-  $ERROR("#9: The value should be NaN");
-}
+x = DateValue(2000, 0, 1);
+assert.sameValue(x, NaN, "(2000, 0, 1)");
 
-if (!isNaN(DateValue(2099, 11, 31))) {
-  $ERROR("#10: The value should be NaN");
-}
+x = DateValue(2099, 11, 31);
+assert.sameValue(x, NaN, "(2099, 11, 31)");
 
-if (!isNaN(DateValue(2099, 12, 1))) {
-  $ERROR("#11: The value should be NaN");
-}
+x = DateValue(2099, 12, 1);
+assert.sameValue(x, NaN, "(2099, 12, 1)");
 
-if (!isNaN(DateValue(2100, 0, 1))) {
-  $ERROR("#12: The value should be NaN");
-}
+x = DateValue(2100, 0, 1);
+assert.sameValue(x, NaN, "(2100, 0, 1)");

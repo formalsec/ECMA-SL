@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The [[Value]] property of the newly constructed object
     is set by following steps:
     1. Call ToNumber(year)
@@ -12,89 +12,93 @@ info: >
     5. If minutes is supplied use ToNumber(minutes)
     6. If seconds is supplied use ToNumber(seconds)
     7. If ms is supplied use ToNumber(ms)
-es5id: 15.9.3.1_A4_T6
+esid: sec-date-year-month-date-hours-minutes-seconds-ms
 description: 7 arguments, (year, month, date, hours, minutes, seconds, ms)
 ---*/
 
-var myObj = function(val){
+var myObj = function(val) {
   this.value = val;
-  this.valueOf = function(){throw "valueOf-"+this.value;};
-  this.toString = function(){throw "toString-"+this.value;};
+  this.valueOf = function() {
+    throw "valueOf-" + this.value;
+  };
+  this.toString = function() {
+    throw "toString-" + this.value;
+  };
 };
 
 //CHECK#1
-try{
+try {
   var x1 = new Date(new myObj(1), new myObj(2), new myObj(3), new myObj(4), new myObj(5), new myObj(6), new myObj(7));
-  $ERROR("#1: The 1st step is calling ToNumber(year)");
+  throw new Test262Error("#1: The 1st step is calling ToNumber(year)");
 }
-catch(e){
-  if(e !== "valueOf-1"){
-    $ERROR("#1: The 1st step is calling ToNumber(year)");
+catch (e) {
+  if (e !== "valueOf-1") {
+    throw new Test262Error("#1: The 1st step is calling ToNumber(year)");
   }
 }
 
 //CHECK#2
-try{
+try {
   var x2 = new Date(1, new myObj(2), new myObj(3), new myObj(4), new myObj(5), new myObj(6), new myObj(7));
-  $ERROR("#2: The 2nd step is calling ToNumber(month)");
+  throw new Test262Error("#2: The 2nd step is calling ToNumber(month)");
 }
-catch(e){
-  if(e !== "valueOf-2"){
-    $ERROR("#2: The 2nd step is calling ToNumber(month)");
+catch (e) {
+  if (e !== "valueOf-2") {
+    throw new Test262Error("#2: The 2nd step is calling ToNumber(month)");
   }
 }
 
 //CHECK#3
-try{
+try {
   var x3 = new Date(1, 2, new myObj(3), new myObj(4), new myObj(5), new myObj(6), new myObj(7));
-  $ERROR("#3: The 3rd step is calling ToNumber(date)");
+  throw new Test262Error("#3: The 3rd step is calling ToNumber(date)");
 }
-catch(e){
-  if(e !== "valueOf-3"){
-    $ERROR("#3: The 3rd step is calling ToNumber(date)");
+catch (e) {
+  if (e !== "valueOf-3") {
+    throw new Test262Error("#3: The 3rd step is calling ToNumber(date)");
   }
 }
 
 //CHECK#4
-try{
+try {
   var x4 = new Date(1, 2, 3, new myObj(4), new myObj(5), new myObj(6), new myObj(7));
-  $ERROR("#4: The 4th step is calling ToNumber(hours)");
+  throw new Test262Error("#4: The 4th step is calling ToNumber(hours)");
 }
-catch(e){
-  if(e !== "valueOf-4"){
-    $ERROR("#4: The 4th step is calling ToNumber(hours)");
+catch (e) {
+  if (e !== "valueOf-4") {
+    throw new Test262Error("#4: The 4th step is calling ToNumber(hours)");
   }
 }
 
 //CHECK#5
-try{
+try {
   var x5 = new Date(1, 2, 3, 4, new myObj(5), new myObj(6), new myObj(7));
-  $ERROR("#5: The 5th step is calling ToNumber(minutes)");
+  throw new Test262Error("#5: The 5th step is calling ToNumber(minutes)");
 }
-catch(e){
-  if(e !== "valueOf-5"){
-    $ERROR("#5: The 5th step is calling ToNumber(minutes)");
+catch (e) {
+  if (e !== "valueOf-5") {
+    throw new Test262Error("#5: The 5th step is calling ToNumber(minutes)");
   }
 }
 
 //CHECK#6
-try{
+try {
   var x6 = new Date(1, 2, 3, 4, 5, new myObj(6), new myObj(7));
-  $ERROR("#6: The 6th step is calling ToNumber(seconds)");
+  throw new Test262Error("#6: The 6th step is calling ToNumber(seconds)");
 }
-catch(e){
-  if(e !== "valueOf-6"){
-    $ERROR("#6: The 6th step is calling ToNumber(seconds)");
+catch (e) {
+  if (e !== "valueOf-6") {
+    throw new Test262Error("#6: The 6th step is calling ToNumber(seconds)");
   }
 }
 
 //CHECK#7
-try{
+try {
   var x7 = new Date(1, 2, 3, 4, 5, 6, new myObj(7));
-  $ERROR("#7: The 7th step is calling ToNumber(ms)");
+  throw new Test262Error("#7: The 7th step is calling ToNumber(ms)");
 }
-catch(e){
-  if(e !== "valueOf-7"){
-    $ERROR("#7: The 7th step is calling ToNumber(ms)");
+catch (e) {
+  if (e !== "valueOf-7") {
+    throw new Test262Error("#7: The 7th step is calling ToNumber(ms)");
   }
 }

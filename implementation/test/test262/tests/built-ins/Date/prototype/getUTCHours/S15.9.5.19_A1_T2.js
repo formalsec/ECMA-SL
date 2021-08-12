@@ -3,14 +3,14 @@
 
 /*---
 info: The Date.prototype property "getUTCHours" has { DontEnum } attributes
-es5id: 15.9.5.19_A1_T2
+esid: sec-date.prototype.getutchours
 description: Checking absence of DontDelete attribute
 ---*/
 
-if (delete Date.prototype.getUTCHours  === false) {
-  $ERROR('#1: The Date.prototype.getUTCHours property has not the attributes DontDelete');
+if (delete Date.prototype.getUTCHours === false) {
+  throw new Test262Error('#1: The Date.prototype.getUTCHours property has not the attributes DontDelete');
 }
 
 if (Date.prototype.hasOwnProperty('getUTCHours')) {
-  $ERROR('#2: The Date.prototype.getUTCHours property has not the attributes DontDelete');
+  throw new Test262Error('#2: The Date.prototype.getUTCHours property has not the attributes DontDelete');
 }

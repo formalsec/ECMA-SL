@@ -3,10 +3,10 @@
 
 /*---
 info: The Date.prototype has the property "setUTCFullYear"
-es5id: 15.9.5_A41_T1
+esid: sec-properties-of-the-date-prototype-object
 description: The Date.prototype has the property "setUTCFullYear"
 ---*/
 
-if(Date.prototype.hasOwnProperty("setUTCFullYear") !== true){
-  $ERROR('#1: The Date.prototype has the property "setUTCFullYear"');
+if (Date.prototype.hasOwnProperty("setUTCFullYear") !== true) {
+  throw new Test262Error('#1: The Date.prototype has the property "setUTCFullYear"');
 }

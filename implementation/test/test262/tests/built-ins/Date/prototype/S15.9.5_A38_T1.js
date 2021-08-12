@@ -3,10 +3,10 @@
 
 /*---
 info: The Date.prototype has the property "setMonth"
-es5id: 15.9.5_A38_T1
+esid: sec-properties-of-the-date-prototype-object
 description: The Date.prototype has the property "setMonth"
 ---*/
 
-if(Date.prototype.hasOwnProperty("setMonth") !== true){
-  $ERROR('#1: The Date.prototype has the property "setMonth"');
+if (Date.prototype.hasOwnProperty("setMonth") !== true) {
+  throw new Test262Error('#1: The Date.prototype has the property "setMonth"');
 }
