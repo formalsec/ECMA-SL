@@ -3,6 +3,8 @@ var p = new Promise(function (resolve, reject) {
 });
 
 p.catch(function (v) {
-	//assert.sameValue(v, 4);
+	assert.sameValue(v, "Error: whoops!");
+
 	console.log("I got: " + v);
 });
+

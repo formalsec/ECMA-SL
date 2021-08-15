@@ -21,12 +21,12 @@ function initPromiseObject(globalObject, ObjectPrototype, strict) {
   /* 25.4.4.4 Promise.reject ( r ) */
   PromiseRejectObject := CreateBuiltInFunctionObject(["r"], "PromiseReject", globalObject, strict, null);
   descriptor := newDataPropertyDescriptorFull(PromiseRejectObject, true, false, true);
-  setJSProperty(objPromiseConstructor, "race", descriptor);
+  setJSProperty(objPromiseConstructor, "reject", descriptor);
 
   /* 25.4.4.5 Promise.resolve ( x ) */
   PromiseResolveObject := CreateBuiltInFunctionObject(["x"], "PromiseResolve", globalObject, strict, null);
   descriptor := newDataPropertyDescriptorFull(PromiseResolveObject, true, false, true);
-  setJSProperty(objPromiseConstructor, "race", descriptor);
+  setJSProperty(objPromiseConstructor, "resolve", descriptor);
 
   /**
    * 25.4.4.2 Promise.prototype
@@ -109,6 +109,20 @@ function isPromiseReactionRecord(record) {
 function Completion(obj) {
   return obj
 };
+
+function Invoke(O, P, argumentsList) {
+  func := Get(O, P);
+  return Call(null, null, func, O, argumentsList)
+};
+
+
+
+
+
+
+
+
+
 /* XXX Function generated with HTML2ECMA-SL */
 /**
  * 7.2.4 IsConstructor (argument)
@@ -133,6 +147,7 @@ function IsConstructor(argument) {
   /* 4. Return false. */
   return false
 };
+
 
 /* TODO - This function will be moved elsewhere. */
 /* XXX Function generated with HTML2ECMA-SL */
@@ -825,7 +840,9 @@ function PromiseResolveThenableJob(strict, promiseToResolve, thenable, then) {
  */
 
 
-
+function PromiseExceptionHandler(x) {
+  return throwEmptyCompletion(x)
+};
 
 /* XXX Function generated with HTML2ECMA-SL */
 /**
@@ -867,12 +884,13 @@ function PromiseConstructor(global, NewTarget, strict, args) {
   resolvingFunctions := CreateResolvingFunctions(strict, promise);
   /* 9. Let completion be Call(executor, undefined, 
      «resolvingFunctions.[[Resolve]], resolvingFunctions.[[Reject]]»). */
-  completion := Call(null, null, executor, 'undefined, [resolvingFunctions.Resolve, resolvingFunctions.Reject]);
+  completion := Call(null, null, executor, 'undefined, [resolvingFunctions.Resolve, resolvingFunctions.Reject])
+  catch PromiseExceptionHandler;
   /* 10. If completion is an abrupt completion, then */
   if (isAnAbruptCompletion(completion)) {
     /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined, 
        «completion.[[value]]»). */
-    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [completion.value]);
+    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [getCompletionValue(completion)]);
     /* b. ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status)
   };
@@ -1164,7 +1182,8 @@ function PromiseAllResolveElementFunctions(F, global, this, strict, args) {
 function PromiseRace(global, this, strict, args) {
 
   iterable := l_nth(args, 0);
-
+print "INSIDE PROMISERACE";
+print iterable;
   /* 1. Let C be the this value. */
   C := this;
   /* 2. If Type(C) is not Object, */
