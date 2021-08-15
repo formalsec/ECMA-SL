@@ -26,6 +26,7 @@ function Type(V) {
   if (v_type = __$Bool) { return "Boolean" };
   if (v_type = __$Str) { return "String" };
   if (v_type = __$Obj) {
+    if (isJavaScriptSymbol(V)) { return "Symbol" };
     if (isJavaScriptObject(V)) { return "Object" };
     if (isPropertyDescriptor(V)) { return "PropertyDescriptor" };
     return "EnvironmentRecord"
@@ -52,6 +53,10 @@ function isJavaScriptObject(obj) {
 
 function isPropertyDescriptor(obj) {
   return ("Enumerable" in_obj obj) || ("Configurable" in_obj obj)
+};
+
+function isJavaScriptSymbol(obj) {
+  return "SymbolData" in_obj obj
 };
 
 function setConfigurability(obj, prop, b) {

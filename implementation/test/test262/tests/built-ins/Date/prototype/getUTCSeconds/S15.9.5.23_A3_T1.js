@@ -2,10 +2,10 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The Date.prototype.getUTCSeconds property "length" has { ReadOnly,
     DontDelete, DontEnum } attributes
-es5id: 15.9.5.23_A3_T1
+esid: sec-date.prototype.getutcseconds
 description: Checking ReadOnly attribute
 includes: [propertyHelper.js]
 ---*/
@@ -13,5 +13,5 @@ includes: [propertyHelper.js]
 var x = Date.prototype.getUTCSeconds.length;
 verifyNotWritable(Date.prototype.getUTCSeconds, "length", null, 1);
 if (Date.prototype.getUTCSeconds.length !== x) {
-  $ERROR('#1: The Date.prototype.getUTCSeconds.length has the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.prototype.getUTCSeconds.length has the attribute ReadOnly');
 }

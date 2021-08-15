@@ -3,15 +3,15 @@
 
 /*---
 info: The Date.prototype property "setHours" has { DontEnum } attributes
-es5id: 15.9.5.34_A1_T1
+esid: sec-date.prototype.sethours
 description: Checking absence of ReadOnly attribute
 ---*/
 
 var x = Date.prototype.setHours;
-if(x === 1)
+if (x === 1)
   Date.prototype.setHours = 2;
 else
   Date.prototype.setHours = 1;
 if (Date.prototype.setHours === x) {
-  $ERROR('#1: The Date.prototype.setHours has not the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.prototype.setHours has not the attribute ReadOnly');
 }

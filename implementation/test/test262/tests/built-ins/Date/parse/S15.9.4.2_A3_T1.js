@@ -2,10 +2,10 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The Date.parse property "length" has { ReadOnly, DontDelete, DontEnum }
     attributes
-es5id: 15.9.4.2_A3_T1
+esid: sec-date.parse
 description: Checking ReadOnly attribute
 includes: [propertyHelper.js]
 ---*/
@@ -13,5 +13,5 @@ includes: [propertyHelper.js]
 var x = Date.parse.length;
 verifyNotWritable(Date.parse, "length", null, 1);
 if (Date.parse.length !== x) {
-  $ERROR('#1: The Date.parse.length has the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.parse.length has the attribute ReadOnly');
 }

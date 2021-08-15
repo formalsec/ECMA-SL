@@ -153,6 +153,10 @@ function ObjectConstructor(globalObject, this, strict, params) {
     /* d. If Type(value) is Number, return ToObject(value). */
     if (Type(value) = "Number") {
       return ToObject(value)
+    };
+    /* e. If Type(value) is Symbol, return value. */
+    if (Type(value) = "Symbol") {
+      return value
     }
   };
   /* 2. Assert: The argument value was not supplied or its type was Null or Undefined. */
@@ -177,7 +181,7 @@ function ObjectGetPrototypeOf(globalObject, this, strict, params) {
   /* When the getPrototypeOf function is called with argument O, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object")) {
+  if (!((typeof O = __$Obj) &&& ("Prototype" in_obj O))) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Return the value of the [[Prototype]] internal property of O. */
@@ -191,7 +195,7 @@ function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
   /* When the getOwnPropertyDescriptor function is called, the following steps are taken: */
 
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object")) {
+  if (!(Type(O) = "Object" || Type(O) = "Symbol")) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Let name be ToString(P). */

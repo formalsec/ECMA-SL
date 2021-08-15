@@ -545,6 +545,9 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     if (Type(val) = "String") {
       return "string"
     };
+    if (Type(val) = "Symbol") {
+      return "symbol"
+    };
     if (Type(val) = "Object") {
       /* Object (native and does not implement [[Call]]) | "object" */
       if (!("Call" in_obj val)) {

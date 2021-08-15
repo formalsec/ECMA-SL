@@ -3,15 +3,15 @@
 
 /*---
 info: The Date.prototype property "getUTCFullYear" has { DontEnum } attributes
-es5id: 15.9.5.11_A1_T1
+esid: sec-date.prototype.getutcfullyear
 description: Checking absence of ReadOnly attribute
 ---*/
 
 var x = Date.prototype.getUTCFullYear;
-if(x === 1)
+if (x === 1)
   Date.prototype.getUTCFullYear = 2;
 else
   Date.prototype.getUTCFullYear = 1;
 if (Date.prototype.getUTCFullYear === x) {
-  $ERROR('#1: The Date.prototype.getUTCFullYear has not the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.prototype.getUTCFullYear has not the attribute ReadOnly');
 }

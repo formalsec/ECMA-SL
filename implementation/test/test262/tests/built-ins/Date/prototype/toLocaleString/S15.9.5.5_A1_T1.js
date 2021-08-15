@@ -3,15 +3,15 @@
 
 /*---
 info: The Date.prototype property "toLocaleString" has { DontEnum } attributes
-es5id: 15.9.5.5_A1_T1
+esid: sec-date.prototype.tolocalestring
 description: Checking absence of ReadOnly attribute
 ---*/
 
 var x = Date.prototype.toLocaleString;
-if(x === 1)
+if (x === 1)
   Date.prototype.toLocaleString = 2;
 else
   Date.prototype.toLocaleString = 1;
 if (Date.prototype.toLocaleString === x) {
-  $ERROR('#1: The Date.prototype.toLocaleString has not the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.prototype.toLocaleString has not the attribute ReadOnly');
 }

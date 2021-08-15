@@ -44,7 +44,7 @@ function initBooleanPrototype(objectPrototypeObject) {
 
   /* The Boolean prototype object is itself a Boolean object (its [[Class]] is "Boolean") whose value is false. */
   setInternalProperty(booleanPrototypeObject, "Class", "Boolean");
-  setInternalProperty(booleanPrototypeObject, "PrimitiveValue", false);
+  setInternalProperty(booleanPrototypeObject, "BooleanData", false);
   /* The value of the [[Prototype]] internal property of the Boolean prototype object is the standard built-in Object
      prototype object (15.2.4). */
   setInternalProperty(booleanPrototypeObject, "Prototype", objectPrototypeObject);
@@ -59,11 +59,11 @@ function fillBooleanPrototype(booleanPrototypeObject, BooleanConstructor, global
   createBuiltInProperty(booleanPrototypeObject, "constructor", BooleanConstructor);
 
   /* 15.6.4.2 Boolean.prototype.toString ( ) */
-  toString := CreateBuiltInFunctionObject([], "BooleanPrototypeToString", globalObject, strict, null);
+  toString := CreateBuiltInFunctionObject([], "booleanToString", globalObject, strict, null);
   createBuiltInProperty(booleanPrototypeObject, "toString", toString);
 
   /* 15.6.4.3 Boolean.prototype.valueOf ( ) */
-  valueOf := CreateBuiltInFunctionObject([], "BooleanPrototypeValueOf", globalObject, strict, null);
+  valueOf := CreateBuiltInFunctionObject([], "booleanValueOf", globalObject, strict, null);
   createBuiltInProperty(booleanPrototypeObject, "valueOf", valueOf);
 
   return
@@ -71,8 +71,8 @@ function fillBooleanPrototype(booleanPrototypeObject, BooleanConstructor, global
 
 /* 15.6.5 Properties of Boolean Instances */
 /* Boolean instances inherit properties from the Boolean prototype object and their [[Class]] internal property
-   value is "Boolean". Boolean instances also have a [[PrimitiveValue]] internal property. */
-/* The [[PrimitiveValue]] internal property is the Boolean value represented by this Boolean object. */
+   value is "Boolean". Boolean instances also have a [[BooleanData]] internal property. */
+/* The [[BooleanData]] internal property is the Boolean value represented by this Boolean object. */
 
 /* 15.6.2.1 new Boolean (value) */
 function BooleanConstructor(globalObject, this, strict, params) {
@@ -91,65 +91,59 @@ function BooleanConstructor(globalObject, this, strict, params) {
   setInternalProperty(newlyConstructedObject, "Prototype", getBooleanPrototype(strict));
   /* The [[Class]] internal property of the newly constructed Boolean object is set to "Boolean". */
   setInternalProperty(newlyConstructedObject, "Class", "Boolean");
-  /* The [[PrimitiveValue]] internal property of the newly constructed Boolean object is set to ToBoolean(value). */
-  setInternalProperty(newlyConstructedObject, "PrimitiveValue", ToBoolean(value));
+  /* The [[BooleanData]] internal property of the newly constructed Boolean object is set to ToBoolean(value). */
+  setInternalProperty(newlyConstructedObject, "BooleanData", ToBoolean(value));
   /* The [[Extensible]] internal property of the newly constructed object is set to true. */
   setInternalProperty(newlyConstructedObject, "Extensible", true);
 
   return newlyConstructedObject
 };
 
-/* 15.6.4.2 Boolean.prototype.toString ( ) */
-function BooleanPrototypeToString(globalObject, this, strict, params) {
-  /* The following steps are taken: */
+/* 19.3.3.2 Boolean.prototype.toString () */
+function booleanToString(globalObject, this, strict, args) {
 
-  /* 1. Let B be the this value. */
-  B := this;
-  /* 2. If Type(B) is Boolean, then let b be B. */
-  if (Type(B) = "Boolean") {
-    b := B
-  } else {
-  /* 3. Else if Type(B) is Object and the value of the [[Class]] internal property of B is "Boolean", then let b be
-        the value of the [[PrimitiveValue]] internal property of B. */
-    if ((Type(B) = "Object") &&& (getInternalProperty(B, "Class") = "Boolean")) {
-      b := getInternalProperty(B, "PrimitiveValue")
-    } else {
-    /* 4. Else throw a TypeError exception. */
-      throw TypeErrorConstructorInternal()
-    }
-  };
-  /* 5. If b is true, then return "true"; else return "false". */
-  if (b = true) {
-    return "true"
-  } else {
-    return "false"
+  /* 1. Let b be thisBooleanValue(this value). */
+  b := thisBooleanValue(this);
+
+  /* 2. ReturnIfAbrupt(b). */
+  @ReturnIfAbrupt(b);
+
+  /* 3. If b is true, return "true"; else return "false". */
+  if (b = true){
+    return true
+  }else{
+    return false
   }
 };
 
-/* 15.6.4.3 Boolean.prototype.valueOf ( ) */
-function BooleanPrototypeValueOf(globalObject, this, strict, params) {
-  /* The following steps are taken: */
+/* 19.3.3.3 Boolean.prototype.valueOf () */
+function booleanValueOf(globalObject, this, strict, args) {
 
-  /* 1. Let B be the this value. */
-  B := this;
-  /* 2. If Type(B) is Boolean, then let b be B. */
-  if (Type(B) = "Boolean") {
-    b := B
-  } else {
-    /* 3. Else if Type(B) is Object and the value of the [[Class]] internal property of B is "Boolean", then let b be
-          the value of the [[PrimitiveValue]] internal property of B. */
-    if ((Type(B) = "Object") &&& (getInternalProperty(B, "Class") = "Boolean")) {
-      b := getInternalProperty(B, "PrimitiveValue")
-    } else {
-    /* 4. Else throw a TypeError exception. */
-      throw TypeErrorConstructorInternal()
-    }
-  };
-  /* 5. Return b. */
-  return b
+  return thisBooleanValue(this)
 };
 
 /* Auxiliary functions */
+function thisBooleanValue(value) {
+
+  /* 1. If Type(value) is Boolean, return value. */
+  if (Type(value) = "Boolean") {
+    return value
+  };  
+  
+  /* 2. If Type(value) is Object and value has a [[BooleanData]] internal slot, then */
+  if (Type(value) = "Object" &&& "BooleanData" in_obj value) {
+
+    /* 2a. Assert: value’s [[BooleanData]] internal slot is a Boolean value. */
+    assert(Type(value.BooleanData) = "Boolean");
+
+    /* 2b. Return the value of value’s [[BooleanData]] internal slot. */
+    return value.BooleanData
+  };
+
+  /* 3. Throw a TypeError exception. */
+  throw TypeErrorConstructorInternal()
+};
+
 function getBooleanPrototype(strict) {
   refError := newPropertyReference(|global|, "Boolean", strict);
   BooleanObject := GetValue(refError);

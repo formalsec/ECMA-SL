@@ -16,6 +16,8 @@ function initSetPrototype(global, objectPrototype, strict) {
   addObject := CreateBuiltInFunctionObject(["items"], "setAddObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(addObject, true, false, true);
   setJSProperty(prototype, "add", descriptor);
+  setJSProperty(addObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(addObject, "name", newDataPropertyDescriptorFull("add", false, false, true));
 
   /* TODO 23.2.2.2 get Set [ @@species ] */
 
@@ -23,6 +25,8 @@ function initSetPrototype(global, objectPrototype, strict) {
   clearObject := CreateBuiltInFunctionObject([], "setClearObject", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(clearObject, true, false, true);
   setJSProperty(prototype, "clear", descriptor);   
+  setJSProperty(clearObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(clearObject, "name", newDataPropertyDescriptorFull("clear", false, false, true));
 
   /*23.2.3.3 Set.prototype.constructor */
 
@@ -30,40 +34,55 @@ function initSetPrototype(global, objectPrototype, strict) {
   deleteObject := CreateBuiltInFunctionObject(["items"], "setDeleteObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(deleteObject, true, false, true);
   setJSProperty(prototype, "delete", descriptor);
+  setJSProperty(deleteObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(deleteObject, "name", newDataPropertyDescriptorFull("delete", false, false, true));
+
 
   /* 23.2.3.5 Set.prototype.entries ( ) */
   entriesObject := CreateBuiltInFunctionObject([], "setEntriesObject", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(entriesObject, true, false, true);
   setJSProperty(prototype, "entries", descriptor);
+  setJSProperty(entriesObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(entriesObject, "name", newDataPropertyDescriptorFull("entries", false, false, true));
 
 
   /* 23.2.3.6 Set.prototype.forEach ( callbackfn [ , thisArg ] ) */
   forEachObject := CreateBuiltInFunctionObject(["items"], "setForEachObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(forEachObject, true, false, true);
   setJSProperty(prototype, "forEach", descriptor);
+  setJSProperty(forEachObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(forEachObject, "name", newDataPropertyDescriptorFull("forEach", false, false, true));
 
 
   /* 23.2.3.7 Set.prototype.has ( value ) */
   hasObject := CreateBuiltInFunctionObject(["items"], "setHasObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(hasObject, true, false, true);
   setJSProperty(prototype, "has", descriptor);
+  setJSProperty(hasObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(hasObject, "name", newDataPropertyDescriptorFull("has", false, false, true));
+
 
   /* 23.2.3.8 Set.prototype.keys ( ) */
   keysObject := CreateBuiltInFunctionObject([], "setKeysObject", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(keysObject, true, false, true);
   setJSProperty(prototype, "keys", descriptor);
+  setJSProperty(keysObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(keysObject, "name", newDataPropertyDescriptorFull("keys", false, false, true));
 
 
   /* 23.2.3.9 get Set.prototype.size */
   sizeObject := CreateBuiltInFunctionObject([], "setSizeObject", global, strict, 0.);
   descriptor := newGetAccessorPropertyDescriptor(sizeObject);
   setJSProperty(prototype, "size", descriptor); 
-  
+  setJSProperty(sizeObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(sizeObject, "name", newDataPropertyDescriptorFull("get size", false, false, true));  
 
   /* 23.2.3.10 Set.prototype.values ( ) */
   valuesObject := CreateBuiltInFunctionObject([], "setValuesObject", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(valuesObject, true, false, true);
   setJSProperty(prototype, "values", descriptor);
+  setJSProperty(valuesObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(valuesObject, "name", newDataPropertyDescriptorFull("values", false, false, true));  
 
   /* Martelada Provisoria */
   /* newlyConstructedObject.IteratorFunction := "CreateSetIteratorJS"; */
@@ -73,9 +92,14 @@ function initSetPrototype(global, objectPrototype, strict) {
 
 
   /* TODO 23.2.3.11 Set.prototype [ @@iterator ] ( ) */
+  /*prototypeIteratorObject := CreateBuiltInFunctionObject([], "setValuesObject", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(prototypeIteratorObject, false, true, true);
+  setJSProperty(prototype, "", descriptor); */
 
   /* TODO 23.2.3.12 Set.prototype [ @@toStringTag ] */
-
+  /* SetToStringObject := CreateBuiltInFunctionObject(["items"], "SetToString", global, strict, 1.); */
+  descriptor := newDataPropertyDescriptorFull("Set", false, true, true);
+  setJSProperty(prototype, "[Symbol.toStringTag]", descriptor); 
 
   
   return prototype
@@ -99,8 +123,11 @@ function initSetObject(global, objectPrototype, strict) {
 
   objSetConstructor := CreateFunctionObject(["items"], "setConstructor", global, strict, 0.);
 
-  descriptor := newDataPropertyDescriptorFull(0., false, false, false);
+  descriptor := newDataPropertyDescriptorFull(0., false, false, true);
   setJSProperty(objSetConstructor, "length", descriptor);
+
+  descriptor := newDataPropertyDescriptorFull("Set", false, false, true);
+  setJSProperty(objSetConstructor, "name", descriptor);
 
   descriptor := newDataPropertyDescriptorFull(objSetConstructor, true, false, true);
   setJSProperty(objSetPrototype, "constructor", descriptor);
@@ -135,6 +162,7 @@ function setConstructor(global, this, strict, items) {
   NewTarget := this;
   iterable := getOptionalParam(items, 0);
   print("Debug1");
+  print(iterable);
   /* 1. If NewTarget is undefined, throw a TypeError exception. */
   if (NewTarget = 'undefined) {
     throw TypeErrorConstructorInternal()
@@ -155,7 +183,7 @@ print("Debug5");
   };
   print("Debug6");
   /* 6. If iterable is either undefined or null, let iter be undefined. */
-  if (iterable = 'undefined || iterable = null) {
+  if (iterable = 'undefined || iterable = 'null) {
     iter := 'undefined
   }  
   /* 7. Else, */
@@ -207,10 +235,9 @@ print(nextValue);
 print("Debug18");
 print(adder);
 print(set);
-print(nextValue.value);
 
     /* f. Let status be Call(adder, set, «nextValue.[[value]]»). */
-    /*TODO verificar se nextValue.[[value]] e supostor ser Get(nextValue, "0") ou nextValue.value */
+    /*TODO verificar se nextValue.[[value]] e suposto ser Get(nextValue, "0") ou nextValue.value */
     status := Call(null, null, adder, set, [Get(nextValue, "0")]); 
     print("Debug19");
     /* g. If status is an abrupt completion, return IteratorClose(iter, status). */
@@ -324,7 +351,7 @@ function setAddObject(global, this, strict, args) {
     
     /* a. If e is not empty and SameValueZero(e, value) is true, then */
     if (!(e = 'empty) &&& (SameValueZero(e, value) = true)) {
-      print("inside if blah");
+
       /* i. Return S. */
       return S
     };
@@ -332,7 +359,6 @@ function setAddObject(global, this, strict, args) {
     index := index + 1
   };
 
-  print("Debug setAddObject Value = ");
   print(value);
   /* 6. If value is −0, let value be +0. */
   if (isMinusZero(value)) {
@@ -354,7 +380,7 @@ function setAddObject(global, this, strict, args) {
  */
 function setClearObject(global, this, strict, args) {
   print("in clearSetObject");
-
+  newSetData := [];
   /* 1. Let S be the this value. */
   S := this;
 
@@ -375,17 +401,18 @@ function setClearObject(global, this, strict, args) {
   len := l_len(entries);
   index := 0;
 
-  S.SetData := [];
-  /*while (index < len) { TODO 
+  
+  while (index < len) { 
     
     e := l_nth(entries, index);
     
     /* a. Replace the element of entries whose value is e with an element whose value is empty. */
-    
-  /* index := index + 1
-  };*/
-  
+    newSetData := l_add(newSetData, 'empty);
 
+    index := index + 1
+  };
+  
+  S.SetData := newSetData;
   /* 6. Return undefined.*/
   return 'undefined
 };
@@ -409,12 +436,12 @@ function setDeleteObject(global, this, strict, args) {
 
   /* 2. If Type(S) is not Object, throw a TypeError exception. */
   if (!(Type(S) = "Object")) {
-    throw TypeErrorConstructorInternal
+    throw TypeErrorConstructorInternal()
   };
   
   /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
   if (!("SetData" in_obj S)) {
-    throw TypeErrorConstructorInternal
+    throw TypeErrorConstructorInternal()
   };
   
   /* 4. Let entries be the List that is the value of S’s [[SetData]] internal slot. */
@@ -442,8 +469,6 @@ function setDeleteObject(global, this, strict, args) {
       };
 
       S.SetData := newSetData;
-      print("debugmanel: ");
-      print(S.SetData);
       /* ii. Return true. */
       return true
     }
@@ -491,17 +516,17 @@ function setForEachObject(global, this, strict, args) {
  
   /* 2. If Type(S) is not Object, throw a TypeError exception. */
   if (!(Type(S) = "Object")) {
-    throw TypeErrorConstructorInternal
+    throw TypeErrorConstructorInternal()
   };
    
   /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
   if (!("SetData" in_obj S)) {
-    throw TypeErrorConstructorInternal
+    throw TypeErrorConstructorInternal()
   };
  
   /* 4. If IsCallable(callbackfn) is false, throw a TypeError exception. */
   if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal
+    throw TypeErrorConstructorInternal()
   };
 
   /* 5. If thisArg was supplied, let T be thisArg; else let T be undefined. */
@@ -551,12 +576,12 @@ function setHasObject(global, this, strict, args) {
 
   /* 2. If Type(S) is not Object, throw a TypeError exception. */
   if (!(Type(S) = "Object")) {
-    throw TypeErrorConstructorInternal
+    throw TypeErrorConstructorInternal()
   };
   
   /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
   if (!("SetData" in_obj S)) {
-    throw TypeErrorConstructorInternal
+    throw TypeErrorConstructorInternal()
   };
   
   /* 4. Let entries be the List that is the value of S’s [[SetData]] internal slot. */
@@ -614,12 +639,12 @@ function setSizeObject(global, this, strict, args) {
 
   /* 2. If Type(S) is not Object, throw a TypeError exception. */
   if (!(Type(S) = "Object")) {
-    throw TypeErrorConstructorInternal
+    throw TypeErrorConstructorInternal()
   };
   
   /* 3. If S does not have a [[SetData]] internal slot, throw a TypeError exception. */
   if (!("SetData" in_obj S)) {
-    throw TypeErrorConstructorInternal
+    throw TypeErrorConstructorInternal()
   };
   
   /* 4. Let entries be the List that is the value of S’s [[SetData]] internal slot. */
@@ -638,6 +663,8 @@ function setSizeObject(global, this, strict, args) {
     
     /* a. If e is not empty, set count to count+1.*/
     if (!(e = 'empty)) {
+      print(" e != empty");
+      print(e);
       count := count + 1
     };
 
@@ -768,7 +795,7 @@ function createSetIterator(set, kind) {
 
     /* 7. If s is undefined, return CreateIterResultObject(undefined, true). */
     if (s = 'undefined){
-      return CreateIterResultObject(undefined, true)
+      return CreateIterResultObject('undefined, true)
     };
     
     /* 8. Assert: s has a [[SetData]] internal slot. */
@@ -806,7 +833,10 @@ function createSetIterator(set, kind) {
     };
     
     /* 11. Set the [[IteratedSet]] internal slot of O to undefined. */
-    O.IteratedSet = 'undefined;
+    O.IteratedSet := 'undefined;
+    print("YOYOYO");
+    print(this.IteratedSet);
+    print(O.IteratedSet);
 
     /* 12. Return CreateIterResultObject(undefined, true). */
     return CreateIterResultObject('undefined, true) 
@@ -823,6 +853,8 @@ function createSetIterator(set, kind) {
  * 
  */
 
+
+
 function initSetIteratorPrototype(global, objectPrototype, strict) { 
   print("in initSetIteratorPrototype");
   
@@ -836,11 +868,6 @@ function initSetIteratorPrototype(global, objectPrototype, strict) {
 
   /* TODO 23.2.5.2.2 %SetIteratorPrototype% [ @@toStringTag ]*/
 
-
-  /* temporary code*/
-  CreateSetIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateSetIteratorFromIterator", global, strict, 1.);
-  descriptor := newDataPropertyDescriptorFull(CreateSetIteratorJSObject, true, false, true);
-  setJSProperty(prototype, "iterator", descriptor); 
 
 
   |SetIteratorPrototype| := prototype; 

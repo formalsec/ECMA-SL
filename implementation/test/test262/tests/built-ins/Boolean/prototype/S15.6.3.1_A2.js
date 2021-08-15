@@ -3,7 +3,7 @@
 
 /*---
 info: Boolean.prototype has the attribute ReadOnly
-es5id: 15.6.3.1_A2
+esid: sec-boolean.prototype
 description: Checking if varying the Boolean.prototype property fails
 includes: [propertyHelper.js]
 ---*/
@@ -12,5 +12,5 @@ includes: [propertyHelper.js]
 var x = Boolean.prototype;
 verifyNotWritable(Boolean, "prototype", null, 1);
 if (Boolean.prototype !== x) {
-  $ERROR('#1: Boolean.prototype has the attribute ReadOnly');
+  throw new Test262Error('#1: Boolean.prototype has the attribute ReadOnly');
 }
