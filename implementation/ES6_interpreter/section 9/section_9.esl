@@ -174,7 +174,7 @@ function ToString(V) {
     return V
   };
   if (v_type = "Symbol") {
-    return s_concat ["Symbol(", V.Description, ")"]
+    throw TypeErrorConstructorInternal()
   };
   if (v_type = "Object") {
     /* Apply the following steps: */
@@ -201,7 +201,7 @@ function ToObject(V) {
   if (v_type = "String") {
     return StringConstructor(|global|, true, false, [V])
   };
-  if (v_type = "Object") {
+  if (v_type = "Object" || v_type = "Symbol") {
     return V
   }
 };

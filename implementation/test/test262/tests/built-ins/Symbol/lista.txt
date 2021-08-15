@@ -1,0 +1,26 @@
+Para apagar (não deve passar, fora do ES6):
+- Cross-realm
+- AsyncIterator
+- MatchAll
+
+Em standby (deve passar):
+- Todos os que invocam isConstructor (is-constructor.js e not-a-constructor.js)
+- Testes que chamem ToString/Description diretamente sobre Symbols devolvem TypeError
+  (possivelmente devido a alterações na função, section_9.esl)
+- KeyFor: Arg-Symbol-Registry-Miss (Último teste depende do Iterator)
+- HasInstance
+- IsConcatSpreadable
+- Iterator
+- Match
+- Replace
+- Search
+- Species
+- Split
+- ToPrimitive
+- ToStringTag
+- Unscopables
+
+Os restantes devem passar:
+- For: Description
+- KeyFor: Arg-Non-Symbol (Falha no último, cast para Object não é reconhecido na função)
+- Symbol.ToPrimitive

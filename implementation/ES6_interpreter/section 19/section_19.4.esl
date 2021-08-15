@@ -23,6 +23,9 @@ function initSymbolPrototype(global, objectPrototype, strict) {
   setJSProperty(toPrimitiveFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(toPrimitiveFunctionObject, "name", newDataPropertyDescriptorFull("[Symbol.toPrimitive]", false, false, true));
 
+  setInternalProperty(prototype, "SymbolData", "");
+  setInternalProperty(prototype, "Description", "");
+
   /* Terminar: outros metodos do prototipo */
 
   return prototype
@@ -33,6 +36,7 @@ function initSymbolObject(global, objectPrototype, strict) {
   objSymbolConstructor := CreateFunctionObject(["items"], "SymbolConstructor", global, strict, 0.);
   setJSProperty(objSymbolConstructor, "length", newDataPropertyDescriptorFull(0., false, false, true));
   setJSProperty(objSymbolConstructor, "name", newDataPropertyDescriptorFull("Symbol", false, false, true));
+  setJSProperty(objSymbolConstructor, "species", newDataPropertyDescriptorFull("species", false, false, true));
 
   descriptor := newDataPropertyDescriptorFull(objSymbolConstructor, true, false, true);
   setJSProperty(objSymbolPrototype, "constructor", descriptor);
@@ -82,8 +86,10 @@ function internalSymbolConstructor(descString, strict) {
   setInternalProperty(newlyConstructedSymbol, "Prototype", symbolPrototype);
   setInternalProperty(newlyConstructedSymbol, "Extensible", false);
   setInternalProperty(newlyConstructedSymbol, "Class", "Symbol");
-
+  
   newlyConstructedSymbol.Description := descString;
+  print "NOME";
+  print newlyConstructedSymbol.Description;
   newlyConstructedSymbol.SymbolData := newSymbolData(); 
 
   return newlyConstructedSymbol
@@ -97,14 +103,14 @@ function SymbolConstructor(global, NewTarget, strict, args) {
   if (!(NewTarget = 'undefined)) {
     throw TypeErrorConstructorInternal()
   }; 
-
+  
   /* 2. If description is undefined, let descString be undefined. */
   if (description = null || description = 'undefined) { 
     descString := 'undefined
   } else {
     descString := ToString(description)
   }; 
-
+  
   /* 3. ReturnIfAbrupt(descString). */
   @ReturnIfAbrupt(descString);
 
@@ -154,7 +160,9 @@ function symbolFor(global, this, strict, args) {
 function symbolKeyFor(global, this, strict, args) {
 
   sym := l_nth(args, 0);
-
+  print "tipo";
+  print sym;
+  print Type(sym);
   /* 1. If Type(sym) is not Symbol, throw a TypeError exception. */
   if (!(Type(sym) = "Symbol")) {
     throw TypeErrorConstructorInternal()
@@ -259,4 +267,3 @@ function symbolValueOf(global, this, strict, args){
   /* 5. Return the value of s’s [[SymbolData]] internal slot. */
   return s.SymbolData
 }
-
