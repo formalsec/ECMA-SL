@@ -885,7 +885,7 @@ function PromiseConstructor(global, NewTarget, strict, args) {
   /* 9. Let completion be Call(executor, undefined, 
      «resolvingFunctions.[[Resolve]], resolvingFunctions.[[Reject]]»). */
   completion := Call(null, null, executor, 'undefined, [resolvingFunctions.Resolve, resolvingFunctions.Reject])
-  catch PromiseExceptionHandler;
+  catch PromiseExceptionHandler; /* FIXME: Done by Call */
   /* 10. If completion is an abrupt completion, then */
   if (isAnAbruptCompletion(completion)) {
     /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined, 
@@ -1195,6 +1195,10 @@ print iterable;
   /*S := Get(C, Symbol.species);*/
   /* TODO ES5 workaround: */
   S := getPromiseConstructorFromPromiseObject(C, strict);
+
+  print "INSIDE PROMISERACE";
+  print S;
+
   /* 4. ReturnIfAbrupt(S). */
   @ReturnIfAbrupt(S);
   /* 5. If S is neither undefined nor null, */
