@@ -601,7 +601,7 @@ function thisNumberValue(value) {
     return value
   };
   /* 2. If Type(value) is Object and value has a [[NumberData]] internal slot, then */
-  if (Type(Value) = "Object" &&& "NumberData" in_obj value) {
+  if (Type(value) = "Object" &&& "NumberData" in_obj value) {
     /* a. Assert: value’s [[NumberData]] internal slot is a Number value. */
     assert Type(value.NumberData) = "Number";
     /* b. Return the value of value’s [[NumberData]] internal slot. */

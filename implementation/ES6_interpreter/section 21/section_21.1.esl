@@ -24,7 +24,7 @@ function StringConstructor (global, this, strict, args) {
   NewTarget := this;
 
   /* 1. If no arguments were passed to this function invocation, let s be "". */
-  if ((value = null) || (value = 'undefined)){
+  if ((value = null) || (value = 'undefined) || (value = 'null)){
     s := ""
   } else{
   /* 2. Else, */
@@ -64,7 +64,7 @@ function initStringObject(global, objectPrototype, strict) {
   objStringPrototype := initStringPrototype(global, objectPrototype, strict);
   objStringConstructor := CreateFunctionObject(["items"], "StringConstructor", global, strict, 0.);
 
-  descriptor := newDataPropertyDescriptorFull(objStringConstructor, true, false, true);
+  descriptor := newDataPropertyDescriptorFull(objStringConstructor, false, false, true);
   setJSProperty(objStringPrototype, "constructor", descriptor);
 
   descriptor := newDataPropertyDescriptorFull(objStringPrototype, false, false, false);
@@ -85,10 +85,10 @@ function initStringObject(global, objectPrototype, strict) {
   /* 21.1.2.3 String.prototype */
 
   /* 21.1.2.4 String.raw ( template, ...substitutions ) */
-  /* raw := CreateBuiltInFunctionObject(["template", "substitutions"], "StringRaw", global, strict, 0.); */
+  raw := CreateBuiltInFunctionObject(["template", "substitutions"], "StringRaw", global, strict, 0.);
   /* The length property of the raw function is 1. */
-  /* setJSProperty(raw, "length", newDataPropertyDescriptorFull(1., false, false, false)); */
-  /* createBuiltInProperty(objStringConstructor, "raw", raw); */
+  setJSProperty(raw, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  createBuiltInProperty(objStringConstructor, "raw", raw);
 
   return objStringConstructor  
 };
@@ -388,13 +388,13 @@ function StringRaw(global, this, strict, args){
   @ReturnIfAbrupt(cooked);
 
   /* 5. Let raw be ToObject(Get(cooked, "raw")). */
-  raw := ToObject(GetES6(cooked, "raw"));
+  raw := ToObject(Get(cooked, "raw"));
 
   /* 6. ReturnIfAbrupt(raw). */
   @ReturnIfAbrupt(raw);
 
   /* 7. Let literalSegments be ToLength(Get(raw, "length")). */
-  literalSegments := ToLength(GetES6(raw, "length"));
+  literalSegments := ToLength(Get(raw, "length"));
 
   /* 8. ReturnIfAbrupt(literalSegments). */
   @ReturnIfAbrupt(literalSegments);
@@ -417,7 +417,7 @@ function StringRaw(global, this, strict, args){
     nextKey := ToString(nextIndex);
 
     /* b. Let nextSeg be ToString(Get(raw, nextKey)). */
-    nextSeg := ToString(GetES6(raw, nextKey));
+    nextSeg := ToString(Get(raw, nextKey));
 
     /* c. ReturnIfAbrupt(nextSeg). */
     @ReturnIfAbrupt(nextSeg);
@@ -671,7 +671,7 @@ function StringPrototypeendsWith(global, this, strict, args){
   len := s_len_u S;
 
   /* 10. If endPosition is undefined, let pos be len, else let pos be ToInteger(endPosition). */
-  if ((endPosition = 'undefined) || (endPosition = null)){
+  if ((endPosition = 'undefined) || (endPosition = null) || (endPosition = 'null)){
     pos := len
   } else{
     pos := int_of_float(ToInteger(endPosition))
@@ -721,6 +721,8 @@ function StringPrototypeendsWith(global, this, strict, args){
 
 /* 21.1.3.7 String.prototype.includes ( searchString [ , position ] ) */
 function StringPrototypeincludes(global, this, strict, args){
+  print "ananas";
+
   searchString := l_nth(args, 0);
   position := getOptionalParam(args, 1);
 
@@ -751,7 +753,7 @@ function StringPrototypeincludes(global, this, strict, args){
   @ReturnIfAbrupt(searchStr);
 
   /* 9. Let pos be ToInteger(position). (If position is undefined, this step produces the value 0). */
-  if (!(position = 'undefined) && !(position = null)){
+  if (!(position = 'undefined) && !(position = null) && !(position = 'null)){
     pos := int_of_float(ToInteger(position))
   } else{
     pos := 0
@@ -815,7 +817,7 @@ function StringPrototypeindexOf(global, this, strict, args){
   @ReturnIfAbrupt(searchStr);
 
   /* 6. Let pos be ToInteger(position). (If position is undefined, this step produces the value 0). */
-  if (!(position = 'undefined) && !(position = null)){
+  if (!(position = 'undefined) && !(position = null) && !(position = 'null)){
     pos := int_of_float(ToInteger(position))
   } else{
     pos := 0
@@ -877,7 +879,7 @@ function StringPrototypelastIndexOf(global, this, strict, args) {
   @ReturnIfAbrupt(searchString);
 
   /* 6. Let numPos be ToNumber(position). (If position is undefined, this step produces the value NaN). */
-  if (!(position = 'undefined) && !(position = null)){
+  if (!(position = 'undefined) && !(position = null) && !(position = 'null)){
     numPos := ToNumber(position)
   } else{
     numPos := NaN
@@ -1004,17 +1006,17 @@ function StringPrototypeMatch(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. If regexp is neither undefined nor null, then */
-  if (!(regexp = 'undefined) && !(regexp = null)){
+  if (!(regexp = 'undefined) && !(regexp = null) && !(regexp = 'null)){
     /* a. Let matcher be GetMethod(regexp, @@match). */
-    /* matcher := GetMethod(regexp, @@match); */
+    matcher := GetMethod(regexp, "@@match"); 
 
     /* b. ReturnIfAbrupt(matcher). */
     @ReturnIfAbrupt(matcher);
   
     /* c. If matcher is not undefined, then  */
-    if (!(matcher = 'undefined)){
+    if (!(matcher = 'undefined)){ 
       /* i. Return Call(matcher, regexp, «‍O»). */
-      return Call(matcher, regexp, [O])
+      return Call(null, null, matcher, regexp, [O])
     }
   };
 
@@ -1025,14 +1027,13 @@ function StringPrototypeMatch(global, this, strict, args) {
   @ReturnIfAbrupt(S);
 
   /* 6. Let rx be RegExpCreate(regexp, undefined) (see 21.2.3.2.3). */
-  rx := RegExpConstructor(global, this, strict, [regexp, 'undefined]);
+  rx := RegExpConstructor(global, 'undefined, strict, [regexp, 'undefined]);
 
   /* 7. ReturnIfAbrupt(rx). */
   @ReturnIfAbrupt(rx);
 
   /* 8. Return Invoke(rx, @@match, «‍S»). */
-  /* return Invoke(rx, @@match, [S]) */
-  return null
+  return Invoke(rx, "@@match", [S])
 };
 
 /* 21.1.3.12 String.prototype.normalize ( [ form ] ) */
@@ -1049,7 +1050,7 @@ function StringPrototypenormalize(global, this, strict, args){
   @ReturnIfAbrupt(S);
 
   /* 4. If form is not provided or form is undefined, let form be "NFC". */
-  if ((form = null) || (form = 'undefined)){
+  if ((form = null) || (form = 'undefined) || (form = 'null)){
     form := "NFC"
   };
 
@@ -1127,9 +1128,9 @@ function StringPrototypeReplace(global, this, strict, args){
   @ReturnIfAbrupt(O);
 
   /* 3. If searchValue is neither undefined nor null, then */
-  if (!(searchValue = 'undefined) && !(searchValue = null)){
+  if (!(searchValue = 'undefined) && !(searchValue = null) && !(searchValue = 'null)){ 
     /* a. Let replacer be GetMethod(searchValue, @@replace).  */
-    /* replacer := GetMethod(searchValue, @@replace); */
+    replacer := GetMethod(searchValue, "@@replace");
 
     /* b. ReturnIfAbrupt(replacer). */
     @ReturnIfAbrupt(replacer);
@@ -1137,8 +1138,8 @@ function StringPrototypeReplace(global, this, strict, args){
     /* c. If replacer is not undefined, then */
     if (!(replacer = 'undefined)){
       /* i. Return Call(replacer, searchValue, «‍O», replaceValue). */
-      return Call(replacer, searchValue, [O, replaceValue])
-    }
+      return Call(null, null, replacer, searchValue, [O, replaceValue])
+    } 
   };
   
   /* 4. Let string be ToString(O). */
@@ -1170,24 +1171,210 @@ function StringPrototypeReplace(global, this, strict, args){
   and let matched be searchString. If no occurrences of searchString were 
   found, return string. */
 
-  /* 11. If functionalReplace is true, then */
-    /* a. Let replValue be Call(replaceValue, undefined,«matched, pos, and string»). */
-    /* b. Let replStr be ToString(replValue). */
-    /* c. ReturnIfAbrupt(replStr). */
+  pos := StringPrototypeSearch(global, string, strict, [searchString]);
 
+  matched := searchString;
+
+  if (pos = -(1.)){
+    return string
+  };
+
+  /* 11. If functionalReplace is true, then */
+  if (functionalReplace = true){
+    /* a. Let replValue be Call(replaceValue, undefined,«matched, pos, and string»). */
+    replValue := Call(null, null, replaceValue, 'undefined, [matched, pos, string]);
+
+    /* b. Let replStr be ToString(replValue). */
+    replStr := ToString(replValue);
+
+    /* c. ReturnIfAbrupt(replStr). */
+    @ReturnIfAbrupt(replStr)
+  }
   /* 12. Else, */
+  else{
     /* a. Let captures be an empty List. */
+    captures := [];
+
     /* b. Let replStr be GetSubstitution(matched, string, pos, captures, replaceValue). */  
-  
+    replStr := GetSubstitution(matched, string, pos, captures, replaceValue, global, strict)
+  };
+    
   /* 13. Let tailPos be pos + the number of code units in matched. */
+  tailPos := int_of_float pos + s_len_u matched;
   
   /* 14. Let newString be the String formed by concatenating the first pos 
   code units of string, replStr, and the trailing substring of string 
   starting at index tailPos. If pos is 0, the first element of the 
   concatenation will be the empty String. */
+  if (pos > 0.){
+    first := StringPrototypesubstring(global, string, strict, [0. , pos])
+  } else{
+    first := ""
+  };
+  last := StringPrototypesubstring(global, string, strict, [int_to_float tailPos, 'undefined]);
+
+  newString := first;
+  newString := s_concat([newString, replStr]);
+  newString := s_concat([newString, last]);
   
   /* 15. Return newString. */
-  return "mirtilo"
+  return newString
+};
+
+/* 21.1.3.14.1 Runtime Semantics: GetSubstitution(matched, str, position, captures, replacement) */
+function GetSubstitution(matched, str, position, captures, replacement, global, strict){
+  /* 1. Assert: Type(matched) is String. */
+  assert(Type(matched) = "String");
+
+  /* 2. Let matchLength be the number of code units in matched. */
+  matchLength := s_len_u matched;
+
+  /* 3. Assert: Type(str) is String. */
+  assert(Type(str) = "String");
+
+  /* 4. Let stringLength be the number of code units in str. */
+  stringLength := s_len_u str;
+
+  /* 5. Assert: position is a nonnegative integer. */
+  assert((Type(position) = "Number") && (position >= 0.));
+
+  /* 6. Assert: position ≤ stringLength. */
+  assert(position <= stringLength);
+
+  /* 7. Assert: captures is a possibly empty List of Strings. */
+  assert(Type(captures) = "List");
+
+  /* 8. Assert: Type( replacement) is String. */
+  assert(Type(replacement) = "String");
+
+  /* 9. Let tailPos be position + matchLength. */
+  tailPos := int_of_float position + matchLength;
+
+  /* 10. Let m be the number of elements in captures. */
+  m := l_len captures;
+
+  /* 11. Let result be a String value derived from replacement by copying code unit elements from replacement
+  to result while performing replacements as specified in Table 45. These $ replacements are done left-to- right, 
+  and, once such a replacement is performed, the new replacement text is not subject to further replacements. */
+
+  /**
+    * Characters            | Replacement text
+    * ______________________|_______________________________________________________________
+    * $$                    | $
+    * ______________________|_______________________________________________________________
+    * $&                    | matched
+    * ______________________|_______________________________________________________________
+    * $`                    | If position is 0, the replacement is the empty String. 
+                            | Otherwise the replacement is the substring of str that starts 
+                            | at index 0 and whose last code unit is at index position -1.
+    * ______________________|_______________________________________________________________
+    * $'                    | If tailPos ≥ stringLength, the replacement is the empty String.
+                            | Otherwise the replacement is the substring of str that starts 
+                            | at index tailPos and continues to the end of str.
+    * ______________________|_______________________________________________________________
+    * $n where n is one of  | The nth element of captures, where n is a single digit in the 
+      1 2 3 4 5 6 7 8 9 and | range 1 to 9. If n<=m and the nth element of captures is 
+      $n is not followed by | undefined, use the empty String instead. If n>m, the result is
+      a decimal digit       | implementation-defined.
+    * ______________________|_______________________________________________________________
+    * $nn where n is one of | The nnth element of captures, where nn is a two-digit decimal 
+      0 1 2 3 4 5 6 7 8 9   | number in the range 01 to 99. If nn<=m and the nnth element of 
+                            | captures is undefined, use the empty String instead. If nn is 
+                            | 00 or nn>m, the result is implementation- defined.
+    * ______________________|_______________________________________________________________
+    * $ in any context that | $
+      does not match any of |
+      the above.            |
+    * ______________________|_______________________________________________________________
+    */ 
+
+  if (position = 0){
+    before := ""
+  } else{
+    before := StringPrototypesubstring(global, str, strict, [0. , position])
+  };
+
+  if (tailPos >= stringLength){
+    after := ""
+  } else{
+    after := StringPrototypesubstring(global, str, strict, [int_to_float tailPos, 'undefined])
+  };
+
+  result := "";
+
+  len := s_len_u replacement;
+  i := 0;
+  put := true;
+
+  while ((i + 1) < len){
+    c1 := s_nth_u(replacement, i);
+    c2 := s_nth_u(replacement, i + 1);
+    c2_code := to_char_code_u c2;
+
+    if ((c1 = "$") &&& (c2 = "$")){
+      result := s_concat([result, c1]);
+      i := i + 2
+    } elif ((c1 = "$") &&& (c2 = "&")){
+      result := s_concat([result, matched]);
+      i := i + 2
+    } elif ((c1 = "$") &&& (c2 = "`")){
+      result := s_concat([result, before]);
+      i := i + 2
+    } elif ((c1 = "$") &&& (c2 = "'")){
+      result := s_concat([result, after]);
+      i := i + 2
+    } elif ((c1 = "$") &&& (c2_code >= 48) &&& (c2_code <= 57)){
+      if ((i + 2) < len){
+        c3 := s_nth_u(replacement, i + 2);
+        c3_code := to_char_code_u c3;
+
+        if ((c3_code >= 48) &&& (c3_code <= 57)){
+          n := int_of_string(s_concat([c2, c3]));
+          if ((n <= m) &&& !(l_nth(captures, n - 1) = 'undefined)){
+            result := s_concat([result, l_nth(captures, n - 1)]);
+            i := i + 3
+          } else{
+            n := int_of_string(c2);
+            if ((n <= m) &&& !(l_nth(captures, n - 1) = 'undefined)){
+              result := s_concat([result, l_nth(captures, n - 1)])
+            };
+            i := i + 2
+          }
+        } else{
+          n := int_of_string(c2);
+          if ((n <= m) &&& !(l_nth(captures, n - 1) = 'undefined)){
+            result := s_concat([result, l_nth(captures, n - 1)]);
+            i := i + 2
+          } else{
+            i := i + 2
+          }
+        }
+      } else{
+        n := int_of_string(c2);
+        if ((n <= m) &&& !(l_nth(captures, n - 1) = 'undefined)){
+          result := s_concat([result, l_nth(captures, n - 1)]);
+          i := i + 2
+        } else{
+          i := i + 2
+        }
+      }
+    } else{
+      result := s_concat([result, c1]);
+      i := i + 1
+    };
+
+    if ((i + 1) = len){
+        put := false
+    }
+  };
+
+  if ((len = 1) || (put = false)){
+    c1 := s_nth_u(replacement, i);
+    result := s_concat([result, c1])
+  };
+
+  /* 12. Return result. */
+  return result
 };
 
 /* 21.1.3.15 String.prototype.search ( regexp ) */
@@ -1201,17 +1388,17 @@ function StringPrototypeSearch(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. If regexp is neither undefined nor null, then */
-  if (!(regexp = 'undefined) && !(regexp = null)){
+  if (!(regexp = 'undefined) && !(regexp = 'null) && !(regexp = null)){
     /* a. Let searcher be GetMethod(regexp, @@search). */
-    /* searcher := GetMethod(regexp, @@search); */
+    searcher := GetMethod(regexp, "@@search"); 
 
     /* b. ReturnIfAbrupt(searcher). */
     @ReturnIfAbrupt(searcher);
 
     /* c. If searcher is not undefined , then */
-    if (!(searcher = 'undefined)){
+    if (!(searcher = 'undefined)){ 
       /* i. Return Call(searcher, regexp, «O») */
-      return Call(searcher, regexp, [O])
+      return Call(null, null, searcher, regexp, [O]) 
     }
   };
 
@@ -1222,14 +1409,13 @@ function StringPrototypeSearch(global, this, strict, args) {
   @ReturnIfAbrupt(string);
 
   /* 6. Let rx be RegExpCreate(regexp, undefined) (see 21.2.3.2.3). */
-  rx := RegExpConstructor(global, this, strict, [regexp, 'undefined]);
+  rx := RegExpConstructor(global, 'undefined, strict, [regexp, 'undefined]);
 
   /* 7. ReturnIfAbrupt(rx). */
   @ReturnIfAbrupt(rx);
 
   /* 8. Return Invoke(rx, @@search, «‍string»). */
-  /* return Invoke(rx, @@search, [string]) */
-  return null
+  return Invoke(rx, "@@search", [string])
 }; 
 
 /* 21.1.3.16 String.prototype.slice ( start, end ) */
@@ -1304,9 +1490,9 @@ function StringPrototypeSplit(global, this, strict, args){
   @ReturnIfAbrupt(O);
 
   /* 3. If separator is neither undefined nor null, then */
-  if (!(separator = 'undefined) && !(separator = null)){
+  if (!(separator = 'undefined) && !(separator = 'null) && !(separator = null)){
     /* a. Let splitter be GetMethod(separator, @@split). */
-    /* splitter := GetMethod(separator, @@split); */
+    splitter := GetMethod(separator, "@@split");
 
     /* b. ReturnIfAbrupt(splitter). */
     @ReturnIfAbrupt(splitter);
@@ -1314,7 +1500,7 @@ function StringPrototypeSplit(global, this, strict, args){
     /* c. If splitter is not undefined , then */
     if (!(splitter = 'undefined)){
       /* i. Return Call(splitter, separator, «‍O, limit»). */
-      return Call(splitter, separator, [O, limit])
+      return Call(null, null, splitter, separator, [O, limit])
     }
   };
     
@@ -1325,16 +1511,17 @@ function StringPrototypeSplit(global, this, strict, args){
   @ReturnIfAbrupt(S);
 
   /* 6. Let A be ArrayCreate(0). */
-  A := ArrayCreate(0);
+  /* A := ArrayCreate(0); */
+  A := ArrayConstructor(global, null, strict, []);
 
   /* 7. Let lengthA be 0. */
   lengthA := 0;
 
   /* 8. If limit is undefined, let lim = 253–1; else let lim = ToLength(limit). */
   if (limit = 'undefined){
-    lim := (2^53) - 1
+    lim := ((2. ** 53.) - 1.)
   } else{
-    lim := ToLength(limit)
+    lim := int_of_float ToLength(limit)
   };
 
   /* 9. ReturnIfAbrupt(lim). */
@@ -1373,6 +1560,7 @@ function StringPrototypeSplit(global, this, strict, args){
   if (s = 0){
     /* a. Let z be SplitMatch(S, 0, R). */
     z := SplitMatch(S, 0, R);
+
     /* b. If z is not false, return A. */
     if (!(z = false)){
       return A
@@ -1409,7 +1597,7 @@ function StringPrototypeSplit(global, this, strict, args){
       /* ii. Else e ≠ p, */   
       else{
         /* 1. Let T be a String value equal to the substring of S consisting of the code units at indices p (inclusive) through q (exclusive). */
-        T := StringPrototypesubstring(global, this, strict, [p, q]);
+        T := StringPrototypesubstring(global, S, strict, [p, q]);
 
         /* 2. Perform CreateDataProperty(A, ToString(lengthA), T). */
         CreateDataProperty(A, ToString(lengthA), T);
@@ -1435,10 +1623,10 @@ function StringPrototypeSplit(global, this, strict, args){
   };
     
   /* 19. Let T be a String value equal to the substring of S consisting of the code units at indices p (inclusive) through s (exclusive). */
-  T := StringPrototypesubstring(global, this, strict, [p, q]);
-
+  T := s_substr_u(S, p, q);
+  
   /* 20. Perform CreateDataProperty(A, ToString(lengthA), T). */
-   CreateDataProperty(A, ToString(lengthA), T);
+  CreateDataProperty(A, ToString(lengthA), T);
 
   /* 21. Assert: The above call will never result in an abrupt completion. */
   /* ???? */
@@ -1474,6 +1662,7 @@ function SplitMatch(S, q, R){
     };
     i := i + 1
   };
+
   /* 6. Return q+r. */
   return q + r
 };
@@ -1510,7 +1699,7 @@ function StringPrototypestartsWith(global, this, strict, args){
   @ReturnIfAbrupt(searchString);
 
   /* 9. Let pos be ToInteger(position). (If position is undefined, this step produces the value 0). */
-  if (!(position = 'undefined) && !(position = null)){
+  if (!(position = 'undefined) && !(position = 'null) && !(position = null)){
     pos := int_of_float(ToInteger(position))
   } else{
     pos := 0
@@ -1582,7 +1771,7 @@ function StringPrototypesubstring(global, this, strict, args){
   @ReturnIfAbrupt(intStart); 
 
   /* 7. If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
-  if (end = 'undefined){
+  if ((end = 'undefined) || (end = 'null) || (end = null)){
     intEnd := len
   } else{
     intEnd := int_of_float(ToInteger(end))
@@ -1818,7 +2007,6 @@ function createStringIteratorObject() {
 function isStringIteratorInstance(obj) {
   return ("String" in_obj obj) &&& ("StringIteratorNextIndex" in_obj obj) &&& ("IteratedString" in_obj obj)
 };
-
 
 /** 21.1.5.2 The %StringIteratorPrototype% Object 
     21.1.5.2.1 %StringIteratorPrototype%.next ( )

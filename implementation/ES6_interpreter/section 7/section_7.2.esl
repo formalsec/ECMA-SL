@@ -52,7 +52,29 @@ function RequireObjectCoercible(argument){
   }
 };
 
+/* 7.2.6 IsInteger ( argument ) */
+function IsInteger(argument){
+  /* 1. ReturnIfAbrupt(argument). */
+  @ReturnIfAbrupt(argument);
 
+  /* 2. If Type(argument) is not Number, return false. */
+  if (!(Type(argument) = "Number")){
+    return false
+  };
+
+  /* 3. If argument is NaN, +∞, or −∞, return false. */
+  if ((argument = NaN) || (argument = Infinity) || (argument = -Infinity)){
+    return false
+  };
+
+  /* 4. If floor(abs(argument)) ≠ abs(argument), return false. */
+  if (!(floor(abs(argument)) = abs(argument))){
+    return false
+  };
+
+  /* 5. Return true. */
+  return true
+};
 
 /**
  * 7.2.7 IsPropertyKey ( argument )

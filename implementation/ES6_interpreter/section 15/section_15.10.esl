@@ -260,6 +260,23 @@ function initRegExpPrototype(objectPrototypeObject) {
   getSourceFunc := CreateFunctionObject([], "getRegExpSourceAccessorProperty", |global|, false, null);
   sDesc := newGetAccessorPropertyDescriptorFull(getSourceFunc, false, true);
 
+  /* 21.2.5.6 RegExp.prototype [ @@match ] ( string ) */
+  matchFunctionObject := CreateBuiltInFunctionObject(["string"], "RegExpPrototypematch", |global|, false, null);
+  createBuiltInProperty(regExpPrototypeObject, "@@match", matchFunctionObject);
+
+  /* 21.2.5.8 RegExp.prototype [ @@replace ] ( string, replaceValue ) */
+  replaceFunctionObject := CreateBuiltInFunctionObject(["string", "replaceValue"], "RegExpPrototypereplace", |global|, false, null);
+  createBuiltInProperty(regExpPrototypeObject, "@@replace", replaceFunctionObject);
+
+  /* 21.2.5.9 RegExp.prototype [ @@search ] ( string ) */
+  searchFunctionObject := CreateBuiltInFunctionObject(["string"], "RegExpPrototypesearch", |global|, false, null);
+  createBuiltInProperty(regExpPrototypeObject, "@@search", searchFunctionObject);
+
+  /* 21.2.5.11 RegExp.prototype [ @@split ] ( string, limit ) */
+  splitFunctionObject := CreateBuiltInFunctionObject(["string", "limit"], "RegExpPrototypesplit", |global|, false, null);
+  createBuiltInProperty(regExpPrototypeObject, "@@split", splitFunctionObject);
+
+  setJSProperty(regExpPrototypeObject, "lastIndex", 0);
   setJSProperty(regExpPrototypeObject, "global", gDesc);
   setJSProperty(regExpPrototypeObject, "ignoreCase", iDesc);
   setJSProperty(regExpPrototypeObject, "multiline", mDesc);
@@ -392,6 +409,10 @@ function RegExpPrototypeExec(global, this, strict, args) {
   /* 4. Let lastIndex be the result of calling the [[Get]]
     internal method of R with argument "lastIndex".. */
   lastIndex := {R.Get}(R, "lastIndex");
+
+  print "lastIndex::::";
+  print lastIndex;
+  
   /* 5. Let i be the value of ToInteger(lastIndex). */
   i := int_of_float (ToInteger(lastIndex));
 
@@ -691,7 +712,8 @@ function setFlags(obj, flags) {
   if (g) { flags := s_concat [flags, "g"] };
   if (i) { flags := s_concat [flags, "i"] };
   if (m) { flags := s_concat [flags, "m"] };
-  /*setJSProperty(obj, "flags", newDataPropertyDescriptorFull(flags, false, false, false));*/
+  
+  setJSProperty(obj, "flags", newDataPropertyDescriptorFull(flags, false, false, false));
   /* ES6? - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/S15.10.4.1_A1_T1.js */
 
   return { gb: g, ic: i, ml: m, flags: flags }

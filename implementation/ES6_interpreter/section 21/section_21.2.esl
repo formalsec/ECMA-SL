@@ -1,0 +1,818 @@
+
+/* 21.2.5.2 RegExp.prototype.exec ( string ) */
+function RegExpPrototypeexec(global, this, strict, args){
+    string := l_nth(args, 0);
+
+    /* 1. Let R be the this value. */
+    R := this;
+
+    /* 2. If Type(R) is not Object, throw a TypeError exception. */
+    if (!(Type(R) = "Object")){
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 3. If R does not have a [[RegExpMatcher]] internal slot, throw a TypeError exception. */
+    if (!(RegExpMatcher in_obj R)){
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 4. Let S be ToString(string). */
+    S := ToString(string);
+
+    /* 5. ReturnIfAbrupt(S). */
+    @ReturnIfAbrupt(S);
+
+    /* 6. Return RegExpBuiltinExec(R, S). */
+    return RegExpBuiltinExec(R, S)
+};
+
+/* 21.2.5.2.1 Runtime Semantics: RegExpExec ( R, S ) */
+function RegExpExec(R, S){
+    /* 1. Assert: Type(R) is Object. */
+    assert(Type(R) = "Object");
+
+    /* 2. Assert: Type(S) is String. */
+    assert(Type(S) = "String");
+
+    /* 3. Let exec be Get(R, "exec"). */
+    exec := GetES6(R, "exec");
+
+    /* 4. ReturnIfAbrupt(exec). */
+    @ReturnIfAbrupt(exec);
+
+    /* 5. If IsCallable(exec) is true, then */
+    if (IsCallable(exec) = true){
+        /* a. Let result be Call(exec, R, «S»). */
+        result := Call(null, null, exec, R, [S]);
+
+        /* b. ReturnIfAbrupt(result). */
+        @ReturnIfAbrupt(result);
+
+        /* c. If Type(result) is neither Object or Null, throw a TypeError exception. */
+        if (!((Type(result) = "Object") || (Type(result) = "Null"))){
+            throw TypeErrorConstructorInternal()
+        };
+
+        /* d. Return result. */
+        return result
+    };
+
+    /* 6. If R does not have a [[RegExpMatcher]] internal slot, throw a TypeError exception. */
+    if (!(RegExpMatcher in_obj R)){
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 7. Return RegExpBuiltinExec(R, S). */
+    return RegExpBuiltinExec(R, S)
+};
+
+/* 21.2.5.2.2 Runtime Semantics: RegExpBuiltinExec ( R, S ) */
+function RegExpBuiltinExec(R, S){
+    /* 1. Assert: R is an initialized RegExp instance. */
+    /* 2. Assert: Type(S) is String. */
+    /* 3. Let length be the number of code units in S. */
+    /* 4. Let lastIndex be ToLength(Get(R,"lastIndex")). */
+    /* 5. ReturnIfAbrupt(lastIndex). */
+    /* 6. Let global be ToBoolean(Get(R, "global")). */
+    /* 7. ReturnIfAbrupt(global). */
+    /* 8. et sticky be ToBoolean(Get(R, "sticky")). */
+    /* 9. ReturnIfAbrupt(sticky). */
+    /* 10. If global is false and sticky is false, let lastIndex be 0. */
+    /* 11. Let matcher be the value of R’s [[RegExpMatcher]] internal slot. */
+    /* 12. Let flags be the value of R’s [[OriginalFlags]] internal slot. */
+    /* 13. If flags contains "u", let fullUnicode be true, else let fullUnicode be false. */
+    /* 14. Let matchSucceeded be false. */
+    /* 15. Repeat, while matchSucceeded is false */
+        /* a. If lastIndex > length, then */
+            /* i. Let setStatus be Set(R, "lastIndex", 0, true). */
+            /* ii. ReturnIfAbrupt(setStatus). */
+            /* iii. Return null. */
+        /* b. Let r be matcher(S, lastIndex). */
+        /* c. If r is failure, then */
+            /* i. If sticky is true, then */
+                /* 1. Let setStatus be Set(R, "lastIndex", 0, true). */
+                /* 2. ReturnIfAbrupt(setStatus). */
+                /* 3. Return null. */
+            /* ii. Let lastIndex be AdvanceStringIndex(S, lastIndex, fullUnicode). */
+        /* d. Else, */
+            /* i. Assert: r is a State. */
+            /* ii. Set matchSucceeded to true. */
+    /* 16. Let e be r's endIndex value. */
+    /* 17. If fullUnicode is true, then */
+        /* a. e is an index into the Input character list, derived from S, matched by matcher. Let eUTF be the smallest index into S that corresponds to the character at element e of Input. If e is greater than or equal to the length of Input, then eUTF is the number of code units in S. */
+        /* b. Let e be eUTF. */
+    /* 18. If global is true or sticky is true, */
+        /* a. Let setStatus be Set(R, "lastIndex", e, true). */
+        /* b. ReturnIfAbrupt(setStatus). */
+    /* 19. Let n be the length of r's captures List. (This is the same value as 21.2.2.1's NcapturingParens.) */
+    /* 20. Let A be ArrayCreate(n + 1). */
+    /* 21. Assert: The value of A’s "length" property is n + 1. */
+    /* 22. Let matchIndex be lastIndex. */
+    /* 23. Assert: The following CreateDataProperty calls will not result in an abrupt completion. */
+    /* 24. Perform CreateDataProperty(A, "index", matchIndex). */
+    /* 25. Perform CreateDataProperty(A, "input", S). */
+    /* 26. Let matchedSubstr be the matched substring (i.e. the portion of S between offset lastIndex inclusive and offset e exclusive). */
+    /* 27. Perform CreateDataProperty(A, "0", matchedSubstr). */
+    /* 28. For each integer i such that i > 0 and i ≤ n */
+        /* a. Let captureI be ith element of r's captures List. */
+        /* b. If captureI is undefined, let capturedValue be undefined. */
+        /* c. Else if fullUnicode is true, */
+            /* i. Assert: captureI is a List of code points. */
+            /* ii. Let capturedValue be a string whose code units are the UTF16Encoding (10.1.1) of the code points of captureI. */
+        /* d. Else, fullUnicode is false, */
+            /* i. Assert: captureI is a List of code units. */
+            /* ii. Let capturedValue be a string consisting of the code units of captureI. */
+        /* e. Perform CreateDataProperty(A, ToString(i) , capturedValue). */
+    /* 29. Return A. */
+};
+
+/* 21.2.5.2.3 AdvanceStringIndex ( S, index, unicode ) */
+function AdvanceStringIndex(S, index, unicode){
+    /* 1. Assert: Type(S) is String. */
+    assert(Type(S) = "String");
+
+    /* 2. Assert: index is an integer such that 0≤index≤253-1. */
+    /* assert((IsInteger(index)) && (index >= 0) && (index <= ((2^53) - 1))); */
+    assert(IsInteger(index));
+    assert(index >= 0.);
+    assert(index <= ((2. ** 53.) - 1.));
+
+    /* 3. Assert: Type(unicode) is Boolean. */
+    assert(Type(unicode) = "Boolean");
+
+    /* 4. If unicode is false, return index+1. */
+    if (unicode = false){
+        return index + 1.
+    };
+
+    /* 5. Let length be the number of code units in S. */
+    length := s_len_u S;
+
+    /* 6. If index+1 ≥ length, return index+1. */
+    if (index + 1. >= length){
+        return index + 1.
+    };
+
+    /* 7. Let first be the code unit value at index index in S. */
+    first := s_nth(S, int_of_float index);
+
+    /* 8. If first < 0xD800 or first > 0xDBFF, return index+1. */
+    if ((first < from_char_code_u("\uD800")) || (first > from_char_code_u("\uDBFF"))){
+        return index + 1.
+    };
+
+    /* 9. Let second be the code unit value at index index+1 in S. */
+    second := s_nth(S, int_of_float (index + 1.));
+
+    /* 10. If second < 0xDC00 or second > 0xDFFF, return index+1. */
+    if ((second < from_char_code_u("\uDC00")) || (second > from_char_code_u("\uDFFF"))){
+        return index + 1.
+    };
+
+    /* 11. Return index+2. */
+    return index + 2.
+};
+
+/* 21.2.5.6 RegExp.prototype [ @@match ] ( string ) */
+function RegExpPrototypematch(global, this, strict, args){
+    string := l_nth(args, 0);
+
+    /* 1. Let rx be the this value. */
+    rx := this;
+
+    /* 2. If Type(rx) is not Object, throw a TypeError exception. */
+    if (!(Type(rx) = "Object")){
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 3. Let S be ToString(string) */
+    S := ToString(string);
+
+    /* 4. ReturnIfAbrupt(S). */
+    @ReturnIfAbrupt(S);
+
+    /* 5. Let global be ToBoolean(GetES6(rx, "global")). */
+    global := ToBoolean(GetES6(rx, "global"));
+
+    /* 6. ReturnIfAbrupt(global). */
+    @ReturnIfAbrupt(global);
+
+    /* 7. If global is false, then */
+    if (global = false){
+        /* a. Return RegExpExec(rx, S). */
+        /* return RegExpExec(rx, S) */
+        return RegExpPrototypeExec(global, rx, strict, [S])
+    }
+    /* 8. Else global is true, */
+    else{
+        /* a. Let fullUnicode be ToBoolean(GetES6(rx, "unicode")). */
+        /* fullUnicode := ToBoolean(GetES6(rx, "unicode")); */
+        fullUnicode := false;
+
+        /* b. ReturnIfAbrupt(fullUnicode). */
+        @ReturnIfAbrupt(fullUnicode); 
+
+        /* c. Let setStatus be Set(rx, "lastIndex", 0, true). */
+        /* setStatus := Set(rx, "lastIndex", 0, true); */
+        setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false));
+ 
+        /* d. ReturnIfAbrupt(setStatus). */
+        /* @ReturnIfAbrupt(setStatus); */
+
+        /* e. Let A be ArrayCreate(0). */
+        /* A := ArrayCreate(0); */
+        A := ArrayConstructor(global, null, strict, []);
+
+        /* f. Let n be 0. */
+        n := 0;
+
+        /* g. Repeat, */
+        while (true){
+            /* i. Let result be RegExpExec(rx, S). */
+            /* result := RegExpExec(rx, S); */
+            result := RegExpPrototypeExec(global, rx, strict, [S]);
+
+            /* ii. ReturnIfAbrupt(result). */
+            @ReturnIfAbrupt(result);
+
+            /* iii. If result is null, then */
+            if ((result = 'null) || (result = null)){
+                /* 1. If n=0, return null. */
+                if (n = 0){
+                    return null
+                }
+                /* 2. Else, return A. */
+                else{
+                    return A
+                }
+            } 
+            /* iv. Else result is not null, */
+            else{
+                /* 1. Let matchStr be ToString(GetES6(result, "0")). */
+                matchStr := ToString(GetES6(result, "0"));
+
+                /* 2. ReturnIfAbrupt(matchStr). */
+                @ReturnIfAbrupt(matchStr);
+
+                /* 3. Let status be CreateDataProperty(A, ToString(n), matchStr). */
+                status := CreateDataProperty(A, ToString(n), matchStr);
+
+                /* 4. Assert: status is true. */
+                assert(status = true);
+
+                /* 5. If matchStr is the empty String, then */
+                if (matchStr = ""){
+                    /* a. Let thisIndex be ToLength(GetES6(rx, "lastIndex")). */
+                    thisIndex := ToLength(GetES6(rx, "lastIndex"));
+
+                    /* b. ReturnIfAbrupt(thisIndex). */
+                    @ReturnIfAbrupt(thisIndex);
+
+                    /* c. Let nextIndex be AdvanceStringIndex(S, thisIndex, fullUnicode). */
+                    nextIndex := AdvanceStringIndex(S, thisIndex, fullUnicode);
+
+                    /* d. Let setStatus be Set(rx, "lastIndex", nextIndex, true). */
+                    /* setStatus := Set(rx, "lastIndex", nextIndex, true); */
+                    setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(nextIndex, true, false, false))
+                    
+                    /* e. ReturnIfAbrupt(setStatus). */
+                    /* @ReturnIfAbrupt(setStatus) */
+                };
+                    
+                /* 6. Increment n. */
+                n := n + 1
+            }   
+        }    
+    }
+};
+
+/* 21.2.5.8 RegExp.prototype [ @@replace ] ( string, replaceValue ) */
+function RegExpPrototypereplace(global, this, strict, args){
+    string := l_nth(args, 0);
+    replaceValue := l_nth(args, 1);
+    
+    /* 1. Let rx be the this value. */
+    rx := this;
+
+    /* 2. If Type(rx) is not Object, throw a TypeError exception. */
+    if (!(Type(rx) = "Object")){
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 3. Let S be ToString(string). */
+    S := ToString(string);
+
+    /* 4. ReturnIfAbrupt(S). */
+    @ReturnIfAbrupt(S);
+
+    /* 5. Let lengthS be the number of code unit elements in S. */
+    lengthS := s_len_u S;
+
+    /* 6. Let functionalReplace be IsCallable(replaceValue). */
+    functionalReplace := IsCallable(replaceValue);
+
+    /* 7. If functionalReplace is false, then */
+    if (functionalReplace = false){
+        /* a. Let replaceValue be ToString(replaceValue). */
+        replaceValue := ToString(replaceValue);
+
+        /* b. ReturnIfAbrupt(replaceValue). */
+        @ReturnIfAbrupt(replaceValue)
+    };
+        
+    /* 8. Let global be ToBoolean(GetES6(rx, "global")). */
+    global_ := ToBoolean(GetES6(rx, "global")); 
+
+    /* 9. ReturnIfAbrupt(global). */
+    @ReturnIfAbrupt(global_);
+
+    /* 10. If global is true, then */
+    if (global_ = true){
+        /* a. Let fullUnicode be ToBoolean(GetES6(rx, "unicode")). */
+        /* fullUnicode := ToBoolean(GetES6(rx, "unicode")); */
+        fullUnicode := false;
+
+        /* b. ReturnIfAbrupt(fullUnicode). */
+        @ReturnIfAbrupt(fullUnicode);
+
+        /* c. Let setStatus be Set(rx, "lastIndex", 0, true). */
+        /* setStatus := Set(rx, "lastIndex", 0, true); */
+        setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false))
+
+        /* d. ReturnIfAbrupt(setStatus). */
+        /* @ReturnIfAbrupt(setStatus) */
+    };
+
+    /* 11. Let results be a new empty List. */
+    results := [];
+
+    /* 12. Let done be false. */
+    done := false;
+
+    /* 13. Repeat, while done is false */
+    while (done = false){
+        /* a. Let result be RegExpExec(rx, S). */
+        /* result := RegExpExec(rx, S); */
+        result := RegExpPrototypeExec(global, rx, strict, [S]);
+
+        /* b. ReturnIfAbrupt(result). */
+        @ReturnIfAbrupt(result);
+
+        /* c. If result is null, set done to true. */
+        if ((result = 'null) || (result = null)){
+            done := true
+        }
+        /* d. Else result is not null, */
+        else{
+            /* i. Append result to the end of results. */
+            results := l_concat(results, [result]);
+
+            /* ii. If global is false, set done to true. */
+            if (global_ = false){
+                done := true
+            }
+            /* iii. Else, */
+            else{
+                /* 1. Let matchStr be ToString(GetES6(result, "0")). */
+                matchStr := ToString(GetES6(result, "0"));
+
+                /* 2. ReturnIfAbrupt(matchStr). */
+                @ReturnIfAbrupt(matchStr);
+
+                /* 3. If matchStr is the empty String, then */
+                if (matchStr = ""){ 
+                    /* a. Let thisIndex be ToLength(Get(rx, "lastIndex")). */
+                    /* thisIndex := ToLength(GetES6(rx, "lastIndex")); */
+                    thisIndex := ToLength(GetES6(rx, "lastIndex"));
+
+                    /* b. ReturnIfAbrupt(thisIndex). */
+                    @ReturnIfAbrupt(thisIndex);
+
+                    /* c. Let nextIndex be AdvanceStringIndex(S, thisIndex, fullUnicode). */
+                    nextIndex := AdvanceStringIndex(S, thisIndex, fullUnicode);
+
+                    /* d. Let setStatus be Set(rx, "lastIndex", nextIndex, true). */
+                    /* setStatus := Set(rx, "lastIndex", nextIndex, true); */
+                    
+                    setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(nextIndex, true, false, false))
+
+                    /* e. ReturnIfAbrupt(setStatus). */
+                    /* @ReturnIfAbrupt(setStatus) */
+                } 
+            }    
+        }
+    };
+        
+    /* 14. Let accumulatedResult be the empty String value. */
+    accumulatedResult := "";
+
+    /* 15. Let nextSourcePosition be 0. */
+    nextSourcePosition := 0;
+
+    /* 16. Repeat, for each result in results, */
+    i := 0;
+    len := l_len results;
+
+    while (i < len){
+        result := l_nth(results, i);
+
+        /* a. Let nCaptures be ToLength(GetES6(result, "length")). */
+        /* nCaptures := ToLength(GetES6(result, "length")); */
+        nCaptures := {result.Get}(result, "length");
+        
+        /* b. ReturnIfAbrupt(nCaptures). */
+        @ReturnIfAbrupt(nCaptures);
+
+        /* c. Let nCaptures be max(nCaptures − 1, 0). */
+        nCaptures := int_of_float(max(nCaptures - 1., 0.));
+
+        /* d. Let matched be ToString(GetES6(result, "0")). */
+        matched := ToString(GetES6(result, "0"));
+
+        /* e. ReturnIfAbrupt(matched). */
+        @ReturnIfAbrupt(matched);
+
+        /* f. Let matchLength be the number of code units in matched. */
+        matchLength := s_len_u matched;
+
+        /* g. Let position be ToInteger(GetES6(result, "index")). */
+        position := ToInteger(GetES6(result, "index"));
+
+        /* h. ReturnIfAbrupt(position). */
+        @ReturnIfAbrupt(position);
+
+        /* i. Let position be max(min(position, lengthS), 0). */
+        position := int_of_float(max(min(position, int_to_float lengthS), 0.));
+
+        /* j. Let n be 1. */
+        n := 1;
+
+        /* k. Let captures be an empty List. */
+        captures := [];
+
+        /* l. Repeat while n ≤ nCaptures */
+        while (n <= nCaptures){
+            /* i. Let capN be GetES6(result, ToString(n)). */
+            capN := GetES6(result, ToString(int_to_float n));
+
+            /* ii. ReturnIfAbrupt(capN). */
+            @ReturnIfAbrupt(capN);
+
+            /* iii. If capN is not undefined, then */
+            if (!(capN = 'undefined)){
+                /* 1. Let capN be ToString(capN). */
+                capN := ToString(capN);
+
+                /* 2. ReturnIfAbrupt(capN). */
+                @ReturnIfAbrupt(capN)
+            };
+
+            print "capN:::::";
+            print capN;
+                
+            /* iv. Append capN as the last element of captures. */
+            captures := l_add(captures, capN);
+
+            /* v. Let n be n+1 */
+            n := n + 1
+        };
+            
+        /* m. If functionalReplace is true, then */
+        if (functionalReplace = true){
+            /* i. Let replacerArgs be «matched». */
+            replacerArgs := [matched];
+
+            /* ii. Append in list order the elements of captures to the end of the List replacerArgs. */
+            replacerArgs := l_concat(replacerArgs, captures);
+
+            /* iii. Append position and S as the last two elements of replacerArgs. */
+            replacerArgs := l_concat(replacerArgs, [position, S]);
+
+            /* iv. Let replValue be Call(replaceValue, undefined, replacerArgs). */
+            replValue := Call(null, null, replaceValue, 'undefined, replacerArgs);
+
+            /* v. Let replacement be ToString(replValue). */
+            replacement := ToString(replValue)
+        }
+        /* n. Else, */
+        else{
+            /* i. Let replacement be GetSubstitution(matched, S, position, captures, replaceValue). */
+            replacement := GetSubstitution(matched, S, int_to_float position, captures, replaceValue, global, strict)
+        };
+          
+        /* o. ReturnIfAbrupt(replacement). */
+        @ReturnIfAbrupt(replacement);
+
+        /* p. If position ≥ nextSourcePosition, then */
+        if (position >= nextSourcePosition){
+            /* i. NOTE position should not normally move backwards. If it does, it is an indication of an ill-behaving 
+            RegExp subclass or use of an access triggered side-effect to change the global flag or other characteristics of rx. 
+            In such cases, the corresponding substitution is ignored. */
+
+            /* ii. Let accumulatedResult be the String formed by concatenating the code units of the current value of 
+            accumulatedResult with the substring of S consisting of the code units from nextSourcePosition (inclusive) up to 
+            position (exclusive) and with the code units of replacement. */
+
+            substring := StringPrototypesubstring(global, S, strict, [int_to_float nextSourcePosition, int_to_float position]);
+            accumulatedResult := s_concat([accumulatedResult, substring]);
+            accumulatedResult := s_concat([accumulatedResult, replacement]);
+
+            /* iii. Let nextSourcePosition be position + matchLength. */
+            nextSourcePosition := position + matchLength
+        };
+            
+        i := i + 1
+    };
+    
+    /* 17. If nextSourcePosition ≥ lengthS, return accumulatedResult. */
+    if (nextSourcePosition >= lengthS){
+        return accumulatedResult
+    };
+
+    /* 18. Return the String formed by concatenating the code units of accumulatedResult with the substring of S 
+    consisting of the code units from nextSourcePosition (inclusive) up through the final code unit of S (inclusive). */
+    substring := StringPrototypesubstring(global, S, strict, [int_to_float nextSourcePosition, 'undefined]);
+    accumulatedResult := s_concat([accumulatedResult, substring]);
+
+    return accumulatedResult
+};
+
+/* 21.2.5.9 RegExp.prototype [ @@search ] ( string ) */
+function RegExpPrototypesearch(global, this, strict, args){
+    print "inside search";
+    string := l_nth(args, 0);
+
+    /* 1. Let rx be the this value. */
+    rx := this;
+
+    /* 2. If Type(rx) is not Object, throw a TypeError exception. */
+    if (!(Type(rx) = "Object")){
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 3. Let S be ToString(string). */
+    S := ToString(string);
+
+    /* 4. ReturnIfAbrupt(S). */
+    @ReturnIfAbrupt(S);
+
+    /* 5. Let previousLastIndex be GetES6(rx, "lastIndex"). */
+    /* previousLastIndex := GetES6(rx, "lastIndex"); */
+    previousLastIndex := rx.lastIndex;
+
+    /* 6. ReturnIfAbrupt(previousLastIndex). */
+    @ReturnIfAbrupt(previousLastIndex);
+
+    /* 7. Let status be Set(rx, "lastIndex", 0, true). */
+    /* status := Set(rx, "lastIndex", 0, true); */
+    rx.lastIndex := 0;
+
+    /* 8. ReturnIfAbrupt(status). */
+    /* @ReturnIfAbrupt(status); */
+
+    /* 9. Let result be RegExpExec(rx, S). */
+    /* result := RegExpExec(rx, S); */
+    result := RegExpPrototypeExec(global, rx, strict, [S]);
+
+    /* 10. ReturnIfAbrupt(result). */
+    @ReturnIfAbrupt(result);
+
+    /* 11. Let status be Set(rx, "lastIndex", previousLastIndex, true). */
+    /* status := Set(rx, "lastIndex", previousLastIndex, true); */
+    rx.lastIndex := previousLastIndex;
+    
+    /* 12. ReturnIfAbrupt(status). */
+    /* @ReturnIfAbrupt(status); */
+
+    /* 13. If result is null, return –1. */
+    if (result = 'null){
+        return -(1.)
+    };
+
+    /* 14. Return GetES6(result, "index"). */
+    return GetES6(result, "index")
+};
+
+/* 21.2.5.11 RegExp.prototype [ @@split ] ( string, limit ) */
+function RegExpPrototypesplit(global, this, strict, args){
+    string := l_nth(args, 0);
+    limit := l_nth(args, 1);
+
+    /* 1. Let rx be the this value. */
+    rx := this;
+
+    /* 2. If Type(rx) is not Object, throw a TypeError exception. */
+    if (!(Type(rx) = "Object")){
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 3. Let S be ToString(string). */
+    S := ToString(string);
+
+    /* 4. ReturnIfAbrupt(S). */
+    @ReturnIfAbrupt(S);
+
+    /* 5. Let C be SpeciesConstructor(rx, %RegExp%). */
+    /* C := SpeciesConstructor(rx, "RegExp"); */
+    C := GetES6(rx, "constructor");
+
+    /* 6. ReturnIfAbrupt(C). */
+    /* @ReturnIfAbrupt(C); */
+
+    /* 7. Let flags be ToString(GetES6(rx, "flags")). */
+    flags := ToString(GetES6(rx, "flags"));
+
+    /* 8. ReturnIfAbrupt(flags). */
+    @ReturnIfAbrupt(flags);
+
+    /* 9. If flags contains "u", let unicodeMatching be true. */
+    contains := StringPrototypeincludes(global, flags, strict, ["u"]);
+
+    if (contains = true){
+        unicodeMatching := true
+    }
+    /* 10. Else, let unicodeMatching be false. */
+    else{
+        unicodeMatching := false
+    };
+
+    /* 11. If flags contains "y", let newFlags be flags. */
+
+    contains := StringPrototypeincludes(global, flags, strict, ["y"]);
+    if (contains = true){
+        newFlags := flags
+    }
+    /* 12. Else, let newFlags be the string that is the concatenation of flags and "y". */
+    else{
+        newFlags := s_concat([flags, "y"])
+    };
+
+    /* 13. Let splitter be Construct(C, «rx, newFlags»). */
+    /* splitter := Construct(C, [rx, newFlags]); */
+    splitter := RegExpConstructor(global, this, strict, [rx, newFlags]); 
+
+    /* 14. ReturnIfAbrupt(splitter). */
+    @ReturnIfAbrupt(splitter);
+
+    /* 15. Let A be ArrayCreate(0). */
+    /* A := ArrayCreate(0); */
+    A := ArrayConstructor(global, null, strict, []);
+
+    /* 16. Let lengthA be 0. */
+    lengthA := 0;
+
+    /* 17. If limit is undefined, let lim be 253–1; else let lim be ToLength(limit). */
+    if (limit = 'undefined){
+        lim := int_of_float ((2. ** 53.) - 1.)
+    } else{
+        lim := ToLength(limit)
+    };
+
+    /* 18. ReturnIfAbrupt(lim). */
+    @ReturnIfAbrupt(lim);
+
+    /* 19. Let size be the number of elements in S. */
+    size := s_len_u S;
+
+    /* 20. Let p be 0. */
+    p := 0;
+
+    /* 21. If lim = 0, return A. */
+    if (lim = 0){
+        return A
+    };
+
+    /* 22. If size = 0, then */
+    if (size = 0){
+        /* a. Let z be RegExpExec(splitter, S). */
+        /* z := RegExpExec(splitter, S); */
+        z := RegExpPrototypeExec(global, splitter, strict, [S]);
+        
+        /* b. ReturnIfAbrupt(z). */
+        @ReturnIfAbrupt(z);
+
+        /* c. If z is not null, return A. */
+        if (!(z = 'null)){
+            return A
+        };
+
+        /* d. Assert: The following call will never result in an abrupt completion. */
+
+        /* e. Perform CreateDataProperty(A, "0", S). */
+        CreateDataProperty(A, "0", S);
+
+        /* f. Return A. */
+        return A
+    };
+        
+    /* 23. Let q be p. */
+    q := p;
+    /* 24. Repeat, while q < size */
+    while (q < size){
+        /* a. Let setStatus be Set(splitter, "lastIndex", q, true). */
+        /* setStatus := Set(splitter, "lastIndex", q, true); */
+        splitter.lastIndex := q;
+       
+        /* b. ReturnIfAbrupt(setStatus). */
+        @ReturnIfAbrupt(setStatus);
+
+        /* c. Let z be RegExpExec(splitter, S). */
+        /* z := RegExpExec(splitter, S); */
+        z := RegExpPrototypeExec(global, splitter, strict, [S]);
+
+        /* d. ReturnIfAbrupt(z). */
+        @ReturnIfAbrupt(z);
+
+        /* e. If z is null, let q be AdvanceStringIndex(S, q, unicodeMatching). */
+        if (z = 'null){
+            q := AdvanceStringIndex(S, q, unicodeMatching)
+        }
+        /* f. Else z is not null, */
+        else{
+            /* i. Let e be ToLength(GetES6(splitter, "lastIndex")). */
+            /* e := ToLength(GetES6(splitter, "lastIndex")); */
+            e := ToLength(splitter.lastIndex);
+
+            /* ii. ReturnIfAbrupt(e). */
+            @ReturnIfAbrupt(e);
+
+            /* iii. If e = p, let q be AdvanceStringIndex(S, q, unicodeMatching). */ 
+            if (e = p){
+                q := AdvanceStringIndex(S, q, unicodeMatching)
+            }
+            /* iv. Else e  p, */
+            else{
+                /* 1. Let T be a String value equal to the substring of S consisting of the elements at indices p 
+                (inclusive) through q (exclusive). */
+                T := StringPrototypesubstring(global, S, strict, [p, q]);
+
+                /* 2. Assert: The following call will never result in an abrupt completion. */
+                /* ???? */
+
+                /* 3. Perform CreateDataProperty(A, ToString(lengthA), T). */
+                CreateDataProperty(A, ToString(lengthA), T);
+
+                /* 4. Let lengthA be lengthA +1. */
+                lengthA := lengthA + 1;
+
+                /* 5. If lengthA = lim, return A. */
+                if (lengthA = lim){
+                    return A
+                };
+
+                /* 6. Let p be e. */
+                p := e;
+
+                /* 7. Let numberOfCaptures be ToLength(GetES6(z, "length")). */ 
+                numberOfCaptures := ToLength(GetES6(z, "length"));
+
+                /* 8. ReturnIfAbrupt(numberOfCaptures). */
+                @ReturnIfAbrupt(numberOfCaptures);
+
+                /* 9. Let numberOfCaptures be max(numberOfCaptures-1, 0). */ 
+                numberOfCaptures := int_of_float(max(int_to_float(numberOfCaptures - 1), 0.));
+
+                /* 10. Let i be 1. */
+                i := 1;
+
+                /* 11. Repeat, while i ≤ numberOfCaptures. */
+                while (i <= numberOfCaptures) {
+                    /* a. Let nextCapture be GetES6(z, ToString(i)). */
+                    nextCapture := GetES6(z, ToString(i));
+
+                    /* b. ReturnIfAbrupt(nextCapture). */
+                    @ReturnIfAbrupt(nextCapture);
+
+                    /* c. Perform CreateDataProperty(A, ToString(lengthA), nextCapture). */ 
+                    CreateDataProperty(A, ToString(lengthA), nextCapture);
+
+                    /* d. Let i be i+1. */
+                    i := i + 1;
+
+                    /* e. Let lengthA be lengthA +1. */
+                    lengthA := lengthA + 1;
+
+                    /* f. If lengthA = lim, return A. */
+                    if (lengthA = lim){
+                        return A
+                    }
+                };
+                    
+                /* 12. Let q be p. */
+                q := p
+            }
+        }
+    };
+        
+    /* 25. Let T be a String value equal to the substring of S consisting of the elements at indices p (inclusive) through size (exclusive). */
+    T := StringPrototypesubstring(global, S, strict, [p, size]);
+
+    /* 26. Assert: The following call will never result in an abrupt completion. */
+    /* ???? */
+
+    /* 27. Perform CreateDataProperty(A, ToString(lengthA), T ). */
+    CreateDataProperty(A, ToString(lengthA), T);
+
+    /* 28. Return A. */
+    return A
+}
