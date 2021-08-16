@@ -3,15 +3,15 @@
 
 /*---
 info: The Date.prototype property "setFullYear" has { DontEnum } attributes
-es5id: 15.9.5.40_A1_T1
+esid: sec-date.prototype.setfullyear
 description: Checking absence of ReadOnly attribute
 ---*/
 
 var x = Date.prototype.setFullYear;
-if(x === 1)
+if (x === 1)
   Date.prototype.setFullYear = 2;
 else
   Date.prototype.setFullYear = 1;
 if (Date.prototype.setFullYear === x) {
-  $ERROR('#1: The Date.prototype.setFullYear has not the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.prototype.setFullYear has not the attribute ReadOnly');
 }
