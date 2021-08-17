@@ -15,4 +15,4 @@ features: [Symbol, Symbol.prototype.description]
 
 var symbol = Symbol.for({toString: function() { return 'test262'; }});
 
-assert.sameValue(symbol.description, 'test262');
+assert.sameValue(symbol.description, 'test262'); //description surge como 'undefined 
