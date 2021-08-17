@@ -1,0 +1,32 @@
+function buildAST (___internal_esl_global) {
+__n0 := {  };
+__n0["type"] := "Program";
+__n0["sourceType"] := "script";
+__n2 := {  };
+__n2["type"] := "ForStatement";
+__n3 := {  };
+__n3["type"] := "Literal";
+__n3["value"] := false;
+__n3["raw"] := "false";
+__n2["init"] := __n3;
+__n2["test"] := null;
+__n2["update"] := null;
+__n4 := {  };
+__n4["type"] := "BlockStatement";
+__n6 := {  };
+__n6["type"] := "BreakStatement";
+__n6["label"] := null;
+__n5 := [ __n6 ];
+__n4["body"] := __n5;
+__n2["body"] := __n4;
+__n1 := [ __n2 ];
+__n0["body"] := __n1;
+__n0["optimised"] := true;
+__n7 := [  ];
+__n0["variableDeclarations"] := __n7;
+__n8 := [  ];
+__n0["functionDeclarations"] := __n8;
+__n0["codeType"] := "global";
+__n0["strict"] := false;
+return ( false, __n0 )
+}

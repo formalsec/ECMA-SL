@@ -1,0 +1,31 @@
+function buildAST (___internal_esl_global) {
+__n0 := {  };
+__n0["type"] := "Program";
+__n0["sourceType"] := "script";
+__n2 := {  };
+__n2["type"] := "VariableDeclaration";
+__n4 := {  };
+__n4["type"] := "VariableDeclarator";
+__n5 := {  };
+__n5["type"] := "Identifier";
+__n5["name"] := "x";
+__n4["id"] := __n5;
+__n6 := {  };
+__n6["type"] := "Literal";
+__n6["value"] := 1.;
+__n6["raw"] := "1";
+__n4["init"] := __n6;
+__n3 := [ __n4 ];
+__n2["declarations"] := __n3;
+__n2["kind"] := "var";
+__n1 := [ __n2 ];
+__n0["body"] := __n1;
+__n0["optimised"] := true;
+__n7 := [ "x" ];
+__n0["variableDeclarations"] := __n7;
+__n8 := [  ];
+__n0["functionDeclarations"] := __n8;
+__n0["codeType"] := "global";
+__n0["strict"] := false;
+return ( false, __n0 )
+}

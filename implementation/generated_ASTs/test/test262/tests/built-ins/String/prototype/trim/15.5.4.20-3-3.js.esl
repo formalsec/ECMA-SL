@@ -1,0 +1,117 @@
+function buildAST (___internal_esl_global) {
+__n0 := {  };
+__n0["type"] := "Program";
+__n0["sourceType"] := "script";
+__n2 := {  };
+__n2["type"] := "VariableDeclaration";
+__n4 := {  };
+__n4["type"] := "VariableDeclarator";
+__n5 := {  };
+__n5["type"] := "Identifier";
+__n5["name"] := "lineTerminatorsStr";
+__n4["id"] := __n5;
+__n6 := {  };
+__n6["type"] := "Literal";
+__n6["value"] := "
+  ";
+__n6["raw"] := "\"\\u000A\\u000D\\u2028\\u2029\"";
+__n4["init"] := __n6;
+__n3 := [ __n4 ];
+__n2["declarations"] := __n3;
+__n2["kind"] := "var";
+__n7 := {  };
+__n7["type"] := "VariableDeclaration";
+__n9 := {  };
+__n9["type"] := "VariableDeclarator";
+__n10 := {  };
+__n10["type"] := "Identifier";
+__n10["name"] := "whiteSpacesStr";
+__n9["id"] := __n10;
+__n11 := {  };
+__n11["type"] := "Literal";
+__n11["value"] := "	
+                  　﻿";
+__n11["raw"] := "\"\\u0009\\u000A\\u000B\\u000C\\u000D\\u0020\\u00A0\\u1680\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF\"";
+__n9["init"] := __n11;
+__n8 := [ __n9 ];
+__n7["declarations"] := __n8;
+__n7["kind"] := "var";
+__n12 := {  };
+__n12["type"] := "VariableDeclaration";
+__n14 := {  };
+__n14["type"] := "VariableDeclarator";
+__n15 := {  };
+__n15["type"] := "Identifier";
+__n15["name"] := "str";
+__n14["id"] := __n15;
+__n16 := {  };
+__n16["type"] := "BinaryExpression";
+__n16["operator"] := "+";
+__n17 := {  };
+__n17["type"] := "Identifier";
+__n17["name"] := "whiteSpacesStr";
+__n16["left"] := __n17;
+__n18 := {  };
+__n18["type"] := "Identifier";
+__n18["name"] := "lineTerminatorsStr";
+__n16["right"] := __n18;
+__n14["init"] := __n16;
+__n13 := [ __n14 ];
+__n12["declarations"] := __n13;
+__n12["kind"] := "var";
+__n19 := {  };
+__n19["type"] := "ExpressionStatement";
+__n20 := {  };
+__n20["type"] := "CallExpression";
+__n21 := {  };
+__n21["type"] := "MemberExpression";
+__n22 := {  };
+__n22["type"] := "Identifier";
+__n22["name"] := "assert";
+__n21["object"] := __n22;
+__n23 := {  };
+__n23["type"] := "Literal";
+__n23["value"] := "sameValue";
+__n23["raw"] := "\"sameValue\"";
+__n21["property"] := __n23;
+__n21["computed"] := true;
+__n20["callee"] := __n21;
+__n25 := {  };
+__n25["type"] := "CallExpression";
+__n26 := {  };
+__n26["type"] := "MemberExpression";
+__n27 := {  };
+__n27["type"] := "Identifier";
+__n27["name"] := "str";
+__n26["object"] := __n27;
+__n28 := {  };
+__n28["type"] := "Literal";
+__n28["value"] := "trim";
+__n28["raw"] := "\"trim\"";
+__n26["property"] := __n28;
+__n26["computed"] := true;
+__n25["callee"] := __n26;
+__n29 := [  ];
+__n25["arguments"] := __n29;
+__n30 := {  };
+__n30["type"] := "Literal";
+__n30["value"] := "";
+__n30["raw"] := "\"\"";
+__n31 := {  };
+__n31["type"] := "Literal";
+__n31["value"] := "str.trim()";
+__n31["raw"] := "'str.trim()'";
+__n24 := [ __n25, __n30, __n31 ];
+__n20["arguments"] := __n24;
+__n19["expression"] := __n20;
+__n1 := [ __n2, __n7, __n12, __n19 ];
+__n0["body"] := __n1;
+__n0["optimised"] := true;
+__n32 := [ "lineTerminatorsStr", "whiteSpacesStr", "str" ];
+__n0["variableDeclarations"] := __n32;
+__n33 := [  ];
+__n0["functionDeclarations"] := __n33;
+__n0["codeType"] := "global";
+__n0["strict"] := false;
+return ( false, __n0 )
+}
