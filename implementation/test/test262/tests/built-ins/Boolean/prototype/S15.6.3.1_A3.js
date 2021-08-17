@@ -3,7 +3,7 @@
 
 /*---
 info: Boolean.prototype has the attribute DontDelete
-es5id: 15.6.3.1_A3
+esid: sec-boolean.prototype
 description: Checking if deleting the Boolean.prototype property fails
 includes: [propertyHelper.js]
 ---*/
@@ -13,7 +13,7 @@ verifyNotConfigurable(Boolean, "prototype");
 
 try {
   if (delete Boolean.prototype !== false) {
-    $ERROR('#1: Boolean.prototype has the attribute DontDelete');
+    throw new Test262Error('#1: Boolean.prototype has the attribute DontDelete');
   }
 } catch (e) {
   if (e instanceof Test262Error) throw e;

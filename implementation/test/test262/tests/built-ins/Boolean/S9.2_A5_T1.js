@@ -2,14 +2,14 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     Result of boolean conversion from nonempty string value (length is not
     zero) is true; from empty String (length is zero) is false
-es5id: 9.2_A5_T1
+esid: sec-toboolean
 description: "\"\" is converted to Boolean by explicit transformation"
 ---*/
 
 // CHECK#1
 if (Boolean("") !== false) {
-  $ERROR('#1: Boolean("") === false. Actual: ' + (Boolean("")));
+  throw new Test262Error('#1: Boolean("") === false. Actual: ' + (Boolean("")));
 }

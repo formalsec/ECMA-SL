@@ -3,16 +3,16 @@
 
 /*---
 info: The Date.prototype property "getUTCFullYear" has { DontEnum } attributes
-es5id: 15.9.5.11_A1_T3
+esid: sec-date.prototype.getutcfullyear
 description: Checking DontEnum attribute
 ---*/
 
 if (Date.prototype.propertyIsEnumerable('getUTCFullYear')) {
-  $ERROR('#1: The Date.prototype.getUTCFullYear property has the attribute DontEnum');
+  throw new Test262Error('#1: The Date.prototype.getUTCFullYear property has the attribute DontEnum');
 }
 
-for(var x in Date.prototype) {
-  if(x === "getUTCFullYear") {
-    $ERROR('#2: The Date.prototype.getUTCFullYear has the attribute DontEnum');
+for (var x in Date.prototype) {
+  if (x === "getUTCFullYear") {
+    throw new Test262Error('#2: The Date.prototype.getUTCFullYear has the attribute DontEnum');
   }
 }

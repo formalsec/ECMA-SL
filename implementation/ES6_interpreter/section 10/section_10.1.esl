@@ -1,0 +1,34 @@
+/* 10.1 Source Text */
+
+/* 10.1.1 Static Semantics: UTF16Encoding ( cp ) */
+function UTF16Encoding(cp){
+    /* 1. Assert: 0 ≤ cp ≤ 0x10FFFF. */
+    assert((cp >= 0) && (cp <= to_char_code_u("\u10FFFF")));
+
+    /* 2. If cp ≤ 65535, return cp. */
+    if (cp <= 65535){
+        return cp
+    };
+
+    /* 3. Let cu1 be floor((cp – 65536) / 1024) + 0xD800. */
+    cu1 := floor((cp - 65536) / 1024.) + to_char_code_u("\uD800");
+
+    /* 4. Let cu2 be ((cp – 65536) modulo 1024) + 0xDC00. */
+    cu2 := ((cp - 65536) % 1024.) + to_char_code_u("\uDC00");
+
+    /* 5. Return the code unit sequence consisting of cu1 followed by cu2. */
+    return s_concat([float_to_string cu1, float_to_string cu2])
+};
+
+/* 10.1.2 Static Semantics: UTF16Decode( lead, trail ) */
+function UTF16Decode(lead, trail){
+    /* 1. Assert: 0xD800 ≤ lead ≤ 0xDBFF and 0xDC00 ≤ trail ≤ 0xDFFF. */
+    assert((lead >= to_char_code_u("\uD800")) && (lead <= to_char_code_u("\uDBFF")));
+    assert((trail >= to_char_code_u("\uDC00")) && (trail <= to_char_code_u("\uDFFF")));
+    
+    /* 2. Let cp be (lead – 0xD800) × 1024 + (trail – 0xDC00) + 0x10000. */
+    cp := (lead - to_char_code_u("\uD800")) * 1024 + (trail - to_char_code_u("\uDC00")) + to_char_code_u("\u10000");
+
+    /* 3. Return the code point cp. */
+    return cp
+}

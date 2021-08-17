@@ -34,6 +34,7 @@ type bopt = Plus
           | Max
           | Min
           | Pow
+          | ToPrecision
 
 type topt = Ssubstr
           | SsubstrU
@@ -173,6 +174,15 @@ let bitwise_xor (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
 let is_true (v : Val.t) : bool = match v with
   | Bool v -> v
   | _      -> invalid_arg "Exception in Oper.is_true: argument is not boolean"
+
+
+let to_precision (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | (Flt x, Int y) -> 
+      let res = Float.round(x*.(10.**(float_of_int y)))/.(10.**(float_of_int y)) in 
+      Flt res
+  | _                -> invalid_arg "Exception in Oper.to_precision: this operation is only applicable to Float and Int arguments"
+
+
 
 let typeof (v : Val.t) : Val.t = match v with
   | Int _    -> Type (Type.IntType)
@@ -562,6 +572,7 @@ let str_of_binopt_single (op : bopt) : string = match op with
   | Max      -> "max"
   | Min      -> "min"
   | Pow      -> "**"
+  | ToPrecision -> "to_precision"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
@@ -596,6 +607,7 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Max      -> "max(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Min      -> "min(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Pow      -> e1 ^ " ** " ^ e2
+  | ToPrecision -> "to_precision(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_triopt (op : topt) (e1 : string) (e2 : string) (e3 : string) : string = match op with
   | Ssubstr  -> "s_substr(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
@@ -675,7 +687,8 @@ let bopt_to_json (op : bopt) : string =
      | Atan2    -> Printf.sprintf "Atan2\" }"
      | Max      -> Printf.sprintf "Max\" }"
      | Min      -> Printf.sprintf "Min\" }"
-     | Pow      -> Printf.sprintf "Pow\" }")
+     | Pow      -> Printf.sprintf "Pow\" }"
+     | ToPrecision -> Printf.sprintf "To_Precision\" }")
 
 let topt_to_json (op : topt) : string =
   Printf.sprintf "{ \"type\" : \"triopt\", \"value\" : \"%s"

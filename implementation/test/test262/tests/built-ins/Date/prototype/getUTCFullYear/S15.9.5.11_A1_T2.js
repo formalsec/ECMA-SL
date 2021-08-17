@@ -3,14 +3,14 @@
 
 /*---
 info: The Date.prototype property "getUTCFullYear" has { DontEnum } attributes
-es5id: 15.9.5.11_A1_T2
+esid: sec-date.prototype.getutcfullyear
 description: Checking absence of DontDelete attribute
 ---*/
 
-if (delete Date.prototype.getUTCFullYear  === false) {
-  $ERROR('#1: The Date.prototype.getUTCFullYear property has not the attributes DontDelete');
+if (delete Date.prototype.getUTCFullYear === false) {
+  throw new Test262Error('#1: The Date.prototype.getUTCFullYear property has not the attributes DontDelete');
 }
 
 if (Date.prototype.hasOwnProperty('getUTCFullYear')) {
-  $ERROR('#2: The Date.prototype.getUTCFullYear property has not the attributes DontDelete');
+  throw new Test262Error('#2: The Date.prototype.getUTCFullYear property has not the attributes DontDelete');
 }

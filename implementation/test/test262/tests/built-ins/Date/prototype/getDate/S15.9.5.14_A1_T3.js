@@ -3,16 +3,16 @@
 
 /*---
 info: The Date.prototype property "getDate" has { DontEnum } attributes
-es5id: 15.9.5.14_A1_T3
+esid: sec-date.prototype.getdate
 description: Checking DontEnum attribute
 ---*/
 
 if (Date.prototype.propertyIsEnumerable('getDate')) {
-  $ERROR('#1: The Date.prototype.getDate property has the attribute DontEnum');
+  throw new Test262Error('#1: The Date.prototype.getDate property has the attribute DontEnum');
 }
 
-for(var x in Date.prototype) {
-  if(x === "getDate") {
-    $ERROR('#2: The Date.prototype.getDate has the attribute DontEnum');
+for (var x in Date.prototype) {
+  if (x === "getDate") {
+    throw new Test262Error('#2: The Date.prototype.getDate has the attribute DontEnum');
   }
 }

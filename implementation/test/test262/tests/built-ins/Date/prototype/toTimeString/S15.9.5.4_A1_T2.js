@@ -3,14 +3,14 @@
 
 /*---
 info: The Date.prototype property "toTimeString" has { DontEnum } attributes
-es5id: 15.9.5.4_A1_T2
+esid: sec-date.prototype.totimestring
 description: Checking absence of DontDelete attribute
 ---*/
 
-if (delete Date.prototype.toTimeString  === false) {
-  $ERROR('#1: The Date.prototype.toTimeString property has not the attributes DontDelete');
+if (delete Date.prototype.toTimeString === false) {
+  throw new Test262Error('#1: The Date.prototype.toTimeString property has not the attributes DontDelete');
 }
 
 if (Date.prototype.hasOwnProperty('toTimeString')) {
-  $ERROR('#2: The Date.prototype.toTimeString property has not the attributes DontDelete');
+  throw new Test262Error('#2: The Date.prototype.toTimeString property has not the attributes DontDelete');
 }

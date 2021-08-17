@@ -1,0 +1,647 @@
+/* 
+Note: Certain functions have an Alt version. It tries to follow the standard completely 
+(may not be fully implemented) 
+*/
+
+/* 20.1 Number Objects */
+function initNumberObject(global, objectPrototype, strict) {
+  objNumberPrototype := initNumberPrototype(global, objectPrototype, strict);
+  objNumberConstructor := initNumberConstructor(objNumberPrototype, global, strict);
+
+  /* 20.1.3.1 Number.prototype.constructor */
+  descriptor := newDataPropertyDescriptorFull(objNumberConstructor, true, false, true);
+  setJSProperty(objNumberPrototype, "constructor", descriptor);
+  /* The value of the [[Prototype]] internal slot of the Number constructor is the intrinsic object %FunctionPrototype% (19.2.3) */
+  descriptor := newDataPropertyDescriptorFull(objNumberPrototype, false, false, false);
+  setJSProperty(objNumberConstructor, "prototype", descriptor);
+  /* Length Property of Constructor is 1 */
+  setJSProperty(objNumberConstructor, "length", newDataPropertyDescriptorFull(1, true, false, false));
+
+  return objNumberConstructor
+};
+
+
+/* 20.1.3 Properties of the Number Prototype Object */
+function initNumberPrototype(global, objectPrototype, strict) {
+  prototype := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(prototype);
+
+  /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
+  toExponential := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToExponential", global, strict, null);
+  setJSProperty(toExponential, "length", newDataPropertyDescriptorFull(1, true, false, false));
+  createBuiltInProperty(prototype, "toExponential", toExponential);
+
+  /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
+  toFixed := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToFixed", global, strict, null);
+  setJSProperty(toFixed, "length", newDataPropertyDescriptorFull(1, true, false, false));
+  createBuiltInProperty(prototype, "toFixed", toFixed);
+
+  /* 20.1.3.4 Number.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ]) */
+  toLocaleString := CreateBuiltInFunctionObject(["items"], "NumberPrototypeToLocaleString", global, strict, null);
+  setJSProperty(toFixed, "length", newDataPropertyDescriptorFull(0, true, false, false));
+  createBuiltInProperty(prototype, "toLocaleString", toLocaleString);
+
+  /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
+  toPrecision := CreateBuiltInFunctionObject(["precision"], "NumberPrototypeToPrecision", global, strict, null);
+  setJSProperty(toFixed, "length", newDataPropertyDescriptorFull(1, true, false, false));
+  createBuiltInProperty(prototype, "toPrecision", toPrecision);
+
+  /* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
+  toString := CreateBuiltInFunctionObject([ "radix" ], "NumberPrototypeToStringES5", global, strict, 0.);
+  createBuiltInProperty(prototype, "toString", toString);
+
+  /* 20.1.3.7 Number.prototype.valueOf ( ) */
+  valueOf := CreateBuiltInFunctionObject([], "NumberPrototypeValueOf", global, strict, null);
+  createBuiltInProperty(prototype, "valueOf", valueOf);
+
+  return prototype
+};
+
+
+function getNumberPrototype(strict) {
+  refNumber := newPropertyReference(|global|, "Number", strict);
+  NumberObject := GetValue(refNumber);
+  refNumberProto := newPropertyReference(NumberObject, "prototype", strict);
+  objectNumberProto := GetValue(refNumberProto);
+  return objectNumberProto
+};
+
+
+/* 20.1.1.1 Number ( [ value ] ) */
+function NumberConstructor(global, this, strict, items) {
+  NewTarget := this;
+  value := l_nth(items, 0);
+  /* 1. If no arguments were passed to this function invocation, let n be +0. */
+  if (value = null) {
+    n := 0.
+  /* 2. Else, let n be ToNumber(value). */
+  } else {
+    n := ToNumber(value)
+  };
+  /* 3. ReturnIfAbrupt(n). */
+  @ReturnIfAbrupt(n);
+  /* 4. If NewTarget is undefined, return n. */
+  if (NewTarget = 'undefined) {
+    return n
+  };
+  /* 5. Let O be OrdinaryCreateFromConstructor(NewTarget, "%NumberPrototype%", «[[NumberData]]» ). */
+  O := OrdinaryCreateFromConstructorNumber(NewTarget, this, strict, items);
+  /* 6. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+  /* 7. Set the value of O’s [[NumberData]] internal slot to n. */
+  O.NumberData := n;
+  /* 8. Return O. */
+  return O
+};
+
+
+/* 20.1.1 The Number Constructor */
+function initNumberConstructor(prototype, global, strict) {
+  /* 20.1.2 Properties of the Number Constructor */
+  NumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", global, strict, 0.);
+
+  /* The value of the [[Prototype]] internal slot of the Number constructor is the intrinsic object %FunctionPrototype% */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "prototype", prototype, false, false, false);
+
+  /* 20.1.2.1 Number.EPSILON */
+  EPSILON := 2.2204460492503130808472633361816 * ((10.0)**(-(16.0)));
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "EPSILON", EPSILON, false, false, false);
+
+  /* 20.1.2.2 Number.isFinite ( number ) */
+  isFiniteObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsfinite", global, strict, 0.);
+  setConfigurability(isFiniteObject, "length", true); /* ES6 */
+  descriptor := newDataPropertyDescriptorFull(isFiniteObject, true, false, true);
+  setJSProperty(prototype, "name", descriptor);
+  createBuiltInProperty(NumberConstructor, "isFinite", isFiniteObject);
+
+  /* 20.1.2.3 Number.isInteger ( number ) */
+  isIntegerObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsInteger", global, strict, 0.);
+  setConfigurability(isIntegerObject, "length", true); /* ES6 */
+  descriptor := newDataPropertyDescriptorFull(isIntegerObject, true, false, true);
+  setJSProperty(prototype, "name", descriptor);
+  createBuiltInProperty(NumberConstructor, "isInteger", isIntegerObject);
+
+  /* 20.1.2.4 Number.isNaN ( number ) */
+  isNanObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsNaN", global, strict, 0.);
+  setConfigurability(isNanObject, "length", true); /* ES6 */
+  descriptor := newDataPropertyDescriptorFull(isNanObject, true, false, true);
+  setJSProperty(prototype, "name", descriptor);
+  createBuiltInProperty(NumberConstructor, "isNaN", isNanObject);
+
+  /* 20.1.2.5 Number.isSafeInteger ( number ) */
+  isSafeIntegerObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsSafeInteger", global, strict, 0.);
+  setConfigurability(isSafeIntegerObject, "length", true); /* ES6 */
+  descriptor := newDataPropertyDescriptorFull(isSafeIntegerObject, true, false, true);
+  setJSProperty(prototype, "name", descriptor);
+  createBuiltInProperty(NumberConstructor, "isSageInteger", isSafeIntegerObject);
+
+
+  /* 20.1.2.6 Number.MAX_SAFE_INTEGER */
+  MAX_SAFE_INTEGER := ((2.) ** (53.) - 1.);
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_SAFE_INTEGER", MAX_SAFE_INTEGER, false, false, false);
+
+  /* 20.1.2.7 Number.MAX_VALUE */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MAX_VALUE", MAX_VALUE, false, false, false);
+
+  /* 20.1.2.8 Number.MIN_SAFE_INTEGER */
+  MIN_SAFE_INTEGER := - ((2.) ** (53.) - 1.);
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MIN_SAFE_INTEGER", MIN_SAFE_INTEGER, false, false, false);
+
+  /* 20.1.2.9 Number.MIN_VALUE */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "MIN_VALUE", MIN_VALUE, false, false, false);
+
+  /* 20.1.2.10 Number.NaN */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NaN", NaN, false, false, false);
+
+  /* 20.1.2.11 Number.NEGATIVE_INFINITY */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NEGATIVE_INFINITY", -Infinity, false, false, false);
+
+  /* 20.1.2.12 Number.parseFloat ( string ) */
+  parseFloatObject := CreateFunctionObject(["string"], "GlobalObjectParseFloat", global, strict, null);
+  setConfigurability(parseFloatObject, "length", true); /* ES6 */
+  descriptor := newDataPropertyDescriptorFull(parseFloatObject, true, false, true);
+  setJSProperty(parseFloatObject, "name", descriptor);
+  createBuiltInProperty(NumberConstructor, "parseFloat", parseFloatObject);
+
+  /* 20.1.2.13 Number.parseInt ( string, radix ) */
+  parseIntObject := CreateBuiltInFunctionObject(["string", "radix"], "GlobalObjectParseInt", global, strict, 0.);
+  setConfigurability(parseIntObject, "length", true); /* ES6 */
+  descriptor := newDataPropertyDescriptorFull(parseIntObject, true, false, true);
+  setJSProperty(prototype, "name", descriptor);
+  createBuiltInProperty(NumberConstructor, "parseInt", parseIntObject);
+
+  /* 20.1.2.14 Number.POSITIVE_INFINITY */
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "POSITIVE_INFINITY", Infinity, false, false, false);
+
+  return NumberConstructor
+};
+
+
+/* 20.1.2.2 Number.isFinite ( number ) */
+function NumberConstructorIsFinite(global, this, strict, items) {
+  number := l_nth(items, 0);
+  /* 1. If Type(number) is not Number, return false. */
+  if (!(Type(number) = "Number")) {
+    return false
+  };
+  /* 2. If number is NaN, +∞, or −∞, return false. */
+  if (number = NaN || number = Infinity || number = -Infinity) {
+    return false
+  };
+  /* 3. Otherwise, return true. */
+  return true
+};
+
+
+/* 20.1.2.3 Number.isInteger ( number ) */
+function NumberConstructorIsInteger(global, this, strict, items) {
+  number := l_nth(items, 0);
+  /* If Type(number) is not Number, return false. */
+  if (!(Type(number) = "Number")) {
+    return false
+  };
+  /* If number is NaN, +∞, or −∞, return false. */
+  if (number = NaN || number = Infinity || number = -Infinity) {
+    return false
+  };
+  /* Let integer be ToInteger(number). */
+  integer := ToInteger(number);
+  /* If integer is not equal to number, return false. */
+  if (!(integer = number)) {
+    return false
+  };
+  /* Otherwise, return true. */
+  return true
+};
+
+
+/* 20.1.2.4 Number.isNaN ( number ) */
+function NumberConstructorIsNaN(global, this, strict, items) {
+  number := l_nth(items, 0);
+  /* 1. If Type(number) is not Number, return false. */
+  if (!(Type(number) = "Number")) {
+    return false
+  };
+  /* 2. If number is NaN, return true. */
+  if (number = NaN) {
+    return true
+  };
+  /* 3. Otherwise, return false. */
+  return false
+};
+
+
+/* 20.1.2.5 Number.isSafeInteger ( number ) */
+function NumberConstructorIsSafeInteger(global, this, strict, items) {
+  number := l_nth(items, 0);
+  /* 1. If Type(number) is not Number, return false. */
+  if (!(Type(number) = "Number")) {
+    return false
+  };
+  /* 2. If number is NaN, +∞, or −∞, return false. */
+  if (number = NaN || number = Infinity || number = -Infinity) {
+    return false
+  };
+  /* 3. Let integer be ToInteger(number). */
+  integer := ToInteger(number);
+  /* 4. If integer is not equal to number, return false. */
+  if (!(integer = number)) {
+    return false
+  };
+  /* 5. If abs(integer) ≤ 2^53 − 1, return true. */
+  if (abs(integer) <=  (2^53 - 1)) {
+    return true
+  };
+  /* 6. Otherwise, return false. */
+  return false
+};
+
+
+/* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
+function NumberPrototypeToExponential(global, this, strict, items) {
+  /* TRUE TODO implement in OCaml */
+  return
+};
+
+/* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
+function NumberPrototypeToExponentialAlt(global, this, strict, items) {
+  fractionDigits := l_nth(items, 0);
+  /* 1. Let x be thisNumberValue(this value). */
+  x := thisNumberValue(this);
+  /* 2. ReturnIfAbrupt(x). */
+  @ReturnIfAbrupt(x);
+  /* 3. Let f be ToInteger(fractionDigits). */
+  f := ToInteger(fractionDigits);
+  /* 4. Assert: f is 0, when fractionDigits is undefined. */
+  if (fractionDigits = 'undefined) {
+    assert f = 0
+  };
+  /* 5. ReturnIfAbrupt(f). */
+  @ReturnIfAbrupt(f);
+  /* 6. If x is NaN, return the String "NaN". */
+  if (x = NaN) {
+    return "NaN"
+  };
+  /* 7. Let s be the empty String. */
+  s := "";
+  /* 8. If x < 0, then */
+  if (x < 0.) {
+    /* a. Let s be "-". */
+    s := "-";
+    /* b. Let x = –x. */
+    x := -x
+  };
+  /* 9. If x = +∞, then */
+  if (x = Infinity) {
+    /* a. Return the concatenation of the Strings s and "Infinity". */
+    return s_concat(s, "Infinity")
+  };
+  /* 10. If f < 0 or f > 20, throw a RangeError exception.
+  /* However, an implementation is permitted to extend the behaviour of toExponential
+  for values of f less than 0 or greater than 20. In this case toExponential would not
+  necessarily throw RangeError for such values. */
+  if (f < 0. || f > 20.) {
+    throw RangeErrorConstructorInternal()
+  };
+  /* 11. If x = 0, then */
+  if (x = 0.) {
+    /* a. Let m be the String consisting of f+1 occurrences of the code unit 0x0030 (DIGIT ZERO). */
+    m := "";
+    counter := 0;
+    while (!(counter <= f)) {
+      m := s_concat(m, "0");
+      counter := counter + 1
+    };
+    /* b. Let e = 0. */
+    e := 0
+  /* 12. Else x ≠ 0, */
+  } else {
+    /* a. If fractionDigits is not undefined, then */
+    if (!(fractionDigits = 'undefined)) {
+      /* i. TODO Let e and n be integers such that 10f ≤ n < 10f+1 and for which the exact mathematical
+      value of n × 10e – f – x is as close to zero as possible. If there are two such sets of e and n,
+      pick the e and n for which n × 10e–f is larger. */
+      /* b. Else fractionDigits is undefined, */
+    } else {
+      /* i. TODO Let e, n, and f be integers such that f ≥ 0, 10f ≤ n < 10f+1,
+      the Number value for n × 10e – f is x, and f is as small as possible.
+      Note that the decimal representation of n has f+1 digits, n is not divisible by 10,
+      and the least significant digit of n is not necessarily uniquely determined by these criteria. */
+    };
+    /* c. Let m be the String consisting of the digits of the decimal representation of n
+    (in order, with no leading zeroes). */
+    m := float_to_string(n)
+  };
+  /* 13. If f ≠ 0, then */
+  if (!(f = 0)) {
+    /* a. Let a be the first element of m, and let b be the remaining f elements of m. */
+    a := s_nth_u(m, 0);
+    /* b. Let m be the concatenation of the three Strings a, ".", and b. */
+    m := s_concat(s_concat(a, "."), b)
+  };
+  /* 14. If e = 0, then */
+  if (e = 0) {
+    /* Let c = "+". */
+    c := "+";
+    /* Let d = "0". */
+    d := "0"
+  /* 15. Else */
+  } else {
+    /* a. If e > 0, let c = "+". */
+    if (e > 0) {
+      c := "+"
+    /* b. Else e ≤ 0, */
+    } else {
+      /* i. Let c = "-". */
+      c := "-";
+      /* ii. Let e = –e. */
+      e := -e
+    };
+    /* c. Let d be the String consisting of the digits of the decimal representation of e
+    (in order, with no leading zeroes). */
+    d := float_to_string(e)
+  };
+  /* 16. Let m be the concatenation of the four Strings m, "e", c, and d. */
+  m := s_concat(s_concat(s_concat(m, "e"), c), d);
+  /* 17. Return the concatenation of the Strings s and m. */
+  return s_concat(s, m)
+};
+
+
+function NumberPrototypeToFixed(global, this, strict, items) {
+  /* True TODO implement in OCaml */
+  return
+};
+
+/* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
+function NumberPrototypeToFixedAlt(global, this, strict, items) {
+  fractionDigits := l_nth(items, 0);
+  /* 1. Let x be thisNumberValue(this value). */
+  x := thisNumberValue(this);
+  /* 2. ReturnIfAbrupt(x). */
+  @ReturnIfAbrupt(x);
+  /* 3. Let f be ToInteger(fractionDigits).
+  (If fractionDigits is undefined, this step produces the value 0). */
+  f := ToInteger(fractionDigits);
+  /* 4. ReturnIfAbrupt(f). */
+  @ReturnIfAbrupt(f);
+  /* 5. If f < 0 or f > 20, throw a RangeError exception.
+  However, an implementation is permitted to extend the
+  behaviour of toFixed for values of f less than 0 or
+  greater than 20. In this case toFixed would not necessarily
+  throw RangeError for such values. */
+  if (f < 0. || f > 20.) {
+    throw RangeErrorConstructorInternal()
+  };
+  /* 6. If x is NaN, return the String "NaN". */
+  if (x = NaN) {
+    return "NaN"
+  };
+  /* 7. Let s be the empty String. */
+  s := "";
+  /* 8. If x < 0, then */
+  if (x < 0.) {
+  /* a. Let s be "-". */
+  s := "-";
+  /* b. Let x = –x. */
+  x := -x
+  };
+  /* 9. If x ≥ 10^21, then */
+  if (x >= ((10.) ** (21.))) {
+    /* a. Let m = ToString(x). */
+    m := ToString(x)
+    /* 10. Else x < 1021, */
+  } else {
+    /* TODO a. Let n be an integer for which the exact mathematical value
+    of n ÷ 10f – x is as close to zero as possible. 
+    If there are two such n, pick the larger n. */
+    /* b. If n = 0, let m be the String "0". 
+    Otherwise, let m be the String consisting of the digits
+    of the decimal representation of n (in order, with no leading zeroes). */
+    if (n = 0) {
+      m := "0"
+    } else {
+      m := float_to_string(n)
+    };
+    /* c. If f ≠ 0, then */
+    if (!(f = 0)) {
+      /* i. Let k be the number of elements in m. */
+      k := s_len_u(m);
+      /* ii. If k ≤ f, then */
+      if (k <= f) {
+        /* 1. Let z be the String consisting of f+1–k occurrences of the code unit 0x0030 (DIGIT ZERO). */
+        z := "";
+        counter := 0;
+        while (!(counter <= (f - k))) {
+          z := s_concat(z, "0");
+          counter := counter + 1
+        };
+        /* 2. Let m be the concatenation of Strings z and m. */
+        m := s_concat(z, m);
+        /* 3. Let k = f + 1. */
+        k := f + 1
+      };
+      /* iii. Let a be the first k – f elements of m, and let b be the remaining f elements of m. */
+      a := s_substr_u(m, 0, k - f);
+      b := s_substr_u(m, k - f, s_len_u(m))
+    }
+  };
+  /* iv. Let m be the concatenation of the three Strings a, ".", and b. */
+  m := l_concat(l_concat(a, "."), b);
+  /* 11. Return the concatenation of the Strings s and m. */
+  return l_concat(s, m)
+};
+
+
+/* Number.prototype.toLocaleString( [ reserved1 [ , reserved2 ] ]) */
+function NumberPrototypeToLocaleString(global, this, strict, items) {
+  if (!isNumberOrNumberObject(this)) {
+    throw TypeErrorConstructorInternal()
+  };
+  if (Type(this) = "Number") {
+    num := this
+  } else {
+    num := this.PrimitiveValue
+  };
+  return ToString(num)
+};
+
+
+/* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
+function NumberPrototypeToPrecision(global, this, strict, items) {
+  return to_precision(x, (int_of_float p))
+};
+
+/* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
+function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
+  precision := l_nth(items, 0);
+  /* 1. Let x be thisNumberValue(this value). */
+  x := thisNumberValue(this);
+  /* 2. ReturnIfAbrupt(x). */
+  @ReturnIfAbrupt(x);
+  /* 3. If precision is undefined, return ToString(x). */
+  if (precision = 'undefined) {
+    return ToString(x)
+  };
+  /* 4. Let p be ToInteger(precision). */
+  p := ToInteger(precision);
+  /* 5. ReturnIfAbrupt(p). */
+  @ReturnIfAbrupt(p);
+  /* 6. If x is NaN, return the String "NaN". */
+  if (x = NaN) {
+    return "NaN"
+  };
+  /* 7. Let s be the empty String. */
+  s := "";
+  /* 8. If x < 0, then */
+  if (x < 0.) {
+    /* a. Let s be code unit 0x002D (HYPHEN-MINUS). */
+    s := "-";
+    /* b. Let x = –x. */
+    x := -x
+  };
+  /* 9. If x = +∞, then */
+  if (x = Infinity) {
+    /* a. Return the String that is the concatenation of s and "Infinity". */
+    return s_concat(s, "Infinity")
+  };
+  /* 10. If p < 1 or p > 21, throw a RangeError exception. However, an implementation is permitted
+  to extend the behaviour of toPrecision for values of p less than 1 or greater
+  than 21. In this case toPrecision would not necessarily throw RangeError for such values. */
+  if (p < 1. || p > 21.) {
+    throw RangeErrorConstructorInternal()
+  };
+  /* 11. If x = 0, then */
+  if (x = 0) {
+    /* a. Let m be the String consisting of p occurrences of the code unit 0x0030 (DIGIT ZERO). */
+    m := "";
+    counter := 0;
+    while (!(counter = p)) {
+      m := s_concat(m, "0");
+      counter := counter + 1
+    };
+    /* b. Let e = 0. */
+    e := 0
+  /* 12. Else x ≠ 0, */
+  } else {
+    /* a. TODO Let e and n be integers such that 10 p–1 ≤ n < 10 p and for which
+    the exact mathematical value of n × 10 e–p+1 – x is as close to zero as possible.
+    If there are two such sets of e and n, pick the e and n for which n × 10 e–p+1 is larger. */
+    /* b. TODO Let m be the String consisting of the digits of the decimal representation of n
+    (in order, with no leading zeroes). */
+  };
+  /* 13. If e = p–1, return the concatenation of the Strings s and m. */
+  if (e = (p - 1)) {
+    return s_concat(s, m)
+  };
+  /* 14. If e ≥ 0, then */
+  if (e >= 0) {
+    /* a. Let m be the concatenation of the first e+1 elements of m, 
+    the code unit 0x002E (FULL STOP), and the remaining p – (e+1) elements of m. */
+    m := s_concat(s_concat(s_substr_u(m, 0, e + 1), "."), s_substr_u(m, e + 1, p - (e + 1)))
+  /* 15. Else e < 0, */
+  } else {
+    /* a. Let m be the String formed by the concatenation of code unit 0x0030 (DIGIT ZERO), 
+    code unit 0x002E (FULL STOP), –(e+1) occurrences of code unit 0x0030 (DIGIT ZERO), and the String m. */
+    tmp := "";
+    index := 0;
+    while (index = (-e)) {
+      tmp := s_concat(tmp, "0");
+      index := index + 1
+    };
+    m := s_concat(s_concat("0.", tmp), m)
+  };
+  /* 16. Return the String that is the concatenation of s and m. */
+  return s_concat(s, m)
+};
+
+
+/* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
+function NumberPrototypeToString(global, this, strict, items) {
+  if (!isNumberOrNumberObject(this)) {
+    throw TypeErrorConstructorInternal()
+  };
+  if (Type(this) = "Number") {
+    num := this
+  } else {
+    num := this.PrimitiveValue
+  };
+  return ToString(num)
+};
+
+/* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
+function NumberPrototypeToStringAlt(global, this, strict, items) {
+  radix := l_nth(items, 0);
+  /* 1. Let x be thisNumberValue(this value). */
+  x := thisNumberValue(this);
+  /* 2. ReturnIfAbrupt(x). */
+  @ReturnIfAbrupt(x);
+  /* 3. If radix is not present, let radixNumber be 10. */
+  if (radix = null) {
+    radixNumber := 10
+  /* 4. Else if radix is undefined, let radixNumber be 10. */
+  } elif (radix = 'undefined) {
+    radixNumber := 10
+  /* 5. Else let radixNumber be ToInteger(radix). */
+  } else {
+    radixNumber := ToInteger(radix)
+  };
+  /* 6. ReturnIfAbrupt(radixNumber). */
+  @ReturnIfAbrupt(radixNumber);
+  /* 7. If radixNumber < 2 or radixNumber > 36, throw a RangeError exception. */
+  if (radixNumber < 2. || radixNumber > 36.) {
+    throw RangeErrorConstructorInternal()
+  };
+  /* 8. If radixNumber = 10, return ToString(x). */
+  if (radixNumber = 10) {
+    return ToString(x)
+  };
+  /* 9. TODO Return the String representation of this Number value using the radix specified by radixNumber.
+  Letters a-z are used for digits with values 10 through 35. The precise algorithm is implementation-dependent,
+  however the algorithm should be a generalization of that specified in 7.1.12.1. */
+  return
+};
+
+
+/* 20.1.3.7 Number.prototype.valueOf ( ) */
+function NumberPrototypeValueOf(global, this, strict, items) {
+  /* 1. Let x be thisNumberValue(this value). */
+  x := thisNumberValue(this);
+  /* 2. Return x. */
+  return x
+};
+
+
+/* Auxiliary Functions */
+
+/* 20.1.3 Abstract Operation thisNumberValue(value) */
+function thisNumberValue(value) {
+  /* 1. If Type(value) is Number, return value. */
+  if (Type(value) = "Number") {
+    return value
+  };
+  /* 2. If Type(value) is Object and value has a [[NumberData]] internal slot, then */
+  if (Type(value) = "Object" &&& "NumberData" in_obj value) {
+    /* a. Assert: value’s [[NumberData]] internal slot is a Number value. */
+    assert Type(value.NumberData) = "Number";
+    /* b. Return the value of value’s [[NumberData]] internal slot. */
+    return value.NumberData
+  };
+  /* 3. Throw a TypeError exception. */
+  throw TypeErrorConstructorInternal()
+};
+
+
+/* OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList ) */
+function OrdinaryCreateFromConstructorNumber(global, this, strict, items) {
+  numberPrototype := getNumberPrototype(strict);
+
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+  setInternalProperty(newlyConstructedObject, "Prototype", numberPrototype);
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  setInternalProperty(newlyConstructedObject, "Class", "Object");
+
+  return newlyConstructedObject
+}

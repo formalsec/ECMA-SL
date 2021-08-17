@@ -1,0 +1,269 @@
+function initSymbolPrototype(global, objectPrototype, strict) {
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Symbol", true);
+  setAllInternalMethodsOfObject(prototype);
+
+  /* 19.4.3.2 Symbol.prototype.toString () */
+  toStringFunctionObject := CreateBuiltInFunctionObject([], "symbolToString", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(toStringFunctionObject, true, false, true);
+  setJSProperty(prototype, "toString", descriptor);
+  setJSProperty(toStringFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toStringFunctionObject, "name", newDataPropertyDescriptorFull("toString", false, false, true));
+  
+  /* 19.4.3.3 Symbol.prototype.valueOf () */
+  valueOfFunctionObject := CreateBuiltInFunctionObject([], "symbolValueOf", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(valueOfFunctionObject, true, false, true);
+  setJSProperty(prototype, "valueOf", descriptor);
+  setJSProperty(valueOfFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(valueOfFunctionObject, "name", newDataPropertyDescriptorFull("valueOf", false, false, true));
+
+  /* 19.4.3.4 Symbol.prototype [@@toPrimitive] () - Ainda nao funciona!!! */
+  toPrimitiveFunctionObject := CreateBuiltInFunctionObject([], "symbolValueOf", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(toPrimitiveFunctionObject, true, false, true);
+  setJSProperty(prototype, "[Symbol.toPrimitive]", descriptor);
+  setJSProperty(toPrimitiveFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(toPrimitiveFunctionObject, "name", newDataPropertyDescriptorFull("[Symbol.toPrimitive]", false, false, true));
+
+  setInternalProperty(prototype, "SymbolData", "");
+  setInternalProperty(prototype, "Description", "");
+
+  /* Terminar: outros metodos do prototipo */
+
+  return prototype
+};
+
+function initSymbolObject(global, objectPrototype, strict) {
+  objSymbolPrototype := initSymbolPrototype(global, objectPrototype, strict);
+  objSymbolConstructor := CreateFunctionObject(["items"], "SymbolConstructor", global, strict, 0.);
+  setJSProperty(objSymbolConstructor, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(objSymbolConstructor, "name", newDataPropertyDescriptorFull("Symbol", false, false, true));
+  setJSProperty(objSymbolConstructor, "species", newDataPropertyDescriptorFull("species", false, false, true));
+
+  descriptor := newDataPropertyDescriptorFull(objSymbolConstructor, true, false, true);
+  setJSProperty(objSymbolPrototype, "constructor", descriptor);
+
+  descriptor := newDataPropertyDescriptorFull(objSymbolPrototype, false, false, false);
+  setJSProperty(objSymbolConstructor, "prototype", descriptor);
+
+  /* 19.4.2.1 Symbol.for (key) */
+  forFunctionObject := CreateBuiltInFunctionObject([], "symbolFor", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(forFunctionObject, true, false, true);
+  setJSProperty(objSymbolConstructor, "for", descriptor);
+  setJSProperty(forFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(forFunctionObject, "name", newDataPropertyDescriptorFull("for", false, false, true));
+
+  /* 19.4.2.5 Symbol.keyFor (key) */
+  keyForFunctionObject := CreateBuiltInFunctionObject([], "symbolKeyFor", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(keyForFunctionObject, true, false, true);
+  setJSProperty(objSymbolConstructor, "keyFor", descriptor);
+  setJSProperty(keyForFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(keyForFunctionObject, "name", newDataPropertyDescriptorFull("keyFor", false, false, true));
+
+  return objSymbolConstructor
+};
+
+function getSymbolPrototype (strict) { 
+  refSymbol := newPropertyReference(|global|, "Symbol", strict);
+  SymbolObject := GetValue(refSymbol);
+  refSymbolProto := newPropertyReference(SymbolObject, "prototype", strict);
+  objectSymbolProto := GetValue(refSymbolProto);
+  return objectSymbolProto
+}; 
+
+function newSymbolData() {
+  cur := |__CUR__SYMB__|; 
+  |__CUR__SYMB__| := cur + 1; 
+  return cur
+};
+
+function internalSymbolConstructor(descString, strict) { 
+  symbolPrototype := getSymbolPrototype(strict);
+
+  print "inside Symbol constructor with prototype";
+
+  newlyConstructedSymbol := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedSymbol);
+
+  setInternalProperty(newlyConstructedSymbol, "Prototype", symbolPrototype);
+  setInternalProperty(newlyConstructedSymbol, "Extensible", false);
+  setInternalProperty(newlyConstructedSymbol, "Class", "Symbol");
+  
+  newlyConstructedSymbol.Description := descString;
+  print "NOME";
+  print newlyConstructedSymbol.Description;
+  newlyConstructedSymbol.SymbolData := newSymbolData(); 
+
+  return newlyConstructedSymbol
+};
+
+/* 19.4.1.1 Symbol ([description]) */
+function SymbolConstructor(global, NewTarget, strict, args) {
+  description := getOptionalParam(args, 0); 
+
+  /* 1. If NewTarget is not undefined, throw a TypeError exception. */ 
+  if (!(NewTarget = 'undefined)) {
+    throw TypeErrorConstructorInternal()
+  }; 
+  
+  /* 2. If description is undefined, let descString be undefined. */
+  if (description = null || description = 'undefined) { 
+    descString := 'undefined
+  } else {
+    descString := ToString(description)
+  }; 
+  
+  /* 3. ReturnIfAbrupt(descString). */
+  @ReturnIfAbrupt(descString);
+
+  /* 4. Return a new unique Symbol value whose [[Description]] value is descString. */
+  return internalSymbolConstructor(descString, strict)
+};
+
+
+/* 19.4.2.1 Symbol.for (key) */
+function symbolFor(global, this, strict, args) {
+  
+  key := l_nth(args, 0);
+
+  /* 1. Let stringKey be ToString(key). */
+  stringKey := ToString(key);
+
+  /* 2. ReturnIfAbrupt(stringKey). */
+  @ReturnIfAbrupt(stringKey);
+
+  /* 3. For each element e of the GlobalSymbolRegistry List */
+  i := 0;
+  len := l_len(|GlobalSymbolRegistry|);
+
+  while (i < len){
+    e := l_nth(|GlobalSymbolRegistry|, i);
+    /* 3a. If SameValue(e.[[key]], stringKey) is true, return e.[[symbol]]. */
+    if (SameValue(e.key, stringKey)){
+      return e.symbol
+    };
+    i := i + 1
+  };
+
+  /* 4. Assert: GlobalSymbolRegistry does not currently contain an entry for stringKey. */
+  assert(!(stringKey in_list |GlobalSymbolRegistry|));
+
+  /* 5. Let newSymbol be a new unique Symbol value whose [[Description]] value is stringKey. */
+  newSymbol := SymbolConstructor(global, 'undefined, strict, [stringKey]);
+
+  /* 6. Append the record { [[key]]: stringKey, [[symbol]]: newSymbol } to the GlobalSymbolRegistry List. */
+  |GlobalSymbolRegistry| := l_add(|GlobalSymbolRegistry|, {key: stringKey, symbol: newSymbol});
+
+  /* 7. Return newSymbol. */
+  return newSymbol
+};
+
+/* 19.4.2.5 Symbol.keyFor (sym) */
+function symbolKeyFor(global, this, strict, args) {
+
+  sym := l_nth(args, 0);
+  print "tipo";
+  print sym;
+  print Type(sym);
+  /* 1. If Type(sym) is not Symbol, throw a TypeError exception. */
+  if (!(Type(sym) = "Symbol")) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 2. For each element e of the GlobalSymbolRegistry List (see 19.4.2.1), */
+  i := 0;
+  len := l_len(|GlobalSymbolRegistry|);
+
+  while (i < len){
+    e := l_nth(|GlobalSymbolRegistry|, i);
+
+    /* 2a. If SameValue(e.[[symbol]], sym) is true, return e.[[key]]. */
+    if (SameValue(e.symbol, sym)){
+      return e.key
+    };
+
+    i := i + 1
+  };
+
+  /* 3. Assert: GlobalSymbolRegistry does not currently contain an entry for sym. */
+  assert(!(sym in_list |GlobalSymbolRegistry|));
+
+  /* 4. Return undefined. */
+  return 'undefined
+};
+
+/* 19.4.3.2 Symbol.prototype.toString () */
+function symbolToString(global, this, strict, args){
+
+  /* 1. Let s be the this value. */
+  s := this;
+
+  /* 2. If Type(s) is Symbol, let sym be s. */
+  if (Type(s) = "Symbol") {
+    sym := s
+  }
+
+  /* 3. Else */
+  else{
+
+    /* 3a. If Type(s) is not Object, throw a TypeError exception. */
+    if (!(Type(s) = "Object")) {
+      throw TypeErrorConstructorInternal()
+    };
+
+    /* 3b. If s does not have a [[SymbolData]] internal slot, throw a TypeError exception. */
+    if (!("SymbolData" in_obj s)) {
+      throw TypeErrorConstructorInternal()
+    };
+
+    /* 3c. Let sym be the value of s’s [[SymbolData]] internal slot. */
+    sym := s.SymbolData
+  };
+
+  /* 4. Return SymbolDescriptiveString(sym). */
+  return symbolDescriptiveString(sym)
+};
+
+/* 19.4.3.2.1 SymbolDescriptiveString (sym) */
+function symbolDescriptiveString(sym){
+
+  /* 1. Assert: Type(sym) is Symbol.*/
+  assert(Type(sym) = "Symbol");
+
+  /* 2. Let desc be sym’s [[Description]] value. */
+  desc := sym.Description;
+  
+  /* 3. If desc is undefined, let desc be the empty string.*/
+  if (desc = 'undefined){
+    desc := ""
+  };
+
+  /* 4. Assert: Type(desc) is String. */
+  assert(Type(desc) = "String");
+
+  /* 5. Return the result of concatenating the strings "Symbol(", desc, and ")". */
+  return s_concat ["Symbol(", desc, ")"]
+};
+
+/* 19.4.3.3 Symbol.prototype.valueOf () */
+function symbolValueOf(global, this, strict, args){
+  
+  /* 1. Let s be the this value. */
+  s := this;
+  
+  /* 2. If Type(s) is Symbol, return s. */
+  if (Type(s) = "Symbol") {
+    return s
+  };
+
+  /* 3. If Type(s) is not Object, throw a TypeError exception. */
+  if (!(Type(s) = "Object")) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 4. If s does not have a [[SymbolData]] internal slot, throw a TypeError exception. */
+  if (!("SymbolData" in_obj s)) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 5. Return the value of s’s [[SymbolData]] internal slot. */
+  return s.SymbolData
+}

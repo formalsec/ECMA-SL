@@ -3,14 +3,14 @@
 
 /*---
 info: The Date.prototype property "setUTCMonth" has { DontEnum } attributes
-es5id: 15.9.5.39_A1_T2
+esid: sec-date.prototype.setutcmonth
 description: Checking absence of DontDelete attribute
 ---*/
 
-if (delete Date.prototype.setUTCMonth  === false) {
-  $ERROR('#1: The Date.prototype.setUTCMonth property has not the attributes DontDelete');
+if (delete Date.prototype.setUTCMonth === false) {
+  throw new Test262Error('#1: The Date.prototype.setUTCMonth property has not the attributes DontDelete');
 }
 
 if (Date.prototype.hasOwnProperty('setUTCMonth')) {
-  $ERROR('#2: The Date.prototype.setUTCMonth property has not the attributes DontDelete');
+  throw new Test262Error('#2: The Date.prototype.setUTCMonth property has not the attributes DontDelete');
 }

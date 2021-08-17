@@ -95,10 +95,6 @@ function getPromiseConstructorFromPromiseObject(promiseObj, strict) {
 function newPromiseReaction(capability, handler) {
   return { Capabilities: capability, Handler: handler }
 };
-/* Might make sense to move this one to section 8.9 */
-function isCompletionRecord(record) {
-  return (Type(record) = "Completion")
-};
 function isPromiseCapabilityRecord(record) {
   return (("Promise" in_obj record) &&& ("Resolve" in_obj record) &&& ("Reject" in_obj record))
 };
@@ -108,11 +104,6 @@ function isPromiseReactionRecord(record) {
 /* TODO: Not sure about these ones, ask prof. */
 function Completion(obj) {
   return obj
-};
-
-function Invoke(O, P, argumentsList) {
-  func := Get(O, P);
-  return Call(null, null, func, O, argumentsList)
 };
 
 
@@ -146,30 +137,6 @@ function IsConstructor(argument) {
   };
   /* 4. Return false. */
   return false
-};
-
-
-/* TODO - This function will be moved elsewhere. */
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 6.2.2.4 ReturnIfAbrupt
- *
- * Algorithms steps that say 
- * 1. ReturnIfAbrupt(argument).
- *
- * mean the same thing as:
- */
-macro ReturnIfAbrupt(argument) {
-  /* 1. If argument is an abrupt completion, */
-  if (isAnAbruptCompletion(argument)) {
-    /* return argument */
-    return argument
-  }
-  /* 2. Else if argument is a Completion Record, */
-  elif (isCompletionRecord(argument)) {
-    /* let argument be argument.[[value]] */
-    argument := argument.value
-  }
 };
 
 

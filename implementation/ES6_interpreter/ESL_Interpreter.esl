@@ -1,6 +1,9 @@
 import "ES6_interpreter/ES6_Reference_Interpreter.esl";
 
 function JS_Interpreter_Program(p, callingExecCtx) {
+
+  print "primeira sessao de debugging de verao"; 
+
   /* 14 Program */
   match p with
   | { sourceType: "script", type: "Program", codeType: "eval", body: SourceElementsopt, strict: strict } -> {
@@ -35,6 +38,10 @@ function JS_Interpreter_Program(p, callingExecCtx) {
     if (SourceElementsopt = []) {
       return normalEmptyCompletion('empty)
     };
+    
+    |__CUR__SYMB__| := 0; 
+    |GlobalSymbolRegistry| := []; 
+
     /* 3. Let progCxt be a new execution context for global code as described in 10.4.1. */
     progCxt := EnteringGlobalCode(p);
     /* 4. Let result be the result of evaluating SourceElements. */
@@ -547,6 +554,9 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     };
     if (Type(val) = "String") {
       return "string"
+    };
+    if (Type(val) = "Symbol") {
+      return "symbol"
     };
     if (Type(val) = "Object") {
       /* Object (native and does not implement [[Call]]) | "object" */

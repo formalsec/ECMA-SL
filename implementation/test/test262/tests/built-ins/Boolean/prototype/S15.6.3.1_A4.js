@@ -3,17 +3,17 @@
 
 /*---
 info: Boolean.prototype has the attribute DontEnum
-es5id: 15.6.3.1_A4
+esid: sec-boolean.prototype
 description: Checking if enumerating the Boolean.prototype property fails
 ---*/
 
 //CHECK#1
-for(x in Boolean) {
-  if(x === "prototype") {
-    $ERROR('#1: Boolean.prototype has the attribute DontEnum');
+for (x in Boolean) {
+  if (x === "prototype") {
+    throw new Test262Error('#1: Boolean.prototype has the attribute DontEnum');
   }
 }
 
 if (Boolean.propertyIsEnumerable('prototype')) {
-  $ERROR('#2: Boolean.prototype has the attribute DontEnum');
+  throw new Test262Error('#2: Boolean.prototype has the attribute DontEnum');
 }

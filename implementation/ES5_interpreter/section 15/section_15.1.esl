@@ -28,6 +28,8 @@ function initGlobalObject(strict) {
   ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, strict);
   FunctionConstructor := initFunctionConstructor(FunctionPrototype, globalObject, strict);
 
+  |ObjectPrototype| := ObjectPrototype; 
+
   setInternalProperty(globalObject, "Prototype", ObjectPrototype);
 
   createBuiltInProperty(globalObject, "Object", ObjectConstructor);
@@ -138,6 +140,10 @@ function initGlobalObject(strict) {
   ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);
   createBuiltInProperty(globalObject, "console", ConsoleObject);
 
+  MapObject := initMapObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Map", MapObject);
+  initMapIteratorPrototype(globalObject, ObjectPrototype, strict);
+  
   return globalObject
 };
 

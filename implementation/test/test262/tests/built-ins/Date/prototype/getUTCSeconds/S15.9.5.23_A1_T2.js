@@ -3,14 +3,14 @@
 
 /*---
 info: The Date.prototype property "getUTCSeconds" has { DontEnum } attributes
-es5id: 15.9.5.23_A1_T2
+esid: sec-date.prototype.getutcseconds
 description: Checking absence of DontDelete attribute
 ---*/
 
-if (delete Date.prototype.getUTCSeconds  === false) {
-  $ERROR('#1: The Date.prototype.getUTCSeconds property has not the attributes DontDelete');
+if (delete Date.prototype.getUTCSeconds === false) {
+  throw new Test262Error('#1: The Date.prototype.getUTCSeconds property has not the attributes DontDelete');
 }
 
 if (Date.prototype.hasOwnProperty('getUTCSeconds')) {
-  $ERROR('#2: The Date.prototype.getUTCSeconds property has not the attributes DontDelete');
+  throw new Test262Error('#2: The Date.prototype.getUTCSeconds property has not the attributes DontDelete');
 }
