@@ -89,6 +89,9 @@ function getPromisePrototype(strict) {
 };
 function getPromiseConstructorFromPromiseObject(promiseObj, strict) {
   /* promiseObj.constructor */
+  if (promiseObj.Code = "PromiseConstructor") {
+    return promiseObj
+  };
   refPromise := newPropertyReference(promiseObj, "constructor", strict);
   return GetValue(refPromise)
 };
@@ -105,7 +108,10 @@ function isPromiseReactionRecord(record) {
 function Completion(obj) {
   return obj
 };
-
+/* Might make sense to move this one to section 8.9 */
+function isCompletionRecord(record) {
+  return (Type(record) = "Completion")
+};
 
 
 
@@ -945,7 +951,7 @@ function PromiseAll(global, this, strict, args) {
   /* 7. ReturnIfAbrupt(promiseCapability). */
   @ReturnIfAbrupt(promiseCapability);
   /* 8. Let iterator be GetIterator(iterable). */
-  iterator := GetIterator(iterable);
+  iterator := GetIterator(iterable, null);
   /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
   IfAbruptRejectPromise(iterator, promiseCapability);
   /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: 
@@ -1147,10 +1153,7 @@ function PromiseAllResolveElementFunctions(F, global, this, strict, args) {
  * iterable to promises as it runs this algorithm. 
  */
 function PromiseRace(global, this, strict, args) {
-
   iterable := l_nth(args, 0);
-print "INSIDE PROMISERACE";
-print iterable;
   /* 1. Let C be the this value. */
   C := this;
   /* 2. If Type(C) is not Object, */
@@ -1162,10 +1165,6 @@ print iterable;
   /*S := Get(C, Symbol.species);*/
   /* TODO ES5 workaround: */
   S := getPromiseConstructorFromPromiseObject(C, strict);
-
-  print "INSIDE PROMISERACE";
-  print S;
-
   /* 4. ReturnIfAbrupt(S). */
   @ReturnIfAbrupt(S);
   /* 5. If S is neither undefined nor null, */
@@ -1178,7 +1177,7 @@ print iterable;
   /* 7. ReturnIfAbrupt(promiseCapability). */
   @ReturnIfAbrupt(promiseCapability);
   /* 8. Let iterator be GetIterator(iterable). */
-  iterator := GetIterator(iterable);
+  iterator := GetIterator(iterable, null);
   /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
   IfAbruptRejectPromise(iterator, promiseCapability);
   /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: 
