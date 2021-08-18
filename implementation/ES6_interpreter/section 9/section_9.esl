@@ -1,6 +1,6 @@
 /* 9.1 ToPrimitive */
 function ToPrimitive(input, PreferredType) {
-  if (Type(input) = "Object") {
+  if ((Type(input) = "Object") || (Type(input) = "Symbol")) {
     return DefaultValue(input, PreferredType)
   };
 

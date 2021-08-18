@@ -16,12 +16,16 @@ function initSymbolPrototype(global, objectPrototype, strict) {
   setJSProperty(valueOfFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
   setJSProperty(valueOfFunctionObject, "name", newDataPropertyDescriptorFull("valueOf", false, false, true));
 
-  /* 19.4.3.4 Symbol.prototype [@@toPrimitive] () - Ainda nao funciona!!! */
+  /* 19.4.3.4 Symbol.prototype [@@toPrimitive] () */
   toPrimitiveFunctionObject := CreateBuiltInFunctionObject([], "symbolValueOf", global, strict, null);
-  descriptor := newDataPropertyDescriptorFull(toPrimitiveFunctionObject, true, false, true);
-  setJSProperty(prototype, "[Symbol.toPrimitive]", descriptor);
+  descriptor := newDataPropertyDescriptorFull(toPrimitiveFunctionObject, false, false, true);
+  setJSProperty(prototype, "Symbol(toPrimitive)", descriptor);
   setJSProperty(toPrimitiveFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(toPrimitiveFunctionObject, "name", newDataPropertyDescriptorFull("[Symbol.toPrimitive]", false, false, true));
+
+  /* 19.4.3.5 Symbol.prototype [@@toStringTag] () */
+  descriptor := newDataPropertyDescriptorFull("Symbol", false, false, true);
+  setJSProperty(prototype, "Symbol(toStringTag)", descriptor);
 
   setInternalProperty(prototype, "SymbolData", "");
   setInternalProperty(prototype, "Description", "");
@@ -51,12 +55,96 @@ function initSymbolObject(global, objectPrototype, strict) {
   setJSProperty(forFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(forFunctionObject, "name", newDataPropertyDescriptorFull("for", false, false, true));
 
+  /* 19.4.2.2 Symbol.hasInstance 
+    The initial value of Symbol.hasInstance is the well known symbol @@hasInstance.
+    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  hasInstanceSymbol := internalSymbolConstructor2(objSymbolPrototype, "hasInstance", "hasInstance", strict);
+  descriptor := newDataPropertyDescriptorFull(hasInstanceSymbol, false, false, false);
+  setJSProperty(objSymbolConstructor, "hasInstance", descriptor);
+
+  /* 19.4.2.3 Symbol.isConcatSpreadable 
+    The initial value of Symbol.isConcatSpreadable is the well known symbol @@isConcatSpreadable.
+    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  isConcatSpreadableSymbol := internalSymbolConstructor2(objSymbolPrototype, "isConcatSpreadable", "isConcatSpreadable", strict);
+  descriptor := newDataPropertyDescriptorFull(isConcatSpreadableSymbol, false, false, false);
+  setJSProperty(objSymbolConstructor, "isConcatSpreadable", descriptor);
+
+  /* 19.4.2.4 Symbol.iterator 
+    The initial value of Symbol.iterator is the well known symbol @@iterator.
+    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  iteratorSymbol := internalSymbolConstructor2(objSymbolPrototype, "iterator", "iterator", strict);
+  descriptor := newDataPropertyDescriptorFull(iteratorSymbol, false, false, false);
+  setJSProperty(objSymbolConstructor, "iterator", descriptor);
+
   /* 19.4.2.5 Symbol.keyFor (key) */
   keyForFunctionObject := CreateBuiltInFunctionObject([], "symbolKeyFor", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(keyForFunctionObject, true, false, true);
   setJSProperty(objSymbolConstructor, "keyFor", descriptor);
   setJSProperty(keyForFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(keyForFunctionObject, "name", newDataPropertyDescriptorFull("keyFor", false, false, true));
+
+  /* 19.4.2.6 Symbol.match 
+    The initial value of Symbol.match is the well known symbol @@match.
+    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  matchSymbol := internalSymbolConstructor2(objSymbolPrototype, "match", "match", strict);
+  descriptor := newDataPropertyDescriptorFull(matchSymbol, false, false, false);
+  setJSProperty(objSymbolConstructor, "match", descriptor);
+
+  /* 19.4.2.7 Symbol.prototype 
+    The initial value of Symbol.prototype the intrinsic object %SymbolPrototype%.
+    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.
+  prototypeSymbol := internalSymbolConstructor2(objSymbolPrototype, "prototype", "prototype", strict);
+  descriptor := newDataPropertyDescriptorFull(prototypeSymbol, false, false, false);
+  setJSProperty(objSymbolConstructor, "prototype", descriptor);*/
+
+  /* 19.4.2.8 Symbol.replace 
+    The initial value of Symbol.replace is the well known symbol @@replace.
+    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  replaceSymbol := internalSymbolConstructor2(objSymbolPrototype, "replace", "replace", strict);
+  descriptor := newDataPropertyDescriptorFull(replaceSymbol, false, false, false);
+  setJSProperty(objSymbolConstructor, "replace", descriptor);
+
+  /* 19.4.2.9 Symbol.search 
+    The initial value of Symbol.search is the well known symbol @@search.
+    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  searchSymbol := internalSymbolConstructor2(objSymbolPrototype, "search", "search", strict);
+  descriptor := newDataPropertyDescriptorFull(searchSymbol, false, false, false);
+  setJSProperty(objSymbolConstructor, "search", descriptor);
+
+  /* 19.4.2.10 Symbol.species 
+    The initial value of Symbol.species is the well known symbol @@species.
+    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  speciesSymbol := internalSymbolConstructor2(objSymbolPrototype, "species", "species", strict);
+  descriptor := newDataPropertyDescriptorFull(speciesSymbol, false, false, false);
+  setJSProperty(objSymbolConstructor, "species", descriptor);
+  
+  /* 19.4.2.11 Symbol.split 
+    The initial value of Symbol.split is the well known symbol @@split.
+    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  splitSymbol := internalSymbolConstructor2(objSymbolPrototype, "split", "split", strict);
+  descriptor := newDataPropertyDescriptorFull(splitSymbol, false, false, false);
+  setJSProperty(objSymbolConstructor, "split", descriptor);
+
+  /* 19.4.2.12 Symbol.toPrimitive
+    The initial value of Symbol.toPrimitive is the well known symbol @@toPrimitive.
+    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  toPrimitiveSymbol := internalSymbolConstructor2(objSymbolPrototype, "toPrimitive", "toPrimitive", strict);
+  descriptor := newDataPropertyDescriptorFull(toPrimitiveSymbol, false, false, false);
+  setJSProperty(objSymbolConstructor, "toPrimitive", descriptor);
+
+  /* 19.4.2.13 Symbol.toStringTag 
+    The initial value of Symbol.toStringTag is the well known symbol @@toStringTag.
+    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  toStringTagSymbol := internalSymbolConstructor2(objSymbolPrototype, "toStringTag", "toStringTag", strict);
+  descriptor := newDataPropertyDescriptorFull(toStringTagSymbol, false, false, false);
+  setJSProperty(objSymbolConstructor, "toStringTag", descriptor);
+
+  /* 19.4.2.14 Symbol.unscopables 
+    The initial value of Symbol.unscopables is the well known symbol @@unscopables.
+    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  unscopablesSymbol := internalSymbolConstructor2(objSymbolPrototype, "unscopables", "unscopables", strict);
+  descriptor := newDataPropertyDescriptorFull(unscopablesSymbol, false, false, false);
+  setJSProperty(objSymbolConstructor, "unscopables", descriptor);
 
   return objSymbolConstructor
 };
@@ -88,9 +176,22 @@ function internalSymbolConstructor(descString, strict) {
   setInternalProperty(newlyConstructedSymbol, "Class", "Symbol");
   
   newlyConstructedSymbol.Description := descString;
-  print "NOME";
-  print newlyConstructedSymbol.Description;
   newlyConstructedSymbol.SymbolData := newSymbolData(); 
+
+  return newlyConstructedSymbol
+};
+
+function internalSymbolConstructor2(symbolPrototype, symbolData, descString, strict) { 
+
+  newlyConstructedSymbol := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedSymbol);
+
+  setInternalProperty(newlyConstructedSymbol, "Prototype", symbolPrototype);
+  setInternalProperty(newlyConstructedSymbol, "Extensible", false);
+  setInternalProperty(newlyConstructedSymbol, "Class", "Symbol");
+  
+  newlyConstructedSymbol.Description := descString;
+  newlyConstructedSymbol.SymbolData := symbolData; 
 
   return newlyConstructedSymbol
 };
