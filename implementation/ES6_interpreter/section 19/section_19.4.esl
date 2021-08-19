@@ -30,7 +30,10 @@ function initSymbolPrototype(global, objectPrototype, strict) {
   setInternalProperty(prototype, "SymbolData", "");
   setInternalProperty(prototype, "Description", "");
 
-  /* Terminar: outros metodos do prototipo */
+  /* Symbol.prototype.description: Existe apenas no ES10 */
+  descriptionFunctionObject := CreateFunctionObject([], "getSymbolDescriptionAccessorProperty", global, false, null);
+  descriptor := newGetAccessorPropertyDescriptorFull(descriptionFunctionObject, false, true);
+  setJSProperty(prototype, "description", descriptor);
 
   return prototype
 };
@@ -44,9 +47,6 @@ function initSymbolObject(global, objectPrototype, strict) {
 
   descriptor := newDataPropertyDescriptorFull(objSymbolConstructor, true, false, true);
   setJSProperty(objSymbolPrototype, "constructor", descriptor);
-
-  descriptor := newDataPropertyDescriptorFull(objSymbolPrototype, false, false, false);
-  setJSProperty(objSymbolConstructor, "prototype", descriptor);
 
   /* 19.4.2.1 Symbol.for (key) */
   forFunctionObject := CreateBuiltInFunctionObject([], "symbolFor", global, strict, 0.);
@@ -92,10 +92,9 @@ function initSymbolObject(global, objectPrototype, strict) {
 
   /* 19.4.2.7 Symbol.prototype 
     The initial value of Symbol.prototype the intrinsic object %SymbolPrototype%.
-    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.
-  prototypeSymbol := internalSymbolConstructor2(objSymbolPrototype, "prototype", "prototype", strict);
-  descriptor := newDataPropertyDescriptorFull(prototypeSymbol, false, false, false);
-  setJSProperty(objSymbolConstructor, "prototype", descriptor);*/
+    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.*/
+  descriptor := newDataPropertyDescriptorFull(objSymbolPrototype, false, false, false);
+  setJSProperty(objSymbolConstructor, "prototype", descriptor);
 
   /* 19.4.2.8 Symbol.replace 
     The initial value of Symbol.replace is the well known symbol @@replace.
@@ -367,4 +366,40 @@ function symbolValueOf(global, this, strict, args){
 
   /* 5. Return the value of s’s [[SymbolData]] internal slot. */
   return s.SymbolData
+};
+
+function thisSymbolValue(value){
+
+  /* 1. If Type(value) is Symbol, return value. */
+  if (Type(value) = "Symbol"){
+    return value
+  };
+
+  /* 2. If Type(value) is Object and value has a [[SymbolData]] internal slot, then */
+  if (Type(value) = "Object" &&& "SymbolData" in_obj value){
+
+    /* 2a. Let s be value.[[SymbolData]]. */
+    s := value.SymbolData;
+
+    /* 2b. Assert: Type(s) is Symbol. */
+    assert(Type(s) = "Symbol");
+
+    /* 2c. Return s. */
+    return s
+  };
+        
+  /* 3. Throw a TypeError exception. */
+  throw TypeErrorConstructorInternal()
+};
+
+function getSymbolDescriptionAccessorProperty(global, this, strict, args){
+
+  /* 1. Let s be the this value. */
+  s := this;
+
+  /* 2. Let sym be ? thisSymbolValue(s). */
+  sym := thisSymbolValue(s);
+
+  /* 3. Return sym.[[Description]]. */
+  return sym.Description
 }
