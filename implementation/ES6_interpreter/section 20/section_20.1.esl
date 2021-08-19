@@ -266,8 +266,9 @@ function NumberPrototypeToExponential(global, this, strict, items) {
   @ReturnIfAbrupt(x);
   if (fractionDigits = 'undefined) {
     return to_exponential(x, (int_of_float fractionDigits))
-  }
+  } else {
     return to_exponential(x, (int_of_float fractionDigits))
+  }
 };
 
 /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
