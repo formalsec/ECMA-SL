@@ -112,6 +112,7 @@ function parsePattern(P, F) {
     "\u002F", among other possibilities, but not "/", because /// followed by
     F would be parsed as a SingleLineComment rather than a RegularExpressionLiteral.
     If P is the empty String, this specification can be met by letting S be "(?:)". */
+  
   S := escapePattern(P);
 
   if ((S = "") ||| (S = 'undefined)) {
@@ -156,6 +157,7 @@ function newRegExp(strict, pattern, flags) {
     /* ES6 - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/15.10.4.1-1.js */
     else {
       P := R.OriginalSource;
+      
       R := parsePattern(P, ToString(flags))
     }
     /* If pattern is an object R whose [[Class]] internal property is "RegExp"
@@ -263,20 +265,24 @@ function initRegExpPrototype(objectPrototypeObject) {
   /* 21.2.5.6 RegExp.prototype [ @@match ] ( string ) */
   matchFunctionObject := CreateBuiltInFunctionObject(["string"], "RegExpPrototypematch", |global|, false, null);
   createBuiltInProperty(regExpPrototypeObject, "@@match", matchFunctionObject);
+  /* The value of the name property of this function is "[Symbol.match]". */
+
+
 
   /* 21.2.5.8 RegExp.prototype [ @@replace ] ( string, replaceValue ) */
   replaceFunctionObject := CreateBuiltInFunctionObject(["string", "replaceValue"], "RegExpPrototypereplace", |global|, false, null);
   createBuiltInProperty(regExpPrototypeObject, "@@replace", replaceFunctionObject);
-
+  
+  
   /* 21.2.5.9 RegExp.prototype [ @@search ] ( string ) */
   searchFunctionObject := CreateBuiltInFunctionObject(["string"], "RegExpPrototypesearch", |global|, false, null);
   createBuiltInProperty(regExpPrototypeObject, "@@search", searchFunctionObject);
-
+  
   /* 21.2.5.11 RegExp.prototype [ @@split ] ( string, limit ) */
   splitFunctionObject := CreateBuiltInFunctionObject(["string", "limit"], "RegExpPrototypesplit", |global|, false, null);
   createBuiltInProperty(regExpPrototypeObject, "@@split", splitFunctionObject);
-
-  setJSProperty(regExpPrototypeObject, "lastIndex", 0);
+  
+  setJSProperty(regExpPrototypeObject, "lastIndex", 0.);
   setJSProperty(regExpPrototypeObject, "global", gDesc);
   setJSProperty(regExpPrototypeObject, "ignoreCase", iDesc);
   setJSProperty(regExpPrototypeObject, "multiline", mDesc);
@@ -295,6 +301,10 @@ function getRegExpIgnoreCaseAccessorProperty(global, this, strict, args) {
 
 function getRegExpMultilineAccessorProperty(global, this, strict, args) {
   return this.OriginalFlags.ml
+};
+
+function getRegExpStickyAccessorProperty(global, this, strict, args) {
+  return this.OriginalFlags.y
 };
 
 function getRegExpSourceAccessorProperty(global, this, strict, args) {
@@ -394,14 +404,18 @@ function getRegExpPrototypeExec(strict) {
  * expression pattern as follows:
  */
 function RegExpPrototypeExec(global, this, strict, args) {
-
   string := l_nth (args, 0);
   
   /* 1. Let R be this RegExp object. */
   R := this;
+
   if (!isRegExpObject(R)) {
     throw TypeErrorConstructorInternal()
   };
+
+  /* 8. Let sticky be ToBoolean(Get(R, "sticky")). */
+  sticky := ToBoolean(GetES6(R, "sticky"));
+
   /* 2. Let S be the value of ToString(string). */
   S := ToString(string);
   /* 3. Let length be the length of S. */
@@ -409,9 +423,6 @@ function RegExpPrototypeExec(global, this, strict, args) {
   /* 4. Let lastIndex be the result of calling the [[Get]]
     internal method of R with argument "lastIndex".. */
   lastIndex := {R.Get}(R, "lastIndex");
-
-  print "lastIndex::::";
-  print lastIndex;
   
   /* 5. Let i be the value of ToInteger(lastIndex). */
   i := int_of_float (ToInteger(lastIndex));
@@ -427,9 +438,17 @@ function RegExpPrototypeExec(global, this, strict, args) {
     internal method of R with argument "global". */
   global := {R.Get}(R, "global");
   /* 7. If global is false, then let i = 0. */
+  /*
   if (global = false) {
     i := 0
   };
+  */
+
+  /* 10. If global is false and sticky is false, let lastIndex be 0. */
+  if ((global = false) &&& (sticky = false)){
+    i := 0
+  };
+
   /* 8. Let matchSucceeded be false. */
   matchSucceeded := false;
   /* 9. Repeat, while matchSucceeded is false */
@@ -447,6 +466,12 @@ function RegExpPrototypeExec(global, this, strict, args) {
     ret := {R.Match}(R, S, i);
     /* c. If [[Match]] returned failure, then */
     if (isFailure(ret)) {
+      /* i. If sticky is true, then */
+      if (sticky = true){
+        {R.Put}(R, "lastIndex", 0., true);
+        return 'null
+      };
+
       /* i. Let i = i+1. */
       i := i + 1
     }
@@ -460,8 +485,9 @@ function RegExpPrototypeExec(global, this, strict, args) {
   };
   /* 10. Let e be r's endIndex value. */
   e := int_to_float r.endIndex;
+
   /* 11. If global is true, */
-  if (global = true) {
+  if ((global = true) ||| (sticky = true)) {
     /* a. Call the [[Put]] internal method of R with
       arguments "lastIndex", e, and true. */
     {R.Put}(R, "lastIndex", e, true)
@@ -579,6 +605,7 @@ function RegExpPrototypeToString(global, this, strict, args) {
   g := this.OriginalFlags.gb;
   i := this.OriginalFlags.ic;
   m := this.OriginalFlags.ml;
+  y := this.OriginalFlags.y;
   if (g = true) {
     source := s_concat([source, "g"])
   };
@@ -587,6 +614,9 @@ function RegExpPrototypeToString(global, this, strict, args) {
   };
   if (m = true) {
     source := s_concat([source, "m"])
+  };
+  if (y = true){
+    source := s_concat([source, "y"])
   };
   return source
 };
@@ -643,6 +673,7 @@ function JS_Interpreter_RegEx_TopLevel(re, source) {
       R.OriginalFlags.gb,
       R.OriginalFlags.ic,
       R.OriginalFlags.ml,
+      R.OriginalFlags.y,
       nCaps);
     return {m}(st, k_id)
   };
@@ -665,6 +696,8 @@ function validateFlags(flags) {
   while (index < len) {
     flag := s_nth_u(flags, index);
 
+    /* "g", "i", "m", "u", or "y" */
+
     if ((flag = "g") &&& (g = false)) {
       g := true
     } elif ((flag = "i") &&& (i = false)) {
@@ -685,7 +718,8 @@ function setFlags(obj, flags) {
   g := false;
   i := false;
   m := false;
-
+  y := false;
+  
   len := s_len_u flags;
   index := 0;
   while (index < len) {
@@ -697,34 +731,40 @@ function setFlags(obj, flags) {
       i := true
     } elif ((flag = "m") &&& (m = false)) {
       m := true
-    } else {
+    } elif ((flag = "y") &&& (y = false)) {
+      y := true
+    }
+    else {
       throw SyntaxErrorConstructorInternal()
     };
 
     index := index + 1
   };
 
-/*  setJSProperty(obj, "global", newDataPropertyDescriptorFull(g, false, false, false));
+  setJSProperty(obj, "global", newDataPropertyDescriptorFull(g, false, false, false));
   setJSProperty(obj, "ignoreCase", newDataPropertyDescriptorFull(i, false, false, false));
   setJSProperty(obj, "multiline", newDataPropertyDescriptorFull(m, false, false, false));
-*/
+  setJSProperty(obj, "sticky", newDataPropertyDescriptorFull(y, false, false, false));
+
   flags := "";
   if (g) { flags := s_concat [flags, "g"] };
   if (i) { flags := s_concat [flags, "i"] };
   if (m) { flags := s_concat [flags, "m"] };
+  /* u aqui */
+  if (y) { flags := s_concat [flags, "y"] };
   
   setJSProperty(obj, "flags", newDataPropertyDescriptorFull(flags, false, false, false));
   /* ES6? - test implementation/test/test262/tests/built-ins/RegExp/new-regexp/S15.10.4.1_A1_T1.js */
 
-  return { gb: g, ic: i, ml: m, flags: flags }
+  return { gb: g, ic: i, ml: m, y: y, flags: flags }
 };
 
 function isFailure(st) {
   return st = null
 };
 
-function initialState(str, endIndex, gb, ic, ml, nCaps) {
-  o := { str: str, endIndex: endIndex, caps: initialCaps(nCaps), gb: gb, ic: ic, ml: ml };
+function initialState(str, endIndex, gb, ic, ml, y, nCaps) {
+  o := { str: str, endIndex: endIndex, caps: initialCaps(nCaps), gb: gb, ic: ic, ml: ml, y: y };
   return o
 };
 
@@ -792,6 +832,7 @@ function copyState(st) {
   st'.gb := st.gb;
   st'.ic := st.ic;
   st'.ml := st.ml;
+  st'.y := st.y;
   st'.caps := copyCaps(st.caps);
   return st'
 };

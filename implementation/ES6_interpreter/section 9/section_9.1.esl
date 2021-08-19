@@ -71,6 +71,3 @@ function OrdinaryHasProperty(O, P){
     /* 8. Return false. */
     return false
 }
-
-
-

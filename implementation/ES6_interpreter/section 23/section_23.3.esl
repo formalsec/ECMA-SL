@@ -29,7 +29,7 @@ are only intended to describe the required observable semantics of WeakMap objec
 is not intended to be a viable implementation model.
 */
 
-function initWeakMapPrototype(global, objectPrototype, strict){
+function initWeakMapPrototype(global, objectPrototype, objectConstructor, strict){
 
     prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
     setAllInternalMethodsOfObject(prototype);
@@ -37,30 +37,49 @@ function initWeakMapPrototype(global, objectPrototype, strict){
     setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));
 
     /* 23.3.3.1 WeakMap.prototype.constructor */
+    /* length */
+    setJSProperty(objectConstructor, "length", newDataPropertyDescriptorFull(1., false, false, true));
+    /* name */
+    setJSProperty(objectConstructor, "name", newDataPropertyDescriptorFull("constructor", false, false, true));
+    createBuiltInProperty(prototype, "constructor", objectConstructor);
     
     /* 23.3.3.2 WeakMap.prototype.delete ( key ) */
-    deleteObject := CreateBuiltInFunctionObject(["items"], "weakMapDeleteObject", global, strict, 0.);
-    descriptor := newDataPropertyDescriptorFull(deleteObject, true, false, true);
-    setJSProperty(prototype, "delete", descriptor); 
+    deleteFunctionObject := CreateBuiltInFunctionObject(["key"], "weakMapDeleteObject", global, strict, null);
+    /* length */
+    setJSProperty(deleteFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+    /* name */
+    setJSProperty(deleteFunctionObject, "name", newDataPropertyDescriptorFull("delete", false, false, true));
+    createBuiltInProperty(prototype, "delete", deleteFunctionObject);
     
     /* 23.3.3.3 WeakMap.prototype.get ( key ) */
-    getObject := CreateBuiltInFunctionObject(["items"], "weakMapGetObject", global, strict, 0.);
-    descriptor := newDataPropertyDescriptorFull(getObject, true, false, true);
-    setJSProperty(prototype, "get", descriptor); 
+    getFunctionObject := CreateBuiltInFunctionObject(["key"], "weakMapGetObject", global, strict, null);
+    /* length */
+    setJSProperty(getFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+    /* name */
+    setJSProperty(getFunctionObject, "name", newDataPropertyDescriptorFull("get", false, false, true));
+    createBuiltInProperty(prototype, "get", getFunctionObject);
     
     /* 23.3.3.4 WeakMap.prototype.has ( key ) */
-    hasObject := CreateBuiltInFunctionObject(["items"], "weakMapHasObject", global, strict, 0.);
-    descriptor := newDataPropertyDescriptorFull(hasObject, true, false, true);
-    setJSProperty(prototype, "has", descriptor);   
+    hasFunctionObject := CreateBuiltInFunctionObject(["key"], "weakMapHasObject", global, strict, null);
+    /* length */
+    setJSProperty(hasFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+    /* name */
+    setJSProperty(hasFunctionObject, "name", newDataPropertyDescriptorFull("has", false, false, true));
+    createBuiltInProperty(prototype, "has", hasFunctionObject);
     
     /* 23.3.3.5 WeakMap.prototype.set ( key , value ) */
-    setObject := CreateBuiltInFunctionObject(["items"], "weakMapSetObject", global, strict, 0.);
-    descriptor := newDataPropertyDescriptorFull(setObject, true, false, true);
-    setJSProperty(prototype, "set", descriptor); 
+    setFunctionObject := CreateBuiltInFunctionObject(["key", "value"], "weakMapHasObject", global, strict, null);
+    /* length */
+    setJSProperty(setFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, true));
+    /* name */
+    setJSProperty(setFunctionObject, "name", newDataPropertyDescriptorFull("set", false, false, true));
+    createBuiltInProperty(prototype, "set", setFunctionObject);
     
     /* 23.3.3.6 WeakMap.prototype [ @@toStringTag ] */
-    /* TODO */
-
+    /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true }. */
+    /* The initial value of the @@toStringTag property is the String value "WeakMap". */
+    setJSProperty(prototype, "@@toStringTag", newDataPropertyDescriptorFull("WeakMap", false, false, true));
+    
     return prototype
 };
 
@@ -74,11 +93,15 @@ function getWeakMapPrototype(strict) {
     return objectWeakMapProto
 };
 
-function initWeakMapObject(global, objectPrototype, strict) {
-
-    objWeakMapPrototype := initWeakMapPrototype(global, objectPrototype, strict);
+function initWeakMapObject(global, objectPrototype, strict) {  
     objWeakMapConstructor := CreateFunctionObject(["items"], "WeakMapConstructor", global, strict, 0.);
+    /* length */
+    setJSProperty(objWeakMapConstructor, "length", newDataPropertyDescriptorFull(1., false, false, true));
+    /* name */
+    setJSProperty(objWeakMapConstructor, "name", newDataPropertyDescriptorFull("constructor", false, false, true));
 
+    objWeakMapPrototype := initWeakMapPrototype(global, objectPrototype, objWeakMapConstructor, strict);
+    
     descriptor := newDataPropertyDescriptorFull(objWeakMapConstructor, true, false, true);
     setJSProperty(objWeakMapPrototype, "constructor", descriptor);
 
@@ -139,9 +162,10 @@ function WeakMapConstructor(global, this, strict, items) {
     /* 6. If iterable is either undefined or null, let iter be undefined. */
     if ((iterable = 'undefined) ||| (iterable = 'null)) {
         iter := 'undefined
-    } else {
-        /* 7. Else, */
-
+    } 
+    /* 7. Else, */
+    else {
+        
         /* a. Let adder be Get(map, "set"). */
         adder := GetES6(map, "set");
 

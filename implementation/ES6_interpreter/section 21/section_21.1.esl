@@ -20,11 +20,11 @@
 
 /* 21.1.1.1 String ( value ) */
 function StringConstructor (global, this, strict, args) {
-  value := l_nth(args, 0);
+  value := getOptionalParam(args, 0);
   NewTarget := this;
 
   /* 1. If no arguments were passed to this function invocation, let s be "". */
-  if ((value = null) || (value = 'undefined) || (value = 'null)){
+  if ((value = null) || (value = 'null)){
     s := ""
   } else{
   /* 2. Else, */
@@ -61,8 +61,10 @@ function getStringPrototype(strict) {
 };
 
 function initStringObject(global, objectPrototype, strict) {
-  objStringPrototype := initStringPrototype(global, objectPrototype, strict);
-  objStringConstructor := CreateFunctionObject(["items"], "StringConstructor", global, strict, 0.);
+  objStringConstructor := CreateFunctionObject( [ "value" ], "StringConstructor", global, strict, 0.);
+  /* The length property of the String function is 1. */
+  setJSProperty(objStringConstructor, "length", newDataPropertyDescriptorFull(1., false, false, false)); 
+  objStringPrototype := initStringPrototype(global, objectPrototype, objStringConstructor, strict);
 
   descriptor := newDataPropertyDescriptorFull(objStringConstructor, false, false, true);
   setJSProperty(objStringPrototype, "constructor", descriptor);
@@ -73,13 +75,17 @@ function initStringObject(global, objectPrototype, strict) {
   /* 21.1.2.1 String.fromCharCode ( ...codeUnits ) */
   fromCharCode := CreateBuiltInFunctionObject(["codeUnits"], "StringFromCharCode", global, strict, 0.);
   /* The length property of the fromCharCode function is 1. */
-  setJSProperty(fromCharCode, "length", newDataPropertyDescriptorFull(1., false, false, false)); 
+  setJSProperty(fromCharCode, "length", newDataPropertyDescriptorFull(1., false, false, true)); 
+  /* name */
+  setJSProperty(fromCharCode, "name", newDataPropertyDescriptorFull("fromCharCode", false, false, true));
   createBuiltInProperty(objStringConstructor, "fromCharCode", fromCharCode);
   
   /* 21.1.2.2 String.fromCodePoint ( ...codePoints ) */
   fromCodePoint := CreateBuiltInFunctionObject(["codeUnits"], "StringFromCodePoint", global, strict, 0.);
   /* The length property of the fromCodePoint function is 1. */
-  setJSProperty(fromCodePoint, "length", newDataPropertyDescriptorFull(1., false, false, false)); 
+  setJSProperty(fromCodePoint, "length", newDataPropertyDescriptorFull(1., false, false, true)); 
+  /* name */
+  setJSProperty(fromCodePoint, "name", newDataPropertyDescriptorFull("fromCodePoint", false, false, true));
   createBuiltInProperty(objStringConstructor, "fromCodePoint", fromCodePoint);
   
   /* 21.1.2.3 String.prototype */
@@ -87,17 +93,17 @@ function initStringObject(global, objectPrototype, strict) {
   /* 21.1.2.4 String.raw ( template, ...substitutions ) */
   raw := CreateBuiltInFunctionObject(["template", "substitutions"], "StringRaw", global, strict, 0.);
   /* The length property of the raw function is 1. */
-  setJSProperty(raw, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  setJSProperty(raw, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(raw, "name", newDataPropertyDescriptorFull("raw", false, false, true));
   createBuiltInProperty(objStringConstructor, "raw", raw);
 
   return objStringConstructor  
 };
 
-function initStringPrototype(global, objectPrototype, strict) {
+function initStringPrototype(global, objectPrototype, objStringConstructor, strict) {
   prototype := NewECMAScriptObject();
   setAllInternalMethodsOfObject(prototype);
-
-  setJSProperty(prototype, "length", newDataPropertyDescriptorFull(1., true, false, false));
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
   /* 21.1.3 Properties of the String Prototype Object */
@@ -115,140 +121,219 @@ function initStringPrototype(global, objectPrototype, strict) {
 
   /* 21.1.3.1 String.prototype.charAt ( pos ) */
   charAtFunctionObject:= CreateBuiltInFunctionObject( [ "pos" ], "StringPrototypecharAt", global, strict, null);
+  /* length */
+  setJSProperty(charAtFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(charAtFunctionObject, "name", newDataPropertyDescriptorFull("charAt", false, false, true));
   createBuiltInProperty(prototype, "charAt", charAtFunctionObject);
 
   /* 21.1.3.2 String.prototype.charCodeAt ( pos ) */
   charCodeAtFunctionObject:= CreateBuiltInFunctionObject( [ "pos" ], "StringPrototypecharCodeAt", global, strict, null);
+  /* length */
+  setJSProperty(charCodeAtFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(charCodeAtFunctionObject, "name", newDataPropertyDescriptorFull("charCodeAt", false, false, true));
   createBuiltInProperty(prototype, "charCodeAt", charCodeAtFunctionObject);
 
   /* 21.1.3.3 String.prototype.codePointAt ( pos ) */
   codePointAtFunctionObject := CreateBuiltInFunctionObject(["pos"], "StringPrototypecodePointAt", global, strict, null);
+  /* length */
+  setJSProperty(codePointAtFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(codePointAtFunctionObject, "name", newDataPropertyDescriptorFull("codePointAt", false, false, true));
   createBuiltInProperty(prototype, "codePointAt", codePointAtFunctionObject);
 
   /* 21.1.3.4 String.prototype.concat ( ...args ) */
   concatFunctionObject:= CreateBuiltInFunctionObject( ["args"], "StringPrototypeconcat", global, strict, 0.);
   /* The length property of the concat method is 1. */
-  setJSProperty(concatFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false)); 
+  setJSProperty(concatFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true)); 
+  /* name */
+  setJSProperty(concatFunctionObject, "name", newDataPropertyDescriptorFull("concat", false, false, true));
   createBuiltInProperty(prototype, "concat", concatFunctionObject);
 
   /* 21.1.3.5 String.prototype.constructor */
-  /* TODO */
+  /* length */
+  setJSProperty(objStringConstructor, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(objStringConstructor, "name", newDataPropertyDescriptorFull("constructor", false, false, true));
+  createBuiltInProperty(prototype, "constructor", objStringConstructor);
 
   /* 21.1.3.6 String.prototype.endsWith ( searchString [ , endPosition] ) */
   endsWithFunctionObject := CreateBuiltInFunctionObject(["searchString", "endPosition"], "StringPrototypeendsWith", global, strict, null);
   /* The length property of the endsWith method is 1. */
+  setJSProperty(endsWithFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(endsWithFunctionObject, "name", newDataPropertyDescriptorFull("endsWith", false, false, true));
   createBuiltInProperty(prototype, "endsWith", endsWithFunctionObject);
 
   /* 21.1.3.7 String.prototype.includes ( searchString [ , position ] ) */
   includesFunctionObject := CreateBuiltInFunctionObject(["searchString", "position"], "StringPrototypeincludes", global, strict, null);
   /* The length property of the includes method is 1. */
-  setJSProperty(includesFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  setJSProperty(includesFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(includesFunctionObject, "name", newDataPropertyDescriptorFull("includes", false, false, true));
   createBuiltInProperty(prototype, "includes", includesFunctionObject);
 
   /* 21.1.3.8 String.prototype.indexOf ( searchString [ , position ] ) */
   indexOfFunctionObject := CreateBuiltInFunctionObject(["searchString", "position"], "StringPrototypeindexOf", global, strict, null);
   /* The length property of the indexOf method is 1. */
-  setJSProperty(indexOfFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  setJSProperty(indexOfFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(indexOfFunctionObject, "name", newDataPropertyDescriptorFull("indexOf", false, false, true));
   createBuiltInProperty(prototype, "indexOf", indexOfFunctionObject);
 
   /* 21.1.3.9 String.prototype.lastIndexOf ( searchString [ , position ] ) */
   lastIndexOfFunctionObject := CreateBuiltInFunctionObject(["searchString", "position"], "StringPrototypelastIndexOf", global, strict, null);
   /* The length property of the lastIndexOf method is 1. */
-  setJSProperty(lastIndexOfFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  setJSProperty(lastIndexOfFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(lastIndexOfFunctionObject, "name", newDataPropertyDescriptorFull("lastIndexOf", false, false, true));
   createBuiltInProperty(prototype, "lastIndexOf", lastIndexOfFunctionObject);
 
   /* 21.1.3.10 String.prototype.localeCompare ( that [, reserved1 [ , reserved2 ] ] ) */ /* TODO */
   localeCompareFunctionObject := CreateBuiltInFunctionObject(["that"], "StringPrototypelocaleCompare", global, strict, null);
   /* The length property of the localeCompare method is 1. */
-  setJSProperty(localeCompareFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  setJSProperty(localeCompareFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(localeCompareFunctionObject, "name", newDataPropertyDescriptorFull("localeCompare", false, false, true));
   createBuiltInProperty(prototype, "localeCompare", localeCompareFunctionObject);
 
   /* 21.1.3.11 String.prototype.match ( regexp ) */
   matchFunctionObject := CreateBuiltInFunctionObject(["regexp"], "StringPrototypeMatch", global, strict, null);
+  /* length */
+  setJSProperty(matchFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(matchFunctionObject, "name", newDataPropertyDescriptorFull("match", false, false, true));
   createBuiltInProperty(prototype, "match", matchFunctionObject);
 
   /* 21.1.3.12 String.prototype.normalize ( [ form ] ) */
   normalizeFunctionObject := CreateBuiltInFunctionObject(["form"], "StringPrototypenormalize", global, strict, null);
   /* The length property of the normalize method is 0. */
-  setJSProperty(normalizeFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, false));
+  setJSProperty(normalizeFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  /* name */
+  setJSProperty(normalizeFunctionObject, "name", newDataPropertyDescriptorFull("normalize", false, false, true));
   createBuiltInProperty(prototype, "normalize", normalizeFunctionObject);
 
   /* 21.1.3.13 String.prototype.repeat ( count ) */
   repeatFunctionObject := CreateBuiltInFunctionObject(["count"], "StringPrototyperepeat", global, strict, null);
+  /* length */
+  setJSProperty(repeatFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(repeatFunctionObject, "name", newDataPropertyDescriptorFull("repeat", false, false, true));
   createBuiltInProperty(prototype, "repeat", repeatFunctionObject);
 
   /* 21.1.3.14 String.prototype.replace (searchValue, replaceValue ) */
   replaceFunctionObject := CreateBuiltInFunctionObject(["searchValue", "replaceValue"], "StringPrototypeReplace", global, strict, null);
+  /* length */
+  setJSProperty(replaceFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  /* name */
+  setJSProperty(replaceFunctionObject, "name", newDataPropertyDescriptorFull("replace", false, false, true));
   createBuiltInProperty(prototype, "replace", replaceFunctionObject);
 
   /* 21.1.3.15 String.prototype.search ( regexp ) */
   searchFunctionObject := CreateBuiltInFunctionObject(["regexp"], "StringPrototypeSearch", global, strict, null);
+  /* length */
+  setJSProperty(searchFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(searchFunctionObject, "name", newDataPropertyDescriptorFull("search", false, false, true));
   createBuiltInProperty(prototype, "search", searchFunctionObject);
 
   /* 21.1.3.16 String.prototype.slice ( start, end ) */
   sliceFunctionObject := CreateBuiltInFunctionObject(["start", "end"], "StringPrototypeSlice", global, strict, null);
   /* The length property of the slice method is 2. */
-  setJSProperty(sliceFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, false));
+  setJSProperty(sliceFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  /* name */
+  setJSProperty(sliceFunctionObject, "name", newDataPropertyDescriptorFull("slice", false, false, true));
   createBuiltInProperty(prototype, "slice", sliceFunctionObject);
 
   /* 21.1.3.17 String.prototype.split ( separator, limit ) */
   splitFunctionObject := CreateBuiltInFunctionObject(["separator", "limit"], "StringPrototypeSplit", global, strict, null);
   /* The length property of the split method is 2. */
-  setJSProperty(splitFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, false));
+  setJSProperty(splitFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  /* name */
+  setJSProperty(splitFunctionObject, "name", newDataPropertyDescriptorFull("split", false, false, true));
   createBuiltInProperty(prototype, "split", splitFunctionObject);
 
   /* 21.1.3.18 String.prototype.startsWith ( searchString [, position ] ) */
   startsWithFunctionObject := CreateBuiltInFunctionObject(["searchString", "position"], "StringPrototypestartsWith", global, strict, null);
   /* The length property of the startsWith method is 1. */
-  setJSProperty(startsWithFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  setJSProperty(startsWithFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  /* name */
+  setJSProperty(startsWithFunctionObject, "name", newDataPropertyDescriptorFull("startsWith", false, false, true));
   createBuiltInProperty(prototype, "startsWith", startsWithFunctionObject);
 
   /* 21.1.3.19 String.prototype.substring ( start, end ) */
   substringFunctionObject:= CreateBuiltInFunctionObject( [ "start", "end" ], "StringPrototypesubstring", global, strict, null);
   /* The length property of the substring method is 2. */
-  setJSProperty(substringFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, false));
+  setJSProperty(substringFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  /* name */
+  setJSProperty(substringFunctionObject, "name", newDataPropertyDescriptorFull("substring", false, false, true));
   createBuiltInProperty(prototype, "substring", substringFunctionObject);
 
   /* 21.1.3.20 String.prototype.toLocaleLowerCase ( [ reserved1 [ , reserved2 ] ] ) */
   toLocaleLowerCaseFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetoLocaleLowerCase", global, strict, null);
   /* The length property of the toLocaleLowerCase method is 0. */
-  setJSProperty(toLocaleLowerCaseFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, false));
+  setJSProperty(toLocaleLowerCaseFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  /* name */
+  setJSProperty(toLocaleLowerCaseFunctionObject, "name", newDataPropertyDescriptorFull("toLocaleLowerCase", false, false, true));
   createBuiltInProperty(prototype, "toLocaleLowerCase", toLocaleLowerCaseFunctionObject);
 
   /* 21.1.3.21 String.prototype.toLocaleUpperCase ([ reserved1 [ , reserved2 ] ] ) */
   toLocaleUpperCaseFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetoLocaleUpperCase", global, strict, null);
   /* The length property of the toLocaleUpperCase method is 0. */
-  setJSProperty(toLocaleUpperCaseFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, false));
+  setJSProperty(toLocaleUpperCaseFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  /* name */
+  setJSProperty(toLocaleUpperCaseFunctionObject, "name", newDataPropertyDescriptorFull("toLocaleUpperCase", false, false, true));
   createBuiltInProperty(prototype, "toLocaleUpperCase", toLocaleUpperCaseFunctionObject);
 
   /* 21.1.3.22 String.prototype.toLowerCase ( ) */
   toLowerCaseFunctionObject:= CreateBuiltInFunctionObject( [], "StringPrototypetoLowerCase", global, strict, null);
+  /* length */
+  setJSProperty(toLowerCaseFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  /* name */
+  setJSProperty(toLowerCaseFunctionObject, "name", newDataPropertyDescriptorFull("toLowerCase", false, false, true));
   createBuiltInProperty(prototype, "toLowerCase", toLowerCaseFunctionObject);
 
   /* 21.1.3.23 String.prototype.toString ( ) */
   toStringFunctionObject:= CreateBuiltInFunctionObject( [], "StringPrototypetoString", global, strict, null);
+  /* length */
+  setJSProperty(toStringFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  /* name */
+  setJSProperty(toStringFunctionObject, "name", newDataPropertyDescriptorFull("toString", false, false, true));
   createBuiltInProperty(prototype, "toString", toStringFunctionObject);
 
   /* 21.1.3.24 String.prototype.toUpperCase ( ) */
   toUpperCaseFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetoUpperCase", global, strict, null);
+  /* length */
+  setJSProperty(toUpperCaseFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  /* name */
+  setJSProperty(toUpperCaseFunctionObject, "name", newDataPropertyDescriptorFull("toUpperCase", false, false, true));
   createBuiltInProperty(prototype, "toUpperCase", toUpperCaseFunctionObject);
 
   /* 21.1.3.25 String.prototype.trim ( ) */
   trimFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetrim", global, strict, null);
+  /* length */
+  setJSProperty(trimFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  /* name */
+  setJSProperty(trimFunctionObject, "name", newDataPropertyDescriptorFull("trim", false, false, true));
   createBuiltInProperty(prototype, "trim", trimFunctionObject);
 
   /* 21.1.3.26 String.prototype.valueOf ( ) */
   valueOfFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypevalueOf", global, strict, null);
+  /* length */
+  setJSProperty(valueOfFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  /* name */
+  setJSProperty(valueOfFunctionObject, "name", newDataPropertyDescriptorFull("valueOf", false, false, true));
   createBuiltInProperty(prototype, "valueOf", valueOfFunctionObject);
 
   /* 21.1.3.27 String.prototype [ @@iterator ]( ) */
-  /* Martelada Provisoria */
-  /*   newlyConstructedObject.IteratorFunction := "CreateMapIteratorJS"; */
-  CreateStringIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateStringIteratorJS", global, strict, 1.);
-  descriptor := newDataPropertyDescriptorFull(CreateStringIteratorJSObject, true, false, true);
-  setJSProperty(prototype, "IteratorFunction", descriptor); 
+  iteratorFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypeiterator", |global|, false, null);
+  /* length */
+  setJSProperty(iteratorFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
   /* The value of the name property of this function is "[Symbol.iterator]". */
-  /* TODO */
+  setJSProperty(iteratorFunctionObject, "name", newDataPropertyDescriptorFull("[Symbol.iterator]", false, false, true));
+  createBuiltInProperty(prototype, "@@iterator", iteratorFunctionObject);
+
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
   /* 21.1.4 Properties of String Instances */
@@ -352,9 +437,9 @@ function StringFromCodePoint(global, this, strict, args){
     };
 
     /* f. Append the elements of the UTF16Encoding (10.1.1) of nextCP to the end of elements. */
-    cu := UTF16Encoding(int_of_float nextCP);
+    cu := UTF16Encoding(nextCP);
     elements := l_concat(elements, [cu]);
-    s := s_concat([s, int_to_string cu]);
+    s := s_concat([s, float_to_string cu]);
 
     /* g. Let nextIndex be nextIndex + 1. */
     nextIndex := nextIndex + 1
@@ -379,16 +464,16 @@ function StringRaw(global, this, strict, args){
   };
   
   /* 2. Let numberOfSubstitutions be the number of elements in substitutions. */
-  numberOfSubstitutions := l_len substitutions;
+  numberOfSubstitutions := int_to_float l_len substitutions;
 
   /* 3. Let cooked be ToObject(template). */
   cooked := ToObject(template);
-
+  
   /* 4. ReturnIfAbrupt(cooked). */
   @ReturnIfAbrupt(cooked);
 
   /* 5. Let raw be ToObject(Get(cooked, "raw")). */
-  raw := ToObject(Get(cooked, "raw"));
+  raw := ToObject(GetES6(cooked, "raw"));
 
   /* 6. ReturnIfAbrupt(raw). */
   @ReturnIfAbrupt(raw);
@@ -396,11 +481,12 @@ function StringRaw(global, this, strict, args){
   /* 7. Let literalSegments be ToLength(Get(raw, "length")). */
   literalSegments := ToLength(Get(raw, "length"));
 
+
   /* 8. ReturnIfAbrupt(literalSegments). */
   @ReturnIfAbrupt(literalSegments);
 
   /* 9. If literalSegments ≤ 0, return the empty string. */
-  if (literalSegments <= 0){
+  if (literalSegments <= 0.){
     return ""
   };
 
@@ -409,7 +495,7 @@ function StringRaw(global, this, strict, args){
   s := "";
 
   /* 11. Let nextIndex be 0. */
-  nextIndex := 0;
+  nextIndex := 0.;
 
   /* 12. Repeat */
   while (true){
@@ -417,7 +503,7 @@ function StringRaw(global, this, strict, args){
     nextKey := ToString(nextIndex);
 
     /* b. Let nextSeg be ToString(Get(raw, nextKey)). */
-    nextSeg := ToString(Get(raw, nextKey));
+    nextSeg := ToString(GetES6(raw, nextKey));
 
     /* c. ReturnIfAbrupt(nextSeg). */
     @ReturnIfAbrupt(nextSeg);
@@ -427,7 +513,7 @@ function StringRaw(global, this, strict, args){
     s := s_concat([s, nextSeg]);
 
     /* e. If nextIndex + 1 = literalSegments, then */
-    if (nextIndex + 1 = literalSegments){
+    if (nextIndex + 1. = literalSegments){
       /* i. Return the String value whose code units are, in order, the elements in the List stringElements. 
       If stringElements has no elements, the empty string is returned. */
       return s
@@ -435,7 +521,7 @@ function StringRaw(global, this, strict, args){
 
     /* f. If nextIndex < numberOfSubstitutions, let next be substitutions[nextIndex]. */
     if (nextIndex < numberOfSubstitutions){
-      next := l_nth(substitutions, nextIndex)
+      next := l_nth(substitutions, int_of_float nextIndex)
     }
     /* g. Else, let next be the empty String. */
     else{
@@ -453,7 +539,7 @@ function StringRaw(global, this, strict, args){
     s := s_concat([s, nextSub]);
 
     /* k. Let nextIndex be nextIndex + 1. */
-    nextIndex := nextIndex + 1
+    nextIndex := nextIndex + 1.
   } 
 };
 
@@ -468,7 +554,7 @@ function thisStringValue(value){
   };
 
   /* 2. If Type(value) is Object and value has a [[StringData]] internal slot, then */
-  if ((Type(value) = "Object") && ("StringData" in_obj value)){
+  if ((Type(value) = "Object") &&& ("StringData" in_obj value)){
     /* a. Assert: value’s [[StringData]] internal slot is a String value. */
     assert(Type(value.StringData) = "String");
 
@@ -721,8 +807,6 @@ function StringPrototypeendsWith(global, this, strict, args){
 
 /* 21.1.3.7 String.prototype.includes ( searchString [ , position ] ) */
 function StringPrototypeincludes(global, this, strict, args){
-  print "ananas";
-
   searchString := l_nth(args, 0);
   position := getOptionalParam(args, 1);
 
@@ -1500,7 +1584,7 @@ function StringPrototypeSplit(global, this, strict, args){
     /* c. If splitter is not undefined , then */
     if (!(splitter = 'undefined)){
       /* i. Return Call(splitter, separator, «‍O, limit»). */
-      return Call(null, null, splitter, separator, [O, limit])
+      return Call('null, 'null, splitter, separator, [O, limit])
     }
   };
     
@@ -1512,26 +1596,26 @@ function StringPrototypeSplit(global, this, strict, args){
 
   /* 6. Let A be ArrayCreate(0). */
   /* A := ArrayCreate(0); */
-  A := ArrayConstructor(global, null, strict, []);
+  A := ArrayConstructor(global, 'null, strict, []);
 
   /* 7. Let lengthA be 0. */
-  lengthA := 0;
+  lengthA := 0.;
 
   /* 8. If limit is undefined, let lim = 253–1; else let lim = ToLength(limit). */
   if (limit = 'undefined){
-    lim := ((2. ** 53.) - 1.)
+    lim := (2. ** 53.) - 1.
   } else{
-    lim := int_of_float ToLength(limit)
+    lim := ToLength(limit)
   };
 
   /* 9. ReturnIfAbrupt(lim). */
   @ReturnIfAbrupt(lim);
 
   /* 10. Let s be the number of elements in S. */
-  s := s_len_u S;
+  s := int_to_float (s_len_u S);
 
   /* 11. Let p = 0. */
-  p := 0;
+  p := 0.;
 
   /* 12. Let R be ToString(separator). */
   R := ToString(separator);
@@ -1540,7 +1624,7 @@ function StringPrototypeSplit(global, this, strict, args){
   @ReturnIfAbrupt(R);
 
   /* 14. If lim = 0, return A. */
-  if (lim = 0){
+  if (lim = 0.){
     return A
   };
 
@@ -1548,6 +1632,7 @@ function StringPrototypeSplit(global, this, strict, args){
   if (separator = 'undefined){
     /* a. Perform CreateDataProperty(A, "0", S). */
     CreateDataProperty(A, "0", S);
+    setJSProperty(A, "length", newDataPropertyDescriptorFull(1., true, false, false));
 
     /* b. Assert: The above call will never result in an abrupt completion. */
     /* ???? */
@@ -1557,9 +1642,9 @@ function StringPrototypeSplit(global, this, strict, args){
   };
     
   /* 16. If s = 0, then */
-  if (s = 0){
+  if (s = 0.){
     /* a. Let z be SplitMatch(S, 0, R). */
-    z := SplitMatch(S, 0, R);
+    z := SplitMatch(S, 0., R);
 
     /* b. If z is not false, return A. */
     if (!(z = false)){
@@ -1568,6 +1653,7 @@ function StringPrototypeSplit(global, this, strict, args){
 
     /* c. Perform CreateDataProperty(A, "0", S). */
     CreateDataProperty(A, "0", S);
+    setJSProperty(A, "length", newDataPropertyDescriptorFull(1., true, false, false));
 
     /* d. Assert: The above call will never result in an abrupt completion. */
     /* ???? */
@@ -1586,13 +1672,13 @@ function StringPrototypeSplit(global, this, strict, args){
 
     /* b. If e is false, let q = q+1. */
     if (e = false){
-      q := q + 1
+      q := q + 1.
     }
     /* c. Else e is an integer index into S, */
     else{
       /* i. If e = p, let q = q+1. */
       if (e = p){
-        q := q + 1
+        q := q + 1.
       }
       /* ii. Else e ≠ p, */   
       else{
@@ -1601,12 +1687,13 @@ function StringPrototypeSplit(global, this, strict, args){
 
         /* 2. Perform CreateDataProperty(A, ToString(lengthA), T). */
         CreateDataProperty(A, ToString(lengthA), T);
+        setJSProperty(A, "length", newDataPropertyDescriptorFull(lengthA + 1., true, false, false));
 
         /* 3. Assert: The above call will never result in an abrupt completion. */
         /* ???? */
 
         /* 4. Increment lengthA by 1. */
-        lengthA := lengthA + 1;
+        lengthA := lengthA + 1.;
 
         /* 5. If lengthA = lim, return A. */
         if (lengthA = lim){
@@ -1623,10 +1710,11 @@ function StringPrototypeSplit(global, this, strict, args){
   };
     
   /* 19. Let T be a String value equal to the substring of S consisting of the code units at indices p (inclusive) through s (exclusive). */
-  T := s_substr_u(S, p, q);
+  T := StringPrototypesubstring(global, S, strict, [p, q]);
   
   /* 20. Perform CreateDataProperty(A, ToString(lengthA), T). */
   CreateDataProperty(A, ToString(lengthA), T);
+  setJSProperty(A, "length", newDataPropertyDescriptorFull(lengthA + 1., true, false, false));
 
   /* 21. Assert: The above call will never result in an abrupt completion. */
   /* ???? */
@@ -1641,10 +1729,10 @@ function SplitMatch(S, q, R){
   assert(Type(R) = "String");
 
   /* 2. Let r be the number of code units in R. */
-  r := s_len_u R;
+  r := int_to_float (s_len_u R);
 
   /* 3. Let s be the number of code units in S. */
-  s := s_len_u S;
+  s := int_to_float (s_len_u S);
 
   /* 4. If q+r > s, return false. */
   if (q + r > s){
@@ -1653,14 +1741,14 @@ function SplitMatch(S, q, R){
   
   /* 5. If there exists an integer i between 0 (inclusive) and r (exclusive) such that the 
   code unit at index q+i of S is different from the code unit at index i of R, return false. */
-  i := 0;
+  i := 0.;
   while (!(i = r)) {
-    posA := s_nth_u(S, q + i);
-    posB := s_nth_u(R, i);
+    posA := s_nth_u(S, int_of_float (q + i));
+    posB := s_nth_u(R, int_of_float (i));
     if (!(posA = posB)) {
       return false
     };
-    i := i + 1
+    i := i + 1.
   };
 
   /* 6. Return q+r. */
@@ -1917,7 +2005,7 @@ function StringPrototypevalueOf (global, this, strict, args) {
  * iterates over the code points of a String value, returning each code point as a 
  * String value. 
  */
-function StringIteratorPrototype(global, this, strict){
+function StringPrototypeiterator(global, this, strict, args){
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
 
@@ -1928,7 +2016,7 @@ function StringIteratorPrototype(global, this, strict){
   @ReturnIfAbrupt(S);
 
   /* 4. Return CreateStringIterator(S). */
-  return CreateStringIterator(S)
+  return CreateStringIterator(S, getStringIteratorPrototype(strict))
 };
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -1954,45 +2042,25 @@ function StringIteratorPrototype(global, this, strict){
   * objects are created by calling certain methods of String instance 
   * objects.
 **/
-function initStringIteratorPrototype(global, objectPrototype, strict) { 
-  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(prototype);
-
-  nextObject := CreateBuiltInFunctionObject([], "StringIteratorPrototypeNext", global, strict, null);
-  descriptor := newDataPropertyDescriptorFull(nextObject, true, false, true);
-  setJSProperty(prototype, "next", descriptor);
-
-  CreateStringIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateStringIteratorFromIterator", global, strict, 1.);
-  descriptor := newDataPropertyDescriptorFull(CreateStringIteratorJSObject, true, false, true);
-  setJSProperty(prototype, "IteratorFunction", descriptor); 
-
-  |StringIteratorPrototype| := prototype; 
-  return null
-}; 
-
-function CreateStringIteratorFromIterator(global, this, strict, items) {
-  return this 
-};
-
 /* 21.1.5.1 CreateStringIterator Abstract Operation */
-function CreateStringIterator(string){
+function CreateStringIterator(string, proto){
   /* 1. Assert: Type(string) is String. */
   assert(Type(string) = "String");
 
   /* 2. Let iterator be ObjectCreate(%StringIteratorPrototype%, «[[IteratedString]], [[StringIteratorNextIndex]] »). */
-  iterator := createStringIteratorObject(); 
-
+  iterator := createStringIteratorObject();
+  
   /* 3. Set iterator’s [[IteratedString]] internal slot to string. */
   iterator.IteratedString := string;
 
   /* 4. Set iterator’s [[StringIteratorNextIndex]] internal slot to 0. */
-  iterator.StringIteratorNextIndex := 0;
+  iterator.StringIteratorNextIndex := (0.);
 
   /* 5. Return iterator. */
   return iterator
 };
 
-/* AUXILIARY FUNCTION */
+/* Auxiliary function - TO BE DELETED LATER */
 function createStringIteratorObject() {
   newlyConstructedObject := NewECMAScriptObject();
   setAllInternalMethodsOfObject(newlyConstructedObject);
@@ -2004,14 +2072,39 @@ function createStringIteratorObject() {
   return newlyConstructedObject
 };
 
-function isStringIteratorInstance(obj) {
-  return ("String" in_obj obj) &&& ("StringIteratorNextIndex" in_obj obj) &&& ("IteratedString" in_obj obj)
+/** 21.1.5.2 The %StringIteratorPrototype% Object 
+ * 21.1.5.2.1 %StringIteratorPrototype%.next ( )
+ * 21.1.5.2.2 %StringIteratorPrototype% [ @@toStringTag ]
+ */
+
+function getStringIteratorPrototype(strict) {
+  refString := newPropertyReference(|global|, "StringIteratorPrototype", strict);
+  StringObject := GetValue(refString);
+  refStringProto := newPropertyReference(StringObject, "prototype", strict);
+  StringProto := GetValue(refStringProto);
+
+  return StringProto
 };
 
-/** 21.1.5.2 The %StringIteratorPrototype% Object 
-    21.1.5.2.1 %StringIteratorPrototype%.next ( )
-    21.1.5.2.2 %StringIteratorPrototype% [ @@toStringTag ]
-**/
+function initStringIteratorPrototype(global, objectPrototype, strict) { 
+  prototype := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(prototype);
+
+  setInternalProperty(prototype, "Class", "Object");
+  setInternalProperty(prototype, "Prototype", objectPrototype);
+
+  /* 21.1.5.2.1 %StringIteratorPrototype%.next ( ) */
+  nextFunctionObject := CreateBuiltInFunctionObject([], "StringIteratorPrototypeNext", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(nextFunctionObject, true, false, true);
+  setJSProperty(prototype, "next", descriptor);
+
+  /* 21.1.5.2.2 %StringIteratorPrototype% [ @@toStringTag ] */
+  setJSProperty(prototype, "@@toStringTag", newDataPropertyDescriptorFull("String Iterator", false, false, true));
+
+  |StringIteratorPrototype| := prototype; 
+  
+  return prototype
+}; 
 
 /* 21.1.5.2.1 %StringIteratorPrototype%.next ( ) */
 function StringIteratorPrototypeNext(global, this, strict, args){
@@ -2037,7 +2130,7 @@ function StringIteratorPrototypeNext(global, this, strict, args){
   };
 
   /* 6. Let position be the value of the [[StringIteratorNextIndex]] internal slot of O. */
-  position := O.StringIteratorNextIndex;
+  position := int_of_float O.StringIteratorNextIndex;
 
   /* 7. Let len be the number of elements in s. */
   len := s_len_u s;
@@ -2078,7 +2171,7 @@ function StringIteratorPrototypeNext(global, this, strict, args){
   resultSize := s_len_u resultString;
 
   /* 13. Set the value of the [[StringIteratorNextIndex]] internal slot of O to position+ resultSize. */
-  O.StringIteratorNextIndex := position + resultSize;
+  setJSProperty(O, "StringIteratorNextIndex", newDataPropertyDescriptorFull(int_to_float(position + resultSize), true, false, false));
 
   /* 14. Return CreateIterResultObject(resultString, false). */
   return CreateIterResultObject(resultString, false)
