@@ -213,7 +213,7 @@ let make_fresh_var_generator (pref : string) : (unit -> string) =
 
 (* Taken from: https://stackoverflow.com/a/42431362/3049315 *)
 let utf8encode s =
-  let prefs = [| 0x0; 0xc0; 0xe0 |] in
+  let prefs = [| 0x0; 0xc0; 0xe0; 0xf0 |] in
   let s1 n = String.make 1 (Char.chr n) in
   let rec ienc k sofar resid =
       let bct = if k = 0 then 7 else 6 - k in
@@ -225,9 +225,9 @@ let utf8encode s =
   ienc 0 "" (Stdlib.int_of_string ("0x" ^ s))
 
 let utf8decode s =
-  let re = Str.regexp "\\\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]" in
+  let re = Str.regexp "\\\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?" in
     let subst = function
-    | Str.Delim u -> utf8encode (String.sub u 2 4)
+    | Str.Delim u -> utf8encode (String.sub u 2 ((String.length u)-2))
     | Str.Text t -> t
     in
     String.concat "" (List.map subst (Str.full_split re s))
