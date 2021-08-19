@@ -114,7 +114,9 @@
                 "Infinity"        , FLOAT (float_of_string "infinity");
                 "lambda"          , LAMBDA;
                 "extern"          , EXTERN; 
-                "to_precision"    , TO_PRECISION
+                "to_precision"    , TO_PRECISION;
+                "to_exponential"    , TO_EXPONENTIAL;
+                "to_fixed"    , TO_FIXED
                 ]
 
   exception Syntax_error of string

@@ -18,7 +18,7 @@ function __internalLog(globalObject, this, strict, params) {
   str := l_nth(params, 0);
 
   if (!(typeof str = __$Str)) {
-    str := ToString(str)
+    str := ToPropertyKey(str)
   };
   print s_concat ["JS Log: ", str];
 

@@ -96,6 +96,8 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | InList   -> Oper.list_in (v1, v2)
   | InObj    -> raise(Except "Not expected")
   | ToPrecision -> Oper.to_precision (v1, v2)
+  | ToExponential -> Oper.to_exponential (v1, v2)
+  | ToFixed -> Oper.to_fixed (v1, v2)
   | _        -> Oper.apply_bopt_oper op v1 v2
 
 let eval_triopt_expr (op : Oper.topt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : Val.t =

@@ -35,6 +35,8 @@ type bopt = Plus
           | Min
           | Pow
           | ToPrecision
+          | ToExponential
+          | ToFixed
 
 type topt = Ssubstr
           | SsubstrU
@@ -178,11 +180,22 @@ let is_true (v : Val.t) : bool = match v with
 
 let to_precision (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt x, Int y) -> 
-      let res = Float.round(x*.(10.**(float_of_int y)))/.(10.**(float_of_int y)) in 
+      let res = Float.round(x*.(10.**(float_of_int (y - 1))))/.(10.**(float_of_int (y - 1))) in 
       Flt res
   | _                -> invalid_arg "Exception in Oper.to_precision: this operation is only applicable to Float and Int arguments"
 
+let to_exponential (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | (Flt x, Int y) -> 
+      let exp = Float.round(Float.log10(Float.abs(x))) in
+        let num = Float.round((x/.(10.**exp))*.(10.**(float_of_int y)))/.(10.**(float_of_int y)) in 
+          Str ((string_of_float num)^"e"^(string_of_int (int_of_float exp)))
+  | _                -> invalid_arg "Exception in Oper.to_exponential: this operation is only applicable to Float and Int arguments"
 
+let to_fixed (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | (Flt x, Int y) -> 
+      let res = Float.round(x*.(10.**(float_of_int y)))/.(10.**(float_of_int y)) in 
+      Flt res
+  | _                -> invalid_arg "Exception in Oper.to_fixed: this operation is only applicable to Float and Int arguments"
 
 let typeof (v : Val.t) : Val.t = match v with
   | Int _    -> Type (Type.IntType)
@@ -573,6 +586,8 @@ let str_of_binopt_single (op : bopt) : string = match op with
   | Min      -> "min"
   | Pow      -> "**"
   | ToPrecision -> "to_precision"
+  | ToExponential -> "to_exponential"
+  | ToFixed -> "to_fixed"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
@@ -608,6 +623,8 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Min      -> "min(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Pow      -> e1 ^ " ** " ^ e2
   | ToPrecision -> "to_precision(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ToExponential -> "to_exponential(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ToFixed -> "to_fixed(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_triopt (op : topt) (e1 : string) (e2 : string) (e3 : string) : string = match op with
   | Ssubstr  -> "s_substr(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
@@ -688,7 +705,9 @@ let bopt_to_json (op : bopt) : string =
      | Max      -> Printf.sprintf "Max\" }"
      | Min      -> Printf.sprintf "Min\" }"
      | Pow      -> Printf.sprintf "Pow\" }"
-     | ToPrecision -> Printf.sprintf "To_Precision\" }")
+     | ToPrecision -> Printf.sprintf "To_Precision\" }"
+     | ToExponential -> Printf.sprintf "To_Exponential\" }"
+     | ToFixed -> Printf.sprintf "To_Fixed\" }")
 
 let topt_to_json (op : topt) : string =
   Printf.sprintf "{ \"type\" : \"triopt\", \"value\" : \"%s"
