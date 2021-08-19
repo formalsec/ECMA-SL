@@ -146,6 +146,7 @@ let white   = (' '|'\t')+
 let newline = '\r'|'\n'|"\r\n"
 let loc     = "$loc_"(digit|letter|'_')+
 let hex_digit = (digit | ['a' - 'f' 'A' - 'F'])
+let unicode_cp = "0x" hex_digit hex_digit? hex_digit? hex_digit? hex_digit? hex_digit?
 
 (*
   The third section is
@@ -212,6 +213,10 @@ rule read =
   | var            { VAR (Lexing.lexeme lexbuf) }
   | symbol         { SYMBOL (String_Utils.chop_first_char (Lexing.lexeme lexbuf)) }
   | loc            { LOC (Lexing.lexeme lexbuf) }
+  | unicode_cp     { let s = (Lexing.lexeme lexbuf) in
+                       let uc = (String_Utils.utf8encode (String.sub s 2 (String.length(s) - 2))) in
+                         INT (String_Utils.to_char_code_u uc)
+                    }
   | "/*"           { read_comment lexbuf }
   | _              { raise (create_syntax_error "Unexpected char" lexbuf) }
   | eof            { EOF }
@@ -237,7 +242,7 @@ and read_string buf =
                            Buffer.add_string buf (String_Utils.hexdecode h);
                            read_string buf lexbuf
                          }
-  | '\\' 'u' hex_digit hex_digit hex_digit hex_digit as h
+  | '\\' 'u' hex_digit hex_digit hex_digit hex_digit hex_digit? hex_digit? as h
                          {
                            Buffer.add_string buf (String_Utils.utf8decode h);
                            read_string buf lexbuf
