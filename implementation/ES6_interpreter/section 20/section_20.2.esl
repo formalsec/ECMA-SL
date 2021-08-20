@@ -454,18 +454,20 @@ function MathFRound(globalObject, this, strict, params) {
   @ReturnIfAbrupt(x);
   /* When Math.fround is called with argument x the following steps are taken: */
   /* 1. If x is NaN, return NaN. */
+  if (x = NaN) {
+    return NaN
   /* 2. If x is one of +0, −0, +∞, −∞, return x. */
+  } elif (isZero(x) || isMinusZero(x) || x = Infinity || x = -Infinity) {
+    return x
+  };
   /* 3. Let x32 be the result of converting x to a value in IEEE 754-2008 binary32 format using roundTiesToEven. */
   /* 4. Let x64 be the result of converting x32 to a value in IEEE 754-2008 binary64 format. */
   /* 5. Return the ECMAScript Number value corresponding to x64. */
   return
 };
 
-/* TODO 20.2.2.18 Math.hypot ( value1 , value2 , …values ) */
+/* 20.2.2.18 Math.hypot ( value1 , value2 , …values ) */
 function MathHypot(globalObject, this, strict, params) {
-  x := l_nth(params, 0);
-  x := ToNumber(x);
-  @ReturnIfAbrupt(x);
   /* Math.hypot returns an implementation-dependent approximation of the square root of the sum of squares of its arguments. */
   /* If no arguments are passed, the result is +0. */
   /* If any argument is +∞, the result is +∞. */
@@ -476,7 +478,20 @@ function MathHypot(globalObject, this, strict, params) {
   /* NOTE 
   Implementations should take care to avoid the loss of precision from overflows and underflows that are prone to occur in naive implementations when this function is called with two or */
   /* more arguments. */
-  return
+  if (l_len params = 0) {
+    return 0.
+  };
+  i := 1;
+  len := l_len params;
+  sum := 0;
+  while(i < len) {
+    value := l_nth(params, i);
+    value := ToNumber(value);
+    @ReturnIfAbrupt(value);
+    sum := sum + (value ** 2);
+    i := i + 1
+  };
+  return sqrt sum
 };
 
 /* 20.2.2.19 Math.imul ( x, y ) */
@@ -661,8 +676,9 @@ function MathRound(globalObject, this, stric, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
-  /* Returns the Number value that is closest to x and is equal to a mathematical integer. If two integer Number values are equally close to x, then the result is the Number value that is */
-  /* closer to +∞. If x is already an integer, the result is x. */
+  /* Returns the Number value that is closest to x and is equal to a mathematical integer. 
+  If two integer Number values are equally close to x, then the result is the Number value that is closer to +∞. 
+  If x is already an integer, the result is x. */
   /* If x is NaN, the result is NaN. */
   /* If x is +0, the result is +0. */
   /* If x is −0, the result is −0. */
@@ -778,7 +794,7 @@ function MathTanh(globalObject, this, strict, params) {
   return tanh x
 };
 
-/* TODO 20.2.2.35 Math.trunc ( x ) */
+/* 20.2.2.35 Math.trunc ( x ) */
 function MathTrunc(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
@@ -791,5 +807,5 @@ function MathTrunc(globalObject, this, strict, params) {
   /* If x is ∞ the result is ∞ */
   /* If x is greater than 0 but less than 1, the result is +0. */
   /* If x is less than 0 but greater than −1, the result is −0. */
-  return
+  return int_of_float (-(ceil(-x)))
 }
