@@ -3,10 +3,10 @@
 
 /*---
 info: The Date.prototype has the property "getUTCMonth"
-es5id: 15.9.5_A13_T1
+esid: sec-properties-of-the-date-prototype-object
 description: The Date.prototype has the property "getUTCMonth"
 ---*/
 
-if(Date.prototype.hasOwnProperty("getUTCMonth") !== true){
-  $ERROR('#1: The Date.prototype has the property "getUTCMonth"');
+if (Date.prototype.hasOwnProperty("getUTCMonth") !== true) {
+  throw new Test262Error('#1: The Date.prototype has the property "getUTCMonth"');
 }

@@ -42,4 +42,4 @@ var subject = Object(Symbol('s'));
 
 assert.throws(TypeError, function() {
   Symbol.keyFor(subject);
-}, 'symbol object');
+}, 'symbol object'); //A função Type no KeyFor reconhece subject como Symbol, não como Object

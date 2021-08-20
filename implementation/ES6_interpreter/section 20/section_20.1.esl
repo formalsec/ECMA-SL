@@ -1,3 +1,8 @@
+/* 
+Note: Certain functions have an Alt version. It tries to follow the standard completely 
+(may not be fully implemented) 
+*/
+
 /* 20.1 Number Objects */
 function initNumberObject(global, objectPrototype, strict) {
   objNumberPrototype := initNumberPrototype(global, objectPrototype, strict);
@@ -33,12 +38,12 @@ function initNumberPrototype(global, objectPrototype, strict) {
 
   /* 20.1.3.4 Number.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ]) */
   toLocaleString := CreateBuiltInFunctionObject(["items"], "NumberPrototypeToLocaleString", global, strict, null);
-  setJSProperty(toFixed, "length", newDataPropertyDescriptorFull(0, true, false, false));
+  setJSProperty(toLocaleString, "length", newDataPropertyDescriptorFull(0, true, false, false));
   createBuiltInProperty(prototype, "toLocaleString", toLocaleString);
 
   /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
   toPrecision := CreateBuiltInFunctionObject(["precision"], "NumberPrototypeToPrecision", global, strict, null);
-  setJSProperty(toFixed, "length", newDataPropertyDescriptorFull(1, true, false, false));
+  setJSProperty(toPrecision, "length", newDataPropertyDescriptorFull(1, true, false, false));
   createBuiltInProperty(prototype, "toPrecision", toPrecision);
 
   /* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
@@ -255,6 +260,20 @@ function NumberConstructorIsSafeInteger(global, this, strict, items) {
 /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
 function NumberPrototypeToExponential(global, this, strict, items) {
   fractionDigits := l_nth(items, 0);
+  /* NumberValue(this value). */
+  x := thisNumberValue(this);
+  /* 2. ReturnIfAbrupt(x). */
+  @ReturnIfAbrupt(x);
+  if (fractionDigits = 'undefined) {
+    return to_exponential(x, (int_of_float fractionDigits))
+  } else {
+    return to_exponential(x, (int_of_float fractionDigits))
+  }
+};
+
+/* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
+function NumberPrototypeToExponentialAlt(global, this, strict, items) {
+  fractionDigits := l_nth(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
@@ -307,12 +326,12 @@ function NumberPrototypeToExponential(global, this, strict, items) {
   } else {
     /* a. If fractionDigits is not undefined, then */
     if (!(fractionDigits = 'undefined)) {
-      /* i. TODO Let e and n be integers such that 10f ≤ n < 10f+1 and for which the exact mathematical
+      /* i. Let e and n be integers such that 10f ≤ n < 10f+1 and for which the exact mathematical
       value of n × 10e – f – x is as close to zero as possible. If there are two such sets of e and n,
       pick the e and n for which n × 10e–f is larger. */
       /* b. Else fractionDigits is undefined, */
     } else {
-      /* i. TODO Let e, n, and f be integers such that f ≥ 0, 10f ≤ n < 10f+1,
+      /* i. Let e, n, and f be integers such that f ≥ 0, 10f ≤ n < 10f+1,
       the Number value for n × 10e – f is x, and f is as small as possible.
       Note that the decimal representation of n has f+1 digits, n is not divisible by 10,
       and the least significant digit of n is not necessarily uniquely determined by these criteria. */
@@ -356,9 +375,22 @@ function NumberPrototypeToExponential(global, this, strict, items) {
   return s_concat(s, m)
 };
 
-
 /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
 function NumberPrototypeToFixed(global, this, strict, items) {
+  fractionDigits := l_nth(items, 0);  
+  /* NumberValue(this value). */
+  x := thisNumberValue(this);
+  /* 2. ReturnIfAbrupt(x). */
+  @ReturnIfAbrupt(x);
+  if (fractionDigits = 'undefined) {
+    return to_fixed(x, 0)
+  } else {
+    return to_fixed(x, (int_of_float fractionDigits))
+  }
+};
+
+/* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
+function NumberPrototypeToFixedAlt(global, this, strict, items) {
   fractionDigits := l_nth(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
@@ -396,7 +428,7 @@ function NumberPrototypeToFixed(global, this, strict, items) {
     m := ToString(x)
     /* 10. Else x < 1021, */
   } else {
-    /* TODO a. Let n be an integer for which the exact mathematical value
+    /* a. Let n be an integer for which the exact mathematical value
     of n ÷ 10f – x is as close to zero as possible. 
     If there are two such n, pick the larger n. */
     /* b. If n = 0, let m be the String "0". 
@@ -454,6 +486,20 @@ function NumberPrototypeToLocaleString(global, this, strict, items) {
 /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
 function NumberPrototypeToPrecision(global, this, strict, items) {
   precision := l_nth(items, 0);
+  /* NumberValue(this value). */
+  x := thisNumberValue(this);
+  /* 2. ReturnIfAbrupt(x). */
+  @ReturnIfAbrupt(x);
+  if (precision = 'undefined) {
+    return x
+  } else {
+    return to_precision(x, (int_of_float precision))
+  }
+};
+
+/* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
+function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
+  precision := l_nth(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
@@ -503,12 +549,11 @@ function NumberPrototypeToPrecision(global, this, strict, items) {
     e := 0
   /* 12. Else x ≠ 0, */
   } else {
-    /* a. NOT IMPLEMENTED Let e and n be integers such that 10 p–1 ≤ n < 10 p and for which
+    /* a. Let e and n be integers such that 10 p–1 ≤ n < 10 p and for which
     the exact mathematical value of n × 10 e–p+1 – x is as close to zero as possible.
     If there are two such sets of e and n, pick the e and n for which n × 10 e–p+1 is larger. */
-    /* b. NOT IMPLEMENTED Let m be the String consisting of the digits of the decimal representation of n
+    /* b. Let m be the String consisting of the digits of the decimal representation of n
     (in order, with no leading zeroes). */
-    return to_precision(x, (int_of_float p))
   };
   /* 13. If e = p–1, return the concatenation of the Strings s and m. */
   if (e = (p - 1)) {
@@ -536,8 +581,21 @@ function NumberPrototypeToPrecision(global, this, strict, items) {
 };
 
 
-/* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
+/* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
 function NumberPrototypeToString(global, this, strict, items) {
+  if (!isNumberOrNumberObject(this)) {
+    throw TypeErrorConstructorInternal()
+  };
+  if (Type(this) = "Number") {
+    num := this
+  } else {
+    num := this.PrimitiveValue
+  };
+  return ToString(num)
+};
+
+/* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
+function NumberPrototypeToStringAlt(global, this, strict, items) {
   radix := l_nth(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
@@ -563,23 +621,10 @@ function NumberPrototypeToString(global, this, strict, items) {
   if (radixNumber = 10) {
     return ToString(x)
   };
-  /* 9. TODO Return the String representation of this Number value using the radix specified by radixNumber.
+  /* 9. Return the String representation of this Number value using the radix specified by radixNumber.
   Letters a-z are used for digits with values 10 through 35. The precise algorithm is implementation-dependent,
   however the algorithm should be a generalization of that specified in 7.1.12.1. */
   return
-};
-
-/* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
-function NumberPrototypeToStringES5(global, this, strict, items) {
-  if (!isNumberOrNumberObject(this)) {
-    throw TypeErrorConstructorInternal()
-  };
-  if (Type(this) = "Number") {
-    num := this
-  } else {
-    num := this.PrimitiveValue
-  };
-  return ToString(num)
 };
 
 
@@ -590,6 +635,7 @@ function NumberPrototypeValueOf(global, this, strict, items) {
   /* 2. Return x. */
   return x
 };
+
 
 /* Auxiliary Functions */
 

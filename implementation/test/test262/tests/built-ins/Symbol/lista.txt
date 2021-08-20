@@ -1,0 +1,21 @@
+Em standby (deve passar, faltam funções na harness que usam a API Reflect):
+test/test262/tests/built-ins/Symbol/is-constructor.js 
+test/test262/tests/built-ins/Symbol/for/not-a-constructor.js
+test/test262/tests/built-ins/Symbol/keyFor/not-a-constructor.js
+test/test262/tests/built-ins/Symbol/prototype/toString/not-a-constructor.js
+test/test262/tests/built-ins/Symbol/prototype/valueOf/not-a-constructor.js
+
+Em standby (classes ainda não definidas):
+test/test262/tests/built-ins/Symbol/species/subclassing.js
+
+Os restantes devem passar:
+test/test262/tests/built-ins/Symbol/keyFor/arg-non-symbol.js
+test/test262/tests/built-ins/Symbol/prototype/Symbol.toStringTag.js
+test/test262/tests/built-ins/Symbol/prototype/description/description-symboldescriptivestring.js
+test/test262/tests/built-ins/Symbol/prototype/description/descriptor.js
+test/test262/tests/built-ins/Symbol/prototype/description/this-val-non-symbol.js
+test/test262/tests/built-ins/Symbol/prototype/Symbol.toPrimitive/prop-desc.js
+test/test262/tests/built-ins/Symbol/prototype/Symbol.toPrimitive/redefined-symbol-wrapper-ordinary-toprimitive.js
+test/test262/tests/built-ins/Symbol/prototype/Symbol.toPrimitive/removed-symbol-wrapper-ordinary-toprimitive.js
+test/test262/tests/built-ins/Symbol/prototype/toString/toString.js
+test/test262/tests/built-ins/Symbol/species/builtin-getter-name.js

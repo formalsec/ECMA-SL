@@ -3,14 +3,14 @@
 
 /*---
 info: The Date.prototype property "setHours" has { DontEnum } attributes
-es5id: 15.9.5.34_A1_T2
+esid: sec-date.prototype.sethours
 description: Checking absence of DontDelete attribute
 ---*/
 
-if (delete Date.prototype.setHours  === false) {
-  $ERROR('#1: The Date.prototype.setHours property has not the attributes DontDelete');
+if (delete Date.prototype.setHours === false) {
+  throw new Test262Error('#1: The Date.prototype.setHours property has not the attributes DontDelete');
 }
 
 if (Date.prototype.hasOwnProperty('setHours')) {
-  $ERROR('#2: The Date.prototype.setHours property has not the attributes DontDelete');
+  throw new Test262Error('#2: The Date.prototype.setHours property has not the attributes DontDelete');
 }

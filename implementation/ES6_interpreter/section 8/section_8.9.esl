@@ -8,7 +8,10 @@
     The term "abrupt completion" refers to any completion with a type other than normal.
 */
 function isAnAbruptCompletion (completion) {
-  if (!(getCompletionType(completion) = 'normal)) {
+  if (!(Type(completion) = "Completion")) {
+    return false
+  }
+  elif (!(getCompletionType(completion) = 'normal)) {
     return true
   };
 

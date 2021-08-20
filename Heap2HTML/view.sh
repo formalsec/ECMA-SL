@@ -26,6 +26,8 @@ findAndReplace() {
 	sed -i "s/ nan\b/ \"NaN\"/g" $1
 	sed -i "s/ -inf\b/ \"-Infinity\"/g" $1
 	sed -i "s/ inf\b/ \"Infinity\"/g" $1
+	sed -i "s/(/[/g" $1
+	sed -i "s/)/]/g" $1
 	echo -e "Done."
 }
 
