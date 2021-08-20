@@ -1,0 +1,42 @@
+function buildAST (___internal_esl_global) {
+__n0 := {  };
+__n0["type"] := "Program";
+__n0["sourceType"] := "script";
+__n2 := {  };
+__n2["type"] := "ExpressionStatement";
+__n3 := {  };
+__n3["type"] := "Literal";
+__n3["value"] := "use strict";
+__n3["raw"] := "\"use strict\"";
+__n2["expression"] := __n3;
+__n2["directive"] := "use strict";
+__n4 := {  };
+__n4["type"] := "ExpressionStatement";
+__n5 := {  };
+__n5["type"] := "CallExpression";
+__n6 := {  };
+__n6["type"] := "Identifier";
+__n6["name"] := "Function";
+__n5["callee"] := __n6;
+__n8 := {  };
+__n8["type"] := "Literal";
+__n8["value"] := "a,a";
+__n8["raw"] := "'a,a'";
+__n9 := {  };
+__n9["type"] := "Literal";
+__n9["value"] := "return a;";
+__n9["raw"] := "'return a;'";
+__n7 := [ __n8, __n9 ];
+__n5["arguments"] := __n7;
+__n4["expression"] := __n5;
+__n1 := [ __n2, __n4 ];
+__n0["body"] := __n1;
+__n0["optimised"] := true;
+__n10 := [  ];
+__n0["variableDeclarations"] := __n10;
+__n11 := [  ];
+__n0["functionDeclarations"] := __n11;
+__n0["codeType"] := "global";
+__n0["strict"] := true;
+return ( false, __n0 )
+}
