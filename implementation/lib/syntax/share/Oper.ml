@@ -96,6 +96,15 @@ type uopt = Neg
           | Tan
           | ParseNumber
           | ParseString
+          | Acosh
+          | Asinh
+          | Atanh
+          | Cbrt
+          | Clz32
+          | Cosh
+          | Log_2
+          | Sinh
+          | Tanh
 
 
 type nopt = ListExpr
@@ -550,6 +559,15 @@ let str_of_unopt (op : uopt) : string = match op with
   | Tan           -> "tan"
   | ParseNumber   -> "parse_number"
   | ParseString   -> "parse_string"
+  | Acosh         -> "acosh"   
+  | Asinh         -> "asinh"
+  | Atanh         -> "atanh"
+  | Cbrt          -> "cbrt"
+  | Clz32         -> "clz32"
+  | Cosh          -> "cosh"
+  | Log_2          -> "log_2"
+  | Sinh          -> "sinh"
+  | Tanh          -> "tanh"
 
 
 let str_of_binopt_single (op : bopt) : string = match op with
@@ -660,6 +678,15 @@ let apply_uopt_oper (oper : uopt) (v : Val.t) : Val.t = match oper with
   | Sin    -> unary_float_call Float.sin v    "Sine"
   | Sqrt   -> unary_float_call Float.sqrt v   "Square root"
   | Tan    -> unary_float_call Float.tan v    "Tangent"
+  | Acosh  -> unary_float_call Float.tan v    "Acosh"  (* TODO *)
+  | Asinh  -> unary_float_call Float.tan v    "Asinh"  (* TODO *)
+  | Atanh  -> unary_float_call Float.tan v    "Atanh" (* TODO *)
+  | Cbrt   -> unary_float_call Float.tan v    "Cbrt" (* TODO *)
+  | Clz32  -> unary_float_call Float.tan v    "Clz32" (* TODO *)
+  | Cosh   -> unary_float_call Float.cosh v    "Cosh" 
+  | Log_2   -> unary_float_call Float.tan v    "Base-2 Logarithm" (* TODO *)
+  | Sinh   -> unary_float_call Float.sinh v    "Sinh" 
+  | Tanh   -> unary_float_call Float.tanh v    "Tanh" 
   | _      -> invalid_arg ("Exception in Oper.apply_uopt_oper: unexpected unary operator: " ^ (str_of_unopt oper))
 
 let apply_bopt_oper (oper : bopt) (v1 : Val.t) (v2 : Val.t) : Val.t = match oper with
@@ -781,5 +808,13 @@ let uopt_to_json (op : uopt) : string =
      | Sqrt          -> Printf.sprintf "Sqrt\" }"
      | Tan           -> Printf.sprintf "Tan\" }"
      | ParseNumber   -> Printf.sprintf "ParseNumber\" }"
-     | ParseString   -> Printf.sprintf "ParseString\" }")
-
+     | ParseString   -> Printf.sprintf "ParseString\" }"
+     | Acosh         -> Printf.sprintf "Acosh\" }"
+     | Asinh         -> Printf.sprintf "Asinh\" }"
+     | Atanh         -> Printf.sprintf "Atanh\" }"
+     | Cbrt          -> Printf.sprintf "Cbrt\" }"
+     | Clz32         -> Printf.sprintf "Clz32\" }"
+     | Cosh          -> Printf.sprintf "Cosh\" }"
+     | Log_2          -> Printf.sprintf "Log2\" }"
+     | Sinh          -> Printf.sprintf "Sinh\" }"
+     | Tanh          -> Printf.sprintf "Tanh\" }")

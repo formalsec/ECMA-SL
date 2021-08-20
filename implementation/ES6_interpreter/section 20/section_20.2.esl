@@ -221,7 +221,7 @@ function MathACos(globalObject, this, stric, params) {
   return acos x
 };
 
-/* TODO 20.2.2.3 Math.acosh( x ) */
+/* 20.2.2.3 Math.acosh( x ) */
 function MathACosh(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
@@ -232,7 +232,7 @@ function MathACosh(globalObject, this, strict, params) {
   /* If x is less than 1, the result is NaN. */
   /* If x is 1, the result is +0. */
   /* If x is +∞, the result is +∞. */
-  return
+  return acosh x
 };
 
 /* 20.2.2.4 Math.asin ( x ) */
@@ -249,7 +249,7 @@ function MathASin(globalObject, this, stric, params) {
   return asin x
 };
 
-/* TODO 20.2.2.5 Math.asinh( x ) */
+/* 20.2.2.5 Math.asinh( x ) */
 function MathASinh(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
@@ -260,7 +260,7 @@ function MathASinh(globalObject, this, strict, params) {
   /* If x is −0, the result is −0. */
   /* If x is +∞, the result is +∞. */
   /* If x is −∞, the result is −∞. */
-  return
+  return asinh x
 };
 
 /* 20.2.2.6 Math.atan ( x ) */
@@ -277,7 +277,7 @@ function MathATan(globalObject, this, stric, params) {
   return atan x
 };
 
-/* TODO 20.2.2.7 Math.atanh( x ) */
+/* 20.2.2.7 Math.atanh( x ) */
 function MathATanh(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
@@ -290,7 +290,7 @@ function MathATanh(globalObject, this, strict, params) {
   /* If x is +1, the result is +∞. */
   /* If x is +0, the result is +0. */
   /* If x is 0 the result is 0 */
-  return 
+  return atanh(x)
 };
 
 /* 20.2.2.8 Math.atan2 ( y, x ) */
@@ -328,7 +328,7 @@ function MathATan2(globalObject, this, stric, params) {
   return atan2(y, x)
 };
 
-/* TODO 20.2.2.9 Math.cbrt ( x ) */
+/* 20.2.2.9 Math.cbrt ( x ) */
 function MathCBRT(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
@@ -339,7 +339,7 @@ function MathCBRT(globalObject, this, strict, params) {
   /* If x is −0, the result is −0. */
   /* If x is +∞, the result is +∞. */
   /* If x is −∞, the result is −∞. */
-  return 
+  return cbrt x
 };
 
 /* 20.2.2.10 Math.ceil ( x ) */
@@ -357,7 +357,7 @@ function MathCeil(globalObject, this, stric, params) {
   return ceil x
 };
 
-/* TODO 20.2.2.11 Math.clz32 ( x ) */
+/* 20.2.2.11 Math.clz32 ( x ) */
 function MathCLZ32(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
@@ -368,7 +368,7 @@ function MathCLZ32(globalObject, this, strict, params) {
   /* 3. Return p. */
   /* NOTE 
   If n is 0, p will be 32. If the most significant bit of the 32-bit binary encoding of n is 1, p will be 0. */
-  return 
+  return clz32 x
 };
 
 /* 20.2.2.12 Math.cos ( x ) */
@@ -385,7 +385,7 @@ function MathCos(globalObject, this, stric, params) {
   return cos x
 };
 
-/* TODO 20.2.2.13 Math.cosh ( x ) */
+/* 20.2.2.13 Math.cosh ( x ) */
 function MathCosh(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
@@ -398,7 +398,7 @@ function MathCosh(globalObject, this, strict, params) {
   /* If x is −∞, the result is +∞. */
   /* NOTE
   The value of cosh(x) is the same as (exp(x) + exp(-x))/2. */
-  return
+  return cosh x
 };
 
 /* 20.2.2.14 Math.exp ( x ) */
@@ -415,7 +415,7 @@ function MathExp(globalObject, this, stric, params) {
   return exp x
 };
 
-/* TODO 20.2.2.15 Math.expm1 ( x ) */
+/* 20.2.2.15 Math.expm1 ( x ) */
 function MathExpM1(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
@@ -427,7 +427,7 @@ function MathExpM1(globalObject, this, strict, params) {
   /* If x is −0, the result is −0. */
   /* If x is +∞, the result is +∞. */
   /* If x is −∞, the result is −1. */
-  return 
+  return exp(x) - 1
 };
 
 /* 20.2.2.16 Math.floor ( x ) */
@@ -479,14 +479,27 @@ function MathHypot(globalObject, this, strict, params) {
   return
 };
 
-/* TODO 20.2.2.19 Math.imul ( x, y ) */
+/* 20.2.2.19 Math.imul ( x, y ) */
 function MathImul(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  y := l_nth(params, 0);
+  y := ToNumber(y);
+  @ReturnIfAbrupt(y);
   /* When the Math.imul is called with arguments x and y the following steps are taken: */
   /* 1. Let a be ToUint32(x). */
+  a := ToUint32(x);
   /* 2. Let b be ToUint32(y). */
-  /* 3. Let product be (a × b) modulo 2 32 . */
+  b := ToUint32(y);
+  /* 3. Let product be (a × b) modulo 2^32 . */
+  product := (a * b) % (2**32);
   /* 4. If product ≥ 2 31 , return product − 2 32 , otherwise return product. */
-  return
+  if (product >= 2**31) {
+    return product - 2**32
+  } else {
+    return product
+  }
 };
 
 /* 20.2.2.20 Math.log ( x ) */
@@ -503,7 +516,7 @@ function MathLog(globalObject, this, stric, params) {
   return log_e x
 };
 
-/* TODO 20.2.2.21 Math.log1p ( x ) */
+/* 20.2.2.21 Math.log1p ( x ) */
 function MathLog1P(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
@@ -516,10 +529,10 @@ function MathLog1P(globalObject, this, strict, params) {
   /* If x is +0, the result is +0. */
   /* If x is −0, the result is −0. */
   /* If x is +∞, the result is +∞. */
-  return
+  return log_e(1 + x)
 };
 
-/* TODO 20.2.2.22 Math.log10 ( x ) */
+/* 20.2.2.22 Math.log10 ( x ) */
 function MathLog10(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
@@ -531,10 +544,10 @@ function MathLog10(globalObject, this, strict, params) {
   /* If x is −0, the result is −∞. */
   /* If x is 1, the result is +0. */
   /* If x is +∞, the result is +∞. */
-  return
+  return log_10 x
 };
 
-/* TODO 20.2.2.23 Math.log2 ( x ) */
+/* 20.2.2.23 Math.log2 ( x ) */
 function MathLog2(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
@@ -546,7 +559,7 @@ function MathLog2(globalObject, this, strict, params) {
   /* If x is −0, the result is −∞. */
   /* If x is 1, the result is +0. */
   /* If x is +∞, the result is +∞. */
-  return
+  return log2 x
 };
 
 /* 20.2.2.24 Math.max ( value1, value2 , …values ) */
@@ -671,18 +684,28 @@ function MathRound(globalObject, this, stric, params) {
   return MathFloor(globalObject, this, stric, [x + 0.5])
 };
 
-/* TODO 20.2.2.29 Math.sign(x) */
+/* 20.2.2.29 Math.sign(x) */
 function MathSign(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
   /* Returns the sign of the x, indicating whether x is positive, negative or zero. */
   /* If x is NaN, the result is NaN. */
+  if (x = NaN) {
+    return NaN
   /* If x is −0, the result is −0. */
+  } elif (isMinusZero(x)) {
+    return -(0.)
   /* If x is +0, the result is +0. */
+  } elif (isZero(x)) {
+    return 0.
   /* If x is negative and not −0, the result is −1. */
+  } elif (x < 0.) {
+    return -1
   /* If x is positive and not +0, the result is +1. */
-  return
+  } elif (x > 0.) {
+    return 1
+  }
 };
 
 /* 20.2.2.30 Math.sin ( x ) */
@@ -695,10 +718,10 @@ function MathSin(globalObject, this, stric, params) {
   /* If x is +0, the result is +0. */
   /* If x is −0, the result is −0. */
   /* If x is +∞ or −∞, the result is NaN. */
-  return sin(x)
+  return sin x
 };
 
-/* TODO 20.2.2.31 Math.sinh( x ) */
+/* 20.2.2.31 Math.sinh( x ) */
 function MathSinh(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
@@ -709,7 +732,7 @@ function MathSinh(globalObject, this, strict, params) {
   /* If x is −0, the result is −0. */
   /* If x is +∞, the result is +∞. */
   /* If x is −∞, the result is −∞. */
-  return 
+  return sinh x
 };
 
 /* 20.2.2.32 Math.sqrt ( x ) */
@@ -739,7 +762,7 @@ function MathTan(globalObject, this, stric, params) {
   return tan x
 };
 
-/* TODO 20.2.2.34 Math.tanh ( x ) */
+/* 20.2.2.34 Math.tanh ( x ) */
 function MathTanh(globalObject, this, strict, params) {
   x := l_nth(params, 0);
   x := ToNumber(x);
@@ -752,7 +775,7 @@ function MathTanh(globalObject, this, strict, params) {
   /* If x is −∞, the result is -1. */
   /* NOTE
   The value of tanh(x) is the same as (exp(x) - exp(-x))/(exp(x) + exp(-x)). */
-  return
+  return tanh x
 };
 
 /* TODO 20.2.2.35 Math.trunc ( x ) */
