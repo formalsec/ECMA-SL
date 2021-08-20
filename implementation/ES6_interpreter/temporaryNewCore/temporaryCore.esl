@@ -138,6 +138,32 @@ function IsCallableNew( argument ) {
 };
 
 
+/* XXX Function generated with HTML2ECMA-SL */
+/**
+ * 7.2.4 IsConstructor (argument)
+ *
+ * The abstract operation IsConstructor determines if argument, which must be an 
+ * ECMAScript language value or a Completion Record, is a function object with a 
+ * [[Construct]] internal method. 
+ */
+function IsConstructor(argument) {
+  /* 1. ReturnIfAbrupt(argument). */
+  @ReturnIfAbrupt(argument);
+  /* 2. If Type(argument) is not Object, */
+  if (!(Type(argument) = "Object")) {
+    /* return false */
+    return false
+  };
+  /* 3. If argument has a [[Construct]] internal method, */
+  if ("Construct" in_obj argument) {
+    /* return true */
+    return true
+  };
+  /* 4. Return false. */
+  return false
+};
+
+
 /**
  * 7.3.13 Construct (F, [argumentsList], [newTarget]) 
  * The abstract operation Construct is used to call the [[Construct]] internal method of a function object.
