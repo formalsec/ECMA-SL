@@ -25,6 +25,23 @@ function ToLength(argument){
     return min(len, (2. ** 53.) - 1.)
 };
 
+/* 7.1.14 ToPropertyKey (argument) */
+function ToPropertyKey(argument){
+
+    /* 1. Let key be ToPrimitive(argument, hint String).*/
+    key := ToPrimitive(argument, 'String);
+
+    /* 2. ReturnIfAbrupt(key). */
+    @ReturnIfAbrupt(key);
+
+    /* 3. If Type(key) is Symbol, then return key. */
+    if (Type(key) = "Symbol"){
+        return key
+    };
+
+    /* 4. Return ToString(key). */
+    return ToString(key)
+};
 
 /* 7.1.16 CanonicalNumericIndexString ( argument ) */
 function CanonicalNumericIndexString(argument){
@@ -47,6 +64,4 @@ function CanonicalNumericIndexString(argument){
     /* 5. Return n. */
     return n
 }
-
-
 

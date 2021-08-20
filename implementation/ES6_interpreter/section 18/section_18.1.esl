@@ -134,6 +134,10 @@ function initGlobalObject(strict) {
   JsonObject := initJsonObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "JSON", JsonObject);
 
+  /* 25.4.3.1 Promise */
+  PromiseObject := initPromiseObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Promise", PromiseObject);
+  
   /* 20.1 Number Objects */
   NumberObject := initNumberObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Number", NumberObject);

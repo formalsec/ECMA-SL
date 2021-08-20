@@ -68,6 +68,7 @@ function escapePattern(P) {
     /* the backlash is already escaped in the given string */
     /*if ((c = "\\") ||| (c = "/")) {*/
 
+    /* Caused test to fail: test/test262/tests/built-ins/RegExp/character-escape/S15.10.2.10_A5.1_T1.js */
     if ((c = "/")) {
       S := s_concat([S, "\\"]);
       S := s_concat([S, c])
@@ -247,7 +248,7 @@ function initRegExpPrototype(objectPrototypeObject) {
    "RegExp". The initial values of the RegExp prototype object‘s data properties (15.10.7) are set as if the
    object was created by the expression new RegExp() where RegExp is that standard built-in constructor with
    that name. */
-  setInternalProperty(regExpPrototypeObject, "Class", "RegExp");
+  setInternalProperty(regExpPrototypeObject, "Class", "Object");/* ES6: Class of prototype is "Object" */
   setInternalProperty(regExpPrototypeObject, "Prototype", objectPrototypeObject);
 
   getGlobalFunc := CreateFunctionObject([], "getRegExpGlobalAccessorProperty", |global|, false, null);

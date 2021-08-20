@@ -11,6 +11,7 @@ features: [Symbol.species]
 ---*/
 
 function getGetterName(obj, name) {
+  //getOwnPropertyDescriptor chama ToString sobre Symbol.species (que é um Symbol), devolvendo TypeError
   var getter = Object.getOwnPropertyDescriptor(obj, Symbol.species).get;
   return getter && getter.name;
 }

@@ -20,20 +20,23 @@
 
 /* 21.1.1.1 String ( value ) */
 function StringConstructor (global, this, strict, args) {
+  no_args := false;
+  if (l_len args = 0) {
+    no_args := true
+  };
+
   value := getOptionalParam(args, 0);
   NewTarget := this;
 
   /* 1. If no arguments were passed to this function invocation, let s be "". */
-  if ((value = null) || (value = 'null)){
+  if (no_args = true){
     s := ""
   } else{
   /* 2. Else, */
     /* a. If NewTarget is undefined and Type(value) is Symbol, return SymbolDescriptiveString(value). */
-    /*
     if ((NewTarget = 'undefined) && (Type(value) = "Symbol")){
-      return SymbolDescriptiveString(value)
+      return symbolDescriptiveString(value)
     };
-    */
     
     /* b. Let s be ToString(value). */
     s := ToString(value)
@@ -63,7 +66,7 @@ function getStringPrototype(strict) {
 function initStringObject(global, objectPrototype, strict) {
   objStringConstructor := CreateFunctionObject( [ "value" ], "StringConstructor", global, strict, 0.);
   /* The length property of the String function is 1. */
-  setJSProperty(objStringConstructor, "length", newDataPropertyDescriptorFull(1., false, false, false)); 
+  setJSProperty(objStringConstructor, "length", newDataPropertyDescriptorFull(1., false, false, true)); 
   objStringPrototype := initStringPrototype(global, objectPrototype, objStringConstructor, strict);
 
   descriptor := newDataPropertyDescriptorFull(objStringConstructor, false, false, true);
@@ -112,7 +115,7 @@ function initStringPrototype(global, objectPrototype, objStringConstructor, stri
    * The String prototype object is itself an ordinary object. It is not a 
    * String instance and does not have a [[StringData]] internal slot.
   **/
-  setInternalProperty(prototype, "Class", "Object");
+  setInternalProperty(prototype, "Class", "String");
 
   /** The value of the [[Prototype]] internal slot of the String prototype
    * object is the intrinsic object %ObjectPrototype% (19.1.3).
@@ -342,7 +345,7 @@ function initStringPrototype(global, objectPrototype, objStringConstructor, stri
   /* The number of characters in the String value represented by this String object. */
   /* Once a String object is created, this property is unchanging. It has the attributes { [[Writable]]: false,
      [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(prototype, "length", 1., false, false, false);
+  createBuiltInPropertyWithFullDescriptor(prototype, "length", 0., false, false, false);
 
   return prototype
 };
@@ -426,20 +429,29 @@ function StringFromCodePoint(global, this, strict, args){
     /* c. ReturnIfAbrupt(nextCP). */
     @ReturnIfAbrupt(nextCP);
 
+    /* 
+    print "next:::::";
+    print next;
+    print nextCP;
+    print ToInteger(nextCP);
+    print "?????:::::";
+    print SameValue(nextCP, ToInteger(nextCP));
+    */
+
     /* d. If SameValue(nextCP, ToInteger(nextCP)) is false, throw a RangeError exception. */
     if (SameValue(nextCP, ToInteger(nextCP)) = false){
       throw RangeErrorConstructorInternal()
     };
     
     /* e. If nextCP < 0 or nextCP > 0x10FFFF, throw a RangeError exception. */
-    if ((nextCP < 0.) || (nextCP > to_char_code_u("\u10FFFF"))){
+    if ((nextCP < 0.) || (nextCP > int_to_float to_char_code_u("\u10FFFF"))){
       throw RangeErrorConstructorInternal()
     };
 
     /* f. Append the elements of the UTF16Encoding (10.1.1) of nextCP to the end of elements. */
     cu := UTF16Encoding(nextCP);
     elements := l_concat(elements, [cu]);
-    s := s_concat([s, float_to_string cu]);
+    s := s_concat([s, from_char_code_u cu]);
 
     /* g. Let nextIndex be nextIndex + 1. */
     nextIndex := nextIndex + 1
@@ -636,8 +648,12 @@ function StringPrototypecharCodeAt (global, this, strict, args) {
 
 /* 21.1.3.3 String.prototype.codePointAt ( pos ) */
 function StringPrototypecodePointAt(global, this, strict, args){
-  
-  pos := l_nth(args, 0);
+  no_args := false;
+  if (l_len args = 0) {
+    no_args := true
+  };
+
+  pos := getOptionalParam(args, 0);
 
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
@@ -649,29 +665,29 @@ function StringPrototypecodePointAt(global, this, strict, args){
   @ReturnIfAbrupt(S);
 
   /* 4. Let position be ToInteger(pos). */
-  position := int_of_float(ToInteger(pos));
+  position := ToInteger(pos);
 
   /* 5. ReturnIfAbrupt(position). */
   @ReturnIfAbrupt(position);
 
   /* 6. Let size be the number of elements in S. */                    
-  size := s_len_u S;
+  size := int_to_float(s_len_u S);
 
   /* 7. If position < 0 or position ≥ size, return undefined. */
-  if ((position < 0) || (position >= size)){
+  if ((position < 0.) || (position >= size)){
     return 'undefined
   };
 
   /* 8. Let first be the code unit value of the element at index position in the String S. */
-  first := to_char_code_u(s_nth(S, position));
+  first := to_char_code_u(s_nth(S, int_of_float(position)));
 
   /* 9. If first < 0xD800 or first > 0xDBFF or position+1 = size, return first. */
-  if ((first < to_char_code_u("\uD800")) || (first > to_char_code_u("\uDBFF")) || (position + 1 = size)){
+  if ((first < to_char_code_u("\uD800")) || (first > to_char_code_u("\uDBFF")) || (position + 1. = size)){
     return int_to_float first
   };
 
   /* 10. Let second be the code unit value of the element at index position+1 in the String S. */
-  second := to_char_code_u s_nth(S, position + 1);
+  second := to_char_code_u s_nth(S, int_of_float (position + 1.));
 
   /* 11. If second < 0xDC00 or second > 0xDFFF, return first. */
   if ((second < to_char_code_u("\uDC00")) || (second > to_char_code_u("\uDFFF"))){
@@ -837,24 +853,19 @@ function StringPrototypeincludes(global, this, strict, args){
   @ReturnIfAbrupt(searchStr);
 
   /* 9. Let pos be ToInteger(position). (If position is undefined, this step produces the value 0). */
-  if (!(position = 'undefined) && !(position = null) && !(position = 'null)){
-    pos := int_of_float(ToInteger(position))
-  } else{
-    pos := 0
-  };
+  pos:= ToInteger(position);
 
   /* 10. ReturnIfAbrupt(pos). */
   @ReturnIfAbrupt(pos);
 
   /* 11. Let len be the number of elements in S. */
-  len := s_len_u S;
+  len := int_to_float (s_len_u S);
 
    /* 12. Let start be min(max(pos, 0), len). */
-  start :=  int_of_float(min(max(int_to_float pos, int_to_float 0), int_to_float len));
+  start :=  min(max(pos, 0.), len);
 
   /* 13. Let searchLength be the number of elements in searchStr. */
-  searchLength_aux := int_to_float s_len_u searchStr;
-  searchLength := int_of_float(searchLength_aux);
+  searchLength := int_to_float (s_len_u searchStr);
 
   /* 14. If there exists any integer k not smaller than start such that k + searchLen is not greater than len, 
   and for all nonnegative integers j less than searchLen, the code unit at index k+j of S is the same as the code
@@ -862,19 +873,19 @@ function StringPrototypeincludes(global, this, strict, args){
 
   k := start;
   while (k + searchLength <= len){
-    j := 0;
+    j := 0.;
     exists_k := true;
     while(j < searchLength){
-      if (!(s_nth(S, k + j) = s_nth(searchStr, j))){
+      if (!(s_nth(S, int_of_float (k + j)) = s_nth(searchStr, int_of_float(j)))){
         exists_k := false;
         j := searchLength
       };
-      j := j + 1
+      j := j + 1.
     };
     if(exists_k = true){
       return true
     };
-    k := k + 1
+    k := k + 1.
   };
 
   return false
@@ -901,45 +912,40 @@ function StringPrototypeindexOf(global, this, strict, args){
   @ReturnIfAbrupt(searchStr);
 
   /* 6. Let pos be ToInteger(position). (If position is undefined, this step produces the value 0). */
-  if (!(position = 'undefined) && !(position = null) && !(position = 'null)){
-    pos := int_of_float(ToInteger(position))
-  } else{
-    pos := 0
-  };
+  pos := ToInteger(position);
 
   /* 7. ReturnIfAbrupt(pos). */
   @ReturnIfAbrupt(pos);
 
   /* 8. Let len be the number of elements in S. */
-  len := s_len_u S;
+  len := int_to_float (s_len_u S);
 
   /* 9. Let start be min(max(pos, 0), len). */
-  start :=  int_of_float(min(max(int_to_float pos, int_to_float 0), int_to_float len));
+  start := min(max(pos, 0.), len);
 
   /* 10. Let searchLen be the number of elements in searchStr. */
-  searchLen_aux := int_to_float s_len_u searchStr;
-  searchLen := int_of_float(searchLen_aux);
+  searchLen := int_to_float (s_len_u searchStr);
 
   /* 11. Return the smallest possible integer k not smaller than start such that k+ searchLen is not greater
   than len, and for all nonnegative integers j less than searchLen, the code unit at index k+j of S is the 
   same as the code unit at index j of searchStr; but if there is no such integer k, return the value -1. */
   k := start;
-  j := 0;
+  j := 0.;
 
   while((k + searchLen) <= len){
     if (j < searchLen){
-      if (s_nth_u (S, k + j) = s_nth_u(searchStr, j)){
-        j := j + 1
+      if (s_nth_u (S, int_of_float (k + j)) = s_nth_u(searchStr, int_of_float (j))){
+        j := j + 1.
       } else{
-        j := 0;
-        k := k + 1
+        j := 0.;
+        k := k + 1.
       }
     } else{
-      return int_to_float k
+      return k
     }
   };
 
-  return int_to_float -1
+  return -(1.)
 };
 
 /* 21.1.3.9 String.prototype.lastIndexOf ( searchString [ , position ] ) */
@@ -1170,13 +1176,13 @@ function StringPrototyperepeat(global, this, strict, args){
   @ReturnIfAbrupt(S);
 
   /* 4. Let n be ToInteger(count). */
-  n := int_of_float(ToInteger(count));
+  n := ToInteger(count);
 
   /* 5. ReturnIfAbrupt(n). */
   @ReturnIfAbrupt(n);
 
   /* 6. If n < 0, throw a RangeError exception. */
-  if (n < 0){
+  if (n < 0.){
     throw RangeErrorConstructorInternal()
   };
 
@@ -1186,14 +1192,14 @@ function StringPrototyperepeat(global, this, strict, args){
   };
 
   /* 8. Let T be a String value that is made from n copies of S appended together. If n is 0, T is the empty String. */
-  i := 0;
+  i := 0.;
   T := "";
-  if ((n = 0) || (S = "")){
+  if ((n = 0.) || (S = "")){
     return T
   };
   while (i < n){
     T := s_concat([T, S]);
-    i := i + 1
+    i := i + 1.
   };
 
   /* 9. Return T. */
@@ -1517,10 +1523,10 @@ function StringPrototypeSlice(global, this, strict, args) {
   @ReturnIfAbrupt(S);
 
   /* 4. Let len be the number of elements in S. */
-  len := s_len_u S;
+  len := int_to_float (s_len_u S);
 
   /* 5. Let intStart be ToInteger(start). */
-  intStart := int_of_float(ToInteger(start));
+  intStart := ToInteger(start);
 
   /* 6. ReturnIfAbrupt(intStart). */
   @ReturnIfAbrupt(intStart);
@@ -1529,28 +1535,28 @@ function StringPrototypeSlice(global, this, strict, args) {
   if (end = 'undefined){
     intEnd := len
   } else{
-    intEnd := int_of_float(ToInteger(end))
+    intEnd := ToInteger(end)
   };
 
   /* 8. ReturnIfAbrupt(intEnd). */
   @ReturnIfAbrupt(intEnd);
 
   /* 9. If intStart < 0, let from be max(len + intStart,0); otherwise let from be min(intStart, len). */
-  if (intStart < 0){
-    from := max(int_to_float (len + intStart), int_to_float 0)
+  if (intStart < 0.){
+    from := max(len + intStart, 0.)
   } else{
-    from := min(int_to_float intStart, int_to_float len)
+    from := min(intStart, len)
   };
 
   /* 10. If intEnd < 0, let to be max(len + intEnd,0); otherwise let to be min(intEnd, len). */
-  if (intEnd < 0){
-    to := max(int_to_float (len + intEnd), int_to_float 0)
+  if (intEnd < 0.){
+    to := max(len + intEnd, 0.)
   } else{
-    to := min(int_to_float intEnd, int_to_float len)
+    to := min(intEnd, len)
   };
 
   /* 11. Let span be max(to – from,0). */
-  span := max(to - from, int_to_float 0);
+  span := max(to - from, 0.);
 
   /* 12. Return a String value containing span consecutive elements from S beginning with the element at index from. */
   substring := "";
@@ -1770,7 +1776,10 @@ function StringPrototypestartsWith(global, this, strict, args){
   @ReturnIfAbrupt(S);
   
   /* 4. Let isRegExp be IsRegExp(searchString). */
-  isRegExp := isRegExpObject(searchString);
+  isRegExp := IsRegExp(searchString);
+
+  print "isRegExp::::::::";
+  print isRegExp;
 
   /* 5. ReturnIfAbrupt(isRegExp). */
   @ReturnIfAbrupt(isRegExp);
@@ -1787,24 +1796,22 @@ function StringPrototypestartsWith(global, this, strict, args){
   @ReturnIfAbrupt(searchString);
 
   /* 9. Let pos be ToInteger(position). (If position is undefined, this step produces the value 0). */
-  if (!(position = 'undefined) && !(position = 'null) && !(position = null)){
-    pos := int_of_float(ToInteger(position))
-  } else{
-    pos := 0
-  };
+  pos := ToInteger(position);
 
+  print "pos:::::";
+  print pos;
+  
   /* 10. ReturnIfAbrupt(pos). */
   @ReturnIfAbrupt(pos);
 
   /* 11. Let len be the number of elements in S. */
-  len := s_len_u S;
+  len := int_to_float(s_len_u S);
 
   /* 12. Let start be min(max(pos, 0), len). */
-  start :=  int_of_float(min(max(int_to_float pos, int_to_float 0), int_to_float len));
+  start := min(max(pos, 0.), len);
 
   /* 13. Let searchLength be the number of elements in searchStr. */
-  searchLength_aux := int_to_float s_len_u searchStr;
-  searchLength := int_of_float(searchLength_aux);
+  searchLength := int_to_float (s_len_u searchStr);
 
   /* 14. If searchLength+start is greater than len, return false. */
   if (searchLength + start > len){
@@ -1816,14 +1823,14 @@ function StringPrototypestartsWith(global, this, strict, args){
   so_far_so_good := true;
   
   while (i < searchLength) {
-    s := s_nth(S, i);
-    sl := s_nth(searchStr, i);
+    s := s_nth(S, int_of_float (start + i));
+    sl := s_nth(searchStr, int_of_float i);
 
     if (!(SameValue(s, sl))){
       so_far_so_good := false
     };
 
-    i := i + 1
+    i := i + 1.
   };
   
   if (so_far_so_good = true){
@@ -1850,10 +1857,10 @@ function StringPrototypesubstring(global, this, strict, args){
   @ReturnIfAbrupt(S);
 
   /* 4. Let len be the number of elements in S. */
-  len := s_len_u S;
+  len := int_to_float (s_len_u S);
 
   /* 5. Let intStart be ToInteger(start). */
-  intStart := int_of_float(ToInteger(start));
+  intStart := ToInteger(start);
 
   /* 6. ReturnIfAbrupt(intStart). */
   @ReturnIfAbrupt(intStart); 
@@ -1862,17 +1869,17 @@ function StringPrototypesubstring(global, this, strict, args){
   if ((end = 'undefined) || (end = 'null) || (end = null)){
     intEnd := len
   } else{
-    intEnd := int_of_float(ToInteger(end))
+    intEnd := ToInteger(end)
   };
 
   /* 8. ReturnIfAbrupt(intEnd). */
   @ReturnIfAbrupt(intEnd);
 
   /* 9. Let finalStart be min(max(intStart, 0), len). */
-  finalStart := min(max(int_to_float intStart, int_to_float 0), int_to_float len);
+  finalStart := min(max(intStart, 0.), len);
 
   /* 10. Let finalEnd be min(max(intEnd, 0), len). */
-  finalEnd := min(max(int_to_float intEnd, int_to_float 0), int_to_float len);
+  finalEnd := min(max(intEnd, 0.), len);
 
   /* 11. Let from be min(finalStart, finalEnd). */
   from := min(finalStart, finalEnd);

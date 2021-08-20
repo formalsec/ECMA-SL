@@ -1,6 +1,6 @@
 /* 9.1 ToPrimitive */
 function ToPrimitive(input, PreferredType) {
-  if (Type(input) = "Object") {
+  if ((Type(input) = "Object") || (Type(input) = "Symbol")) {
     return DefaultValue(input, PreferredType)
   };
 
@@ -62,6 +62,9 @@ function ToNumber(argument) {
   if (argument_type = "String") {
     return float_of_string argument
   };
+  if (argument_type = "Symbol"){
+    throw TypeErrorConstructorInternal()
+  };
   if (argument_type = "Object") {
     /* Apply the following steps: */
 
@@ -80,6 +83,10 @@ function ToInteger(argument) {
   /* Let number be the result of calling ToNumber on the input argument. */
   number := ToNumber(argument);
   /* If number is NaN, return +0. */
+  if (number = NaN){
+    return 0.
+  };
+
   /* If number is +0, -0, +Infinity, or -Infinity, return number. */
   /* Return the result of computing sign(number) x floor(abs(number)). */
   return to_int(number)
