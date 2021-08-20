@@ -3564,8 +3564,6 @@ function arrayOf (global, this, strict, args) {
   
   /* 2. Let items be the List of arguments passed to this function. */
   items := args;
-  print "items são";
-  print items;
 
   /* 3. Let C be the this value. */
   C := this;
