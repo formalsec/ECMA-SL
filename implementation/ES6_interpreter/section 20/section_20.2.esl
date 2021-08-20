@@ -559,7 +559,7 @@ function MathLog2(globalObject, this, strict, params) {
   /* If x is −0, the result is −∞. */
   /* If x is 1, the result is +0. */
   /* If x is +∞, the result is +∞. */
-  return log2 x
+  return log_2 x
 };
 
 /* 20.2.2.24 Math.max ( value1, value2 , …values ) */
