@@ -265,8 +265,7 @@ function NumberPrototypeToExponential(global, this, strict, items) {
   /* 2. ReturnIfAbrupt(x). */
   @ReturnIfAbrupt(x);
   if (fractionDigits = 'undefined) {
-    /* abs, trunc */
-    return to_exponential(x, s_len(float_to_string x) - 1)
+    return to_exponential(x, s_len(float_to_string (abs x)) - 1)
   } else {
     return to_exponential(x, (int_of_float fractionDigits))
   }
