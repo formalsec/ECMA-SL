@@ -32,7 +32,7 @@
 %token BITWISE_NOT BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %token FROM_CHAR_CODE FROM_CHAR_CODE_U TO_CHAR_CODE TO_CHAR_CODE_U TO_LOWER_CASE TO_UPPER_CASE TRIM
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16
-%token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM SIN SQRT TAN ACOSH ASINH ATANH CBRT CLZ32 COSH LOG_2 SINH TANH
+%token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM SIN SQRT TAN COSH LOG_2 SINH TANH
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST TO_PRECISION TO_EXPONENTIAL TO_FIXED
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT LREVERSE LREMOVELAST LSORT HD TL TLEN TNTH FST SND SLEN SLEN_U SNTH SNTH_U SSUBSTR SSUBSTR_U
 %token SCONCAT SSPLIT AT_SIGN EXTERN
@@ -286,16 +286,6 @@ expr_target:
     { Expr.BinOpt (Oper.ToExponential, e1, e2) }
   | TO_FIXED; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN; 
     { Expr.BinOpt (Oper.ToFixed, e1, e2) }
-  | ACOSH;  e = expr_target;
-    { Expr.UnOpt (Oper.Acosh, e) } %prec unopt_prec 
-  | ASINH;  e = expr_target;
-    { Expr.UnOpt (Oper.Asinh, e) } %prec unopt_prec 
-  | ATANH;  e = expr_target;
-    { Expr.UnOpt (Oper.Atanh, e) } %prec unopt_prec 
-  | CBRT;  e = expr_target;
-    { Expr.UnOpt (Oper.Cbrt, e) } %prec unopt_prec 
-  | CLZ32;  e = expr_target;
-    { Expr.UnOpt (Oper.Clz32, e) } %prec unopt_prec 
   | COSH;  e = expr_target;
     { Expr.UnOpt (Oper.Cosh, e) } %prec unopt_prec 
   | LOG_2;  e = expr_target;

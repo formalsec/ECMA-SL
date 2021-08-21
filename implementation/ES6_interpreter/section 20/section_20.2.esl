@@ -232,7 +232,7 @@ function MathACosh(globalObject, this, strict, params) {
   /* If x is less than 1, the result is NaN. */
   /* If x is 1, the result is +0. */
   /* If x is +∞, the result is +∞. */
-  return acosh x
+  return log_e(x + sqrt((x**2.) - 1.))
 };
 
 /* 20.2.2.4 Math.asin ( x ) */
@@ -260,7 +260,7 @@ function MathASinh(globalObject, this, strict, params) {
   /* If x is −0, the result is −0. */
   /* If x is +∞, the result is +∞. */
   /* If x is −∞, the result is −∞. */
-  return asinh x
+  return log_e(x + sqrt((x**2.) + 1.))
 };
 
 /* 20.2.2.6 Math.atan ( x ) */
@@ -290,7 +290,7 @@ function MathATanh(globalObject, this, strict, params) {
   /* If x is +1, the result is +∞. */
   /* If x is +0, the result is +0. */
   /* If x is 0 the result is 0 */
-  return atanh(x)
+  return (1./2.) * log_e((1. + x) / (1. - x))
 };
 
 /* 20.2.2.8 Math.atan2 ( y, x ) */
@@ -339,7 +339,7 @@ function MathCBRT(globalObject, this, strict, params) {
   /* If x is −0, the result is −0. */
   /* If x is +∞, the result is +∞. */
   /* If x is −∞, the result is −∞. */
-  return cbrt x
+  return x ** (1./3.)
 };
 
 /* 20.2.2.10 Math.ceil ( x ) */
@@ -364,11 +364,18 @@ function MathCLZ32(globalObject, this, strict, params) {
   @ReturnIfAbrupt(x);
   /* When Math.clz32 is called with one argument x, the following steps are taken: */
   /* 1. Let n be ToUint32(x). */
+  n := ToUint32(x);
   /* 2. Let p be the number of leading zero bits in the 32-bit binary representation of n. */
+  num := n;
+  count := 0;
+  while (!(num = 0)) {
+    num := num / 2;
+    count := count + 1
+  };
   /* 3. Return p. */
-  /* NOTE 
+  return 32 - count
+  /* NOTE
   If n is 0, p will be 32. If the most significant bit of the 32-bit binary encoding of n is 1, p will be 0. */
-  return clz32 x
 };
 
 /* 20.2.2.12 Math.cos ( x ) */
@@ -444,7 +451,7 @@ function MathFloor(globalObject, this, stric, params) {
   /* If x is greater than 0 but less than 1, the result is +0. */
   /* NOTE 
   The value of Math.floor(x) is the same as the value of -Math.ceil(-x). */
-  return -(MathCeil(globalObject, this, stric, [-x]))
+  return -(ceil (-x))
 };
 
 /* TODO 20.2.2.17 Math.fround ( x ) */
@@ -457,7 +464,7 @@ function MathFRound(globalObject, this, strict, params) {
   if (x = NaN) {
     return NaN
   /* 2. If x is one of +0, −0, +∞, −∞, return x. */
-  } elif (isZero(x) || isMinusZero(x) || x = Infinity || x = -Infinity) {
+  } elif ((isZero(x)) ||| (isMinusZero(x)) ||| (x = Infinity) ||| (x = -Infinity)) {
     return x
   };
   /* 3. Let x32 be the result of converting x to a value in IEEE 754-2008 binary32 format using roundTiesToEven. */
@@ -510,8 +517,8 @@ function MathImul(globalObject, this, strict, params) {
   /* 3. Let product be (a × b) modulo 2^32 . */
   product := (a * b) % (2**32);
   /* 4. If product ≥ 2 31 , return product − 2 32 , otherwise return product. */
-  if (product >= 2**31) {
-    return product - 2**32
+  if (product >= (2**31)) {
+    return product - (2**32)
   } else {
     return product
   }
@@ -658,7 +665,7 @@ function MathPow(globalObject, this, stric, params) {
   /* If x is −0 and y<0 and y is an odd integer, the result is −∞. */
   /* If x is −0 and y<0 and y is not an odd integer, the result is +∞. */
   /* If x<0 and x is finite and y is finite and y is not an integer, the result is NaN. */
-  return x ** y
+  return (x ** y)
 };
 
 /* 20.2.2.27 Math.random ( ) */
@@ -697,7 +704,7 @@ function MathRound(globalObject, this, stric, params) {
   /* NOTE 2 
   The value of Math.round(x) is not always the same as the value of Math.floor(x+0.5). When x is −0 or is less than 0 but greater than or equal to -0.5, Math.round(x) 
   returns −0, but Math.floor(x+0.5) returns +0. Math.round(x) may also differ from the value of Math.floor(x+0.5)because of internal rounding when computing x+0.5. */
-  return MathFloor(globalObject, this, stric, [x + 0.5])
+  return -(ceil (-(x + 0.5))) 
 };
 
 /* 20.2.2.29 Math.sign(x) */
