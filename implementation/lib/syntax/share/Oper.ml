@@ -195,14 +195,18 @@ let to_precision (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
 
 let to_exponential (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt x, Int y) -> 
-      let exp = Float.round(Float.log10(Float.abs(x))) in
-        let num = Float.round((x/.(10.**exp))*.(10.**(float_of_int y)))/.(10.**(float_of_int y)) in 
-          Str ((string_of_float num)^"e"^(string_of_int (int_of_float exp)))
+      let exp = Float.log10(x) in
+          if exp >= 0. then
+            let num = Float.round((x/.(10.**(Float.trunc(exp))))*.(10.**(Float.of_int(y))))/.(10.**(Float.of_int(y))) in 
+              Str ((string_of_float num)^"e+"^(Int.to_string(Float.to_int(exp)))) 
+          else 
+            let num = Float.round((x/.(10.**(Float.floor(exp))))*.(10.**(Float.of_int(y))))/.(10.**(Float.of_int(y))) in 
+              Str ((string_of_float num)^"e"^(Int.to_string(Float.to_int(Float.floor(exp)))))
   | _                -> invalid_arg "Exception in Oper.to_exponential: this operation is only applicable to Float and Int arguments"
 
 let to_fixed (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt x, Int y) -> 
-      let res = Float.round(x*.(10.**(float_of_int y)))/.(10.**(float_of_int y)) in 
+      let res = Float.round(x*.(10.**(Float.of_int(y))))/.(10.**(Float.of_int(y))) in 
       Flt res
   | _                -> invalid_arg "Exception in Oper.to_fixed: this operation is only applicable to Float and Int arguments"
 
