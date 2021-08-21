@@ -13,16 +13,35 @@ function initWeakSetPrototype(global, objectPrototype, strict) {
     addObject := CreateBuiltInFunctionObject(["value"], "weakSetAdd", global, strict, 0.);
     descriptor := newDataPropertyDescriptorFull(addObject, true, false, true);
     setJSProperty(prototype, "add", descriptor);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(1., false, false, true);
+    setJSProperty(addObject, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("add", false, false, true);
+    setJSProperty(addObject, "name", descName);
+
 
     /* 23.4.3.3 WeakSet.prototype.delete ( value ) */
     deleteObject := CreateBuiltInFunctionObject(["value"], "weakSetDelete", global, strict, 0.);
     descriptor := newDataPropertyDescriptorFull(deleteObject, true, false, true);
     setJSProperty(prototype, "delete", descriptor);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(1., false, false, true);
+    setJSProperty(deleteObject, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("delete", false, false, true);
+    setJSProperty(deleteObject, "name", descName);
 
     /* 23.4.3.4 WeakSet.prototype.has ( value ) */
     hasObject := CreateBuiltInFunctionObject(["value"], "weakSetHas", global, strict, 0.);
     descriptor := newDataPropertyDescriptorFull(hasObject, true, false, true);
     setJSProperty(prototype, "has", descriptor);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(1., false, false, true);
+    setJSProperty(hasObject, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("has", false, false, true);
+    setJSProperty(hasObject, "name", descName);
 
 
     return prototype
@@ -46,6 +65,12 @@ function initWeakSetObject(global, objectPrototype, strict) {
 
     descriptor := newDataPropertyDescriptorFull(objWeakSetConstructor, true, false, true);
     setJSProperty(objWeakSetPrototype, "constructor", descriptor);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(0., false, false, true);
+    setJSProperty(objWeakSetConstructor, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("WeakSet", false, false, true);
+    setJSProperty(objWeakSetConstructor, "name", descName);
 
     descriptor := newDataPropertyDescriptorFull(objWeakSetPrototype, false, false, false);
     setJSProperty(objWeakSetConstructor, "prototype", descriptor);
@@ -164,13 +189,14 @@ function OrdinaryCreateFromConstructor(strict) {
 */
 function weakSetAdd (global, this, strict, args) {
 
-    value := l_nth(args, 0);
+    print "teste 41";
+    value := getOptionalParam(args, 0);
 
     /* 1. Let S be the this value. */
     S := this;
 
     /* 2. If Type(S) is not Object, throw a TypeError exception. */
-    if (!(Type(S) = "Object")) {
+    if (!(Type(S) = "Object") ) {
         throw TypeErrorConstructorInternal()
     };
 
@@ -180,7 +206,7 @@ function weakSetAdd (global, this, strict, args) {
     };
 
     /* 4. If Type(value) is not Object, throw a TypeError exception. */
-    if (!(Type(value) = "Object")) {
+    if ((value = null) ||| !(Type(value) = "Object")) {
         throw TypeErrorConstructorInternal()
     };
 
