@@ -346,7 +346,7 @@ function StringFromCodePoint(global, this, strict, args){
     };
     
     /* e. If nextCP < 0 or nextCP > 0x10FFFF, throw a RangeError exception. */
-    if ((nextCP < 0.) || (nextCP > to_char_code_u("\u10FFFF"))){
+    if ((nextCP < 0.) || (nextCP > (int_to_float 0x10FFFF))){
       throw RangeErrorConstructorInternal()
     };
 
@@ -576,18 +576,18 @@ function StringPrototypecodePointAt(global, this, strict, args){
   };
 
   /* 8. Let first be the code unit value of the element at index position in the String S. */
-  first := to_char_code_u(s_nth(S, position));
+  first := to_char_code_u(s_nth_u(S, position));
 
   /* 9. If first < 0xD800 or first > 0xDBFF or position+1 = size, return first. */
-  if ((first < to_char_code_u("\uD800")) || (first > to_char_code_u("\uDBFF")) || (position + 1 = size)){
+  if ((first < 0xD800) || (first > 0xDBFF) || (position + 1 = size)){
     return int_to_float first
   };
 
   /* 10. Let second be the code unit value of the element at index position+1 in the String S. */
-  second := to_char_code_u s_nth(S, position + 1);
+  second := to_char_code_u(s_nth_u(S, (position + 1)));
 
   /* 11. If second < 0xDC00 or second > 0xDFFF, return first. */
-  if ((second < to_char_code_u("\uDC00")) || (second > to_char_code_u("\uDFFF"))){
+  if ((second < 0xDC00) || (second > 0xDFFF)){
     return int_to_float first
   };
 
@@ -699,8 +699,8 @@ function StringPrototypeendsWith(global, this, strict, args){
   so_far_so_good := true;
   
   while (i < searchLength) {
-    s := s_nth(S, i + start);
-    sl := s_nth(searchStr, i);
+    s := s_nth_u(S, i + start);
+    sl := s_nth_u(searchStr, i);
 
     if (!(SameValue(s, sl))){
       so_far_so_good := false
@@ -778,7 +778,7 @@ function StringPrototypeincludes(global, this, strict, args){
     j := 0;
     exists_k := true;
     while(j < searchLength){
-      if (!(s_nth(S, k + j) = s_nth(searchStr, j))){
+      if (!(s_nth_u(S, k + j) = s_nth_u(searchStr, j))){
         exists_k := false;
         j := searchLength
       };
@@ -1538,8 +1538,8 @@ function StringPrototypestartsWith(global, this, strict, args){
   so_far_so_good := true;
   
   while (i < searchLength) {
-    s := s_nth(S, i);
-    sl := s_nth(searchStr, i);
+    s := s_nth_u(S, i);
+    sl := s_nth_u(searchStr, i);
 
     if (!(SameValue(s, sl))){
       so_far_so_good := false
@@ -1863,24 +1863,26 @@ function StringIteratorPrototypeNext(global, this, strict, args){
   };
 
   /* 9. Let first be the code unit value at index position in s. */
-  first := s_nth(s, position);
+  first := s_nth_u(s, position);
+  first_cp := to_char_code_u(first);
 
   /* 10. If first < 0xD800 or first > 0xDBFF or position+1 = len, let resultString be the string 
   consisting of the single code unit first. */
-  if ((to_char_code_u(first) < to_char_code_u("\uD800")) || (to_char_code_u(first) > to_char_code_u("\uDBFF")) || (position + 1 = len)){
+  if ((first_cp < 0xD800) || (first_cp > 0xDBFF) || ((position + 1) = len)){
     resultString := first
   }
   /* 11. Else, */
-  else{
+  else {
     /* a. Let second be the code unit value at index position+1 in the String S. */
-    second := s_nth(s, position + 1);
+    second := s_nth_u(s, (position + 1));
+    second_cp := to_char_code_u(second);
 
     /* b. If second < 0xDC00 or second > 0xDFFF, let resultString be the string consisting of the single code unit first. */
-    if ((to_char_code_u(second) < to_char_code_u("\uDC00")) || (to_char_code_u(second) > to_char_code_u("\uDFFF"))){
+    if ((second_cp < 0xDC00) || (second_cp > 0xDFFF)){
       resultString := first
     } 
     /* c. Else, let resultString be the string consisting of the code unit first followed by the code unit second. */
-    else{
+    else {
       resultString := s_concat([first, second])
     }
   };
