@@ -225,9 +225,9 @@ let utf8encode s =
   ienc 0 "" (Stdlib.int_of_string ("0x" ^ s))
 
 let utf8decode s =
-  let re = Str.regexp "\\\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?" in
+  let re = Str.regexp "\\\\u{[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?}" in
     let subst = function
-    | Str.Delim u -> utf8encode (String.sub u 2 ((String.length u)-2))
+    | Str.Delim u -> utf8encode (String.sub u 3 ((String.length u)-4))
     | Str.Text t -> t
     in
     String.concat "" (List.map subst (Str.full_split re s))

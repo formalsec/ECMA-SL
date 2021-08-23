@@ -239,7 +239,7 @@ and read_string buf =
                            Buffer.add_string buf (String_Utils.hexdecode h);
                            read_string buf lexbuf
                          }
-  | '\\' 'u' hex_digit hex_digit hex_digit hex_digit hex_digit? hex_digit? as h
+  | '\\' 'u' '{' hex_digit hex_digit hex_digit hex_digit hex_digit? hex_digit? '}' as h
                          {
                            Buffer.add_string buf (String_Utils.utf8decode h);
                            read_string buf lexbuf
