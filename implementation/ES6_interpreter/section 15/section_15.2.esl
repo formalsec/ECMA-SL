@@ -199,7 +199,7 @@ function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Let name be ToString(P). */
-  name := ToString(P);
+  name := ToPropertyKey(P);
   /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with argument name. */
   desc := {O.GetOwnProperty}(O, name);
   /* 4. Return the result of calling FromPropertyDescriptor(desc) (8.10.4). */
@@ -285,7 +285,7 @@ function ObjectDefineProperty(globalObject, this, strict, params) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Let name be ToString(P). */
-  name := ToString(P);
+  name := ToPropertyKey(P);
   /* 3. Let desc be the result of calling ToPropertyDescriptor with Attributes as the argument. */
   desc := ToPropertyDescriptor(Attributes);
   /* 4. Call the [[DefineOwnProperty]] internal method of O with arguments name, desc, and true. */
@@ -617,7 +617,7 @@ function ObjectPrototypeHasOwnProperty(globalObject, this, strict, params) {
   /* When the hasOwnProperty method is called with argument V, the following steps are taken: */
 
   /* 1. Let P be ToString(V). */
-  P := ToString(V);
+  P := ToPropertyKey(V);
   /* 2. Let O be the result of calling ToObject passing the this value as the argument. */
   O := ToObject(this);
   /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O passing P as the argument. */
@@ -662,7 +662,7 @@ function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params)
   /* When the propertyIsEnumerable method is called with argument V, the following steps are taken: */
 
   /* 1. Let P be ToString(V). */
-  P := ToString(V);
+  P := ToPropertyKey(V);
   /* 2. Let O be the result of calling ToObject passing the this value as the argument. */
   O := ToObject(this);
   /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O passing P as the argument. */

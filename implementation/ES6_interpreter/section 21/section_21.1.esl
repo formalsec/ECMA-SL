@@ -29,11 +29,10 @@ function StringConstructor (global, this, strict, args) {
   } else{
   /* 2. Else, */
     /* a. If NewTarget is undefined and Type(value) is Symbol, return SymbolDescriptiveString(value). */
-    /*
     if ((NewTarget = 'undefined) && (Type(value) = "Symbol")){
-      return SymbolDescriptiveString(value)
+      return symbolDescriptiveString(value)
     };
-    */
+
     
     /* b. Let s be ToString(value). */
     s := ToString(value)

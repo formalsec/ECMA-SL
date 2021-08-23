@@ -311,11 +311,15 @@ function DaylightSavingTA(t) {return 1000. /* TODO */};
 /* The abstract operation LocalTime with argument t converts t from UTC 
    to local time by performing the following steps: */
 function LocalTime(t) {
-   /* 1. ReturnIfAbrupt(t). */
-   @ReturnIfAbrupt(t);
+  print("in LocalTime");
+  print(t);
+  print(|LocalTZA|);
+  print(DaylightSavingTA(t));
+  /* 1. ReturnIfAbrupt(t). */
+  @ReturnIfAbrupt(t);
 
-   /* 2. Return t + LocalTZA + DaylightSavingTA(t). */
-   return t + |LocalTZA| + DaylightSavingTA(t)
+  /* 2. Return t + LocalTZA + DaylightSavingTA(t). */
+  return t + |LocalTZA| + DaylightSavingTA(t)
 };
 
 /* 20.3.1.10 UTC ( t )
@@ -944,46 +948,15 @@ function DateParse(global, this, strict, args) {
   string := ToString(arg);
 
   /* If ToString results in an abrupt completion the Completion Record is immediately returned. */
-  if ((Type(arg) = "Completion") &&& isAnAbruptCompletion(string)) {
+  if ((Type(string) = "Completion") &&& isAnAbruptCompletion(string)) {
     return getCompletionValue(string)
   }
   /* Otherwise, parse interprets the resulting String as a date and time; it returns a Number, the UTC time value corresponding to the date and time. 
   The String may be interpreted as a local time, a UTC time, or a time in some other time zone, depending on the contents of the String. The function first attempts to parse the format of the String according to the rules (including extended years) called out in Date Time String Format (20.3.1.16). If the String does not conform to that format the function may fall back to any implementation-specific heuristics or implementation-specific date formats. Unrecognizable Strings or dates containing illegal element values in the format String shall cause Date.parse to return NaN. */
   else {
-    list := parse_date(arg);
-    print("inside parseDate if");
-    print(list);
-    if (list = - (1.)) {
-      return NaN
-    }
-    else {
-      
-      yr := float_of_string(l_nth(list, 1));
-      m := float_of_string(l_nth(list, 2));
-      dt := float_of_string(l_nth(list, 3));
-      h := float_of_string(l_nth(list, 4));
-      mins := float_of_string(l_nth(list, 5));
-      s := float_of_string(l_nth(list, 6));
-      milli := float_of_string(l_nth(list, 7));
-      
-      print(yr);
-      print(m); 
-      print(dt);
-      print(h); 
-      print(mins);
-      print(s);
-      print(milli);
-      
+    return auxParseDate(string)
+  }
 
-      print(MakeDay(yr ,m ,dt));
-      print(MakeTime(h, mins, s, milli));
-      return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli)))
-    }
-  };
-  
-
-  fail "20.3.3.2 Date.parse not implemented"
-  
 };
 
 
@@ -1238,7 +1211,7 @@ function DatePrototypeGetSeconds(global, this, strict, args) {
 */
 function  DatePrototypeGetTime (global, this, strict, args) {
    /* 1. Return this time value. */
-   return this.DateValue
+   return thisTimeValue(this)
 };
 
 /**
@@ -1248,7 +1221,8 @@ function  DatePrototypeGetTime (global, this, strict, args) {
  */
 function  DatePrototypeGetTimezoneOffset (global, this, strict, args) {
   /* 1. Let t be this time value. */
-  t := this.DateValue;
+  t := thisTimeValue(this);
+  
    
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
@@ -1271,7 +1245,7 @@ function  DatePrototypeGetTimezoneOffset (global, this, strict, args) {
  */
 function  DatePrototypeGetUTCDate (global, this, strict, args) {
   /* 1. Let t be this time value. */
-  t := this.DateValue;
+  t := thisTimeValue(this);
    
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
@@ -1293,7 +1267,7 @@ function  DatePrototypeGetUTCDate (global, this, strict, args) {
  */
 function  DatePrototypeGetUTCDay (global, this, strict, args) {
   /* 1. Let t be this time value. */
-  t := this.DateValue;
+  t := thisTimeValue(this);
    
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
@@ -1315,7 +1289,7 @@ function  DatePrototypeGetUTCDay (global, this, strict, args) {
  */
 function  DatePrototypeGetUTCFullYear (global, this, strict, args) {
   /* 1. Let t be this time value. */
-  t := this.DateValue;
+  t := thisTimeValue(this);
    
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
@@ -1337,7 +1311,7 @@ function  DatePrototypeGetUTCFullYear (global, this, strict, args) {
  */
 function  DatePrototypeGetUTCHours(global, this, strict, args) {
   /* 1. Let t be this time value. */
-  t := this.DateValue;
+  t := thisTimeValue(this);
    
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
@@ -1360,7 +1334,7 @@ function  DatePrototypeGetUTCHours(global, this, strict, args) {
  */
 function  DatePrototypeGetUTCMilliseconds (global, this, strict, args) {
   /* 1. Let t be this time value. */
-  t := this.DateValue;
+  t := thisTimeValue(this);
    
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
@@ -1382,7 +1356,7 @@ function  DatePrototypeGetUTCMilliseconds (global, this, strict, args) {
  */
 function  DatePrototypeGetUTCMinutes (global, this, strict, args) {
   /* 1. Let t be this time value. */
-  t := this.DateValue;
+  t := thisTimeValue(this);
    
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
@@ -1404,7 +1378,7 @@ function  DatePrototypeGetUTCMinutes (global, this, strict, args) {
  */
 function  DatePrototypeGetUTCMonth (global, this, strict, args) {
   /* 1. Let t be this time value. */
-  t := this.DateValue;
+  t := thisTimeValue(this);
    
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
@@ -1426,7 +1400,7 @@ function  DatePrototypeGetUTCMonth (global, this, strict, args) {
  */
 function  DatePrototypeGetUTCSeconds (global, this, strict, args) {
   /* 1. Let t be this time value. */
-  t := this.DateValue;
+  t := thisTimeValue(this);
    
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
@@ -1450,7 +1424,7 @@ function DatePrototypeSetDate (global, this, strict, args) {
   date := l_nth(args, 0);
 
   /* 1. Let t be this time value. */
-  t := this.DateValue;
+  t := thisTimeValue(this);
    
   /* 2. ReturnIfAbrupt(t). */
   @ReturnIfAbrupt(t);
@@ -2228,7 +2202,7 @@ function DatePrototypeSetUTCSeconds (global, this, stric, args) {
 function DatePrototypeToDateString(globalObject, this, strict, args){
    print("in DatePrototypeToDateString");
    
-   return toDateString(this.DateValue)
+   return toDateString(thisTimeValue(this))
 };
 
 
@@ -2844,4 +2818,35 @@ function TimeFromMonth(m, t) {
   print(l_nth(daysInMonths, int_of_float(m)));
 
   return (l_nth(daysInMonths, int_of_float(m)) * |msPerDay|)
+};
+
+function auxParseDate(string) {
+  list := parse_date(string);
+  print("inside parseDate if");
+  print(list);
+  if (list = - (1.)) {
+    return NaN
+  }
+  else {
+
+    yr := float_of_string(l_nth(list, 1));
+    m := float_of_string(l_nth(list, 2));
+    dt := float_of_string(l_nth(list, 3));
+    h := float_of_string(l_nth(list, 4));
+    mins := float_of_string(l_nth(list, 5));
+    s := float_of_string(l_nth(list, 6));
+    milli := float_of_string(l_nth(list, 7));
+
+    print(yr);
+    print(m); 
+    print(dt);
+    print(h); 
+    print(mins);
+    print(s);
+    print(milli);
+
+    print(MakeDay(yr ,m ,dt));
+    print(MakeTime(h, mins, s, milli));
+    return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli)))
+  }
 }
