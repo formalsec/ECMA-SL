@@ -75,7 +75,7 @@ function initSetPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "keys", descriptor);
 
   /* 23.2.3.11 Set.prototype [ @@iterator ] ( ) */
-  setJSProperty(prototype, "Symbol.iterator", descriptor); 
+  setJSProperty(prototype, getIteratorPropertyName(), descriptor); 
 
 
   /* 23.2.3.9 get Set.prototype.size */
@@ -95,7 +95,7 @@ function initSetPrototype(global, objectPrototype, strict) {
 
   /* 23.2.3.12 Set.prototype [ @@toStringTag ] */
   descriptor := newDataPropertyDescriptorFull("Set", false, false, true);
-  setJSProperty(prototype, "toStringTag", descriptor); 
+  setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
 
   
   return prototype
@@ -132,10 +132,10 @@ function initSetObject(global, objectPrototype, strict) {
   setJSProperty(objSetConstructor, "prototype", descriptor);
 
 
-  /* 23.2.2.2 get Set [ @@species ] TODO */
+  /* 23.2.2.2 get Set [ @@species ] */
   speciesObject := CreateBuiltInFunctionObject([], "getSpeciesObject", global, strict, 0.);
   descriptor := newGetAccessorPropertyDescriptorFull(speciesObject, false, true);
-  setJSProperty(objSetConstructor, "species", descriptor); 
+  setJSProperty(objSetConstructor, getSpeciesPropertyName(), descriptor); 
   setJSProperty(speciesObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
   setJSProperty(speciesObject, "name", newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true));  
 
@@ -241,8 +241,6 @@ print(adder);
 print(set);
 
     /* f. Let status be Call(adder, set, «nextValue.[[value]]»). */
-    /*TODO verificar se nextValue.[[value]] e suposto ser Get(nextValue, "0") ou nextValue.value */
-    /*status := Call(null, null, adder, set, [Get(nextValue, "0")]);*/
     status := WrappedCall(null, null, adder, set, [nextValue]);
     print("Debug19");
     print(status);
@@ -902,7 +900,7 @@ function initSetIteratorPrototype(global, objectPrototype, strict) {
 
   /* 23.2.5.2.2 %SetIteratorPrototype% [ @@toStringTag ]*/
   descriptor := newDataPropertyDescriptorFull("Set Iterator", false, false, true);
-  setJSProperty(prototype, "toStringTag", descriptor); 
+  setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
 
 
   |SetIteratorPrototype| := prototype; 
