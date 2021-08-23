@@ -91,7 +91,11 @@
                   "print"           , PRINT; 
                   "to_precision"    , TO_PRECISION;
                   "to_exponential"    , TO_EXPONENTIAL;
-                  "to_fixed"    , TO_FIXED
+                  "to_fixed"    , TO_FIXED;
+                  "cosh" , COSH;
+                  "log_2" , LOG_2;
+                  "sinh" , SINH;
+                  "tanh" , TANH
                 ]
 
   exception Syntax_error of string
