@@ -3666,7 +3666,7 @@ function arrayFrom (global, this, strict, args) {
   /* 12. If IsConstructor(C) is true, then */
   if (IsConstructor(C) = true) {
     /* a. Let A be Construct(C, «len»). */
-    A := Construct(null, null, C, [len]);
+    A := Construct(null, null, C, [len])
 
   /* 13. Else, */
   } else {
