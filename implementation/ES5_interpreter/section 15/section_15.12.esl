@@ -849,8 +849,8 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
   * 0xDFFF (defined as a trailing surrogate, or more formally as a low-surrogate code unit) 
   */
 function isLeadingSurrogate(code) {
-  start := to_char_code_u "\uD800";
-  end := to_char_code_u "\uD8FF";
+  start := to_char_code_u "\u{D800}";
+  end := to_char_code_u "\u{D8FF}";
   if ((code >= start) &&& (code <= end)) {
     return true
   } else {
