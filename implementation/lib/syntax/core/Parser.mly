@@ -27,7 +27,7 @@
 %token <string> SYMBOL
 %token <string> LOC
 %token LAND LOR
-%token PARSE_NUMBER PARSE_STRING INT_TO_FLOAT INT_TO_STRING INT_TO_FOUR_HEX HEX_DECODE UTF8_DECODE OCTAL_TO_DECIMAL
+%token PARSE_NUMBER PARSE_STRING PARSE_DATE INT_TO_FLOAT INT_TO_STRING INT_TO_FOUR_HEX HEX_DECODE UTF8_DECODE OCTAL_TO_DECIMAL
 %token INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND BITWISE_OR BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %token FROM_CHAR_CODE FROM_CHAR_CODE_U TO_CHAR_CODE TO_CHAR_CODE_U TO_LOWER_CASE TO_UPPER_CASE TRIM
@@ -280,6 +280,8 @@ expr_target:
     { Expr.UnOpt (Oper.ParseNumber, e) } %prec unopt_prec
   | PARSE_STRING; e = expr_target;
     { Expr.UnOpt (Oper.ParseString, e) } %prec unopt_prec
+  | PARSE_DATE; e = expr_target;
+    { Expr.UnOpt (Oper.ParseDate, e) } %prec unopt_prec
   | TO_PRECISION; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN; 
     { Expr.BinOpt (Oper.ToPrecision, e1, e2) }
   | TO_EXPONENTIAL; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN; 

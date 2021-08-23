@@ -130,8 +130,9 @@ function ObjectConstructor(globalObject, this, strict, params) {
 
   /* 1. If value is supplied, then */
   if (!(value = null)) {
+    type := Type(value);
     /* a. If Type(value) is Object, then */
-    if (Type(value) = "Object") {
+    if (type = "Object") {
       /* i. If the value is a native ECMAScript object, do not create a new object but simply return value. */
       if (isJavaScriptObject(value)) {
         return value
@@ -143,24 +144,24 @@ function ObjectConstructor(globalObject, this, strict, params) {
       }
     };
     /* b. If Type(value) is String, return ToObject(value). */
-    if (Type(value) = "String") {
+    if (type = "String") {
       return ToObject(value)
     };
     /* c. If Type(value) is Boolean, return ToObject(value). */
-    if (Type(value) = "Boolean") {
+    if (type = "Boolean") {
       return ToObject(value)
     };
     /* d. If Type(value) is Number, return ToObject(value). */
-    if (Type(value) = "Number") {
+    if (type = "Number") {
       return ToObject(value)
     };
     /* e. If Type(value) is Symbol, return value. */
-    if (Type(value) = "Symbol") {
+    if (type = "Symbol") {
       return value
     }
   };
   /* 2. Assert: The argument value was not supplied or its type was Null or Undefined. */
-  assert((value = null) ||| (Type(value) = "Null") ||| (Type(value) = "Undefined"));
+  assert((value = null) ||| (type = "Null") ||| (type = "Undefined"));
   /* 3. Let obj be a newly created native ECMAScript object. */
   obj := NewECMAScriptObject();
   /* 4. Set the [[Prototype]] internal property of obj to the standard built-in Object prototype object (15.2.4). */
@@ -193,13 +194,13 @@ function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
   O := l_nth(params, 0);
   P := l_nth(params, 1);
   /* When the getOwnPropertyDescriptor function is called, the following steps are taken: */
-
+  type := Type(O);
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object" || Type(O) = "Symbol")) {
+  if (!(type = "Object" || type = "Symbol")) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Let name be ToString(P). */
-  name := ToString(P);
+  name := ToPropertyKey(P);
   /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with argument name. */
   desc := {O.GetOwnProperty}(O, name);
   /* 4. Return the result of calling FromPropertyDescriptor(desc) (8.10.4). */
@@ -210,9 +211,9 @@ function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
 function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
   O := l_nth(params, 0);
   /* When the getOwnPropertyNames function is called, the following steps are taken: */
-
+  type := Type(O);
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object")) {
+  if (!(type = "Object" || type = "Symbol")) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Let array be the result of creating a new object as if by the expression new Array () where Array is the
@@ -253,9 +254,9 @@ function ObjectCreate(globalObject, this, strict, params) {
   Properties := getOptionalParam(params, 1);
   /* The create function creates a new object with a specified prototype. When the create function is called, the
     following steps are taken: */
-
+  type := Type(O);
   /* 1. If Type(O) is not Object or Null throw a TypeError exception. */
-  if (!(Type(O) = "Object") && !(Type(O) = "Null")) {
+  if (!(type = "Object") && !(type = "Null")) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Let obj be the result of creating a new object as if by the expression new Object() where Object is the
@@ -279,13 +280,13 @@ function ObjectDefineProperty(globalObject, this, strict, params) {
   Attributes := l_nth(params, 2);
   /* The defineProperty function is used to add an own property and/or update the attributes of an existing own
     property of an object. When the defineProperty function is called, the following steps are taken: */
-
+  type := Type(O);
   /* 1. If Type(O) is not Object throw a TypeError exception. */
-  if (!(Type(O) = "Object")) {
+  if (!(type = "Object" || type = "Symbol")) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Let name be ToString(P). */
-  name := ToString(P);
+  name := ToPropertyKey(P);
   /* 3. Let desc be the result of calling ToPropertyDescriptor with Attributes as the argument. */
   desc := ToPropertyDescriptor(Attributes);
   /* 4. Call the [[DefineOwnProperty]] internal method of O with arguments name, desc, and true. */
@@ -617,7 +618,7 @@ function ObjectPrototypeHasOwnProperty(globalObject, this, strict, params) {
   /* When the hasOwnProperty method is called with argument V, the following steps are taken: */
 
   /* 1. Let P be ToString(V). */
-  P := ToString(V);
+  P := ToPropertyKey(V);
   /* 2. Let O be the result of calling ToObject passing the this value as the argument. */
   O := ToObject(this);
   /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O passing P as the argument. */
@@ -662,7 +663,7 @@ function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params)
   /* When the propertyIsEnumerable method is called with argument V, the following steps are taken: */
 
   /* 1. Let P be ToString(V). */
-  P := ToString(V);
+  P := ToPropertyKey(V);
   /* 2. Let O be the result of calling ToObject passing the this value as the argument. */
   O := ToObject(this);
   /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O passing P as the argument. */
