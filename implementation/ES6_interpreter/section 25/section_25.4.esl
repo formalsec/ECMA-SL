@@ -3,7 +3,7 @@
  */
 function initPromiseObject(globalObject, ObjectPrototype, strict) {
   objPromisePrototype := initPromisePrototype(globalObject, ObjectPrototype, strict);
-  objPromiseConstructor := CreateFunctionObject(["executor"], "PromiseConstructor", globalObject, strict, 0.);
+  objPromiseConstructor := CreateBuiltInConstructorObject(objPromisePrototype, ["executor"], "PromiseConstructor", globalObject, strict, 0., "Promise");
 
   descriptor := newDataPropertyDescriptorFull(objPromiseConstructor, true, false, true);
   setJSProperty(objPromisePrototype, "constructor", descriptor);
@@ -436,14 +436,14 @@ function PromiseResolveFunctions(F, global, this, strict, args) {
     return FulfillPromise(promise, resolution)
   };
   /* 8. Let then be Get(resolution, "then"). */
-  then := Get(resolution, "then");
+  then := Get(resolution, "then") catch PromiseExceptionHandler;
   /* 9. If then is an abrupt completion, then */
   if (isAnAbruptCompletion(then)) {
     /* a. Return RejectPromise(promise, then.[[value]]). */
-    return RejectPromise(promise, then.value)
+    return RejectPromise(promise, then)
   };
   /* 10. Let thenAction be then.[[value]]. */
-  thenAction := then.value;
+  thenAction := then;
   /* 11. If IsCallable(thenAction) is false, then */
   if (IsCallable(thenAction) = false) {
     /* a. Return FulfillPromise(promise, resolution). */

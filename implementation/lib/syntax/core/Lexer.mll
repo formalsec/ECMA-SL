@@ -15,6 +15,7 @@
                 [
                   "parse_number"    , PARSE_NUMBER;
                   "parse_string"    , PARSE_STRING;
+                  "parse_date"    , PARSE_DATE;
                   "l_len"           , LLEN;
                   "l_nth"           , LNTH;
                   "l_add"           , LADD;
@@ -92,11 +93,6 @@
                   "to_precision"    , TO_PRECISION;
                   "to_exponential"    , TO_EXPONENTIAL;
                   "to_fixed"    , TO_FIXED;
-                  "acosh" , ACOSH;
-                  "asinh" , ASINH;
-                  "atanh" , ATANH;
-                  "cbrt" , CBRT;
-                  "clz32" , CLZ32;
                   "cosh" , COSH;
                   "log_2" , LOG_2;
                   "sinh" , SINH;

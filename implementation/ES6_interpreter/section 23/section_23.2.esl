@@ -19,7 +19,7 @@ function initSetPrototype(global, objectPrototype, strict) {
   setJSProperty(addObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(addObject, "name", newDataPropertyDescriptorFull("add", false, false, true));
 
-  /* TODO 23.2.2.2 get Set [ @@species ] */
+  
 
   /* 23.2.3.2 Set.prototype.clear ( ) */
   clearObject := CreateBuiltInFunctionObject([], "setClearObject", global, strict, null);
@@ -62,27 +62,29 @@ function initSetPrototype(global, objectPrototype, strict) {
   setJSProperty(hasObject, "name", newDataPropertyDescriptorFull("has", false, false, true));
 
 
-  /* 23.2.3.8 Set.prototype.keys ( ) */
-  keysObject := CreateBuiltInFunctionObject([], "setKeysObject", global, strict, null);
-  descriptor := newDataPropertyDescriptorFull(keysObject, true, false, true);
-  setJSProperty(prototype, "keys", descriptor);
-  setJSProperty(keysObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
-  setJSProperty(keysObject, "name", newDataPropertyDescriptorFull("keys", false, false, true));
-
-
-  /* 23.2.3.9 get Set.prototype.size */
-  sizeObject := CreateBuiltInFunctionObject([], "setSizeObject", global, strict, 0.);
-  descriptor := newGetAccessorPropertyDescriptor(sizeObject);
-  setJSProperty(prototype, "size", descriptor); 
-  setJSProperty(sizeObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
-  setJSProperty(sizeObject, "name", newDataPropertyDescriptorFull("get size", false, false, true));  
 
   /* 23.2.3.10 Set.prototype.values ( ) */
   valuesObject := CreateBuiltInFunctionObject([], "setValuesObject", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(valuesObject, true, false, true);
   setJSProperty(prototype, "values", descriptor);
   setJSProperty(valuesObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
-  setJSProperty(valuesObject, "name", newDataPropertyDescriptorFull("values", false, false, true));  
+  setJSProperty(valuesObject, "name", newDataPropertyDescriptorFull("values", false, false, true)); 
+
+
+  /* 23.2.3.8 Set.prototype.keys ( ) */
+  setJSProperty(prototype, "keys", descriptor);
+
+  /* 23.2.3.11 Set.prototype [ @@iterator ] ( ) */
+  setJSProperty(prototype, "Symbol.iterator", descriptor); 
+
+
+  /* 23.2.3.9 get Set.prototype.size */
+  sizeObject := CreateBuiltInFunctionObject([], "setSizeObject", global, strict, 0.);
+  descriptor := newGetAccessorPropertyDescriptorFull(sizeObject, false, true);
+  setJSProperty(prototype, "size", descriptor); 
+  setJSProperty(sizeObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(sizeObject, "name", newDataPropertyDescriptorFull("get size", false, false, true));  
+
 
   /* Martelada Provisoria */
   /* newlyConstructedObject.IteratorFunction := "CreateSetIteratorJS"; */
@@ -91,15 +93,9 @@ function initSetPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "iterator", descriptor); 
 
 
-  /* TODO 23.2.3.11 Set.prototype [ @@iterator ] ( ) */
-  /*prototypeIteratorObject := CreateBuiltInFunctionObject([], "setValuesObject", global, strict, null);
-  descriptor := newDataPropertyDescriptorFull(prototypeIteratorObject, false, true, true);
-  setJSProperty(prototype, "", descriptor); */
-
-  /* TODO 23.2.3.12 Set.prototype [ @@toStringTag ] */
-  /* SetToStringObject := CreateBuiltInFunctionObject(["items"], "SetToString", global, strict, 1.); */
-  descriptor := newDataPropertyDescriptorFull("Set", false, true, true);
-  setJSProperty(prototype, "[Symbol.toStringTag]", descriptor); 
+  /* 23.2.3.12 Set.prototype [ @@toStringTag ] */
+  descriptor := newDataPropertyDescriptorFull("Set", false, false, true);
+  setJSProperty(prototype, "toStringTag", descriptor); 
 
   
   return prototype
@@ -135,6 +131,14 @@ function initSetObject(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(objSetPrototype, false, false, false);
   setJSProperty(objSetConstructor, "prototype", descriptor);
 
+
+  /* 23.2.2.2 get Set [ @@species ] TODO */
+  speciesObject := CreateBuiltInFunctionObject([], "getSpeciesObject", global, strict, 0.);
+  descriptor := newGetAccessorPropertyDescriptorFull(speciesObject, false, true);
+  setJSProperty(objSetConstructor, "species", descriptor); 
+  setJSProperty(speciesObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(speciesObject, "name", newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true));  
+
   return objSetConstructor
 };
 
@@ -150,7 +154,6 @@ function initSetObject(global, objectPrototype, strict) {
  * with the internal state necessary to support the Set.prototype built-in methods.
  */
 
-
 /*
 
 23.2.1.1 Set ( [ iterable ] )
@@ -161,27 +164,25 @@ When the Set function is called with optional argument iterable the following st
 function setConstructor(global, this, strict, items) {
   NewTarget := this;
   iterable := getOptionalParam(items, 0);
-  print("Debug1");
-  print(iterable);
+
   /* 1. If NewTarget is undefined, throw a TypeError exception. */
   if (NewTarget = 'undefined) {
     throw TypeErrorConstructorInternal()
   };
-print("Debug2");
   /* 2. Let set be OrdinaryCreateFromConstructor(NewTarget, "%SetPrototype%", «‍[[SetData]]» ). */
   set := OrdinaryCreateFromConstructorSet(global, this, strict, iterable);
-print("Debug3");
+
   /* 3. ReturnIfAbrupt(set). */
   @ReturnIfAbrupt(set);
-print("Debug4");
+
   /* 4. Set set’s [[SetData]] internal slot to a new empty List. */
   set.SetData := [];
-print("Debug5");
+
   /* 5. If iterable is not present, let iterable be undefined. */
   if (iterable = null) {
     iterable := 'undefined
   };
-  print("Debug6");
+
   /* 6. If iterable is either undefined or null, let iter be undefined. */
   if (iterable = 'undefined || iterable = 'null) {
     iter := 'undefined
@@ -191,9 +192,10 @@ print("Debug5");
     /* a. Let adder be Get(set, "add"). */
     adder := Get(set, "add");
   print("Debug8");
+  print(adder);
     /* b. ReturnIfAbrupt(adder). */
     @ReturnIfAbrupt(adder);
-print("Debug9");
+
     /* c. If IsCallable(adder) is false, throw a TypeError exception. */
     if (IsCallable(adder) = false) {
       throw TypeErrorConstructorInternal()
@@ -203,6 +205,7 @@ print("Debug9");
     /* d. Let iter be GetIterator(iterable). */
     iter := GetIterator(iterable, null);
 print("Debug11");
+print(iter);
     /* e. ReturnIfAbrupt(iter). */
     @ReturnIfAbrupt(iter)
   };
@@ -218,6 +221,7 @@ print(iter);
     /* a. Let next be IteratorStep(iter). */
     next := IteratorStep(iter);
 print("Debug14");
+print(next);
     /* b. ReturnIfAbrupt(next). */
     @ReturnIfAbrupt(next);
 print("Debug15");
@@ -238,11 +242,18 @@ print(set);
 
     /* f. Let status be Call(adder, set, «nextValue.[[value]]»). */
     /*TODO verificar se nextValue.[[value]] e suposto ser Get(nextValue, "0") ou nextValue.value */
-    status := Call(null, null, adder, set, [Get(nextValue, "0")]); 
+    /*status := Call(null, null, adder, set, [Get(nextValue, "0")]);*/
+    status := WrappedCall(null, null, adder, set, [nextValue]);
     print("Debug19");
+    print(status);
+
     /* g. If status is an abrupt completion, return IteratorClose(iter, status). */
     if ((Type(status) = "Completion") &&& (isAnAbruptCompletion(status))) {
-      return IteratorClose(iter, status)
+      close := IteratorClose(iter, status);
+      print("Debug20");
+      print(close);
+      throw getCompletionValue(close)
+      /* return close */
     }
   }
 
@@ -299,7 +310,10 @@ function OrdinaryCreateFromConstructorSet(global, this, strict, items) {
  *
  * NOTE Methods that create derived collection objects should call @@species to determine the constructor to use to create the derived objects. Subclass constructor may over-ride @@species to change the default constructor assignment.
  */
-
+function getSpeciesObject (global, this, strict, args) {
+  /* 1. Return the this value. */
+  return this
+};
 
 
 /**
@@ -321,7 +335,7 @@ function OrdinaryCreateFromConstructorSet(global, this, strict, items) {
  *  
  */
 function setAddObject(global, this, strict, args) {
-  print("in setAddObject: args, value");
+  print("in setAddObject");
   
   value := l_nth(args, 0);
   
@@ -366,8 +380,11 @@ function setAddObject(global, this, strict, args) {
   };
 
   /* 7. Append value as the last element of entries. */
-  S.SetData := l_add(entries, value);
-  
+  /*S.SetData := l_add(entries, value);*/
+  entries := l_add(entries, value);
+  S.SetData := entries;
+  print("S.SetData: ");
+  print(S.SetData);
   /* 8.  Return S. */
   return S
 };
@@ -506,6 +523,22 @@ function setEntriesObject(global, this, strict, args) {
  *
  * 23.2.3.6 Set.prototype.forEach ( callbackfn [ , thisArg ] )
  * 
+ * 
+ * NOTE callbackfn should be a function that accepts three arguments. forEach calls callbackfn once for each value present in the set object, in value insertion order. callbackfn is called only for values of the Set which actually exist; it is not called for keys that have been deleted from the set.
+ * 
+ * If a thisArg parameter is provided, it will be used as the this value for each invocation of callbackfn. If it is not provided, undefined is used instead.
+ * 
+ * callbackfn is called with three arguments: the first two arguments are a value contained in the Set. The same value is passed for both arguments. The Set object being traversed is passed as the third argument.
+ * 
+ * The callbackfn is called with three arguments to be consistent with the call back functions used by forEach methods for Map and Array. For Sets, each item value is considered to be both the key and the value.
+ * 
+ * forEach does not directly mutate the object on which it is called but the object may be mutated by the calls to callbackfn.
+ * 
+ * Each value is normally visited only once. 
+ * However, a value will be revisited if it is deleted after it has been visited and then re-added before the forEach call completes. 
+ * Values that are deleted after the call to forEach begins and before being visited are not visited unless the value is added again before the forEach call completes.
+ * New values added after the call to forEach begins are visited.
+ * 
  */
 function setForEachObject(global, this, strict, args) {
   callbackfn := l_nth(args, 0);
@@ -557,7 +590,9 @@ function setForEachObject(global, this, strict, args) {
       
     };
 
-    index := index + 1
+    index := index + 1;
+    entries := S.SetData;
+    len := l_len(entries)
   };
 
   /* 8. Return undefined.*/
@@ -792,7 +827,7 @@ function createSetIterator(set, kind) {
     
     /* 6. Let itemKind be the value of the [[SetIterationKind]] internal slot of O. */
     itemKind := O.SetIterationKind;
-
+  print(itemKind);
     /* 7. If s is undefined, return CreateIterResultObject(undefined, true). */
     if (s = 'undefined){
       return CreateIterResultObject('undefined, true)
@@ -834,9 +869,6 @@ function createSetIterator(set, kind) {
     
     /* 11. Set the [[IteratedSet]] internal slot of O to undefined. */
     O.IteratedSet := 'undefined;
-    print("YOYOYO");
-    print(this.IteratedSet);
-    print(O.IteratedSet);
 
     /* 12. Return CreateIterResultObject(undefined, true). */
     return CreateIterResultObject('undefined, true) 
@@ -865,9 +897,12 @@ function initSetIteratorPrototype(global, objectPrototype, strict) {
   nextObject := CreateBuiltInFunctionObject([], "setIteratorPrototypeNext", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(nextObject, true, false, true);
   setJSProperty(prototype, "next", descriptor);
+  setJSProperty(nextObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(nextObject, "name", newDataPropertyDescriptorFull("next", false, false, true));
 
-  /* TODO 23.2.5.2.2 %SetIteratorPrototype% [ @@toStringTag ]*/
-
+  /* 23.2.5.2.2 %SetIteratorPrototype% [ @@toStringTag ]*/
+  descriptor := newDataPropertyDescriptorFull("Set Iterator", false, false, true);
+  setJSProperty(prototype, "toStringTag", descriptor); 
 
 
   |SetIteratorPrototype| := prototype; 

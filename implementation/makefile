@@ -34,4 +34,4 @@ clean:
 	rm -f *.byte
 	rm -rf logs
 
-.PHONY: test
+.PHONY: default test clean

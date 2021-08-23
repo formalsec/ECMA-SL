@@ -44,8 +44,13 @@ function GetIterator(obj, method) {
 
     /* 2. If method was not passed, then */
     if(method = null) {
+        iteratorFunName := obj.IteratorFunction;
+        if (iteratorFunName = 'undefined) {
+            iteratorFunName := "Symbol.iterator" /* TODO mudar */
+        };
+
         /* a. Let method be GetMethod(obj, @@iterator). */
-        method := GetMethod(obj, obj.IteratorFunction);
+        method := GetMethod(obj, iteratorFunName);
 
         /* b. ReturnIfAbrupt(method). */
         @ReturnIfAbrupt(method)
