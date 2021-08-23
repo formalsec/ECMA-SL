@@ -96,6 +96,7 @@ type uopt = Neg
           | Tan
           | ParseNumber
           | ParseString
+          | ParseDate
           | Cosh
           | Log_2
           | Sinh
@@ -295,6 +296,29 @@ let parse_string (v : Val.t) : Val.t = match v with
           Str (Str.matched_string s)
         else Str("")
 | _  -> invalid_arg "Exception in Oper.parse_string: this operation is only applicable to a String argument"
+
+let parse_date (v :Val.t) : Val.t = match v with
+  | Str s ->
+    Printf.printf "parse_date with string: %s\n" s;
+    (*YYYY-MM-DDTHH:mm:ss.sssZ*)
+    let re = Str.regexp "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)?-\\([0-9][0-9]\\)T\\([0-9][0-9]\\):\\([0-9][0-9]\\):\\([0-9][0-9]\\).\\([0-9][0-9][0-9]\\)" in
+    (*let year_regex = Str.regexp "\\([0-9][0-9][0-9][0-9]\\)" in *)
+    let matched = Str.string_match re s 0 in 
+    if matched then (
+      Printf.printf "in matched if \n";
+      let group0 = Str.matched_group 0 s in
+      let group1 = Str.matched_group 1 s in
+      let group2 = Str.matched_group 2 s in
+      let group3 = Str.matched_group 3 s in
+      let group4 = Str.matched_group 4 s in
+      let group5 = Str.matched_group 5 s in
+      let group6 = Str.matched_group 6 s in
+      let group7 = Str.matched_group 7 s in
+      Printf.printf "Matched successfully %s\n" group0;
+      Val.List [Val.Str group0; Val.Str group1; Val.Str group2; Val.Str group3; Val.Str group4; Val.Str group5; Val.Str group6; Val.Str group7]
+    )
+    else Val.Flt (-(1.))
+  | _  -> invalid_arg "Exception in Oper.parse_date: this operation is only applicable to a String argument"
 
 let list_in (v1, v2 : Val.t * Val.t) : Val.t = match v2 with
   | List l -> Bool (List.mem v1 l)
@@ -562,6 +586,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | Tan           -> "tan"
   | ParseNumber   -> "parse_number"
   | ParseString   -> "parse_string"
+  | ParseDate     -> "parse_date"
   | Cosh          -> "cosh"
   | Log_2         -> "log_2"
   | Sinh          -> "sinh"
@@ -800,6 +825,7 @@ let uopt_to_json (op : uopt) : string =
      | Tan           -> Printf.sprintf "Tan\" }"
      | ParseNumber   -> Printf.sprintf "ParseNumber\" }"
      | ParseString   -> Printf.sprintf "ParseString\" }"
+     | ParseDate     -> Printf.sprintf "ParseDate\" }"
      | Cosh          -> Printf.sprintf "Cosh\" }"
      | Log_2          -> Printf.sprintf "Log2\" }"
      | Sinh          -> Printf.sprintf "Sinh\" }"

@@ -16,6 +16,7 @@
               [
                 "parse_number"    , PARSE_NUMBER;
                 "parse_string"    , PARSE_STRING;
+                "parse_date"      , PARSE_DATE;
                 "octal_to_decimal", OCTAL_TO_DECIMAL;
                 "hex_decode"      , HEX_DECODE;
                 "utf8_decode"     , UTF8_DECODE;

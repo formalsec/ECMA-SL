@@ -9,6 +9,9 @@ function initDateObject(globalObject, ObjectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(datePrototype, false, false, false);
   setJSProperty(dateConstructor, "prototype", descriptor);
 
+  descriptor := newDataPropertyDescriptorFull("Date", false, false, true);
+  setJSProperty(dateConstructor, "name", descriptor);
+
   descriptor := newDataPropertyDescriptorFull(7., false, false, false);
   setJSProperty(dateConstructor, "length", descriptor);
 
@@ -60,8 +63,9 @@ function TimeWithinDay(t) { return (t % |msPerDay|) };
 /*               = 366 if (y modulo 400) = 0 */
 function DaysInYear(y) {
    print("in DaysInYear");
-   
-   if ((!(y % 4. = 0.)) || (((y % 400. ) = 0.) &&& !((y % 400.) = 0.))) {
+   print(y);
+
+   if ((!(y % 4. = 0.)) || (((y % 100. ) = 0.) &&& !((y % 400.) = 0.))) {
       return 365.
    }
    elif (((y % 4.) = 0. &&& !((y % 100.) = 0.)) || (y % 400.) = 0.) {
@@ -84,13 +88,40 @@ function TimeFromYear(y) { return |msPerDay| * DayFromYear(y) };
 /*                YearFromTime(t) = the largest integer y (closest to positive infinity) such that TimeFromYear(y) <= t */
 function YearFromTime(t) {
   print("in YearFromTime");
+  if (!auxIsFinite(t)) {
+    return t
+  };
+
   msPerYear := 365. * |msPerDay|;
 
-  
   aprox := floor(t/msPerYear) + 1970.;
+  /*if (t >= 0.) {
+    aprox := floor(t/msPerYear) + 1970.
+  }
+  else {
+    aprox := floor((t)/(366. * |msPerDay|)) + 1970.
+  }; */
 
-  while(!(TimeFromYear(aprox) <= t)) {
-    aprox := aprox - 1.
+  print(aprox);
+  print(t/msPerYear);
+  print(t);
+  print(TimeFromYear(aprox));
+  
+  if (aprox = 1970.) {
+    return aprox
+  };
+
+  step := - abs(t) / t;
+  /* i := 0; */
+  print(step);
+  while(!((TimeFromYear(aprox) <= t) &&& (t < TimeFromYear(aprox + 1.)))) {
+    /*i := i + 1;
+    if ( i > 500) {
+      print("terminei o loop");
+      print(aprox);
+      return aprox
+    }; */
+    aprox := aprox + step /*- 1. /* - abs(t) / t  */
   };
 
  
@@ -135,11 +166,14 @@ function InLeapYear(t) {
 
 function MonthFromTime(t) {
   print("in MonthFromTime");
+  print(YearFromTime(t));
   print(DayWithinYear(t));
+  print(InLeapYear(t));
+
    if (0. <= DayWithinYear(t) &&& DayWithinYear(t) < 31.) {
       return 0.
    }
-   elif (31. <= DayWithinYear(t) &&& DayWithinYear(t) < 59.) {
+   elif (31. <= DayWithinYear(t) &&& DayWithinYear(t) < 59. + InLeapYear(t)) {
       return 1.
    }
    elif (59. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t) < 90. + InLeapYear(t)) {
@@ -172,9 +206,17 @@ function MonthFromTime(t) {
    elif (334. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 365. + InLeapYear(t)) {
       return 11.
    }
+   elif(t = NaN) { /* TODO change?*/
+     return NaN
+   }
 };
 
-function DayWithinYear(t) { return Day(t)-DayFromYear(YearFromTime(t)) };
+function DayWithinYear(t) { 
+  print("in DayWithinYear");
+  print(Day(t));
+  print(DayFromYear(YearFromTime(t)));
+  print(YearFromTime(t));
+  return Day(t)-DayFromYear(YearFromTime(t)) };
 
 /* 20.3.1.5 Date Number */
 /* A date number is identified by an integer in the range 1 through 31, inclusive. The mapping DateFromTime(t)
@@ -273,7 +315,7 @@ function LocalTime(t) {
    @ReturnIfAbrupt(t);
 
    /* 2. Return t + LocalTZA + DaylightSavingTA(t). */
-   return t - |LocalTZA| + DaylightSavingTA(t)
+   return t + |LocalTZA| + DaylightSavingTA(t)
 };
 
 /* 20.3.1.10 UTC ( t )
@@ -286,7 +328,7 @@ function UTC(t) {
    /* 1. ReturnIfAbrupt(t). */
    @ReturnIfAbrupt(t);
 
-   /* 2. Return t + LocalTZA + DaylightSavingTA(t). */
+   /* 2. Return t - LocalTZA - DaylightSavingTA(t - LocalTZA). */
    return t - |LocalTZA| - DaylightSavingTA(t - |LocalTZA|)
 };
 
@@ -319,8 +361,11 @@ function SecFromTime(t) {
    return (floor(t / msPerSecond) % SecondsPerMinute)
 };
 function msFromTime(t) { 
-   msPerSecond := 1000.;
-   return t % msPerSecond
+  print("in msFomTime");
+  msPerSecond := 1000.;
+  
+   
+  return t % msPerSecond
 };
 
 /**
@@ -331,10 +376,10 @@ function msFromTime(t) {
  */
 function MakeTime(hour, mins, sec, ms) {
   print("in MakeTime");
-  print(hour);
-  print(mins);
-  print(sec);
-  print(ms);
+  print(auxIsFinite(hour));
+  print(auxIsFinite(mins));
+  print(auxIsFinite(sec));
+  print(auxIsFinite(ms));
   /* 1. If hour is not finite or min is not finite or sec is not finite or ms is not finite, return NaN. */
   if (!(auxIsFinite(hour) &&& auxIsFinite(mins) &&& auxIsFinite(sec) &&& auxIsFinite(ms))) {
      return NaN
@@ -349,6 +394,10 @@ function MakeTime(hour, mins, sec, ms) {
   /* 5. Let milli be ToInteger(ms). */
   milli := ToInteger(ms);
 
+  print(h);
+  print(m);
+  print(s);
+  print(milli);
   msPerSecond := 1000.;
   msPerMinute := 60000.;
   msPerHour := 3600000.;
@@ -388,17 +437,23 @@ function MakeDay(year, month, date) {
   /* 6. Let mn be m modulo 12. */
   mn := m % 12.;
   
+  print(y);
+  print(m);
+  print(dt);
+  print(ym);
+  print(mn);
   /* 7. Find a value t such that YearFromTime(t) == ym and MonthFromTime(t) == mn and DateFromTime(t) == 1;
         but if this is not possible (because some argument is out of range), return NaN. */
   
-  if(int_of_float(ym) > (100000000 /366)) {
-    return NaN
-  };
-
+  
   t := TimeFromYear(ym);
+  print("TimeFromYear(ano)");
+  print(t);
+  print("ano: ");
+  print(YearFromTime(t));
   t := t + TimeFromMonth(mn, t);
-
-  if(!(DateFromTime(t) = 1)) {
+  print(DateFromTime(t));
+  if(!(DateFromTime(t) = 1.)) {
     return NaN
   };
 
@@ -414,6 +469,9 @@ function MakeDay(year, month, date) {
  */ 
 function MakeDate(day, time) {
    print("in MakeDate");
+   print(day);
+   print(time);
+
   /* 1. If day is not finite or time is not finite, return NaN. */
   if (!(auxIsFinite(day) &&& auxIsFinite(time))){
      return NaN
@@ -432,13 +490,18 @@ function MakeDate(day, time) {
  *       this internalrepresentation may or may not distinguish -0 and +0. 
  */
 function TimeClip(time) {
+  print("in TimeClip function");
+  print(!(auxIsFinite(time)));
+  print(abs(time) >= (8.64 * (10. ** 15.)));
+  print(time);
   /* 1. If time is not finite, return NaN. */
   if (!(auxIsFinite(time))) {
      return NaN
   };
 
   /* 2. If abs(time) > 8.64 x 10^15 , return NaN. */
-  if (abs(time) > (8.64 * (10. ** 15.))) {
+  /* TODO not enough precision*/
+  if (abs(time) >= (8.64 * (10. ** 15.))) {
      return NaN
   };
 
@@ -592,6 +655,11 @@ function dateConstructorMultipleArgs(global, this, strict, args){
   NewTarget := this;
   year := l_nth(args, 0);
   month := l_nth(args, 1);
+  date := getOptionalParam(args, 2);
+  hours := getOptionalParam(args, 3);
+  minutes := getOptionalParam(args, 4);
+  seconds := getOptionalParam(args, 5);
+  ms := getOptionalParam(args, 6);
 
   /* 1. Let numberOfArgs be the number of arguments passed to this function call. */
   numberOfArgs := l_len(args);
@@ -614,8 +682,7 @@ function dateConstructorMultipleArgs(global, this, strict, args){
     @ReturnIfAbrupt(m);
 
     /* e. If date is supplied, let dt be ToNumber(date); else let dt be 1. */
-    if (l_len(args) >= 3) {
-      date := l_nth(args, 2);
+    if (!(date = null)) {
       dt := ToNumber(date)
     }
     else{
@@ -626,8 +693,7 @@ function dateConstructorMultipleArgs(global, this, strict, args){
     @ReturnIfAbrupt(dt);
 
     /* g. If hours is supplied, let h be ToNumber(hours); else let h be 0. */
-    if (l_len(args) >= 4) {
-      hours := l_nth(args, 3);
+    if (!(hours = null)) {
       h := ToNumber(hours)
     }
     else{
@@ -638,8 +704,7 @@ function dateConstructorMultipleArgs(global, this, strict, args){
     @ReturnIfAbrupt(h);
 
     /* i. If minutes is supplied, let min be ToNumber(minutes); else let min be 0. */
-    if (l_len(args) >= 5) {
-      minutes := l_nth(args, 4);
+    if (!(minutes = null)) {
       mins := ToNumber(minutes)
     }
     else{
@@ -649,8 +714,7 @@ function dateConstructorMultipleArgs(global, this, strict, args){
     @ReturnIfAbrupt(mins);
 
     /* k. If seconds is supplied, let s be ToNumber(seconds); else let s be 0. */
-    if (l_len(args) >= 6) {
-      seconds := l_nth(args, 5);
+    if (!(seconds = null)) {
       s := ToNumber(seconds)
     }
     else{
@@ -660,8 +724,7 @@ function dateConstructorMultipleArgs(global, this, strict, args){
     @ReturnIfAbrupt(s);
 
     /* m. If ms is supplied, let milli be ToNumber(ms); else let milli be 0. */
-    if (l_len(args) >= 7) {
-      ms := l_nth(args, 6);
+    if (!(ms = null)) {
       milli := ToNumber(ms)
     }
     else{
@@ -671,14 +734,27 @@ function dateConstructorMultipleArgs(global, this, strict, args){
     @ReturnIfAbrupt(milli);
 
     /* o. If y is not NaN and 0 ≤ ToInteger(y) ≤ 99, let yr be 1900+ToInteger(y); otherwise, let yr be y. */
-    if (!(y = NaN) &&& 0 <= ToInteger(y) &&& ToInteger(y) <= 99) {
+    if (!(y = NaN) &&& 0. <= ToInteger(y) &&& ToInteger(y) <= 99.) {
        yr := 1900. + ToInteger(y)
     }
     else {
        yr := y
     };
     
-
+print(year);
+print(yr);
+print(month);
+print(m);
+print(date);
+print(dt);
+print(hours);
+print(h);
+print(minutes);
+print(mins);
+print(seconds);
+print(s);
+print(ms);
+print(milli);
     /* p. Let finalDate be MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli)). */
     finalDate := MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli));
 
@@ -700,7 +776,7 @@ function dateConstructorMultipleArgs(global, this, strict, args){
     now := getTimeValueIdentifyingCurrentTime();
   
       /* b. Return ToDateString (now). */
-    return ToDateString(now)
+    return toDateString(now)
   }
 };
 
@@ -736,7 +812,7 @@ function dateConstructorOneArg(global, this, strict, args) {
       if (Type(v) = "String") {
         /* 1. Let tv be the result of parsing v as a date, in exactly the same manner as for the parse method (20.3.3.2). 
         If the parse resulted in an abrupt completion, tv is the Completion Record. */
-        /* TODO */
+        
       }  
       /* iii. Else, */
       else {
@@ -768,7 +844,7 @@ function dateConstructorOneArg(global, this, strict, args) {
     now := getTimeValueIdentifyingCurrentTime();
 
     /* b. Return ToDateString (now). */
-    return ToDateString(now)
+    return toDateString(now)
   }
 };
 /**
@@ -819,10 +895,10 @@ function dateConstructorNoArgs(global, this, strict, args){
    /* 4. Else, */
    else {   
       /* a. Let now be the Number that is the time value (UTC) identifying the current time. */
-      now = getTimeValueIdentifyingCurrentTime();
+      now := getTimeValueIdentifyingCurrentTime();
 
       /*b. Return ToDateString (now). */
-      return toDateString (now)
+      return (toDateString(0.))      
    }
 };
 
@@ -868,21 +944,46 @@ function DateParse(global, this, strict, args) {
   string := ToString(arg);
 
   /* If ToString results in an abrupt completion the Completion Record is immediately returned. */
-  if (!(Type(arg) = "Completion")) {
-  } 
-  elif (isAnAbruptCompletion(string)) {
+  if ((Type(arg) = "Completion") &&& isAnAbruptCompletion(string)) {
     return getCompletionValue(string)
-  };
-  
-  fail "20.3.3.2 Date.parse no implemented"
+  }
   /* Otherwise, parse interprets the resulting String as a date and time; it returns a Number, the UTC time value corresponding to the date and time. 
   The String may be interpreted as a local time, a UTC time, or a time in some other time zone, depending on the contents of the String. The function first attempts to parse the format of the String according to the rules (including extended years) called out in Date Time String Format (20.3.1.16). If the String does not conform to that format the function may fall back to any implementation-specific heuristics or implementation-specific date formats. Unrecognizable Strings or dates containing illegal element values in the format String shall cause Date.parse to return NaN. */
-  /*params := s_split(string, "-");
+  else {
+    list := parse_date(arg);
+    print("inside parseDate if");
+    print(list);
+    if (list = - (1.)) {
+      return NaN
+    }
+    else {
+      
+      yr := float_of_string(l_nth(list, 1));
+      m := float_of_string(l_nth(list, 2));
+      dt := float_of_string(l_nth(list, 3));
+      h := float_of_string(l_nth(list, 4));
+      mins := float_of_string(l_nth(list, 5));
+      s := float_of_string(l_nth(list, 6));
+      milli := float_of_string(l_nth(list, 7));
+      
+      print(yr);
+      print(m); 
+      print(dt);
+      print(h); 
+      print(mins);
+      print(s);
+      print(milli);
+      
+
+      print(MakeDay(yr ,m ,dt));
+      print(MakeTime(h, mins, s, milli));
+      return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli)))
+    }
+  };
   
-  /* TODO */
-  /*print("split: ");
-  print(params)
-  */
+
+  fail "20.3.3.2 Date.parse not implemented"
+  
 };
 
 
@@ -900,7 +1001,9 @@ function DateParse(global, this, strict, args) {
  * and it interprets the arguments in UTC rather than as local time.
  */
 function DateUTC(global, this, strict, args) {
-  if (l_len(args) <= 2) {
+  print("inside DateUTC");
+  
+  if (l_len(args) < 2) {
     return NaN
   };
 
@@ -948,13 +1051,20 @@ function DateUTC(global, this, strict, args) {
   @ReturnIfAbrupt(milli);
 
   /* 15. If y is not NaN and 0 ≤ ToInteger(y) ≤ 99, let yr be 1900+ToInteger(y); otherwise, let yr be y. */
-  if (!(y = NaN) &&& 0 <= ToInteger(y) &&& ToInteger(y) <= 99) {
+  if (!(y = NaN) &&& 0. <= ToInteger(y) &&& ToInteger(y) <= 99.) {
+    print("in if DateUTC");
     yr := 1900. + ToInteger(y)
   }
   else {
     yr := y
   };
-  
+  print(yr);
+print(m);
+print(dt);
+print(h);
+print(mins);
+print(s);
+print(milli);
   /* 16. Return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli))). */
   return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli)))
 
@@ -1351,6 +1461,8 @@ function DatePrototypeSetDate (global, this, strict, args) {
   /* 4. ReturnIfAbrupt(dt). */
   @ReturnIfAbrupt(dt);
 
+
+  
   /* 5. Let newDate be MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t)). */
   newDate := MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t));
 
@@ -1626,7 +1738,7 @@ function DatePrototypeSetMonth (global, this, strict, args) {
   };
   /* 6. ReturnIfAbrupt(dt). */
   @ReturnIfAbrupt(dt);
-
+  
   /* 7. Let newDate be MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t)). */
   newDate := MakeDate(MakeDay(YearFromTime(t), m, dt), TimeWithinDay(t));
 
@@ -1650,6 +1762,8 @@ function DatePrototypeSetMonth (global, this, strict, args) {
  *        ms were specified with the value getMilliseconds().
  */
 function DatePrototypeSetSeconds (global, this, strict, args) {
+  print("in DatePrototypeSetSeconds");
+
   sec := l_nth(args, 0);
   ms := getOptionalParam(args, 1);
 
@@ -1669,7 +1783,7 @@ function DatePrototypeSetSeconds (global, this, strict, args) {
     milli := msFromTime(t)
   }
   else {
-    milli := ToNumber(t)
+    milli := ToNumber(ms)
   };
   /* 6. ReturnIfAbrupt(milli). */
   @ReturnIfAbrupt(milli);
@@ -1682,6 +1796,16 @@ function DatePrototypeSetSeconds (global, this, strict, args) {
 
   /* 9. Set the [[DateValue]] internal slot of this Date object to u. */
   this.DateValue := u;
+
+  print(Day(t));
+  print(HourFromTime(t));
+  print(MinFromTime(t));
+  print(s);
+  print(milli);
+  print(t);
+  print(date);
+  print(TimeClip(date));
+  print(u);
 
   /* 10. Return u. */
   return u
@@ -2120,11 +2244,17 @@ function DatePrototypeToDateString(globalObject, this, strict, args){
  * 
  */
 function DatePrototypeToISOString(globalObject, this, strict, args) {
+  print("in DatePrototypeToISOString");
+  print(thisTimeValue(this));
+  print(!auxIsFinite(thisTimeValue(this)));
 
-  /* TODO If this time value is not a finite Number or if the year is not a
+  /* If this time value is not a finite Number or if the year is not a
    value that can be represented in that format (if necessary using extended year format), a RangeError exception is thrown. */
-  
-  return toDateString(this.DateValue)
+  if (!auxIsFinite(thisTimeValue(this)) ||| int_of_float(abs((thisTimeValue(this)))) > (100000000 * 8640000000000000)) {
+    throw RangeErrorConstructorInternal()
+  };
+
+  return toDateString(thisTimeValue(this))
 };
 
 /**
@@ -2252,22 +2382,24 @@ function internalNewDateWithoutValue(datePrototypeObject) {
   return newlyConstructedObject
 };
 
-/* 15.9.4 Properties of the Date Constructor */
+/* 20.3.3 Properties of the Date Constructor */
 function initDateConstructor(DatePrototype, globalObject, strict) {
-  /* The value of the [[Prototype]] internal property of the Date constructor is the Function prototype object (15.3.4). */
+  /* The value of the [[Prototype]] internal property of the Date constructor is the Function prototype object (19.2.3). */
   DateConstructor := CreateFunctionObject(["year", "month", "date", "hours", "minutes", "seconds", "ms"], "newDateConstructor", globalObject, strict, 0.);
 
-  /* Besides the internal properties and the length property (whose value is 7), the Date constructor has the
-     following properties: */
+  /* Besides the length property (whose value is 7), the Date constructor has the following properties: */
 
+  /* 20.3.3.1 Date.now ( ) */
+  nowObject := CreateBuiltInFunctionObject([], "DateNow", globalObject, strict, null);
+  createBuiltInProperty(DateConstructor, "now", nowObject);
+  setJSProperty(nowObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(nowObject, "name", newDataPropertyDescriptorFull("now", false, false, true));
 
-  /* 20.3.3.1  Date.now ( ) */
-  now := CreateBuiltInFunctionObject([], "DateNow", globalObject, strict, null);
-  createBuiltInProperty(DateConstructor, "now", now);
-
-  /* 20.3.3.2  Date.parse (string) */
-  parse := CreateBuiltInFunctionObject([ "string" ], "DateParse", globalObject, strict, null);
-  createBuiltInProperty(DateConstructor, "parse", parse);
+  /* 20.3.3.2 Date.parse (string) */
+  parseObject := CreateBuiltInFunctionObject([ "string" ], "DateParse", globalObject, strict, null);
+  createBuiltInProperty(DateConstructor, "parse", parseObject);
+  setJSProperty(parseObject, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(parseObject, "name", newDataPropertyDescriptorFull("parse", false, false, true));
 
   /* 20.3.3.3 Date.prototype */
   /* The initial value of Date.prototype is the built-in Date prototype object (20.3.4). */
@@ -2275,9 +2407,10 @@ function initDateConstructor(DatePrototype, globalObject, strict) {
   createBuiltInPropertyWithFullDescriptor(DateConstructor, "prototype", DatePrototype, false, false, false);
 
   /* 20.3.3.4 Date.UTC (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ) */
-  UTC := CreateBuiltInFunctionObject(["year", "month", "date", "hours", "minutes", "seconds", "ms"], "DateUTC", globalObject, strict, 2.);
-  createBuiltInProperty(DateConstructor, "UTC", UTC);
-
+  UTCObject := CreateBuiltInFunctionObject(["year", "month", "date", "hours", "minutes", "seconds", "ms"], "DateUTC", globalObject, strict, 2.);
+  createBuiltInProperty(DateConstructor, "UTC", UTCObject);
+  setJSProperty(UTCObject, "length", newDataPropertyDescriptorFull(7., false, false, true));
+  setJSProperty(UTCObject, "name", newDataPropertyDescriptorFull("UTC", false, false, true));
 
 
   return DateConstructor
@@ -2320,94 +2453,140 @@ function initDatePrototype(globalObject, objectPrototype, strict) {
   /* 20.3.4.2 Date.prototype.getDate ( ) */
   getDate := CreateBuiltInFunctionObject([], "DatePrototypeGetDate", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getDate", getDate);
+  setJSProperty(getDate, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getDate, "name", newDataPropertyDescriptorFull("getDate", false, false, true));
 
   /* 20.3.4.3 Date.prototype.getDay ( ) */
   getDay := CreateBuiltInFunctionObject([], "DatePrototypeGetDay", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getDay", getDay);
+  setJSProperty(getDay, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getDay, "name", newDataPropertyDescriptorFull("getDay", false, false, true));
 
   /* 20.3.4.4 Date.prototype.getFullYear ( ) */
   getFullYear := CreateBuiltInFunctionObject([], "DatePrototypeGetFullYear", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getFullYear", getFullYear);
+  setJSProperty(getFullYear, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getFullYear, "name", newDataPropertyDescriptorFull("getFullYear", false, false, true));
 
   /* 20.3.4.5 Date.prototype.getHours ( ) */
   getHours := CreateBuiltInFunctionObject([], "DatePrototypeGetHours", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getHours", getHours);
+  setJSProperty(getHours, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getHours, "name", newDataPropertyDescriptorFull("getHours", false, false, true));
 
   /* 20.3.4.6 Date.prototype.getMilliseconds ( ) */
   getMilliseconds := CreateBuiltInFunctionObject([], "DatePrototypeGetMilliseconds", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getMilliseconds", getMilliseconds);
+  setJSProperty(getMilliseconds, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getMilliseconds, "name", newDataPropertyDescriptorFull("getMilliseconds", false, false, true));
 
   /* 20.3.4.7  Date.prototype.getMinutes ( ) */
   getMinutes := CreateBuiltInFunctionObject([], "DatePrototypeGetMinutes", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getMinutes", getMinutes);
+  setJSProperty(getMinutes, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getMinutes, "name", newDataPropertyDescriptorFull("getMinutes", false, false, true));
 
   /* 20.3.4.8 Date.prototype.getMonth ( ) */
   getMonth := CreateBuiltInFunctionObject([], "DatePrototypeGetMonth", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getMonth", getMonth);
+  setJSProperty(getMonth, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getMonth, "name", newDataPropertyDescriptorFull("getMonth", false, false, true));
 
   /* 20.3.4.9 Date.prototype.getSeconds ( ) */
   getSeconds := CreateBuiltInFunctionObject([], "DatePrototypeGetSeconds", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getSeconds", getSeconds);
+  setJSProperty(getSeconds, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getSeconds, "name", newDataPropertyDescriptorFull("getSeconds", false, false, true));
 
   /* 20.3.4.10 Date.prototype.getTime ( ) */
   getTime := CreateBuiltInFunctionObject([], "DatePrototypeGetTime", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getTime", getTime);
-  
+  setJSProperty(getTime, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getTime, "name", newDataPropertyDescriptorFull("getTime", false, false, true));
+ 
   /* 20.3.4.11 Date.prototype.getTimezoneOffset ( ) */
   getTimezoneOffset := CreateBuiltInFunctionObject([], "DatePrototypeGetTimezoneOffset", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getTimezoneOffset", getTimezoneOffset);
+  setJSProperty(getTimezoneOffset, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getTimezoneOffset, "name", newDataPropertyDescriptorFull("getTimezoneOffset", false, false, true));
 
   /* 20.3.4.12  Date.prototype.getUTCDate ( ) */
   getUTCDate := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCDate", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getUTCDate", getUTCDate);
+  setJSProperty(getUTCDate, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCDate, "name", newDataPropertyDescriptorFull("getUTCDate", false, false, true));
 
   /* 20.3.4.13  Date.prototype.getUTCDay ( ) */
   getUTCDay := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCDay", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getUTCDay", getUTCDay);
+  setJSProperty(getUTCDay, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCDay, "name", newDataPropertyDescriptorFull("getUTCDay", false, false, true));
 
   /* 20.3.4.14 Date.prototype.getUTCFullYear ( ) */
   getUTCFullYear := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCFullYear", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getUTCFullYear", getUTCFullYear);
+  setJSProperty(getUTCFullYear, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCFullYear, "name", newDataPropertyDescriptorFull("getUTCFullYear", false, false, true));
 
   /* 20.3.4.15 Date.prototype.getUTCHours ( ) */
   getUTCHours := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCHours", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getUTCHours", getUTCHours);
+  setJSProperty(getUTCHours, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCHours, "name", newDataPropertyDescriptorFull("getUTCHours", false, false, true));
 
   /* 20.3.4.16 Date.prototype.getUTCMilliseconds ( ) */
   getUTCMilliseconds := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCMilliseconds", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getUTCMilliseconds", getUTCMilliseconds);
+  setJSProperty(getUTCMilliseconds, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCMilliseconds, "name", newDataPropertyDescriptorFull("getUTCMilliseconds", false, false, true));
 
   /* 20.3.4.17 Date.prototype.getUTCMinutes ( ) */
   getUTCMinutes := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCMinutes", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getUTCMinutes", getUTCMinutes);
+  setJSProperty(getUTCMinutes, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCMinutes, "name", newDataPropertyDescriptorFull("getUTCMinutes", false, false, true));
 
   /* 20.3.4.18 Date.prototype.getUTCMonth ( ) */
   getUTCMonth := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCMonth", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getUTCMonth", getUTCMonth);
+  setJSProperty(getUTCMonth, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCMonth, "name", newDataPropertyDescriptorFull("getUTCMonth", false, false, true));
 
   /* 20.3.4.19 Date.prototype.getUTCSeconds ( ) */
   getUTCSeconds := CreateBuiltInFunctionObject([], "DatePrototypeGetUTCSeconds", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "getUTCSeconds", getUTCSeconds);
+  setJSProperty(getUTCSeconds, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(getUTCSeconds, "name", newDataPropertyDescriptorFull("getUTCSeconds", false, false, true));
 
   /* 20.3.4.20  Date.prototype.setDate (date) */
   setDate := CreateBuiltInFunctionObject(["date"], "DatePrototypeSetDate", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "setDate", setDate);
+  setJSProperty(setDate, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(setDate, "name", newDataPropertyDescriptorFull("setDate", false, false, true));
 
   /* 20.3.4.21 Date.prototype.setFullYear (year [, month [, date ] ] ) */
   setFullYear := CreateBuiltInFunctionObject(["year", "month", "date"], "DatePrototypeSetFullYear", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setFullYear", setFullYear);
+  setJSProperty(setFullYear, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setFullYear, "name", newDataPropertyDescriptorFull("setFullYear", false, false, true));
 
   /* 20.3.4.22 Date.prototype.setHours (hour [, min [, sec [, ms ] ] ] ) */
   setHours := CreateBuiltInFunctionObject(["hour", "min", "sec", "ms"], "DatePrototypeSetHours", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setHours", setHours);
+  setJSProperty(setHours, "length", newDataPropertyDescriptorFull(4., false, false, true));
+  setJSProperty(setHours, "name", newDataPropertyDescriptorFull("setHours", false, false, true));
 
   /* 20.3.4.23 Date.prototype.setMilliseconds (ms) */
   setMilliseconds := CreateBuiltInFunctionObject(["ms"], "DatePrototypeSetMilliseconds", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "setMilliseconds", setMilliseconds);
+  setJSProperty(setMilliseconds, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(setMilliseconds, "name", newDataPropertyDescriptorFull("setMilliseconds", false, false, true));
 
   /* 20.3.4.24 Date.prototype.setMinutes (min [, sec [, ms ] ] ) */
   setMinutes := CreateBuiltInFunctionObject(["min", "sec", "ms"], "DatePrototypeSetMinutes", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setMinutes", setMinutes);
+  setJSProperty(setMinutes, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setMinutes, "name", newDataPropertyDescriptorFull("setMinutes", false, false, true));
 
   /* 20.3.4.25 Date.prototype.setMonth (month [, date ] ) */
   setMonth := CreateBuiltInFunctionObject(["month", "date"], "DatePrototypeSetMonth", globalObject, strict, 1.);
@@ -2567,7 +2746,7 @@ function toDateString(tv){
    print(tv);
    /* 1. Assert: Type(tv) is Number. */
    assert((Type(tv) = "Number"));
-
+  
    /* 2. If tv is NaN, return "Invalid Date". */
    if (tv = NaN) {
       return "Invalid Date"
@@ -2604,7 +2783,7 @@ function getTimeValueIdentifyingCurrentTime() {
 };
 
 function auxIsFinite(number) {
-   return !(number = Infinity || number = -Infinity)
+   return !(number = Infinity ||| number = -Infinity ||| number = NaN)
 };
 
 function timeValueRepresentation(tv) {
@@ -2615,7 +2794,7 @@ function timeValueRepresentation(tv) {
   month := padding(MonthFromTime(tv) + 1., 2);
   print("Checkpoint2");
   day := padding(DateFromTime(tv), 2);
-
+  
   /*2021-08-05T18:09:30.607Z*/
   
   hours := padding(HourFromTime(tv), 2);
@@ -2623,6 +2802,8 @@ function timeValueRepresentation(tv) {
   seconds := padding(SecFromTime(tv), 2);
   mseconds := padding(msFromTime(tv), 3);
   repr := s_concat[year, "-", month, "-", day, "T", hours, ":", minutes, ":", seconds, ".", mseconds, "Z"];
+  print("Checkpoint3");
+  print(repr);
   return repr
 };
 
@@ -2645,10 +2826,16 @@ function padding(number, size) {
  */
 function TimeFromMonth(m, t) {
   print("in TimeFromMonth");
-  
+
+  /* TODO change modulo ? in Oper.ml*/
+  if (m < 0.) {
+    m := m - 12. * floor(m / 12.) 
+  };
+
   leapYear := InLeapYear(t);
   
-  daysInMonths := [0, 31., 59. + leapYear, 90. + leapYear, 120. + leapYear, 151. + leapYear, 181. + leapYear, 212. + leapYear, 243. + leapYear, 273. + leapYear, 304. + leapYear];
+  daysInMonths := [0., 31., 59. + leapYear, 90. + leapYear, 120. + leapYear, 151. + leapYear,
+   181. + leapYear, 212. + leapYear, 243. + leapYear, 273. + leapYear, 304. + leapYear, 334. + leapYear];
   
   print(m);
   

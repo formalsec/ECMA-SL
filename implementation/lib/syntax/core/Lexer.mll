@@ -15,6 +15,7 @@
                 [
                   "parse_number"    , PARSE_NUMBER;
                   "parse_string"    , PARSE_STRING;
+                  "parse_date"    , PARSE_DATE;
                   "l_len"           , LLEN;
                   "l_nth"           , LNTH;
                   "l_add"           , LADD;

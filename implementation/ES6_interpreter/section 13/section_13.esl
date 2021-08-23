@@ -295,4 +295,29 @@ function setAllInternalMethodsExceptGet(obj) {
   obj.internalSlotsList := [];
 
   return obj
+};
+
+
+/*  */
+function WrappedCall(externalScope, ref, F, this, args) {
+  callResult := Call(externalScope, ref, F, this, args) catch CallHandler;
+  print("WrappedCallDebug");
+  print(callResult);
+
+  if (!(Type(callResult) = "Completion")) {
+    return normalEmptyCompletion(callResult)
+  };
+
+  return callResult
+};
+
+function CallHandler(x) {
+  print("inside CallHandler");
+  print(x);
+
+  return throwEmptyCompletion(x)
 }
+
+
+
+
