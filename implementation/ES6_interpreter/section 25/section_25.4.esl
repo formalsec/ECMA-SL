@@ -36,6 +36,12 @@ function initPromiseObject(globalObject, ObjectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(objPromisePrototype, false, false, false);
   setJSProperty(objPromiseConstructor, "prototype", descriptor);
 
+  /* 25.4.4.6 get Promise [@@species] */
+  symbolSpeciesObject := CreateBuiltInFunctionObject([], "promiseSpeciesGetter", globalObject, strict, null);
+  descriptor := newGetAccessorPropertyDescriptorFull(symbolSpeciesObject, false, true);
+  setJSProperty(objPromiseConstructor, getSpeciesPropertyName(), descriptor);
+  setJSProperty(symbolSpeciesObject, "name", newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true));
+
   return objPromiseConstructor
 };
 function initPromisePrototype(globalObject, ObjectPrototype, strict) {
@@ -61,6 +67,11 @@ function initPromisePrototype(globalObject, ObjectPrototype, strict) {
 
   return prototype
 };
+
+function promiseSpeciesGetter(global, this, strict, args){
+  return this
+};
+
 function InternalPromiseConstructor(obj, strict) {
   newlyConstructedObject := NewECMAScriptObject();
   setAllInternalMethodsOfObject(newlyConstructedObject);
@@ -112,11 +123,6 @@ function Completion(obj) {
 function isCompletionRecord(record) {
   return (Type(record) = "Completion")
 };
-
-
-
-
-
 
 function initJobQueue() {
   |JobQueue| := [];

@@ -512,6 +512,12 @@ function initArrayObject(global, objectPrototype, strict) {
   descName := newDataPropertyDescriptorFull("of", false, false, true);
   setJSProperty(ofObject, "name", descName);
 
+  /* 22.1.2.5 get Array [@@species] */
+  symbolSpeciesObject := CreateBuiltInFunctionObject([], "arraySpeciesGetter", global, strict, null);
+  descriptor := newGetAccessorPropertyDescriptorFull(symbolSpeciesObject, false, true);
+  setJSProperty(objArrayConstructor, getSpeciesPropertyName(), descriptor);
+  setJSProperty(symbolSpeciesObject, "name", newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true));
+
   descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
   setJSProperty(objArrayConstructor, "prototype", descriptor);
 
@@ -519,7 +525,9 @@ function initArrayObject(global, objectPrototype, strict) {
 };
 
 
-
+function arraySpeciesGetter(global, this, strict, args){
+  return this
+};
 
 
 /**
