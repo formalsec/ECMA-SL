@@ -18,6 +18,84 @@ let to_char_code = fun (s : string ) : int ->
   let c = Char.code (s.[0]) in
   c
 
+(* Does not verify if UTF-8 is valid. Esprima already produces valid UTF-8. *)
+let to_char_code_u = fun (s : string ) : int ->
+  let c = Char.code (s.[0]) in
+    if (c <= 0x7f) then c
+    else if c <= 0xdf then
+      (Int.shift_left (Int.logand c 0x1f) 6) +
+      (Int.logand (Char.code (s.[1])) 0x3f)
+    else if c <= 0xef then
+      (Int.shift_left (Int.logand c 0xf) 12) +
+      (Int.shift_left (Int.logand (Char.code (s.[1])) 0x3f) 6) +
+      (Int.logand (Char.code (s.[2])) 0x3f)
+    else
+      (Int.shift_left (Int.logand c 0x7) 18) +
+      (Int.shift_left (Int.logand (Char.code (s.[1])) 0x3f) 12) +
+      (Int.shift_left (Int.logand (Char.code (s.[2])) 0x3f) 6) +
+      (Int.logand (Char.code (s.[3])) 0x3f)
+
+(* Does not verify if UTF-8 is valid. Esprima already produces valid UTF-8. *)
+let s_nth_u = fun (s : string) (i : int) : string ->
+  let rec loop s cur_i_u cur_i i =
+    let c = Char.code (s.[cur_i]) in
+      if (c <= 0x7f) then
+        if cur_i_u = i then String.sub s cur_i 1
+        else loop s (cur_i_u + 1) (cur_i + 1) i
+      else if c <= 0xdf then
+        if cur_i_u = i then String.sub s cur_i 2
+        else loop s (cur_i_u + 1) (cur_i + 2) i
+      else if c <= 0xef then
+        if cur_i_u = i then String.sub s cur_i 3
+        else loop s (cur_i_u + 1) (cur_i + 3) i
+      else
+        if cur_i_u = i then String.sub s cur_i 4
+        else loop s (cur_i_u + 1) (cur_i + 4) i
+  in loop s 0 0 i
+
+(* Does not verify if UTF-8 is valid. Esprima already produces valid UTF-8. *)
+let s_len_u = fun (s : string) : int ->
+  let rec loop s cur_i_u cur_i =
+    if cur_i >= (String.length s) then (cur_i_u) else
+    let c = Char.code (s.[cur_i]) in
+      if (c <= 0x7f) then
+        loop s (cur_i_u + 1) (cur_i + 1)
+      else if c <= 0xdf then
+        loop s (cur_i_u + 1) (cur_i + 2)
+      else if c <= 0xef then
+        loop s (cur_i_u + 1) (cur_i + 3)
+      else
+        loop s (cur_i_u + 1) (cur_i + 4)
+  in loop s 0 0
+
+(* Does not verify if UTF-8 is valid. Esprima already produces valid UTF-8. *)
+let s_substr_u = fun (s : string) (i_u : int) (len_u : int) : string ->
+  let rec loop s cur_i_u cur_i i_u len_u =
+    if cur_i_u = i_u then
+      let rec loop' s cur_i len_u0 len_i len_u =
+        if len_u0 = len_u then
+          String.sub s cur_i len_i
+        else let c = Char.code (s.[cur_i + len_i]) in
+          if (c <= 0x7f) then loop' s cur_i (len_u0 + 1) (len_i + 1) len_u
+          else if c <= 0xdf then
+            loop' s cur_i (len_u0 + 1) (len_i + 2) len_u
+          else if c <= 0xef then
+            loop' s cur_i (len_u0 + 1) (len_i + 3) len_u
+          else
+            loop' s cur_i (len_u0 + 1) (len_i + 4) len_u
+      in loop' s cur_i 0 0 len_u
+    else
+      let c = Char.code (s.[cur_i]) in
+        if (c <= 0x7f) then loop s (cur_i_u + 1) (cur_i + 1) i_u len_u
+        else if c <= 0xdf then
+          loop s (cur_i_u + 1) (cur_i + 2) i_u len_u
+        else if c <= 0xef then
+          loop s (cur_i_u + 1) (cur_i + 3) i_u len_u
+        else
+          loop s (cur_i_u + 1) (cur_i + 4) i_u len_u
+  in loop s 0 0 i_u len_u
+
+(* This code verifies if UTF-8 is valid and does questionable things if it is not...
 let to_char_code_u = fun (s : string ) : int ->
   let c = Char.code (s.[0]) and sLen = (String.length s) in
     if (c <= 0x7f) || (sLen = 1) then c
@@ -52,7 +130,9 @@ let to_char_code_u = fun (s : string ) : int ->
                 c
           else
             c
+*)
 
+(* This code verifies if UTF-8 is valid and does questionable things if it is not...
 let s_nth_u = fun (s : string) (i : int) : string ->
   let rec loop s cur_i_u cur_i i =
     let c = Char.code (s.[cur_i]) and sLen = ((String.length s) - cur_i)  in
@@ -93,7 +173,9 @@ let s_nth_u = fun (s : string) (i : int) : string ->
               if cur_i_u = i then String.sub s cur_i 1
               else loop s (cur_i_u + 1) (cur_i + 1) i
   in loop s 0 0 i
+*)
 
+(* This code verifies if UTF-8 is valid and does questionable things if it is not...
 let s_len_u = fun (s : string) : int ->
   let rec loop s cur_i_u cur_i =
     if cur_i >= (String.length s) then (cur_i_u) else
@@ -126,7 +208,9 @@ let s_len_u = fun (s : string) : int ->
             else
               loop s (cur_i_u + 1) (cur_i + 1)
   in loop s 0 0
+*)
 
+(* This code verifies if UTF-8 is valid and does questionable things if it is not...
 let s_substr_u = fun (s : string) (i_u : int) (len_u : int) : string ->
   let rec loop s cur_i_u cur_i i_u len_u =
     if cur_i_u = i_u then
@@ -190,6 +274,7 @@ let s_substr_u = fun (s : string) (i_u : int) (len_u : int) : string ->
               else
                 loop s (cur_i_u + 1) (cur_i + 1) i_u len_u
   in loop s 0 0 i_u len_u
+*)
 
 let to_upper_case (s : string) : string =
   let s = String.uppercase_ascii s in

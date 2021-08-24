@@ -15,24 +15,27 @@ let tests =
     "s_len_u - unicode escape length"  >:: (fun _ ->
       assert_equal 4 (s_len_u "\u{00FF}\u{00FF}\u{00FF}\u{00FF}")
     );
+    (* invalid utf-8
 	  "s_len_u - decimal escape length"  >:: (fun _ ->
       assert_equal 4 (s_len_u "\255\255\255\u{00FF}")
     );
 	  "s_len_u - unicode as decimal length"  >:: (fun _ ->
       assert_equal 4 (s_len_u "\195\191\255\255\195\191")
-    );
+    );*)
 	  "s_nth_u - unicode escape nth"  >:: (fun _ ->
       assert_equal "\u{1234}" (s_nth_u "\u{00FF}\u{00FF}\u{1234}\u{00FF}" 2)
     );
-	  "s_nth_u - decimal and hexadecimal escape nth"  >:: (fun _ ->
+	  (* invalid utf-8
+    "s_nth_u - decimal and hexadecimal escape nth"  >:: (fun _ ->
       assert_equal "\u{1234}" (s_nth_u "\u{00FF}\255\xe1\x88\xb4\255" 2)
-    );
+    );*)
   	"to_char_code_u - unicode escape to int"  >:: (fun _ ->
       assert_equal 255 (to_char_code_u "\u{00FF}")
     );
-	  "to_char_code_u - decimal escape to int"  >:: (fun _ ->
+	  (* invalid utf-8
+    "to_char_code_u - decimal escape to int"  >:: (fun _ ->
       assert_equal 255 (to_char_code_u "\255")
-    );
+    );*)
 	  "to_char_code_u - unicode as decimal escape to int"  >:: (fun _ ->
       assert_equal 255 (to_char_code_u "\195\191")
     );
@@ -49,13 +52,14 @@ let tests =
 	  "from_char_code_u - int larger than 255 to string"  >:: (fun _ ->
       assert_equal "\u{1234}" (from_char_code_u 4660)
     );
-	  "s_substr_u - unicode escape substring"  >:: (fun _ ->
+	  "s_substr_u - unicode escape substring 1"  >:: (fun _ ->
       assert_equal "\u{1234}\u{00FF}" (s_substr_u "\u{00FF}\u{00FF}\u{1234}\u{00FF}" 2 2)
     );
-	  "s_substr_u - unicode escape substring"  >:: (fun _ ->
+    (* invalid utf-8
+	  "s_substr_u - unicode escape substring 2"  >:: (fun _ ->
       assert_equal "\u{1234}\255" (s_substr_u "\u{00FF}\u{00FF}\xe1\x88\xb4\255" 2 2)
-    );
-	  "s_substr_u - unicode escape substring"  >:: (fun _ ->
+    );*)
+	  "s_substr_u - unicode escape substring 3"  >:: (fun _ ->
       assert_equal "\u{1234}\u{00FF}" (s_substr_u "\u{00FF}\u{00FF}\u{1234}\195\191" 2 2)
     );
     "utf8decode - \\u1234"  >:: (fun _ ->
