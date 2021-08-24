@@ -2,58 +2,81 @@ function initMapPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
   setAllInternalMethodsOfObject(prototype);
 
-  setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));
-
   /* 23.1.3.1 Map.prototype.clear ( ) */
   clearObject := CreateBuiltInFunctionObject([], "mapClearObject", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(clearObject, true, false, true);
-  setJSProperty(prototype, "clear", descriptor);    
+  setJSProperty(prototype, "clear", descriptor);
+  descriptor := newDataPropertyDescriptorFull("clear", false, false, true);
+  setJSProperty(clearObject, "name", descriptor);
 
   /* 23.1.3.3 Map.prototype.delete ( key )*/
   deleteObject := CreateBuiltInFunctionObject(["key"], "mapDeleteObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(deleteObject, true, false, true);
   setJSProperty(prototype, "delete", descriptor);
+  descriptor := newDataPropertyDescriptorFull("delete", false, false, true);
+  setJSProperty(deleteObject, "name", descriptor);
 
   /* 23.1.3.4 Map.prototype.entries ( ) */
   entriesObject := CreateBuiltInFunctionObject([], "mapEntriesObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(entriesObject, true, false, true);
-  setJSProperty(prototype, "entries", descriptor);  
+  setJSProperty(prototype, "entries", descriptor);
+  /* 23.1.3.12 Map.prototype [ @@iterator ]( ) */
+  setJSProperty(prototype, getIteratorPropertyName(), descriptor); 
+  descriptor := newDataPropertyDescriptorFull("entries", false, false, true);
+  setJSProperty(entriesObject, "name", descriptor);
 
   /* 23.1.3.5 Map.prototype.forEach ( callbackfn [ , thisArg ] ) */
   forEachObject := CreateBuiltInFunctionObject(["callbackfn"], "mapForEachObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(forEachObject, true, false, true);
-  setJSProperty(prototype, "forEach", descriptor); 
+  setJSProperty(prototype, "forEach", descriptor);
+  descriptor := newDataPropertyDescriptorFull("forEach", false, false, true);
+  setJSProperty(forEachObject, "name", descriptor);
 
   /* 23.1.3.6 Map.prototype.get ( key ) */
   getObject := CreateBuiltInFunctionObject(["key"], "mapGetObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(getObject, true, false, true);
-  setJSProperty(prototype, "get", descriptor); 
+  setJSProperty(prototype, "get", descriptor);
+  descriptor := newDataPropertyDescriptorFull("get", false, false, true);
+  setJSProperty(getObject, "name", descriptor);
 
   /* 23.1.3.7 Map.prototype.has ( key ) */
   hasObject := CreateBuiltInFunctionObject(["key"], "mapHasObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(hasObject, true, false, true);
-  setJSProperty(prototype, "has", descriptor);   
+  setJSProperty(prototype, "has", descriptor);
+  descriptor := newDataPropertyDescriptorFull("has", false, false, true);
+  setJSProperty(hasObject, "name", descriptor);
 
   /* 23.1.3.8 Map.prototype.keys ( ) */
   keysObject := CreateBuiltInFunctionObject([], "mapKeysObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(keysObject, true, false, true);
   setJSProperty(prototype, "keys", descriptor);
+  descriptor := newDataPropertyDescriptorFull("keys", false, false, true);
+  setJSProperty(keysObject, "name", descriptor);
 
   /* 23.1.3.9 Map.prototype.set ( key , value ) */
   setObject := CreateBuiltInFunctionObject(["key", "value"], "mapSetObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(setObject, true, false, true);
-  setJSProperty(prototype, "set", descriptor);  
+  setJSProperty(prototype, "set", descriptor);
+  descriptor := newDataPropertyDescriptorFull("set", false, false, true);
+  setJSProperty(setObject, "name", descriptor);
 
   /* 23.1.3.10 get Map.prototype.size */
   sizeObject := CreateBuiltInFunctionObject([], "mapSizeObject", global, strict, 0.);
-  descriptor := newGetAccessorPropertyDescriptor(sizeObject);
-  setJSProperty(prototype, "size", descriptor); 
+  descriptor := newGetAccessorPropertyDescriptorFull(sizeObject, false, true);
+  setJSProperty(prototype, "size", descriptor);
+  descriptor := newDataPropertyDescriptorFull("get size", false, false, true);
+  setJSProperty(sizeObject, "name", descriptor);
 
   /* 23.1.3.11 Map.prototype.values ( ) */
   valuesObject := CreateBuiltInFunctionObject([], "mapValuesObject", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(valuesObject, true, false, true);
-  setJSProperty(prototype, "values", descriptor); 
+  setJSProperty(prototype, "values", descriptor);
+  descriptor := newDataPropertyDescriptorFull("values", false, false, true);
+  setJSProperty(valuesObject, "name", descriptor);
 
+  /* 23.1.3.13 Map.prototype [ @@toStringTag ] */
+  descriptor := newDataPropertyDescriptorFull("Map", false, false, true);
+  setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
 
   /* Martelada Provisoria */
   /*   newlyConstructedObject.IteratorFunction := "CreateMapIteratorJS"; */
@@ -72,18 +95,30 @@ function initMapObject(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(objMapConstructor, true, false, true);
   setJSProperty(objMapPrototype, "constructor", descriptor);
 
+  descriptor := newDataPropertyDescriptorFull("Map", false, false, true);
+  setJSProperty(objMapConstructor, "name", descriptor);
+
+  descriptor := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(objMapConstructor, "length", descriptor);
+
   descriptor := newDataPropertyDescriptorFull(objMapPrototype, false, false, false);
   setJSProperty(objMapConstructor, "prototype", descriptor);
 
-  /* 23.1.2.2 get Map [@@species] */
-  symbolSpeciesObject := CreateBuiltInFunctionObject([], "mapSpeciesGetter", global, strict, null);
-  descriptor := newGetAccessorPropertyDescriptorFull(symbolSpeciesObject, false, true);
+  mapSpeciesObject := CreateFunctionObject([], "MapSpeciesGetter", global, strict, null);
+  descriptor := newGetAccessorPropertyDescriptorFull(mapSpeciesObject, false, true);
   setJSProperty(objMapConstructor, getSpeciesPropertyName(), descriptor);
-  setJSProperty(symbolSpeciesObject, "name", newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true));
+  descriptor := newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true);
+  setJSProperty(mapSpeciesObject, "name", descriptor);
+  descriptor := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(mapSpeciesObject, "length", descriptor);
 
   return objMapConstructor
 };
 
+/* 23.1.2.2 get Map [ @@species ] */
+function MapSpeciesGetter(global, this, strict, args) {
+  return this
+};
 
 function getMapPrototype(strict) { 
   refMap := newPropertyReference(|global|, "Map", strict);
@@ -91,11 +126,8 @@ function getMapPrototype(strict) {
   refMapProto := newPropertyReference(MapObject, "prototype", strict);
   objectMapProto := GetValue(refMapProto);
   return objectMapProto
-}; 
-
-function mapSpeciesGetter(global, this, strict, args){
-  return this
 };
+
 
 /*
 23.1.1.1 Map ( [ iterable ] )
@@ -640,10 +672,16 @@ function initMapIteratorPrototype(global, objectPrototype, strict) {
   nextObject := CreateBuiltInFunctionObject([], "MapIteratorPrototypeNext", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(nextObject, true, false, true);
   setJSProperty(prototype, "next", descriptor);
+  descriptor := newDataPropertyDescriptorFull("next", false, false, true);
+  setJSProperty(nextObject, "name", descriptor);
 
   CreateMapIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateMapIteratorFromIterator", global, strict, 1.);
   descriptor := newDataPropertyDescriptorFull(CreateMapIteratorJSObject, true, false, true);
   setJSProperty(prototype, "IteratorFunction", descriptor); 
+
+  /* 23.1.5.2.2 %MapIteratorPrototype% [ @@toStringTag ] */
+  descriptor := newDataPropertyDescriptorFull("Map Iterator", false, false, true);
+  setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
 
   |MapIteratorPrototype| := prototype; 
   return null
