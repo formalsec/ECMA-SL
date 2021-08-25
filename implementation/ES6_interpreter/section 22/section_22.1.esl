@@ -85,6 +85,7 @@
 
 /* An object, O, is said to be sparse if the following algorithm returns true: */
 function isSparseArray(O) {
+
   /* 1. Let len be the result of calling the [[Get]] internal method of O with
         argument "length". */
   len := ToLength(GetNew(O, "length"));
@@ -93,7 +94,7 @@ function isSparseArray(O) {
   /* 2. For each integer i in the range 0≤i<len */
   i := 0.;
   while (i < len) {
-    /* a. et elem be obj.[[GetOwnProperty]](ToString(i)). */
+    /* a. Let elem be obj.[[GetOwnProperty]](ToString(i)). */
     elem := {O.GetOwnProperty}(O, ToString(i));
 
     /* b. If elem is undefined, return true. */
@@ -105,8 +106,6 @@ function isSparseArray(O) {
   /* 3. Return false. */
   return false
 };
-
-
 
 
 function setAllInternalMethodsOfArray(arr) {
@@ -241,7 +240,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(sliceObject, true, false, true);
   setJSProperty(prototype, "slice", descriptor);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  descLen := newDataPropertyDescriptorFull(2., false, false, true);
   setJSProperty(sliceObject, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("slice", false, false, true);
@@ -252,7 +251,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
   setJSProperty(prototype, "sort", descriptor);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(sortObject, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("sort", false, false, true);
@@ -263,7 +262,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(spliceObject, true, false, true);
   setJSProperty(prototype, "splice", descriptor);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  descLen := newDataPropertyDescriptorFull(2., false, false, true);
   setJSProperty(spliceObject, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("splice", false, false, true);
@@ -380,7 +379,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(reduceRightObject, "name", descName);
 
   /* 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] ) */
-  copyWithinObject := CreateBuiltInFunctionObject(["target", "start", "end"], "arraycopyWithin", global, strict, null);
+  copyWithinObject := CreateBuiltInFunctionObject(["target", "start"], "arraycopyWithin", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(copyWithinObject, true, false, true);
   setJSProperty(prototype, "copyWithin", descriptor);
   /* Length */
@@ -391,7 +390,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(copyWithinObject, "name", descName);
 
   /* 22.1.3.6 Array.prototype.fill (value [ , start [ , end ] ] ) */
-  fillObject := CreateBuiltInFunctionObject(["value", "start", "end"], "arrayFill", global, strict, null);
+  fillObject := CreateBuiltInFunctionObject(["value"], "arrayFill", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(fillObject, true, false, true);
   setJSProperty(prototype, "fill", descriptor);
   /* Length */
@@ -402,7 +401,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(fillObject, "name", descName);
 
   /* 22.1.3.8 Array.prototype.find ( predicate [ , thisArg ] ) */
-  findObject := CreateBuiltInFunctionObject(["predicate", "thisArg"], "arrayFind", global, strict, null);
+  findObject := CreateBuiltInFunctionObject(["predicate"], "arrayFind", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(findObject, true, false, true);
   setJSProperty(prototype, "find", descriptor);
   /* Length */
@@ -413,7 +412,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(findObject, "name", descName);
 
   /* 22.1.3.9 Array.prototype.findIndex ( predicate [ , thisArg ] ) */
-  findIndexObject := CreateBuiltInFunctionObject(["predicate", "thisArg"], "arrayFindIndex", global, strict, null);
+  findIndexObject := CreateBuiltInFunctionObject(["predicate"], "arrayFindIndex", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(findIndexObject, true, false, true);
   setJSProperty(prototype, "findIndex", descriptor);
   /* Length */
@@ -1580,7 +1579,6 @@ function arraySort(global, this, strict, args) {
   
   comparefn := l_nth(args, 0);
 
-
   /* 1. Let obj be ToObject(this value). */
   obj := ToObject(this);
 
@@ -1590,13 +1588,20 @@ function arraySort(global, this, strict, args) {
   /* 3. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
 
+  /* The sort order is the ordering, after completion of this function, of the integer
+  *  indexed property values of obj whose integer indexes are less than len. The result
+  *  of the sort function is then determined as follows: */
 
-  /* If comparefn is not undefined and is not a consistent comparison
-     function for the elements of this array (see below), the behaviour
-     of sort is implementation-defined. */
-  /* TODO */
+  /* If comparefn is not undefined and is not a consistent comparison function for the
+  *  elements of this array (see below), the sort order is implementation-defined. The
+  *  sort order is also implementation-defined if comparefn is undefined and
+  *  SortCompare (22.1.3.24.1) does not act as a consistent comparison function. */
+
+  /* if (!(comparefn = 'undefined)) */
+
   /* Let proto be the value of the [[Prototype]] internal property of obj. */
-  proto := obj.Prototype; /* TODO */
+  proto := obj.Prototype;
+  
   /* If proto is not null and there exists an integer j such that all of the
      conditions below are satisfied then the behaviour of sort is
      implementation-defined:
