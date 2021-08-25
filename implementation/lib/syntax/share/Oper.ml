@@ -1,3 +1,5 @@
+open Date_Utils 
+
 type const = MAX_VALUE
            | MIN_VALUE
            | PI
@@ -317,7 +319,7 @@ let parse_date (v :Val.t) : Val.t = match v with
       let ms = Str.matched_group 7 s in
       Printf.printf "Matched successfully %s\n" group0;
       Val.List [Val.Str group0; Val.Str year; Val.Str month; Val.Str day; Val.Str hour; Val.Str mins; Val.Str sec; Val.Str ms]
-    )
+    ) 
     else Val.Flt (-(1.))
   | _  -> invalid_arg "Exception in Oper.parse_date: this operation is only applicable to a String argument"
 
