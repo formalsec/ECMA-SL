@@ -89,108 +89,178 @@ function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
   /* 20.2.2.1 Math.abs ( x ) */
   abs_fo := CreateBuiltInFunctionObject(["x"], "MathAbs", globalObject, strict, null);
   createBuiltInProperty(mathObject, "abs", abs_fo);
+  descriptor := newDataPropertyDescriptorFull("abs", false, false, true);
+  setJSProperty(abs_fo, "name", descriptor);
   /* 20.2.2.2 Math.acos ( x ) */
   acos_fo := CreateBuiltInFunctionObject(["x"], "MathACos", globalObject, strict, null);
   createBuiltInProperty(mathObject, "acos", acos_fo);
+  descriptor := newDataPropertyDescriptorFull("acos", false, false, true);
+  setJSProperty(acos_fo, "name", descriptor);
   /* 20.2.2.3 Math.acosh( x ) */
   acosh_fo := CreateBuiltInFunctionObject(["x"], "MathACosh", globalObject, strict, null);
   createBuiltInProperty(mathObject, "acosh", acosh_fo);
+  descriptor := newDataPropertyDescriptorFull("acosh", false, false, true);
+  setJSProperty(acosh_fo, "name", descriptor);
   /* 20.2.2.4 Math.asin ( x ) */
   asin_fo := CreateBuiltInFunctionObject(["x"], "MathASin", globalObject, strict, null);
   createBuiltInProperty(mathObject, "asin", asin_fo);
+  descriptor := newDataPropertyDescriptorFull("asin", false, false, true);
+  setJSProperty(asin_fo, "name", descriptor);
   /* 20.2.2.5 Math.asinh( x ) */
   asinh_fo := CreateBuiltInFunctionObject(["x"], "MathASinh", globalObject, strict, null);
   createBuiltInProperty(mathObject, "asinh", asinh_fo);
+  descriptor := newDataPropertyDescriptorFull("asinh", false, false, true);
+  setJSProperty(asinh_fo, "name", descriptor);
   /* 20.2.2.6 Math.atan ( x ) */
   atan_fo := CreateBuiltInFunctionObject(["x"], "MathATan", globalObject, strict, null);
   createBuiltInProperty(mathObject, "atan", atan_fo);
+  descriptor := newDataPropertyDescriptorFull("atan", false, false, true);
+  setJSProperty(atan_fo, "name", descriptor);
   /* 20.2.2.7 Math.atanh( x ) */
   atanh_fo := CreateBuiltInFunctionObject(["x"], "MathATanh", globalObject, strict, null);
   createBuiltInProperty(mathObject, "atanh", atanh_fo);
+  descriptor := newDataPropertyDescriptorFull("atanh", false, false, true);
+  setJSProperty(atanh_fo, "name", descriptor);
   /* 20.2.2.8 Math.atan2 ( y, x ) */
   atan2_fo := CreateBuiltInFunctionObject(["y", "x"], "MathATan2", globalObject, strict, null);
   createBuiltInProperty(mathObject, "atan2", atan2_fo);
+  descriptor := newDataPropertyDescriptorFull("atan2", false, false, true);
+  setJSProperty(atan2_fo, "name", descriptor);
   /* 20.2.2.9 Math.cbrt ( x ) */
   cbrt_fo := CreateBuiltInFunctionObject(["x"], "MathCBRT", globalObject, strict, null);
   createBuiltInProperty(mathObject, "cbrt", cbrt_fo);
+  descriptor := newDataPropertyDescriptorFull("cbrt", false, false, true);
+  setJSProperty(cbrt_fo, "name", descriptor);
   /* 20.2.2.10 Math.ceil ( x ) */
   ceil_fo := CreateBuiltInFunctionObject(["x"], "MathCeil", globalObject, strict, null);
   createBuiltInProperty(mathObject, "ceil", ceil_fo);
+  descriptor := newDataPropertyDescriptorFull("ceil", false, false, true);
+  setJSProperty(ceil_fo, "name", descriptor);
   /* 20.2.2.11 Math.clz32 ( x ) */
   clz32_fo := CreateBuiltInFunctionObject(["x"], "MathCLZ32", globalObject, strict, null);
   createBuiltInProperty(mathObject, "clz32", clz32_fo);
+  descriptor := newDataPropertyDescriptorFull("clz32", false, false, true);
+  setJSProperty(clz32_fo, "name", descriptor);
   /* 20.2.2.12 Math.cos ( x ) */
   cos_fo := CreateBuiltInFunctionObject(["x"], "MathCos", globalObject, strict, null);
   createBuiltInProperty(mathObject, "cos", cos_fo);
+  descriptor := newDataPropertyDescriptorFull("cos", false, false, true);
+  setJSProperty(cos_fo, "name", descriptor);
   /* 20.2.2.13 Math.cosh ( x ) */
   cosh_fo := CreateBuiltInFunctionObject(["x"], "MathCosh", globalObject, strict, null);
   createBuiltInProperty(mathObject, "cosh", cosh_fo);
+  descriptor := newDataPropertyDescriptorFull("cosh", false, false, true);
+  setJSProperty(cosh_fo, "name", descriptor);
   /* 20.2.2.14 Math.exp ( x ) */
   exp_fo := CreateBuiltInFunctionObject(["x"], "MathExp", globalObject, strict, null);
   createBuiltInProperty(mathObject, "exp", exp_fo);
+  descriptor := newDataPropertyDescriptorFull("exp", false, false, true);
+  setJSProperty(exp_fo, "name", descriptor);
   /* 20.2.2.15 Math.expm1 ( x ) */
   expm1_fo := CreateBuiltInFunctionObject(["x"], "MathExpM1", globalObject, strict, null);
   createBuiltInProperty(mathObject, "expm1", expm1_fo);
+  descriptor := newDataPropertyDescriptorFull("expm1", false, false, true);
+  setJSProperty(expm1_fo, "name", descriptor);
   /* 20.2.2.16 Math.floor ( x ) */
   floor_fo := CreateBuiltInFunctionObject(["x"], "MathFloor", globalObject, strict, null);
   createBuiltInProperty(mathObject, "floor", floor_fo);
+  descriptor := newDataPropertyDescriptorFull("floor", false, false, true);
+  setJSProperty(floor_fo, "name", descriptor);
   /* 20.2.2.17 Math.fround ( x ) */
   fround_fo := CreateBuiltInFunctionObject(["x"], "MathFRound", globalObject, strict, null);
   createBuiltInProperty(mathObject, "fround", fround_fo);
+  descriptor := newDataPropertyDescriptorFull("fround", false, false, true);
+  setJSProperty(fround_fo, "name", descriptor);
   /* 20.2.2.18 Math.hypot ( value1 , value2 , …values ) */
   hypot_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathHypot", globalObject, strict, null);
   createBuiltInProperty(mathObject, "hypot", hypot_fo);
+  descriptor := newDataPropertyDescriptorFull("hypot", false, false, true);
+  setJSProperty(hypot_fo, "name", descriptor);
   /* 20.2.2.19 Math.imul ( x, y ) */
   imul_fo := CreateBuiltInFunctionObject(["x", "y"], "MathImul", globalObject, strict, null);
   createBuiltInProperty(mathObject, "imul", imul_fo);
+  descriptor := newDataPropertyDescriptorFull("imul", false, false, true);
+  setJSProperty(imul_fo, "name", descriptor);
   /* 20.2.2.20 Math.log ( x ) */
   log_fo := CreateBuiltInFunctionObject(["x"], "MathLog", globalObject, strict, null);
   createBuiltInProperty(mathObject, "log", log_fo);
+  descriptor := newDataPropertyDescriptorFull("log", false, false, true);
+  setJSProperty(log_fo, "name", descriptor);
   /* 20.2.2.21 Math.log1p ( x ) */
   log1p_fo := CreateBuiltInFunctionObject(["x"], "MathLog1P", globalObject, strict, null);
   createBuiltInProperty(mathObject, "log1p", log1p_fo);
+  descriptor := newDataPropertyDescriptorFull("log1p", false, false, true);
+  setJSProperty(log1p_fo, "name", descriptor);
   /* 20.2.2.22 Math.log10 ( x ) */
   log10_fo := CreateBuiltInFunctionObject(["x"], "MathLog10", globalObject, strict, null);
   createBuiltInProperty(mathObject, "log10", log10_fo);
+  descriptor := newDataPropertyDescriptorFull("log10", false, false, true);
+  setJSProperty(log10_fo, "name", descriptor);
   /* 20.2.2.23 Math.log2 ( x ) */
   log2_fo := CreateBuiltInFunctionObject(["x"], "MathLog2", globalObject, strict, null);
   createBuiltInProperty(mathObject, "log2", log2_fo);
+  descriptor := newDataPropertyDescriptorFull("log2", false, false, true);
+  setJSProperty(log2_fo, "name", descriptor);
   /* 20.2.2.24 Math.max ( value1, value2 , …values ) */
   max_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathMax", globalObject, strict, 0.);
   createBuiltInProperty(mathObject, "max", max_fo);
+  descriptor := newDataPropertyDescriptorFull("max", false, false, true);
+  setJSProperty(max_fo, "name", descriptor);
   /* 20.2.2.25 Math.min ( value1, value2 , …values ) */
   min_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathMin", globalObject, strict, 0.);
   createBuiltInProperty(mathObject, "min", min_fo);
+  descriptor := newDataPropertyDescriptorFull("min", false, false, true);
+  setJSProperty(min_fo, "name", descriptor);
   /* 20.2.2.26 Math.pow ( x, y ) */
   pow_fo := CreateBuiltInFunctionObject(["x", "y"], "MathPow", globalObject, strict, null);
   createBuiltInProperty(mathObject, "pow", pow_fo);
+  descriptor := newDataPropertyDescriptorFull("pow", false, false, true);
+  setJSProperty(pow_fo, "name", descriptor);
   /* 20.2.2.27 Math.random ( ) */
   random_fo := CreateBuiltInFunctionObject([], "MathRandom", globalObject, strict, null);
   createBuiltInProperty(mathObject, "random", random_fo);
+  descriptor := newDataPropertyDescriptorFull("random", false, false, true);
+  setJSProperty(random_fo, "name", descriptor);
   /* 20.2.2.28 Math.round ( x ) */
   round_fo := CreateBuiltInFunctionObject(["x"], "MathRound", globalObject, strict, null);
   createBuiltInProperty(mathObject, "round", round_fo);
+  descriptor := newDataPropertyDescriptorFull("round", false, false, true);
+  setJSProperty(round_fo, "name", descriptor);
   /* 20.2.2.29 Math.sign(x) */
   sign_fo := CreateBuiltInFunctionObject(["x"], "MathSign", globalObject, strict, null);
   createBuiltInProperty(mathObject, "sign", sign_fo);
+  descriptor := newDataPropertyDescriptorFull("sign", false, false, true);
+  setJSProperty(sign_fo, "name", descriptor);
   /* 20.2.2.30 Math.sin ( x ) */
   sin_fo := CreateBuiltInFunctionObject(["x"], "MathSin", globalObject, strict, null);
   createBuiltInProperty(mathObject, "sin", sin_fo);
+  descriptor := newDataPropertyDescriptorFull("sin", false, false, true);
+  setJSProperty(sin_fo, "name", descriptor);
   /* 20.2.2.31 Math.sinh( x ) */
   sinh_fo := CreateBuiltInFunctionObject(["x"], "MathSinh", globalObject, strict, null);
   createBuiltInProperty(mathObject, "sinh", sinh_fo);
+  descriptor := newDataPropertyDescriptorFull("sinh", false, false, true);
+  setJSProperty(sinh_fo, "name", descriptor);
   /* 20.2.2.32 Math.sqrt ( x ) */
   sqrt_fo := CreateBuiltInFunctionObject(["x"], "MathSqrt", globalObject, strict, null);
   createBuiltInProperty(mathObject, "sqrt", sqrt_fo);
+  descriptor := newDataPropertyDescriptorFull("sqrt", false, false, true);
+  setJSProperty(sqrt_fo, "name", descriptor);
   /* 20.2.2.33 Math.tan ( x ) */
   tan_fo := CreateBuiltInFunctionObject(["x"], "MathTan", globalObject, strict, null);
   createBuiltInProperty(mathObject, "tan", tan_fo);
+  descriptor := newDataPropertyDescriptorFull("tan", false, false, true);
+  setJSProperty(tan_fo, "name", descriptor);
   /* 20.2.2.34 Math.tanh ( x ) */
   tanh_fo := CreateBuiltInFunctionObject(["x"], "MathTanh", globalObject, strict, null);
   createBuiltInProperty(mathObject, "tanh", tanh_fo);
+  descriptor := newDataPropertyDescriptorFull("tanh", false, false, true);
+  setJSProperty(tanh_fo, "name", descriptor);
   /* 20.2.2.35 Math.trunc ( x ) */
   trunc_fo := CreateBuiltInFunctionObject(["x"], "MathTrunc", globalObject, strict, null);
   createBuiltInProperty(mathObject, "trunc", trunc_fo);
+  descriptor := newDataPropertyDescriptorFull("trunc", false, false, true);
+  setJSProperty(trunc_fo, "name", descriptor);
 
   return
 };
