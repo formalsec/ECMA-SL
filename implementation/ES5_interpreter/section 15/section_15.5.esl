@@ -96,6 +96,7 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
 
   /* 15.5.4.13 String.prototype.slice (start, end) */
   sliceFunctionObject := CreateBuiltInFunctionObject(["start", "end"], "StringPrototypeSlice", global, strict, null);
+  setConfigurability(sliceFunctionObject, "length", true);
   createBuiltInProperty(prototype, "slice", sliceFunctionObject);
 
   /* 15.5.4.14 String.prototype.split (separator, limit) */
