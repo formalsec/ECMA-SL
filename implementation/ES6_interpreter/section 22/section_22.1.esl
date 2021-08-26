@@ -708,7 +708,7 @@ function arrayFrom (global, this, strict, args) {
     };
 
     /* b. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-    if (!(thisArg = 'null)) {
+    if (!(thisArg = null)) {
       T := thisArg
     } else {
       T := 'undefined
@@ -1216,7 +1216,7 @@ function arraycopyWithin (global, this, strict, args) {
   };
 
   /* 11. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
-  if (end = 'undefined) {
+  if ((end = 'undefined) ||| (end = null)) {
     relativeEnd := len
   } else {
     relativeEnd := ToInteger(end)
@@ -1468,6 +1468,9 @@ function arrayFill (global, this, strict, args) {
   @ReturnIfAbrupt(len);
 
   /* 5. Let relativeStart be ToInteger(start). */
+  if ((start = 'undefined) ||| (start = null)) {
+    start := 0.
+  };
   relativeStart := ToInteger(start);
 
   /* 6. ReturnIfAbrupt(relativeStart). */
@@ -1481,7 +1484,7 @@ function arrayFill (global, this, strict, args) {
   };
 
   /* 8. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
-  if (end = 'undefined) {
+  if ((end = 'undefined) ||| (end = null)) {
     relativeEnd := len
   } else {
     relativeEnd := ToInteger(end)
@@ -1703,7 +1706,7 @@ function arrayFind (global, this, strict, args) {
   };
 
   /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = 'null)) {
+  if (!(thisArg = null)) {
     T := thisArg
   } else {
     T := 'undefined
@@ -1797,7 +1800,7 @@ function arrayFindIndex (global, this, strict, args) {
   };
 
   /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = 'null)) {
+  if (!(thisArg = null)) {
     T := thisArg
   } else {
     T := 'undefined
@@ -4492,12 +4495,18 @@ function arrayIteratorNext (global, this, strict, args) {
 /**
 * 22.1.5.3 Properties of Array Iterator Instances
 *
-*  Array Iterator instances are ordinary objects that inherit properties from the %ArrayIteratorPrototype% intrinsic object. Array Iterator instances are initially created with the internal slots listed in Table 48.
+*  Array Iterator instances are ordinary objects that inherit properties from the 
+*  %ArrayIteratorPrototype% intrinsic object. Array Iterator instances are initially created
+*  with the internal slots listed in Table 48.
+* 
 *                     Table 48 — Internal Slots of Array Iterator Instances
-*   Internal Slot 	            |                  Description
-*       [[IteratedObject]] 	    | The object whose array elements are being iterated.
-*   [[ArrayIteratorNextIndex]] 	| The integer index of the next integer index to be examined by this iteration.
-*     [[ArrayIterationKind]] 	  | A String value that identifies what is returned for each element of the iteration.
-*                               |  The possible values are: "key", "value", "key+value".
 *
+*  --------------------------------------------------------------------------------------------------------------------
+*  |       Internal Slot 	      |                                Description                                          | 
+*  --------------------------------------------------------------------------------------------------------------------
+*  |     [[IteratedObject]] 	    | The object whose array elements are being iterated.                               |
+*  | [[ArrayIteratorNextIndex]] 	| The integer index of the next integer index to be examined by this iteration.     |
+*  |                           	  | A String value that identifies what is returned for each element of the iteration.|
+*  |  [[ArrayIterationKind]]      |  The possible values are: "key", "value", "key+value".                            |
+*  --------------------------------------------------------------------------------------------------------------------
 */
