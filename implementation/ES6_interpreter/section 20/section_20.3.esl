@@ -1,12 +1,15 @@
 /* 20.3 Date Objects */
 function initDateObject(globalObject, ObjectPrototype, strict) {
 
-  datePrototype := initDatePrototype(globalObject, ObjectPrototype, strict);
-  dateConstructor := initDateConstructor(datePrototype, globalObject, strict);
+  /* datePrototype := initDatePrototype(globalObject, ObjectPrototype, strict); */
+  datePrototypeObject := NewECMAScriptObjectFull(ObjectPrototype, "Object", true);
+  setAllInternalMethodsOfObject(datePrototypeObject);
+  
+  dateConstructor := initDateConstructor(datePrototypeObject, globalObject, strict);
 
-  /* fillDatePrototype(datePrototype, dateConstructor, globalObject, strict); */
+  fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, strict); 
 
-  descriptor := newDataPropertyDescriptorFull(datePrototype, false, false, false);
+  descriptor := newDataPropertyDescriptorFull(datePrototypeObject, false, false, false);
   setJSProperty(dateConstructor, "prototype", descriptor);
 
   descriptor := newDataPropertyDescriptorFull("Date", false, false, true);
@@ -206,7 +209,7 @@ function MonthFromTime(t) {
    elif (334. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 365. + InLeapYear(t)) {
       return 11.
    }
-   elif(t = NaN) { /* TODO change?*/
+   elif(t = NaN) { /* TODO provisorio*/
      return NaN
    }
 };
@@ -239,6 +242,9 @@ function DateFromTime(t) {
   MonthFromTime := MonthFromTime(t);
   DayWithinYear := DayWithinYear(t);
   InLeapYear := InLeapYear(t);
+  print(MonthFromTime);
+  print(DayWithinYear);
+  print(InLeapYear);
 
   if (MonthFromTime = 0.) {
      return DayWithinYear + 1.
@@ -275,6 +281,9 @@ function DateFromTime(t) {
   }
   elif (MonthFromTime = 11.) {
      return DayWithinYear - 333. - InLeapYear
+  }
+  elif(MonthFromTime = NaN) {
+    return NaN /* TODO provisorio */
   }
 };
 
@@ -791,6 +800,7 @@ print(milli);
  * with exactly one argument.
 */
 function dateConstructorOneArg(global, this, strict, args) {
+  print("in dateConstructorOneArg");
   NewTarget := this;
   value := l_nth(args, 0);
 
@@ -809,19 +819,22 @@ function dateConstructorOneArg(global, this, strict, args) {
     }
     /* b. Else, */
     else {
+      print("debuging DateConstructor: 1");
       /* i. Let v be ToPrimitive(value). */
       v := ToPrimitive(value, null);
 
+      print("debuging DateConstructor: 2");
       /* ii. If Type(v) is String, then */
       if (Type(v) = "String") {
+        print("debuging DateConstructor: 3, type = string");
         /* 1. Let tv be the result of parsing v as a date, in exactly the same manner as for the parse method (20.3.3.2). 
         If the parse resulted in an abrupt completion, tv is the Completion Record. */
-        
+        tv := auxParseDate(v)
       }  
       /* iii. Else, */
       else {
+        print("debuging DateConstructor: 4");
         /* 1. Let tv be ToNumber(v). */
-        
         tv := ToNumber(v);
         print("ToNumber(v)");
         print(tv)
@@ -839,6 +852,7 @@ function dateConstructorOneArg(global, this, strict, args) {
     /* f. Set the [[DateValue]] internal slot of O to TimeClip(tv). */
     O.DateValue := TimeClip(tv);
 
+    print("date constructed successfully");
     /* g. Return O. */
     return O
   }
@@ -2243,25 +2257,102 @@ function DatePrototypeToISOString(globalObject, this, strict, args) {
  *  Therefore, it can be transferred to other kinds of objects for use as a method. 
  *  However, it does require that any such object have a toISOString method.
  */
-function DatePrototypeJSON(globalObject, this, strict, args){
+function DatePrototypeToJSON(globalObject, this, strict, args){
 
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
 
   /* 2. Let tv be ToPrimitive(O, hint Number). */
-  tv := ToPrimitive(O, hint);
+  tv := ToPrimitive(O, 'Number);
   
   /* 3. ReturnIfAbrupt(tv). */
   @ReturnIfAbrupt(tv);
 
   /* 4. If Type(tv) is Number and tv is not finite, return null. */
-  if (Type(tv) = "Number" &&& !(auxIsFinite(tv))) {
-    return null
-  };
+  if ((Type(tv) = "Number") &&& (!(auxIsFinite(tv)))) {
+    return 'null  };
 
   /* 5. Return Invoke(O, "toISOString"). */
-  return Invoke(O, "toISOString")
+  return Invoke(O, "toISOString", [])
 };
+
+
+/**
+ * 20.3.4.41  Date.prototype.toString ( ) 
+ *
+ * NOTE 1 For any Date object d whose milliseconds amount is zero, the result of Date.parse(d.toString()) is equal to d.valueOf(). See 20.3.3.2.
+ *
+ * NOTE 2 The toString function is intentionally generic; it does not require that its this value be a Date object. Therefore, it can be transferred to other kinds of objects for use as a method.
+ *
+ */
+function DatePrototypeToString(globalObject, this, strict, args) {
+   print("in DatePrototypeToString");
+  
+   /* 1. Let O be this Date object. */
+   O := this;
+
+   /* 2. If O does not have a [[DateValue]] internal slot, then */
+   if (!("DateValue" in_obj O)) {
+      /* a. Let tv be NaN. */
+      tv := NaN
+   }
+   /* 3. Else, */
+   else{
+      /* a. Let tv be this time value. */
+      tv := O.DateValue
+   };
+
+   /* 4. Return ToDateString(tv). */
+   return toDateString(tv)
+
+};
+
+
+/**
+ * 20.3.4.41.1 Runtime Semantics: ToDateString(tv)
+ */
+function toDateString(tv){
+   print("in toDateString");
+   print(tv);
+   /* 1. Assert: Type(tv) is Number. */
+   assert((Type(tv) = "Number"));
+  
+   /* 2. If tv is NaN, return "Invalid Date". */
+   if (tv = NaN) {
+      return "Invalid Date"
+   };
+   
+   /* 3. Return an implementation-dependent String value that represents tv as a date and time in the current time zone using a convenient, human-readable form.*/
+   return timeValueRepresentation(tv)
+};
+
+
+/**
+ * 20.3.4.42 Date.prototype.toTimeString ( )
+ *
+ */
+function DatePrototypeToTimeString(globalObject, this, strict, args) {
+  return toDateString(thisTimeValue(this))
+};
+
+/**
+ * 20.3.4.43 Date.prototype.toUTCString ( )
+ *
+ */
+function DatePrototypeToUTCString(globalObject, this, strict, args) {
+  return toDateString(thisTimeValue(this))
+};
+
+
+/**
+ * 20.3.4.44 Date.prototype.valueOf ( )
+*/
+function DatePrototypeValueOf (globalObject, this, strict, args) {
+  print("in DatePrototypeValueOf");
+  /* The valueOf function returns a Number, which is this time value. */
+  return thisTimeValue(this)
+};
+
 
 
 /* 15.9.3.1 new Date (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ) */
@@ -2407,11 +2498,19 @@ function thisTimeValue(value) {
   /* 2. Throw a TypeError exception. */
   throw TypeErrorConstructorInternal()
 };
- 
+
+
 /* 20.3.4 Properties of the Date Prototype Object */
-function initDatePrototype(globalObject, objectPrototype, strict) {
-  datePrototypeObject := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(datePrototypeObject);
+function nadadedjeito(datePrototypeObject, dateConstructor) {
+  /* 20.3.4.1 Date.prototype.constructor */
+  /* The initial value of Date.prototype.constructor is the built-in Date constructor. */
+  createBuiltInProperty(datePrototypeObject, "constructor", dateConstructor)
+};
+
+
+function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, strict) {
+  /* datePrototypeObject := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  setAllInternalMethodsOfObject(datePrototypeObject); */
 
   /* In following descriptions of functions that are properties of the Date prototype object,
    the phrase “this Date object” refers to the object that is the this value 
@@ -2422,7 +2521,7 @@ function initDatePrototype(globalObject, objectPrototype, strict) {
 
   /* 20.3.4.1 Date.prototype.constructor */
   /* The initial value of Date.prototype.constructor is the built-in Date constructor. */
-  /* createBuiltInProperty(datePrototypeObject, "constructor", DateConstructor);*/
+  createBuiltInProperty(datePrototypeObject, "constructor", dateConstructor);
 
   /* 20.3.4.2 Date.prototype.getDate ( ) */
   getDate := CreateBuiltInFunctionObject([], "DatePrototypeGetDate", globalObject, strict, null);
@@ -2614,65 +2713,32 @@ function initDatePrototype(globalObject, objectPrototype, strict) {
   toJSON := CreateBuiltInFunctionObject(["key"], "DatePrototypeToJSON", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toJSON", toJSON);
 
+  /* 20.3.4.38 Date.prototype.toLocaleDateString ( ) */
+  toLocaleDateString := CreateBuiltInFunctionObject([], "DatePrototypeToLocaleDateString", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "toLocaleDateString", toLocaleDateString);
+
+  /* 20.3.4.39 Date.prototype.toLocaleString ( ) */
+  toLocaleString := CreateBuiltInFunctionObject([], "DatePrototypeToLocaleString", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "toLocaleString", toLocaleString);
+  
+  /* 20.3.4.40 Date.prototype.toLocaleTimeString ( ) */
+  toLocaleTimeString := CreateBuiltInFunctionObject([], "DatePrototypeToLocaleTimeString", globalObject, strict, null);
+  createBuiltInProperty(datePrototypeObject, "toLocaleTimeString", toLocaleTimeString);
+
   /* 20.3.4.41 Date.prototype.toString ( ) */
   toString := CreateBuiltInFunctionObject([], "DatePrototypeToString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toString", toString);
-  /* NOTE For any Date value d whose milliseconds amount is zero, the result of Date.parse(d.toString()) is
-          equal to d.valueOf(). See 15.9.4.2. */
 
-
-
-
-  /* 20.3.4.38 Date.prototype.toLocaleDateString ( ) */
-  /* This function returns a String value. The contents of the String are implementation-dependent, but are
-     intended to represent the "date" portion of the Date in the current time zone in a convenient, human-readable
-     form that corresponds to the conventions of the host environment‘s current locale. */
-  toLocaleDateString := CreateBuiltInFunctionObject([], "DatePrototypeToLocaleDateString", globalObject, strict, null);
-  createBuiltInProperty(datePrototypeObject, "toLocaleDateString", toLocaleDateString);
-  /* NOTE The first parameter to this function is likely to be used in a future version of this standard; it is recommended
-          that implementations do not use this parameter position for anything else. */
-
-  /* 20.3.4.39 Date.prototype.toLocaleString ( ) */
-  /* This function returns a String value. The contents of the String are implementation-dependent, but are
-     intended to represent the Date in the current time zone in a convenient, human-readable form that
-     corresponds to the conventions of the host environment‘s current locale. */
-  toLocaleString := CreateBuiltInFunctionObject([], "DatePrototypeToLocaleString", globalObject, strict, null);
-  createBuiltInProperty(datePrototypeObject, "toLocaleString", toLocaleString);
-  /* NOTE The first parameter to this function is likely to be used in a future version of this standard; it is recommended
-          that implementations do not use this parameter position for anything else. */
-
-
-  /* 20.3.4.40 Date.prototype.toLocaleTimeString ( ) */
-  /* This function returns a String value. The contents of the String are implementation-dependent, but are
-     intended to represent the "time" portion of the Date in the current time zone in a convenient, human-readable
-     form that corresponds to the conventions of the host environment‘s current locale. */
-  toLocaleTimeString := CreateBuiltInFunctionObject([], "DatePrototypeToLocaleTimeString", globalObject, strict, null);
-  createBuiltInProperty(datePrototypeObject, "toLocaleTimeString", toLocaleTimeString);
-  /* NOTE The first parameter to this function is likely to be used in a future version of this standard; it is recommended
-          that implementations do not use this parameter position for anything else. */
-
+   
   /* 20.3.4.42 Date.prototype.toTimeString ( ) */
-  /* This function returns a String value. The contents of the String are implementation-dependent, but are
-     intended to represent the "time" portion of the Date in the current time zone in a convenient, human-readable
-     form. */
   toTimeString := CreateBuiltInFunctionObject([], "DatePrototypeToTimeString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toTimeString", toTimeString);
 
   /* 20.3.4.43 Date.prototype.toUTCString ( ) */
   toUTCString := CreateBuiltInFunctionObject([], "DatePrototypeToUTCString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toUTCString", toUTCString);
-  /* This function returns a String value. The contents of the String are implementation-dependent, but are
-     intended to represent the Date in a convenient, human-readable form in UTC. */
-
-  /* NOTE The intent is to produce a String representation of a date that is more readable than the format specified in
-          15.9.1.15. It is not essential that the chosen format be unambiguous or easily machine parsable. If an implementation
-          does not have a preferred human-readable format it is recommended to use the format defined in 15.9.1.15 but with a
-          space rather than a "T" used to separate the date and time elements. */
-
- 
- 
+   
   /* 20.3.4.44 Date.prototype.valueOf ( ) */
-  /* The valueOf function returns a Number, which is this time value. */
   valueOf := CreateBuiltInFunctionObject([], "DatePrototypeValueOf", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "valueOf", valueOf);
 
@@ -2681,62 +2747,6 @@ function initDatePrototype(globalObject, objectPrototype, strict) {
 
 
 
-/**
- * 20.3.4.41  Date.prototype.toString ( ) 
- *
- * NOTE 1 For any Date object d whose milliseconds amount is zero, the result of Date.parse(d.toString()) is equal to d.valueOf(). See 20.3.3.2.
- *
- * NOTE 2 The toString function is intentionally generic; it does not require that its this value be a Date object. Therefore, it can be transferred to other kinds of objects for use as a method.
- *
- */
-function DatePrototypeToString(globalObject, this, strict, args) {
-   print("in DatePrototypeToString");
-  
-   /* 1. Let O be this Date object. */
-   O := this;
-
-   /* 2. If O does not have a [[DateValue]] internal slot, then */
-   if (!("DateValue" in_obj O)) {
-      /* a. Let tv be NaN. */
-      tv := NaN
-   }
-   /* 3. Else, */
-   else{
-      /* a. Let tv be this time value. */
-      tv := O.DateValue
-   };
-
-   /* 4. Return ToDateString(tv). */
-   return toDateString(tv)
-
-};
-
-
-/**
- * 20.3.4.41.1 Runtime Semantics: ToDateString(tv)
- */
-function toDateString(tv){
-   print("in toDateString");
-   print(tv);
-   /* 1. Assert: Type(tv) is Number. */
-   assert((Type(tv) = "Number"));
-  
-   /* 2. If tv is NaN, return "Invalid Date". */
-   if (tv = NaN) {
-      return "Invalid Date"
-   };
-   
-   /* 3. Return an implementation-dependent String value that represents tv as a date and time in the current time zone using a convenient, human-readable form.*/
-   return timeValueRepresentation(tv)
-};
-
-/**
- * 20.3.4.44 Date.prototype.valueOf ( )
-*/
-function DatePrototypeValueOf (globalObject, this, strict, args) {
-  /* The valueOf function returns a Number, which is this time value. */
-  return thisTimeValue(this)
-};
 
 /* Auxiliary functions */
 

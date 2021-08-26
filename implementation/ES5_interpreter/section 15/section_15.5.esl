@@ -53,30 +53,36 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
 
   /* 15.5.4.4 String.prototype.charAt (pos) */
   charAtFunctionObject:= CreateBuiltInFunctionObject( [ "pos" ], "StringPrototypecharAt", global, strict, null);
+  setConfigurability(charAtFunctionObject, "length", true);
   setJSProperty(prototype, "charAt", newDataPropertyDescriptorFull( charAtFunctionObject, true, false, true ));
 
   /* 15.5.4.5 String.prototype.charCodeAt (pos) */
   charCodeAtFunctionObject:= CreateBuiltInFunctionObject( [ "pos" ], "StringPrototypecharCodeAt", global, strict, null);
+  setConfigurability(charCodeAtFunctionObject, "length", true);
   setJSProperty(prototype, "charCodeAt", newDataPropertyDescriptorFull( charCodeAtFunctionObject, true, false, true ));
 
   /* 15.5.4.6 String.prototype.concat ( [ string1 [ , string2 [ , ... ] ] ] ) */
   concatFunctionObject:= CreateBuiltInFunctionObject( [ "strings" ], "StringPrototypeconcat", global, strict, 0.);
+  setConfigurability(concatFunctionObject, "length", true);
   setJSProperty(prototype, "concat", newDataPropertyDescriptorFull( concatFunctionObject, true, false, true ));
 
   /* 15.5.4.7 String.prototype.indexOf (searchString, position) */
   indexOfFunctionObject := CreateBuiltInFunctionObject(["searchString", "position"], "StringPrototypeIndexOf", global, strict, null);
   /* The length property of the indexOf method is 1. */
   setJSProperty(indexOfFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  setConfigurability(indexOfFunctionObject, "length", true);
   createBuiltInProperty(prototype, "indexOf", indexOfFunctionObject);
 
   /* 15.5.4.8 String.prototype.lastIndexOf (searchString, position) */
   lastIndexOfFunctionObject := CreateBuiltInFunctionObject(["searchString", "position"], "StringPrototypelastIndexOf", global, strict, null);
   /* The length property of the lastIndexOf method is 1. */
   setJSProperty(lastIndexOfFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  setConfigurability(lastIndexOfFunctionObject, "length", true);
   createBuiltInProperty(prototype, "lastIndexOf", lastIndexOfFunctionObject);
 
   /* 15.5.4.9 String.prototype.localeCompare (that) */
   localeCompareFunctionObject := CreateBuiltInFunctionObject(["that"], "StringPrototypelocaleCompare", global, strict, null);
+  setConfigurability(localeCompareFunctionObject, "length", true);
   createBuiltInProperty(prototype, "localeCompare", localeCompareFunctionObject);
 
   /* 15.5.4.10 String.prototype.match (regexp) */
@@ -96,6 +102,7 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
 
   /* 15.5.4.13 String.prototype.slice (start, end) */
   sliceFunctionObject := CreateBuiltInFunctionObject(["start", "end"], "StringPrototypeSlice", global, strict, null);
+  setConfigurability(sliceFunctionObject, "length", true);
   createBuiltInProperty(prototype, "slice", sliceFunctionObject);
 
   /* 15.5.4.14 String.prototype.split (separator, limit) */
@@ -105,22 +112,27 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
 
   /* 15.5.4.15 String.prototype.substring (start, end) */
   substringFunctionObject:= CreateBuiltInFunctionObject( [ "start", "end" ], "StringPrototypesubstring", global, strict, null);
+  setConfigurability(substringFunctionObject, "length", true);
   setJSProperty(prototype, "substring", newDataPropertyDescriptorFull( substringFunctionObject , true, false, true));
 
   /* 15.5.4.16 String.prototype.toLowerCase ( ) */
   toLowerCaseFunctionObject:= CreateBuiltInFunctionObject( [], "StringPrototypetoLowerCase", global, strict, null);
+  setConfigurability(toLowerCaseFunctionObject, "length", true);
   setJSProperty(prototype, "toLowerCase", newDataPropertyDescriptorFull( toLowerCaseFunctionObject, true, false, true ));
 
   /* 15.5.4.17 String.prototype.toLocaleLowerCase ( ) */
   toLocaleLowerCaseFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetoLocaleLowerCase", global, strict, null);
+  setConfigurability(toLocaleLowerCaseFunctionObject, "length", true);
   createBuiltInProperty(prototype, "toLocaleLowerCase", toLocaleLowerCaseFunctionObject);
 
   /* 15.5.4.18 String.prototype.toUpperCase ( ) */
   toUpperCaseFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetoUpperCase", global, strict, null);
+  setConfigurability(toUpperCaseFunctionObject, "length", true);
   createBuiltInProperty(prototype, "toUpperCase", toUpperCaseFunctionObject);
 
   /* 15.5.4.19 String.prototype.toLocaleUpperCase ( ) */
   toLocaleUpperCaseFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetoLocaleUpperCase", global, strict, null);
+  setConfigurability(toLocaleUpperCaseFunctionObject, "length", true);
   createBuiltInProperty(prototype, "toLocaleUpperCase", toLocaleUpperCaseFunctionObject);
 
   /* 15.5.4.20 String.prototype.trim ( ) */
