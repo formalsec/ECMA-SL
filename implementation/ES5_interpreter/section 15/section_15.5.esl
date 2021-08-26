@@ -132,6 +132,7 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
 
   /* 15.5.4.19 String.prototype.toLocaleUpperCase ( ) */
   toLocaleUpperCaseFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetoLocaleUpperCase", global, strict, null);
+  setConfigurability(toLocaleUpperCaseFunctionObject, "length", true);
   createBuiltInProperty(prototype, "toLocaleUpperCase", toLocaleUpperCaseFunctionObject);
 
   /* 15.5.4.20 String.prototype.trim ( ) */
