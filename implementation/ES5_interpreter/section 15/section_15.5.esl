@@ -105,6 +105,7 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
 
   /* 15.5.4.15 String.prototype.substring (start, end) */
   substringFunctionObject:= CreateBuiltInFunctionObject( [ "start", "end" ], "StringPrototypesubstring", global, strict, null);
+  setConfigurability(substringFunctionObject, "length", true);
   setJSProperty(prototype, "substring", newDataPropertyDescriptorFull( substringFunctionObject , true, false, true));
 
   /* 15.5.4.16 String.prototype.toLowerCase ( ) */
