@@ -146,7 +146,6 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
      [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(prototype, "length", 0., false, false, false);
 
-
   return prototype
 };
 
@@ -1410,6 +1409,8 @@ function StringPrototypesubstring (global, this, strict, args) {
 
 };
 
+
+
 /* 15.5.4.16 String.prototype.toLowerCase ( ) */
 /* The following steps are taken:
 
@@ -1496,7 +1497,30 @@ function StringPrototypetoUpperCase (global, this, strict, args) {
   /*Let L be a String where each character of L is either the Unicode uppercase equivalent
     of the corresponding character of S or the actual corresponding character of S
     if no Unicode uppercase equivalent exists. */
-  L := to_upper_case S;
+  /*L := to_upper_case S;*/
+
+  if (!isUnicodeCasingInitialized()) {
+    initializeUnicodeCasing()
+  };
+
+  L := "";
+  i := 0;
+  len := s_len_u S;
+  while (i < len) {
+
+    c := s_nth_u(S, i);
+
+    if (c in_obj |unicodeData|) {
+      L := s_concat([L, |unicodeData|[c]])
+    } elif (c in_obj |specialCasing|) {
+      L := s_concat([L, |specialCasing|[c]])
+    } else {
+      L := s_concat([L, c])
+    };
+
+    i := i + 1
+  };
+
   /* Return L. */
   return L
 };
