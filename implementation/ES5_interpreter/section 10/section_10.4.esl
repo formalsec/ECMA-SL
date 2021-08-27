@@ -38,7 +38,7 @@ function InitialGlobalExecutionContext(globalObject, program) {
   /* 2. Set the LexicalEnvironment to the Global Environment. */
   setLexicalEnvironment(globalExecCtx, globalEnv);
   /* 3. Set the ThisBinding to the global object. */
-  setThisBinding(globalExecCtx, globalObject);
+  setThisBinding(globalExecCtx, |global|);
 
   setContainedInStrictCode(globalExecCtx, isStrictModeCode(program, globalExecCtx));
 
@@ -146,6 +146,9 @@ function isDirectCall(ref, callingExecCtx) {
     return false
   };
 
+  if (!(Type(ref) = "Reference")) {
+    return false
+  };
   /* A direct call to the eval function is one that is expressed as a CallExpression that meets the following two
     conditions: */
   /* The Reference that is the result of evaluating the MemberExpression in the CallExpression has an environment
