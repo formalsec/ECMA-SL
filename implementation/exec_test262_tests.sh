@@ -132,8 +132,8 @@ function handleSingleFile() {
     # Copy contents to temporary file
     createMain262JSFile $FILENAME "$METADATA"
 
-    # Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program
-    JS2ECMASL=$(time (node ../JS2ECMA-SL/src/index.js -i output/main262_$now.js -o output/test262_ast_$now.esl) 2>&1 1>&1)
+    # Create the AST of the program in the file FILENAME and compile it directly to \"Core\" ECMA-SL
+    JS2ECMASL=$(time (node ../JS2ECMA-SL/src/index.js -c -i output/main262_$now.js -o output/test262_ast_$now.esl) 2>&1 1>&1)
 
     ast_duration_str=$(echo "$JS2ECMASL" | sed '$!d')
 
