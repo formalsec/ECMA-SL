@@ -456,7 +456,7 @@ function GetF(F, P) {
         argument. */
   v := Get(F, P);
   /* 2. If P is "caller" and v is a strict mode Function object, throw a TypeError exception. */
-  if ((P = "caller") &&& isStrictModeFunctionObject(F)) {
+  if ((P = "caller") &&& isStrictFunctionObject(F)) {
     throw TypeErrorConstructorInternal()
   };
   /* 3. Return v. */
@@ -528,9 +528,6 @@ function parseParams(paramsStr) {
 function parseBody(params, bodyStr, strict) {
   /* Wrap bodyStr in a function to avoid parsing errors in statements like return that is invalid outside of a function body */
   bodyStr := s_concat ["function f(", params, ") {", bodyStr, "}"];
-  if (strict) {
-    bodyStr := s_concat ["\"use strict\";", bodyStr]
-  };
   buildAST := extern parseJS(bodyStr);
   bodyObj := {buildAST}();
 
