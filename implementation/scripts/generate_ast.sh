@@ -18,7 +18,7 @@ function usage {
 function createMain262JSFile() {
   # echo "3.1. Copy contents to temporary file"
   cat /dev/null > "output/main262_$now.js"
-  if [[ $(echo -e "$2" | awk '/flags: \[onlyStrict\]/ {print $1}') != "" ]]; then
+  if [[ $(echo -e "$2" | grep -e 'flags:.*onlyStrict') != "" ]]; then
     echo "\"use strict\";" >> "output/main262_$now.js"
   fi
   if [ $WITH_HARNESS -eq 1 ]; then

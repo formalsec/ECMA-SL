@@ -88,6 +88,11 @@ function checkConstraints() {
   # in case it's a negative test, save its expected error name in a variable to be used later.
   NEGATIVE=$(echo -e "$METADATA" | awk '/negative:/ {print $2}')
 
+  # If NEGATIVE is the empty string, we may be in a case where the negative metadata is split in "phase" and "type":
+  if [[ "$NEGATIVE" == "" ]]; then
+    NEGATIVE=$(echo -e "$METADATA" | awk '/negative:/,/---\*\//' | awk '/type:/ { print $2 }')
+  fi
+
   return 0
 }
 
@@ -96,7 +101,7 @@ function createMain262JSFile() {
   # echo "3.1. Copy contents to temporary file"
   cat /dev/null > "output/main262_$now.js"
   # Check if test is to run in strict code mode.
-  if [[ $(echo -e "$2" | awk '/flags: \[onlyStrict\]/ {print $1}') != "" ]]; then
+  if [[ $(echo -e "$2" | grep -e 'flags:.*onlyStrict') != "" ]]; then
     echo "\"use strict\";" >> "output/main262_$now.js"
   fi
   # Only include harness file if not using pre-compiled ASTs or
