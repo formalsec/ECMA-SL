@@ -3,15 +3,15 @@
 
 /*---
 info: The Date.prototype property "setUTCHours" has { DontEnum } attributes
-es5id: 15.9.5.35_A1_T1
+esid: sec-date.prototype.setutchours
 description: Checking absence of ReadOnly attribute
 ---*/
 
 var x = Date.prototype.setUTCHours;
-if(x === 1)
+if (x === 1)
   Date.prototype.setUTCHours = 2;
 else
   Date.prototype.setUTCHours = 1;
 if (Date.prototype.setUTCHours === x) {
-  $ERROR('#1: The Date.prototype.setUTCHours has not the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.prototype.setUTCHours has not the attribute ReadOnly');
 }

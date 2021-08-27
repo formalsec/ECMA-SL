@@ -3,16 +3,16 @@
 
 /*---
 info: The Date.prototype property "toLocaleString" has { DontEnum } attributes
-es5id: 15.9.5.5_A1_T3
+esid: sec-date.prototype.tolocalestring
 description: Checking DontEnum attribute
 ---*/
 
 if (Date.prototype.propertyIsEnumerable('toLocaleString')) {
-  $ERROR('#1: The Date.prototype.toLocaleString property has the attribute DontEnum');
+  throw new Test262Error('#1: The Date.prototype.toLocaleString property has the attribute DontEnum');
 }
 
-for(var x in Date.prototype) {
-  if(x === "toLocaleString") {
-    $ERROR('#2: The Date.prototype.toLocaleString has the attribute DontEnum');
+for (var x in Date.prototype) {
+  if (x === "toLocaleString") {
+    throw new Test262Error('#2: The Date.prototype.toLocaleString has the attribute DontEnum');
   }
 }

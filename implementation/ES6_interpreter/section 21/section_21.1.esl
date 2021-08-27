@@ -1,0 +1,1901 @@
+/*
+ * Author: Leonor Barreiros
+ */
+
+/* 21.1 String Objects */
+
+/** 21.1.1 The String Constructor
+  * The String constructor is the %String% intrinsic object and the initial
+  * value of the String property of the global object. When called as a 
+  * constructor it creates and initializes a new String object. When String
+  * is called as a function rather than as a constructor, it performs a 
+  * type conversion.
+
+ ** The String constructor is designed to be subclassable. It may be used
+  * as the value of an extends clause of a class definition. Subclass 
+  * constructors that intend to inherit the specified String behaviour must
+  * include a super call to the String constructor to create and initialize
+  * the subclass instance with a [[StringData]] internal slot.
+**/
+
+/* 21.1.1.1 String ( value ) */
+function StringConstructor (global, this, strict, args) {
+  value := l_nth(args, 0);
+  NewTarget := this;
+
+  /* 1. If no arguments were passed to this function invocation, let s be "". */
+  if ((value = null) || (value = 'undefined)){
+    s := ""
+  } else{
+  /* 2. Else, */
+    /* a. If NewTarget is undefined and Type(value) is Symbol, return SymbolDescriptiveString(value). */
+    if ((NewTarget = 'undefined) && (Type(value) = "Symbol")){
+      return symbolDescriptiveString(value)
+    };
+
+    
+    /* b. Let s be ToString(value). */
+    s := ToString(value)
+  };
+
+  /* 3. ReturnIfAbrupt(s). */
+  @ReturnIfAbrupt(s);
+
+  /* 4. If NewTarget is undefined, return s. */
+  if (NewTarget = 'undefined){
+    return s
+  };
+  
+  /* 5. Return StringCreate(s, GetPrototypeFromConstructor(NewTarget, "%StringPrototype%")). */
+  return StringCreate(s, getStringPrototype(strict))
+};
+
+function getStringPrototype(strict) {
+  refString := newPropertyReference(|global|, "String", strict);
+  StringObject := GetValue(refString);
+  refStringProto := newPropertyReference(StringObject, "prototype", strict);
+  StringProto := GetValue(refStringProto);
+
+  return StringProto
+};
+
+function initStringObject(global, objectPrototype, strict) {
+  objStringPrototype := initStringPrototype(global, objectPrototype, strict);
+  objStringConstructor := CreateFunctionObject(["items"], "StringConstructor", global, strict, 0.);
+
+  descriptor := newDataPropertyDescriptorFull(objStringConstructor, true, false, true);
+  setJSProperty(objStringPrototype, "constructor", descriptor);
+
+  descriptor := newDataPropertyDescriptorFull(objStringPrototype, false, false, false);
+  setJSProperty(objStringConstructor, "prototype", descriptor);
+
+  /* 21.1.2.1 String.fromCharCode ( ...codeUnits ) */
+  fromCharCode := CreateBuiltInFunctionObject(["codeUnits"], "StringFromCharCode", global, strict, 0.);
+  /* The length property of the fromCharCode function is 1. */
+  setJSProperty(fromCharCode, "length", newDataPropertyDescriptorFull(1., false, false, false)); 
+  createBuiltInProperty(objStringConstructor, "fromCharCode", fromCharCode);
+  
+  /* 21.1.2.2 String.fromCodePoint ( ...codePoints ) */
+  fromCodePoint := CreateBuiltInFunctionObject(["codeUnits"], "StringFromCodePoint", global, strict, 0.);
+  /* The length property of the fromCodePoint function is 1. */
+  setJSProperty(fromCodePoint, "length", newDataPropertyDescriptorFull(1., false, false, false)); 
+  createBuiltInProperty(objStringConstructor, "fromCodePoint", fromCodePoint);
+  
+  /* 21.1.2.3 String.prototype */
+
+  /* 21.1.2.4 String.raw ( template, ...substitutions ) */
+  /* raw := CreateBuiltInFunctionObject(["template", "substitutions"], "StringRaw", global, strict, 0.); */
+  /* The length property of the raw function is 1. */
+  /* setJSProperty(raw, "length", newDataPropertyDescriptorFull(1., false, false, false)); */
+  /* createBuiltInProperty(objStringConstructor, "raw", raw); */
+
+  return objStringConstructor  
+};
+
+function initStringPrototype(global, objectPrototype, strict) {
+  prototype := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(prototype);
+
+  setJSProperty(prototype, "length", newDataPropertyDescriptorFull(1., true, false, false));
+
+  /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+  /* 21.1.3 Properties of the String Prototype Object */
+
+  /** The String prototype object is the intrinsic object %StringPrototype%.
+   * The String prototype object is itself an ordinary object. It is not a 
+   * String instance and does not have a [[StringData]] internal slot.
+  **/
+  setInternalProperty(prototype, "Class", "Object");
+
+  /** The value of the [[Prototype]] internal slot of the String prototype
+   * object is the intrinsic object %ObjectPrototype% (19.1.3).
+  **/
+  setInternalProperty(prototype, "Prototype", objectPrototype);
+
+  /* 21.1.3.1 String.prototype.charAt ( pos ) */
+  charAtFunctionObject:= CreateBuiltInFunctionObject( [ "pos" ], "StringPrototypecharAt", global, strict, null);
+  createBuiltInProperty(prototype, "charAt", charAtFunctionObject);
+
+  /* 21.1.3.2 String.prototype.charCodeAt ( pos ) */
+  charCodeAtFunctionObject:= CreateBuiltInFunctionObject( [ "pos" ], "StringPrototypecharCodeAt", global, strict, null);
+  createBuiltInProperty(prototype, "charCodeAt", charCodeAtFunctionObject);
+
+  /* 21.1.3.3 String.prototype.codePointAt ( pos ) */
+  codePointAtFunctionObject := CreateBuiltInFunctionObject(["pos"], "StringPrototypecodePointAt", global, strict, null);
+  createBuiltInProperty(prototype, "codePointAt", codePointAtFunctionObject);
+
+  /* 21.1.3.4 String.prototype.concat ( ...args ) */
+  concatFunctionObject:= CreateBuiltInFunctionObject( ["args"], "StringPrototypeconcat", global, strict, 0.);
+  /* The length property of the concat method is 1. */
+  setJSProperty(concatFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false)); 
+  createBuiltInProperty(prototype, "concat", concatFunctionObject);
+
+  /* 21.1.3.5 String.prototype.constructor */
+  /* TODO */
+
+  /* 21.1.3.6 String.prototype.endsWith ( searchString [ , endPosition] ) */
+  endsWithFunctionObject := CreateBuiltInFunctionObject(["searchString", "endPosition"], "StringPrototypeendsWith", global, strict, null);
+  /* The length property of the endsWith method is 1. */
+  createBuiltInProperty(prototype, "endsWith", endsWithFunctionObject);
+
+  /* 21.1.3.7 String.prototype.includes ( searchString [ , position ] ) */
+  includesFunctionObject := CreateBuiltInFunctionObject(["searchString", "position"], "StringPrototypeincludes", global, strict, null);
+  /* The length property of the includes method is 1. */
+  setJSProperty(includesFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  createBuiltInProperty(prototype, "includes", includesFunctionObject);
+
+  /* 21.1.3.8 String.prototype.indexOf ( searchString [ , position ] ) */
+  indexOfFunctionObject := CreateBuiltInFunctionObject(["searchString", "position"], "StringPrototypeindexOf", global, strict, null);
+  /* The length property of the indexOf method is 1. */
+  setJSProperty(indexOfFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  createBuiltInProperty(prototype, "indexOf", indexOfFunctionObject);
+
+  /* 21.1.3.9 String.prototype.lastIndexOf ( searchString [ , position ] ) */
+  lastIndexOfFunctionObject := CreateBuiltInFunctionObject(["searchString", "position"], "StringPrototypelastIndexOf", global, strict, null);
+  /* The length property of the lastIndexOf method is 1. */
+  setJSProperty(lastIndexOfFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  createBuiltInProperty(prototype, "lastIndexOf", lastIndexOfFunctionObject);
+
+  /* 21.1.3.10 String.prototype.localeCompare ( that [, reserved1 [ , reserved2 ] ] ) */ /* TODO */
+  localeCompareFunctionObject := CreateBuiltInFunctionObject(["that"], "StringPrototypelocaleCompare", global, strict, null);
+  /* The length property of the localeCompare method is 1. */
+  setJSProperty(localeCompareFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  createBuiltInProperty(prototype, "localeCompare", localeCompareFunctionObject);
+
+  /* 21.1.3.11 String.prototype.match ( regexp ) */
+  matchFunctionObject := CreateBuiltInFunctionObject(["regexp"], "StringPrototypeMatch", global, strict, null);
+  createBuiltInProperty(prototype, "match", matchFunctionObject);
+
+  /* 21.1.3.12 String.prototype.normalize ( [ form ] ) */
+  normalizeFunctionObject := CreateBuiltInFunctionObject(["form"], "StringPrototypenormalize", global, strict, null);
+  /* The length property of the normalize method is 0. */
+  setJSProperty(normalizeFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, false));
+  createBuiltInProperty(prototype, "normalize", normalizeFunctionObject);
+
+  /* 21.1.3.13 String.prototype.repeat ( count ) */
+  repeatFunctionObject := CreateBuiltInFunctionObject(["count"], "StringPrototyperepeat", global, strict, null);
+  createBuiltInProperty(prototype, "repeat", repeatFunctionObject);
+
+  /* 21.1.3.14 String.prototype.replace (searchValue, replaceValue ) */
+  replaceFunctionObject := CreateBuiltInFunctionObject(["searchValue", "replaceValue"], "StringPrototypeReplace", global, strict, null);
+  createBuiltInProperty(prototype, "replace", replaceFunctionObject);
+
+  /* 21.1.3.15 String.prototype.search ( regexp ) */
+  searchFunctionObject := CreateBuiltInFunctionObject(["regexp"], "StringPrototypeSearch", global, strict, null);
+  createBuiltInProperty(prototype, "search", searchFunctionObject);
+
+  /* 21.1.3.16 String.prototype.slice ( start, end ) */
+  sliceFunctionObject := CreateBuiltInFunctionObject(["start", "end"], "StringPrototypeSlice", global, strict, null);
+  /* The length property of the slice method is 2. */
+  setJSProperty(sliceFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, false));
+  createBuiltInProperty(prototype, "slice", sliceFunctionObject);
+
+  /* 21.1.3.17 String.prototype.split ( separator, limit ) */
+  splitFunctionObject := CreateBuiltInFunctionObject(["separator", "limit"], "StringPrototypeSplit", global, strict, null);
+  /* The length property of the split method is 2. */
+  setJSProperty(splitFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, false));
+  createBuiltInProperty(prototype, "split", splitFunctionObject);
+
+  /* 21.1.3.18 String.prototype.startsWith ( searchString [, position ] ) */
+  startsWithFunctionObject := CreateBuiltInFunctionObject(["searchString", "position"], "StringPrototypestartsWith", global, strict, null);
+  /* The length property of the startsWith method is 1. */
+  setJSProperty(startsWithFunctionObject, "length", newDataPropertyDescriptorFull(1., false, false, false));
+  createBuiltInProperty(prototype, "startsWith", startsWithFunctionObject);
+
+  /* 21.1.3.19 String.prototype.substring ( start, end ) */
+  substringFunctionObject:= CreateBuiltInFunctionObject( [ "start", "end" ], "StringPrototypesubstring", global, strict, null);
+  /* The length property of the substring method is 2. */
+  setJSProperty(substringFunctionObject, "length", newDataPropertyDescriptorFull(2., false, false, false));
+  createBuiltInProperty(prototype, "substring", substringFunctionObject);
+
+  /* 21.1.3.20 String.prototype.toLocaleLowerCase ( [ reserved1 [ , reserved2 ] ] ) */
+  toLocaleLowerCaseFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetoLocaleLowerCase", global, strict, null);
+  /* The length property of the toLocaleLowerCase method is 0. */
+  setJSProperty(toLocaleLowerCaseFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, false));
+  createBuiltInProperty(prototype, "toLocaleLowerCase", toLocaleLowerCaseFunctionObject);
+
+  /* 21.1.3.21 String.prototype.toLocaleUpperCase ([ reserved1 [ , reserved2 ] ] ) */
+  toLocaleUpperCaseFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetoLocaleUpperCase", global, strict, null);
+  /* The length property of the toLocaleUpperCase method is 0. */
+  setJSProperty(toLocaleUpperCaseFunctionObject, "length", newDataPropertyDescriptorFull(0., false, false, false));
+  createBuiltInProperty(prototype, "toLocaleUpperCase", toLocaleUpperCaseFunctionObject);
+
+  /* 21.1.3.22 String.prototype.toLowerCase ( ) */
+  toLowerCaseFunctionObject:= CreateBuiltInFunctionObject( [], "StringPrototypetoLowerCase", global, strict, null);
+  createBuiltInProperty(prototype, "toLowerCase", toLowerCaseFunctionObject);
+
+  /* 21.1.3.23 String.prototype.toString ( ) */
+  toStringFunctionObject:= CreateBuiltInFunctionObject( [], "StringPrototypetoString", global, strict, null);
+  createBuiltInProperty(prototype, "toString", toStringFunctionObject);
+
+  /* 21.1.3.24 String.prototype.toUpperCase ( ) */
+  toUpperCaseFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetoUpperCase", global, strict, null);
+  createBuiltInProperty(prototype, "toUpperCase", toUpperCaseFunctionObject);
+
+  /* 21.1.3.25 String.prototype.trim ( ) */
+  trimFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetrim", global, strict, null);
+  createBuiltInProperty(prototype, "trim", trimFunctionObject);
+
+  /* 21.1.3.26 String.prototype.valueOf ( ) */
+  valueOfFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypevalueOf", global, strict, null);
+  createBuiltInProperty(prototype, "valueOf", valueOfFunctionObject);
+
+  /* 21.1.3.27 String.prototype [ @@iterator ]( ) */
+  /* Martelada Provisoria */
+  /*   newlyConstructedObject.IteratorFunction := "CreateMapIteratorJS"; */
+  CreateStringIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateStringIteratorJS", global, strict, 1.);
+  descriptor := newDataPropertyDescriptorFull(CreateStringIteratorJSObject, true, false, true);
+  setJSProperty(prototype, "IteratorFunction", descriptor); 
+  /* The value of the name property of this function is "[Symbol.iterator]". */
+  /* TODO */
+  /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+  /* 21.1.4 Properties of String Instances */
+
+  /* 21.1.4.1 length */
+  /* The number of characters in the String value represented by this String object. */
+  /* Once a String object is created, this property is unchanging. It has the attributes { [[Writable]]: false,
+     [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(prototype, "length", 1., false, false, false);
+
+  return prototype
+};
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* 21.1.2 Properties of the String Constructor */
+
+/** The value of the [[Prototype]] internal slot of the String constructor
+  * is the intrinsic object %FunctionPrototype% (19.2.3).
+ ** Besides the length property (whose value is 1), the String constructor
+  * has the following properties:
+
+  * 21.1.2.1 String.fromCharCode ( ...codeUnits ) 
+  * 21.1.2.2 String.fromCodePoint ( ...codePoints )
+  * 21.1.2.3 String.prototype
+  * 21.1.2.4 String.raw ( template , ...substitutions )
+**/
+
+/* 21.1.2.1 String.fromCharCode ( ...codeUnits )  */
+function StringFromCharCode(global, this, strict, args){
+  /* 1. Let codeUnits be a List containing the arguments passed to this function. */
+  codeUnits := args;
+
+  /* 2. Let length be the number of elements in codeUnits. */
+  length := l_len codeUnits;
+
+  /* 3. Let elements be a new List. */
+  elements := [];
+  s := "";
+
+  /* 4. Let nextIndex be 0. */
+  nextIndex := 0;
+
+  /* 5. Repeat while nextIndex < length */
+  while (nextIndex < length){
+    /* a. Let next be codeUnits[nextIndex]. */
+    next := l_nth(codeUnits, nextIndex);
+
+    /* b. Let nextCU be ToUint16(next). */
+    nextCU := ToUint16(next);
+  
+    /* c. ReturnIfAbrupt(nextCU). */
+    @ReturnIfAbrupt(nextCU);
+ 
+    /* d. Append nextCU to the end of elements. */
+    elements := l_concat(elements, [from_char_code_u (int_of_float(nextCU))]);
+    s := s_concat([s, from_char_code_u (int_of_float(nextCU))]);
+
+    /* e. Let nextIndex be nextIndex + 1. */
+    nextIndex := nextIndex + 1
+  };
+
+  /* 6. Return the String value whose elements are, in order, the elements in the List elements. If length is 0, the empty string is returned. */
+  return s
+};
+
+/* 21.1.2.2 String.fromCodePoint ( ...codePoints ) */
+function StringFromCodePoint(global, this, strict, args){
+  /* 1. Let codePoints be a List containing the arguments passed to this function. */
+  codePoints := args;
+
+  /* 2. Let length be the number of elements in codePoints. */
+  length := l_len codePoints;
+
+  /* 3. Let elements be a new List. */
+  elements := [];
+  s := "";
+
+  /* 4. Let nextIndex be 0. */
+  nextIndex := 0;
+
+  /* 5. Repeat while nextIndex < length */
+  while (nextIndex < length){
+    /* a. Let next be codePoints[nextIndex]. */
+    next := l_nth(codePoints, nextIndex);
+
+    /* b.Let nextCP be ToNumber(next). */
+    nextCP := ToNumber(next);
+
+    /* c. ReturnIfAbrupt(nextCP). */
+    @ReturnIfAbrupt(nextCP);
+
+    /* d. If SameValue(nextCP, ToInteger(nextCP)) is false, throw a RangeError exception. */
+    if (SameValue(nextCP, ToInteger(nextCP)) = false){
+      throw RangeErrorConstructorInternal()
+    };
+    
+    /* e. If nextCP < 0 or nextCP > 0x10FFFF, throw a RangeError exception. */
+    if ((nextCP < 0.) || (nextCP > (int_to_float 0x10FFFF))){
+      throw RangeErrorConstructorInternal()
+    };
+
+    /* f. Append the elements of the UTF16Encoding (10.1.1) of nextCP to the end of elements. */
+    cu := UTF16Encoding(int_of_float nextCP);
+    elements := l_concat(elements, [cu]);
+    s := s_concat([s, int_to_string cu]);
+
+    /* g. Let nextIndex be nextIndex + 1. */
+    nextIndex := nextIndex + 1
+  };
+
+  /* 6. Return the String value whose elements are, in order, the elements in the List elements. If length is 0, the empty string is returned. */
+  return s
+};
+
+/* 21.1.2.3 String.prototype */
+
+/* 21.1.2.4 String.raw ( template , ...substitutions ) */
+function StringRaw(global, this, strict, args){
+  template  := hd args;
+
+  /* 1. Let substitutions be a List consisting of all of the arguments passed to this function, 
+  starting with the second argument. If fewer than two arguments were passed, the List is empty. */
+  if (l_len args >= 2) {
+    substitutions := tl args
+  } else{
+    substitutions := []
+  };
+  
+  /* 2. Let numberOfSubstitutions be the number of elements in substitutions. */
+  numberOfSubstitutions := l_len substitutions;
+
+  /* 3. Let cooked be ToObject(template). */
+  cooked := ToObject(template);
+
+  /* 4. ReturnIfAbrupt(cooked). */
+  @ReturnIfAbrupt(cooked);
+
+  /* 5. Let raw be ToObject(Get(cooked, "raw")). */
+  raw := ToObject(GetES6(cooked, "raw"));
+
+  /* 6. ReturnIfAbrupt(raw). */
+  @ReturnIfAbrupt(raw);
+
+  /* 7. Let literalSegments be ToLength(Get(raw, "length")). */
+  literalSegments := ToLength(GetES6(raw, "length"));
+
+  /* 8. ReturnIfAbrupt(literalSegments). */
+  @ReturnIfAbrupt(literalSegments);
+
+  /* 9. If literalSegments ≤ 0, return the empty string. */
+  if (literalSegments <= 0){
+    return ""
+  };
+
+  /* 10. Let stringElements be a new List. */
+  stringElements := [];
+  s := "";
+
+  /* 11. Let nextIndex be 0. */
+  nextIndex := 0;
+
+  /* 12. Repeat */
+  while (true){
+    /* a. Let nextKey be ToString(nextIndex). */
+    nextKey := ToString(nextIndex);
+
+    /* b. Let nextSeg be ToString(Get(raw, nextKey)). */
+    nextSeg := ToString(GetES6(raw, nextKey));
+
+    /* c. ReturnIfAbrupt(nextSeg). */
+    @ReturnIfAbrupt(nextSeg);
+
+    /* d. Append in order the code unit elements of nextSeg to the end of stringElements. */
+    stringElements := l_concat(stringElements, [nextSeg]);
+    s := s_concat([s, nextSeg]);
+
+    /* e. If nextIndex + 1 = literalSegments, then */
+    if (nextIndex + 1 = literalSegments){
+      /* i. Return the String value whose code units are, in order, the elements in the List stringElements. 
+      If stringElements has no elements, the empty string is returned. */
+      return s
+    };
+
+    /* f. If nextIndex < numberOfSubstitutions, let next be substitutions[nextIndex]. */
+    if (nextIndex < numberOfSubstitutions){
+      next := l_nth(substitutions, nextIndex)
+    }
+    /* g. Else, let next be the empty String. */
+    else{
+      next := ""
+    };
+
+    /* h. Let nextSub be ToString(next). */
+    nextSub := ToString(next);
+
+    /* i. ReturnIfAbrupt(nextSub). */
+    @ReturnIfAbrupt(nextSub);
+
+    /* j. Append in order the code unit elements of nextSub to the end of stringElements. */
+    stringElements := l_concat(stringElements, [nextSub]);
+    s := s_concat([s, nextSub]);
+
+    /* k. Let nextIndex be nextIndex + 1. */
+    nextIndex := nextIndex + 1
+  } 
+};
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* 21.1.3 Properties of the String Prototype Object */
+
+function thisStringValue(value){
+  /* 1. If Type(value) is String, return value. */
+  if (Type(value) = "String"){
+    return value
+  };
+
+  /* 2. If Type(value) is Object and value has a [[StringData]] internal slot, then */
+  if ((Type(value) = "Object") && ("StringData" in_obj value)){
+    /* a. Assert: value’s [[StringData]] internal slot is a String value. */
+    assert(Type(value.StringData) = "String");
+
+    /* b. Return the value of value’s [[StringData]] internal slot. */
+    return value.StringData
+  };
+
+  /* 3. Throw a TypeError exception. */
+  throw TypeErrorConstructorInternal()
+
+  /** The phrase “this String value” within the specification of a method 
+   * refers to the result returned by calling the abstract operation 
+   * thisStringValue with the this value of the method invocation passed as 
+   * the argument.
+  **/ 
+};
+
+/* 21.1.3.1 String.prototype.charAt ( pos ) */
+function StringPrototypecharAt(global, this, strict, args) {
+  pos := l_nth(args, 0);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Let position be ToInteger(pos). */
+  position := int_of_float(ToInteger(pos));
+
+  /* 5. ReturnIfAbrupt(position). */
+  @ReturnIfAbrupt(position);
+
+  /* 6. Let size be the number of elements in S. */
+  size := s_len_u(S);
+
+  /* 7. If position < 0 or position ≥ size, return the empty String. */
+  if ((position < 0) ||| (position >= size)) {
+    return ""
+  };
+
+  /* 8. Return a String of length 1, containing one code unit from S, namely the code unit at index position. */
+  return (s_nth_u (S, position))
+};
+
+/* 21.1.3.2 String.prototype.charCodeAt ( pos ) */
+function StringPrototypecharCodeAt (global, this, strict, args) {
+  pos := l_nth(args, 0);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Let position be ToInteger(pos). */
+  position := int_of_float(ToInteger(pos));
+
+  /* 5. ReturnIfAbrupt(position). */
+  @ReturnIfAbrupt(position);
+
+  /* 6. Let size be the number of elements in S. */
+  size := s_len_u(S);
+
+  /* 7. If position < 0 or position ≥ size, return NaN. */
+  if ((position < 0) ||| (position >= size)) {
+    return NaN
+  };
+
+  /* 8. Return a value of Number type, whose value is the code unit value of the element at index position in the String S. */
+  return int_to_float to_char_code_u (s_nth_u (S, position))
+};
+
+/* 21.1.3.3 String.prototype.codePointAt ( pos ) */
+function StringPrototypecodePointAt(global, this, strict, args){
+  
+  pos := l_nth(args, 0);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Let position be ToInteger(pos). */
+  position := int_of_float(ToInteger(pos));
+
+  /* 5. ReturnIfAbrupt(position). */
+  @ReturnIfAbrupt(position);
+
+  /* 6. Let size be the number of elements in S. */                    
+  size := s_len_u S;
+
+  /* 7. If position < 0 or position ≥ size, return undefined. */
+  if ((position < 0) || (position >= size)){
+    return 'undefined
+  };
+
+  /* 8. Let first be the code unit value of the element at index position in the String S. */
+  first := to_char_code_u(s_nth_u(S, position));
+
+  /* 9. If first < 0xD800 or first > 0xDBFF or position+1 = size, return first. */
+  if ((first < 0xD800) || (first > 0xDBFF) || (position + 1 = size)){
+    return int_to_float first
+  };
+
+  /* 10. Let second be the code unit value of the element at index position+1 in the String S. */
+  second := to_char_code_u(s_nth_u(S, (position + 1)));
+
+  /* 11. If second < 0xDC00 or second > 0xDFFF, return first. */
+  if ((second < 0xDC00) || (second > 0xDFFF)){
+    return int_to_float first
+  };
+
+  /* 12. Return UTF16Decode(first, second). */
+  return int_to_float UTF16Decode(first, second)
+};
+
+/* 21.1.3.4 String.prototype.concat ( ...args ) */
+function StringPrototypeconcat(global, this, strict, args) {
+  
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Let args be a List whose elements are the arguments passed to this function. */
+  args_ := args;
+
+  /* 5. Let R be S. */
+  R := S;
+
+  /* 6. Repeat, while args is not empty */
+  while (!(args_ = [])){
+    /* a. Remove the first element from args and let next be the value of that element. */
+    next  := hd args_;
+    args_ := tl args_;
+
+    /* b. Let nextString be ToString(next). */
+    nextString := ToString(next);
+
+    /* c. ReturnIfAbrupt(nextString). */
+    @ReturnIfAbrupt(nextString);
+
+    /* d. Let R be the String value consisting of the code units of the previous value of R followed by the code units of nextString. */
+    R := s_concat([R, nextString])
+  };
+
+  /* 7. Return R. */
+  return R
+};
+
+/* 21.1.3.5 String.prototype.constructor */
+
+/* 21.1.3.6 String.prototype.endsWith ( searchString [ , endPosition] ) */
+function StringPrototypeendsWith(global, this, strict, args){
+  searchString := l_nth(args, 0);
+  endPosition := getOptionalParam(args, 1);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Let isRegExp be IsRegExp(searchString). */
+  isRegExp := isRegExpObject(searchString);
+
+  /* 5. ReturnIfAbrupt(isRegExp). */
+  @ReturnIfAbrupt(isRegExp);
+
+  /* 6. If isRegExp is true, throw a TypeError exception. */
+  if (isRegExp = true){
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 7. Let searchStr be ToString(searchString). */
+  searchStr := ToString(searchString);
+
+  /* 8. ReturnIfAbrupt(searchStr). */
+  @ReturnIfAbrupt(searchStr);
+
+  /* 9. Let len be the number of elements in S. */
+  len := s_len_u S;
+
+  /* 10. If endPosition is undefined, let pos be len, else let pos be ToInteger(endPosition). */
+  if ((endPosition = 'undefined) || (endPosition = null)){
+    pos := len
+  } else{
+    pos := int_of_float(ToInteger(endPosition))
+  };
+  
+  /* 11. ReturnIfAbrupt(pos). */
+  @ReturnIfAbrupt(pos);
+
+  /* 12. Let end be min(max(pos, 0), len). */
+  end := int_of_float(min(max(int_to_float pos, int_to_float 0), int_to_float len));
+
+  /* 13. Let searchLength be the number of elements in searchStr. */
+  searchLength_aux := int_to_float s_len_u searchStr;
+  searchLength := int_of_float(searchLength_aux);
+
+  /* 14. Let start be end - searchLength. */
+  start := end - searchLength;
+
+  /* 15. If start is less than 0, return false. */
+  if (start < 0){
+    return false
+  };
+
+  /* 16. If the sequence of elements of S starting at start of length searchLength is the same as the full element sequence of searchStr, return true. */
+  i := 0;
+  so_far_so_good := true;
+  
+  while (i < searchLength) {
+    s := s_nth_u(S, i + start);
+    sl := s_nth_u(searchStr, i);
+
+    if (!(SameValue(s, sl))){
+      so_far_so_good := false
+    };
+
+    i := i + 1
+  };
+
+  if (so_far_so_good = true){
+    return true
+  } else {
+    return false
+  }
+
+  /* 17. Otherwise, return false. */
+};
+
+/* 21.1.3.7 String.prototype.includes ( searchString [ , position ] ) */
+function StringPrototypeincludes(global, this, strict, args){
+  searchString := l_nth(args, 0);
+  position := getOptionalParam(args, 1);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Let isRegExp be IsRegExp(searchString). */
+  isRegExp := isRegExpObject(searchString);
+
+  /* 5. ReturnIfAbrupt(isRegExp). */
+  @ReturnIfAbrupt(isRegExp);
+
+  /* 6. If isRegExp is true, throw a TypeError exception. */
+  if (isRegExp = true){
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 7. Let searchStr be ToString(searchString). */
+  searchStr := ToString(searchString);
+
+  /* 8. ReturnIfAbrupt(searchStr). */
+  @ReturnIfAbrupt(searchStr);
+
+  /* 9. Let pos be ToInteger(position). (If position is undefined, this step produces the value 0). */
+  if (!(position = 'undefined) && !(position = null)){
+    pos := int_of_float(ToInteger(position))
+  } else{
+    pos := 0
+  };
+
+  /* 10. ReturnIfAbrupt(pos). */
+  @ReturnIfAbrupt(pos);
+
+  /* 11. Let len be the number of elements in S. */
+  len := s_len_u S;
+
+   /* 12. Let start be min(max(pos, 0), len). */
+  start :=  int_of_float(min(max(int_to_float pos, int_to_float 0), int_to_float len));
+
+  /* 13. Let searchLength be the number of elements in searchStr. */
+  searchLength_aux := int_to_float s_len_u searchStr;
+  searchLength := int_of_float(searchLength_aux);
+
+  /* 14. If there exists any integer k not smaller than start such that k + searchLen is not greater than len, 
+  and for all nonnegative integers j less than searchLen, the code unit at index k+j of S is the same as the code
+  unit at index j of searchStr, return true; but if there is no such integer k, return false. */
+
+  k := start;
+  while (k + searchLength <= len){
+    j := 0;
+    exists_k := true;
+    while(j < searchLength){
+      if (!(s_nth_u(S, k + j) = s_nth_u(searchStr, j))){
+        exists_k := false;
+        j := searchLength
+      };
+      j := j + 1
+    };
+    if(exists_k = true){
+      return true
+    };
+    k := k + 1
+  };
+
+  return false
+};
+
+/* 21.1.3.8 String.prototype.indexOf ( searchString [ , position ] ) */
+function StringPrototypeindexOf(global, this, strict, args){
+  searchString := l_nth(args, 0);
+  position := getOptionalParam(args, 1);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Let searchStr be ToString(searchString). */
+  searchStr := ToString(searchString);
+
+  /* 5. ReturnIfAbrupt(searchStr). */
+  @ReturnIfAbrupt(searchStr);
+
+  /* 6. Let pos be ToInteger(position). (If position is undefined, this step produces the value 0). */
+  if (!(position = 'undefined) && !(position = null)){
+    pos := int_of_float(ToInteger(position))
+  } else{
+    pos := 0
+  };
+
+  /* 7. ReturnIfAbrupt(pos). */
+  @ReturnIfAbrupt(pos);
+
+  /* 8. Let len be the number of elements in S. */
+  len := s_len_u S;
+
+  /* 9. Let start be min(max(pos, 0), len). */
+  start :=  int_of_float(min(max(int_to_float pos, int_to_float 0), int_to_float len));
+
+  /* 10. Let searchLen be the number of elements in searchStr. */
+  searchLen_aux := int_to_float s_len_u searchStr;
+  searchLen := int_of_float(searchLen_aux);
+
+  /* 11. Return the smallest possible integer k not smaller than start such that k+ searchLen is not greater
+  than len, and for all nonnegative integers j less than searchLen, the code unit at index k+j of S is the 
+  same as the code unit at index j of searchStr; but if there is no such integer k, return the value -1. */
+  k := start;
+  j := 0;
+
+  while((k + searchLen) <= len){
+    if (j < searchLen){
+      if (s_nth_u (S, k + j) = s_nth_u(searchStr, j)){
+        j := j + 1
+      } else{
+        j := 0;
+        k := k + 1
+      }
+    } else{
+      return int_to_float k
+    }
+  };
+
+  return int_to_float -1
+};
+
+/* 21.1.3.9 String.prototype.lastIndexOf ( searchString [ , position ] ) */
+function StringPrototypelastIndexOf(global, this, strict, args) {
+  searchString := l_nth(args, 0);
+  position := getOptionalParam(args, 1);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Let searchStr be ToString(searchString). */
+  searchStr := ToString(searchString);
+
+  /* 5. ReturnIfAbrupt(searchString). */
+  @ReturnIfAbrupt(searchString);
+
+  /* 6. Let numPos be ToNumber(position). (If position is undefined, this step produces the value NaN). */
+  if (!(position = 'undefined) && !(position = null)){
+    numPos := ToNumber(position)
+  } else{
+    numPos := NaN
+  };
+
+  /* 7. ReturnIfAbrupt(numPos). */
+  @ReturnIfAbrupt(numPos);
+
+  /* 8. If numPos is NaN, let pos be +∞; otherwise, let pos be ToInteger(numPos). */
+  if (numPos = NaN){
+    pos := Infinity
+  } else{
+    pos := int_of_float(ToInteger(numPos))
+  };
+  
+  /* 9. Let len be the number of elements in S. */
+  len := s_len_u S;
+
+  /* 10. Let start be min(max(pos, 0), len). */
+  if (pos = Infinity){
+    start := len
+  } else{
+    start :=  int_of_float(min(max(int_to_float pos, int_to_float 0), int_to_float len))
+  };
+  
+  /* 11. Let searchLen be the number of elements in searchStr. */
+  searchLen_aux := int_to_float s_len_u searchStr;
+  searchLen := int_of_float(searchLen_aux);
+
+  /* 12. Return the largest possible nonnegative integer k not larger than start such that k+ searchLen
+  is not greater than len, and for all nonnegative integers j less than searchLen, the code unit at 
+  index k+j of S is the same as the code unit at index j of searchStr; but if there is no such integer k, 
+  return the value -1. */
+  k := start;
+  j := 0;
+  while (k >= 0){
+    if (j < searchLen){
+      if ((k + searchLen) <= len){
+        if (s_nth_u(S, k + j) = s_nth_u(searchStr, j)) {
+           j := j + 1
+        } else {
+           j := 0;
+           k := k - 1
+        }
+      } else{
+        k := k - 1
+      }
+    }
+    else{
+      return int_to_float k
+    }
+  };
+  return int_to_float -1
+};
+
+/* 21.1.3.10 String.prototype.localeCompare ( that [, reserved1 [ , reserved2 ] ] ) */
+function StringPrototypelocaleCompare (global, this, strict, args) {
+  that := l_nth(args, 0);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Let That be ToString(that). */
+  That := ToString(that);
+
+  /* 5. ReturnIfAbrupt(That). */
+  @ReturnIfAbrupt(That);
+
+  /** When the localeCompare method is called with argument that, it 
+    * returns a Number other than NaN that represents the result of a 
+    * locale-sensitive String comparison of the this value (converted to a
+    * String) with that (converted to a String). The two Strings are S and
+    * That. The two Strings are compared in an implementation-defined 
+    * fashion. The result is intended to order String values in the sort 
+    * order specified by a host default locale, and will be negative, zero,
+    * or positive, depending on whether S comes before That in the sort 
+    * order, the Strings are equal, or S comes after That in the sort order
+    * , respectively.
+  **/
+  SLen := s_len_u S;
+  ThatLen := s_len_u That;
+  j := 0;
+
+  while ((j < SLen) &&& (j < ThatLen)) {
+    if (to_char_code_u(s_nth_u(S, j)) < to_char_code_u(s_nth_u(That, j))) {
+      return -(1.)
+    }
+    else{
+      if (to_char_code_u(s_nth_u(S, j)) > to_char_code_u(s_nth_u(That, j))) {
+        return 1.
+      }
+      else {
+        j := j + 1
+      }
+    }
+  };
+  if ((j < SLen) &&& !(j < ThatLen)) {
+    return -(1.)
+  }
+  else {
+    if (!(j < SLen) &&& (j < ThatLen)) {
+      return 1.
+    }
+    else {
+      return 0.
+    }
+  }
+};
+
+/* 21.1.3.11 String.prototype.match ( regexp ) */
+function StringPrototypeMatch(global, this, strict, args) {
+  regexp := l_nth(args, 0);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. If regexp is neither undefined nor null, then */
+  if (!(regexp = 'undefined) && !(regexp = null)){
+    /* a. Let matcher be GetMethod(regexp, @@match). */
+    /* matcher := GetMethod(regexp, @@match); */
+
+    /* b. ReturnIfAbrupt(matcher). */
+    @ReturnIfAbrupt(matcher);
+  
+    /* c. If matcher is not undefined, then  */
+    if (!(matcher = 'undefined)){
+      /* i. Return Call(matcher, regexp, «‍O»). */
+      return Call(matcher, regexp, [O])
+    }
+  };
+
+  /* 4. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 5. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 6. Let rx be RegExpCreate(regexp, undefined) (see 21.2.3.2.3). */
+  rx := RegExpConstructor(global, this, strict, [regexp, 'undefined]);
+
+  /* 7. ReturnIfAbrupt(rx). */
+  @ReturnIfAbrupt(rx);
+
+  /* 8. Return Invoke(rx, @@match, «‍S»). */
+  /* return Invoke(rx, @@match, [S]) */
+  return null
+};
+
+/* 21.1.3.12 String.prototype.normalize ( [ form ] ) */
+function StringPrototypenormalize(global, this, strict, args){
+  form := getOptionalParam(args, 0);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. If form is not provided or form is undefined, let form be "NFC". */
+  if ((form = null) || (form = 'undefined)){
+    form := "NFC"
+  };
+
+  /* 5. Let f be ToString(form). */
+  f := ToString(form);
+
+  /* 6. ReturnIfAbrupt(f). */
+  @ReturnIfAbrupt(f);
+
+  /* 7. If f is not one of "NFC", "NFD", "NFKC", or "NFKD", throw a RangeError exception. */
+  if (!(f = "NFC") && !(f = "NFD") && !(f = "NFCK") && !(f = "NFKD")){
+    throw RangeErrorConstructorInternal()
+  };
+
+  /* 8. Let ns be the String value that is the result of normalizing S into the normalization form named by f as specified in http://www.unicode.org/reports/tr15/tr15-29.html. */
+  ns := "cereja";
+
+  /* 9. Return ns. */
+  return ns
+};
+
+/* 21.1.3.13 String.prototype.repeat ( count ) */
+function StringPrototyperepeat(global, this, strict, args){
+  count := l_nth(args, 0);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Let n be ToInteger(count). */
+  n := int_of_float(ToInteger(count));
+
+  /* 5. ReturnIfAbrupt(n). */
+  @ReturnIfAbrupt(n);
+
+  /* 6. If n < 0, throw a RangeError exception. */
+  if (n < 0){
+    throw RangeErrorConstructorInternal()
+  };
+
+  /* 7. If n is +∞, throw a RangeError exception. */
+  if (n = Infinity){
+    throw RangeErrorConstructorInternal()
+  };
+
+  /* 8. Let T be a String value that is made from n copies of S appended together. If n is 0, T is the empty String. */
+  i := 0;
+  T := "";
+  if ((n = 0) || (S = "")){
+    return T
+  };
+  while (i < n){
+    T := s_concat([T, S]);
+    i := i + 1
+  };
+
+  /* 9. Return T. */
+  return T
+};
+
+/* 21.1.3.14 String.prototype.replace (searchValue, replaceValue ) */
+function StringPrototypeReplace(global, this, strict, args){
+  searchValue := l_nth(args, 0);
+  replaceValue := l_nth(args, 1);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. If searchValue is neither undefined nor null, then */
+  if (!(searchValue = 'undefined) && !(searchValue = null)){
+    /* a. Let replacer be GetMethod(searchValue, @@replace).  */
+    /* replacer := GetMethod(searchValue, @@replace); */
+
+    /* b. ReturnIfAbrupt(replacer). */
+    @ReturnIfAbrupt(replacer);
+
+    /* c. If replacer is not undefined, then */
+    if (!(replacer = 'undefined)){
+      /* i. Return Call(replacer, searchValue, «‍O», replaceValue). */
+      return Call(replacer, searchValue, [O, replaceValue])
+    }
+  };
+  
+  /* 4. Let string be ToString(O). */
+  string := ToString(O);
+
+  /* 5. ReturnIfAbrupt(string). */
+  @ReturnIfAbrupt(string);
+
+  /* 6. Let searchString be ToString(searchValue). */
+  searchString := ToString(searchValue);
+
+  /* 7. ReturnIfAbrupt(searchString). */
+  @ReturnIfAbrupt(searchString);
+
+  /* 8. Let functionalReplace be IsCallable(replaceValue). */
+  functionalReplace := IsCallable(replaceValue);
+
+  /* 9. If functionalReplace is false, then */
+  if (functionalReplace = false){
+    /* a. Let replaceValue be ToString(replaceValue). */
+    replaceValue := ToString(replaceValue);
+
+    /* b. ReturnIfAbrupt(replaceValue). */
+    @ReturnIfAbrupt(replaceValue)
+  };
+
+  /* 10. Search string for the first occurrence of searchString and let pos
+  be the index within string of the first code unit of the matched substring
+  and let matched be searchString. If no occurrences of searchString were 
+  found, return string. */
+
+  /* 11. If functionalReplace is true, then */
+    /* a. Let replValue be Call(replaceValue, undefined,«matched, pos, and string»). */
+    /* b. Let replStr be ToString(replValue). */
+    /* c. ReturnIfAbrupt(replStr). */
+
+  /* 12. Else, */
+    /* a. Let captures be an empty List. */
+    /* b. Let replStr be GetSubstitution(matched, string, pos, captures, replaceValue). */  
+  
+  /* 13. Let tailPos be pos + the number of code units in matched. */
+  
+  /* 14. Let newString be the String formed by concatenating the first pos 
+  code units of string, replStr, and the trailing substring of string 
+  starting at index tailPos. If pos is 0, the first element of the 
+  concatenation will be the empty String. */
+  
+  /* 15. Return newString. */
+  return "mirtilo"
+};
+
+/* 21.1.3.15 String.prototype.search ( regexp ) */
+function StringPrototypeSearch(global, this, strict, args) {
+  regexp := l_nth(args, 0);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. If regexp is neither undefined nor null, then */
+  if (!(regexp = 'undefined) && !(regexp = null)){
+    /* a. Let searcher be GetMethod(regexp, @@search). */
+    /* searcher := GetMethod(regexp, @@search); */
+
+    /* b. ReturnIfAbrupt(searcher). */
+    @ReturnIfAbrupt(searcher);
+
+    /* c. If searcher is not undefined , then */
+    if (!(searcher = 'undefined)){
+      /* i. Return Call(searcher, regexp, «O») */
+      return Call(searcher, regexp, [O])
+    }
+  };
+
+  /* 4. Let string be ToString(O). */
+  string := ToString(O);
+
+  /* 5. ReturnIfAbrupt(string). */
+  @ReturnIfAbrupt(string);
+
+  /* 6. Let rx be RegExpCreate(regexp, undefined) (see 21.2.3.2.3). */
+  rx := RegExpConstructor(global, this, strict, [regexp, 'undefined]);
+
+  /* 7. ReturnIfAbrupt(rx). */
+  @ReturnIfAbrupt(rx);
+
+  /* 8. Return Invoke(rx, @@search, «‍string»). */
+  /* return Invoke(rx, @@search, [string]) */
+  return null
+}; 
+
+/* 21.1.3.16 String.prototype.slice ( start, end ) */
+function StringPrototypeSlice(global, this, strict, args) {
+  start := l_nth(args, 0);
+  end := l_nth(args, 1);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Let len be the number of elements in S. */
+  len := s_len_u S;
+
+  /* 5. Let intStart be ToInteger(start). */
+  intStart := int_of_float(ToInteger(start));
+
+  /* 6. ReturnIfAbrupt(intStart). */
+  @ReturnIfAbrupt(intStart);
+
+  /* 7. If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
+  if (end = 'undefined){
+    intEnd := len
+  } else{
+    intEnd := int_of_float(ToInteger(end))
+  };
+
+  /* 8. ReturnIfAbrupt(intEnd). */
+  @ReturnIfAbrupt(intEnd);
+
+  /* 9. If intStart < 0, let from be max(len + intStart,0); otherwise let from be min(intStart, len). */
+  if (intStart < 0){
+    from := max(int_to_float (len + intStart), int_to_float 0)
+  } else{
+    from := min(int_to_float intStart, int_to_float len)
+  };
+
+  /* 10. If intEnd < 0, let to be max(len + intEnd,0); otherwise let to be min(intEnd, len). */
+  if (intEnd < 0){
+    to := max(int_to_float (len + intEnd), int_to_float 0)
+  } else{
+    to := min(int_to_float intEnd, int_to_float len)
+  };
+
+  /* 11. Let span be max(to – from,0). */
+  span := max(to - from, int_to_float 0);
+
+  /* 12. Return a String value containing span consecutive elements from S beginning with the element at index from. */
+  substring := "";
+  j := 0.;
+  while(j < span) {
+    substring := s_concat ([substring, s_nth_u (S, int_of_float (from + j))]);
+    j := j + 1.
+  };
+  return substring
+};
+
+/* 21.1.3.17 String.prototype.split ( separator, limit ) */
+function StringPrototypeSplit(global, this, strict, args){
+  separator := l_nth(args, 0);
+  limit := l_nth(args, 1);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. If separator is neither undefined nor null, then */
+  if (!(separator = 'undefined) && !(separator = null)){
+    /* a. Let splitter be GetMethod(separator, @@split). */
+    /* splitter := GetMethod(separator, @@split); */
+
+    /* b. ReturnIfAbrupt(splitter). */
+    @ReturnIfAbrupt(splitter);
+
+    /* c. If splitter is not undefined , then */
+    if (!(splitter = 'undefined)){
+      /* i. Return Call(splitter, separator, «‍O, limit»). */
+      return Call(splitter, separator, [O, limit])
+    }
+  };
+    
+  /* 4. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 5. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 6. Let A be ArrayCreate(0). */
+  A := ArrayCreate(0);
+
+  /* 7. Let lengthA be 0. */
+  lengthA := 0;
+
+  /* 8. If limit is undefined, let lim = 253–1; else let lim = ToLength(limit). */
+  if (limit = 'undefined){
+    lim := (2^53) - 1
+  } else{
+    lim := ToLength(limit)
+  };
+
+  /* 9. ReturnIfAbrupt(lim). */
+  @ReturnIfAbrupt(lim);
+
+  /* 10. Let s be the number of elements in S. */
+  s := s_len_u S;
+
+  /* 11. Let p = 0. */
+  p := 0;
+
+  /* 12. Let R be ToString(separator). */
+  R := ToString(separator);
+
+  /* 13. ReturnIfAbrupt(R). */
+  @ReturnIfAbrupt(R);
+
+  /* 14. If lim = 0, return A. */
+  if (lim = 0){
+    return A
+  };
+
+  /* 15. If separator is undefined, then */
+  if (separator = 'undefined){
+    /* a. Perform CreateDataProperty(A, "0", S). */
+    CreateDataProperty(A, "0", S);
+
+    /* b. Assert: The above call will never result in an abrupt completion. */
+    /* ???? */
+
+    /* c. Return A. */  
+    return A
+  };
+    
+  /* 16. If s = 0, then */
+  if (s = 0){
+    /* a. Let z be SplitMatch(S, 0, R). */
+    z := SplitMatch(S, 0, R);
+    /* b. If z is not false, return A. */
+    if (!(z = false)){
+      return A
+    };
+
+    /* c. Perform CreateDataProperty(A, "0", S). */
+    CreateDataProperty(A, "0", S);
+
+    /* d. Assert: The above call will never result in an abrupt completion. */
+    /* ???? */
+
+    /* e. Return A. */
+    return A
+  };
+    
+  /* 17. Let q = p. */
+  q := p;
+
+  /* 18. Repeat, while q ≠ s */
+  while (!(q = s)){
+    /* a. Let e be SplitMatch(S, q, R). */
+    e := SplitMatch(S, q, R);
+
+    /* b. If e is false, let q = q+1. */
+    if (e = false){
+      q := q + 1
+    }
+    /* c. Else e is an integer index into S, */
+    else{
+      /* i. If e = p, let q = q+1. */
+      if (e = p){
+        q := q + 1
+      }
+      /* ii. Else e ≠ p, */   
+      else{
+        /* 1. Let T be a String value equal to the substring of S consisting of the code units at indices p (inclusive) through q (exclusive). */
+        T := StringPrototypesubstring(global, this, strict, [p, q]);
+
+        /* 2. Perform CreateDataProperty(A, ToString(lengthA), T). */
+        CreateDataProperty(A, ToString(lengthA), T);
+
+        /* 3. Assert: The above call will never result in an abrupt completion. */
+        /* ???? */
+
+        /* 4. Increment lengthA by 1. */
+        lengthA := lengthA + 1;
+
+        /* 5. If lengthA = lim, return A. */
+        if (lengthA = lim){
+          return A
+        };
+
+        /* 6. Let p = e. */
+        p := e;
+
+        /* 7. Let q = p. */
+        q := p
+      }
+    }
+  };
+    
+  /* 19. Let T be a String value equal to the substring of S consisting of the code units at indices p (inclusive) through s (exclusive). */
+  T := StringPrototypesubstring(global, this, strict, [p, q]);
+
+  /* 20. Perform CreateDataProperty(A, ToString(lengthA), T). */
+   CreateDataProperty(A, ToString(lengthA), T);
+
+  /* 21. Assert: The above call will never result in an abrupt completion. */
+  /* ???? */
+
+  /* 22. Return A. */
+  return A
+};
+
+/* 21.1.3.17.1 Runtime Semantics: SplitMatch ( S, q, R ) */
+function SplitMatch(S, q, R){
+  /* 1. Assert: Type(R) is String. */
+  assert(Type(R) = "String");
+
+  /* 2. Let r be the number of code units in R. */
+  r := s_len_u R;
+
+  /* 3. Let s be the number of code units in S. */
+  s := s_len_u S;
+
+  /* 4. If q+r > s, return false. */
+  if (q + r > s){
+    return false
+  };
+  
+  /* 5. If there exists an integer i between 0 (inclusive) and r (exclusive) such that the 
+  code unit at index q+i of S is different from the code unit at index i of R, return false. */
+  i := 0;
+  while (!(i = r)) {
+    posA := s_nth_u(S, q + i);
+    posB := s_nth_u(R, i);
+    if (!(posA = posB)) {
+      return false
+    };
+    i := i + 1
+  };
+  /* 6. Return q+r. */
+  return q + r
+};
+ 
+/* 21.1.3.18 String.prototype.startsWith ( searchString [, position ] ) */
+function StringPrototypestartsWith(global, this, strict, args){
+  searchString := l_nth(args, 0);
+  position := getOptionalParam(args, 1);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+  
+  /* 4. Let isRegExp be IsRegExp(searchString). */
+  isRegExp := isRegExpObject(searchString);
+
+  /* 5. ReturnIfAbrupt(isRegExp). */
+  @ReturnIfAbrupt(isRegExp);
+  
+  /* 6. If isRegExp is true, throw a TypeError exception. */
+  if (isRegExp = true){
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 7. Let searchStr be ToString(searchString). */
+  searchStr := ToString(searchString);
+
+  /* 8. ReturnIfAbrupt(searchString). */
+  @ReturnIfAbrupt(searchString);
+
+  /* 9. Let pos be ToInteger(position). (If position is undefined, this step produces the value 0). */
+  if (!(position = 'undefined) && !(position = null)){
+    pos := int_of_float(ToInteger(position))
+  } else{
+    pos := 0
+  };
+
+  /* 10. ReturnIfAbrupt(pos). */
+  @ReturnIfAbrupt(pos);
+
+  /* 11. Let len be the number of elements in S. */
+  len := s_len_u S;
+
+  /* 12. Let start be min(max(pos, 0), len). */
+  start :=  int_of_float(min(max(int_to_float pos, int_to_float 0), int_to_float len));
+
+  /* 13. Let searchLength be the number of elements in searchStr. */
+  searchLength_aux := int_to_float s_len_u searchStr;
+  searchLength := int_of_float(searchLength_aux);
+
+  /* 14. If searchLength+start is greater than len, return false. */
+  if (searchLength + start > len){
+    return false
+  };
+
+  /* 15. If the sequence of elements of S starting at start of length searchLength is the same as the full element sequence of searchStr, return true. */
+  i := start;
+  so_far_so_good := true;
+  
+  while (i < searchLength) {
+    s := s_nth_u(S, i);
+    sl := s_nth_u(searchStr, i);
+
+    if (!(SameValue(s, sl))){
+      so_far_so_good := false
+    };
+
+    i := i + 1
+  };
+  
+  if (so_far_so_good = true){
+    return true
+  } else {
+    return false
+  }
+
+  /* 16. Otherwise, return false. */
+};
+
+/* 21.1.3.19 String.prototype.substring ( start, end ) */
+function StringPrototypesubstring(global, this, strict, args){
+  start := l_nth(args, 0);
+  end := l_nth(args, 1);
+
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Let len be the number of elements in S. */
+  len := s_len_u S;
+
+  /* 5. Let intStart be ToInteger(start). */
+  intStart := int_of_float(ToInteger(start));
+
+  /* 6. ReturnIfAbrupt(intStart). */
+  @ReturnIfAbrupt(intStart); 
+
+  /* 7. If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
+  if (end = 'undefined){
+    intEnd := len
+  } else{
+    intEnd := int_of_float(ToInteger(end))
+  };
+
+  /* 8. ReturnIfAbrupt(intEnd). */
+  @ReturnIfAbrupt(intEnd);
+
+  /* 9. Let finalStart be min(max(intStart, 0), len). */
+  finalStart := min(max(int_to_float intStart, int_to_float 0), int_to_float len);
+
+  /* 10. Let finalEnd be min(max(intEnd, 0), len). */
+  finalEnd := min(max(int_to_float intEnd, int_to_float 0), int_to_float len);
+
+  /* 11. Let from be min(finalStart, finalEnd). */
+  from := min(finalStart, finalEnd);
+
+  /* 12. Let to be max(finalStart, finalEnd). */
+  to := max(finalStart, finalEnd);
+
+  /* 13. Return a String whose length is to - from, containing code units from S, namely the code units with indices from through to −1, in ascending order. */
+  substring := "";
+  j := from;
+  while (j < to) {
+    substring := s_concat ([substring, s_nth_u (S, int_of_float j)]);
+    j := j + 1.
+  };
+  return substring
+};
+
+/* 21.1.3.20 String.prototype.toLocaleLowerCase ( [ reserved1 [ , reserved2 ] ] ) */
+function StringPrototypetoLocaleLowerCase (global, this, strict, args) {
+  /* This function works exactly the same as toLowerCase except that its 
+  result is intended to yield the correct result for the host environment’s
+  current locale, rather than a locale-independent result. There will only 
+  be a difference in the few cases (such as Turkish) where the rules for 
+  that language conflict with the regular Unicode case mappings. */
+
+  O := RequireObjectCoercible(this);
+
+  S := ToString(O);
+
+  L := to_lower_case S; 
+
+  return L
+};
+
+/* 21.1.3.21 String.prototype.toLocaleUpperCase ([ reserved1 [ , reserved2 ] ] ) */
+function StringPrototypetoLocaleUpperCase (global, this, strict, args) {
+  /* This function works exactly the same as toLowerCase except that its 
+  result is intended to yield the correct result for the host environment’s
+  current locale, rather than a locale-independent result. There will only 
+  be a difference in the few cases (such as Turkish) where the rules for 
+  that language conflict with the regular Unicode case mappings. */
+
+  O := RequireObjectCoercible(this);
+
+  S := ToString(O);
+
+  L := to_upper_case S; 
+
+  return L
+};
+
+/* 21.1.3.22 String.prototype.toLowerCase ( ) */
+function StringPrototypetoLowerCase (global, this, strict, args) {
+  /* This function interprets a String value as a sequence of UTF-16 encoded code points */
+  /* 
+    1. Let O be RequireObjectCoercible(this value).
+    2. Let S be ToString(O).
+    3. ReturnIfAbrupt(S).
+    4. Let cpList be a List containing in order the code points as defined in 6.1.4 of S, starting at the first element of S.
+    5. For each code point c in cpList, if the Unicode Character Database provides a language insensitive lower case equivalent of c then replace c in cpList with that equivalent code point(s).
+    6. Let cuList be a new List.
+    7. For each code point c in cpList, in order, append to cuList the elements of the UTF16Encoding (10.1.1) of c.
+    8. Let L be a String whose elements are, in order, the elements of cuList .
+    9. Return L.
+  */
+  O := RequireObjectCoercible(this);
+
+  S := ToString(O);
+
+  L := to_lower_case S; 
+
+  return L
+};
+
+/* 21.1.3.23 String.prototype.toString ( ) */
+function StringPrototypetoString (global, this, strict, args) {
+  /* 1. Let s be thisStringValue(this value). */
+  s := thisStringValue(this);
+
+  /* 2. Return s. */
+  return s
+};
+
+/* 21.1.3.24 String.prototype.toUpperCase ( ) */
+function StringPrototypetoUpperCase (global, this, strict, args) {
+  O := RequireObjectCoercible(this);
+
+  S := ToString(O);
+
+  L := to_upper_case S; 
+
+  return L
+};
+
+/* 21.1.3.25 String.prototype.trim ( ) */
+function StringPrototypetrim (global, this, strict, args) {
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Let T be a String value that is a copy of S with both leading and 
+  trailing white space removed. The definition of white space is the union 
+  of WhiteSpace and LineTerminator. When determining whether a Unicode code 
+  point is in Unicode general category “Zs”, code unit sequences are 
+  interpreted as UTF-16 encoded code point sequences as specified in 6.1.4.
+  */
+  T := trim S;
+
+  /* 5. Return T. */
+  return T
+};
+
+/* 21.1.3.26 String.prototype.valueOf ( ) */
+function StringPrototypevalueOf (global, this, strict, args) {
+  /* 1. Let s be thisStringValue(this value). */
+  s := thisStringValue(this);
+
+  /* 2. Return s. */
+  return s
+};
+
+/* 21.1.3.27 String.prototype [ @@iterator ]( ) */
+/**
+ * When the @@iterator method is called it returns an Iterator object (25.1.1.2) that
+ * iterates over the code points of a String value, returning each code point as a 
+ * String value. 
+ */
+function StringIteratorPrototype(global, this, strict){
+  /* 1. Let O be RequireObjectCoercible(this value). */
+  O := RequireObjectCoercible(this);
+
+  /* 2. Let S be ToString(O). */
+  S := ToString(O);
+
+  /* 3. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+
+  /* 4. Return CreateStringIterator(S). */
+  return CreateStringIterator(S)
+};
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/** 21.1.4 Properties of String Instances
+  * String instances are String exotic objects and have the internal 
+  * methods specified for such objects. String instances inherit properties
+  * from the String prototype object. String instances also have a 
+  * [[StringData]] internal slot.
+
+ ** String instances have a length property, and a set of enumerable 
+ * properties with integer indexed names.
+**/
+
+/* 21.1.4.1 length */
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/** 21.1.5 String Iterator Objects
+  * An String Iterator is an object, that represents a specific iteration
+  * over some specific String instance object. There is not a named 
+  * constructor for String Iterator objects. Instead, String iterator 
+  * objects are created by calling certain methods of String instance 
+  * objects.
+**/
+function initStringIteratorPrototype(global, objectPrototype, strict) { 
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  setAllInternalMethodsOfObject(prototype);
+
+  nextObject := CreateBuiltInFunctionObject([], "StringIteratorPrototypeNext", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(nextObject, true, false, true);
+  setJSProperty(prototype, "next", descriptor);
+
+  CreateStringIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateStringIteratorFromIterator", global, strict, 1.);
+  descriptor := newDataPropertyDescriptorFull(CreateStringIteratorJSObject, true, false, true);
+  setJSProperty(prototype, "IteratorFunction", descriptor); 
+
+  |StringIteratorPrototype| := prototype; 
+  return null
+}; 
+
+function CreateStringIteratorFromIterator(global, this, strict, items) {
+  return this 
+};
+
+/* 21.1.5.1 CreateStringIterator Abstract Operation */
+function CreateStringIterator(string){
+  /* 1. Assert: Type(string) is String. */
+  assert(Type(string) = "String");
+
+  /* 2. Let iterator be ObjectCreate(%StringIteratorPrototype%, «[[IteratedString]], [[StringIteratorNextIndex]] »). */
+  iterator := createStringIteratorObject(); 
+
+  /* 3. Set iterator’s [[IteratedString]] internal slot to string. */
+  iterator.IteratedString := string;
+
+  /* 4. Set iterator’s [[StringIteratorNextIndex]] internal slot to 0. */
+  iterator.StringIteratorNextIndex := 0;
+
+  /* 5. Return iterator. */
+  return iterator
+};
+
+/* AUXILIARY FUNCTION */
+function createStringIteratorObject() {
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+  setInternalProperty(newlyConstructedObject, "Prototype", |StringIteratorPrototype|); 
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  setInternalProperty(newlyConstructedObject, "Class", "Object");
+
+  return newlyConstructedObject
+};
+
+function isStringIteratorInstance(obj) {
+  return ("String" in_obj obj) &&& ("StringIteratorNextIndex" in_obj obj) &&& ("IteratedString" in_obj obj)
+};
+
+
+/** 21.1.5.2 The %StringIteratorPrototype% Object 
+    21.1.5.2.1 %StringIteratorPrototype%.next ( )
+    21.1.5.2.2 %StringIteratorPrototype% [ @@toStringTag ]
+**/
+
+/* 21.1.5.2.1 %StringIteratorPrototype%.next ( ) */
+function StringIteratorPrototypeNext(global, this, strict, args){
+  /* 1. Let O be the this value. */
+  O := this;
+
+  /* 2. If Type(O) is not Object, throw a TypeError exception. */
+  if (!(Type(O) = "Object")){
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 3. If O does not have all of the internal slots of an String Iterator Instance (21.1.5.3), throw a TypeError exception. */
+  if (!isStringIteratorInstance(O)){
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 4. Let s be the value of the [[IteratedString]] internal slot of O. */
+  s := O.IteratedString;
+
+  /* 5. If s is undefined, return CreateIterResultObject(undefined, true). */
+  if (s = 'undefined){
+    return CreateIterResultObject('undefined, true)
+  };
+
+  /* 6. Let position be the value of the [[StringIteratorNextIndex]] internal slot of O. */
+  position := O.StringIteratorNextIndex;
+
+  /* 7. Let len be the number of elements in s. */
+  len := s_len_u s;
+
+  /* 8. If position ≥ len, then */
+  if (position >= len){
+    /* a. Set the value of the [[IteratedString]] internal slot of O to undefined. */
+    O.IteratedString := 'undefined;
+
+    /* b. Return CreateIterResultObject(undefined, true). */
+    return CreateIterResultObject('undefined, true)
+  };
+
+  /* 9. Let first be the code unit value at index position in s. */
+  first := s_nth_u(s, position);
+  first_cp := to_char_code_u(first);
+
+  /* 10. If first < 0xD800 or first > 0xDBFF or position+1 = len, let resultString be the string 
+  consisting of the single code unit first. */
+  if ((first_cp < 0xD800) || (first_cp > 0xDBFF) || ((position + 1) = len)){
+    resultString := first
+  }
+  /* 11. Else, */
+  else {
+    /* a. Let second be the code unit value at index position+1 in the String S. */
+    second := s_nth_u(s, (position + 1));
+    second_cp := to_char_code_u(second);
+
+    /* b. If second < 0xDC00 or second > 0xDFFF, let resultString be the string consisting of the single code unit first. */
+    if ((second_cp < 0xDC00) || (second_cp > 0xDFFF)){
+      resultString := first
+    } 
+    /* c. Else, let resultString be the string consisting of the code unit first followed by the code unit second. */
+    else {
+      resultString := s_concat([first, second])
+    }
+  };
+  
+  /* 12. Let resultSize be the number of code units in resultString. */
+  resultSize := s_len_u resultString;
+
+  /* 13. Set the value of the [[StringIteratorNextIndex]] internal slot of O to position+ resultSize. */
+  O.StringIteratorNextIndex := position + resultSize;
+
+  /* 14. Return CreateIterResultObject(resultString, false). */
+  return CreateIterResultObject(resultString, false)
+}
+
+/* 21.1.5.3 Properties of String Iterator Instances */
+

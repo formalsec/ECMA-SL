@@ -3,14 +3,14 @@
 
 /*---
 info: The "length" property of the "getTime" is 0
-es5id: 15.9.5.9_A2_T1
+esid: sec-date.prototype.getseconds
 description: The "length" property of the "getTime" is 0
 ---*/
 
-if(Date.prototype.getTime.hasOwnProperty("length") !== true){
-  $ERROR('#1: The getTime has a "length" property');
+if (Date.prototype.getTime.hasOwnProperty("length") !== true) {
+  throw new Test262Error('#1: The getTime has a "length" property');
 }
 
-if(Date.prototype.getTime.length !== 0){
-  $ERROR('#2: The "length" property of the getTime is 0');
+if (Date.prototype.getTime.length !== 0) {
+  throw new Test262Error('#2: The "length" property of the getTime is 0');
 }

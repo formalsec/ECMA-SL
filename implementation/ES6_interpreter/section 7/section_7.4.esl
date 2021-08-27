@@ -1,0 +1,188 @@
+function InternalObjectCreate(proto) {
+
+    newlyConstructedObject := NewECMAScriptObject();
+    setAllInternalMethodsOfObject(newlyConstructedObject);
+
+    setInternalProperty(newlyConstructedObject, "Prototype", proto);
+  
+    setInternalProperty(newlyConstructedObject, "Extensible", true);
+  
+    setInternalProperty(newlyConstructedObject, "Class", "Object");
+
+    return newlyConstructedObject
+};
+
+function CreateDataProperty (obj, prop, val) {
+    descriptor := newDataPropertyDescriptorFull(val, true, true, true);
+    setJSProperty(obj, prop, descriptor); 
+    return null 
+};
+
+
+/* CreateIterResultObject ( value, done )*/
+function CreateIterResultObject ( value, done ) {
+    /* 1. Let obj be ObjectCreate(%ObjectPrototype%). */
+    obj := InternalObjectCreate(|ObjectPrototype|); 
+
+    /* 2. Perform CreateDataProperty(obj, "value", value). */
+    CreateDataProperty(obj, "value", value); 
+
+    /* 3. Perform CreateDataProperty(obj, "done", done). */
+    CreateDataProperty(obj, "done", done);
+
+    /* 4. Return obj. */
+    return obj 
+};
+
+/*
+* 7.4.1 GetIterator ( obj, method )
+*/
+function GetIterator(obj, method) {
+
+    /* 1. ReturnIfAbrupt(obj). */
+    @ReturnIfAbrupt(obj); 
+
+    /* 2. If method was not passed, then */
+    if(method = null) {
+        iteratorFunName := obj.IteratorFunction;
+        if (iteratorFunName = 'undefined) {
+            iteratorFunName := getIteratorPropertyName() /* TODO mudar */
+        };
+
+        /* a. Let method be GetMethod(obj, @@iterator). */
+        method := GetMethod(obj, iteratorFunName);
+
+        /* b. ReturnIfAbrupt(method). */
+        @ReturnIfAbrupt(method)
+    }; 
+
+    /* 3. Let iterator be Call(method,obj). */
+    iterator := Call(null, null, method, obj, []);
+    
+    /* 4. ReturnIfAbrupt(iterator). */
+    @ReturnIfAbrupt(obj); 
+
+    /* If Type(iterator) is not Object, throw a TypeError exception. */
+    if (!(Type(iterator) = "Object")) {
+        throw TypeErrorConstructorInternal() 
+    }; 
+
+    /* Return iterator. */
+    return iterator
+};
+
+/*
+*   7.4.6 IteratorClose( iterator, completion )
+*/
+
+function IteratorClose(iterator, completion) {
+
+    /* 1. Assert: Type(iterator) is Object. */
+    assert(Type(iterator) = "Object");
+
+    /* 2. Assert: completion is a Completion Record. */
+    assert(Type(completion) = "Completion");
+    
+    /* 3. Let return be GetMethod(iterator, "return"). */
+    returnVar := GetMethod(iterator, "return");
+
+    /* 4. ReturnIfAbrupt(return). */
+    @ReturnIfAbrupt(returnVar);
+
+    /* 5. If return is undefined, return Completion(completion). */
+    if (returnVar = 'undefined) {
+        return completion
+    };
+
+    /* 6. Let innerResult be Call(return, iterator, «‍ »). */
+    innerResult := Call(null, null, returnVar, iterator, []);
+
+    /* 7. If completion.[[type]] is throw, return Completion(completion). */
+    if (getCompletionType(completion) = 'throw) {
+        return completion
+    };
+
+    /* 8. If innerResult.[[type]] is throw, return Completion(innerResult). */
+    if (getCompletionType(getCompletionValue(innerResult)) = 'throw) {
+        return innerResult
+    };
+
+    /* 9. If Type(innerResult.[[value]]) is not Object, throw a TypeError exception. */
+    if (!(Type(getCompletionValue(innerResult)) = "Object")) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 10. Return Completion(completion). */
+    return completion
+};
+
+/*
+* 7.4.2 IteratorNext ( iterator, value )
+*/
+function IteratorNext(iterator, value) {
+    /* 1. If value was not passed, then */
+    if (value = null) {
+        /* a. Let result be Invoke(iterator, "next", «‍ »). */
+        result := Invoke(iterator, "next", [])
+    /* 2. Else, */
+    } else {
+        /* a. Let result be Invoke(iterator, "next", «‍value»). */
+        result := Invoke(iterator, "next", [value])
+    };
+    /* 3. ReturnIfAbrupt(result). */
+    @ReturnIfAbrupt(result);
+    /* 4. If Type(result) is not Object, throw a TypeError exception. */
+    if (!(Type(result) = "Object")) {
+        throw TypeErrorConstructorInternal()
+    };
+    /* 5. Return result. */
+    return result
+};
+
+/*
+* 7.4.3 IteratorComplete ( iterResult )
+*/
+function IteratorComplete(iterResult) {
+    /* 1. Assert: Type(iterResult) is Object. */
+    assert Type(iterResult) = "Object";
+    /* 2. Return ToBoolean(Get(iterResult, "done")). */
+    return ToBoolean(Get(iterResult, "done"))
+};
+
+/*
+* 7.4.4 IteratorValue ( iterResult )
+*/
+function IteratorValue(iterResult) {
+    
+    /* 1. Assert: Type(iterResult) is Object. */
+    assert Type(iterResult) = "Object";
+    
+    /* 2. Return Get(iterResult, "value"). */
+    return Get(iterResult, "value")
+};
+
+/*
+* 7.4.5 IteratorStep ( iterator )
+*/
+function IteratorStep(iterator) {
+    
+    /* 1. Let result be IteratorNext(iterator). */
+    result := IteratorNext(iterator, null);
+    
+    /* 2. ReturnIfAbrupt(result). */
+    @ReturnIfAbrupt(result);
+    
+    /* 3. Let done be IteratorComplete(result). */
+    done := IteratorComplete(result);
+    
+    /* 4. ReturnIfAbrupt(done). */
+    @ReturnIfAbrupt(done);
+    
+    /* 5. If done is true, return false. */
+    if (done = true) {
+        return false
+    };
+    
+    /* 6. Return result. */ 
+    return result
+}

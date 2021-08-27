@@ -2,18 +2,18 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The Date.prototype property "toLocaleTimeString" has { DontEnum }
     attributes
-es5id: 15.9.5.7_A1_T1
+esid: sec-date.prototype.tolocaletimestring
 description: Checking absence of ReadOnly attribute
 ---*/
 
 var x = Date.prototype.toLocaleTimeString;
-if(x === 1)
+if (x === 1)
   Date.prototype.toLocaleTimeString = 2;
 else
   Date.prototype.toLocaleTimeString = 1;
 if (Date.prototype.toLocaleTimeString === x) {
-  $ERROR('#1: The Date.prototype.toLocaleTimeString has not the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.prototype.toLocaleTimeString has not the attribute ReadOnly');
 }

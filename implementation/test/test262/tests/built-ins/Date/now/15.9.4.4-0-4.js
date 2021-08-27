@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.9.4.4-0-4
+esid: sec-date.now
 description: Date.now - returns number
 ---*/
 

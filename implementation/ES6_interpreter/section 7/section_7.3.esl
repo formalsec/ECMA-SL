@@ -1,0 +1,60 @@
+
+
+function GetES6 (O, P) { 
+    ref := newPropertyReference(O, P, false);
+    v := GetValue(ref);
+    return v 
+}; 
+
+
+/*
+*   7.3.9 GetMethod (O, P)
+*/
+function GetMethod(O, P) {
+    /* 1.Assert: IsPropertyKey(P) is true. */
+    
+    /* 2. Let func be GetV(O, P). */
+    func := GetES6(O, P);
+
+    /* 3. ReturnIfAbrupt(func). */
+    @ReturnIfAbrupt(func);
+
+    /* 4. If func is either undefined or null, return undefined. */
+    if ((func = 'undefined) || (func = 'null)) {
+        return 'undefined
+    }; 
+
+    /* 5. If IsCallable(func) is false, throw a TypeError exception. */
+    if (IsCallable(func) = false) { 
+        throw TypeErrorConstructorInternal() 
+    }; 
+
+    /* 6. Return func. */
+    return func 
+}; 
+
+function Invoke(O, P, argumentsList) {
+  func := GetES6(O, P);
+  return Call(null, null, func, O, argumentsList)
+}; 
+
+function CreateArrayFromList(elements) {
+  arrayPrototype := getArrayPrototype(false);
+  array := internalNewArray(arrayPrototype, []);
+  len := l_len elements;
+  i := 0;
+  while (i < len) {
+    vl := l_nth (elements, i);
+
+    if (!(vl = null)) {
+      descriptor := newDataPropertyDescriptorFull(vl, true, true, true);
+      {array.DefineOwnProperty}(array, ToString(ToUint32(int_to_float i)), descriptor, false)
+    };
+    i := i + 1
+  };
+  descriptor := newDataPropertyDescriptorFull(ToUint32(int_to_float i), true, false, false);
+  {array.DefineOwnProperty}(array, "length", descriptor, false);
+
+  return array
+}
+

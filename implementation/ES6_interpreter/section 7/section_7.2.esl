@@ -1,0 +1,170 @@
+/* 7.2 Testing and Comparison Operations */
+
+/**
+ * 7.2.1 RequireObjectCoercible ( argument )
+ *
+ * The abstract operation RequireObjectCoercible throws an error if argument is a value that cannot be converted
+ * to an Object using ToObject. It is defined by Table 14:
+ *
+ * Table 14 — RequireObjectCoercible Results
+ * Argument Type	       | Result
+ * ______________________|_______________________________________________________________
+ * Completion Record     | If argument is an abrupt completion, return argument. 
+                         | Otherwise return RequireObjectCoercible(argument.[[value]]).
+ * ______________________|_______________________________________________________________
+ * Undefined             | Throw a TypeError exception.
+ * ______________________|_______________________________________________________________
+ * Null                  | Throw a TypeError exception.
+ * ______________________|_______________________________________________________________
+ * Boolean	             | Return argument.
+ * ______________________|_______________________________________________________________
+ * Number	               | Return argument.
+ * ______________________|_______________________________________________________________
+ * String	               | Return argument.
+ * ______________________|_______________________________________________________________
+ * Symbol	               | Return argument.
+ * ______________________|_______________________________________________________________
+ * Object	               | Return argument.
+ * ______________________|_______________________________________________________________
+ */
+ 
+function RequireObjectCoercible(argument){
+  if(Type(argument) = "Completion"){
+    if(isAnAbruptCompletion(argument)){
+      return argument
+    }else{
+      return RequireObjectCoercible(argument.value)
+    }
+  }elif(Type(argument) = "Undefined"){
+    throw TypeErrorConstructorInternal()
+  }elif(Type(argument) = "Null"){
+    throw TypeErrorConstructorInternal()
+  }elif(Type(argument) = "Boolean"){
+    return argument
+  }elif(Type(argument) = "Number"){
+    return argument
+  }elif(Type(argument) = "String"){
+    return argument
+  }elif(Type(argument) = "Symbol"){
+    return argument
+  }elif(Type(argument) = "Object"){
+    return argument
+  }
+};
+
+
+/**
+ * 
+ * 7.2.6 IsInteger ( argument )
+ * 
+ * The abstract operation IsInteger determines if argument is a finite integer numeric value.
+ * 
+ * 
+*/
+function IsInteger(argument) {
+  print("in IsInteger");
+  print(argument);
+  
+  /* 1. ReturnIfAbrupt(argument). */
+  @ReturnIfAbrupt(argument);
+
+  /* 2. If Type(argument) is not Number, return false. */
+  if (!(Type(argument) = "Number")) {
+    return false
+  };
+
+  /* 3. If argument is NaN, +∞, or −∞, return false. */
+  if ((argument = NaN) ||| (argument = Infinity) ||| ( argument = -Infinity)) {
+    return false
+  };
+
+  /* 4. If floor(abs(argument)) ≠ abs(argument), return false. */
+  if (!(floor(abs(argument)) = abs(argument))) {
+    return false
+  };
+
+  /* 5. Return true. */
+  return true
+};
+
+
+/**
+ * 7.2.7 IsPropertyKey ( argument )
+ *
+ * The abstract operation IsPropertyKey determines if argument, which must be an ECMAScript language value or a
+ * Completion Record, is a value that may be used as a property key.
+ */
+ function IsPropertyKey(argument){
+  /* 1. ReturnIfAbrupt(argument). */
+  @ReturnIfAbrupt(argument);
+
+  /* 2. If Type(argument) is String, return true. */
+  if (Type(argument) = "String"){
+    return true
+  };
+  
+  /* 3. If Type(argument) is Symbol, return true. */
+  if (Type(argument) = "Symbol"){
+    return true
+  };
+
+  /* 4. Return false. */
+  return false
+ };
+
+
+
+/**
+ * 7.2.10 SameValueZero(x, y)
+ *
+ * The internal comparison abstract operation SameValueZero(x, y), where x and y are ECMAScript language values,
+ * produces true or false. Such a comparison is performed as follows:
+ *
+ * NOTE SameValueZero differs from SameValue only in its treatment of +0 and −0.
+ */
+function SameValueZero (x, y) {
+  /* 1. ReturnIfAbrupt(x). */
+  @ReturnIfAbrupt(x);
+  /* 2. ReturnIfAbrupt(y). */
+  @ReturnIfAbrupt(y);
+  /* 3. If Type(x) is different from Type(y), return false. */
+  if (!(Type(x) = Type(y))) { return false };
+  /* 4. If Type(x) is Undefined, return true. */
+  if (Type(x) = "Undefined") { return true };
+  /* 5. If Type(x) is Null, return true. */
+  if (Type(x) = "Null") { return true };
+  /* 6. If Type(x) is Number, then. */
+  if (Type(x) = "Number") {
+    /* a. If x is NaN and y is NaN, return true. */
+    if ((x = NaN) && (y = NaN)) { return true };
+    /* b. If x is +0 and y is -0, return true. */
+    if (isZero(x) && isMinusZero(y)) { return true };
+    /* c. If x is -0 and y is +0, return true. */
+    if (isMinusZero(x) && isZero(y)) { return true };
+    /* d. If x is the same Number value as y, return true. */
+    if (x = y) { return true };
+    /* e. Return false. */
+    return false
+  };
+  
+  /* 7. If Type(x) is String, then */
+  if (Type(x) = "String"){
+    /* a. If x and y are exactly the same sequence of code units (same length and same code units at corresponding indices) return true; otherwise, return false. */
+    return x = y
+  };
+  
+  /* 8. If Type(x) is Boolean, then */
+  if (Type(x) = "Boolean"){
+    /* a. If x and y are both true or both false, return true; otherwise, return false. */
+    return x = y
+  };
+  
+  /* 9. If Type(x) is Symbol, then */
+  if (Type(x) = "Symbol"){
+    /* a. If x and y are both the same Symbol value, return true; otherwise, return false. */
+    return x = y
+  };
+
+  /* 10. Return true if x and y are the same Object value. Otherwise, return false.  */
+  return x = y   
+}

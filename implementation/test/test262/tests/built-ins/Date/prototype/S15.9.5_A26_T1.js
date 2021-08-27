@@ -3,10 +3,10 @@
 
 /*---
 info: The Date.prototype has the property "getTimezoneOffset"
-es5id: 15.9.5_A26_T1
+esid: sec-properties-of-the-date-prototype-object
 description: The Date.prototype has the property "getTimezoneOffset"
 ---*/
 
-if(Date.prototype.hasOwnProperty("getTimezoneOffset") !== true){
-  $ERROR('#1: The Date.prototype has the property "getTimezoneOffset"');
+if (Date.prototype.hasOwnProperty("getTimezoneOffset") !== true) {
+  throw new Test262Error('#1: The Date.prototype has the property "getTimezoneOffset"');
 }

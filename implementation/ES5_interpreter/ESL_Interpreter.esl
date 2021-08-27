@@ -1,6 +1,9 @@
 import "ES5_interpreter/ES5_Reference_Interpreter.esl";
 
 function JS_Interpreter_Program(p, callingExecCtx) {
+
+  print "primeiro print de debug 123";
+
   /* 14 Program */
   match p with
   | { sourceType: "script", type: "Program", codeType: "eval", body: SourceElementsopt, strict: strict } -> {
@@ -208,8 +211,18 @@ function JS_Interpreter_Expr(e, scope) {
     /* The production CallExpression : MemberExpression Arguments is evaluated as follows: */
     /* 1. Let ref be the result of evaluating MemberExpression. */
     ref := JS_Interpreter_Expr(MemberExpression, scope);
+
+    print "FOUND FUNCTION: 1"; 
+    print ref; 
+
+
     /* 2. Let func be GetValue(ref). */
     func := GetValue(ref);
+
+    print "FOUND FUNCTION: 2"; 
+    print func; 
+
+
     /* 3. Let argList be the result of evaluating Arguments, producing an internal list of argument values (see 11.2.4). */
     argList := JS_Interpreter_Arguments(Arguments, scope);
     /* 4. If Type(func) is not Object, throw a TypeError exception. */
@@ -1204,8 +1217,79 @@ function JS_Interpreter_Stmt(s, scope) {
     };
     /* 3. Return result. */
     return result
+  } 
+  | { type: "ClassDeclaration", id: BindingIdentifier, body: body, superClass: super} -> {
+    print "Statement not supported";
+    return JS_Interpreter_ClassDeclaration(scope, BindingIdentifier, super, body)
   }
 };
+
+
+function JS_Interpreter_ClassDeclaration(scope, BindingIdentifier, super, body) { 
+  className := BindingIdentifier.name; 
+
+  classMethods := body.body; 
+
+  i := 0; 
+  len := l_len classMethods; 
+
+  interpreted_methods := []; 
+  constructor_function := null; 
+  interpreted_method_names := []; 
+
+  while (i < len) {
+    classMethod := l_nth(classMethods, i); 
+
+    methodName := classMethod.key.name;
+    
+    interpreted_function := JS_Interpreter_FunctionExpression(classMethod.value, scope);
+
+    if (methodName = className) {
+      constructor_function := interpreted_function
+    } else {
+      interpreted_methods := l_prepend(interpreted_function, interpreted_methods); 
+      interpreted_method_names := l_prepend(methodName, interpreted_method_names)
+    }; 
+
+    i := i + 1
+  }; 
+ 
+  if (constructor_function = null) {
+    FunctionBody := { type: "BlockStatement", body: [], functionDeclarations: [], variableDeclarations: [] }; 
+    constructor_function := CreateFunctionObject([], FunctionBody, getLexicalEnvironment(scope), false, null) 
+  };
+
+  /* Obter a propriedade prototype da funcao correspondente ao construtor da classe */
+  constructor_prototype := getJSProperty(constructor_function, "prototype").Value;
+
+  i := 0; 
+  len := l_len interpreted_methods;
+  while (i < len) {
+    interpreted_method := l_nth(interpreted_methods, i); 
+    interpreted_method_name := l_nth(interpreted_method_names, i);
+    setJSProperty(constructor_prototype, interpreted_method_name, newDataPropertyDescriptorFull(interpreted_method, true, true, true)); 
+    i := i + 1  
+  }; 
+
+
+  print "survived empty 3";
+
+
+  lhs := JS_Interpreter_Expr(BindingIdentifier, scope);
+  PutValue(lhs, constructor_function);
+
+
+  print "survived empty 4";
+
+  return normalEmptyCompletion(constructor_function)
+}; 
+
+
+/*
+ return CreateFunctionObject(FormalParameterListopt, FunctionBody, getVariableEnvironment(scope), isStrictModeCode(FunctionBody, scope), null)
+*/
+
+
 
 function JS_Interpreter_IfStatement(IfStatement, scope) {
   match IfStatement with

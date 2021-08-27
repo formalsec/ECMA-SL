@@ -1,0 +1,888 @@
+/* 20.2 The Math Object */
+function initMathObject(global, objectPrototype, strict) {
+  /* The Math object is a single object that has some named properties, some of which are functions. */
+  MathObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(MathObject);
+  /* The value of the [[Prototype]] internal slot of the Math object is the intrinsic object %ObjectPrototype% (19.1.3). */
+  setInternalProperty(MathObject, "Prototype", objectPrototype);
+
+  /* 15.8.1 Value Properties of the Math Object */
+  setValuePropertiesOfMathObject(MathObject);
+  /* 15.8.2 Function Properties of the Math Object */
+  setFunctionPropertiesOfMathObject(MathObject, global, strict);
+
+  /* The Math object is not a function object. It does not have a [[Construct]] internal method; it is not possible to use the Math object as a constructor with the new operator. The Math
+  object also does not have a [[Call]] internal method; it is not possible to invoke the Math object as a function. */
+
+  return MathObject
+};
+
+/* 20.2.1 Value Properties of the Math Object */
+function setValuePropertiesOfMathObject(mathObject) {
+  /* 20.2.1.1 Math.E */
+  /* The Number value for e, the base of the natural logarithms, which is approximately 2.7182818284590452354. */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(mathObject, "E", exp 1., false, false, false);
+
+  /* 20.2.1.2 Math.LN10 */
+  /* The Number value for the natural logarithm of 10, which is approximately 2.302585092994046. */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(mathObject, "LN10", log_e 10., false, false, false);
+
+  /* 20.2.1.3 Math.LN2 */
+  /* The Number value for the natural logarithm of 2, which is approximately 0.6931471805599453. */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(mathObject, "LN2", log_e 2., false, false, false);
+
+  /* 20.2.1.4 Math.LOG10E */
+  /* The Number value for the base-10 logarithm of e, the base of the natural logarithms; this value is approximately 0.4342944819032518. */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(mathObject, "LOG10E", log_10 (exp 1.), false, false, false);
+  /* NOTE The value of Math.LOG10E is approximately the reciprocal of the value of Math.LN10. */
+  
+  /* 20.2.1.5 Math.LOG2E */
+  /* The Number value for the base-2 logarithm of e, the base of the natural logarithms; this value is approximately 1.4426950408889634. */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(mathObject, "LOG2E", (log_10 (exp 1.)) / (log_10 2.), false, false, false);
+  /* NOTE The value of Math.LOG2E is approximately the reciprocal of the value of Math.LN2. */
+
+  /* 20.2.1.6 Math.PI */
+  /* The Number value for π, the ratio of the circumference of a circle to its diameter, which is approximately 3.1415926535897932. */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(mathObject, "PI", PI, false, false, false);
+
+  /* 20.2.1.7 Math.SQRT1_2 */
+  /* The Number value for the square root of ½, which is approximately 0.7071067811865476. */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(mathObject, "SQRT1_2", sqrt 0.5, false, false, false);
+  /* NOTE The value of Math.SQRT1_2 is approximately the reciprocal of the value of Math.SQRT2. */
+
+  /* 20.2.1.8 Math.SQRT2 */
+  /* The Number value for the square root of 2, which is approximately 1.4142135623730951. */
+  /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(mathObject, "SQRT2", sqrt 2., false, false, false);
+
+  return
+};
+
+/* 20.2.2 Function Properties of the Math Object */
+function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
+  /* Each of the following Math object functions applies the ToNumber abstract operation to each of its arguments 
+  (in left-to-right order if there is more than one). If ToNumber returns an abrupt completion, that Completion Record
+  is immediately returned. Otherwise, the function performs a computation on the resulting Number value(s). 
+  The value returned by each function is a Number. */
+
+  /* In the function descriptions below, the symbols NaN, −0, +0, −∞ and +∞ refer to the Number values described in 6.1.6. */
+
+  /* 
+  NOTE
+  The behaviour of the functions acos, acosh, asin, asinh, atan, atanh, atan2, cbrt, cos, cosh, exp, expm1, hypot, log,log1p, log2, log10, pow, random, sin,
+  sinh, sqrt, tan, and tanh is not precisely specified here except to require specific results for certain argument values that represent boundary cases of interest. For other argument
+  values, these functions are intended to compute approximations to the results of familiar mathematical functions, but some latitude is allowed in the choice of approximation algorithms.
+  The general intent is that an implementer should be able to use the same mathematical library for ECMAScript on a given hardware platform that is available to C programmers on that
+  platform.
+
+  Although the choice of algorithms is left to the implementation, it is recommended (but not specified by this standard) that implementations use the approximation algorithms for IEEE
+  754-2008 arithmetic contained in fdlibm, the freely distributable mathematical library from Sun Microsystems (http://www.netlib.org/fdlibm).
+  */
+
+  /* 20.2.2.1 Math.abs ( x ) */
+  abs_fo := CreateBuiltInFunctionObject(["x"], "MathAbs", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "abs", abs_fo);
+  descriptor := newDataPropertyDescriptorFull("abs", false, false, true);
+  setJSProperty(abs_fo, "name", descriptor);
+  /* 20.2.2.2 Math.acos ( x ) */
+  acos_fo := CreateBuiltInFunctionObject(["x"], "MathACos", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "acos", acos_fo);
+  descriptor := newDataPropertyDescriptorFull("acos", false, false, true);
+  setJSProperty(acos_fo, "name", descriptor);
+  /* 20.2.2.3 Math.acosh( x ) */
+  acosh_fo := CreateBuiltInFunctionObject(["x"], "MathACosh", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "acosh", acosh_fo);
+  descriptor := newDataPropertyDescriptorFull("acosh", false, false, true);
+  setJSProperty(acosh_fo, "name", descriptor);
+  /* 20.2.2.4 Math.asin ( x ) */
+  asin_fo := CreateBuiltInFunctionObject(["x"], "MathASin", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "asin", asin_fo);
+  descriptor := newDataPropertyDescriptorFull("asin", false, false, true);
+  setJSProperty(asin_fo, "name", descriptor);
+  /* 20.2.2.5 Math.asinh( x ) */
+  asinh_fo := CreateBuiltInFunctionObject(["x"], "MathASinh", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "asinh", asinh_fo);
+  descriptor := newDataPropertyDescriptorFull("asinh", false, false, true);
+  setJSProperty(asinh_fo, "name", descriptor);
+  /* 20.2.2.6 Math.atan ( x ) */
+  atan_fo := CreateBuiltInFunctionObject(["x"], "MathATan", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "atan", atan_fo);
+  descriptor := newDataPropertyDescriptorFull("atan", false, false, true);
+  setJSProperty(atan_fo, "name", descriptor);
+  /* 20.2.2.7 Math.atanh( x ) */
+  atanh_fo := CreateBuiltInFunctionObject(["x"], "MathATanh", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "atanh", atanh_fo);
+  descriptor := newDataPropertyDescriptorFull("atanh", false, false, true);
+  setJSProperty(atanh_fo, "name", descriptor);
+  /* 20.2.2.8 Math.atan2 ( y, x ) */
+  atan2_fo := CreateBuiltInFunctionObject(["y", "x"], "MathATan2", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "atan2", atan2_fo);
+  descriptor := newDataPropertyDescriptorFull("atan2", false, false, true);
+  setJSProperty(atan2_fo, "name", descriptor);
+  /* 20.2.2.9 Math.cbrt ( x ) */
+  cbrt_fo := CreateBuiltInFunctionObject(["x"], "MathCBRT", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "cbrt", cbrt_fo);
+  descriptor := newDataPropertyDescriptorFull("cbrt", false, false, true);
+  setJSProperty(cbrt_fo, "name", descriptor);
+  /* 20.2.2.10 Math.ceil ( x ) */
+  ceil_fo := CreateBuiltInFunctionObject(["x"], "MathCeil", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "ceil", ceil_fo);
+  descriptor := newDataPropertyDescriptorFull("ceil", false, false, true);
+  setJSProperty(ceil_fo, "name", descriptor);
+  /* 20.2.2.11 Math.clz32 ( x ) */
+  clz32_fo := CreateBuiltInFunctionObject(["x"], "MathCLZ32", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "clz32", clz32_fo);
+  descriptor := newDataPropertyDescriptorFull("clz32", false, false, true);
+  setJSProperty(clz32_fo, "name", descriptor);
+  /* 20.2.2.12 Math.cos ( x ) */
+  cos_fo := CreateBuiltInFunctionObject(["x"], "MathCos", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "cos", cos_fo);
+  descriptor := newDataPropertyDescriptorFull("cos", false, false, true);
+  setJSProperty(cos_fo, "name", descriptor);
+  /* 20.2.2.13 Math.cosh ( x ) */
+  cosh_fo := CreateBuiltInFunctionObject(["x"], "MathCosh", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "cosh", cosh_fo);
+  descriptor := newDataPropertyDescriptorFull("cosh", false, false, true);
+  setJSProperty(cosh_fo, "name", descriptor);
+  /* 20.2.2.14 Math.exp ( x ) */
+  exp_fo := CreateBuiltInFunctionObject(["x"], "MathExp", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "exp", exp_fo);
+  descriptor := newDataPropertyDescriptorFull("exp", false, false, true);
+  setJSProperty(exp_fo, "name", descriptor);
+  /* 20.2.2.15 Math.expm1 ( x ) */
+  expm1_fo := CreateBuiltInFunctionObject(["x"], "MathExpM1", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "expm1", expm1_fo);
+  descriptor := newDataPropertyDescriptorFull("expm1", false, false, true);
+  setJSProperty(expm1_fo, "name", descriptor);
+  /* 20.2.2.16 Math.floor ( x ) */
+  floor_fo := CreateBuiltInFunctionObject(["x"], "MathFloor", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "floor", floor_fo);
+  descriptor := newDataPropertyDescriptorFull("floor", false, false, true);
+  setJSProperty(floor_fo, "name", descriptor);
+  /* 20.2.2.17 Math.fround ( x ) */
+  fround_fo := CreateBuiltInFunctionObject(["x"], "MathFRound", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "fround", fround_fo);
+  descriptor := newDataPropertyDescriptorFull("fround", false, false, true);
+  setJSProperty(fround_fo, "name", descriptor);
+  /* 20.2.2.18 Math.hypot ( value1 , value2 , …values ) */
+  hypot_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathHypot", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "hypot", hypot_fo);
+  descriptor := newDataPropertyDescriptorFull("hypot", false, false, true);
+  setJSProperty(hypot_fo, "name", descriptor);
+  /* 20.2.2.19 Math.imul ( x, y ) */
+  imul_fo := CreateBuiltInFunctionObject(["x", "y"], "MathImul", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "imul", imul_fo);
+  descriptor := newDataPropertyDescriptorFull("imul", false, false, true);
+  setJSProperty(imul_fo, "name", descriptor);
+  /* 20.2.2.20 Math.log ( x ) */
+  log_fo := CreateBuiltInFunctionObject(["x"], "MathLog", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "log", log_fo);
+  descriptor := newDataPropertyDescriptorFull("log", false, false, true);
+  setJSProperty(log_fo, "name", descriptor);
+  /* 20.2.2.21 Math.log1p ( x ) */
+  log1p_fo := CreateBuiltInFunctionObject(["x"], "MathLog1P", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "log1p", log1p_fo);
+  descriptor := newDataPropertyDescriptorFull("log1p", false, false, true);
+  setJSProperty(log1p_fo, "name", descriptor);
+  /* 20.2.2.22 Math.log10 ( x ) */
+  log10_fo := CreateBuiltInFunctionObject(["x"], "MathLog10", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "log10", log10_fo);
+  descriptor := newDataPropertyDescriptorFull("log10", false, false, true);
+  setJSProperty(log10_fo, "name", descriptor);
+  /* 20.2.2.23 Math.log2 ( x ) */
+  log2_fo := CreateBuiltInFunctionObject(["x"], "MathLog2", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "log2", log2_fo);
+  descriptor := newDataPropertyDescriptorFull("log2", false, false, true);
+  setJSProperty(log2_fo, "name", descriptor);
+  /* 20.2.2.24 Math.max ( value1, value2 , …values ) */
+  max_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathMax", globalObject, strict, 0.);
+  createBuiltInProperty(mathObject, "max", max_fo);
+  descriptor := newDataPropertyDescriptorFull("max", false, false, true);
+  setJSProperty(max_fo, "name", descriptor);
+  /* 20.2.2.25 Math.min ( value1, value2 , …values ) */
+  min_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathMin", globalObject, strict, 0.);
+  createBuiltInProperty(mathObject, "min", min_fo);
+  descriptor := newDataPropertyDescriptorFull("min", false, false, true);
+  setJSProperty(min_fo, "name", descriptor);
+  /* 20.2.2.26 Math.pow ( x, y ) */
+  pow_fo := CreateBuiltInFunctionObject(["x", "y"], "MathPow", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "pow", pow_fo);
+  descriptor := newDataPropertyDescriptorFull("pow", false, false, true);
+  setJSProperty(pow_fo, "name", descriptor);
+  /* 20.2.2.27 Math.random ( ) */
+  random_fo := CreateBuiltInFunctionObject([], "MathRandom", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "random", random_fo);
+  descriptor := newDataPropertyDescriptorFull("random", false, false, true);
+  setJSProperty(random_fo, "name", descriptor);
+  /* 20.2.2.28 Math.round ( x ) */
+  round_fo := CreateBuiltInFunctionObject(["x"], "MathRound", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "round", round_fo);
+  descriptor := newDataPropertyDescriptorFull("round", false, false, true);
+  setJSProperty(round_fo, "name", descriptor);
+  /* 20.2.2.29 Math.sign(x) */
+  sign_fo := CreateBuiltInFunctionObject(["x"], "MathSign", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "sign", sign_fo);
+  descriptor := newDataPropertyDescriptorFull("sign", false, false, true);
+  setJSProperty(sign_fo, "name", descriptor);
+  /* 20.2.2.30 Math.sin ( x ) */
+  sin_fo := CreateBuiltInFunctionObject(["x"], "MathSin", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "sin", sin_fo);
+  descriptor := newDataPropertyDescriptorFull("sin", false, false, true);
+  setJSProperty(sin_fo, "name", descriptor);
+  /* 20.2.2.31 Math.sinh( x ) */
+  sinh_fo := CreateBuiltInFunctionObject(["x"], "MathSinh", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "sinh", sinh_fo);
+  descriptor := newDataPropertyDescriptorFull("sinh", false, false, true);
+  setJSProperty(sinh_fo, "name", descriptor);
+  /* 20.2.2.32 Math.sqrt ( x ) */
+  sqrt_fo := CreateBuiltInFunctionObject(["x"], "MathSqrt", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "sqrt", sqrt_fo);
+  descriptor := newDataPropertyDescriptorFull("sqrt", false, false, true);
+  setJSProperty(sqrt_fo, "name", descriptor);
+  /* 20.2.2.33 Math.tan ( x ) */
+  tan_fo := CreateBuiltInFunctionObject(["x"], "MathTan", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "tan", tan_fo);
+  descriptor := newDataPropertyDescriptorFull("tan", false, false, true);
+  setJSProperty(tan_fo, "name", descriptor);
+  /* 20.2.2.34 Math.tanh ( x ) */
+  tanh_fo := CreateBuiltInFunctionObject(["x"], "MathTanh", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "tanh", tanh_fo);
+  descriptor := newDataPropertyDescriptorFull("tanh", false, false, true);
+  setJSProperty(tanh_fo, "name", descriptor);
+  /* 20.2.2.35 Math.trunc ( x ) */
+  trunc_fo := CreateBuiltInFunctionObject(["x"], "MathTrunc", globalObject, strict, null);
+  createBuiltInProperty(mathObject, "trunc", trunc_fo);
+  descriptor := newDataPropertyDescriptorFull("trunc", false, false, true);
+  setJSProperty(trunc_fo, "name", descriptor);
+
+  return
+};
+
+/* 20.2.2.1 Math.abs ( x ) */
+function MathAbs(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns the absolute value of x; the result has the same magnitude as x but has positive sign. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is −0, the result is +0. */
+  /* If x is −∞, the result is +∞. */
+  return abs x
+};
+
+/* 20.2.2.2 Math.acos ( x ) */
+function MathACos(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the arc cosine of x. 
+  The result is expressed in radians and ranges from +0 to +pi. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is greater than 1, the result is NaN. */
+  /* If x is less than -1, the result is NaN. */
+  /* If x is exactly 1, the result is +0. */
+  return acos x
+};
+
+/* 20.2.2.3 Math.acosh( x ) */
+function MathACosh(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation 
+  to the inverse hyperbolic cosine of x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is less than 1, the result is NaN. */
+  /* If x is 1, the result is +0. */
+  /* If x is +∞, the result is +∞. */
+  return log_e(x + sqrt((x**2.) - 1.))
+};
+
+/* 20.2.2.4 Math.asin ( x ) */
+function MathASin(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the arc sine of x. The result is expressed in radians and ranges from −π/2 to +π/2. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is greater than 1, the result is NaN. */
+  /* If x is less than –1, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is −0, the result is −0. */
+  return asin x
+};
+
+/* 20.2.2.5 Math.asinh( x ) */
+function MathASinh(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the inverse hyperbolic sine of x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is −0, the result is −0. */
+  /* If x is +∞, the result is +∞. */
+  /* If x is −∞, the result is −∞. */
+  return log_e(x + sqrt((x**2.) + 1.))
+};
+
+/* 20.2.2.6 Math.atan ( x ) */
+function MathATan(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the arc tangent of x. The result is expressed in radians and ranges from −π/2 to +π/2. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is −0, the result is −0. */
+  /* If x is +∞, the result is an implementation-dependent approximation to +π/2. */
+  /* If x is −∞, the result is an implementation-dependent approximation to −π/2. */
+  return atan x
+};
+
+/* 20.2.2.7 Math.atanh( x ) */
+function MathATanh(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the inverse hyperbolic tangent of x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is less than −1, the result is NaN. */
+  /* If x is greater than 1, the result is NaN. */
+  /* If x is −1, the result is −∞. */
+  /* If x is +1, the result is +∞. */
+  /* If x is +0, the result is +0. */
+  /* If x is 0 the result is 0 */
+  return (1./2.) * log_e((1. + x) / (1. - x))
+};
+
+/* 20.2.2.8 Math.atan2 ( y, x ) */
+function MathATan2(globalObject, this, stric, params) {
+  y := l_nth(params, 0);
+  x := l_nth(params, 1);
+  y := ToNumber(y);
+  x := ToNumber(x);
+  /* Returns an implementation-dependent approximation to the arc tangent of the quotient y/x of the arguments y and x, where the signs of y and x are used to determine the quadrant of 
+  the result. Note that it is intentional and traditional for the two-argument arc tangent function that the argument named y be first and the argument named x be second. The result is 
+  expressed in radians and ranges from −π to +π. */
+  /* If either x or y is NaN, the result is NaN. */
+  /* If y>0 and x is +0, the result is an implementation-dependent approximation to +π/2. */
+  /* If y>0 and x is −0, the result is an implementation-dependent approximation to +π/2. */
+  /* If y is +0 and x>0, the result is +0. */
+  /* If y is +0 and x is +0, the result is +0. */
+  /* If y is +0 and x is −0, the result is an implementation-dependent approximation to +π. */
+  /* If y is +0 and x<0, the result is an implementation-dependent approximation to +π. */
+  /* If y is −0 and x>0, the result is −0. */
+  /* If y is −0 and x is +0, the result is −0. */
+  /* If y is −0 and x is −0, the result is an implementation-dependent approximation to −π. */
+  /* If y is −0 and x<0, the result is an implementation-dependent approximation to −π. */
+  /* If y<0 and x is +0, the result is an implementation-dependent approximation to −π/2. */
+  /* If y<0 and x is −0, the result is an implementation-dependent approximation to −π/2. */
+  /* If y>0 and y is finite and x is +∞, the result is +0. */
+  /* If y>0 and y is finite and x is −∞, the result if an implementation-dependent approximation to +π. */
+  /* If y<0 and y is finite and x is +∞, the result is −0. */
+  /* If y<0 and y is finite and x is −∞, the result is an implementation-dependent approximation to −π. */
+  /* If y is +∞ and x is finite, the result is an implementation-dependent approximation to +π/2. */
+  /* If y is −∞ and x is finite, the result is an implementation-dependent approximation to −π/2. */
+  /* If y is +∞ and x is +∞, the result is an implementation-dependent approximation to +π/4. */
+  /* If y is +∞ and x is −∞, the result is an implementation-dependent approximation to +3π/4. */
+  /* If y is −∞ and x is +∞, the result is an implementation-dependent approximation to −π/4. */
+  /* If y is −∞ and x is −∞, the result is an implementation-dependent approximation to −3π/4. */
+  return atan2(y, x)
+};
+
+/* 20.2.2.9 Math.cbrt ( x ) */
+function MathCBRT(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the cube root of x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is −0, the result is −0. */
+  /* If x is +∞, the result is +∞. */
+  /* If x is −∞, the result is −∞. */
+  return x ** (1./3.)
+};
+
+/* 20.2.2.10 Math.ceil ( x ) */
+function MathCeil(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  /* Returns the smallest (closest to −∞) Number value that is not less than x and is equal to a mathematical integer. If x is already an integer, the result is x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is −0, the result is −0. */
+  /* If x is +∞, the result is +∞. */
+  /* If x is −∞, the result is −∞. */
+  /* If x is less than 0 but greater than -1, the result is −0. */
+  /* The value of Math.ceil(x) is the same as the value of -Math.floor(-x). */
+  return ceil x
+};
+
+/* 20.2.2.11 Math.clz32 ( x ) */
+function MathCLZ32(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* When Math.clz32 is called with one argument x, the following steps are taken: */
+  /* 1. Let n be ToUint32(x). */
+  n := ToUint32(x);
+  /* 2. Let p be the number of leading zero bits in the 32-bit binary representation of n. */
+  num := n;
+  count := 0;
+  while (!(num = 0)) {
+    num := num / 2;
+    count := count + 1
+  };
+  /* 3. Return p. */
+  return 32 - count
+  /* NOTE
+  If n is 0, p will be 32. If the most significant bit of the 32-bit binary encoding of n is 1, p will be 0. */
+};
+
+/* 20.2.2.12 Math.cos ( x ) */
+function MathCos(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the cosine of x. The argument is expressed in radians. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is 1. */
+  /* If x is −0, the result is 1. */
+  /* If x is +∞, the result is NaN. */
+  /* If x is −∞, the result is NaN. */
+  return cos x
+};
+
+/* 20.2.2.13 Math.cosh ( x ) */
+function MathCosh(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the hyperbolic cosine of x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is 1. */
+  /* If x is −0, the result is 1. */
+  /* If x is +∞, the result is +∞. */
+  /* If x is −∞, the result is +∞. */
+  /* NOTE
+  The value of cosh(x) is the same as (exp(x) + exp(-x))/2. */
+  return cosh x
+};
+
+/* 20.2.2.14 Math.exp ( x ) */
+function MathExp(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the exponential function of x (e raised to the power of x, where e is the base of the natural logarithms). */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is 1. */
+  /* If x is −0, the result is 1. */
+  /* If x is +∞, the result is +∞. */
+  /* If x is −∞, the result is +0. */
+  return exp x
+};
+
+/* 20.2.2.15 Math.expm1 ( x ) */
+function MathExpM1(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to subtracting 1 from the exponential function of x (e raised to the power of x, where e is the base of the natural logarithms). */
+  /* The result is computed in a way that is accurate even when the value of x is close 0. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is −0, the result is −0. */
+  /* If x is +∞, the result is +∞. */
+  /* If x is −∞, the result is −1. */
+  return exp(x) - 1
+};
+
+/* 20.2.2.16 Math.floor ( x ) */
+function MathFloor(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns the greatest (closest to +∞) Number value that is not greater than x and is equal to a mathematical integer. If x is already an integer, the result is x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is −0, the result is −0. */
+  /* If x is +∞, the result is +∞. */
+  /* If x is −∞, the result is −∞. */
+  /* If x is greater than 0 but less than 1, the result is +0. */
+  /* NOTE 
+  The value of Math.floor(x) is the same as the value of -Math.ceil(-x). */
+  return -(ceil (-x))
+};
+
+/* TODO 20.2.2.17 Math.fround ( x ) */
+function MathFRound(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* When Math.fround is called with argument x the following steps are taken: */
+  /* 1. If x is NaN, return NaN. */
+  if (x = NaN) {
+    return NaN
+  /* 2. If x is one of +0, −0, +∞, −∞, return x. */
+  } elif ((isZero(x)) ||| (isMinusZero(x)) ||| (x = Infinity) ||| (x = -Infinity)) {
+    return x
+  };
+  /* 3. Let x32 be the result of converting x to a value in IEEE 754-2008 binary32 format using roundTiesToEven. */
+  /* 4. Let x64 be the result of converting x32 to a value in IEEE 754-2008 binary64 format. */
+  /* 5. Return the ECMAScript Number value corresponding to x64. */
+  return
+};
+
+/* 20.2.2.18 Math.hypot ( value1 , value2 , …values ) */
+function MathHypot(globalObject, this, strict, params) {
+  /* Math.hypot returns an implementation-dependent approximation of the square root of the sum of squares of its arguments. */
+  /* If no arguments are passed, the result is +0. */
+  /* If any argument is +∞, the result is +∞. */
+  /* If any argument is −∞, the result is +∞. */
+  /* If no argument is +∞ or −∞, and any argument is NaN, the result is NaN. */
+  /* If all arguments are either +0 or −0, the result is +0. */
+  /* The length property of the hypot function is 2. */
+  /* NOTE 
+  Implementations should take care to avoid the loss of precision from overflows and underflows that are prone to occur in naive implementations when this function is called with two or */
+  /* more arguments. */
+  if (l_len params = 0) {
+    return 0.
+  };
+  i := 1;
+  len := l_len params;
+  sum := 0;
+  while(i < len) {
+    value := l_nth(params, i);
+    value := ToNumber(value);
+    @ReturnIfAbrupt(value);
+    sum := sum + (value ** 2);
+    i := i + 1
+  };
+  return sqrt sum
+};
+
+/* 20.2.2.19 Math.imul ( x, y ) */
+function MathImul(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  y := l_nth(params, 0);
+  y := ToNumber(y);
+  @ReturnIfAbrupt(y);
+  /* When the Math.imul is called with arguments x and y the following steps are taken: */
+  /* 1. Let a be ToUint32(x). */
+  a := ToUint32(x);
+  /* 2. Let b be ToUint32(y). */
+  b := ToUint32(y);
+  /* 3. Let product be (a × b) modulo 2^32 . */
+  product := (a * b) % (2**32);
+  /* 4. If product ≥ 2 31 , return product − 2 32 , otherwise return product. */
+  if (product >= (2**31)) {
+    return product - (2**32)
+  } else {
+    return product
+  }
+};
+
+/* 20.2.2.20 Math.log ( x ) */
+function MathLog(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the natural logarithm of x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is less than 0, the result is NaN. */
+  /* If x is +0 or −0, the result is −∞. */
+  /* If x is 1, the result is +0. */
+  /* If x is +∞, the result is +∞. */
+  return log_e x
+};
+
+/* 20.2.2.21 Math.log1p ( x ) */
+function MathLog1P(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the natural logarithm of 1 + x. 
+  The result is computed in a way that is accurate even when the value of x is close to zero. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is less than -1, the result is NaN. */
+  /* If x is -1, the result is -∞. */
+  /* If x is +0, the result is +0. */
+  /* If x is −0, the result is −0. */
+  /* If x is +∞, the result is +∞. */
+  return log_e(1 + x)
+};
+
+/* 20.2.2.22 Math.log10 ( x ) */
+function MathLog10(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the base 10 logarithm of x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is less than 0, the result is NaN. */
+  /* If x is +0, the result is −∞. */
+  /* If x is −0, the result is −∞. */
+  /* If x is 1, the result is +0. */
+  /* If x is +∞, the result is +∞. */
+  return log_10 x
+};
+
+/* 20.2.2.23 Math.log2 ( x ) */
+function MathLog2(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the base 2 logarithm of x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is less than 0, the result is NaN. */
+  /* If x is +0, the result is −∞. */
+  /* If x is −0, the result is −∞. */
+  /* If x is 1, the result is +0. */
+  /* If x is +∞, the result is +∞. */
+  return log_2 x
+};
+
+/* 20.2.2.24 Math.max ( value1, value2 , …values ) */
+function MathMax(globalObject, this, stric, params) {
+  /* Given zero or more arguments, calls ToNumber on each of the arguments and returns the largest of the resulting values. */
+  /* If no arguments are given, the result is −∞. */
+  /* If any value is NaN, the result is NaN. */
+  /* The comparison of values to determine the largest value is done using the Abstract Relational Comparison algorithm (7.2.11) except that +0 is considered to be larger than −0. */
+  /* The length property of the max method is 2. */
+  if (l_len params = 0) {
+    return -Infinity
+  };
+  max_value := ToNumber(l_nth(params, 0));
+  i := 1;
+  lparams := l_len params;
+  while(i < lparams) {
+    arg := l_nth(params, i);
+    value := ToNumber(arg);
+    max_value := max(max_value, value);
+    i := i + 1
+  };
+  return max_value
+};
+
+/* 20.2.2.25 Math.min ( value1, value2 , …values ) */
+function MathMin(globalObject, this, stric, params) {
+  /* Given zero or more arguments, calls ToNumber on each of the arguments and returns the smallest of the resulting values. */
+  /* If no arguments are given, the result is +∞. */
+  /* If any value is NaN, the result is NaN. */
+  /* The comparison of values to determine the smallest value is done using the Abstract Relational Comparison algorithm (7.2.11) except that +0 is considered to be larger than −0. */
+  /* The length property of the min method is 2. */
+  if (l_len params = 0) {
+    return Infinity
+  };
+  min_value := ToNumber(l_nth(params, 0));
+  i := 1;
+  lparams := l_len params;
+  while(i < lparams) {
+    arg := l_nth(params, i);
+    value := ToNumber(arg);
+    min_value := min(min_value, value);
+    i := i + 1
+  };
+  return min_value
+};
+
+/* 20.2.2.26 Math.pow ( x, y ) */
+function MathPow(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  y := l_nth(params, 1);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  y := ToNumber(y);
+  @ReturnIfAbrupt(y);
+  /* Returns an implementation-dependent approximation to the result of raising x to the power y. */
+  /* If y is NaN, the result is NaN. */
+  /* If y is +0, the result is 1, even if x is NaN. */
+  /* If y is −0, the result is 1, even if x is NaN. */
+  /* If x is NaN and y is nonzero, the result is NaN. */
+  /* If abs(x)>1 and y is +∞, the result is +∞. */
+  /* If abs(x)>1 and y is −∞, the result is +0. */
+  /* If abs(x) is 1 and y is +∞, the result is NaN. */
+  /* If abs(x) is 1 and y is −∞, the result is NaN. */
+  if (abs(x) = 1.) {
+    if ((y = Infinity) ||| (y = -Infinity)) {
+      return NaN
+    }
+  };
+  /* If abs(x)<1 and y is +∞, the result is +0. */
+  /* If abs(x)<1 and y is −∞, the result is +∞. */
+  /* If x is +∞ and y>0, the result is +∞. */
+  /* If x is +∞ and y<0, the result is +0. */
+  /* If x is −∞ and y>0 and y is an odd integer, the result is −∞. */
+  /* If x is −∞ and y>0 and y is not an odd integer, the result is +∞. */
+  /* If x is −∞ and y<0 and y is an odd integer, the result is −0. */
+  /* If x is −∞ and y<0 and y is not an odd integer, the result is +0. */
+  /* If x is +0 and y>0, the result is +0. */
+  /* If x is +0 and y<0, the result is +∞. */
+  /* If x is −0 and y>0 and y is an odd integer, the result is −0. */
+  /* If x is −0 and y>0 and y is not an odd integer, the result is +0. */
+  /* If x is −0 and y<0 and y is an odd integer, the result is −∞. */
+  /* If x is −0 and y<0 and y is not an odd integer, the result is +∞. */
+  /* If x<0 and x is finite and y is finite and y is not an integer, the result is NaN. */
+  return (x ** y)
+};
+
+/* 20.2.2.27 Math.random ( ) */
+function MathRandom(globalObject, this, stric, params) {
+  /* Returns a Number value with positive sign, greater than or equal to 0 but less than 1, 
+  chosen randomly or pseudo randomly with approximately uniform distribution over that range, 
+  using an implementation-dependent algorithm or strategy. This function takes no arguments. */
+  /* Each Math.random function created for distinct code Realms must produce a distinct sequence of 
+  values from successive calls. */
+  return random 1.
+};
+
+/* 20.2.2.28 Math.round ( x ) */
+function MathRound(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns the Number value that is closest to x and is equal to a mathematical integer. 
+  If two integer Number values are equally close to x, then the result is the Number value that is closer to +∞. 
+  If x is already an integer, the result is x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is −0, the result is −0. */
+  /* If x is +∞, the result is +∞. */
+  /* If x is −∞, the result is −∞. */
+  /* If x is greater than 0 but less than 0.5, the result is +0. */
+  if ((x > 0.) &&& (x < 0.5)) {
+    return 0.
+  };
+  /* If x is less than 0 but greater than or equal to -0.5, the result is −0. */
+  if ((x < 0.) &&& (x >= -(0.5))) {
+    return -(0.)
+  };
+  /* NOTE 1 
+  Math.round(3.5) returns 4, but Math.round(–3.5) returns –3. */
+  /* NOTE 2 
+  The value of Math.round(x) is not always the same as the value of Math.floor(x+0.5). When x is −0 or is less than 0 but greater than or equal to -0.5, Math.round(x) 
+  returns −0, but Math.floor(x+0.5) returns +0. Math.round(x) may also differ from the value of Math.floor(x+0.5)because of internal rounding when computing x+0.5. */
+  return -(ceil (-(x + 0.5))) 
+};
+
+/* 20.2.2.29 Math.sign(x) */
+function MathSign(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns the sign of the x, indicating whether x is positive, negative or zero. */
+  /* If x is NaN, the result is NaN. */
+  if (x = NaN) {
+    return NaN
+  /* If x is −0, the result is −0. */
+  } elif (isMinusZero(x)) {
+    return -(0.)
+  /* If x is +0, the result is +0. */
+  } elif (isZero(x)) {
+    return 0.
+  /* If x is negative and not −0, the result is −1. */
+  } elif (x < 0.) {
+    return -1
+  /* If x is positive and not +0, the result is +1. */
+  } elif (x > 0.) {
+    return 1
+  }
+};
+
+/* 20.2.2.30 Math.sin ( x ) */
+function MathSin(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the sine of x. The argument is expressed in radians. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is −0, the result is −0. */
+  /* If x is +∞ or −∞, the result is NaN. */
+  return sin x
+};
+
+/* 20.2.2.31 Math.sinh( x ) */
+function MathSinh(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the hyperbolic sine of x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is −0, the result is −0. */
+  /* If x is +∞, the result is +∞. */
+  /* If x is −∞, the result is −∞. */
+  return sinh x
+};
+
+/* 20.2.2.32 Math.sqrt ( x ) */
+function MathSqrt(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the square root of x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is less than 0, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is −0, the result is −0. */
+  /* If x is +∞, the result is +∞. */
+  return sqrt x
+};
+
+/* 20.2.2.33 Math.tan ( x ) */
+function MathTan(globalObject, this, stric, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the tangent of x. The argument is expressed in radians. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is -0, the result is -0. */
+  /* If x is +Infinity or -Infinity, the result is NaN. */
+  return tan x
+};
+
+/* 20.2.2.34 Math.tanh ( x ) */
+function MathTanh(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns an implementation-dependent approximation to the hyperbolic tangent of x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is +0, the result is +0. */
+  /* If x is −0, the result is −0. */
+  /* If x is +∞, the result is +1. */
+  /* If x is −∞, the result is -1. */
+  /* NOTE
+  The value of tanh(x) is the same as (exp(x) - exp(-x))/(exp(x) + exp(-x)). */
+  return tanh x
+};
+
+/* 20.2.2.35 Math.trunc ( x ) */
+function MathTrunc(globalObject, this, strict, params) {
+  x := l_nth(params, 0);
+  x := ToNumber(x);
+  @ReturnIfAbrupt(x);
+  /* Returns the integral part of the number x, removing any fractional digits. If x is already an integer, the result is x. */
+  /* If x is NaN, the result is NaN. */
+  /* If x is −0, the result is −0. */
+  /* If x is +0, the result is +0. */
+  /* If x is +∞, the result is +∞. */
+  /* If x is ∞ the result is ∞ */
+  /* If x is greater than 0 but less than 1, the result is +0. */
+  /* If x is less than 0 but greater than −1, the result is −0. */
+  return int_of_float (-(ceil(-x)))
+}

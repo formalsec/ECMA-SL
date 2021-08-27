@@ -3,15 +3,15 @@
 
 /*---
 info: The Date.prototype property "toTimeString" has { DontEnum } attributes
-es5id: 15.9.5.4_A1_T1
+esid: sec-date.prototype.totimestring
 description: Checking absence of ReadOnly attribute
 ---*/
 
 var x = Date.prototype.toTimeString;
-if(x === 1)
+if (x === 1)
   Date.prototype.toTimeString = 2;
 else
   Date.prototype.toTimeString = 1;
 if (Date.prototype.toTimeString === x) {
-  $ERROR('#1: The Date.prototype.toTimeString has not the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.prototype.toTimeString has not the attribute ReadOnly');
 }

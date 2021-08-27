@@ -3,14 +3,14 @@
 
 /*---
 info: The Date.prototype property "setMinutes" has { DontEnum } attributes
-es5id: 15.9.5.32_A1_T2
+esid: sec-date.prototype.setminutes
 description: Checking absence of DontDelete attribute
 ---*/
 
-if (delete Date.prototype.setMinutes  === false) {
-  $ERROR('#1: The Date.prototype.setMinutes property has not the attributes DontDelete');
+if (delete Date.prototype.setMinutes === false) {
+  throw new Test262Error('#1: The Date.prototype.setMinutes property has not the attributes DontDelete');
 }
 
 if (Date.prototype.hasOwnProperty('setMinutes')) {
-  $ERROR('#2: The Date.prototype.setMinutes property has not the attributes DontDelete');
+  throw new Test262Error('#2: The Date.prototype.setMinutes property has not the attributes DontDelete');
 }

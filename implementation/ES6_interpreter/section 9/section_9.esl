@@ -1,6 +1,6 @@
 /* 9.1 ToPrimitive */
 function ToPrimitive(input, PreferredType) {
-  if (Type(input) = "Object") {
+  if ((Type(input) = "Object") || (Type(input) = "Symbol")) {
     return DefaultValue(input, PreferredType)
   };
 
@@ -10,14 +10,14 @@ function ToPrimitive(input, PreferredType) {
 /* 9.2 ToBoolean */
 function ToBoolean(argument) {
   /* The abstract operation ToBoolean converts its argument to a value of type Boolean according to Table 11: */
-
-  if ((Type(argument) = "Undefined") || (Type(argument) = "Null")) {
+  typeArgument := Type(argument);
+  if ((typeArgument = "Undefined") || (typeArgument = "Null")) {
     return false
   };
-  if (Type(argument) = "Boolean") {
+  if (typeArgument = "Boolean") {
     return argument
   };
-  if (Type(argument) = "Number") {
+  if (typeArgument = "Number") {
     if ((argument = 0.) || (argument = -(0.)) || (argument = NaN)) {
       return false
     } else {
@@ -26,14 +26,17 @@ function ToBoolean(argument) {
 
     return true
   };
-  if (Type(argument) = "String") {
+  if (typeArgument = "String") {
     if (argument = "") {
       return false
     } else {
       return true
     }
   };
-  if (Type(argument) = "Object") {
+  if (typeArgument = "Symbol") {
+    return true
+  };
+  if (typeArgument = "Object") {
     return true
   }
 };
@@ -173,6 +176,9 @@ function ToString(V) {
   if (v_type = "String") {
     return V
   };
+  if (v_type = "Symbol") {
+    throw TypeErrorConstructorInternal()
+  };
   if (v_type = "Object") {
     /* Apply the following steps: */
     /* 1. Let primValue be ToPrimitive(input argument, hint String). */
@@ -198,7 +204,7 @@ function ToObject(V) {
   if (v_type = "String") {
     return StringConstructor(|global|, true, false, [V])
   };
-  if (v_type = "Object") {
+  if (v_type = "Object" || v_type = "Symbol") {
     return V
   }
 };

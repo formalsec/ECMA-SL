@@ -2,19 +2,19 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The Date.prototype.setSeconds property "length" has { ReadOnly,
     DontDelete, DontEnum } attributes
-es5id: 15.9.5.30_A3_T3
+esid: sec-date.prototype.setseconds
 description: Checking DontEnum attribute
 ---*/
 
 if (Date.prototype.setSeconds.propertyIsEnumerable('length')) {
-  $ERROR('#1: The Date.prototype.setSeconds.length property has the attribute DontEnum');
+  throw new Test262Error('#1: The Date.prototype.setSeconds.length property has the attribute DontEnum');
 }
 
-for(var x in Date.prototype.setSeconds) {
-  if(x === "length") {
-    $ERROR('#2: The Date.prototype.setSeconds.length has the attribute DontEnum');
+for (var x in Date.prototype.setSeconds) {
+  if (x === "length") {
+    throw new Test262Error('#2: The Date.prototype.setSeconds.length has the attribute DontEnum');
   }
 }
