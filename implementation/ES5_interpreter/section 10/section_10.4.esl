@@ -47,8 +47,7 @@ function InitialGlobalExecutionContext(globalObject, program) {
 
 /* 10.4.2 Entering Eval Code */
 function EnteringEvalCode(evalCode, ref, callingExecCtx) {
-  isStrict := evalCode.strict ||| isContainedInStrictCode(callingExecCtx);
-  evalCode.strict := isStrict;
+  evalCode.strict := isStrictModeCode(evalCode, callingExecCtx);
 
   /* The following steps are performed when control enters the execution context for eval code: */
 
@@ -70,10 +69,10 @@ function EnteringEvalCode(evalCode, ref, callingExecCtx) {
           context. */
     setVariableEnvironment(evalExecCtx, getVariableEnvironment(callingExecCtx));
 
-    setContainedInStrictCode(evalExecCtx, isStrict)
+    setContainedInStrictCode(evalExecCtx, evalCode.strict)
   };
   /* 3. If the eval code is strict code, then */
-  if (isStrict) {
+  if (isStrictModeCode(evalCode, callingExecCtx)) {
     /* a. Let strictVarEnv be the result of calling NewDeclarativeEnvironment passing the
           LexicalEnvironment as the argument. */
     strictVarEnv := NewDeclarativeEnvironment(getLexicalEnvironment(evalExecCtx));
