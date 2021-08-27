@@ -1,0 +1,284 @@
+/*
+*   7.1.15 ToLength ( argument )
+*/
+function ToLength (argument) {
+
+    /* 1. ReturnIfAbrupt(argument). */
+    @ReturnIfAbrupt(argument);
+
+    /* 2. Let len be ToInteger(argument). */
+    len := ToInteger(argument);
+
+    /* 3. ReturnIfAbrupt(len). */
+    @ReturnIfAbrupt(len);
+
+    /* 4. If len ≤ +0, return +0. */
+    if (len <= 0.) {
+        return 0.
+    };
+
+    /* 5. If len is +∞, return 2^53-1. */
+    if (len = Infinity) {
+        return ((2. ** 53.) - 1.)
+    };
+
+    /* 6. Return min(len, 2^53-1). */
+    return min(len, ((2. ** 53.) - 1.))
+};
+
+/**
+ * 7.3.3 Set (O, P, V, Throw)
+ * The abstract operation Set is used to set the value of a specific property of an object. 
+ * The operation is called with arguments O, P, V, and Throw where O is the object, P is the property key,
+ * V is the new value for the property and Throw is a Boolean flag. 
+ * 
+ * This abstract operation performs the following steps:
+*/
+function SetNew(O, P, V, Throw) {
+	/* Assert: Type(O) is Object. */
+	assert(Type(O) = "Object");
+
+	/* Assert: IsPropertyKey(P) is true. */
+	assert( IsPropertyKey(P) = true );
+
+	/* Assert: Type(Throw) is Boolean. */
+	assert( Type(Throw) = "Boolean" );
+
+
+	/* Let success be O.[[Set]](P, V, O). */
+	success := {O.Set}(O, P, V, O);
+
+	/* ReturnIfAbrupt(success). */
+	@ReturnIfAbrupt(success);
+
+	/* If success is false and Throw is true, throw a TypeError exception. */
+	if ( (success = false) &&& (Throw = true) ) {
+		throw TypeErrorConstructorInternal()
+	};
+
+	/* Return success. */
+	return success
+};
+
+/**
+ *  7.3.4 CreateDataProperty (O, P, V)
+ * The abstract operation CreateDataProperty is used to create a new own property of an object.
+ * The operation is called with arguments O, P, and V where O is the object, P is the property key,
+ * and V is the value for the property.
+ * 
+ * This abstract operation performs the following steps:
+*/
+function CreateDataPropertyNew(O,P,V) {
+	/* Assert: Type(O) is Object. */
+	assert( Type(O) = "Object" );
+
+	/* Assert: IsPropertyKey(P) is true. */
+	assert( IsPropertyKey(P) = true );
+
+	/* Let newDesc be the PropertyDescriptor{[[Value]]: V, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}. */
+	newDesc := newDataPropertyDescriptorFull(V, true, true, true);
+
+	/* Return O.[[DefineOwnProperty]](P, newDesc). */
+	return {O.DefineOwnProperty}(O, P, newDesc, false)  
+};
+
+/**
+ *  7.3.6 CreateDataPropertyOrThrow (O, P, V) 
+ * The abstract operation CreateDataPropertyOrThrow is used to create a new own property of an object. 
+ * It throws a TypeError exception if the requested property update cannot be performed. 
+ * The operation is called with arguments O, P, and V where O is the object, P is the property key, 
+ * and V is the value for the property. 
+ * 
+ * This abstract operation performs the following steps:
+*/
+function CreateDataPropertyOrThrow(O, P, V) {
+	/* Assert: Type(O) is Object. */
+	assert( Type(O) = "Object");
+
+	/* Assert: IsPropertyKey(P) is true. */
+	assert( IsPropertyKey(P) = true);
+
+	/* Let success be CreateDataProperty(O, P, V). */
+	success := CreateDataPropertyNew(O, P, V);
+
+	/* ReturnIfAbrupt(success). */
+	@ReturnIfAbrupt(success);
+
+	/* If success is false, throw a TypeError exception. */
+	if ( success = false ) {
+		throw TypeErrorConstructorInternal()
+	};
+
+	/* Return success. */
+	return success 
+};
+
+/**
+ * 7.2.3 IsCallable ( argument )
+ * 
+ * The abstract operation IsCallable determines if argument, which must be an ECMAScript language value or a
+ * Completion Record, is a callable function with a [[Call]] internal method.
+*/
+function IsCallableNew( argument ) {
+	/* ReturnIfAbrupt(argument). */
+	@ReturnIfAbrupt(argument);
+
+	/* If Type(argument) is not Object, return false. */
+	if ( !(Type(argument) = "Object") ) {
+		return false
+	};
+
+	/* If argument has a [[Call]] internal method, return true. */
+	if ( "Call" in_obj argument ) {
+		return true
+	};
+
+	/* Return false. */
+	return false
+};
+
+
+/* XXX Function generated with HTML2ECMA-SL */
+/**
+ * 7.2.4 IsConstructor (argument)
+ *
+ * The abstract operation IsConstructor determines if argument, which must be an 
+ * ECMAScript language value or a Completion Record, is a function object with a 
+ * [[Construct]] internal method. 
+ */
+function IsConstructor(argument) {
+  /* 1. ReturnIfAbrupt(argument). */
+  @ReturnIfAbrupt(argument);
+  /* 2. If Type(argument) is not Object, */
+  if (!(Type(argument) = "Object")) {
+    /* return false */
+    return false
+  };
+  /* 3. If argument has a [[Construct]] internal method, */
+  if ("Construct" in_obj argument) {
+    /* return true */
+    return true
+  };
+  /* 4. Return false. */
+  return false
+};
+
+
+/**
+ * 7.3.13 Construct (F, [argumentsList], [newTarget]) 
+ * The abstract operation Construct is used to call the [[Construct]] internal method of a function object.
+ * The operation is called with arguments F, and optionally argumentsList, and newTarget where F is the function object.
+ * argumentsList and newTarget are the values to be passed as the corresponding arguments of the internal method. 
+ * If argumentsList is not present, an empty List is used as its value. If newTarget is not present, F is used as its value. 
+ * 
+ * This abstract operation performs the following steps:
+*/
+function ConstructNew(F, argumentsList, newTarget) {
+	/* If newTarget was not passed, let newTarget be F. */
+ 	if ( newTarget = null ) { 
+ 		newTarget := F
+ 	};
+
+ 	/* If argumentsList was not passed, let argumentsList be a new empty List. */
+ 	if ( argumentsList = null ) {
+ 		argumentsList := []
+ 	};
+
+ 	/* Assert: IsConstructor (F) is true. */
+ 	assert( IsConstructor(F) = true ); 
+
+ 	/* Assert: IsConstructor (newTarget) is true. */
+ 	assert( IsConstructor(newTarget) = true);
+
+ 	/* Return F.[[Construct]](argumentsList, newTarget). */
+ 	return {F.Construct}(F, argumentsList, newTarget)
+};
+
+/**
+ * 7.3.8 DeletePropertyOrThrow (O, P)
+ * The abstract operation DeletePropertyOrThrow is used to remove a specific own property of an object.
+ * It throws an exception if the property is not configurable. The operation is called with arguments O and P where
+ * O is the object and P is the property key. 
+ * 
+ * This abstract operation performs the following steps:
+*/
+function DeletePropertyOrThrow(O, P) {
+	/* Assert: Type(O) is Object. */
+	assert( Type(O) = "Object" );
+
+	/* Assert: IsPropertyKey(P) is true. */
+	assert( IsPropertyKey(P) = true );
+
+	/* Let success be O.[[Delete]](P). */
+	success := {O.Delete}(O, P, true);
+
+	/* ReturnIfAbrupt(success). */
+	@ReturnIfAbrupt(success);
+
+	/* If success is false, throw a TypeError exception. */
+	if ( success = false ) {
+		throw TypeErrorConstructorInternal()
+	};
+
+	/* Return success. */
+	return success
+};
+
+/**
+ * 7.3.10 HasProperty (O, P)
+ * 
+ * The abstract operation HasProperty is used to determine whether an object has a property with the specified 
+ * property key. The property may be either an own or inherited. A Boolean value is returned. The operation is
+ * called with arguments O and P where O is the object and P is the property key.
+ * 
+ * This abstract operation performs the following steps:
+*/
+function HasPropertyNew(O,P) {
+	/* Assert: Type(O) is Object. */
+	assert( Type(O) = "Object" );
+
+	/* Assert: IsPropertyKey(P) is true. */
+	assert( IsPropertyKey(P) = true );
+
+	/* Return O.[[HasProperty]](P). */
+	return {O.HasProperty}(O,P)
+};
+
+/**
+ * 7.2.2 IsArray ( argument )
+ * 
+ * The abstract operation IsArray takes one argument argument, and performs the following steps:
+*/
+function IsArray(argument) {
+
+  /* 1. If Type(arg) is not Object, return false. */
+  if (!(Type(argument) = "Object")) {
+    return false
+  };
+  /* 2. If the value of the [[Class]] internal property of arg is "Array",
+        then return true. */
+  if (argument.Class = "Array") {
+    return true
+  };
+  /* 3. Return false. */
+  return false
+};
+
+/**
+ * 7.3.1 Get (O, P)
+ * The abstract operation Get is used to retrieve the value of a specific property of an object. 
+ * The operation is called with arguments O and P where O is the object and P is the property key. 
+ * 
+ * This abstract operation performs the following steps:
+ * 
+*/
+function GetNew(O, P) {
+	/* Assert: Type(O) is Object. */
+	assert( Type(O) = "Object" );
+
+	/* Assert: IsPropertyKey(P) is true. */
+	assert( IsPropertyKey(P) = true );
+
+	/* Return O.[[Get]](P, O). */
+	return {O.Get}(O, P)
+}

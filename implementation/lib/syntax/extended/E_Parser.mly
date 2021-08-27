@@ -37,12 +37,12 @@
 %token <string> SYMBOL
 %token <string> LOC
 %token LAND LOR SCLAND SCLOR
-%token PARSE_NUMBER PARSE_STRING INT_TO_FLOAT INT_TO_STRING INT_TO_FOUR_HEX HEX_DECODE UTF8_DECODE OCTAL_TO_DECIMAL
+%token PARSE_NUMBER PARSE_STRING PARSE_DATE INT_TO_FLOAT INT_TO_STRING INT_TO_FOUR_HEX HEX_DECODE UTF8_DECODE OCTAL_TO_DECIMAL
 %token INT_OF_STRING FLOAT_OF_STRING FLOAT_TO_STRING OBJ_TO_LIST OBJ_FIELDS INT_OF_FLOAT
 %token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %token FROM_CHAR_CODE FROM_CHAR_CODE_U TO_CHAR_CODE TO_CHAR_CODE_U TO_LOWER_CASE TO_UPPER_CASE TRIM
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16
-%token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM SIN SQRT TAN PI MAX_VALUE MIN_VALUE
+%token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM SIN SQRT TAN PI MAX_VALUE MIN_VALUE COSH LOG_2 SINH TANH
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST TO_PRECISION TO_EXPONENTIAL TO_FIXED
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT LREVERSE HD TL TLEN TNTH FST SND LREMOVELAST LSORT SLEN SLEN_U SNTH SNTH_U SSUBSTR SSUBSTR_U
 %token SCONCAT SSPLIT
@@ -358,8 +358,18 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.ParseNumber, e) } %prec unopt_prec
   | PARSE_STRING; e = e_expr_target;
     { E_Expr.UnOpt (Oper.ParseString, e) } %prec unopt_prec
+  | PARSE_DATE; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ParseDate, e) } %prec unopt_prec
   | LREVERSE; e = e_expr_target;
     { E_Expr.UnOpt (Oper.LReverse, e) } %prec unopt_prec
+  | COSH; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Cosh, e) } %prec unopt_prec
+  | LOG_2; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Log_2, e) } %prec unopt_prec
+  | SINH; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Sinh, e) } %prec unopt_prec
+  | TANH; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Tanh, e) } %prec unopt_prec
 
 
 prefix_binary_op_target:

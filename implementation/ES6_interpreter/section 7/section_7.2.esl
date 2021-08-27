@@ -100,6 +100,40 @@ function IsInteger(argument){
   return false
  };
 
+/**
+ * 7.2.8 IsRegExp ( argument )
+ */
+function IsRegExp(argument){
+  /* 1. If Type(argument) is not Object, return false. */
+  if (!(Type(argument) = "Object")){
+    return false
+  };
+
+  /* 2. Let isRegExp be Get(argument, @@match). */
+  isRegExp := GetNew(argument, getMatchPropertyName());
+
+  /* 3. ReturnIfAbrupt(isRegExp). */
+  @ReturnIfAbrupt(isRegExp);
+
+  /* 4. If isRegExp is not undefined, return ToBoolean(isRegExp). */
+  if (!(isRegExp = 'undefined)){
+    return ToBoolean(isRegExp)
+  };
+
+  /* 5. If argument has a [[RegExpMatcher]] internal slot, return true. */
+  if ("RegExpMatcher" in_obj argument){
+    return true
+  };
+
+  /* TO DELETE */
+  if (getInternalProperty(argument, "Class") = "RegExp") {
+    return true
+  };
+
+  /* 6. Return false. */
+  return false
+};
+
 
 /**
  * 7.2.10 SameValueZero(x, y)

@@ -402,4 +402,33 @@ function getSymbolDescriptionAccessorProperty(global, this, strict, args){
 
   /* 3. Return sym.[[Description]]. */
   return sym.Description
+};
+
+
+function getSpeciesPropertyName() {
+  return "Symbol(species)"
+};
+
+function getIteratorPropertyName() {
+  return "Symbol(iterator)"
+};
+
+function getToStringTagPropertyName() {
+  return "Symbol(toStringTag)"
+};
+
+function getMatchPropertyName(){
+  return "Symbol(match)"
+};
+
+function getReplacePropertyName(){
+  return "Symbol(replace)"
+};
+
+function getSearchPropertyName(){
+  return "Symbol(search)"
+};
+
+function getSplitPropertyName(){
+  return "Symbol(split)"
 }

@@ -63,6 +63,8 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ToUint16      -> Oper.to_uint16 v
   | ParseNumber   -> Oper.parse_number v
   | ParseString   -> Oper.parse_string v
+  | ParseDate   -> Oper.parse_date v
+  | Log_2         -> Oper.log_2 v
   | _             -> Oper.apply_uopt_oper op v
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =

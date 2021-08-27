@@ -12,7 +12,7 @@ function RegExpPrototypeexec(global, this, strict, args){
     };
 
     /* 3. If R does not have a [[RegExpMatcher]] internal slot, throw a TypeError exception. */
-    if (!(RegExpMatcher in_obj R)){
+    if (!("RegExpMatcher" in_obj R)){
         throw TypeErrorConstructorInternal()
     };
 
@@ -35,7 +35,7 @@ function RegExpExec(R, S){
     assert(Type(S) = "String");
 
     /* 3. Let exec be Get(R, "exec"). */
-    exec := GetES6(R, "exec");
+    exec := GetNew(R, "exec");
 
     /* 4. ReturnIfAbrupt(exec). */
     @ReturnIfAbrupt(exec);
@@ -58,7 +58,7 @@ function RegExpExec(R, S){
     };
 
     /* 6. If R does not have a [[RegExpMatcher]] internal slot, throw a TypeError exception. */
-    if (!(RegExpMatcher in_obj R)){
+    if (!("RegExpMatcher" in_obj R)){
         throw TypeErrorConstructorInternal()
     };
 
@@ -157,7 +157,7 @@ function AdvanceStringIndex(S, index, unicode){
     first := s_nth(S, int_of_float index);
 
     /* 8. If first < 0xD800 or first > 0xDBFF, return index+1. */
-    if ((first < from_char_code_u("\uD800")) || (first > from_char_code_u("\uDBFF"))){
+    if ((first < 0xD800) || (first > 0xDBFF)){
         return index + 1.
     };
 
@@ -165,7 +165,7 @@ function AdvanceStringIndex(S, index, unicode){
     second := s_nth(S, int_of_float (index + 1.));
 
     /* 10. If second < 0xDC00 or second > 0xDFFF, return index+1. */
-    if ((second < from_char_code_u("\uDC00")) || (second > from_char_code_u("\uDFFF"))){
+    if ((second < 0xDC00) || (second > 0xDFFF)){
         return index + 1.
     };
 
@@ -192,7 +192,7 @@ function RegExpPrototypematch(global, this, strict, args){
     @ReturnIfAbrupt(S);
 
     /* 5. Let global be ToBoolean(GetES6(rx, "global")). */
-    global := ToBoolean(GetES6(rx, "global"));
+    global := ToBoolean(GetNew(rx, "global"));
 
     /* 6. ReturnIfAbrupt(global). */
     @ReturnIfAbrupt(global);
@@ -249,13 +249,13 @@ function RegExpPrototypematch(global, this, strict, args){
             /* iv. Else result is not null, */
             else{
                 /* 1. Let matchStr be ToString(GetES6(result, "0")). */
-                matchStr := ToString(GetES6(result, "0"));
+                matchStr := ToString(GetNew(result, "0"));
 
                 /* 2. ReturnIfAbrupt(matchStr). */
                 @ReturnIfAbrupt(matchStr);
 
                 /* 3. Let status be CreateDataProperty(A, ToString(n), matchStr). */
-                status := CreateDataProperty(A, ToString(int_to_float n), matchStr);
+                status := CreateDataPropertyNew(A, ToString(int_to_float n), matchStr);
                 setJSProperty(A, "length", newDataPropertyDescriptorFull(int_to_float (n + 1), true, false, false));
 
                 /* 4. Assert: status is true. */
@@ -264,7 +264,7 @@ function RegExpPrototypematch(global, this, strict, args){
                 /* 5. If matchStr is the empty String, then */
                 if (matchStr = ""){
                     /* a. Let thisIndex be ToLength(GetES6(rx, "lastIndex")). */
-                    thisIndex := ToLength(GetES6(rx, "lastIndex"));
+                    thisIndex := ToLength(GetNew(rx, "lastIndex"));
 
                     /* b. ReturnIfAbrupt(thisIndex). */
                     @ReturnIfAbrupt(thisIndex);
@@ -322,7 +322,7 @@ function RegExpPrototypereplace(global, this, strict, args){
     };
         
     /* 8. Let global be ToBoolean(GetES6(rx, "global")). */
-    global_ := ToBoolean(GetES6(rx, "global")); 
+    global_ := ToBoolean(GetNew(rx, "global")); 
 
     /* 9. ReturnIfAbrupt(global). */
     @ReturnIfAbrupt(global_);
@@ -375,7 +375,7 @@ function RegExpPrototypereplace(global, this, strict, args){
             /* iii. Else, */
             else{
                 /* 1. Let matchStr be ToString(GetES6(result, "0")). */
-                matchStr := ToString(GetES6(result, "0"));
+                matchStr := ToString(GetNew(result, "0"));
 
                 /* 2. ReturnIfAbrupt(matchStr). */
                 @ReturnIfAbrupt(matchStr);
@@ -384,7 +384,7 @@ function RegExpPrototypereplace(global, this, strict, args){
                 if (matchStr = ""){ 
                     /* a. Let thisIndex be ToLength(Get(rx, "lastIndex")). */
                     /* thisIndex := ToLength(GetES6(rx, "lastIndex")); */
-                    thisIndex := ToLength(GetES6(rx, "lastIndex"));
+                    thisIndex := ToLength(GetNew(rx, "lastIndex"));
 
                     /* b. ReturnIfAbrupt(thisIndex). */
                     @ReturnIfAbrupt(thisIndex);
@@ -418,8 +418,8 @@ function RegExpPrototypereplace(global, this, strict, args){
         result := l_nth(results, i);
 
         /* a. Let nCaptures be ToLength(GetES6(result, "length")). */
-        /* nCaptures := ToLength(GetES6(result, "length")); */
-        nCaptures := {result.Get}(result, "length");
+        nCaptures := ToLength(GetNew(result, "length"));
+        /* nCaptures := {result.Get}(result, "length"); */
         
         /* b. ReturnIfAbrupt(nCaptures). */
         @ReturnIfAbrupt(nCaptures);
@@ -428,7 +428,7 @@ function RegExpPrototypereplace(global, this, strict, args){
         nCaptures := int_of_float(max(nCaptures - 1., 0.));
 
         /* d. Let matched be ToString(GetES6(result, "0")). */
-        matched := ToString(GetES6(result, "0"));
+        matched := ToString(GetNew(result, "0"));
 
         /* e. ReturnIfAbrupt(matched). */
         @ReturnIfAbrupt(matched);
@@ -437,7 +437,7 @@ function RegExpPrototypereplace(global, this, strict, args){
         matchLength := s_len_u matched;
 
         /* g. Let position be ToInteger(GetES6(result, "index")). */
-        position := ToInteger(GetES6(result, "index"));
+        position := ToInteger(GetNew(result, "index"));
 
         /* h. ReturnIfAbrupt(position). */
         @ReturnIfAbrupt(position);
@@ -454,7 +454,7 @@ function RegExpPrototypereplace(global, this, strict, args){
         /* l. Repeat while n ≤ nCaptures */
         while (n <= nCaptures){
             /* i. Let capN be GetES6(result, ToString(n)). */
-            capN := GetES6(result, ToString(int_to_float n));
+            capN := GetNew(result, ToString(int_to_float n));
 
             /* ii. ReturnIfAbrupt(capN). */
             @ReturnIfAbrupt(capN);
@@ -554,8 +554,8 @@ function RegExpPrototypesearch(global, this, strict, args){
     @ReturnIfAbrupt(S);
 
     /* 5. Let previousLastIndex be GetES6(rx, "lastIndex"). */
-    /* previousLastIndex := GetES6(rx, "lastIndex"); */
-    previousLastIndex := rx.lastIndex;
+    previousLastIndex := GetNew(rx, "lastIndex");
+    /* previousLastIndex := rx.lastIndex; */
 
     /* 6. ReturnIfAbrupt(previousLastIndex). */
     @ReturnIfAbrupt(previousLastIndex);
@@ -586,8 +586,8 @@ function RegExpPrototypesearch(global, this, strict, args){
         return -(1.)
     };
 
-    /* 14. Return GetES6(result, "index"). */
-    return GetES6(result, "index")
+    /* 14. Return Get(result, "index"). */
+    return GetNew(result, "index")
 };
 
 /* 21.2.5.11 RegExp.prototype [ @@split ] ( string, limit ) */
@@ -617,7 +617,7 @@ function RegExpPrototypesplit(global, this, strict, args){
     /* @ReturnIfAbrupt(C); */
 
     /* 7. Let flags be ToString(GetES6(rx, "flags")). */
-    flags := ToString(GetES6(rx, "flags"));
+    flags := ToString(GetNew(rx, "flags"));
 
     /* 8. ReturnIfAbrupt(flags). */
     @ReturnIfAbrupt(flags);
@@ -697,7 +697,7 @@ function RegExpPrototypesplit(global, this, strict, args){
         /* d. Assert: The following call will never result in an abrupt completion. */
 
         /* e. Perform CreateDataProperty(A, "0", S). */
-        CreateDataProperty(A, "0", S);
+        CreateDataPropertyNew(A, "0", S);
         setJSProperty(A, "length", newDataPropertyDescriptorFull(1., true, false, false));
 
         /* f. Return A. */
@@ -729,9 +729,9 @@ function RegExpPrototypesplit(global, this, strict, args){
         }
         /* f. Else z is not null, */
         else{
-            /* i. Let e be ToLength(GetES6(splitter, "lastIndex")). */
-            /* e := ToLength(GetES6(splitter, "lastIndex")); */
-            e := splitter.JSProperties.lastIndex.Value;
+            /* i. Let e be ToLength(Get(splitter, "lastIndex")). */
+            e := ToLength(GetNew(splitter, "lastIndex"));
+            /* e := splitter.JSProperties.lastIndex.Value; */
 
             /* ii. ReturnIfAbrupt(e). */
             @ReturnIfAbrupt(e);
@@ -750,7 +750,7 @@ function RegExpPrototypesplit(global, this, strict, args){
                 /* ???? */
 
                 /* 3. Perform CreateDataProperty(A, ToString(lengthA), T). */
-                CreateDataProperty(A, ToString(lengthA), T);
+                CreateDataPropertyNew(A, ToString(lengthA), T);
                 setJSProperty(A, "length", newDataPropertyDescriptorFull(lengthA + 1., true, false, false));
 
                 /* 4. Let lengthA be lengthA +1. */
@@ -765,7 +765,7 @@ function RegExpPrototypesplit(global, this, strict, args){
                 p := e;
 
                 /* 7. Let numberOfCaptures be ToLength(GetES6(z, "length")). */ 
-                numberOfCaptures := ToLength(GetES6(z, "length"));
+                numberOfCaptures := ToLength(GetNew(z, "length"));
 
                 /* 8. ReturnIfAbrupt(numberOfCaptures). */
                 @ReturnIfAbrupt(numberOfCaptures);
@@ -779,13 +779,13 @@ function RegExpPrototypesplit(global, this, strict, args){
                 /* 11. Repeat, while i ≤ numberOfCaptures. */
                 while (i <= numberOfCaptures) {
                     /* a. Let nextCapture be GetES6(z, ToString(i)). */
-                    nextCapture := GetES6(z, ToString(i));
+                    nextCapture := GetNew(z, ToString(i));
 
                     /* b. ReturnIfAbrupt(nextCapture). */
                     @ReturnIfAbrupt(nextCapture);
 
                     /* c. Perform CreateDataProperty(A, ToString(lengthA), nextCapture). */ 
-                    CreateDataProperty(A, ToString(lengthA), nextCapture);
+                    CreateDataPropertyNew(A, ToString(lengthA), nextCapture);
                     setJSProperty(A, "length", newDataPropertyDescriptorFull(lengthA + 1., true, false, false));
 
                     /* d. Let i be i+1. */
@@ -813,7 +813,7 @@ function RegExpPrototypesplit(global, this, strict, args){
     /* ???? */
 
     /* 27. Perform CreateDataProperty(A, ToString(lengthA), T ). */
-    CreateDataProperty(A, ToString(lengthA), T);
+    CreateDataPropertyNew(A, ToString(lengthA), T);
     setJSProperty(A, "length", newDataPropertyDescriptorFull(lengthA + 1., true, false, false));
 
     /* 28. Return A. */

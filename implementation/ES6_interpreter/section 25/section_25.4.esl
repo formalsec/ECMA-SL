@@ -3,7 +3,7 @@
  */
 function initPromiseObject(globalObject, ObjectPrototype, strict) {
   objPromisePrototype := initPromisePrototype(globalObject, ObjectPrototype, strict);
-  objPromiseConstructor := CreateFunctionObject(["executor"], "PromiseConstructor", globalObject, strict, 0.);
+  objPromiseConstructor := CreateBuiltInConstructorObject(objPromisePrototype, ["executor"], "PromiseConstructor", globalObject, strict, 0., "Promise");
 
   descriptor := newDataPropertyDescriptorFull(objPromiseConstructor, true, false, true);
   setJSProperty(objPromisePrototype, "constructor", descriptor);
@@ -116,34 +116,6 @@ function isCompletionRecord(record) {
 
 
 
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 7.2.4 IsConstructor (argument)
- *
- * The abstract operation IsConstructor determines if argument, which must be an 
- * ECMAScript language value or a Completion Record, is a function object with a 
- * [[Construct]] internal method. 
- */
-function IsConstructor(argument) {
-  /* 1. ReturnIfAbrupt(argument). */
-  @ReturnIfAbrupt(argument);
-  /* 2. If Type(argument) is not Object, */
-  if (!(Type(argument) = "Object")) {
-    /* return false */
-    return false
-  };
-  /* 3. If argument has a [[Construct]] internal method, */
-  if ("Construct" in_obj argument) {
-    /* return true */
-    return true
-  };
-  /* 4. Return false. */
-  return false
-};
 
 
 function initJobQueue() {
@@ -464,14 +436,14 @@ function PromiseResolveFunctions(F, global, this, strict, args) {
     return FulfillPromise(promise, resolution)
   };
   /* 8. Let then be Get(resolution, "then"). */
-  then := Get(resolution, "then");
+  then := Get(resolution, "then") catch PromiseExceptionHandler;
   /* 9. If then is an abrupt completion, then */
   if (isAnAbruptCompletion(then)) {
     /* a. Return RejectPromise(promise, then.[[value]]). */
-    return RejectPromise(promise, then.value)
+    return RejectPromise(promise, then)
   };
   /* 10. Let thenAction be then.[[value]]. */
-  thenAction := then.value;
+  thenAction := then;
   /* 11. If IsCallable(thenAction) is false, then */
   if (IsCallable(thenAction) = false) {
     /* a. Return FulfillPromise(promise, resolution). */
@@ -958,7 +930,7 @@ function PromiseAll(global, this, strict, args) {
      false}. */
   iteratorRecord := { iterator: iterator, done: false };
   /* 11. Let result be PerformPromiseAll(iteratorRecord, C, promiseCapability). */
-  result := PerformPromiseAll(iteratorRecord, C, promiseCapability);
+  result := PerformPromiseAll(strict, iteratorRecord, C, promiseCapability);
   /* 12. If result is an abrupt completion, */
   if (isAnAbruptCompletion(result)) {
     /* a. If iteratorRecord.[[done]] is false, */
@@ -988,7 +960,7 @@ function PromiseAll(global, this, strict, args) {
  * iteratorRecord, constructor, and resultCapability the following steps are 
  * taken: 
  */
-function PerformPromiseAll(iteratorRecord, constructor, resultCapability) {
+function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability) {
   /* 1. Assert: constructor is a constructor function. */
   assert(IsConstructor(constructor));
   /* 2. Assert: resultCapability is a PromiseCapability record. */

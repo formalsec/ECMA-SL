@@ -147,11 +147,23 @@ function initArrayPrototype(global, objectPrototype, strict) {
   toStringObject := CreateBuiltInFunctionObject([], "arrayToString", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(toStringObject, true, false, true);
   setJSProperty(prototype, "toString", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(toStringObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("toString", false, false, true);
+  setJSProperty(toStringObject, "name", descName);
 
   /* 22.1.3.26 Array.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ] ) */
   toLocaleStringObject := CreateBuiltInFunctionObject([], "arrayToLocaleString", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(toLocaleStringObject, true, false, true);
   setJSProperty(prototype, "toLocaleString", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(toLocaleStringObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("toLocaleString", false, false, true);
+  setJSProperty(toLocaleStringObject, "name", descName);
 
   /* 22.1.3.1 Array.prototype.concat ( ...arguments ) */
   /* We pass 0 to the `internalLength` because while `items` is optional, the length of the
@@ -162,131 +174,287 @@ function initArrayPrototype(global, objectPrototype, strict) {
   concatObject := CreateBuiltInFunctionObject(["items"], "arrayConcat", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(concatObject, true, false, true);
   setJSProperty(prototype, "concat", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(concatObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("concat", false, false, true);
+  setJSProperty(concatObject, "name", descName);
 
   /* 22.1.3.12 Array.prototype.join (separator) */
   joinObject := CreateBuiltInFunctionObject(["separator"], "arrayJoin", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(joinObject, true, false, true);
   setJSProperty(prototype, "join", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(joinObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("join", false, false, true);
+  setJSProperty(joinObject, "name", descName);
 
   /* 22.1.3.16 Array.prototype.pop ( ) */
   popObject := CreateBuiltInFunctionObject([], "arrayPop", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(popObject, true, false, true);
   setJSProperty(prototype, "pop", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(popObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("pop", false, false, true);
+  setJSProperty(popObject, "name", descName);
 
   /* 22.1.3.17 Array.prototype.push ( ...items ) */
   pushObject := CreateBuiltInFunctionObject(["items"], "arrayPush", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(pushObject, true, false, true);
   setJSProperty(prototype, "push", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(pushObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("push", false, false, true);
+  setJSProperty(pushObject, "name", descName);
 
   /* 22.1.3.20 Array.prototype.reverse ( ) */
   reverseObject := CreateBuiltInFunctionObject([], "arrayReverse", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(reverseObject, true, false, true);
   setJSProperty(prototype, "reverse", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(reverseObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("reverse", false, false, true);
+  setJSProperty(reverseObject, "name", descName);
 
   /* 22.1.3.21 Array.prototype.shift ( ) */
   shiftObject := CreateBuiltInFunctionObject([], "arrayShift", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(shiftObject, true, false, true);
   setJSProperty(prototype, "shift", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(shiftObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("shift", false, false, true);
+  setJSProperty(shiftObject, "name", descName);
 
   /* 22.1.3.22 Array.prototype.slice (start, end) */
   sliceObject := CreateBuiltInFunctionObject(["start", "end"], "arraySlice", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(sliceObject, true, false, true);
   setJSProperty(prototype, "slice", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(sliceObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("slice", false, false, true);
+  setJSProperty(sliceObject, "name", descName);
 
   /* 15.4.4.11 Array.prototype.sort (comparefn) */
   sortObject := CreateBuiltInFunctionObject(["comparefn"], "arraySort", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
   setJSProperty(prototype, "sort", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(sortObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("sort", false, false, true);
+  setJSProperty(sortObject, "name", descName);
 
   /* 22.1.3.25 Array.prototype.splice (start, deleteCount , ...items ) */
   spliceObject := CreateBuiltInFunctionObject(["start", "deleteCount"], "arraySplice", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(spliceObject, true, false, true);
   setJSProperty(prototype, "splice", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(spliceObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("splice", false, false, true);
+  setJSProperty(spliceObject, "name", descName);
 
   /* 22.1.3.28 Array.prototype.unshift ( ...items ) */
   unshiftObject := CreateBuiltInFunctionObject(["items"], "arrayUnshift", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(unshiftObject, true, false, true);
   setJSProperty(prototype, "unshift", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(unshiftObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("unshift", false, false, true);
+  setJSProperty(unshiftObject, "name", descName);
 
   /* 22.1.3.11 Array.prototype.indexOf ( searchElement [ , fromIndex ] ) */
   indexOfObject := CreateBuiltInFunctionObject(["searchElement"], "arrayIndexOf", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(indexOfObject, true, false, true);
   setJSProperty(prototype, "indexOf", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(indexOfObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("indexOf", false, false, true);
+  setJSProperty(indexOfObject, "name", descName);
 
   /* 21.1.3.9 Array.prototype.lastIndexOf ( searchString [ , position ] ) */
   lastIndexOfObject := CreateBuiltInFunctionObject(["searchElement"], "arrayLastIndexOf", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(lastIndexOfObject, true, false, true);
   setJSProperty(prototype, "lastIndexOf", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(lastIndexOfObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("lastIndexOf", false, false, true);
+  setJSProperty(lastIndexOfObject, "name", descName);
 
   /* 22.1.3.5 Array.prototype.every ( callbackfn [ , thisArg] ) */
   everyOfObject := CreateBuiltInFunctionObject(["callbackfn"], "arrayEvery", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(everyOfObject, true, false, true);
   setJSProperty(prototype, "every", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(everyOfObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("every", false, false, true);
+  setJSProperty(everyOfObject, "name", descName);
 
   /* 22.1.3.23 Array.prototype.some ( callbackfn [ , thisArg ] ) */
   someOfObject := CreateBuiltInFunctionObject(["callbackfn"], "arraySome", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(someOfObject, true, false, true);
   setJSProperty(prototype, "some", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(someOfObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("some", false, false, true);
+  setJSProperty(someOfObject, "name", descName);
 
   /* 22.1.3.10 Array.prototype.forEach ( callbackfn [ , thisArg ] ) */
   forEachObject := CreateBuiltInFunctionObject(["callbackfn"], "arrayForEach", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(forEachObject, true, false, true);
   setJSProperty(prototype, "forEach", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(forEachObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("forEach", false, false, true);
+  setJSProperty(forEachObject, "name", descName);
 
   /* 22.1.3.15 Array.prototype.map ( callbackfn [ , thisArg ] ) */
   mapObject := CreateBuiltInFunctionObject(["callbackfn"], "arrayMap", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(mapObject, true, false, true);
   setJSProperty(prototype, "map", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(mapObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("map", false, false, true);
+  setJSProperty(mapObject, "name", descName);
 
   /* 22.1.3.7 Array.prototype.filter ( callbackfn [ , thisArg ] ) */
   filterObject := CreateBuiltInFunctionObject(["callbackfn"], "arrayFilter", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(filterObject, true, false, true);
   setJSProperty(prototype, "filter", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(filterObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("filter", false, false, true);
+  setJSProperty(filterObject, "name", descName);
 
   /* 22.1.3.18 Array.prototype.reduce ( callbackfn [ , initialValue ] ) */
   reduceObject := CreateBuiltInFunctionObject(["callbackfn"], "arrayReduce", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(reduceObject, true, false, true);
   setJSProperty(prototype, "reduce", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(reduceObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("reduce", false, false, true);
+  setJSProperty(reduceObject, "name", descName);
 
   /* 22.1.3.19 Array.prototype.reduceRight ( callbackfn [ , initialValue ] ) */
   reduceRightObject := CreateBuiltInFunctionObject(["callbackfn"], "arrayReduceRight", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(reduceRightObject, true, false, true);
   setJSProperty(prototype, "reduceRight", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(reduceRightObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("reduceRight", false, false, true);
+  setJSProperty(reduceRightObject, "name", descName);
 
   /* 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] ) */
   copyWithinObject := CreateBuiltInFunctionObject(["target", "start", "end"], "arraycopyWithin", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(copyWithinObject, true, false, true);
   setJSProperty(prototype, "copyWithin", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(2., false, false, true);
+  setJSProperty(copyWithinObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("copyWithin", false, false, true);
+  setJSProperty(copyWithinObject, "name", descName);
 
   /* 22.1.3.6 Array.prototype.fill (value [ , start [ , end ] ] ) */
   fillObject := CreateBuiltInFunctionObject(["value", "start", "end"], "arrayFill", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(fillObject, true, false, true);
   setJSProperty(prototype, "fill", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(fillObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("fill", false, false, true);
+  setJSProperty(fillObject, "name", descName);
 
   /* 22.1.3.8 Array.prototype.find ( predicate [ , thisArg ] ) */
   findObject := CreateBuiltInFunctionObject(["predicate", "thisArg"], "arrayFind", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(findObject, true, false, true);
   setJSProperty(prototype, "find", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(findObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("find", false, false, true);
+  setJSProperty(findObject, "name", descName);
 
   /* 22.1.3.9 Array.prototype.findIndex ( predicate [ , thisArg ] ) */
   findIndexObject := CreateBuiltInFunctionObject(["predicate", "thisArg"], "arrayFindIndex", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(findIndexObject, true, false, true);
   setJSProperty(prototype, "findIndex", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(findIndexObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("findIndex", false, false, true);
+  setJSProperty(findIndexObject, "name", descName);
 
   /* 22.1.3.29 Array.prototype.values ( ) */
   valuesObject := CreateBuiltInFunctionObject([], "arrayValues", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(valuesObject, true, false, true);
   setJSProperty(prototype, "values", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(valuesObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("values", false, false, true);
+  setJSProperty(valuesObject, "name", descName);
 
   /* 22.1.3.13 Array.prototype.keys ( ) */
   keysObject := CreateBuiltInFunctionObject([], "arrayKeys", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(keysObject, true, false, true);
   setJSProperty(prototype, "keys", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(keysObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("keys", false, false, true);
+  setJSProperty(keysObject, "name", descName);
 
   /* 22.1.3.4 Array.prototype.entries ( ) */
   entriesObject := CreateBuiltInFunctionObject([], "arrayEntries", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(entriesObject, true, false, true);
   setJSProperty(prototype, "entries", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(entriesObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("entries", false, false, true);
+  setJSProperty(entriesObject, "name", descName);
 
   /* Iterator */
   iteratorObject := CreateBuiltInFunctionObject([], "CreateArrayIteratorJS", global, strict, null);
@@ -321,16 +489,28 @@ function initArrayObject(global, objectPrototype, strict) {
   fromObject := CreateBuiltInFunctionObject(["items"], "arrayFrom", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(fromObject, true, false, true);
   setJSProperty(objArrayConstructor, "from", descriptor);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("from", false, false, true);
+  setJSProperty(fromObject, "name", descName);
 
   /* 22.1.2.2 Array.isArray ( arg ) */
   isArrayObject := CreateBuiltInFunctionObject(["arg"], "isArray", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(isArrayObject, true, false, true);
   setJSProperty(objArrayConstructor, "isArray", descriptor);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("isArray", false, false, true);
+  setJSProperty(isArrayObject, "name", descName);
 
   /* 22.1.2.3 Array.of ( ...items ) */
   ofObject := CreateBuiltInFunctionObject([], "arrayOf", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(ofObject, true, false, true);
   setJSProperty(objArrayConstructor, "of", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(ofObject, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("of", false, false, true);
+  setJSProperty(ofObject, "name", descName);
 
   descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
   setJSProperty(objArrayConstructor, "prototype", descriptor);
@@ -3356,7 +3536,7 @@ function arrayFrom (global, this, strict, args) {
   C := this;
 
   /* 2. If mapfn is undefined, let mapping be false. */
-  if (mapfn = 'undefined) {
+  if ((mapfn = 'undefined) ||| (mapfn = null)) {
     mapping := false
 
   /* 3. else */
@@ -3379,7 +3559,7 @@ function arrayFrom (global, this, strict, args) {
 
   /* 4. Let usingIterator be GetMethod(items, @@iterator). */
   /* NOTE : Using GetIterator instead of GetMethod*/
-  usingIterator := true;
+  usingIterator := items.IteratorFunction;
 
   /* 5. ReturnIfAbrupt(usingIterator). */
   @ReturnIfAbrupt(usingIterator);
@@ -3396,7 +3576,8 @@ function arrayFrom (global, this, strict, args) {
       /* i. Let A be ArrayCreate(0). */
       A := ArrayConstructor(global, this, strict, [])
     };
-   
+
+
     /* c. ReturnIfAbrupt(A). */
     @ReturnIfAbrupt(A);
 
@@ -3468,7 +3649,7 @@ function arrayFrom (global, this, strict, args) {
   };
 
   /* 7. Assert: items is not an Iterable so assume it is an array-like object. */
-  assert( !(isIterable(items)) );
+  /* assert( !(isIterable(items)) ); */
 
   /* 8. Let arrayLike be ToObject(items). */
   arrayLike := ToObject(items);
@@ -3526,6 +3707,7 @@ function arrayFrom (global, this, strict, args) {
     /* f. Let defineStatus be CreateDataPropertyOrThrow(A, Pk, mappedValue). */
     defineStatus := CreateDataPropertyOrThrow(A, Pk, mappedValue);
 
+
     /* g. ReturnIfAbrupt(defineStatus). */
     @ReturnIfAbrupt(defineStatus);
 
@@ -3534,10 +3716,12 @@ function arrayFrom (global, this, strict, args) {
   };
   
   /* 17. Let setStatus be Set(A, "length", len, true). */
-  setStatus := Set(A, "length", len, true);
+  /* setStatus := Set(A, "length", len, true); */
 
   /* 18. ReturnIfAbrupt(setStatus). */
-  @ReturnIfAbrupt(setStatus);
+  /* @ReturnIfAbrupt(setStatus); */
+
+  {A.Put}(A, "length", len, true);
 
   /* 19. Return A. */
   return A
@@ -3564,8 +3748,6 @@ function arrayOf (global, this, strict, args) {
   
   /* 2. Let items be the List of arguments passed to this function. */
   items := args;
-  print "items são";
-  print items;
 
   /* 3. Let C be the this value. */
   C := this;

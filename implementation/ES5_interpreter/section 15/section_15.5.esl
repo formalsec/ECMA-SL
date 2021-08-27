@@ -124,7 +124,7 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
   createBuiltInProperty(prototype, "toLocaleUpperCase", toLocaleUpperCaseFunctionObject);
 
   /* 15.5.4.20 String.prototype.trim ( ) */
-  trimFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypetrim", global, strict, null);
+  trimFunctionObject := CreateBuiltInFunctionObject([], "StringPrototypeTrim", global, strict, null);
   createBuiltInProperty(prototype, "trim", trimFunctionObject);
 
 
@@ -1516,16 +1516,90 @@ function StringPrototypetoLocaleUpperCase (global, this, strict, args) {
 };
 
 
+function isSpaceCharacter(c) {
+  /* Table 2 — Whitespace Characters
+      Code Unit            Value Name          Formal Name
+      \u0009               Tab                 <TAB>
+      \u000B               Vertical Tab        <VT>
+      \u000C               Form Feed           <FF>
+      \u0020               Space               <SP>
+      \u00A0               No-break space      <#x0a>
+      \uFEFF               Byte Order Mark     <BOM>
+      Other category “Zs”  Any other Unicode   <USP>
+                           “space separator” */
+
+  /* https://www.compart.com/en/unicode/category/Zs */
+  /*
+   * \u0020 \u00A0 \u1680 \u2000 \u2001 \u2002
+   * \u2003 \u2004 \u2005 \u2006 \u2007 \u2008
+   * \u2009 \u200A \u202F \u205F \u3000
+   */
+
+  /* Table 3 — Line Terminator Characters
+    Code Unit Value       Name                  Formal Name
+    \u000A                Line Feed             <LF>
+    \u000D                Carriage Return       <CR>
+    \u2028                Line separator        <LS>
+    \u2029                Paragraph separator   <PS> */
+  spaces := ["\t", "\v", "\f", " ", "\u{00A0}", "\u{FEFF}", "\u{1680}", "\u{2000}",
+    "\u{2001}", "\u{2002}", "\u{2003}", "\u{2004}", "\u{2005}", "\u{2006}", "\u{2007}",
+    "\u{2008}", "\u{2009}", "\u{200A}", "\u{202F}", "\u{205F}", "\u{3000}", "\n", "\r",
+    "\u{2028}", "\u{2029}"];
+  foreach (s : spaces) {
+    if (s = c) {
+      return true
+    }
+  };
+  return false
+};
+
+
 /* 15.5.4.20 String.prototype.trim ( ) */
 /*The following steps are taken:*/
-function StringPrototypetrim (global, this, strict, args) {
+function StringPrototypeTrim (global, this, strict, args) {
   /* Call CheckObjectCoercible passing the this value as its argument. */
   CheckObjectCoercible(this);
   /* Let S be the result of calling ToString, giving it the this value as its argument. */
   S := ToString(this);
   /* Let T be a String value that is a copy of S with both leading and trailing white space removed.
      The definition of white space is the union of WhiteSpace and LineTerminator. */
-  T := trim S;
+  /*T := trim S;*/
+
+  T := S;
+  /* Remove leading spaces */
+  if (!(T = "")) {
+    len := s_len_u T;
+    i := 0;
+    j := 0;
+    while (i < len) {
+      c := s_nth_u(T, j);
+      if (isSpaceCharacter(c)) {
+        j := j + 1
+      } else {
+        i := len
+      };
+      i := i + 1
+    };
+    T := s_substr_u(T, j, (len - j))
+  };
+
+  /* Remove trailing spaces */
+  if (!(T = "")) {
+    len := s_len_u T;
+    i := len - 1;
+    j := len - 1;
+    while (i >= 0) {
+      c := s_nth_u(T, j);
+      if (isSpaceCharacter(c)) {
+        j := j - 1
+      } else {
+        i := -1
+      };
+      i := i - 1
+    };
+    T := s_substr_u(T, 0, (j + 1))
+  };
+
   /* Return T. */
   return T
 

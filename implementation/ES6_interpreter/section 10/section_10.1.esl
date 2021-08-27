@@ -5,7 +5,7 @@ function UTF16Encoding(cp){
     cp_int := int_of_float cp;
 
     /* 1. Assert: 0 ≤ cp ≤ 0x10FFFF. */
-    assert((cp_int >= 0) && (cp_int <= 1114111));
+    assert((cp_int >= 0) && (cp_int <= 0x10FFFF));
 
     /* 2. If cp ≤ 65535, return cp. */
     if (cp_int <= 65535){
@@ -13,10 +13,10 @@ function UTF16Encoding(cp){
     };
 
     /* 3. Let cu1 be floor((cp – 65536) / 1024) + 0xD800. */
-    cu1 := int_of_float(floor((cp - 65536.) / 1024.)) + 55296;
+    cu1 := floor((cp - 65536) / 1024.) + 0xD800;
 
     /* 4. Let cu2 be ((cp – 65536) modulo 1024) + 0xDC00. */
-    cu2 := int_of_float(((cp - 65536.) % 1024.)) + 56320;
+    cu2 := ((cp - 65536) % 1024.) + 0xDC00;
 
     /* 5. Return the code unit sequence consisting of cu1 followed by cu2. */
     return s_concat([cu1, cu2])
@@ -25,11 +25,11 @@ function UTF16Encoding(cp){
 /* 10.1.2 Static Semantics: UTF16Decode( lead, trail ) */
 function UTF16Decode(lead, trail){
     /* 1. Assert: 0xD800 ≤ lead ≤ 0xDBFF and 0xDC00 ≤ trail ≤ 0xDFFF. */
-    assert((lead >= 55296) && (lead <= 56319));
-    assert((trail >= 56320) && (trail <= 57343));
+    assert((lead >= 0xD800) && (lead <= 0xDBFF));
+    assert((trail >= 0xDC00) && (trail <= 0xDFFF));
     
     /* 2. Let cp be (lead – 0xD800) × 1024 + (trail – 0xDC00) + 0x10000. */
-    cp := (lead - 55296) * 1024 + (trail - 56320) + 65536;
+    cp := (lead - 0xD800) * 1024 + (trail - 0xDC00) + 0x10000;
 
     /* 3. Return the code point cp. */
     return cp

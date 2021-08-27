@@ -59,26 +59,26 @@ let tests =
       assert_equal "\u{1234}\u{00FF}" (s_substr_u "\u{00FF}\u{00FF}\u{1234}\195\191" 2 2)
     );
     "utf8decode - \\u1234"  >:: (fun _ ->
-      assert_equal "\u{1234}" (utf8decode "\\u1234")
+      assert_equal "\u{1234}" (utf8decode "\\u{1234}")
     );
     (* Ocaml does not support high-surrogate code points: http://unicode.org/glossary/#unicode_scalar_value *)
     "utf8decode and to_char_code_u - \\u1234"  >:: (fun _ ->
-      assert_equal 4660 (to_char_code_u (utf8decode "\\u1234"))
+      assert_equal 4660 (to_char_code_u (utf8decode "\\u{1234}"))
     );
     "high-surrogate - \\uD834"  >:: (fun _ ->
-      assert_equal 55348 (to_char_code_u (utf8decode "\\uD834"))
+      assert_equal 55348 (to_char_code_u (utf8decode "\\u{D834}"))
     );
     "hexdecode - \\x20"  >:: (fun _ ->
       assert_equal "\x20" (hexdecode "\\x20")
     );
     "utf8decode - \\u10FFFF"  >:: (fun _ ->
-      assert_equal "\u{10FFFF}" (utf8decode "\\u10FFFF")
+      assert_equal "\u{10FFFF}" (utf8decode "\\u{10FFFF}")
     );
     "utf8decode and to_char_code_u - \\u10FFFF"  >:: (fun _ ->
-      assert_equal 1114111 (to_char_code_u (utf8decode "\\u10FFFF"))
+      assert_equal 1114111 (to_char_code_u (utf8decode "\\u{10FFFF}"))
     );
     "utf8decode - \\u10000"  >:: (fun _ ->
-      assert_equal "\u{10000}" (utf8decode "\\u10000")
+      assert_equal "\u{10000}" (utf8decode "\\u{10000}")
     );
     "utf8decode - 0x10000"  >:: (fun _ ->
       assert_equal 1114111 0x10FFFF

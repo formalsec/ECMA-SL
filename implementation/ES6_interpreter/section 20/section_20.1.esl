@@ -47,7 +47,7 @@ function initNumberPrototype(global, objectPrototype, strict) {
   createBuiltInProperty(prototype, "toPrecision", toPrecision);
 
   /* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
-  toString := CreateBuiltInFunctionObject([ "radix" ], "NumberPrototypeToStringES5", global, strict, 0.);
+  toString := CreateBuiltInFunctionObject([ "radix" ], "NumberPrototypeToString", global, strict, 0.);
   createBuiltInProperty(prototype, "toString", toString);
 
   /* 20.1.3.7 Number.prototype.valueOf ( ) */
@@ -265,7 +265,7 @@ function NumberPrototypeToExponential(global, this, strict, items) {
   /* 2. ReturnIfAbrupt(x). */
   @ReturnIfAbrupt(x);
   if (fractionDigits = 'undefined) {
-    return to_exponential(x, (int_of_float fractionDigits))
+    return to_exponential(x, s_len(float_to_string (abs x)) - 1)
   } else {
     return to_exponential(x, (int_of_float fractionDigits))
   }
@@ -477,7 +477,7 @@ function NumberPrototypeToLocaleString(global, this, strict, items) {
   if (Type(this) = "Number") {
     num := this
   } else {
-    num := this.PrimitiveValue
+    num := this.NumberData
   };
   return ToString(num)
 };
@@ -580,6 +580,15 @@ function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
   return s_concat(s, m)
 };
 
+function isNumberOrNumberObject(arg) {
+  if (Type(arg) = "Number") {
+    return true
+  };
+  if ((Type(arg) = "Object") &&& (getInternalProperty(arg, "Class") = "Number")) {
+    return true
+  };
+  return false
+};
 
 /* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
 function NumberPrototypeToString(global, this, strict, items) {
@@ -589,7 +598,7 @@ function NumberPrototypeToString(global, this, strict, items) {
   if (Type(this) = "Number") {
     num := this
   } else {
-    num := this.PrimitiveValue
+    num := this.NumberData
   };
   return ToString(num)
 };
@@ -666,7 +675,7 @@ function OrdinaryCreateFromConstructorNumber(global, this, strict, items) {
 
   setInternalProperty(newlyConstructedObject, "Prototype", numberPrototype);
   setInternalProperty(newlyConstructedObject, "Extensible", true);
-  setInternalProperty(newlyConstructedObject, "Class", "Object");
+  setInternalProperty(newlyConstructedObject, "Class", "Number");
 
   return newlyConstructedObject
 }
