@@ -12,6 +12,12 @@ function initRegExpObject(globalObject, ObjectPrototype, strict) {
 
   fillRegExpPrototype(regExpPrototype, regExpConstructor, globalObject, strict);
 
+  /* 21.2.4.2 get RegExp [@@species] */
+  symbolSpeciesObject := CreateBuiltInFunctionObject([], "regExpSpeciesGetter", globalObject, strict, null);
+  descriptor := newGetAccessorPropertyDescriptorFull(symbolSpeciesObject, false, true);
+  setJSProperty(regExpConstructor, getSpeciesPropertyName(), descriptor);
+  setJSProperty(symbolSpeciesObject, "name", newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true));
+
   return regExpConstructor
 };
 
@@ -92,6 +98,9 @@ function escapePattern(P) {
   return S
 };
 
+function regExpSpeciesGetter(global, this, strict, args){
+  return this
+};
 
 /**
  * Receives a string with the pattern and a string with the flags.

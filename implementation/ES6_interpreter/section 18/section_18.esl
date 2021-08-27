@@ -399,7 +399,7 @@ function GlobalObjectParseFloatAlt(globalObject, this, strict, params) {
 
 /* 15.1.2.4 isNaN (number) */
 function GlobalObjectIsNaN(globalObject, this, strict, params) {
-  number := s_nth(params, 0);
+  number := l_nth(params, 0);
   /* Returns true if the argument coerces to NaN, and otherwise returns false. */
 
   /* 1. If ToNumber(number) is NaN, return true. */

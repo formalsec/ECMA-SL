@@ -33,6 +33,7 @@
     - 22.1.3.30 Array.prototype [ @@iterator ] ( )
     - 22.1.5.1 CreateArrayIterator Abstract Operation
     - 22.1.5.2.1 %ArrayIteratorPrototype%.next( )
+    - 22.1.2.5 get Array [ @@species ]
 
     TESTING:
     - 22.1.2.1 Array.from ( items [ , mapfn [ , thisArg ] ] ) [NOT FINAL]
@@ -43,10 +44,8 @@
 
     TODO : 
     - 22.1.1.1 Array ( )
-    - 22.1.2.5 get Array [ @@species ]
 
     - 22.1.3.31 Array.prototype [ @@unscopables ]
-
     - 22.1.5.2.2 %ArrayIteratorPrototype% [ @@toStringTag ]
 
   Em ambos os standards :
@@ -85,6 +84,7 @@
 
 /* An object, O, is said to be sparse if the following algorithm returns true: */
 function isSparseArray(O) {
+
   /* 1. Let len be the result of calling the [[Get]] internal method of O with
         argument "length". */
   len := ToLength(GetNew(O, "length"));
@@ -93,7 +93,7 @@ function isSparseArray(O) {
   /* 2. For each integer i in the range 0≤i<len */
   i := 0.;
   while (i < len) {
-    /* a. et elem be obj.[[GetOwnProperty]](ToString(i)). */
+    /* a. Let elem be obj.[[GetOwnProperty]](ToString(i)). */
     elem := {O.GetOwnProperty}(O, ToString(i));
 
     /* b. If elem is undefined, return true. */
@@ -105,8 +105,6 @@ function isSparseArray(O) {
   /* 3. Return false. */
   return false
 };
-
-
 
 
 function setAllInternalMethodsOfArray(arr) {
@@ -241,7 +239,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(sliceObject, true, false, true);
   setJSProperty(prototype, "slice", descriptor);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  descLen := newDataPropertyDescriptorFull(2., false, false, true);
   setJSProperty(sliceObject, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("slice", false, false, true);
@@ -252,7 +250,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(sortObject, true, false, true);
   setJSProperty(prototype, "sort", descriptor);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(sortObject, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("sort", false, false, true);
@@ -263,7 +261,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(spliceObject, true, false, true);
   setJSProperty(prototype, "splice", descriptor);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  descLen := newDataPropertyDescriptorFull(2., false, false, true);
   setJSProperty(spliceObject, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("splice", false, false, true);
@@ -291,7 +289,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   descName := newDataPropertyDescriptorFull("indexOf", false, false, true);
   setJSProperty(indexOfObject, "name", descName);
 
-  /* 21.1.3.9 Array.prototype.lastIndexOf ( searchString [ , position ] ) */
+  /* 21.1.3.14 Array.prototype.lastIndexOf ( searchString [ , position ] ) */
   lastIndexOfObject := CreateBuiltInFunctionObject(["searchElement"], "arrayLastIndexOf", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(lastIndexOfObject, true, false, true);
   setJSProperty(prototype, "lastIndexOf", descriptor);
@@ -380,7 +378,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(reduceRightObject, "name", descName);
 
   /* 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] ) */
-  copyWithinObject := CreateBuiltInFunctionObject(["target", "start", "end"], "arraycopyWithin", global, strict, null);
+  copyWithinObject := CreateBuiltInFunctionObject(["target", "start"], "arraycopyWithin", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(copyWithinObject, true, false, true);
   setJSProperty(prototype, "copyWithin", descriptor);
   /* Length */
@@ -391,7 +389,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(copyWithinObject, "name", descName);
 
   /* 22.1.3.6 Array.prototype.fill (value [ , start [ , end ] ] ) */
-  fillObject := CreateBuiltInFunctionObject(["value", "start", "end"], "arrayFill", global, strict, null);
+  fillObject := CreateBuiltInFunctionObject(["value"], "arrayFill", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(fillObject, true, false, true);
   setJSProperty(prototype, "fill", descriptor);
   /* Length */
@@ -402,7 +400,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(fillObject, "name", descName);
 
   /* 22.1.3.8 Array.prototype.find ( predicate [ , thisArg ] ) */
-  findObject := CreateBuiltInFunctionObject(["predicate", "thisArg"], "arrayFind", global, strict, null);
+  findObject := CreateBuiltInFunctionObject(["predicate"], "arrayFind", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(findObject, true, false, true);
   setJSProperty(prototype, "find", descriptor);
   /* Length */
@@ -413,7 +411,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
   setJSProperty(findObject, "name", descName);
 
   /* 22.1.3.9 Array.prototype.findIndex ( predicate [ , thisArg ] ) */
-  findIndexObject := CreateBuiltInFunctionObject(["predicate", "thisArg"], "arrayFindIndex", global, strict, null);
+  findIndexObject := CreateBuiltInFunctionObject(["predicate"], "arrayFindIndex", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(findIndexObject, true, false, true);
   setJSProperty(prototype, "findIndex", descriptor);
   /* Length */
@@ -465,8 +463,6 @@ function initArrayPrototype(global, objectPrototype, strict) {
 };
 
 
-
-
 function getArrayPrototype(strict) {
   refArray := newPropertyReference(|global|, "Array", strict);
   ArrayObject := GetValue(refArray);
@@ -476,22 +472,33 @@ function getArrayPrototype(strict) {
 };
 
 
-
-
 function initArrayObject(global, objectPrototype, strict) {
-  objArrayPrototype := initArrayPrototype(global, objectPrototype, strict);
-  objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict, 0.);
 
+  objArrayPrototype := initArrayPrototype(global, objectPrototype, strict);
+
+  /* 22.1.1 The Array Constructor */
+  objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
   setJSProperty(objArrayPrototype, "constructor", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(objArrayConstructor, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("Array", false, false, true);
+  setJSProperty(objArrayConstructor, "name", descName);
+
 
   /* 22.1.2.1 Array.from ( items [ , mapfn [ , thisArg ] ] ) */
   fromObject := CreateBuiltInFunctionObject(["items"], "arrayFrom", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(fromObject, true, false, true);
   setJSProperty(objArrayConstructor, "from", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(fromObject, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("from", false, false, true);
   setJSProperty(fromObject, "name", descName);
+
 
   /* 22.1.2.2 Array.isArray ( arg ) */
   isArrayObject := CreateBuiltInFunctionObject(["arg"], "isArray", global, strict, null);
@@ -500,6 +507,7 @@ function initArrayObject(global, objectPrototype, strict) {
   /* Name */
   descName := newDataPropertyDescriptorFull("isArray", false, false, true);
   setJSProperty(isArrayObject, "name", descName);
+
 
   /* 22.1.2.3 Array.of ( ...items ) */
   ofObject := CreateBuiltInFunctionObject([], "arrayOf", global, strict, null);
@@ -512,12 +520,18 @@ function initArrayObject(global, objectPrototype, strict) {
   descName := newDataPropertyDescriptorFull("of", false, false, true);
   setJSProperty(ofObject, "name", descName);
 
+
+  /* 22.1.2.5 get Array [@@species] */
+  symbolSpeciesObject := CreateBuiltInFunctionObject([], "arraySpeciesGetter", global, strict, null);
+  descriptor := newGetAccessorPropertyDescriptorFull(symbolSpeciesObject, false, true);
+  setJSProperty(objArrayConstructor, getSpeciesPropertyName(), descriptor);
+  setJSProperty(symbolSpeciesObject, "name", newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true));
+
   descriptor := newDataPropertyDescriptorFull(objArrayPrototype, false, false, false);
   setJSProperty(objArrayConstructor, "prototype", descriptor);
 
   return objArrayConstructor
 };
-
 
 
 
@@ -605,9 +619,6 @@ function internalNewArray(arrayPrototype, items) {
   return newlyConstructedObject
 };
 
-
-
-
 /**
  * 15.4.2.2 new Array (len)
  */
@@ -654,6 +665,231 @@ function internalNewArrayLen(arrayPrototype, len) {
 
 
 
+
+/* 
+*  22.1.2 Properties of the Array Constructor
+*
+*  The value of the [[Prototype]] internal slot of the Array constructor
+*  is the intrinsic object %FunctionPrototype% (19.2.3).
+*
+*  Besides the length property (whose value is 1), the Array constructor
+*  has the following properties:
+*/
+
+/**
+*  22.1.2.1 Array.from ( items [ , mapfn [ , thisArg ] ] )
+*    
+*  The length property of the from method is 1.
+*
+*  NOTE The from function is an intentionally generic factory method; it does not require that
+*  its this value be the Array constructor. Therefore it can be transferred to or inherited by 
+*  any other constructors that may be called with a single numeric argument.
+*
+*/
+function arrayFrom (global, this, strict, args) {
+
+  /* method is called with argument items and optional arguments mapfn and thisArg */
+  items := l_nth(args, 0);
+  mapfn := getOptionalParam(args, 1);
+  thisArg := getOptionalParam(args, 2);
+
+  /* 1. Let C be the this value. */
+  C := this;
+
+  /* 2. If mapfn is undefined, let mapping be false. */
+  if ((mapfn = 'undefined) ||| (mapfn = null)) {
+    mapping := false
+
+  /* 3. else */
+  } else {
+    /* a. If IsCallable(mapfn) is false, throw a TypeError exception. */
+    if ((!(mapfn = null)) &&& (IsCallableNew(mapfn) = false)) {
+      throw TypeErrorConstructorInternal()
+    };
+
+    /* b. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+    if (!(thisArg = null)) {
+      T := thisArg
+    } else {
+      T := 'undefined
+    };
+
+    /* c. Let mapping be true */
+    mapping := true
+  };
+
+  /* 4. Let usingIterator be GetMethod(items, @@iterator). */
+  /* NOTE : Using GetIterator instead of GetMethod*/
+  usingIterator := items.IteratorFunction;
+
+  /* 5. ReturnIfAbrupt(usingIterator). */
+  @ReturnIfAbrupt(usingIterator);
+
+  /* 6. If usingIterator is not undefined, then */
+  if (!(usingIterator = 'undefined)) {
+    /* a. If IsConstructor(C) is true, then */
+    if (IsConstructor(C) = true) {
+      /* i. Let A be Construct(C). */
+      A := Construct(null, null, C, [])
+
+    /* b. Else, */
+    } else {
+      /* i. Let A be ArrayCreate(0). */
+      A := ArrayConstructor(global, this, strict, [])
+    };
+
+
+    /* c. ReturnIfAbrupt(A). */
+    @ReturnIfAbrupt(A);
+
+    /* d. Let iterator be GetIterator(items, usingIterator). */
+    iterator := GetIterator(items, null);
+
+    /* e. ReturnIfAbrupt(iterator). */
+    @ReturnIfAbrupt(iterator);
+
+    /* f. Let k be 0. */
+    k := 0.;
+
+    /* g. Repeat */
+    while (true) {
+      /* i. Let Pk be ToString(k). */
+      Pk := ToString(k);
+      
+      /* ii. Let next be IteratorStep(iterator). */
+      next := IteratorStep(iterator);
+
+      /* iii. ReturnIfAbrupt(next). */
+      @ReturnIfAbrupt(next);
+
+      /* iv. If next is false, then */
+      if (next = false) {
+        /* 1. Let setStatus be Set(A, "length", k, true). */
+        {A.Put}(A, "length", k, true);
+
+        /* 2. ReturnIfAbrupt(setStatus). */
+
+        /* 3. Return A. */
+        return A
+      };
+      /* v. Let nextValue be IteratorValue(next). */
+      nextValue := IteratorValue(next);
+
+      /* vi. ReturnIfAbrupt(nextValue). */
+      @ReturnIfAbrupt(nextValue);
+
+      /* vii. If mapping is true, then */
+      if (mapping = true) {
+        /* 1. Let mappedValue be Call(mapfn, T, «nextValue, k»). */
+        mappedValue := Call(null, null, mapfn, 'undefined, [nextValue, k]);
+
+        /* 2. If mappedValue is an abrupt completion, return IteratorClose(iterator, mappedValue). */
+        if ((Type(mappedValue) = "Completion") &&& (isAnAbruptCompletion(mappedValue))) {
+          return IteratorClose(iterator, mappedValue)
+        };
+
+        /* 3. Let mappedValue be mappedValue.[[value]]. */
+        mappedValue := mappedValue
+
+      /* viii. Else, let mappedValue be nextValue. */
+      } else {
+        mappedValue := nextValue
+      };
+      
+      /* ix. Let defineStatus be CreateDataPropertyOrThrow(A, Pk, mappedValue). */
+      defineStatus := CreateDataPropertyOrThrow(A, Pk, mappedValue);
+      
+      /* x. If defineStatus is an abrupt completion, return IteratorClose(iterator, defineStatus). */
+      if ((Type(defineStatus) = "Completion") &&& (isAnAbruptCompletion(defineStatus))) {
+        return IteratorClose(iterator, defineStatus)
+      };
+
+      /* xi. Increase k by 1. */
+      k := k + 1.
+    }
+  };
+
+  /* 7. Assert: items is not an Iterable so assume it is an array-like object. */
+  /* assert( !(isIterable(items)) ); */
+
+  /* 8. Let arrayLike be ToObject(items). */
+  arrayLike := ToObject(items);
+
+  /* 9. ReturnIfAbrupt(arrayLike). */
+  @ReturnIfAbrupt(arrayLike);
+
+  /* 10. Let len be ToLength(Get(arrayLike, "length")). */
+  len := ToLength(GetNew(arrayLike, "length"));
+
+  /* 11. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 12. If IsConstructor(C) is true, then */
+  if (IsConstructor(C) = true) {
+    /* a. Let A be Construct(C, «len»). */
+    A := Construct(null, null, C, [len])
+
+  /* 13. Else, */
+  } else {
+    /* a. Let A be ArrayCreate(len). */
+    A := ArrayConstructor(global, this, strict, [len])
+  };
+
+  /* 14. ReturnIfAbrupt(A). */
+  @ReturnIfAbrupt(A);
+
+  /* 15. Let k be 0. */
+  k := 0.;
+
+  /* 16. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+
+    /* b. Let kValue be Get(arrayLike, Pk). */
+    kValue := GetNew(arrayLike, Pk);
+
+    /* c. ReturnIfAbrupt(kValue). */
+    @ReturnIfAbrupt(kValue);
+
+    /* d. If mapping is true, then */
+    if (mapping = true) {
+      /* i. Let mappedValue be Call(mapfn, T, «kValue, k»). */
+      mappedValue := Call(null, null, mapfn, T, [kValue, k]);
+
+      /* ii. ReturnIfAbrupt(mappedValue). */
+      @ReturnIfAbrupt(mappedValue)
+
+    /* e. Else, let mappedValue be kValue. */
+    } else {
+      mappedValue := kValue
+    };
+
+    /* f. Let defineStatus be CreateDataPropertyOrThrow(A, Pk, mappedValue). */
+    defineStatus := CreateDataPropertyOrThrow(A, Pk, mappedValue);
+
+
+    /* g. ReturnIfAbrupt(defineStatus). */
+    @ReturnIfAbrupt(defineStatus);
+
+    /* h. Increase k by 1. */
+    k := k + 1.
+  };
+  
+  /* 17. Let setStatus be Set(A, "length", len, true). */
+  /* setStatus := Set(A, "length", len, true); */
+
+  /* 18. ReturnIfAbrupt(setStatus). */
+  /* @ReturnIfAbrupt(setStatus); */
+
+  {A.Put}(A, "length", len, true);
+
+  /* 19. Return A. */
+  return A
+};
+
+
+
 /**
  * 22.1.2.2 Array.isArray ( arg )
  *
@@ -671,152 +907,101 @@ function isArray(global, this, strict, args) {
 
 
 
-
 /**
- * 22.1.3.27 Array.prototype.toString ( )
- *
- * When the toString method is called, the following steps are taken:
- */
-function arrayToString(global, this, strict, args) {
-  /* 1. Let array be ToObject(this value). */
-  array := ToObject(this);
+*  22.1.2.3 Array.of ( ...items )
+*
+*  method is called with any number of arguments
+*
+*  The length property of the of method is 0.
+*
+*  NOTE 1 The items argument is assumed to be a well-formed rest argument value.
+*
+*  NOTE 2 The of function is an intentionally generic factory method; it does not 
+*  require that its this value be the Array constructor. Therefore it can be transferred
+*  to or inherited by other constructors that may be called with a single numeric argument.
+*
+*/
+function arrayOf (global, this, strict, args) {
 
-  /* 2. ReturnIfAbrupt(array). */
-  @ReturnIfAbrupt(array);
+  /* 1. Let len be the actual number of arguments passed to this function. */
+  len := l_len args;
   
-  /* 3. Let func be Get(array, "join"). */
-  func := GetNew(array, "join");
+  /* 2. Let items be the List of arguments passed to this function. */
+  items := args;
 
-  /* 4. ReturnIfAbrupt(func). */
-  @ReturnIfAbrupt(func);
+  /* 3. Let C be the this value. */
+  C := this;
 
-  /* 5. If IsCallable(func) is false, let func be the intrinsic function %ObjProto_toString% (19.1.3.6). */
-  if (IsCallable(func) = false) {
-    func := getObjectPrototypeToString(strict)
+  /* 4. If IsConstructor(C) is true, then */
+  if (IsConstructor(C) = true) {   
+    /* a. Let A be Construct(C, «len»). */
+    A := Construct(null, null, C, [len])
+
+  /* 5. Else, */
+  } else {
+    /* a. Let A be ArrayCreate(len). */
+    A := ArrayConstructor(global, this, strict, [len])
   };
 
-  /* 6. Return Call(func, array). */
-  return Call(null, null, func, array, [])
-};
-/**
- * NOTE The toString function is intentionally generic; it does not
- * require that its this value be an Array object. Therefore it can be
- * transferred to other kinds of objects for use as a method. Whether
- * the toString function can be applied successfully to a host object
- * is implementation-dependent.
- */
+  /* 6. ReturnIfAbrupt(A). */
+  @ReturnIfAbrupt(A);
 
+  /* 7. Let k be 0. */
+  k := 0;
 
-
-
-/**
- * 22.1.3.26 Array.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ] )
- *
- * The elements of the array are converted to Strings using their
- * toLocaleString methods, and these Strings are then concatenated,
- * separated by occurrences of a separator String that has been derived
- * in an implementation-defined locale-specific way. The result of calling
- * this function is intended to be analogous to the result of toString,
- * except that the result of this function is intended to be locale-specific.
- *
- * The result is calculated as follows:
- */
-function arrayToLocaleString(global, this, strict, args) {
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Let len be ToLength(Get(O, "length")) */
-  len := ToLength(GetNew(O, "length"));
-
-  /* 4. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 5. Let separator be the String value for the list-separator String appropriate 
-        for the host environment’s current locale (this is derived in an 
-        implementation-defined way). */
-  separator := ","; /* TODO : Host Enviroment */
-
-  /* 6. If len is zero, return the empty String. */
-  if (len = 0.) {
-    return ""
-  };
-
-  /* 7. Let firstElement be Get(array, "0"). */
-  firstElement := GetNew(O, "0");
-
-  /* 8. ReturnIfAbrupt(firstElement). */
-  @ReturnIfAbrupt(firstElement);
-
-  /* 9. If firstElement is undefined or null, then */
-  if ((firstElement = 'undefined) || (firstElement = 'null)) {
-    /* a. Let R be the empty String. */
-    R := ""
-  }
-  /* 10. Else */
-  else {
-
-    /* a. Let R be ToString(Invoke(firstElement, "toLocaleString")). */
-    R := ToString(Invoke(firstElement, "toLocaleString", []));
-
-    /* b. ReturnIfAbrupt(R). */
-    @ReturnIfAbrupt(R)
-  };
-
-  /* 11. Let k be 1. */
-  k := 1.;
-
-  /* 12. Repeat, while k < len */
+  /* 8. Repeat, while k < len */
   while (k < len) {
-    /* a. Let S be a String value produced by concatenating R and separator. */
-    S := s_concat([ToString(R), separator]);
+    /* a. Let kValue be items[k]. */
+    kValue := l_nth(items, k);
 
-    /* b. Let nextElement be Get(array, ToString(k)). */
-    nextElement := GetNew(O, ToString(k));
+    /* b. Let Pk be ToString(k). */
+    Pk := ToString(int_to_float k);
 
-    /* c. ReturnIfAbrupt(nextElement). */
-    @ReturnIfAbrupt(nextElement);
+    /* c. Let defineStatus be CreateDataPropertyOrThrow(A,Pk, kValue). */
+    defineStatus := CreateDataPropertyOrThrow(A, Pk, kValue);
 
-    /* d. If nextElement is undefined or null, then */
-    if ((nextElement = 'undefined) || (nextElement = 'null)) {
-      /* i. Let R be the empty String. */
-      R := ""
-    }
-    /* e. Else */
-    else {
-      /* a. Let R be ToString(Invoke(nextElement, "toLocaleString")). */
-      R := ToString(Invoke(nextElement, "toLocaleString", []));
+    /* d. ReturnIfAbrupt(defineStatus). */
+    @ReturnIfAbrupt(defineStatus);
 
-      /* b. ReturnIfAbrupt(R). */
-      @ReturnIfAbrupt(R)
-    };
-
-    /* f. Let R be a String value produced by concatenating S and R. */
-    R := s_concat([S, ToString(R)]);
-
-    /* g. Increase k by 1. */
-    k := k + 1.
+    /* e. Increase k by 1. */
+    k := k + 1
   };
 
-  /* 13. Return R. */
-  return R
+  /* 9. Let setStatus be Set(A, "length", len, true). */
+  {A.Put}(A, "length", int_to_float len, true);
+
+  /* 10. ReturnIfAbrupt(setStatus). */
+
+  /* 11. Return A. */
+  return A
 };
-/**
- * NOTE 1 The first parameter to this function is likely to be used in a
- * future version of this standard; it is recommended that implementations
- * do not use this parameter position for anything else.
- *
- * NOTE 2 The toLocaleString function is intentionally generic; it does not
- * require that its this value be an Array object. Therefore it can be
- * transferred to other kinds of objects for use as a method. Whether the
- * toLocaleString function can be applied successfully to a host object is
- * implementation-dependent.
- */
 
 
+
+/* 22.1.2.5 get Array [@@species] */
+function arraySpeciesGetter(global, this, strict, args){
+  return this
+};
+
+
+
+
+
+/** 
+*  22.1.3 Properties of the Array Prototype Object
+*
+*  The Array prototype object is the intrinsic object %ArrayPrototype%. 
+*  The Array prototype object is an Array exotic objects and has the internal 
+*  methods specified for such objects. It has a length property whose initial
+*  value is 0 and whose attributes are: 
+*     > { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: false }.
+*
+*  The value of the [[Prototype]] internal slot of the Array prototype object is 
+*  the intrinsic object %ObjectPrototype%.
+*
+*  NOTE The Array prototype object is specified to be an Array exotic object to ensure compatibility
+*  with ECMAScript code that was created prior to the ECMAScript 2015 specification.
+*/
 
 
 /**
@@ -946,6 +1131,7 @@ function arrayConcat(global, this, strict, items) {
  * can be applied successfully to a host object is implementation-dependent.
  */
 
+
 /* 22.1.3.1.1 Runtime Semantics: IsConcatSpreadable ( O ) */
 function IsConcatSpreadable(O) {
 
@@ -968,6 +1154,913 @@ function IsConcatSpreadable(O) {
   /* 5. Return IsArray(O). */
   return spreadable
 };
+
+
+
+/**
+* 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] )
+*
+*  NOTE 1 The end argument is optional with the length of the this object as its default value. If target is negative, 
+*  it is treated as length+target where length is the length of the array. If start is negative, it is treated as 
+*  length+start. If end is negative, it is treated as length+end.
+*
+*  The length property of the copyWithin method is 2.
+*
+*  NOTE 2 The copyWithin function is intentionally generic; it does not require that its this value be an Array
+*  object. Therefore it can be transferred to other kinds of objects for use as a method.
+*
+*/
+function arraycopyWithin (global, this, strict, args) {
+
+  /* The copyWithin method takes up to three arguments target, start and end. */
+  target := l_nth(args, 0);
+  start := l_nth(args, 1);
+  end := getOptionalParam(args, 2);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+  
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength(GetNew(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. Let relativeTarget be ToInteger(target). */
+  relativeTarget := ToInteger(target);
+
+  /* 6. ReturnIfAbrupt(relativeTarget). */
+  @ReturnIfAbrupt(relativeTarget);
+
+  /* 7. If relativeTarget < 0, let to be max((len + relativeTarget),0); else let to be min(relativeTarget, len). */
+  if (relativeTarget < 0.) {
+    to := max((len + relativeTarget), 0.)
+  } else {
+    to := min(relativeTarget, len)
+  };
+
+  /* 8. Let relativeStart be ToInteger(start). */
+  relativeStart := ToInteger(start);
+
+  /* 9. ReturnIfAbrupt(relativeStart). */
+  @ReturnIfAbrupt(relativeStart);
+
+  /* 10. If relativeStart < 0, let from be max((len + relativeStart),0); else let from be min(relativeStart, len). */
+  if (relativeStart < 0.) {
+    from := max((len + relativeStart), 0.)
+  } else {
+    from := min(relativeStart, len)
+  };
+
+  /* 11. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
+  if ((end = 'undefined) ||| (end = null)) {
+    relativeEnd := len
+  } else {
+    relativeEnd := ToInteger(end)
+  };
+
+  /* 12. ReturnIfAbrupt(relativeEnd). */
+  @ReturnIfAbrupt(relativeEnd);
+
+  /* 13. If relativeEnd < 0, let final be max((len + relativeEnd),0); else let final be min(relativeEnd, len). */
+  if (relativeEnd < 0.) {
+    final := max((len + relativeEnd), 0.)
+  } else {
+    final := min(relativeEnd, len)
+  };
+
+  /* 14. Let count be min(final-from, len-to). */
+  count := min(final - from, len - to);
+
+  /* 15. If from<to and to<from+count */
+  if ((from < to) &&& (to < (from + count))) {
+    /* a. Let direction be -1. */
+    direction := -(1.);
+    
+    /* b. Let from be from + count -1. */
+    from := from + count - 1.;
+    
+    /* c. Let to be to + count -1. */
+    to := to + count - 1.
+
+  /* 16. Else, */
+  } else {
+    /* a. Let direction = 1. */
+    direction := 1.
+  };
+
+  /* 17. Repeat, while count > 0 */
+  while (count > 0.) {
+    /* a. Let fromKey be ToString(from). */
+    fromKey := ToString(from);
+
+    /* b. Let toKey be ToString(to). */
+    toKey := ToString(to);
+
+    /* c. Let fromPresent be HasProperty(O, fromKey). */
+    fromPresent := HasPropertyNew(O, fromKey);
+
+    /* d. ReturnIfAbrupt(fromPresent). */
+    @ReturnIfAbrupt(fromPresent);
+
+    /* e. If fromPresent is true, then */
+    if (fromPresent = true) {
+      /* i. Let fromVal be Get(O, fromKey). */
+      fromVal := GetNew(O, fromKey);
+
+      /* ii. ReturnIfAbrupt(fromVal). */
+      @ReturnIfAbrupt(fromVal);
+
+      /* iii. Let setStatus be Set(O, toKey, fromVal, true). */
+      {O.Put}(O, toKey, fromVal, O)
+
+      /* iv. ReturnIfAbrupt(setStatus). */
+
+    /* f. Else fromPresent is false, */
+    } else {
+      /* i. Let deleteStatus be DeletePropertyOrThrow(O, toKey). */
+      deleteStatus := DeletePropertyOrThrow(O, toKey);
+
+      /* ii. ReturnIfAbrupt(deleteStatus). */
+      @ReturnIfAbrupt(deleteStatus)
+    };
+
+    /* g. Let from be from + direction. */
+    from := from + direction;
+    
+    /* h. Let to be to + direction. */
+    to := to + direction;
+    
+    /* i. Let count be count − 1. */
+    count := count - 1.
+  };
+
+  /* 18. Return O. */
+  return O
+};
+
+
+
+/**
+*  22.1.3.4 Array.prototype.entries ( )
+*/
+function arrayEntries (global, this, strict, args) {
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Return CreateArrayIterator(O, "key+value"). */
+  return CreateArrayIterator(O, "key+value")
+};
+
+
+
+/**
+ * 22.1.3.5 Array.prototype.every ( callbackfn [ , thisArg] )
+ *
+ * callbackfn should be a function that accepts three arguments and returns
+ * a value that is coercible to the Boolean value true or false. every calls
+ * callbackfn once for each element present in the array, in ascending order,
+ * until it finds one where callbackfn returns false. If such an element is
+ * found, every immediately returns false. Otherwise, if callbackfn returned
+ * true for all elements, every will return true. callbackfn is called only
+ * for elements of the array which actually exist; it is not called for
+ * missing elements of the array.
+ *
+ * If a thisArg parameter is provided, it will be used as the this value
+ * for each invocation of callbackfn. If it is not provided, undefined is
+ * used instead.
+ *
+ * callbackfn is called with three arguments: the value of the element,
+ * the index of the element, and the object being traversed.
+ *
+ * every does not directly mutate the object on which it is called but the
+ * object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by every is set before the first call
+ * to callbackfn. Elements which are appended to the array after the call
+ * to every begins will not be visited by callbackfn. If existing elements
+ * of the array are changed, their value as passed to callbackfn will be the
+ * value at the time every visits them; elements that are deleted after the
+ * call to every begins and before being visited are not visited. every acts
+ * like the "for all" quantifier in mathematics. In particular, for an empty
+ * array, it returns true.
+ *
+ * When the every method is called with one or two arguments, the following
+ * steps are taken:
+ */
+function arrayEvery(global, this, strict, args) {
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength(GetNew(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallableNew(callbackfn) = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if (!(thisArg = null)) {
+    T := thisArg
+  } else {
+    T := 'undefined
+  };
+
+  /* 7. Let k be 0. */
+  k := 0.;
+
+  /* 8. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+
+    /* b. Let kPresent be HasProperty(O, Pk). */
+    kPresent := HasPropertyNew(O, Pk);
+
+    /* c. ReturnIfAbrupt(kPresent). */
+    @ReturnIfAbrupt(kPresent);
+
+    /* d. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be Get(O, Pk). */
+      kValue := GetNew(O, Pk);
+
+      /* ii. ReturnIfAbrupt(kValue). */
+      @ReturnIfAbrupt(kValue);
+
+      /* iii. Let testResult be ToBoolean(Call(callbackfn, T, «kValue, k, O»)). */
+      testResult := ToBoolean(Call(null, null, callbackfn, T, [kValue, k, O]));
+
+      /* iv. ReturnIfAbrupt(testResult). */
+      @ReturnIfAbrupt(testResult);
+
+      /* v. If testResult is false, return false. */
+      if (ToBoolean(testResult) = false) {
+        return false
+      }
+    };
+
+    /* e. Increase k by 1. */
+    k := k + 1.
+  };
+
+  /* 9. Return true. */
+  return true
+};
+/**
+ * The length property of the every method is 1.
+ *
+ * NOTE The every function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore it can be transferred
+ * to other kinds of objects for use as a method. Whether the every function
+ * can be applied successfully to a host object is implementation-dependent.
+ */
+
+
+
+ /**
+*   22.1.3.6 Array.prototype.fill (value [ , start [ , end ] ] )
+*
+*  NOTE 1 The start and end arguments are optional with default values of 0 and the length
+*  of the this object. If start is negative, it is treated as length+start where length is the
+*  length of the array. If end is negative, it is treated as length+end.
+*
+*  The length property of the fill method is 1.
+*
+*  NOTE 2 The fill function is intentionally generic; it does not require that its this value be
+*  an Array object. Therefore it can be transferred to other kinds of objects for use as a method.
+*
+*/
+function arrayFill (global, this, strict, args) {
+  
+  /* The fill method takes up to three arguments value, start and end. */
+  value := l_nth(args, 0);
+  start := getOptionalParam(args, 1);
+  end := getOptionalParam(args, 2);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength(GetNew(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. Let relativeStart be ToInteger(start). */
+  if ((start = 'undefined) ||| (start = null)) {
+    start := 0.
+  };
+  relativeStart := ToInteger(start);
+
+  /* 6. ReturnIfAbrupt(relativeStart). */
+  @ReturnIfAbrupt(relativeStart);
+
+  /* 7. If relativeStart < 0, let k be max((len + relativeStart),0); else let k be min(relativeStart, len). */
+  if (relativeStart < 0.) {
+    k := max((len + relativeStart), 0.)
+  } else {
+    k := min(relativeStart, len)
+  };
+
+  /* 8. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
+  if ((end = 'undefined) ||| (end = null)) {
+    relativeEnd := len
+  } else {
+    relativeEnd := ToInteger(end)
+  };
+
+  /* 9. ReturnIfAbrupt(relativeEnd). */
+  @ReturnIfAbrupt(relativeEnd);
+
+  /* 10. If relativeEnd < 0, let final be max((len + relativeEnd),0); else let final be min(relativeEnd, len). */
+  if (relativeEnd < 0.) {
+    final := max((len + relativeEnd), 0.)
+  } else {
+    final := min(relativeEnd, len)
+  };
+
+  /* 11. Repeat, while k < final */
+  while (k < final) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+
+    {O.Put}(O, Pk, value, O);
+
+    /*
+    b. Let setStatus be Set(O, Pk, value, true). 
+    setStatus := SetNew(O, Pk, value, true);
+
+    c. ReturnIfAbrupt(setStatus). 
+    @ReturnIfAbrupt(setStatus);
+    */
+
+    /* d. Increase k by 1. */
+    k := k + 1.
+  };
+
+  /* 12. Return O. */
+  return O
+};
+
+
+
+/**
+ *  22.1.3.7 Array.prototype.filter ( callbackfn [ , thisArg ] )
+ *
+ * callbackfn should be a function that accepts three arguments and returns a
+ * value that is coercible to the Boolean value true or false. filter calls
+ * callbackfn once for each element in the array, in ascending order, and
+ * constructs a new array of all the values for which callbackfn returns true.
+ * callbackfn is called only for elements of the array which actually exist; it
+ * is not called for missing elements of the array.
+ *
+ * If a thisArg parameter is provided, it will be used as the this value for
+ * each invocation of callbackfn. If it is not provided, undefined is used instead.
+ *
+ * callbackfn is called with three arguments: the value of the element, the
+ * index of the element, and the object being traversed.
+ *
+ * filter does not directly mutate the object on which it is called but the
+ * object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by filter is set before the first call to
+ * callbackfn. Elements which are appended to the array after the call to filter
+ * begins will not be visited by callbackfn. If existing elements of the array
+ * are changed their value as passed to callbackfn will be the value at the time
+ * filter visits them; elements that are deleted after the call to filter begins
+ * and before being visited are not visited.
+ *
+ * When the filter method is called with one or two arguments, the following
+ * steps are taken:
+ */
+ 
+function arrayFilter(global, this, strict, args) {
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength(GetNew(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallableNew(callbackfn) = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if (!(thisArg = null)) {
+    T := thisArg
+  } else {
+    T := 'undefined
+  };
+
+  /* 7. Let A be ArraySpeciesCreate(O, 0). */
+  A := ArrayConstructor(global, this, strict, []);
+  
+  /* 8. ReturnIfAbrupt(A). */
+  @ReturnIfAbrupt(A);
+
+  /* 9. Let k be 0. */
+  k := 0.;
+
+  /* 10. Let to be 0. */
+  to := 0.;
+
+  /* 11. Repeat, while k < len */
+  while (k < len) {
+
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+
+    /* b. Let kPresent be HasProperty(O, Pk). */
+    kPresent := HasPropertyNew(O, Pk);
+
+    /* c. ReturnIfAbrupt(kPresent). */
+    @ReturnIfAbrupt(kPresent);
+    
+    /* d. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be Get(O, Pk). */
+      kValue := GetNew(O, Pk);
+
+      /* ii. ReturnIfAbrupt(kValue). */
+      @ReturnIfAbrupt(kValue);
+
+      /* iii. Let selected be ToBoolean(Call(callbackfn, T, «kValue, k, O»)). */
+      selected := ToBoolean(Call(null, null, callbackfn, T, [kValue, k, O]));
+
+      /* iv. ReturnIfAbrupt(selected). */
+      @ReturnIfAbrupt(selected);
+
+      /* v. If selected is true, then  */
+      if (selected = true) {
+        /* 1. Let status be CreateDataPropertyOrThrow (A, ToString(to), kValue). */
+        status := CreateDataPropertyOrThrow(A, ToString(to), kValue);
+
+        /* 2. ReturnIfAbrupt(status). */
+        @ReturnIfAbrupt(status);
+
+        /* 3. Increase to by 1. */
+        to := to + 1.
+      }
+    };
+
+    /* e. Increase k by 1. */
+    k := k + 1.
+  };
+
+  /* 12. Return A. */
+  return A
+};
+/**
+* The length property of the filter method is 1.
+*
+* NOTE The filter function is intentionally generic; it does not require that
+* its this value be an Array object. Therefore it can be transferred to other
+* kinds of objects for use as a method. Whether the filter function can be
+* applied successfully to a host object is implementation-dependent.
+*/
+
+
+
+/**
+* 22.1.3.8 Array.prototype.find ( predicate [ , thisArg ] )
+*
+*  NOTE 1 predicate should be a function that accepts three arguments and returns a value that is
+*  coercible to a Boolean value. find calls predicate once for each element of the array, in 
+*  ascending order, until it finds one where predicate returns true. If such an element is found,
+*  find immediately returns that element value. Otherwise, find returns undefined.
+*
+*  If a thisArg parameter is provided, it will be used as the this value for each invocation 
+*  of predicate. If it is not provided, undefined is used instead.
+*
+*  predicate is called with three arguments: 
+*      - the value of the element
+*      - the index of the element
+*      - the object being traversed.
+*
+*  find does not directly mutate the object on which it is called but
+*  the object may be mutated by the calls to predicate.
+*
+*  The range of elements processed by find is set before the first call to callbackfn.
+*  Elements that are appended to the array after the call to find begins will not be 
+*  visited by callbackfn. If existing elements of the array are changed, their value
+*  as passed to predicate will be the value at the time that find visits them.
+*
+*  The length property of the find method is 1.
+*
+*  NOTE 2 The find function is intentionally generic; it does not require that its this value
+*  be an Array object. Therefore it can be transferred to other kinds of objects for use as a method.
+*
+*/
+function arrayFind (global, this, strict, args) {
+
+  /* The find method is called with one or two arguments, predicate and thisArg. */
+  predicate := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength(GetNew(O, "length"));
+  
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. If IsCallable(predicate) is false, throw a TypeError exception. */
+  if (IsCallableNew(predicate) = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if (!(thisArg = null)) {
+    T := thisArg
+  } else {
+    T := 'undefined
+  };
+
+  /* 7. Let k be 0. */
+  k := 0.;
+  
+  /* 8. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+
+    /* b. Let kValue be Get(O, Pk). */
+    kValue := GetNew(O, Pk);
+
+    /* c. ReturnIfAbrupt(kValue). */
+    @ReturnIfAbrupt(kValue);
+
+    /* d. Let testResult be ToBoolean(Call(predicate, T, «kValue, k, O»)). */
+    testResult := ToBoolean(Call(null, null, predicate, T, [kValue, k, O]));
+
+    /* e. ReturnIfAbrupt(testResult). */
+    @ReturnIfAbrupt(testResult);
+
+    /* f. If testResult is true, return kValue. */
+    if (testResult = true) {
+      return kValue
+    };
+
+    /* g. Increase k by 1. */
+    k := k + 1.
+  };
+
+  /* 9. Return undefined. */
+  return 'undefined
+};
+
+
+
+/**
+* 22.1.3.9 Array.prototype.findIndex ( predicate [ , thisArg ] )
+-
+*  NOTE 1 predicate should be a function that accepts three arguments and returns a value that is
+*  coercible to the Boolean value true or false. findIndex calls predicate once for each element 
+*  of the array, in ascending order, until it finds one where predicate returns true. If such
+*  an element is found, findIndex immediately returns the index of that element value. Otherwise,
+*  findIndex returns -1.
+*
+*  If a thisArg parameter is provided, it will be used as the this value for each invocation 
+*  of predicate. If it is not provided, undefined is used instead.
+*
+*  predicate is called with three arguments: the value of the element, 
+*  the index of the element, and the object being traversed.
+*
+*  findIndex does not directly mutate the object on which it is called but the object
+*  may be mutated by the calls to predicate.
+*
+*  The range of elements processed by findIndex is set before the first call to callbackfn.
+*  Elements that are appended to the array after the call to findIndex begins will not be
+*  visited by callbackfn. If existing elements of the array are changed, their value as
+*  passed to predicate will be the value at the time that findIndex visits them.
+*
+*  The length property of the findIndex method is 1.
+*
+*  NOTE 2 The findIndex function is intentionally generic; it does not require that its this
+*  value be an Array object. Therefore it can be transferred to other kinds of objects for use
+*  as a method.
+*
+*/
+function arrayFindIndex (global, this, strict, args) {
+    /* The find method is called with one or two arguments, predicate and thisArg. */
+  predicate := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength(GetNew(O, "length"));
+  
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. If IsCallable(predicate) is false, throw a TypeError exception. */
+  if (IsCallableNew(predicate) = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if (!(thisArg = null)) {
+    T := thisArg
+  } else {
+    T := 'undefined
+  };
+
+  /* 7. Let k be 0. */
+  k := 0.;
+  
+  /* 8. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+
+    /* b. Let kValue be Get(O, Pk). */
+    kValue := GetNew(O, Pk);
+
+    /* c. ReturnIfAbrupt(kValue). */
+    @ReturnIfAbrupt(kValue);
+
+    /* d. Let testResult be ToBoolean(Call(predicate, T, «kValue, k, O»)). */
+    testResult := ToBoolean(Call(null, null, predicate, T, [kValue, k, O]));
+
+    /* e. ReturnIfAbrupt(testResult). */
+    @ReturnIfAbrupt(testResult);
+
+    /* f. If testResult is true, return kValue. */
+    if (testResult = true) {
+      return k
+    };
+
+    /* g. Increase k by 1. */
+    k := k + 1.
+  };
+
+  /* 9. Return -1. */
+  return -(1.)
+};
+
+
+
+/**
+ * 22.1.3.10 Array.prototype.forEach ( callbackfn [ , thisArg ] )
+ *
+ * callbackfn should be a function that accepts three arguments. forEach
+ * calls callbackfn once for each element present in the array, in ascending
+ * order. callbackfn is called only for elements of the array which actually
+ * exist; it is not called for missing elements of the array.
+ *
+ * If a thisArg parameter is provided, it will be used as the this value for
+ * each invocation of callbackfn. If it is not provided, undefined is used
+ * instead.
+ *
+ * callbackfn is called with three arguments: the value of the element,
+ * the index of the element, and the object being traversed.
+ *
+ * forEach does not directly mutate the object on which it is called but
+ * the object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by forEach is set before the first
+ * call to callbackfn. Elements which are appended to the array after the
+ * call to forEach begins will not be visited by callbackfn. If existing
+ * elements of the array are changed, their value as passed to callback
+ * will be the value at the time forEach visits them; elements that are
+ * deleted after the call to forEach begins and before being visited are
+ * not visited.
+ *
+ * When the forEach method is called with one or two arguments, the
+ * following steps are taken:
+ */
+function arrayForEach(global, this, strict, args) {
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength(GetNew(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallable(callbackfn) = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if (!(thisArg = null)) {
+    T := thisArg
+  } else {
+    T := 'undefined
+  };
+
+  /* 7. Let k be 0. */
+  k := 0.;
+
+  /* 8. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+    
+    /* b. Let kPresent be HasProperty(O, Pk). */
+    kPresent := HasPropertyNew(O, Pk);
+
+    /* c. ReturnIfAbrupt(kPresent). */
+    @ReturnIfAbrupt(kPresent);
+
+    /* d. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be Get(O, Pk). */
+      kValue := GetNew(O, Pk);
+
+      /* ii. ReturnIfAbrupt(kValue). */
+      @ReturnIfAbrupt(kValue);
+
+      /* iii. Let funcResult be Call(callbackfn, T, «kValue, k, O»). */
+      funcResult := Call(null, null, callbackfn, T, [kValue, k, O]);
+
+      /* iv. ReturnIfAbrupt(funcResult). */
+      @ReturnIfAbrupt(funcResult)
+    };
+
+    /* e. Increase k by 1. */
+    k := k + 1.
+  };
+
+  /* 9. Return undefined. */
+  return 'undefined
+};
+/**
+ * The length property of the forEach method is 1.
+ *
+ * NOTE The forEach function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore it can be transferred
+ * to other kinds of objects for use as a method. Whether the forEach function
+ * can be applied successfully to a host object is implementation-dependent.
+ */
+
+
+
+ /**
+ * 22.1.3.11 Array.prototype.indexOf ( searchElement [ , fromIndex ] )
+ *
+ * indexOf compares searchElement to the elements of the array, in ascending
+ * order, using the internal Strict Equality Comparison Algorithm (11.9.6),
+ * and if found at one or more positions, returns the index of the first such
+ * position; otherwise, -1 is returned.
+ *
+ * The optional second argument fromIndex defaults to 0 (i.e. the whole array
+ * is searched). If it is greater than or equal to the length of the array, -1
+ * is returned, i.e. the array will not be searched. If it is negative, it is
+ * used as the offset from the end of the array to compute fromIndex. If the
+ * computed index is less than 0, the whole array will be searched.
+ *
+ * When the indexOf method is called with one or two arguments, the following
+ * steps are taken:
+ */
+function arrayIndexOf(global, this, strict, args) {
+  searchElement := l_nth(args, 0);
+  fromIndex := getOptionalParam(args, 1);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := GetNew(O, "length");
+
+  /* 4. ReturnIfAbrupt(len).*/
+  @ReturnIfAbrupt(len);
+
+  /* 5. If len is 0, return -1. */
+  if (len = 0.) {
+    return -(1.)
+  };
+
+  /* 6. If argument fromIndex was passed let n be ToInteger(fromIndex);
+        else let n be 0. */
+  if (!(fromIndex = null)) {
+    n := ToInteger(fromIndex)
+  } else {
+    n := 0.
+  };
+
+  /* 7. ReturnIfAbrupt(n). */
+  @ReturnIfAbrupt(n);
+
+  /* 8. If n ≥ len, return -1. */
+  if (n >= len) {
+    return -(1.)
+  };
+
+  /* 9. If n ≥ 0, then */
+  if (n >= 0.) {
+    /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
+    /* a. If n is -0, let k be +0; else let k be n. */
+    if (isMinusZero(n)) {
+      k := 0.
+    } else {
+      k := n
+    }
+
+  /* 10. Else, n<0 */
+  } else {
+    /* a. Let k be len - abs(n). */
+    k := len - abs(n);
+    /* b. If k is less than 0, then let k be 0. */
+    if (k < 0.) {
+      k := 0.
+    }
+  };
+
+  /* 11. Repeat, while k<len */
+  while (k < len) {
+    /* a. Let kPresent be HasProperty(O, ToString(k)). */
+    kPresent := HasPropertyNew(O, ToString(k));
+
+    /* b. ReturnIfAbrupt(kPresent).*/
+    @ReturnIfAbrupt(kPresent);
+
+    /* c. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let elementK be Get(O, ToString(k)). */
+      elementK := GetNew(O, ToString(k));
+
+      /* ii. ReturnIfAbrupt(elementK). */
+      @ReturnIfAbrupt(elementK);
+
+      /* iii. Let same be the result of applying the Strict Equality Comparison
+            Algorithm to searchElement and elementK. */
+      same := StrictEqualityComparison(searchElement, elementK);
+
+      /* iv. If same is true, return k. */
+      if (same = true) {
+        return k
+      }
+    };
+
+    /* d. Increase k by 1. */
+    k := k + 1.
+  };
+
+  /* 10. Return -1. */
+  return -(1.)
+};
+/**
+ * The length property of the indexOf method is 1.
+ *
+ * NOTE The indexOf function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore it can be transferred
+ * to other kinds of objects for use as a method. Whether the indexOf function
+ * can be applied successfully to a host object is implementation-dependent.
+ */
+
 
 
 /**
@@ -1070,6 +2163,248 @@ function arrayJoin(global, this, strict, args) {
 
 
 
+/** 
+*  22.1.3.13 Array.prototype.keys ( )
+*/
+function arrayKeys (global, this, strict, args) {
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Return CreateArrayIterator(O, "key"). */
+  return CreateArrayIterator(O, "key")
+};
+
+
+
+/**
+ * 21.1.3.14 Array.prototype.lastIndexOf ( searchString [ , position ] )
+ *
+ * lastIndexOf compares searchElement to the elements of the array in
+ * descending order using the internal Strict Equality Comparison Algorithm
+ * (11.9.6), and if found at one or more positions, returns the index of the
+ * last such position; otherwise, -1 is returned.
+ *
+ * The optional second argument fromIndex defaults to the array's length minus
+ * one (i.e. the whole array is searched). If it is greater than or equal to
+ * the length of the array, the whole array will be searched. If it is
+ * negative, it is used as the offset from the end of the array to compute
+ * fromIndex. If the computed index is less than 0, -1 is returned.
+ *
+ * When the lastIndexOf method is called with one or two arguments, the
+ * following steps are taken:
+ */
+function arrayLastIndexOf(global, this, strict, args) {
+  searchElement := l_nth(args, 0);
+  fromIndex := getOptionalParam(args, 1);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O).*/
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength(GetNew(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. If len is 0, return -1. */
+  if (len = 0.) {
+    return -(1.)
+  };
+
+  /* 6. If argument fromIndex was passed let n be ToInteger(fromIndex);
+        else let n be len. */
+  if (!(fromIndex = null)) {
+    n := ToInteger(fromIndex)
+  } else {
+    n := len - 1.
+  };
+
+  /* 7. ReturnIfAbrupt(n). */
+  @ReturnIfAbrupt(n);
+
+  /* 8. If n ≥ 0, then let k be min(n, len - 1). */
+  if (n >= 0.) {
+    /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
+    /* a. If n is -0, let k be +0; else let k be min(n, len - 1). */
+    if (isMinusZero(n)) {
+      k := 0.
+    } else {
+      k := min(n, len - 1.)
+    }
+  }
+  /* 9. Else, n < 0 */
+  else {
+    /* a. Let k be len - abs(n). */
+    k := len - abs(n)
+  };
+  /* 10. Repeat, while k≥ 0 */
+  while (k >= 0.) {
+    /* a. Let kPresent be HasProperty(O, ToString(k)). */
+    kPresent := HasPropertyNew(O, ToString(k));
+
+    /* b. ReturnIfAbrupt(kPresent). */
+    @ReturnIfAbrupt(kPresent);
+
+    /* c. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let elementK be Get(O, ToString(k)). */
+      elementK := GetNew(O, ToString(k));
+
+      /* ii. ReturnIfAbrupt(elementK).*/
+      @ReturnIfAbrupt(elementK);
+
+      /* iii. Let same be the result of performing Strict Equality Comparison
+              searchElement === elementK. */
+      same := StrictEqualityComparison(searchElement, elementK);
+
+      /* iv. If same is true, return k. */
+      if (same = true) {
+        return k
+      }
+    };
+
+    /* d. Decrease k by 1. */
+    k := k - 1.
+  };
+
+  /* 11. Return -1. */
+  return -(1.)
+};
+/**
+ * The length property of the lastIndexOf method is 1.
+ *
+ * NOTE The lastIndexOf function is intentionally generic; it does not
+ * require that its this value be an Array object. Therefore it can be
+ * transferred to other kinds of objects for use as a method. Whether the
+ * lastIndexOf function can be applied successfully to a host object is
+ * implementation-dependent.
+ */
+
+
+
+ /**
+ * 22.1.3.15 Array.prototype.map ( callbackfn [ , thisArg ] )
+ *
+ * callbackfn should be a function that accepts three arguments. map calls
+ * callbackfn once for each element in the array, in ascending order, and
+ * constructs a new Array from the results. callbackfn is called only for
+ * elements of the array which actually exist; it is not called for missing
+ * elements of the array.
+ *
+ * If a thisArg parameter is provided, it will be used as the this value
+ * for each invocation of callbackfn. If it is not provided, undefined is
+ * used instead.
+ *
+ * callbackfn is called with three arguments: the value of the element,
+ * the index of the element, and the object being traversed.
+ *
+ * map does not directly mutate the object on which it is called but the
+ * object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by map is set before the first call
+ * to callbackfn. Elements which are appended to the array after the call
+ * to map begins will not be visited by callbackfn. If existing elements of
+ * the array are changed, their value as passed to callbackfn will be the
+ * value at the time map visits them; elements that are deleted after the
+ * call to map begins and before being visited are not visited.
+ *
+ * When the map method is called with one or two arguments, the following
+ * steps are taken:
+ */
+function arrayMap(global, this, strict, args) {
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength(GetNew(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallableNew(callbackfn) = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if (!(thisArg = null)) {
+    T := thisArg
+  } else {
+    T := 'undefined
+  };
+
+  /* 7. Let A be ArraySpeciesCreate(O, len). */
+  A := ArrayConstructor(global, this, strict, [len]);
+
+  /* 8. ReturnIfAbrupt(A). */
+  @ReturnIfAbrupt(A);
+
+  /* 9. Let k be 0. */
+  k := 0.;
+
+  /* 10. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+
+    /* b. Let kPresent be HasProperty(O, Pk). */
+    kPresent := HasPropertyNew(O, Pk);
+
+    /* c. ReturnIfAbrupt(kPresent). */
+    @ReturnIfAbrupt(kPresent);
+
+    /* d. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be Get(O, Pk). */
+      kValue := GetNew(O, Pk);
+
+      /* ii. ReturnIfAbrupt(kValue). */
+      @ReturnIfAbrupt(kValue);
+
+
+      /* ii. Let mappedValue be Call(callbackfn, T, «kValue, k, O»). */
+      mappedValue := Call(null, null, callbackfn, T, [kValue, k, O]);
+
+      /* iii. ReturnIfAbrupt(mappedValue). */
+      @ReturnIfAbrupt(mappedValue);
+
+      /* iv. Let status be CreateDataPropertyOrThrow (A, Pk, mappedValue). */
+      status := CreateDataPropertyOrThrow(A, Pk, mappedValue);
+
+      /* v. ReturnIfAbrupt(status). */
+      @ReturnIfAbrupt(status)
+    };
+
+    /* e. Increase k by 1. */
+    k := k + 1.
+  };
+
+  /* 11. Return A. */
+  return A
+};
+/**
+ * The length property of the map method is 1.
+ *
+ * NOTE The map function is intentionally generic; it does not require that
+ * its this value be an Array object. Therefore it can be transferred to other
+ * kinds of objects for use as a method. Whether the map function can be applied
+ * successfully to a host object is implementation-dependent.
+ */
+
+
 
 /**
  * 22.1.3.16 Array.prototype.pop ( ) ( )
@@ -1137,7 +2472,6 @@ function arrayPop(global, this, strict, args) {
  * kinds of objects for use as a method. Whether the pop function can be applied
  * successfully to a host object is implementation-dependent.
  */
-
 
 
 
@@ -1209,6 +2543,294 @@ function arrayPush(global, this, strict, items) {
  * successfully to a host object is implementation-dependent.
  */
 
+
+
+ /**
+ * 22.1.3.18 Array.prototype.reduce ( callbackfn [ , initialValue ] )
+ *
+ * callbackfn should be a function that takes four arguments. reduce calls
+ * the callback, as a function, once for each element present in the array,
+ * in ascending order.
+ *
+ * callbackfn is called with four arguments: the previousValue (or value
+ * from the previous call to callbackfn), the currentValue (value of the
+ * current element), the currentIndex, and the object being traversed. The
+ * first time that callback is called, the previousValue and currentValue
+ * can be one of two values. If an initialValue was provided in the call to
+ * reduce, then previousValue will be equal to initialValue and currentValue
+ * will be equal to the first value in the array. If no initialValue was
+ * provided, then previousValue will be equal to the first value in the array
+ * and currentValue will be equal to the second. It is a TypeError if the
+ * array contains no elements and initialValue is not provided.
+ *
+ * reduce does not directly mutate the object on which it is called but
+ * the object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by reduce is set before the first call
+ * to callbackfn. Elements that are appended to the array after the call to
+ * reduce begins will not be visited by callbackfn. If existing elements of
+ * the array are changed, their value as passed to callbackfn will be the
+ * value at the time reduce visits them; elements that are deleted after
+ * the call to reduce begins and before being visited are not visited.
+ *
+ * When the reduce method is called with one or two arguments, the
+ * following steps are taken:
+ */
+function arrayReduce(global, this, strict, args) {
+  callbackfn := l_nth(args, 0);
+  initialValue := getOptionalParam(args, 1);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength(GetNew(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallableNew(callbackfn) = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 6. If len is 0 and initialValue is not present, throw a TypeError exception. */
+  if ((len = 0) &&& (initialValue = null)) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 7. Let k be 0. */
+  k := 0.;
+
+  /* 8. If initialValue is present, then */
+  if (!(initialValue = null)) {
+    /* a. Set accumulator to initialValue. */
+    accumulator := initialValue
+  }
+  /* 9. Else, initialValue is not present */
+  else {
+    /* a. Let kPresent be false. */
+    kPresent := false;
+
+    /* b. Repeat, while kPresent is false and k < len */
+    while ((kPresent = false) && (k < len)) {
+      /* i. Let Pk be ToString(k). */
+      Pk := ToString(k);
+
+      /* ii. Let kPresent be HasProperty(O, Pk). */
+      kPresent := HasPropertyNew(O, Pk);
+
+      /* iii. ReturnIfAbrupt(kPresent). */
+      @ReturnIfAbrupt(kPresent);
+
+      /* iv. If kPresent is true, then */
+      if (kPresent = true) {
+        /* 1. Let accumulator be Get(O, Pk). */
+        accumulator := {O.Get}(O, Pk);
+
+        /* 2. ReturnIfAbrupt(accumulator). */
+        @ReturnIfAbrupt(accumulator)
+      };
+
+      /* v. Increase k by 1. */
+      k := k + 1.
+    };
+
+    /* c. If kPresent is false, throw a TypeError exception. */
+    if (kPresent = false) {
+      throw TypeErrorConstructorInternal()
+    }
+  };
+
+  /* 10. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+
+    /* b. Let kPresent be HasProperty(O, Pk). */
+    kPresent := HasPropertyNew(O, Pk);
+
+    /* c. ReturnIfAbrupt(kPresent).*/
+    @ReturnIfAbrupt(kPresent);
+
+    /* d. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be Get(O, Pk). */
+      kValue := GetNew(O, Pk);
+
+      /* ii. ReturnIfAbrupt(kValue). */
+      @ReturnIfAbrupt(kValue);
+
+      /* iii. Let accumulator be Call(callbackfn, undefined, «accumulator, kValue, k, O»). */
+      accumulator := Call(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O]);
+
+      /* iv. ReturnIfAbrupt(accumulator). */
+      @ReturnIfAbrupt(accumulator)
+    };
+
+    /* e. Increase k by 1. */
+    k := k + 1.
+  };
+
+  /* 11. Return accumulator. */
+  return accumulator
+};
+/**
+ * The length property of the reduce method is 1.
+ *
+ * NOTE The reduce function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore it can be transferred
+ * to other kinds of objects for use as a method. Whether the reduce function
+ * can be applied successfully to a host object is implementation-dependent.
+ */
+
+
+
+/**
+ * 22.1.3.19 Array.prototype.reduceRight ( callbackfn [ , initialValue ] )
+ *
+ * callbackfn should be a function that takes four arguments. reduceRight calls
+ * the callback, as a function, once for each element present in the array, in
+ * descending order.
+ *
+ * callbackfn is called with four arguments: the previousValue (or value from
+ * the previous call to callbackfn), the currentValue (value of the current
+ * element), the currentIndex, and the object being traversed. The first time
+ * the function is called, the previousValue and currentValue can be one of two
+ * values. If an initialValue was provided in the call to reduceRight, then
+ * previousValue will be equal to initialValue and currentValue will be equal
+ * to the last value in the array. If no initialValue was provided, then
+ * previousValue will be equal to the last value in the array and currentValue
+ * will be equal to the second-to-last value. It is a TypeError if the array
+ * contains no elements and initialValue is not provided.
+ *
+ * reduceRight does not directly mutate the object on which it is called but
+ * the object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by reduceRight is set before the first call
+ * to callbackfn. Elements that are appended to the array after the call to
+ * reduceRight begins will not be visited by callbackfn. If existing elements
+ * of the array are changed by callbackfn, their value as passed to callbackfn
+ * will be the value at the time reduceRight visits them; elements that are
+ * deleted after the call to reduceRight begins and before being visited are
+ * not visited.
+ *
+ * When the reduceRight method is called with one or two arguments,
+ * the following steps are taken:
+ */
+function arrayReduceRight(global, this, strict, args) {
+  callbackfn := l_nth(args, 0);
+  initialValue := getOptionalParam(args, 1);
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength(GetNew(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallableNew(callbackfn) = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 6. If len is 0 and initialValue is not present, throw a TypeError exception. */
+  if ((len = 0) &&& (initialValue = null)) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 7. Let k be len-1. */
+  k := len - 1.;
+
+  /* 8. If initialValue is present, then */
+  if (!(initialValue = null)) {
+    /* a. Set accumulator to initialValue. */
+    accumulator := initialValue
+  }
+  /* 8. Else, initialValue is not present */
+  else {
+    /* a. Let kPresent be false. */
+    kPresent := false;
+
+    /* b. Repeat, while kPresent is false and k ≥ 0 */
+    while ((kPresent = false) && (k >= 0.)) {
+      /* i. Let Pk be ToString(k). */
+      Pk := ToString(k);
+
+      /* ii. Let kPresent be HasProperty(O, Pk). */
+      kPresent := HasPropertyNew(O, Pk);
+
+      /* iii. ReturnIfAbrupt(kPresent). */
+      @ReturnIfAbrupt(kPresent);
+
+      /* iv. If kPresent is true, then */
+      if (kPresent = true) {
+        /* 1. Let accumulator be Get(O, Pk). */
+        accumulator := GetNew(O, Pk);
+
+        /* 2. ReturnIfAbrupt(accumulator). */
+        @ReturnIfAbrupt(accumulator)
+      };
+
+      /* v. Decrease k by 1. */
+      k := k - 1.
+    };
+
+    /* c. If kPresent is false, throw a TypeError exception. */
+    if (kPresent = false) {
+      throw TypeErrorConstructorInternal()
+    }
+  };
+
+  /* 10. Repeat, while k ≥ 0 */
+  while (k >= 0.) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+
+    /* b. Let kPresent be HasProperty(O, Pk). */
+    kPresent := HasPropertyNew(O, Pk);
+
+    /* c. ReturnIfAbrupt(kPresent). */
+    @ReturnIfAbrupt(kPresent);
+
+    /* d. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be Get(O, Pk). */
+      kValue := GetNew(O, Pk);
+
+      /* ii. ReturnIfAbrupt(kValue). */
+      @ReturnIfAbrupt(kValue);
+
+      /* iii. Let accumulator be Call(callbackfn, undefined, «accumulator, kValue, k, »). */
+      accumulator := Call(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O]);
+
+      /* iv. ReturnIfAbrupt(accumulator). */
+      @ReturnIfAbrupt(accumulator)
+    };
+
+    /* d. Decrease k by 1. */
+    k := k - 1.
+  };
+
+  /* 11. Return accumulator. */
+  return accumulator
+};
+/**
+ * The length property of the reduceRight method is 1.
+ *
+ * NOTE The reduceRight function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore it can be transferred to
+ * other kinds of objects for use as a method. Whether the reduceRight function
+ * can be applied successfully to a host object is implementation-dependent.
+ */
 
 
 
@@ -1339,7 +2961,6 @@ function arrayReverse(global, this, strict, args) {
 
 
 
-
 /**
  * 22.1.3.21 Array.prototype.shift ( )
  *
@@ -1438,7 +3059,6 @@ function arrayShift(global, this, strict, args) {
  * kinds of objects for use as a method. Whether the shift function can be applied
  * successfully to a host object is implementation-dependent.
  */
-
 
 
 
@@ -1566,7 +3186,118 @@ function arraySlice(global, this, strict, args) {
 
 
 
+/**
+ * 22.1.3.23 Array.prototype.some ( callbackfn [ , thisArg ] )
+ *
+ * callbackfn should be a function that accepts three arguments and returns
+ * a value that is coercible to the Boolean value true or false. some calls
+ * callbackfn once for each element present in the array, in ascending order,
+ * until it finds one where callbackfn returns true. If such an element is
+ ª found, some immediately returns true. Otherwise, some returns false.
+ * callbackfn is called only for elements of the array which actually exist;
+ * it is not called for missing elements of the array.
+ *
+ * If a thisArg parameter is provided, it will be used as the this value for
+ * each invocation of callbackfn. If it is not provided, undefined is used instead.
+ *
+ * callbackfn is called with three arguments: the value of the element, the
+ * index of the element, and the object being traversed.
+ *
+ * some does not directly mutate the object on which it is called but the
+ * object may be mutated by the calls to callbackfn.
+ *
+ * The range of elements processed by some is set before the first call to
+ * callbackfn. Elements that are appended to the array after the call to
+ * some begins will not be visited by callbackfn. If existing elements of
+ * the array are changed, their value as passed to callbackfn will be the
+ * value at the time that some visits them; elements that are deleted after
+ * the call to some begins and before being visited are not visited. some
+ * acts like the "exists" quantifier in mathematics. In particular, for an
+ * empty array, it returns false.
+ *
+ * When the some method is called with one or two arguments, the following
+ * steps are taken:
+ */
+function arraySome(global, this, strict, args) {
+  callbackfn := l_nth(args, 0);
+  thisArg := getOptionalParam(args, 1);
 
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")). */
+  len := ToLength(GetNew(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
+  if (IsCallable(callbackfn) = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
+  if (!(thisArg = null)) {
+    T := thisArg
+  } else {
+    T := 'undefined
+  };
+
+  /* 7. Let k be 0. */
+  k := 0.;
+
+  /* 8. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let Pk be ToString(k). */
+    Pk := ToString(k);
+    
+    /* b. Let kPresent be HasProperty(O, Pk). */
+    kPresent := HasPropertyNew(O, Pk);
+    
+    /* c. ReturnIfAbrupt(kPresent). */
+    @ReturnIfAbrupt(kPresent);
+
+    /* d. If kPresent is true, then */
+    if (kPresent = true) {
+      /* i. Let kValue be Get(O, Pk). */
+      kValue := GetNew(O, Pk);
+
+      /* ii. ReturnIfAbrupt(kValue). */
+      @ReturnIfAbrupt(kValue);
+
+      /* iii. Let testResult be ToBoolean(Call(callbackfn, T, «kValue, k, and O»)). */
+      testResult := Call(null, null, callbackfn, T, [kValue, k, O]);
+
+      /* iv. ReturnIfAbrupt(testResult). */
+      @ReturnIfAbrupt(testResult);
+
+      /* v. If ToBoolean(testResult) is true, return true. */
+      if (ToBoolean(testResult) = true) {
+        return true
+      }
+    };
+
+    /* e. Increase k by 1. */
+    k := k + 1.
+  };
+
+  /* 9. Return false. */
+  return false
+};
+/**
+ * The length property of the some method is 1.
+ *
+ * NOTE The some function is intentionally generic; it does not require
+ * that its this value be an Array object. Therefore it can be transferred
+ * to other kinds of objects for use as a method. Whether the some function
+ * can be applied successfully to a host object is implementation-dependent.
+ */
+
+
+ 
 /**
  * 15.4.4.11 Array.prototype.sort (comparefn) TODO
  *
@@ -1580,7 +3311,6 @@ function arraySort(global, this, strict, args) {
   
   comparefn := l_nth(args, 0);
 
-
   /* 1. Let obj be ToObject(this value). */
   obj := ToObject(this);
 
@@ -1590,13 +3320,20 @@ function arraySort(global, this, strict, args) {
   /* 3. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
 
+  /* The sort order is the ordering, after completion of this function, of the integer
+  *  indexed property values of obj whose integer indexes are less than len. The result
+  *  of the sort function is then determined as follows: */
 
-  /* If comparefn is not undefined and is not a consistent comparison
-     function for the elements of this array (see below), the behaviour
-     of sort is implementation-defined. */
-  /* TODO */
+  /* If comparefn is not undefined and is not a consistent comparison function for the
+  *  elements of this array (see below), the sort order is implementation-defined. The
+  *  sort order is also implementation-defined if comparefn is undefined and
+  *  SortCompare (22.1.3.24.1) does not act as a consistent comparison function. */
+
+  /* if (!(comparefn = 'undefined)) */
+
   /* Let proto be the value of the [[Prototype]] internal property of obj. */
-  proto := obj.Prototype; /* TODO */
+  proto := obj.Prototype;
+
   /* If proto is not null and there exists an integer j such that all of the
      conditions below are satisfied then the behaviour of sort is
      implementation-defined:
@@ -2122,7 +3859,6 @@ function arraySplice(global, this, strict, args) {
   /* 26. Return A. */
   return A
 }; 
-
 /**
  * The length property of the splice method is 2.
  *
@@ -2132,6 +3868,150 @@ function arraySplice(global, this, strict, args) {
  * applied successfully to a host object is implementation-dependent.
  */
 
+
+
+/**
+ * 22.1.3.26 Array.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ] )
+ *
+ * The elements of the array are converted to Strings using their
+ * toLocaleString methods, and these Strings are then concatenated,
+ * separated by occurrences of a separator String that has been derived
+ * in an implementation-defined locale-specific way. The result of calling
+ * this function is intended to be analogous to the result of toString,
+ * except that the result of this function is intended to be locale-specific.
+ *
+ * The result is calculated as follows:
+ */
+function arrayToLocaleString(global, this, strict, args) {
+
+  /* 1. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let len be ToLength(Get(O, "length")) */
+  len := ToLength(GetNew(O, "length"));
+
+  /* 4. ReturnIfAbrupt(len). */
+  @ReturnIfAbrupt(len);
+
+  /* 5. Let separator be the String value for the list-separator String appropriate 
+        for the host environment’s current locale (this is derived in an 
+        implementation-defined way). */
+  separator := ","; /* TODO : Host Enviroment */
+
+  /* 6. If len is zero, return the empty String. */
+  if (len = 0.) {
+    return ""
+  };
+
+  /* 7. Let firstElement be Get(array, "0"). */
+  firstElement := GetNew(O, "0");
+
+  /* 8. ReturnIfAbrupt(firstElement). */
+  @ReturnIfAbrupt(firstElement);
+
+  /* 9. If firstElement is undefined or null, then */
+  if ((firstElement = 'undefined) || (firstElement = 'null)) {
+    /* a. Let R be the empty String. */
+    R := ""
+  }
+  /* 10. Else */
+  else {
+
+    /* a. Let R be ToString(Invoke(firstElement, "toLocaleString")). */
+    R := ToString(Invoke(firstElement, "toLocaleString", []));
+
+    /* b. ReturnIfAbrupt(R). */
+    @ReturnIfAbrupt(R)
+  };
+
+  /* 11. Let k be 1. */
+  k := 1.;
+
+  /* 12. Repeat, while k < len */
+  while (k < len) {
+    /* a. Let S be a String value produced by concatenating R and separator. */
+    S := s_concat([ToString(R), separator]);
+
+    /* b. Let nextElement be Get(array, ToString(k)). */
+    nextElement := GetNew(O, ToString(k));
+
+    /* c. ReturnIfAbrupt(nextElement). */
+    @ReturnIfAbrupt(nextElement);
+
+    /* d. If nextElement is undefined or null, then */
+    if ((nextElement = 'undefined) || (nextElement = 'null)) {
+      /* i. Let R be the empty String. */
+      R := ""
+    }
+    /* e. Else */
+    else {
+      /* a. Let R be ToString(Invoke(nextElement, "toLocaleString")). */
+      R := ToString(Invoke(nextElement, "toLocaleString", []));
+
+      /* b. ReturnIfAbrupt(R). */
+      @ReturnIfAbrupt(R)
+    };
+
+    /* f. Let R be a String value produced by concatenating S and R. */
+    R := s_concat([S, ToString(R)]);
+
+    /* g. Increase k by 1. */
+    k := k + 1.
+  };
+
+  /* 13. Return R. */
+  return R
+};
+/**
+ * NOTE 1 The first parameter to this function is likely to be used in a
+ * future version of this standard; it is recommended that implementations
+ * do not use this parameter position for anything else.
+ *
+ * NOTE 2 The toLocaleString function is intentionally generic; it does not
+ * require that its this value be an Array object. Therefore it can be
+ * transferred to other kinds of objects for use as a method. Whether the
+ * toLocaleString function can be applied successfully to a host object is
+ * implementation-dependent.
+ */
+
+
+
+/**
+ * 22.1.3.27 Array.prototype.toString ( )
+ *
+ * When the toString method is called, the following steps are taken:
+ */
+function arrayToString(global, this, strict, args) {
+  /* 1. Let array be ToObject(this value). */
+  array := ToObject(this);
+
+  /* 2. ReturnIfAbrupt(array). */
+  @ReturnIfAbrupt(array);
+  
+  /* 3. Let func be Get(array, "join"). */
+  func := GetNew(array, "join");
+
+  /* 4. ReturnIfAbrupt(func). */
+  @ReturnIfAbrupt(func);
+
+  /* 5. If IsCallable(func) is false, let func be the intrinsic function %ObjProto_toString% (19.1.3.6). */
+  if (IsCallable(func) = false) {
+    func := getObjectPrototypeToString(strict)
+  };
+
+  /* 6. Return Call(func, array). */
+  return Call(null, null, func, array, [])
+};
+/**
+ * NOTE The toString function is intentionally generic; it does not
+ * require that its this value be an Array object. Therefore it can be
+ * transferred to other kinds of objects for use as a method. Whether
+ * the toString function can be applied successfully to a host object
+ * is implementation-dependent.
+ */
 
 
 
@@ -2256,27 +4136,12 @@ function arrayUnshift(global, this, strict, items) {
 
 
 
-
 /**
- * 22.1.3.11 Array.prototype.indexOf ( searchElement [ , fromIndex ] )
- *
- * indexOf compares searchElement to the elements of the array, in ascending
- * order, using the internal Strict Equality Comparison Algorithm (11.9.6),
- * and if found at one or more positions, returns the index of the first such
- * position; otherwise, -1 is returned.
- *
- * The optional second argument fromIndex defaults to 0 (i.e. the whole array
- * is searched). If it is greater than or equal to the length of the array, -1
- * is returned, i.e. the array will not be searched. If it is negative, it is
- * used as the offset from the end of the array to compute fromIndex. If the
- * computed index is less than 0, the whole array will be searched.
- *
- * When the indexOf method is called with one or two arguments, the following
- * steps are taken:
- */
-function arrayIndexOf(global, this, strict, args) {
-  searchElement := l_nth(args, 0);
-  fromIndex := getOptionalParam(args, 1);
+*  22.1.3.29 Array.prototype.values ( )
+*  
+*  This function is the %ArrayProto_values% intrinsic object.
+*/
+function arrayValues (global, this, strict, args) {
 
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -2284,1076 +4149,9 @@ function arrayIndexOf(global, this, strict, args) {
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
 
-  /* 3. Let len be ToLength(Get(O, "length")). */
-  len := GetNew(O, "length");
-
-  /* 4. ReturnIfAbrupt(len).*/
-  @ReturnIfAbrupt(len);
-
-  /* 5. If len is 0, return -1. */
-  if (len = 0.) {
-    return -(1.)
-  };
-
-  /* 6. If argument fromIndex was passed let n be ToInteger(fromIndex);
-        else let n be 0. */
-  if (!(fromIndex = null)) {
-    n := ToInteger(fromIndex)
-  } else {
-    n := 0.
-  };
-
-  /* 7. ReturnIfAbrupt(n). */
-  @ReturnIfAbrupt(n);
-
-  /* 8. If n ≥ len, return -1. */
-  if (n >= len) {
-    return -(1.)
-  };
-
-  /* 9. If n ≥ 0, then */
-  if (n >= 0.) {
-    /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
-    /* a. If n is -0, let k be +0; else let k be n. */
-    if (isMinusZero(n)) {
-      k := 0.
-    } else {
-      k := n
-    }
-
-  /* 10. Else, n<0 */
-  } else {
-    /* a. Let k be len - abs(n). */
-    k := len - abs(n);
-    /* b. If k is less than 0, then let k be 0. */
-    if (k < 0.) {
-      k := 0.
-    }
-  };
-
-  /* 11. Repeat, while k<len */
-  while (k < len) {
-    /* a. Let kPresent be HasProperty(O, ToString(k)). */
-    kPresent := HasPropertyNew(O, ToString(k));
-
-    /* b. ReturnIfAbrupt(kPresent).*/
-    @ReturnIfAbrupt(kPresent);
-
-    /* c. If kPresent is true, then */
-    if (kPresent = true) {
-      /* i. Let elementK be Get(O, ToString(k)). */
-      elementK := GetNew(O, ToString(k));
-
-      /* ii. ReturnIfAbrupt(elementK). */
-      @ReturnIfAbrupt(elementK);
-
-      /* iii. Let same be the result of applying the Strict Equality Comparison
-            Algorithm to searchElement and elementK. */
-      same := StrictEqualityComparison(searchElement, elementK);
-
-      /* iv. If same is true, return k. */
-      if (same = true) {
-        return k
-      }
-    };
-
-    /* d. Increase k by 1. */
-    k := k + 1.
-  };
-
-  /* 10. Return -1. */
-  return -(1.)
+  /* 3. Return CreateArrayIterator(O, "value"). */
+  return CreateArrayIterator(O, "value")
 };
-/**
- * The length property of the indexOf method is 1.
- *
- * NOTE The indexOf function is intentionally generic; it does not require
- * that its this value be an Array object. Therefore it can be transferred
- * to other kinds of objects for use as a method. Whether the indexOf function
- * can be applied successfully to a host object is implementation-dependent.
- */
-
-
-
-
-/**
- * 21.1.3.9 Array.prototype.lastIndexOf ( searchString [ , position ] )
- *
- * lastIndexOf compares searchElement to the elements of the array in
- * descending order using the internal Strict Equality Comparison Algorithm
- * (11.9.6), and if found at one or more positions, returns the index of the
- * last such position; otherwise, -1 is returned.
- *
- * The optional second argument fromIndex defaults to the array's length minus
- * one (i.e. the whole array is searched). If it is greater than or equal to
- * the length of the array, the whole array will be searched. If it is
- * negative, it is used as the offset from the end of the array to compute
- * fromIndex. If the computed index is less than 0, -1 is returned.
- *
- * When the lastIndexOf method is called with one or two arguments, the
- * following steps are taken:
- */
-function arrayLastIndexOf(global, this, strict, args) {
-  searchElement := l_nth(args, 0);
-  fromIndex := getOptionalParam(args, 1);
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O).*/
-  @ReturnIfAbrupt(O);
-
-  /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
-
-  /* 4. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 5. If len is 0, return -1. */
-  if (len = 0.) {
-    return -(1.)
-  };
-
-  /* 6. If argument fromIndex was passed let n be ToInteger(fromIndex);
-        else let n be len. */
-  if (!(fromIndex = null)) {
-    n := ToInteger(fromIndex)
-  } else {
-    n := len - 1.
-  };
-
-  /* 7. ReturnIfAbrupt(n). */
-  @ReturnIfAbrupt(n);
-
-  /* 8. If n ≥ 0, then let k be min(n, len - 1). */
-  if (n >= 0.) {
-    /* This comparison with -0 was extracted from ES7 standard. Fix bug. */
-    /* a. If n is -0, let k be +0; else let k be min(n, len - 1). */
-    if (isMinusZero(n)) {
-      k := 0.
-    } else {
-      k := min(n, len - 1.)
-    }
-  }
-  /* 9. Else, n < 0 */
-  else {
-    /* a. Let k be len - abs(n). */
-    k := len - abs(n)
-  };
-  /* 10. Repeat, while k≥ 0 */
-  while (k >= 0.) {
-    /* a. Let kPresent be HasProperty(O, ToString(k)). */
-    kPresent := HasPropertyNew(O, ToString(k));
-
-    /* b. ReturnIfAbrupt(kPresent). */
-    @ReturnIfAbrupt(kPresent);
-
-    /* c. If kPresent is true, then */
-    if (kPresent = true) {
-      /* i. Let elementK be Get(O, ToString(k)). */
-      elementK := GetNew(O, ToString(k));
-
-      /* ii. ReturnIfAbrupt(elementK).*/
-      @ReturnIfAbrupt(elementK);
-
-      /* iii. Let same be the result of performing Strict Equality Comparison
-              searchElement === elementK. */
-      same := StrictEqualityComparison(searchElement, elementK);
-
-      /* iv. If same is true, return k. */
-      if (same = true) {
-        return k
-      }
-    };
-
-    /* d. Decrease k by 1. */
-    k := k - 1.
-  };
-
-  /* 11. Return -1. */
-  return -(1.)
-};
-/**
- * The length property of the lastIndexOf method is 1.
- *
- * NOTE The lastIndexOf function is intentionally generic; it does not
- * require that its this value be an Array object. Therefore it can be
- * transferred to other kinds of objects for use as a method. Whether the
- * lastIndexOf function can be applied successfully to a host object is
- * implementation-dependent.
- */
-
-
-
-
-/**
- * 22.1.3.5 Array.prototype.every ( callbackfn [ , thisArg] )
- *
- * callbackfn should be a function that accepts three arguments and returns
- * a value that is coercible to the Boolean value true or false. every calls
- * callbackfn once for each element present in the array, in ascending order,
- * until it finds one where callbackfn returns false. If such an element is
- * found, every immediately returns false. Otherwise, if callbackfn returned
- * true for all elements, every will return true. callbackfn is called only
- * for elements of the array which actually exist; it is not called for
- * missing elements of the array.
- *
- * If a thisArg parameter is provided, it will be used as the this value
- * for each invocation of callbackfn. If it is not provided, undefined is
- * used instead.
- *
- * callbackfn is called with three arguments: the value of the element,
- * the index of the element, and the object being traversed.
- *
- * every does not directly mutate the object on which it is called but the
- * object may be mutated by the calls to callbackfn.
- *
- * The range of elements processed by every is set before the first call
- * to callbackfn. Elements which are appended to the array after the call
- * to every begins will not be visited by callbackfn. If existing elements
- * of the array are changed, their value as passed to callbackfn will be the
- * value at the time every visits them; elements that are deleted after the
- * call to every begins and before being visited are not visited. every acts
- * like the "for all" quantifier in mathematics. In particular, for an empty
- * array, it returns true.
- *
- * When the every method is called with one or two arguments, the following
- * steps are taken:
- */
-function arrayEvery(global, this, strict, args) {
-  callbackfn := l_nth(args, 0);
-  thisArg := getOptionalParam(args, 1);
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
-
-  /* 4. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallableNew(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
-  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
-  /* 7. Let k be 0. */
-  k := 0.;
-
-  /* 8. Repeat, while k < len */
-  while (k < len) {
-    /* a. Let Pk be ToString(k). */
-    Pk := ToString(k);
-
-    /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
-
-    /* c. ReturnIfAbrupt(kPresent). */
-    @ReturnIfAbrupt(kPresent);
-
-    /* d. If kPresent is true, then */
-    if (kPresent = true) {
-      /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
-
-      /* ii. ReturnIfAbrupt(kValue). */
-      @ReturnIfAbrupt(kValue);
-
-      /* iii. Let testResult be ToBoolean(Call(callbackfn, T, «kValue, k, O»)). */
-      testResult := ToBoolean(Call(null, null, callbackfn, T, [kValue, k, O]));
-
-      /* iv. ReturnIfAbrupt(testResult). */
-      @ReturnIfAbrupt(testResult);
-
-      /* v. If testResult is false, return false. */
-      if (ToBoolean(testResult) = false) {
-        return false
-      }
-    };
-
-    /* e. Increase k by 1. */
-    k := k + 1.
-  };
-
-  /* 9. Return true. */
-  return true
-};
-/**
- * The length property of the every method is 1.
- *
- * NOTE The every function is intentionally generic; it does not require
- * that its this value be an Array object. Therefore it can be transferred
- * to other kinds of objects for use as a method. Whether the every function
- * can be applied successfully to a host object is implementation-dependent.
- */
-
-
-
-
-/**
- * 22.1.3.23 Array.prototype.some ( callbackfn [ , thisArg ] )
- *
- * callbackfn should be a function that accepts three arguments and returns
- * a value that is coercible to the Boolean value true or false. some calls
- * callbackfn once for each element present in the array, in ascending order,
- * until it finds one where callbackfn returns true. If such an element is
- ª found, some immediately returns true. Otherwise, some returns false.
- * callbackfn is called only for elements of the array which actually exist;
- * it is not called for missing elements of the array.
- *
- * If a thisArg parameter is provided, it will be used as the this value for
- * each invocation of callbackfn. If it is not provided, undefined is used instead.
- *
- * callbackfn is called with three arguments: the value of the element, the
- * index of the element, and the object being traversed.
- *
- * some does not directly mutate the object on which it is called but the
- * object may be mutated by the calls to callbackfn.
- *
- * The range of elements processed by some is set before the first call to
- * callbackfn. Elements that are appended to the array after the call to
- * some begins will not be visited by callbackfn. If existing elements of
- * the array are changed, their value as passed to callbackfn will be the
- * value at the time that some visits them; elements that are deleted after
- * the call to some begins and before being visited are not visited. some
- * acts like the "exists" quantifier in mathematics. In particular, for an
- * empty array, it returns false.
- *
- * When the some method is called with one or two arguments, the following
- * steps are taken:
- */
-function arraySome(global, this, strict, args) {
-  callbackfn := l_nth(args, 0);
-  thisArg := getOptionalParam(args, 1);
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
-
-  /* 4. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
-  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
-  /* 7. Let k be 0. */
-  k := 0.;
-
-  /* 8. Repeat, while k < len */
-  while (k < len) {
-    /* a. Let Pk be ToString(k). */
-    Pk := ToString(k);
-    
-    /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
-    
-    /* c. ReturnIfAbrupt(kPresent). */
-    @ReturnIfAbrupt(kPresent);
-
-    /* d. If kPresent is true, then */
-    if (kPresent = true) {
-      /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
-
-      /* ii. ReturnIfAbrupt(kValue). */
-      @ReturnIfAbrupt(kValue);
-
-      /* iii. Let testResult be ToBoolean(Call(callbackfn, T, «kValue, k, and O»)). */
-      testResult := Call(null, null, callbackfn, T, [kValue, k, O]);
-
-      /* iv. ReturnIfAbrupt(testResult). */
-      @ReturnIfAbrupt(testResult);
-
-      /* v. If ToBoolean(testResult) is true, return true. */
-      if (ToBoolean(testResult) = true) {
-        return true
-      }
-    };
-
-    /* e. Increase k by 1. */
-    k := k + 1.
-  };
-
-  /* 9. Return false. */
-  return false
-};
-/**
- * The length property of the some method is 1.
- *
- * NOTE The some function is intentionally generic; it does not require
- * that its this value be an Array object. Therefore it can be transferred
- * to other kinds of objects for use as a method. Whether the some function
- * can be applied successfully to a host object is implementation-dependent.
- */
-
-
-
-
-/**
- * 22.1.3.10 Array.prototype.forEach ( callbackfn [ , thisArg ] )
- *
- * callbackfn should be a function that accepts three arguments. forEach
- * calls callbackfn once for each element present in the array, in ascending
- * order. callbackfn is called only for elements of the array which actually
- * exist; it is not called for missing elements of the array.
- *
- * If a thisArg parameter is provided, it will be used as the this value for
- * each invocation of callbackfn. If it is not provided, undefined is used
- * instead.
- *
- * callbackfn is called with three arguments: the value of the element,
- * the index of the element, and the object being traversed.
- *
- * forEach does not directly mutate the object on which it is called but
- * the object may be mutated by the calls to callbackfn.
- *
- * The range of elements processed by forEach is set before the first
- * call to callbackfn. Elements which are appended to the array after the
- * call to forEach begins will not be visited by callbackfn. If existing
- * elements of the array are changed, their value as passed to callback
- * will be the value at the time forEach visits them; elements that are
- * deleted after the call to forEach begins and before being visited are
- * not visited.
- *
- * When the forEach method is called with one or two arguments, the
- * following steps are taken:
- */
-function arrayForEach(global, this, strict, args) {
-  callbackfn := l_nth(args, 0);
-  thisArg := getOptionalParam(args, 1);
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
-
-  /* 4. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallable(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
-  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
-  /* 7. Let k be 0. */
-  k := 0.;
-
-  /* 8. Repeat, while k < len */
-  while (k < len) {
-    /* a. Let Pk be ToString(k). */
-    Pk := ToString(k);
-    
-    /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
-
-    /* c. ReturnIfAbrupt(kPresent). */
-    @ReturnIfAbrupt(kPresent);
-
-    /* d. If kPresent is true, then */
-    if (kPresent = true) {
-      /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
-
-      /* ii. ReturnIfAbrupt(kValue). */
-      @ReturnIfAbrupt(kValue);
-
-      /* iii. Let funcResult be Call(callbackfn, T, «kValue, k, O»). */
-      funcResult := Call(null, null, callbackfn, T, [kValue, k, O]);
-
-      /* iv. ReturnIfAbrupt(funcResult). */
-      @ReturnIfAbrupt(funcResult)
-    };
-
-    /* e. Increase k by 1. */
-    k := k + 1.
-  };
-
-  /* 9. Return undefined. */
-  return 'undefined
-};
-/**
- * The length property of the forEach method is 1.
- *
- * NOTE The forEach function is intentionally generic; it does not require
- * that its this value be an Array object. Therefore it can be transferred
- * to other kinds of objects for use as a method. Whether the forEach function
- * can be applied successfully to a host object is implementation-dependent.
- */
-
-
-
-
-/**
- * 22.1.3.15 Array.prototype.map ( callbackfn [ , thisArg ] )
- *
- * callbackfn should be a function that accepts three arguments. map calls
- * callbackfn once for each element in the array, in ascending order, and
- * constructs a new Array from the results. callbackfn is called only for
- * elements of the array which actually exist; it is not called for missing
- * elements of the array.
- *
- * If a thisArg parameter is provided, it will be used as the this value
- * for each invocation of callbackfn. If it is not provided, undefined is
- * used instead.
- *
- * callbackfn is called with three arguments: the value of the element,
- * the index of the element, and the object being traversed.
- *
- * map does not directly mutate the object on which it is called but the
- * object may be mutated by the calls to callbackfn.
- *
- * The range of elements processed by map is set before the first call
- * to callbackfn. Elements which are appended to the array after the call
- * to map begins will not be visited by callbackfn. If existing elements of
- * the array are changed, their value as passed to callbackfn will be the
- * value at the time map visits them; elements that are deleted after the
- * call to map begins and before being visited are not visited.
- *
- * When the map method is called with one or two arguments, the following
- * steps are taken:
- */
-function arrayMap(global, this, strict, args) {
-  callbackfn := l_nth(args, 0);
-  thisArg := getOptionalParam(args, 1);
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
-
-  /* 4. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallableNew(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
-  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
-  /* 7. Let A be ArraySpeciesCreate(O, len). */
-  A := ArrayConstructor(global, this, strict, [len]);
-
-  /* 8. ReturnIfAbrupt(A). */
-  @ReturnIfAbrupt(A);
-
-  /* 9. Let k be 0. */
-  k := 0.;
-
-  /* 10. Repeat, while k < len */
-  while (k < len) {
-    /* a. Let Pk be ToString(k). */
-    Pk := ToString(k);
-
-    /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
-
-    /* c. ReturnIfAbrupt(kPresent). */
-    @ReturnIfAbrupt(kPresent);
-
-    /* d. If kPresent is true, then */
-    if (kPresent = true) {
-      /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
-
-      /* ii. ReturnIfAbrupt(kValue). */
-      @ReturnIfAbrupt(kValue);
-
-
-      /* ii. Let mappedValue be Call(callbackfn, T, «kValue, k, O»). */
-      mappedValue := Call(null, null, callbackfn, T, [kValue, k, O]);
-
-      /* iii. ReturnIfAbrupt(mappedValue). */
-      @ReturnIfAbrupt(mappedValue);
-
-      /* iv. Let status be CreateDataPropertyOrThrow (A, Pk, mappedValue). */
-      status := CreateDataPropertyOrThrow(A, Pk, mappedValue);
-
-      /* v. ReturnIfAbrupt(status). */
-      @ReturnIfAbrupt(status)
-    };
-
-    /* e. Increase k by 1. */
-    k := k + 1.
-  };
-
-  /* 11. Return A. */
-  return A
-};
-/**
- * The length property of the map method is 1.
- *
- * NOTE The map function is intentionally generic; it does not require that
- * its this value be an Array object. Therefore it can be transferred to other
- * kinds of objects for use as a method. Whether the map function can be applied
- * successfully to a host object is implementation-dependent.
- */
-
-
-
-
-/**
- *  22.1.3.7 Array.prototype.filter ( callbackfn [ , thisArg ] )
- *
- * callbackfn should be a function that accepts three arguments and returns a
- * value that is coercible to the Boolean value true or false. filter calls
- * callbackfn once for each element in the array, in ascending order, and
- * constructs a new array of all the values for which callbackfn returns true.
- * callbackfn is called only for elements of the array which actually exist; it
- * is not called for missing elements of the array.
- *
- * If a thisArg parameter is provided, it will be used as the this value for
- * each invocation of callbackfn. If it is not provided, undefined is used instead.
- *
- * callbackfn is called with three arguments: the value of the element, the
- * index of the element, and the object being traversed.
- *
- * filter does not directly mutate the object on which it is called but the
- * object may be mutated by the calls to callbackfn.
- *
- * The range of elements processed by filter is set before the first call to
- * callbackfn. Elements which are appended to the array after the call to filter
- * begins will not be visited by callbackfn. If existing elements of the array
- * are changed their value as passed to callbackfn will be the value at the time
- * filter visits them; elements that are deleted after the call to filter begins
- * and before being visited are not visited.
- *
- * When the filter method is called with one or two arguments, the following
- * steps are taken:
- */
-function arrayFilter(global, this, strict, args) {
-  callbackfn := l_nth(args, 0);
-  thisArg := getOptionalParam(args, 1);
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
-
-  /* 4. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallableNew(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
-  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
-  /* 7. Let A be ArraySpeciesCreate(O, 0). */
-  A := ArrayConstructor(global, this, strict, []);
-  
-  /* 8. ReturnIfAbrupt(A). */
-  @ReturnIfAbrupt(A);
-
-  /* 9. Let k be 0. */
-  k := 0.;
-
-  /* 10. Let to be 0. */
-  to := 0.;
-
-  /* 11. Repeat, while k < len */
-  while (k < len) {
-
-    /* a. Let Pk be ToString(k). */
-    Pk := ToString(k);
-
-    /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
-
-    /* c. ReturnIfAbrupt(kPresent). */
-    @ReturnIfAbrupt(kPresent);
-    
-    /* d. If kPresent is true, then */
-    if (kPresent = true) {
-      /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
-
-      /* ii. ReturnIfAbrupt(kValue). */
-      @ReturnIfAbrupt(kValue);
-
-      /* iii. Let selected be ToBoolean(Call(callbackfn, T, «kValue, k, O»)). */
-      selected := ToBoolean(Call(null, null, callbackfn, T, [kValue, k, O]));
-
-      /* iv. ReturnIfAbrupt(selected). */
-      @ReturnIfAbrupt(selected);
-
-      /* v. If selected is true, then  */
-      if (selected = true) {
-        /* 1. Let status be CreateDataPropertyOrThrow (A, ToString(to), kValue). */
-        status := CreateDataPropertyOrThrow(A, ToString(to), kValue);
-
-        /* 2. ReturnIfAbrupt(status). */
-        @ReturnIfAbrupt(status);
-
-        /* 3. Increase to by 1. */
-        to := to + 1.
-      }
-    };
-
-    /* e. Increase k by 1. */
-    k := k + 1.
-  };
-
-  /* 12. Return A. */
-  return A
-};
-/**
- * The length property of the filter method is 1.
- *
- * NOTE The filter function is intentionally generic; it does not require that
- * its this value be an Array object. Therefore it can be transferred to other
- * kinds of objects for use as a method. Whether the filter function can be
- * applied successfully to a host object is implementation-dependent.
- */
-
-
-
-
-/**
- * 22.1.3.18 Array.prototype.reduce ( callbackfn [ , initialValue ] )
- *
- * callbackfn should be a function that takes four arguments. reduce calls
- * the callback, as a function, once for each element present in the array,
- * in ascending order.
- *
- * callbackfn is called with four arguments: the previousValue (or value
- * from the previous call to callbackfn), the currentValue (value of the
- * current element), the currentIndex, and the object being traversed. The
- * first time that callback is called, the previousValue and currentValue
- * can be one of two values. If an initialValue was provided in the call to
- * reduce, then previousValue will be equal to initialValue and currentValue
- * will be equal to the first value in the array. If no initialValue was
- * provided, then previousValue will be equal to the first value in the array
- * and currentValue will be equal to the second. It is a TypeError if the
- * array contains no elements and initialValue is not provided.
- *
- * reduce does not directly mutate the object on which it is called but
- * the object may be mutated by the calls to callbackfn.
- *
- * The range of elements processed by reduce is set before the first call
- * to callbackfn. Elements that are appended to the array after the call to
- * reduce begins will not be visited by callbackfn. If existing elements of
- * the array are changed, their value as passed to callbackfn will be the
- * value at the time reduce visits them; elements that are deleted after
- * the call to reduce begins and before being visited are not visited.
- *
- * When the reduce method is called with one or two arguments, the
- * following steps are taken:
- */
-function arrayReduce(global, this, strict, args) {
-  callbackfn := l_nth(args, 0);
-  initialValue := getOptionalParam(args, 1);
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
-
-  /* 4. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallableNew(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
-  /* 6. If len is 0 and initialValue is not present, throw a TypeError exception. */
-  if ((len = 0) &&& (initialValue = null)) {
-    throw TypeErrorConstructorInternal()
-  };
-
-  /* 7. Let k be 0. */
-  k := 0.;
-
-  /* 8. If initialValue is present, then */
-  if (!(initialValue = null)) {
-    /* a. Set accumulator to initialValue. */
-    accumulator := initialValue
-  }
-  /* 9. Else, initialValue is not present */
-  else {
-    /* a. Let kPresent be false. */
-    kPresent := false;
-
-    /* b. Repeat, while kPresent is false and k < len */
-    while ((kPresent = false) && (k < len)) {
-      /* i. Let Pk be ToString(k). */
-      Pk := ToString(k);
-
-      /* ii. Let kPresent be HasProperty(O, Pk). */
-      kPresent := HasPropertyNew(O, Pk);
-
-      /* iii. ReturnIfAbrupt(kPresent). */
-      @ReturnIfAbrupt(kPresent);
-
-      /* iv. If kPresent is true, then */
-      if (kPresent = true) {
-        /* 1. Let accumulator be Get(O, Pk). */
-        accumulator := {O.Get}(O, Pk);
-
-        /* 2. ReturnIfAbrupt(accumulator). */
-        @ReturnIfAbrupt(accumulator)
-      };
-
-      /* v. Increase k by 1. */
-      k := k + 1.
-    };
-
-    /* c. If kPresent is false, throw a TypeError exception. */
-    if (kPresent = false) {
-      throw TypeErrorConstructorInternal()
-    }
-  };
-
-  /* 10. Repeat, while k < len */
-  while (k < len) {
-    /* a. Let Pk be ToString(k). */
-    Pk := ToString(k);
-
-    /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
-
-    /* c. ReturnIfAbrupt(kPresent).*/
-    @ReturnIfAbrupt(kPresent);
-
-    /* d. If kPresent is true, then */
-    if (kPresent = true) {
-      /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
-
-      /* ii. ReturnIfAbrupt(kValue). */
-      @ReturnIfAbrupt(kValue);
-
-      /* iii. Let accumulator be Call(callbackfn, undefined, «accumulator, kValue, k, O»). */
-      accumulator := Call(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O]);
-
-      /* iv. ReturnIfAbrupt(accumulator). */
-      @ReturnIfAbrupt(accumulator)
-    };
-
-    /* e. Increase k by 1. */
-    k := k + 1.
-  };
-
-  /* 11. Return accumulator. */
-  return accumulator
-};
-/**
- * The length property of the reduce method is 1.
- *
- * NOTE The reduce function is intentionally generic; it does not require
- * that its this value be an Array object. Therefore it can be transferred
- * to other kinds of objects for use as a method. Whether the reduce function
- * can be applied successfully to a host object is implementation-dependent.
- */
-
-
-
-
-/**
- * 22.1.3.19 Array.prototype.reduceRight ( callbackfn [ , initialValue ] )
- *
- * callbackfn should be a function that takes four arguments. reduceRight calls
- * the callback, as a function, once for each element present in the array, in
- * descending order.
- *
- * callbackfn is called with four arguments: the previousValue (or value from
- * the previous call to callbackfn), the currentValue (value of the current
- * element), the currentIndex, and the object being traversed. The first time
- * the function is called, the previousValue and currentValue can be one of two
- * values. If an initialValue was provided in the call to reduceRight, then
- * previousValue will be equal to initialValue and currentValue will be equal
- * to the last value in the array. If no initialValue was provided, then
- * previousValue will be equal to the last value in the array and currentValue
- * will be equal to the second-to-last value. It is a TypeError if the array
- * contains no elements and initialValue is not provided.
- *
- * reduceRight does not directly mutate the object on which it is called but
- * the object may be mutated by the calls to callbackfn.
- *
- * The range of elements processed by reduceRight is set before the first call
- * to callbackfn. Elements that are appended to the array after the call to
- * reduceRight begins will not be visited by callbackfn. If existing elements
- * of the array are changed by callbackfn, their value as passed to callbackfn
- * will be the value at the time reduceRight visits them; elements that are
- * deleted after the call to reduceRight begins and before being visited are
- * not visited.
- *
- * When the reduceRight method is called with one or two arguments,
- * the following steps are taken:
- */
-function arrayReduceRight(global, this, strict, args) {
-  callbackfn := l_nth(args, 0);
-  initialValue := getOptionalParam(args, 1);
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
-
-  /* 4. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallableNew(callbackfn) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
-  /* 6. If len is 0 and initialValue is not present, throw a TypeError exception. */
-  if ((len = 0) &&& (initialValue = null)) {
-    throw TypeErrorConstructorInternal()
-  };
-
-  /* 7. Let k be len-1. */
-  k := len - 1.;
-
-  /* 8. If initialValue is present, then */
-  if (!(initialValue = null)) {
-    /* a. Set accumulator to initialValue. */
-    accumulator := initialValue
-  }
-  /* 8. Else, initialValue is not present */
-  else {
-    /* a. Let kPresent be false. */
-    kPresent := false;
-
-    /* b. Repeat, while kPresent is false and k ≥ 0 */
-    while ((kPresent = false) && (k >= 0.)) {
-      /* i. Let Pk be ToString(k). */
-      Pk := ToString(k);
-
-      /* ii. Let kPresent be HasProperty(O, Pk). */
-      kPresent := HasPropertyNew(O, Pk);
-
-      /* iii. ReturnIfAbrupt(kPresent). */
-      @ReturnIfAbrupt(kPresent);
-
-      /* iv. If kPresent is true, then */
-      if (kPresent = true) {
-        /* 1. Let accumulator be Get(O, Pk). */
-        accumulator := GetNew(O, Pk);
-
-        /* 2. ReturnIfAbrupt(accumulator). */
-        @ReturnIfAbrupt(accumulator)
-      };
-
-      /* v. Decrease k by 1. */
-      k := k - 1.
-    };
-
-    /* c. If kPresent is false, throw a TypeError exception. */
-    if (kPresent = false) {
-      throw TypeErrorConstructorInternal()
-    }
-  };
-
-  /* 10. Repeat, while k ≥ 0 */
-  while (k >= 0.) {
-    /* a. Let Pk be ToString(k). */
-    Pk := ToString(k);
-
-    /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
-
-    /* c. ReturnIfAbrupt(kPresent). */
-    @ReturnIfAbrupt(kPresent);
-
-    /* d. If kPresent is true, then */
-    if (kPresent = true) {
-      /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
-
-      /* ii. ReturnIfAbrupt(kValue). */
-      @ReturnIfAbrupt(kValue);
-
-      /* iii. Let accumulator be Call(callbackfn, undefined, «accumulator, kValue, k, »). */
-      accumulator := Call(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O]);
-
-      /* iv. ReturnIfAbrupt(accumulator). */
-      @ReturnIfAbrupt(accumulator)
-    };
-
-    /* d. Decrease k by 1. */
-    k := k - 1.
-  };
-
-  /* 11. Return accumulator. */
-  return accumulator
-};
-/**
- * The length property of the reduceRight method is 1.
- *
- * NOTE The reduceRight function is intentionally generic; it does not require
- * that its this value be an Array object. Therefore it can be transferred to
- * other kinds of objects for use as a method. Whether the reduceRight function
- * can be applied successfully to a host object is implementation-dependent.
- */
-
-
-
 
 
 /**
@@ -3516,750 +4314,6 @@ function IsArrayIndex(P) {
 };
 
 /**
-*  22.1.2.1 Array.from ( items [ , mapfn [ , thisArg ] ] )
-*    
-*  The length property of the from method is 1.
-*
-*  NOTE The from function is an intentionally generic factory method; it does not require that
-*  its this value be the Array constructor. Therefore it can be transferred to or inherited by 
-*  any other constructors that may be called with a single numeric argument.
-*
-*/
-function arrayFrom (global, this, strict, args) {
-
-  /* method is called with argument items and optional arguments mapfn and thisArg */
-  items := l_nth(args, 0);
-  mapfn := getOptionalParam(args, 1);
-  thisArg := getOptionalParam(args, 2);
-
-  /* 1. Let C be the this value. */
-  C := this;
-
-  /* 2. If mapfn is undefined, let mapping be false. */
-  if ((mapfn = 'undefined) ||| (mapfn = null)) {
-    mapping := false
-
-  /* 3. else */
-  } else {
-    /* a. If IsCallable(mapfn) is false, throw a TypeError exception. */
-    if ((!(mapfn = null)) &&& (IsCallableNew(mapfn) = false)) {
-      throw TypeErrorConstructorInternal()
-    };
-
-    /* b. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-    if (!(thisArg = 'null)) {
-      T := thisArg
-    } else {
-      T := 'undefined
-    };
-
-    /* c. Let mapping be true */
-    mapping := true
-  };
-
-  /* 4. Let usingIterator be GetMethod(items, @@iterator). */
-  /* NOTE : Using GetIterator instead of GetMethod*/
-  usingIterator := items.IteratorFunction;
-
-  /* 5. ReturnIfAbrupt(usingIterator). */
-  @ReturnIfAbrupt(usingIterator);
-
-  /* 6. If usingIterator is not undefined, then */
-  if (!(usingIterator = 'undefined)) {
-    /* a. If IsConstructor(C) is true, then */
-    if (IsConstructor(C) = true) {
-      /* i. Let A be Construct(C). */
-      A := Construct(null, null, C, [])
-
-    /* b. Else, */
-    } else {
-      /* i. Let A be ArrayCreate(0). */
-      A := ArrayConstructor(global, this, strict, [])
-    };
-
-
-    /* c. ReturnIfAbrupt(A). */
-    @ReturnIfAbrupt(A);
-
-    /* d. Let iterator be GetIterator(items, usingIterator). */
-    iterator := GetIterator(items, null);
-
-    /* e. ReturnIfAbrupt(iterator). */
-    @ReturnIfAbrupt(iterator);
-
-    /* f. Let k be 0. */
-    k := 0.;
-
-    /* g. Repeat */
-    while (true) {
-      /* i. Let Pk be ToString(k). */
-      Pk := ToString(k);
-      
-      /* ii. Let next be IteratorStep(iterator). */
-      next := IteratorStep(iterator);
-
-      /* iii. ReturnIfAbrupt(next). */
-      @ReturnIfAbrupt(next);
-
-      /* iv. If next is false, then */
-      if (next = false) {
-        /* 1. Let setStatus be Set(A, "length", k, true). */
-        {A.Put}(A, "length", k, true);
-
-        /* 2. ReturnIfAbrupt(setStatus). */
-
-        /* 3. Return A. */
-        return A
-      };
-      /* v. Let nextValue be IteratorValue(next). */
-      nextValue := IteratorValue(next);
-
-      /* vi. ReturnIfAbrupt(nextValue). */
-      @ReturnIfAbrupt(nextValue);
-
-      /* vii. If mapping is true, then */
-      if (mapping = true) {
-        /* 1. Let mappedValue be Call(mapfn, T, «nextValue, k»). */
-        mappedValue := Call(null, null, mapfn, 'undefined, [nextValue, k]);
-
-        /* 2. If mappedValue is an abrupt completion, return IteratorClose(iterator, mappedValue). */
-        if ((Type(mappedValue) = "Completion") &&& (isAnAbruptCompletion(mappedValue))) {
-          return IteratorClose(iterator, mappedValue)
-        };
-
-        /* 3. Let mappedValue be mappedValue.[[value]]. */
-        mappedValue := mappedValue
-
-      /* viii. Else, let mappedValue be nextValue. */
-      } else {
-        mappedValue := nextValue
-      };
-      
-      /* ix. Let defineStatus be CreateDataPropertyOrThrow(A, Pk, mappedValue). */
-      defineStatus := CreateDataPropertyOrThrow(A, Pk, mappedValue);
-      
-      /* x. If defineStatus is an abrupt completion, return IteratorClose(iterator, defineStatus). */
-      if ((Type(defineStatus) = "Completion") &&& (isAnAbruptCompletion(defineStatus))) {
-        return IteratorClose(iterator, defineStatus)
-      };
-
-      /* xi. Increase k by 1. */
-      k := k + 1.
-    }
-  };
-
-  /* 7. Assert: items is not an Iterable so assume it is an array-like object. */
-  /* assert( !(isIterable(items)) ); */
-
-  /* 8. Let arrayLike be ToObject(items). */
-  arrayLike := ToObject(items);
-
-  /* 9. ReturnIfAbrupt(arrayLike). */
-  @ReturnIfAbrupt(arrayLike);
-
-  /* 10. Let len be ToLength(Get(arrayLike, "length")). */
-  len := ToLength(GetNew(arrayLike, "length"));
-
-  /* 11. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 12. If IsConstructor(C) is true, then */
-  if (IsConstructor(C) = true) {
-    /* a. Let A be Construct(C, «len»). */
-    A := Construct(null, null, C, [len])
-
-  /* 13. Else, */
-  } else {
-    /* a. Let A be ArrayCreate(len). */
-    A := ArrayConstructor(global, this, strict, [len])
-  };
-
-  /* 14. ReturnIfAbrupt(A). */
-  @ReturnIfAbrupt(A);
-
-  /* 15. Let k be 0. */
-  k := 0.;
-
-  /* 16. Repeat, while k < len */
-  while (k < len) {
-    /* a. Let Pk be ToString(k). */
-    Pk := ToString(k);
-
-    /* b. Let kValue be Get(arrayLike, Pk). */
-    kValue := GetNew(arrayLike, Pk);
-
-    /* c. ReturnIfAbrupt(kValue). */
-    @ReturnIfAbrupt(kValue);
-
-    /* d. If mapping is true, then */
-    if (mapping = true) {
-      /* i. Let mappedValue be Call(mapfn, T, «kValue, k»). */
-      mappedValue := Call(null, null, mapfn, T, [kValue, k]);
-
-      /* ii. ReturnIfAbrupt(mappedValue). */
-      @ReturnIfAbrupt(mappedValue)
-
-    /* e. Else, let mappedValue be kValue. */
-    } else {
-      mappedValue := kValue
-    };
-
-    /* f. Let defineStatus be CreateDataPropertyOrThrow(A, Pk, mappedValue). */
-    defineStatus := CreateDataPropertyOrThrow(A, Pk, mappedValue);
-
-
-    /* g. ReturnIfAbrupt(defineStatus). */
-    @ReturnIfAbrupt(defineStatus);
-
-    /* h. Increase k by 1. */
-    k := k + 1.
-  };
-  
-  /* 17. Let setStatus be Set(A, "length", len, true). */
-  /* setStatus := Set(A, "length", len, true); */
-
-  /* 18. ReturnIfAbrupt(setStatus). */
-  /* @ReturnIfAbrupt(setStatus); */
-
-  {A.Put}(A, "length", len, true);
-
-  /* 19. Return A. */
-  return A
-};
-
-/**
-*  22.1.2.3 Array.of ( ...items )
-*
-*  method is called with any number of arguments
-*
-*  The length property of the of method is 0.
-*
-*  NOTE 1 The items argument is assumed to be a well-formed rest argument value.
-*
-*  NOTE 2 The of function is an intentionally generic factory method; it does not 
-*  require that its this value be the Array constructor. Therefore it can be transferred
-*  to or inherited by other constructors that may be called with a single numeric argument.
-*
-*/
-function arrayOf (global, this, strict, args) {
-
-  /* 1. Let len be the actual number of arguments passed to this function. */
-  len := l_len args;
-  
-  /* 2. Let items be the List of arguments passed to this function. */
-  items := args;
-
-  /* 3. Let C be the this value. */
-  C := this;
-
-  /* 4. If IsConstructor(C) is true, then */
-  if (IsConstructor(C) = true) {   
-    /* a. Let A be Construct(C, «len»). */
-    A := Construct(null, null, C, [len])
-
-  /* 5. Else, */
-  } else {
-    /* a. Let A be ArrayCreate(len). */
-    A := ArrayConstructor(global, this, strict, [len])
-  };
-
-  /* 6. ReturnIfAbrupt(A). */
-  @ReturnIfAbrupt(A);
-
-  /* 7. Let k be 0. */
-  k := 0;
-
-  /* 8. Repeat, while k < len */
-  while (k < len) {
-    /* a. Let kValue be items[k]. */
-    kValue := l_nth(items, k);
-
-    /* b. Let Pk be ToString(k). */
-    Pk := ToString(int_to_float k);
-
-    /* c. Let defineStatus be CreateDataPropertyOrThrow(A,Pk, kValue). */
-    defineStatus := CreateDataPropertyOrThrow(A, Pk, kValue);
-
-    /* d. ReturnIfAbrupt(defineStatus). */
-    @ReturnIfAbrupt(defineStatus);
-
-    /* e. Increase k by 1. */
-    k := k + 1
-  };
-
-  /* 9. Let setStatus be Set(A, "length", len, true). */
-  {A.Put}(A, "length", int_to_float len, true);
-
-  /* 10. ReturnIfAbrupt(setStatus). */
-
-  /* 11. Return A. */
-  return A
-};
-
-/**
-* 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] )
-*
-*  NOTE 1 The end argument is optional with the length of the this object as its default value. If target is negative, 
-*  it is treated as length+target where length is the length of the array. If start is negative, it is treated as 
-*  length+start. If end is negative, it is treated as length+end.
-*
-*  The length property of the copyWithin method is 2.
-*
-*  NOTE 2 The copyWithin function is intentionally generic; it does not require that its this value be an Array
-*  object. Therefore it can be transferred to other kinds of objects for use as a method.
-*
-*/
-function arraycopyWithin (global, this, strict, args) {
-
-  /* The copyWithin method takes up to three arguments target, start and end. */
-  target := l_nth(args, 0);
-  start := l_nth(args, 1);
-  end := getOptionalParam(args, 2);
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-  
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
-
-  /* 4. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 5. Let relativeTarget be ToInteger(target). */
-  relativeTarget := ToInteger(target);
-
-  /* 6. ReturnIfAbrupt(relativeTarget). */
-  @ReturnIfAbrupt(relativeTarget);
-
-  /* 7. If relativeTarget < 0, let to be max((len + relativeTarget),0); else let to be min(relativeTarget, len). */
-  if (relativeTarget < 0.) {
-    to := max((len + relativeTarget), 0.)
-  } else {
-    to := min(relativeTarget, len)
-  };
-
-  /* 8. Let relativeStart be ToInteger(start). */
-  relativeStart := ToInteger(start);
-
-  /* 9. ReturnIfAbrupt(relativeStart). */
-  @ReturnIfAbrupt(relativeStart);
-
-  /* 10. If relativeStart < 0, let from be max((len + relativeStart),0); else let from be min(relativeStart, len). */
-  if (relativeStart < 0.) {
-    from := max((len + relativeStart), 0.)
-  } else {
-    from := min(relativeStart, len)
-  };
-
-  /* 11. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
-  if (end = 'undefined) {
-    relativeEnd := len
-  } else {
-    relativeEnd := ToInteger(end)
-  };
-
-  /* 12. ReturnIfAbrupt(relativeEnd). */
-  @ReturnIfAbrupt(relativeEnd);
-
-  /* 13. If relativeEnd < 0, let final be max((len + relativeEnd),0); else let final be min(relativeEnd, len). */
-  if (relativeEnd < 0.) {
-    final := max((len + relativeEnd), 0.)
-  } else {
-    final := min(relativeEnd, len)
-  };
-
-  /* 14. Let count be min(final-from, len-to). */
-  count := min(final - from, len - to);
-
-  /* 15. If from<to and to<from+count */
-  if ((from < to) &&& (to < (from + count))) {
-    /* a. Let direction be -1. */
-    direction := -(1.);
-    
-    /* b. Let from be from + count -1. */
-    from := from + count - 1.;
-    
-    /* c. Let to be to + count -1. */
-    to := to + count - 1.
-
-  /* 16. Else, */
-  } else {
-    /* a. Let direction = 1. */
-    direction := 1.
-  };
-
-  /* 17. Repeat, while count > 0 */
-  while (count > 0.) {
-    /* a. Let fromKey be ToString(from). */
-    fromKey := ToString(from);
-
-    /* b. Let toKey be ToString(to). */
-    toKey := ToString(to);
-
-    /* c. Let fromPresent be HasProperty(O, fromKey). */
-    fromPresent := HasPropertyNew(O, fromKey);
-
-    /* d. ReturnIfAbrupt(fromPresent). */
-    @ReturnIfAbrupt(fromPresent);
-
-    /* e. If fromPresent is true, then */
-    if (fromPresent = true) {
-      /* i. Let fromVal be Get(O, fromKey). */
-      fromVal := GetNew(O, fromKey);
-
-      /* ii. ReturnIfAbrupt(fromVal). */
-      @ReturnIfAbrupt(fromVal);
-
-      /* iii. Let setStatus be Set(O, toKey, fromVal, true). */
-      {O.Put}(O, toKey, fromVal, O)
-
-      /* iv. ReturnIfAbrupt(setStatus). */
-
-    /* f. Else fromPresent is false, */
-    } else {
-      /* i. Let deleteStatus be DeletePropertyOrThrow(O, toKey). */
-      deleteStatus := DeletePropertyOrThrow(O, toKey);
-
-      /* ii. ReturnIfAbrupt(deleteStatus). */
-      @ReturnIfAbrupt(deleteStatus)
-    };
-
-    /* g. Let from be from + direction. */
-    from := from + direction;
-    
-    /* h. Let to be to + direction. */
-    to := to + direction;
-    
-    /* i. Let count be count − 1. */
-    count := count - 1.
-  };
-
-  /* 18. Return O. */
-  return O
-};
-
-/**
-*   22.1.3.6 Array.prototype.fill (value [ , start [ , end ] ] )
-*
-*  NOTE 1 The start and end arguments are optional with default values of 0 and the length
-*  of the this object. If start is negative, it is treated as length+start where length is the
-*  length of the array. If end is negative, it is treated as length+end.
-*
-*  The length property of the fill method is 1.
-*
-*  NOTE 2 The fill function is intentionally generic; it does not require that its this value be
-*  an Array object. Therefore it can be transferred to other kinds of objects for use as a method.
-*
-*/
-function arrayFill (global, this, strict, args) {
-  
-  /* The fill method takes up to three arguments value, start and end. */
-  value := l_nth(args, 0);
-  start := getOptionalParam(args, 1);
-  end := getOptionalParam(args, 2);
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
-
-  /* 4. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 5. Let relativeStart be ToInteger(start). */
-  relativeStart := ToInteger(start);
-
-  /* 6. ReturnIfAbrupt(relativeStart). */
-  @ReturnIfAbrupt(relativeStart);
-
-  /* 7. If relativeStart < 0, let k be max((len + relativeStart),0); else let k be min(relativeStart, len). */
-  if (relativeStart < 0.) {
-    k := max((len + relativeStart), 0.)
-  } else {
-    k := min(relativeStart, len)
-  };
-
-  /* 8. If end is undefined, let relativeEnd be len; else let relativeEnd be ToInteger(end). */
-  if (end = 'undefined) {
-    relativeEnd := len
-  } else {
-    relativeEnd := ToInteger(end)
-  };
-
-  /* 9. ReturnIfAbrupt(relativeEnd). */
-  @ReturnIfAbrupt(relativeEnd);
-
-  /* 10. If relativeEnd < 0, let final be max((len + relativeEnd),0); else let final be min(relativeEnd, len). */
-  if (relativeEnd < 0.) {
-    final := max((len + relativeEnd), 0.)
-  } else {
-    final := min(relativeEnd, len)
-  };
-
-  /* 11. Repeat, while k < final */
-  while (k < final) {
-    /* a. Let Pk be ToString(k). */
-    Pk := ToString(k);
-
-    {O.Put}(O, Pk, value, O);
-
-    /*
-    b. Let setStatus be Set(O, Pk, value, true). 
-    setStatus := SetNew(O, Pk, value, true);
-
-    c. ReturnIfAbrupt(setStatus). 
-    @ReturnIfAbrupt(setStatus);
-    */
-
-    /* d. Increase k by 1. */
-    k := k + 1.
-  };
-
-  /* 12. Return O. */
-  return O
-};
-
-/**
-* 22.1.3.8 Array.prototype.find ( predicate [ , thisArg ] )
-*
-*  NOTE 1 predicate should be a function that accepts three arguments and returns a value that is
-*  coercible to a Boolean value. find calls predicate once for each element of the array, in 
-*  ascending order, until it finds one where predicate returns true. If such an element is found,
-*  find immediately returns that element value. Otherwise, find returns undefined.
-*
-*  If a thisArg parameter is provided, it will be used as the this value for each invocation 
-*  of predicate. If it is not provided, undefined is used instead.
-*
-*  predicate is called with three arguments: 
-*      - the value of the element
-*      - the index of the element
-*      - the object being traversed.
-*
-*  find does not directly mutate the object on which it is called but
-*  the object may be mutated by the calls to predicate.
-*
-*  The range of elements processed by find is set before the first call to callbackfn.
-*  Elements that are appended to the array after the call to find begins will not be 
-*  visited by callbackfn. If existing elements of the array are changed, their value
-*  as passed to predicate will be the value at the time that find visits them.
-*
-*  The length property of the find method is 1.
-*
-*  NOTE 2 The find function is intentionally generic; it does not require that its this value
-*  be an Array object. Therefore it can be transferred to other kinds of objects for use as a method.
-*
-*/
-function arrayFind (global, this, strict, args) {
-
-  /* The find method is called with one or two arguments, predicate and thisArg. */
-  predicate := l_nth(args, 0);
-  thisArg := getOptionalParam(args, 1);
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
-  
-  /* 4. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 5. If IsCallable(predicate) is false, throw a TypeError exception. */
-  if (IsCallableNew(predicate) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
-  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = 'null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
-  /* 7. Let k be 0. */
-  k := 0.;
-  
-  /* 8. Repeat, while k < len */
-  while (k < len) {
-    /* a. Let Pk be ToString(k). */
-    Pk := ToString(k);
-
-    /* b. Let kValue be Get(O, Pk). */
-    kValue := GetNew(O, Pk);
-
-    /* c. ReturnIfAbrupt(kValue). */
-    @ReturnIfAbrupt(kValue);
-
-    /* d. Let testResult be ToBoolean(Call(predicate, T, «kValue, k, O»)). */
-    testResult := ToBoolean(Call(null, null, predicate, T, [kValue, k, O]));
-
-    /* e. ReturnIfAbrupt(testResult). */
-    @ReturnIfAbrupt(testResult);
-
-    /* f. If testResult is true, return kValue. */
-    if (testResult = true) {
-      return kValue
-    };
-
-    /* g. Increase k by 1. */
-    k := k + 1.
-  };
-
-  /* 9. Return undefined. */
-  return 'undefined
-};
-
-/**
-* 22.1.3.9 Array.prototype.findIndex ( predicate [ , thisArg ] )
--
-*  NOTE 1 predicate should be a function that accepts three arguments and returns a value that is
-*  coercible to the Boolean value true or false. findIndex calls predicate once for each element 
-*  of the array, in ascending order, until it finds one where predicate returns true. If such
-*  an element is found, findIndex immediately returns the index of that element value. Otherwise,
-*  findIndex returns -1.
-*
-*  If a thisArg parameter is provided, it will be used as the this value for each invocation 
-*  of predicate. If it is not provided, undefined is used instead.
-*
-*  predicate is called with three arguments: the value of the element, 
-*  the index of the element, and the object being traversed.
-*
-*  findIndex does not directly mutate the object on which it is called but the object
-*  may be mutated by the calls to predicate.
-*
-*  The range of elements processed by findIndex is set before the first call to callbackfn.
-*  Elements that are appended to the array after the call to findIndex begins will not be
-*  visited by callbackfn. If existing elements of the array are changed, their value as
-*  passed to predicate will be the value at the time that findIndex visits them.
-*
-*  The length property of the findIndex method is 1.
-*
-*  NOTE 2 The findIndex function is intentionally generic; it does not require that its this
-*  value be an Array object. Therefore it can be transferred to other kinds of objects for use
-*  as a method.
-*
-*/
-function arrayFindIndex (global, this, strict, args) {
-    /* The find method is called with one or two arguments, predicate and thisArg. */
-  predicate := l_nth(args, 0);
-  thisArg := getOptionalParam(args, 1);
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
-  
-  /* 4. ReturnIfAbrupt(len). */
-  @ReturnIfAbrupt(len);
-
-  /* 5. If IsCallable(predicate) is false, throw a TypeError exception. */
-  if (IsCallableNew(predicate) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-
-  /* 6. If thisArg was supplied, let T be thisArg; else let T be undefined. */
-  if (!(thisArg = 'null)) {
-    T := thisArg
-  } else {
-    T := 'undefined
-  };
-
-  /* 7. Let k be 0. */
-  k := 0.;
-  
-  /* 8. Repeat, while k < len */
-  while (k < len) {
-    /* a. Let Pk be ToString(k). */
-    Pk := ToString(k);
-
-    /* b. Let kValue be Get(O, Pk). */
-    kValue := GetNew(O, Pk);
-
-    /* c. ReturnIfAbrupt(kValue). */
-    @ReturnIfAbrupt(kValue);
-
-    /* d. Let testResult be ToBoolean(Call(predicate, T, «kValue, k, O»)). */
-    testResult := ToBoolean(Call(null, null, predicate, T, [kValue, k, O]));
-
-    /* e. ReturnIfAbrupt(testResult). */
-    @ReturnIfAbrupt(testResult);
-
-    /* f. If testResult is true, return kValue. */
-    if (testResult = true) {
-      return k
-    };
-
-    /* g. Increase k by 1. */
-    k := k + 1.
-  };
-
-  /* 9. Return -1. */
-  return -(1.)
-};
-
-
-/** 
-*  22.1.3.13 Array.prototype.keys ( )
-*/
-function arrayKeys (global, this, strict, args) {
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Return CreateArrayIterator(O, "key"). */
-  return CreateArrayIterator(O, "key")
-};
-
-/**
-*  22.1.3.4 Array.prototype.entries ( )
-*/
-function arrayEntries (global, this, strict, args) {
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Return CreateArrayIterator(O, "key+value"). */
-  return CreateArrayIterator(O, "key+value")
-};
-
-/**
-*  22.1.3.29 Array.prototype.values ( )
-*  
-*  This function is the %ArrayProto_values% intrinsic object.
-*/
-function arrayValues (global, this, strict, args) {
-
-  /* 1. Let O be ToObject(this value). */
-  O := ToObject(this);
-
-  /* 2. ReturnIfAbrupt(O). */
-  @ReturnIfAbrupt(O);
-
-  /* 3. Return CreateArrayIterator(O, "value"). */
-  return CreateArrayIterator(O, "value")
-};
-
-/**
 *  22.1.3.30 Array.prototype [ @@iterator ] ( )
 */
 function initArrayIteratorPrototype(global, objectPrototype, strict) { 
@@ -4281,6 +4335,20 @@ function initArrayIteratorPrototype(global, objectPrototype, strict) {
   return null
 }; 
 
+
+
+
+/**
+*  22.1.5 Array Iterator Objects
+*
+*  An Array Iterator is an object, that represents a specific iteration over some
+*  specific Array instance object. There is not a named constructor for Array Iterator
+*  objects. Instead, Array iterator objects are created by calling certain methods of
+*  Array instance objects.
+*/
+
+
+
 /**
 *  22.1.5.1 CreateArrayIterator Abstract Operation
 *
@@ -4288,7 +4356,6 @@ function initArrayIteratorPrototype(global, objectPrototype, strict) {
 *  CreateArrayIterator with arguments array and kind is used to create such iterator
 *  objects. It performs the following steps:
 */
-
 function CreateArrayIterator (array, kind) {
 
   /* 1. Assert: Type(array) is Object. */
@@ -4314,6 +4381,7 @@ function CreateArrayIteratorJS(global, this, strict, items) {
   return CreateArrayIterator(this, "value")
 }; 
 
+
 function createArrayIteratorObject() {
 
   newlyConstructedObject := NewECMAScriptObject();
@@ -4328,10 +4396,11 @@ function createArrayIteratorObject() {
   return newlyConstructedObject
 };
 
+
+
 /**
 *  22.1.5.2.1 %ArrayIteratorPrototype%.next( )
 */
-
 function isArrayIteratorInstance(obj) {
   return ("IteratedObject" in_obj obj) &&& ("ArrayIteratorNextIndex" in_obj obj) &&& ("ArrayIterationKind" in_obj obj)
 };
@@ -4421,3 +4490,23 @@ function arrayIteratorNext (global, this, strict, args) {
   /* 18. Return CreateIterResultObject(result, false). */
   return CreateIterResultObject(result, false)
 }
+
+
+/**
+* 22.1.5.3 Properties of Array Iterator Instances
+*
+*  Array Iterator instances are ordinary objects that inherit properties from the 
+*  %ArrayIteratorPrototype% intrinsic object. Array Iterator instances are initially created
+*  with the internal slots listed in Table 48.
+* 
+*                     Table 48 — Internal Slots of Array Iterator Instances
+*
+*  --------------------------------------------------------------------------------------------------------------------
+*  |       Internal Slot 	      |                                Description                                          | 
+*  --------------------------------------------------------------------------------------------------------------------
+*  |     [[IteratedObject]] 	    | The object whose array elements are being iterated.                               |
+*  | [[ArrayIteratorNextIndex]] 	| The integer index of the next integer index to be examined by this iteration.     |
+*  |                           	  | A String value that identifies what is returned for each element of the iteration.|
+*  |  [[ArrayIterationKind]]      |  The possible values are: "key", "value", "key+value".                            |
+*  --------------------------------------------------------------------------------------------------------------------
+*/

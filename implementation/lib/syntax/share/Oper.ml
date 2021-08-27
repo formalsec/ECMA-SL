@@ -1,3 +1,5 @@
+open Date_Utils 
+
 type const = MAX_VALUE
            | MIN_VALUE
            | PI
@@ -301,22 +303,23 @@ let parse_date (v :Val.t) : Val.t = match v with
   | Str s ->
     Printf.printf "parse_date with string: %s\n" s;
     (*YYYY-MM-DDTHH:mm:ss.sssZ*)
-    let re = Str.regexp "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)?-\\([0-9][0-9]\\)T\\([0-9][0-9]\\):\\([0-9][0-9]\\):\\([0-9][0-9]\\).\\([0-9][0-9][0-9]\\)" in
+    let re = Str.regexp "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)T\\([0-9][0-9]\\):\\([0-9][0-9]\\):\\([0-9][0-9]\\).\\([0-9][0-9][0-9]\\)" in
     (*let year_regex = Str.regexp "\\([0-9][0-9][0-9][0-9]\\)" in *)
     let matched = Str.string_match re s 0 in 
     if matched then (
       Printf.printf "in matched if \n";
       let group0 = Str.matched_group 0 s in
-      let group1 = Str.matched_group 1 s in
-      let group2 = Str.matched_group 2 s in
-      let group3 = Str.matched_group 3 s in
-      let group4 = Str.matched_group 4 s in
-      let group5 = Str.matched_group 5 s in
-      let group6 = Str.matched_group 6 s in
-      let group7 = Str.matched_group 7 s in
+      let year = Str.matched_group 1 s in
+      
+      let month = Str.matched_group 2 s in
+      let day = Str.matched_group 3 s in
+      let hour = Str.matched_group 4 s in
+      let mins = Str.matched_group 5 s in
+      let sec = Str.matched_group 6 s in
+      let ms = Str.matched_group 7 s in
       Printf.printf "Matched successfully %s\n" group0;
-      Val.List [Val.Str group0; Val.Str group1; Val.Str group2; Val.Str group3; Val.Str group4; Val.Str group5; Val.Str group6; Val.Str group7]
-    )
+      Val.List [Val.Str group0; Val.Str year; Val.Str month; Val.Str day; Val.Str hour; Val.Str mins; Val.Str sec; Val.Str ms]
+    ) 
     else Val.Flt (-(1.))
   | _  -> invalid_arg "Exception in Oper.parse_date: this operation is only applicable to a String argument"
 

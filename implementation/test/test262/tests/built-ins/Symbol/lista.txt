@@ -15,7 +15,8 @@ Em standby (arrow functions ainda não definidas):
 test/test262/tests/built-ins/Symbol/prototype/Symbol.toPrimitive/redefined-symbol-wrapper-ordinary-toprimitive.js
 test/test262/tests/built-ins/Symbol/prototype/Symbol.toPrimitive/removed-symbol-wrapper-ordinary-toprimitive.js
 
-Os restantes devem passar:
+Em standby (Proxy ainda não definido):
+test/test262/tests/built-ins/Symbol/prototype/description/this-val-non-symbol.js
+
+Por resolver:
 test/test262/tests/built-ins/Symbol/keyFor/arg-non-symbol.js (Cast para Object não é detetado na função Type)
-test/test262/tests/built-ins/Symbol/prototype/description/this-val-non-symbol.js (getOwnPropertyDescriptor.get falha ('undefined))
-test/test262/tests/built-ins/Symbol/species/builtin-getter-name.js (getter.call(new Proxy({}, {}) não devolve TypeError)
