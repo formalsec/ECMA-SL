@@ -2483,7 +2483,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     };
     /* g. Reject if oldLenDesc.[[Writable]] is false. */
     if (oldLenDesc.Writable = false) {
-      Reject(Throw)
+      @Reject(Throw)
     };
 
     /* h. If newLenDesc.[[Writable]] is absent or has the value true,
@@ -2529,7 +2529,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
               on A passing "length", newLenDesc, and false as arguments. */
         DefineOwnProperty(A, "length", newLenDesc, false);
         /* 4. Reject. */
-        Reject(Throw)
+        @Reject(Throw)
       }
     };
     /* m. If newWritable is false, then */
@@ -2549,14 +2549,14 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       index := ToUint32(P);
       /* b. Reject if index ≥ oldLen and oldLenDesc.[[Writable]] is false. */
       if ((index >= oldLen) &&& (oldLenDesc.Writable = false)) {
-        Reject(Throw)
+        @Reject(Throw)
       };
       /* c. Let succeeded be the result of calling the default [[DefineOwnProperty]]
             internal method (8.12.9) on A passing P, Desc, and false as arguments. */
       succeeded := DefineOwnProperty(A, P, Desc, false);
       /* d. Reject if succeeded is false. */
       if (succeeded = false) {
-        Reject(Throw)
+        @Reject(Throw)
       };
       /* STANDARD IS WRONG */
       newLen := ToUint32(index + 1.);
