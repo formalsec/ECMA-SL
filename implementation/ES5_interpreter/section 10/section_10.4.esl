@@ -107,20 +107,16 @@ function EnteringFunctionCode(F, thisArg, argumentsList) {
     setThisBinding(functionExecCtx, thisArg)
   }
   /* 2. Else if thisArg is null or undefined, set the ThisBinding to the global object. */
+  elif ((thisArg = 'null) || (thisArg = 'undefined)) {
+    setThisBinding(functionExecCtx, |global|)
+  }
+  /* 3. Else if Type(thisArg) is not Object, set the ThisBinding to ToObject(thisArg). */
+  elif (!(Type(thisArg) = "Object")) {
+    setThisBinding(functionExecCtx, ToObject(thisArg))
+  }
+  /* 4. Else set the ThisBinding to thisArg. */
   else {
-    if ((thisArg = 'null) || (thisArg = 'undefined)) {
-      setThisBinding(functionExecCtx, |global|)
-    }
-    /* 3. Else if Type(thisArg) is not Object, set the ThisBinding to ToObject(thisArg). */
-    else {
-      if (!(Type(thisArg) = "Object")) {
-        setThisBinding(functionExecCtx, ToObject(thisArg))
-      }
-      /* 4. Else set the ThisBinding to thisArg. */
-      else {
-        setThisBinding(functionExecCtx, thisArg)
-      }
-    }
+    setThisBinding(functionExecCtx, thisArg)
   };
   /* 5. Let localEnv be the result of calling NewDeclarativeEnvironment passing the value of the [[Scope]] internal
         property of F as the argument. */
