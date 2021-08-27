@@ -25,7 +25,10 @@ function fillFunctionConstructor(FunctionConstructor, globalObject, strict) {
   /* 15.3.3.2 Function.length */
   /* This is a data property with a value of 1. This property has the attributes { [[Writable]]: false, [[Enumerable]]:
      false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(FunctionConstructor, "length", 1., false, false, false);
+  /* createBuiltInPropertyWithFullDescriptor(FunctionConstructor, "length", 1., false, false, false); */
+  /* ES6 - 19.2.4.1: In ECMAScript 2015, the length property of function instances is configurable. In previous editions it
+      was non-configurable. */
+  createBuiltInPropertyWithFullDescriptor(FunctionConstructor, "length", 1., false, false, true);
 
   return
 };
