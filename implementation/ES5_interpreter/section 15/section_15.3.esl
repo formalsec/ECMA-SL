@@ -25,7 +25,10 @@ function fillFunctionConstructor(FunctionConstructor, globalObject, strict) {
   /* 15.3.3.2 Function.length */
   /* This is a data property with a value of 1. This property has the attributes { [[Writable]]: false, [[Enumerable]]:
      false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(FunctionConstructor, "length", 1., false, false, false);
+  /* createBuiltInPropertyWithFullDescriptor(FunctionConstructor, "length", 1., false, false, false); */
+  /* ES6 - 19.2.4.1: In ECMAScript 2015, the length property of function instances is configurable. In previous editions it
+      was non-configurable. */
+  createBuiltInPropertyWithFullDescriptor(FunctionConstructor, "length", 1., false, false, true);
 
   return
 };
@@ -456,7 +459,7 @@ function GetF(F, P) {
         argument. */
   v := Get(F, P);
   /* 2. If P is "caller" and v is a strict mode Function object, throw a TypeError exception. */
-  if ((P = "caller") &&& isStrictModeFunctionObject(F)) {
+  if ((P = "caller") &&& isStrictFunctionObject(F)) {
     throw TypeErrorConstructorInternal()
   };
   /* 3. Return v. */
@@ -528,9 +531,6 @@ function parseParams(paramsStr) {
 function parseBody(params, bodyStr, strict) {
   /* Wrap bodyStr in a function to avoid parsing errors in statements like return that is invalid outside of a function body */
   bodyStr := s_concat ["function f(", params, ") {", bodyStr, "}"];
-  if (strict) {
-    bodyStr := s_concat ["\"use strict\";", bodyStr]
-  };
   buildAST := extern parseJS(bodyStr);
   bodyObj := {buildAST}();
 

@@ -393,7 +393,7 @@ function StringPrototypecharCodeAt (global, this, strict, args) {
   };
   /*     Return a value of Number type, whose value is the code unit value of the character at position position
        in the String S, where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on. */
-  return to_char_code_u (s_nth_u (S, position))
+  return int_to_float (to_char_code_u (s_nth_u (S, position)))
 };
 
 /*15.5.4.6 String.prototype.concat ( [ string1 [ , string2 [ , … ] ] ] )  */
