@@ -10,7 +10,7 @@ function GetProps(Desc) {
   return list
 };
 
-/** See 8.12.9 */
+/** See 8.12.9_5 */
 function EveryFieldIsAbsent(Desc) {
   list := GetProps(Desc);
 
@@ -20,6 +20,48 @@ function EveryFieldIsAbsent(Desc) {
     return false
   }
 };
+
+/** See 8.12.9_6 */
+function everyFieldInDescAlsoOccursInCurrent(Desc, current) {
+  lst := GetProps(Desc);
+  b := true;
+  while (b && !(lst = [])) {
+    prop := hd lst;
+    b := (prop in_obj current) && SameValue(Desc[prop], current[prop]);
+    if (!b) {
+      return false
+    };
+    lst := tl lst
+  };
+
+  return true
+};
+
+/* See 8.12.9_9.b.i */
+function convertDataPropertyDescToAccessorPropertyDesc(O, P) {
+  /* Convert the property named P of object O from a data property to an accessor property.
+     Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and
+     set the rest of the property’s attributes to their default values. */
+  delete (O.JSProperties)[P].Value;
+  delete (O.JSProperties)[P].Writable;
+  (O.JSProperties)[P].Set := 'undefined;
+  (O.JSProperties)[P].Get := 'undefined;
+
+  return
+};
+/* 8.12.9_9.b.ii */
+function convertAccessorPropertyDescToDataPropertyDesc(O, P) {
+  /* Convert the property named P of object O from an accessor property to a data property.
+     Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and
+     set the rest of the property’s attributes to their default values. */
+  delete (O.JSProperties)[P].Set;
+  delete (O.JSProperties)[P].Get;
+  (O.JSProperties)[P].Value := 'undefined;
+  (O.JSProperties)[P].Writable := false;
+
+  return
+};
+
 /**
  * The values used here are based on Table 7 of the specification.
  */
@@ -38,26 +80,53 @@ function GetValueOrDefault(propDesc, propName) {
     return objectDefaultAttributeValues[propName]
   }
 };
-/** See 8.12.9 */
-function CreateAccessorPropertyFrom(Desc) {
-  return {
-    Get: GetValueOrDefault(Desc, "Get"),
-    Set: GetValueOrDefault(Desc, "Set"),
-    Enumerable: GetValueOrDefault(Desc, "Enumerable"),
-    Configurable: GetValueOrDefault(Desc, "Configurable")
-  }
+/** See 8.12.9_4.b.i */
+function createOwnAccessorProperty(O, P, Desc) {
+  setJSProperty(O, P, newAccessorPropertyDescriptorFull(
+    GetValueOrDefault(Desc, "Get"),
+    GetValueOrDefault(Desc, "Set"),
+    GetValueOrDefault(Desc, "Enumerable"),
+    GetValueOrDefault(Desc, "Configurable")
+  ));
+
+  return
+};
+/** See 8.12.9_4.a.i */
+function createOwnDataProperty(O, P, Desc) {
+  setJSProperty(O, P, newDataPropertyDescriptorFull(
+    GetValueOrDefault(Desc, "Value"),
+    GetValueOrDefault(Desc, "Writable"),
+    GetValueOrDefault(Desc, "Enumerable"),
+    GetValueOrDefault(Desc, "Configurable")
+  ));
+  return
+};
+
+/* See 8.12.9_12 */
+function setCorrespondinglyNamedAttributes(O, P, Desc) {
+  if ("Value" in_obj Desc) {
+    (O.JSProperties)[P].Value := Desc.Value
+  };
+  if ("Writable" in_obj Desc) {
+    (O.JSProperties)[P].Writable := Desc.Writable
+  };
+  if ("Set" in_obj Desc) {
+    (O.JSProperties)[P].Set := Desc.Set
+  };
+  if ("Get" in_obj Desc) {
+    (O.JSProperties)[P].Get := Desc.Get
+  };
+  if ("Enumerable" in_obj Desc) {
+    (O.JSProperties)[P].Enumerable := Desc.Enumerable
+  };
+  if ("Configurable" in_obj Desc) {
+    (O.JSProperties)[P].Configurable := Desc.Configurable
+  };
+
+  return
 };
 /** See 8.12.9 */
-function CreateDataPropertyFrom(Desc) {
-  return {
-    Value: GetValueOrDefault(Desc, "Value"),
-    Writable: GetValueOrDefault(Desc, "Writable"),
-    Enumerable: GetValueOrDefault(Desc, "Enumerable"),
-    Configurable: GetValueOrDefault(Desc, "Configurable")
-  }
-};
-/** See 8.12.9 */
-function Reject (Throw) {
+macro Reject(Throw) {
   if (Throw) {
     throw TypeErrorConstructorInternal()
   } else {
@@ -73,26 +142,40 @@ function Reject (Throw) {
 function GetOwnProperty(O, P) {
   print "GetOwnProperty";
 
+  /* 1. If O doesn‘t have an own property with name P, return undefined. */
   if (!(P in_obj O.JSProperties)) {
     return 'undefined
   };
 
+  /* 2. Let D be a newly created Property Descriptor with no fields. */
   D := NewPropertyDescriptor();
-  X := O.JSProperties[P];
+  /* 3. Let X be O‘s own property named P. */
+  X := getJSProperty(O, P);
 
+  /* 4. If X is a data property, then */
   if (IsDataPropertyDescriptor(X)) {
+    /* a. Set D.[[Value]] to the value of X‘s [[Value]] attribute. */
     D.Value := X.Value;
+    /* b. Set D.[[Writable]] to the value of X‘s [[Writable]] attribute */
     D.Writable := X.Writable
   }
+  /* 5. Else X is an accessor property, so */
   else {
+    /* a. Set D.[[Get]] to the value of X‘s [[Get]] attribute. */
     D.Get := X.Get;
+    /* b. Set D.[[Set]] to the value of X‘s [[Set]] attribute. */
     D.Set := X.Set
   };
 
+  /* 6. Set D.[[Enumerable]] to the value of X‘s [[Enumerable]] attribute. */
   D.Enumerable := X.Enumerable;
+  /* 7. Set D.[[Configurable]] to the value of X‘s [[Configurable]] attribute. */
   D.Configurable := X.Configurable;
 
+  /* 8. Return D. */
   return D
+
+  /* However, if O is a String object it has a more elaborate [[GetOwnProperty]] internal method defined in 15.5.5.2. */
 };
 
 /**
@@ -112,7 +195,7 @@ function GetProperty (O, P) {
   };
 
   /** 3. Let proto be the value of the [[Prototype]] internal property of O. */
-  proto := O.Prototype;
+  proto := getInternalProperty(O, "Prototype");
 
   /** 4. If proto is null, return undefined. */
   if (proto = 'null) {
@@ -140,21 +223,19 @@ function Get(O, P) {
   };
 
   /** 3. If IsDataDescriptor(desc) is true, return desc.[[Value]]. */
-  if (IsDataPropertyDescriptor(desc)) {
+  if (IsDataPropertyDescriptor(desc) = true) {
     return desc.Value
-  }
+  };
   /** 4. Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]]. */
-  else {
-    getter := desc.Get;
+  getter := desc.Get;
 
-    /** 5. If getter is undefined, return undefined. */
-    if (getter = 'undefined) {
-      return 'undefined
-    };
+  /** 5. If getter is undefined, return undefined. */
+  if (getter = 'undefined) {
+    return 'undefined
+  };
 
-    /** 6. Return the result calling the [[Call]] internal method of getter providing O as the this value and providing no arguments. */
-    return {getter.Call}(null, null, getter, O, [])
-  }
+  /** 6. Return the result calling the [[Call]] internal method of getter providing O as the this value and providing no arguments. */
+  return {getter.Call}(null, null, getter, O, [])
 };
 
 /**
@@ -171,7 +252,7 @@ function CanPut(O, P) {
   /** 2. If desc is not undefined, then: */
   if (!(desc = 'undefined)) {
     /** a. If IsAccessorDescriptor(desc) is true, then: */
-    if (IsAccessorPropertyDescriptor(desc)) {
+    if (IsAccessorPropertyDescriptor(desc) = true) {
       /** i. If desc.[[Set]] is undefined, then return false. */
       if (desc.Set = 'undefined) {
         return false
@@ -203,7 +284,7 @@ function CanPut(O, P) {
   };
 
   /** 7. If IsAccessorDescriptor(inherited) is true, then */
-  if (IsAccessorPropertyDescriptor(inherited)) {
+  if (IsAccessorPropertyDescriptor(inherited) = true) {
     /** a. If inherited.[[Set]] is undefined, then return false. */
     if (inherited.Set = 'undefined) {
       return false
@@ -215,15 +296,13 @@ function CanPut(O, P) {
   }
   /** 8. Else, inherited must be a DataDescriptor */
   else {
-    if (IsDataPropertyDescriptor(inherited)) {
-      /** a. If the [[Extensible]] internal property of O is false, return false. */
-      if (O.Extensible = false) {
-        return false
-      }
-      /** b. Else return the value of inherited.[[Writable]]. */
-      else {
-        return inherited.Writable
-      }
+    /** a. If the [[Extensible]] internal property of O is false, return false. */
+    if (O.Extensible = false) {
+      return false
+    }
+    /** b. Else return the value of inherited.[[Writable]]. */
+    else {
+      return inherited.Writable
     }
   }
   /** Host objects may define additional constraints upon [[Put]] operations.
@@ -241,7 +320,7 @@ function Put(O, P, V, Throw) {
   /** 1. If the result of calling the [[CanPut]] internal method of O with argument P is false, then: */
   if ({O.CanPut}(O, P) = false) {
     /** a. If Throw is true, then throw a TypeError exception. */
-    if (Throw) {
+    if (Throw = true) {
       throw TypeErrorConstructorInternal()
     }
     /** b. Else return. */
@@ -253,11 +332,9 @@ function Put(O, P, V, Throw) {
   ownDesc := {O.GetOwnProperty}(O, P);
 
   /** 3. If IsDataDescriptor(ownDesc) is true, then: */
-  if (IsDataPropertyDescriptor(ownDesc)) {
+  if (IsDataPropertyDescriptor(ownDesc) = true) {
     /** a. Let valueDesc be the Property Descriptor {[[Value]]: V}. */
-    valueDesc := {
-      Value: V
-    };
+    valueDesc := newDataPropertyDescriptorFull(V, null, null, null);
     /** b. Call the [[DefineOwnProperty]] internal method of O passing P, valueDesc, and Throw as arguments. */
     {O.DefineOwnProperty}(O, P, valueDesc, Throw);
 
@@ -270,7 +347,7 @@ function Put(O, P, V, Throw) {
   desc := {O.GetProperty}(O, P);
 
   /** 5. If IsAccessorDescriptor(desc) is true, then: */
-  if (IsAccessorPropertyDescriptor(desc)) {
+  if (IsAccessorPropertyDescriptor(desc) = true) {
     /** a. Let setter be desc.[[Set]] which cannot be undefined. */
     setter := desc.Set;
 
@@ -280,12 +357,7 @@ function Put(O, P, V, Throw) {
   /** 6. Else, create a named data property named P on object O as follows */
   else {
     /** a. Let newDesc be the Property Descriptor {[[Value]]: V, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}. */
-    newDesc := {
-      Value: V,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    };
+    newDesc := newDataPropertyDescriptor(V);
 
     /** b. Call the [[DefineOwnProperty]] internal method of O passing P, newDesc, and Throw as arguments. */
     {O.DefineOwnProperty}(O, P, newDesc, Throw)
@@ -383,7 +455,7 @@ function DefaultValue (O, hint) {
     toString := {O.Get}(O, "toString");
 
     /** 2. If IsCallable(toString) is true then: */
-    if (IsCallable(toString)) {
+    if (IsCallable(toString) = true) {
       /** a. Let str be the result of calling the [[Call]] internal method of toString, with O as the this value and an empty argument list. */
       str := {toString.Call}(null, null, toString, O, []);
 
@@ -397,7 +469,7 @@ function DefaultValue (O, hint) {
     valueOf := {O.Get}(O, "valueOf");
 
     /** 4. If IsCallable(valueOf) is true then: */
-    if (IsCallable(valueOf)) {
+    if (IsCallable(valueOf) = true) {
       /** a. Let val be the result of calling the [[Call]] internal method of valueOf, with O as the this value and an empty argument list. */
       val := {valueOf.Call}(null, null, valueOf, O, []);
 
@@ -409,53 +481,49 @@ function DefaultValue (O, hint) {
 
     /** 5. Throw a TypeError exception. */
     throw TypeErrorConstructorInternal()
-  }
-  else {
-    /** When the [[DefaultValue]] internal method of O is called with hint Number, the following steps are taken: */
-    if (hint = 'Number) {
-      /** 1. Let valueOf be the result of calling the [[Get]] internal method of object O with argument "valueOf". */
-      valueOf := {O.Get}(O, "valueOf");
+  };
+  /** When the [[DefaultValue]] internal method of O is called with hint Number, the following steps are taken: */
+  if (hint = 'Number) {
+    /** 1. Let valueOf be the result of calling the [[Get]] internal method of object O with argument "valueOf". */
+    valueOf := {O.Get}(O, "valueOf");
 
-      /** 2. If IsCallable(valueOf) is true then: */
-      if (IsCallable(valueOf)) {
-        /** a. Let val be the result of calling the [[Call]] internal method of valueOf, with O as the this value and an empty argument list. */
-        val := {valueOf.Call}(null, null, valueOf, O, []);
+    /** 2. If IsCallable(valueOf) is true then: */
+    if (IsCallable(valueOf) = true) {
+      /** a. Let val be the result of calling the [[Call]] internal method of valueOf, with O as the this value and an empty argument list. */
+      val := {valueOf.Call}(null, null, valueOf, O, []);
 
-        /** b. If val is a primitive value, return val. */
-        if (IsPrimitiveValue(val)) {
-          return val
-        }
-      };
+      /** b. If val is a primitive value, return val. */
+      if (IsPrimitiveValue(val)) {
+        return val
+      }
+    };
 
-      /** 3. Let toString be the result of calling the [[Get]] internal method of object O with argument "toString". */
-      toString := {O.Get}(O, "toString");
+    /** 3. Let toString be the result of calling the [[Get]] internal method of object O with argument "toString". */
+    toString := {O.Get}(O, "toString");
 
-      /** 4. If IsCallable(toString) is true then: */
-      if (IsCallable(toString)) {
-        /** a. Let str be the result of calling the [[Call]] internal method of toString, with O as the this value and an empty argument list. */
-        str := {toString.Call}(null, null, toString, O, []);
+    /** 4. If IsCallable(toString) is true then: */
+    if (IsCallable(toString) = true) {
+      /** a. Let str be the result of calling the [[Call]] internal method of toString, with O as the this value and an empty argument list. */
+      str := {toString.Call}(null, null, toString, O, []);
 
-        /** b. If str is a primitive value, return str. */
-        if (IsPrimitiveValue(str)) {
-          return str
-        }
-      };
+      /** b. If str is a primitive value, return str. */
+      if (IsPrimitiveValue(str)) {
+        return str
+      }
+    };
 
-      /** 5. Throw a TypeError exception. */
-      throw TypeErrorConstructorInternal()
-    }
+    /** 5. Throw a TypeError exception. */
+    throw TypeErrorConstructorInternal()
   }
 
-/* TODO*/
-/** When the [[DefaultValue]] internal method of O is called with no hint, then it behaves as if the hint were Number,
- * unless O is a Date object (see 15.9.6), in which case it behaves as if the hint were String.
- *
- * The above specification of [[DefaultValue]] for native objects can return only primitive values.
- * If a host object implements its own [[DefaultValue]] internal method,
- * it must ensure that its [[DefaultValue]] internal method can return only primitive values.
- */
+  /** When the [[DefaultValue]] internal method of O is called with no hint, then it behaves as if the hint were Number,
+    * unless O is a Date object (see 15.9.6), in which case it behaves as if the hint were String.
+    *
+    * The above specification of [[DefaultValue]] for native objects can return only primitive values.
+    * If a host object implements its own [[DefaultValue]] internal method,
+    * it must ensure that its [[DefaultValue]] internal method can return only primitive values.
+    */
 };
-
 
 /**
  * 8.12.9 [[DefineOwnProperty]] (P, Desc, Throw)
@@ -478,23 +546,23 @@ function DefineOwnProperty(O, P, Desc, Throw) {
 
   /** 3. If current is undefined and extensible is false, then Reject. */
   if ((current = 'undefined) && (extensible = false)) {
-    return Reject(Throw)
+    @Reject(Throw)
   };
 
   /** 4. If current is undefined and extensible is true, then: */
   if ((current = 'undefined) && (extensible = true)) {
     O.internalSlotsList := l_prepend(P, O.internalSlotsList);
     /** a. If IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then: */
-    if (IsGenericPropertyDescriptor(Desc) || IsDataPropertyDescriptor(Desc)) {
+    if (IsGenericPropertyDescriptor(Desc) || (IsDataPropertyDescriptor(Desc) = true)) {
       /** i. Create an own data property named P of object O whose [[Value]], [[Writable]], [[Enumerable]] and [[Configurable]] attribute values are described by Desc.
        *     If the value of an attribute field of Desc is absent, the attribute of the newly created property is set to its default value. */
-      setJSProperty(O, P, CreateDataPropertyFrom(Desc))
+      createOwnDataProperty(O, P, Desc)
     }
     /** b. Else, Desc must be an accessor Property Descriptor so: */
     else {
       /** i. Create an own accessor property named P of object O whose [[Get]], [[Set]], [[Enumerable]] and [[Configurable]] attribute values are described by Desc.
        *     If the value of an attribute field of Desc is absent, the attribute of the newly created property is set to its default value. */
-      setJSProperty(O, P, CreateAccessorPropertyFrom(Desc))
+      createOwnAccessorProperty(O, P, Desc)
     };
 
     /** c. Return true. */
@@ -508,33 +576,7 @@ function DefineOwnProperty(O, P, Desc, Throw) {
 
   /** 6. Return true, if every field in Desc also occurs in current and the value of every field in Desc is the
    *     same value as the corresponding field in current when compared using the SameValue algorithm (9.12). */
-  /* TODO
-  lst := GetProps(Desc);
-  b = true;
-  while (b && lst != []) {
-    prop := hd lst;
-    b := (prop in_obj current) && SameValue(Desc[field], current[field]);
-    lst := tail lst;
-  }; */
-  /* Or,  */
-  /* for (field in_obj Desc) {
-    if ((field in_obj current) && SameValue(Desc[field], current[field])) {
-      b := b && true;
-    } else {
-      b := b && false;
-    }
-  };
-
-  if (b = true) {
-    return true
-  };
-  */
-  if ((!("Value" in_obj Desc) ||| (("Value" in_obj current) &&& SameValue(Desc.Value, current.Value))) &&&
-      (!("Writable" in_obj Desc) ||| (("Writable" in_obj current) &&& SameValue(Desc.Writable, current.Writable))) &&&
-      (!("Set" in_obj Desc) ||| (("Set" in_obj current) &&& SameValue(Desc.Set, current.Set))) &&&
-      (!("Get" in_obj Desc) ||| (("Get" in_obj current) &&& SameValue(Desc.Get, current.Get))) &&&
-      (!("Enumerable" in_obj Desc) ||| (("Enumerable" in_obj current) &&& SameValue(Desc.Enumerable, current.Enumerable))) &&&
-      (!("Configurable" in_obj Desc) ||| (("Configurable" in_obj current) &&& SameValue(Desc.Configurable, current.Configurable)))) {
+  if (everyFieldInDescAlsoOccursInCurrent(Desc, current)) {
     return true
   };
 
@@ -542,110 +584,78 @@ function DefineOwnProperty(O, P, Desc, Throw) {
   if (current.Configurable = false) {
     /** a. Reject, if the [[Configurable]] field of Desc is true. */
     if (("Configurable" in_obj Desc) &&& (Desc.Configurable = true)) {
-      return Reject(Throw)
+      @Reject(Throw)
     };
     /** b. Reject, if the [[Enumerable]] field of Desc is present and the [[Enumerable]] fields of current and Desc are the Boolean negation of each other. */
     if (("Enumerable" in_obj Desc) &&& !(current.Enumerable = Desc.Enumerable)) {
       if (!Desc.Enumerable = current.Enumerable) {
-        return Reject(Throw)
+        @Reject(Throw)
       }
     }
   };
 
   /** 8. If IsGenericDescriptor(Desc) is true, then no further validation is required. */
-  if (IsGenericPropertyDescriptor(Desc)) {
+  if (IsGenericPropertyDescriptor(Desc) = true) {
   }
   /** 9. Else, if IsDataDescriptor(current) and IsDataDescriptor(Desc) have different results, then: */
-  else {
-    if (!(IsDataPropertyDescriptor(current) = IsDataPropertyDescriptor(Desc))) {
-      /** a. Reject, if the [[Configurable]] field of current is false. */
-      if (current.Configurable = false) {
-        return Reject(Throw)
+  elif (!(IsDataPropertyDescriptor(current) = IsDataPropertyDescriptor(Desc))) {
+    /** a. Reject, if the [[Configurable]] field of current is false. */
+    if (current.Configurable = false) {
+      @Reject(Throw)
+    };
+
+    /** b. If IsDataDescriptor(current) is true, then: */
+    if (IsDataPropertyDescriptor(current)) {
+      /** i. Convert the property named P of object O from a data property to an accessor property.
+      *     Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and
+      *     set the rest of the property’s attributes to their default values. */
+      convertDataPropertyDescToAccessorPropertyDesc(O, P)
+    }
+    /** c. Else, */
+    else {
+      /** i. Convert the property named P of object O from an accessor property to a data property.
+      *     Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and
+      *     set the rest of the property’s attributes to their default values. */
+      convertAccessorPropertyDescToDataPropertyDesc(O, P)
+    }
+  }
+  /** 10. Else, if IsDataDescriptor(current) and IsDataDescriptor(Desc) are both true, then: */
+  elif ((IsDataPropertyDescriptor(current) = true) && (IsDataPropertyDescriptor(Desc) = true)) {
+    /** a. If the[[Configurable]] field of current is false, then: */
+    if (current.Configurable = false) {
+      /** i. Reject, if the[[Writable]] field of current is false and the [[Writable]] field of Desc is true. */
+      if ((current.Writable = false) && (Desc.Writable = true)) {
+        @Reject(Throw)
       };
 
-      /** b. If IsDataDescriptor(current) is true, then: */
-      if (IsDataPropertyDescriptor(current)) {
-        /** i. Convert the property named P of object O from a data property to an accessor property.
-        *     Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and
-        *     set the rest of the property’s attributes to their default values. */
-        delete (O.JSProperties)[P].Value;
-        delete (O.JSProperties)[P].Writable;
-        (O.JSProperties)[P].Set := 'undefined;
-        (O.JSProperties)[P].Get := 'undefined
-        /* TODO */
-        /* convertDataPropertyDescToAccessorPropertyDesc(O, P) */
-      }
-      /** c. Else, */
-      else {
-        /** i. Convert the property named P of object O from an accessor property to a data property.
-        *     Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and
-        *     set the rest of the property’s attributes to their default values. */
-        delete (O.JSProperties)[P].Set;
-        delete (O.JSProperties)[P].Get;
-        (O.JSProperties)[P].Value := 'undefined;
-        (O.JSProperties)[P].Writable := false
-        /* TODO */
-        /* convertAccessorPropertyDescToDataPropertyDesc(O, P) */
+      /** ii. If the [[Writable]] field of current is false, then: */
+      if (current.Writable = false) {
+        /** 1. Reject, if the [[Value]] field of Desc is present and SameValue(Desc.[[Value]], current.[[Value]]) is false. */
+        if (("Value" in_obj Desc) && (SameValue(Desc.Value, current.Value) = false)) {
+          @Reject(Throw)
+        }
       }
     }
-    /** 10. Else, if IsDataDescriptor(current) and IsDataDescriptor(Desc) are both true, then: */
+    /** b. else, the [[Configurable]] field of current is true, so any change is acceptable. */
     else {
-      if (IsDataPropertyDescriptor(current) && IsDataPropertyDescriptor(Desc)) {
-        /** a. If the[[Configurable]] field of current is false, then: */
-        if (current.Configurable = false) {
-          /** i. Reject, if the[[Writable]] field of current is false and the [[Writable]] field of Desc is true. */
-          if ((current.Writable = false) && (Desc.Writable = true)) {
-            return Reject(Throw)
-          };
-
-          /** ii. If the [[Writable]] field of current is false, then: */
-          if (current.Writable = false) {
-            /** 1. Reject, if the [[Value]] field of Desc is present and SameValue(Desc.[[Value]], current.[[Value]]) is false. */
-            if (("Value" in_obj Desc) && (SameValue(Desc.Value, current.Value) = false)) {
-              return Reject(Throw)
-            }
-          }
-        }
-        /** b. else, the [[Configurable]] field of current is true, so any change is acceptable. */
-        else {
-        }
-      }
-      /** 11. Else, IsAccessorDescriptor(current) and IsAccessorDescriptor(Desc) are both true so, */
-      else {
-        /** a. If the [[Configurable]] field of current is false, then: */
-        if (current.Configurable = false) {
-          /** i. Reject, if the [[Set]] field of Desc is present and SameValue(Desc.[[Set]], current.[[Set]]) is false. */
-          if (("Set" in_obj Desc) && (SameValue(Desc.Set, current.Set) = false)) {
-            return Reject(Throw)
-          };
-          /** ii. Reject, if the [[Get]] field of Desc is present and SameValue(Desc.[[Get]], current.[[Get]]) is false. */
-          if (("Get" in_obj Desc) && (SameValue(Desc.Get, current.Get) = false)) {
-            return Reject(Throw)
-          }
-        }
+    }
+  }
+  /** 11. Else, IsAccessorDescriptor(current) and IsAccessorDescriptor(Desc) are both true so, */
+  else {
+    /** a. If the [[Configurable]] field of current is false, then: */
+    if (current.Configurable = false) {
+      /** i. Reject, if the [[Set]] field of Desc is present and SameValue(Desc.[[Set]], current.[[Set]]) is false. */
+      if (("Set" in_obj Desc) && (SameValue(Desc.Set, current.Set) = false)) {
+        @Reject(Throw)
+      };
+      /** ii. Reject, if the [[Get]] field of Desc is present and SameValue(Desc.[[Get]], current.[[Get]]) is false. */
+      if (("Get" in_obj Desc) && (SameValue(Desc.Get, current.Get) = false)) {
+        @Reject(Throw)
       }
     }
   };
   /** 12. For each attribute field of Desc that is present, set the correspondingly named attribute of the property named P of object O to the value of the field. */
-  /* TODO aux function */
-  if ("Value" in_obj Desc) {
-    (O.JSProperties)[P].Value := Desc.Value
-  };
-  if ("Writable" in_obj Desc) {
-    (O.JSProperties)[P].Writable := Desc.Writable
-  };
-  if ("Set" in_obj Desc) {
-    (O.JSProperties)[P].Set := Desc.Set
-  };
-  if ("Get" in_obj Desc) {
-    (O.JSProperties)[P].Get := Desc.Get
-  };
-  if ("Enumerable" in_obj Desc) {
-    (O.JSProperties)[P].Enumerable := Desc.Enumerable
-  };
-  if ("Configurable" in_obj Desc) {
-    (O.JSProperties)[P].Configurable := Desc.Configurable
-  };
+  setCorrespondinglyNamedAttributes(O, P, Desc);
 
   /** 13. Return true. */
   return true
