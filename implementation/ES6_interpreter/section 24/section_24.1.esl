@@ -1,0 +1,560 @@
+/* 24.1 ArrayBuffer Objects */
+function initArrayBufferPrototype(global, objectPrototype, strict) {
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  setAllInternalMethodsOfObject(prototype);
+
+  /* 23.1.3.1 Map.prototype.clear ( ) */
+  clearObject := CreateBuiltInFunctionObject([], "mapClearObject", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(clearObject, true, false, true);
+  setJSProperty(prototype, "clear", descriptor);
+  descriptor := newDataPropertyDescriptorFull("clear", false, false, true);
+  setJSProperty(clearObject, "name", descriptor);
+
+  /* 23.1.3.13 Map.prototype [ @@toStringTag ] */
+  descriptor := newDataPropertyDescriptorFull("Map", false, false, true);
+  setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
+
+  /* Martelada Provisoria */
+  /*   newlyConstructedObject.IteratorFunction := "CreateMapIteratorJS"; */
+  CreateMapIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateMapIteratorJS", global, strict, 1.);
+  descriptor := newDataPropertyDescriptorFull(CreateMapIteratorJSObject, true, false, true);
+  setJSProperty(prototype, "IteratorFunction", descriptor); 
+
+  return prototype
+};
+
+
+function initArrayBufferObject(global, objectPrototype, strict) {
+  objMapPrototype := initMapPrototype(global, objectPrototype, strict);
+  objMapConstructor := CreateFunctionObject(["items"], "ArrayBufferConstructor", global, strict, 0.);
+
+  descriptor := newDataPropertyDescriptorFull(objMapConstructor, true, false, true);
+  setJSProperty(objMapPrototype, "constructor", descriptor);
+
+  descriptor := newDataPropertyDescriptorFull("Map", false, false, true);
+  setJSProperty(objMapConstructor, "name", descriptor);
+
+  descriptor := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(objMapConstructor, "length", descriptor);
+
+  descriptor := newDataPropertyDescriptorFull(objMapPrototype, false, false, false);
+  setJSProperty(objMapConstructor, "prototype", descriptor);
+
+  mapSpeciesObject := CreateFunctionObject([], "MapSpeciesGetter", global, strict, null);
+  descriptor := newGetAccessorPropertyDescriptorFull(mapSpeciesObject, false, true);
+  setJSProperty(objMapConstructor, getSpeciesPropertyName(), descriptor);
+  descriptor := newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true);
+  setJSProperty(mapSpeciesObject, "name", descriptor);
+  descriptor := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(mapSpeciesObject, "length", descriptor);
+
+  return objMapConstructor
+};
+
+/* 23.1.2.2 get Map [ @@species ] */
+function MapSpeciesGetter(global, this, strict, args) {
+  return this
+};
+
+function getMapPrototype(strict) { 
+  refMap := newPropertyReference(|global|, "Map", strict);
+  MapObject := GetValue(refMap);
+  refMapProto := newPropertyReference(MapObject, "prototype", strict);
+  objectMapProto := GetValue(refMapProto);
+  return objectMapProto
+};
+
+
+/*
+23.1.1.1 Map ( [ iterable ] )
+*/
+function MapConstructor(global, this, strict, items) {
+  NewTarget := this;
+  iterable := getOptionalParam(items, 0);
+
+  /* 1. If NewTarget is undefined, throw a TypeError exception. */
+  if (NewTarget = 'undefined) {
+    return TypeErrorConstructorInternal()
+  };
+  
+  /* 2. Let map be OrdinaryCreateFromConstructor(NewTarget, "%MapPrototype%", «‍[[MapData]]» ). */
+  map := OrdinaryCreateFromConstructorMap(global, this, strict, iterable);
+  
+  /* 3. ReturnIfAbrupt(map). */
+  @ReturnIfAbrupt(map);
+
+  /* 4. Set map’s [[MapData]] internal slot to a new empty List. */
+  map.MapData := []; 
+  
+  /* 5. If iterable is not present, let iterable be undefined. */
+  if (iterable = null) {
+    iterable := 'undefined
+  };
+  
+  /* 6. If iterable is either undefined or null, let iter be undefined. */
+  if (iterable = 'undefined || iterable = null) {
+    iter := 'undefined
+  /* 7. Else, */
+  } else {
+
+    print "ICHECKPOINT 1";
+    /* a. Let adder be Get(map, "set"). */
+    adder := Get(map, "set");
+    
+    print "ICHECKPOINT 2";
+    /* b. ReturnIfAbrupt(adder). */
+    @ReturnIfAbrupt(adder);
+    
+    /* c. If IsCallable(adder) is false, throw a TypeError exception. */
+    if (IsCallable(adder) = false) {
+      throw TypeErrorConstructorInternal()
+    };
+    
+    print "ICHECKPOINT 3";
+    print iterable; 
+
+    /* d. Let iter be GetIterator(iterable) */
+    iter := GetIterator(iterable, null);
+    
+    print "ICHECKPOINT 4";
+    /* e. ReturnIfAbrupt(iter). */
+    @ReturnIfAbrupt(iter)
+  };
+  
+  /* 8. If iter is undefined, return map.*/
+  if (iter = 'undefined) {
+    return map 
+  }; 
+
+  print "ICHECKPOINT 5";
+  print iter; 
+
+  /* 9. Repeat (while true ??) */
+  while(true) {
+    /* a. Let next be IteratorStep(iter). */
+    next := IteratorStep(iter);
+    
+    print "ICHECKPOINT 6";
+
+    /* b. ReturnIfAbrupt(next). */
+    @ReturnIfAbrupt(next);
+    
+    /* c. If next is false, return map */
+    if (next = false) {
+      return map
+    };
+    
+    /* d. Let nextItem be IteratorValue(next) */
+    nextItem := IteratorValue(next);
+    
+    /* e. ReturnIfAbrupt(nextItem). */
+    @ReturnIfAbrupt(nextItem);
+    
+    /* f. If Type(nextItem) is not Object,  */
+    if(!(Type(nextItem) = "Object")) {
+      /* i. Let error be Completion{[[type]]: throw, 
+      [[value]]: a newly created TypeError object, [[target]]:empty}. */
+      error :=  throwEmptyCompletion(TypeErrorConstructorInternal());
+      
+      /* ii. Return IteratorClose(iter, error) */
+      return IteratorClose(iter, error)
+    };
+    
+    /* g.Let k be Get(nextItem, "0") */
+    k := Get(nextItem, "0");
+    
+    /* h. If k in an abrupt completion, return IteratorClose(iter, k) */
+    if ((Type(k) = "Completion")&&&(isAnAbruptCompletion(k))) {
+     IteratorClose(iter, k) 
+    };
+    
+    /* i. Let v be Get(nextItem, "1"). */
+    v := Get(nextItem, "1");
+    
+    /* j. If v is an abrupt completion, return IteratorClose(iter, v). */
+    if ((Type(k) = "Completion")&&&isAnAbruptCompletion(v)) {
+      return IteratorClose(iter, v)
+    };
+
+    /* k. Let status be Call(adder, map, «k.[[value]], v.[[value]]»). */
+    status := Call(null, null, adder, map, [k, v]);
+    
+    /* l. If status is an abrupt completion, return IteratorClose(iter, status). */
+    if ((Type(k) = "Completion")&&&isAnAbruptCompletion(status)) {
+      return IteratorClose(iter, status)
+    }
+  }
+};
+
+
+/*
+23.1.3.1 Map.prototype.clear ( )
+*/
+function mapClearObject(global, this, strict, args) {
+  /* Let M be the this value. */
+  M := this;
+  
+  /* If Type(M) is not Object, throw a TypeError exception. */
+  if (!(Type(M) = "Object")) {
+    throw TypeErrorConstructorInternal()
+  };
+  
+  /* If M does not have a [[MapData]] internal slot, throw a TypeError exception. */
+  if (!("MapData" in_obj M)) {
+    throw TypeErrorConstructorInternal()
+  };
+  
+  /* Let entries be the List that is the value of M’s [[MapData]] internal slot. */
+  entries := M.MapData;
+  
+  /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
+  i := 0;
+  len := l_len entries;
+  while (i < len) {
+    p := l_nth(entries, i); 
+    
+    /* Set p.[[key]] to empty. */
+    p.key := 'empty;
+    
+    /* Set p.[[value]] to empty. */
+    p.value := 'empty;
+    i := i + 1
+  };
+  
+  /* Return undefined */
+  return 'undefined
+};
+
+
+/*
+23.1.5.2 CreateMapIterator Abstract Operation
+*/
+function createMapIterator(map, kind) { 
+
+  print "ICHECKPOINT 3.3.1";
+  print map; 
+
+  /* 1. If Type(map) is not Object, throw a TypeError exception. */
+  if (!(Type(map) = "Object")) { 
+    throw TypeErrorConstructorInternal()
+  }; 
+
+  /* 2. If map does not have a [[MapData]] internal slot, throw a TypeError exception. */  
+  if (!("MapData" in_obj map)) { 
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 3. Let iterator be ObjectCreate(%MapIteratorPrototype%, «‍[[Map]], [[MapNextIndex]], [[MapIterationKind]]»). */
+  iterator := createMapIteratorObject(); 
+
+  /* 4. Set iterator’s [[Map]] internal slot to map. */
+  iterator.Map := map; 
+
+  /* 5. Set iterator’s [[MapNextIndex]] internal slot to 0. */
+  iterator.MapNextIndex := 0; 
+
+  /* 6. Set iterator’s [[MapIterationKind]] internal slot to kind.*/
+  iterator.MapIterationKind := kind; 
+
+  iterator.IteratorFunction := "IteratorFunction";
+
+  /* 7. Return iterator. */
+  return iterator
+};
+
+
+/*
+23.1.3.12 Map.prototype [ @@iterator ]( )
+*/
+function initMapIteratorPrototype(global, objectPrototype, strict) { 
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  setAllInternalMethodsOfObject(prototype);
+
+  nextObject := CreateBuiltInFunctionObject([], "MapIteratorPrototypeNext", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(nextObject, true, false, true);
+  setJSProperty(prototype, "next", descriptor);
+  descriptor := newDataPropertyDescriptorFull("next", false, false, true);
+  setJSProperty(nextObject, "name", descriptor);
+
+  CreateMapIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateMapIteratorFromIterator", global, strict, 1.);
+  descriptor := newDataPropertyDescriptorFull(CreateMapIteratorJSObject, true, false, true);
+  setJSProperty(prototype, "IteratorFunction", descriptor); 
+
+  /* 23.1.5.2.2 %MapIteratorPrototype% [ @@toStringTag ] */
+  descriptor := newDataPropertyDescriptorFull("Map Iterator", false, false, true);
+  setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
+
+  |MapIteratorPrototype| := prototype; 
+  return null
+}; 
+
+function createMapIteratorObject() {
+
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+  setInternalProperty(newlyConstructedObject, "Prototype", |MapIteratorPrototype|);
+  
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  
+  setInternalProperty(newlyConstructedObject, "Class", "Object");
+
+ 
+  return newlyConstructedObject
+};
+
+function isMapIteratorInstance(obj) {
+  return ("Map" in_obj obj) &&& ("MapNextIndex" in_obj obj) &&& ("MapIterationKind" in_obj obj)
+};
+
+
+/* 
+23.1.5.2.1 %MapIteratorPrototype%.next ( ) 
+*/
+function MapIteratorPrototypeNext(global, this, strict, args) { 
+  /* 1. Let O be the this value. */
+  O := this; 
+
+  /* 2. If Type(O) is not Object, throw a TypeError exception.*/
+  if (!(Type(O) = "Object")) { 
+    throw TypeErrorConstructorInternal()
+  }; 
+
+  /* 3. If O does not have all of the internal slots of a Map Iterator Instance (23.1.5.3), throw a TypeError exception. */
+  if (!isMapIteratorInstance(O)) {
+    throw TypeErrorConstructorInternal()
+  }; 
+
+  /* 4. Let m be the value of the [[Map]] internal slot of O. */
+  m := O.Map; 
+
+  /* 5. Let index be the value of the [[MapNextIndex]] internal slot of O. */
+  index := O.MapNextIndex; 
+
+  /* 6. Let itemKind be the value of the [[MapIterationKind]] internal slot of O.*/
+  itemKind := O.MapIterationKind; 
+
+  /* 7. If m is undefined, return CreateIterResultObject(undefined, true).*/
+  if (m = 'undefined) {
+    return CreateIterResultObject(undefined, true)
+  }; 
+
+  /* 8. Assert: m has a [[MapData]] internal slot.*/
+  assert ("MapData" in_obj m);
+
+  /* 9. Let entries be the List that is the value of the [[MapData]] internal slot of m.*/
+  entries := m.MapData; 
+
+  /* 10. Repeat while index is less than the total number of elements of entries. The number of elements must be redetermined each time this method is evaluated.*/
+  len := l_len entries; 
+
+  while (index < len) {
+    /* a. Let e be the Record {[[key]], [[value]]} that is the value of entries[index].*/
+    e := l_nth(entries, index);
+
+    /* b. Set index to index+1. */
+    index := index+1; 
+
+    /* c. Set the [[MapNextIndex]] internal slot of O to index. */
+    O.MapNextIndex := index; 
+
+    /* d. If e.[[key]] is not empty, then */
+    if (!(e.key = 'empty)) {
+      if (itemKind = "key") {
+        result := e.key
+      } elif (itemKind = "value") {
+        result := e.value 
+      } else {
+        /* Assert: itemKind is "key+value".*/
+        assert (itemKind = "key+value"); 
+        /* Let result be CreateArrayFromList(«e.[[key]], e.[[value]]»). */
+        result :=  CreateArrayFromList( [e.key, e.value ] )
+      };
+      return CreateIterResultObject(result, false)
+    };
+    
+    index := index + 1
+  }; 
+
+  /* 11. Set the [[Map]] internal slot of O to undefined. */
+  O.Map := 'undefined; 
+
+  /* 12. Return CreateIterResultObject(undefined, true).*/
+  return CreateIterResultObject('undefined, true)
+};
+
+/* Temporary Code */
+
+/*
+  OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList ) 
+*/
+function OrdinaryCreateFromConstructorMap(global, this, strict, items) {
+  mapPrototype := getMapPrototype(strict);
+
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+  /* The [[Prototype]] internal property of the newly constructed object
+      is set to the original Array prototype object, the one that is the
+      initial value of Array.prototype (15.4.3.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", mapPrototype);
+  /* The [[Extensible]] internal property of the newly constructed object
+      is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  /* The [[Class]] internal property of the newly constructed object is
+      set to "Array". */
+  setInternalProperty(newlyConstructedObject, "Class", "Object");
+
+  newlyConstructedObject.IteratorFunction := "IteratorFunction";
+  return newlyConstructedObject
+}; 
+
+function CreateMapIteratorJS(global, this, strict, items) {
+  return createMapIterator(this, "key+value")
+}; 
+
+function CreateMapIteratorFromIterator(global, this, strict, items) {
+  return this 
+};
+
+
+/* 24.1.1 Abstract Operations For ArrayBuffer Objects */
+
+/* 24.1.1.1 AllocateArrayBuffer( constructor, byteLength ) */
+function AllocateArrayBuffer(constructor, byteLength) {
+	/* 1. TODO Let obj be OrdinaryCreateFromConstructor(constructor, "%ArrayBufferPrototype%", «‍[[ArrayBufferData]], [[ArrayBufferByteLength]]» ). */
+	obj := OrdinaryCreateFromConstructorMap(constructor, ArrayBufferPrototype,[[[ArrayBufferData]], [[ArrayBufferByteLength]]]);
+	/* 2. ReturnIfAbrupt(obj). */
+	@ReturnIfAbrupt(obj);
+	/* 3. TODO Assert: byteLength is a positive integer. */
+	assert (byteLength > (0.))
+	/* 4. Let block be CreateByteDataBlock(byteLength). */
+	block := CreateByteDataBlock(byteLength);
+	/* 5. ReturnIfAbrupt(block). */
+	@ReturnIfAbrupt(block);
+	/* 6. Set obj’s [[ArrayBufferData]] internal slot to block. */
+	obj.ArrayBufferData := block;
+	/* 7. Set obj’s [[ArrayBufferByteLength]] internal slot to byteLength. */
+	obj.ArrayBufferByteLength := byteLength;
+	/* 8. Return obj. */
+	return obj	
+};
+
+/* 24.1.1.2IsDetachedBuffer( arrayBuffer ) */
+function IsDetachedBuffer (arrayBuffer) {
+	/* 1. Assert: Type(arrayBuffer) is Object and it has an [[ArrayBufferData]] internal slot. */
+	assert ((Type(arrayBuffer) = "Object") &&& ("ArrayBufferData" in_obj arrayBuffer)); 
+	/* 2. If arrayBuffer’s [[ArrayBufferData]] internal slot is null, return true. */
+	if (ArrayBuffer.ArrayBufferData = null) {
+		return true
+	};
+	/* 3. Return false. */
+	return false;
+};
+
+/* 24.1.1.3 DetachArrayBuffer( arrayBuffer ) */
+function DetachArrayBuffer(arrayBuffer) {
+	/* Assert: Type(arrayBuffer) is Object and it has [[ArrayBufferData]] and [[ArrayBufferByteLength]] internal slots. */
+	assert ((Type(arrayBuffer) = "Object") &&& ("ArrayBufferData" in_obj arrayBuffer) &&& ("ArrayBufferByteLength" in_obj arrayBuffer)); 
+	/* Set arrayBuffer’s [[ArrayBufferData]] internal slot to null. */
+	arrayBuffer.ArrayBufferData := null;
+	/* Set arrayBuffer’s [[ArrayBufferByteLength]] internal slot to 0. */
+	arrayBuffer.ArrayBufferByteLength := 0;
+	/* Return NormalCompletion(null). */
+	NormalCompletion(null)
+};
+
+/* 24.1.1.4 TODO CloneArrayBuffer( srcBuffer, srcByteOffset [, cloneConstructor] ) */
+function CloneArrayBuffer(srcBuffer, srcByteOffset, cloneConstructor) {
+	/* 1. Assert: Type(srcBuffer) is Object and it has an [[ArrayBufferData]] internal slot. */
+	assert ((Type(srcBuffer) = "Object") &&& ("ArrayBufferData" in_obj srcBuffer));
+	/* 2. If cloneConstructor is not present, then */
+	if (cloneConstructor = 'undefined) {
+		/* a. TODO Let cloneConstructor be SpeciesConstructor(srcBuffer, %ArrayBuffer%). */
+		cloneConstructor := SpeciesConstructor(srcBuffer, ArrayBuffer);
+		/* b. ReturnIfAbrupt(cloneConstructor). */
+		@ReturnIfAbrupt(cloneConstructor);
+		/* c. If IsDetachedBuffer(srcBuffer) is true, throw a TypeError exception. */
+		if (IsDetachedBuffer(srcBuffer) = true) {
+			throw TypeErrorConstructorInternal()
+		};
+	/* 3. Else, Assert: IsConstructor(cloneConstructor) is true. */
+	} else {
+		assert (IsConstructor(cloneConstructor) = true)
+	}
+	/* 4. Let srcLength be the value of srcBuffer’s [[ArrayBufferByteLength]] internal slot. */
+	srcLength := srcBuffer.ArrayBufferByteLength;
+	/* 5. Assert: srcByteOffset ≤ srcLength. */
+	assert (srcByteOffset <= srcLength);
+	/* 6. Let cloneLength be srcLength – srcByteOffset. */
+	cloneLength := srcLength - srcByteOffset;
+	/* 7. Let srcBlock be the value of srcBuffer’s [[ArrayBufferData]] internal slot. */
+	srcBlock := srcBuffer.ArrayBufferData;
+	/* 8. Let targetBuffer be AllocateArrayBuffer(cloneConstructor, cloneLength). */
+	targetBuffer := AllocateArrayBuffer(cloneConstructor, cloneLength);
+	/* 9. ReturnIfAbrupt(targetBuffer). */
+	@ReturnIfAbrupt(targetBuffer);
+	/* 10. If IsDetachedBuffer(srcBuffer) is true, throw a TypeError exception. */
+	if (IsDetachedBuffer(srcBuffer) = true) {
+		throw TypeError
+	};
+	/* 11. Let targetBlock be the value of targetBuffer’s [[ArrayBufferData]] internal slot. */
+	targetBlock := targetBuffer.ArrayBufferData;
+	/* 12. TODO Perform CopyDataBlockBytes(targetBlock, 0, srcBlock, srcByteOffset, cloneLength). */
+	CopyDataBlockBytes(targetBlock, 0, srcBlock, srcByteOffset, cloneLength);
+	/* 13. Return targetBuffer. */
+	return targetBuffer
+};
+
+/* 24.1.1.5 GetValueFromBuffer ( arrayBuffer, byteIndex, type, isLittleEndian ) */
+function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
+	/* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */
+	/* 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. */
+	/* 3. Assert: byteIndex is a positive integer. */
+	/* 4. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot. */
+	/* 5. Let elementSize be the Number value of the Element Size value specified in Table 49 for Element Type type. */
+	/* 6. Let rawValue be a List of elementSize containing, in order, the elementSize sequence of bytes starting with block[byteIndex]. */
+	/* 7. If isLittleEndian is not present, set isLittleEndian to either true or false. The choice is implementation dependent and should be the alternative that is most efficient for the implementation. An implementation must use the same value each time this step is executed and the same value must be used for the corresponding step in the SetValueInBuffer abstract operation. */
+	/* 8. If isLittleEndian is false, reverse the order of the elements of rawValue. */
+	/* 9. If type is "Float32", then */
+	/* a. Let value be the byte elements of rawValue concatenated and interpreted as a little-endian bit string encoding of an IEEE 754-2008 binary32 value. */
+	/* b. If value is an IEEE 754-2008 binary32 NaN value, return the NaN Number value. */
+	/* c. Return the Number value that corresponds to value. */
+	/* 10. If type is "Float64", then */
+	/* a. Let value be the byte elements of rawValue concatenated and interpreted as a little-endian bit string encoding of an IEEE 754-2008 binary64 value. */
+	/* b. If value is an IEEE 754-2008 binary64 NaN value, return the NaN Number value. */
+	/* c. Return the Number value that corresponds to value. */
+	/* 11. If the first code unit of type is "U", then */
+	/* a. Let intValue be the byte elements of rawValue concatenated and interpreted as a bit string encoding of an unsigned little-endian binary number. */
+	/* 12. Else */
+	/* a. Let intValue be the byte elements of rawValue concatenated and interpreted as a bit string encoding of a binary little-endian 2’s complement number of bit length elementSize × 8. */
+	/* 13. Return the Number value that corresponds to intValue. */
+	return
+};
+
+/* 24.1.1.6 SetValueInBuffer ( arrayBuffer, byteIndex, type, value, isLittleEndian ) */
+function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
+	/* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */
+	/* 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. */
+	/* 3. Assert: byteIndex is a positive integer. */
+	/* 4. Assert: Type(value) is Number. */
+	/* 5. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot. */
+	/* 6. Assert: block is not undefined. */
+	/* 7. Let elementSize be the Number value of the Element Size value specified in Table 49 for Element Type type. */
+	/* 8. If isLittleEndian is not present, set isLittleEndian to either true or false. The choice is implementation dependent and should be the alternative that is most efficient for the implementation. An implementation must use the same value each time this step is executed and the same value must be used for the corresponding step in the GetValueFromBuffer abstract operation. */
+	/* 9. If type is "Float32", then */
+	/* a. Set rawBytes to a List containing the 4 bytes that are the result of converting value to IEEE 754-2008 binary32 format using “Round to nearest, ties to even” rounding mode. If isLittleEndian is false, the bytes are arranged in big endian order. Otherwise, the bytes are arranged in little endian order. If value is NaN, rawValue may be set to any implementation chosen IEEE 754-2008 binary64 format Not-a-Number encoding. An implementation must always choose the same encoding for each implementation distinguishable NaN value. */
+	/* 10. Else, if type is "Float64", then */
+	/* a. Set rawBytes to a List containing the 8 bytes that are the IEEE 754-2008 binary64 format encoding of value. If isLittleEndian is false, the bytes are arranged in big endian order. Otherwise, the bytes are arranged in little endian order. If value is NaN, rawValue may be set to any implementation chosen IEEE 754-2008 binary32 format Not-a-Number encoding. An implementation must always choose the same encoding for each implementation distinguishable NaN value. */
+	/* 11. Else, */
+	/* a. Let n be the Number value of the Element Size specified in Table 49 for Element Type type. */
+	/* b. Let convOp be the abstract operation named in the Conversion Operation column in Table 49 for Element Type type. */
+	/* c. Let intValue be convOp(value). */
+	/* d. If intValue ≥ 0, then */
+	/* i. Let rawBytes be a List containing the n-byte binary encoding of intValue. If isLittleEndian is false, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order. */
+	/* e. Else, */
+	/* i. Let rawBytes be a List containing the n-byte binary 2’s complement encoding of intValue. If isLittleEndian is false, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order. */
+	/* 12. Store the individual bytes of rawBytes into block, in order, starting at block[byteIndex]. */
+	/* 13. Return NormalCompletion(undefined). */
+	return
+};

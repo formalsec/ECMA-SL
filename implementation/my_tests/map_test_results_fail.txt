@@ -1,0 +1,16 @@
+Testing my_tests/Map/Map/is-a-constructor.js
+Testing my_tests/Map/Map/iterator-close-after-set-failure.js
+Testing my_tests/Map/Map/iterator-item-first-entry-returns-abrupt.js
+Testing my_tests/Map/Map/iterator-items-are-not-object-close-iterator.js
+Testing my_tests/Map/Map/iterator-items-are-not-object.js
+Testing my_tests/Map/Map/iterator-item-second-entry-returns-abrupt.js
+Testing my_tests/Map/Map/proto-from-ctor-realm.js
+Testing my_tests/Map/Map/undefined-newtarget.js
+Testing my_tests/Map/Map/prototype/delete/does-not-break-iterators.js
+Testing my_tests/Map/Map/prototype/forEach/callback-this-non-strict.js
+Testing my_tests/Map/Map/prototype/forEach/callback-this-strict.js
+Testing my_tests/Map/Map/prototype/forEach/iterates-values-added-after-foreach-begins.js
+Testing my_tests/Map/Map/prototype/forEach/iterates-values-deleted-then-readded.js
+Testing my_tests/Map/Map/prototype/forEach/second-parameter-as-callback-context.js
+Testing my_tests/Map/Map/prototype/has/normalizes-zero-key.js
+OK: 135    FAIL: 25    ERROR: 7    NOT EXECUTED: 0    Total: 167
