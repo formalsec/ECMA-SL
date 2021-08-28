@@ -25,6 +25,7 @@ function initNumberObject(global, objectPrototype, strict) {
 function initNumberPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObject();
   setAllInternalMethodsOfObject(prototype);
+  setInternalProperty(prototype, "NumberData", 0.);
 
   /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
   toExponential := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToExponential", global, strict, null);
@@ -55,7 +56,7 @@ function initNumberPrototype(global, objectPrototype, strict) {
   setJSProperty(toPrecision, "name", descriptor);
 
   /* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
-  toString := CreateBuiltInFunctionObject([ "radix" ], "NumberPrototypeToString", global, strict, 0.);
+  toString := CreateBuiltInFunctionObject([ "radix" ], "NumberPrototypeToStringAlt", global, strict, 0.);
   createBuiltInProperty(prototype, "toString", toString);
   descriptor := newDataPropertyDescriptorFull("toString", false, false, true);
   setJSProperty(toString, "name", descriptor);
@@ -82,7 +83,7 @@ function getNumberPrototype(strict) {
 /* 20.1.1.1 Number ( [ value ] ) */
 function NumberConstructor(global, this, strict, items) {
   NewTarget := this;
-  value := l_nth(items, 0);
+  value := getOptionalParam(items, 0);
   /* 1. If no arguments were passed to this function invocation, let n be +0. */
   if (value = null) {
     n := 0.
@@ -194,7 +195,7 @@ function initNumberConstructor(prototype, global, strict) {
 
 /* 20.1.2.2 Number.isFinite ( number ) */
 function NumberConstructorIsFinite(global, this, strict, items) {
-  number := l_nth(items, 0);
+  number := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
   if (!(Type(number) = "Number")) {
     return false
@@ -210,7 +211,7 @@ function NumberConstructorIsFinite(global, this, strict, items) {
 
 /* 20.1.2.3 Number.isInteger ( number ) */
 function NumberConstructorIsInteger(global, this, strict, items) {
-  number := l_nth(items, 0);
+  number := getOptionalParam(items, 0);
   /* If Type(number) is not Number, return false. */
   if (!(Type(number) = "Number")) {
     return false
@@ -232,7 +233,7 @@ function NumberConstructorIsInteger(global, this, strict, items) {
 
 /* 20.1.2.4 Number.isNaN ( number ) */
 function NumberConstructorIsNaN(global, this, strict, items) {
-  number := l_nth(items, 0);
+  number := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
   if (!(Type(number) = "Number")) {
     return false
@@ -248,7 +249,7 @@ function NumberConstructorIsNaN(global, this, strict, items) {
 
 /* 20.1.2.5 Number.isSafeInteger ( number ) */
 function NumberConstructorIsSafeInteger(global, this, strict, items) {
-  number := l_nth(items, 0);
+  number := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
   if (!(Type(number) = "Number")) {
     return false
@@ -274,7 +275,7 @@ function NumberConstructorIsSafeInteger(global, this, strict, items) {
 
 /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
 function NumberPrototypeToExponential(global, this, strict, items) {
-  fractionDigits := l_nth(items, 0);
+  fractionDigits := getOptionalParam(items, 0);
   /* NumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
@@ -308,7 +309,7 @@ function NumberPrototypeToExponential(global, this, strict, items) {
 
 /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
 function NumberPrototypeToExponentialAlt(global, this, strict, items) {
-  fractionDigits := l_nth(items, 0);
+  fractionDigits := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
@@ -412,7 +413,7 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
 
 /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
 function NumberPrototypeToFixed(global, this, strict, items) {
-  fractionDigits := l_nth(items, 0);  
+  fractionDigits := getOptionalParam(items, 0);  
   /* NumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
@@ -426,7 +427,7 @@ function NumberPrototypeToFixed(global, this, strict, items) {
 
 /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
 function NumberPrototypeToFixedAlt(global, this, strict, items) {
-  fractionDigits := l_nth(items, 0);
+  fractionDigits := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
@@ -520,7 +521,7 @@ function NumberPrototypeToLocaleString(global, this, strict, items) {
 
 /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
 function NumberPrototypeToPrecision(global, this, strict, items) {
-  precision := l_nth(items, 0);
+  precision := getOptionalParam(items, 0);
   /* NumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
@@ -534,7 +535,7 @@ function NumberPrototypeToPrecision(global, this, strict, items) {
 
 /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
 function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
-  precision := l_nth(items, 0);
+  precision := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
@@ -640,17 +641,19 @@ function NumberPrototypeToString(global, this, strict, items) {
 
 /* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
 function NumberPrototypeToStringAlt(global, this, strict, items) {
-  radix := l_nth(items, 0);
+  radix := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
+  print("debug toString");
+  print(this);
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
   @ReturnIfAbrupt(x);
   /* 3. If radix is not present, let radixNumber be 10. */
   if (radix = null) {
-    radixNumber := 10
+    radixNumber := 10.
   /* 4. Else if radix is undefined, let radixNumber be 10. */
   } elif (radix = 'undefined) {
-    radixNumber := 10
+    radixNumber := 10.
   /* 5. Else let radixNumber be ToInteger(radix). */
   } else {
     radixNumber := ToInteger(radix)
@@ -662,7 +665,7 @@ function NumberPrototypeToStringAlt(global, this, strict, items) {
     throw RangeErrorConstructorInternal()
   };
   /* 8. If radixNumber = 10, return ToString(x). */
-  if (radixNumber = 10) {
+  if (radixNumber = 10.) {
     return ToString(x)
   };
   /* 9. Return the String representation of this Number value using the radix specified by radixNumber.
