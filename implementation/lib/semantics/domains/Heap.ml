@@ -43,8 +43,12 @@ let str_with_global (heap : t) : string =
   let global = Hashtbl.fold (fun loc obj acc ->
       match acc with
       | Some _ -> acc
-      | None   -> Object.get obj "global"
+      | None -> (
+          match Object.get_fields obj with
+          | "global" :: [] -> Object.get obj "global"
+          | _ -> None
+        )
     ) heap None in
   match global with
   | Some loc -> Printf.sprintf "{ \"heap\": %s, \"global\": %s }" (str heap) (Val.str loc)
-  | None     -> raise (Failure "Heap with no global")
+  | None     -> raise (Failure "Couldn't find the Object that contains only one property, named \"global\".")

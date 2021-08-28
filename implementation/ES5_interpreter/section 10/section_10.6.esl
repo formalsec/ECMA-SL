@@ -20,17 +20,12 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
   /* 4. Set the [[Class]] internal property of obj to "Arguments". */
   setInternalProperty(obj, "Class", "Arguments");
   /* 5. Let Object be the standard built-in Object constructor (15.2.2). */
-  /* TODO */
+  /* Object := ObjectConstructor; TODO */
   /* 6. Set the [[Prototype]] internal property of obj to the standard built-in Object prototype object (15.2.4). */
   setInternalProperty(obj, "Prototype", getObjectPrototype(strict));
   /* 7. Call the [[DefineOwnProperty]] internal method on obj passing "length", the Property Descriptor
         {[[Value]]: len, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false as arguments. */
-  {obj.DefineOwnProperty}(obj, "length", {
-    Value: int_to_float len,
-    Writable: true,
-    Enumerable: false,
-    Configurable: true
-  }, false);
+  {obj.DefineOwnProperty}(obj, "length", newDataPropertyDescriptorFull(int_to_float len, true, false, true), false);
   /* 8. Let map be the result of creating a new object as if by the expression new Object() where Object is
         the standard built-in constructor with that name */
   map := ObjectConstructor(|global|, 'null, strict, [null]);
@@ -45,12 +40,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
     /* b. Call the [[DefineOwnProperty]] internal method on obj passing ToString(indx), the property
           descriptor {[[Value]]: val, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and
           false as arguments. */
-    {obj.DefineOwnProperty}(obj, ToString(int_to_float indx), {
-      Value: val,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }, false);
+    {obj.DefineOwnProperty}(obj, ToString(int_to_float indx), newDataPropertyDescriptor(val), false);
     /* c. If indx is less than the number of elements in names, then */
     if (indx < l_len names) {
       /* i. Let name be the element of names at 0-origined list position indx. */
@@ -68,11 +58,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
         /* 4. Call the [[DefineOwnProperty]] internal method of map passing ToString(indx), the
               Property Descriptor {[[Set]]: p, [[Get]]: g, [[Configurable]]: true}, and false as
               arguments. */
-        {map.DefineOwnProperty}(map, ToString(int_to_float indx), {
-          Set: p,
-          Get: g,
-          Configurable: true
-        }, false)
+        {map.DefineOwnProperty}(map, ToString(int_to_float indx), newAccessorPropertyDescriptorFull(g, p, null, true), false)
       }
     };
     /* d. Let indx = indx - 1 */
@@ -81,25 +67,20 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
   /* 12. If mappedNames is not empty, then */
   if (l_len mappedNames > 0) {
     /* a. Set the [[ParameterMap]] internal property of obj to map. */
-    obj.ParameterMap := map;
+    setInternalProperty(obj, "ParameterMap", map);
     /* b. Set the [[Get]], [[GetOwnProperty]], [[DefineOwnProperty]], and [[Delete]] internal methods of obj
           to the definitions provided below. */
-    obj.Get               := "ArgumentsObjectGet";
-    obj.GetOwnProperty    := "ArgumentsObjectGetOwnProperty";
-    obj.DefineOwnProperty := "ArgumentsObjectDefineOwnProperty";
-    obj.Delete            := "ArgumentsObjectDelete"
+    setInternalProperty(obj, "Get", "ArgumentsObjectGet");
+    setInternalProperty(obj, "GetOwnProperty", "ArgumentsObjectGetOwnProperty");
+    setInternalProperty(obj, "DefineOwnProperty", "ArgumentsObjectDefineOwnProperty");
+    setInternalProperty(obj, "Delete", "ArgumentsObjectDelete")
   };
   /* 13. If strict is false, then */
   if (strict = false) {
     /* a. Call the [[DefineOwnProperty]] internal method on obj passing "callee", the property descriptor
           {[[Value]]: func, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false as
           arguments. */
-    {obj.DefineOwnProperty}(obj, "callee", {
-      Value: func,
-      Writable: true,
-      Enumerable: false,
-      Configurable: true
-    }, false)
+    {obj.DefineOwnProperty}(obj, "callee", newDataPropertyDescriptorFull(func, true, false, true), false)
   }
   /* 14. Else, strict is true so */
   else {
@@ -108,21 +89,11 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
     /* b. Call the [[DefineOwnProperty]] internal method of obj with arguments "caller",
           PropertyDescriptor {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]:
           false}, and false. */
-    {obj.DefineOwnProperty}(obj, "caller", {
-      Get: thrower,
-      Set: thrower,
-      Enumerable: false,
-      Configurable: false
-    }, false);
+    {obj.DefineOwnProperty}(obj, "caller", newAccessorPropertyDescriptorFull(thrower, thrower, false, false), false);
     /* c. Call the [[DefineOwnProperty]] internal method of obj with arguments "callee",
           PropertyDescriptor {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]:
           false}, and false. */
-    {obj.DefineOwnProperty}(obj, "callee", {
-      Get: thrower,
-      Set: thrower,
-      Enumerable: false,
-      Configurable: false
-    }, false)
+    {obj.DefineOwnProperty}(obj, "callee", newAccessorPropertyDescriptorFull(thrower, thrower, false, false), false)
   };
   /* 15. Return obj */
   return obj
@@ -133,11 +104,7 @@ function MakeArgGetter(name, lexicalEnvironment) {
      object that when executed returns the value bound for name in env. It performs the following steps: */
 
   /* 1. Let body be the result of concatenating the Strings "return ", name, and ";". */
-  body := lambda (scope, this, strict, args) [name] {
-    envRec := getEnvironmentRecord(scope);
-    val := getBindingValue(envRec, name);
-    return val
-  };
+  body := makeArgGetterLetBodyAuxFunction(name);
   /* 2. Return the result of creating a function object as described in 13.2 using no FormalParameterList, body for
         FunctionBody, env as Scope, and true for Strict. */
   return CreateFunctionObject([], body, lexicalEnvironment, true, null)
@@ -148,14 +115,10 @@ function MakeArgSetter(name, lexicalEnvironment) {
      object that when executed sets the value bound for name in env. It performs the following steps: */
 
   /* 1. Let param be the String name concatenated with the String "_arg". */
+  param := makeArgSetterLetParamAuxFunction(name);
   /* 2. Let body be the String "<name> = <param>;" with <name> replaced by the value of name and <param>
         replaced by the value of param. */
-  body := lambda (scope, this, strict, args) [name] {
-    param := l_nth(args, 0);
-    envRec := getEnvironmentRecord(scope);
-    setBindingValue(envRec, name, param);
-    return 'undefined
-  };
+  body := makeArgSetterLetBodyAuxFunction(name, param);
 
   /* 3. Return the result of creating a function object as described in 13.2 using a List containing the single String
         param as FormalParameterList, body for FunctionBody, env as Scope, and true for Strict. */
@@ -281,4 +244,30 @@ function ArgumentsObjectDelete(argumentsObject, P, Throw) {
   };
   /* 5. Return result. */
   return result
+};
+
+/* Auxiliary functions */
+function makeArgGetterLetBodyAuxFunction(name) {
+  body := lambda (scope, this, strict, args) [name] {
+    envRec := getEnvironmentRecord(scope);
+    val := getBindingValue(envRec, name);
+    return val
+  };
+
+  return body
+};
+
+function makeArgSetterLetParamAuxFunction(name) {
+  return s_concat [name, "_arg"]
+};
+
+function makeArgSetterLetBodyAuxFunction(name, param) {
+  body := lambda (scope, this, strict, args) [name] {
+    param := l_nth(args, 0);
+    envRec := getEnvironmentRecord(scope);
+    setBindingValue(envRec, name, param);
+    return 'undefined
+  };
+
+  return body
 }

@@ -126,10 +126,10 @@ function traverseAndTranslate(value) {
   }
 }
 
-function fromJSObjectToESLStatements(objProg = {}) {
+function fromJSObjectToESLStatements(objProg = {}, compileToCore = false) {
   const { expression, statements } = traverseAndTranslate(objProg);
 
-  return statements.concat(createReturnStmt(expression));
+  return statements.concat(createReturnStmt(expression, compileToCore));
 }
 
 function fromESLStatementsToESLFunction(
@@ -140,16 +140,20 @@ function fromESLStatementsToESLFunction(
   return new Function(name, params, new Block(statements));
 }
 
-function createReturnStmt(expression) {
-  // This returning pair complies with the return statement that is expected by the Core Interpreter.
-  // The first element of the pair indicates that the returning expression (second element of the pair)
-  // is not part of a thrown exception.
-  const return_pair = new NOpt(new NOpt.TupleExpr(), [
-    new ValExpr(new Val(new PrimitiveVal(false))),
-    expression,
-  ]);
+function createReturnStmt(expression, compileToCore) {
+  if (compileToCore) {
+    // This returning pair complies with the return statement that is expected by the Core Interpreter.
+    // The first element of the pair indicates that the returning expression (second element of the pair)
+    // is not part of a thrown exception.
+    const return_pair = new NOpt(new NOpt.TupleExpr(), [
+      new ValExpr(new Val(new PrimitiveVal(false))),
+      expression,
+    ]);
 
-  return new Return(return_pair);
+    return new Return(return_pair);
+  }
+
+  return new Return(expression);
 }
 
 module.exports = {

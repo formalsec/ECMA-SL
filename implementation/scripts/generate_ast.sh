@@ -18,7 +18,7 @@ function usage {
 function createMain262JSFile() {
   # echo "3.1. Copy contents to temporary file"
   cat /dev/null > "output/main262_$now.js"
-  if [[ $(echo -e "$2" | awk '/flags: \[onlyStrict\]/ {print $1}') != "" ]]; then
+  if [[ $(echo -e "$2" | grep -e 'flags:.*onlyStrict') != "" ]]; then
     echo "\"use strict\";" >> "output/main262_$now.js"
   fi
   if [ $WITH_HARNESS -eq 1 ]; then
@@ -53,7 +53,7 @@ function generateAST() {
   createMain262JSFile $FILENAME "$METADATA"
 
   # echo "3.2. Create the AST of the program in the file FILENAME and compile it to a \"Plus\" ECMA-SL program"
-  JS2ECMASL=$(node ../JS2ECMA-SL/src/index.js -i output/main262_$now.js -o $output_esl 2>&1)
+  JS2ECMASL=$(node ../JS2ECMA-SL/src/index.js --optimised -c -i output/main262_$now.js -o $output_esl 2>&1)
 
   if [[ "$JS2ECMASL" != "The file has been saved!" ]]; then
     printf "$FILENAME ... ${BOLD}${RED}${INV}ERROR${NC}\n"

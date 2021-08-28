@@ -558,8 +558,8 @@ e_pat_v_pat_target:
     { E_Pat_v.PatVar v }
   | v = val_target;
     { E_Pat_v.PatVal v }
-  /* | LBRACK; vs = separated_list (COMMA, e_pat_v_pat_target); RBRACK;
-    { E_Pat_v.PatVal (Val.List vs) } */
+  | LBRACK; RBRACK;
+    { E_Pat_v.PatVal (Val.List []) }
   | NONE;
     { E_Pat_v.PatNone }
 
