@@ -551,7 +551,7 @@ function arrayConcat(global, this, strict, items) {
 
     /* b. If the value of the [[Class]] internal property of E is "Array",
           then */
-    if (E.Class = "Array") {
+    if ((typeof E = __$Obj) &&& (E.Class = "Array")) {
       /* i. Let k be 0. */
       k := int_to_float 0;
       /* ii. Let len be the result of calling the [[Get]] internal method
@@ -565,7 +565,6 @@ function arrayConcat(global, this, strict, items) {
         /* 2. Let exists be the result of calling the [[HasProperty]]
               internal method of E with P. */
         exists := {E.HasProperty}(E, P);
-
         /* 3. If exists is true, then */
         if (exists = true) {
           /* a. Let subElement be the result of calling the [[Get]] internal
@@ -578,7 +577,6 @@ function arrayConcat(global, this, strict, items) {
           descriptor := newDataPropertyDescriptorFull(subElement, true, true, true);
           {A.DefineOwnProperty}(A, ToString(n), descriptor, false)
         };
-
         /* 4. Increase n by 1. */
         n := n + 1.;
         /* 5. Increase k by 1. */
@@ -597,6 +595,10 @@ function arrayConcat(global, this, strict, items) {
       n := n + 1.
     }
   };
+
+  /** test/test262/tests/built-ins/Array/prototype/concat/S15.4.4.4_A1_T4.js */
+  lenDesc := newDataPropertyDescriptorFull(n, true, false, false);
+  {A.DefineOwnProperty}(A, "length", lenDesc, false);
 
   /* 6. Return A. */
   return A
