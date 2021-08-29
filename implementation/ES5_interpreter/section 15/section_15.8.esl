@@ -455,7 +455,7 @@ function MathRound(globalObject, this, stric, params) {
     return 0.
   };
   /* If x is less than 0 but greater than or equal to -0.5, the result is -0. */
-  if ((x < 0.) &&& (x >= -(0.5))) {
+  if ((x <= -(0.)) &&& (x >= -(0.5))) {
     return -(0.)
   };
 

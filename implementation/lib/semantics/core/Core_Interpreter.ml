@@ -63,6 +63,8 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ToUint16      -> Oper.to_uint16 v
   | ParseNumber   -> Oper.parse_number v
   | ParseString   -> Oper.parse_string v
+  | ParseDate   -> Oper.parse_date v
+  | Log_2         -> Oper.log_2 v
   | _             -> Oper.apply_uopt_oper op v
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
@@ -95,6 +97,9 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | Lconcat  -> Oper.list_concat (v1, v2)
   | InList   -> Oper.list_in (v1, v2)
   | InObj    -> raise(Except "Not expected")
+  | ToPrecision -> Oper.to_precision (v1, v2)
+  | ToExponential -> Oper.to_exponential (v1, v2)
+  | ToFixed -> Oper.to_fixed (v1, v2)
   | _        -> Oper.apply_bopt_oper op v1 v2
 
 let eval_triopt_expr (op : Oper.topt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : Val.t =

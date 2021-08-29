@@ -6,6 +6,9 @@ const FunctionLiteral = require("./functionLiteral");
 const FunctionCall = require("./functionCall");
 const Literal = require("./literal");
 const EarlySyntaxError = require("./earlySyntaxError");
+const ForIn = require("./forIn");
+const Break = require("./break");
+const Continue = require("./continue");
 
 module.exports = {
   transformObject: function (obj) {
@@ -14,6 +17,15 @@ module.exports = {
     }
     if (obj.type === "EarlySyntaxError") {
       return EarlySyntaxError.transform(obj);
+    }
+    if (obj.type === "ForInStatement") {
+      return ForIn.transform(obj);
+    }
+    if (obj.type === "ContinueStatement") {
+      return Continue.transform(obj);
+    }
+    if (obj.type === "BreakStatement") {
+      return Break.transform(obj);
     }
     if (obj.type === "SwitchStatement") {
       return Switch.transform(obj);

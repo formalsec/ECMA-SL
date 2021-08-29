@@ -368,7 +368,6 @@ function Delete(O, P, Throw) {
  * 8.12.8 [[DefaultValue]] (hint)
  */
 function DefaultValue (O, hint) {
-  print "DefaultValue";
   if (hint = null) {
     if (getInternalProperty(O, "Class") = "Date") {
       hint := 'String

@@ -3,15 +3,15 @@
 
 /*---
 info: The Date.prototype property "constructor" has { DontEnum } attributes
-es5id: 15.9.5.1_A1_T1
+esid: sec-date.prototype.constructor
 description: Checking absence of ReadOnly attribute
 ---*/
 
 var x = Date.prototype.constructor;
-if(x === 1)
+if (x === 1)
   Date.prototype.constructor = 2;
 else
   Date.prototype.constructor = 1;
 if (Date.prototype.constructor === x) {
-  $ERROR('#1: The Date.prototype.constructor has not the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.prototype.constructor has not the attribute ReadOnly');
 }

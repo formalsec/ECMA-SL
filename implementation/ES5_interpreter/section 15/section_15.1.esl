@@ -28,6 +28,8 @@ function initGlobalObject(strict) {
   ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, strict);
   FunctionConstructor := initFunctionConstructor(FunctionPrototype, globalObject, strict);
 
+  |ObjectPrototype| := ObjectPrototype; 
+
   setInternalProperty(globalObject, "Prototype", ObjectPrototype);
 
   createBuiltInProperty(globalObject, "Object", ObjectConstructor);
@@ -137,7 +139,7 @@ function initGlobalObject(strict) {
   /* Extras */
   ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);
   createBuiltInProperty(globalObject, "console", ConsoleObject);
-
+  
   return globalObject
 };
 
@@ -190,35 +192,72 @@ function GlobalObjectParseInt(globalObject, this, strict, params) {
   /* When the parseInt function is called, the following steps are taken: */
 
   /* 1. Let inputString be ToString(string). */
-  input := ToString(string);
-  return int_of_string input /* TODO missing use of radix?? */
+  inputString := ToString(string);
   /* 2. Let S be a newly created substring of inputString consisting of the first character that is not a
         StrWhiteSpaceChar and all characters following that character. (In other words, remove leading white
         space.) If inputString does not contain any such characters, let S be the empty string. */
+  S := removeLeadingWhitespace(inputString);
   /* 3. Let sign be 1. */
+  sign := 1.;
   /* 4. If S is not empty and the first character of S is a minus sign -, let sign be -1. */
+  if (!(S = "") &&& (s_nth_u(S, 0) = "-")) {
+    sign := -(1.)
+  };
   /* 5. If S is not empty and the first character of S is a plus sign + or a minus sign -, then remove the first character
         from S. */
+  if (!(S = "") &&& ((s_nth_u(S, 0) = "+") ||| (s_nth_u(S, 0) = "-"))) {
+    S := s_substr_u(S, 1, s_len_u(S) - 1)
+  };
   /* 6. Let R = ToInt32(radix). */
+  R := ToInt32(radix);
   /* 7. Let stripPrefix be true. */
+  stripPrefix := true;
   /* 8. If R <> 0, then */
+  if (!(R = 0.)) {
     /* a. If R < 2 or R > 36, then return NaN. */
+    if (R < 2. ||| R > 36.) {
+      return NaN
+    };
     /* b. If R <> 16, let stripPrefix be false. */
+    if (!(R = 16.)) {
+      stripPrefix := false
+    }
+  }
   /* 9. Else, R = 0 */
+  else {
     /* a. Let R = 10. */
+    R := 10.
+  };
   /* 10. If stripPrefix is true, then */
+  if (stripPrefix = true) {
     /* a. If the length of S is at least 2 and the first two characters of S are either "0x" or "0X", then remove
           the first two characters from S and let R = 16. */
+    if (s_len_u(S) >= 2 &&& (s_substr_u(S, 0, 2) = "0x" ||| s_substr_u(S, 0, 2) = "0X")) {
+      S := s_substr_u(S, 2, s_len_u(S) - 2);
+      R := 16.
+    }
+  };
   /* 11. If S contains any character that is not a radix-R digit, then let Z be the substring of S consisting of all
          characters before the first such character; otherwise, let Z be S. */
+  if (containsInvalidDigit(S, R)) {
+    Z := stripInvalidChars(S, R)
+  } else {
+    Z := S
+  };
   /* 12. If Z is empty, return NaN. */
+  if (Z = "") {
+    return NaN
+  };
   /* 13. Let mathInt be the mathematical integer value that is represented by Z in radix-R notation, using the letters
          A-Z and a-z for digits with values 10 through 35. (However, if R is 10 and Z contains more than 20
          significant digits, every significant digit after the 20th may be replaced by a 0 digit, at the option of the
          implementation; and if R is not 2, 4, 8, 10, 16, or 32, then mathInt may be an implementation-dependent
          approximation to the mathematical integer value that is represented by Z in radix-R notation.) */
+  mathInt := mathIntegerOf(Z, R);
   /* 14. Let number be the Number value for mathInt. */
+  number := mathInt;
   /* 15. Return sign x number. */
+  return sign * number
 };
 
 /* 15.1.2.3 parseFloat (string) */
@@ -231,15 +270,20 @@ function GlobalObjectParseFloat(globalObject, this, strict, params) {
 
   /* 1. Let inputString be ToString(string). */
   inputString := ToString(string);
-  return float_of_string inputString
   /* 2. Let trimmedString be a substring of inputString consisting of the leftmost character that is not a
         StrWhiteSpaceChar and all characters to the right of that character. (In other words, remove leading white
         space.) If inputString does not contain any such characters, let trimmedString be the empty string. */
+  trimmedString := removeLeadingWhitespace(inputString);
   /* 3. If neither trimmedString nor any prefix of trimmedString satisfies the syntax of a StrDecimalLiteral (see
         9.3.1), return NaN. */
+  if (!satisfiesTheSyntaxOfStrDecimalLiteral(trimmedString)) {
+    return NaN
+  };
   /* 4. Let numberString be the longest prefix of trimmedString, which might be trimmedString itself, that satisfies
         the syntax of a StrDecimalLiteral. */
+  numberString := getStrDecimalLiteral(trimmedString);
   /* 5. Return the Number value for the MV of numberString. */
+  return float_of_string numberString
 
   /* NOTE parseFloat may interpret only a leading portion of string as a Number value; it ignores any characters that
           cannot be interpreted as part of the notation of an decimal literal, and no indication is given that any such characters were
@@ -303,4 +347,108 @@ function optimizeInitGlobalObject(strict) {
   |global| := loc_global;
 
   return loc_global
+};
+
+function removeLeadingWhitespace(string) {
+  T := trim string;
+  /* Remove leading spaces */
+  if (!(T = "")) {
+    len := s_len_u T;
+    i := 0;
+    j := 0;
+    while (i < len) {
+      c := s_nth_u(T, j);
+      if (isSpaceCharacter(c)) {
+        j := j + 1
+      } else {
+        i := len
+      };
+      i := i + 1
+    };
+    T := s_substr_u(T, j, (len - j))
+  };
+
+  return T
+};
+
+/* Returns true if string contains any character that is not a radix-R digit */
+function containsInvalidDigit(string, radix) {
+  radixInt := int_of_float radix;
+  str_len := s_len_u string;
+  i := 0;
+
+  while (i < str_len) {
+    char := s_nth_u(string, i);
+    index := indexOfChar(char);
+
+    if (index = -1 ||| index >= radixInt) {
+      return true
+    };
+
+    i:= i + 1
+  };
+
+  return false
+};
+
+/* Returns the substring of string consisting of all characters before
+    the first character that is not a radix-R digit. */
+function stripInvalidChars(string, radix) {
+  radixInt := int_of_float radix;
+  str_len := s_len_u string;
+  i := 0;
+
+  while (i < str_len) {
+    char := s_nth_u(string, i);
+    index := indexOfChar(char);
+
+    if (index = -1 ||| index >= radixInt) {
+      return s_substr_u(string, 0, i)
+    };
+
+    i:= i + 1
+  };
+
+  return string
+};
+
+/* Returns the mathematical integer value that is represented by Z in radix-R notation, using the letters
+    A-Z and a-z for digits with values 10 through 35. (However, if R is 10 and Z contains more than 20
+    significant digits, every significant digit after the 20th may be replaced by a 0 digit, at the option of the
+    implementation; and if R is not 2, 4, 8, 10, 16, or 32, then mathInt may be an implementation-dependent
+    approximation to the mathematical integer value that is represented by Z in radix-R notation.) */
+function mathIntegerOf(string, radix) {
+  str_len := s_len_u string;
+  i := str_len;
+  value := 0.;
+
+  while(i > 0) {
+    char := s_nth_u(string, i - 1);
+    charValue := indexOfChar(char);
+
+    value := value + ((radix ** (int_to_float (str_len - i))) * (int_to_float charValue));
+
+    i:= i - 1
+  };
+
+  return value
+};
+
+function indexOfChar(char) {
+  chars := [
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+    "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+    "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
+  ];
+  i := 0;
+
+  while(i < 36) {
+    if (to_lower_case char = l_nth(chars, i)) {
+      return i
+    };
+
+    i:= i + 1
+  };
+
+  return -1
 }

@@ -3,15 +3,15 @@
 
 /*---
 info: The Date.prototype property "setMonth" has { DontEnum } attributes
-es5id: 15.9.5.38_A1_T1
+esid: sec-date.prototype.setmonth
 description: Checking absence of ReadOnly attribute
 ---*/
 
 var x = Date.prototype.setMonth;
-if(x === 1)
+if (x === 1)
   Date.prototype.setMonth = 2;
 else
   Date.prototype.setMonth = 1;
 if (Date.prototype.setMonth === x) {
-  $ERROR('#1: The Date.prototype.setMonth has not the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.prototype.setMonth has not the attribute ReadOnly');
 }

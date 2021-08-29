@@ -1,3 +1,5 @@
+open Date_Utils 
+
 type const = MAX_VALUE
            | MIN_VALUE
            | PI
@@ -34,6 +36,9 @@ type bopt = Plus
           | Max
           | Min
           | Pow
+          | ToPrecision
+          | ToExponential
+          | ToFixed
 
 type topt = Ssubstr
           | SsubstrU
@@ -93,6 +98,11 @@ type uopt = Neg
           | Tan
           | ParseNumber
           | ParseString
+          | ParseDate
+          | Cosh
+          | Log_2
+          | Sinh
+          | Tanh
 
 
 type nopt = ListExpr
@@ -173,6 +183,30 @@ let bitwise_xor (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
 let is_true (v : Val.t) : bool = match v with
   | Bool v -> v
   | _      -> invalid_arg "Exception in Oper.is_true: argument is not boolean"
+
+
+let to_precision (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | (Flt x, Int y) -> 
+      let res = Float.round(x*.(10.**(float_of_int (y - 1))))/.(10.**(float_of_int (y - 1))) in 
+      Str (Float.to_string res)
+  | _                -> invalid_arg "Exception in Oper.to_precision: this operation is only applicable to Float and Int arguments"
+
+let to_exponential (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | (Flt x, Int y) -> 
+      let exp = Float.log10(x) in
+          if exp >= 0. then
+            let num = Float.round((x/.(10.**(Float.trunc exp)))*.(10.**(Float.of_int y)))/.(10.**(Float.of_int y)) in 
+              Str ((string_of_float num)^"e+"^(Int.to_string(Float.to_int(exp)))) 
+          else 
+            let num = Float.round((x/.(10.**(Float.floor exp)))*.(10.**(Float.of_int y)))/.(10.**(Float.of_int y)) in 
+              Str ((string_of_float num)^"e"^(Int.to_string(Float.to_int(Float.floor exp))))
+  | _                -> invalid_arg "Exception in Oper.to_exponential: this operation is only applicable to Float and Int arguments"
+
+let to_fixed (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | (Flt x, Int y) -> 
+      let res = Float.round(x*.(10.**(Float.of_int(y))))/.(10.**(Float.of_int(y))) in 
+      Str (Float.to_string res)
+  | _                -> invalid_arg "Exception in Oper.to_fixed: this operation is only applicable to Float and Int arguments"
 
 let typeof (v : Val.t) : Val.t = match v with
   | Int _    -> Type (Type.IntType)
@@ -264,6 +298,30 @@ let parse_string (v : Val.t) : Val.t = match v with
           Str (Str.matched_string s)
         else Str("")
 | _  -> invalid_arg "Exception in Oper.parse_string: this operation is only applicable to a String argument"
+
+let parse_date (v :Val.t) : Val.t = match v with
+  | Str s ->
+    Printf.printf "parse_date with string: %s\n" s;
+    (*YYYY-MM-DDTHH:mm:ss.sssZ*)
+    let re = Str.regexp "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)T\\([0-9][0-9]\\):\\([0-9][0-9]\\):\\([0-9][0-9]\\).\\([0-9][0-9][0-9]\\)" in
+    (*let year_regex = Str.regexp "\\([0-9][0-9][0-9][0-9]\\)" in *)
+    let matched = Str.string_match re s 0 in 
+    if matched then (
+      Printf.printf "in matched if \n";
+      let group0 = Str.matched_group 0 s in
+      let year = Str.matched_group 1 s in
+      
+      let month = Str.matched_group 2 s in
+      let day = Str.matched_group 3 s in
+      let hour = Str.matched_group 4 s in
+      let mins = Str.matched_group 5 s in
+      let sec = Str.matched_group 6 s in
+      let ms = Str.matched_group 7 s in
+      Printf.printf "Matched successfully %s\n" group0;
+      Val.List [Val.Str group0; Val.Str year; Val.Str month; Val.Str day; Val.Str hour; Val.Str mins; Val.Str sec; Val.Str ms]
+    ) 
+    else Val.Flt (-(1.))
+  | _  -> invalid_arg "Exception in Oper.parse_date: this operation is only applicable to a String argument"
 
 let list_in (v1, v2 : Val.t * Val.t) : Val.t = match v2 with
   | List l -> Bool (List.mem v1 l)
@@ -416,6 +474,10 @@ let to_uint16 (v : Val.t) : Val.t = match v with
   | Flt n -> Flt (Arith_Utils.to_uint16 n)
   | _     -> invalid_arg "Exception in Oper.to_uint16: this operation is only applicable to Float arguments"
 
+let log_2 (v : Val.t) : Val.t = match v with
+  | Flt x -> Flt ((Float.log x) /. (Float.log 2.))
+  | _      -> invalid_arg "Exception in Oper.log_2: this operation is only applicable to Float arguments"
+
 let from_char_code (v : Val.t) : Val.t = match v with
   | Int n -> Str (String_Utils.from_char_code n)
   | _     -> invalid_arg "Exception in Oper.from_char_code: this operation is only applicable to Int arguments"
@@ -527,7 +589,11 @@ let str_of_unopt (op : uopt) : string = match op with
   | Tan           -> "tan"
   | ParseNumber   -> "parse_number"
   | ParseString   -> "parse_string"
-
+  | ParseDate     -> "parse_date"
+  | Cosh          -> "cosh"
+  | Log_2         -> "log_2"
+  | Sinh          -> "sinh"
+  | Tanh          -> "tanh"
 
 let str_of_binopt_single (op : bopt) : string = match op with
   | Plus     -> "+"
@@ -562,6 +628,9 @@ let str_of_binopt_single (op : bopt) : string = match op with
   | Max      -> "max"
   | Min      -> "min"
   | Pow      -> "**"
+  | ToPrecision -> "to_precision"
+  | ToExponential -> "to_exponential"
+  | ToFixed -> "to_fixed"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
@@ -596,6 +665,9 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Max      -> "max(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Min      -> "min(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Pow      -> e1 ^ " ** " ^ e2
+  | ToPrecision -> "to_precision(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ToExponential -> "to_exponential(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ToFixed -> "to_fixed(" ^ e1 ^ ", " ^ e2 ^ ")"
 
 let str_of_triopt (op : topt) (e1 : string) (e2 : string) (e3 : string) : string = match op with
   | Ssubstr  -> "s_substr(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
@@ -631,6 +703,9 @@ let apply_uopt_oper (oper : uopt) (v : Val.t) : Val.t = match oper with
   | Sin    -> unary_float_call Float.sin v    "Sine"
   | Sqrt   -> unary_float_call Float.sqrt v   "Square root"
   | Tan    -> unary_float_call Float.tan v    "Tangent"
+  | Cosh   -> unary_float_call Float.cosh v    "Cosh" 
+  | Sinh   -> unary_float_call Float.sinh v    "Sinh" 
+  | Tanh   -> unary_float_call Float.tanh v    "Tanh" 
   | _      -> invalid_arg ("Exception in Oper.apply_uopt_oper: unexpected unary operator: " ^ (str_of_unopt oper))
 
 let apply_bopt_oper (oper : bopt) (v1 : Val.t) (v2 : Val.t) : Val.t = match oper with
@@ -675,7 +750,10 @@ let bopt_to_json (op : bopt) : string =
      | Atan2    -> Printf.sprintf "Atan2\" }"
      | Max      -> Printf.sprintf "Max\" }"
      | Min      -> Printf.sprintf "Min\" }"
-     | Pow      -> Printf.sprintf "Pow\" }")
+     | Pow      -> Printf.sprintf "Pow\" }"
+     | ToPrecision -> Printf.sprintf "To_Precision\" }"
+     | ToExponential -> Printf.sprintf "To_Exponential\" }"
+     | ToFixed -> Printf.sprintf "To_Fixed\" }")
 
 let topt_to_json (op : topt) : string =
   Printf.sprintf "{ \"type\" : \"triopt\", \"value\" : \"%s"
@@ -749,5 +827,9 @@ let uopt_to_json (op : uopt) : string =
      | Sqrt          -> Printf.sprintf "Sqrt\" }"
      | Tan           -> Printf.sprintf "Tan\" }"
      | ParseNumber   -> Printf.sprintf "ParseNumber\" }"
-     | ParseString   -> Printf.sprintf "ParseString\" }")
-
+     | ParseString   -> Printf.sprintf "ParseString\" }"
+     | ParseDate     -> Printf.sprintf "ParseDate\" }"
+     | Cosh          -> Printf.sprintf "Cosh\" }"
+     | Log_2          -> Printf.sprintf "Log2\" }"
+     | Sinh          -> Printf.sprintf "Sinh\" }"
+     | Tanh          -> Printf.sprintf "Tanh\" }")

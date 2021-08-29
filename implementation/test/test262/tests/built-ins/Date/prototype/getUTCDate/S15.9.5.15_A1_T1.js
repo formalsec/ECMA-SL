@@ -3,15 +3,15 @@
 
 /*---
 info: The Date.prototype property "getUTCDate" has { DontEnum } attributes
-es5id: 15.9.5.15_A1_T1
+esid: sec-date.prototype.getutcdate
 description: Checking absence of ReadOnly attribute
 ---*/
 
 var x = Date.prototype.getUTCDate;
-if(x === 1)
+if (x === 1)
   Date.prototype.getUTCDate = 2;
 else
   Date.prototype.getUTCDate = 1;
 if (Date.prototype.getUTCDate === x) {
-  $ERROR('#1: The Date.prototype.getUTCDate has not the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.prototype.getUTCDate has not the attribute ReadOnly');
 }

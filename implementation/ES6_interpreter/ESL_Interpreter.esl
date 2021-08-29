@@ -1,6 +1,9 @@
 import "ES6_interpreter/ES6_Reference_Interpreter.esl";
 
 function JS_Interpreter_Program(p, callingExecCtx) {
+
+  print "primeira sessao de debugging de verao"; 
+
   /* 14 Program */
   match p with
   | { sourceType: "script", type: "Program", codeType: "eval", body: SourceElementsopt, strict: strict } -> {
@@ -35,6 +38,10 @@ function JS_Interpreter_Program(p, callingExecCtx) {
     if (SourceElementsopt = []) {
       return normalEmptyCompletion('empty)
     };
+    
+    |__CUR__SYMB__| := 0; 
+    |GlobalSymbolRegistry| := []; 
+
     /* 3. Let progCxt be a new execution context for global code as described in 10.4.1. */
     progCxt := EnteringGlobalCode(p);
     /* 4. Let result be the result of evaluating SourceElements. */
@@ -177,7 +184,7 @@ function JS_Interpreter_Expr(e, scope) {
     /* 5. Call CheckObjectCoercible(baseValue). */
     CheckObjectCoercible(baseValue);
     /* 6. Let propertyNameString be ToString(propertyNameValue). */
-    propertyNameString := ToString(propertyNameValue);
+    propertyNameString := ToPropertyKey(propertyNameValue);
     /* 7. If the syntactic production that is being evaluated is contained in strict mode code,
           let strict be true, else let strict be false. */
     if (isContainedInStrictCode(scope)) {
@@ -547,6 +554,9 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     };
     if (Type(val) = "String") {
       return "string"
+    };
+    if (Type(val) = "Symbol") {
+      return "symbol"
     };
     if (Type(val) = "Object") {
       /* Object (native and does not implement [[Call]]) | "object" */
@@ -1891,6 +1901,26 @@ function JS_Interpreter_BinExpr(e, scope) {
       return false
     };
     return true
+  }
+  | { type: "BinaryExpression", operator: "**", left: LeftExpr, right: RightExpr } -> {
+    /* TODO */
+
+    /* 1. Let lref be the result of evaluating AdditiveExpression. */
+    lref := JS_Interpreter_Expr(LeftExpr, scope);
+    /* 2. Let lval be GetValue(lref). */
+    lval := GetValue(lref);
+    /* 3. Let rref be the result of evaluating MultiplicativeExpression. */
+    rref := JS_Interpreter_Expr(RightExpr, scope);
+    /* 4. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 5. Let lnum be ToNumber(lval). */
+    lnum := ToNumber(lval);
+    /* 6. Let rnum be ToNumber(rval). */
+    rnum := ToNumber(rval);
+
+    x := (lnum ** rnum);
+
+    return x
   }
   /* 11.10 Binary Bitwise Operators */
   | { type: "BinaryExpression", operator: operator, left: A, right: B } -> {

@@ -1,0 +1,14 @@
+/*
+*   6.2.2.4 ReturnIfAbrupt
+*/
+macro ReturnIfAbrupt (argument) {
+
+    if (!(Type(argument) = "Completion")) {
+    } elif (isAnAbruptCompletion(argument)) {
+        /* 1. If argument is an abrupt completion, return argument. */
+        return argument
+    } else {
+        /* 2. Else if argument is a Completion Record, let argument be argument.[[value]]. */
+        argument := getCompletionValue(argument)
+    }
+}

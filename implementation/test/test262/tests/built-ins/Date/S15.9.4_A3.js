@@ -3,10 +3,10 @@
 
 /*---
 info: The Date constructor has the property "UTC"
-es5id: 15.9.4_A3
+esid: sec-date-constructor
 description: Checking existence of the property "UTC"
 ---*/
 
-if(!Date.hasOwnProperty("UTC")){
-  $ERROR('#1: The Date constructor has the property "UTC"');
+if (!Date.hasOwnProperty("UTC")) {
+  throw new Test262Error('#1: The Date constructor has the property "UTC"');
 }
