@@ -538,13 +538,14 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | While (e_exp, e_s)              -> compile_while e_exp e_s
 
   | ForEach (x, e_e, e_s, _, _)     ->
-    let len_str = "list_length" in
-    let e_test = E_Expr.BinOpt (Oper.Gt, Var len_str, Var "i") in
-    let stmt_inc = Stmt.Assign ("i", (Expr.BinOpt (Oper.Plus, Var "i", Val (Int 1)))) in
+    let len_str = generate_fresh_var () in
+    let idx_str = generate_fresh_var () in
+    let e_test = E_Expr.BinOpt (Oper.Gt, Var len_str, Var idx_str) in
+    let stmt_inc = Stmt.Assign (idx_str, (Expr.BinOpt (Oper.Plus, Var idx_str, Val (Int 1)))) in
     let (stmts_e_test, e_test') = compile_expr e_test in
     let (stmts_e, e_e') = compile_expr e_e in
-    let stmts_before = Stmt.Assign ("i", Val (Int 0)) :: [Stmt.Assign (len_str, Expr.UnOpt (Oper.ListLen, e_e'))] in
-    let stmt_assign_x = Stmt.Assign (x, Expr.BinOpt (Oper.Lnth, e_e', Var "i")) in
+    let stmts_before = Stmt.Assign (idx_str, Val (Int 0)) :: [Stmt.Assign (len_str, Expr.UnOpt (Oper.ListLen, e_e'))] in
+    let stmt_assign_x = Stmt.Assign (x, Expr.BinOpt (Oper.Lnth, e_e', Var idx_str)) in
     let stmts_s = compile_stmt e_s in
     stmts_e @ stmts_before @ stmts_e_test @ [Stmt.While (e_test', Stmt.Block (stmt_assign_x :: stmts_s @ (stmt_inc :: stmts_e_test)))]
 
