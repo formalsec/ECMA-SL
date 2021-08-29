@@ -110,7 +110,12 @@ C_e(|x|) =
 *)
 let compile_gvar (x : string) :  Stmt.t list * Expr.t =
   let y = generate_fresh_var () in
-  let f_lookup = Stmt.FieldLookup (y, Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str x)) in
+  let var =
+    match x with
+    (* Keep this in sync with Heap.ml function "str_with_global" *)
+    | "global" -> Common.global_var_compiled
+    | _ -> x in
+  let f_lookup = Stmt.FieldLookup (y, Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str var)) in
   [ f_lookup ], Expr.Var y
 
 (*
@@ -121,7 +126,12 @@ C(|x| := e) =
   ___internal_esl_global["x"] := x_e
 *)
 let compile_glob_assign (x : string) (stmts_e : Stmt.t list) (e : Expr.t) : Stmt.t list =
-  let f_asgn = Stmt.FieldAssign (Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str x), e) in
+  let var =
+    match x with
+    (* Keep this in sync with Heap.ml function "str_with_global" *)
+    | "global" -> Common.global_var_compiled
+    | _ -> x in
+  let f_asgn = Stmt.FieldAssign (Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str var), e) in
   stmts_e @ [ f_asgn ]
 
 (*
