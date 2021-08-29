@@ -16,6 +16,7 @@
               [
                 "parse_number"    , PARSE_NUMBER;
                 "parse_string"    , PARSE_STRING;
+                "parse_date"      , PARSE_DATE;
                 "octal_to_decimal", OCTAL_TO_DECIMAL;
                 "hex_decode"      , HEX_DECODE;
                 "utf8_decode"     , UTF8_DECODE;
@@ -113,7 +114,14 @@
                 "NaN"             , FLOAT (float_of_string "nan");
                 "Infinity"        , FLOAT (float_of_string "infinity");
                 "lambda"          , LAMBDA;
-                "extern"          , EXTERN
+                "extern"          , EXTERN; 
+                "to_precision"    , TO_PRECISION;
+                "to_exponential"    , TO_EXPONENTIAL;
+                "to_fixed"    , TO_FIXED;
+                "cosh" , COSH;
+                "log_2" , LOG_2;
+                "sinh" , SINH;
+                "tanh" , TANH
                 ]
 
   exception Syntax_error of string

@@ -180,6 +180,7 @@ __n35["arguments"] := __n39;
 __n34["expression"] := __n35;
 __n1 := [ __n2, __n16, __n34 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n52 := [  ];
 __n0["variableDeclarations"] := __n52;
 __n53 := [  ];

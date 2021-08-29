@@ -3,7 +3,7 @@
  */
 function initPromiseObject(globalObject, ObjectPrototype, strict) {
   objPromisePrototype := initPromisePrototype(globalObject, ObjectPrototype, strict);
-  objPromiseConstructor := CreateFunctionObject(["executor"], "PromiseConstructor", globalObject, strict, 0.);
+  objPromiseConstructor := CreateBuiltInConstructorObject(objPromisePrototype, ["executor"], "PromiseConstructor", globalObject, strict, 0., "Promise");
 
   descriptor := newDataPropertyDescriptorFull(objPromiseConstructor, true, false, true);
   setJSProperty(objPromisePrototype, "constructor", descriptor);
@@ -36,6 +36,12 @@ function initPromiseObject(globalObject, ObjectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(objPromisePrototype, false, false, false);
   setJSProperty(objPromiseConstructor, "prototype", descriptor);
 
+  /* 25.4.4.6 get Promise [@@species] */
+  symbolSpeciesObject := CreateBuiltInFunctionObject([], "promiseSpeciesGetter", globalObject, strict, null);
+  descriptor := newGetAccessorPropertyDescriptorFull(symbolSpeciesObject, false, true);
+  setJSProperty(objPromiseConstructor, getSpeciesPropertyName(), descriptor);
+  setJSProperty(symbolSpeciesObject, "name", newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true));
+
   return objPromiseConstructor
 };
 function initPromisePrototype(globalObject, ObjectPrototype, strict) {
@@ -61,6 +67,11 @@ function initPromisePrototype(globalObject, ObjectPrototype, strict) {
 
   return prototype
 };
+
+function promiseSpeciesGetter(global, this, strict, args){
+  return this
+};
+
 function InternalPromiseConstructor(obj, strict) {
   newlyConstructedObject := NewECMAScriptObject();
   setAllInternalMethodsOfObject(newlyConstructedObject);
@@ -89,15 +100,14 @@ function getPromisePrototype(strict) {
 };
 function getPromiseConstructorFromPromiseObject(promiseObj, strict) {
   /* promiseObj.constructor */
+  if (promiseObj.Code = "PromiseConstructor") {
+    return promiseObj
+  };
   refPromise := newPropertyReference(promiseObj, "constructor", strict);
   return GetValue(refPromise)
 };
 function newPromiseReaction(capability, handler) {
   return { Capabilities: capability, Handler: handler }
-};
-/* Might make sense to move this one to section 8.9 */
-function isCompletionRecord(record) {
-  return (Type(record) = "Completion")
 };
 function isPromiseCapabilityRecord(record) {
   return (("Promise" in_obj record) &&& ("Resolve" in_obj record) &&& ("Reject" in_obj record))
@@ -109,69 +119,10 @@ function isPromiseReactionRecord(record) {
 function Completion(obj) {
   return obj
 };
-
-function Invoke(O, P, argumentsList) {
-  func := Get(O, P);
-  return Call(null, null, func, O, argumentsList)
+/* Might make sense to move this one to section 8.9 */
+function isCompletionRecord(record) {
+  return (Type(record) = "Completion")
 };
-
-
-
-
-
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 7.2.4 IsConstructor (argument)
- *
- * The abstract operation IsConstructor determines if argument, which must be an 
- * ECMAScript language value or a Completion Record, is a function object with a 
- * [[Construct]] internal method. 
- */
-function IsConstructor(argument) {
-  /* 1. ReturnIfAbrupt(argument). */
-  @ReturnIfAbrupt(argument);
-  /* 2. If Type(argument) is not Object, */
-  if (!(Type(argument) = "Object")) {
-    /* return false */
-    return false
-  };
-  /* 3. If argument has a [[Construct]] internal method, */
-  if ("Construct" in_obj argument) {
-    /* return true */
-    return true
-  };
-  /* 4. Return false. */
-  return false
-};
-
-
-/* TODO - This function will be moved elsewhere. */
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 6.2.2.4 ReturnIfAbrupt
- *
- * Algorithms steps that say 
- * 1. ReturnIfAbrupt(argument).
- *
- * mean the same thing as:
- */
-macro ReturnIfAbrupt(argument) {
-  /* 1. If argument is an abrupt completion, */
-  if (isAnAbruptCompletion(argument)) {
-    /* return argument */
-    return argument
-  }
-  /* 2. Else if argument is a Completion Record, */
-  elif (isCompletionRecord(argument)) {
-    /* let argument be argument.[[value]] */
-    argument := argument.value
-  }
-};
-
 
 function initJobQueue() {
   |JobQueue| := [];
@@ -491,14 +442,14 @@ function PromiseResolveFunctions(F, global, this, strict, args) {
     return FulfillPromise(promise, resolution)
   };
   /* 8. Let then be Get(resolution, "then"). */
-  then := Get(resolution, "then");
+  then := Get(resolution, "then") catch PromiseExceptionHandler;
   /* 9. If then is an abrupt completion, then */
   if (isAnAbruptCompletion(then)) {
     /* a. Return RejectPromise(promise, then.[[value]]). */
-    return RejectPromise(promise, then.value)
+    return RejectPromise(promise, then)
   };
   /* 10. Let thenAction be then.[[value]]. */
-  thenAction := then.value;
+  thenAction := then;
   /* 11. If IsCallable(thenAction) is false, then */
   if (IsCallable(thenAction) = false) {
     /* a. Return FulfillPromise(promise, resolution). */
@@ -978,14 +929,14 @@ function PromiseAll(global, this, strict, args) {
   /* 7. ReturnIfAbrupt(promiseCapability). */
   @ReturnIfAbrupt(promiseCapability);
   /* 8. Let iterator be GetIterator(iterable). */
-  iterator := GetIterator(iterable);
+  iterator := GetIterator(iterable, null);
   /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
   IfAbruptRejectPromise(iterator, promiseCapability);
   /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: 
      false}. */
   iteratorRecord := { iterator: iterator, done: false };
   /* 11. Let result be PerformPromiseAll(iteratorRecord, C, promiseCapability). */
-  result := PerformPromiseAll(iteratorRecord, C, promiseCapability);
+  result := PerformPromiseAll(strict, iteratorRecord, C, promiseCapability);
   /* 12. If result is an abrupt completion, */
   if (isAnAbruptCompletion(result)) {
     /* a. If iteratorRecord.[[done]] is false, */
@@ -1015,7 +966,7 @@ function PromiseAll(global, this, strict, args) {
  * iteratorRecord, constructor, and resultCapability the following steps are 
  * taken: 
  */
-function PerformPromiseAll(iteratorRecord, constructor, resultCapability) {
+function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability) {
   /* 1. Assert: constructor is a constructor function. */
   assert(IsConstructor(constructor));
   /* 2. Assert: resultCapability is a PromiseCapability record. */
@@ -1180,10 +1131,7 @@ function PromiseAllResolveElementFunctions(F, global, this, strict, args) {
  * iterable to promises as it runs this algorithm. 
  */
 function PromiseRace(global, this, strict, args) {
-
   iterable := l_nth(args, 0);
-print "INSIDE PROMISERACE";
-print iterable;
   /* 1. Let C be the this value. */
   C := this;
   /* 2. If Type(C) is not Object, */
@@ -1195,10 +1143,6 @@ print iterable;
   /*S := Get(C, Symbol.species);*/
   /* TODO ES5 workaround: */
   S := getPromiseConstructorFromPromiseObject(C, strict);
-
-  print "INSIDE PROMISERACE";
-  print S;
-
   /* 4. ReturnIfAbrupt(S). */
   @ReturnIfAbrupt(S);
   /* 5. If S is neither undefined nor null, */
@@ -1211,7 +1155,7 @@ print iterable;
   /* 7. ReturnIfAbrupt(promiseCapability). */
   @ReturnIfAbrupt(promiseCapability);
   /* 8. Let iterator be GetIterator(iterable). */
-  iterator := GetIterator(iterable);
+  iterator := GetIterator(iterable, null);
   /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
   IfAbruptRejectPromise(iterator, promiseCapability);
   /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: 

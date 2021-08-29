@@ -3,10 +3,10 @@
 
 /*---
 info: The Boolean constructor has the property "prototype"
-es5id: 15.6.3_A1
+esid: sec-boolean.prototype
 description: Checking existence of the property "prototype"
 ---*/
 
-if(!Boolean.hasOwnProperty("prototype")){
-  $ERROR('#1: The Boolean constructor has the property "prototype"');
+if (!Boolean.hasOwnProperty("prototype")) {
+  throw new Test262Error('#1: The Boolean constructor has the property "prototype"');
 }

@@ -14,7 +14,18 @@ const argv = yargs
   .option("name", {
     alias: "n",
     description: "Name of the function that creates the AST object",
-    type: "string"
+    type: "string",
+  })
+  .option("compile-to-core", {
+    alias: "c",
+    description: "Compiles the JS input file directly to Core",
+    type: "boolean",
+    default: false,
+  })
+  .option("optimised", {
+    description: 'Adds the "optimised" property to the generated AST object',
+    type: "boolean",
+    default: false,
   })
   .demandOption("input")
   .usage("Usage: $0 -i [filepath]")
@@ -33,10 +44,17 @@ fs.readFile(argv.input, "utf-8", (err, data) => {
     prog = newEarlySyntaxError(ex.description);
   }
 
-  const statements = translator.fromJSObjectToESLStatements(prog);
+  if (argv.optimised) {
+    prog.optimised = true;
+  }
+
+  const statements = translator.fromJSObjectToESLStatements(
+    prog,
+    argv.compileToCore
+  );
   const func = translator.fromESLStatementsToESLFunction(
     FUNC_NAME,
-    ["___internal_esl_global"],
+    argv.compileToCore ? ["___internal_esl_global"] : [],
     statements
   );
 

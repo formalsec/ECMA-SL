@@ -451,6 +451,7 @@ __n123["arguments"] := __n127;
 __n122["expression"] := __n123;
 __n1 := [ __n2, __n28, __n35, __n46, __n59, __n67, __n80, __n97, __n105, __n122 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n137 := [ "arr", "str", "num" ];
 __n0["variableDeclarations"] := __n137;
 __n138 := [  ];

@@ -14,7 +14,27 @@ function CreateGeneralBuiltInFunctionObject(prototype, FormalParameterList, Func
 };
 
 function CreateBuiltInFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, n) {
-  return CreateGeneralBuiltInFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict, n)
+  fun := CreateGeneralBuiltInFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict, n);
+  setConfigurability(fun, "length", true); /* ES6 */
+  {fun.DefineOwnProperty}(fun, "name", {
+    Value: FunctionBody,
+    Writable: false,
+    Enumerable: false,
+    Configurable: true
+  }, false);
+  return fun
+};
+
+function CreateBuiltInConstructorObject(prototype, FormalParameterList, FunctionBody, Scope, Strict, n, name) {
+  F := CreateGeneralFunctionObject(prototype, FormalParameterList, FunctionBody, Scope, Strict, n);
+  setConfigurability(F, "length", true); /* ES6 */
+  {F.DefineOwnProperty}(F, "name", {
+    Value: name,
+    Writable: false,
+    Enumerable: false,
+    Configurable: true
+  }, false);
+  return F
 };
 
 function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, FunctionBody, Scope, Strict, n) {
@@ -275,4 +295,29 @@ function setAllInternalMethodsExceptGet(obj) {
   obj.internalSlotsList := [];
 
   return obj
+};
+
+
+/*  */
+function WrappedCall(externalScope, ref, F, this, args) {
+  callResult := Call(externalScope, ref, F, this, args) catch CallHandler;
+  print("WrappedCallDebug");
+  print(callResult);
+
+  if (!(Type(callResult) = "Completion")) {
+    return normalEmptyCompletion(callResult)
+  };
+
+  return callResult
+};
+
+function CallHandler(x) {
+  print("inside CallHandler");
+  print(x);
+
+  return throwEmptyCompletion(x)
 }
+
+
+
+

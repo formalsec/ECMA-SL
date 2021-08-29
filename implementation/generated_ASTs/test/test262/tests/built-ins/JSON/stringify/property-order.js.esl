@@ -401,6 +401,7 @@ __n102["arguments"] := __n106;
 __n101["expression"] := __n102;
 __n1 := [ __n2, __n17, __n46, __n52, __n58, __n64, __n70, __n75, __n80, __n86, __n96, __n101 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n109 := [ "o", "actual", "expected" ];
 __n0["variableDeclarations"] := __n109;
 __n110 := [  ];

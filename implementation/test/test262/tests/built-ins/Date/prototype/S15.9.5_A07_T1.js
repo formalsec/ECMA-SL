@@ -3,10 +3,10 @@
 
 /*---
 info: The Date.prototype has the property "toLocaleTimeString"
-es5id: 15.9.5_A07_T1
+esid: sec-properties-of-the-date-prototype-object
 description: The Date.prototype has the property "toLocaleTimeString"
 ---*/
 
-if(Date.prototype.hasOwnProperty("toLocaleTimeString") !== true){
-  $ERROR('#1: The Date.prototype has the property "toLocaleTimeString"');
+if (Date.prototype.hasOwnProperty("toLocaleTimeString") !== true) {
+  throw new Test262Error('#1: The Date.prototype has the property "toLocaleTimeString"');
 }

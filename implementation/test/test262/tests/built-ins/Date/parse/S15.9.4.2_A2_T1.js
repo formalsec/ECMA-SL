@@ -3,14 +3,14 @@
 
 /*---
 info: The "length" property of the "parse" is 1
-es5id: 15.9.4.2_A2_T1
+esid: sec-date.parse
 description: The "length" property of the "parse" is 1
 ---*/
 
-if(Date.parse.hasOwnProperty("length") !== true){
-  $ERROR('#1: The parse has a "length" property');
+if (Date.parse.hasOwnProperty("length") !== true) {
+  throw new Test262Error('#1: The parse has a "length" property');
 }
 
-if(Date.parse.length !== 1){
-  $ERROR('#2: The "length" property of the parse is 1');
+if (Date.parse.length !== 1) {
+  throw new Test262Error('#2: The "length" property of the parse is 1');
 }

@@ -3,16 +3,16 @@
 
 /*---
 info: The Date.prototype property "setUTCMonth" has { DontEnum } attributes
-es5id: 15.9.5.39_A1_T3
+esid: sec-date.prototype.setutcmonth
 description: Checking DontEnum attribute
 ---*/
 
 if (Date.prototype.propertyIsEnumerable('setUTCMonth')) {
-  $ERROR('#1: The Date.prototype.setUTCMonth property has the attribute DontEnum');
+  throw new Test262Error('#1: The Date.prototype.setUTCMonth property has the attribute DontEnum');
 }
 
-for(var x in Date.prototype) {
-  if(x === "setUTCMonth") {
-    $ERROR('#2: The Date.prototype.setUTCMonth has the attribute DontEnum');
+for (var x in Date.prototype) {
+  if (x === "setUTCMonth") {
+    throw new Test262Error('#2: The Date.prototype.setUTCMonth has the attribute DontEnum');
   }
 }

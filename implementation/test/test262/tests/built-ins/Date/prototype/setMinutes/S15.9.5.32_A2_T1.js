@@ -3,14 +3,14 @@
 
 /*---
 info: The "length" property of the "setMinutes" is 3
-es5id: 15.9.5.32_A2_T1
+esid: sec-date.prototype.setminutes
 description: The "length" property of the "setMinutes" is 3
 ---*/
 
-if(Date.prototype.setMinutes.hasOwnProperty("length") !== true){
-  $ERROR('#1: The setMinutes has a "length" property');
+if (Date.prototype.setMinutes.hasOwnProperty("length") !== true) {
+  throw new Test262Error('#1: The setMinutes has a "length" property');
 }
 
-if(Date.prototype.setMinutes.length !== 3){
-  $ERROR('#2: The "length" property of the setMinutes is 3');
+if (Date.prototype.setMinutes.length !== 3) {
+  throw new Test262Error('#2: The "length" property of the setMinutes is 3');
 }

@@ -3,15 +3,15 @@
 
 /*---
 info: The Date.prototype property "getMonth" has { DontEnum } attributes
-es5id: 15.9.5.12_A1_T1
+esid: sec-date.prototype.getmonth
 description: Checking absence of ReadOnly attribute
 ---*/
 
 var x = Date.prototype.getMonth;
-if(x === 1)
+if (x === 1)
   Date.prototype.getMonth = 2;
 else
   Date.prototype.getMonth = 1;
 if (Date.prototype.getMonth === x) {
-  $ERROR('#1: The Date.prototype.getMonth has not the attribute ReadOnly');
+  throw new Test262Error('#1: The Date.prototype.getMonth has not the attribute ReadOnly');
 }

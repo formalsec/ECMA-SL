@@ -3,14 +3,14 @@
 
 /*---
 info: The "length" property of the "toUTCString" is 0
-es5id: 15.9.5.42_A2_T1
+esid: sec-date.prototype.toutcstring
 description: The "length" property of the "toUTCString" is 0
 ---*/
 
-if(Date.prototype.toUTCString.hasOwnProperty("length") !== true){
-  $ERROR('#1: The toUTCString has a "length" property');
+if (Date.prototype.toUTCString.hasOwnProperty("length") !== true) {
+  throw new Test262Error('#1: The toUTCString has a "length" property');
 }
 
-if(Date.prototype.toUTCString.length !== 0){
-  $ERROR('#2: The "length" property of the toUTCString is 0');
+if (Date.prototype.toUTCString.length !== 0) {
+  throw new Test262Error('#2: The "length" property of the toUTCString is 0');
 }

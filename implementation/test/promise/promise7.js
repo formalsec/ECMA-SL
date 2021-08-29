@@ -8,10 +8,9 @@
  * this first rejection message / error. 
  */
 
-
 var promise1 = Promise.resolve(3);
 var promise2 = 42;
-var promise3 = new Promise((resolve, reject) => {
+var promise3 = new Promise(function(resolve, reject) {
 	resolve('foo');
 });
 

@@ -11,7 +11,7 @@
 
 var promise1 = Promise.resolve(3);
 var promise2 = 42;
-var promise3 = new Promise((resolve, reject) => {
+var promise3 = new Promise(function (resolve, reject) {
 	resolve('foo');
 });
 var promise4 = Promise.reject(9);

@@ -220,6 +220,7 @@ __n53["arguments"] := __n57;
 __n52["expression"] := __n53;
 __n1 := [ __n2, __n8, __n15, __n35, __n41, __n52 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n72 := [ "direct", "indirect" ];
 __n0["variableDeclarations"] := __n72;
 __n73 := [  ];
