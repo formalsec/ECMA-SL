@@ -266,6 +266,7 @@ __n70["arguments"] := __n74;
 __n69["expression"] := __n70;
 __n1 := [ __n2, __n7, __n49, __n59, __n69 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n79 := [ "json", "arr" ];
 __n0["variableDeclarations"] := __n79;
 __n80 := [  ];

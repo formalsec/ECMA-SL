@@ -495,6 +495,7 @@ __n129["arguments"] := __n133;
 __n128["expression"] := __n129;
 __n1 := [ __n2, __n31, __n128 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n147 := [ "obj", "replacer" ];
 __n0["variableDeclarations"] := __n147;
 __n148 := [  ];

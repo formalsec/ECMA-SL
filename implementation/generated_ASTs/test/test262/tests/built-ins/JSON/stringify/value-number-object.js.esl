@@ -551,6 +551,7 @@ __n142["arguments"] := __n146;
 __n141["expression"] := __n142;
 __n1 := [ __n2, __n18, __n75, __n91, __n141 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n169 := [ "toPrimitiveReplacer", "abruptToJSON" ];
 __n0["variableDeclarations"] := __n169;
 __n170 := [  ];

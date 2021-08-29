@@ -123,6 +123,7 @@ __n17["arguments"] := __n21;
 __n16["expression"] := __n17;
 __n1 := [ __n2, __n16 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n37 := [  ];
 __n0["variableDeclarations"] := __n37;
 __n38 := [  ];

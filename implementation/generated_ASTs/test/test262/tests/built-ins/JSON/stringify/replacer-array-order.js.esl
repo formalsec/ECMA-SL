@@ -212,6 +212,7 @@ __n36["arguments"] := __n40;
 __n35["expression"] := __n36;
 __n1 := [ __n2, __n11, __n35 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n60 := [ "replacer" ];
 __n0["variableDeclarations"] := __n60;
 __n61 := [  ];
