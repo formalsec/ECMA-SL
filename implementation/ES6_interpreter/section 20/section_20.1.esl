@@ -29,34 +29,34 @@ function initNumberPrototype(global, objectPrototype, strict) {
 
   /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
   toExponential := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToExponential", global, strict, null);
-  setJSProperty(toExponential, "length", newDataPropertyDescriptorFull(1, true, false, false));
+  setJSProperty(toExponential, "length", newDataPropertyDescriptorFull(1., true, false, false));
   createBuiltInProperty(prototype, "toExponential", toExponential);
   descriptor := newDataPropertyDescriptorFull("toExponential", false, false, true);
   setJSProperty(toExponential, "name", descriptor);
 
   /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
   toFixed := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToFixed", global, strict, null);
-  setJSProperty(toFixed, "length", newDataPropertyDescriptorFull(1, true, false, false));
+  setJSProperty(toFixed, "length", newDataPropertyDescriptorFull(1., false, false, true));
   createBuiltInProperty(prototype, "toFixed", toFixed);
   descriptor := newDataPropertyDescriptorFull("toFixed", false, false, true);
   setJSProperty(toFixed, "name", descriptor);
 
   /* 20.1.3.4 Number.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ]) */
   toLocaleString := CreateBuiltInFunctionObject(["items"], "NumberPrototypeToLocaleString", global, strict, null);
-  setJSProperty(toLocaleString, "length", newDataPropertyDescriptorFull(0, true, false, false));
+  setJSProperty(toLocaleString, "length", newDataPropertyDescriptorFull(0., false, false, true));
   createBuiltInProperty(prototype, "toLocaleString", toLocaleString);
   descriptor := newDataPropertyDescriptorFull("toLocaleString", false, false, true);
   setJSProperty(toLocaleString, "name", descriptor);
 
   /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
   toPrecision := CreateBuiltInFunctionObject(["precision"], "NumberPrototypeToPrecision", global, strict, null);
-  setJSProperty(toPrecision, "length", newDataPropertyDescriptorFull(1, true, false, false));
+  setJSProperty(toPrecision, "length", newDataPropertyDescriptorFull(1., false, false, true));
   createBuiltInProperty(prototype, "toPrecision", toPrecision);
   descriptor := newDataPropertyDescriptorFull("toPrecision", false, false, true);
   setJSProperty(toPrecision, "name", descriptor);
 
   /* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
-  toString := CreateBuiltInFunctionObject([ "radix" ], "NumberPrototypeToStringAlt", global, strict, 0.);
+  toString := CreateBuiltInFunctionObject([ "radix" ], "NumberPrototypeToString", global, strict, 0.);
   createBuiltInProperty(prototype, "toString", toString);
   descriptor := newDataPropertyDescriptorFull("toString", false, false, true);
   setJSProperty(toString, "name", descriptor);
@@ -121,7 +121,7 @@ function initNumberConstructor(prototype, global, strict) {
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "EPSILON", EPSILON, false, false, false);
 
   /* 20.1.2.2 Number.isFinite ( number ) */
-  isFiniteObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsfinite", global, strict, 0.);
+  isFiniteObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsFinite", global, strict, 0.);
   setConfigurability(isFiniteObject, "length", true); /* ES6 */
   descriptor := newDataPropertyDescriptorFull(isFiniteObject, true, false, true);
   createBuiltInProperty(NumberConstructor, "isFinite", isFiniteObject);
@@ -170,7 +170,7 @@ function initNumberConstructor(prototype, global, strict) {
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NaN", NaN, false, false, false);
 
   /* 20.1.2.11 Number.NEGATIVE_INFINITY */
-  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NEGATIVE_INFINITY", -Infinity, false, false, false);
+  createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NEGATIVE_INFINITY", (-Infinity), false, false, false);
 
   /* 20.1.2.12 Number.parseFloat ( string ) */
   parseFloatObject := CreateFunctionObject(["string"], "GlobalObjectParseFloat", global, strict, null);
@@ -280,7 +280,6 @@ function NumberPrototypeToExponential(global, this, strict, items) {
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
   @ReturnIfAbrupt(x);
-
   /* 6. If x is NaN, return the String "NaN". */
   if (x = NaN) {
     return "NaN"
@@ -288,7 +287,7 @@ function NumberPrototypeToExponential(global, this, strict, items) {
   /* 7. Let s be the empty String. */
   s := "";
   /* 8. If x < 0, then */
-  if (x < 0.) {
+  if (x < 0. ||| x = (- Infinity)) {
     /* a. Let s be "-". */
     s := "-";
     /* b. Let x = –x. */
@@ -297,9 +296,8 @@ function NumberPrototypeToExponential(global, this, strict, items) {
   /* 9. If x = +∞, then */
   if (x = Infinity) {
     /* a. Return the concatenation of the Strings s and "Infinity". */
-    return s_concat(s, "Infinity")
+    return s_concat([s, "Infinity"])
   };
-
   if (fractionDigits = 'undefined) {
     return to_exponential(x, s_len(float_to_string (abs x)) - 1)
   } else {
@@ -338,7 +336,7 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
   /* 9. If x = +∞, then */
   if (x = Infinity) {
     /* a. Return the concatenation of the Strings s and "Infinity". */
-    return s_concat(s, "Infinity")
+    return s_concat([s, "Infinity"])
   };
   /* 10. If f < 0 or f > 20, throw a RangeError exception.
   /* However, an implementation is permitted to extend the behaviour of toExponential
@@ -353,7 +351,7 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
     m := "";
     counter := 0;
     while (!(counter <= f)) {
-      m := s_concat(m, "0");
+      m := s_concat([m, "0"]);
       counter := counter + 1
     };
     /* b. Let e = 0. */
@@ -381,7 +379,7 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
     /* a. Let a be the first element of m, and let b be the remaining f elements of m. */
     a := s_nth_u(m, 0);
     /* b. Let m be the concatenation of the three Strings a, ".", and b. */
-    m := s_concat(s_concat(a, "."), b)
+    m := s_concat([s_concat([a, "."]), b])
   };
   /* 14. If e = 0, then */
   if (e = 0) {
@@ -406,9 +404,9 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
     d := float_to_string(e)
   };
   /* 16. Let m be the concatenation of the four Strings m, "e", c, and d. */
-  m := s_concat(s_concat(s_concat(m, "e"), c), d);
+  m := s_concat([s_concat([s_concat([m, "e"]), c]), d]);
   /* 17. Return the concatenation of the Strings s and m. */
-  return s_concat(s, m)
+  return s_concat([s, m])
 };
 
 /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
@@ -421,7 +419,7 @@ function NumberPrototypeToFixed(global, this, strict, items) {
   if (fractionDigits = 'undefined) {
     return to_fixed(x, 0)
   } else {
-    return to_fixed(x, (int_of_float fractionDigits))
+    return to_fixed(x, int_of_float(fractionDigits))
   }
 };
 
@@ -485,11 +483,11 @@ function NumberPrototypeToFixedAlt(global, this, strict, items) {
         z := "";
         counter := 0;
         while (!(counter <= (f - k))) {
-          z := s_concat(z, "0");
+          z := s_concat([z, "0"]);
           counter := counter + 1
         };
         /* 2. Let m be the concatenation of Strings z and m. */
-        m := s_concat(z, m);
+        m := s_concat([z, m]);
         /* 3. Let k = f + 1. */
         k := f + 1
       };
@@ -564,7 +562,7 @@ function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
   /* 9. If x = +∞, then */
   if (x = Infinity) {
     /* a. Return the String that is the concatenation of s and "Infinity". */
-    return s_concat(s, "Infinity")
+    return s_concat([s, "Infinity"])
   };
   /* 10. If p < 1 or p > 21, throw a RangeError exception. However, an implementation is permitted
   to extend the behaviour of toPrecision for values of p less than 1 or greater
@@ -578,7 +576,7 @@ function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
     m := "";
     counter := 0;
     while (!(counter = p)) {
-      m := s_concat(m, "0");
+      m := s_concat([m, "0"]);
       counter := counter + 1
     };
     /* b. Let e = 0. */
@@ -593,13 +591,13 @@ function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
   };
   /* 13. If e = p–1, return the concatenation of the Strings s and m. */
   if (e = (p - 1)) {
-    return s_concat(s, m)
+    return s_concat([s, m])
   };
   /* 14. If e ≥ 0, then */
   if (e >= 0) {
     /* a. Let m be the concatenation of the first e+1 elements of m, 
     the code unit 0x002E (FULL STOP), and the remaining p – (e+1) elements of m. */
-    m := s_concat(s_concat(s_substr_u(m, 0, e + 1), "."), s_substr_u(m, e + 1, p - (e + 1)))
+    m := s_concat([s_concat([s_substr_u(m, 0, e + 1), "."]), s_substr_u(m, e + 1, p - (e + 1))])
   /* 15. Else e < 0, */
   } else {
     /* a. Let m be the String formed by the concatenation of code unit 0x0030 (DIGIT ZERO), 
@@ -607,13 +605,13 @@ function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
     tmp := "";
     index := 0;
     while (index = (-e)) {
-      tmp := s_concat(tmp, "0");
+      tmp := s_concat([tmp, "0"]);
       index := index + 1
     };
-    m := s_concat(s_concat("0.", tmp), m)
+    m := s_concat([s_concat(["0.", tmp]), m])
   };
   /* 16. Return the String that is the concatenation of s and m. */
-  return s_concat(s, m)
+  return s_concat([s, m])
 };
 
 function isNumberOrNumberObject(arg) {
@@ -626,21 +624,9 @@ function isNumberOrNumberObject(arg) {
   return false
 };
 
-/* 15.7.4.2 Number.prototype.toString ( [ radix ] ) */
-function NumberPrototypeToString(global, this, strict, items) {
-  if (!isNumberOrNumberObject(this)) {
-    throw TypeErrorConstructorInternal()
-  };
-  if (Type(this) = "Number") {
-    num := this
-  } else {
-    num := this.NumberData
-  };
-  return ToString(num)
-};
 
 /* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
-function NumberPrototypeToStringAlt(global, this, strict, items) {
+function NumberPrototypeToString(global, this, strict, items) {
   radix := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   print("debug toString");
@@ -671,7 +657,7 @@ function NumberPrototypeToStringAlt(global, this, strict, items) {
   /* 9. Return the String representation of this Number value using the radix specified by radixNumber.
   Letters a-z are used for digits with values 10 through 35. The precise algorithm is implementation-dependent,
   however the algorithm should be a generalization of that specified in 7.1.12.1. */
-  return
+  return ToString(x)
 };
 
 
