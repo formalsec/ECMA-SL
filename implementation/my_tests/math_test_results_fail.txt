@@ -1,7 +1,4 @@
-Testing my_tests/Math/Symbol.toStringTag.js
-Testing my_tests/Math/asinh/asinh-specialVals.js
-Testing my_tests/Math/atanh/atanh-specialVals.js
-Testing my_tests/Math/cbrt/cbrt-specialValues.js
-Testing my_tests/Math/round/S15.8.2.15_A3.js
+Testing my_tests/Math/imul/results.js
 Testing my_tests/Math/round/S15.8.2.15_A7.js
-OK: 242    FAIL: 41    ERROR: 27    NOT EXECUTED: 0    Total: 310
+Testing my_tests/Math/trunc/trunc-sampleTests.js
+OK: 270    FAIL: 3    ERROR: 2    NOT EXECUTED: 0    Total: 310

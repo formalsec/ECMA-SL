@@ -1,26 +1,37 @@
 Testing my_tests/Number/return-abrupt-tonumber-value-symbol.js
+
 Testing my_tests/Number/isFinite/arg-is-not-number.js
 Testing my_tests/Number/isFinite/finite-numbers.js
 Testing my_tests/Number/isFinite/infinity.js
 Testing my_tests/Number/isFinite/nan.js
+
 Testing my_tests/Number/isInteger/arg-is-not-number.js
+
 Testing my_tests/Number/isNaN/arg-is-not-number.js
+
 Testing my_tests/Number/isSafeInteger/arg-is-not-number.js
 Testing my_tests/Number/isSafeInteger/not-safe-integer.js
 Testing my_tests/Number/isSafeInteger/safe-integers.js
+
 Testing my_tests/Number/NEGATIVE_INFINITY/S15.7.3.5_A1.js
 Testing my_tests/Number/NEGATIVE_INFINITY/S15.7.3.5_A2.js
+
 Testing my_tests/Number/POSITIVE_INFINITY/S15.7.3.6_A1.js
 Testing my_tests/Number/POSITIVE_INFINITY/S15.7.3.6_A2.js
+
 Testing my_tests/Number/prototype/toExponential/infinity.js
 Testing my_tests/Number/prototype/toExponential/length.js
+
 Testing my_tests/Number/prototype/toFixed/length.js
 Testing my_tests/Number/prototype/toFixed/S15.7.4.5_A1.4_T01.js
+
 Testing my_tests/Number/prototype/toLocaleString/length.js
+
 Testing my_tests/Number/prototype/toPrecision/length.js
 Testing my_tests/Number/prototype/toPrecision/precision-cannot-be-coerced-to-a-number-in-range.js
 Testing my_tests/Number/prototype/toPrecision/return-abrupt-tointeger-precision.js
 Testing my_tests/Number/prototype/toPrecision/return-abrupt-tointeger-precision-symbol.js
+
 Testing my_tests/Number/prototype/toString/a-z.js
 Testing my_tests/Number/prototype/toString/numeric-literal-tostring-radix-11.js
 Testing my_tests/Number/prototype/toString/numeric-literal-tostring-radix-12.js
@@ -94,5 +105,7 @@ Testing my_tests/Number/prototype/toString/S15.7.4.2_A2_T32.js
 Testing my_tests/Number/prototype/toString/S15.7.4.2_A2_T33.js
 Testing my_tests/Number/prototype/toString/S15.7.4.2_A2_T34.js
 Testing my_tests/Number/prototype/toString/S15.7.4.2_A4_T01.js
+
 Testing my_tests/Number/prototype/valueOf/S15.7.4.4_A2_T01.js
+
 OK: 141    FAIL: 97    ERROR: 97    NOT EXECUTED: 0    Total: 335

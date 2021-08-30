@@ -24,3 +24,4 @@ assert.sameValue(Math.log1p(-1), -Infinity, "-1");
 assert.sameValue(Math.log1p(0), 0, "0");
 assert.sameValue(Math.log1p(-0), -0, "-0");
 assert.sameValue(Math.log1p(Infinity), Infinity, "Infinity");
+

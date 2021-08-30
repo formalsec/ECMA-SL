@@ -78,8 +78,8 @@ Testing my_tests/Map/Map/prototype/entries/returns-iterator.js ... [1m[0;31m[
 Testing my_tests/Map/Map/prototype/entries/this-not-object-throw.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/forEach/callback-parameters.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/forEach/callback-result-is-abrupt.js ... [1m[0;32m[7mOK![0m
-Testing my_tests/Map/Map/prototype/forEach/callback-this-non-strict.js ... [1m[0;31m[5m[7mFAIL[0m
-Testing my_tests/Map/Map/prototype/forEach/callback-this-strict.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Map/Map/prototype/forEach/callback-this-non-strict.js ... [1m[0;32m[7mOK![0m
+Testing my_tests/Map/Map/prototype/forEach/callback-this-strict.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/forEach/deleted-values-during-foreach.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/forEach/does-not-have-mapdata-internal-slot.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/forEach/does-not-have-mapdata-internal-slot-set.js ... [1m[0;32m[7mOK![0m
@@ -93,7 +93,7 @@ Testing my_tests/Map/Map/prototype/forEach/length.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/forEach/name.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/forEach/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
 Testing my_tests/Map/Map/prototype/forEach/return-undefined.js ... [1m[0;32m[7mOK![0m
-Testing my_tests/Map/Map/prototype/forEach/second-parameter-as-callback-context.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Map/Map/prototype/forEach/second-parameter-as-callback-context.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/forEach/this-not-object-throw.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/get/does-not-have-mapdata-internal-slot.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/get/does-not-have-mapdata-internal-slot-set.js ... [1m[0;32m[7mOK![0m
@@ -112,7 +112,7 @@ Testing my_tests/Map/Map/prototype/has/does-not-have-mapdata-internal-slot-weakm
 Testing my_tests/Map/Map/prototype/has/has.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/has/length.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/has/name.js ... [1m[0;32m[7mOK![0m
-Testing my_tests/Map/Map/prototype/has/normalizes-zero-key.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Map/Map/prototype/has/normalizes-zero-key.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/has/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
 Testing my_tests/Map/Map/prototype/has/return-false-different-key-types.js ... [1m[0;32m[7mOK![0m
 Testing my_tests/Map/Map/prototype/has/return-true-different-key-types.js ... [1m[0;32m[7mOK![0m
@@ -181,4 +181,4 @@ Testing my_tests/Map/MapIteratorPrototype/next/this-not-object-throw-values.js .
 
 [1mSUMMARY:[0m
 
-OK: 135    FAIL: 25    ERROR: 7    NOT EXECUTED: 0    Total: 167
+OK: 139    FAIL: 21    ERROR: 7    NOT EXECUTED: 0    Total: 167

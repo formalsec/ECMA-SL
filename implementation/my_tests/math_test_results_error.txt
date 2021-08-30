@@ -1,28 +1,3 @@
-Testing my_tests/Math/clz32/infinity.js
-Testing my_tests/Math/clz32/int32bit.js
-Testing my_tests/Math/clz32/Math.clz32_1.js
-Testing my_tests/Math/clz32/Math.clz32_2.js
-Testing my_tests/Math/clz32/Math.clz32.js
-Testing my_tests/Math/clz32/nan.js
-Testing my_tests/Math/expm1/expm1-specialVals.js
 Testing my_tests/Math/fround/ties.js
 Testing my_tests/Math/fround/value-convertion.js
-Testing my_tests/Math/hypot/Math.hypot_Infinity.js
-Testing my_tests/Math/hypot/Math.hypot_InfinityNaN.js
-Testing my_tests/Math/hypot/Math.hypot_NaN.js
-Testing my_tests/Math/hypot/Math.hypot_NegInfinity.js
-Testing my_tests/Math/hypot/Math.hypot_NoArgs.js
-Testing my_tests/Math/hypot/Math.hypot_Success_2.js
-Testing my_tests/Math/hypot/Math.hypot_Zero_2.js
-Testing my_tests/Math/imul/results.js
-Testing my_tests/Math/log1p/specific-results.js
-Testing my_tests/Math/sign/sign-specialVals.js
-Testing my_tests/Math/trunc/Math.trunc_Infinity.js
-Testing my_tests/Math/trunc/Math.trunc_NaN.js
-Testing my_tests/Math/trunc/Math.trunc_NegDecimal.js
-Testing my_tests/Math/trunc/Math.trunc_PosDecimal.js
-Testing my_tests/Math/trunc/Math.trunc_Success.js
-Testing my_tests/Math/trunc/Math.trunc_Zero.js
-Testing my_tests/Math/trunc/trunc-sampleTests.js
-Testing my_tests/Math/trunc/trunc-specialVals.js
-OK: 242    FAIL: 41    ERROR: 27    NOT EXECUTED: 0    Total: 310
+OK: 270    FAIL: 3    ERROR: 2    NOT EXECUTED: 0    Total: 310
