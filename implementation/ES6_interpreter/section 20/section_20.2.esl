@@ -394,11 +394,11 @@ function MathATanh(globalObject, this, strict, params) {
     return Infinity
   };
   /* If x is +0, the result is +0. */
-  if (x = 0.) {
+  if (isZero(x)) {
     return 0.
   };
   /* If x is -0 the result is -0 */
-  if (x = -(0.)) {
+  if (isMinusZero(x)) {
     return -(0.)
   };
   return (1./2.) * log_e((1. + x) / (1. - x))
@@ -450,11 +450,11 @@ function MathCBRT(globalObject, this, strict, params) {
     return NaN
   };
   /* If x is +0, the result is +0. */
-  if (x = 0.) {
+  if (isZero(x)) {
     return 0.
   };
   /* If x is −0, the result is −0. */
-  if (x = -(0.)) {
+  if (isMinusZero(x)) {
     return -(0.)
   };
   /* If x is +∞, the result is +∞. */
@@ -867,10 +867,25 @@ function MathRound(globalObject, this, stric, params) {
   If two integer Number values are equally close to x, then the result is the Number value that is closer to +∞. 
   If x is already an integer, the result is x. */
   /* If x is NaN, the result is NaN. */
+  if (x = NaN) {
+    return NaN
+  };
   /* If x is +0, the result is +0. */
+  if (isZero(x)) {
+    return 0.
+  };
   /* If x is −0, the result is −0. */
+  if (isMinusZero(x)) {
+    return -(0.)
+  };
   /* If x is +∞, the result is +∞. */
+  if (x = Infinity) {
+    return Infinity
+  };
   /* If x is −∞, the result is −∞. */
+  if (x = (- Infinity)) {
+    return (- Infinity)
+  };
   /* If x is greater than 0 but less than 0.5, the result is +0. */
   if ((x > 0.) &&& (x < 0.5)) {
     return 0.
