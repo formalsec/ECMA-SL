@@ -415,4 +415,8 @@ function getIteratorPropertyName() {
 
 function getToStringTagPropertyName() {
   return "Symbol(toStringTag)"
+};
+
+function getToPrimitivePropertyName() {
+  return "Symbol(toPrimitive)"
 }
