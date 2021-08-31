@@ -1,0 +1,14 @@
+----------------------------------------------------
+|                     ERROR                        |
+----------------------------------------------------
+Testing my_tests/Math/fround/ties.js // Trunc not implemented because of IEEE binary64 and binary32 algorithms
+Testing my_tests/Math/fround/value-convertion.js // Trunc not implemented because of IEEE binary64 and binary32 algorithms
+OK: 270    FAIL: 38    ERROR: 2    NOT EXECUTED: 0    Total: 310
+
+----------------------------------------------------
+|                     FAIL                         |
+----------------------------------------------------
+Testing my_tests/Math/imul/results.js // Possible error in ToUint32(x)
+Testing my_tests/Math/round/S15.8.2.15_A7.js // maybe error calculating -(2 / Number.EPSILON - 1) ?
+Testing my_tests/Math/trunc/trunc-sampleTests.js // Trunc com MAX_VALUE
+OK: 270    FAIL: 38    ERROR: 2    NOT EXECUTED: 0    Total: 310

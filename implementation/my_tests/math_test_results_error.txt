@@ -1,3 +1,0 @@
-Testing my_tests/Math/fround/ties.js
-Testing my_tests/Math/fround/value-convertion.js
-OK: 270    FAIL: 3    ERROR: 2    NOT EXECUTED: 0    Total: 310
