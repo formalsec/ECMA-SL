@@ -26,10 +26,11 @@ function initNumberPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObject();
   setAllInternalMethodsOfObject(prototype);
   setInternalProperty(prototype, "NumberData", 0.);
+  setInternalProperty(prototype, "Class", "Number");
 
   /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
   toExponential := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToExponential", global, strict, null);
-  setJSProperty(toExponential, "length", newDataPropertyDescriptorFull(1., true, false, false));
+  setJSProperty(toExponential, "length", newDataPropertyDescriptorFull(1., false, false, true));
   createBuiltInProperty(prototype, "toExponential", toExponential);
   descriptor := newDataPropertyDescriptorFull("toExponential", false, false, true);
   setJSProperty(toExponential, "name", descriptor);
@@ -45,7 +46,7 @@ function initNumberPrototype(global, objectPrototype, strict) {
   toLocaleString := CreateBuiltInFunctionObject(["items"], "NumberPrototypeToLocaleString", global, strict, null);
   setJSProperty(toLocaleString, "length", newDataPropertyDescriptorFull(0., false, false, true));
   createBuiltInProperty(prototype, "toLocaleString", toLocaleString);
-  descriptor := newDataPropertyDescriptorFull("toLocaleString", false, false, true);
+  descriptor := newDataPropertyDescriptorFull("toLocaleString", true, false, true);
   setJSProperty(toLocaleString, "name", descriptor);
 
   /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
