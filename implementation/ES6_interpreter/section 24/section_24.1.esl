@@ -3,431 +3,258 @@ function initArrayBufferPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
   setAllInternalMethodsOfObject(prototype);
 
-  /* 23.1.3.1 Map.prototype.clear ( ) */
-  clearObject := CreateBuiltInFunctionObject([], "mapClearObject", global, strict, null);
-  descriptor := newDataPropertyDescriptorFull(clearObject, true, false, true);
-  setJSProperty(prototype, "clear", descriptor);
-  descriptor := newDataPropertyDescriptorFull("clear", false, false, true);
-  setJSProperty(clearObject, "name", descriptor);
+  /* 24.1.4.1 get ArrayBuffer.prototype.byteLength */
+  byteLengthObject := CreateBuiltInFunctionObject([], "ArrayBufferPrototypeByteLength", global, strict, 0.);
+  descriptor := newGetAccessorPropertyDescriptorFull(byteLengthObject, false, true);
+  setJSProperty(prototype, "byteLength", descriptor);
+  descriptor := newDataPropertyDescriptorFull("get byteLength", false, false, true);
+  setJSProperty(byteLengthObject, "name", descriptor);
 
-  /* 23.1.3.13 Map.prototype [ @@toStringTag ] */
-  descriptor := newDataPropertyDescriptorFull("Map", false, false, true);
+  /* 24.1.4.3 ArrayBuffer.prototype.slice ( start, end ) */
+  sliceObject := CreateBuiltInFunctionObject(["start", "end"], "ArrayBufferPrototypeSlice", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(sliceObject, true, false, true);
+  setJSProperty(prototype, "slice", descriptor);
+  descriptor := newDataPropertyDescriptorFull("slice", false, false, true);
+  setJSProperty(sliceObject, "name", descriptor);
+
+  /* 24.1.4.4 ArrayBuffer.prototype [ @@toStringTag ] */
+  descriptor := newDataPropertyDescriptorFull("ArrayBuffer", false, false, true);
   setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
-
-  /* Martelada Provisoria */
-  /*   newlyConstructedObject.IteratorFunction := "CreateMapIteratorJS"; */
-  CreateMapIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateMapIteratorJS", global, strict, 1.);
-  descriptor := newDataPropertyDescriptorFull(CreateMapIteratorJSObject, true, false, true);
-  setJSProperty(prototype, "IteratorFunction", descriptor); 
 
   return prototype
 };
 
 
 function initArrayBufferObject(global, objectPrototype, strict) {
-  objMapPrototype := initMapPrototype(global, objectPrototype, strict);
-  objMapConstructor := CreateFunctionObject(["items"], "ArrayBufferConstructor", global, strict, 0.);
+  objArrayBufferPrototype := initArrayBufferPrototype(global, objectPrototype, strict);
+  objArrayBufferConstructor := CreateFunctionObject(["length"], "ArrayBufferConstructor", global, strict, 0.);
 
-  descriptor := newDataPropertyDescriptorFull(objMapConstructor, true, false, true);
-  setJSProperty(objMapPrototype, "constructor", descriptor);
+  /* 24.1.4.2 ArrayBuffer.prototype.constructor */
+  descriptor := newDataPropertyDescriptorFull(objArrayBufferConstructor, true, false, true);
+  setJSProperty(objArrayBufferPrototype, "constructor", descriptor);
+  
+  /* TODO The value of the [[Prototype]] internal slot of the ArrayBuffer constructor is the intrinsic object %FunctionPrototype% (19.2.3). */
+  
+  /* Besides its length property (whose value is 1), the ArrayBuffer constructor has the following properties: */
+  descriptor := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(objArrayBufferConstructor, "length", descriptor);
 
-  descriptor := newDataPropertyDescriptorFull("Map", false, false, true);
-  setJSProperty(objMapConstructor, "name", descriptor);
+  /* 24.1.3.1 ArrayBuffer.isView ( arg ) */
+  isViewObject := CreateBuiltInFunctionObject(["arg"], "ArrayBufferIsView", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(isViewObject, true, false, true);
+  setJSProperty(objArrayBufferPrototype, "isView", descriptor);
+  descriptor := newDataPropertyDescriptorFull("isView", false, false, true);
+  setJSProperty(isViewObject, "name", descriptor);
 
-  descriptor := newDataPropertyDescriptorFull(0., false, false, true);
-  setJSProperty(objMapConstructor, "length", descriptor);
-
-  descriptor := newDataPropertyDescriptorFull(objMapPrototype, false, false, false);
-  setJSProperty(objMapConstructor, "prototype", descriptor);
-
-  mapSpeciesObject := CreateFunctionObject([], "MapSpeciesGetter", global, strict, null);
-  descriptor := newGetAccessorPropertyDescriptorFull(mapSpeciesObject, false, true);
-  setJSProperty(objMapConstructor, getSpeciesPropertyName(), descriptor);
+  /* 24.1.3.2 ArrayBuffer.prototype 
+  The initial value of ArrayBuffer.prototype is the intrinsic object %ArrayBufferPrototype% (24.1.4).
+  This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  descriptor := newDataPropertyDescriptorFull(objArrayBufferPrototype, false, false, false);
+  setJSProperty(objArrayBufferConstructor, "prototype", descriptor);
+  
+  /* 24.1.3.3 get ArrayBuffer [ @@species ] */
+  arrayBufferSpeciesObject := CreateFunctionObject([], "ArrayBufferSpeciesGetter", global, strict, null);
+  descriptor := newGetAccessorPropertyDescriptorFull(arrayBufferSpeciesObject, false, true);
+  setJSProperty(objArrayBufferConstructor, getSpeciesPropertyName(), descriptor);
   descriptor := newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true);
-  setJSProperty(mapSpeciesObject, "name", descriptor);
+  setJSProperty(arrayBufferSpeciesObject, "name", descriptor);
   descriptor := newDataPropertyDescriptorFull(0., false, false, true);
-  setJSProperty(mapSpeciesObject, "length", descriptor);
+  setJSProperty(arrayBufferSpeciesObject, "length", descriptor);
 
-  return objMapConstructor
+  return objArrayBufferConstructor
 };
 
-/* 23.1.2.2 get Map [ @@species ] */
-function MapSpeciesGetter(global, this, strict, args) {
+/* 24.1.3.3 get ArrayBuffer [ @@species ] */
+function ArrayBufferSpeciesGetter(global, this, strict, args) {
   return this
 };
 
-function getMapPrototype(strict) { 
-  refMap := newPropertyReference(|global|, "Map", strict);
-  MapObject := GetValue(refMap);
+
+/**
+ * 24.1.2.1 ArrayBuffer (length)
+ *
+ * ArrayBuffer called with argument length performs the following steps: 
+ */
+function ArrayBufferConstructor(global, this, strict, args) {
+  length := getOptionalParam(args, 0);
+  /* 1. If NewTarget is undefined, */
+  if (NewTarget = 'undefined) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Let numberLength be ToNumber(length). */
+  numberLength := ToNumber(length);
+  /* 3. Let byteLength be ToLength(numberLength). */
+  byteLength := ToLength(numberLength);
+  /* 4. ReturnIfAbrupt(byteLength). */
+  @ReturnIfAbrupt(byteLength);
+  /* 5. If SameValueZero(numberLength, byteLength) is false, */
+  if (SameValueZero(numberLength, byteLength) = false) {
+    /* throw a RangeError exception */
+    throw RangeErrorConstructorInternal()
+  };
+  /* 6. Return AllocateArrayBuffer(NewTarget, byteLength). */
+  return AllocateArrayBuffer(NewTarget, byteLength)
+};
+
+function getArrayBufferPrototype(strict) { 
+  refArrayBuffer := newPropertyReference(|global|, "ArrayBuffer", strict);
+  MapObject := GetValue(refArrayBuffer);
   refMapProto := newPropertyReference(MapObject, "prototype", strict);
   objectMapProto := GetValue(refMapProto);
   return objectMapProto
 };
 
-
-/*
-23.1.1.1 Map ( [ iterable ] )
-*/
-function MapConstructor(global, this, strict, items) {
-  NewTarget := this;
-  iterable := getOptionalParam(items, 0);
-
-  /* 1. If NewTarget is undefined, throw a TypeError exception. */
-  if (NewTarget = 'undefined) {
-    return TypeErrorConstructorInternal()
-  };
-  
-  /* 2. Let map be OrdinaryCreateFromConstructor(NewTarget, "%MapPrototype%", «‍[[MapData]]» ). */
-  map := OrdinaryCreateFromConstructorMap(global, this, strict, iterable);
-  
-  /* 3. ReturnIfAbrupt(map). */
-  @ReturnIfAbrupt(map);
-
-  /* 4. Set map’s [[MapData]] internal slot to a new empty List. */
-  map.MapData := []; 
-  
-  /* 5. If iterable is not present, let iterable be undefined. */
-  if (iterable = null) {
-    iterable := 'undefined
-  };
-  
-  /* 6. If iterable is either undefined or null, let iter be undefined. */
-  if (iterable = 'undefined || iterable = null) {
-    iter := 'undefined
-  /* 7. Else, */
-  } else {
-
-    print "ICHECKPOINT 1";
-    /* a. Let adder be Get(map, "set"). */
-    adder := Get(map, "set");
-    
-    print "ICHECKPOINT 2";
-    /* b. ReturnIfAbrupt(adder). */
-    @ReturnIfAbrupt(adder);
-    
-    /* c. If IsCallable(adder) is false, throw a TypeError exception. */
-    if (IsCallable(adder) = false) {
-      throw TypeErrorConstructorInternal()
-    };
-    
-    print "ICHECKPOINT 3";
-    print iterable; 
-
-    /* d. Let iter be GetIterator(iterable) */
-    iter := GetIterator(iterable, null);
-    
-    print "ICHECKPOINT 4";
-    /* e. ReturnIfAbrupt(iter). */
-    @ReturnIfAbrupt(iter)
-  };
-  
-  /* 8. If iter is undefined, return map.*/
-  if (iter = 'undefined) {
-    return map 
-  }; 
-
-  print "ICHECKPOINT 5";
-  print iter; 
-
-  /* 9. Repeat (while true ??) */
-  while(true) {
-    /* a. Let next be IteratorStep(iter). */
-    next := IteratorStep(iter);
-    
-    print "ICHECKPOINT 6";
-
-    /* b. ReturnIfAbrupt(next). */
-    @ReturnIfAbrupt(next);
-    
-    /* c. If next is false, return map */
-    if (next = false) {
-      return map
-    };
-    
-    /* d. Let nextItem be IteratorValue(next) */
-    nextItem := IteratorValue(next);
-    
-    /* e. ReturnIfAbrupt(nextItem). */
-    @ReturnIfAbrupt(nextItem);
-    
-    /* f. If Type(nextItem) is not Object,  */
-    if(!(Type(nextItem) = "Object")) {
-      /* i. Let error be Completion{[[type]]: throw, 
-      [[value]]: a newly created TypeError object, [[target]]:empty}. */
-      error :=  throwEmptyCompletion(TypeErrorConstructorInternal());
-      
-      /* ii. Return IteratorClose(iter, error) */
-      return IteratorClose(iter, error)
-    };
-    
-    /* g.Let k be Get(nextItem, "0") */
-    k := Get(nextItem, "0");
-    
-    /* h. If k in an abrupt completion, return IteratorClose(iter, k) */
-    if ((Type(k) = "Completion")&&&(isAnAbruptCompletion(k))) {
-     IteratorClose(iter, k) 
-    };
-    
-    /* i. Let v be Get(nextItem, "1"). */
-    v := Get(nextItem, "1");
-    
-    /* j. If v is an abrupt completion, return IteratorClose(iter, v). */
-    if ((Type(k) = "Completion")&&&isAnAbruptCompletion(v)) {
-      return IteratorClose(iter, v)
-    };
-
-    /* k. Let status be Call(adder, map, «k.[[value]], v.[[value]]»). */
-    status := Call(null, null, adder, map, [k, v]);
-    
-    /* l. If status is an abrupt completion, return IteratorClose(iter, status). */
-    if ((Type(k) = "Completion")&&&isAnAbruptCompletion(status)) {
-      return IteratorClose(iter, status)
-    }
-  }
-};
-
-
-/*
-23.1.3.1 Map.prototype.clear ( )
-*/
-function mapClearObject(global, this, strict, args) {
-  /* Let M be the this value. */
-  M := this;
-  
-  /* If Type(M) is not Object, throw a TypeError exception. */
-  if (!(Type(M) = "Object")) {
-    throw TypeErrorConstructorInternal()
-  };
-  
-  /* If M does not have a [[MapData]] internal slot, throw a TypeError exception. */
-  if (!("MapData" in_obj M)) {
-    throw TypeErrorConstructorInternal()
-  };
-  
-  /* Let entries be the List that is the value of M’s [[MapData]] internal slot. */
-  entries := M.MapData;
-  
-  /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
-  i := 0;
-  len := l_len entries;
-  while (i < len) {
-    p := l_nth(entries, i); 
-    
-    /* Set p.[[key]] to empty. */
-    p.key := 'empty;
-    
-    /* Set p.[[value]] to empty. */
-    p.value := 'empty;
-    i := i + 1
-  };
-  
-  /* Return undefined */
-  return 'undefined
-};
-
-
-/*
-23.1.5.2 CreateMapIterator Abstract Operation
-*/
-function createMapIterator(map, kind) { 
-
-  print "ICHECKPOINT 3.3.1";
-  print map; 
-
-  /* 1. If Type(map) is not Object, throw a TypeError exception. */
-  if (!(Type(map) = "Object")) { 
-    throw TypeErrorConstructorInternal()
-  }; 
-
-  /* 2. If map does not have a [[MapData]] internal slot, throw a TypeError exception. */  
-  if (!("MapData" in_obj map)) { 
-    throw TypeErrorConstructorInternal()
-  };
-
-  /* 3. Let iterator be ObjectCreate(%MapIteratorPrototype%, «‍[[Map]], [[MapNextIndex]], [[MapIterationKind]]»). */
-  iterator := createMapIteratorObject(); 
-
-  /* 4. Set iterator’s [[Map]] internal slot to map. */
-  iterator.Map := map; 
-
-  /* 5. Set iterator’s [[MapNextIndex]] internal slot to 0. */
-  iterator.MapNextIndex := 0; 
-
-  /* 6. Set iterator’s [[MapIterationKind]] internal slot to kind.*/
-  iterator.MapIterationKind := kind; 
-
-  iterator.IteratorFunction := "IteratorFunction";
-
-  /* 7. Return iterator. */
-  return iterator
-};
-
-
-/*
-23.1.3.12 Map.prototype [ @@iterator ]( )
-*/
-function initMapIteratorPrototype(global, objectPrototype, strict) { 
-  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(prototype);
-
-  nextObject := CreateBuiltInFunctionObject([], "MapIteratorPrototypeNext", global, strict, null);
-  descriptor := newDataPropertyDescriptorFull(nextObject, true, false, true);
-  setJSProperty(prototype, "next", descriptor);
-  descriptor := newDataPropertyDescriptorFull("next", false, false, true);
-  setJSProperty(nextObject, "name", descriptor);
-
-  CreateMapIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateMapIteratorFromIterator", global, strict, 1.);
-  descriptor := newDataPropertyDescriptorFull(CreateMapIteratorJSObject, true, false, true);
-  setJSProperty(prototype, "IteratorFunction", descriptor); 
-
-  /* 23.1.5.2.2 %MapIteratorPrototype% [ @@toStringTag ] */
-  descriptor := newDataPropertyDescriptorFull("Map Iterator", false, false, true);
-  setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
-
-  |MapIteratorPrototype| := prototype; 
-  return null
-}; 
-
-function createMapIteratorObject() {
-
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
-
-  setInternalProperty(newlyConstructedObject, "Prototype", |MapIteratorPrototype|);
-  
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  
-  setInternalProperty(newlyConstructedObject, "Class", "Object");
-
- 
-  return newlyConstructedObject
-};
-
-function isMapIteratorInstance(obj) {
-  return ("Map" in_obj obj) &&& ("MapNextIndex" in_obj obj) &&& ("MapIterationKind" in_obj obj)
-};
-
-
-/* 
-23.1.5.2.1 %MapIteratorPrototype%.next ( ) 
-*/
-function MapIteratorPrototypeNext(global, this, strict, args) { 
+/**
+ * 24.1.4.1 get ArrayBuffer.prototype.byteLength
+ *
+ * ArrayBuffer.prototype.byteLength is an accessor property whose set accessor 
+ * function is undefined. Its get accessor function performs the following 
+ * steps: 
+ */
+function getArrayBufferPrototypeByteLength(global, this, strict, args) {
   /* 1. Let O be the this value. */
-  O := this; 
-
-  /* 2. If Type(O) is not Object, throw a TypeError exception.*/
-  if (!(Type(O) = "Object")) { 
+  O := this;
+  /* 2. If Type(O) is not Object, */
+  if (!(Type(O) = "Object")) {
+    /* throw a TypeError exception */
     throw TypeErrorConstructorInternal()
-  }; 
-
-  /* 3. If O does not have all of the internal slots of a Map Iterator Instance (23.1.5.3), throw a TypeError exception. */
-  if (!isMapIteratorInstance(O)) {
+  };
+  /* 3. If O does not have an [[ArrayBufferData]] internal slot, */
+  if (!("ArrayBufferData" in_obj O)) {
+    /* throw a TypeError exception */
     throw TypeErrorConstructorInternal()
-  }; 
-
-  /* 4. Let m be the value of the [[Map]] internal slot of O. */
-  m := O.Map; 
-
-  /* 5. Let index be the value of the [[MapNextIndex]] internal slot of O. */
-  index := O.MapNextIndex; 
-
-  /* 6. Let itemKind be the value of the [[MapIterationKind]] internal slot of O.*/
-  itemKind := O.MapIterationKind; 
-
-  /* 7. If m is undefined, return CreateIterResultObject(undefined, true).*/
-  if (m = 'undefined) {
-    return CreateIterResultObject(undefined, true)
-  }; 
-
-  /* 8. Assert: m has a [[MapData]] internal slot.*/
-  assert ("MapData" in_obj m);
-
-  /* 9. Let entries be the List that is the value of the [[MapData]] internal slot of m.*/
-  entries := m.MapData; 
-
-  /* 10. Repeat while index is less than the total number of elements of entries. The number of elements must be redetermined each time this method is evaluated.*/
-  len := l_len entries; 
-
-  while (index < len) {
-    /* a. Let e be the Record {[[key]], [[value]]} that is the value of entries[index].*/
-    e := l_nth(entries, index);
-
-    /* b. Set index to index+1. */
-    index := index+1; 
-
-    /* c. Set the [[MapNextIndex]] internal slot of O to index. */
-    O.MapNextIndex := index; 
-
-    /* d. If e.[[key]] is not empty, then */
-    if (!(e.key = 'empty)) {
-      if (itemKind = "key") {
-        result := e.key
-      } elif (itemKind = "value") {
-        result := e.value 
-      } else {
-        /* Assert: itemKind is "key+value".*/
-        assert (itemKind = "key+value"); 
-        /* Let result be CreateArrayFromList(«e.[[key]], e.[[value]]»). */
-        result :=  CreateArrayFromList( [e.key, e.value ] )
-      };
-      return CreateIterResultObject(result, false)
-    };
-    
-    index := index + 1
-  }; 
-
-  /* 11. Set the [[Map]] internal slot of O to undefined. */
-  O.Map := 'undefined; 
-
-  /* 12. Return CreateIterResultObject(undefined, true).*/
-  return CreateIterResultObject('undefined, true)
+  };
+  /* 4. If IsDetachedBuffer(O) is true, */
+  if (IsDetachedBuffer(O) = true) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 5. Let length be the value of O’s [[ArrayBufferByteLength]] internal slot. */
+  length := O.ArrayBufferByteLength;
+  /* 6. Return length. */
+  return length
 };
 
-/* Temporary Code */
-
-/*
-  OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList ) 
-*/
-function OrdinaryCreateFromConstructorMap(global, this, strict, items) {
-  mapPrototype := getMapPrototype(strict);
-
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
-
-  /* The [[Prototype]] internal property of the newly constructed object
-      is set to the original Array prototype object, the one that is the
-      initial value of Array.prototype (15.4.3.1). */
-  setInternalProperty(newlyConstructedObject, "Prototype", mapPrototype);
-  /* The [[Extensible]] internal property of the newly constructed object
-      is set to true. */
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  /* The [[Class]] internal property of the newly constructed object is
-      set to "Array". */
-  setInternalProperty(newlyConstructedObject, "Class", "Object");
-
-  newlyConstructedObject.IteratorFunction := "IteratorFunction";
-  return newlyConstructedObject
-}; 
-
-function CreateMapIteratorJS(global, this, strict, items) {
-  return createMapIterator(this, "key+value")
-}; 
-
-function CreateMapIteratorFromIterator(global, this, strict, items) {
-  return this 
+/**
+ * 24.1.4.3 ArrayBuffer.prototype.slice (start, end)
+ *
+ * The following steps are taken: 
+ */
+function ArrayBufferPrototypeSlice(global, this, strict, args) {
+  start := getOptionalParam(args, 0);
+  end := getOptionalParam(args, 1);
+  /* 1. Let O be the this value. */
+  O := this;
+  /* 2. If Type(O) is not Object, */
+  if (!(Type(O) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 3. If O does not have an [[ArrayBufferData]] internal slot, */
+  if (!("ArrayBufferData" in_obj O)) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 4. If IsDetachedBuffer(O) is true, */
+  if (IsDetachedBuffer(O) = true) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 5. Let len be the value of O’s [[ArrayBufferByteLength]] internal slot. */
+  len := O.ArrayBufferByteLength;
+  /* 6. Let relativeStart be ToInteger(start). */
+  relativeStart := ToInteger(start);
+  /* 7. ReturnIfAbrupt(relativeStart). */
+  @ReturnIfAbrupt(relativeStart);
+  /* 8. If relativeStart < 0, */
+  if (relativeStart < 0) {
+    /* let first be max((len + relativeStart),0); else let first be min(relativeStart, len) */
+    first := max((len + relativeStart), 0) 
+  } else {
+    first := min(relativeStart, len)
+  };
+  /* 9. If end is undefined, */
+  if (end = 'undefined) {
+    /* let relativeEnd be len; else let relativeEnd be ToInteger(end) */
+    relativeEnd := len
+  } else {
+    relativeEnd := ToInteger(end) 
+  };
+  /* 10. ReturnIfAbrupt(relativeEnd). */
+  @ReturnIfAbrupt(relativeEnd);
+  /* 11. If relativeEnd < 0, */
+  if (relativeEnd < 0) {
+    /* let final be max((len + relativeEnd),0); else let final be 
+       min(relativeEnd, len) */
+    final := max((len + relativeEnd), 0)
+  } else {
+    final := min(relativeEnd, len)
+  }; 
+  /* 12. Let newLen be max(final-first,0). */
+  newLen := max(final-first, 0.);
+  /* 13. Let ctor be SpeciesConstructor(O, %ArrayBuffer%). */
+  ctor := SpeciesConstructor(O, |ArrayBuffer|);
+  /* 14. ReturnIfAbrupt(ctor). */
+  @ReturnIfAbrupt(ctor);
+  /* 15. Let new be Construct(ctor, «newLen»). */
+  new := Construct(null, null, ctor, [newLen]);
+  /* 16. ReturnIfAbrupt(new). */
+  @ReturnIfAbrupt(new);
+  /* 17. If new does not have an [[ArrayBufferData]] internal slot, */
+  if (!("ArrayBufferData" in_obj new)) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 18. If IsDetachedBuffer(new) is true, */
+  if (IsDetachedBuffer(new) = true) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 19. If SameValue(new, O) is true, */
+  if (SameValue(new, O) = true) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 20. If the value of new’s [[ArrayBufferByteLength]] internal slot < 
+     newLen, */
+  if (new.ArrayBufferByteLength < newLen) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* NOTE: Side-effects of the above steps may have detached O. */
+  /* 21. If IsDetachedBuffer(O) is true, */
+  if (IsDetachedBuffer(O) = true) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 22. Let fromBuf be the value of O’s [[ArrayBufferData]] internal slot. */
+  fromBuf := O.ArrayBufferData;
+  /* 23. Let toBuf be the value of new’s [[ArrayBufferData]] internal slot. */
+  toBuf := new.ArrayBufferData;
+  /* 24. Perform CopyDataBlockBytes(toBuf, 0, fromBuf, first, newLen). */
+  CopyDataBlockBytes(toBuf, 0., fromBuf, first, newLen);
+  /* 25. Return new. */
+  return new
 };
 
 
 /* 24.1.1 Abstract Operations For ArrayBuffer Objects */
 
-/* 24.1.1.1 AllocateArrayBuffer( constructor, byteLength ) */
+/**
+ * 24.1.1.1 AllocateArrayBuffer (constructor, byteLength)
+ *
+ * The abstract operation AllocateArrayBuffer with arguments constructor and 
+ * byteLength is used to create an ArrayBuffer object. It performs the following 
+ * steps: 
+ */
 function AllocateArrayBuffer(constructor, byteLength) {
 	/* 1. TODO Let obj be OrdinaryCreateFromConstructor(constructor, "%ArrayBufferPrototype%", «‍[[ArrayBufferData]], [[ArrayBufferByteLength]]» ). */
-	obj := OrdinaryCreateFromConstructorMap(constructor, ArrayBufferPrototype,[[[ArrayBufferData]], [[ArrayBufferByteLength]]]);
+	obj := OrdinaryCreateFromConstructorArrayBuffer(constructor, ArrayBufferPrototype,[[[ArrayBufferData]], [[ArrayBufferByteLength]]]);
 	/* 2. ReturnIfAbrupt(obj). */
 	@ReturnIfAbrupt(obj);
 	/* 3. TODO Assert: byteLength is a positive integer. */
-	assert (byteLength > (0.))
+	assert (byteLength > (0.));
 	/* 4. Let block be CreateByteDataBlock(byteLength). */
 	block := CreateByteDataBlock(byteLength);
 	/* 5. ReturnIfAbrupt(block). */
@@ -440,7 +267,12 @@ function AllocateArrayBuffer(constructor, byteLength) {
 	return obj	
 };
 
-/* 24.1.1.2IsDetachedBuffer( arrayBuffer ) */
+/**
+ * 24.1.1.2 IsDetachedBuffer (arrayBuffer)
+ *
+ * The abstract operation IsDetachedBuffer with argument arrayBuffer performs 
+ * the following steps: 
+ */
 function IsDetachedBuffer (arrayBuffer) {
 	/* 1. Assert: Type(arrayBuffer) is Object and it has an [[ArrayBufferData]] internal slot. */
 	assert ((Type(arrayBuffer) = "Object") &&& ("ArrayBufferData" in_obj arrayBuffer)); 
@@ -449,10 +281,15 @@ function IsDetachedBuffer (arrayBuffer) {
 		return true
 	};
 	/* 3. Return false. */
-	return false;
+	return false
 };
 
-/* 24.1.1.3 DetachArrayBuffer( arrayBuffer ) */
+/**
+ * 24.1.1.3 DetachArrayBuffer (arrayBuffer)
+ *
+ * The abstract operation DetachArrayBuffer with argument arrayBuffer performs 
+ * the following steps: 
+ */
 function DetachArrayBuffer(arrayBuffer) {
 	/* Assert: Type(arrayBuffer) is Object and it has [[ArrayBufferData]] and [[ArrayBufferByteLength]] internal slots. */
 	assert ((Type(arrayBuffer) = "Object") &&& ("ArrayBufferData" in_obj arrayBuffer) &&& ("ArrayBufferByteLength" in_obj arrayBuffer)); 
@@ -464,7 +301,15 @@ function DetachArrayBuffer(arrayBuffer) {
 	NormalCompletion(null)
 };
 
-/* 24.1.1.4 TODO CloneArrayBuffer( srcBuffer, srcByteOffset [, cloneConstructor] ) */
+/**
+ * 24.1.1.4 CloneArrayBuffer (srcBuffer, srcByteOffset [ , cloneConstructor ] )
+ *
+ * The abstract operation CloneArrayBuffer takes three parameters, an 
+ * ArrayBuffer srcBuffer, an integer srcByteOffset and optionally a constructor 
+ * function cloneConstructor. It creates a new ArrayBuffer whose data is a copy 
+ * of srcBuffer’s data starting at srcByteOffset. This operation performs the 
+ * following steps: 
+ */
 function CloneArrayBuffer(srcBuffer, srcByteOffset, cloneConstructor) {
 	/* 1. Assert: Type(srcBuffer) is Object and it has an [[ArrayBufferData]] internal slot. */
 	assert ((Type(srcBuffer) = "Object") &&& ("ArrayBufferData" in_obj srcBuffer));
@@ -477,11 +322,11 @@ function CloneArrayBuffer(srcBuffer, srcByteOffset, cloneConstructor) {
 		/* c. If IsDetachedBuffer(srcBuffer) is true, throw a TypeError exception. */
 		if (IsDetachedBuffer(srcBuffer) = true) {
 			throw TypeErrorConstructorInternal()
-		};
+		}
 	/* 3. Else, Assert: IsConstructor(cloneConstructor) is true. */
 	} else {
 		assert (IsConstructor(cloneConstructor) = true)
-	}
+	};
 	/* 4. Let srcLength be the value of srcBuffer’s [[ArrayBufferByteLength]] internal slot. */
 	srcLength := srcBuffer.ArrayBufferByteLength;
 	/* 5. Assert: srcByteOffset ≤ srcLength. */
@@ -506,55 +351,136 @@ function CloneArrayBuffer(srcBuffer, srcByteOffset, cloneConstructor) {
 	return targetBuffer
 };
 
-/* 24.1.1.5 GetValueFromBuffer ( arrayBuffer, byteIndex, type, isLittleEndian ) */
+/**
+ * 24.1.1.5 GetValueFromBuffer (arrayBuffer, byteIndex, type, isLittleEndian)
+ *
+ * The abstract operation GetValueFromBuffer takes four parameters, an 
+ * ArrayBuffer arrayBuffer, an integer byteIndex, a String type, and optionally 
+ * a Boolean isLittleEndian. This operation performs the following steps: 
+ */
 function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
-	/* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */
-	/* 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. */
-	/* 3. Assert: byteIndex is a positive integer. */
-	/* 4. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot. */
-	/* 5. Let elementSize be the Number value of the Element Size value specified in Table 49 for Element Type type. */
-	/* 6. Let rawValue be a List of elementSize containing, in order, the elementSize sequence of bytes starting with block[byteIndex]. */
-	/* 7. If isLittleEndian is not present, set isLittleEndian to either true or false. The choice is implementation dependent and should be the alternative that is most efficient for the implementation. An implementation must use the same value each time this step is executed and the same value must be used for the corresponding step in the SetValueInBuffer abstract operation. */
-	/* 8. If isLittleEndian is false, reverse the order of the elements of rawValue. */
-	/* 9. If type is "Float32", then */
-	/* a. Let value be the byte elements of rawValue concatenated and interpreted as a little-endian bit string encoding of an IEEE 754-2008 binary32 value. */
-	/* b. If value is an IEEE 754-2008 binary32 NaN value, return the NaN Number value. */
-	/* c. Return the Number value that corresponds to value. */
-	/* 10. If type is "Float64", then */
-	/* a. Let value be the byte elements of rawValue concatenated and interpreted as a little-endian bit string encoding of an IEEE 754-2008 binary64 value. */
-	/* b. If value is an IEEE 754-2008 binary64 NaN value, return the NaN Number value. */
-	/* c. Return the Number value that corresponds to value. */
-	/* 11. If the first code unit of type is "U", then */
-	/* a. Let intValue be the byte elements of rawValue concatenated and interpreted as a bit string encoding of an unsigned little-endian binary number. */
-	/* 12. Else */
-	/* a. Let intValue be the byte elements of rawValue concatenated and interpreted as a bit string encoding of a binary little-endian 2’s complement number of bit length elementSize × 8. */
-	/* 13. Return the Number value that corresponds to intValue. */
-	return
+  /* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */
+  assert(IsDetachedBuffer(arrayBuffer) = false);
+  /* 2. TODO Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. */
+  /* 3. Assert: byteIndex is a positive integer. */
+  assert(byteIndex > 0.);
+  /* 4. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot. */
+  block := arrayBuffer.ArrayBufferData;
+  /* 5. TODO Let elementSize be the Number value of the Element Size value specified in Table 49 for Element Type type. */
+  /* 6. TODO Let rawValue be a List of elementSize containing, in order, the elementSize sequence of bytes starting with block[byteIndex]. */
+  /* 7. If isLittleEndian is not present, */
+  if (!(isLittleEndian = null)) {
+    /* TODO set isLittleEndian to either true or false. The choice is 
+       implementation dependent and should be the alternative that is most 
+       efficient for the implementation. An implementation must use the same 
+       value each time this step is executed and the same value must be used 
+       for the corresponding step in the SetValueInBuffer abstract operation */
+  };
+  /* 8. If isLittleEndian is false, reverse the order of the elements of rawValue */
+  if (isLittleEndian = false) {
+    index := l_len(rawValue);
+    rawValueAux := [];
+    while (index >= 0) {
+      l_concat(rawValueAux, l_nth(rawValue, i))
+    }
+  };
+  /* 9. If type is "Float32", then */
+  if (type = "Float32") {
+    /* a. TODO Let value be the byte elements of rawValue concatenated and 
+       interpreted as a little-endian bit string encoding of an IEEE 754-2008 
+       binary32 value. */
+    /* b. TODO If value is an IEEE 754-2008 binary32 NaN value, return the NaN Number value */
+    /* c. Return the Number value that corresponds to value. */
+  };
+  /* 10. If type is "Float64", then */
+  if (type = "Float64") {
+    /* a. TODO Let value be the byte elements of rawValue concatenated and 
+       interpreted as a little-endian bit string encoding of an IEEE 754-2008 
+       binary64 value. */
+    /* b. If value is an IEEE 754-2008 binary64 NaN value, return the NaN Number value */
+    /* c. Return the Number value that corresponds to value. */
+  };
+  /* 11. TODO If the first code unit of type is "U", then */
+  /* a. TODO Let intValue be the byte elements of rawValue concatenated and 
+   interpreted as a bit string encoding of an unsigned little-endian 
+   binary number. */
+  /* 12. Else */
+  /* a. TODO Let intValue be the byte elements of rawValue concatenated and interpreted as
+   a bit string encoding of a binary little-endian 2’s complement number of bit length elementSize × 8. */
+  /* 13. Return the Number value that corresponds to intValue. */
+  return Number
 };
 
-/* 24.1.1.6 SetValueInBuffer ( arrayBuffer, byteIndex, type, value, isLittleEndian ) */
+/**
+ * 24.1.1.6 SetValueInBuffer (arrayBuffer, byteIndex, type, value, isLittleEndian)
+ *
+ * The abstract operation SetValueInBuffer takes five parameters, an ArrayBuffer 
+ * arrayBuffer, an integer byteIndex, a String type, a Number value, and 
+ * optionally a Boolean isLittleEndian. This operation performs the following 
+ * steps: 
+ */
 function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
-	/* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */
-	/* 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. */
-	/* 3. Assert: byteIndex is a positive integer. */
-	/* 4. Assert: Type(value) is Number. */
-	/* 5. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot. */
-	/* 6. Assert: block is not undefined. */
-	/* 7. Let elementSize be the Number value of the Element Size value specified in Table 49 for Element Type type. */
-	/* 8. If isLittleEndian is not present, set isLittleEndian to either true or false. The choice is implementation dependent and should be the alternative that is most efficient for the implementation. An implementation must use the same value each time this step is executed and the same value must be used for the corresponding step in the GetValueFromBuffer abstract operation. */
-	/* 9. If type is "Float32", then */
-	/* a. Set rawBytes to a List containing the 4 bytes that are the result of converting value to IEEE 754-2008 binary32 format using “Round to nearest, ties to even” rounding mode. If isLittleEndian is false, the bytes are arranged in big endian order. Otherwise, the bytes are arranged in little endian order. If value is NaN, rawValue may be set to any implementation chosen IEEE 754-2008 binary64 format Not-a-Number encoding. An implementation must always choose the same encoding for each implementation distinguishable NaN value. */
-	/* 10. Else, if type is "Float64", then */
-	/* a. Set rawBytes to a List containing the 8 bytes that are the IEEE 754-2008 binary64 format encoding of value. If isLittleEndian is false, the bytes are arranged in big endian order. Otherwise, the bytes are arranged in little endian order. If value is NaN, rawValue may be set to any implementation chosen IEEE 754-2008 binary32 format Not-a-Number encoding. An implementation must always choose the same encoding for each implementation distinguishable NaN value. */
-	/* 11. Else, */
-	/* a. Let n be the Number value of the Element Size specified in Table 49 for Element Type type. */
-	/* b. Let convOp be the abstract operation named in the Conversion Operation column in Table 49 for Element Type type. */
-	/* c. Let intValue be convOp(value). */
-	/* d. If intValue ≥ 0, then */
-	/* i. Let rawBytes be a List containing the n-byte binary encoding of intValue. If isLittleEndian is false, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order. */
-	/* e. Else, */
-	/* i. Let rawBytes be a List containing the n-byte binary 2’s complement encoding of intValue. If isLittleEndian is false, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order. */
-	/* 12. Store the individual bytes of rawBytes into block, in order, starting at block[byteIndex]. */
-	/* 13. Return NormalCompletion(undefined). */
-	return
+  /* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */
+  assert(IsDetachedBuffer(arrayBuffer) = false);
+  /* 2. TODO Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. */
+  /* 3. Assert: byteIndex is a positive integer. */
+  assert(byteIndex > 0.);
+  /* 4. Assert: Type(value) is Number. */
+  assert(Type(value) = "Number");
+  /* 5. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot. */
+  block := arrayBuffer.ArrayBufferData;
+  /* 6. Assert: block is not undefined. */
+  assert(!(block = 'undefined));
+  /* 7. Let elementSize be the Number value of the Element Size value 
+     specified in Table 49 for Element Type type. */
+  elementSize := Number;
+  /* 8. If isLittleEndian is not present, set isLittleEndian to either true or false. The choice is 
+  implementation dependent and should be the alternative that is most 
+  efficient for the implementation. An implementation must use the same 
+  value each time this step is executed and the same value must be used 
+  for the corresponding step in the GetValueFromBuffer abstract operation */
+  if (!(isLittleEndian = present)) {
+  };
+  /* 9. If type is "Float32", then */
+  if (type = "Float32") {
+    /* TODO a. Set rawBytes to a List containing the 4 bytes that are the result of 
+    converting value to IEEE 754-2008 binary32 format using “Round to 
+    nearest, ties to even” rounding mode. If isLittleEndian is false, the 
+    bytes are arranged in big endian order. Otherwise, the bytes are 
+    arranged in little endian order. If value is NaN, rawValue may be set 
+    to any implementation chosen IEEE 754-2008 binary64 format 
+    Not-a-Number encoding. An implementation must always choose the same 
+    encoding for each implementation distinguishable NaN value. */
+  };
+  /* 10. TODO Else, if type is "Float64", then */
+  /* 11. TODO Else, */
+  /* 12. TODO Store the individual bytes of rawBytes into block, in order, starting at block[byteIndex]. */
+  /* 13. Return NormalCompletion(undefined). */
+  return NormalCompletion('undefined)
 };
+
+/* Temporary Code */
+
+/*
+  OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList ) 
+*/
+function OrdinaryCreateFromConstructorArrayBuffer(global, this, strict, items) {
+  mapPrototype := getArrayBufferPrototype(strict);
+
+  newlyConstructedObject := NewECMAScriptObject();
+  setAllInternalMethodsOfObject(newlyConstructedObject);
+
+  /* The [[Prototype]] internal property of the newly constructed object
+      is set to the original Array prototype object, the one that is the
+      initial value of Array.prototype (15.4.3.1). */
+  setInternalProperty(newlyConstructedObject, "Prototype", mapPrototype);
+  /* The [[Extensible]] internal property of the newly constructed object
+      is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true);
+  /* The [[Class]] internal property of the newly constructed object is
+      set to "Array". */
+  setInternalProperty(newlyConstructedObject, "Class", "Object");
+
+  newlyConstructedObject.IteratorFunction := "IteratorFunction";
+  return newlyConstructedObject
+}

@@ -163,6 +163,10 @@ function initGlobalObject(strict) {
   WeakSetObject := initWeakSetObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "WeakSet", WeakSetObject);
 
+  /* 24.1 ArrayBuffer Objects */  
+  ArrayBufferObject := initArrayBufferObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "ArrayBuffer", ArrayBufferObject);
+
   /* Extras */
   ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);
   createBuiltInProperty(globalObject, "console", ConsoleObject);
@@ -415,7 +419,7 @@ function GlobalObjectIsNaN(globalObject, this, strict, params) {
 
 /* 15.1.2.5 isFinite (number) */
 function GlobalObjectIsFinite(globalObject, this, strict, params) {
-  number := s_nth(params, 0);
+  number := getOptionalParam(params, 0);
   /* Returns false if the argument coerces to NaN, +Infinity, or -Infinity, and otherwise returns true. */
 
   /* 1. If ToNumber(number) is NaN, +Infinity, or -Infinity, return false.*/
