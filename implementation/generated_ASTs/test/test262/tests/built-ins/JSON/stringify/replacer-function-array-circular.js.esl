@@ -129,6 +129,7 @@ __n23["arguments"] := __n27;
 __n22["expression"] := __n23;
 __n1 := [ __n2, __n10, __n22 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n43 := [ "circular", "circularReplacer" ];
 __n0["variableDeclarations"] := __n43;
 __n44 := [  ];

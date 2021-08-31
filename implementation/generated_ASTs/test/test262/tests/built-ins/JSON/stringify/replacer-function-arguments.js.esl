@@ -735,6 +735,7 @@ __n210["arguments"] := __n214;
 __n209["expression"] := __n210;
 __n1 := [ __n2, __n8, __n37, __n45, __n57, __n80, __n92, __n111, __n125, __n139, __n153, __n167, __n181, __n195, __n209 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n223 := [ "calls", "replacer", "b1", "b2", "a1", "obj" ];
 __n0["variableDeclarations"] := __n223;
 __n224 := [  ];

@@ -402,6 +402,7 @@ __n98["arguments"] := __n100;
 __n97["expression"] := __n98;
 __n1 := [ __n2, __n27, __n31, __n48, __n57, __n72, __n87, __n97 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n117 := [ "wrapper" ];
 __n0["variableDeclarations"] := __n117;
 __n118 := [  ];
