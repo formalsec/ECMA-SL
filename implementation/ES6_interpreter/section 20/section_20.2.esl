@@ -611,8 +611,8 @@ function MathFRound(globalObject, this, strict, params) {
   } elif ((isZero(x)) ||| (isMinusZero(x)) ||| (x = Infinity) ||| (x = -Infinity)) {
     return x
   };
-  /* 3. Let x32 be the result of converting x to a value in IEEE 754-2008 binary32 format using roundTiesToEven. */
-  /* 4. Let x64 be the result of converting x32 to a value in IEEE 754-2008 binary64 format. */
+  /* 3. TOOD Let x32 be the result of converting x to a value in IEEE 754-2008 binary32 format using roundTiesToEven. */
+  /* 4. TODO Let x64 be the result of converting x32 to a value in IEEE 754-2008 binary64 format. */
   /* 5. Return the ECMAScript Number value corresponding to x64. */
   return
 };
@@ -678,6 +678,8 @@ function MathImul(globalObject, this, strict, params) {
   b := ToUint32(y);
   /* 3. Let product be (a × b) modulo 2^32 . */
   product := (a * b) % (2. ** 32.);
+  print (a * b);
+  print product - (2. ** 32.);
   /* 4. If product ≥ 2^31 , return product − 2^32 , otherwise return product. */
   if (product >= (2. ** 31.)) {
     return product - (2. ** 32.)
