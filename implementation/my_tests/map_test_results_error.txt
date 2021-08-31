@@ -1,8 +1,7 @@
 Testing my_tests/Map/Map/iterator-is-undefined-throws.js
-Testing my_tests/Map/Map/map-no-iterable.js
 Testing my_tests/Map/Map/prototype/entries/returns-iterator.js
 Testing my_tests/Map/Map/prototype/keys/returns-iterator.js
 Testing my_tests/Map/Map/prototype/values/returns-iterator.js
 Testing my_tests/Map/MapIteratorPrototype/next/iteration.js
 Testing my_tests/Map/MapIteratorPrototype/next/iteration-mutable.js
-OK: 139    FAIL: 9    ERROR: 7    NOT EXECUTED: 0    Total: 167
+OK: 140    FAIL: 21    ERROR: 6    NOT EXECUTED: 0    Total: 167

@@ -137,8 +137,8 @@ function MapConstructor(global, this, strict, items) {
   iterable := getOptionalParam(items, 0);
 
   /* 1. If NewTarget is undefined, throw a TypeError exception. */
-  if (NewTarget = 'undefined) {
-    return TypeErrorConstructorInternal()
+  if (NewTarget = ('undefined)) {
+    throw TypeErrorConstructorInternal()
   };
   
   /* 2. Let map be OrdinaryCreateFromConstructor(NewTarget, "%MapPrototype%", «‍[[MapData]]» ). */
@@ -156,16 +156,14 @@ function MapConstructor(global, this, strict, items) {
   };
   
   /* 6. If iterable is either undefined or null, let iter be undefined. */
-  if (iterable = 'undefined || iterable = null) {
+  if (iterable = ('undefined) ||| iterable = ('null)) {
     iter := 'undefined
   /* 7. Else, */
   } else {
 
-    print "ICHECKPOINT 1";
     /* a. Let adder be Get(map, "set"). */
     adder := Get(map, "set");
     
-    print "ICHECKPOINT 2";
     /* b. ReturnIfAbrupt(adder). */
     @ReturnIfAbrupt(adder);
     
@@ -174,13 +172,9 @@ function MapConstructor(global, this, strict, items) {
       throw TypeErrorConstructorInternal()
     };
     
-    print "ICHECKPOINT 3";
-    print iterable; 
-
     /* d. Let iter be GetIterator(iterable) */
     iter := GetIterator(iterable, null);
     
-    print "ICHECKPOINT 4";
     /* e. ReturnIfAbrupt(iter). */
     @ReturnIfAbrupt(iter)
   };
@@ -190,15 +184,11 @@ function MapConstructor(global, this, strict, items) {
     return map 
   }; 
 
-  print "ICHECKPOINT 5";
-  print iter; 
 
-  /* 9. Repeat (while true ??) */
+  /* 9. Repeat */
   while(true) {
     /* a. Let next be IteratorStep(iter). */
     next := IteratorStep(iter);
-    
-    print "ICHECKPOINT 6";
 
     /* b. ReturnIfAbrupt(next). */
     @ReturnIfAbrupt(next);
