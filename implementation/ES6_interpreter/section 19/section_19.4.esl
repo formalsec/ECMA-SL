@@ -419,4 +419,8 @@ function getToStringTagPropertyName() {
 
 function getToPrimitivePropertyName() {
   return "Symbol(toPrimitive)"
+};
+
+function getUnscopablesPropertyName() {
+  return "Symbol(unscopables)"
 }
