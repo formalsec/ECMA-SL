@@ -42,7 +42,7 @@
 %token BITWISE_NOT BITWISE_AND PIPE BITWISE_XOR SHIFT_LEFT SHIFT_RIGHT SHIFT_RIGHT_LOGICAL
 %token FROM_CHAR_CODE FROM_CHAR_CODE_U TO_CHAR_CODE TO_CHAR_CODE_U TO_LOWER_CASE TO_UPPER_CASE TRIM
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16
-%token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM SIN SQRT TAN PI MAX_VALUE MIN_VALUE COSH LOG_2 SINH TANH
+%token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM SIN SQRT TAN PI MAX_VALUE MIN_VALUE COSH LOG_2 SINH TANH FLOAT64_TO_LE_BYTES FLOAT64_TO_BE_BYTES FLOAT32_TO_LE_BYTES FLOAT32_TO_BE_BYTES FLOAT64_FROM_LE_BYTES FLOAT64_FROM_BE_BYTES FLOAT32_FROM_LE_BYTES FLOAT32_FROM_BE_BYTES 
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST TO_PRECISION TO_EXPONENTIAL TO_FIXED
 %token NOT LLEN LNTH LADD LPREPEND LCONCAT LREVERSE HD TL TLEN TNTH FST SND LREMOVELAST LSORT SLEN SLEN_U SNTH SNTH_U SSUBSTR SSUBSTR_U
 %token SCONCAT SSPLIT
@@ -370,6 +370,22 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.Sinh, e) } %prec unopt_prec
   | TANH; e = e_expr_target;
     { E_Expr.UnOpt (Oper.Tanh, e) } %prec unopt_prec
+  | FLOAT64_TO_LE_BYTES; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Float64ToLEBytes, e) } %prec unopt_prec 
+  | FLOAT64_TO_BE_BYTES; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Float64ToBEBytes, e) } %prec unopt_prec 
+  | FLOAT32_TO_LE_BYTES; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Float32ToLEBytes, e) } %prec unopt_prec 
+  | FLOAT32_TO_BE_BYTES; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Float32ToBEBytes, e) } %prec unopt_prec 
+  | FLOAT64_FROM_LE_BYTES; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Float64FromLEBytes, e) } %prec unopt_prec 
+  | FLOAT64_FROM_BE_BYTES; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Float64FromBEBytes, e) } %prec unopt_prec 
+  | FLOAT32_FROM_LE_BYTES; e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Float32FromLEBytes, e) } %prec unopt_prec 
+  | FLOAT32_FROM_BE_BYTES  e = e_expr_target;
+    { E_Expr.UnOpt (Oper.Float32FromBEBytes, e) } %prec unopt_prec
 
 
 prefix_binary_op_target:

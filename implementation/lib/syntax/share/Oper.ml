@@ -103,6 +103,14 @@ type uopt = Neg
           | Log_2
           | Sinh
           | Tanh
+          | Float64ToLEBytes
+          | Float64ToBEBytes
+          | Float32ToLEBytes
+          | Float32ToBEBytes
+          | Float64FromLEBytes
+          | Float64FromBEBytes
+          | Float32FromLEBytes
+          | Float32FromBEBytes
 
 
 type nopt = ListExpr
@@ -495,8 +503,8 @@ let to_char_code_u (v : Val.t) : Val.t = match v with
   | _     -> invalid_arg "Exception in Oper.to_char_code_u: this operation is only applicable to Str arguments"
 
 let int_to_four_hex (v : Val.t) : Val.t = match v with
-| Int i -> Str (Printf.sprintf "%04x" i)
-| _     -> invalid_arg "Exception in Oper.int_to_four_hex: this operation is only applicable to Int arguments"
+  | Int i -> Str (Printf.sprintf "%04x" i)
+  | _     -> invalid_arg "Exception in Oper.int_to_four_hex: this operation is only applicable to Int arguments"
 
 let utf8_decode (v : Val.t) : Val.t = match v with
   | Str s -> Str(String_Utils.utf8decode s)
@@ -526,6 +534,39 @@ let to_upper_case (v : Val.t) : Val.t = match v with
 let trim (v : Val.t) : Val.t = match v with
   | Str s -> Str (String_Utils.trim s)
   | _     -> invalid_arg "Exception in Oper.trim: this operation is only applicable to Str arguments"
+
+let float_64_to_le_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float_64_to_be_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float_32_to_le_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float_32_to_be_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float_64_from_le_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float_64_from_be_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float_32_from_le_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float_32_from_be_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
 
 
 let str_of_const (c : const) : string = match c with
@@ -594,6 +635,14 @@ let str_of_unopt (op : uopt) : string = match op with
   | Log_2         -> "log_2"
   | Sinh          -> "sinh"
   | Tanh          -> "tanh"
+  | Float64ToLEBytes -> "float64_to_LE_bytes"  
+  | Float64ToBEBytes -> "float64_to_BE_bytes"
+  | Float32ToLEBytes -> "float32_to_LE_bytes"
+  | Float32ToBEBytes -> "float32_to_BE_bytes"
+  | Float64FromLEBytes -> "float64_from_LE_bytes"
+  | Float64FromBEBytes -> "float64_from_BE_bytes"
+  | Float32FromLEBytes -> "float32_from_LE_bytes"
+  | Float32FromBEBytes -> "float32_from_BE_bytes"
 
 let str_of_binopt_single (op : bopt) : string = match op with
   | Plus     -> "+"
@@ -705,7 +754,7 @@ let apply_uopt_oper (oper : uopt) (v : Val.t) : Val.t = match oper with
   | Tan    -> unary_float_call Float.tan v    "Tangent"
   | Cosh   -> unary_float_call Float.cosh v    "Cosh" 
   | Sinh   -> unary_float_call Float.sinh v    "Sinh" 
-  | Tanh   -> unary_float_call Float.tanh v    "Tanh" 
+  | Tanh   -> unary_float_call Float.tanh v    "Tanh"
   | _      -> invalid_arg ("Exception in Oper.apply_uopt_oper: unexpected unary operator: " ^ (str_of_unopt oper))
 
 let apply_bopt_oper (oper : bopt) (v1 : Val.t) (v2 : Val.t) : Val.t = match oper with
@@ -832,4 +881,12 @@ let uopt_to_json (op : uopt) : string =
      | Cosh          -> Printf.sprintf "Cosh\" }"
      | Log_2          -> Printf.sprintf "Log2\" }"
      | Sinh          -> Printf.sprintf "Sinh\" }"
-     | Tanh          -> Printf.sprintf "Tanh\" }")
+     | Tanh          -> Printf.sprintf "Tanh\" }"
+     | Float64ToLEBytes -> Printf.sprintf "Float64ToLEBytes\" }"
+     | Float64ToBEBytes -> Printf.sprintf "Float64ToBEBytes\" }"
+     | Float32ToLEBytes -> Printf.sprintf "Float32ToLEBytes\" }"
+     | Float32ToBEBytes -> Printf.sprintf "Float32ToBEBytes\" }"
+     | Float64FromLEBytes -> Printf.sprintf "Float64FromLEBytes\" }"
+     | Float64FromBEBytes -> Printf.sprintf "Float64FromBEBytes\" }"
+     | Float32FromLEBytes -> Printf.sprintf "Float32FromLEBytes\" }"
+     | Float32FromBEBytes -> Printf.sprintf "Float32FromBEBytes\" }")
