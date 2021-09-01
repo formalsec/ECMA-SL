@@ -33,8 +33,9 @@ function initArrayBufferObject(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(objArrayBufferConstructor, true, false, true);
   setJSProperty(objArrayBufferPrototype, "constructor", descriptor);
   
-  /* TODO The value of the [[Prototype]] internal slot of the ArrayBuffer constructor is the intrinsic object %FunctionPrototype% (19.2.3). */
-  
+  /* The value of the [[Prototype]] internal slot of the ArrayBuffer constructor is the intrinsic object %FunctionPrototype% (19.2.3). */
+  createBuiltInPropertyWithFullDescriptor(objArrayBufferConstructor, "prototype", objectPrototype, false, false, false);
+
   /* Besides its length property (whose value is 1), the ArrayBuffer constructor has the following properties: */
   descriptor := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(objArrayBufferConstructor, "length", descriptor);
@@ -77,6 +78,7 @@ function ArrayBufferSpeciesGetter(global, this, strict, args) {
  */
 function ArrayBufferConstructor(global, this, strict, args) {
   length := getOptionalParam(args, 0);
+  NewTarget := this;
   /* 1. If NewTarget is undefined, */
   if (NewTarget = 'undefined) {
     /* throw a TypeError exception */
@@ -249,14 +251,14 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
  * steps: 
  */
 function AllocateArrayBuffer(constructor, byteLength) {
-	/* 1. TODO Let obj be OrdinaryCreateFromConstructor(constructor, "%ArrayBufferPrototype%", «‍[[ArrayBufferData]], [[ArrayBufferByteLength]]» ). */
-	obj := OrdinaryCreateFromConstructorArrayBuffer(constructor, ArrayBufferPrototype,[[[ArrayBufferData]], [[ArrayBufferByteLength]]]);
+	/* 1. TODO Let obj be OrdinaryCreateFromConstructor(constructor, "%ArrayBufferPrototype%",   «‍[[ArrayBufferData]], [[ArrayBufferByteLength]]» ). */
+	obj := OrdinaryCreateFromConstructorArrayBuffer(constructor, getArrayBufferPrototype(strict), [[ArrayBufferData]], [[ArrayBufferByteLength]]);
 	/* 2. ReturnIfAbrupt(obj). */
 	@ReturnIfAbrupt(obj);
 	/* 3. TODO Assert: byteLength is a positive integer. */
 	assert (byteLength > (0.));
 	/* 4. Let block be CreateByteDataBlock(byteLength). */
-	block := CreateByteDataBlock(byteLength);
+	block := InternalCreateByteDataBlock(byteLength);
 	/* 5. ReturnIfAbrupt(block). */
 	@ReturnIfAbrupt(block);
 	/* 6. Set obj’s [[ArrayBufferData]] internal slot to block. */
@@ -264,7 +266,7 @@ function AllocateArrayBuffer(constructor, byteLength) {
 	/* 7. Set obj’s [[ArrayBufferByteLength]] internal slot to byteLength. */
 	obj.ArrayBufferByteLength := byteLength;
 	/* 8. Return obj. */
-	return obj	
+	return obj
 };
 
 /**
@@ -310,13 +312,13 @@ function DetachArrayBuffer(arrayBuffer) {
  * of srcBuffer’s data starting at srcByteOffset. This operation performs the 
  * following steps: 
  */
-function CloneArrayBuffer(srcBuffer, srcByteOffset, cloneConstructor) {
+function CloneArrayBuffer(strict, srcBuffer, srcByteOffset, cloneConstructor) {
 	/* 1. Assert: Type(srcBuffer) is Object and it has an [[ArrayBufferData]] internal slot. */
 	assert ((Type(srcBuffer) = "Object") &&& ("ArrayBufferData" in_obj srcBuffer));
 	/* 2. If cloneConstructor is not present, then */
 	if (cloneConstructor = 'undefined) {
 		/* a. TODO Let cloneConstructor be SpeciesConstructor(srcBuffer, %ArrayBuffer%). */
-		cloneConstructor := SpeciesConstructor(srcBuffer, ArrayBuffer);
+		cloneConstructor := SpeciesConstructor(srcBuffer, getArrayBufferPrototype(strict));
 		/* b. ReturnIfAbrupt(cloneConstructor). */
 		@ReturnIfAbrupt(cloneConstructor);
 		/* c. If IsDetachedBuffer(srcBuffer) is true, throw a TypeError exception. */
@@ -345,7 +347,7 @@ function CloneArrayBuffer(srcBuffer, srcByteOffset, cloneConstructor) {
 	};
 	/* 11. Let targetBlock be the value of targetBuffer’s [[ArrayBufferData]] internal slot. */
 	targetBlock := targetBuffer.ArrayBufferData;
-	/* 12. TODO Perform CopyDataBlockBytes(targetBlock, 0, srcBlock, srcByteOffset, cloneLength). */
+	/* 12. Perform CopyDataBlockBytes(targetBlock, 0, srcBlock, srcByteOffset, cloneLength). */
 	CopyDataBlockBytes(targetBlock, 0, srcBlock, srcByteOffset, cloneLength);
 	/* 13. Return targetBuffer. */
 	return targetBuffer
@@ -361,20 +363,29 @@ function CloneArrayBuffer(srcBuffer, srcByteOffset, cloneConstructor) {
 function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   /* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */
   assert(IsDetachedBuffer(arrayBuffer) = false);
-  /* 2. TODO Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. */
-  /* 3. Assert: byteIndex is a positive integer. */
+  /* 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. */
+  assert ((l_len(arrayBuffer) - byteIndex) >= getElementSize(type));
+  /* 3. TODO Assert: byteIndex is a positive integer. */
   assert(byteIndex > 0.);
   /* 4. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot. */
   block := arrayBuffer.ArrayBufferData;
-  /* 5. TODO Let elementSize be the Number value of the Element Size value specified in Table 49 for Element Type type. */
-  /* 6. TODO Let rawValue be a List of elementSize containing, in order, the elementSize sequence of bytes starting with block[byteIndex]. */
+  /* 5. Let elementSize be the Number value of the Element Size value specified in Table 49 for Element Type type. */
+  elementSize := getElementSize(type);
+  /* 6. Let rawValue be a List of elementSize containing, in order, the elementSize sequence of bytes starting with block[byteIndex]. */
+  rawValue := [];
+  i := elementSize - 1;
+  while (i >= 0) {
+    l_prepend(block[byteIndex + i], rawValue);
+    i := i - 1
+  };
   /* 7. If isLittleEndian is not present, */
   if (!(isLittleEndian = null)) {
-    /* TODO set isLittleEndian to either true or false. The choice is 
+      /* TBD Set isLittleEndian to either true or false. The choice is  
        implementation dependent and should be the alternative that is most 
        efficient for the implementation. An implementation must use the same 
        value each time this step is executed and the same value must be used 
        for the corresponding step in the SetValueInBuffer abstract operation */
+      isLittleEndian = true
   };
   /* 8. If isLittleEndian is false, reverse the order of the elements of rawValue */
   if (isLittleEndian = false) {
@@ -422,7 +433,8 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
 function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
   /* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */
   assert(IsDetachedBuffer(arrayBuffer) = false);
-  /* 2. TODO Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. */
+  /* 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. */
+  assert ((l_len(arrayBuffer) - byteIndex) >= getElementSize(type));
   /* 3. Assert: byteIndex is a positive integer. */
   assert(byteIndex > 0.);
   /* 4. Assert: Type(value) is Number. */
@@ -433,7 +445,7 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
   assert(!(block = 'undefined));
   /* 7. Let elementSize be the Number value of the Element Size value 
      specified in Table 49 for Element Type type. */
-  elementSize := Number;
+  elementSize := getElementSize(type);
   /* 8. If isLittleEndian is not present, set isLittleEndian to either true or false. The choice is 
   implementation dependent and should be the alternative that is most 
   efficient for the implementation. An implementation must use the same 
@@ -452,9 +464,35 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     Not-a-Number encoding. An implementation must always choose the same 
     encoding for each implementation distinguishable NaN value. */
   };
-  /* 10. TODO Else, if type is "Float64", then */
-  /* 11. TODO Else, */
-  /* 12. TODO Store the individual bytes of rawBytes into block, in order, starting at block[byteIndex]. */
+  /* 10. Else, if type is "Float64" */ 
+  if (type = "Float64") {
+    /* TODO Set rawBytes to a List containing the 8 bytes that are the IEEE 754-2008 binary64
+    format encoding of value. If isLittleEndian is false, the bytes are arranged in big
+    endian order. Otherwise, the bytes are arranged in little endian order. If value is
+    NaN, rawValue may be set to any implementation chosen IEEE 754-2008 binary32 format
+    Not-a-Number encoding. An implementation must always choose the same encoding for
+    each implementation distinguishable NaN value. */
+  /* 11. Else, */
+  } else {
+    /* a. Let n be the Number value of the Element Size specified in Table 49 for Element Type type. */
+    n := getElementSize(type);
+    /* b. Let convOp be the abstract operation named in the Conversion Operation column in Table 49 for Element Type type. */
+    convOp := getConversionOperation(type);
+    /* c. Let intValue be convOp(value). */
+    intValue := convOp(value);
+    /* d. If intValue ≥ 0, then */
+    if (intValue >= 0) {
+      /* i. TODO Let rawBytes be a List containing the n-byte binary encoding of intValue. If isLittleEndian is false, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order. */
+    /* e. Else, */
+    } else {
+      /* i. Let rawBytes be a List containing the n-byte binary 2’s complement encoding of intValue. If isLittleEndian is false, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order. */
+    }
+  };
+  /* 12. Store the individual bytes of rawBytes into block, in order, starting at block[byteIndex]. */
+  i := 0;
+  while (i < elementSize) {
+    block[byteIndex + i] := rawBytes[i]
+  };
   /* 13. Return NormalCompletion(undefined). */
   return NormalCompletion('undefined)
 };
@@ -465,7 +503,7 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
   OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList ) 
 */
 function OrdinaryCreateFromConstructorArrayBuffer(global, this, strict, items) {
-  mapPrototype := getArrayBufferPrototype(strict);
+  arrayBufferPrototype := getArrayBufferPrototype(strict);
 
   newlyConstructedObject := NewECMAScriptObject();
   setAllInternalMethodsOfObject(newlyConstructedObject);
@@ -473,7 +511,7 @@ function OrdinaryCreateFromConstructorArrayBuffer(global, this, strict, items) {
   /* The [[Prototype]] internal property of the newly constructed object
       is set to the original Array prototype object, the one that is the
       initial value of Array.prototype (15.4.3.1). */
-  setInternalProperty(newlyConstructedObject, "Prototype", mapPrototype);
+  setInternalProperty(newlyConstructedObject, "Prototype", arrayBufferPrototype);
   /* The [[Extensible]] internal property of the newly constructed object
       is set to true. */
   setInternalProperty(newlyConstructedObject, "Extensible", true);
@@ -483,4 +521,58 @@ function OrdinaryCreateFromConstructorArrayBuffer(global, this, strict, items) {
 
   newlyConstructedObject.IteratorFunction := "IteratorFunction";
   return newlyConstructedObject
+};
+
+function getElementSize(type) {
+  if (type = "Int8") {
+    return 1
+  };
+  if (type = "Uint8") {
+    return 1
+  };
+  if (type = "Uint8C") {
+    return 1
+  };
+  if (type = "Int16") {
+    return 2
+  };
+  if (type = "Uint16") {
+    return 2
+  };
+  if (type = "Int32") {
+    return 4
+  };
+  if (type = "Uint32") {
+    return 4
+  };
+  if (type = "Float32") {
+    return 4
+  };
+  if (type = "Float64") {
+    return 8
+  }
+};
+
+function getConversionOperation(type) {
+  if (type = "Int8") {
+    return ToInt8()
+  }; 
+  if (type = "Uint8") {
+    return ToUint8()
+  }; 
+  if (type = "Uint8Clamp") {
+    return ToUint8Clamp()
+  }; 
+  if (type = "Int16") {
+    return ToInt16()
+  }; 
+  if (type = "Uint16") {
+    return ToUint16()
+  }; 
+  if (type = "Int32") {
+    return ToInt32()
+  }; 
+  if (type = "Uint32") {
+    return ToUint32()
+  }
 }
