@@ -1,0 +1,254 @@
+function JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt){
+    
+    /* 1. Let status be the result of BindingClassDeclarationEvaluation of this ClassDeclaration. */
+    status := BindingClassDeclarationEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt);
+
+    /* 2. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+
+    /* 3. Return NormalCompletion(empty). */
+    return NormalEmptyCompletion('empty)
+};
+
+function BindingClassDeclarationEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt){
+
+    /* 1. Let className be StringValue of BindingIdentifier. */
+    className := StringValue(BindingIdentifier);
+
+    /* 2. Let value be the result of ClassDefinitionEvaluation of ClassTail with argument className. */
+    value := ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBodyopt);
+
+    /* 3. ReturnIfAbrupt(value). */
+    @ReturnIfAbrupt(value);
+
+    /* 4. Let hasNameProperty be HasOwnProperty(value, "name"). */
+    hasNameProperty := HasOwnProperty(value, "name");
+
+    /* 5. ReturnIfAbrupt(hasNameProperty). */
+    @ReturnIfAbrupt(hasNameProperty);
+
+    /* 6. If hasNameProperty is false, then perform SetFunctionName(value, className). */
+    if (hasNameProperty = false){
+        SetFunctionName(value, className, null)
+    };
+
+    /* 7. Let env be the running execution context’s LexicalEnvironment. */
+    env := getLexicalEnvironment(scope);
+
+    /* 8. Let status be InitializeBoundName(className, value, env). */
+    status := InitializeBoundName(className, value, env); /* TO-DO */
+
+    /* 9. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+
+    /* 10. Return value. */
+    return value
+};
+
+function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBodyopt){
+
+    /* 1. Let lex be the LexicalEnvironment of the running execution context. */
+    lex := getLexicalEnvironment(scope);
+
+    /* 2. Let classScope be NewDeclarativeEnvironment(lex). */
+    classScope := NewDeclarativeEnvironment(lex);
+
+    /* 3. Let classScopeEnvRec be classScope’s EnvironmentRecord. */
+    classScopeEnvRec := getEnvironmentRecord(classScope);
+
+    /* 4. If className is not undefined, then */
+    if (!(className = 'undefined)){
+        /* 4a. Perform classScopeEnvRec.CreateImmutableBinding(className, true). */
+        CreateImmutableBinding(classScopeEnvRec, className)
+    };
+        
+    /* 5. If ClassHeritageopt is not present, then */
+    if (ClassHeritageopt = null){
+        /* 5a. Let protoParent be the intrinsic object %ObjectPrototype%. */
+        protoParent := getObjectPrototype(false);
+
+        /* 5b. Let constructorParent be the intrinsic object %FunctionPrototype%. */
+        constructorParent := getFunctionPrototype(false)
+    }
+        
+    /* 6. Else */
+    else {
+        /* 6a. Set the running execution context’s LexicalEnvironment to classScope. */
+        setLexicalEnvironment(scope, classScope);
+
+        /* 6b. Let superclass be the result of evaluating ClassHeritage. */
+        superclass := ClassHeritageopt.name;
+
+        /* 6c. Set the running execution context’s LexicalEnvironment to lex. */
+        setLexicalEnvironment(scope, lex);
+
+        /* 6d. ReturnIfAbrupt(superclass). */
+        @ReturnIfAbrupt(superclass);
+
+        /* 6e. If superclass is null, then */
+        if (superclass = null){
+
+            /* 6e i. Let protoParent be null. */
+            protoParent := null;
+
+            /* 6e ii. Let constructorParent be the intrinsic object %FunctionPrototype%. */
+            constructorParent := getFunctionPrototype(false)
+        }
+            
+        /* 6f. Else if IsConstructor(superclass) is false, throw a TypeError exception. */
+        elif (IsConstructor(superclass) = false){
+            throw TypeErrorConstructorInternal()
+        }
+
+        /* 6g. Else */
+        else{
+            /* 6g i. If superclass has a [[FunctionKind]] internal slot whose value is "generator", throw a TypeError exception. */
+            if ("FunctionKind" in_obj superclass && superclass.FunctionKind = "generator"){
+                throw TypeErrorConstructorInternal()
+            };
+            
+            /* 6g ii. Let protoParent be Get(superclass, "prototype"). */
+            protoParent := Get(superclass, "prototype");
+
+            /* 6g iii. ReturnIfAbrupt(protoParent). */
+            @ReturnIfAbrupt(protoParent);
+
+            /* 6g iv. If Type(protoParent) is neither Object nor Null, throw a TypeError exception. */
+            type := Type(protoParent);
+            if (!( type = "Object" || type = "Null")){
+                throw TypeErrorConstructorInternal()
+            };
+
+            /* 6g v. Let constructorParent be superclass. */
+            constructorParent := superclass
+        }
+    };
+        
+    /* 7. Let proto be ObjectCreate(protoParent). */
+    proto := InternalObjectCreate(protoParent);
+
+    /* 8. If ClassBodyopt is not present, let constructor be empty. */
+    /* 9. Else, let constructor be ConstructorMethod of ClassBody. */
+    allMethods := getSeparateMethods(ClassBodyopt.body);
+    constructor := allMethods.constructor;
+
+    /* 10. If constructor is empty, then, */
+    if (constructor = 'empty){
+        /* 10a. If ClassHeritageopt is present, then */
+        if (!(ClassHeritageopt = null)){
+            /* 10a i. Let constructor be the result of parsing the source text
+                constructor(... args){ super (...args);}
+            using the syntactic grammar with the goal symbol MethodDefinition. */
+
+            /* TO-DO */
+        }
+            
+        /* 10b. Else, */
+        else{
+            /* 10b i. Let constructor be the result of parsing the source text
+                constructor( ){ }
+            using the syntactic grammar with the goal symbol MethodDefinition. 
+            
+                Nothing to do! */
+        }
+            
+    };
+        
+    /* 11. Set the running execution context’s LexicalEnvironment to classScope. */
+    setLexicalEnvironment(scope, classScope);
+    
+    /* 12. Let constructorInfo be the result of performing DefineMethod for constructor with arguments proto and constructorParent as the optional functionPrototype argument. */
+    constructorInfo := DefineMethod(scope, proto, constructor, constructorParent); /* TO-DO: Not finished */
+    
+    /* 13. Assert: constructorInfo is not an abrupt completion. */
+    assert(!(isAnAbruptCompletion(constructorInfo)));
+    
+    /* 14. Let F be constructorInfo.[[closure]] */
+    F := constructorInfo.closure;
+    
+    /* 15. If ClassHeritageopt is present, set F’s [[ConstructorKind]] internal slot to "derived". */
+    if (!(ClassHeritageopt = null)){
+        F.ConstructorKind := "derived"
+    };
+
+    /* 16. Perform MakeConstructor(F, false, proto). */
+    MakeConstructor(F, false, proto);
+
+    /* 17. Perform MakeClassConstructor(F). */
+    MakeClassConstructor(F);
+
+    /* 18. Perform CreateMethodProperty(proto, "constructor", F). */
+    CreateMethodProperty(proto, "constructor", F);
+
+    /* 19. If ClassBodyopt is not present, let methods be a new empty List. */
+    /* 20. Else, let methods be NonConstructorMethodDefinitions of ClassBody. */
+    methods := allMethods.regularMethods;
+    
+    /* 21. For each ClassElement m in order from methods */
+    i := 0;
+    len := l_len methods;
+
+    while(i < len){
+        m := l_nth(methods, i);
+
+        /* 21a. If IsStatic of m is false, then */
+        if (m.static = false){
+            /* 21a i. Let status be the result of performing PropertyDefinitionEvaluation for m with arguments proto and false. */
+            status := MethodPropertyDefinitionEvaluation(m, proto, false) /* TO-DO */
+        }
+
+        /* 21b. Else, */
+        else{
+
+            /* 21b i. Let status be the result of performing PropertyDefinitionEvaluation for m with arguments F and false. */
+            status := MethodPropertyDefinitionEvaluation(m, F, false); /* TO-DO */
+        
+            /* 21c. If status is an abrupt completion, then */
+            if (isAnAbruptCompletion(status)){
+
+                /* 21c i. Set the running execution context’s LexicalEnvironment to lex. */
+                setLexicalEnvironment(scope, lex);
+
+                /* 21c ii. Return Completion(status). */
+                return newCompletion(status)
+            }
+            
+        }
+    };
+
+    /* 22. Set the running execution context’s LexicalEnvironment to lex. */
+    setLexicalEnvironment(scope, lex);
+
+    /* 23. If className is not undefined, then */
+    if (!(className = 'undefined)){
+        /* 23a. Perform classScopeEnvRec.InitializeBinding(className, F). */
+        InitializeBinding(classScopeEnvRec, className, F) /* TO-DO */
+    };
+        
+    /* 24. Return F. */
+    return F
+
+};
+
+function getSeparateMethods(body){
+
+    constructor := 'empty;
+    regularMethods := [];
+
+    i := 0;
+    len := l_len body;
+
+    while (i < len){
+        e := l_nth(body, i);
+        if (e.type = "MethodDefinition"){
+            if (e.key.name = "constructor"){
+                constructor := e
+            } else {
+                regularMethods := l_add (regularMethods, e)
+            }
+        };
+        i := i + 1
+    };
+
+    return {constructor: constructor, regularMethods: regularMethods}
+}

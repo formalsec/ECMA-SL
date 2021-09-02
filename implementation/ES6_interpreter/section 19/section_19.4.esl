@@ -260,9 +260,7 @@ function symbolFor(global, this, strict, args) {
 function symbolKeyFor(global, this, strict, args) {
 
   sym := l_nth(args, 0);
-  print "tipo";
-  print sym;
-  print Type(sym);
+  
   /* 1. If Type(sym) is not Symbol, throw a TypeError exception. */
   if (!(Type(sym) = "Symbol")) {
     throw TypeErrorConstructorInternal()
