@@ -1778,9 +1778,9 @@ function JS_Interpreter_RegEx(re, flags) {
   }
   /* Unicode Character (e.g.: '\\u0041') */
   | { type: "Char", value: v, kind: "unicode" } -> {
-print s_concat(["REGEXP UNICODE: ", v]);
+
     v := utf8_decode v;
-print s_concat(["REGEXP UNICODE: ", v]);
+
     m := lambda (st, k) [v] {
       c := stateGetChar(st);
 
