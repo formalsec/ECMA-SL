@@ -252,7 +252,7 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
  */
 function AllocateArrayBuffer(constructor, byteLength) {
 	/* 1. TODO Let obj be OrdinaryCreateFromConstructor(constructor, "%ArrayBufferPrototype%",   «‍[[ArrayBufferData]], [[ArrayBufferByteLength]]» ). */
-	obj := OrdinaryCreateFromConstructorArrayBuffer(constructor, getArrayBufferPrototype(strict), [[ArrayBufferData]], [[ArrayBufferByteLength]]);
+	obj := OrdinaryCreateFromConstructorArrayBuffer(constructor, getArrayBufferPrototype(strict), [ArrayBufferData, ArrayBufferByteLength]);
 	/* 2. ReturnIfAbrupt(obj). */
 	@ReturnIfAbrupt(obj);
 	/* 3. TODO Assert: byteLength is a positive integer. */
@@ -317,7 +317,7 @@ function CloneArrayBuffer(strict, srcBuffer, srcByteOffset, cloneConstructor) {
 	assert ((Type(srcBuffer) = "Object") &&& ("ArrayBufferData" in_obj srcBuffer));
 	/* 2. If cloneConstructor is not present, then */
 	if (cloneConstructor = 'undefined) {
-		/* a. TODO Let cloneConstructor be SpeciesConstructor(srcBuffer, %ArrayBuffer%). */
+		/* a. Let cloneConstructor be SpeciesConstructor(srcBuffer, %ArrayBuffer%). */
 		cloneConstructor := SpeciesConstructor(srcBuffer, getArrayBufferPrototype(strict));
 		/* b. ReturnIfAbrupt(cloneConstructor). */
 		@ReturnIfAbrupt(cloneConstructor);
@@ -397,29 +397,34 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   };
   /* 9. If type is "Float32", then */
   if (type = "Float32") {
-    /* a. TODO Let value be the byte elements of rawValue concatenated and 
+    /* a. Let value be the byte elements of rawValue concatenated and 
        interpreted as a little-endian bit string encoding of an IEEE 754-2008 
        binary32 value. */
+       value := float32_to_le_bytes(rawValue)
     /* b. TODO If value is an IEEE 754-2008 binary32 NaN value, return the NaN Number value */
-    /* c. Return the Number value that corresponds to value. */
+    /* c. TODO Return the Number value that corresponds to value. */
   };
   /* 10. If type is "Float64", then */
   if (type = "Float64") {
     /* a. TODO Let value be the byte elements of rawValue concatenated and 
        interpreted as a little-endian bit string encoding of an IEEE 754-2008 
        binary64 value. */
-    /* b. If value is an IEEE 754-2008 binary64 NaN value, return the NaN Number value */
-    /* c. Return the Number value that corresponds to value. */
+    value := float64_to_le_bytes(rawValue)
+    /* b. TODO If value is an IEEE 754-2008 binary64 NaN value, return the NaN Number value */
+    /* c. TODO Return the Number value that corresponds to value. */
   };
-  /* 11. TODO If the first code unit of type is "U", then */
+  /* 11. If the first code unit of type is "U", then */
+  if (l_nth(type, 0) = "U") {
   /* a. TODO Let intValue be the byte elements of rawValue concatenated and 
    interpreted as a bit string encoding of an unsigned little-endian 
    binary number. */
   /* 12. Else */
+  } else  {
   /* a. TODO Let intValue be the byte elements of rawValue concatenated and interpreted as
    a bit string encoding of a binary little-endian 2’s complement number of bit length elementSize × 8. */
-  /* 13. Return the Number value that corresponds to intValue. */
-  return Number
+  };
+  /* 13. TODO Return the Number value that corresponds to intValue. */
+  return
 };
 
 /**
@@ -446,22 +451,33 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
   /* 7. Let elementSize be the Number value of the Element Size value 
      specified in Table 49 for Element Type type. */
   elementSize := getElementSize(type);
-  /* 8. If isLittleEndian is not present, set isLittleEndian to either true or false. The choice is 
-  implementation dependent and should be the alternative that is most 
-  efficient for the implementation. An implementation must use the same 
-  value each time this step is executed and the same value must be used 
-  for the corresponding step in the GetValueFromBuffer abstract operation */
+  /* 8. TODO If isLittleEndian is not present */
   if (!(isLittleEndian = present)) {
+    /* set isLittleEndian to either true or false. The choice is 
+    implementation dependent and should be the alternative that is most 
+    efficient for the implementation. An implementation must use the same 
+    value each time this step is executed and the same value must be used 
+    for the corresponding step in the GetValueFromBuffer abstract operation */
   };
   /* 9. If type is "Float32", then */
   if (type = "Float32") {
     /* TODO a. Set rawBytes to a List containing the 4 bytes that are the result of 
     converting value to IEEE 754-2008 binary32 format using “Round to 
-    nearest, ties to even” rounding mode. If isLittleEndian is false, the 
-    bytes are arranged in big endian order. Otherwise, the bytes are 
-    arranged in little endian order. If value is NaN, rawValue may be set 
+    nearest, ties to even” rounding mode. */ 
+    /* If isLittleEndian is false */
+    if (isLittleEndian = false) {
+      /* the bytes are arranged in big endian order. */
+      rawBytes := float32_to_be_bytes(value)
+    } else {
+      /* Otherwise, the bytes are 
+      arranged in little endian order. */
+      rawBytes := float32_to_le_bytes(value)
+    };
+    /*If value is NaN, rawValue may be set 
     to any implementation chosen IEEE 754-2008 binary64 format 
-    Not-a-Number encoding. An implementation must always choose the same 
+    Not-a-Number encoding. */
+    if (value = NaN) {}
+    /* An implementation must always choose the same 
     encoding for each implementation distinguishable NaN value. */
   };
   /* 10. Else, if type is "Float64" */ 
