@@ -298,7 +298,7 @@ function SetFunctionName(F, name, prefix) {
 
   /* 1. Assert: F is an extensible object that does not have a name own 
      property. */
-  assert(ObjectIsExtensible(F) &&& !(HasOwnProperty(F, "name")));
+  /* assert(ObjectIsExtensible(F) &&& !(HasOwnProperty(F, "name"))); TO-DO */
 
   /* 2. Assert: Type(name) is either Symbol or String. */
   type := Type(name);
@@ -308,7 +308,7 @@ function SetFunctionName(F, name, prefix) {
   assert(prefix = null ||| Type(prefix) = "String");
 
   /* 4. If Type(name) is Symbol, then */
-  if (Type(name) = Symbol) {
+  if (type = "Symbol") {
 
     /* a. Let description be name’s [[Description]] value. */
     description := name.Description;
@@ -343,50 +343,6 @@ function SetFunctionName(F, name, prefix) {
   return
 };
 
-function DefineMethodAlt(){
-	F := CreateFunctionObject(); /* Parâmetros a definir */
-	return { closure: F } 
-};
-
-/**
- * 14.3.8 Runtime Semantics: DefineMethod
- *
- * With parameters object and optional parameter functionPrototype. 
- */
-function DefineMethod(scope, object, method, functionPrototype) {
-
-  /* 1. Let propKey be the result of evaluating PropertyName. */
-  propKey := method.key.name;
-
-  /* 2. ReturnIfAbrupt(propKey). */
-  @ReturnIfAbrupt(propKey);
-
-  /* 3. If the function code for this MethodDefinition is strict mode code, let strict be true. Otherwise let strict be false. */
-  strict := isStrictModeCode(getFunctionCode(functionPrototype), scope);
-
-  /* 4. Let scope be the running execution context’s LexicalEnvironment. */
-  scope := getLexicalEnvironment(scope);
-
-  /* 5. If functionPrototype was passed as a parameter, let kind be Normal; otherwise let kind be Method. */
-  if (!(functionPrototype = null)) {
-	  kind := "Normal"
-  } else {
-	  kind := "Method"
-  };
-
-  /* 6. Let closure be FunctionCreate(kind, StrictFormalParameters, 
-     FunctionBody, scope, strict). If functionPrototype was passed as a 
-     parameter then pass its value as the functionPrototype optional 
-     argument of FunctionCreate. */
-  /* closure := CreateBuiltInFunctionObject(???); */
-
-  /* 7. Perform MakeMethod(closure, object). */
-  /* MakeMethod(closure, object); */
-
-  /* 8. Return the Record{[[key]]: propKey, [[closure]]: closure}. */
-  return {key: propKey, closure: closure}
-};
-
 /**
  * 9.2.8 MakeConstructor (F, writablePrototype, prototype)
  *
@@ -406,7 +362,7 @@ function MakeConstructor(F, writablePrototype, prototype) {
 
   /* 3. Assert: F is an extensible object that does not have a prototype own 
      property. */
-  assert(ObjectIsExtensible(F) &&& !(HasOwnProperty(F, "prototype")));
+  /* assert(InternalObjectIsExtensible(F) &&& !(HasProperty(F, "prototype"))); TO-DO */
 
   /* 4. If the writablePrototype argument was not provided, let writablePrototype be true */
   if (writablePrototype = null) {
@@ -463,7 +419,7 @@ function DefinePropertyOrThrow(O, P, desc) {
   assert(IsPropertyKey(P) = true);
 
   /* 3. Let success be O.[[DefineOwnProperty]](P, desc). */
-  success := DefineOwnProperty(O, P, desc, false);
+  success := {O.DefineOwnProperty}(O, P, desc, false);
 
   /* 4. ReturnIfAbrupt(success). */
   @ReturnIfAbrupt(success);
@@ -496,4 +452,58 @@ function MakeMethod(F, homeObject) {
 
   /* 4. Return NormalCompletion(undefined). */
   return NormalCompletion('undefined)
+};
+
+/**
+*  7.3.3 Set (O, P, V, Throw)
+*
+*  The abstract operation Set is used to set the value of a specific property of an object.
+*  The operation is called with arguments O, P, V, and Throw where O is the object, P is the 
+*  property key, V is the new value for the property and Throw is a Boolean flag. This
+*  abstract operation performs the following steps:
+*/
+
+function Set (O, P, V, Throw) {
+	{O.Put}(O, P, V, Throw);
+	return true
+};
+
+function InternalObjectIsExtensible(O){
+  return ObjectIsExtensible(|global|, |objectConstructor|, false, [O])
+};
+
+/*9.2.9 MakeClassConstructor (F)
+
+  The abstract operation MakeClassConstructor with argument F performs the following steps:*/
+
+function MakeClassConstructor(F){
+  F.FunctionKind := "classConstructor";
+  return NormalCompletion('undefined)
+};
+
+/**
+ * 7.3.5 CreateMethodProperty (O, P, V)
+ *
+ * The abstract operation CreateMethodProperty is used to create a new own 
+ * property of an object. The operation is called with arguments O, P, and V 
+ * where O is the object, P is the property key, and V is the value for the 
+ * property. This abstract operation performs the following steps: 
+ */
+function CreateMethodProperty(O, P, V) {
+  /* 1. Assert: Type(O) is Object. */
+  assert(Type(O) = "Object");
+  /* 2. Assert: IsPropertyKey(P) is true. */
+  assert(IsPropertyKey(P) = true);
+  /* 3. Let newDesc be the PropertyDescriptor{[[Value]]: V, [[Writable]]: 
+     true, [[Enumerable]]: false, [[Configurable]]: true}. */
+  newDesc := newDataPropertyDescriptorFull(V, true, false, true);
+  /* 4. Return O.[[DefineOwnProperty]](P, newDesc). */
+  return {O.DefineOwnProperty}(O, P, newDesc, false)
 }
+/**
+ * NOTE This abstract operation creates a property whose attributes are set to 
+ * the same defaults used for built-in methods and methods defined using class 
+ * declaration syntax. Normally, the property will not already exist. If it does 
+ * exist and is not configurable or if O is not extensible, 
+ * [[DefineOwnProperty]] will return false. 
+ */
