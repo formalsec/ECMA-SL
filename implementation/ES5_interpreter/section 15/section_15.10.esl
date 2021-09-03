@@ -1739,10 +1739,6 @@ function JS_Interpreter_RegEx(re, flags) {
     dec_code := octal_to_decimal (int_of_string c);
     c := from_char_code_u dec_code;
 
-print "INSIDE DECIMAL";
-print dec_code;
-print c;
-
     m := lambda (st, k) [c] {
       c2 := stateGetChar(st);
       if (c = null) {
@@ -1782,9 +1778,9 @@ print c;
   }
   /* Unicode Character (e.g.: '\\u0041') */
   | { type: "Char", value: v, kind: "unicode" } -> {
-
+print s_concat(["REGEXP UNICODE: ", v]);
     v := utf8_decode v;
-
+print s_concat(["REGEXP UNICODE: ", v]);
     m := lambda (st, k) [v] {
       c := stateGetChar(st);
 
