@@ -839,36 +839,34 @@ function arrayReverse(global, this, strict, args) {
           internal method of O with argument upperP. */
     upperExists := {O.HasProperty}(O, upperP);
     /* h. If lowerExists is true and upperExists is true, then */
-    if (lowerExists = true && upperExists = true) {
+    if (lowerExists = true &&& upperExists = true) {
       /* i. Call the [[Put]] internal method of O with arguments lowerP,
             upperValue, and true . */
       {O.Put}(O, lowerP, upperValue, true);
       /* ii. Call the [[Put]] internal method of O with arguments upperP,
              lowerValue, and true . */
       {O.Put}(O, upperP, lowerValue, true)
+    }
+    /* i. Else if lowerExists is false and upperExists is true, then */
+    elif (lowerExists = false &&& upperExists = true) {
+      /* i. Call the [[Put]] internal method of O with arguments lowerP,
+            upperValue, and true . */
+      {O.Put}(O, lowerP, upperValue, true);
+      /* ii. Call the [[Delete]] internal method of O, with arguments upperP
+            and true. */
+      {O.Delete}(O, upperP, true)
+    }
+    /* j. Else if lowerExists is true and upperExists is false, then */
+    elif (lowerExists = true &&& upperExists = false) {
+      /* i. Call the [[Delete]] internal method of O, with arguments lowerP
+            and true . */
+      {O.Delete}(O, lowerP, true);
+      /* ii. Call the [[Put]] internal method of O with arguments upperP,
+            lowerValue, and true . */
+      {O.Put}(O, upperP, lowerValue, true)
     } else {
-      /* i. Else if lowerExists is false and upperExists is true, then */
-      if (lowerExists = false && upperExists = true) {
-        /* i. Call the [[Put]] internal method of O with arguments lowerP,
-              upperValue, and true . */
-        {O.Put}(O, lowerP, upperValue, true);
-        /* ii. Call the [[Delete]] internal method of O, with arguments upperP
-              and true. */
-        {O.Delete}(O, upperP, true)
-      } else {
-        /* j. Else if lowerExists is true and upperExists is false, then */
-        if (lowerExists = true && upperExists = false) {
-          /* i. Call the [[Delete]] internal method of O, with arguments lowerP
-                and true . */
-          {O.Delete}(O, lowerP, true);
-          /* ii. Call the [[Put]] internal method of O with arguments upperP,
-                lowerValue, and true . */
-          {O.Put}(O, upperP, lowerValue, true)
-        } else {
-          /* k. Else, both lowerExists and upperExists are false */
-          /* i. No action is required. */
-        }
-      }
+      /* k. Else, both lowerExists and upperExists are false */
+      /* i. No action is required. */
     };
     /* l. Increase lower by 1. */
     lower := lower + 1.
