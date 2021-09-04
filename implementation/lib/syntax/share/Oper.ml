@@ -1,4 +1,4 @@
-open Date_Utils 
+(*open Date_Utils *)
 
 type const = MAX_VALUE
            | MIN_VALUE
@@ -299,9 +299,18 @@ let parse_string (v : Val.t) : Val.t = match v with
         else Str("")
 | _  -> invalid_arg "Exception in Oper.parse_string: this operation is only applicable to a String argument"
 
+
 let parse_date (v :Val.t) : Val.t = match v with
-  | Str s ->
-    Printf.printf "parse_date with string: %s\n" s;
+  | Str s -> 
+    let res = Date_Utils.parse_date s in
+    (match res with 
+      | None -> Val.Flt (-(1.)) 
+      | Some ([year; month; day; hour; min; sec; msec], tz) -> Val.List [Val.Flt year; Val.Flt month; Val.Flt day; Val.Flt hour; Val.Flt min; Val.Flt sec; Val.Flt msec; Val.Str tz]
+      | _ -> raise (Failure "Impossible: parse_date")
+    )
+    
+      
+   (* Printf.printf "parse_date with string: %s\n" s;
     (*YYYY-MM-DDTHH:mm:ss.sssZ*)
     let re = Str.regexp "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)T\\([0-9][0-9]\\):\\([0-9][0-9]\\):\\([0-9][0-9]\\).\\([0-9][0-9][0-9]\\)" in
     (*let year_regex = Str.regexp "\\([0-9][0-9][0-9][0-9]\\)" in *)
@@ -320,7 +329,7 @@ let parse_date (v :Val.t) : Val.t = match v with
       Printf.printf "Matched successfully %s\n" group0;
       Val.List [Val.Str group0; Val.Str year; Val.Str month; Val.Str day; Val.Str hour; Val.Str mins; Val.Str sec; Val.Str ms]
     ) 
-    else Val.Flt (-(1.))
+    else Val.Flt (-(1.)) *)
   | _  -> invalid_arg "Exception in Oper.parse_date: this operation is only applicable to a String argument"
 
 let list_in (v1, v2 : Val.t * Val.t) : Val.t = match v2 with

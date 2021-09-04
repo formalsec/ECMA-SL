@@ -431,4 +431,12 @@ function getSearchPropertyName(){
 
 function getSplitPropertyName(){
   return "Symbol(split)"
+};
+
+function getToPrimitivePropertyName() {
+  return "Symbol(toPrimitive)"
+};
+
+function getUnscopablesPropertyName() {
+  return "Symbol(unscopables)"
 }

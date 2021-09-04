@@ -15,13 +15,13 @@ function initDateObject(globalObject, ObjectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull("Date", false, false, true);
   setJSProperty(dateConstructor, "name", descriptor);
 
-  descriptor := newDataPropertyDescriptorFull(7., false, false, false);
+  descriptor := newDataPropertyDescriptorFull(7., false, false, true);
   setJSProperty(dateConstructor, "length", descriptor);
 
   |msPerDay| := 86400000.; /* TODO change to constant */
-  |LocalTZA| := 1000.;
+  |LocalTZA| := 0.;
 
-  return dateConstructor
+  return dateConstructor /* -2%9  -> -2 */
 };
 
 /* 20.3.1 Overview of Date Objects and Definitions of Abstract Operators */
@@ -169,47 +169,52 @@ function InLeapYear(t) {
 
 function MonthFromTime(t) {
   print("in MonthFromTime");
-  print(YearFromTime(t));
-  print(DayWithinYear(t));
-  print(InLeapYear(t));
+  dayWithinYear := DayWithinYear(t);
+  inLeapYear := InLeapYear(t);
 
-   if (0. <= DayWithinYear(t) &&& DayWithinYear(t) < 31.) {
+  print(YearFromTime(t));
+  print(dayWithinYear);
+  print(inLeapYear);
+
+   if (0. <= dayWithinYear &&& dayWithinYear < 31.) {
       return 0.
    }
-   elif (31. <= DayWithinYear(t) &&& DayWithinYear(t) < 59. + InLeapYear(t)) {
+   elif (31. <= dayWithinYear &&& dayWithinYear < 59. + inLeapYear) {
       return 1.
    }
-   elif (59. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t) < 90. + InLeapYear(t)) {
+   elif (59. + inLeapYear <= dayWithinYear &&& dayWithinYear < 90. + inLeapYear) {
       return 2.
    }
-   elif (90. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t) < 120. + InLeapYear(t)) {
+   elif (90. + inLeapYear <= dayWithinYear &&& dayWithinYear < 120. + inLeapYear) {
       return 3.
    }
-   elif (120. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t) < 151. + InLeapYear(t)) {
+   elif (120. + inLeapYear <= dayWithinYear &&& dayWithinYear < 151. + inLeapYear) {
       return 4.
    }
-   elif (151. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t) < 181. + InLeapYear(t)) {
+   elif (151. + inLeapYear <= dayWithinYear &&& dayWithinYear < 181. + inLeapYear) {
       return 5.
    }
-   elif (181. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 212. + InLeapYear(t)) {
+   elif (181. + inLeapYear <= dayWithinYear &&& dayWithinYear< 212. + inLeapYear) {
       return 6.
    }
-   elif (212. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 243. + InLeapYear(t)) {
+   elif (212. + inLeapYear <= dayWithinYear &&& dayWithinYear< 243. + inLeapYear) {
       return 7.
    }
-   elif (243. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 273. + InLeapYear(t)) {
+   elif (243. + inLeapYear <= dayWithinYear &&& dayWithinYear< 273. + inLeapYear) {
       return 8.
    }
-   elif (273. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 304. + InLeapYear(t)) {
+   elif (273. + inLeapYear <= dayWithinYear &&& dayWithinYear< 304. + inLeapYear) {
       return 9.
    }
-   elif (304. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 334. + InLeapYear(t)) {
+   elif (304. + inLeapYear <= dayWithinYear &&& dayWithinYear< 334. + inLeapYear) {
       return 10.
    }
-   elif (334. + InLeapYear(t) <= DayWithinYear(t) &&& DayWithinYear(t)< 365. + InLeapYear(t)) {
+   elif (334. + inLeapYear <= dayWithinYear &&& dayWithinYear< 365. + inLeapYear) {
       return 11.
    }
-   elif(t = NaN) { /* TODO provisorio*/
+   /* Note that, in every case, if any argument to 
+    one of these functions is NaN, the result will be NaN.*/
+   elif(t = NaN) { 
      return NaN
    }
 };
@@ -282,8 +287,10 @@ function DateFromTime(t) {
   elif (MonthFromTime = 11.) {
      return DayWithinYear - 333. - InLeapYear
   }
-  elif(MonthFromTime = NaN) {
-    return NaN /* TODO provisorio */
+  /* Note that, in every case, if any argument to 
+  one of these functions is NaN, the result will be NaN.*/
+  elif(t = NaN) {
+    return NaN 
   }
 };
 
@@ -314,7 +321,7 @@ function WeekDay(t) { return (Day(t) + 4.) % 7. };
 /*               WeekDay(TimeFromYear(YearFromTime(t))) */
 /* and (4) the geographic location. */
 /* NOTE It is recommended that implementations use the time zone information of the IANA Time Zone Database http://www.iana.org/time-zones/. */
-function DaylightSavingTA(t) {return 1000. /* TODO */};
+function DaylightSavingTA(t) {return 0. /* TODO */};
 
 /* 20.3.1.9 Local Time */
 /* The abstract operation LocalTime with argument t converts t from UTC 
@@ -417,7 +424,7 @@ function MakeTime(hour, mins, sec, ms) {
 
   /* 6. Let t be h * msPerHour + m * msPerMinute + s * msPerSecond + milli, 
    TODO ?? performing the arithmetic according to IEEE 754-2008 rules ?? (that is, as if using the ECMAScript operators * and +). */
-  t := h * msPerHour + m * msPerMinute + s * msPerSecond + milli;
+  t := (h * msPerHour) + (m * msPerMinute) + (s * msPerSecond) + milli;
   
   /* 7. Return t. */
    return t
@@ -633,11 +640,15 @@ function OrdinaryCreateFromConstructorDate(global, this, strict, items) {
   newlyConstructedObject := NewECMAScriptObject();
   setAllInternalMethodsOfObject(newlyConstructedObject);
 
-
+  /* The [[Prototype]] internal property of the newly constructed object is set to the original Date prototype object,
+    the one that is the initial value of Date.prototype. */
   setInternalProperty(newlyConstructedObject, "Prototype", datePrototype);
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  setInternalProperty(newlyConstructedObject, "Class", "Object");
-
+  
+  /* The [[Class]] internal property of the newly constructed object is set to "Date". */
+  setInternalProperty(newlyConstructedObject, "Class", "Date");
+  
+  /* The [[Extensible]] internal property of the newly constructed object is set to true. */
+  setInternalProperty(newlyConstructedObject, "Extensible", true); 
   return newlyConstructedObject
 };
 
@@ -768,6 +779,11 @@ print(seconds);
 print(s);
 print(ms);
 print(milli);
+
+print(MakeDay(yr, m, dt));
+print(MakeTime(h, mins, s, milli));
+
+
     /* p. Let finalDate be MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli)). */
     finalDate := MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli));
 
@@ -1448,8 +1464,6 @@ function DatePrototypeSetDate (global, this, strict, args) {
 
   /* 4. ReturnIfAbrupt(dt). */
   @ReturnIfAbrupt(dt);
-
-
   
   /* 5. Let newDate be MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t)). */
   newDate := MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), dt), TimeWithinDay(t));
@@ -1544,6 +1558,7 @@ function DatePrototypeSetFullYear (global, this, strict, args) {
  *      with the value getMilliseconds().
  */
 function DatePrototypeSetHours (global, this, strict, args) {
+  print("in DatePrototypeSetHours");
   hour := l_nth(args, 0);
   mins := getOptionalParam(args, 1);
   sec := getOptionalParam(args, 2);
@@ -1556,6 +1571,7 @@ function DatePrototypeSetHours (global, this, strict, args) {
 
   /* 3. Let y be ToNumber(hour). */
   h := ToNumber(hour);
+  print(h);
   /* 4. ReturnIfAbrupt(h). */
   @ReturnIfAbrupt(h);
   
@@ -2299,7 +2315,7 @@ function DatePrototypeToString(globalObject, this, strict, args) {
    /* 3. Else, */
    else{
       /* a. Let tv be this time value. */
-      tv := O.DateValue
+      tv := thisTimeValue(this)
    };
 
    /* 4. Return ToDateString(tv). */
@@ -2340,7 +2356,38 @@ function DatePrototypeToTimeString(globalObject, this, strict, args) {
  *
  */
 function DatePrototypeToUTCString(globalObject, this, strict, args) {
-  return toDateString(thisTimeValue(this))
+  tv := thisTimeValue(this);
+
+  if (tv = NaN){
+    return "Invalid Date"
+  };
+
+  /*Sun, 23 Mar 2014 00:00:00 GMT*/
+  months := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  week := ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  year := padding(YearFromTime(tv), 4);
+  print(MonthFromTime(tv));
+  print(WeekDay(tv));
+
+  month := l_nth(months, int_of_float (MonthFromTime(tv)));
+  
+  day := padding(DateFromTime(tv), 2);
+  
+  weekday := l_nth(week, int_of_float (WeekDay(tv)));
+  
+  print(tv);
+  print(WeekDay(tv));
+  print(Day(tv));
+  
+  hours := padding(HourFromTime(tv), 2);
+  minutes := padding(MinFromTime(tv), 2);
+  seconds := padding(SecFromTime(tv), 2);
+  
+  repr := s_concat[weekday, ", ", day, " ", month, " ", year, " ", hours, ":", minutes, ":", seconds, " GMT"];
+  
+  print(repr);
+  return repr
 };
 
 
@@ -2351,6 +2398,50 @@ function DatePrototypeValueOf (globalObject, this, strict, args) {
   print("in DatePrototypeValueOf");
   /* The valueOf function returns a Number, which is this time value. */
   return thisTimeValue(this)
+};
+
+/**
+ * 20.3.4.45 Date.prototype [ @@toPrimitive ] ( hint )
+ *
+ * This function is called by ECMAScript language operators to 
+ * convert a Date object to a primitive value. 
+ * The allowed values for hint are "default", "number", and "string". 
+ * Date objects, are unique among built-in ECMAScript object in that they 
+ * treat "default" as being equivalent to "string", 
+ * All other built-in ECMAScript objects treat "default" as being equivalent to "number".
+ *
+ */
+function DatePrototypeToPrimitive (globalObject, this, strict, args) {
+  print("in DatePrototypeToPrimitive");
+  hint := l_nth(args, 0);
+  print(hint);
+  /* 1. Let O be the this value. */
+  O := this;
+  print(O);
+  print(Type(O));
+  /* 2. If Type(O) is not Object, throw a TypeError exception. */
+  if (!(Type(O) = "Object")) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 3. If hint is the String value "string" or the String value "default" , then */
+  if (hint = "string" ||| hint = "default") {
+    /* a. Let tryFirst be "string". */
+    tryFirst := 'String /* TODO */
+  }
+  /* 4. Else if hint is the String value "number", then */
+  elif (hint = "number") {
+    /* a. Let tryFirst be "number". */
+    tryFirst := 'Number
+  }
+  /* 5. Else, throw a TypeError exception. */
+  else {
+    throw TypeErrorConstructorInternal()
+  };
+  
+  /* 6. Return OrdinaryToPrimitive(O, tryFirst). */
+  /* fail "OrdinaryToPrimitive not fully implemented yet"; */
+  return ToPrimitive(O, tryFirst)
 };
 
 
@@ -2664,85 +2755,132 @@ function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, s
   /* 20.3.4.25 Date.prototype.setMonth (month [, date ] ) */
   setMonth := CreateBuiltInFunctionObject(["month", "date"], "DatePrototypeSetMonth", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setMonth", setMonth);
-  
+  setJSProperty(setMonth, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(setMonth, "name", newDataPropertyDescriptorFull("setMonth", false, false, true));
+
   /* 20.3.4.26 Date.prototype.setSeconds (sec [, ms ] ) */
   setSeconds := CreateBuiltInFunctionObject(["sec", "ms"], "DatePrototypeSetSeconds", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setSeconds", setSeconds);
+  setJSProperty(setSeconds, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(setSeconds, "name", newDataPropertyDescriptorFull("setSeconds", false, false, true));
 
   /* 20.3.4.27 Date.prototype.setTime (time) */
   setTime := CreateBuiltInFunctionObject(["time"], "DatePrototypeSetTime", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "setTime", setTime);
+  setJSProperty(setTime, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(setTime, "name", newDataPropertyDescriptorFull("setTime", false, false, true));
 
   /* 20.3.4.28 Date.prototype.setUTCDate (date) */
   setUTCDate := CreateBuiltInFunctionObject(["date"], "DatePrototypeSetUTCDate", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "setUTCDate", setUTCDate);
+  setJSProperty(setUTCDate, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(setUTCDate, "name", newDataPropertyDescriptorFull("setUTCDate", false, false, true));
   
   /* 20.3.4.29 Date.prototype.setUTCFullYear (year [, month [, date ] ] ) */
   setUTCFullYear := CreateBuiltInFunctionObject(["year", "month", "date"], "DatePrototypeSetUTCFullYear", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setUTCFullYear", setUTCFullYear);
+  setJSProperty(setMinutes, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setMinutes, "name", newDataPropertyDescriptorFull("setMinutes", false, false, true));
 
   /* 20.3.4.30  Date.prototype.setUTCHours (hour [, min [, sec [, ms ] ] ] ) */
   setUTCHours := CreateBuiltInFunctionObject(["hour", "min", "sec", "ms"], "DatePrototypeSetUTCHours", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setUTCHours", setUTCHours);
+  setJSProperty(setUTCHours, "length", newDataPropertyDescriptorFull(4., false, false, true));
+  setJSProperty(setUTCHours, "name", newDataPropertyDescriptorFull("setUTCHours", false, false, true));
 
   /* 20.3.4.31 Date.prototype.setUTCMilliseconds (ms) */
   setUTCMilliseconds := CreateBuiltInFunctionObject(["ms"], "DatePrototypeSetUTCMilliseconds", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "setUTCMilliseconds", setUTCMilliseconds);
+  setJSProperty(setUTCMilliseconds, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(setUTCMilliseconds, "name", newDataPropertyDescriptorFull("setUTCMilliseconds", false, false, true));
 
   /* 20.3.4.32 Date.prototype.setUTCMinutes (min [, sec [, ms ] ] ) */
   setUTCMinutes := CreateBuiltInFunctionObject(["min", "sec", "ms"], "DatePrototypeSetUTCMinutes", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setUTCMinutes", setUTCMinutes);
+  setJSProperty(setUTCMinutes, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setUTCMinutes, "name", newDataPropertyDescriptorFull("setUTCMinutes", false, false, true));
 
   /* 20.3.4.33 Date.prototype.setUTCMonth (month [, date ] ) */
   setUTCMonth := CreateBuiltInFunctionObject(["month", "date"], "DatePrototypeSetUTCMonth", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setUTCMonth", setUTCMonth);
+  setJSProperty(setUTCMonth, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(setUTCMonth, "name", newDataPropertyDescriptorFull("setUTCMonth", false, false, true));
 
   /* 20.3.4.34 Date.prototype.setUTCSeconds (sec [, ms ] ) */
   setUTCSeconds := CreateBuiltInFunctionObject(["sec", "ms"], "DatePrototypeSetUTCSeconds", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setUTCSeconds", setUTCSeconds);
+  setJSProperty(setUTCSeconds, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(setUTCSeconds, "name", newDataPropertyDescriptorFull("setUTCSeconds", false, false, true));
 
   /* 20.3.4.35 Date.prototype.toDateString ( ) */
   toDateString := CreateBuiltInFunctionObject([], "DatePrototypeToDateString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toDateString", toDateString);
+  setJSProperty(toDateString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toDateString, "name", newDataPropertyDescriptorFull("toDateString", false, false, true));
   
   /* 20.3.4.36 Date.prototype.toISOString ( ) */
   toISOString := CreateBuiltInFunctionObject([], "DatePrototypeToISOString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toISOString", toISOString);
+  setJSProperty(toISOString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toISOString, "name", newDataPropertyDescriptorFull("toISOString", false, false, true));
 
   /* 20.3.4.37 Date.prototype.toJSON ( key ) */
   toJSON := CreateBuiltInFunctionObject(["key"], "DatePrototypeToJSON", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toJSON", toJSON);
+  setJSProperty(toJSON, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(toJSON, "name", newDataPropertyDescriptorFull("toJSON", false, false, true));
 
   /* 20.3.4.38 Date.prototype.toLocaleDateString ( ) */
   toLocaleDateString := CreateBuiltInFunctionObject([], "DatePrototypeToLocaleDateString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toLocaleDateString", toLocaleDateString);
+  setJSProperty(toLocaleDateString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toLocaleDateString, "name", newDataPropertyDescriptorFull("toLocaleDateString", false, false, true));
 
   /* 20.3.4.39 Date.prototype.toLocaleString ( ) */
   toLocaleString := CreateBuiltInFunctionObject([], "DatePrototypeToLocaleString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toLocaleString", toLocaleString);
+  setJSProperty(toLocaleString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toLocaleString, "name", newDataPropertyDescriptorFull("toLocaleString", false, false, true));
   
   /* 20.3.4.40 Date.prototype.toLocaleTimeString ( ) */
   toLocaleTimeString := CreateBuiltInFunctionObject([], "DatePrototypeToLocaleTimeString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toLocaleTimeString", toLocaleTimeString);
+  setJSProperty(toLocaleTimeString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toLocaleTimeString, "name", newDataPropertyDescriptorFull("toLocaleTimeString", false, false, true));
 
   /* 20.3.4.41 Date.prototype.toString ( ) */
   toString := CreateBuiltInFunctionObject([], "DatePrototypeToString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toString", toString);
-
+  setJSProperty(toString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toString, "name", newDataPropertyDescriptorFull("toString", false, false, true));
    
   /* 20.3.4.42 Date.prototype.toTimeString ( ) */
   toTimeString := CreateBuiltInFunctionObject([], "DatePrototypeToTimeString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toTimeString", toTimeString);
+  setJSProperty(toTimeString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toTimeString, "name", newDataPropertyDescriptorFull("toTimeString", false, false, true));
 
   /* 20.3.4.43 Date.prototype.toUTCString ( ) */
   toUTCString := CreateBuiltInFunctionObject([], "DatePrototypeToUTCString", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "toUTCString", toUTCString);
+  setJSProperty(toUTCString, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(toUTCString, "name", newDataPropertyDescriptorFull("toUTCString", false, false, true));
    
   /* 20.3.4.44 Date.prototype.valueOf ( ) */
   valueOf := CreateBuiltInFunctionObject([], "DatePrototypeValueOf", globalObject, strict, null);
   createBuiltInProperty(datePrototypeObject, "valueOf", valueOf);
+  setJSProperty(valueOf, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(valueOf, "name", newDataPropertyDescriptorFull("valueOf", false, false, true));
 
-    return datePrototypeObject
+  /* 20.3.4.45 Date.prototype [ @@toPrimitive ] ( hint ) */
+  toPrimitive := CreateBuiltInFunctionObject(["hint"], "DatePrototypeToPrimitive", globalObject, strict, null);
+  setJSProperty(datePrototypeObject, getToPrimitivePropertyName(), newDataPropertyDescriptorFull(toPrimitive, false, false, true));
+  setJSProperty(toPrimitive, "length", newDataPropertyDescriptorFull(1., false, false, true));
+  setJSProperty(toPrimitive, "name", newDataPropertyDescriptorFull("[Symbol.toPrimitive]", false, false, true));
+
+ 
+  
+  return datePrototypeObject
 };
 
 
@@ -2811,7 +2949,7 @@ function padding(number, size) {
 function TimeFromMonth(m, t) {
   print("in TimeFromMonth");
 
-  /* TODO change modulo ? in Oper.ml*/
+  /* TODO change modulo*/
   if (m < 0.) {
     m := m - 12. * floor(m / 12.) 
   };
@@ -2832,31 +2970,51 @@ function TimeFromMonth(m, t) {
 
 function auxParseDate(string) {
   list := parse_date(string);
-  print("inside parseDate if");
+  print("inside auxParseDate");
   print(list);
   if (list = - (1.)) {
     return NaN
   }
   else {
 
-    yr := float_of_string(l_nth(list, 1));
-    m := float_of_string(l_nth(list, 2));
-    dt := float_of_string(l_nth(list, 3));
-    h := float_of_string(l_nth(list, 4));
-    mins := float_of_string(l_nth(list, 5));
-    s := float_of_string(l_nth(list, 6));
-    milli := float_of_string(l_nth(list, 7));
+    yr := l_nth(list, 0);
+    m := l_nth(list, 1) - 1.; 
+    dt := l_nth(list, 2);
+    h := l_nth(list, 3);
+    mins := l_nth(list, 4);
+    sec := l_nth(list, 5);
+    milli := l_nth(list, 6);
 
     print(yr);
     print(m); 
     print(dt);
     print(h); 
     print(mins);
-    print(s);
+    print(sec);
     print(milli);
 
+
+    if (m = NaN) {
+      m := 0.
+    };
+    if (dt = NaN) {
+      dt := 1.
+    };
+    if (h = NaN) {
+      h := 0.
+    };
+    if (mins = NaN) {
+      mins := 0.
+    };
+    if (sec = NaN) {
+      sec := 0.
+    };
+    if (milli = NaN) {
+      milli := 0.
+    };
+
     print(MakeDay(yr ,m ,dt));
-    print(MakeTime(h, mins, s, milli));
-    return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli)))
+    print(MakeTime(h, mins, sec, milli));
+    return TimeClip(MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, sec, milli)))
   }
 }
