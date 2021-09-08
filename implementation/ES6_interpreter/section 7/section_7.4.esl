@@ -52,6 +52,11 @@ function GetIterator(obj, method) {
         /* a. Let method be GetMethod(obj, @@iterator). */
         method := GetMethod(obj, iteratorFunName);
 
+        /* TODO perceber Map/iterator-close-after-set-failure.js */
+        if ((method = 'null) ||| (method = 'undefined)) {
+            throw TypeErrorConstructorInternal()
+        };
+
         /* b. ReturnIfAbrupt(method). */
         @ReturnIfAbrupt(method)
     }; 
@@ -76,7 +81,6 @@ function GetIterator(obj, method) {
 */
 
 function IteratorClose(iterator, completion) {
-
     /* 1. Assert: Type(iterator) is Object. */
     assert(Type(iterator) = "Object");
 
@@ -91,28 +95,35 @@ function IteratorClose(iterator, completion) {
 
     /* 5. If return is undefined, return Completion(completion). */
     if (returnVar = 'undefined) {
-        return completion
+        print "DEBUG IteratorClose 1";
+        throw getCompletionValue(completion)
     };
 
     /* 6. Let innerResult be Call(return, iterator, «‍ »). */
-    innerResult := Call(null, null, returnVar, iterator, []);
+    innerResult := WrappedCall(null, null, returnVar, iterator, []);
 
     /* 7. If completion.[[type]] is throw, return Completion(completion). */
     if (getCompletionType(completion) = 'throw) {
-        return completion
+        print "DEBUG IteratorClose 2";
+        /* TODO completion should be returned */
+        throw getCompletionValue(completion)
     };
 
     /* 8. If innerResult.[[type]] is throw, return Completion(innerResult). */
     if (getCompletionType(getCompletionValue(innerResult)) = 'throw) {
-        return innerResult
+        print "DEBUG IteratorClose 3";
+        /* TODO completion should be returned */
+        throw getCompletionValue(getCompletionValue(innerResult))
     };
 
     /* 9. If Type(innerResult.[[value]]) is not Object, throw a TypeError exception. */
     if (!(Type(getCompletionValue(innerResult)) = "Object")) {
+        print "DEBUG IteratorClose 4";
         throw TypeErrorConstructorInternal()
     };
 
     /* 10. Return Completion(completion). */
+    print "DEBUG IteratorClose 5";
     return completion
 };
 
