@@ -379,7 +379,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
     i := i - 1
   };
   /* 7. If isLittleEndian is not present, */
-  if (!(isLittleEndian = null)) {
+  if (isLittleEndian = 'undefined) {
       /* TBD Set isLittleEndian to either true or false. The choice is  
        implementation dependent and should be the alternative that is most 
        efficient for the implementation. An implementation must use the same 
@@ -451,9 +451,9 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
   /* 7. Let elementSize be the Number value of the Element Size value 
      specified in Table 49 for Element Type type. */
   elementSize := getElementSize(type);
-  /* 8. TODO If isLittleEndian is not present */
-  if (!(isLittleEndian = present)) {
-    /* set isLittleEndian to either true or false. The choice is 
+  /* 8. If isLittleEndian is not present */
+  if (isLittleEndian = 'undefined) {
+    /* TODO set isLittleEndian to either true or false. The choice is 
     implementation dependent and should be the alternative that is most 
     efficient for the implementation. An implementation must use the same 
     value each time this step is executed and the same value must be used 
@@ -498,7 +498,8 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     intValue := convOp(value);
     /* d. If intValue ≥ 0, then */
     if (intValue >= 0) {
-      /* i. TODO Let rawBytes be a List containing the n-byte binary encoding of intValue. If isLittleEndian is false, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order. */
+      /* i. TODO Let rawBytes be a List containing the n-byte binary encoding of intValue.
+      If isLittleEndian is false, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order. */
     /* e. Else, */
     } else {
       /* i. Let rawBytes be a List containing the n-byte binary 2’s complement encoding of intValue. If isLittleEndian is false, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order. */

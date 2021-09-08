@@ -1,112 +1,112 @@
 ########## ERROR ##########
-my_tests/Number/return-abrupt-tonumber-value-symbol.js
-
-my_tests/Number/isSafeInteger/not-safe-integer.js
-my_tests/Number/isSafeInteger/safe-integers.js
-
-my_tests/Number/prototype/toFixed/S15.7.4.5_A1.4_T01.js
-
-my_tests/Number/prototype/toPrecision/precision-cannot-be-coerced-to-a-number-in-range.js
-my_tests/Number/prototype/toPrecision/return-abrupt-tointeger-precision.js
-my_tests/Number/prototype/toPrecision/return-abrupt-tointeger-precision-symbol.js
-
-my_tests/Number/prototype/toString/numeric-literal-tostring-radix-1.js
-my_tests/Number/prototype/toString/numeric-literal-tostring-radix-37.js
-my_tests/Number/prototype/toString/numeric-literal-tostring-radix-poisoned.js
-my_tests/Number/prototype/toString/S15.7.4.2_A4_T01.js
-
+Testing my_tests/Number/return-abrupt-tonumber-value-symbol.js ... [1m[0;31m[7mERROR[0m
+Testing my_tests/Number/isSafeInteger/not-safe-integer.js ... [1m[0;31m[7mERROR[0m
+Testing my_tests/Number/isSafeInteger/safe-integers.js ... [1m[0;31m[7mERROR[0m
+Testing my_tests/Number/prototype/toFixed/S15.7.4.5_A1.4_T01.js ... [1m[0;31m[7mERROR[0m
+Testing my_tests/Number/prototype/toPrecision/precision-cannot-be-coerced-to-a-number-in-range.js ... [1m[0;31m[7mERROR[0m
+Testing my_tests/Number/prototype/toPrecision/return-abrupt-tointeger-precision.js ... [1m[0;31m[7mERROR[0m
+Testing my_tests/Number/prototype/toPrecision/return-abrupt-tointeger-precision-symbol.js ... [1m[0;31m[7mERROR[0m
+Testing my_tests/Number/prototype/toString/numeric-literal-tostring-radix-1.js ... [1m[0;31m[7mERROR[0m
+Testing my_tests/Number/prototype/toString/numeric-literal-tostring-radix-37.js ... [1m[0;31m[7mERROR[0m
+Testing my_tests/Number/prototype/toString/numeric-literal-tostring-radix-poisoned.js ... [1m[0;31m[7mERROR[0m
+Testing my_tests/Number/prototype/toString/S15.7.4.2_A4_T01.js ... [1m[0;31m[7mERROR[0m
+Testing my_tests/Number/prototype/valueOf/S15.7.4.4_A2_T01.js ... [1m[0;31m[7mERROR[0m
+OK: 227    FAIL: 96    ERROR: 12    NOT EXECUTED: 0    Total: 335
 ########## FAIL ##########
-my_tests/Number/bigint-conversion.js
-
-// Enumerable Writable e Configurable
-my_tests/Number/parseFloat.js
-my_tests/Number/parseInt.js
-my_tests/Number/prototype/toExponential/prop-desc.js
-my_tests/Number/prototype/toFixed/prop-desc.js
-my_tests/Number/prototype/toLocaleString/prop-desc.js
-my_tests/Number/prototype/toPrecision/prop-desc.js
-my_tests/Number/prototype/toString/prop-desc.js
-my_tests/Number/prototype/valueOf/prop-desc.js
-my_tests/Number/prototype/constructor.js
-
-my_tests/Number/S15.7.2.1_A2.js
-my_tests/Number/S15.7.2.1_A4.js
-my_tests/Number/S15.7.3_A8.js
-my_tests/Number/S15.7.5_A1_T01.js
-my_tests/Number/S15.7.5_A1_T02.js
-my_tests/Number/S15.7.5_A1_T03.js
-my_tests/Number/S15.7.5_A1_T04.js
-my_tests/Number/S15.7.5_A1_T05.js
-my_tests/Number/S15.7.5_A1_T06.js
-my_tests/Number/S15.7.5_A1_T07.js
-my_tests/Number/S9.3.1_A2.js
-my_tests/Number/S9.3.1_A3_T1.js
-my_tests/Number/S9.3.1_A3_T2.js
-
-my_tests/Number/string-binary-literal.js
-my_tests/Number/string-hex-literal-invalid.js
-my_tests/Number/string-numeric-separator-literal-dd-dot-dd-ep-sign-minus-dd-nsl-dd.js
-my_tests/Number/string-numeric-separator-literal-dd-dot-dd-ep-sign-minus-dds-nsl-dd.js
-my_tests/Number/string-numeric-separator-literal-dd-dot-dd-ep-sign-plus-dd-nsl-dd.js
-my_tests/Number/string-numeric-separator-literal-dd-dot-dd-ep-sign-plus-dds-nsl-dd.js
-my_tests/Number/string-numeric-separator-literal-dd-nsl-dd-one-of.js
-my_tests/Number/string-numeric-separator-literal-dds-dot-dd-nsl-dd-ep-dd.js
-my_tests/Number/string-numeric-separator-literal-dds-nsl-dd.js
-my_tests/Number/string-numeric-separator-literal-dot-dd-nsl-dd-ep.js
-my_tests/Number/string-numeric-separator-literal-dot-dd-nsl-dds-ep.js
-my_tests/Number/string-numeric-separator-literal-dot-dds-nsl-dd-ep.js
-my_tests/Number/string-numeric-separator-literal-dot-dds-nsl-dds-ep.js
-my_tests/Number/string-numeric-separator-literal-hil-hd-nsl-hd.js
-my_tests/Number/string-numeric-separator-literal-hil-hd-nsl-hds.js
-my_tests/Number/string-numeric-separator-literal-hil-hds-nsl-hd.js
-my_tests/Number/string-numeric-separator-literal-hil-hds-nsl-hds.js
-my_tests/Number/string-numeric-separator-literal-hil-od-nsl-od-one-of.js
-my_tests/Number/string-numeric-separator-literal-nzd-nsl-dd.js
-my_tests/Number/string-numeric-separator-literal-nzd-nsl-dd-one-of.js
-my_tests/Number/string-numeric-separator-literal-nzd-nsl-dds.js
-my_tests/Number/string-numeric-separator-literal-sign-minus-dds-nsl-dd.js
-my_tests/Number/string-numeric-separator-literal-sign-plus-dds-nsl-dd.js
-my_tests/Number/string-octal-literal.js
-
-my_tests/Number/prototype/S15.7.3.1_A2_T1.js
-my_tests/Number/prototype/S15.7.4_A1.j
-my_tests/Number/prototype/S15.7.4_A2.js
-my_tests/Number/prototype/S15.7.4_A3.1.js
-my_tests/Number/prototype/S15.7.4_A3.2.js
-my_tests/Number/prototype/S15.7.4_A3.3.js
-my_tests/Number/prototype/S15.7.4_A3.4.js
-my_tests/Number/prototype/S15.7.4_A3.5.js
-my_tests/Number/prototype/S15.7.4_A3.6.js
-my_tests/Number/prototype/S15.7.4_A3.7.js
-
-my_tests/Number/prototype/toExponential/range.js
-my_tests/Number/prototype/toExponential/return-abrupt-tointeger-fractiondigits.js
-my_tests/Number/prototype/toExponential/return-abrupt-tointeger-fractiondigits-symbol.js
-my_tests/Number/prototype/toExponential/return-values.js
-my_tests/Number/prototype/toExponential/this-is-0-fractiondigits-is-0.js
-my_tests/Number/prototype/toExponential/this-is-0-fractiondigits-is-not-0.js
-my_tests/Number/prototype/toExponential/tointeger-fractiondigits.js
-my_tests/Number/prototype/toExponential/undefined-fractiondigits.js
-
-my_tests/Number/prototype/toFixed/exactness.js
-my_tests/Number/prototype/toFixed/range.js
-my_tests/Number/prototype/toFixed/S15.7.4.5_A1.1_T01.js
-my_tests/Number/prototype/toFixed/S15.7.4.5_A1.1_T02.js
-my_tests/Number/prototype/toFixed/S15.7.4.5_A1.3_T01.js
-my_tests/Number/prototype/toFixed/S15.7.4.5_A1.3_T02.js
-
-
-my_tests/Number/prototype/toPrecision/exponential.js
-my_tests/Number/prototype/toPrecision/infinity.js
-my_tests/Number/prototype/toPrecision/name.js
-my_tests/Number/prototype/toPrecision/nan.js
-my_tests/Number/prototype/toPrecision/range.js
-my_tests/Number/prototype/toPrecision/return-values.js
-my_tests/Number/prototype/toPrecision/this-is-0-precision-is-1.js
-my_tests/Number/prototype/toPrecision/this-is-0-precision-is-gter-than-1.js
-my_tests/Number/prototype/toPrecision/tointeger-precision.js
-my_tests/Number/prototype/toPrecision/undefined-precision-arg.js
-
-my_tests/Number/prototype/toString/a-z.js
-
-OK: 226    FAIL: 81    ERROR: 12    NOT EXECUTED: 0    Total: 335
+Testing my_tests/Number/bigint-conversion.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/is-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/parseFloat.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/parseInt.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/proto-from-ctor-realm.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/S15.7.2.1_A2.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/S15.7.2.1_A4.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/S15.7.3_A8.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/S15.7.5_A1_T01.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/S15.7.5_A1_T02.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/S15.7.5_A1_T03.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/S15.7.5_A1_T04.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/S15.7.5_A1_T05.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/S15.7.5_A1_T06.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/S15.7.5_A1_T07.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/S9.3.1_A2.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/S9.3.1_A3_T1.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/S9.3.1_A3_T2.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-binary-literal.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-hex-literal-invalid.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-dd-dot-dd-ep-sign-minus-dd-nsl-dd.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-dd-dot-dd-ep-sign-minus-dds-nsl-dd.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-dd-dot-dd-ep-sign-plus-dd-nsl-dd.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-dd-dot-dd-ep-sign-plus-dds-nsl-dd.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-dd-nsl-dd-one-of.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-dds-dot-dd-nsl-dd-ep-dd.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-dds-nsl-dd.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-dot-dd-nsl-dd-ep.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-dot-dd-nsl-dds-ep.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-dot-dds-nsl-dd-ep.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-dot-dds-nsl-dds-ep.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-hil-hd-nsl-hd.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-hil-hd-nsl-hds.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-hil-hds-nsl-hd.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-hil-hds-nsl-hds.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-hil-od-nsl-od-one-of.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-nzd-nsl-dd.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-nzd-nsl-dd-one-of.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-nzd-nsl-dds.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-sign-minus-dds-nsl-dd.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-numeric-separator-literal-sign-plus-dds-nsl-dd.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/string-octal-literal.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/isFinite/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/isInteger/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/isNaN/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/isSafeInteger/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/parseFloat/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/parseInt/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/S15.7.3.1_A2_T1.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/S15.7.4_A1.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/S15.7.4_A2.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/S15.7.4_A3.1.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/S15.7.4_A3.2.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/S15.7.4_A3.3.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/S15.7.4_A3.4.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/S15.7.4_A3.5.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/S15.7.4_A3.6.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/S15.7.4_A3.7.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toExponential/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toExponential/prop-desc.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toExponential/range.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toExponential/return-abrupt-tointeger-fractiondigits.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toExponential/return-abrupt-tointeger-fractiondigits-symbol.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toExponential/return-values.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toExponential/this-is-0-fractiondigits-is-0.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toExponential/this-is-0-fractiondigits-is-not-0.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toExponential/tointeger-fractiondigits.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toExponential/undefined-fractiondigits.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toFixed/exactness.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toFixed/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toFixed/prop-desc.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toFixed/range.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toFixed/S15.7.4.5_A1.1_T01.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toFixed/S15.7.4.5_A1.1_T02.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toFixed/S15.7.4.5_A1.3_T01.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toFixed/S15.7.4.5_A1.3_T02.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toLocaleString/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toLocaleString/prop-desc.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toPrecision/exponential.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toPrecision/infinity.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toPrecision/name.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toPrecision/nan.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toPrecision/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toPrecision/prop-desc.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toPrecision/range.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toPrecision/return-values.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toPrecision/this-is-0-precision-is-1.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toPrecision/this-is-0-precision-is-gter-than-1.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toPrecision/tointeger-precision.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toPrecision/undefined-precision-arg.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toString/a-z.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toString/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/toString/prop-desc.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/valueOf/not-a-constructor.js ... [1m[0;31m[5m[7mFAIL[0m
+Testing my_tests/Number/prototype/valueOf/prop-desc.js ... [1m[0;31m[5m[7mFAIL[0m
+OK: 227    FAIL: 96    ERROR: 12    NOT EXECUTED: 0    Total: 335
