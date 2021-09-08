@@ -767,6 +767,9 @@ function StringPrototypeReplace(global, this, strict, args) {
   if (isRegExpObject(searchValue)) {
     g := searchValue.OriginalFlags.gb;
     matchArr := RegExpPrototypeExec(global, searchValue, strict, [string]);
+    if (matchArr = 'null) {
+      return string
+    };
     m := {matchArr.Get}(matchArr, "length") - 1.;
     
     matches := [matchArr];
