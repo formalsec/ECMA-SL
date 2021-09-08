@@ -15,12 +15,9 @@ features: [Symbol.iterator, Symbol.toStringTag]
 ---*/
 
 var MapIteratorProto = Object.getPrototypeOf(new Map()[Symbol.iterator]());
-console.log("js1")
+
 assert.sameValue('Map Iterator', MapIteratorProto[Symbol.toStringTag]);
-console.log("js2")
+
 verifyNotEnumerable(MapIteratorProto, Symbol.toStringTag);
-console.log("js3")
 verifyNotWritable(MapIteratorProto, Symbol.toStringTag);
-console.log("js4")
 verifyConfigurable(MapIteratorProto, Symbol.toStringTag);
-console.log("js5")

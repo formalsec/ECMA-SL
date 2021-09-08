@@ -32,7 +32,6 @@ var callback = function() {
 
 map.forEach(callback, expectedThis);
 
-console.log(_this[0] + "," + _this[1] + "," + _this[2]);
 assert.sameValue(_this[0], expectedThis);
 assert.sameValue(_this[1], expectedThis);
 assert.sameValue(_this[2], expectedThis);

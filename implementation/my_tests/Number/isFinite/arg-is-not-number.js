@@ -21,4 +21,4 @@ assert.sameValue(Number.isFinite(true), false, "true");
 assert.sameValue(Number.isFinite(undefined), false, "undefined");
 assert.sameValue(Number.isFinite(null), false, "null");
 assert.sameValue(Number.isFinite(Symbol("1")), false, "symbol");
-assert.sameValue(Number.isFinite(), false, "no arg");
+assert.sameValue(Number.isFinite(), false, "no arg"); // ERROR HERE

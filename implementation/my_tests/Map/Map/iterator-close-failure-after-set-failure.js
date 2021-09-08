@@ -20,8 +20,18 @@ iterable[Symbol.iterator] = function() {
     }
   };
 };
-Map.prototype.set = function() { throw new Test262Error(); }
+Map.prototype.set = function() { 
+  console.log("inside set");
+  throw new Test262Error();
+}
 
 assert.throws(Test262Error, function() {
   new Map(iterable);
 });
+
+
+// try {
+//   var m = new Map(iterable);
+// } catch (e) {
+//   console.log(e.message);
+// }

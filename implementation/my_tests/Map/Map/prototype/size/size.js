@@ -13,19 +13,17 @@ includes: [propertyHelper.js]
 ---*/
 
 var descriptor = Object.getOwnPropertyDescriptor(Map.prototype, 'size');
-console.log("js1")
+
 assert.sameValue(
   typeof descriptor.get,
   'function',
   'typeof descriptor.get is function'
 );
-console.log("js2")
 assert.sameValue(
   typeof descriptor.set,
   'undefined',
   'typeof descriptor.set is undefined'
 );
-console.log("js3")
+
 verifyNotEnumerable(Map.prototype, 'size');
-console.log("js4")
 verifyConfigurable(Map.prototype, 'size');

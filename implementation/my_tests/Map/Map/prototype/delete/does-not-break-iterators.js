@@ -28,6 +28,9 @@ m.delete('b');
 
 var n = e.next();
 
+//var x = n.value[0];
+// console.log(n.value[0]);
+
 assert.sameValue(n.value[0], 'c');
 assert.sameValue(n.value[1], 3);
 

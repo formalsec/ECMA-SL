@@ -18,9 +18,9 @@ assert.sameValue(1 / Math.trunc(-0.9999999999999999), Number.NEGATIVE_INFINITY, 
 assert.sameValue(1 / Math.trunc(-Number.EPSILON), Number.NEGATIVE_INFINITY, "Math.trunc should produce -0 for values between -1 and 0");
 assert.sameValue(1 / Math.trunc(-Number.MIN_VALUE), Number.NEGATIVE_INFINITY, "Math.trunc should produce -0 for values between -1 and 0");
 
-console.log(Math.trunc(Number.MAX_VALUE) + ", " +  Math.floor(Number.MAX_VALUE));
 
-// ERROR HERE
+// FAIL HERE
+console.log(Math.trunc(Number.MAX_VALUE) + ", " +  Math.floor(Number.MAX_VALUE));
 assert.sameValue(Math.trunc(Number.MAX_VALUE), Math.floor(Number.MAX_VALUE), "Math.trunc produces incorrect result for Number.MAX_VALUE");
 
 assert.sameValue(Math.trunc(10), Math.floor(10), "Math.trunc produces incorrect result for 10");

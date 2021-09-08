@@ -22,12 +22,11 @@ testSection() {
 	writeFAIL ${PARENT_DIR}${1,,}_${FILE_SUFIX};
 	grep FAIL ${PARENT_DIR}${1,,}_${FILE_SUFIX_TEMP} >> ${PARENT_DIR}${1,,}_${FILE_SUFIX};
 
-	echo "\n" >> ${PARENT_DIR}${1,,}_${FILE_SUFIX};
 	rm -rf ${PARENT_DIR}${1,,}_${FILE_SUFIX_TEMP};
 }
 
 
-for section in Map Number Math ArrayBuffer
+for section in Map
 do
 	echo "Testing ${section} ..."
 	testSection $section

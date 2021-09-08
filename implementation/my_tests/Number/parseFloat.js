@@ -19,12 +19,7 @@ info: |
   [[Configurable]]: true } unless otherwise specified.
 includes: [propertyHelper.js]
 ---*/
-console.log("js0")
 assert.sameValue(Number.parseFloat, parseFloat);
-console.log("js1")
 verifyNotEnumerable(Number, "parseFloat");
-console.log("js2")
 verifyWritable(Number, "parseFloat");
-console.log("js3")
 verifyConfigurable(Number, "parseFloat");
-console.log("js4")
