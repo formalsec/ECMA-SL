@@ -486,6 +486,38 @@ let log_2 (v : Val.t) : Val.t = match v with
   | Flt x -> Flt ((Float.log x) /. (Float.log 2.))
   | _      -> invalid_arg "Exception in Oper.log_2: this operation is only applicable to Float arguments"
 
+let float64_to_le_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float64_to_be_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float32_to_le_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float32_to_be_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float64_from_le_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float64_from_be_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float32_from_le_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+let float32_from_be_bytes (v : Val.t) : Val.t = match v with
+  | Str s -> Str (String_Utils.to_upper_case s)
+  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
 let from_char_code (v : Val.t) : Val.t = match v with
   | Int n -> Str (String_Utils.from_char_code n)
   | _     -> invalid_arg "Exception in Oper.from_char_code: this operation is only applicable to Int arguments"
@@ -534,40 +566,6 @@ let to_upper_case (v : Val.t) : Val.t = match v with
 let trim (v : Val.t) : Val.t = match v with
   | Str s -> Str (String_Utils.trim s)
   | _     -> invalid_arg "Exception in Oper.trim: this operation is only applicable to Str arguments"
-
-let float_64_to_le_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
-
-let float_64_to_be_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
-
-let float_32_to_le_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
-
-let float_32_to_be_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
-
-let float_64_from_le_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
-
-let float_64_from_be_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
-
-let float_32_from_le_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
-
-let float_32_from_be_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
-
-
 
 let str_of_const (c : const) : string = match c with
   | MAX_VALUE -> "MAX_VALUE"

@@ -11,7 +11,10 @@ type t =
   | Null
   | Symbol of string
   | Curry  of string * t list
-
+(*
+  | Int64  of int64
+  | Int32  of int32
+*)  
 
 let is_special_number (s : string) : bool =
   List.mem s ["nan" ; "inf" ; "-inf" ] || String.contains s 'e' ||  String.contains s 'E'
