@@ -11,9 +11,11 @@ function initNumberObject(global, objectPrototype, strict) {
   /* 20.1.3.1 Number.prototype.constructor */
   descriptor := newDataPropertyDescriptorFull(objNumberConstructor, true, false, true);
   setJSProperty(objNumberPrototype, "constructor", descriptor);
+
   /* The value of the [[Prototype]] internal slot of the Number constructor is the intrinsic object %FunctionPrototype% (19.2.3) */
   descriptor := newDataPropertyDescriptorFull(objNumberPrototype, false, false, false);
   setJSProperty(objNumberConstructor, "prototype", descriptor);
+
   /* Length Property of Constructor is 1 */
   setJSProperty(objNumberConstructor, "length", newDataPropertyDescriptorFull(1, true, false, false));
 
@@ -46,14 +48,14 @@ function initNumberPrototype(global, objectPrototype, strict) {
   toLocaleString := CreateBuiltInFunctionObject(["items"], "NumberPrototypeToLocaleString", global, strict, null);
   setJSProperty(toLocaleString, "length", newDataPropertyDescriptorFull(0., false, false, true));
   createBuiltInProperty(prototype, "toLocaleString", toLocaleString);
-  descriptor := newDataPropertyDescriptorFull("toLocaleString", true, false, true);
+  descriptor := newDataPropertyDescriptorFull("toLocaleString", false, false, true);
   setJSProperty(toLocaleString, "name", descriptor);
 
   /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
   toPrecision := CreateBuiltInFunctionObject(["precision"], "NumberPrototypeToPrecision", global, strict, null);
   setJSProperty(toPrecision, "length", newDataPropertyDescriptorFull(1., false, false, true));
   createBuiltInProperty(prototype, "toPrecision", toPrecision);
-  descriptor := newDataPropertyDescriptorFull("toPrecision", false, false, true);
+  descriptor := newDataPropertyDescriptorFull("toPrecision", true, false, true);
   setJSProperty(toPrecision, "name", descriptor);
 
   /* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
@@ -196,13 +198,15 @@ function initNumberConstructor(prototype, global, strict) {
 
 /* 20.1.2.2 Number.isFinite ( number ) */
 function NumberConstructorIsFinite(global, this, strict, items) {
+  print "type do number";
   number := getOptionalParam(items, 0);
+  print number;
   /* 1. If Type(number) is not Number, return false. */
-  if (!(Type(number) = "Number")) {
+  if (number = null ||| !(Type(number) = "Number")) {
     return false
   };
   /* 2. If number is NaN, +∞, or −∞, return false. */
-  if (number = NaN || number = Infinity || number = -Infinity) {
+  if (number = NaN ||| number = Infinity ||| number = -Infinity) {
     return false
   };
   /* 3. Otherwise, return true. */
@@ -214,11 +218,11 @@ function NumberConstructorIsFinite(global, this, strict, items) {
 function NumberConstructorIsInteger(global, this, strict, items) {
   number := getOptionalParam(items, 0);
   /* If Type(number) is not Number, return false. */
-  if (!(Type(number) = "Number")) {
+  if (number = null ||| !(Type(number) = "Number")) {
     return false
   };
   /* If number is NaN, +∞, or −∞, return false. */
-  if (number = NaN || number = Infinity || number = -Infinity) {
+  if (number = NaN ||| number = Infinity ||| number = -Infinity) {
     return false
   };
   /* Let integer be ToInteger(number). */
@@ -236,7 +240,7 @@ function NumberConstructorIsInteger(global, this, strict, items) {
 function NumberConstructorIsNaN(global, this, strict, items) {
   number := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
-  if (!(Type(number) = "Number")) {
+  if (number = null ||| !(Type(number) = "Number")) {
     return false
   };
   /* 2. If number is NaN, return true. */
@@ -252,11 +256,11 @@ function NumberConstructorIsNaN(global, this, strict, items) {
 function NumberConstructorIsSafeInteger(global, this, strict, items) {
   number := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
-  if (!(Type(number) = "Number")) {
+  if (number = null ||| !(Type(number) = "Number")) {
     return false
   };
   /* 2. If number is NaN, +∞, or −∞, return false. */
-  if (number = NaN || number = Infinity || number = -Infinity) {
+  if (number = NaN ||| number = Infinity ||| number = -Infinity) {
     return false
   };
   /* 3. Let integer be ToInteger(number). */
@@ -343,7 +347,7 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
   /* However, an implementation is permitted to extend the behaviour of toExponential
   for values of f less than 0 or greater than 20. In this case toExponential would not
   necessarily throw RangeError for such values. */
-  if (f < 0. || f > 20.) {
+  if (f < 0. ||| f > 20.) {
     throw RangeErrorConstructorInternal()
   };
   /* 11. If x = 0, then */
@@ -441,7 +445,7 @@ function NumberPrototypeToFixedAlt(global, this, strict, items) {
   behaviour of toFixed for values of f less than 0 or
   greater than 20. In this case toFixed would not necessarily
   throw RangeError for such values. */
-  if (f < 0. || f > 20.) {
+  if (f < 0. ||| f > 20.) {
     throw RangeErrorConstructorInternal()
   };
   /* 6. If x is NaN, return the String "NaN". */
@@ -568,7 +572,7 @@ function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
   /* 10. If p < 1 or p > 21, throw a RangeError exception. However, an implementation is permitted
   to extend the behaviour of toPrecision for values of p less than 1 or greater
   than 21. In this case toPrecision would not necessarily throw RangeError for such values. */
-  if (p < 1. || p > 21.) {
+  if (p < 1. ||| p > 21.) {
     throw RangeErrorConstructorInternal()
   };
   /* 11. If x = 0, then */
@@ -648,7 +652,7 @@ function NumberPrototypeToString(global, this, strict, items) {
   /* 6. ReturnIfAbrupt(radixNumber). */
   @ReturnIfAbrupt(radixNumber);
   /* 7. If radixNumber < 2 or radixNumber > 36, throw a RangeError exception. */
-  if (radixNumber < 2. || radixNumber > 36.) {
+  if (radixNumber < 2. ||| radixNumber > 36.) {
     throw RangeErrorConstructorInternal()
   };
   /* 8. If radixNumber = 10, return ToString(x). */
