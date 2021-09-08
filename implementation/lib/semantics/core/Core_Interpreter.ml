@@ -65,14 +65,14 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ParseString   -> Oper.parse_string v
   | ParseDate   -> Oper.parse_date v
   | Log_2         -> Oper.log_2 v
-  | Float64ToLEBytes -> Oper.float_64_to_le_bytes v
-  | Float64ToBEBytes -> Oper.float_64_to_be_bytes v
-  | Float32ToLEBytes -> Oper.float_32_to_le_bytes v
-  | Float32ToBEBytes -> Oper.float_32_to_be_bytes v
-  | Float64FromLEBytes -> Oper.float_64_from_le_bytes v
-  | Float64FromBEBytes -> Oper.float_64_from_be_bytes v
-  | Float32FromLEBytes -> Oper.float_32_from_le_bytes v
-  | Float32FromBEBytes -> Oper.float_32_from_be_bytes v
+  | Float64ToLEBytes -> Oper.float64_to_le_bytes v
+  | Float64ToBEBytes -> Oper.float64_to_be_bytes v
+  | Float32ToLEBytes -> Oper.float32_to_le_bytes v
+  | Float32ToBEBytes -> Oper.float32_to_be_bytes v
+  | Float64FromLEBytes -> Oper.float64_from_le_bytes v
+  | Float64FromBEBytes -> Oper.float64_from_be_bytes v
+  | Float32FromLEBytes -> Oper.float32_from_le_bytes v
+  | Float32FromBEBytes -> Oper.float32_from_be_bytes v
   | _             -> Oper.apply_uopt_oper op v
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
