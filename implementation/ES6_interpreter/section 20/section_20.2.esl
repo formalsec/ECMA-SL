@@ -901,7 +901,7 @@ function MathRound(globalObject, this, stric, params) {
   /* NOTE 2 
   The value of Math.round(x) is not always the same as the value of Math.floor(x+0.5). When x is −0 or is less than 0 but greater than or equal to -0.5, Math.round(x) 
   returns −0, but Math.floor(x+0.5) returns +0. Math.round(x) may also differ from the value of Math.floor(x+0.5)because of internal rounding when computing x+0.5. */
-  return -(ceil (-(x + 0.5))) 
+  return -(ceil (-(x + 0.5)))
 };
 
 /* 20.2.2.29 Math.sign(x) */
