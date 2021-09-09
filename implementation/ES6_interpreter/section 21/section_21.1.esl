@@ -2268,6 +2268,7 @@ function StringPrototypeiterator(global, this, strict, args){
 
 /* 21.1.4.1 length */
 
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /** 21.1.5 String Iterator Objects
