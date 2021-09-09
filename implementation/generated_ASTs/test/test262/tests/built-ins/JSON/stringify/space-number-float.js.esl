@@ -366,6 +366,7 @@ __n83["arguments"] := __n87;
 __n82["expression"] := __n83;
 __n1 := [ __n2, __n33, __n57, __n82 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n104 := [ "obj" ];
 __n0["variableDeclarations"] := __n104;
 __n105 := [  ];

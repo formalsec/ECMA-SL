@@ -315,6 +315,7 @@ __n80["arguments"] := __n84;
 __n79["expression"] := __n80;
 __n1 := [ __n2, __n12, __n24, __n45, __n59, __n79 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n100 := [ "direct", "directReplacer", "indirect", "indirectReplacer" ];
 __n0["variableDeclarations"] := __n100;
 __n101 := [  ];

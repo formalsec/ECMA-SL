@@ -56,9 +56,29 @@ function newDataPropertyDescriptor(value) {
 function newDataPropertyDescriptorFull(value, writable, enumerable, configurable) {
   desc := NewPropertyDescriptor();
   desc.Value := value;
-  desc.Writable := writable;
-  desc.Enumerable := enumerable;
-  desc.Configurable := configurable;
+  if (!(writable = null)) {
+    desc.Writable := writable
+  };
+  if (!(enumerable = null)) {
+    desc.Enumerable := enumerable
+  };
+  if (!(configurable = null)) {
+    desc.Configurable := configurable
+  };
+
+  return desc
+};
+
+function newAccessorPropertyDescriptorFull(get, set, enumerable, configurable) {
+  desc := NewPropertyDescriptor();
+  desc.Get := get;
+  desc.Set := set;
+  if (!(enumerable = null)) {
+    desc.Enumerable := enumerable
+  };
+  if (!(configurable = null)) {
+    desc.Configurable := configurable
+  };
 
   return desc
 };
@@ -164,7 +184,7 @@ function IsGenericPropertyDescriptor (Desc) {
     return false
   };
   /** 2. If IsAccessorDescriptor(Desc) and IsDataDescriptor(Desc) are both false, then return true. */
-  if (!IsAccessorPropertyDescriptor(Desc) && !IsDataPropertyDescriptor(Desc)) {
+  if ((IsAccessorPropertyDescriptor(Desc) = false) && (IsDataPropertyDescriptor(Desc) = false)) {
     return true
   };
 
@@ -189,61 +209,31 @@ function FromPropertyDescriptor (Desc) {
   obj := ObjectConstructor(|global|, 'null, false, [null]);
 
   /** 3. If IsDataDescriptor(Desc) is true, then: */
-  if (IsDataPropertyDescriptor(Desc)) {
+  if (IsDataPropertyDescriptor(Desc) = true) {
     /** a. Call the [[DefineOwnProperty]] internal method of obj with arguments "value",
      *  Property Descriptor {[[Value]]: Desc.[[Value]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
-    {obj.DefineOwnProperty}(obj, "value", {
-      Value: Desc.Value,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }, false);
+    {obj.DefineOwnProperty}(obj, "value", newDataPropertyDescriptor(Desc.Value), false);
     /** b. Call the [[DefineOwnProperty]] internal method of obj with arguments "writable",
      *  Property Descriptor {[[Value]]: Desc.[[Writable]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
-    {obj.DefineOwnProperty}(obj, "writable", {
-      Value: Desc.Writable,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }, false)
+    {obj.DefineOwnProperty}(obj, "writable", newDataPropertyDescriptor(Desc.Writable), false)
   }
   /** 4. Else, IsAccessorDescriptor(Desc) must be true, so: */
   else {
     /** a. Call the [[DefineOwnProperty]] internal method of obj with arguments "get",
      *  Property Descriptor {[[Value]]: Desc.[[Get]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
-    {obj.DefineOwnProperty}(obj, "get", {
-      Value: Desc.Get,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }, false);
+    {obj.DefineOwnProperty}(obj, "get", newDataPropertyDescriptor(Desc.Get), false);
     /** b. Call the [[DefineOwnProperty]] internal method of obj with arguments "set",
      *  Property Descriptor {[[Value]]: Desc.[[Set]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
-    {obj.DefineOwnProperty}(obj, "set", {
-      Value: Desc.Set,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }, false)
+    {obj.DefineOwnProperty}(obj, "set", newDataPropertyDescriptor(Desc.Set), false)
   };
 
   /** 5. Call the [[DefineOwnProperty]] internal method of obj with arguments "enumerable",
    *  Property Descriptor {[[Value]]: Desc.[[Enumerable]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
-  {obj.DefineOwnProperty}(obj, "enumerable", {
-    Value: Desc.Enumerable,
-    Writable: true,
-    Enumerable: true,
-    Configurable: true
-  }, false);
+  {obj.DefineOwnProperty}(obj, "enumerable", newDataPropertyDescriptor(Desc.Enumerable), false);
 
   /** 6. Call the [[DefineOwnProperty]] internal method of obj with arguments "configurable",
    *    Property Descriptor {[[Value]]: Desc.[[Configurable]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
-  {obj.DefineOwnProperty}(obj, "configurable", {
-    Value: Desc.Configurable,
-    Writable: true,
-    Enumerable: true,
-    Configurable: true
-  }, false);
+  {obj.DefineOwnProperty}(obj, "configurable", newDataPropertyDescriptor(Desc.Configurable), false);
 
    /** 7. Return obj. */
    return obj

@@ -159,6 +159,7 @@ __n31["arguments"] := __n35;
 __n30["expression"] := __n31;
 __n1 := [ __n2, __n8, __n17, __n30 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n50 := [ "obj", "circular" ];
 __n0["variableDeclarations"] := __n50;
 __n51 := [  ];

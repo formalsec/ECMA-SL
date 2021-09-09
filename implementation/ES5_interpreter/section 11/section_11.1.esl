@@ -1,0 +1,82 @@
+/* Auxiliary functions */
+function strip_initial_elisions(elements) {
+  elementList := [];
+  elisionOpt := [];
+  foundAllInitialElisions := false;
+
+  i := 0;
+  while (i < l_len elements) {
+    elem := l_nth(elements, i);
+    if (!foundAllInitialElisions &&& elem = null) {
+      elisionOpt := l_add(elisionOpt, elem)
+    } else {
+      if (!foundAllInitialElisions) {
+        foundAllInitialElisions := true
+      };
+      elementList := l_add(elementList, elem)
+    };
+
+    i := i + 1
+  };
+
+  return (elementList, elisionOpt)
+};
+
+function strip_final_elisions(elements) {
+  elementList := [];
+  elisionOpt := [];
+  foundAllFinalElisions := false;
+
+  i := l_len elements;
+  while (i > 0) {
+    elem := l_nth(elements, i - 1);
+    if (!foundAllFinalElisions &&& elem = null) {
+      elisionOpt := l_prepend(elem, elisionOpt)
+    } else {
+      if (!foundAllFinalElisions) {
+        foundAllFinalElisions := true
+      };
+      elementList := l_prepend(elem, elementList)
+    };
+
+    i := i - 1
+  };
+
+  return (elementList, elisionOpt)
+};
+
+function rearrange_elementList(elements) {
+  ret := strip_initial_elisions(elements);
+  elementList := fst ret;
+  elisionOpt := snd ret;
+
+  if (l_len elementList = 1) {
+    return {
+      type: "Base",
+      assignmentExpression: l_nth(elementList, 0),
+      elisionOpt: elisionOpt
+    }
+  } else {
+    assignmentExpression := l_nth(elements, (l_len elements) - 1);
+    elements := l_remove_last elements;
+    ret := strip_final_elisions(elements);
+    elementList := fst ret;
+    elisionOpt := snd ret;
+
+    return {
+      type: "Recursive",
+      elementList: elementList,
+      elisionOpt: elisionOpt,
+      assignmentExpression: assignmentExpression
+    }
+  }
+};
+
+function is_elisionopt_list(elems) {
+  foreach (elision : elems) {
+    if (!(elision = null)) {
+      return false
+    }
+  };
+  return true
+}
