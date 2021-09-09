@@ -1,821 +1,1796 @@
+/*
+ * Author: Leonor Barreiros
+ */
+
+/* 21.2 RegExp (Regular Expression) Objects */
+
+/**
+ * A RegExp object contains a regular expression and the associated flags.
+ *
+ * NOTE The form and functionality of regular expressions is modelled after the regular 
+ * expression facility in the Perl 5 programming language.
+ */
+
+/* 21.2.1 Patterns */
+
+/**
+ * The RegExp constructor applies the following grammar to the input pattern String. 
+ * An error occurs if the grammar cannot interpret the String as an expansion of Pattern.
+ */
+
+/* SYNTAX - compare ES5 and ES6 and check if there are any differences */
+
+/* 21.2.1.1 Static Semantics: Early Errors */
+
+/**
+ * RegExpUnicodeEscapeSequence :: u{ HexDigits }
+ * It is a Syntax Error if the MV of HexDigits > 1114111.
+ */
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* 21.2.2 Pattern Semantics */
+
+/**
+ * A regular expression pattern is converted into an internal procedure using the process 
+ * described below. An implementation is encouraged to use more efficient algorithms than
+ * the ones listed below, as long as the results are the same. The internal procedure is 
+ * used as the value of a RegExp object’s [[RegExpMatcher]] internal slot.
+ *
+ * A Pattern is either a BMP pattern or a Unicode pattern depending upon whether or not 
+ * its associated flags contain a "u". A BMP pattern matches against a String interpreted
+ * as consisting of a sequence of 16-bit values that are Unicode code points in the range 
+ * of the Basic Multilingual Plane. A Unicode pattern matches against a String interpreted 
+ * as consisting of Unicode code points encoded using UTF-16. In the context of describing
+ * the behaviour of a BMP pattern “character” means a single 16-bit Unicode BMP code point. 
+ * In the context of describing the behaviour of a Unicode pattern “character” means a 
+ * UTF-16 encoded code point (6.1.4). In either context, “character value” means the numeric
+ * value of the corresponding non-encoded code point.
+ *
+ * The syntax and semantics of Pattern is defined as if the source code for the Pattern was
+ * a List of SourceCharacter values where each SourceCharacter corresponds to a Unicode 
+ * code point. If a BMP pattern contains a non-BMP SourceCharacter the entire pattern is 
+ * encoded using UTF-16 and the individual code units of that encoding are used as the 
+ * elements of the List.
+ * 
+ * NOTE For example, consider a pattern expressed in source text as the single non-BMP 
+ * character U+1D11E (MUSICAL SYMBOL G CLEF). Interpreted as a Unicode pattern, it would 
+ * be a single element (character) List consisting of the single code point 0x1D11E. However,
+ * interpreted as a BMP pattern, it is first UTF-16 encoded to produce a two element List 
+ * consisting of the code units 0xD834 and 0xDD1E.
+ *      Patterns are passed to the RegExp constructor as ECMAScript String values in which 
+ * non-BMP characters are UTF-16 encoded. For example, the single character MUSICAL SYMBOL G
+ * CLEF pattern, expressed as a String value, is a String of length 2 whose elements were 
+ * the code units 0xD834 and 0xDD1E. So no further translation of the string would be 
+ * necessary to process it as a BMP pattern consisting of two pattern characters. However, to
+ * process it as a Unicode pattern UTF16Decode (see 10.1.2) must be used in producing a List 
+ * consisting of a single pattern character, the code point U+1D11E.
+ *      An implementation may not actually perform such translations to or from UTF-16, but
+ * the semantics of this specification requires that the result of pattern matching be as if 
+ * such translations were performed.
+ */
+
+/* 21.2.2.1 Notation */
+
+/**
+ * The descriptions below use the following variables:
+ *  . Input is a List consisting of all of the characters, in order, of the String being 
+ * matched by the regular expression pattern. Each character is either a code unit or a code
+ * point, depending upon the kind of pattern involved. The notation Input[n] means the nth 
+ * character of Input, where n can range between 0 (inclusive) and InputLength (exclusive).
+ *  . InputLength is the number of characters in Input.
+ *  . NcapturingParens is the total number of left capturing parentheses (i.e. the total 
+ * number of times the Atom :: ( Disjunction ) production is expanded) in the pattern. A left
+ * capturing parenthesis is any ( pattern character that is matched by the ( terminal of the
+ * Atom :: ( Disjunction ) production.
+ *  . IgnoreCase is true if the RegExp object's [[OriginalFlags]] internal slot contains "i" 
+ * and otherwise is false.
+ *  . Multiline is true if the RegExp object’s [[OriginalFlags]] internal slot contains "m"
+ * and otherwise is false.
+ *  . Unicode is true if the RegExp object’s [[OriginalFlags]] internal slot contains "u"
+ * and otherwise is false.
+
+ * Furthermore, the descriptions below use the following internal data structures:
+ *  . A CharSet is a mathematical set of characters, either code units or code points 
+ * depending up the state of the Unicode flag. “All characters” means either all code unit 
+ * values or all code point values also depending upon the state if Unicode.
+ *  . A State is an ordered pair (endIndex, captures) where endIndex is an integer and 
+ * captures is a List of NcapturingParens values. States are used to represent partial 
+ * match states in the regular expression matching algorithms. The endIndex is one plus the
+ * index of the last input character matched so far by the pattern, while captures holds the
+ * results of capturing parentheses. The nth element of captures is either a List that 
+ * represents the value obtained by the nth set of capturing parentheses or undefined if the 
+ * nth set of capturing parentheses hasn’t been reached yet. Due to backtracking, many States
+ * may be in use at any time during the matching process.
+ *  . A MatchResult is either a State or the special token failure that indicates that the 
+ * match failed.
+ *  . A Continuation procedure is an internal closure (i.e. an internal procedure with some 
+ * arguments already bound to values) that takes one State argument and returns a MatchResult
+ * result. If an internal closure references variables which are bound in the function that 
+ * creates the closure, the closure uses the values that these variables had at the time the 
+ * closure was created. The Continuation attempts to match the remaining portion (specified 
+ * by the closure's already-bound arguments) of the pattern against Input, starting at the 
+ * intermediate state given by its State argument. If the match succeeds, the Continuation 
+ * returns the final State that it reached; if the match fails, the Continuation returns 
+ * failure.
+ *  . A Matcher procedure is an internal closure that takes two arguments — a State and a 
+ * Continuation — and returns a MatchResult result. A Matcher attempts to match a middle 
+ * subpattern (specified by the closure's already-bound arguments) of the pattern against Input, 
+ * starting at the intermediate state given by its State argument. The Continuation argument 
+ * should be a closure that matches the rest of the pattern. After matching the subpattern of 
+ * a pattern to obtain a new State, the Matcher then calls Continuation on that new State to 
+ * test if the rest of the pattern can match as well. If it can, the Matcher returns the State
+ * returned by Continuation; if not, the Matcher may try different choices at its choice points,
+ * repeatedly calling Continuation until it either succeeds or all possibilities have been 
+ * exhausted.
+ *  . An AssertionTester procedure is an internal closure that takes a State argument and 
+ * returns a Boolean result. The assertion tester tests a specific condition (specified by the
+ * closure's already- bound arguments) against the current place in Input and returns true if
+ * the condition matched or false if not.
+ *  . An EscapeValue is either a character or an integer. An EscapeValue is used to denote the
+ * interpretation of a DecimalEscape escape sequence: a character ch means that the escape 
+ * sequence is interpreted as the character ch, while an integer n means that the escape sequence 
+ * is interpreted as a backreference to the nth set of capturing parentheses.
+*/
+
+/* 21.2.2.2 Pattern */
+/**
+ * NOTE A Pattern evaluates (“compiles”) to an internal procedure value. RegExp.prototype.exec and 
+ * other methods can then apply this procedure to a String and an offset within the String to determine 
+ * whether the pattern would match starting at exactly that offset within the String, and, if it does 
+ * match, what the values of the capturing parentheses would be. The algorithms in 21.2.2 are designed 
+ * so that compiling a pattern may throw a SyntaxError exception; on the other hand, once the pattern 
+ * is successfully compiled, applying the resulting internal procedure to find a match in a String cannot
+ * throw an exception (except for any host-defined exceptions that can occur anywhere such as 
+ * out-of-memory).
+ */
+function JS_Interpreter_Pattern(p) {
+   /* The production Pattern :: Disjunction evaluates as follows: */
+      /* 1. Evaluate Disjunction to obtain a Matcher m. */
+      /* 2. Return an internal closure that takes two arguments, a String str and an integer index, and performs the following steps: */
+         /* 1. If Unicode is true, let Input be a List consisting of the sequence of code points of str interpreted as a UTF-16 encoded (6.1.4) Unicode string. Otherwise, let Input be a List consisting of the sequence of code units that are the elements of str. Input will be used throughout the algorithms in 21.2.2. Each element of Input is considered to be a character. */
+         /* 2. Let listIndex be the index into Input of the character that was obtained from element index of str. */
+         /* 3. Let InputLength be the number of characters contained in Input. This variable will be used throughout the algorithms in 21.2.2. */
+         /* 4. Let c be a Continuation that always returns its State argument as a successful MatchResult. */
+         /* 5. Let cap be a List of NcapturingParens undefined values, indexed 1 through NcapturingParens./
+         /* 6. Let x be the State (listIndex, cap). */
+         /* 7. Call m(x, c) and return its result. */
+};
+
+/* 21.2.2.3 Disjunction */ 
+/**
+ * NOTE The | regular expression operator separates two alternatives. The pattern first tries to match the 
+ * left Alternative (followed by the sequel of the regular expression); if it fails, it tries to match the
+ * right Disjunction (followed by the sequel of the regular expression). If the left Alternative, the right
+ * Disjunction, and the sequel all have choice points, all choices in the sequel are tried before moving on
+ * to the next choice in the left Alternative. If choices in the left Alternative are exhausted, the right
+ * Disjunction is tried instead of the left Alternative. Any capturing parentheses inside a portion of the
+ * pattern skipped by | produce undefined values instead of Strings. Thus, for example,
+    /a|ab/.exec("abc")
+ * returns the result "a" and not "ab". Moreover, 
+    /((a)|(ab))((c)|(bc))/.exec("abc")
+ * returns the array
+    ["abc", "a", "a", undefined, "bc", undefined, "bc"]
+ * and not
+    ["abc", "ab", undefined, "ab", "c", "c", undefined]
+ */
+function JS_Interpreter_Disjunction(d){
+   /* The production Disjunction :: Alternative evaluates by evaluating Alternative to obtain a Matcher and returning that Matcher. */
+   /* The production Disjunction :: Alternative | Disjunction evaluates as follows: */
+      /* 1. Evaluate Alternative to obtain a Matcher m1. */
+      /* 2. Evaluate Disjunction to obtain a Matcher m2. */
+      /* 3. Return an internal Matcher closure that takes two arguments, a State x and a Continuation c, and performs the following steps when evaluated: */
+         /* 1. Call m1(x, c) and let r be its result. */
+         /* 2. If r is not failure, return r. */
+         /* 3. Call m2(x, c) and return its result. */
+};
+
+/* 21.2.2.4 Alternative */
+/**
+ * NOTE Consecutive Terms try to simultaneously match consecutive portions of Input. If the left Alternative,
+ * the right Term, and the sequel of the regular expression all have choice points, all choices in the 
+ * sequel are tried before moving on to the next choice in the right Term, and all choices in the right 
+ * Term are tried before moving on to the next choice in the left Alternative.
+ */
+function JS_Interpreter_Alternative(a){
+   /* The production Alternative :: [empty] evaluates by returning a Matcher that takes two arguments, a State x and a Continuation c, and returns the result of calling c(x). */
+   /* The production Alternative :: Alternative Term evaluates as follows: */
+      /* 1.Evaluate Alternative to obtain a Matcher m1. */
+      /* 2. Evaluate Term to obtain a Matcher m2. */
+      /* 3. Return an internal Matcher closure that takes two arguments, a State x and a Continuation c, and performs the following steps when evaluated: */
+         /* 1. Create a Continuation d that takes a State argument y and returns the result of calling m2(y, c). */
+         /* 2. Call m1(x, d) and return its result. */
+};
+
+/* 21.2.2.5 Term */
+function JS_Interpreter_Term(t){
+   /* The production Term :: Assertion evaluates by returning an internal Matcher closure that takes two arguments, a State x and a Continuation c, and performs the following steps when evaluated: */
+      /* 1. Evaluate Assertion to obtain an AssertionTester t. */
+      /* 2. Call t(x) and let r be the resulting Boolean value. */
+      /* 3. If r is false, return failure. */
+      /* 4. Call c(x) and return its result. */
+   /* The production Term :: Atom evaluates as follows: */
+      /* 1. Return the Matcher that is the result of evaluating Atom. */
+   /* The production Term :: Atom Quantifier evaluates as follows: */
+      /* 1. Evaluate Atom to obtain a Matcher m. */
+      /* 2. Evaluate Quantifier to obtain the three results: an integer min, an integer (or ∞) max, and Boolean greedy. */
+      /* 3. If max is finite and less than min, throw a SyntaxError exception. */
+      /* 4. Let parenIndex be the number of left capturing parentheses in the entire regular expression that occur to the left of this production expansion's Term. This is the total number of times the Atom :: ( Disjunction ) production is expanded prior to this production's Term plus the total number of Atom :: ( Disjunction ) productions enclosing this Term. */
+      /* 5. Let parenCount be the number of left capturing parentheses in the expansion of this production's Atom. This is the total number of Atom :: ( Disjunction ) productions enclosed by this production's Atom. */
+      /* 6. Return an internal Matcher closure that takes two arguments, a State x and a Continuation c, and performs the following steps when evaluated: */
+         /* 1. Call RepeatMatcher(m, min, max, greedy, x, c, parenIndex, parenCount) and return its result. */
+};
+
+/* 21.2.2.5.1 Runtime Semantics: RepeatMatcher Abstract Operation */
+/**
+ * The abstract operation RepeatMatcher takes eight parameters, a Matcher m, an integer min, an integer
+ * (or ) max, a Boolean greedy, a State x, a Continuation c, an integer parenIndex, and an integer 
+ * parenCount, and performs the following steps:
+ *
+ * NOTE 1 An Atom followed by a Quantifier is repeated the number of times specified by the Quantifier. 
+ * A Quantifier can be non-greedy, in which case the Atom pattern is repeated as few times as possible 
+ * while still matching the sequel, or it can be greedy, in which case the Atom pattern is repeated 
+ * as many times as possible while still matching the sequel. The Atom pattern is repeated rather than 
+ * the input character sequence that it matches, so different repetitions of the Atom can match different
+ * input substrings.
+ *
+ * NOTE 2 If the Atom and the sequel of the regular expression all have choice points, the Atom is 
+ * first matched as many (or as few, if non-greedy) times as possible. All choices in the sequel are 
+ * tried before moving on to the next choice in the last repetition of Atom. All choices in the last 
+ * (nth) repetition of Atom are tried before moving on to the next choice in the next-to-last (n–1)st 
+ * repetition of Atom; at which point it may turn out that more or fewer repetitions of Atom are now 
+ * possible; these are exhausted (again, starting with either as few or as many as possible) before moving
+ * on to the next choice in the (n-1)st repetition of Atom and so on.
+ * Compare
+    /a[a-z]{2,4}/.exec("abcdefghi") which returns "abcde" with
+    /a[a-z]{2,4}?/.exec("abcdefghi") which returns "abc".
+ * Consider also
+    /(aa|aabaac|ba|b|c)*\/.exec("aabaac")
+ * which, by the choice point ordering above, returns the array
+    ["aaba", "ba"]
+ * and not any of:
+    ["aabaac", "aabaac"] ["aabaac", "c"]
+ * The above ordering of choice points can be used to write a regular expression that calculates the 
+ * greatest common divisor of two numbers (represented in unary notation). The following example calculates
+ * the gcd of 10 and 15:
+    "aaaaaaaaaa,aaaaaaaaaaaaaaa".replace(/^(a+)\1*,\1+$/,"$1") which returns the gcd in unary notation "aaaaa".
+ *
+ * NOTE 3 Step 5 of the RepeatMatcher clears Atom's captures each time Atom is repeated. We can see its 
+ * behaviour in the regular expression
+    /(z)((a+)?(b+)?(c))*\/.exec("zaacbbbcac")
+ * which returns the array
+    ["zaacbbbcac", "z", "ac", "a", undefined, "c"]
+ * and not
+    ["zaacbbbcac", "z", "ac", "a", "bbb", "c"]
+ * because each iteration of the outermost * clears all captured Strings contained in the quantified Atom,
+ * which in this case includes capture Strings numbered 2, 3, 4, and 5.
+ *
+ * NOTE 4 Step 1 of the RepeatMatcher's d closure states that, once the minimum number of repetitions has been
+ * satisfied, any more expansions of Atom that match the empty character sequence are not considered for further 
+ * repetitions. This prevents the regular expression engine from falling into an infinite loop on patterns such
+ * as:
+    /(a*)*\/.exec("b")
+ * or the slightly more complicated:
+    /(a*)b\1+/.exec("baaaac")
+ * which returns the array
+    ["b", ""]
+ */
+function RepeatMatcher(m, min_, max_, x, c, parenIndex, parenCount){
+   /* 1. If max is zero, return c(x). */
+   /* 2. Create an internal Continuation closure d that takes one State argument y and performs the following steps when evaluated: */
+      /* 1. If min is zero and y's endIndex is equal to x's endIndex, return failure. */
+      /* 2. If min is zero, let min2 be zero; otherwise let min2 be min–1. */
+      /* 3. If max is ∞, let max2 be ∞; otherwise let max2 be max–1. */
+      /* 4. Call RepeatMatcher(m, min2, max2, greedy, y, c, parenIndex, parenCount) and return its result. */
+   /* 3. Let cap be a fresh copy of x's captures List. */
+   /* 4. For every integer k that satisfies parenIndex < k and k ≤ parenIndex+parenCount, set cap[k] to undefined. */
+   /* 5. Let e be x's endIndex. */
+   /* 6. Let xr be the State (e, cap). */
+   /* 7. If min is not zero, return m(xr, d). */
+   /* 8. If greedy is false, then */
+      /* a. Call c(x) and let z be its result. */
+      /* b. If z is not failure, return z. */
+      /* c. Call m(xr, d) and return its result. */
+   /* 9. Call m(xr, d) and let z be its result. */
+   /* 10. If z is not failure, return z. */
+   /* 11. Call c(x) and return its result. */
+};
+
+/* 21.2.2.6 Assertion */
+/**
+ * NOTE Even when the y flag is used with a pattern, ^ always matches only at the beginning of Input, 
+ * or (if Multiline is true) at the beginning of a line.
+*/
+function JS_Interpreter_Assertion(a) {
+   /* The production Assertion :: ^ evaluates by returning an internal AssertionTester closure that takes a State argument x and performs the following steps when evaluated: */
+   if (a.kind = "^") {
+      /* 1. Let e be x's endIndex. */
+      /* 2. If e is zero, return true. */
+      /* 3. If Multiline is false, return false. */
+      /* 4. If the character Input[e–1] is one of LineTerminator, return true. */   
+      /* 5. Return false. */
+   } 
+   /* The production Assertion :: $ evaluates by returning an internal AssertionTester closure that takes a State argument x and performs the following steps when evaluated: */
+   elif (a.kind = "$") {
+      /* 1. Let e be x's endIndex. */  
+      /* 2. If e is equal to InputLength, return true. */
+      /* 3. If Multiline is false, return false. */
+      /* 4. If the character Input[e] is one of LineTerminator, return true. */
+      /* 5. Return false. */
+   } 
+   /* The production Assertion :: \ b evaluates by returning an internal AssertionTester closure that takes a State argument x and performs the following steps when evaluated: */
+   elif (a.kind = "\\b") {
+      /* 1. Let e be x's endIndex. */
+      /* 2. Call IsWordChar(e–1) and let a be the Boolean result. */
+      /* 3. Call IsWordChar(e) and let b be the Boolean result. */
+      /* 4. If a is true and b is false, return true. */
+      /* 5. If a is false and b is true, return true. */
+      /* 6. Return false. */
+   } 
+   /* The production Assertion :: \ B evaluates by returning an internal AssertionTester closure that takes a State argument x and performs the following steps when evaluated: */
+   elif (a.kind = "\\B") {
+      /* 1. Let e be x's endIndex. */
+      /* 2. Call IsWordChar(e–1) and let a be the Boolean result. */
+      /* 3. Call IsWordChar(e) and let b be the Boolean result. */
+      /* 4. If a is true and b is false, return false. */
+      /* 5. If a is false and b is true, return false. */
+      /* 6. Return true. */
+   }  
+   /* The production Assertion :: ( ? = Disjunction ) evaluates as follows: */
+   /* The production Assertion :: ( ? ! Disjunction ) evaluates as follows: */
+};
+
+/* 21.2.2.6.1 Runtime Semantics: IsWordChar Abstract Operation */
+/**
+ * The abstract operation IsWordChar takes an integer parameter e and performs the following steps:
+ */
+function IsWordChar(e) {
+  /* 1. If e is –1 or e is InputLength, return false. */
+  /* 2. Let c be the character Input[e]. */
+  /* 3. If c is one of the sixty-three characters below, return true. */
+  /**
+    * a b c d e f g h i j k l m n o p q r s t u v w x y z
+    * A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+    * 0 1 2 3 4 5 6 7 8 9 _
+    */
+  /* 4. Return false. */
+};
+
+/* 21.2.2.7 Quantifier */
+function JS_Interpreter_Quantifier(q) {
+   match (q) with
+   /* The production Quantifier :: QuantifierPrefix evaluates as follows: */
+      /* 1. Evaluate QuantifierPrefix to obtain the two results: an integer min and an integer (or ∞) max. */
+      /* 2. Return the three results min, max, and true. */
+   /* The production Quantifier :: QuantifierPrefix ? evaluates as follows: */
+      /* 1. Evaluate QuantifierPrefix to obtain the two results: an integer min and an integer (or ∞) max. */
+      /* 2. Return the three results min, max, and false. */
+   /* The production QuantifierPrefix :: * evaluates as follows: */
+   | { type: "Quantifier", kind: "*", greedy: b } -> {
+      /* 1. Return the two results 0 and ∞. */
+   }
+   /* The production QuantifierPrefix :: + evaluates as follows: */
+   | { type: "Quantifier", kind: "+", greedy: b } -> {
+      /* 1. Return the two results 1 and ∞. */
+   }
+   /* The production QuantifierPrefix :: ? evaluates as follows: */
+   | { type: "Quantifier", kind: "?", greedy: b } -> {
+      /* 1. Return the two results 0 and 1. */
+   }
+   /* The production QuantifierPrefix :: { DecimalDigits } evaluates as follows: */
+      /* 1. Let i be the MV of DecimalDigits (see 11.8.3). */
+      /* 2. Return the two results i and i. */
+   /* The production QuantifierPrefix :: { DecimalDigits , } evaluates as follows: */   
+   | { type: "Quantifier", kind: "Range", from: from, greedy: b } -> {
+      /* 1. Let i be the MV of DecimalDigits. */
+      /* 2. Return the two results i and ∞. */
+   }
+   /* The production QuantifierPrefix :: { DecimalDigits , DecimalDigits } evaluates as follows: */
+   | { type: "Quantifier", kind: "Range", from: from, to: to, greedy: b } -> {
+      /* 1. Let i be the MV of the first DecimalDigits. */
+      /* 2. Let j be the MV of the second DecimalDigits. */
+      /* 3. Return the two results i and j. */
+   }
+};
+
+/* 21.2.2.8 Atom */
+function JS_Interpreter_Atom(a){
+   /* The production Atom :: PatternCharacter evaluates as follows: */
+      /* 1. Let ch be the character matched by PatternCharacter. */
+      /* 2. Let A be a one-element CharSet containing the character ch. */
+      /* 3. Call CharacterSetMatcher(A, false) and return its Matcher result. */
+   /* The production Atom :: . evaluates as follows: */
+      /* 1. Let A be the set of all characters except LineTerminator. */
+      /* 2. Call CharacterSetMatcher(A, false) and return its Matcher result. */
+   /* The production Atom :: \ AtomEscape evaluates as follows: */
+      /* 1. Return the Matcher that is the result of evaluating AtomEscape. */
+   /* The production Atom :: CharacterClass evaluates as follows: */
+      /* 1. Evaluate CharacterClass to obtain a CharSet A and a Boolean invert. */
+      /* 2. Call CharacterSetMatcher(A, invert) and return its Matcher result. */
+   /* The production Atom :: ( Disjunction ) evaluates as follows: */
+      /* 1. Evaluate Disjunction to obtain a Matcher m. */
+      /* 2. Let parenIndex be the number of left capturing parentheses in the entire regular expression that occur to the left of this production expansion's initial left parenthesis. This is the total number of times the Atom :: ( Disjunction ) production is expanded prior to this production's Atom plus the total number of Atom :: ( Disjunction ) productions enclosing this Atom. */
+      /* 3. Return an internal Matcher closure that takes two arguments, a State x and a Continuation c, and performs the following steps: */
+         /* 1. Create an internal Continuation closure d that takes one State argument y and performs the following steps: */
+            /* 1. Let cap be a fresh copy of y's captures List. */
+            /* 2. Let xe be x's endIndex. */
+            /* 3. Let ye be y's endIndex. */
+            /* 4. Let s be a fresh List whose characters are the characters of Input at indices xe (inclusive) through ye (exclusive). */
+            /* 5. Set cap[parenIndex+1] to s. */
+            /* 6. Let z be the State (ye, cap). */
+            /* 7. Call c(z) and return its result. */
+         /* 2. Call m(x, d) and return its result. */
+   /* The production Atom :: ( ? : Disjunction ) evaluates as follows: */
+      /* 1. Return the Matcher that is the result of evaluating Disjunction. */
+};
+
+/* 21.2.2.8.1 Runtime Semantics: CharacterSetMatcher Abstract Operation */
+/**
+ * The abstract operation CharacterSetMatcher takes two arguments, a CharSet A and a Boolean
+ * flag invert, and performs the following steps:
+ */
+function CharacterSetMatcher(A, invert){
+   /* 1. Return an internal Matcher closure that takes two arguments, a State x and a Continuation c, and performs the following steps when evaluated: */
+      /* 1. Let e be x's endIndex. */
+      /* 2. If e is InputLength, return failure. */
+      /* 3. Let ch be the character Input[e]. */
+      /* 4. Let cc be Canonicalize(ch). */
+      /* 5. If invert is false, then */
+         /* a. If there does not exist a member a of set A such that Canonicalize(a) is cc, return failure. */
+      /* 6. Else invert is true, */
+         /* a. If there exists a member a of set A such that Canonicalize(a) is cc, return failure. */
+      /* 7. Let cap be x's captures List. */
+      /* 8. Let y be the State (e+1, cap). */
+      /* 9. Call c(y) and return its result. */
+};
+
+/* 21.2.2.8.2 Runtime Semantics: Canonicalize ( ch ) */
+/**
+ * The abstract operation Canonicalize takes a character parameter ch and performs the following steps:
+ *
+ * NOTE 1 Parentheses of the form ( Disjunction ) serve both to group the components of the Disjunction 
+ * pattern together and to save the result of the match. The result can be used either in a backreference 
+ * (\ followed by a nonzero decimal number), referenced in a replace String, or returned as part of an 
+ * array from the regular expression matching internal procedure. To inhibit the capturing behaviour of 
+ * parentheses, use the form (?: Disjunction ) instead.
+ *
+ * NOTE 2 The form (?= Disjunction ) specifies a zero-width positive lookahead. In order for it to succeed,
+ * the pattern inside Disjunction must match at the current position, but the current position is not 
+ * advanced before matching the sequel. If Disjunction can match at the current position in several ways, 
+ * only the first one is tried. Unlike other regular expression operators, there is no backtracking into a
+ * (?= form (this unusual behaviour is inherited from Perl). This only matters when the Disjunction contains
+ * capturing parentheses and the sequel of the pattern contains backreferences to those captures.
+ * For example,
+    /(?=(a+))/.exec("baaabac")
+ * matches the empty String immediately after the first b and therefore returns the array: ["", "aaa"]
+ * To illustrate the lack of backtracking into the lookahead, consider:
+    /(?=(a+))a*b\1/.exec("baaabac")
+ * This expression returns
+    ["aba", "a"]
+ * and not:
+    ["aaaba", "a"]
+ *
+ * NOTE 3 The form (?! Disjunction ) specifies a zero-width negative lookahead. In order for it to succeed,
+ * the pattern inside Disjunction must fail to match at the current position. The current position is not 
+ * advanced before matching the sequel. Disjunction can contain capturing parentheses, but backreferences 
+ * to them only make sense from within Disjunction itself. Backreferences to these capturing parentheses 
+ * from elsewhere in the pattern always return undefined because the negative lookahead must fail for the
+ * pattern to succeed. For example,
+    /(.*?)a(?!(a+)b\2c)\2(.*)/.exec("baaabaac")
+ * looks for an a not immediately followed by some positive number n of a's, a b, another n a's (specified 
+ * by the first \2) and a c. The second \2 is outside the negative lookahead, so it matches against undefined
+ * and therefore always succeeds. The whole expression returns the array:
+    ["baaabaac", "ba", undefined, "abaac"]
+ *
+ * NOTE 4 In case-insignificant matches when Unicode is true, all characters are implicitly case-folded 
+ * using the simple mapping provided by the Unicode standard immediately before they are compared. The 
+ * simple mapping always maps to a single code point, so it does not map, for example, "ß" (U+00DF) to "SS".
+ * It may however map a code point outside the Basic Latin range to a character within, for example, "s" 
+ * (U+017F) to "s". Such characters are not mapped if Unicode is false. This prevents Unicode code points 
+ * such as U+017F and U+212A from matching regular expressions such as /[a-z]/i, but they will match 
+ * /[a-z]/ui.
+ */
+function Canonicalize(ch){
+   /* 1. If IgnoreCase is false, return ch. */
+   /* 2. If Unicode is true, */
+      /* a. If the file CaseFolding.txt of the Unicode Character Database provides a simple or common case folding mapping for ch, return the result of applying that mapping to ch. */
+      /* b. Else, return ch. */
+   /* 3. Else, */
+      /* a. Assert: ch is a UTF-16 code unit. */
+      /* b. Let s be the ECMAScript String value consisting of the single code unit ch. */
+      /* c. Let u be the same result produced as if by performing the algorithm for String.prototype.toUpperCase using s as the this value. */
+      /* d. Assert: u is a String value. */  
+      /* e. If u does not consist of a single code unit, return ch. */
+      /* f. Let cu be u’s single code unit element. */
+      /* g. If ch's code unit value ≥ 128 and cu's code unit value < 128, return ch. */
+      /* h. Return cu. */
+};
+
+/* 21.2.2.9 AtomEscape */
+/**
+ * NOTE An escape sequence of the form \ followed by a nonzero decimal number n matches the result
+ * of the nth set of capturing parentheses (see 0). It is an error if the regular expression has 
+ * fewer than n capturing parentheses. If the regular expression has n or more capturing parentheses but 
+ * the nth one is undefined because it has not captured anything, then the backreference always succeeds.
+ */
+function JS_Interpreter_AtomEscape(ae){
+   /* The production AtomEscape :: DecimalEscape evaluates as follows: */
+      /* 1. Evaluate DecimalEscape to obtain an EscapeValue E. */
+      /* 2. If E is a character, then */
+         /* a. Let ch be E's character. */
+         /* b. Let A be a one-element CharSet containing the character ch. */
+         /* c. Call CharacterSetMatcher(A, false) and return its Matcher result. */
+      /* 3. Assert: E must be an integer. */
+      /* 4. Let n be that integer. */
+      /* 5. If n=0 or n>NcapturingParens, throw a SyntaxError exception. */
+      /* 6. Return an internal Matcher closure that takes two arguments, a State x and a Continuation c, and performs the following steps: */
+         /* 1. Let cap be x's captures List. */
+         /* 2. Let s be cap[n]. */
+         /* 3. If s is undefined, return c(x). */
+         /* 4. Let e be x's endIndex. */
+         /* 5. Let len be s's length. */
+         /* 6. Let f be e+len. */
+         /* 7. If f>InputLength, return failure. */
+         /* 8. If there exists an integer i between 0 (inclusive) and len (exclusive) such that Canonicalize(s[i]) is not the same character value as Canonicalize(Input [e+i]), return failure. */
+         /* 9. Let y be the State (f, cap). */
+         /* 10. Call c(y) and return its result. */
+   /* The production AtomEscape :: CharacterEscape evaluates as follows: */
+      /* 1. Evaluate CharacterEscape to obtain a character ch. */
+      /* 2. Let A be a one-element CharSet containing the character ch. */
+      /* 3. Call CharacterSetMatcher(A, false) and return its Matcher result. */
+   /* The production AtomEscape :: CharacterClassEscape evaluates as follows: */
+      /* 1. Evaluate CharacterClassEscape to obtain a CharSet A. */
+      /* 2. Call CharacterSetMatcher(A, false) and return its Matcher result. */
+};
+
+/* 21.2.2.10 CharacterEscape */
+function JS_Interpreter_CharacterEscape(ce){
+   /* The production CharacterEscape :: ControlEscape evaluates by returning the character according to Table 47. */
+   /**
+    * Table 47 — ControlEscape Character Values
+    *
+    * ControlEscape | Character Value | Code Point | Unicode Name	        | Symbol   |
+    * ______________|_________________|____________|______________________|__________|
+    * t             | 9               | U+0009     | CHARACTER TABULATION | <HT>     |
+    * ______________|_________________|____________|______________________|__________|
+    * n	           | 10	           | U+000A	   | LINE FEED (LF)	     | <LF>     |
+    * ______________|_________________|____________|______________________|__________|
+    * v	           | 11	           | U+000B     | LINE TABULATION	     | <VT>     |
+    * ______________|_________________|____________|______________________|__________|
+    * f	           | 12	           | U+000C	   | FORM FEED (FF)	     | <FF>     |
+    * ______________|_________________|____________|______________________|__________|
+    * r	           | 13	           | U+000D	   | CARRIAGE RETURN (CR) | <CR>     |
+    * ______________|_________________|____________|______________________|__________|
+    */
+   /* The production CharacterEscape :: c ControlLetter evaluates as follows: */
+      /* 1. Let ch be the character matched by ControlLetter. */
+      /* 2. Let i be ch's character value. */
+      /* 3. Let j be the remainder of dividing i by 32. */
+      /* 4. Return the character whose character value is j. */
+   /* The production CharacterEscape :: HexEscapeSequence evaluates as follows: */
+      /* 1. Return the character whose code is the SV of HexEscapeSequence. */
+   /* The production CharacterEscape :: RegExpUnicodeEscapeSequence evaluates as follows: */
+      /* 1. Return the result of evaluating RegExpUnicodeEscapeSequence. */
+   /* The production CharacterEscape :: IdentityEscape evaluates as follows: */
+      /* 1. Return the character matched by IdentityEscape. */
+   /* The production RegExpUnicodeEscapeSequence :: u LeadSurrogate \u TrailSurrogate evaluates as follows: */
+      /* 1. Let lead be the result of evaluating LeadSurrogate. */
+      /* 2. Let trail be the result of evaluating TrailSurrogate. */
+      /* 3. Let cp be UTF16Decode(lead, trail). */
+      /* 4. Return the character whose character value is cp. */
+   /* The production RegExpUnicodeEscapeSequence :: u LeadSurrogate evaluates as follows: */
+      /* 1. Return the character whose code is the result of evaluating LeadSurrogate. */
+   /* The production RegExpUnicodeEscapeSequence :: u TrailSurrogate evaluates as follows: */
+      /* 1. Return the character whose code is the result of evaluating TrailSurrogate. */
+   /* The production RegExpUnicodeEscapeSequence :: u NonSurrogate evaluates as follows: */
+      /* 1. Return the character whose code is the result of evaluating NonSurrogate. */
+   /* The production RegExpUnicodeEscapeSequence :: u Hex4Digits evaluates as follows: */
+      /* 1. Return the character whose code is the SV of Hex4Digits. */
+   /* The production RegExpUnicodeEscapeSequence :: u{ HexDigits } evaluates as follows: */
+      /* 1. Return the character whose code is the MV of HexDigits. */
+   /* The production LeadSurrogate :: Hex4Digits evaluates as follows: */
+      /* 1. Return the character whose code is the SV of Hex4Digits. */
+   /* The production TrailSurrogate :: Hex4Digits evaluates as follows: */
+      /* 1. Return the character whose code is the SV of Hex4Digits. */
+   /* The production NonSurrogate :: Hex4Digits evaluates as follows: */
+      /* 1. Return the character whose code is the SV of Hex4Digits. */
+};
+
+/* 21.2.2.11 DecimalEscape */
+/**
+ * The definition of “the MV of DecimalIntegerLiteral” is in 11.8.3.
+ *
+ * NOTE If \ is followed by a decimal number n whose first digit is not 0, then the escape sequence is 
+ * considered to be a backreference. It is an error if n is greater than the total number of left capturing
+ * parentheses in the entire regular expression. \0 represents the <NUL> character and cannot be followed
+ * by a decimal digit.
+ */
+function JS_Interpreter_DecimalEscape(de){
+   /* The production DecimalEscape :: DecimalIntegerLiteral evaluates as follows: */
+      /* 1. Let i be the MV of DecimalIntegerLiteral. */
+      /* 2. If i is zero, return the EscapeValue consisting of the character U+0000 (NULL). */
+      /* 3. Return the EscapeValue consisting of the integer i. */
+};
+
+/* 21.2.2.12 CharacterClassEscape */
+function JS_Interpreter_CharacterClassEscape(cce){
+   /* The production CharacterClassEscape :: d evaluates by returning the ten-element set of characters containing the characters 0 through 9 inclusive. */
+   /* The production CharacterClassEscape :: D evaluates by returning the set of all characters not included in the set returned by CharacterClassEscape :: d . */
+   /* The production CharacterClassEscape :: s evaluates by returning the set of characters containing the characters that are on the right-hand side of the WhiteSpace (11.2) or LineTerminator (11.3) productions. */
+   /* The production CharacterClassEscape :: S evaluates by returning the set of all characters not included in the set returned by CharacterClassEscape :: s . */
+   /* The production CharacterClassEscape :: w evaluates by returning the set of characters containing the sixty-three characters: */
+   /**
+    * a	b	c	d	e	f	g	h	i	j	k	l	m	n	o	p	q	r	s	t	u	v	w	x	y	z
+    * A	B	C	D	E	F	G	H	I	J	K	L	M	N	O	P	Q	R	S	T	U	V	W	X	Y	Z
+    * 0	1	2	3	4	5	6	7	8	9	_		
+    */													
+   /* The production CharacterClassEscape :: W evaluates by returning the set of all characters not included in the set returned by CharacterClassEscape :: w . */
+};
+
+/* 21.2.2.13 CharacterClass */
+function JS_Interpreter_CharacterClass(cc){
+   /* The production CharacterClass :: [ ClassRanges ] evaluates by evaluating ClassRanges to obtain a CharSet and returning that CharSet and the Boolean false. */
+   /* The production CharacterClass :: [ ^ ClassRanges ] evaluates by evaluating ClassRanges to obtain a CharSet and returning that CharSet and the Boolean true. */
+};
+
+/* 21.2.2.14 ClassRanges */
+function JS_Interpreter_ClassRanges(cr){
+   /* The production ClassRanges :: [empty] evaluates by returning the empty CharSet. */
+   /* The production ClassRanges :: NonemptyClassRanges evaluates by evaluating NonemptyClassRanges to obtain a CharSet and returning that CharSet. */
+};
+
+/* 21.2.2.15 NonemptyClassRanges */
+function JS_Interpreter_NonemptyClassRanges(necr){
+   /* The production NonemptyClassRanges :: ClassAtom evaluates as follows: */
+      /* 1. Return the CharSet that is the result of evaluating ClassAtom. */
+   /* The production NonemptyClassRanges :: ClassAtom NonemptyClassRangesNoDash evaluates as follows: */
+      /* 1. Evaluate ClassAtom to obtain a CharSet A. */
+      /* 2. Evaluate NonemptyClassRangesNoDash to obtain a CharSet B. */
+      /* 3. Return the union of CharSets A and B. */
+   /* The production NonemptyClassRanges :: ClassAtom - ClassAtom ClassRanges evaluates as follows: */
+      /* 1. Evaluate the first ClassAtom to obtain a CharSet A. */
+      /* 2. Evaluate the second ClassAtom to obtain a CharSet B. */
+      /* 3. Evaluate ClassRanges to obtain a CharSet C. */
+      /* 4. Call CharacterRange(A, B) and let D be the resulting CharSet. */
+      /* 5. Return the union of CharSets D and C. */
+};
+
+/* 21.2.2.15.1 Runtime Semantics: CharacterRange Abstract Operation */
+/**
+ * The abstract operation CharacterRange takes two CharSet parameters A and B and performs the following steps:
+ */
+function CharacterRange(A, B){
+   /* 1. If A does not contain exactly one character or B does not contain exactly one character, throw a SyntaxError exception. */
+   /* 2. Let a be the one character in CharSet A. */
+   /* 3. Let b be the one character in CharSet B. */
+   /* 4. Let i be the character value of character a. */
+   /* 5. Let j be the character value of character b. */
+   /* 6. If i > j, throw a SyntaxError exception. */
+   /* 7. Return the set containing all characters numbered i through j, inclusive. */
+};
+
+/* 21.2.2.16 NonemptyClassRangesNoDash */
+/**
+ * NOTE 1 ClassRanges can expand into a single ClassAtom and/or ranges of two ClassAtom separated by dashes. 
+ * In the latter case the ClassRanges includes all characters between the first ClassAtom and the second 
+ * ClassAtom, inclusive; an error occurs if either ClassAtom does not represent a single character (for example,
+ * if one is \w) or if the first ClassAtom's character value is greater than the second ClassAtom's character 
+ * value.
+ *
+ * NOTE 2 Even if the pattern ignores case, the case of the two ends of a range is significant in determining 
+ * which characters belong to the range. Thus, for example, the pattern /[E-F]/i matches only the letters E, F,
+ * e, and f, while the pattern /[E-f]/i matches all upper and lower-case letters in the Unicode Basic Latin 
+ * block as well as the symbols [, \, ], ^, _, and `.
+ *
+ * NOTE 3 A - character can be treated literally or it can denote a range. It is treated literally if it is 
+ * the first or last character of ClassRanges, the beginning or end limit of a range specification, or 
+ * immediately follows a range specification.
+ */
+function JS_Interpreter_NonemptyClassRangesNoDash(necrnd){
+   /* The production NonemptyClassRangesNoDash :: ClassAtom evaluates as follows: */
+      /* 1. Return the CharSet that is the result of evaluating ClassAtom. */
+   /* The production NonemptyClassRangesNoDash :: ClassAtomNoDash NonemptyClassRangesNoDash evaluates as follows: */
+      /* 1. Evaluate ClassAtomNoDash to obtain a CharSet A. */
+      /* 2. Evaluate NonemptyClassRangesNoDash to obtain a CharSet B. */
+      /* 3. Return the union of CharSets A and B. */
+   /* The production NonemptyClassRangesNoDash :: ClassAtomNoDash - ClassAtom ClassRanges evaluates as follows: */
+      /* 1. Evaluate ClassAtomNoDash to obtain a CharSet A. */
+      /* 2. Evaluate ClassAtom to obtain a CharSet B. */
+      /* 3. Evaluate ClassRanges to obtain a CharSet C. */
+      /* 4. Call CharacterRange(A, B) and let D be the resulting CharSet. */
+      /* 5. Return the union of CharSets D and C. */ 
+};
+
+/* 21.2.2.17 ClassAtom */
+function JS_Interpreter_ClassAtom(ca){
+   /* The production ClassAtom :: - evaluates by returning the CharSet containing the one character -. */
+   /* The production ClassAtom :: ClassAtomNoDash evaluates by evaluating ClassAtomNoDash to obtain a CharSet and returning that CharSet. */
+};
+
+/* 21.2.2.18 ClassAtomNoDash */
+function JS_Interpreter_ClassAtomNoDash(cand){
+   /* The production ClassAtomNoDash :: SourceCharacter but not one of \ or ] or - evaluates as follows: */
+      /* 1. Return the CharSet containing the character matched by SourceCharacter. */
+   /* The production ClassAtomNoDash :: \ ClassEscape evaluates as follows: */
+      /* 1. Return the CharSet that is the result of evaluating ClassEscape. */
+};
+
+/* 21.2.2.19 ClassEscape */
+/**
+ * NOTE A ClassAtom can use any of the escape sequences that are allowed in the rest of the regular expression
+ * except for \b, \B, and backreferences. Inside a CharacterClass, \b means the backspace character, while \B
+ * and backreferences raise errors. Using a backreference inside a ClassAtom causes an error.
+ */
+function JS_Interpreter_ClassEscape(ce){
+   /* The production ClassEscape :: DecimalEscape evaluates as follows: */
+      /* 1. Evaluate DecimalEscape to obtain an EscapeValue E. */
+      /* 2. If E is not a character, throw a SyntaxError exception. */
+      /* 3. Let ch be E's character. */
+      /* 4. Return the one-element CharSet containing the character ch. */
+   /* The production ClassEscape :: b evaluates as follows: */
+      /* 1. Return the CharSet containing the single character <BS> U+0008 (BACKSPACE). */
+   /* The production ClassEscape :: - evaluates as follows: */
+      /* 1. Return the CharSet containing the single character - U+002D (HYPEN-MINUS). */
+   /* The production ClassEscape :: CharacterEscape evaluates as follows: */
+      /* 1. Return the CharSet containing the single character that is the result of evaluating CharacterEscape. */
+   /* The production ClassEscape :: CharacterClassEscape evaluates as follows: */
+      /* 1. Return the CharSet that is the result of evaluating CharacterClassEscape. */
+};
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* 21.2.3 The RegExp Constructor */
+
+/**
+ * The RegExp constructor is the %RegExp% intrinsic object and the initial value of the RegExp property of 
+ * the global object. When RegExp is called as a function rather than as a constructor, it creates and 
+ * initializes a new RegExp object. Thus the function call RegExp(...) is equivalent to the object creation 
+ * expression new RegExp(...) with the same arguments.
+ *
+ * The RegExp constructor is designed to be subclassable. It may be used as the value of an extends clause 
+ * of a class definition. Subclass constructors that intend to inherit the specified RegExp behaviour must 
+ * include a super call to the RegExp constructor to create and initialize subclass instances with the necessary
+ * internal slots.
+ */
+
+/* 21.2.3.1 RegExp ( pattern, flags ) */
+/**
+ * NOTE If pattern is supplied using a StringLiteral, the usual escape sequence substitutions are performed 
+ * before the String is processed by RegExp. If pattern must contain an escape sequence to be recognized by
+ * RegExp, any U+005C (REVERSE SOLIDUS) code points must be escaped within the StringLiteral to prevent them
+ * being removed when the contents of the StringLiteral are formed.
+ */
+
+/* 21.2.3.2 Abstract Operations for the RegExp Constructor */
+
+/* 21.2.3.2.1 Runtime Semantics: RegExpAlloc ( newTarget ) */
+function RegExpAlloc(newTarget){
+   /* 1. Let obj be OrdinaryCreateFromConstructor(newTarget, "%RegExpPrototype%", «‍[[RegExpMatcher]], [[OriginalSource]], [[OriginalFlags]]»). */
+   /* 2. ReturnIfAbrupt(obj). */
+   /* 3. Let status be DefinePropertyOrThrow(obj, "lastIndex", PropertyDescriptor {[[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: false}). */
+   /* 4. Assert: status is not an abrupt completion. */
+   /* 5. Return obj. */
+};
+
+/* 21.2.3.2.2 Runtime Semantics: RegExpInitialize ( obj, pattern, flags ) */
+function RegExpInitialize(obj, pattern, flags){
+   /* 1. If pattern is undefined, let P be the empty String. */
+   /* 2. Else, let P be ToString(pattern). */
+   /* 3. ReturnIfAbrupt(P). */
+   /* 4. If flags is undefined, let F be the empty String. */
+   /* 5. Else, let F be ToString(flags). */
+   /* 6. ReturnIfAbrupt(F). */
+   /* 7. If F contains any code unit other than "g", "i", "m", "u", or "y" or if it contains the same code unit more than once, throw a SyntaxError exception. */
+   /* 8. If F contains "u", let BMP be false; else let BMP be true. */
+   /* 9. If BMP is true, then */
+      /* a. Parse P using the grammars in 21.2.1 and interpreting each of its 16-bit elements as a Unicode BMP code point. UTF-16 decoding is not applied to the elements. The goal symbol for the parse is Pattern. Throw a SyntaxError exception if P did not conform to the grammar, if any elements of P were not matched by the parse, or if any Early Error conditions exist. */
+      /* b. Let patternCharacters be a List whose elements are the code unit elements of P. */
+   /* 10. Else */
+      /* a. Parse P using the grammars in 21.2.1 and interpreting P as UTF-16 encoded Unicode code points (6.1.4). The goal symbol for the parse is Pattern[U]. Throw a SyntaxError exception if P did not conform to the grammar, if any elements of P were not matched by the parse, or if any Early Error conditions exist. */
+      /* b. Let patternCharacters be a List whose elements are the code points resulting from applying UTF-16 decoding to P’s sequence of elements. */
+   /* 11. Set the value of obj’s [[OriginalSource]] internal slot to P. */
+   /* 12. Set the value of obj’s [[OriginalFlags]] internal slot to F. */
+   /* 13. Set obj’s [[RegExpMatcher]] internal slot to the internal procedure that evaluates the above parse of P by applying the semantics provided in 21.2.2 using patternCharacters as the pattern’s List of SourceCharacter values and F as the flag parameters. */ 
+   /* 14. Let setStatus be Set(obj, "lastIndex", 0, true). */
+   /* 15. ReturnIfAbrupt(setStatus). */
+   /* 16. Return obj. */
+};
+
+/* 21.2.3.2.3 Runtime Semantics: RegExpCreate ( P, F ) */
+function RegExpCreate(P, F){
+   /* 1. Let obj be RegExpAlloc(%RegExp%). */
+   /* 2. ReturnIfAbrupt(obj). */
+   /* 3. Return RegExpInitialize(obj, P, F). */
+};
+/* 21.2.3.2.4 Runtime Semantics: EscapeRegExpPattern ( P, F ) */
+function EscapeRegExpPattern(P, F){
+   /* 1. Let S be a String in the form of a Pattern (Pattern[U] if F contains "u") equivalent to P interpreted as UTF-16 encoded Unicode code points (6.1.4), in which certain code points are escaped as described below. S may or may not be identical to P; however, the internal procedure that would result from evaluating S as a Pattern (Pattern[U] if F contains "u") must behave identically to the internal procedure given by the constructed object's [[RegExpMatcher]] internal slot. Multiple calls to this abstract operation using the same values for P and F must produce identical results. */
+   /* 2. The code points / or any LineTerminator occurring in the pattern shall be escaped in S as necessary to ensure that the String value formed by concatenating the Strings "/", S, "/", and F can be parsed (in an appropriate lexical context) as a RegularExpressionLiteral that behaves identically to the constructed regular expression. For example, if P is "/", then S could be "\/" or "\u002F", among other possibilities, but not "/", because /// followed by F would be parsed as a SingleLineComment rather than a RegularExpressionLiteral. If P is the empty String, this specification can be met by letting S be "(?:)". */
+   /* 3. Return S. */
+};
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* 21.2.4 Properties of the RegExp Constructor */
+
+/**
+ * The value of the [[Prototype]] internal slot of the RegExp constructor is the intrinsic object 
+ * %FunctionPrototype% (19.2.3).
+ * Besides the length property (whose value is 2), the RegExp constructor has the following properties:
+ */
+/* 21.2.4.1 RegExp.prototype */
+/**
+ * The initial value of RegExp.prototype is the intrinsic object %RegExpPrototype% (21.2.5). This property 
+ * has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.
+ */
+/* 21.2.4.2 get RegExp [ @@species ] */
+/**
+ * RegExp[@@species] is an accessor property whose set accessor function is undefined. Its get accessor 
+ * function performs the following steps:
+ *
+ * The value of the name property of this function is "get [Symbol.species]".
+ * NOTE RegExp prototype methods normally use their this object’s constructor to create a derived object. 
+ * However, a subclass constructor may over-ride that default behaviour by redefining its @@species property.
+ */
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* 21.2.5 Properties of the RegExp Prototype Object */
+/**
+ * The RegExp prototype object is the intrinsic object %RegExpPrototype%. The RegExp prototype object is an
+ * ordinary object. It is not a RegExp instance and does not have a [[RegExpMatcher]] internal slot or any 
+ * of the other internal slots of RegExp instance objects.
+ *
+ * The value of the [[Prototype]] internal slot of the RegExp prototype object is the intrinsic object 
+ * %ObjectPrototype% (19.1.3).
+ *
+ * NOTE The RegExp prototype object does not have a valueOf property of its own; however, it inherits the 
+ * valueOf property from the Object prototype object.
+ */
+
+/* 21.2.5.1 RegExp.prototype.constructor */
+/**
+ * The initial value of RegExp.prototype.constructor is the intrinsic object %RegExp%. 21.2.5.2 
+ * RegExp.prototype.exec ( string )
+ */
 
 /* 21.2.5.2 RegExp.prototype.exec ( string ) */
+/**
+ * Performs a regular expression match of string against the regular expression and returns an Array object 
+ * containing the results of the match, or null if string did not match.
+ */
 function RegExpPrototypeexec(global, this, strict, args){
-    string := l_nth(args, 0);
+   string := l_nth(args, 0);
 
-    /* 1. Let R be the this value. */
-    R := this;
+   /* 1. Let R be the this value. */
+   R := this;
 
-    /* 2. If Type(R) is not Object, throw a TypeError exception. */
-    if (!(Type(R) = "Object")){
-        throw TypeErrorConstructorInternal()
-    };
+   /* 2. If Type(R) is not Object, throw a TypeError exception. */
+   if (!(Type(R) = "Object")){
+      throw TypeErrorConstructorInternal()
+   };
 
-    /* 3. If R does not have a [[RegExpMatcher]] internal slot, throw a TypeError exception. */
-    if (!("RegExpMatcher" in_obj R)){
-        throw TypeErrorConstructorInternal()
-    };
+   /* 3. If R does not have a [[RegExpMatcher]] internal slot, throw a TypeError exception. */
+   if (!("RegExpMatcher" in_obj R)){
+      throw TypeErrorConstructorInternal()
+   };
 
-    /* 4. Let S be ToString(string). */
-    S := ToString(string);
+   /* 4. Let S be ToString(string). */
+   S := ToString(string);
 
-    /* 5. ReturnIfAbrupt(S). */
-    @ReturnIfAbrupt(S);
+   /* 5. ReturnIfAbrupt(S). */
+   @ReturnIfAbrupt(S);
 
-    /* 6. Return RegExpBuiltinExec(R, S). */
-    return RegExpBuiltinExec(R, S)
+   /* 6. Return RegExpBuiltinExec(R, S). */
+   return RegExpBuiltinExec(R, S)
 };
 
 /* 21.2.5.2.1 Runtime Semantics: RegExpExec ( R, S ) */
+/**
+ * NOTE If a callable exec property is not found this algorithm falls back to attempting to use the built-in
+ * RegExp matching algorithm. This provides compatible behaviour for code written for prior editions where 
+ * most built-in algorithms that use regular expressions did not perform a dynamic property lookup of exec.
+ */
 function RegExpExec(R, S){
-    /* 1. Assert: Type(R) is Object. */
-    assert(Type(R) = "Object");
+   /* 1. Assert: Type(R) is Object. */
+   assert(Type(R) = "Object");
 
-    /* 2. Assert: Type(S) is String. */
-    assert(Type(S) = "String");
+   /* 2. Assert: Type(S) is String. */
+   assert(Type(S) = "String");
 
-    /* 3. Let exec be Get(R, "exec"). */
-    exec := GetNew(R, "exec");
+   /* 3. Let exec be Get(R, "exec"). */
+   exec := GetNew(R, "exec");
 
-    /* 4. ReturnIfAbrupt(exec). */
-    @ReturnIfAbrupt(exec);
+   /* 4. ReturnIfAbrupt(exec). */
+   @ReturnIfAbrupt(exec);
 
-    /* 5. If IsCallable(exec) is true, then */
-    if (IsCallable(exec) = true){
-        /* a. Let result be Call(exec, R, «S»). */
-        result := Call(null, null, exec, R, [S]);
+   /* 5. If IsCallable(exec) is true, then */
+   if (IsCallable(exec) = true){
+      /* a. Let result be Call(exec, R, «S»). */
+      result := Call(null, null, exec, R, [S]);
 
-        /* b. ReturnIfAbrupt(result). */
-        @ReturnIfAbrupt(result);
+      /* b. ReturnIfAbrupt(result). */
+      @ReturnIfAbrupt(result);
 
-        /* c. If Type(result) is neither Object or Null, throw a TypeError exception. */
-        if (!((Type(result) = "Object") || (Type(result) = "Null"))){
-            throw TypeErrorConstructorInternal()
-        };
+      /* c. If Type(result) is neither Object or Null, throw a TypeError exception. */
+      if (!((Type(result) = "Object") || (Type(result) = "Null"))){
+         throw TypeErrorConstructorInternal()
+      };
 
-        /* d. Return result. */
-        return result
-    };
+      /* d. Return result. */
+      return result
+   };
 
-    /* 6. If R does not have a [[RegExpMatcher]] internal slot, throw a TypeError exception. */
-    if (!("RegExpMatcher" in_obj R)){
-        throw TypeErrorConstructorInternal()
-    };
+   /* 6. If R does not have a [[RegExpMatcher]] internal slot, throw a TypeError exception. */
+   if (!("RegExpMatcher" in_obj R)){
+      throw TypeErrorConstructorInternal()
+   };
 
-    /* 7. Return RegExpBuiltinExec(R, S). */
-    return RegExpBuiltinExec(R, S)
+   /* 7. Return RegExpBuiltinExec(R, S). */
+   return RegExpBuiltinExec(R, S)
 };
 
 /* 21.2.5.2.2 Runtime Semantics: RegExpBuiltinExec ( R, S ) */
 function RegExpBuiltinExec(R, S){
-    /* 1. Assert: R is an initialized RegExp instance. */
-    /* 2. Assert: Type(S) is String. */
-    /* 3. Let length be the number of code units in S. */
-    /* 4. Let lastIndex be ToLength(Get(R,"lastIndex")). */
-    /* 5. ReturnIfAbrupt(lastIndex). */
-    /* 6. Let global be ToBoolean(Get(R, "global")). */
-    /* 7. ReturnIfAbrupt(global). */
-    /* 8. Let sticky be ToBoolean(Get(R, "sticky")). */
-    /* 9. ReturnIfAbrupt(sticky). */
-    /* 10. If global is false and sticky is false, let lastIndex be 0. */
-    /* 11. Let matcher be the value of R’s [[RegExpMatcher]] internal slot. */
-    /* 12. Let flags be the value of R’s [[OriginalFlags]] internal slot. */
-    /* 13. If flags contains "u", let fullUnicode be true, else let fullUnicode be false. */
-    /* 14. Let matchSucceeded be false. */
-    /* 15. Repeat, while matchSucceeded is false */
-        /* a. If lastIndex > length, then */
-            /* i. Let setStatus be Set(R, "lastIndex", 0, true). */
-            /* ii. ReturnIfAbrupt(setStatus). */
-            /* iii. Return null. */
-        /* b. Let r be matcher(S, lastIndex). */
-        /* c. If r is failure, then */
-            /* i. If sticky is true, then */
-                /* 1. Let setStatus be Set(R, "lastIndex", 0, true). */
-                /* 2. ReturnIfAbrupt(setStatus). */
-                /* 3. Return null. */
-            /* ii. Let lastIndex be AdvanceStringIndex(S, lastIndex, fullUnicode). */
-        /* d. Else, */
-            /* i. Assert: r is a State. */
-            /* ii. Set matchSucceeded to true. */
-    /* 16. Let e be r's endIndex value. */
-    /* 17. If fullUnicode is true, then */
-        /* a. e is an index into the Input character list, derived from S, matched by matcher. Let eUTF be the smallest index into S that corresponds to the character at element e of Input. If e is greater than or equal to the length of Input, then eUTF is the number of code units in S. */
-        /* b. Let e be eUTF. */
-    /* 18. If global is true or sticky is true, */
-        /* a. Let setStatus be Set(R, "lastIndex", e, true). */
-        /* b. ReturnIfAbrupt(setStatus). */
-    /* 19. Let n be the length of r's captures List. (This is the same value as 21.2.2.1's NcapturingParens.) */
-    /* 20. Let A be ArrayCreate(n + 1). */
-    /* 21. Assert: The value of A’s "length" property is n + 1. */
-    /* 22. Let matchIndex be lastIndex. */
-    /* 23. Assert: The following CreateDataProperty calls will not result in an abrupt completion. */
-    /* 24. Perform CreateDataProperty(A, "index", matchIndex). */
-    /* 25. Perform CreateDataProperty(A, "input", S). */
-    /* 26. Let matchedSubstr be the matched substring (i.e. the portion of S between offset lastIndex inclusive and offset e exclusive). */
-    /* 27. Perform CreateDataProperty(A, "0", matchedSubstr). */
-    /* 28. For each integer i such that i > 0 and i ≤ n */
-        /* a. Let captureI be ith element of r's captures List. */
-        /* b. If captureI is undefined, let capturedValue be undefined. */
-        /* c. Else if fullUnicode is true, */
-            /* i. Assert: captureI is a List of code points. */
-            /* ii. Let capturedValue be a string whose code units are the UTF16Encoding (10.1.1) of the code points of captureI. */
-        /* d. Else, fullUnicode is false, */
-            /* i. Assert: captureI is a List of code units. */
-            /* ii. Let capturedValue be a string consisting of the code units of captureI. */
-        /* e. Perform CreateDataProperty(A, ToString(i) , capturedValue). */
-    /* 29. Return A. */
+   /* 1. Assert: R is an initialized RegExp instance. */
+   /* 2. Assert: Type(S) is String. */
+   /* 3. Let length be the number of code units in S. */
+   /* 4. Let lastIndex be ToLength(Get(R,"lastIndex")). */
+   /* 5. ReturnIfAbrupt(lastIndex). */
+   /* 6. Let global be ToBoolean(Get(R, "global")). */
+   /* 7. ReturnIfAbrupt(global). */
+   /* 8. Let sticky be ToBoolean(Get(R, "sticky")). */
+   /* 9. ReturnIfAbrupt(sticky). */
+   /* 10. If global is false and sticky is false, let lastIndex be 0. */
+   /* 11. Let matcher be the value of R’s [[RegExpMatcher]] internal slot. */
+   /* 12. Let flags be the value of R’s [[OriginalFlags]] internal slot. */
+   /* 13. If flags contains "u", let fullUnicode be true, else let fullUnicode be false. */
+   /* 14. Let matchSucceeded be false. */
+   /* 15. Repeat, while matchSucceeded is false */
+      /* a. If lastIndex > length, then */
+         /* i. Let setStatus be Set(R, "lastIndex", 0, true). */
+         /* ii. ReturnIfAbrupt(setStatus). */
+         /* iii. Return null. */
+      /* b. Let r be matcher(S, lastIndex). */
+      /* c. If r is failure, then */
+         /* i. If sticky is true, then */
+            /* 1. Let setStatus be Set(R, "lastIndex", 0, true). */
+            /* 2. ReturnIfAbrupt(setStatus). */
+            /* 3. Return null. */
+         /* ii. Let lastIndex be AdvanceStringIndex(S, lastIndex, fullUnicode). */
+      /* d. Else, */
+         /* i. Assert: r is a State. */
+         /* ii. Set matchSucceeded to true. */
+   /* 16. Let e be r's endIndex value. */
+   /* 17. If fullUnicode is true, then */
+      /* a. e is an index into the Input character list, derived from S, matched by matcher. Let eUTF be the smallest index into S that corresponds to the character at element e of Input. If e is greater than or equal to the length of Input, then eUTF is the number of code units in S. */
+      /* b. Let e be eUTF. */
+   /* 18. If global is true or sticky is true, */
+      /* a. Let setStatus be Set(R, "lastIndex", e, true). */
+      /* b. ReturnIfAbrupt(setStatus). */
+   /* 19. Let n be the length of r's captures List. (This is the same value as 21.2.2.1's NcapturingParens.) */
+   /* 20. Let A be ArrayCreate(n + 1). */
+   /* 21. Assert: The value of A’s "length" property is n + 1. */
+   /* 22. Let matchIndex be lastIndex. */
+   /* 23. Assert: The following CreateDataProperty calls will not result in an abrupt completion. */
+   /* 24. Perform CreateDataProperty(A, "index", matchIndex). */
+   /* 25. Perform CreateDataProperty(A, "input", S). */
+   /* 26. Let matchedSubstr be the matched substring (i.e. the portion of S between offset lastIndex inclusive and offset e exclusive). */
+   /* 27. Perform CreateDataProperty(A, "0", matchedSubstr). */
+   /* 28. For each integer i such that i > 0 and i ≤ n */
+      /* a. Let captureI be ith element of r's captures List. */
+      /* b. If captureI is undefined, let capturedValue be undefined. */
+      /* c. Else if fullUnicode is true, */
+         /* i. Assert: captureI is a List of code points. */
+         /* ii. Let capturedValue be a string whose code units are the UTF16Encoding (10.1.1) of the code points of captureI. */
+      /* d. Else, fullUnicode is false, */
+         /* i. Assert: captureI is a List of code units. */
+         /* ii. Let capturedValue be a string consisting of the code units of captureI. */
+      /* e. Perform CreateDataProperty(A, ToString(i) , capturedValue). */
+   /* 29. Return A. */
 };
 
 /* 21.2.5.2.3 AdvanceStringIndex ( S, index, unicode ) */
 function AdvanceStringIndex(S, index, unicode){
-    /* 1. Assert: Type(S) is String. */
-    assert(Type(S) = "String");
+   /* 1. Assert: Type(S) is String. */
+   assert(Type(S) = "String");
 
-    /* 2. Assert: index is an integer such that 0≤index≤253-1. */
-    /* assert((IsInteger(index)) && (index >= 0) && (index <= ((2^53) - 1))); */
-    assert(IsInteger(index));
-    assert(index >= 0.);
-    assert(index <= ((2. ** 53.) - 1.));
+   /* 2. Assert: index is an integer such that 0≤index≤253-1. */
+   /* assert((IsInteger(index)) && (index >= 0) && (index <= ((2^53) - 1))); */
+   assert(IsInteger(index));
+   assert(index >= 0.);
+   assert(index <= ((2. ** 53.) - 1.));
 
-    /* 3. Assert: Type(unicode) is Boolean. */
-    assert(Type(unicode) = "Boolean");
+   /* 3. Assert: Type(unicode) is Boolean. */
+   assert(Type(unicode) = "Boolean");
 
-    /* 4. If unicode is false, return index+1. */
-    if (unicode = false){
-        return index + 1.
-    };
+   /* 4. If unicode is false, return index+1. */
+   if (unicode = false){
+      return index + 1.
+   };
 
-    /* 5. Let length be the number of code units in S. */
-    length := s_len_u S;
+   /* 5. Let length be the number of code units in S. */
+   length := s_len_u S;
 
-    /* 6. If index+1 ≥ length, return index+1. */
-    if (index + 1. >= length){
-        return index + 1.
-    };
+   /* 6. If index+1 ≥ length, return index+1. */
+   if (index + 1. >= length){
+      return index + 1.
+   };
 
-    /* 7. Let first be the code unit value at index index in S. */
-    first := s_nth(S, int_of_float index);
+   /* 7. Let first be the code unit value at index index in S. */
+   first := s_nth(S, int_of_float index);
 
-    /* 8. If first < 0xD800 or first > 0xDBFF, return index+1. */
-    if ((first < 0xD800) || (first > 0xDBFF)){
-        return index + 1.
-    };
+   /* 8. If first < 0xD800 or first > 0xDBFF, return index+1. */
+   if ((first < 0xD800) || (first > 0xDBFF)){
+      return index + 1.
+   };
 
-    /* 9. Let second be the code unit value at index index+1 in S. */
-    second := s_nth(S, int_of_float (index + 1.));
+   /* 9. Let second be the code unit value at index index+1 in S. */
+   second := s_nth(S, int_of_float (index + 1.));
 
-    /* 10. If second < 0xDC00 or second > 0xDFFF, return index+1. */
-    if ((second < 0xDC00) || (second > 0xDFFF)){
-        return index + 1.
-    };
+   /* 10. If second < 0xDC00 or second > 0xDFFF, return index+1. */
+   if ((second < 0xDC00) || (second > 0xDFFF)){
+      return index + 1.
+   };
 
-    /* 11. Return index+2. */
-    return index + 2.
+   /* 11. Return index+2. */
+   return index + 2.
 };
+
+/* 21.2.5.3 get RegExp.prototype.flags */
+/**
+ * RegExp.prototype.flags is an accessor property whose set accessor function is undefined. Its get accessor 
+ * function performs the following steps:
+ */
+
+/* 21.2.5.4 get RegExp.prototype.global */
+/**
+ * RegExp.prototype.global is an accessor property whose set accessor function is undefined. Its get accessor
+ * function performs the following steps:
+ */
+
+/* 21.2.5.5 get RegExp.prototype.ignoreCase */
+/**
+ * RegExp.prototype.ignoreCase is an accessor property whose set accessor function is undefined. Its get 
+ * accessor function performs the following steps:
+ */
 
 /* 21.2.5.6 RegExp.prototype [ @@match ] ( string ) */
+/**
+ * The value of the name property of this function is "[Symbol.match]".
+ *
+ * NOTE The @@match property is used by the IsRegExp abstract operation to identify objects that have the basic
+ * behaviour of regular expressions. The absence of a @@match property or the existence of such a property whose
+ * value does not Boolean coerce to true indicates that the object is not intended to be used as a regular 
+ * expression object.
+ */
 function RegExpPrototypematch(global, this, strict, args){
-    string := l_nth(args, 0);
+   string := l_nth(args, 0);
 
-    /* 1. Let rx be the this value. */
-    rx := this;
+   /* 1. Let rx be the this value. */
+   rx := this;
 
-    /* 2. If Type(rx) is not Object, throw a TypeError exception. */
-    if (!(Type(rx) = "Object")){
-        throw TypeErrorConstructorInternal()
-    };
+   /* 2. If Type(rx) is not Object, throw a TypeError exception. */
+   if (!(Type(rx) = "Object")){
+      throw TypeErrorConstructorInternal()
+   };
 
-    /* 3. Let S be ToString(string) */
-    S := ToString(string);
+   /* 3. Let S be ToString(string) */
+   S := ToString(string);
 
-    /* 4. ReturnIfAbrupt(S). */
-    @ReturnIfAbrupt(S);
+   /* 4. ReturnIfAbrupt(S). */
+   @ReturnIfAbrupt(S);
 
-    /* 5. Let global be ToBoolean(GetES6(rx, "global")). */
-    global := ToBoolean(GetNew(rx, "global"));
+   /* 5. Let global be ToBoolean(GetES6(rx, "global")). */
+   global := ToBoolean(GetNew(rx, "global"));
 
-    /* 6. ReturnIfAbrupt(global). */
-    @ReturnIfAbrupt(global);
+   /* 6. ReturnIfAbrupt(global). */
+   @ReturnIfAbrupt(global);
 
-    /* 7. If global is false, then */
-    if (global = false){
-        /* a. Return RegExpExec(rx, S). */
-        /* return RegExpExec(rx, S) */
-        return RegExpPrototypeExec(global, rx, strict, [S])
-    }
-    /* 8. Else global is true, */
-    else{
-        /* a. Let fullUnicode be ToBoolean(GetES6(rx, "unicode")). */
-        /* fullUnicode := ToBoolean(GetES6(rx, "unicode")); */
-        fullUnicode := false;
+   /* 7. If global is false, then */
+   if (global = false){
+      /* a. Return RegExpExec(rx, S). */
+      /* return RegExpExec(rx, S) */
+      return RegExpPrototypeExec(global, rx, strict, [S])
+   }
+   /* 8. Else global is true, */
+   else{
+      /* a. Let fullUnicode be ToBoolean(GetES6(rx, "unicode")). */
+      /* fullUnicode := ToBoolean(GetES6(rx, "unicode")); */
+      fullUnicode := false;
 
-        /* b. ReturnIfAbrupt(fullUnicode). */
-        @ReturnIfAbrupt(fullUnicode); 
+      /* b. ReturnIfAbrupt(fullUnicode). */
+      @ReturnIfAbrupt(fullUnicode); 
 
-        /* c. Let setStatus be Set(rx, "lastIndex", 0, true). */
-        /* setStatus := Set(rx, "lastIndex", 0, true); */
-        setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false));
+      /* c. Let setStatus be Set(rx, "lastIndex", 0, true). */
+      /* setStatus := Set(rx, "lastIndex", 0, true); */
+      setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false));
  
-        /* d. ReturnIfAbrupt(setStatus). */
-        /* @ReturnIfAbrupt(setStatus); */
+      /* d. ReturnIfAbrupt(setStatus). */
+      /* @ReturnIfAbrupt(setStatus); */
 
-        /* e. Let A be ArrayCreate(0). */
-        /* A := ArrayCreate(0); */
-        A := ArrayConstructor(global, null, strict, []);
+      /* e. Let A be ArrayCreate(0). */
+      /* A := ArrayCreate(0); */
+      A := ArrayConstructor(global, null, strict, []);
 
-        /* f. Let n be 0. */
-        n := 0;
+      /* f. Let n be 0. */
+      n := 0;
 
-        /* g. Repeat, */
-        while (true){
-            /* i. Let result be RegExpExec(rx, S). */
-            /* result := RegExpExec(rx, S); */
-            result := RegExpPrototypeExec(global, rx, strict, [S]);
+      /* g. Repeat, */
+      while (true){
+         /* i. Let result be RegExpExec(rx, S). */
+         /* result := RegExpExec(rx, S); */
+         result := RegExpPrototypeExec(global, rx, strict, [S]);
 
-            /* ii. ReturnIfAbrupt(result). */
-            @ReturnIfAbrupt(result);
+         /* ii. ReturnIfAbrupt(result). */
+         @ReturnIfAbrupt(result);
 
-            /* iii. If result is null, then */
-            if ((result = 'null) || (result = null)){                
-                /* 1. If n=0, return null. */
-                if (n = 0){
-                    return null
-                }
-                /* 2. Else, return A. */
-                else{
-                    return A
-                }
-            } 
-            /* iv. Else result is not null, */
+         /* iii. If result is null, then */
+         if ((result = 'null) || (result = null)){                
+            /* 1. If n=0, return null. */
+            if (n = 0){
+               return null
+            }
+            /* 2. Else, return A. */
             else{
-                /* 1. Let matchStr be ToString(GetES6(result, "0")). */
-                matchStr := ToString(GetNew(result, "0"));
+               return A
+            }
+         } 
+         /* iv. Else result is not null, */
+         else{
+            /* 1. Let matchStr be ToString(GetES6(result, "0")). */
+            matchStr := ToString(GetNew(result, "0"));
 
-                /* 2. ReturnIfAbrupt(matchStr). */
-                @ReturnIfAbrupt(matchStr);
+            /* 2. ReturnIfAbrupt(matchStr). */
+            @ReturnIfAbrupt(matchStr);
 
-                /* 3. Let status be CreateDataProperty(A, ToString(n), matchStr). */
-                status := CreateDataPropertyNew(A, ToString(int_to_float n), matchStr);
-                setJSProperty(A, "length", newDataPropertyDescriptorFull(int_to_float (n + 1), true, false, false));
+            /* 3. Let status be CreateDataProperty(A, ToString(n), matchStr). */
+            status := CreateDataPropertyNew(A, ToString(int_to_float n), matchStr);
 
-                /* 4. Assert: status is true. */
-                /* assert(status = true); */
+            /* 4. Assert: status is true. */
+            /* assert(status = true); */
 
-                /* 5. If matchStr is the empty String, then */
-                if (matchStr = ""){
-                    /* a. Let thisIndex be ToLength(GetES6(rx, "lastIndex")). */
-                    thisIndex := ToLength(GetNew(rx, "lastIndex"));
+            /* 5. If matchStr is the empty String, then */
+            if (matchStr = ""){
+               /* a. Let thisIndex be ToLength(GetES6(rx, "lastIndex")). */
+               thisIndex := ToLength(GetNew(rx, "lastIndex"));
 
-                    /* b. ReturnIfAbrupt(thisIndex). */
-                    @ReturnIfAbrupt(thisIndex);
+               /* b. ReturnIfAbrupt(thisIndex). */
+               @ReturnIfAbrupt(thisIndex);
 
-                    /* c. Let nextIndex be AdvanceStringIndex(S, thisIndex, fullUnicode). */
-                    nextIndex := AdvanceStringIndex(S, thisIndex, fullUnicode);
+               /* c. Let nextIndex be AdvanceStringIndex(S, thisIndex, fullUnicode). */
+               nextIndex := AdvanceStringIndex(S, thisIndex, fullUnicode);
 
-                    /* d. Let setStatus be Set(rx, "lastIndex", nextIndex, true). */
-                    /* setStatus := Set(rx, "lastIndex", nextIndex, true); */
-                    setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(nextIndex, true, false, false))
+               /* d. Let setStatus be Set(rx, "lastIndex", nextIndex, true). */
+               /* setStatus := Set(rx, "lastIndex", nextIndex, true); */
+               setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(nextIndex, true, false, false))
                     
-                    /* e. ReturnIfAbrupt(setStatus). */
-                    /* @ReturnIfAbrupt(setStatus) */
-                };
+               /* e. ReturnIfAbrupt(setStatus). */
+               /* @ReturnIfAbrupt(setStatus) */
+            };
                     
-                /* 6. Increment n. */
-                n := n + 1
-            }   
-        }    
-    }
+            /* 6. Increment n. */
+            n := n + 1
+         }   
+      }    
+   }
 };
 
+/* 21.2.5.7 get RegExp.prototype.multiline */
+/**
+ * RegExp.prototype.multiline is an accessor property whose set accessor function is undefined. Its get 
+ * accessor function performs the following steps:
+ */
+
 /* 21.2.5.8 RegExp.prototype [ @@replace ] ( string, replaceValue ) */
+/**
+ * The value of the name property of this function is "[Symbol.replace]".
+ */
 function RegExpPrototypereplace(global, this, strict, args){
-    string := l_nth(args, 0);
-    replaceValue := l_nth(args, 1);
+   string := l_nth(args, 0);
+   replaceValue := l_nth(args, 1);
     
-    /* 1. Let rx be the this value. */
-    rx := this;
+   /* 1. Let rx be the this value. */
+   rx := this;
 
-    /* 2. If Type(rx) is not Object, throw a TypeError exception. */
-    if (!(Type(rx) = "Object")){
-        throw TypeErrorConstructorInternal()
-    };
+   /* 2. If Type(rx) is not Object, throw a TypeError exception. */
+   if (!(Type(rx) = "Object")){
+      throw TypeErrorConstructorInternal()
+   };
 
-    /* 3. Let S be ToString(string). */
-    S := ToString(string);
+   /* 3. Let S be ToString(string). */
+   S := ToString(string);
 
-    /* 4. ReturnIfAbrupt(S). */
-    @ReturnIfAbrupt(S);
+   /* 4. ReturnIfAbrupt(S). */
+   @ReturnIfAbrupt(S);
 
-    /* 5. Let lengthS be the number of code unit elements in S. */
-    lengthS := s_len_u S;
+   /* 5. Let lengthS be the number of code unit elements in S. */
+   lengthS := s_len_u S;
 
-    /* 6. Let functionalReplace be IsCallable(replaceValue). */
-    functionalReplace := IsCallable(replaceValue);
+   /* 6. Let functionalReplace be IsCallable(replaceValue). */
+   functionalReplace := IsCallable(replaceValue);
 
-    /* 7. If functionalReplace is false, then */
-    if (functionalReplace = false){
-        /* a. Let replaceValue be ToString(replaceValue). */
-        replaceValue := ToString(replaceValue);
+   /* 7. If functionalReplace is false, then */
+   if (functionalReplace = false){
+      /* a. Let replaceValue be ToString(replaceValue). */
+      replaceValue := ToString(replaceValue);
 
-        /* b. ReturnIfAbrupt(replaceValue). */
-        @ReturnIfAbrupt(replaceValue)
-    };
+      /* b. ReturnIfAbrupt(replaceValue). */
+      @ReturnIfAbrupt(replaceValue)
+   };
         
-    /* 8. Let global be ToBoolean(GetES6(rx, "global")). */
-    global_ := ToBoolean(GetNew(rx, "global")); 
+   /* 8. Let global be ToBoolean(GetES6(rx, "global")). */
+   global_ := ToBoolean(GetNew(rx, "global")); 
 
-    /* 9. ReturnIfAbrupt(global). */
-    @ReturnIfAbrupt(global_);
+   /* 9. ReturnIfAbrupt(global). */
+   @ReturnIfAbrupt(global_);
 
-    /* 10. If global is true, then */
-    if (global_ = true){
-        /* a. Let fullUnicode be ToBoolean(GetES6(rx, "unicode")). */
-        /* fullUnicode := ToBoolean(GetES6(rx, "unicode")); */
-        fullUnicode := false;
+   /* 10. If global is true, then */
+   if (global_ = true){
+      /* a. Let fullUnicode be ToBoolean(Get(rx, "unicode")). */
+      /* fullUnicode := ToBoolean(GetNew(rx, "unicode")); */
+      fullUnicode := false;
 
-        /* b. ReturnIfAbrupt(fullUnicode). */
-        @ReturnIfAbrupt(fullUnicode);
+      /* b. ReturnIfAbrupt(fullUnicode). */
+      @ReturnIfAbrupt(fullUnicode);
 
-        /* c. Let setStatus be Set(rx, "lastIndex", 0, true). */
-        /* setStatus := Set(rx, "lastIndex", 0, true); */
-        setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false))
+      /* c. Let setStatus be Set(rx, "lastIndex", 0, true). */
+      /* setStatus := Set(rx, "lastIndex", 0, true); */
+      setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false))
 
-        /* d. ReturnIfAbrupt(setStatus). */
-        /* @ReturnIfAbrupt(setStatus) */
-    };
+      /* d. ReturnIfAbrupt(setStatus). */
+      /* @ReturnIfAbrupt(setStatus) */
+   };
 
-    /* 11. Let results be a new empty List. */
-    results := [];
+   /* 11. Let results be a new empty List. */
+   results := [];
 
-    /* 12. Let done be false. */
-    done := false;
+   /* 12. Let done be false. */
+   done := false;
 
-    /* 13. Repeat, while done is false */
-    while (done = false){
-        /* a. Let result be RegExpExec(rx, S). */
-        /* result := RegExpExec(rx, S); */
-        result := RegExpPrototypeExec(global, rx, strict, [S]);
+   /* 13. Repeat, while done is false */
+   while (done = false){
+      /* a. Let result be RegExpExec(rx, S). */
+      /* result := RegExpExec(rx, S); */
+      result := RegExpPrototypeExec(global, rx, strict, [S]);
 
-        /* b. ReturnIfAbrupt(result). */
-        @ReturnIfAbrupt(result);
+      /* b. ReturnIfAbrupt(result). */
+      @ReturnIfAbrupt(result);
 
-        /* c. If result is null, set done to true. */
-        if ((result = 'null) || (result = null)){
+      /* c. If result is null, set done to true. */
+      if ((result = 'null) || (result = null)){
+         done := true
+      }
+      /* d. Else result is not null, */
+      else{
+         /* i. Append result to the end of results. */
+         results := l_concat(results, [result]);
+
+         /* ii. If global is false, set done to true. */
+         if (global_ = false){
             done := true
-        }
-        /* d. Else result is not null, */
-        else{
-            /* i. Append result to the end of results. */
-            results := l_concat(results, [result]);
+         }
+         /* iii. Else, */
+         else{
+            /* 1. Let matchStr be ToString(GetES6(result, "0")). */
+            matchStr := ToString(GetNew(result, "0"));
 
-            /* ii. If global is false, set done to true. */
-            if (global_ = false){
-                done := true
-            }
-            /* iii. Else, */
-            else{
-                /* 1. Let matchStr be ToString(GetES6(result, "0")). */
-                matchStr := ToString(GetNew(result, "0"));
+            /* 2. ReturnIfAbrupt(matchStr). */
+            @ReturnIfAbrupt(matchStr);
 
-                /* 2. ReturnIfAbrupt(matchStr). */
-                @ReturnIfAbrupt(matchStr);
+            /* 3. If matchStr is the empty String, then */
+            if (matchStr = ""){ 
+               /* a. Let thisIndex be ToLength(Get(rx, "lastIndex")). */
+               /* thisIndex := ToLength(GetES6(rx, "lastIndex")); */
+               thisIndex := ToLength(GetNew(rx, "lastIndex"));
 
-                /* 3. If matchStr is the empty String, then */
-                if (matchStr = ""){ 
-                    /* a. Let thisIndex be ToLength(Get(rx, "lastIndex")). */
-                    /* thisIndex := ToLength(GetES6(rx, "lastIndex")); */
-                    thisIndex := ToLength(GetNew(rx, "lastIndex"));
+               /* b. ReturnIfAbrupt(thisIndex). */
+               @ReturnIfAbrupt(thisIndex);
 
-                    /* b. ReturnIfAbrupt(thisIndex). */
-                    @ReturnIfAbrupt(thisIndex);
+               /* c. Let nextIndex be AdvanceStringIndex(S, thisIndex, fullUnicode). */
+               nextIndex := AdvanceStringIndex(S, thisIndex, fullUnicode);
 
-                    /* c. Let nextIndex be AdvanceStringIndex(S, thisIndex, fullUnicode). */
-                    nextIndex := AdvanceStringIndex(S, thisIndex, fullUnicode);
+               /* d. Let setStatus be Set(rx, "lastIndex", nextIndex, true). */
+               /* setStatus := Set(rx, "lastIndex", nextIndex, true); */
+               setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(nextIndex, true, false, false))
 
-                    /* d. Let setStatus be Set(rx, "lastIndex", nextIndex, true). */
-                    /* setStatus := Set(rx, "lastIndex", nextIndex, true); */
-                    
-                    setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(nextIndex, true, false, false))
-
-                    /* e. ReturnIfAbrupt(setStatus). */
-                    /* @ReturnIfAbrupt(setStatus) */
-                } 
-            }    
-        }
-    };
+               /* e. ReturnIfAbrupt(setStatus). */
+               /* @ReturnIfAbrupt(setStatus) */
+            } 
+         }    
+      }
+   };
         
-    /* 14. Let accumulatedResult be the empty String value. */
-    accumulatedResult := "";
+   /* 14. Let accumulatedResult be the empty String value. */
+   accumulatedResult := "";
 
-    /* 15. Let nextSourcePosition be 0. */
-    nextSourcePosition := 0;
+   /* 15. Let nextSourcePosition be 0. */
+   nextSourcePosition := 0;
 
-    /* 16. Repeat, for each result in results, */
-    i := 0;
-    len := l_len results;
+   /* 16. Repeat, for each result in results, */
+   i := 0;
+   len := l_len results;
 
-    while (i < len){
-        result := l_nth(results, i);
+   while (i < len){
+      result := l_nth(results, i);
 
-        /* a. Let nCaptures be ToLength(GetES6(result, "length")). */
-        nCaptures := ToLength(GetNew(result, "length"));
-        /* nCaptures := {result.Get}(result, "length"); */
+      /* a. Let nCaptures be ToLength(GetES6(result, "length")). */
+      nCaptures := ToLength(GetNew(result, "length"));
         
-        /* b. ReturnIfAbrupt(nCaptures). */
-        @ReturnIfAbrupt(nCaptures);
+      /* b. ReturnIfAbrupt(nCaptures). */
+      @ReturnIfAbrupt(nCaptures);
 
-        /* c. Let nCaptures be max(nCaptures − 1, 0). */
-        nCaptures := int_of_float(max(nCaptures - 1., 0.));
+      /* c. Let nCaptures be max(nCaptures − 1, 0). */
+      nCaptures := int_of_float(max(nCaptures - 1., 0.));
 
-        /* d. Let matched be ToString(GetES6(result, "0")). */
-        matched := ToString(GetNew(result, "0"));
+      /* d. Let matched be ToString(GetES6(result, "0")). */
+      matched := ToString(GetNew(result, "0"));
 
-        /* e. ReturnIfAbrupt(matched). */
-        @ReturnIfAbrupt(matched);
+      /* e. ReturnIfAbrupt(matched). */
+      @ReturnIfAbrupt(matched);
 
-        /* f. Let matchLength be the number of code units in matched. */
-        matchLength := s_len_u matched;
+      /* f. Let matchLength be the number of code units in matched. */
+      matchLength := s_len_u matched;
 
-        /* g. Let position be ToInteger(GetES6(result, "index")). */
-        position := ToInteger(GetNew(result, "index"));
+      /* g. Let position be ToInteger(GetES6(result, "index")). */
+      position := ToInteger(GetNew(result, "index"));
 
-        /* h. ReturnIfAbrupt(position). */
-        @ReturnIfAbrupt(position);
+      /* h. ReturnIfAbrupt(position). */
+      @ReturnIfAbrupt(position);
 
-        /* i. Let position be max(min(position, lengthS), 0). */
-        position := int_of_float(max(min(position, int_to_float lengthS), 0.));
+      /* i. Let position be max(min(position, lengthS), 0). */
+      position := int_of_float(max(min(position, int_to_float lengthS), 0.));
 
-        /* j. Let n be 1. */
-        n := 1;
+      /* j. Let n be 1. */
+      n := 1;
 
-        /* k. Let captures be an empty List. */
-        captures := [];
+      /* k. Let captures be an empty List. */
+      captures := [];
 
-        /* l. Repeat while n ≤ nCaptures */
-        while (n <= nCaptures){
-            /* i. Let capN be GetES6(result, ToString(n)). */
-            capN := GetNew(result, ToString(int_to_float n));
+      /* l. Repeat while n ≤ nCaptures */
+      while (n <= nCaptures){
+         /* i. Let capN be GetES6(result, ToString(n)). */
+         capN := GetNew(result, ToString(int_to_float n));
 
-            /* ii. ReturnIfAbrupt(capN). */
-            @ReturnIfAbrupt(capN);
+         /* ii. ReturnIfAbrupt(capN). */
+         @ReturnIfAbrupt(capN);
 
-            /* iii. If capN is not undefined, then */
-            if (!(capN = 'undefined)){
-                /* 1. Let capN be ToString(capN). */
-                capN := ToString(capN);
+         /* iii. If capN is not undefined, then */
+         if (!(capN = 'undefined)){
+            /* 1. Let capN be ToString(capN). */
+            capN := ToString(capN);
 
-                /* 2. ReturnIfAbrupt(capN). */
-                @ReturnIfAbrupt(capN)
-            };
+            /* 2. ReturnIfAbrupt(capN). */
+            @ReturnIfAbrupt(capN)
+         };
                 
-            /* iv. Append capN as the last element of captures. */
-            captures := l_add(captures, capN);
+         /* iv. Append capN as the last element of captures. */
+         captures := l_add(captures, capN);
 
-            /* v. Let n be n+1 */
-            n := n + 1
-        };
+         /* v. Let n be n+1 */
+         n := n + 1
+      };
             
-        /* m. If functionalReplace is true, then */
-        if (functionalReplace = true){
-            /* i. Let replacerArgs be «matched». */
-            replacerArgs := [matched];
+      /* m. If functionalReplace is true, then */
+      if (functionalReplace = true){
+         /* i. Let replacerArgs be «matched». */
+         replacerArgs := [matched];
 
-            /* ii. Append in list order the elements of captures to the end of the List replacerArgs. */
-            replacerArgs := l_concat(replacerArgs, captures);
+         /* ii. Append in list order the elements of captures to the end of the List replacerArgs. */
+         replacerArgs := l_concat(replacerArgs, captures);
 
-            /* iii. Append position and S as the last two elements of replacerArgs. */
-            replacerArgs := l_concat(replacerArgs, [position, S]);
+         /* iii. Append position and S as the last two elements of replacerArgs. */
+         replacerArgs := l_concat(replacerArgs, [position, S]);
 
-            /* iv. Let replValue be Call(replaceValue, undefined, replacerArgs). */
-            replValue := Call(null, null, replaceValue, 'undefined, replacerArgs);
+         /* iv. Let replValue be Call(replaceValue, undefined, replacerArgs). */
+         replValue := Call(null, null, replaceValue, 'undefined, replacerArgs);
 
-            /* v. Let replacement be ToString(replValue). */
-            replacement := ToString(replValue)
-        }
-        /* n. Else, */
-        else{
-            /* i. Let replacement be GetSubstitution(matched, S, position, captures, replaceValue). */
-            replacement := GetSubstitution(matched, S, int_to_float position, captures, replaceValue, global, strict)
-        };
+         /* v. Let replacement be ToString(replValue). */
+         replacement := ToString(replValue)
+      }
+      /* n. Else, */
+      else{
+         /* i. Let replacement be GetSubstitution(matched, S, position, captures, replaceValue). */
+         replacement := GetSubstitution(matched, S, int_to_float position, captures, replaceValue, global, strict)
+      };
           
-        /* o. ReturnIfAbrupt(replacement). */
-        @ReturnIfAbrupt(replacement);
+      /* o. ReturnIfAbrupt(replacement). */
+      @ReturnIfAbrupt(replacement);
 
-        /* p. If position ≥ nextSourcePosition, then */
-        if (position >= nextSourcePosition){
-            /* i. NOTE position should not normally move backwards. If it does, it is an indication of an ill-behaving 
-            RegExp subclass or use of an access triggered side-effect to change the global flag or other characteristics of rx. 
-            In such cases, the corresponding substitution is ignored. */
+      /* p. If position ≥ nextSourcePosition, then */
+      if (position >= nextSourcePosition){
+         /* i. NOTE position should not normally move backwards. If it does, it is an indication of an ill-behaving 
+         RegExp subclass or use of an access triggered side-effect to change the global flag or other characteristics of rx. 
+         In such cases, the corresponding substitution is ignored. */
 
-            /* ii. Let accumulatedResult be the String formed by concatenating the code units of the current value of 
-            accumulatedResult with the substring of S consisting of the code units from nextSourcePosition (inclusive) up to 
-            position (exclusive) and with the code units of replacement. */
+         /* ii. Let accumulatedResult be the String formed by concatenating the code units of the current value of 
+         accumulatedResult with the substring of S consisting of the code units from nextSourcePosition (inclusive) up to 
+         position (exclusive) and with the code units of replacement. */
 
-            substring := StringPrototypesubstring(global, S, strict, [int_to_float nextSourcePosition, int_to_float position]);
-            accumulatedResult := s_concat([accumulatedResult, substring]);
-            accumulatedResult := s_concat([accumulatedResult, replacement]);
+         substring := StringPrototypesubstring(global, S, strict, [int_to_float nextSourcePosition, int_to_float position]);
+         accumulatedResult := s_concat([accumulatedResult, substring]);
+         accumulatedResult := s_concat([accumulatedResult, replacement]);
 
-            /* iii. Let nextSourcePosition be position + matchLength. */
-            nextSourcePosition := position + matchLength
-        };
-            
-        i := i + 1
-    };
+         /* iii. Let nextSourcePosition be position + matchLength. */
+         nextSourcePosition := position + matchLength
+      };  
+
+      i := i + 1
+   };
     
-    /* 17. If nextSourcePosition ≥ lengthS, return accumulatedResult. */
-    if (nextSourcePosition >= lengthS){
-        return accumulatedResult
-    };
+   /* 17. If nextSourcePosition ≥ lengthS, return accumulatedResult. */
+   if (nextSourcePosition >= lengthS){
+      return accumulatedResult
+   };
 
-    /* 18. Return the String formed by concatenating the code units of accumulatedResult with the substring of S 
-    consisting of the code units from nextSourcePosition (inclusive) up through the final code unit of S (inclusive). */
-    substring := StringPrototypesubstring(global, S, strict, [int_to_float nextSourcePosition, 'undefined]);
-    accumulatedResult := s_concat([accumulatedResult, substring]);
+   /* 18. Return the String formed by concatenating the code units of accumulatedResult with the substring of S 
+   consisting of the code units from nextSourcePosition (inclusive) up through the final code unit of S (inclusive). */
+   substring := StringPrototypesubstring(global, S, strict, [int_to_float nextSourcePosition, 'undefined]);
+   accumulatedResult := s_concat([accumulatedResult, substring]);
 
-    return accumulatedResult
+   return accumulatedResult
 };
 
 /* 21.2.5.9 RegExp.prototype [ @@search ] ( string ) */
+/**
+ * The value of the name property of this function is "[Symbol.search]".
+ *
+ * NOTE The lastIndex and global properties of this RegExp object are ignored when performing the search. 
+ * The lastIndex property is left unchanged.
+ */
 function RegExpPrototypesearch(global, this, strict, args){
-    string := l_nth(args, 0);
+   string := l_nth(args, 0);
 
-    /* 1. Let rx be the this value. */
-    rx := this;
+   /* 1. Let rx be the this value. */
+   rx := this;
 
-    /* 2. If Type(rx) is not Object, throw a TypeError exception. */
-    if (!(Type(rx) = "Object")){
-        throw TypeErrorConstructorInternal()
-    };
+   /* 2. If Type(rx) is not Object, throw a TypeError exception. */
+   if (!(Type(rx) = "Object")){
+      throw TypeErrorConstructorInternal()
+   };
 
-    /* 3. Let S be ToString(string). */
-    S := ToString(string);
+   /* 3. Let S be ToString(string). */
+   S := ToString(string);
 
-    /* 4. ReturnIfAbrupt(S). */
-    @ReturnIfAbrupt(S);
+   /* 4. ReturnIfAbrupt(S). */
+   @ReturnIfAbrupt(S);
 
-    /* 5. Let previousLastIndex be GetES6(rx, "lastIndex"). */
-    previousLastIndex := GetNew(rx, "lastIndex");
-    /* previousLastIndex := rx.lastIndex; */
+   /* 5. Let previousLastIndex be GetES6(rx, "lastIndex"). */
+   previousLastIndex := GetNew(rx, "lastIndex");
 
-    /* 6. ReturnIfAbrupt(previousLastIndex). */
-    @ReturnIfAbrupt(previousLastIndex);
+   /* 6. ReturnIfAbrupt(previousLastIndex). */
+   @ReturnIfAbrupt(previousLastIndex);
 
-    /* 7. Let status be Set(rx, "lastIndex", 0, true). */
-    /* status := Set(rx, "lastIndex", 0, true); */
-    rx.lastIndex := 0;
+   /* 7. Let status be Set(rx, "lastIndex", 0, true). */
+   /* status := Set(rx, "lastIndex", 0, true); */
+   rx.lastIndex := 0;
 
-    /* 8. ReturnIfAbrupt(status). */
-    /* @ReturnIfAbrupt(status); */
+   /* 8. ReturnIfAbrupt(status). */
+   /* @ReturnIfAbrupt(status); */
 
-    /* 9. Let result be RegExpExec(rx, S). */
-    /* result := RegExpExec(rx, S); */
-    result := RegExpPrototypeExec(global, rx, strict, [S]);
+   /* 9. Let result be RegExpExec(rx, S). */
+   /* result := RegExpExec(rx, S); */
+   result := RegExpPrototypeExec(global, rx, strict, [S]);
 
-    /* 10. ReturnIfAbrupt(result). */
-    @ReturnIfAbrupt(result);
+   /* 10. ReturnIfAbrupt(result). */
+   @ReturnIfAbrupt(result);
 
-    /* 11. Let status be Set(rx, "lastIndex", previousLastIndex, true). */
-    /* status := Set(rx, "lastIndex", previousLastIndex, true); */
-    rx.lastIndex := previousLastIndex;
+   /* 11. Let status be Set(rx, "lastIndex", previousLastIndex, true). */
+   /* status := Set(rx, "lastIndex", previousLastIndex, true); */
+   rx.lastIndex := previousLastIndex;
     
-    /* 12. ReturnIfAbrupt(status). */
-    /* @ReturnIfAbrupt(status); */
+   /* 12. ReturnIfAbrupt(status). */
+   /* @ReturnIfAbrupt(status); */
 
-    /* 13. If result is null, return –1. */
-    if (result = 'null){
-        return -(1.)
-    };
+   /* 13. If result is null, return –1. */
+   if (result = 'null){
+      return -(1.)
+   };
 
-    /* 14. Return Get(result, "index"). */
-    return GetNew(result, "index")
+   /* 14. Return Get(result, "index"). */
+   return GetNew(result, "index")
 };
 
+/* 21.2.5.10 get RegExp.prototype.source */
+/**
+ * RegExp.prototype.source is an accessor property whose set accessor function is undefined. Its get accessor 
+ * function performs the following steps:
+ */
+
 /* 21.2.5.11 RegExp.prototype [ @@split ] ( string, limit ) */
+/**
+ * NOTE 1 Returns an Array object into which substrings of the result of converting string to a String have been
+ * stored. The substrings are determined by searching from left to right for matches of the this value regular 
+ * expression; these occurrences are not part of any substring in the returned array, but serve to divide up the 
+ * String value.
+ * The this value may be an empty regular expression or a regular expression that can match an empty String. In
+ * this case, regular expression does not match the empty substring at the beginning or end of the input String, 
+ * nor does it match the empty substring at the end of the previous separator match. (For example, if the regular 
+ * expression matches the empty String, the String is split up into individual code unit elements; the length of 
+ * the result array equals the length of the String, and each substring contains one code unit.) Only the first 
+ * match at a given index of the this String is considered, even if backtracking could yield a non-empty-substring
+ * match at that index. (For example, /a*?/[Symbol.split]("ab") evaluates to the array ["a","b"], while 
+ * /a*\/[Symbol.split]("ab") evaluates to the array["","b"].)
+ * If the string is (or converts to) the empty String, the result depends on whether the regular expression can 
+ * match the empty String. If it can, the result array contains no elements. Otherwise, the result array contains 
+ * one element, which is the empty String.
+ * If the regular expression that contains capturing parentheses, then each time separator is matched the results
+ * (including any undefined results) of the capturing parentheses are spliced into the output array. For example,
+    /<(\/)?([^<>]+)>/[Symbol.split]("A<B>bold</B>and<CODE>coded</CODE>")
+ * evaluates to the array
+    ["A",undefined,"B","bold","/","B","and",undefined,"CODE","coded","/","CODE",""]
+ * If limit is not undefined, then the output array is truncated so that it contains no more than limit elements.
+ *
+ * The length property of the @@split method is 2.
+ * The value of the name property of this function is "[Symbol.split]".
+ *
+ * NOTE 2 The @@split method ignores the value of the global and sticky properties of this RegExp object.
+ */
 function RegExpPrototypesplit(global, this, strict, args){
-    string := l_nth(args, 0);
-    limit := l_nth(args, 1);
+   string := l_nth(args, 0);
+   limit := l_nth(args, 1);
 
-    /* 1. Let rx be the this value. */
-    rx := this;
+   /* 1. Let rx be the this value. */
+   rx := this;
 
-    /* 2. If Type(rx) is not Object, throw a TypeError exception. */
-    if (!(Type(rx) = "Object")){
-        throw TypeErrorConstructorInternal()
-    };
+   /* 2. If Type(rx) is not Object, throw a TypeError exception. */
+   if (!(Type(rx) = "Object")){
+      throw TypeErrorConstructorInternal()
+   };
 
-    /* 3. Let S be ToString(string). */
-    S := ToString(string);
+   /* 3. Let S be ToString(string). */
+   S := ToString(string);
 
-    /* 4. ReturnIfAbrupt(S). */
-    @ReturnIfAbrupt(S);
+   /* 4. ReturnIfAbrupt(S). */
+   @ReturnIfAbrupt(S);
 
-    /* 5. Let C be SpeciesConstructor(rx, %RegExp%). */
-    /* C := SpeciesConstructor(rx, "RegExp"); */
-    /* C := GetES6(rx, "constructor"); */
+   /* 5. Let C be SpeciesConstructor(rx, %RegExp%). */
+   /* C := SpeciesConstructor(rx, "RegExp"); */
+   /* C := GetES6(rx, "constructor"); */
 
-    /* 6. ReturnIfAbrupt(C). */
-    /* @ReturnIfAbrupt(C); */
+   /* 6. ReturnIfAbrupt(C). */
+   /* @ReturnIfAbrupt(C); */
 
-    /* 7. Let flags be ToString(GetES6(rx, "flags")). */
-    flags := ToString(GetNew(rx, "flags"));
+   /* 7. Let flags be ToString(GetES6(rx, "flags")). */
+   flags := ToString(GetNew(rx, "flags"));
 
-    /* 8. ReturnIfAbrupt(flags). */
-    @ReturnIfAbrupt(flags);
+   /* 8. ReturnIfAbrupt(flags). */
+   @ReturnIfAbrupt(flags);
 
-    /* 9. If flags contains "u", let unicodeMatching be true. */
-    contains := StringPrototypeincludes(global, flags, strict, ["u"]);
+   /* 9. If flags contains "u", let unicodeMatching be true. */
+   contains := StringPrototypeincludes(global, flags, strict, ["u"]);
 
-    if (contains = true){
-        unicodeMatching := true
-    }
-    /* 10. Else, let unicodeMatching be false. */
-    else{
-        unicodeMatching := false
-    };
+   if (contains = true){
+      unicodeMatching := true
+   }
+   /* 10. Else, let unicodeMatching be false. */
+   else{
+      unicodeMatching := false
+   };
 
-    /* 11. If flags contains "y", let newFlags be flags. */
-    contains := StringPrototypeincludes(global, flags, strict, ["y"]);
+   /* 11. If flags contains "y", let newFlags be flags. */
+   contains := StringPrototypeincludes(global, flags, strict, ["y"]);
     
-    if (contains = true){
-        newFlags := flags
-    }
-    /* 12. Else, let newFlags be the string that is the concatenation of flags and "y". */
-    else{
-        newFlags := s_concat([flags, "y"])
-    };
+   if (contains = true){
+      newFlags := flags
+   }
+   /* 12. Else, let newFlags be the string that is the concatenation of flags and "y". */
+   else{
+      newFlags := s_concat([flags, "y"])
+   };
 
-    /* 13. Let splitter be Construct(C, «rx, newFlags»). */
-    /* splitter := Construct(C, [rx, newFlags]); */
-    /* splitter := RegExpConstructor(global, this, strict, [rx, newFlags]); */
-    splitter := newRegExp(strict, rx, newFlags);
+   /* 13. Let splitter be Construct(C, «rx, newFlags»). */
+   /* splitter := Construct(C, [rx, newFlags]); */
+   /* splitter := RegExpConstructor(global, this, strict, [rx, newFlags]); */
+   splitter := newRegExp(strict, rx, newFlags);
 
-    /* 14. ReturnIfAbrupt(splitter). */
-    @ReturnIfAbrupt(splitter);
+   /* 14. ReturnIfAbrupt(splitter). */
+   @ReturnIfAbrupt(splitter);
 
-    /* 15. Let A be ArrayCreate(0). */
-    /* A := ArrayCreate(0); */
-    A := ArrayConstructor(global, null, strict, []);
+   /* 15. Let A be ArrayCreate(0). */
+   /* A := ArrayCreate(0); */
+   A := ArrayConstructor(global, null, strict, []);
 
-    /* 16. Let lengthA be 0. */
-    lengthA := 0.;
+   /* 16. Let lengthA be 0. */
+   lengthA := 0.;
 
-    /* 17. If limit is undefined, let lim be 253–1; else let lim be ToLength(limit). */
-    if (limit = 'undefined){
-        lim := (2. ** 53.) - 1.
-    } else{
-        lim := ToLength(limit)
-    };
+   /* 17. If limit is undefined, let lim be 253–1; else let lim be ToLength(limit). */
+   if (limit = 'undefined){
+      lim := (2. ** 53.) - 1.
+   } else{
+      lim := ToLength(limit)
+   };
 
-    /* 18. ReturnIfAbrupt(lim). */
-    @ReturnIfAbrupt(lim);
+   /* 18. ReturnIfAbrupt(lim). */
+   @ReturnIfAbrupt(lim);
 
-    /* 19. Let size be the number of elements in S. */
-    size := int_to_float (s_len_u S);
+   /* 19. Let size be the number of elements in S. */
+   size := int_to_float (s_len_u S);
 
-    /* 20. Let p be 0. */
-    p := 0.;
+   /* 20. Let p be 0. */
+   p := 0.;
 
-    /* 21. If lim = 0, return A. */
-    if (lim = 0.){
-        return A
-    };
+   /* 21. If lim = 0, return A. */
+   if (lim = 0.){
+      return A
+   };
 
-    /* 22. If size = 0, then */
-    if (size = 0.){
-        /* a. Let z be RegExpExec(splitter, S). */
-        /* z := RegExpExec(splitter, S); */
-        z := RegExpPrototypeExec(global, splitter, strict, [S]);
+   /* 22. If size = 0, then */
+   if (size = 0.){
+      /* a. Let z be RegExpExec(splitter, S). */
+      /* z := RegExpExec(splitter, S); */
+      z := RegExpPrototypeExec(global, splitter, strict, [S]);
         
-        /* b. ReturnIfAbrupt(z). */
-        @ReturnIfAbrupt(z);
+      /* b. ReturnIfAbrupt(z). */
+      @ReturnIfAbrupt(z);
 
-        /* c. If z is not null, return A. */
-        if (!(z = 'null) &&& !(z = null)){
-            return A
-        };
+      /* c. If z is not null, return A. */
+      if (!(z = 'null) &&& !(z = null)){
+         return A
+      };
 
-        /* d. Assert: The following call will never result in an abrupt completion. */
+      /* d. Assert: The following call will never result in an abrupt completion. */
+      /* ???? */
 
-        /* e. Perform CreateDataProperty(A, "0", S). */
-        CreateDataPropertyNew(A, "0", S);
-        setJSProperty(A, "length", newDataPropertyDescriptorFull(1., true, false, false));
+      /* e. Perform CreateDataProperty(A, "0", S). */
+      CreateDataPropertyNew(A, "0", S);
 
-        /* f. Return A. */
-        return A
-    };
+      /* f. Return A. */
+      return A
+   };
 
-    /* 23. Let q be p. */
-    q := p;
+   /* 23. Let q be p. */
+   q := p;
 
-    /* 24. Repeat, while q < size */
-    while (q < size){
-        /* a. Let setStatus be Set(splitter, "lastIndex", q, true). */
-        /* setStatus := Set(splitter, "lastIndex", q, true); */
-        setJSProperty(splitter, "lastIndex", newDataPropertyDescriptorFull(q, true, false, false));
+   /* 24. Repeat, while q < size */
+   while (q < size){
+      /* a. Let setStatus be Set(splitter, "lastIndex", q, true). */
+      /* setStatus := Set(splitter, "lastIndex", q, true); */
+      setJSProperty(splitter, "lastIndex", newDataPropertyDescriptorFull(q, true, false, false));
        
-        /* b. ReturnIfAbrupt(setStatus). */
-        /* @ReturnIfAbrupt(setStatus); */
+      /* b. ReturnIfAbrupt(setStatus). */
+      /* @ReturnIfAbrupt(setStatus); */
 
-        /* c. Let z be RegExpExec(splitter, S). */
-        /* z := RegExpExec(splitter, S); */
-        z := RegExpPrototypeExec(global, splitter, strict, [S]);
+      /* c. Let z be RegExpExec(splitter, S). */
+      /* z := RegExpExec(splitter, S); */
+      z := RegExpPrototypeExec(global, splitter, strict, [S]);
 
-        /* d. ReturnIfAbrupt(z). */
-        @ReturnIfAbrupt(z);
+      /* d. ReturnIfAbrupt(z). */
+      @ReturnIfAbrupt(z);
 
-        /* e. If z is null, let q be AdvanceStringIndex(S, q, unicodeMatching). */
-        if ((z = 'null) || (z = null)){
+      /* e. If z is null, let q be AdvanceStringIndex(S, q, unicodeMatching). */
+      if ((z = 'null) || (z = null)){
+         q := AdvanceStringIndex(S, q, unicodeMatching)
+      }
+      /* f. Else z is not null, */
+      else{
+         /* i. Let e be ToLength(Get(splitter, "lastIndex")). */
+         e := ToLength(GetNew(splitter, "lastIndex"));
+
+         /* ii. ReturnIfAbrupt(e). */
+         @ReturnIfAbrupt(e);
+
+         /* iii. If e = p, let q be AdvanceStringIndex(S, q, unicodeMatching). */ 
+         if (e = p){
             q := AdvanceStringIndex(S, q, unicodeMatching)
-        }
-        /* f. Else z is not null, */
-        else{
-            /* i. Let e be ToLength(Get(splitter, "lastIndex")). */
-            e := ToLength(GetNew(splitter, "lastIndex"));
-            /* e := splitter.JSProperties.lastIndex.Value; */
+         }
+         /* iv. Else e  p, */
+         else{
+            /* 1. Let T be a String value equal to the substring of S consisting of the elements at indices p 
+            (inclusive) through q (exclusive). */
+            T := StringPrototypesubstring(global, S, strict, [p, q]);
 
-            /* ii. ReturnIfAbrupt(e). */
-            @ReturnIfAbrupt(e);
+            /* 2. Assert: The following call will never result in an abrupt completion. */
+            /* ???? */
 
-            /* iii. If e = p, let q be AdvanceStringIndex(S, q, unicodeMatching). */ 
-            if (e = p){
-                q := AdvanceStringIndex(S, q, unicodeMatching)
-            }
-            /* iv. Else e  p, */
-            else{
-                /* 1. Let T be a String value equal to the substring of S consisting of the elements at indices p 
-                (inclusive) through q (exclusive). */
-                T := StringPrototypesubstring(global, S, strict, [p, q]);
+            /* 3. Perform CreateDataProperty(A, ToString(lengthA), T). */
+            CreateDataPropertyNew(A, ToString(lengthA), T);
 
-                /* 2. Assert: The following call will never result in an abrupt completion. */
-                /* ???? */
+            /* 4. Let lengthA be lengthA +1. */
+            lengthA := lengthA + 1.;
 
-                /* 3. Perform CreateDataProperty(A, ToString(lengthA), T). */
-                CreateDataPropertyNew(A, ToString(lengthA), T);
-                setJSProperty(A, "length", newDataPropertyDescriptorFull(lengthA + 1., true, false, false));
+            /* 5. If lengthA = lim, return A. */
+            if (lengthA = lim){
+               return A
+            };
 
-                /* 4. Let lengthA be lengthA +1. */
-                lengthA := lengthA + 1.;
+            /* 6. Let p be e. */
+            p := e;
 
-                /* 5. If lengthA = lim, return A. */
-                if (lengthA = lim){
-                    return A
-                };
+            /* 7. Let numberOfCaptures be ToLength(GetES6(z, "length")). */ 
+            numberOfCaptures := ToLength(GetNew(z, "length"));
 
-                /* 6. Let p be e. */
-                p := e;
+            /* 8. ReturnIfAbrupt(numberOfCaptures). */
+            @ReturnIfAbrupt(numberOfCaptures);
 
-                /* 7. Let numberOfCaptures be ToLength(GetES6(z, "length")). */ 
-                numberOfCaptures := ToLength(GetNew(z, "length"));
+            /* 9. Let numberOfCaptures be max(numberOfCaptures-1, 0). */ 
+            numberOfCaptures := max(numberOfCaptures - 1., 0.);
 
-                /* 8. ReturnIfAbrupt(numberOfCaptures). */
-                @ReturnIfAbrupt(numberOfCaptures);
+            /* 10. Let i be 1. */
+            i := 1.;
 
-                /* 9. Let numberOfCaptures be max(numberOfCaptures-1, 0). */ 
-                numberOfCaptures := max(numberOfCaptures - 1., 0.);
+            /* 11. Repeat, while i ≤ numberOfCaptures. */
+            while (i <= numberOfCaptures) {
+               /* a. Let nextCapture be GetES6(z, ToString(i)). */
+               nextCapture := GetNew(z, ToString(i));
 
-                /* 10. Let i be 1. */
-                i := 1.;
+               /* b. ReturnIfAbrupt(nextCapture). */
+               @ReturnIfAbrupt(nextCapture);
 
-                /* 11. Repeat, while i ≤ numberOfCaptures. */
-                while (i <= numberOfCaptures) {
-                    /* a. Let nextCapture be GetES6(z, ToString(i)). */
-                    nextCapture := GetNew(z, ToString(i));
+               /* c. Perform CreateDataProperty(A, ToString(lengthA), nextCapture). */ 
+               CreateDataPropertyNew(A, ToString(lengthA), nextCapture);
 
-                    /* b. ReturnIfAbrupt(nextCapture). */
-                    @ReturnIfAbrupt(nextCapture);
+               /* d. Let i be i+1. */
+               i := i + 1.;
 
-                    /* c. Perform CreateDataProperty(A, ToString(lengthA), nextCapture). */ 
-                    CreateDataPropertyNew(A, ToString(lengthA), nextCapture);
-                    setJSProperty(A, "length", newDataPropertyDescriptorFull(lengthA + 1., true, false, false));
+               /* e. Let lengthA be lengthA +1. */
+               lengthA := lengthA + 1.;
 
-                    /* d. Let i be i+1. */
-                    i := i + 1.;
-
-                    /* e. Let lengthA be lengthA +1. */
-                    lengthA := lengthA + 1.;
-
-                    /* f. If lengthA = lim, return A. */
-                    if (lengthA = lim){
-                        return A
-                    }
-                };
+               /* f. If lengthA = lim, return A. */
+               if (lengthA = lim){
+                  return A
+               }
+            };
                     
-                /* 12. Let q be p. */
-                q := p
-            }
-        }
-    };
+            /* 12. Let q be p. */
+            q := p
+         }
+      }
+   };
         
-    /* 25. Let T be a String value equal to the substring of S consisting of the elements at indices p (inclusive) through size (exclusive). */
-    T := StringPrototypesubstring(global, S, strict, [p, size]);
+   /* 25. Let T be a String value equal to the substring of S consisting of the elements at indices p (inclusive) through size (exclusive). */
+   T := StringPrototypesubstring(global, S, strict, [p, size]);
 
-    /* 26. Assert: The following call will never result in an abrupt completion. */
-    /* ???? */
+   /* 26. Assert: The following call will never result in an abrupt completion. */
+   /* ???? */
 
-    /* 27. Perform CreateDataProperty(A, ToString(lengthA), T ). */
-    CreateDataPropertyNew(A, ToString(lengthA), T);
-    setJSProperty(A, "length", newDataPropertyDescriptorFull(lengthA + 1., true, false, false));
+   /* 27. Perform CreateDataProperty(A, ToString(lengthA), T ). */
+   CreateDataPropertyNew(A, ToString(lengthA), T);
+   /* setJSProperty(A, "length", newDataPropertyDescriptorFull(lengthA + 1., true, false, false)); */
 
-    /* 28. Return A. */
-    return A
+   /* 28. Return A. */
+   return A
 }
+
+/* 21.2.5.12 get RegExp.prototype.sticky */
+/**
+ * RegExp.prototype.sticky is an accessor property whose set accessor function is undefined. Its get accessor 
+ * function performs the following steps:
+ */
+
+/* 21.2.5.13 RegExp.prototype.test( S ) */
+
+/* 21.2.5.14 RegExp.prototype.toString ( ) */
+/**
+ * NOTE The returned String has the form of a RegularExpressionLiteral that evaluates to another RegExp object 
+ * with the same behaviour as this object.
+ */
+
+/* 21.2.5.15 get RegExp.prototype.unicode */
+/**
+ * RegExp.prototype.unicode is an accessor property whose set accessor function is undefined. Its get accessor
+ * function performs the following steps:
+ */
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* 21.2.6 Properties of RegExp Instances */
+
+/**
+ * RegExp instances are ordinary objects that inherit properties from the RegExp prototype object. RegExp 
+ * instances have internal slots [[RegExpMatcher]], [[OriginalSource]], and [[OriginalFlags]]. The value of the 
+ * [[RegExpMatcher]] internal slot is an implementation dependent representation of the Pattern of the RegExp object.
+ *
+ * NOTE Prior to ECMAScript 2015, RegExp instances were specified as having the own data properties source, global, 
+ * ignoreCase, and multiline. Those properties are now specified as accessor properties of RegExp.prototype.
+ *
+ * RegExp instances also have the following property:
+*/
+
+/* 21.2.6.1 lastIndex */
+/**
+ * The value of the lastIndex property specifies the String index at which to start the next match. It is coerced
+ * to an integer when used (see 21.2.5.2.2). This property shall have the attributes { [[Writable]]: true, [[Enumerable]]:
+ * false, [[Configurable]]: false }.
+ */
+

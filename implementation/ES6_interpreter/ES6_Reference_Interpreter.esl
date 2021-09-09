@@ -46,7 +46,7 @@ import "ES6_interpreter/section 20/section_20.1.esl";
 import "ES6_interpreter/section 20/section_20.2.esl";
 import "ES6_interpreter/section 20/section_20.3.esl";
 import "ES6_interpreter/section 21/section_21.1.esl";
-import "ES6_interpreter/section 21/section_21.2.esl";
+/* import "ES6_interpreter/section 21/section_21.2.esl"; */
 import "ES6_interpreter/section 23/section_23.1.esl";
 import "ES6_interpreter/section 23/section_23.2.esl";
 import "ES6_interpreter/section 23/section_23.3.esl";
