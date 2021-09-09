@@ -298,7 +298,7 @@ function SetFunctionName(F, name, prefix) {
 
   /* 1. Assert: F is an extensible object that does not have a name own 
      property. */
-  /* assert(ObjectIsExtensible(F) &&& !(HasOwnProperty(F, "name"))); TO-DO */
+  /* assert(ObjectIsExtensible(F) &&& !(HasProperty(F, "name"))); TO-DO */
 
   /* 2. Assert: Type(name) is either Symbol or String. */
   type := Type(name);
@@ -394,10 +394,6 @@ function MakeConstructor(F, writablePrototype, prototype) {
 
   /* 8. Return NormalCompletion(undefined). */
   return NormalCompletion('undefined)
-};
-
-function InitializeBinding(classScopeEnvRec, className, F){
-	/* TO-DO: Qual das funções chamar? (Existem 3) */
 };
 
 /**
@@ -499,7 +495,7 @@ function CreateMethodProperty(O, P, V) {
   newDesc := newDataPropertyDescriptorFull(V, true, false, true);
   /* 4. Return O.[[DefineOwnProperty]](P, newDesc). */
   return {O.DefineOwnProperty}(O, P, newDesc, false)
-}
+};
 /**
  * NOTE This abstract operation creates a property whose attributes are set to 
  * the same defaults used for built-in methods and methods defined using class 
@@ -507,3 +503,96 @@ function CreateMethodProperty(O, P, V) {
  * exist and is not configurable or if O is not extensible, 
  * [[DefineOwnProperty]] will return false. 
  */
+
+/* 8.1.1.4.4 */
+function GlobalInitializeBinding(envRec, N, V) {
+  /* Let envRec be the global Environment Record for which the method was invoked. */
+
+  /* Let DclRec be envRec.[[DeclarativeRecord]]. */
+  DclRec := envRec.DeclarativeRecord;
+
+  /* If DclRec.HasBinding(N) is true, then */
+  if (HasBinding(DclRec, N)) {
+      /* Return DclRec.InitializeBinding(N, V). */
+      return InitializeBindingObjectRecord(DclRec, N, V)
+  };
+
+  /* Assert: If the binding exists it must be in the object Environment Record. */
+  assert(isObjectEnvRec(envRec));
+
+  /* Let ObjRec be envRec.[[ObjectRecord]]. */
+  ObjRec := envRec.ObjectRecord;
+
+  /* Return ObjRec.InitializeBinding(N, V). */
+  return InitializeBindingObjectRecord(ObjRec, N, V)
+};
+
+function InitializeBindingDeclarativeRecord(envRec, N, V) {
+	/* Let envRec be the declarative Environment Record for which the method was invoked. */
+
+	/* Assert: envRec must have an uninitialized binding for N. */
+	assert(isUninitialisedBinding(envRec, N));
+
+	/* Set the bound value for N in envRec to V. */
+	setBindingValue(envRec, N, V);
+
+	/* Record that the binding for N in envRec has been initialized. */
+	setBindingInitialised(envRec, N, true);
+
+	/* Return NormalCompletion(empty). */
+	return NormalCompletion('empty)
+};
+
+function InitializeBindingDeclarativeRecordTemp(env, N, V) {
+  env := env.EnvRec;
+	varAlreadyDeclared := HasBinding(env, N);
+  /* c. If varAlreadyDeclared is false, then */
+  if (varAlreadyDeclared = false) {
+    /* i. Call env’s CreateMutableBinding concrete method passing dn and configurableBindings as
+          the arguments. */
+    CreateMutableBinding(env, N, true);
+    /* ii. Call env’s SetMutableBinding concrete method passing dn, undefined, and strict as the
+            arguments.*/
+    SetMutableBinding(env, N, V, true)
+  };
+  return 'undefined
+};
+
+
+/* 8.1.1.2.4 InitializeBinding (N,V) */
+/* The concrete Environment Record method InitializeBinding for object Environment Records is used to set the
+   bound value of the current binding of the identifier whose name is the value of the argument N to the value of
+   argument V. An uninitialized binding for N must already exist.
+*/
+function InitializeBindingObjectRecord(envRec, N, V) {	
+	/* Let envRec be the object Environment Record for which the method was invoked. */
+
+	/* Assert: envRec must have an uninitialized binding for N. */
+	assert(isUninitialisedBinding(envRec, N));
+
+	/* Record that the binding for N in envRec has been initialized. */
+	setBindingInitialised(envRec, N, true);
+
+	/* Return envRec.SetMutableBinding(N, V, false). */
+	return SetMutableBinding(envRec, N, V, false)
+
+	/*NOTE In this specification, all uses of CreateMutableBinding for object Environment Records are
+		   immediately followed by a call to InitializeBinding for the same name. Hence, implementations
+		   do not need to explicitly track the initialization state of individual object Environment Record
+		   bindings.
+	*/
+};
+
+function InitializeBoundName(className, value, env){
+  CreateMutableBindingDeclarative(env, className, value);
+  return true
+};
+
+function newSetAccessorPropertyDescriptorFull(set, enumerable, configurable) {
+  desc := NewPropertyDescriptor();
+  desc.Set := set;
+  desc.Enumerable := enumerable;
+  desc.Configurable := configurable;
+
+  return desc
+}

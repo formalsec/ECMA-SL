@@ -165,8 +165,6 @@ function newSymbolData() {
 function internalSymbolConstructor(descString, strict) { 
   symbolPrototype := getSymbolPrototype(strict);
 
-  print "inside Symbol constructor with prototype";
-
   newlyConstructedSymbol := NewECMAScriptObject();
   setAllInternalMethodsOfObject(newlyConstructedSymbol);
 

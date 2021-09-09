@@ -20,7 +20,7 @@
 
 /* 21.1.1.1 String ( value ) */
 function StringConstructor (global, this, strict, args) {
-  value := l_nth(args, 0);
+  value := getOptionalParam(args, 0);
   NewTarget := this;
 
   /* 1. If no arguments were passed to this function invocation, let s be "". */

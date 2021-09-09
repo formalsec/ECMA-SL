@@ -1,4 +1,4 @@
-function JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt){
+function JS_Interpreter_ClassEvaluationExports(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt){
     
     /* 1. Let status be the result of BindingClassDeclarationEvaluation of this ClassDeclaration. */
     status := BindingClassDeclarationEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt);
@@ -7,8 +7,46 @@ function JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageo
     @ReturnIfAbrupt(status);
 
     /* 3. Return NormalCompletion(empty). */
-    return NormalEmptyCompletion('empty)
+    return normalEmptyCompletion('empty)
 };
+
+function JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt){
+    /* 1. If BindingIdentifieropt is not present, */
+    if (BindingIdentifier = null) {
+        /* let className be undefined */
+        className := 'undefined
+    }
+    
+    /* 2. Else, */
+    else {
+        /* let className be StringValue of BindingIdentifier */
+        className := StringValue(BindingIdentifier)
+    };
+
+    /* 3. Let value be the result of ClassDefinitionEvaluation of ClassTail with 
+        argument className. */
+    value := ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBodyopt);
+
+    /* 4. ReturnIfAbrupt(value). */
+    @ReturnIfAbrupt(value);
+
+    /* 5. If className is not undefined, then */
+    if (!(className = 'undefined)) {
+        /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
+        hasNameProperty := HasProperty(value, "name");
+        /* b. ReturnIfAbrupt(hasNameProperty). */
+        @ReturnIfAbrupt(hasNameProperty);
+        /* c. If hasNameProperty is false, then */
+        if (hasNameProperty = false) {
+        /* i. Perform SetFunctionName(value, className). */
+            SetFunctionName(value, className, null)
+        }
+    };
+
+    /* 6. Return NormalCompletion(value). */
+    return NormalCompletion(value)
+};
+
 
 function BindingClassDeclarationEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt){
 
@@ -22,7 +60,7 @@ function BindingClassDeclarationEvaluation(scope, BindingIdentifier, ClassHerita
     @ReturnIfAbrupt(value);
 
     /* 4. Let hasNameProperty be HasOwnProperty(value, "name"). */
-    hasNameProperty := HasOwnProperty(value, "name");
+    hasNameProperty := HasProperty(value, "name");
 
     /* 5. ReturnIfAbrupt(hasNameProperty). */
     @ReturnIfAbrupt(hasNameProperty);
@@ -36,11 +74,11 @@ function BindingClassDeclarationEvaluation(scope, BindingIdentifier, ClassHerita
     env := getLexicalEnvironment(scope);
 
     /* 8. Let status be InitializeBoundName(className, value, env). */
-    status := InitializeBoundName(className, value, env); /* TO-DO */
+    status := InitializeBoundName(className, value, env);
 
     /* 9. ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
-
+    
     /* 10. Return value. */
     return value
 };
@@ -130,7 +168,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     /* 8. If ClassBodyopt is not present, let constructor be empty. */
     /* 9. Else, let constructor be ConstructorMethod of ClassBody. */
     allMethods := getSeparateMethods(ClassBodyopt.body);
-    constructor := allMethods.constructor;
+    constructor := allMethods.constructor.value;
 
     /* 10. If constructor is empty, then, */
     if (constructor = 'empty){
@@ -158,7 +196,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     setLexicalEnvironment(scope, classScope);
     
     /* 12. Let constructorInfo be the result of performing DefineMethod for constructor with arguments proto and constructorParent as the optional functionPrototype argument. */
-    constructorInfo := DefineMethod(scope, proto, constructor, constructorParent); /* TO-DO: Not finished */
+    constructorInfo := DefineMethodAlt(scope, proto, constructor, constructorParent); /* Original function not finished */
     
     /* 13. Assert: constructorInfo is not an abrupt completion. */
     assert(!(isAnAbruptCompletion(constructorInfo)));
@@ -183,7 +221,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     /* 19. If ClassBodyopt is not present, let methods be a new empty List. */
     /* 20. Else, let methods be NonConstructorMethodDefinitions of ClassBody. */
     methods := allMethods.regularMethods;
-    
+
     /* 21. For each ClassElement m in order from methods */
     i := 0;
     len := l_len methods;
@@ -194,15 +232,14 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
         /* 21a. If IsStatic of m is false, then */
         if (m.static = false){
             /* 21a i. Let status be the result of performing PropertyDefinitionEvaluation for m with arguments proto and false. */
-            status := MethodPropertyDefinitionEvaluation(m, proto, false) /* TO-DO */
+            status := MethodPropertyDefinitionEvaluation(scope, proto, false, m)
         }
 
         /* 21b. Else, */
         else{
-
             /* 21b i. Let status be the result of performing PropertyDefinitionEvaluation for m with arguments F and false. */
-            status := MethodPropertyDefinitionEvaluation(m, F, false); /* TO-DO */
-        
+            status := MethodPropertyDefinitionEvaluation(scope, F, false, m);
+            
             /* 21c. If status is an abrupt completion, then */
             if (isAnAbruptCompletion(status)){
 
@@ -213,7 +250,9 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
                 return newCompletion(status)
             }
             
-        }
+        };
+        
+        i := i + 1
     };
 
     /* 22. Set the running execution context’s LexicalEnvironment to lex. */
@@ -222,9 +261,9 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     /* 23. If className is not undefined, then */
     if (!(className = 'undefined)){
         /* 23a. Perform classScopeEnvRec.InitializeBinding(className, F). */
-        InitializeBinding(classScopeEnvRec, className, F) /* TO-DO */
+        InitializeBindingDeclarativeRecordTemp(lex, className, F)
     };
-        
+
     /* 24. Return F. */
     return F
 
