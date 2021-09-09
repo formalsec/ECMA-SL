@@ -1225,6 +1225,9 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 3. Return result. */
     return result
   }
+  | { type: "ClassDeclaration", id: BindingIdentifier, superClass: ClassHeritageopt, body: ClassBodyopt } -> {
+    return JS_Interpreter_ClassEvaluation(scope, BindingIdentifier.name, ClassHeritageopt, ClassBodyopt)
+  }
 };
 
 function JS_Interpreter_IfStatement(IfStatement, scope) {

@@ -523,6 +523,7 @@ __n151["arguments"] := __n155;
 __n150["expression"] := __n151;
 __n1 := [ __n2, __n7, __n13, __n39, __n52, __n60, __n68, __n76, __n93, __n101, __n109, __n117, __n134, __n142, __n150 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n158 := [ "callCount", "_this", "_key", "obj" ];
 __n0["variableDeclarations"] := __n158;
 __n159 := [  ];

@@ -429,11 +429,7 @@ function StringFromCodePoint(global, this, strict, args){
     /* c. ReturnIfAbrupt(nextCP). */
     @ReturnIfAbrupt(nextCP);
 
-    nextInt := ToInteger(nextCP);
-    print "next:::::";
-    print next;
-    print nextCP;
-    print nextInt;    
+    nextInt := ToInteger(nextCP); 
 
     /* d. If SameValue(nextCP, ToInteger(nextCP)) is false, throw a RangeError exception. */
     if (SameValue(nextCP, ToInteger(nextCP)) = false){
@@ -601,10 +597,6 @@ function StringPrototypecharAt(global, this, strict, args) {
 
   /* 4. Let position be ToInteger(pos). */
   position := ToInteger(pos);
-
-  print "pos::::";
-  print pos;
-  print position;
 
   /* 5. ReturnIfAbrupt(position). */
   @ReturnIfAbrupt(position);

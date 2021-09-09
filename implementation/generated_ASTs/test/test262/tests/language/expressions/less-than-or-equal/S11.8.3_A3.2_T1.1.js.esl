@@ -1,6 +1,7 @@
 function buildAST (___internal_esl_global) {
 __n0 := {  };
 __n0["type"] := "Program";
+__n0["sourceType"] := "script";
 __n2 := {  };
 __n2["type"] := "IfStatement";
 __n3 := {  };
@@ -311,7 +312,7 @@ __n79["consequent"] := __n85;
 __n79["alternate"] := null;
 __n1 := [ __n2, __n15, __n31, __n47, __n66, __n79 ];
 __n0["body"] := __n1;
-__n0["sourceType"] := "script";
+__n0["optimised"] := true;
 __n92 := [  ];
 __n0["variableDeclarations"] := __n92;
 __n93 := [  ];

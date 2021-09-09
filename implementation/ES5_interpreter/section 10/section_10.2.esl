@@ -113,7 +113,7 @@ function CreateMutableBindingDeclarative(declarativeEnvRec, N, D) {
     setBindingDeletable(envRec, N, true)
   };
 
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 function CreateMutableBindingObject(objectEnvRec, N, D) {
@@ -140,14 +140,9 @@ function CreateMutableBindingObject(objectEnvRec, N, D) {
   /* 5. Call the [[DefineOwnProperty]] internal method of bindings, passing N, Property Descriptor
         {[[Value]]:undefined, [[Writable]]: true, [[Enumerable]]: true , [[Configurable]]: configValue},
         and true as arguments. */
-  {bindings.DefineOwnProperty}(bindings, N, {
-    Value: 'undefined,
-    Writable: true,
-    Enumerable: true,
-    Configurable: configValue
-  }, true);
+  {bindings.DefineOwnProperty}(bindings, N, newDataPropertyDescriptorFull('undefined, true, true, configValue), true);
 
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 
@@ -182,7 +177,7 @@ function SetMutableBindingDeclarative(declarativeEnvRec, N, V, S) {
     }
   };
 
-  return V /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 function SetMutableBindingObject(objectEnvRec, N, V, S) {
@@ -200,7 +195,7 @@ function SetMutableBindingObject(objectEnvRec, N, V, S) {
   /* 3. Call the [[Put]] internal method of bindings with arguments N, V, and S. */
   {bindings.Put}(bindings, N, V, S);
 
-  return V /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 
@@ -341,8 +336,8 @@ function ImplicitThisValueObject(objectEnvRec) {
   /* 1. Let envRec be the object environment record for which the method was invoked. */
   envRec := objectEnvRec;
   /* 2. If the provideThis flag of envRec is true, return the binding object for envRec. */
-  if (getProvideThis(objectEnvRec) = true) {
-    return getBindingObject(objectEnvRec)
+  if (getProvideThis(envRec) = true) {
+    return getBindingObject(envRec)
   }
   /* 3. Otherwise, return undefined. */
   else {
@@ -365,7 +360,7 @@ function CreateImmutableBinding(envRec, N) {
   if (isDeclarativeEnvironmentRecord(envRec)) {
     return CreateImmutableBindingDeclarative(envRec, N)
   };
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 function CreateImmutableBindingDeclarative(declarativeEnvRec, N) {
@@ -383,7 +378,7 @@ function CreateImmutableBindingDeclarative(declarativeEnvRec, N) {
   createImmutableBinding(envRec, N);
   setBindingInitialised(envRec, N, false);
 
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 /*
@@ -395,7 +390,7 @@ function InitializeImmutableBinding(envRec, N, V) {
   if (isDeclarativeEnvironmentRecord(envRec)) {
     return InitializeImmutableBindingDeclarative(envRec, N, V)
   };
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 function InitializeImmutableBindingDeclarative(declarativeEnvRec, N, V) {
@@ -412,7 +407,7 @@ function InitializeImmutableBindingDeclarative(declarativeEnvRec, N, V) {
   /* 4. Record that the immutable binding for N in envRec has been initialised. */
   setBindingInitialised(envRec, N, true);
 
-  return V /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 
@@ -483,7 +478,7 @@ function NewObjectEnvironment(O, E) {
   return env
 };
 
-function GlobalEnvironment(globalObject) { /* TODO global object (15.1) */
+function GlobalEnvironment(globalObject) {
   /* 10.2.3 The Global Environment */
 
   /* The global environment is a unique Lexical Environment which is created before any ECMAScript code is
@@ -572,7 +567,7 @@ function getBindingObject(objectEnvRec) {
 function setProvideThis(objectEnvironment, value) {
   getEnvironmentRecord(objectEnvironment).provideThis := value;
 
-  return value /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 function getProvideThis(objectEnvRec) {
@@ -589,22 +584,22 @@ function getOuterEnvironmentReference(lexicalEnvironment) {
 
 function setEnvironmentRecord(lexicalEnvironment, environmentRecord) {
   lexicalEnvironment.EnvRec := environmentRecord;
-  return environmentRecord /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 function setOuterLexicalEnvironmentReference(lexicalEnvironment, outerLexicalEnvironment) {
   lexicalEnvironment.OuterEnvRef := outerLexicalEnvironment;
-  return outerLexicalEnvironment /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 function createMutableBinding(declarativeEnvRec, name, value) {
   declarativeEnvRec[name] := newMutableBinding(value);
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 function createImmutableBinding(declarativeEnvRec, name) {
   declarativeEnvRec[name] := newImmutableBinding('undefined);
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 function newBinding(initialised, value, deletable, modifiable) {
@@ -640,7 +635,7 @@ function setBindingValue(envRec, name, value) {
 
   envRec[name] := newBinding;
 
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 function setBindingInitialised(envRec, name, initialised) {
@@ -649,7 +644,7 @@ function setBindingInitialised(envRec, name, initialised) {
 
   envRec[name] := newBinding;
 
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 function setBindingDeletable(envRec, name, deletable) {
@@ -658,7 +653,7 @@ function setBindingDeletable(envRec, name, deletable) {
 
   envRec[name] := newBinding;
 
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
+  return
 };
 
 function hasUninitialisedImmutableBinding(envRec, name) {

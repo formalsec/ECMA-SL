@@ -135,11 +135,11 @@ function ObjectConstructor(globalObject, this, strict, params) {
       /* i. If the value is a native ECMAScript object, do not create a new object but simply return value. */
       if (isJavaScriptObject(value)) {
         return value
-      }
+      };
       /* ii. If the value is a host object, then actions are taken and a result is returned in an
             implementation-dependent manner that may depend on the host object. */
-      else {
-        assert false
+      if (isHostObject(value, this)) {
+        return hostObjectReturn()
       }
     };
     /* b. If Type(value) is String, return ToObject(value). */
@@ -215,26 +215,17 @@ function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
         standard built-in constructor with that name. */
   array := ArrayConstructor(globalObject, this, strict, []);
   /* 3. Let n be 0. */
-  n := 0;
-
+  n := 0.;
   /* 4. For each named own property P of O */
-  ownProperties := getOwnProperties(O);
-  lownProperties := l_len ownProperties;
-  while(n < lownProperties) {
-    P := l_nth(ownProperties, n);
+  foreach (P : getOwnProperties(O)) {
     /* a. Let name be the String value that is the name of P. */
-    name := P;
+    name := getStringValue(P);
     /* b. Call the [[DefineOwnProperty]] internal method of array with arguments ToString(n), the
           PropertyDescriptor {[[Value]]: name, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]:
           true}, and false. */
-    {array.DefineOwnProperty}(array, ToString(int_to_float n), {
-      Value: name,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }, false);
+    {array.DefineOwnProperty}(array, ToString(n), newDataPropertyDescriptor(name), false);
     /* c. Increment n by 1. */
-    n := n + 1
+    n := n + 1.
   };
   /* 5. Return array. */
   return array
@@ -308,11 +299,7 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
   /* 4. Let descriptors be an empty internal List. */
   descriptors := [];
   /* 5. For each element P of names in list order, */
-  i := 0;
-  lnames := l_len names;
-  while(i < lnames) {
-    P := l_nth(names, i);
-    i := i + 1;
+  foreach (P : names) {
     /* a. Let descObj be the result of calling the [[Get]] internal method of props with P as the argument. */
     descObj := {props.Get}(props, P);
     /* b. Let desc be the result of calling ToPropertyDescriptor with descObj as the argument. */
@@ -321,11 +308,7 @@ function ObjectDefineProperties(globalObject, this, strict, params) {
     descriptors := l_add(descriptors, [P, desc])
   };
   /* 6. For each pair from descriptors in list order, */
-  i := 0;
-  ldescriptors := l_len descriptors;
-  while(i < ldescriptors) {
-    pair := l_nth(descriptors, i);
-    i := i + 1;
+  foreach (pair : descriptors) {
     /* a. Let P be the first element of pair. */
     P := l_nth(pair, 0);
     /* b. Let desc be the second element of pair. */
@@ -350,16 +333,11 @@ function ObjectSeal(globalObject, this, strict, params) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. For each named own property name P of O, */
-  i := 0;
-  namedOwnProperties := getOwnProperties(O);
-  lnamedOwnProperties := l_len namedOwnProperties;
-  while(i < lnamedOwnProperties) {
-    P := l_nth(namedOwnProperties, i);
-    i := i + 1;
+  foreach (P : getOwnProperties(O)) {
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
     desc := {O.GetOwnProperty}(O, P);
     /* b. If desc.[[Configurable]] is true, set desc.[[Configurable]] to false. */
-    if (getInternalProperty(desc, "Configurable") = true) {
+    if (desc.Configurable = true) {
       setInternalProperty(desc, "Configurable", false)
     };
     /* c. Call the [[DefineOwnProperty]] internal method of O with P, desc, and true as arguments. */
@@ -381,23 +359,18 @@ function ObjectFreeze(globalObject, this, strict, params) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. For each named own property name P of O, */
-  i := 0;
-  namedOwnProperties := getOwnProperties(O);
-  lnamedOwnProperties := l_len namedOwnProperties;
-  while(i < lnamedOwnProperties) {
-    P := l_nth(namedOwnProperties, i);
-    i := i + 1;
+  foreach (P : getOwnProperties(O)) {
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
     desc := {O.GetOwnProperty}(O, P);
     /* b. If IsDataDescriptor(desc) is true, then */
     if (IsDataPropertyDescriptor(desc) = true) {
       /* i. If desc.[[Writable]] is true, set desc.[[Writable]] to false. */
-      if (getInternalProperty(desc, "Writable") = true) {
+      if (desc.Writable = true) {
         setInternalProperty(desc, "Writable", false)
       }
     };
     /* c. If desc.[[Configurable]] is true, set desc.[[Configurable]] to false. */
-    if (getInternalProperty(desc, "Configurable") = true) {
+    if (desc.Configurable = true) {
       setInternalProperty(desc, "Configurable", false)
     };
     /* d. Call the [[DefineOwnProperty]] internal method of O with P, desc, and true as arguments. */
@@ -434,16 +407,11 @@ function ObjectIsSealed(globalObject, this, strict, params) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. For each named own property name P of O, */
-  i := 0;
-  namedOwnProperties := getOwnProperties(O);
-  lnamedOwnProperties := l_len namedOwnProperties;
-  while(i < lnamedOwnProperties) {
-    P := l_nth(namedOwnProperties, i);
-    i := i + 1;
+  foreach (P : getOwnProperties(O)) {
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
     desc := {O.GetOwnProperty}(O, P);
     /* b. If desc.[[Configurable]] is true, then return false. */
-    if (getInternalProperty(desc, "Configurable") = true) {
+    if (desc.Configurable = true) {
       return false
     }
   };
@@ -465,23 +433,18 @@ function ObjectIsFrozen(globalObject, this, strict, params) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. For each named own property name P of O, */
-  i := 0;
-  namedOwnProperties := getOwnProperties(O);
-  lnamedOwnProperties := l_len namedOwnProperties;
-  while(i < lnamedOwnProperties) {
-    P := l_nth(namedOwnProperties, i);
-    i := i + 1;
+  foreach (P : getOwnProperties(O)) {
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
     desc := {O.GetOwnProperty}(O, P);
     /* b. If IsDataDescriptor(desc) is true then */
     if (IsDataPropertyDescriptor(desc) = true) {
       /* i. If desc.[[Writable]] is true, return false. */
-      if (getInternalProperty(desc, "Writable") = true) {
+      if (desc.Writable = true) {
         return false
       }
     };
     /* c. If desc.[[Configurable]] is true, then return false. */
-    if (getInternalProperty(desc, "Configurable") = true) {
+    if (desc.Configurable = true) {
       return false
     }
   };
@@ -521,23 +484,15 @@ function ObjectKeys(globalObject, this, strict, params) {
         the standard built-in constructor with that name. */
   array := ArrayConstructor(globalObject, this, strict, []);
   /* 4. Let index be 0. */
-  index := 0;
+  index := 0.;
   /* 5. For each own enumerable property of O whose name String is P */
-  namedOwnProperties := getOwnEnumerableProperties(O);
-  lnamedOwnProperties := l_len namedOwnProperties;
-  while(index < lnamedOwnProperties) {
-    P := l_nth(namedOwnProperties, index);
+  foreach (P : getOwnEnumerableProperties(O)) {
     /* a. Call the [[DefineOwnProperty]] internal method of array with arguments ToString(index), the
           PropertyDescriptor {[[Value]]: P, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true},
           and false. */
-    {array.DefineOwnProperty}(array, ToString(int_to_float index), {
-      Value: P,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }, false);
+    {array.DefineOwnProperty}(array, ToString(index), newDataPropertyDescriptor(P), false);
     /* b. Increment index by 1. */
-    index := index + 1
+    index := index + 1.
   };
   /* 6. Return array. */
   return array
@@ -645,7 +600,7 @@ function ObjectPrototypeIsPrototypeOf(globalObject, this, strict, params) {
     /* b. if V is null, return false */
     if (V = 'null) { return false };
     /* c. If O and V refer to the same object, return true. */
-    if (O = V) { return true }
+    if (sameObject(O, V)) { return true }
   }
 
   /* NOTE The ordering of steps 1 and 2 is chosen to preserve the behaviour specified by previous editions of this
@@ -702,6 +657,14 @@ function isHostObject(obj, this) {
   return false
 };
 
+function hostObjectReturn() {
+  assert false
+};
+
 function hostObjectValueOf(obj, this) {
   return
+};
+
+function getStringValue(P) {
+  return P
 }

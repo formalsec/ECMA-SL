@@ -1,0 +1,1 @@
+assert.sameValue(Array.constructor.length, 1);

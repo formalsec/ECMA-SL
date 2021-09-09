@@ -146,7 +146,6 @@ function initStringPrototype(global, objectPrototype, StringConstructor, strict)
      [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(prototype, "length", 0., false, false, false);
 
-
   return prototype
 };
 
@@ -393,7 +392,7 @@ function StringPrototypecharCodeAt (global, this, strict, args) {
   };
   /*     Return a value of Number type, whose value is the code unit value of the character at position position
        in the String S, where the first (leftmost) character in S is considered to be at position 0, the next one at position 1, and so on. */
-  return to_char_code_u (s_nth_u (S, position))
+  return int_to_float (to_char_code_u (s_nth_u (S, position)))
 };
 
 /*15.5.4.6 String.prototype.concat ( [ string1 [ , string2 [ , … ] ] ] )  */
@@ -768,6 +767,9 @@ function StringPrototypeReplace(global, this, strict, args) {
   if (isRegExpObject(searchValue)) {
     g := searchValue.OriginalFlags.gb;
     matchArr := RegExpPrototypeExec(global, searchValue, strict, [string]);
+    if (matchArr = 'null) {
+      return string
+    };
     m := {matchArr.Get}(matchArr, "length") - 1.;
     
     matches := [matchArr];
@@ -1410,6 +1412,8 @@ function StringPrototypesubstring (global, this, strict, args) {
 
 };
 
+
+
 /* 15.5.4.16 String.prototype.toLowerCase ( ) */
 /* The following steps are taken:
 
@@ -1450,7 +1454,63 @@ function StringPrototypetoLowerCase (global, this, strict, args) {
   /*Let L be a String where each character of L is either the Unicode lowercase equivalent
     of the corresponding character of S or the actual corresponding character of S
     if no Unicode lowercase equivalent exists. */
-  L := to_lower_case S;
+  /*L := to_lower_case S;*/
+
+  if (!isUnicodeCasingInitialized()) {
+    initializeUnicodeCasing()
+  };
+
+  L := "";
+  i := 0;
+  len := s_len_u S;
+  while (i < len) {
+
+    c := s_nth_u(S, i);
+
+    /* For some reason, a mapping may be present in both files. In this case, use the
+    one in SpecialCasing.txt, except if it has a condition */
+    j := 0;
+    sc_len := l_len |specialCasing|;
+    while (j < sc_len) {
+      el := l_nth(|specialCasing|, j);
+      if ((c = el.code) &&& !(el.lowercase = 'undefined)) {
+        if (el.condition_list = 'undefined) {
+          c := el.lowercase;
+          j := sc_len + 1
+        } elif ((el.condition_list = "Final_Sigma") &&& (len > 1)) {
+          if (i = (len - 1)) {
+            if ((len = 2) &&& (s_nth_u(S, (i - 1)) = "\u{0345}")) {
+              /* Don't use special casing */
+              j := sc_len - 1
+            } else {
+              c := el.lowercase;
+              j := sc_len + 1
+            }            
+          } else {
+            nextC := s_nth_u(S, (i + 1));
+            if ((i < (len - 2)) &&& (nextC = "\u{0345}")) {
+              /* Don't use special casing */
+              j := sc_len - 1
+            }
+            elif (nextC = "\u{0345}") {
+              c := el.lowercase;
+              j := sc_len + 1
+            }
+          }
+        }
+      };
+      j := j + 1
+    };
+    if ((j <= sc_len) &&& (c in_obj |unicodeData|) &&& !(|unicodeData|[c].lowercase = 'undefined)) {
+      c := |unicodeData|[c].lowercase
+    };
+
+    L := s_concat([L, c]);
+
+    i := i + 1
+  };
+
+
   /* Return L. */
   return L
 };
@@ -1475,7 +1535,65 @@ function StringPrototypetoLocaleLowerCase (global, this, strict, args) {
   /*Let L be a String where each character of L is either the Unicode lowercase equivalent
     of the corresponding character of S or the actual corresponding character of S
     if no Unicode lowercase equivalent exists. */
-  L := to_lower_case S; /* TO DO -> Passar isto tendo em conta a linguagem do ambiente */
+  /*L := to_lower_case S;*/
+  
+  /* TO DO -> Passar isto tendo em conta a linguagem do ambiente */
+
+  if (!isUnicodeCasingInitialized()) {
+    initializeUnicodeCasing()
+  };
+
+  L := "";
+  i := 0;
+  len := s_len_u S;
+  while (i < len) {
+
+    c := s_nth_u(S, i);
+
+    /* For some reason, a mapping may be present in both files. In this case, use the
+    one in SpecialCasing.txt, except if it has a condition */
+    j := 0;
+    sc_len := l_len |specialCasing|;
+    while (j < sc_len) {
+      el := l_nth(|specialCasing|, j);
+      if ((c = el.code) &&& !(el.lowercase = 'undefined)) {
+        if (el.condition_list = 'undefined) {
+          c := el.lowercase;
+          j := sc_len + 1
+        } elif ((el.condition_list = "Final_Sigma") &&& (len > 1)) {
+          if (i = (len - 1)) {
+            if ((len = 2) &&& (s_nth_u(S, (i - 1)) = "\u{0345}")) {
+              /* Don't use special casing */
+              j := sc_len - 1
+            } else {
+              c := el.lowercase;
+              j := sc_len + 1
+            }            
+          } else {
+            nextC := s_nth_u(S, (i + 1));
+            if ((i < (len - 2)) &&& (nextC = "\u{0345}")) {
+              /* Don't use special casing */
+              j := sc_len - 1
+            }
+            elif (nextC = "\u{0345}") {
+              c := el.lowercase;
+              j := sc_len + 1
+            }
+          }
+        }
+      };
+      j := j + 1
+    };
+    if ((j <= sc_len) &&& (c in_obj |unicodeData|) &&& !(|unicodeData|[c].lowercase = 'undefined)) {
+      c := |unicodeData|[c].lowercase
+    };
+
+    L := s_concat([L, c]);
+
+    i := i + 1
+  };
+
+
   /* Return L. */
   return L
 };
@@ -1496,7 +1614,40 @@ function StringPrototypetoUpperCase (global, this, strict, args) {
   /*Let L be a String where each character of L is either the Unicode uppercase equivalent
     of the corresponding character of S or the actual corresponding character of S
     if no Unicode uppercase equivalent exists. */
-  L := to_upper_case S;
+  /*L := to_upper_case S;*/
+
+  if (!isUnicodeCasingInitialized()) {
+    initializeUnicodeCasing()
+  };
+
+  L := "";
+  i := 0;
+  len := s_len_u S;
+  while (i < len) {
+
+    c := s_nth_u(S, i);
+
+    /* For some reason, a mapping may be present in both files. In this case, use the
+    one in SpecialCasing.txt, except if it has a condition */
+    j := 0;
+    sc_len := l_len |specialCasing|;
+    while (j < sc_len) {
+      el := l_nth(|specialCasing|, j);
+      if ((c = el.code) &&& !(el.uppercase = 'undefined) &&& (el.condition_list = 'undefined)) {
+        c := el.uppercase;
+        j := sc_len + 1
+      };
+      j := j + 1
+    };
+    if ((j <= sc_len) &&& (c in_obj |unicodeData|) &&& !(|unicodeData|[c].uppercase = 'undefined)) {
+      c := |unicodeData|[c].uppercase
+    };
+
+    L := s_concat([L, c]);
+
+    i := i + 1
+  };
+
   /* Return L. */
   return L
 };
@@ -1522,7 +1673,42 @@ function StringPrototypetoLocaleUpperCase (global, this, strict, args) {
   /*Let L be a String where each character of L is either the Unicode lowercase equivalent
     of the corresponding character of S or the actual corresponding character of S
     if no Unicode lowercase equivalent exists. */
-  L := to_upper_case S; /* TO DO -> Passar isto tendo em conta a linguagem do ambiente */
+  /*L := to_upper_case S;*/
+  
+  /* TO DO -> Passar isto tendo em conta a linguagem do ambiente */
+  if (!isUnicodeCasingInitialized()) {
+    initializeUnicodeCasing()
+  };
+
+  L := "";
+  i := 0;
+  len := s_len_u S;
+  while (i < len) {
+
+    c := s_nth_u(S, i);
+
+    /* For some reason, a mapping may be present in both files. In this case, use the
+    one in SpecialCasing.txt, except if it has a condition */
+    j := 0;
+    sc_len := l_len |specialCasing|;
+    while (j < sc_len) {
+      el := l_nth(|specialCasing|, j);
+      if ((c = el.code) &&& !(el.uppercase = 'undefined) &&& (el.condition_list = 'undefined)) {
+        c := el.uppercase;
+        j := sc_len + 1
+      };
+      j := j + 1
+    };
+    if ((j <= sc_len) &&& (c in_obj |unicodeData|) &&& !(|unicodeData|[c].uppercase = 'undefined)) {
+      c := |unicodeData|[c].uppercase
+    };
+
+    L := s_concat([L, c]);
+
+    i := i + 1
+  };
+
+
   /* Return L. */
   return L
 };

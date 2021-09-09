@@ -29,13 +29,13 @@ if [[ $with_harness == "y" ]]; then
   cat "test/test262/environment/harness.js" > "output/harness.js"
 
   echo "2.2. Creating AST for the \"harness.js\" file (non-strict) ..."
-  node ../JS2ECMA-SL/src/index.js -i "output/harness.js" -o "output/harness_ast.esl"
+  node ../JS2ECMA-SL/src/index.js -c -i "output/harness.js" -o "output/harness_ast.esl"
   if [ $? -ne 0 ]; then
     exit 1
   fi
 
   echo "2.3. Creating AST for the \"harness.js\" file (strict) ..."
-  node ../JS2ECMA-SL/src/index.js -i "output/harness_strict.js" -o "output/harness_ast_strict.esl"
+  node ../JS2ECMA-SL/src/index.js -c -i "output/harness_strict.js" -o "output/harness_ast_strict.esl"
   if [ $? -ne 0 ]; then
     exit 1
   fi

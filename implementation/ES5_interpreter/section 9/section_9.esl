@@ -1,74 +1,73 @@
 /* 9.1 ToPrimitive */
 function ToPrimitive(input, PreferredType) {
-  if (Type(input) = "Object") {
-    return DefaultValue(input, PreferredType)
-  };
-
-  return input
+  /* The abstract operation ToPrimitive takes an input argument and an optional argument PreferredType. The
+     abstract operation ToPrimitive converts its input argument to a non-Object type. If an object is capable of
+     converting to more than one primitive type, it may use the optional hint PreferredType to favour that type.
+     Conversion occurs according to Table 10: */
+  switch (Type(input)) {
+    case "Undefined": { return input }
+    case "Null": { return input }
+    case "Boolean": { return input }
+    case "Number": { return input }
+    case "String": { return input }
+    case "Object": { return DefaultValue(input, PreferredType) }
+  }
 };
 
 /* 9.2 ToBoolean */
 function ToBoolean(argument) {
   /* The abstract operation ToBoolean converts its argument to a value of type Boolean according to Table 11: */
-
-  if ((Type(argument) = "Undefined") || (Type(argument) = "Null")) {
-    return false
-  };
-  if (Type(argument) = "Boolean") {
-    return argument
-  };
-  if (Type(argument) = "Number") {
-    if ((argument = 0.) || (argument = -(0.)) || (argument = NaN)) {
-      return false
-    } else {
-      return true
-    };
-
-    return true
-  };
-  if (Type(argument) = "String") {
-    if (argument = "") {
-      return false
-    } else {
-      return true
+  switch (Type(argument)) {
+    case "Undefined": { return false }
+    case "Null": { return false }
+    case "Boolean": { return argument }
+    case "Number": {
+      if ((argument = 0.) || (argument = -(0.)) || (argument = NaN)) {
+        return false
+      } else {
+        return true
+      }
     }
-  };
-  if (Type(argument) = "Object") {
-    return true
+    case "String": {
+      if (argument = "") {
+        return false
+      } else {
+        return true
+      }
+    }
+    case "Object": { return true }
   }
 };
 
 /* 9.3 ToNumber */
 function ToNumber(argument) {
-/* The abstract operation ToNumber converts its argument to a value of type Number according to Table 12: */
+  /* The abstract operation ToNumber converts its argument to a value of type Number according to Table 12: */
+  switch (Type(argument)) {
+    case "Undefined": { return NaN }
+    case "Null": { return 0. }
+    case "Boolean": {
+      if (argument = true) {
+        return 1.
+      };
+      if (argument = false) {
+        return 0.
+      }
+    }
+    case "Number": {
+      if (typeof argument = __$Int) {
+        return int_to_float argument
+      };
+      return argument
+    }
+    case "String": { return float_of_string argument }
+    case "Object": {
+      /* Apply the following steps: */
 
-  argument_type := Type(argument);
-  if (argument_type = "Undefined") {
-    return NaN
-  };
-  if (argument_type = "Null") {
-    return 0.
-  };
-  if (argument_type = "Boolean") {
-    /* The result is 1 if the argument is true. The result is +0 if the argument is false. */
-    if (argument = true) {
-      return int_to_float 1
-    };
-    return 0.
-  };
-  if (argument_type = "Number") {
-    return argument
-  };
-  if (argument_type = "String") {
-    return float_of_string argument
-  };
-  if (argument_type = "Object") {
-    /* Apply the following steps: */
-
-    /* 1. Let primValue be ToPrimitive(input argument, hint Number). */
-    primValue := ToPrimitive(argument, 'Number);
-    /* 2. Return ToNumber(primValue). */
-    return ToNumber(primValue)
+      /* 1. Let primValue be ToPrimitive(input argument, hint Number). */
+      primValue := ToPrimitive(argument, 'Number);
+      /* 2. Return ToNumber(primValue). */
+      return ToNumber(primValue)
+    }
   }
 };
 
@@ -93,12 +92,12 @@ function ToInt32(argument) {
   /* 1. Let number be the result of calling ToNumber on the input argument. */
   number := ToNumber(argument);
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
-  return to_int32(number)
   /* 3. Let posInt be sign(number) * floor(abs(number)). */
   /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
         than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
         multiple of 2^32 . */
   /* 5. If int32bit is greater than or equal to 2^31 , return int32bit - 2^32 , otherwise return int32bit. */
+  return to_int32(number)
 
   /* NOTE Given the above definition of ToInt32:
           * The ToInt32 abstract operation is idempotent: if applied to a result that it produced, the second application leaves that
@@ -116,12 +115,12 @@ function ToUint32(argument) {
   /* 1. Let number be the result of calling ToNumber on the input argument. */
   number := ToNumber(argument);
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
-  return to_uint32(number)
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
   /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
         than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
         multiple of 2^32 . */
   /* 5. Return int32bit. */
+  return to_uint32(number)
 
   /* NOTE Given the above definition of ToUint32:
           * Step 5 is the only difference between ToUint32 and ToInt32.
@@ -139,13 +138,13 @@ function ToUint16(argument) {
 
   /* 1. Let number be the result of calling ToNumber on the input argument. */
   number := ToNumber(argument);
-  return to_uint16(number)
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
   /* 4. Let int16bit be posInt modulo 2 16 ; that is, a finite integer value k of Number type with positive sign and less
         than 2 16 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
         multiple of 2^16 . */
   /* 5. Return int16bit. */
+  return to_uint16(number)
 
   /* NOTE Given the above definition of ToUint16:
      * The substitution of 2 16 for 2 32 in step 4 is the only difference between ToUint32 and ToUint16.
@@ -153,80 +152,74 @@ function ToUint16(argument) {
 };
 
 /* 9.8 ToString */
-function ToString(V) {
-  v_type := Type(V);
-  if (v_type = "Undefined") {
-    return "undefined"
-  };
-  if (v_type = "Null") {
-    return "null"
-  };
-  if (v_type = "Boolean") {
-    if (V = true) {
-      return "true"
-    };
-    return "false"
-  };
-  if (v_type = "Number") {
-    return float_to_string V
-  };
-  if (v_type = "String") {
-    return V
-  };
-  if (v_type = "Object") {
-    /* Apply the following steps: */
-    /* 1. Let primValue be ToPrimitive(input argument, hint String). */
-    primValue := ToPrimitive(V, 'String);
-    /* 2. Return ToString(primValue). */
-    return ToString(primValue)
+function ToString(argument) {
+  /* The abstract operation ToString converts its argument to a value of type String according to Table 13: */
+  switch(Type(argument)) {
+    case "Undefined": { return "undefined" }
+    case "Null": { return "null" }
+    case "Boolean": {
+      if (argument = true) {
+        return "true"
+      };
+      if (argument = false) {
+        return "false"
+      }
+    }
+    case "Number": { return float_to_string argument }
+    case "String": { return argument }
+    case "Object": {
+      /* Apply the following steps: */
+      /* 1. Let primValue be ToPrimitive(input argument, hint String). */
+      primValue := ToPrimitive(argument, 'String);
+      /* 2. Return ToString(primValue). */
+      return ToString(primValue)
+    }
   }
 };
 
 /* 9.9 ToObject */
-/* The abstract operation ToObject converts its argument to a value of type Object according to Table 14: */
-function ToObject(V) {
-  v_type := Type(V);
-  if ((v_type = "Undefined") || (v_type = "Null")) {
-    throw TypeErrorConstructorInternal()
-  };
-  if (v_type = "Boolean") {
-    return BooleanConstructor(|global|, true, false, [V])
-  };
-  if (v_type = "Number") {
-    return NumberConstructor(|global|, true, false, [V])
-  };
-  if (v_type = "String") {
-    return StringConstructor(|global|, true, false, [V])
-  };
-  if (v_type = "Object") {
-    return V
+function ToObject(argument) {
+ /* The abstract operation ToObject converts its argument to a value of type Object according to Table 14: */
+  switch(Type(argument)) {
+    case "Undefined": { throw TypeErrorConstructorInternal() }
+    case "Null": { throw TypeErrorConstructorInternal() }
+    case "Boolean": { return BooleanConstructor(|global|, true, false, [argument]) }
+    case "Number": { return NumberConstructor(|global|, true, false, [argument]) }
+    case "String": { return StringConstructor(|global|, true, false, [argument]) }
+    case "Object": { return argument }
   }
 };
 
 /* 9.10 CheckObjectCoercible */
-/* The abstract operation CheckObjectCoercible throws an error if its argument is a value that cannot be
-   converted to an Object using ToObject. It is defined by Table 15: */
-function CheckObjectCoercible(V) {
-  v_type := Type(V);
-  if ((v_type = "Undefined") || (v_type = "Null")) {
-    throw TypeErrorConstructorInternal()
-  };
-
-  return
+function CheckObjectCoercible(argument) {
+  /* The abstract operation CheckObjectCoercible throws an error if its argument is a value that cannot be
+    converted to an Object using ToObject. It is defined by Table 15: */
+  switch (Type(argument)) {
+    case "Undefined": { throw TypeErrorConstructorInternal() }
+    case "Null": { throw TypeErrorConstructorInternal() }
+    case "Boolean": { return }
+    case "Number": { return }
+    case "String": { return }
+    case "Object": { return }
+  }
 };
 
-function IsCallable(V) {
-  /* 9.11 IsCallable */
-
+/* 9.11 IsCallable */
+function IsCallable(argument) {
   /* The abstract operation IsCallable determines if its argument, which must be an ECMAScript language value,
      is a callable function Object according to Table 16: */
-  v_type := Type(V);
-  if (v_type = "Object") {
-    if ("Call" in_obj V) {
-      return true
-    };
-    return false
-  };
-
-  return false
+  switch (Type(argument)) {
+    case "Undefined": { return false }
+    case "Null": { return false }
+    case "Boolean": { return false }
+    case "Number": { return false }
+    case "String": { return false }
+    case "Object": {
+      if ("Call" in_obj argument) {
+        return true
+      } else {
+        return false
+      }
+    }
+  }
 }

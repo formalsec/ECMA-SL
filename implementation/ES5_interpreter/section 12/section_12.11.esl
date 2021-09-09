@@ -31,4 +31,12 @@ function getCaseClauseStatementList(caseClause) {
   | default -> {
     throw SyntaxErrorConstructorInternal()
   }
+};
+
+function equalToAsDefinedByStrictEqualityComparison(firstValue, secondValue) {
+  return StrictEqualityComparison(firstValue, secondValue)
+};
+
+function allElementsHaveNotBeenProcessed(clauses, idx) {
+  return l_len clauses > idx
 }
