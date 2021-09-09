@@ -281,4 +281,18 @@ function GetNew(O, P) {
 
 	/* Return O.[[Get]](P, O). */
 	return {O.Get}(O, P)
+};
+
+/**
+*  7.3.3 Set (O, P, V, Throw)
+*
+*  The abstract operation Set is used to set the value of a specific property of an object.
+*  The operation is called with arguments O, P, V, and Throw where O is the object, P is the 
+*  property key, V is the new value for the property and Throw is a Boolean flag. This
+*  abstract operation performs the following steps:
+*/
+
+function Set (O, P, V, Throw) {
+	{O.Put}(O, P, V, Throw);
+	return true
 }
