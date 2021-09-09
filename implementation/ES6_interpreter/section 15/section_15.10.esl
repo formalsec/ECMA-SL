@@ -146,9 +146,6 @@ function parsePattern(P, F) {
   return JS_Interpreter_RegEx_TopLevel(regex, source)
 };
 
-
-
-
 /**
  * 15.10.4.1 new RegExp(pattern, flags)
  */
@@ -252,7 +249,7 @@ function initRegExpPrototype(objectPrototypeObject) {
   regExpPrototypeObject := NewECMAScriptObject();
   setAllInternalMethodsOfObject(regExpPrototypeObject);
 
-/* The value of the [[Prototype]] internal property of the RegExp prototype object is the standard built-in Object
+  /* The value of the [[Prototype]] internal property of the RegExp prototype object is the standard built-in Object
    prototype object (15.2.4). The RegExp prototype object is itself a regular expression object; its [[Class]] is
    "RegExp". The initial values of the RegExp prototype object‘s data properties (15.10.7) are set as if the
    object was created by the expression new RegExp() where RegExp is that standard built-in constructor with
@@ -401,7 +398,6 @@ function getRegExpPrototypeExec(strict) {
 
   return regExpObjectExec
 };
-
 
 /**
  * 15.10.6.2 RegExp.prototype.exec(string)
@@ -573,9 +569,6 @@ function isRegExpObject(arg) {
   return false
 };
 
-
-
-
 /**
  * 15.10.6.3 RegExp.prototype.test(string)
  *
@@ -595,9 +588,6 @@ function RegExpPrototypeTest(global, this, strict, args) {
     return false
   }
 };
-
-
-
 
 /**
  * 15.10.6.4 RegExp.prototype.toString()
@@ -630,9 +620,6 @@ function RegExpPrototypeToString(global, this, strict, args) {
   };
   return source
 };
-
-
-
 
 function JS_Interpreter_RegEx_TopLevel(re, source) {
 
@@ -1811,10 +1798,6 @@ function JS_Interpreter_RegEx(re, flags) {
     dec_code := octal_to_decimal (int_of_string c);
     c := from_char_code_u dec_code;
 
-print "INSIDE DECIMAL";
-print dec_code;
-print c;
-
     m := lambda (st, k) [c] {
       c2 := stateGetChar(st);
       if (c = null) {
@@ -1927,8 +1910,8 @@ print c;
   | default -> {
     throw "Regex Not Supported!!"
   }
-
 };
+
 function AdvanceStringIndex(S, index, unicode){
    /* 1. Assert: Type(S) is String. */
    assert(Type(S) = "String");
