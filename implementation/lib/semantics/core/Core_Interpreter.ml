@@ -425,6 +425,7 @@ let eval_prog (prog : Prog.t) (context : ctx_t) (main : string) : (Val.t option 
     let _, heap, _, _= state_0 in
     match v with
     | Finalv v -> v, heap
+    | Errorv (Some (Val.Str s)) -> raise(Except s)
     | _ -> raise(Except "No return value")(*ERROR*)
 
 end
