@@ -295,4 +295,8 @@ function GetNew(O, P) {
 function Set (O, P, V, Throw) {
 	{O.Put}(O, P, V, Throw);
 	return true
+};
+
+function temporaryInternalGetPrototypeOf (O) {
+	return O.Prototype
 }
