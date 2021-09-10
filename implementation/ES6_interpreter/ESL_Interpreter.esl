@@ -93,6 +93,10 @@ function JS_Interpreter_SourceElements(SourceElements, scope) {
 
 function JS_Interpreter_Expr(e, scope) {
   match e with
+  | {type: "ArrowFunctionExpression"} -> {
+    print "foo";
+    fail "Unsuported Expression : Arrow Expression"
+  }
   | { type: "ThisExpression" } -> {
     /* 11.1.1 The this Keyword */
 
