@@ -3,6 +3,7 @@ __n0 := {  };
 __n0["sourceType"] := "script";
 __n0["type"] := "EarlySyntaxError";
 __n0["message"] := "Unexpected token )";
+__n0["optimised"] := true;
 __n1 := [  ];
 __n0["body"] := __n1;
 __n2 := [  ];

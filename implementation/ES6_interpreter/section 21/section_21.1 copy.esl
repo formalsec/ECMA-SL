@@ -812,14 +812,6 @@ function StringPrototypeReplace(global, this, strict, args) {
     };
     m := 0.
   };
-  /* If replaceValue is a function, then for each matched substring, call the
-  function with the following m + 3 arguments. Argument 1 is the substring that
-  matched. If searchValue is a regular expression, the next m arguments are all
-  of the captures in the MatchResult (see 15.10.2.1). Argument m + 2 is the offset
-  within string where the match occurred, and argument m + 3 is string. The result
-  is a String value derived from the original input by replacing each matched
-  substring with the corresponding return value of the function call, converted
-  to a String if need be. */
   /* Otherwise, let newstring denote the result of converting replaceValue to a
   String. The result is a String value derived from the original input String by
   replacing each matched substring with a String derived from newstring by replacing
@@ -882,9 +874,6 @@ function StringPrototypeReplace(global, this, strict, args) {
     string := s_substr_u(string, startOffset + matchStrLen, stringLen);
 
     if ((Type(replaceValue) = "Object") &&& (replaceValue.Class = "Function")) {
-      /* TODO - review "this" arg passed to the replace function is 'undefined 
-      according to test test/test262/tests/built-ins/String/prototype/replace/15.5.4.11-1.js
-      and test/test262/tests/built-ins/String/prototype/replace/15.5.4.11-1.js */
       newstring := {replaceValue.Call}(null, null, replaceValue, 'undefined, args2);
       newstring := ToString(newstring)
     } else {

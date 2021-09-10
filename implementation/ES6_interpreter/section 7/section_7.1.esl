@@ -25,7 +25,7 @@ function CanonicalNumericIndexString(argument){
 
     /* 2. If argument is "-0", return −0. */
     if (argument = "-0"){
-        return -0
+        return -(0.)
     };
 
     /* 3. Let n be ToNumber(argument). */
@@ -39,3 +39,4 @@ function CanonicalNumericIndexString(argument){
     /* 5. Return n. */
     return n
 }
+

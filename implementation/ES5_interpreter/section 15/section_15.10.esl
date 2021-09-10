@@ -60,18 +60,16 @@ function RegExpConstructor(global, this, strict, args) {
 
 
 function escapePattern(P) {
+
   i := 0;
   len := s_len_u(P);
   S := "";
+
   while (i < len) {
     c := s_nth_u(P, i);
-    /* the backlash is already escaped in the given string */
-    /*if ((c = "\\") ||| (c = "/")) {*/
 
-    /* Caused test to fail: test/test262/tests/built-ins/RegExp/character-escape/S15.10.2.10_A5.1_T1.js */
-    if ((c = "/")) {
-      S := s_concat([S, "\\"]);
-      S := s_concat([S, c])
+    if (c = "/") {
+      S := s_concat([S, "\\/"])
     } elif (c = "\r") {
       S := s_concat([S, "\\r"])
     } elif (c = "\n") {
@@ -1738,10 +1736,6 @@ function JS_Interpreter_RegEx(re, flags) {
 
     dec_code := octal_to_decimal (int_of_string c);
     c := from_char_code_u dec_code;
-
-print "INSIDE DECIMAL";
-print dec_code;
-print c;
 
     m := lambda (st, k) [c] {
       c2 := stateGetChar(st);

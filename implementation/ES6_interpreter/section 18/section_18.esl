@@ -26,6 +26,7 @@ function initGlobalObject(strict) {
   ObjectPrototype := initObjectPrototype();
   FunctionPrototype := initFunctionPrototype(ObjectPrototype, globalObject, strict);
   ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, strict);
+  |objectConstructor| := ObjectConstructor;
   FunctionConstructor := initFunctionConstructor(FunctionPrototype, globalObject, strict);
 
   setInternalProperty(globalObject, "Prototype", ObjectPrototype);
@@ -95,6 +96,7 @@ function initGlobalObject(strict) {
   /* 15.1.4.4 String ( . . . ) */
   StringObject := initStringObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "String", StringObject);
+  initStringIteratorPrototype(globalObject, ObjectPrototype, strict);
   /* 15.1.4.5 Boolean ( . . . ) */
   BooleanObject := initBooleanObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Boolean", BooleanObject);

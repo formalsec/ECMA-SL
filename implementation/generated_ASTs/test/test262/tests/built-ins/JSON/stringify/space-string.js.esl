@@ -319,6 +319,7 @@ __n54["arguments"] := __n58;
 __n53["expression"] := __n54;
 __n1 := [ __n2, __n33, __n53 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n89 := [ "obj" ];
 __n0["variableDeclarations"] := __n89;
 __n90 := [  ];

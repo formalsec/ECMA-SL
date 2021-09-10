@@ -299,6 +299,7 @@ __n78["arguments"] := __n82;
 __n77["expression"] := __n78;
 __n1 := [ __n2, __n10, __n15, __n47, __n57, __n67, __n77 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n87 := [ "json", "obj" ];
 __n0["variableDeclarations"] := __n87;
 __n88 := [  ];

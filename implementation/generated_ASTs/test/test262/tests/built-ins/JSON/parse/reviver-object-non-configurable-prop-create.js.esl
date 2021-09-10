@@ -238,6 +238,7 @@ __n61["arguments"] := __n65;
 __n60["expression"] := __n61;
 __n1 := [ __n2, __n7, __n50, __n60 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n70 := [ "json", "obj" ];
 __n0["variableDeclarations"] := __n70;
 __n71 := [  ];

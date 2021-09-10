@@ -1,6 +1,7 @@
 function buildAST (___internal_esl_global) {
 __n0 := {  };
 __n0["type"] := "Program";
+__n0["sourceType"] := "script";
 __n2 := {  };
 __n2["type"] := "VariableDeclaration";
 __n4 := {  };
@@ -1355,7 +1356,7 @@ __n407["consequent"] := __n411;
 __n407["alternate"] := null;
 __n1 := [ __n2, __n7, __n18, __n23, __n34, __n39, __n50, __n55, __n66, __n71, __n82, __n87, __n98, __n103, __n114, __n119, __n130, __n135, __n146, __n151, __n162, __n167, __n178, __n183, __n194, __n199, __n210, __n215, __n226, __n231, __n242, __n247, __n258, __n263, __n274, __n279, __n290, __n295, __n306, __n311, __n322, __n327, __n338, __n343, __n354, __n359, __n370, __n375, __n386, __n391, __n402, __n407 ];
 __n0["body"] := __n1;
-__n0["sourceType"] := "script";
+__n0["optimised"] := true;
 __n418 := [ "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" ];
 __n0["variableDeclarations"] := __n418;
 __n419 := [  ];

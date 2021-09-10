@@ -18,24 +18,53 @@ function SameValue (x, y) {
     /* c. If x is -0 and y is +0, return false. */
     if (isMinusZero(x) && isZero(y)) { return false };
     /* d. If x is the same Number value as y, return true. */
-    if (x = y) { return true };
+    if (sameNumber(x, y)) { return true };
     /* e. Return false. */
     return false
   };
   /* 5. If Type(x) is String, then return true if x and y are exactly the same sequence of characters
     (same length and same characters in corresponding positions); otherwise, return false. */
-  if (Type(x) = "String") { return x = y };
+  if (Type(x) = "String") {
+    if (sameSequenceOfCharacters(x, y)) {
+      return true
+    };
+    return false
+  };
   /* 6. If Type(x) is Boolean, return true if x and y are both true or both false; otherwise, return false. */
-  if (Type(x) = "Boolean") { return x = y };
+  if (Type(x) = "Boolean") {
+    if ((x = true && y = true) || (x = false && y = false)) {
+      return true
+    };
+    return false
+  };
   /* 7. Return true if x and y refer to the same object. Otherwise, return false. */
-  return x = y
+  if (sameObject(x, y)) {
+    return true
+  };
+  return false
 };
 
 /* Auxiliary functions */
+function sameNumber(x, y) {
+  return x = y
+};
+
+function sameSequenceOfCharacters(x, y) {
+  return x = y
+};
+
+function sameObject(x, y) {
+  return x = y
+};
+
 function isZero(x) {
   return (x = 0.) && ((1. / x) = Infinity)
 };
 
 function isMinusZero(x) {
   return (x = 0.) && ((1. / x) = -Infinity)
+};
+
+function mathematicalValue(x) {
+  return x
 }

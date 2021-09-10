@@ -54,57 +54,84 @@ function IsUnresolvableReference (V) {
 
 function GetValue(V) {
   print "GetValue";
+  /* 1. If Type(V) is not Reference, return V. */
   if (!(Type(V) = "Reference")) {
     return V
   };
 
+  /* 2. Let base be the result of calling GetBase(V). */
   base := GetBase(V);
 
+  /* 3. If IsUnresolvableReference(V), throw a ReferenceError exception. */
   if (IsUnresolvableReference(V)) {
     throw ReferenceErrorConstructorInternal()
   };
 
+  /* 4. If IsPropertyReference(V), then */
   if (IsPropertyReference(V)) {
+    /* a. If HasPrimitiveBase(V) is false, then let get be the [[Get]] internal method of base,
+          otherwise let get be the special [[Get]] internal method defined below. */
     if (HasPrimitiveBase(V) = false) {
       get := base["Get"]
     } else {
       get := "Get_internal"
     };
 
+    /* b. Return the result of calling the get internal method using base as its this value,
+          and passing GetReferencedName(V) for the argument. */
     return {get}(base, GetReferencedName(V))
-  } else {
+  }
+  /* 5. Else, base must be an environment record. */
+  else {
+    /* a. Return the result of calling the GetBindingValue (see 10.2.1) concrete method of base
+          passing GetReferencedName(V) and IsStrictReference(V) as arguments. */
     return GetBindingValue(base, GetReferencedName(V), IsStrictReference(V))
   }
 };
 
 function PutValue(V, W) {
   print "PutValue";
+  /* 1. If Type(V) is not Reference, throw a ReferenceError exception. */
   if (!(Type(V) = "Reference")) {
     throw ReferenceErrorConstructorInternal()
   };
 
+  /* 2. Let base be the result of calling GetBase(V). */
   base := GetBase(V);
 
+  /* 3. If IsUnresolvableReference(V), then */
   if (IsUnresolvableReference(V)) {
+    /* a. If IsStrictReference(V) is true, then */
     if (IsStrictReference(V)) {
+      /* i. Throw ReferenceError exception. */
       throw ReferenceErrorConstructorInternal()
     };
 
+    /* b. Call the [[Put]] internal method of the global object, passing GetReferencedName(V) for the property name,
+          W for the value, and false for the Throw flag. */
     Put(|global|, GetReferencedName(V), W, false)
-  } else {
-    if (IsPropertyReference(V)) {
-      if (HasPrimitiveBase(V) = false) {
-        put := base["Put"]
-      } else {
-        put := "Put_internal"
-      };
-
-      {put}(base, GetReferencedName(V), W, IsStrictReference(V))
+  }
+  /* 4. Else if IsPropertyReference(V), then */
+  elif (IsPropertyReference(V)) {
+    /* a. If HasPrimitiveBase(V) is false, then let put be the [[Put]] internal method of base,
+          otherwise let put be the special [[Put]] internal method defined below. */
+    if (HasPrimitiveBase(V) = false) {
+      put := base["Put"]
     } else {
-      SetMutableBinding(base, GetReferencedName(V), W, IsStrictReference(V))
-    }
+      put := "Put_internal"
+    };
+
+    /* b. Call the put internal method using base as its this value, and passing GetReferencedName(V) for the property name,
+          W for the value, and IsStrictReference(V) for the Throw flag. */
+    {put}(base, GetReferencedName(V), W, IsStrictReference(V))
+  }
+  /* 5. Else base must be a reference whose base is an environment record. So, */
+  else {
+    /* a. Call the SetMutableBinding (10.2.1) concrete method of base, passing GetReferencedName(V), W, and IsStrictReference(V) as arguments. */
+    SetMutableBinding(base, GetReferencedName(V), W, IsStrictReference(V))
   };
 
+  /* 6. Return. */
   return
 };
 
@@ -124,23 +151,20 @@ function Get_internal(base, P) {
   /* 4. If IsDataDescriptor(desc) is true, return desc.[[Value]]. */
   if (IsDataPropertyDescriptor(desc) = true) {
     return desc.Value
-  }
-  /* 5. Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]] (see 8.10). */
-  else {
-    getter := desc.Get
   };
+  /* 5. Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]] (see 8.10). */
+  getter := desc.Get;
   /* 6. If getter is undefined, return undefined. */
   if (getter = 'undefined) {
     return 'undefined
   };
   /* 7. Return the result calling the [[Call]] internal method of getter providing base as the this value and providing
-  no arguments. */
+        no arguments. */
   return {getter.Call}(null, null, getter, base, [])
 
   /* NOTE The object that may be created in step 1 is not accessible outside of the above method. An implementation
           might choose to avoid the actual creation of the object. The only situation where such an actual property access that uses
           this internal method can have visible effect is when it invokes an accessor function. */
-
 };
 
 function Put_internal(base, P, W, Throw) {

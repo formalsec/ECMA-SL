@@ -73,6 +73,7 @@ __n13["arguments"] := __n17;
 __n12["expression"] := __n13;
 __n1 := [ __n2, __n12 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n22 := [ "result" ];
 __n0["variableDeclarations"] := __n22;
 __n23 := [  ];

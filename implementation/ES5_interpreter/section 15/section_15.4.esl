@@ -551,7 +551,7 @@ function arrayConcat(global, this, strict, items) {
 
     /* b. If the value of the [[Class]] internal property of E is "Array",
           then */
-    if (E.Class = "Array") {
+    if ((typeof E = __$Obj) &&& (E.Class = "Array")) {
       /* i. Let k be 0. */
       k := int_to_float 0;
       /* ii. Let len be the result of calling the [[Get]] internal method
@@ -565,7 +565,6 @@ function arrayConcat(global, this, strict, items) {
         /* 2. Let exists be the result of calling the [[HasProperty]]
               internal method of E with P. */
         exists := {E.HasProperty}(E, P);
-
         /* 3. If exists is true, then */
         if (exists = true) {
           /* a. Let subElement be the result of calling the [[Get]] internal
@@ -578,7 +577,6 @@ function arrayConcat(global, this, strict, items) {
           descriptor := newDataPropertyDescriptorFull(subElement, true, true, true);
           {A.DefineOwnProperty}(A, ToString(n), descriptor, false)
         };
-
         /* 4. Increase n by 1. */
         n := n + 1.;
         /* 5. Increase k by 1. */
@@ -597,6 +595,10 @@ function arrayConcat(global, this, strict, items) {
       n := n + 1.
     }
   };
+
+  /** test/test262/tests/built-ins/Array/prototype/concat/S15.4.4.4_A1_T4.js */
+  lenDesc := newDataPropertyDescriptorFull(n, true, false, false);
+  {A.DefineOwnProperty}(A, "length", lenDesc, false);
 
   /* 6. Return A. */
   return A
@@ -837,36 +839,34 @@ function arrayReverse(global, this, strict, args) {
           internal method of O with argument upperP. */
     upperExists := {O.HasProperty}(O, upperP);
     /* h. If lowerExists is true and upperExists is true, then */
-    if (lowerExists = true && upperExists = true) {
+    if (lowerExists = true &&& upperExists = true) {
       /* i. Call the [[Put]] internal method of O with arguments lowerP,
             upperValue, and true . */
       {O.Put}(O, lowerP, upperValue, true);
       /* ii. Call the [[Put]] internal method of O with arguments upperP,
              lowerValue, and true . */
       {O.Put}(O, upperP, lowerValue, true)
+    }
+    /* i. Else if lowerExists is false and upperExists is true, then */
+    elif (lowerExists = false &&& upperExists = true) {
+      /* i. Call the [[Put]] internal method of O with arguments lowerP,
+            upperValue, and true . */
+      {O.Put}(O, lowerP, upperValue, true);
+      /* ii. Call the [[Delete]] internal method of O, with arguments upperP
+            and true. */
+      {O.Delete}(O, upperP, true)
+    }
+    /* j. Else if lowerExists is true and upperExists is false, then */
+    elif (lowerExists = true &&& upperExists = false) {
+      /* i. Call the [[Delete]] internal method of O, with arguments lowerP
+            and true . */
+      {O.Delete}(O, lowerP, true);
+      /* ii. Call the [[Put]] internal method of O with arguments upperP,
+            lowerValue, and true . */
+      {O.Put}(O, upperP, lowerValue, true)
     } else {
-      /* i. Else if lowerExists is false and upperExists is true, then */
-      if (lowerExists = false && upperExists = true) {
-        /* i. Call the [[Put]] internal method of O with arguments lowerP,
-              upperValue, and true . */
-        {O.Put}(O, lowerP, upperValue, true);
-        /* ii. Call the [[Delete]] internal method of O, with arguments upperP
-              and true. */
-        {O.Delete}(O, upperP, true)
-      } else {
-        /* j. Else if lowerExists is true and upperExists is false, then */
-        if (lowerExists = true && upperExists = false) {
-          /* i. Call the [[Delete]] internal method of O, with arguments lowerP
-                and true . */
-          {O.Delete}(O, lowerP, true);
-          /* ii. Call the [[Put]] internal method of O with arguments upperP,
-                lowerValue, and true . */
-          {O.Put}(O, upperP, lowerValue, true)
-        } else {
-          /* k. Else, both lowerExists and upperExists are false */
-          /* i. No action is required. */
-        }
-      }
+      /* k. Else, both lowerExists and upperExists are false */
+      /* i. No action is required. */
     };
     /* l. Increase lower by 1. */
     lower := lower + 1.
@@ -2481,7 +2481,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     };
     /* g. Reject if oldLenDesc.[[Writable]] is false. */
     if (oldLenDesc.Writable = false) {
-      Reject(Throw)
+      @Reject(Throw)
     };
 
     /* h. If newLenDesc.[[Writable]] is absent or has the value true,
@@ -2527,7 +2527,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
               on A passing "length", newLenDesc, and false as arguments. */
         DefineOwnProperty(A, "length", newLenDesc, false);
         /* 4. Reject. */
-        Reject(Throw)
+        @Reject(Throw)
       }
     };
     /* m. If newWritable is false, then */
@@ -2547,14 +2547,14 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       index := ToUint32(P);
       /* b. Reject if index ≥ oldLen and oldLenDesc.[[Writable]] is false. */
       if ((index >= oldLen) &&& (oldLenDesc.Writable = false)) {
-        Reject(Throw)
+        @Reject(Throw)
       };
       /* c. Let succeeded be the result of calling the default [[DefineOwnProperty]]
             internal method (8.12.9) on A passing P, Desc, and false as arguments. */
       succeeded := DefineOwnProperty(A, P, Desc, false);
       /* d. Reject if succeeded is false. */
       if (succeeded = false) {
-        Reject(Throw)
+        @Reject(Throw)
       };
       /* STANDARD IS WRONG */
       newLen := ToUint32(index + 1.);

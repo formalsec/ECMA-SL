@@ -156,6 +156,7 @@ __n30["consequent"] := __n40;
 __n30["alternate"] := null;
 __n1 := [ __n2, __n12, __n30 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n47 := [ "x" ];
 __n0["variableDeclarations"] := __n47;
 __n48 := [  ];

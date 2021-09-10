@@ -599,6 +599,7 @@ __n156["arguments"] := __n160;
 __n155["expression"] := __n156;
 __n1 := [ __n2, __n33, __n58, __n66, __n82, __n95, __n117, __n125, __n140, __n155 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n177 := [ "obj", "num", "abrupt" ];
 __n0["variableDeclarations"] := __n177;
 __n178 := [  ];

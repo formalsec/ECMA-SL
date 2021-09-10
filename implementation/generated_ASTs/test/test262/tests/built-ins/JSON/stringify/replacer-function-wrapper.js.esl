@@ -416,6 +416,7 @@ __n104["arguments"] := __n106;
 __n103["expression"] := __n104;
 __n1 := [ __n2, __n27, __n33, __n37, __n54, __n63, __n78, __n93, __n103 ];
 __n0["body"] := __n1;
+__n0["optimised"] := true;
 __n123 := [ "value", "wrapper" ];
 __n0["variableDeclarations"] := __n123;
 __n124 := [  ];
