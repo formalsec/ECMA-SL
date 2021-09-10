@@ -740,7 +740,6 @@ function ArrayConstructor(global, this, strict, items) {
 };
 
 function internalNewArray(arrayPrototype, items) {
-  print "DEBUG: internalNewArray"; 
 
   newlyConstructedObject := NewECMAScriptObject();
   setAllInternalMethodsOfArray(newlyConstructedObject);
@@ -1534,7 +1533,7 @@ function arrayEvery(global, this, strict, args) {
   @ReturnIfAbrupt(len);
 
   /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallableNew(callbackfn) = false) {
+  if (IsCallable(callbackfn) = false) {
     throw TypeErrorConstructorInternal()
   };
 
@@ -1558,7 +1557,7 @@ function arrayEvery(global, this, strict, args) {
 
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
-
+    
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
@@ -3470,8 +3469,6 @@ function arraySome(global, this, strict, args) {
  * zero if x = y, or a positive value if x > y.
  */
 function arraySort(global, this, strict, args) {
-  
-  print "teste 41";
   comparefn := l_nth(args, 0);
 
   /* 1. Let obj be ToObject(this value). */
@@ -3528,10 +3525,8 @@ function arraySort(global, this, strict, args) {
         sparse then [[Delete]] must not be called. */
 
   /* INSERTION SORT - START */
-  print "teste 42";
   k := 1.;
   while (k < len) {
-    print "teste 42.1";
     j := k - 1.;
     while ((j >= 0.) && (SortCompare(obj, comparefn, j, j + 1.) > 0.)) {
       /* This algorithm is similar to the one in Array.prototype.reverse, step 6. */
@@ -3542,7 +3537,6 @@ function arraySort(global, this, strict, args) {
       jValNext := {obj.Get}(obj, inext_str);
       jVal := {obj.Get}(obj, i_str);
 
-      print "teste 42.3";
       if (jValExists &&& jValNextExists) {
         {obj.Put}(obj, inext_str, jVal, true);
         {obj.Put}(obj, i_str, jValNext, true)
@@ -3561,7 +3555,6 @@ function arraySort(global, this, strict, args) {
     };
     k := k + 1.
   };
-  print "teste 43";
   /* INSERTION SORT - END */
 
   /* 2. Return obj. */
