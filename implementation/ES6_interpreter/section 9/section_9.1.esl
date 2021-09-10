@@ -52,12 +52,14 @@ function OrdinaryHasProperty(O, P){
     hasOwn := OrdinaryGetOwnProperty(O, P);
 
     /* 3. If hasOwn is not undefined, return true. */
-    if (!(hasOwn) = 'undefined){
+    if (!(hasOwn = 'undefined)){
         return true
     };
 
     /* 4. Let parent be O.[[GetPrototypeOf]](). */
-    parent := {O.GetPrototypeOf}();
+    print "Object O";
+    print O;
+    parent := temporaryInternalGetPrototypeOf(O);
 
     /* 5. ReturnIfAbrupt(parent). */
     @ReturnIfAbrupt(parent);
@@ -65,12 +67,9 @@ function OrdinaryHasProperty(O, P){
     /* 6. If parent is not null, then */
     if (!(parent = null)){
         /* a. Return parent.[[HasProperty]](P). */
-        return {parent.HasProperty}(P)
+        return {parent.HasProperty}(parent, P)
     };
 
     /* 8. Return false. */
     return false
 }
-
-
-

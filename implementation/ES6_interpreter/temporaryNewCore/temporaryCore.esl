@@ -283,6 +283,173 @@ function GetNew(O, P) {
 	return {O.Get}(O, P)
 };
 
+function StringValue(value){
+	return value
+};
+
+/**
+ * 9.2.11 SetFunctionName (F, name, prefix)
+ *
+ * The abstract operation SetFunctionName requires a Function argument F, a 
+ * String or Symbol argument name and optionally a String argument prefix. This 
+ * operation adds a name property to F by performing the following steps: 
+ */
+function SetFunctionName(F, name, prefix) {
+
+  /* 1. Assert: F is an extensible object that does not have a name own 
+     property. */
+  /* assert(ObjectIsExtensible(F) &&& !(HasProperty(F, "name"))); TO-DO */
+
+  /* 2. Assert: Type(name) is either Symbol or String. */
+  type := Type(name);
+  assert(type = "Symbol" ||| type = "String");
+
+  /* 3. Assert: If prefix was passed then Type(prefix) is String. */
+  assert(prefix = null ||| Type(prefix) = "String");
+
+  /* 4. If Type(name) is Symbol, then */
+  if (type = "Symbol") {
+
+    /* a. Let description be name’s [[Description]] value. */
+    description := name.Description;
+
+    /* b. If description is undefined, */
+    if (description = 'undefined) {
+      /* let name be the empty String */
+      name := ""
+    }
+
+    /* c. Else, */
+    else {
+      /* let name be the concatenation of "[", description, and "]" */
+      name := s_concat ["[", description, "]"]
+    }
+  };
+
+  /* 5. If prefix was passed, then */
+  if (!(prefix = null)) {
+    /* a. Let name be the concatenation of prefix, code unit 0x0020 (SPACE), and 
+       name. */
+    name := s_concat [prefix, " ", name]
+  };
+
+  /* 6. Return DefinePropertyOrThrow(F, "name", PropertyDescriptor{[[Value]]: 
+     name, [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: 
+     true}). */
+  return DefinePropertyOrThrow(F, "name", newDataPropertyDescriptorFull(name, false, false, true));
+
+  /* 7. Assert: the result is never an abrupt completion. */
+  assert(!(isAnAbruptCompletion(result)));
+  return
+};
+
+/**
+ * 9.2.8 MakeConstructor (F, writablePrototype, prototype)
+ *
+ * The abstract operation MakeConstructor requires a Function argument F and 
+ * optionally, a Boolean writablePrototype and an object prototype. If prototype 
+ * is provided it is assumed to already contain, if needed, a "constructor" 
+ * property whose value is F. This operation converts F into a constructor by 
+ * performing the following steps: 
+ */
+function MakeConstructor(F, writablePrototype, prototype) {
+
+  /* 1. Assert: F is an ECMAScript function object. */
+  assert(isFunctionObject(F));
+
+  /* 2. Assert: F has a [[Construct]] internal method. */
+  assert("Construct" in_obj F);
+
+  /* 3. Assert: F is an extensible object that does not have a prototype own 
+     property. */
+  /* assert(InternalObjectIsExtensible(F) &&& !(HasProperty(F, "prototype"))); TO-DO */
+
+  /* 4. If the writablePrototype argument was not provided, let writablePrototype be true */
+  if (writablePrototype = null) {
+    writablePrototype := true
+  };
+
+  /* 5. If the prototype argument was not provided, then */
+  if (prototype = null) {
+
+    /* a. Let prototype be ObjectCreate(%ObjectPrototype%). */
+    prototype := InternalObjectCreate(|ObjectPrototype|);
+
+    /* b. Let status be DefinePropertyOrThrow(prototype, "constructor", 
+       PropertyDescriptor{[[Value]]: F, [[Writable]]: writablePrototype, 
+       [[Enumerable]]: false, [[Configurable]]: true }). */
+    status := DefinePropertyOrThrow(prototype, "constructor", newDataPropertyDescriptorFull(F, writablePrototype, false, true));
+    
+	  /* c. Assert: status is not an abrupt completion. */
+    assert(!isAnAbruptCompletion(status))
+  };
+
+  /* 6. Let status be DefinePropertyOrThrow(F, "prototype", 
+     PropertyDescriptor{[[Value]]: prototype, [[Writable]]: 
+     writablePrototype, [[Enumerable]]: false, [[Configurable]]: false}). */
+  status := DefinePropertyOrThrow(F, "prototype", newDataPropertyDescriptorFull(prototype, writablePrototype, false, false));
+
+  /* 7. Assert: status is not an abrupt completion. */
+  assert(!isAnAbruptCompletion(status));
+
+  /* 8. Return NormalCompletion(undefined). */
+  return NormalCompletion('undefined)
+};
+
+/**
+ * 7.3.7 DefinePropertyOrThrow (O, P, desc)
+ *
+ * The abstract operation DefinePropertyOrThrow is used to call the 
+ * [[DefineOwnProperty]] internal method of an object in a manner that will 
+ * throw a TypeError exception if the requested property update cannot be 
+ * performed. The operation is called with arguments O, P, and desc where O is 
+ * the object, P is the property key, and desc is the Property Descriptor for 
+ * the property. This abstract operation performs the following steps: 
+ */
+function DefinePropertyOrThrow(O, P, desc) {
+
+  /* 1. Assert: Type(O) is Object. */
+  assert(Type(O) = "Object");
+
+  /* 2. Assert: IsPropertyKey(P) is true. */
+  assert(IsPropertyKey(P) = true);
+
+  /* 3. Let success be O.[[DefineOwnProperty]](P, desc). */
+  success := {O.DefineOwnProperty}(O, P, desc, false);
+
+  /* 4. ReturnIfAbrupt(success). */
+  @ReturnIfAbrupt(success);
+
+  /* 5. If success is false, throw a TypeError exception */
+  if (success = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 6. Return success. */
+  return success
+};
+
+/**
+ * 9.2.10 MakeMethod (F, homeObject)
+ *
+ * The abstract operation MakeMethod with arguments F and homeObject configures 
+ * F as a method by performing the following steps: 
+ */
+function MakeMethod(F, homeObject) {
+
+  /* 1. Assert: F is an ECMAScript function object. */
+  assert(isFunctionObject(F));
+
+  /* 2. Assert: Type(homeObject ) is Object. */
+  assert(Type(homeObject) = "Object");
+
+  /* 3. Set the [[HomeObject]] internal slot of F to homeObject. */
+  F.HomeObject := homeObject;
+
+  /* 4. Return NormalCompletion(undefined). */
+  return NormalCompletion('undefined)
+};
+
 /**
 *  7.3.3 Set (O, P, V, Throw)
 *
@@ -295,4 +462,141 @@ function GetNew(O, P) {
 function Set (O, P, V, Throw) {
 	{O.Put}(O, P, V, Throw);
 	return true
+};
+
+function InternalObjectIsExtensible(O){
+  return ObjectIsExtensible(|global|, |objectConstructor|, false, [O])
+};
+
+/*9.2.9 MakeClassConstructor (F)
+
+  The abstract operation MakeClassConstructor with argument F performs the following steps:*/
+
+function MakeClassConstructor(F){
+  F.FunctionKind := "classConstructor";
+  return NormalCompletion('undefined)
+};
+
+/**
+ * 7.3.5 CreateMethodProperty (O, P, V)
+ *
+ * The abstract operation CreateMethodProperty is used to create a new own 
+ * property of an object. The operation is called with arguments O, P, and V 
+ * where O is the object, P is the property key, and V is the value for the 
+ * property. This abstract operation performs the following steps: 
+ */
+function CreateMethodProperty(O, P, V) {
+  /* 1. Assert: Type(O) is Object. */
+  assert(Type(O) = "Object");
+  /* 2. Assert: IsPropertyKey(P) is true. */
+  assert(IsPropertyKey(P) = true);
+  /* 3. Let newDesc be the PropertyDescriptor{[[Value]]: V, [[Writable]]: 
+     true, [[Enumerable]]: false, [[Configurable]]: true}. */
+  newDesc := newDataPropertyDescriptorFull(V, true, false, true);
+  /* 4. Return O.[[DefineOwnProperty]](P, newDesc). */
+  return {O.DefineOwnProperty}(O, P, newDesc, false)
+};
+/**
+ * NOTE This abstract operation creates a property whose attributes are set to 
+ * the same defaults used for built-in methods and methods defined using class 
+ * declaration syntax. Normally, the property will not already exist. If it does 
+ * exist and is not configurable or if O is not extensible, 
+ * [[DefineOwnProperty]] will return false. 
+ */
+
+/* 8.1.1.4.4 */
+function GlobalInitializeBinding(envRec, N, V) {
+  /* Let envRec be the global Environment Record for which the method was invoked. */
+
+  /* Let DclRec be envRec.[[DeclarativeRecord]]. */
+  DclRec := envRec.DeclarativeRecord;
+
+  /* If DclRec.HasBinding(N) is true, then */
+  if (HasBinding(DclRec, N)) {
+      /* Return DclRec.InitializeBinding(N, V). */
+      return InitializeBindingObjectRecord(DclRec, N, V)
+  };
+
+  /* Assert: If the binding exists it must be in the object Environment Record. */
+  assert(isObjectEnvRec(envRec));
+
+  /* Let ObjRec be envRec.[[ObjectRecord]]. */
+  ObjRec := envRec.ObjectRecord;
+
+  /* Return ObjRec.InitializeBinding(N, V). */
+  return InitializeBindingObjectRecord(ObjRec, N, V)
+};
+
+function InitializeBindingDeclarativeRecord(envRec, N, V) {
+	/* Let envRec be the declarative Environment Record for which the method was invoked. */
+
+	/* Assert: envRec must have an uninitialized binding for N. */
+	assert(isUninitialisedBinding(envRec, N));
+
+	/* Set the bound value for N in envRec to V. */
+	setBindingValue(envRec, N, V);
+
+	/* Record that the binding for N in envRec has been initialized. */
+	setBindingInitialised(envRec, N, true);
+
+	/* Return NormalCompletion(empty). */
+	return NormalCompletion('empty)
+};
+
+function InitializeBindingDeclarativeRecordTemp(env, N, V) {
+  env := env.EnvRec;
+	varAlreadyDeclared := HasBinding(env, N);
+  /* c. If varAlreadyDeclared is false, then */
+  if (varAlreadyDeclared = false) {
+    /* i. Call env’s CreateMutableBinding concrete method passing dn and configurableBindings as
+          the arguments. */
+    CreateMutableBinding(env, N, true);
+    /* ii. Call env’s SetMutableBinding concrete method passing dn, undefined, and strict as the
+            arguments.*/
+    SetMutableBinding(env, N, V, true)
+  };
+  return 'undefined
+};
+
+
+/* 8.1.1.2.4 InitializeBinding (N,V) */
+/* The concrete Environment Record method InitializeBinding for object Environment Records is used to set the
+   bound value of the current binding of the identifier whose name is the value of the argument N to the value of
+   argument V. An uninitialized binding for N must already exist.
+*/
+function InitializeBindingObjectRecord(envRec, N, V) {	
+	/* Let envRec be the object Environment Record for which the method was invoked. */
+
+	/* Assert: envRec must have an uninitialized binding for N. */
+	assert(isUninitialisedBinding(envRec, N));
+
+	/* Record that the binding for N in envRec has been initialized. */
+	setBindingInitialised(envRec, N, true);
+
+	/* Return envRec.SetMutableBinding(N, V, false). */
+	return SetMutableBinding(envRec, N, V, false)
+
+	/*NOTE In this specification, all uses of CreateMutableBinding for object Environment Records are
+		   immediately followed by a call to InitializeBinding for the same name. Hence, implementations
+		   do not need to explicitly track the initialization state of individual object Environment Record
+		   bindings.
+	*/
+};
+
+function InitializeBoundName(className, value, env){
+  CreateMutableBindingDeclarative(env, className, value);
+  return true
+};
+
+function newSetAccessorPropertyDescriptorFull(set, enumerable, configurable) {
+  desc := NewPropertyDescriptor();
+  desc.Set := set;
+  desc.Enumerable := enumerable;
+  desc.Configurable := configurable;
+
+  return desc
+};
+
+function temporaryInternalGetPrototypeOf (O) {
+	return O.Prototype
 }
