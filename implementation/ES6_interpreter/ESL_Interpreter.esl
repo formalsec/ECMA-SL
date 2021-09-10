@@ -95,7 +95,7 @@ function JS_Interpreter_Expr(e, scope) {
   match e with
   | {type: "ArrowFunctionExpression"} -> {
     print "foo";
-    fail "Unsuported Expression : Arrow Expression"
+    fail "Unsupported : Arrow Expression"
   }
   | { type: "ThisExpression" } -> {
     /* 11.1.1 The this Keyword */
@@ -2039,11 +2039,9 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
   }
   | { type: "ForInStatement", left: lhsExpr_or_VarDecl } -> {
     /* 12.6.4 The for-in Statement */
-    print "teste for in statment";
     match lhsExpr_or_VarDecl with
     | { type: "VariableDeclarator", kind: "var" } -> {
       /* production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement */
-      print "teste 61";
       return JS_Interpreter_ForInStmt_VarDecl(iterStmt, scope)
     }
     | default -> {
