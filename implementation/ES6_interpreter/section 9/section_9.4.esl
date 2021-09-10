@@ -143,7 +143,7 @@ function StringGetIndexProperty(S, P){
   len := s_len_u str;
 
   /* 9. If index < 0 or len ≤ index, return undefined. */
-  if ((index < 0) || ((int_to_float len) <= index)) {
+  if ((index < 0.) || ((int_to_float len) <= index)) {
     return 'undefined
   };
 
