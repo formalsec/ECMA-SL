@@ -2,12 +2,14 @@ type exit_code =
   | SUCCESS
   | FAILURE
   | ERROR
+  | UNSUPPORTED
 
 let exit_prog (code : exit_code) : unit =
   match code with
   | SUCCESS -> exit 0
   | FAILURE -> exit 1
   | ERROR   -> exit 2
+  | UNSUPPORTED -> exit 3
 
 let file = ref ""
 let heap_file = ref ""
@@ -105,6 +107,9 @@ let core_interpretation (prog : Prog.t) : exit_code =
                              | Val.Tuple c -> if ((List.nth c 1) <> Val.Symbol "normal") then FAILURE else SUCCESS
                              | _           -> SUCCESS
                             )
+       | Val.Str (s) -> (let subStr = String.sub s 0 11 in
+                         if (subStr = "Unsupported") then (print_string ("MAIN fail -> "^(subStr)); UNSUPPORTED)
+                         else (print_string ("MAIN return -> "^(s)); SUCCESS) )
        | ret -> print_string ("MAIN return -> "^(Val.str z)); SUCCESS
      )
    | None -> print_string "ERROR Core_Interpretation"; ERROR

@@ -425,6 +425,11 @@ let eval_prog (prog : Prog.t) (context : ctx_t) (main : string) : (Val.t option 
     let _, heap, _, _= state_0 in
     match v with
     | Finalv v -> v, heap
+    | Errorv (Some (Val.Str s)) -> 
+      let subStr = String.sub s 0 11 in
+      print_endline  (lazy subStr);
+      if (subStr = "Unsupported") then (Some (Val.Str s)), heap
+      else (print_endline (lazy "eval_prog else"); raise(Except s))  
     | _ -> raise(Except "No return value")(*ERROR*)
 
 end

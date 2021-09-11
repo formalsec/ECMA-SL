@@ -52,41 +52,29 @@ function RequireObjectCoercible(argument){
   }
 };
 
-
-/**
- * 
- * 7.2.6 IsInteger ( argument )
- * 
- * The abstract operation IsInteger determines if argument is a finite integer numeric value.
- * 
- * 
-*/
-function IsInteger(argument) {
-  print("in IsInteger");
-  print(argument);
-  
+/* 7.2.6 IsInteger ( argument ) */
+function IsInteger(argument){
   /* 1. ReturnIfAbrupt(argument). */
   @ReturnIfAbrupt(argument);
 
   /* 2. If Type(argument) is not Number, return false. */
-  if (!(Type(argument) = "Number")) {
+  if (!(Type(argument) = "Number")){
     return false
   };
 
   /* 3. If argument is NaN, +∞, or −∞, return false. */
-  if ((argument = NaN) ||| (argument = Infinity) ||| ( argument = -Infinity)) {
+  if ((argument = NaN) || (argument = Infinity) || (argument = -Infinity)){
     return false
   };
 
   /* 4. If floor(abs(argument)) ≠ abs(argument), return false. */
-  if (!(floor(abs(argument)) = abs(argument))) {
+  if (!(floor(abs(argument)) = abs(argument))){
     return false
   };
 
   /* 5. Return true. */
   return true
 };
-
 
 /**
  * 7.2.7 IsPropertyKey ( argument )
@@ -112,6 +100,39 @@ function IsInteger(argument) {
   return false
  };
 
+/**
+ * 7.2.8 IsRegExp ( argument )
+ */
+function IsRegExp(argument){
+  /* 1. If Type(argument) is not Object, return false. */
+  if (!(Type(argument) = "Object")){
+    return false
+  };
+
+  /* 2. Let isRegExp be Get(argument, @@match). */
+  isRegExp := GetNew(argument, getMatchPropertyName());
+
+  /* 3. ReturnIfAbrupt(isRegExp). */
+  @ReturnIfAbrupt(isRegExp);
+
+  /* 4. If isRegExp is not undefined, return ToBoolean(isRegExp). */
+  if (!(isRegExp = 'undefined)){
+    return ToBoolean(isRegExp)
+  };
+
+  /* 5. If argument has a [[RegExpMatcher]] internal slot, return true. */
+  if ("RegExpMatcher" in_obj argument){
+    return true
+  };
+
+  /* TO DELETE */
+  if (getInternalProperty(argument, "Class") = "RegExp") {
+    return true
+  };
+
+  /* 6. Return false. */
+  return false
+};
 
 
 /**
