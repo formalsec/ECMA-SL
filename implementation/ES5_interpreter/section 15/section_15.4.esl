@@ -47,6 +47,29 @@ function isSparseArray(O) {
 
 
 
+/**
+ * A property name P (in the form of a String value) is an array index if and
+ * only if ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal to 2^32−1.
+ */
+function IsArrayIndex(P) {
+  p_uint := ToUint32(P);
+  p_str := ToString(p_uint);
+  return ((p_str = P) && !(p_uint = ((2. ** 32.) - 1.) )) /* (2^32)-1 = 4294967295 */
+};
+
+
+
+
+function getArrayPrototype(strict) {
+  refArray := newPropertyReference(|global|, "Array", strict);
+  ArrayObject := GetValue(refArray);
+  refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
+  objectArrayProto := GetValue(refArrayProto);
+  return objectArrayProto
+};
+
+
+
 
 function setAllInternalMethodsOfArray(arr) {
   setAllInternalMethodsOfObject(arr);
@@ -194,18 +217,6 @@ function initArrayPrototype(global, objectPrototype, strict) {
 
   return prototype
 };
-
-
-
-
-function getArrayPrototype(strict) {
-  refArray := newPropertyReference(|global|, "Array", strict);
-  ArrayObject := GetValue(refArray);
-  refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
-  objectArrayProto := GetValue(refArrayProto);
-  return objectArrayProto
-};
-
 
 
 
@@ -1068,7 +1079,7 @@ function arraySort(global, this, strict, args) {
      of sort is implementation-defined. */
   /* TODO */
   /* Let proto be the value of the [[Prototype]] internal property of obj. */
-  proto := obj.Prototype; /* TODO */
+  proto := getInternalProperty(obj, "Prototype");
   /* If proto is not null and there exists an integer j such that all of the
      conditions below are satisfied then the behaviour of sort is
      implementation-defined:
@@ -2566,14 +2577,5 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
   /* 5. Return the result of calling the default [[DefineOwnProperty]] internal
         method (8.12.9) on A passing P, Desc, and Throw as arguments. */
   return DefineOwnProperty(A, P, Desc, Throw)
-};
-
-/**
- * A property name P (in the form of a String value) is an array index if and
- * only if ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal to 2^32−1.
- */
-function IsArrayIndex(P) {
-  p_uint := ToUint32(P);
-  p_str := ToString(p_uint);
-  return ((p_str = P) && !(p_uint = ((2. ** 32.) - 1.) )) /* (2^32)-1 = 4294967295 */
 }
+
