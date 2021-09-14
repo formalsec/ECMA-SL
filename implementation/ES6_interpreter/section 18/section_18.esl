@@ -176,7 +176,7 @@ function initGlobalObject(strict) {
 
 /* 15.1.2.1 eval (x) */
 function GlobalObjectEval(externalScope, ref, this, strict, params) {
-  x := l_nth(params, 0);
+  x := getOptionalParam(params, 0);
   /* When the eval function is called with one argument x, the following steps are taken: */
 
   /* 1. If Type(x) is not String, return x. */
@@ -213,8 +213,8 @@ function GlobalObjectEval(externalScope, ref, this, strict, params) {
 
 /* 15.1.2.2 parseInt (string , radix) */
 function GlobalObjectParseInt(globalObject, this, strict, params) {
-  string := l_nth(params, 0);
-  radix := l_nth(params, 1);
+  string := getOptionalParam(params, 0);
+  radix := getOptionalParam(params, 1);
   /* The parseInt function produces an integer value dictated by interpretation of the contents of the string
       argument according to the specified radix. Leading white space in string is ignored. If radix is undefined or 0,
       it is assumed to be 10 except when the number begins with the character pairs 0x or 0X, in which case a radix
@@ -256,8 +256,8 @@ function GlobalObjectParseInt(globalObject, this, strict, params) {
 
 /* 15.1.2.2 parseInt (string , radix) */
 function GlobalObjectParseIntAlt(globalObject, this, strict, params) {
-  string := l_nth(0, params);
-  radix := l_nth(1, params);
+  string := getOptionalParam(0, params);
+  radix := getOptionalParam(1, params);
   /* 1. Let inputString be ToString(string). */
   inputString := ToString(string);
   /* 2. ReturnIfAbrupt(string). */
@@ -335,7 +335,7 @@ function GlobalObjectParseIntAlt(globalObject, this, strict, params) {
 
 /* 15.1.2.3 parseFloat (string) */
 function GlobalObjectParseFloat(globalObject, this, strict, params) {
-  string := l_nth(params, 0);
+  string := getOptionalParam(params, 0);
   /* The parseFloat function produces a Number value dictated by interpretation of the contents of the string
      argument as a decimal literal. */
 
@@ -360,7 +360,7 @@ function GlobalObjectParseFloat(globalObject, this, strict, params) {
 
 /* 15.1.2.3 parseFloat (string) */
 function GlobalObjectParseFloatAlt(globalObject, this, strict, params) {
-  string := l_nth(params, 0);
+  string := getOptionalParam(params, 0);
   /* 1. Let inputString be ToString(string). */
   inputString := ToString(string);
   /* 2. ReturnIfAbrupt(inputString). */
@@ -403,7 +403,7 @@ function GlobalObjectParseFloatAlt(globalObject, this, strict, params) {
 
 /* 15.1.2.4 isNaN (number) */
 function GlobalObjectIsNaN(globalObject, this, strict, params) {
-  number := l_nth(params, 0);
+  number := getOptionalParam(params, 0);
   /* Returns true if the argument coerces to NaN, and otherwise returns false. */
 
   /* 1. If ToNumber(number) is NaN, return true. */
