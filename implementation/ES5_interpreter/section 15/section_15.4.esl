@@ -47,6 +47,29 @@ function isSparseArray(O) {
 
 
 
+/**
+ * A property name P (in the form of a String value) is an array index if and
+ * only if ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal to 2^32−1.
+ */
+function IsArrayIndex(P) {
+  p_uint := ToUint32(P);
+  p_str := ToString(p_uint);
+  return ((p_str = P) && !(p_uint = ((2. ** 32.) - 1.) )) /* (2^32)-1 = 4294967295 */
+};
+
+
+
+
+function getArrayPrototype(strict) {
+  refArray := newPropertyReference(|global|, "Array", strict);
+  ArrayObject := GetValue(refArray);
+  refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
+  objectArrayProto := GetValue(refArrayProto);
+  return objectArrayProto
+};
+
+
+
 
 function setAllInternalMethodsOfArray(arr) {
   setAllInternalMethodsOfObject(arr);
@@ -194,18 +217,6 @@ function initArrayPrototype(global, objectPrototype, strict) {
 
   return prototype
 };
-
-
-
-
-function getArrayPrototype(strict) {
-  refArray := newPropertyReference(|global|, "Array", strict);
-  ArrayObject := GetValue(refArray);
-  refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
-  objectArrayProto := GetValue(refArrayProto);
-  return objectArrayProto
-};
-
 
 
 
@@ -1068,7 +1079,7 @@ function arraySort(global, this, strict, args) {
      of sort is implementation-defined. */
   /* TODO */
   /* Let proto be the value of the [[Prototype]] internal property of obj. */
-  proto := obj.Prototype; /* TODO */
+  proto := getInternalProperty(obj, "Prototype");
   /* If proto is not null and there exists an integer j such that all of the
      conditions below are satisfied then the behaviour of sort is
      implementation-defined:
@@ -1114,16 +1125,12 @@ function arraySort(global, this, strict, args) {
       if (jValExists &&& jValNextExists) {
         {obj.Put}(obj, inext_str, jVal, true);
         {obj.Put}(obj, i_str, jValNext, true)
-      } else {
-        if (!jValExists &&& jValNextExists) {
-          {obj.Put}(obj, i_str, jValNext, true);
-          {obj.Delete}(obj, inext_str, true)
-        } else {
-          if (jValExists &&& !jValNextExists) {
-            {obj.Put}(obj, inext_str, jVal, true);
-            {obj.Delete}(obj, i_str, true)
-          }
-        }
+      } elif (!jValExists &&& jValNextExists) {
+        {obj.Put}(obj, i_str, jValNext, true);
+        {obj.Delete}(obj, inext_str, true)
+      } elif (jValExists &&& !jValNextExists) {
+        {obj.Put}(obj, inext_str, jVal, true);
+        {obj.Delete}(obj, i_str, true)
       };
       j := j - 1.
     };
@@ -1368,37 +1375,35 @@ function arraySplice(global, this, strict, args) {
     }
   }
   /* 13. Else if itemCount > actualDeleteCount, then */
-  else {
-    if (itemCount > actualDeleteCount) {
-      /* a. Let k be (len - actualDeleteCount). */
-      k := (len - actualDeleteCount);
-      /* b. Repeat, while k > actualStart */
-      while (k > actualStart) {
-        /* i. Let from be ToString(k + actualDeleteCount - 1). */
-        from := ToString(k + actualDeleteCount - 1.);
-        /* ii. Let to be ToString(k + itemCount - 1) */
-        to := ToString(k + itemCount - 1.);
-        /* iii. Let fromPresent be the result of calling the [[HasProperty]]
-                internal method of O with argument from. */
-        fromPresent := {O.HasProperty}(O, from);
-        /* iv. If fromPresent is true, then */
-        if (fromPresent = true) {
-          /* 1. Let fromValue be the result of calling the [[Get]] internal
-                method of O with argument from. */
-          fromValue := {O.Get}(O, from);
-          /* 2. Call the [[Put]] internal method of O with arguments to,
-                fromValue, and true. */
-          {O.Put}(O, to, fromValue, true)
-        }
-        /* v. Else, fromPresent is false */
-        else {
-          /* 1. Call the [[Delete]] internal method of O with argument
-                to and true. */
-          {O.Delete}(O, to, true)
-        };
-        /* vi. Decrease k by 1. */
-        k := k - 1.
+  elif (itemCount > actualDeleteCount) {
+    /* a. Let k be (len - actualDeleteCount). */
+    k := (len - actualDeleteCount);
+    /* b. Repeat, while k > actualStart */
+    while (k > actualStart) {
+      /* i. Let from be ToString(k + actualDeleteCount - 1). */
+      from := ToString(k + actualDeleteCount - 1.);
+      /* ii. Let to be ToString(k + itemCount - 1) */
+      to := ToString(k + itemCount - 1.);
+      /* iii. Let fromPresent be the result of calling the [[HasProperty]]
+              internal method of O with argument from. */
+      fromPresent := {O.HasProperty}(O, from);
+      /* iv. If fromPresent is true, then */
+      if (fromPresent = true) {
+        /* 1. Let fromValue be the result of calling the [[Get]] internal
+              method of O with argument from. */
+        fromValue := {O.Get}(O, from);
+        /* 2. Call the [[Put]] internal method of O with arguments to,
+              fromValue, and true. */
+        {O.Put}(O, to, fromValue, true)
       }
+      /* v. Else, fromPresent is false */
+      else {
+        /* 1. Call the [[Delete]] internal method of O with argument
+              to and true. */
+        {O.Delete}(O, to, true)
+      };
+      /* vi. Decrease k by 1. */
+      k := k - 1.
     }
   };
   /* 14. Let k be actualStart. */
@@ -2541,47 +2546,36 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     return true
   }
   /* 4. Else if P is an array index (15.4), then */
-  else {
-    if (IsArrayIndex(P)) {
-      /* a. Let index be ToUint32(P). */
-      index := ToUint32(P);
-      /* b. Reject if index ≥ oldLen and oldLenDesc.[[Writable]] is false. */
-      if ((index >= oldLen) &&& (oldLenDesc.Writable = false)) {
-        @Reject(Throw)
-      };
-      /* c. Let succeeded be the result of calling the default [[DefineOwnProperty]]
-            internal method (8.12.9) on A passing P, Desc, and false as arguments. */
-      succeeded := DefineOwnProperty(A, P, Desc, false);
-      /* d. Reject if succeeded is false. */
-      if (succeeded = false) {
-        @Reject(Throw)
-      };
-      /* STANDARD IS WRONG */
-      newLen := ToUint32(index + 1.);
-      /* e. If index ≥ oldLen */
-      if (newLen > oldLen) {
-        /* i. Set oldLenDesc.[[Value]] to index + 1. */
-        oldLenDesc.Value := newLen;
-        /* ii. Call the default [[DefineOwnProperty]] internal method (8.12.9)
-              on A passing "length", oldLenDesc, and false as arguments. This
-              call will always return true. */
-        DefineOwnProperty(A, "length", oldLenDesc, false)
-      };
-      /* f. Return true. */
-      return true
-    }
+  elif (IsArrayIndex(P)) {
+    /* a. Let index be ToUint32(P). */
+    index := ToUint32(P);
+    /* b. Reject if index ≥ oldLen and oldLenDesc.[[Writable]] is false. */
+    if ((index >= oldLen) &&& (oldLenDesc.Writable = false)) {
+      @Reject(Throw)
+    };
+    /* c. Let succeeded be the result of calling the default [[DefineOwnProperty]]
+          internal method (8.12.9) on A passing P, Desc, and false as arguments. */
+    succeeded := DefineOwnProperty(A, P, Desc, false);
+    /* d. Reject if succeeded is false. */
+    if (succeeded = false) {
+      @Reject(Throw)
+    };
+    /* STANDARD IS WRONG */
+    newLen := ToUint32(index + 1.);
+    /* e. If index ≥ oldLen */
+    if (newLen > oldLen) {
+      /* i. Set oldLenDesc.[[Value]] to index + 1. */
+      oldLenDesc.Value := newLen;
+      /* ii. Call the default [[DefineOwnProperty]] internal method (8.12.9)
+            on A passing "length", oldLenDesc, and false as arguments. This
+            call will always return true. */
+      DefineOwnProperty(A, "length", oldLenDesc, false)
+    };
+    /* f. Return true. */
+    return true
   };
   /* 5. Return the result of calling the default [[DefineOwnProperty]] internal
         method (8.12.9) on A passing P, Desc, and Throw as arguments. */
   return DefineOwnProperty(A, P, Desc, Throw)
-};
-
-/**
- * A property name P (in the form of a String value) is an array index if and
- * only if ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal to 2^32−1.
- */
-function IsArrayIndex(P) {
-  p_uint := ToUint32(P);
-  p_str := ToString(p_uint);
-  return ((p_str = P) && !(p_uint = ((2. ** 32.) - 1.) )) /* (2^32)-1 = 4294967295 */
 }
+

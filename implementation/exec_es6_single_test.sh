@@ -3,4 +3,4 @@ node ../JS2ECMA-SL/src/index.js -i $1 -o ast.cesl
 echo "; " >> core.cesl 
 cat ast.cesl >> core.cesl
 ./main.native -mode ci -i core.cesl > result.txt
-rm core.cesl ast.cesl 
+rm core.cesl ast.cesl

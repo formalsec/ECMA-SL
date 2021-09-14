@@ -6,7 +6,7 @@ printf " -------------------------------\n"
 RED='\033[0;31m'   	# RED
 NC='\033[0m'       	# No Color
 GREEN='\033[0;32m' 	# GREEN
-YELLOW='\33[1;33m' 	# YELLOW
+YELLOW='\033[1;33m' 	# YELLOW
 BLINK1='\e[5m'
 BLINK2='\e[25m'	   	#BLINK
 INV='\e[7m'         #INVERTED
@@ -77,6 +77,13 @@ function logStatusToFiles() {
     cat /dev/null > $LOG_OKS_FILE
     for ok in "${log_oks_arr[@]}"; do
       echo "$ok" >> $LOG_OKS_FILE
+    done
+  fi
+
+  if [ $LOG_UNSUPPORTED -eq 1 ]; then
+    cat /dev/null > $LOG_UNSUPPORTED_FILE
+    for unsupported in "${log_unsupported_arr[@]}"; do
+      echo "$unsupported" >> $LOG_UNSUPPORTED_FILE
     done
   fi
 }
@@ -225,7 +232,7 @@ function handleSingleFile() {
     fi
 
     test_result=("$FILENAME" "**FAIL**" "$RESULT" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
-  else
+  elif [ $EXIT_CODE -eq 2 ]; then 
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
 
     # increment number of tests with error
@@ -238,7 +245,20 @@ function handleSingleFile() {
     ERROR_MESSAGE=$(echo -e "$ECMASLCI" | tail -n 1)
 
     test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
+  elif [ $EXIT_CODE -eq 3 ]; then 
+    printf "${BOLD}${YELLOW}${INV}UNSUPPORTED${NC}\n"
+
+    # increment number of tests with unsupported features
+    incUnsupported
+
+    if [ $LOG_UNSUPPORTED -eq 1 ]; then
+      log_unsupported_arr+=("$FILENAME")
+    fi
+
+
+    test_result=("$FILENAME" "**UNSUPPORTED**" "$RESULT" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
   fi
+
 
   if [ $LOG_ENTIRE_EVAL_OUTPUT -eq 1 ]; then
     # Output of the execution is written to the file result.txt
@@ -294,9 +314,9 @@ function handleFiles() {
 
   local params=()
   params+=("### Summary")
-  params+=("OK | FAIL | ERROR | NOT EXECUTED | Total")
-  params+=(":---: | :---: | :---: | :---: | :---:")
-  params+=("$ok_tests | $fail_tests | $error_tests | $not_executed_tests | $total_tests")
+  params+=("OK | FAIL | ERROR | UNSUPPORTED | NOT EXECUTED | Total")
+  params+=(":---: | :---: | :---: | :---: | :---: | :---:")
+  params+=("$ok_tests | $fail_tests | $error_tests | $unsupported_tests | $not_executed_tests | $total_tests")
   params+=("### Individual results")
   params+=("File path | Result | Observations | Creation of the AST | Plus to Core | Interpretation")
   params+=("--- | :---: | :---: | :---: | :---: | :---:")
@@ -339,6 +359,7 @@ function handleDirectories() {
       declare -i curr_dir_ok_tests=$dir_ok_tests
       declare -i curr_dir_fail_tests=$dir_fail_tests
       declare -i curr_dir_error_tests=$dir_error_tests
+      declare -i curr_dir_unsupported_tests=$dir_unsupported_tests
       declare -i curr_dir_not_executed_tests=$dir_not_executed_tests
       declare -i curr_dir_total_tests=$dir_total_tests
       # Reset directories' counters
@@ -350,9 +371,9 @@ function handleDirectories() {
       if [[ $dir_total_tests -ne 0 ]]; then
         local params=()
         params+=("## Summary of the tests executed in \"$dir\"")
-        params+=("OK | FAIL | ERROR | NOT EXECUTED | Total")
-        params+=(":---: | :---: | :---: | :---: | :---:")
-        params+=("$dir_ok_tests | $dir_fail_tests | $dir_error_tests | $dir_not_executed_tests | $dir_total_tests")
+        params+=("OK | FAIL | ERROR | UNSUPPORTED | NOT EXECUTED | Total")
+        params+=(":---: | :---: | :---: | :---: | :---: | :---:")
+        params+=("$dir_ok_tests | $dir_fail_tests | $dir_error_tests | $dir_unsupported_tests | $dir_not_executed_tests | $dir_total_tests")
         params+=("")
         params+=("### Individual results")
         params+=("File path | Result | Observations | Creation of the AST | Plus to Core | Interpretation")
@@ -367,6 +388,7 @@ function handleDirectories() {
       dir_ok_tests+=$curr_dir_ok_tests
       dir_fail_tests+=$curr_dir_fail_tests
       dir_error_tests+=$curr_dir_error_tests
+      dir_unsupported_tests+=$curr_dir_unsupported_tests
       dir_not_executed_tests+=$curr_dir_not_executed_tests
       dir_total_tests+=$curr_dir_total_tests
     else
@@ -396,6 +418,11 @@ function incError() {
   dir_error_tests+=1
 }
 
+function incUnsupported() {
+  unsupported_tests+=1
+  dir_unsupported_tests+=1
+}
+
 function incNotExecuted() {
   not_executed_tests+=1
   dir_not_executed_tests+=1
@@ -406,6 +433,7 @@ function resetDirCounters() {
   dir_ok_tests=0
   dir_fail_tests=0
   dir_error_tests=0
+  dir_unsupported_tests=0
   dir_not_executed_tests=0
 }
 
@@ -462,12 +490,14 @@ declare -i total_tests=0
 declare -i ok_tests=0
 declare -i fail_tests=0
 declare -i error_tests=0
+declare -i unsupported_tests=0
 declare -i not_executed_tests=0
 # Counters used in the directories
 declare -i dir_total_tests=0
 declare -i dir_ok_tests=0
 declare -i dir_fail_tests=0
 declare -i dir_error_tests=0
+declare -i dir_unsupported_tests=0
 declare -i dir_not_executed_tests=0
 
 declare NEGATIVE=""
@@ -488,12 +518,15 @@ declare -i ES6=0
 
 declare -i SKIP_COMPILATION=0
 declare -i LOG_ERRORS=0
+declare -i LOG_UNSUPPORTED=0
 declare -i LOG_FAILURES=0
 declare -i LOG_OKS=0
 declare -r LOG_ERRORS_FILE="logs/errors_$now.log"
+declare -r LOG_UNSUPPORTED_FILE="logs/unsupported_$now.log"
 declare -r LOG_FAILURES_FILE="logs/failures_$now.log"
 declare -r LOG_OKS_FILE="logs/oks_$now.log"
 declare -a log_errors_arr=()
+declare -a log_unsupported_arr=()
 declare -a log_failures_arr=()
 declare -a log_ok_arr=()
 
@@ -531,7 +564,7 @@ function compile() {
 }
 
 # Define list of arguments expected in the input
-optstring=":6EFOHSd:f:i:r:p:"
+optstring=":6EUFOHSd:f:i:r:p:"
 
 declare -a dDirs=() # Array that will contain the directories to use with the arg "-d"
 declare -a fFiles=() # Array that will contain the files to use with the arg "-f"
@@ -543,6 +576,7 @@ while getopts ${optstring} arg; do
   case $arg in
     6) ES6=1 ;;
     E) LOG_ERRORS=1 ;;
+    U) LOG_UNSUPPORTED=1 ;;
     F) LOG_FAILURES=1 ;;
     O) LOG_OKS=1 ;;
     H) WITH_HARNESS=1 ;;
@@ -626,6 +660,7 @@ printf "\n${BOLD}SUMMARY:${NC}\n\n"
 printf "OK: $ok_tests    "
 printf "FAIL: $fail_tests    "
 printf "ERROR: $error_tests    "
+printf "UNSUPPORTED: $unsupported_tests    "
 printf "NOT EXECUTED: $not_executed_tests    "
 printf "Total: $total_tests\n"
 

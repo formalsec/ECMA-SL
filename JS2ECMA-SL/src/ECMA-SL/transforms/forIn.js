@@ -6,6 +6,7 @@ module.exports = {
 
     if (obj.left !== null && typeof obj.left === "object") {
       if (obj.left.type === "VariableDeclaration") {
+        obj.left.declarations[0].kind = obj.left.kind
         obj.left = obj.left.declarations[0];
       }
     }

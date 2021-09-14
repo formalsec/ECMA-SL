@@ -2,12 +2,14 @@
 
 /* 10.1.1 Static Semantics: UTF16Encoding ( cp ) */
 function UTF16Encoding(cp){
+    cp_int := int_of_float cp;
+
     /* 1. Assert: 0 ≤ cp ≤ 0x10FFFF. */
-    assert((cp >= 0) && (cp <= 0x10FFFF));
+    assert((cp_int >= 0) && (cp_int <= 0x10FFFF));
 
     /* 2. If cp ≤ 65535, return cp. */
-    if (cp <= 65535){
-        return cp
+    if (cp_int <= 65535){
+        return cp_int
     };
 
     /* 3. Let cu1 be floor((cp – 65536) / 1024) + 0xD800. */
@@ -17,7 +19,7 @@ function UTF16Encoding(cp){
     cu2 := ((cp - 65536) % 1024.) + 0xDC00;
 
     /* 5. Return the code unit sequence consisting of cu1 followed by cu2. */
-    return s_concat([float_to_string cu1, float_to_string cu2])
+    return s_concat([cu1, cu2])
 };
 
 /* 10.1.2 Static Semantics: UTF16Decode( lead, trail ) */

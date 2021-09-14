@@ -8,6 +8,7 @@ function initWeakSetPrototype(global, objectPrototype, strict) {
     setAllInternalMethodsOfObject(prototype);
 
     setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));
+    setJSProperty(prototype, getToStringTagPropertyName(), newDataPropertyDescriptorFull("WeakSet", false, false, true));
 
     /* 23.4.3.1 WeakSet.prototype.add ( value ) */
     addObject := CreateBuiltInFunctionObject(["value"], "weakSetAdd", global, strict, 0.);
@@ -92,7 +93,7 @@ function WeakSetConstructor(global, this, strict, items) {
     };
     
     /* 2. Let set be OrdinaryCreateFromConstructor(NewTarget, "%WeakSetPrototype%", «‍[[WeakSetData]]» ). */
-    set := OrdinaryCreateFromConstructor(strict);
+    set := OrdinaryCreateFromConstructorWeakSet(strict);
     
     /* 3. ReturnIfAbrupt(set). */
     @ReturnIfAbrupt(set);
@@ -166,7 +167,7 @@ function WeakSetConstructor(global, this, strict, items) {
     }
 };
 
-function OrdinaryCreateFromConstructor(strict) {
+function OrdinaryCreateFromConstructorWeakSet(strict) {
 
     objPrototype := getWeakSetPrototype(strict);
 
@@ -188,7 +189,6 @@ function OrdinaryCreateFromConstructor(strict) {
 */
 function weakSetAdd (global, this, strict, args) {
 
-    print "teste 41";
     value := getOptionalParam(args, 0);
 
     /* 1. Let S be the this value. */
