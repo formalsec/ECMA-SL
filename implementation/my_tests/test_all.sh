@@ -26,7 +26,7 @@ testSection() {
 }
 
 
-for section in Map
+for section in Number
 do
 	echo "Testing ${section} ..."
 	testSection $section

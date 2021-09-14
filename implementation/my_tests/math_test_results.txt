@@ -1,7 +1,7 @@
 ########## ERROR ##########
 Testing my_tests/Math/fround/ties.js
 Testing my_tests/Math/fround/value-convertion.js
-OK: 270    FAIL: 38    ERROR: 2    NOT EXECUTED: 0    Total: 310
+
 ########## FAIL ##########
 Testing my_tests/Math/imul/results.js
 Testing my_tests/Math/round/S15.8.2.15_A7.js

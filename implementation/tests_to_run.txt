@@ -1,6 +1,0 @@
-my_tests/Map/Map/iterator-is-undefined-throws.js
-my_tests/Map/Map/prototype/entries/returns-iterator.js
-my_tests/Map/Map/prototype/keys/returns-iterator.js
-my_tests/Map/Map/prototype/values/returns-iterator.js
-my_tests/Map/MapIteratorPrototype/next/iteration.js
-my_tests/Map/MapIteratorPrototype/next/iteration-mutable.js
