@@ -33,40 +33,46 @@ function initNumberPrototype(global, objectPrototype, strict) {
   /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
   toExponential := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToExponential", global, strict, null);
   setJSProperty(toExponential, "length", newDataPropertyDescriptorFull(1., false, false, true));
-  createBuiltInProperty(prototype, "toExponential", toExponential);
+  descriptor := newDataPropertyDescriptorFull(toExponential, true, false, true);
+  setJSProperty(prototype, "toExponential", descriptor); 
   descriptor := newDataPropertyDescriptorFull("toExponential", false, false, true);
   setJSProperty(toExponential, "name", descriptor);
 
   /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
   toFixed := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToFixed", global, strict, null);
   setJSProperty(toFixed, "length", newDataPropertyDescriptorFull(1., false, false, true));
-  createBuiltInProperty(prototype, "toFixed", toFixed);
+  descriptor := newDataPropertyDescriptorFull(toFixed, true, false, true);
+  setJSProperty(prototype, "toFixed", descriptor); 
   descriptor := newDataPropertyDescriptorFull("toFixed", false, false, true);
   setJSProperty(toFixed, "name", descriptor);
 
   /* 20.1.3.4 Number.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ]) */
-  toLocaleString := CreateBuiltInFunctionObject(["items"], "NumberPrototypeToLocaleString", global, strict, null);
+  toLocaleString := CreateBuiltInFunctionObject(["reserved1", "reserved2"], "NumberPrototypeToLocaleString", global, strict, null);
   setJSProperty(toLocaleString, "length", newDataPropertyDescriptorFull(0., false, false, true));
-  createBuiltInProperty(prototype, "toLocaleString", toLocaleString);
+  descriptor := newDataPropertyDescriptorFull(toLocaleString, true, false, true);
+  setJSProperty(prototype, "toLocaleString", descriptor); 
   descriptor := newDataPropertyDescriptorFull("toLocaleString", false, false, true);
   setJSProperty(toLocaleString, "name", descriptor);
 
   /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
   toPrecision := CreateBuiltInFunctionObject(["precision"], "NumberPrototypeToPrecision", global, strict, null);
   setJSProperty(toPrecision, "length", newDataPropertyDescriptorFull(1., false, false, true));
-  createBuiltInProperty(prototype, "toPrecision", toPrecision);
+  descriptor := newDataPropertyDescriptorFull(toPrecision, true, false, true);
+  setJSProperty(prototype, "toPrecision", descriptor); 
   descriptor := newDataPropertyDescriptorFull("toPrecision", true, false, true);
   setJSProperty(toPrecision, "name", descriptor);
 
   /* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
   toString := CreateBuiltInFunctionObject([ "radix" ], "NumberPrototypeToString", global, strict, 0.);
-  createBuiltInProperty(prototype, "toString", toString);
+  descriptor := newDataPropertyDescriptorFull(toString, true, false, true);
+  setJSProperty(prototype, "toString", descriptor); 
   descriptor := newDataPropertyDescriptorFull("toString", false, false, true);
   setJSProperty(toString, "name", descriptor);
 
   /* 20.1.3.7 Number.prototype.valueOf ( ) */
   valueOf := CreateBuiltInFunctionObject([], "NumberPrototypeValueOf", global, strict, null);
-  createBuiltInProperty(prototype, "valueOf", valueOf);
+  descriptor := newDataPropertyDescriptorFull(valueOf, true, false, true);
+  setJSProperty(prototype, "valueOf", descriptor); 
   descriptor := newDataPropertyDescriptorFull("valueOf", false, false, true);
   setJSProperty(valueOf, "name", descriptor);
 
@@ -125,33 +131,29 @@ function initNumberConstructor(prototype, global, strict) {
 
   /* 20.1.2.2 Number.isFinite ( number ) */
   isFiniteObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsFinite", global, strict, 0.);
-  setConfigurability(isFiniteObject, "length", true); /* ES6 */
   descriptor := newDataPropertyDescriptorFull(isFiniteObject, true, false, true);
-  createBuiltInProperty(NumberConstructor, "isFinite", isFiniteObject);
+  setJSProperty(NumberConstructor, "isFinite", descriptor);
   descriptor := newDataPropertyDescriptorFull("isFinite", false, false, true);
   setJSProperty(isFiniteObject, "name", descriptor);
 
   /* 20.1.2.3 Number.isInteger ( number ) */
   isIntegerObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsInteger", global, strict, 0.);
-  setConfigurability(isIntegerObject, "length", true); /* ES6 */
   descriptor := newDataPropertyDescriptorFull(isIntegerObject, true, false, true);
-  createBuiltInProperty(NumberConstructor, "isInteger", isIntegerObject);
+  setJSProperty(NumberConstructor, "isInteger", descriptor);
   descriptor := newDataPropertyDescriptorFull("isInteger", false, false, true);
   setJSProperty(isIntegerObject, "name", descriptor);
 
   /* 20.1.2.4 Number.isNaN ( number ) */
-  isNanObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsNaN", global, strict, 0.);
-  setConfigurability(isNanObject, "length", true); /* ES6 */
-  descriptor := newDataPropertyDescriptorFull(isNanObject, true, false, true);
-  createBuiltInProperty(NumberConstructor, "isNaN", isNanObject);
+  isNaNObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsNaN", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(isNaNObject, true, false, true);
+  setJSProperty(NumberConstructor, "isNaN", descriptor);
   descriptor := newDataPropertyDescriptorFull("isNaN", false, false, true);
-  setJSProperty(isNanObject, "name", descriptor);
+  setJSProperty(isNaNObject, "name", descriptor);
 
   /* 20.1.2.5 Number.isSafeInteger ( number ) */
   isSafeIntegerObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsSafeInteger", global, strict, 0.);
-  setConfigurability(isSafeIntegerObject, "length", true); /* ES6 */
   descriptor := newDataPropertyDescriptorFull(isSafeIntegerObject, true, false, true);
-  createBuiltInProperty(NumberConstructor, "isSafeInteger", isSafeIntegerObject);
+  setJSProperty(NumberConstructor, "isSafeInteger", descriptor);
   descriptor := newDataPropertyDescriptorFull("isSafeInteger", false, false, true);
   setJSProperty(isSafeIntegerObject, "name", descriptor);
 
@@ -176,18 +178,20 @@ function initNumberConstructor(prototype, global, strict) {
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "NEGATIVE_INFINITY", (-Infinity), false, false, false);
 
   /* 20.1.2.12 Number.parseFloat ( string ) */
-  parseFloatObject := CreateFunctionObject(["string"], "GlobalObjectParseFloat", global, strict, null);
-  setConfigurability(parseFloatObject, "length", true); /* ES6 */
-  descriptor := newDataPropertyDescriptorFull(parseFloatObject, true, false, true);
-  setJSProperty(parseFloatObject, "name", descriptor);
+  parseFloatObject := CreateBuiltInFunctionObject(["string"], "GlobalObjectParseFloat", global, strict, null);
   createBuiltInProperty(NumberConstructor, "parseFloat", parseFloatObject);
+  /* descriptor := newDataPropertyDescriptorFull(parseFloatObject, true, false, true);
+  setJSProperty(NumberConstructor, "parseFloat", descriptor); 
+  descriptor := newDataPropertyDescriptorFull("parseFloat", false, false, true);
+  setJSProperty(parseFloatObject, "name", descriptor);
+  */
 
   /* 20.1.2.13 Number.parseInt ( string, radix ) */
   parseIntObject := CreateBuiltInFunctionObject(["string", "radix"], "GlobalObjectParseInt", global, strict, 0.);
-  setConfigurability(parseIntObject, "length", true); /* ES6 */
   descriptor := newDataPropertyDescriptorFull(parseIntObject, true, false, true);
-  setJSProperty(prototype, "name", descriptor);
-  createBuiltInProperty(NumberConstructor, "parseInt", parseIntObject);
+  setJSProperty(NumberConstructor, "parseInt", descriptor);
+  descriptor := newDataPropertyDescriptorFull("parseInt", false, false, true);
+  setJSProperty(parseIntObject, "name", descriptor);
 
   /* 20.1.2.14 Number.POSITIVE_INFINITY */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "POSITIVE_INFINITY", Infinity, false, false, false);
