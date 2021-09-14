@@ -1,9 +1,0 @@
-########## ERROR ##########
-Testing my_tests/Math/fround/ties.js
-Testing my_tests/Math/fround/value-convertion.js
-
-########## FAIL ##########
-Testing my_tests/Math/imul/results.js
-Testing my_tests/Math/round/S15.8.2.15_A7.js
-Testing my_tests/Math/trunc/trunc-sampleTests.js
-OK: 270    FAIL: 3    ERROR: 2    NOT EXECUTED: 0    Total: 310

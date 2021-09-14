@@ -1,3 +1,0 @@
-########## FAIL ##########
-Testing my_tests/Map/Map/prototype/forEach/iterates-values-added-after-foreach-begins.js
-OK: 153    FAIL: 13    ERROR: 1    NOT EXECUTED: 0    Total: 167

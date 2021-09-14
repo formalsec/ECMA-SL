@@ -295,6 +295,7 @@ function WrappedGet(O, P) {
 
 function GetHandler(x) {
   return throwEmptyCompletion(x)
+};
 
 function StringValue(value){
 	return value
