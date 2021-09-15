@@ -598,4 +598,8 @@ function newSetAccessorPropertyDescriptorFull(set, enumerable, configurable) {
   desc.Configurable := configurable;
 
   return desc
+};
+
+function temporaryInternalGetPrototypeOf (O) {
+	return O.Prototype
 }

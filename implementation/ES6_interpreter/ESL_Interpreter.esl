@@ -93,6 +93,10 @@ function JS_Interpreter_SourceElements(SourceElements, scope) {
 
 function JS_Interpreter_Expr(e, scope) {
   match e with
+  | {type: "ArrowFunctionExpression"} -> {
+    print "foo";
+    fail "Unsupported : Arrow Expression"
+  }
   | { type: "ThisExpression" } -> {
     /* 11.1.1 The this Keyword */
 
@@ -350,6 +354,10 @@ function JS_Interpreter_Expr(e, scope) {
         AssignmentExpression, respectively. */
 
     /* NOTE GetValue must be called even though its value is not used because it may have observable side-effects. */
+  }
+  | default -> {
+    print "default case";
+    print e
   }
 };
 
@@ -2032,7 +2040,7 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
   | { type: "ForInStatement", left: lhsExpr_or_VarDecl } -> {
     /* 12.6.4 The for-in Statement */
     match lhsExpr_or_VarDecl with
-    | { type: "VariableDeclaration", kind: "var" } -> {
+    | { type: "VariableDeclarator", kind: "var" } -> {
       /* production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement */
       return JS_Interpreter_ForInStmt_VarDecl(iterStmt, scope)
     }
