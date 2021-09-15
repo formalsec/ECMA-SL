@@ -46,10 +46,12 @@ function SetNew(O, P, V, Throw) {
 
 
 	/* Let success be O.[[Set]](P, V, O). */
-	success := {O.Set}(O, P, V, O);
+	success := {O.Put}(O, P, V, O);
 
 	/* ReturnIfAbrupt(success). */
-	@ReturnIfAbrupt(success);
+	/*
+  @ReturnIfAbrupt(success);
+  */
 
 	/* If success is false and Throw is true, throw a TypeError exception. */
 	if ( (success = false) &&& (Throw = true) ) {
@@ -191,7 +193,8 @@ function ConstructNew(F, argumentsList, newTarget) {
  	assert( IsConstructor(newTarget) = true);
 
  	/* Return F.[[Construct]](argumentsList, newTarget). */
- 	return {F.Construct}(F, argumentsList, newTarget)
+ 	/* return {F.Construct}(F, argumentsList, newTarget) */
+  return {F.Construct}(null, null, F, argumentsList)
 };
 
 /**
