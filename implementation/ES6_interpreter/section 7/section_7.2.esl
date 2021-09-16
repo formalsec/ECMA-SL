@@ -121,12 +121,7 @@ function IsRegExp(argument){
   };
 
   /* 5. If argument has a [[RegExpMatcher]] internal slot, return true. */
-  if ("RegExpMatcher" in_obj argument){
-    return true
-  };
-
-  /* TO DELETE */
-  if (getInternalProperty(argument, "Class") = "RegExp") {
+  if ("Match" in_obj argument){
     return true
   };
 
