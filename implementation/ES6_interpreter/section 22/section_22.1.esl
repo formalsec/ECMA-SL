@@ -1132,7 +1132,7 @@ function arrayOf (global, this, strict, args) {
   {A.Put}(A, "length", int_to_float len, true);
 
   /* 10. ReturnIfAbrupt(setStatus). */
-    
+
   /* 11. Return A. */
   return A
 };
@@ -1198,10 +1198,6 @@ function arrayConcat(global, this, strict, items) {
 
   /* 7. Repeat, while items is not empty */
   while (!(items = [])) {
-    print "teste 43";
-    print n;
-    print items;
-
     /* a. Remove the first element from items and let E be the value of the
           element. */
     E := hd items;
@@ -1226,17 +1222,11 @@ function arrayConcat(global, this, strict, items) {
 
       /* iv. If n + len > 2^53-1, throw a TypeError exception. */
       if ((n + len) > (((2. ** 53.) - 1.))) {
-        print "type error 1";
-        print len;
-        print k;
-        print n;
-
         throw TypeErrorConstructorInternal()
       };
 
       /* v. Repeat, while k < len */
       while (k < len) {
-        print "teste 44";
         /* 1. Let P be ToString(k). */
         P := ToString(k);
 
@@ -1262,7 +1252,6 @@ function arrayConcat(global, this, strict, items) {
         };
 
         /* 5. Increase n by 1. */
-        print "teste 45";
         n := n + 1.;
         /* 6. Increase k by 1. */
         k := k + 1.
