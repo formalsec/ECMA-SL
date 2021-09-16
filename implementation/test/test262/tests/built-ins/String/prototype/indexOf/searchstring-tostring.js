@@ -25,3 +25,4 @@ assert.sameValue("__-123.456__".indexOf(-123.456), 2, "ToString: Number to Strin
 assert.sameValue("foo".indexOf([]), 0, "ToString: .toString()");
 assert.sameValue("__foo,bar__".indexOf(["foo", "bar"]), 2, "ToString: .toString()");
 assert.sameValue("__[object Object]__".indexOf({}), 2, "ToString: .toString()");
+

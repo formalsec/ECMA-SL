@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The [[Prototype]] property of the newly constructed object is set to the
     original RegExp prototype object, the one that is the initial value of
     RegExp.prototype
@@ -12,7 +12,8 @@ description: Checking [[Prototype]] property of the newly constructed object
 
 var __re = new RegExp();
 
-//CHECK#1
-if (RegExp.prototype.isPrototypeOf(__re) !== true) {
-	$ERROR('#1: __re = new RegExp(); RegExp.prototype.isPrototypeOf(__re) === true. Actual: ' + (RegExp.prototype.isPrototypeOf(__re)));
-}
+assert.sameValue(
+  RegExp.prototype.isPrototypeOf(__re),
+  true,
+  'RegExp.prototype.isPrototypeOf(new RegExp()) must return true'
+);
