@@ -747,7 +747,7 @@ function RegExpBuiltinExec(R, S){
    CreateDataPropertyNew(A, "input", S);
 
    /* 26. Let matchedSubstr be the matched substring (i.e. the portion of S between offset lastIndex inclusive and offset e exclusive). */
-   matchedSubstr := s_substr_u(S, int_of_float lastIndex, int_of_float (e -  lastIndex));
+   matchedSubstr := substring(S, lastIndex, e);
 
    /* 27. Perform CreateDataProperty(A, "0", matchedSubstr). */
    CreateDataPropertyNew(A, "0", matchedSubstr);
@@ -1349,7 +1349,7 @@ function RegExpPrototypereplace(global, this, strict, args){
          accumulatedResult with the substring of S consisting of the code units from nextSourcePosition (inclusive) up to 
          position (exclusive) and with the code units of replacement. */
 
-         substring := StringPrototypesubstring(global, S, strict, [int_to_float nextSourcePosition, int_to_float position]);
+         substring := substring(S, int_to_float nextSourcePosition, int_to_float position);
          accumulatedResult := s_concat([accumulatedResult, substring]);
          accumulatedResult := s_concat([accumulatedResult, replacement]);
 
@@ -1367,7 +1367,7 @@ function RegExpPrototypereplace(global, this, strict, args){
 
    /* 18. Return the String formed by concatenating the code units of accumulatedResult with the substring of S 
    consisting of the code units from nextSourcePosition (inclusive) up through the final code unit of S (inclusive). */
-   substring := StringPrototypesubstring(global, S, strict, [int_to_float nextSourcePosition, 'undefined]);
+   substring := substring(S, int_to_float nextSourcePosition, int_to_float(s_len_u S));
    accumulatedResult := s_concat([accumulatedResult, substring]);
 
    return accumulatedResult
@@ -1643,7 +1643,7 @@ function RegExpPrototypesplit(global, this, strict, args){
          else{
             /* 1. Let T be a String value equal to the substring of S consisting of the elements at indices p 
             (inclusive) through q (exclusive). */
-            T := StringPrototypesubstring(global, S, strict, [p, q]);
+            T := substring(S, p, q);
 
             /* 2. Assert: The following call will never result in an abrupt completion. */
             /* ???? */
@@ -1704,7 +1704,7 @@ function RegExpPrototypesplit(global, this, strict, args){
    };
         
    /* 25. Let T be a String value equal to the substring of S consisting of the elements at indices p (inclusive) through size (exclusive). */
-   T := StringPrototypesubstring(global, S, strict, [p, size]);
+   T := substring(S, p, size);
 
    /* 26. Assert: The following call will never result in an abrupt completion. */
    /* ???? */
