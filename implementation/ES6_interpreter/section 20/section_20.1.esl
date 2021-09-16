@@ -179,12 +179,10 @@ function initNumberConstructor(prototype, global, strict) {
 
   /* 20.1.2.12 Number.parseFloat ( string ) */
   parseFloatObject := CreateBuiltInFunctionObject(["string"], "GlobalObjectParseFloat", global, strict, null);
-  createBuiltInProperty(NumberConstructor, "parseFloat", parseFloatObject);
-  /* descriptor := newDataPropertyDescriptorFull(parseFloatObject, true, false, true);
+  descriptor := newDataPropertyDescriptorFull(parseFloatObject, true, false, true);
   setJSProperty(NumberConstructor, "parseFloat", descriptor); 
   descriptor := newDataPropertyDescriptorFull("parseFloat", false, false, true);
   setJSProperty(parseFloatObject, "name", descriptor);
-  */
 
   /* 20.1.2.13 Number.parseInt ( string, radix ) */
   parseIntObject := CreateBuiltInFunctionObject(["string", "radix"], "GlobalObjectParseInt", global, strict, 0.);
@@ -638,8 +636,6 @@ function isNumberOrNumberObject(arg) {
 function NumberPrototypeToString(global, this, strict, items) {
   radix := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
-  print("debug toString");
-  print(this);
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
   @ReturnIfAbrupt(x);
