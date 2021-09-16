@@ -1375,11 +1375,11 @@ function StringPrototypeReplace(global, this, strict, args){
   starting at index tailPos. If pos is 0, the first element of the 
   concatenation will be the empty String. */
   if (pos > 0.){
-    first := StringPrototypesubstring(global, string, strict, [0. , pos])
+    first := substring(string, 0. , pos)
   } else{
     first := ""
   };
-  last := StringPrototypesubstring(global, string, strict, [tailPos, 'undefined]);
+  last := substring(string, tailPos, int_to_float(s_len_u string));
 
   newString := first;
   newString := s_concat([newString, replStr]);
@@ -1459,13 +1459,13 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
   if (position = 0){
     before := ""
   } else{
-    before := StringPrototypesubstring(global, str, strict, [0. , position])
+    before := substring(str, 0., position)
   };
 
   if (tailPos >= stringLength){
     after := ""
   } else{
-    after := StringPrototypesubstring(global, str, strict, [int_to_float tailPos, 'undefined])
+    after := substring(str, int_to_float tailPos,  int_to_float (s_len_u str))
   };
 
   result := "";
@@ -1473,10 +1473,6 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
   len := s_len_u replacement;
   i := 0;
   put := true;
-
-  print "replacement::::";
-  print replacement;
-  print captures;
 
   while ((i + 1) < len){
     c1 := s_nth_u(replacement, i);
@@ -1831,7 +1827,7 @@ function StringPrototypeSplit(global, this, strict, args){
       /* ii. Else e ≠ p, */   
       else{
         /* 1. Let T be a String value equal to the substring of S consisting of the code units at indices p (inclusive) through q (exclusive). */
-        T := StringPrototypesubstring(global, S, strict, [p, q]);
+        T := substring(S, p, q);
 
         /* 2. Perform CreateDataProperty(A, ToString(lengthA), T). */
         CreateDataPropertyNew(A, ToString(lengthA), T);
@@ -1858,7 +1854,7 @@ function StringPrototypeSplit(global, this, strict, args){
   };
     
   /* 19. Let T be a String value equal to the substring of S consisting of the code units at indices p (inclusive) through s (exclusive). */
-  T := StringPrototypesubstring(global, S, strict, [p, q]);
+  T := substring(S, p, q);
   
   /* 20. Perform CreateDataProperty(A, ToString(lengthA), T). */
   CreateDataPropertyNew(A, ToString(lengthA), T);
@@ -1991,7 +1987,7 @@ function StringPrototypestartsWith(global, this, strict, args){
 
 /* 21.1.3.19 String.prototype.substring ( start, end ) */
 function StringPrototypesubstring(global, this, strict, args){
-    n_args := l_len args;
+  n_args := l_len args;
 
   if (n_args >= 1){
     start := l_nth(args, 0)
@@ -2046,6 +2042,24 @@ function StringPrototypesubstring(global, this, strict, args){
   to := max(finalStart, finalEnd);
 
   /* 13. Return a String whose length is to - from, containing code units from S, namely the code units with indices from through to −1, in ascending order. */
+  substring := "";
+  j := from;
+  while (j < to) {
+    substring := s_concat ([substring, s_nth_u (S, int_of_float j)]);
+    j := j + 1.
+  };
+  return substring
+};
+
+function substring(S, intStart, intEnd){
+  len := int_to_float (s_len_u S);
+  
+  finalStart := min(max(intStart, 0.), len);
+  finalEnd := min(max(intEnd, 0.), len);
+  
+  from := min(finalStart, finalEnd);
+  to := max(finalStart, finalEnd);
+  
   substring := "";
   j := from;
   while (j < to) {
@@ -2169,10 +2183,10 @@ function trim_str(S){
     isWSorLT := begwhiteSpace_or_lineTerminator(c1, c2);
 
     if (isWSorLT = 0.){
-      T := StringPrototypesubstring(global, T, strict, [1., 'undefined]);
+      T := substring(T, 1., int_to_float(s_len_u T));
       len := len - 1
     } elif (isWSorLT = 1.){
-      T := StringPrototypesubstring(global, T, strict, [2., 'undefined]);
+      T := substring(T, 2., int_to_float(s_len_u T));
       len := len - 2
     } else {
       beginning := false
@@ -2188,10 +2202,10 @@ function trim_str(S){
     isWSorLT := endwhiteSpace_or_lineTerminator(c1, c2);
 
     if (isWSorLT = 0.){
-      T := StringPrototypesubstring(global, T, strict, [0., (int_to_float len - 1.)]);
+      T := substring(T, 0., (int_to_float len - 1.));
       len := len - 1
     } elif (isWSorLT = 1.){
-      T := StringPrototypesubstring(global, T, strict, [0., (int_to_float len - 2.)]);
+      T := substring(T, 0., (int_to_float len - 2.));
       len := len - 2
     } else {
       ending := false
