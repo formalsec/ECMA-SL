@@ -28,7 +28,7 @@ let parse_string_numeric_literal (str : string) (idx : int) : float * int =
       let idx3 = parse_white_space_opt str idx2 in 
       (f, idx3)
     )
-
+      
 (*
 StrNumericLiteral :::
 BinaryIntegerLiteral
