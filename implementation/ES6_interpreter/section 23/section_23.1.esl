@@ -396,7 +396,11 @@ function mapForEachObject(global, this, strict, args) {
         @ReturnIfAbrupt(funcResult)
       };
 
-      i := i + 1
+      i := i + 1;
+
+      /* Martelada Provisoria para o iterates-values-added-after-foreach-begins.js */
+      entries := M.MapData;
+      len := l_len(entries)
     };
     
     /* 8. Return undefined. */
