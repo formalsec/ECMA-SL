@@ -1,5 +1,3 @@
-open Number_Parsing_Utils 
-
 type exit_code =
   | SUCCESS
   | FAILURE
