@@ -2,14 +2,14 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The initial value of RegExp.prototype.constructor is the built-in RegExp
     constructor
 es5id: 15.10.6.1_A1_T1
 description: Compare RegExp.prototype.constructor with RegExp
 ---*/
-
-//CHECK#1
-if (RegExp.prototype.constructor !== RegExp) {
-	$ERROR('#1: RegExp.prototype.constructor === RegExp. Actual: ' + (RegExp.prototype.constructor));
-}
+assert.sameValue(
+  RegExp.prototype.constructor,
+  RegExp,
+  'The value of RegExp.prototype.constructor is expected to equal the value of RegExp'
+);
