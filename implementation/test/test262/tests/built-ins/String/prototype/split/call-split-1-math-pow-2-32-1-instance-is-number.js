@@ -11,11 +11,13 @@ es5id: 15.5.4.14_A2_T37
 description: Call split(1,-Math.pow(2,32)+1), instance is Number
 ---*/
 
+console.log("0");
 var __instance = new Number(100111122133144155);
 
 Number.prototype.split = String.prototype.split;
-
 var __split = __instance.split(1, -Math.pow(2, 32) + 1);
+
+console.log(-Math.pow(2, 32) + 1);
 
 var __expected = [""];
 

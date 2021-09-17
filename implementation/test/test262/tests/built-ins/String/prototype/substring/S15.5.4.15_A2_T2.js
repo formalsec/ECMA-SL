@@ -11,8 +11,9 @@ var __string = new String('this is a string object');
 
 //////////////////////////////////////////////////////////////////////////////
 //CHECK#1
+console.log(__string.substring(NaN, Infinity));
 if (__string.substring(NaN, Infinity) !== "this is a string object") {
-  $ERROR('#1: __string = new String(\'this is a string object\'); __string.substring(NaN, Infinity) === "this is a string object". Actual: '+__string.substring(NaN, Infinity) );
+  throw new Test262Error('#1: __string = new String(\'this is a string object\'); __string.substring(NaN, Infinity) === "this is a string object". Actual: ' + __string.substring(NaN, Infinity));
 }
 //
 //////////////////////////////////////////////////////////////////////////////
