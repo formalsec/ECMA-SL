@@ -1,5 +1,7 @@
 (*open Date_Utils *)
 
+open Byte_Utils 
+
 type const = MAX_VALUE
            | MIN_VALUE
            | PI
@@ -252,6 +254,7 @@ let typeof (v : Val.t) : Val.t = match v with
   | Symbol _ -> Type (Type.SymbolType)
   | Curry _  -> Type (Type.CurryType)
   | Void     -> invalid_arg ("Exception in Oper.typeof: unexpected void value")
+  | Byte _   -> invalid_arg ("Type of Byte not implemented yet")
 
 let l_len (v : Val.t) : Val.t = match v with
   | List l -> Val.Int (List.length l)
@@ -519,8 +522,26 @@ let log_2 (v : Val.t) : Val.t = match v with
   | _      -> invalid_arg "Exception in Oper.log_2: this operation is only applicable to Float arguments"
 
 let float64_to_le_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
+  | Flt x -> 
+    let bytes = Byte_Utils.float64_to_le_bytes x in 
+    let val_bytes = List.map (fun b -> Val.Byte b) bytes in 
+    List val_bytes 
   | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+
+
+(*
+let float64_to_le_bytes (v : Val.t) : Val.t = match v with
+  | Flt x -> 
+    let v = Int64.bits_of_float x in
+    let lst = ref [] in 
+    for i = 0 to 7 do
+       lst := (Int64.logand 255L (Int64.shift_right v (i * 8))) :: !lst;
+    done
+    Flt (x)
+  | _      -> invalid_arg "Exception in Oper.float64_to_le_bytes: this operation is only applicable to Float arguments"
+*)
+
+
 
 let float64_to_be_bytes (v : Val.t) : Val.t = match v with
   | Str s -> Str (String_Utils.to_upper_case s)
