@@ -1,7 +1,3 @@
-(*open Date_Utils *)
-
-open Byte_Utils 
-
 type const = MAX_VALUE
            | MIN_VALUE
            | PI
@@ -526,50 +522,56 @@ let float64_to_le_bytes (v : Val.t) : Val.t = match v with
     let bytes = Byte_Utils.float64_to_le_bytes x in 
     let val_bytes = List.map (fun b -> Val.Byte b) bytes in 
     List val_bytes 
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
-
-
-(*
-let float64_to_le_bytes (v : Val.t) : Val.t = match v with
-  | Flt x -> 
-    let v = Int64.bits_of_float x in
-    let lst = ref [] in 
-    for i = 0 to 7 do
-       lst := (Int64.logand 255L (Int64.shift_right v (i * 8))) :: !lst;
-    done
-    Flt (x)
-  | _      -> invalid_arg "Exception in Oper.float64_to_le_bytes: this operation is only applicable to Float arguments"
-*)
-
-
+  | _ -> invalid_arg "Exception in Oper.float64_to_le_bytes: this operation is only applicable to Float arguments"
 
 let float64_to_be_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+  | Flt x -> 
+    let bytes = Byte_Utils.float64_to_be_bytes x in 
+    let val_bytes = List.map (fun b -> Val.Byte b) bytes in 
+    List val_bytes 
+  | _ -> invalid_arg "Exception in Oper.float64_to_be_bytes: this operation is only applicable to Float arguments"
 
 let float32_to_le_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+  | Flt x -> 
+    let bytes = Byte_Utils.float32_to_le_bytes x in 
+    let val_bytes = List.map (fun b -> Val.Byte b) bytes in 
+    List val_bytes 
+  | _ -> invalid_arg "Exception in Oper.float32_to_le_bytes: this operation is only applicable to Float arguments"
 
 let float32_to_be_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+  | Flt x -> 
+    let bytes = Byte_Utils.float32_to_be_bytes x in 
+    let val_bytes = List.map (fun b -> Val.Byte b) bytes in 
+    List val_bytes 
+  | _ -> invalid_arg "Exception in Oper.float32_to_be_bytes: this operation is only applicable to Float arguments"
 
 let float64_from_le_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+  | List bytes -> 
+    let int64_bytes = List.map (fun b -> Int64 b) bytes in 
+    let f : int64 = Byte_Utils.float64_from_le_bytes x in 
+    Flt (Int64.float_of_bits f)
+  | _ -> invalid_arg "Exception in Oper.float64_from_le_bytes: this operation is only applicable to List arguments"
 
 let float64_from_be_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+  | List bytes -> 
+    let int64_bytes = List.map (fun b -> Int64 b) bytes in 
+    let f : int64 = Byte_Utils.float64_from_be_bytes x in 
+    Flt (Int64.float_of_bits )
+  | _ -> invalid_arg "Exception in Oper.float64_from_be_bytes: this operation is only applicable to List arguments"
 
 let float32_from_le_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+  | List bytes -> 
+    let int32_bytes = List.map (fun b -> Int32 b) bytes in 
+    let f : int32 = Byte_Utils.float32_from_le_bytes x in 
+    Flt (Int32.float_of_bits f)
+  | _ -> invalid_arg "Exception in Oper.float32_from_le_bytes: this operation is only applicable to List arguments"
 
 let float32_from_be_bytes (v : Val.t) : Val.t = match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
-  | _ -> invalid_arg "Exception in Oper.to_upper_case: this operation is only applicable to Str arguments"
+  | List bytes -> 
+    let int32_bytes = List.map (fun b -> Int32 b) bytes in 
+    let f : int32 = Byte_Utils.float32_from_le_bytes x in 
+    Flt (Int32.float_of_bits f)
+  | _ -> invalid_arg "Exception in Oper.float32_from_be_bytes: this operation is only applicable to List arguments"
 
 let from_char_code (v : Val.t) : Val.t = match v with
   | Int n -> Str (String_Utils.from_char_code n)
