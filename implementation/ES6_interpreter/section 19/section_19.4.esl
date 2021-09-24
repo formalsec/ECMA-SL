@@ -439,4 +439,27 @@ function getUnscopablesPropertyName() {
 
 function getIsConcatSpreadablePropertyName () {
   return "Symbol(isConcatSpreadable)"
+};
+
+function filterSymbolProperties(list) {
+  newList := [];
+  len := l_len list;
+  i := 0;
+  while (i < len) {
+    elem := l_nth (list, i);
+    if (!(checkSymbolProperties(elem))) {
+      newList := l_add (newList, elem)
+    };
+    i := i + 1
+  };
+  return newList
+};
+
+function checkSymbolProperties(property) {
+  if (s_len_u(property) < 7){
+    return false
+  };
+  res := s_substr_u (property, 0, 7);
+  print res;
+  return (res = "Symbol(")
 }
