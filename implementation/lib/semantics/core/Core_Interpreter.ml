@@ -73,6 +73,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Float64FromBEBytes -> Oper.float64_from_be_bytes v
   | Float32FromLEBytes -> Oper.float32_from_le_bytes v
   | Float32FromBEBytes -> Oper.float32_from_be_bytes v
+  | BytesToString     -> Oper.bytes_to_string v
   | _             -> Oper.apply_uopt_oper op v
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =

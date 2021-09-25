@@ -169,6 +169,10 @@ function initGlobalObject(strict) {
   ArrayBufferObject := initArrayBufferObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "ArrayBuffer", ArrayBufferObject);
 
+  /* 24.2 DataView Objects */  
+  DataViewObject := initDataViewObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "DataView", DataViewObject);
+
   /* Extras */
   ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);
   createBuiltInProperty(globalObject, "console", ConsoleObject);
