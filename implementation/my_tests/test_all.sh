@@ -1,7 +1,6 @@
 #!/bin/bash
 
-BASE_COMMAND="./exec_test262_tests.sh -6 -r";
-PARENT_DIR="my_tests/";
+TESTS_PARENT_DIR="my_tests/";
 FILE_SUFIX="test_results.txt";
 FILE_SUFIX_TEMP="test_results_temp.txt";
 
@@ -14,26 +13,26 @@ writeFAIL() {
 }
 
 testSection() {
-    ${BASE_COMMAND} my_tests/${1} > ${PARENT_DIR}${1,,}_${FILE_SUFIX_TEMP};
+    ./exec_test262_tests.sh -6 -r my_tests/${1} > ${TESTS_PARENT_DIR}${1,,}_${FILE_SUFIX_TEMP};
 
     # Write all error tests to file	
-    writeERROR ${PARENT_DIR}${1,,}_${FILE_SUFIX};
-    grep $'\033\[1m\033\[0;31m\033\[7mERROR\033\[0m' ${PARENT_DIR}${1,,}_${FILE_SUFIX_TEMP} | awk '{print $2}' >> ${PARENT_DIR}${1,,}_${FILE_SUFIX};
+    writeERROR ${TESTS_PARENT_DIR}${1,,}_${FILE_SUFIX};
+    grep $'\033\[1m\033\[0;31m\033\[7mERROR\033\[0m' ${TESTS_PARENT_DIR}${1,,}_${FILE_SUFIX_TEMP} | awk '{print $2}' >> ${TESTS_PARENT_DIR}${1,,}_${FILE_SUFIX};
 
     # Adding a Line Break
-    echo $'\n' >> ${PARENT_DIR}${1,,}_${FILE_SUFIX};
+    echo $'\n' >> ${TESTS_PARENT_DIR}${1,,}_${FILE_SUFIX};
 
     # Write all failed tests to file
-    writeFAIL ${PARENT_DIR}${1,,}_${FILE_SUFIX};
-    grep $'\033\[1m\033\[0;31m\033\[5m\033\[7mFAIL\033\[0m' ${PARENT_DIR}${1,,}_${FILE_SUFIX_TEMP} | awk '{print $2}' >> ${PARENT_DIR}${1,,}_${FILE_SUFIX};
+    writeFAIL ${TESTS_PARENT_DIR}${1,,}_${FILE_SUFIX};
+    grep $'\033\[1m\033\[0;31m\033\[5m\033\[7mFAIL\033\[0m' ${TESTS_PARENT_DIR}${1,,}_${FILE_SUFIX_TEMP} | awk '{print $2}' >> ${TESTS_PARENT_DIR}${1,,}_${FILE_SUFIX};
 
     # Adding a Line Break
-    echo $'\n' >> ${PARENT_DIR}${1,,}_${FILE_SUFIX};
+    echo $'\n' >> ${TESTS_PARENT_DIR}${1,,}_${FILE_SUFIX};
 
     # Add last line to file
-    tail -1 ${PARENT_DIR}${1,,}_${FILE_SUFIX_TEMP} >> ${PARENT_DIR}${1,,}_${FILE_SUFIX};
+    tail -1 ${TESTS_PARENT_DIR}${1,,}_${FILE_SUFIX_TEMP} >> ${TESTS_PARENT_DIR}${1,,}_${FILE_SUFIX};
 
-    rm -rf ${PARENT_DIR}${1,,}_${FILE_SUFIX_TEMP};
+    rm -rf ${TESTS_PARENT_DIR}${1,,}_${FILE_SUFIX_TEMP};
 }
 
 

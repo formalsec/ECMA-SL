@@ -1,0 +1,228 @@
+/* 24.2 DataView Objects */
+
+/* 24.2.1 Abstract Operations For DataView Objects */
+
+/** 
+ * 24.2.1.1 GetViewValue ( view, requestIndex, isLittleEndian, type )
+ *
+ * The abstract operation GetViewValue with arguments view, requestIndex, isLittleEndian, and type 
+ * is used by functions on DataView instances is to retrieve values from the view’s buffer. 
+ */
+function GetViewValue (view, requestIndex, isLittleEndian, type) {
+
+  /* 1. If Type(view) is not Object, throw a TypeError exception. */
+  if (!(Type(view) = "Object")) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 2. If view does not have a [[DataView]] internal slot, throw a TypeError exception. */
+  if (!( "DataView" in_obj view)) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 3. Let numberIndex be ToNumber(requestIndex). */
+  numberIndex := ToNumber(requestIndex);
+
+  /* 4. Let getIndex be ToInteger(numberIndex). */
+  getIndex := ToInteger(numberIndex);
+
+  /* 5. ReturnIfAbrupt(getIndex). */
+  @ReturnIfAbrupt(getIndex);
+
+  /* 6. If numberIndex ≠ getIndex or getIndex < 0, throw a RangeError exception. */
+  if (!(numberIndex = getIndex) ||| (getIndex < 0)) {
+    throw RangeErrorConstructorInternal()
+  };
+
+  /* 7. Let isLittleEndian be ToBoolean(isLittleEndian). */
+  isLittleEndian := ToBoolean(isLittleEndian);
+
+  /* 8. Let buffer be the value of view’s [[ViewedArrayBuffer]] internal slot. */
+  buffer := view.ViewedArrayBuffer;
+
+  /* 9. If IsDetachedBuffer(buffer) is true, throw a TypeError exception. */
+  if (IsDetachedBuffer(buffer) = true) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 10. Let viewOffset be the value of view’s [[ByteOffset]] internal slot. */
+  viewOffset := view.ByteOffset;
+
+  /* 11. Let viewSize be the value of view’s [[ByteLength]] internal slot. */
+  viewOffset := view.ByteLength;
+
+  /* 12. Let elementSize be the Number value of the Element Size value specified in Table 49 for Element Type type. */
+  elementSize :=  getElementSize(type);
+
+  /* 13. If getIndex +elementSize > viewSize, throw a RangeError exception. */
+  if ((getIndex + elementSize) > viewSize) {
+    throw RangeErrorConstructorInternal()
+  };
+
+  /* 14. Let bufferIndex be getIndex + viewOffset. */
+  bufferIndex := getIndex + viewOffset;
+
+  /* 15. Return GetValueFromBuffer(buffer, bufferIndex, type, isLittleEndian). */
+  return GetValueFromBuffer(buffer, bufferIndex, type, isLittleEndian)
+};
+
+
+/**
+ * 24.2.1.2 SetViewValue ( view, requestIndex, isLittleEndian, type, value )
+ *
+ * The abstract operation SetViewValue with arguments view, requestIndex, isLittleEndian, type, 
+ * and value is used by functions on DataView instances to store values into the view’s buffer.
+ *
+ * NOTE The algorithms for GetViewValue and SetViewValue are identical except for their final steps.
+ */
+function SetViewValue (view, requestIndex, isLittleEndian, type) {
+
+  /* 1. If Type(view) is not Object, throw a TypeError exception. */
+  if (!(Type(view) = "Object")) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 2. If view does not have a [[DataView]] internal slot, throw a TypeError exception. */
+  if (!( "DataView" in_obj view)) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 3. Let numberIndex be ToNumber(requestIndex). */
+  numberIndex := ToNumber(requestIndex);
+
+  /* 4. Let getIndex be ToInteger(numberIndex). */
+  getIndex := ToInteger(numberIndex);
+
+  /* 5. ReturnIfAbrupt(getIndex). */
+  @ReturnIfAbrupt(getIndex);
+
+  /* 6. If numberIndex ≠ getIndex or getIndex < 0, throw a RangeError exception. */
+  if (!(numberIndex = getIndex) ||| (getIndex < 0)) {
+    throw RangeErrorConstructorInternal()
+  };
+
+  /* 7. Let isLittleEndian be ToBoolean(isLittleEndian). */
+  isLittleEndian := ToBoolean(isLittleEndian);
+
+  /* 8. Let buffer be the value of view’s [[ViewedArrayBuffer]] internal slot. */
+  buffer := view.ViewedArrayBuffer;
+
+  /* 9. If IsDetachedBuffer(buffer) is true, throw a TypeError exception. */
+  if (IsDetachedBuffer(buffer) = true) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 10. Let viewOffset be the value of view’s [[ByteOffset]] internal slot. */
+  viewOffset := view.ByteOffset;
+
+  /* 11. Let viewSize be the value of view’s [[ByteLength]] internal slot. */
+  viewOffset := view.ByteLength;
+
+  /* 12. Let elementSize be the Number value of the Element Size value specified in Table 49 for Element Type type. */
+  elementSize :=  getElementSize(type);
+
+  /* 13. If getIndex +elementSize > viewSize, throw a RangeError exception. */
+  if ((getIndex + elementSize) > viewSize) {
+    throw RangeErrorConstructorInternal()
+  };
+
+  /* 14. Let bufferIndex be getIndex + viewOffset. */
+  bufferIndex := getIndex + viewOffset;
+
+  /* 15. Return GetValueFromBuffer(buffer, bufferIndex, type, isLittleEndian). */
+  return SetValueFromBuffer(buffer, bufferIndex, type, isLittleEndian)
+};
+
+/* 24.2.4 Properties of the DataView Prototype Object */
+function initDataViewPrototype(global, objectPrototype, strict) {
+  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  setAllInternalMethodsOfObject(prototype);
+
+  /* 24.2.4.1 get DataView.prototype.buffer */
+  bufferObject := CreateBuiltInFunctionObject([], "DataViewPrototypeBuffer", global, strict, 0.);
+  descriptor := newGetAccessorPropertyDescriptorFull(bufferObject, false, true);
+  setJSProperty(prototype, "buffer", descriptor);
+  descriptor := newDataPropertyDescriptorFull("get buffer", false, false, true);
+  setJSProperty(bufferObject, "name", descriptor);
+
+  /* 24.2.4.2 get DataView.prototype.byteLength */
+  byteLengthObject := CreateBuiltInFunctionObject([], "DataViewPrototypeByteLength", global, strict, 0.);
+  descriptor := newGetAccessorPropertyDescriptorFull(byteLengthObject, false, true);
+  setJSProperty(prototype, "byteLength", descriptor);
+  descriptor := newDataPropertyDescriptorFull("get byteLength", false, false, true);
+  setJSProperty(byteLengthObject, "name", descriptor);
+
+  /* 24.2.4.3 get DataView.prototype.byteOffset */
+  byteOffsetObject := CreateBuiltInFunctionObject([], "DataViewPrototypeByteOffset", global, strict, 0.);
+  descriptor := newGetAccessorPropertyDescriptorFull(byteOffsetObject, false, true);
+  setJSProperty(prototype, "byteOffset", descriptor);
+  descriptor := newDataPropertyDescriptorFull("get byteOffset", false, false, true);
+  setJSProperty(byteOffsetObject, "name", descriptor);
+
+  /* 24.2.4.5 DataView.prototype.getFloat32 ( byteOffset [ , littleEndian ] ) */
+
+
+  /* 24.2.4.6 DataView.prototype.getFloat64 ( byteOffset [ , littleEndian ] ) */
+
+  /* 24.2.4.7 DataView.prototype.getInt8 ( byteOffset ) */
+
+  /* 24.2.4.8 DataView.prototype.getInt16 ( byteOffset [ , littleEndian ] ) */
+  return prototype
+};
+
+
+/* 24.2.3 Properties of the DataView Constructor */
+function initDataViewObject(global, objectPrototype, strict) {
+  objDataViewPrototype := initDataViewPrototype(global, objectPrototype, strict);
+  objDataViewConstructor := CreateFunctionObject(["length"], "DataViewConstructor", global, strict, 0.);
+
+  /* 24.2.4.4 DataView.prototype.constructor*/
+  descriptor := newDataPropertyDescriptorFull(objDataViewConstructor, true, false, true);
+  setJSProperty(objDataViewPrototype, "constructor", descriptor);
+  
+  /* The value of the [[Prototype]] internal slot of the DataView constructor is the intrinsic object %FunctionPrototype% (19.2.3). */
+  createBuiltInPropertyWithFullDescriptor(objDataViewConstructor, "prototype", objectPrototype, false, false, false);
+
+  /* Besides its length property (whose value is 3), the DataView constructor has the following properties: */
+  descriptor := newDataPropertyDescriptorFull(3., false, false, true);
+  setJSProperty(objDataViewConstructor, "length", descriptor);
+
+
+  /* 24.1.3.2 DataView.prototype */
+  /* The initial value of DataView.prototype is the intrinsic object %DataViewPrototype% (24.2.4).
+  This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  descriptor := newDataPropertyDescriptorFull(objDataViewPrototype, false, false, false);
+  setJSProperty(objDataViewConstructor, "prototype", descriptor);
+  
+
+  return objDataViewConstructor
+}
+
+/* auxiliar functions */
+/*function getElementSize(type) {
+  /*table 49*/
+
+  /*Element  -> Size*/
+  /* Int8    -> 1; */
+  /* Uint8   -> 1; */
+  /* Uint8C  -> 1; */
+  /* Int16   -> 2; */
+  /* Uint16  -> 2; */
+  /* Int32   -> 4; */
+  /* UInt32  -> 4; */
+  /* Float32 -> 4; */
+  /* Float64 -> 8; */
+
+ /* switch (type) {
+    case "Int8"    : { return 1}
+    case "Uint8"   : { return 1} 
+    case "Uint8C"  : { return 1} 
+    case "Int16"   : { return 2} 
+    case "Uint16"  : { return 2} 
+    case "Int32"   : { return 4} 
+    case "UInt32"  : { return 4} 
+    case "Float32" : { return 4} 
+    case "Float64" : { return 8} 
+  }
+
+}*/

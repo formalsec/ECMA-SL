@@ -41,7 +41,7 @@ function initNumberPrototype(global, objectPrototype, strict) {
   toFixed := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToFixed", global, strict, null);
   setJSProperty(toFixed, "length", newDataPropertyDescriptorFull(1., false, false, true));
   descriptor := newDataPropertyDescriptorFull(toFixed, true, false, true);
-  setJSProperty(prototype, "toFixed", descriptor); 
+  setJSProperty(prototype, "toFixed", descriptor);
   descriptor := newDataPropertyDescriptorFull("toFixed", false, false, true);
   setJSProperty(toFixed, "name", descriptor);
 
@@ -129,30 +129,26 @@ function initNumberConstructor(prototype, global, strict) {
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "EPSILON", EPSILON, false, false, false);
 
   /* 20.1.2.2 Number.isFinite ( number ) */
-  isFiniteObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsFinite", global, strict, 0.);
-  descriptor := newDataPropertyDescriptorFull(isFiniteObject, true, false, true);
-  setJSProperty(NumberConstructor, "isFinite", descriptor);
+  isFiniteObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsFinite", global, strict, null);
+  createBuiltInProperty(NumberConstructor, "isFinite", isFiniteObject);
   descriptor := newDataPropertyDescriptorFull("isFinite", false, false, true);
   setJSProperty(isFiniteObject, "name", descriptor);
 
   /* 20.1.2.3 Number.isInteger ( number ) */
-  isIntegerObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsInteger", global, strict, 0.);
-  descriptor := newDataPropertyDescriptorFull(isIntegerObject, true, false, true);
-  setJSProperty(NumberConstructor, "isInteger", descriptor);
+  isIntegerObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsInteger", global, strict, null);
+  createBuiltInProperty(NumberConstructor, "isInteger", isIntegerObject);
   descriptor := newDataPropertyDescriptorFull("isInteger", false, false, true);
   setJSProperty(isIntegerObject, "name", descriptor);
 
   /* 20.1.2.4 Number.isNaN ( number ) */
-  isNaNObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsNaN", global, strict, 0.);
-  descriptor := newDataPropertyDescriptorFull(isNaNObject, true, false, true);
-  setJSProperty(NumberConstructor, "isNaN", descriptor);
+  isNaNObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsNaN", global, strict, null);
+  createBuiltInProperty(NumberConstructor, "isNaN", isNaNObject);
   descriptor := newDataPropertyDescriptorFull("isNaN", false, false, true);
   setJSProperty(isNaNObject, "name", descriptor);
 
   /* 20.1.2.5 Number.isSafeInteger ( number ) */
-  isSafeIntegerObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsSafeInteger", global, strict, 0.);
-  descriptor := newDataPropertyDescriptorFull(isSafeIntegerObject, true, false, true);
-  setJSProperty(NumberConstructor, "isSafeInteger", descriptor);
+  isSafeIntegerObject := CreateBuiltInFunctionObject(["number"], "NumberConstructorIsSafeInteger", global, strict, null);
+  createBuiltInProperty(NumberConstructor, "isSafeInteger", isSafeIntegerObject);
   descriptor := newDataPropertyDescriptorFull("isSafeInteger", false, false, true);
   setJSProperty(isSafeIntegerObject, "name", descriptor);
 
@@ -178,15 +174,13 @@ function initNumberConstructor(prototype, global, strict) {
 
   /* 20.1.2.12 Number.parseFloat ( string ) */
   parseFloatObject := CreateBuiltInFunctionObject(["string"], "GlobalObjectParseFloat", global, strict, null);
-  descriptor := newDataPropertyDescriptorFull(parseFloatObject, true, false, true);
-  setJSProperty(NumberConstructor, "parseFloat", descriptor); 
+  createBuiltInProperty(NumberConstructor, "parseFloat", parseFloatObject);
   descriptor := newDataPropertyDescriptorFull("parseFloat", false, false, true);
   setJSProperty(parseFloatObject, "name", descriptor);
 
   /* 20.1.2.13 Number.parseInt ( string, radix ) */
-  parseIntObject := CreateBuiltInFunctionObject(["string", "radix"], "GlobalObjectParseInt", global, strict, 0.);
-  descriptor := newDataPropertyDescriptorFull(parseIntObject, true, false, true);
-  setJSProperty(NumberConstructor, "parseInt", descriptor);
+  parseIntObject := CreateBuiltInFunctionObject(["string", "radix"], "GlobalObjectParseInt", global, strict, null);
+  createBuiltInProperty(NumberConstructor, "parseInt", parseIntObject);
   descriptor := newDataPropertyDescriptorFull("parseInt", false, false, true);
   setJSProperty(parseIntObject, "name", descriptor);
 
@@ -199,9 +193,7 @@ function initNumberConstructor(prototype, global, strict) {
 
 /* 20.1.2.2 Number.isFinite ( number ) */
 function NumberConstructorIsFinite(global, this, strict, items) {
-  print "type do number";
-  number := ToNumber(getOptionalParam(items, 0));
-  print number;
+  number := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
   if (number = null ||| !(Type(number) = "Number")) {
     return false
@@ -217,29 +209,30 @@ function NumberConstructorIsFinite(global, this, strict, items) {
 
 /* 20.1.2.3 Number.isInteger ( number ) */
 function NumberConstructorIsInteger(global, this, strict, items) {
-  number := ToNumber(getOptionalParam(items, 0));
-  /* If Type(number) is not Number, return false. */
+  number := getOptionalParam(items, 0);
+  
+  /* 1. If Type(number) is not Number, return false. */
   if (number = null ||| !(Type(number) = "Number")) {
     return false
   };
-  /* If number is NaN, +∞, or −∞, return false. */
+  /* 2. f number is NaN, +∞, or −∞, return false. */
   if (number = NaN ||| number = Infinity ||| number = -Infinity) {
     return false
   };
-  /* Let integer be ToInteger(number). */
+  /* 3. Let integer be ToInteger(number). */
   integer := ToInteger(number);
-  /* If integer is not equal to number, return false. */
+  /* 4. If integer is not equal to number, return false. */
   if (!(integer = number)) {
     return false
   };
-  /* Otherwise, return true. */
+  /* 5. Otherwise, return true. */
   return true
 };
 
 
 /* 20.1.2.4 Number.isNaN ( number ) */
 function NumberConstructorIsNaN(global, this, strict, items) {
-  number := ToNumber(getOptionalParam(items, 0));
+  number := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
   if (number = null ||| !(Type(number) = "Number")) {
     return false
@@ -255,7 +248,7 @@ function NumberConstructorIsNaN(global, this, strict, items) {
 
 /* 20.1.2.5 Number.isSafeInteger ( number ) */
 function NumberConstructorIsSafeInteger(global, this, strict, items) {
-  number := ToNumber(getOptionalParam(items, 0));
+  number := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
   if (number = null ||| !(Type(number) = "Number")) {
     return false
@@ -288,10 +281,7 @@ function NumberPrototypeToExponential(global, this, strict, items) {
   @ReturnIfAbrupt(x);
   /* 3. Let f be ToInteger(fractionDigits). */ 
   f := ToInteger(fractionDigits);
-  /* 4. Assert: f is 0, when fractionDigits is undefined. */
-  if (fractionDigits = 'undefined) {
-    assert f = 0
-  };
+  /* NOT NEEDED 4. Assert: f is 0, when fractionDigits is undefined. */
   /* 5. ReturnIfAbrupt(f). */
   @ReturnIfAbrupt(f);
   /* 6. If x is NaN, return the String "NaN". */
@@ -320,9 +310,9 @@ function NumberPrototypeToExponential(global, this, strict, items) {
     throw RangeErrorConstructorInternal()
   };
   if (fractionDigits = 'undefined) {
-    return to_exponential(x, s_len(float_to_string (abs x)) - 1)
+    return to_exponential(x, s_len(float_to_string(abs x)) - 1)
   } else {
-    return to_exponential(x, (int_of_float fractionDigits))
+    return to_exponential(x, int_of_float(f))
   }
 };
 
@@ -337,7 +327,7 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
   f := ToInteger(fractionDigits);
   /* 4. Assert: f is 0, when fractionDigits is undefined. */
   if (fractionDigits = 'undefined) {
-    assert f = 0
+    assert f = 0.
   };
   /* 5. ReturnIfAbrupt(f). */
   @ReturnIfAbrupt(f);
@@ -396,7 +386,7 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
     m := float_to_string(n)
   };
   /* 13. If f ≠ 0, then */
-  if (!(f = 0)) {
+  if (!(f = 0.)) {
     /* a. Let a be the first element of m, and let b be the remaining f elements of m. */
     a := s_nth_u(m, 0);
     /* b. Let m be the concatenation of the three Strings a, ".", and b. */
@@ -446,19 +436,13 @@ function NumberPrototypeToFixed(global, this, strict, items) {
   f less than 0 or greater than 20. In this case toFixed would not necessarily throw RangeError
   for such values. */
   if ((f < 0.) ||| (f > 20.)) {
-    print "DEBUG NumberPrototypeToFixed 1";
-    print f;
     throw RangeErrorConstructorInternal()
   };
   /* 6. If x is NaN, return the String "NaN". */
   if (x = NaN) {
     return "NaN"
   };
-  if (fractionDigits = 'undefined) {
-    return to_fixed(x, 0)
-  } else {
-    return to_fixed(x, int_of_float(f))
-  }
+  return to_fixed(x, int_of_float(f))
 };
 
 /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
@@ -512,7 +496,7 @@ function NumberPrototypeToFixedAlt(global, this, strict, items) {
       m := float_to_string(n)
     };
     /* c. If f ≠ 0, then */
-    if (!(f = 0)) {
+    if (!(f = 0.)) {
       /* i. Let k be the number of elements in m. */
       k := s_len_u(m);
       /* ii. If k ≤ f, then */
@@ -557,21 +541,46 @@ function NumberPrototypeToLocaleString(global, this, strict, items) {
 
 /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
 function NumberPrototypeToPrecision(global, this, strict, items) {
-  precision := ToNumber(getOptionalParam(items, 0));
-  /* NumberValue(this value). */
+  precision := getOptionalParam(items, 0);
+  /* 1. NumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
   @ReturnIfAbrupt(x);
+  /* 3. If precision is undefined, return ToString(x). */
   if (precision = 'undefined) {
-    return x
-  } else {
-    return to_precision(x, (int_of_float precision))
-  }
+    return ToString(x)
+  };
+  /* 4. Let p be ToInteger(precision). */
+  p := ToInteger(precision);
+  /* 5. ReturnIfAbrupt(p). */
+  @ReturnIfAbrupt(p);
+  /* 6. If x is NaN, return the String "NaN". */
+  if (x = NaN) {
+    return "NaN"
+  };
+  /* 9. If x = +∞, then */
+  if (x = Infinity) {
+    return "Infinity"
+  };
+  if (x = (-Infinity)) {
+    return "-Infinity"
+  };
+  /* 10. If p < 1 or p > 21, throw a RangeError exception.
+  However, an implementation is permitted to extend the
+  behaviour of toPrecision for values of p less than 1 or
+  greater than 21. In this case toPrecision would not necessarily
+  throw RangeError for such values. */
+  if ((p < 1.) ||| (p > 21.)) {
+    throw RangeErrorConstructorInternal()
+  };
+  print "DEBUG NumberPrototypeToPrecision 2";
+  print p;
+  return to_precision(x, int_of_float(p))
 };
 
 /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
 function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
-  precision := ToNumber(getOptionalParam(items, 0));
+  precision := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
@@ -665,7 +674,8 @@ function isNumberOrNumberObject(arg) {
 
 /* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
 function NumberPrototypeToString(global, this, strict, items) {
-  radix := ToNumber(getOptionalParam(items, 0));
+  radix := getOptionalParam(items, 0);
+  
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
@@ -738,4 +748,21 @@ function OrdinaryCreateFromConstructorNumber(global, this, strict, items) {
   setInternalProperty(newlyConstructedObject, "Class", "Number");
 
   return newlyConstructedObject
+};
+
+
+/* Temporary */
+
+/* 7.1.12.1 ToString Applied to the Number Type */
+function NumberToString(m, radix) {
+  /* If m is NaN, return the String "NaN". */
+  /* If m is +0 or −0, return the String "0". */
+  /* If m is less than zero, return the String concatenation of the String "-" and ToString(−m). */
+  /* If m is +∞, return the String "Infinity". */
+  /* Otherwise, let n, k, and s be integers such that k ≥ 1, 10k−1 ≤ s < 10k, the Number value for s × 10n−k is m, and k is as small as possible. Note that k is the number of digits in the decimal representation of s, that s is not divisible by 10, and that the least significant digit of s is not necessarily uniquely determined by these criteria. */
+  /* If k ≤ n ≤ 21, return the String consisting of the code units of the k digits of the decimal representation of s (in order, with no leading zeroes), followed by n−k occurrences of the code unit 0x0030 (DIGIT ZERO). */
+  /* If 0 < n ≤ 21, return the String consisting of the code units of the most significant n digits of the decimal representation of s, followed by the code unit 0x002E (FULL STOP), followed by the code units of the remaining k−n digits of the decimal representation of s. */
+  /* If −6 < n ≤ 0, return the String consisting of the code unit 0x0030 (DIGIT ZERO), followed by the code unit 0x002E (FULL STOP), followed by −n occurrences of the code unit 0x0030 (DIGIT ZERO), followed by the code units of the k digits of the decimal representation of s. */
+  /* Otherwise, if k = 1, return the String consisting of the code unit of the single digit of s, followed by code unit 0x0065 (LATIN SMALL LETTER E), followed by the code unit 0x002B (PLUS SIGN) or the code unit 0x002D (HYPHEN-MINUS) according to whether n−1 is positive or negative, followed by the code units of the decimal representation of the integer abs(n−1) (with no leading zeroes). */
+  /* Return the String consisting of the code units of the most significant digit of the decimal representation of s, followed by code unit 0x002E (FULL STOP), followed by the code units of the remaining k−1 digits of the decimal representation of s, followed by code unit 0x0065 (LATIN SMALL LETTER E), followed by code unit 0x002B (PLUS SIGN) or the code unit 0x002D (HYPHEN-MINUS) according to whether n−1 is positive or negative, followed by the code units of the decimal representation of the integer abs(n−1) (with no leading zeroes). */
 }

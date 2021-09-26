@@ -104,7 +104,8 @@
                   "float64_from_LE_bytes", FLOAT64_FROM_LE_BYTES; 
                   "float64_from_BE_bytes", FLOAT64_FROM_BE_BYTES; 
                   "float32_from_LE_bytes", FLOAT32_FROM_LE_BYTES; 
-                  "float32_from_BE_bytes", FLOAT32_FROM_BE_BYTES 
+                  "float32_from_BE_bytes", FLOAT32_FROM_BE_BYTES;
+                  "bytes_to_string"     , BYTES_TO_STRING
                 ]
 
   exception Syntax_error of string
