@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The initial value of RegExp.prototype.constructor is the built-in RegExp
     constructor
 es5id: 15.10.6.1_A1_T2
@@ -15,12 +15,14 @@ var __FACTORY = RegExp.prototype.constructor;
 
 var __instance = new __FACTORY;
 
-//CHECK#1
-if ((__instance instanceof RegExp) !== true) {
-	$ERROR('#1: __FACTORY = RegExp.prototype.constructor; __instance = new __FACTORY; (__instance instanceof RegExp) === true');
-}
+assert.sameValue(
+  __instance instanceof RegExp,
+  true,
+  'The result of evaluating (__instance instanceof RegExp) is expected to be true'
+);
 
-//CHECK#2
-if (__instance.constructor !== RegExp) {
-	$ERROR('#2: __FACTORY = RegExp.prototype.constructor; __instance = new __FACTORY; __instance.constructor === RegExp. Actual: ' + (__instance.constructor));
-}
+assert.sameValue(
+  __instance.constructor,
+  RegExp,
+  'The value of __instance.constructor is expected to equal the value of RegExp'
+);

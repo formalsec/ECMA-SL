@@ -13,10 +13,12 @@ var __str__obj = new String("seamaid");
 
 __str__obj.toString = Object.prototype.toString;
 
+console.log(__str__obj.toString());
+
 //////////////////////////////////////////////////////////////////////////////
 //CHECK#1
-if (__str__obj.toString() !== "[object "+"String"+"]") {
-  $ERROR('#1: var __str__obj = new String("seamaid"); __str__obj.toString = Object.prototype.toString; __str__obj.toString() === "[object String]". Actual: __str__obj.toString() ==='+__str__obj.toString() ); 
+if (__str__obj.toString() !== "[object " + "String" + "]") {
+  throw new Test262Error('#1: var __str__obj = new String("seamaid"); __str__obj.toString = Object.prototype.toString; __str__obj.toString() === "[object String]". Actual: __str__obj.toString() ===' + __str__obj.toString());
 }
 //
 //////////////////////////////////////////////////////////////////////////////

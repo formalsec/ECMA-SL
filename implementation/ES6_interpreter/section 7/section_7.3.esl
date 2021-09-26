@@ -56,5 +56,53 @@ function CreateArrayFromList(elements) {
   {array.DefineOwnProperty}(array, "length", descriptor, false);
 
   return array
+};
+
+/* 7.3.20 SpeciesConstructor ( O, defaultConstructor ) */
+/**
+ * The abstract operation SpeciesConstructor is used to retrieve the constructor that should 
+ * be used to create new objects that are derived from the argument object O. The defaultConstructor
+ * argument is the constructor to use if a constructor @@species property cannot be found starting
+ * from O. This abstract operation performs the following steps:
+ */
+function SpeciesConstructor(O, defaultConstructor){
+    /* 1. Assert: Type(O) is Object. */
+    assert(Type(O) = "Object");
+
+    /* 2. Let C be Get(O, "constructor"). */
+    C := GetNew(O, "constructor");
+
+    /* 3. ReturnIfAbrupt(C). */
+    @ReturnIfAbrupt(C);
+
+    /* 4. If C is undefined, return defaultConstructor. */
+    if (C = 'undefined){
+        return defaultConstructor
+    };
+
+    /* 5. If Type(C) is not Object, throw a TypeError exception. */
+    if (!(Type(C) = "Object")){
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 6. Let S be Get(C, @@species). */
+    S := GetNew(C, getSpeciesPropertyName());
+
+    /* 7. ReturnIfAbrupt(S). */
+    @ReturnIfAbrupt(S);
+
+    /* 8. If S is either undefined or null, return defaultConstructor. */
+    if ((S = 'undefined) ||| (S = null) ||| (S = 'null)){
+        return defaultConstructor
+    };
+
+    /* 9. If IsConstructor(S) is true, return S. */
+    if (IsConstructor(S) = true){
+        return S
+    };
+
+    /* 10. Throw a TypeError exception. */
+    throw TypeErrorConstructorInternal()
 }
+
 

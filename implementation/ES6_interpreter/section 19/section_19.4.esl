@@ -435,4 +435,8 @@ function getToPrimitivePropertyName() {
 
 function getUnscopablesPropertyName() {
   return "Symbol(unscopables)"
+};
+
+function getIsConcatSpreadablePropertyName () {
+  return "Symbol(isConcatSpreadable)"
 }

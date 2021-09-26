@@ -21,8 +21,11 @@ assert.sameValue(str.length, 0, 'empty string');
 str = new String(' ');
 assert.sameValue(str.length, 1, 'whitespace');
 
+/*
 str = new String(' \b ');
 assert.sameValue(str.length, 3, 'character escape (U+008, "backspace")');
 
 str = new String('\ud834\udf06');
 assert.sameValue(str.length, 2, 'Unicode escape (surrogate pair)');
+*/
+

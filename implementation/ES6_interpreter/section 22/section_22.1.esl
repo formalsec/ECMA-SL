@@ -1096,12 +1096,12 @@ function arrayOf (global, this, strict, args) {
   /* 4. If IsConstructor(C) is true, then */
   if (IsConstructor(C) = true) {   
     /* a. Let A be Construct(C, «len»). */
-    A := Construct(null, null, C, [len])
+    A := Construct(null, null, C, [int_to_float len])
 
   /* 5. Else, */
   } else {
     /* a. Let A be ArrayCreate(len). */
-    A := ArrayConstructor(global, this, strict, [len])
+    A := ArrayConstructor(global, this, strict, [int_to_float len])
   };
 
   /* 6. ReturnIfAbrupt(A). */
@@ -1261,6 +1261,7 @@ function arrayConcat(global, this, strict, items) {
     } else {
       /* i. If n≥2^53-1, throw a TypeError exception */
       if ((n) >= (((2. ** 53.) - 1.))) {
+        print "type error 2";
         throw TypeErrorConstructorInternal()
       };
 
@@ -1302,7 +1303,7 @@ function IsConcatSpreadable(O) {
   };
 
   /* 2. Let spreadable be Get(O, @@isConcatSpreadable). */
-  spreadable := IsArray(O);
+  spreadable := GetNew(O, getIsConcatSpreadablePropertyName());
 
   /* 3. ReturnIfAbrupt(spreadable). */
   @ReturnIfAbrupt(spreadable);
