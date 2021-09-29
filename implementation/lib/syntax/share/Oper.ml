@@ -250,7 +250,8 @@ let typeof (v : Val.t) : Val.t = match v with
   | Symbol _ -> Type (Type.SymbolType)
   | Curry _  -> Type (Type.CurryType)
   | Void     -> invalid_arg ("Exception in Oper.typeof: unexpected void value")
-  | Byte _   -> invalid_arg ("Type of Byte not implemented yet")
+  | Byte64 _   -> invalid_arg ("Type of Byte not implemented yet")
+  | Byte32 _   -> invalid_arg ("Type of Byte not implemented yet")
 
 let l_len (v : Val.t) : Val.t = match v with
   | List l -> Val.Int (List.length l)
@@ -517,60 +518,73 @@ let log_2 (v : Val.t) : Val.t = match v with
   | Flt x -> Flt ((Float.log x) /. (Float.log 2.))
   | _      -> invalid_arg "Exception in Oper.log_2: this operation is only applicable to Float arguments"
 
+(*
+TODO
+let bytes_to_string
+*)
+
 let float64_to_le_bytes (v : Val.t) : Val.t = match v with
   | Flt x -> 
     let bytes = Byte_Utils.float64_to_le_bytes x in 
-    let val_bytes = List.map (fun b -> Val.Byte b) bytes in 
+    let val_bytes = List.map (fun b -> Val.Byte64 b) bytes in 
     List val_bytes 
   | _ -> invalid_arg "Exception in Oper.float64_to_le_bytes: this operation is only applicable to Float arguments"
 
 let float64_to_be_bytes (v : Val.t) : Val.t = match v with
   | Flt x -> 
     let bytes = Byte_Utils.float64_to_be_bytes x in 
-    let val_bytes = List.map (fun b -> Val.Byte b) bytes in 
+    let val_bytes = List.map (fun b -> Val.Byte64 b) bytes in 
     List val_bytes 
   | _ -> invalid_arg "Exception in Oper.float64_to_be_bytes: this operation is only applicable to Float arguments"
 
 let float32_to_le_bytes (v : Val.t) : Val.t = match v with
   | Flt x -> 
     let bytes = Byte_Utils.float32_to_le_bytes x in 
-    let val_bytes = List.map (fun b -> Val.Byte b) bytes in 
+    let val_bytes = List.map (fun b -> Val.Byte32 b) bytes in 
     List val_bytes 
   | _ -> invalid_arg "Exception in Oper.float32_to_le_bytes: this operation is only applicable to Float arguments"
 
 let float32_to_be_bytes (v : Val.t) : Val.t = match v with
   | Flt x -> 
     let bytes = Byte_Utils.float32_to_be_bytes x in 
-    let val_bytes = List.map (fun b -> Val.Byte b) bytes in 
+    let val_bytes = List.map (fun b -> Val.Byte32 b) bytes in 
     List val_bytes 
   | _ -> invalid_arg "Exception in Oper.float32_to_be_bytes: this operation is only applicable to Float arguments"
 
+let unpack_byte64 (v : Val.t) : int64 = match v with
+  | Byte64 b -> b
+  | _ -> invalid_arg "Exception in unpack_byte64"
+
+let unpack_byte32 (v : Val.t) : int32 = match v with
+  | Byte32 b -> b
+  | _ -> invalid_arg "Exception in unpack_byte32"
+
 let float64_from_le_bytes (v : Val.t) : Val.t = match v with
   | List bytes -> 
-    let int64_bytes = List.map (fun b -> Int64 b) bytes in 
-    let f : int64 = Byte_Utils.float64_from_le_bytes x in 
-    Flt (Int64.float_of_bits f)
+    let int64_bytes = List.map unpack_byte64 bytes in 
+    let f = Byte_Utils.float64_from_le_bytes int64_bytes in 
+    Flt f
   | _ -> invalid_arg "Exception in Oper.float64_from_le_bytes: this operation is only applicable to List arguments"
 
 let float64_from_be_bytes (v : Val.t) : Val.t = match v with
   | List bytes -> 
-    let int64_bytes = List.map (fun b -> Int64 b) bytes in 
-    let f : int64 = Byte_Utils.float64_from_be_bytes x in 
-    Flt (Int64.float_of_bits )
+    let int64_bytes = List.map unpack_byte64 bytes in 
+    let f = Byte_Utils.float64_from_be_bytes int64_bytes in 
+    Flt f
   | _ -> invalid_arg "Exception in Oper.float64_from_be_bytes: this operation is only applicable to List arguments"
 
 let float32_from_le_bytes (v : Val.t) : Val.t = match v with
   | List bytes -> 
-    let int32_bytes = List.map (fun b -> Int32 b) bytes in 
-    let f : int32 = Byte_Utils.float32_from_le_bytes x in 
-    Flt (Int32.float_of_bits f)
+    let int32_bytes = List.map unpack_byte32 bytes in 
+    let f = Byte_Utils.float32_from_le_bytes int32_bytes in 
+    Flt f
   | _ -> invalid_arg "Exception in Oper.float32_from_le_bytes: this operation is only applicable to List arguments"
 
 let float32_from_be_bytes (v : Val.t) : Val.t = match v with
   | List bytes -> 
-    let int32_bytes = List.map (fun b -> Int32 b) bytes in 
-    let f : int32 = Byte_Utils.float32_from_le_bytes x in 
-    Flt (Int32.float_of_bits f)
+    let int32_bytes = List.map unpack_byte32 bytes in 
+    let f = Byte_Utils.float32_from_le_bytes int32_bytes in 
+    Flt f
   | _ -> invalid_arg "Exception in Oper.float32_from_be_bytes: this operation is only applicable to List arguments"
 
 let from_char_code (v : Val.t) : Val.t = match v with

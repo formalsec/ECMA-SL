@@ -11,8 +11,8 @@ type t =
   | Null
   | Symbol of string
   | Curry  of string * t list
-  | Byte   of int64 
-  (*  | Int32  of int32 *)
+  | Byte32   of int32
+  | Byte64   of int64
 
 let is_special_number (s : string) : bool =
   List.mem s ["nan" ; "inf" ; "-inf" ] || String.contains s 'e' ||  String.contains s 'E'
@@ -42,7 +42,8 @@ let rec str ?(flt_with_dot=true) (v : t) : string = match v with
   | Null     -> "null"
   | Symbol s -> "'" ^ s
   | Curry (s, vs) -> Printf.sprintf "{\"%s\"}@(%s)" s (String.concat ", " (List.map str vs))
-  | Byte i  -> Int64.to_string i 
+  | Byte64 i  -> Int64.to_string i 
+  | Byte32 i  -> Int32.to_string i 
 
 
 let rec to_json (v : t): string =
@@ -59,4 +60,5 @@ let rec to_json (v : t): string =
   | Null     ->  Printf.sprintf "{ \"type\" : \"null\" }"
   | Symbol s ->  Printf.sprintf "{ \"type\" : \"symbol\", \"value\" : \"%s\" }" s
   | Curry (s, vs) -> Printf.sprintf "{ \"type\" : \"curry\", \"fun\" : \"%s\", \"args\" : [ %s ] }" s (String.concat ", " (List.map to_json vs))
-  | Byte i   ->  Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }" (Int64.to_string i)
+  | Byte64 i   ->  Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }" (Int64.to_string i)
+  | Byte32 i   ->  Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }" (Int32.to_string i)
