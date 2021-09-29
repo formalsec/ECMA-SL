@@ -54,15 +54,9 @@ my_tests/Number/string-numeric-separator-literal-sign-minus-dds-nsl-dd.js
 my_tests/Number/string-numeric-separator-literal-sign-plus-dds-nsl-dd.js
 my_tests/Number/string-octal-literal.js
 my_tests/Number/isFinite/arg-is-not-number.js
-my_tests/Number/isFinite/not-a-constructor.js
 my_tests/Number/isInteger/arg-is-not-number.js
-my_tests/Number/isInteger/not-a-constructor.js
 my_tests/Number/isNaN/arg-is-not-number.js
-my_tests/Number/isNaN/not-a-constructor.js
 my_tests/Number/isSafeInteger/arg-is-not-number.js
-my_tests/Number/isSafeInteger/not-a-constructor.js
-my_tests/Number/parseFloat/not-a-constructor.js
-my_tests/Number/parseInt/not-a-constructor.js
 my_tests/Number/prototype/constructor.js
 my_tests/Number/prototype/S15.7.3.1_A2_T1.js
 my_tests/Number/prototype/S15.7.4_A1.js
@@ -74,25 +68,21 @@ my_tests/Number/prototype/S15.7.4_A3.4.js
 my_tests/Number/prototype/S15.7.4_A3.5.js
 my_tests/Number/prototype/S15.7.4_A3.6.js
 my_tests/Number/prototype/S15.7.4_A3.7.js
-my_tests/Number/prototype/toExponential/not-a-constructor.js
 my_tests/Number/prototype/toExponential/prop-desc.js
 my_tests/Number/prototype/toExponential/range.js
 my_tests/Number/prototype/toExponential/return-values.js
 my_tests/Number/prototype/toExponential/this-is-0-fractiondigits-is-0.js
 my_tests/Number/prototype/toExponential/this-is-0-fractiondigits-is-not-0.js
 my_tests/Number/prototype/toExponential/tointeger-fractiondigits.js
-my_tests/Number/prototype/toFixed/not-a-constructor.js
 my_tests/Number/prototype/toFixed/prop-desc.js
 my_tests/Number/prototype/toFixed/range.js
 my_tests/Number/prototype/toFixed/S15.7.4.5_A1.1_T01.js
 my_tests/Number/prototype/toFixed/S15.7.4.5_A1.1_T02.js
-my_tests/Number/prototype/toLocaleString/not-a-constructor.js
 my_tests/Number/prototype/toLocaleString/prop-desc.js
 my_tests/Number/prototype/toPrecision/exponential.js
 my_tests/Number/prototype/toPrecision/infinity.js
 my_tests/Number/prototype/toPrecision/name.js
 my_tests/Number/prototype/toPrecision/nan.js
-my_tests/Number/prototype/toPrecision/not-a-constructor.js
 my_tests/Number/prototype/toPrecision/precision-cannot-be-coerced-to-a-number-in-range.js
 my_tests/Number/prototype/toPrecision/prop-desc.js
 my_tests/Number/prototype/toPrecision/range.js
@@ -102,10 +92,8 @@ my_tests/Number/prototype/toPrecision/this-is-0-precision-is-gter-than-1.js
 my_tests/Number/prototype/toPrecision/tointeger-precision.js
 my_tests/Number/prototype/toPrecision/undefined-precision-arg.js
 my_tests/Number/prototype/toString/a-z.js
-my_tests/Number/prototype/toString/not-a-constructor.js
 my_tests/Number/prototype/toString/prop-desc.js
 my_tests/Number/prototype/toString/S15.7.4.2_A1_T03.js
-my_tests/Number/prototype/valueOf/not-a-constructor.js
 my_tests/Number/prototype/valueOf/prop-desc.js
 
 

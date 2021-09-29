@@ -1,3 +1,2 @@
 src/main.native
 src/generate_standard.native
-src/test_number_parsing_utils.native

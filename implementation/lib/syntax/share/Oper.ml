@@ -109,6 +109,7 @@ type uopt = Neg
           | Float64FromBEBytes
           | Float32FromLEBytes
           | Float32FromBEBytes
+          | BytesToString
 
 
 type nopt = ListExpr
@@ -250,8 +251,8 @@ let typeof (v : Val.t) : Val.t = match v with
   | Symbol _ -> Type (Type.SymbolType)
   | Curry _  -> Type (Type.CurryType)
   | Void     -> invalid_arg ("Exception in Oper.typeof: unexpected void value")
-  | Byte64 _   -> invalid_arg ("Type of Byte not implemented yet")
-  | Byte32 _   -> invalid_arg ("Type of Byte not implemented yet")
+  | Byte64 _   -> invalid_arg ("Type of Byte64 not implemented yet")
+  | Byte32 _   -> invalid_arg ("Type of Byte32 not implemented yet")
 
 let l_len (v : Val.t) : Val.t = match v with
   | List l -> Val.Int (List.length l)
@@ -478,8 +479,8 @@ let string_split (v, c : Val.t * Val.t) : Val.t = match v, c with
     Val.List (List.map (fun str -> Val.Str str) (String.split_on_char c str))
   | _                -> invalid_arg "Exception in Oper.string_split: this operation is only applicable to String arguments"
 *)
-
 (* Splits on RegExp. Inspired by: https://stackoverflow.com/a/39814087/3049315 *)
+
 let string_split (v, c : Val.t * Val.t) : Val.t = match v, c with
   | _, Str ""        -> invalid_arg "Exception in Oper.string_split: separator cannot be the empty string"
   | Str str, Str sep ->
@@ -518,10 +519,19 @@ let log_2 (v : Val.t) : Val.t = match v with
   | Flt x -> Flt ((Float.log x) /. (Float.log 2.))
   | _      -> invalid_arg "Exception in Oper.log_2: this operation is only applicable to Float arguments"
 
-(*
-TODO
-let bytes_to_string
-*)
+let unpack_byte64 (v : Val.t) : int64 = match v with
+  | Byte64 b -> b
+  | _ -> invalid_arg "Exception in unpack_byte64"
+
+let unpack_byte32 (v : Val.t) : int32 = match v with
+  | Byte32 b -> b
+  | _ -> invalid_arg "Exception in unpack_byte32"
+
+let bytes_to_string (v: Val.t) : Val.t = match v with
+  | List bytes ->  let bytes_string = "[" ^ (String.concat "; " (List.map (fun (Val.Byte64 b) -> (Int64.to_string b)) bytes)) ^ "]" in
+    Str bytes_string
+    (*Printf.printf "%s\n" str*)
+  | _ -> invalid_arg "Exception in Oper.print_byte: this operation is only applicable to Byte arguments"
 
 let float64_to_le_bytes (v : Val.t) : Val.t = match v with
   | Flt x -> 
@@ -551,14 +561,6 @@ let float32_to_be_bytes (v : Val.t) : Val.t = match v with
     List val_bytes 
   | _ -> invalid_arg "Exception in Oper.float32_to_be_bytes: this operation is only applicable to Float arguments"
 
-let unpack_byte64 (v : Val.t) : int64 = match v with
-  | Byte64 b -> b
-  | _ -> invalid_arg "Exception in unpack_byte64"
-
-let unpack_byte32 (v : Val.t) : int32 = match v with
-  | Byte32 b -> b
-  | _ -> invalid_arg "Exception in unpack_byte32"
-
 let float64_from_le_bytes (v : Val.t) : Val.t = match v with
   | List bytes -> 
     let int64_bytes = List.map unpack_byte64 bytes in 
@@ -585,7 +587,7 @@ let float32_from_be_bytes (v : Val.t) : Val.t = match v with
     let int32_bytes = List.map unpack_byte32 bytes in 
     let f = Byte_Utils.float32_from_le_bytes int32_bytes in 
     Flt f
-  | _ -> invalid_arg "Exception in Oper.float32_from_be_bytes: this operation is only applicable to List arguments"
+  | _ -> invalid_arg "Exception in Oper.float64_from_le_bytes: this operation is only applicable to List arguments"
 
 let from_char_code (v : Val.t) : Val.t = match v with
   | Int n -> Str (String_Utils.from_char_code n)
@@ -710,6 +712,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | Float64FromBEBytes -> "float64_from_BE_bytes"
   | Float32FromLEBytes -> "float32_from_LE_bytes"
   | Float32FromBEBytes -> "float32_from_BE_bytes"
+  | BytesToString     -> "bytes_to_string"
 
 let str_of_binopt_single (op : bopt) : string = match op with
   | Plus     -> "+"
@@ -956,4 +959,5 @@ let uopt_to_json (op : uopt) : string =
      | Float64FromLEBytes -> Printf.sprintf "Float64FromLEBytes\" }"
      | Float64FromBEBytes -> Printf.sprintf "Float64FromBEBytes\" }"
      | Float32FromLEBytes -> Printf.sprintf "Float32FromLEBytes\" }"
-     | Float32FromBEBytes -> Printf.sprintf "Float32FromBEBytes\" }")
+     | Float32FromBEBytes -> Printf.sprintf "Float32FromBEBytes\" }"
+     | BytesToString -> Printf.sprintf "BytesToString\" }")
