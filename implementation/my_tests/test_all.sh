@@ -36,7 +36,7 @@ testSection() {
 }
 
 
-for section in Number
+for section in ArrayBuffer
 do
     echo "Testing ${section} ..."
     testSection $section

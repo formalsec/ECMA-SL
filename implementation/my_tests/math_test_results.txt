@@ -1,0 +1,47 @@
+########## ERROR ##########
+my_tests/Math/fround/ties.js
+my_tests/Math/fround/value-convertion.js
+
+
+########## FAIL ##########
+my_tests/Math/abs/not-a-constructor.js
+my_tests/Math/acos/not-a-constructor.js
+my_tests/Math/acosh/not-a-constructor.js
+my_tests/Math/asin/not-a-constructor.js
+my_tests/Math/asinh/not-a-constructor.js
+my_tests/Math/atan/not-a-constructor.js
+my_tests/Math/atan2/not-a-constructor.js
+my_tests/Math/atanh/not-a-constructor.js
+my_tests/Math/cbrt/not-a-constructor.js
+my_tests/Math/ceil/not-a-constructor.js
+my_tests/Math/clz32/not-a-constructor.js
+my_tests/Math/cos/not-a-constructor.js
+my_tests/Math/cosh/not-a-constructor.js
+my_tests/Math/exp/not-a-constructor.js
+my_tests/Math/expm1/not-a-constructor.js
+my_tests/Math/floor/not-a-constructor.js
+my_tests/Math/fround/not-a-constructor.js
+my_tests/Math/hypot/not-a-constructor.js
+my_tests/Math/imul/not-a-constructor.js
+my_tests/Math/imul/results.js
+my_tests/Math/log/not-a-constructor.js
+my_tests/Math/log10/not-a-constructor.js
+my_tests/Math/log1p/not-a-constructor.js
+my_tests/Math/log2/not-a-constructor.js
+my_tests/Math/max/not-a-constructor.js
+my_tests/Math/min/not-a-constructor.js
+my_tests/Math/pow/not-a-constructor.js
+my_tests/Math/random/not-a-constructor.js
+my_tests/Math/round/not-a-constructor.js
+my_tests/Math/round/S15.8.2.15_A7.js
+my_tests/Math/sign/not-a-constructor.js
+my_tests/Math/sin/not-a-constructor.js
+my_tests/Math/sinh/not-a-constructor.js
+my_tests/Math/sqrt/not-a-constructor.js
+my_tests/Math/tan/not-a-constructor.js
+my_tests/Math/tanh/not-a-constructor.js
+my_tests/Math/trunc/not-a-constructor.js
+my_tests/Math/trunc/trunc-sampleTests.js
+
+
+OK: 270    FAIL: 38    ERROR: 2    UNSUPPORTED: 0    NOT EXECUTED: 0    Total: 310

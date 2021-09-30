@@ -519,19 +519,23 @@ let log_2 (v : Val.t) : Val.t = match v with
   | Flt x -> Flt ((Float.log x) /. (Float.log 2.))
   | _      -> invalid_arg "Exception in Oper.log_2: this operation is only applicable to Float arguments"
 
-let unpack_byte64 (v : Val.t) : int64 = match v with
-  | Byte64 b -> b
-  | _ -> invalid_arg "Exception in unpack_byte64"
-
 let unpack_byte32 (v : Val.t) : int32 = match v with
   | Byte32 b -> b
-  | _ -> invalid_arg "Exception in unpack_byte32"
+  | _ -> invalid_arg "Exception in Oper.unpack_byte32: this operation is only applicable to Byte32 arguments"
+
+let unpack_byte64 (v : Val.t) : int64 = match v with
+  | Byte64 b -> b
+  | _ -> invalid_arg "Exception in Oper.unpack_byte64: this operation is only applicable to Byte64 arguments"
+
+let unpack_byte_to_str (v : Val.t) : string = match v with
+  | Byte32 b -> Int32.to_string b
+  | Byte64 b -> Int64.to_string b
+  | _ -> invalid_arg "Exception in unpack_byte_to_str: this opperation is only applicable to Byte32 or Byte64 arguments"
 
 let bytes_to_string (v: Val.t) : Val.t = match v with
-  | List bytes ->  let bytes_string = "[" ^ (String.concat "; " (List.map (fun (Val.Byte64 b) -> (Int64.to_string b)) bytes)) ^ "]" in
+  | List bytes ->  let bytes_string = "[" ^ (String.concat "; " (List.map unpack_byte_to_str bytes)) ^ "]" in
     Str bytes_string
-    (*Printf.printf "%s\n" str*)
-  | _ -> invalid_arg "Exception in Oper.print_byte: this operation is only applicable to Byte arguments"
+  | _ -> invalid_arg "Exception in Oper.bytes_to_string: this operation is only applicable to Byte arguments"
 
 let float64_to_le_bytes (v : Val.t) : Val.t = match v with
   | Flt x -> 

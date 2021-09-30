@@ -16,31 +16,56 @@ macro ReturnIfAbrupt (argument) {
 /* 6.2.6.1 CreateByteDataBlock(size) */
 function CreateByteDataBlock(size) {
     /* 1. Assert: size ≥ 0. */
-    assert (size >= (0.));
-    /* 2. TODO Let db be a new Data Block value consisting of size bytes. If it is impossible to create such a Data Block, throw a RangeError exception. */
-    /* 3. TODO Set all of the bytes of db to 0. */
+    assert (size >= 0);
+    /* 2. Let db be a new Data Block value consisting of size bytes. If it is impossible to create such a Data Block, throw a RangeError exception. */
+    db := [];
+    i := 0;
+    while (i < size) {
+        i := i + 1;
+        /* 3. Set all of the bytes of db to 0. */
+        db := l_prepend(0, db)
+    };
     /* 4. Return db. */
     return db
 };
 
-/* 6.2.6.1 CreateByteDataBlock(size) */
-function InternalCreateByteDataBlock(size) {
-    /* 1. Assert: size ≥ 0. */
-    assert (size >= (0.));
-    /* 2. Let db be a new Data Block value consisting of size bytes. If it is impossible to create such a Data Block, throw a RangeError exception. */
-    db := [0 * size];
-    i := 0;
-    j := 0;
-    while (i < size) {
-        byte := [];
-        while (i < 8) {
-            l_prepend(0, byte);
-            j := j + 1
-        };
-        l_prepend(byte, db);
+/* 6.2.6.2 CopyDataBlockBytes(toBlock, toIndex, fromBlock, fromIndex, count) */
+function CopyDataBlockBytes(toBlock, toIndex, fromBlock, fromIndex, count) {
+    /* Assert: fromBlock and toBlock are distinct Data Block values. */
+    assert (!(fromBlock = toBlock));
+    /* Assert: fromIndex, toIndex, and count are positive integer values. */
+    assert (!(fromIndex = toIndex));
+    /* Let fromSize be the number of bytes in fromBlock. */
+    fromSize := l_len(fromBlock);
+    /* Assert: fromIndex+count ≤ fromSize. */
+    assert((fromIndex + count) <= fromSize);
+    /* Let toSize be the number of bytes in toBlock. */
+    toSize := l_len(toBlock);
+    /* Assert: toIndex+count ≤ toSize. */
+    assert((toIndex + count) <= toSize);
+    /* Copying from start to toIndex */
+    res := [];
+    index := 0;
+    while (index < toIndex) {
+        l_concat(res, [l_nth(toBlock, i)]);
         i := i + 1
     };
-    /* 3. Set all of the bytes of db to 0. */
-    /* 4. Return db. */
-    return db
+    /* Copying from toIndex to toIndex + count */
+    while (count > 0) {
+        /* TODO Set toBlock[toIndex] to the value of fromBlock[fromIndex]. */
+        l_concat(res, [l_nth(fromBlock, fromIndex)]);
+        /* Increment toIndex and fromIndex each by 1. */
+        toIndex := toIndex + 1;
+        fromIndex := fromIndex + 1;
+        /* Decrement count by 1. */
+        count := count - 1
+    };
+    /* Copying from toIndex + count to the end */
+    while (toIndex < toSize) {
+        l_concat(res, [l_nth(toBlock, toIndex)]);
+        toIndex := toIndex + 1
+    };
+    toBlock := res;
+    /* Return NormalCompletion(empty) */
+    return NormalCompletion(empty)
 }
