@@ -1,8 +1,6 @@
 ########## ERROR ##########
-my_tests/ArrayBuffer/allocation-limit.js
 my_tests/ArrayBuffer/init-zero.js
 my_tests/ArrayBuffer/length-is-absent.js
-my_tests/ArrayBuffer/options-maxbytelength-diminuitive.js
 my_tests/ArrayBuffer/options-maxbytelength-excessive.js
 my_tests/ArrayBuffer/options-maxbytelength-negative.js
 my_tests/ArrayBuffer/options-maxbytelength-object.js
@@ -10,36 +8,23 @@ my_tests/ArrayBuffer/options-maxbytelength-poisoned.js
 my_tests/ArrayBuffer/options-maxbytelength-undefined.js
 my_tests/ArrayBuffer/toindex-length.js
 my_tests/ArrayBuffer/zero-length.js
-my_tests/ArrayBuffer/isView/arg-is-arraybuffer.js
 my_tests/ArrayBuffer/isView/arg-is-dataview-buffer.js
 my_tests/ArrayBuffer/isView/arg-is-dataview.js
-my_tests/ArrayBuffer/prototype/byteLength/detached-buffer.js
 my_tests/ArrayBuffer/prototype/byteLength/invoked-as-accessor.js
 my_tests/ArrayBuffer/prototype/byteLength/invoked-as-func.js
 my_tests/ArrayBuffer/prototype/byteLength/return-bytelength.js
 my_tests/ArrayBuffer/prototype/byteLength/this-has-no-typedarrayname-internal.js
 my_tests/ArrayBuffer/prototype/byteLength/this-is-not-object.js
-my_tests/ArrayBuffer/prototype/maxByteLength/detached-buffer.js
 my_tests/ArrayBuffer/prototype/maxByteLength/return-maxbytelength-non-resizable.js
 my_tests/ArrayBuffer/prototype/maxByteLength/return-maxbytelength-resizable.js
-my_tests/ArrayBuffer/prototype/resizable/detached-buffer.js
-my_tests/ArrayBuffer/prototype/resizable/return-resizable.js
-my_tests/ArrayBuffer/prototype/resize/new-length-excessive.js
-my_tests/ArrayBuffer/prototype/resize/new-length-negative.js
 my_tests/ArrayBuffer/prototype/resize/new-length-non-number.js
-my_tests/ArrayBuffer/prototype/resize/resize-grow.js
-my_tests/ArrayBuffer/prototype/resize/resize-same-size.js
 my_tests/ArrayBuffer/prototype/resize/resize-same-size-zero-explicit.js
 my_tests/ArrayBuffer/prototype/resize/resize-same-size-zero-implicit.js
-my_tests/ArrayBuffer/prototype/resize/resize-shrink.js
-my_tests/ArrayBuffer/prototype/resize/resize-shrink-zero-explicit.js
-my_tests/ArrayBuffer/prototype/resize/resize-shrink-zero-implicit.js
 my_tests/ArrayBuffer/prototype/slice/end-default-if-absent.js
 my_tests/ArrayBuffer/prototype/slice/end-default-if-undefined.js
 my_tests/ArrayBuffer/prototype/slice/end-exceeds-length.js
 my_tests/ArrayBuffer/prototype/slice/negative-end.js
 my_tests/ArrayBuffer/prototype/slice/negative-start.js
-my_tests/ArrayBuffer/prototype/slice/nonconstructor.js
 my_tests/ArrayBuffer/prototype/slice/number-conversion.js
 my_tests/ArrayBuffer/prototype/slice/species-constructor-is-not-object.js
 my_tests/ArrayBuffer/prototype/slice/species-constructor-is-undefined.js
@@ -58,27 +43,22 @@ my_tests/ArrayBuffer/prototype/slice/start-exceeds-end.js
 my_tests/ArrayBuffer/prototype/slice/start-exceeds-length.js
 my_tests/ArrayBuffer/prototype/slice/tointeger-conversion-end.js
 my_tests/ArrayBuffer/prototype/slice/tointeger-conversion-start.js
-my_tests/ArrayBuffer/prototype/transfer/from-fixed-to-larger.js
-my_tests/ArrayBuffer/prototype/transfer/from-fixed-to-same.js
-my_tests/ArrayBuffer/prototype/transfer/from-fixed-to-smaller.js
-my_tests/ArrayBuffer/prototype/transfer/from-fixed-to-zero.js
-my_tests/ArrayBuffer/prototype/transfer/from-resizable-to-larger.js
-my_tests/ArrayBuffer/prototype/transfer/from-resizable-to-same.js
-my_tests/ArrayBuffer/prototype/transfer/from-resizable-to-smaller.js
-my_tests/ArrayBuffer/prototype/transfer/from-resizable-to-zero.js
 my_tests/ArrayBuffer/prototype/transfer/new-length-excessive.js
 my_tests/ArrayBuffer/prototype/transfer/new-length-non-number.js
 
 
 ########## FAIL ##########
+my_tests/ArrayBuffer/allocation-limit.js
 my_tests/ArrayBuffer/data-allocation-after-object-creation.js
 my_tests/ArrayBuffer/is-a-constructor.js
 my_tests/ArrayBuffer/name.js
 my_tests/ArrayBuffer/newtarget-prototype-is-not-object.js
+my_tests/ArrayBuffer/options-maxbytelength-diminuitive.js
 my_tests/ArrayBuffer/options-non-object.js
 my_tests/ArrayBuffer/proto-from-ctor-realm.js
 my_tests/ArrayBuffer/prototype-from-newtarget.js
 my_tests/ArrayBuffer/isView/arg-has-no-viewedarraybuffer.js
+my_tests/ArrayBuffer/isView/arg-is-arraybuffer.js
 my_tests/ArrayBuffer/isView/arg-is-dataview-constructor.js
 my_tests/ArrayBuffer/isView/arg-is-dataview-subclass-instance.js
 my_tests/ArrayBuffer/isView/arg-is-not-object.js
@@ -92,7 +72,9 @@ my_tests/ArrayBuffer/isView/name.js
 my_tests/ArrayBuffer/isView/no-arg.js
 my_tests/ArrayBuffer/isView/not-a-constructor.js
 my_tests/ArrayBuffer/isView/prop-desc.js
+my_tests/ArrayBuffer/prototype/byteLength/detached-buffer.js
 my_tests/ArrayBuffer/prototype/byteLength/this-is-sharedarraybuffer.js
+my_tests/ArrayBuffer/prototype/maxByteLength/detached-buffer.js
 my_tests/ArrayBuffer/prototype/maxByteLength/invoked-as-accessor.js
 my_tests/ArrayBuffer/prototype/maxByteLength/invoked-as-func.js
 my_tests/ArrayBuffer/prototype/maxByteLength/length.js
@@ -101,11 +83,13 @@ my_tests/ArrayBuffer/prototype/maxByteLength/prop-desc.js
 my_tests/ArrayBuffer/prototype/maxByteLength/this-has-no-arraybufferdata-internal.js
 my_tests/ArrayBuffer/prototype/maxByteLength/this-is-not-object.js
 my_tests/ArrayBuffer/prototype/maxByteLength/this-is-sharedarraybuffer.js
+my_tests/ArrayBuffer/prototype/resizable/detached-buffer.js
 my_tests/ArrayBuffer/prototype/resizable/invoked-as-accessor.js
 my_tests/ArrayBuffer/prototype/resizable/invoked-as-func.js
 my_tests/ArrayBuffer/prototype/resizable/length.js
 my_tests/ArrayBuffer/prototype/resizable/name.js
 my_tests/ArrayBuffer/prototype/resizable/prop-desc.js
+my_tests/ArrayBuffer/prototype/resizable/return-resizable.js
 my_tests/ArrayBuffer/prototype/resizable/this-has-no-arraybufferdata-internal.js
 my_tests/ArrayBuffer/prototype/resizable/this-is-not-object.js
 my_tests/ArrayBuffer/prototype/resizable/this-is-sharedarraybuffer.js
@@ -113,7 +97,14 @@ my_tests/ArrayBuffer/prototype/resize/descriptor.js
 my_tests/ArrayBuffer/prototype/resize/extensible.js
 my_tests/ArrayBuffer/prototype/resize/length.js
 my_tests/ArrayBuffer/prototype/resize/name.js
+my_tests/ArrayBuffer/prototype/resize/new-length-excessive.js
+my_tests/ArrayBuffer/prototype/resize/new-length-negative.js
 my_tests/ArrayBuffer/prototype/resize/nonconstructor.js
+my_tests/ArrayBuffer/prototype/resize/resize-grow.js
+my_tests/ArrayBuffer/prototype/resize/resize-same-size.js
+my_tests/ArrayBuffer/prototype/resize/resize-shrink.js
+my_tests/ArrayBuffer/prototype/resize/resize-shrink-zero-explicit.js
+my_tests/ArrayBuffer/prototype/resize/resize-shrink-zero-implicit.js
 my_tests/ArrayBuffer/prototype/resize/this-is-detached.js
 my_tests/ArrayBuffer/prototype/resize/this-is-not-arraybuffer-object.js
 my_tests/ArrayBuffer/prototype/resize/this-is-not-object.js
@@ -123,6 +114,14 @@ my_tests/ArrayBuffer/prototype/slice/not-a-constructor.js
 my_tests/ArrayBuffer/prototype/slice/this-is-sharedarraybuffer.js
 my_tests/ArrayBuffer/prototype/transfer/descriptor.js
 my_tests/ArrayBuffer/prototype/transfer/extensible.js
+my_tests/ArrayBuffer/prototype/transfer/from-fixed-to-larger.js
+my_tests/ArrayBuffer/prototype/transfer/from-fixed-to-same.js
+my_tests/ArrayBuffer/prototype/transfer/from-fixed-to-smaller.js
+my_tests/ArrayBuffer/prototype/transfer/from-fixed-to-zero.js
+my_tests/ArrayBuffer/prototype/transfer/from-resizable-to-larger.js
+my_tests/ArrayBuffer/prototype/transfer/from-resizable-to-same.js
+my_tests/ArrayBuffer/prototype/transfer/from-resizable-to-smaller.js
+my_tests/ArrayBuffer/prototype/transfer/from-resizable-to-zero.js
 my_tests/ArrayBuffer/prototype/transfer/length.js
 my_tests/ArrayBuffer/prototype/transfer/name.js
 my_tests/ArrayBuffer/prototype/transfer/nonconstructor.js
@@ -132,4 +131,4 @@ my_tests/ArrayBuffer/prototype/transfer/this-is-not-object.js
 my_tests/ArrayBuffer/prototype/transfer/this-is-sharedarraybuffer.js
 
 
-OK: 22    FAIL: 59    ERROR: 69    UNSUPPORTED: 0    NOT EXECUTED: 0    Total: 150
+OK: 23    FAIL: 81    ERROR: 46    UNSUPPORTED: 0    NOT EXECUTED: 0    Total: 150

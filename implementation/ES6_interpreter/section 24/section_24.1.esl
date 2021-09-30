@@ -95,8 +95,8 @@ function ArrayBufferConstructor(global, this, strict, args) {
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal()
   };
-  /* 6. Return AllocateArrayBuffer(NewTarget, byteLength). */
-  return AllocateArrayBuffer(NewTarget, byteLength)
+  /* 6. TODO Return AllocateArrayBuffer(NewTarget, byteLength). */
+  return AllocateArrayBuffer(NewTarget, byteLength, strict)
 };
 
 function getArrayBufferPrototype(strict) { 
@@ -250,9 +250,9 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
  * byteLength is used to create an ArrayBuffer object. It performs the following 
  * steps: 
  */
-function AllocateArrayBuffer(constructor, byteLength) {
+function AllocateArrayBuffer(constructor, byteLength, strict) {
 	/* 1. TODO Let obj be OrdinaryCreateFromConstructor(constructor, "%ArrayBufferPrototype%",   «‍[[ArrayBufferData]], [[ArrayBufferByteLength]]» ). */
-	obj := OrdinaryCreateFromConstructorArrayBuffer(constructor, getArrayBufferPrototype(strict), []);
+	obj := OrdinaryCreateFromConstructorArrayBuffer(constructor, constructor, strict, []);
 	/* 2. ReturnIfAbrupt(obj). */
 	@ReturnIfAbrupt(obj);
 	/* 3. Assert: byteLength is a positive integer. */
@@ -337,8 +337,8 @@ function CloneArrayBuffer(strict, srcBuffer, srcByteOffset, cloneConstructor) {
 	cloneLength := srcLength - srcByteOffset;
 	/* 7. Let srcBlock be the value of srcBuffer’s [[ArrayBufferData]] internal slot. */
 	srcBlock := srcBuffer.ArrayBufferData;
-	/* 8. Let targetBuffer be AllocateArrayBuffer(cloneConstructor, cloneLength). */
-	targetBuffer := AllocateArrayBuffer(cloneConstructor, cloneLength);
+	/* 8. TODO Let targetBuffer be AllocateArrayBuffer(cloneConstructor, cloneLength). */
+	targetBuffer := AllocateArrayBuffer(cloneConstructor, cloneLength, strict);
 	/* 9. ReturnIfAbrupt(targetBuffer). */
 	@ReturnIfAbrupt(targetBuffer);
 	/* 10. If IsDetachedBuffer(srcBuffer) is true, throw a TypeError exception. */
