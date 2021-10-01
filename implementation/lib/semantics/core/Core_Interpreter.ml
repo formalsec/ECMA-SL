@@ -122,6 +122,7 @@ let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   | TupleExpr -> Val.Tuple vals
   | NAry_And  -> Val.Bool (List.for_all Oper.is_true vals)
   | NAry_Or   -> Val.Bool (List.exists Oper.is_true vals)
+  | ArrExpr  -> Val.Arr (Array.of_list vals)
 
 
 let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =

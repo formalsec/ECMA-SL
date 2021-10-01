@@ -5,6 +5,7 @@ type t =
   | Str    of string
   | Loc    of Loc.t
   | List   of t list
+  | Arr    of t array
   | Type   of Type.t
   | Tuple  of t list
   | Void
@@ -36,6 +37,7 @@ let rec str ?(flt_with_dot=true) (v : t) : string = match v with
   | Str v    -> Printf.sprintf "%S" v
   | Loc v    -> Loc.str v
   | List vs  -> "[" ^ (String.concat ", " (List.map str vs)) ^ "]"
+  | Arr vs   -> "[|" ^  (String.concat ", " (Array.to_list (Array.map str vs))) ^ "|]" 
   | Type v   -> Type.str v
   | Tuple vs -> "(" ^ (String.concat ", " (List.map str vs)) ^ ")"
   | Void     -> ""

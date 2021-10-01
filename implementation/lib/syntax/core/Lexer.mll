@@ -174,6 +174,8 @@ rule read =
   | '!'               { NOT }
   | '~'               { BITWISE_NOT }
   | '&'               { BITWISE_AND }
+  | "[|"              { LARRBRACK }
+  | "|]"              { RARRBRACK }
   | '|'               { BITWISE_OR }
   | '^'               { BITWISE_XOR }
   | "<<"              { SHIFT_LEFT }

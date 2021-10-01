@@ -12,6 +12,7 @@
 %token RETURN
 %token NULL
 %token FUNCTION
+%token LARRBRACK RARRBRACK
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
@@ -136,6 +137,8 @@ val_target:
 expr_target:
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { Expr.NOpt (Oper.ListExpr, es) }
+  | LARRBRACK; es = separated_list (COMMA, expr_target); RARRBRACK;
+    { Expr.NOpt (Oper.ArrExpr, es) }
   | LPAREN; t = tuple_target; RPAREN;
     { Expr.NOpt (Oper.TupleExpr, List.rev t) }
   | v = val_target;

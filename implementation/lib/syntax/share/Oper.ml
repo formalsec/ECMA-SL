@@ -116,6 +116,7 @@ type nopt = ListExpr
           | TupleExpr
           | NAry_And
           | NAry_Or
+          | ArrExpr
 
 
 let neg (v : Val.t) : Val.t = match v with
