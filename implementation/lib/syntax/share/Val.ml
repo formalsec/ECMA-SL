@@ -56,6 +56,7 @@ let rec to_json (v : t): string =
   | Str v    ->  Printf.sprintf "{ \"type\" : \"string\", \"value\" : \"%s\" }" v
   | Loc v    ->  Printf.sprintf "{ \"type\" : \"location\", \"value\" : %s }" v
   | List vs  ->  Printf.sprintf "{ \"type\" : \"list\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
+  | Arr vs  ->  Printf.sprintf "{ \"type\" : \"array\", \"value\" : [| %s |] }" (String.concat ", " (Array.to_list (Array.map str vs)))
   | Type v   ->  Printf.sprintf "{ \"type\" : \"type\", \"value\" : %s }" (Type.str v)
   | Tuple vs ->  Printf.sprintf "{ \"type\" : \"tuple\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
   | Void     ->  Printf.sprintf "{ \"type\" : \"void\" }"

@@ -37,9 +37,12 @@ type bopt = Plus
           | ToPrecision
           | ToExponential
           | ToFixed
+          | ArrayMake
+          | Anth
 
 type topt = Ssubstr
           | SsubstrU
+          | Aset
 
 type uopt = Neg
           | Not
@@ -110,6 +113,7 @@ type uopt = Neg
           | Float32FromLEBytes
           | Float32FromBEBytes
           | BytesToString
+          | ArrayLen
 
 
 type nopt = ListExpr
@@ -246,6 +250,7 @@ let typeof (v : Val.t) : Val.t = match v with
   | Str _    -> Type (Type.StrType)
   | Loc _    -> Type (Type.LocType)
   | List _   -> Type (Type.ListType)
+  | Arr _    -> Type (Type.ArrayType)
   | Type _   -> Type (Type.TypeType)
   | Tuple _  -> Type (Type.TupleType)
   | Null     -> Type (Type.NullType)
@@ -258,6 +263,10 @@ let typeof (v : Val.t) : Val.t = match v with
 let l_len (v : Val.t) : Val.t = match v with
   | List l -> Val.Int (List.length l)
   | _      -> invalid_arg "Exception in Oper.l_len: this operation is only applicable to List arguments"
+
+let a_len (v : Val.t) : Val.t = match v with
+  | Arr l -> Val.Int (Array.length l)
+  | _      -> invalid_arg "Exception in Oper.a_len: this operation is only applicable to Array arguments"
 
 let t_len (v : Val.t) : Val.t = match v with
   | Tuple t -> Val.Int (List.length t)
@@ -274,6 +283,10 @@ let s_len_u (v : Val.t) : Val.t = match v with
 let list_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | List l, Int i -> List.nth l i
   | _             -> invalid_arg "Exception in Oper.list_nth: this operation is only applicable to List and Int arguments"
+
+let array_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | Arr l, Int i -> Array.get l i
+  | _             -> invalid_arg "Exception in Oper.array_nth: this operation is only applicable to Array and Int arguments"
 
 let tuple_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | Tuple l, Int i -> List.nth l i
@@ -341,28 +354,6 @@ let parse_date (v :Val.t) : Val.t = match v with
       | Some ([year; month; day; hour; min; sec; msec], tz) -> Val.List [Val.Flt year; Val.Flt month; Val.Flt day; Val.Flt hour; Val.Flt min; Val.Flt sec; Val.Flt msec; Val.Str tz]
       | _ -> raise (Failure "Impossible: parse_date")
     )
-    
-      
-   (* Printf.printf "parse_date with string: %s\n" s;
-    (*YYYY-MM-DDTHH:mm:ss.sssZ*)
-    let re = Str.regexp "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)T\\([0-9][0-9]\\):\\([0-9][0-9]\\):\\([0-9][0-9]\\).\\([0-9][0-9][0-9]\\)" in
-    (*let year_regex = Str.regexp "\\([0-9][0-9][0-9][0-9]\\)" in *)
-    let matched = Str.string_match re s 0 in 
-    if matched then (
-      Printf.printf "in matched if \n";
-      let group0 = Str.matched_group 0 s in
-      let year = Str.matched_group 1 s in
-      
-      let month = Str.matched_group 2 s in
-      let day = Str.matched_group 3 s in
-      let hour = Str.matched_group 4 s in
-      let mins = Str.matched_group 5 s in
-      let sec = Str.matched_group 6 s in
-      let ms = Str.matched_group 7 s in
-      Printf.printf "Matched successfully %s\n" group0;
-      Val.List [Val.Str group0; Val.Str year; Val.Str month; Val.Str day; Val.Str hour; Val.Str mins; Val.Str sec; Val.Str ms]
-    ) 
-    else Val.Flt (-(1.)) *)
   | _  -> invalid_arg "Exception in Oper.parse_date: this operation is only applicable to a String argument"
 
 let list_in (v1, v2 : Val.t * Val.t) : Val.t = match v2 with
@@ -422,6 +413,15 @@ let list_sort (v : Val.t) : Val.t = match v with
      | None      -> invalid_arg "Exception in Oper.list_sort: this operation is only applicable to List of string arguments"
      | Some strs -> List (List.map (fun s -> Val.Str s) (List.fast_sort (String.compare) strs)))
   | _      -> invalid_arg "Exception in Oper.list_sort: this operation is only applicable to List arguments"
+
+let array_make (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | Int n, x -> Val.Arr (Array.make n x)
+  | _      -> invalid_arg "Exception in Oper.array_make: this operation is only applicable to Int and Value arguments"
+
+let array_set (v1, v2, v3 : Val.t * Val.t * Val.t) : Val.t = match v1, v2, v3 with
+  | Arr a, Int n, x -> (Array.set a n x;
+                        Val.Null)
+  | _       -> invalid_arg "Exception in Oper.array_set: this operation is only applicable to Array, Int and Value arguments"
 
 let first (v : Val.t) : Val.t = match v with
   | Tuple t -> List.hd t
@@ -718,6 +718,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | Float32FromLEBytes -> "float32_from_LE_bytes"
   | Float32FromBEBytes -> "float32_from_BE_bytes"
   | BytesToString     -> "bytes_to_string"
+  | ArrayLen      -> "a_len"
 
 let str_of_binopt_single (op : bopt) : string = match op with
   | Plus     -> "+"
@@ -755,6 +756,8 @@ let str_of_binopt_single (op : bopt) : string = match op with
   | ToPrecision -> "to_precision"
   | ToExponential -> "to_exponential"
   | ToFixed -> "to_fixed"
+  | ArrayMake -> "array_make"
+  | Anth     -> "a_nth"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
@@ -792,16 +795,20 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | ToPrecision -> "to_precision(" ^ e1 ^ ", " ^ e2 ^ ")"
   | ToExponential -> "to_exponential(" ^ e1 ^ ", " ^ e2 ^ ")"
   | ToFixed -> "to_fixed(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ArrayMake -> "array_make(" ^ e1 ^ ", " ^e2 ^ ")"
+  | Anth -> "a_nth(" ^ e1 ^ ", " ^e2 ^ ")"
 
 let str_of_triopt (op : topt) (e1 : string) (e2 : string) (e3 : string) : string = match op with
   | Ssubstr  -> "s_substr(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
   | SsubstrU  -> "s_substr_u(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
+  | Aset      -> "a_set(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | ListExpr  -> "[ " ^ (String.concat ", " es) ^ " ]"
   | TupleExpr -> "( " ^ (String.concat ", " es) ^ " )"
   | NAry_And  -> String.concat " && " es
   | NAry_Or   -> String.concat " || " es
+  | ArrExpr   -> "[| " ^ (String.concat ", " es) ^ " |]"
 
 
 let unary_float_call (func : float -> float) (v : Val.t) (failure_msg : string) : Val.t = match v with
@@ -877,13 +884,16 @@ let bopt_to_json (op : bopt) : string =
      | Pow      -> Printf.sprintf "Pow\" }"
      | ToPrecision -> Printf.sprintf "To_Precision\" }"
      | ToExponential -> Printf.sprintf "To_Exponential\" }"
-     | ToFixed -> Printf.sprintf "To_Fixed\" }")
+     | ToFixed -> Printf.sprintf "To_Fixed\" }"
+     | ArrayMake    -> Printf.sprintf "Array_Make\" }"
+     | Anth     -> Printf.sprintf "Anth\" }")
 
 let topt_to_json (op : topt) : string =
   Printf.sprintf "{ \"type\" : \"triopt\", \"value\" : \"%s"
     (match op with
       | Ssubstr -> Printf.sprintf "Ssubstr\" }"
-      | SsubstrU -> Printf.sprintf "SsubstrU\" }")
+      | SsubstrU -> Printf.sprintf "SsubstrU\" }"
+      | Aset -> Printf.sprintf "Aset\" }")
 
 let nopt_to_json (op : nopt) : string =
   Printf.sprintf "{ \"type\" : \"nopt\", \"value\" : \"%s"
@@ -891,7 +901,8 @@ let nopt_to_json (op : nopt) : string =
      | ListExpr -> Printf.sprintf "ListExpr\" }"
      | TupleExpr -> Printf.sprintf "TupleExpr\" }"
      | NAry_And -> Printf.sprintf "NAry_And\" }"
-     | NAry_Or -> Printf.sprintf "NAry_Or\" }")
+     | NAry_Or -> Printf.sprintf "NAry_Or\" }"
+     | ArrExpr -> Printf.sprintf "ArrExpr\" }")
 
 
 let uopt_to_json (op : uopt) : string =
@@ -965,4 +976,5 @@ let uopt_to_json (op : uopt) : string =
      | Float64FromBEBytes -> Printf.sprintf "Float64FromBEBytes\" }"
      | Float32FromLEBytes -> Printf.sprintf "Float32FromLEBytes\" }"
      | Float32FromBEBytes -> Printf.sprintf "Float32FromBEBytes\" }"
-     | BytesToString -> Printf.sprintf "BytesToString\" }")
+     | BytesToString -> Printf.sprintf "BytesToString\" }"
+     | ArrayLen       -> Printf.sprintf "ArrayLen\" }")

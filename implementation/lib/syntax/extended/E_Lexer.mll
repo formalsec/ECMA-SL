@@ -130,7 +130,11 @@
                 "float64_from_BE_bytes", FLOAT64_FROM_BE_BYTES; 
                 "float32_from_LE_bytes", FLOAT32_FROM_LE_BYTES; 
                 "float32_from_BE_bytes", FLOAT32_FROM_BE_BYTES;
-                "bytes_to_string"       , BYTES_TO_STRING
+                "bytes_to_string"       , BYTES_TO_STRING;
+                "array_make"            , ARRAY_MAKE;
+                "a_nth"                 , ANTH;
+                "a_set"                 , ASET;
+                "a_len"                 , ALEN
                 ]
 
   exception Syntax_error of string
@@ -201,6 +205,8 @@ rule read =
   | '!'            { NOT }
   | '~'            { BITWISE_NOT }
   | '&'            { BITWISE_AND }
+  (*| "[|"           { LARRBRACK }
+  | "|]"           { RARRBRACK }*)
   | '|'            { PIPE }
   | '^'            { BITWISE_XOR }
   | "<<"           { SHIFT_LEFT }
