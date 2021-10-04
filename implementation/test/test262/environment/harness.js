@@ -4,6 +4,8 @@ var NotEarlyError = new Error(NotEarlyErrorString);
 
 function Test262Error(message) {
     this.message = message || "";
+    console.setInternalClass(this, "Error")
+    console.setInternalName(this, "Test262Error")
 }
 
 Test262Error.prototype.toString = function () {
@@ -348,40 +350,40 @@ function verifyProperty(obj, name, desc, options) {
     );
 
     var failures = [];
-    
+
     if (Object.prototype.hasOwnProperty.call(desc, 'value')) {
         /* changed to isSameValue to assert._isSameValue */
         if (!assert._isSameValue(desc.value, originalDesc.value)) {
         failures.push("descriptor value should be " + desc.value);
         }
     }
-    
+
     if (Object.prototype.hasOwnProperty.call(desc, 'enumerable')) {
         if (desc.enumerable !== originalDesc.enumerable ||
             desc.enumerable !== isEnumerable(obj, name)) {
         failures.push('descriptor should ' + (desc.enumerable ? '' : 'not ') + 'be enumerable');
         }
     }
-    
+
     if (Object.prototype.hasOwnProperty.call(desc, 'writable')) {
         if (desc.writable !== originalDesc.writable ||
             desc.writable !== isWritable(obj, name)) {
         failures.push('descriptor should ' + (desc.writable ? '' : 'not ') + 'be writable');
         }
     }
-    
+
     if (Object.prototype.hasOwnProperty.call(desc, 'configurable')) {
         if (desc.configurable !== originalDesc.configurable ||
             desc.configurable !== isConfigurable(obj, name)) {
         failures.push('descriptor should ' + (desc.configurable ? '' : 'not ') + 'be configurable');
         }
     }
-    
+
     assert(!failures.length, failures.join('; '));
-    
+
     if (options && options.restore) {
         Object.defineProperty(obj, name, originalDesc);
     }
-    
+
     return true;
 }
