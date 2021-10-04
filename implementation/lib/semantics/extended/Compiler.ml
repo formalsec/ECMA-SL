@@ -552,7 +552,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | FieldAssign (e_eo, e_f, e_ev)   -> compile_fieldassign e_eo e_f e_ev
   | FieldDelete (e_e, e_f)          -> compile_fielddelete e_e e_f
   | ExprStmt e_e                    -> compile_exprstmt e_e
-  | RepeatUntil (e_s, e_e)          -> compile_repeatuntil e_s e_e
+  | RepeatUntil (e_s, e_e, _)       -> compile_repeatuntil e_s e_e
   | MatchWith (e_e, e_pats_e_stmts) -> compile_matchwith e_e e_pats_e_stmts
   | Assert e_e                      -> compile_assert e_e
   | Lambda (x, f, xs, ys, s)        ->
