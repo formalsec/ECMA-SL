@@ -345,6 +345,8 @@ function optimizeInitGlobalObject(strict) {
   };
 
   |global| := loc_global;
+  |msPerDay| := 86400000.; /* TODO change to constant */
+  |LocalTZA| := 1000.;
 
   return loc_global
 };
