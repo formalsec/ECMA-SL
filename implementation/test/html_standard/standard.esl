@@ -1,4 +1,3 @@
-/* @name: "section 8.12" */
 /**
  * 8.12 Algorithms for Object Internal Methods
  *
@@ -62,7 +61,8 @@ function GetOwnProperty(O, P) [
 /* function GetProperty (O, P) { */
 function GetProperty (O, P) [
   "8.12.2",
-  "When the [[GetProperty]] internal method of <var>O</var> is called with property name <var>P</var>, the following steps are taken:",
+  "When the [[GetProperty]] internal method of <var>O</var> is called with
+  property name <var>P</var>, the following steps are taken:",
   "",
   "[[GetProperty]]"
 ] {
@@ -137,7 +137,7 @@ function CanPut(O, P) [
   "When the [[CanPut]] internal method of <var>O</var> is called with property name <var>P</var>, the following steps are taken:",
   "Host objects may define additional constraints upon [[Put]] operations. If possible, host objects should not allow [[Put]] operations in situations where this definition of [[CanPut]] returns false.",
   "[[CanPut]]"
-]{
+] {
   print "CanPut";
 
   /** 1. Let desc be the result of calling the[[GetOwnProperty]] internal method of O with argument P. */
@@ -210,7 +210,8 @@ function CanPut(O, P) [
  */
 function Put(O, P, V, Throw) [
   "8.12.5",
-  "When the [[Put]] internal method of O is called with property P, value V, and Boolean flag Throw, the following steps are taken:",
+  "When the [[Put]] internal method of <var>O</var> is called with property <var>P</var>, value <var>V</var>,
+  and Boolean flag <span class=\"nt\">Throw</span>, the following steps are taken:",
   "",
   "[[Put]]"
 ] {
@@ -233,9 +234,7 @@ function Put(O, P, V, Throw) [
   /** 3. If IsDataDescriptor(ownDesc) is true, then */
   if (IsDataPropertyDescriptor(ownDesc) = true) ["after-same:, then"] {
     /** a. Let valueDesc be the Property Descriptor {[[Value]]: V}. */
-    valueDesc := PropertyDescriptor({
-      Value: V
-    });
+    valueDesc := newDataPropertyDescriptorFull(V, null, null, null);
     /** b. Call the [[DefineOwnProperty]] internal method of O passing P, valueDesc, and Throw as arguments. */
     {O.DefineOwnProperty}(O, P, valueDesc, Throw);
 
@@ -261,12 +260,7 @@ function Put(O, P, V, Throw) [
   /** 6. Else, create a named data property named P on object O as follows */
   else ["after-same:, create a named data property named <i>P</i> on object <i>O</i> as follows"] {
     /** a. Let newDesc be the Property Descriptor {[[Value]]: V, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}. */
-    newDesc := PropertyDescriptor({
-      Value: V,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    });
+    newDesc := newDataPropertyDescriptor(V);
 
     /** b. Call the [[DefineOwnProperty]] internal method of O passing P, newDesc, and Throw as arguments. */
     {O.DefineOwnProperty}(O, P, newDesc, Throw)
@@ -438,13 +432,13 @@ function DefaultValue (O, hint) [
     throw TypeErrorConstructorInternal()
   }
 
-/** When the [[DefaultValue]] internal method of O is called with no hint, then it behaves as if the hint were Number,
- * unless O is a Date object (see 15.9.6), in which case it behaves as if the hint were String.
- *
- * The above specification of [[DefaultValue]] for native objects can return only primitive values.
- * If a host object implements its own [[DefaultValue]] internal method,
- * it must ensure that its [[DefaultValue]] internal method can return only primitive values.
- */
+  /** When the [[DefaultValue]] internal method of O is called with no hint, then it behaves as if the hint were Number,
+    * unless O is a Date object (see 15.9.6), in which case it behaves as if the hint were String.
+    *
+    * The above specification of [[DefaultValue]] for native objects can return only primitive values.
+    * If a host object implements its own [[DefaultValue]] internal method,
+    * it must ensure that its [[DefaultValue]] internal method can return only primitive values.
+    */
 };
 
 /**
@@ -700,58 +694,28 @@ function FromPropertyDescriptor (Desc) [
   if (IsDataPropertyDescriptor(Desc) = true) ["after-same:, then"] {
     /** a. Call the [[DefineOwnProperty]] internal method of obj with arguments "value",
      *  Property Descriptor {[[Value]]: Desc.[[Value]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
-    {obj.DefineOwnProperty}(obj, "value", PropertyDescriptor({
-      Value: Desc.Value,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }), false);
+    {obj.DefineOwnProperty}(obj, "value", newDataPropertyDescriptor(Desc.Value), false);
     /** b. Call the [[DefineOwnProperty]] internal method of obj with arguments "writable",
      *  Property Descriptor {[[Value]]: Desc.[[Writable]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
-    {obj.DefineOwnProperty}(obj, "writable", PropertyDescriptor({
-      Value: Desc.Writable,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }), false)
+    {obj.DefineOwnProperty}(obj, "writable", newDataPropertyDescriptor(Desc.Writable), false)
   }
   /** 4. Else, IsAccessorDescriptor(Desc) must be true, so: */
   else ["after-same:, <a href=\"#sec-8.10.1\">IsAccessorDescriptor</a>(<i>Desc</i>) must be <b>true</b>, so"] {
     /** a. Call the [[DefineOwnProperty]] internal method of obj with arguments "get",
      *  Property Descriptor {[[Value]]: Desc.[[Get]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
-    {obj.DefineOwnProperty}(obj, "get", PropertyDescriptor({
-      Value: Desc.Get,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }), false);
+    {obj.DefineOwnProperty}(obj, "get", newDataPropertyDescriptor(Desc.Get), false);
     /** b. Call the [[DefineOwnProperty]] internal method of obj with arguments "set",
      *  Property Descriptor {[[Value]]: Desc.[[Set]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
-    {obj.DefineOwnProperty}(obj, "set", PropertyDescriptor({
-      Value: Desc.Set,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }), false)
+    {obj.DefineOwnProperty}(obj, "set", newDataPropertyDescriptor(Desc.Set), false)
   };
 
   /** 5. Call the [[DefineOwnProperty]] internal method of obj with arguments "enumerable",
    *  Property Descriptor {[[Value]]: Desc.[[Enumerable]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
-  {obj.DefineOwnProperty}(obj, "enumerable", PropertyDescriptor({
-    Value: Desc.Enumerable,
-    Writable: true,
-    Enumerable: true,
-    Configurable: true
-  }), false);
+  {obj.DefineOwnProperty}(obj, "enumerable", newDataPropertyDescriptor(Desc.Enumerable), false);
 
   /** 6. Call the [[DefineOwnProperty]] internal method of obj with arguments "configurable",
    *    Property Descriptor {[[Value]]: Desc.[[Configurable]], [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
-  {obj.DefineOwnProperty}(obj, "configurable", PropertyDescriptor({
-    Value: Desc.Configurable,
-    Writable: true,
-    Enumerable: true,
-    Configurable: true
-  }), false);
+  {obj.DefineOwnProperty}(obj, "configurable", newDataPropertyDescriptor(Desc.Configurable), false);
 
    /** 7. Return obj. */
    return obj
@@ -957,7 +921,7 @@ function Get_internal(base, P) [
     return desc.Value
   };
   /* 5. Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]] (see 8.10). */
-  gen_wrapper ["before-same:Otherwise, <a href=\"#sec-8.10.1\">IsAccessorDescriptor</a>(desc) must be true so, "] {
+  gen_wrapper ["before-same:Otherwise, <a href=\"#sec-8.10.1\">IsAccessorDescriptor</a>(<i>desc</i>) must be true so, "] {
     getter := desc.Get
   };
   /* 6. If getter is undefined, return undefined. */
@@ -1136,12 +1100,12 @@ function ToInt32(argument) {
   /* 1. Let number be the result of calling ToNumber on the input argument. */
   number := ToNumber(argument);
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
-  return to_int32(number)
   /* 3. Let posInt be sign(number) * floor(abs(number)). */
   /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
         than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
         multiple of 2^32 . */
   /* 5. If int32bit is greater than or equal to 2^31 , return int32bit - 2^32 , otherwise return int32bit. */
+  return to_int32(number)
 
   /* NOTE Given the above definition of ToInt32:
           * The ToInt32 abstract operation is idempotent: if applied to a result that it produced, the second application leaves that
@@ -1159,12 +1123,12 @@ function ToUint32(argument) {
   /* 1. Let number be the result of calling ToNumber on the input argument. */
   number := ToNumber(argument);
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
-  return to_uint32(number)
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
   /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
         than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
         multiple of 2^32 . */
   /* 5. Return int32bit. */
+  return to_uint32(number)
 
   /* NOTE Given the above definition of ToUint32:
           * Step 5 is the only difference between ToUint32 and ToInt32.
@@ -1604,7 +1568,7 @@ function CreateMutableBindingObject(objectEnvRec, N, D) [
         passing N as the property name, is false. */
   assert ({bindings.HasProperty}(bindings, N) = false);
   /* 4. If D is true then let configValue be true otherwise let configValue be false. */
-  if (D = true) ["after-same:then "] {
+  if (D = true) {
     configValue := true
   } else ["replace-with:otherwise"] {
     configValue := false
@@ -1612,12 +1576,7 @@ function CreateMutableBindingObject(objectEnvRec, N, D) [
   /* 5. Call the [[DefineOwnProperty]] internal method of bindings, passing N, Property Descriptor
         {[[Value]]:undefined, [[Writable]]: true, [[Enumerable]]: true , [[Configurable]]: configValue},
         and true as arguments. */
-  {bindings.DefineOwnProperty}(bindings, N, PropertyDescriptor({
-    Value: 'undefined,
-    Writable: true,
-    Enumerable: true,
-    Configurable: configValue
-  }), true);
+  {bindings.DefineOwnProperty}(bindings, N, newDataPropertyDescriptorFull('undefined, true, true, configValue), true);
 
   return
 };
@@ -2059,19 +2018,13 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) [
         /* 1. Call the [[DefineOwnProperty]] internal method of go, passing fn, Property
               Descriptor {[[Value]]: undefined, [[Writable]]: true, [[Enumerable]]: true ,
               [[Configurable]]: configurableBindings }, and true as arguments. */
-        {go.DefineOwnProperty}(go, fn, PropertyDescriptor({
-          Value: 'undefined,
-          Writable: true,
-          Enumerable: true,
-          Configurable: configurableBindings
-        }), true)
-      } else {
-        /* iv. Else if IsAccessorPropertyDescriptor(existingProp) or existingProp does not have attribute values
-                {[[Writable]]: true, [[Enumerable]]: true}, then */
-        if (IsAccessorPropertyDescriptor(existingProp) || !(existingProp.Writable = true) || !(existingProp.Enumerable = true)) ["after-same:then"] {
-          /* 1. Throw a TypeError exception. */
-          throw TypeErrorConstructorInternal()
-        }
+        {go.DefineOwnProperty}(go, fn, newDataPropertyDescriptorFull('undefined, true, true, configurableBindings), true)
+      }
+      /* iv. Else if IsAccessorPropertyDescriptor(existingProp) or existingProp does not have attribute values
+              {[[Writable]]: true, [[Enumerable]]: true}, then */
+      elif (IsAccessorPropertyDescriptor(existingProp) || !(existingProp.Writable = true) || !(existingProp.Enumerable = true)) ["after-same:then"] {
+        /* 1. Throw a TypeError exception. */
+        throw TypeErrorConstructorInternal()
       }
     };
     /* f. Call env’s SetMutableBinding concrete method passing fn, fo, and strict as the arguments. */
@@ -2164,12 +2117,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
   setInternalProperty(obj, "Prototype", getObjectPrototype(strict));
   /* 7. Call the [[DefineOwnProperty]] internal method on obj passing "length", the Property Descriptor
         {[[Value]]: len, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false as arguments. */
-  {obj.DefineOwnProperty}(obj, "length", PropertyDescriptor({
-    Value: int_to_float len,
-    Writable: true,
-    Enumerable: false,
-    Configurable: true
-  }), false);
+  {obj.DefineOwnProperty}(obj, "length", newDataPropertyDescriptorFull(int_to_float len, true, false, true), false);
   /* 8. Let map be the result of creating a new object as if by the expression new Object() where Object is
         the standard built-in constructor with that name */
   map := ObjectConstructor(|global|, 'null, strict, [null]);
@@ -2184,12 +2132,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
     /* b. Call the [[DefineOwnProperty]] internal method on obj passing ToString(indx), the property
           descriptor {[[Value]]: val, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and
           false as arguments. */
-    {obj.DefineOwnProperty}(obj, ToString(int_to_float indx), PropertyDescriptor({
-      Value: val,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }), false);
+    {obj.DefineOwnProperty}(obj, ToString(int_to_float indx), newDataPropertyDescriptor(val), false);
     /* c. If indx is less than the number of elements in names, then */
     if (indx < l_len names) ["after-same:, then"] {
       /* i. Let name be the element of names at 0-origined list position indx. */
@@ -2207,11 +2150,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
         /* 4. Call the [[DefineOwnProperty]] internal method of map passing ToString(indx), the
               Property Descriptor {[[Set]]: p, [[Get]]: g, [[Configurable]]: true}, and false as
               arguments. */
-        {map.DefineOwnProperty}(map, ToString(int_to_float indx), PropertyDescriptor({
-          Set: p,
-          Get: g,
-          Configurable: true
-        }), false)
+        {map.DefineOwnProperty}(map, ToString(int_to_float indx), newAccessorPropertyDescriptorFull(p, g, null, true), false)
       }
     };
     /* d. Let indx = indx - 1 */
@@ -2233,12 +2172,7 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
     /* a. Call the [[DefineOwnProperty]] internal method on obj passing "callee", the property descriptor
           {[[Value]]: func, [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false as
           arguments. */
-    {obj.DefineOwnProperty}(obj, "callee", PropertyDescriptor({
-      Value: func,
-      Writable: true,
-      Enumerable: false,
-      Configurable: true
-    }), false)
+    {obj.DefineOwnProperty}(obj, "callee", newDataPropertyDescriptorFull(func, true, false, true), false)
   }
   /* 14. Else, strict is true so */
   else ["after-same:, strict is <b>true</b> so"] {
@@ -2247,21 +2181,11 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
     /* b. Call the [[DefineOwnProperty]] internal method of obj with arguments "caller",
           PropertyDescriptor {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]:
           false}, and false. */
-    {obj.DefineOwnProperty}(obj, "caller", PropertyDescriptor({
-      Get: thrower,
-      Set: thrower,
-      Enumerable: false,
-      Configurable: false
-    }), false);
+    {obj.DefineOwnProperty}(obj, "caller", newAccessorPropertyDescriptorFull(thrower, thrower, false, false), false);
     /* c. Call the [[DefineOwnProperty]] internal method of obj with arguments "callee",
           PropertyDescriptor {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]:
           false}, and false. */
-    {obj.DefineOwnProperty}(obj, "callee", PropertyDescriptor({
-      Get: thrower,
-      Set: thrower,
-      Enumerable: false,
-      Configurable: false
-    }), false)
+    {obj.DefineOwnProperty}(obj, "callee", newAccessorPropertyDescriptorFull(thrower, thrower, false, false), false)
   };
   /* 15. Return obj */
   return obj
@@ -2467,6 +2391,138 @@ function ArgumentsObjectDelete(argumentsObject, P, Throw) [
   return result
 };
 
+function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) [
+  "13",
+  "",
+  "",
+  "Function Definition"
+] {
+  print "JS_Interpreter_FunctionDeclaration";
+  /* 13 Function Definition */
+  match FunctionDeclaration with
+  | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } [
+    "13.0.1",
+    "The production <span class=\"prod\"><span class=\"nt\">FunctionDeclaration</span> <span class=\"geq\">:</span> <code class=\"t\">function</code> <span class=\"nt\">Identifier</span>
+    <code class=\"t\">(</code> <span class=\"nt\">FormalParameterList</span><sub>opt</sub> <code class=\"t\">)</code> <code class=\"t\">{</code> <span class=\"nt\">FunctionBody</span>
+    <code class=\"t\">}</code></span>is instantiated as follows during Declaration Binding instantiation (<a href=\"#sec-10.5\">10.5</a>):",
+    "",
+    "",
+    null
+  ] [
+    "FormalParameterListopt:<i>FormalParameterList</i><sub>opt</sub>"
+  ] -> {
+    /* The production FunctionDeclaration : function Identifier ( FormalParameterListopt ) { FunctionBody }
+       is evaluated as follows: */
+
+    /* 1. Return the result of creating a new Function object as specified in 13.2 with parameters specified by
+          FormalParameterList opt , and body specified by FunctionBody. Pass in the VariableEnvironment of the running
+          execution context as the Scope. Pass in true as the Strict flag if the FunctionDeclaration is contained in
+          strict code or if its FunctionBody is strict code. */
+    return CreateFunctionObject(FormalParameterListopt, FunctionBody, getVariableEnvironment(scope), isStrictModeCode(FunctionBody, scope), null)
+  }
+};
+
+function JS_Interpreter_FunctionExpression(FunctionExpression, scope) [
+  "13.0.2",
+  "",
+  "",
+  null
+] {
+  /* 13 Function Definition */
+  match FunctionExpression with
+  | { id: null, params: FormalParameterList, body: FunctionBody } [
+    "13.0.2.1",
+    "",
+    "<span class=\"nt\">FunctionExpression</span> <span class=\"geq\">:</span> <code class=\"t\">function</code> <code class=\"t\">(</code>
+    <span class=\"nt\">FormalParameterList</span><sub>opt</sub> <code class=\"t\">)</code> <code class=\"t\">{</code> <span class=\"nt\">FunctionBody</span> <code class=\"t\">}</code>",
+    "",
+    null
+  ] -> {
+    /* The production FunctionExpression : function ( FormalParameterList opt ) { FunctionBody }
+       is evaluated as follows: */
+
+    /* 1. Return the result of creating a new Function object as specified in 13.2 with parameters specified by
+          FormalParameterList opt and body specified by FunctionBody. Pass in the LexicalEnvironment of the running
+          execution context as the Scope. Pass in true as the Strict flag if the FunctionExpression is contained in
+          strict code or if its FunctionBody is strict code. */
+    return CreateFunctionObject(FormalParameterList, FunctionBody, getLexicalEnvironment(scope), isStrictModeCode(FunctionBody, scope), null)
+  }
+    /* The production FunctionExpression : function Identifier ( FormalParameterList opt ) { FunctionBody }
+       is evaluated as follows: */
+  | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } [
+    "13.0.2.2",
+    "",
+    "<span class=\"nt\">FunctionExpression</span> <span class=\"geq\">:</span> <code class=\"t\">function</code> <span class=\"nt\">Identifier</span> <code class=\"t\">(</code>
+    <span class=\"nt\">FormalParameterList</span><sub>opt</sub> <code class=\"t\">)</code> <code class=\"t\">{</code> <span class=\"nt\">FunctionBody</span> <code class=\"t\">}</code>",
+    "<div class=\"note\"><p><span class=\"nh\">NOTE</span> The Identifier in a <span class=\"nt\">FunctionExpression</span> can be referenced from inside
+    the <var>FunctionExpression's</var> <span class=\"nt\">FunctionBody</span> to allow the function to call itself recursively.
+    However, unlike in a <span class=\"nt\">FunctionDeclaration</span>, the <span class=\"nt\">Identifier</span> in a <span class=\"nt\">FunctionExpression</span> cannot be referenced from
+    and does not affect the scope enclosing the <span class=\"nt\">FunctionExpression</span>.</p></div>",
+    null
+  ] [
+    "FormalParameterListopt:<i>FormalParameterList</i><sub>opt</sub>",
+    "Identifier:the String value of <i>Identifier</i>"
+  ] -> {
+    gen_wrapper ["print_ignore"] {
+      Identifier := Identifier.name
+    };
+    /* 1. Let funcEnv be the result of calling NewDeclarativeEnvironment passing the running execution context‘s
+          Lexical Environment as the argument. */
+    funcEnv := NewDeclarativeEnvironment(getLexicalEnvironment(scope));
+    /* 2. Let envRec be funcEnv’s environment record. */
+    envRec := getEnvironmentRecord(funcEnv);
+    /* 3. Call the CreateImmutableBinding concrete method of envRec passing the String value of Identifier as the argument. */
+    CreateImmutableBinding(envRec, Identifier);
+    /* 4. Let closure be the result of creating a new Function object as specified in 13.2 with parameters specified by
+          FormalParameterList opt and body specified by FunctionBody. Pass in funcEnv as the Scope. Pass in true as the
+          Strict flag if the FunctionExpression is contained in strict code or if its FunctionBody is strict code. */
+    closure := CreateFunctionObject(FormalParameterListopt, FunctionBody, funcEnv, isStrictModeCode(FunctionBody, scope), null);
+    /* 5. Call the InitializeImmutableBinding concrete method of envRec passing the String value of Identifier and closure
+          as the arguments. */
+    InitializeImmutableBinding(envRec, Identifier, closure);
+    /* 6. Return closure. */
+    return closure
+
+
+    /* NOTE The Identifier in a FunctionExpression can be referenced from inside the FunctionExpression's FunctionBody to
+            allow the function to call itself recursively. However, unlike in a FunctionDeclaration, the Identifier in a
+            FunctionExpression cannot be referenced from and does not affect the scope enclosing the FunctionExpression. */
+  }
+};
+
+function JS_Interpreter_FunctionBody(FunctionBody, scope) [
+  "13.0.3",
+  "",
+  "",
+  null
+] {
+  match FunctionBody with
+  | { body: SourceElements } [
+    "13.0.3.1",
+    "",
+    "<span class=\"nt\">FunctionBody</span> <span class=\"geq\">:</span> <span class=\"nt\">SourceElements</span><sub>opt</sub>",
+    "",
+    null
+  ] -> {
+    /* The production FunctionBody : SourceElements opt is evaluated as follows: */
+
+    /* 1. The code of this FunctionBody is strict mode code if it is part of a FunctionDeclaration or
+          FunctionExpression that is contained in strict mode code or if the Directive Prologue (14.1)
+          of its SourceElements contains a Use Strict Directive or if any of the conditions in 10.1.1 apply.
+          If the code of this FunctionBody is strict mode code, SourceElements is evaluated in the following
+          steps as strict mode code. Otherwise, SourceElements is evaluated in the following steps as
+          non-strict mode code. */
+    /* 2. If SourceElements is present return the result of evaluating SourceElements. */
+    if (!(SourceElements = [])) {
+      return JS_Interpreter_SourceElements(SourceElements, scope)
+    }
+    /* 3. Else return (normal, undefined, empty). */
+    else {
+      return normalEmptyCompletion('undefined)
+    }
+  }
+};
+
 /* 13.2 Creating Function Objects */
 /* Given an optional parameter list specified by FormalParameterList, a body specified by FunctionBody, a Lexical
    Environment specified by Scope, and a Boolean flag Strict, a Function object is constructed as follows: */
@@ -2517,12 +2573,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   };
   /* 15. Call the [[DefineOwnProperty]] internal method of F with arguments "length", Property Descriptor {[[Value]]:
         len, [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-  {F.DefineOwnProperty}(F, "length", PropertyDescriptor({
-    Value: int_to_float len,
-    Writable: false,
-    Enumerable: false,
-    Configurable: false
-  }), false);
+  {F.DefineOwnProperty}(F, "length", newDataPropertyDescriptorFull(int_to_float len, false, false, false), false);
 
   if (!(typeof FunctionBody = __$Str)) [
     "split-if:"
@@ -2532,20 +2583,10 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
     proto := ObjectConstructor(|global|, 'null, Strict, [null]);
     /* 17. Call the [[DefineOwnProperty]] internal method of proto with arguments "constructor", Property Descriptor
           {[[Value]]: F, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false. */
-    {proto.DefineOwnProperty}(proto, "constructor", PropertyDescriptor({
-      Value: F,
-      Writable: true,
-      Enumerable: false,
-      Configurable: true
-    }), false);
+    {proto.DefineOwnProperty}(proto, "constructor", newDataPropertyDescriptorFull(F, true, false, true), false);
     /* 18. Call the [[DefineOwnProperty]] internal method of F with arguments "prototype", Property Descriptor
           {[[Value]]: proto, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-    {F.DefineOwnProperty}(F, "prototype", PropertyDescriptor({
-      Value: proto,
-      Writable: true,
-      Enumerable: false,
-      Configurable: false
-    }), false)
+    {F.DefineOwnProperty}(F, "prototype", newDataPropertyDescriptorFull(proto, true, false, false), false)
   };
   /* 19. If Strict is true, then */
   if (Strict = true) ["after-same:, then"] {
@@ -2553,20 +2594,10 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
     thrower := createThrowTypeErrorFunctionObject(FunctionPrototype, Strict);
     /* b. Call the [[DefineOwnProperty]] internal method of F with arguments "caller", PropertyDescriptor
           {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-    {F.DefineOwnProperty}(F, "caller", PropertyDescriptor({
-      Get: thrower,
-      Set: thrower,
-      Enumerable: false,
-      Configurable: false
-    }), false);
+    {F.DefineOwnProperty}(F, "caller", newAccessorPropertyDescriptorFull(thrower, thrower, false, false), false);
     /* c. Call the [[DefineOwnProperty]] internal method of F with arguments "arguments", PropertyDescriptor
           {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-    {F.DefineOwnProperty}(F, "arguments", PropertyDescriptor({
-      Get: thrower,
-      Set: thrower,
-      Enumerable: false,
-      Configurable: false
-    }), false)
+    {F.DefineOwnProperty}(F, "arguments", newAccessorPropertyDescriptorFull(thrower, thrower, false, false), false)
   };
 
   gen_wrapper ["print_ignore"] {
@@ -2617,7 +2648,9 @@ function Call(externalScope, ref, F, this, args) [
   };
 
   /* 3. Exit the execution context funcCtx, restoring the previous execution context. */
-  exitExecutionContext(funcCtx);
+  gen_wrapper ["after-same:, restoring the previous execution context"] {
+    exitExecutionContext(funcCtx)
+  };
 
   /* 4. If result.type is throw then throw result.value. */
   if (getCompletionType(result) = 'throw) ["after-same: then"] {
@@ -2703,12 +2736,7 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) [
   setInternalProperty(F, "Code", "internalTypeErrorThrower");
   /* 9. Call the [[DefineOwnProperty]] internal method of F with arguments "length", Property Descriptor {[[Value]]: 0,
         [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-  {F.DefineOwnProperty}(F, "length", PropertyDescriptor({
-    Value: int_to_float 0,
-    Writable: false,
-    Enumerable: false,
-    Configurable: false
-  }), false);
+  {F.DefineOwnProperty}(F, "length", newDataPropertyDescriptorFull(0., false, false, false), false);
   /* 10. Set the [[Extensible]] internal property of F to false. */
   setInternalProperty(F, "Extensible", false);
   /* 11. Let [[ThrowTypeError]] be F. */
@@ -2721,6 +2749,180 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) [
   return F
 };
 
+function JS_Interpreter_Program(p, callingExecCtx) [
+  "14",
+  "",
+  "",
+  "Program"
+] {
+  match e with
+  /* The production Program : SourceElements opt is evaluated as follows: */
+  | { sourceType: "script", type: "Program", body: SourceElements, strict: strict } [
+    "14.1",
+    "",
+    "<span class=\"nt\">Program</span> <span class=\"geq\">:</span> <span class=\"nt\">SourceElements</span><sub>opt</sub>",
+    "<div class=\"note\"><p><span class=\"nh\">NOTE</span> The processes for initiating the evaluation of a <span class=\"nt\">Program</span> and for
+    dealing with the result of such an evaluation are defined by an ECMAScript implementation and not by this specification.</p></div>",
+    null
+  ] -> {
+    /* 1. The code of this Program is strict mode code if the Directive Prologue (14.1) of its SourceElements
+          contains a Use Strict Directive or if any of the conditions of 10.1.1 apply. If the code of this
+          Program is strict mode code, SourceElements is evaluated in the following steps as strict mode code.
+          Otherwise SourceElements is evaluated in the following steps as non-strict mode code. */
+
+    /* 2. If SourceElements is not present, return (normal, empty, empty). */
+    if (SourceElements = []) {
+      return normalEmptyCompletion('empty)
+    };
+    /* 3. Let progCxt be a new execution context for global code as described in 10.4.1. */
+    progCxt := EnteringGlobalCode(p);
+    /* 4. Let result be the result of evaluating SourceElements. */
+    result := JS_Interpreter_SourceElements(SourceElements, progCxt);
+    /* 5. Exit the execution context progCxt. */
+    exitExecutionContext(progCxt);
+
+    /* 6. Return result. */
+    print progCxt;
+    return result
+  }
+};
+
+/* The production SourceElements : SourceElements SourceElement is evaluated as follows: */
+function JS_Interpreter_SourceElements_SourceElements_SourceElement(SourceElements, SourceElement, scope) [
+  "14.2",
+  "The production <span class=\"prod\"><span class=\"nt\">SourceElements</span> <span class=\"geq\">:</span> <span class=\"nt\">SourceElements</span> <span class=\"nt\">SourceElement</span></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Let headResult be the result of evaluating SourceElements. */
+  headResult := JS_Interpreter_SourceElements(SourceElements, scope);
+  /* 2. If headResult is an abrupt completion, return headResult. */
+  if (isAnAbruptCompletion(headResult)) {
+    return headResult
+  };
+  /* 3. Let tailResult be result of evaluating SourceElement. */
+  tailResult := JS_Interpreter_SourceElements_SourceElement(SourceElement, scope);
+  /* 4. If tailResult.value is empty, let V = headResult.value, otherwise let V = tailResult.value. */
+  if (getCompletionValue(tailResult) = 'empty) {
+    V := getCompletionValue(headResult)
+  } else ["replace-with:otherwise"] {
+    v := getCompletionValue(tailResult)
+  };
+  /* 5. Return (tailResult.type, V, tailResult.target) */
+  return newCompletion(getCompletionType(tailResult), V, getCompletionTarget(tailResult))
+};
+
+/* The production SourceElement : Statement is evaluated as follows: */
+function JS_Interpreter_SourceElements_SourceElement(Statement, scope) [
+  "14.3",
+  "The production <span class=\"prod\"><span class=\"nt\">SourceElement</span> <span class=\"geq\">:</span> <span class=\"nt\">Statement</span></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Return the result of evaluating Statement. */
+  return JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard
+};
+
+/* The production SourceElement : FunctionDeclaration is evaluated as follows: */
+function JS_Interpreter_SourceElements_FunctionDeclaration() [
+  "14.4",
+  "The production <span class=\"prod\"><span class=\"nt\">SourceElement</span> <span class=\"geq\">:</span> <span class=\"nt\">FunctionDeclaration</span></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Return (normal, empty, empty). */
+  return normalEmptyCompletion('empty)
+};
+
+/* 15.1.2.1 eval (x) */
+function GlobalObjectEval(externalScope, ref, this, strict, params) [
+  "15.1.2.1",
+  "When the <code>eval</code> function is called with one argument <var>x</var>, the following steps are taken:",
+  "",
+  "eval (x)"
+] {
+  gen_wrapper["print_ignore"] {
+    x := l_nth(params, 0)
+  };
+  /* When the eval function is called with one argument x, the following steps are taken: */
+
+  /* 1. If Type(x) is not String, return x. */
+  if (!(Type(x) = "String")) {
+    return x
+  };
+  /* 2. Let prog be the ECMAScript code that is the result of parsing x as a Program. If the parse fails, throw a
+        SyntaxError exception (but see also clause 16). */
+  prog := parseAsProgram(x, strict);
+  /* 3. Let evalCtx be the result of establishing a new execution context (10.4.2) for the eval code prog. */
+  evalCtx := EnteringEvalCode(prog, ref, externalScope);
+  /* 4. Let result be the result of evaluating the program prog. */
+  result := JS_Interpreter_Program(prog, evalCtx);
+  /* 5. Exit the running execution context evalCtx, restoring the previous execution context. */
+  gen_wrapper ["after-same:, restoring the previous execution context"] {
+    exitExecutionContext(evalCtx)
+  };
+  /* 6. If result.type is normal and its completion value is a value V, then return the value V. */
+  if ((getCompletionType(result) = 'normal) &&& !(getCompletionValue(result) = 'empty)) {
+    return getCompletionValue(result)
+  };
+  /* 7. If result.type is normal and its completion value is empty, then return the value undefined. */
+  if ((getCompletionType(result) = 'normal) &&& (getCompletionValue(result) = 'empty)) {
+    return 'undefined
+  };
+  /* 8. Otherwise, result.type must be throw. Throw result.value as an exception. */
+  gen_wrapper ["before-same:Otherwise, <i>result.type</i> mus be <b>throw</b>, so "] {
+    throw getCompletionValue(result)
+  }
+};
+
+/* 15.1.2.4 isNaN (number) */
+function GlobalObjectIsNaN(globalObject, this, strict, params) [
+  "15.1.2.4",
+  "Returns <b>true</b> if the argument coerces to <b>NaN</b>, and otherwise returns <b>false</b>.",
+  "<div class=\"note\"><p><span class=\"nh\">NOTE</span> A reliable way for ECMAScript code to test if a value <span style=\"font-family:
+  monospace\">X</span> is a <b>NaN</b> is an expression of the form <span style=\"font-family: monospace\">X !== X</span>.
+  The result will be <b>true</b> if and only if <span style=\"font-family: monospace\">X</span> is a <b>NaN</b>.</p></div>",
+  "isNaN (number)"
+] {
+  gen_wrapper ["print_ignore"] {
+    number := l_nth(params, 0)
+  };
+  /* Returns true if the argument coerces to NaN, and otherwise returns false. */
+
+  /* 1. If ToNumber(number) is NaN, return true. */
+  if (ToNumber(number) = NaN) {
+    return true
+  };
+  /* 2. Otherwise, return false. */
+  gen_wrapper ["before-same:Otherwise, "] {
+    return false
+  }
+
+  /* NOTE A reliable way for ECMAScript code to test if a value X is a NaN is an expression of the form X !== X. The
+          result will be true if and only if X is a NaN. */
+};
+
+/* 15.1.2.5 isFinite (number) */
+function GlobalObjectIsFinite(globalObject, this, strict, params) [
+  "15.1.2.5",
+  "Returns <b>false</b> if the argument coerces to <b>NaN</b>, <b>+∞</b>, or <b>−∞</b>, and otherwise returns <b>true</b>.",
+  "",
+  "isFinite (number)"
+] {
+  gen_wrapper ["print_ignore"] {
+    number := l_nth(params, 0)
+  };
+  /* Returns false if the argument coerces to NaN, +Infinity, or -Infinity, and otherwise returns true. */
+
+  /* 1. If ToNumber(number) is NaN, +Infinity, or -Infinity, return false.*/
+  if ((ToNumber(number) = NaN) ||| (ToNumber(number) = Infinity) ||| (ToNumber(number) = -Infinity)) {
+    return false
+  };
+  /* 2. Otherwise, return true. */
+  gen_wrapper ["before-same:Otherwise, "] {
+    return true
+  }
+};
 
 /* 15.2.2.1 new Object ( [ value ] ) */
 /* When the Object constructor is called with no arguments or with one argument value, the following steps are taken: */
@@ -2843,8 +3045,7 @@ function ObjectGetOwnPropertyNames(globalObject, this, strict, params) [
         standard built-in constructor with that name. */
   array := ArrayConstructor(globalObject, this, strict, []);
   /* 3. Let n be 0. */
-  n := 0;
-
+  n := 0.;
   /* 4. For each named own property P of O */
   foreach (P : getOwnProperties(O)) [] ["P:named own property"] {
     /* a. Let name be the String value that is the name of P. */
@@ -2852,14 +3053,9 @@ function ObjectGetOwnPropertyNames(globalObject, this, strict, params) [
     /* b. Call the [[DefineOwnProperty]] internal method of array with arguments ToString(n), the
           PropertyDescriptor {[[Value]]: name, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]:
           true}, and false. */
-    {array.DefineOwnProperty}(array, ToString(int_to_float n), PropertyDescriptor({
-      Value: name,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }), false);
+    {array.DefineOwnProperty}(array, ToString(n), newDataPropertyDescriptor(name), false);
     /* c. Increment n by 1. */
-    n := n + 1
+    n := n + 1.
   };
   /* 5. Return array. */
   return array
@@ -2871,6 +3067,7 @@ function ObjectGetOwnPropertyNames(globalObject, this, strict, params) [
 /* 15.2.3.5 Object.create ( O [, Properties] ) */
 /* The create function creates a new object with a specified prototype. When the create function is called, the
   following steps are taken: */
+/* function ObjectCreate(globalObject, this, strict, [ O | Properties ]) [ */ /* TODO */
 function ObjectCreate(globalObject, this, strict, params) [
   "15.2.3.5",
   "The <b>create</b> function creates a new object with a specified prototype. When the <b>create</b> function is called, the
@@ -2999,7 +3196,7 @@ function ObjectSeal(globalObject, this, strict, params) [
     throw TypeErrorConstructorInternal()
   };
   /* 2. For each named own property name P of O, */
-  foreach (P : O) [] ["P:named own property name"] {
+  foreach (P : getOwnProperties(O)) [] ["P:named own property name"] {
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
     desc := {O.GetOwnProperty}(O, P);
     /* b. If desc.[[Configurable]] is true, set desc.[[Configurable]] to false. */
@@ -3032,7 +3229,7 @@ function ObjectFreeze(globalObject, this, strict, params) [
     throw TypeErrorConstructorInternal()
   };
   /* 2. For each named own property name P of O, */
-  foreach (P : O) [] ["P:named own property name"] {
+  foreach (P : getOwnProperties(O)) [] ["P:named own property name"] {
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
     desc := {O.GetOwnProperty}(O, P);
     /* b. If IsDataDescriptor(desc) is true, then */
@@ -3094,7 +3291,7 @@ function ObjectIsSealed(globalObject, this, strict, params) [
     throw TypeErrorConstructorInternal()
   };
   /* 2. For each named own property name P of O, */
-  foreach (P : O) [] ["P:named own property name"] {
+  foreach (P : getOwnProperties(O)) [] ["P:named own property name"] {
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
     desc := {O.GetOwnProperty}(O, P);
     /* b. If desc.[[Configurable]] is true, then return false. */
@@ -3129,7 +3326,7 @@ function ObjectIsFrozen(globalObject, this, strict, params) [
     throw TypeErrorConstructorInternal()
   };
   /* 2. For each named own property name P of O, */
-  foreach (P : O) [] ["P:named own property name"] {
+  foreach (P : getOwnProperties(O)) [] ["P:named own property name"] {
     /* a. Let desc be the result of calling the [[GetOwnProperty]] internal method of O with P. */
     desc := {O.GetOwnProperty}(O, P);
     /* b. If IsDataDescriptor(desc) is true then */
@@ -3140,7 +3337,7 @@ function ObjectIsFrozen(globalObject, this, strict, params) [
       }
     };
     /* c. If desc.[[Configurable]] is true, then return false. */
-    if (getInternalProperty(desc, "Configurable") = true) {
+    if (desc.Configurable = true) {
       return false
     }
   };
@@ -3197,20 +3394,15 @@ function ObjectKeys(globalObject, this, strict, params) [
         the standard built-in constructor with that name. */
   array := ArrayConstructor(globalObject, this, strict, [n]);
   /* 4. Let index be 0. */
-  index := 0;
+  index := 0.;
   /* 5. For each own enumerable property of O whose name String is P */
   foreach (P : getOwnEnumerableProperties(O)) [] ["P:own enumerable property whose name String is"] {
     /* a. Call the [[DefineOwnProperty]] internal method of array with arguments ToString(index), the
           PropertyDescriptor {[[Value]]: P, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true},
           and false. */
-    {array.DefineOwnProperty}(array, ToString(int_to_float index), PropertyDescriptor({
-      Value: P,
-      Writable: true,
-      Enumerable: true,
-      Configurable: true
-    }), false);
+    {array.DefineOwnProperty}(array, ToString(index), newDataPropertyDescriptor(P), false);
     /* b. Increment index by 1. */
-    index := index + 1
+    index := index + 1.
   };
   /* 6. Return array. */
   return array
@@ -3672,27 +3864,17 @@ function FunctionPrototypeBind(globalObject, this, strict, params) [
     }
   };
   /* 17. Set the attributes of the length own property of F to the values specified in 15.3.5.1. */
-
+  /* TODO */
   /* 18. Set the [[Extensible]] internal property of F to true. */
   setInternalProperty(F, "Extensible", true);
   /* 19. Let thrower be the [[ThrowTypeError]] function Object (13.2.3). */
   thrower := createThrowTypeErrorFunctionObject(getFunctionPrototype(strict), strict);
   /* 20. Call the [[DefineOwnProperty]] internal method of F with arguments "caller", PropertyDescriptor
         {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-  {F.DefineOwnProperty}(F, "caller", PropertyDescriptor({
-    Get: thrower,
-    Set: thrower,
-    Enumerable: false,
-    Configurable: false
-  }), false);
+  {F.DefineOwnProperty}(F, "caller", newAccessorPropertyDescriptorFull(thrower, thrower, false, false), false);
   /* 21. Call the [[DefineOwnProperty]] internal method of F with arguments "arguments", PropertyDescriptor
         {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
-  {F.DefineOwnProperty}(F, "arguments", PropertyDescriptor({
-    Get: thrower,
-    Set: thrower,
-    Enumerable: false,
-    Configurable: false
-  }), false);
+  {F.DefineOwnProperty}(F, "arguments", newAccessorPropertyDescriptorFull(thrower, thrower, false, false), false);
   /* 22. Return F. */
   return F
 
@@ -3837,26 +4019,455 @@ function GetF(F, P) [
 };
 
 /* 11 Expressions */
-function JS_Interpreter_Expr(e, scope) [
+function JS_Interpreter_Expr(Expression, scope) [
   "11",
   "",
   "",
   "Expressions"
 ] {
-  match e with
+  match Expression with
   | default -> {
-    return JS_Interpreter_LeftHandSide_Expressions(e, scope)
+    return JS_Interpreter_PrimaryExpression(Expression, scope)
+  }
+};
+
+function JS_Interpreter_PrimaryExpression(PrimaryExpression, scope) [
+  "11.1",
+  "",
+  "",
+  "Primary Expressions"
+] {
+  match PrimaryExpression with
+  | { type: "ArrayExpression", elements: ElementList } [
+    "11.1.4",
+    "An array initialiser is an expression describing the initialisation of an Array object, written in a form of a literal.
+    It is a list of zero or more expressions, each of which represents an array element, enclosed in square brackets. The
+    elements need not be literals; they are evaluated each time the array initialiser is evaluated.</p>
+    <p>Array elements may be elided at the beginning, middle or end of the element list. Whenever a comma in the element list is
+    not preceded by an <span class=\"nt\">AssignmentExpression</span> (i.e., a comma at the beginning or after another comma), the
+    missing array element contributes to the length of the Array and increases the index of subsequent elements. Elided array
+    elements are not defined. If an element is elided at the end of an array, that element does not contribute to the length of
+    the Array.",
+    "",
+    "<div class=\"note\"><p><span class=\"nh\">NOTE</span>  [[DefineOwnProperty]] is used to ensure that own properties are defined for the array
+    even if the standard built-in Array prototype object has been modified in a manner that would preclude the creation of new
+    own properties using [[Put]].</p></div>",
+    "Array Initialiser"
+  ] -> {
+    /* 11.1.4 Array Initialiser */
+    gen_wrapper ["print_ignore"] {
+      return JS_Interpreter_ArrayLiteral(PrimaryExpression, scope)
+    }
+  }
+  | { type: "ObjectExpression" } -> {
+    /* 11.1.5 Object Initialiser */
+    return JS_Interpreter_ObjectInitializer(PrimaryExpression, scope)
+  }
+  | default -> {
+    return JS_Interpreter_LeftHandSide_Expressions(PrimaryExpression, scope)
+  }
+};
+
+/* The production ArrayLiteral : [ Elisionopt ] is evaluated as follows: */
+function JS_Interpreter_ArrayLiteral_Elisionopt(Elision, scope) [
+  "11.1.4.1",
+  "The production <span class=\"prod\"><span class=\"nt\">ArrayLiteral</span> <span class=\"geq\">:</span> <code class=\"t\">[</code>
+  <span class=\"nt\">Elision</span><sub>opt</sub> <code class=\"t\">]</code></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Let array be the result of creating a new object as if by the expression new Array() where Array is the standard built-in constructor with that name. */
+  array := ArrayConstructor(|global|, null, isContainedInStrictCode(scope), []);
+  /* 2. Let pad be the result of evaluating Elision; if not present, use the numeric value zero. */
+  gen_wrapper ["after-same:; if not present, use the numeric value zero"] {
+    pad := JS_Interpreter_Elision(Elision)
+  };
+  /* 3. Call the [[Put]] internal method of array with arguments "length", pad, and false. */
+  {array.Put}(array, "length", pad, false);
+  /* 4. Return array. */
+  return array
+};
+
+/* The production ArrayLiteral : [ ElementList ] is evaluated as follows: */
+function JS_Interpreter_ArrayLiteral_ElementList(ElementList, scope) [
+  "11.1.4.2",
+  "The production <span class=\"prod\"><span class=\"nt\">ArrayLiteral</span> <span class=\"geq\">:</span> <code class=\"t\">[</code>
+  <span class=\"nt\">ElementList</span> <code class=\"t\">]</code></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Return the result of evaluating ElementList. */
+  return JS_Interpreter_ElementList(ElementList, scope)
+};
+
+/* The production ArrayLiteral : [ ElementList , Elisionopt ] is evaluated as follows: */
+function JS_Interpreter_ArrayLiteral_ElementList_Elisionopt(ElementList, Elision, scope) [
+  "11.1.4.3",
+  "The production <span class=\"prod\"><span class=\"nt\">ArrayLiteral</span> <span class=\"geq\">:</span> <code class=\"t\">[</code>
+  <span class=\"nt\">ElementList</span> <code class=\"t\">,</code> <span class=\"nt\">Elision</span><sub>opt</sub> <code class=\"t\">]</code></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Let array be the result of evaluating ElementList. */
+  array := JS_Interpreter_ElementList(ElementList, scope);
+  /* 2. Let pad be the result of evaluating Elision; if not present, use the numeric value zero. */
+  gen_wrapper ["after-same:; if not present, use the numeric value zero"] {
+    pad := JS_Interpreter_Elision(Elision)
+  };
+  /* 3. Let len be the result of calling the [[Get]] internal method of array with argument "length". */
+  len := {array.Get}(array, "length");
+  /* 4. Call the [[Put]] internal method of array with arguments "length", ToUint32(pad+len), and false. */
+  {array.Put}(array, "length", ToUint32(pad+len), false);
+  /* 5. Return array. */
+  return array
+};
+
+function JS_Interpreter_ElementList(Elements, scope) [
+  "11.1.4.4",
+  "",
+  "",
+  null
+] {
+  gen_wrapper ["print_ignore"] {
+    obj := rearrange_elementList(Elements)
+  };
+  match obj with
+  /* The production ElementList : Elisionopt AssignmentExpression is evaluated as follows: */
+  | { type: "Base", elisionOpt: Elision, assignmentExpression: AssignmentExpression } [
+    "11.1.4.4.1",
+    "",
+    "<span class=\"nt\">ElementList</span> <span class=\"geq\">:</span> <span class=\"nt\">Elision</span><sub>opt</sub> <span class=\"nt\">AssignmentExpression</span>",
+    "",
+    null
+  ] -> {
+    /* 1. Let array be the result of creating a new object as if by the expression new Array() where Array is the standard built-in constructor with that name. */
+    array := ArrayConstructor(|global|, null, isContainedInStrictCode(scope), []);
+    /* 2. Let firstIndex be the result of evaluating Elision; if not present, use the numeric value zero. */
+    gen_wrapper ["after-same:; if not present, use the numeric value zero"] {
+      firstIndex := JS_Interpreter_Elision(Elision)
+    };
+    /* 3. Let initResult be the result of evaluating AssignmentExpression. */
+    initResult := JS_Interpreter_Expr(AssignmentExpression, scope);
+    /* 4. Let initValue be GetValue(initResult). */
+    initValue := GetValue(initResult);
+    /* 5. Call the [[DefineOwnProperty]] internal method of array with arguments ToString(firstIndex), the Property Descriptor { [[Value]]: initValue, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
+    {array.DefineOwnProperty}(array, ToString(firstIndex), newDataPropertyDescriptor(initValue), false);
+    /* 6. Return array. */
+    return array
+  }
+  /* The production ElementList : ElementList , Elisionopt AssignmentExpression is evaluated as follows: */
+  | { type: "Recursive", elementList: ElementList, elisionOpt: Elision, assignmentExpression: AssignmentExpression } [
+    "11.1.4.4.2",
+    "",
+    "<span class=\"nt\">ElementList</span> <span class=\"geq\">:</span> <span class=\"nt\">ElementList</span> <code class=\"t\">,</code>
+    <span class=\"nt\">Elision</span><sub>opt</sub> <span class=\"nt\">AssignmentExpression</span>",
+    "",
+    null
+  ] -> {
+    /* 1. Let array be the result of evaluating ElementList. */
+    array := JS_Interpreter_ElementList(ElementList, scope);
+    /* 2. Let pad be the result of evaluating Elision; if not present, use the numeric value zero. */
+    gen_wrapper ["after-same:; if not present, use the numeric value zero"] {
+      pad := JS_Interpreter_Elision(Elision)
+    };
+    /* 3. Let initResult be the result of evaluating AssignmentExpression. */
+    initResult := JS_Interpreter_Expr(AssignmentExpression, scope);
+    /* 4. Let initValue be GetValue(initResult). */
+    initValue := GetValue(initResult);
+    /* 5. Let len be the result of calling the [[Get]] internal method of array with argument "length". */
+    len := {array.Get}(array, "length");
+    /* 6. Call the [[DefineOwnProperty]] internal method of array with arguments ToString(ToUint32((pad+len)) and the Property Descriptor { [[Value]]: initValue, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
+    {array.DefineOwnProperty}(array, ToString(ToUint32(pad+len)), newDataPropertyDescriptor(initValue), false);
+
+    /* 7. Return array. */
+    return array
+  }
+};
+
+/* The production Elision : , is evaluated as follows: */
+function JS_Interpreter_Elision_Base(Elision) [
+  "11.1.4.5",
+  "The production <span class=\"prod\"><span class=\"nt\">Elision</span> <span class=\"geq\">:</span> <code class=\"t\">,</code></span>  is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Return the numeric value 1. */
+  return 1.
+};
+
+/* The production Elision : Elision , is evaluated as follows: */
+function JS_Interpreter_Elision_Recursive(Elision) [
+  "11.1.4.6",
+  "The production <span class=\"prod\"><span class=\"nt\">Elision</span> <span class=\"geq\">:</span> <span class=\"nt\">Elision</span> <code class=\"t\">,</code></span>  is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Let preceding be the result of evaluating Elision. */
+  preceding := JS_Interpreter_Elision(Elision);
+  /* 2. Return preceding+1. */
+  return preceding + 1.
+};
+
+/* 11.1.5 Object Initialiser */
+/* An object initialiser is an expression describing the initialisation of an Object, written in a form resembling a
+  literal. It is a list of zero or more pairs of property names and associated values, enclosed in curly braces. The
+  values need not be literals; they are evaluated each time the object initialiser is evaluated. */
+function JS_Interpreter_ObjectInitializer(objExpr, scope) [
+  "11.1.5",
+  "",
+  "",
+  "Object Initialiser"
+] {
+  match objExpr with
+  /* The production ObjectLiteral : { } is evaluated as follows: */
+  | { type: "ObjectExpression", properties: [] } [
+    "11.1.5.1",
+    "",
+    "<span class=\"nt\">ObjectLiteral</span> <span class=\"geq\">:</span> <code class=\"t\">{</code> <code class=\"t\">}</code>",
+    "",
+    null
+  ] -> {
+    /* Return a new object created as if by the expression new Object() where Object
+        is the standard built-in constructor with that name. */
+    return ObjectConstructor(|global|, 'null, isContainedInStrictCode(scope), [null])
+  }
+  /* The productions ObjectLiteral : { PropertyNameAndValueList } and
+    ObjectLiteral : { PropertyNameAndValueList ,} are evaluated as follows: */
+  | { type: "ObjectExpression", properties: PropertyNameAndValueList } [
+    "11.1.5.2",
+    "",
+    "<span class=\"nt\">ObjectLiteral</span> <span class=\"geq\">:</span> <code class=\"t\">{</code> <span class=\"nt\">PropertyNameAndValueList</span>
+    <code class=\"t\">}</code></span> and<br><span class=\"prod\"><span class=\"nt\">ObjectLiteral</span> <span class=\"geq\">:</span> <code class=\"t\">{</code>
+    <span class=\"nt\">PropertyNameAndValueList</span></span> <span style=\"font-family: monospace\">,<b>}</b>",
+    "",
+    null
+  ] -> {
+    /* 1. Return the result of evaluating PropertyNameAndValueList. */
+    return JS_Interpreter_PropertyNameAndValueList(PropertyNameAndValueList, scope)
+  }
+};
+
+/* The production PropertyNameAndValueList : PropertyAssignment is evaluated as follows: */
+function JS_Interpreter_PropertyNameAndValueList_PropertyAssignment(PropertyAssignment, scope) [
+  "11.1.5.3",
+  "The production <span class=\"prod\"><span class=\"nt\">PropertyNameAndValueList</span> <span class=\"geq\">:</span>
+  <span class=\"nt\">PropertyAssignment</span></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Let obj be the result of creating a new object as if by the expression new Object()
+        where Object is the standard built-in constructor with that name. */
+  obj := ObjectConstructor(|global|, 'null, isContainedInStrictCode(scope), [null]);
+  /* 2. Let propId be the result of evaluating PropertyAssignment. */
+  propId := JS_Interpreter_PropertyAssignment(PropertyAssignment, scope);
+  /* 3. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and false. */
+  {obj.DefineOwnProperty}(obj, getPropertyName(propId), getPropertyDescriptor(propId), false);
+  /* 4. Return obj. */
+  return obj
+};
+
+/* The production PropertyNameAndValueList : PropertyNameAndValueList , PropertyAssignment is evaluated as follows: */
+function JS_Interpreter_PropertyNameAndValueList_PropertyNameAndValueList_PropertyAssignment(PropertyNameAndValueList, PropertyAssignment, scope) [
+  "11.1.5.4",
+  "The production <span class=\"prod\"><span class=\"nt\">PropertyNameAndValueList</span> <span class=\"geq\">:</span>
+  <span class=\"nt\">PropertyNameAndValueList</span> <code class=\"t\">,</code> <span class=\"nt\">PropertyAssignment</span></span><br>is evaluated as follows:",
+  "If the above steps would throw a <b>SyntaxError</b> then an implementation must treat the error as an early error (<a href=\"#sec-16\">Clause 16</a>).",
+  null
+] {
+  /* 1. Let obj be the result of evaluating PropertyNameAndValueList. */
+  obj := JS_Interpreter_PropertyNameAndValueList(PropertyNameAndValueList, scope);
+  /* 2. Let propId be the result of evaluating PropertyAssignment. */
+  propId := JS_Interpreter_PropertyAssignment(PropertyAssignment, scope);
+  /* 3. Let previous be the result of calling the [[GetOwnProperty]] internal method of obj with argument propId.name. */
+  previous := {obj.GetOwnProperty}(obj, getPropertyName(propId));
+  /* 4. If previous is not undefined then throw a SyntaxError exception if any of the following conditions are true */
+  if (!(previous = 'undefined)) {
+    /* a. This production is contained in strict code and IsDataDescriptor(previous) is true and
+          IsDataDescriptor(propId.descriptor) is true. */
+    if (isContainedInStrictCode(scope) &&&
+        (IsDataPropertyDescriptor(previous) = true) &&&
+        (IsDataPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
+      throw SyntaxErrorConstructorInternal()
+    };
+    /* b. IsDataDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true. */
+    if ((IsDataPropertyDescriptor(previous) = true) &&&
+        (IsAccessorPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
+      throw SyntaxErrorConstructorInternal()
+    };
+    /* c. IsAccessorDescriptor(previous) is true and IsDataDescriptor(propId.descriptor) is true. */
+    if ((IsAccessorPropertyDescriptor(previous) = true) &&&
+        (IsDataPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
+      throw SyntaxErrorConstructorInternal()
+    };
+    /* d. IsAccessorDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true and
+          either both previous and propId.descriptor have [[Get]] fields or both previous and propId.descriptor
+          have [[Set]] fields */
+    if ((IsAccessorPropertyDescriptor(previous) = true) &&&
+        (IsAccessorPropertyDescriptor(getPropertyDescriptor(propId)) = true) &&&
+        ((("Get" in_obj previous) &&& (!(previous.Get = 'undefined)) &&& ("Get" in_obj getPropertyDescriptor(propId))
+        &&& !(getPropertyDescriptor(propId).Get = 'undefined)) |||
+          (("Set" in_obj previous) &&& (!(previous.Set = 'undefined)) &&& ("Set" in_obj getPropertyDescriptor(propId))
+          &&& !(getPropertyDescriptor(propId).Set = 'undefined)))) {
+      throw SyntaxErrorConstructorInternal()
+    }
+  };
+  /* 5. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and false. */
+  {obj.DefineOwnProperty}(obj, getPropertyName(propId), getPropertyDescriptor(propId), false);
+  /* 6. Return obj. */
+  return obj
+};
+
+function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) [
+  "11.1.5.5",
+  "",
+  "",
+  null
+] {
+  match PropertyAssignment with
+  /* The production PropertyAssignment : PropertyName : AssignmentExpression is evaluated as follows: */
+  | { type: "Property", key: PropertyName, value: AssignmentExpression, kind: "init" } [
+    "11.1.5.5.1",
+    "",
+    "<span class=\"nt\">PropertyAssignment</span> <span class=\"geq\">:</span> <span class=\"nt\">PropertyName</span>
+    <code class=\"t\">:</code> <span class=\"nt\">AssignmentExpression</span>",
+    "",
+    null
+  ] -> {
+    /* 1. Let propName be the result of evaluating PropertyName. */
+    propName := JS_Interpreter_PropertyName(PropertyName, scope);
+    /* 2. Let exprValue be the result of evaluating AssignmentExpression. */
+    exprValue := JS_Interpreter_Expr(AssignmentExpression, scope);
+    /* 3. Let propValue be GetValue(exprValue). */
+    propValue := GetValue(exprValue);
+    /* 4. Let desc be the Property Descriptor{[[Value]]: propValue, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true} */
+    desc := newDataPropertyDescriptor(propValue);
+    /* 5. Return Property Identifier (propName, desc). */
+    return newPropertyIdentifier(propName, desc)
+  }
+  /* The production PropertyAssignment : get PropertyName ( ) { FunctionBody } is evaluated as follows: */
+  | { type: "Property", key: PropertyName, value: FunctionExpression, kind: "get" } [
+    "11.1.5.5.2",
+    "",
+    "<span class=\"nt\">PropertyAssignment</span> <span class=\"geq\">:</span> <code class=\"t\">get</code> <span class=\"nt\">PropertyName</span>
+    <code class=\"t\">(</code> <code class=\"t\">)</code> <code class=\"t\">{</code> <span class=\"nt\">FunctionBody</span> <code class=\"t\">}</code>",
+    "",
+    null
+  ] -> {
+    /* 1. Let propName be the result of evaluating PropertyName. */
+    propName := JS_Interpreter_PropertyName(PropertyName, scope);
+    /* 2. Let closure be the result of creating a new Function object as specified in 13.2 with an empty parameter list
+          and body specified by FunctionBody. Pass in the LexicalEnvironment of the running execution context as the
+          Scope. Pass in true as the Strict flag if the PropertyAssignment is contained in strict code or if its
+          FunctionBody is strict code. */
+    closure := JS_Interpreter_FunctionExpression(FunctionExpression, scope);
+    /* 3. Let desc be the Property Descriptor{[[Get]]: closure, [[Enumerable]]: true, [[Configurable]]: true} */
+    desc := newGetAccessorPropertyDescriptor(closure);
+    /* 4. Return Property Identifier (propName, desc). */
+    return newPropertyIdentifier(propName, desc)
+  }
+  /* The production PropertyAssignment : set PropertyName ( PropertySetParameterList ) { FunctionBody } is
+      evaluated as follows: */
+  | { type: "Property", key: PropertyName, value: FunctionExpression, kind: "set" } [
+    "11.1.5.5.3",
+    "",
+    "<span class=\"nt\">PropertyAssignment</span> <span class=\"geq\">:</span> <code class=\"t\">set</code> <span class=\"nt\">PropertyName</span>
+    <code class=\"t\">(</code> <span class=\"nt\">PropertySetParameterList</span> <code class=\"t\">)</code> <code class=\"t\">{</code>
+    <span class=\"nt\">FunctionBody</span> <code class=\"t\">}</code>",
+    "It is a <b>SyntaxError</b> if the <span class=\"nt\">Identifier</span> <code>\"eval\"</code> or the <span class=\"nt\">Identifier</span>
+    <code>\"arguments\"</code> occurs as the <span class=\"nt\">Identifier</span> in a <span class=\"nt\">PropertySetParameterList</span> of a
+    <span class=\"nt\">PropertyAssignment</span> that <span style=\"font-family: Times New Roman\">is contained in <a href=\"#sec-10.1.1\">strict code</a>
+    or if its <i>FunctionBody</i> is <a href=\"#sec-10.1.1\">strict code</a></span>.",
+    null
+  ] -> {
+    /* 1. Let propName be the result of evaluating PropertyName. */
+    propName := JS_Interpreter_PropertyName(PropertyName, scope);
+    /* 2. Let closure be the result of creating a new Function object as specified in 13.2 with parameters specified by
+          PropertySetParameterList and body specified by FunctionBody. Pass in the LexicalEnvironment of the
+          running execution context as the Scope. Pass in true as the Strict flag if the PropertyAssignment is contained
+          in strict code or if its FunctionBody is strict code. */
+    closure := JS_Interpreter_FunctionExpression(FunctionExpression, scope);
+    /* 3. Let desc be the Property Descriptor{[[Set]]: closure, [[Enumerable]]: true, [[Configurable]]: true} */
+    desc := newSetAccessorPropertyDescriptor(closure);
+    /* 4. Return Property Identifier (propName, desc). */
+    return newPropertyIdentifier(propName, desc)
+  }
+};
+
+function JS_Interpreter_PropertyName(PropertyName, scope) [
+  "11.1.5.6",
+  "",
+  "",
+  null
+] {
+  match PropertyName with
+  /* The production PropertyName : IdentifierName is evaluated as follows: */
+  | { type: "Identifier", name: IdentifierName } [
+    "11.1.5.6.1",
+    "",
+    "<span class=\"nt\">PropertyName</span> <span class=\"geq\">:</span> <span class=\"nt\">IdentifierName</span>",
+    "",
+    null
+  ] -> {
+    /* 1. Return the String value containing the same sequence of characters as the IdentifierName. */
+    return IdentifierName
+  }
+  | { type: "Literal", value: Literal } -> {
+    /* The production PropertyName : StringLiteral is evaluated as follows: */
+    if (typeof Literal = __$Str) {
+      return JS_Interpreter_PropertyName_StringLiteral(Literal)
+    };
+    /* The production PropertyName : NumericLiteral is evaluated as follows: */
+    return JS_Interpreter_PropertyName_NumericLiteral(Literal)
+  }
+};
+
+/* The production PropertyName : StringLiteral is evaluated as follows: */
+function JS_Interpreter_PropertyName_StringLiteral(StringLiteral) [
+  "11.1.5.7",
+  "The production <span class=\"prod\"><span class=\"nt\">PropertyName</span> <span class=\"geq\">:</span> <span class=\"nt\">StringLiteral</span></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Return the SV of the StringLiteral. */
+  return StringLiteral
+};
+
+/* The production PropertyName : NumericLiteral is evaluated as follows: */
+function JS_Interpreter_PropertyName_NumericLiteral(NumericLiteral) [
+  "11.1.5.8",
+  "The production <span class=\"prod\"><span class=\"nt\">PropertyName</span> <span class=\"geq\">:</span> <span class=\"nt\">NumericLiteral</span></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Let nbr be the result of forming the value of the NumericLiteral. */
+  nbr := formingTheValueOfTheNumericLiteral(NumericLiteral);
+  /* 2. Return ToString(nbr). */
+  return ToString(nbr)
+};
+
+function JS_Interpreter_Grouping(Expression, scope) [
+  "11.1.6",
+  "The production <span class=\"prod\"><span class=\"nt\">PrimaryExpression</span> <span class=\"geq\">:</span> <code class=\"t\">(</code> <span class=\"nt\">Expression</span>
+  <code class=\"t\">)</code></span> is evaluated as follows:",
+  "<div class=\"note\"><p><span class=\"nh\">NOTE</span> This algorithm does not apply <a href=\"#sec-8.7.1\">GetValue</a> to the result of
+  evaluating Expression. The principal motivation for this is so that operators such as <code>delete</code> and
+  <code>typeof</code> may be applied to parenthesised expressions.</p></div>",
+  "The Grouping Operator"
+] {
+  /* 1. Return the result of evaluating Expression. This may be of type Reference */
+  gen_wrapper ["after-same:. This may be of type <a href=\"#sec-8.7\">Reference</a>"] {
+    return JS_Interpreter_Expr(Expression, scope)
   }
 };
 
 /* 11.2 Left-Hand-Side Expressions */
-function JS_Interpreter_LeftHandSide_Expressions(e, scope) [
+function JS_Interpreter_LeftHandSide_Expressions(LeftHandSideExpression, scope) [
   "11.2",
   "",
   "",
   "Left-Hand-Side Expressions"
 ] {
-  match e with
+  match LeftHandSideExpression with
   /* 11.2.1 Property Accessors */
   /* The production MemberExpression : MemberExpression [ Expression ] is evaluated as follows: */
   | { type: "MemberExpression", object: MemberExpression, property: Expression } [
@@ -3983,18 +4594,91 @@ function JS_Interpreter_LeftHandSide_Expressions(e, scope) [
     return JS_Interpreter_FunctionExpression(e, scope)
   }
   | default -> {
-    return JS_Interpreter_Postfix_Expressions(e, scope)
+    return JS_Interpreter_Postfix_Expressions(LeftHandSideExpression, scope)
   }
 };
 
+/* 11.2.4 Argument Lists */
+function JS_Interpreter_Arguments(ArgumentList, scope) [
+  "11.2.4",
+  "The evaluation of an argument list produces a <a href=\"#sec-8.8\">List</a> of values (<a href=\"#sec-8.8\">see 8.8</a>).",
+  "",
+  "Argument Lists"
+] {
+  gen_wrapper ["print_ignore"] {
+    if (l_len ArgumentList = 0) {
+      return JS_Interpreter_Arguments_Empty()
+    };
+
+    return JS_Interpreter_Arguments_ArgumentList(ArgumentList, scope)
+  }
+};
+
+/* The production Arguments : ( ) is evaluated as follows: */
+function JS_Interpreter_Arguments_Empty() [
+  "11.2.4.1",
+  "The production <span class=\"prod\"><span class=\"nt\">Arguments</span> <span class=\"geq\">:</span> <code class=\"t\">(</code><code class=\"t\">)</code></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Return an empty List. */
+  return []
+};
+
+/* The production Arguments : ( ArgumentList ) is evaluated as follows: */
+function JS_Interpreter_Arguments_ArgumentList(ArgumentList, scope) [
+  "11.2.4.2",
+  "The production <span class=\"prod\"><span class=\"nt\">Arguments</span> <span class=\"geq\">:</span> <code class=\"t\">(</code><span class=\"nt\">ArgumentList</span>
+  <code class=\"t\">)</code></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Return the result of evaluating ArgumentList. */
+  return JS_Interpreter_ArgumentList(ArgumentList, scope)
+};
+
+/* The production ArgumentList : AssignmentExpression is evaluated as follows: */
+function JS_Interpreter_ArgumentList_AssignmentExpression(AssignmentExpression, scope) [
+  "11.2.4.3",
+  "The production <span class=\"prod\"><span class=\"nt\">ArgumentList</span> <span class=\"geq\">:</span> <span class=\"nt\">AssignmentExpression</span></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Let ref be the result of evaluating AssignmentExpression. */
+  ref := JS_Interpreter_Expr(AssignmentExpression, scope);
+  /* 2. Let arg be GetValue(ref). */
+  arg := GetValue(ref);
+  /* 3. Return a List whose sole item is arg. */
+  return [ arg ]
+};
+
+/* The production ArgumentList : ArgumentList, AssignmentExpression is evaluated as follows: */
+function JS_Interpreter_ArgumentList_ArgumentList_AssignmentExpression(ArgumentList, AssignmentExpression, scope) [
+  "11.2.4.4",
+  "The production <span class=\"prod\"><span class=\"nt\">ArgumentList</span> <span class=\"geq\">:</span> <span class=\"nt\">ArgumentList</span> <code class=\"t\">,</code>
+  <span class=\"nt\">AssignmentExpression</span></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Let precedingArgs be the result of evaluating ArgumentList. */
+  precedingArgs := JS_Interpreter_ArgumentList(ArgumentList, scope);
+  /* 2. Let ref be the result of evaluating AssignmentExpression. */
+  ref := JS_Interpreter_Expr(AssignmentExpression, scope);
+  /* 3. Let arg be GetValue(ref). */
+  arg := GetValue(ref);
+  /* 4. Return a List whose length is one greater than the length of precedingArgs and whose items are the items of precedingArgs,
+        in order, followed at the end by arg which is the last item of the new list. */
+  return l_add(precedingArgs, arg)
+};
+
 /* 11.3 Postfix Expressions */
-function JS_Interpreter_Postfix_Expressions(e, scope) [
+function JS_Interpreter_Postfix_Expressions(PostfixExpression, scope) [
   "11.3",
   "",
   "",
   "Postfix Expressions"
 ] {
-  match e with
+  match PostfixExpression with
   /* 11.3.1 Postfix Increment Operator */
   /* The production PostfixExpression : LeftHandSideExpression [no LineTerminator here] ++ is evaluated as follows: */
   | { type: "UpdateExpression", operator: "++", argument: LeftHandSideExpression, prefix: false } [
@@ -4070,17 +4754,17 @@ function JS_Interpreter_Postfix_Expressions(e, scope) [
     return oldValue
   }
   | default -> {
-    return JS_Interpreter_Unary_Operators(e, scope)
+    return JS_Interpreter_Unary_Operators(PostfixExpression, scope)
   }
 };
 
-function JS_Interpreter_Unary_Operators(e, scope) [
+function JS_Interpreter_Unary_Operators(UnaryExpr, scope) [
   "11.4",
   "",
   "",
   "Unary Operators"
 ] {
-  match e with
+  match UnaryExpr with
   /* 11.4.1 The delete Operator */
   /* The production UnaryExpression : delete UnaryExpression is evaluated as follows: */
   | { type: "UnaryExpression", operator: "delete", argument: UnaryExpression } [
@@ -4173,26 +4857,7 @@ function JS_Interpreter_Unary_Operators(e, scope) [
       val := GetValue(val)
     };
     /* 3. Return a String determined by Type(val) according to Table 20. */
-    /* TODO 11.4.3.1; call to function */
-    switch(Type(val)) [
-      "Table 20 — typeof Operator Results"
-    ] {
-      case "Undefined": { return "undefined" }
-      case "Null":      { return "object" }
-      case "Boolean":   { return "boolean" }
-      case "Number":    { return "number" }
-      case "String":    { return "string" }
-      case "Object": {
-        /* Object (native and does not implement [[Call]]) | "object" */
-        if (!("Call" in_obj val)) {
-          return "object"
-        }
-        /* Object (native or host and does implement [[Call]]) | "function" */
-        else {
-          return "function"
-        }
-      }
-    }
+    return typeofOperatorTable(val)
   }
   /* 11.4.4 Prefix Increment Operator */
   /* The production UnaryExpression : ++ UnaryExpression is evaluated as follows: */
@@ -4203,7 +4868,6 @@ function JS_Interpreter_Unary_Operators(e, scope) [
     "",
     "Prefix Increment Operator"
   ] -> {
-
     /* 1. Let expr be the result of evaluating UnaryExpression. */
     expr := JS_Interpreter_Expr(UnaryExpression, scope);
     /* 2. Throw a SyntaxError exception if the following conditions are all true: */
@@ -4344,18 +5008,45 @@ function JS_Interpreter_Unary_Operators(e, scope) [
     return true
   }
   | default -> {
-    return JS_Interpreter_Multiplicative_Operators(e, scope)
+    return JS_Interpreter_Multiplicative_Operators(UnaryExpr, scope)
+  }
+};
+
+function typeofOperatorTable(val) [
+  "11.4.3.1",
+  "",
+  "",
+  null
+] {
+  switch(Type(val)) [
+    "Table 20 — typeof Operator Results"
+  ] {
+    case "Undefined": { return "undefined" }
+    case "Null":      { return "object" }
+    case "Boolean":   { return "boolean" }
+    case "Number":    { return "number" }
+    case "String":    { return "string" }
+    case "Object": {
+      /* Object (native and does not implement [[Call]]) | "object" */
+      if (!("Call" in_obj val)) {
+        return "object"
+      }
+      /* Object (native or host and does implement [[Call]]) | "function" */
+      else {
+        return "function"
+      }
+    }
   }
 };
 
 /* 11.5 Multiplicative Operators */
-function JS_Interpreter_Multiplicative_Operators(e, scope) [
+function JS_Interpreter_Multiplicative_Operators(MultiplicativeExpr, scope) [
   "11.5",
   "",
   "",
   "Multiplicative Operators"
 ] {
-  match e with
+  match MultiplicativeExpr with
   /* The production MultiplicativeExpression : MultiplicativeExpression @ UnaryExpression, where @ stands for one
       of the operators in the above definitions, is evaluated as follows: */
   | { type: "BinaryExpression", operator: "*", left: MultiplicativeExpression, right: UnaryExpression } [
@@ -4379,22 +5070,6 @@ function JS_Interpreter_Multiplicative_Operators(e, scope) [
     /* 6. Let rightNum be ToNumber(rightValue). */
     rightNum := ToNumber(rightValue);
     /* 7. Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
-
-    /* 11.5.1 Applying the * Operator */
-    /* The * operator performs multiplication, producing the product of its operands. Multiplication is commutative.
-       Multiplication is not always associative in ECMAScript, because of finite precision.
-       The result of a floating-point multiplication is governed by the rules of IEEE 754 binary double-precision
-       arithmetic: */
-
-    /* If either operand is NaN, the result is NaN. */
-    /* The sign of the result is positive if both operands have the same sign, negative if the operands have different signs. */
-    /* Multiplication of an infinity by a zero results in NaN. */
-    /* Multiplication of an infinity by an infinity results in an infinity. The sign is determined by the rule already stated above. */
-    /* Multiplication of an infinity by a finite nonzero value results in a signed infinity. The sign is determined by the rule already stated above. */
-    /* In the remaining cases, where neither an infinity or NaN is involved, the product is computed and rounded to the nearest representable value
-       using IEEE 754 round-to-nearest mode. If the magnitude is too large to represent, the result is then an infinity of appropriate sign.
-       If the magnitude is too small to represent, the result is then a zero of appropriate sign.
-       The ECMAScript language requires support of gradual underflow as defined by IEEE 754. */
     return applyingTheMultiplicationOperator(leftNum, rightNum)
   }
   | { type: "BinaryExpression", operator: "/", left: MultiplicativeExpression, right: UnaryExpression } -> {
@@ -4414,27 +5089,6 @@ function JS_Interpreter_Multiplicative_Operators(e, scope) [
     /* 6. Let rightNum be ToNumber(rightValue). */
     rightNum := ToNumber(rightValue);
     /* 7. Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
-
-    /* 11.5.2 Applying the / Operator */
-    /* The / operator performs division, producing the quotient of its operands. The left operand is the dividend and
-       the right operand is the divisor. ECMAScript does not perform integer division. The operands and result of all
-       division operations are double-precision floating-point numbers. The result of division is determined by the
-       specification of IEEE 754 arithmetic: */
-
-    /* If either operand is NaN, the result is NaN. */
-    /* The sign of the result is positive if both operands have the same sign, negative if the operands have different signs. */
-    /* Division of an infinity by an infinity results in NaN. */
-    /* Division of an infinity by a zero results in an infinity. The sign is determined by the rule already stated above. */
-    /* Division of an infinity by a nonzero finite value results in a signed infinity. The sign is determined by the rule already stated above. */
-    /* Division of a finite value by an infinity results in zero. The sign is determined by the rule already stated above. */
-    /* Division of a zero by a zero results in NaN; division of zero by any other finite value results in zero, with the sign determined by the rule already stated above. */
-    /* Division of a nonzero finite value by a zero results in a signed infinity. The sign is determined by the rule already stated above. */
-
-    /* In the remaining cases, where neither an infinity, nor a zero, nor NaN is involved, the quotient is computed and rounded
-       to the nearest representable value using IEEE 754 round-to-nearest mode. If the magnitude is too large to represent,
-       the operation overflows; the result is then an infinity of appropriate sign. If the magnitude is too small to represent, the
-       operation underflows and the result is a zero of the appropriate sign. The ECMAScript language requires support of
-       gradual underflow as defined by IEEE 754. */
     return applyingTheDivisionOperator(leftNum, rightNum)
   }
   | { type: "BinaryExpression", operator: "%", left: MultiplicativeExpression, right: UnaryExpression } -> {
@@ -4454,48 +5108,21 @@ function JS_Interpreter_Multiplicative_Operators(e, scope) [
     /* 6. Let rightNum be ToNumber(rightValue). */
     rightNum := ToNumber(rightValue);
     /* 7. Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
-
-    /* 11.5.3 Applying the % Operator */
-    /* The % operator yields the remainder of its operands from an implied division; the left operand is the dividend
-       and the right operand is the divisor. */
-    /* NOTE In C and C++, the remainder operator accepts only integral operands; in ECMAScript, it also accepts floating-
-       point operands. */
-    /* The result of a floating-point remainder operation as computed by the % operator is not the same as the
-       ―remainder‖ operation defined by IEEE 754. The IEEE 754 ―remainder‖ operation computes the remainder
-       from a rounding division, not a truncating division, and so its behaviour is not analogous to that of the usual
-       integer remainder operator. Instead the ECMAScript language defines % on floating-point operations to
-       behave in a manner analogous to that of the Java integer remainder operator; this may be compared with the
-       C library function fmod. */
-    /* The result of an ECMAScript floating-point remainder operation is determined by the rules of IEEE arithmetic: */
-
-    /* If either operand is NaN, the result is NaN. */
-    /* The sign of the result equals the sign of the dividend. */
-    /* If the dividend is an infinity, or the divisor is a zero, or both, the result is NaN. */
-    /* If the dividend is finite and the divisor is an infinity, the result equals the dividend. */
-    /* If the dividend is a zero and the divisor is nonzero and finite, the result is the same as the
-       dividend. */
-    /* In the remaining cases, where neither an infinity, nor a zero, nor NaN is involved, the
-       floating-point remainder r from a dividend n and a divisor d is defined by the mathematical
-       relation r = n  (d  q) where q is an integer that is negative only if n/d is negative and
-       positive only if n/d is positive, and whose magnitude is as large as possible without
-       exceeding the magnitude of the true mathematical quotient of n and d. r is computed and
-       rounded to the nearest representable value using IEEE 754 round -to-nearest mode. */
-
     return applyingTheRemainderOperator(leftNum, rightNum)
   }
   | default -> {
-    return JS_Interpreter_Additive_Operators(e, scope)
+    return JS_Interpreter_Additive_Operators(MultiplicativeExpr, scope)
   }
 };
 
 /* 11.6 Additive Operators */
-function JS_Interpreter_Additive_Operators(e, scope) [
+function JS_Interpreter_Additive_Operators(AdditiveExpr, scope) [
   "11.6",
   "",
   "",
   "Additive Operators"
 ] {
-  match e with
+  match AdditiveExpr with
   /* 11.6.1 The Addition operator ( + ) */
   /* The addition operator either performs string concatenation or numeric addition. */
   /* The production AdditiveExpression : AdditiveExpression + MultiplicativeExpression is evaluated as follows: */
@@ -4565,18 +5192,18 @@ function JS_Interpreter_Additive_Operators(e, scope) [
     return applyingTheSubtractionOperation(lnum, rnum)
   }
   | default -> {
-    return JS_Interpreter_Bitwise_Shift_Operators(e, scope)
+    return JS_Interpreter_Bitwise_Shift_Operators(AdditiveExpr, scope)
   }
 };
 
 /* 11.7 Bitwise Shift Operators */
-function JS_Interpreter_Bitwise_Shift_Operators (e, scope) [
+function JS_Interpreter_Bitwise_Shift_Operators (ShiftExpr, scope) [
   "11.7",
   "",
   "",
   "Bitwise Shift Operators"
 ] {
-  match e with
+  match ShiftExpr with
   /* 11.7.1 The Left Shift Operator ( << ) */
   /* Performs a bitwise left shift operation on the left operand by the amount specified by the right operand. */
   /* The production ShiftExpression : ShiftExpression << AdditiveExpression is evaluated as follows: */
@@ -4666,7 +5293,7 @@ function JS_Interpreter_Bitwise_Shift_Operators (e, scope) [
     return lnum >>> shiftCount
   }
   | default -> {
-    return JS_Interpreter_Relational_Operators(e, scope)
+    return JS_Interpreter_Relational_Operators(ShiftExpr, scope)
   }
 };
 
@@ -4676,13 +5303,13 @@ function JS_Interpreter_Bitwise_Shift_Operators (e, scope) [
   The RelationalExpressionNoIn productions are evaluated in the same manner as the RelationalExpression
   productions except that the contained RelationalExpressionNoIn is evaluated instead of the contained
   RelationalExpression. */
-function JS_Interpreter_Relational_Operators(e, scope) [
+function JS_Interpreter_Relational_Operators(RelationalExpr, scope) [
   "11.8",
   "",
   "",
   "Relational Operators"
 ] {
-  match e with
+  match RelationalExpr with
   /* 11.8.1 The Less-than Operator ( < ) */
   /* The production RelationalExpression : RelationalExpression < ShiftExpression is evaluated as follows: */
   | { type: "BinaryExpression", operator: "<", left: RelationalExpression, right: ShiftExpression } [
@@ -4849,7 +5476,7 @@ function JS_Interpreter_Relational_Operators(e, scope) [
     return {rval.HasProperty}(rval, ToString(lval))
   }
   | default -> {
-    return JS_Interpreter_Equality_Operators(e, scope)
+    return JS_Interpreter_Equality_Operators(RelationalExpr, scope)
   }
 };
 
@@ -4972,13 +5599,13 @@ function AbstractRelationalComparison(x, y, LeftFirst) [
   The EqualityExpressionNoIn productions are evaluated in the same manner as the EqualityExpression
   productions except that the contained EqualityExpressionNoIn and RelationalExpressionNoIn are evaluated
   instead of the contained EqualityExpression and RelationalExpression, respectively. */
-function JS_Interpreter_Equality_Operators(e, scope) [
+function JS_Interpreter_Equality_Operators(EqualityExpr, scope) [
   "11.9",
   "",
   "",
   "Equality Operators"
 ] {
-  match e with
+  match EqualityExpr with
   /* 11.9.1 The Equals Operator ( == ) */
   /* The production EqualityExpression : EqualityExpression == RelationalExpression is evaluated as follows: */
   | { type: "BinaryExpression", operator: "==", left: EqualityExpression, right: RelationalExpression } [
@@ -5076,7 +5703,7 @@ function JS_Interpreter_Equality_Operators(e, scope) [
     }
   }
   | default -> {
-    return JS_Interpreter_Binary_Bitwise_Operators(e, scope)
+    return JS_Interpreter_Binary_Bitwise_Operators(EqualityExpr, scope)
   }
 };
 
@@ -5286,13 +5913,13 @@ function StrictEqualityComparison(x, y) [
 
 
 /* 11.10 Binary Bitwise Operators */
-function JS_Interpreter_Binary_Bitwise_Operators(e, scope) [
+function JS_Interpreter_Binary_Bitwise_Operators(BitwiseExpression, scope) [
   "11.10",
   "",
   "",
   "Binary Bitwise Operators"
 ] {
-  match e with
+  match BitwiseExpression with
   /* The production A : A @ B, where @ is one of the bitwise operators in the productions above, is evaluated as follows: */
   | { type: "BinaryExpression", operator: operator, left: A, right: B } [
     "11.10.1",
@@ -5318,7 +5945,7 @@ function JS_Interpreter_Binary_Bitwise_Operators(e, scope) [
     return applyBitwiseOperator(operator, lnum, rnum)
   }
   | default -> {
-    return JS_Interpreter_Binary_Logical_Operators(e, scope)
+    return JS_Interpreter_Binary_Logical_Operators(BitwiseExpression, scope)
   }
 };
 
@@ -5329,7 +5956,7 @@ function JS_Interpreter_Binary_Logical_Operators(LogicalExpression, scope) [
   "The <span class=\"nt\">LogicalANDExpressionNoIn</span> and <span class=\"nt\">LogicalORExpressionNoIn</span> productions are evaluated in the same manner
   as the <span class=\"nt\">LogicalANDExpression</span> and <span class=\"nt\">LogicalORExpression</span> productions except that the contained
   <span class=\"nt\">LogicalANDExpressionNoIn</span>, <span class=\"nt\">BitwiseORExpressionNoIn</span> and <span class=\"nt\">LogicalORExpressionNoIn</span> are evaluated instead of
-  the contained <span class=\"nt\">LogicalANDExpression</span>, <span class=\"nt\">BitwiseORExpression</span> and <span class=\"nt\">LogicalORExpression</span>, respectively.</p>
+  the contained <span class=\"nt\">LogicalANDExpression</span>, <span class=\"nt\">BitwiseORExpression</span> and <span class=\"nt\">LogicalORExpression</span>, respectively.</>
   <div class=\"note\"><p><span class=\"nh\">NOTE</span> The value produced by a <code>&amp;&amp;</code> or <code>||</code> operator is not
   necessarily of type Boolean. The value produced will always be the value of one of the two operand expressions.</p></div>",
   "Binary Logical Operators"
@@ -5440,7 +6067,7 @@ function JS_Interpreter_Conditional_Operator(ConditionalExpression, scope) [
 /* The AssignmentExpressionNoIn productions are evaluated in the same manner as the AssignmentExpression
     productions except that the contained ConditionalExpressionNoIn and AssignmentExpressionNoIn are evaluated
     instead of the contained ConditionalExpression and AssignmentExpression, respectively. */
-function JS_Interpreter_Assignment_Operators(AssignmentExpression, scope) [
+function JS_Interpreter_Assignment_Operators(AssignmentExpr, scope) [
   "11.13",
   "The <span class=\"nt\">AssignmentExpressionNoIn</span> productions are evaluated in the same manner as the <span class=\"nt\">AssignmentExpression</span> productions except that
   the contained <span class=\"nt\">ConditionalExpressionNoIn</span> and <span class=\"nt\">AssignmentExpressionNoIn</span> are evaluated instead of the contained
@@ -5448,7 +6075,7 @@ function JS_Interpreter_Assignment_Operators(AssignmentExpression, scope) [
   "",
   "Assignment Operators"
 ] {
-  match e with
+  match AssignmentExpr with
   /* 11.13.1 Simple Assignment ( = ) */
   /* The production AssignmentExpression : LeftHandSideExpression = AssignmentExpression is evaluated as follows: */
   | { type: "AssignmentExpression", operator: "=", left: LeftHandSideExpression, right: AssignmentExpression } [
@@ -5474,7 +6101,7 @@ function JS_Interpreter_Assignment_Operators(AssignmentExpression, scope) [
       /* Type(lref) is Reference is true */
     if ((Type(lref) = "Reference") &&&
       /* IsStrictReference(lref) is true */
-        (IsStrictReference(lref)) &&&
+        (IsStrictReference(lref) = true) &&&
       /* Type(GetBase(lref)) is Environment Record */
         (Type(GetBase(lref)) = "EnvironmentRecord") &&&
       /* GetReferencedName(lref) is either "eval" or "arguments" */
@@ -5487,7 +6114,7 @@ function JS_Interpreter_Assignment_Operators(AssignmentExpression, scope) [
     /* 6. Return rval. */
     return rval
 
-  /* NOTE When an assignment occurs within strict mode code, its LeftHandSide must not evaluate to an unresolvable
+    /* NOTE When an assignment occurs within strict mode code, its LeftHandSide must not evaluate to an unresolvable
           reference. If it does a ReferenceError exception is thrown upon assignment. The LeftHandSide also may not be a
           reference to a data property with the attribute value {[[Writable]]:false}, to an accessor property with the attribute value
           {[[Set]]:undefined}, nor to a non-existent property of an object whose [[Extensible]] internal property has the value false. In
@@ -5520,7 +6147,7 @@ function JS_Interpreter_Assignment_Operators(AssignmentExpression, scope) [
       /* Type(lref) is Reference is true */
     if ((Type(lref) = "Reference") &&
       /* IsStrictReference(lref) is true */
-        (IsStrictReference(lref)) &&
+        (IsStrictReference(lref) = true) &&
       /* Type(GetBase(lref)) is Environment Record */
         (Type(GetBase(lref)) = "EnvironmentRecord") &&
       /* GetReferencedName(lref) is either "eval" or "arguments" */
@@ -5536,52 +6163,36 @@ function JS_Interpreter_Assignment_Operators(AssignmentExpression, scope) [
     /* NOTE See NOTE 11.13.1. */
   }
   | default -> {
-    return JS_Interpreter_Comma_Operator(AssignmentExpression, scope)
+    return JS_Interpreter_Comma_Operator(AssignmentExpr, scope)
   }
 };
 
 /* 11.14 Comma Operator ( , ) */
-function JS_Interpreter_Comma_Operator(Expression, scope) [
+function JS_Interpreter_Comma_Operator_Expression_AssignmentExpression(Expression, AssignmentExpression, scope) [
   "11.14",
-  "",
-  "",
+  "The production <span class=\"prod\"><span class=\"nt\">Expression</span> <span class=\"geq\">:</span> <span class=\"nt\">Expression</span> <code class=\"t\">,</code> <span class=\"nt\">AssignmentExpression</span></span> is evaluated as follows:",
+  "The <span class=\"nt\">ExpressionNoIn</span> production is evaluated in the same manner as the <span class=\"nt\">Expression</span> production
+  except that the contained <span class=\"nt\">ExpressionNoIn</span> and <span class=\"nt\">AssignmentExpressionNoIn</span> are evaluated instead of
+  the contained <span class=\"nt\">Expression</span> and <span class=\"nt\">AssignmentExpression</span>, respectively.
+  <div class=\"note\"><p><span class=\"nh\">NOTE</span> <a href=\"#sec-8.7.1\">GetValue</a> must be called even though its value is not used because
+  it may have observable side-effects.</p></div>",
   "Comma Operator ( <span style=\"font-family: monospace\">, )</span>"
 ] {
-  match Expression with
-  /* The production Expression : Expression , AssignmentExpression is evaluated as follows: */
-  | { type: "SequenceExpression", expressions: Expressions } [
-    "11.14.1",
-    "",
-    "<span class=\"nt\">Expression</span> <span class=\"geq\">:</span> <span class=\"nt\">Expression</span> <code class=\"t\">,</code> <span class=\"nt\">AssignmentExpression</span></span>",
-    "The <span class=\"nt\">ExpressionNoIn</span> production is evaluated in the same manner as the <span class=\"nt\">Expression</span> production
-    except that the contained <span class=\"nt\">ExpressionNoIn</span> and <span class=\"nt\">AssignmentExpressionNoIn</span> are evaluated instead of
-    the contained <span class=\"nt\">Expression</span> and <span class=\"nt\">AssignmentExpression</span>, respectively.
-    <div class=\"note\"><p><span class=\"nh\">NOTE</span> <a href=\"#sec-8.7.1\">GetValue</a> must be called even though its value is not used because
-    it may have observable side-effects.</p></div>",
-    null
-  ] -> {
-    gen_wrapper ["print_ignore"] {
-      ret := strip_sequence_expression(Expressions);
-      Expression := fst ret;
-      AssignmentExpression := snd ret
-    };
-    /* 1. Let lref be the result of evaluating Expression. */
-    lref := JS_Interpreter_Expr(Expression, scope);
-    /* 2. Call GetValue(lref). */
-    GetValue(lref);
-    /* 3. Let rref be the result of evaluating AssignmentExpression. */
-    rref := JS_Interpreter_Expr(AssignmentExpression, scope);
-    /* 4. Return GetValue(rref). */
-    return GetValue(rref)
+  /* 1. Let lref be the result of evaluating Expression. */
+  lref := JS_Interpreter_Expr(Expression, scope);
+  /* 2. Call GetValue(lref). */
+  GetValue(lref);
+  /* 3. Let rref be the result of evaluating AssignmentExpression. */
+  rref := JS_Interpreter_Expr(AssignmentExpression, scope);
+  /* 4. Return GetValue(rref). */
+  return GetValue(rref)
 
-    /* The ExpressionNoIn production is evaluated in the same manner as the Expression production except that the
-        contained ExpressionNoIn and AssignmentExpressionNoIn are evaluated instead of the contained Expression and
-        AssignmentExpression, respectively. */
+  /* The ExpressionNoIn production is evaluated in the same manner as the Expression production except that the
+      contained ExpressionNoIn and AssignmentExpressionNoIn are evaluated instead of the contained Expression and
+      AssignmentExpression, respectively. */
 
-    /* NOTE GetValue must be called even though its value is not used because it may have observable side-effects. */
-  }
+  /* NOTE GetValue must be called even though its value is not used because it may have observable side-effects. */
 };
-
 
 function JS_Interpreter_Stmt(s, scope) [
   "12",
@@ -5590,9 +6201,236 @@ function JS_Interpreter_Stmt(s, scope) [
   "Statements"
 ] {
   match s with
+  /* 12.1 Block */
+  | { type: "BlockStatement" } -> {
+    return JS_Interpreter_Block(s, scope)
+  }
+  /* 12.2 Variable Statement */
+  | { type: "VariableDeclaration" } -> {
+    return JS_Interpreter_VariableStatement(s, scope)
+  }
   | default -> {
     return JS_Interpreter_EmptyStatement(s, scope)
   }
+};
+
+function JS_Interpreter_Block(Block, scope) [
+  "12.1",
+  "",
+  "",
+  "Block"
+] {
+  match Block with
+  /* The production Block : {} is evaluated as follows: */
+  | { type: "BlockStatement", body: [] } [
+    "12.1.1",
+    "",
+    "<span class=\"nt\">Block</span> <span class=\"geq\">:</span> <code class=\"t\">{</code> <code class=\"t\">}</code>",
+    "",
+    null
+  ] -> {
+    /* 1. Return (normal, empty, empty). */
+    return normalEmptyCompletion('empty)
+  }
+  /* The production Block : { StatementList } is evaluated as follows: */
+  | { type: "BlockStatement", body: StatementList } [
+    "12.1.2",
+    "",
+    "<span class=\"nt\">Block</span> <span class=\"geq\">:</span> <code class=\"t\">{</code> <span class=\"nt\">StatementList</span> <code class=\"t\">}</code>",
+    "",
+    null
+  ] -> {
+    gen_wrapper ["print_ignore"] {
+      @PropagateBlockLabelSet(s, StatementList)
+    };
+
+    /* 1. Return the result of evaluating StatementList. */
+    return JS_Interpreter_StmtList(StatementList, scope)
+  }
+};
+
+/* The production StatementList : Statement is evaluated as follows: */
+function JS_Interpreter_StatementList_Statement(Statement, scope) [
+  "12.1.3",
+  "The production <span class=\"prod\"><span class=\"nt\">StatementList</span> <span class=\"geq\">:</span> <span class=\"nt\">Statement</span></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Let s be the result of evaluating Statement. */
+  /* 2. If an exception was thrown, return (throw, V, empty) where V is the exception.
+        (Execution now proceeds as if no exception were thrown.) */
+  gen_wrapper ["after-same: (Execution now proceeds as if no exception were thrown.)"] {
+    s := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard
+  };
+  /* 3. Return s */
+  return s
+};
+
+/* The production StatementList : StatementList Statement is evaluated as follows: */
+function JS_Interpreter_StatementList_StatementList_Statement(StatementList, Statement, scope) [
+  "12.1.4",
+  "The production <span class=\"prod\"><span class=\"nt\">StatementList</span> <span class=\"geq\">:</span> <span class=\"nt\">StatementList</span> <span class=\"nt\">Statement</span></span> is evaluated as follows:",
+  "<div class=\"note\"><p><span class=\"nh\">NOTE</span> Steps 5 and 6 of the above algoritm ensure that the value of a <span class=\"nt\">StatementList</span> is the value of the last
+  value producing <i>Statement</i> in the <span class=\"nt\">StatementList</span>.  For example, the following calls to the <code>eval</code> function all return the value 1:</p>
+  <pre>eval(\"1;;;;;\")</pre>
+  <pre>eval(\"1;{}\")</pre>
+  <pre>eval(\"1;var a;\")</pre></div>",
+  null
+] {
+  /* 1. Let sl be the result of evaluating StatementList. */
+  sl := JS_Interpreter_StmtList(StatementList, scope);
+  /* 2. If sl is an abrupt completion, return sl. */
+  if (isAnAbruptCompletion(sl)) {
+    return sl
+  };
+  /* 3. Let s be the result of evaluating Statement. */
+  /* 4. If an exception was thrown, return (throw, V, empty) where V is the exception.
+        (Execution now proceeds as if no exception were thrown.) */
+  gen_wrapper ["after-same: (Execution now proceeds as if no exception were thrown.)"] {
+    s := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard
+  };
+  /* 5. If s.value is empty, let V = sl.value, otherwise let V = s.value. */
+  if (getCompletionValue(s) = 'empty) {
+    V := getCompletionValue(sl)
+  } else ["replace-with:otherwise"] {
+    V := getCompletionValue(s)
+  };
+  /* 6. Return (s.type, V, s.target). */
+  return newCompletion(getCompletionType(s), V, getCompletionTarget(s))
+
+  /* NOTE Steps 5 and 6 of the above algoritm ensure that the value of a StatementList is the value of the last value producing
+          Statement in the StatementList. For example, the following calls to the eval function all return the value 1: */
+  /*      eval("1;;;;;")   */
+  /*      eval("1;{}")     */
+  /*      eval("1;var a;") */
+};
+
+function JS_Interpreter_VariableStatement(VariableStatement, scope) [
+  "12.2",
+  "",
+  "",
+  "Variable Statement"
+] {
+  match VariableStatement with
+  /* The production VariableStatement : var VariableDeclarationList ; is evaluated as follows: */
+  | { type: "VariableDeclaration", declarations: VariableDeclarationList } [
+    "12.2.1",
+    "",
+    "<span class=\"nt\">VariableStatement</span> <span class=\"geq\">:</span> <code class=\"t\">var</code> <span class=\"nt\">VariableDeclarationList</span> <code class=\"t\">;</code>",
+    "",
+    null
+  ] -> {
+    /* 1. Evaluate VariableDeclarationList. */
+    JS_Interpreter_VariableDeclarationList(VariableDeclarationList, scope);
+    /* 2. Return (normal, empty, empty).*/
+    return normalEmptyCompletion('empty)
+  }
+};
+
+/* The production VariableDeclarationList : VariableDeclaration is evaluated as follows: */
+function JS_Interpreter_VariableDeclarationList_VariableDeclaration(VariableDeclaration, scope) [
+  "12.2.2",
+  "The production <span class=\"prod\"><span class=\"nt\">VariableDeclarationList</span> <span class=\"geq\">:</span> <span class=\"nt\">VariableDeclaration</span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Evaluate VariableDeclaration. */
+  JS_Interpreter_VariableDeclaration(VariableDeclaration, scope);
+
+  return
+};
+
+/* The production VariableDeclarationList : VariableDeclarationList, VariableDeclaration is evaluated as follows: */
+function JS_Interpreter_VariableDeclarationList_VariableDeclarationList_VariableDeclaration(VariableDeclarationList, VariableDeclaration, scope) [
+  "12.2.3",
+  "The production <span class=\"prod\"><span class=\"nt\">VariableDeclarationList</span> <span class=\"geq\">:</span> <span class=\"nt\">VariableDeclarationList</span>
+  <code class=\"t\">,</code> <span class=\"nt\">VariableDeclaration</span></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Evaluate VariableDeclarationList. */
+  JS_Interpreter_VariableDeclarationList(VariableDeclarationList, scope);
+  /* 2. Evaluate VariableDeclaration */
+  JS_Interpreter_VariableDeclaration(VariableDeclaration, scope);
+
+  return
+};
+
+function JS_Interpreter_VariableDeclaration(VariableDeclaration, scope) [
+  "12.2.4",
+  "",
+  "",
+  null
+] {
+  match VariableDeclaration with
+  /* The production VariableDeclaration : Identifier is evaluated as follows: */
+  | { type: "VariableDeclarator", id: Identifier, init: null } [
+    "12.2.4.1",
+    "",
+    "<span class=\"nt\">VariableDeclaration</span> <span class=\"geq\">:</span> <span class=\"nt\">Identifier</span>",
+    "",
+    null
+  ] [
+    "Identifier:a String value containing the same sequence of characters as in the <i>Identifier</i>"
+  ] -> {
+    /* 1. Return a String value containing the same sequence of characters as in the Identifier. */
+    /* return Identifier.name */
+    return Identifier
+  }
+  /* The production VariableDeclaration : Identifier Initialiser is evaluated as follows: */
+  | { type: "VariableDeclarator", id: Identifier, init: Initialiser } [
+    "12.2.4.2",
+    "",
+    "<span class=\"nt\">VariableDeclaration</span> <span class=\"geq\">:</span> <span class=\"nt\">Identifier</span> <span class=\"nt\">Initialiser</span>",
+    "<div class=\"note\"><p><span class=\"nh\">NOTE</span> The String value of a <span class=\"nt\">VariableDeclaration</span> is used in the evaluation
+    of for-in statements (<a href=\"#sec-12.6.4\">12.6.4</a>).</p></div><p>If a <span class=\"nt\">VariableDeclaration</span> is nested within a with statement
+    and the Identifier in the <span class=\"nt\">VariableDeclaration</span> is the same as a property name of the binding object of the with statement’s
+    <a href=\"#sec-10.2.1\">object environment record</a>, then step 4 will assign value to the property instead of to the
+    <a href=\"#sec-10.3\">VariableEnvironment</a> binding of the <span class=\"nt\">Identifier</span>.</p>",
+    null
+  ] -> {
+    /* 1. Let lhs be the result of evaluating Identifier as described in 11.1.2. */
+    gen_wrapper ["after-same: as described in <a href=\"#sec-11.1.2\">11.1.2</a>"] {
+      lhs := JS_Interpreter_Expr(Identifier, scope)
+    };
+    /* 2. Let rhs be the result of evaluating Initialiser. */
+    rhs := JS_Interpreter_Initialiser(Initialiser, scope);
+    /* 3. Let value be GetValue(rhs). */
+    value := GetValue(rhs);
+    /* 4. Call PutValue(lhs, value). */
+    PutValue(lhs, value);
+    /* 5. Return a String value containing the same sequence of characters as in the Identifier. */
+    /* return Identifier.name */
+    return Identifier
+  }
+
+  /* NOTE The String value of a VariableDeclaration is used in the evaluation of for-in statements (12.6.4). */
+
+  /* If a VariableDeclaration is nested within a with statement and the Identifierin the VariableDeclaration is the same as
+     a property name of the binding object of the with statement‘s object environment record, then step 4 will assign value
+     to the property instead of to the VariableEnvironment binding of the Identifier. */
+};
+
+/* The production Initialiser := AssignmentExpression is evaluated as follows */
+function JS_Interpreter_Initialiser(AssignmentExpression, scope) [
+  "12.2.5",
+  "The production <span class=\"prod\"><span class=\"nt\">Initialiser</span> <span class=\"geq\">:</span> <code class=\"t\">=</code>
+  <span class=\"nt\">AssignmentExpression</span></span> is evaluated as follows:",
+  "The <span class=\"nt\">VariableDeclarationListNoIn</span>, <span class=\"nt\">VariableDeclarationNoIn</span> and <span class=\"nt\">InitialiserNoIn</span>
+  productions are evaluated in the same manner as the <span class=\"nt\">VariableDeclarationList</span>, <span class=\"nt\">VariableDeclaration</span> and
+  <span class=\"nt\">Initialiser</span> productions except that the contained <span class=\"nt\">VariableDeclarationListNoIn</span>,
+  <span class=\"nt\">VariableDeclarationNoIn</span>, <span class=\"nt\">InitialiserNoIn</span> and <span class=\"nt\">AssignmentExpressionNoIn</span> are
+  evaluated instead of the contained <span class=\"nt\">VariableDeclarationList</span>, <span class=\"nt\">VariableDeclaration</span>,
+  <span class=\"nt\">Initialiser</span> and <span class=\"nt\">AssignmentExpression</span>, respectively.",
+  null
+] {
+  /* 1. Return the result of evaluating AssignmentExpression. */
+  return JS_Interpreter_Expr(AssignmentExpression, scope)
+
+  /* The VariableDeclarationListNoIn, VariableDeclarationNoIn and InitialiserNoIn productions are evaluated in the same manner
+     as the VariableDeclarationList, VariableDeclarationand Initialiserproductions except that the contained
+     VariableDeclarationListNoIn, VariableDeclarationNoIn, InitialiserNoIn and AssignmentExpressionNoInare evaluated instead of
+     the contained VariableDeclarationList, VariableDeclaration, Initialiserand AssignmentExpression, respectively. */
 };
 
 function JS_Interpreter_EmptyStatement(EmptyStatement, scope) [
@@ -5684,7 +6522,7 @@ function JS_Interpreter_IfStatement(IfStatement, scope) [
     /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
     /* 2. If ToBoolean(GetValue(exprRef)) is true, then */
-    if (ToBoolean(GetValue(exprRef)) = true) ["after-same:, then"] {
+    if (ToBoolean(GetValue(exprRef)) = true) ["after-same: then"] {
       /* a. Return the result of evaluating the first Statement. */
       return JS_Interpreter_Stmt(Statement1, scope)
     }
@@ -5699,7 +6537,7 @@ function JS_Interpreter_IfStatement(IfStatement, scope) [
   }
 };
 
-function JS_Interpreter_IterationStatement(iterStmt, scope) [
+function JS_Interpreter_IterationStatement_LabelSet(iterStmt, scope) [
   "12.6",
   "",
   "",
@@ -5712,14 +6550,16 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) [
     "",
     "<code>do</code> <span class=\"nt\">Statement</span> <code>while</code> <code>(</code> <span class=\"nt\">Expression</span> <code>);</code>",
     "",
-    "The <span style=\"font-family: monospace\">do</span>-<span style=\"font-family: monospace\">while</span>"
+    "The <span style=\"font-family: monospace\">do</span>-<span style=\"font-family: monospace\">while</span> Statement"
+  ] [
+    "currentLabelSet:the current label set"
   ] -> {
     /* 1. Let V = empty. */
     V := 'empty;
     /* 2. Let iterating be true. */
     iterating := true;
     /* 3. Repeat, while iterating is true */
-    repeat {
+    while(iterating = true) {
       /* a. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
       /* b. If stmt.value is not empty, let V = stmt.value. */
@@ -5727,7 +6567,7 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) [
         V := getCompletionValue(stmt)
       };
       /* c. If stmt.type is not continue || stmt.target is not in the current label set, then */
-      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in_list currentLabelSet))) {
+      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in_list currentLabelSet))) ["after-same:, then"] {
         /* i. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
         if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
           return normalEmptyCompletion(V)
@@ -5743,7 +6583,7 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) [
       if (ToBoolean(GetValue(exprRef)) = false) {
         iterating := false
       }
-    } until iterating = false;
+    };
     /* 4. Return (normal, V, empty); */
     return normalEmptyCompletion(V)
   }
@@ -5755,6 +6595,8 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) [
     <span class=\"nt\">Expression</span> <code class=\"t\">)</code> <span class=\"nt\">Statement</span></span>",
     "",
     "The <span style=\"font-family: monospace\">while</span> Statement"
+  ] [
+    "currentLabelSet:the current label set"
   ] -> {
     /* 1. Let V = empty. */
     V := 'empty;
@@ -5773,7 +6615,7 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) [
         V := getCompletionValue(stmt)
       };
       /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
-      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in_list currentLabelSet))) {
+      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in_list currentLabelSet))) ["after-same:, then"] {
         /* i. If stmt.type is break and stmt.target is in the current label set, then */
         if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
           /* 1. Return (normal, V, empty). */
@@ -5786,18 +6628,12 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) [
       }
     }
   }
-  /* TODO: */
-  | { type: "ForStatement", init: Expr_or_VarDecl_or_Null } [
-    "12.6.3",
-    "",
-    "",
-    "",
-    "The <span style=\"font-family: monospace\">for</span> Statement"
-  ] -> {
-    if (Expr_or_VarDecl_or_Null = null) {
-      return JS_Interpreter_ForStmt_Expr(iterStmt, scope)
-    };
-
+  /* 12.6.3 The for Statement */
+  | { type: "ForStatement", init: null } -> {
+    return JS_Interpreter_ForStmt_Expr(iterStmt, scope)
+  }
+  /* 12.6.3 The for Statement */
+  | { type: "ForStatement", init: Expr_or_VarDecl_or_Null } -> {
     match Expr_or_VarDecl_or_Null with
     | { type: "VariableDeclaration" } -> {
       return JS_Interpreter_ForStmt_VarDecl(iterStmt, scope)
@@ -5807,17 +6643,9 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) [
     }
   }
   /* 12.6.4 The for-in Statement */
-  /* TODO: */
-  | { type: "ForInStatement", left: lhsExpr_or_VarDecl } [
-    "12.6.4",
-    "",
-    "<span class=\"nt\">IterationStatement</span> <span class=\"geq\">:</span> <code class=\"t\">for</code> <code class=\"t\">(</code>
-    <span class=\"nt\">LeftHandSideExpression</span> <code class=\"t\">in</code> <span class=\"nt\">Expression</span> <code class=\"t\">)</code> <span class=\"nt\">Statement</span></span>",
-    "",
-    "The <span style=\"font-family: monospace\">for</span>-<span style=\"font-family: monospace\">in</span> Statement"
-  ] -> {
+  | { type: "ForInStatement", left: lhsExpr_or_VarDecl } -> {
     match lhsExpr_or_VarDecl with
-    | { type: "VariableDeclaration", kind: "var" } -> {
+    | { type: "VariableDeclarator" } -> {
       /* production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement */
       return JS_Interpreter_ForInStmt_VarDecl(iterStmt, scope)
     }
@@ -5826,10 +6654,311 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) [
       return JS_Interpreter_ForInStmt_lhsExpr(iterStmt, scope)
     }
   }
-  | default -> {
-    return JS_Interpreter_ContinueStatement(iterStmt, scope)
+};
+
+/* 12.6.3 The for Statement */
+function JS_Interpreter_ForStmt_Expr(forStmt, scope) [
+  "12.6.3",
+  "",
+  "",
+  "The <span style=\"font-family: monospace\">for</span> Statement"
+] {
+  match forStmt with
+  /* The production IterationStatement : for (ExpressionNoIn opt ; Expression opt ; Expression opt ) Statement is evaluated as follows: */
+  | { type: "ForStatement", init: ExpressionNoIn, test: Expression1, update: Expression2, body: Statement, labelSet: currentLabelSet } [
+    "12.6.3.1",
+    "",
+    "<span class=\"nt\">IterationStatement</span> <span class=\"geq\">:</span> <code class=\"t\">for</code> <code class=\"t\">(</code>
+    <span class=\"nt\">ExpressionNoIn</span><sub>opt</sub> <code class=\"t\">;</code> <span class=\"nt\">Expression</span><sub>opt</sub> <code class=\"t\">;</code>
+    <span class=\"nt\">Expression</span><sub>opt</sub> <code class=\"t\">)</code> <span class=\"nt\">Statement</span></span>",
+    "",
+    null
+  ] [
+    "Expression1:the first <i>Expression</i>",
+    "Expression2:the second <i>Expression</i>",
+    "currentLabelSet:the current label set"
+  ] -> {
+    /* 1. If ExpressionNoIn is present, then. */
+    if (!(ExpressionNoIn = null)) ["after-same:, then"] {
+      /* a. Let exprRef be the result of evaluating ExpressionNoIn. */
+      exprRef := JS_Interpreter_Expr(ExpressionNoIn, scope);
+      /* b. Call GetValue(exprRef). (This value is not used but the call may have side-effects.) */
+      gen_wrapper ["after-same:(This value is not used but the call may have side-effects.)"] {
+        GetValue(exprRef)
+      }
+    };
+    /* 2. Let V = empty. */
+    V := 'empty;
+    /* 3. Repeat */
+    repeat {
+      /* a. If the first Expression is present, then */
+      if (!(Expression1 = null)) ["after-same:, then"] {
+        /* i. Let testExprRef be the result of evaluating the first Expression. */
+        testExprRef := JS_Interpreter_Expr(Expression1, scope);
+        /* ii. If ToBoolean(GetValue(testExprRef)) is false, return (normal, V, empty). */
+        if (ToBoolean(GetValue(testExprRef)) = false) {
+          return normalEmptyCompletion(V)
+        }
+      };
+      /* b. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+      /* c. If stmt.value is not empty, let V = stmt.value */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V := getCompletionValue(stmt)
+      };
+      /* d. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
+      if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+        return normalEmptyCompletion(V)
+      };
+      /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
+      if (!(getCompletionType(stmt) = 'continue) || !((getCompletionTarget(stmt) in_list currentLabelSet))) ["after-same:then"] {
+        /* i. If stmt is an abrupt completion, return stmt. */
+        if (isAnAbruptCompletion(stmt)) {
+          return stmt
+        }
+      };
+      /* f. If the second Expression is present, then */
+      if (!(Expression2 = null)) ["after-same:, then"] {
+        /* i. Let incExprRef be the result of evaluating the second Expression. */
+        incExprRef := JS_Interpreter_Expr(Expression2, scope);
+        /* ii. Call GetValue(incExprRef). (This value is not used.) */
+        gen_wrapper ["after-same:(This value is not used.)"] {
+          GetValue(incExprRef)
+        }
+      }
+    }
   }
 };
+
+/* 12.6.3 The for Statement */
+function JS_Interpreter_ForStmt_VarDecl(forStmt, scope) [
+  "12.6.3.2",
+  "",
+  "",
+  null
+] {
+  match forStmt with
+  /* The production IterationStatement : for ( var VariableDeclarationListNoIn ; Expression opt ; Expression opt ) Statement
+       is evaluated as follows: */
+  | { type: "ForStatement", init: VariableDeclarationListNoIn, test: Expression1, update: Expression2, body: Statement, labelSet: currentLabelSet } [
+    "12.6.3.2.1",
+    "",
+    "<span class=\"nt\">IterationStatement</span> <span class=\"geq\">:</span> <code class=\"t\">for</code> <code class=\"t\">(</code> <code class=\"t\">var</code>
+    <span class=\"nt\">VariableDeclarationListNoIn</span> <code class=\"t\">;</code> <span class=\"nt\">Expression</span><sub>opt</sub> <code class=\"t\">;</code>
+    <span class=\"nt\">Expression</span><sub>opt</sub> <code class=\"t\">)</code> <span class=\"nt\">Statement</span></span>",
+    "",
+    null
+  ] [
+    "Expression1:the first <i>Expression</i>",
+    "Expression2:the second <i>Expression</i>",
+    "currentLabelSet:the current label set"
+  ] -> {
+    /* 1. Evaluate VariableDeclarationListNoIn. */
+    JS_Interpreter_VariableStatement(VariableDeclarationListNoIn, scope);
+    /* 2. Let V = empty. */
+    V := 'empty;
+    /* 3. Repeat */
+    repeat {
+      /* a. If the first Expression is present, then */
+      if (!(Expression1 = null))["after-same:, then"]  {
+        /* i. Let testExprRef be the result of evaluating the first Expression. */
+        testExprRef := JS_Interpreter_Expr(Expression1, scope);
+        /* ii. If ToBoolean(GetValue(testExprRef)) is false, return (normal, V, empty). */
+        if (ToBoolean(GetValue(testExprRef)) = false) {
+          return normalEmptyCompletion(V)
+        }
+      };
+      /* b. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+      /* c. If stmt.value is not empty, let V = stmt.value */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V := getCompletionValue(stmt)
+      };
+      /* d. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
+      if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+        return normalEmptyCompletion(V)
+      };
+      /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
+      if (!(getCompletionType(stmt) = 'continue) || !((getCompletionTarget(stmt) in_list currentLabelSet))) ["after-same:then"] {
+        /* i. If stmt is an abrupt completion, return stmt. */
+        if (isAnAbruptCompletion(stmt)) {
+          return stmt
+        }
+      };
+      /* f. If the second Expression is present, then */
+      if (!(Expression2 = null)) ["after-same:, then"] {
+        /* i. Let incExprRef be the result of evaluating the second Expression. */
+        incExprRef := JS_Interpreter_Expr(Expression2, scope);
+        /* ii. Call GetValue(incExprRef). (This value is not used.) */
+        gen_wrapper ["after-same:(This value is not used.)"] {
+          GetValue(incExprRef)
+        }
+      }
+    }
+  }
+};
+
+/* 12.6.4 The for-in Statement */
+function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) [
+  "12.6.4",
+  "",
+  "",
+  "The <span style=\"font-family: monospace\">for</span>-<span style=\"font-family: monospace\">in</span> Statement"
+] {
+  match forInStmt with
+  /* The production IterationStatement : for ( LeftHandSideExpression in Expression ) Statement is evaluated as follows: */
+  | { type: "ForInStatement", left: LeftHandSideExpression, right: Expression, body: Statement, labelSet: currentLabelSet } [
+    "12.6.4.1",
+    "",
+    "<span class=\"nt\">IterationStatement</span> <span class=\"geq\">:</span> <code class=\"t\">for</code> <code class=\"t\">(</code> <span class=\"nt\">LeftHandSideExpression</span>
+    <code class=\"t\">in</code> <span class=\"nt\">Expression</span> <code class=\"t\">)</code> <span class=\"nt\">Statement</span></span>",
+    "",
+    null
+  ] [
+    "currentLabelSet:the current label set"
+  ] -> {
+    /* 1. Let exprRef be the result of evaluating the Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Let experValue be GetValue(exprRef). */
+    experValue := GetValue(exprRef);
+    /* 3. If experValue is null or undefined, return (normal, empty, empty). */
+    if ((experValue = 'null) || (experValue = 'undefined)) {
+      return normalEmptyCompletion('empty)
+    };
+    /* 4. Let obj be ToObject(experValue). */
+    obj := ToObject(experValue);
+    /* 5. Let V = empty. */
+    V := 'empty;
+    gen_wrapper ["print_ignore"] {
+      i := 0;
+      obj_enums := getEnumerableProperties(obj)
+    };
+    /* 6. Repeat */
+    repeat {
+      /* a. Let P be the name of the next property of obj whose [[Enumerable]] attribute is true.
+            If there is no such property, return (normal, V, empty). */
+      gen_wrapper ["after-same:. If there is no such property, return (normal, <i>V</i>, empty)"] {
+        P := getNextPropertyName(obj_enums, i)
+      };
+      gen_wrapper ["print_ignore"] {
+        i := i + 1;
+        if (P = "None") {
+          return normalEmptyCompletion(V)
+        }
+      };
+      /* b. Let lhsRef be the result of evaluating the LeftHandSideExpression ( it may be evaluated repeatedly). */
+      gen_wrapper ["after-same: ( it may be evaluated repeatedly)"] {
+        lhsRef := JS_Interpreter_Expr(LeftHandSideExpression, scope)
+      };
+      /* c. Call PutValue(lhsRef, P). */
+      PutValue(lhsRef, P);
+      /* d. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+      /* e. If stmt.value is not empty, let V = stmt.value. */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V := getCompletionValue(stmt)
+      };
+      /* f. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
+      if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+        return normalEmptyCompletion(V)
+      };
+      /* g. If stmt.type is not continue || stmt.target is not in the current label set, then */
+      if (!(getCompletionType(stmt) = 'continue) || !(getCompletionTarget(stmt) in_list currentLabelSet)) ["after-same:then"] {
+        /* i. If stmt is an abrupt completion, return stmt. */
+        if (isAnAbruptCompletion(stmt)) {
+          return stmt
+        }
+      }
+    }
+  }
+};
+
+function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) [
+  "12.6.4.2",
+  "",
+  "",
+  null
+] {
+  match forInStmt with
+  /* The production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement is evaluated as follows: */
+  | { type: "ForInStatement", left: VariableDeclarationNoIn, right: Expression, body: Statement, labelSet: currentLabelSet } [
+    "12.6.4.2.1",
+    "",
+    "<span class=\"nt\">IterationStatement</span> <span class=\"geq\">:</span> <code class=\"t\">for</code> <code class=\"t\">(</code> <code class=\"t\">var</code>
+    <span class=\"nt\">VariableDeclarationNoIn</span> <code class=\"t\">in</code> <span class=\"nt\">Expression</span> <code class=\"t\">)</code> <span class=\"nt\">Statement</span></span>",
+    "<p>The mechanics and order of enumerating the properties (step 6.a in the first algorithm, step 7.a in the second) is not
+    specified. Properties of the object being enumerated may be deleted during enumeration. If a property that has not yet been
+    visited during enumeration is deleted, then it will not be visited. If new properties are added to the object being
+    enumerated during enumeration, the newly added properties are not guaranteed to be visited in the active enumeration. A
+    property name must not be visited more than once in any enumeration.</p>
+    <p>Enumerating the properties of an object includes enumerating properties of its prototype, and the prototype of the
+    prototype, and so on, recursively; but a property of a prototype is not enumerated if it is \"shadowed\" because
+    some previous object in the prototype chain has a property with the same name. The values of [[Enumerable]] attributes are
+    not considered when determining if a property of a prototype object is shadowed by a previous object on the prototype chain.</p>
+    <div class=\"note\"><p><span class=\"nh\">NOTE</span> See NOTE 11.13.1.</p></div>",
+    null
+  ] [
+    "currentLabelSet:the current label set"
+  ] -> {
+    /* 1. Let varName be the result of evaluating VariableDeclarationNoIn. */
+    varName := JS_Interpreter_VariableDeclaration(VariableDeclarationNoIn, scope);
+    /* 2. Let exprRef be the result of evaluating the Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 3. Let experValue be GetValue(exprRef). */
+    experValue := GetValue(exprRef);
+    /* 4. If experValue is null or undefined, return (normal, empty, empty). */
+    if ((experValue = 'null) || (experValue = 'undefined)) {
+      return normalEmptyCompletion('empty)
+    };
+    /* 5. Let obj be ToObject(experValue). */
+    obj := ToObject(experValue);
+    /* 6. Let V = empty. */
+    V := 'empty;
+    gen_wrapper ["print_ignore"] {
+      i := 0;
+      obj_enums := getEnumerableProperties(obj)
+    };
+    /* 7. Repeat */
+    repeat {
+      /* a. Let P be the name of the next property of obj whose [[Enumerable]] attribute is true.
+            If there is no such property, return (normal, V, empty). */
+      gen_wrapper ["after-same:. If there is no such property, return (normal, <i>V</i>, empty)"] {
+        P := getNextPropertyName(obj_enums, i)
+      };
+      gen_wrapper ["print_ignore"] {
+        i := i + 1;
+        if (P = "None") {
+          return normalEmptyCompletion(V)
+        }
+      };
+      /* b. Let varRef be the result of evaluating varName as if it were an Identifier Reference (11.1.2);
+            it may be evaluated repeatedly. */
+      gen_wrapper ["after-same: as if it were an Identifier <a href=\"#sec-8.7\">Reference</a> (<a href=\"#sec-11.1.2\">11.1.2</a>); it may be evaluated repeatedly"] {
+        varRef := JS_Interpreter_Expr(varName, scope)
+      };
+      /* c. Call PutValue(varRef, P). */
+      PutValue(varRef, P);
+      /* d. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+      /* e. If stmt.value is not empty, let V = stmt.value. */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V := getCompletionValue(stmt)
+      };
+      /* f. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
+      if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
+        return normalEmptyCompletion(V)
+      };
+      /* g. If stmt.type is not continue || stmt.target is not in the current label set, then */
+      if (!(getCompletionType(stmt) = 'continue) || !(getCompletionTarget(stmt) in_list currentLabelSet)) ["after-same:then"] {
+        /* i. If stmt is an abrupt completion, return stmt. */
+        if (isAnAbruptCompletion(stmt)) {
+          return stmt
+        }
+      }
+    }
+  }
+};
+
 
 /* 12.7 The continue Statement */
 function JS_Interpreter_ContinueStatement(ContinueStatement, scope) [
@@ -5842,8 +6971,8 @@ function JS_Interpreter_ContinueStatement(ContinueStatement, scope) [
   /* A ContinueStatement without an Identifier is evaluated as follows: */
   | { type: "ContinueStatement", label: null } [
     "12.7.1",
+    "<p>A <span class=\"nt\">ContinueStatement</span> without an <span class=\"nt\">Identifier</span> is evaluated as follows:</p>",
     "",
-    "A <span class=\"nt\">ContinueStatement</span> without an <span class=\"nt\">Identifier</span>",
     "",
     null
   ] -> {
@@ -5853,13 +6982,13 @@ function JS_Interpreter_ContinueStatement(ContinueStatement, scope) [
   /* A ContinueStatement with the optional Identifier is evaluated as follows: */
   | { type: "ContinueStatement", label: Identifier } [
     "12.7.2",
+    "<p>A <span class=\"nt\">ContinueStatement</span> with the optional <span class=\"nt\">Identifier</span> is evaluated as follows:</p>",
     "",
-    "A <span class=\"nt\">ContinueStatement</span> with the optional <span class=\"nt\">Identifier</span>",
     "",
     null
   ] -> {
     /* 1. Return (continue, empty, Identifier). */
-    return newCompletion('continue, 'empty, Identifier.name)
+    return newCompletion('continue, 'empty, Identifier)
   }
   | default -> {
     return JS_Interpreter_BreakStatement(ContinueStatement, scope)
@@ -5877,8 +7006,8 @@ function JS_Interpreter_BreakStatement(BreakStatement, scope) [
   /* A BreakStatement without an Identifier is evaluated as follows: */
   | { type: "BreakStatement", label: null } [
     "12.8.1",
+    "<p>A <span class=\"nt\">BreakStatement</span> without an <span class=\"nt\">Identifier</span> is evaluated as follows:</p>",
     "",
-    "A <span class=\"nt\">BreakStatement</span> without an <span class=\"nt\">Identifier</span>",
     "",
     null
   ] -> {
@@ -5888,13 +7017,13 @@ function JS_Interpreter_BreakStatement(BreakStatement, scope) [
   /* A BreakStatement with an Identifier is evaluated as follows: */
   | { type: "BreakStatement", label: Identifier } [
     "12.8.2",
+    "A <span class=\"nt\">BreakStatement</span> with an <span class=\"nt\">Identifier</span> is evaluated as follows:",
     "",
-    "A <span class=\"nt\">BreakStatement</span> with an <span class=\"nt\">Identifier</span>",
     "",
     null
   ] -> {
     /* 1. Return (break, empty, Identifier). */
-    return newCompletion('break, 'empty, Identifier.name)
+    return newCompletion('break, 'empty, Identifier)
   }
   | default -> {
     return JS_Interpreter_ReturnStatement(BreakStatement, scope)
@@ -5906,13 +7035,17 @@ function JS_Interpreter_ReturnStatement(ReturnStatement, scope) [
   "12.9",
   "",
   "",
-  ""
+  "The <span style=\"font-family: monospace\">return</span> Statement"
 ] {
   match ReturnStatement with
   | { type: "ReturnStatement", argument: Expression } [
     "12.9.1",
+    "An ECMAScript program is considered syntactically incorrect if it contains a <code>return</code> statement that is not
+    within a <span class=\"nt\">FunctionBody</span>. A <code>return</code> statement causes a function to cease execution and return
+    a value to the caller. If <span class=\"nt\">Expression</span> is omitted, the return value is <b>undefined</b>. Otherwise, the
+    return value is the value of <span class=\"nt\">Expression</span>.</p>
+    <p>A <span class=\"nt\">ReturnStatement</span> is evaluated as follows:",
     "",
-    "A <span class=\"nt\">ReturnStatement</span>",
     "",
     null
   ] -> {
@@ -5924,5 +7057,531 @@ function JS_Interpreter_ReturnStatement(ReturnStatement, scope) [
     exprRef := JS_Interpreter_Expr(Expression, scope);
     /* 3. Return (return, GetValue(exprRef), empty). */
     return newCompletion('return, GetValue(exprRef), 'empty)
+  }
+  | default -> {
+    return JS_Interpreter_WithStatement(ReturnStatement, scope)
+  }
+};
+
+/* 12.10 The with Statement */
+/* The with statement adds an object environment record for a computed object to the lexical environment of
+    the current execution context. It then executes a statement using this augmented lexical environment.
+    Finally, it restores the original lexical environment. */
+function JS_Interpreter_WithStatement(WithStatement, scope) [
+  "12.10",
+  "",
+  "",
+  "The <span style=\"font-family: monospace\">with</span> Statement"
+] {
+  match WithStatement with
+  /* The production WithStatement : with ( Expression ) Statement is evaluated as follows: */
+  | { type: "WithStatement", object: Expression, body: Statement } [
+    "12.10.1",
+    "",
+    "<span class=\"nt\">WithStatement</span> <span class=\"geq\">:</span> <code class=\"t\">with</code> <code class=\"t\">(</code>
+    <span class=\"nt\">Expression</span> <code class=\"t\">)</code> <span class=\"nt\">Statement</span></span>",
+    "<div class=\"note\"><p><span class=\"nh\">NOTE</span> No matter how control leaves the embedded <span class=\"nt\">Statement</span>, whether
+    normally or by some form of <a href=\"#sec-8.9\">abrupt completion</a> or exception, the <a href=\"#sec-10.3\">LexicalEnvironment</a>
+    is always restored to its former state.</p></div>",
+    null
+  ] -> {
+    /* 1. Let val be the result of evaluating Expression. */
+    val := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Let obj be ToObject(GetValue(val)). */
+    obj := ToObject(GetValue(val));
+    /* 3. Let oldEnv be the running execution context‘s LexicalEnvironment. */
+    oldEnv := getLexicalEnvironment(scope);
+    /* 4. Let newEnv be the result of calling NewObjectEnvironment passing obj and oldEnv as the arguments. */
+    newEnv := NewObjectEnvironment(obj, oldEnv);
+    /* 5. Set the provideThis flag of newEnv to true. */
+    setProvideThis(newEnv, true);
+    /* 6. Set the running execution context‘s LexicalEnvironment to newEnv. */
+    setLexicalEnvironment(scope, newEnv);
+    /* 7. Let C be the result of evaluating Statement but if an exception is thrown during the evaluation, let C be
+          (throw, V, empty), where V is the exception. (Execution now proceeds as if no exception were thrown.) */
+    gen_wrapper ["after-same: (Execution now proceeds as if no exception were thrown.)"] {
+      C := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard
+    };
+    /* 8. Set the running execution context‘s Lexical Environment to oldEnv. */
+    setLexicalEnvironment(scope, oldEnv);
+    /* 9. Return C. */
+    return C
+  }
+  | default -> {
+    return JS_Interpreter_SwitchStatement(WithStatement, scope)
+  }
+};
+
+/* 12.11 The switch Statement */
+function JS_Interpreter_SwitchStatement_LabelSet(switchStmt, scope) [
+  "12.11",
+  "",
+  "",
+  "The <span style=\"font-family: monospace\">switch</span> Statement"
+] {
+  match switchStmt with
+  | { type: "SwitchStatement", discriminant: Expression, cases: CaseBlock, labelSet: currentLabelSet } [
+    "12.11.1",
+    "",
+    "<span class=\"nt\">SwitchStatement</span> <span class=\"geq\">:</span> <code class=\"t\">switch</code>
+    <code class=\"t\">(</code> <span class=\"nt\">Expression</span> <code class=\"t\">)</code>
+    <span class=\"nt\">CaseBlock</span></span>",
+    "",
+    null
+  ] [
+    "currentLabelSet:the current label set"
+  ] -> {
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Let R be the result of evaluating CaseBlock, passing it GetValue(exprRef) as a parameter. */
+    R := JS_Interpreter_CaseBlock(CaseBlock, GetValue(exprRef), scope);
+    /* 3. If R.type is break and R.target is in the current label set, return (normal, R.value, empty). */
+    if ((getCompletionType(R) = 'break) && (getCompletionTarget(R) in_list currentLabelSet)) {
+      return normalEmptyCompletion(getCompletionValue(R))
+    };
+    /* 4. Return R. */
+    return R
+  }
+};
+
+function JS_Interpreter_CaseBlock_CaseClauses(caseClauses, input, scope) [
+  "12.11.2",
+  "The production <span class=\"prod\"><span class=\"nt\">CaseBlock</span> <span class=\"geq\">:</span> <code class=\"t\">{</code>
+  <span class=\"nt\">CaseClauses</span><sub>opt</sub> <code class=\"t\">}</code></span> is given an input parameter,
+  <var>input</var>, and is evaluated as follows:",
+  "",
+  null
+] [
+  "caseClauses:the list of CaseClause items in source text order"
+] {
+  /* 1. Let V = empty. */
+  V := 'empty;
+  /* 2. Let A be the list of CaseClause items in source text order. */
+  A := caseClauses;
+  /* 3. Let searching be true. */
+  searching := true;
+  gen_wrapper ["print_ignore"] {
+    i := 0
+  };
+  /* 4. Repeat, while searching is true */
+  while(searching = true) {
+    /* a. Let C be the next CaseClause in A. If there is no such CaseClause, return (normal, V, empty). */
+    gen_wrapper ["after-same:. If there is no such <i>CaseClause</i>, return (normal, <i>V</i>, empty)"] {
+      C := getNextCaseClause(A, i)
+    };
+    gen_wrapper ["print_ignore"] {
+      i := i + 1;
+      if (C = "None") {
+        return normalEmptyCompletion(V)
+      }
+    };
+    /* b. Let clauseSelector be the result of evaluating C. */
+    clauseSelector := JS_Interpreter_SwitchCase(C, scope);
+    /* c. If input is equal to clauseSelector as defined by the === operator, then */
+    if (equalToAsDefinedByStrictEqualityComparison(input, clauseSelector)) ["after-same:, then"] {
+      /* i. Set searching to false. */
+      searching := false;
+      /* ii. If C has a StatementList, then */
+      if (hasStatementList(C)) ["after-same:, then"] {
+        /* 1. Evaluate C‘s StatementList and let R be the result. */
+        R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+        /* 2. If R is an abrupt completion, then return R. */
+        if (isAnAbruptCompletion(R)) ["after-same:then"] {
+          return R
+        };
+        /* 3. Let V = R.value. */
+        V := getCompletionValue(R)
+      }
+    }
+  };
+  gen_wrapper ["print_ignore"] {
+    i := 0
+  };
+  /* 5. Repeat */
+  repeat {
+    /* a. Let C be the next CaseClause in A. If there is no such CaseClause, return (normal, V, empty). */
+    gen_wrapper ["after-same:. If there is no such <i>CaseClause</i>, return (normal, <i>V</i>, empty)"] {
+      C := getNextCaseClause(A, i)
+    };
+    gen_wrapper ["print_ignore"] {
+      i := i + 1;
+      if (C = "None") {
+        return normalEmptyCompletion(V)
+      }
+    };
+    /* b. If C has a StatementList, then */
+    if (hasStatementList(C)) ["after-same:, then"] {
+      /* i. Evaluate C‘s StatementList and let R be the result. */
+      R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+      /* ii. If R.value is not empty, then let V = R.value. */
+      if (!(getCompletionValue(R) = 'empty)) ["after-same:then"] {
+        V := getCompletionValue(R)
+      };
+      /* iii. If R is an abrupt completion, then return (R.type, V, R.target). */
+      if (isAnAbruptCompletion(R)) ["after-same:then"] {
+        return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+      }
+    }
+  }
+};
+
+function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, DefaultClause, clausesB, input, scope) [
+  "12.11.3",
+  "The production <span class=\"prod\"><span class=\"nt\">CaseBlock</span> <span class=\"geq\">:</span> <code class=\"t\">{</code>
+  <span class=\"nt\">CaseClauses</span><sub>opt</sub> <span class=\"nt\">DefaultClause</span> <span class=\"nt\">CaseClauses</span><sub>opt</sub> <code class=\"t\">}</code></span> is given an input parameter, <var>input</var>, and
+  is evaluated as follows:",
+  "",
+  null
+] [
+  "clausesA:the list of <i>CaseClause</i> items in the first <i>CaseClauses</i>, in source text order",
+  "clausesB:the list of <i>CaseClause</i> items in the second <i>CaseClauses</i>, in source text order"
+] {
+  /* 1. Let V = empty. */
+  V := 'empty;
+  /* 2. Let A be the list of CaseClause items in the first CaseClauses, in source text order. */
+  A := clausesA;
+  /* 3. Let B be the list of CaseClause items in the second CaseClauses, in source text order. */
+  B := clausesB;
+  /* 4. Let found be false. */
+  found := false;
+  gen_wrapper ["print_ignore"] {
+    i := 0
+  };
+  /* 5. Repeat letting C be in order each CaseClause in A */
+  while (allElementsHaveNotBeenProcessed(A, i)) {
+    C := getNextCaseClause(A, i);
+    gen_wrapper ["print_ignore"] {
+      i := i + 1
+    };
+    /* a. If found is false, then */
+    if (found = false) ["after-same:, then"] {
+      /* i. Let clauseSelector be the result of evaluating C. */
+      clauseSelector := JS_Interpreter_SwitchCase(C, scope);
+      /* ii. If input is equal to clauseSelector as defined by the === operator, then set found to true. */
+      if (equalToAsDefinedByStrictEqualityComparison(input, clauseSelector)) ["after-same:then"] {
+        found := true
+      }
+    };
+    /* b. If found is true, then */
+    if (found = true) ["after-same:, then"] {
+      /* i. If C has a StatementList, then */
+      if (hasStatementList(C)) ["after-same:, then"] {
+        /* 1. Evaluate C‘s StatementList and let R be the result. */
+        R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+        /* 2. If R.value is not empty, then let V = R.value. */
+        if (!(getCompletionValue(R) = 'empty)) ["after-same:then"] {
+          V := getCompletionValue(R)
+        };
+        /* 3. R is an abrupt completion, then return (R.type, V, R.target). */
+        if (isAnAbruptCompletion(R)) ["after-same:then"] {
+          return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+        }
+      }
+    }
+  };
+  /* 6. Let foundInB be false. */
+  foundInB := false;
+  /* 7. If found is false, then */
+  gen_wrapper ["print_ignore"] {
+    i := 0
+  };
+  if (found = false) ["after-same:, then"] {
+    /* a. Repeat, while foundInB is false and all elements of B have not been processed */
+    while (foundInB = false &&& allElementsHaveNotBeenProcessed(B, i)) {
+      /* i. Let C be the next CaseClause in B. */
+      C := getNextCaseClause(B, i);
+      gen_wrapper ["print_ignore"] {
+        i := i + 1
+      };
+      /* ii. Let clauseSelector be the result of evaluating C. */
+      clauseSelector := JS_Interpreter_SwitchCase(C, scope);
+      /* iii. If input is equal to clauseSelector as defined by the === operator, then */
+      if (equalToAsDefinedByStrictEqualityComparison(input, clauseSelector)) ["after-same:, then"] {
+        /* 1. Set foundInB to true. */
+        foundInB := true;
+        /* 2. If C has a StatementList, then */
+        if (hasStatementList(C)) ["after-same:, then"] {
+          /* a  Evaluate C‘s StatementList and let R be the result. */
+          R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+          /* b  If R.value is not empty, then let V = R.value. */
+          if (!(getCompletionValue(R) = 'empty)) ["after-same:then"] {
+            V := getCompletionValue(R)
+          };
+          /* c  R is an abrupt completion, then return (R.type, V, R.target). */
+          if (isAnAbruptCompletion(R)) ["after-same:then"] {
+            return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+          }
+        }
+      }
+    }
+  };
+  /* 8. If foundInB is false and the DefaultClause has a StatementList, then */
+  if ((foundInB = false) && hasStatementList(DefaultClause)) ["after-same:, then"] {
+    /* a. Evaluate the DefaultClause’s StatementList and let R be the result. */
+    R := JS_Interpreter_StmtList(getCaseClauseStatementList(DefaultClause), scope);
+    /* b. If R.value is not empty, then let V = R.value. */
+    if (!(getCompletionValue(R) = 'empty)) ["after-same:then"] {
+      V := getCompletionValue(R)
+    };
+    /* c. If R is an abrupt completion, then return (R.type, V, R.target). */
+    if (isAnAbruptCompletion(R)) ["after-same:then"] {
+      return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+    }
+  };
+  /* 9. Repeat (Note that if step 7.a.i has been performed this loop does not start at the beginning of B) */
+  repeat ["after-same: (Note that if step 7.a.i has been performed this loop does not start at the beginning of <i>B</i>)"] {
+    /* a. Let C be the next CaseClause in B. If there is no such CaseClause, return (normal, V, empty). */
+    gen_wrapper ["after-same:. If there is no such <i>CaseClause</i>, return (normal, <i>V</i>, empty)"] {
+      C := getNextCaseClause(B, i)
+    };
+    gen_wrapper ["print_ignore"] {
+      i := i + 1;
+      if (C = "None") {
+        return normalEmptyCompletion(V)
+      }
+    };
+    /* b. If C has a StatementList, then */
+    if (hasStatementList(C)) ["after-same:, then"] {
+      /* i. Evaluate C‘s StatementList and let R be the result. */
+      R := JS_Interpreter_StmtList(getCaseClauseStatementList(C), scope);
+      /* ii. If R.value is not empty, then let V = R.value. */
+      if (!(getCompletionValue(R) = 'empty)) ["after-same:then"] {
+        V := getCompletionValue(R)
+      };
+      /* iii. If R is an abrupt completion, then return (R.type, V, R.target). */
+      if (isAnAbruptCompletion(R)) ["after-same:then"] {
+        return newCompletion(getCompletionType(R), V, getCompletionTarget(R))
+      }
+    }
+  }
+};
+
+function JS_Interpreter_SwitchCase(switchCase, scope) [
+  "12.11.4",
+  "",
+  "",
+  null
+] {
+  match switchCase with
+  | { type: "SwitchCase", test: Expression } [
+    "12.11.4.1",
+    "",
+    "<span class=\"nt\">CaseClause</span> <span class=\"geq\">:</span> <code class=\"t\">case</code>
+    <span class=\"nt\">Expression</span> <code class=\"t\">:</code> <span class=\"nt\">StatementList</span><sub>opt</sub>",
+    "<div class=\"note\"><p><span class=\"nh\">NOTE</span> Evaluating <span class=\"nt\">CaseClause</span> does not execute the associated <span class=\"nt\">StatementList</span>.
+    It simply evaluates the <span class=\"nt\">Expression</span> and returns the value, which the <span class=\"nt\">CaseBlock</span> algorithm uses to determine which
+    <span class=\"nt\">StatementList</span> to start executing.</p></div>",
+    null
+  ] -> {
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Return GetValue(exprRef). */
+    return GetValue(exprRef)
+  }
+};
+
+/* 12.13 The throw Statement */
+function JS_Interpreter_ThrowStatement(ThrowStatement, scope) [
+  "12.13",
+  "",
+  "",
+  "The <span style=\"font-family: monospace\">throw</span> Statement"
+] {
+  match ThrowStatement with
+  | { type: "ThrowStatement", argument: Expression } [
+    "12.13.1",
+    "",
+    "<span class=\"nt\">ThrowStatement</span> <span class=\"geq\">:</span> <code class=\"t\">throw</code>
+    <span class=\"grhsannot\">[no <span class=\"nt\">LineTerminator</span> here]</span> <span class=\"nt\">Expression</span> <code class=\"t\">;</code></span>",
+    "",
+    null
+  ] -> {
+    /* 1. Let exprRef be the result of evaluating Expression. */
+    exprRef := JS_Interpreter_Expr(Expression, scope);
+    /* 2. Return (throw, GetValue(exprRef), empty). */
+    return newCompletion('throw, GetValue(exprRef), 'empty)
+  }
+  | default -> {
+    return JS_Interpreter_TryStatement(ThrowStatement, scope)
+  }
+};
+
+/* 12.14 The try Statement */
+/* The try statement encloses a block of code in which an exceptional condition can occur, such as a runtime
+    error or a throw statement. The catch clause provides the exception-handling code. When a catch clause
+    catches an exception, its Identifier is bound to that exception. */
+function JS_Interpreter_TryStatement(TryStatement, scope) [
+  "12.14",
+  "",
+  "",
+  "The <span style=\"font-family: monospace\">try</span> Statement"
+] {
+  match TryStatement with
+  /* The production TryStatement : try Block Catch is evaluated as follows: */
+  | { type: "TryStatement", block: Block, handler: Catch, finalizer: null } [
+    "12.14.1",
+    "",
+    "<span class=\"nt\">TryStatement</span> <span class=\"geq\">:</span> <code class=\"t\">try</code>
+    <span class=\"nt\">Block</span> <span class=\"nt\">Catch</span></span>",
+    "",
+    null
+  ] -> {
+    /* 1. Let B be the result of evaluating Block. */
+    B := JS_Interpreter_Block(Block, scope);
+    /* 2. If B.type is not throw, return B. */
+    if (!(getCompletionType(B) = 'throw)) {
+      return B
+    };
+    /* 3. Return the result of evaluating Catch with parameter B.value. */
+    return JS_Interpreter_Catch(Catch, getCompletionValue(B), scope)
+  }
+  /* The production TryStatement : try Block Finally is evaluated as follows: */
+  | { type: "TryStatement", block: Block, handler: null, finalizer: Finally } [
+    "12.14.2",
+    "",
+    "<span class=\"nt\">TryStatement</span> <span class=\"geq\">:</span> <code class=\"t\">try</code>
+    <span class=\"nt\">Block</span> <span class=\"nt\">Finally</span></span>",
+    "",
+    null
+  ] -> {
+    /* 1. Let B be the result of evaluating Block. */
+    B := JS_Interpreter_Block(Block, scope);
+    /* 2. Let F be the result of evaluating Finally. */
+    F := JS_Interpreter_Finally(Finally, scope);
+    /* 3. If F.type is normal, return B. */
+    if (getCompletionType(F) = 'normal) {
+      return B
+    };
+    /* 4. Return F. */
+    return F
+  }
+  /* The production TryStatement : try Block Catch Finally is evaluated as follows: */
+  | { type: "TryStatement", block: Block, handler: Catch, finalizer: Finally } [
+    "12.14.3",
+    "",
+    "<span class=\"nt\">TryStatement</span> <span class=\"geq\">:</span> <code class=\"t\">try</code> <span class=\"nt\">Block</span>
+    <span class=\"nt\">Catch</span> <span class=\"nt\">Finally</span></span>",
+    "",
+    null
+  ] -> {
+    /* 1. Let B be the result of evaluating Block. */
+    B := JS_Interpreter_Block(Block, scope);
+    /* 2. If B.type is throw, then */
+    if (getCompletionType(B) = 'throw) {
+      /* a. Let C be the result of evaluating Catch with parameter B.value. */
+      C := JS_Interpreter_Catch(Catch, getCompletionValue(B), scope)
+    }
+    /* 3. Else, B.type is not throw, */
+    else ["after-same:, B.type is not throw,"] {
+      /* a. Let C be B. */
+      C := B
+    };
+    /* 4. Let F be the result of evaluating Finally. */
+    F := JS_Interpreter_Finally(Finally, scope);
+    /* 5. If F.type is normal, return C. */
+    if (getCompletionType(F) = 'normal) {
+      return C
+    };
+    /* 6. Return F. */
+    return F
+  }
+  | default -> {
+    return JS_Interpreter_DebuggerStatement(TryStatement, scope)
+  }
+};
+
+function JS_Interpreter_Catch(Catch, parameter, scope) [
+  "12.14.4",
+  "",
+  "",
+  null
+] {
+  match Catch with
+  /* The production Catch : catch ( Identifier ) Block is evaluated as follows: */
+  | { type: "CatchClause", param: Identifier, body: Block } [
+    "12.14.4.1",
+    "",
+    "<span class=\"nt\">Catch</span> <span class=\"geq\">:</span> <code class=\"t\">catch</code>
+    <code class=\"t\">(</code> <span class=\"nt\">Identifier</span> <code class=\"t\">)</code> <span class=\"nt\">Block</span></span>",
+    "<div class=\"note\"><p><span class=\"nh\">NOTE</span> No matter how control leaves the <span class=\"nt\">Block</span> the
+    <a href=\"#sec-10.3\">LexicalEnvironment</a> is always restored to its former state.</p></div>",
+    null
+  ] [
+    "parameter:the parameter that has been passed to this production",
+    "Identifier:the String value of <i>Identifier</i>"
+  ] -> {
+    gen_wrapper ["print_ignore"] {
+      Identifier := Identifier.name
+    };
+    /* 1. Let C be the parameter that has been passed to this production. */
+    C := parameter;
+    /* 2. Let oldEnv be the running execution context‘s LexicalEnvironment. */
+    oldEnv := getLexicalEnvironment(scope);
+    /* 3. Let catchEnv be the result of calling NewDeclarativeEnvironment passing oldEnv as the argument. */
+    catchEnv := NewDeclarativeEnvironment(oldEnv);
+    envRec := getEnvironmentRecord(catchEnv);
+    /* 4. Call the CreateMutableBinding concrete method of catchEnv passing the Identifier String value as the
+          argument. */
+    CreateMutableBinding(envRec, Identifier, false); /* TODO the third argument is optional as in the method signature */
+    /* 5. Call the SetMutableBinding concrete method of catchEnv passing the Identifier, C, and false as arguments.
+          Note that the last argument is immaterial in this situation. */
+    gen_wrapper ["after-same:. Note that the last argument is immaterial in this situation"] {
+      SetMutableBinding(envRec, Identifier, C, false)
+    };
+    /* 6. Set the running execution context‘s LexicalEnvironment to catchEnv. */
+    setLexicalEnvironment(scope, catchEnv);
+    /* 7. Let B be the result of evaluating Block. */
+    B := JS_Interpreter_Block(Block, scope);
+    /* 8. Set the running execution context‘s LexicalEnvironment to oldEnv. */
+    setLexicalEnvironment(scope, oldEnv);
+    /* 9. Return B. */
+    return B
+  }
+};
+
+function JS_Interpreter_Finally(Block, scope) [
+  "12.14.5",
+  "The production <span class=\"prod\"><span class=\"nt\">Finally</span> <span class=\"geq\">:</span> <code class=\"t\">finally</code>
+  <span class=\"nt\">Block</span></span> is evaluated as follows:",
+  "",
+  null
+] {
+  /* 1. Return the result of evaluating Block. */
+  return JS_Interpreter_Block(Block, scope)
+};
+
+/* 12.15 The debugger statement */
+/* Evaluating the DebuggerStatement production may allow an implementation to cause a breakpoint when run
+    under a debugger. If a debugger is not present or active this statement has no observable effect. */
+function JS_Interpreter_DebuggerStatement(DebuggerStatement, scope) [
+  "12.15",
+  "Evaluating the <span class=\"nt\">DebuggerStatement</span> production may allow an implementation to cause a breakpoint when
+  run under a debugger. If a debugger is not present or active this statement has no observable effect.",
+  "",
+  "The <span style=\"font-family: monospace\">debugger</span> statement"
+] {
+  match DebuggerStatement with
+  /* The production DebuggerStatement : debugger ; is evaluated as follows: */
+  | { type: "DebuggerStatement" } [
+    "12.15.1",
+    "",
+    "<span class=\"nt\">DebuggerStatement</span> <span class=\"geq\">:</span> <code class=\"t\">debugger</code> <code class=\"t\">;</code></span>",
+    "",
+    null
+  ] -> {
+    /* 1. If an implementation defined debugging facility is available and enabled, then */
+    if(existsDebuggerImplementation()) ["after-same:, then"] {
+      /* a. Perform an implementation defined debugging action. */
+      implementationDefinedDebuggingAction();
+      /* b. Let result be an implementation defined Completion value. */
+      result := implementationDefinedCompletionValue()
+    }
+    /* 2. Else */
+    else {
+      /* a. Let result be (normal, empty, empty). */
+      result := normalEmptyCompletion('empty)
+    };
+    /* 3. Return result. */
+    return result
   }
 }
