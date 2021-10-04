@@ -1764,6 +1764,7 @@ function StringPrototypeTrim (global, this, strict, args) {
   /*T := trim S;*/
 
   T := S;
+  /* TODO: use the auxiliary functions created in section_15.1 */
   /* Remove leading spaces */
   if (!(T = "")) {
     len := s_len_u T;
@@ -1781,6 +1782,7 @@ function StringPrototypeTrim (global, this, strict, args) {
     T := s_substr_u(T, j, (len - j))
   };
 
+  /* TODO: use the auxiliary functions created in section_15.1 */
   /* Remove trailing spaces */
   if (!(T = "")) {
     len := s_len_u T;

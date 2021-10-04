@@ -59,7 +59,11 @@ function ToNumber(argument) {
       };
       return argument
     }
-    case "String": { return float_of_string argument }
+    case "String": {
+      str := removeLeadingWhitespace(argument);
+      str := removeTrailingWhitespace(str);
+      return float_of_string str
+    }
     case "Object": {
       /* Apply the following steps: */
 

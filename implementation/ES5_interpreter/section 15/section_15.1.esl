@@ -28,7 +28,7 @@ function initGlobalObject(strict) {
   ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, strict);
   FunctionConstructor := initFunctionConstructor(FunctionPrototype, globalObject, strict);
 
-  |ObjectPrototype| := ObjectPrototype; 
+  |ObjectPrototype| := ObjectPrototype;
 
   setInternalProperty(globalObject, "Prototype", ObjectPrototype);
 
@@ -139,7 +139,7 @@ function initGlobalObject(strict) {
   /* Extras */
   ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);
   createBuiltInProperty(globalObject, "console", ConsoleObject);
-  
+
   return globalObject
 };
 
@@ -368,6 +368,28 @@ function removeLeadingWhitespace(string) {
       i := i + 1
     };
     T := s_substr_u(T, j, (len - j))
+  };
+
+  return T
+};
+
+function removeTrailingWhitespace(string) {
+  T := trim string;
+  /* Remove trailing spaces */
+  if (!(T = "")) {
+    len := s_len_u T;
+    i := len - 1;
+    j := len - 1;
+    while (i >= 0) {
+      c := s_nth_u(T, j);
+      if (isSpaceCharacter(c)) {
+        j := j - 1
+      } else {
+        i := -1
+      };
+      i := i - 1
+    };
+    T := s_substr_u(T, 0, (j + 1))
   };
 
   return T
