@@ -163,16 +163,18 @@ let mapper (new_funcs : (string, E_Func.t) Hashtbl.t) (s : E_Stmt.t) : E_Stmt.t 
             | None   -> Val.Null
             | Some s -> Val.Str s in
           let prod_to_func_pre =
-            let pre_str =
-              (match (E_Pat_Metadata.get_pre meta) with
-               | "" -> ""
-               | s  ->
-                 s ^ "</p><p>") in
-            pre_str ^
-            (Printf.sprintf
-               "The production <span class=\"prod\">%s</span> is evaluated as follows:"
-               (E_Pat_Metadata.get_production_text meta)
-            ) in
+            match (E_Pat_Metadata.get_pre meta), (E_Pat_Metadata.get_production_text meta) with
+            | "", "" -> ""
+            | "", prod_text ->
+              Printf.sprintf
+                "The production <span class=\"prod\">%s</span> is evaluated as follows:"
+                prod_text
+            | pre, "" -> pre
+            | pre, prod_text ->
+              pre ^ "</p><p>" ^
+              (Printf.sprintf
+                 "The production <span class=\"prod\">%s</span> is evaluated as follows:"
+                 prod_text) in
           let func_meta =
             E_Func_Metadata.build_func_metadata
               [
@@ -196,10 +198,23 @@ let mapper (new_funcs : (string, E_Func.t) Hashtbl.t) (s : E_Stmt.t) : E_Stmt.t 
   | _ -> s
 
 
-let generate (prog : E_Prog.t) : string =
+let parse_html_rules (file_name : string) : unit =
+  if file_name <> ""
+  then
+    let json = HTML_Rules.load_json_file file_name in
+    let rules = HTML_Rules.parse_json json in
+    HTML_Rules.update_tables rules
+(* List.iter (
+   fun (f : HTML_Rules.func_call_t) ->
+    Hashtbl.add HTML_Rules.func_call_rules f.func_name f
+   ) funcs *)
+
+
+let generate (json_file : string) (prog : E_Prog.t) : string =
   let funcs_list = E_Prog.get_funcs prog in
   (* filter out functions without metadata *)
   let filtered_funcs_list = List.filter filter_funcs funcs_list in
+  (* Convert MatchWith to E_Func *)
   let converted_table = Hashtbl.create 0 in
   let converted_funcs_list = List.map (
       fun f ->
@@ -212,8 +227,11 @@ let generate (prog : E_Prog.t) : string =
   let merged_funcs = (List.of_seq (Hashtbl.to_seq_values converted_table)) @ converted_funcs_list in
   (* sort funcs by section number *)
   let sorted_funcs_list = List.fast_sort compare_funcs merged_funcs in
-  (* Transform to HTML *)
+  (* Create std record *)
   let std = create_std_wrapper sorted_funcs_list in
+  (* Load function calls and matching phrases from JSON file *)
+  parse_html_rules json_file;
+  (* Transform to HTML *)
   let body =
     match std with
     (* Just to guarantee that all the chapters/main sections are direct children of the <body> html element
