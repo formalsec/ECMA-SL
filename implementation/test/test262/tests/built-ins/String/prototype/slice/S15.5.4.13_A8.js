@@ -12,7 +12,7 @@ description: >
 //////////////////////////////////////////////////////////////////////////////
 //CHECK#0
 if (!(String.prototype.slice.hasOwnProperty('length'))) {
-  $ERROR('#0: String.prototype.slice.hasOwnProperty(\'length\') return true. Actual: '+String.prototype.slice.hasOwnProperty('length'));
+  throw new Test262Error('#0: String.prototype.slice.hasOwnProperty(\'length\') return true. Actual: ' + String.prototype.slice.hasOwnProperty('length'));
 }
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -21,21 +21,21 @@ if (!(String.prototype.slice.hasOwnProperty('length'))) {
 //////////////////////////////////////////////////////////////////////////////
 // CHECK#1
 if (String.prototype.slice.propertyIsEnumerable('length')) {
-  $ERROR('#1: String.prototype.slice.propertyIsEnumerable(\'length\') return false');
+  throw new Test262Error('#1: String.prototype.slice.propertyIsEnumerable(\'length\') return false');
 }
 //
 //////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
 // CHECK#2
-var count=0;
+var count = 0;
 
-for (var p in String.prototype.slice){
-  if (p==="length") count++;
+for (var p in String.prototype.slice) {
+  if (p === "length") count++;
 }
 
 if (count !== 0) {
-  $ERROR('#2: count=0; for (p in String.prototype.slice){if (p==="length") count++;}; count === 0. Actual: '+count );
+  throw new Test262Error('#2: count=0; for (p in String.prototype.slice){if (p==="length") count++;}; count === 0. Actual: ' + count);
 }
 //
 //////////////////////////////////////////////////////////////////////////////

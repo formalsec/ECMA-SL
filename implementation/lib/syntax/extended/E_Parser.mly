@@ -489,10 +489,10 @@ e_stmt_target:
     { E_Stmt.Fail e }
   | e = e_expr_target;
     { E_Stmt.ExprStmt e }
-  | REPEAT; s = e_block_target;
-    { E_Stmt.RepeatUntil (s, E_Expr.Val (Val.Bool false)) }
-  | REPEAT; s = e_block_target; UNTIL; e = e_expr_target;
-    { E_Stmt.RepeatUntil (s, e) }
+  | REPEAT; meta = option(e_stmt_metadata_target); s = e_block_target;
+    { E_Stmt.RepeatUntil (s, E_Expr.Val (Val.Bool false), Option.map_default (fun x -> x) [] meta) }
+  | REPEAT; meta = option(e_stmt_metadata_target); s = e_block_target; UNTIL; e = e_expr_target;
+    { E_Stmt.RepeatUntil (s, e, Option.map_default (fun x -> x) [] meta) }
   | MATCH; e = e_expr_target; WITH; PIPE; pat_stmts = separated_list (PIPE, pat_stmt_target);
     { E_Stmt.MatchWith (e, pat_stmts) }
   | x = VAR; DEFEQ; LAMBDA; LPAREN;  xs = separated_list (COMMA, VAR); RPAREN; LBRACK; ys = separated_list (COMMA, VAR); RBRACK; s = e_block_target;

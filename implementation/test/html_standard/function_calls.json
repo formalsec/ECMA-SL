@@ -1,0 +1,1411 @@
+[
+  {
+    "type": "func_call_rules",
+    "rules": [
+      {
+        "func_name": "allElementsHaveNotBeenProcessed",
+        "active_params": [ 0 ],
+        "phrases": [
+          "all elements of "
+        ],
+        "final_phrase": " have not been processed"
+      },
+      {
+        "func_name": "applyBitwiseOperator",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of applying the bitwise operator @ to ",
+          " and "
+        ],
+        "final_phrase": ". The result is a signed 32 bit integer"
+      },
+      {
+        "func_name": "applyingTheAdditionOperation",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of applying the addition operation to ",
+          " and "
+        ],
+        "final_phrase": ". See the Note below <a href=\"#sec-11.6.3\">11.6.3</a>"
+      },
+      {
+        "func_name": "applyingTheMultiplicationOperator",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of applying the specified operation (*, /, or %%) to ",
+          " and "
+        ],
+        "final_phrase": ". See the Notes below <a href=\"#sec-11.5.1\">11.5.1</a>, <a href=\"#sec-11.5.2\">11.5.2</a>, <a href=\"#sec-11.5.3\">11.5.3</a>"
+      },
+      {
+        "func_name": "applyingTheDivisionOperator",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of applying the specified operation (*, /, or %%) to ",
+          " and "
+        ],
+        "final_phrase": ". See the Notes below <a href=\"#sec-11.5.1\">11.5.1</a>, <a href=\"#sec-11.5.2\">11.5.2</a>, <a href=\"#sec-11.5.3\">11.5.3</a>"
+      },
+      {
+        "func_name": "applyingTheRemainderOperator",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of applying the specified operation (*, /, or %%) to ",
+          " and "
+        ],
+        "final_phrase": ". See the Notes below <a href=\"#sec-11.5.1\">11.5.1</a>, <a href=\"#sec-11.5.2\">11.5.2</a>, <a href=\"#sec-11.5.3\">11.5.3</a>"
+      },
+      {
+        "func_name": "applyingTheSubtractionOperation",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of applying the subtraction operation to ",
+          " and "
+        ],
+        "final_phrase": ". See the Note below <a href=\"#sec-11.6.3\">11.6.3</a>"
+      },
+      {
+        "func_name": "applyOperator",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of applying operator @ to ",
+          " and "
+        ]
+      },
+      {
+        "func_name": "createOwnAccessorProperty",
+        "active_params": [ 1, 0, 2, 2],
+        "phrases": [
+          "Create an own accessor property named ",
+          " of object ",
+          " whose [[Get]], [[Set]], [[Enumerable]] and [[Configurable]] attribute values are described by ",
+          ". If the value of an attribute field of "
+        ],
+        "final_phrase": " is absent, the attribute of the newly created property is set to its default value"
+      },
+      {
+        "func_name": "createOwnDataProperty",
+        "active_params": [ 1, 0, 2, 2 ],
+        "phrases": [
+          "Create an own data property named ",
+          " of object ",
+          " whose [[Value]], [[Writable]], [[Enumerable]] and [[Configurable]] attribute values are described by ",
+          ". If the value of an attribute field of "
+        ],
+        "final_phrase": " is absent, the attribute of the newly created property is set to its default value"
+      },
+      {
+        "func_name": "convertAccessorPropertyDescToDataPropertyDesc",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "Convert the property named ",
+          " of object "
+        ],
+        "final_phrase": " from an accessor property to a data property. Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and set the rest of the property’s attributes to their default values"
+      },
+      {
+        "func_name": "convertDataPropertyDescToAccessorPropertyDesc",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "Convert the property named ",
+          " of object "
+        ],
+        "final_phrase": " from a data property to an accessor property. Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and set the rest of the property’s attributes to their default values"
+      },
+      {
+        "func_name": "createImmutableBinding",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "Create an <a href=\"#immutable-binding\">immutable binding</a> in ",
+          " for "
+        ]
+      },
+      {
+        "func_name": "createMutableBinding",
+        "active_params": [ 0, 1, 2 ],
+        "phrases": [
+          "Create a mutable binding in ",
+          " for ",
+          " and set its bound value to "
+        ]
+      },
+      {
+        "func_name": "createThrowTypeErrorFunctionObject",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "the [[ThrowTypeError]] function Object (<a href=\"#sec-13.2.3\">13.2.3</a>)"
+      },
+      {
+        "func_name": "equalToAsDefinedByStrictEqualityComparison",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "",
+          " is equal to "
+        ],
+        "final_phrase": " as defined by the <span style=\"font-family: monospace\">===</span> operator"
+      },
+      {
+        "func_name": "everyFieldInDescAlsoOccursInCurrent",
+        "active_params": [ 0, 1, 0, 1 ],
+        "phrases": [
+          "every field in ",
+          " also occurs in ",
+          " and the value of every field in ",
+          " is the same value as the corresponding field in "
+        ],
+        "final_phrase": " when compared using the <a href=\"#sec-9.12\">SameValue</a> algorithm (<a href=\"#sec-9.12\">9.12</a>)"
+      },
+      {
+        "func_name": "existsDebuggerImplementation",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "an implementation defined debugging facility is available and enabled"
+      },
+      {
+        "func_name": "exitExecutionContext",
+        "active_params": [ 0 ],
+        "phrases": [
+          "Exit the execution context "
+        ]
+      },
+      {
+        "func_name": "formingTheValueOfTheNumericLiteral",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the result of forming the value of the "
+        ]
+      },
+      {
+        "func_name": "getBindingObject",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the <a href=\"x10.2.1.2\">binding object</a> for "
+        ]
+      },
+      {
+        "func_name": "getBindingValue",
+        "active_params": [ 1, 0 ],
+        "phrases": [
+          "the value currently bound to ",
+          " in "
+        ]
+      },
+      {
+        "func_name": "getCaseClauseStatementList",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": "'s StatementList"
+      },
+      {
+        "func_name": "getCompletionTarget",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": ".target"
+      },
+      {
+        "func_name": "getCompletionType",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": ".type"
+      },
+      {
+        "func_name": "getCompletionValue",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": ".value"
+      },
+      {
+        "func_name": "getEnvironmentRecord",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": "‘s environment record"
+      },
+      {
+        "func_name": "getEnvRecOfRunningExecCtx",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "the <a href=\"#sec-10.2\">environment record</a> component of the running execution context’s VariableEnvironment"
+      },
+      {
+        "func_name": "getFunctionCode",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "the <a href=\"#function-code\">function code</a>"
+      },
+      {
+        "func_name": "getFunctionDeclarationsInCode",
+        "active_params": [ 0 ],
+        "phrases": [ "" ]
+      },
+      {
+        "func_name": "getGlobalEnvironment",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "the <a href=\"#sec-10.2.3\">Global Environment</a>"
+      },
+      {
+        "func_name": "getIdentifierFunctionDeclaration",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the <i>Identifier</i> in <i><a href=\"\">FunctionDeclaration</a></i> "
+        ]
+      },
+      {
+        "func_name": "getIdentifierVariableDeclaration",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the <i>Identifier</i> in "
+        ]
+      },
+      {
+        "func_name": "getInternalProperty",
+        "active_params": [ 1, 0 ],
+        "phrases": [
+          "the value of the ",
+          " internal property of "
+        ]
+      },
+      {
+        "func_name": "getJSProperty",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "",
+          "'s own property named "
+        ]
+      },
+      {
+        "func_name": "getNextCaseClause",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the next <i>CaseClause</i> in "
+        ]
+      },
+      {
+        "func_name": "getNextPropertyName",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "the name of the next property of <i>obj</i> whose [[Enumerable]] attribute is <b>true</b>"
+      },
+      {
+        "func_name": "getObjectPrototype",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "the standard built-in Object prototype object (<a href=\"#sec-15.2.4\">15.2.4</a>)"
+      },
+      {
+        "func_name": "getOuterEnvironmentReference",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the value of "
+        ],
+        "final_phrase": "’s <a href=\"#outer-environment-reference\">outer environment reference</a>"
+      },
+      {
+        "func_name": "getOwnEnumerableProperties",
+        "active_params": [ 0 ],
+        "phrases": [
+          "an internal list containing the names of each enumerable own property of "
+        ]
+      },
+      {
+        "func_name": "getOwnProperties",
+        "active_params": [ 0 ],
+        "phrases": [ "" ]
+      },
+      {
+        "func_name": "getPropertyDescriptor",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": ".descriptor"
+      },
+      {
+        "func_name": "getPropertyName",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": ".name"
+      },
+      {
+        "func_name": "getProvideThis",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the <i>provideThis</i> flag of "
+        ]
+      },
+      {
+        "func_name": "getStringValue",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the String value that is the name of "
+        ]
+      },
+      {
+        "func_name": "getThisBinding",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "the same value as the <a href=\"#sec-10.3\">ThisBinding</a> of the calling execution context"
+      },
+      {
+        "func_name": "getVariableDeclarationsInCode",
+        "active_params": [ 0 ],
+        "phrases": [ "" ]
+      },
+      {
+        "func_name": "hasStatementList",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": " has a <i>StatementList</i>"
+      },
+      {
+        "func_name": "hasUninitialisedImmutableBinding",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "",
+          " must have an uninitialized <a href=\"#immutable-binding\">immutable binding</a> for "
+        ]
+      },
+      {
+        "func_name": "hostObjectReturn",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "a result in an implementation-dependent manner that may depend on the host object"
+      },
+      {
+        "func_name": "hostObjectValueOf",
+        "active_params": [ 0 ],
+        "phrases": [
+          "either "
+        ],
+        "final_phrase": " or another value such as the host object originally passed to the constructor. The specific result that is returned is implementation-defined"
+      },
+      {
+        "func_name": "implementationDefinedCompletionValue",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "an implementation defined <a href=\"#sec-8.9\">Completion</a> value"
+      },
+      {
+        "func_name": "implementationDefinedDebuggingAction",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "Perform an implementation defined debugging action"
+      },
+      {
+        "func_name": "isAnAbruptCompletion",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": " is an <a href=\"#sec-8.9\">abrupt completion</a>"
+      },
+      {
+        "func_name": "isBindingCannotBeDeleted",
+        "active_params": [ 1, 0 ],
+        "phrases": [
+          "the binding for ",
+          " in "
+        ],
+        "final_phrase": " cannot be deleted"
+      },
+      {
+        "func_name": "isBuiltInFunctionBodyStrictModeCode",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": " is <a href=\"#sec-10.1.1\">strict mode code</a>"
+      },
+      {
+        "func_name": "isContainedInStrictCode",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "the syntactic production that is being evaluated is contained in <a href=\"#sec-10.1.1\">strict mode code</a>"
+      },
+      {
+        "func_name": "isDirectCall",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "If there is no calling context or if the <a href=\"#eval-code\">eval code</a> is not being evaluated by a direct call (<a href=\"#sec-15.1.2.1.1\">15.1.2.1.1</a>) to the eval function"
+      },
+      {
+        "func_name": "isEvalCode",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": " is <a href=\"#eval-code\">eval code</a>"
+      },
+      {
+        "func_name": "isFunctionCode",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": " is <a href=\"#function-code\">function code</a>"
+      },
+      {
+        "func_name": "isHostObject",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the "
+        ],
+        "final_phrase": " is a host object"
+      },
+      {
+        "func_name": "isJavaScriptObject",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the "
+        ],
+        "final_phrase": " is a native ECMAScript object"
+      },
+      {
+        "func_name": "isMinusZero",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": " is -0"
+      },
+      {
+        "func_name": "isMutableBinding",
+        "active_params": [ 1, 0 ],
+        "phrases": [
+          "the binding for ",
+          " in "
+        ],
+        "final_phrase": " is a mutable binding"
+      },
+      {
+        "func_name": "isStrictFunctionObject",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": " is a strict mode Function object"
+      },
+      {
+        "func_name": "isUninitialisedBinding",
+        "active_params": [ 1, 0 ],
+        "phrases": [
+          "the binding for ",
+          " in "
+        ],
+        "final_phrase": " is an uninitialised <a href=\"#immutable-binding\">immutable binding</a>"
+      },
+      {
+        "func_name": "isValueAnEmptyFunctionBody",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": " is an empty <i><a href=\"#sec-13\">FunctionBody</a></i>"
+      },
+      {
+        "func_name": "isZero",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": " is +0"
+      },
+      {
+        "func_name": "listOfIdentifiersOf",
+        "active_params": [ 0 ],
+        "phrases": [
+          "a <a href=\"#sec-8.8\">List</a> containing, in left to right textual order, the Strings corresponding to the identifiers of "
+        ]
+      },
+      {
+        "func_name": "maskOutBits",
+        "active_params": [ 0, 0 ],
+        "phrases": [
+          "the result of masking out all but the least significant 5 bits of ",
+          ", that is, compute "
+        ],
+        "final_phrase": " & 0x1F"
+      },
+      {
+        "func_name": "mathematicalValue",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the mathematical value of "
+        ]
+      },
+      {
+        "func_name": "makeArgGetterLetBodyAuxFunction",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the result of concatenating the Strings \"<code><b>return </b></code>\", "
+        ],
+        "final_phrase": ", and \"<code><b>;</b></code>\""
+      },
+      {
+        "func_name": "makeArgSetterLetBodyAuxFunction",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the String <b>\"&#60;name&#62; = &#60;param&#62;;\"</b> with <b>&#60;name&#62;</b> replaced by the value of ",
+          " and <b>&#60;param&#62;</b> replaced by the value of "
+        ]
+      },
+      {
+        "func_name": "makeArgSetterLetParamAuxFunction",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the String "
+        ],
+        "final_phrase": " concatenated with the String \"<code><b>_arg</b></code>\""
+      },
+      {
+        "func_name": "newAccessorPropertyDescriptorFull",
+        "active_params": [ 0, 1, 2, 3 ],
+        "phrases": [
+          "the <a href=\"#sec-8.10\">Property Descriptor</a> {[[Set]]: ",
+          ", [[Get]]: ",
+          ", [[Enumerable]]: ",
+          ", [[Configurable]]: "
+        ],
+        "final_phrase": "}"
+      },
+      {
+        "func_name": "newCompletion",
+        "active_params": [ 0, 1, 2 ],
+        "phrases": [
+          "(",
+          ", ",
+          ", "
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "newDataPropertyDescriptor",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the <a href=\"#sec-8.10\">Property Descriptor</a> {[[Value]]: "
+        ],
+        "final_phrase": ", [[Writable]]: <b>true</b>, [[Enumerable]]: <b>true</b>, [[Configurable]]: <b>true</b>}"
+      },
+      {
+        "func_name": "newDataPropertyDescriptorFull",
+        "active_params": [ 0, 1, 2, 3 ],
+        "phrases": [
+          "the <a href=\"#sec-8.10\">Property Descriptor</a> {[[Value]]: ",
+          ", [[Writable]]: ",
+          ", [[Enumerable]]: ",
+          ", [[Configurable]]: "
+        ],
+        "final_phrase": "}"
+      },
+      {
+        "func_name": "newDeclarativeEnvironmentRecord",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "a new <a href=\"#declarative-environment-record\">declarative environment record</a> containing no bindings"
+      },
+      {
+        "func_name": "newGetAccessorPropertyDescriptor",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the <a href=\"#sec-8.10\">Property Descriptor</a> {[[Get]]: "
+        ],
+        "final_phrase": ", [[Enumerable]]: <b>true</b>, [[Configurable]]: <b>true</b>}"
+      },
+      {
+        "func_name": "newLexicalEnvironment",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "a new <a href=\"#sec-10.2\">Lexical Environment</a>"
+      },
+      {
+        "func_name": "newObjectEnvironmentRecord",
+        "active_params": [ 0 ],
+        "phrases": [
+          "a new <a href=\"#object-environment-record\">object environment record</a> containing "
+        ],
+        "final_phrase": " as the <a href=\"x10.2.1.2\">binding object</a>"
+      },
+      {
+        "func_name": "newPropertyIdentifier",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "<a href=\"#sec-8.10\">Property Identifier</a> (",
+          ", "
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "newPropertyReference",
+        "active_params": [ 0, 1, 2],
+        "phrases": [
+          "a value of type <a href=\"#sec-8.7\">Reference</a> whose base value is ",
+          " and whose referenced name is ",
+          ", and whose strict mode flag is "
+        ]
+      },
+      {
+        "func_name": "newSetAccessorPropertyDescriptor",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the <a href=\"#sec-8.10\">Property Descriptor</a> {[[Set]]: "
+        ],
+        "final_phrase": ", [[Enumerable]]: <b>true</b>, [[Configurable]]: <b>true</b>}"
+      },
+      {
+        "func_name": "newValueReference",
+        "active_params": [ 0, 1, 2 ],
+        "phrases": [
+          "a value of type <a href=\"#sec-8.7\">Reference</a> whose base value is ",
+          ", whose referenced name is ",
+          ", and whose strict mode flag is "
+        ]
+      },
+      {
+        "func_name": "normalEmptyCompletion",
+        "active_params": [ 0 ],
+        "phrases": [
+          "(normal, "
+        ],
+        "final_phrase": ", empty)"
+      },
+      {
+        "func_name": "numberOfFormalParameters",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the number of formal parameters specified in "
+        ]
+      },
+      {
+        "func_name": "parseAsProgram",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the ECMAScript code that is the result of parsing "
+        ],
+        "final_phrase": " as a Program. If the parse fails, throw a <b>SyntaxError</b> exception (but <a href=\"#sec-16\">see also clause 16</a>)"
+      },
+      {
+        "func_name": "sameNumber",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "",
+          " is the same Number value as "
+        ]
+      },
+      {
+        "func_name": "sameObject",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "",
+          " and "
+        ],
+        "final_phrase": " refer to the same object"
+      },
+      {
+        "func_name": "sameSequenceOfCharacters",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "",
+          " and "
+        ],
+        "final_phrase": " are exactly the same sequence of characters (same length and same characters in corresponding positions)"
+      },
+      {
+        "func_name": "setAllInternalMethodsExceptGet",
+        "active_params": [ 0 ],
+        "phrases": [
+          "Set all the internal methods, except for [[Get]], of "
+        ],
+        "final_phrase": " as described in <a href=\"#sec-8.12\">8.12</a>"
+      },
+      {
+        "func_name": "setAllInternalMethodsOfObject",
+        "active_params": [ 0 ],
+        "phrases": [
+          "Set all the internal methods of "
+        ],
+        "final_phrase": " as specified in <a href=\"#sec-8.12\">8.12</a>"
+      },
+      {
+        "func_name": "setBindingDeletable",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "record that the newly created binding may be deleted by a subsequent DeleteBinding call"
+      },
+      {
+        "func_name": "setBindingValue",
+        "active_params": [ 1, 0, 2 ],
+        "phrases": [
+          "Set the bound value for ",
+          " in ",
+          " to "
+        ]
+      },
+      {
+        "func_name": "setCorrespondinglyNamedAttributes",
+        "active_params": [ 2, 1, 0 ],
+        "phrases": [
+          "For each attribute field of ",
+          " that is present, set the correspondingly named attribute of the property named ",
+          " of object "
+        ],
+        "final_phrase": " to the value of the field"
+      },
+      {
+        "func_name": "setEnvironmentRecord",
+        "active_params": [ 0 ,1 ],
+        "phrases": [
+          "Set ",
+          "’s environment record to be "
+        ]
+      },
+      {
+        "func_name": "setOuterLexicalEnvironmentReference",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "Set the outer lexical environment reference of ",
+          " to "
+        ]
+      },
+      {
+        "func_name": "setProvideThis",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "Set the <i>provideThis</i> flag of ",
+          " to "
+        ]
+      },
+      {
+        "func_name": "setThisBinding",
+        "active_params": [ 1 ],
+        "phrases": [
+          "Set the <a href=\"#sec-10.3\">ThisBinding</a> to "
+        ]
+      },
+      {
+        "func_name": "setVariableEnvironment",
+        "active_params": [ 1 ],
+        "phrases": [
+          "Set the VariableEnvironment to "
+        ]
+      },
+      {
+        "func_name": "throwAnyApplicableExceptions",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "throw any exceptions specified in <a href=\"#sec-13.1\">13.1</a> that apply"
+      },
+      {
+        "func_name": "typeofOperatorTable",
+        "active_params": [ 0 ],
+        "phrases": [
+          "a String determined by <a href=\"#sec-8\">Type</a>("
+        ],
+        "final_phrase": ") according to Table 20"
+      },
+      {
+        "func_name": "AbstractEqualityComparison",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of performing abstract equality comparison ",
+          " == "
+        ],
+        "final_phrase": ". (<a href=\"#sec-11.9.3\">see 11.9.3</a>)"
+      },
+      {
+        "func_name": "CheckObjectCoercible",
+        "active_params": [ 0 ],
+        "phrases": [
+          "Call <a href=\"#sec-9.10\">CheckObjectCoercible</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "CreateArgumentsObject",
+        "active_params": [ 0, 1, 2, 3, 4 ],
+        "phrases": [
+          "the result of calling the abstract operation CreateArgumentsObject (<a href=\"#sec-10.6\">10.6</a>) passing ",
+          ", ",
+          ", ",
+          ", ",
+          " and "
+        ],
+        "final_phrase": " as arguments"
+      },
+      {
+        "func_name": "DefaultValue",
+        "active_params": [ 1 ],
+        "phrases": [
+          "Return a default value for the Object. The default value of an object is retrieved by calling the [[DefaultValue]] internal method of the object, passing the optional hint "
+        ],
+        "final_phrase": ". The behaviour of the [[DefaultValue]] internal method is defined by this specification for all native ECMAScript objects in <a href=\"x8.12.8\">8.12.8</a>."
+      },
+      {
+        "func_name": "DefineOwnProperty",
+        "active_params": [ 0, 1, 2, 3 ],
+        "phrases": [
+          "the result of calling the default [[DefineOwnProperty]] internal method (<a href=\"#sec-8.12.9\">8.12.9</a>) on the ",
+          " passing ",
+          ", ",
+          ", and "
+        ],
+        "final_phrase": " as the arguments"
+      },
+      {
+        "func_name": "Delete",
+        "active_params": [ 0, 1, 2 ],
+        "phrases": [
+          "the result of calling the default [[Delete]] internal method (<a href=\"#sec-8.12.9\">8.12.9</a>) on the ",
+          " passing ",
+          " and "
+        ],
+        "final_phrase": " as the arguments."
+      },
+      {
+        "func_name": "DeleteBinding",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of calling the DeleteBinding concrete method of ",
+          ", providing "
+        ],
+        "final_phrase": " as the argument"
+      },
+      {
+        "func_name": "EnteringEvalCode",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the result of establishing a new execution context (<a href=\"#sec-10.4.2\">10.4.2</a>) for the eval code "
+        ]
+      },
+      {
+        "func_name": "EnteringFunctionCode",
+        "active_params": [ 0, 2 ],
+        "phrases": [
+          "the result of establishing a new execution context for <a href=\"#function-code\">function code</a> using the value of ",
+          "'s [[FormalParameters]] internal property, the passed arguments <a href=\"#sec-8.8\">List</a> "
+        ],
+        "final_phrase": ", and the <b>this</b> value as described in <a href=\"#sec-10.4.3\">10.4.3</a>"
+      },
+      {
+        "func_name": "EnteringGlobalCode",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "a new execution context for global code as described in <a href=\"#sec-10.4.1\">10.4.1</a>"
+      },
+      {
+        "func_name": "EveryFieldIsAbsent",
+        "active_params": [ 0 ],
+        "phrases": [
+          "every field in "
+        ],
+        "final_phrase": " is absent"
+      },
+      {
+        "func_name": "FromPropertyDescriptor",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the result of calling <a href=\"#sec-8.10.4\">FromPropertyDescriptor</a>("
+        ],
+        "final_phrase": ") (<a href=\"#sec-8.10.4\">8.10.4</a>)"
+      },
+      {
+        "func_name": "Get",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of calling the default [[Get]] internal method (<a href=\"#sec-8.12.3\">8.12.3</a>) on the ",
+          " passing "
+        ],
+        "final_phrase": " as the argument"
+      },
+      {
+        "func_name": "GetBase",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-8.7\">GetBase</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "GetBindingValue",
+        "active_params": [ 0, 1, 2 ],
+        "phrases": [
+          "the result of calling the GetBindingValue (see <a href=\"#10.2.1\">10.2.1</a>) concrete method of ",
+          " passing ",
+          " and "
+        ],
+        "final_phrase": " as arguments"
+      },
+      {
+        "func_name": "GetOwnProperty",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of calling the default [[GetOwnProperty]] internal method (<a href=\"#sec-8.12.1\">8.12.1</a>) on the ",
+          " passing "
+        ],
+        "final_phrase": " as the argument"
+      },
+      {
+        "func_name": "GetReferencedName",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-8.7\">GetReferencedName</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "HasBinding",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of calling ",
+          "’s HasBinding concrete method passing "
+        ],
+        "final_phrase": " as the argument"
+      },
+      {
+        "func_name": "HasPrimitiveBase",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-8.7\">HasPrimitiveBase</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "ImplicitThisValue",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the result of calling the ImplicitThisValue concrete method of "
+        ]
+      },
+      {
+        "func_name": "InitializeImmutableBinding",
+        "active_params": [ 0, 1, 2 ],
+        "phrases": [
+          "Call ",
+          "’s <a href=\"x10.2.1.1.8\">InitializeImmutableBinding</a> concrete method passing ",
+          " and "
+        ],
+        "final_phrase": " as arguments"
+      },
+      {
+        "func_name": "Interpreter_Statement_Guard",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "but if an exception is thrown during the evaluation, let it be (throw, <i>V</i>, empty), where <i>V</i> is the exception"
+      },
+      {
+        "func_name": "IsGenericPropertyDescriptor",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-8.10.3\">IsGenericDescriptor</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "IsPrimitiveValue",
+        "active_params": [ 0 ],
+        "phrases": [
+          ""
+        ],
+        "final_phrase": " is a <a href=\"#primitive_value\">primitive value</a>"
+      },
+      {
+        "func_name": "IsPropertyReference",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-8.7\">IsPropertyReference</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "IsStrictReference",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-8.7\">IsStrictReference</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "IsUnresolvableReference",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-8.7\">IsUnresolvableReference</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": [
+          "JS_Interpreter_ArgumentList",
+          "JS_Interpreter_Block",
+          "JS_Interpreter_ElementList",
+          "JS_Interpreter_Elision",
+          "JS_Interpreter_Expr",
+          "JS_Interpreter_Finally",
+          "JS_Interpreter_FunctionExpression",
+          "JS_Interpreter_Initialiser",
+          "JS_Interpreter_PropertyAssignment",
+          "JS_Interpreter_PropertyName",
+          "JS_Interpreter_PropertyNameAndValueList",
+          "JS_Interpreter_SourceElements",
+          "JS_Interpreter_SourceElements_SourceElement",
+          "JS_Interpreter_Stmt",
+          "JS_Interpreter_StmtList",
+          "JS_Interpreter_SwitchCase"
+        ],
+        "active_params": [ 0 ],
+        "phrases": [
+          "the result of evaluating "
+        ]
+      },
+      {
+        "func_name": "JS_Interpreter_Arguments",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the result of evaluating "
+        ],
+        "final_phrase": ", producing an internal list of argument values (<a href=\"#sec-11.2.4\">see 11.2.4</a>)"
+      },
+      {
+        "func_name": "JS_Interpreter_CaseBlock",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of evaluating ",
+          ", passing it "
+        ],
+        "final_phrase": " as a parameter"
+      },
+      {
+        "func_name": "JS_Interpreter_Catch",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of evaluating ",
+          " with parameter "
+        ]
+      },
+      {
+        "func_name": "JS_Interpreter_FunctionBody",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the result of evaluating the <i><a href=\"#sec-13\">FunctionBody</a></i> that is "
+        ]
+      },
+      {
+        "func_name": "JS_Interpreter_FunctionDeclaration",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "the result of instantiating <>FunctionDeclaration f</> as described in <a href=\"#sec-13\">Clause 13</a>"
+      },
+      {
+        "func_name": "JS_Interpreter_Program",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the result of evaluating the program "
+        ]
+      },
+      {
+        "func_name": [
+          "JS_Interpreter_VariableDeclarationList",
+          "JS_Interpreter_VariableDeclaration",
+          "JS_Interpreter_VariableStatement"
+        ],
+        "active_params": [ 0 ],
+        "phrases": [
+          "Evaluate "
+        ]
+      },
+      {
+        "func_name": "MakeArgGetter",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of calling the <i><a href=\"#MakeArgGetter\">MakeArgGetter</a></i> abstract operation with arguments ",
+          " and "
+        ]
+      },
+      {
+        "func_name": "MakeArgSetter",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of calling the <i><a href=\"#MakeArgSetter\">MakeArgSetter</a></i> abstract operation with arguments ",
+          " and "
+        ]
+      },
+      {
+        "func_name": "NewDeclarativeEnvironment",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the result of calling <a href=\"#sec-10.2.2.2\">NewDeclarativeEnvironment</a> passing "
+        ],
+        "final_phrase": " as the argument"
+      },
+      {
+        "func_name": "NewECMAScriptObject",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "a newly created native ECMAScript object"
+      },
+      {
+        "func_name": "NewPropertyDescriptor",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "a newly created <a href=\"#sec-8.10\">Property Descriptor</a> with no fields"
+      },
+      {
+        "func_name": "PutValue",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "Call <a href=\"#sec-8.7.2\">PutValue</a>(",
+          ", "
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "ReferenceErrorConstructorInternal",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "a <b>ReferenceError</b> exception"
+      },
+      {
+        "func_name": "SameValue",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "<a href=\"\">SameValue</a>(",
+          " , "
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "SetMutableBinding",
+        "active_params": [ 0, 1, 2, 3 ],
+        "phrases": [
+          "Call the SetMutableBinding (<a href=\"#sec-10.2.1\">10.2.1</a>) concrete method of ",
+          ", passing ",
+          ", ",
+          ", and "
+        ],
+        "final_phrase": " as arguments"
+      },
+      {
+        "func_name": "StrictEqualityComparison",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "the result of performing the strict equality comparison ",
+          " === "
+        ],
+        "final_phrase": ". (See <a href=\"#sec-11.9.6\">11.9.6</a>)"
+      },
+      {
+        "func_name": "SyntaxErrorConstructorInternal",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "a <b>SyntaxError</b> exception"
+      },
+      {
+        "func_name": "ToBoolean",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-9.2\">ToBoolean</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "ToInt32",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-9.5\">ToInt32</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "ToInteger",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-9.4\">ToInteger</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "ToNumber",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-9.3\">ToNumber</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "ToPrimitive",
+        "active_params": [ 0, 1 ],
+        "phrases": [
+          "<a href=\"#sec-9.1\">ToPrimitive</a>(",
+          ", hint "
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "ToString",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-9.8\">ToString</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "ToUint16",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-9.7\">ToUint16</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "ToUint32",
+        "active_params": [ 0 ],
+        "phrases": [
+          "<a href=\"#sec-9.6\">ToUint32</a>("
+        ],
+        "final_phrase": ")"
+      },
+      {
+        "func_name": "ToPropertyDescriptor",
+        "active_params": [ 0 ],
+        "phrases": [
+          "the result of calling <a href=\"#sec-8.10.5\">ToPropertyDescriptor</a> with "
+        ],
+        "final_phrase": " as the argument"
+      },
+      {
+        "func_name": "TypeErrorConstructorInternal",
+        "active_params": [],
+        "phrases": [],
+        "final_phrase": "a <b>TypeError</b> exception"
+      }
+    ]
+  },
+  {
+    "type": "lookup_rules",
+    "rules": [
+      {
+        "prop_name": [
+          "Extensible",
+          "FormalParameters",
+          "ParameterMap",
+          "GetOwnProperty",
+          "DefineOwnProperty",
+          "Scope",
+          "Code" ],
+        "active_elements": [ 1, 0 ],
+        "phrases": [
+          "the value of the [[",
+          "]] internal property of "
+        ]
+      },
+      {
+        "prop_name": "Prototype",
+        "active_elements": [ 1, 0 ],
+        "phrases": [
+          "the value of the [[",
+          "]] internal property of "
+        ]
+      }
+    ]
+  },
+  {
+    "type": "binop_rules",
+    "rules": [
+      {
+        "oper": "+",
+        "expressions_order": [ 0, 1 ],
+        "phrases": [
+          "",
+          " plus "
+        ]
+      },
+      {
+        "oper": "-",
+        "expressions_order": [ 0, 1 ],
+        "phrases": [
+          "",
+          " minus "
+        ]
+      },
+      {
+        "oper": ">",
+        "expressions_order": [ 0, 1 ],
+        "phrases": [
+          "",
+          " is greater than "
+        ]
+      },
+      {
+        "oper": "<",
+        "expressions_order": [ 0, 1 ],
+        "phrases": [
+          "",
+          " is less than "
+        ]
+      },
+      {
+        "oper": [ "&&", "&&&" ],
+        "expressions_order": [ 0, 1 ],
+        "phrases": [
+          "",
+          " and "
+        ]
+      },
+      {
+        "oper": [ "||", "|||" ],
+        "expressions_order": [ 0, 1 ],
+        "phrases": [
+          "",
+          " or "
+        ]
+      },
+      {
+        "oper": "<<",
+        "expressions_order": [ 0, 1 ],
+        "phrases": [
+          "the result of left shifting ",
+          " by "
+        ],
+        "final_phrase": " bits. The result is a signed 32-bit integer"
+      },
+      {
+        "oper": ">>",
+        "expressions_order": [ 0, 1 ],
+        "phrases": [
+          "the result of performing a sign-extending right shift of ",
+          " by "
+        ],
+        "final_phrase": " bits. The most significant bit is propagated. The result is a signed 32-bit integer"
+      },
+      {
+        "oper": ">>>",
+        "expressions_order": [ 0, 1 ],
+        "phrases": [
+          "the result of performing a zero-filling right shift of ",
+          " by "
+        ],
+        "final_phrase": " bits. Vacated bits are filled with zero. The result is an unsigned 32-bit integer"
+      },
+      {
+        "oper": "l_add",
+        "expressions_order": [ 1, 0 ],
+        "phrases": [
+          "Add ",
+          " as an element of the list "
+        ]
+      }
+    ]
+  }
+]

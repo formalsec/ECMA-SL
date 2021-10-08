@@ -471,7 +471,7 @@ function DefineOwnProperty(O, P, Desc, Throw) {
 
   /** 1. Let current be the result of calling the [[GetOwnProperty]] internal method of O with property name P. */
   current := {O.GetOwnProperty}(O, P);
-
+  
   /** 2. Let extensible be the value of the [[Extensible]] internal property of O. */
   extensible := O.Extensible;
 
@@ -592,6 +592,7 @@ function DefineOwnProperty(O, P, Desc, Throw) {
       if (IsDataPropertyDescriptor(current) && IsDataPropertyDescriptor(Desc)) {
         /** a. If the[[Configurable]] field of current is false, then: */
         if (current.Configurable = false) {
+          
           /** i. Reject, if the[[Writable]] field of current is false and the [[Writable]] field of Desc is true. */
           if ((current.Writable = false) && (Desc.Writable = true)) {
             return Reject(Throw)
@@ -601,6 +602,11 @@ function DefineOwnProperty(O, P, Desc, Throw) {
           if (current.Writable = false) {
             /** 1. Reject, if the [[Value]] field of Desc is present and SameValue(Desc.[[Value]], current.[[Value]]) is false. */
             if (("Value" in_obj Desc) && (SameValue(Desc.Value, current.Value) = false)) {
+              print "this case!!";
+          print O;
+          print P;
+          print current;
+          print Desc;
               return Reject(Throw)
             }
           }

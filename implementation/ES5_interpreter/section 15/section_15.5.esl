@@ -207,7 +207,7 @@ function StringConstructor (global, this, strict, args) {
   len := s_len_u newlyConstructedObject.PrimitiveValue;
   while (i < len) {
     i_str := int_to_string i;
-    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, i_str, s_nth_u (newlyConstructedObject.PrimitiveValue, i), true, true, true);
+    createBuiltInPropertyWithFullDescriptor(newlyConstructedObject, i_str, s_nth_u (newlyConstructedObject.PrimitiveValue, i), false, true, false);
     i := i + 1
   };
   /* The [[PrimitiveValue]] internal property is the String value represented by this String object. The array index
@@ -1764,6 +1764,7 @@ function StringPrototypeTrim (global, this, strict, args) {
   /*T := trim S;*/
 
   T := S;
+  /* TODO: use the auxiliary functions created in section_15.1 */
   /* Remove leading spaces */
   if (!(T = "")) {
     len := s_len_u T;
@@ -1781,6 +1782,7 @@ function StringPrototypeTrim (global, this, strict, args) {
     T := s_substr_u(T, j, (len - j))
   };
 
+  /* TODO: use the auxiliary functions created in section_15.1 */
   /* Remove trailing spaces */
   if (!(T = "")) {
     len := s_len_u T;

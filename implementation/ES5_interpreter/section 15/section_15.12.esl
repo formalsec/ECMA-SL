@@ -1,7 +1,7 @@
 /* Auxiliary functions */
 
 /* Sort according to section 9.1.12 of ES6 */
-function sortProprtiesES6(internalSlotsList) {
+function getSortedPropertiesES6(internalSlotsList) {
   num_list := [];
   str_list := [];
   i := 0;
@@ -22,10 +22,10 @@ function sortProprtiesES6(internalSlotsList) {
   return l_concat(num_list, str_list)
 };
 function getOwnEnumerablePropertiesNames(obj) {
-  sortedPeoperties := sortProprtiesES6(obj.internalSlotsList); /* ordered properties according to ES6 */
+  sortedProperties := getSortedPropertiesES6(obj.internalSlotsList); /* ordered properties according to ES6 */
 
   K := [];
-  namedOwnProperties := sortedPeoperties;
+  namedOwnProperties := sortedProperties;
   lnamedOwnProperties := l_len namedOwnProperties;
   index := 0;
   while (index < lnamedOwnProperties) {
@@ -848,9 +848,9 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
   * code unit) and every code unit with a numeric value in the inclusive range 0xDC00 to
   * 0xDFFF (defined as a trailing surrogate, or more formally as a low-surrogate code unit) 
   */
-function isLeadingSurrogate(code) {
+function isUnicodeSurrogate(code) {
   start := to_char_code_u "\u{D800}";
-  end := to_char_code_u "\u{D8FF}";
+  end := to_char_code_u "\u{DFFF}";
   if ((code >= start) &&& (code <= end)) {
     return true
   } else {
@@ -908,7 +908,7 @@ function Quote(value) {
     /* ES5: c. Else if C is a control character having a code unit value less than the space character */
     /* ES 2019: Else if C has a numeric value less than 0x0020 (SPACE), or
        if C has the same numeric value as a leading surrogate or trailing surrogate, then */
-    elif ((C_code < 32) ||| isLeadingSurrogate(C_code)) {
+    elif ((C_code < 32) ||| isUnicodeSurrogate(C_code)) {
       print "INSIDE QUOTE";
       print C_code;
       /* i. Let product be the concatenation of product and the backslash character. */

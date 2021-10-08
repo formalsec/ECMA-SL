@@ -18,29 +18,37 @@ var __split = __string.split(__re);
 
 var __expected = ["h", "e", "l", "l", "o"];
 
+
 assert.sameValue(
   __split.constructor,
   Array,
   'The value of __split.constructor is expected to equal the value of Array'
 );
 
+
+console.log(__split.length);
 assert.sameValue(
   __split.length,
   __expected.length,
   'The value of __split.length is expected to equal the value of __expected.length'
 );
 
+
 //
 //////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
 //CHECK#3
+
+
 for (var index = 0; index < __expected.length; index++) {
+  console.log(__split[index]);
   assert.sameValue(
     __split[index],
     __expected[index],
     'The value of __split[index] is expected to equal the value of __expected[index]'
   );
 }
+
 //
 //////////////////////////////////////////////////////////////////////////////

@@ -35,11 +35,38 @@ let rec str (e : t) : string =
   | Lookup (e, f)           -> str e ^ "[" ^ str f ^ "]"
   | Curry (f, es)           -> Printf.sprintf "%s@(%s)" (str f) (str_es es)
 
+
+(* Used in module HTMLExtensions but not yet terminated.
+   This still contains defects. *)
+let rec pattern_match (subst : subst_t) (e1 : t) (e2 : t) : bool =
+  match e1, e2 with
+  | Val v1, Val v2 -> v1 = v2
+  | Var x1, Var x2
+  | GVar x1, GVar x2 ->
+    let x1' = Hashtbl.find_opt subst x1 in
+    (match x1' with
+     | None   -> Hashtbl.replace subst x1 e2; true
+     | Some e2' -> e2 = e2')
+  | Const c1, Const c2 -> c1 = c2
+  | UnOpt (op, e), UnOpt (op', e') when op = op' ->
+    pattern_match subst e e'
+  | BinOpt (op, e1, e2), BinOpt (op', e1', e2') when op = op' ->
+    pattern_match subst e1 e1' && pattern_match subst e2 e2'
+  | Call (f, es, None), Call (f', es', None) when (List.length es = List.length es') ->
+    let b = pattern_match subst f f' in
+    if b then
+      List.for_all (
+        fun (e1, e2) ->
+          pattern_match subst e1 e2
+      ) (List.combine es es')
+    else false
+  | _ -> false
+
 let make_subst (xs_es : (string * t) list) : subst_t =
   let subst = Hashtbl.create Common.default_hashtable_size in
   List.iter (fun (x, e) ->
-    Hashtbl.replace subst x e
-  ) xs_es;
+      Hashtbl.replace subst x e
+    ) xs_es;
   subst
 
 let get_subst_o (sbst : subst_t) (x : string) : t option =
@@ -55,18 +82,18 @@ let rec map (f : (t -> t)) (e : t) : t =
   let map_obj = List.map (fun (x, e) -> (x, mapf e)) in
   let e' =
     match e with
-      | Val _ | Var _
-      | Const _ | GVar _         -> e
-      | UnOpt (op, e)            -> UnOpt (op, mapf e)
-      | EBinOpt (op, e1, e2)     -> EBinOpt (op, mapf e1, mapf e2)
-      | BinOpt (op, e1, e2)      -> BinOpt (op, mapf e1, mapf e2)
-      | TriOpt (op, e1, e2, e3)  -> TriOpt (op, mapf e1, mapf e2, mapf e3)
-      | NOpt (op, es)            -> NOpt (op, List.map mapf es)
-      | Call (ef, es, g)         -> Call (mapf ef, List.map mapf es, g)
-      | ECall (f, es)            -> ECall (f, List.map mapf es)
-      | NewObj (fes)             -> NewObj (map_obj fes)
-      | Lookup (e, ef)           -> Lookup (mapf e, mapf ef)
-      | Curry (e, es)            -> Curry (mapf e, List.map mapf es) in
+    | Val _ | Var _
+    | Const _ | GVar _         -> e
+    | UnOpt (op, e)            -> UnOpt (op, mapf e)
+    | EBinOpt (op, e1, e2)     -> EBinOpt (op, mapf e1, mapf e2)
+    | BinOpt (op, e1, e2)      -> BinOpt (op, mapf e1, mapf e2)
+    | TriOpt (op, e1, e2, e3)  -> TriOpt (op, mapf e1, mapf e2, mapf e3)
+    | NOpt (op, es)            -> NOpt (op, List.map mapf es)
+    | Call (ef, es, g)         -> Call (mapf ef, List.map mapf es, g)
+    | ECall (f, es)            -> ECall (f, List.map mapf es)
+    | NewObj (fes)             -> NewObj (map_obj fes)
+    | Lookup (e, ef)           -> Lookup (mapf e, mapf ef)
+    | Curry (e, es)            -> Curry (mapf e, List.map mapf es) in
   f e'
 
 let subst (sbst : subst_t) (e: t) : t =

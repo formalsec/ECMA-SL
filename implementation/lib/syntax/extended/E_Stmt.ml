@@ -17,7 +17,7 @@ type t = Skip
        | FieldAssign of E_Expr.t * E_Expr.t * E_Expr.t
        | FieldDelete of E_Expr.t * E_Expr.t
        | ExprStmt    of E_Expr.t
-       | RepeatUntil of t * E_Expr.t
+       | RepeatUntil of t * E_Expr.t * metadata_t list
        | MatchWith   of E_Expr.t * (E_Pat.t * t) list
        | Throw       of E_Expr.t
        | Fail        of E_Expr.t
@@ -67,7 +67,7 @@ let rec str (stmt : t) : string =
   | FieldAssign (e_o, f, e_v)  -> E_Expr.str e_o ^ "[" ^ E_Expr.str f ^ "] := " ^ E_Expr.str e_v
   | FieldDelete (e, f)         -> "delete " ^ E_Expr.str e ^ "[" ^ E_Expr.str f ^ "]"
   | ExprStmt e                 -> E_Expr.str e
-  | RepeatUntil (s, e)         -> "repeat " ^ str s ^ " until " ^ E_Expr.str e
+  | RepeatUntil (s, e, _)      -> "repeat " ^ str s ^ " until " ^ E_Expr.str e
   | MatchWith (e, pats_stmts)  -> "match " ^ E_Expr.str e ^ " with | "
                                   ^ String.concat " | " (List.map (fun (e, s) -> E_Pat.str e ^ ": " ^ str s) pats_stmts)
   | Fail e                     -> "fail " ^ E_Expr.str e
@@ -108,7 +108,7 @@ let rec map
     | FieldAssign (e_o, e_f, e_v) -> FieldAssign (fe e_o, fe e_f, fe e_v)
     | FieldDelete (e, f)          -> FieldDelete (fe e, fe f)
     | ExprStmt e                  -> ExprStmt (fe e)
-    | RepeatUntil (s, e)          -> RepeatUntil (map ~fe f s, fe e)
+    | RepeatUntil (s, e, m)       -> RepeatUntil (map ~fe f s, fe e, m)
     | MatchWith (e, pats_stmts)   -> MatchWith (fe e, f_pat pats_stmts)
     | Fail e                      -> Fail (fe e)
     | Throw e                     -> Throw (fe e)
@@ -145,7 +145,7 @@ let rec to_list (is_rec : (t -> bool)) (f : (t -> 'a list)) (s : t) : 'a list =
       | EIf (ifs, final_else)   -> f_stmts ((f_if_elses ifs) @ (Option.map_default (fun (s, _) -> [s]) [] final_else))
       | While (e, s)            -> f' s
       | ForEach (x, e, s, _, _) -> f' s
-      | RepeatUntil (s, e)      -> f' s
+      | RepeatUntil (s, e, _)   -> f' s
       | MatchWith (e, (pats))   -> f_pat pats
       | Lambda (_, _, _, _, s)  -> f' s
       | MacroApply _            -> failwith "S_Stmt.map on MacroApply"

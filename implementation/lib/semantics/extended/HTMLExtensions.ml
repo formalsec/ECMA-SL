@@ -95,29 +95,64 @@ module E_Expr = struct
        | None ->
          let e_html = to_html ctxt e in
          sprintf "%s %s" op_str e_html)
+    (* | BinOpt (Oper.Log_And, e1, e2) ->
+       let e1_html = (to_html TopLevel e1) in
+       let e2_html = (to_html TopLevel e2) in
+       let subst = Hashtbl.create 0 in
+       let str =
+        if pattern_match subst e1 e2
+        then sprintf "both %s and %s" e1_html e2_html
+        else sprintf "%s and %s" e1_html e2_html in
+       (match ctxt with
+       | Negative -> "it is not the case that " ^ str
+       | _ -> "it is the case that " ^ str) *)
     | BinOpt (op, e1, e2) ->
       let op_str = Oper.str_of_binopt_single op in
-      let f_op = Hashtbl.find_opt binoper_hashtable_html op_str in
-      let res_op = Option.map_default (fun f -> f ctxt op_str e1 e2) None f_op in
-      (match res_op with
-       | Some s -> s
-       | None ->
-         let e1_html = to_html BinaryExpr e1 in
-         let e2_html = to_html BinaryExpr e2 in
-         sprintf "%s %s %s" e1_html op_str e2_html)
+      let default () =
+        let f_op = Hashtbl.find_opt binoper_hashtable_html op_str in
+        let res_op = Option.map_default (fun f -> f ctxt op_str e1 e2) None f_op in
+        (match res_op with
+         | Some s -> s
+         | None ->
+           let e1_html = to_html BinaryExpr e1 in
+           let e2_html = to_html BinaryExpr e2 in
+           sprintf "%s %s %s" e1_html op_str e2_html) in
+      let expr_to_str (idx : int) : string =
+        match idx with
+        | 0 -> to_html BinaryExpr e1
+        | 1 -> to_html BinaryExpr e2
+        | _ -> invalid_arg "Invalid index" in
+      if ctxt = Call
+      then default ()
+      else
+        (match HTML_Rules.apply_oper_rule_by_name op_str expr_to_str with
+         | Some str -> str
+         | None -> default ())
     | EBinOpt (op, e1, e2) ->
       let op_str = EOper.str_of_binopt_single op in
-      let f_op = Hashtbl.find_opt binoper_hashtable_html op_str in
-      let res_op = Option.map_default (fun f -> f ctxt op_str e1 e2) None f_op in
-      (match res_op with
-       | Some s -> s
+      let expr_to_str (idx : int) : string =
+        match idx with
+        | 0 -> to_html BinaryExpr e1
+        | 1 -> to_html BinaryExpr e2
+        | _ -> invalid_arg "Invalid index" in
+      (match HTML_Rules.apply_oper_rule_by_name op_str expr_to_str with
+       | Some str -> str
        | None ->
-         let e1_html = to_html BinaryExpr e1 in
-         let e2_html = to_html BinaryExpr e2 in
-         sprintf "%s %s %s" e1_html op_str e2_html)
+         let f_op = Hashtbl.find_opt binoper_hashtable_html op_str in
+         let res_op = Option.map_default (fun f -> f ctxt op_str e1 e2) None f_op in
+         (match res_op with
+          | Some s -> s
+          | None ->
+            let e1_html = to_html BinaryExpr e1 in
+            let e2_html = to_html BinaryExpr e2 in
+            sprintf "%s %s %s" e1_html op_str e2_html))
     | NOpt (op, es) ->
       (match op, es with
        | ListExpr, [] -> "an empty <a href=\"#sec-8.8\">List</a>"
+       | ListExpr, [ e1 ] ->
+         sprintf
+           "a <a href=\"#sec-8.8\">List</a> whose sole item is %s"
+           (to_html ctxt e1)
        | ListExpr, [e1; e2] ->
          sprintf
            "the pair (a two element List) consisting of %s and %s"
@@ -125,61 +160,90 @@ module E_Expr = struct
            (to_html ctxt e2)
        | _, _ -> invalid_arg ("Invalid n-ary operator passed to E_Expr.to_html: " ^ (Oper.str_of_nopt op (List.map str es)))
       )
-    | Call (f, es, _) ->
+    | Call (f, es, Some g) ->
+      let es_idx_to_html (idx : int) : string =
+        aux (List.nth es idx) in
+      let f' = to_html Call f in
+      let f_html =
+        (match HTML_Rules.apply_func_call_rule_by_name f' es_idx_to_html with
+         | Some str -> str
+         | None -> invalid_arg ("Error: expecting HTML rule for function call \"" ^ f' ^ "\"")) in
+      let guard_html =
+        (match HTML_Rules.apply_func_call_rule_by_name g es_idx_to_html with
+         | Some str -> str
+         | None -> invalid_arg ("Error: expecting HTML rule for function call \"" ^ g ^ "\"")) in
+      sprintf
+        "%s %s"
+        f_html
+        guard_html
+    | Call (f, es, None) ->
+      let es_idx_to_html (idx : int) : string =
+        to_html Call (List.nth es idx) in
       (match ctxt with
        | IfGuard ->
          let f' =
            match f with
            | Val (Str f) -> f
            | _           -> aux f in
-         let f_f' = Hashtbl.find_opt call_hashtable_html f' in
-         let res_f' = Option.map_default (fun fn -> fn ctxt f es) None f_f' in
-         (match res_f' with
-          | Some s -> s
+         (match HTML_Rules.apply_func_call_rule_by_name f' es_idx_to_html with
+          | Some str -> str
           | None ->
-            sprintf
-              "%s(%s)"
-              (aux f)
-              (String.concat ", " (List.map aux es))
-         )
+            let f_f' = Hashtbl.find_opt call_hashtable_html f' in
+            let res_f' = Option.map_default (fun fn -> fn ctxt f es) None f_f' in
+            (match res_f' with
+             | Some s -> s
+             | None ->
+               sprintf
+                 "%s(%s)"
+                 (aux f)
+                 (String.concat ", " (List.map aux es))
+            ))
        | _ ->
          let f' = to_html Call f in
-         let f_f' = Hashtbl.find_opt call_hashtable_html f' in
-         let res_f' = Option.map_default (fun fn -> fn ctxt f es) None f_f' in
-         match res_f' with
-         | Some s -> s
-         | None   ->
-           let args_str = (
-             match es with
-             | []      -> "no arguments"
-             | e :: [] -> (aux e) ^ " as argument"
-             | es'     ->
-               let rev_es = List.rev es' in
-               let last_e = List.hd rev_es in
-               let rest_es = List.tl rev_es in
-               sprintf
-                 "%s, and %s as arguments"
-                 (String.concat ", " (List.rev_map aux rest_es))
-                 (aux last_e)
-           ) in
-           sprintf
-             "the result of calling %s passing %s"
-             f'
-             args_str
+         (match HTML_Rules.apply_func_call_rule_by_name f' es_idx_to_html with
+          | Some str -> str
+          | None ->
+            let f_f' = Hashtbl.find_opt call_hashtable_html f' in
+            let res_f' = Option.map_default (fun fn -> fn ctxt f es) None f_f' in
+            match res_f' with
+            | Some s -> s
+            | None   ->
+              let args_str = (
+                match es with
+                | []      -> "no arguments"
+                | e :: [] -> (aux e) ^ " as argument"
+                | es'     ->
+                  let rev_es = List.rev es' in
+                  let last_e = List.hd rev_es in
+                  let rest_es = List.tl rev_es in
+                  sprintf
+                    "%s, and %s as arguments"
+                    (String.concat ", " (List.rev_map aux rest_es))
+                    (aux last_e)
+              ) in
+              sprintf
+                "the result of calling %s passing %s"
+                f'
+                args_str)
       )
     | Lookup (e, f) ->
       let f' = str f in
       (match ctxt with
        | Call   -> f'
        | _      ->
-         let f'' = Hashtbl.find_opt lookup_hashtable_html f' in
-         (match f'' with
-          | None    ->
-            sprintf
-              "the %s property of %s"
-              (aux f)
-              (aux e)
-          | Some fn -> fn ctxt e f)
+         let strip_quotes (str : string) : string =
+           String.concat "" (String.split_on_char '"' str) in
+         match HTML_Rules.apply_lookup_rule_by_name (strip_quotes f') (fun () -> aux e) with
+         | Some str -> str
+         | None ->
+           let f'' = Hashtbl.find_opt lookup_hashtable_html f' in
+           (match f'' with
+            | None    ->
+              sprintf
+                "the %s property of %s"
+                (aux f)
+                (aux e)
+            | Some fn -> fn ctxt e f)
       )
     | NewObj fes ->
       sprintf "{%s}"
@@ -191,15 +255,6 @@ module E_Expr = struct
                    (aux e))
                fes))
     | _ -> invalid_arg ("Unexpected argument passed to E_Expr.to_html: " ^ str e)
-
-
-  let lookup_html_ownproperty (ctxt : ctxt_t) (e : t) (f : t) : string =
-    let e_html = to_html ctxt e in
-    let f_html = to_html ctxt f in
-    sprintf
-      "%s's own property named %s"
-      e_html
-      f_html
 
   let lookup_html_attribute (attribute_name : string) (ctxt : ctxt_t) (e : t) (f : t) : string =
     let e_html = to_html ctxt e in
@@ -220,41 +275,6 @@ module E_Expr = struct
         e_html
         attribute_name
 
-  let lookup_html_internal_property (property_name : string) (ctxt : ctxt_t) (e : t) (f : t) : string =
-    let e_html = to_html ctxt e in
-    sprintf
-      "the value of the [[%s]] internal property of %s"
-      property_name
-      e_html
-
-  let call_html_property_descriptor (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e ] ->
-      Some (
-        sprintf
-          "the <a href=\"#sec-8.10\">Property Descriptor</a> %s"
-          (to_html TopLevel e))
-    | _ -> None
-
-  let call_html_frompropertydescriptor (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "the result of calling <a href=\"#sec-8.10.4\">FromPropertyDescriptor</a>(%s) (<a href=\"#sec-8.10.4\">8.10.4</a>)"
-          (to_html ctxt e1))
-    | _ -> None
-
-  let call_html_topropertydescriptor (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "the result of calling <a href=\"#sec-8.10.5\">ToPropertyDescriptor</a> with %s as the argument"
-          (to_html ctxt e1))
-    | _ -> None
-
-
   let call_html_type (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match ctxt, es with
     | Table, [ Var v ] ->
@@ -272,76 +292,14 @@ module E_Expr = struct
 
   let call_html_conversion_abstract_operations (oper_name : string) (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match oper_name, es with
-    | "ToPrimitive", [ arg; Val Null ] ->
-      Some (
-        sprintf
-          "<a href=\"#sec-9.1\">ToPrimitive</a>(%s)"
-          (to_html TopLevel arg))
-    | "ToPrimitive", [ e1; e2 ] ->
-      Some (
-        sprintf
-          "<a href=\"#sec-9.1\">ToPrimitive</a>(%s, hint %s)"
-          (to_html TopLevel e1)
-          (to_html TopLevel e2))
-    | "ToBoolean", [ e ] ->
-      Some (
-        sprintf
-          "<a href=\"#sec-9.2\">ToBoolean</a>(%s)"
-          (to_html TopLevel e))
-    | "ToNumber", [ e ] ->
-      Some (
-        sprintf
-          "<a href=\"#sec-9.3\">ToNumber</a>(%s)"
-          (to_html TopLevel e))
-    | "ToInteger", [ e ] ->
-      Some (
-        sprintf
-          "<a href=\"#sec-9.4\">ToInteger</a>(%s)"
-          (to_html TopLevel e))
-    | "ToInt32", [ e ] ->
-      Some (
-        sprintf
-          "<a href=\"#sec-9.5\">ToInt32</a>(%s)"
-          (to_html TopLevel e))
-    | "ToUint32", [ e ] ->
-      Some (
-        sprintf
-          "<a href=\"#sec-9.6\">ToUint32</a>(%s)"
-          (to_html TopLevel e))
-    | "ToUint16", [ e ] ->
-      Some (
-        sprintf
-          "<a href=\"#sec-9.7\">ToUint16</a>(%s)"
-          (to_html TopLevel e))
-    | "ToString", [ e ] ->
-      Some (
-        sprintf
-          "<a href=\"#sec-9.8\">ToString</a>(%s)"
-          (to_html TopLevel e))
-
     | "ToObject", [ Var "this" ] -> None
     | "ToObject", [ e ] ->
       Some (
         sprintf
           "<a href=\"#sec-9.9\">ToObject</a>(%s)"
           (to_html TopLevel e))
-    | "CheckObjectCoercible", [ e ] ->
-      Some (
-        sprintf
-          "Call <a href=\"#sec-9.10\">CheckObjectCoercible</a>(%s)"
-          (to_html TopLevel e)
-      )
     | _ -> None
 
-  let call_html_ownproperty (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    let obj = List.nth es 0 in
-    let field = List.nth es 1 in
-    Some (
-      sprintf
-        "%s's own property named %s"
-        (to_html TopLevel obj)
-        (to_html TopLevel field)
-    )
 
   let call_html_internal_method ?(print_brackets=true) (method_name : string) (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match ctxt, method_name, es with
@@ -423,58 +381,6 @@ module E_Expr = struct
       )
     | _ -> None
 
-  let call_html_custom_method (method_name : string) (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match method_name, ctxt, es with
-    | "DefaultValue", Table, [ e1; e2] ->
-      Some (
-        sprintf
-          "Return a default value for the Object. The default value of an object is retrieved by calling the [[DefaultValue]] internal method of the object, passing the optional hint %s.
-          The behaviour of the [[DefaultValue]] internal method is defined by this specification for all native ECMAScript objects in <a href=\"x8.12.8\">8.12.8</a>."
-          (to_html TopLevel e2)
-      )
-    | _ -> None
-
-  let call_html_default_method (method_name : string) (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match method_name, es with
-    | "Get", [ e1; e2 ] ->
-      Some (
-        sprintf
-          "the result of calling the default [[%s]] internal method (<a href=\"#sec-8.12.3\">8.12.3</a>) on the %s passing %s as the argument"
-          method_name
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | "GetOwnProperty", [ e1; e2 ] ->
-      Some (
-        sprintf
-          "the result of calling the default [[%s]] internal method (<a href=\"#sec-8.12.1\">8.12.1</a>) on the %s passing %s as the argument"
-          method_name
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | "DefineOwnProperty", [e1; e2; e3; e4] ->
-      Some (
-        sprintf
-          "the result of calling the default [[%s]] internal method (<a href=\"#sec-8.12.9\">8.12.9</a>) on the %s passing %s, %s, and %s as the arguments"
-          method_name
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-          (to_html ctxt e3)
-          (to_html ctxt e4)
-      )
-
-    | "Delete", [e1; e2; e3] ->
-      Some (
-        sprintf
-          "the result of calling the default [[%s]] internal method (<a href=\"#sec-8.12.9\">8.12.9</a>) on the %s passing %s and %s as the arguments."
-          method_name
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-          (to_html ctxt e3)
-      )
-    | _ -> None
-
-
   let call_html_call (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match ctxt, es with
     | ExprStmt, [Val Null; Val Null; e_o; e_this; NOpt (Oper.ListExpr, [])] ->
@@ -533,39 +439,6 @@ module E_Expr = struct
           (to_html TopLevel args_list))
     | _ -> None
 
-  let call_html_getbindingvalue_method (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2; e3] ->
-      Some (
-        sprintf
-          "the result of calling the GetBindingValue (see <a href=\"#10.2.1\">10.2.1</a>) concrete method of %s passing %s and %s as arguments"
-          (to_html TopLevel e1)
-          (to_html TopLevel e2)
-          (to_html TopLevel e3)
-      )
-    | _ -> None
-
-  let call_html_hasbinding_method (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2] ->
-      Some (
-        sprintf
-          "the result of calling %s’s HasBinding concrete method passing %s as the argument"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
-  let call_html_deletebinding_method (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          "the result of calling the DeleteBinding concrete method of %s, providing %s as the argument"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
 
   let call_html_createmutablebinding_method (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match es with
@@ -611,90 +484,6 @@ module E_Expr = struct
       )
     | _ -> None
 
-  let call_html_initializeimmutablebinding_method (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2; e3] ->
-      Some (
-        sprintf
-          "Call %s’s <a href=\"x10.2.1.1.8\">InitializeImmutableBinding</a> concrete method passing %s and %s as arguments"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-          (to_html ctxt e3)
-      )
-    | _ -> None
-
-  let call_html_setmutablebinding (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2; e3; e4] ->
-      Some (
-        sprintf
-          "Call the SetMutableBinding (<a href=\"#sec-10.2.1\">10.2.1</a>) concrete method of %s, passing %s, %s, and %s as arguments"
-          (to_html TopLevel e1)
-          (to_html TopLevel e2)
-          (to_html TopLevel e3)
-          (to_html TopLevel e4)
-      )
-    | _ -> None
-
-  let call_html_implicitthisvalue (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "the result of calling the ImplicitThisValue concrete method of %s"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_createargumentsobject (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2; e3; e4; e5; _] ->
-      Some (
-        sprintf
-          "the result of calling the abstract operation CreateArgumentsObject (<a href=\"#sec-10.6\">10.6</a>) passing %s, %s, %s, %s and %s as arguments."
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-          (to_html ctxt e3)
-          (to_html ctxt e4)
-          (to_html ctxt e5)
-      )
-    | _ -> None
-
-  let call_html_evaluating (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; Var "scope" ] ->
-      Some (
-        sprintf
-          "the result of evaluating %s"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_evaluatingarguments (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; Var "scope" ] ->
-      Some (
-        sprintf
-          "the result of evaluating %s, producing an internal list of argument values (<a href=\"#sec-11.2.4\">see 11.2.4</a>)"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_functiondeclaration (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some (
-      "the result of instantiating <>FunctionDeclaration f</> as described in <a href=\"#sec-13\">Clause 13</a>"
-    )
-
-  let call_html_functionbody (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; _] ->
-      Some (
-        sprintf
-          "the result of evaluating the <i><a href=\"#sec-13\">FunctionBody</a></i> that is %s"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
   let call_html_abstractrelationalcomparison (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match es with
     | [ e1; e2; Val (Bool true) ] ->
@@ -710,58 +499,6 @@ module E_Expr = struct
           "the result of performing abstract relational comparison %s &lt; %s with <i>LeftFirst</i> equal to <b>false</b>. (<a href=\"#sec-11.8.5\">see 11.8.5</a>)"
           (to_html ctxt e1)
           (to_html ctxt e2)
-      )
-    | _ -> None
-
-  let call_html_abstractequalitycomparison (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          "the result of performing abstract equality comparison %s == %s. (<a href=\"#sec-11.9.3\">see 11.9.3</a>)"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
-  let call_html_strictequalitycomparison (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          "the result of performing the strict equality comparison %s === %s. (See <a href=\"#sec-11.9.6\">11.9.6</a>)"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
-  let call_html_getidentifierfunctiondeclaration (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ f ] ->
-      Some (
-        sprintf
-          "the <i>Identifier</i> in <i><a href=\"\">FunctionDeclaration</a></i> %s"
-          (to_html ctxt f)
-      )
-    | _ -> None
-
-  let call_html_getidentifiervariabledeclaration (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ f ] ->
-      Some (
-        sprintf
-          "the <i>Identifier</i> in %s"
-          (to_html ctxt f)
-      )
-    | _ -> None
-
-  let call_html_getstringvalue (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ f ] ->
-      Some (
-        sprintf
-          "the String value that is the name of %s"
-          (to_html ctxt f)
       )
     | _ -> None
 
@@ -824,17 +561,6 @@ module E_Expr = struct
       )
     | _ -> None
 
-
-  let call_html_isprimitivevalue (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es, ctxt with
-    | [ e ], _ ->
-      Some (
-        sprintf
-          "%s is a <a href=\"#primitive_value\">primitive value</a>"
-          (to_html TopLevel e)
-      )
-    | _ -> None
-
   let call_html_iscallable (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match es, ctxt with
     | [ e ], BinaryExpr ->
@@ -851,37 +577,18 @@ module E_Expr = struct
       )
     | _ -> None
 
-  let call_html_reference_abstract_operations (oper_name : string) (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    let wrap_in_8_7_link (text : string) =
-      sprintf
-        "<a href=\"#sec-8.7\">%s</a>"
-        text in
-
-    match ctxt, oper_name, es with
-    | ExprStmt, "GetValue", [ e ] ->
+  let call_html_getvalue (ctxt : ctxt_t) (e : t) (es : t list) : string option =
+    match ctxt, es with
+    | ExprStmt, [ e ] ->
       Some (
         sprintf
           "Call <a href=\"#sec-8.7.1\">GetValue</a>(%s)"
           (to_html TopLevel e)
       )
-    | _, "GetValue", [ e ] ->
+    | _, [ e ] ->
       Some (
         sprintf
           "<a href=\"#sec-8.7.1\">GetValue</a>(%s)"
-          (to_html TopLevel e)
-      )
-    | _, "PutValue", [ e1; e2 ] ->
-      Some (
-        sprintf
-          "Call <a href=\"#sec-8.7.2\">PutValue</a>(%s, %s)"
-          (to_html TopLevel e1)
-          (to_html TopLevel e2)
-      )
-    | _, _, [ e ] ->
-      Some (
-        sprintf
-          "%s(%s)"
-          (wrap_in_8_7_link oper_name)
           (to_html TopLevel e)
       )
     | _ -> None
@@ -918,202 +625,6 @@ module E_Expr = struct
       )
     | _ -> None
 
-  let call_html_genericproperty (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e ] ->
-      Some (
-        sprintf
-          "<a href=\"#sec-8.10.3\">IsGenericDescriptor</a>(%s)"
-          (to_html TopLevel e)
-      )
-    | _ -> None
-
-  let call_html_samevalue (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          "<a href=\"\">SameValue</a>(%s, %s)"
-          (to_html TopLevel e1)
-          (to_html TopLevel e2)
-      )
-    | _ -> None
-
-  let call_html_dataproperty_to_accessorproperty (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ o; f ] ->
-      Some (
-        sprintf
-          "Convert the property named %s of object %s from a data property to an accessor property.
-          Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and
-          set the rest of the property’s attributes to their default values"
-          (to_html TopLevel f)
-          (to_html TopLevel o)
-      )
-    | _ -> None
-
-  let call_html_accessorproperty_to_dataproperty (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ o; f ] ->
-      Some (
-        sprintf
-          "Convert the property named %s of object %s from an accessor property to a data property.
-          Preserve the existing values of the converted property’s [[Configurable]] and [[Enumerable]] attributes and
-          set the rest of the property’s attributes to their default values"
-          (to_html TopLevel f)
-          (to_html TopLevel o)
-      )
-    | _ -> None
-
-  let call_html_createownaccessorproperty (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ o; f; desc ] ->
-      Some (
-        sprintf
-          "Create an own accessor property named %s of object %s whose [[Get]], [[Set]], [[Enumerable]] and [[Configurable]] attribute values are described by %s.
-          If the value of an attribute field of %s is absent, the attribute of the newly created property is set to its default value"
-          (to_html TopLevel f)
-          (to_html TopLevel o)
-          (to_html TopLevel desc)
-          (to_html TopLevel desc)
-      )
-    | _ -> None
-
-  let call_html_createowndataproperty (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ o; f; desc ] ->
-      Some (
-        sprintf
-          "Create an own data property named %s of object %s whose [[Value]], [[Writable]], [[Enumerable]] and [[Configurable]] attribute values are described by %s.
-          If the value of an attribute field of %s is absent, the attribute of the newly created property is set to its default value"
-          (to_html TopLevel f)
-          (to_html TopLevel o)
-          (to_html TopLevel desc)
-          (to_html TopLevel desc)
-      )
-    | _ -> None
-
-  let call_html_setcorrespondinglynamedattributes (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ o; f; desc ] ->
-      Some (
-        sprintf
-          "For each attribute field of %s that is present, set the correspondingly named attribute of the property named %s of object %s to the value of the field"
-          (to_html TopLevel desc)
-          (to_html TopLevel f)
-          (to_html TopLevel o)
-      )
-    | _ -> None
-
-  let call_html_everyfieldindescalsooccursincurrent (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          "every field in %s also occurs in %s and the value of every field in %s is the same value as the corresponding field in %s when compared using the <a href=\"#sec-9.12\">SameValue</a> algorithm (<a href=\"#sec-9.12\">9.12</a>)"
-          (to_html TopLevel e1)
-          (to_html TopLevel e2)
-          (to_html TopLevel e1)
-          (to_html TopLevel e2)
-      )
-    | _ -> None
-
-  let call_html_createmutablebinding (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2; e3] ->
-      Some (
-        sprintf
-          "Create a mutable binding in %s for %s and set its bound value to %s"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-          (to_html ctxt e3)
-      )
-    | _ -> None
-
-  let call_html_setbindingdeletable (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some (
-      sprintf
-        "record that the newly created binding may be deleted by a subsequent DeleteBinding call"
-    )
-
-  let call_html_ismutablebinding (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2] ->
-      Some (
-        sprintf
-          "the binding for %s in %s is a mutable binding"
-          (to_html ctxt e2)
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_setbindingvalue (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2; e3] ->
-      Some (
-        sprintf
-          "Set the bound value for %s in %s to %s"
-          (to_html ctxt e2)
-          (to_html ctxt e1)
-          (to_html ctxt e3)
-      )
-    | _ -> None
-
-  let call_html_getbindingvalue (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2] ->
-      Some (
-        sprintf
-          "the value currently bound to %s in %s"
-          (to_html ctxt e2)
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_isuninitialisedbinding (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2] ->
-      Some (
-        sprintf
-          "the binding for %s in %s is an uninitialised <a href=\"#immutable-binding\">immutable binding</a>"
-          (to_html ctxt e2)
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_isbindingcannotbedeleted (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2] ->
-      Some (
-        sprintf
-          "the binding for %s in %s cannot be deleted"
-          (to_html ctxt e2)
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_hasuninitialisedimmutablebinding (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2] ->
-      Some (
-        sprintf
-          "%s must have an uninitialized <a href=\"#immutable-binding\">immutable binding</a> for %s"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
-  let call_html_createimmutablebinding (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2] ->
-      Some (
-        sprintf
-          "Create an <a href=\"#immutable-binding\">immutable binding</a> in %s for %s"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
   let call_html_setbindinginitialised (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match es with
     | [e1; e2; Val (Bool false)] ->
@@ -1132,102 +643,18 @@ module E_Expr = struct
       )
     | _ -> None
 
-  let call_html_getbindingobject (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e ] ->
-      Some (
-        sprintf
-          "the <a href=\"x10.2.1.2\">binding object</a> for %s"
-          (to_html ctxt e)
-      )
-    | _ -> None
-
-  let call_html_getprovidethis (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e ] ->
-      Some (
-        sprintf
-          "the <i>provideThis</i> flag of %s"
-          (to_html ctxt e)
-      )
-    | _ -> None
-
-  let call_html_getthisbinding (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some (
-      "the same value as the ThisBinding of the calling execution context"
-    )
-
-  let call_html_newvaluereference (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2; e3 ] ->
-      Some (
-        sprintf
-          "a value of type <a href=\"#sec-8.7\">Reference</a> whose base value is %s, whose referenced name is %s, and whose strict mode flag is %s"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-          (to_html ctxt e3)
-      )
-    | _ -> None
-
-  let call_html_getenvironmentrecord (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e ] ->
-      Some (
-        sprintf
-          "%s‘s environment record"
-          (to_html ctxt e)
-      )
-    | _ -> None
-
-  let call_html_getenvrecofrunningexecctx (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some (
-      "the <a href=\"#sec-10.2\">environment record</a> component of the running execution context’s VariableEnvironment"
-    )
-
-  let call_html_setenvironmentrecord (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          "Set %s’s environment record to be %s"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
-  let call_html_getouterenvironmentreference (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e ] ->
-      Some (
-        sprintf
-          "the value of %s’s <a href=\"#outer-environment-reference\">outer environment reference</a>"
-          (to_html ctxt e)
-      )
-    | _ -> None
-
-  let call_html_setouterlexicalenvironmentreference (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          "Set the outer lexical environment reference of %s to %s"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
-  let call_html_newlexicalenvironment (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some "a new <a href=\"#sec-10.2\">Lexical Environment</a>"
-
-  let call_html_getglobalenvironment (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some "the <a href=\"#sec-10.2.3\">Global Environment</a>"
-
   let call_html_setlexicalenvironment (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match es with
+    | [ Var "scope"; e1 ] ->
+      Some (
+        sprintf
+          "Set the running execution context’s <a href=\"#sec-10.3\">LexicalEnvironment</a> to %s"
+          (to_html ctxt e1)
+      )
     | [ _; e1 ] ->
       Some (
         sprintf
-          "Set the LexicalEnvironment to %s"
+          "Set the <a href=\"#sec-10.3\">LexicalEnvironment</a> to %s"
           (to_html ctxt e1)
       )
     | _ -> None
@@ -1238,24 +665,14 @@ module E_Expr = struct
       Some (
         "the same value as the <a href=\"#sec-10.2\">LexicalEnvironment</a> of the calling execution context"
       )
-    | [ Var "runningExecCtx" ] ->
-      Some (
-        "the running execution context‘s <a href=\"#sec-10.2\">LexicalEnvironment</a>"
-      )
-    | _ ->
+    | [ Var "evalExecCtx" ] ->
       Some (
         "the LexicalEnvironment"
       )
-
-  let call_html_setvariableenvironment (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ _; e1 ] ->
+    | _ ->
       Some (
-        sprintf
-          "Set the VariableEnvironment to %s"
-          (to_html ctxt e1)
+        "the running execution context‘s <a href=\"#sec-10.2\">LexicalEnvironment</a>"
       )
-    | _ -> None
 
   let call_html_getvariableenvironment (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match es with
@@ -1263,30 +680,10 @@ module E_Expr = struct
       Some (
         "the same value as the VariableEnvironment of the calling execution context"
       )
-    | _ -> None
-
-  let call_html_newdeclarativeenvironment (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
+    | _ ->
       Some (
-        sprintf
-          "the result of calling <a href=\"#sec-10.2.2.2\">NewDeclarativeEnvironment</a> passing %s as the argument"
-          (to_html ctxt e1)
+        "the running execution context‘s <a href=\"#sec-10.3\">VariableEnvironment</a>"
       )
-    | _ -> None
-
-  let call_html_newdeclarativeenvironmentrecord (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some "a new <a href=\"#declarative-environment-record\">declarative environment record</a> containing no bindings"
-
-  let call_html_newobjectenvironmentrecord (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e ] ->
-      Some (
-        sprintf
-          "a new <a href=\"#object-environment-record\">object environment record</a> containing %s as the <a href=\"x10.2.1.2\">binding object</a>"
-          (to_html ctxt e)
-      )
-    | _ -> None
 
   let call_html_declarationbindinginstantiation (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match es with
@@ -1300,64 +697,6 @@ module E_Expr = struct
       Some (
         sprintf
           "Perform Declaration Binding Instantiation using the <a href=\"#function-code\">function code</a> %s and %s as described in <a href=\"#sec-10.5\">10.5</a>"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
-  let call_html_makearggetter (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2] ->
-      Some (
-        sprintf
-          "the result of calling the <i><a href=\"#MakeArgGetter\">MakeArgGetter</a></i> abstract operation with arguments %s and %s"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
-  let call_html_makearggetterletbodyauxfunction (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "the result of concatenating the Strings %s, %s, and %s"
-          (to_html ctxt (Val (Str "return ")))
-          (to_html ctxt e1)
-          (to_html ctxt (Val (Str ";")))
-      )
-    | _ -> None
-
-  let call_html_makeargsetter (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; e2] ->
-      Some (
-        sprintf
-          "the result of calling the <i><a href=\"#MakeArgSetter\">MakeArgSetter</a></i> abstract operation with arguments %s and %s"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
-  let call_html_makeargsetterletparamauxfunction (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "the String %s concatenated with the String %s"
-          (to_html ctxt e1)
-          (to_html ctxt (Val (Str "_arg")))
-      )
-    | _ -> None
-
-  let call_html_makeargsetterletbodyauxfunction (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          (* &#60; is the HTML escape sequence for the symbol < *)
-          (* &#62; is the HTML escape sequence for the symbol > *)
-          "the String <b>\"&#60;name&#62; = &#60;param&#62;;\"</b> with <b>&#60;name&#62;</b> replaced by the value of %s and <b>&#60;param&#62;</b> replaced by the value of %s"
           (to_html ctxt e1)
           (to_html ctxt e2)
       )
@@ -1380,6 +719,16 @@ module E_Expr = struct
           "the result of creating a function object as described in <a href=\"#sec-13.2\">13.2</a> using a <a href=\"#sec-8.8\">List</a> containing the single String
           %s as <i>FormalParameterList</i>, %s for <i><a href=\"#sec-13\">FunctionBody</a></i>, %s as <i>Scope</i>, and %s for <i>Strict</i>"
           (to_html ctxt (Var s))
+          (to_html ctxt e1)
+          (to_html ctxt e2)
+          (to_html ctxt e3)
+      )
+    | [e1; e2; e3; Call(Val (Str "isStrictModeCode"), _, _); _] ->
+      Some (
+        sprintf
+          "the result of creating a new Function object as specified in <a href=\"#sec-13.2\">13.2</a> with parameters specified by
+          %s, and body specified by %s. Pass in %s as the <i>Scope</i>. Pass in <b>true</b> as the <i>Strict</i> flag if the FunctionDeclaration is contained in
+          <a href=\"#sec-10.1.1\">strict code</a> or if its <i>FunctionBody</i> is <a href=\"#sec-10.1.1\">strict code</a>"
           (to_html ctxt e1)
           (to_html ctxt e2)
           (to_html ctxt e3)
@@ -1408,35 +757,12 @@ module E_Expr = struct
         "Initialise the execution context using the <a href=\"#global-code\">global code</a> as described in <a href=\"#sec-10.4.1.1\">10.4.1.1</a>"
       )
 
-  let call_html_enteringfunctioncode (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e_o; _; e_args] ->
-      Some (
-        sprintf
-          "the result of establishing a new execution context for <a href=\"#function-code\">function code</a> using the value of %s's [[FormalParameters]]
-          internal property, the passed arguments <a href=\"#sec-8.8\">List</a> %s, and the <b>this</b> value as described in <a href=\"#sec-10.4.3\">10.4.3</a>"
-          (to_html ctxt e_o)
-          (to_html ctxt e_args)
-      )
-    | _ -> None
-
-  let call_html_isevalcode (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e ] ->
-      Some (
-        sprintf
-          "%s is <a href=\"#eval-code\">eval code</a>"
-          (to_html ctxt e)
-      )
-    | _ -> None
-
   let call_html_isstrictmodecode (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match es with
     | [ Var "evalCode"; _ ] ->
       Some (
         "the <a href=\"#eval-code\">eval code</a> is <a href=\"#sec-10.1.1\">strict mode code</a>"
       )
-    | [ e ]
     | [ e; _ ] ->
       Some (
         sprintf
@@ -1444,190 +770,6 @@ module E_Expr = struct
           (to_html ctxt e)
       )
     | _ -> None
-
-  let call_html_iscontainedinstrictcode (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some (
-      "the syntactic production that is being evaluated is contained in <a href=\"#sec-10.1.1\">strict mode code</a>"
-    )
-
-  let call_html_isstrictfunctionobject (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "%s is a strict mode Function object"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_getfunctioncode (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some (
-      "the <a href=\"#function-code\">function code</a>"
-    )
-
-  let call_html_isfunctioncode (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e ] ->
-      Some (
-        sprintf
-          "%s is <a href=\"#function-code\">function code</a>"
-          (to_html ctxt e)
-      )
-    | _ -> None
-
-
-  let call_html_everyfieldisabsent (ctxt : ctxt_t) (e : t) (es: t list) : string option =
-    match es with
-    | [ e ] ->
-      Some (
-        sprintf
-          "every field in %s is absent"
-          (to_html TopLevel e)
-      )
-    | _ -> None
-
-  let call_html_iszero (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e ] ->
-      Some (
-        sprintf
-          "%s is +0"
-          (to_html TopLevel e)
-      )
-    | _ -> None
-
-  let call_html_isminuszero (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e ] ->
-      Some (
-        sprintf
-          "%s is -0"
-          (to_html TopLevel e)
-      )
-    | _ -> None
-
-  let call_html_samenumber (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          "%s is the same Number value as %s"
-          (to_html TopLevel e1)
-          (to_html TopLevel e2)
-      )
-    | _ -> None
-
-  let call_html_sameobject (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          "%s and %s refer to the same object"
-          (to_html TopLevel e1)
-          (to_html TopLevel e2)
-      )
-    | _ -> None
-
-  let call_html_samesequence (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          "%s and %s are exactly the same sequence of characters (same length and same characters in corresponding positions)"
-          (to_html TopLevel e1)
-          (to_html TopLevel e2)
-      )
-    | _ -> None
-
-  let call_html_mathematicalvalue (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "the mathematical value of %s"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_setthisbinding (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [_; e] ->
-      Some (
-        sprintf
-          "Set the ThisBinding to %s"
-          (to_html ctxt e)
-      )
-    | _ -> None
-
-  let call_html_ignore_function_name (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e ] ->
-      Some (
-        to_html ctxt e
-      )
-    | _ -> None
-
-  let call_html_isdirectcall (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some (
-      "If there is no calling context or if the <a href=\"#eval-code\">eval code</a> is not being evaluated
-      by a direct call (<a href=\"#sec-15.1.2.1.1\">15.1.2.1.1</a>) to the eval function"
-    )
-
-  let call_html_newecmascriptobject (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some (
-      "a newly created native ECMAScript object"
-    )
-
-  let call_html_setallinternalmethodsofobject (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "Set all the internal methods of %s as specified in <a href=\"#sec-8.12\">8.12</a>"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_setallinternalmethodsexceptget (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "Set all the internal methods, except for [[Get]], of %s as described in <a href=\"#sec-8.12\">8.12</a>"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_listofidentifiersof (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "a <a href=\"#sec-8.8\">List</a> containing, in left to right textual order, the Strings corresponding to the identifiers of %s"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_numberofformalparameters (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "the number of formal parameters specified in %s"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_isvalueanemptyfunctionbody (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "%s is an empty <i><a href=\"#sec-13\">FunctionBody</a></i>"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
 
   let call_html_setinternalproperty (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match es with
@@ -1648,236 +790,6 @@ module E_Expr = struct
           (to_html ctxt v)
       )
     | _ -> None
-
-  let call_html_getinternalproperty (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [obj; p] ->
-      Some (
-        sprintf
-          "the value of the %s internal property of %s"
-          (to_html ctxt p)
-          (to_html ctxt obj)
-      )
-    | _ -> None
-
-  let call_html_getobjectprototype (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some (
-      "the standard built-in Object prototype object (<a href=\"#sec-15.2.4\">15.2.4</a>)"
-    )
-
-  let call_html_normalemptycompletion (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "(normal, %s, empty)"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_getcompletiontype (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "%s.type"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_getcompletiontarget (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "%s.target"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_getcompletionvalue (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "%s.value"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-
-  let call_html_exitexecutioncontext (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "Exit the execution context %s, restoring the previous execution context"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_isjavascriptobject (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "the %s is a native ECMAScript object"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_ishostobject (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; _ ] ->
-      Some (
-        sprintf
-          "the %s is a host object"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_hostobjectreturn (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some (
-      "a result in an implementation-dependent manner that may depend on the host object"
-    )
-
-  let call_html_hostobjectvalueof (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [e1; _] ->
-      Some (
-        sprintf
-          "either %s or another value such as the host object originally passed to the constructor.
-          The specific result that is returned is implementation-defined"
-          (to_html ctxt e1)
-      )
-    |_ -> None
-
-  let call_html_getownenumerableproperties (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "an internal list containing the names of each enumerable own property of %s"
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-
-  let call_html_createthrowtypeerrorfunctionobject (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some (
-      "the [[ThrowTypeError]] function Object (<a href=\"#sec-13.2.3\">13.2.3</a>)"
-    )
-
-  let call_html_throwanyapplicableexceptions (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some (
-      "throw any exceptions specified in <a href=\"#sec-13.1\">13.1</a> that apply"
-    )
-
-  let call_html_applyingtheadditionoperation (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          "the result of applying the addition operation to %s and %s. See the Note below <a href=\"#sec-11.6.3\">11.6.3</a>"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
-  let call_html_applyingthesubtractionoperation (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          "the result of applying the subtraction operation to %s and %s. See the Note below <a href=\"#sec-11.6.3\">11.6.3</a>"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
-  let call_html_applybitwiseoperator (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ _; e1; e2 ] ->
-      Some (
-        sprintf
-          "the result of applying the bitwise operator @ to %s and %s. The result is a signed 32 bit integer"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
-  let call_html_applyingmultiplicativeoperator (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1; e2 ] ->
-      Some (
-        sprintf
-          "the result of applying the specified operation (*, /, or %%) to %s and %s. See the Notes
-          below <a href=\"#sec-11.5.1\">11.5.1</a>, <a href=\"#sec-11.5.2\">11.5.2</a>, <a href=\"#sec-11.5.3\">11.5.3</a>"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    |_ -> None
-
-  let call_html_applyoperator (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ _; e1; e2] ->
-      Some (
-        sprintf
-          "the result of applying operator @ to %s and %s"
-          (to_html ctxt e1)
-          (to_html ctxt e2)
-      )
-    | _ -> None
-
-
-
-  let call_html_maskoutbits (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ e1 ] ->
-      Some (
-        sprintf
-          "the result of masking out all but the least significant 5 bits of %s, that is, compute %s & 0x1F"
-          (to_html ctxt e1)
-          (to_html ctxt e1)
-      )
-    | _ -> None
-
-  let call_html_newpropertyreference (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    match es with
-    | [ baseValue; referencedName; strictModeFlag ] ->
-      Some (
-        sprintf
-          "a value of type <a href=\"#sec-8.7\">Reference</a> whose base value is %s and whose referenced name
-            is %s, and whose strict mode flag is %s"
-          (to_html ctxt baseValue)
-          (to_html ctxt referencedName)
-          (to_html ctxt strictModeFlag)
-      )
-    | _ -> None
-
-  let call_html_exception (exception_name : string) (ctxt : ctxt_t) (e : t) (es : t list) : string option =
-    Some (
-      sprintf
-        "a <b>%s</b> exception"
-        exception_name
-    )
-
-
-  let oper_html_binary (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) : string option =
-    let op_html =
-      match op with
-      | ">" -> "is greater than"
-      | "<" -> "is less than"
-      | "+" -> "plus"
-      | "-" -> "minus"
-      | _   -> op in
-    Some (
-      sprintf
-        "%s %s %s"
-        (to_html ctxt e1)
-        op_html
-        (to_html ctxt e2)
-    )
 
   let oper_html_lnth (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) : string option =
     match e2 with
@@ -1908,14 +820,6 @@ module E_Expr = struct
           (to_html ctxt e1)
       )
     | _ -> None
-
-  let oper_html_ladd (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) : string option =
-    Some (
-      sprintf
-        "Add %s as an element of the list %s"
-        (to_html ctxt e2)
-        (to_html ctxt e1)
-    )
 
   let oper_html_inobj (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) : string option =
     match e1, e2, ctxt with
@@ -2002,10 +906,6 @@ module E_Expr = struct
     )
 
   let oper_html_equal (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) : string option =
-    let ctxt_str =
-      match ctxt with
-      | Negative -> "is not"
-      | _ -> "is" in
     match e2, ctxt with
     | GVar "global", _ ->
       Some (
@@ -2025,54 +925,20 @@ module E_Expr = struct
           "%s is not supplied"
           (to_html BinaryExpr e1)
       )
+    | _, Negative ->
+      Some (
+        sprintf
+          "%s is not %s"
+          (to_html BinaryExpr e1)
+          (to_html BinaryExpr e2)
+      )
     | _ ->
       Some (
         sprintf
-          "%s %s %s"
+          "%s is %s"
           (to_html BinaryExpr e1)
-          ctxt_str
           (to_html BinaryExpr e2)
       )
-
-  let oper_html_logical (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) : string option =
-    let op_html =
-      match op with
-      | "&&" | "&&&" -> "and"
-      | "||" | "|||" -> "or"
-      | _            -> op in
-    Some (
-      sprintf
-        "%s %s %s"
-        (to_html BinaryExpr e1)
-        op_html
-        (to_html BinaryExpr e2)
-    )
-
-  let oper_html_left_shift (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) : string option =
-    Some (
-      sprintf
-        "the result of left shifting %s by %s bits. The result is a signed 32-bit integer"
-        (to_html ctxt e1)
-        (to_html ctxt e2)
-    )
-
-  let oper_html_right_shift (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) : string option =
-    Some (
-      sprintf
-        "the result of performing a sign-extending right shift of %s by %s bits. The most significant bit is propagated.
-        The result is a signed 32-bit integer"
-        (to_html ctxt e1)
-        (to_html ctxt e2)
-    )
-
-  let oper_html_right_shift_logical (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) : string option =
-    Some (
-      sprintf
-        "the result of performing a zero-filling right shift of %s by %s bits. Vacated bits are filled with zero.
-        The result is an unsigned 32-bit integer"
-        (to_html ctxt e1)
-        (to_html ctxt e2)
-    )
 
   let oper_html_unary_neg (ctxt : ctxt_t) (op : string) (e : t) (_) : string option =
     match ctxt, op with
@@ -2133,29 +999,16 @@ module E_Expr = struct
     )
 
   let () =
-    Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.Plus) oper_html_binary;
-    Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.Minus) oper_html_binary;
-    Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.Gt) oper_html_binary;
-    Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.Lt) oper_html_binary;
     Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.InObj) oper_html_inobj;
     Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.InList) oper_html_inlist;
     Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.Lnth) oper_html_lnth;
-    Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.Ladd) oper_html_ladd;
     Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.Equal) oper_html_equal;
-    Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.Log_And) oper_html_logical;
-    Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.Log_Or) oper_html_logical;
-    Hashtbl.add binoper_hashtable_html (EOper.str_of_binopt_single EOper.SCLogAnd) oper_html_logical;
-    Hashtbl.add binoper_hashtable_html (EOper.str_of_binopt_single EOper.SCLogOr) oper_html_logical;
-    Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.ShiftLeft) oper_html_left_shift;
-    Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.ShiftRight) oper_html_right_shift;
-    Hashtbl.add binoper_hashtable_html (Oper.str_of_binopt_single Oper.ShiftRightLogical) oper_html_right_shift_logical;
     Hashtbl.add unoper_hashtable_html (Oper.str_of_unopt Oper.IntToFloat) oper_hmtl_print_ignore;
     Hashtbl.add unoper_hashtable_html (Oper.str_of_unopt Oper.Neg) oper_html_unary_neg;
     Hashtbl.add unoper_hashtable_html (Oper.str_of_unopt Oper.Not) oper_html_unary_neg;
     Hashtbl.add unoper_hashtable_html (Oper.str_of_unopt Oper.ListLen) oper_html_unary_len;
     Hashtbl.add unoper_hashtable_html (Oper.str_of_unopt Oper.Sconcat) oper_html_sconcat;
     Hashtbl.add unoper_hashtable_html (Oper.str_of_unopt Oper.BitwiseNot) oper_html_bitwisenot;
-    Hashtbl.add lookup_hashtable_html "\"JSProperties\"" lookup_html_ownproperty;
     Hashtbl.add lookup_hashtable_html "\"Value\"" (lookup_html_attribute "Value");
     Hashtbl.add lookup_hashtable_html "\"Writable\"" (lookup_html_attribute "Writable");
     Hashtbl.add lookup_hashtable_html "\"Set\"" (lookup_html_attribute "Set");
@@ -2163,14 +1016,6 @@ module E_Expr = struct
     Hashtbl.add lookup_hashtable_html "\"Put\"" (lookup_html_attribute "Put");
     Hashtbl.add lookup_hashtable_html "\"Enumerable\"" (lookup_html_attribute "Enumerable");
     Hashtbl.add lookup_hashtable_html "\"Configurable\"" (lookup_html_attribute "Configurable");
-    Hashtbl.add lookup_hashtable_html "\"Prototype\"" (lookup_html_internal_property "Prototype");
-    Hashtbl.add lookup_hashtable_html "\"Extensible\"" (lookup_html_internal_property "Extensible");
-    Hashtbl.add lookup_hashtable_html "\"FormalParameters\"" (lookup_html_internal_property "FormalParameters");
-    Hashtbl.add lookup_hashtable_html "\"ParameterMap\"" (lookup_html_internal_property "ParameterMap");
-    Hashtbl.add lookup_hashtable_html "\"GetOwnProperty\"" (lookup_html_internal_property "GetOwnProperty");
-    Hashtbl.add lookup_hashtable_html "\"DefineOwnProperty\"" (lookup_html_internal_property "DefineOwnProperty");
-    Hashtbl.add lookup_hashtable_html "\"Scope\"" (lookup_html_internal_property "Scope");
-    Hashtbl.add lookup_hashtable_html "\"Code\"" (lookup_html_internal_property "Code");
     Hashtbl.add call_hashtable_html "\"Call\"" call_html_call;
     Hashtbl.add call_hashtable_html "\"GetOwnProperty\"" (call_html_internal_method "GetOwnProperty");
     Hashtbl.add call_hashtable_html "\"GetProperty\"" (call_html_internal_method "GetProperty");
@@ -2186,163 +1031,30 @@ module E_Expr = struct
     Hashtbl.add call_hashtable_html "\"DefineOwnProperty\"" (call_html_internal_method "DefineOwnProperty");
     Hashtbl.add call_hashtable_html "\"HasInstance\"" (call_html_internal_method "HasInstance");
     Hashtbl.add call_hashtable_html "\"Construct\"" (call_html_internal_method "Construct");
-    Hashtbl.add call_hashtable_html "Get" (call_html_default_method "Get");
-    Hashtbl.add call_hashtable_html "GetOwnProperty" (call_html_default_method "GetOwnProperty");
-    Hashtbl.add call_hashtable_html "DefineOwnProperty" (call_html_default_method "DefineOwnProperty");
-    Hashtbl.add call_hashtable_html "Delete" (call_html_default_method "Delete");
-    Hashtbl.add call_hashtable_html "DefaultValue" (call_html_custom_method "DefaultValue");
     Hashtbl.add call_hashtable_html "ObjectConstructor" (call_html_constructor "Object");
     Hashtbl.add call_hashtable_html "BooleanConstructor" (call_html_constructor "Boolean");
     Hashtbl.add call_hashtable_html "NumberConstructor" (call_html_constructor "Number");
     Hashtbl.add call_hashtable_html "StringConstructor" (call_html_constructor "String");
     Hashtbl.add call_hashtable_html "ArrayConstructor" (call_html_constructor "Array");
     Hashtbl.add call_hashtable_html "ObjectDefineProperties" call_html_objectdefineproperties_builtin_method;
-    Hashtbl.add call_hashtable_html "PropertyDescriptor" call_html_property_descriptor;
-    Hashtbl.add call_hashtable_html "FromPropertyDescriptor" call_html_frompropertydescriptor;
-    Hashtbl.add call_hashtable_html "ToPropertyDescriptor" call_html_topropertydescriptor;
-    Hashtbl.add call_hashtable_html "getJSProperty" call_html_ownproperty;
     Hashtbl.add call_hashtable_html "Type" call_html_type;
-    Hashtbl.add call_hashtable_html "GetBase" (call_html_reference_abstract_operations "GetBase");
-    Hashtbl.add call_hashtable_html "GetReferencedName" (call_html_reference_abstract_operations "GetReferencedName");
-    Hashtbl.add call_hashtable_html "IsStrictReference" (call_html_reference_abstract_operations "IsStrictReference");
-    Hashtbl.add call_hashtable_html "HasPrimitiveBase" (call_html_reference_abstract_operations "HasPrimitiveBase");
-    Hashtbl.add call_hashtable_html "IsPropertyReference" (call_html_reference_abstract_operations "IsPropertyReference");
-    Hashtbl.add call_hashtable_html "IsUnresolvableReference" (call_html_reference_abstract_operations "IsUnresolvableReference");
-    Hashtbl.add call_hashtable_html "GetValue" (call_html_reference_abstract_operations "GetValue");
-    Hashtbl.add call_hashtable_html "PutValue" (call_html_reference_abstract_operations "PutValue");
-    Hashtbl.add call_hashtable_html "ToPrimitive" (call_html_conversion_abstract_operations "ToPrimitive");
-    Hashtbl.add call_hashtable_html "ToBoolean" (call_html_conversion_abstract_operations "ToBoolean");
-    Hashtbl.add call_hashtable_html "ToNumber" (call_html_conversion_abstract_operations "ToNumber");
-    Hashtbl.add call_hashtable_html "ToInteger" (call_html_conversion_abstract_operations "ToInteger");
-    Hashtbl.add call_hashtable_html "ToInt32" (call_html_conversion_abstract_operations "ToInt32");
-    Hashtbl.add call_hashtable_html "ToUint32" (call_html_conversion_abstract_operations "ToUint32");
-    Hashtbl.add call_hashtable_html "ToUint16" (call_html_conversion_abstract_operations "ToUint16");
-    Hashtbl.add call_hashtable_html "ToString" (call_html_conversion_abstract_operations "ToString");
+    Hashtbl.add call_hashtable_html "GetValue" call_html_getvalue;
     Hashtbl.add call_hashtable_html "ToObject" (call_html_conversion_abstract_operations "ToObject");
-    Hashtbl.add call_hashtable_html "CheckObjectCoercible" (call_html_conversion_abstract_operations "CheckObjectCoercible");
-    Hashtbl.add call_hashtable_html "IsPrimitiveValue" call_html_isprimitivevalue;
     Hashtbl.add call_hashtable_html "IsCallable" call_html_iscallable;
     Hashtbl.add call_hashtable_html "IsDataPropertyDescriptor" call_html_dataproperty;
     Hashtbl.add call_hashtable_html "IsAccessorPropertyDescriptor" call_html_accessorproperty;
-    Hashtbl.add call_hashtable_html "IsGenericPropertyDescriptor" call_html_genericproperty;
-    Hashtbl.add call_hashtable_html "SameValue" call_html_samevalue;
-    Hashtbl.add call_hashtable_html "HasBinding" call_html_hasbinding_method;
-    Hashtbl.add call_hashtable_html "DeleteBinding" call_html_deletebinding_method;
-    Hashtbl.add call_hashtable_html "GetBindingValue" call_html_getbindingvalue_method;
     Hashtbl.add call_hashtable_html "CreateMutableBinding" call_html_createmutablebinding_method;
     Hashtbl.add call_hashtable_html "CreateImmutableBinding" call_html_createimmutablebinding_method;
-    Hashtbl.add call_hashtable_html "InitializeImmutableBinding" call_html_initializeimmutablebinding_method;
-    Hashtbl.add call_hashtable_html "SetMutableBinding" call_html_setmutablebinding;
-    Hashtbl.add call_hashtable_html "ImplicitThisValue" call_html_implicitthisvalue;
-    Hashtbl.add call_hashtable_html "CreateArgumentsObject" call_html_createargumentsobject;
-    Hashtbl.add call_hashtable_html "NewDeclarativeEnvironment" call_html_newdeclarativeenvironment;
     Hashtbl.add call_hashtable_html "InitialGlobalExecutionContext" call_html_initialglobalexecutioncontext;
-    Hashtbl.add call_hashtable_html "EnteringFunctionCode" call_html_enteringfunctioncode;
     Hashtbl.add call_hashtable_html "DeclarationBindingInstantiation" call_html_declarationbindinginstantiation;
-    Hashtbl.add call_hashtable_html "MakeArgGetter" call_html_makearggetter;
-    Hashtbl.add call_hashtable_html "makeArgGetterLetBodyAuxFunction" call_html_makearggetterletbodyauxfunction;
-    Hashtbl.add call_hashtable_html "MakeArgSetter" call_html_makeargsetter;
-    Hashtbl.add call_hashtable_html "makeArgSetterLetBodyAuxFunction" call_html_makeargsetterletbodyauxfunction;
-    Hashtbl.add call_hashtable_html "makeArgSetterLetParamAuxFunction" call_html_makeargsetterletparamauxfunction;
     Hashtbl.add call_hashtable_html "CreateFunctionObject" call_html_createfunctionobject;
-    Hashtbl.add call_hashtable_html "JS_Interpreter_Expr" call_html_evaluating;
-    Hashtbl.add call_hashtable_html "JS_Interpreter_Arguments" call_html_evaluatingarguments;
-    Hashtbl.add call_hashtable_html "JS_Interpreter_FunctionDeclaration" call_html_functiondeclaration;
-    Hashtbl.add call_hashtable_html "JS_Interpreter_FunctionExpression" call_html_evaluating;
-    Hashtbl.add call_hashtable_html "JS_Interpreter_FunctionBody" call_html_functionbody;
     Hashtbl.add call_hashtable_html "AbstractRelationalComparison" call_html_abstractrelationalcomparison;
-    Hashtbl.add call_hashtable_html "AbstractEqualityComparison" call_html_abstractequalitycomparison;
-    Hashtbl.add call_hashtable_html "StrictEqualityComparison" call_html_strictequalitycomparison;
-    Hashtbl.add call_hashtable_html "convertDataPropertyDescToAccessorPropertyDesc" call_html_dataproperty_to_accessorproperty;
-    Hashtbl.add call_hashtable_html "convertAccessorPropertyDescToDataPropertyDesc" call_html_accessorproperty_to_dataproperty;
-    Hashtbl.add call_hashtable_html "createOwnAccessorProperty" call_html_createownaccessorproperty;
-    Hashtbl.add call_hashtable_html "createOwnDataProperty" call_html_createowndataproperty;
-    Hashtbl.add call_hashtable_html "setCorrespondinglyNamedAttributes" call_html_setcorrespondinglynamedattributes;
-    Hashtbl.add call_hashtable_html "everyFieldInDescAlsoOccursInCurrent" call_html_everyfieldindescalsooccursincurrent;
-    Hashtbl.add call_hashtable_html "createMutableBinding" call_html_createmutablebinding;
-    Hashtbl.add call_hashtable_html "setBindingDeletable" call_html_setbindingdeletable;
-    Hashtbl.add call_hashtable_html "isMutableBinding" call_html_ismutablebinding;
-    Hashtbl.add call_hashtable_html "setBindingValue" call_html_setbindingvalue;
-    Hashtbl.add call_hashtable_html "isUninitialisedBinding" call_html_isuninitialisedbinding;
-    Hashtbl.add call_hashtable_html "getBindingValue" call_html_getbindingvalue;
-    Hashtbl.add call_hashtable_html "isBindingCannotBeDeleted" call_html_isbindingcannotbedeleted;
-    Hashtbl.add call_hashtable_html "hasUninitialisedImmutableBinding" call_html_hasuninitialisedimmutablebinding;
-    Hashtbl.add call_hashtable_html "createImmutableBinding" call_html_createimmutablebinding;
     Hashtbl.add call_hashtable_html "setBindingInitialised" call_html_setbindinginitialised;
-    Hashtbl.add call_hashtable_html "getBindingObject" call_html_getbindingobject;
-    Hashtbl.add call_hashtable_html "getProvideThis" call_html_getprovidethis;
-    Hashtbl.add call_hashtable_html "getThisBinding" call_html_getthisbinding;
-    Hashtbl.add call_hashtable_html "newValueReference" call_html_newvaluereference;
-    Hashtbl.add call_hashtable_html "getGlobalEnvironment" call_html_getglobalenvironment;
-    Hashtbl.add call_hashtable_html "getOuterEnvironmentReference" call_html_getouterenvironmentreference;
-    Hashtbl.add call_hashtable_html "setOuterLexicalEnvironmentReference" call_html_setouterlexicalenvironmentreference;
-    Hashtbl.add call_hashtable_html "newLexicalEnvironment" call_html_newlexicalenvironment;
     Hashtbl.add call_hashtable_html "setLexicalEnvironment" call_html_setlexicalenvironment;
     Hashtbl.add call_hashtable_html "getLexicalEnvironment" call_html_getlexicalenvironment;
-    Hashtbl.add call_hashtable_html "setVariableEnvironment" call_html_setvariableenvironment;
     Hashtbl.add call_hashtable_html "getVariableEnvironment" call_html_getvariableenvironment;
-    Hashtbl.add call_hashtable_html "newDeclarativeEnvironmentRecord" call_html_newdeclarativeenvironmentrecord;
-    Hashtbl.add call_hashtable_html "getEnvironmentRecord" call_html_getenvironmentrecord;
-    Hashtbl.add call_hashtable_html "setEnvironmentRecord" call_html_setenvironmentrecord;
-    Hashtbl.add call_hashtable_html "newObjectEnvironmentRecord" call_html_newobjectenvironmentrecord;
-    Hashtbl.add call_hashtable_html "getEnvRecOfRunningExecCtx" call_html_getenvrecofrunningexecctx;
-    Hashtbl.add call_hashtable_html "isEvalCode" call_html_isevalcode;
     Hashtbl.add call_hashtable_html "isStrictModeCode" call_html_isstrictmodecode;
-    Hashtbl.add call_hashtable_html "isContainedInStrictCode" call_html_iscontainedinstrictcode;
-    Hashtbl.add call_hashtable_html "isBuiltInFunctionBodyStrictModeCode" call_html_isstrictmodecode;
-    Hashtbl.add call_hashtable_html "isStrictFunctionObject" call_html_isstrictfunctionobject;
-    Hashtbl.add call_hashtable_html "isFunctionCode" call_html_isfunctioncode;
-    Hashtbl.add call_hashtable_html "getFunctionCode" call_html_getfunctioncode;
-    Hashtbl.add call_hashtable_html "isZero" call_html_iszero;
-    Hashtbl.add call_hashtable_html "isMinusZero" call_html_isminuszero;
-    Hashtbl.add call_hashtable_html "sameNumber" call_html_samenumber;
-    Hashtbl.add call_hashtable_html "sameObject" call_html_sameobject;
-    Hashtbl.add call_hashtable_html "sameSequenceOfCharacters" call_html_samesequence;
-    Hashtbl.add call_hashtable_html "mathematicalValue" call_html_mathematicalvalue;
-    Hashtbl.add call_hashtable_html "setThisBinding" call_html_setthisbinding;
-    Hashtbl.add call_hashtable_html "EveryFieldIsAbsent" call_html_everyfieldisabsent;
-    Hashtbl.add call_hashtable_html "getIdentifierFunctionDeclaration" call_html_getidentifierfunctiondeclaration;
-    Hashtbl.add call_hashtable_html "getIdentifierVariableDeclaration" call_html_getidentifiervariabledeclaration;
-    Hashtbl.add call_hashtable_html "getStringValue" call_html_getstringvalue;
-    Hashtbl.add call_hashtable_html "getFunctionDeclarationsInCode" call_html_ignore_function_name;
-    Hashtbl.add call_hashtable_html "getVariableDeclarationsInCode" call_html_ignore_function_name;
-    Hashtbl.add call_hashtable_html "getOwnProperties" call_html_ignore_function_name;
-    Hashtbl.add call_hashtable_html "isDirectCall" call_html_isdirectcall;
-    Hashtbl.add call_hashtable_html "NewECMAScriptObject" call_html_newecmascriptobject;
-    Hashtbl.add call_hashtable_html "setAllInternalMethodsOfObject" call_html_setallinternalmethodsofobject;
-    Hashtbl.add call_hashtable_html "setAllInternalMethodsExceptGet" call_html_setallinternalmethodsexceptget;
-    Hashtbl.add call_hashtable_html "listOfIdentifiersOf" call_html_listofidentifiersof;
-    Hashtbl.add call_hashtable_html "numberOfFormalParameters" call_html_numberofformalparameters;
-    Hashtbl.add call_hashtable_html "isValueAnEmptyFunctionBody" call_html_isvalueanemptyfunctionbody;
     Hashtbl.add call_hashtable_html "setInternalProperty" call_html_setinternalproperty;
-    Hashtbl.add call_hashtable_html "getInternalProperty" call_html_getinternalproperty;
-    Hashtbl.add call_hashtable_html "getObjectPrototype" call_html_getobjectprototype;
-    Hashtbl.add call_hashtable_html "normalEmptyCompletion" call_html_normalemptycompletion;
-    Hashtbl.add call_hashtable_html "exitExecutionContext" call_html_exitexecutioncontext;
-    Hashtbl.add call_hashtable_html "getCompletionType" call_html_getcompletiontype;
-    Hashtbl.add call_hashtable_html "getCompletionTarget" call_html_getcompletiontarget;
-    Hashtbl.add call_hashtable_html "getCompletionValue" call_html_getcompletionvalue;
-    Hashtbl.add call_hashtable_html "exitExecutionContext" call_html_exitexecutioncontext;
-    Hashtbl.add call_hashtable_html "isJavaScriptObject" call_html_isjavascriptobject;
-    Hashtbl.add call_hashtable_html "isHostObject" call_html_ishostobject;
-    Hashtbl.add call_hashtable_html "hostObjectReturn" call_html_hostobjectreturn;
-    Hashtbl.add call_hashtable_html "hostObjectValueOf" call_html_hostobjectvalueof;
-    Hashtbl.add call_hashtable_html "getOwnEnumerableProperties" call_html_getownenumerableproperties;
-    Hashtbl.add call_hashtable_html "createThrowTypeErrorFunctionObject" call_html_createthrowtypeerrorfunctionobject;
-    Hashtbl.add call_hashtable_html "throwAnyApplicableExceptions" call_html_throwanyapplicableexceptions;
-    Hashtbl.add call_hashtable_html "applyingTheAdditionOperation" call_html_applyingtheadditionoperation;
-    Hashtbl.add call_hashtable_html "applyingTheSubtractionOperation" call_html_applyingthesubtractionoperation;
-    Hashtbl.add call_hashtable_html "applyBitwiseOperator" call_html_applybitwiseoperator;
-    Hashtbl.add call_hashtable_html "applyingTheMultiplicationOperator" call_html_applyingmultiplicativeoperator;
-    Hashtbl.add call_hashtable_html "applyingTheDivisionOperator" call_html_applyingmultiplicativeoperator;
-    Hashtbl.add call_hashtable_html "applyingTheRemainderOperator" call_html_applyingmultiplicativeoperator;
-    Hashtbl.add call_hashtable_html "applyOperator" call_html_applyoperator;
-    Hashtbl.add call_hashtable_html "maskOutBits" call_html_maskoutbits;
-    Hashtbl.add call_hashtable_html "newPropertyReference" call_html_newpropertyreference;
-    Hashtbl.add call_hashtable_html "NewPropertyDescriptor" (fun _ _ _ -> Some "a newly created <a href=\"#sec-8.10\">Property Descriptor</a> with no fields");
-    Hashtbl.add call_hashtable_html "SyntaxErrorConstructorInternal" (call_html_exception "SyntaxError");
-    Hashtbl.add call_hashtable_html "TypeErrorConstructorInternal" (call_html_exception "TypeError");
-    Hashtbl.add call_hashtable_html "ReferenceErrorConstructorInternal" (call_html_exception "ReferenceError");
 
 end
 
@@ -2518,7 +1230,7 @@ module E_Stmt = struct
 
     | ExprStmt e ->
       sprintf
-        "<li>%s%s. %s</li>"
+        "<li>%s%s%s.</li>"
         prepend_str
         (E_Expr.to_html ExprStmt e)
         append_str, ctxt'
@@ -2560,18 +1272,24 @@ module E_Stmt = struct
       (match ctxt, e with
        | SameParagraph, Val Null ->
          sprintf
-           "%sreturn%s."
+           "%sreturn%s"
            prepend_str
            append_str, CNone
        | SameParagraph, _ ->
          sprintf
-           "%sreturn %s%s."
+           "%sreturn %s%s"
            prepend_str
            (expr_to_html e)
            append_str, CNone
-       | _, Val Val.Null ->
+       | _, Val Null ->
          sprintf
            "<li>%s%s%s.</li>"
+           prepend_str
+           (if prepend_str = "" then "Return" else "return")
+           append_str, ctxt'
+       | _, Var "Identifier" ->
+         sprintf
+           "<li>%s%s a String value containing the same sequence of characters as in the <i>Identifier</i>%s.</li>"
            prepend_str
            (if prepend_str = "" then "Return" else "return")
            append_str, ctxt'
@@ -2592,11 +1310,19 @@ module E_Stmt = struct
       let e_html = expr_to_html e in
       (match ctxt with
        | SameParagraph ->
-         sprintf
-           "%sthrow %s. %s"
-           prepend_str
-           e_html
-           append_str, CNone
+         let str =
+           sprintf
+             "%sthrow %s"
+             prepend_str
+             e_html in
+         (match append_str with
+          | "" -> str
+          | s  ->
+            sprintf
+              "%s. %s"
+              str
+              append_str
+         ) , CNone
        | _ ->
          sprintf
            "<li>%s%s %s. %s</li>"
@@ -2661,14 +1387,16 @@ module E_Stmt = struct
           ) ([], ctxt) stmts in
       String.concat "" htmls, ctxt_block
 
-    | RepeatUntil (s, e) ->
+    | RepeatUntil (s, e, meta) ->
+      let after_same, _ = parse_if_meta meta ctxt in
       sprintf
-        "<li>Repeat<ol class=\"block\">%s</ol></li>"
+        "<li>Repeat%s<ol class=\"block\">%s</ol></li>"
+        after_same
         (fst (to_html ~ctxt:ctxt' s)), ctxt'
 
     | While (e, s) ->
       sprintf
-        "<li>Repeat while %s.<ol class=\"block\">%s</ol></li>"
+        "<li>Repeat, while %s<ol class=\"block\">%s</ol></li>"
         (expr_to_html e)
         (fst (to_html ~ctxt:ctxt' s)), ctxt'
 
@@ -2732,7 +1460,7 @@ module E_Stmt = struct
     | If (e, s, None, if_meta, _) when is_basic_and_not_call s ->
       let after_same, next_ctxt = parse_if_meta if_meta ctxt in
       sprintf
-        "<li>If %s, %s %s</li>"
+        "<li>If %s, %s %s.</li>"
         (E_Expr.to_html IfGuard e)
         after_same
         (fst (to_html ~ctxt:SameParagraph s)), next_ctxt
@@ -2960,14 +1688,20 @@ module E_Func = struct
       let body' =
         match ctxt with
         | Table
-        | MatchWith -> body
         | _         -> sprintf "<ol class=\"proc\">%s</ol>" body in
-      sprintf
-        "<section id=\"sec-%s\">%s%s%s%s%s</section>"
-        metadata_sec_number
-        header
-        pre_note
-        body'
-        post_note
-        inner_sections
+      let section_contents =
+        sprintf
+          "%s%s%s%s"
+          pre_note
+          body'
+          inner_sections
+          post_note in
+      match header with
+      | "" -> section_contents
+      | h  ->
+        sprintf
+          "<section id=\"sec-%s\">%s%s</section>"
+          metadata_sec_number
+          header
+          section_contents
 end

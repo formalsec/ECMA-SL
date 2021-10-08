@@ -373,7 +373,7 @@ let list_add (v1, v2 : Val.t * Val.t) : Val.t = match v1 with
   | _      -> invalid_arg "Exception in Oper.list_add: this operation is only applicable to List arguments"
 
 let list_prepend (v1, v2 : Val.t * Val.t) : Val.t =
-  Printf.printf "list_prepend: %s" (Val.str v2);
+  (* Printf.printf "list_prepend: %s" (Val.str v2); *)
   match v2 with
   | List l -> Val.List (v1::l)
   | _      -> invalid_arg "Exception in Oper.list_prepend: this operation is only applicable to a Value and a List arguments"
@@ -451,9 +451,10 @@ let float_to_string (v : Val.t) : Val.t = match v with
   | _     -> invalid_arg ("Exception in Oper.float_to_string: this operation is only applicable to Flt arguments: " ^ (Val.str v))
 
 let float_of_string (v : Val.t) : Val.t = match v with
-  | Str s -> (if String.length (String.trim s) == 0
+  | Str s -> (let trimmed = String.trim s in
+              if String.length trimmed == 0
               then Flt 0.
-              else (try Flt (float_of_string s) with _ -> Flt nan))
+              else (try Flt (float_of_string trimmed) with _ -> Flt nan))
   | _     -> invalid_arg "Exception in Oper.float_of_string: this operation is only applicable to Str arguments"
 
 let string_concat (v : Val.t) : Val.t = match v with
