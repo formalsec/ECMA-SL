@@ -12,6 +12,7 @@
 %token RETURN
 %token NULL
 %token FUNCTION
+%token LARRBRACK RARRBRACK
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
@@ -34,7 +35,7 @@
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16
 %token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM SIN SQRT TAN COSH LOG_2 SINH TANH FLOAT64_TO_LE_BYTES FLOAT64_TO_BE_BYTES FLOAT32_TO_LE_BYTES FLOAT32_TO_BE_BYTES FLOAT64_FROM_LE_BYTES FLOAT64_FROM_BE_BYTES FLOAT32_FROM_LE_BYTES FLOAT32_FROM_BE_BYTES BYTES_TO_STRING
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST TO_PRECISION TO_EXPONENTIAL TO_FIXED
-%token NOT LLEN LNTH LADD LPREPEND LCONCAT LREVERSE LREMOVELAST LSORT HD TL TLEN TNTH FST SND SLEN SLEN_U SNTH SNTH_U SSUBSTR SSUBSTR_U
+%token NOT LLEN LNTH LADD LPREPEND LCONCAT LREVERSE LREMOVELAST LSORT HD TL TLEN TNTH FST SND SLEN SLEN_U SNTH SNTH_U SSUBSTR SSUBSTR_U ARRAY_MAKE ANTH ASET ALEN
 %token SCONCAT SSPLIT AT_SIGN EXTERN
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
@@ -136,6 +137,8 @@ val_target:
 expr_target:
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { Expr.NOpt (Oper.ListExpr, es) }
+  | LARRBRACK; es = separated_list (COMMA, expr_target); RARRBRACK;
+    { Expr.NOpt (Oper.ArrExpr, es) }
   | LPAREN; t = tuple_target; RPAREN;
     { Expr.NOpt (Oper.TupleExpr, List.rev t) }
   | v = val_target;
@@ -312,9 +315,16 @@ expr_target:
     { Expr.UnOpt (Oper.Float32FromLEBytes, e) } %prec unopt_prec 
   | FLOAT32_FROM_BE_BYTES  e = expr_target;
     { Expr.UnOpt (Oper.Float32FromBEBytes, e) } %prec unopt_prec
-   | BYTES_TO_STRING  e = expr_target;
-  { Expr.UnOpt (Oper.BytesToString, e) } %prec unopt_prec
-
+  | BYTES_TO_STRING  e = expr_target;
+    { Expr.UnOpt (Oper.BytesToString, e) } %prec unopt_prec
+  | ARRAY_MAKE; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    { Expr.BinOpt (Oper.ArrayMake, e1, e2) }
+  | ANTH; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; RPAREN;
+    { Expr.BinOpt (Oper.Anth, e1, e2) }
+  | ASET; LPAREN; e1 = expr_target; COMMA; e2 = expr_target; COMMA; e3 = expr_target; RPAREN;
+    { Expr.TriOpt (Oper.Aset, e1, e2, e3) }
+  | ALEN; e = expr_target;
+    { Expr.UnOpt (Oper.ArrayLen, e) } %prec unopt_prec
 stmt_block:
   | s = separated_list (SEMICOLON, stmt_target);
     { Stmt.Block s }

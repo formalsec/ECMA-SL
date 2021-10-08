@@ -21,6 +21,7 @@
 %token FUNCTION
 %token MACRO
 %token AT_SIGN
+(*%token LARRBRACK RARRBRACK*)
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token LBRACK RBRACK
@@ -44,7 +45,7 @@
 %token TO_INT TO_INT32 TO_UINT32 TO_UINT16
 %token ABS ACOS ASIN ATAN ATAN_2 CEIL COS EXP FLOOR LOG_E LOG_10 MAX MIN POW RANDOM SIN SQRT TAN PI MAX_VALUE MIN_VALUE COSH LOG_2 SINH TANH FLOAT64_TO_LE_BYTES FLOAT64_TO_BE_BYTES FLOAT32_TO_LE_BYTES FLOAT32_TO_BE_BYTES FLOAT64_FROM_LE_BYTES FLOAT64_FROM_BE_BYTES FLOAT32_FROM_LE_BYTES FLOAT32_FROM_BE_BYTES BYTES_TO_STRING
 %token PLUS MINUS TIMES DIVIDE MODULO EQUAL GT LT EGT ELT IN_OBJ IN_LIST TO_PRECISION TO_EXPONENTIAL TO_FIXED
-%token NOT LLEN LNTH LADD LPREPEND LCONCAT LREVERSE HD TL TLEN TNTH FST SND LREMOVELAST LSORT SLEN SLEN_U SNTH SNTH_U SSUBSTR SSUBSTR_U
+%token NOT LLEN LNTH LADD LPREPEND LCONCAT LREVERSE HD TL TLEN TNTH FST SND LREMOVELAST LSORT SLEN SLEN_U SNTH SNTH_U SSUBSTR SSUBSTR_U ARRAY_MAKE ANTH ASET ALEN
 %token SCONCAT SSPLIT
 %token IMPORT THROW FAIL CATCH
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
@@ -248,6 +249,8 @@ nary_op_target:
     { E_Expr.NOpt (Oper.ListExpr, es) }
   | LPAREN; t = tuple_target; RPAREN;
     { E_Expr.NOpt (Oper.TupleExpr, List.rev t) }
+  (*| LARRBRACK; es = separated_list (COMMA, e_expr_target); RARRBRACK;
+    { E_Expr.NOpt (Oper.ArrExpr, es) }*)
 
 prefix_unary_op_target:
   | MINUS; e = e_expr_target;
@@ -388,6 +391,8 @@ prefix_unary_op_target:
     { E_Expr.UnOpt (Oper.Float32FromBEBytes, e) } %prec unopt_prec
   | BYTES_TO_STRING  e = e_expr_target;
     { E_Expr.UnOpt (Oper.BytesToString, e) } %prec unopt_prec
+  | ALEN  e = e_expr_target;
+    { E_Expr.UnOpt (Oper.ArrayLen, e) } %prec unopt_prec
 
 
 prefix_binary_op_target:
@@ -419,12 +424,18 @@ prefix_binary_op_target:
     { E_Expr.BinOpt (Oper.ToExponential, e1, e2) }
   | TO_FIXED; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN; 
     { E_Expr.BinOpt (Oper.ToFixed, e1, e2) }
+  | ARRAY_MAKE; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.ArrayMake, e1, e2) }
+  | ANTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
+    { E_Expr.BinOpt (Oper.Anth, e1, e2) }
 
 prefix_trinary_op_target:
   | SSUBSTR; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
     { E_Expr.TriOpt (Oper.Ssubstr, e1, e2, e3) }
   | SSUBSTR_U; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
     { E_Expr.TriOpt (Oper.SsubstrU, e1, e2, e3) }
+  | ASET; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
+    { E_Expr.TriOpt (Oper.Aset, e1, e2, e3) }
 
 infix_binary_op_target:
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;

@@ -74,6 +74,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | Float32FromLEBytes -> Oper.float32_from_le_bytes v
   | Float32FromBEBytes -> Oper.float32_from_be_bytes v
   | BytesToString     -> Oper.bytes_to_string v
+  | ArrayLen         -> Oper.a_len v
   | _             -> Oper.apply_uopt_oper op v
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
@@ -109,12 +110,15 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ToPrecision -> Oper.to_precision (v1, v2)
   | ToExponential -> Oper.to_exponential (v1, v2)
   | ToFixed -> Oper.to_fixed (v1, v2)
+  | ArrayMake-> Oper.array_make (v1, v2)
+  | Anth     -> Oper.array_nth (v1, v2)
   | _        -> Oper.apply_bopt_oper op v1 v2
 
 let eval_triopt_expr (op : Oper.topt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : Val.t =
   match op with
   | Ssubstr  -> Oper.s_substr (v1,v2,v3)
   | SsubstrU  -> Oper.s_substr_u (v1,v2,v3)
+  | Aset      -> Oper.array_set (v1,v2,v3)
 
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   match op with
@@ -122,6 +126,7 @@ let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   | TupleExpr -> Val.Tuple vals
   | NAry_And  -> Val.Bool (List.for_all Oper.is_true vals)
   | NAry_Or   -> Val.Bool (List.exists Oper.is_true vals)
+  | ArrExpr  -> Val.Arr (Array.of_list vals)
 
 
 let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
