@@ -2,25 +2,24 @@
 function initArrayBufferPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
   setAllInternalMethodsOfObject(prototype);
-
+  
   /* 24.1.4.1 get ArrayBuffer.prototype.byteLength */
   byteLengthObject := CreateBuiltInFunctionObject([], "ArrayBufferPrototypeByteLength", global, strict, 0.);
   descriptor := newGetAccessorPropertyDescriptorFull(byteLengthObject, false, true);
   setJSProperty(prototype, "byteLength", descriptor);
   descriptor := newDataPropertyDescriptorFull("get byteLength", false, false, true);
   setJSProperty(byteLengthObject, "name", descriptor);
-
+  
   /* 24.1.4.3 ArrayBuffer.prototype.slice ( start, end ) */
   sliceObject := CreateBuiltInFunctionObject(["start", "end"], "ArrayBufferPrototypeSlice", global, strict, 0.);
   descriptor := newDataPropertyDescriptorFull(sliceObject, true, false, true);
   setJSProperty(prototype, "slice", descriptor);
   descriptor := newDataPropertyDescriptorFull("slice", false, false, true);
   setJSProperty(sliceObject, "name", descriptor);
-
+  
   /* 24.1.4.4 ArrayBuffer.prototype [ @@toStringTag ] */
   descriptor := newDataPropertyDescriptorFull("ArrayBuffer", false, false, true);
   setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
-
   return prototype
 };
 
@@ -28,31 +27,40 @@ function initArrayBufferPrototype(global, objectPrototype, strict) {
 function initArrayBufferObject(global, objectPrototype, strict) {
   objArrayBufferPrototype := initArrayBufferPrototype(global, objectPrototype, strict);
   objArrayBufferConstructor := CreateFunctionObject(["length"], "ArrayBufferConstructor", global, strict, 0.);
-
+  
   /* 24.1.4.2 ArrayBuffer.prototype.constructor */
   descriptor := newDataPropertyDescriptorFull(objArrayBufferConstructor, true, false, true);
   setJSProperty(objArrayBufferPrototype, "constructor", descriptor);
   
   /* The value of the [[Prototype]] internal slot of the ArrayBuffer constructor is the intrinsic object %FunctionPrototype% (19.2.3). */
   createBuiltInPropertyWithFullDescriptor(objArrayBufferConstructor, "prototype", objectPrototype, false, false, false);
-
+  
   /* Besides its length property (whose value is 1), the ArrayBuffer constructor has the following properties: */
   descriptor := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(objArrayBufferConstructor, "length", descriptor);
-
+  
   /* 24.1.3.1 ArrayBuffer.isView ( arg ) */
   isViewObject := CreateBuiltInFunctionObject(["arg"], "ArrayBufferIsView", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(isViewObject, true, false, true);
   setJSProperty(objArrayBufferPrototype, "isView", descriptor);
   descriptor := newDataPropertyDescriptorFull("isView", false, false, true);
   setJSProperty(isViewObject, "name", descriptor);
-
+  
   /* 24.1.3.2 ArrayBuffer.prototype 
   The initial value of ArrayBuffer.prototype is the intrinsic object %ArrayBufferPrototype% (24.1.4).
   This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   descriptor := newDataPropertyDescriptorFull(objArrayBufferPrototype, false, false, false);
   setJSProperty(objArrayBufferConstructor, "prototype", descriptor);
-  
+
+  /* Temporary */
+  arrayBufferToStringObject := CreateBuiltInFunctionObject([], "arrayBufferToString", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(arrayBufferToStringObject, true, false, true);
+  setJSProperty(objArrayBufferPrototype, "toString", descriptor);
+
+  /* arrayBufferSetValueInBufferObject := CreateBuiltInFunctionObject([], "arrayBufferSetValueInBufferObject", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(arrayBufferSetValueInBufferObject, true, false, true);
+  setJSProperty(objArrayBufferPrototype, "toString", descriptor); */
+
   /* 24.1.3.3 get ArrayBuffer [ @@species ] */
   arrayBufferSpeciesObject := CreateFunctionObject([], "ArrayBufferSpeciesGetter", global, strict, null);
   descriptor := newGetAccessorPropertyDescriptorFull(arrayBufferSpeciesObject, false, true);
@@ -61,15 +69,19 @@ function initArrayBufferObject(global, objectPrototype, strict) {
   setJSProperty(arrayBufferSpeciesObject, "name", descriptor);
   descriptor := newDataPropertyDescriptorFull(0., false, false, true);
   setJSProperty(arrayBufferSpeciesObject, "length", descriptor);
-
+  
   return objArrayBufferConstructor
+};
+
+/* Temporary */
+function arrayBufferToString(global, this, strict, args) {
+  return bytes_to_string(this.ArrayBufferData)
 };
 
 /* 24.1.3.3 get ArrayBuffer [ @@species ] */
 function ArrayBufferSpeciesGetter(global, this, strict, args) {
   return this
 };
-
 
 /**
  * 24.1.2.1 ArrayBuffer (length)
@@ -84,6 +96,10 @@ function ArrayBufferConstructor(global, this, strict, args) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal()
   };
+  if (length = 'null) {
+    print "DEBUG ArrayBufferConstructor 1";
+    length := 0.
+  };
   /* 2. Let numberLength be ToNumber(length). */
   numberLength := ToNumber(length);
   /* 3. Let byteLength be ToLength(numberLength). */
@@ -95,7 +111,7 @@ function ArrayBufferConstructor(global, this, strict, args) {
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal()
   };
-  /* 6. TODO Return AllocateArrayBuffer(NewTarget, byteLength). */
+  /* 6. Return AllocateArrayBuffer(NewTarget, byteLength). */
   return AllocateArrayBuffer(NewTarget, byteLength, strict)
 };
 
@@ -178,8 +194,9 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
   };
   /* 9. If end is undefined, */
   if (end = 'undefined) {
-    /* let relativeEnd be len; else let relativeEnd be ToInteger(end) */
+    /* let relativeEnd be len */
     relativeEnd := len
+  /* else let relativeEnd be ToInteger(end) */
   } else {
     relativeEnd := ToInteger(end) 
   };
@@ -187,9 +204,9 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
   @ReturnIfAbrupt(relativeEnd);
   /* 11. If relativeEnd < 0, */
   if (relativeEnd < 0) {
-    /* let final be max((len + relativeEnd),0); else let final be 
-       min(relativeEnd, len) */
+    /* let final be max((len + relativeEnd),0) */
     final := max((len + relativeEnd), 0)
+  /* else let final be min(relativeEnd, len) */
   } else {
     final := min(relativeEnd, len)
   }; 
@@ -251,7 +268,7 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
  * steps: 
  */
 function AllocateArrayBuffer(constructor, byteLength, strict) {
-	/* 1. TODO Let obj be OrdinaryCreateFromConstructor(constructor, "%ArrayBufferPrototype%",   «‍[[ArrayBufferData]], [[ArrayBufferByteLength]]» ). */
+	/* 1. Let obj be OrdinaryCreateFromConstructor(constructor, "%ArrayBufferPrototype%",   «‍[[ArrayBufferData]], [[ArrayBufferByteLength]]» ). */
 	obj := OrdinaryCreateFromConstructorArrayBuffer(constructor, constructor, strict, []);
 	/* 2. ReturnIfAbrupt(obj). */
 	@ReturnIfAbrupt(obj);
@@ -337,7 +354,7 @@ function CloneArrayBuffer(strict, srcBuffer, srcByteOffset, cloneConstructor) {
 	cloneLength := srcLength - srcByteOffset;
 	/* 7. Let srcBlock be the value of srcBuffer’s [[ArrayBufferData]] internal slot. */
 	srcBlock := srcBuffer.ArrayBufferData;
-	/* 8. TODO Let targetBuffer be AllocateArrayBuffer(cloneConstructor, cloneLength). */
+	/* 8. Let targetBuffer be AllocateArrayBuffer(cloneConstructor, cloneLength). */
 	targetBuffer := AllocateArrayBuffer(cloneConstructor, cloneLength, strict);
 	/* 9. ReturnIfAbrupt(targetBuffer). */
 	@ReturnIfAbrupt(targetBuffer);
@@ -371,11 +388,12 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   block := arrayBuffer.ArrayBufferData;
   /* 5. Let elementSize be the Number value of the Element Size value specified in Table 49 for Element Type type. */
   elementSize := getElementSize(type);
-  /* 6. Let rawValue be a List of elementSize containing, in order, the elementSize sequence of bytes starting with block[byteIndex]. */
+  /* 6. Let rawValue be a List of elementSize containing, in order,
+  the elementSize sequence of bytes starting with block[byteIndex]. */
   rawValue := [];
   i := size - 1;
   while (i >= 0) {
-    l_prepend(block[byteIndex + i], rawValue);
+    l_prepend(l_nth(block, byteIndex + i), rawValue);
     i := i - 1
   };
   /* 7. If isLittleEndian is not present, */
@@ -516,7 +534,7 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     /* d. If intValue ≥ 0, then */
     if (intValue >= 0) {
       /* i. TODO Let rawBytes be a List containing the n-byte binary encoding of intValue. */
-      /* If isLittleEndian is false, the bytes are ordered in big endian order. */ 
+      /* If isLittleEndian is false, the bytes are ordered in big endian order. */
       if (isLittleEndian = false) {
         rawBytes := float64_to_be_bytes(intValue)
       /* Otherwise, the bytes are ordered in little endian order. */
@@ -536,10 +554,18 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     }
   };
   /* 12. Store the individual bytes of rawBytes into block, in order, starting at block[byteIndex]. */
-  i := 0;
-  while (i < elementSize) {
-    block[byteIndex + i] := rawBytes[i]
+  new_block := [];
+  index := 0;
+  while (index < byteIndex) {
+    new_block := l_concat(new_block, [l_nth(block, i)]);
+    index := index + 1
   };
+  index := 0;
+  len := l_len(rawBytes);
+  while (i < len) {
+    new_block := l_concat(new_block, [l_nth(rawBytes, i)])
+  };
+  arrayBuffer.ArrayBufferData := new_block;
   /* 13. Return NormalCompletion(undefined). */
   return NormalCompletion('undefined)
 };
