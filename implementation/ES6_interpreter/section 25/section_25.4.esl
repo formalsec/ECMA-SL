@@ -301,7 +301,7 @@ macro IfAbruptRejectPromise(value, capability) {
   if (isAnAbruptCompletion(value)) {
     /* a. Let rejectResult be Call(capability.[[Reject]], undefined, 
        «value.[[value]]»). */
-    rejectResult := Call(null, null, capability.Reject, 'undefined, [value.value]);
+    rejectResult := Call(null, null, capability.Reject, 'undefined, [value]);
     /* b. ReturnIfAbrupt(rejectResult). */
     ReturnIfAbrupt(rejectResult); /* No need for @ when in side a macro */
     /* c. Return capability.[[Promise]]. */
@@ -310,7 +310,7 @@ macro IfAbruptRejectPromise(value, capability) {
   /* 2. Else if value is a Completion Record, */
   elif (isCompletionRecord(value)) {
     /* let value be value.[[value]] */
-    value := value.value
+    value := value
   }
 };
 
@@ -765,7 +765,7 @@ function PromiseResolveThenableJob(strict, promiseToResolve, thenable, then) {
   if (isAnAbruptCompletion(thenCallResult)) {
     /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined, 
        «thenCallResult.[[value]]»). */
-    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [thenCallResult.value]);
+    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [thenCallResult]);
     /* b. NextJob Completion(status). */
     NextJob(Completion(status))
   };
@@ -852,7 +852,7 @@ function PromiseConstructor(global, NewTarget, strict, args) {
   if (isAnAbruptCompletion(completion)) {
     /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined, 
        «completion.[[value]]»). */
-    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [getCompletionValue(completion)]);
+    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [completion]);
     /* b. ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status)
   };
