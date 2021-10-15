@@ -61,6 +61,10 @@ function initArrayBufferObject(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(arrayBufferSetValueInBufferObject, true, false, true);
   setJSProperty(objArrayBufferPrototype, "set", descriptor);
 
+  arrayBufferGetValueFromBufferObject := CreateBuiltInFunctionObject([], "arrayBufferGetValueFromBufferObject", global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(arrayBufferGetValueFromBufferObject, true, false, true);
+  setJSProperty(objArrayBufferPrototype, "get", descriptor);
+
   /* 24.1.3.3 get ArrayBuffer [ @@species ] */
   arrayBufferSpeciesObject := CreateFunctionObject([], "ArrayBufferSpeciesGetter", global, strict, null);
   descriptor := newGetAccessorPropertyDescriptorFull(arrayBufferSpeciesObject, false, true);
@@ -385,7 +389,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   /* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */
   assert(IsDetachedBuffer(arrayBuffer) = false);
   /* 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. (*/
-  assert ((a_len(arrayBuffer) - byteIndex) >= getElementSize(type));
+  assert ((a_len(arrayBuffer.ArrayBufferData) - byteIndex) >= getElementSize(type));
   /* 3. Assert: byteIndex is a positive integer. */
   assert(byteIndex > (0.));
   /* 4. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot. */
@@ -395,11 +399,15 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   /* 6. Let rawValue be a List of elementSize containing, in order,
   the elementSize sequence of bytes starting with block[byteIndex]. */
   rawValue := [];
-  i := size - 1;
-  while (i >= 0) {
-    l_prepend(a_nth(block, byteIndex + i), rawValue);
-    i := i - 1
+  i := byteIndex ;
+  len := a_len(block);
+  while (i < len) {
+    print "GetValue while loop";
+    print i;
+    l_add(rawValue, a_nth(block, i));
+    i := i + 1
   };
+  print "debuging GetValueFromBufer";
   /* 7. If isLittleEndian is not present, */
   if (isLittleEndian = 'undefined) {
       /* Set isLittleEndian to either true or false. The choice is  
@@ -411,14 +419,18 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   };
   /* 8. If isLittleEndian is false, reverse the order of the elements of rawValue */
   if (isLittleEndian = false) {
-    l_reverse(rawValue)
+    print "debuging GetValueFromBufer1";
+    l_reverse(rawValue);
+    print "debuging GetValueFromBufer2"
   };
   /* 9. If type is "Float32", then */
   if (type = "Float32") {
     /* a. Let value be the byte elements of rawValue concatenated and 
        interpreted as a little-endian bit string encoding of an IEEE 754-2008 
        binary32 value. */
+    print "debuging GetValueFromBufer3";
     value := float32_from_le_bytes(rawValue);
+    print "debuging GetValueFromBufer4";
     /* b. If value is an IEEE 754-2008 binary32 NaN value, return the NaN Number value */
     if (value = NaN) {
       return NaN
@@ -440,7 +452,10 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
     return value
   };
   /* 11. If the first code unit of type is "U", then */
-  if (l_nth(type, 0) = "U") {
+  print type;
+  print s_nth(type, 0);
+  print "yay";
+  if (s_nth(type, 0) = "U") {
   /* a. TODO OPERATOR Let intValue be the byte elements of rawValue concatenated and 
    interpreted as a bit string encoding of an unsigned little-endian 
    binary number. */
@@ -461,6 +476,17 @@ function arrayBufferSetValueInBufferObject(global, this, strict, args) {
   isLittleEndian := l_nth(args, 3);
 
   SetValueInBuffer(this, (int_of_float byteIndex), type, value, isLittleEndian);
+
+  return 0
+}; 
+
+function arrayBufferGetValueFromBufferObject(global, this, strict, args) {
+  print "in arrayBufferGetValueFromBufferObject";
+  byteIndex := l_nth(args, 0); 
+  type := l_nth(args, 1); 
+  isLittleEndian := l_nth(args, 2);
+
+  GetValueFromBuffer(this, (int_of_float byteIndex), type, isLittleEndian);
 
   return 0
 }; 
@@ -486,7 +512,7 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
   /* 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. */
   assert ((a_len(arrayBuffer.ArrayBufferData) - byteIndex) >= getElementSize(type));
   /* 3. Assert: byteIndex is a positive integer. */
-  assert(byteIndex > 0);
+  /*assert(byteIndex > 0);*/
   /* 4. Assert: Type(value) is Number. */
   assert(Type(value) = "Number");
   /* 5. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot. */
