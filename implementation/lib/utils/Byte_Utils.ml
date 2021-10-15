@@ -51,9 +51,9 @@ let float32_from_le_bytes (bytes : int32 list) : float =
   done;
   Int32.float_of_bits !res
 
-let float32_from_be_bytes (bytes : int32 list) : float =
+let float32_from_be_bytes (bytes : int32 array) : float =
    let res = ref 0l in
    for i = 0 to 3 do
-     res := Int32.add !res (Int32.shift_left (List.nth bytes i) ((3 - i) * 8))
+     res := Int32.add !res (Int32.shift_left (Array.get bytes i) ((3 - i) * 8))
    done;
    Int32.float_of_bits !res

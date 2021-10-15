@@ -18,17 +18,19 @@ function CreateByteDataBlock(size) {
     /* 1. Assert: size ≥ 0. */
     assert (size >= (0.));
     /* 2. Let db be a new Data Block value consisting of size bytes. */ 
-    db := [];
+    /*db := [];*/
     /* If it is impossible to create such a Data Block, throw a RangeError exception. */
     if (size >= (7. * 1125899906842624.)) {
         throw RangeErrorConstructorInternal()
     };
-    i := 0.;
+    db := array_make(int_of_float(size), float_to_byte(0.));
+    
+    /* i := 0.;
     while (i < size) {
-        i := i + 1.;
+        i := i + 1.;*/
         /* 3. Set all of the bytes of db to 0. */
-        db := l_concat(db, float64_to_le_bytes(0.))
-    };
+        /*db := l_concat(db, float64_to_le_bytes(0.))
+    };*/
     /* 4. Return db. */
     return db
 };

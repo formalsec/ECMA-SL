@@ -14,6 +14,7 @@ type t =
   | Curry  of string * t list
   | Byte32   of int32
   | Byte64   of int64
+  
 
 let is_special_number (s : string) : bool =
   List.mem s ["nan" ; "inf" ; "-inf" ] || String.contains s 'e' ||  String.contains s 'E'
