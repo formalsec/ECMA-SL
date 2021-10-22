@@ -886,7 +886,6 @@ test/test262es5/tests/built-ins/Array/prototype/join/S15.4.4.5_A6.4.js
 test/test262es5/tests/built-ins/Array/prototype/join/S15.4.4.5_A6.5.js
 test/test262es5/tests/built-ins/Array/prototype/join/S15.4.4.5_A6.6.js
 test/test262es5/tests/built-ins/Array/prototype/join/S15.4.4.5_A6.7.js
-test/test262es5/tests/built-ins/Array/prototype/keys/return-abrupt-from-this.js
 test/test262es5/tests/built-ins/Array/prototype/lastIndexOf/15.4.4.15-0-1.js
 test/test262es5/tests/built-ins/Array/prototype/lastIndexOf/15.4.4.15-0-2.js
 test/test262es5/tests/built-ins/Array/prototype/lastIndexOf/15.4.4.15-1-10.js

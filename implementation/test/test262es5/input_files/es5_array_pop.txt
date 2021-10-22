@@ -1,0 +1,15 @@
+test/test262es5/tests/built-ins/Array/prototype/pop/call-with-boolean.js
+test/test262es5/tests/built-ins/Array/prototype/pop/prop-desc.js
+test/test262es5/tests/built-ins/Array/prototype/pop/S15.4.4.6_A1.1_T1.js
+test/test262es5/tests/built-ins/Array/prototype/pop/S15.4.4.6_A1.2_T1.js
+test/test262es5/tests/built-ins/Array/prototype/pop/S15.4.4.6_A2_T1.js
+test/test262es5/tests/built-ins/Array/prototype/pop/S15.4.4.6_A2_T3.js
+test/test262es5/tests/built-ins/Array/prototype/pop/S15.4.4.6_A2_T4.js
+test/test262es5/tests/built-ins/Array/prototype/pop/S15.4.4.6_A4_T1.js
+test/test262es5/tests/built-ins/Array/prototype/pop/S15.4.4.6_A4_T2.js
+test/test262es5/tests/built-ins/Array/prototype/pop/S15.4.4.6_A5.1.js
+test/test262es5/tests/built-ins/Array/prototype/pop/S15.4.4.6_A5.3.js
+test/test262es5/tests/built-ins/Array/prototype/pop/S15.4.4.6_A5.4.js
+test/test262es5/tests/built-ins/Array/prototype/pop/S15.4.4.6_A5.5.js
+test/test262es5/tests/built-ins/Array/prototype/pop/S15.4.4.6_A5.6.js
+test/test262es5/tests/built-ins/Array/prototype/pop/S15.4.4.6_A5.7.js

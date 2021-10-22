@@ -1,0 +1,4 @@
+test/test262es5/tests/built-ins/RegExp/prototype/constructor/S15.10.5.1_A1.js
+test/test262es5/tests/built-ins/RegExp/prototype/constructor/S15.10.5.1_A2.js
+test/test262es5/tests/built-ins/RegExp/prototype/constructor/S15.10.5.1_A3.js
+test/test262es5/tests/built-ins/RegExp/prototype/constructor/S15.10.5.1_A4.js

@@ -1,0 +1,14 @@
+test/test262es5/tests/built-ins/Array/prototype/push/prop-desc.js
+test/test262es5/tests/built-ins/Array/prototype/push/S15.4.4.7_A1_T1.js
+test/test262es5/tests/built-ins/Array/prototype/push/S15.4.4.7_A1_T2.js
+test/test262es5/tests/built-ins/Array/prototype/push/S15.4.4.7_A2_T1.js
+test/test262es5/tests/built-ins/Array/prototype/push/S15.4.4.7_A2_T3.js
+test/test262es5/tests/built-ins/Array/prototype/push/S15.4.4.7_A3.js
+test/test262es5/tests/built-ins/Array/prototype/push/S15.4.4.7_A4_T2.js
+test/test262es5/tests/built-ins/Array/prototype/push/S15.4.4.7_A5_T1.js
+test/test262es5/tests/built-ins/Array/prototype/push/S15.4.4.7_A6.1.js
+test/test262es5/tests/built-ins/Array/prototype/push/S15.4.4.7_A6.3.js
+test/test262es5/tests/built-ins/Array/prototype/push/S15.4.4.7_A6.4.js
+test/test262es5/tests/built-ins/Array/prototype/push/S15.4.4.7_A6.5.js
+test/test262es5/tests/built-ins/Array/prototype/push/S15.4.4.7_A6.6.js
+test/test262es5/tests/built-ins/Array/prototype/push/S15.4.4.7_A6.7.js

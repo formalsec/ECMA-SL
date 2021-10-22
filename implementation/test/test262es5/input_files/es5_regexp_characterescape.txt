@@ -1,0 +1,13 @@
+test/test262es5/tests/built-ins/RegExp/character-escape/S15.10.2.10_A1.1_T1.js
+test/test262es5/tests/built-ins/RegExp/character-escape/S15.10.2.10_A1.2_T1.js
+test/test262es5/tests/built-ins/RegExp/character-escape/S15.10.2.10_A1.3_T1.js
+test/test262es5/tests/built-ins/RegExp/character-escape/S15.10.2.10_A1.4_T1.js
+test/test262es5/tests/built-ins/RegExp/character-escape/S15.10.2.10_A1.5_T1.js
+test/test262es5/tests/built-ins/RegExp/character-escape/S15.10.2.10_A2.1_T1.js
+test/test262es5/tests/built-ins/RegExp/character-escape/S15.10.2.10_A2.1_T2.js
+test/test262es5/tests/built-ins/RegExp/character-escape/S15.10.2.10_A3.1_T1.js
+test/test262es5/tests/built-ins/RegExp/character-escape/S15.10.2.10_A3.1_T2.js
+test/test262es5/tests/built-ins/RegExp/character-escape/S15.10.2.10_A4.1_T1.js
+test/test262es5/tests/built-ins/RegExp/character-escape/S15.10.2.10_A4.1_T2.js
+test/test262es5/tests/built-ins/RegExp/character-escape/S15.10.2.10_A4.1_T3.js
+test/test262es5/tests/built-ins/RegExp/character-escape/S15.10.2.10_A5.1_T1.js
