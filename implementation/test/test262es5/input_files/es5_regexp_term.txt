@@ -1,0 +1,6 @@
+test/test262es5/tests/built-ins/RegExp/term/15.10.2.5-3-1.js
+test/test262es5/tests/built-ins/RegExp/term/S15.10.2.5_A1_T1.js
+test/test262es5/tests/built-ins/RegExp/term/S15.10.2.5_A1_T2.js
+test/test262es5/tests/built-ins/RegExp/term/S15.10.2.5_A1_T3.js
+test/test262es5/tests/built-ins/RegExp/term/S15.10.2.5_A1_T4.js
+test/test262es5/tests/built-ins/RegExp/term/S15.10.2.5_A1_T5.js

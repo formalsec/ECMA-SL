@@ -115,15 +115,26 @@ function isPromiseCapabilityRecord(record) {
 function isPromiseReactionRecord(record) {
   return (("Capabilities" in_obj record) &&& ("Handler" in_obj record))
 };
-/* TODO: Not sure about these ones, ask prof. */
-function Completion(obj) {
-  return obj
+/* 6.2.2.1
+NormalCompletion
+
+The abstract operation NormalCompletion with a single argument, such as:
+
+    Return NormalCompletion(argument).
+
+Is a shorthand that is defined as follows:
+
+    Return Completion{[[type]]: normal, [[value]]: argument, [[target]]:empty}.
+ */
+function Completion(argument) {
+  return newCompletion('normal, argument, 'empty)
 };
 /* Might make sense to move this one to section 8.9 */
 function isCompletionRecord(record) {
   return (Type(record) = "Completion")
 };
 
+/* Called in ESL_Interpreter.esl at the start of the program's execution */
 function initJobQueue() {
   |JobQueue| := [];
   return
@@ -134,6 +145,7 @@ function appendToJobQueue(job) {
   return
 };
 
+/* Called in ESL_Interpreter.esl before the end of the program's execution */
 function executeJobs() {
   while (!(|JobQueue| = [])) {
     job := hd |JobQueue|;
@@ -284,23 +296,22 @@ function NormalCompletion(argument) {
  *
  * means the same thing as: 
  */
-function IfAbruptRejectPromise(value, capability) {
+macro IfAbruptRejectPromise(value, capability) {
   /* 1. If value is an abrupt completion, */
   if (isAnAbruptCompletion(value)) {
     /* a. Let rejectResult be Call(capability.[[Reject]], undefined, 
        «value.[[value]]»). */
-    rejectResult := Call(null, null, capability.Reject, 'undefined, [value.value]);
+    rejectResult := Call(null, null, capability.Reject, 'undefined, [value]);
     /* b. ReturnIfAbrupt(rejectResult). */
-    @ReturnIfAbrupt(rejectResult);
+    ReturnIfAbrupt(rejectResult); /* No need for @ when in side a macro */
     /* c. Return capability.[[Promise]]. */
     return capability.Promise
   }
   /* 2. Else if value is a Completion Record, */
   elif (isCompletionRecord(value)) {
     /* let value be value.[[value]] */
-    value := value.value
-  };
-  return
+    value := value
+  }
 };
 
 
@@ -754,7 +765,7 @@ function PromiseResolveThenableJob(strict, promiseToResolve, thenable, then) {
   if (isAnAbruptCompletion(thenCallResult)) {
     /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined, 
        «thenCallResult.[[value]]»). */
-    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [thenCallResult.value]);
+    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [thenCallResult]);
     /* b. NextJob Completion(status). */
     NextJob(Completion(status))
   };
@@ -841,7 +852,7 @@ function PromiseConstructor(global, NewTarget, strict, args) {
   if (isAnAbruptCompletion(completion)) {
     /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined, 
        «completion.[[value]]»). */
-    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [getCompletionValue(completion)]);
+    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [completion]);
     /* b. ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status)
   };
@@ -931,7 +942,7 @@ function PromiseAll(global, this, strict, args) {
   /* 8. Let iterator be GetIterator(iterable). */
   iterator := GetIterator(iterable, null);
   /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
-  IfAbruptRejectPromise(iterator, promiseCapability);
+  @IfAbruptRejectPromise(iterator, promiseCapability);
   /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: 
      false}. */
   iteratorRecord := { iterator: iterator, done: false };
@@ -945,7 +956,7 @@ function PromiseAll(global, this, strict, args) {
       result := IteratorClose(iterator, result)
     };
     /* b. IfAbruptRejectPromise(result, promiseCapability). */
-    IfAbruptRejectPromise(result, promiseCapability)
+    @IfAbruptRejectPromise(result, promiseCapability)
   };
   /* 13. Return Completion(result). */
   return Completion(result)
@@ -1157,7 +1168,7 @@ function PromiseRace(global, this, strict, args) {
   /* 8. Let iterator be GetIterator(iterable). */
   iterator := GetIterator(iterable, null);
   /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
-  IfAbruptRejectPromise(iterator, promiseCapability);
+  @IfAbruptRejectPromise(iterator, promiseCapability);
   /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: 
      false}. */
   iteratorRecord := { iterator: iterator, done: false };
@@ -1172,7 +1183,7 @@ function PromiseRace(global, this, strict, args) {
       result := IteratorClose(iterator, result)
     };
     /* b. IfAbruptRejectPromise(result, promiseCapability). */
-    IfAbruptRejectPromise(result, promiseCapability)
+    @IfAbruptRejectPromise(result, promiseCapability)
   };
   /* 13. Return Completion(result). */
   return Completion(result)
