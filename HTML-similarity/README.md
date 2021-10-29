@@ -2,6 +2,14 @@ HTML-similarity Python project; used to calculate Text-based and HTML-specific m
 
 Run `python start.py -h` to check the available arguments.
 
+## Install dependencies
+```
+pip install textdistance
+pip install html-similarity
+pip install beautifulsoup4
+```
+
+
 ### Note 1
 
 Before executing any of the commands provided below, one must ensure that the generated HTML version of the ECMAScript standard is available in a file named "standard.html" present in the folder "../implementation/test/html_standard/" (relative to the ECMA-SL project's repository). (This is specified in file "start.py")
