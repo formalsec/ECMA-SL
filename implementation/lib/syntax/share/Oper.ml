@@ -115,6 +115,7 @@ type uopt = Neg
           | BytesToString
           | FloatToByte
           | ArrayLen
+          | ListToArray
 
 
 type nopt = ListExpr
@@ -415,6 +416,10 @@ let list_sort (v : Val.t) : Val.t = match v with
      | Some strs -> List (List.map (fun s -> Val.Str s) (List.fast_sort (String.compare) strs)))
   | _      -> invalid_arg "Exception in Oper.list_sort: this operation is only applicable to List arguments"
 
+let list_to_array (v1 : Val.t) : Val.t = match v1 with
+  | List lst -> Val.Arr (Array.of_list(lst))
+  | _         -> invalid_arg "Exception in Oper.list_to_array: this operation is only applicable to List arguments"
+
 let array_make (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | Int n, x -> Val.Arr (Array.make n x)
   | _      -> invalid_arg "Exception in Oper.array_make: this operation is only applicable to Int and Value arguments"
@@ -590,18 +595,18 @@ let float64_from_be_bytes (v : Val.t) : Val.t = match v with
   | _ -> invalid_arg "Exception in Oper.float64_from_be_bytes: this operation is only applicable to List arguments"
 
 let float32_from_le_bytes (v : Val.t) : Val.t = match v with
-  | List bytes -> 
-    let int32_bytes = List.map unpack_byte32 bytes in 
+  | Arr bytes -> 
+    let int32_bytes = Array.map unpack_byte32 bytes in 
     let f = Byte_Utils.float32_from_le_bytes int32_bytes in 
     Flt f
-  | _ -> invalid_arg "Exception in Oper.float32_from_le_bytes: this operation is only applicable to List arguments"
+  | _ -> invalid_arg "Exception in Oper.float32_from_le_bytes: this operation is only applicable to Array arguments"
 
 let float32_from_be_bytes (v : Val.t) : Val.t = match v with
   | Arr bytes -> 
     let int32_bytes = Array.map unpack_byte32 bytes in 
     let f = Byte_Utils.float32_from_be_bytes int32_bytes in 
     Flt f
-  | _ -> invalid_arg "Exception in Oper.float64_from_le_bytes: this operation is only applicable to List arguments"
+  | _ -> invalid_arg "Exception in Oper.float64_from_le_bytes: this operation is only applicable to Array arguments"
 
 let from_char_code (v : Val.t) : Val.t = match v with
   | Int n -> Str (String_Utils.from_char_code n)
@@ -729,6 +734,7 @@ let str_of_unopt (op : uopt) : string = match op with
   | BytesToString     -> "bytes_to_string"
   | FloatToByte       -> "float_to_byte"
   | ArrayLen      -> "a_len"
+  | ListToArray   -> "list_to_array"
 
 let str_of_binopt_single (op : bopt) : string = match op with
   | Plus     -> "+"
@@ -988,4 +994,5 @@ let uopt_to_json (op : uopt) : string =
      | Float32FromBEBytes -> Printf.sprintf "Float32FromBEBytes\" }"
      | BytesToString -> Printf.sprintf "BytesToString\" }"
      | FloatToByte     -> Printf.sprintf "FloatToByte\" }"
-     | ArrayLen       -> Printf.sprintf "ArrayLen\" }")
+     | ArrayLen       -> Printf.sprintf "ArrayLen\" }"
+     | ListToArray       -> Printf.sprintf "ListToArray\" }")

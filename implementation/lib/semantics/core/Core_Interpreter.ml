@@ -76,6 +76,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | BytesToString     -> Oper.bytes_to_string v
   | FloatToByte         -> Oper.float_to_byte v
   | ArrayLen         -> Oper.a_len v
+  | ListToArray         -> Oper.list_to_array v
   | _             -> Oper.apply_uopt_oper op v
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =

@@ -110,7 +110,8 @@
                   "array_make"          , ARRAY_MAKE;
                   "a_nth"               , ANTH;
                   "a_set"               , ASET;
-                  "a_len"               , ALEN
+                  "a_len"               , ALEN;
+                  "list_to_array"       , LIST_TO_ARRAY;
                 ]
 
   exception Syntax_error of string
