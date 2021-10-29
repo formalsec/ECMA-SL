@@ -393,7 +393,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   /* 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. (*/
   assert ((a_len(arrayBuffer.ArrayBufferData) - byteIndex) >= getElementSize(type));
   /* 3. Assert: byteIndex is a positive integer. */
-  assert(byteIndex > (0.));
+  /* assert(byteIndex > (0.)); byteIndex is float or int? */
   /* 4. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot. */
   block := arrayBuffer.ArrayBufferData;
   /* 5. Let elementSize be the Number value of the Element Size value specified in Table 49 for Element Type type. */
@@ -402,16 +402,17 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   the elementSize sequence of bytes starting with block[byteIndex]. */
   
   
-  /*len := a_len(block) - byteIndex;
-  rawValue := array_make(len, float_to_byte(0.));
-  i := 0 ;
-  while (i < len) {
+  rawValue := array_make(elementSize, float_to_byte(0.));
+  i := 0;
+  while (i < elementSize) {
     print "GetValue while loop";
     print i;
-    a_set(rawValue, i,  a_nth(block, i));
-    i := i + 1
-  };*/
-  len := a_len(block);
+    a_set(rawValue, i,  a_nth(block, byteIndex));
+    i := i + 1;
+    byteIndex := byteIndex + 1
+  };
+
+  /* len := a_len(block);
   rawValue := [];
   i := byteIndex;
 
@@ -420,7 +421,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
     print i;
     rawValue := l_add(rawValue, a_nth(block, i));
     i := i + 1
-  };
+  }; */
   print "debuging GetValueFromBufer";
   print rawValue;
   /* 7. If isLittleEndian is not present, */
@@ -433,10 +434,13 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
       isLittleEndian = true
   };
   /* 8. If isLittleEndian is false, reverse the order of the elements of rawValue */
-  if (isLittleEndian = false) { /* TODO reverse é diferente*/
+  if (isLittleEndian = false) { /* TODO */
     print "in LittleEndian if";
-    print float32_from_be_bytes(list_to_array(rawValue));
-    rawValue := l_reverse(rawValue)
+    print float32_from_be_bytes(rawValue);
+    print(rawValue);
+    reverse_array_buffer(rawValue, elementSize);
+    print(rawValue)
+    /* rawValue := l_reverse(rawValue) */
   };
   /* 9. If type is "Float32", then */
   if (type = "Float32") {
@@ -444,14 +448,14 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
        interpreted as a little-endian bit string encoding of an IEEE 754-2008 
        binary32 value. */
     
-    rawValueArray := list_to_array(rawValue);
+    /*rawValueArray := list_to_array(rawValue);
     print "debuging GetValueFromBufer3";
-    print rawValueArray;
+    print rawValueArray;*/
     
     /*value := float32_from_be_bytes(rawValueArray);
     print "debuging GetValueFromBufer4; be_bytes";
     print value; */
-    value := float32_from_le_bytes(rawValueArray);
+    value := float32_from_le_bytes(rawValue);
     print "debuging GetValueFromBufer4; le_bytes";
     print value;
     /* b. If value is an IEEE 754-2008 binary32 NaN value, return the NaN Number value */
@@ -727,4 +731,19 @@ function getConversionOperation(type) {
   if (type = "Uint32") {
     return ToUint32()
   }
+};
+
+function reverse_array_buffer(buffer, size){
+  i := 0;
+  while (i < (size / 2)) {
+    print i;
+    print (i + size/2);
+    print (size - i - 1);
+    tmp := a_nth(buffer, (size - i - 1));
+    a_set(buffer, (size - i - 1), a_nth(buffer, i));
+    a_set(buffer, i, tmp);
+    i := i + 1
+  };
+  print buffer;
+  return 
 }
