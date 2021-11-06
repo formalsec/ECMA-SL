@@ -30,17 +30,17 @@ let float32_to_be_bytes (x : float) : int32 list =
     done;
     !lst
 
-let float64_from_le_bytes (bytes : int64 list) : float =
+let float64_from_le_bytes (bytes : int64 array) : float =
   let res = ref 0L in
   for i = 0 to 7 do
-     res := Int64.add !res (Int64.shift_left (List.nth bytes i) (i * 8))
+     res := Int64.add !res (Int64.shift_left (Array.get bytes i) (i * 8))
   done;
   Int64.float_of_bits !res
 
-let float64_from_be_bytes (bytes : int64 list) : float =
+let float64_from_be_bytes (bytes : int64 array) : float =
    let res = ref 0L in
    for i = 0 to 7 do
-     res := Int64.add !res (Int64.shift_left (List.nth bytes i) ((7 - i) * 8))
+     res := Int64.add !res (Int64.shift_left (Array.get bytes i) ((7 - i) * 8))
    done;
    Int64.float_of_bits !res
 

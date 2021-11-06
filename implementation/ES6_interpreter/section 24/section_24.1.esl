@@ -419,7 +419,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   while (i < len) {
     print "GetValue while loop";
     print i;
-    rawValue := l_add(rawValue, a_nth(block, i));
+    l_add(rawValue, a_nth(block, i));
     i := i + 1
   }; */
   print "debuging GetValueFromBufer";
@@ -514,7 +514,7 @@ function arrayBufferGetValueFromBufferObject(global, this, strict, args) {
   type := l_nth(args, 1); 
   isLittleEndian := l_nth(args, 2);
 
-  return GetValueFromBuffer(this, (int_of_float byteIndex), type, isLittleEndian)
+  return GetValueFromBuffer(this, int_of_float (byteIndex), type, isLittleEndian)
 
 }; 
 
@@ -587,11 +587,11 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     /* If isLittleEndian is false */
     if (isLittleEndian = false) {
       /* the bytes are arranged in big endian order. */
-      rawBytes := float32_to_be_bytes(value)
+      rawBytes := float64_to_be_bytes(value)
     } else {
       /* Otherwise, the bytes are 
       arranged in little endian order. */
-      rawBytes := float32_to_le_bytes(value)
+      rawBytes := float64_to_le_bytes(value)
     };
     /* TODO If value is NaN, rawValue may be set to any implementation chosen IEEE 754-2008 binary32 format
     Not-a-Number encoding. An implementation must always choose the same encoding for
@@ -630,7 +630,9 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     }
   };
   /* 12. Store the individual bytes of rawBytes into block, in order, starting at block[byteIndex]. */
-  
+
+  print "debug123";
+  print rawBytes;  
   rawByteIndex := 0;
   blockIndex := byteIndex;
   rawByteLen := l_len(rawBytes);

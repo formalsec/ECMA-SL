@@ -581,15 +581,15 @@ let float32_to_be_bytes (v : Val.t) : Val.t = match v with
   | _ -> invalid_arg "Exception in Oper.float32_to_be_bytes: this operation is only applicable to Float arguments"
 
 let float64_from_le_bytes (v : Val.t) : Val.t = match v with
-  | List bytes -> 
-    let int64_bytes = List.map unpack_byte64 bytes in 
+  | Arr bytes -> 
+    let int64_bytes = Array.map unpack_byte64 bytes in 
     let f = Byte_Utils.float64_from_le_bytes int64_bytes in 
     Flt f
   | _ -> invalid_arg "Exception in Oper.float64_from_le_bytes: this operation is only applicable to List arguments"
 
 let float64_from_be_bytes (v : Val.t) : Val.t = match v with
-  | List bytes -> 
-    let int64_bytes = List.map unpack_byte64 bytes in 
+  | Arr bytes -> 
+    let int64_bytes = Array.map unpack_byte64 bytes in 
     let f = Byte_Utils.float64_from_be_bytes int64_bytes in 
     Flt f
   | _ -> invalid_arg "Exception in Oper.float64_from_be_bytes: this operation is only applicable to List arguments"
