@@ -327,7 +327,7 @@ function DetachArrayBuffer(arrayBuffer) {
 	/* Set arrayBuffer’s [[ArrayBufferByteLength]] internal slot to 0. */
 	arrayBuffer.ArrayBufferByteLength := 0;
 	/* Return NormalCompletion(null). */
-	NormalCompletion(null)
+	return NormalCompletion(null)
 };
 
 /**

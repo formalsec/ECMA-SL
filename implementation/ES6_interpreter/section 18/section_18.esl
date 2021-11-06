@@ -177,6 +177,9 @@ function initGlobalObject(strict) {
   ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);
   createBuiltInProperty(globalObject, "console", ConsoleObject);
 
+  test262Object := initTest262Object(globalObject, getObjectPrototype(strict), strict);
+  createBuiltInProperty(globalObject, "$262", test262Object);
+
   return globalObject
 };
 
