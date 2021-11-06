@@ -10,6 +10,9 @@
  */
 function GetViewValue (view, requestIndex, isLittleEndian, type) {
 
+  print "debug 41-----"; 
+  print requestIndex; 
+
   /* 1. If Type(view) is not Object, throw a TypeError exception. */
   if (!(Type(view) = "Object")) {
     throw TypeErrorConstructorInternal()
@@ -23,6 +26,9 @@ function GetViewValue (view, requestIndex, isLittleEndian, type) {
   /* 3. Let numberIndex be ToNumber(requestIndex). */
   numberIndex := ToNumber(requestIndex);
 
+  print "debug 42-----"; 
+  print(numberIndex);
+
   /* 4. Let getIndex be ToInteger(numberIndex). */
   getIndex := ToInteger(numberIndex);
 
@@ -30,9 +36,8 @@ function GetViewValue (view, requestIndex, isLittleEndian, type) {
   @ReturnIfAbrupt(getIndex);
 
   /* 6. If numberIndex ≠ getIndex or getIndex < 0, throw a RangeError exception. */
-  print(numberIndex);
-  print(getIndex);
-  if (!(numberIndex = getIndex) ||| (getIndex < 0.)) {
+  if ((!(numberIndex = getIndex)) ||| (getIndex < 0.)) {
+    print "throwing range error----"; 
     throw RangeErrorConstructorInternal()
   };
 
@@ -300,9 +305,9 @@ function initDataViewPrototype(global, objectPrototype, strict) {
   setJSProperty(byteOffsetObject, "name", descriptor);
 
   /* 24.2.4.5 DataView.prototype.getFloat32 ( byteOffset [ , littleEndian ] ) */
-  getFloat32Object := CreateBuiltInFunctionObject(["byteOffset", "littleEndian"], "DataViewPrototypeGetFloat32", global, strict, 0.);
+  getFloat32Object := CreateBuiltInFunctionObject(["byteOffset", "littleEndian"], "DataViewPrototypeGetFloat32", global, strict, 1.);
   createBuiltInProperty(prototype, "getFloat32", getFloat32Object);
-  setJSProperty(getFloat32Object, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(getFloat32Object, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(getFloat32Object, "name", newDataPropertyDescriptorFull("getFloat32", false, false, true));
 
   /* 24.2.4.6 DataView.prototype.getFloat64 ( byteOffset [ , littleEndian ] ) */

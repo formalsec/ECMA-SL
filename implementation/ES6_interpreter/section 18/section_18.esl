@@ -93,6 +93,9 @@ function initGlobalObject(strict) {
   createBuiltInProperty(globalObject, "Array", ArrayObject);
   initArrayIteratorPrototype(globalObject, ObjectPrototype, strict);
 
+  Int8ArrayObject := initTypedArrayObject(globalObject, ObjectPrototype, strict, "Int8");
+  createBuiltInProperty(globalObject, "Int8Array", Int8ArrayObject);
+  
   /* 15.1.4.4 String ( . . . ) */
   StringObject := initStringObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "String", StringObject);

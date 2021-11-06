@@ -4,12 +4,20 @@ function initConsoleObject(globalObject, objectPrototype, strict) {
 
   internalLog := CreateFunctionObject(["str"], "__internalLog", globalObject, strict, null);
   internalLogObject := CreateFunctionObject(["obj"], "__internalLogObject", globalObject, strict, null);
-  
+  internalSetInternalClass := CreateFunctionObject(["obj", "class"], "__internalSetInternalClass", globalObject, strict, null);
+  internalSetInternalName := CreateFunctionObject(["obj", "name"], "__internalSetInternalName", globalObject, strict, null);
+
 
   createBuiltInProperty(console, "log", internalLog);
   createBuiltInProperty(console, "logObject", internalLogObject);
+  createBuiltInProperty(console, "setInternalClass", internalSetInternalClass);
+  createBuiltInProperty(console, "setInternalName", internalSetInternalName);
+ 
   createBuiltInProperty(internalLog, "prototype", objectPrototype);
   createBuiltInProperty(internalLogObject, "prototype", objectPrototype);
+  createBuiltInProperty(internalSetInternalClass, "prototype", objectPrototype);
+  createBuiltInProperty(internalSetInternalName, "prototype", objectPrototype);
+
   setInternalProperty(console, "Prototype", objectPrototype);
 
 
@@ -73,4 +81,22 @@ function initTest262Object(globalObject, objectPrototype, strict) {
 
 function __detachArrayBuffer(global, this, strict, items) {
   return DetachArrayBuffer(l_nth(items, 0))
+};
+
+function __internalSetInternalClass(globalObject, this, strict, params) {
+  obj := l_nth(params, 0);
+  class := l_nth(params, 1);
+
+  setInternalProperty(obj, "Class", class);
+
+  return 'null
+};
+
+function __internalSetInternalName(globalObject, this, strict, params) {
+  obj := l_nth(params, 0);
+  name := l_nth(params, 1);
+
+  createBuiltInProperty(obj, "name", name);
+
+  return 'null
 }

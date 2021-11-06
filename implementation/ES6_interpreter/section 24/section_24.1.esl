@@ -306,7 +306,7 @@ function IsDetachedBuffer (arrayBuffer) {
 	/* 1. Assert: Type(arrayBuffer) is Object and it has an [[ArrayBufferData]] internal slot. */
 	assert ((Type(arrayBuffer) = "Object") &&& ("ArrayBufferData" in_obj arrayBuffer)); 
 	/* 2. If arrayBuffer’s [[ArrayBufferData]] internal slot is null, return true. */
-	if (arrayBuffer.ArrayBufferData = 'null) {
+	if (arrayBuffer.ArrayBufferData = null) {
 		return true
 	};
 	/* 3. Return false. */

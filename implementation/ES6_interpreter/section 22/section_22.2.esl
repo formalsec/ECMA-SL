@@ -1,0 +1,59 @@
+
+/*
+typeOfArray - Int16, Int32, ...
+*/
+function initTypedArrayPrototype(global, objectPrototype, strict, typeOfArray) {
+  prototype := NewECMAScriptObjectFull(objectPrototype, s_concat([typeOfArray, "Array"]), true);
+  setAllInternalMethodsOfArray(prototype);
+  /*
+    Falta definir os metodos
+  */
+
+  return prototype
+}; 
+
+
+function initTypedArrayObject(global, objectPrototype, strict, typeOfArray) {
+
+  objArrayPrototype := initTypedArrayPrototype(global, objectPrototype, strict, typeOfArray);
+
+  /* 22.1.1 The Array Constructor 
+    Int32TypedArrayConstructor
+  */
+  objArrayConstructor := CreateFunctionObject(["items"], s_concat([typeOfArray, "TypedArrayConstructor"]), global, strict, 0.);
+  descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
+  setJSProperty(objArrayPrototype, "constructor", descriptor);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(objArrayConstructor, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull(s_concat([typeOfArray, "Array"]), false, false, true);
+  setJSProperty(objArrayConstructor, "name", descName);
+
+
+  return objArrayConstructor
+}; 
+
+function Int8TypedArrayConstructor(global, this, strict, items) {
+    return TypedArrayConstructor("Int8", global, this, strict, items)
+};
+
+function TypedArrayConstructor (typeOfArray, global, this, strict, items) {
+  len := l_len items; 
+  if (len = 0) {
+    return TypedArrayConstructorEmpty(typeOfArray, global, this, strict, items)
+  }; 
+  fail "not implemented yet!"
+}; 
+
+/* 22.2.1.1 */
+function TypedArrayConstructorEmpty(typeOfArray, global, this, strict, items) { 
+  NewTarget := this; 
+  /* 1. If NewTarget is undefined, throw a TypeError exception.*/ 
+  if (NewTarget = 'undefined) {
+    throw TypeErrorConstructorInternal() 
+  }; 
+
+  /* 2. Return AllocateTypedArray(NewTarget, 0).*/ 
+  fail "TypedArrayConstructorEmpty"
+}
