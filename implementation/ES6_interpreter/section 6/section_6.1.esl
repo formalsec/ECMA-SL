@@ -1,0 +1,11 @@
+/** 6.1.7.4 Well-Known Intrinsic Objects
+    Just initializing the intrinsic container here and assign the well-known objects when they are created (section 18/section_18.esl)
+*/
+function initIntrinsics() {
+    |Intrinsics| := NewECMAScriptObject();
+    return
+};
+
+function isIntrinsic(name) {
+    return name in_obj |Intrinsics|
+}
