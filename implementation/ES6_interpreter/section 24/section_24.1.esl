@@ -276,7 +276,7 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
  */
 function AllocateArrayBuffer(constructor, byteLength, strict) {
 	/* 1. Let obj be OrdinaryCreateFromConstructor(constructor, "%ArrayBufferPrototype%",   «‍[[ArrayBufferData]], [[ArrayBufferByteLength]]» ). */
-	obj := OrdinaryCreateFromConstructorArrayBuffer(constructor, constructor, strict, []);
+	obj := OrdinaryCreateFromConstructorArrayBuffer(constructor, |Intrinsics|.ArrayBufferPrototype, strict, []);
 	/* 2. ReturnIfAbrupt(obj). */
 	@ReturnIfAbrupt(obj);
 	/* 3. Assert: byteLength is a positive integer. */

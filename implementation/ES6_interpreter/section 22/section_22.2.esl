@@ -1,8 +1,6 @@
-function initTypedArrayPrototype(global, objectPrototype, strict, typeOfArray) {
-  prototype := NewECMAScriptObjectFull(objectPrototype, "TypedArray", true);
-  /*
-    Falta definir os metodos
-  */
+function initTypedArrayMainPrototype(global, objectPrototype, strict) {
+  prototype := NewECMAScriptObjectFull(objectPrototype, "TypedArrayPrototype", true);
+
   /* 22.2.3 Properties of the %TypedArrayPrototype% Object */
   /* 22.2.3.1 get %TypedArray%.prototype.buffer */
   bufferFunc := CreateBuiltInFunctionObject([], "getTypedArrayBuffer", |global|, strict, null);
@@ -16,6 +14,57 @@ function initTypedArrayPrototype(global, objectPrototype, strict, typeOfArray) {
   byteOffsetFunc := CreateBuiltInFunctionObject([], "getTypedArrayByteOffset", |global|, strict, null);
   descByteOffset := newGetAccessorPropertyDescriptor(byteOffsetFunc);
   setJSProperty(prototype, "byteOffset", descByteOffset);
+
+  /*
+    Falta definir os metodos
+  */
+
+  |ElementTable| := {
+    Int8Array: {
+      type: "Int8",
+      size: 1
+    },
+    Uint8Array: {
+      type: "Uint8",
+      size: 1
+    },
+    Uint8ClampedArray: {
+      type: "Uint8C",
+      size: 1
+    },
+    Int16Array: {
+      type: "Int16",
+      size: 2
+    },
+    Uint16Array: {
+      type: "Uint16",
+      size: 2
+    },
+    Int32Array: {
+      type: "Int32",
+      size: 4
+    },
+    Uint32Array: {
+      type: "Uint32",
+      size: 4
+    },
+    Float32Array: {
+      type: "Float32",
+      size: 4
+    },
+    Float64Array: {
+      type: "Float64",
+      size: 8
+    }
+  };
+
+  return prototype
+};
+
+function initTypedArrayPrototype(global, objectPrototype, strict, typeOfArray) {
+  typedArrayPrototype := |Intrinsics|.TypedArrayPrototype;
+  prototype := NewECMAScriptObjectFull(typedArrayPrototype, s_concat([typeOfArray, "Prototype"]), true);
+    
   /* 22.2.6.1 TypedArray.prototype.BYTES_PER_ELEMENT */
   descBytes := newDataPropertyDescriptorFull(getNumberOfBytes(typeOfArray), false, false, false);
   setJSProperty(prototype, "BYTES_PER_ELEMENT", descBytes);
@@ -39,8 +88,7 @@ function initTypedArrayObject(global, objectPrototype, strict, typeOfArray) {
   descLen := newDataPropertyDescriptorFull(3., false, false, true);
   setJSProperty(objTypedArrayConstructor, "length", descLen);
   /* TypedArrayConstructorName */
-  descName := newDataPropertyDescriptorFull(s_concat([typeOfArray, "Array"]), false, false, true);
-  setInternalProperty(objTypedArrayConstructor, "TypedArrayConstructorName", descName);
+  setInternalProperty(objTypedArrayConstructor, "TypedArrayConstructorName", s_concat([typeOfArray, "Array"]));
   /* 22.2.5.1 BYTES_PER_ELEMENT */
   descBytes := newDataPropertyDescriptorFull(getNumberOfBytes(typeOfArray), false, false, false);
   setJSProperty(objTypedArrayConstructor, "BYTES_PER_ELEMENT", descBytes);
@@ -103,7 +151,7 @@ function TypedArrayConstructorEmpty(typeOfArray, global, this, strict, items) {
   };
 
   /* 2. Return AllocateTypedArray(NewTarget, 0).*/
-  return AllocateTypedArray(NewTarget, 0)
+  return AllocateTypedArray(NewTarget, 0, strict)
 };
 
 /**
@@ -117,14 +165,14 @@ function TypedArrayConstructorEmpty(typeOfArray, global, this, strict, items) {
  * the %TypeArray% overloads and other methods. AllocateTypedArray performs the
  * following steps:
  */
-function AllocateTypedArray(newTarget, length) {
+function AllocateTypedArray(newTarget, length, strict) {
   /* 1. Assert: IsConstructor(newTarget) is true. */
   assert(IsConstructor(newTarget) = true);
   
   /* 2. If SameValue(%TypedArray%, newTarget) is true, throw a TypeError exception */
-  /* if (SameValue(TypedArrayIntrinsicObject, newTarget) = true) {
+  if (SameValue(|Intrinsics|.TypedArray, newTarget) = true) {
     throw TypeErrorConstructorInternal()
-  }; */
+  };
   
   /* 3. NOTE %TypedArray% throws an exception when invoked via either a
      function call or the new operator. It can only be successfully invoked
@@ -142,9 +190,9 @@ function AllocateTypedArray(newTarget, length) {
       throw TypeErrorConstructorInternal()
     };
     /* b. If SameValue(%TypedArray%, subclass) is true, throw a TypeError exception. */
-    /* if (SameValue(TypedArrayConstructor, subclass)) {
+    if (SameValue(|Intrinsics|.TypedArray, subclass) = true) {
       throw TypeErrorConstructorInternal()
-    }; */
+    };
     /* c. If subclass has a [[TypedArrayConstructorName]] internal slot, let constructorName be the value of subclass’s [[TypedArrayConstructorName]] internal slot. */
     if ("TypedArrayConstructorName" in_obj subclass) {
       constructorName := subclass.TypedArrayConstructorName
@@ -156,13 +204,13 @@ function AllocateTypedArray(newTarget, length) {
     @ReturnIfAbrupt(subclass)
   };
   /* 7. Let proto be GetPrototypeFromConstructor(newTarget, "%TypedArrayPrototype%"). */    
-  proto := GetPrototypeFromConstructor(newTarget, "%TypedArrayPrototype%");
+  proto := GetPrototypeFromConstructor(newTarget, "TypedArrayPrototype");
   /* 8. ReturnIfAbrupt(proto). */ 
   @ReturnIfAbrupt(proto);        
   /* 9. Let obj be IntegerIndexedObjectCreate (proto, «‍[[ViewedArrayBuffer]],
      [[TypedArrayName]], [[ByteLength]], [[ByteOffset]], [[ArrayLength]]»
      ). */                           
-  obj := IntegerIndexedObjectCreate(proto, [null, null, null, null, null]);
+  obj := IntegerIndexedObjectCreate(proto, ["ViewedArrayBuffer", "TypedArrayName", "ByteLength", "ByteOffset", "ArrayLength"]);
   /* 10. Assert: The [[ViewedArrayBuffer]] internal slot of obj is undefined. */
   assert(getInternalProperty(obj, "ViewedArrayBuffer") = 'undefined);
   /* 11. Set obj's [[TypedArrayName]] internal slot to constructorName. */
@@ -177,11 +225,11 @@ function AllocateTypedArray(newTarget, length) {
     obj.ArrayLength := 0.
   } /* 13. Else, */ else {
     /* Let elementSize be the Element Size value in Table 49 for constructorName. */
-    elementSize := newTarget.elementSize;
+    elementSize := |ElementTable|[constructorName].size;
     /* Let byteLength be elementSize × length. */
     byteLength := elementSize * length;
     /* Let data be AllocateArrayBuffer(%ArrayBuffer%, byteLength). */
-    data := AllocateArrayBuffer(null, byteLength);
+    data := AllocateArrayBuffer(|Intrinsics|.ArrayBuffer, byteLength, strict);
     /* ReturnIfAbrupt(data). */
     @ReturnIfAbrupt(data);
     /* Set obj’s [[ViewedArrayBuffer]] internal slot to data. */
