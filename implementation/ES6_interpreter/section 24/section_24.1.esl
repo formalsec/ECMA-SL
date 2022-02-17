@@ -532,11 +532,21 @@ function arrayBufferGetValueFromBufferObject(global, this, strict, args) {
  * steps: 
  */
 function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
-  print "---42"; 
+  
+  print "---42 - 1"; 
   print type; 
   print value; 
   print byteIndex;
+  print (typeof value); 
 
+  tvalue := Type(value); 
+  print "---42 - 2";
+  print tvalue; 
+
+
+
+
+  
   /* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */
   assert(IsDetachedBuffer(arrayBuffer) = false);
   /* 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. */
@@ -660,7 +670,7 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
   };
   arrayBuffer.ArrayBufferData := new_block;*/
   /* 13. Return NormalCompletion(undefined). */
-  return NormalCompletion('undefined)
+  return 'undefined
 };
 
 /*
