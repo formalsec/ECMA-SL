@@ -43,4 +43,5 @@ var sample = new DataView(buffer, 0);
 var result = sample.setFloat32(0);
 
 assert.sameValue(sample.getFloat32(0), NaN);
+console.log("Checkpoint1")
 assert.sameValue(result, undefined);

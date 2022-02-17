@@ -280,7 +280,7 @@ function AllocateArrayBuffer(constructor, byteLength, strict) {
 	/* 2. ReturnIfAbrupt(obj). */
 	@ReturnIfAbrupt(obj);
 	/* 3. Assert: byteLength is a positive integer. */
-	assert (byteLength > (0.));
+	assert (byteLength >= (0.)); /* TODO >= 0? ou > 0*/
 	/* 4. Let block be CreateByteDataBlock(byteLength). */
 	block := CreateByteDataBlock(byteLength);
 	/* 5. ReturnIfAbrupt(block). */
@@ -388,6 +388,9 @@ function CloneArrayBuffer(strict, srcBuffer, srcByteOffset, cloneConstructor) {
  * a Boolean isLittleEndian. This operation performs the following steps: 
  */
 function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
+  print "Debug-43 arrayBuffer";
+  print arrayBuffer;
+
   /* 1. Assert: IsDetachedBuffer(arrayBuffer) is false. */
   assert(IsDetachedBuffer(arrayBuffer) = false);
   /* 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type. (*/
@@ -400,7 +403,6 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   elementSize := getElementSize(type);
   /* 6. Let rawValue be a List of elementSize containing, in order,
   the elementSize sequence of bytes starting with block[byteIndex]. */
-  
   
   rawValue := array_make(elementSize, float_to_byte(0.));
   i := 0;
@@ -434,11 +436,12 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
       isLittleEndian = true
   };
   /* 8. If isLittleEndian is false, reverse the order of the elements of rawValue */
-  if (isLittleEndian = false) { /* TODO */
+  if (isLittleEndian = false) { 
     print "in LittleEndian if";
     print float32_from_be_bytes(rawValue);
     print(rawValue);
     reverse_array_buffer(rawValue, elementSize);
+    print "reversed-42";
     print(rawValue)
     /* rawValue := l_reverse(rawValue) */
   };

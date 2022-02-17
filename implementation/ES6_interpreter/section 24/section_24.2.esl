@@ -146,7 +146,7 @@ function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
   /* 14. Let bufferIndex be getIndex + viewOffset. */
   bufferIndex := getIndex + viewOffset;
 
-  /* 15. Return SetInFromBuffer(buffer, bufferIndex, type, value, isLittleEndian). */
+  /* 15. Return SetValueInBuffer(buffer, bufferIndex, type, value, isLittleEndian). */
   return SetValueInBuffer(buffer, int_of_float(bufferIndex), type, value, isLittleEndian)
 };
 
@@ -222,6 +222,9 @@ function DataViewConstructor(global, this, strict, args) {
   else {
     /* a. Let viewByteLength be ToLength(byteLength). */
     viewByteLength := ToLength(byteLength);
+    print "debugbytelength";
+    print byteLength;
+    print viewByteLength;
     /* b. ReturnIfAbrupt(viewByteLength). */
     @ReturnIfAbrupt(viewByteLength);
     /* c. If offset+viewByteLength > (bufferByteLength, throw a RangeError exception.) */
@@ -266,6 +269,9 @@ function initDataViewObject(global, objectPrototype, strict) {
   /* Besides its length property (whose value is 3), the DataView constructor has the following properties: */
   descriptor := newDataPropertyDescriptorFull(3., false, false, true);
   setJSProperty(objDataViewConstructor, "length", descriptor);
+
+  descriptor := newDataPropertyDescriptorFull("DataView", false, false, true);
+  setJSProperty(objDataViewConstructor, "name", descriptor);
 
 
   /* 24.1.3.2 DataView.prototype */
@@ -313,7 +319,7 @@ function initDataViewPrototype(global, objectPrototype, strict) {
   /* 24.2.4.6 DataView.prototype.getFloat64 ( byteOffset [ , littleEndian ] ) */
   getFloat64Object := CreateBuiltInFunctionObject(["byteOffset", "littleEndian"], "DataViewPrototypeGetFloat64", global, strict, 0.);
   createBuiltInProperty(prototype, "getFloat64", getFloat64Object);
-  setJSProperty(getFloat64Object, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(getFloat64Object, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(getFloat64Object, "name", newDataPropertyDescriptorFull("getFloat64", false, false, true));
 
   /* 24.2.4.7 DataView.prototype.getInt8 ( byteOffset ) */
@@ -325,13 +331,13 @@ function initDataViewPrototype(global, objectPrototype, strict) {
   /* 24.2.4.8 DataView.prototype.getInt16 ( byteOffset [ , littleEndian ] ) */
   getInt16Object := CreateBuiltInFunctionObject(["byteOffset", "littleEndian"], "DataViewPrototypeGetInt16", global, strict, 0.);
   createBuiltInProperty(prototype, "getInt16", getInt16Object);
-  setJSProperty(getInt16Object, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(getInt16Object, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(getInt16Object, "name", newDataPropertyDescriptorFull("getInt16", false, false, true));
   
   /* 24.2.4.9 DataView.prototype.getInt32 ( byteOffset [ , littleEndian ] ) */
   getInt32Object := CreateBuiltInFunctionObject(["byteOffset", "littleEndian"], "DataViewPrototypeGetInt32", global, strict, 0.);
   createBuiltInProperty(prototype, "getInt32", getInt32Object);
-  setJSProperty(getInt32Object, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(getInt32Object, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(getInt32Object, "name", newDataPropertyDescriptorFull("getInt32", false, false, true));
  
   /* 24.2.4.10 DataView.prototype.getUint8 ( byteOffset ) */
@@ -343,25 +349,25 @@ function initDataViewPrototype(global, objectPrototype, strict) {
   /* 24.2.4.11 DataView.prototype.getUint16 ( byteOffset [ , littleEndian ] ) */
   getUint16Object := CreateBuiltInFunctionObject(["byteOffset", "littleEndian"], "DataViewPrototypeGetUint16", global, strict, 0.);
   createBuiltInProperty(prototype, "getUint16", getUint16Object);
-  setJSProperty(getUint16Object, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(getUint16Object, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(getUint16Object, "name", newDataPropertyDescriptorFull("getUint16", false, false, true));
   
   /* 24.2.4.12 DataView.prototype.getUint32 ( byteOffset [ , littleEndian ] ) */
   getUint32Object := CreateBuiltInFunctionObject(["byteOffset", "littleEndian"], "DataViewPrototypeGetUint32", global, strict, 0.);
   createBuiltInProperty(prototype, "getUint32", getUint32Object);
-  setJSProperty(getUint32Object, "length", newDataPropertyDescriptorFull(2., false, false, true));
+  setJSProperty(getUint32Object, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(getUint32Object, "name", newDataPropertyDescriptorFull("getUint32", false, false, true));
 
     /* 24.2.4.5 DataView.prototype.setFloat32 ( byteOffset, value [ , littleEndian ] ) */
   setFloat32Object := CreateBuiltInFunctionObject(["byteOffset", "littleEndian"], "DataViewPrototypeSetFloat32", global, strict, 0.);
   createBuiltInProperty(prototype, "setFloat32", setFloat32Object);
-  setJSProperty(setFloat32Object, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setFloat32Object, "length", newDataPropertyDescriptorFull(2., false, false, true));
   setJSProperty(setFloat32Object, "name", newDataPropertyDescriptorFull("setFloat32", false, false, true));
 
   /* 24.2.4.6 DataView.prototype.setFloat64 ( byteOffset, value [ , littleEndian ] ) */
   setFloat64Object := CreateBuiltInFunctionObject(["byteOffset", "littleEndian"], "DataViewPrototypeSetFloat64", global, strict, 0.);
   createBuiltInProperty(prototype, "setFloat64", setFloat64Object);
-  setJSProperty(setFloat64Object, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setFloat64Object, "length", newDataPropertyDescriptorFull(2., false, false, true));
   setJSProperty(setFloat64Object, "name", newDataPropertyDescriptorFull("setFloat64", false, false, true));
 
   /* 24.2.4.7 DataView.prototype.setInt8 ( byteOffset, value ) */
@@ -373,13 +379,13 @@ function initDataViewPrototype(global, objectPrototype, strict) {
   /* 24.2.4.8 DataView.prototype.setInt16 ( byteOffset, value [ , littleEndian ] ) */
   setInt16Object := CreateBuiltInFunctionObject(["byteOffset", "littleEndian"], "DataViewPrototypeSetInt16", global, strict, 0.);
   createBuiltInProperty(prototype, "setInt16", setInt16Object);
-  setJSProperty(setInt16Object, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setInt16Object, "length", newDataPropertyDescriptorFull(2., false, false, true));
   setJSProperty(setInt16Object, "name", newDataPropertyDescriptorFull("setInt16", false, false, true));
   
   /* 24.2.4.9 DataView.prototype.setInt32 ( byteOffset, value [ , littleEndian ] ) */
   setInt32Object := CreateBuiltInFunctionObject(["byteOffset", "littleEndian"], "DataViewPrototypeSetInt32", global, strict, 0.);
   createBuiltInProperty(prototype, "setInt32", setInt32Object);
-  setJSProperty(setInt32Object, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setInt32Object, "length", newDataPropertyDescriptorFull(2., false, false, true));
   setJSProperty(setInt32Object, "name", newDataPropertyDescriptorFull("setInt32", false, false, true));
  
   /* 24.2.4.10 DataView.prototype.setUint8 ( byteOffset, value ) */
@@ -391,13 +397,13 @@ function initDataViewPrototype(global, objectPrototype, strict) {
   /* 24.2.4.11 DataView.prototype.setUint16 ( byteOffset, value [ , littleEndian ] ) */
   setUint16Object := CreateBuiltInFunctionObject(["byteOffset", "littleEndian"], "DataViewPrototypeSetUint16", global, strict, 0.);
   createBuiltInProperty(prototype, "setUint16", setUint16Object);
-  setJSProperty(setUint16Object, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setUint16Object, "length", newDataPropertyDescriptorFull(2., false, false, true));
   setJSProperty(setUint16Object, "name", newDataPropertyDescriptorFull("setUint16", false, false, true));
   
   /* 24.2.4.12 DataView.prototype.setUint32 ( byteOffset, value [ , littleEndian ] ) */
   setUint32Object := CreateBuiltInFunctionObject(["byteOffset", "littleEndian"], "DataViewPrototypeSetUint32", global, strict, 0.);
   createBuiltInProperty(prototype, "setUint32", setUint32Object);
-  setJSProperty(setUint32Object, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setUint32Object, "length", newDataPropertyDescriptorFull(2., false, false, true));
   setJSProperty(setUint32Object, "name", newDataPropertyDescriptorFull("setUint32", false, false, true));
   
   /* 24.2.4.13 DataView.prototype [ @@toStringTag ] */
@@ -414,7 +420,7 @@ function initDataViewPrototype(global, objectPrototype, strict) {
  * DataView.prototype.buffer is an accessor property whose set accessor function 
  * is undefined. Its get accessor function performs the following steps: 
  */
-function getDataViewPrototypeBuffer(global, this, strict, args) {
+function DataViewPrototypeBuffer(global, this, strict, args) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
@@ -441,7 +447,7 @@ function getDataViewPrototypeBuffer(global, this, strict, args) {
  * function is undefined. Its get accessor function performs the following 
  * steps: 
  */
-function getDataViewPrototypeByteLength(global, this, strict, args) {
+function DataViewPrototypeByteLength(global, this, strict, args) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
@@ -475,7 +481,7 @@ function getDataViewPrototypeByteLength(global, this, strict, args) {
  * function is undefined. Its get accessor function performs the following 
  * steps: 
  */
-function getDataViewPrototypeByteOffset(global, this, strict, args) {
+function DataViewPrototypeByteOffset(global, this, strict, args) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
@@ -519,7 +525,12 @@ function DataViewPrototypeGetFloat32(global, this, strict, args) {
     littleEndian := false
   };
   /* 3. Return GetViewValue(v, byteOffset, littleEndian, "Float32"). */
-  return GetViewValue(v, byteOffset, littleEndian, "Float32")
+  value := GetViewValue(v, byteOffset, littleEndian, "Float32");
+
+  print "debug-42 resultado";
+  print value;
+
+  return value
 };
 
 
@@ -666,8 +677,8 @@ function DataViewPrototypeGetUint32(global, this, strict, args) {
  */
 function DataViewPrototypeSetFloat32(global, this, strict, args) {
   print "in DataViewPrototypeSetFloat32";
-  byteOffset := l_nth(args, 0);
-  value := l_nth(args, 1);
+  byteOffset := getOptionalParam(args, 0);
+  value := getOptionalParam(args, 1);
   littleEndian := getOptionalParam(args, 2);
   /* 1. Let v be the this value. */
   v := this;
