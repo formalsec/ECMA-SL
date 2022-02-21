@@ -39,6 +39,8 @@ type bopt = Plus
           | ToFixed
           | ArrayMake
           | Anth
+          | IntToBEBytes
+          | UintFromBytes
 
 type topt = Ssubstr
           | SsubstrU
@@ -580,6 +582,16 @@ let float32_to_be_bytes (v : Val.t) : Val.t = match v with
     List val_bytes
   | _ -> invalid_arg "Exception in Oper.float32_to_be_bytes: this operation is only applicable to Float arguments"
 
+  
+let int_to_be_bytes (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | Flt x, Int n ->
+    (*if (x < 0) then 
+      let x = x + 256 *)
+    let bytes = Byte_Utils.int_to_be_bytes(x, n) in 
+    let val_bytes = List.map (fun b -> Val.Int b) bytes in 
+    List val_bytes
+  | _ -> invalid_arg "Exception in Oper.int_to_be_bytes: this operation is only applicable to Float and Int arguments"
+
 let float64_from_le_bytes (v : Val.t) : Val.t = match v with
   | Arr bytes -> 
     let int64_bytes = Array.map unpack_byte64 bytes in 
@@ -608,6 +620,26 @@ let float32_from_be_bytes (v : Val.t) : Val.t = match v with
     Flt f
   | _ -> invalid_arg "Exception in Oper.float64_from_le_bytes: this operation is only applicable to Array arguments"
 
+(*temporario ate juntar representações de bytes*)
+let unpack_tmp (v : Val.t) : int = match v with
+  | Int b -> b
+  | _ -> invalid_arg "Exception in Oper.unpack_tmp: this operation is only applicable to Int arguments"
+
+let uint_from_le_bytes (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | Arr bytes, Int n-> 
+    let arr_bytes = Array.map unpack_tmp bytes in
+    let uint = Byte_Utils.uint_from_le_bytes(arr_bytes, n) in 
+    Flt uint
+  | _ -> invalid_arg "Exception in Oper.uint_from_le_bytes: this operation is only applicable to Array and Int arguments"
+
+
+(*let int_from_be_bytes (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | Arr bytes, Int n-> 
+    (*let arr_bytes = Array.map unpack_byte64 bytes in *)
+    let f = Byte_Utils.uint_from_le_bytes arr_bytes in 
+    Flt f
+  | _ -> invalid_arg "Exception in Oper.int_from_be_bytes: this operation is only applicable to Array and Int arguments"
+*)
 let from_char_code (v : Val.t) : Val.t = match v with
   | Int n -> Str (String_Utils.from_char_code n)
   | _     -> invalid_arg "Exception in Oper.from_char_code: this operation is only applicable to Int arguments"
@@ -774,6 +806,8 @@ let str_of_binopt_single (op : bopt) : string = match op with
   | ToFixed -> "to_fixed"
   | ArrayMake -> "array_make"
   | Anth     -> "a_nth"
+  | IntToBEBytes  -> "int_to_be_bytes"
+  | UintFromBytes -> "uint_from_le_bytes"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
@@ -808,11 +842,14 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Max      -> "max(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Min      -> "min(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Pow      -> e1 ^ " ** " ^ e2
-  | ToPrecision -> "to_precision(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ToPrecision   -> "to_precision(" ^ e1 ^ ", " ^ e2 ^ ")"
   | ToExponential -> "to_exponential(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | ToFixed -> "to_fixed(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | ArrayMake -> "array_make(" ^ e1 ^ ", " ^e2 ^ ")"
-  | Anth -> "a_nth(" ^ e1 ^ ", " ^e2 ^ ")"
+  | ToFixed       -> "to_fixed(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ArrayMake     -> "array_make(" ^ e1 ^ ", " ^e2 ^ ")"
+  | Anth          -> "a_nth(" ^ e1 ^ ", " ^e2 ^ ")"
+  | IntToBEBytes  -> "int_to_be_bytes(" ^ e1 ^ ", " ^e2 ^ ")"
+  | UintFromBytes -> "uint_from_le_bytes(" ^ e1 ^ ", " ^e2 ^ ")"
+  
 
 let str_of_triopt (op : topt) (e1 : string) (e2 : string) (e3 : string) : string = match op with
   | Ssubstr  -> "s_substr(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
@@ -902,7 +939,9 @@ let bopt_to_json (op : bopt) : string =
      | ToExponential -> Printf.sprintf "To_Exponential\" }"
      | ToFixed -> Printf.sprintf "To_Fixed\" }"
      | ArrayMake    -> Printf.sprintf "Array_Make\" }"
-     | Anth     -> Printf.sprintf "Anth\" }")
+     | Anth     -> Printf.sprintf "Anth\" }"
+     | IntToBEBytes     ->Printf.sprintf "IntToBEBytes\" }"
+     | UintFromBytes  ->Printf.sprintf "UintFromBytes\" }")
 
 let topt_to_json (op : topt) : string =
   Printf.sprintf "{ \"type\" : \"triopt\", \"value\" : \"%s"

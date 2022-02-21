@@ -851,7 +851,7 @@ function OrdinaryCreateFromConstructorDataView(global, this, strict, items) {
   newlyConstructedObject := NewECMAScriptObject();
   setAllInternalMethodsOfObject(newlyConstructedObject);
 
-  /* The [[Prototype]] internal property of the newly constructed object is set to the original Date prototype object,
+  /* The [[Prototype]] internal property of the newly constructed object is set to the original DataView prototype object,
     the one that is the initial value of DataView.prototype. */
   setInternalProperty(newlyConstructedObject, "Prototype", dataViewPrototype);
   

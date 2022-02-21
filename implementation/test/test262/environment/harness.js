@@ -397,7 +397,7 @@ function $DETACHBUFFER(buffer) {
 }
 
 
-var byteConversionValues = {
+/*var byteConversionValues = {
     values: [
       127,         // 2 ** 7 - 1
       128,         // 2 ** 7
@@ -832,4 +832,4 @@ var byteConversionValues = {
       ]
     }
   };
-  
+  */
