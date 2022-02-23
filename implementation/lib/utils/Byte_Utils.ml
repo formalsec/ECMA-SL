@@ -32,14 +32,13 @@ let float32_to_be_bytes (x : float) : int32 list =
 
 let int_to_be_bytes (x, n : float * int) : int list = 
    Printf.printf "debug 42: int_to_be_bytes x: %f, n: %d\n" x n;
-   
    let rec loop (lst : int list) (value : int) (j : int) =
       Printf.printf "debug 42: int_to_be_bytes value: %d, j: %d\n" value j; 
       if (j < n) then  
          loop ([Int.logand value 255] @ lst) (Int.shift_right value 8) (j+1)
       else lst in 
       loop [] (Float.to_int x) 0
-         
+
 let uint_from_le_bytes (arr, n : int array * int) : float =
    Printf.printf "debug 42: uint_from_le_bytes n: %d\n" n;
    let len = Array.length arr in
@@ -50,15 +49,13 @@ let uint_from_le_bytes (arr, n : int array * int) : float =
       else value in 
    Int.to_float (loop 0 (len - 1))
 
-(* TODO é diferente da funcao uint_from_be_bytes se o primeiro byte
- for superior a 127, nesse caso o loop começa com value = -128*)
-(*let int_from_be_bytes (arr, n : int array * int) : int =
-   Printf.printf "debug 42: int_from_be_bytes n: %d\n" n;
-   let len = Array.length arr in
-   let value = uint_from_be_bytes(arr, n) in 
-   if (Array.get arr (len-n) < 128) then
-      uint_from_be_bytes(arr, n)
-   else value +*)
+let int_from_le_bytes (arr, n : int array * int) : float =
+   let value = uint_from_le_bytes(arr, n) in
+   (* check sign of value *)
+   if (value < (2.**Int.to_float(8*n-1))) then
+      value
+   else 
+      value -. 2.**Int.to_float(8*n)
 
 let float64_from_le_bytes (bytes : int64 array) : float =
   let res = ref 0L in

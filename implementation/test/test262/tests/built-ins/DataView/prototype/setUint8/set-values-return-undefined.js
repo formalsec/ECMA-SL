@@ -29,18 +29,21 @@ includes: [byteConversionValues.js]
 
 var buffer = new ArrayBuffer(1);
 var sample = new DataView(buffer, 0);
-var typedArray = new Uint8Array(buffer, 0);
+//var typedArray = new Uint8Array(buffer, 0);
 
 var values = byteConversionValues.values;
 var expectedValues = byteConversionValues.expected.Uint8;
 
 values.forEach(function(value, i) {
   var expected = expectedValues[i];
-
+  console.log("iteração " + i)
   var result = sample.setUint8(0, value);
 
+  //sample.getUint8(0);
+  console.log("value: " + value + "; expected: " + expected + "; result: " + result)
   assert.sameValue(
-    typedArray[0],
+    //typedArray[0],
+    sample.getUint8(0),
     expected,
     "value: " + value
   );

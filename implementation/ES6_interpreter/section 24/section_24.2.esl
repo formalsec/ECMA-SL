@@ -618,6 +618,7 @@ function DataViewPrototypeGetInt32(global, this, strict, args) {
  * steps are taken: 
  */
 function DataViewPrototypeGetUint8(global, this, strict, args) {
+  print "in getUint8";
   byteOffset := l_nth(args, 0);
   /* 1. Let v be the this value. */
   v := this;

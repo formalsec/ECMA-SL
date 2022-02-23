@@ -115,6 +115,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ArrayMake-> Oper.array_make (v1, v2)
   | Anth     -> Oper.array_nth (v1, v2)
   | IntToBEBytes  -> Oper.int_to_be_bytes (v1, v2)
+  | IntFromBytes -> Oper.int_from_le_bytes (v1, v2)
   | UintFromBytes -> Oper.uint_from_le_bytes (v1, v2)
   | _        -> Oper.apply_bopt_oper op v1 v2
 

@@ -106,6 +106,7 @@
                   "float64_from_be_bytes" , FLOAT64_FROM_BE_BYTES; 
                   "float32_from_le_bytes" , FLOAT32_FROM_LE_BYTES; 
                   "float32_from_be_bytes" , FLOAT32_FROM_BE_BYTES;
+                  "int_from_le_bytes"     , INT_FROM_BYTES;
                   "uint_from_le_bytes"    , UINT_FROM_BYTES;
                   "bytes_to_string"       , BYTES_TO_STRING;
                   "float_to_byte"         , FLOAT_TO_BYTE;
