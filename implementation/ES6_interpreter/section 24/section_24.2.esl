@@ -515,7 +515,7 @@ function DataViewPrototypeByteOffset(global, this, strict, args) {
  * argument littleEndian the following steps are taken: 
  */
 function DataViewPrototypeGetFloat32(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
+  byteOffset := getOptionalParam(args, 0);
   littleEndian := getOptionalParam(args, 1);
   /* 1. Let v be the this value. */
   v := this;
@@ -541,7 +541,7 @@ function DataViewPrototypeGetFloat32(global, this, strict, args) {
  * argument littleEndian the following steps are taken: 
  */
 function DataViewPrototypeGetFloat64(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
+  byteOffset := getOptionalParam(args, 0);
   littleEndian := getOptionalParam(args, 1);
   /* 1. Let v be the this value. */
   v := this;
@@ -561,7 +561,7 @@ function DataViewPrototypeGetFloat64(global, this, strict, args) {
  * steps are taken: 
  */
 function DataViewPrototypeGetInt8(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
+  byteOffset := getOptionalParam(args, 0);
   /* 1. Let v be the this value. */
   v := this;
   /* 2. Return GetViewValue(v, byteOffset, true, "Int8"). */
@@ -576,7 +576,7 @@ function DataViewPrototypeGetInt8(global, this, strict, args) {
  * argument littleEndian the following steps are taken: 
  */
 function DataViewPrototypeGetInt16(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
+  byteOffset := getOptionalParam(args, 0);
   littleEndian := getOptionalParam(args, 1);
   /* 1. Let v be the this value. */
   v := this;
@@ -597,7 +597,7 @@ function DataViewPrototypeGetInt16(global, this, strict, args) {
  * argument littleEndian the following steps are taken: 
  */
 function DataViewPrototypeGetInt32(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
+  byteOffset := getOptionalParam(args, 0);
   littleEndian := getOptionalParam(args, 1);
   /* 1. Let v be the this value. */
   v := this;
@@ -618,8 +618,7 @@ function DataViewPrototypeGetInt32(global, this, strict, args) {
  * steps are taken: 
  */
 function DataViewPrototypeGetUint8(global, this, strict, args) {
-  print "in getUint8";
-  byteOffset := l_nth(args, 0);
+  byteOffset := getOptionalParam(args, 0);
   /* 1. Let v be the this value. */
   v := this;
   /* 2. Return GetViewValue(v, byteOffset, true, "Uint8"). */
@@ -635,7 +634,7 @@ function DataViewPrototypeGetUint8(global, this, strict, args) {
  * argument littleEndian the following steps are taken: 
  */
 function DataViewPrototypeGetUint16(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
+  byteOffset := getOptionalParam(args, 0);
   littleEndian := getOptionalParam(args, 1);
   /* 1. Let v be the this value. */
   v := this;
@@ -656,7 +655,7 @@ function DataViewPrototypeGetUint16(global, this, strict, args) {
  * argument littleEndian the following steps are taken: 
  */
 function DataViewPrototypeGetUint32(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
+  byteOffset := getOptionalParam(args, 0);
   littleEndian := getOptionalParam(args, 1);
   /* 1. Let v be the this value. */
   v := this;
@@ -700,8 +699,8 @@ function DataViewPrototypeSetFloat32(global, this, strict, args) {
  * optional argument littleEndian the following steps are taken: 
  */
 function DataViewPrototypeSetFloat64(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
-  value := l_nth(args, 1);
+  byteOffset := getOptionalParam(args, 0);
+  value := getOptionalParam(args, 1);
   littleEndian := getOptionalParam(args, 2);
   /* 1. Let v be the this value. */
   v := this;
@@ -722,8 +721,9 @@ function DataViewPrototypeSetFloat64(global, this, strict, args) {
  * following steps are taken: 
  */
 function DataViewPrototypeSetInt8(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
-  value := l_nth(args, 1);
+  byteOffset := getOptionalParam(args, 0);
+  value := getOptionalParam(args, 1);
+  littleEndian := getOptionalParam(args, 2);
   /* 1. Let v be the this value. */
   v := this;
   /* 2. Return SetViewValue(v, byteOffset, true, "Int8", value). */
@@ -738,8 +738,8 @@ function DataViewPrototypeSetInt8(global, this, strict, args) {
  * optional argument littleEndian the following steps are taken: 
  */
 function DataViewPrototypeSetInt16(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
-  value := l_nth(args, 1);
+  byteOffset := getOptionalParam(args, 0);
+  value := getOptionalParam(args, 1);
   littleEndian := getOptionalParam(args, 2);
   /* 1. Let v be the this value. */
   v := this;
@@ -761,8 +761,8 @@ function DataViewPrototypeSetInt16(global, this, strict, args) {
  * optional argument littleEndian the following steps are taken: 
  */
 function DataViewPrototypeSetInt32(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
-  value := l_nth(args, 1);
+  byteOffset := getOptionalParam(args, 0);
+  value := getOptionalParam(args, 1);
   littleEndian := getOptionalParam(args, 2);
   /* 1. Let v be the this value. */
   v := this;
@@ -784,8 +784,8 @@ function DataViewPrototypeSetInt32(global, this, strict, args) {
  * following steps are taken: 
  */
 function DataViewPrototypeSetUint8(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
-  value := l_nth(args, 1);
+  byteOffset := getOptionalParam(args, 0);
+  value := getOptionalParam(args, 1);
   /* 1. Let v be the this value. */
   v := this;
   /* 2. Return SetViewValue(v, byteOffset, true, "Uint8", value). */
@@ -800,8 +800,8 @@ function DataViewPrototypeSetUint8(global, this, strict, args) {
  * optional argument littleEndian the following steps are taken: 
  */
 function DataViewPrototypeSetUint16(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
-  value := l_nth(args, 1);
+  byteOffset := getOptionalParam(args, 0);
+  value := getOptionalParam(args, 1);
   littleEndian := getOptionalParam(args, 2);
   /* 1. Let v be the this value. */
   v := this;
@@ -822,8 +822,8 @@ function DataViewPrototypeSetUint16(global, this, strict, args) {
  * optional argument littleEndian the following steps are taken: 
  */
 function DataViewPrototypeSetUint32(global, this, strict, args) {
-  byteOffset := l_nth(args, 0);
-  value := l_nth(args, 1);
+  byteOffset := getOptionalParam(args, 0);
+  value := getOptionalParam(args, 1);
   littleEndian := getOptionalParam(args, 2);
   /* 1. Let v be the this value. */
   v := this;
