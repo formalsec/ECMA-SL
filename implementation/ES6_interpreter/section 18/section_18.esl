@@ -174,7 +174,8 @@ function initGlobalObject(strict) {
   createBuiltInProperty(globalObject, "JSON", JsonObject);
   |Intrinsics|["JSON"] := JsonObject;
 
-  |Intrinsics|["TypedArrayPrototype"] := initTypedArrayMainPrototype(globalObject, ObjectPrototype, strict);
+  |Intrinsics|["TypedArray"] := initTypedArrayMainConstructor(globalObject, ObjectPrototype, strict);
+  |Intrinsics|["TypedArrayPrototype"] := getJSProperty(|Intrinsics|["TypedArray"], "prototype"); /* TODO: Is this a reference? Do I need to dereference it? */
   /* 18.3.8 Float32Array () */
   Float32ArrayObject := initTypedArrayObject(globalObject, ObjectPrototype, strict, "Float32");
   createBuiltInProperty(globalObject, "Float32Array", Float32ArrayObject);

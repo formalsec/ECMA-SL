@@ -659,4 +659,10 @@ function newSetAccessorPropertyDescriptorFull(set, enumerable, configurable) {
 
 function temporaryInternalGetPrototypeOf (O) {
 	return O.Prototype
+};
+
+/* Used GetIterator function as reference. */
+function IsIterable(obj) {
+  iterator := GetMethod(obj, Symbol.iterator);
+  return !(iterator = 'undefined)
 }
