@@ -374,11 +374,11 @@ function initTypedArrayMainConstructor(global, objectPrototype, strict) {
   return typedArrayConstructor
 };
 
-/********************************************************
- *                                                      *
- *   TypedArray.prototype: - Int8Array.prototype, etc.  *
- *                                                      *
- ********************************************************/
+/****************************************************************
+ *                                                              *
+ *   22.2.6 TypedArray.prototype: - Int8Array.prototype, etc.   *
+ *                                                              *
+ ****************************************************************/
 function initTypedArrayPrototype(global, objectPrototype, strict, typeOfArray) {
   prototypeName := s_concat([typeOfArray, "Prototype"]);
   typedArrayPrototype := |Intrinsics|.TypedArrayPrototype;
@@ -391,17 +391,14 @@ function initTypedArrayPrototype(global, objectPrototype, strict, typeOfArray) {
   return prototype
 };
 
-/************************************
- *                                  *
- *   TypedArray: - Int8Array, etc.  *
- *                                  *
- ************************************/
+/********************************************************
+ *                                                      *
+ *   22.2.4 TypedArray constructors: - Int8Array, etc.  *
+ *                                                      *
+ ********************************************************/
 function initTypedArrayObject(global, objectPrototype, strict, typeOfArray) {
   objTypedArrayPrototype := initTypedArrayPrototype(global, objectPrototype, strict, typeOfArray);
   
-  /* 22.2.4 TypedArray constructors
-    Int32TypedArrayConstructor
-  */
   name := s_concat([typeOfArray, "Array"]);
   objTypedArrayConstructor := CreateBuiltInConstructorObject(|Intrinsics|.TypedArray, ["argumentList"], s_concat([typeOfArray, "TypedArrayConstructor"]), global, strict, 0., name);
   /* 22.2.5 */
@@ -410,51 +407,26 @@ function initTypedArrayObject(global, objectPrototype, strict, typeOfArray) {
   setJSProperty(objTypedArrayConstructor, "length", descLen);
   /* TypedArrayConstructorName */
   setInternalProperty(objTypedArrayConstructor, "TypedArrayConstructorName", name);
-  /* 22.2.5.1 BYTES_PER_ELEMENT */
+  /* 22.2.5.1 TypedArray.BYTES_PER_ELEMENT */
   descBytes := newDataPropertyDescriptorFull(|ElementTable|[name].size, false, false, false);
   setJSProperty(objTypedArrayConstructor, "BYTES_PER_ELEMENT", descBytes);
+  /* 22.2.5.2 TypedArray.prototype */
+  descProto := newDataPropertyDescriptorFull(objTypedArrayPrototype, false, false, false);
+  setJSProperty(objTypedArrayConstructor, "prototype", descProto);
   /* 22.2.6.2 TypedArray.prototype.constructor */
   descriptor := newDataPropertyDescriptorFull(objTypedArrayConstructor, true, false, true);
   setJSProperty(objTypedArrayPrototype, "constructor", descriptor);
 
-  descProto := newDataPropertyDescriptorFull(objTypedArrayPrototype, false, false, false);
-  setJSProperty(objTypedArrayConstructor, "prototype", descProto);
+  
   
   return objTypedArrayConstructor
 };
 
-
-
-function Int8TypedArrayConstructor(global, this, strict, items) {
-  /* super call */
-  return TypedArrayConstructor("Int8", global, this, strict, items)
-};
-function Uint8TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Uint8", global, this, strict, items)
-};
-function Uint8ClampedTypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Uint8Clamped", global, this, strict, items)
-};
-function Int16TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Int16", global, this, strict, items)
-};
-function Uint16TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Uint16", global, this, strict, items)
-};
-function Int32TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Int32", global, this, strict, items)
-};
-function Uint32TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Uint32", global, this, strict, items)
-};
-function Float32TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Float32", global, this, strict, items)
-};
-function Float64TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Float64", global, this, strict, items)
-};
-
-/* %TypedArray% Overloads */
+/***************************************
+ *                                     *
+ *    22.2.1 %TypedArray%() Overloads    *
+ *                                     *
+ ***************************************/
 function TypedArrayConstructor(typeOfArray, global, this, strict, items) {
   refObj := newPropertyReference(|global|, s_concat([typeOfArray, "Array"]), strict);
   FunctionObject := GetValue(refObj);
@@ -499,7 +471,7 @@ function TypedArrayConstructor(typeOfArray, global, this, strict, items) {
 };
 
 /**
- * 22.2.1.1 %TypedArray%
+ * 22.2.1.1 %TypedArray% ( )
  *
  * This description applies only if the %TypedArray% function is called with no
  * arguments.
@@ -3669,7 +3641,7 @@ function getTypedArrayToStringTag(global, this, strict, args) {
   assert(Type(name) = "String");
   /* 6. Return name. */
   return name
-}
+};
 /**
  * This property has the attributes { [[Enumerable]]: false, [[Configurable]]:
  * true }.
@@ -3677,3 +3649,82 @@ function getTypedArrayToStringTag(global, this, strict, args) {
  * The initial value of the name property of this function is "get
  * [Symbol.toStringTag]".
  */
+
+/***************************************
+ *                                     *
+ *   22.2.4 TypedArray Constructors    *
+ *                                     *
+ ***************************************/
+/**
+ * Each of the TypedArray constructor objects is an intrinsic object that has the 
+ * structure described below, differing only in the name used as the constructor
+ * name instead of TypedArray, in Table 49.
+ * 
+ * The TypedArray constructors are not intended to be called as a function and
+ * will throw an exception when called in that manner.
+ * 
+ * The TypedArray constructors are designed to be subclassable. They may be used
+ * as the value of an extends clause of a class definition. Subclass constructors
+ * that intend to inherit the specified TypedArray behaviour must include a super
+ * call to the TypedArray constructor to create and initialize the subclass instance
+ * with the internal state necessary to support the %TypedArray%.prototype built-in methods.
+ */
+function Int8TypedArrayConstructor(global, this, strict, items) {
+  return TypedArrayConstructor("Int8", global, this, strict, items)
+};
+function Uint8TypedArrayConstructor(global, this, strict, items) {
+  return TypedArrayConstructor("Uint8", global, this, strict, items)
+};
+function Uint8ClampedTypedArrayConstructor(global, this, strict, items) {
+  return TypedArrayConstructor("Uint8Clamped", global, this, strict, items)
+};
+function Int16TypedArrayConstructor(global, this, strict, items) {
+  return TypedArrayConstructor("Int16", global, this, strict, items)
+};
+function Uint16TypedArrayConstructor(global, this, strict, items) {
+  return TypedArrayConstructor("Uint16", global, this, strict, items)
+};
+function Int32TypedArrayConstructor(global, this, strict, items) {
+  return TypedArrayConstructor("Int32", global, this, strict, items)
+};
+function Uint32TypedArrayConstructor(global, this, strict, items) {
+  return TypedArrayConstructor("Uint32", global, this, strict, items)
+};
+function Float32TypedArrayConstructor(global, this, strict, items) {
+  return TypedArrayConstructor("Float32", global, this, strict, items)
+};
+function Float64TypedArrayConstructor(global, this, strict, items) {
+  return TypedArrayConstructor("Float64", global, this, strict, items)
+};
+
+/**
+ * 22.2.4.1 TypedArray (... argumentsList)
+ *
+ * A TypedArray constructor with a list of arguments argumentsList performs the
+ * following steps:
+ */
+function TypedArray(global, this, strict, argumentsList) {
+  fail "not implemented";
+  NewTarget := this; /* ??? */
+  /* 1. If NewTarget is undefined, */
+  if (NewTarget = 'undefined) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Let here be the active function. */ /* Is there a reflection mechanism for this? */
+  here := null;/* TODO: Instruction not yet implemented. */
+  /* 3. Let super be here.[[GetPrototypeOf]](). */
+  super := {here.getPrototypeOf}();
+  /* 4. ReturnIfAbrupt(super). */
+  @ReturnIfAbrupt(super);
+  /* 5. If IsConstructor (super) is false, */
+  if (IsConstructor(super) = false) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 6. Let argumentsList be the argumentsList argument of the [[Construct]]
+     internal method that invoked the active function. */
+  argumentsList := argumentList; /* ??? */
+  /* 7. Return Construct(super, argumentsList, NewTarget). */
+  return Construct(null, null, super, argumentsList, NewTarget)
+}
