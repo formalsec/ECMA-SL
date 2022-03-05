@@ -20,16 +20,11 @@
 
 /* 21.1.1.1 String ( value ) */
 function StringConstructor (global, this, strict, args) {
-  no_args := false;
-  if (l_len args = 0) {
-    no_args := true
-  };
-
   value := getOptionalParam(args, 0);
   NewTarget := this;
 
   /* 1. If no arguments were passed to this function invocation, let s be "". */
-  if (no_args = true){
+  if ( value = null ){
     s := ""
   } else{
   /* 2. Else, */
@@ -51,7 +46,7 @@ function StringConstructor (global, this, strict, args) {
   };
   
   /* 5. Return StringCreate(s, GetPrototypeFromConstructor(NewTarget, "%StringPrototype%")). */
-  return StringCreate(s, getStringPrototype(strict))
+  return StringCreate(s, |StringPrototype|)
 };
 
 function getStringPrototype(strict) {
@@ -69,7 +64,7 @@ function initStringObject(global, objectPrototype, strict) {
   setJSProperty(objStringConstructor, "length", newDataPropertyDescriptorFull(1., false, false, true)); 
   objStringPrototype := initStringPrototype(global, objectPrototype, objStringConstructor, strict);
 
-  descriptor := newDataPropertyDescriptorFull(objStringConstructor, false, false, true);
+  descriptor := newDataPropertyDescriptorFull(objStringConstructor, true, false, true);
   setJSProperty(objStringPrototype, "constructor", descriptor);
 
   descriptor := newDataPropertyDescriptorFull(objStringPrototype, false, false, false);
@@ -106,7 +101,7 @@ function initStringObject(global, objectPrototype, strict) {
 
 function initStringPrototype(global, objectPrototype, objStringConstructor, strict) {
   prototype := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
   /* 21.1.3 Properties of the String Prototype Object */
@@ -347,6 +342,8 @@ function initStringPrototype(global, objectPrototype, objStringConstructor, stri
      [[Enumerable]]: false, [[Configurable]]: false }. */
   setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., false, false, false));
 
+  |StringPrototype| := prototype;
+
   return prototype
 };
 
@@ -478,13 +475,13 @@ function StringRaw(global, this, strict, args){
   @ReturnIfAbrupt(cooked);
 
   /* 5. Let raw be ToObject(Get(cooked, "raw")). */
-  raw := ToObject(GetNew(cooked, "raw"));
+  raw := ToObject(Get(cooked, "raw"));
 
   /* 6. ReturnIfAbrupt(raw). */
   @ReturnIfAbrupt(raw);
 
   /* 7. Let literalSegments be ToLength(Get(raw, "length")). */
-  literalSegments := ToLength(GetNew(raw, "length"));
+  literalSegments := ToLength(Get(raw, "length"));
 
 
   /* 8. ReturnIfAbrupt(literalSegments). */
@@ -508,7 +505,7 @@ function StringRaw(global, this, strict, args){
     nextKey := ToString(nextIndex);
 
     /* b. Let nextSeg be ToString(Get(raw, nextKey)). */
-    nextSeg := ToString(GetNew(raw, nextKey));
+    nextSeg := ToString(Get(raw, nextKey));
 
     /* c. ReturnIfAbrupt(nextSeg). */
     @ReturnIfAbrupt(nextSeg);
@@ -1153,7 +1150,7 @@ function StringPrototypeMatch(global, this, strict, args) {
   /* 3. If regexp is neither undefined nor null, then */
   if (!(regexp = 'undefined) && !(regexp = null) && !(regexp = 'null)){
     /* a. Let matcher be GetMethod(regexp, @@match). */
-    matcher := GetMethod(regexp, getMatchPropertyName()); 
+    matcher := GetMethod(regexp, getMatchPropertyName());
 
     /* b. ReturnIfAbrupt(matcher). */
     @ReturnIfAbrupt(matcher);
@@ -1178,7 +1175,7 @@ function StringPrototypeMatch(global, this, strict, args) {
   @ReturnIfAbrupt(rx);
 
   /* 8. Return Invoke(rx, @@match, «‍S»). */
-  return Invoke(rx, getMatchPropertyName(), [S])
+  return Invoke(null, null, rx, getMatchPropertyName(), [S])
 };
 
 /* 21.1.3.12 String.prototype.normalize ( [ form ] ) */
@@ -1603,7 +1600,7 @@ function StringPrototypeSearch(global, this, strict, args) {
     /* c. If searcher is not undefined , then */
     if (!(searcher = 'undefined)){ 
       /* i. Return Call(searcher, regexp, «O») */
-      return Call(null, null, searcher, regexp, [O]) 
+      return Call(null, null, searcher, regexp, [O])
     }
   };
 
@@ -1620,7 +1617,7 @@ function StringPrototypeSearch(global, this, strict, args) {
   @ReturnIfAbrupt(rx);
 
   /* 8. Return Invoke(rx, @@search, «‍string»). */
-  return Invoke(rx, getSearchPropertyName(), [string])
+  return Invoke(null, null, rx, getSearchPropertyName(), [string])
 }; 
 
 /* 21.1.3.16 String.prototype.slice ( start, end ) */
@@ -1632,7 +1629,7 @@ function StringPrototypeSlice(global, this, strict, args) {
   } else{
     start := 'undefined
   };
-  
+
   if (n_args >= 2){
     end := l_nth(args, 1)
   } else{
@@ -1658,7 +1655,7 @@ function StringPrototypeSlice(global, this, strict, args) {
   @ReturnIfAbrupt(intStart);
 
   /* 7. If end is undefined, let intEnd be len; else let intEnd be ToInteger(end). */
-  if (end = 'undefined){
+  if (end = 'undefined) {
     intEnd := len
   } else{
     intEnd := ToInteger(end)
@@ -1669,7 +1666,7 @@ function StringPrototypeSlice(global, this, strict, args) {
 
   /* 9. If intStart < 0, let from be max(len + intStart,0); otherwise let from be min(intStart, len). */
   if (intStart < 0.){
-    from := max(len + intStart, 0.)
+    from := max((len + intStart), 0.)
   } else{
     from := min(intStart, len)
   };
@@ -1703,7 +1700,7 @@ function StringPrototypeSplit(global, this, strict, args){
   } else{
     separator := 'undefined
   };
-  
+
   if (n_args >= 2){
     limit := l_nth(args, 1)
   } else{
@@ -1721,8 +1718,14 @@ function StringPrototypeSplit(global, this, strict, args){
     /* a. Let splitter be GetMethod(separator, @@split). */
     splitter := GetMethod(separator, getSplitPropertyName());
 
-    /* b. ReturnIfAbrupt(splitter). */
-    @ReturnIfAbrupt(splitter);
+      /* b. ReturnIfAbrupt(splitter). */
+      @ReturnIfAbrupt(splitter);
+
+      /* c. If splitter is not undefined , then */
+      if (!(splitter = 'undefined)){
+        /* i. Return Call(splitter, separator, «‍O, limit»). */
+        return Call(null, null, splitter, separator, [O, limit])
+      };
 
     /* c. If splitter is not undefined , then */
     if (!(splitter = 'undefined)){
@@ -1730,7 +1733,7 @@ function StringPrototypeSplit(global, this, strict, args){
       return Call('null, 'null, splitter, separator, [O, limit])
     }
   };
-    
+
   /* 4. Let S be ToString(O). */
   S := ToString(O);
 
@@ -1789,7 +1792,6 @@ function StringPrototypeSplit(global, this, strict, args){
   if (s = 0.){
     /* a. Let z be SplitMatch(S, 0, R). */
     z := SplitMatch(S, 0., R);
-
     /* b. If z is not false, return A. */
     if (!(z = false)){
       return A
@@ -1887,8 +1889,8 @@ function SplitMatch(S, q, R){
   code unit at index q+i of S is different from the code unit at index i of R, return false. */
   i := 0.;
   while (!(i = r)) {
-    posA := s_nth_u(S, int_of_float (q + i));
-    posB := s_nth_u(R, int_of_float (i));
+    posA := s_nth_u(S, int_of_float(q + i));
+    posB := s_nth_u(R, int_of_float(i));
     if (!(posA = posB)) {
       return false
     };
@@ -2345,7 +2347,7 @@ function CreateStringIterator(string){
 /* Auxiliary function - TO BE DELETED LATER */
 function createStringIteratorObject() {
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
   setInternalProperty(newlyConstructedObject, "Prototype", |StringIteratorPrototype|); 
   setInternalProperty(newlyConstructedObject, "Extensible", true);
@@ -2361,7 +2363,7 @@ function createStringIteratorObject() {
 
 function initStringIteratorPrototype(global, objectPrototype, strict) { 
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
 
   setInternalProperty(prototype, "Class", "Object");
   setInternalProperty(prototype, "Prototype", objectPrototype);
@@ -2453,6 +2455,14 @@ function stringIteratorNext(global, this, strict, args){
 
   /* 14. Return CreateIterResultObject(resultString, false). */
   return CreateIterResultObject(resultString, false)
+};
+
+/* 21.1.5.3 Properties of String Iterator Instances */
+
+
+/* Aux functions */
+function isStringExoticObject(arg) {
+  return "StringData" in_obj arg
 };
 
 function isStringIteratorInstance(obj){

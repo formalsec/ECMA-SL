@@ -3,7 +3,7 @@ function initDateObject(globalObject, ObjectPrototype, strict) {
 
   /* datePrototype := initDatePrototype(globalObject, ObjectPrototype, strict); */
   datePrototypeObject := NewECMAScriptObjectFull(ObjectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(datePrototypeObject);
+  setAllInternalMethodsOfOrdinaryObject(datePrototypeObject);
   
   dateConstructor := initDateConstructor(datePrototypeObject, globalObject, strict);
 
@@ -630,7 +630,6 @@ function DateConstructor(global, this, strict, args) {
 };
 
 
-
 function OrdinaryCreateFromConstructorDate(global, this, strict, items) {
   datePrototype := getDatePrototype(strict);
 
@@ -638,7 +637,7 @@ function OrdinaryCreateFromConstructorDate(global, this, strict, items) {
   print datePrototype.JSProperties; 
 
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
   /* The [[Prototype]] internal property of the newly constructed object is set to the original Date prototype object,
     the one that is the initial value of Date.prototype. */
@@ -932,7 +931,7 @@ function dateConstructorNoArgs(global, this, strict, args){
       now := getTimeValueIdentifyingCurrentTime();
 
       /*b. Return ToDateString (now). */
-      return (toDateString(0.))      
+      return (toDateString(now))      
    }
 };
 
@@ -1005,11 +1004,7 @@ function DateParse(global, this, strict, args) {
  */
 function DateUTC(global, this, strict, args) {
   print("inside DateUTC");
-  
-  if (l_len(args) < 2) {
-    return NaN
-  };
-
+ 
   year := l_nth(args, 0);
   month := l_nth(args, 1);
   date := getOptionalParam(args, 2);
@@ -1017,6 +1012,15 @@ function DateUTC(global, this, strict, args) {
   minutes := getOptionalParam(args, 4);
   seconds := getOptionalParam(args, 5);
   ms := getOptionalParam(args, 6);
+
+  print month;
+  if (year = 'undefined) {
+    return NaN
+  };
+  if (month = 'undefined) {
+    month := 0.
+  };
+
 
   /* 1. Let y be ToNumber(year). */
   y := ToNumber(year);
@@ -2286,10 +2290,11 @@ function DatePrototypeToJSON(globalObject, this, strict, args){
 
   /* 4. If Type(tv) is Number and tv is not finite, return null. */
   if ((Type(tv) = "Number") &&& (!(auxIsFinite(tv)))) {
-    return 'null  };
+    return 'null  
+  };
 
   /* 5. Return Invoke(O, "toISOString"). */
-  return Invoke(O, "toISOString", [])
+  return Invoke(null, null, O, "toISOString", [])
 };
 
 
@@ -2414,11 +2419,8 @@ function DatePrototypeValueOf (globalObject, this, strict, args) {
 function DatePrototypeToPrimitive (globalObject, this, strict, args) {
   print("in DatePrototypeToPrimitive");
   hint := l_nth(args, 0);
-  print(hint);
   /* 1. Let O be the this value. */
   O := this;
-  print(O);
-  print(Type(O));
   /* 2. If Type(O) is not Object, throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
     throw TypeErrorConstructorInternal()
@@ -2427,12 +2429,12 @@ function DatePrototypeToPrimitive (globalObject, this, strict, args) {
   /* 3. If hint is the String value "string" or the String value "default" , then */
   if (hint = "string" ||| hint = "default") {
     /* a. Let tryFirst be "string". */
-    tryFirst := 'String /* TODO */
+    tryFirst := "string" 
   }
   /* 4. Else if hint is the String value "number", then */
   elif (hint = "number") {
     /* a. Let tryFirst be "number". */
-    tryFirst := 'Number
+    tryFirst := "number"
   }
   /* 5. Else, throw a TypeError exception. */
   else {
@@ -2440,10 +2442,8 @@ function DatePrototypeToPrimitive (globalObject, this, strict, args) {
   };
   
   /* 6. Return OrdinaryToPrimitive(O, tryFirst). */
-  /* fail "OrdinaryToPrimitive not fully implemented yet"; */
-  return ToPrimitive(O, tryFirst)
+  return OrdinaryToPrimitive(O, tryFirst)
 };
-
 
 
 /* 15.9.3.1 new Date (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ) */
@@ -2459,7 +2459,7 @@ function internalNewDate(datePrototypeObject, args) {
   /* When Date is called with two to seven arguments, it computes the date from year, month, and (optionally)
     date, hours, minutes, seconds and ms. */
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
   /* The [[Prototype]] internal property of the newly constructed object is set to the original Date prototype object,
     the one that is the initial value of Date.prototype (15.9.4.1). */
@@ -2591,17 +2591,10 @@ function thisTimeValue(value) {
 };
 
 
-/* 20.3.4 Properties of the Date Prototype Object */
-function nadadedjeito(datePrototypeObject, dateConstructor) {
-  /* 20.3.4.1 Date.prototype.constructor */
-  /* The initial value of Date.prototype.constructor is the built-in Date constructor. */
-  createBuiltInProperty(datePrototypeObject, "constructor", dateConstructor)
-};
-
 
 function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, strict) {
   /* datePrototypeObject := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(datePrototypeObject); */
+  setAllInternalMethodsOfOrdinaryObject(datePrototypeObject); */
 
   /* In following descriptions of functions that are properties of the Date prototype object,
    the phrase “this Date object” refers to the object that is the this value 
@@ -2779,8 +2772,8 @@ function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, s
   /* 20.3.4.29 Date.prototype.setUTCFullYear (year [, month [, date ] ] ) */
   setUTCFullYear := CreateBuiltInFunctionObject(["year", "month", "date"], "DatePrototypeSetUTCFullYear", globalObject, strict, 1.);
   createBuiltInProperty(datePrototypeObject, "setUTCFullYear", setUTCFullYear);
-  setJSProperty(setMinutes, "length", newDataPropertyDescriptorFull(3., false, false, true));
-  setJSProperty(setMinutes, "name", newDataPropertyDescriptorFull("setMinutes", false, false, true));
+  setJSProperty(setUTCFullYear, "length", newDataPropertyDescriptorFull(3., false, false, true));
+  setJSProperty(setUTCFullYear, "name", newDataPropertyDescriptorFull("setUTCFullYear", false, false, true));
 
   /* 20.3.4.30  Date.prototype.setUTCHours (hour [, min [, sec [, ms ] ] ] ) */
   setUTCHours := CreateBuiltInFunctionObject(["hour", "min", "sec", "ms"], "DatePrototypeSetUTCHours", globalObject, strict, 1.);
@@ -2878,8 +2871,6 @@ function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, s
   setJSProperty(toPrimitive, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setJSProperty(toPrimitive, "name", newDataPropertyDescriptorFull("[Symbol.toPrimitive]", false, false, true));
 
- 
-  
   return datePrototypeObject
 };
 

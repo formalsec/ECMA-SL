@@ -131,3 +131,10 @@ let parse_efloat (f_str : string) : float =
   let len' = (String.length f_str) - i - 2 in 
   let exp  = float_of_string (String.sub f_str (i+2) len') in 
   b *. (10. ** exp) 
+
+
+let rec count_digits (f : float) : int =
+  if (is_int f) then 0 
+    else 1 + (count_digits (f*.10.))
+
+

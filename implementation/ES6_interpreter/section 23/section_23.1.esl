@@ -1,6 +1,6 @@
 function initMapPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
 
   /* 23.1.3.1 Map.prototype.clear ( ) */
   clearObject := CreateBuiltInFunctionObject([], "mapClearObject", global, strict, null);
@@ -667,7 +667,7 @@ function createMapIterator(map, kind) {
 */
 function initMapIteratorPrototype(global, objectPrototype, strict) { 
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
 
   nextObject := CreateBuiltInFunctionObject([], "MapIteratorPrototypeNext", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(nextObject, true, false, true);
@@ -690,7 +690,7 @@ function initMapIteratorPrototype(global, objectPrototype, strict) {
 function createMapIteratorObject() {
 
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
   setInternalProperty(newlyConstructedObject, "Prototype", |MapIteratorPrototype|);
   
@@ -791,7 +791,7 @@ function OrdinaryCreateFromConstructorMap(global, this, strict, items) {
   mapPrototype := getMapPrototype(strict);
 
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
   /* The [[Prototype]] internal property of the newly constructed object
       is set to the original Array prototype object, the one that is the

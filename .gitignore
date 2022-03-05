@@ -3,7 +3,7 @@ implementation/ES5_interpreter/ast.esl
 implementation/final_heap.json
 implementation/output.esl
 implementation/output.log
-
+JS2ECMA-SL/package-lock.json
 
 *.annot
 *.cmo

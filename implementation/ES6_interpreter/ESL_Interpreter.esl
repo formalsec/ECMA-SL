@@ -44,6 +44,8 @@ function JS_Interpreter_Program(p, callingExecCtx) {
 
     /* 3. Let progCxt be a new execution context for global code as described in 10.4.1. */
     progCxt := EnteringGlobalCode(p);
+    print "DEBUG 000"; 
+    print progCxt.VariableEnvironment.EnvRec.bindingObject; 
     /* 4. Let result be the result of evaluating SourceElements. */
     result := JS_Interpreter_SourceElements(SourceElementsopt, progCxt);
     /* 5. Exit the execution context progCxt. */
@@ -134,12 +136,12 @@ function JS_Interpreter_Expr(e, scope) {
         initValue := GetValue(initResult);
 
         descriptor := newDataPropertyDescriptorFull(initValue, true, true, true);
-        {array.DefineOwnProperty}(array, ToString(ToUint32(int_to_float i)), descriptor, false)
+        {array.DefineOwnProperty}(array, ToString(ToUint32(int_to_float i)), descriptor)
       };
       i := i + 1
     };
     descriptor := newDataPropertyDescriptorFull(ToUint32(int_to_float i), true, false, false);
-    {array.DefineOwnProperty}(array, "length", descriptor, false);
+    {array.DefineOwnProperty}(array, "length", descriptor);
 
     return array
   }
@@ -179,12 +181,16 @@ function JS_Interpreter_Expr(e, scope) {
     /* The production MemberExpression : MemberExpression [ Expression ] is evaluated as follows: */
     /* 1. Let baseReference be the result of evaluating MemberExpression. */
     baseReference := JS_Interpreter_Expr(MemberExpression, scope);
+        
     /* 2. Let baseValue be GetValue(baseReference). */
     baseValue := GetValue(baseReference);
+    
     /* 3. Let propertyNameReference be the result of evaluating Expression. */
     propertyNameReference := JS_Interpreter_Expr(Expression, scope);
+    
     /* 4. Let propertyNameValue be GetValue(propertyNameReference). */
     propertyNameValue := GetValue(propertyNameReference);
+    
     /* 5. Call CheckObjectCoercible(baseValue). */
     CheckObjectCoercible(baseValue);
     /* 6. Let propertyNameString be ToString(propertyNameValue). */
@@ -201,6 +207,7 @@ function JS_Interpreter_Expr(e, scope) {
     return newPropertyReference(baseValue, propertyNameString, strict)
   }
   | { type: "NewExpression", callee: MemberExpression, arguments: Arguments } -> {
+    print "DEBUG: NewExpre 1";
     /* 11.2.2 The new Operator */
 
     /* The production MemberExpression : new MemberExpression Arguments is evaluated as follows: */
@@ -209,8 +216,12 @@ function JS_Interpreter_Expr(e, scope) {
     ref := JS_Interpreter_Expr(MemberExpression, scope);
     /* 2. Let constructor be GetValue(ref). */
     constructor := GetValue(ref);
+    print "DEBUG: constructor";
+    print constructor;
     /* 3. Let argList be the result of evaluating Arguments, producing an internal list of argument values (11.2.4). */
     argList := JS_Interpreter_Arguments(Arguments, scope);
+    print "DEBUG: argList";
+    print argList;
     /* 4. If Type(constructor) is not Object, throw a TypeError exception. */
     if (!(Type(constructor) = "Object")) {
       throw TypeErrorConstructorInternal()
@@ -221,7 +232,10 @@ function JS_Interpreter_Expr(e, scope) {
     };
     /* 6. Return the result of calling the [[Construct]] internal method on constructor, providing the list argList as the
           argument values. */
-    return {constructor.Construct}(scope, ref, constructor, argList)
+    print "DEBUG: NewExpre 2";
+    print constructor;
+    print constructor.Call;
+    return Construct(scope, ref, constructor, argList, null)
   }
   | { type: "CallExpression", callee: MemberExpression, arguments: Arguments } -> {
     /* 11.2.3 Function Calls */
@@ -261,6 +275,9 @@ function JS_Interpreter_Expr(e, scope) {
     };
     /* 8. Return the result of calling the [[Call]] internal method on func, providing thisValue as the this value
           and providing the list argList as the argument values. */
+    print "DEBUG: CallExpr";
+    print func;
+    print func.Call;
     return {func.Call}(scope, ref, func, thisValue, argList)
   }
   | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
@@ -367,13 +384,23 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
     /* 11.13.1 Simple Assignment ( = ) */
 
     /* The production AssignmentExpression : LeftHandSideExpression = AssignmentExpression is evaluated as follows: */
+     print "DEBUG AE 0";
 
     /* 1. Let lref be the result of evaluating LeftHandSideExpression. */
     lref := JS_Interpreter_Expr(LeftHandSideExpression, scope);
+    print "DEBUG AE 1";
+    print lref;
+    
     /* 2. Let rref be the result of evaluating AssignmentExpression. */
     rref := JS_Interpreter_Expr(AssignmentExpression, scope);
+    print "DEBUG AE 2";
+    print rref;
+
     /* 3. Let rval be GetValue(rref). */
     rval := GetValue(rref);
+    print "DEBUG AE 3";
+    print rval;
+
     /* 4. Throw a SyntaxError exception if the following conditions are all true: */
       /* Type(lref) is Reference is true */
     if ((Type(lref) = "Reference") &&&
@@ -387,6 +414,8 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
         throw SyntaxErrorConstructorInternal()
       };
     /* 5. Call PutValue(lref, rval). */
+
+    print "DEBUG AE 4";
     PutValue(lref, rval);
     /* 6. Return rval. */
     return rval
@@ -499,7 +528,14 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       /* a. Return the result of calling the [[Delete]] internal method on ToObject(GetBase(ref)) providing
             GetReferencedName(ref) and IsStrictReference(ref) as the arguments. */
       obj := ToObject(GetBase(ref));
-      return {obj.Delete}(obj, GetReferencedName(ref), IsStrictReference(ref))
+
+      deleteStatus := {obj.Delete}(obj, GetReferencedName(ref));
+
+      if ( (deleteStatus = false) &&& (IsStrictReference(ref) = true) ) {
+        throw TypeErrorConstructorInternal()
+      };
+
+      return deleteStatus
     }
     /* 5. Else, ref is a Reference to an Environment Record binding, so */
     else {
@@ -547,6 +583,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       /* b. Let val be GetValue(val). */
       val := GetValue(val)
     };
+
     /* 3. Return a String determined by Type(val) according to Table 20. */
     if (Type(val) = "Undefined") {
       return "undefined"
@@ -870,26 +907,32 @@ function JS_Interpreter_FunctionBody(FunctionBody, scope) {
 
 function JS_Interpreter_ObjectInitializer(objExpr, scope) {
   /* 11.1.5 Object Initialiser */
+    print "DEBUG OBJ 0";
+
   match objExpr with
   | { type: "ObjectExpression", properties: PropertyNameAndValueList } -> {
     /* The production ObjectLiteral : { } is evaluated as follows: */
     /* Return a new object created as if by the expression new Object() where Object
         is the standard built-in constructor with that name. */
+
+    objProto := getObjectPrototype(false); 
+       print "DEBUG OBJ 1";
+
     if (l_len PropertyNameAndValueList = 0) {
-      return ObjectConstructor(|global|,
-                               'null,
-                               isContainedInStrictCode(scope),
-                               [null])
+        print "DEBUG OBJ 2";
+        obj := ObjectCreate(objProto, null); 
+        print "DEBUG OBJ 3";
+        return obj
     };
+
 
     /* The production PropertyNameAndValueList : PropertyAssignment is evaluated as follows: */
 
     /* 1. Let obj be the result of creating a new object as if by the expression new Object()
           where Object is the standard built-in constructor with that name. */
-    obj := ObjectConstructor(|global|,
-                             'null,
-                             isContainedInStrictCode(scope),
-                             [null]);
+
+    obj := ObjectCreate(objProto, PropertyNameAndValueList);
+
 
     /* The production PropertyNameAndValueList : PropertyNameAndValueList , PropertyAssignment is evaluated as follows: */
 
@@ -907,25 +950,25 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
         /* a. This production is contained in strict code and IsDataDescriptor(previous) is true and
               IsDataDescriptor(propId.descriptor) is true. */
         if (isContainedInStrictCode(scope) &&
-            (IsDataPropertyDescriptor(previous) = true) &&
-            (IsDataPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
+            (IsDataDescriptor(previous) = true) &&
+            (IsDataDescriptor(getPropertyDescriptor(propId)) = true)) {
           throw SyntaxErrorConstructorInternal()
         };
         /* b. IsDataDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true. */
-        if ((IsDataPropertyDescriptor(previous) = true) &&
-            (IsAccessorPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
+        if ((IsDataDescriptor(previous) = true) &&
+            (IsAccessorDescriptor(getPropertyDescriptor(propId)) = true)) {
           throw SyntaxErrorConstructorInternal()
         };
         /* c. IsAccessorDescriptor(previous) is true and IsDataDescriptor(propId.descriptor) is true. */
-        if ((IsAccessorPropertyDescriptor(previous) = true) &&
-            (IsDataPropertyDescriptor(getPropertyDescriptor(propId)) = true)) {
+        if ((IsAccessorDescriptor(previous) = true) &&
+            (IsDataDescriptor(getPropertyDescriptor(propId)) = true)) {
           throw SyntaxErrorConstructorInternal()
         };
         /* d. IsAccessorDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true and
               either both previous and propId.descriptor have [[Get]] fields or both previous and propId.descriptor
               have [[Set]] fields */
-        if ((IsAccessorPropertyDescriptor(previous) = true) &&
-            (IsAccessorPropertyDescriptor(getPropertyDescriptor(propId)) = true) &&
+        if ((IsAccessorDescriptor(previous) = true) &&
+            (IsAccessorDescriptor(getPropertyDescriptor(propId)) = true) &&
             ((("Get" in_obj previous) && (!(previous.Get = 'undefined)) && ("Get" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Get = 'undefined)) ||
              (("Set" in_obj previous) && (!(previous.Set = 'undefined)) && ("Set" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Set = 'undefined)))) {
           throw SyntaxErrorConstructorInternal()
@@ -934,11 +977,13 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
 
       /* 5. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and
             false. */
-      {obj.DefineOwnProperty}(obj, getPropertyName(propId), getPropertyDescriptor(propId), false);
+      {obj.DefineOwnProperty}(obj, getPropertyName(propId), getPropertyDescriptor(propId));
 
       i := i + 1
     };
     /* 6. Return obj. */
+    print "DEBUG OBJ 1"; 
+    print obj; 
     return obj
   }
 };
@@ -1132,7 +1177,7 @@ function JS_Interpreter_Stmt(s, scope) {
 
     /* A ContinueStatement with the optional Identifier is evaluated as follows:
        1. Return (continue, empty, Identifier). */
-    return newCompletion('continue, 'empty, Identifier.name)
+    return newCompletion('continue, 'empty, Identifier)
   }
   | { type: "BreakStatement", label: Identifier } -> {
     /* 12.8 The break Statement */
@@ -1144,7 +1189,7 @@ function JS_Interpreter_Stmt(s, scope) {
 
     /* A BreakStatement with an Identifier is evaluated as follows:
        1. Return (break, empty, Identifier). */
-    return newCompletion('break, 'empty, Identifier.name)
+    return newCompletion('break, 'empty, Identifier)
   }
   | { type: "ReturnStatement", argument: Expression } -> {
     /* 12.9 The return Statement */
@@ -1368,10 +1413,17 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
     lhs := JS_Interpreter_Expr(Identifier, scope);
     /* 2. Let rhs be the result of evaluating Initialiser. */
     rhs := JS_Interpreter_Expr(Initialiser, scope);
+    print "DEBUG VARDECL 1"; 
     /* 3. Let value be GetValue(rhs). */
     value := GetValue(rhs);
+
+    print "DEBUG VARDECL 2"; 
+    print lhs; 
+    print value; 
     /* 4. Call PutValue(lhs, value). */
     PutValue(lhs, value);
+
+        print "DEBUG VARDECL 3"; 
     /* 5. Return a String value containing the same sequence of characters as in the Identifier. */
     /* return Identifier.name */
     return Identifier
@@ -2087,7 +2139,10 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
     V := 'empty;
     /* 6. Repeat */
     i := 0;
+
+    /* obj_enums := EnumerableOwnNames(obj); */
     obj_enums := getEnumerableProperties(obj);
+
     repeat {
       /* a. Let P be the name of the next property of obj whose [[Enumerable]] attribute is true.
             If there is no such property, return (normal, V, empty). */
@@ -2142,7 +2197,13 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
     V := 'empty;
     /* 7. Repeat */
     i := 0;
+
+    /* obj_enums := EnumerableOwnNames(obj); */
     obj_enums := getEnumerableProperties(obj);
+
+    print "FUCK FORIN";
+    print obj_enums;
+
     repeat {
       /* a. Let P be the name of the next property of obj whose [[Enumerable]] attribute is true.
             If there is no such property, return (normal, V, empty). */

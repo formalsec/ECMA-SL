@@ -46,7 +46,7 @@ function initPromiseObject(globalObject, ObjectPrototype, strict) {
 };
 function initPromisePrototype(globalObject, ObjectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(ObjectPrototype, "Promise", true);
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
 
   /* Add built-in function objects to Promise's prototype */
 
@@ -74,7 +74,7 @@ function promiseSpeciesGetter(global, this, strict, args){
 
 function InternalPromiseConstructor(obj, strict) {
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
   PromisePrototype := getPromisePrototype(strict);
 

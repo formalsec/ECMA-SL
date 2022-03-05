@@ -30,6 +30,7 @@ function initErrorConstructor(ErrorPrototype, globalObject, strict) {
   /* When Error is called as part of a new expression, it is a constructor: it initialises the newly created object. */
   /* The value of the [[Prototype]] internal property of the Error constructor is the Function prototype object (15.3.4). */
   ErrorConstructor := CreateFunctionObject(["message"], "ErrorConstructor", globalObject, strict, null);
+  setInternalProperty(ErrorConstructor, "Call", "BuiltInCall");
 
   /* 15.11.3.1 Error.prototype */
   /* The initial value of Error.prototype is the Error prototype object (15.11.4). */
@@ -43,7 +44,7 @@ function initErrorConstructor(ErrorPrototype, globalObject, strict) {
 /* 15.11.4 Error Prototype Object */
 function initErrorPrototype(objectPrototypeObject) {
   errorPrototypeObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(errorPrototypeObject);
+  setAllInternalMethodsOfOrdinaryObject(errorPrototypeObject);
 
   /* The Error prototype object is itself an Error object (its [[Class]] is "Error"). */
   setInternalProperty(errorPrototypeObject, "Class", "Error");
@@ -85,7 +86,7 @@ function ErrorConstructor(globalObject, this, strict, params) {
 
   /* When Error is called as part of a new expression, it is a constructor: it initialises the newly created object. */
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
   /* The [[Prototype]] internal property of the newly constructed object is set to the original Error prototype object,
      the one that is the initial value of Error.prototype (15.11.3.1). */
@@ -95,11 +96,17 @@ function ErrorConstructor(globalObject, this, strict, params) {
   /* The [[Extensible]] internal property of the newly constructed object is set to true. */
   setInternalProperty(newlyConstructedObject, "Extensible", true);
 
+  setInternalProperty(newlyConstructedObject, "ErrorData", 'undefined);
+
   /* If the argument message is not undefined, the message own property of the newly constructed object is set to
      ToString(message). */
   if (!(message = 'undefined)) {
-    createBuiltInProperty(newlyConstructedObject, "message", ToString(message))
+    message := ToString(message);
+
+    createBuiltInProperty(newlyConstructedObject, "message", message);
+    setInternalProperty(newlyConstructedObject, "ErrorData", message)
   };
+
 
   return newlyConstructedObject
 };
@@ -115,7 +122,7 @@ function ErrorPrototypeToString(globalObject, this, strict, params) {
     throw TypeErrorConstructorInternal()
   };
   /* 3. Let name be the result of calling the [[Get]] internal method of O with argument "name". */
-  name := {O.Get}(O, "name");
+  name := {O.Get}(O, "name", O);
   /* 4. If name is undefined, then let name be "Error"; else let name be ToString(name). */
   if (name = 'undefined) {
     name := "Error"
@@ -123,7 +130,7 @@ function ErrorPrototypeToString(globalObject, this, strict, params) {
     name := ToString(name)
   };
   /* 5. Let msg be the result of calling the [[Get]] internal method of O with argument "message". */
-  msg := {O.Get}(O, "message");
+  msg := {O.Get}(O, "message", O);
   /* 6. If msg is undefined, then let msg be the empty String; else let msg be ToString(msg). */
   /* 7. If msg is undefined, then let msg be the empty String; else let msg be ToString(msg). */
   if (msg = 'undefined) {
@@ -286,13 +293,16 @@ function initNativeErrorConstructor(NativeErrorPrototype, nativeErrorName, const
 
   createBuiltInProperty(NativeErrorConstructor, "name", nativeErrorName);
 
+  setInternalProperty(NativeErrorConstructor, "Call", "BuiltInCall");
+
+
   return NativeErrorConstructor
 };
 
 /* 15.11.7.7 NativeError Prototype Object */
 function initNativeErrorPrototype(errorPrototypeObject) {
   nativeErrorPrototypeObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(nativeErrorPrototypeObject);
+  setAllInternalMethodsOfOrdinaryObject(nativeErrorPrototypeObject);
 
   /* Each NativeError prototype object is an Error object (its [[Class]] is "Error"). */
   setInternalProperty(nativeErrorPrototypeObject, "Class", "Error");
@@ -336,7 +346,7 @@ function NativeErrorConstructor(globalObject, strict, message, nativeErrorName) 
   /* When a NativeError constructor is called as part of a new expression, it is a constructor: it initialises the newly
       created object. */
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
   /* The [[Prototype]] internal property of the newly constructed object is set to the prototype object for this
       NativeError constructor. The [[Class]] internal property of the newly constructed object is set to "Error". The
@@ -344,11 +354,13 @@ function NativeErrorConstructor(globalObject, strict, message, nativeErrorName) 
   setInternalProperty(newlyConstructedObject, "Prototype", getNativeErrorPrototype(strict, nativeErrorName));
   setInternalProperty(newlyConstructedObject, "Class", "Error");
   setInternalProperty(newlyConstructedObject, "Extensible", true);
+  setInternalProperty(newlyConstructedObject, "ErrorData", 'undefined);
 
   /* If the argument message is not undefined, the message own property of the newly constructed object is set to
       ToString(message). */
   if (!(message = 'undefined)) {
-    createBuiltInProperty(newlyConstructedObject, "message", ToString(message))
+    createBuiltInProperty(newlyConstructedObject, "message", ToString(message));
+    setInternalProperty(newlyConstructedObject, "ErrorData", message)
   };
 
   return newlyConstructedObject

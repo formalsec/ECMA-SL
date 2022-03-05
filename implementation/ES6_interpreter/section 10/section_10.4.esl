@@ -104,7 +104,9 @@ function EnteringFunctionCode(F, thisArg, argumentsList) {
      function object F, a caller provided thisArg, and a caller provided argumentsList: */
 
   /* 1. If the function code is strict code, set the ThisBinding to thisArg. */
-  if (isStrictModeCode(getFunctionCode(F), functionExecCtx)) {
+  code := getFunctionCode(F);
+
+  if (isStrictModeCode(code, functionExecCtx)) {
     setThisBinding(functionExecCtx, thisArg)
   }
   /* 2. Else if thisArg is null or undefined, set the ThisBinding to the global object. */

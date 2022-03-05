@@ -21,7 +21,7 @@ function initGlobalObject(strict) {
   globalObject := NewECMAScriptObjectFull('null, "Object", true);
   |global| := globalObject;
 
-  setAllInternalMethodsOfObject(globalObject);
+  setAllInternalMethodsOfOrdinaryObject(globalObject);
 
   ObjectPrototype := initObjectPrototype();
   FunctionPrototype := initFunctionPrototype(ObjectPrototype, globalObject, strict);
@@ -210,6 +210,7 @@ function GlobalObjectEval(externalScope, ref, this, strict, params) {
    in function defined in 15.1.2.1. */
 
 /* 15.1.2.2 parseInt (string , radix) */
+/* TODO: RE-CHECK THIS, IT WAS COPIED FROM ES5 - MAYBE THERE IS DIFFERENCES ON ES6 */
 function GlobalObjectParseInt(globalObject, this, strict, params) {
   string := l_nth(params, 0);
   radix := l_nth(params, 1);
@@ -221,114 +222,72 @@ function GlobalObjectParseInt(globalObject, this, strict, params) {
   /* When the parseInt function is called, the following steps are taken: */
 
   /* 1. Let inputString be ToString(string). */
-  input := ToString(string);
-  return int_of_string input /* TODO missing use of radix?? */
+  inputString := ToString(string);
   /* 2. Let S be a newly created substring of inputString consisting of the first character that is not a
         StrWhiteSpaceChar and all characters following that character. (In other words, remove leading white
         space.) If inputString does not contain any such characters, let S be the empty string. */
+  S := removeLeadingWhitespace(inputString);
   /* 3. Let sign be 1. */
+  sign := 1.;
   /* 4. If S is not empty and the first character of S is a minus sign -, let sign be -1. */
+  if (!(S = "") &&& (s_nth_u(S, 0) = "-")) {
+    sign := -(1.)
+  };
   /* 5. If S is not empty and the first character of S is a plus sign + or a minus sign -, then remove the first character
         from S. */
+  if (!(S = "") &&& ((s_nth_u(S, 0) = "+") ||| (s_nth_u(S, 0) = "-"))) {
+    S := s_substr_u(S, 1, s_len_u(S) - 1)
+  };
   /* 6. Let R = ToInt32(radix). */
+  R := ToInt32(radix);
   /* 7. Let stripPrefix be true. */
+  stripPrefix := true;
   /* 8. If R <> 0, then */
+  if (!(R = 0.)) {
     /* a. If R < 2 or R > 36, then return NaN. */
+    if (R < 2. ||| R > 36.) {
+      return NaN
+    };
     /* b. If R <> 16, let stripPrefix be false. */
+    if (!(R = 16.)) {
+      stripPrefix := false
+    }
+  }
   /* 9. Else, R = 0 */
+  else {
     /* a. Let R = 10. */
+    R := 10.
+  };
   /* 10. If stripPrefix is true, then */
+  if (stripPrefix = true) {
     /* a. If the length of S is at least 2 and the first two characters of S are either "0x" or "0X", then remove
           the first two characters from S and let R = 16. */
+    if (s_len_u(S) >= 2 &&& (s_substr_u(S, 0, 2) = "0x" ||| s_substr_u(S, 0, 2) = "0X")) {
+      S := s_substr_u(S, 2, s_len_u(S) - 2);
+      R := 16.
+    }
+  };
   /* 11. If S contains any character that is not a radix-R digit, then let Z be the substring of S consisting of all
          characters before the first such character; otherwise, let Z be S. */
+  if (containsInvalidDigit(S, R)) {
+    Z := stripInvalidChars(S, R)
+  } else {
+    Z := S
+  };
   /* 12. If Z is empty, return NaN. */
+  if (Z = "") {
+    return NaN
+  };
   /* 13. Let mathInt be the mathematical integer value that is represented by Z in radix-R notation, using the letters
          A-Z and a-z for digits with values 10 through 35. (However, if R is 10 and Z contains more than 20
          significant digits, every significant digit after the 20th may be replaced by a 0 digit, at the option of the
          implementation; and if R is not 2, 4, 8, 10, 16, or 32, then mathInt may be an implementation-dependent
          approximation to the mathematical integer value that is represented by Z in radix-R notation.) */
+  mathInt := mathIntegerOf(Z, R);
   /* 14. Let number be the Number value for mathInt. */
+  number := mathInt;
   /* 15. Return sign x number. */
-};
-
-/* 15.1.2.2 parseInt (string , radix) */
-function GlobalObjectParseIntAlt(globalObject, this, strict, params) {
-  string := l_nth(0, params);
-  radix := l_nth(1, params);
-  /* 1. Let inputString be ToString(string). */
-  inputString := ToString(string);
-  /* 2. ReturnIfAbrupt(string). */
-  @ReturnIfAbrupt(string);
-  /* 3. Let S be a newly created substring of inputString consisting
-  of the first code unit that is not a StrWhiteSpaceChar and all code 
-  units following that code unit. 
-  (In other words, remove leading white space.) 
-  If inputString does not contain any such code unit, let S be the empty string. */
-  S := inputString;
-  len := s_len_u(inputString);
-  while (s_nth(inputString, index) = " ") {
-    if (len = 0) {
-      S := ""
-      /* TODO break */
-    };
-    S := s_substr_u(S, 1, len - 1);
-    len := len - 1
-  };
-  /* 4. Let sign be 1. */
-  sign := 1;
-  /* 5. PARSING ERROR If S is not empty and the first code unit of S is 0x002D
-  (HYPHEN-MINUS), let sign be −1. */
-  /* if (!(S = "")) &&& s_nth(0, S) = "-" {
-    sign := -1
-  };*/
-  /* 6. PARSING ERROR If S is not empty and the first code unit of S is 0x002B (PLUS SIGN)
-  or 0x002D (HYPHEN-MINUS), remove the first code unit from S. */
-  /* if (!(S = "")) &&& s_nth(0, S) = "+" || s_nth(0, S) = "-" {
-    S := s_substr_u(1, S)
-  }; */
-  /* 7. Let R = ToInt32(radix). */
-  R := ToInt32(radix);
-  /* 8. ReturnIfAbrupt(R). */
-  @ReturnIfAbrupt(R);
-  /* 9. Let stripPrefix be true. */
-  stripPrefix := true;
-  /* 10. If R ≠ 0, then */
-  if (!(R = 0)) {
-    /* a. If R < 2 or R > 36, return NaN. */
-    if (R < 2 || R > 36) {
-      return NaN
-    };
-    /* b.If R ≠ 16, let stripPrefix be false. */
-    if (!(R = 16)) {
-      stripPrefix = false
-    }
-  /* 11. Else R = 0, */
-  } else {
-    /* a. Let R = 10. */
-    R := 10
-  };
-  /* 12. If stripPrefix is true, then */
-  if (stripPrefix = true) {
-    /* a. If the length of S is at least 2 and the first
-    two code units of S are either "0x" or "0X", remove the
-    first two code units from S and let R = 16. */
-    len := s_len_u(S);
-    if (len >= 2 &&& (s_nth(0, S) = "0x" || s_nth(0, S) ="0X") &&& (s_nth(1, S) = "0x" || s_nth(1, S) ="0X")) {
-      S := s_nth(2, len);
-      R := 16
-    }
-  }
-  /* 13. TODO If S contains a code unit that is not a radix-R digit,
-  let Z be the substring of S consisting of all code units before
-  the first such code unit; otherwise, let Z be S. */
-  /* 14. If Z is empty, return NaN. */
-  /* 15. Let mathInt be the mathematical integer value that is represented by Z in radix-R notation, using the letters A-Z and a-z for digits with values 10 through 35. (However, if R is 10 and Z contains more than 20 significant digits, every significant digit after the 20th may be replaced by a 0 digit, at the option of the implementation; and if R is not 2, 4, 8, 10, 16, or 32, then mathInt may be an implementation-dependent approximation to the mathematical integer value that is represented by Z in radix-R notation.) */
-  /* 16. If mathInt = 0, then */
-  /* a. If sign = −1, return −0. */
-  /* b. Return +0. */
-  /* 17. Let number be the Number value for mathInt. */
-  /* 18. Return sign × number. */
+  return sign * number
 };
 
 /* 15.1.2.3 parseFloat (string) */
@@ -417,7 +376,7 @@ function GlobalObjectIsNaN(globalObject, this, strict, params) {
 
 /* 15.1.2.5 isFinite (number) */
 function GlobalObjectIsFinite(globalObject, this, strict, params) {
-  number := s_nth(params, 0);
+  number := l_nth(params, 0);
   /* Returns false if the argument coerces to NaN, +Infinity, or -Infinity, and otherwise returns true. */
 
   /* 1. If ToNumber(number) is NaN, +Infinity, or -Infinity, return false.*/
@@ -456,4 +415,137 @@ function optimizeInitGlobalObject(strict) {
   |global| := loc_global;
 
   return loc_global
+};
+
+function removeLeadingWhitespace(string) {
+  T := trim string;
+  /* Remove leading spaces */
+  if (!(T = "")) {
+    len := s_len_u T;
+    i := 0;
+    j := 0;
+    while (i < len) {
+      c := s_nth_u(T, j);
+      if (isSpaceCharacter(c)) {
+        j := j + 1
+      } else {
+        i := len
+      };
+      i := i + 1
+    };
+    T := s_substr_u(T, j, (len - j))
+  };
+
+  return T
+};
+
+function containsInvalidDigit(string, radix) {
+  radixInt := int_of_float radix;
+  str_len := s_len_u string;
+  i := 0;
+
+  while (i < str_len) {
+    char := s_nth_u(string, i);
+    index := indexOfChar(char);
+
+    if (index = -1 ||| index >= radixInt) {
+      return true
+    };
+
+    i:= i + 1
+  };
+
+  return false
+};
+
+function isSpaceCharacter(c) {
+  /* Table 2 — Whitespace Characters
+      Code Unit            Value Name          Formal Name
+      \u0009               Tab                 <TAB>
+      \u000B               Vertical Tab        <VT>
+      \u000C               Form Feed           <FF>
+      \u0020               Space               <SP>
+      \u00A0               No-break space      <#x0a>
+      \uFEFF               Byte Order Mark     <BOM>
+      Other category “Zs”  Any other Unicode   <USP>
+                           “space separator” */
+
+  /* https://www.compart.com/en/unicode/category/Zs */
+  /*
+   * \u0020 \u00A0 \u1680 \u2000 \u2001 \u2002
+   * \u2003 \u2004 \u2005 \u2006 \u2007 \u2008
+   * \u2009 \u200A \u202F \u205F \u3000
+   */
+
+  /* Table 3 — Line Terminator Characters
+    Code Unit Value       Name                  Formal Name
+    \u000A                Line Feed             <LF>
+    \u000D                Carriage Return       <CR>
+    \u2028                Line separator        <LS>
+    \u2029                Paragraph separator   <PS> */
+  spaces := ["\t", "\v", "\f", " ", "\u{00A0}", "\u{FEFF}", "\u{1680}", "\u{2000}",
+    "\u{2001}", "\u{2002}", "\u{2003}", "\u{2004}", "\u{2005}", "\u{2006}", "\u{2007}",
+    "\u{2008}", "\u{2009}", "\u{200A}", "\u{202F}", "\u{205F}", "\u{3000}", "\n", "\r",
+    "\u{2028}", "\u{2029}"];
+  foreach (s : spaces) {
+    if (s = c) {
+      return true
+    }
+  };
+  return false
+};
+
+function indexOfChar(char) {
+  chars := [
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+    "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+    "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
+  ];
+  i := 0;
+
+  while(i < 36) {
+    if (to_lower_case char = l_nth(chars, i)) {
+      return i
+    };
+
+    i:= i + 1
+  };
+
+  return -1
+};
+
+function mathIntegerOf(string, radix) {
+  str_len := s_len_u string;
+  i := str_len;
+  value := 0.;
+
+  while(i > 0) {
+    char := s_nth_u(string, i - 1);
+    charValue := indexOfChar(char);
+
+    value := value + ((radix ** (int_to_float (str_len - i))) * (int_to_float charValue));
+
+    i:= i - 1
+  };
+
+  return value
+};
+
+function stripInvalidChars(string, radix) {
+  radixInt := int_of_float radix;
+  str_len := s_len_u string;
+  i := 0;
+
+  while (i < str_len) {
+    char := s_nth_u(string, i);
+    index := indexOfChar(char);
+
+    if (index = -1 ||| index >= radixInt) {
+      return s_substr_u(string, 0, i)
+    };
+
+    i:= i + 1
+  };
+
+  return string
 }

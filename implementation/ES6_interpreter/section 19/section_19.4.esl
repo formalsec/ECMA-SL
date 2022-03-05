@@ -1,6 +1,6 @@
 function initSymbolPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "Symbol", true);
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
 
   /* 19.4.3.2 Symbol.prototype.toString () */
   toStringFunctionObject := CreateBuiltInFunctionObject([], "symbolToString", global, strict, null);
@@ -166,12 +166,12 @@ function internalSymbolConstructor(descString, strict) {
   symbolPrototype := getSymbolPrototype(strict);
 
   newlyConstructedSymbol := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedSymbol);
-
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedSymbol);
+  
   setInternalProperty(newlyConstructedSymbol, "Prototype", symbolPrototype);
   setInternalProperty(newlyConstructedSymbol, "Extensible", false);
   setInternalProperty(newlyConstructedSymbol, "Class", "Symbol");
-  
+
   newlyConstructedSymbol.Description := descString;
   newlyConstructedSymbol.SymbolData := newSymbolData(); 
 
@@ -181,7 +181,7 @@ function internalSymbolConstructor(descString, strict) {
 function internalSymbolConstructor2(symbolPrototype, symbolData, descString, strict) { 
 
   newlyConstructedSymbol := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedSymbol);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedSymbol);
 
   setInternalProperty(newlyConstructedSymbol, "Prototype", symbolPrototype);
   setInternalProperty(newlyConstructedSymbol, "Extensible", false);
@@ -439,4 +439,9 @@ function getUnscopablesPropertyName() {
 
 function getIsConcatSpreadablePropertyName () {
   return "Symbol(isConcatSpreadable)"
+};
+
+function getHasInstancePropertyName() {
+  return "Symbol(hasInstance)"
 }
+

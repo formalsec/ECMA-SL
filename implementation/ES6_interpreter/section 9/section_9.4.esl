@@ -9,6 +9,10 @@
  * the creation of new exotic String objects. It performs the following steps:
  */
  function StringCreate(value, prototype){
+   print "1::::";
+   print value;
+   print prototype;
+
     /* 1. ReturnIfAbrupt(prototype). */
     @ReturnIfAbrupt(prototype);
     
@@ -17,13 +21,14 @@
 
     /* 3. Let S be a newly created String exotic object. */
     S := NewECMAScriptObject();
-    setAllInternalMethodsOfObject(S);
-    setInternalProperty(S, "Class", "String");
+    setAllInternalMethodsOfOrdinaryObject(S); 
+    /* setInternalProperty(S, "Class", "String"); */
 
     /* 4. Set the [[StringData]] internal slot of S to value. */
     setInternalProperty(S, "StringData", value);
 
     /* 5. Set S’s essential internal methods to the default ordinary object definitions specified in 9.1. */
+    setStringInternals(S);
     /**
      * All ordinary objects have an internal slot called [[Prototype]]. The value of this internal slot is 
      * either null or an object and is used for implementing inheritance. Data properties of the 
@@ -62,38 +67,58 @@
 
     /* 12. Let status be DefinePropertyOrThrow(S, "length", PropertyDescriptor{[[Value]]: length, [[Writable]]: false,
     [[Enumerable]]: false, [[Configurable]]: false }). */
-
-    /**
-     * NOTA
-     *
-     * 7.3.7 DefinePropertyOrThrow (O, P, desc) e da parte de outra pessoa - colocar depois
-     */
-
     setJSProperty(S, "length", newDataPropertyDescriptorFull(length, false, false, false));
-    
     /*
-    desc := newDataPropertyDescriptorFull(int_to_float length, false, false, false);
-    status := {S.DefineOwnProperty}(S, "length", {
-      Value: int_to_float length,
-      Writable: false,
-      Enumerable: false,
-      Configurable: false
-    }, false);
-    @ReturnIfAbrupt(status);
-    if (status = false){
-      throw TypeErrorConstructorInternal()
-    };
+    status := DefinePropertyOrThrow(S, "length", newDataPropertyDescriptorFull(length, false, false, false) );
     */
-
     /* 13. Assert: status is not an abrupt completion. */
     /*
     if(Type(status) = "Completion"){
       assert(!isAnAbruptCompletion(status))
     };
     */
+    print "2::::";
+    print S;
     
     /* 14. Return S. */
     return S
+};
+
+/* 9.1 Ordinary Object Internal Methods and Internal Slots */
+function setStringInternals(S){
+  /* 9.1.1 [[GetPrototypeOf]] ( ) */
+  setInternalProperty(S, "GetPrototypeOf", "OrdinaryObjectGetPrototypeOf");
+
+  /* 9.1.2 [[SetPrototypeOf]] (V) */
+  setInternalProperty(S, "SetPrototypeOf", "OrdinaryObjectSetPrototypeOf");
+
+  /* 9.1.3 [[IsExtensible]] ( ) */
+  setInternalProperty(S, "IsExtensible", "OrdinaryObjectIsExtensible");
+
+  /* 9.1.4 [[PreventExtensions]] ( ) */
+  setInternalProperty(S, "PreventExtensions", "OrdinaryObjectPreventExtensions");
+
+  /* 9.1.5 [[GetOwnProperty]] (P) */
+
+  /* 9.1.6 [[DefineOwnProperty]] (P, Desc) */
+  setInternalProperty(S, "DefineOwnProperty", "OrdinaryObjectDefineOwnProperty");
+
+  /* 9.1.7 [[HasProperty]](P) */
+
+  /* 9.1.8 [[Get]] (P, Receiver) */
+  setInternalProperty(S, "Get", "OrdinaryObjectGet");
+
+  /* 9.1.9 [[Set]] ( P, V, Receiver) */
+  setInternalProperty(S, "Set", "OrdinaryObjectSet");
+
+  /* 9.1.10 [[Delete]] (P) */
+  setInternalProperty(S, "Delete", "OrdinaryObjectDelete");
+
+  /* 9.1.11 [[Enumerate]] () */
+  setInternalProperty(S, "Enumerate", "OrdinaryObjectEnumerate");
+
+  /* 9.1.12 [[OwnPropertyKeys]] ( ) */
+  return 'null
 };
 
 /* 9.4.3.1 [[GetOwnProperty]] ( P ) */
@@ -101,8 +126,14 @@ function GetOwnPropertyString(S, P){
   /* 1. Assert: IsPropertyKey(P) is true. */
   assert(IsPropertyKey(P) = true);
 
+  print "?????";
+  print S;
+  print P;
   /* 2. Let desc be OrdinaryGetOwnProperty(S, P). */
   desc := OrdinaryGetOwnProperty(S, P);
+
+  print "helooooo";
+  print desc;
 
   /* 3. If desc is not undefined return desc. */
   if (!(desc = 'undefined)){
@@ -119,6 +150,9 @@ function StringGetIndexProperty(S, P){
   if (!(Type(P) = "String")){
     return 'undefined
   };
+
+  print "P:::::";
+  print P;
 
   /* 2. Let index be CanonicalNumericIndexString (P). */
   index := CanonicalNumericIndexString(P);
@@ -184,38 +218,38 @@ function OwnPropertyKeysString(O){
   str := ToString(O.StringData);
 
   /* 3. Let len be the number of elements in str. */
-  len := s_len_u str;
+  len := int_to_float(s_len_u str);
   
   /* 4. For each integer i starting with 0 such that i < len, in ascending order, */
-  i := 0;
+  i := 0.;
   while (i < len){
     /* a. Add ToString(i) as the last element of keys */
-    keys := l_concat(keys, [ToString(i)]);
+    keys := l_add(keys, ToString(i));
 
-    i := i + 1
+    i := i + 1.
   };
 
   /* 5. For each own property key P of O such that P is an integer index and ToInteger(P) ≥ len, in ascending numeric index order, */
-  foreach(P : O)[]{
-    if ((Type(P) = "Number") && (ToInteger(P) >= len)){
+  foreach(P : obj_fields O.JSProperties){
+    if ((Type(P) = "Number") &&& (ToInteger(P) >= len)){
       /* a. Add P as the last element of keys. */
-      keys := l_concat(keys, [P])
+      keys := l_add(keys, P)
     }
   };
     
   /* 6. For each own property key P of O such that Type(P) is String and P is not an integer index, in property creation order, */
-  foreach(P : O)[]{
-    if ((Type(P) = "String") && !(Type(P) = "Integer")){
+  foreach(P : obj_fields O.JSProperties){
+    if ((Type(P) = "String") &&& !(Type(P) = "Number")){
       /* a. Add P as the last element of keys. */
-      keys := l_concat(keys, [P])
+      keys := l_add(keys, P)
     }
   };
     
   /* 7. For each own property key P of O such that Type(P) is Symbol, in property creation order, */
-  foreach(P : O)[]{
+  foreach(P : obj_fields O.JSProperties){
     if (Type(P) = "Symbol"){
       /* a. Add P as the last element of keys. */
-      keys := l_concat(keys, [P])
+      keys := l_add(keys, P)
     }
   };
     

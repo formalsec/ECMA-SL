@@ -4,8 +4,8 @@ var NotEarlyError = new Error(NotEarlyErrorString);
 
 function Test262Error(message) {
     this.message = message || "";
-    console.setInternalClass(this, "Error")
-    console.setInternalName(this, "Test262Error")
+    //console.setInternalClass(this, "Error")
+    //console.setInternalName(this, "Test262Error")
 }
 
 Test262Error.prototype.toString = function () {

@@ -50,11 +50,6 @@ function getJSProperty(object, pname) {
   return object.JSProperties[pname]
 };
 
-function setInternalProperty(object, pname, pvalue) {
-  object[pname] := pvalue;
-  return
-};
-
 function setJSProperty(object, pname, pvalue) {
   object.JSProperties[pname] := pvalue;
   return

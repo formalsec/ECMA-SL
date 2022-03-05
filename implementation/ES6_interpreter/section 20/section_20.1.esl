@@ -15,7 +15,7 @@ function initNumberObject(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(objNumberPrototype, false, false, false);
   setJSProperty(objNumberConstructor, "prototype", descriptor);
   /* Length Property of Constructor is 1 */
-  setJSProperty(objNumberConstructor, "length", newDataPropertyDescriptorFull(1, true, false, false));
+  setJSProperty(objNumberConstructor, "length", newDataPropertyDescriptorFull(1., false, false, true));
 
   return objNumberConstructor
 };
@@ -24,8 +24,10 @@ function initNumberObject(global, objectPrototype, strict) {
 /* 20.1.3 Properties of the Number Prototype Object */
 function initNumberPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
   setInternalProperty(prototype, "NumberData", 0.);
+
+  setInternalProperty(prototype, "Prototype", objectPrototype);
 
   /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
   toExponential := CreateBuiltInFunctionObject(["fractionDigits"], "NumberPrototypeToExponential", global, strict, null);
@@ -56,7 +58,7 @@ function initNumberPrototype(global, objectPrototype, strict) {
   setJSProperty(toPrecision, "name", descriptor);
 
   /* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
-  toString := CreateBuiltInFunctionObject([ "radix" ], "NumberPrototypeToStringAlt", global, strict, 0.);
+  toString := CreateBuiltInFunctionObject([ "radix" ], "NumberPrototypeToString", global, strict, 0.);
   createBuiltInProperty(prototype, "toString", toString);
   descriptor := newDataPropertyDescriptorFull("toString", false, false, true);
   setJSProperty(toString, "name", descriptor);
@@ -413,12 +415,13 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
 
 /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
 function NumberPrototypeToFixed(global, this, strict, items) {
-  fractionDigits := getOptionalParam(items, 0);  
+  fractionDigits := getOptionalParam(items, 0);
   /* NumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. ReturnIfAbrupt(x). */
   @ReturnIfAbrupt(x);
-  if (fractionDigits = 'undefined) {
+
+  if (fractionDigits = null) {
     return to_fixed(x, 0)
   } else {
     return to_fixed(x, (int_of_float fractionDigits))
@@ -465,9 +468,9 @@ function NumberPrototypeToFixedAlt(global, this, strict, items) {
     /* 10. Else x < 1021, */
   } else {
     /* a. Let n be an integer for which the exact mathematical value
-    of n ÷ 10f – x is as close to zero as possible. 
+    of n ÷ 10f – x is as close to zero as possible.
     If there are two such n, pick the larger n. */
-    /* b. If n = 0, let m be the String "0". 
+    /* b. If n = 0, let m be the String "0".
     Otherwise, let m be the String consisting of the digits
     of the decimal representation of n (in order, with no leading zeroes). */
     if (n = 0) {
@@ -620,7 +623,7 @@ function isNumberOrNumberObject(arg) {
   if (Type(arg) = "Number") {
     return true
   };
-  if ((Type(arg) = "Object") &&& (getInternalProperty(arg, "Class") = "Number")) {
+  if ((Type(arg) = "Object" &&& "NumberData" in_obj arg)) {
     return true
   };
   return false
@@ -709,7 +712,7 @@ function OrdinaryCreateFromConstructorNumber(global, this, strict, items) {
   numberPrototype := getNumberPrototype(strict);
 
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
   setInternalProperty(newlyConstructedObject, "Prototype", numberPrototype);
   setInternalProperty(newlyConstructedObject, "Extensible", true);

@@ -496,6 +496,7 @@ function JS_Interpreter_Unary_Operators(UnaryExpr, scope) {
       /* b. Let val be GetValue(val). */
       val := GetValue(val)
     };
+
     /* 3. Return a String determined by Type(val) according to Table 20. */
     return typeofOperatorTable(val)
   }

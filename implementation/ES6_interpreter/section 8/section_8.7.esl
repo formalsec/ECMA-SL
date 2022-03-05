@@ -1,113 +1,5 @@
 /* Auxiliary functions created for the purposes of accessing the values of the triple that form the reference type. */
 /* The functions are those that are not explicitly specified in the standard */
-function newValueReference(base, referencedName, strict) {
-  return ("R", "V", base, referencedName, strict)
-};
-function newPropertyReference(base, referencedName, strict) {
-  return ("R", "P", base, referencedName, strict)
-};
-
-
-/* Returns the base value component of the reference V. */
-function GetBase(V) {
-  print "GetBase";
-  return t_nth(V, 2)
-};
-
-/* Returns the referenced name component of the reference V. */
-function GetReferencedName(V) {
-  print "GetReferencedName";
-  return t_nth(V, 3)
-};
-
-/* Returns the strict reference component of the reference V. */
-function IsStrictReference(V) {
-  print "IsStrictReference";
-  return t_nth(V, 4)
-};
-
-/* Returns true if the base value is a Boolean, String, or Number. */
-function HasPrimitiveBase(V) {
-  print "HasPrimitiveBase";
-  if ((Type (GetBase(V)) = "Boolean") || (Type (GetBase(V)) = "String") || (Type (GetBase(V)) = "Number")) {
-    return true
-  } else {
-    return false
-  }
-};
-
-/* Returns true if either the base value is an object or HasPrimitiveBase(V) is true; otherwise returns false. */
-function IsPropertyReference (V) {
-  print "IsPropertyReference";
-  return (typeof V = __$Tuple) && (t_len V = 5) && (t_nth(V, 0) = "R") && (t_nth(V, 1) = "P")
-};
-
-/* Returns true if the base value is undefined and false otherwise. */
-function IsUnresolvableReference (V) {
-  print "IsUnresolvableReference";
-  if (Type(GetBase(V)) = "Undefined") {
-    return true
-  } else {
-    return false
-  }
-};
-
-function GetValue(V) {
-  print "GetValue";
-  if (!(Type(V) = "Reference")) {
-    return V
-  };
-
-  base := GetBase(V);
-
-  if (IsUnresolvableReference(V)) {
-    throw ReferenceErrorConstructorInternal()
-  };
-
-  if (IsPropertyReference(V)) {
-    if (HasPrimitiveBase(V) = false) {
-      get := base["Get"]
-    } else {
-      get := "Get_internal"
-    };
-
-    return {get}(base, GetReferencedName(V))
-  } else {
-    return GetBindingValue(base, GetReferencedName(V), IsStrictReference(V))
-  }
-};
-
-function PutValue(V, W) {
-  print "PutValue";
-  if (!(Type(V) = "Reference")) {
-    throw ReferenceErrorConstructorInternal()
-  };
-
-  base := GetBase(V);
-
-  if (IsUnresolvableReference(V)) {
-    if (IsStrictReference(V)) {
-      throw ReferenceErrorConstructorInternal()
-    };
-
-    Put(|global|, GetReferencedName(V), W, false)
-  } else {
-    if (IsPropertyReference(V)) {
-      if (HasPrimitiveBase(V) = false) {
-        put := base["Put"]
-      } else {
-        put := "Put_internal"
-      };
-
-      {put}(base, GetReferencedName(V), W, IsStrictReference(V))
-    } else {
-      SetMutableBinding(base, GetReferencedName(V), W, IsStrictReference(V))
-    }
-  };
-
-  return
-};
-
 function Get_internal(base, P) {
   /* The following [[Get]] internal method is used by GetValue when V is a property reference with a primitive base
      value. It is called using base as its this value and with property P as its argument. The following steps are
@@ -122,7 +14,7 @@ function Get_internal(base, P) {
     return 'undefined
   };
   /* 4. If IsDataDescriptor(desc) is true, return desc.[[Value]]. */
-  if (IsDataPropertyDescriptor(desc) = true) {
+  if (IsDataDescriptor(desc) = true) {
     return desc.Value
   }
   /* 5. Otherwise, IsAccessorDescriptor(desc) must be true so, let getter be desc.[[Get]] (see 8.10). */
