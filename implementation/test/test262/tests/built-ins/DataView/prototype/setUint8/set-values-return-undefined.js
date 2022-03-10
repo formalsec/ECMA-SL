@@ -38,7 +38,7 @@ values.forEach(function(value, i) {
   var expected = expectedValues[i];
 
   var result = sample.setUint8(0, value);
-
+  
   assert.sameValue(
     typedArray[0],
     expected,

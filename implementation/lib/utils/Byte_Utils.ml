@@ -30,6 +30,33 @@ let float32_to_be_bytes (x : float) : int32 list =
     done;
     !lst
 
+let int_to_be_bytes (x, n : float * int) : int list = 
+   Printf.printf "debug 42: int_to_be_bytes x: %f, n: %d\n" x n;
+   let rec loop (lst : int list) (value : int) (j : int) =
+      Printf.printf "debug 42: int_to_be_bytes value: %d, j: %d\n" value j; 
+      if (j < n) then  
+         loop ([Int.logand value 255] @ lst) (Int.shift_right value 8) (j+1)
+      else lst in 
+      loop [] (Float.to_int x) 0
+
+let uint_from_le_bytes (arr, n : int array * int) : float =
+   Printf.printf "debug 42: uint_from_le_bytes n: %d\n" n;
+   let len = Array.length arr in
+   let rec loop (value : int ) (j : int) =
+      Printf.printf "debug 42: uint_from_le_bytes value: %d, j: %d\n" value j; 
+      if (j >= 0) then  
+         loop (value*256 + Array.get arr j) (j-1)
+      else value in 
+   Int.to_float (loop 0 (len - 1))
+
+let int_from_le_bytes (arr, n : int array * int) : float =
+   let value = uint_from_le_bytes(arr, n) in
+   (* check sign of value *)
+   if (value < (2.**Int.to_float(8*n-1))) then
+      value
+   else 
+      value -. 2.**Int.to_float(8*n)
+
 let float64_from_le_bytes (bytes : int64 array) : float =
   let res = ref 0L in
   for i = 0 to 7 do

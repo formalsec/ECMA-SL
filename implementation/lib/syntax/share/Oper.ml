@@ -39,6 +39,9 @@ type bopt = Plus
           | ToFixed
           | ArrayMake
           | Anth
+          | IntToBEBytes
+          | IntFromBytes
+          | UintFromBytes
 
 type topt = Ssubstr
           | SsubstrU
@@ -259,8 +262,8 @@ let typeof (v : Val.t) : Val.t = match v with
   | Symbol _ -> Type (Type.SymbolType)
   | Curry _  -> Type (Type.CurryType)
   | Void     -> invalid_arg ("Exception in Oper.typeof: unexpected void value")
-  | Byte64 _   -> invalid_arg ("Type of Byte64 not implemented yet")
-  | Byte32 _   -> invalid_arg ("Type of Byte32 not implemented yet")
+  | Byte _   -> invalid_arg ("Type of Byte not implemented yet")
+(*  | Byte32 _   -> invalid_arg ("Type of Byte32 not implemented yet") *)
 
 let l_len (v : Val.t) : Val.t = match v with
   | List l -> Val.Int (List.length l)
@@ -527,19 +530,20 @@ let log_2 (v : Val.t) : Val.t = match v with
   | Flt x -> Flt ((Float.log x) /. (Float.log 2.))
   | _      -> invalid_arg "Exception in Oper.log_2: this operation is only applicable to Float arguments"
 
-let unpack_byte32 (v : Val.t) : int32 = match v with
-  | Byte32 b -> b
-  | Byte64 b -> Int64.to_int32 b (* TODO temporário*)
-  | _ -> invalid_arg "Exception in Oper.unpack_byte32: this operation is only applicable to Byte32 arguments"
+let unpack_byte (v : Val.t) : int = match v with
+  | Byte b -> b
+(*  | Byte64 b -> Int64.to_int32 b (* TODO temporário*) *)
+  | _ -> invalid_arg "Exception in Oper.unpack_byte: this operation is only applicable to Byte arguments"
 
+(*
 let unpack_byte64 (v : Val.t) : int64 = match v with
   | Byte64 b -> b
   | _ -> invalid_arg "Exception in Oper.unpack_byte64: this operation is only applicable to Byte64 arguments"
+*)
 
 let unpack_byte_to_str (v : Val.t) : string = match v with
-  | Byte32 b -> Int32.to_string b
-  | Byte64 b -> Int64.to_string b
-  | _ -> let msg = Printf.sprintf "Exception in unpack_byte_to_str: this opperation is only applicable to Byte32 or Byte64 arguments %s\n" (Val.str v) in
+  | Byte b -> string_of_int b
+  | _ -> let msg = Printf.sprintf "Exception in unpack_byte_to_str: this opperation is only applicable to Bypte arguments %s\n" (Val.str v) in
                     invalid_arg msg
 
 let bytes_to_string (v: Val.t) : Val.t = match v with
@@ -549,64 +553,96 @@ let bytes_to_string (v: Val.t) : Val.t = match v with
   | _ -> invalid_arg "Exception in Oper.bytes_to_string: this operation is only applicable to Byte arguments"
 
 let float_to_byte (v: Val.t) : Val.t = match v with
-  | Flt x -> (Val.Byte64 (Int64.bits_of_float x))
+  | Flt x -> (Val.Byte (Int64.to_int (Int64.bits_of_float x)))
   | _ -> invalid_arg "Exception in Oper.float_to_byte: this operation is only applicable to Float arguments"
 
 let float64_to_le_bytes (v : Val.t) : Val.t = match v with
   | Flt x -> 
     let bytes = Byte_Utils.float64_to_le_bytes x in 
-    let val_bytes = List.map (fun b -> Val.Byte64 b) bytes in 
+    let val_bytes = List.map (fun b -> Val.Byte (Int64.to_int b)) bytes in 
     List val_bytes 
   | _ -> invalid_arg "Exception in Oper.float64_to_le_bytes: this operation is only applicable to Float arguments"
 
 let float64_to_be_bytes (v : Val.t) : Val.t = match v with
   | Flt x -> 
     let bytes = Byte_Utils.float64_to_be_bytes x in 
-    let val_bytes = List.map (fun b -> Val.Byte64 b) bytes in 
+    let val_bytes = List.map (fun b -> Val.Byte (Int64.to_int b)) bytes in 
     List val_bytes 
   | _ -> invalid_arg "Exception in Oper.float64_to_be_bytes: this operation is only applicable to Float arguments"
 
 let float32_to_le_bytes (v : Val.t) : Val.t = match v with
   | Flt x -> 
     let bytes = Byte_Utils.float32_to_le_bytes x in 
-    let val_bytes = List.map (fun b -> Val.Byte32 b) bytes in 
+    let val_bytes = List.map (fun b -> Val.Byte (Int32.to_int b)) bytes in 
     List val_bytes
   | _ -> invalid_arg "Exception in Oper.float32_to_le_bytes: this operation is only applicable to Float arguments"
 
 let float32_to_be_bytes (v : Val.t) : Val.t = match v with
   | Flt x -> 
     let bytes = Byte_Utils.float32_to_be_bytes x in 
-    let val_bytes = List.map (fun b -> Val.Byte32 b) bytes in 
+    let val_bytes = List.map (fun b -> Val.Byte (Int32.to_int b)) bytes in 
     List val_bytes
   | _ -> invalid_arg "Exception in Oper.float32_to_be_bytes: this operation is only applicable to Float arguments"
 
+  
+let int_to_be_bytes (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | Flt x, Int n ->
+    let bytes = Byte_Utils.int_to_be_bytes(x, n) in 
+    let val_bytes = List.map (fun b -> Val.Byte b) bytes in 
+    List val_bytes
+  | _ -> invalid_arg "Exception in Oper.int_to_be_bytes: this operation is only applicable to Float and Int arguments"
+
 let float64_from_le_bytes (v : Val.t) : Val.t = match v with
   | Arr bytes -> 
-    let int64_bytes = Array.map unpack_byte64 bytes in 
+    let int_bytes = Array.map unpack_byte bytes in 
+    let int64_bytes = Array.map Int64.of_int int_bytes in 
     let f = Byte_Utils.float64_from_le_bytes int64_bytes in 
     Flt f
   | _ -> invalid_arg "Exception in Oper.float64_from_le_bytes: this operation is only applicable to List arguments"
 
 let float64_from_be_bytes (v : Val.t) : Val.t = match v with
   | Arr bytes -> 
-    let int64_bytes = Array.map unpack_byte64 bytes in 
+    let int_bytes = Array.map unpack_byte bytes in
+    let int64_bytes = Array.map Int64.of_int int_bytes in  
     let f = Byte_Utils.float64_from_be_bytes int64_bytes in 
     Flt f
   | _ -> invalid_arg "Exception in Oper.float64_from_be_bytes: this operation is only applicable to List arguments"
 
 let float32_from_le_bytes (v : Val.t) : Val.t = match v with
   | Arr bytes -> 
-    let int32_bytes = Array.map unpack_byte32 bytes in 
+    let int_bytes = Array.map unpack_byte bytes in 
+    let int32_bytes = Array.map Int32.of_int int_bytes in 
     let f = Byte_Utils.float32_from_le_bytes int32_bytes in 
     Flt f
   | _ -> invalid_arg "Exception in Oper.float32_from_le_bytes: this operation is only applicable to Array arguments"
 
 let float32_from_be_bytes (v : Val.t) : Val.t = match v with
   | Arr bytes -> 
-    let int32_bytes = Array.map unpack_byte32 bytes in 
+    let int_bytes = Array.map unpack_byte bytes in 
+    let int32_bytes = Array.map Int32.of_int int_bytes in 
     let f = Byte_Utils.float32_from_be_bytes int32_bytes in 
     Flt f
   | _ -> invalid_arg "Exception in Oper.float64_from_le_bytes: this operation is only applicable to Array arguments"
+
+(*temporario ate juntar representações de bytes*)
+let unpack_tmp (v : Val.t) : int = match v with
+  | Int b 
+  | Byte b -> b
+  | _ -> invalid_arg "Exception in Oper.unpack_tmp: this operation is only applicable to Int arguments"
+
+let int_from_le_bytes (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | Arr bytes, Int n-> 
+    let arr_bytes = Array.map unpack_tmp bytes in
+    let int = Byte_Utils.int_from_le_bytes(arr_bytes, n) in 
+    Flt int
+  | _ -> invalid_arg "Exception in Oper.int_from_le_bytes: this operation is only applicable to Array and Int arguments"
+
+let uint_from_le_bytes (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | Arr bytes, Int n-> 
+    let arr_bytes = Array.map unpack_tmp bytes in
+    let uint = Byte_Utils.uint_from_le_bytes(arr_bytes, n) in 
+    Flt uint
+  | _ -> invalid_arg "Exception in Oper.uint_from_le_bytes: this operation is only applicable to Array and Int arguments"
 
 let from_char_code (v : Val.t) : Val.t = match v with
   | Int n -> Str (String_Utils.from_char_code n)
@@ -774,6 +810,9 @@ let str_of_binopt_single (op : bopt) : string = match op with
   | ToFixed -> "to_fixed"
   | ArrayMake -> "array_make"
   | Anth     -> "a_nth"
+  | IntToBEBytes  -> "int_to_be_bytes"
+  | IntFromBytes  -> "int_from_le_bytes"
+  | UintFromBytes -> "uint_from_le_bytes"
 
 let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op with
   | Plus     -> e1 ^ " + " ^ e2
@@ -808,11 +847,15 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | Max      -> "max(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Min      -> "min(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Pow      -> e1 ^ " ** " ^ e2
-  | ToPrecision -> "to_precision(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ToPrecision   -> "to_precision(" ^ e1 ^ ", " ^ e2 ^ ")"
   | ToExponential -> "to_exponential(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | ToFixed -> "to_fixed(" ^ e1 ^ ", " ^ e2 ^ ")"
-  | ArrayMake -> "array_make(" ^ e1 ^ ", " ^e2 ^ ")"
-  | Anth -> "a_nth(" ^ e1 ^ ", " ^e2 ^ ")"
+  | ToFixed       -> "to_fixed(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | ArrayMake     -> "array_make(" ^ e1 ^ ", " ^e2 ^ ")"
+  | Anth          -> "a_nth(" ^ e1 ^ ", " ^e2 ^ ")"
+  | IntToBEBytes  -> "int_to_be_bytes(" ^ e1 ^ ", " ^e2 ^ ")"
+  | IntFromBytes  -> "int_from_le_bytes(" ^ e1 ^ ", " ^e2 ^ ")"
+  | UintFromBytes -> "uint_from_le_bytes(" ^ e1 ^ ", " ^e2 ^ ")"
+  
 
 let str_of_triopt (op : topt) (e1 : string) (e2 : string) (e3 : string) : string = match op with
   | Ssubstr  -> "s_substr(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
@@ -902,7 +945,10 @@ let bopt_to_json (op : bopt) : string =
      | ToExponential -> Printf.sprintf "To_Exponential\" }"
      | ToFixed -> Printf.sprintf "To_Fixed\" }"
      | ArrayMake    -> Printf.sprintf "Array_Make\" }"
-     | Anth     -> Printf.sprintf "Anth\" }")
+     | Anth     -> Printf.sprintf "Anth\" }"
+     | IntToBEBytes     ->Printf.sprintf "IntToBEBytes\" }"
+     | IntFromBytes  ->Printf.sprintf "IntFromBytes\" }"
+     | UintFromBytes  ->Printf.sprintf "UintFromBytes\" }")
 
 let topt_to_json (op : topt) : string =
   Printf.sprintf "{ \"type\" : \"triopt\", \"value\" : \"%s"

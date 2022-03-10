@@ -28,9 +28,9 @@ var buffer = new ArrayBuffer(12);
 
 sample = new DataView(buffer, 0);
 
-/*$DETACHBUFFER(buffer);*/
+$DETACHBUFFER(buffer);
 
 sample.getFloat32(10);
-/*assert.throws(TypeError, function() {
+assert.throws(TypeError, function() {
   sample.getFloat32(13);
-}, "13");*/
+}, "13");

@@ -16,11 +16,12 @@ info: |
     Unless otherwise specified, the name property of a built-in Function
     object, if it exists, has the attributes { [[Writable]]: false,
     [[Enumerable]]: false, [[Configurable]]: true }.
-includes: [propertyHelper.js]
----*/
-
+    includes: [propertyHelper.js]
+    ---*/
+    console.log("Checkpoint0")
+console.log(ArrayBuffer.isView.name)
 assert.sameValue(ArrayBuffer.isView.name, "isView");
 
-verifyNotEnumerable(ArrayBuffer.isView, "name");
-verifyNotWritable(ArrayBuffer.isView, "name");
-verifyConfigurable(ArrayBuffer.isView, "name");
+verifyNotEnumerable(ArrayBuffer.isView, "name");console.log("Checkpoint1")
+verifyNotWritable(ArrayBuffer.isView, "name");console.log("Checkpoint2")
+verifyConfigurable(ArrayBuffer.isView, "name");console.log("Checkpoint3")

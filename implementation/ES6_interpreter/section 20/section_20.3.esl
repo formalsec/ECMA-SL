@@ -2949,7 +2949,7 @@ function padding(number, size) {
 function TimeFromMonth(m, t) {
   print("in TimeFromMonth");
 
-  /* TODO change modulo*/
+  /* TODO add real modulo*/
   if (m < 0.) {
     m := m - 12. * floor(m / 12.) 
   };

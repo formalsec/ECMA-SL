@@ -12,8 +12,9 @@ type t =
   | Null
   | Symbol of string
   | Curry  of string * t list
-  | Byte32   of int32
-  | Byte64   of int64
+  | Byte   of int 
+(*  | Byte32   of int32
+  | Byte64   of int64 *)
   
 
 let is_special_number (s : string) : bool =
@@ -45,8 +46,9 @@ let rec str ?(flt_with_dot=true) (v : t) : string = match v with
   | Null     -> "null"
   | Symbol s -> "'" ^ s
   | Curry (s, vs) -> Printf.sprintf "{\"%s\"}@(%s)" s (String.concat ", " (List.map str vs))
-  | Byte64 i  -> Int64.to_string i 
-  | Byte32 i  -> Int32.to_string i 
+  | Byte i   -> string_of_int i 
+(*  | Byte64 i  -> Int64.to_string i 
+  | Byte32 i  -> Int32.to_string i *)
 
 
 let rec to_json (v : t): string =
@@ -57,12 +59,13 @@ let rec to_json (v : t): string =
   | Str v    ->  Printf.sprintf "{ \"type\" : \"string\", \"value\" : \"%s\" }" v
   | Loc v    ->  Printf.sprintf "{ \"type\" : \"location\", \"value\" : %s }" v
   | List vs  ->  Printf.sprintf "{ \"type\" : \"list\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
-  | Arr vs  ->  Printf.sprintf "{ \"type\" : \"array\", \"value\" : [| %s |] }" (String.concat ", " (Array.to_list (Array.map str vs)))
+  | Arr vs  ->   Printf.sprintf "{ \"type\" : \"array\", \"value\" : [| %s |] }" (String.concat ", " (Array.to_list (Array.map str vs)))
   | Type v   ->  Printf.sprintf "{ \"type\" : \"type\", \"value\" : %s }" (Type.str v)
   | Tuple vs ->  Printf.sprintf "{ \"type\" : \"tuple\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
   | Void     ->  Printf.sprintf "{ \"type\" : \"void\" }"
   | Null     ->  Printf.sprintf "{ \"type\" : \"null\" }"
   | Symbol s ->  Printf.sprintf "{ \"type\" : \"symbol\", \"value\" : \"%s\" }" s
   | Curry (s, vs) -> Printf.sprintf "{ \"type\" : \"curry\", \"fun\" : \"%s\", \"args\" : [ %s ] }" s (String.concat ", " (List.map to_json vs))
-  | Byte64 i   ->  Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }" (Int64.to_string i)
-  | Byte32 i   ->  Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }" (Int32.to_string i)
+  | Byte i   ->  Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }" (string_of_int i)
+(*  | Byte64 i   ->  Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }" (Int64.to_string i)
+  | Byte32 i   ->  Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }" (Int32.to_string i)*)
