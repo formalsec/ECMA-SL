@@ -278,7 +278,7 @@ function JS_Interpreter_Expr(e, scope) {
     print "DEBUG: CallExpr";
     print func;
     print func.Call;
-    return {func.Call}(scope, ref, func, thisValue, argList)
+    return {func.Call}(scope, func, thisValue, argList)
   }
   | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
     /* 11.2.5 Function Expressions */
@@ -838,7 +838,8 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
           FormalParameterList opt , and body specified by FunctionBody. Pass in the VariableEnvironment of the running
           execution context as the Scope. Pass in true as the Strict flag if the FunctionDeclaration is contained in
           strict code or if its FunctionBody is strict code. */
-    return CreateFunctionObject(FormalParameterListopt, FunctionBody, getVariableEnvironment(scope), isStrictModeCode(FunctionBody, scope), null)
+          /* Changing for the ES6 function  */
+    return FunctionCreate("normal", FormalParameterListopt, FunctionBody, getVariableEnvironment(scope), isStrictModeCode(FunctionBody, scope), null)
   }
 };
 

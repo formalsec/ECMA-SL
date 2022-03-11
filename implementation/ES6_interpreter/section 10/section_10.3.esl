@@ -62,7 +62,10 @@ function createExecutionContext() {
     LexicalEnvironment: 'undefined,
     VariableEnvironment: 'undefined,
     ThisBinding: 'undefined,
-    strictCode: false
+    strictCode: false,
+    Function: 'undefined,
+    Realm: 'undefined,
+    CodeEvaluationState: 'undefined
   }
 };
 

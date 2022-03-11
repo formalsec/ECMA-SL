@@ -58,4 +58,14 @@ function isEnumerablePropertyDescriptor(desc) {
 
 function getDescriptorValue(desc) {
   return desc.Value
+};
+
+function newGetAndSetAccessorPropertyDescriptorFull(get, set, enumerable, configurable) {
+  desc := NewPropertyDescriptor();
+  desc.Get := get;
+  desc.Set := set;
+  desc.Enumerable := enumerable;
+  desc.Configurable := configurable;
+
+  return desc
 }
