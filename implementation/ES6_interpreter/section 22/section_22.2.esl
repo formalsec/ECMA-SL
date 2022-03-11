@@ -5,6 +5,7 @@
  ******************************/
 function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "TypedArrayPrototype", true);
+  setAllInternalMethodsOfObject(prototype);
 
   /* 22.2.3 Properties of the %TypedArrayPrototype% Object */
   /* 22.2.3.1 get %TypedArray%.prototype.buffer */
@@ -294,39 +295,39 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   |ElementTable| := {
     Int8Array: {
       type: "Int8",
-      size: 1
+      size: 1.
     },
     Uint8Array: {
       type: "Uint8",
-      size: 1
+      size: 1.
     },
     Uint8ClampedArray: {
       type: "Uint8C",
-      size: 1
+      size: 1.
     },
     Int16Array: {
       type: "Int16",
-      size: 2
+      size: 2.
     },
     Uint16Array: {
       type: "Uint16",
-      size: 2
+      size: 2.
     },
     Int32Array: {
       type: "Int32",
-      size: 4
+      size: 4.
     },
     Uint32Array: {
       type: "Uint32",
-      size: 4
+      size: 4.
     },
     Float32Array: {
       type: "Float32",
-      size: 4
+      size: 4.
     },
     Float64Array: {
       type: "Float64",
-      size: 8
+      size: 8.
     }
   };
 
@@ -380,10 +381,10 @@ function initTypedArrayMainConstructor(global, objectPrototype, strict) {
  *                                                              *
  ****************************************************************/
 function initTypedArrayPrototype(global, objectPrototype, strict, typeOfArray) {
-  prototypeName := s_concat([typeOfArray, "Prototype"]);
   typedArrayPrototype := |Intrinsics|.TypedArrayPrototype;
-  prototype := NewECMAScriptObjectFull(typedArrayPrototype, prototypeName, true);
-    
+
+  prototype := NewECMAScriptObjectFull(typedArrayPrototype, s_concat([typeOfArray, "Prototype"]), true);
+  setAllInternalMethodsOfObject(prototype);  
   /* 22.2.6.1 TypedArray.prototype.BYTES_PER_ELEMENT */
   descBytes := newDataPropertyDescriptorFull(|ElementTable|[s_concat([typeOfArray, "Array"])].size, false, false, false);
   setJSProperty(prototype, "BYTES_PER_ELEMENT", descBytes);
@@ -484,7 +485,7 @@ function TypedArrayConstructorEmpty(typeOfArray, global, this, strict, items) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Return AllocateTypedArray(NewTarget, 0). */
-  return AllocateTypedArray(NewTarget, 0, strict)
+  return AllocateTypedArray(NewTarget, 0., strict)
 };
 
 /**
@@ -496,6 +497,7 @@ function TypedArrayConstructorEmpty(typeOfArray, global, this, strict, items) {
  * %TypedArray% called with argument length performs the following steps:
  */
 function TypedArrayConstructorLength(typeOfArray, global, this, strict, length) {
+  NewTarget := this;
   /* 1. Assert: Type(length) is not Object. */
   assert(!(Type(length) = "Object"));
   /* 2. If NewTarget is undefined, */
@@ -589,10 +591,11 @@ function AllocateTypedArray(newTarget, length, strict) {
     /* a. Set obj's [[ByteLength]] internal slot to 0. */
     obj.ByteLength := 0.;
     /* b. Set obj's [[ByteOffset]] internal slot to 0. */
-    obj.ByteOffset := 0.;          
+    obj.ByteOffset := 0.;
     /* c. Set obj's [[ArrayLength]] internal slot to 0. */
     obj.ArrayLength := 0.
-  } /* 13. Else, */ else {
+  } /* 13. Else, */
+  else {
     /* Let elementSize be the Element Size value in Table 49 for constructorName. */
     elementSize := |ElementTable|[constructorName].size;
     /* Let byteLength be elementSize × length. */
@@ -606,7 +609,7 @@ function AllocateTypedArray(newTarget, length, strict) {
     /* Set obj’s [[ByteLength]] internal slot to byteLength. */
     obj.ByteLength := byteLength;
     /* Set obj’s [[ByteOffset]] internal slot to 0. */
-    obj.ByteOffset := 0;
+    obj.ByteOffset := 0.;
     /* Set obj’s [[ArrayLength]] internal slot to length. */
     obj.ArrayLength := length
   };
@@ -624,6 +627,7 @@ function AllocateTypedArray(newTarget, length, strict) {
  * %TypedArray% called with argument typedArray performs the following steps:
  */
 function TypedArrayConstructorTypedArray(typeOfArray, global, this, strict, typedArray) {
+  NewTarget := this;
   /* 1. Assert: Type(typedArray) is Object and typedArray has a
      [[TypedArrayName]] internal slot. */
   assert((Type(typedArray) = "Object") &&& ("TypedArrayName" in_obj typedArray));
@@ -633,7 +637,7 @@ function TypedArrayConstructorTypedArray(typeOfArray, global, this, strict, type
     throw TypeErrorConstructorInternal()
   };
   /* 3. Let O be AllocateTypedArray(NewTarget). */
-  O := AllocateTypedArray(NewTarget);
+  O := AllocateTypedArray(NewTarget, 'undefined, strict);
   /* 4. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
   /* 5. Let srcArray be typedArray. */
@@ -674,7 +678,7 @@ function TypedArrayConstructorTypedArray(typeOfArray, global, this, strict, type
   /* 17. If SameValue(elementType,srcType) is true, then */
   if (SameValue(elementType, srcType) = true) {
     /* a. Let data be CloneArrayBuffer(srcData, srcByteOffset). */
-    data := CloneArrayBuffer(srcData, srcByteOffset);
+    data := CloneArrayBuffer(strict, srcData, srcByteOffset, 'undefined);
     /* b. ReturnIfAbrupt(data). */
     @ReturnIfAbrupt(data)
   }
@@ -735,6 +739,7 @@ function TypedArrayConstructorTypedArray(typeOfArray, global, this, strict, type
  * %TypedArray% called with argument object performs the following steps:
  */
 function TypedArrayConstructorObject(typeOfArray, global, this, strict, object) {
+  NewTarget := this;
   /* 1. Assert: Type(object) is Object and object does not have either a
      [[TypedArrayName]] or an [[ArrayBufferData]] internal slot. */
   assert((Type(object) = "Object") &&& !(("TypedArrayName" in_obj object) || ("ArrayBufferData" in_obj object)));
@@ -744,7 +749,7 @@ function TypedArrayConstructorObject(typeOfArray, global, this, strict, object) 
     throw TypeErrorConstructorInternal()
   };
   /* 3. Return TypedArrayFrom(NewTarget, object, undefined, undefined). */
-  return TypedArrayFrom(NewTarget, object, 'undefined, 'undefined)
+  return TypedArrayFrom(NewTarget, object, 'undefined, 'undefined, strict)
 };
 
 /**
@@ -767,7 +772,7 @@ function TypedArrayConstructorBuffer(typeOfArray, global, this, strict, buffer, 
     throw TypeErrorConstructorInternal()
   };
   /* 3. Let O be AllocateTypedArray(NewTarget). */
-  O := AllocateTypedArray(NewTarget);
+  O := AllocateTypedArray(NewTarget, 'undefined, strict);
   /* 4. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
   /* 5. Let constructorName be the String value of O's [[TypedArrayName]]
@@ -876,7 +881,7 @@ function TypedArrayFromMethod(global, this, strict, args) {
     t := 'undefined
   };
   /* 6. Return TypedArrayFrom(C, source, f, t). */
-  return TypedArrayFrom(C, source, f, t)
+  return TypedArrayFrom(C, source, f, t, strict)
 };
 
 /**
@@ -885,7 +890,7 @@ function TypedArrayFromMethod(global, this, strict, args) {
  * When the TypedArrayFrom abstract operation is called with arguments
  * constructor, items, mapfn, and thisArg, the following steps are taken:
  */
-function TypedArrayFrom(constructor, items, mapfn, thisArg) {
+function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
   /* 1. Let C be constructor. */
   C := constructor;
   /* 2. Assert: IsConstructor(C) is true. */
@@ -904,13 +909,13 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg) {
     mapping := true
   };
   /* 6. Let usingIterator be GetMethod(items, @@iterator). */
-  usingIterator := GetMethod(items, Symbol.iterator);
+  usingIterator := GetMethod(items, "Symbol(iterator)");
   /* 7. ReturnIfAbrupt(usingIterator). */
   @ReturnIfAbrupt(usingIterator);
   /* 8. If usingIterator is not undefined, then */
   if (!(usingIterator = 'undefined)) {
     /* a. Let iterator be GetIterator(items, usingIterator). */
-    iterator := GetIterator(items, usingIterator, null);
+    iterator := GetIterator(items, usingIterator);
     /* b. ReturnIfAbrupt(iterator). */
     @ReturnIfAbrupt(iterator);
     /* c. Let values be a new empty List. */
@@ -918,13 +923,13 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg) {
     /* d. Let next be true. */
     next := true;
     /* e. Repeat, while next is not false */
-    while(next) {
+    while(!(next = false)) {
       /* i. Let next be IteratorStep(iterator). */
       next := IteratorStep(iterator);
       /* ii. ReturnIfAbrupt(next). */
       @ReturnIfAbrupt(next);
       /* iii. If next is not false, then */
-      if (next) {
+      if (!(next = false)) {
         /* 1. Let nextValue be IteratorValue(next). */
         nextValue := IteratorValue(next);
         /* 2. ReturnIfAbrupt(nextValue). */
@@ -936,7 +941,7 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg) {
     /* f. Let len be the number of elements in values. */
     len := l_len values;
     /* g. Let targetObj be AllocateTypedArray(C, len). */
-    targetObj := AllocateTypedArray(C, len);
+    targetObj := AllocateTypedArray(C, int_to_float(len), strict);
     /* h. ReturnIfAbrupt(targetObj). */
     @ReturnIfAbrupt(targetObj);
     /* i. Let k be 0. */
@@ -982,7 +987,7 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg) {
   /* 13. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
   /* 14. Let targetObj be AllocateTypedArray(C, len). */
-  targetObj := AllocateTypedArray(C, len);
+  targetObj := AllocateTypedArray(C, len, strict);
   /* 15. ReturnIfAbrupt(targetObj). */
   @ReturnIfAbrupt(targetObj);
   /* 16. Let k be 0. */
@@ -1036,7 +1041,7 @@ function TypedArrayOf(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 5. Let newObj be AllocateTypedArray(C, len). */
-  newObj := AllocateTypedArray(C, len);
+  newObj := AllocateTypedArray(C, len, strict);
   /* 6. ReturnIfAbrupt(newObj). */
   @ReturnIfAbrupt(newObj);
   /* 7. Let k be 0. */
@@ -1604,7 +1609,7 @@ function TypedArrayFilter(global, this, strict, args) {
     k := k + 1
   };
   /* 14. Let A be AllocateTypedArray(C, captured). */
-  A := AllocateTypedArray(C, captured);
+  A := AllocateTypedArray(C, captured, strict);
   /* 15. ReturnIfAbrupt(A). */
   @ReturnIfAbrupt(A);
   /* 16. Let n be 0. */
@@ -2321,7 +2326,7 @@ function TypedArrayMap(global, this, strict, args) {
   /* 9. ReturnIfAbrupt(C). */
   @ReturnIfAbrupt(C);
   /* 10. Let A be AllocateTypedArray(C, len). */
-  A := AllocateTypedArray(C, len);
+  A := AllocateTypedArray(C, len, strict);
   /* 11. ReturnIfAbrupt(A). */
   @ReturnIfAbrupt(A);
   /* 12. Let k be 0. */
@@ -3066,7 +3071,7 @@ function TypedArraySlice(global, this, strict, args) {
   /* 14. ReturnIfAbrupt(C). */
   @ReturnIfAbrupt(C);
   /* 15. Let A be AllocateTypedArray(C, count). */
-  A := AllocateTypedArray(C, count);
+  A := AllocateTypedArray(C, count, strict);
   /* 16. ReturnIfAbrupt(A). */
   @ReturnIfAbrupt(A);
   /* 17. Let srcName be the String value of O's [[TypedArrayName]] internal
