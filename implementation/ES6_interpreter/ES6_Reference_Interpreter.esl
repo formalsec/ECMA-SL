@@ -43,7 +43,6 @@ import "ES6_interpreter/section 15/section_15.esl";
 import "ES6_interpreter/section 15/section_15.3.esl";
 import "ES6_interpreter/section 15/section_15.10.esl";
 import "ES6_interpreter/section 15/section_15.11.esl";
-import "ES6_interpreter/section 15/section_15.12.esl";
 
 import "ES6_interpreter/section 18/section_18.esl";
 import "ES6_interpreter/section 18/section_18.2.esl";
@@ -65,6 +64,9 @@ import "ES6_interpreter/section 23/section_23.1.esl";
 import "ES6_interpreter/section 23/section_23.2.esl";
 import "ES6_interpreter/section 23/section_23.3.esl";
 import "ES6_interpreter/section 23/section_23.4.esl";
+
+import "ES6_interpreter/section 24/section_24.3.esl";
+
 
 import "ES6_interpreter/section 25/section_25.4.esl";
 

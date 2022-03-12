@@ -365,4 +365,13 @@ function newSetAccessorPropertyDescriptorFull(set, enumerable, configurable) {
 
 function temporaryInternalGetPrototypeOf (O) {
 	return O.Prototype
+};
+
+function GuardedDelete(O, P) {
+  status := {O.Delete}(O, P, true) catch deleteWrapper;
+  return status
+};
+
+function deleteWrapper(error) {
+    return false
 }
