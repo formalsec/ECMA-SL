@@ -165,6 +165,10 @@ function initGlobalObject(strict) {
   WeakSetObject := initWeakSetObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "WeakSet", WeakSetObject);
 
+  /* 26.2 Proxy Objects */
+  ProxyObject := initProxyObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Proxy", ProxyObject);
+
   /* Extras */
   ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);
   createBuiltInProperty(globalObject, "console", ConsoleObject);

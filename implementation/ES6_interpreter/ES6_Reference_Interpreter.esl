@@ -15,6 +15,7 @@ import "ES6_interpreter/section 8/section_8.12.esl";
 import "ES6_interpreter/section 9/section_9.esl";
 import "ES6_interpreter/section 9/section_9.1.esl";
 import "ES6_interpreter/section 9/section_9.4.esl";
+import "ES6_interpreter/section 9/section_9.5.esl";
 import "ES6_interpreter/section 9/section_9.12.esl";
 
 import "ES6_interpreter/section 10/section_10.1.esl";
@@ -69,6 +70,8 @@ import "ES6_interpreter/section 24/section_24.3.esl";
 
 
 import "ES6_interpreter/section 25/section_25.4.esl";
+
+import "ES6_interpreter/section 26/section_26.2.esl";
 
 import "ES6_interpreter/internal_representations/descriptors.esl";
 import "ES6_interpreter/internal_representations/objects.esl";
