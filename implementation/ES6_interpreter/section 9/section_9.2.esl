@@ -322,7 +322,7 @@ function FunctionAllocate(functionPrototype, strict, functionKind) {
   if (needsConstruct = true) {
     /* a. Set F's [[Construct]] internal method to the definition specified in
        9.2.2. */
-       F.Construct = "FunctionConstruct";
+       F.Construct := "FunctionConstruct";
     /* b. If functionKind is "generator", */
     if (functionKind = "generator") {
       F.ConstructorKind := "derived"
@@ -379,8 +379,6 @@ function FunctionInitialize(F, kind, ParameterList, Body, Scope) {
      [[Enumerable]]: false, [[Configurable]]: true}). */
   status := DefinePropertyOrThrow(F, "length", newDataPropertyDescriptorFull(len, false, false, true));
 
-  print ">>>>>> Terminei o status do DefinePropertyOrThrow";
-
   /* 4. Assert: status is not an abrupt completion. */
   assert(!isAnAbruptCompletion(status));
 
@@ -413,8 +411,6 @@ function FunctionInitialize(F, kind, ParameterList, Body, Scope) {
       F.ThisMode := "global"
   };
   /* 12. Return F. */
-
-  print ">>>>>> Terminei o Function Initializer";
   return F
 };
 
@@ -445,12 +441,7 @@ function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype) {
   };
 
   /* 4. Let F be FunctionAllocate(prototype, Strict, allocKind). */
-
-  print ">>>>>> Começando o Function Allocate";
-
   F := FunctionAllocate(prototype, Strict, allocKind);
-
-  print ">>>>>> Passei pelo Function Allocate";
 
   /* 5. Return FunctionInitialize(F, kind, ParameterList, Body, Scope). */
   return FunctionInitialize(F, kind, ParameterList, Body, Scope)
@@ -523,7 +514,7 @@ function AddRestrictedFunctionProperties(F, realm) {
 function MakeConstructor(F, writablePrototype, prototype) {
 
   /* 1. Assert: F is an ECMAScript function object. */
-  assert(isFunctionObject(F));
+  assert(isESFunctionObject(F));
 
   /* 2. Assert: F has a [[Construct]] internal method. */
   assert("Construct" in_obj F);
@@ -541,7 +532,7 @@ function MakeConstructor(F, writablePrototype, prototype) {
   if (prototype = null) {
 
     /* a. Let prototype be ObjectCreate(%ObjectPrototype%). */
-    prototype := InternalObjectCreate(|ObjectPrototype|);
+    prototype := ObjectCreate(getObjectPrototype(false), null);
 
     /* b. Let status be DefinePropertyOrThrow(prototype, "constructor",
        PropertyDescriptor{[[Value]]: F, [[Writable]]: writablePrototype,
@@ -620,7 +611,7 @@ function SetFunctionName(F, name, prefix) {
   assert(Type(name) = "Symbol" ||| Type(name) = "String");
 
   /* 3. Assert: If prefix was passed then Type(prefix) is String. */
-  if (!(prefix = 'undefined)) {
+  if (!(prefix = null)) {
     assert(Type(prefix) = "String")
   };
 

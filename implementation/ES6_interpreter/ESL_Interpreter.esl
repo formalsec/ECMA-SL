@@ -831,15 +831,28 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
   /* 13 Function Definition */
   match FunctionDeclaration with
   | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
-    /* The production FunctionDeclaration : function Identifier ( FormalParameterListopt ) { FunctionBody }
-       is evaluated as follows: */
 
-    /* 1. Return the result of creating a new Function object as specified in 13.2 with parameters specified by
-          FormalParameterList opt , and body specified by FunctionBody. Pass in the VariableEnvironment of the running
-          execution context as the Scope. Pass in true as the Strict flag if the FunctionDeclaration is contained in
-          strict code or if its FunctionBody is strict code. */
-          /* Changing for the ES6 function  */
-    return FunctionCreate("normal", FormalParameterListopt, FunctionBody, getVariableEnvironment(scope), isStrictModeCode(FunctionBody, scope), null)
+    /* 1. If the function code for FunctionDeclaration is strict mode code, let strict be true.
+          Otherwise let strict be false. */
+    if ( isStrictModeCode(FunctionBody, scope)) {
+      strict := true
+    } else {
+      strict := false
+    };
+
+    /* 2. Let name br StringValue of BindingIdentifier */
+    name := Identifier.name;
+
+    /* 3. Let F be FunctionCreate(Normal, FormalParameters, FunctionBody, scope, strict) */
+    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope, strict, null);
+
+    /* 4. Perform MakeConstructor(F) */
+    MakeConstructor(F, null, null);
+
+    /* 5. Perform SetFunctionName(F, name) */
+    SetFunctionName(F, name, null);
+
+    return F
   }
 };
 
