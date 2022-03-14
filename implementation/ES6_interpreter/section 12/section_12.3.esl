@@ -1,0 +1,45 @@
+/* Auxiliary functions to function calls on ES6 */
+
+/**
+ * 12.3.4.3 Runtime Semantics: EvaluateDirectCall (func, thisValue, arguments, tailPosition)
+ *
+ * The abstract operation EvaluateDirectCall takes as arguments a value func, a
+ * value thisValue, a syntactic grammar production arguments, and a Boolean
+ * argument tailPosition. It performs the following steps:
+ */
+function EvaluateDirectCall(func, thisValue, arguments, tailPosition, scope) {
+  /* 1. Let argList be ArgumentListEvaluation(arguments). */
+  argList := JS_Interpreter_Arguments(arguments, scope);
+
+  /* 2. ReturnIfAbrupt(argList). */
+  @ReturnIfAbrupt(argList);
+
+  /* 3. If Type(func) is not Object, */
+  if (!(Type(func) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 4. If IsCallable(func) is false, */
+  if (IsCallable(func) = false) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 5. If tailPosition is true, */
+  if (tailPosition = true) {
+    /* perform PrepareForTailCall() */
+    /* TODO */
+  };
+  /* 6. Let result be Call(func, thisValue, argList). */
+  result := Call(scope, null, func, thisValue, argList);
+
+   /* TODO */
+  /* 7. Assert: If tailPosition is true, the above call will not return here,
+     but instead evaluation will continue as if the following return has
+     already occurred. */
+  /* 8. Assert: If result is not an abrupt completion then Type(result) is an
+     ECMAScript language type. */
+
+  /* 9. Return result. */
+  return result
+};

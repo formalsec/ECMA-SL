@@ -35,7 +35,7 @@ function isESFunctionObject(obj) {
  * values. The following steps are taken:
  */
 
-function NewOrdinaryFunctionCall(externalScope, F, thisArgument, argumentList) {
+function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, argumentList) {
     /* 1. Assert: F is an ECMAScript function object. */
     assert(isESFunctionObject(F));
 
@@ -712,110 +712,74 @@ function FunctionDeclarationInstantiation(func, argumentsList) {
   /* TODO: LexicallyDeclaredNames. */
 
   /* 14. Let functionNames be an empty List. */
-  functionNames := [];
 
   /* 15. Let functionsToInitialize be an empty List. */
-  functionsToInitialize := [];
 
   /* 16. For each d in varDeclarations, in reverse list order do */
   /* TODO */
 
   /* 17. Let argumentsObjectNeeded be true. */
-  argumentsObjectNeeded := true;
 
   /* 18. If the value of the [[ThisMode]] internal slot of func is lexical,
      then */
-  if (func.ThisMode = "lexical") {
     /* a. NOTE Arrow functions never have an arguments objects. */
     /* b. Let argumentsObjectNeeded be false. */
-    argumentsObjectNeeded := false
-  }
+
   /* 19. Else if "arguments" is an element of parameterNames, then */
-  elif (InList("arguments", parameterNames)) {
     /* a. Let argumentsObjectNeeded be false. */
-    argumentsObjectNeeded := false
-  }
+
   /* 20. Else if hasParameterExpressions is false, then */
-  elif (hasParameterExpressions = false) {
     /* a. If "arguments" is an element of functionNames or if "arguments" is an
        element of lexicalNames, then */
-    if (InList("arguments", parameterNames) ||| InList("arguments", lexicalNames)) {
       /* i. Let argumentsObjectNeeded be false. */
-      argumentsObjectNeeded := false
-    }
-  };
+
 
   /* 21. For each String paramName in parameterNames, do */
   /* TODO */
 
   /* 22. If argumentsObjectNeeded is true, then */
-  if (argumentsObjectNeeded = true) {
     /* a. If strict is true or if simpleParameterList is false, then */
-    if (strict = true ||| simpleParameterList = false) {
       /* i. Let ao be CreateUnmappedArgumentsObject(argumentsList). */
       /* TODO: implement CreateUnmappedArgumentsObject */
-      ao := CreateUnmappedArgumentsObject(argumentsList)
-    };
     /* b. Else, */
     /* TODO: */
 
     /* c. ReturnIfAbrupt(ao). */
-    @ReturnIfAbrupt(ao);
 
     /* d. If strict is true, then */
-    if (strict = true) {
-      /* i. Let status be envRec.CreateImmutableBinding("arguments"). */
-      status := CreateImmutableBinding(envRec, "arguments")
-    };
+    /* i. Let status be envRec.CreateImmutableBinding("arguments"). */
+
     /* e. Else, */
     /* TODO */
 
     /* f. Assert: status is never an abrupt completion. */
-    assert(!isAnAbruptCompletion(status));
 
     /* g. Call envRec.InitializeBinding("arguments", ao). */
-    InitializeBindingDeclarativeRecord(envRec, "arguments", ao);
 
     /* h. Append "arguments" to parameterNames. */
-    stack := l_add(parameterNames, "arguments")
-  };
-  /* 23. Let iteratorRecord be Record {[[iterator]]:
+
+    /* 23. Let iteratorRecord be Record {[[iterator]]:
      CreateListIterator(argumentsList), [[done]]: false}. */
-     /* TODO: implement CreateListIterator  */
-  iteratorRecord := { iterator: CreateListIterator(argumentsList), done: false };
 
   /* 24. If hasDuplicates is true, then */
-  /* TODO*/
 
   /* 25. Else, */
-  /* TODO */
 
   /* 26. ReturnIfAbrupt(formalStatus). */
-  @ReturnIfAbrupt(formalStatus);
 
   /* 27. If hasParameterExpressions is false, then */
-  if (hasParameterExpressions = false) {
     /* a. NOTE Only a single lexical environment is needed for the parameters
        and top-level vars. */
     /* b. Let instantiatedVarNames be a copy of the List parameterNames. */
-    /* TODO */
     /* c. For each n in varNames, do */
-    /* TODO */
     /* d. Let varEnv be env. */
-    varEnv := env;
     /* e. Let varEnvRec be envRec. */
-    varEnvRec := envRec
-  };
 
   /* 28. Else, */
-  /* TODO */
   /* 29. NOTE: Annex B.3.3 adds additional steps at this point. */
-  /* TODO:*/
 
   /* 30. If strict is false, then */
-  if (strict = false) {
     /* a. Let lexEnv be NewDeclarativeEnvironment(varEnv). */
-    lexEnv := NewDeclarativeEnvironment(varEnv)
     /* b. NOTE: Non-strict functions use a separate lexical Environment Record
        for top-level lexical declarations so that a direct eval (see
        12.3.4.1) can determine whether any var scoped declarations introduced
@@ -825,25 +789,18 @@ function FunctionDeclarationInstantiation(func, argumentsList) {
        Record. */
   }
   /* 31. Else, */
-  else {
     /* let lexEnv be varEnv */
-    lexEnv := varEnv
-  };
+
 
   /* 32. Let lexEnvRec be lexEnv's EnvironmentRecord. */
-  lexEnvRec := lexEnv.EnvironmentRecord;
 
   /* 33. Set the LexicalEnvironment of calleeContext to lexEnv. */
-  calleeContext.LexicalEnvironment:= lexEnv;
 
   /* 34. Let lexDeclarations be the LexicallyScopedDeclarations of code. */
-  lexDeclarations := LexicallyScopedDeclarations(code);
 
   /* 35. For each element d in lexDeclarations do */
-  /* TODO */
 
   /* 36. For each parsed grammar phrase f in functionsToInitialize, do */
-  /* TODO: */
 
   /* 37. Return NormalCompletion(empty). */
   return NormalCompletion('empty)

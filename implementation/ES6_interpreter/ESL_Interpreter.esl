@@ -238,47 +238,75 @@ function JS_Interpreter_Expr(e, scope) {
     return Construct(scope, ref, constructor, argList, null)
   }
   | { type: "CallExpression", callee: MemberExpression, arguments: Arguments } -> {
-    /* 11.2.3 Function Calls */
+    /* 12.3.4.1 Function Calls */
 
-    /* The production CallExpression : MemberExpression Arguments is evaluated as follows: */
     /* 1. Let ref be the result of evaluating MemberExpression. */
     ref := JS_Interpreter_Expr(MemberExpression, scope);
+
     /* 2. Let func be GetValue(ref). */
     func := GetValue(ref);
-    /* 3. Let argList be the result of evaluating Arguments, producing an internal list of argument values (see 11.2.4). */
-    argList := JS_Interpreter_Arguments(Arguments, scope);
-    /* 4. If Type(func) is not Object, throw a TypeError exception. */
-    if (!(Type(func) = "Object")) {
-      throw TypeErrorConstructorInternal()
+
+    /* 3. ReturnIfAbrupt(func). */
+    @ReturnIfAbrupt(func);
+
+    /* 4. If Type(ref) is Reference and IsPropertyReference(ref) is false and
+      GetReferencedName(ref) is "eval", then */
+    /* TODO: EVAL */
+    if (Type(ref) = "Reference" &&& IsPropertyReference(ref) = false &&& GetReferencedName(ref) = "eval") {
+      /* TODO: FIX THIS BLOCK FOR EVAL */
+      if (false) {
+        /* i. Let argList be ArgumentListEvaluation(Arguments). */
+        argList := JS_Interpreter_Arguments(Arguments, scope);
+        /* ii. ReturnIfAbrupt(argList). */
+        @ReturnIfAbrupt(argList);
+        /* iii. If argList has no elements, return undefined. */
+        length := l_len argList;
+        if (length = 0) {
+          return 'undefined
+        };
+        /* iv. Let evalText be the first element of argList. */
+        evalText := l_nth (argList, 0);
+        /* v. If the source code matching this CallExpression is strict code, let
+          strictCaller be true. Otherwise let strictCaller be false. */
+        if (isContainedInStrictCode(scope)) {
+          strictCaller := true
+        } else {
+          strictCaller := false
+        };
+        /* vi. Let evalRealm be the running execution context's Realm. */
+        evalRealm := scope.Realm;
+        /* vii. Return PerformEval(evalText, evalRealm, strictCaller, true). . */
+        /* vii. TODO */
+      }
     };
-    /* 5. If IsCallable(func) is false, throw a TypeError exception. */
-    if (IsCallable(func) = false) {
-      throw TypeErrorConstructorInternal()
-    };
-    /* 6. If Type(ref) is Reference, then */
+
+    /* 5. If Type(ref) is Reference, then */
     if (Type(ref) = "Reference") {
       /* a. If IsPropertyReference(ref) is true, then */
       if (IsPropertyReference(ref) = true) {
-        /* i. Let thisValue be GetBase(ref). */
-        thisValue := GetBase(ref)
+        /* i. Let thisValue be GetThisValue(ref). */
+        thisValue := GetThisValue(ref)
       }
       /* b. Else, the base of ref is an Environment Record */
       else {
-        /* i. Let thisValue be the result of calling the ImplicitThisValue concrete method of GetBase(ref). */
-        thisValue := ImplicitThisValue(GetBase(ref))
+        /* i.  Let refEnv be GetBase(ref). */
+        refEnv := GetBase(ref);
+
+        /* ii.  Let thisValue be refEnv.WithBaseObject(). */
+        thisValue := {refEnv.WithBaseObject}()
       }
-    }
-    /* 7. Else, Type(ref) is not Reference. */
-    else {
+    } else {
+      /* 6. Else Type(ref) is not Reference, */
       /* a. Let thisValue be undefined. */
       thisValue := 'undefined
     };
-    /* 8. Return the result of calling the [[Call]] internal method on func, providing thisValue as the this value
-          and providing the list argList as the argument values. */
-    print "DEBUG: CallExpr";
-    print func;
-    print func.Call;
-    return {func.Call}(scope, func, thisValue, argList)
+
+    /* TODO */
+    /* 7. Let thisCall be this CallExpression. */
+    /* 8. Let tailCall be IsInTailPosition(thisCall). (See 14.6.1) */
+
+    /* 9. Return EvaluateDirectCall(func, thisValue, Arguments, tailCall). */
+    return EvaluateDirectCall(func, thisValue, Arguments, false, scope)
   }
   | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
     /* 11.2.5 Function Expressions */
