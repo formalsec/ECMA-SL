@@ -54,7 +54,7 @@ function newFunctionEnvironmentRecord() {
 	env.GetThisBinding 	:= "GetThisBinding";
 	env.GetSuperBase 		:= "GetSuperBase";
 	env.HasThisBinding 	:= "HasThisBindingFunctionRecord";
-	env.HasSuperBinding := "HasSuperBindingFunctionRecord"
+	env.HasSuperBinding := "HasSuperBindingFunctionRecord";
 
 	return env
 };
@@ -62,11 +62,11 @@ function newFunctionEnvironmentRecord() {
 function newModuleEnvironmentRecord() {
 	env := newDeclarativeEnvironmentRecord();
 
-	env.GetBindingValue 		:= "GetBindingValueModuleRecord",
-	env.DeleteBinding 			:= "DeleteBindingModuleRecord",
-	env.HasThisBinding  		:= "HasThisBindingModuleRecord",
-	env.GetThisBinding  		:= "GetThisBindingModuleRecord",
-	env.CreateImportBinding := "CreateImportBinding"
+	env.GetBindingValue 		:= "GetBindingValueModuleRecord";
+	env.DeleteBinding 			:= "DeleteBindingModuleRecord";
+	env.HasThisBinding  		:= "HasThisBindingModuleRecord";
+	env.GetThisBinding  		:= "GetThisBindingModuleRecord";
+	env.CreateImportBinding := "CreateImportBinding";
 
 	return env
 };
@@ -237,7 +237,7 @@ function hasUninitialisedImmutableBinding(envRec, name) {
 function isBindingCannotBeDeleted(envRec, name) {
   binding := envRec[name];
   return !t_nth(binding, 2)
-}
+};
 
 
 
@@ -578,11 +578,11 @@ function CreateMutableBindingObjectRecord(envRec, N, D) {
     }
     else {
     	configValue := false
-    }
+    };
 
-    /* Return DefinePropertyOrThrow(bindings, N, 
+    /* Return DefinePropertyOrThrow(bindings, N,
     PropertyDescriptor{[[Value]]:undefined, [[Writable]]: true, [[Enumerable]]: true , [[Configurable]]: configValue}). */
-    return DefinePropertyOrThrow(bindings, N, newDataPropertyDescriptorFull('undefined, true, true, configValue) )
+    return DefinePropertyOrThrow(bindings, N, newDataPropertyDescriptorFull('undefined, true, true, configValue))
 };
 
 /* 8.1.1.2.3 CreateImmutableBinding (N, S) */
@@ -847,13 +847,13 @@ function HasBindingGlobalRecord(envRec, N) {
     /* If DclRec.HasBinding(N) is true, return true. */
     if ( {DclRec.HasBinding}(DclRec, N) = true ) {
     	return true
-    }
+    };
 
     /* Let ObjRec be envRec.[[ObjectRecord]]. */
     ObjRec := envRec.ObjectRecord;
 
     /* Return ObjRec.HasBinding(N). */
-    return {ObjRec.HasBinding}(ObjRec, N) 
+    return {ObjRec.HasBinding}(ObjRec, N)
 };
 
 /* 8.1.1.4.2 CreateMutableBinding (N, D) */
@@ -1310,7 +1310,7 @@ function CreateGlobalFunctionBinding(envRec, N, V, D) {
     status := Set(globalObject, N, V, false);
 
     /* Record that the binding for N in ObjRec has been initialized. */
-    setBindingInitialised(ObjRec, N, true)
+    setBindingInitialised(ObjRec, N, true);
 
     /* ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
@@ -1358,7 +1358,7 @@ function GetBindingValueModuleRecord(envRec, N, S) {
     /* Let envRec be the module Environment Record for which the method was invoked. */
 
     /* Assert: envRec has a binding for N. */
-    assert( HasBindingDeclarativeRecord(envRec, N) );
+    assert( HasBindingDeclarativeRecord(envRec, N) )
 
     /* If the binding for N is an indirect binding, then */
         /* Let M and N2 be the indirection values provided when this binding for N was created. */
@@ -1447,7 +1447,7 @@ function GetIdentifierReference(lex, name, strict) {
     };
 
     /* Let envRec be lex’s EnvironmentRecord. */
-    envRec := getEnvironmentRecord(lex)
+    envRec := getEnvironmentRecord(lex);
 
     /* Let exists be envRec.HasBinding(name). */
     exists := {envRec.HasBinding}(envRec, name);
@@ -1480,7 +1480,7 @@ function NewDeclarativeEnvironment(E) {
     env := newLexicalEnvironment(E);
 
     /* Let envRec be a new declarative Environment Record containing no bindings. */
-    envRec := newDeclarativeEnvironmentRecord()
+    envRec := newDeclarativeEnvironmentRecord();
 
     /* Set env’s EnvironmentRecord to be envRec. */
     setEnvironmentRecord(env, envRec);
@@ -1609,7 +1609,7 @@ function NewModuleEnvironment(E) {
     env := newLexicalEnvironment();
 
     /* Let envRec be a new module Environment Record containing no bindings. */
-    envRec := newModuleEnvironmentRecord()
+    envRec := newModuleEnvironmentRecord();
 
     /* Set env’s EnvironmentRecord to be envRec. */
     setEnvironmentRecord(env, envRec);
