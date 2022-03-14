@@ -57,32 +57,6 @@ function CreateDataPropertyNew(O,P,V) {
 	return {O.DefineOwnProperty}(O, P, newDesc)  
 };
 
-
-/**
- * 7.2.3 IsCallable ( argument )
- * 
- * The abstract operation IsCallable determines if argument, which must be an ECMAScript language value or a
- * Completion Record, is a callable function with a [[Call]] internal method.
-*/
-function IsCallableNew( argument ) {
-	/* ReturnIfAbrupt(argument). */
-	@ReturnIfAbrupt(argument);
-
-	/* If Type(argument) is not Object, return false. */
-	if ( !(Type(argument) = "Object") ) {
-		return false
-	};
-
-	/* If argument has a [[Call]] internal method, return true. */
-	if ( "Call" in_obj argument ) {
-		return true
-	};
-
-	/* Return false. */
-	return false
-};
-
-
 /**
  * 7.3.13 Construct (F, [argumentsList], [newTarget]) 
  * The abstract operation Construct is used to call the [[Construct]] internal method of a function object.

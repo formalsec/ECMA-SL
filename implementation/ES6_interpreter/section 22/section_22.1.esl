@@ -860,7 +860,7 @@ function arrayFrom (global, this, strict, args) {
   /* 3. else */
   } else {
     /* a. If IsCallable(mapfn) is false, throw a TypeError exception. */
-    if ((!(mapfn = null)) &&& (IsCallableNew(mapfn) = false)) {
+    if ((!(mapfn = null)) &&& (IsCallable(mapfn) = false)) {
       throw TypeErrorConstructorInternal()
     };
 
@@ -1743,7 +1743,7 @@ function arrayFilter(global, this, strict, args) {
   @ReturnIfAbrupt(len);
 
   /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallableNew(callbackfn) = false) {
+  if (IsCallable(callbackfn) = false) {
     throw TypeErrorConstructorInternal()
   };
 
@@ -1872,7 +1872,7 @@ function arrayFind (global, this, strict, args) {
   @ReturnIfAbrupt(len);
 
   /* 5. If IsCallable(predicate) is false, throw a TypeError exception. */
-  if (IsCallableNew(predicate) = false) {
+  if (IsCallable(predicate) = false) {
     throw TypeErrorConstructorInternal()
   };
 
@@ -1966,7 +1966,7 @@ function arrayFindIndex (global, this, strict, args) {
   @ReturnIfAbrupt(len);
 
   /* 5. If IsCallable(predicate) is false, throw a TypeError exception. */
-  if (IsCallableNew(predicate) = false) {
+  if (IsCallable(predicate) = false) {
     throw TypeErrorConstructorInternal()
   };
 
@@ -2506,7 +2506,7 @@ function arrayMap(global, this, strict, args) {
   @ReturnIfAbrupt(len);
 
   /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallableNew(callbackfn) = false) {
+  if (IsCallable(callbackfn) = false) {
     throw TypeErrorConstructorInternal()
   };
 
@@ -2766,7 +2766,7 @@ function arrayReduce(global, this, strict, args) {
   @ReturnIfAbrupt(len);
 
   /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallableNew(callbackfn) = false) {
+  if (IsCallable(callbackfn) = false) {
     throw TypeErrorConstructorInternal()
   };
 
@@ -2911,7 +2911,7 @@ function arrayReduceRight(global, this, strict, args) {
   @ReturnIfAbrupt(len);
 
   /* 5. If IsCallable(callbackfn) is false, throw a TypeError exception. */
-  if (IsCallableNew(callbackfn) = false) {
+  if (IsCallable(callbackfn) = false) {
     throw TypeErrorConstructorInternal()
   };
 
