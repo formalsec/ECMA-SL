@@ -49,6 +49,8 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, argumentLi
 
     /* 4. Let calleeContext be PrepareForOrdinaryCall(F, undefined). */
     calleeContext := PrepareForOrdinaryCall(externalScope, F, 'undefined);
+    print "DEBUG NEW ORDINARY FUNCTION CALL calleeContext: ";
+    print calleeContext;
 
     /* 5. Assert: calleeContext is now the running execution context. */
     /* TODO */
@@ -101,7 +103,7 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
     /* TODO */
 
     /* 7. Let localEnv be NewFunctionEnvironment(F, newTarget). */
-    localEnv := NewFunctionEnvironment(F, newTarget);
+    localEnv := NewFunctionEnvironment(F, newTarget, externalScope);
 
     /* 8. Set the LexicalEnvironment of calleeContext to localEnv. */
     calleeContext.LexicalEnvironment := localEnv;
@@ -161,8 +163,12 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
     };
 
     /* 7. Let envRec be localEnv’s EnvironmentRecord  */
-    envRec := localEnv.EnvironmentRecord;
+    print "DEBUG OrdinaryCallBindThis";
+    print localEnv;
+    envRec := localEnv;
 
+    print "DEBUG OrdinaryCallBindThis 1";
+    print envRec.envRec;
     /* 8. Assert: The next step never returns an abrupt completion because envRec.[[thisBindingStatus]] is not "uninitialized".  */
     assert(!(isAnAbruptCompletion({envRec.BindThisValue}(thisValue))));
 
@@ -185,6 +191,7 @@ function OrdinaryCallEvaluateBody(F, argumentsList) {
 
   /* 3. Return the result of EvaluateBody of the parsed code that is the value
      of F's [[ECMAScriptCode]] internal slot passing F as the argument. */
+  print "DEBUG: ORDINARY CALL EVALUATE BODY";
   return {F.ECMAScriptCode}(F)
 };
 
@@ -316,7 +323,7 @@ function FunctionAllocate(functionPrototype, strict, functionKind) {
   /* Done by NewECMAScriptObject function :*/
 
   /* 8. Set F's [[Call]] internal method to the definition specified in 9.2.1. */
-  F.Call = "NewOrdinaryFunctionCall";
+  F.Call := "NewOrdinaryFunctionCall";
 
   /* 9. If needsConstruct is true, then */
   if (needsConstruct = true) {
@@ -353,6 +360,8 @@ function FunctionAllocate(functionPrototype, strict, functionKind) {
   /* TODO: Instruction not yet implemented. */
 
   /* 15. Return F. */
+  print "DEBUG FunctionAllocate";
+  print F;
   return F
 };
 
@@ -787,7 +796,6 @@ function FunctionDeclarationInstantiation(func, argumentsList) {
        declarations. This is not needed for strict functions because a strict
        direct eval always places all declarations into a new Environment
        Record. */
-  }
   /* 31. Else, */
     /* let lexEnv be varEnv */
 
@@ -815,3 +823,4 @@ function FunctionDeclarationInstantiation(func, argumentsList) {
  * (10.2). The creation of the environment for such declarations is described in
  * 14.1.18.
  */
+

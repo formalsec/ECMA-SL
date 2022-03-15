@@ -274,7 +274,7 @@ function JS_Interpreter_Expr(e, scope) {
           strictCaller := false
         };
         /* vi. Let evalRealm be the running execution context's Realm. */
-        evalRealm := scope.Realm;
+        evalRealm := scope.Realm
         /* vii. Return PerformEval(evalText, evalRealm, strictCaller, true). . */
         /* vii. TODO */
       }
@@ -293,7 +293,8 @@ function JS_Interpreter_Expr(e, scope) {
         refEnv := GetBase(ref);
 
         /* ii.  Let thisValue be refEnv.WithBaseObject(). */
-        thisValue := {refEnv.WithBaseObject}()
+        /* TODO: Fix This -> WithBaseObject not being used  */
+        thisValue := refEnv.bindingObject
       }
     } else {
       /* 6. Else Type(ref) is not Reference, */
@@ -306,6 +307,7 @@ function JS_Interpreter_Expr(e, scope) {
     /* 8. Let tailCall be IsInTailPosition(thisCall). (See 14.6.1) */
 
     /* 9. Return EvaluateDirectCall(func, thisValue, Arguments, tailCall). */
+    print "DEBUG CALL EXPRESSION, CALLING EvaluateDirectCall";
     return EvaluateDirectCall(func, thisValue, Arguments, false, scope)
   }
   | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {

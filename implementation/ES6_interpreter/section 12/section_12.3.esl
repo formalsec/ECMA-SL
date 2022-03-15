@@ -14,17 +14,25 @@ function EvaluateDirectCall(func, thisValue, arguments, tailPosition, scope) {
   /* 2. ReturnIfAbrupt(argList). */
   @ReturnIfAbrupt(argList);
 
+  funcType := Type(func);
+  print "DEBUG EvaluateDirectCall 0";
+
   /* 3. If Type(func) is not Object, */
   if (!(Type(func) = "Object")) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal()
   };
 
+  print "DEBUG EvaluateDirectCall 1";
+  print func;
+
   /* 4. If IsCallable(func) is false, */
   if (IsCallable(func) = false) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal()
   };
+
+    print "DEBUG EvaluateDirectCall 2";
   /* 5. If tailPosition is true, */
   if (tailPosition = true) {
     /* perform PrepareForTailCall() */
@@ -42,4 +50,4 @@ function EvaluateDirectCall(func, thisValue, arguments, tailPosition, scope) {
 
   /* 9. Return result. */
   return result
-};
+}
