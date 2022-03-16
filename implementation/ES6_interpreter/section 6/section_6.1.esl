@@ -1,11 +1,146 @@
 /** 6.1.7.4 Well-Known Intrinsic Objects
     Just initializing the intrinsic container here and assign the well-known objects when they are created (section 18/section_18.esl)
 */
-function initIntrinsics() {
-    |Intrinsics| := NewECMAScriptObject();
-    return
+function initIntrinsics(global, strict) {
+  |Intrinsics| := NewECMAScriptObject();
+
+  |Intrinsics|["Array"] := getProp(global, "Array", strict);
+  |Intrinsics|["ArrayPrototype"] := getConstructorProto(global, "Array", strict);
+  |Intrinsics|["ArrayProto_values"] := getJSProperty(getConstructorProto(global, "Array", strict), "values").Value;
+
+  |Intrinsics|["ArrayBuffer"] := getProp(global, "ArrayBuffer", strict);
+  |Intrinsics|["ArrayBufferPrototype"] := getConstructorProto(global, "ArrayBuffer", strict);
+
+  |Intrinsics|["Boolean"] := getProp(global, "Boolean", strict);
+  |Intrinsics|["BooleanPrototype"] := getConstructorProto(global, "Boolean", strict);
+
+  |Intrinsics|["DataView"] := getProp(global, "DataView", strict);
+  |Intrinsics|["DataViewPrototype"] := getConstructorProto(global, "DataView", strict);
+
+  |Intrinsics|["Date"] := getProp(global, "Date", strict);
+  |Intrinsics|["DatePrototype"] := getConstructorProto(global, "Date", strict);
+ 
+  |Intrinsics|["decodeURI"] := getProp(global, "decodeURI", strict);
+  |Intrinsics|["decodeURIcomponent"] := getProp(global, "decodeURIcomponent", strict);
+  |Intrinsics|["encodeURI"] := getProp(global, "encodeURI", strict);
+  |Intrinsics|["encodeURIcomponent"] := getProp(global, "encodeURIcomponent", strict);
+
+  |Intrinsics|["Error"] := getProp(global, "Error", strict);
+  |Intrinsics|["ErrorPrototype"] := getConstructorProto(global, "Error", strict);
+ 
+  |Intrinsics|["eval"] := getProp(global, "eval", strict);
+  |Intrinsics|["EvalError"] := getProp(global, "EvalError", strict);
+  |Intrinsics|["EvalErrorPrototype"] := getConstructorProto(global, "EvalError", strict);
+ 
+  |Intrinsics|["Float32Array"] := getProp(global, "Float32Array", strict);
+  |Intrinsics|["Float32ArrayPrototype"] := getConstructorProto(global, "Float32Array", strict);
+ 
+  |Intrinsics|["Float64Array"] := getProp(global, "Float64Array", strict);
+  |Intrinsics|["Float64ArrayPrototype"] := getConstructorProto(global, "Float64Array", strict);
+ 
+  |Intrinsics|["Function"] := getProp(global, "Function", strict);
+  |Intrinsics|["FunctionPrototype"] := getConstructorProto(global, "Function", strict);
+ 
+  |Intrinsics|["Int8Array"] := getProp(global, "Int8Array", strict);
+  |Intrinsics|["Int8ArrayPrototype"] := getConstructorProto(global, "Int8Array", strict);
+ 
+  |Intrinsics|["Int16Array"] := getProp(global, "Int16Array", strict);
+  |Intrinsics|["Int16ArrayPrototype"] := getConstructorProto(global, "Int16Array", strict);
+
+  |Intrinsics|["Int32Array"] := getProp(global, "Int32Array", strict);
+  |Intrinsics|["Int32ArrayPrototype"] := getConstructorProto(global, "Int32Array", strict);
+
+  |Intrinsics|["isFinite"] := getProp(global, "isFinite", strict);
+  |Intrinsics|["isNaN"] := getProp(global, "isNaN", strict);
+  |Intrinsics|["JSON"] := getProp(global, "JSON", strict);
+
+  |Intrinsics|["Map"] := getProp(global, "Map", strict);
+  |Intrinsics|["MapPrototype"] := getConstructorProto(global, "Map", strict);
+
+  |Intrinsics|["Math"] := getProp(global, "Math", strict);
+
+  |Intrinsics|["Number"] := getProp(global, "Number", strict);
+  |Intrinsics|["NumberPrototype"] := getConstructorProto(global, "Number", strict);
+ 
+  |Intrinsics|["Object"] := getProp(global, "Object", strict);
+  |Intrinsics|["ObjectPrototype"] := getConstructorProto(global, "Object", strict);
+  |Intrinsics|["ObjProto_toString"] := getJSProperty(getConstructorProto(global, "Object", strict), "toString").Value;
+
+  |Intrinsics|["parseFloat"] := getProp(global, "parseFloat", strict);
+  |Intrinsics|["parseInt"] := getProp(global, "parseInt", strict);
+
+  |Intrinsics|["Promise"] := getProp(global, "Promise", strict);
+  |Intrinsics|["PromisePrototype"] := getConstructorProto(global, "Promise", strict);
+ 
+  |Intrinsics|["Proxy"] := getProp(global, "Proxy", strict);
+
+  |Intrinsics|["RangeError"] := getProp(global, "RangeError", strict);
+  |Intrinsics|["RangeErrorPrototype"] := getConstructorProto(global, "RangeError", strict);
+
+  |Intrinsics|["ReferenceError"] := getProp(global, "ReferenceError", strict);
+  |Intrinsics|["ReferenceErrorPrototype"] := getConstructorProto(global, "ReferenceError", strict);
+ 
+  |Intrinsics|["Reflect"] := getProp(global, "Reflect", strict);
+
+  |Intrinsics|["RegExp"] := getProp(global, "RegExp", strict);
+  |Intrinsics|["RegExpPrototype"] := getConstructorProto(global, "RegExp", strict);
+  
+  |Intrinsics|["Set"] := getProp(global, "Set", strict);
+  |Intrinsics|["SetPrototype"] := getConstructorProto(global, "Set", strict);
+  
+  |Intrinsics|["String"] := getProp(global, "String", strict);
+  |Intrinsics|["StringPrototype"] := getConstructorProto(global, "String", strict);
+  
+  |Intrinsics|["Symbol"] := getProp(global, "Symbol", strict);
+  |Intrinsics|["SymbolPrototype"] := getConstructorProto(global, "Symbol", strict);
+  
+  |Intrinsics|["SyntaxError"] := getProp(global, "SyntaxError", strict);
+  |Intrinsics|["SyntaxErrorPrototype"] := getConstructorProto(global, "SyntaxError", strict);
+  
+  |Intrinsics|["TypedArray"] := getProp(global, "Int8Array", strict).Prototype;
+  |Intrinsics|["TypedArrayPrototype"] := getJSProperty(|Intrinsics|["TypedArray"], "prototype").Value;
+
+  |Intrinsics|["TypeError"] := getProp(global, "TypeError", strict);
+  |Intrinsics|["TypeErrorPrototype"] := getConstructorProto(global, "TypeError", strict);
+
+  |Intrinsics|["Uint8Array"] := getProp(global, "Uint8Array", strict);
+  |Intrinsics|["Uint8ArrayPrototype"] := getConstructorProto(global, "Uint8Array", strict);
+
+  |Intrinsics|["Uint8ClampedArray"] := getProp(global, "Uint8ClampedArray", strict);
+  |Intrinsics|["Uint8ClampedArrayPrototype"] := getConstructorProto(global, "Uint8ClampedArray", strict);
+
+  |Intrinsics|["Uint16Array"] := getProp(global, "Uint16Array", strict);
+  |Intrinsics|["Uint16ArrayPrototype"] := getConstructorProto(global, "Uint16Array", strict);
+
+  |Intrinsics|["Uint32Array"] := getProp(global, "Uint32Array", strict);
+  |Intrinsics|["Uint32ArrayPrototype"] := getConstructorProto(global, "Uint32Array", strict);
+
+  |Intrinsics|["URIError"] := getProp(global, "URIError", strict);
+  |Intrinsics|["URIErrorPrototype"] := getConstructorProto(global, "URIError", strict);
+
+  |Intrinsics|["WeakMap"] := getProp(global, "WeakMap", strict);
+  |Intrinsics|["WeakMapPrototype"] := getConstructorProto(global, "WeakMap", strict);
+
+  |Intrinsics|["WeakSet"] := getProp(global, "WeakSet", strict);
+  |Intrinsics|["WeakSetPrototype"] := getConstructorProto(global, "WeakSet", strict);
+
+  return
+};
+
+function getProp(global, prop, strict) {
+  ref := newPropertyReference(global, prop, strict);
+  obj := GetValue(ref);
+  return obj
+};
+
+function getConstructorProto(global, constructor, strict) {
+  ref := newPropertyReference(global, constructor, strict);
+  obj := GetValue(ref);
+
+  proto := getJSProperty(obj, "prototype").Value;
+  return proto
 };
 
 function isIntrinsic(name) {
-    return name in_obj |Intrinsics|
+  return name in_obj |Intrinsics|
 }
