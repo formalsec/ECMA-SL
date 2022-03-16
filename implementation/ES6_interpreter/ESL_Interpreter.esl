@@ -2245,9 +2245,6 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
     /* obj_enums := EnumerableOwnNames(obj); */
     obj_enums := getEnumerableProperties(obj);
 
-    print "FUCK FORIN";
-    print obj_enums;
-
     repeat {
       /* a. Let P be the name of the next property of obj whose [[Enumerable]] attribute is true.
             If there is no such property, return (normal, V, empty). */
