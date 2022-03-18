@@ -268,7 +268,7 @@ function GetThisValue(V) {
 /**
  * 6.2.3.4 InitializeReferencedBinding (V, W)
 */
-function InitializeReferencedBinding(V, W) {  
+function InitializeReferencedBinding(V, W, envRec) {
     /* ReturnIfAbrupt(V). */
     @ReturnIfAbrupt(V);
 
@@ -285,10 +285,11 @@ function InitializeReferencedBinding(V, W) {
     base := GetBase(V);
 
     /* Assert: base is an Environment Record. */
-    assert( isEnvironmentRecord(base) );
+    /*assert( isEnvironmentRecord(base) ); */
 
     /* Return base.InitializeBinding(GetReferencedName(V), W). */
-    return {base.InitializeBinding}(base, GetReferencedName(V), W)
+    SetMutableBinding(envRec, GetReferencedName(V), W, false);
+    return NormalCompletion('empty)
 };
 
 /* Auxiliary functions created for the purposes of dealing with the Property Identifier type. */

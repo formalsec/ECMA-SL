@@ -49,14 +49,13 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, argumentLi
 
     /* 4. Let calleeContext be PrepareForOrdinaryCall(F, undefined). */
     calleeContext := PrepareForOrdinaryCall(externalScope, F, 'undefined);
-    print "DEBUG NEW ORDINARY FUNCTION CALL calleeContext: ";
-    print calleeContext;
 
-    /* 5. Assert: calleeContext is now the running execution context. */
     /* TODO */
+    /* 5. Assert: calleeContext is now the running execution context. */
 
+    /* TODO */
     /* 6. Perform OrdinaryCallBindThis(F, calleeContext, thisArgument). */
-    OrdinaryCallBindThis(F, calleeContext, thisArgument);
+
 
     /* 7. Let result be OrdinaryCallEvaluateBody(F, argumentsList). */
     result := OrdinaryCallEvaluateBody(calleeContext, F, argumentList);
@@ -103,7 +102,7 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
     /* TODO */
 
     /* 7. Let localEnv be NewFunctionEnvironment(F, newTarget). */
-    localEnv := NewFunctionEnvironment(F, newTarget, externalScope);
+    localEnv := NewDeclarativeEnvironment(getLexicalEnvironment(externalScope));
 
     /* 8. Set the LexicalEnvironment of calleeContext to localEnv. */
     calleeContext.LexicalEnvironment := localEnv;
@@ -163,17 +162,14 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
     };
 
     /* 7. Let envRec be localEnv’s EnvironmentRecord  */
-    print "DEBUG OrdinaryCallBindThis";
-    print localEnv;
-    envRec := localEnv;
+    envRec := localEnv.EnvRec;
 
-    print "DEBUG OrdinaryCallBindThis 1";
-    print envRec.envRec;
+    /* TODO */
     /* 8. Assert: The next step never returns an abrupt completion because envRec.[[thisBindingStatus]] is not "uninitialized".  */
-    assert(!(isAnAbruptCompletion({envRec.BindThisValue}(thisValue))));
 
+    /* TODO */
     /* 9. Return envRec.BindThisValue(thisValue). */
-    return {envRec.BindThisValue}(thisValue)
+    return 'undefined
 };
 
 /**
@@ -182,9 +178,9 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
  * When the abstract operation OrdinaryCallEvaluateBody is called with function
  * object F and List argumentsList the following steps are taken:
  */
-function OrdinaryCallEvaluateBody(F, argumentsList) {
+function OrdinaryCallEvaluateBody(scope, F, argumentsList) {
   /* 1. Let status be FunctionDeclarationInstantiation(F, argumentsList). */
-  status := FunctionDeclarationInstantiation(F, argumentsList);
+  status := FunctionDeclarationInstantiation(scope, F, argumentsList);
 
   /* 2. ReturnIfAbrupt(status) */
   @ReturnIfAbrupt(status);
@@ -192,7 +188,7 @@ function OrdinaryCallEvaluateBody(F, argumentsList) {
   /* 3. Return the result of EvaluateBody of the parsed code that is the value
      of F's [[ECMAScriptCode]] internal slot passing F as the argument. */
   print "DEBUG: ORDINARY CALL EVALUATE BODY";
-  return {F.ECMAScriptCode}(F)
+  return JS_Interpreter_FunctionBody(F.ECMAScriptCode, scope)
 };
 
 /**
@@ -679,7 +675,7 @@ function SetFunctionName(F, name, prefix) {
  * and argumentsList. func is the function object for which the execution
  * context is being established.
  */
-function FunctionDeclarationInstantiation(func, argumentsList) {
+function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   /* 1. Let calleeContext be the running execution context. */
   /* TODO: Get the context or the Scope */
 
@@ -687,7 +683,7 @@ function FunctionDeclarationInstantiation(func, argumentsList) {
   env := calleeContext.LexicalEnvironment;
 
   /* 3. Let envRec be env's EnvironmentRecord. */
-  envRec := env.EnvironmentRecord;
+  envRec := env.EnvRec;
 
   /* 4. Let code be the value of the [[ECMAScriptCode]] internal slot of func. */
   code := func.ECMAScriptCode;
@@ -700,34 +696,41 @@ function FunctionDeclarationInstantiation(func, argumentsList) {
   formals := func.FormalParameters;
 
   /* 7. Let parameterNames be the BoundNames of formals. */
-  /* TODO: get the names from FormalParameters */
+  parameterNames := formals;
 
   /* 8. If parameterNames has any duplicate entries, */
   /* TODO:*/
+  hasDuplicates := false;
 
   /* 9. Let simpleParameterList be IsSimpleParameterList of formals. */
   /* TODO: Implement IsSimpleParameterList  */
+  simpleParameterList := true;
 
   /* 10. Let hasParameterExpressions be ContainsExpression of formals. */
   /* TODO: Implement ContainsExpression  */
+  hasParameterExpressions := false;
 
   /* 11. Let varNames be the VarDeclaredNames of code. */
-  /* TODO: Implement ContainsExpression  */
+  varNames := getVariableDeclarationsInCode(code);
 
   /* 12. Let varDeclarations be the VarScopedDeclarations of code. */
   /* TODO: VarScopedDeclarations. */
+  varDeclarations := varNames;
 
   /* 13. Let lexicalNames be the LexicallyDeclaredNames of code. */
   /* TODO: LexicallyDeclaredNames. */
 
   /* 14. Let functionNames be an empty List. */
+  functionNames := [];
 
   /* 15. Let functionsToInitialize be an empty List. */
+  functionsToInitialize := [];
 
   /* 16. For each d in varDeclarations, in reverse list order do */
   /* TODO */
 
   /* 17. Let argumentsObjectNeeded be true. */
+  argumentsObjectNeeded := false;
 
   /* 18. If the value of the [[ThisMode]] internal slot of func is lexical,
      then */
@@ -744,7 +747,29 @@ function FunctionDeclarationInstantiation(func, argumentsList) {
 
 
   /* 21. For each String paramName in parameterNames, do */
-  /* TODO */
+  lparameterNames := l_len (parameterNames);
+  i := 0;
+  while(i < lparameterNames) {
+    paramName := l_nth(parameterNames, i);
+    /* a.  Let alreadyDeclared be envRec.HasBinding(paramName). */
+    alreadyDeclared := HasBinding(envRec, paramName);
+
+    /* b. If alreadyDeclared is false, then */
+    if (alreadyDeclared = false) {
+      /* b. Let status be envRec.CreateMutableBinding(paramName). */
+      status := CreateMutableBinding(envRec, paramName, false);
+
+      /* If hasDuplicates is true, then
+        Let status be envRec.InitializeBinding(paramName, undefined). */
+        if (hasDuplicates = true) {
+          status := InitializeBindingDeclarativeRecord(envRec, paramName, 'undefined)
+        };
+
+      /* Assert: status is never an abrupt completion for either of the above operations. */
+      assert(!(isAnAbruptCompletion(status)))
+    };
+    i := i + 1
+  };
 
   /* 22. If argumentsObjectNeeded is true, then */
     /* a. If strict is true or if simpleParameterList is false, then */
@@ -767,11 +792,17 @@ function FunctionDeclarationInstantiation(func, argumentsList) {
 
     /* h. Append "arguments" to parameterNames. */
 
-    /* 23. Let iteratorRecord be Record {[[iterator]]:
-     CreateListIterator(argumentsList), [[done]]: false}. */
-
+  /* 23. Let iteratorRecord be Record {[[iterator]]:
+        CreateListIterator(argumentsList), [[done]]: false}. */
+  iteratorRecord := CreateListIterator(argumentsList);
   /* 24. If hasDuplicates is true, then */
-
+  if (hasDuplicates = true) {
+    /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and undefined as arguments. */
+  } else {
+    /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and env as arguments. */
+    /* TODO */
+    formalStatus := IteratorBindingInitialization(parameterNames, iteratorRecord, calleeContext.LexicalEnvironment, func)
+  };
   /* 25. Else, */
 
   /* 26. ReturnIfAbrupt(formalStatus). */
@@ -812,7 +843,7 @@ function FunctionDeclarationInstantiation(func, argumentsList) {
 
   /* 37. Return NormalCompletion(empty). */
   return NormalCompletion('empty)
-}
+};
 /**
  * NOTE 2 B.3.3 provides an extension to the above algorithm that is necessary
  * for backwards compatibility with web browser implementations of ECMAScript
@@ -823,4 +854,71 @@ function FunctionDeclarationInstantiation(func, argumentsList) {
  * (10.2). The creation of the environment for such declarations is described in
  * 14.1.18.
  */
+ /* NOT IMPLEMENTED */
+
+function IteratorBindingInitialization(parameterNames, listIterator, scope, func) {
+  l_parameterNames := l_len (parameterNames);
+  i := 0;
+  while(i < l_parameterNames) {
+    paramName := l_nth(parameterNames, i);
+    IteratorBindingInitializationBindingIdentifier(paramName, listIterator, scope, func);
+    i := i + 1
+  };
+  return 'undefined
+};
+
+function IteratorBindingInitializationBindingIdentifier(paramName, listIterator, environment, func) {
+  /* 1. Let bindingId be StringValue of BindingIdentifier. */
+  bindingId := StringValue(paramName);
+
+  /* 2.Let lhs be ResolveBinding(bindingId, environment). */
+  lhs := GetIdentifierReference(environment, bindingId, false);
+
+  /* ReturnIfAbrupt(lhs). */
+  @ReturnIfAbrupt(lhs);
+
+  /* If iteratorRecord.[[done]] is false, then */
+  if (Get(listIterator, "done") = false) {
+    /* a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
+    next := ListIteratornext(listIterator, func);
+
+    /* b. If next is an abrupt completion, set iteratorRecord.[[done]] to true. */
+    if (isAnAbruptCompletion(next)) {
+      Set(listIterator, "done", true)
+    };
+
+    /* c. ReturnIfAbrupt(next). */
+    @ReturnIfAbrupt(next);
+
+    /* d. If next is false, set iteratorRecord.[[done]] to true. */
+    if (next = false) {
+      Set(listIterator, "done", true)
+    } else {
+      /* i. Let v be IteratorValue(next). */
+      v := IteratorValue(next);
+
+      /* ii.If v is an abrupt completion, set iteratorRecord.[[done]] to true. */
+      if (isAnAbruptCompletion(v)) {
+        Set(listIterator, "done", true)
+      };
+
+      /* iii. ReturnIfAbrupt(v). */
+      @ReturnIfAbrupt(v)
+    }
+  };
+  /* 5. If iteratorRecord.[[done]] is true, let v be undefined. */
+  if (Get(listIterator, "done") = true) {
+    v := 'undefined
+  };
+   /* 6. TODO */
+
+   /* 7. If environment is undefined, return PutValue(lhs, v). */
+   if (environment = 'undefined) {
+     return PutValue(lhs, v)
+   };
+
+   /* 8. Return InitializeReferencedBinding(lhs, v). */
+   return InitializeReferencedBinding(lhs, v, environment.EnvRec)
+  }
+
 
