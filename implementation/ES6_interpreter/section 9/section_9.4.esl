@@ -255,5 +255,108 @@ function OwnPropertyKeysString(O){
     
   /* 8. Return keys. */
   return keys
+};
+
+/**
+ * 9.4.4.7 CreateMappedArgumentsObject (func, formals, argumentsList, env)
+ *
+ * The abstract operation CreateMappedArgumentsObject is called with object
+ * func, parsed grammar phrase formals, List argumentsList, and Environment
+ * Record env. The following steps are performed:
+ */
+function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
+  /* 1. Assert: formals does not contain a rest parameter, any binding
+     patterns, or any initializers. It may contain duplicate identifiers. */
+  /* TODO */
+  /* 2. Let len be the number of elements in argumentsList. */
+  len := l_len(argumentsList);
+  /* 3. Let obj be a newly created arguments exotic object with a
+     [[ParameterMap]] internal slot. */
+  obj := NewECMAScriptObject();
+  obj.ParameterMap := 'undefined;
+
+  setAllInternalMethodsOfOrdinaryObject(obj);
+
+  /* 4. Set the [[GetOwnProperty]] internal method of obj as specified in
+     9.4.4.1. */
+  /* TODO */
+  /* 5. Set the [[DefineOwnProperty]] internal method of obj as specified in
+     9.4.4.2. */
+  /* TODO: Instruction not yet implemented. */
+  /* 6. Set the [[Get]] internal method of obj as specified in 9.4.4.3. */
+  /* TODO: Instruction not yet implemented. */
+  /* 7. Set the [[Set]] internal method of obj as specified in 9.4.4.4. */
+  /* TODO: Instruction not yet implemented. */
+  /* 8. Set the [[Delete]] internal method of obj as specified in 9.4.4.5. */
+  /* TODO: Instruction not yet implemented. */
+  /* 9. Set the remainder of obj's essential internal methods to the default
+     ordinary object definitions specified in 9.1. */
+  /* TODO */
+  /* 10. Set the [[Prototype]] internal slot of obj to %ObjectPrototype%. */
+  obj.Prototype := getObjectPrototype(false);
+  /* 11. Set the [[Extensible]] internal slot of obj to true. */
+  obj.Extensible := true;
+
+  /* 12. Let parameterNames be the BoundNames of formals. */
+  parameterNames := formals;
+
+  /* 13. Let numberOfParameters be the number of elements in parameterNames */
+  numberOfParameters := l_len(parameterNames);
+
+  /* 14. Let index be 0. */
+  index := 0;
+
+  /* 15. Repeat while index < len , */
+  while (index < len) {
+    /* a. Let val be argumentsList[index]. */
+    val := l_nth(argumentsList, index);
+
+    /* b. Perform CreateDataProperty(obj, ToString(index), val). */
+    CreateDataProperty(obj, ToString(int_to_float index), val);
+    index := index + 1
+  };
+  /* 16. Perform DefinePropertyOrThrow(obj, "length",
+     PropertyDescriptor{[[Value]]: len, [[Writable]]: true, [[Enumerable]]:
+     false, [[Configurable]]: true}). */
+  DefinePropertyOrThrow(obj, "length", newDataPropertyDescriptorFull(len, true, false, true));
+
+  /* 17. Let map be ObjectCreate(null). */
+  map := ObjectCreate('null, null);
+
+  /* 18. Let mappedNames be an empty List. */
+  mappedNames := [];
+
+  /* 19. Let index be numberOfParameters - 1. */
+  index := numberOfParameters - 1;
+
+  /* 20. Repeat while index ≥ 0 , */
+  while (index >= 0) {
+    /* a. Let name be parameterNames[index]. */
+    name := l_nth(parameterNames, index);
+
+    /* b. If name is not an element of mappedNames, then */
+    /* TODO */
+
+    /* c. Let index be index − 1 */
+    index := index - 1
+  };
+
+  /* 21. Set the [[ParameterMap]] internal slot of obj to map. */
+  obj.ParameterMap := map;
+
+  /* 22. Perform DefinePropertyOrThrow(obj, @@iterator, PropertyDescriptor
+     {[[Value]]:%ArrayProto_values%, [[Writable]]: true, [[Enumerable]]:
+     false, [[Configurable]]: true}). */
+  status1 := DefinePropertyOrThrow(obj, "Symbol.iterator", newDataPropertyDescriptorFull(getArrayPrototype(false), true, false, true));
+
+  /* 23. Perform DefinePropertyOrThrow(obj, "callee", PropertyDescriptor
+     {[[Value]]: func, [[Writable]]: true, [[Enumerable]]: false,
+     [[Configurable]]: true}). */
+  status2 := DefinePropertyOrThrow(obj, "callee", newDataPropertyDescriptorFull(func, true, false, true));
+  /* 24. Assert: the above property definitions will not produce an abrupt
+     completion. */
+  assert(!(isAnAbruptCompletion(status1) ||| isAnAbruptCompletion(status2)));
+  /* 25. Return obj */
+  return obj
 }
 

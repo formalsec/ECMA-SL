@@ -699,8 +699,11 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   parameterNames := formals;
 
   /* 8. If parameterNames has any duplicate entries, */
-  /* TODO:*/
-  hasDuplicates := false;
+  if (parametersHasDuplicates(parameterNames) = true) {
+    hasDuplicates := true
+  } else {
+    hasDuplicates := false
+  };
 
   /* 9. Let simpleParameterList be IsSimpleParameterList of formals. */
   /* TODO: Implement IsSimpleParameterList  */
@@ -719,6 +722,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
 
   /* 13. Let lexicalNames be the LexicallyDeclaredNames of code. */
   /* TODO: LexicallyDeclaredNames. */
+  lexicalNames := varNames;
 
   /* 14. Let functionNames be an empty List. */
   functionNames := [];
@@ -730,21 +734,27 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   /* TODO */
 
   /* 17. Let argumentsObjectNeeded be true. */
-  argumentsObjectNeeded := false;
+  argumentsObjectNeeded := true;
 
   /* 18. If the value of the [[ThisMode]] internal slot of func is lexical,
      then */
+  if (func.ThisMode = "lexical") {
     /* a. NOTE Arrow functions never have an arguments objects. */
     /* b. Let argumentsObjectNeeded be false. */
-
-  /* 19. Else if "arguments" is an element of parameterNames, then */
+    argumentsObjectNeeded := false
+  } elif (argumentsInArray(parameterNames) = true) {
+    /* 19. Else if "arguments" is an element of parameterNames, then */
     /* a. Let argumentsObjectNeeded be false. */
-
-  /* 20. Else if hasParameterExpressions is false, then */
+    argumentsObjectNeeded := false
+  } elif (hasParameterExpressions = false) {
+    /* 20. Else if hasParameterExpressions is false, then */
     /* a. If "arguments" is an element of functionNames or if "arguments" is an
-       element of lexicalNames, then */
+          element of lexicalNames, then */
+    if (argumentsInArray(functionNames) = true ||| argumentsInArray(lexicalNames) = true) {
       /* i. Let argumentsObjectNeeded be false. */
-
+      argumentsObjectNeeded := false
+    }
+  };
 
   /* 21. For each String paramName in parameterNames, do */
   lparameterNames := l_len (parameterNames);
@@ -772,35 +782,48 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   };
 
   /* 22. If argumentsObjectNeeded is true, then */
+  if (argumentsObjectNeeded = true) {
     /* a. If strict is true or if simpleParameterList is false, then */
+    if (strict = true ||| simpleParameterList = false) {
       /* i. Let ao be CreateUnmappedArgumentsObject(argumentsList). */
-      /* TODO: implement CreateUnmappedArgumentsObject */
-    /* b. Else, */
-    /* TODO: */
+      ao := CreateUnmappedArgumentsObject(argumentsList)
 
-    /* c. ReturnIfAbrupt(ao). */
+    } else {
+      /* b. Else */
+      /* Let ao be CreateMappedArgumentsObject(func, formals, argumentsList, env). */
+      ao := CreateMappedArgumentsObject(func, formals, argumentsList, env)
+    };
+    /* c. ReturnIfAbrupt(ao) */
+    @ReturnIfAbrupt(ao);
 
     /* d. If strict is true, then */
-    /* i. Let status be envRec.CreateImmutableBinding("arguments"). */
-
-    /* e. Else, */
-    /* TODO */
+    if (strict = true) {
+      /* i. Let status be envRec.CreateImmutableBinding("arguments").*/
+      status := CreateImmutableBinding(envRec, "arguments")
+    } else {
+      /* e. Else */
+      /* i. Let status be envRec.CreateMutableBinding("arguments"). */
+      status := CreateMutableBinding(envRec, "arguments", true)
+    };
 
     /* f. Assert: status is never an abrupt completion. */
+    assert(!(isAnAbruptCompletion(status)));
 
     /* g. Call envRec.InitializeBinding("arguments", ao). */
+    SetMutableBinding(envRec, "arguments", ao, false)
 
-    /* h. Append "arguments" to parameterNames. */
-
+    /*h. Append "arguments" to parameterNames. */
+    /*parameterNames := l_add(parameterNames, "arguments") */
+  };
   /* 23. Let iteratorRecord be Record {[[iterator]]:
         CreateListIterator(argumentsList), [[done]]: false}. */
   iteratorRecord := CreateListIterator(argumentsList);
   /* 24. If hasDuplicates is true, then */
   if (hasDuplicates = true) {
     /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and undefined as arguments. */
+    /* TODO */
   } else {
     /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and env as arguments. */
-    /* TODO */
     formalStatus := IteratorBindingInitialization(parameterNames, iteratorRecord, calleeContext.LexicalEnvironment, func)
   };
   /* 25. Else, */
@@ -919,6 +942,38 @@ function IteratorBindingInitializationBindingIdentifier(paramName, listIterator,
 
    /* 8. Return InitializeReferencedBinding(lhs, v). */
    return InitializeReferencedBinding(lhs, v, environment.EnvRec)
-  }
+};
 
+/* Auxiliary Functions */
+
+function parametersHasDuplicates(parameters) {
+  l_parameters := l_len (parameters);
+  i := 0;
+  while(i < l_parameters) {
+    param := l_nth(parameters, i);
+    j := i + 1;
+    while (j < l_parameters) {
+      param2 := l_nth(parameters, j);
+      if (param = param2) {
+        return true
+      };
+      j := j + 1
+    };
+    i := i + 1
+  };
+  return false
+};
+
+function argumentsInArray(parameters) {
+  l_parameters := l_len (parameters);
+  i := 0;
+  while(i < l_parameters) {
+    param := l_nth(parameters, i);
+    if (param = "arguments") {
+      return true
+    };
+    i := i + 1
+  };
+  return false
+}
 
