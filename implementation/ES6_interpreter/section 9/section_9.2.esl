@@ -706,12 +706,10 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   };
 
   /* 9. Let simpleParameterList be IsSimpleParameterList of formals. */
-  /* TODO: Implement IsSimpleParameterList  */
-  simpleParameterList := true;
+  simpleParameterList := getIsSimpleParameterListFromFunction(code);
 
   /* 10. Let hasParameterExpressions be ContainsExpression of formals. */
-  /* TODO: Implement ContainsExpression  */
-  hasParameterExpressions := false;
+  hasParameterExpressions := getContainsExpressionInFunctionParams(code);
 
   /* 11. Let varNames be the VarDeclaredNames of code. */
   varNames := getVariableDeclarationsInCode(code);
@@ -975,5 +973,18 @@ function argumentsInArray(parameters) {
     i := i + 1
   };
   return false
-}
+};
 
+function getContainsExpressionInFunctionParams(codeObj) {
+  if (codeObj = 'undefined) {
+    return false
+  };
+  return codeObj.containsExpression
+};
+
+function getIsSimpleParameterListFromFunction(codeObj) {
+  if (codeObj = 'undefined) {
+    return true
+  };
+  return codeObj.isSimpleParameterList
+}
