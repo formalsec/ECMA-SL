@@ -818,29 +818,110 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   iteratorRecord := CreateListIterator(argumentsList);
   /* 24. If hasDuplicates is true, then */
   if (hasDuplicates = true) {
+    /* TODO: FIX ME, WE DO NOT HANDLE THE UNDEFINED */
     /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and undefined as arguments. */
-    /* TODO */
+    formalStatus := IteratorBindingInitialization(parameterNames, iteratorRecord, 'undefined, func)
   } else {
     /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and env as arguments. */
     formalStatus := IteratorBindingInitialization(parameterNames, iteratorRecord, calleeContext.LexicalEnvironment, func)
   };
-  /* 25. Else, */
+
+  print "DEBUG FUNCTION DECL INSTANTIATION - FINISHED INITIALIZATION 0";
+  print calleeContext.LexicalEnvironment.EnvRec;
 
   /* 26. ReturnIfAbrupt(formalStatus). */
+  @ReturnIfAbrupt(formalStatus);
 
   /* 27. If hasParameterExpressions is false, then */
+  if (hasParameterExpressions = false) {
     /* a. NOTE Only a single lexical environment is needed for the parameters
        and top-level vars. */
     /* b. Let instantiatedVarNames be a copy of the List parameterNames. */
-    /* c. For each n in varNames, do */
-    /* d. Let varEnv be env. */
-    /* e. Let varEnvRec be envRec. */
+    instantiatedVarNames := parameterNames;
 
-  /* 28. Else, */
+    /* c. For each n in varNames, do */
+    lvarNames := l_len(varNames);
+    i := 0;
+    while(i < lvarNames) {
+      element := l_nth(varNames, i);
+      /* i. If n is not an element of instantiatedVarNames, then */
+      if (!(element in_list instantiatedVarNames)) {
+        /* 1. Append n to instantiatedVarNames. */
+        instantiatedVarNames := l_add(instantiatedVarNames, element);
+
+        /* Let status be envRec.CreateMutableBinding(n). */
+        status := CreateMutableBinding(envRec, element, false);
+
+        /* Assert: status is never an abrupt completion. */
+        assert(!(isAnAbruptCompletion(status)));
+
+        /* Call envRec.InitializeBinding(n, undefined). */
+        SetMutableBinding(envRec, element, 'undefined, false)
+      };
+      i := i + 1
+    };
+    /* Let varEnv be env. */
+    varEnv := env;
+
+    /* Let varEnvRec be envRec. */
+    varEnvRec := envRec
+  } /* 28. Else, */
+  else {
+    /* NOTE A separate Environment Record is needed to ensure that closures
+       created by expressions in the formal parameter list do not have
+       visibility of declarations in the function body. */
+    /* a. Let varEnv be NewDeclarativeEnvironment(env). */
+    varEnv := NewDeclarativeEnvironment(env);
+
+    /* b. Let varEnvRec be varEnv’s EnvironmentRecord. */
+    varEnvRec := varEnv.EnvRec;
+
+    /*c. Set the VariableEnvironment of calleeContext to varEnv. */
+    calleeContext.VariableEnvironment := varEnv;
+
+    /* d. Let instantiatedVarNames be a new empty List. */
+    instantiatedVarNames := [];
+
+    /* f. For each n in varNames, do */
+    lvarNames := l_len(varNames);
+    i := 0;
+    while(i < lvarNames) {
+      element := l_nth(varNames, i);
+      /* i. If n is not an element of instantiatedVarNames, then */
+      if (!(element in_list instantiatedVarNames)) {
+        /* 1. Append n to instantiatedVarNames. */
+        instantiatedVarNames := l_add(instantiatedVarNames, element);
+
+        /* 2. Let status be varEnvRec.CreateMutableBinding(n, true). */
+        status := CreateMutableBinding(varEnvRec, element, true);
+
+        /* 3. Assert: status is never an abrupt completion. */
+        assert(!(isAnAbruptCompletion(status)));
+
+        /* 4. If n is not an element of parameterNames or if n is an element of functionNames
+              let initialValue be undefined. */
+        if (!(element in_list parameterNames) ||| (element in_list functionNames)) {
+          initialValue := 'undefined
+        } else {
+          /* 5. Else, let initialValue be the result of performing
+                 GetV(argumentsList, n). */
+          initialValue := GetV(argumentsList, element);
+          /* b. ReturnIfAbrupt(initialValue). */
+          @ReturnIfAbrupt(initialValue)
+          /* NOTE vars whose names are the same as a formal parameter
+            initially have the same value as the corresponding initialized parameter.*/
+        }
+      };
+      i := i + 1
+    }
+  };
   /* 29. NOTE: Annex B.3.3 adds additional steps at this point. */
 
   /* 30. If strict is false, then */
+  if (strict = false) {
     /* a. Let lexEnv be NewDeclarativeEnvironment(varEnv). */
+    lexEnv := NewDeclarativeEnvironment(varEnv)
+
     /* b. NOTE: Non-strict functions use a separate lexical Environment Record
        for top-level lexical declarations so that a direct eval (see
        12.3.4.1) can determine whether any var scoped declarations introduced
@@ -848,17 +929,23 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
        declarations. This is not needed for strict functions because a strict
        direct eval always places all declarations into a new Environment
        Record. */
-  /* 31. Else, */
-    /* let lexEnv be varEnv */
-
+  } /* 31. Else, */
+  else {
+  /* let lexEnv be varEnv */
+    lexEnv := varEnv
+  };
 
   /* 32. Let lexEnvRec be lexEnv's EnvironmentRecord. */
+  lexEnvRec := lexEnv.EnvRec;
 
   /* 33. Set the LexicalEnvironment of calleeContext to lexEnv. */
+  calleeContext.LexicalEnvironment := lexEnv;
 
   /* 34. Let lexDeclarations be the LexicallyScopedDeclarations of code. */
+  /* TODO */
 
   /* 35. For each element d in lexDeclarations do */
+  /* TODO */
 
   /* 36. For each parsed grammar phrase f in functionsToInitialize, do */
 
@@ -885,7 +972,7 @@ function IteratorBindingInitialization(parameterNames, listIterator, scope, func
     IteratorBindingInitializationBindingIdentifier(paramName, listIterator, scope, func);
     i := i + 1
   };
-  return 'undefined
+  return NormalCompletion('empty)
 };
 
 function IteratorBindingInitializationBindingIdentifier(paramName, listIterator, environment, func) {
