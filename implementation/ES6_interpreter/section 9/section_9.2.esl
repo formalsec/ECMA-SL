@@ -784,7 +784,8 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     /* a. If strict is true or if simpleParameterList is false, then */
     if (strict = true ||| simpleParameterList = false) {
       /* i. Let ao be CreateUnmappedArgumentsObject(argumentsList). */
-      ao := CreateUnmappedArgumentsObject(argumentsList)
+      /*TODO CreateUnmappedArgumentsObject */
+      ao := CreateMappedArgumentsObject(func, formals, argumentsList, env)
 
     } else {
       /* b. Else */
@@ -816,14 +817,16 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   /* 23. Let iteratorRecord be Record {[[iterator]]:
         CreateListIterator(argumentsList), [[done]]: false}. */
   iteratorRecord := CreateListIterator(argumentsList);
+
+  paramsInitializers := getParamsInitializers(code);
   /* 24. If hasDuplicates is true, then */
   if (hasDuplicates = true) {
     /* TODO: FIX ME, WE DO NOT HANDLE THE UNDEFINED */
     /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and undefined as arguments. */
-    formalStatus := IteratorBindingInitialization(parameterNames, iteratorRecord, 'undefined, func)
+    formalStatus := IteratorBindingInitialization(paramsInitializers, iteratorRecord, 'undefined, func)
   } else {
     /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and env as arguments. */
-    formalStatus := IteratorBindingInitialization(parameterNames, iteratorRecord, calleeContext.LexicalEnvironment, func)
+    formalStatus := IteratorBindingInitialization(paramsInitializers, iteratorRecord, calleeContext, func)
   };
 
   print "DEBUG FUNCTION DECL INSTANTIATION - FINISHED INITIALIZATION 0";
@@ -964,23 +967,23 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
  */
  /* NOT IMPLEMENTED */
 
-function IteratorBindingInitialization(parameterNames, listIterator, scope, func) {
-  l_parameterNames := l_len (parameterNames);
+function IteratorBindingInitialization(paramsInitializers, listIterator, scope, func) {
+  l_paramsInitializers := l_len (paramsInitializers);
   i := 0;
-  while(i < l_parameterNames) {
-    paramName := l_nth(parameterNames, i);
-    IteratorBindingInitializationBindingIdentifier(paramName, listIterator, scope, func);
+  while(i < l_paramsInitializers) {
+    param := l_nth(paramsInitializers, i);
+    IteratorBindingInitializationBindingIdentifier(param.name, listIterator, scope, func, param.initializer);
     i := i + 1
   };
   return NormalCompletion('empty)
 };
 
-function IteratorBindingInitializationBindingIdentifier(paramName, listIterator, environment, func) {
+function IteratorBindingInitializationBindingIdentifier(paramName, listIterator, environment, func, initializer) {
   /* 1. Let bindingId be StringValue of BindingIdentifier. */
   bindingId := StringValue(paramName);
 
   /* 2.Let lhs be ResolveBinding(bindingId, environment). */
-  lhs := GetIdentifierReference(environment, bindingId, false);
+  lhs := GetIdentifierReference(environment.LexicalEnvironment, bindingId, false);
 
   /* ReturnIfAbrupt(lhs). */
   @ReturnIfAbrupt(lhs);
@@ -1018,7 +1021,19 @@ function IteratorBindingInitializationBindingIdentifier(paramName, listIterator,
   if (Get(listIterator, "done") = true) {
     v := 'undefined
   };
-   /* 6. TODO */
+   /* 6. If Initializer is present and v is undefined, then */
+   if (!(initializer = null) && v = 'undefined) {
+    /* a. Let defaultValue be the result of evaluating Initializer. */
+    defaultValue := JS_Interpreter_AssignmentPattern(initializer, environment);
+
+    /* b. Let v be GetValue(defaultValue). */
+    v := GetValue(defaultValue);
+
+    /* c. ReturnIfAbrupt(v). */
+    @ReturnIfAbrupt(v)
+    /* d. TODO */
+
+   };
 
    /* 7. If environment is undefined, return PutValue(lhs, v). */
    if (environment = 'undefined) {
@@ -1026,7 +1041,7 @@ function IteratorBindingInitializationBindingIdentifier(paramName, listIterator,
    };
 
    /* 8. Return InitializeReferencedBinding(lhs, v). */
-   return InitializeReferencedBinding(lhs, v, environment.EnvRec)
+   return InitializeReferencedBinding(lhs, v, environment.LexicalEnvironment.EnvRec)
 };
 
 /* Auxiliary Functions */
@@ -1074,4 +1089,11 @@ function getIsSimpleParameterListFromFunction(codeObj) {
     return true
   };
   return codeObj.isSimpleParameterList
+};
+
+function getParamsInitializers(codeObj) {
+  if (codeObj = 'undefined) {
+    return []
+  };
+  return codeObj.paramsInitializers
 }

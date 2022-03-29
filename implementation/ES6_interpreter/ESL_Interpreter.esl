@@ -493,6 +493,18 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
   }
 };
 
+function JS_Interpreter_AssignmentPattern(AssignmentPattern, scope) {
+  /* TODO: Match this with the standard */
+  /* This is currently used for functions with default parameters, to evaluate the right side
+      Example function foo(a, b = 2) { ... } */
+  /* 2. Let rref be the result of evaluating AssignmentPattern. */
+  rref := JS_Interpreter_Expr(AssignmentPattern.right, scope);
+
+  /* 3. Let rval be GetValue(rref). */
+  rval := GetValue(rref);
+  return rval
+};
+
 function JS_Interpreter_LogicalExpression(LogicalExpression, scope) {
   match LogicalExpression with
   | { operator: "&&", left: LogicalANDExpression, right: BitwiseORExpression } -> {
