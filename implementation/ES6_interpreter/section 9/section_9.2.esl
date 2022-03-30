@@ -199,9 +199,9 @@ function OrdinaryCallEvaluateBody(scope, F, argumentsList) {
  * possibly empty List of ECMAScript language values. The following steps are
  * taken:
  */
-function FunctionConstruct(F, scope, argumentsList, newTarget) {
+function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
   /* 1. Assert: F is an ECMAScript function object. */
-  assert(isESFunctionObject(F));
+  /*assert(isESFunctionObject(F)); */
 
   /* 2. Assert: Type(newTarget) is Object. */
   assert(Type(newTarget) = "Object");
@@ -216,7 +216,7 @@ function FunctionConstruct(F, scope, argumentsList, newTarget) {
   if (kind = "base") {
     /* a. Let thisArgument be OrdinaryCreateFromConstructor(newTarget,
        "%ObjectPrototype%"). */
-    thisArgument := OrdinaryCreateFromConstructor(newTarget, "%ObjectPrototype%");
+    thisArgument := OrdinaryCreateFromConstructor(newTarget, "%ObjectPrototype%", []);
     /* b. ReturnIfAbrupt(thisArgument). */
     @ReturnIfAbrupt(thisArgument)
   };
@@ -240,7 +240,7 @@ function FunctionConstruct(F, scope, argumentsList, newTarget) {
   envRec := constructorEnv.EnvRec;
 
   /* 11. Let result be OrdinaryCallEvaluateBody(F, argumentsList). */
-  result := OrdinaryCallEvaluateBody(F, argumentsList);
+  result := OrdinaryCallEvaluateBody(scope, F, argumentsList);
 
   /* 12. Remove calleeContext from the execution context stack and restore
      callerContext as the running execution context. */
@@ -272,7 +272,7 @@ function FunctionConstruct(F, scope, argumentsList, newTarget) {
   };
 
   /* 15. Return envRec.GetThisBinding(). */
-  return {envRec.GetThisBinding}()
+  return getThisBinding(scope)
 };
 
 /**

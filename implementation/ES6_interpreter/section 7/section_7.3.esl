@@ -340,7 +340,7 @@ function Call(externalScope, ref, F, V, argumentsList) {
 */
 function Construct(externalScope, ref, F, argumentsList, newTarget) {
 	/* If newTarget was not passed, let newTarget be F. */
- 	if ( newTarget = null ) { 
+ 	if ( newTarget = null ) {
  		newTarget := F
  	};
 
@@ -357,7 +357,7 @@ function Construct(externalScope, ref, F, argumentsList, newTarget) {
 
  	/* Return F.[[Construct]](argumentsList, newTarget). */
 	 /*TODO: wrong arguments, change it accordingly to ES6  */ 
- 	return {F.Construct}(externalScope, ref, F, argumentsList)
+ 	return {F.Construct}(externalScope, ref, F, argumentsList, newTarget)
 };
 
 /**

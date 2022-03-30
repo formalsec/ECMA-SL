@@ -156,7 +156,7 @@ function OrdinaryFunctionCall(externalScope, ref, F, this, args) {
 };
 
 
-function OrdinaryFunctionConstruct(externalScope, ref, F, argumentList) {
+function OrdinaryFunctionConstruct(externalScope, ref, F, argumentList, newTarget) {
   /* 13.2.2 [[Construct]] */
 
   /* When the [[Construct]] internal method for a Function object F is called with a possibly empty list of arguments,

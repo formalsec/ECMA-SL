@@ -361,7 +361,7 @@ function CallBind(externalScope, ref, F, this, ExtraArgs) {
 };
 
 /* 15.3.4.5.2 [[Construct]] */
-function ConstructBind(externalScope, ref, F, ExtraArgs) {
+function ConstructBind(externalScope, ref, F, ExtraArgs, newTarget) {
   /* When the [[Construct]] internal method of a function object, F that was created using the bind function is called
      with a list of arguments ExtraArgs, the following steps are taken: */
 
@@ -377,7 +377,7 @@ function ConstructBind(externalScope, ref, F, ExtraArgs) {
         same values as the list ExtraArgs in the same order. */
   args := l_concat(boundArgs, ExtraArgs);
   /* 5. Return the result of calling the [[Construct]] internal method of target providing args as the arguments. */
-  return {target.Construct}(externalScope, ref, target, args)
+  return {target.Construct}(externalScope, ref, target, args, newTarget)
 };
 
 /* 15.3.4.5.3 [[HasInstance]] (V) */

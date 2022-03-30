@@ -986,8 +986,8 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
 
     /* 1. Let obj be the result of creating a new object as if by the expression new Object()
           where Object is the standard built-in constructor with that name. */
-
-    obj := ObjectCreate(objProto, PropertyNameAndValueList);
+    /* TODO FIX SECOND ARGUMENT*/
+    obj := ObjectCreate(objProto, null);
 
 
     /* The production PropertyNameAndValueList : PropertyNameAndValueList , PropertyAssignment is evaluated as follows: */
