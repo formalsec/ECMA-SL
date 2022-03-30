@@ -87,6 +87,9 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
     assert(Type(newTarget) = "Undefined" ||| Type(newTarget) = "Object");
 
     /* 2. Let callerContext be the running execution context. */
+    if (externalScope = null) {
+      externalScope := createExecutionContext()
+    };
     callerContext := externalScope;
 
     /* 3. Let calleeContext be a new ECMAScript code execution context. */

@@ -439,8 +439,8 @@ function GetIdentifierReference(lex, name, strict) {
   print "GetIdentifierReference";
   /* The abstract operation GetIdentifierReference is called with a Lexical Environment lex, an identifier String
      name, and a Boolean flag strict. The value of lex may be null. When called, the following steps are performed: */
-  /* 1. If lex is the value null, then */
-  if (lex = 'null) {
+  /* 1. If lex is the value null or true, then */
+  if (lex = 'null ||| lex = null ||| lex = 'undefined) {
     /* a. Return a value of type Reference whose base value is undefined, whose referenced name is name,
           and whose strict mode flag is strict. */
     return newValueReference('undefined, name, strict)
