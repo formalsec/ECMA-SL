@@ -30,7 +30,7 @@ var C = new other.Function();
 C.prototype = null;
 
 testWithTypedArrayConstructors(function(TA) {
-  var ta = Reflect.construct(TA, [], C);
+  var ta = Reflect.construct(TA, [], C); /* Reflect not currently implemented */
 
   assert.sameValue(Object.getPrototypeOf(ta), other[TA.name].prototype);
 });

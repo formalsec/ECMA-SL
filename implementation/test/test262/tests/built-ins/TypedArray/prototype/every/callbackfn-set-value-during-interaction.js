@@ -25,6 +25,8 @@ includes: [testTypedArray.js]
 features: [Reflect.set, TypedArray]
 ---*/
 
+/* Test currently fails because of Reflect dependency */
+
 testWithTypedArrayConstructors(function(TA) {
   var sample = new TA([42, 43, 44]);
   var newVal = 0;

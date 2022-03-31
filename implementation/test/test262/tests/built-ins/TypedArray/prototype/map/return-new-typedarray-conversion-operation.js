@@ -57,5 +57,11 @@ testTypedArrayConversions(byteConversionValues, function(TA, value, expected, in
     return value;
   });
 
+  console.log(result.length);
+  console.log(result[0]); // 0
+  console.log(initial); // 0
+  console.log(value); // undefined
+  console.log(expected); // NaN
+
   assert.sameValue(result[0], expected, value + " converts to " + expected);
 });

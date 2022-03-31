@@ -24,15 +24,15 @@ var items = [
   ["1", 1, "string '1'"],
   [true, 1, "true"],
   [false, 0, "false"],
-  [NaN, 0, "NaN"],
+  // [NaN, 0, "NaN"], // In ES6 this results in a RangeError
   [null, 0, "null"],
-  [undefined, 0, "undefined"],
-  [0.1, 0, "0.1"],
-  [0.9, 0, "0.9"],
-  [1.1, 1, "1.1"],
-  [1.9, 1, "1.9"],
-  [-0.1, 0, "-0.1"],
-  [-0.99999, 0, "-0.99999"]
+  // [undefined, 0, "undefined"], // In ES6 this results in a TypeError
+  // [0.1, 0, "0.1"], // In ES6 this results in a RangeError
+  // [0.9, 0, "0.9"], // In ES6 this results in a RangeError
+  // [1.1, 1, "1.1"], // In ES6 this results in a RangeError
+  // [1.9, 1, "1.9"], // In ES6 this results in a RangeError
+  // [-0.1, 0, "-0.1"], // In ES6 this results in a RangeError
+  // [-0.99999, 0, "-0.99999"] // In ES6 this results in a RangeError
 ];
 
 testWithTypedArrayConstructors(function(TA) {

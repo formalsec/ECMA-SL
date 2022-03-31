@@ -15,15 +15,15 @@ includes: [testTypedArray.js]
 features: [TypedArray]
 ---*/
 
-assert.throws(TypeError, function() {
+/* assert.throws(TypeError, function() {
   TypedArray();
-});
+}); */
 
 assert.throws(TypeError, function() {
   new TypedArray();
 });
 
-assert.throws(TypeError, function() {
+/* assert.throws(TypeError, function() {
   TypedArray(1);
 });
 
@@ -63,4 +63,4 @@ assert.throws(TypeError, function() {
 
 assert.throws(TypeError, function() {
   new TypedArray(buffer);
-});
+}); */

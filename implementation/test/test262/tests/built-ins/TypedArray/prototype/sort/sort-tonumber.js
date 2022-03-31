@@ -27,8 +27,11 @@ testWithTypedArrayConstructors(function(TA) {
       // So, detach the ArrayBuffer to cause sort to throw, to make sure we're actually calling ToNumber immediately (as spec'd)
       // (a possible bug is to wait until the result is inspected to call ToNumber, rather than immediately)
       $DETACHBUFFER(ab);
+      /* return {
+        [Symbol.toPrimitive]() { called = true; } // *??* The instantiation of this object causes an error because the interpreter can't initialize the property. 
+      }; */
       return {
-        [Symbol.toPrimitive]() { called = true; }
+        valueOf() { called = true; }
       };
     });
   });

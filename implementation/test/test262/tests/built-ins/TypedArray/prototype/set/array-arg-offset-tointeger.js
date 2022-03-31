@@ -18,6 +18,7 @@ includes: [testTypedArray.js, compareArray.js]
 features: [TypedArray]
 ---*/
 
+/* Requires garbage collector. Right now it can't run the test completely because it runs out of memory to allocate arrays. */
 testWithTypedArrayConstructors(function(TA) {
   var sample;
 

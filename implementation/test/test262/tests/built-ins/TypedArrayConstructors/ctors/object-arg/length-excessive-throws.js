@@ -20,7 +20,7 @@ features: [TypedArray]
 ---*/
 
 var obj = {
-  length: Math.pow(2, 53)
+  length: Math.pow(2, 53) /* *??* Seems like an arbitrary number. Maybe highest possible Number value + 1 */
 };
 
 testWithTypedArrayConstructors(function(TA) {

@@ -34,7 +34,7 @@ var ctor = function() {
   throw new Test262Error();
 };
 var m = { m() {} }.m;
-ctor[Symbol.species] = m;
+ctor[Symbol.species] = m; // *??* m has a Construct internal method so it is considered a constructor and so a TypeError is not thrown. Culprit probably is section_13.esl:54
 
 testWithTypedArrayConstructors(function(TA) {
   var sample = TA === Int8Array ? sample2 : sample1;

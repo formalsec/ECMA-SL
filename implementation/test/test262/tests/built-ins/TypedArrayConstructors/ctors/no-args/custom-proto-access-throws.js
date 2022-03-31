@@ -38,6 +38,6 @@ Object.defineProperty(newTarget, "prototype", {
 
 testWithTypedArrayConstructors(function(TA) {
   assert.throws(Test262Error, function() {
-    Reflect.construct(TA, [], newTarget);
+    Reflect.construct(TA, [], newTarget); /* depends on Reflect which is not currently implemented */
   });
 });

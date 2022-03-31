@@ -40,11 +40,23 @@ features: [cross-realm, Symbol.species, TypedArray]
 var sample1 = new Int8Array();
 var sample2 = new Int16Array();
 var other = $262.createRealm().global;
-var C = new other.Function();
+/* var C = new other.Function();
 C.prototype = null;
 
+var TA = Int8Array;
+var sample = TA === Int8Array ? sample2 : sample1;
+var ctor = {}; */
 
-testWithTypedArrayConstructors(function(TA) {
+/* sample.buffer.constructor = ctor;
+
+ctor[Symbol.species] = C;
+
+var typedArray = new TA(sample);
+assert.sameValue(
+  Object.getPrototypeOf(typedArray.buffer), other.ArrayBuffer.prototype
+); */
+
+/* testWithTypedArrayConstructors(function(TA) {
   var sample = TA === Int8Array ? sample2 : sample1;
   var ctor = {};
 
@@ -56,4 +68,4 @@ testWithTypedArrayConstructors(function(TA) {
   assert.sameValue(
     Object.getPrototypeOf(typedArray.buffer), other.ArrayBuffer.prototype
   );
-});
+}); */

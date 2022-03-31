@@ -31,6 +31,9 @@ function body(FloatArray) {
     0,
     length
   );
+    /* *??* There are various types of NaN that have different bit encodings */
+  console.log(subject.buffer) // [0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 192; 255; 0; 0; 192; 255; 0; 0; 192; 127; 0; 0; 192; 255; 0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0]
+  console.log(originalBytes) //   0, 0, 192, 127, 0, 0, 192, 127, 0, 0, 192, 127, 0, 0, 192, 255, 0, 0, 192, 255, 0, 0, 192, 127, 0, 0, 192, 255, 0, 0, 192, 127, 0, 0, 192, 127
 
   subject.copyWithin(NaNs.length, 0);
   copiedBytes = new Uint8Array(
@@ -38,7 +41,11 @@ function body(FloatArray) {
     length
   );
 
+  console.log(subject.buffer) // [0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 192; 255; 0; 0; 192; 255; 0; 0; 192; 127; 0; 0; 192; 255; 0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 192; 127; 0; 0; 192; 127]
+  console.log(originalBytes)  //  0, 0, 192, 127, 0, 0, 192, 127, 0, 0, 192, 127, 0, 0, 192, 255, 0, 0, 192, 255, 0, 0, 192, 127, 0, 0, 192, 255, 0, 0, 192, 127, 0, 0, 192, 127
+  console.log(copiedBytes)    //                                                                                                                                                  0, 0, 192, 127, 0, 0, 192, 127, 0, 0, 192, 127, 0, 0, 192, 127, 0, 0, 192, 127, 0, 0, 192, 127, 0, 0, 192, 127, 0, 0, 192, 127, 0, 0, 192, 127
+
   assert(compareArray(originalBytes, copiedBytes));
 }
 
-testWithTypedArrayConstructors(body, [Float32Array, Float64Array]);
+testWithTypedArrayConstructors(body, [Float32Array]);

@@ -89,12 +89,12 @@ testWithTypedArrayConstructors(function(FA) {
 
       assert(
         samples[i] !== samples[i],
-        `samples (index=${idx}) produces a valid NaN (${precision} precision)`
+        "samples (index=" + idx + ") produces a valid NaN (" + precision + " precision)"
       );
 
       assert(
         controls[i] !== controls[i],
-        `controls (index=${idx}) produces a valid NaN (${precision} precision)`
+        "controls (index=" + idx + ") produces a valid NaN (" + precision + " precision)"
       );
     }
   }
