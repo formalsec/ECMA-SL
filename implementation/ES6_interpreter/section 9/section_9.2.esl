@@ -729,7 +729,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   functionNames := [];
 
   /* 15. Let functionsToInitialize be an empty List. */
-  functionsToInitialize := [];
+  functionsToInitialize := getFunctionDeclarationsInCode(code);
 
   /* 16. For each d in varDeclarations, in reverse list order do */
   /* TODO */
@@ -954,8 +954,20 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   /* TODO */
 
   /* 36. For each parsed grammar phrase f in functionsToInitialize, do */
+  i := 0;
+  lfunctionsToInitialize := l_len functionsToInitialize;
+  while(lfunctionsToInitialize > i) {
+    f := l_nth(functionsToInitialize, i);
 
-  /* 37. Return NormalCompletion(empty). */
+    fn := f.id.name;
+
+    fo := JS_Interpreter_FunctionDeclaration(f, calleeContext);
+
+    status := CreateMutableBinding(envRec, fn, false);
+    status_two := SetMutableBinding(envRec, fn, fo, false);
+    i := i + 1
+  };
+    /* 37. Return NormalCompletion(empty). */
   return NormalCompletion('empty)
 };
 /**
