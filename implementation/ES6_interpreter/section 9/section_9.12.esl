@@ -17,7 +17,7 @@ function SameValue (x, y) {
   /* 6. If Type(x) is Number, then. */
   if (Type(x) = "Number") {
     /* a. If x is NaN and y is NaN, return true. */
-    if ((x = NaN) && (y = NaN)) { return true };
+    if ((is_NaN x) && (is_NaN y)) { return true };
     /* b. If x is +0 and y is -0, return false. */
     if (isZero(x) && isMinusZero(y)) { return false };
     /* c. If x is -0 and y is +0, return false. */

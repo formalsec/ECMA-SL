@@ -64,7 +64,7 @@ function _ToInt32(argument) {
   /* 2. ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(number);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (number = NaN ||| number = Infinity ||| number = -Infinity 
+  if (is_NaN number ||| number = Infinity ||| number = -Infinity 
         ||| isZero(number) ||| isMinusZero(number)) {
     return 0.
   };
@@ -108,7 +108,7 @@ function _ToUint32(argument) {
   /* 2. ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(number);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (number = NaN ||| number = Infinity ||| number = -Infinity 
+  if (is_NaN number ||| number = Infinity ||| number = -Infinity 
         ||| isZero(number) ||| isMinusZero(number)) {
     return 0.
   };
@@ -136,7 +136,7 @@ function ToInt16(argument) {
   /* 2. ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(number);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (number = NaN ||| number = Infinity ||| number = -Infinity 
+  if (is_NaN number ||| number = Infinity ||| number = -Infinity 
         ||| isZero(number) ||| isMinusZero(number)) {
     return 0.
   };
@@ -174,7 +174,7 @@ function _ToUint16(argument) {
   /* 2. ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(number);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (number = NaN ||| number = Infinity ||| number = -Infinity 
+  if (is_NaN number ||| number = Infinity ||| number = -Infinity 
         ||| isZero(number) ||| isMinusZero(number)) {
     return 0.
   };
@@ -203,7 +203,7 @@ function ToInt8(argument) {
   /* 2. ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(number);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (number = NaN ||| number = Infinity ||| number = -Infinity 
+  if (is_NaN number ||| number = Infinity ||| number = -Infinity 
         ||| isZero(number) ||| isMinusZero(number)) {
     return 0.
   };
@@ -239,7 +239,7 @@ function ToUint8(argument) {
   /* 2. ReturnIfAbrupt(number). */
   @ReturnIfAbrupt(number);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (number = NaN ||| number = Infinity ||| number = -Infinity 
+  if (is_NaN number ||| number = Infinity ||| number = -Infinity 
         ||| isZero(number) ||| isMinusZero(number)) {
     return 0.
   };
@@ -273,9 +273,9 @@ function ToUint8Clamp(argument) {
     /* 1. Let number be ToNumber(argument). */
     number := ToNumber(argument);
     /* 2. ReturnIfAbrupt(number). */
-    ReturnIfAbrupt(number);
+    @ReturnIfAbrupt(number);
     /* 3. If number is NaN, return +0. */
-    if (number = NaN){
+    if (is_NaN number){
         return 0.
     };
     /* 4. If number ≤ 0, return +0. */

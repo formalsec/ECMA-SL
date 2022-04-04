@@ -63,7 +63,7 @@ function IsInteger(argument){
   };
 
   /* 3. If argument is NaN, +∞, or −∞, return false. */
-  if ((argument = NaN) || (argument = Infinity) || (argument = -Infinity)){
+  if ((is_NaN argument) || (argument = Infinity) || (argument = -Infinity)){
     return false
   };
 
@@ -152,7 +152,7 @@ function SameValueZero (x, y) {
   /* 6. If Type(x) is Number, then. */
   if (Type(x) = "Number") {
     /* a. If x is NaN and y is NaN, return true. */
-    if ((x = NaN) && (y = NaN)) { return true };
+    if ((is_NaN x) && (is_NaN y)) { return true };
     /* b. If x is +0 and y is -0, return true. */
     if (isZero(x) && isMinusZero(y)) { return true };
     /* c. If x is -0 and y is +0, return true. */

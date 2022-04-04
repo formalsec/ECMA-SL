@@ -80,6 +80,7 @@
                   "sin"             , SIN;
                   "sqrt"            , SQRT;
                   "tan"             , TAN;
+                  "is_NaN"          , IS_NAN;
                   "typeof"          , TYPEOF;
                   "if"              , IF;
                   "else"            , ELSE;

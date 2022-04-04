@@ -67,7 +67,7 @@ function getStrDecimalLiteral(string) {
     return "0"
   };
 
-  if (!(float_of_string string = NaN)) {
+  if (!(is_NaN (float_of_string string))) {
     return string
   };
 
@@ -75,7 +75,7 @@ function getStrDecimalLiteral(string) {
     subLen := subLen - 1;
 
     subStr := s_substr(string, 0, subLen);
-    if (!(float_of_string subStr = NaN)) {
+    if (!(is_NaN (float_of_string subStr))) {
       return subStr
     }
   };

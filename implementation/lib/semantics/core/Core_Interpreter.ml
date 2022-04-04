@@ -24,6 +24,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   match op with
   | Neg           -> Oper.neg v
   | Not           -> Oper.not v
+  | IsNaN         -> Oper.is_NaN v
   | BitwiseNot    -> Oper.bitwise_not v
   | Typeof        -> Oper.typeof v
   | ListLen       -> Oper.l_len v

@@ -53,6 +53,7 @@
                 "sqrt"            , SQRT;
                 "tan"             , TAN;
                 "PI"              , PI;
+                "is_NaN"          , IS_NAN;
                 "MAX_VALUE"       , MAX_VALUE;
                 "MIN_VALUE"       , MIN_VALUE;
                 "in_obj"          , IN_OBJ;

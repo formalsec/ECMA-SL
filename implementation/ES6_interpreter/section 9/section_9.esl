@@ -18,7 +18,7 @@ function ToBoolean(argument) {
     return argument
   };
   if (typeArgument = "Number") {
-    if ((argument = 0.) || (argument = -(0.)) || (argument = NaN)) {
+    if ((argument = 0.) || (argument = -(0.)) || (is_NaN argument)) {
       return false
     } else {
       return true
@@ -86,7 +86,7 @@ function ToInteger(argument) {
   /* Let number be the result of calling ToNumber on the input argument. */
   number := ToNumber(argument);
   /* If number is NaN, return +0. */
-  if (number = NaN){
+  if (is_NaN number){
     return 0.
   };
 

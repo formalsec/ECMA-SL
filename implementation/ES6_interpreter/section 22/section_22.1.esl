@@ -3720,7 +3720,7 @@ function SortCompareNew(comparefn, x, y) {
       @ReturnIfAbrupt(v);
 
       /* c. If v is NaN, return +0. */
-      if (v = NaN) {
+      if (is_NaN v) {
         return 0.
       };
 

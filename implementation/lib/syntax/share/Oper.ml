@@ -50,6 +50,7 @@ type topt = Ssubstr
 
 type uopt = Neg
           | Not
+          | IsNaN
           | BitwiseNot
           | Typeof
           | ListLen
@@ -138,6 +139,10 @@ let not (v : Val.t) : Val.t = match v with
   | Bool v -> Bool (v = false)
   | _      -> invalid_arg "Exception in Oper.not: this operation is only applicable to a boolean type argument"
 
+let is_NaN (v : Val.t) : Val.t = match v with
+  | Flt v -> Bool (Float.is_nan v)
+  | _     -> Bool (false)
+
 let bitwise_not (v : Val.t) : Val.t = match v with
   | Flt f -> Flt (Arith_Utils.int32_bitwise_not f)
   | _     -> invalid_arg "Exception in Oper.bitwise_not: this operation is only applicable to Float arguments"
@@ -167,7 +172,10 @@ let modulo (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | _                -> invalid_arg "Exception in Oper.modulo: this operation is only applicable to Float arguments"
 
 let equal (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
-  | (Flt f1, Flt f2) -> Bool (Float.equal f1 f2)
+  | (Flt f1, Flt f2) -> 
+      if ((Float.is_nan f1) && (Float.is_nan f2)) then ( Bool (false) )
+      else (Bool (Float.equal f1 f2))
+  | (Arr a1, Arr a2) -> Bool (a1 == a2)
   | _                -> Bool (v1 = v2)
 
 let gt (v1, v2 : Val.t * Val.t) : Val.t = Bool (v1 > v2)
@@ -718,6 +726,7 @@ let str_of_const (c : const) : string = match c with
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
   | Not           -> "!"
+  | IsNaN         -> "is_NaN"
   | BitwiseNot    -> "~"
   | Typeof        -> "typeof"
   | ListLen       -> "l_len"
@@ -992,6 +1001,7 @@ let uopt_to_json (op : uopt) : string =
     (match op with
      | Neg           -> Printf.sprintf "Neg\" }"
      | Not           -> Printf.sprintf "Not\" }"
+     | IsNaN         -> Printf.sprintf "IsNaN\" }"
      | BitwiseNot    -> Printf.sprintf "BitwiseNot\" }"
      | Typeof        -> Printf.sprintf "Typeof\" }"
      | ListLen       -> Printf.sprintf "ListLen\" }"
