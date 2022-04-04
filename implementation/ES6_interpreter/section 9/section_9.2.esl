@@ -55,6 +55,7 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, argumentLi
 
     /* TODO */
     /* 6. Perform OrdinaryCallBindThis(F, calleeContext, thisArgument). */
+    OrdinaryCallBindThis(F, calleeContext, thisArgument);
 
 
     /* 7. Let result be OrdinaryCallEvaluateBody(F, argumentsList). */
@@ -154,7 +155,8 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
     else {
         if (thisArgument = 'undefined ||| thisArgument = 'null) {
             /* a. Let thisValue be calleeRealm.[[globalThis]].  */
-            thisValue := calleeRealm.globalThis
+            /* thisValue := calleeRealm.globalThis */
+            thisValue := {}
         } /* b. Else,  */
         else {
             /* c. Let thisValue be ToObject(thisArgument).  */
@@ -170,9 +172,8 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
     /* TODO */
     /* 8. Assert: The next step never returns an abrupt completion because envRec.[[thisBindingStatus]] is not "uninitialized".  */
 
-    /* TODO */
     /* 9. Return envRec.BindThisValue(thisValue). */
-    return 'undefined
+    return BindThisValue(envRec, thisValue)
 };
 
 /**
@@ -1010,7 +1011,7 @@ function IteratorBindingInitializationBindingIdentifier(paramName, listIterator,
 
     /* b. If next is an abrupt completion, set iteratorRecord.[[done]] to true. */
     if (isAnAbruptCompletion(next)) {
-      Set(listIterator, "done", true)
+      Set(listIterator, "done", true, false)
     };
 
     /* c. ReturnIfAbrupt(next). */
@@ -1018,14 +1019,14 @@ function IteratorBindingInitializationBindingIdentifier(paramName, listIterator,
 
     /* d. If next is false, set iteratorRecord.[[done]] to true. */
     if (next = false) {
-      Set(listIterator, "done", true)
+      Set(listIterator, "done", true, false)
     } else {
       /* i. Let v be IteratorValue(next). */
       v := IteratorValue(next);
 
       /* ii.If v is an abrupt completion, set iteratorRecord.[[done]] to true. */
       if (isAnAbruptCompletion(v)) {
-        Set(listIterator, "done", true)
+        Set(listIterator, "done", true, false)
       };
 
       /* iii. ReturnIfAbrupt(v). */
@@ -1093,21 +1094,22 @@ function argumentsInArray(parameters) {
 };
 
 function getContainsExpressionInFunctionParams(codeObj) {
-  if (codeObj = 'undefined) {
+  if ((codeObj = 'undefined)||| (!(Type(codeObj) = "Object"))) {
     return false
   };
   return codeObj.containsExpression
 };
 
 function getIsSimpleParameterListFromFunction(codeObj) {
-  if (codeObj = 'undefined) {
+  /* IF type of codeObj is not object */
+  if (codeObj = 'undefined ||| (!(Type(codeObj) = "Object"))) {
     return true
   };
   return codeObj.isSimpleParameterList
 };
 
 function getParamsInitializers(codeObj) {
-  if (codeObj = 'undefined) {
+  if ((codeObj = 'undefined )||| (!(Type(codeObj) = "Object"))) {
     return []
   };
   return codeObj.paramsInitializers

@@ -388,11 +388,11 @@ function ToUint16(argument) {
 function ToString( argument ) {
 	switch( Type(argument) ) {
 		case "Completion": {
-			if ( isAnAbruptCompletion(input) = true ) {
-				return input
+			if ( isAnAbruptCompletion(argument) = true ) {
+				return argument
 			}
 			else {
-				return ToString(getCompletionValue(input))
+				return ToString(getCompletionValue(argument))
 			}
 		}
 
@@ -431,11 +431,11 @@ function ToString( argument ) {
 function ToObject(argument) {
 	switch( Type(argument) ) {
 		case "Completion": {
-			if ( isAnAbruptCompletion(input) = true ) {
-				return input
+			if ( isAnAbruptCompletion(argument) = true ) {
+				return argument
 			}
 			else {
-				return ToObject(getCompletionValue(input))
+				return ToObject(getCompletionValue(argument))
 			}
 		}
 

@@ -753,10 +753,10 @@ function GetPrototypeFromConstructor(constructor, intrinsicDefaultProto) {
     /* If Type(proto) is not Object, then */
     if ( !(Type(proto) = "Object") ) {
         /* Let realm be GetFunctionRealm(constructor). */
-        realm := GetFunctionRealm(constructor);
+        /* realm := GetFunctionRealm(constructor); */
 
         /* ReturnIfAbrupt(realm). */
-        @ReturnIfAbrupt(realm);
+        /* @ReturnIfAbrupt(realm); */
 
         /* Let proto be realm’s intrinsic object named intrinsicDefaultProto. */
         proto := intrinsicDefaultProto /* nao sei como fazer isto ?? */

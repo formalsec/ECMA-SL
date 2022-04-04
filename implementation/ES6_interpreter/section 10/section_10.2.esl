@@ -689,4 +689,18 @@ function hasUninitialisedImmutableBinding(envRec, name) {
 function isBindingCannotBeDeleted(envRec, name) {
   binding := envRec[name];
   return !t_nth(binding, 2)
+};
+
+function BindThisValue(envRec, V) {
+  assert(!(envRec.thisBindingStatus = "lexical"));
+
+  if (envRec.thisBindingStatus = "initialized") {
+    throw ReferenceErrorConstructorInternal()
+  };
+
+  envRec.thisValue = V;
+
+  envRec.thisBindingStatus = "initialized";
+
+  return V
 }
