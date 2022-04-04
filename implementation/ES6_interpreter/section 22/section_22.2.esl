@@ -952,7 +952,7 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
       Pk := ToString(k);
       /* ii. Let kValue be the first element of values and remove that element from values. */
       kValue := l_nth(values, 0);
-      values := l_remove_nth(values, 0); /* TODO: there is no operation to remove the first element of a list or a specific one to my knowledge. The only existent operation is l_remove_last */
+      values := l_remove_nth(values, 0);
       /* iii. If mapping is true, then */
       if (mapping) {
         /* 1. Let mappedValue be Call(mapfn, T, «kValue, k»). */

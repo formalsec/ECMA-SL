@@ -23,6 +23,7 @@ type bopt = Plus
           | InObj
           | InList
           | Lnth
+          | LRemNth
           | Tnth
           | Snth
           | Snth_u
@@ -403,6 +404,22 @@ let list_remove_last (v : Val.t) : Val.t = match v with
     | _ :: l'' -> List (List.rev l'')
     | _ -> List [])
 | _       -> invalid_arg "Exception in Oper.list_remove_last: this operation is only applicable to List arguments"
+
+let rec list_remove_nth_aux (v1, v2 : Val.t * Val.t) : Val.t list = match v1, v2 with
+  | List l, Int idx  -> 
+    if (idx = 0) then 
+      List.tl l
+    else
+      List.hd l :: list_remove_nth_aux (List (List.tl l), Int(idx - 1))
+  | _                -> invalid_arg "Exception in Oper.list_remove_last: this operation is only applicable to List and Int arguments"
+
+let list_remove_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | List l, Int idx  -> 
+    if (idx >= 0) then 
+      List(list_remove_nth_aux (List(l), Int(idx)))
+    else
+      invalid_arg "Exception in Oper.list_remove_last: this operation is only applicable to List and Int greater or equal to 0 arguments"
+  | _                -> invalid_arg "Exception in Oper.list_remove_last: this operation is only applicable to List and Int arguments"
 
 let list_sort (v : Val.t) : Val.t = match v with
   | List l ->
@@ -794,6 +811,7 @@ let str_of_binopt_single (op : bopt) : string = match op with
   | InObj    -> "in_obj"
   | InList   -> "in_list"
   | Lnth     -> "l_nth"
+  | LRemNth  -> "l_remove_nth"
   | Tnth     -> "t_nth"
   | Snth     -> "s_nth"
   | Snth_u   -> "s_nth_u"
@@ -836,6 +854,7 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | InObj    -> e1 ^ " in_obj " ^ e2
   | InList   -> e1 ^ " in_list " ^ e2
   | Lnth     -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | LRemNth  -> "l_remove_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Tnth     -> "t_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Snth     -> "s_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Snth_u   -> "s_nth_u(" ^ e1 ^ ", " ^ e2 ^ ")"
@@ -930,6 +949,7 @@ let bopt_to_json (op : bopt) : string =
      | InObj   -> Printf.sprintf "InObj\" }"
      | InList  -> Printf.sprintf "InList\" }"
      | Lnth    -> Printf.sprintf "Lnth\" }"
+     | LRemNth -> Printf.sprintf "LRemNth\" }"
      | Tnth    -> Printf.sprintf "Tnth\" }"
      | Snth    -> Printf.sprintf "Snth\" }"
      | Snth_u  -> Printf.sprintf "Snth_u\" }"

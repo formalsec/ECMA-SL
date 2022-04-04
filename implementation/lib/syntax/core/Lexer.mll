@@ -22,6 +22,7 @@
                   "l_prepend"       , LPREPEND;
                   "l_concat"        , LCONCAT;
                   "l_remove_last"   , LREMOVELAST;
+                  "l_remove_nth"    , LREMNTH;
                   "l_sort"          , LSORT;
                   "l_reverse"       , LREVERSE;
                   "hd"              , HD;

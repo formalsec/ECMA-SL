@@ -100,6 +100,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ShiftRight -> Oper.shift_right (v1, v2)
   | ShiftRightLogical -> Oper.shift_right_logical (v1, v2)
   | Lnth     -> Oper.list_nth (v1, v2)
+  | LRemNth  -> Oper.list_remove_nth (v1, v2)
   | Tnth     -> Oper.tuple_nth (v1, v2)
   | Snth     -> Oper.s_nth (v1,v2)
   | Snth_u   -> Oper.s_nth_u (v1,v2)
