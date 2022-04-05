@@ -244,7 +244,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
   envRec := constructorEnv.EnvRec;
 
   /* 11. Let result be OrdinaryCallEvaluateBody(F, argumentsList). */
-  result := OrdinaryCallEvaluateBody(scope, F, argumentsList);
+  result := OrdinaryCallEvaluateBody(calleeContext, F, argumentsList);
 
   /* 12. Remove calleeContext from the execution context stack and restore
      callerContext as the running execution context. */
