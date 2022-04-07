@@ -1,17 +1,3 @@
-function InternalObjectCreate(proto) {
-
-    newlyConstructedObject := NewECMAScriptObject();
-    setAllInternalMethodsOfObject(newlyConstructedObject);
-
-    setInternalProperty(newlyConstructedObject, "Prototype", proto);
-  
-    setInternalProperty(newlyConstructedObject, "Extensible", true);
-  
-    setInternalProperty(newlyConstructedObject, "Class", "Object");
-
-    return newlyConstructedObject
-};
-
 function CreateDataProperty (obj, prop, val) {
     descriptor := newDataPropertyDescriptorFull(val, true, true, true);
     setJSProperty(obj, prop, descriptor); 
@@ -22,7 +8,7 @@ function CreateDataProperty (obj, prop, val) {
 /* CreateIterResultObject ( value, done )*/
 function CreateIterResultObject ( value, done ) {
     /* 1. Let obj be ObjectCreate(%ObjectPrototype%). */
-    obj := InternalObjectCreate(|ObjectPrototype|); 
+    obj := InternalObjectCreate(|ObjectPrototype|, null); 
 
     /* 2. Perform CreateDataProperty(obj, "value", value). */
     CreateDataProperty(obj, "value", value); 

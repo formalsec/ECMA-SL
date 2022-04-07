@@ -23,6 +23,9 @@ function CreateByteDataBlock(size) {
     if (size >= (7 * 1125899906842624)) {
         throw RangeErrorConstructorInternal()
     };
+    if (size = 0.) {
+        size := 1.
+    };
     db := array_make(int_of_float(size), float_to_byte(0.));
     
     /* i := 0.;
@@ -37,41 +40,30 @@ function CreateByteDataBlock(size) {
 
 /* 6.2.6.2 CopyDataBlockBytes(toBlock, toIndex, fromBlock, fromIndex, count) */
 function CopyDataBlockBytes(toBlock, toIndex, fromBlock, fromIndex, count) {
+    count := int_of_float count;
+    fromIndex := int_of_float fromIndex;
     /* Assert: fromBlock and toBlock are distinct Data Block values. */
     assert (!(fromBlock = toBlock));
     /* Assert: fromIndex, toIndex, and count are positive integer values. */
-    assert (!(fromIndex = toIndex));
+    assert ((fromIndex >= 0) &&& (toIndex >= 0) &&& (count >= 0)); 
     /* Let fromSize be the number of bytes in fromBlock. */
-    fromSize := l_len(fromBlock);
+    fromSize := a_len(fromBlock);
     /* Assert: fromIndex+count ≤ fromSize. */
     assert((fromIndex + count) <= fromSize);
     /* Let toSize be the number of bytes in toBlock. */
-    toSize := l_len(toBlock);
+    toSize := a_len(toBlock);
     /* Assert: toIndex+count ≤ toSize. */
     assert((toIndex + count) <= toSize);
-    /* Copying from start to toIndex */
-    res := [];
-    index := 0;
-    while (index < toIndex) {
-        l_concat(res, [l_nth(toBlock, i)]);
-        i := i + 1
-    };
-    /* Copying from toIndex to toIndex + count */
+    /* 7. Repeat, while count>0 */
     while (count > 0) {
-        /* TODO Set toBlock[toIndex] to the value of fromBlock[fromIndex]. */
-        l_concat(res, [l_nth(fromBlock, fromIndex)]);
-        /* Increment toIndex and fromIndex each by 1. */
+        /* a. Set toBlock[toIndex] to the value of fromBlock[fromIndex]. */
+        a_set(toBlock, toIndex, a_nth(fromBlock, fromIndex));
+        /* b. Increment toIndex and fromIndex each by 1. */
         toIndex := toIndex + 1;
         fromIndex := fromIndex + 1;
-        /* Decrement count by 1. */
+        /* c. Decrement count by 1. */
         count := count - 1
     };
-    /* Copying from toIndex + count to the end */
-    while (toIndex < toSize) {
-        l_concat(res, [l_nth(toBlock, toIndex)]);
-        toIndex := toIndex + 1
-    };
-    toBlock := res;
-    /* Return NormalCompletion(empty) */
-    return NormalCompletion(empty)
+    /* 8. Return NormalCompletion(empty) */
+    return NormalCompletion('empty)
 }

@@ -72,4 +72,64 @@ function OrdinaryHasProperty(O, P){
 
     /* 8. Return false. */
     return false
+};
+
+/**
+ * 9.1.13 ObjectCreate (proto, internalSlotsList)
+ *
+ * The abstract operation ObjectCreate with argument proto (an object or null)
+ * is used to specify the runtime creation of new ordinary objects. The optional
+ * argument internalSlotsList is a List of the names of additional internal
+ * slots that must be defined as part of the object. If the list is not
+ * provided, an empty List is used. This abstract operation performs the
+ * following steps:
+ */
+function InternalObjectCreate(proto, internalSlotsList) {
+/* 1. If internalSlotsList was not provided, */
+  if (internalSlotsList = null) {
+    /* let internalSlotsList be an empty List */
+    internalSlotsList := []
+  };
+  /* 2. Let obj be a newly created object with an internal slot for each name
+     in internalSlotsList. */
+  obj := NewECMAScriptObject();
+  foreach (slot : internalSlotsList) {
+    obj[slot] := 'undefined
+  };
+  /* 3. Set obj's essential internal methods to the default ordinary object
+     definitions specified in 9.1. */
+  setAllInternalMethodsOfObject(obj);
+  setInternalProperty(obj, "Class", "Object"); /* TODO: Not in ES6 */
+  /* 4. Set the [[Prototype]] internal slot of obj to proto. */
+  obj.Prototype := proto;
+  /* 5. Set the [[Extensible]] internal slot of obj to true. */
+  obj.Extensible := true;
+  /* 6. Return obj. */
+  return obj
+};
+
+/**
+ * 9.1.14 OrdinaryCreateFromConstructor (constructor, intrinsicDefaultProto, internalSlotsList)
+ *
+ * The abstract operation OrdinaryCreateFromConstructor creates an ordinary
+ * object whose [[Prototype]] value is retrieved from a constructor's prototype
+ * property, if it exists. Otherwise the intrinsic named by
+ * intrinsicDefaultProto is used for [[Prototype]]. The optional
+ * internalSlotsList is a List of the names of additional internal slots that
+ * must be defined as part of the object. If the list is not provided, an empty
+ * List is used. This abstract operation performs the following steps:
+ */
+function OrdinaryCreateFromConstructor(constructor, intrinsicDefaultProto, internalSlotsList) {
+  /* 1. Assert: intrinsicDefaultProto is a String value that is this
+     specification's name of an intrinsic object. The corresponding object
+     must be an intrinsic that is intended to be used as the [[Prototype]]
+     value of an object. */
+  assert((Type(intrinsicDefaultProto) = "String") &&& (isIntrinsic(intrinsicDefaultProto)));
+  /* 2. Let proto be GetPrototypeFromConstructor(constructor,
+     intrinsicDefaultProto). */
+  proto := GetPrototypeFromConstructor(constructor, intrinsicDefaultProto);
+  /* 3. ReturnIfAbrupt(proto). */
+  @ReturnIfAbrupt(proto);
+  /* 4. Return ObjectCreate(proto, internalSlotsList). */
+  return InternalObjectCreate(proto, internalSlotsList)
 }

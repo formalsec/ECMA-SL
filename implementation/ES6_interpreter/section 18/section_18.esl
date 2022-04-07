@@ -202,6 +202,10 @@ function initGlobalObject(strict) {
   DataViewObject := initDataViewObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "DataView", DataViewObject);
 
+  /* 26.1 Reflect Object */  
+  ReflectObject := initReflectObject(globalObject, ObjectPrototype, strict);
+  createBuiltInProperty(globalObject, "Reflect", ReflectObject);
+
   /* Extras */
   ConsoleObject := initConsoleObject(globalObject, getObjectPrototype(strict), strict);
   createBuiltInProperty(globalObject, "console", ConsoleObject);

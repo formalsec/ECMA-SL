@@ -10,27 +10,51 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   /* 22.2.3 Properties of the %TypedArrayPrototype% Object */
   /* 22.2.3.1 get %TypedArray%.prototype.buffer */
   bufferFunc := CreateBuiltInFunctionObject([], "getTypedArrayBuffer", global, strict, null);
-  descBuffer := newGetAccessorPropertyDescriptor(bufferFunc);
+  descBuffer := newGetAccessorPropertyDescriptorFull(bufferFunc, false, true);
   setJSProperty(prototype, "buffer", descBuffer);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(bufferFunc, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("get buffer", false, false, true);
+  setJSProperty(bufferFunc, "name", descName);
   /* 22.2.3.2 get %TypedArray%.prototype.byteLength */
   byteLengthFunc := CreateBuiltInFunctionObject([], "getTypedArrayByteLength", global, strict, null);
-  descByteLength := newGetAccessorPropertyDescriptor(byteLengthFunc);
+  descByteLength := newGetAccessorPropertyDescriptorFull(byteLengthFunc, false, true);
   setJSProperty(prototype, "byteLength", descByteLength);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(byteLengthFunc, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("get byteLength", false, false, true);
+  setJSProperty(byteLengthFunc, "name", descName);
   /* 22.2.3.3 get %TypedArray%.prototype.byteOffset */
   byteOffsetFunc := CreateBuiltInFunctionObject([], "getTypedArrayByteOffset", global, strict, null);
-  descByteOffset := newGetAccessorPropertyDescriptor(byteOffsetFunc);
+  descByteOffset := newGetAccessorPropertyDescriptorFull(byteOffsetFunc, false, true);
   setJSProperty(prototype, "byteOffset", descByteOffset);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(byteOffsetFunc, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("get byteOffset", false, false, true);
+  setJSProperty(byteOffsetFunc, "name", descName);
   /* 22.2.3.5 %TypedArray%.prototype.copyWithin (target, start [, end ] ) */
   copyWithinObj := CreateBuiltInFunctionObject(["target", "start", "end"], "TypedArrayCopyWithin", global, strict, null);
   copyWithinDesc := newDataPropertyDescriptorFull(copyWithinObj, true, false, true);
   setJSProperty(prototype, "copyWithin", copyWithinDesc);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(2., false, false, true);
+  setJSProperty(copyWithinObj, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("copyWithin", false, false, true);
+  setJSProperty(copyWithinObj, "name", descName);
   
   /* 22.2.3.6 %TypedArray%.prototype.entries ( ) */
   entriesObj := CreateBuiltInFunctionObject([], "TypedArrayEntries", global, strict, null);
   entriesDesc := newDataPropertyDescriptorFull(entriesObj, true, false, true);
   setJSProperty(prototype, "entries", entriesDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(0, false, false, true);
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
   setJSProperty(entriesObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("entries", false, false, true);
@@ -41,7 +65,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   everyDesc := newDataPropertyDescriptorFull(everyObj, true, false, true);
   setJSProperty(prototype, "every", everyDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(everyObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("every", false, false, true);
@@ -52,7 +76,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   fillDesc := newDataPropertyDescriptorFull(fillObj, true, false, true);
   setJSProperty(prototype, "fill", fillDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(fillObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("fill", false, false, true);
@@ -63,7 +87,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   filterDesc := newDataPropertyDescriptorFull(filterObj, true, false, true);
   setJSProperty(prototype, "filter", filterDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(filterObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("filter", false, false, true);
@@ -74,7 +98,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   findDesc := newDataPropertyDescriptorFull(findObj, true, false, true);
   setJSProperty(prototype, "find", findDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(findObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("find", false, false, true);
@@ -85,7 +109,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   findIndexDesc := newDataPropertyDescriptorFull(findIndexObj, true, false, true);
   setJSProperty(prototype, "findIndex", findIndexDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(findIndexObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("findIndex", false, false, true);
@@ -96,7 +120,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   forEachDesc := newDataPropertyDescriptorFull(forEachObj, true, false, true);
   setJSProperty(prototype, "forEach", forEachDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(forEachObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("forEach", false, false, true);
@@ -107,7 +131,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   indexOfDesc := newDataPropertyDescriptorFull(indexOfObj, true, false, true);
   setJSProperty(prototype, "indexOf", indexOfDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(indexOfObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("indexOf", false, false, true);
@@ -118,7 +142,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   joinDesc := newDataPropertyDescriptorFull(joinObj, true, false, true);
   setJSProperty(prototype, "join", joinDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(joinObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("join", false, false, true);
@@ -129,7 +153,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   keysDesc := newDataPropertyDescriptorFull(keysObj, true, false, true);
   setJSProperty(prototype, "keys", keysDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(0, false, false, true);
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
   setJSProperty(keysObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("keys", false, false, true);
@@ -140,7 +164,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   lastIndexOfDesc := newDataPropertyDescriptorFull(lastIndexOfObj, true, false, true);
   setJSProperty(prototype, "lastIndexOf", lastIndexOfDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(lastIndexOfObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("lastIndexOf", false, false, true);
@@ -148,15 +172,21 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
 
   /* 22.2.3.17 get %TypedArray%.prototype.length */
   lengthFunc := CreateBuiltInFunctionObject([], "getTypedArrayLength", global, strict, null);
-  lengthDesc := newGetAccessorPropertyDescriptor(lengthFunc);
+  lengthDesc := newGetAccessorPropertyDescriptorFull(lengthFunc, false, true);
   setJSProperty(prototype, "length", lengthDesc);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(lengthFunc, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("get length", false, false, true);
+  setJSProperty(lengthFunc, "name", descName);
 
   /* 22.2.3.18 %TypedArray%.prototype.map ( callbackfn [ , thisArg ] ) */
   mapObj := CreateBuiltInFunctionObject(["callbackfn"], "TypedArrayMap", global, strict, null);
   mapDesc := newDataPropertyDescriptorFull(mapObj, true, false, true);
   setJSProperty(prototype, "map", mapDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(mapObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("map", false, false, true);
@@ -167,7 +197,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   reduceDesc := newDataPropertyDescriptorFull(reduceObj, true, false, true);
   setJSProperty(prototype, "reduce", reduceDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(reduceObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("reduce", false, false, true);
@@ -178,7 +208,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   reduceRightDesc := newDataPropertyDescriptorFull(reduceRightObj, true, false, true);
   setJSProperty(prototype, "reduceRight", reduceRightDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(reduceRightObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("reduceRight", false, false, true);
@@ -189,7 +219,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   reverseDesc := newDataPropertyDescriptorFull(reverseObj, true, false, true);
   setJSProperty(prototype, "reverse", reverseDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(0, false, false, true);
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
   setJSProperty(reverseObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("reverse", false, false, true);
@@ -200,7 +230,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   setDesc := newDataPropertyDescriptorFull(setObj, true, false, true);
   setJSProperty(prototype, "set", setDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(setObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("set", false, false, true);
@@ -211,7 +241,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   sliceDesc := newDataPropertyDescriptorFull(sliceObj, true, false, true);
   setJSProperty(prototype, "slice", sliceDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(2, false, false, true);
+  descLen := newDataPropertyDescriptorFull(2., false, false, true);
   setJSProperty(sliceObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("slice", false, false, true);
@@ -222,7 +252,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   someDesc := newDataPropertyDescriptorFull(someObj, true, false, true);
   setJSProperty(prototype, "some", someDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(someObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("some", false, false, true);
@@ -233,7 +263,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   sortDesc := newDataPropertyDescriptorFull(sortObj, true, false, true);
   setJSProperty(prototype, "sort", sortDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(1, false, false, true);
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(sortObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("sort", false, false, true);
@@ -244,7 +274,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   subarrayDesc := newDataPropertyDescriptorFull(subarrayObj, true, false, true);
   setJSProperty(prototype, "subarray", subarrayDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(2, false, false, true);
+  descLen := newDataPropertyDescriptorFull(2., false, false, true);
   setJSProperty(subarrayObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("subarray", false, false, true);
@@ -255,18 +285,18 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   toLocaleStringDesc := newDataPropertyDescriptorFull(toLocaleStringObj, true, false, true);
   setJSProperty(prototype, "toLocaleString", toLocaleStringDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(0, false, false, true);
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
   setJSProperty(toLocaleStringObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("toLocaleString", false, false, true);
   setJSProperty(toLocaleStringObj, "name", descName);
 
   /* 22.2.3.28 %TypedArray%.prototype.toString ( ) */
-  toStringObj := CreateBuiltInFunctionObject([], "TypedArrayToString", global, strict, null);
+  toStringObj := global.JSProperties.Array.Value.JSProperties.prototype.Value.JSProperties.toString.Value;
   toStringDesc := newDataPropertyDescriptorFull(toStringObj, true, false, true);
   setJSProperty(prototype, "toString", toStringDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(0, false, false, true);
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
   setJSProperty(toStringObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("toString", false, false, true);
@@ -277,7 +307,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   valuesDesc := newDataPropertyDescriptorFull(valuesObj, true, false, true);
   setJSProperty(prototype, "values", valuesDesc);
   /* Length */
-  descLen := newDataPropertyDescriptorFull(0, false, false, true);
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
   setJSProperty(valuesObj, "length", descLen);
   /* Name */
   descName := newDataPropertyDescriptorFull("values", false, false, true);
@@ -289,8 +319,14 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
 
   /* 22.2.3.31 get %TypedArray%.prototype [ @@toStringTag ] */
   toStringTagFunc := CreateBuiltInFunctionObject([], "getTypedArrayToStringTag", global, strict, null);
-  toStringTagDesc := newGetAccessorPropertyDescriptor(toStringTagFunc);
+  toStringTagDesc := newGetAccessorPropertyDescriptorFull(toStringTagFunc, false, true);
   setJSProperty(prototype, "Symbol(toStringTag)", toStringTagDesc);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(toStringTagFunc, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("get [Symbol.toStringTag]", false, false, true);
+  setJSProperty(toStringTagFunc, "name", descName);
 
   |ElementTable| := {
     Int8Array: {
@@ -343,24 +379,35 @@ function initTypedArrayMainConstructor(global, objectPrototype, strict) {
   prototype := initTypedArrayMainPrototype(global, objectPrototype, strict);
   functionPrototype := getFunctionPrototype(strict);
 
-  typedArrayConstructor := CreateBuiltInConstructorObject(functionPrototype, ["argumentList"], "TypedArrayConstructor", global, strict, 3, "TypedArray");
+  typedArrayConstructor := CreateBuiltInConstructorObject(functionPrototype, ["argumentList"], "TypedArrayConstructor", global, strict, 0., "TypedArray");
 
   descriptor := newDataPropertyDescriptorFull(typedArrayConstructor, true, false, true);
   setJSProperty(prototype, "constructor", descriptor);
-
   /* Length */
-  descLen := newDataPropertyDescriptorFull(3., false, false, true);
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
   setJSProperty(typedArrayConstructor, "length", descLen);
 
   /* 22.2.2.1 %TypedArray%.from ( source [ , mapfn [ , thisArg ] ] ) */
-  fromObject := CreateBuiltInFunctionObject(["source", "mapfn", "thisArg"], "TypedArrayFrom", global, strict, null);
-  fromDesc := newDataPropertyDescriptorFull(fromObject, true, false, true);
+  fromObj := CreateBuiltInFunctionObject(["source", "mapfn", "thisArg"], "TypedArrayFromMethod", global, strict, null);
+  fromDesc := newDataPropertyDescriptorFull(fromObj, true, false, true);
   setJSProperty(typedArrayConstructor, "from", fromDesc);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(1., false, false, true);
+  setJSProperty(fromObj, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("from", false, false, true);
+  setJSProperty(fromObj, "name", descName);
 
   /* 22.2.2.2 %TypedArray%.of ( ...items ) */
-  ofObject := CreateBuiltInFunctionObject(["items"], "TypedArrayOf", global, strict, null);
-  ofDesc := newDataPropertyDescriptorFull(ofObject, true, false, true);
+  ofObj := CreateBuiltInFunctionObject(["items"], "TypedArrayOf", global, strict, null);
+  ofDesc := newDataPropertyDescriptorFull(ofObj, true, false, true);
   setJSProperty(typedArrayConstructor, "of", ofDesc);
+  /* Length */
+  descLen := newDataPropertyDescriptorFull(0., false, false, true);
+  setJSProperty(ofObj, "length", descLen);
+  /* Name */
+  descName := newDataPropertyDescriptorFull("of", false, false, true);
+  setJSProperty(ofObj, "name", descName);
 
   /* 22.2.2.3 %TypedArray%.prototype */
   prototypeDesc := newDataPropertyDescriptorFull(prototype, false, false, false);
@@ -380,11 +427,9 @@ function initTypedArrayMainConstructor(global, objectPrototype, strict) {
  *   22.2.6 TypedArray.prototype: - Int8Array.prototype, etc.   *
  *                                                              *
  ****************************************************************/
-function initTypedArrayPrototype(global, objectPrototype, strict, typeOfArray) {
-  typedArrayPrototype := |Intrinsics|.TypedArrayPrototype;
-
+function initTypedArrayPrototype(global, typedArrayPrototype, strict, typeOfArray) {
   prototype := NewECMAScriptObjectFull(typedArrayPrototype, s_concat([typeOfArray, "Prototype"]), true);
-  setAllInternalMethodsOfObject(prototype);  
+  setAllInternalMethodsOfObject(prototype);
   /* 22.2.6.1 TypedArray.prototype.BYTES_PER_ELEMENT */
   descBytes := newDataPropertyDescriptorFull(|ElementTable|[s_concat([typeOfArray, "Array"])].size, false, false, false);
   setJSProperty(prototype, "BYTES_PER_ELEMENT", descBytes);
@@ -397,11 +442,12 @@ function initTypedArrayPrototype(global, objectPrototype, strict, typeOfArray) {
  *   22.2.4 TypedArray constructors: - Int8Array, etc.  *
  *                                                      *
  ********************************************************/
-function initTypedArrayObject(global, objectPrototype, strict, typeOfArray) {
-  objTypedArrayPrototype := initTypedArrayPrototype(global, objectPrototype, strict, typeOfArray);
+function initTypedArrayObject(global, strict, typeOfArray, typedArray) {
+  typedArrayPrototype := getJSProperty(typedArray, "prototype").Value;
+  objTypedArrayPrototype := initTypedArrayPrototype(global, typedArrayPrototype, strict, typeOfArray);
   
   name := s_concat([typeOfArray, "Array"]);
-  objTypedArrayConstructor := CreateBuiltInConstructorObject(|Intrinsics|.TypedArray, ["argumentList"], s_concat([typeOfArray, "TypedArrayConstructor"]), global, strict, 0., name);
+  objTypedArrayConstructor := CreateBuiltInConstructorObject(typedArray, ["argumentList"], s_concat([typeOfArray, "TypedArrayConstructor"]), global, strict, 0., name);
   /* 22.2.5 */
   /* Length */
   descLen := newDataPropertyDescriptorFull(3., false, false, true);
@@ -418,8 +464,6 @@ function initTypedArrayObject(global, objectPrototype, strict, typeOfArray) {
   descriptor := newDataPropertyDescriptorFull(objTypedArrayConstructor, true, false, true);
   setJSProperty(objTypedArrayPrototype, "constructor", descriptor);
 
-  
-  
   return objTypedArrayConstructor
 };
 
@@ -428,32 +472,33 @@ function initTypedArrayObject(global, objectPrototype, strict, typeOfArray) {
  *    22.2.1 %TypedArray%() Overloads    *
  *                                     *
  ***************************************/
-function TypedArrayConstructor(typeOfArray, global, this, strict, items) {
-  refObj := newPropertyReference(|global|, s_concat([typeOfArray, "Array"]), strict);
-  FunctionObject := GetValue(refObj);
+function TypedArrayConstructor(global, this, strict, items) {
+  if (this = 'undefined) { /* Call to %TypedArray% instead one of the other valid constructors*/
+    this := |Intrinsics|.TypedArray
+  };
 
   len := l_len items; 
   if (len = 0) {
     /* 22.2.1.1 */
-    return TypedArrayConstructorEmpty(typeOfArray, global, FunctionObject, strict, items)
+    return TypedArrayConstructorEmpty(global, this, strict, items)
   } else {
     if (len > 0) {
       obj := l_nth(items, 0);
       /* 22.2.1.2 */
       if (!(Type(obj) = "Object")) {
-        return TypedArrayConstructorLength(typeOfArray, global, FunctionObject, strict, obj)
+        return TypedArrayConstructorLength(global, this, strict, obj)
       } else {
         /* 22.2.1.3 */
         if ("TypedArrayName" in_obj obj) {
-          return TypedArrayConstructorTypedArray(typeOfArray, global, FunctionObject, strict, obj)
+          return TypedArrayConstructorTypedArray(global, this, strict, obj)
         } else {
           /* 22.2.1.4 */
           if (!("ArrayBufferData" in_obj obj)) {
-            return TypedArrayConstructorObject(typeOfArray, global, FunctionObject, strict, obj)
+            return TypedArrayConstructorObject(global, this, strict, obj)
           /* 22.2.1.5 */
           } else {
             /* optional parameters default values. */
-            byteOffset := 0;
+            byteOffset := 0.;
             length := 'undefined;
 
             if (len > 1) {
@@ -463,7 +508,7 @@ function TypedArrayConstructor(typeOfArray, global, this, strict, items) {
               length := l_nth(items, 2)
             };
 
-            return TypedArrayConstructorBuffer(typeOfArray, global, FunctionObject, strict, obj, byteOffset, length)
+            return TypedArrayConstructorBuffer(global, this, strict, obj, byteOffset, length)
           }
         }
       }
@@ -477,7 +522,7 @@ function TypedArrayConstructor(typeOfArray, global, this, strict, items) {
  * This description applies only if the %TypedArray% function is called with no
  * arguments.
  */
-function TypedArrayConstructorEmpty(typeOfArray, global, this, strict, items) {
+function TypedArrayConstructorEmpty(global, this, strict, items) {
   NewTarget := this;
   /* 1. If NewTarget is undefined, */
   if (NewTarget = 'undefined) {
@@ -496,7 +541,7 @@ function TypedArrayConstructorEmpty(typeOfArray, global, this, strict, items) {
  *
  * %TypedArray% called with argument length performs the following steps:
  */
-function TypedArrayConstructorLength(typeOfArray, global, this, strict, length) {
+function TypedArrayConstructorLength(global, this, strict, length) {
   NewTarget := this;
   /* 1. Assert: Type(length) is not Object. */
   assert(!(Type(length) = "Object"));
@@ -580,7 +625,7 @@ function AllocateTypedArray(newTarget, length, strict) {
   @ReturnIfAbrupt(proto);        
   /* 9. Let obj be IntegerIndexedObjectCreate (proto, «‍[[ViewedArrayBuffer]],
      [[TypedArrayName]], [[ByteLength]], [[ByteOffset]], [[ArrayLength]]»
-     ). */                           
+     ). */
   obj := IntegerIndexedObjectCreate(proto, ["ViewedArrayBuffer", "TypedArrayName", "ByteLength", "ByteOffset", "ArrayLength"]);
   /* 10. Assert: The [[ViewedArrayBuffer]] internal slot of obj is undefined. */
   assert(getInternalProperty(obj, "ViewedArrayBuffer") = 'undefined);
@@ -626,7 +671,7 @@ function AllocateTypedArray(newTarget, length, strict) {
  *
  * %TypedArray% called with argument typedArray performs the following steps:
  */
-function TypedArrayConstructorTypedArray(typeOfArray, global, this, strict, typedArray) {
+function TypedArrayConstructorTypedArray(global, this, strict, typedArray) {
   NewTarget := this;
   /* 1. Assert: Type(typedArray) is Object and typedArray has a
      [[TypedArrayName]] internal slot. */
@@ -685,11 +730,11 @@ function TypedArrayConstructorTypedArray(typeOfArray, global, this, strict, type
   /* 18. Else, */
   else {
     /* a. Let bufferConstructor be SpeciesConstructor(srcData, %ArrayBuffer%). */
-    bufferConstructor := SpeciesConstructor(srcData, |ArrayBuffer|);
+    bufferConstructor := SpeciesConstructor(srcData, |Intrinsics|.ArrayBuffer);
     /* b. ReturnIfAbrupt(bufferConstructor). */
     @ReturnIfAbrupt(bufferConstructor);
     /* c. Let data be AllocateArrayBuffer(bufferConstructor, byteLength). */
-    data := AllocateArrayBuffer(bufferConstructor, byteLength);
+    data := AllocateArrayBuffer(bufferConstructor, byteLength, strict);
     /* d. ReturnIfAbrupt(data). */
     @ReturnIfAbrupt(data);
     /* e. If IsDetachedBuffer(srcData) is true, throw a TypeError exception. */
@@ -705,9 +750,9 @@ function TypedArrayConstructorTypedArray(typeOfArray, global, this, strict, type
     /* i. Repeat, while count >0 */
     while (count > 0) {
       /* i. Let value be GetValueFromBuffer(srcData, srcByteIndex, srcType). */
-      value := GetValueFromBuffer(srcData, srcByteIndex, srcType);
+      value := GetValueFromBuffer(srcData, int_of_float srcByteIndex, srcType, 'undefined);
       /* ii. Perform SetValueInBuffer(data, targetByteIndex, elementType, value). */
-      SetValueInBuffer(data, targetByteIndex, elementType, value);
+      SetValueInBuffer(data, int_of_float targetByteIndex, elementType, value, 'undefined);
       /* iii. Set srcByteIndex to srcByteIndex + srcElementSize. */
       srcByteIndex := srcByteIndex + srcElementSize;
       /* iv. Set targetByteIndex to targetByteIndex + elementSize. */
@@ -721,7 +766,7 @@ function TypedArrayConstructorTypedArray(typeOfArray, global, this, strict, type
   /* 20. Set O's [[ByteLength]] internal slot to byteLength. */
   O.ByteLength := byteLength;
   /* 21. Set O's [[ByteOffset]] internal slot to 0. */
-  O.ByteOffset := 0;
+  O.ByteOffset := 0.;
   /* 22. Set O's [[ArrayLength]] internal slot to elementLength. */
   O.ArrayLength := elementLength;
   /* 23. Return O. */
@@ -738,7 +783,7 @@ function TypedArrayConstructorTypedArray(typeOfArray, global, this, strict, type
  *
  * %TypedArray% called with argument object performs the following steps:
  */
-function TypedArrayConstructorObject(typeOfArray, global, this, strict, object) {
+function TypedArrayConstructorObject(global, this, strict, object) {
   NewTarget := this;
   /* 1. Assert: Type(object) is Object and object does not have either a
      [[TypedArrayName]] or an [[ArrayBufferData]] internal slot. */
@@ -762,7 +807,8 @@ function TypedArrayConstructorObject(typeOfArray, global, this, strict, object) 
  * %TypedArray% called with arguments buffer, byteOffset, and length performs
  * the following steps:
  */
-function TypedArrayConstructorBuffer(typeOfArray, global, this, strict, buffer, byteOffset, length) {
+function TypedArrayConstructorBuffer(global, this, strict, buffer, byteOffset, length) {
+  NewTarget := this;
   /* 1. Assert: Type(buffer) is Object and buffer has an [[ArrayBufferData]]
      internal slot. */
   assert((Type(buffer) = "Object") &&& ("ArrayBufferData" in_obj buffer));
@@ -786,12 +832,12 @@ function TypedArrayConstructorBuffer(typeOfArray, global, this, strict, buffer, 
   /* 8. ReturnIfAbrupt(offset). */
   @ReturnIfAbrupt(offset);
   /* 9. If offset < 0, */
-  if (offset < 0) {
+  if (offset < 0.) {
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal()
   };
   /* 10. If offset modulo elementSize ≠ 0, */
-  if (!((offset % elementSize) = 0)) {
+  if (!((offset % elementSize) = 0.)) {
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal()
   };
@@ -806,14 +852,14 @@ function TypedArrayConstructorBuffer(typeOfArray, global, this, strict, buffer, 
   /* 13. If length is undefined, then */
   if (length = 'undefined) {
     /* a. If bufferByteLength modulo elementSize ≠ 0, */
-    if (!((bufferByteLength % elementSize) = 0)) {
+    if (!((bufferByteLength % elementSize) = 0.)) {
       /* throw a RangeError exception */
       throw RangeErrorConstructorInternal()
     };
     /* b. Let newByteLength be bufferByteLength – offset. */
     newByteLength := bufferByteLength - offset;
     /* c. If newByteLength < 0, */
-    if (newByteLength < 0) {
+    if (newByteLength < 0.) {
       /* throw a RangeError exception */
       throw RangeErrorConstructorInternal()
     }
@@ -945,18 +991,18 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
     /* h. ReturnIfAbrupt(targetObj). */
     @ReturnIfAbrupt(targetObj);
     /* i. Let k be 0. */
-    k := 0.;
+    k := 0;
     /* j. Repeat, while k < len */
     while (k < len) {
       /* i. Let Pk be ToString(k). */
-      Pk := ToString(k);
+      Pk := ToString(int_to_float k);
       /* ii. Let kValue be the first element of values and remove that element from values. */
       kValue := l_nth(values, 0);
       values := l_remove_nth(values, 0);
       /* iii. If mapping is true, then */
       if (mapping) {
         /* 1. Let mappedValue be Call(mapfn, T, «kValue, k»). */
-        mappedValue := Call(mapfn, T, [kValue, k]);
+        mappedValue := Call(null, null, mapfn, T, [kValue, k]);
         /* 2. ReturnIfAbrupt(mappedValue). */
         @ReturnIfAbrupt(mappedValue)
       }
@@ -991,7 +1037,7 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
   /* 15. ReturnIfAbrupt(targetObj). */
   @ReturnIfAbrupt(targetObj);
   /* 16. Let k be 0. */
-  k := 0;
+  k := 0.;
   /* 17. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
@@ -1003,7 +1049,7 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
     /* d. If mapping is true, then */
     if (mapping) {
       /* i. Let mappedValue be Call(mapfn, T, «kValue, k»). */
-      mappedValue := Call(mapfn, T, [kValue, k]);
+      mappedValue := Call(null, null, mapfn, T, [kValue, k]);
       /* ii. ReturnIfAbrupt(mappedValue). */
       @ReturnIfAbrupt(mappedValue)
     }
@@ -1016,7 +1062,7 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
     /* g. ReturnIfAbrupt(setStatus). */
     @ReturnIfAbrupt(setStatus);
     /* h. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 18. Return targetObj. */
   return targetObj
@@ -1041,7 +1087,7 @@ function TypedArrayOf(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 5. Let newObj be AllocateTypedArray(C, len). */
-  newObj := AllocateTypedArray(C, len, strict);
+  newObj := AllocateTypedArray(C, int_to_float len, strict);
   /* 6. ReturnIfAbrupt(newObj). */
   @ReturnIfAbrupt(newObj);
   /* 7. Let k be 0. */
@@ -1069,14 +1115,14 @@ function TypedArrayOf(global, this, strict, args) {
  * %TypedArray%[@@species] is an accessor property whose set accessor function
  * is undefined. Its get accessor function performs the following steps:
  */
-function typedArraySpeciesGetter() {
+function typedArraySpeciesGetter(global, this, strict, args) {
   /* 1. Return the this value. */
   return this
 };
 
 /* 22.2.3 Accessor property functions */
 /* 22.2.3.1 get %TypedArray%.prototype.buffer */
-function getTypedArrayBuffer(global, this, strict) {
+function getTypedArrayBuffer(global, this, strict, args) {
   /* Let O be the this value.*/
   O := this;
   /* If Type(O) is not Object, throw a TypeError exception. */
@@ -1094,7 +1140,7 @@ function getTypedArrayBuffer(global, this, strict) {
 };
 
 /* 22.2.3.2 get %TypedArray%.prototype.byteLength */
-function getTypedArrayByteLength(global, this, strict) {
+function getTypedArrayByteLength(global, this, strict, args) {
   /* Let O be the this value. */
   O := this;
   /* If Type(O) is not Object, throw a TypeError exception. */
@@ -1109,7 +1155,7 @@ function getTypedArrayByteLength(global, this, strict) {
   buffer := getInternalProperty(O, "ViewedArrayBuffer");
   /* If IsDetachedBuffer(buffer) is true, return 0. */
   if (IsDetachedBuffer(buffer)) {
-    return 0
+    return 0.
   };
   /* Let size be the value of O’s [[ByteLength]] internal slot. */
   size := getInternalProperty(O, "ByteLength");
@@ -1118,7 +1164,7 @@ function getTypedArrayByteLength(global, this, strict) {
 };
 
 /* 22.2.3.3 get %TypedArray%.prototype.byteOffset */
-function getTypedArrayByteOffset(global, this, strict) {
+function getTypedArrayByteOffset(global, this, strict, args) {
   /* Let O be the this value. */
   O := this;
   /* If Type(O) is not Object, throw a TypeError exception. */
@@ -1133,7 +1179,7 @@ function getTypedArrayByteOffset(global, this, strict) {
   buffer := getInternalProperty(O, "ViewedArrayBuffer");
   /* If IsDetachedBuffer(buffer) is true, return 0. */
   if (IsDetachedBuffer(buffer)) {
-    return 0
+    return 0.
   };
   /* Let offset be the value of O’s [[ByteOffset]] internal slot. */
   offset := getInternalProperty(O, "ByteOffset");
@@ -1191,9 +1237,9 @@ function TypedArrayCopyWithin(global, this, strict, args) {
   /* 6. ReturnIfAbrupt(relativeTarget). */
   @ReturnIfAbrupt(relativeTarget);
   /* 7. If relativeTarget < 0, */
-  if (relativeTarget < 0) {
+  if (relativeTarget < 0.) {
     /* let to be max((len + relativeTarget),0) */
-    to := max((len + relativeTarget), 0)
+    to := max((len + relativeTarget), 0.)
   } 
   /* else let to be min(relativeTarget, len) */
   else {
@@ -1204,9 +1250,9 @@ function TypedArrayCopyWithin(global, this, strict, args) {
   /* 9. ReturnIfAbrupt(relativeStart). */
   @ReturnIfAbrupt(relativeStart);
   /* 10. If relativeStart < 0, */
-  if (relativeStart < 0) {
+  if (relativeStart < 0.) {
     /* let from be max((len + relativeStart),0) */
-    from := max((len + relativeStart), 0)
+    from := max((len + relativeStart), 0.)
   }
   /* else let from be min(relativeStart, len) */
   else {
@@ -1224,9 +1270,9 @@ function TypedArrayCopyWithin(global, this, strict, args) {
   /* 12. ReturnIfAbrupt(relativeEnd). */
   @ReturnIfAbrupt(relativeEnd);
   /* 13. If relativeEnd < 0, */
-  if (relativeEnd < 0) {
+  if (relativeEnd < 0.) {
     /* let final be max((len + relativeEnd),0) */
-    final := max((len + relativeEnd), 0)
+    final := max((len + relativeEnd), 0.)
   }
   /* else let final be min(relativeEnd, len) */
   else {
@@ -1237,19 +1283,19 @@ function TypedArrayCopyWithin(global, this, strict, args) {
   /* 15. If from<to and to<from+count */
   if ((from < to) &&& (to < (from + count))) {
     /* a. Let direction be -1. */
-    direction := -1;
+    direction := -(1.);
     /* b. Let from be from + count -1. */
-    from := from + count - 1;
+    from := from + count - 1.;
     /* c. Let to be to + count -1. */
-    to := to + count - 1
+    to := to + count - 1.
   }
   /* 16. Else, */
   else {
     /* a. Let direction = 1. */
-    direction := 1
+    direction := 1.
   };
   /* 17. Repeat, while count > 0 */
-  while (count > 0) {
+  while (count > 0.) {
     /* a. Let fromKey be ToString(from). */
     fromKey := ToString(from);
     /* b. Let toKey be ToString(to). */
@@ -1281,7 +1327,7 @@ function TypedArrayCopyWithin(global, this, strict, args) {
     /* h. Let to be to + direction. */
     to := to + direction;
     /* i. Let count be count - 1.; */
-    count := count - 1
+    count := count - 1.
   };
   /* 18. Return O. */
   return O
@@ -1433,7 +1479,7 @@ function TypedArrayEvery(global, this, strict, args) {
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
       /* iii. Let testResult be ToBoolean(Call(callbackfn, T, «kValue, k, O»)). */
-      testResult := ToBoolean(Call(callbackfn, T, [kValue, k, O]));
+      testResult := ToBoolean(Call(null, null, callbackfn, T, [kValue, k, O]));
       /* iv. ReturnIfAbrupt(testResult). */
       @ReturnIfAbrupt(testResult);
       /* v. If testResult is false, return false. */
@@ -1442,7 +1488,7 @@ function TypedArrayEvery(global, this, strict, args) {
       }
     };
     /* e. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 9. Return true. */
   return true
@@ -1483,6 +1529,12 @@ function TypedArrayFill(global, this, strict, args) {
   value := l_nth(args, 0);
   start := getOptionalParam(args, 1);
   end := getOptionalParam(args, 2);
+  if (start = null) { /* shouldn't optional arguments that are not passed default to 'undefined *??* */
+    start := 'undefined
+  };
+  if (end = null) {
+    end := 'undefined
+  };
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
   /* 2. ReturnIfAbrupt(O). */
@@ -1496,9 +1548,9 @@ function TypedArrayFill(global, this, strict, args) {
   /* 6. ReturnIfAbrupt(relativeStart). */
   @ReturnIfAbrupt(relativeStart);
   /* 7. If relativeStart < 0, */
-  if (relativeStart < 0) {
+  if (relativeStart < 0.) {
     /* let k be max((len + relativeStart),0) */
-    k := max((len + relativeStart), 0)
+    k := max((len + relativeStart), 0.)
   }
   /* else let k be min(relativeStart, len) */
   else {
@@ -1516,9 +1568,9 @@ function TypedArrayFill(global, this, strict, args) {
   /* 9. ReturnIfAbrupt(relativeEnd). */
   @ReturnIfAbrupt(relativeEnd);
   /* 10. If relativeEnd < 0, */
-  if (relativeEnd < 0) {
+  if (relativeEnd < 0.) {
     /* let final be max((len + relativeEnd),0) */
-    final := max((len + relativeEnd), 0)
+    final := max((len + relativeEnd), 0.)
   }
   /* else let final be min(relativeEnd, len) */
   else {
@@ -1533,7 +1585,7 @@ function TypedArrayFill(global, this, strict, args) {
     /* ReturnIfAbrupt(setStatus). */
     @ReturnIfAbrupt(setStatus);
     /* Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 12. Return O. */
   return O
@@ -1595,7 +1647,7 @@ function TypedArrayFilter(global, this, strict, args) {
     /* c. ReturnIfAbrupt(kValue). */
     @ReturnIfAbrupt(kValue);
     /* d. Let selected be ToBoolean(Call(callbackfn, T, «kValue, k, O»)). */
-    selected := ToBoolean(Call(callbackfn, T, [kValue, k, O]));
+    selected := ToBoolean(Call(null, null, callbackfn, T, [kValue, k, O]));
     /* e. ReturnIfAbrupt(selected). */
     @ReturnIfAbrupt(selected);
     /* f. If selected is true, then */
@@ -1603,10 +1655,10 @@ function TypedArrayFilter(global, this, strict, args) {
       /* i. Append kValue to the end of kept. */
       kept := l_concat(kept, [kValue]);
       /* ii. Increase captured by 1. */
-      captured := captured + 1
+      captured := captured + 1.
     };
     /* g. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 14. Let A be AllocateTypedArray(C, captured). */
   A := AllocateTypedArray(C, captured, strict);
@@ -1621,7 +1673,7 @@ function TypedArrayFilter(global, this, strict, args) {
     /* b. ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
     /* c. Increment n by 1. */
-    n := n + 1
+    n := n + 1.
   };
   /* 18. Return A. */
   return A
@@ -1703,7 +1755,7 @@ function TypedArrayFind(global, this, strict, args) {
     T := 'undefined
   };
   /* 7. Let k be 0. */
-  k := 0;
+  k := 0.;
   /* 8. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
@@ -1713,7 +1765,7 @@ function TypedArrayFind(global, this, strict, args) {
     /* c. ReturnIfAbrupt(kValue). */
     @ReturnIfAbrupt(kValue);
     /* d. Let testResult be ToBoolean(Call(predicate, T, «kValue, k, O»)). */
-    testResult := ToBoolean(Call(predicate, T, [kValue, k, O]));
+    testResult := ToBoolean(Call(null, null, predicate, T, [kValue, k, O]));
     /* e. ReturnIfAbrupt(testResult). */
     @ReturnIfAbrupt(testResult);
     /* f. If testResult is true, return kValue. */
@@ -1721,7 +1773,7 @@ function TypedArrayFind(global, this, strict, args) {
       return kValue
     };
     /* g. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 9. Return undefined. */
   return 'undefined
@@ -1807,7 +1859,7 @@ function TypedArrayFindIndex(global, this, strict, args) {
     T := 'undefined
   };
   /* 7. Let k be 0. */
-  k := 0;
+  k := 0.;
   /* 8. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
@@ -1817,7 +1869,7 @@ function TypedArrayFindIndex(global, this, strict, args) {
     /* c. ReturnIfAbrupt(kValue). */
     @ReturnIfAbrupt(kValue);
     /* d. Let testResult be ToBoolean(Call(predicate, T, «kValue, k, O»)). */
-    testResult := ToBoolean(Call(predicate, T, [kValue, k, O]));
+    testResult := ToBoolean(Call(null, null, predicate, T, [kValue, k, O]));
     /* e. ReturnIfAbrupt(testResult). */
     @ReturnIfAbrupt(testResult);
     /* f. If testResult is true, return k. */
@@ -1825,10 +1877,10 @@ function TypedArrayFindIndex(global, this, strict, args) {
       return k
     };
     /* g. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 9. Return -1. */
-  return -1
+  return -(1.)
 };
 
 /**
@@ -1902,7 +1954,7 @@ function TypedArrayForEach(global, this, strict, args) {
     T := 'undefined
   };
   /* 7. Let k be 0. */
-  k := 0;
+  k := 0.;
   /* 8. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
@@ -1918,12 +1970,12 @@ function TypedArrayForEach(global, this, strict, args) {
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
       /* iii. Let funcResult be Call(callbackfn, T, «kValue, k, O»). */
-      funcResult := Call(callbackfn, T, [kValue, k, O]);
+      funcResult := Call(null, null, callbackfn, T, [kValue, k, O]);
       /* iv. ReturnIfAbrupt(funcResult). */
       @ReturnIfAbrupt(funcResult)
     };
     /* e. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 9. Return undefined. */
   return 'undefined
@@ -1981,26 +2033,26 @@ function TypedArrayIndexOf(global, this, strict, args) {
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
   /* 5. If len is 0, */
-  if (len = 0) {
+  if (len = 0.) {
     /* return -1 */
-    return -1
+    return -(1.)
   };
   /* 6. If argument fromIndex was passed let n be ToInteger(fromIndex); else
      let n be 0. */
   if (!(fromIndex = null)) {
     n := ToInteger(fromIndex)
   } else {
-    n := 0
+    n := 0.
   };
   /* 7. ReturnIfAbrupt(n). */
   @ReturnIfAbrupt(n);
   /* 8. If n ≥ len, */
   if (n >= len) {
     /* return -1 */
-    return -1
+    return -(1.)
   };
   /* 9. If n ≥ 0, then */
-  if (n >= 0) {
+  if (n >= 0.) {
     /* a. Let k be n. */
     k := n
   }
@@ -2009,8 +2061,8 @@ function TypedArrayIndexOf(global, this, strict, args) {
     /* a. Let k be len - abs(n). */
     k := len - abs(n);
     /* b. If k < 0, let k be 0. */
-    if (k < 0) {
-      k := 0
+    if (k < 0.) {
+      k := 0.
     }
   };
   /* 11. Repeat, while k<len */
@@ -2026,17 +2078,17 @@ function TypedArrayIndexOf(global, this, strict, args) {
       /* ii. ReturnIfAbrupt(elementK). */
       @ReturnIfAbrupt(elementK);
       /* iii. Let same be the result of performing Strict Equality Comparison searchElement === elementK. */
-      same := searchElement = elementK; /* === operator ????*/
+      same := StrictEqualityComparison(searchElement, elementK);
       /* iv. If same is true, return k. */
       if (same) {
         return k
       }
     };
     /* d. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 12. Return -1. */
-  return -1
+  return -(1.)
 };
 
 /**
@@ -2089,7 +2141,7 @@ function TypedArrayJoin(global, this, strict, args) {
   /* 7. ReturnIfAbrupt(sep). */
   @ReturnIfAbrupt(sep);
   /* 8. If len is zero, */
-  if (len = zero) {
+  if (len = 0.) {
     /* return the empty String */
     return "" /* "" or O ???? */
   };
@@ -2107,7 +2159,7 @@ function TypedArrayJoin(global, this, strict, args) {
   /* 11. ReturnIfAbrupt(R). */
   @ReturnIfAbrupt(R);
   /* 12. Let k be 1. */
-  k := 1;
+  k := 1.;
   /* 13. Repeat, while k < len */
   while (k < len) {
     /* a. Let S be the String value produced by concatenating R and sep. */
@@ -2125,7 +2177,7 @@ function TypedArrayJoin(global, this, strict, args) {
     /* e. Let R be a String value produced by concatenating S and next. */
     R := s_concat([S, next]);
     /* f. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 14. Return R. */
   return R
@@ -2200,22 +2252,22 @@ function TypedArrayLastIndexOf(global, this, strict, args) {
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
   /* 5. If len is 0, */
-  if (len = 0) {
+  if (len = 0.) {
     /* return -1 */
-    return -1
+    return -(1.)
   };
   /* 6. If argument fromIndex was passed let n be ToInteger(fromIndex); else let n be len-1. */
   if (!(fromIndex = null)) {
     n := ToInteger(fromIndex)
   } else {
-    n := len - 1
+    n := len - 1.
   };
   /* 7. ReturnIfAbrupt(n). */
   @ReturnIfAbrupt(n);
   /* 8. If n ≥ 0, */
-  if (n >= 0) {
+  if (n >= 0.) {
     /* let k be min(n, len – 1) */
-    k := min(n, (len - 1))
+    k := min(n, (len - 1.))
   }
   /* 9. Else n < 0, */
   else {
@@ -2223,7 +2275,7 @@ function TypedArrayLastIndexOf(global, this, strict, args) {
     k := len - abs(n)
   };
   /* 10. Repeat, while k≥ 0 */
-  while (k >= 0) {
+  while (k >= 0.) {
     /* a. Let kPresent be HasProperty(O, ToString(k)). */
     kPresent := HasProperty(O, ToString(k));
     /* b. ReturnIfAbrupt(kPresent). */
@@ -2235,17 +2287,17 @@ function TypedArrayLastIndexOf(global, this, strict, args) {
       /* ii. ReturnIfAbrupt(elementK). */
       @ReturnIfAbrupt(elementK);
       /* iii. Let same be the result of performing Strict Equality Comparison searchElement === elementK. */
-      same := searchElement = elementK;
+      same := StrictEqualityComparison(searchElement, elementK);
       /* iv. If same is true, return k. */
       if (same) {
         return k
       }
     }; 
     /* d. Decrease k by 1. */
-    k := k - 1
+    k := k - 1.
   };
   /* 11. Return -1. */
-  return -1
+  return -(1.)
 };
 
 /**
@@ -2276,7 +2328,7 @@ function getTypedArrayLength(global, this, strict, args) {
   /* 6. If IsDetachedBuffer(buffer) is true, */
   if (IsDetachedBuffer(buffer) = true) {
     /* return 0 */
-    return 0
+    return 0.
   };
   /* 7. Let length be the value of O's [[ArrayLength]] internal slot. */
   length := O.ArrayLength;
@@ -2330,7 +2382,7 @@ function TypedArrayMap(global, this, strict, args) {
   /* 11. ReturnIfAbrupt(A). */
   @ReturnIfAbrupt(A);
   /* 12. Let k be 0. */
-  k := 0;
+  k := 0.;
   /* 13. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
@@ -2340,7 +2392,7 @@ function TypedArrayMap(global, this, strict, args) {
     /* c. ReturnIfAbrupt(kValue). */
     @ReturnIfAbrupt(kValue);
     /* d. Let mappedValue be Call(callbackfn, T, «kValue, k, O»). */
-    mappedValue := Call(callbackfn, T, [kValue, k, O]);
+    mappedValue := Call(null, null, callbackfn, T, [kValue, k, O]);
     /* e. ReturnIfAbrupt(mappedValue). */
     @ReturnIfAbrupt(mappedValue);
     /* f. Let status be Set(A, Pk, mappedValue, true ). */
@@ -2348,7 +2400,7 @@ function TypedArrayMap(global, this, strict, args) {
     /* g. ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
     /* h. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 14. Return A. */
   return A
@@ -2427,14 +2479,14 @@ function TypedArrayReduce(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 6. If len is 0 and initialValue is not present, */
-  if ((len = 0) &&& (initialValue = null)) {
+  if ((len = 0.) &&& (initialValue = null)) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal()
   };
   /* 7. Let k be 0. */
   k := 0.;
   /* 8. If initialValue is present, then */
-  if (initialValue = present) {
+  if (!(initialValue = null)) {
     /* a. Set accumulator to initialValue. */
     accumulator := initialValue
   }
@@ -2458,7 +2510,7 @@ function TypedArrayReduce(global, this, strict, args) {
         @ReturnIfAbrupt(accumulator)
       };
       /* v. Increase k by 1. */
-      k := k + 1
+      k := k + 1.
     };
     /* c. If kPresent is false, throw a TypeError exception. */
     if (!kPresent) {
@@ -2480,12 +2532,12 @@ function TypedArrayReduce(global, this, strict, args) {
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
       /* iii. Let accumulator be Call(callbackfn, undefined, «accumulator, kValue, k, O»). */
-      accumulator := Call(callbackfn, 'undefined, [accumulator, kValue, k, O]);
+      accumulator := Call(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O]);
       /* iv. ReturnIfAbrupt(accumulator). */
       @ReturnIfAbrupt(accumulator)
     };
     /* e. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 11. Return accumulator. */
   return accumulator
@@ -2565,12 +2617,12 @@ function TypedArrayReduceRight(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 6. If len is 0 and initialValue is not present, */
-  if ((len = 0) &&& (initialValue = null)) {
+  if ((len = 0.) &&& (initialValue = null)) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal()
   };
   /* 7. Let k be len-1. */
-  k := len - 1;
+  k := len - 1.;
   /* 8. If initialValue is present, then */
   if (!(initialValue = null)) {
     /* a. Set accumulator to initialValue. */
@@ -2581,7 +2633,7 @@ function TypedArrayReduceRight(global, this, strict, args) {
     /* a. Let kPresent be false. */
     kPresent := false;
     /* b. Repeat, while kPresent is false and k ≥ 0 */
-    while ((!kPresent) &&& (k >= 0)) {
+    while ((!kPresent) &&& (k >= 0.)) {
       /* i. Let Pk be ToString(k). */
       Pk := ToString(k);
       /* ii. Let kPresent be HasProperty(O, Pk). */
@@ -2596,7 +2648,7 @@ function TypedArrayReduceRight(global, this, strict, args) {
         @ReturnIfAbrupt(accumulator)
       };
       /* v. Decrease k by 1. */
-      k := k - 1
+      k := k - 1.
     };
     /* c. If kPresent is false, throw a TypeError exception. */
     if (!kPresent) {
@@ -2604,7 +2656,7 @@ function TypedArrayReduceRight(global, this, strict, args) {
     }
   };
   /* 10. Repeat, while k ≥ 0 */
-  while (k >= 0) {
+  while (k >= 0.) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
     /* b. Let kPresent be HasProperty(O, Pk). */
@@ -2617,13 +2669,13 @@ function TypedArrayReduceRight(global, this, strict, args) {
       kValue := Get(O, Pk);
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
-      /* iii. Let accumulator be Call(callbackfn, undefined, «accumulator, kValue, k, »). */
-      accumulator := Call(callbackfn, 'undefined, [accumulator, kValue, k]);
+      /* iii. Let accumulator be Call(callbackfn, undefined, «accumulator, kValue, k, »). */ /* Typo in the standard. O missing in the end of the list. */
+      accumulator := Call(null, null, callbackfn, 'undefined, [accumulator, kValue, k, O]);
       /* iv. ReturnIfAbrupt(accumulator). */
       @ReturnIfAbrupt(accumulator)
     };
     /* e. Decrease k by 1. */
-    k := k - 1
+    k := k - 1.
   };
   /* 11. Return accumulator. */
   return accumulator
@@ -2670,13 +2722,13 @@ function TypedArrayReverse(global, this, strict, args) {
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
   /* 5. Let middle be floor(len/2). */
-  middle := floor(len/2);
+  middle := floor(len/2.);
   /* 6. Let lower be 0. */
-  lower := 0;
+  lower := 0.;
   /* 7. Repeat, while lower ≠ middle */
   while (!(lower = middle)) {
     /* a. Let upper be len− lower −1. */
-    upper := len - lower - 1;
+    upper := len - lower - 1.;
     /* b. Let upperP be ToString(upper). */
     upperP := ToString(upper);
     /* c. Let lowerP be ToString(lower). */
@@ -2741,7 +2793,7 @@ function TypedArrayReverse(global, this, strict, args) {
       /* i. No action is required. */
     };
     /* n. Increase lower by 1. */
-    lower := lower + 1
+    lower := lower + 1.
   };
   /* 8. Return O . */
   return O
@@ -2760,8 +2812,10 @@ function TypedArrayReverse(global, this, strict, args) {
 function TypedArraySet(global, this, strict, args) {
   array := l_nth(args, 0);
   offset := getOptionalParam(args, 1);
-
-  if ("TypedArrayName" in_obj array) {
+  if (offset = null) {
+    offset := 'undefined
+  };
+  if ((Type(array) = "Object") &&& ("TypedArrayName" in_obj array)) {
     return TypedArraySetTypedArray(global, this, strict, array, offset)
   } else {
     return TypedArraySetArray(global, this, strict, array, offset)
@@ -2779,7 +2833,7 @@ function TypedArraySetArray(global, this, strict, array, offset) {
   /* 1. Assert: array is any ECMAScript language value other than an Object
      with a [[TypedArrayName]] internal slot. If it is such an Object, the
      definition in 22.2.3.22.2 applies. */
-  assert(!("TypedArrayName" in_obj array)); /* This check should only be in the "root" function??? */
+  /* assert(!("TypedArrayName" in_obj array)); /* This check should only be in the "root" function??? */
   /* 2. Let target be the this value. */
   target := this;
   /* 3. If Type(target) is not Object, */
@@ -2799,7 +2853,7 @@ function TypedArraySetArray(global, this, strict, array, offset) {
   /* 7. ReturnIfAbrupt(targetOffset). */
   @ReturnIfAbrupt(targetOffset);
   /* 8. If targetOffset < 0, */
-  if (targetOffset < 0) {
+  if (targetOffset < 0.) {
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal()
   };
@@ -2843,7 +2897,7 @@ function TypedArraySetArray(global, this, strict, array, offset) {
      targetByteOffset. */
   targetByteIndex := targetOffset * targetElementSize + targetByteOffset;
   /* 22. Let k be 0. */
-  k := 0;
+  k := 0.;
   /* 23. Let limit be targetByteIndex + targetElementSize × srcLength. */
   limit := targetByteIndex + (targetElementSize * srcLength);
   /* 24. Repeat, while targetByteIndex < limit */
@@ -2859,9 +2913,9 @@ function TypedArraySetArray(global, this, strict, array, offset) {
       throw TypeErrorConstructorInternal()
     };
     /* e. Perform SetValueInBuffer(targetBuffer, targetByteIndex, targetType, kNumber). */
-    SetValueInBuffer(targetBuffer, targetByteIndex, targetType, kNumber);
+    SetValueInBuffer(targetBuffer, int_of_float targetByteIndex, targetType, kNumber, 'undefined);
     /* f. Set k to k + 1. */
-    k := k + 1;
+    k := k + 1.;
     /* g. Set targetByteIndex to targetByteIndex + targetElementSize. */
     targetByteIndex := targetByteIndex + targetElementSize
   };
@@ -2900,7 +2954,7 @@ function TypedArraySetTypedArray(global, this, strict, typedArray, offset) {
   /* 7. ReturnIfAbrupt(targetOffset). */
   @ReturnIfAbrupt(targetOffset);
   /* 8. If targetOffset < 0, */
-  if (targetOffset < 0) {
+  if (targetOffset < 0.) {
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal()
   };
@@ -2959,13 +3013,13 @@ function TypedArraySetTypedArray(global, this, strict, typedArray, offset) {
   if (SameValue(srcBuffer, targetBuffer) = true) {
     /* a. Let srcBuffer be CloneArrayBuffer(targetBuffer, srcByteOffset,
        %ArrayBuffer%). */
-    srcBuffer := CloneArrayBuffer(targetBuffer, srcByteOffset, |Intrinsics|.ArrayBuffer);
+    srcBuffer := CloneArrayBuffer(strict, targetBuffer, srcByteOffset, |Intrinsics|.ArrayBuffer);
     /* b. NOTE: %ArrayBuffer% is used to clone targetBuffer because is it known
        to not have any observable side-effects. */
     /* c. ReturnIfAbrupt(srcBuffer). */
     @ReturnIfAbrupt(srcBuffer);
     /* d. Let srcByteIndex be 0. */
-    srcByteIndex := 0
+    srcByteIndex := 0.
   }
   /* 25. Else, */
   else {
@@ -2982,9 +3036,9 @@ function TypedArraySetTypedArray(global, this, strict, typedArray, offset) {
     /* a. Repeat, while targetByteIndex < limit */
     while (targetByteIndex < limit) {
       /* i. Let value be GetValueFromBuffer(srcBuffer, srcByteIndex, srcType). */
-      value := GetValueFromBuffer(srcBuffer, srcByteIndex, srcType);
+      value := GetValueFromBuffer(srcBuffer, int_of_float srcByteIndex, srcType, 'undefined);
       /* ii. Perform SetValueInBuffer (targetBuffer, targetByteIndex, targetType, value). */
-      SetValueInBuffer(targetBuffer, targetByteIndex, targetType, value);
+      SetValueInBuffer(targetBuffer, int_of_float targetByteIndex, targetType, value, 'undefined);
       /* iii. Set srcByteIndex to srcByteIndex + srcElementSize. */
       srcByteIndex := srcByteIndex + srcElementSize;
       /* iv. Set targetByteIndex to targetByteIndex + targetElementSize. */
@@ -2997,13 +3051,13 @@ function TypedArraySetTypedArray(global, this, strict, typedArray, offset) {
     /* b. Repeat, while targetByteIndex < limit */
     while (targetByteIndex < limit) {
       /* i. Let value be GetValueFromBuffer(srcBuffer, srcByteIndex, "Uint8"). */
-      value := GetValueFromBuffer(srcBuffer, srcByteIndex, "Uint8");
+      value := GetValueFromBuffer(srcBuffer, int_of_float srcByteIndex, "Uint8", 'undefined);
       /* ii. Perform SetValueInBuffer (targetBuffer, targetByteIndex, "Uint8", value). */
-      SetValueInBuffer(targetBuffer, targetByteIndex, "Uint8", value);
+      SetValueInBuffer(targetBuffer, int_of_float targetByteIndex, "Uint8", value, 'undefined);
       /* iii. Set srcByteIndex to srcByteIndex + 1. */
-      srcByteIndex := srcByteIndex + 1;
+      srcByteIndex := srcByteIndex + 1.;
       /* iv. Set targetByteIndex to targetByteIndex + 1. */
-      targetByteIndex := targetByteIndex + 1
+      targetByteIndex := targetByteIndex + 1.
     }
   };
   /* 30. Return undefined. */
@@ -3033,9 +3087,9 @@ function TypedArraySlice(global, this, strict, args) {
   /* 6. ReturnIfAbrupt(relativeStart). */
   @ReturnIfAbrupt(relativeStart);
   /* 7. If relativeStart < 0, */
-  if (relativeStart < 0) {
+  if (relativeStart < 0.) {
     /* let k be max((len + relativeStart),0) */
-    k := max((len + relativeStart), 0)
+    k := max((len + relativeStart), 0.)
   }
   /* else let k be min(relativeStart, len) */
   else {
@@ -3053,9 +3107,9 @@ function TypedArraySlice(global, this, strict, args) {
   /* 9. ReturnIfAbrupt(relativeEnd). */
   @ReturnIfAbrupt(relativeEnd);
   /* 10. If relativeEnd < 0, */
-  if (relativeEnd < 0) {
+  if (relativeEnd < 0.) {
     /* let final be max((len + relativeEnd),0) */
-    final := max((len + relativeEnd), 0)
+    final := max((len + relativeEnd), 0.)
   }
   /* else let final be min(relativeEnd, len) */
   else {
@@ -3089,7 +3143,7 @@ function TypedArraySlice(global, this, strict, args) {
   /* 21. If SameValue(srcType, targetType) is false, then */
   if (SameValue(srcType, targetType) = false) {
     /* a. Let n be 0. */
-    n := 0;
+    n := 0.;
     /* b. Repeat, while k < final */
     while (k < final) {
       /* i. Let Pk be ToString(k). */
@@ -3103,13 +3157,13 @@ function TypedArraySlice(global, this, strict, args) {
       /* v. ReturnIfAbrupt(status). */
       @ReturnIfAbrupt(status);
       /* vi. Increase k by 1. */
-      k := k + 1;
+      k := k + 1.;
       /* vii. Increase n by 1. */
-      n := n + 1
+      n := n + 1.
     }
   }
   /* 22. Else if count > 0, */
-  elif (count > 0) {
+  elif (count > 0.) {
     /* a. Let srcBuffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
     srcBuffer := O.ViewedArrayBuffer;
     /* b. If IsDetachedBuffer(srcBuffer) is true, */
@@ -3129,19 +3183,19 @@ function TypedArraySlice(global, this, strict, args) {
     /* f. Let srcByteOffet be the value of O's [[ByteOffset]] internal slot. */
     srcByteOffet := O.ByteOffset;
     /* g. Let targetByteIndex be 0. */
-    targetByteIndex := 0;
+    targetByteIndex := 0.;
     /* h. Let srcByteIndex be (k × elementSize) + srcByteOffet. */
     srcByteIndex := (k * elementSize) + srcByteOffet;
     /* i. Repeat, while targetByteIndex < count × elementSize */
     while (targetByteIndex < (count * elementSize)) {
       /* i. Let value be GetValueFromBuffer(srcBuffer, srcByteIndex, "Uint8"). */
-      value := GetValueFromBuffer(srcBuffer, srcByteIndex, "Uint8");
+      value := GetValueFromBuffer(srcBuffer, int_of_float srcByteIndex, "Uint8", 'undefined);
       /* ii. Perform SetValueInBuffer (targetBuffer, targetByteIndex, "Uint8", value). */
-      SetValueInBuffer(targetBuffer, targetByteIndex, "Uint8", value);
+      SetValueInBuffer(targetBuffer, int_of_float targetByteIndex, "Uint8", value, 'undefined);
       /* iii. Increase srcByteIndex by 1. */
-      srcByteIndex := srcByteIndex + 1;
+      srcByteIndex := srcByteIndex + 1.;
       /* iv. Increase targetByteIndex by 1. */
-      targetByteIndex := targetByteIndex + 1
+      targetByteIndex := targetByteIndex + 1.
     }
   };
   /* 23. Return A. */
@@ -3232,7 +3286,7 @@ function TypedArraySome(global, this, strict, args) {
     T := 'undefined
   };
   /* 7. Let k be 0. */
-  k := 0;
+  k := 0.;
   /* 8. Repeat, while k < len */
   while (k < len) {
     /* a. Let Pk be ToString(k). */
@@ -3248,7 +3302,7 @@ function TypedArraySome(global, this, strict, args) {
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
       /* iii. Let testResult be ToBoolean(Call(callbackfn, T, «kValue, k, and O»)). */
-      testResult := ToBoolean(Call(callbackfn, T, [kValue, k, O]));
+      testResult := ToBoolean(Call(null, null, callbackfn, T, [kValue, k, O]));
       /* iv. ReturnIfAbrupt(testResult). */
       @ReturnIfAbrupt(testResult);
       /* v. If testResult is true, return true. */
@@ -3257,7 +3311,7 @@ function TypedArraySome(global, this, strict, args) {
       }
     };
     /* e. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 9. Return false. */
   return false
@@ -3290,10 +3344,29 @@ function TypedArraySort(global, this, strict, args) {
   /* 3. ReturnIfAbrupt(buffer). */
   @ReturnIfAbrupt(buffer);
   /* 4. Let len be the value of obj's [[ArrayLength]] internal slot. */
-  len := obj.ArrayLength;
-
-  /* __TODO__ SORTING ALGORITHM */
-  fail "sorting algorithm not implemented";
+  len := int_of_float obj.ArrayLength;
+  /* BUBBLE SORT SORTING ALGORITHM */
+  elementSize := int_of_float |ElementTable|[obj.TypedArrayName].size;
+  elementType := |ElementTable|[obj.TypedArrayName].type;
+  sorted := false;
+  while (!sorted) {
+    index := 0;
+    somethingChanged := false;
+    while (index < (len - 1)) {
+      sortingIndex := index * elementSize;
+      currentIndex := (index + 1) * elementSize;
+      sortingValue := GetValueFromBuffer(buffer, sortingIndex, elementType, 'undefined);
+      currentValue := GetValueFromBuffer(buffer, currentIndex, elementType, 'undefined);
+      comparisonResult := TypedArraySortCompare(sortingValue, currentValue, comparefn, buffer);
+      if (comparisonResult > 0.) {
+        SetValueInBuffer(buffer, sortingIndex, elementType, currentValue, 'undefined);
+        SetValueInBuffer(buffer, currentIndex, elementType, sortingValue, 'undefined);
+        somethingChanged := true
+      };
+      index := index + 1
+    };
+    sorted := (!somethingChanged)
+  };
 
   return obj
 };
@@ -3313,7 +3386,7 @@ function TypedArraySortCompare(x, y, comparefn, buffer) {
   /* 2. If the argument comparefn is not undefined, then */
   if (!(comparefn = 'undefined)) {
     /* a. Let v be Call(comparefn, undefined, «x, y»). */
-    v := Call(comparefn, 'undefined, [x, y]);
+    v := ToNumber(Call(null, null, comparefn, 'undefined, [x, y])); /* *??* Can I add the ToNumber call? It is not in ES6 but is in later versions and seems like a big oversight. Some tests require it like comparefn-class.js */
     /* b. ReturnIfAbrupt(v). */
     @ReturnIfAbrupt(v);
     /* c. If IsDetachedBuffer(buffer) is true, throw a TypeError exception. */
@@ -3371,6 +3444,9 @@ function TypedArraySortCompare(x, y, comparefn, buffer) {
 function TypedArraySubarray(global, this, strict, args) {
   begin := getOptionalParam(args, 0);
   end := getOptionalParam(args, 1);
+  if (end = null) {
+    end := 'undefined
+  };
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
@@ -3394,9 +3470,9 @@ function TypedArraySubarray(global, this, strict, args) {
   /* 8. ReturnIfAbrupt(relativeBegin). */
   @ReturnIfAbrupt(relativeBegin);
   /* 9. If relativeBegin < 0, */
-  if (relativeBegin < 0) {
+  if (relativeBegin < 0.) {
     /* let beginIndex be max((srcLength + relativeBegin), 0) */
-    beginIndex := max((srcLength + relativeBegin), 0)
+    beginIndex := max((srcLength + relativeBegin), 0.)
   }
   /* else let beginIndex be min(relativeBegin, srcLength) */
   else {
@@ -3414,16 +3490,16 @@ function TypedArraySubarray(global, this, strict, args) {
   /* 11. ReturnIfAbrupt(relativeEnd). */
   @ReturnIfAbrupt(relativeEnd);
   /* 12. If relativeEnd < 0, */
-  if (relativeEnd < 0) {
+  if (relativeEnd < 0.) {
     /* let endIndex be max((srcLength + relativeEnd), 0) */
-    endIndex := max((srcLength + relativeEnd), 0)
+    endIndex := max((srcLength + relativeEnd), 0.)
   }
   /* else let endIndex be min(relativeEnd, srcLength) */
   else {
     endIndex := min(relativeEnd, srcLength)
   };
   /* 13. Let newLength be max(endIndex – beginIndex, 0). */
-  newLength := max(endIndex - beginIndex, 0);
+  newLength := max(endIndex - beginIndex, 0.);
   /* 14. Let constructorName be the String value of O's [[TypedArrayName]]
      internal slot. */
   constructorName := O.TypedArrayName;
@@ -3513,7 +3589,7 @@ function TypedArrayToLocaleString(global, this, strict, args) {
      in an implementation-defined way). */
   separator := ","; /* TODO : Host Enviroment */
   /* 6. If len is zero, */
-  if (len = 0) {
+  if (len = 0.) {
     /* return the empty String */
     return ""
   };
@@ -3529,12 +3605,12 @@ function TypedArrayToLocaleString(global, this, strict, args) {
   /* 10. Else */
   else {
     /* a. Let R be ToString(Invoke(firstElement, "toLocaleString")). */
-    R := ToString(Invoke(firstElement, "toLocaleString"));
+    R := ToString(Invoke(firstElement, "toLocaleString", []));
     /* b. ReturnIfAbrupt(R). */
     @ReturnIfAbrupt(R)
   };
   /* 11. Let k be 1. */
-  k := 1;
+  k := 1.;
   /* 12. Repeat, while k < len */
   while (k < len) {
     /* a. Let S be a String value produced by concatenating R and separator. */
@@ -3551,14 +3627,14 @@ function TypedArrayToLocaleString(global, this, strict, args) {
     /* e. Else */
     else {
       /* i. Let R be ToString(Invoke(nextElement, "toLocaleString")). */
-      R := ToString(Invoke(nextElement, "toLocaleString"));
+      R := ToString(Invoke(nextElement, "toLocaleString", []));
       /* ii. ReturnIfAbrupt(R). */
       @ReturnIfAbrupt(R)
     };
     /* f. Let R be a String value produced by concatenating S and R. */
     R := s_concat([S, R]);
     /* g. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 13. Return R. */
   return R
@@ -3570,32 +3646,7 @@ function TypedArrayToLocaleString(global, this, strict, args) {
  * The initial value of the %TypedArray%.prototype.toString data property
  * is the same built-in function object as the Array.prototype.toString
  * method defined in 22.1.3.27.
- *
- *
- *
- *
- *
- * 22.1.3.27 Array.prototype.toString
- *
- * When the toString method is called, the following steps are taken:
  */
-function TypedArrayToString(global, this, strict, args) {
-  /* 1. Let array be ToObject(this value). */
-  array := ToObject(this);
-  /* 2. ReturnIfAbrupt(array). */
-  @ReturnIfAbrupt(array);
-  /* 3. Let func be Get(array, "join"). */
-  func := Get(array, "join");
-  /* 4. ReturnIfAbrupt(func). */
-  @ReturnIfAbrupt(func);
-  /* 5. If IsCallable(func) is false, */
-  if (IsCallable(func) = false) {
-    /* let func be the intrinsic function %ObjProto_toString% (19.1.3.6) */
-    func := getObjectPrototypeToString(strict)
-  };
-  /* 6. Return Call(func, array). */
-  return Call(null, null, func, array)
-};
 
 /**
  * 22.2.3.29 %TypedArray%.prototype.values
@@ -3675,33 +3726,36 @@ function getTypedArrayToStringTag(global, this, strict, args) {
  * with the internal state necessary to support the %TypedArray%.prototype built-in methods.
  */
 function Int8TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Int8", global, this, strict, items)
+  return TypedArrayConstructorAux("Int8", global, this, strict, items)
 };
 function Uint8TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Uint8", global, this, strict, items)
+  return TypedArrayConstructorAux("Uint8", global, this, strict, items)
 };
 function Uint8ClampedTypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Uint8Clamped", global, this, strict, items)
+  return TypedArrayConstructorAux("Uint8Clamped", global, this, strict, items)
 };
 function Int16TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Int16", global, this, strict, items)
+  return TypedArrayConstructorAux("Int16", global, this, strict, items)
 };
 function Uint16TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Uint16", global, this, strict, items)
+  return TypedArrayConstructorAux("Uint16", global, this, strict, items)
 };
 function Int32TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Int32", global, this, strict, items)
+  return TypedArrayConstructorAux("Int32", global, this, strict, items)
 };
 function Uint32TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Uint32", global, this, strict, items)
+  return TypedArrayConstructorAux("Uint32", global, this, strict, items)
 };
 function Float32TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Float32", global, this, strict, items)
+  return TypedArrayConstructorAux("Float32", global, this, strict, items)
 };
 function Float64TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructor("Float64", global, this, strict, items)
+  return TypedArrayConstructorAux("Float64", global, this, strict, items)
 };
-
+function TypedArrayConstructorAux(typeOfArray, global, this, strict, items) {
+  name := s_concat([typeOfArray, "Array"]);
+  return TypedArrayConstructor(global, |Intrinsics|[name], strict, items)
+};
 /**
  * 22.2.4.1 TypedArray (... argumentsList)
  *
@@ -3709,17 +3763,16 @@ function Float64TypedArrayConstructor(global, this, strict, items) {
  * following steps:
  */
 function TypedArray(global, this, strict, argumentsList) {
-  fail "not implemented";
   NewTarget := this; /* ??? */
   /* 1. If NewTarget is undefined, */
   if (NewTarget = 'undefined) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal()
   };
-  /* 2. Let here be the active function. */ /* Is there a reflection mechanism for this? */
-  here := null;/* TODO: Instruction not yet implemented. */
+  /* 2. Let here be the active function. */ /* Is there a reflection mechanism for this? *??* */
+  here := NewTarget;/* TODO: Instruction not yet implemented. */
   /* 3. Let super be here.[[GetPrototypeOf]](). */
-  super := {here.getPrototypeOf}();
+  super := GetPrototypeOf(here);
   /* 4. ReturnIfAbrupt(super). */
   @ReturnIfAbrupt(super);
   /* 5. If IsConstructor (super) is false, */
@@ -3729,7 +3782,7 @@ function TypedArray(global, this, strict, argumentsList) {
   };
   /* 6. Let argumentsList be the argumentsList argument of the [[Construct]]
      internal method that invoked the active function. */
-  argumentsList := argumentList; /* ??? */
+  argumentsList := argumentsList; /* ??? */
   /* 7. Return Construct(super, argumentsList, NewTarget). */
-  return Construct(null, null, super, argumentsList, NewTarget)
+  return ConstructNew(super, argumentsList, NewTarget)
 }

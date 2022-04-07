@@ -1,5 +1,107 @@
 /* 7.1 Type Conversion */
 
+/* 7.1.1 ToPrimitive */
+/* Table 9 — ToPrimitive Conversions
+  
+  |------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+  | Input Type	      | Result                                                                                                                                       |
+  |------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+  | Completion Record	| If input is an abrupt completion, return input. Otherwise return ToPrimitive(input.[[value]]) also passing the optional hint PreferredType.  |
+  | Undefined	        | Return input.                                                                                                                                |
+  | Null              |	Return input.                                                                                                                                |
+  | Boolean           |	Return input.                                                                                                                                |
+  | Number            | Return input.                                                                                                                                |
+  | String            | Return input.                                                                                                                                |
+  | Symbol            | Return input.                                                                                                                                |
+  | Object            | Perform the steps following this table.                                                                                                      |
+  |------------------------------------------------------------------------------------------------------------------------------------------------------------------|  
+*/
+function ToPrimitive(input, PreferredType) {
+  if (Type(input) = "Completion") {
+    return input.value
+  } elif (!(Type(input) = "Object")) {
+    return input
+  } else {
+    /* 1. If PreferredType was not passed, */
+    if (PreferredType = null) {
+      /* let hint be "default" */
+      hint := "default"
+    }
+    /* 2. Else if PreferredType is hint String, */
+    elif (PreferredType = 'String) {
+      /* let hint be "string" */
+      hint := "string"
+    }
+    /* 3. Else PreferredType is hint Number, let hint be "number". */
+    else {
+      hint := "number"
+    };
+    /* 4. Let exoticToPrim be GetMethod(input, @@toPrimitive). */
+    exoticToPrim := GetMethod(input, "Symbol(toPrimitive)");
+    /* 5. ReturnIfAbrupt(exoticToPrim). */
+    @ReturnIfAbrupt(exoticToPrim);
+    /* 6. If exoticToPrim is not undefined, then */
+    if (!(exoticToPrim = 'undefined)) {
+      /* a. Let result be Call(exoticToPrim, input, «hint»). */
+      result := Call(null, null, exoticToPrim, input, [hint]);
+      /* b. ReturnIfAbrupt(result). */
+      @ReturnIfAbrupt(result);
+      /* c. If Type(result) is not Object, */
+      if (!(Type(result) = "Object")) {
+        /* return result */
+        return result
+      };
+      /* d. Throw a TypeError exception. */
+      throw TypeErrorConstructorInternal()
+    };
+    /* 7. If hint is "default", */
+    if (hint = "default") {
+      /* let hint be "number" */
+      hint := "number"
+    };
+    /* 8. Return OrdinaryToPrimitive(input,hint). */
+    return OrdinaryToPrimitive(input, hint)
+  }
+};
+
+function OrdinaryToPrimitive(O, hint) {
+  /* 1. Assert: Type(O) is Object */
+  assert(Type(O) = "Object");
+  /* 2. Assert: Type(hint) is String and its value is either "string" or
+     "number". */
+  assert((Type(hint) = "String") &&& ((hint = "string") || (hint = "number")));
+  /* 3. If hint is "string", then */
+  if (hint = "string") {
+    /* a. Let methodNames be «"toString", "valueOf"». */
+    methodNames := ["toString", "valueOf"]
+  }
+  /* 4. Else, */
+  else {
+    /* a. Let methodNames be «"valueOf", "toString"». */
+    methodNames := ["valueOf", "toString"]
+  };
+  /* 5. For each name in methodNames in List order, do */
+  foreach (name : methodNames) {
+    /* a. Let method be Get(O, name). */
+    method := Get(O, name);
+    /* b. ReturnIfAbrupt(method). */
+    @ReturnIfAbrupt(method);
+    /* c. If IsCallable(method) is true, then */
+    if (IsCallable(method)) {
+      /* i. Let result be Call(method, O). */
+      result := Call(null, null, method, O, []);
+      /* ii. ReturnIfAbrupt(result). */
+      @ReturnIfAbrupt(result);
+      /* iii. If Type(result) is not Object, return result. */
+      if (!(Type(result) = "Object")) {
+        return result
+      }
+    }
+  };
+  /* 6. Throw a TypeError exception. */
+  throw TypeErrorConstructorInternal()
+};
+
 /* 7.1.14 ToPropertyKey (argument) */
 function ToPropertyKey(argument){
 
@@ -11,9 +113,9 @@ function ToPropertyKey(argument){
 
     /* 3. If Type(key) is Symbol, then return key. */
     if (Type(key) = "Symbol"){
-        return key
+        return DefaultValue(key, 'String) /* *??* AssignInObjCheck in Core_Interpreter.ml:327 cannot handle Symbols */
     };
-
+    
     /* 4. Return ToString(key). */
     return ToString(key)
 };

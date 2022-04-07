@@ -99,7 +99,7 @@ function ArrayBufferSpeciesGetter(global, this, strict, args) {
  */
 function ArrayBufferConstructor(global, this, strict, args) {
   length := getOptionalParam(args, 0);
-  NewTarget := this;
+  NewTarget := |Intrinsics|.ArrayBuffer;
   /* 1. If NewTarget is undefined, */
   if (NewTarget = 'undefined) {
     /* throw a TypeError exception */
@@ -284,7 +284,7 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
   /* 23. Let toBuf be the value of new’s [[ArrayBufferData]] internal slot. */
   toBuf := new.ArrayBufferData;
   /* 24. Perform CopyDataBlockBytes(toBuf, 0, fromBuf, first, newLen). */
-  CopyDataBlockBytes(toBuf, 0., fromBuf, first, newLen);
+  CopyDataBlockBytes(toBuf, 0, fromBuf, first, newLen);
   /* 25. Return new. */
   return new
 };
@@ -301,7 +301,7 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
  */
 function AllocateArrayBuffer(constructor, byteLength, strict) {
 	/* 1. Let obj be OrdinaryCreateFromConstructor(constructor, "%ArrayBufferPrototype%",   «‍[[ArrayBufferData]], [[ArrayBufferByteLength]]» ). */
-	obj := OrdinaryCreateFromConstructorArrayBuffer(constructor, |Intrinsics|.ArrayBufferPrototype, strict, []);
+	obj := OrdinaryCreateFromConstructor(constructor, "ArrayBufferPrototype", ["ArrayBufferData", "ArrayBufferByteLength"]);
 	/* 2. ReturnIfAbrupt(obj). */
 	@ReturnIfAbrupt(obj);
 	/* 3. Assert: byteLength is a positive integer. */
@@ -370,7 +370,7 @@ function CloneArrayBuffer(strict, srcBuffer, srcByteOffset, cloneConstructor) {
 	/* 2. If cloneConstructor is not present, then */
 	if (cloneConstructor = 'undefined) {
 		/* a. Let cloneConstructor be SpeciesConstructor(srcBuffer, %ArrayBuffer%). */
-		cloneConstructor := SpeciesConstructor(srcBuffer, getArrayBufferPrototype(strict));
+		cloneConstructor := SpeciesConstructor(srcBuffer, |Intrinsics|.ArrayBuffer);
 		/* b. ReturnIfAbrupt(cloneConstructor). */
 		@ReturnIfAbrupt(cloneConstructor);
 		/* c. If IsDetachedBuffer(srcBuffer) is true, throw a TypeError exception. */
@@ -764,7 +764,7 @@ function getConversionOperation(type) {
   if (type = "Uint8") {
     return "ToUint8"
   }; 
-  if (type = "Uint8Clamp") {
+  if (type = "Uint8C") {
     return "ToUint8Clamp"
   }; 
   if (type = "Int16") {

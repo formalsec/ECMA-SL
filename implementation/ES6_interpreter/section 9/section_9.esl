@@ -1,12 +1,3 @@
-/* 9.1 ToPrimitive */
-function ToPrimitive(input, PreferredType) {
-  if ((Type(input) = "Object") || (Type(input) = "Symbol")) {
-    return DefaultValue(input, PreferredType)
-  };
-
-  return input
-};
-
 /* 9.2 ToBoolean */
 function ToBoolean(argument) {
   /* The abstract operation ToBoolean converts its argument to a value of type Boolean according to Table 11: */

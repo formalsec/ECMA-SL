@@ -172,9 +172,7 @@ let modulo (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | _                -> invalid_arg "Exception in Oper.modulo: this operation is only applicable to Float arguments"
 
 let equal (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
-  | (Flt f1, Flt f2) -> 
-      if ((Float.is_nan f1) && (Float.is_nan f2)) then ( Bool (false) )
-      else (Bool (Float.equal f1 f2))
+  | (Flt f1, Flt f2) -> Bool (Float.equal f1 f2)
   | (Arr a1, Arr a2) -> Bool (a1 == a2)
   | _                -> Bool (v1 = v2)
 

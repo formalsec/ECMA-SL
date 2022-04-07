@@ -1,0 +1,495 @@
+function initReflectObject(global, objectPrototype, strict) {
+    obj := NewECMAScriptObjectFull(objectPrototype, "Reflect", true);
+    setAllInternalMethodsOfObject(obj);
+
+    /* 26.1.1 Reflect.apply (target, thisArgument, argumentsList) */
+    applyObj := CreateBuiltInFunctionObject(["target", "thisArgument", "argumentList"], "ReflectApply", global, strict, null);
+    applyDesc := newDataPropertyDescriptorFull(applyObj, true, false, true);
+    setJSProperty(obj, "apply", applyDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(3., false, false, true);
+    setJSProperty(applyObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("apply", false, false, true);
+    setJSProperty(applyObj, "name", descName);
+    
+    /* 26.1.2 Reflect.construct ( target, argumentsList [, newTarget] ) */
+    constructObj := CreateBuiltInFunctionObject(["target", "argumentsList"], "ReflectConstruct", global, strict, null);
+    constructDesc := newDataPropertyDescriptorFull(constructObj, true, false, true);
+    setJSProperty(obj, "construct", constructDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(2., false, false, true);
+    setJSProperty(constructObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("construct", false, false, true);
+    setJSProperty(constructObj, "name", descName);
+    
+    /* 26.1.3 Reflect.defineProperty ( target, propertyKey, attributes ) */
+    definePropertyObj := CreateBuiltInFunctionObject(["target", "propertyKey", "attributes"], "ReflectDefineProperty", global, strict, null);
+    definePropertyDesc := newDataPropertyDescriptorFull(definePropertyObj, true, false, true);
+    setJSProperty(obj, "defineProperty", definePropertyDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(3., false, false, true);
+    setJSProperty(definePropertyObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("defineProperty", false, false, true);
+    setJSProperty(definePropertyObj, "name", descName);
+    
+    /* 26.1.4 Reflect.deleteProperty ( target, propertyKey ) */
+    deletePropertyObj := CreateBuiltInFunctionObject(["target", "propertyKey"], "ReflectDeleteProperty", global, strict, null);
+    deletePropertyDesc := newDataPropertyDescriptorFull(deletePropertyObj, true, false, true);
+    setJSProperty(obj, "deleteProperty", deletePropertyDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(2., false, false, true);
+    setJSProperty(deletePropertyObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("deleteProperty", false, false, true);
+    setJSProperty(deletePropertyObj, "name", descName);
+    
+    /* 26.1.5 Reflect.enumerate ( target ) */
+    enumerateObj := CreateBuiltInFunctionObject(["target"], "ReflectEnumerate", global, strict, null);
+    enumerateDesc := newDataPropertyDescriptorFull(enumerateObj, true, false, true);
+    setJSProperty(obj, "enumerate", enumerateDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(1., false, false, true);
+    setJSProperty(enumerateObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("enumerate", false, false, true);
+    setJSProperty(enumerateObj, "name", descName);
+    
+    /* 26.1.6 Reflect.get ( target, propertyKey [ , receiver ]) */
+    getObj := CreateBuiltInFunctionObject(["target", "propertyKey"], "ReflectGet", global, strict, null);
+    getDesc := newDataPropertyDescriptorFull(getObj, true, false, true);
+    setJSProperty(obj, "get", getDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(2., false, false, true);
+    setJSProperty(getObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("get", false, false, true);
+    setJSProperty(getObj, "name", descName);
+    
+    /* 26.1.7 Reflect.getOwnPropertyDescriptor ( target, propertyKey ) */
+    getOwnPropertyDescriptorObj := CreateBuiltInFunctionObject(["target", "propertyKey"], "ReflectGetOwnPropertyDescriptor", global, strict, null);
+    getOwnPropertyDescriptorDesc := newDataPropertyDescriptorFull(getOwnPropertyDescriptorObj, true, false, true);
+    setJSProperty(obj, "getOwnPropertyDescriptor", getOwnPropertyDescriptorDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(2., false, false, true);
+    setJSProperty(getOwnPropertyDescriptorObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("getOwnPropertyDescriptor", false, false, true);
+    setJSProperty(getOwnPropertyDescriptorObj, "name", descName);
+    
+    /* 26.1.8 Reflect.getPrototypeOf ( target ) */
+    getPrototypeOfObj := CreateBuiltInFunctionObject(["target"], "ReflectGetPrototypeOf", global, strict, null);
+    getPrototypeOfDesc := newDataPropertyDescriptorFull(getPrototypeOfObj, true, false, true);
+    setJSProperty(obj, "getPrototypeOf", getPrototypeOfDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(1., false, false, true);
+    setJSProperty(getPrototypeOfObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("getPrototypeOf", false, false, true);
+    setJSProperty(getPrototypeOfObj, "name", descName);
+    
+    /* 26.1.9 Reflect.has ( target, propertyKey ) */
+    hasObj := CreateBuiltInFunctionObject(["target", "propertyKey"], "ReflectHas", global, strict, null);
+    hasDesc := newDataPropertyDescriptorFull(hasObj, true, false, true);
+    setJSProperty(obj, "has", hasDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(2., false, false, true);
+    setJSProperty(hasObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("has", false, false, true);
+    setJSProperty(hasObj, "name", descName);
+    
+    /* 26.1.10 Reflect.isExtensible (target) */
+    isExtensibleObj := CreateBuiltInFunctionObject(["target"], "ReflectIsExtensible", global, strict, null);
+    isExtensibleDesc := newDataPropertyDescriptorFull(isExtensibleObj, true, false, true);
+    setJSProperty(obj, "isExtensible", isExtensibleDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(1., false, false, true);
+    setJSProperty(isExtensibleObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("isExtensible", false, false, true);
+    setJSProperty(isExtensibleObj, "name", descName);
+    
+    /* 26.1.11 Reflect.ownKeys ( target ) */
+    ownKeysObj := CreateBuiltInFunctionObject(["target"], "ReflectOwnKeys", global, strict, null);
+    ownKeysDesc := newDataPropertyDescriptorFull(ownKeysObj, true, false, true);
+    setJSProperty(obj, "ownKeys", ownKeysDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(1., false, false, true);
+    setJSProperty(ownKeysObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("ownKeys", false, false, true);
+    setJSProperty(ownKeysObj, "name", descName);
+    
+    /* 26.1.12 Reflect.preventExtensions ( target ) */
+    preventExtensionsObj := CreateBuiltInFunctionObject(["target"], "ReflectPreventExtensions", global, strict, null);
+    preventExtensionsDesc := newDataPropertyDescriptorFull(preventExtensionsObj, true, false, true);
+    setJSProperty(obj, "preventExtensions", preventExtensionsDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(1., false, false, true);
+    setJSProperty(preventExtensionsObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("preventExtensions", false, false, true);
+    setJSProperty(preventExtensionsObj, "name", descName);
+    
+    /* 26.1.13 Reflect.set ( target, propertyKey, V [ , receiver ] ) */
+    setObj := CreateBuiltInFunctionObject(["target", "propertyKey", "V"], "ReflectSet", global, strict, null);
+    setDesc := newDataPropertyDescriptorFull(setObj, true, false, true);
+    setJSProperty(obj, "set", setDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(3., false, false, true);
+    setJSProperty(setObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("set", false, false, true);
+    setJSProperty(setObj, "name", descName);
+    
+    /* 26.1.14 Reflect.setPrototypeOf ( target, proto ) */
+    setPrototypeOfObj := CreateBuiltInFunctionObject(["target", "proto"], "ReflectSetPrototypeOf", global, strict, null);
+    setPrototypeOfDesc := newDataPropertyDescriptorFull(setPrototypeOfObj, true, false, true);
+    setJSProperty(obj, "setPrototypeOf", setPrototypeOfDesc);
+    /* Length */
+    descLen := newDataPropertyDescriptorFull(2., false, false, true);
+    setJSProperty(setPrototypeOfObj, "length", descLen);
+    /* Name */
+    descName := newDataPropertyDescriptorFull("setPrototypeOf", false, false, true);
+    setJSProperty(setPrototypeOfObj, "name", descName);
+
+    return obj
+};
+
+/**
+ * 26.1.1 Reflect.apply (target, thisArgument, argumentsList)
+ *
+ * When the apply function is called with arguments target, thisArgument, and
+ * argumentsList the following steps are taken:
+ */
+function ReflectApply(global, this, strict, args) {
+  target := l_nth(args, 0);
+  thisArgument := l_nth(args, 1);
+  argumentsList := l_nth(args, 2);
+  /* 1. If IsCallable(target) is false, */
+  if (IsCallable(target) = false) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Let args be CreateListFromArrayLike(argumentsList). */
+  args := CreateListFromArrayLike(argumentsList, null);
+  /* 3. ReturnIfAbrupt(args). */
+  @ReturnIfAbrupt(args);
+  /* 4. Perform PrepareForTailCall(). */
+  PrepareForTailCall();
+  /* 5. Return Call(target, thisArgument, args). */
+  return Call(null, null, target, thisArgument, args)
+};
+
+/**
+ * 26.1.2 Reflect.construct (target, argumentsList [ , newTarget ] )
+ *
+ * When the construct function is called with arguments target, argumentsList,
+ * and newTarget the following steps are taken:
+ */
+function ReflectConstruct(global, this, strict, args) {
+  target := l_nth(args, 0);
+  argumentsList := l_nth(args, 1);
+  newTarget := getOptionalParam(args, 2);
+  /* 1. If IsConstructor(target) is false, */
+  if (IsConstructor(target) = false) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. If newTarget is not present, */
+  if (newTarget = null) {
+    /* let newTarget be target */
+    newTarget := target
+  }
+  /* 3. Else, */
+  else {
+    /* if IsConstructor(newTarget) is false, throw a TypeError exception */
+    if (IsConstructor(newTarget) = false) {
+        throw TypeErrorConstructorInternal()
+    }
+  };
+  /* 4. Let args be CreateListFromArrayLike(argumentsList). */
+  args := CreateListFromArrayLike(argumentsList, null);
+  /* 5. ReturnIfAbrupt(args). */
+  @ReturnIfAbrupt(args);
+  /* 6. Return Construct(target, args, newTarget). */
+  return Construct(null, null, target, args, newTarget)
+};
+/**
+ * The length property of the construct function is 2.
+ */
+
+/**
+ * 26.1.3 Reflect.defineProperty (target, propertyKey, attributes)
+ *
+ * When the defineProperty function is called with arguments target,
+ * propertyKey, and attributes the following steps are taken:
+ */
+function ReflectDefineProperty(global, this, strict, args) {
+  target := l_nth(args, 0);
+  propertyKey := l_nth(args, 1);
+  attributes := l_nth(args, 2);
+  /* 1. If Type(target) is not Object, */
+  if (!(Type(target) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Let key be ToPropertyKey(propertyKey). */
+  key := ToPropertyKey(propertyKey);
+  /* 3. ReturnIfAbrupt(key). */
+  @ReturnIfAbrupt(key);
+  /* 4. Let desc be ToPropertyDescriptor(attributes). */
+  desc := ToPropertyDescriptor(attributes);
+  /* 5. ReturnIfAbrupt(desc). */
+  @ReturnIfAbrupt(desc);
+  /* 6. Return target.[[DefineOwnProperty]](key, desc). */
+  return {target.DefineOwnProperty}(key, desc)
+};
+
+/**
+ * 26.1.4 Reflect.deleteProperty (target, propertyKey)
+ *
+ * When the deleteProperty function is called with arguments target and
+ * propertyKey, the following steps are taken:
+ */
+function ReflectDeleteProperty(global, this, strict, args) {
+  target := l_nth(args, 0);
+  propertyKey := l_nth(args, 1);
+  /* 1. If Type(target) is not Object, */
+  if (!(Type(target) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Let key be ToPropertyKey(propertyKey). */
+  key := ToPropertyKey(propertyKey);
+  /* 3. ReturnIfAbrupt(key). */
+  @ReturnIfAbrupt(key);
+  /* 4. Return target.[[Delete]](key). */
+  return {target.Delete}(key)
+};
+
+/**
+ * 26.1.5 Reflect.enumerate (target)
+ *
+ * When the enumerate function is called with argument target the following
+ * steps are taken:
+ */
+function ReflectEnumerate(global, this, strict, args) {
+  target := l_nth(args, 0);
+  /* 1. If Type(target) is not Object, */
+  if (!(Type(target) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Return target.[[Enumerate]](). */
+  return {target.Enumerate}()
+};
+
+/**
+ * 26.1.6 Reflect.get (target, propertyKey [ , receiver ] )
+ *
+ * When the get function is called with arguments target, propertyKey, and
+ * receiver the following steps are taken:
+ */
+function ReflectGet(global, this, strict, args) {
+  target := l_nth(args, 0);
+  propertyKey := l_nth(args, 1);
+  receiver := getOptionalParam(args, 2);
+  /* 1. If Type(target) is not Object, */
+  if (!(Type(target) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Let key be ToPropertyKey(propertyKey). */
+  key := ToPropertyKey(propertyKey);
+  /* 3. ReturnIfAbrupt(key). */
+  @ReturnIfAbrupt(key);
+  /* 4. If receiver is not present, then */
+  if (receiver = null) {
+    /* a. Let receiver be target. */
+    receiver := target
+  };
+  /* 5. Return target.[[Get]](key, receiver). */
+  return {target.Get}(key, receiver)
+};
+/**
+ * The length property of the get function is 2.
+ */
+
+/**
+ * 26.1.7 Reflect.getOwnPropertyDescriptor (target, propertyKey)
+ *
+ * When the getOwnPropertyDescriptor function is called with arguments target
+ * and propertyKey, the following steps are taken:
+ */
+function ReflectGetOwnPropertyDescriptor(global, this, strict, args) {
+  target := l_nth(args, 0);
+  propertyKey := l_nth(args, 1);
+  /* 1. If Type(target) is not Object, */
+  if (!(Type(target) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Let key be ToPropertyKey(propertyKey). */
+  key := ToPropertyKey(propertyKey);
+  /* 3. ReturnIfAbrupt(key). */
+  @ReturnIfAbrupt(key);
+  /* 4. Let desc be target.[[GetOwnProperty]](key). */
+  desc := {target.GetOwnProperty}(key);
+  /* 5. ReturnIfAbrupt(desc). */
+  @ReturnIfAbrupt(desc);
+  /* 6. Return FromPropertyDescriptor(desc). */
+  return FromPropertyDescriptor(desc)
+};
+
+/**
+ * 26.1.8 Reflect.getPrototypeOf (target)
+ *
+ * When the getPrototypeOf function is called with argument target the following
+ * steps are taken:
+ */
+function ReflectGetPrototypeOf(global, this, strict, args) {
+  target := l_nth(args, 0);
+  /* 1. If Type(target) is not Object, */
+  if (!(Type(target) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Return target.[[GetPrototypeOf]](). */
+  return {target.GetPrototypeOf}()
+};
+
+/**
+ * 26.1.9 Reflect.has (target, propertyKey)
+ *
+ * When the has function is called with arguments target and propertyKey, the
+ * following steps are taken:
+ */
+function ReflectHas(global, this, strict, args) {
+  target := l_nth(args, 0);
+  propertyKey := l_nth(args, 1);
+  /* 1. If Type(target) is not Object, */
+  if (!(Type(target) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Let key be ToPropertyKey(propertyKey). */
+  key := ToPropertyKey(propertyKey);
+  /* 3. ReturnIfAbrupt(key). */
+  @ReturnIfAbrupt(key);
+  /* 4. Return target.[[HasProperty]](key). */
+  return {target.HasProperty}(key)
+};
+
+/**
+ * 26.1.10 Reflect.isExtensible (target)
+ *
+ * When the isExtensible function is called with argument target the following
+ * steps are taken:
+ */
+function ReflectIsExtensible(global, this, strict, args) {
+  target := l_nth(args, 0);
+  /* 1. If Type(target) is not Object, */
+  if (!(Type(target) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Return target.[[IsExtensible]](). */
+  return {target.IsExtensible}()
+};
+
+/**
+ * 26.1.11 Reflect.ownKeys (target)
+ *
+ * When the ownKeys function is called with argument target the following steps
+ * are taken:
+ */
+function ReflectOwnKeys(global, this, strict, args) {
+  target := l_nth(args, 0);
+  /* 1. If Type(target) is not Object, */
+  if (!(Type(target) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Let keys be target.[[OwnPropertyKeys]](). */
+  keys := {target.OwnPropertyKeys}();
+  /* 3. ReturnIfAbrupt(keys). */
+  @ReturnIfAbrupt(keys);
+  /* 4. Return CreateArrayFromList(keys). */
+  return CreateArrayFromList(keys)
+};
+
+/**
+ * 26.1.12 Reflect.preventExtensions (target)
+ *
+ * When the preventExtensions function is called with argument target, the
+ * following steps are taken:
+ */
+function ReflectPreventExtensions(global, this, strict, args) {
+  target := l_nth(args, 0);
+  /* 1. If Type(target) is not Object, */
+  if (!(Type(target) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Return target.[[PreventExtensions]](). */
+  return {target.PreventExtensions}()
+};
+
+/**
+ * 26.1.13 Reflect.set (target, propertyKey, V [ , receiver ] )
+ *
+ * When the set function is called with arguments target, V, propertyKey, and
+ * receiver the following steps are taken:
+ */
+function ReflectSet(global, this, strict, args) {
+  target := l_nth(args, 0);
+  propertyKey := l_nth(args, 1);
+  V := l_nth(args, 2);
+  receiver := getOptionalParam(args, 3);
+  /* 1. If Type(target) is not Object, */
+  if (!(Type(target) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. Let key be ToPropertyKey(propertyKey). */
+  key := ToPropertyKey(propertyKey);
+  /* 3. ReturnIfAbrupt(key). */
+  @ReturnIfAbrupt(key);
+  /* 4. If receiver is not present, then */
+  if (receiver = null) {
+    /* a. Let receiver be target. */
+    receiver := target
+  };
+  /* 5. Return target.[[Set]](key, V, receiver). */
+  return {target.Set}(key, V, receiver)
+};
+/**
+ * The length property of the set function is 3.
+ */
+
+/**
+ * 26.1.14 Reflect.setPrototypeOf (target, proto)
+ *
+ * When the setPrototypeOf function is called with arguments target and
+ * propertyKey, the following steps are taken:
+ */
+function ReflectSetPrototypeOf(global, this, strict, args) {
+  target := l_nth(args, 0);
+  proto := l_nth(args, 1);
+  /* 1. If Type(target) is not Object, */
+  if (!(Type(target) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. If Type(proto) is not Object and proto is not null, throw a TypeError
+     exception */
+  if ((!(Type(proto) = "Object")) &&& (!(proto = null))) {
+      throw TypeErrorConstructorInternal()
+  };
+  /* 3. Return target.[[SetPrototypeOf]](proto). */
+  return {target.SetPrototypeOf}(proto)
+}

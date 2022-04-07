@@ -433,7 +433,7 @@ function MakeConstructor(F, writablePrototype, prototype) {
   if (prototype = null) {
 
     /* a. Let prototype be ObjectCreate(%ObjectPrototype%). */
-    prototype := InternalObjectCreate(|ObjectPrototype|);
+    prototype := InternalObjectCreate(|ObjectPrototype|, null);
 
     /* b. Let status be DefinePropertyOrThrow(prototype, "constructor", 
        PropertyDescriptor{[[Value]]: F, [[Writable]]: writablePrototype, 
@@ -663,6 +663,6 @@ function temporaryInternalGetPrototypeOf (O) {
 
 /* Used GetIterator function as reference. */
 function IsIterable(obj) {
-  iterator := GetMethod(obj, Symbol.iterator);
+  iterator := GetMethod(obj, "Symbol(iterator)");
   return !(iterator = 'undefined)
 }

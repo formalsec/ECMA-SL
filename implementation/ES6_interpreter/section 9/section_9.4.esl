@@ -326,7 +326,7 @@ function IntegerIndexedHasProperty(O, P) {
  * object O is called with property key P, and Property Descriptor Desc the
  * following steps are taken:
  */
-function IntegerIndexedDefineOwnProperty(O, P, Desc) {
+function IntegerIndexedDefineOwnProperty(O, P, Desc, throwFlag) {
   /* 1. Assert: IsPropertyKey(P) is true. */
   assert(IsPropertyKey(P) = true);
   /* 2. Assert: O is an Object that has a [[ViewedArrayBuffer]] internal slot. */
@@ -393,7 +393,7 @@ function IntegerIndexedDefineOwnProperty(O, P, Desc) {
     }
   };
   /* 4. Return OrdinaryDefineOwnProperty(O, P, Desc). */
-  return OrdinaryDefineOwnProperty(O, P, Desc)
+  return DefineOwnProperty(O, P, Desc, throwFlag)
 };
 
 /**
@@ -420,7 +420,10 @@ function IntegerIndexedGet(O, P, Receiver) {
   };
   /* 3. Return the result of calling the default ordinary object [[Get]]
      internal method (9.1.8) on O passing P and Receiver as arguments. */
-  return {O.Get}(Receiver, P)
+  return Get(O, P)
+};
+function IntegerIndexedGetTemp(O, P) {
+  return IntegerIndexedGet(O, P, O)
 };
 
 /**
@@ -430,7 +433,10 @@ function IntegerIndexedGet(O, P, Receiver) {
  * called with property key P, value V, and ECMAScript language value Receiver,
  * the following steps are taken:
  */
-function IntegerIndexedSet(P, V, Receiver) {
+function IntegerIndexedSet(O, P, V, Receiver, throwFlag) {
+  print "debug intindex set";
+  print P;
+  print V;
   /* 1. Assert: IsPropertyKey(P) is true. */
   assert(IsPropertyKey(P) = true);
   /* 2. If Type(P) is String and if SameValue(O, Receiver) is true, then */
@@ -445,9 +451,16 @@ function IntegerIndexedSet(P, V, Receiver) {
       return IntegerIndexedElementSet(O, numericIndex, V)
     }
   };
+  print "debug intindex set non int";
   /* 3. Return the result of calling the default ordinary object [[Set]]
      internal method (9.1.8) on O passing P, V, and Receiver as arguments. */
-  return {O.Set}(Receiver, P, V)
+  return Put(O, P, V, throwFlag)
+};
+function IntegerIndexedSetTemp(O, P, V) {
+  return IntegerIndexedSet(O, P, V, O)
+};
+function IntegerIndexedPutTemp(O, P, V, throwFlag) {
+  return IntegerIndexedSet(O, P, V, O, throwFlag)
 };
 
 /**
@@ -511,7 +524,7 @@ function IntegerIndexedObjectCreate(prototype, internalSlotsList) {
   };
   /* 2. Set A's essential internal methods to the default ordinary object
      definitions specified in 9.1. */
-  /* TODO: Instruction not yet implemented. */
+  setAllInternalMethodsOfObject(A);
   /* 3. Set the [[GetOwnProperty]] internal method of A as specified in
      9.4.5.1. */
   setInternalProperty(A, "GetOwnProperty", "IntegerIndexedGetOwnProperty");
@@ -521,9 +534,10 @@ function IntegerIndexedObjectCreate(prototype, internalSlotsList) {
      9.4.5.3. */
   setInternalProperty(A, "DefineOwnProperty", "IntegerIndexedDefineOwnProperty");
   /* 6. Set the [[Get]] internal method of A as specified in 9.4.5.4. */
-  setInternalProperty(A, "Get", "IntegerIndexedGet");
+  setInternalProperty(A, "Get", "IntegerIndexedGetTemp");
   /* 7. Set the [[Set]] internal method of A as specified in 9.4.5.5. */
-  setInternalProperty(A, "Set", "IntegerIndexedSet");
+  setInternalProperty(A, "Set", "IntegerIndexedSetTemp");
+  setInternalProperty(A, "Put", "IntegerIndexedPutTemp"); /* TODO: REMOVE ASAP */
   /* 8. Set the [[OwnPropertyKeys]] internal method of A as specified in
      9.4.5.6. */
   setInternalProperty(A, "OwnPropertyKeys", "IntegerIndexedOwnPropertyKeys");
@@ -559,33 +573,34 @@ function IntegerIndexedElementGet(O, index) {
   if (!IsInteger(index)) {
     return 'undefined
   };
+  index := int_of_float index;
   /* 6. If index = -0, */
-  if (index = -(0.)) {
+  if (index = -(0)) {
     /* return undefined */
-    return 'undefined
+    /* return 'undefined  --  currently 0. = -0. so it is impossible to access the 0 index */
   };
   /* 7. Let length be the value of O's [[ArrayLength]] internal slot. */
-  length := O.ArrayLength;
+  length := int_of_float O.ArrayLength;
   /* 8. If index < 0 or index ≥ length, */
   if ((index < 0) ||| (index >= length)) {
     /* return undefined */
     return 'undefined
   };
   /* 9. Let offset be the value of O's [[ByteOffset]] internal slot. */
-  offset := O.ByteOffset;
+  offset := int_of_float O.ByteOffset;
   /* 10. Let arrayTypeName be the String value of O's [[TypedArrayName]]
      internal slot. */
-  arrayTypeName := String;
+  arrayTypeName := O.TypedArrayName;
   /* 11. Let elementSize be the Number value of the Element Size value
      specified in Table 49 for arrayTypeName. */
-  elementSize := Number;
+  elementSize := int_of_float |ElementTable|[arrayTypeName].size;
   /* 12. Let indexedPosition = (index × elementSize) + offset. */
   indexedPosition := (index * elementSize) + offset;
   /* 13. Let elementType be the String value of the Element Type value in Table
      49 for arrayTypeName. */
-  elementType := |ElementTypes|[arrayTypeName];
+  elementType := |ElementTable|[arrayTypeName].type;
   /* 14. Return GetValueFromBuffer(buffer, indexedPosition, elementType). */
-  return GetValueFromBuffer(buffer, indexedPosition, elementType)
+  return GetValueFromBuffer(buffer, indexedPosition, elementType, 'undefined)
 };
 
 /**
@@ -616,26 +631,27 @@ function IntegerIndexedElementSet(O, index, value) {
   if (!IsInteger(index)) {
     return false
   };
+  index := int_of_float index;
   /* 8. If index = -0, */
-  if (index = -(0.)) {
+  if (index = -(0)) { /* TODO oper.ml sign operator */
     /* return false */
-    return false
+    /* return false 0 = -0 */ 
   };
   /* 9. Let length be the value of O's [[ArrayLength]] internal slot. */
-  length := O.ArrayLength;
+  length := int_of_float O.ArrayLength;
   /* 10. If index < 0 or index ≥ length, */
   if ((index < 0) ||| (index >= length)) {
     /* return false */
     return false
   };
   /* 11. Let offset be the value of O's [[ByteOffset]] internal slot. */
-  offset := O.ByteOffset;
+  offset := int_of_float O.ByteOffset;
   /* 12. Let arrayTypeName be the String value of O's [[TypedArrayName]]
      internal slot. */
   arrayTypeName := O.TypedArrayName;
   /* 13. Let elementSize be the Number value of the Element Size value
      specified in Table 49 for arrayTypeName. */
-  elementSize := |ElementTable|[arrayTypeName].size;
+  elementSize := int_of_float |ElementTable|[arrayTypeName].size;
   /* 14. Let indexedPosition = (index × elementSize) + offset. */
   indexedPosition := (index * elementSize) + offset;
   /* 15. Let elementType be the String value of the Element Type value in Table
@@ -643,7 +659,7 @@ function IntegerIndexedElementSet(O, index, value) {
   elementType := |ElementTable|[arrayTypeName].type;
   /* 16. Perform SetValueInBuffer(buffer, indexedPosition, elementType,
      numValue). */
-  SetValueInBuffer(buffer, indexedPosition, elementType, numValue);
+  SetValueInBuffer(buffer, indexedPosition, elementType, numValue, 'undefined);
   /* 17. Return true. */
   return true
 }
