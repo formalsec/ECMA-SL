@@ -89,7 +89,7 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
 
     /* 2. Let callerContext be the running execution context. */
     if (externalScope = null) {
-      externalScope := createExecutionContext()
+      externalScope := F.Environment
     };
     callerContext := externalScope;
 
@@ -386,7 +386,7 @@ function FunctionInitialize(F, kind, ParameterList, Body, Scope) {
   /* 3. Let status be DefinePropertyOrThrow(F, "length",
      PropertyDescriptor{[[Value]]: len, [[Writable]]: false,
      [[Enumerable]]: false, [[Configurable]]: true}). */
-  status := DefinePropertyOrThrow(F, "length", newDataPropertyDescriptorFull(len, false, false, true));
+  status := DefinePropertyOrThrow(F, "length", newDataPropertyDescriptorFull(int_to_float len, false, false, true));
 
   /* 4. Assert: status is not an abrupt completion. */
   assert(!isAnAbruptCompletion(status));

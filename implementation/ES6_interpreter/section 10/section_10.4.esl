@@ -147,12 +147,12 @@ function isDirectCall(ref, callingExecCtx) {
   if (callingExecCtx = null) {
     return false
   };
-
+  return true
   /* A direct call to the eval function is one that is expressed as a CallExpression that meets the following two
     conditions: */
   /* The Reference that is the result of evaluating the MemberExpression in the CallExpression has an environment
     record as its base value and its reference name is "eval". */
-  baseValue := GetBase(ref);
+  /*baseValue := GetBase(ref);
   referencedName := GetReferencedName(ref);
   return (Type(baseValue) = "EnvironmentRecord") && (referencedName = "eval")
   /* The result of calling the abstract operation GetValue with that Reference as the argument is the standard built-

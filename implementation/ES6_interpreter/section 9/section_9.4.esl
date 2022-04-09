@@ -318,7 +318,7 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
   /* 16. Perform DefinePropertyOrThrow(obj, "length",
      PropertyDescriptor{[[Value]]: len, [[Writable]]: true, [[Enumerable]]:
      false, [[Configurable]]: true}). */
-  DefinePropertyOrThrow(obj, "length", newDataPropertyDescriptorFull(len, true, false, true));
+  DefinePropertyOrThrow(obj, "length", newDataPropertyDescriptorFull(int_to_float len, true, false, true));
 
   /* 17. Let map be ObjectCreate(null). */
   map := ObjectCreate('null, null);

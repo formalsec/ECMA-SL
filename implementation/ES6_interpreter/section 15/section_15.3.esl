@@ -102,8 +102,13 @@ function FunctionConstructor(globalObject, this, strict, params) {
     else {
       /* a. Let firstArg be the first argument. */
       firstArg := l_nth(params, 0);
-      /* b. Let P be ToString(firstArg). */
+
       P := ToString(firstArg);
+
+      @ReturnIfAbrupt(P);
+
+      /* b. Let P be ToString(firstArg). */
+
       /* c. Let k be 2. */
       k := 2;
       /* d. Repeat, while k < argCount */
@@ -112,7 +117,11 @@ function FunctionConstructor(globalObject, this, strict, params) {
         nextArg := l_nth(params, k - 1);
         /* ii. Let P be the result of concatenating the previous value of P, the String "," (a comma), and
                ToString(nextArg). */
-        P := s_concat [P, ",", ToString(nextArg)];
+        nextArgToString := ToString(nextArg);
+
+        @ReturnIfAbrupt(nextArgToString);
+
+        P := s_concat [P, ",", nextArgToString];
         /* iii. Increase k by 1. */
         k := k + 1
       };
@@ -122,6 +131,8 @@ function FunctionConstructor(globalObject, this, strict, params) {
   };
   /* 6. Let body be ToString(body). */
   body := ToString(body);
+
+  @ReturnIfAbrupt(body);
 
   body := parseBody(P, body, strict);
   P := parseParams(P);
@@ -176,6 +187,9 @@ function FunctionPrototypeToString(globalObject, this, strict, params) {
 function FunctionPrototypeApply(globalObject, func, strict, params) {
   thisArg := l_nth(params, 0);
   argArray := l_nth(params, 1);
+  print "DEBUG APPLY";
+  print thisArg;
+  print argArray;
   /* When the apply method is called on an object func with arguments thisArg and argArray, the following steps
    are taken: */
 
