@@ -10,7 +10,7 @@ function getSortedPropertiesES6(internalSlotsList) {
     P := l_nth(internalSlotsList, i);
     num := ToNumber(P);
     /* Only positive integer numbers are */
-    if (!(num = NaN) &&& (ToUint32(num) = num) &&& !(P in_list num_list)) {
+    if (!(is_NaN num) &&& (ToUint32(num) = num) &&& !(P in_list num_list)) {
       num_list := l_add(num_list, P)
     } elif (!(P in_list str_list)) {
       str_list := l_add(str_list, P)
@@ -79,13 +79,14 @@ function initJsonObject(globalObject, ObjectPrototype, strict) {
   parse_fo := CreateBuiltInFunctionObject(["text", "reviver"], "jsonParse", globalObject, strict, null);
   setConfigurability(parse_fo, "length", true); /* ES6 */
   setJSProperty(parse_fo, "name", newDataPropertyDescriptorFull("parse", false, false, true));
-  createBuiltInProperty(JsonObject, "parse", parse_fo);
+  descriptor := newDataPropertyDescriptorFull(parse_fo, true, false, true);
+  setJSProperty(JsonObject, "parse", descriptor);
 
   stringify_fo := CreateBuiltInFunctionObject(["value", "replacer", "space"], "jsonStringify", globalObject, strict, null);
   setConfigurability(stringify_fo, "length", true); /* ES6 */
   setJSProperty(stringify_fo, "name", newDataPropertyDescriptorFull("stringify", false, false, true));
-  createBuiltInPropertyWithFullDescriptor(stringify_fo, "name", "stringify", false, false, true);
-  createBuiltInProperty(JsonObject, "stringify", stringify_fo);
+  descriptor := newDataPropertyDescriptorFull(stringify_fo, true, false, true);
+  setJSProperty(JsonObject, "stringify", descriptor);
 
   return JsonObject
 };
@@ -268,7 +269,7 @@ function parseJSONValue(global, this, strict, tokens) {
     return [true, tokens]
   } elif (token = "false") {
     return [false, tokens]
-  } elif (!(ToNumber(token) = NaN)) {
+  } elif (!(is_NaN ToNumber(token))) {
     num := ToNumber(token);
     return [num, tokens]
   } elif ((s_nth_u(token, 0)) = "\"") {
@@ -816,7 +817,7 @@ function Str(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunct
   /* 9. If Type(value) is Number */
   if (Type(value) = "Number") {
     /* a. If value is finite then return ToString(value). */
-    if (!((value = NaN) ||| (value = Infinity) ||| (value = -Infinity))) {
+    if (!((is_NaN value) ||| (value = Infinity) ||| (value = -Infinity))) {
       return ToString(value)
     }
     /* b. Else, return "null". */

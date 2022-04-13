@@ -145,7 +145,7 @@ function CreateMutableBindingObject(objectEnvRec, N, D) {
     Writable: true,
     Enumerable: true,
     Configurable: configValue
-  }, true);
+  });
 
   return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
 };
@@ -192,23 +192,29 @@ function SetMutableBindingObject(objectEnvRec, N, V, S) {
      the value of the environment record‘s associated binding object‘s property whose name is the value of the
      argument N to the value of argument V. A property named N should already exist but if it does not or is not
      currently writable, error handling is determined by the value of the Boolean argument S. */
-
+     
   /* 1. Let envRec be the object environment record for which the method was invoked. */
   envRec := objectEnvRec;
   /* 2. Let bindings be the binding object for envRec. */
   bindings := getBindingObject(envRec);
   /* 3. Call the [[Put]] internal method of bindings with arguments N, V, and S. */
-  {bindings.Put}(bindings, N, V, S);
+
+  Set(bindings, N, V, S);
 
   return V /* TODO the return statement is necessary because of the Monitor. Check why! */
 };
 
 
 function GetBindingValue(envRec, N, S) {
-  print "GetBindingValue";
+  print "DEBUG GetBindingValue";
+  print envRec; 
+  print N; 
+  print S; 
   if (isDeclarativeEnvironmentRecord(envRec)) {
     return GetBindingValueDeclarative(envRec, N, S)
   };
+
+  print "DEBUG GetBindingValue 2";
   return GetBindingValueObject(envRec, N, S)
 };
 
@@ -244,12 +250,18 @@ function GetBindingValueObject(objectEnvRec, N, S) {
      of its associated binding object‘s property whose name is the String value of the argument identifier N.
      The property should already exist but if it does not the result depends upon the value of the S argument: */
 
+  print "GBVO - 1"; 
   /* 1. Let envRec be the object environment record for which the method was invoked. */
   envRec := objectEnvRec;
+
   /* 2. Let bindings be the binding object for envRec. */
   bindings := getBindingObject(envRec);
+  print "GBVO - 2"; 
+
   /* 3. Let value be the result of calling the [[HasProperty]] internal method of bindings, passing N as the property name. */
   value := {bindings.HasProperty}(bindings, N);
+  print "GBVO - 3";
+
   /* 4. If value is false, then */
   if (value = false) {
     /* a. If S is false, return the value undefined, otherwise throw a ReferenceError exception. */
@@ -258,8 +270,10 @@ function GetBindingValueObject(objectEnvRec, N, S) {
     };
     throw ReferenceErrorConstructorInternal()
   };
+
+  print "GBVO - 4"; 
   /* 5. Return the result of calling the [[Get]] internal method of bindings, passing N for the argument. */
-  return {bindings.Get}(bindings, N)
+  return {bindings.Get}(bindings, N, bindings)
 };
 
 
@@ -310,7 +324,7 @@ function DeleteBindingObject(objectEnvRec, N) {
   /* 2. Let bindings be the binding object for envRec. */
   bindings := getBindingObject(envRec);
   /* 3. Return the result of calling the [[Delete]] internal method of bindings, passing N and false as arguments. */
-  return {bindings.Delete}(bindings, N, false)
+  return {bindings.Delete}(bindings, N)
 };
 
 /*
@@ -540,7 +554,12 @@ function newLexicalEnvironment() {
 };
 
 function newDeclarativeEnvironmentRecord() {
-  return {}
+  env := {
+    SetMutableBinding: "SetMutableBinding",
+    GetBindingValue: "GetBindingValue"
+  };
+
+  return env
 };
 
 function newObjectEnvironmentRecord(bindingObj) {
@@ -550,7 +569,9 @@ function newObjectEnvironmentRecord(bindingObj) {
   objEnvRec := {
     isObjectEnvRec: true,
     bindingObject: bindingObj,
-    provideThis: false
+    provideThis: false,
+    SetMutableBinding: "SetMutableBinding",
+    GetBindingValue: "GetBindingValue"
   };
 
   return objEnvRec

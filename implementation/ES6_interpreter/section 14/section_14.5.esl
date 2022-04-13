@@ -163,7 +163,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     };
         
     /* 7. Let proto be ObjectCreate(protoParent). */
-    proto := InternalObjectCreate(protoParent);
+    proto := ObjectCreate(protoParent, null);
 
     /* 8. If ClassBodyopt is not present, let constructor be empty. */
     /* 9. Else, let constructor be ConstructorMethod of ClassBody. */

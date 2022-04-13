@@ -24,6 +24,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   match op with
   | Neg           -> Oper.neg v
   | Not           -> Oper.not v
+  | IsNaN         -> Oper.is_NaN v
   | BitwiseNot    -> Oper.bitwise_not v
   | Typeof        -> Oper.typeof v
   | ListLen       -> Oper.l_len v
@@ -100,6 +101,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ShiftRight -> Oper.shift_right (v1, v2)
   | ShiftRightLogical -> Oper.shift_right_logical (v1, v2)
   | Lnth     -> Oper.list_nth (v1, v2)
+  | LRemNth  -> Oper.list_remove_nth (v1, v2)
   | Tnth     -> Oper.tuple_nth (v1, v2)
   | Snth     -> Oper.s_nth (v1,v2)
   | Snth_u   -> Oper.s_nth_u (v1,v2)

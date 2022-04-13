@@ -1,56 +1,122 @@
-/* 7.2 Testing and Comparison Operations */
-
 /**
  * 7.2.1 RequireObjectCoercible ( argument )
- *
- * The abstract operation RequireObjectCoercible throws an error if argument is a value that cannot be converted
- * to an Object using ToObject. It is defined by Table 14:
- *
- * Table 14 — RequireObjectCoercible Results
- * Argument Type	       | Result
- * ______________________|_______________________________________________________________
- * Completion Record     | If argument is an abrupt completion, return argument. 
-                         | Otherwise return RequireObjectCoercible(argument.[[value]]).
- * ______________________|_______________________________________________________________
- * Undefined             | Throw a TypeError exception.
- * ______________________|_______________________________________________________________
- * Null                  | Throw a TypeError exception.
- * ______________________|_______________________________________________________________
- * Boolean	             | Return argument.
- * ______________________|_______________________________________________________________
- * Number	               | Return argument.
- * ______________________|_______________________________________________________________
- * String	               | Return argument.
- * ______________________|_______________________________________________________________
- * Symbol	               | Return argument.
- * ______________________|_______________________________________________________________
- * Object	               | Return argument.
- * ______________________|_______________________________________________________________
- */
- 
-function RequireObjectCoercible(argument){
-  if(Type(argument) = "Completion"){
-    if(isAnAbruptCompletion(argument)){
-      return argument
-    }else{
-      return RequireObjectCoercible(argument.value)
-    }
-  }elif(Type(argument) = "Undefined"){
-    throw TypeErrorConstructorInternal()
-  }elif(Type(argument) = "Null"){
-    throw TypeErrorConstructorInternal()
-  }elif(Type(argument) = "Boolean"){
-    return argument
-  }elif(Type(argument) = "Number"){
-    return argument
-  }elif(Type(argument) = "String"){
-    return argument
-  }elif(Type(argument) = "Symbol"){
-    return argument
-  }elif(Type(argument) = "Object"){
-    return argument
-  }
+ * 
+ * The abstract operation RequireObjectCoercible throws an error if argument is a value that cannot be
+ * converted to an Object using ToObject.
+*/
+function RequireObjectCoercible(argument) {
+	switch(Type(argument)) {
+		case "Completion": { 
+			if ( isAnAbruptCompletion(argument) = true ) {
+				return argument
+			} else {
+				return RequireObjectCoercible(getCompletionValue(input))
+			}
+		}
+		case "Undefined": { throw TypeErrorConstructorInternal() }
+		case "Null": { throw TypeErrorConstructorInternal() }
+		case "Boolean": { return argument }
+		case "Number": { return argument }
+		case "String": { return argument }
+		case "Symbol": { return argument }
+		case "Object": { return argument }
+	}
 };
+
+/**
+ * 7.2.2 IsArray ( argument )
+ * 
+ * The abstract operation IsArray takes one argument argument, and performs the following steps:
+*/
+function IsArray(argument) {
+
+    /* If Type(argument) is not Object, return false. */
+    if (!(Type(argument) = "Object")) {
+    	return false
+    };
+
+    if (argument.Class = "Array") {
+      return true
+    };
+
+    /* If argument is an Array exotic object, return true. 
+    if ( isArrayExoticObject(argument) ) {
+      return true
+    }; 
+    */
+
+    /* If argument is a Proxy exotic object, then */ 
+        /* If the value of the [[ProxyHandler]] internal slot of argument is null, throw a TypeError exception. */
+        /* Let target be the value of the [[ProxyTarget]] internal slot of argument. */
+        /* Return IsArray(target). */
+    
+    /* Return false. */
+    return false
+};
+
+/**
+ * 7.2.3 IsCallable ( argument )
+ * 
+ * The abstract operation IsCallable determines if argument, which must be an ECMAScript language value or a
+ * Completion Record, is a callable function with a [[Call]] internal method.
+*/
+function IsCallable( argument ) {
+	/* ReturnIfAbrupt(argument). */
+	@ReturnIfAbrupt(argument);
+
+	/* If Type(argument) is not Object, return false. */
+	if ( !(Type(argument) = "Object") ) {
+		return false
+	};
+
+	/* If argument has a [[Call]] internal method, return true. */
+	if ( "Call" in_obj argument ) {
+		return true
+	};
+
+	/* Return false. */
+	return false
+};
+
+/**
+ *  7.2.4 IsConstructor ( argument ) 
+ * The abstract operation IsConstructor determines if argument,
+ * which must be an ECMAScript language value or a Completion Record,
+ * is a function object with a [[Construct]] internal method.
+*/
+function IsConstructor(argument) {
+	/* ReturnIfAbrupt(argument). */
+	@ReturnIfAbrupt(argument);
+
+	/* If Type(argument) is not Object, return false. */
+	if (!(Type(argument) = "Object")) {
+		return false
+	};
+
+	/* If argument has a [[Construct]] internal method, return true. */
+	if ( "Construct" in_obj argument ) {
+		return true
+	};
+
+	/* Return false. */
+	return false
+
+};
+
+/**
+ * 7.2.5 IsExtensible (O)
+ * 
+ * The abstract operation IsExtensible is used to determine whether additional properties can be added to
+ * the object that is O. A Boolean value is returned. This abstract operation performs the following steps:
+*/
+function IsExtensible(O) {
+    /* Assert: Type(O) is Object. */
+    assert( Type(O) = "Object" );
+
+    /* Return O.[[IsExtensible]](). */
+    return {O.IsExtensible}(O)
+};
+
 
 /* 7.2.6 IsInteger ( argument ) */
 function IsInteger(argument){
@@ -63,7 +129,7 @@ function IsInteger(argument){
   };
 
   /* 3. If argument is NaN, +∞, or −∞, return false. */
-  if ((argument = NaN) || (argument = Infinity) || (argument = -Infinity)){
+  if ((is_NaN argument) || (argument = Infinity) || (argument = -Infinity)){
     return false
   };
 
@@ -72,33 +138,38 @@ function IsInteger(argument){
     return false
   };
 
-  /* 5. Return true. */
-  return true
+    /* If floor(abs(argument)) ≠ abs(argument), return false. */
+	if ( !(floor(abs(argument)) = abs(argument)) ) {
+		return false
+	};
+
+    /* Return true. */
+    return true
 };
 
 /**
- * 7.2.7 IsPropertyKey ( argument )
- *
- * The abstract operation IsPropertyKey determines if argument, which must be an ECMAScript language value or a
- * Completion Record, is a value that may be used as a property key.
- */
- function IsPropertyKey(argument){
-  /* 1. ReturnIfAbrupt(argument). */
-  @ReturnIfAbrupt(argument);
+ *  7.2.7 IsPropertyKey ( argument ) 
+ * The abstract operation IsPropertyKey determines if argument,
+ * which must be an ECMAScript language value or a Completion Record,
+ * is a value that may be used as a property key.
+*/
+function IsPropertyKey( argument ) {
+	/* ReturnIfAbrupt(argument). */
+	@ReturnIfAbrupt(argument);
 
-  /* 2. If Type(argument) is String, return true. */
-  if (Type(argument) = "String"){
-    return true
-  };
-  
-  /* 3. If Type(argument) is Symbol, return true. */
-  if (Type(argument) = "Symbol"){
-    return true
-  };
+	/* If Type(argument) is String, return true. */
+	if ( Type(argument) = "String" ) {
+		return true
+	};
 
-  /* 4. Return false. */
-  return false
- };
+	/* If Type(argument) is Symbol, return true. */
+	if ( Type(argument) = "Symbol" ) {
+		return true
+	};
+
+	/* Return false. */
+	return false
+};
 
 /**
  * 7.2.8 IsRegExp ( argument )
@@ -110,7 +181,7 @@ function IsRegExp(argument){
   };
 
   /* 2. Let isRegExp be Get(argument, @@match). */
-  isRegExp := GetNew(argument, getMatchPropertyName());
+  isRegExp := Get(argument, getMatchPropertyName());
 
   /* 3. ReturnIfAbrupt(isRegExp). */
   @ReturnIfAbrupt(isRegExp);
@@ -129,58 +200,331 @@ function IsRegExp(argument){
   return false
 };
 
+/**
+ * 7.2.9 SameValue(x, y)
+ * 
+ * The internal comparison abstract operation SameValue(x, y), where x and y are ECMAScript language values,
+ * produces true or false. Such a comparison is performed as follows:
+*/
+function SameValue (x, y) {
+
+  @ReturnIfAbrupt(x);
+  @ReturnIfAbrupt(y);
+
+  /* 1. If Type(x) is different from Type(y), return false. */
+  if (!(Type(x) = Type(y))) { return false };
+  /* 2. If Type(x) is Undefined, return true. */
+  if (Type(x) = "Undefined") { return true };
+  /* 3. If Type(x) is Null, return true. */
+  if (Type(x) = "Null") { return true };
+  /* 4. If Type(x) is Number, then. */
+  if (Type(x) = "Number") {
+    /* a. If x is NaN and y is NaN, return true. */
+    if ((is_NaN x) && (is_NaN y)) { return true };
+    /* b. If x is +0 and y is -0, return false. */
+    if (isZero(x) && isMinusZero(y)) { return false };
+    /* c. If x is -0 and y is +0, return false. */
+    if (isMinusZero(x) && isZero(y)) { return false };
+    /* d. If x is the same Number value as y, return true. */
+    if (x = y) { return true };
+    /* e. Return false. */
+    return false
+  };
+  /* 5. If Type(x) is String, then return true if x and y are exactly the same sequence of characters
+    (same length and same characters in corresponding positions); otherwise, return false. */
+  if (Type(x) = "String") { return x = y };
+  /* 6. If Type(x) is Boolean, return true if x and y are both true or both false; otherwise, return false. */
+  if (Type(x) = "Boolean") { return x = y };
+  /*  */
+  if ( Type(x) = "Symbol" ) { return x = y };
+  /* 7. Return true if x and y refer to the same object. Otherwise, return false. */
+  return x = y
+};
 
 /**
  * 7.2.10 SameValueZero(x, y)
- *
- * The internal comparison abstract operation SameValueZero(x, y), where x and y are ECMAScript language values,
- * produces true or false. Such a comparison is performed as follows:
- *
- * NOTE SameValueZero differs from SameValue only in its treatment of +0 and −0.
- */
-function SameValueZero (x, y) {
-  /* 1. ReturnIfAbrupt(x). */
+ * 
+ * The internal comparison abstract operation SameValueZero(x, y), where x and y are ECMAScript language
+ * values, produces true or false. Such a comparison is performed as follows:
+*/
+function SameValueZero(x, y) {
+
   @ReturnIfAbrupt(x);
-  /* 2. ReturnIfAbrupt(y). */
   @ReturnIfAbrupt(y);
-  /* 3. If Type(x) is different from Type(y), return false. */
+
+  /* 1. If Type(x) is different from Type(y), return false. */
   if (!(Type(x) = Type(y))) { return false };
-  /* 4. If Type(x) is Undefined, return true. */
+  /* 2. If Type(x) is Undefined, return true. */
   if (Type(x) = "Undefined") { return true };
-  /* 5. If Type(x) is Null, return true. */
+  /* 3. If Type(x) is Null, return true. */
   if (Type(x) = "Null") { return true };
-  /* 6. If Type(x) is Number, then. */
+  /* 4. If Type(x) is Number, then. */
   if (Type(x) = "Number") {
     /* a. If x is NaN and y is NaN, return true. */
-    if ((x = NaN) && (y = NaN)) { return true };
-    /* b. If x is +0 and y is -0, return true. */
+    if ((is_NaN x) && (is_NaN y)) { return true };
+    /* b. If x is +0 and y is -0, return false. */
     if (isZero(x) && isMinusZero(y)) { return true };
-    /* c. If x is -0 and y is +0, return true. */
+    /* c. If x is -0 and y is +0, return false. */
     if (isMinusZero(x) && isZero(y)) { return true };
     /* d. If x is the same Number value as y, return true. */
     if (x = y) { return true };
     /* e. Return false. */
     return false
   };
-  
-  /* 7. If Type(x) is String, then */
-  if (Type(x) = "String"){
-    /* a. If x and y are exactly the same sequence of code units (same length and same code units at corresponding indices) return true; otherwise, return false. */
-    return x = y
-  };
-  
-  /* 8. If Type(x) is Boolean, then */
-  if (Type(x) = "Boolean"){
-    /* a. If x and y are both true or both false, return true; otherwise, return false. */
-    return x = y
-  };
-  
-  /* 9. If Type(x) is Symbol, then */
-  if (Type(x) = "Symbol"){
-    /* a. If x and y are both the same Symbol value, return true; otherwise, return false. */
-    return x = y
-  };
+  /* 5. If Type(x) is String, then return true if x and y are exactly the same sequence of characters
+    (same length and same characters in corresponding positions); otherwise, return false. */
+  if (Type(x) = "String") { return x = y };
+  /* 6. If Type(x) is Boolean, return true if x and y are both true or both false; otherwise, return false. */
+  if (Type(x) = "Boolean") { return x = y };
+  /*  */
+  if ( Type(x) = "Symbol" ) { return x = y };
+  /* 7. Return true if x and y refer to the same object. Otherwise, return false. */
+  return x = y
+};
 
-  /* 10. Return true if x and y are the same Object value. Otherwise, return false.  */
-  return x = y   
+/**
+ * 7.2.11 Abstract Relational Comparison
+ * 
+ * The comparison x < y, where x and y are values, produces true, false, or undefined (which indicates that at
+ * least one operand is NaN). In addition to x and y the algorithm takes a Boolean flag named LeftFirst as a
+ * parameter. The flag is used to control the order in which operations with potentially visible side-effects
+ * are performed upon x and y. It is necessary because ECMAScript specifies left to right evaluation of expressions.
+ * The default value of LeftFirst is true and indicates that the x parameter corresponds to an expression that
+ * occurs to the left of the y parameter’s corresponding expression. If LeftFirst is false, the reverse is the
+ * case and operations must be performed upon y before x. Such a comparison is performed as follows:
+*/
+function AbstractRelationalComparison(x, y, LeftFirst) {
+  @ReturnIfAbrupt(x);
+  @ReturnIfAbrupt(y);
+
+  /* 1. If the LeftFirst flag is true, then */
+  if (LeftFirst = true) ["after-same:, then"] {
+    /* a. Let px be the result of calling ToPrimitive(x, hint Number). */
+    px := ToPrimitive(x, 'Number);
+    @ReturnIfAbrupt(px);
+    /* b. Let py be the result of calling ToPrimitive(y, hint Number). */
+    py := ToPrimitive(y, 'Number);
+    @ReturnIfAbrupt(py)
+  }
+  /* 2. Else the order of evaluation needs to be reversed to preserve left to right evaluation */
+  else ["after-same: the order of evaluation needs to be reversed to preserve left to right evaluation"] {
+    /* a. Let py be the result of calling ToPrimitive(y, hint Number). */
+    py := ToPrimitive(y, 'Number);
+   	@ReturnIfAbrupt(py);
+    /* b. Let px be the result of calling ToPrimitive(x, hint Number). */
+    px := ToPrimitive(x, 'Number);
+    @ReturnIfAbrupt(px)
+  };
+  /* 3. If it is not the case that both Type(px) is String and Type(py) is String, then */
+  if (!((Type(px) = "String") && (Type(py) = "String"))) ["after-same:, then"] {
+    /* a. Let nx be the result of calling ToNumber(px). Because px and py are primitive values evaluation order is not important. */
+    gen_wrapper ["after-same:. Because <i>px</i> and <i>py</i> are primitive values evaluation order is not important"] {
+      nx := ToNumber(px)
+    };
+    /* b. Let ny be the result of calling ToNumber(py). */
+    ny := ToNumber(py);
+    /* c. If nx is NaN, return undefined. */
+    if (nx = NaN) { return 'undefined };
+    /* d. If ny is NaN, return undefined. */
+    if (ny = NaN) { return 'undefined };
+    /* e. If nx and ny are the same Number value, return false. */
+    if (nx = ny) { return false };
+    /* f. If nx is +0 and ny is -0, return false. */
+    if (isZero(nx) && isMinusZero(ny)) { return false };
+    /* g. If nx is -0 and ny is +0, return false. */
+    if (isMinusZero(nx) && isZero(ny)) { return false };
+    /* h. If nx is +Infinity, return false. */
+    if (nx = Infinity) { return false };
+    /* i. If ny is +Infinity, return true. */
+    if (ny = Infinity) { return true };
+    /* j. If ny is -Infinity, return false. */
+    if (ny = -Infinity) { return false };
+    /* k. If nx is -Infinity, return true. */
+    if (nx = -Infinity) { return true };
+    /* l. If the mathematical value of nx is less than the mathematical value of ny — note that these
+          mathematical values are both finite and not both zero — return true. Otherwise, return false. */
+    if (nx < ny) { return true };
+    return false
+  }
+  /* 4. Else, both px and py are Strings */
+  else ["after-same:, both <i>px</i> and <i>py</i> are Strings"] {
+    /* a. If py is a prefix of px, return false. (A String value p is a prefix of String value q if q can be the
+          result of concatenating p and some other String r. Note that any String is a prefix of itself, because r
+          may be the empty String.) */
+    /* b. If px is a prefix of py, return true. */
+    /* c. Let k be the smallest nonnegative integer such that the character at position k within px is different
+          from the character at position k within py. (There must be such a k, for neither String is a prefix of
+          the other.) */
+    /* d. Let m be the integer that is the code unit value for the character at position k within px. */
+    /* e. Let n be the integer that is the code unit value for the character at position k within py. */
+    /* f. If m < n, return true. Otherwise, return false. */
+
+    if (px < py) { return true };
+
+    gen_wrapper ["before-same:Otherwise, "] {
+      return false
+    }
+  }
+};
+
+/**
+ * 7.2.12 Abstract Equality Comparison
+ * 
+ * The comparison x == y, where x and y are values, produces true or false. Such a comparison is performed as follows:
+*/
+function AbstractEqualityComparison(x, y) {
+  @ReturnIfAbrupt(x);
+  @ReturnIfAbrupt(y);
+
+
+  /* 1. If Type(x) is the same as Type(y), then */
+  if (Type(x) = Type(y)) ["after-same:, then"] {
+    /* a. If Type(x) is Undefined, return true. */
+    if (Type(x) = "Undefined") {
+      return true
+    };
+    /* b. If Type(x) is Null, return true. */
+    if (Type(x) = "Null") {
+      return true
+    };
+    /* c. If Type(x) is Number, then */
+    if (Type(x) = "Number") ["after-same:, then"] {
+      /* i. If x is NaN, return false. */
+      if (x = NaN) { return false };
+      /* ii. If y is NaN, return false. */
+      if (y = NaN) { return false };
+      /* iii. If x is the same Number value as y, return true. */
+      if (x = y) { return true };
+      /* iv. If x is +0 and y is -0, return true. */
+      if (isZero(x) && isMinusZero(y)) { return true };
+      /* v. If x is -0 and y is +0, return true. */
+      if (isMinusZero(x) && isZero(y)) { return true };
+      /* vi. Return false. */
+      return false
+    };
+    /* d. If Type(x) is String, then return true if x and y are exactly the same sequence of characters (same
+          length and same characters in corresponding positions). Otherwise, return false. */
+    if (Type(x) = "String") {
+        return x = y
+    };
+    /* e. If Type(x) is Boolean, return true if x and y are both true or both false. Otherwise, return false. */
+    if (Type(x) = "Boolean") {
+      if ((x = true && y = true) ||| (x = false && y = false)) {
+        return true
+      };
+      gen_wrapper ["before-same:Otherwise, "] {
+        return false
+      }
+    };
+    /* f. Return true if x and y refer to the same object. Otherwise, return false. */
+    if (x = y) {
+      return true
+    };
+    gen_wrapper ["before-same:Otherwise, "] {
+      return false
+    }
+  };
+  /* 2. If x is null and y is undefined, return true. */
+  if ((x = 'null) && (y = 'undefined)) {
+    return true
+  };
+  /* 3. If x is undefined and y is null, return true. */
+  if ((x = 'undefined) && (y = 'null)) {
+    return true
+  };
+  /* 4. If Type(x) is Number and Type(y) is String,
+        return the result of the comparison x == ToNumber(y). */
+  if ((Type(x) = "Number") && (Type(y) = "String")) {
+    return AbstractEqualityComparison(x, ToNumber(y))
+  };
+  /* 5. If Type(x) is String and Type(y) is Number,
+        return the result of the comparison ToNumber(x) == y. */
+  if ((Type(x) = "String") && (Type(y) = "Number")) {
+    return AbstractEqualityComparison(ToNumber(x), y)
+  };
+  /* 6. If Type(x) is Boolean, return the result of the comparison ToNumber(x) == y. */
+  if (Type(x) = "Boolean") {
+    return AbstractEqualityComparison(ToNumber(x), y)
+  };
+  /* 7. If Type(y) is Boolean, return the result of the comparison x == ToNumber(y). */
+  if (Type(y) = "Boolean") {
+    return AbstractEqualityComparison(x, ToNumber(y))
+  };
+  /* 8. If Type(x) is either String or Number and Type(y) is Object,
+        return the result of the comparison x == ToPrimitive(y). */
+  if (((Type(x) = "String") ||| (Type(x) = "Number")) && (Type(y) = "Object")) {
+    return AbstractEqualityComparison(x, ToPrimitive(y, null))
+  };
+  /* 9. If Type(x) is Object and Type(y) is either String or Number,
+        return the result of the comparison ToPrimitive(x) == y. */
+  if ((Type(x) = "Object") && ((Type(y) = "String") ||| (Type(y) = "Number"))) {
+    return AbstractEqualityComparison(ToPrimitive(x, null), y)
+  };
+  /* 10. Return false. */
+  return false
+
+  /* NOTE 1 Given the above definition of equality:
+          * String comparison can be forced by: "" + a == "" + b.
+          * Numeric comparison can be forced by: +a == +b.
+          * Boolean comparison can be forced by: !a == !b. */
+
+  /* NOTE 2 The equality operators maintain the following invariants:
+          * A != B is equivalent to !(A == B).
+          * A == B is equivalent to B == A, except in the order of evaluation of A and B. */
+
+  /* NOTE 3 The equality operator is not always transitive. For example, there might be two distinct String objects, each
+            representing the same String value; each String object would be considered equal to the String value by the == operator,
+            but the two String objects would not be equal to each other. For Example:
+          * new String("a") == "a" and "a" == new String("a")are both true.
+          * new String("a") == new String("a") is false. */
+
+  /* NOTE 4 Comparison of Strings uses a simple equality test on sequences of code unit values. There is no attempt to
+            use the more complex, semantically oriented definitions of character or string equality and collating order defined in the
+            Unicode specification. Therefore Strings values that are canonically equal according to the Unicode standard could test as
+            unequal. In effect this algorithm assumes that both Strings are already in normalised form. */
+};
+
+/**
+ * 7.2.13 Strict Equality Comparison
+ * 
+ * The comparison x === y, where x and y are values, produces true or false. Such a comparison is performed as
+ * follows:
+*/
+function StrictEqualityComparison(x, y) {
+  /* The comparison x === y, where x and y are values, produces true or false. Such a comparison is performed
+     as follows: */
+
+  @ReturnIfAbrupt(x);
+  @ReturnIfAbrupt(y);
+
+  /* 1. If Type(x) is different from Type(y), return false. */
+  if (!(Type(x) = Type(y))) { return false };
+  /* 2. If Type(x) is Undefined, return true. */
+  if (Type(x) = "Undefined") { return true };
+  /* 3. If Type(x) is Null, return true. */
+  if (Type(x) = "Null") { return true };
+  /* 4. If Type(x) is Number, then */
+  if (Type(x) = "Number") {
+    /* a. If x is NaN, return false. */
+    if (x = NaN) { return false };
+    /* b. If y is NaN, return false. */
+    if (y = NaN) { return false };
+    /* c. If x is the same Number value as y, return true. */
+    if (x = y) { return true };
+    /* d. If x is +0 and y is -0, return true. */
+    if ((x = 0.) && (y = -(0.))) { return true };
+    /* e. If x is -0 and y is +0, return true. */
+    if ((x = -(0.)) && (y = 0.)) { return true };
+    /* f. Return false. */
+    return false
+  };
+  /* 5. If Type(x) is String, then return true if x and y are exactly the same sequence of characters (same length and
+        same characters in corresponding positions); otherwise, return false. */
+  if (Type(x) = "String") { return x = y };
+  /* 6. If Type(x) is Boolean, return true if x and y are both true or both false; otherwise, return false. */
+  if (Type(x) = "Boolean") { return x = y };
+  /* 7. Return true if x and y refer to the same object. Otherwise, return false. */
+  return x = y
+
+  /* NOTE This algorithm differs from the SameValue Algorithm (9.12) in its treatment of signed zeroes and NaNs. */
 }

@@ -349,7 +349,7 @@ function internalNewDate(datePrototypeObject, args) {
   /* 7. If ms is supplied then let milli be ToNumber(ms); else let milli be 0. */
   if (!(ms = null)) { milli := ToNumber(ms) } else { milli := 0. };
   /* 8. If y is not NaN and 0 <= ToInteger(y) <= 99, then let yr be 1900+ToInteger(y); otherwise, let yr be y. */
-  if (!(y = NaN) &&& (0. <= ToInteger(y)) &&& (ToInteger(y) <= 99.)) { yr := 1900. + ToInteger(y) } else { yr := y };
+  if (!(is_NaN y) &&& (0. <= ToInteger(y)) &&& (ToInteger(y) <= 99.)) { yr := 1900. + ToInteger(y) } else { yr := y };
   /* 9. Let finalDate be MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli)). */
   finalDate := MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli));
   /* 10. Set the [[PrimitiveValue]] internal property of the newly constructed object to TimeClip(UTC(finalDate)). */

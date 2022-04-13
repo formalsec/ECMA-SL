@@ -1,0 +1,2 @@
+This folder includes Test262 tests that are misclassified as ES5.
+They were created to test features of more recent versions of the ECMAScript standard.

@@ -23,6 +23,7 @@ type bopt = Plus
           | InObj
           | InList
           | Lnth
+          | LRemNth
           | Tnth
           | Snth
           | Snth_u
@@ -49,6 +50,7 @@ type topt = Ssubstr
 
 type uopt = Neg
           | Not
+          | IsNaN
           | BitwiseNot
           | Typeof
           | ListLen
@@ -137,6 +139,10 @@ let not (v : Val.t) : Val.t = match v with
   | Bool v -> Bool (v = false)
   | _      -> invalid_arg "Exception in Oper.not: this operation is only applicable to a boolean type argument"
 
+let is_NaN (v : Val.t) : Val.t = match v with
+  | Flt v -> Bool (Float.is_nan v)
+  | _     -> Bool (false)
+
 let bitwise_not (v : Val.t) : Val.t = match v with
   | Flt f -> Flt (Arith_Utils.int32_bitwise_not f)
   | _     -> invalid_arg "Exception in Oper.bitwise_not: this operation is only applicable to Float arguments"
@@ -167,6 +173,7 @@ let modulo (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
 
 let equal (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt f1, Flt f2) -> Bool (Float.equal f1 f2)
+  | (Arr a1, Arr a2) -> Bool (a1 == a2)
   | _                -> Bool (v1 = v2)
 
 let gt (v1, v2 : Val.t * Val.t) : Val.t = Bool (v1 > v2)
@@ -244,8 +251,11 @@ let to_exponential (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
 
 let to_fixed (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt x, Int y) -> 
-      let res = Float.round(x*.(10.**(Float.of_int(y))))/.(10.**(Float.of_int(y))) in 
-      Str (Float.to_string res)
+      (* let res = Float.round(x*.(10.**(Float.of_int(y))))/.(10.**(Float.of_int(y))) in *)
+      (* let digits = Arith_Utils.count_digits res in *)
+      (* let missing_zeros = y - digits in *)
+      (* Str (Float.to_string res) *)
+      Str (Printf.sprintf "%0.*f" y x)
   | _                -> invalid_arg "Exception in Oper.to_fixed: this operation is only applicable to Float and Int arguments"
 
 let typeof (v : Val.t) : Val.t = match v with
@@ -403,6 +413,22 @@ let list_remove_last (v : Val.t) : Val.t = match v with
     | _ :: l'' -> List (List.rev l'')
     | _ -> List [])
 | _       -> invalid_arg "Exception in Oper.list_remove_last: this operation is only applicable to List arguments"
+
+let rec list_remove_nth_aux (v1, v2 : Val.t * Val.t) : Val.t list = match v1, v2 with
+  | List l, Int idx  -> 
+    if (idx = 0) then 
+      List.tl l
+    else
+      List.hd l :: list_remove_nth_aux (List (List.tl l), Int(idx - 1))
+  | _                -> invalid_arg "Exception in Oper.list_remove_last: this operation is only applicable to List and Int arguments"
+
+let list_remove_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | List l, Int idx  -> 
+    if (idx >= 0) then 
+      List(list_remove_nth_aux (List(l), Int(idx)))
+    else
+      invalid_arg "Exception in Oper.list_remove_last: this operation is only applicable to List and Int greater or equal to 0 arguments"
+  | _                -> invalid_arg "Exception in Oper.list_remove_last: this operation is only applicable to List and Int arguments"
 
 let list_sort (v : Val.t) : Val.t = match v with
   | List l ->
@@ -701,6 +727,7 @@ let str_of_const (c : const) : string = match c with
 let str_of_unopt (op : uopt) : string = match op with
   | Neg           -> "-"
   | Not           -> "!"
+  | IsNaN         -> "is_NaN"
   | BitwiseNot    -> "~"
   | Typeof        -> "typeof"
   | ListLen       -> "l_len"
@@ -794,6 +821,7 @@ let str_of_binopt_single (op : bopt) : string = match op with
   | InObj    -> "in_obj"
   | InList   -> "in_list"
   | Lnth     -> "l_nth"
+  | LRemNth  -> "l_remove_nth"
   | Tnth     -> "t_nth"
   | Snth     -> "s_nth"
   | Snth_u   -> "s_nth_u"
@@ -836,6 +864,7 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | InObj    -> e1 ^ " in_obj " ^ e2
   | InList   -> e1 ^ " in_list " ^ e2
   | Lnth     -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | LRemNth  -> "l_remove_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Tnth     -> "t_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Snth     -> "s_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Snth_u   -> "s_nth_u(" ^ e1 ^ ", " ^ e2 ^ ")"
@@ -930,6 +959,7 @@ let bopt_to_json (op : bopt) : string =
      | InObj   -> Printf.sprintf "InObj\" }"
      | InList  -> Printf.sprintf "InList\" }"
      | Lnth    -> Printf.sprintf "Lnth\" }"
+     | LRemNth -> Printf.sprintf "LRemNth\" }"
      | Tnth    -> Printf.sprintf "Tnth\" }"
      | Snth    -> Printf.sprintf "Snth\" }"
      | Snth_u  -> Printf.sprintf "Snth_u\" }"
@@ -972,6 +1002,7 @@ let uopt_to_json (op : uopt) : string =
     (match op with
      | Neg           -> Printf.sprintf "Neg\" }"
      | Not           -> Printf.sprintf "Not\" }"
+     | IsNaN         -> Printf.sprintf "IsNaN\" }"
      | BitwiseNot    -> Printf.sprintf "BitwiseNot\" }"
      | Typeof        -> Printf.sprintf "Typeof\" }"
      | ListLen       -> Printf.sprintf "ListLen\" }"

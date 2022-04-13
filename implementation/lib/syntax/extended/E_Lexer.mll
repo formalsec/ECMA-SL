@@ -53,6 +53,7 @@
                 "sqrt"            , SQRT;
                 "tan"             , TAN;
                 "PI"              , PI;
+                "is_NaN"          , IS_NAN;
                 "MAX_VALUE"       , MAX_VALUE;
                 "MIN_VALUE"       , MIN_VALUE;
                 "in_obj"          , IN_OBJ;
@@ -63,6 +64,7 @@
                 "l_prepend"       , LPREPEND;
                 "l_concat"        , LCONCAT;
                 "l_remove_last"   , LREMOVELAST;
+                "l_remove_nth"    , LREMNTH;
                 "l_sort"          , LSORT;
                 "l_reverse"       , LREVERSE;
                 "hd"              , HD;

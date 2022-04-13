@@ -9,6 +9,10 @@
  * the creation of new exotic String objects. It performs the following steps:
  */
  function StringCreate(value, prototype){
+   print "1::::";
+   print value;
+   print prototype;
+
     /* 1. ReturnIfAbrupt(prototype). */
     @ReturnIfAbrupt(prototype);
     
@@ -17,13 +21,14 @@
 
     /* 3. Let S be a newly created String exotic object. */
     S := NewECMAScriptObject();
-    setAllInternalMethodsOfObject(S);
-    setInternalProperty(S, "Class", "String");
+    setAllInternalMethodsOfOrdinaryObject(S); 
+    /* setInternalProperty(S, "Class", "String"); */
 
     /* 4. Set the [[StringData]] internal slot of S to value. */
     setInternalProperty(S, "StringData", value);
 
     /* 5. Set S’s essential internal methods to the default ordinary object definitions specified in 9.1. */
+    setStringInternals(S);
     /**
      * All ordinary objects have an internal slot called [[Prototype]]. The value of this internal slot is 
      * either null or an object and is used for implementing inheritance. Data properties of the 
@@ -62,38 +67,58 @@
 
     /* 12. Let status be DefinePropertyOrThrow(S, "length", PropertyDescriptor{[[Value]]: length, [[Writable]]: false,
     [[Enumerable]]: false, [[Configurable]]: false }). */
-
-    /**
-     * NOTA
-     *
-     * 7.3.7 DefinePropertyOrThrow (O, P, desc) e da parte de outra pessoa - colocar depois
-     */
-
     setJSProperty(S, "length", newDataPropertyDescriptorFull(length, false, false, false));
-    
     /*
-    desc := newDataPropertyDescriptorFull(int_to_float length, false, false, false);
-    status := {S.DefineOwnProperty}(S, "length", {
-      Value: int_to_float length,
-      Writable: false,
-      Enumerable: false,
-      Configurable: false
-    }, false);
-    @ReturnIfAbrupt(status);
-    if (status = false){
-      throw TypeErrorConstructorInternal()
-    };
+    status := DefinePropertyOrThrow(S, "length", newDataPropertyDescriptorFull(length, false, false, false) );
     */
-
     /* 13. Assert: status is not an abrupt completion. */
     /*
     if(Type(status) = "Completion"){
       assert(!isAnAbruptCompletion(status))
     };
     */
+    print "2::::";
+    print S;
     
     /* 14. Return S. */
     return S
+};
+
+/* 9.1 Ordinary Object Internal Methods and Internal Slots */
+function setStringInternals(S){
+  /* 9.1.1 [[GetPrototypeOf]] ( ) */
+  setInternalProperty(S, "GetPrototypeOf", "OrdinaryObjectGetPrototypeOf");
+
+  /* 9.1.2 [[SetPrototypeOf]] (V) */
+  setInternalProperty(S, "SetPrototypeOf", "OrdinaryObjectSetPrototypeOf");
+
+  /* 9.1.3 [[IsExtensible]] ( ) */
+  setInternalProperty(S, "IsExtensible", "OrdinaryObjectIsExtensible");
+
+  /* 9.1.4 [[PreventExtensions]] ( ) */
+  setInternalProperty(S, "PreventExtensions", "OrdinaryObjectPreventExtensions");
+
+  /* 9.1.5 [[GetOwnProperty]] (P) */
+
+  /* 9.1.6 [[DefineOwnProperty]] (P, Desc) */
+  setInternalProperty(S, "DefineOwnProperty", "OrdinaryObjectDefineOwnProperty");
+
+  /* 9.1.7 [[HasProperty]](P) */
+
+  /* 9.1.8 [[Get]] (P, Receiver) */
+  setInternalProperty(S, "Get", "OrdinaryObjectGet");
+
+  /* 9.1.9 [[Set]] ( P, V, Receiver) */
+  setInternalProperty(S, "Set", "OrdinaryObjectSet");
+
+  /* 9.1.10 [[Delete]] (P) */
+  setInternalProperty(S, "Delete", "OrdinaryObjectDelete");
+
+  /* 9.1.11 [[Enumerate]] () */
+  setInternalProperty(S, "Enumerate", "OrdinaryObjectEnumerate");
+
+  /* 9.1.12 [[OwnPropertyKeys]] ( ) */
+  return 'null
 };
 
 /* 9.4.3.1 [[GetOwnProperty]] ( P ) */
@@ -101,8 +126,14 @@ function GetOwnPropertyString(S, P){
   /* 1. Assert: IsPropertyKey(P) is true. */
   assert(IsPropertyKey(P) = true);
 
+  print "?????";
+  print S;
+  print P;
   /* 2. Let desc be OrdinaryGetOwnProperty(S, P). */
   desc := OrdinaryGetOwnProperty(S, P);
+
+  print "helooooo";
+  print desc;
 
   /* 3. If desc is not undefined return desc. */
   if (!(desc = 'undefined)){
@@ -119,6 +150,9 @@ function StringGetIndexProperty(S, P){
   if (!(Type(P) = "String")){
     return 'undefined
   };
+
+  print "P:::::";
+  print P;
 
   /* 2. Let index be CanonicalNumericIndexString (P). */
   index := CanonicalNumericIndexString(P);
@@ -184,42 +218,478 @@ function OwnPropertyKeysString(O){
   str := ToString(O.StringData);
 
   /* 3. Let len be the number of elements in str. */
-  len := s_len_u str;
+  len := int_to_float(s_len_u str);
   
   /* 4. For each integer i starting with 0 such that i < len, in ascending order, */
-  i := 0;
+  i := 0.;
   while (i < len){
     /* a. Add ToString(i) as the last element of keys */
-    keys := l_concat(keys, [ToString(i)]);
+    keys := l_add(keys, ToString(i));
 
-    i := i + 1
+    i := i + 1.
   };
 
   /* 5. For each own property key P of O such that P is an integer index and ToInteger(P) ≥ len, in ascending numeric index order, */
-  foreach(P : O)[]{
-    if ((Type(P) = "Number") && (ToInteger(P) >= len)){
+  foreach(P : obj_fields O.JSProperties){
+    if ((Type(P) = "Number") &&& (ToInteger(P) >= len)){
       /* a. Add P as the last element of keys. */
-      keys := l_concat(keys, [P])
+      keys := l_add(keys, P)
     }
   };
     
   /* 6. For each own property key P of O such that Type(P) is String and P is not an integer index, in property creation order, */
+  foreach(P : obj_fields O.JSProperties){
+    if ((Type(P) = "String") &&& !(Type(P) = "Number")){
+      /* a. Add P as the last element of keys. */
+      keys := l_add(keys, P)
+    }
+  };
+    
+  /* 7. For each own property key P of O such that Type(P) is Symbol, in property creation order, */
+  foreach(P : obj_fields O.JSProperties){
+    if (Type(P) = "Symbol"){
+      /* a. Add P as the last element of keys. */
+      keys := l_add(keys, P)
+    }
+  };
+    
+  /* 8. Return keys. */
+  return keys
+};
+
+/*
+ * |--------------------------------|
+ * | Integer Indexed Exotic objects |
+ * |--------------------------------|
+*/
+
+/**
+ * 9.4.5.1 [[GetOwnProperty]] (P)
+ *
+ * When the [[GetOwnProperty]] internal method of an Integer Indexed exotic
+ * object O is called with property key P the following steps are taken:
+ */
+function IntegerIndexedGetOwnProperty(O, P) {
+  /* 1. Assert: IsPropertyKey(P) is true. */
+  assert(IsPropertyKey(P) = true);
+  /* 2. Assert: O is an Object that has a [[ViewedArrayBuffer]] internal slot. */
+  assert((Type(O) = "Object") &&& ("ViewedArrayBuffer" in_obj O));
+  /* 3. If Type(P) is String, then */
+  if (Type(P) = "String") {
+    /* a. Let numericIndex be CanonicalNumericIndexString(P). */
+    numericIndex := CanonicalNumericIndexString(P);
+    /* b. Assert: numericIndex is not an abrupt completion. */
+    assert(!isAnAbruptCompletion(numericIndex));
+    /* c. If numericIndex is not undefined, then */
+    if (!(numericIndex = 'undefined)) {
+      /* i. Let value be IntegerIndexedElementGet (O, numericIndex). */
+      value := IntegerIndexedElementGet(O, numericIndex);
+      /* ii. ReturnIfAbrupt(value). */
+      @ReturnIfAbrupt(value);
+      /* iii. If value is undefined, */
+      if (value = 'undefined) {
+        /* return undefined */
+        return 'undefined
+      };
+      /* iv. Return a PropertyDescriptor{ [[Value]]: value, [[Enumerable]]: true,
+         [[Writable]]: true, [[Configurable]]: false }. */
+      return newDataPropertyDescriptorFull(value, true, true, true)
+    }
+  };
+  /* 4. Return OrdinaryGetOwnProperty(O, P). */
+  return OrdinaryGetOwnProperty(O, P)
+};
+
+/**
+ * 9.4.5.2 [[HasProperty]] (P)
+ *
+ * When the [[HasProperty]] internal method of an Integer Indexed exotic object
+ * O is called with property key P, the following steps are taken:
+ */
+function IntegerIndexedHasProperty(O, P) {
+  /* 1. Assert: IsPropertyKey(P) is true. */
+  assert(IsPropertyKey(P) = true);
+  /* 2. Assert: O is an Object that has a [[ViewedArrayBuffer]] internal slot. */
+  assert((Type(O) = "Object") &&& ("ViewedArrayBuffer" in_obj O));
+  /* 3. If Type(P) is String, then */
+  if (Type(P) = "String") {
+    /* a. Let numericIndex be CanonicalNumericIndexString(P). */
+    numericIndex := CanonicalNumericIndexString(P);
+    /* b. Assert: numericIndex is not an abrupt completion. */
+    assert(!isAnAbruptCompletion(numericIndex));
+    /* c. If numericIndex is not undefined, then */
+    if (!(numericIndex = 'undefined)) {
+      /* i. Let buffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
+      buffer := O.ViewedArrayBuffer;
+      /* ii. If IsDetachedBuffer(buffer) is true, */
+      if (IsDetachedBuffer(buffer) = true) {
+        /* throw a TypeError exception */
+        throw TypeErrorConstructorInternal()
+      };
+      /* iii. If IsInteger(numericIndex) is false, return false */
+      if (!(IsInteger(numericIndex))) {
+        print "debug hasproperty isinteger";
+        print numericIndex;
+        return false
+      };
+      /* iv. If numericIndex = -0, */
+      if (isMinusZero(numericIndex)) {
+        print "debug hasproperty minus zero";
+        print numericIndex;
+        /* return false */
+        return false
+      };
+      /* v. If numericIndex < 0, */
+      if (numericIndex < 0.) {
+        print "debug hasproperty less than zero";
+        print numericIndex;
+        /* return false */
+        return false
+      };
+      /* vi. If numericIndex ≥ the value of O's [[ArrayLength]] internal slot, */
+      if (numericIndex >= O.ArrayLength) {
+        print "debug hasproperty more than length";
+        print numericIndex;
+        print O.ArrayLength;
+        /* return false */
+        return false
+      };
+      /* vii. Return true. */
+      return true
+    }
+  };
+  print "debug hasproperty ordinary has property";
+  /* 4. Return OrdinaryHasProperty(O, P). */
+  return OrdinaryHasProperty(O, P)
+};
+
+/**
+ * 9.4.5.3 [[DefineOwnProperty]] (P, Desc)
+ *
+ * When the [[DefineOwnProperty]] internal method of an Integer Indexed exotic
+ * object O is called with property key P, and Property Descriptor Desc the
+ * following steps are taken:
+ */
+function IntegerIndexedDefineOwnProperty(O, P, Desc) {
+  /* 1. Assert: IsPropertyKey(P) is true. */
+  assert(IsPropertyKey(P) = true);
+  /* 2. Assert: O is an Object that has a [[ViewedArrayBuffer]] internal slot. */
+  assert((Type(O) = "Object") &&& ("ViewedArrayBuffer" in_obj O));
+  /* 3. If Type(P) is String, then */
+  if (Type(P) = "String") {
+    /* a. Let numericIndex be CanonicalNumericIndexString (P). */
+    numericIndex := CanonicalNumericIndexString(P);
+    /* b. Assert: numericIndex is not an abrupt completion. */
+    assert(!isAnAbruptCompletion(numericIndex));
+    /* c. If numericIndex is not undefined, then */
+    if (!(numericIndex = 'undefined)) {
+      /* i. If IsInteger(numericIndex) is false, return false */
+      if (!(isInteger(numericIndex))) {
+        return false
+      };
+      /* ii. Let intIndex be numericIndex. */
+      intIndex := numericIndex;
+      /* iii. If intIndex = -0, */
+      if (intIndex = -(0.)) {
+        /* return false */
+        return false
+      };
+      /* iv. If intIndex < 0, */
+      if (intIndex < 0) {
+        /* return false */
+        return false
+      };
+      /* v. Let length be the value of O's [[ArrayLength]] internal slot. */
+      length := O.ArrayLength;
+      /* vi. If intIndex ≥ length, */
+      if (intIndex >= length) {
+        /* return false */
+        return false
+      };
+      /* vii. If IsAccessorDescriptor(Desc) is true, return false. */
+      if (IsAccessorDescriptor(Desc)) {
+        return false
+      };
+      /* viii. If Desc has a [[Configurable]] field and if Desc.[[Configurable]] is
+         true, return false. */
+      if (("Configurable" in_obj Desc) &&& (Desc.Configurable = true)) {
+        return false
+      };
+      /* ix. If Desc has an [[Enumerable]] field and if Desc.[[Enumerable]] is
+         false, return false. */
+      if (("Enumerable" in_obj Desc) &&& (Desc.Enumerable = false)) {
+        return false
+      };
+      /* x. If Desc has a [[Writable]] field and if Desc.[[Writable]] is false, */
+      if (("Writable" in_obj Desc) &&& (Desc.Writable = false)) {
+        /* return false */
+        return false
+      };
+      /* xi. If Desc has a [[Value]] field, then */
+      if ("Value" in_obj Desc) {
+        /* 1. Let value be Desc.[[Value]]. */
+        value := Desc.Value;
+        /* 2. Return IntegerIndexedElementSet (O, intIndex, value). */
+        return IntegerIndexedElementSet(O, intIndex, value)
+      };
+      /* xii. Return true. */
+      return true
+    }
+  };
+  /* 4. Return OrdinaryDefineOwnProperty(O, P, Desc). */
+  return OrdinaryDefineOwnProperty(O, P, Desc)
+};
+
+/**
+ * 9.4.5.4 [[Get]] (P, Receiver)
+ *
+ * When the [[Get]] internal method of an Integer Indexed exotic object O is
+ * called with property key P and ECMAScript language value Receiver the
+ * following steps are taken:
+ */
+function IntegerIndexedGet(O, P, Receiver) {
+  /* 1. Assert: IsPropertyKey(P) is true. */
+  assert(IsPropertyKey(P) = true);
+  /* 2. If Type(P) is String and if SameValue(O, Receiver) is true, then */
+  if ((Type(P) = "String") &&& (SameValue(O, Receiver))) {
+    /* a. Let numericIndex be CanonicalNumericIndexString (P). */
+    numericIndex := CanonicalNumericIndexString(P);
+    /* b. Assert: numericIndex is not an abrupt completion. */
+    assert(!isAnAbruptCompletion(numericIndex));
+    /* c. If numericIndex is not undefined, then */
+    if (!(numericIndex = 'undefined)) {
+      /* i. Return IntegerIndexedElementGet (O, numericIndex). */
+      return IntegerIndexedElementGet(O, numericIndex)
+    }
+  };
+  /* 3. Return the result of calling the default ordinary object [[Get]]
+     internal method (9.1.8) on O passing P and Receiver as arguments. */
+  return OrdinaryObjectGet(O, P, Receiver)
+};
+
+/**
+ * 9.4.5.5 [[Set]] (P, V, Receiver)
+ *
+ * When the [[Set]] internal method of an Integer Indexed exotic object O is
+ * called with property key P, value V, and ECMAScript language value Receiver,
+ * the following steps are taken:
+ */
+function IntegerIndexedSet(O, P, V, Receiver) {
+  /* 1. Assert: IsPropertyKey(P) is true. */
+  assert(IsPropertyKey(P) = true);
+  /* 2. If Type(P) is String and if SameValue(O, Receiver) is true, then */
+  if ((Type(P) = "String") &&& (SameValue(O, Receiver))) {
+    /* a. Let numericIndex be CanonicalNumericIndexString (P). */
+    numericIndex := CanonicalNumericIndexString(P);
+    /* b. Assert: numericIndex is not an abrupt completion. */
+    assert(!isAnAbruptCompletion(numericIndex));
+    /* c. If numericIndex is not undefined, then */
+    if (!(numericIndex = 'undefined)) {
+      /* i. Return IntegerIndexedElementSet (O, numericIndex, V). */
+      return IntegerIndexedElementSet(O, numericIndex, V)
+    }
+  };
+  /* 3. Return the result of calling the default ordinary object [[Set]]
+     internal method (9.1.8) on O passing P, V, and Receiver as arguments. */
+  return OrdinaryObjectSet(O, P, V, Receiver)
+};
+
+/**
+ * 9.4.5.6 [[OwnPropertyKeys]]
+ *
+ * When the [[OwnPropertyKeys]] internal method of an Integer Indexed exotic
+ * object O is called the following steps are taken:
+ */
+function IntegerIndexedOwnPropertyKeys(O) {
+  /* 1. Let keys be a new empty List. */
+  keys := [];
+  /* 2. Assert: O is an Object that has [[ViewedArrayBuffer]],
+     [[ArrayLength]], [[ByteOffset]], and [[TypedArrayName]] internal
+     slots. */
+  assert((Type(O) = "Object") &&& ("ViewedArrayBuffer" in_obj O) &&& ("ArrayLength" in_obj O) &&& ("ByteOffset" in_obj O) &&& ("TypedArrayName" in_obj O));
+  /* 3. Let len be the value of O's [[ArrayLength]] internal slot. */
+  len := O.ArrayLength;
+  /* 4. For each integer i starting with 0 such that i < len, in ascending
+     order, */
+  i := 0;
+  while (i < len) {
+    /* a. Add ToString(i) as the last element of keys.*/
+    keys := l_concat(keys, [ToString(i)]);
+    i := i + 1
+  };
+  /* 5. For each own property key P of O such that Type(P) is String and P is
+     not an integer index, in property creation order */
   foreach(P : O)[]{
     if ((Type(P) = "String") && !(Type(P) = "Integer")){
       /* a. Add P as the last element of keys. */
       keys := l_concat(keys, [P])
     }
   };
-    
-  /* 7. For each own property key P of O such that Type(P) is Symbol, in property creation order, */
+  /* 6. For each own property key P of O such that Type(P) is Symbol, in
+     property creation order */
   foreach(P : O)[]{
     if (Type(P) = "Symbol"){
       /* a. Add P as the last element of keys. */
       keys := l_concat(keys, [P])
     }
   };
-    
-  /* 8. Return keys. */
+  /* 7. Return keys. */
   return keys
-}
+};
 
+/**
+ * 9.4.5.7 IntegerIndexedObjectCreate (prototype, internalSlotsList)
+ *
+ * The abstract operation IntegerIndexedObjectCreate with arguments prototype
+ * and internalSlotsList is used to specify the creation of new Integer Indexed
+ * exotic objects. The argument internalSlotsList is a List of the names of
+ * additional internal slots that must be defined as part of the object.
+ * IntegerIndexedObjectCreate performs the following steps:
+ */
+function IntegerIndexedObjectCreate(prototype, internalSlotsList) {
+  /* 1. Let A be a newly created object with an internal slot for each name in
+     internalSlotsList. */
+  A := NewECMAScriptObject();
+  foreach (name : internalSlotsList) {
+    A[name] := 'undefined
+  };
+  /* 2. Set A's essential internal methods to the default ordinary object
+     definitions specified in 9.1. */
+  setAllInternalMethodsOfOrdinaryObject(A);
+  /* 3. Set the [[GetOwnProperty]] internal method of A as specified in
+     9.4.5.1. */
+  setInternalProperty(A, "GetOwnProperty", "IntegerIndexedGetOwnProperty");
+  /* 4. Set the [[HasProperty]] internal method of A as specified in 9.4.5.2. */
+  setInternalProperty(A, "HasProperty", "IntegerIndexedHasProperty");
+  /* 5. Set the [[DefineOwnProperty]] internal method of A as specified in
+     9.4.5.3. */
+  setInternalProperty(A, "DefineOwnProperty", "IntegerIndexedDefineOwnProperty");
+  /* 6. Set the [[Get]] internal method of A as specified in 9.4.5.4. */
+  setInternalProperty(A, "Get", "IntegerIndexedGet");
+  /* 7. Set the [[Set]] internal method of A as specified in 9.4.5.5. */
+  setInternalProperty(A, "Set", "IntegerIndexedSet");
+  /* 8. Set the [[OwnPropertyKeys]] internal method of A as specified in
+     9.4.5.6. */
+  setInternalProperty(A, "OwnPropertyKeys", "IntegerIndexedOwnPropertyKeys");
+  /* 9. Set the [[Prototype]] internal slot of A to prototype. */
+  A.Prototype := prototype;
+  /* 10. Set the [[Extensible]] internal slot of A to true. */
+  A.Extensible := true;
+  /* 11. Return A. */
+  return A
+};
+
+/**
+ * 9.4.5.8 IntegerIndexedElementGet (O, index)
+ *
+ * The abstract operation IntegerIndexedElementGet with arguments O and index
+ * performs the following steps:
+ */
+function IntegerIndexedElementGet(O, index) {
+  /* 1. Assert: Type(index) is Number. */
+  assert(Type(index) = "Number");
+  /* 2. Assert: O is an Object that has [[ViewedArrayBuffer]],
+     [[ArrayLength]], [[ByteOffset]], and [[TypedArrayName]] internal
+     slots. */
+  assert((Type(O) = "Object") &&& ("ViewedArrayBuffer" in_obj O) &&& ("ArrayLength" in_obj O) &&& ("ByteOffset" in_obj O) &&& ("TypedArrayName" in_obj O));
+  /* 3. Let buffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
+  buffer := O.ViewedArrayBuffer;
+  /* 4. If IsDetachedBuffer(buffer) is true, */
+  if (IsDetachedBuffer(buffer) = true) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 5. If IsInteger(index) is false, return undefined */
+  if (!IsInteger(index)) {
+    return 'undefined
+  };
+  index := int_of_float index;
+  /* 6. If index = -0, */
+  if (isMinusZero(index)) {
+    /* return undefined */
+    return 'undefined
+  };
+  /* 7. Let length be the value of O's [[ArrayLength]] internal slot. */
+  length := int_of_float O.ArrayLength;
+  /* 8. If index < 0 or index ≥ length, */
+  if ((index < 0) ||| (index >= length)) {
+    /* return undefined */
+    return 'undefined
+  };
+  /* 9. Let offset be the value of O's [[ByteOffset]] internal slot. */
+  offset := int_of_float O.ByteOffset;
+  /* 10. Let arrayTypeName be the String value of O's [[TypedArrayName]]
+     internal slot. */
+  arrayTypeName := O.TypedArrayName;
+  /* 11. Let elementSize be the Number value of the Element Size value
+     specified in Table 49 for arrayTypeName. */
+  elementSize := int_of_float |ElementTable|[arrayTypeName].size;
+  /* 12. Let indexedPosition = (index × elementSize) + offset. */
+  indexedPosition := (index * elementSize) + offset;
+  /* 13. Let elementType be the String value of the Element Type value in Table
+     49 for arrayTypeName. */
+  elementType := |ElementTable|[arrayTypeName].type;
+  /* 14. Return GetValueFromBuffer(buffer, indexedPosition, elementType). */
+  return GetValueFromBuffer(buffer, indexedPosition, elementType, 'undefined)
+};
+
+/**
+ * 9.4.5.9 IntegerIndexedElementSet (O, index, value)
+ *
+ * The abstract operation IntegerIndexedElementSet with arguments O, index, and
+ * value performs the following steps:
+ */
+function IntegerIndexedElementSet(O, index, value) {
+  /* 1. Assert: Type(index) is Number. */
+  assert(Type(index) = "Number");
+  /* 2. Assert: O is an Object that has [[ViewedArrayBuffer]],
+     [[ArrayLength]], [[ByteOffset]], and [[TypedArrayName]] internal
+     slots. */
+  assert((Type(O) = "Object") &&& ("ViewedArrayBuffer" in_obj O) &&& ("ArrayLength" in_obj O) &&& ("ByteOffset" in_obj O) &&& ("TypedArrayName" in_obj O));
+  /* 3. Let numValue be ToNumber(value). */
+  numValue := ToNumber(value);
+  /* 4. ReturnIfAbrupt(numValue). */
+  @ReturnIfAbrupt(numValue);
+  /* 5. Let buffer be the value of O's [[ViewedArrayBuffer]] internal slot. */
+  buffer := O.ViewedArrayBuffer;
+  /* 6. If IsDetachedBuffer(buffer) is true, */
+  if (IsDetachedBuffer(buffer) = true) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 7. If IsInteger(index) is false, return false */
+  if (!IsInteger(index)) {
+    return false
+  };
+  index := int_of_float index;
+  /* 8. If index = -0, */
+  if (index = -(0)) { /* TODO oper.ml sign operator */
+    /* return false */
+    /* return false 0 = -0 */ 
+  };
+  /* 9. Let length be the value of O's [[ArrayLength]] internal slot. */
+  length := int_of_float O.ArrayLength;
+  /* 10. If index < 0 or index ≥ length, */
+  if ((index < 0) ||| (index >= length)) {
+    /* return false */
+    return false
+  };
+  /* 11. Let offset be the value of O's [[ByteOffset]] internal slot. */
+  offset := int_of_float O.ByteOffset;
+  /* 12. Let arrayTypeName be the String value of O's [[TypedArrayName]]
+     internal slot. */
+  arrayTypeName := O.TypedArrayName;
+  /* 13. Let elementSize be the Number value of the Element Size value
+     specified in Table 49 for arrayTypeName. */
+  elementSize := int_of_float |ElementTable|[arrayTypeName].size;
+  /* 14. Let indexedPosition = (index × elementSize) + offset. */
+  indexedPosition := (index * elementSize) + offset;
+  /* 15. Let elementType be the String value of the Element Type value in Table
+     49 for arrayTypeName. */
+  elementType := |ElementTable|[arrayTypeName].type;
+  /* 16. Perform SetValueInBuffer(buffer, indexedPosition, elementType,
+     numValue). */
+  SetValueInBuffer(buffer, indexedPosition, elementType, numValue, 'undefined);
+  /* 17. Return true. */
+  return true
+}

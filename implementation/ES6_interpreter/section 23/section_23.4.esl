@@ -5,7 +5,7 @@
 function initWeakSetPrototype(global, objectPrototype, strict) {
 
     prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-    setAllInternalMethodsOfObject(prototype);
+    setAllInternalMethodsOfOrdinaryObject(prototype);
 
     setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));
     setJSProperty(prototype, getToStringTagPropertyName(), newDataPropertyDescriptorFull("WeakSet", false, false, true));
@@ -114,7 +114,7 @@ function WeakSetConstructor(global, this, strict, items) {
         /* 7. Else, */
 
         /* a. Let adder be Get(set, "add"). */
-        adder := GetES6(set, "add");
+        adder := Get(set, "add");
         
         /* b. ReturnIfAbrupt(adder). */
         @ReturnIfAbrupt(adder);
@@ -172,7 +172,7 @@ function OrdinaryCreateFromConstructorWeakSet(strict) {
     objPrototype := getWeakSetPrototype(strict);
 
     newlyConstructedObject := NewECMAScriptObject();
-    setAllInternalMethodsOfObject(newlyConstructedObject);
+    setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
 
     setInternalProperty(newlyConstructedObject, "Prototype", objPrototype);

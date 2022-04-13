@@ -51,6 +51,10 @@ function isJavaScriptObject(obj) {
   return "Prototype" in_obj obj
 };
 
+function isGlobalObject (obj) {
+  return ""
+};
+
 function isPropertyDescriptor(obj) {
   return ("Enumerable" in_obj obj) || ("Configurable" in_obj obj)
 };

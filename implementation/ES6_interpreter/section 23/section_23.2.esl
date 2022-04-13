@@ -8,7 +8,7 @@ function initSetPrototype(global, objectPrototype, strict) {
 
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
   
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
 
   setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));   
 
@@ -267,7 +267,7 @@ function OrdinaryCreateFromConstructorSet(global, this, strict, items) {
   print setPrototype.JSProperties; 
 
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
 
   setInternalProperty(newlyConstructedObject, "Prototype", setPrototype);
@@ -889,7 +889,7 @@ function initSetIteratorPrototype(global, objectPrototype, strict) {
   print("in initSetIteratorPrototype");
   
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
 
   /* 23.2.5.2.1 %SetIteratorPrototype%.next ( )*/
   nextObject := CreateBuiltInFunctionObject([], "setIteratorPrototypeNext", global, strict, null);
@@ -912,7 +912,7 @@ function createSetIteratorObject() {
   print("in createSetIteratorObject");
 
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
   setInternalProperty(newlyConstructedObject, "Prototype", |SetIteratorPrototype|);
   

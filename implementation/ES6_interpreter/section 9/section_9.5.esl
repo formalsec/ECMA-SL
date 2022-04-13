@@ -1,0 +1,1125 @@
+/**
+* 9.5 Proxy Object Internal Methods and Internal Slots
+*
+*  Author : Tomas Tavares
+*/
+
+/**
+*  A proxy object is an exotic object whose essential internal methods are partially implemented using ECMAScript code.
+*  Every proxy objects has an internal slot called [[ProxyHandler]]. The value of [[ProxyHandler]] is an object, called
+*  the proxy’s handler object, or null. Methods (see Table 30) of a handler object may be used to augment the implementation
+*  for one or more of the proxy object’s internal methods. Every proxy object also has an internal slot called [[ProxyTarget]]
+*  whose value is either an object or the null value. This object is called the proxy’s target object.
+*
+*    Table 30 — Proxy Handler Methods
+*
+*            ------------------------------------------------------
+*            |    Internal Method  	 |       Handler Method       |
+*            ------------------------|-----------------------------
+*            | [[GetPrototypeOf]] 	 |       getPrototypeOf       |
+*            | [[SetPrototypeOf]]  	 |        setPrototypeOf      |    
+*            | [[IsExtensible]] 	 |        isExtensible        |    
+*            | [[PreventExtensions]] |      preventExtensions     |    
+*            | [[GetOwnProperty]] 	 |   getOwnPropertyDescriptor |    
+*            | [[HasProperty]] 	     |             has            |     
+*            | [[Get]] 	             |             get            |     
+*            | [[Set]] 	             |             set            |         
+*            | [[Delete]] 	         |        deleteProperty      |         
+*            | [[DefineOwnProperty]] | 	     defineProperty       |         
+*            | [[Enumerate]]      	 |          enumerate         |     
+*            | [[OwnPropertyKeys]] 	 |           ownKeys          |     
+*            | [[Call]] 	         |            apply           |     
+*            | [[Construct]] 	     |          construct         |     
+*            ------------------------------------------------------
+*
+*  When a handler method is called to provide the implementation of a proxy object internal method, the handler method 
+*  is passed the proxy’s target object as a parameter. A proxy’s handler object does not necessarily have a method 
+*  corresponding to every essential internal method. Invoking an internal method on the proxy results in the invocation
+*  of the corresponding internal method on the proxy’s target object if the handler object does not have a method 
+*  corresponding to the internal trap.
+*
+*  The [[ProxyHandler]] and [[ProxyTarget]] internal slots of a proxy object are always initialized when the object is
+*  created and typically may not be modified. Some proxy objects are created in a manner that permits them to be subsequently
+*  revoked. When a proxy is revoked, its [[ProxyHander]] and [[ProxyTarget]] internal slots are set to null causing subsequent
+*  invocations of internal methods on that proxy object to throw a TypeError exception.
+*
+*  Because proxy objects permit the implementation of internal methods to be provided by arbitrary ECMAScript code, it is
+*  possible to define a proxy object whose handler methods violates the invariants defined in 6.1.7.3. Some of the
+*  internal method invariants defined in 6.1.7.3 are essential integrity invariants. These invariants are explicitly 
+*  enforced by the proxy object internal methods specified in this section. An ECMAScript implementation must be robust
+*  in the presence of all possible invariant violations.
+*
+*  In the following algorithm descriptions, assume O is an ECMAScript proxy object, P is a property key value, V
+*  is any ECMAScript language value and Desc is a Property Descriptor record
+*
+*/
+
+
+
+/**
+* 9.5.1 [[GetPrototypeOf]] ( )
+*
+*  When the [[GetPrototypeOf]] internal method of a Proxy exotic object O 
+*  is called the following steps are taken:
+*
+*/
+
+function GetPrototypeOfProxy (O) {
+
+    /* 1. Let handler be the value of the [[ProxyHandler]] internal slot of O.*/
+    handler := O.ProxyHander;
+
+    /* 2. If handler is null, throw a TypeError exception.*/
+    if (handler = 'null) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 3. Assert: Type(handler) is Object.*/
+    assert(Type(handler) = "Object");
+
+    /* 4. Let target be the value of the [[ProxyTarget]] internal slot of O.*/
+    target := O.ProxyTarget;
+
+    /* 5. Let trap be GetMethod(handler, "getPrototypeOf").*/
+    trap := GetMethod(handler, "getPrototypeOf");
+
+    /* 6. ReturnIfAbrupt(trap).*/
+    @ReturnIfAbrupt(trap);
+
+    /* 7. If trap is undefined, then*/
+    if (trap = 'undefined) {
+        /* a. Return target.[[GetPrototypeOf]]().*/
+        return {target.GetPrototypeOf}(target)
+    };
+
+    /* 8. Let handlerProto be Call(trap, handler, «target»).*/
+    handlerProto := Call(null, null, trap, handler, [target]);
+
+    /* 9. ReturnIfAbrupt(handlerProto).*/
+    @ReturnIfAbrupt(handlerProto);
+
+    /* 10. If Type(handlerProto) is neither Object nor Null, throw a TypeError exception.*/
+    if (!((Type(handlerProto) = "Object") ||| (Type(handlerProto) = "Null"))) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 11. Let extensibleTarget be IsExtensible(target).*/
+    extensibleTarget := IsExtensible(target);
+
+    /* 12. ReturnIfAbrupt(extensibleTarget).*/
+    @ReturnIfAbrupt(extensibleTarget);
+
+    /* 13. If extensibleTarget is true, return handlerProto.*/
+    if (extensibleTarget = true) {
+        return handlerProto
+    };
+
+    /* 14. Let targetProto be target.[[GetPrototypeOf]]().*/
+    targetProto := {target.GetPrototypeOf}(target);
+
+    /* 15. ReturnIfAbrupt(targetProto).*/
+    @ReturnIfAbrupt(targetProto);
+
+    /* 16. If SameValue(handlerProto, targetProto) is false, throw a TypeError exception.*/
+    if (SameValue(handlerProto, targetProto) = false) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 17. Return handlerProto.*/
+    return handlerProto
+};
+
+/**
+*  NOTE [[GetPrototypeOf]] for proxy objects enforces the following invariant:
+*
+*   The result of [[GetPrototypeOf]] must be either an Object or null.
+*
+*   If the target object is not extensible, [[GetPrototypeOf]] applied to the proxy object must return
+*   the same value as [[GetPrototypeOf]] applied to the proxy object’s target object.
+*/
+
+
+
+/**
+* 9.5.2 [[SetPrototypeOf]] (V)
+*
+*  When the [[SetPrototypeOf]] internal method of a Proxy exotic object O is called with argument V the following
+*  steps are taken:
+*
+*/
+
+function SetPrototypeOfProxy (O, V) {
+
+    /* 1. Assert: Either Type(V) is Object or Type(V) is Null. */
+    assert((Type(V) = "Object") ||| (Type(V) = "Null"));
+
+    /* 2. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
+    handler := O.ProxyHander;
+
+    /* 3. If handler is null, throw a TypeError exception. */
+    if (handler = 'null) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 4. Assert: Type(handler) is Object. */
+    assert(Type(handler) = "Object");
+
+    /* 5. Let target be the value of the [[ProxyTarget]] internal slot of O. */
+    target := O.ProxyTarget;
+
+    /* 6. Let trap be GetMethod(handler, "setPrototypeOf"). */
+    trap := GetMethod(handler, "setPrototypeOf");
+
+    /* 7. ReturnIfAbrupt(trap). */
+    @ReturnIfAbrupt(trap);
+
+    /* 8. If trap is undefined, then */
+    if (trap = 'undefined) {
+        /* a. Return target.[[SetPrototypeOf]](V). */
+        return {target.SetPrototypeOf}(target, V)
+    };
+
+    /* 9. Let booleanTrapResult be ToBoolean(Call(trap, handler, «target, V»)). */
+    booleanTrapResult := ToBoolean(Call(null, null, trap, handler, [target, V]));
+
+    /* 10. ReturnIfAbrupt(booleanTrapResult). */
+    @ReturnIfAbrupt(booleanTrapResult);
+
+    /* 11. Let extensibleTarget be IsExtensible(target). */
+    extensibleTarget := IsExtensible(target);
+
+    /* 12. ReturnIfAbrupt(extensibleTarget). */
+    @ReturnIfAbrupt(extensibleTarget);
+
+    /* 13. If extensibleTarget is true, return booleanTrapResult. */
+    if (extensibleTarget = true) {
+        return booleanTrapResult
+    };
+
+    /* 14. Let targetProto be target.[[GetPrototypeOf]](). */
+    targetProto := {target.GetPrototypeOf}(target);
+
+    /* 15. ReturnIfAbrupt(targetProto). */
+    @ReturnIfAbrupt(targetProto);
+
+    /* 16. If booleanTrapResult is true and SameValue(V, targetProto) is false, throw a TypeError exception. */
+    if ((booleanTrapResult = true) &&& (SameValue(V, targetProto) = false)) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 17. Return booleanTrapResult. */
+    return booleanTrapResult
+};
+
+/**
+* NOTE [[SetPrototypeOf]] for proxy objects enforces the following invariant:
+*
+*  The result of [[SetPrototypeOf]] is a Boolean value.
+*
+*  If the target object is not extensible, the argument value must be the same
+*  as the result of [[GetPrototypeOf]] applied to target object
+*/
+
+
+
+/**
+* 9.5.3 [[IsExtensible]] ( )
+*
+*  When the [[IsExtensible]] internal method of a Proxy exotic object O is 
+*  called the following steps are taken:
+*/
+
+function IsExtensibleProxy (O) {
+
+    /* 1. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
+    handler := O.ProxyHander;
+
+    /* 2. If handler is null, throw a TypeError exception. */
+    if (handler = 'null) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 3. Assert: Type(handler) is Object. */
+    assert(Type(handler) = "Object");
+
+    /* 4. Let target be the value of the [[ProxyTarget]] internal slot of O. */
+    target := O.ProxyTarget;
+
+    /* 5. Let trap be GetMethod(handler, "isExtensible"). */
+    trap := GetMethod(handler, "isExtensible");
+
+    /* 6. ReturnIfAbrupt(trap). */
+    @ReturnIfAbrupt(trap);
+
+    /* 7. If trap is undefined, then */
+    if (trap = 'undefined) {
+        /* a. Return target.[[IsExtensible]](). */
+        return {target.IsExtensible}(target)
+    };
+
+    /* 8. Let booleanTrapResult be ToBoolean(Call(trap, handler, «target»)). */
+    booleanTrapResult := ToBoolean(Call(null, null, trap, handler, [target]));
+
+    /* 9. ReturnIfAbrupt(booleanTrapResult). */
+    @ReturnIfAbrupt(booleanTrapResult);
+
+    /* 10. Let targetResult be target.[[IsExtensible]](). */
+    targetResult := {target.IsExtensible}(target);
+    
+    /* 11. ReturnIfAbrupt(targetResult). */
+    @ReturnIfAbrupt(targetResult);
+
+    /* 12. If SameValue(booleanTrapResult, targetResult) is false, throw a TypeError exception. */
+    if (SameValue(booleanTrapResult, targetResult) = false) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 13. Return booleanTrapResult. */
+    return booleanTrapResult
+};
+
+/*
+* NOTE [[IsExtensible]] for proxy objects enforces the following invariant:
+*
+*  The result of [[IsExtensible]] is a Boolean value.
+*
+*  [[IsExtensible]] applied to the proxy object must return the same value as [[IsExtensible]]
+*   applied to the proxy object’s target object with the same argument.
+*
+*/
+
+
+
+/**
+* 9.5.4 [[PreventExtensions]] ( )
+*
+*  When the [[PreventExtensions]] internal method of a Proxy exotic object
+*  O is called the following steps are taken:
+*
+*/
+
+function PreventExtensionsProxy (O) {
+
+    /* 1. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
+    handler := O.ProxyHander;
+
+    /* 2. If handler is null, throw a TypeError exception. */
+    if (handler = 'null) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 3. Assert: Type(handler) is Object. */
+    assert(Type(handler) = "Object");
+
+    /* 4. Let target be the value of the [[ProxyTarget]] internal slot of O. */
+    target := O.ProxyTarget;
+
+    /* 5. Let trap be GetMethod(handler, "preventExtensions"). */
+    trap := GetMethod(handler, "preventExtensions");
+
+    /* 6. ReturnIfAbrupt(trap). */
+    @ReturnIfAbrupt(trap);
+
+    /* 7. If trap is undefined, then */
+    if (trap = 'undefined) {
+        /* a. Return target.[[PreventExtensions]](). */
+        return {target.PreventExtensions}(target)
+    };
+
+    /* 8. Let booleanTrapResult be ToBoolean(Call(trap, handler, «target»)). */
+    booleanTrapResult := ToBoolean(Call(null, null, trap, handler, [target]));
+
+    /* 9. ReturnIfAbrupt(booleanTrapResult). */
+    @ReturnIfAbrupt(booleanTrapResult);
+
+    /* 10. If booleanTrapResult is true, then */
+    if (booleanTrapResult = true) {
+        /* a. Let targetIsExtensible be target.[[IsExtensible]](). */
+        targetIsExtensible := {target.IsExtensible}(target);
+
+        /* b. ReturnIfAbrupt(targetIsExtensible). */
+        @ReturnIfAbrupt(targetIsExtensible);
+
+        /* c. If targetIsExtensible is true, throw a TypeError exception. */
+        if (targetIsExtensible = true) {
+            throw TypeErrorConstructorInternal()
+        }
+    };
+
+    /* 12. Return booleanTrapResult. */
+    return booleanTrapResult
+};
+
+/*
+* NOTE [[PreventExtensions]] for proxy objects enforces the following invariant:
+*
+*  The result of [[PreventExtensions]] is a Boolean value.
+*
+*  [[PreventExtensions]] applied to the proxy object only returns true if [[IsExtensible]]
+*  applied to the proxy object’s target object is false.
+*
+*/
+
+
+
+/**
+* 9.5.5 [[GetOwnProperty]] (P)
+*
+*  When the [[GetOwnProperty]] internal method of a Proxy exotic object O is called
+*  with property key P, the following steps are taken:
+*
+*/
+
+function GetOwnPropertyProxy (O, P) {
+
+    /* 1. Assert: IsPropertyKey(P) is true. */
+    assert(IsPropertyKey(P) = true);
+
+    /* 2. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
+    handler := O.ProxyHander;
+
+    /* 3. If handler is null, throw a TypeError exception. */
+    if (handler = 'null) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 4. Assert: Type(handler) is Object. */
+    assert(Type(handler) = "Object");
+
+    /* 5. Let target be the value of the [[ProxyTarget]] internal slot of O. */
+    target := O.ProxyTarget;
+
+    /* 6. Let trap be GetMethod(handler, "getOwnPropertyDescriptor"). */
+    trap := GetMethod(handler, "getOwnPropertyDescriptor");
+
+    /* 7. ReturnIfAbrupt(trap). */
+    @ReturnIfAbrupt(trap);
+
+    /* 8. If trap is undefined, then */
+    if (trap = 'undefined) {
+        /* a. Return target.[[GetOwnProperty]](P). */
+        return {target.GetOwnProperty}(target, P)
+    };
+
+    /* 9. Let trapResultObj be Call(trap, handler, «target, P»). */
+    trapResultObj := Call(null, null, trap, handler, [target, P]);
+
+    /* 10. ReturnIfAbrupt(trapResultObj). */
+    @ReturnIfAbrupt(trapResultObj);
+
+    /* 11. If Type(trapResultObj) is neither Object nor Undefined, throw a TypeError exception. */
+    if (!(Type(trapResultObj) = "Object" ||| Type(trapResultObj) = "Undefined")) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 12. Let targetDesc be target.[[GetOwnProperty]](P). */
+    targetDesc := {target.GetOwnProperty}(target, P);
+
+    /* 13. ReturnIfAbrupt(targetDesc). */
+    @ReturnIfAbrupt(targetDesc);
+
+    /* 14. If trapResultObj is undefined, then */
+    if (trapResultObj = 'undefined) {
+
+        /* a. If targetDesc is undefined, return undefined. */
+        if (targetDesc = 'undefined) {
+            return 'undefined
+        };
+
+        /* b. If targetDesc.[[Configurable]] is false, throw a TypeError exception. */
+        if (targetDesc.Configurable = false) {
+            throw TypeErrorConstructorInternal()
+        };
+
+        /* c. Let extensibleTarget be IsExtensible(target). */
+        extensibleTarget := IsExtensible(target);
+
+        /* d. ReturnIfAbrupt(extensibleTarget). */
+        @ReturnIfAbrupt(extensibleTarget);
+
+        /* e. Assert: Type(extensibleTarget) is Boolean. */
+        assert(Type(extensibleTarget) = "Boolean");
+
+        /* f. If extensibleTarget is false, throw a TypeError exception. */
+        if (extensibleTarget = false) {
+            throw TypeErrorConstructorInternal()
+        };
+        
+        /* g. Return undefined. */
+        return 'undefined
+    };
+
+    /* 15. Let extensibleTarget be IsExtensible(target). */
+    extensibleTarget := IsExtensible(target);
+
+    /* 16. ReturnIfAbrupt(extensibleTarget). */
+    @ReturnIfAbrupt(extensibleTarget);
+
+    /* 17. Let resultDesc be ToPropertyDescriptor(trapResultObj). */
+    resultDesc := ToPropertyDescriptor(trapResultObj);
+
+    /* 18. ReturnIfAbrupt(resultDesc). */
+    @ReturnIfAbrupt(resultDesc);
+
+    /* 19. Call CompletePropertyDescriptor(resultDesc). */
+    CompletePropertyDescriptor(resultDesc);
+
+    /* 20. Let valid be IsCompatiblePropertyDescriptor (extensibleTarget, resultDesc, targetDesc). */
+    valid := IsCompatiblePropertyDescriptor(extensibleTarget, resultDesc, targetDesc);
+
+    /* 21. If valid is false, throw a TypeError exception. */
+    if (valid = true) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 22. If resultDesc.[[Configurable]] is false, then */
+    if (resultDesc.Configurable = false) {
+        /* a. If targetDesc is undefined or targetDesc.[[Configurable]] is true, then */
+        if (targetDesc = 'undefined ||| targetDesc.configurable = true) {
+            /* i. Throw a TypeError exception. */
+            throw TypeErrorConstructorInternal()
+        }
+    };
+
+    /* 23. Return resultDesc. */
+    return resultDesc
+};
+
+/**
+* NOTE [[GetOwnProperty]] for proxy objects enforces the following invariants:
+*
+*  The result of [[GetOwnProperty]] must be either an Object or undefined.
+*
+*  A property cannot be reported as non-existent, if it exists as a 
+*  non-configurable own property of the target object.
+*
+*  A property cannot be reported as non-existent, if it exists as an own property
+*  of the target object and the target object is not extensible.
+*
+*  A property cannot be reported as existent, if it does not exists as an own property
+*  of the target object and the target object is not extensible.
+*
+*  A property cannot be reported as non-configurable, if it does not exists as an own
+*  property of the target object or if it exists as a configurable own property of
+*  the target object.
+*
+*/
+
+
+
+/**
+* 
+* 9.5.6 [[DefineOwnProperty]] (P, Desc)
+*
+*  When the [[DefineOwnProperty]] internal method of a Proxy exotic object O is called
+*  with property key P and Property Descriptor Desc, the following steps are taken:
+*
+*/
+
+function DefineOwnPropertyProxy (O, P, Desc) {
+
+    /* 1. Assert: IsPropertyKey(P) is true. */
+    assert(IsPropertyKey(P) = true);
+
+    /* 2. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
+    handler := O.ProxyHander;
+
+    /* 3. If handler is null, throw a TypeError exception. */
+    if (handler = 'null) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 4. Assert: Type(handler) is Object. */
+    assert(Type(handler) = "Object");
+
+    /* 5. Let target be the value of the [[ProxyTarget]] internal slot of O. */
+    target := O.ProxyTarget;
+
+    /* 6. Let trap be GetMethod(handler, "defineProperty"). */
+    trap := GetMethod(handler, "defineProperty");
+
+    /* 7. ReturnIfAbrupt(trap). */
+    @ReturnIfAbrupt(trap);
+
+    /* 8. If trap is undefined, then */
+    if (trap = 'undefined) {
+        /* a. Return target.[[DefineOwnProperty]](P, Desc). */
+        return {target.DefineOwnProperty}(target, P, Desc)
+    };
+
+    /* 9. Let descObj be FromPropertyDescriptor(Desc). */
+    descObj := FromPropertyDescriptor(Desc);
+
+    /* 10. Let booleanTrapResult be ToBoolean(Call(trap, handler, «target, P, descObj»)). */
+    booleanTrapResult := ToBoolean(Call(null, null, trap, handler, [target, P, descObj]));
+
+    /* 11. ReturnIfAbrupt(booleanTrapResult). */
+    @ReturnIfAbrupt(booleanTrapResult);
+
+    /* 12. If booleanTrapResult is false, return false. */
+    if (booleanTrapResult = false) {
+        return false
+    };
+
+    /* 13. Let targetDesc be target.[[GetOwnProperty]](P). */
+    targetDesc := {target.GetOwnProperty}(target, P);
+
+    /* 14. ReturnIfAbrupt(targetDesc). */
+    @ReturnIfAbrupt(targetDesc);
+
+    /* 15. Let extensibleTarget be IsExtensible(target). */
+    extensibleTarget := IsExtensible(target);
+
+    /* 16. ReturnIfAbrupt(extensibleTarget). */
+    @ReturnIfAbrupt(extensibleTarget);
+    
+    /* 17. If Desc has a [[Configurable]] field and if Desc.[[Configurable]] is false, then */
+    if (("Configurable" in_obj Desc) &&& (Desc.Configurable = false)) {
+        /* a. Let settingConfigFalse be true. */
+        settingConfigFalse := true
+
+    /* 18. Else let settingConfigFalse be false. */
+    } else {
+        settingConfigFalse := false
+    };
+
+    /* 19. If targetDesc is undefined, then */
+    if (targetDesc = 'undefined) {
+
+        /* a. If extensibleTarget is false, throw a TypeError exception. */
+        if (extensibleTarget = false) {
+            throw TypeErrorConstructorInternal()
+        };
+
+        /* b. If settingConfigFalse is true, throw a TypeError exception. */
+        if (settingConfigFalse = true) {
+            throw TypeErrorConstructorInternal()
+        }
+
+        /* 20. Else targetDesc is not undefined, */
+    } else {
+        
+        /* a. If IsCompatiblePropertyDescriptor(extensibleTarget, Desc , targetDesc) is false, throw a TypeError exception. */
+        if (IsCompatiblePropertyDescriptor(extensibleTarget, Desc, targetDesc) = false) {
+            throw TypeErrorConstructorInternal()
+        };
+
+        /* b. If settingConfigFalse is true and targetDesc.[[Configurable]] is true, throw a TypeError exception. */
+        if ((settingConfigFalse = true) &&& (targetDesc.Configurable = true)) {
+            throw TypeErrorConstructorInternal()
+        }
+    };
+
+    /* 21. Return true. */
+    return true
+};
+
+/*
+* NOTE [[DefineOwnProperty]] for proxy objects enforces the following invariants:
+*
+*  The result of [[DefineOwnProperty]] is a Boolean value.
+*
+*  A property cannot be added, if the target object is not extensible.
+*
+*  A property cannot be non-configurable, unless there exists a corresponding non-configurable
+*  own property of the target object.
+*
+*  If a property has a corresponding target object property then applying the Property
+*  Descriptor of the property to the target object using [[DefineOwnProperty]] will not throw an exception.
+*
+*/
+
+
+/**
+* 9.5.7 [[HasProperty]] (P)
+*
+*  When the [[HasProperty]] internal method of a Proxy exotic object O is called with property key P,
+*  the following steps are taken:
+*
+*/
+
+function HasPropertyProxy (O, P) {
+    
+    /* 1. Assert: IsPropertyKey(P) is true. */
+    assert(IsPropertyKey(P) = true);
+
+    /* 2. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
+    handler := O.ProxyHander;
+
+    /* 3. If handler is null, throw a TypeError exception. */
+    if (handler = 'null) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 4. Assert: Type(handler) is Object. */
+    assert(Type(handler) = "Object");
+
+    /* 5. Let target be the value of the [[ProxyTarget]] internal slot of O. */
+    target := O.ProxyTarget;
+
+    /* 6. Let trap be GetMethod(handler, "has"). */
+    trap := GetMethod(handler, "has");
+
+    /* 7. ReturnIfAbrupt(trap). */
+    @ReturnIfAbrupt(trap);
+
+    /* 8. If trap is undefined, then */
+    if (trap = 'undefined) {
+        /* a. Return target.[[HasProperty]](P). */
+        return {target.HasProperty}(target, P)
+    };
+    
+    /* 9. Let booleanTrapResult be ToBoolean(Call(trap, handler, «target, P»)). */
+    booleanTrapResult := ToBoolean(Call(null, null, trap, handler, [target, P]));
+
+    /* 10. ReturnIfAbrupt(booleanTrapResult). */
+    @ReturnIfAbrupt(booleanTrapResult);
+
+    /* 11. If booleanTrapResult is false, then */
+    if (booleanTrapResult = false) {        
+
+        /* a. Let targetDesc be target.[[GetOwnProperty]](P). */
+        targetDesc := {target.GetOwnProperty}(target, P);
+
+        /* b. ReturnIfAbrupt(targetDesc). */
+        @ReturnIfAbrupt(targetDesc);
+
+        /* c. If targetDesc is not undefined, then */
+        if (!(targetDesc = 'undefined)) {
+
+            /* i. If targetDesc.[[Configurable]] is false, throw a TypeError exception. */
+            if (targetDesc.Configurable = false) {
+                throw TypeErrorConstructorInternal()
+            };
+
+            /* ii. Let extensibleTarget be IsExtensible(target). */
+            extensibleTarget := IsExtensible(target);
+
+            /* iii. ReturnIfAbrupt(extensibleTarget). */
+            @ReturnIfAbrupt(extensibleTarget);
+            
+            /* iv. If extensibleTarget is false, throw a TypeError exception. */
+            if (extensibleTarget = false) {
+                throw TypeErrorConstructorInternal()
+            }
+        }
+    };
+
+    /* 12. Return booleanTrapResult. */
+    return booleanTrapResult
+};
+
+/** 
+* NOTE [[HasProperty]] for proxy objects enforces the following invariants:
+*
+*  The result of [[HasProperty]] is a Boolean value.
+*
+*  A property cannot be reported as non-existent, if it exists as a 
+*  non-configurable own property of the target object.
+*
+*  A property cannot be reported as non-existent, if it exists as an own
+*  property of the target object and the target object is not extensible.
+*
+*/
+
+
+
+/**
+* 9.5.8 [[Get]] (P, Receiver)
+*
+*  When the [[Get]] internal method of a Proxy exotic object O is called with property 
+*  key P and ECMAScript language value Receiver the following steps are taken:
+*
+*/
+
+function GetProxy (O, P, Receiver) {
+
+    /* 1. Assert: IsPropertyKey(P) is true. */
+    assert(IsPropertyKey(P) = true);
+
+    /* 2. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
+    handler := O.ProxyHander;
+
+    /* 3. If handler is null, throw a TypeError exception. */
+    if (handler = 'null) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 4. Assert: Type(handler) is Object. */
+    assert(Type(handler) = "Object");
+
+    /* 5. Let target be the value of the [[ProxyTarget]] internal slot of O. */
+    target := O.ProxyTarget;
+
+    /* 6. Let trap be GetMethod(handler, "get"). */
+    trap := GetMethod(handler, "get");
+
+    /* 7. ReturnIfAbrupt(trap). */
+    @ReturnIfAbrupt(trap);
+
+    /* 8. If trap is undefined, then */
+    if (trap = 'undefined) {
+        /* a. Return target.[[Get]](P, Receiver). */
+        return {target.Get}(target, P, Receiver)
+    };
+
+    /* 9. Let trapResult be Call(trap, handler, «target, P, Receiver»). */
+    trapResult := Call(null, null, trap, handler, [target, P, Receiver]);
+
+    /* 10. ReturnIfAbrupt(trapResult). */
+    @ReturnIfAbrupt(trapResult);
+
+    /* 11. Let targetDesc be target.[[GetOwnProperty]](P). */
+    targetDesc := {target.GetOwnProperty}(target, P);
+
+    /* 12. ReturnIfAbrupt(targetDesc). */
+    @ReturnIfAbrupt(targetDesc);
+
+    /* 13. If targetDesc is not undefined, then */
+    if (!(targetDesc = 'undefined)) {
+
+        /* a. If IsDataDescriptor(targetDesc) and targetDesc.[[Configurable]] is false and targetDesc.[[Writable]] is false, then */
+        if ((IsDataDescriptor(targetDesc) = true) &&& (targetDesc.Configurable = false) &&& (targetDesc.Writable = false)) {
+            /* i. If SameValue(trapResult, targetDesc.[[Value]]) is false, throw a TypeError exception. */
+            if (SameValue(trapResult, targetDesc.Value) = false) {
+                throw TypeErrorConstructorInternal()
+            }
+        };
+
+        /* b. If IsAccessorDescriptor(targetDesc) and targetDesc.[[Configurable]] is false and targetDesc.[[Get]] is undefined, then */
+        if ((IsAccessorDescriptor(targetDesc) = true) &&& (targetDesc.Configurable = false) &&& (targetDesc.Get = 'undefined)) {
+            /* i. If trapResult is not undefined, throw a TypeError exception. */
+            if (!(trapResult = 'undefined)) {
+                throw TypeErrorConstructorInternal()
+            }
+        }
+    };
+
+    /* 14. Return trapResult. */
+    return trapResult
+};
+
+/*
+* NOTE [[Get]] for proxy objects enforces the following invariants:
+*
+*  The value reported for a property must be the same as the value of the corresponding target object 
+*  property if the target object property is a non-writable, non-configurable own data property.
+*
+*  The value reported for a property must be undefined if the corresponding target object property
+*  is a non-configurable own accessor property that has undefined as its [[Get]] attribute.
+*
+*/
+
+
+
+/**
+*
+* 9.5.9 [[Set]] ( P, V, Receiver)
+*
+*  When the [[Set]] internal method of a Proxy exotic object O is 
+*  called with property key P, value V, and ECMAScript language 
+*  value Receiver, the following steps are taken:
+*
+*/
+
+function SetProxy (O, P, V, Receiver) {
+
+    /* 1. Assert: IsPropertyKey(P) is true. */
+    assert(IsPropertyKey(P) = true);
+
+    /* 2. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
+    handler := O.ProxyHander;
+
+    /* 3. If handler is null, throw a TypeError exception. */
+    if (handler = 'null) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 4. Assert: Type(handler) is Object. */
+    assert(Type(handler) = "Object");
+
+    /* 5. Let target be the value of the [[ProxyTarget]] internal slot of O. */
+    target := O.ProxyTarget;
+
+    /* 6. Let trap be GetMethod(handler, "set"). */
+    trap := GetMethod(handler, "set");
+
+    /* 7. ReturnIfAbrupt(trap). */
+    @ReturnIfAbrupt(trap);
+
+    /* 8. If trap is undefined, then */
+    if (trap = 'undefined) {
+        /* a. Return target.[[Set]](P, V, Receiver). */
+        return {target.Set}(target, P, V, Receiver)
+    };
+
+    /* 9. Let booleanTrapResult be ToBoolean(Call(trap, handler, «target, P, V, Receiver»)). */
+    booleanTrapResult := ToBoolean(Call(null, null, trap, handler, [target, P, V, Receiver]));
+
+    /* 10. ReturnIfAbrupt(booleanTrapResult). */
+    @ReturnIfAbrupt(booleanTrapResult);
+
+    /* 11. If booleanTrapResult is false, return false. */
+    if (booleanTrapResult = false) {
+        return false
+    };
+
+    /* 12. Let targetDesc be target.[[GetOwnProperty]](P). */
+    targetDesc := {target.GetOwnProperty}(target, P);
+
+    /* 13. ReturnIfAbrupt(targetDesc). */
+    @ReturnIfAbrupt(targetDesc);
+
+    /* 14. If targetDesc is not undefined, then */
+    if (!(targetDesc = 'undefined)) {
+
+       /* a. If IsDataDescriptor(targetDesc) and targetDesc.[[Configurable]] is false and targetDesc.[[Writable]] is false, then */
+       if ((IsDataDescriptor(targetDesc) = true) &&& (targetDesc.Configurable = false) &&& (targetDesc.Writable = false)) {
+            /* i. If SameValue(V, targetDesc.[[Value]]) is false, throw a TypeError exception. */
+            if ((SameValue(V, targetDesc.Value) = false)) {
+                throw TypeErrorConstructorInternal()
+            }
+       };
+
+       /* b. If IsAccessorDescriptor(targetDesc) and targetDesc.[[Configurable]] is false, then */
+       if ((IsAccessorDescriptor(targetDesc) = true) &&& targetDesc.Configurable = false) {
+            /* i. If targetDesc.[[Set]] is undefined, throw a TypeError exception. */
+            if (targetDesc.Set = 'undefined) {
+                throw TypeErrorConstructorInternal()
+            }
+       }
+    };
+
+    /* 15. Return true. */
+    return true
+};
+
+/*
+* NOTE [[Set]] for proxy objects enforces the following invariants:
+*
+*  The result of [[Set]] is a Boolean value.
+*
+*  Cannot change the value of a property to be different from the value of
+*  the corresponding target object property if the corresponding target object 
+*  property is a non-writable, non-configurable own data property.
+*
+*  Cannot set the value of a property if the corresponding target object
+*  property is a non-configurable own accessor property that has undefined
+*  as its [[Set]] attribute.
+*
+*/
+
+
+
+/**
+* 9.5.10 [[Delete]] (P)
+*
+*  When the [[Delete]] internal method of a Proxy exotic object O is
+*  called with property key P the following steps are taken:
+* 
+*/
+
+function DeleteProxy (O, P) {
+
+    /* 1. Assert: IsPropertyKey(P) is true. */
+    assert(IsPropertyKey(P) = true);
+
+    /* 2. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
+    handler := O.ProxyHander;
+
+    /* 3. If handler is null, throw a TypeError exception. */
+    if (handler = 'null) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 4. Assert: Type(handler) is Object. */
+    assert(Type(handler) = "Object");
+
+    /* 5. Let target be the value of the [[ProxyTarget]] internal slot of O. */
+    target := O.ProxyTarget;
+
+    /* 6. Let trap be GetMethod(handler, "deleteProperty"). */
+    trap := GetMethod(handler, "deleteProperty");
+
+    /* 7. ReturnIfAbrupt(trap). */
+    @ReturnIfAbrupt(trap);
+
+    /* 8. If trap is undefined, then */
+    if (trap = 'undefined) {
+        /* a. Return target.[[Delete]](P). */
+        return {target.Delete}(O, P)
+    };
+
+    /* 9. Let booleanTrapResult be ToBoolean(Call(trap, handler, «target, P»)). */
+    booleanTrapResult := ToBoolean(Call(null, null, trap, handler, [target, P]));
+
+    /* 10. ReturnIfAbrupt(booleanTrapResult). */
+    @ReturnIfAbrupt(booleanTrapResult);
+
+    /* 11. If booleanTrapResult is false, return false. */
+    if (booleanTrapResult = false) {
+        return false
+    };
+
+    /* 12. Let targetDesc be target.[[GetOwnProperty]](P). */
+    targetDesc := {target.GetOwnProperty}(target, P);
+
+    /* 13. ReturnIfAbrupt(targetDesc). */
+    @ReturnIfAbrupt(targetDesc);
+
+    /* 14. If targetDesc is undefined, return true. */
+    if (targetDesc = 'undefined) {
+        return true
+    };
+
+    /* 15. If targetDesc.[[Configurable]] is false, throw a TypeError exception. */
+    if (targetDesc.Configurable = false) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 16. Return true. */
+    return true
+};
+
+/*
+* NOTE [[Delete]] for proxy objects enforces the following invariant:
+*
+*  The result of [[Delete]] is a Boolean value.
+*
+*  A property cannot be reported as deleted, if it exists as a
+*  non-configurable own property of the target object.
+*
+*/
+
+
+
+/**
+* 9.5.11 [[Enumerate]] ()
+*
+*  When the [[Enumerate]] internal method of a Proxy exotic object O 
+*  is called the following steps are taken:
+*
+*/
+
+function EnumerateProxy (O) {
+
+    /* 1. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
+    handler := O.ProxyHander;
+
+    /* 2. If handler is null, throw a TypeError exception. */
+    if (handler = 'null) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 3. Assert: Type(handler) is Object. */
+    assert(Type(handler) = "Object");
+
+    /* 4. Let target be the value of the [[ProxyTarget]] internal slot of O. */  
+    target := O.ProxyTarget;
+
+    /* 5. Let trap be GetMethod(handler, "enumerate"). */
+    trap := GetMethod(handler, "enumerate");
+
+    /* 6. ReturnIfAbrupt(trap). */
+    @ReturnIfAbrupt(trap);
+
+    /* 7. If trap is undefined, then */
+    if (trap = 'undefined) {
+        /* a. Return target.[[Enumerate]](). */
+        return {target.Enumerate}(target)     
+    };
+
+    /* 8. Let trapResult be Call(trap, handler, «target»). */
+    trapResult := Call(null, null, trap, handler, [target]);
+
+    /* 9. ReturnIfAbrupt(trapResult). */
+    @ReturnIfAbrupt(trapResult);
+
+    /* 11. If Type(trapResult) is not Object, throw a TypeError exception. */
+    if (!(Type(trapResult) = "Object")) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 12. Return trapResult. */
+    return trapResult     
+};
+
+/*
+* NOTE [[Enumerate]] for proxy objects enforces the following invariants:
+*
+*    The result of [[Enumerate]] must be an Object.
+*/
+
+
+
+/**
+* 9.5.15 ProxyCreate(target, handler)
+*
+*  The abstract operation ProxyCreate with arguments target and handler is used to specify the creation 
+*  of new Proxy exotic objects. It performs the following steps:
+*
+*/
+
+function ProxyCreate(target, handler) {
+    
+    /* 1. If Type(target) is not Object, throw a TypeError exception. */
+    if (!(Type(target) = "Object")) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 2. If target is a Proxy exotic object and the value of the [[ProxyHandler]] internal slot 
+          of target is null, throw a TypeError exception. */
+    if (true &&& (target.ProxyHander = 'null)) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 3. If Type(handler) is not Object, throw a TypeError exception. */
+    if (!(Type(handler) = "Object")) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 4. If handler is a Proxy exotic object and the value of the [[ProxyHandler]] internal slot 
+          of handler is null, throw a TypeError exception. */
+    if (true &&& (handler.ProxyHander = 'null)) {
+        throw TypeErrorConstructorInternal()
+    };
+
+    /* 5.Let P be a newly created object. */
+    P := NewECMAScriptObject();
+    setAllInternalMethodsOfOrdinaryObject(P);
+
+    /* 6. Set P’s essential internal methods (except for [[Call]] and [[Construct]]) to the definitions specified in 9.5. */
+    setInternalProperty(P, "GetPrototypeOf", "GetPrototypeOfProxy");
+    setInternalProperty(P, "SetPrototypeOf", "SetPrototypeOfProxy");
+    setInternalProperty(P, "IsExtensible", "IsExtensibleProxy");
+    setInternalProperty(P, "PreventExtensions", "PreventExtensionsProxy");
+    setInternalProperty(P, "GetOwnProperty", "GetOwnPropertyProxy");
+    setInternalProperty(P, "HasProperty", "HasPropertyProxy");
+    setInternalProperty(P, "Get", "GetProxy");
+    setInternalProperty(P, "Set", "SetProxy");
+    setInternalProperty(P, "Delete", "DeleteProxy");
+    setInternalProperty(P, "DefineOwnProperty", "DefineOwnPropertyProxy");
+    setInternalProperty(P, "Enumerate", "EnumerateProxy");
+    setInternalProperty(P, "OwnPropertyKeys", "OwnPropertyKeysProxy");
+
+    /* 7. If IsCallable(target) is true, then */
+    if (IsCallable(target) = true) {
+
+        /* a. Set the [[Call]] internal method of P as specified in 9.5.13. */
+
+        /* b. If target has a [[Construct]] internal method, then */
+        if ("Construct" in_obj target) {
+            /* i. Set the [[Construct]] internal method of P as specified in 9.5.14. */
+
+        }
+    };
+
+    /* 8. Set the [[ProxyTarget]] internal slot of P to target. */
+    P.ProxyTarget := target;
+
+    /* 9. Set the [[ProxyHandler]] internal slot of P to handler. */
+    P.ProxyHander := handler;
+
+    /* 10. Return P. */
+    return P
+}

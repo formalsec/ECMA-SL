@@ -7,10 +7,13 @@
  * the regular expression facility in the Perl 5 programming language.
  */
 function initRegExpObject(globalObject, ObjectPrototype, strict) {
-  regExpPrototype := initRegExpPrototype(ObjectPrototype);
+  regExpPrototype := initRegExpPrototype(ObjectPrototype, globalObject, strict);
   regExpConstructor := initRegExpConstructor(regExpPrototype, globalObject, strict);
 
-  fillRegExpPrototype(regExpPrototype, regExpConstructor, globalObject, strict);
+  /* 15.10.6.1 RegExp.prototype.constructor */
+  /* The initial value of RegExp.prototype.constructor is the standard built-in RegExp constructor. */
+  descriptor := newDataPropertyDescriptorFull(regExpConstructor, true, false, true);
+  setJSProperty(regExpPrototype, "constructor", descriptor);
 
   return regExpConstructor
 };
@@ -227,7 +230,8 @@ function initRegExpConstructor(RegExpPrototype, globalObject, strict) {
   /* 15.10.5.1 RegExp.prototype */
   /* The initial value of RegExp.prototype is the RegExp prototype object (15.10.6). */
   /* This property shall have the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(RegExpConstructor, "prototype", RegExpPrototype, false, false, false);
+  descriptor := newDataPropertyDescriptorFull(RegExpPrototype, false, false, false);
+  setJSProperty(RegExpConstructor, "prototype", descriptor);
 
   return RegExpConstructor
 };
@@ -235,7 +239,7 @@ function initRegExpConstructor(RegExpPrototype, globalObject, strict) {
 /**
  * 15.10.6 Properties of the RegExp Prototype Object
  */
-function initRegExpPrototype(objectPrototypeObject) {
+function initRegExpPrototype(objectPrototypeObject, globalObject, strict) {
   regExpPrototypeObject := NewECMAScriptObject();
   setAllInternalMethodsOfObject(regExpPrototypeObject);
 
@@ -245,6 +249,7 @@ function initRegExpPrototype(objectPrototypeObject) {
    object was created by the expression new RegExp() where RegExp is that standard built-in constructor with
    that name. */
   setInternalProperty(regExpPrototypeObject, "Class", "Object");/* ES6: Class of prototype is "Object" */
+  setInternalProperty(regExpPrototypeObject, "Extensible", true);
   setInternalProperty(regExpPrototypeObject, "Prototype", objectPrototypeObject);
 
   getGlobalFunc := CreateFunctionObject([], "getRegExpGlobalAccessorProperty", |global|, false, null);
@@ -264,6 +269,32 @@ function initRegExpPrototype(objectPrototypeObject) {
   setJSProperty(regExpPrototypeObject, "multiline", mDesc);
   setJSProperty(regExpPrototypeObject, "source", sDesc);
 
+   /* The RegExp prototype object does not have a valueOf property of its own; however, it inherits the valueOf
+    property from the Object prototype object. */
+
+  /* In the following descriptions of functions that are properties of the RegExp prototype object, the phrase "this
+    RegExp object" refers to the object that is the this value for the invocation of the function; a TypeError
+    exception is thrown if the this value is not an object or an object for which the value of the [[Class]] internal
+    property is not "RegExp". */
+
+  /* 15.10.6.2 RegExp.prototype.exec(string) */
+  exec := CreateBuiltInFunctionObject(["string"], "RegExpPrototypeExec", globalObject, strict, null);
+  setConfigurability(exec, "length", true); /* ES6 */
+  descriptor := newDataPropertyDescriptorFull(exec, true, false, true);
+  setJSProperty(regExpPrototypeObject, "exec", descriptor);
+
+  /* 15.10.6.3 RegExp.prototype.test(string) */
+  test := CreateBuiltInFunctionObject(["string"], "RegExpPrototypeTest", globalObject, strict, null);
+  setConfigurability(test, "length", true); /* ES6 */
+  descriptor := newDataPropertyDescriptorFull(test, true, false, true);
+  setJSProperty(regExpPrototypeObject, "test", descriptor);
+
+  /* 15.10.6.4 RegExp.prototype.toString() */
+  toString := CreateBuiltInFunctionObject([], "RegExpPrototypeToString", globalObject, strict, null);
+  setConfigurability(toString, "length", true); /* ES6 */
+  descriptor := newDataPropertyDescriptorFull(toString, true, false, true);
+  setJSProperty(regExpPrototypeObject, "toString", descriptor);
+
   return regExpPrototypeObject
 };
 
@@ -281,40 +312,6 @@ function getRegExpMultilineAccessorProperty(global, this, strict, args) {
 
 function getRegExpSourceAccessorProperty(global, this, strict, args) {
   return this.OriginalSource
-};
-
-/**
- * 15.10.6 Properties of the RegExp Prototype Object
- */
-function fillRegExpPrototype(regExpPrototypeObject, RegExpConstructor, globalObject, strict) {
-  /* The RegExp prototype object does not have a valueOf property of its own; however, it inherits the valueOf
-    property from the Object prototype object. */
-
-  /* In the following descriptions of functions that are properties of the RegExp prototype object, the phrase "this
-    RegExp object" refers to the object that is the this value for the invocation of the function; a TypeError
-    exception is thrown if the this value is not an object or an object for which the value of the [[Class]] internal
-    property is not "RegExp". */
-
-  /* 15.10.6.1 RegExp.prototype.constructor */
-  /* The initial value of RegExp.prototype.constructor is the standard built-in RegExp constructor. */
-  createBuiltInProperty(regExpPrototypeObject, "constructor", RegExpConstructor);
-
-  /* 15.10.6.2 RegExp.prototype.exec(string) */
-  exec := CreateBuiltInFunctionObject(["string"], "RegExpPrototypeExec", globalObject, strict, null);
-  setConfigurability(exec, "length", true); /* ES6 */
-  createBuiltInProperty(regExpPrototypeObject, "exec", exec);
-
-  /* 15.10.6.3 RegExp.prototype.test(string) */
-  test := CreateBuiltInFunctionObject(["string"], "RegExpPrototypeTest", globalObject, strict, null);
-  setConfigurability(test, "length", true); /* ES6 */
-  createBuiltInProperty(regExpPrototypeObject, "test", test);
-
-  /* 15.10.6.4 RegExp.prototype.toString() */
-  toString := CreateBuiltInFunctionObject([], "RegExpPrototypeToString", globalObject, strict, null);
-  setConfigurability(toString, "length", true); /* ES6 */
-  createBuiltInProperty(regExpPrototypeObject, "toString", toString);
-
-  return
 };
 
 /* 15.10.7 Properties of RegExp Instances */

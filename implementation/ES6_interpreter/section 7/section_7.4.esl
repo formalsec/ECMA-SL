@@ -1,28 +1,7 @@
-function InternalObjectCreate(proto) {
-
-    newlyConstructedObject := NewECMAScriptObject();
-    setAllInternalMethodsOfObject(newlyConstructedObject);
-
-    setInternalProperty(newlyConstructedObject, "Prototype", proto);
-  
-    setInternalProperty(newlyConstructedObject, "Extensible", true);
-  
-    setInternalProperty(newlyConstructedObject, "Class", "Object");
-
-    return newlyConstructedObject
-};
-
-function CreateDataProperty (obj, prop, val) {
-    descriptor := newDataPropertyDescriptorFull(val, true, true, true);
-    setJSProperty(obj, prop, descriptor); 
-    return null 
-};
-
-
 /* CreateIterResultObject ( value, done )*/
 function CreateIterResultObject ( value, done ) {
     /* 1. Let obj be ObjectCreate(%ObjectPrototype%). */
-    obj := InternalObjectCreate(|ObjectPrototype|); 
+    obj := ObjectCreate(|ObjectPrototype|, null); 
 
     /* 2. Perform CreateDataProperty(obj, "value", value). */
     CreateDataProperty(obj, "value", value); 
@@ -143,11 +122,11 @@ function IteratorNext(iterator, value) {
     /* 1. If value was not passed, then */
     if (value = null) {
         /* a. Let result be Invoke(iterator, "next", «‍ »). */
-        result := Invoke(iterator, "next", [])
+        result := Invoke(null, null, iterator, "next", [])
     /* 2. Else, */
     } else {
         /* a. Let result be Invoke(iterator, "next", «‍value»). */
-        result := Invoke(iterator, "next", [value])
+        result := Invoke(null, null, iterator, "next", [value])
     };
     /* 3. ReturnIfAbrupt(result). */
     @ReturnIfAbrupt(result);

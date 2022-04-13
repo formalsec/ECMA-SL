@@ -14,6 +14,8 @@ function initFunctionConstructor(FunctionPrototype, globalObject, strict) {
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(FunctionConstructor, "prototype", FunctionPrototype, false, false, false);
 
+  setInternalProperty(FunctionConstructor, "Call", "BuiltInCall");
+
   return FunctionConstructor
 };
 
@@ -25,7 +27,7 @@ function fillFunctionConstructor(FunctionConstructor, globalObject, strict) {
   /* 15.3.3.2 Function.length */
   /* This is a data property with a value of 1. This property has the attributes { [[Writable]]: false, [[Enumerable]]:
      false, [[Configurable]]: false }. */
-  createBuiltInPropertyWithFullDescriptor(FunctionConstructor, "length", 1., false, false, false);
+  createBuiltInPropertyWithFullDescriptor(FunctionConstructor, "length", 1., false, false, true);
 
   return
 };
@@ -192,7 +194,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
     throw TypeErrorConstructorInternal()
   };
   /* 4. Let len be the result of calling the [[Get]] internal method of argArray with argument "length". */
-  len := {argArray.Get}(argArray, "length");
+  len := {argArray.Get}(argArray, "length", argArray);
   /* 5. Let n be ToUint32(len). */
   n := ToUint32(len);
   /* 6. Let argList be an empty List. */
@@ -205,7 +207,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
     indexName := ToString(index);
     /* b. Let nextArg be the result of calling the [[Get]] internal method of argArray with indexName as the
           argument. */
-    nextArg := {argArray.Get}(argArray, indexName);
+    nextArg := {argArray.Get}(argArray, indexName, argArray);
     /* c. Append nextArg as the last element of argList. */
     argList := l_add(argList, nextArg);
     /* d. Set index to index + 1. */
@@ -272,7 +274,7 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
   /* 5. Set all the internal methods, except for [[Get]], of F as specified in 8.12. */
   setAllInternalMethodsExceptGet(F);
   /* 6. Set the [[Get]] internal property of F as specified in 15.3.5.4. */
-  F.Get := "GetF";
+  F.Get := "OrdinaryObjectGet";
   /* 7. Set the [[TargetFunction]] internal property of F to Target. */
   F.TargetFunction := Target;
   /* 8. Set the [[BoundThis]] internal property of F to the value of thisArg. */
@@ -321,7 +323,7 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
     Set: thrower,
     Enumerable: false,
     Configurable: false
-  }, false);
+  });
   /* 21. Call the [[DefineOwnProperty]] internal method of F with arguments "arguments", PropertyDescriptor
         {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
   {F.DefineOwnProperty}(F, "arguments", {
@@ -329,7 +331,7 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
     Set: thrower,
     Enumerable: false,
     Configurable: false
-  }, false);
+  });
   /* 22. Return F. */
   return F
 
@@ -432,7 +434,7 @@ function HasInstance(F, V) {
     return false
   };
   /* 2. Let O be the result of calling the [[Get]] internal method of F with property name "prototype". */
-  O := {F.Get}(F, "prototype");
+  O := {F.Get}(F, "prototype", F);
   /* 3. If Type(O) is not Object, throw a TypeError exception. */
   if (!(Type(O) = "Object")) {
     throw TypeErrorConstructorInternal()
@@ -535,9 +537,6 @@ function parseParams(paramsStr) {
 function parseBody(params, bodyStr, strict) {
   /* Wrap bodyStr in a function to avoid parsing errors in statements like return that is invalid outside of a function body */
   bodyStr := s_concat ["function f(", params, ") {", bodyStr, "}"];
-  if (strict) {
-    bodyStr := s_concat ["\"use strict\";", bodyStr]
-  };
   buildAST := extern parseJS(bodyStr);
   bodyObj := {buildAST}();
 

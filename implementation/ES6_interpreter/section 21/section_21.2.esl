@@ -49,7 +49,7 @@ function initRegExpObject(globalObject, ObjectPrototype, strict){
 
 function initRegExpPrototype(global, objectPrototype, objectConstructor, strict) {
    regExpPrototypeObject := NewECMAScriptObject();
-   setAllInternalMethodsOfObject(regExpPrototypeObject);
+   setAllInternalMethodsOfOrdinaryObject(regExpPrototypeObject);
 
    setInternalProperty(regExpPrototypeObject, "Class", "Object");
    setInternalProperty(regExpPrototypeObject, "Prototype", objectPrototype);
@@ -274,7 +274,7 @@ function RegExpConstructor(global, this, strict, args){
       /* b. If patternIsRegExp is true and flags is undefined, then */
       if ((patternIsRegExp = true) &&& (flags = 'undefined)){
          /* i. Let patternConstructor be Get(pattern, "constructor"). */
-         patternConstructor := GetNew(pattern, "constructor");
+         patternConstructor := Get(pattern, "constructor");
 
          /* ii. ReturnIfAbrupt(patternConstructor). */
          @ReturnIfAbrupt(patternConstructor);
@@ -303,7 +303,7 @@ function RegExpConstructor(global, this, strict, args){
    /* 6. Else if patternIsRegExp is true, then */
    elif (patternIsRegExp = true){
       /* a. Let P be Get(pattern, "source"). */
-      P := GetNew(pattern, "source");
+      P := Get(pattern, "source");
 
       /* b. ReturnIfAbrupt(P). */
       @ReturnIfAbrupt(P);
@@ -311,7 +311,7 @@ function RegExpConstructor(global, this, strict, args){
       /* c. If flags is undefined, then */
       if (flags = 'undefined){
          /* i. Let F be Get(pattern, "flags"). */
-         F := GetNew(pattern, "flags");
+         F := Get(pattern, "flags");
 
          /* ii. ReturnIfAbrupt(F). */
          @ReturnIfAbrupt(F)
@@ -376,7 +376,7 @@ function OrdinaryCreateFromConstructorRegExp(strict) {
    RegExpPrototype := getRegExpPrototype(strict);
 
    newlyConstructedObject := NewECMAScriptObject();
-   setAllInternalMethodsOfObject(newlyConstructedObject);
+   setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
    setInternalProperty(newlyConstructedObject, "Prototype", RegExpPrototype);
    setInternalProperty(newlyConstructedObject, "Extensible", true);
@@ -411,8 +411,10 @@ function RegExpInitialize(obj, pattern, flags){
    /* 6. ReturnIfAbrupt(F). */
    @ReturnIfAbrupt(F);
 
+   print "!!!!";
+
    /* 7. If F contains any code unit other than "g", "i", "m", "u", or "y" or if it contains the same code unit more than once, throw a SyntaxError exception. */
-   validateFlags(F);
+   setFlags(obj, F);
 
    /* 8. If F contains "u", let BMP be false; else let BMP be true. */
    if (includes(F, "u", 0., 1., int_to_float(s_len_u F)) = true){
@@ -573,7 +575,7 @@ function RegExpExec(R, S){
    assert(Type(S) = "String");
 
    /* 3. Let exec be Get(R, "exec"). */
-   exec := GetNew(R, "exec");
+   exec := Get(R, "exec");
 
    /* 4. ReturnIfAbrupt(exec). */
    @ReturnIfAbrupt(exec);
@@ -616,19 +618,19 @@ function RegExpBuiltinExec(R, S){
    length := int_to_float (s_len_u S);
 
    /* 4. Let lastIndex be ToLength(Get(R,"lastIndex")). */
-   lastIndex := ToLength(GetNew(R, "lastIndex"));
+   lastIndex := ToLength(Get(R, "lastIndex"));
 
    /* 5. ReturnIfAbrupt(lastIndex). */
    @ReturnIfAbrupt(lastIndex);
 
    /* 6. Let global be ToBoolean(Get(R, "global")). */
-   global := ToBoolean(GetNew(R, "global"));
+   global := ToBoolean(Get(R, "global"));
 
    /* 7. ReturnIfAbrupt(global). */
    @ReturnIfAbrupt(global);
 
    /* 8. Let sticky be ToBoolean(Get(R, "sticky")). */
-   sticky := ToBoolean(GetNew(R, "sticky"));
+   sticky := ToBoolean(Get(R, "sticky"));
 
    /* 9. ReturnIfAbrupt(sticky). */
    @ReturnIfAbrupt(sticky);
@@ -659,13 +661,10 @@ function RegExpBuiltinExec(R, S){
       /* a. If lastIndex > length, then */
       if (lastIndex > length){
          /* i. Let setStatus be Set(R, "lastIndex", 0, true). */
-         Put(R, "lastIndex", 0., true);
+         setStatus := Set(R, "lastIndex", 0., true);
          
-         /* setJSProperty(R, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false));
-         print "after::::";
-         */
          /* ii. ReturnIfAbrupt(setStatus). */
-         /* @ReturnIfAbrupt(setStatus); */
+         @ReturnIfAbrupt(setStatus); 
 
          /* iii. Return null. */
          return 'null
@@ -679,12 +678,10 @@ function RegExpBuiltinExec(R, S){
          /* i. If sticky is true, then */
          if (sticky = true){
             /* 1. Let setStatus be Set(R, "lastIndex", 0, true). */
-            /* setStatus := SetNew(R, "lastIndex", 0., true); */
-            /* setJSProperty(R, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false)); */
-            Put(R, "lastIndex", 0., true);
+            setStatus := Set(R, "lastIndex", 0., true);
 
             /* 2. ReturnIfAbrupt(setStatus). */
-            /* @ReturnIfAbrupt(setStatus); */
+            @ReturnIfAbrupt(setStatus);
 
             /* 3. Return null. */
             return 'null
@@ -717,12 +714,11 @@ function RegExpBuiltinExec(R, S){
    /* 18. If global is true or sticky is true, */
    if ((global = true) ||| (sticky = true)){
       /* a. Let setStatus be Set(R, "lastIndex", e, true). */
-      /* setStatus := SetNew(R, "lastIndex", e, true); */
+      setStatus := Set(R, "lastIndex", e, true);
 
       /* b. ReturnIfAbrupt(setStatus). */
-      /* @ReturnIfAbrupt(setStatus) */
+      @ReturnIfAbrupt(setStatus)
       /* setJSProperty(R, "lastIndex", newDataPropertyDescriptorFull(e, true, false, false)) */
-      Put(R, "lastIndex", e, true)
    };
 
    /* 19. Let n be the length of r's captures List. (This is the same value as 21.2.2.1's NcapturingParens.) */
@@ -732,7 +728,7 @@ function RegExpBuiltinExec(R, S){
    A := ArrayConstructor(null, null, false, [n + 1.]);
 
    /* 21. Assert: The value of A’s "length" property is n + 1. */
-   assert(GetNew(A, "length") = (n + 1.));
+   assert(Get(A, "length") = (n + 1.));
 
    /* 22. Let matchIndex be lastIndex. */
    matchIndex := lastIndex;
@@ -853,7 +849,7 @@ function getRegExpFlagsAccessorProperty(global, this, strict, args){
    result := "";
 
    /* 4. Let global be ToBoolean(Get(R, "global")). */
-   global_ := ToBoolean(GetNew(R, "global"));
+   global_ := ToBoolean(Get(R, "global"));
 
    /* 5. ReturnIfAbrupt(global). */
    @ReturnIfAbrupt(global_);
@@ -864,7 +860,7 @@ function getRegExpFlagsAccessorProperty(global, this, strict, args){
    };
 
    /* 7. Let ignoreCase be ToBoolean(Get(R, "ignoreCase")). */
-   ignoreCase := ToBoolean(GetNew(R, "ignoreCase"));
+   ignoreCase := ToBoolean(Get(R, "ignoreCase"));
 
    /* 8. ReturnIfAbrupt(ignoreCase). */
    @ReturnIfAbrupt(ignoreCase);
@@ -875,7 +871,7 @@ function getRegExpFlagsAccessorProperty(global, this, strict, args){
    };
 
    /* 10. Let multiline be ToBoolean(Get(R, "multiline")). */
-   multiline := ToBoolean(GetNew(R, "multiline"));
+   multiline := ToBoolean(Get(R, "multiline"));
 
    /* 11. ReturnIfAbrupt(multiline). */
    @ReturnIfAbrupt(multiline);
@@ -886,7 +882,7 @@ function getRegExpFlagsAccessorProperty(global, this, strict, args){
    };
 
    /* 13. Let unicode be ToBoolean(Get(R, "unicode")). */
-   unicode := ToBoolean(GetNew(R, "unicode"));
+   unicode := ToBoolean(Get(R, "unicode"));
 
    /* 14. ReturnIfAbrupt(unicode). */
    @ReturnIfAbrupt(unicode);
@@ -897,7 +893,7 @@ function getRegExpFlagsAccessorProperty(global, this, strict, args){
    };
 
    /* 16. Let sticky be ToBoolean(Get(R, "sticky")). */
-   sticky := ToBoolean(GetNew(R, "sticky"));
+   sticky := ToBoolean(Get(R, "sticky"));
    
    /* 17. ReturnIfAbrupt(sticky). */
    @ReturnIfAbrupt(sticky);
@@ -1000,7 +996,7 @@ function RegExpPrototypematch(global, this, strict, args){
    @ReturnIfAbrupt(S);
 
    /* 5. Let global be ToBoolean(Get(rx, "global")). */
-   global_ := ToBoolean(GetNew(rx, "global"));
+   global_ := ToBoolean(Get(rx, "global"));
 
    /* 6. ReturnIfAbrupt(global). */
    @ReturnIfAbrupt(global_);
@@ -1013,18 +1009,16 @@ function RegExpPrototypematch(global, this, strict, args){
    /* 8. Else global is true, */
    else{
       /* a. Let fullUnicode be ToBoolean(Get(rx, "unicode")). */
-      fullUnicode := ToBoolean(GetNew(rx, "unicode"));
+      fullUnicode := ToBoolean(Get(rx, "unicode"));
 
       /* b. ReturnIfAbrupt(fullUnicode). */
       @ReturnIfAbrupt(fullUnicode); 
 
       /* c. Let setStatus be Set(rx, "lastIndex", 0, true). */
-      /* setStatus := Set(rx, "lastIndex", 0, true); */
-      /* setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false)); */
-      Put(rx, "lastIndex", 0., true);
+      setStatus := Set(rx, "lastIndex", 0., true);
  
       /* d. ReturnIfAbrupt(setStatus). */
-      /* @ReturnIfAbrupt(setStatus); */
+      @ReturnIfAbrupt(setStatus);
 
       /* e. Let A be ArrayCreate(0). */
       /* A := ArrayCreate(0); */
@@ -1055,7 +1049,7 @@ function RegExpPrototypematch(global, this, strict, args){
          /* iv. Else result is not null, */
          else{
             /* 1. Let matchStr be ToString(Get(result, "0")). */
-            matchStr := ToString(GetNew(result, "0"));
+            matchStr := ToString(Get(result, "0"));
 
             /* 2. ReturnIfAbrupt(matchStr). */
             @ReturnIfAbrupt(matchStr);
@@ -1068,8 +1062,8 @@ function RegExpPrototypematch(global, this, strict, args){
 
             /* 5. If matchStr is the empty String, then */
             if (matchStr = ""){
-               /* a. Let thisIndex be ToLength(GetES6(rx, "lastIndex")). */
-               thisIndex := ToLength(GetNew(rx, "lastIndex"));
+               /* a. Let thisIndex be ToLength(Get(rx, "lastIndex")). */
+               thisIndex := ToLength(Get(rx, "lastIndex"));
 
                /* b. ReturnIfAbrupt(thisIndex). */
                @ReturnIfAbrupt(thisIndex);
@@ -1078,12 +1072,10 @@ function RegExpPrototypematch(global, this, strict, args){
                nextIndex := AdvanceStringIndex(S, thisIndex, fullUnicode);
 
                /* d. Let setStatus be Set(rx, "lastIndex", nextIndex, true). */
-               /* setStatus := Set(rx, "lastIndex", nextIndex, true); */
-               /* setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(nextIndex, true, false, false)) */
-               Put(rx, "lastIndex", nextIndex, true)
+               setStatus := Set(rx, "lastIndex", nextIndex, true);
                     
                /* e. ReturnIfAbrupt(setStatus). */
-               /* @ReturnIfAbrupt(setStatus) */
+               @ReturnIfAbrupt(setStatus)
             };
                     
             /* 6. Increment n. */
@@ -1161,8 +1153,8 @@ function RegExpPrototypereplace(global, this, strict, args){
       @ReturnIfAbrupt(replaceValue)
    };
         
-   /* 8. Let global be ToBoolean(GetES6(rx, "global")). */
-   global_ := ToBoolean(GetNew(rx, "global")); 
+   /* 8. Let global be ToBoolean(Get(rx, "global")). */
+   global_ := ToBoolean(Get(rx, "global")); 
 
    /* 9. ReturnIfAbrupt(global). */
    @ReturnIfAbrupt(global_);
@@ -1170,18 +1162,16 @@ function RegExpPrototypereplace(global, this, strict, args){
    /* 10. If global is true, then */
    if (global_ = true){
       /* a. Let fullUnicode be ToBoolean(Get(rx, "unicode")). */
-      fullUnicode := ToBoolean(GetNew(rx, "unicode"));
+      fullUnicode := ToBoolean(Get(rx, "unicode"));
 
       /* b. ReturnIfAbrupt(fullUnicode). */
       @ReturnIfAbrupt(fullUnicode);
 
       /* c. Let setStatus be Set(rx, "lastIndex", 0, true). */
-      /* setStatus := SetNew(rx, "lastIndex", 0, true); */
-      /* setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(0., true, false, false)) */
-      Put(rx, "lastIndex", 0., true)
+      setStatus := Set(rx, "lastIndex", 0., true);
 
       /* d. ReturnIfAbrupt(setStatus). */
-      /* @ReturnIfAbrupt(setStatus) */
+      @ReturnIfAbrupt(setStatus)
    };
 
    /* 11. Let results be a new empty List. */
@@ -1213,8 +1203,8 @@ function RegExpPrototypereplace(global, this, strict, args){
          }
          /* iii. Else, */
          else{
-            /* 1. Let matchStr be ToString(GetES6(result, "0")). */
-            matchStr := ToString(GetNew(result, "0"));
+            /* 1. Let matchStr be ToString(Get(result, "0")). */
+            matchStr := ToString(Get(result, "0"));
 
             /* 2. ReturnIfAbrupt(matchStr). */
             @ReturnIfAbrupt(matchStr);
@@ -1222,8 +1212,8 @@ function RegExpPrototypereplace(global, this, strict, args){
             /* 3. If matchStr is the empty String, then */
             if (matchStr = ""){ 
                /* a. Let thisIndex be ToLength(Get(rx, "lastIndex")). */
-               /* thisIndex := ToLength(GetES6(rx, "lastIndex")); */
-               thisIndex := ToLength(GetNew(rx, "lastIndex"));
+               /* thisIndex := ToLength(Get(rx, "lastIndex")); */
+               thisIndex := ToLength(Get(rx, "lastIndex"));
 
                /* b. ReturnIfAbrupt(thisIndex). */
                @ReturnIfAbrupt(thisIndex);
@@ -1232,12 +1222,10 @@ function RegExpPrototypereplace(global, this, strict, args){
                nextIndex := AdvanceStringIndex(S, thisIndex, fullUnicode);
 
                /* d. Let setStatus be Set(rx, "lastIndex", nextIndex, true). */
-               /* setStatus := Set(rx, "lastIndex", nextIndex, true); */
-               /* setJSProperty(rx, "lastIndex", newDataPropertyDescriptorFull(nextIndex, true, false, false)) */
-               Put(rx, "lastIndex", nextIndex, true)
+               setStatus := Set(rx, "lastIndex", nextIndex, true);
 
                /* e. ReturnIfAbrupt(setStatus). */
-               /* @ReturnIfAbrupt(setStatus) */
+               @ReturnIfAbrupt(setStatus)
             } 
          }    
       }
@@ -1256,8 +1244,8 @@ function RegExpPrototypereplace(global, this, strict, args){
    while (i < len){
       result := l_nth(results, i);
 
-      /* a. Let nCaptures be ToLength(GetES6(result, "length")). */
-      nCaptures := ToLength(GetNew(result, "length"));
+      /* a. Let nCaptures be ToLength(Get(result, "length")). */
+      nCaptures := ToLength(Get(result, "length"));
         
       /* b. ReturnIfAbrupt(nCaptures). */
       @ReturnIfAbrupt(nCaptures);
@@ -1265,8 +1253,8 @@ function RegExpPrototypereplace(global, this, strict, args){
       /* c. Let nCaptures be max(nCaptures − 1, 0). */
       nCaptures := int_of_float(max(nCaptures - 1., 0.));
 
-      /* d. Let matched be ToString(GetES6(result, "0")). */
-      matched := ToString(GetNew(result, "0"));
+      /* d. Let matched be ToString(Get(result, "0")). */
+      matched := ToString(Get(result, "0"));
 
       /* e. ReturnIfAbrupt(matched). */
       @ReturnIfAbrupt(matched);
@@ -1275,7 +1263,7 @@ function RegExpPrototypereplace(global, this, strict, args){
       matchLength := s_len_u matched;
 
       /* g. Let position be ToInteger(Get(result, "index")). */
-      position := ToInteger(GetNew(result, "index"));
+      position := ToInteger(Get(result, "index"));
 
       /* h. ReturnIfAbrupt(position). */
       @ReturnIfAbrupt(position);
@@ -1291,8 +1279,8 @@ function RegExpPrototypereplace(global, this, strict, args){
 
       /* l. Repeat while n ≤ nCaptures */
       while (n <= nCaptures){
-         /* i. Let capN be GetES6(result, ToString(n)). */
-         capN := GetNew(result, ToString(int_to_float n));
+         /* i. Let capN be Get(result, ToString(n)). */
+         capN := Get(result, ToString(int_to_float n));
 
          /* ii. ReturnIfAbrupt(capN). */
          @ReturnIfAbrupt(capN);
@@ -1397,18 +1385,17 @@ function RegExpPrototypesearch(global, this, strict, args){
    /* 4. ReturnIfAbrupt(S). */
    @ReturnIfAbrupt(S);
 
-   /* 5. Let previousLastIndex be GetES6(rx, "lastIndex"). */
-   previousLastIndex := GetNew(rx, "lastIndex");
+   /* 5. Let previousLastIndex be Get(rx, "lastIndex"). */
+   previousLastIndex := Get(rx, "lastIndex");
 
    /* 6. ReturnIfAbrupt(previousLastIndex). */
    @ReturnIfAbrupt(previousLastIndex);
 
    /* 7. Let status be Set(rx, "lastIndex", 0, true). */
-   /* status := Set(rx, "lastIndex", 0, true); */
-   Put(rx, "lastIndex", 0., true);
+   status := Set(rx, "lastIndex", 0., true);
 
    /* 8. ReturnIfAbrupt(status). */
-   /* @ReturnIfAbrupt(status); */
+   @ReturnIfAbrupt(status);
 
    /* 9. Let result be RegExpExec(rx, S). */
    result := RegExpExec(rx, S); 
@@ -1417,11 +1404,10 @@ function RegExpPrototypesearch(global, this, strict, args){
    @ReturnIfAbrupt(result);
 
    /* 11. Let status be Set(rx, "lastIndex", previousLastIndex, true). */
-   /* status := Set(rx, "lastIndex", previousLastIndex, true); */
-   Put(rx, "lastIndex", previousLastIndex, true);
+   tatus := Set(rx, "lastIndex", previousLastIndex, true);
     
    /* 12. ReturnIfAbrupt(status). */
-   /* @ReturnIfAbrupt(status); */
+   @ReturnIfAbrupt(status);
 
    /* 13. If result is null, return –1. */
    if (result = 'null){
@@ -1429,7 +1415,7 @@ function RegExpPrototypesearch(global, this, strict, args){
    };
 
    /* 14. Return Get(result, "index"). */
-   return GetNew(result, "index")
+   return Get(result, "index")
 };
 
 /* 21.2.5.10 get RegExp.prototype.source */
@@ -1501,6 +1487,7 @@ function RegExpPrototypesplit(global, this, strict, args){
 
    /* 1. Let rx be the this value. */
    rx := this;
+   l := Type(rx);
 
    /* 2. If Type(rx) is not Object, throw a TypeError exception. */
    if (!(Type(rx) = "Object")){
@@ -1520,7 +1507,10 @@ function RegExpPrototypesplit(global, this, strict, args){
    @ReturnIfAbrupt(C);
 
    /* 7. Let flags be ToString(Get(rx, "flags")). */
-   flags := ToString(GetNew(rx, "flags"));
+   flags := ToString(Get(rx, "flags"));
+
+   print "f::::";
+   print flags;
 
    /* 8. ReturnIfAbrupt(flags). */
    @ReturnIfAbrupt(flags);
@@ -1546,9 +1536,11 @@ function RegExpPrototypesplit(global, this, strict, args){
    else{
       newFlags := s_concat([flags, "y"])
    };
+   print "step 21";
 
    /* 13. Let splitter be Construct(C, «rx, newFlags»). */
    splitter := ConstructNew(C, [rx, newFlags], null);
+   print "step 22";
 
    /* 14. ReturnIfAbrupt(splitter). */
    @ReturnIfAbrupt(splitter);
@@ -1610,12 +1602,10 @@ function RegExpPrototypesplit(global, this, strict, args){
    /* 24. Repeat, while q < size */
    while (q < size){
       /* a. Let setStatus be Set(splitter, "lastIndex", q, true). */
-      /* setStatus := Set(splitter, "lastIndex", q, true); */
-      /* setJSProperty(splitter, "lastIndex", newDataPropertyDescriptorFull(q, true, false, false)); */
-      Put(splitter, "lastIndex", q, true);
+      setStatus := Set(splitter, "lastIndex", q, true);
        
       /* b. ReturnIfAbrupt(setStatus). */
-      /* @ReturnIfAbrupt(setStatus); */
+      @ReturnIfAbrupt(setStatus);
 
       /* c. Let z be RegExpExec(splitter, S). */
       z := RegExpExec(splitter, S);
@@ -1630,7 +1620,7 @@ function RegExpPrototypesplit(global, this, strict, args){
       /* f. Else z is not null, */
       else{
          /* i. Let e be ToLength(Get(splitter, "lastIndex")). */
-         e := ToLength(GetNew(splitter, "lastIndex"));
+         e := ToLength(Get(splitter, "lastIndex"));
 
          /* ii. ReturnIfAbrupt(e). */
          @ReturnIfAbrupt(e);
@@ -1662,8 +1652,8 @@ function RegExpPrototypesplit(global, this, strict, args){
             /* 6. Let p be e. */
             p := e;
 
-            /* 7. Let numberOfCaptures be ToLength(GetES6(z, "length")). */ 
-            numberOfCaptures := ToLength(GetNew(z, "length"));
+            /* 7. Let numberOfCaptures be ToLength(Get(z, "length")). */ 
+            numberOfCaptures := ToLength(Get(z, "length"));
 
             /* 8. ReturnIfAbrupt(numberOfCaptures). */
             @ReturnIfAbrupt(numberOfCaptures);
@@ -1676,8 +1666,8 @@ function RegExpPrototypesplit(global, this, strict, args){
 
             /* 11. Repeat, while i ≤ numberOfCaptures. */
             while (i <= numberOfCaptures) {
-               /* a. Let nextCapture be GetES6(z, ToString(i)). */
-               nextCapture := GetNew(z, ToString(i));
+               /* a. Let nextCapture be Get(z, ToString(i)). */
+               nextCapture := Get(z, ToString(i));
 
                /* b. ReturnIfAbrupt(nextCapture). */
                @ReturnIfAbrupt(nextCapture);
@@ -1801,13 +1791,13 @@ function RegExpPrototypetoString(global, this, strict, args){
    };
 
    /* 3. Let pattern be ToString(Get(R, "source")). */
-   pattern := ToString(GetNew(R, "source"));
+   pattern := ToString(Get(R, "source"));
 
    /* 4. ReturnIfAbrupt(pattern). */
    @ReturnIfAbrupt(pattern);
 
    /* 5. Let flags be ToString(Get(R, "flags")). */
-   flags := ToString(GetNew(R, "flags"));
+   flags := ToString(Get(R, "flags"));
 
    /* 6. ReturnIfAbrupt(flags). */
    @ReturnIfAbrupt(flags);

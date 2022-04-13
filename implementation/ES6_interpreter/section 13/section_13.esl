@@ -14,27 +14,11 @@ function CreateGeneralBuiltInFunctionObject(prototype, FormalParameterList, Func
 };
 
 function CreateBuiltInFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, n) {
-  fun := CreateGeneralBuiltInFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict, n);
-  setConfigurability(fun, "length", true); /* ES6 */
-  {fun.DefineOwnProperty}(fun, "name", {
-    Value: FunctionBody,
-    Writable: false,
-    Enumerable: false,
-    Configurable: true
-  }, false);
-  return fun
-};
+  functionObj := CreateGeneralBuiltInFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict, n);
 
-function CreateBuiltInConstructorObject(prototype, FormalParameterList, FunctionBody, Scope, Strict, n, name) {
-  F := CreateGeneralFunctionObject(prototype, FormalParameterList, FunctionBody, Scope, Strict, n);
-  setConfigurability(F, "length", true); /* ES6 */
-  {F.DefineOwnProperty}(F, "name", {
-    Value: name,
-    Writable: false,
-    Enumerable: false,
-    Configurable: true
-  }, false);
-  return F
+  functionObj.Call := "BuiltInCall";
+
+  return functionObj
 };
 
 function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, FunctionBody, Scope, Strict, n) {
@@ -47,11 +31,11 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   /* 4. Set the [[Prototype]] internal property of F to the standard built-in Function prototype object as specified in 15.3.3.1. */
   F.Prototype := FunctionPrototype;
   /* 5. Set the [[Get]] internal property of F as described in 15.3.5.4. */
-  F.Get := "GetF";
+  F.Get := "OrdinaryObjectGet";
   /* 6. Set the [[Call]] internal property of F as described in 13.2.1. */
-  F.Call := "Call";
+  F.Call := "OrdinaryCall";
   /* 7. Set the [[Construct]] internal property of F as described in 13.2.2. */
-  F.Construct := "Construct";
+  F.Construct := "OrdinaryFunctionConstruct";
   /* 8. Set the [[HasInstance]] internal property of F as described in 15.3.5.3. */
   F.HasInstance := "HasInstance";
   /* 9. Set the [[Scope]] internal property of F to the value of Scope. */
@@ -74,8 +58,8 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
     Value: int_to_float len,
     Writable: false,
     Enumerable: false,
-    Configurable: false
-  }, false);
+    Configurable: true
+  });
   /* 16. Let proto be the result of creating a new object as would be constructed by the expression new Object()
         where Object is the standard built-in constructor with that name. */
   if (!(typeof FunctionBody = __$Str)) {
@@ -87,7 +71,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
       Writable: true,
       Enumerable: false,
       Configurable: true
-    }, false);
+    });
     /* 18. Call the [[DefineOwnProperty]] internal method of F with arguments "prototype", Property Descriptor
           {[[Value]]: proto, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
     {F.DefineOwnProperty}(F, "prototype", {
@@ -95,7 +79,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
       Writable: true,
       Enumerable: false,
       Configurable: false
-    }, false)
+    })
   };
   /* 19. If Strict is true, then */
   if (Strict = true) {
@@ -108,7 +92,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
       Set: thrower,
       Enumerable: false,
       Configurable: false
-    }, false);
+    });
     /* c. Call the [[DefineOwnProperty]] internal method of F with arguments "arguments", PropertyDescriptor
           {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false}, and false. */
     {F.DefineOwnProperty}(F, "arguments", {
@@ -116,7 +100,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
       Set: thrower,
       Enumerable: false,
       Configurable: false
-    }, false)
+    })
   };
 
   if (n = null) {
@@ -132,7 +116,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
 };
 
 /* 13.2.1 [[Call]] */
-function Call(externalScope, ref, F, this, args) {
+function OrdinaryFunctionCall(externalScope, ref, F, this, args) {
   if (("Code" in_obj F) &&& (typeof F.Code = __$Str) &&& (F.Code = "GlobalObjectEval")) {
     args := completeArgs(args, F);
     return {F.Code}(externalScope, ref, this, F.strict, args)
@@ -172,7 +156,7 @@ function Call(externalScope, ref, F, this, args) {
 };
 
 
-function Construct(externalScope, ref, F, argumentList) {
+function OrdinaryFunctionConstruct(externalScope, ref, F, argumentList) {
   /* 13.2.2 [[Construct]] */
 
   /* When the [[Construct]] internal method for a Function object F is called with a possibly empty list of arguments,
@@ -181,13 +165,16 @@ function Construct(externalScope, ref, F, argumentList) {
   /* 1. Let obj be a newly created native ECMAScript object. */
   obj := NewECMAScriptObject();
   /* 2. Set all the internal methods of obj as specified in 8.12. */
-  setAllInternalMethodsOfObject(obj);
+  setAllInternalMethodsOfOrdinaryObject(obj);
   /* 3. Set the [[Class]] internal property of obj to "Object". */
   obj.Class := "Object";
   /* 4. Set the [[Extensible]] internal property of obj to true. */
   obj.Extensible := true;
   /* 5. Let proto be the value of calling the [[Get]] internal property of F with argument "prototype". */
-  proto := {F.Get}(F, "prototype");
+  print "DEBUG: OFC 1";
+  print F.Get;
+
+  proto := {F.Get}(F, "prototype", F);
   /* 6. If Type(proto) is Object, set the [[Prototype]] internal property of obj to proto. */
   if (Type(proto) = "Object") {
     obj.Prototype := proto
@@ -199,6 +186,8 @@ function Construct(externalScope, ref, F, argumentList) {
   };
   /* 8. Let result be the result of calling the [[Call]] internal property of F, providing obj as the this value and providing the
         argument list passed into [[Construct]] as args. */
+  print "Chamei o call";
+
   result := {F.Call}(externalScope, ref, F, obj, argumentList);
   /* 9. If Type(result) is Object then return result. */
   if (Type(result) = "Object") {
@@ -216,13 +205,13 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
   /* 1. Create a new native ECMAScript object and let F be that object. */
   F := NewECMAScriptObject();
   /* 2. Set all the internal methods of F as described in 8.12. */
-  setAllInternalMethodsOfObject(F);
+  setAllInternalMethodsOfOrdinaryObject(F);
   /* 3. Set the [[Class]] internal property of F to "Function". */
   setInternalProperty(F, "Class", "Function");
   /* 4. Set the [[Prototype]] internal property of F to the standard built-in Function prototype object as specified in 15.3.3.1. */
   setInternalProperty(F, "Prototype", functionPrototypeObject);
   /* 5. Set the [[Call]] internal property of F as described in 13.2.1. */
-  setInternalProperty(F, "Call", "Call");
+  setInternalProperty(F, "Call", "OrdinaryCall");
   /* 6. Set the [[Scope]] internal property of F to the Global Environment. */
   setInternalProperty(F, "Scope", getGlobalEnvironment(|global|));
   /* 7. Set the [[FormalParameters]] internal property of F to an empty List. */
@@ -237,7 +226,7 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
     Writable: false,
     Enumerable: false,
     Configurable: false
-  }, false);
+  });
   /* 10. Set the [[Extensible]] internal property of F to false. */
   setInternalProperty(F, "Extensible", false);
   /* 11. Let [[ThrowTypeError]] be F. */
@@ -246,9 +235,6 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
 
   return F
 };
-
-
-/* Auxiliary functions */
 
 /* Unless otherwise specified in the description of a particular function, if a function or constructor described in
    this clause is given fewer arguments than the function is specified to require, the function or constructor shall
@@ -283,17 +269,19 @@ function isStrictFunctionObject(F) {
 };
 
 function setAllInternalMethodsExceptGet(obj) {
-  obj.GetOwnProperty    := "GetOwnProperty";
-  obj.GetProperty       := "GetProperty";
-  obj.CanPut            := "CanPut";
-  obj.Put               := "Put";
-  obj.HasProperty       := "HasProperty";
-  obj.Delete            := "Delete";
-  obj.DefaultValue      := "DefaultValue";
-  obj.DefineOwnProperty := "DefineOwnProperty";
+  obj.GetOwnProperty    := "OrdinaryObjectGetOwnProperty";
+  obj.Get               := "OrdinaryObjectGet";
+  obj.Set               := "OrdinaryObjectSet";
+  obj.HasProperty       := "OrdinaryObjectHasProperty";
+  obj.Delete            := "OrdinaryObjectDelete";
+  obj.DefineOwnProperty := "OrdinaryObjectDefineOwnProperty";
+  obj.GetPrototypeOf    := "OrdinaryObjectGetPrototypeOf";
+  obj.OwnPropertyKeys   := "OrdinaryObjectOwnPropertyKeys";
+  obj.PreventExtensions := "OrdinaryObjectPreventExtensions";
+  obj.IsExtensible      := "OrdinaryObjectIsExtensible";
 
   obj.internalSlotsList := [];
-
+  
   return obj
 };
 
@@ -316,8 +304,17 @@ function CallHandler(x) {
   print(x);
 
   return throwEmptyCompletion(x)
+};
+
+function CreateBuiltInConstructorObject(prototype, FormalParameterList, FunctionBody, Scope, Strict, n, name) {
+  F := CreateGeneralFunctionObject(prototype, FormalParameterList, FunctionBody, Scope, Strict, n);
+  setConfigurability(F, "length", true);
+  {F.DefineOwnProperty}(F, "name", {
+    Value: name,
+    Writable: false,
+    Enumerable: false,
+    Configurable: true
+  });
+  return F
 }
-
-
-
 

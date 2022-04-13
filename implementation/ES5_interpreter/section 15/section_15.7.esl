@@ -288,7 +288,7 @@ function NumberPrototypeToFixedAlt(global, this, strict, items) {
     throw RangeErrorConstructorInternal()
   };
   /* 6. If x is NaN, return the String "NaN". */
-  if (x = NaN) {
+  if (is_NaN x) {
     return "NaN"
   };
   /* 7. Let s be the empty String. */
@@ -372,7 +372,7 @@ function NumberPrototypeToExponential(global, this, strict, items) {
   @ReturnIfAbrupt(x);
 
   /* 6. If x is NaN, return the String "NaN". */
-  if (x = NaN) {
+  if (is_NaN x) {
     return "NaN"
   };
   /* 7. Let s be the empty String. */
@@ -431,7 +431,7 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
   /* 5. ReturnIfAbrupt(f). */
   @ReturnIfAbrupt(f);
   /* 6. If x is NaN, return the String "NaN". */
-  if (x = NaN) {
+  if (is_NaN x) {
     return "NaN"
   };
   /* 7. Let s be the empty String. */
@@ -552,7 +552,7 @@ function NumberPrototypeToPrecision(global, this, strict, items) {
   /* 5. ReturnIfAbrupt(p). */
   @ReturnIfAbrupt(p);
   /* 6. If x is NaN, return the String "NaN". */
-  if (x = NaN) {
+  if (is_NaN x) {
     return "NaN"
   };
   /* 7. Let s be the empty String. */
@@ -606,7 +606,7 @@ function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
   /* 5. ReturnIfAbrupt(p). */
   @ReturnIfAbrupt(p);
   /* 6. If x is NaN, return the String "NaN". */
-  if (x = NaN) {
+  if (is_NaN x) {
     return "NaN"
   };
   /* 7. Let s be the empty String. */

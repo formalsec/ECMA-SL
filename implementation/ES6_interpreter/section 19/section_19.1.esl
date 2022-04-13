@@ -1,0 +1,910 @@
+/* 19.1 Object Objects */
+
+/* 19.1.1 The Object Constructor */
+function initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, strict) {
+  /* The Object constructor is the %Object% intrinsic object and the initial value of the Object property of the
+     global object. When called as a constructor it creates a new ordinary object. When Object is called as a 
+     function rather than as a constructor, it performs a type conversion. 
+     
+     The Object constructor is designed to be subclassable. It may be used as the value of an extends clause
+     of a class definition. */
+
+  /* The value of the [[Prototype]] internal slot of the Object constructor is the intrinsic object
+     %FunctionPrototype%. */
+  ObjectConstructor := CreateGeneralFunctionObject(FunctionPrototype, ["value"], "ObjectConstructor", globalObject, strict, 1.);
+
+  /* 19.1.2.16 Object.prototype */
+  /* The initial value of Object.prototype is the intrinsic object %ObjectPrototype% (19.1.3). */
+  /* This property has the attributes {[[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
+  createBuiltInPropertyWithFullDescriptor(ObjectConstructor, "prototype", ObjectPrototype, false, false, false);
+  setInternalProperty(ObjectConstructor, "Call", "BuiltInCall");
+
+  /* 19.1.4 Properties of Object Instances */
+  /* Object instances have no special properties beyond those inherited from the Object prototype object. */
+
+  return ObjectConstructor
+};
+
+/* 19.1.2 Properties of the Object Constructor */
+function fillObjectConstructor(ObjectConstructor, globalObject, strict) {
+  /* Besides the internal properties and the length property (whose value is 1), the Object constructor has the
+     following properties: */
+
+  /* 19.1.2.1 Object.assign ( target, ...sources ) */
+  assign := CreateBuiltInFunctionObject(["target", "sources"], "ObjectAssign", globalObject, strict, 2.);
+  createBuiltInProperty(ObjectConstructor, "assign", assign);
+
+  /* 19.1.2.2 Object.create ( O [ , Properties ] ) */ 
+  create := CreateBuiltInFunctionObject(["O", "Properties"], "StandardObjectCreate", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "create", create);
+  
+  /* 19.1.2.3 Object.defineProperties ( O, Properties ) */
+  defineProperties := CreateBuiltInFunctionObject(["O", "Properties"], "StandardObjectDefineProperties", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "defineProperties", defineProperties);
+
+  /* 19.1.2.4 Object.defineProperty ( O, P, Attributes ) */
+  defineProperty := CreateBuiltInFunctionObject(["O", "P", "Attributes"], "ObjectDefineProperty", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "defineProperty", defineProperty);
+  
+  /* 19.1.2.5 Object.freeze ( O ) */
+  freeze := CreateBuiltInFunctionObject(["O"], "ObjectFreeze", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "freeze", freeze);
+  
+  /* 19.1.2.6 Object.getOwnPropertyDescriptor ( O, P ) */
+  getOwnPropertyDescriptor := CreateBuiltInFunctionObject(["O", "P"], "ObjectGetOwnPropertyDescriptor", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "getOwnPropertyDescriptor", getOwnPropertyDescriptor);
+  
+  /* 19.1.2.7 Object.getOwnPropertyNames ( O ) */
+  getOwnPropertyNames := CreateBuiltInFunctionObject(["O"], "ObjectGetOwnPropertyNames", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "getOwnPropertyNames", getOwnPropertyNames); 
+  
+  /* 19.1.2.8 Object.getOwnPropertySymbols ( O )*/
+  getOwnPropertySymbol := CreateBuiltInFunctionObject(["O"], "ObjectGetOwnPropertySymbol", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "getOwnPropertySymbol", getOwnPropertySymbol); 
+
+  /* 19.1.2.9 Object.getPrototypeOf ( O ) */
+  getPrototypeOf := CreateBuiltInFunctionObject(["O"], "ObjectGetPrototypeOf", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "getPrototypeOf", getPrototypeOf);
+
+  /* 19.1.2.10 Object.is ( value1, value2 ) */
+  is := CreateBuiltInFunctionObject(["value1", "value2"], "ObjectIs", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "is", is);
+
+  /* 19.1.2.11 Object.isExtensible ( O )*/
+  isExtensible := CreateBuiltInFunctionObject(["O"], "ObjectIsExtensible", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "isExtensible", isExtensible);
+
+  /* 19.1.2.12 Object.isFrozen ( O ) */
+  isFrozen := CreateBuiltInFunctionObject(["O"], "ObjectIsFrozen", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "isFrozen", isFrozen);
+
+  /* 19.1.2.13 Object.isSealed ( O ) */
+  isSealed := CreateBuiltInFunctionObject(["O"], "ObjectIsSealed", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "isSealed", isSealed);
+
+  /* 19.1.2.14 Object.keys ( O ) */
+  keys := CreateBuiltInFunctionObject(["O"], "ObjectKeys", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "keys", keys);
+
+  /* 19.1.2.15 Object.preventExtensions ( O ) */
+  preventExtensions := CreateBuiltInFunctionObject(["O"], "ObjectPreventExtensions", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "preventExtensions", preventExtensions);
+
+  /* 19.1.2.17 Object.seal ( O ) */
+  seal := CreateBuiltInFunctionObject(["O"], "ObjectSeal", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "seal", seal);
+
+  /* 19.1.2.18 Object.setPrototypeOf ( O, proto ) */
+  setPrototypeOf := CreateBuiltInFunctionObject(["O", "proto"], "ObjectSetPrototypeOf", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "setPrototypeOf", setPrototypeOf);
+
+  return 'null
+};
+
+/* 19.1.3 Properties of the Object Prototype Object */
+function initObjectPrototype() {
+  /* The Object prototype object is the intrinsic object %ObjectPrototype%. The Object prototype object is an
+     ordinary object. */
+  /* The value of the [[Prototype]] internal property of the Object prototype object is null, the value of the [[Class]]
+     internal property is "Object", and the initial value of the [[Extensible]] internal property is true. */
+  objectPrototypeObject := NewECMAScriptObjectFull('null, "Object", true);
+  
+  setAllInternalMethodsOfOrdinaryObject(objectPrototypeObject);
+
+  return objectPrototypeObject
+};
+
+/* 19.1.3 Properties of the Object Prototype Object */
+function fillObjectPrototype(objectPrototypeObject, ObjectConstructor, globalObject, strict) {
+  /* 19.1.3.1 Object.prototype.constructor */
+  /* The initial value of Object.prototype.constructor is the intrinsic object %Object%. */
+  createBuiltInProperty(objectPrototypeObject, "constructor", ObjectConstructor);
+
+  /* 19.1.3.2 Object.prototype.hasOwnProperty ( V ) */
+  hasOwnProperty := CreateBuiltInFunctionObject(["V"], "ObjectPrototypeHasOwnProperty", globalObject, strict, null);
+  createBuiltInProperty(objectPrototypeObject, "hasOwnProperty", hasOwnProperty);
+
+  /* 19.1.3.3 Object.prototype.isPrototypeOf (V) */
+  isPrototypeOf := CreateBuiltInFunctionObject(["V"], "ObjectPrototypeIsPrototypeOf", globalObject, strict, null);
+  createBuiltInProperty(objectPrototypeObject, "isPrototypeOf", isPrototypeOf);
+
+  /* 19.1.3.4 Object.prototype.propertyIsEnumerable (V) */
+  propertyIsEnumerable := CreateBuiltInFunctionObject(["V"], "ObjectPrototypePropertyIsEnumerable", globalObject, strict, null);
+  createBuiltInProperty(objectPrototypeObject, "propertyIsEnumerable", propertyIsEnumerable);
+
+  /* 19.1.3.5 Object.prototype.toLocaleString ( ) */
+  toLocaleString := CreateBuiltInFunctionObject([], "ObjectPrototypeToLocaleString", globalObject, strict, 0.);
+  createBuiltInProperty(objectPrototypeObject, "toLocaleString", toLocaleString);
+
+  /* 19.1.3.6 Object.prototype.toString ( ) */
+  toString := CreateBuiltInFunctionObject([], "ObjectPrototypeToString", globalObject, strict, null);
+  createBuiltInProperty(objectPrototypeObject, "toString", toString);
+
+  /* 19.1.3.7 Object.prototype.valueOf ( ) */
+  valueOf := CreateBuiltInFunctionObject([], "ObjectPrototypeValueOf", globalObject, strict, null);
+  createBuiltInProperty(objectPrototypeObject, "valueOf", valueOf);
+
+  return
+};
+
+/** 19.1.1.1 Object ( [ value ] )
+ *  When Object function is called with optional argument value, the following steps are taken: 
+*/
+function ObjectConstructor(globalObject, this, strict, params) {
+  NewTarget := this;
+  value := getOptionalParam(params, 0);
+  ObjectPrototype := getObjectPrototype(false); 
+  
+  /* If NewTarget is neither undefined nor the active function, then */
+  if ( !(NewTarget = 'undefined) &&& false) {  /* duvida em como passar o NewTarget */
+    /* Return OrdinaryCreateFromConstructor(NewTarget, "%ObjectPrototype%"). */
+    return OrdinaryCreateFromConstructor(NewTarget, ObjectPrototype, null)
+  };
+
+  /* If value is null, undefined or not supplied, return ObjectCreate(%ObjectPrototype%). */
+  if ( (value = 'null) ||| (value = 'undefined) ||| (value = null) ) {
+    return ObjectCreate(ObjectPrototype, null)
+  };
+
+  /* Return ToObject(value). */
+  return ToObject(value)
+};
+
+/* aux function to create a list */
+function auxCreateList(origin) {
+  l := [];
+  i := 1;
+  len := l_len origin;
+
+  while (i < len) {
+    obj := l_nth(origin, i);
+    l := l_add(l, obj);
+    i := i + 1
+  };
+
+  return l
+}; 
+
+/**
+ * 19.1.2.1 Object.assign ( target, ...sources )
+ * 
+ * The assign function is used to copy the values of all of the enumerable own properties from one or more
+ * source objects to a target object. When the assign function is called, the following steps are taken:
+*/
+function ObjectAssign(globalObject, this, strict, params) {
+  target := l_nth(params, 0);
+
+  /* Let to be ToObject(target). */
+  to := ToObject(target);
+
+  /* ReturnIfAbrupt(to). */
+  @ReturnIfAbrupt(to);
+
+  /* If only one argument was passed, return to. */
+  if ( l_len params = 1 ) {
+    return to
+  };
+
+  /* Let sources be the List of argument values starting with the second argument. */
+  sources := auxCreateList( params );
+
+  /* For each element nextSource of sources, in ascending index order, */
+  foreach( nextSource : sources ) {
+    /* If nextSource is undefined or null, let keys be an empty List. */
+    if ( (nextSource = 'undefined) ||| (nextSource = 'null) ) {
+      keys := []
+    }
+    /* Else, */
+    else {
+        /* Let from be ToObject(nextSource). */
+        from := ToObject(nextSource);
+
+        /* Let keys be from.[[OwnPropertyKeys]](). */
+        keys := {from.OwnPropertyKeys}(from);
+
+        /* ReturnIfAbrupt(keys). */
+        @ReturnIfAbrupt(keys)
+    };
+
+    /* Repeat for each element nextKey of keys in List order, */
+    j := 0;
+    kLen := l_len keys;
+
+    while(j < kLen) {
+      nextKey := l_nth(keys, j);
+
+      /* Let desc be from.[[GetOwnProperty]](nextKey). */
+      desc := {from.GetOwnProperty}(from, nextKey);
+
+      /* ReturnIfAbrupt(desc). */
+      @ReturnIfAbrupt(desc);
+
+      /* if desc is not undefined and desc.[[Enumerable]] is true, then */
+      if ( !(desc = 'undefined) &&& (desc.Enumerable = true) ) {
+
+          /* Let propValue be Get(from, nextKey). */
+          propValue := Get(from, nextKey);
+
+          /* ReturnIfAbrupt(propValue). */
+          @ReturnIfAbrupt(propValue);
+          /* Let status be Set(to, nextKey, propValue, true). */
+          status := Set(to, nextKey, propValue, true);
+
+          /* ReturnIfAbrupt(status). */
+          @ReturnIfAbrupt(status)
+      };
+
+      j := j + 1
+    }
+  };
+
+  /* Return to. */
+  return to
+};
+
+/**
+ * 19.1.2.2 Object.create ( O [ , Properties ] )
+ * 
+ * The create function creates a new object with a specified prototype. When the
+ * create function is called, the following steps are taken:
+*/
+function StandardObjectCreate(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+  Properties := l_nth(params, 1);
+
+  /* If Type(O) is neither Object nor Null, throw a TypeError exception. */
+  if ( !(Type(O) = "Object") &&& !(Type(O) = "Null") ) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* Let obj be ObjectCreate(O). */
+  obj := ObjectCreate(O, null);
+
+  /* If the argument Properties is present and not undefined, then */
+  if ( !(Properties = null) &&& !(Properties = 'undefined) ) {
+      /* Return ObjectDefineProperties(obj, Properties). */
+
+      return ObjectDefineProperties(obj, Properties)
+  };
+
+  /* Return obj. */
+  return obj
+};
+
+/* 19.1.2.3 Object.defineProperties ( O, Properties ) */
+/* The defineProperties function is used to add own properties and/or update the attributes of existing own
+   properties of an object. When the defineProperties function is called, the following steps are taken: */
+function StandardObjectDefineProperties(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+  Properties := l_nth(params, 1);
+
+  return ObjectDefineProperties(O, Properties)
+};
+
+/* 19.1.2.3.1 Runtime Semantics: ObjectDefineProperties ( O, Properties ) */
+function ObjectDefineProperties(O, Properties) {
+
+  /* 1. If Type(O) is not Object throw a TypeError exception. */
+  if (!(Type(O) = "Object")) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 2. Let props be ToObject(Properties). */
+  props := ToObject(Properties);
+
+  /* ReturnIfAbrupt(props). */
+  @ReturnIfAbrupt(props);
+
+  /* 3. Let keys be props.[[OwnPropertyKeys]](). */
+  keys := {props.OwnPropertyKeys}(props);
+
+  /* ReturnIfAbrupt(keys). */
+  @ReturnIfAbrupt(keys);
+
+  /* 4. Let descriptors be an empty internal List. */
+  descriptors := [];
+
+  /* 5. Repeat for each element nextKey of keys in List order, */
+  foreach( nextKey : keys ) {    
+    /* a. Let propDesc be props.[[GetOwnProperty]](nextKey). */
+    propDesc := {props.GetOwnProperty}(props, nextKey);
+
+    /* ReturnIfAbrupt(propDesc). */
+    @ReturnIfAbrupt(propDesc);
+
+    /* If propDesc is not undefined and propDesc.[[Enumerable]] is true, then  */
+    if ( !(propDesc = 'undefined ) &&& propDesc.Enumerable = true ) {      
+      /* Let descObj be Get( props, nextKey). */
+      descObj := Get(props, nextKey);
+
+      /* ReturnIfAbrupt(descObj). */
+      @ReturnIfAbrupt(descObj);
+
+      /* Let desc be ToPropertyDescriptor(descObj). */
+      desc := ToPropertyDescriptor(descObj);
+      
+      /* ReturnIfAbrupt(desc). */
+      @ReturnIfAbrupt(desc);
+
+      /* Append the pair (a two element List) consisting of nextKey and desc to the end of descriptors. */
+      descriptors := l_add(descriptors, [nextKey, desc])
+    }   
+  };
+
+  /* 6. For each pair from descriptors in list order, */
+  foreach(pair : descriptors) {    
+    /* a. Let P be the first element of pair. */
+    P := l_nth(pair, 0);
+    
+    /* b. Let desc be the second element of pair. */
+    desc := l_nth(pair, 1);
+    
+    /* c. Let status be DefinePropertyOrThrow(O,P, desc). */
+    status := DefinePropertyOrThrow(O, P, desc);
+
+    /* ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status)
+  };
+
+  /* 7. Return O. */
+  return O
+};
+
+/**
+ * 19.1.2.4 Object.defineProperty ( O, P, Attributes )
+ * 
+ * The defineProperty function is used to add an own property and/or update the attributes of an existing
+ * own property of an object. When the defineProperty function is called, the following steps are taken: 
+*/
+function ObjectDefineProperty(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+  P := l_nth(params, 1);
+  Attributes := l_nth(params, 2);
+
+  /* 1. If Type(O) is not Object throw a TypeError exception. */
+  if (!(Type(O) = "Object")) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 2. Let key be ToPropertyKey(P). */
+  key := ToPropertyKey(P);
+
+  /* ReturnIfAbrupt(key). */
+  @ReturnIfAbrupt(key);
+
+  /* 3. Let desc be ToPropertyDescriptor(Attributes). */
+  desc := ToPropertyDescriptor(Attributes);
+
+  /* ReturnIfAbrupt(desc). */
+  @ReturnIfAbrupt(desc);
+
+  /* 4. Let success be DefinePropertyOrThrow(O,key, desc). */
+  success := DefinePropertyOrThrow(O, key, desc);
+
+  /* ReturnIfAbrupt(success). */
+  @ReturnIfAbrupt(success);
+  
+  /* 5. Return O. */
+  return O
+};
+
+/* 19.1.2.5 Object.freeze ( O ) */
+function ObjectFreeze(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+  /* When the freeze function is called, the following steps are taken: */
+
+  /* 1.If Type(O) is not Object, return O. */
+  if (!(Type(O) = "Object")) {
+    return O
+  };
+  
+  /* Let status be SetIntegrityLevel( O, "frozen"). */
+  status := SetIntegrityLevel(O, "frozen");
+
+  /* ReturnIfAbrupt(status). */
+  @ReturnIfAbrupt(status);
+
+  /* If status is false, throw a TypeError exception */
+  if ( status = false ) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 5. Return O. */
+  return O
+};
+
+/* 19.1.2.6 Object.getOwnPropertyDescriptor ( O, P ) */
+/* When the getOwnPropertyDescriptor function is called, the following steps are taken: */
+function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+  P := l_nth(params, 1);
+
+  /* Let obj be ToObject(O). */
+  obj := ToObject(O);
+
+  /* ReturnIfAbrupt(obj). */
+  @ReturnIfAbrupt(obj);
+
+  /* Let key be ToPropertyKey(P). */
+  key := ToPropertyKey(P);
+
+  /* ReturnIfAbrupt(key). */
+  @ReturnIfAbrupt(key);
+
+  /* Let desc be obj.[[GetOwnProperty]](key). */
+  desc := {obj.GetOwnProperty}(obj, key);
+
+  /* ReturnIfAbrupt(desc). */
+  @ReturnIfAbrupt(desc);
+
+  /* Return FromPropertyDescriptor(desc). */
+  return FromPropertyDescriptor(desc)
+};
+
+/* 19.1.2.7 Object.getOwnPropertyNames ( O ) */
+/* When the getOwnPropertyNames function is called, the following steps are taken: */
+function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+
+  return GetOwnPropertyKeys(O, "String")
+};
+
+/* 19.1.2.8 Object.getOwnPropertySymbols ( O ) */
+/* When the getOwnPropertySymbol function is called, the following steps are taken: */
+function ObjectGetOwnPropertySymbol(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+
+  return GetOwnPropertyKeys(O, "Symbol")
+};
+
+/* 19.1.2.8.1 Runtime Semantics: GetOwnPropertyKeys ( O, Type ) */
+/* The abstract operation GetOwnPropertyKeys is called with arguments O and Type where O is an Object
+   and Type is one of the ECMAScript specification types String or Symbol. The following steps are taken:
+*/
+function GetOwnPropertyKeys(O, Type) {
+  /* Let obj be ToObject(O). */
+  obj := ToObject(O);
+
+  /* ReturnIfAbrupt(obj). */
+  @ReturnIfAbrupt(obj);
+
+  print obj;
+
+  /* Let keys be obj.[[OwnPropertyKeys]](). */
+  keys := {obj.OwnPropertyKeys}(obj);
+
+  /* ReturnIfAbrupt(keys). */
+  @ReturnIfAbrupt(keys);
+
+  /* Let nameList be a new empty List. */
+  nameList := [];
+
+  /* Repeat for each element nextKey of keys in List order, */
+  foreach(nextKey : keys) {
+    /* If Type(nextKey) is Type, then */
+    if ( Type(nextKey) = Type ) {
+        /* Append nextKey as the last element of nameList. */
+        nameList := l_add(nameList, nextKey)
+    }
+  };
+
+  /* Return CreateArrayFromList(nameList). */
+  return CreateArrayFromList(nameList)
+};
+
+/* 19.1.2.9 Object.getPrototypeOf ( O ) */
+/* When the getPrototypeOf function is called with argument O, the following steps are taken: */
+function ObjectGetPrototypeOf(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+
+  /* Let obj be ToObject(O). */
+  obj := ToObject(O);
+
+  /* ReturnIfAbrupt(obj) */
+  @ReturnIfAbrupt(obj);
+
+  /* 2. Return obj.[[GetPrototypeOf]](). */
+  return {obj.GetPrototypeOf}(obj)
+};
+
+/* 19.1.2.10 Object.is ( value1, value2 ) */
+function ObjectIs(globalObject, this, strict, params) {
+  value1 := l_nth(params, 0);
+  value2 := l_nth(params, 1);
+
+  /* Return SameValue(value1, value2). */
+  return SameValue(value1, value2)
+};
+
+/* 19.1.2.11 Object.isExtensible ( O ) */
+/* When the isExtensible function is called with argument O, the following steps are taken: */
+function ObjectIsExtensible(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+
+  /* 1. If Type(O) is not Object return false. */
+  if (!(Type(O) = "Object")) {
+    return false
+  };
+
+  /* 2. Return IsExtensible(O). */
+  return IsExtensible(O)
+};
+
+/* 19.1.2.12 Object.isFrozen ( O ) */
+/* When the isFrozen function is called with argument O, the following steps are taken: */
+function ObjectIsFrozen(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+
+  /* 1. If Type(O) is not Object return true. */
+  if (!(Type(O) = "Object")) {
+    return true
+  };
+  
+  /* Return TestIntegrityLevel(O, "frozen"). */
+  return TestIntegrityLevel(O, "frozen")
+};
+
+/* 19.1.2.12 Object.isSealed ( O ) */
+/* When the isSealed function is called with argument O, the following steps are taken: */
+function ObjectIsSealed(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+
+  /* 1. If Type(O) is not Object return true. */
+  if (!(Type(O) = "Object")) {
+    return true
+  };
+  
+  /* Return TestIntegrityLevel(O, "sealed"). */
+  return TestIntegrityLevel(O, "sealed")
+};
+
+/* 19.1.2.14 Object.keys ( O ) */
+function ObjectKeys(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+  /* When the keys function is called with argument O, the following steps are taken: */
+  
+  /* Let obj be ToObject(O). */
+  obj := ToObject(O);
+
+  /* ReturnIfAbrupt(obj). */
+  @ReturnIfAbrupt(obj);
+
+  /* Let nameList be EnumerableOwnNames(obj). */
+  nameList := EnumerableOwnNames(obj);
+
+  /* ReturnIfAbrupt(nameList). */
+  @ReturnIfAbrupt(nameList);
+
+  /* Return CreateArrayFromList(nameList). */
+  return CreateArrayFromList(nameList)
+
+  /*If an implementation defines a specific order of enumeration for the for-in statement, the same order must
+    be used for the elements of the array returned in step 4.*/
+};
+
+/* 19.1.2.15 Object.preventExtensions ( O ) */
+function ObjectPreventExtensions(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+  /* When the preventExtensions function is called, the following steps are taken: */
+
+  /* 1. If Type(O) is not Object, return O.*/
+  if (!(Type(O) = "Object")) {
+    return O
+  };
+
+  /* 2. Let status be O.[[PreventExtensions]](). */
+  status := {O.PreventExtensions}(O);
+
+  /* ReturnIfAbrupt(status). */
+  @ReturnIfAbrupt(status);
+
+  /* If status is false, throw a TypeError exception. */
+  if (status = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 3. Return O. */
+  return O
+};
+
+/* 19.1.2.17 Object.seal ( O ) */
+function ObjectSeal(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+  /* When the seal function is called, the following steps are taken: */
+
+  /* 1. If Type(O) is not Object, return O. */
+  if (!(Type(O) = "Object")) {
+    return O
+  };
+
+  /* Let status be SetIntegrityLevel( O, "sealed"). */
+  status := SetIntegrityLevel(O, "sealed");
+
+  /* ReturnIfAbrupt(status). */
+  @ReturnIfAbrupt(status);
+
+  /* If status is false, throw a TypeError exception. */
+  if (status = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* 4. Return O. */
+  return O
+};
+
+/* 19.1.2.18 Object.setPrototypeOf ( O, proto ) */
+function ObjectSetPrototypeOf(globalObject, this, strict, params) {
+  O := l_nth(params, 0);
+  proto := l_nth(params, 1);
+  /* When the setPrototypeOf function is called with arguments O and proto, the following steps are taken: */
+
+  /* Let O be RequireObjectCoercible(O). */
+  O := RequireObjectCoercible(O);
+
+  /* ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* If Type(proto) is neither Object nor Null, throw a TypeError exception. */
+  if ( !(Type(proto) = "Object") &&& !(Type(proto) = "Null") ) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* If Type(O) is not Object, return O. */
+  if ( !(Type(O) = "Object") ) {
+    return O
+  };
+
+  /* Let status be O.[[SetPrototypeOf]](proto). */
+  status := {O.SetPrototypeOf}(O, proto);
+
+  /* ReturnIfAbrupt(status). */
+  @ReturnIfAbrupt(status);
+
+  /* If status is false, throw a TypeError exception. */
+  if (status = false) {
+    throw TypeErrorConstructorInternal()
+  };
+
+  /* Return O. */
+  return O
+};
+
+/* 19.1.3.2 Object.prototype.hasOwnProperty ( V ) */
+function ObjectPrototypeHasOwnProperty(globalObject, this, strict, params) {
+  V := l_nth(params, 0);
+  /* When the hasOwnProperty method is called with argument V, the following steps are taken: */
+
+  /* 1. ToPropertyKey(V). */
+  P := ToPropertyKey(V);
+
+  /* ReturnIfAbrupt(P) */
+  @ReturnIfAbrupt(P);
+
+  /* 2. Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O passing P as the argument. */
+  desc := {O.GetOwnProperty}(O, P);
+
+  /* ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* Return HasOwnProperty(O, P). */
+  return HasOwnProperty(O, P)
+
+  /* NOTE The ordering of steps 1 and 3 is chosen to ensure that any exception that would have been
+          thrown by step 1 in previous editions of this specification will continue to be thrown even if
+          the this value is undefined or null. */
+};
+
+/* 19.1.3.3 Object.prototype.isPrototypeOf ( V ) */
+function ObjectPrototypeIsPrototypeOf(globalObject, this, strict, params) {
+  V := l_nth(params, 0);
+  /* When the isPrototypeOf method is called with argument V, the following steps are taken: */
+
+  /* 1. If Type(V) is not Object, return false. */
+  if (!(Type(V) = "Object")) { return false };
+
+  /* 2.Let O be ToObject(this value). */
+  O := ToObject(this);
+
+  /* ReturnIfAbrupt(O). */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Repeat */
+  repeat {
+    /* a. Let V be V.[[GetPrototypeOf]]().*/
+    V := {V.GetPrototypeOf}(V);
+
+    /* b. if V is null, return false */
+    if (V = 'null) { return false };
+
+    /* c. If SameValue(O, V) is true, return true. */
+    if (SameValue(O, V) = true) { return true }
+  }
+
+  /* NOTE The ordering of steps 1 and 2 is chosen to preserve the behaviour specified by previous editions of this
+          specification for the case where V is not an object and the this value is undefined or null. */
+};
+
+/* 19.1.3.4 Object.prototype.propertyIsEnumerable ( V ) */
+function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params) {
+  V := l_nth(params, 0);
+  /* When the propertyIsEnumerable method is called with argument V, the following steps are taken: */
+
+  /* 1. Let P be ToPropertyKey(V). */
+  P := ToPropertyKey(V);
+
+  /* ReturnIfAbrupt(V) */
+  @ReturnIfAbrupt(V);
+
+  /* 2. Let O be the result of calling ToObject passing the this value as the argument. */
+  O := ToObject(this);
+
+  /* ReturnIfAbrupt(O) */
+  @ReturnIfAbrupt(O);
+
+  /* 3. Let desc be O.[[GetOwnProperty]](P). */
+  desc := {O.GetOwnProperty}(O, P);
+
+  /* 4. If desc is undefined, return false. */
+  if (desc = 'undefined) { return false };
+
+  /* 5. Return the value of desc.[[Enumerable]]. */
+  return desc.Enumerable
+
+  /* NOTE 1 This method does not consider objects in the prototype chain. */
+  /* NOTE 2 The ordering of steps 1 and 3 is chosen to ensure that any exception that would have been thrown by step 1
+            in previous editions of this specification will continue to be thrown even if the this value is undefined or null. */
+};
+
+/* 19.1.3.5 Object.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ] ) */
+function ObjectPrototypeToLocaleString(globalObject, this, strict, params) {
+  /* When the toLocaleString method is called, the following steps are taken: */
+
+  /* 1. Let O be the this value. */
+  O := ToObject(this);
+
+  /* 2. Return Invoke(O, "toString"). */
+  return Invoke(null, null, O, "toString", null)
+
+  /*The optional parameters to this function are not used but are intended to correspond to the parameter
+    pattern used by ECMA-402 toLocalString functions. Implementations that do not include ECMA-402
+    support must not use those parameter positions for other purposes.*/
+
+  /* NOTE 1 This function provides a generic toLocaleString implementation for objects that have no
+     locale-specific toString behaviour. Array, Number, Date, and Typed Arrays provide
+     their own locale-sensitive toLocaleString methods.
+
+     NOTE 2 ECMA-402 intentionally does not provide an alternative to this default implementation.
+*/
+};
+
+/* 19.1.3.6 Object.prototype.toString ( ) */
+function ObjectPrototypeToString(globalObject, this, strict, params) {
+  /* When the toString method is called, the following steps are taken: */
+
+  /* 1. If the this value is undefined, return "[object Undefined]". */
+  if (this = 'undefined) {
+    return "[object Undefined]"
+  };
+  /* 2. If the this value is null, return "[object Null]". */
+  if (this = 'null) {
+    return "[object Null]"
+  };
+  /* 3. Let O be ToObject(this value) */
+  O := ToObject(this);
+
+  /* Let isArray be IsArray(O). */
+  isArray := IsArray(O);
+
+  /* ReturnIfAbrupt(isArray). */
+  @ReturnIfAbrupt(isArray);
+
+  /* If isArray is true, let builtinTag be "Array". */
+  if ( isArray = true ) {
+    builtinTag := "Array"
+  }
+  /* Else, if O is an exotic String object, let builtinTag be "String". */
+  elif ( isStringExoticObject(O) = true ||| O.Class = "String") {
+    builtinTag := "String"
+  }
+  /* Else, if O has an [[ParameterMap]] internal slot, let builtinTag be "Arguments". */
+  elif ( "ParameterMap" in_obj O ) {
+    builtinTag := "Arguments"
+  }
+  /* Else, if O has a [[Call]] internal method, let builtinTag be "Function". */
+  elif ( "Call" in_obj O ){
+    builtinTag := "Function"
+  }
+  /* Else, if O has an [[ErrorData]] internal slot, let builtinTag be "Error". */
+  elif ( "ErrorData" in_obj O ) {
+    builtinTag := "Error"
+  }
+  /* Else, if O has a [[BooleanData]] internal slot, let builtinTag be "Boolean". */
+  elif ( "BooleanData" in_obj O ) {
+    builtinTag := "Boolean"
+  }
+  /* Else, if O has a [[NumberData]] internal slot, let builtinTag be "Number". */
+  elif ( "NumberData" in_obj O ) {
+    builtinTag := "Number"
+  }
+  /* Else, if O has a [[DateValue]] internal slot, let builtinTag be "Date". */
+  elif ( "DateValue" in_obj O ) {
+    builtinTag := "Date"
+  }
+  /* Else, if O has a [[RegExpMatcher]] internal slot, let builtinTag be "RegExp". */
+  elif ( "Match" in_obj O ) { /* TODO mudar o nome da propriedade para RegExpMatcher */
+    builtinTag := "RegExp"
+  }
+  /* Else, let builtinTag be "Object". */
+  else {
+    builtinTag := "Object"
+  };
+
+  /* Let tag be Get (O, @@toStringTag). */
+  tag := Get(O, getToStringTagPropertyName());
+
+  /* ReturnIfAbrupt(tag). */
+  @ReturnIfAbrupt(tag);
+
+  /* If Type(tag) is not String, let tag be builtinTag. */
+  if ( !(Type(tag) = "String") ) {
+    tag := builtinTag
+  };
+
+  /* Return the String that is the result of concatenating "[object ", tag, and "]".   */
+  return s_concat ["[object ", tag, "]"]
+};
+
+/* 19.1.3.7 Object.prototype.valueOf ( ) */
+function ObjectPrototypeValueOf(globalObject, this, strict, params) {
+  /* When the valueOf method is called, the following steps are taken: */
+
+  /* Return ToObject(this value). */
+  return ToObject(this)
+};
+
+/* Auxiliary functions */
+function getObjectPrototype(strict) {
+  refObj := newPropertyReference(|global|, "Object", strict);
+  ObjectObject := GetValue(refObj);
+
+  refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
+  objectObjectProto := GetValue(refObjProto);
+
+  return objectObjectProto
+};
+
+function getObjectPrototypeToString(strict) {
+  refObj := newPropertyReference(|global|, "Object", strict);
+  ObjectObject := GetValue(refObj);
+
+  refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
+  objectObjectProto := GetValue(refObjProto);
+
+  refToStringObjProto := newPropertyReference(objectObjectProto, "toString", strict);
+  objectObjectToString := GetValue(refToStringObjProto);
+
+  return objectObjectToString
+}

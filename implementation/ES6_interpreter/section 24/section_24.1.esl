@@ -1,11 +1,11 @@
 /* 24.1 ArrayBuffer Objects */
 function initArrayBufferPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
   
 
   /* 24.1.4.1 get ArrayBuffer.prototype.byteLength */
-  byteLengthObject := CreateBuiltInFunctionObject([], "ArrayBufferPrototypeByteLength", global, strict, 0.);
+  byteLengthObject := CreateBuiltInFunctionObject([], "getArrayBufferPrototypeByteLength", global, strict, 0.);
   descriptor := newGetAccessorPropertyDescriptorFull(byteLengthObject, false, true);
   setJSProperty(prototype, "byteLength", descriptor);
   descriptor := newDataPropertyDescriptorFull("get byteLength", false, false, true);
@@ -40,10 +40,12 @@ function initArrayBufferObject(global, objectPrototype, strict) {
   /* Besides its length property (whose value is 1), the ArrayBuffer constructor has the following properties: */
   descriptor := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(objArrayBufferConstructor, "length", descriptor);
+  descriptor := newDataPropertyDescriptorFull("ArrayBuffer", false, false, true);
+  setJSProperty(objArrayBufferConstructor, "name", descriptor);
   
   /* 24.1.3.1 ArrayBuffer.isView ( arg ) */
   isViewObject := CreateBuiltInFunctionObject(["arg"], "ArrayBufferIsView", global, strict, 0.);
-  descriptor := newGetAccessorPropertyDescriptorFull(isViewObject, false, true);
+  descriptor := newDataPropertyDescriptorFull(isViewObject, true, false, true);
   setJSProperty(objArrayBufferConstructor, "isView", descriptor);
   descriptor := newDataPropertyDescriptorFull("isView", false, false, true);
   setJSProperty(isViewObject, "name", descriptor);
@@ -99,14 +101,13 @@ function ArrayBufferSpeciesGetter(global, this, strict, args) {
  */
 function ArrayBufferConstructor(global, this, strict, args) {
   length := getOptionalParam(args, 0);
-  NewTarget := this;
+  NewTarget := |Intrinsics|.ArrayBuffer;
   /* 1. If NewTarget is undefined, */
   if (NewTarget = 'undefined) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal()
   };
-  if (length = 'null) {
-    print "DEBUG ArrayBufferConstructor 1";
+  if (length = null) {
     length := 0.
   };
   /* 2. Let numberLength be ToNumber(length). */
@@ -141,6 +142,9 @@ function getArrayBufferPrototype(strict) {
 function ArrayBufferIsView(global, this, strict, args) {
   print "in ArrayBufferIsView";
   arg := getOptionalParam(args, 0);
+  if (arg = null) {
+    arg := 'undefined
+  };
   /* 1. If Type(arg) is not Object, */
   if (!(Type(arg) = "Object")) {
     /* return false */
@@ -194,6 +198,12 @@ function getArrayBufferPrototypeByteLength(global, this, strict, args) {
 function ArrayBufferPrototypeSlice(global, this, strict, args) {
   start := getOptionalParam(args, 0);
   end := getOptionalParam(args, 1);
+  if (start = null) {
+    start := 'undefined
+  };
+  if (end = null) {
+    end := 'undefined
+  };
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
@@ -218,9 +228,9 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
   /* 7. ReturnIfAbrupt(relativeStart). */
   @ReturnIfAbrupt(relativeStart);
   /* 8. If relativeStart < 0, */
-  if (relativeStart < 0) { /* TODO 0 -> 0.??*/
+  if (relativeStart < 0.) {
     /* let first be max((len + relativeStart),0); else let first be min(relativeStart, len) */
-    first := max((len + relativeStart), 0) 
+    first := max((len + relativeStart), 0.) 
   } else {
     first := min(relativeStart, len)
   };
@@ -235,9 +245,9 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
   /* 10. ReturnIfAbrupt(relativeEnd). */
   @ReturnIfAbrupt(relativeEnd);
   /* 11. If relativeEnd < 0, */
-  if (relativeEnd < 0) { /* TODO 0 -> 0.*/
+  if (relativeEnd < 0.) {
     /* let final be max((len + relativeEnd),0) */
-    final := max((len + relativeEnd), 0)
+    final := max((len + relativeEnd), 0.)
   /* else let final be min(relativeEnd, len) */
   } else {
     final := min(relativeEnd, len)
@@ -245,11 +255,11 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
   /* 12. Let newLen be max(final-first,0). */
   newLen := max(final-first, 0.);
   /* 13. Let ctor be SpeciesConstructor(O, %ArrayBuffer%). */
-  ctor := SpeciesConstructor(O, |ArrayBuffer|);
+  ctor := SpeciesConstructor(O, |Intrinsics|.ArrayBuffer);
   /* 14. ReturnIfAbrupt(ctor). */
   @ReturnIfAbrupt(ctor);
   /* 15. Let new be Construct(ctor, «newLen»). */
-  new := Construct(null, null, ctor, [newLen]);
+  new := Construct(null, null, ctor, [newLen], null);
   /* 16. ReturnIfAbrupt(new). */
   @ReturnIfAbrupt(new);
   /* 17. If new does not have an [[ArrayBufferData]] internal slot, */
@@ -284,7 +294,7 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
   /* 23. Let toBuf be the value of new’s [[ArrayBufferData]] internal slot. */
   toBuf := new.ArrayBufferData;
   /* 24. Perform CopyDataBlockBytes(toBuf, 0, fromBuf, first, newLen). */
-  CopyDataBlockBytes(toBuf, 0., fromBuf, first, newLen);
+  CopyDataBlockBytes(toBuf, 0, fromBuf, first, newLen);
   /* 25. Return new. */
   return new
 };
@@ -301,7 +311,7 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
  */
 function AllocateArrayBuffer(constructor, byteLength, strict) {
 	/* 1. Let obj be OrdinaryCreateFromConstructor(constructor, "%ArrayBufferPrototype%",   «‍[[ArrayBufferData]], [[ArrayBufferByteLength]]» ). */
-	obj := OrdinaryCreateFromConstructorArrayBuffer(constructor, constructor, strict, []);
+	obj := OrdinaryCreateFromConstructor(constructor, "ArrayBufferPrototype", ["ArrayBufferData", "ArrayBufferByteLength"]);
 	/* 2. ReturnIfAbrupt(obj). */
 	@ReturnIfAbrupt(obj);
 	/* 3. Assert: byteLength is a positive integer. */
@@ -352,7 +362,7 @@ function DetachArrayBuffer(arrayBuffer) {
 	/* Set arrayBuffer’s [[ArrayBufferByteLength]] internal slot to 0. */
 	arrayBuffer.ArrayBufferByteLength := 0;
 	/* Return NormalCompletion(null). */
-	return NormalCompletion(null)
+	return NormalCompletion('null)
 };
 
 /**
@@ -370,7 +380,7 @@ function CloneArrayBuffer(strict, srcBuffer, srcByteOffset, cloneConstructor) {
 	/* 2. If cloneConstructor is not present, then */
 	if (cloneConstructor = 'undefined) {
 		/* a. Let cloneConstructor be SpeciesConstructor(srcBuffer, %ArrayBuffer%). */
-		cloneConstructor := SpeciesConstructor(srcBuffer, getArrayBufferPrototype(strict));
+		cloneConstructor := SpeciesConstructor(srcBuffer, |Intrinsics|.ArrayBuffer);
 		/* b. ReturnIfAbrupt(cloneConstructor). */
 		@ReturnIfAbrupt(cloneConstructor);
 		/* c. If IsDetachedBuffer(srcBuffer) is true, throw a TypeError exception. */
@@ -477,7 +487,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
     print "debuging GetValueFromBufer4; le_bytes";
     print value;
     /* b. If value is an IEEE 754-2008 binary32 NaN value, return the NaN Number value */
-    if (value = NaN) {
+    if (is_NaN value) {
       return NaN
     };
     /* c. Return the Number value that corresponds to value. */
@@ -490,7 +500,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
        binary64 value. */
     value := float64_from_le_bytes(rawValue);
     /* b. If value is an IEEE 754-2008 binary64 NaN value, return the NaN Number value */
-    if (value = NaN) {
+    if (is_NaN value) {
       return NaN
     };
     /* c. Return the Number value that corresponds to value. */
@@ -607,8 +617,12 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     to any implementation chosen IEEE 754-2008 binary64 format 
     Not-a-Number encoding. An implementation must always choose the same 
     encoding for each implementation distinguishable NaN value. */
-    if (value = NaN) {
-      return 
+    if (is_NaN value) {
+      /* 0 1111 1111 1 1000 0000 0000 0000 0000 00 - QNaN - https://steve.hollasch.net/cgindex/coding/ieeefloat.html */
+      /*              01111111 11100000 00000000 00000000 */
+      /* rawBytes := [127,     224,     0,       0] /* big endian */
+      /* rawBytes := [   0,       0,       24,      127] /* little endian */
+      rawBytes := float32_to_le_bytes(value)
     }
   }
   /* 10. Else, if type is "Float64" */ 
@@ -627,8 +641,11 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
     /* TODO If value is NaN, rawValue may be set to any implementation chosen IEEE 754-2008 binary32 format
     Not-a-Number encoding. An implementation must always choose the same encoding for
     each implementation distinguishable NaN value. */
-    if (value = NaN) {
-      return
+    if (is_NaN value) {
+      /**
+       Using the OCaml NaN representation since I'm assuming it conforms to the IEEE floating-point standard.
+       https://steve.hollasch.net/cgindex/coding/ieeefloat.html has information on how NaN is represented in case it is needed. */
+      rawBytes := float64_to_le_bytes(value)
     }
   /* 11. Else, */
   } else {
@@ -705,7 +722,7 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
 function OrdinaryCreateFromConstructorArrayBuffer(global, this, strict, items) {
   arrayBufferPrototype := getArrayBufferPrototype(strict);
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
   /* The [[Prototype]] internal property of the newly constructed object
       is set to the original Array prototype object, the one that is the
       initial value of Array.prototype (15.4.3.1). */
@@ -757,7 +774,7 @@ function getConversionOperation(type) {
   if (type = "Uint8") {
     return "ToUint8"
   }; 
-  if (type = "Uint8Clamp") {
+  if (type = "Uint8C") {
     return "ToUint8Clamp"
   }; 
   if (type = "Int16") {

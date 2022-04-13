@@ -1,14 +1,18 @@
 import "ES6_interpreter/ast.esl";
 import "ES6_interpreter/ESL_Interpreter.esl";
+
 function main() {
   x := buildAST();
   ret := JS_Interpreter_Program(x, null);
 
   c_value := getCompletionValue(ret);
   if ((typeof c_value = __$Obj) &&& ("Class" in_obj c_value) &&& (getInternalProperty(c_value, "Class") = "Error")) {
-    error_name := {c_value.GetProperty}(c_value, "name");
+    print "DEBUG: PLUS 1";
+    print c_value.Prototype;
+    print c_value.Prototype.JSProperties;
+    error_name := {c_value.Get}(c_value, "name", c_value);
 
-    return newCompletion(getCompletionType(ret), getDescriptorValue(error_name), getCompletionTarget(ret))
+    return newCompletion(getCompletionType(ret), error_name, getCompletionTarget(ret))
   };
 
   return ret

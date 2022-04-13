@@ -22,6 +22,7 @@
                   "l_prepend"       , LPREPEND;
                   "l_concat"        , LCONCAT;
                   "l_remove_last"   , LREMOVELAST;
+                  "l_remove_nth"    , LREMNTH;
                   "l_sort"          , LSORT;
                   "l_reverse"       , LREVERSE;
                   "hd"              , HD;
@@ -79,6 +80,7 @@
                   "sin"             , SIN;
                   "sqrt"            , SQRT;
                   "tan"             , TAN;
+                  "is_NaN"          , IS_NAN;
                   "typeof"          , TYPEOF;
                   "if"              , IF;
                   "else"            , ELSE;

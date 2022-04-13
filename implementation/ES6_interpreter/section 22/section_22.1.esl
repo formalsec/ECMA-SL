@@ -87,7 +87,7 @@ function isSparseArray(O) {
 
   /* 1. Let len be the result of calling the [[Get]] internal method of O with
         argument "length". */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength( {O.Get}(O, "length", O)  );
   @ReturnIfAbrupt(len);
 
   /* 2. For each integer i in the range 0≤i<len */
@@ -108,7 +108,7 @@ function isSparseArray(O) {
 
 
 function setAllInternalMethodsOfArray(arr) {
-  setAllInternalMethodsOfObject(arr);
+  setAllInternalMethodsOfOrdinaryObject(arr);
   arr.DefineOwnProperty := "DefineOwnPropertyArray";
   return arr
 };
@@ -891,7 +891,7 @@ function arrayFrom (global, this, strict, args) {
     /* a. If IsConstructor(C) is true, then */
     if (IsConstructor(C) = true) {
       /* i. Let A be Construct(C). */
-      A := Construct(null, null, C, [])
+      A := Construct(null, null, C, [], null)
 
     /* b. Else, */
     } else {
@@ -926,7 +926,7 @@ function arrayFrom (global, this, strict, args) {
       /* iv. If next is false, then */
       if (next = false) {
         /* 1. Let setStatus be Set(A, "length", k, true). */
-        {A.Put}(A, "length", k, true);
+        {A.Set}(A, "length", k, A);
 
         /* 2. ReturnIfAbrupt(setStatus). */
 
@@ -980,7 +980,7 @@ function arrayFrom (global, this, strict, args) {
   @ReturnIfAbrupt(arrayLike);
 
   /* 10. Let len be ToLength(Get(arrayLike, "length")). */
-  len := ToLength(GetNew(arrayLike, "length"));
+  len := ToLength(Get(arrayLike, "length"));
 
   /* 11. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -988,7 +988,7 @@ function arrayFrom (global, this, strict, args) {
   /* 12. If IsConstructor(C) is true, then */
   if (IsConstructor(C) = true) {
     /* a. Let A be Construct(C, «len»). */
-    A := Construct(null, null, C, [len])
+    A := Construct(null, null, C, [len], null)
 
   /* 13. Else, */
   } else {
@@ -1008,7 +1008,7 @@ function arrayFrom (global, this, strict, args) {
     Pk := ToString(k);
 
     /* b. Let kValue be Get(arrayLike, Pk). */
-    kValue := GetNew(arrayLike, Pk);
+    kValue := Get(arrayLike, Pk);
 
     /* c. ReturnIfAbrupt(kValue). */
     @ReturnIfAbrupt(kValue);
@@ -1043,7 +1043,7 @@ function arrayFrom (global, this, strict, args) {
   /* 18. ReturnIfAbrupt(setStatus). */
   /* @ReturnIfAbrupt(setStatus); */
 
-  {A.Put}(A, "length", len, true);
+  {A.Set}(A, "length", len, A);
 
   /* 19. Return A. */
   return A
@@ -1096,7 +1096,7 @@ function arrayOf (global, this, strict, args) {
   /* 4. If IsConstructor(C) is true, then */
   if (IsConstructor(C) = true) {   
     /* a. Let A be Construct(C, «len»). */
-    A := Construct(null, null, C, [int_to_float len])
+    A := Construct(null, null, C, [int_to_float len], null)
 
   /* 5. Else, */
   } else {
@@ -1129,7 +1129,7 @@ function arrayOf (global, this, strict, args) {
   };
 
   /* 9. Let setStatus be Set(A, "length", len, true). */
-  {A.Put}(A, "length", int_to_float len, true);
+  {A.Set}(A, "length", int_to_float len, A);
 
   /* 10. ReturnIfAbrupt(setStatus). */
 
@@ -1183,7 +1183,7 @@ function arrayConcat(global, this, strict, items) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let A be ArraySpeciesCreate(O, 0). */
-  A := ArrayConstructor(global, this, strict, []);
+  A := ArrayConstructor(|global|, this, strict, []);
 
   /* 4. ReturnIfAbrupt(A). */
   @ReturnIfAbrupt(A);
@@ -1195,6 +1195,9 @@ function arrayConcat(global, this, strict, items) {
         subsequent elements are, in left to right order, the
          arguments that were passed to this function invocation. */
   items := l_prepend(O, items);
+
+  print "BBBBB";
+  print items;
 
   /* 7. Repeat, while items is not empty */
   while (!(items = [])) {
@@ -1214,8 +1217,13 @@ function arrayConcat(global, this, strict, items) {
       /* i. Let k be 0. */
       k := 0.;
 
+      x := Get(E, "length");
+
       /* ii. Let len be ToLength(Get(E, "length")). */
-      len := ToLength(GetNew(E, "length"));
+      len := ToLength(Get(E, "length"));
+
+      print "LENGTH";
+      print x;
 
       /* iii. ReturnIfAbrupt(len). */
       @ReturnIfAbrupt(len);
@@ -1231,7 +1239,7 @@ function arrayConcat(global, this, strict, items) {
         P := ToString(k);
 
         /* 2. Let exists be HasProperty(E, P). */
-        exists := HasPropertyNew(E, P);
+        exists := HasProperty(E, P);
 
         /* 3. ReturnIfAbrupt(exists). */
         @ReturnIfAbrupt(exists);
@@ -1239,7 +1247,7 @@ function arrayConcat(global, this, strict, items) {
         /* 4. If exists is true, then */
         if (exists = true) {
           /* a. Let subElement be Get(E, P). */
-          subElement := GetNew(E, P);
+          subElement := Get(E, P);
 
           /* b. ReturnIfAbrupt(subElement). */
           @ReturnIfAbrupt(subElement);
@@ -1277,9 +1285,10 @@ function arrayConcat(global, this, strict, items) {
   };
 
   /* 8. Let setStatus be Set(A, "length", n, true). */
-  {O.Put}(A, "length", n, true);
+  setStatus := Set(A, "length", n, true);
 
   /* 9. ReturnIfAbrupt(setStatus). */
+  @ReturnIfAbrupt(setStatus);
 
   /* 10. Return A. */
   return A
@@ -1303,7 +1312,7 @@ function IsConcatSpreadable(O) {
   };
 
   /* 2. Let spreadable be Get(O, @@isConcatSpreadable). */
-  spreadable := GetNew(O, getIsConcatSpreadablePropertyName());
+  spreadable := Get(O, "isConcatSpreadable");
 
   /* 3. ReturnIfAbrupt(spreadable). */
   @ReturnIfAbrupt(spreadable);
@@ -1314,7 +1323,7 @@ function IsConcatSpreadable(O) {
   };
 
   /* 5. Return IsArray(O). */
-  return spreadable
+  return IsArray(O)
 };
 
 
@@ -1346,7 +1355,7 @@ function arraycopyWithin (global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -1423,7 +1432,7 @@ function arraycopyWithin (global, this, strict, args) {
     toKey := ToString(to);
 
     /* c. Let fromPresent be HasProperty(O, fromKey). */
-    fromPresent := HasPropertyNew(O, fromKey);
+    fromPresent := HasProperty(O, fromKey);
 
     /* d. ReturnIfAbrupt(fromPresent). */
     @ReturnIfAbrupt(fromPresent);
@@ -1431,13 +1440,13 @@ function arraycopyWithin (global, this, strict, args) {
     /* e. If fromPresent is true, then */
     if (fromPresent = true) {
       /* i. Let fromVal be Get(O, fromKey). */
-      fromVal := GetNew(O, fromKey);
+      fromVal := Get(O, fromKey);
 
       /* ii. ReturnIfAbrupt(fromVal). */
       @ReturnIfAbrupt(fromVal);
 
       /* iii. Let setStatus be Set(O, toKey, fromVal, true). */
-      {O.Put}(O, toKey, fromVal, O)
+      {O.Set}(O, toKey, fromVal, O)
 
       /* iv. ReturnIfAbrupt(setStatus). */
 
@@ -1528,7 +1537,7 @@ function arrayEvery(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -1554,7 +1563,7 @@ function arrayEvery(global, this, strict, args) {
     Pk := ToString(k);
 
     /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
+    kPresent := HasProperty(O, Pk);
 
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
@@ -1562,7 +1571,7 @@ function arrayEvery(global, this, strict, args) {
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
+      kValue := Get(O, Pk);
 
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
@@ -1624,7 +1633,7 @@ function arrayFill (global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -1667,7 +1676,7 @@ function arrayFill (global, this, strict, args) {
     /* a. Let Pk be ToString(k). */
     Pk := ToString(k);
 
-    {O.Put}(O, Pk, value, O);
+    {O.Set}(O, Pk, value, O);
 
     /*
     b. Let setStatus be Set(O, Pk, value, true). 
@@ -1728,7 +1737,7 @@ function arrayFilter(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -1764,7 +1773,7 @@ function arrayFilter(global, this, strict, args) {
     Pk := ToString(k);
 
     /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
+    kPresent := HasProperty(O, Pk);
 
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
@@ -1772,7 +1781,7 @@ function arrayFilter(global, this, strict, args) {
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
+      kValue := Get(O, Pk);
 
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
@@ -1857,7 +1866,7 @@ function arrayFind (global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
   
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -1883,7 +1892,7 @@ function arrayFind (global, this, strict, args) {
     Pk := ToString(k);
 
     /* b. Let kValue be Get(O, Pk). */
-    kValue := GetNew(O, Pk);
+    kValue := Get(O, Pk);
 
     /* c. ReturnIfAbrupt(kValue). */
     @ReturnIfAbrupt(kValue);
@@ -1951,7 +1960,7 @@ function arrayFindIndex (global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
   
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -1977,7 +1986,7 @@ function arrayFindIndex (global, this, strict, args) {
     Pk := ToString(k);
 
     /* b. Let kValue be Get(O, Pk). */
-    kValue := GetNew(O, Pk);
+    kValue := Get(O, Pk);
 
     /* c. ReturnIfAbrupt(kValue). */
     @ReturnIfAbrupt(kValue);
@@ -2043,7 +2052,7 @@ function arrayForEach(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -2069,7 +2078,7 @@ function arrayForEach(global, this, strict, args) {
     Pk := ToString(k);
     
     /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
+    kPresent := HasProperty(O, Pk);
 
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
@@ -2077,7 +2086,7 @@ function arrayForEach(global, this, strict, args) {
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
+      kValue := Get(O, Pk);
 
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
@@ -2135,7 +2144,7 @@ function arrayIndexOf(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := GetNew(O, "length");
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len).*/
   @ReturnIfAbrupt(len);
@@ -2184,7 +2193,7 @@ function arrayIndexOf(global, this, strict, args) {
   /* 11. Repeat, while k<len */
   while (k < len) {
     /* a. Let kPresent be HasProperty(O, ToString(k)). */
-    kPresent := HasPropertyNew(O, ToString(k));
+    kPresent := HasProperty(O, ToString(k));
 
     /* b. ReturnIfAbrupt(kPresent).*/
     @ReturnIfAbrupt(kPresent);
@@ -2192,7 +2201,7 @@ function arrayIndexOf(global, this, strict, args) {
     /* c. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let elementK be Get(O, ToString(k)). */
-      elementK := GetNew(O, ToString(k));
+      elementK := Get(O, ToString(k));
 
       /* ii. ReturnIfAbrupt(elementK). */
       @ReturnIfAbrupt(elementK);
@@ -2246,7 +2255,7 @@ function arrayJoin(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")) */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -2269,7 +2278,7 @@ function arrayJoin(global, this, strict, args) {
   };
 
   /* 9. Let element0 be Get(O, "0"). */
-  element0 := GetNew(O, "0");
+  element0 := Get(O, "0");
 
   /* 10. If element0 is undefined or null, let R be the empty String;
         otherwise, Let R be ToString(element0). */
@@ -2291,7 +2300,7 @@ function arrayJoin(global, this, strict, args) {
     S := s_concat([R, sep]);
 
     /* b. Let element be Get(O, ToString(k)). */
-    element := GetNew(O, ToString(k));
+    element := Get(O, ToString(k));
 
     /* c. If element is undefined or null, Let next be the empty String;
           otherwise, let next be ToString(element). */
@@ -2370,7 +2379,7 @@ function arrayLastIndexOf(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -2409,7 +2418,7 @@ function arrayLastIndexOf(global, this, strict, args) {
   /* 10. Repeat, while k≥ 0 */
   while (k >= 0.) {
     /* a. Let kPresent be HasProperty(O, ToString(k)). */
-    kPresent := HasPropertyNew(O, ToString(k));
+    kPresent := HasProperty(O, ToString(k));
 
     /* b. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
@@ -2417,7 +2426,7 @@ function arrayLastIndexOf(global, this, strict, args) {
     /* c. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let elementK be Get(O, ToString(k)). */
-      elementK := GetNew(O, ToString(k));
+      elementK := Get(O, ToString(k));
 
       /* ii. ReturnIfAbrupt(elementK).*/
       @ReturnIfAbrupt(elementK);
@@ -2491,7 +2500,7 @@ function arrayMap(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -2523,7 +2532,7 @@ function arrayMap(global, this, strict, args) {
     Pk := ToString(k);
 
     /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
+    kPresent := HasProperty(O, Pk);
 
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
@@ -2531,7 +2540,7 @@ function arrayMap(global, this, strict, args) {
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
+      kValue := Get(O, Pk);
 
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
@@ -2582,7 +2591,7 @@ function arrayPop(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")) */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -2591,7 +2600,7 @@ function arrayPop(global, this, strict, args) {
   if (len = 0.) {
     /* a. Call the [[Put]] internal method of O with arguments "length",
           0, and true. */
-    {O.Put}(O, "length", 0., true);
+    {O.Set}(O, "length", 0., O);
     /* b. Return undefined. */
     return 'undefined
   }
@@ -2605,7 +2614,7 @@ function arrayPop(global, this, strict, args) {
       indx := ToString(newLen);
 
       /* c. Let element be Get(O, indx). */
-      element := GetNew(O, indx);
+      element := Get(O, indx);
 
       /* d. ReturnIfAbrupt(element). */
       @ReturnIfAbrupt(element);
@@ -2619,7 +2628,7 @@ function arrayPop(global, this, strict, args) {
       /* g. Let setStatus be Set(O, "length", newLen, true). */
       /* POSSIBLE ERROR IN THE STANDARD
         len - 1 instead of indx.*/
-      {O.Put}(O, "length", len - 1., true);
+      {O.Set}(O, "length", len - 1., O);
       
       /* h. ReturnIfAbrupt(setStatus). */
 
@@ -2655,7 +2664,7 @@ function arrayPush(global, this, strict, items) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")) */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -2680,18 +2689,20 @@ function arrayPush(global, this, strict, items) {
     items := tl items;
 
     /* b. Let setStatus be Set(O, ToString(len), E, true). */
-    {O.Put}(O, ToString(len), E, true);
+    setStatus := Set(O, ToString(len), E , true);
 
     /* c. ReturnIfAbrupt(setStatus). */
+    @ReturnIfAbrupt(setStatus);
 
     /* d. Increase len by 1. */
     len := len + 1.
   };
 
   /* 9. Let setStatus be Set(O, "length", len, true). */
-  {O.Put}(O, "length", len, true);
+  setStatus := Set(O, "length", len , true);
   
   /* 10. ReturnIfAbrupt(setStatus). */
+  @ReturnIfAbrupt(setStatus);
 
   /* 11. Return len. */
   return len
@@ -2749,7 +2760,7 @@ function arrayReduce(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -2783,7 +2794,7 @@ function arrayReduce(global, this, strict, args) {
       Pk := ToString(k);
 
       /* ii. Let kPresent be HasProperty(O, Pk). */
-      kPresent := HasPropertyNew(O, Pk);
+      kPresent := HasProperty(O, Pk);
 
       /* iii. ReturnIfAbrupt(kPresent). */
       @ReturnIfAbrupt(kPresent);
@@ -2791,7 +2802,7 @@ function arrayReduce(global, this, strict, args) {
       /* iv. If kPresent is true, then */
       if (kPresent = true) {
         /* 1. Let accumulator be Get(O, Pk). */
-        accumulator := {O.Get}(O, Pk);
+        accumulator := {O.Get}(O, Pk, O);
 
         /* 2. ReturnIfAbrupt(accumulator). */
         @ReturnIfAbrupt(accumulator)
@@ -2813,7 +2824,7 @@ function arrayReduce(global, this, strict, args) {
     Pk := ToString(k);
 
     /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
+    kPresent := HasProperty(O, Pk);
 
     /* c. ReturnIfAbrupt(kPresent).*/
     @ReturnIfAbrupt(kPresent);
@@ -2821,7 +2832,7 @@ function arrayReduce(global, this, strict, args) {
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
+      kValue := Get(O, Pk);
 
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
@@ -2894,7 +2905,7 @@ function arrayReduceRight(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -2928,7 +2939,7 @@ function arrayReduceRight(global, this, strict, args) {
       Pk := ToString(k);
 
       /* ii. Let kPresent be HasProperty(O, Pk). */
-      kPresent := HasPropertyNew(O, Pk);
+      kPresent := HasProperty(O, Pk);
 
       /* iii. ReturnIfAbrupt(kPresent). */
       @ReturnIfAbrupt(kPresent);
@@ -2936,7 +2947,7 @@ function arrayReduceRight(global, this, strict, args) {
       /* iv. If kPresent is true, then */
       if (kPresent = true) {
         /* 1. Let accumulator be Get(O, Pk). */
-        accumulator := GetNew(O, Pk);
+        accumulator := Get(O, Pk);
 
         /* 2. ReturnIfAbrupt(accumulator). */
         @ReturnIfAbrupt(accumulator)
@@ -2958,7 +2969,7 @@ function arrayReduceRight(global, this, strict, args) {
     Pk := ToString(k);
 
     /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
+    kPresent := HasProperty(O, Pk);
 
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
@@ -2966,7 +2977,7 @@ function arrayReduceRight(global, this, strict, args) {
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
+      kValue := Get(O, Pk);
 
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
@@ -3011,7 +3022,7 @@ function arrayReverse(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")) */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -3035,7 +3046,7 @@ function arrayReverse(global, this, strict, args) {
 
 
     /* d. Let lowerExists be HasProperty(O, lowerP). */
-    lowerExists := HasPropertyNew(O, lowerP);
+    lowerExists := HasProperty(O, lowerP);
 
     /* e. ReturnIfAbrupt(lowerExists). */
     @ReturnIfAbrupt(lowerExists);
@@ -3043,14 +3054,14 @@ function arrayReverse(global, this, strict, args) {
     /* f. If lowerExists is true, then */
     if (lowerExists = true) {
       /* i. Let lowerValue be Get(O, lowerP). */
-      lowerValue := GetNew(O, lowerP);
+      lowerValue := Get(O, lowerP);
       
       /* ii. ReturnIfAbrupt(lowerValue). */
       @ReturnIfAbrupt(lowerValue)
     };
 
     /* g. Let upperExists be HasProperty(O, upperP). */
-    upperExists := HasPropertyNew(O, upperP);
+    upperExists := HasProperty(O, upperP);
 
     /* h. ReturnIfAbrupt(upperExists). */
     @ReturnIfAbrupt(upperExists);
@@ -3058,7 +3069,7 @@ function arrayReverse(global, this, strict, args) {
     /* i. If upperExists is true, then */ 
     if (upperExists = true) {
       /* i. Let upperValue be Get(O, upperP). */
-      upperValue := GetNew(O, upperP);
+      upperValue := Get(O, upperP);
       
       /* ii. ReturnIfAbrupt(upperValue). */
       @ReturnIfAbrupt(upperValue)
@@ -3067,19 +3078,19 @@ function arrayReverse(global, this, strict, args) {
     /* j. If lowerExists is true and upperExists is true, then */
     if (lowerExists = true && upperExists = true) {
       /* i. Let setStatus be Set(O, lowerP, upperValue, true). */
-      {O.Put}(O, lowerP, upperValue, true);
+      {O.Set}(O, lowerP, upperValue, O);
 
       /* ii. ReturnIfAbrupt(setStatus). */
       
       /* iii. Let setStatus be Set(O, upperP, lowerValue, true). */
-      {O.Put}(O, upperP, lowerValue, true)
+      {O.Set}(O, upperP, lowerValue, O)
 
       /* iv. ReturnIfAbrupt(setStatus). */
     } else {
       /* k. Else if lowerExists is false and upperExists is true, then */
       if (lowerExists = false && upperExists = true) {
         /* i. Let setStatus be Set(O, lowerP, upperValue, true). */
-        {O.Put}(O, lowerP, upperValue, true);
+        {O.Set}(O, lowerP, upperValue, O);
 
         /* ii. ReturnIfAbrupt(setStatus). */
 
@@ -3098,7 +3109,7 @@ function arrayReverse(global, this, strict, args) {
           @ReturnIfAbrupt(deleteStatus);
 
           /* iii. Let setStatus be Set(O, upperP, lowerValue, true). */
-          {O.Put}(O, upperP, lowerValue, true)
+          {O.Set}(O, upperP, lowerValue, O)
 
           /* iv. ReturnIfAbrupt(setStatus). */
         } else {
@@ -3137,7 +3148,7 @@ function arrayShift(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")) */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -3145,15 +3156,15 @@ function arrayShift(global, this, strict, args) {
   /* 5. If len is zero, then */
   if (len = 0.) {
     /* a. Let setStatus be Set(O, "length", 0, true). */
-    {O.Put}(O, "length", 0., true);
-
+    setStatus := Set(O, "length", 0., true);
     /* b. ReturnIfAbrupt(setStatus).*/
+    @ReturnIfAbrupt(setStatus);
 
     /* c. Return undefined. */
     return 'undefined
   };
   /* 6. Let first be Get(O, "0").*/
-  first := GetNew(O, "0");
+  first := Get(O, "0");
 
   /* 7. ReturnIfAbrupt(first). */
   @ReturnIfAbrupt(first);
@@ -3170,7 +3181,7 @@ function arrayShift(global, this, strict, args) {
     to := ToString(k - 1.);
     
     /* c. Let fromPresent be HasProperty(O, from). */
-    fromPresent := HasPropertyNew(O, from);
+    fromPresent := HasProperty(O, from);
 
     /* d. ReturnIfAbrupt(fromPresent). */
     @ReturnIfAbrupt(fromPresent);
@@ -3178,15 +3189,15 @@ function arrayShift(global, this, strict, args) {
     /* e. If fromPresent is true, then */
     if (fromPresent = true) {
       /* i. Let fromVal be Get(O, from). */
-      fromVal := GetNew(O, from);
+      fromVal := Get(O, from);
 
       /* ii. ReturnIfAbrupt(fromVal). */
       @ReturnIfAbrupt(fromVal);
 
       /* iii. Let setStatus be Set(O, to, fromVal, true). */
-      {O.Put}(O, to, fromVal, true)
-
+      setStatus := Set(O, to, fromVal, true);
       /* iv. ReturnIfAbrupt(setStatus). */
+      @ReturnIfAbrupt(setStatus)
     }
     /* f. Else, fromPresent is false */
     else {
@@ -3208,9 +3219,9 @@ function arrayShift(global, this, strict, args) {
   @ReturnIfAbrupt(deleteStatus);
 
   /* 12. Let setStatus be Set(O, "length", len–1, true). */
-  {O.Put}(O, "length", len - 1., true);
-
+  setStatus := Set(O, "length", (len - 1.), true);
   /* 13. ReturnIfAbrupt(setStatus). */
+  @ReturnIfAbrupt(setStatus);
 
   /* 14. Return first. */
   return first
@@ -3245,7 +3256,7 @@ function arraySlice(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")) */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -3301,7 +3312,7 @@ function arraySlice(global, this, strict, args) {
     Pk := ToString(k);
     
     /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
+    kPresent := HasProperty(O, Pk);
 
     /* c. ReturnIfAbrupt(kPresent).*/
     @ReturnIfAbrupt(kPresent);
@@ -3309,7 +3320,7 @@ function arraySlice(global, this, strict, args) {
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
+      kValue := Get(O, Pk);
 
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
@@ -3330,9 +3341,10 @@ function arraySlice(global, this, strict, args) {
   };
 
   /* 16. Let setStatus be Set(A, "length", n, true). */
-  {A.Put}(A, "length", n, true);
+  setStatus := Set(A, "length", n, true);
 
   /* 17. ReturnIfAbrupt(setStatus). */
+  @ReturnIfAbrupt(setStatus);
 
   /* 18. Return A. */
   return A
@@ -3391,7 +3403,7 @@ function arraySome(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -3417,7 +3429,7 @@ function arraySome(global, this, strict, args) {
     Pk := ToString(k);
     
     /* b. Let kPresent be HasProperty(O, Pk). */
-    kPresent := HasPropertyNew(O, Pk);
+    kPresent := HasProperty(O, Pk);
     
     /* c. ReturnIfAbrupt(kPresent). */
     @ReturnIfAbrupt(kPresent);
@@ -3425,7 +3437,7 @@ function arraySome(global, this, strict, args) {
     /* d. If kPresent is true, then */
     if (kPresent = true) {
       /* i. Let kValue be Get(O, Pk). */
-      kValue := GetNew(O, Pk);
+      kValue := Get(O, Pk);
 
       /* ii. ReturnIfAbrupt(kValue). */
       @ReturnIfAbrupt(kValue);
@@ -3476,7 +3488,7 @@ function arraySort(global, this, strict, args) {
   obj := ToObject(this);
 
   /* 2. Let len be ToLength(Get(obj, "length")). */
-  len := ToLength(GetNew(obj, "length"));
+  len := ToLength(Get(obj, "length"));
 
   /* 3. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -3535,20 +3547,19 @@ function arraySort(global, this, strict, args) {
       i_str := ToString(j);
       jValNextExists := {obj.HasProperty}(obj, inext_str);
       jValExists := {obj.HasProperty}(obj, i_str);
-      jValNext := {obj.Get}(obj, inext_str);
-      jVal := {obj.Get}(obj, i_str);
-
+      jValNext := {obj.Get}(obj, inext_str, obj);
+      jVal := {obj.Get}(obj, i_str, obj);
       if (jValExists &&& jValNextExists) {
-        {obj.Put}(obj, inext_str, jVal, true);
-        {obj.Put}(obj, i_str, jValNext, true)
+        {obj.Set}(obj, inext_str, jVal, obj);
+        {obj.Set}(obj, i_str, jValNext, obj)
       } else {
         if (!jValExists &&& jValNextExists) {
-          {obj.Put}(obj, i_str, jValNext, true);
-          {obj.Delete}(obj, inext_str, true)
+          {obj.Set}(obj, i_str, jValNext, obj);
+          {obj.Delete}(obj, inext_str)
         } else {
           if (jValExists &&& !jValNextExists) {
-            {obj.Put}(obj, inext_str, jVal, true);
-            {obj.Delete}(obj, i_str, true)
+            {obj.Set}(obj, inext_str, jVal, obj);
+            {obj.Delete}(obj, i_str)
           }
         }
       };
@@ -3636,10 +3647,10 @@ function SortCompare(obj, comparefn, j, k) {
   };
   /* 8. Let x be the result of calling the [[Get]] internal method of
         obj with argument jString. */
-  x := {obj.Get}(obj, jString);
+  x := {obj.Get}(obj, jString, obj);
   /* 9. Let y be the result of calling the [[Get]] internal method of
         obj with argument kString. */
-  y := {obj.Get}(obj, kString);
+  y := {obj.Get}(obj, kString, obj);
   /* 10. If x and y are both undefined, return +0. */
   if ((x = 'undefined) &&& (y = 'undefined)) {
     return 0.
@@ -3680,7 +3691,7 @@ function SortCompare(obj, comparefn, j, k) {
 
 /**
 *  22.1.3.24.1 Runtime Semantics: SortCompare( x, y )
-* 
+*
 *  The SortCompare abstract operation is called with two arguments x and y.
 *  It also has access to the comparefn argument passed to the current invocation
 *  of the sort method. The following steps are taken:
@@ -3720,7 +3731,7 @@ function SortCompareNew(comparefn, x, y) {
       @ReturnIfAbrupt(v);
 
       /* c. If v is NaN, return +0. */
-      if (v = NaN) {
+      if (is_NaN v) {
         return 0.
       };
 
@@ -3772,19 +3783,21 @@ function arraySplice(global, this, strict, args) {
 
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
+  print "DEBUG SPLICE 0";
+  print O.JSProperties.length;
 
   /* 2. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
 
   /* 5. Let relativeStart be ToInteger(start). */
   relativeStart := ToInteger(start);
-  
+
   /* 6. ReturnIfAbrupt(relativeStart). */
   @ReturnIfAbrupt(relativeStart);
 
@@ -3797,7 +3810,7 @@ function arraySplice(global, this, strict, args) {
   };
 
   /* 8. If the number of actual arguments is 0, then  */
-  if ((l_len args) = 0) {    
+  if ((l_len args) = 0) {
     /* a. Let insertCount be 0. */
     insertCount := 0.;
 
@@ -3805,11 +3818,10 @@ function arraySplice(global, this, strict, args) {
     actualDeleteCount := 0.
 
   /* 9. Else if the number of actual arguments is 1, then  */
-  } else { 
+  } else {
     if ((l_len args) = 1) {
       /* a. Let insertCount be 0. */
       insertCount := 0.;
-      
       /* b. Let actualDeleteCount be len – actualStart. */
       actualDeleteCount := len - actualStart
 
@@ -3829,7 +3841,7 @@ function arraySplice(global, this, strict, args) {
       actualDeleteCount := min(max(dc, 0.), len - actualStart)
     }
   };
-  
+
   /* 11. If len+insertCount−actualDeleteCount > 253-1, throw a TypeError exception. */
   if ((len + insertCount - actualDeleteCount) > ((2. ** 53.) - 1.)) {
     throw TypeErrorConstructorInternal()
@@ -3837,7 +3849,7 @@ function arraySplice(global, this, strict, args) {
 
   /* 12. Let A be ArraySpeciesCreate(O, actualDeleteCount). */
   A := ArrayConstructor(global, this, strict, [actualDeleteCount]);
-  
+
   /* 13. ReturnIfAbrupt(A). */
   @ReturnIfAbrupt(A);
 
@@ -3850,7 +3862,7 @@ function arraySplice(global, this, strict, args) {
     from := ToString(actualStart + k);
 
     /* b. Let fromPresent be HasProperty(O, from). */
-    fromPresent := HasPropertyNew(O, from);
+    fromPresent := HasProperty(O, from);
 
     /* c. ReturnIfAbrupt(fromPresent). */
     @ReturnIfAbrupt(fromPresent);
@@ -3858,7 +3870,7 @@ function arraySplice(global, this, strict, args) {
     /* d. If fromPresent is true, then */
     if (fromPresent = true) {
       /* i. Let fromValue be Get(O, from). */
-      fromValue := GetNew(O, from);
+      fromValue := Get(O, from);
 
       /* ii. ReturnIfAbrupt(fromValue). */
       @ReturnIfAbrupt(fromValue);
@@ -3875,10 +3887,10 @@ function arraySplice(global, this, strict, args) {
   };
 
   /* 16. Let setStatus be Set(A, "length", actualDeleteCount, true). */
-  {A.Put}(A, "length", actualDeleteCount, true);
+  {A.Set}(A, "length", actualDeleteCount, A);
   /* 17. ReturnIfAbrupt(setStatus). */
-  
-  
+
+
   /* 18. Let items be a List whose elements are, in left to right order,
          the portion of the actual argument list starting with the third 
          argument. The list is empty if fewer than three arguments were passed. */
@@ -3896,12 +3908,12 @@ function arraySplice(global, this, strict, args) {
     while (k < (len - actualDeleteCount)) {
       /* i. Let from be ToString(k+actualDeleteCount). */
       from := ToString(k + actualDeleteCount);
-      
+
       /* ii. Let to be ToString(k+itemCount). */
       to := ToString(k + itemCount);
-      
+
       /* iii. Let fromPresent be HasProperty(O, from). */
-      fromPresent := HasPropertyNew(O, from);
+      fromPresent := HasProperty(O, from);
 
       /* iv. ReturnIfAbrupt(fromPresent). */
       @ReturnIfAbrupt(fromPresent);
@@ -3909,18 +3921,18 @@ function arraySplice(global, this, strict, args) {
       /* v. If fromPresent is true, then */
       if (fromPresent = true) {
         /* 1. Let fromValue be Get(O, from). */
-        fromValue := GetNew(O, from);
+        fromValue := Get(O, from);
 
         /* 2. ReturnIfAbrupt(fromValue). */
         @ReturnIfAbrupt(fromValue);
 
         /* 3. Let setStatus be Set(O, to, fromValue, true). */
         /* 4. ReturnIfAbrupt(setStatus). */
-        {O.Put}(O, to, fromValue, true)
+        {O.Set}(O, to, fromValue, O)
 
       /* vi. Else, fromPresent is false */
       } else {
-        
+
         /* 1. Let deleteStatus be DeletePropertyOrThrow(O, to). */
         deleteStatus := DeletePropertyOrThrow(O, to);
 
@@ -3939,7 +3951,7 @@ function arraySplice(global, this, strict, args) {
     while (k > (len - actualDeleteCount + itemCount)) {
       /* i. Let deleteStatus be DeletePropertyOrThrow(O, ToString(k–1)). */
       deleteStatus := DeletePropertyOrThrow(O, ToString(k - 1.));
-      
+
       /* ii. ReturnIfAbrupt(deleteStatus). */
       @ReturnIfAbrupt(deleteStatus);
 
@@ -3963,7 +3975,7 @@ function arraySplice(global, this, strict, args) {
         to := ToString(k + itemCount - 1.);
 
         /* iii. Let fromPresent be HasProperty(O, from). */
-        fromPresent := HasPropertyNew(O, from);
+        fromPresent := HasProperty(O, from);
 
         /* iv. ReturnIfAbrupt(fromPresent). */
         @ReturnIfAbrupt(fromPresent);
@@ -3971,14 +3983,14 @@ function arraySplice(global, this, strict, args) {
         /* v. If fromPresent is true, then */
         if (fromPresent = true) {
           /* 1. Let fromValue be Get(O, from). */
-          fromValue := GetNew(O, from);
+          fromValue := Get(O, from);
 
           /* 2. ReturnIfAbrupt(fromValue). */
           @ReturnIfAbrupt(fromValue);
 
           /* 3. Let setStatus be Set(O, to, fromValue, true). */
           /* 4. ReturnIfAbrupt(setStatus). */
-          {O.Put}(O, to, fromValue, true)
+          {O.Set}(O, to, fromValue, O)
         }
 
         /* vi. Else, fromPresent is false */
@@ -4008,19 +4020,21 @@ function arraySplice(global, this, strict, args) {
 
     /* b. Let setStatus be Set(O, ToString(k), E, true). */
     /* c. ReturnIfAbrupt(setStatus). */
-    {O.Put}(O, ToString(k), E, true);
+    {O.Set}(O, ToString(k), E, O);
 
     /* d. Increase k by 1. */
     k := k + 1.
   };
 
   /* 24. Let setStatus be Set(O, "length", len – actualDeleteCount + itemCount, true). */
-  /* 25. ReturnIfAbrupt(setStatus). */ 
-  {O.Put}(O, "length", ((len - actualDeleteCount) + itemCount), true);
+  /* 25. ReturnIfAbrupt(setStatus). */
+  setStatus := Set(O, "length", ((len - actualDeleteCount) + itemCount), true);
+
+  @ReturnIfAbrupt(setStatus);
 
   /* 26. Return A. */
   return A
-}; 
+};
 /**
  * The length property of the splice method is 2.
  *
@@ -4053,7 +4067,7 @@ function arrayToLocaleString(global, this, strict, args) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")) */
-  len := ToLength(GetNew(O, "length"));
+  len := ToLength(Get(O, "length"));
 
   /* 4. ReturnIfAbrupt(len). */
   @ReturnIfAbrupt(len);
@@ -4069,7 +4083,7 @@ function arrayToLocaleString(global, this, strict, args) {
   };
 
   /* 7. Let firstElement be Get(array, "0"). */
-  firstElement := GetNew(O, "0");
+  firstElement := Get(O, "0");
 
   /* 8. ReturnIfAbrupt(firstElement). */
   @ReturnIfAbrupt(firstElement);
@@ -4083,7 +4097,7 @@ function arrayToLocaleString(global, this, strict, args) {
   else {
 
     /* a. Let R be ToString(Invoke(firstElement, "toLocaleString")). */
-    R := ToString(Invoke(firstElement, "toLocaleString", []));
+    R := ToString(Invoke(null, null, firstElement, "toLocaleString", []));
 
     /* b. ReturnIfAbrupt(R). */
     @ReturnIfAbrupt(R)
@@ -4098,7 +4112,7 @@ function arrayToLocaleString(global, this, strict, args) {
     S := s_concat([ToString(R), separator]);
 
     /* b. Let nextElement be Get(array, ToString(k)). */
-    nextElement := GetNew(O, ToString(k));
+    nextElement := Get(O, ToString(k));
 
     /* c. ReturnIfAbrupt(nextElement). */
     @ReturnIfAbrupt(nextElement);
@@ -4111,7 +4125,7 @@ function arrayToLocaleString(global, this, strict, args) {
     /* e. Else */
     else {
       /* a. Let R be ToString(Invoke(nextElement, "toLocaleString")). */
-      R := ToString(Invoke(nextElement, "toLocaleString", []));
+      R := ToString(Invoke(null, null, nextElement, "toLocaleString", []));
 
       /* b. ReturnIfAbrupt(R). */
       @ReturnIfAbrupt(R)
@@ -4154,7 +4168,7 @@ function arrayToString(global, this, strict, args) {
   @ReturnIfAbrupt(array);
   
   /* 3. Let func be Get(array, "join"). */
-  func := GetNew(array, "join");
+  func := Get(array, "join");
 
   /* 4. ReturnIfAbrupt(func). */
   @ReturnIfAbrupt(func);
@@ -4196,7 +4210,7 @@ function arrayUnshift(global, this, strict, items) {
   @ReturnIfAbrupt(O);
 
   /* 3. Let len be ToLength(Get(O, "length")). */
-  len := ToLength(GetNew(O, "length")); 
+  len := ToLength(Get(O, "length")); 
 
   /* 4. ReturnIfAbrupt(len).*/
   @ReturnIfAbrupt(len);
@@ -4223,7 +4237,7 @@ function arrayUnshift(global, this, strict, items) {
       to := ToString(k + argCount - 1.);
 
       /* iii. Let fromPresent be HasProperty(O, from).*/
-      fromPresent := HasPropertyNew(O, from);
+      fromPresent := HasProperty(O, from);
 
       /* iv. ReturnIfAbrupt(fromPresent). */
       @ReturnIfAbrupt(fromPresent);
@@ -4231,13 +4245,13 @@ function arrayUnshift(global, this, strict, items) {
       /* v. If fromPresent is true, then */
       if (fromPresent = true) {
         /* 1. Let fromValue be Get(O, from). */
-        fromValue := GetNew(O, from);
+        fromValue := Get(O, from);
 
         /* 2. ReturnIfAbrupt(fromValue). */
         @ReturnIfAbrupt(fromValue);
 
         /* 3. Let setStatus be Set(O, to, fromValue, true). */
-        {O.Put}(O, to, fromValue, true)
+        {O.Set}(O, to, fromValue, O)
 
         /* 4. ReturnIfAbrupt(setStatus). */
       }
@@ -4270,7 +4284,7 @@ function arrayUnshift(global, this, strict, items) {
       items := tl items;
 
       /* ii. Let setStatus be Set(O, ToString(j), E, true). */
-      {O.Put}(O, ToString(j), E, true);
+      {O.Set}(O, ToString(j), E, O);
 
       /* iii. ReturnIfAbrupt(setStatus). */
 
@@ -4280,7 +4294,7 @@ function arrayUnshift(global, this, strict, items) {
   };
 
   /* 7. Let setStatus be Set(O, "length", len+argCount, true). */
-  {O.Put}(O, "length", len + argCount, true);
+  {O.Set}(O, "length", len + argCount, O);
 
   /* 8. ReturnIfAbrupt(setStatus). */
 
@@ -4332,11 +4346,12 @@ function arrayValues (global, this, strict, args) {
  * P, Property Descriptor Desc, and Boolean flag Throw, the following steps are
  * taken:
  */
-function DefineOwnPropertyArray(A, P, Desc, Throw) {
+function DefineOwnPropertyArray(A, P, Desc) {
   /* 1. Let oldLenDesc be the result of calling the [[GetOwnProperty]] internal
       method of A passing "length" as the argument. The result will never be
       undefined or an accessor descriptor because Array objects are created
       with a length data property that cannot be deleted or reconfigured. */
+  Throw := true;
   oldLenDesc := {A.GetOwnProperty}(A, "length");
 
   /* 2. Let oldLen be oldLenDesc.[[Value]]. */
@@ -4348,7 +4363,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     if (!("Value" in_obj Desc)) {
       /* i. Return the result of calling the default [[DefineOwnProperty]] internal
           method (8.12.9) on A passing "length", Desc, and Throw as arguments. */
-      return DefineOwnProperty(A, "length", Desc, Throw)
+      return OrdinaryObjectDefineOwnProperty(A, "length", Desc)
     };
     /* b. Let newLenDesc be a copy of Desc. */
     newLenDesc := CopyDescriptor(Desc);
@@ -4366,7 +4381,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       /* i. Return the result of calling the default [[DefineOwnProperty]]
             internal method (8.12.9) on A passing "length", newLenDesc,
             and Throw as arguments. */
-      return DefineOwnProperty(A, "length", newLenDesc, Throw)
+      return OrdinaryObjectDefineOwnProperty(A, "length", newLenDesc)
     };
     /* g. Reject if oldLenDesc.[[Writable]] is false. */
     if (oldLenDesc.Writable = false) {
@@ -4391,7 +4406,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
     /* j. Let succeeded be the result of calling the default
           [[DefineOwnProperty]] internal method (8.12.9) on A passing
           "length", newLenDesc, and Throw as arguments. */
-    succeeded := DefineOwnProperty(A, "length", newLenDesc, Throw);
+    succeeded := OrdinaryObjectDefineOwnProperty(A, "length", newLenDesc);
     /* k. If succeeded is false, return false.. */
     if (succeeded = false) {
       return false
@@ -4403,7 +4418,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       /* ii. Let deleteSucceeded be the result of calling the
              [[Delete]] internal method of A passing ToString(oldLen)
              and false as arguments. */
-      deleteSucceeded := {A.Delete}(A, ToString(oldLen), false);
+      deleteSucceeded := {A.Delete}(A, ToString(oldLen));
       /* iii. If deleteSucceeded is false, then */
       if (deleteSucceeded = false) {
         /* 1. Set newLenDesc.[[Value] to oldLen+1. */
@@ -4414,9 +4429,10 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
         };
         /* 3. Call the default [[DefineOwnProperty]] internal method (8.12.9)
               on A passing "length", newLenDesc, and false as arguments. */
-        DefineOwnProperty(A, "length", newLenDesc, false);
+        OrdinaryObjectDefineOwnProperty(A, "length", newLenDesc);
         /* 4. Reject. */
-        Reject(Throw)
+       /* Reject(Throw) */
+       return false
       }
     };
     /* m. If newWritable is false, then */
@@ -4424,7 +4440,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       /* i. Call the default [[DefineOwnProperty]] internal method (8.12.9)
             on A passing "length", Property Descriptor{[[Writable]]: false},
             and false as arguments. This call will always return true. */
-      DefineOwnProperty(A, "length", { Writable: false }, false)
+      OrdinaryObjectDefineOwnProperty(A, "length", { Writable: false })
     };
     /* n. Return true. */
     return true
@@ -4440,7 +4456,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
       };
       /* c. Let succeeded be the result of calling the default [[DefineOwnProperty]]
             internal method (8.12.9) on A passing P, Desc, and false as arguments. */
-      succeeded := DefineOwnProperty(A, P, Desc, false);
+      succeeded := OrdinaryObjectDefineOwnProperty(A, P, Desc);
       /* d. Reject if succeeded is false. */
       if (succeeded = false) {
         Reject(Throw)
@@ -4454,7 +4470,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
         /* ii. Call the default [[DefineOwnProperty]] internal method (8.12.9)
               on A passing "length", oldLenDesc, and false as arguments. This
               call will always return true. */
-        DefineOwnProperty(A, "length", oldLenDesc, false)
+        OrdinaryObjectDefineOwnProperty(A, "length", oldLenDesc)
       };
       /* f. Return true. */
       return true
@@ -4462,7 +4478,7 @@ function DefineOwnPropertyArray(A, P, Desc, Throw) {
   };
   /* 5. Return the result of calling the default [[DefineOwnProperty]] internal
         method (8.12.9) on A passing P, Desc, and Throw as arguments. */
-  return DefineOwnProperty(A, P, Desc, Throw)
+  return OrdinaryObjectDefineOwnProperty(A, P, Desc)
 };
 
 /**
@@ -4480,7 +4496,7 @@ function IsArrayIndex(P) {
 */
 function initArrayIteratorPrototype(global, objectPrototype, strict) { 
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
 
   setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));
   
@@ -4499,7 +4515,7 @@ function initArrayIteratorPrototype(global, objectPrototype, strict) {
 function createUnscopablesObject () {
 
   /* 1. Let blackList be ObjectCreate(null). */
-  blackList := InternalObjectCreate('null);
+  blackList := ObjectCreate('null, null);
 
   /* 2. Perform CreateDataProperty(blackList, "copyWithin", true). */
   CreateDataProperty(blackList, "copyWithin", true);
@@ -4562,7 +4578,7 @@ function CreateArrayIterator (array, kind) {
   assert( Type(array) = "Object" );
 
   /* 2. Let iterator be ObjectCreate(%ArrayIteratorPrototype%, «‍[[IteratedObject]], [[ArrayIteratorNextIndex]], [[ArrayIterationKind]]»). */
-  iterator := createArrayIteratorObject();
+  iterator := ObjectCreate(|ArrayIteratorPrototype|, ["IteratedObject", "ArrayIteratorNextIndex", "ArrayIterationKind"]);
   
   /* 3. Set iterator’s [[IteratedObject]] internal slot to array. */
   iterator.IteratedObject := array;
@@ -4580,21 +4596,6 @@ function CreateArrayIterator (array, kind) {
 function CreateArrayIteratorJS(global, this, strict, items) {
   return CreateArrayIterator(this, "value")
 }; 
-
-
-function createArrayIteratorObject() {
-
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
-
-  setInternalProperty(newlyConstructedObject, "Prototype", |ArrayIteratorPrototype|);
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  setInternalProperty(newlyConstructedObject, "Class", "Object");
- 
-  return newlyConstructedObject
-};
-
-
 
 /**
 *  22.1.5.2.1 %ArrayIteratorPrototype%.next( )
@@ -4635,12 +4636,12 @@ function arrayIteratorNext (global, this, strict, args) {
   /* 8. If a has a [[TypedArrayName]] internal slot, then */
   if ("TypedArrayName" in_obj a) {
     /* a. Let len be the value of O’s [[ArrayLength]] internal slot. */
-    len := O.ArrayLength
+    len := a.ArrayLength
     
   /* 9. Else, */
   } else {
     /* a. Let len be ToLength(Get(a, "length")). */
-    len := ToLength(GetNew(a, "length"));
+    len := ToLength(Get(a, "length"));
 
     /* b. ReturnIfAbrupt(len). */
     @ReturnIfAbrupt(len)
@@ -4667,7 +4668,7 @@ function arrayIteratorNext (global, this, strict, args) {
   elementKey := ToString(index);
 
   /* 14. Let elementValue be Get(a, elementKey). */
-  elementValue := GetNew(a, elementKey);
+  elementValue := Get(a, elementKey);
 
   /* 15. ReturnIfAbrupt(elementValue). */
   @ReturnIfAbrupt(elementValue);
