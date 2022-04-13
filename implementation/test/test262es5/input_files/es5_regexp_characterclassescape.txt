@@ -1,0 +1,2 @@
+test/test262es5/tests/built-ins/RegExp/char-class-escape/S15.10.2.12_A3_T5.js
+test/test262es5/tests/built-ins/RegExp/char-class-escape/S15.10.2.12_A4_T5.js

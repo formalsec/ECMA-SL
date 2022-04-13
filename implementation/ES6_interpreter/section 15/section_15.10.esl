@@ -187,6 +187,8 @@ function newRegExp(strict, pattern, flags) {
     R := parsePattern(P, F)
   };
 
+  setInternalProperty(R, "RegExpMatcher", null);
+
   return R
 };
 /**
@@ -266,7 +268,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
   };
 
   /* 8. Let sticky be ToBoolean(Get(R, "sticky")). */
-  sticky := ToBoolean(GetES6(R, "sticky"));
+  sticky := ToBoolean(Get(R, "sticky"));
 
   /* 2. Let S be the value of ToString(string). */
   S := ToString(string);
@@ -274,8 +276,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
   length := s_len_u S;
   /* 4. Let lastIndex be the result of calling the [[Get]]
     internal method of R with argument "lastIndex".. */
-  lastIndex := {R.Get}(R, "lastIndex");
-  
+  lastIndex := {R.Get}(R, "lastIndex", R);
   /* 5. Let i be the value of ToInteger(lastIndex). */
   i := int_of_float (ToInteger(lastIndex));
 
@@ -283,12 +284,12 @@ function RegExpPrototypeExec(global, this, strict, args) {
   /* test/test262/tests/built-ins/RegExp/prototype/test/S15.10.6.3_A1_T22.js */
   if (i < 0) {
     i := 0;
-    {R.Put}(R, "lastIndex", 0., true)
+    {R.Set}(R, "lastIndex", 0., R)
   };
 
   /* 6. Let global be the result of calling the [[Get]]
     internal method of R with argument "global". */
-  global := {R.Get}(R, "global");
+  global := {R.Get}(R, "global", R);
   /* 7. If global is false, then let i = 0. */
   /*
   if (global = false) {
@@ -309,7 +310,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
     if ((i < 0) || (i > length)) {
       /* i. Call the [[Put]] internal method of R with
           arguments "lastIndex", 0, and true. */
-      {R.Put}(R, "lastIndex", 0., true);
+      {R.Set}(R, "lastIndex", 0., R);
       /* ii. Return null. */
       return 'null
     };
@@ -342,7 +343,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
   if ((global = true) ||| (sticky = true)) {
     /* a. Call the [[Put]] internal method of R with
       arguments "lastIndex", e, and true. */
-    {R.Put}(R, "lastIndex", e, true)
+    {R.Set}(R, "lastIndex", e, R)
   };
   /* 12. Let n be the length of r's captures array.
     (This is the same value as 15.10.2.1's NCapturingParens.) */
@@ -357,16 +358,16 @@ function RegExpPrototypeExec(global, this, strict, args) {
       "index", Property Descriptor {[[Value]]: matchIndex, [[Writable]: true,
       [[Enumerable]]: true, [[Configurable]]: true}, and true. */
   descriptorIndex := newDataPropertyDescriptorFull(matchIndex, true, true, true);
-  {A.DefineOwnProperty}(A, "index", descriptorIndex, true);
+  {A.DefineOwnProperty}(A, "index", descriptorIndex);
   /* 16. Call the [[DefineOwnProperty]] internal method of A with arguments
       "input", Property Descriptor {[[Value]]: S, [[Writable]: true,
       [[Enumerable]]: true, [[Configurable]]: true}, and true. */
   descriptorInput := newDataPropertyDescriptorFull(S, true, true, true);
-  {A.DefineOwnProperty}(A, "input", descriptorInput, true);
+  {A.DefineOwnProperty}(A, "input", descriptorInput);
   /* 17. Call the [[DefineOwnProperty]] internal method of A with arguments
       "length", Property Descriptor {[[Value]]: n + 1}, and true. */
   descriptorLength := newDataPropertyDescriptorFull(n + 1., true, false, false);
-  {A.DefineOwnProperty}(A, "length", descriptorLength, true);
+  {A.DefineOwnProperty}(A, "length", descriptorLength);
   /* 18. Let matchedSubstr be the matched substring (i.e. the portion of S
     between offset i inclusive and offset e exclusive). */
   matchedSubstr := s_substr_u(S, i, (int_of_float e) - i);
@@ -374,7 +375,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
     "0", Property Descriptor {[[Value]]: matchedSubstr, [[Writable]: true,
     [[Enumerable]]: true, [[Configurable]]: true}, and true. */
   descriptorZero := newDataPropertyDescriptorFull(matchedSubstr, true, true, true);
-  {A.DefineOwnProperty}(A, "0", descriptorZero, true);
+  {A.DefineOwnProperty}(A, "0", descriptorZero);
   /* 20. For each integer i such that I > 0 and I ≤ n */
   i := 1;
   n := r.caps.len;
@@ -386,7 +387,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
       ToString(i), Property Descriptor {[[Value]]: captureI, [[Writable]: true,
       [[Enumerable]]: true, [[Configurable]]: true}, and true. */
     descriptorI := newDataPropertyDescriptorFull(captureI, true, true, true);
-    {A.DefineOwnProperty}(A, ToString(int_to_float i), descriptorI, true);
+    {A.DefineOwnProperty}(A, ToString(int_to_float i), descriptorI);
     i := i + 1
   };
   /* 21. Return A. */
@@ -467,7 +468,7 @@ function RegExpPrototypeToString(global, this, strict, args) {
 
 function JS_Interpreter_RegEx_TopLevel(re, source) {
   obj := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(obj);
+  setAllInternalMethodsOfOrdinaryObject(obj);
 
   /* The following properties of the newly constructed object are data properties
     with the attributes that are specified in 15.10.7. The [[Value]] of each

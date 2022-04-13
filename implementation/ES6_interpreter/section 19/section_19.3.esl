@@ -34,13 +34,16 @@ function initBooleanConstructor(BooleanPrototype, globalObject, strict) {
   /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }. */
   createBuiltInPropertyWithFullDescriptor(BooleanConstructor, "prototype", BooleanPrototype, false, false, false);
 
+  setInternalProperty(BooleanConstructor, "Call", "BuiltInCall");
+
+
   return BooleanConstructor
 };
 
 
 function initBooleanPrototype(objectPrototypeObject) {
   booleanPrototypeObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(booleanPrototypeObject);
+  setAllInternalMethodsOfOrdinaryObject(booleanPrototypeObject);
 
   /* The Boolean prototype object is itself a Boolean object (its [[Class]] is "Boolean") whose value is false. */
   setInternalProperty(booleanPrototypeObject, "Class", "Boolean");
@@ -59,12 +62,12 @@ function fillBooleanPrototype(booleanPrototypeObject, BooleanConstructor, global
   createBuiltInProperty(booleanPrototypeObject, "constructor", BooleanConstructor);
 
   /* 15.6.4.2 Boolean.prototype.toString ( ) */
-  toString := CreateBuiltInFunctionObject([], "booleanToString", globalObject, strict, null);
+  toString := CreateBuiltInFunctionObject([], "BooleanPrototypeToString", globalObject, strict, null);
   createBuiltInProperty(booleanPrototypeObject, "toString", toString);
   setJSProperty(toString, "name", newDataPropertyDescriptorFull("toString", false, false, true));
 
   /* 15.6.4.3 Boolean.prototype.valueOf ( ) */
-  valueOf := CreateBuiltInFunctionObject([], "booleanValueOf", globalObject, strict, null);
+  valueOf := CreateBuiltInFunctionObject([], "BooleanPrototypeValueOf", globalObject, strict, null);
   createBuiltInProperty(booleanPrototypeObject, "valueOf", valueOf);
   setJSProperty(valueOf, "name", newDataPropertyDescriptorFull("valueOf", false, false, true));
 
@@ -86,7 +89,9 @@ function BooleanConstructor(globalObject, this, strict, params) {
 
   /* When Boolean is called as part of a new expression it is a constructor: it initialises the newly created object. */
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
+
+  b := ToBoolean(value);
 
   /* The [[Prototype]] internal property of the newly constructed object is set to the original Boolean prototype
      object, the one that is the initial value of Boolean.prototype (15.6.3.1). */
@@ -94,11 +99,32 @@ function BooleanConstructor(globalObject, this, strict, params) {
   /* The [[Class]] internal property of the newly constructed Boolean object is set to "Boolean". */
   setInternalProperty(newlyConstructedObject, "Class", "Boolean");
   /* The [[PrimitiveValue]] internal property of the newly constructed Boolean object is set to ToBoolean(value). */
+  setInternalProperty(newlyConstructedObject, "PrimitiveValue", b);
   setInternalProperty(newlyConstructedObject, "BooleanData", ToBoolean(value));
   /* The [[Extensible]] internal property of the newly constructed object is set to true. */
   setInternalProperty(newlyConstructedObject, "Extensible", true);
 
+  setInternalProperty(newlyConstructedObject, "BooleanData", b);
+
   return newlyConstructedObject
+};
+
+/* 15.6.4.2 Boolean.prototype.toString ( ) */
+function BooleanPrototypeToString(globalObject, this, strict, params) {
+  /* The following steps are taken: */
+
+  /* 1. Let b be thisBooleanValue(this valus). */
+  b := thisBooleanValue(this);
+
+  /* 2. Return if abrupt*/
+  @ReturnIfAbrupt(b);
+
+  /* if b is true return true else return fals */
+  if (b = true) {
+    return "true"
+  } else {
+    return "false"
+  }
 };
 
 /* 19.3.3.2 Boolean.prototype.toString ( ) */
@@ -118,16 +144,17 @@ function booleanToString(globalObject, this, strict, args) {
   }
 };
 
-/* 19.3.3.3 Boolean.prototype.valueOf () */
-function booleanValueOf(globalObject, this, strict, args) {
+/* 15.6.4.3 Boolean.prototype.valueOf ( ) */
+function BooleanPrototypeValueOf(globalObject, this, strict, params) {
+  /* The following steps are taken: */
+
+  /* 1. return thisBooleanValue(this value). */
+  b := thisBooleanValue(this);
   return thisBooleanValue(this)
 };
 
-/* Auxiliary functions */
 function thisBooleanValue(value) {
 
-  print "value";
-  print value;
   type := Type(value);
   /* 1. If Type(value) is Boolean, return value. */
   if (type = "Boolean") {

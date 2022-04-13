@@ -1,0 +1,8 @@
+test/test262es5/tests/built-ins/RegExp/prototype/S15.10.5.1_A1.js
+test/test262es5/tests/built-ins/RegExp/prototype/S15.10.5.1_A2.js
+test/test262es5/tests/built-ins/RegExp/prototype/S15.10.5.1_A3.js
+test/test262es5/tests/built-ins/RegExp/prototype/S15.10.5.1_A4.js
+test/test262es5/tests/built-ins/RegExp/prototype/S15.10.6.1_A1_T1.js
+test/test262es5/tests/built-ins/RegExp/prototype/S15.10.6.1_A1_T2.js
+test/test262es5/tests/built-ins/RegExp/prototype/S15.10.6_A1_T1.js
+test/test262es5/tests/built-ins/RegExp/prototype/S15.10.6_A1_T2.js

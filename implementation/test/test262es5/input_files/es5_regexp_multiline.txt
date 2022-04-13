@@ -1,0 +1,4 @@
+test/test262es5/tests/built-ins/RegExp/prototype/multiline/15.10.7.4-2.js
+test/test262es5/tests/built-ins/RegExp/prototype/multiline/S15.10.7.4_A10.js
+test/test262es5/tests/built-ins/RegExp/prototype/multiline/S15.10.7.4_A8.js
+test/test262es5/tests/built-ins/RegExp/prototype/multiline/S15.10.7.4_A9.js

@@ -1,0 +1,61 @@
+/* Auxiliary functions created for the purposes of creating instances of the Property Descriptor type. */
+function NewPropertyDescriptor() {
+  return {}
+};
+
+function newDataPropertyDescriptor(value) {
+  desc := NewPropertyDescriptor();
+  desc.Value := value;
+  desc.Writable := true;
+  desc.Enumerable := true;
+  desc.Configurable := true;
+
+  return desc
+};
+
+function newDataPropertyDescriptorFull(value, writable, enumerable, configurable) {
+  desc := NewPropertyDescriptor();
+  desc.Value := value;
+  desc.Writable := writable;
+  desc.Enumerable := enumerable;
+  desc.Configurable := configurable;
+
+  return desc
+};
+
+function newGetAccessorPropertyDescriptor(get) {
+  desc := NewPropertyDescriptor();
+  desc.Get := get;
+  desc.Enumerable := true;
+  desc.Configurable := true;
+
+  return desc
+};
+
+function newGetAccessorPropertyDescriptorFull(get, enumerable, configurable) {
+  desc := NewPropertyDescriptor();
+  desc.Get := get;
+  desc.Enumerable := enumerable;
+  desc.Configurable := configurable;
+
+  return desc
+};
+
+function newSetAccessorPropertyDescriptor(set) {
+  desc := NewPropertyDescriptor();
+  desc.Set := set;
+  desc.Enumerable := true;
+  desc.Configurable := true;
+
+  return desc
+};
+
+function isEnumerablePropertyDescriptor(desc) {
+  assert Type(desc) = "PropertyDescriptor";
+
+  return desc.Enumerable
+};
+
+function getDescriptorValue(desc) {
+  return desc.Value
+}

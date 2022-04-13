@@ -1,6 +1,6 @@
 function initReflectObject(global, objectPrototype, strict) {
     obj := NewECMAScriptObjectFull(objectPrototype, "Reflect", true);
-    setAllInternalMethodsOfObject(obj);
+    setAllInternalMethodsOfOrdinaryObject(obj);
 
     /* 26.1.1 Reflect.apply (target, thisArgument, argumentsList) */
     applyObj := CreateBuiltInFunctionObject(["target", "thisArgument", "argumentList"], "ReflectApply", global, strict, null);
@@ -246,7 +246,7 @@ function ReflectDefineProperty(global, this, strict, args) {
   /* 5. ReturnIfAbrupt(desc). */
   @ReturnIfAbrupt(desc);
   /* 6. Return target.[[DefineOwnProperty]](key, desc). */
-  return {target.DefineOwnProperty}(key, desc)
+  return {target.DefineOwnProperty}(target, key, desc)
 };
 
 /**
@@ -268,7 +268,7 @@ function ReflectDeleteProperty(global, this, strict, args) {
   /* 3. ReturnIfAbrupt(key). */
   @ReturnIfAbrupt(key);
   /* 4. Return target.[[Delete]](key). */
-  return {target.Delete}(key)
+  return {target.Delete}(target, key)
 };
 
 /**
@@ -285,7 +285,7 @@ function ReflectEnumerate(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Return target.[[Enumerate]](). */
-  return {target.Enumerate}()
+  return {target.Enumerate}(target)
 };
 
 /**
@@ -313,7 +313,7 @@ function ReflectGet(global, this, strict, args) {
     receiver := target
   };
   /* 5. Return target.[[Get]](key, receiver). */
-  return {target.Get}(key, receiver)
+  return {target.Get}(target, key, receiver)
 };
 /**
  * The length property of the get function is 2.
@@ -338,7 +338,7 @@ function ReflectGetOwnPropertyDescriptor(global, this, strict, args) {
   /* 3. ReturnIfAbrupt(key). */
   @ReturnIfAbrupt(key);
   /* 4. Let desc be target.[[GetOwnProperty]](key). */
-  desc := {target.GetOwnProperty}(key);
+  desc := {target.GetOwnProperty}(target, key);
   /* 5. ReturnIfAbrupt(desc). */
   @ReturnIfAbrupt(desc);
   /* 6. Return FromPropertyDescriptor(desc). */
@@ -359,7 +359,7 @@ function ReflectGetPrototypeOf(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Return target.[[GetPrototypeOf]](). */
-  return {target.GetPrototypeOf}()
+  return {target.GetPrototypeOf}(target)
 };
 
 /**
@@ -381,7 +381,7 @@ function ReflectHas(global, this, strict, args) {
   /* 3. ReturnIfAbrupt(key). */
   @ReturnIfAbrupt(key);
   /* 4. Return target.[[HasProperty]](key). */
-  return {target.HasProperty}(key)
+  return {target.HasProperty}(target, key)
 };
 
 /**
@@ -398,7 +398,7 @@ function ReflectIsExtensible(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Return target.[[IsExtensible]](). */
-  return {target.IsExtensible}()
+  return {target.IsExtensible}(target)
 };
 
 /**
@@ -415,7 +415,7 @@ function ReflectOwnKeys(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Let keys be target.[[OwnPropertyKeys]](). */
-  keys := {target.OwnPropertyKeys}();
+  keys := {target.OwnPropertyKeys}(target);
   /* 3. ReturnIfAbrupt(keys). */
   @ReturnIfAbrupt(keys);
   /* 4. Return CreateArrayFromList(keys). */
@@ -436,7 +436,7 @@ function ReflectPreventExtensions(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Return target.[[PreventExtensions]](). */
-  return {target.PreventExtensions}()
+  return {target.PreventExtensions}(target)
 };
 
 /**
@@ -465,7 +465,7 @@ function ReflectSet(global, this, strict, args) {
     receiver := target
   };
   /* 5. Return target.[[Set]](key, V, receiver). */
-  return {target.Set}(key, V, receiver)
+  return {target.Set}(target, key, V, receiver)
 };
 /**
  * The length property of the set function is 3.
@@ -491,5 +491,5 @@ function ReflectSetPrototypeOf(global, this, strict, args) {
       throw TypeErrorConstructorInternal()
   };
   /* 3. Return target.[[SetPrototypeOf]](proto). */
-  return {target.SetPrototypeOf}(proto)
+  return {target.SetPrototypeOf}(target, proto)
 }

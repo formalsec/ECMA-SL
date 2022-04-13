@@ -5,7 +5,7 @@
  ******************************/
 function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "TypedArrayPrototype", true);
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
 
   /* 22.2.3 Properties of the %TypedArrayPrototype% Object */
   /* 22.2.3.1 get %TypedArray%.prototype.buffer */
@@ -429,7 +429,7 @@ function initTypedArrayMainConstructor(global, objectPrototype, strict) {
  ****************************************************************/
 function initTypedArrayPrototype(global, typedArrayPrototype, strict, typeOfArray) {
   prototype := NewECMAScriptObjectFull(typedArrayPrototype, s_concat([typeOfArray, "Prototype"]), true);
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
   /* 22.2.6.1 TypedArray.prototype.BYTES_PER_ELEMENT */
   descBytes := newDataPropertyDescriptorFull(|ElementTable|[s_concat([typeOfArray, "Array"])].size, false, false, false);
   setJSProperty(prototype, "BYTES_PER_ELEMENT", descBytes);
@@ -1294,6 +1294,19 @@ function TypedArrayCopyWithin(global, this, strict, args) {
     /* a. Let direction = 1. */
     direction := 1.
   };
+  print "debug copywithin";
+  print target;
+  print start;
+  print end;
+  print len;
+  print relativeTarget;
+  print to;
+  print relativeStart;
+  print from;
+  print relativeEnd;
+  print final;
+  print count;
+  print direction;
   /* 17. Repeat, while count > 0 */
   while (count > 0.) {
     /* a. Let fromKey be ToString(from). */
@@ -1302,6 +1315,11 @@ function TypedArrayCopyWithin(global, this, strict, args) {
     toKey := ToString(to);
     /* c. Let fromPresent be HasProperty(O, fromKey). */
     fromPresent := HasProperty(O, fromKey);
+    print "debug copywithin from present";
+    print fromKey;
+    print toKey;
+    print O;
+    print fromPresent;
     /* d. ReturnIfAbrupt(fromPresent). */
     @ReturnIfAbrupt(fromPresent);
     /* e. If fromPresent is true, then */
@@ -1312,6 +1330,8 @@ function TypedArrayCopyWithin(global, this, strict, args) {
       @ReturnIfAbrupt(fromVal);
       /* iii. Let setStatus be Set(O, toKey, fromVal, true). */
       setStatus := Set(O, toKey, fromVal, true);
+      print "debug copywithin from present true";
+      print setStatus;
       /* iv. ReturnIfAbrupt(setStatus). */
       @ReturnIfAbrupt(setStatus)
     } 
@@ -3520,7 +3540,7 @@ function TypedArraySubarray(global, this, strict, args) {
   /* 21. Let argumentsList be «buffer, beginByteOffset, newLength». */
   argumentsList := [buffer, beginByteOffset, newLength];
   /* 22. Return Construct(constructor, argumentsList). */
-  return Construct(null, null, constructor, argumentsList)
+  return Construct(null, null, constructor, argumentsList, null)
 };
 /**
  * This function is not generic. The this value must be an object with a
@@ -3605,7 +3625,7 @@ function TypedArrayToLocaleString(global, this, strict, args) {
   /* 10. Else */
   else {
     /* a. Let R be ToString(Invoke(firstElement, "toLocaleString")). */
-    R := ToString(Invoke(firstElement, "toLocaleString", []));
+    R := ToString(Invoke(null, null, firstElement, "toLocaleString", []));
     /* b. ReturnIfAbrupt(R). */
     @ReturnIfAbrupt(R)
   };
@@ -3627,7 +3647,7 @@ function TypedArrayToLocaleString(global, this, strict, args) {
     /* e. Else */
     else {
       /* i. Let R be ToString(Invoke(nextElement, "toLocaleString")). */
-      R := ToString(Invoke(nextElement, "toLocaleString", []));
+      R := ToString(Invoke(null, null, nextElement, "toLocaleString", []));
       /* ii. ReturnIfAbrupt(R). */
       @ReturnIfAbrupt(R)
     };

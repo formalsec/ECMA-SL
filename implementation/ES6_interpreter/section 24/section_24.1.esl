@@ -1,11 +1,11 @@
 /* 24.1 ArrayBuffer Objects */
 function initArrayBufferPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
   
 
   /* 24.1.4.1 get ArrayBuffer.prototype.byteLength */
-  byteLengthObject := CreateBuiltInFunctionObject([], "ArrayBufferPrototypeByteLength", global, strict, 0.);
+  byteLengthObject := CreateBuiltInFunctionObject([], "getArrayBufferPrototypeByteLength", global, strict, 0.);
   descriptor := newGetAccessorPropertyDescriptorFull(byteLengthObject, false, true);
   setJSProperty(prototype, "byteLength", descriptor);
   descriptor := newDataPropertyDescriptorFull("get byteLength", false, false, true);
@@ -40,10 +40,12 @@ function initArrayBufferObject(global, objectPrototype, strict) {
   /* Besides its length property (whose value is 1), the ArrayBuffer constructor has the following properties: */
   descriptor := newDataPropertyDescriptorFull(1., false, false, true);
   setJSProperty(objArrayBufferConstructor, "length", descriptor);
+  descriptor := newDataPropertyDescriptorFull("ArrayBuffer", false, false, true);
+  setJSProperty(objArrayBufferConstructor, "name", descriptor);
   
   /* 24.1.3.1 ArrayBuffer.isView ( arg ) */
   isViewObject := CreateBuiltInFunctionObject(["arg"], "ArrayBufferIsView", global, strict, 0.);
-  descriptor := newGetAccessorPropertyDescriptorFull(isViewObject, false, true);
+  descriptor := newDataPropertyDescriptorFull(isViewObject, true, false, true);
   setJSProperty(objArrayBufferConstructor, "isView", descriptor);
   descriptor := newDataPropertyDescriptorFull("isView", false, false, true);
   setJSProperty(isViewObject, "name", descriptor);
@@ -105,8 +107,7 @@ function ArrayBufferConstructor(global, this, strict, args) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal()
   };
-  if (length = 'null) {
-    print "DEBUG ArrayBufferConstructor 1";
+  if (length = null) {
     length := 0.
   };
   /* 2. Let numberLength be ToNumber(length). */
@@ -141,6 +142,9 @@ function getArrayBufferPrototype(strict) {
 function ArrayBufferIsView(global, this, strict, args) {
   print "in ArrayBufferIsView";
   arg := getOptionalParam(args, 0);
+  if (arg = null) {
+    arg := 'undefined
+  };
   /* 1. If Type(arg) is not Object, */
   if (!(Type(arg) = "Object")) {
     /* return false */
@@ -194,6 +198,12 @@ function getArrayBufferPrototypeByteLength(global, this, strict, args) {
 function ArrayBufferPrototypeSlice(global, this, strict, args) {
   start := getOptionalParam(args, 0);
   end := getOptionalParam(args, 1);
+  if (start = null) {
+    start := 'undefined
+  };
+  if (end = null) {
+    end := 'undefined
+  };
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
@@ -218,9 +228,9 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
   /* 7. ReturnIfAbrupt(relativeStart). */
   @ReturnIfAbrupt(relativeStart);
   /* 8. If relativeStart < 0, */
-  if (relativeStart < 0) { /* TODO 0 -> 0.??*/
+  if (relativeStart < 0.) {
     /* let first be max((len + relativeStart),0); else let first be min(relativeStart, len) */
-    first := max((len + relativeStart), 0) 
+    first := max((len + relativeStart), 0.) 
   } else {
     first := min(relativeStart, len)
   };
@@ -235,9 +245,9 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
   /* 10. ReturnIfAbrupt(relativeEnd). */
   @ReturnIfAbrupt(relativeEnd);
   /* 11. If relativeEnd < 0, */
-  if (relativeEnd < 0) { /* TODO 0 -> 0.*/
+  if (relativeEnd < 0.) {
     /* let final be max((len + relativeEnd),0) */
-    final := max((len + relativeEnd), 0)
+    final := max((len + relativeEnd), 0.)
   /* else let final be min(relativeEnd, len) */
   } else {
     final := min(relativeEnd, len)
@@ -245,11 +255,11 @@ function ArrayBufferPrototypeSlice(global, this, strict, args) {
   /* 12. Let newLen be max(final-first,0). */
   newLen := max(final-first, 0.);
   /* 13. Let ctor be SpeciesConstructor(O, %ArrayBuffer%). */
-  ctor := SpeciesConstructor(O, |ArrayBuffer|);
+  ctor := SpeciesConstructor(O, |Intrinsics|.ArrayBuffer);
   /* 14. ReturnIfAbrupt(ctor). */
   @ReturnIfAbrupt(ctor);
   /* 15. Let new be Construct(ctor, «newLen»). */
-  new := Construct(null, null, ctor, [newLen]);
+  new := Construct(null, null, ctor, [newLen], null);
   /* 16. ReturnIfAbrupt(new). */
   @ReturnIfAbrupt(new);
   /* 17. If new does not have an [[ArrayBufferData]] internal slot, */
@@ -352,7 +362,7 @@ function DetachArrayBuffer(arrayBuffer) {
 	/* Set arrayBuffer’s [[ArrayBufferByteLength]] internal slot to 0. */
 	arrayBuffer.ArrayBufferByteLength := 0;
 	/* Return NormalCompletion(null). */
-	return NormalCompletion(null)
+	return NormalCompletion('null)
 };
 
 /**
@@ -712,7 +722,7 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
 function OrdinaryCreateFromConstructorArrayBuffer(global, this, strict, items) {
   arrayBufferPrototype := getArrayBufferPrototype(strict);
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
   /* The [[Prototype]] internal property of the newly constructed object
       is set to the original Array prototype object, the one that is the
       initial value of Array.prototype (15.4.3.1). */

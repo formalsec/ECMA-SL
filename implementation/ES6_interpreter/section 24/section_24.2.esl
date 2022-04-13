@@ -287,7 +287,7 @@ function initDataViewObject(global, objectPrototype, strict) {
 /* 24.2.4 Properties of the DataView Prototype Object */
 function initDataViewPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-  setAllInternalMethodsOfObject(prototype);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
 
   /* 24.2.4.1 get DataView.prototype.buffer */
   bufferObject := CreateBuiltInFunctionObject([], "DataViewPrototypeBuffer", global, strict, 0.);
@@ -850,7 +850,7 @@ function OrdinaryCreateFromConstructorDataView(global, this, strict, items) {
   dataViewPrototype := getDataViewPrototype(strict);
 
   newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfObject(newlyConstructedObject);
+  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
   /* The [[Prototype]] internal property of the newly constructed object is set to the original DataView prototype object,
     the one that is the initial value of DataView.prototype. */

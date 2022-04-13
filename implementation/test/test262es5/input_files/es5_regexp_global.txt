@@ -1,0 +1,4 @@
+test/test262es5/tests/built-ins/RegExp/prototype/global/15.10.7.2-2.js
+test/test262es5/tests/built-ins/RegExp/prototype/global/S15.10.7.2_A10.js
+test/test262es5/tests/built-ins/RegExp/prototype/global/S15.10.7.2_A8.js
+test/test262es5/tests/built-ins/RegExp/prototype/global/S15.10.7.2_A9.js

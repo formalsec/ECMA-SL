@@ -251,8 +251,11 @@ let to_exponential (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
 
 let to_fixed (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt x, Int y) -> 
-      let res = Float.round(x*.(10.**(Float.of_int(y))))/.(10.**(Float.of_int(y))) in 
-      Str (Float.to_string res)
+      (* let res = Float.round(x*.(10.**(Float.of_int(y))))/.(10.**(Float.of_int(y))) in *)
+      (* let digits = Arith_Utils.count_digits res in *)
+      (* let missing_zeros = y - digits in *)
+      (* Str (Float.to_string res) *)
+      Str (Printf.sprintf "%0.*f" y x)
   | _                -> invalid_arg "Exception in Oper.to_fixed: this operation is only applicable to Float and Int arguments"
 
 let typeof (v : Val.t) : Val.t = match v with

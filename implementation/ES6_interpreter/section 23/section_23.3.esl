@@ -32,7 +32,7 @@ is not intended to be a viable implementation model.
 function initWeakMapPrototype(global, objectPrototype, objectConstructor, strict){
 
     prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
-    setAllInternalMethodsOfObject(prototype);
+    setAllInternalMethodsOfOrdinaryObject(prototype);
 
     setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));
 
@@ -167,7 +167,7 @@ function WeakMapConstructor(global, this, strict, items) {
     else {
         
         /* a. Let adder be Get(map, "set"). */
-        adder := GetES6(map, "set");
+        adder := Get(map, "set");
 
         /* b. ReturnIfAbrupt(adder). */
         @ReturnIfAbrupt(adder);
@@ -218,7 +218,7 @@ function WeakMapConstructor(global, this, strict, items) {
         };
 
         /* g. Let k be Get(nextItem, "0"). */
-        k := GetES6(nextItem, "0");
+        k := Get(nextItem, "0");
 
         /* h. If k is an abrupt completion, return IteratorClose(iter, k). */
         if ((Type(k) = "Completion") &&& (isAnAbruptCompletion(k))) {
@@ -226,7 +226,7 @@ function WeakMapConstructor(global, this, strict, items) {
         };
 
         /* i. Let v be Get(nextItem, "1"). */
-        v := GetES6(nextItem, "1");
+        v := Get(nextItem, "1");
 
         /* j. If v is an abrupt completion, return IteratorClose(iter, v). */
         if ((Type(v) = "Completion") &&& (isAnAbruptCompletion(v))) {
@@ -234,6 +234,9 @@ function WeakMapConstructor(global, this, strict, items) {
         };
 
         /* k. Let status be Call(adder, map, «k.[[value]], v.[[value]]»). */
+        print "DEBUG CONSTRUCTOR 0";
+        print k;
+        print k.JSProperties;
         status := Call(adder, map, [k.value, v.value]);
 
         /* l. If status is an abrupt completion, return IteratorClose(iter, status). */
@@ -251,7 +254,7 @@ function OrdinaryCreateFromConstructorWeakMap(global, this, strict, items) {
     mapPrototype := getWeakMapPrototype(strict);
 
     newlyConstructedObject := NewECMAScriptObject();
-    setAllInternalMethodsOfObject(newlyConstructedObject);
+    setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
 
     setInternalProperty(newlyConstructedObject, "Prototype", mapPrototype);
     setInternalProperty(newlyConstructedObject, "Extensible", true);
