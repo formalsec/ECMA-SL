@@ -3731,7 +3731,7 @@ function SortCompareNew(comparefn, x, y) {
       @ReturnIfAbrupt(v);
 
       /* c. If v is NaN, return +0. */
-      if (v = NaN) {
+      if (is_NaN v) {
         return 0.
       };
 
@@ -4515,7 +4515,7 @@ function initArrayIteratorPrototype(global, objectPrototype, strict) {
 function createUnscopablesObject () {
 
   /* 1. Let blackList be ObjectCreate(null). */
-  blackList := InternalObjectCreate('null);
+  blackList := ObjectCreate('null, null);
 
   /* 2. Perform CreateDataProperty(blackList, "copyWithin", true). */
   CreateDataProperty(blackList, "copyWithin", true);
@@ -4578,7 +4578,7 @@ function CreateArrayIterator (array, kind) {
   assert( Type(array) = "Object" );
 
   /* 2. Let iterator be ObjectCreate(%ArrayIteratorPrototype%, «‍[[IteratedObject]], [[ArrayIteratorNextIndex]], [[ArrayIterationKind]]»). */
-  iterator := createArrayIteratorObject();
+  iterator := ObjectCreate(|ArrayIteratorPrototype|, ["IteratedObject", "ArrayIteratorNextIndex", "ArrayIterationKind"]);
   
   /* 3. Set iterator’s [[IteratedObject]] internal slot to array. */
   iterator.IteratedObject := array;
@@ -4596,21 +4596,6 @@ function CreateArrayIterator (array, kind) {
 function CreateArrayIteratorJS(global, this, strict, items) {
   return CreateArrayIterator(this, "value")
 }; 
-
-
-function createArrayIteratorObject() {
-
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
-
-  setInternalProperty(newlyConstructedObject, "Prototype", |ArrayIteratorPrototype|);
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  setInternalProperty(newlyConstructedObject, "Class", "Object");
- 
-  return newlyConstructedObject
-};
-
-
 
 /**
 *  22.1.5.2.1 %ArrayIteratorPrototype%.next( )
@@ -4651,7 +4636,7 @@ function arrayIteratorNext (global, this, strict, args) {
   /* 8. If a has a [[TypedArrayName]] internal slot, then */
   if ("TypedArrayName" in_obj a) {
     /* a. Let len be the value of O’s [[ArrayLength]] internal slot. */
-    len := O.ArrayLength
+    len := a.ArrayLength
     
   /* 9. Else, */
   } else {

@@ -1,0 +1,1 @@
+node ./compare_test_results.js $1 $2

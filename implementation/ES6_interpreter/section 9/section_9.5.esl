@@ -865,7 +865,7 @@ function SetProxy (O, P, V, Receiver) {
     };
 
     /* 12. Let targetDesc be target.[[GetOwnProperty]](P). */
-    targetDesc = {target.GetOwnProperty}(target, P);
+    targetDesc := {target.GetOwnProperty}(target, P);
 
     /* 13. ReturnIfAbrupt(targetDesc). */
     @ReturnIfAbrupt(targetDesc);

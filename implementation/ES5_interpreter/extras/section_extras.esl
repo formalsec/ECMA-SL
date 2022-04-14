@@ -11,10 +11,12 @@ function initConsoleObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(console, "logObject", internalLogObject);
   createBuiltInProperty(console, "setInternalClass", internalSetInternalClass);
   createBuiltInProperty(console, "setInternalName", internalSetInternalName);
+
   createBuiltInProperty(internalLog, "prototype", objectPrototype);
   createBuiltInProperty(internalLogObject, "prototype", objectPrototype);
   createBuiltInProperty(internalSetInternalClass, "prototype", objectPrototype);
   createBuiltInProperty(internalSetInternalName, "prototype", objectPrototype);
+
   setInternalProperty(console, "Prototype", objectPrototype);
 
   return console

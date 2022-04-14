@@ -214,7 +214,7 @@ function MonthFromTime(t) {
    }
    /* Note that, in every case, if any argument to 
     one of these functions is NaN, the result will be NaN.*/
-   elif(t = NaN) { 
+   elif(is_NaN t) { 
      return NaN
    }
 };
@@ -289,7 +289,7 @@ function DateFromTime(t) {
   }
   /* Note that, in every case, if any argument to 
   one of these functions is NaN, the result will be NaN.*/
-  elif(t = NaN) {
+  elif(is_NaN t) {
     return NaN 
   }
 };
@@ -757,7 +757,7 @@ function dateConstructorMultipleArgs(global, this, strict, args){
     @ReturnIfAbrupt(milli);
 
     /* o. If y is not NaN and 0 ≤ ToInteger(y) ≤ 99, let yr be 1900+ToInteger(y); otherwise, let yr be y. */
-    if (!(y = NaN) &&& 0. <= ToInteger(y) &&& ToInteger(y) <= 99.) {
+    if (!(is_NaN y) &&& 0. <= ToInteger(y) &&& ToInteger(y) <= 99.) {
        yr := 1900. + ToInteger(y)
     }
     else {
@@ -1058,7 +1058,7 @@ function DateUTC(global, this, strict, args) {
   @ReturnIfAbrupt(milli);
 
   /* 15. If y is not NaN and 0 ≤ ToInteger(y) ≤ 99, let yr be 1900+ToInteger(y); otherwise, let yr be y. */
-  if (!(y = NaN) &&& 0. <= ToInteger(y) &&& ToInteger(y) <= 99.) {
+  if (!(is_NaN y) &&& 0. <= ToInteger(y) &&& ToInteger(y) <= 99.) {
     print("in if DateUTC");
     yr := 1900. + ToInteger(y)
   }
@@ -1089,7 +1089,7 @@ function DatePrototypeGetDate(global, this, strict, args) {
   @ReturnIfAbrupt(t);
 
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
     return NaN
   };
 
@@ -1109,7 +1109,7 @@ function DatePrototypeGetDay(global, this, strict, args) {
   @ReturnIfAbrupt(t);
 
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
     return NaN
   };
 
@@ -1128,7 +1128,7 @@ function DatePrototypeGetFullYear(global, this, strict, args) {
   @ReturnIfAbrupt(t);
 
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
     return NaN
   };
 
@@ -1150,7 +1150,7 @@ function DatePrototypeGetHours(global, this, strict, args) {
   print(t);
   print(NaN);
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
     return NaN
   };
 
@@ -1170,7 +1170,7 @@ function DatePrototypeGetMilliseconds(global, this, strict, args) {
   @ReturnIfAbrupt(t);
 
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
     return NaN
   };
 
@@ -1190,7 +1190,7 @@ function DatePrototypeGetMinutes(global, this, strict, args) {
   @ReturnIfAbrupt(t);
 
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
     return NaN
   };
 
@@ -1210,7 +1210,7 @@ function DatePrototypeGetMonth(global, this, strict, args) {
   @ReturnIfAbrupt(t);
 
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
     return NaN
   };
 
@@ -1230,7 +1230,7 @@ function DatePrototypeGetSeconds(global, this, strict, args) {
   @ReturnIfAbrupt(t);
 
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
     return NaN
   };
 
@@ -1262,7 +1262,7 @@ function  DatePrototypeGetTimezoneOffset (global, this, strict, args) {
   @ReturnIfAbrupt(t);
    
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
      return NaN
   };
 
@@ -1285,7 +1285,7 @@ function  DatePrototypeGetUTCDate (global, this, strict, args) {
   @ReturnIfAbrupt(t);
    
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
      return NaN
   };
 
@@ -1307,7 +1307,7 @@ function  DatePrototypeGetUTCDay (global, this, strict, args) {
   @ReturnIfAbrupt(t);
    
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
      return NaN
   };
 
@@ -1329,7 +1329,7 @@ function  DatePrototypeGetUTCFullYear (global, this, strict, args) {
   @ReturnIfAbrupt(t);
    
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
      return NaN
   };
 
@@ -1351,7 +1351,7 @@ function  DatePrototypeGetUTCHours(global, this, strict, args) {
   @ReturnIfAbrupt(t);
    
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
      return NaN
   };
 
@@ -1374,7 +1374,7 @@ function  DatePrototypeGetUTCMilliseconds (global, this, strict, args) {
   @ReturnIfAbrupt(t);
    
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
      return NaN
   };
 
@@ -1396,7 +1396,7 @@ function  DatePrototypeGetUTCMinutes (global, this, strict, args) {
   @ReturnIfAbrupt(t);
    
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
      return NaN
   };
 
@@ -1418,7 +1418,7 @@ function  DatePrototypeGetUTCMonth (global, this, strict, args) {
   @ReturnIfAbrupt(t);
    
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
      return NaN
   };
 
@@ -1440,7 +1440,7 @@ function  DatePrototypeGetUTCSeconds (global, this, strict, args) {
   @ReturnIfAbrupt(t);
    
   /* 3. If t is NaN, return NaN. */
-  if (t = NaN) {
+  if (is_NaN t) {
      return NaN
   };
 
@@ -1501,7 +1501,7 @@ function DatePrototypeSetFullYear (global, this, strict, args) {
   @ReturnIfAbrupt(t);
 
   /* 3. If t is NaN, let t be +0; otherwise, let t be LocalTime(t). */
-  if (t = NaN) {
+  if (is_NaN t) {
     t := 0.
   }
   else {
@@ -1905,7 +1905,7 @@ function DatePrototypeSetUTCFullYear (global, this, strict, args) {
   @ReturnIfAbrupt(t);
 
   /* 3. If t is NaN, let t be +0. */
-  if (t = NaN) {
+  if (is_NaN t) {
     t := 0.
   };
 
@@ -2339,7 +2339,7 @@ function toDateString(tv){
    assert((Type(tv) = "Number"));
   
    /* 2. If tv is NaN, return "Invalid Date". */
-   if (tv = NaN) {
+   if (is_NaN tv) {
       return "Invalid Date"
    };
    
@@ -2363,7 +2363,7 @@ function DatePrototypeToTimeString(globalObject, this, strict, args) {
 function DatePrototypeToUTCString(globalObject, this, strict, args) {
   tv := thisTimeValue(this);
 
-  if (tv = NaN){
+  if (is_NaN tv){
     return "Invalid Date"
   };
 
@@ -2484,7 +2484,7 @@ function internalNewDate(datePrototypeObject, args) {
   /* 7. If ms is supplied then let milli be ToNumber(ms); else let milli be 0. */
   if (!(ms = null)) { milli := ToNumber(ms) } else { milli := 0. };
   /* 8. If y is not NaN and 0 <= ToInteger(y) <= 99, then let yr be 1900+ToInteger(y); otherwise, let yr be y. */
-  if (!(y = NaN) &&& (0. <= ToInteger(y)) &&& (ToInteger(y) <= 99.)) { yr := 1900. + ToInteger(y) } else { yr := y };
+  if (!(is_NaN y) &&& (0. <= ToInteger(y)) &&& (ToInteger(y) <= 99.)) { yr := 1900. + ToInteger(y) } else { yr := y };
   /* 9. Let finalDate be MakeDate(MakeDay(yr, m, dt), MakeTime(h, min, s, milli)). */
   finalDate := MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli));
   /* 10. Set the [[PrimitiveValue]] internal property of the newly constructed object to TimeClip(UTC(finalDate)). */
@@ -2896,7 +2896,7 @@ function getTimeValueIdentifyingCurrentTime() {
 };
 
 function auxIsFinite(number) {
-   return !(number = Infinity ||| number = -Infinity ||| number = NaN)
+   return !(number = Infinity ||| number = -Infinity ||| is_NaN number)
 };
 
 function timeValueRepresentation(tv) {
@@ -2940,7 +2940,7 @@ function padding(number, size) {
 function TimeFromMonth(m, t) {
   print("in TimeFromMonth");
 
-  /* TODO change modulo*/
+  /* TODO add real modulo*/
   if (m < 0.) {
     m := m - 12. * floor(m / 12.) 
   };
@@ -2985,22 +2985,22 @@ function auxParseDate(string) {
     print(milli);
 
 
-    if (m = NaN) {
+    if (is_NaN m) {
       m := 0.
     };
-    if (dt = NaN) {
+    if (is_NaN dt) {
       dt := 1.
     };
-    if (h = NaN) {
+    if (is_NaN h) {
       h := 0.
     };
-    if (mins = NaN) {
+    if (is_NaN mins) {
       mins := 0.
     };
-    if (sec = NaN) {
+    if (is_NaN sec) {
       sec := 0.
     };
-    if (milli = NaN) {
+    if (is_NaN milli) {
       milli := 0.
     };
 

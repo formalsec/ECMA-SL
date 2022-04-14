@@ -53,4 +53,40 @@ function __internalLogObject(globalObject, this, strict, params) {
   print oProps;
 
   return 'null
+};
+
+function initTest262Object(globalObject, objectPrototype, strict) {
+  test262Obj := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(test262Obj);
+
+  detachArrayBuffer := CreateFunctionObject([], "__detachArrayBuffer", globalObject, strict, null);
+
+  createBuiltInProperty(test262Obj, "detachArrayBuffer", detachArrayBuffer);
+  createBuiltInProperty(detachArrayBuffer, "prototype", objectPrototype);
+  setInternalProperty(test262Obj, "Prototype", objectPrototype);
+
+  return test262Obj
+};
+
+
+function __detachArrayBuffer(global, this, strict, items) {
+  return DetachArrayBuffer(l_nth(items, 0))
+};
+
+function __internalSetInternalClass(globalObject, this, strict, params) {
+  obj := l_nth(params, 0);
+  class := l_nth(params, 1);
+
+  setInternalProperty(obj, "Class", class);
+
+  return 'null
+};
+
+function __internalSetInternalName(globalObject, this, strict, params) {
+  obj := l_nth(params, 0);
+  name := l_nth(params, 1);
+
+  createBuiltInProperty(obj, "name", name);
+
+  return 'null
 }

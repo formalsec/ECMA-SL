@@ -24,6 +24,7 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   match op with
   | Neg           -> Oper.neg v
   | Not           -> Oper.not v
+  | IsNaN         -> Oper.is_NaN v
   | BitwiseNot    -> Oper.bitwise_not v
   | Typeof        -> Oper.typeof v
   | ListLen       -> Oper.l_len v
@@ -65,6 +66,18 @@ let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
   | ParseString   -> Oper.parse_string v
   | ParseDate   -> Oper.parse_date v
   | Log_2         -> Oper.log_2 v
+  | Float64ToLEBytes -> Oper.float64_to_le_bytes v
+  | Float64ToBEBytes -> Oper.float64_to_be_bytes v
+  | Float32ToLEBytes -> Oper.float32_to_le_bytes v
+  | Float32ToBEBytes -> Oper.float32_to_be_bytes v
+  | Float64FromLEBytes -> Oper.float64_from_le_bytes v
+  | Float64FromBEBytes -> Oper.float64_from_be_bytes v
+  | Float32FromLEBytes -> Oper.float32_from_le_bytes v
+  | Float32FromBEBytes -> Oper.float32_from_be_bytes v
+  | BytesToString     -> Oper.bytes_to_string v
+  | FloatToByte         -> Oper.float_to_byte v
+  | ArrayLen         -> Oper.a_len v
+  | ListToArray         -> Oper.list_to_array v
   | _             -> Oper.apply_uopt_oper op v
 
 let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
@@ -88,6 +101,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ShiftRight -> Oper.shift_right (v1, v2)
   | ShiftRightLogical -> Oper.shift_right_logical (v1, v2)
   | Lnth     -> Oper.list_nth (v1, v2)
+  | LRemNth  -> Oper.list_remove_nth (v1, v2)
   | Tnth     -> Oper.tuple_nth (v1, v2)
   | Snth     -> Oper.s_nth (v1,v2)
   | Snth_u   -> Oper.s_nth_u (v1,v2)
@@ -100,12 +114,18 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ToPrecision -> Oper.to_precision (v1, v2)
   | ToExponential -> Oper.to_exponential (v1, v2)
   | ToFixed -> Oper.to_fixed (v1, v2)
+  | ArrayMake-> Oper.array_make (v1, v2)
+  | Anth     -> Oper.array_nth (v1, v2)
+  | IntToBEBytes  -> Oper.int_to_be_bytes (v1, v2)
+  | IntFromBytes -> Oper.int_from_le_bytes (v1, v2)
+  | UintFromBytes -> Oper.uint_from_le_bytes (v1, v2)
   | _        -> Oper.apply_bopt_oper op v1 v2
 
 let eval_triopt_expr (op : Oper.topt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : Val.t =
   match op with
   | Ssubstr  -> Oper.s_substr (v1,v2,v3)
   | SsubstrU  -> Oper.s_substr_u (v1,v2,v3)
+  | Aset      -> Oper.array_set (v1,v2,v3)
 
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   match op with
@@ -113,6 +133,7 @@ let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   | TupleExpr -> Val.Tuple vals
   | NAry_And  -> Val.Bool (List.for_all Oper.is_true vals)
   | NAry_Or   -> Val.Bool (List.exists Oper.is_true vals)
+  | ArrExpr  -> Val.Arr (Array.of_list vals)
 
 
 let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =

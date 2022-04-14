@@ -210,7 +210,9 @@ function OrdinaryObjectGetOwnProperty(O, P) {
 */
 function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) { 
     /* Assert: If O is not undefined then IsPropertyKey(P) is true. */
-    assert( !(O = 'undefined) &&& (IsPropertyKey(P) = true) );
+    if (!(O = 'undefined)) {
+        assert(IsPropertyKey(P) = true)
+    };    
 
     /* If current is undefined, then */
     if (current = 'undefined ) {
@@ -372,7 +374,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
  * When the abstract operation IsCompatiblePropertyDescriptor is called with Boolean value Extensible, and
  * Property Descriptors Desc, and Current the following steps are taken:
 */
-function IsCompatiblePropertyDescriptor(Extensible, Desc, current) {
+function IsCompatiblePropertyDescriptor(Extensible, Desc, Current) {
 	/* Return ValidateAndApplyPropertyDescriptor(undefined, undefined, Extensible, Desc, Current). */
 	return ValidateAndApplyPropertyDescriptor('undefined, 'undefined, Extensible, Desc, Current)
 };
@@ -632,6 +634,7 @@ function OrdinaryObjectDelete(O, P) {
     };
 
     print "OBDELETE";
+    print desc;
     print O;
 
     /* Return false. */
@@ -733,6 +736,7 @@ function ObjectCreate(proto, internalSlotsList) {
 function GetPrototypeFromConstructor(constructor, intrinsicDefaultProto) {
     /* Assert: intrinsicDefaultProto is a String value that is this specification’s name of an intrinsic object. The
     corresponding object must be an intrinsic that is intended to be used as the [[Prototype]] value of an object. */
+    assert((typeof intrinsicDefaultProto = __$Str) &&& (isIntrinsic(intrinsicDefaultProto)));
 
     /* Assert: IsConstructor (constructor) is true. */
     assert( IsConstructor(constructor) = true );
@@ -752,7 +756,7 @@ function GetPrototypeFromConstructor(constructor, intrinsicDefaultProto) {
         @ReturnIfAbrupt(realm);
 
         /* Let proto be realm’s intrinsic object named intrinsicDefaultProto. */
-        proto := intrinsicDefaultProto /* nao sei como fazer isto ?? */
+        proto := |Intrinsics|[intrinsicDefaultProto]
     };
 
     return proto
