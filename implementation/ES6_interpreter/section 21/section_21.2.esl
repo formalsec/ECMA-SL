@@ -239,7 +239,7 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
  * RegExp, any U+005C (REVERSE SOLIDUS) code points must be escaped within the StringLiteral to prevent them
  * being removed when the contents of the StringLiteral are formed.
  */
-function RegExpConstructor(global, this, strict, args){
+function RegExpConstructor(externalScope, ref, F, args, this){
    n_args := l_len args;
 
    if (n_args >= 1){
