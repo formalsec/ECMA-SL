@@ -42,6 +42,7 @@ function Type(V) {
     if (ft = "C") { return "Completion" };
     if (ft = "P") { return "PropertyIdentifier" }
   };
+  if (v_type = __$Null) { return "Null" };
 
   assert false
 };

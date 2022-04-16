@@ -514,13 +514,18 @@ function JS_Interpreter_LogicalExpression(LogicalExpression, scope) {
     lref := JS_Interpreter_Expr(LogicalANDExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. If ToBoolean(lval) is false, return lval. */
-    if (ToBoolean(lval) = false) {
+    /* 3. Let lbool be ToBoolean(lval). */
+    lbool := ToBoolean(lval);
+    /* 4. ReturnIfAbrupt(lbool). */
+    @ReturnIfAbrupt(lbool);
+    /* 5. If lbool is false, */
+    if (lbool = false) {
+      /* return lval */
       return lval
     };
-    /* 4. Let rref be the result of evaluating BitwiseORExpression. */
+    /* 6. Let rref be the result of evaluating BitwiseORExpression. */
     rref := JS_Interpreter_Expr(BitwiseORExpression, scope);
-    /* 5. Return GetValue(rref). */
+    /* 7. Return GetValue(rref). */
     return GetValue(rref)
   }
   | { operator: "||", left: LogicalORExpression, right: LogicalANDExpression } -> {
@@ -663,27 +668,18 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
 
     /* 1. Let expr be the result of evaluating UnaryExpression. */
     expr := JS_Interpreter_Expr(UnaryExpression, scope);
-    /* 2. Throw a SyntaxError exception if the following conditions are all true: */
-    if (
-      /* Type(expr) is Reference is true */
-      (Type(expr) = "Reference") &&
-      /* IsStrictReference(expr) is true */
-      (IsStrictReference(expr) = true) &&
-      /* Type(GetBase(expr)) is Environment Record */
-      (Type(GetBase(expr)) = "EnvironmentRecord") &&
-      /* GetReferencedName(expr) is either "eval" or "arguments" */
-      ((GetReferencedName(expr) = "eval") || (GetReferencedName(expr) = "arguments"))
-    ) {
-      throw SyntaxErrorConstructorInternal()
-    };
-    /* 3. Let oldValue be ToNumber(GetValue(expr)). */
+    /* 2. Let oldValue be ToNumber(GetValue(expr)). */
     oldValue := ToNumber(GetValue(expr));
-    /* 4. Let newValue be the result of adding the value 1 to oldValue, using the same rules as for the + operator
-          (see 11.6.3). */
+    /* 3. ReturnIfAbrupt(oldValue). */
+    @ReturnIfAbrupt(oldValue);
+    /* 4. Let newValue be the result of adding the value 1 to oldValue, using
+      the same rules as for the + operator (see 12.7.5). */
     newValue := oldValue + 1.;
-    /* 5. Call PutValue(expr, newValue). */
-    PutValue(expr, newValue);
-    /* 6. Return newValue.*/
+    /* 5. Let status be PutValue(expr, newValue). */
+    status := PutValue(expr, newValue);
+    /* 6. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 7. Return newValue. */
     return newValue
   }
   | { type: "UpdateExpression", operator: "--", argument: UnaryExpression, prefix: true } -> {
@@ -693,27 +689,18 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
 
     /* 1. Let expr be the result of evaluating UnaryExpression. */
     expr := JS_Interpreter_Expr(UnaryExpression, scope);
-    /* 2. Throw a SyntaxError exception if the following conditions are all true: */
-    if (
-      /* Type(expr) is Reference is true */
-      (Type(expr) = "Reference") &&
-      /* IsStrictReference(expr) is true */
-      (IsStrictReference(expr) = true) &&
-      /* Type(GetBase(expr)) is Environment Record */
-      (Type(GetBase(expr)) = "EnvironmentRecord") &&
-      /* GetReferencedName(expr) is either "eval" or "arguments" */
-      ((GetReferencedName(expr) = "eval") || (GetReferencedName(expr) = "arguments"))
-    ) {
-      throw SyntaxErrorConstructorInternal()
-    };
-    /* 3. Let oldValue be ToNumber(GetValue(expr)). */
+    /* 2. Let oldValue be ToNumber(GetValue(expr)). */
     oldValue := ToNumber(GetValue(expr));
-    /* 4. Let newValue be the result of subtracting the value 1 from oldValue, using the same rules as for the -
-          operator (see 11.6.3). */
+    /* 3. ReturnIfAbrupt(oldValue). */
+    @ReturnIfAbrupt(oldValue);
+    /* 4. Let newValue be the result of subtracting the value 1 from oldValue,
+      using the same rules as for the - operator (see 12.7.5). */
     newValue := oldValue - 1.;
-    /* 5. Call PutValue(expr, newValue). */
-    PutValue(expr, newValue);
-    /* 6. Return newValue.*/
+    /* 5. Let status be PutValue(expr, newValue). */
+    status := PutValue(expr, newValue);
+    /* 6. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 7. Return newValue. */
     return newValue
   }
   | { type: "UnaryExpression", operator: "+", argument: UnaryExpression } -> {
@@ -740,12 +727,15 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     expr := JS_Interpreter_Expr(UnaryExpression, scope);
     /* 2. Let oldValue be ToNumber(GetValue(expr)). */
     oldValue := ToNumber(GetValue(expr));
-    /* 3. If oldValue is NaN, return NaN. */
+    /* 3. ReturnIfAbrupt(oldValue). */
+    @ReturnIfAbrupt(oldValue);
+    /* 4. If oldValue is NaN, */
     if (oldValue = NaN) {
+      /* return NaN */
       return NaN
     };
-    /* 4. Return the result of negating oldValue; that is, compute a Number with the same magnitude but opposite
-          sign. */
+    /* 5. Return the result of negating oldValue that is, compute a Number with
+      the same magnitude but opposite sign. */
     return -(oldValue)
   }
   | { type: "UnaryExpression", operator: "~", argument: UnaryExpression } -> {
@@ -787,27 +777,18 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
 
     /* 1. Let lhs be the result of evaluating LeftHandSideExpression. */
     lhs := JS_Interpreter_Expr(LeftHandSideExpression, scope);
-    /* 2. Throw a SyntaxError exception if the following conditions are all true: */
-    if (
-      /* Type(lhs) is Reference is true */
-      (Type(lhs) = "Reference") &&
-      /* IsStrictReference(lhs) is true */
-      (IsStrictReference(lhs) = true) &&
-      /* Type(GetBase(lhs)) is Environment Record */
-      (Type(GetBase(lhs)) = "EnvironmentRecord") &&
-      /* GetReferencedName(lhs) is either "eval" or "arguments" */
-      ((GetReferencedName(lhs) = "eval") || (GetReferencedName(lhs) = "arguments"))
-    ) {
-      throw SyntaxErrorConstructorInternal()
-    };
-    /* 3. Let oldValue be ToNumber(GetValue(lhs)). */
+    /* 2. Let oldValue be ToNumber(GetValue(lhs)). */
     oldValue := ToNumber(GetValue(lhs));
-    /* 4. Let newValue be the result of adding the value 1 to oldValue, using the same rules as for the + operator
-          (see 11.6.3). */
+    /* 3. ReturnIfAbrupt(oldValue). */
+    @ReturnIfAbrupt(oldValue);
+    /* 4. Let newValue be the result of adding the value 1 from oldValue,
+      using the same rules as for the - operator (12.7.5). */
     newValue := oldValue + 1.;
-    /* 5. Call PutValue(lhs, newValue). */
-    PutValue(lhs, newValue);
-    /* 6. Return oldValue. */
+    /* 5. Let status be PutValue(lhs, newValue). */
+    status := PutValue(lhs, newValue);
+    /* 6. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 7. Return oldValue. */
     return oldValue
   }
   | { type: "UpdateExpression", operator: "--", argument: LeftHandSideExpression, prefix: false } -> {
@@ -817,27 +798,18 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
 
     /* 1. Let lhs be the result of evaluating LeftHandSideExpression. */
     lhs := JS_Interpreter_Expr(LeftHandSideExpression, scope);
-    /* 2. Throw a SyntaxError exception if the following conditions are all true: */
-    if (
-      /* Type(lhs) is Reference is true */
-      (Type(lhs) = "Reference") &&
-      /* IsStrictReference(lhs) is true */
-      (IsStrictReference(lhs) = true) &&
-      /* Type(GetBase(lhs)) is Environment Record */
-      (Type(GetBase(lhs)) = "EnvironmentRecord") &&
-      /* GetReferencedName(lhs) is either "eval" or "arguments" */
-      ((GetReferencedName(lhs) = "eval") || (GetReferencedName(lhs) = "arguments"))
-    ) {
-      throw SyntaxErrorConstructorInternal()
-    };
-    /* 3. Let oldValue be ToNumber(GetValue(lhs)). */
+    /* 2. Let oldValue be ToNumber(GetValue(lhs)). */
     oldValue := ToNumber(GetValue(lhs));
-    /* 4. Let newValue be the result of subtracting the value 1 from oldValue, using the same rules as for the -
-          operator (11.6.3). */
+    /* 3. ReturnIfAbrupt(oldValue). */
+    @ReturnIfAbrupt(oldValue);
+    /* 4. Let newValue be the result of adding the value 1 from oldValue,
+      using the same rules as for the - operator (12.7.5). */
     newValue := oldValue - 1.;
-    /* 5. Call PutValue(lhs, newValue). */
-    PutValue(lhs, newValue);
-    /* 6. Return oldValue. */
+    /* 5. Let status be PutValue(lhs, newValue). */
+    status := PutValue(lhs, newValue);
+    /* 6. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 7. Return oldValue. */
     return oldValue
   }
 };
@@ -1471,9 +1443,12 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
 
     /* 1. Let lhs be the result of evaluating Identifier as described in 11.1.2. */
     lhs := JS_Interpreter_Expr(Identifier, scope);
+    @ReturnIfAbrupt(lhs);
     /* 2. Let rhs be the result of evaluating Initialiser. */
     rhs := JS_Interpreter_Expr(Initialiser, scope);
+    @ReturnIfAbrupt(rhs);
     print "DEBUG VARDECL 1"; 
+    print rhs;
     /* 3. Let value be GetValue(rhs). */
     value := GetValue(rhs);
 
@@ -1549,23 +1524,24 @@ function JS_Interpreter_BinExpr(e, scope) {
   match e with
   /* 11.5 Multiplicative Operators */
   | { type: "BinaryExpression", operator: "*", left: MultiplicativeExpression, right: UnaryExpression } -> {
-    /* The production MultiplicativeExpression : MultiplicativeExpression @ UnaryExpression, where @ stands for one
-       of the operators in the above definitions, is evaluated as follows: */
-
     /* 1. Let left be the result of evaluating MultiplicativeExpression. */
     left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
     /* 2. Let leftValue be GetValue(left). */
     leftValue := GetValue(left);
-    /* 3. Let right be the result of evaluating UnaryExpression. */
+    /* 3. ReturnIfAbrupt(leftValue). */
+    @ReturnIfAbrupt(leftValue);
+    /* 4. Let right be the result of evaluating UnaryExpression. */
     right := JS_Interpreter_Expr(UnaryExpression, scope);
-    /* 4. Let rightValue be GetValue(right). */
+    /* 5. Let rightValue be GetValue(right). */
     rightValue := GetValue(right);
-    /* 5. Let leftNum be ToNumber(leftValue). */
-    leftNum := ToNumber(leftValue);
-    /* 6. Let rightNum be ToNumber(rightValue). */
-    rightNum := ToNumber(rightValue);
-    /* 7. Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
-
+    /* 6. Let lnum be ToNumber(leftValue). */
+    lnum := ToNumber(leftValue);
+    /* 7. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 8. Let rnum be ToNumber(rightValue). */
+    rnum := ToNumber(rightValue);
+    /* 9. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
     /* 11.5.1 Applying the * Operator */
     /* The * operator performs multiplication, producing the product of its operands. Multiplication is commutative.
        Multiplication is not always associative in ECMAScript, because of finite precision.
@@ -1581,7 +1557,7 @@ function JS_Interpreter_BinExpr(e, scope) {
        using IEEE 754 round-to-nearest mode. If the magnitude is too large to represent, the result is then an infinity of appropriate sign.
        If the magnitude is too small to represent, the result is then a zero of appropriate sign.
        The ECMAScript language requires support of gradual underflow as defined by IEEE 754. */
-    return leftNum * rightNum
+    return lnum * rnum
   }
   | { type: "BinaryExpression", operator: "/", left: MultiplicativeExpression, right: UnaryExpression } -> {
     /* The production MultiplicativeExpression : MultiplicativeExpression @ UnaryExpression, where @ stands for one
@@ -1591,15 +1567,20 @@ function JS_Interpreter_BinExpr(e, scope) {
     left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
     /* 2. Let leftValue be GetValue(left). */
     leftValue := GetValue(left);
-    /* 3. Let right be the result of evaluating UnaryExpression. */
+    /* 3. ReturnIfAbrupt(leftValue). */
+    @ReturnIfAbrupt(leftValue);
+    /* 4. Let right be the result of evaluating UnaryExpression. */
     right := JS_Interpreter_Expr(UnaryExpression, scope);
-    /* 4. Let rightValue be GetValue(right). */
+    /* 5. Let rightValue be GetValue(right). */
     rightValue := GetValue(right);
-    /* 5. Let leftNum be ToNumber(leftValue). */
-    leftNum := ToNumber(leftValue);
-    /* 6. Let rightNum be ToNumber(rightValue). */
-    rightNum := ToNumber(rightValue);
-    /* 7. Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
+    /* 6. Let lnum be ToNumber(leftValue). */
+    lnum := ToNumber(leftValue);
+    /* 7. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 8. Let rnum be ToNumber(rightValue). */
+    rnum := ToNumber(rightValue);
+    /* 9. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
 
     /* 11.5.1 Applying the / Operator */
     /* The / operator performs division, producing the quotient of its operands. The left operand is the dividend and
@@ -1621,7 +1602,7 @@ function JS_Interpreter_BinExpr(e, scope) {
        the operation overflows; the result is then an infinity of appropriate sign. If the magnitude is too small to represent, the
        operation underflows and the result is a zero of the appropriate sign. The ECMAScript language requires support of
        gradual underflow as defined by IEEE 754. */
-    return leftNum / rightNum
+    return lnum / rnum
   }
   | { type: "BinaryExpression", operator: "%", left: MultiplicativeExpression, right: UnaryExpression } -> {
     /* The production MultiplicativeExpression : MultiplicativeExpression @ UnaryExpression, where @ stands for one
@@ -1631,16 +1612,20 @@ function JS_Interpreter_BinExpr(e, scope) {
     left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
     /* 2. Let leftValue be GetValue(left). */
     leftValue := GetValue(left);
-    /* 3. Let right be the result of evaluating UnaryExpression. */
+    /* 3. ReturnIfAbrupt(leftValue). */
+    @ReturnIfAbrupt(leftValue);
+    /* 4. Let right be the result of evaluating UnaryExpression. */
     right := JS_Interpreter_Expr(UnaryExpression, scope);
-    /* 4. Let rightValue be GetValue(right). */
+    /* 5. Let rightValue be GetValue(right). */
     rightValue := GetValue(right);
-    /* 5. Let leftNum be ToNumber(leftValue). */
-    leftNum := ToNumber(leftValue);
-    /* 6. Let rightNum be ToNumber(rightValue). */
-    rightNum := ToNumber(rightValue);
-    /* 7. Return the result of applying the specified operation (*, /, or %) to leftNum and rightNum. See the Notes below 11.5.1, 11.5.2, 11.5.3. */
-
+    /* 6. Let lnum be ToNumber(leftValue). */
+    lnum := ToNumber(leftValue);
+    /* 7. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 8. Let rnum be ToNumber(rightValue). */
+    rnum := ToNumber(rightValue);
+    /* 9. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
     /* 11.5.3 Applying the % Operator */
     /* The % operator yields the remainder of its operands from an implied division; the left operand is the dividend
        and the right operand is the divisor. */
@@ -1667,89 +1652,110 @@ function JS_Interpreter_BinExpr(e, scope) {
        exceeding the magnitude of the true mathematical quotient of n and d. r is computed and
        rounded to the nearest representable value using IEEE 754 round -to-nearest mode. */
 
-    return leftNum % rightNum
+    return lnum % rnum
   }
   /* 11.6 Additive Operators */
   | { type: "BinaryExpression", operator: "+", left: AdditiveExpression, right: MultiplicativeExpression } -> {
-    /* 11.6.1 The Addition operator ( + ) */
-
-    /* The addition operator either performs string concatenation or numeric addition. */
-
-    /* The production AdditiveExpression : AdditiveExpression + MultiplicativeExpression is evaluated as follows: */
-
+    /* 12.7.3.1 */
     /* 1. Let lref be the result of evaluating AdditiveExpression. */
     lref := JS_Interpreter_Expr(AdditiveExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. Let rref be the result of evaluating MultiplicativeExpression. */
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating MultiplicativeExpression. */
     rref := JS_Interpreter_Expr(MultiplicativeExpression, scope);
-    /* 4. Let rval be GetValue(rref). */
+    /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-    /* 5. Let lprim be ToPrimitive(lval). */
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let lprim be ToPrimitive(lval). */
     lprim := ToPrimitive(lval, null);
-    /* 6. Let rprim be ToPrimitive(rval). */
+    /* 8. ReturnIfAbrupt(lprim). */
+    @ReturnIfAbrupt(lprim);
+    /* 9. Let rprim be ToPrimitive(rval). */
     rprim := ToPrimitive(rval, null);
-    /* 7. If Type(lprim) is String or Type(rprim) is String, then */
-    if ((Type(lprim) = "String") || (Type(rprim) = "String")) {
-      /* a. Return the String that is the result of concatenating ToString( lprim) followed by ToString(rprim) */
-      return s_concat [ToString(lprim), ToString(rprim)]
+    /* 10. ReturnIfAbrupt(rprim). */
+    @ReturnIfAbrupt(rprim);
+    /* 11. If Type(lprim) is String or Type(rprim) is String, then */
+    if ((Type(lprim) = "String") || (Type(rprim) = "String"))  {
+      /* a. Let lstr be ToString(lprim). */
+      lstr := ToString(lprim);
+      /* b. ReturnIfAbrupt(lstr). */
+      @ReturnIfAbrupt(lstr);
+      /* c. Let rstr be ToString(rprim). */
+      rstr := ToString(rprim);
+      /* d. ReturnIfAbrupt(rstr). */
+      @ReturnIfAbrupt(rstr);
+      /* e. Return the String that is the result of concatenating lstr and rstr. */
+      return s_concat [lstr, rstr]
     };
-    /* 8. Return the result of applying the addition operation to ToNumber( lprim) and ToNumber(rprim). See the
-          Note below 11.6.3. */
-    return applyingTheAdditionOperation(ToNumber(lprim), ToNumber(rprim))
-
-    /* NOTE 1 No hint is provided in the calls to ToPrimitive in steps 5 and 6. All native ECMAScript objects
-              except Date objects handle the absence of a hint as if the hint Number were given; Date objects handle the
-              absence of a hint as if the hint String were given. Host objects may handle the absence of a hint in some other manner. */
-
-    /* NOTE 2 Step 7 differs from step 3 of the comparison algorithm for the relational operators (11.8.5), by using the
-              logical-or operation instead of the logical-and operation. */
+    /* 12. Let lnum be ToNumber(lprim). */
+    lnum := ToNumber(lprim);
+    /* 13. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 14. Let rnum be ToNumber(rprim). */
+    rnum := ToNumber(rprim);
+    /* 15. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 16. Return the result of applying the addition operation to lnum and rnum.
+      See the Note below 12.7.5. */
+    return applyingTheAdditionOperation(lnum, rnum)
   }
   | { type: "BinaryExpression", operator: "-", left: AdditiveExpression, right: MultiplicativeExpression } -> {
-    /* 11.6.2 The Subtraction Operator ( - ) */
-
-    /* The production AdditiveExpression : AdditiveExpression - MultiplicativeExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating AdditiveExpression. */
     lref := JS_Interpreter_Expr(AdditiveExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. Let rref be the result of evaluating MultiplicativeExpression. */
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating MultiplicativeExpression. */
     rref := JS_Interpreter_Expr(MultiplicativeExpression, scope);
-    /* 4. Let rval be GetValue(rref). */
+    /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-    /* 5. Let lnum be ToNumber(lval). */
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let lnum be ToNumber(lval). */
     lnum := ToNumber(lval);
-    /* 6. Let rnum be ToNumber(rval). */
+    /* 8. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 9. Let rnum be ToNumber(rval). */
     rnum := ToNumber(rval);
-    /* 7. Return the result of applying the subtraction operation to lnum and rnum.
-          See the note below 11.6.3. */
+    /* 10. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 11. Return the result of applying the subtraction operation to lnum and
+      rnum. See the note below 12.7.5. */
     return applyingTheSubtractionOperation(lnum, rnum)
   }
   /* 11.7 Bitwise Shift Operators */
   | { type: "BinaryExpression", operator: "<<", left: ShiftExpression, right: AdditiveExpression } -> {
-    /* 11.7.1 The Left Shift Operator ( << ) */
-
-    /* Performs a bitwise left shift operation on the left operand by the amount specified by the right operand. */
-
-    /* The production ShiftExpression : ShiftExpression << AdditiveExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating ShiftExpression. */
     lref := JS_Interpreter_Expr(ShiftExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. Let rref be the result of evaluating AdditiveExpression. */
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating AdditiveExpression. */
     rref := JS_Interpreter_Expr(AdditiveExpression, scope);
-    /* 4. Let rval be GetValue(rref). */
+    /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-    /* 5. Let lnum be ToInt32(lval). */
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let lnum be ToInt32(lval). */
     lnum := ToInt32(lval);
-    /* 6. Let rnum be ToUint32(rval). */
+    /* 8. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 9. Let rnum be ToUint32(rval). */
     rnum := ToUint32(rval);
-    /* 7. Let shiftCount be the result of masking out all but the least significant 5 bits of rnum, that is,
-          compute rnum & 0x1F. */
+    /* 10. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 11. Let shiftCount be the result of masking out all but the least
+      significant 5 bits of rnum, that is, compute rnum & 0x1F. */
     shiftCount := maskOutBits(rnum);
-    /* 8. Return the result of left shifting lnum by shiftCount bits. The result is a signed 32-bit integer. */
+    /* 12. Return the result of left shifting lnum by shiftCount bits. The result
+      is a signed 32-bit integer. */
     return lnum << shiftCount
   }
   | { type: "BinaryExpression", operator: ">>", left: ShiftExpression, right: AdditiveExpression } -> {
@@ -1764,19 +1770,27 @@ function JS_Interpreter_BinExpr(e, scope) {
     lref := JS_Interpreter_Expr(ShiftExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. Let rref be the result of evaluating AdditiveExpression. */
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating AdditiveExpression. */
     rref := JS_Interpreter_Expr(AdditiveExpression, scope);
-    /* 4. Let rval be GetValue(rref). */
+    /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-    /* 5. Let lnum be ToInt32(lval). */
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let lnum be ToInt32(lval). */
     lnum := ToInt32(lval);
-    /* 6. Let rnum be ToUint32(rval). */
+    /* 8. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 9. Let rnum be ToUint32(rval). */
     rnum := ToUint32(rval);
-    /* 7. Let shiftCount be the result of masking out all but the least significant 5 bits of rnum, that is,
-          compute rnum & 0x1F. */
+    /* 10. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 11. Let shiftCount be the result of masking out all but the least
+      significant 5 bits of rnum, that is, compute rnum & 0x1F. */
     shiftCount := maskOutBits(rnum);
-    /* 8. Return the result of performing a sign-extending right shift of lnum by shiftCount bits. The most
-          significant bit is propagated. The result is a signed 32-bit integer. */
+    /* 12. Return the result of left shifting lnum by shiftCount bits. The result
+      is a signed 32-bit integer. */
     return lnum >> shiftCount
   }
   | { type: "BinaryExpression", operator: ">>>", left: ShiftExpression, right: AdditiveExpression } -> {
@@ -1791,19 +1805,27 @@ function JS_Interpreter_BinExpr(e, scope) {
     lref := JS_Interpreter_Expr(ShiftExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. Let rref be the result of evaluating AdditiveExpression. */
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating AdditiveExpression. */
     rref := JS_Interpreter_Expr(AdditiveExpression, scope);
-    /* 4. Let rval be GetValue(rref). */
+    /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-    /* 5. Let lnum be ToInt32(lval). */
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let lnum be ToInt32(lval). */
     lnum := ToInt32(lval);
-    /* 6. Let rnum be ToUint32(rval). */
+    /* 8. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 9. Let rnum be ToUint32(rval). */
     rnum := ToUint32(rval);
-    /* 7. Let shiftCount be the result of masking out all but the least significant 5 bits of rnum, that is,
-          compute rnum & 0x1F. */
+    /* 10. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 11. Let shiftCount be the result of masking out all but the least
+      significant 5 bits of rnum, that is, compute rnum & 0x1F. */
     shiftCount := maskOutBits(rnum);
-    /* 8. Return the result of performing a zero-filling right shift of lnum by shiftCount bits. Vacated bits are
-          filled with zero. The result is an unsigned 32-bit integer. */
+    /* 12. Return the result of left shifting lnum by shiftCount bits. The result
+      is a signed 32-bit integer. */
     return lnum >>> shiftCount
   }
   /* 11.8 Relational Operators */
@@ -2047,22 +2069,29 @@ function JS_Interpreter_BinExpr(e, scope) {
   }
   /* 11.10 Binary Bitwise Operators */
   | { type: "BinaryExpression", operator: operator, left: A, right: B } -> {
-    /* The production A : A @ B, where @ is one of the bitwise operators in the productions above, is evaluated as
-      follows: */
 
     /* 1. Let lref be the result of evaluating A. */
     lref := JS_Interpreter_Expr(A, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. Let rref be the result of evaluating B. */
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating B. */
     rref := JS_Interpreter_Expr(B, scope);
-    /* 4. Let rval be GetValue(rref). */
+    /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-    /* 5. Let lnum be ToInt32(lval). */
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Let lnum be ToInt32(lval). */
     lnum := ToInt32(lval);
-    /* 6. Let rnum be ToInt32(rval). */
+    /* 8. ReturnIfAbrupt(lnum). */
+    @ReturnIfAbrupt(lnum);
+    /* 9. Let rnum be ToInt32(rval). */
     rnum := ToInt32(rval);
-    /* 7. Return the result of applying the bitwise operator @ to lnum and rnum. The result is a signed 32 bit integer */
+    /* 10. ReturnIfAbrupt(rnum). */
+    @ReturnIfAbrupt(rnum);
+    /* 11. Return the result of applying the bitwise operator @ to lnum and rnum.
+      The result is a signed 32 bit integer. */
     return applyBitwiseOperator(operator, lnum, rnum)
   }
 };
