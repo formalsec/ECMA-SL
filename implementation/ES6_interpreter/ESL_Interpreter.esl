@@ -747,6 +747,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     expr := JS_Interpreter_Expr(UnaryExpression, scope);
     /* Let oldValue be ToInt32(GetValue(expr)). */
     oldValue := ToInt32(GetValue(expr));
+    @ReturnIfAbrupt(oldValue);
     /* Return the result of applying bitwise complement to oldValue. The result is a signed 32-bit integer. */
     return ~oldValue
   }
@@ -760,6 +761,9 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* 2. Let oldValue be ToBoolean(GetValue(expr)). */
     oldValue := ToBoolean(GetValue(expr));
     /* 3. If oldValue is true, return false. */
+
+    @ReturnIfAbrupt(oldValue);
+
     if (oldValue = true) {
       return false
     };

@@ -321,7 +321,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
     if (isFailure(ret)) {
       /* i. If sticky is true, then */
       if (sticky = true){
-        {R.Put}(R, "lastIndex", 0., true);
+        {R.Set}(R, "lastIndex", 0., true);
         return 'null
       };
 

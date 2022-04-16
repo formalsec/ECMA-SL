@@ -776,7 +776,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
       /* If hasDuplicates is true, then
         Let status be envRec.InitializeBinding(paramName, undefined). */
         if (hasDuplicates = true) {
-          status := InitializeBindingDeclarativeRecord(envRec, paramName, 'undefined)
+          status := InitializeBindingDeclarativeRecordTemp(env, paramName, 'undefined)
         };
 
       /* Assert: status is never an abrupt completion for either of the above operations. */
