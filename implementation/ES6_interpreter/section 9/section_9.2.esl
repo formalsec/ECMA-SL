@@ -277,7 +277,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
   };
 
   /* 15. Return envRec.GetThisBinding(). */
-  return getThisBinding(scope)
+  return getThisBinding(calleeContext)
 };
 
 /**
@@ -319,6 +319,7 @@ function FunctionAllocate(functionPrototype, strict, functionKind) {
      to undefined. */
   F := NewECMAScriptObject();
   setAllInternalMethodsOfFunctionObject(F);
+  F.Class := "Function";
   /* 7. Set F's essential internal methods to the default ordinary object
      definitions specified in 9.1. */
   /* Done by NewECMAScriptObject function :*/
