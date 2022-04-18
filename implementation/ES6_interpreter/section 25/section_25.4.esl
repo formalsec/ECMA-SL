@@ -544,7 +544,7 @@ function NewPromiseCapability(strict, C) {
   /* 5. Set the [[Capability]] internal slot of executor to promiseCapability. */
   executor.Capability := promiseCapability;
   /* 6. Let promise be Construct(C, «executor»). */
-  promise := Construct(null, null, C, [executor]);
+  promise := Construct(null, null, C, [executor], null);
   /* 7. ReturnIfAbrupt(promise). */
   @ReturnIfAbrupt(promise);
   /* 8. If IsCallable(promiseCapability.[[Resolve]]) is false, */

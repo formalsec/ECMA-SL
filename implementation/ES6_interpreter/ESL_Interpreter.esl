@@ -184,17 +184,22 @@ function JS_Interpreter_Expr(e, scope) {
         
     /* 2. Let baseValue be GetValue(baseReference). */
     baseValue := GetValue(baseReference);
+
+    @ReturnIfAbrupt(baseValue);
     
     /* 3. Let propertyNameReference be the result of evaluating Expression. */
     propertyNameReference := JS_Interpreter_Expr(Expression, scope);
     
     /* 4. Let propertyNameValue be GetValue(propertyNameReference). */
     propertyNameValue := GetValue(propertyNameReference);
+
+    @ReturnIfAbrupt(propertyNameValue);
     
     /* 5. Call CheckObjectCoercible(baseValue). */
     CheckObjectCoercible(baseValue);
     /* 6. Let propertyNameString be ToString(propertyNameValue). */
     propertyNameString := ToPropertyKey(propertyNameValue);
+    @ReturnIfAbrupt(propertyNameString);
     /* 7. If the syntactic production that is being evaluated is contained in strict mode code,
           let strict be true, else let strict be false. */
     if (isContainedInStrictCode(scope)) {
@@ -294,7 +299,7 @@ function JS_Interpreter_Expr(e, scope) {
 
         /* ii.  Let thisValue be refEnv.WithBaseObject(). */
         /* TODO: Fix This -> WithBaseObject not being used  */
-        thisValue := refEnv.bindingObject
+        thisValue := 'undefined
       }
     } else {
       /* 6. Else Type(ref) is not Reference, */

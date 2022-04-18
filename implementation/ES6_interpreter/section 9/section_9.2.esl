@@ -66,14 +66,15 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, argumentLi
 
     /* 9. If result.[[type]] is return, return NormalCompletion(result.[[value]]). */
     if (getCompletionType(result) = 'return) {
-	  return NormalCompletion(getCompletionValue(result))
+      value := getCompletionValue(result);
+      return value
 	};
 
     /* 10. ReturnIfAbrupt(result). */
     @ReturnIfAbrupt(result);
 
     /* 11. Return NormalCompletion(undefined). */
-    return NormalCompletion('undefined)
+    return 'undefined
 };
 
 /**
@@ -95,6 +96,7 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
 
     /* 3. Let calleeContext be a new ECMAScript code execution context. */
     calleeContext := createExecutionContext();
+    setContainedInStrictCode(calleeContext, F.Strict);
 
     /* 4. Set the Function of calleeContext to F. */
     calleeContext.Function := F;
@@ -149,6 +151,8 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
     localEnv := calleeContext.LexicalEnvironment;
 
     /* 5. If thisMode is strict, let thisValue be thisArgument.  */
+    print "DEBUG ORDINARY CALL BIND THIS";
+    print thisArgument;
     if (thisMode = "strict") {
         thisValue := thisArgument
     } /* 6. Else  */
@@ -256,12 +260,12 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
     /* a. If Type(result.[[value]]) is Object, */
     if (Type(getCompletionValue(result)) = "Object") {
       /* return NormalCompletion(result.[[value]]) */
-      return NormalCompletion(getCompletionValue(result))
+      return getCompletionValue(result)
     };
     /* b. If kind is "base", */
     if (kind = "base") {
       /* return NormalCompletion(thisArgument) */
-      return NormalCompletion(thisArgument)
+      return thisArgument
     };
     /* c. If result.[[value]] is not undefined, */
     if (!(getCompletionType(result) = 'undefined)) {
