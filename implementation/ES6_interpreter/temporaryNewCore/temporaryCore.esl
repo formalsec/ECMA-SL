@@ -89,26 +89,6 @@ function ConstructNew(F, argumentsList, newTarget) {
 };
 
 /**
- * 7.3.10 HasProperty (O, P)
- * 
- * The abstract operation HasProperty is used to determine whether an object has a property with the specified 
- * property key. The property may be either an own or inherited. A Boolean value is returned. The operation is
- * called with arguments O and P where O is the object and P is the property key.
- * 
- * This abstract operation performs the following steps:
-*/
-function HasPropertyNew(O,P) {
-	/* Assert: Type(O) is Object. */
-	assert( Type(O) = "Object" );
-
-	/* Assert: IsPropertyKey(P) is true. */
-	assert( IsPropertyKey(P) = true );
-
-	/* Return O.[[HasProperty]](P). */
-	return {O.HasProperty}(O,P)
-};
-
-/**
  * 7.3.1 Get (O, P)
  * The abstract operation Get is used to retrieve the value of a specific property of an object. 
  * The operation is called with arguments O and P where O is the object and P is the property key. 
@@ -127,8 +107,33 @@ function GetNew(O, P) {
 	return {O.Get}(O, P)
 };
 
+function WrappedGet(O, P) {
+  getResult := Get(O, P) catch GetHandler;
+
+  if (!(Type(getResult) = "Completion")) {
+    return normalEmptyCompletion(getResult)
+  };
+
+  return getResult
+};
+
+function GetHandler(x) {
+  return throwEmptyCompletion(x)
+};
+
 function StringValue(value){
 	return value
+};
+
+/**
+ * 9.1.1 [[GetPrototypeOf]]()
+ *
+ * When the [[GetPrototypeOf]] internal method of O is called the following 
+ * steps are taken: 
+ */
+function GetPrototypeOf(O) {
+  /* 1. Return the value of the [[Prototype]] internal slot of O. */
+  return getInternalProperty(O, "Prototype")
 };
 
 function InternalObjectIsExtensible(O){
@@ -198,4 +203,19 @@ function newSetAccessorPropertyDescriptorFull(set, enumerable, configurable) {
 
 function temporaryInternalGetPrototypeOf (O) {
 	return O.Prototype
+};
+
+/* Used GetIterator function as reference. */
+function IsIterable(obj) {
+  iterator := GetMethod(obj, "Symbol(iterator)");
+  return !(iterator = 'undefined)
+};
+
+function GuardedDelete(O, P) {
+  status := {O.Delete}(O, P, true) catch deleteWrapper;
+  return status
+};
+
+function deleteWrapper(error) {
+    return false
 }

@@ -567,7 +567,7 @@ function CreateListFromArrayLike(obj, elementTypes) {
     list := [];
 
     /* Let index be 0. */
-    index := 0;
+    index := 0.;
     
     /* Repeat while index < len */
     while (index < len) {
@@ -581,7 +581,7 @@ function CreateListFromArrayLike(obj, elementTypes) {
     	@ReturnIfAbrupt(next);
 
     	/* If Type(next) is not an element of elementTypes, throw a TypeError exception. */
-    	if ( InList(Type(next), elementTypes) ) { 
+    	if ( !(Type(next) in_list elementTypes) ) { 
     		throw TypeErrorConstructorInternal()
     	};
 
@@ -589,7 +589,7 @@ function CreateListFromArrayLike(obj, elementTypes) {
     	list := l_add(list, next);
 
     	/* Set index to index + 1. */
-    	index := index + 1
+    	index := index + 1.
     };
 
     /* Return list. */
@@ -852,5 +852,3 @@ function BuiltInCall(externalScope, ref, F, V, argumentsList) {
 	  return {F.Code}(F.Scope, V, F.strict, args)
 	}
 }
-
-

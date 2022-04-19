@@ -53,6 +53,7 @@
                 "sqrt"            , SQRT;
                 "tan"             , TAN;
                 "PI"              , PI;
+                "is_NaN"          , IS_NAN;
                 "MAX_VALUE"       , MAX_VALUE;
                 "MIN_VALUE"       , MIN_VALUE;
                 "in_obj"          , IN_OBJ;
@@ -63,6 +64,7 @@
                 "l_prepend"       , LPREPEND;
                 "l_concat"        , LCONCAT;
                 "l_remove_last"   , LREMOVELAST;
+                "l_remove_nth"    , LREMNTH;
                 "l_sort"          , LSORT;
                 "l_reverse"       , LREVERSE;
                 "hd"              , HD;
@@ -121,7 +123,25 @@
                 "cosh" , COSH;
                 "log_2" , LOG_2;
                 "sinh" , SINH;
-                "tanh" , TANH
+                "tanh" , TANH;
+                "float64_to_le_bytes"   , FLOAT64_TO_LE_BYTES; 
+                "float64_to_be_bytes"   , FLOAT64_TO_BE_BYTES; 
+                "float32_to_le_bytes"   , FLOAT32_TO_LE_BYTES; 
+                "float32_to_be_bytes"   , FLOAT32_TO_BE_BYTES; 
+                "int_to_be_bytes"       , INT_TO_BE_BYTES;
+                "float64_from_le_bytes" , FLOAT64_FROM_LE_BYTES; 
+                "float64_from_be_bytes" , FLOAT64_FROM_BE_BYTES; 
+                "float32_from_le_bytes" , FLOAT32_FROM_LE_BYTES; 
+                "float32_from_be_bytes" , FLOAT32_FROM_BE_BYTES;
+                "int_from_le_bytes"     , INT_FROM_BYTES;
+                "uint_from_le_bytes"    , UINT_FROM_BYTES;
+                "bytes_to_string"       , BYTES_TO_STRING;
+                "float_to_byte"         , FLOAT_TO_BYTE;
+                "array_make"            , ARRAY_MAKE;
+                "a_nth"                 , ANTH;
+                "a_set"                 , ASET;
+                "a_len"                 , ALEN;
+                "list_to_array"         , LIST_TO_ARRAY;
                 ]
 
   exception Syntax_error of string
@@ -192,6 +212,8 @@ rule read =
   | '!'            { NOT }
   | '~'            { BITWISE_NOT }
   | '&'            { BITWISE_AND }
+  (*| "[|"           { LARRBRACK }
+  | "|]"           { RARRBRACK }*)
   | '|'            { PIPE }
   | '^'            { BITWISE_XOR }
   | "<<"           { SHIFT_LEFT }

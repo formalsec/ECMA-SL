@@ -10,6 +10,7 @@ type t =
   | NullType
   | SymbolType
   | CurryType
+  | ArrayType
 
 let str (v : t) : string = match v with
   | IntType    -> "__$Int"
@@ -23,6 +24,7 @@ let str (v : t) : string = match v with
   | NullType   -> "__$Null"
   | SymbolType -> "__$Symbol"
   | CurryType  -> "__$Curry"
+  | ArrayType  -> "__$Array"
 
 
 
