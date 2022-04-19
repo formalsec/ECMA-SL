@@ -209,6 +209,8 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
   };
   /* 4. Let len be the result of calling the [[Get]] internal method of argArray with argument "length". */
   len := {argArray.Get}(argArray, "length", argArray);
+
+  @ReturnIfAbrupt(len);
   /* 5. Let n be ToUint32(len). */
   n := ToUint32(len);
   /* 6. Let argList be an empty List. */

@@ -423,6 +423,8 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
 
     /* 1. Let lref be the result of evaluating LeftHandSideExpression. */
     lref := JS_Interpreter_Expr(LeftHandSideExpression, scope);
+
+    @ReturnIfAbrupt(lref);
     print "DEBUG AE 1";
     print lref;
     
@@ -430,6 +432,7 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
     rref := JS_Interpreter_Expr(AssignmentExpression, scope);
     print "DEBUG AE 2";
     print rref;
+    @ReturnIfAbrupt(rref);
 
     /* 3. Let rval be GetValue(rref). */
     rval := GetValue(rref);
@@ -451,7 +454,9 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
     /* 5. Call PutValue(lref, rval). */
 
     print "DEBUG AE 4";
-    PutValue(lref, rval);
+    status := PutValue(lref, rval);
+
+    @ReturnIfAbrupt(status);
     /* 6. Return rval. */
     return rval
 
@@ -471,10 +476,16 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
     lref := JS_Interpreter_Expr(LeftHandSideExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
+
+    @ReturnIfAbrupt(lval);
+
     /* 3. Let rref be the result of evaluating AssignmentExpression. */
     rref := JS_Interpreter_Expr(AssignmentExpression, scope);
     /* 4. Let rval be GetValue(rref). */
     rval := GetValue(rref);
+
+    @ReturnIfAbrupt(rval);
+
     /* 5. Let r be the result of applying operator @ to lval and rval. */
     r := applyOperator(AssignmentOperator, lval, rval);
     /* 6. Throw a SyntaxError exception if the following conditions are all true: */
@@ -490,7 +501,9 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
         throw SyntaxErrorConstructorInternal()
       };
     /* 7. Call PutValue(lref, r). */
-    PutValue(lref, r);
+    status := PutValue(lref, r);
+
+    @ReturnIfAbrupt(status);
     /* 8. Return r. */
     return r
 
@@ -635,6 +648,8 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       /* b. Let val be GetValue(val). */
       val := GetValue(val)
     };
+
+    @ReturnIfAbrupt(val);
 
     /* 3. Return a String determined by Type(val) according to Table 20. */
     if (Type(val) = "Undefined") {

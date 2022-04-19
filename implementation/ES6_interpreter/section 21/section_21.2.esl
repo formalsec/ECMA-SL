@@ -12,7 +12,7 @@
  */
 
 function initRegExpObject(globalObject, ObjectPrototype, strict){
-   regExpConstructor := CreateFunctionObject( ["patern", "flags"], "RegExpConstructor", globalObject, strict, 0.);
+   regExpConstructor := CreateFunctionObject( ["patern", "flags"], "RegExpConstructorAsFunction", globalObject, strict, 0.);
    regExpPrototype := initRegExpPrototype(globalObject, ObjectPrototype, regExpConstructor, strict);
 
    descriptor := newDataPropertyDescriptorFull(regExpConstructor, true, false, true);
@@ -232,6 +232,9 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
  * internal slots.
  */
 
+function RegExpConstructorAsFunction(externalScope, this, strict, args) {
+   return RegExpConstructor(externalScope, null, null, args, this)
+};
 /* 21.2.3.1 RegExp ( pattern, flags ) */
 /**
  * NOTE If pattern is supplied using a StringLiteral, the usual escape sequence substitutions are performed 
