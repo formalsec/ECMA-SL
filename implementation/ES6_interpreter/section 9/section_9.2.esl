@@ -225,7 +225,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
   if (kind = "base") {
     /* a. Let thisArgument be OrdinaryCreateFromConstructor(newTarget,
        "%ObjectPrototype%"). */
-    thisArgument := OrdinaryCreateFromConstructor(newTarget, getObjectPrototype(false), []);
+    thisArgument := OrdinaryCreateFromConstructor(newTarget, "ObjectPrototype", []);
     /* b. ReturnIfAbrupt(thisArgument). */
     @ReturnIfAbrupt(thisArgument)
   };

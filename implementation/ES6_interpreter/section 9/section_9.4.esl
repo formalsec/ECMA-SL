@@ -358,7 +358,7 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
   assert(!(isAnAbruptCompletion(status1) ||| isAnAbruptCompletion(status2)));
   /* 25. Return obj */
   return obj
-}
+};
 /*
  * |--------------------------------|
  * | Integer Indexed Exotic objects |

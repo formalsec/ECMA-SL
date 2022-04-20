@@ -158,7 +158,7 @@ function ObjectConstructor(globalObject, this, strict, params) {
   /* If NewTarget is neither undefined nor the active function, then */
   if ( !(NewTarget = 'undefined) &&& false) {  /* duvida em como passar o NewTarget */
     /* Return OrdinaryCreateFromConstructor(NewTarget, "%ObjectPrototype%"). */
-    return OrdinaryCreateFromConstructor(NewTarget, ObjectPrototype, null)
+    return OrdinaryCreateFromConstructor(NewTarget, "ObjectPrototype", null)
   };
 
   /* If value is null, undefined or not supplied, return ObjectCreate(%ObjectPrototype%). */
