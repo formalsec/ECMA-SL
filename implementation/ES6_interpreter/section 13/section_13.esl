@@ -112,6 +112,9 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   setInternalProperty(F, "strict", Strict);
 
   /* 20. Return F. */
+
+  F.FunctionKind := "normal";
+
   return F
 };
 

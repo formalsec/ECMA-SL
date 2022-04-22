@@ -698,9 +698,9 @@ function BindThisValue(envRec, V) {
     throw ReferenceErrorConstructorInternal()
   };
 
-  envRec.thisValue := V;
+  /* envRec.thisValue := V; */
 
-  envRec.thisBindingStatus := "initialized";
+  /*envRec.thisBindingStatus := "initialized"; */
 
 
   return V

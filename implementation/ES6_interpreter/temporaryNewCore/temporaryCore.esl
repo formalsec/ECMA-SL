@@ -85,7 +85,7 @@ function ConstructNew(F, argumentsList, newTarget) {
 
  	/* Return F.[[Construct]](argumentsList, newTarget). */
  	/* return {F.Construct}(F, argumentsList, newTarget) */
-  return {F.Construct}(null, null, F, argumentsList)
+  return {F.Construct}(null, null, F, argumentsList, newTarget)
 };
 
 /**

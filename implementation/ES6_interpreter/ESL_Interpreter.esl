@@ -225,8 +225,7 @@ function JS_Interpreter_Expr(e, scope) {
     print constructor;
     /* 3. Let argList be the result of evaluating Arguments, producing an internal list of argument values (11.2.4). */
     argList := JS_Interpreter_Arguments(Arguments, scope);
-    print "DEBUG: argList";
-    print argList;
+    @ReturnIfAbrupt(argList);
     /* 4. If Type(constructor) is not Object, throw a TypeError exception. */
     if (!(Type(constructor) = "Object")) {
       throw TypeErrorConstructorInternal()
@@ -439,6 +438,8 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
     print "DEBUG AE 3";
     print rval;
 
+    @ReturnIfAbrupt(rval);
+
     /* 4. Throw a SyntaxError exception if the following conditions are all true: */
       /* Type(lref) is Reference is true */
     if ((Type(lref) = "Reference") &&&
@@ -454,6 +455,8 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
     /* 5. Call PutValue(lref, rval). */
 
     print "DEBUG AE 4";
+    print lref;
+    print rval;
     status := PutValue(lref, rval);
 
     @ReturnIfAbrupt(status);
@@ -853,6 +856,8 @@ function JS_Interpreter_Arguments(ArgumentsList, scope) {
     /* 3. Let arg be GetValue(ref). */
     arg := GetValue(ref);
 
+    @ReturnIfAbrupt(arg);
+
     args := l_add(args, arg);
 
     i := i + 1
@@ -1148,7 +1153,8 @@ function JS_Interpreter_Stmt(s, scope) {
     lVarDecl := l_len VariableDeclarationList;
     while(lVarDecl > i) {
       /* 1. Evaluate VariableDeclarationList. */
-      JS_Interpreter_VarDecl(l_nth(VariableDeclarationList, i), scope);
+      next := JS_Interpreter_VarDecl(l_nth(VariableDeclarationList, i), scope);
+      @ReturnIfAbrupt(next);
       i := i + 1
     };
     /* 2. Return (normal, empty, empty).*/
@@ -1270,6 +1276,7 @@ function JS_Interpreter_Stmt(s, scope) {
     val := JS_Interpreter_Expr(Expression, scope);
     /* 2. Let obj be ToObject(GetValue(val)). */
     obj := ToObject(GetValue(val));
+    @ReturnIfAbrupt(obj);
     /* 3. Let oldEnv be the running execution context‘s LexicalEnvironment. */
     oldEnv := getLexicalEnvironment(scope);
     /* 4. Let newEnv be the result of calling NewObjectEnvironment passing obj and oldEnv as the arguments. */
@@ -1474,6 +1481,7 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
     print rhs;
     /* 3. Let value be GetValue(rhs). */
     value := GetValue(rhs);
+    @ReturnIfAbrupt(value);
 
     print "DEBUG VARDECL 2"; 
     print lhs; 
@@ -1533,6 +1541,10 @@ function JS_Interpreter_StmtList(stmts, scope) {
   /* 4. If an exception was thrown, return (throw, V, empty) where V is the exception. (Execution now proceeds as
         if no exception were thrown.) */
   s := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+
+  if (isAnAbruptCompletion(s)) {
+    return s
+  };
   /* 5. If s.value is empty, let V = sl.value, otherwise let V = s.value. */
   if (getCompletionValue(s) = 'empty) {
     V := getCompletionValue(sl)
@@ -1955,20 +1967,16 @@ function JS_Interpreter_BinExpr(e, scope) {
     lref := JS_Interpreter_Expr(RelationalExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. Let rref be the result of evaluating ShiftExpression. */
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating ShiftExpression. */
     rref := JS_Interpreter_Expr(ShiftExpression, scope);
-    /* 4. Let rval be GetValue(rref). */
+    /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-    /* 5. If Type(rval) is not Object, throw a TypeError exception. */
-    if (!(Type(rval) = "Object")) {
-      throw TypeErrorConstructorInternal()
-    };
-    /* 6. If rval does not have a [[HasInstance]] internal method, throw a TypeError exception. */
-    if (!("HasInstance" in_obj rval)) {
-      throw TypeErrorConstructorInternal()
-    };
-    /* 7. Return the result of calling the [[HasInstance]] internal method of rval with argument lval. */
-    return {rval.HasInstance}(rval, lval)
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. Return InstanceofOperator(lval, rval). */
+    return InstanceofOperator(lval, rval)
   }
   | { type: "BinaryExpression", operator: "in", left: RelationalExpression, right: ShiftExpression } -> {
     /* 11.8.7 The in operator */
@@ -2148,8 +2156,10 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
       };
       /* d. Let exprRef be the result of evaluating Expression. */
       exprRef := JS_Interpreter_Expr(Expression, scope);
+      exprValue := GetValue(exprRef);
+      @ReturnIfAbrupt(exprValue);
       /* e. If ToBoolean(GetValue(exprRef)) is false, set iterating to false. */
-      if (ToBoolean(GetValue(exprRef)) = false) {
+      if (ToBoolean(exprValue) = false) {
         iterating := false
       }
     } until iterating = false;
@@ -2164,8 +2174,10 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
     repeat {
       /* a. Let exprRef be the result of evaluating Expression. */
       exprRef := JS_Interpreter_Expr(Expression, scope);
+      exprValue := GetValue(exprRef);
+      @ReturnIfAbrupt(exprValue);
       /* b. If ToBoolean(GetValue(exprRef)) is false, return (normal, V, empty). */
-      if (ToBoolean(GetValue(exprRef)) = false) {
+      if (ToBoolean(exprValue) = false) {
         return normalEmptyCompletion(V)
       };
       /* c. Let stmt be the result of evaluating Statement. */
@@ -2369,6 +2381,8 @@ function JS_Interpreter_ForStmt_Expr(forStmt, scope) {
       if (!(Expression1 = null)) {
         /* i. Let testExprRef be the result of evaluating the first Expression. */
         testExprRef := JS_Interpreter_Expr(Expression1, scope);
+        testValue := GetValue(testExprRef);
+        @ReturnIfAbrupt(testValue);
         /* ii. If ToBoolean(GetValue(testExprRef)) is false, return (normal, V, empty). */
         if (ToBoolean(GetValue(testExprRef)) = false) {
           return normalEmptyCompletion(V)
@@ -2395,8 +2409,8 @@ function JS_Interpreter_ForStmt_Expr(forStmt, scope) {
       if (!(Expression2 = null)) {
         /* i. Let incExprRef be the result of evaluating the second Expression. */
         incExprRef := JS_Interpreter_Expr(Expression2, scope);
-        /* ii. Call GetValue(incExprRef). (This value is not used.) */
-        GetValue(incExprRef)
+        incValue := GetValue(incExprRef);
+        @ReturnIfAbrupt(incValue)
       }
     }
   }

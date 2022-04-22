@@ -669,7 +669,7 @@ function OrdinaryHasInstance(C, O) {
     	@ReturnIfAbrupt(O);
 	
     	/* If O is null, return false. */
-    	if ( O = null ) {
+    	if ( O = 'null ) {
     		return false
     	};
 	

@@ -177,6 +177,7 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
     /* 8. Assert: The next step never returns an abrupt completion because envRec.[[thisBindingStatus]] is not "uninitialized".  */
 
     /* 9. Return envRec.BindThisValue(thisValue). */
+    /* TODO - Fix this we should not do this ThisBinding  */
     calleeContext.ThisBinding := thisValue;
     return BindThisValue(envRec, thisValue)
 };
@@ -819,8 +820,11 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     assert(!(isAnAbruptCompletion(status)));
 
     /* g. Call envRec.InitializeBinding("arguments", ao). */
-    SetMutableBinding(envRec, "arguments", ao, false)
-
+    if (strict = true) {
+      InitializeImmutableBinding(envRec, "arguments", ao)
+    } else {
+      SetMutableBinding(envRec, "arguments", ao, false)
+    }
     /*h. Append "arguments" to parameterNames. */
     /*parameterNames := l_add(parameterNames, "arguments") */
   };

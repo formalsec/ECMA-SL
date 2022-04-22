@@ -272,6 +272,8 @@ function RegExpPrototypeExec(global, this, strict, args) {
 
   /* 2. Let S be the value of ToString(string). */
   S := ToString(string);
+  @ReturnIfAbrupt(S);
+
   /* 3. Let length be the length of S. */
   length := s_len_u S;
   /* 4. Let lastIndex be the result of calling the [[Get]]

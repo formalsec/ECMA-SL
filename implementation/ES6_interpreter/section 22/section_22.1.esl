@@ -2288,6 +2288,9 @@ function arrayJoin(global, this, strict, args) {
     R := ToString(element0)
   };
 
+  print "DEBUG ARRAY JOIN";
+  print R;
+
   /* 11. ReturnIfAbrupt(R). */
   @ReturnIfAbrupt(R);
 

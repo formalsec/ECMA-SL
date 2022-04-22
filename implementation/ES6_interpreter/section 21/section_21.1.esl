@@ -1941,7 +1941,7 @@ function StringPrototypestartsWith(global, this, strict, args){
   searchStr := ToString(searchString);
 
   /* 8. ReturnIfAbrupt(searchString). */
-  @ReturnIfAbrupt(searchString);
+  @ReturnIfAbrupt(searchStr);
 
   /* 9. Let pos be ToInteger(position). (If position is undefined, this step produces the value 0). */
   pos := ToInteger(position);
@@ -2083,6 +2083,8 @@ function StringPrototypetoLocaleLowerCase (global, this, strict, args) {
 
   S := ToString(O);
 
+  @ReturnIfAbrupt(S);
+
   L := to_lower_case S; 
 
   return L
@@ -2099,6 +2101,8 @@ function StringPrototypetoLocaleUpperCase (global, this, strict, args) {
   O := RequireObjectCoercible(this);
 
   S := ToString(O);
+
+  @ReturnIfAbrupt(S);
 
   L := to_upper_case S; 
 
@@ -2122,6 +2126,7 @@ function StringPrototypetoLowerCase (global, this, strict, args) {
   O := RequireObjectCoercible(this);
 
   S := ToString(O);
+  @ReturnIfAbrupt(S);
 
   L := to_lower_case S; 
 
@@ -2142,6 +2147,8 @@ function StringPrototypetoUpperCase (global, this, strict, args) {
   O := RequireObjectCoercible(this);
 
   S := ToString(O);
+
+  @ReturnIfAbrupt(S);
 
   L := to_upper_case S; 
 
