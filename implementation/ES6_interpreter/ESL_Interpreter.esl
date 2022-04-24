@@ -886,7 +886,7 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
     name := Identifier.name;
 
     /* 3. Let F be FunctionCreate(Normal, FormalParameters, FunctionBody, scope, strict) */
-    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope, strict, null);
+    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, strict, null);
 
     /* 4. Perform MakeConstructor(F) */
     MakeConstructor(F, null, null);
@@ -908,7 +908,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
       strict := false
     };
 
-    closure := FunctionCreate("normal", FormalParameterList, FunctionBody, scope, strict, null);
+    closure := FunctionCreate("normal", FormalParameterList, FunctionBody, scope.LexicalEnvironment, strict, null);
 
     MakeConstructor(closure, null, null);
 
@@ -937,7 +937,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
 
     SetFunctionName(closure, name, null);
 
-    SetMutableBinding(envRec, name, closure, false);
+    InitializeImmutableBinding(envRec, name, closure);
 
     return NormalCompletion(closure)
   }
@@ -1304,8 +1304,10 @@ function JS_Interpreter_Stmt(s, scope) {
   }
   | { type: "ThrowStatement", argument: Expression } -> {
     /* 12.13 The throw Statement */
-    /* 1. Let exprRef be the result of evaluating Expression. */
+    /* 1. Let exprRef be the result of evaluating Expression. */ 
     exprRef := JS_Interpreter_Expr(Expression, scope);
+    exprValue := GetValue(exprRef);
+    @ReturnIfAbrupt(exprValue);
     /* 2. Return (throw, GetValue(exprRef), empty). */
     return newCompletion('throw, GetValue(exprRef), 'empty)
   }
@@ -1353,7 +1355,9 @@ function JS_Interpreter_IfStatement(IfStatement, scope) {
     /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
     /* 2. If ToBoolean(GetValue(exprRef)) is false, return (normal, empty, empty). */
-    if (ToBoolean(GetValue(exprRef)) = false) {
+    exprValue := GetValue(exprRef);
+    @ReturnIfAbrupt(exprValue);
+    if (ToBoolean(exprValue) = false) {
       return normalEmptyCompletion('empty)
     };
     /* 3. Return the result of evaluating Statement. */

@@ -48,7 +48,7 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, argumentLi
     callerContext := externalScope;
 
     /* 4. Let calleeContext be PrepareForOrdinaryCall(F, undefined). */
-    calleeContext := PrepareForOrdinaryCall(externalScope, F, 'undefined);
+    calleeContext := PrepareForOrdinaryCall(callerContext, F, 'undefined);
 
     /* TODO */
     /* 5. Assert: calleeContext is now the running execution context. */
@@ -108,7 +108,7 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
     /* TODO */
 
     /* 7. Let localEnv be NewFunctionEnvironment(F, newTarget). */
-    localEnv := NewDeclarativeEnvironment(getLexicalEnvironment(externalScope));
+    localEnv := NewDeclarativeEnvironment(F.Environment);
 
     /* 8. Set the LexicalEnvironment of calleeContext to localEnv. */
     calleeContext.LexicalEnvironment := localEnv;
@@ -125,6 +125,9 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
     /* 12. NOTE Any exception objects produced after this point are associated with calleeRealm. */
 
     /* 13. Return calleeContext. */
+    print "calleeContext debug";
+    print calleeContext;
+    print calleeContext.LexicalEnvironment;
     return calleeContext
 };
 
