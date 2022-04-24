@@ -1015,7 +1015,7 @@ function StringPrototypelastIndexOf(global, this, strict, args) {
   searchStr := ToString(searchString);
 
   /* 5. ReturnIfAbrupt(searchString). */
-  @ReturnIfAbrupt(searchString);
+  @ReturnIfAbrupt(searchStr);
 
   /* 6. Let numPos be ToNumber(position). (If position is undefined, this step produces the value NaN). */
   numPos := ToNumber(position);

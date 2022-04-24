@@ -3544,7 +3544,9 @@ function arraySort(global, this, strict, args) {
   k := 1.;
   while (k < len) {
     j := k - 1.;
-    while ((j >= 0.) && (SortCompare(obj, comparefn, j, j + 1.) > 0.)) {
+    sortCompareValue := SortCompare(obj, comparefn, j, j + 1.);
+    @ReturnIfAbrupt(sortCompareValue);
+    while ((j >= 0.) && (sortCompareValue > 0.)) {
       /* This algorithm is similar to the one in Array.prototype.reverse, step 6. */
       inext_str := ToString(j + 1.);
       i_str := ToString(j);
