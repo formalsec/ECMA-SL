@@ -3378,6 +3378,7 @@ function TypedArraySort(global, this, strict, args) {
       sortingValue := GetValueFromBuffer(buffer, sortingIndex, elementType, 'undefined);
       currentValue := GetValueFromBuffer(buffer, currentIndex, elementType, 'undefined);
       comparisonResult := TypedArraySortCompare(sortingValue, currentValue, comparefn, buffer);
+      @ReturnIfAbrupt(comparisonResult);
       if (comparisonResult > 0.) {
         SetValueInBuffer(buffer, sortingIndex, elementType, currentValue, 'undefined);
         SetValueInBuffer(buffer, currentIndex, elementType, sortingValue, 'undefined);

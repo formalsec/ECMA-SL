@@ -469,17 +469,19 @@ function initArrayPrototype(global, objectPrototype, strict) {
 
 
 function getArrayPrototype(strict) {
-  refArray := newPropertyReference(|global|, "Array", strict);
+  return |ArrayPrototype|
+  /*refArray := newPropertyReference(|global|, "Array", strict);
   ArrayObject := GetValue(refArray);
   refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);
   objectArrayProto := GetValue(refArrayProto);
-  return objectArrayProto
+  return objectArrayProto */
 };
 
 
 function initArrayObject(global, objectPrototype, strict) {
 
   objArrayPrototype := initArrayPrototype(global, objectPrototype, strict);
+  |ArrayPrototype| := objArrayPrototype;
 
   /* 22.1.1 The Array Constructor */
   objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict, 0.);
@@ -3568,7 +3570,9 @@ function arraySort(global, this, strict, args) {
           }
         }
       };
-      j := j - 1.
+      j := j - 1.;
+      sortCompareValue := SortCompare(obj, comparefn, j, j + 1.);
+      @ReturnIfAbrupt(sortCompareValue)
     };
     k := k + 1.
   };
