@@ -129,7 +129,11 @@ var differentResults = new TestResultCollection();
 
     for (let testResult of differentResults.flatten()) {
         if (testResult.difference.type === TestResult.DIFFERENT_RESULT) {
-            console.warn(testResult.name, testResult.difference.diff)
+            if (testResult.difference.diff.match(/^.* vs OK$/i)) {
+
+            } else {
+                console.warn(testResult.name, testResult.difference.diff)
+            }
         }
     }
 
