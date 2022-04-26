@@ -417,7 +417,7 @@ function ToString( argument ) {
 			/* 1. Let primValue be ToPrimitive(input argument, hint String). */
 			primValue := ToPrimitive(argument, 'String);
 
-			/* 2. Return ToNumber(primValue). */
+			/* 2. Return ToString(primValue). */
 			return ToString(primValue)
 		}
   }
@@ -447,7 +447,11 @@ function ToObject(argument) {
 
 		case "String": { return StringConstructor(|global|, true, false, [argument]) }
 		
-		case "Symbol": { return SymbolConstructor(|global|, true, false, [argument]) }
+		case "Symbol": { 
+      symbol := SymbolConstructor(|global|, 'undefined, false, []);
+      symbol.SymbolData := argument;
+      return symbol
+    }
 
 		case "Object": { return argument }
 	}

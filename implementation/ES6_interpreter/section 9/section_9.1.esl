@@ -264,7 +264,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
 
         /* Return false, if the [[Enumerable]] field of Desc is present and the [[Enumerable]] fields of current
            and Desc are the Boolean negation of each other. */
-        if ( ("Enumerable" in_obj Desc) &&& !( current.Enumerable = Desc.Enumerable) ) {
+        if ( ("Enumerable" in_obj Desc) &&& !( ToBoolean(current.Enumerable) = ToBoolean(Desc.Enumerable)) ) {
         	return false
         }
     };

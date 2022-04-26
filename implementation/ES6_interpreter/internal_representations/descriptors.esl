@@ -68,4 +68,27 @@ function newGetAndSetAccessorPropertyDescriptorFull(get, set, enumerable, config
   desc.Configurable := configurable;
 
   return desc
+};
+
+function copyDescriptor(desc) {
+  newDesc := NewPropertyDescriptor();
+  if ("Value" in_obj desc) {
+    newDesc.Value := desc.Value
+  };
+  if ("Writable" in_obj desc) {
+    newDesc.Writable := desc.Writable
+  };
+  if ("Get" in_obj desc) {
+    newDesc.Get := desc.Get
+  };
+  if ("Set" in_obj desc) {
+    newDesc.Set := desc.Set
+  };
+  if ("Enumerable" in_obj desc) {
+    newDesc.Enumerable := desc.Enumerable
+  };
+  if ("Configurable" in_obj desc) {
+    newDesc.Configurable := desc.Configurable
+  };
+  return newDesc
 }

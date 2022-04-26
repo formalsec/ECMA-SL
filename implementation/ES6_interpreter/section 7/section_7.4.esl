@@ -44,7 +44,7 @@ function GetIterator(obj, method) {
     iterator := CallNew(null, null, method, obj, []);
     
     /* 4. ReturnIfAbrupt(iterator). */
-    @ReturnIfAbrupt(obj); 
+    @ReturnIfAbrupt(iterator); 
 
     /* If Type(iterator) is not Object, throw a TypeError exception. */
     if (!(Type(iterator) = "Object")) {
@@ -84,7 +84,7 @@ function IteratorClose(iterator, completion) {
     /* 5. If return is undefined, return Completion(completion). */
     if (returnVar = 'undefined) {
         print "DEBUG IteratorClose 1";
-        throw getCompletionValue(completion)
+        return Completion(completion)
     };
 
     /* 6. Let innerResult be Call(return, iterator, «‍ »). */
@@ -93,15 +93,13 @@ function IteratorClose(iterator, completion) {
     /* 7. If completion.[[type]] is throw, return Completion(completion). */
     if (getCompletionType(completion) = 'throw) {
         print "DEBUG IteratorClose 2";
-        /* TODO completion should be returned */
-        throw getCompletionValue(completion)
+        return Completion(completion)
     };
 
     /* 8. If innerResult.[[type]] is throw, return Completion(innerResult). */
     if (getCompletionType(getCompletionValue(innerResult)) = 'throw) {
         print "DEBUG IteratorClose 3";
-        /* TODO completion should be returned */
-        throw getCompletionValue(getCompletionValue(innerResult))
+        return Completion(getCompletionValue(innerResult))
     };
 
     /* 9. If Type(innerResult.[[value]]) is not Object, throw a TypeError exception. */
@@ -112,7 +110,7 @@ function IteratorClose(iterator, completion) {
 
     /* 10. Return Completion(completion). */
     print "DEBUG IteratorClose 5";
-    return completion
+    return Completion(completion)
 };
 
 /*

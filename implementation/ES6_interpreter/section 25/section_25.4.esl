@@ -115,20 +115,6 @@ function isPromiseCapabilityRecord(record) {
 function isPromiseReactionRecord(record) {
   return (("Capabilities" in_obj record) &&& ("Handler" in_obj record))
 };
-/* 6.2.2.1
-NormalCompletion
-
-The abstract operation NormalCompletion with a single argument, such as:
-
-    Return NormalCompletion(argument).
-
-Is a shorthand that is defined as follows:
-
-    Return Completion{[[type]]: normal, [[value]]: argument, [[target]]:empty}.
- */
-function Completion(argument) {
-  return newCompletion('normal, argument, 'empty)
-};
 /* Might make sense to move this one to section 8.9 */
 function isCompletionRecord(record) {
   return (Type(record) = "Completion")
