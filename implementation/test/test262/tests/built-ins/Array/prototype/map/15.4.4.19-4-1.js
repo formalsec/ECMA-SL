@@ -2,11 +2,11 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.19-4-1
+esid: sec-array.prototype.map
 description: Array.prototype.map throws TypeError if callbackfn is undefined
 ---*/
 
-  var arr = new Array(10);
+var arr = new Array(10);
 assert.throws(TypeError, function() {
-    arr.map();
+  arr.map();
 });

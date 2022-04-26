@@ -2,12 +2,15 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.14-3-9
+esid: sec-array.prototype.indexof
 description: >
     Array.prototype.indexOf - value of 'length' is a number (value is
     -Infinity)
 ---*/
 
-        var obj = { 0: 0, length: -Infinity };
+var obj = {
+  0: 0,
+  length: -Infinity
+};
 
 assert.sameValue(Array.prototype.indexOf.call(obj, 0), -1, 'Array.prototype.indexOf.call(obj, 0)');

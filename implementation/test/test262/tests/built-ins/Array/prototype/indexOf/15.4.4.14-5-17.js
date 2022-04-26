@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.14-5-17
+esid: sec-array.prototype.indexof
 description: >
     Array.prototype.indexOf - value of 'fromIndex' is a string
     containing -Infinity

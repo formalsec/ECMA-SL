@@ -2,11 +2,11 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.16-1-2
+esid: sec-array.prototype.every
 description: Array.prototype.every applied to null throws a TypeError
 ---*/
 
 
 assert.throws(TypeError, function() {
-            Array.prototype.every.call(null); // TypeError is thrown if value is null
+  Array.prototype.every.call(null); // TypeError is thrown if value is null
 });

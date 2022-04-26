@@ -2,11 +2,11 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.21-4-1
+esid: sec-array.prototype.reduce
 description: Array.prototype.reduce throws TypeError if callbackfn is undefined
 ---*/
 
-  var arr = new Array(10);
+var arr = new Array(10);
 assert.throws(TypeError, function() {
-    arr.reduce();
+  arr.reduce();
 });

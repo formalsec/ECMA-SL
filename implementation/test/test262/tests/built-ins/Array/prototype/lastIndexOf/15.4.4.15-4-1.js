@@ -2,12 +2,12 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.15-4-1
+esid: sec-array.prototype.lastindexof
 description: >
     Array.prototype.lastIndexOf returns -1 if 'length' is 0 (empty
     array)
 ---*/
 
-  var i = [].lastIndexOf(42);
+var i = [].lastIndexOf(42);
 
 assert.sameValue(i, -1, 'i');

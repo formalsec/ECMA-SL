@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.14-9-b-i-2
+esid: sec-array.prototype.indexof
 description: >
     Array.prototype.indexOf - element to be retrieved is own data
     property on an Array

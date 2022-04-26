@@ -110,6 +110,7 @@ assert.throws = function (expectedErrorConstructor, func, message) {
 
 /* @id harnessIsConfigurable */
 function isConfigurable(obj, name) {
+    var hasOwnProperty = Object.prototype.hasOwnProperty;
     try {
         delete obj[name];
     } catch (e) {
@@ -117,12 +118,34 @@ function isConfigurable(obj, name) {
             $ERROR("Expected TypeError, got " + e);
         }
     }
-    return !obj.hasOwnProperty(name);
+    return !hasOwnProperty.call(obj, name);
 }
 
 function isEnumerable(obj, name) {
-    return obj.hasOwnProperty(name) &&
-    obj.propertyIsEnumerable(name);
+    var stringCheck = false;
+  
+    if (typeof name === "string") {
+        for (var x in obj) {
+            if (x === name) {
+                stringCheck = true;
+                break;
+            }
+        }
+    } else {
+        // skip it if name is not string, works for Symbol names.
+        stringCheck = true;
+    }
+  
+    return stringCheck &&
+        Object.prototype.hasOwnProperty.call(obj, name) &&
+        Object.prototype.propertyIsEnumerable.call(obj, name);
+}
+
+function isSameValue(a, b) {
+    if (a === 0 && b === 0) return 1 / a === 1 / b;
+    if (a !== a && b !== b) return true;
+  
+    return a === b;
 }
 
 function isEqualTo(obj, name, expectedValue) {
@@ -131,34 +154,38 @@ function isEqualTo(obj, name, expectedValue) {
     return assert._isSameValue(actualValue, expectedValue);
 }
 
+var __isArray = Array.isArray;
 function isWritable(obj, name, verifyProp, value) {
-    var newValue = value || "unlikelyValue";
-    var hadValue = obj.hasOwnProperty(name);
-    var oldValue = obj[name];
-    var writeSucceeded;
+  var unlikelyValue = __isArray(obj) && name === "length" ?
+    Math.pow(2, 32) - 1 :
+    "unlikelyValue";
+  var newValue = value || unlikelyValue;
+  var hadValue = Object.prototype.hasOwnProperty.call(obj, name);
+  var oldValue = obj[name];
+  var writeSucceeded;
 
-    try {
-        obj[name] = newValue;
-    } catch (e) {
-        if (!(e instanceof TypeError)) {
-            $ERROR("Expected TypeError, got " + e);
-        }
+  try {
+    obj[name] = newValue;
+  } catch (e) {
+    if (!(e instanceof TypeError)) {
+      throw new Test262Error("Expected TypeError, got " + e);
     }
+  }
 
-    writeSucceeded = isEqualTo(obj, verifyProp || name, newValue);
+  writeSucceeded = isSameValue(obj[verifyProp || name], newValue);
 
-    // Revert the change only if it was successful (in other cases, reverting
-    // is unnecessary and may trigger exceptions for certain property
-    // configurations)
-    if (writeSucceeded) {
-      if (hadValue) {
-        obj[name] = oldValue;
-      } else {
-        delete obj[name];
-      }
+  // Revert the change only if it was successful (in other cases, reverting
+  // is unnecessary and may trigger exceptions for certain property
+  // configurations)
+  if (writeSucceeded) {
+    if (hadValue) {
+      obj[name] = oldValue;
+    } else {
+      delete obj[name];
     }
+  }
 
-    return writeSucceeded;
+  return writeSucceeded;
 }
 
 function verifyEqualTo(obj, name, value) {

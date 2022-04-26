@@ -2,10 +2,10 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The join function is intentionally generic.
     It does not require that its this value be an Array object
-es5id: 15.4.4.5_A2_T4
+esid: sec-array.prototype.join
 description: >
     Operator use ToNumber from length.  If Type(value) is Object,
     evaluate ToPrimitive(value, Number)
@@ -14,71 +14,103 @@ description: >
 var obj = {};
 obj.join = Array.prototype.join;
 
-//CHECK#1
-obj.length = {valueOf: function() {return 3}};
-if (obj.join() !== ",,") {
-  $ERROR('#1: obj.length = {valueOf: function() {return 3}}  obj.join() === ",,". Actual: ' + (obj.join()));
-}
+obj.length = {
+  valueOf() {
+    return 3
+  }
+};
+assert.sameValue(obj.join(), ",,", 'obj.join() must return ",,"');
 
-//CHECK#2
-obj.length = {valueOf: function() {return 3}, toString: function() {return 2}};
-if (obj.join() !== ",,") {
-  $ERROR('#2: obj.length = {valueOf: function() {return 3}, toString: function() {return 2}}  obj.join() === ",,". Actual: ' + (obj.join()));
-} 
+obj.length = {
+  valueOf() {
+    return 3
+  },
+  toString() {
+    return 2
+  }
+};
+assert.sameValue(obj.join(), ",,", 'obj.join() must return ",,"');
 
-//CHECK#3
-obj.length = {valueOf: function() {return 3}, toString: function() {return {}}};
-if (obj.join() !== ",,") {
-  $ERROR('#3: obj.length = {valueOf: function() {return 3}, toString: function() {return {}}}  obj.join() === ",,". Actual: ' + (obj.join()));
-}
+obj.length = {
+  valueOf() {
+    return 3
+  },
+  toString() {
+    return {}
+  }
+};
+assert.sameValue(obj.join(), ",,", 'obj.join() must return ",,"');
 
-//CHECK#4
-try {  
-  obj.length = {valueOf: function() {return 3}, toString: function() {throw "error"}};  
-  if (obj.join() !== ",,") {
-    $ERROR('#4.1: obj.length = {valueOf: function() {return 3}, toString: function() {throw "error"}}; obj.join() === ",". Actual: ' + (obj.join()));
+obj.length = {
+  valueOf() {
+    return 3
+  },
+  toString() {
+    throw new Test262Error();
+  }
+};
+assert.sameValue(obj.join(), ",,", 'obj.join() must return ",,"');
+
+obj.length = {
+  toString() {
+    return 2
+  }
+};
+assert.sameValue(obj.join(), ",", 'obj.join() must return ","');
+
+obj.length = {
+  valueOf() {
+    return {}
+  },
+  toString() {
+    return 2
   }
 }
-catch (e) {
-  if (e === "error") {
-    $ERROR('#4.2: obj.length = {valueOf: function() {return 3}, toString: function() {throw "error"}}; obj.join() not throw "error"');
-  } else {
-    $ERROR('#4.3: obj.length = {valueOf: function() {return 3}, toString: function() {throw "error"}}; obj.join() not throw Error. Actual: ' + (e));
-  }
-}
+assert.sameValue(obj.join(), ",", 'obj.join() must return ","');
 
-//CHECK#5
-obj.length = {toString: function() {return 2}};
-if (obj.join() !== ",") {
-  $ERROR('#5: obj.length = {toString: function() {return 2}}  obj.join() === ",". Actual: ' + (obj.join()));
-}
-
-//CHECK#6
-obj.length = {valueOf: function() {return {}}, toString: function() {return 2}}
-if (obj.join() !== ",") {
-  $ERROR('#6: obj.length = {valueOf: function() {return {}}, toString: function() {return 2}}  obj.join() === ",". Actual: ' + (obj.join()));
-}
-
-//CHECK#7
-try {
-  obj.length = {valueOf: function() {throw "error"}, toString: function() {return 2}};  
+/* assert.throws(Test262Error, () => { TODO: uncomment and remove call below when arrow functions are implemented.
+  obj.length = {
+    valueOf() {
+      throw new Test262Error();
+    },
+    toString() {
+      return 2
+    }
+  };
   obj.join();
-  $ERROR('#7.1: obj.length = {valueOf: function() {throw "error"}, toString: function() {return 2}}; obj.join() throw "error". Actual: ' + (obj.join()));
-}  
-catch (e) {
-  if (e !== "error") {
-    $ERROR('#7.2: obj.length = {valueOf: function() {throw "error"}, toString: function() {return 2}}; obj.join() throw "error". Actual: ' + (e));
-  } 
-}
-
-//CHECK#8
-try {
-  obj.length = {valueOf: function() {return {}}, toString: function() {return {}}};
+}); */
+assert.throws(Test262Error, function () {
+  obj.length = {
+    valueOf() {
+      throw new Test262Error();
+    },
+    toString() {
+      return 2
+    }
+  };
   obj.join();
-  $ERROR('#8.1: obj.length = {valueOf: function() {return {}}, toString: function() {return {}}}  obj.join() throw TypeError. Actual: ' + (obj.join()));
-}  
-catch (e) {
-  if ((e instanceof TypeError) !== true) {
-    $ERROR('#8,2: obj.length = {valueOf: function() {return {}}, toString: function() {return {}}}  obj.join() throw TypeError. Actual: ' + (e));
-  } 
-}
+});
+
+/* assert.throws(TypeError, () => { TODO: uncomment and remove call below when arrow functions are implemented.
+  obj.length = {
+    valueOf() {
+      return {}
+    },
+    toString() {
+      return {}
+    }
+  };
+  obj.join();
+}); */
+
+assert.throws(TypeError, function () {
+  obj.length = {
+    valueOf() {
+      return {}
+    },
+    toString() {
+      return {}
+    }
+  };
+  obj.join();
+});

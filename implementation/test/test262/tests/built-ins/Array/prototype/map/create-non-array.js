@@ -1,7 +1,6 @@
 // Copyright (C) 2016 the V8 project authors. All rights reserved.
 // This code is governed by the BSD license found in the LICENSE file.
 /*---
-es6id: 22.1.3.16
 esid: sec-array.prototype.map
 description: Constructor is ignored for non-Array values
 info: |
@@ -16,7 +15,9 @@ info: |
     4. If isArray is false, return ? ArrayCreate(length).
 ---*/
 
-var obj = { length: 0 };
+var obj = {
+  length: 0
+};
 var callCount = 0;
 var result;
 Object.defineProperty(obj, 'constructor', {

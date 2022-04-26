@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.15-8-b-iii-1
+esid: sec-array.prototype.lastindexof
 description: >
     Array.prototype.lastIndexOf returns index of last one when more
     than two elements in array are eligible

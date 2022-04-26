@@ -2,13 +2,13 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.22-4-2
+esid: sec-array.prototype.reduceright
 description: >
     Array.prototype.reduceRight throws ReferenceError if callbackfn is
     unreferenced
 ---*/
 
-  var arr = new Array(10);
+var arr = new Array(10);
 assert.throws(ReferenceError, function() {
-    arr.reduceRight(foo);
+  arr.reduceRight(foo);
 });

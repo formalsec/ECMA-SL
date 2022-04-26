@@ -3,7 +3,7 @@
 
 /*---
 info: The splice property of Array can't be used as constructor
-es5id: 15.4.4.12_A5.7
+esid: sec-array.prototype.splice
 description: >
     If property does not implement the internal [[Construct]] method,
     throw a TypeError exception
@@ -13,9 +13,9 @@ description: >
 
 try {
   new Array.prototype.splice();
-  $ERROR('#1.1: new Array.prototype.splice() throw TypeError. Actual: ' + (new Array.prototype.splice()));
+  throw new Test262Error('#1.1: new Array.prototype.splice() throw TypeError. Actual: ' + (new Array.prototype.splice()));
 } catch (e) {
   if ((e instanceof TypeError) !== true) {
-    $ERROR('#1.2: new Array.prototype.splice() throw TypeError. Actual: ' + (e));
+    throw new Test262Error('#1.2: new Array.prototype.splice() throw TypeError. Actual: ' + (e));
   }
 }

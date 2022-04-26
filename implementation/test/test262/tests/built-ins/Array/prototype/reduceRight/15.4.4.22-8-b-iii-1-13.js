@@ -2,42 +2,46 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.22-8-b-iii-1-13
+esid: sec-array.prototype.reduceright
 description: >
     Array.prototype.reduceRight - element to be retrieved is own
     accessor property that overrides an inherited accessor property on
     an Array-like object
 ---*/
 
-        var testResult = false;
-        function callbackfn(prevVal, curVal, idx, obj) {
-            if (idx === 1) {
-                testResult = (prevVal === "20");
-            }
-        }
+var testResult = false;
 
-        var proto = { 0: 0, 1: 1 };
+function callbackfn(prevVal, curVal, idx, obj) {
+  if (idx === 1) {
+    testResult = (prevVal === "20");
+  }
+}
 
-        Object.defineProperty(proto, "2", {
-            get: function () {
-                return 2;
-            },
-            configurable: true
-        });
+var proto = {
+  0: 0,
+  1: 1
+};
 
-        var Con = function () { };
-        Con.prototype = proto;
+Object.defineProperty(proto, "2", {
+  get: function() {
+    return 2;
+  },
+  configurable: true
+});
 
-        var child = new Con();
-        child.length = 3;
+var Con = function() {};
+Con.prototype = proto;
 
-        Object.defineProperty(child, "2", {
-            get: function () {
-                return "20";
-            },
-            configurable: true
-        });
+var child = new Con();
+child.length = 3;
 
-        Array.prototype.reduceRight.call(child, callbackfn);
+Object.defineProperty(child, "2", {
+  get: function() {
+    return "20";
+  },
+  configurable: true
+});
+
+Array.prototype.reduceRight.call(child, callbackfn);
 
 assert(testResult, 'testResult !== true');

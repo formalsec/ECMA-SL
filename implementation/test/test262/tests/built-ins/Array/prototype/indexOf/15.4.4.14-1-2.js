@@ -2,11 +2,11 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.14-1-2
+esid: sec-array.prototype.indexof
 description: Array.prototype.indexOf applied to null throws a TypeError
 ---*/
 
 
 assert.throws(TypeError, function() {
-     Array.prototype.indexOf.call(null);
+  Array.prototype.indexOf.call(null);
 });

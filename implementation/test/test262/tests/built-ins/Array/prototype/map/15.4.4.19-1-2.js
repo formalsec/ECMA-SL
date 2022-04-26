@@ -2,11 +2,11 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.19-1-2
+esid: sec-array.prototype.map
 description: Array.prototype.map - applied to null
 ---*/
 
 
 assert.throws(TypeError, function() {
-            Array.prototype.map.call(null); // TypeError is thrown if value is null
+  Array.prototype.map.call(null); // TypeError is thrown if value is null
 });

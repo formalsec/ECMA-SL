@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.14-5-33
+esid: sec-array.prototype.indexof
 description: >
     Array.prototype.indexOf match on the first element, a middle
     element and the last element when 'fromIndex' is passed

@@ -2,11 +2,11 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.16-1-1
+esid: sec-array.prototype.every
 description: Array.prototype.every applied to undefined throws a TypeError
 ---*/
 
 
 assert.throws(TypeError, function() {
-            Array.prototype.every.call(undefined); // TypeError is thrown if value is undefined
+  Array.prototype.every.call(undefined); // TypeError is thrown if value is undefined
 });

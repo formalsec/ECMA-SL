@@ -2,18 +2,18 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.21-9-10
+esid: sec-array.prototype.reduce
 description: >
     Array.prototype.reduce called with an initial value doesn't
     consider new elements added to array after it is called
 ---*/
 
-  function callbackfn(prevVal, curVal, idx, obj) {
-    arr[5] = 6;
-    arr[2] = 3;   
-    return prevVal + curVal;
-  }
+function callbackfn(prevVal, curVal, idx, obj) {
+  arr[5] = 6;
+  arr[2] = 3;
+  return prevVal + curVal;
+}
 
-  var arr = [1,2,,4,'5'];
+var arr = [1, 2, , 4, '5'];
 
 assert.sameValue(arr.reduce(callbackfn, ""), "12345", 'arr.reduce(callbackfn, "")');

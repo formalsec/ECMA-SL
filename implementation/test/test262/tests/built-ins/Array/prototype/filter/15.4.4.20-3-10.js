@@ -2,21 +2,25 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.20-3-10
+esid: sec-array.prototype.filter
 description: >
     Array.prototype.filter - value of 'length' is a number (value is
     NaN)
 ---*/
 
-        var accessed = false;
-        function callbackfn(val, idx, obj) {
-            accessed = true;
-            return true;
-        }
+var accessed = false;
 
-        var obj = { 0: 9, length: NaN };
+function callbackfn(val, idx, obj) {
+  accessed = true;
+  return true;
+}
 
-        var newArr = Array.prototype.filter.call(obj, callbackfn);
+var obj = {
+  0: 9,
+  length: NaN
+};
+
+var newArr = Array.prototype.filter.call(obj, callbackfn);
 
 assert.sameValue(newArr.length, 0, 'newArr.length');
 assert.sameValue(accessed, false, 'accessed');

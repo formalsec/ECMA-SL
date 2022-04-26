@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.15-7-2
+esid: sec-array.prototype.lastindexof
 description: >
     Array.prototype.lastIndexOf returns correct index when 'fromIndex'
     is -1

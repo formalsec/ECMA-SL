@@ -2,14 +2,14 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.17-7-c-iii-20
+esid: sec-array.prototype.some
 description: >
     Array.prototype.some - return value of callbackfn is the Math
     object
 ---*/
 
-        function callbackfn(val, idx, obj) {
-            return Math;
-        }
+function callbackfn(val, idx, obj) {
+  return Math;
+}
 
 assert([11].some(callbackfn), '[11].some(callbackfn) !== true');

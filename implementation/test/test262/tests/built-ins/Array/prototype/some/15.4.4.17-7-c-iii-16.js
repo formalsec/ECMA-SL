@@ -2,14 +2,14 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.17-7-c-iii-16
+esid: sec-array.prototype.some
 description: >
     Array.prototype.some - return value of callbackfn is an Array
     object
 ---*/
 
-        function callbackfn(val, idx, obj) {
-            return new Array(10);
-        }
+function callbackfn(val, idx, obj) {
+  return new Array(10);
+}
 
 assert([11].some(callbackfn), '[11].some(callbackfn) !== true');
