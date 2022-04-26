@@ -312,11 +312,7 @@ function JS_Interpreter_Expr(e, scope) {
 
     /* 9. Return EvaluateDirectCall(func, thisValue, Arguments, tailCall). */
     print "DEBUG CALL EXPRESSION, CALLING EvaluateDirectCall";
-    resultCall := EvaluateDirectCall(func, thisValue, Arguments, false, scope);
-    if (isAnAbruptCompletion(resultCall) &&& getCompletionType(resultCall) = 'throw) {
-       throw getCompletionValue(resultCall)
-    };
-    return resultCall
+    return EvaluateDirectCall(func, thisValue, Arguments, false, scope)
   }
   | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
     /* 11.2.5 Function Expressions */
