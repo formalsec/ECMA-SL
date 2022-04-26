@@ -140,6 +140,7 @@
                 "array_make"            , ARRAY_MAKE;
                 "a_nth"                 , ANTH;
                 "a_set"                 , ASET;
+                "l_set"                 , LSET;
                 "a_len"                 , ALEN;
                 "list_to_array"         , LIST_TO_ARRAY;
                 ]
