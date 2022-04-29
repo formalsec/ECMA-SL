@@ -1,3 +1,4 @@
+#! /bin/node
 const fs = require("fs/promises")
 
 async function parseFile(file, fn) {
@@ -26,7 +27,7 @@ function firstPass(data) {
     
     for (let line of lines) {
         if (line.startsWith("test")) {
-            testsResults.write(TestResult.from(line, 1))
+            testsResultsFile1.write(TestResult.from(line, 1))
         }
     }
 }
@@ -37,18 +38,36 @@ function secondPass(data) {
     for (let line of lines) {
         if (line.startsWith("test")) {
             let testResult = TestResult.from(line, 2)
-            let compTestResult = testsResults.read(testResult.name)
+            let compTestResult = testsResultsFile1.read(testResult.name)
             if (compTestResult) {
                 if (testResult.result !== compTestResult.result) {
                     testResult.difference = {type: TestResult.DIFFERENT_RESULT, diff: `${compTestResult.result} vs ${testResult.result}`}
-                    differentResults.write(testResult)
                 }
             } else {
                 testResult.difference = {type: TestResult.NOT_EXISTS}
-                differentResults.write(testResult)
             }
+            testsResultsFile2.write(testResult)
         }
     }
+}
+
+function difference(set1, set2) {
+    const differentResults = new TestResultCollection();
+
+    for (let compTestResult of set1.flatten()) {
+        let testResult = set2.read(compTestResult.name)
+        if (testResult) {
+            if (testResult.result !== compTestResult.result) {
+                compTestResult.difference = {type: TestResult.DIFFERENT_RESULT, diff: `${compTestResult.result} vs ${testResult.result}`}
+                differentResults.write(compTestResult)
+            }
+        } else {
+            compTestResult.difference = {type: TestResult.NOT_EXISTS, diff: `${compTestResult.result} vs NOT_EXISTS`}
+            differentResults.write(compTestResult)
+        }
+    }
+    
+    return differentResults
 }
 
 class TestResultCollection {
@@ -73,7 +92,7 @@ class TestResultCollection {
         for (let i = 0; i < testName.length - 1; ++i) {
             const segment = testName[i]
             if (!root[segment]) {
-                root[segment] = {}
+                return undefined
             }
             root = root[segment]
         }
@@ -117,23 +136,30 @@ class TestResult {
     }
 }
 
-let file1 = process.argv[2]
-let file2 = process.argv[3]
+if (process.argv.length < 4) throw "Need 2 input file paths."
+let file1 = process.argv[process.argv.length - 2]
+let file2 = process.argv[process.argv.length - 1]
+const excludeNotExists = process.argv.includes("-e")
+const fixed = process.argv.includes("-f") || process.argv.includes("--fixed")
 
-var testsResults = new TestResultCollection()
-var differentResults = new TestResultCollection();
+var testsResultsFile1 = new TestResultCollection()
+var testsResultsFile2 = new TestResultCollection();
 
 (async () => {
     await parseFile(file1, firstPass)
     await parseFile(file2, secondPass)
 
+    const differentResults = difference(testsResultsFile1, testsResultsFile2);
+
+    let ignoredResults = fixed ? [/^.* vs [^(OK)]$/i] : [/^.* vs OK$/i, /^.*ERROR vs FAIL$/i]
+
     for (let testResult of differentResults.flatten()) {
         if (testResult.difference.type === TestResult.DIFFERENT_RESULT) {
-            if (testResult.difference.diff.match(/^.* vs OK$/i)) {
-
-            } else {
-                console.warn(testResult.name, testResult.difference.diff)
+            if (!ignoredResults.some(regex => testResult.difference.diff.match(regex))) {
+                console.log(testResult.name, testResult.difference.diff)
             }
+        } else if (testResult.difference.type === TestResult.NOT_EXISTS && !excludeNotExists) {
+            console.log(testResult.name, testResult.difference.diff)
         }
     }
 
