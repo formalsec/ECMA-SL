@@ -84,9 +84,9 @@ function OrdinaryObjectSetPrototypeOf(O, V) {
     done := false;
 
     /* Repeat while done is false, */
-    while (done) {
+    while (done = false) {
         /* If p is null, let done be true. */
-        if ( p = null) {
+        if ( p = 'null) {
         	done := true
         } 
     	/* Else, if SameValue(p, O) is true, return false. */
@@ -96,7 +96,7 @@ function OrdinaryObjectSetPrototypeOf(O, V) {
         /* Else, */
         else {
             /* If the [[GetPrototypeOf]] internal method of p is not the ordinary object internal method defined in 9.1.1, let done be true. */
-            if ( {p.GetPrototypeOf}(p) ) { /* nao esta bem feito nao sei como verificar o que esta em cima */
+            if ( !(p.GetPrototypeOf = "OrdinaryObjectGetPrototypeOf") ) {
             	done := true
             }
             /* Else, let p be the value of p’s [[Prototype]] internal slot. */

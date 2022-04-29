@@ -422,7 +422,7 @@ function PromiseResolveFunctions(F, global, this, strict, args) {
   /* 4. If alreadyResolved.[[value]] is true, */
   if (alreadyResolved.value = true) {
     /* return undefined */
-    return 'undefined
+    return NormalCompletion('undefined)
   };
   /* 5. Set alreadyResolved.[[value]] to true. */
   alreadyResolved.value := true;
@@ -456,7 +456,7 @@ function PromiseResolveFunctions(F, global, this, strict, args) {
      «‍promise, resolution, thenAction») */
   EnqueueJob("PromiseJobs", "PromiseResolveThenableJob", [strict, promise, resolution, thenAction]);
   /* 13. Return undefined. */
-  return 'undefined
+  return NormalCompletion('undefined)
 };
 /**
  * The length property of a promise resolve function is 1. 
@@ -674,7 +674,7 @@ function TriggerPromiseReactions(reactions, argument) {
     EnqueueJob("PromiseJobs", "PromiseReactionJob", [reaction, argument])
   };
   /* 2. Return undefined. */
-  return 'undefined
+  return NormalCompletion('undefined)
 };
 
 
@@ -1003,7 +1003,7 @@ function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability
         @ReturnIfAbrupt(resolveResult)
       };
       /* iv. Return resultCapability.[[Promise]]. */
-      return resultCapability.Promise
+      return NormalCompletion(resultCapability.Promise)
     };
     /* e. Let nextValue be IteratorValue(next). */
     nextValue := IteratorValue(next);
@@ -1017,7 +1017,7 @@ function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability
     /* h. Append undefined to values. */
     stack := l_add(values, 'undefined);
     /* i. Let nextPromise be Invoke(constructor, "resolve", «‍nextValue»). */
-    nextPromise := Invoke(constructor, "resolve", [nextValue]);
+    nextPromise := Invoke(null, null, constructor, "resolve", [nextValue]);
     /* j. ReturnIfAbrupt(nextPromise ). */
     @ReturnIfAbrupt(nextPromise);
     /* k. Let resolveElement be a new built-in function object as defined in 
@@ -1041,7 +1041,7 @@ function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability
     remainingElementsCount.value := remainingElementsCount.value + 1.;
     /* r. Let result be Invoke(nextPromise, "then", «‍resolveElement, 
        resultCapability.[[Reject]]»). */
-    result := Invoke(nextPromise, "then", [resolveElement, resultCapability.Reject]);
+    result := Invoke(null, null, nextPromise, "then", [resolveElement, resultCapability.Reject]);
     /* s. ReturnIfAbrupt(result). */
     @ReturnIfAbrupt(result);
     /* t. Set index to index + 1. */
@@ -1211,7 +1211,7 @@ function PerformPromiseRace(iteratorRecord, promiseCapability, C) {
       /* i. Set iteratorRecord.[[done]] to true. */
       iteratorRecord.done := true;
       /* ii. Return promiseCapability.[[Promise]]. */
-      return promiseCapability.Promise
+      return NormalCompletion(promiseCapability.Promise)
     };
     /* e. Let nextValue be IteratorValue(next). */
     nextValue := IteratorValue(next);
@@ -1223,12 +1223,12 @@ function PerformPromiseRace(iteratorRecord, promiseCapability, C) {
     /* g. ReturnIfAbrupt(nextValue). */
     @ReturnIfAbrupt(nextValue);
     /* h. Let nextPromise be Invoke(C, "resolve", «‍nextValue»). */
-    nextPromise := Invoke(C, "resolve", [nextValue]);
+    nextPromise := Invoke(null, null, C, "resolve", [nextValue]);
     /* i. ReturnIfAbrupt(nextPromise). */
     @ReturnIfAbrupt(nextPromise);
     /* j. Let result be Invoke(nextPromise, "then", 
        «‍promiseCapability.[[Resolve]], promiseCapability.[[Reject]]»). */
-    result := Invoke(nextPromise, "then", [promiseCapability.Resolve, promiseCapability.Reject]);
+    result := Invoke(null, null, nextPromise, "then", [promiseCapability.Resolve, promiseCapability.Reject]);
     /* k. ReturnIfAbrupt(result). */
     @ReturnIfAbrupt(result)
   };
@@ -1360,7 +1360,7 @@ function PromisePrototypeCatch(global, this, strict, args) {
   /* 1. Let promise be the this value. */
   promise := this;
   /* 2. Return Invoke(promise, "then", «‍undefined, onRejected»). */
-  return Invoke(promise, "then", ['undefined, onRejected])
+  return Invoke(null, null, promise, "then", ['undefined, onRejected])
 };
 
 
@@ -1469,7 +1469,7 @@ function PerformPromiseThen(promise, onFulfilled, onRejected, resultCapability) 
     EnqueueJob("PromiseJobs", "PromiseReactionJob", [rejectReaction, reason])
   };
   /* 10. Return resultCapability.[[Promise]]. */
-  return resultCapability.Promise
+  return NormalCompletion(resultCapability.Promise)
 }
 
 
