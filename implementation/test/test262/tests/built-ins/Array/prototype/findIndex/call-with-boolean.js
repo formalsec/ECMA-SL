@@ -7,12 +7,12 @@ description: Array.prototype.findIndex applied to boolean primitive
 ---*/
 
 assert.sameValue(
-  Array.prototype.findIndex.call(true, () => {}),
+  Array.prototype.findIndex.call(true, function () /* TODO: => */ {}),
   -1,
-  'Array.prototype.findIndex.call(true, () => {}) must return -1'
+  'Array.prototype.findIndex.call(true, function () /* TODO: => */ {}) must return -1'
 );
 assert.sameValue(
-  Array.prototype.findIndex.call(false, () => {}),
+  Array.prototype.findIndex.call(false, function () /* TODO: => */ {}),
   -1,
-  'Array.prototype.findIndex.call(false, () => {}) must return -1'
+  'Array.prototype.findIndex.call(false, function () /* TODO: => */ {}) must return -1'
 );

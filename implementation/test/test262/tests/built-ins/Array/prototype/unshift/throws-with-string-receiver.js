@@ -28,18 +28,18 @@ info: |
   5. If success is false and Throw is true, throw a TypeError exception.
 ---*/
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Array.prototype.unshift.call('');
 }, "Array.prototype.unshift.call('')");
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Array.prototype.unshift.call('', 1);
 }, "Array.prototype.unshift.call('', 1)");
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Array.prototype.unshift.call('abc');
 }, "Array.prototype.unshift.call('abc')");
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Array.prototype.unshift.call('abc', 1);
 }, "Array.prototype.unshift.call('abc', 1)");

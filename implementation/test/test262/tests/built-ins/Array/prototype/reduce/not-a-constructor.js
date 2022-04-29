@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype.reduce) must return false'
 );
 
-assert.throws(TypeError, () => {
-  new Array.prototype.reduce(() => {}, []);
-}, '`new Array.prototype.reduce(() => {}, [])` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  new Array.prototype.reduce(function () /* TODO: => */ {}, []);
+}, '`new Array.prototype.reduce(function () /* TODO: => */ {}, [])` throws TypeError');
 

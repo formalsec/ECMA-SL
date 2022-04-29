@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Date.prototype.setUTCFullYear) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let date = new Date(Date.now()); new date.setUTCFullYear();
 }, '`let date = new Date(Date.now()); new date.setUTCFullYear()` throws TypeError');
 

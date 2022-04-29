@@ -48,9 +48,9 @@ let iterNextValThrows = {
   }
 };
 
-Promise.any(iterNextValThrows).then(() => {
+Promise.any(iterNextValThrows).then(function () /* TODO: => */ {
   $DONE('The promise should be rejected, but was resolved');
-}, (reason) => {
+}, function (reason) /* TODO: => */ {
   assert(error instanceof Test262Error);
   assert.sameValue(reason, error);
   assert.sameValue(callCount, 3, 'callCount === 3');

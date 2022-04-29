@@ -23,7 +23,7 @@ features: [Reflect.construct, TypedArray, arrow-function]
 
 assert.sameValue(isConstructor(TypedArray.of), false, 'isConstructor(TypedArray.of) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new TypedArray.of(1, 2, 3, 4);
 }, '`new TypedArray.of(1, 2, 3, 4)` throws TypeError');
 

@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype.forEach) must return false'
 );
 
-assert.throws(TypeError, () => {
-  new Array.prototype.forEach(() => {});
-}, '`new Array.prototype.forEach(() => {})` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  new Array.prototype.forEach(function () /* TODO: => */ {});
+}, '`new Array.prototype.forEach(function () /* TODO: => */ {})` throws TypeError');
 

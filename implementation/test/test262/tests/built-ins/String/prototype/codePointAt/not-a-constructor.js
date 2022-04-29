@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.codePointAt) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.codePointAt();
 }, '`new String.prototype.codePointAt()` throws TypeError');
 

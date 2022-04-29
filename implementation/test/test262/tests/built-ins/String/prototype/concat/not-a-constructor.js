@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.concat) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.concat();
 }, '`new String.prototype.concat()` throws TypeError');
 

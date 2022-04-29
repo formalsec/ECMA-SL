@@ -8,12 +8,12 @@ includes: [compareArray.js]
 ---*/
 
 assert.compareArray(
-  Array.prototype.map.call(true, () => {}),
+  Array.prototype.map.call(true, function () /* TODO: => */ {}),
   [],
-  'Array.prototype.map.call(true, () => {}) must return []'
+  'Array.prototype.map.call(true, function () /* TODO: => */ {}) must return []'
 );
 assert.compareArray(
-  Array.prototype.map.call(false, () => {}),
+  Array.prototype.map.call(false, function () /* TODO: => */ {}),
   [],
-  'Array.prototype.map.call(false, () => {}) must return []'
+  'Array.prototype.map.call(false, function () /* TODO: => */ {}) must return []'
 );

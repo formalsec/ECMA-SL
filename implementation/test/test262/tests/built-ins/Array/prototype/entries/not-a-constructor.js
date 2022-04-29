@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype.entries) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Array.prototype.entries();
 }, '`new Array.prototype.entries()` throws TypeError');
 

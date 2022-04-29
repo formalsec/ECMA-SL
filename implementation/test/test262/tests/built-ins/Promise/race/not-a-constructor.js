@@ -23,7 +23,7 @@ features: [Reflect.construct, arrow-function]
 
 assert.sameValue(isConstructor(Promise.race), false, 'isConstructor(Promise.race) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Promise.race([]);
 }, '`new Promise.race([])` throws TypeError');
 

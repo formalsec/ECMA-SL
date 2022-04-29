@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype.every) must return false'
 );
 
-assert.throws(TypeError, () => {
-  new Array.prototype.every(() => {});
-}, '`new Array.prototype.every(() => {})` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  new Array.prototype.every(function () /* TODO: => */ {});
+}, '`new Array.prototype.every(function () /* TODO: => */ {})` throws TypeError');
 

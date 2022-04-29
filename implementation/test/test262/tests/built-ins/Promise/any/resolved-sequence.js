@@ -24,10 +24,10 @@ features: [Promise.any]
 
 var sequence = [];
 
-var p1 = new Promise(resolve => {
+var p1 = new Promise(function (resolve) /* TODO: => */ {
   resolve(1);
 });
-var p2 = new Promise(resolve => {
+var p2 = new Promise(function (resolve) /* TODO: => */ {
   resolve(2);
 });
 

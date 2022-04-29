@@ -31,9 +31,9 @@ Object.defineProperty(poison, Symbol.iterator, {
 });
 
 try {
-  Promise.any(poison).then(() => {
+  Promise.any(poison).then(function () /* TODO: => */ {
     $DONE('The promise should be rejected, but was resolved');
-  }, (error) => {
+  }, function (error) /* => */ {
     assert.sameValue(Object.getPrototypeOf(error), Test262Error.prototype);
     assert(error instanceof Test262Error);
   }).then($DONE, $DONE);

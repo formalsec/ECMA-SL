@@ -21,14 +21,14 @@ features: [arrow-function]
 
 var resolver = {
   then(resolve) {
-    new Promise((resolve) => resolve())
-      .then(() => resolve(42));
+    new Promise(function (resolve) /* TODO: => */ {return resolve()})
+      .then(function () /* TODO: => */ {return resolve(42)});
   }
 };
 var lateRejector = {
   then(resolve, reject) {
-    new Promise((resolve) => resolve())
-      .then(() => {
+    new Promise(function (resolve) /* TODO: => */ {return resolve()})
+      .then(function () /* TODO: => */ {
         resolve(9);
         reject();
       });
@@ -36,7 +36,7 @@ var lateRejector = {
 };
 
 Promise.all([resolver, lateRejector])
-  .then(resolution => {
+  .then(function(resolution) /* TODO: => */ {
     assert.sameValue(resolution[0], 42);
     assert.sameValue(resolution[1], 9);
   }).then($DONE, $DONE);

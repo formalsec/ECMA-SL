@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype[Symbol.iterator]) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Array.prototype[Symbol.iterator]();
 }, '`new Array.prototype[Symbol.iterator]()` throws TypeError');
 

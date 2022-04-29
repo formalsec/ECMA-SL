@@ -26,7 +26,7 @@ Object.defineProperty(Object.prototype, '2', {
 const array = [undefined, 3, /*hole*/, 2, undefined, /*hole*/, 1];
 let count = 0;
 try {
-  array.sort((a, b) => {
+  array.sort(function (a, b) /* TODO: => */ {
     if (++count === 3) {
       throw new Error('lolwat');
     }

@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(TypedArray.prototype.map) must return false'
 );
 
-assert.throws(TypeError, () => {
-  let u8 = new Uint8Array(1); new u8.map(() => {});
-}, '`let u8 = new Uint8Array(1); new u8.map(() => {})` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  let u8 = new Uint8Array(1); new u8.map(function () /* TODO: => */ {});
+}, '`let u8 = new Uint8Array(1); new u8.map(function () /* TODO: => */ {})` throws TypeError');
 

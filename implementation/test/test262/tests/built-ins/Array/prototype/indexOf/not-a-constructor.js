@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype.indexOf) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Array.prototype.indexOf();
 }, '`new Array.prototype.indexOf()` throws TypeError');
 

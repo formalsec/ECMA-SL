@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype.shift) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () {/* TODO: => { */
   new Array.prototype.shift();
 }, '`new Array.prototype.shift()` throws TypeError');
 

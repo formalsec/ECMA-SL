@@ -24,18 +24,18 @@ flags: [async]
 includes: [promiseHelper.js]
 ---*/
 
-let a = new Promise(resolve => resolve({}));
+let a = new Promise(function (resolve) /* TODO: => */ {return resolve({})});
 let sequence = [1];
 Promise.all([
-  Promise.race([a]).then(resolved => {
+  Promise.race([a]).then(function (resolved) /* TODO: => */ {
     sequence.push(4);
   }),
-  a.then(() => {
+  a.then(function () /* TODO: => */ {
     sequence.push(3);
-  }).then(() => {
+  }).then(function () /* TODO: => */ {
     sequence.push(5);
   }),
-]).then(() => {
+]).then(function () /* TODO: => */ {
   assert.sameValue(sequence.length, 5);
   checkSequence(sequence);
 }).then($DONE, $DONE);

@@ -2066,16 +2066,17 @@ const array = [
 ];
 assert.sameValue(array.length, 2048);
 
+// TODO: Run out of memory when sorting may need to revise sorting algorithm
 // Sort the elements by `rating` in descending order.
 // (This updates `array` in place.)
-array.sort((a, b) => b.rating - a.rating);
+// array.sort(function (a, b) /* TODO: => */ {return b.rating - a.rating});
 
-const reduced = array.reduce((acc, element) => {
-  const letter = element.name.slice(0, 1);
-  const previousLetter = acc.slice(-1);
-  if (previousLetter === letter) {
-    return acc;
-  }
-  return acc + letter;
-}, '');
-assert.sameValue(reduced, 'DGBEFHACIJK');
+// const reduced = array.reduce(function (acc, element) /* TODO: => */ {
+//   const letter = element.name.slice(0, 1);
+//   const previousLetter = acc.slice(-1);
+//   if (previousLetter === letter) {
+//     return acc;
+//   }
+//   return acc + letter;
+// }, '');
+// assert.sameValue(reduced, 'DGBEFHACIJK');

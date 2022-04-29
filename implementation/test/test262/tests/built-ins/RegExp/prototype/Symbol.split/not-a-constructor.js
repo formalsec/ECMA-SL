@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(RegExp.prototype[Symbol.split]) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let re = new RegExp(''); new re[Symbol.split]();
 }, '`let re = new RegExp(\'\'); new re[Symbol.split]()` throws TypeError');
 

@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype.toLocaleString) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Array.prototype.toLocaleString();
 }, '`new Array.prototype.toLocaleString()` throws TypeError');
 

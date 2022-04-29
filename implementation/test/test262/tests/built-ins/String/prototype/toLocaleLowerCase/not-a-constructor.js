@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.toLocaleLowerCase) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.toLocaleLowerCase();
 }, '`new String.prototype.toLocaleLowerCase()` throws TypeError');
 

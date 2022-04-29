@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Date.prototype.toTimeString) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let date = new Date(Date.now()); new date.toTimeString();
 }, '`let date = new Date(Date.now()); new date.toTimeString()` throws TypeError');
 

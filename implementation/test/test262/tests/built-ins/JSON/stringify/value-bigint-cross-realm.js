@@ -10,7 +10,7 @@ features: [BigInt, cross-realm]
 var other = $262.createRealm().global;
 var wrapped = other.Object(other.BigInt(100));
 
-assert.throws(TypeError, () => JSON.stringify(wrapped),
+assert.throws(TypeError, function () /* TODO: => */ {return JSON.stringify(wrapped)},
               "cross-realm BigInt object without toJSON method");
 
 other.BigInt.prototype.toJSON = function () { return this.toString(); };

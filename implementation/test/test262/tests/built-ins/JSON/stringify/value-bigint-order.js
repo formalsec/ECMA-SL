@@ -34,9 +34,9 @@ function replacer(x, k, v)
 BigInt.prototype.toJSON = function () { assert.sameValue(step++, 0); return 1n; };
 
 step = 0;
-assert.throws(TypeError, () => JSON.stringify(0n, (k, v) => replacer(2n, k, v)));
+assert.throws(TypeError, function () /* TODO: => */ {return JSON.stringify(0n, function(k, v) /* TOOD: => */ {return replacer(2n, k, v)})});
 assert.sameValue(step, 2);
 
 step = 0;
-assert.throws(TypeError, () => JSON.stringify(0n, (k, v) => replacer(Object(2n), k, v)));
+assert.throws(TypeError, function () /* TODO: => */ {return JSON.stringify(0n, function(k, v) /* TODO: => */ {return replacer(Object(2n), k, v)})});
 assert.sameValue(step, 2);

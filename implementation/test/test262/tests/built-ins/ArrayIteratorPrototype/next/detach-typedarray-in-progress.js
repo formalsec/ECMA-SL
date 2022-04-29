@@ -13,15 +13,15 @@ includes: [testTypedArray.js, detachArrayBuffer.js]
 features: [TypedArray]
 ---*/
 
-testWithTypedArrayConstructors(function (TA) {/* TA => { TODO: Uncomment and delete call below when arrow functions are implemented */
+testWithTypedArrayConstructors(function (TA) /* TODO: => */ {
   var typedArray = new TA(5);
   var i = 0;
-  /* assert.throws(TypeError, () => { TODO: Uncomment and delete call below when arrow functions are implemented
+  assert.throws(TypeError, function () /* TODO: => */ {
     for (let key of typedArray.keys()) {
       $DETACHBUFFER(typedArray.buffer);
       i++;
     }
-  }); */
+  });
   assert.throws(TypeError, function () {
     for (let key of typedArray.keys()) { /* No for-of operator in ESL_interpreter.esl */
       $DETACHBUFFER(typedArray.buffer);

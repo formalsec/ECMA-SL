@@ -44,15 +44,15 @@ includes: [promiseHelper.js]
 features: [Promise.allSettled]
 ---*/
 
-var p0 = Promise.resolve(2).then(v => v + 1);
-var p1 = Promise.reject(21).catch(v => v * 2);
-var p2 = Promise.resolve('nope').then(() => { throw 'foo' });
-var p3 = Promise.reject('yes').then(() => { throw 'nope'; });
-var p4 = Promise.resolve('here').finally(() => 'nope');
-var p5 = Promise.reject('here too').finally(() => 'nope');
-var p6 = Promise.resolve('nope').finally(() => { throw 'finally'; });
-var p7 = Promise.reject('nope').finally(() => { throw 'finally after rejected'; });
-var p8 = Promise.reject(1).then(() => 'nope', () => 0);
+var p0 = Promise.resolve(2).then(function(v) {/* TODO: => */ return v + 1});
+var p1 = Promise.reject(21).catch(function(v) {/* TODO: => */ return v * 2});
+var p2 = Promise.resolve('nope').then(function () /* TODO: => */ { throw 'foo' });
+var p3 = Promise.reject('yes').then(function () /* TODO: => */ { throw 'nope'; });
+var p4 = Promise.resolve('here').finally(function () /* TODO: => */ {return 'nope'});
+var p5 = Promise.reject('here too').finally(function () /* TODO: => */ {return 'nope'});
+var p6 = Promise.resolve('nope').finally(function () /* TODO: => */ { throw 'finally'; });
+var p7 = Promise.reject('nope').finally(function () /* TODO: => */ { throw 'finally after rejected'; });
+var p8 = Promise.reject(1).then(function () /* TODO: => */ {return 'nope'}, function () /* TODO: => */ {return 0});
 
 Promise.allSettled([p0, p1, p2, p3, p4, p5, p6, p7, p8]).then(function(settled) {
   checkSettledPromises(settled, [

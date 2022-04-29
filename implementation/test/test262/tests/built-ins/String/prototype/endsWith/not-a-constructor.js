@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.endsWith) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.endsWith();
 }, '`new String.prototype.endsWith()` throws TypeError');
 

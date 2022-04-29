@@ -71,7 +71,7 @@ var object = {
 var x = new Array(object);
 assert.sameValue(x.toString(), x.join(), 'x.toString() must return the same value returned by x.join()');
 
-assert.throws(Test262Error, () => {
+assert.throws(Test262Error, function () /* TODO: => */ {
   var object = {
     valueOf() {
       return "+"
@@ -84,7 +84,7 @@ assert.throws(Test262Error, () => {
   x.toString();
 });
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   var object = {
     valueOf() {
       return {}

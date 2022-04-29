@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype.splice) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Array.prototype.splice();
 }, '`new Array.prototype.splice()` throws TypeError');
 

@@ -29,23 +29,23 @@ features: [Promise.any]
 
 let sequence = [];
 
-let p1 = new Promise(resolve => {
+let p1 = new Promise(function (resolve) /* TODO: => */ {
   resolve({});
 });
 
 sequence.push(1);
 
-Promise.any([p1]).then((resolved) => {
+Promise.any([p1]).then(function (resolved) /* TODO: => */ {
   sequence.push(4);
   assert.sameValue(sequence.length, 4);
   checkSequence(sequence, 'Expected Promise.any().then to queue second');
 }).catch($DONE);
 
-p1.then(() => {
+p1.then(function () /* TODO: => */ {
   sequence.push(3);
   assert.sameValue(sequence.length, 3);
   checkSequence(sequence, 'Expected p1.then to queue first');
-}).then(() => {
+}).then(function () /* TODO: => */ {
   sequence.push(5);
   assert.sameValue(sequence.length, 5);
   checkSequence(sequence, 'Expected final then to queue last');

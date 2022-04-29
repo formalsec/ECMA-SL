@@ -30,7 +30,7 @@ assert.sameValue(
 );
 assert.compareArray(newlyCreatedArray, [undefined, undefined, undefined, undefined, undefined]);
 
-const newlyCreatedAndMappedArray = Array.from({ length }).map(x => 1);
+const newlyCreatedAndMappedArray = Array.from({ length }).map(function (x) { return 1 });/* TODO: => */
 assert.sameValue(
   newlyCreatedAndMappedArray.length,
   length,

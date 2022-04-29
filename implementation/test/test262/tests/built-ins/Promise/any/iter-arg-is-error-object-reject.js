@@ -34,9 +34,9 @@ flags: [async]
 ---*/
 
 try {
-  Promise.any(new Test262Error()).then(() => {
+  Promise.any(new Test262Error()).then(function () /* TODO: => */ {
     $DONE('The promise should be rejected, but was resolved');
-  }, (error) => {
+  }, function (error) /* TODO: => */ {
     assert(error instanceof TypeError);
   }).then($DONE, $DONE);
 } catch (error) {

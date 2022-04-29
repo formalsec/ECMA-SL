@@ -25,7 +25,7 @@ function fn() {
   count++;
 }
 
-assert.throws(Test262Error, () => {
+assert.throws(Test262Error, function () /* TODO: => */ {
   Reflect.apply(fn, null, {
     get length() {
       throw new Test262Error();
@@ -33,39 +33,39 @@ assert.throws(Test262Error, () => {
   });
 }, '`Reflect.apply(fn, null, {get length() {throw new Test262Error();}})` throws a Test262Error exception');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Reflect.apply(fn, null /* empty */);
 }, '`Reflect.apply(fn, null /* empty */)` throws a TypeError exception');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Reflect.apply(fn, null, Symbol());
 }, '`Reflect.apply(fn, null, Symbol())` throws a TypeError exception');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Reflect.apply(fn, null, 1);
 }, '`Reflect.apply(fn, null, 1)` throws a TypeError exception');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Reflect.apply(fn, null, Infinity);
 }, '`Reflect.apply(fn, null, Infinity)` throws a TypeError exception');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Reflect.apply(fn, null, null);
 }, '`Reflect.apply(fn, null, null)` throws a TypeError exception');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Reflect.apply(fn, null, undefined);
 }, '`Reflect.apply(fn, null, undefined)` throws a TypeError exception');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Reflect.apply(fn, null, false);
 }, '`Reflect.apply(fn, null, false)` throws a TypeError exception');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Reflect.apply(fn, null, true);
 }, '`Reflect.apply(fn, null, true)` throws a TypeError exception');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Reflect.apply(fn, null, NaN);
 }, '`Reflect.apply(fn, null, NaN)` throws a TypeError exception');
 

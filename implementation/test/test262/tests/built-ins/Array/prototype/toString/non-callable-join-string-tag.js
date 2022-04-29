@@ -28,7 +28,7 @@ assert.sameValue(Array.prototype.toString.call({ join: {} }), "[object Object]")
 let revokeOnGet = false;
 const proxyTarget = [];
 const { proxy, revoke } = Proxy.revocable(proxyTarget, {
-    get: (target, key, receiver) => {
+    get: function (target, key, receiver) /* TODO: => */ {
         if (revokeOnGet)
             revoke();
         return Reflect.get(target, key, receiver);
@@ -38,7 +38,7 @@ const { proxy, revoke } = Proxy.revocable(proxyTarget, {
 proxyTarget.join = undefined;
 assert.sameValue(Array.prototype.toString.call(proxy), "[object Array]");
 revokeOnGet = true;
-assert.throws(TypeError, () => { Array.prototype.toString.call(proxy); });
+assert.throws(TypeError, function () /* TODO: => */ { Array.prototype.toString.call(proxy); });
 
 assert.sameValue(Array.prototype.toString.call((function() { return arguments; })()), "[object Arguments]");
 assert.sameValue(Array.prototype.toString.call(new Error), "[object Error]");
@@ -47,7 +47,7 @@ assert.sameValue(Array.prototype.toString.call(new Number), "[object Number]");
 assert.sameValue(Array.prototype.toString.call(new String), "[object String]");
 assert.sameValue(Array.prototype.toString.call(new Date), "[object Date]");
 assert.sameValue(Array.prototype.toString.call(new RegExp), "[object RegExp]");
-assert.sameValue(Array.prototype.toString.call(new Proxy(() => {}, {})), "[object Function]");
+assert.sameValue(Array.prototype.toString.call(new Proxy(function () /* TODO: => */ {}, {})), "[object Function]");
 assert.sameValue(Array.prototype.toString.call(new Proxy(new Date, {})), "[object Object]");
 assert.sameValue(Array.prototype.toString.call({ [Symbol.toStringTag]: "Foo" }), "[object Foo]");
 assert.sameValue(Array.prototype.toString.call(new Map), "[object Map]");
@@ -63,5 +63,5 @@ assert.sameValue(Array.prototype.toString.call(JSON), "[object Foo]");
 assert(delete Set.prototype[Symbol.toStringTag]);
 assert.sameValue(Array.prototype.toString.call(new Set), "[object Object]");
 
-Object.defineProperty(Object.prototype, Symbol.toStringTag, { get: () => { throw new Test262Error(); } });
-assert.throws(Test262Error, () => { Array.prototype.toString.call({}); });
+Object.defineProperty(Object.prototype, Symbol.toStringTag, { get: function () /* TODO: => */ { throw new Test262Error(); } });
+assert.throws(Test262Error, function () /* TODO: => */ { Array.prototype.toString.call({}); });

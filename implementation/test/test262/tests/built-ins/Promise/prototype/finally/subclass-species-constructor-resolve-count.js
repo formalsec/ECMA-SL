@@ -13,7 +13,7 @@ class FooPromise extends Promise {
   }
 }
 
-var p = Promise.resolve().finally(() => FooPromise.resolve());
+var p = Promise.resolve().finally(function () /* TODO: => */ {return FooPromise.resolve()});
 
 assert.sameValue(p instanceof Promise, true);
 assert.sameValue(p instanceof FooPromise, false);

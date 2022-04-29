@@ -23,12 +23,12 @@ let callCount = 0;
 let thrown = new Test262Error();
 function P(executor) {
   callCount++;
-  return new Promise((_, reject) => {
+  return new Promise(function (_, reject) /* TODO: => */ {
     callCount++;
-    executor(() => {
+    executor(function () /* TODO: => */ {
       callCount++;
       throw thrown;
-    }, (...args) => {
+    }, function (...args) /* => */ {
       callCount++;
       reject(...args);
     });
@@ -37,9 +37,9 @@ function P(executor) {
 P.resolve = Promise.resolve;
 
 Promise.any.call(P, [1])
-  .then(() => {
+  .then(function () /* TODO: => */ {
     $DONE('Promise incorrectly fulfilled.');
-  }, (error) => {
+  }, function (error) /* => */ {
     // The error was not the result of promise
     // resolution, so will not be an AggregateError
     assert.sameValue(thrown, error);

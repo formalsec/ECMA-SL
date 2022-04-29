@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.charAt) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.charAt();
 }, '`new String.prototype.charAt()` throws TypeError');
 

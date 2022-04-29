@@ -7,7 +7,7 @@ esid: sec-array.prototype.slice
 description: length = 4294967296
 ---*/
 
-assert.throws(RangeError, () => {
+assert.throws(RangeError, function () {/* TODO: => { */
   var obj = {};
   obj.slice = Array.prototype.slice;
   obj[0] = "x";

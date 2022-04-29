@@ -20,10 +20,10 @@ info: |
   5. If success is false and Throw is true, throw a TypeError exception.
 ---*/
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Array.prototype.pop.call('');
 }, "Array.prototype.pop.call('')");
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   Array.prototype.pop.call('abc');
 }, "Array.prototype.pop.call('abc')");

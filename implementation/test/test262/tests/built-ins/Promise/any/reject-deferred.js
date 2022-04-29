@@ -16,15 +16,15 @@ features: [AggregateError, Promise.any, arrow-function]
 var rejection = {};
 var thenable = {
   then(_, reject) {
-    new Promise((resolve) => resolve())
-      .then(() => reject(rejection));
+    new Promise(function (resolve) /* TODO: => */ {return resolve()})
+      .then(function () /* TODO: => */ {return reject(rejection)});
   }
 };
 
 Promise.any([thenable])
-  .then(() => {
+  .then(function () /* TODO: => */ {
     $DONE('The promise should be rejected.');
-  }, (aggregate) => {
+  }, function (aggregate) /* TODO: => */ {
     assert(aggregate instanceof AggregateError);
     assert.sameValue(aggregate.errors.length, 1);
     assert.sameValue(aggregate.errors[0], rejection);

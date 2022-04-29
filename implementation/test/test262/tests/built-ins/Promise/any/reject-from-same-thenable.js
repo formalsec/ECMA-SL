@@ -26,7 +26,7 @@ function Constructor(executor) {
     callCount += 1;
     error = result;
   }
-  executor(() => {throw new Test262Error()}, reject);
+  executor(function () /* TODO: => */ {throw new Test262Error()}, reject);
 }
 Constructor.resolve = function(v) {
   return v;

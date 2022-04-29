@@ -23,7 +23,7 @@ features: [Reflect.construct, arrow-function]
 
 assert.sameValue(isConstructor(Array.prototype.sort), false, 'isConstructor(Array.prototype.sort) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Array.prototype.sort();
 }, '`new Array.prototype.sort()` throws TypeError');
 

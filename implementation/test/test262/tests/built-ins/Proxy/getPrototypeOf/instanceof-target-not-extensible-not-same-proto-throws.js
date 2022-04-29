@@ -42,6 +42,6 @@ var p = new Proxy(target, {
 
 Object.preventExtensions(target);
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   p instanceof Custom
 });

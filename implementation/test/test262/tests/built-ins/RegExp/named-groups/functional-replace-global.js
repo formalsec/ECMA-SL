@@ -22,7 +22,7 @@ for (let flags of ["g", "gu"]) {
   let i = 0;
   let re = new RegExp(source, flags);
   let result = "abcd".replace(re,
-      (match, fst, snd, offset, str, groups) => {
+      function (match, fst, snd, offset, str, groups) /* TODO: => */ {
     if (i == 0) {
       assert.sameValue("ab", match);
       assert.sameValue("a", groups.fst);
@@ -51,6 +51,6 @@ for (let flags of ["g", "gu"]) {
   let re2 = new RegExp(alternateSource, flags);
   assert.sameValue("undefinedundefinedundefinedundefined",
       "abcd".replace(re2,
-            (match, fst, snd, offset, str, groups) => groups.snd));
+            function (match, fst, snd, offset, str, groups) /* TODO: => */ {return groups.snd}));
 }
 

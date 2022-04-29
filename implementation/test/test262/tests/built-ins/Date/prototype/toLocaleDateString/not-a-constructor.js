@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Date.prototype.toLocaleDateString) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let date = new Date(Date.now()); new date.toLocaleDateString();
 }, '`let date = new Date(Date.now()); new date.toLocaleDateString()` throws TypeError');
 

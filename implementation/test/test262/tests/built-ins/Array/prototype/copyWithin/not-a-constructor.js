@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype.copyWithin) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Array.prototype.copyWithin();
 }, '`new Array.prototype.copyWithin()` throws TypeError');
 

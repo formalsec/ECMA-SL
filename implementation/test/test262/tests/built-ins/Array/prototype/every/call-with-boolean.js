@@ -7,12 +7,12 @@ description: Array.prototype.every applied to boolean primitive
 ---*/
 
 assert.sameValue(
-  Array.prototype.every.call(true, () => {}),
+  Array.prototype.every.call(true, function () /* TODO: => */ {}),
   true,
-  'Array.prototype.every.call(true, () => {}) must return true'
+  'Array.prototype.every.call(true, function () /* TODO: => */ {}) must return true'
 );
 assert.sameValue(
-  Array.prototype.every.call(false, () => {}),
+  Array.prototype.every.call(false, function () /* TODO: => */ {}),
   true,
-  'Array.prototype.every.call(false, () => {}) must return true'
+  'Array.prototype.every.call(false, function () /* TODO: => */ {}) must return true'
 );

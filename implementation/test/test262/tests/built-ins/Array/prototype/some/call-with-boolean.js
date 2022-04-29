@@ -7,12 +7,12 @@ description: Array.prototype.some applied to boolean primitive
 ---*/
 
 assert.sameValue(
-  Array.prototype.some.call(true, () => {}),
+  Array.prototype.some.call(true, function () /* TODO: => */ {}),
   false,
-  'Array.prototype.some.call(true, () => {}) must return false'
+  'Array.prototype.some.call(true, function () /* TODO: => */ {}) must return false'
 );
 assert.sameValue(
-  Array.prototype.some.call(false, () => {}),
+  Array.prototype.some.call(false, function () /* TODO: => */ {}),
   false,
-  'Array.prototype.some.call(false, () => {}) must return false'
+  'Array.prototype.some.call(false, function () /* TODO: => */ {}) must return false'
 );

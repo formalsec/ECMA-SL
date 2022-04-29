@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype.filter) must return false'
 );
 
-assert.throws(TypeError, () => {
-  new Array.prototype.filter(() => {});
-}, '`new Array.prototype.filter(() => {})` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  new Array.prototype.filter(function () /* TODO: => */ {});
+}, '`new Array.prototype.filter(function () /* TODO: => */ {})` throws TypeError');
 

@@ -30,7 +30,7 @@ assert.sameValue(array.length, 11);
 
 // Sort the elements by `rating` in descending order.
 // (This updates `array` in place.)
-array.sort((a, b) => b.rating - a.rating);
+array.sort(function (a, b) /* TODO: => */ {return b.rating - a.rating});
 
-const reduced = array.reduce((acc, element) => acc + element.name, '');
+const reduced = array.reduce(function (acc, element) /* TOOD: => */ {return acc + element.name}, '');
 assert.sameValue(reduced, 'DGBEFHACIJK');

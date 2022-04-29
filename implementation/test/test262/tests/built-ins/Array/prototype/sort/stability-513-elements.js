@@ -533,9 +533,9 @@ assert.sameValue(array.length, 513);
 
 // Sort the elements by `rating` in descending order.
 // (This updates `array` in place.)
-array.sort((a, b) => b.rating - a.rating);
+array.sort(function (a, b) /* TODO: => */ {return b.rating - a.rating});
 
-const reduced = array.reduce((acc, element) => {
+const reduced = array.reduce(function (acc, element) /* TODO: => */ {
   const letter = element.name.slice(0, 1);
   const previousLetter = acc.slice(-1);
   if (previousLetter === letter) {

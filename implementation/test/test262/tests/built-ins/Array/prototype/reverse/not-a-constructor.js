@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype.reverse) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Array.prototype.reverse();
 }, '`new Array.prototype.reverse()` throws TypeError');
 

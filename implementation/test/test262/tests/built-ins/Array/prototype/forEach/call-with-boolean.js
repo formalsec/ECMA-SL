@@ -7,12 +7,12 @@ description: Array.prototype.forEach applied to boolean primitive
 ---*/
 
 assert.sameValue(
-  Array.prototype.forEach.call(true, () => {}),
+  Array.prototype.forEach.call(true, function () /* TODO: => */ {}),
   undefined,
-  'Array.prototype.forEach.call(true, () => {}) must return undefined'
+  'Array.prototype.forEach.call(true, function () /* TODO: => */ {}) must return undefined'
 );
 assert.sameValue(
-  Array.prototype.forEach.call(false, () => {}),
+  Array.prototype.forEach.call(false, function () /* TODO: => */ {}),
   undefined,
-  'Array.prototype.forEach.call(false, () => {}) must return undefined'
+  'Array.prototype.forEach.call(false, function () /* TODO: => */ {}) must return undefined'
 );

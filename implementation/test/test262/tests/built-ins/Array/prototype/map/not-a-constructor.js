@@ -23,7 +23,7 @@ features: [Reflect.construct, arrow-function]
 
 assert.sameValue(isConstructor(Array.prototype.map), false, 'isConstructor(Array.prototype.map) must return false');
 
-assert.throws(TypeError, () => {
-  new Array.prototype.map(() => {});
-}, '`new Array.prototype.map(() => {})` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  new Array.prototype.map(function () /* TODO: => */ {});
+}, '`new Array.prototype.map(function () /* TODO: => */ {})` throws TypeError');
 

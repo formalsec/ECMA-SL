@@ -26,22 +26,22 @@ includes: [promiseHelper.js]
 ---*/
 
 let a = Promise.reject('');
-let b = new Promise(resolve => resolve(''));
-let c = new Promise((_, reject) => reject(''));
+let b = new Promise(function (resolve) /* TODO: => */ {return resolve('')});
+let c = new Promise(function (_, reject) /* TODO: => */ {return reject('')});
 let sequence = [1];
 Promise.all([
-  a.catch(() => {
+  a.catch(function () /* TODO: => */ {
     sequence.push(3);
   }),
-  Promise.race([a, b, c]).then(() => {
+  Promise.race([a, b, c]).then(function () /* TODO: => */ {
     // This should not be present when the final
     // sequence is evaluated.
     sequence.push(5);
   }),
-  b.then(() => {
+  b.then(function () /* TODO: => */ {
     sequence.push(4);
   }),
-]).catch(() => {
+]).catch(function () /* TODO: => */ {
   assert.sameValue(sequence.length, 4);
   checkSequence(sequence);
 }).then($DONE, $DONE);

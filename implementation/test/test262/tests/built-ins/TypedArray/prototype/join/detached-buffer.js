@@ -27,7 +27,7 @@ let obj = {
 testWithTypedArrayConstructors(function(TA) {
   let sample = new TA(1);
   $DETACHBUFFER(sample.buffer);
-  assert.throws(TypeError, () => {
+  assert.throws(TypeError, function () /* TODO: => */ {
     sample.join(obj);
   });
 });

@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype.slice) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () {/* TODO: => { */
   new Array.prototype.slice();
 }, '`new Array.prototype.slice()` throws TypeError');
 

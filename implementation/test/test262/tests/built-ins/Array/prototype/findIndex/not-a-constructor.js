@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Array.prototype.findIndex) must return false'
 );
 
-assert.throws(TypeError, () => {
-  new Array.prototype.findIndex(() => {});
-}, '`new Array.prototype.findIndex(() => {})` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  new Array.prototype.findIndex(function () /* TODO: => */ {});
+}, '`new Array.prototype.findIndex(function () /* TODO: => */ {})` throws TypeError');
 

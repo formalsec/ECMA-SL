@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.trim) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.trim();
 }, '`new String.prototype.trim()` throws TypeError');
 

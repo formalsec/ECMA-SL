@@ -49,8 +49,8 @@ let iterStepThrows = {
 };
 
 Promise.any(iterStepThrows).then(
-  () => {
+  function () /* TODO: => */ {
   $DONE('The promise should be rejected.');
-}, (reason) => {
+}, function (reason) /* TODO: => */ {
   assert.sameValue(reason, error);
 }).then($DONE, $DONE);

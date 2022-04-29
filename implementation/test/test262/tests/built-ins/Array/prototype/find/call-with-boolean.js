@@ -7,12 +7,12 @@ description: Array.prototype.find applied to boolean primitive
 ---*/
 
 assert.sameValue(
-  Array.prototype.find.call(true, () => {}),
+  Array.prototype.find.call(true, function () /* TODO: => */ {}),
   undefined,
-  'Array.prototype.find.call(true, () => {}) must return undefined'
+  'Array.prototype.find.call(true, function () /* TODO: => */ {}) must return undefined'
 );
 assert.sameValue(
-  Array.prototype.find.call(false, () => {}),
+  Array.prototype.find.call(false, function () /* TODO: => */ {}),
   undefined,
-  'Array.prototype.find.call(false, () => {}) must return undefined'
+  'Array.prototype.find.call(false, function () /* TODO: => */ {}) must return undefined'
 );

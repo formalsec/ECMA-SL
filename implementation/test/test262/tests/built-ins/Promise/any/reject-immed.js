@@ -34,9 +34,9 @@ let thenable = {
 };
 
 Promise.any([thenable])
-  .then(() => {
+  .then(function () /* TODO: => */ {
     $DONE('The promise should not be fulfilled.');
-  }, (error) => {
+  }, function (error) /* TODO: => */ {
     assert.sameValue(callCount, 1, "callCount === 1");
     assert(error instanceof AggregateError, "error instanceof AggregateError");
     assert.sameValue(error.errors[0], "reason", "error.errors[0] === 'reason'");

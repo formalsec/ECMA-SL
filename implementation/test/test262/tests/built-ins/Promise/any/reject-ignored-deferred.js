@@ -35,11 +35,11 @@ features: [Promise.any, arrow-function]
 let callCount = 0;
 let fulfiller = {
   then(resolve) {
-    new Promise((resolve) => {
+    new Promise(function (resolve) /* TODO: => */ {
         callCount++;
         resolve();
       })
-      .then(() => {
+      .then(function () /* TODO: => */ {
         callCount++;
         resolve();
       });
@@ -47,11 +47,11 @@ let fulfiller = {
 };
 let rejector = {
   then(resolve, reject) {
-    new Promise((resolve) => {
+    new Promise(function (resolve) /* => */ {
         callCount++;
         resolve();
       })
-      .then(() => {
+      .then(function () /* TODO: => */ {
         callCount++;
         resolve();
         reject();
@@ -60,9 +60,9 @@ let rejector = {
 };
 
 Promise.all([fulfiller, rejector])
-  .then(() => {
+  .then(function () /* TODO: => */ {
     assert.sameValue(callCount, 4, "callCount === 4");
     $DONE();
-  }, () => {
+  }, function () /* TODO: => */ {
     $DONE("The promise should not be rejected.");
   });

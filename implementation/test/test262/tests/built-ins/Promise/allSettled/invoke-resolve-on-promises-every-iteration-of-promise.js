@@ -28,7 +28,7 @@ Promise.resolve = function(...args) {
 };
 
 Promise.allSettled(values)
-  .then(() => {
+  .then(function () /* TODO: => */ {
       assert.sameValue(callCount, 3, '`then` invoked once for every iterated promise');
     }).then($DONE, $DONE);
 

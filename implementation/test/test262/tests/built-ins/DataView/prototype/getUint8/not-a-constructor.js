@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(DataView.prototype.getUint8) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let dv = new DataView(new ArrayBuffer(16)); new dv.getUint8(0, 0);
 }, '`let dv = new DataView(new ArrayBuffer(16)); new dv.getUint8(0, 0)` throws TypeError');
 

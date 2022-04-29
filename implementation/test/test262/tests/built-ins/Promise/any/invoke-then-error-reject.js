@@ -25,8 +25,8 @@ promise.then = function() {
   throw error;
 };
 
-Promise.any([promise]).then(() => {
+Promise.any([promise]).then(function () /* TODO: => */ {
   $DONE('The promise should be rejected, but was resolved');
-}, (reason) => {
+}, function (reason) /* TODO: => */ {
   assert.sameValue(reason, error);
 }).then($DONE, $DONE);

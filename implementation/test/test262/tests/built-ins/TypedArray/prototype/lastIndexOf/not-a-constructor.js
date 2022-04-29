@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(TypedArray.prototype.lastIndexOf) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let u8 = new Uint8Array(1); new u8.lastIndexOf();
 }, '`let u8 = new Uint8Array(1); new u8.lastIndexOf()` throws TypeError');
 

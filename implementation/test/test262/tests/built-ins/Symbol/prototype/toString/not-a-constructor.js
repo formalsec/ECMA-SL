@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Symbol.prototype.toString) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let symbol = Symbol(); new symbol.toString();
 }, '`let symbol = Symbol(); new symbol.toString()` throws TypeError');
 

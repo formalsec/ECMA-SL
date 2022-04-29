@@ -68,7 +68,7 @@ obj.length = {
 }
 assert.sameValue(obj.join(), ",", 'obj.join() must return ","');
 
-/* assert.throws(Test262Error, () => { TODO: uncomment and remove call below when arrow functions are implemented.
+assert.throws(Test262Error, function () /* TODO: => */ {
   obj.length = {
     valueOf() {
       throw new Test262Error();
@@ -78,7 +78,7 @@ assert.sameValue(obj.join(), ",", 'obj.join() must return ","');
     }
   };
   obj.join();
-}); */
+});
 assert.throws(Test262Error, function () {
   obj.length = {
     valueOf() {
@@ -91,7 +91,7 @@ assert.throws(Test262Error, function () {
   obj.join();
 });
 
-/* assert.throws(TypeError, () => { TODO: uncomment and remove call below when arrow functions are implemented.
+assert.throws(TypeError, function () /* TODO: => */ {
   obj.length = {
     valueOf() {
       return {}
@@ -101,7 +101,7 @@ assert.throws(Test262Error, function () {
     }
   };
   obj.join();
-}); */
+});
 
 assert.throws(TypeError, function () {
   obj.length = {
