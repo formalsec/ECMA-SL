@@ -23,7 +23,7 @@ features: [Reflect.construct, TypedArray, arrow-function]
 
 assert.sameValue(isConstructor(TypedArray.from), false, 'isConstructor(TypedArray.from) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new TypedArray.from([]);
 }, '`new TypedArray.from([])` throws TypeError');
 

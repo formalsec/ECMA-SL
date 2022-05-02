@@ -21,7 +21,7 @@ var value = {};
 
 Promise.resolve(value)
   .finally(function() {})
-  .then(() => $DONE(), $DONE);
+  .then(function () /* TODO: => */ {return $DONE()}, $DONE);
 
 var calls = 0;
 var expected = [
@@ -32,7 +32,7 @@ var expected = [
 var then = Promise.prototype.then;
 Promise.prototype.then = function(resolve) {
   assert.sameValue(isConstructor(resolve), false, 'isConstructor(resolve) must return false');
-  assert.throws(TypeError, () => {
+  assert.throws(TypeError, function () /* TODO: => */ {
     new resolve();
   }, '`new resolve()` throws TypeError');
 

@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Symbol.prototype.valueOf) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let symbol = Symbol(); new symbol.valueOf();
 }, '`let symbol = Symbol(); new symbol.valueOf()` throws TypeError');
 

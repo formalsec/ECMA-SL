@@ -33,8 +33,8 @@ Object.defineProperty(Promise, 'resolve', {
   },
 });
 
-Promise.race(iter).then(() => {
+Promise.race(iter).then(function () /* TODO: => */ {
   throw new Test262Error('The promise should be rejected, but it was resolved');
-}, (reason) => {
+}, function (reason) /* TODO: => */ {
   assert.sameValue(reason, resolveError);
 }).then($DONE, $DONE);

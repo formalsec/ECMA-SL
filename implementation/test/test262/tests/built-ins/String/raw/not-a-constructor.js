@@ -23,7 +23,7 @@ features: [Reflect.construct, arrow-function]
 
 assert.sameValue(isConstructor(String.raw), false, 'isConstructor(String.raw) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.raw({raw: []}, []);
 }, '`new String.raw({raw: []}, [])` throws TypeError');
 

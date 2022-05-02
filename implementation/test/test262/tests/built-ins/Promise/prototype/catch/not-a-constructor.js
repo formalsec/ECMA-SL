@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Promise.prototype.catch) must return false'
 );
 
-assert.throws(TypeError, () => {
-  let p = new Promise(() => {}); new p.catch();
-}, '`let p = new Promise(() => {}); new p.catch()` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  let p = new Promise(function () /* TODO: => */ {}); new p.catch();
+}, '`let p = new Promise(function () /* TODO: => */ {}); new p.catch()` throws TypeError');
 

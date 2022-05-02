@@ -2,15 +2,16 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.21-9-c-ii-14
+esid: sec-array.prototype.reduce
 description: Array.prototype.reduce - callbackfn that uses arguments
 ---*/
 
-        var result = false;
-        function callbackfn() {
-            result = (arguments[0] === 1 && arguments[3][arguments[2]] === arguments[1]);
-        }
+var result = false;
 
-        [11].reduce(callbackfn, 1);
+function callbackfn() {
+  result = (arguments[0] === 1 && arguments[3][arguments[2]] === arguments[1]);
+}
+
+[11].reduce(callbackfn, 1);
 
 assert(result, 'result !== true');

@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.valueOf) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.valueOf();
 }, '`new String.prototype.valueOf()` throws TypeError');
 

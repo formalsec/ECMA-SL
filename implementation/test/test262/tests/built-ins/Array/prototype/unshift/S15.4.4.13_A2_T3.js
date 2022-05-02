@@ -2,10 +2,10 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The unshift function is intentionally generic.
     It does not require that its this value be an Array object
-es5id: 15.4.4.13_A2_T3
+esid: sec-array.prototype.unshift
 description: >
     Operator use ToNumber from length.  If Type(value) is Object,
     evaluate ToPrimitive(value, Number)
@@ -14,79 +14,105 @@ description: >
 var obj = {};
 obj.unshift = Array.prototype.unshift;
 
-//CHECK#1
-obj.length = {valueOf: function() {return 3}};
+obj.length = {
+  valueOf() {
+    return 3
+  }
+};
 var unshift = obj.unshift();
-if (unshift !== 3) {
-  $ERROR('#1:  obj.length = {valueOf: function() {return 3}}  obj.unshift() === 3. Actual: ' + (unshift));
+assert.sameValue(unshift, 3, 'The value of unshift is expected to be 3');
+
+obj.length = {
+  valueOf() {
+    return 3
+  },
+  toString() {
+    return 1
+  }
+};
+var unshift = obj.unshift();
+assert.sameValue(unshift, 3, 'The value of unshift is expected to be 3');
+
+obj.length = {
+  valueOf() {
+    return 3
+  },
+  toString() {
+    return {}
+  }
+};
+var unshift = obj.unshift();
+assert.sameValue(unshift, 3, 'The value of unshift is expected to be 3');
+
+try {
+  obj.length = {
+    valueOf() {
+      return 3
+    },
+    toString() {
+      throw "error"
+    }
+  };
+  var unshift = obj.unshift();
+  assert.sameValue(unshift, 3, 'The value of unshift is expected to be 3');
+}
+catch (e) {
+  assert.notSameValue(e, "error", 'The value of e is not "error"');
 }
 
-//CHECK#2
-obj.length = {valueOf: function() {return 3}, toString: function() {return 1}};
+obj.length = {
+  toString() {
+    return 1
+  }
+};
 var unshift = obj.unshift();
-if (unshift !== 3) {
-  $ERROR('#0:  obj.length = {valueOf: function() {return 3}, toString: function() {return 1}}  obj.unshift() === 3. Actual: ' + (unshift));
-} 
+assert.sameValue(unshift, 1, 'The value of unshift is expected to be 1');
 
-//CHECK#3
-obj.length = {valueOf: function() {return 3}, toString: function() {return {}}};
-var unshift = obj.unshift();
-if (unshift !== 3) {
-  $ERROR('#1:  obj.length = {valueOf: function() {return 3}, toString: function() {return {}}}  obj.unshift() === 3. Actual: ' + (unshift));
-}
-
-//CHECK#4
-try {  
-  obj.length = {valueOf: function() {return 3}, toString: function() {throw "error"}};
-  var unshift = obj.unshift();  
-  if (unshift !== 3) {
-    $ERROR('#4.1:  obj.length = {valueOf: function() {return 3}, toString: function() {throw "error"}}; obj.unshift() === ",". Actual: ' + (unshift));
+obj.length = {
+  valueOf() {
+    return {}
+  },
+  toString() {
+    return 1
   }
 }
-catch (e) {
-  if (e === "error") {
-    $ERROR('#4.2:  obj.length = {valueOf: function() {return 3}, toString: function() {throw "error"}}; obj.unshift() not throw "error"');
-  } else {
-    $ERROR('#4.3:  obj.length = {valueOf: function() {return 3}, toString: function() {throw "error"}}; obj.unshift() not throw Error. Actual: ' + (e));
-  }
-}
+var unshift = obj.unshift();
+assert.sameValue(unshift, 1, 'The value of unshift is expected to be 1');
 
-//CHECK#5
-obj.length = {toString: function() {return 1}};
-var unshift = obj.unshift();  
-if (unshift !== 1) {
-  $ERROR('#5:  obj.length = {toString: function() {return 1}}  obj.unshift() === 1. Actual: ' + (unshift));
-}
-
-//CHECK#6
-obj.length = {valueOf: function() {return {}}, toString: function() {return 1}}
-var unshift = obj.unshift();  
-if (unshift !== 1) {
-  $ERROR('#6:  obj.length = {valueOf: function() {return {}}, toString: function() {return 1}}  obj.unshift() === 1. Actual: ' + (unshift));
-}
-
-//CHECK#7
 try {
-  
-  obj.length = {valueOf: function() {throw "error"}, toString: function() {return 1}};  
+
+  obj.length = {
+    valueOf() {
+      throw "error"
+    },
+    toString() {
+      return 1
+    }
+  };
   var unshift = obj.unshift();
-  $ERROR('#7.1:  obj.length = {valueOf: function() {throw "error"}, toString: function() {return 1}}; obj.unshift() throw "error". Actual: ' + (unshift));
-}  
+  throw new Test262Error('#7.1:  obj.length = {valueOf() {throw "error"}, toString() {return 1}}; obj.unshift() throw "error". Actual: ' + (unshift));
+}
 catch (e) {
-  if (e !== "error") {
-    $ERROR('#7.2:  obj.length = {valueOf: function() {throw "error"}, toString: function() {return 1}}; obj.unshift() throw "error". Actual: ' + (e));
-  } 
+  assert.sameValue(e, "error", 'The value of e is expected to be "error"');
 }
 
-//CHECK#8
 try {
-  
-  obj.length = {valueOf: function() {return {}}, toString: function() {return {}}};
+
+  obj.length = {
+    valueOf() {
+      return {}
+    },
+    toString() {
+      return {}
+    }
+  };
   var unshift = obj.unshift();
-  $ERROR('#8.1:  obj.length = {valueOf: function() {return {}}, toString: function() {return {}}}  obj.unshift() throw TypeError. Actual: ' + (unshift));
-}  
+  throw new Test262Error('#8.1:  obj.length = {valueOf() {return {}}, toString() {return {}}}  obj.unshift() throw TypeError. Actual: ' + (unshift));
+}
 catch (e) {
-  if ((e instanceof TypeError) !== true) {
-    $ERROR('#8.2:  obj.length = {valueOf: function() {return {}}, toString: function() {return {}}}  obj.unshift() throw TypeError. Actual: ' + (e));
-  } 
+  assert.sameValue(
+    e instanceof TypeError,
+    true,
+    'The result of evaluating (e instanceof TypeError) is expected to be true'
+  );
 }

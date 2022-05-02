@@ -14,9 +14,11 @@ info: |
 
 let calls = 0;
 let replaceValue = /$/;
-let oldToString = replaceValue.toString.bind(replaceValue);
+let oldToString = function () {
+  throw "TODO: not returning from this call when using the commented code."
+} /* replaceValue.toString.bind(replaceValue); */
 
-replaceValue.toString = () => {
+replaceValue.toString = function () /* TODO: => */ {
   calls += 1;
   return oldToString();
 };

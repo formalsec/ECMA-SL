@@ -21,8 +21,8 @@ Promise.resolve = null;
 
 Promise.allSettled([1])
   .then(
-    () => $DONE('The promise should not be resolved.'),
-    error => {
+    function () /* TODO: => */ {return $DONE('The promise should not be resolved.')},
+    function (error) /* TODO: => */ {
       assert(error instanceof TypeError);
     }
   ).then($DONE, $DONE);

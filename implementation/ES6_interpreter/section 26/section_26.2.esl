@@ -116,7 +116,7 @@ function proxyRevocable (global, this, strict, args) {
     revoker.RevocableProxy := p;
 
     /* 5. Let result be ObjectCreate(%ObjectPrototype%). */
-    result := ObjectCreate("func");
+    result := ObjectCreate(|Intrinsics|.ObjectPrototype, null);
 
     /* 6. Perform CreateDataProperty(result, "proxy", p). */
     CreateDataProperty(result, "proxy", p);

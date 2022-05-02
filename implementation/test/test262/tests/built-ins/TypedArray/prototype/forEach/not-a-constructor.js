@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(TypedArray.prototype.forEach) must return false'
 );
 
-assert.throws(TypeError, () => {
-  let u8 = new Uint8Array(1); new u8.forEach(() => {});
-}, '`let u8 = new Uint8Array(1); new u8.forEach(() => {})` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  let u8 = new Uint8Array(1); new u8.forEach(function () /* TODO: => */ {});
+}, '`let u8 = new Uint8Array(1); new u8.forEach(function () /* TODO: => */ {})` throws TypeError');
 

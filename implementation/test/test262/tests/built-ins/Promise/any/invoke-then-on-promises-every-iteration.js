@@ -26,7 +26,7 @@ let promises = [
 ];
 let callCount = 0;
 
-promises.forEach(promise => {
+promises.forEach(function (promise) /* TODO: => */ {
   let boundThen = promise.then.bind(promise);
   promise.then = function(...args) {
     assert.sameValue(this, promises[callCount]);
@@ -36,6 +36,6 @@ promises.forEach(promise => {
 });
 
 Promise.any(promises)
-  .then(() => {
+  .then(function () /* TODO: => */ {
       assert.sameValue(callCount, 3, '`then` invoked once for every iterated value');
     }).then($DONE, $DONE);

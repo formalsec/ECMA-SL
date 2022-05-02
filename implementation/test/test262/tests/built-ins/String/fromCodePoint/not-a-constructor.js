@@ -23,7 +23,7 @@ features: [Reflect.construct, arrow-function]
 
 assert.sameValue(isConstructor(String.fromCodePoint), false, 'isConstructor(String.fromCodePoint) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.fromCodePoint();
 }, '`new String.fromCodePoint()` throws TypeError');
 

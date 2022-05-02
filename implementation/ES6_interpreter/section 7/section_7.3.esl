@@ -645,7 +645,7 @@ function OrdinaryHasInstance(C, O) {
     };
 
     /* If Type(O) is not Object, return false. */
-    if ( !(Type(O) = "Object") ) {
+    if ( !(Type(O) = "Object") &&& !(Type(O) = "Symbol")) {
     	return false
     };
 
@@ -656,7 +656,7 @@ function OrdinaryHasInstance(C, O) {
     @ReturnIfAbrupt(P);
 
     /* If Type(P) is not Object, throw a TypeError exception. */
-    if ( !(Type(P) = "Object") ) {
+    if ( !(Type(P) = "Object") &&& !(Type(O) = "Symbol")) {
     	throw TypeErrorConstructorInternal()
     };
 

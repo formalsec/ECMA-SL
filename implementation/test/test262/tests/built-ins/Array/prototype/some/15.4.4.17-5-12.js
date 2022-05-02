@@ -2,14 +2,14 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.17-5-12
+esid: sec-array.prototype.some
 description: Array.prototype.some - Boolean object can be used as thisArg
 ---*/
 
-        var objBoolean = new Boolean();
+var objBoolean = new Boolean();
 
-        function callbackfn(val, idx, obj) {
-            return this === objBoolean;
-        }
+function callbackfn(val, idx, obj) {
+  return this === objBoolean;
+}
 
 assert([11].some(callbackfn, objBoolean), '[11].some(callbackfn, objBoolean) !== true');

@@ -18,6 +18,6 @@ let dv = new DataView(buffer, 0);
 
 $DETACHBUFFER(dv.buffer);
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   dv.byteLength;
 });

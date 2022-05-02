@@ -2,13 +2,13 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.21-5-1
+esid: sec-array.prototype.reduce
 description: >
     Array.prototype.reduce throws TypeError if 'length' is 0 (empty
     array), no initVal
 ---*/
 
-  function cb(){}
+function cb() {}
 assert.throws(TypeError, function() {
-    [].reduce(cb);
+  [].reduce(cb);
 });

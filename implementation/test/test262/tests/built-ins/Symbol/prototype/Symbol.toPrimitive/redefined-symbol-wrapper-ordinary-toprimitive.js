@@ -21,11 +21,11 @@ features: [Symbol.toPrimitive]
 Object.defineProperty(Symbol.prototype, Symbol.toPrimitive, { value: null });
 
 assert.sameValue(Object(Symbol()) == "Symbol()", false, "hint: default");
-assert.throws(TypeError, () => { +Object(Symbol()); }, "hint: number");
+assert.throws(TypeError, function () /* TODO: => */ { +Object(Symbol()); }, "hint: number");
 assert.sameValue(`${Object(Symbol())}`, "Symbol()", "hint: string");
 
 Object.defineProperty(Symbol.prototype, Symbol.toPrimitive, { value: undefined });
 
 assert(Object(Symbol.iterator) == Symbol.iterator, "hint: default");
-assert.throws(TypeError, () => { Object(Symbol()) <= ""; }, "hint: number");
+assert.throws(TypeError, function () /* TODO: => */ { Object(Symbol()) <= ""; }, "hint: number");
 assert.sameValue({ "Symbol()": 1 }[Object(Symbol())], 1, "hint: string");

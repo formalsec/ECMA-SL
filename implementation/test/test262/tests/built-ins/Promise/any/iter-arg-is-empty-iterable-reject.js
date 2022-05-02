@@ -30,8 +30,8 @@ features: [AggregateError, Promise.any, arrow-function]
 
 Promise.any([])
   .then(
-    () => $DONE('The promise should be rejected, but was resolved'),
-    error => {
+    function () /* TODO: => */ {return $DONE('The promise should be rejected, but was resolved')},
+    function (error) /* TODO: => */ {
       assert.sameValue(Object.getPrototypeOf(error), AggregateError.prototype);
       assert(error instanceof AggregateError);
       assert.sameValue(error.errors.length, 0);

@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.substring) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.substring();
 }, '`new String.prototype.substring()` throws TypeError');
 

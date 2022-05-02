@@ -1,0 +1,166 @@
+#! /bin/node
+const fs = require("fs/promises")
+
+async function parseFile(file, fn) {
+    let fh;
+    try {
+        fh = await fs.open(file)
+
+        let data;
+        try {
+            data = await fh.readFile("UTF-8")
+        } catch (e) {
+            console.error(`Error reading ${file}. ${e.message}`)
+        }
+        
+        fn(data)
+
+    } catch (e) {
+        console.error(`Error opening ${file}. ${e.message}`)
+    } finally {
+        fh.close()
+    }
+}
+
+function firstPass(data) {
+    const lines = data.split("\n")
+    
+    for (let line of lines) {
+        if (line.startsWith("test")) {
+            testsResultsFile1.write(TestResult.from(line, 1))
+        }
+    }
+}
+
+function secondPass(data) {
+    const lines = data.split("\n")
+    
+    for (let line of lines) {
+        if (line.startsWith("test")) {
+            let testResult = TestResult.from(line, 2)
+            let compTestResult = testsResultsFile1.read(testResult.name)
+            if (compTestResult) {
+                if (testResult.result !== compTestResult.result) {
+                    testResult.difference = {type: TestResult.DIFFERENT_RESULT, diff: `${compTestResult.result} vs ${testResult.result}`}
+                }
+            } else {
+                testResult.difference = {type: TestResult.NOT_EXISTS}
+            }
+            testsResultsFile2.write(testResult)
+        }
+    }
+}
+
+function difference(set1, set2) {
+    const differentResults = new TestResultCollection();
+
+    for (let compTestResult of set1.flatten()) {
+        let testResult = set2.read(compTestResult.name)
+        if (testResult) {
+            if (testResult.result !== compTestResult.result) {
+                compTestResult.difference = {type: TestResult.DIFFERENT_RESULT, diff: `${compTestResult.result} vs ${testResult.result}`}
+                differentResults.write(compTestResult)
+            }
+        } else {
+            compTestResult.difference = {type: TestResult.NOT_EXISTS, diff: `${compTestResult.result} vs NOT_EXISTS`}
+            differentResults.write(compTestResult)
+        }
+    }
+    
+    return differentResults
+}
+
+class TestResultCollection {
+    tests = {}
+
+    write(testResult) {
+        const testName = testResult.name.split("/")
+        let root = this.tests
+        for (let i = 0; i < testName.length - 1; ++i) {
+            const segment = testName[i]
+            if (!root[segment]) {
+                root[segment] = {}
+            }
+            root = root[segment]
+        }
+        root[testName[testName.length - 1]] = testResult
+    }
+
+    read(testName) {
+        testName = testName.split("/")
+        let root = this.tests
+        for (let i = 0; i < testName.length - 1; ++i) {
+            const segment = testName[i]
+            if (!root[segment]) {
+                return undefined
+            }
+            root = root[segment]
+        }
+        return root[testName[testName.length - 1]]
+    }
+
+    flatten() {
+        const array = []
+
+        function flattenObject(obj, array) {
+            const keys = Object.keys(obj)
+            for (let key of keys) {
+                let val = obj[key]
+                if (val instanceof TestResult) {
+                    array.push(val)
+                } else {
+                    flattenObject(val, array)
+                }
+            }
+        }
+        flattenObject(this.tests, array)
+
+        return array
+    }
+}
+
+class TestResult {
+    static NOT_EXISTS = Symbol("not exists")
+    static DIFFERENT_RESULT = Symbol("different result")
+
+    constructor(name, result, sourceFile, difference) {
+        this.name = name;
+        this.result = result;
+        this.sourceFile = sourceFile;
+        this.difference = difference;
+    }
+
+    static from(str, file) {
+        const components = str.split(" | ")
+        return new TestResult(components[0], components[1].replace(/[_\*]*/g, ""), file, undefined)
+    }
+}
+
+if (process.argv.length < 4) throw "Need 2 input file paths."
+let file1 = process.argv[process.argv.length - 2]
+let file2 = process.argv[process.argv.length - 1]
+const excludeNotExists = process.argv.includes("-e")
+const fixed = process.argv.includes("-f") || process.argv.includes("--fixed")
+
+var testsResultsFile1 = new TestResultCollection()
+var testsResultsFile2 = new TestResultCollection();
+
+(async () => {
+    await parseFile(file1, firstPass)
+    await parseFile(file2, secondPass)
+
+    const differentResults = difference(testsResultsFile1, testsResultsFile2);
+
+    let ignoredResults = fixed ? [/^.* vs [^(OK)]$/i] : [/^.* vs OK$/i, /^.*ERROR vs FAIL$/i]
+
+    for (let testResult of differentResults.flatten()) {
+        if (testResult.difference.type === TestResult.DIFFERENT_RESULT) {
+            if (!ignoredResults.some(regex => testResult.difference.diff.match(regex))) {
+                console.log(testResult.name, testResult.difference.diff)
+            }
+        } else if (testResult.difference.type === TestResult.NOT_EXISTS && !excludeNotExists) {
+            console.log(testResult.name, testResult.difference.diff)
+        }
+    }
+
+})()

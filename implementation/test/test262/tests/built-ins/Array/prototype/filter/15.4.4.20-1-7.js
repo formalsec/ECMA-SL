@@ -2,14 +2,14 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.20-1-7
+esid: sec-array.prototype.filter
 description: Array.prototype.filter applied to string primitive
 ---*/
 
-        function callbackfn(val, idx, obj) {
-            return obj instanceof String;
-        }
+function callbackfn(val, idx, obj) {
+  return obj instanceof String;
+}
 
-        var newArr = Array.prototype.filter.call("abc", callbackfn);
+var newArr = Array.prototype.filter.call("abc", callbackfn);
 
 assert.sameValue(newArr[0], "a", 'newArr[0]');

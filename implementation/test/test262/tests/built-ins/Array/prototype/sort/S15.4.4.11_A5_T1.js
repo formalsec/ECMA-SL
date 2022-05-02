@@ -3,20 +3,22 @@
 
 /*---
 info: Array.sort should not eat exceptions
-es5id: 15.4.4.11_A5_T1
+esid: sec-array.prototype.sort
 description: comparefn function throw "error"
 ---*/
 
-//CHECK#1
-var myComparefn = function(x,y) {
-  throw "error";
-}
-var x = [1,0];
-try {
-  x.sort(myComparefn)
-  $ERROR('#1.1: Array.sort should not eat exceptions');
-} catch(e) {
-  if (e !== "error") {
-    $ERROR('#1.2: Array.sort should not eat exceptions');
+assert.throws(Test262Error, function () /* TODO: => */ {
+  var myComparefn = function(x, y) {
+    throw new Test262Error();
   }
-}
+  var x = [1, 0];
+  x.sort(myComparefn);
+});
+
+assert.throws(Test262Error, function () {
+  var myComparefn = function(x, y) {
+    throw new Test262Error();
+  }
+  var x = [1, 0];
+  x.sort(myComparefn);
+});

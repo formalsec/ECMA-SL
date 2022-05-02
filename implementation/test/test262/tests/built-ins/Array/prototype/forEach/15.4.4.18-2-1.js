@@ -2,24 +2,25 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.18-2-1
+esid: sec-array.prototype.foreach
 description: >
     Array.prototype.forEach - 'length' is own data property on an
     Array-like object
 ---*/
 
-        var result = false;
-        function callbackfn(val, idx, obj) {
-            result = (obj.length === 2);
-        }
+var result = false;
 
-        var obj = {
-            0: 12,
-            1: 11,
-            2: 9,
-            length: 2
-        };
+function callbackfn(val, idx, obj) {
+  result = (obj.length === 2);
+}
 
-        Array.prototype.forEach.call(obj, callbackfn);
+var obj = {
+  0: 12,
+  1: 11,
+  2: 9,
+  length: 2
+};
+
+Array.prototype.forEach.call(obj, callbackfn);
 
 assert(result, 'result !== true');

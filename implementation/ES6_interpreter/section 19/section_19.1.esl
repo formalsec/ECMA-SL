@@ -697,19 +697,16 @@ function ObjectPrototypeHasOwnProperty(globalObject, this, strict, params) {
   /* 1. ToPropertyKey(V). */
   P := ToPropertyKey(V);
 
-  /* ReturnIfAbrupt(P) */
+  /* 2. ReturnIfAbrupt(P) */
   @ReturnIfAbrupt(P);
 
-  /* 2. Let O be ToObject(this value). */
+  /* 3. Let O be ToObject(this value). */
   O := ToObject(this);
 
-  /* 3. Let desc be the result of calling the [[GetOwnProperty]] internal method of O passing P as the argument. */
-  desc := {O.GetOwnProperty}(O, P);
-
-  /* ReturnIfAbrupt(O). */
+  /* 4. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
 
-  /* Return HasOwnProperty(O, P). */
+  /* 5. Return HasOwnProperty(O, P). */
   return HasOwnProperty(O, P)
 
   /* NOTE The ordering of steps 1 and 3 is chosen to ensure that any exception that would have been

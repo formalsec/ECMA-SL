@@ -28,7 +28,7 @@ Promise.resolve = function(...args) {
 };
 
 Promise.race(values)
-  .then(() => {
+  .then(function () /* TODO: => */ {
       assert.sameValue(callCount, 3, '`then` invoked once for every item in iterable arg');
     }).then($DONE, $DONE);
 

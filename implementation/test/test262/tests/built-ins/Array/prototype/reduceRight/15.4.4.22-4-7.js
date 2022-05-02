@@ -2,13 +2,13 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.22-4-7
+esid: sec-array.prototype.reduceright
 description: >
     Array.prototype.reduceRight throws TypeError if callbackfn is
     Object without [[Call]] internal method
 ---*/
 
-  var arr = new Array(10);
+var arr = new Array(10);
 assert.throws(TypeError, function() {
-    arr.reduceRight(new Object());
+  arr.reduceRight(new Object());
 });

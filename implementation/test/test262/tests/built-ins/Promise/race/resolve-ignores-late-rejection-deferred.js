@@ -23,11 +23,11 @@ includes: [promiseHelper.js]
 let sequence = [1];
 let lateRejector = {
   then(resolve, reject) {
-    return new Promise((resolve) => {
+    return new Promise(function (resolve) /* TODO: => */ {
       sequence.push(3);
       resolve();
       sequence.push(4);
-    }).then(() => {
+    }).then(function () /* TODO: => */ {
       sequence.push(5);
       resolve(9);
       sequence.push(6);
@@ -39,7 +39,7 @@ let lateRejector = {
 sequence.push(2);
 
 Promise.race([lateRejector])
-  .then(resolution => {
+  .then(function (resolution) /* TODO: => */ {
     assert.sameValue(resolution, 9);
     assert.sameValue(sequence.length, 7);
     checkSequence(sequence);

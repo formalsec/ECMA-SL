@@ -23,7 +23,7 @@ function Constructor(executor) {
     rejectCallCount += 1;
     return returnValue;
   }
-  executor(() => {throw error}, reject);
+  executor(function () /* TODO: => */ {throw error}, reject);
 }
 Constructor.resolve = function(v) {
   return v;

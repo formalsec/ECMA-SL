@@ -20,5 +20,5 @@ features: [Reflect.construct, arrow-function]
 ---*/
 
 assert.sameValue(isConstructor(Promise), true, 'isConstructor(Promise) must return true');
-new Promise(() => {});
+new Promise(function () /* TODO: => */ {});
   

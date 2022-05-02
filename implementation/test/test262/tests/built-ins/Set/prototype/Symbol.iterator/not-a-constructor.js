@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Set.prototype[Symbol.iterator]) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let s = new Set([]); new s[Symbol.iterator]();
 }, '`let s = new Set([]); new s[Symbol.iterator]()` throws TypeError');
 

@@ -16,6 +16,6 @@ class FooPromise extends Promise {
   }
 }
 
-FooPromise.resolve().finally(() => {}).then(() => {
+FooPromise.resolve().finally(function () /* TODO: => */ {}).then(function () /* TODO: => */ {
   assert.sameValue(count, 7);
 }).then($DONE, $DONE);

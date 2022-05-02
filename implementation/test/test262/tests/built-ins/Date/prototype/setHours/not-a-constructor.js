@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Date.prototype.setHours) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let date = new Date(Date.now()); new date.setHours();
 }, '`let date = new Date(Date.now()); new date.setHours()` throws TypeError');
 

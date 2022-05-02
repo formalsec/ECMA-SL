@@ -2,20 +2,24 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.22-9-c-ii-27
+esid: sec-array.prototype.reduceright
 description: >
     Array.prototype.reduceRight - String Object can be used as
     accumulator
 ---*/
 
-        var accessed = false;
-        var objString = new String();
-        function callbackfn(prevVal, curVal, idx, obj) {
-            accessed = true;
-            return prevVal === objString;
-        }
+var accessed = false;
+var objString = new String();
 
-        var obj = { 0: 11, length: 1 };
+function callbackfn(prevVal, curVal, idx, obj) {
+  accessed = true;
+  return prevVal === objString;
+}
+
+var obj = {
+  0: 11,
+  length: 1
+};
 
 assert.sameValue(Array.prototype.reduceRight.call(obj, callbackfn, objString), true, 'Array.prototype.reduceRight.call(obj, callbackfn, objString)');
 assert(accessed, 'accessed !== true');

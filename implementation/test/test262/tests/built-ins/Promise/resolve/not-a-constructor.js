@@ -23,7 +23,7 @@ features: [Reflect.construct, arrow-function]
 
 assert.sameValue(isConstructor(Promise.resolve), false, 'isConstructor(Promise.resolve) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Promise.resolve();
 }, '`new Promise.resolve()` throws TypeError');
 

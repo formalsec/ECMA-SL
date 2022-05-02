@@ -13,7 +13,7 @@ class FooPromise extends Promise {
   }
 }
 
-var p = Promise.reject().finally(() => FooPromise.reject());
+var p = Promise.reject().finally(function () /* TODO: => */ {return FooPromise.reject()});
 
 assert.sameValue(p instanceof Promise, true);
 assert.sameValue(p instanceof FooPromise, false);

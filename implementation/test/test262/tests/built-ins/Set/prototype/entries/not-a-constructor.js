@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Set.prototype.entries) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let s = new Set([]); new s.entries();
 }, '`let s = new Set([]); new s.entries()` throws TypeError');
 

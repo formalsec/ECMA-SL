@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The [[Prototype]] property of the newly constructed object
     is set to the original Array prototype object, the one that
     is the initial value of Array.prototype
@@ -10,7 +10,8 @@ es5id: 15.4.1_A1.1_T3
 description: Checking use isPrototypeOf
 ---*/
 
-//CHECK#1
-if (Array.prototype.isPrototypeOf(Array()) !== true) {
-  $ERROR('#1: Array.prototype.isPrototypeOf(Array()) === true. Actual: ' + (Array.prototype.isPrototypeOf(Array())));
-}
+assert.sameValue(
+  Array.prototype.isPrototypeOf(Array()),
+  true,
+  'Array.prototype.isPrototypeOf(Array()) must return true'
+);

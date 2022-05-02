@@ -29,33 +29,33 @@ features: [Promise.any]
 
 let sequence = [];
 
-let p1 = new Promise((_, reject) => {
+let p1 = new Promise(function (_, reject) /* TODO: => */ {
   reject('foo');
 });
-let p2 = new Promise((_, reject) => {
+let p2 = new Promise(function(_, reject) /* TODO: => */ {
   reject('bar');
 });
 
 sequence.push(1);
 
-p1.catch(() => {
+p1.catch(function () /* TODO: => */ {
   sequence.push(3);
   assert.sameValue(sequence.length, 3);
   checkSequence(sequence, 'Expected to be called first.');
 }).catch($DONE);
 
-Promise.any([p1, p2]).then(() => {
+Promise.any([p1, p2]).then(function () /* TODO: => */ {
   sequence.push(5);
   assert.sameValue(sequence.length, 5);
   checkSequence(sequence, 'Expected to be called third.');
-}).then($DONE, outcome => {
+}).then($DONE, function (outcome) /* TODO: => */ {
   assert(outcome instanceof AggregateError);
   assert.sameValue(outcome.errors.length, 2);
   assert.sameValue(outcome.errors[0], 'foo');
   assert.sameValue(outcome.errors[1], 'bar');
 }).then($DONE, $DONE);
 
-p2.catch(() => {
+p2.catch(function () /* TODO: => */ {
   sequence.push(4);
   assert.sameValue(sequence.length, 4);
   checkSequence(sequence, 'Expected to be called second.');

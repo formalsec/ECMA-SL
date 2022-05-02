@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.repeat) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.repeat();
 }, '`new String.prototype.repeat()` throws TypeError');
 

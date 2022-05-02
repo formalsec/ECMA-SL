@@ -17,8 +17,8 @@ class FooPromise extends Promise {
   }
 }
 
-new FooPromise(r => r())
-  .finally(() => {})
-  .then(() => {
+new FooPromise(function (r) /* TODO: => */ {return r()})
+  .finally(function () /* TODO: => */ {})
+  .then(function () /* TODO: => */ {
     assert.sameValue(count, 7, "7 new promises were created");
   }).then($DONE, $DONE);

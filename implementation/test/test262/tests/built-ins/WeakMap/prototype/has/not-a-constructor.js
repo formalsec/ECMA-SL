@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(WeakMap.prototype.has) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let wm = new WeakMap(); new wm.has();
 }, '`let wm = new WeakMap(); new wm.has()` throws TypeError');
 

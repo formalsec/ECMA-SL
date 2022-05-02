@@ -29,8 +29,8 @@ const iter = { 
 
 Promise.resolve = "certainly not callable";
 
-Promise.all(iter).then(() => {
+Promise.all(iter).then(function () /* TODO: => */ {
   throw new Test262Error("The promise should be rejected, but it was resolved");
-}, (reason) => {
+}, function (reason) /* TODO: => */ {
   assert(reason instanceof TypeError);
 }).then($DONE, $DONE);

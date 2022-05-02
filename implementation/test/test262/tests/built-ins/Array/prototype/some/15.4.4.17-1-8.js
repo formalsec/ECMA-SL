@@ -2,14 +2,14 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.17-1-8
+esid: sec-array.prototype.some
 description: Array.prototype.some applied to String object
 ---*/
 
-        function callbackfn(val, idx, obj) {
-            return obj instanceof String;
-        }
+function callbackfn(val, idx, obj) {
+  return obj instanceof String;
+}
 
-        var obj = new String("hello\nw_orld\\!");
+var obj = new String("hello\nw_orld\\!");
 
 assert(Array.prototype.some.call(obj, callbackfn), 'Array.prototype.some.call(obj, callbackfn) !== true');

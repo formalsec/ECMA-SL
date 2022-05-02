@@ -67,14 +67,14 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, argumentLi
     /* 9. If result.[[type]] is return, return NormalCompletion(result.[[value]]). */
     if (getCompletionType(result) = 'return) {
       value := getCompletionValue(result);
-      return value
+      return NormalCompletion(value)
 	};
 
     /* 10. ReturnIfAbrupt(result). */
     @ReturnIfAbrupt(result);
 
     /* 11. Return NormalCompletion(undefined). */
-    return 'undefined
+    return NormalCompletion('undefined)
 };
 
 /**

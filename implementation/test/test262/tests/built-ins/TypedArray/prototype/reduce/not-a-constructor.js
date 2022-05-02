@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(TypedArray.prototype.reduce) must return false'
 );
 
-assert.throws(TypeError, () => {
-  let u8 = new Uint8Array(1); new u8.reduce(() => {}, []);
-}, '`let u8 = new Uint8Array(1); new u8.reduce(() => {}, [])` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  let u8 = new Uint8Array(1); new u8.reduce(function () /* TODO: => */ {}, []);
+}, '`let u8 = new Uint8Array(1); new u8.reduce(function () /* TODO: => */ {}, [])` throws TypeError');
 

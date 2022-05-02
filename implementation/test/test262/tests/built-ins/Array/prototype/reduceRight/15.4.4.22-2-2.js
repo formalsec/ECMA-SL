@@ -2,18 +2,18 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.22-2-2
+esid: sec-array.prototype.reduceright
 description: >
     Array.prototype.reduceRight - 'length' is own data property on an
     Array
 ---*/
 
-        var accessed = false;
+var accessed = false;
 
-        function callbackfn(prevVal, curVal, idx, obj) {
-            accessed = true;
-            return obj.length === 2;
-        }
+function callbackfn(prevVal, curVal, idx, obj) {
+  accessed = true;
+  return obj.length === 2;
+}
 
 assert([12, 11].reduceRight(callbackfn, 11), '[12, 11].reduceRight(callbackfn, 11) !== true');
 assert(accessed, 'accessed !== true');

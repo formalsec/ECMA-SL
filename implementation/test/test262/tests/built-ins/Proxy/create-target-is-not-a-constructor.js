@@ -26,6 +26,6 @@ var proxy = new Proxy(eval, {});
 proxy(); // the Proxy object is callable
 
 assert.sameValue(isConstructor(proxy), false, 'isConstructor(proxy) must return false');
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new proxy();
 }, '`new proxy()` throws TypeError');

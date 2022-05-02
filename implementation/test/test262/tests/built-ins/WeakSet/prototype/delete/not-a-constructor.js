@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(WeakSet.prototype.delete) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let ws = new WeakSet(); new ws.delete();
 }, '`let ws = new WeakSet(); new ws.delete()` throws TypeError');
 

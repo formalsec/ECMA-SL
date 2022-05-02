@@ -18,8 +18,8 @@ const b = {};
 const c = {};
 
 Promise.any([a, b, c])
-  .then((value) => {
+  .then(function (value) /* TODO: => */ {
     assert.sameValue(value, a);
-  }, () => {
+  }, function () /* TODO: => */ {
     $DONE('The promise should not be rejected.');
   }).then($DONE, $DONE);

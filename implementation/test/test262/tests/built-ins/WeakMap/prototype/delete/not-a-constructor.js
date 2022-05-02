@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(WeakMap.prototype.delete) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let wm = new WeakMap(); new wm.delete();
 }, '`let wm = new WeakMap(); new wm.delete()` throws TypeError');
 

@@ -2,11 +2,11 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.20-4-6
+esid: sec-array.prototype.filter
 description: Array.prototype.filter throws TypeError if callbackfn is string
 ---*/
 
-  var arr = new Array(10);
+var arr = new Array(10);
 assert.throws(TypeError, function() {
-    arr.filter("abc");
+  arr.filter("abc");
 });

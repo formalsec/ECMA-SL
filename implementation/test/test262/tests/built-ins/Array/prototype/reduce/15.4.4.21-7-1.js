@@ -2,11 +2,11 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.21-7-1
+esid: sec-array.prototype.reduce
 description: >
     Array.prototype.reduce returns initialValue if 'length' is 0 and
     initialValue is present (empty array)
 ---*/
 
-  function cb(){}
-assert.sameValue([].reduce(cb,1), 1, '[].reduce(cb,1)');
+function cb() {}
+assert.sameValue([].reduce(cb, 1), 1, '[].reduce(cb,1)');

@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Promise.prototype.then) must return false'
 );
 
-assert.throws(TypeError, () => {
-  let p = new Promise(() => {}); new p.then();
-}, '`let p = new Promise(() => {}); new p.then()` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  let p = new Promise(function () /* TODO: => */ {}); new p.then();
+}, '`let p = new Promise(function () /* TODO: => */ {}); new p.then()` throws TypeError');
 

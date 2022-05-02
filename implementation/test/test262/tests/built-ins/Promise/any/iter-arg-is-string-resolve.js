@@ -25,10 +25,10 @@ flags: [async]
 ---*/
 
 try {
-  Promise.any('xyz').then(v => {
+  Promise.any('xyz').then(function (v) /* TODO: => */ {
     assert.sameValue(v, 'x');
     assert.sameValue(v.length, 1);
-  }, error => {
+  }, function (error) /* TODO: => */ {
     $DONE(`The promise should be resolved, but was rejected with error: ${error.message}`);
   }).then($DONE, $DONE);
 } catch (error) {

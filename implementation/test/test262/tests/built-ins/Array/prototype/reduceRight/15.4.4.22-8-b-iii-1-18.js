@@ -2,26 +2,27 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.22-8-b-iii-1-18
+esid: sec-array.prototype.reduceright
 description: >
     Array.prototype.reduceRight - element to be retrieved is own
     accessor property without a get function on an Array
 ---*/
 
-        var testResult = false;
-        function callbackfn(prevVal, curVal, idx, obj) {
-            if (idx === 1) {
-                testResult = (typeof prevVal === "undefined");
-            }
-        }
+var testResult = false;
 
-        var arr = [0, 1];
+function callbackfn(prevVal, curVal, idx, obj) {
+  if (idx === 1) {
+    testResult = (typeof prevVal === "undefined");
+  }
+}
 
-        Object.defineProperty(arr, "2", {
-            set: function () { },
-            configurable: true
-        });
+var arr = [0, 1];
 
-        arr.reduceRight(callbackfn);
+Object.defineProperty(arr, "2", {
+  set: function() {},
+  configurable: true
+});
+
+arr.reduceRight(callbackfn);
 
 assert(testResult, 'testResult !== true');

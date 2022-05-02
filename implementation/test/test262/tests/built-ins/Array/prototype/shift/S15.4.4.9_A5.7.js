@@ -3,7 +3,7 @@
 
 /*---
 info: The shift property of Array can't be used as constructor
-es5id: 15.4.4.9_A5.7
+esid: sec-array.prototype.shift
 description: >
     If property does not implement the internal [[Construct]] method,
     throw a TypeError exception
@@ -13,9 +13,9 @@ description: >
 
 try {
   new Array.prototype.shift();
-  $ERROR('#1.1: new Array.prototype.shift() throw TypeError. Actual: ' + (new Array.prototype.shift()));
+  throw new Test262Error('#1.1: new Array.prototype.shift() throw TypeError. Actual: ' + (new Array.prototype.shift()));
 } catch (e) {
   if ((e instanceof TypeError) !== true) {
-    $ERROR('#1.2: new Array.prototype.shift() throw TypeError. Actual: ' + (e));
+    throw new Test262Error('#1.2: new Array.prototype.shift() throw TypeError. Actual: ' + (e));
   }
 }

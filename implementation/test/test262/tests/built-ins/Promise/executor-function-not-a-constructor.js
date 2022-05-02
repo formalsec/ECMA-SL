@@ -28,7 +28,7 @@ assert.sameValue(
 );
 assert.sameValue(isConstructor(executorFunction), false, 'isConstructor(executorFunction) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new executorFunction();
 }, '`new executorFunction()` throws TypeError');
 

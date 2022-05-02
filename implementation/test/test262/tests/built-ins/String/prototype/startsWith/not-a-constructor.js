@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.startsWith) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.startsWith();
 }, '`new String.prototype.startsWith()` throws TypeError');
 

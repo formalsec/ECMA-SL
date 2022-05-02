@@ -12,7 +12,7 @@ info: |
 features: [Promise.any, Symbol.species]
 ---*/
 function C(executor) {
-  executor(() => {}, () => {});
+  executor(function () /* TODO: => */ {}, function () /* TODO: => */ {});
 }
 
 Object.defineProperty(C, Symbol.species, {

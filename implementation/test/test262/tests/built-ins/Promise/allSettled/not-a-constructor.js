@@ -23,7 +23,7 @@ features: [Reflect.construct, Promise.allSettled, arrow-function]
 
 assert.sameValue(isConstructor(Promise.allSettled), false, 'isConstructor(Promise.allSettled) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Promise.allSettled();
 }, '`new Promise.allSettled()` throws TypeError');
 

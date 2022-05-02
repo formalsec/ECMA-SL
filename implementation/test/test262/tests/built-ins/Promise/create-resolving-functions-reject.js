@@ -21,7 +21,7 @@ Promise.resolve(1).then(function() {
 var then = Promise.prototype.then;
 Promise.prototype.then = function(resolve, reject) {
   assert.sameValue(isConstructor(reject), false, 'isConstructor(reject) must return false');
-  assert.throws(TypeError, () => {
+  assert.throws(TypeError, function () /* TODO: => */ {
     new reject();
   }, '`new reject()` throws TypeError');
 

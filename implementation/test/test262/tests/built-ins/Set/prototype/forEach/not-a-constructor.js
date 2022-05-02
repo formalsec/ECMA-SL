@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Set.prototype.forEach) must return false'
 );
 
-assert.throws(TypeError, () => {
-  let s = new Set([]); new s.forEach(() => {});
-}, '`let s = new Set([]); new s.forEach(() => {})` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  let s = new Set([]); new s.forEach(function () /* TODO: => */ {});
+}, '`let s = new Set([]); new s.forEach(function () /* TODO: => */ {})` throws TypeError');
 

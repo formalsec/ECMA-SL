@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(WeakSet.prototype.has) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let ws = new WeakSet(); new ws.has();
 }, '`let ws = new WeakSet(); new ws.has()` throws TypeError');
 

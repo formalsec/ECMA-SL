@@ -39,7 +39,7 @@ testWithTypedArrayConstructors(function(TA) {
     get() { return "bar"; }
   });
 
-  assert.throws(TypeError, () => {
+  assert.throws(TypeError, function () /* TODO: => */ {
     delete sample.bar;
   }, '`delete sample.bar` throws TypeError');
 

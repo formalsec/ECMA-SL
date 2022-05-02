@@ -1117,6 +1117,19 @@ function JS_Interpreter_PropertyName(PropertyName, scope) {
     /* 2. Return ToString(nbr). */
     return ToString(nbr)
   }
+  /* The production PropertyName : MemberExpression is evaluated as follows: */
+  | { type: "MemberExpression" } -> { /* TODO: Temporary solution. Not according to standard. To fix */
+    exprVal := JS_Interpreter_Expr(PropertyName, scope);
+    print exprVal;
+    val := GetValue(exprVal);
+    print val;
+    if (Type(val) = "Symbol") { 
+      str := symbolDescriptiveString(val);
+      return str
+    } else {
+      fail "JS_Interpreter_PropertyName: memberexpr not symbol"
+    }
+  }
 };
 
 macro PropagateBlockLabelSet(Block, Stmts) {

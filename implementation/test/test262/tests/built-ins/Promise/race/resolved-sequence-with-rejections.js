@@ -24,26 +24,26 @@ flags: [async]
 includes: [compareArray.js,promiseHelper.js]
 ---*/
 
-let a = new Promise((_, reject) => reject('a'));
-let b = new Promise((_, reject) => reject('b'));
+let a = new Promise(function (_, reject) /* TODO: => */ {return reject('a')});
+let b = new Promise(function (_, reject) /* TODO: => */ {return reject('b')});
 let sequence = [1];
 Promise.all([
-  a.catch(() => {
+  a.catch(function () /* TODO: => */ {
     sequence.push(3);
     assert.sameValue(sequence.length, 3);
     return checkSequence(sequence, 'Expected to be called first.');
   }),
-  Promise.race([a, b]).catch(() => {
+  Promise.race([a, b]).catch(function () /* TODO: => */ {
     sequence.push(5);
     assert.sameValue(sequence.length, 5);
     return checkSequence(sequence, 'Expected to be called third.');
   }),
-  b.catch(() => {
+  b.catch(function () /* TODO: => */ {
     sequence.push(4);
     assert.sameValue(sequence.length, 4);
     return checkSequence(sequence, 'Expected to be called second.');
   })
-]).then(result => {
+]).then(function (result) /* TODO: => */ {
   compareArray(result, [true, true, true]);
   assert.sameValue(sequence.length, 5);
   checkSequence(sequence);
