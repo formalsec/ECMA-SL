@@ -1,3 +1,251 @@
+/**
+ * 18.2.1.1 Runtime Semantics: PerformEval (x, evalRealm, strictCaller, direct)
+ *
+ * The abstract operation PerformEval with arguments x, evalRealm, strictCaller,
+ * and direct performs the following steps:
+ */
+function PerformEval(scope, x, evalRealm, strictCaller, direct) {
+  /* 1. Assert: If direct is false then strictCaller is also false. */
+  assert((direct) ||| (strictCaller));
+  /* 2. If Type(x) is not String, */
+  if (!(Type(x) = "String")) {
+    /* return x */
+    return x
+  };
+  /* 3. Let script be the ECMAScript code that is the result of parsing x,
+     interpreted as UTF-16 encoded Unicode text as described in 6.1.4, for
+     the goal symbol Script. If the parse fails or any early errors are
+     detected, throw a SyntaxError exception (but see also clause 16). */
+  script := parseAsProgram(x, strictCaller);
+  if ("message" in_obj script) {
+      throw SyntaxErrorConstructorInternal()
+  };
+  /* 4. If script Contains ScriptBody is false, */
+  if (!("body" in_obj script)) {
+    /* return undefined */
+    return 'undefined
+  };
+
+  /* 5. Let body be the ScriptBody of script. */
+  body := script.body;
+  /* 6. If strictCaller is true, let strictEval be true. */
+  if (strictCaller) {
+    strictEval := true
+  } /* 7. Else, */
+  else {
+    /* let strictEval be IsStrict of script */
+    strictEval := false
+  };
+
+  /* 8. Let ctx be the running execution context. If direct is true ctx will
+     be the execution context that performed the direct eval. If direct is
+     false ctx will be the execution context for the invocation of the eval
+     function. */
+  ctx := scope;
+  /* 9. If direct is true, then */
+  if (direct = true) {
+    /* a. Let lexEnv be NewDeclarativeEnvironment(ctx's LexicalEnvironment). */
+    lexEnv := NewDeclarativeEnvironment(ctx.LexicalEnvironment);
+    /* b. Let varEnv be ctx's VariableEnvironment. */
+    isGlobalEnvRec := false;
+    varEnv := ctx.VariableEnvironment
+  } else {
+    /* 10. Else, */
+    /* a. Let lexEnv be NewDeclarativeEnvironment(evalRealm.[[globalEnv]]). */
+    lexEnv := NewDeclarativeEnvironment(getGlobalEnvironment(|global|));
+    /* a. Let varEnv be evalRealm.[[globalEnv]]. */
+    isGlobalEnvRec := true;
+    varEnv := getGlobalEnvironment(|global|)
+  };
+  /* 11. If strictEval is true, */
+  if (strictEval = true) {
+    /* let varEnv be lexEnv */
+    varEnv := lexEnv
+  };
+  /* 12. If ctx is not already suspended, Suspend ctx */
+  /* TODO */
+
+  /* 13. Let evalCxt be a new ECMAScript code execution context. */
+  evalCxt := createExecutionContext();
+  evalCxt.ThisBinding := ctx.ThisBinding;
+  /* 14. Set the evalCxt's Realm to evalRealm. */
+  evalCxt.Realm := evalRealm;
+  /* 15. Set the evalCxt's VariableEnvironment to varEnv. */
+  evalCxt.VariableEnvironment := varEnv;
+  /* 16. Set the evalCxt's LexicalEnvironment to lexEnv. */
+  evalCxt.LexicalEnvironment := lexEnv;
+  /* 17. Push evalCxt on to the execution context stack; evalCxt is now the
+     running execution context. */
+  /*TODO*/
+
+  /* 18. Let result be EvalDeclarationInstantiation(body, varEnv, lexEnv,
+     strictEval). */
+  result := EvalDeclarationInstantiation(script, varEnv, lexEnv, strictEval, isGlobalEnvRec);
+  /* 19. If result.[[type]] is normal, then */
+  if (getCompletionType(result) = 'normal) {
+    /* a. Let result be the result of evaluating body. */
+    result := JS_Interpreter_Program(script, evalCxt)
+  };
+  /* 20. If result.[[type]] is normal and result.[[value]] is empty, then */
+  if ((getCompletionType(result) = 'normal) &&& (getCompletionValue(result) = 'empty)) {
+    /* a. Let result be NormalCompletion(undefined). */
+    return NormalCompletion('undefined)
+  };
+  /* 21. Suspend evalCxt and remove it from the execution context stack. */
+  /* TODO */
+  /* 22. Resume the context that is now on the top of the execution context
+     stack as the running execution context. */
+  /* TODO */
+  /* 23. Return Completion(result). */
+  return Completion(result)
+};
+/**
+ * NOTE The eval code cannot instantiate variable or function bindings in the
+ * variable environment of the calling context that invoked the eval if the
+ * calling context is evaluating formal parameter initializers or if either the
+ * code of the calling context or the eval code is strict code. Instead such
+ * bindings are instantiated in a new VariableEnvironment that is only
+ * accessible to the eval code. Bindings introduced by let, const, or class
+ * declarations are always instantiated in a new LexicalEnvironment.
+ */
+
+/**
+ * 18.2.1.2 Runtime Semantics: EvalDeclarationInstantiation (body, varEnv, lexEnv, strict)
+ *
+ * When the abstract operation EvalDeclarationInstantiation is called with
+ * arguments body, varEnv, lexEnv, and strict the following steps are taken:
+ */
+function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvRec) {
+  /* 1. Let varNames be the VarDeclaredNames of body. */
+  varNames := getVariableDeclarationsInCode(body);
+  /* 2. Let varDeclarations be the VarScopedDeclarations of body. */
+  varDeclarations := getFunctionDeclarationsInCode(body);
+  /* 3. Let lexEnvRec be lexEnv's EnvironmentRecord. */
+  lexEnvRec := lexEnv.EnvRec;
+  /* 4. Let varEnvRec be varEnv's EnvironmentRecord. */
+  varEnvRec := varEnv.EnvRec;
+  /* 5. If strict is false, then */
+  if (strict = false) {
+    /* a. If varEnvRec is a global Environment Record, then */
+    if (isGlobalEnvRec) {
+        /* i. For each name in varNames, do */
+        i := 0;
+        varNames_l := l_len(varNames);
+        /* 1. If varEnvRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
+        while (i < varNames_l) {
+          name := l_nth(varNames, i);
+          if (HasBinding(varEnvRec, name)) {
+            throw SyntaxErrorConstructorInternal()
+          };
+          i := i + 1
+        }
+        /* NOTE: eval will not create a global var declaration that would be shadowed by a global lexical declaration. */
+    };
+    /* b. Let thisLex be lexEnv. */
+    thisLex := lexEnv
+    /* c. Assert: the following loop will terminate. */
+    /* TODO */
+    /* d. Repeat while thisLex is not the same as varEnv, */
+    /* TODO*/
+  };
+  /* 6. Let functionsToInitialize be an empty List. */
+  functionsToInitialize := [];
+  /* 7. Let declaredFunctionNames be an empty List. */
+  declaredFunctionNames := [];
+  /* 8. For each d in varDeclarations, in reverse list order do */
+  functionNames_l := l_len(varDeclarations);
+  i := functionNames_l - 1;
+  while (i >= 0) {
+      f := l_nth(varDeclarations, i);
+      fn := f.id.name;
+      if (!(fn in_list declaredFunctionNames)) {
+          if  (isGlobalEnvRec) {
+              /* TODO */
+          };
+      declaredFunctionNames := l_add(declaredFunctionNames, fn);
+      functionsToInitialize := l_add(functionsToInitialize, f)
+    };
+    i := i - 1
+  };
+  /* 9. Let declaredVarNames be an empty List. */
+  declaredVarNames := [];
+  /* 10. For each d in varDeclarations, do */
+  varNames_l := l_len(varNames);
+  i := 0;
+  while (i < varNames_l) {
+      vn := l_nth(varNames, i);
+      if (!(vn in_list declaredFunctionNames)) {
+          if (isGlobalEnvRec) {
+              /* TODO */
+          };
+          if (!(vn in_list declaredVarNames)) {
+              declaredVarNames := l_add(declaredVarNames, vn)
+          }
+      };
+      i := i + 1
+  };
+  /* 11. NOTE: No abnormal terminations occur after this algorithm step unless
+     varEnvRec is a global Environment Record and the global object is a
+     Proxy exotic object. */
+
+  /* TODO - Lexically Scoped Declarations of body */
+  /* 12. Let lexDeclarations be the LexicallyScopedDeclarations of body. */
+  /* 13. For each element d in lexDeclarations do */
+
+  /* 14. For each production f in functionsToInitialize, do */
+  functionsToInitialize_l := l_len(functionsToInitialize);
+  i := 0;
+  while (i < functionsToInitialize_l) {
+    f := l_nth(functionsToInitialize, i);
+    print "DEBUG FUNC TO INIT";
+    print f;
+    fn := f.id.name;
+    fo := JS_Interpreter_FunctionDeclaration(f, lexEnv);
+    if (isGlobalEnvRec) {
+        /* TODO */
+        status := CreateMutableBinding(varEnvRec, fn, true);
+        SetMutableBinding(varEnvRec, fn, fo, false);
+        @ReturnIfAbrupt(status)
+    } else {
+        bindingExists := HasBinding(varEnvRec, fn);
+        if (!(bindingExists)) {
+            status := CreateMutableBinding(varEnvRec, fn, true);
+            assert(!(isAnAbruptCompletion(status)));
+            status := SetMutableBinding(varEnvRec, fn, fo, false)
+        } else {
+            status := SetMutableBinding(varEnvRec, fn, fo, false)
+        }
+    };
+    @ReturnIfAbrupt(status);
+    i := i + 1
+  };
+  /* 15. For each String vn in declaredVarNames, in list order do */
+  varNames_l := l_len(declaredVarNames);
+  i := 0;
+  while (i < varNames_l) {
+      vn := l_nth(declaredVarNames, i);
+      /* If varEnvRec is a global Environment Record, then */
+      if (isGlobalEnvRec) {
+          /* TODO */
+          status := CreateMutableBinding(varEnvRec, vn, false)
+      } else {
+          bindingExists := HasBinding(varEnvRec, vn);
+          if (!(bindingExists)) {
+              status := CreateMutableBinding(varEnvRec, vn, true);
+              assert(!(isAnAbruptCompletion(status)));
+              status := SetMutableBinding(varEnvRec, vn, 'undefined, false);
+              assert(!(isAnAbruptCompletion(status)))
+          }
+      };
+    i := i + 1
+  };
+  /* 16. Return NormalCompletion(empty) */
+  return NormalCompletion('empty)
+};
+/**
+ * NOTE An alternative version of this algorithm is described in B.3.5.
+ */
+
 /* 18.2 Function Properties of the Global Object */
 
 /* 18.2.6 URI Handling Functions */
