@@ -255,33 +255,29 @@ function JS_Interpreter_Expr(e, scope) {
 
     /* 4. If Type(ref) is Reference and IsPropertyReference(ref) is false and
       GetReferencedName(ref) is "eval", then */
-    /* TODO: EVAL */
     if (Type(ref) = "Reference" &&& IsPropertyReference(ref) = false &&& GetReferencedName(ref) = "eval") {
-      /* TODO: FIX THIS BLOCK FOR EVAL */
-      if (false) {
-        /* i. Let argList be ArgumentListEvaluation(Arguments). */
-        argList := JS_Interpreter_Arguments(Arguments, scope);
-        /* ii. ReturnIfAbrupt(argList). */
-        @ReturnIfAbrupt(argList);
-        /* iii. If argList has no elements, return undefined. */
-        length := l_len argList;
-        if (length = 0) {
-          return 'undefined
-        };
-        /* iv. Let evalText be the first element of argList. */
-        evalText := l_nth (argList, 0);
-        /* v. If the source code matching this CallExpression is strict code, let
-          strictCaller be true. Otherwise let strictCaller be false. */
-        if (isContainedInStrictCode(scope)) {
-          strictCaller := true
-        } else {
-          strictCaller := false
-        };
-        /* vi. Let evalRealm be the running execution context's Realm. */
-        evalRealm := scope.Realm
-        /* vii. Return PerformEval(evalText, evalRealm, strictCaller, true). . */
-        /* vii. TODO */
-      }
+      /* i. Let argList be ArgumentListEvaluation(Arguments). */
+      argList := JS_Interpreter_Arguments(Arguments, scope);
+      /* ii. ReturnIfAbrupt(argList). */
+      @ReturnIfAbrupt(argList);
+      /* iii. If argList has no elements, return undefined. */
+      length := l_len argList;
+      if (length = 0) {
+        return 'undefined
+      };
+      /* iv. Let evalText be the first element of argList. */
+      evalText := l_nth (argList, 0);
+      /* v. If the source code matching this CallExpression is strict code, let
+        strictCaller be true. Otherwise let strictCaller be false. */
+      if (isContainedInStrictCode(scope)) {
+        strictCaller := true
+      } else {
+        strictCaller := false
+      };
+      /* vi. Let evalRealm be the running execution context's Realm. */
+      evalRealm := scope.Realm;
+      /* vii. Return PerformEval(evalText, evalRealm, strictCaller, true). . */
+      return PerformEval(scope, evalText, evalRealm, strictCaller, true)
     };
 
     /* 5. If Type(ref) is Reference, then */
