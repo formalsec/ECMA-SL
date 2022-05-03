@@ -95,9 +95,51 @@ function JS_Interpreter_SourceElements(SourceElements, scope) {
 
 function JS_Interpreter_Expr(e, scope) {
   match e with
-  | {type: "ArrowFunctionExpression"} -> {
-    print "foo";
-    fail "Unsupported : Arrow Expression"
+  | {type: "ArrowFunctionExpression", id: Identifier, params: ArrowParameters, body: ConciseBody} -> {
+    /**
+      * 14.2.16 Runtime Semantics: Evaluation
+      *
+      * NOTE An ArrowFunction does not define local bindings for arguments, super,
+      * this, or new.target. Any reference to arguments, super, this, or new.target
+      * within an ArrowFunction must resolve to a binding in a lexically enclosing
+      * environment. Typically this will be the Function Environment of an
+      * immediately enclosing function. Even though an ArrowFunction may contain
+      * references to super, the function object created in step 4 is not made into a
+      * method by performing MakeMethod. An ArrowFunction that references super is
+      * always contained within a non-ArrowFunction and the necessary state to
+      * implement super is accessible via the scope that is captured by the function
+      * object of the ArrowFunction.
+    */
+    /* 1. If the function code for this ArrowFunction is strict mode code
+     (10.2.1), */
+    if (isStrictModeCode(ConciseBody, scope)) {
+      /* let strict be true. Otherwise let strict be false */
+      strict := true
+    } else {
+      strict := false
+    };
+
+    /* 2. Let scope be the LexicalEnvironment of the running execution context. */
+    lexEnv := scope.LexicalEnvironment;
+    /* 3. Let parameters be CoveredFormalsList of ArrowParameters. */
+    parameters := ArrowParameters;
+    /* 4. Let closure be FunctionCreate(Arrow, parameters, ConciseBody, scope,
+      strict). */
+    closure := FunctionCreate("Arrow", parameters, ConciseBody, lexEnv, strict);
+    /* 5. Return closure. */
+    return closure
+    /**
+      * NOTE An ArrowFunction does not define local bindings for arguments, super,
+      * this, or new.target. Any reference to arguments, super, this, or new.target
+      * within an ArrowFunction must resolve to a binding in a lexically enclosing
+      * environment. Typically this will be the Function Environment of an
+      * immediately enclosing function. Even though an ArrowFunction may contain
+      * references to super, the function object created in step 4 is not made into a
+      * method by performing MakeMethod. An ArrowFunction that references super is
+      * always contained within a non-ArrowFunction and the necessary state to
+      * implement super is accessible via the scope that is captured by the function
+      * object of the ArrowFunction.
+    */
   }
   | { type: "ThisExpression" } -> {
     /* 11.1.1 The this Keyword */
