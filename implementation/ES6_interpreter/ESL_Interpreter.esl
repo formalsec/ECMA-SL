@@ -125,8 +125,11 @@ function JS_Interpreter_Expr(e, scope) {
     parameters := ArrowParameters;
     /* 4. Let closure be FunctionCreate(Arrow, parameters, ConciseBody, scope,
       strict). */
-    closure := FunctionCreate("Arrow", parameters, ConciseBody, lexEnv, strict);
+    closure := FunctionCreate("Arrow", parameters, ConciseBody, lexEnv, strict, null);
     /* 5. Return closure. */
+    if (ConciseBody.hasRestElement) {
+      fail "Unsupported : Arrow Expression"
+    };
     return closure
     /**
       * NOTE An ArrowFunction does not define local bindings for arguments, super,
@@ -1000,6 +1003,24 @@ function JS_Interpreter_FunctionBody(FunctionBody, scope) {
     else {
       return normalEmptyCompletion('undefined)
     }
+  }
+  | default -> {
+    /**
+      * 14.2.15 Runtime Semantics: EvaluateBody
+      *
+      * With parameter functionObject.
+      *
+      * See also: 14.1.17, 14.4.11.
+    */
+    /* 1. Let exprRef be the result of evaluating AssignmentExpression. */
+    exprRef := JS_Interpreter_Expr(FunctionBody, scope);
+    /* 2. Let exprValue be GetValue(exprRef). */
+    exprValue := GetValue(exprRef);
+    /* 3. ReturnIfAbrupt(exprValue). */
+    @ReturnIfAbrupt(exprValue);
+    /* 4. Return Completion{[[type]]: return, [[value]]: exprValue, [[target]]:
+      empty}. */
+    return newCompletion('return, exprValue, 'empty)
   }
 };
 
