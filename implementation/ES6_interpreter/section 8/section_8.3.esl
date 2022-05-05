@@ -1,0 +1,19 @@
+/**
+ * 8.3.4 GetNewTarget
+ *
+ * The abstract operation GetNewTarget determines the NewTarget value using the
+ * LexicalEnvironment of the running execution context. GetNewTarget performs
+ * the following steps:
+ */
+function GetNewTarget(scope) {
+  fail "Unsupported: NewTarget";
+  /* 1. Let envRec be GetThisEnvironment( ). */
+  envRec := scope.LexicalEnvironment.EnvRec;
+  /* 2. Assert: envRec has a [[NewTarget]] field. */
+  print "DEBUG GET NEW TARGET";
+  print scope;
+  print envRec;
+  assert("NewTarget" in_obj envRec);
+  /* 3. Return envRec.[[NewTarget]]. */
+  return envRec.NewTarget
+}

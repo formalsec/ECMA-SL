@@ -1001,7 +1001,11 @@ function IteratorBindingInitialization(paramsInitializers, listIterator, scope, 
   i := 0;
   while(i < l_paramsInitializers) {
     param := l_nth(paramsInitializers, i);
-    IteratorBindingInitializationBindingIdentifier(param.name, listIterator, scope, func, param.initializer);
+    if (param.rest) {
+      IteratorBindingInitializationRestElement(param.name, listIterator, scope, func)
+    } else {
+      IteratorBindingInitializationBindingIdentifier(param.name, listIterator, scope, func, param.initializer)
+    };
     i := i + 1
   };
   return NormalCompletion('empty)
@@ -1024,7 +1028,7 @@ function IteratorBindingInitializationBindingIdentifier(paramName, listIterator,
   /* If iteratorRecord.[[done]] is false, then */
   if (Get(listIterator, "done") = false) {
     /* a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
-    next := ListIteratornext(listIterator, func);
+    next := IteratorStep(listIterator);
 
     /* b. If next is an abrupt completion, set iteratorRecord.[[done]] to true. */
     if (isAnAbruptCompletion(next)) {
@@ -1075,6 +1079,47 @@ function IteratorBindingInitializationBindingIdentifier(paramName, listIterator,
 
    /* 8. Return InitializeReferencedBinding(lhs, v). */
    return InitializeReferencedBinding(lhs, v, environment.LexicalEnvironment.EnvRec)
+};
+
+function IteratorBindingInitializationRestElement(name, listIterator, scope, func) {
+  /* 1. Let lhs be ResolveBinding(StringValue of BindingIdentifier,
+     environment). */
+  lhs := GetIdentifierReference(scope.LexicalEnvironment, name, false);
+  /* 2. ReturnIfAbrupt(lhs). */
+  @ReturnIfAbrupt(lhs);
+  /* 3. Let A be ArrayCreate(0). */
+  A := ArrayConstructor(null, 'null, false, []);
+  /* 4. Let n=0. */
+  n := 0.;
+  /* 5. Repeat, */
+  while (n < 5.) {
+    if (Get(listIterator, "done") = false) {
+      next := IteratorStep(listIterator);
+      if (isAnAbruptCompletion(next)) {
+        Set(listIterator, "done", true, false)
+      };
+      @ReturnIfAbrupt(next);
+      if (next = false) {
+        Set(listIterator, "done", true, false)
+      }
+    };
+    if (Get(listIterator, "done") = true) {
+      if (scope = 'undefined) {
+        return PutValue(lhs, A)
+      };
+      return InitializeReferencedBinding(lhs, A, scope.LexicalEnvironment.EnvRec)
+    };
+    nextValue := IteratorValue(next);
+    if (isAnAbruptCompletion(nextValue)) {
+      Set(listIterator, "done", true, false)
+    };
+    @ReturnIfAbrupt(nextValue);
+    status := CreateDataProperty(A, ToString(n), nextValue);
+    assert(status = true);
+    n := n + 1.;
+    done := Get(listIterator, "done")
+  };
+  return
 };
 
 /* Auxiliary Functions */
