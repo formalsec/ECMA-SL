@@ -38,7 +38,8 @@ module.exports = {
     }
     if (
       obj.type === "FunctionExpression" ||
-      obj.type === "FunctionDeclaration"
+      obj.type === "FunctionDeclaration" ||
+      obj.type === "ArrowFunctionExpression"
     ) {
       return FunctionLiteral.transform(obj);
     }

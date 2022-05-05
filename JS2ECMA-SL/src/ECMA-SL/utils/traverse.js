@@ -145,6 +145,7 @@ function traverse(callback, obj) {
 
     case "FunctionDeclaration":
     case "FunctionExpression":
+    case "ArrowFunctionExpression":
     case "LabeledStatement":
       resultData = traverse(callback, obj.body).data;
       break;

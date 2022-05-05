@@ -10,9 +10,9 @@ const { hasStrictDirective } = require("../utils/strict");
 
 module.exports = {
   transform: function (obj) {
-    if (!["FunctionExpression", "FunctionDeclaration"].includes(obj.type)) {
+    if (!["FunctionExpression", "FunctionDeclaration", "ArrowFunctionExpression"].includes(obj.type)) {
       throw Error(
-        'Unexpected object type; Expecting "FunctionExpression" or "FunctionDeclaration"'
+        'Unexpected object type; Expecting "FunctionExpression", "FunctionDeclaration" or "ArrowFunctionExpression"'
       );
     }
 
@@ -21,12 +21,16 @@ module.exports = {
     paramsNames = obj.params.map((param) => {
       switch (param.type) {
         case "Identifier": {
-          paramsInitializers.push({name: param.name, initializer: null});
+          paramsInitializers.push({name: param.name, initializer: null, rest: false});
           return param.name;
         }
         case "AssignmentPattern": {
-          paramsInitializers.push({name: param.left.name, initializer: param});
+          paramsInitializers.push({name: param.left.name, initializer: param, rest: false});
           return param.left.name;
+        }
+        case "RestElement": {
+          paramsInitializers.push({name: param.argument.name, initializer: null, rest: true});
+          return param.argument.name;
         }
       }
     });
