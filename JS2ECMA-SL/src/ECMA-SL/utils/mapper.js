@@ -219,6 +219,16 @@ function mapper(callback, obj) {
         async: new_obj.async,
         expression: new_obj.expression,
       };
+    case "ArrowFunctionExpression":
+      return {
+        type: "ArrowFunctionExpression",
+        id: mapper(callback, new_obj.id),
+        params: new_obj.params.map((param) => mapper(callback, param)),
+        body: mapper(callback, new_obj.body),
+        generator: new_obj.generator,
+        async: new_obj.async,
+        expression: new_obj.expression,
+      };
 
     case "IfStatement":
       return new_obj.hasOwnProperty("alternate")

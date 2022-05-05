@@ -22,6 +22,7 @@ function getVarDeclrs(obj) {
     switch (obj.type) {
       case "FunctionDeclaration":
       case "FunctionExpression":
+      case "ArrowFunctionExpression":
         return {
           stop: true,
           data: [],
@@ -72,6 +73,7 @@ function getLetDeclrs(obj) {
     switch (obj.type) {
       case "FunctionDeclaration":
       case "FunctionExpression":
+      case "ArrowFunctionExpression":
         return {
           stop: true,
           data: [],
@@ -126,6 +128,12 @@ function getFuncDeclrs(obj) {
         };
 
       case "FunctionExpression":
+        return {
+          stop: true,
+          data: [],
+        };
+
+      case "ArrowFunctionExpression":
         return {
           stop: true,
           data: [],
