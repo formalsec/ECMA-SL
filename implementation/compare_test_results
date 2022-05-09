@@ -141,6 +141,7 @@ let file1 = process.argv[process.argv.length - 2]
 let file2 = process.argv[process.argv.length - 1]
 const excludeNotExists = process.argv.includes("-e")
 const fixed = process.argv.includes("-f") || process.argv.includes("--fixed")
+const noResults = process.argv.includes("--no_results") || process.argv.includes("--no-results")
 
 var testsResultsFile1 = new TestResultCollection()
 var testsResultsFile2 = new TestResultCollection();
@@ -151,15 +152,21 @@ var testsResultsFile2 = new TestResultCollection();
 
     const differentResults = difference(testsResultsFile1, testsResultsFile2);
 
-    let ignoredResults = fixed ? [/^.* vs [^(OK)]$/i] : [/^.* vs OK$/i, /^.*ERROR vs FAIL$/i]
+    const log = noResults ? function (testResult) {
+        console.log(testResult.name)
+    } : function (testResult) {
+        console.log(testResult.name, testResult.difference.diff)
+    }
+
+    let ignoredResults = fixed ? [/^.*? vs (?!OK).*$/i] : [/^.* vs OK$/i, /^.*ERROR vs FAIL$/i]
 
     for (let testResult of differentResults.flatten()) {
         if (testResult.difference.type === TestResult.DIFFERENT_RESULT) {
             if (!ignoredResults.some(regex => testResult.difference.diff.match(regex))) {
-                console.log(testResult.name, testResult.difference.diff)
+                log(testResult)
             }
         } else if (testResult.difference.type === TestResult.NOT_EXISTS && !excludeNotExists) {
-            console.log(testResult.name, testResult.difference.diff)
+            log(testResult)
         }
     }
 
