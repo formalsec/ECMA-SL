@@ -50,4 +50,61 @@ function EvaluateDirectCall(func, thisValue, arguments, tailPosition, scope) {
 
   /* 9. Return result. */
   return result
+};
+
+function ArgumentListEvaluation(Arguments, scope) {
+  return JS_Interpreter_Arguments(Arguments, scope)
+};
+
+/* 12.3.5 The super Keyword */
+
+/* 12.3.5.1 Runtime Semantics: Evaluation */
+
+/* SuperCall : super Arguments */
+function SuperCall(Arguments, scope) {
+  /* 1. Let newTarget be GetNewTarget(). */
+  newTarget := GetNewTarget(scope);
+  /* 2. If newTarget is undefined, throw a ReferenceError exception. */
+  if (newTarget = 'undefined) {
+    throw ReferenceErrorConstructorInternal()
+  };
+  /* 3. Let func be GetSuperConstructor(). */
+  func := GetSuperConstructor(scope);
+  /* 4. ReturnIfAbrupt(func). */
+  @ReturnIfAbrupt(func);
+  /* 5. Let argList be ArgumentListEvaluation of Arguments. */
+  argList := ArgumentListEvaluation(Arguments, scope);
+  /* 6. ReturnIfAbrupt(argList). */
+  @ReturnIfAbrupt(argList);
+  /* 7. Let result be Construct(func, argList, newTarget). */
+  result := Construct(scope, null, func, argList, newTarget);
+  /* 8. ReturnIfAbrupt(result). */
+  @ReturnIfAbrupt(result);
+  /* 9. Let thisER be GetThisEnvironment( ). */
+  thisER := GetThisEnvironment(scope);
+  /* 10. Return thisER.BindThisValue(result). */
+  return {thisER.BindThisValue}(thisER, result)
+};
+
+/* 12.3.5.2 Runtime Semantics: GetSuperConstructor ( )
+ * 
+ * The abstract operation GetSuperConstructor performs the following steps:
+ */
+function GetSuperConstructor(scope) {
+  /* 1. Let envRec be GetThisEnvironment( ). */
+  envRec := GetThisEnvironment(scope);
+  /* 2. Assert: envRec is a function Environment Record. */
+  assert(Type(envRec) = "EnvironmentRecord");
+  /* 3. Let activeFunction be envRec.[[FunctionObject]]. */
+  activeFunction := envRec.FunctionObject;
+  /* 4. Let superConstructor be activeFunction.[[GetPrototypeOf]](). */
+  superConstructor := {activeFunction.GetPrototypeOf}(activeFunction);
+  /* 5. ReturnIfAbrupt(superConstructor). */
+  @ReturnIfAbrupt(superConstructor);
+  /* 6. If IsConstructor(superConstructor) is false, throw a TypeError exception. */
+  if (IsConstructor(superConstructor) = false) {
+    throw TypeErrorConstructorInternal()
+  };
+  /* 7. Return superConstructor. */
+  return superConstructor
 }

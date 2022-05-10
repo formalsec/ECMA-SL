@@ -2,6 +2,8 @@
 function NewECMAScriptObject() {
   return {
     JSProperties: {},
+    JSPropertiesSymbols: {},
+    SymbolKeys: {},
     Class: "Object",
     Extensible: true,
     Prototype: 'null
@@ -19,7 +21,13 @@ function NewECMAScriptObjectFull(prototype, class, extensible) {
 
 /* Returns a list containing the names of each own property of object. */
 function getOwnProperties(object) {
-  return l_sort (obj_fields object.JSProperties)
+  props := l_sort obj_fields object.JSProperties;
+  syms := [];
+  foreach (P : obj_fields object.SymbolKeys) {
+    syms := l_add(syms, object.SymbolKeys[P])
+  };
+  props := l_concat(props, syms); /* cannot sort symbol values only strings */
+  return props
 };
 
 /* Returns a list containing the names of each enumerable own property of object. */
@@ -31,7 +39,7 @@ function getOwnEnumerableProperties(object) {
   i := 0;
   while(i < lownProperties) {
     pname := l_nth(ownProperties, i);
-    propDesc := object.JSProperties[pname];
+    propDesc := getJSProperty(object, pname);
     if (isEnumerablePropertyDescriptor(propDesc)) {
       ownEnumerableProperties := l_add(ownEnumerableProperties, pname)
     };
@@ -47,10 +55,40 @@ function getInternalProperty(object, pname) {
 };
 
 function getJSProperty(object, pname) {
+  if (Type(pname) = "Symbol") {
+    desc := int_to_string pname._id; /* more things can be added to make debugging easier if necessary */
+    return object.JSPropertiesSymbols[desc]
+  };
   return object.JSProperties[pname]
 };
 
 function setJSProperty(object, pname, pvalue) {
-  object.JSProperties[pname] := pvalue;
+  if (Type(pname) = "Symbol") {
+    desc := int_to_string pname._id;
+    object.JSPropertiesSymbols[desc] := pvalue;
+    object.SymbolKeys[desc] := pname
+  } else {
+    object.JSProperties[pname] := pvalue
+  };
   return
+};
+
+function deleteJSProperty(object, pname) {
+  if (Type(pname) = "Symbol") {
+    desc := int_to_string pname._id;
+    delete (object.JSPropertiesSymbols)[desc];
+    delete (object.SymbolKeys)[desc]
+  } else {
+    delete (object.JSProperties)[pname]
+  };
+  return
+};
+
+function inJSProperties(object, pname) {
+  if (Type(pname) = "Symbol") {
+    desc := int_to_string pname._id;
+    return desc in_obj object.SymbolKeys
+  } else {
+    return pname in_obj object.JSProperties
+  }
 }

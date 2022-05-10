@@ -66,11 +66,11 @@ function isPropertyDescriptor(obj) {
 };
 
 function isJavaScriptSymbol(obj) {
-  return "SymbolData" in_obj obj
+  return "Description" in_obj obj
 };
 
 function setConfigurability(obj, prop, b) {
-  desc := obj.JSProperties[prop];
+  desc := getJSProperty(obj, prop);
   desc.Configurable := b;
   return b
 }

@@ -49,8 +49,8 @@ function IsArray(argument) {
     return false
 };
 function isArrayExoticObject(arr) {
-  if ("length" in_obj arr.JSProperties) {
-    len := arr.JSProperties.length;
+  if (inJSProperties(arr, "length")) {
+    len := getJSProperty(arr, "length");
     if (len.Configurable = true) {
       return false
     };
@@ -172,14 +172,16 @@ function IsInteger(argument){
 function IsPropertyKey( argument ) {
 	/* ReturnIfAbrupt(argument). */
 	@ReturnIfAbrupt(argument);
+  
+  t := Type(argument);
 
 	/* If Type(argument) is String, return true. */
-	if ( Type(argument) = "String" ) {
+	if ( t = "String" ) {
 		return true
 	};
 
 	/* If Type(argument) is Symbol, return true. */
-	if ( Type(argument) = "Symbol" ) {
+	if ( t = "Symbol" ) {
 		return true
 	};
 

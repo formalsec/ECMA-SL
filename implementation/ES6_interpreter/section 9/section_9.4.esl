@@ -9,10 +9,13 @@
 */
 
 /**
- * A property name P (in the form of a String value) is an array index if and
+ * A String property name P (in the form of a String value) is an array index if and
  * only if ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal to 2^32−1.
  */
 function IsArrayIndex(P) {
+  if (Type(P) = "Symbol") {
+    return false
+  };
   p_uint := ToUint32(P);
   p_str := ToString(p_uint);
   return ((p_str = P) && !(p_uint = ((2. ** 32.) - 1.) )) /* (2^32)-1 = 4294967295 */
@@ -175,7 +178,7 @@ function ArraySpeciesCreate(originalArray, length) {
     /* d. If Type(C) is Object, then */
     if (Type(C) = "Object") {
       /* i. Let C be Get(C, @@species). */
-      C := Get(C, "Symbol(species)");
+      C := Get(C, getSpeciesPropertyName());
       /* ii. ReturnIfAbrupt(C). */
       @ReturnIfAbrupt(C);
       /* iii. If C is null, */
@@ -564,11 +567,9 @@ function OwnPropertyKeysString(O){
   };
     
   /* 7. For each own property key P of O such that Type(P) is Symbol, in property creation order, */
-  foreach(P : obj_fields O.JSProperties){
-    if (Type(P) = "Symbol"){
-      /* a. Add P as the last element of keys. */
-      keys := l_add(keys, P)
-    }
+  foreach(P : obj_fields O.SymbolKeys){
+    /* a. Add P as the last element of keys. */
+    keys := l_add(keys, O.SymbolKeys[P])
   };
     
   /* 8. Return keys. */

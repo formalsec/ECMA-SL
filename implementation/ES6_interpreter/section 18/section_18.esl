@@ -23,6 +23,8 @@ function initGlobalObject(strict) {
 
   setAllInternalMethodsOfOrdinaryObject(globalObject);
 
+  initWellKnownSymbols();
+
   ObjectPrototype := initObjectPrototype();
   
   FunctionPrototype := initFunctionPrototype(ObjectPrototype, globalObject, strict);

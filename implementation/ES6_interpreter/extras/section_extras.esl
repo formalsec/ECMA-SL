@@ -18,7 +18,11 @@ function __internalLog(globalObject, this, strict, params) {
   str := l_nth(params, 0);
 
   if (!(typeof str = __$Str)) {
-    str := ToPropertyKey(str)
+    if (Type(str) = "Symbol") {
+      str := symbolDescriptiveString(str)
+    } else {
+      str := ToPropertyKey(str)
+    }
   };
   print s_concat ["JS Log: ", str];
 
@@ -51,6 +55,7 @@ function __internalLogObject(globalObject, this, strict, params) {
   oProps := obj.JSProperties;
   print "JS Log Object: ";
   print oProps;
+  print obj.JSPropertiesSymbols;
 
   return 'null
 };
