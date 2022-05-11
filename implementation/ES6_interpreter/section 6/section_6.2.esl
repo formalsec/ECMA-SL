@@ -657,6 +657,7 @@ function FromPropertyDescriptor(Desc) {
     assert( isPropertyDescriptor(Desc) = true );
 
     /* Let like be Record{[[Value]]: undefined, [[Writable]]: false, [[Get]]: undefined, [[Set]]: undefined, [[Enumerable]]: false, [[Configurable]]: false}. */
+    like := {Value: 'undefined, Writable: false, Get: 'undefined, Set: 'undefined, Enumerable: false, Configurable: false};
     
     /* If either IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then */
     if ( (IsGenericDescriptor(Desc) = true) ||| (IsDataDescriptor(Desc) = true)) {

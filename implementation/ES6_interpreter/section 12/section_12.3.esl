@@ -18,7 +18,7 @@ function EvaluateDirectCall(func, thisValue, arguments, tailPosition, scope) {
   print "DEBUG EvaluateDirectCall 0";
 
   /* 3. If Type(func) is not Object, */
-  if (!(Type(func) = "Object")) {
+  if (!(funcType = "Object")) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal()
   };
