@@ -1301,7 +1301,7 @@ function IsConcatSpreadable(O) {
   };
 
   /* 2. Let spreadable be Get(O, @@isConcatSpreadable). */
-  spreadable := Get(O, "Symbol(isConcatSpreadable)");
+  spreadable := Get(O, getIsConcatSpreadablePropertyName());
 
   /* 3. ReturnIfAbrupt(spreadable). */
   @ReturnIfAbrupt(spreadable);
@@ -4430,7 +4430,7 @@ function initArrayIteratorPrototype(global, objectPrototype, strict) {
 
   /* 22.1.5.2.2 %ArrayIteratorPrototype% [ @@toStringTag ] */
   descriptor := newDataPropertyDescriptorFull("Array Iterator", false, false, true);
-  setJSProperty(prototype, "Symbol(toStringTag)", descriptor);
+  setJSProperty(prototype, getToStringTagPropertyName(), descriptor);
 
   |ArrayIteratorPrototype| := prototype; 
   return null

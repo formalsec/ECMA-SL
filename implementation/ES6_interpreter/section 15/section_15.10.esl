@@ -487,7 +487,7 @@ function JS_Interpreter_RegEx_TopLevel(re, source) {
   /* The source property of the newly constructed object is set to S. */
 
   /* TODO - put in internal property as ES6 constructor*/
-  /*setJSProperty(obj, "source", newDataPropertyDescriptorFull(source, false, false, false));*/
+  setJSProperty(obj, "source", newDataPropertyDescriptorFull(source, false, false, false));
   obj.OriginalSource := source;
   /* The global property of the newly constructed object is set to a
     Boolean value that is true if F contains the character "g" and false otherwise. */

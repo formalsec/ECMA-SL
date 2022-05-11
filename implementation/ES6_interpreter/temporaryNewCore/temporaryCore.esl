@@ -212,7 +212,7 @@ function temporaryInternalGetPrototypeOf (O) {
 
 /* Used GetIterator function as reference. */
 function IsIterable(obj) {
-  iterator := GetMethod(obj, "Symbol(iterator)");
+  iterator := GetMethod(obj, getIteratorPropertyName());
   return !(iterator = 'undefined)
 };
 

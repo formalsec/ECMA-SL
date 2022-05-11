@@ -30,7 +30,7 @@ function getOwnEnumerablePropertiesNames(obj) {
   index := 0;
   while (index < lnamedOwnProperties) {
     P := l_nth(namedOwnProperties, index);
-    P_desc := obj.JSProperties[P];
+    P_desc := getJSProperty(obj, P);
     if (isEnumerablePropertyDescriptor(P_desc)) {
       K := l_add(K, P)
     };

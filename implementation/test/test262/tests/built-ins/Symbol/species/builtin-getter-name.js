@@ -11,7 +11,6 @@ features: [Symbol.species]
 ---*/
 
 function getGetterName(obj, name) {
-  //getOwnPropertyDescriptor.get falha ('undefined)
   var getter = Object.getOwnPropertyDescriptor(obj, Symbol.species).get;
   return getter && getter.name;
 }

@@ -20,7 +20,5 @@ info: |
 features: [Symbol]
 ---*/
 
-var x = Symbol().toString();
-console.log(x);
-assert.sameValue(x, 'Symbol()', 'implicit value');
+assert.sameValue(Symbol().toString(), 'Symbol()', 'implicit value');
 assert.sameValue(Symbol(undefined).toString(), 'Symbol()', 'explicit value');

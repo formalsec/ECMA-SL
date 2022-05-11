@@ -63,12 +63,12 @@ function Reject (Throw) {
 function GetOwnProperty(O, P) {
   print "GetOwnProperty";
 
-  if (!(P in_obj O.JSProperties)) {
+  if (!inJSProperties(O, P)) {
     return 'undefined
   };
 
   D := NewPropertyDescriptor();
-  X := O.JSProperties[P];
+  X := getJSProperty(O, P);
 
   if (IsDataDescriptor(X)) {
     D.Value := X.Value;
@@ -279,7 +279,7 @@ function Delete(O, P) {
   /** 3. If desc.[[Configurable]] is true, then */
   if (desc.Configurable = true) {
     /** a. Remove the own property with name P from O. */
-    delete (O.JSProperties)[P];
+    deleteJSProperty(O, P);
 
     /* ES6 property order temporary fix for JSON.stringify */
     newInternalSlotsList := [];

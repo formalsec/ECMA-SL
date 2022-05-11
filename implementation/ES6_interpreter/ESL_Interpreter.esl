@@ -32,15 +32,15 @@ function JS_Interpreter_Program(p, callingExecCtx) {
 
     initJobQueue();
 
-
+    
 
     /* 2. If SourceElements is not present, return (normal, empty, empty). */
     if (SourceElementsopt = []) {
       return normalEmptyCompletion('empty)
     };
-    
+
     |__CUR__SYMB__| := 0; 
-    |GlobalSymbolRegistry| := []; 
+    |GlobalSymbolRegistry| := {};
 
     /* 3. Let progCxt be a new execution context for global code as described in 10.4.1. */
     progCxt := EnteringGlobalCode(p);
@@ -59,6 +59,8 @@ function JS_Interpreter_Program(p, callingExecCtx) {
     return result
   }
   | { sourceType: "script", type: "EarlySyntaxError", message: message } -> {
+    |__CUR__SYMB__| := 0; 
+    |GlobalSymbolRegistry| := {}; /* *??* if there is a syntax error it is still creating the global object so it fails initializing the symbols instead of failing because of the syntax error */
     EnteringGlobalCode(p);
     if (message = "Invalid left-hand side in assignment") {
       return throwEmptyCompletion(ReferenceErrorConstructorInternal())
