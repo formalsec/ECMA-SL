@@ -230,14 +230,18 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
             /* If O is not undefined, create an own data property named P of object O whose [[Value]], [[Writable]], [[Enumerable]]
             and [[Configurable]] attribute values are described by Desc. If the value of an attribute field of Desc is absent, the
             attribute of the newly created property is set to its default value. */
-            setJSProperty(O, P, CreateDataPropertyFrom(Desc))
+            if (!(O = 'undefined)) {
+                setJSProperty(O, P, CreateDataPropertyFrom(Desc))    
+            }
         }
         /* Else Desc must be an accessor Property Descriptor, */
         else {
             /* If O is not undefined, create an own accessor property named P of object O whose [[Get]], [[Set]], [[Enumerable]] and
             [[Configurable]] attribute values are described by Desc. If the value of an attribute field of Desc is absent, the attribute
-            of the newly created property is set to its default value. */            
-            setJSProperty(O, P, CreateAccessorPropertyFrom(Desc))
+            of the newly created property is set to its default value. */
+            if (!(O = 'undefined)) {
+                setJSProperty(O, P, CreateAccessorPropertyFrom(Desc))
+            }
         };
 
         /* Return true. */

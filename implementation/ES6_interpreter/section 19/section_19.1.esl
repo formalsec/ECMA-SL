@@ -59,8 +59,8 @@ function fillObjectConstructor(ObjectConstructor, globalObject, strict) {
   createBuiltInProperty(ObjectConstructor, "getOwnPropertyNames", getOwnPropertyNames); 
   
   /* 19.1.2.8 Object.getOwnPropertySymbols ( O )*/
-  getOwnPropertySymbol := CreateBuiltInFunctionObject(["O"], "ObjectGetOwnPropertySymbol", globalObject, strict, null);
-  createBuiltInProperty(ObjectConstructor, "getOwnPropertySymbol", getOwnPropertySymbol); 
+  getOwnPropertySymbols := CreateBuiltInFunctionObject(["O"], "ObjectGetOwnPropertySymbols", globalObject, strict, null);
+  createBuiltInProperty(ObjectConstructor, "getOwnPropertySymbols", getOwnPropertySymbols); 
 
   /* 19.1.2.9 Object.getPrototypeOf ( O ) */
   getPrototypeOf := CreateBuiltInFunctionObject(["O"], "ObjectGetPrototypeOf", globalObject, strict, null);
@@ -470,8 +470,8 @@ function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
 };
 
 /* 19.1.2.8 Object.getOwnPropertySymbols ( O ) */
-/* When the getOwnPropertySymbol function is called, the following steps are taken: */
-function ObjectGetOwnPropertySymbol(globalObject, this, strict, params) {
+/* When the getOwnPropertySymbols function is called, the following steps are taken: */
+function ObjectGetOwnPropertySymbols(globalObject, this, strict, params) {
   O := l_nth(params, 0);
 
   return GetOwnPropertyKeys(O, "Symbol")

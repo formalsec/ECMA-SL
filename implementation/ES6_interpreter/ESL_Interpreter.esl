@@ -2002,16 +2002,20 @@ function JS_Interpreter_BinExpr(e, scope) {
     lref := JS_Interpreter_Expr(RelationalExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. Let rref be the result of evaluating ShiftExpression. */
+    /* 3. ReturnIfAbrupt(lval). */
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating ShiftExpression. */
     rref := JS_Interpreter_Expr(ShiftExpression, scope);
-    /* 4. Let rval be GetValue(rref). */
+    /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-    /* 5. If Type(rval) is not Object, throw a TypeError exception. */
+    /* 6. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 7. If Type(rval) is not Object, throw a TypeError exception. */
     if (!(Type(rval) = "Object")) {
       throw TypeErrorConstructorInternal()
     };
-    /* 6. Return the result of calling the [[HasProperty]] internal method of rval with argument ToString(lval). */
-    return {rval.HasProperty}(rval, ToString(lval))
+    /* 8. Return HasProperty(rval, ToPropertyKey(lval)). */
+    return {rval.HasProperty}(rval, ToPropertyKey(lval))
   }
   /* 11.9 Equality Operators */
   /* The result of evaluating an equality operator is always of type Boolean, reflecting whether the relationship

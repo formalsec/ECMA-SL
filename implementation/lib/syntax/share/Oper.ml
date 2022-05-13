@@ -23,6 +23,7 @@ type bopt = Plus
           | InObj
           | InList
           | Lnth
+          | LRem
           | LRemNth
           | Tnth
           | Snth
@@ -406,6 +407,19 @@ let head (v : Val.t) : Val.t = match v with
 let tail (v : Val.t) : Val.t = match v with
   | List l -> List (List.tl l)
   | _      -> invalid_arg "Exception in Oper.tail: this operation is only applicable to List arguments"
+
+let rec list_remove_aux l e =
+  match l with
+    | [] -> []
+    | h::tl ->
+      if (h = e) then 
+        tl
+      else
+        h::list_remove_aux tl e
+
+let list_remove (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | List l, e  -> List(list_remove_aux l e)
+  | _       -> invalid_arg "Exception in Oper.list_remove: this operation is only applicable to List and Any arguments"
 
 let list_remove_last (v : Val.t) : Val.t = match v with
 | List l  ->
@@ -838,6 +852,7 @@ let str_of_binopt_single (op : bopt) : string = match op with
   | InObj    -> "in_obj"
   | InList   -> "in_list"
   | Lnth     -> "l_nth"
+  | LRem     -> "l_remove"
   | LRemNth  -> "l_remove_nth"
   | Tnth     -> "t_nth"
   | Snth     -> "s_nth"
@@ -881,6 +896,7 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | InObj    -> e1 ^ " in_obj " ^ e2
   | InList   -> e1 ^ " in_list " ^ e2
   | Lnth     -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | LRem     -> "l_remove(" ^ e1 ^ ", " ^ e2 ^ ")"
   | LRemNth  -> "l_remove_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Tnth     -> "t_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Snth     -> "s_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
@@ -977,6 +993,7 @@ let bopt_to_json (op : bopt) : string =
      | InObj   -> Printf.sprintf "InObj\" }"
      | InList  -> Printf.sprintf "InList\" }"
      | Lnth    -> Printf.sprintf "Lnth\" }"
+     | LRem    -> Printf.sprintf "LRem\" }"
      | LRemNth -> Printf.sprintf "LRemNth\" }"
      | Tnth    -> Printf.sprintf "Tnth\" }"
      | Snth    -> Printf.sprintf "Snth\" }"
