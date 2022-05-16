@@ -16,10 +16,6 @@ exponent[1] = -1.7976931348623157E308; //largest (by module) finite number
 exponent[0] = -Infinity;
 var exponentnum = 5;
 
-for (var i = 0; i < exponentnum; i++)
-{
-	if (Math.pow(base,exponent[i]) !== +0)
-	{
-		$ERROR("#1: Math.pow(" + base + ", " + exponent[i] + ") !== +0");
-	}
+for (var i = 0; i < exponentnum; i++) {
+  assert.sameValue(Math.pow(base, exponent[i]), 0, exponent[i]);
 }
