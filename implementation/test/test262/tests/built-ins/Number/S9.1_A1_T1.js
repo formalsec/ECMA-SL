@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     Result of primitive conversion from object is a default value for the
     Object
 es5id: 9.1_A1_T1
@@ -12,13 +12,33 @@ description: >
 ---*/
 
 // CHECK#1
-var object = {valueOf: function() {return "1"}, toString: function() {return 0}};
-if (Number(object) !== 1) {
-  $ERROR('#1: var object = {valueOf: function() {return "1"}, toString: function() {return 0}}; Number(object) === 1. Actual: ' + (Number(object)));
-}
+var object = {
+  valueOf: function() {
+    return "1"
+  },
+  toString: function() {
+    return 0
+  }
+};
+
+assert.sameValue(
+  Number(object),
+  1,
+  'Number({valueOf: function() {return "1"}, toString: function() {return 0}}) must return 1'
+);
 
 // CHECK#2
-var object = {valueOf: function() {return {}}, toString: function() {return "0"}};
-if (Number(object) !== 0) {
-  $ERROR('#2: var object = {valueOf: function() {return {}}, toString: function() {return "0"}}; Number(object) === 0. Actual: ' + (Number(object)));
-}
+var object = {
+  valueOf: function() {
+    return {}
+  },
+  toString: function() {
+    return "0"
+  }
+};
+
+assert.sameValue(
+  Number(object),
+  0,
+  'Number({valueOf: function() {return {}}, toString: function() {return "0"}}) must return 0'
+);
