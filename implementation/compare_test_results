@@ -117,6 +117,10 @@ class TestResultSummary {
         this._notSupported += 1
     }
 
+    TIMEDOUT() {
+        this.FAIL()
+    }
+
     write(testResult) {
         let pathSegments = testResult.name.split("/")
         
@@ -138,22 +142,25 @@ class TestResultSummary {
 }
 
 class TestResultSummaryMerged {
-    static NA = {
+    static NA = new Object({
         totalOK: "N/A",
         totalFAIL: "N/A",
         totalERROR: "N/A",
         totalUNSUPPORTED: "N/A",
         children: {}
-    }
+    })
 
-    constructor(c1 = TestResultSummaryMerged.NA, c2 = TestResultSummaryMerged.NA) {
-        this.c1 = c1 || NA
-        this.c2 = c2 || NA
+    constructor(c1, c2) {
+        this.c1 = c1 || TestResultSummaryMerged.NA
+        this.c2 = c2 || TestResultSummaryMerged.NA
         this.path = this.c1.path || this.c2.path
         this.paths = new Set(Object.keys(this.c1.children).concat(Object.keys(this.c2.children)))
-        this.children = {}
+        this.children = new Object()
         for (let path of this.paths) {
-            this.children[path] = new TestResultSummaryMerged(this.c1.children[path], this.c2.children[path])
+            let nc1 = Object.prototype.hasOwnProperty.call(this.c1.children, path) ? this.c1.children[path] : TestResultSummaryMerged.NA,
+                nc2 = Object.prototype.hasOwnProperty.call(this.c2.children, path) ? this.c2.children[path] : TestResultSummaryMerged.NA
+
+            this.children[path] = new TestResultSummaryMerged(nc1, nc2)
         }
     }
 
