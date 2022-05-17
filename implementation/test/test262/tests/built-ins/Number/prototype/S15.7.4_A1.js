@@ -2,27 +2,24 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The Number prototype object is itself a Number object
     (its [[Class]] is "Number") whose value is +0
 es5id: 15.7.4_A1
 description: Checking type and value of Number.prototype property
 ---*/
+assert.sameValue(
+  typeof Number.prototype,
+  "object",
+  'The value of `typeof Number.prototype` is expected to be "object"'
+);
 
-//CHECK#1
-if (typeof Number.prototype !== "object") {
-  $ERROR('#1: typeof Number.prototype === "object"');
-}
-
-//CHECK#2
-if (Number.prototype != 0) {
-  $ERROR('#2: Number.prototype == +0');
-} else if( 1/Number.prototype != Number.POSITIVE_INFINITY){
-  $ERROR('#2: Number.prototype == +0');
-}
+assert(Number.prototype == 0, 'The value of Number.prototype is expected to be 0');
 
 delete Number.prototype.toString;
 
-if (Number.prototype.toString() !== "[object Number]") {
-  $ERROR('#3: The [[Class]] property of the Number prototype object is set to "Number"');
-}
+assert.sameValue(
+  Number.prototype.toString(),
+  "[object Number]",
+  'Number.prototype.toString() must return "[object Number]"'
+);
