@@ -194,7 +194,7 @@ function IteratorStep(iterator) {
 function CreateListIterator(list) {
   /* 1. Let iterator be ObjectCreate(%IteratorPrototype%, «[[IteratorNext]],
      [[IteratedList]], [[ListIteratorNextIndex]]»). */
-  iterator := ObjectCreate(|ObjectPrototype|, ["IteratorNext", "IteratedList", "ListIteratorNextIndex"]);
+  iterator := ObjectCreate(|Intrinsics|.IteratorPrototype, ["IteratorNext", "IteratedList", "ListIteratorNextIndex"]);
   CreateDataProperty(iterator, "value", 'undefined);
   CreateDataProperty(iterator, "done", false);
 

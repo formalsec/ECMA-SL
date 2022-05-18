@@ -80,6 +80,7 @@ import "ES6_interpreter/section 24/section_24.1.esl";
 import "ES6_interpreter/section 24/section_24.2.esl";
 import "ES6_interpreter/section 24/section_24.3.esl";
 
+import "ES6_interpreter/section 25/section_25.1.esl";
 import "ES6_interpreter/section 25/section_25.4.esl";
 
 import "ES6_interpreter/section 26/section_26.1.esl";

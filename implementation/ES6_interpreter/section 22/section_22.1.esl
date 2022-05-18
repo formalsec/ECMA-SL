@@ -4395,7 +4395,7 @@ function CreateArrayIterator (array, kind) {
   assert( Type(array) = "Object" );
 
   /* 2. Let iterator be ObjectCreate(%ArrayIteratorPrototype%, «‍[[IteratedObject]], [[ArrayIteratorNextIndex]], [[ArrayIterationKind]]»). */
-  iterator := ObjectCreate(|ArrayIteratorPrototype|, ["IteratedObject", "ArrayIteratorNextIndex", "ArrayIterationKind"]);
+  iterator := ObjectCreate(|Intrinsics|.ArrayIteratorPrototype, ["IteratedObject", "ArrayIteratorNextIndex", "ArrayIterationKind"]);
   
   /* 3. Set iterator’s [[IteratedObject]] internal slot to array. */
   iterator.IteratedObject := array;
@@ -4414,7 +4414,7 @@ function CreateArrayIterator (array, kind) {
  * 22.1.5.2 The %ArrayIteratorPrototype% Object
  */
 function initArrayIteratorPrototype(global, objectPrototype, strict) { 
-  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  prototype := NewECMAScriptObjectFull(|Intrinsics|.IteratorPrototype, "Object", true);
   setAllInternalMethodsOfOrdinaryObject(prototype);
 
   /* 22.1.5.2.1 %ArrayIteratorPrototype%.next( ) */
@@ -4432,8 +4432,7 @@ function initArrayIteratorPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull("Array Iterator", false, false, true);
   setJSProperty(prototype, getToStringTagPropertyName(), descriptor);
 
-  |ArrayIteratorPrototype| := prototype; 
-  return null
+  return prototype
 }; 
 
 /**

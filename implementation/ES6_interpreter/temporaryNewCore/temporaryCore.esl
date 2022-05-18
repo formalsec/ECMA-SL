@@ -210,12 +210,6 @@ function temporaryInternalGetPrototypeOf (O) {
 	return O.Prototype
 };
 
-/* Used GetIterator function as reference. */
-function IsIterable(obj) {
-  iterator := GetMethod(obj, getIteratorPropertyName());
-  return !(iterator = 'undefined)
-};
-
 function GuardedDelete(O, P) {
   status := {O.Delete}(O, P, true) catch deleteWrapper;
   return status

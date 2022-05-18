@@ -536,7 +536,7 @@ function CreateMapIterator(map, kind) {
 23.1.3.12 Map.prototype [ @@iterator ]( )
 */
 function initMapIteratorPrototype(global, objectPrototype, strict) { 
-  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  prototype := NewECMAScriptObjectFull(|Intrinsics|.IteratorPrototype, "Object", true);
   setAllInternalMethodsOfOrdinaryObject(prototype);
 
   nextObject := CreateBuiltInFunctionObject([], "MapIteratorPrototypeNext", global, strict, null);
@@ -544,12 +544,6 @@ function initMapIteratorPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, "next", descriptor);
   descriptor := newDataPropertyDescriptorFull("next", false, false, true);
   setJSProperty(nextObject, "name", descriptor);
-
-  /*
-  CreateMapIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateMapIteratorFromIterator", global, strict, 1.);
-  descriptor := newDataPropertyDescriptorFull(CreateMapIteratorJSObject, true, false, true);
-  setJSProperty(prototype, "IteratorFunction", descriptor); 
-  */
 
   /* 23.1.5.2.2 %MapIteratorPrototype% [ @@toStringTag ] */
   descriptor := newDataPropertyDescriptorFull("Map Iterator", false, false, true);
@@ -636,16 +630,6 @@ function MapIteratorPrototypeNext(global, this, strict, args) {
 
   /* 12. Return CreateIterResultObject(undefined, true).*/
   return CreateIterResultObject('undefined, true)
-};
-
-/* Temporary Code */
-
-function CreateMapIteratorJS(global, this, strict, items) {
-  return CreateMapIterator(this, "key+value")
-}; 
-
-function CreateMapIteratorFromIterator(global, this, strict, items) {
-  return this 
 };
 
 function InternalMap() {

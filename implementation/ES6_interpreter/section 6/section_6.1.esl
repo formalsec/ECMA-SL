@@ -114,9 +114,14 @@ function getWellKnownSymbol(key) {
 function initIntrinsics(global, strict) {
   |Intrinsics| := NewECMAScriptObject();
 
+  objectPrototype := getConstructorProto(global, "Object", strict);
+
+  |Intrinsics|["IteratorPrototype"] := initIteratorPrototype(global, objectPrototype, strict);
+
   |Intrinsics|["Array"] := getProp(global, "Array", strict);
   |Intrinsics|["ArrayPrototype"] := getConstructorProto(global, "Array", strict);
   |Intrinsics|["ArrayProto_values"] := getJSProperty(getConstructorProto(global, "Array", strict), "values").Value;
+  |Intrinsics|["ArrayIteratorPrototype"] := initArrayIteratorPrototype(global, objectPrototype, strict);
 
   |Intrinsics|["ArrayBuffer"] := getProp(global, "ArrayBuffer", strict);
   |Intrinsics|["ArrayBufferPrototype"] := getConstructorProto(global, "ArrayBuffer", strict);
@@ -166,7 +171,7 @@ function initIntrinsics(global, strict) {
 
   |Intrinsics|["Map"] := getProp(global, "Map", strict);
   |Intrinsics|["MapPrototype"] := getConstructorProto(global, "Map", strict);
-  |Intrinsics|["MapIteratorPrototype"] := initMapIteratorPrototype(global, getConstructorProto(global, "Object", strict), strict);
+  |Intrinsics|["MapIteratorPrototype"] := initMapIteratorPrototype(global, objectPrototype, strict);
 
   |Intrinsics|["Math"] := getProp(global, "Math", strict);
 
@@ -174,8 +179,8 @@ function initIntrinsics(global, strict) {
   |Intrinsics|["NumberPrototype"] := getConstructorProto(global, "Number", strict);
  
   |Intrinsics|["Object"] := getProp(global, "Object", strict);
-  |Intrinsics|["ObjectPrototype"] := getConstructorProto(global, "Object", strict);
-  |Intrinsics|["ObjProto_toString"] := getJSProperty(getConstructorProto(global, "Object", strict), "toString").Value;
+  |Intrinsics|["ObjectPrototype"] := objectPrototype;
+  |Intrinsics|["ObjProto_toString"] := getJSProperty(objectPrototype, "toString").Value;
 
   |Intrinsics|["parseFloat"] := getProp(global, "parseFloat", strict);
   |Intrinsics|["parseInt"] := getProp(global, "parseInt", strict);
@@ -197,9 +202,11 @@ function initIntrinsics(global, strict) {
   |Intrinsics|["RegExpPrototype"] := getConstructorProto(global, "RegExp", strict);
   
   |Intrinsics|["Set"] := getProp(global, "Set", strict);
+  |Intrinsics|["SetIteratorPrototype"] := initSetIteratorPrototype(global, objectPrototype, strict);
   |Intrinsics|["SetPrototype"] := getConstructorProto(global, "Set", strict);
   
   |Intrinsics|["String"] := getProp(global, "String", strict);
+  |Intrinsics|["StringIteratorPrototype"] := initStringIteratorPrototype(global, objectPrototype, strict);
   |Intrinsics|["StringPrototype"] := getConstructorProto(global, "String", strict);
   
   |Intrinsics|["Symbol"] := getProp(global, "Symbol", strict);
