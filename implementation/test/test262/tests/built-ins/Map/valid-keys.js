@@ -22,13 +22,13 @@ const one = 1;
 const twoRaisedToFiftyThreeMinusOne = 2 ** 53 - 1;
 const int32Array = new Int32Array([zero, one]);
 const uint32Array = new Uint32Array([zero, one]);
-const n = 100000000000000000000000000000000000000000000000000000000000000000000000000000000001n;
+/* const n = 100000000000000000000000000000000000000000000000000000000000000000000000000000000001n;
 const bigInt = BigInt('100000000000000000000000000000000000000000000000000000000000000000000000000000000001');
 const n1 = 1n;
 const n53 = 9007199254740991n;
 const fiftyThree = BigInt('9007199254740991');
 const bigInt64Array = new BigInt64Array([n1, n53]);
-const bigUint64Array = new BigUint64Array([n1, n53]);
+const bigUint64Array = new BigUint64Array([n1, n53]); */
 const symbol = Symbol('');
 const object = {};
 const array = {};
@@ -36,12 +36,12 @@ const string = '';
 const booleanTrue = true;
 const booleanFalse = true;
 const functionExprValue = function() {};
-const arrowFunctionValue = () => {};
+const arrowFunctionValue = function () /* TODO: => */ {};
 const classValue = class {};
 const map = new Map();
 const set = new Set();
 const weakMap = new WeakMap();
-const weakRef = new WeakRef({});
+/* const weakRef = new WeakRef({}); */
 const weakSet = new WeakSet();
 const nullValue = null;
 const undefinedValue = undefined;
@@ -145,7 +145,7 @@ let unassigned;
   assert.sameValue(m.get(uint32Array), uint32Array);
 };
 
-{
+/* {
   const m = new Map([[n, n]]);
   assert.sameValue(m.size, 1);
   assert.sameValue(m.has(n), true);
@@ -241,7 +241,7 @@ let unassigned;
   assert.sameValue(m.size, 1);
   assert.sameValue(m.has(bigUint64Array), true);
   assert.sameValue(m.get(bigUint64Array), bigUint64Array);
-};
+}; */
 
 {
   const m = new Map([[symbol, symbol]]);
@@ -411,7 +411,7 @@ let unassigned;
   assert.sameValue(m.get(weakMap), weakMap);
 };
 
-{
+/* {
   const m = new Map([[weakRef, weakRef]]);
   assert.sameValue(m.size, 1);
   assert.sameValue(m.has(weakRef), true);
@@ -423,7 +423,7 @@ let unassigned;
   assert.sameValue(m.size, 1);
   assert.sameValue(m.has(weakRef), true);
   assert.sameValue(m.get(weakRef), weakRef);
-};
+}; */
 
 {
   const m = new Map([[weakSet, weakSet]]);
