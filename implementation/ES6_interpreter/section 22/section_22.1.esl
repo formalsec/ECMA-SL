@@ -2269,6 +2269,8 @@ function arrayJoin(global, this, strict, args) {
   /* 9. Let element0 be Get(O, "0"). */
   element0 := Get(O, "0");
 
+  @ReturnIfAbrupt(element0);
+
   /* 10. If element0 is undefined or null, let R be the empty String;
         otherwise, Let R be ToString(element0). */
   if ((element0 = 'undefined) || (element0 = 'null)) {
@@ -2293,6 +2295,8 @@ function arrayJoin(global, this, strict, args) {
 
     /* b. Let element be Get(O, ToString(k)). */
     element := Get(O, ToString(k));
+
+    @ReturnIfAbrupt(element);
 
     /* c. If element is undefined or null, Let next be the empty String;
           otherwise, let next be ToString(element). */

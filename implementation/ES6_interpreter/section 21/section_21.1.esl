@@ -1338,6 +1338,8 @@ function StringPrototypeReplace(global, this, strict, args){
 
   pos := StringPrototypeSearch(global, string, strict, [searchString]);
 
+  @ReturnIfAbrupt(pos);
+
   matched := searchString;
 
   if (pos = -(1.)){
