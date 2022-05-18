@@ -712,7 +712,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   /* 7. Let parameterNames be the BoundNames of formals. */
   parameterNames := formals;
 
-  /* 8. If parameterNames has any duplicate entries, */
+  /* 8. If parameterNames has any duplicate entries, let hasDuplicates be true. Otherwise, let hasDuplicates be false. */
   if (parametersHasDuplicates(parameterNames) = true) {
     hasDuplicates := true
   } else {
@@ -833,7 +833,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   };
   /* 23. Let iteratorRecord be Record {[[iterator]]:
         CreateListIterator(argumentsList), [[done]]: false}. */
-  iteratorRecord := CreateListIterator(argumentsList);
+  iteratorRecord := {iterator: CreateListIterator(argumentsList), done: false};
 
   paramsInitializers := getParamsInitializers(code);
   /* 24. If hasDuplicates is true, then */
@@ -1007,7 +1007,7 @@ function IteratorBindingInitialization(paramsInitializers, listIterator, scope, 
   return NormalCompletion('empty)
 };
 
-function IteratorBindingInitializationBindingIdentifier(paramName, listIterator, environment, func, initializer) {
+function IteratorBindingInitializationBindingIdentifier(paramName, iteratorRecord, environment, func, initializer) {
   /* 1. Let bindingId be StringValue of BindingIdentifier. */
   bindingId := StringValue(paramName);
 
@@ -1022,13 +1022,13 @@ function IteratorBindingInitializationBindingIdentifier(paramName, listIterator,
   @ReturnIfAbrupt(lhs);
 
   /* If iteratorRecord.[[done]] is false, then */
-  if (Get(listIterator, "done") = false) {
+  if (iteratorRecord.done = false) {
     /* a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
-    next := ListIteratornext(listIterator, func);
+    next := IteratorStep(iteratorRecord.iterator);
 
     /* b. If next is an abrupt completion, set iteratorRecord.[[done]] to true. */
     if (isAnAbruptCompletion(next)) {
-      Set(listIterator, "done", true, false)
+      iteratorRecord.done := true
     };
 
     /* c. ReturnIfAbrupt(next). */
@@ -1036,14 +1036,14 @@ function IteratorBindingInitializationBindingIdentifier(paramName, listIterator,
 
     /* d. If next is false, set iteratorRecord.[[done]] to true. */
     if (next = false) {
-      Set(listIterator, "done", true, false)
+      iteratorRecord.done := true
     } else {
       /* i. Let v be IteratorValue(next). */
       v := IteratorValue(next);
 
       /* ii.If v is an abrupt completion, set iteratorRecord.[[done]] to true. */
       if (isAnAbruptCompletion(v)) {
-        Set(listIterator, "done", true, false)
+        iteratorRecord.done := true
       };
 
       /* iii. ReturnIfAbrupt(v). */
@@ -1051,7 +1051,7 @@ function IteratorBindingInitializationBindingIdentifier(paramName, listIterator,
     }
   };
   /* 5. If iteratorRecord.[[done]] is true, let v be undefined. */
-  if (Get(listIterator, "done") = true) {
+  if (iteratorRecord.done = true) {
     v := 'undefined
   };
    /* 6. If Initializer is present and v is undefined, then */
