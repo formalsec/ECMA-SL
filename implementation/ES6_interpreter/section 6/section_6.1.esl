@@ -166,6 +166,7 @@ function initIntrinsics(global, strict) {
 
   |Intrinsics|["Map"] := getProp(global, "Map", strict);
   |Intrinsics|["MapPrototype"] := getConstructorProto(global, "Map", strict);
+  |Intrinsics|["MapIteratorPrototype"] := initMapIteratorPrototype(global, getConstructorProto(global, "Object", strict), strict);
 
   |Intrinsics|["Math"] := getProp(global, "Math", strict);
 

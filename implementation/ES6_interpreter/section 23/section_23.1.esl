@@ -87,13 +87,13 @@ function initMapPrototype(global, objectPrototype, strict) {
 
 function initMapObject(global, objectPrototype, strict) {
   objMapPrototype := initMapPrototype(global, objectPrototype, strict);
-  objMapConstructor := CreateFunctionObject(["items"], "MapConstructor", global, strict, 0.);
+  objMapConstructor := CreateBuiltInConstructorObject(getJSProperty(global, "Function").Value.Prototype, ["items"], "MapConstructor", global, strict, 0., "Map");
 
   descriptor := newDataPropertyDescriptorFull(objMapConstructor, true, false, true);
   setJSProperty(objMapPrototype, "constructor", descriptor);
 
-  descriptor := newDataPropertyDescriptorFull("Map", false, false, true);
-  setJSProperty(objMapConstructor, "name", descriptor);
+  /* descriptor := newDataPropertyDescriptorFull("Map", false, false, true);
+  setJSProperty(objMapConstructor, "name", descriptor); */
 
   descriptor := newDataPropertyDescriptorFull(0., false, false, true);
   setJSProperty(objMapConstructor, "length", descriptor);
@@ -130,7 +130,7 @@ function getMapPrototype(strict) {
 23.1.1.1 Map ( [ iterable ] )
 */
 function MapConstructor(global, this, strict, items) {
-  NewTarget := this;
+  NewTarget := getJSProperty(global, "Map").Value;
   iterable := getOptionalParam(items, 0);
 
   /* 1. If NewTarget is undefined, throw a TypeError exception. */
@@ -139,13 +139,13 @@ function MapConstructor(global, this, strict, items) {
   };
   
   /* 2. Let map be OrdinaryCreateFromConstructor(NewTarget, "%MapPrototype%", «‍[[MapData]]» ). */
-  map := OrdinaryCreateFromConstructorMap(global, this, strict, iterable);
+  map := OrdinaryCreateFromConstructor(NewTarget, "MapPrototype", ["MapData"]);
   
   /* 3. ReturnIfAbrupt(map). */
   @ReturnIfAbrupt(map);
 
-  /* 4. Set map’s [[MapData]] internal slot to a new empty List. */
-  map.MapData := []; 
+  /* 4. Set map’s [[MapData]] internal slot to a new empty List. */ /* Not using a List for a map-type data structure. */
+  map.MapData := InternalMap();
   
   /* 5. If iterable is not present, let iterable be undefined. */
   if (iterable = null) {
@@ -255,25 +255,11 @@ function mapClearObject(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   
-  /* Let entries be the List that is the value of M’s [[MapData]] internal slot. */
-  entries := M.MapData;
-  
-  /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
-  i := 0;
-  len := l_len entries;
-  while (i < len) {
-    p := l_nth(entries, i); 
-    
-    /* Set p.[[key]] to empty. */
-    p.key := 'empty;
-    
-    /* Set p.[[value]] to empty. */
-    p.value := 'empty;
-    i := i + 1
-  };
-  
-  /* Return undefined */
-  return 'undefined
+  mapData := M.MapData;
+
+  /* M.MapData := InternalMap(); */
+
+  return {mapData.Clear}(mapData)
 };
 
 
@@ -297,35 +283,9 @@ function mapDeleteObject(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   }; 
 
-  /* 4. Let entries be the List that is the value of M’s [[MapData]] internal slot. */
-  entries := M.MapData;
+  mapData := M.MapData;
 
-
-  /* 5. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
-  i := 0; 
-  len := l_len(entries);
-
-  while(i < len) {
-    p := l_nth(entries, i);
-
-      /* a. If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true, then */
-      if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)) {
-        
-        /* i. Set p.[[key]] to empty. */
-        p.key := 'empty;
-        
-        /* ii. Set p.[[value]] to empty. */
-        p.value := 'empty;
-        
-        /* iii. Return true. */
-        return true
-      };
-
-    i := i + 1
-  };
-  
-  /* 6.Return false. */
-  return false
+  return {mapData.Delete}(mapData, key)
 }; 
 
 
@@ -336,7 +296,7 @@ function mapEntriesObject(global, this, strict, args) {
   /* 1. Let M be the this value. */
   M := this;
   /* 2. Return CreateMapIterator(M, "key+value"). */
-  return createMapIterator(M, "key+value")
+  return CreateMapIterator(M, "key+value")
 };
 
 
@@ -378,14 +338,12 @@ function mapForEachObject(global, this, strict, args) {
     };
     
     /* 6. Let entries be the List that is the value of M’s [[MapData]] internal slot. */
-    entries := M.MapData;
+    entries := M.MapData._entries;
     
     /* 7. Repeat for each Record {[[key]], [[value]]} e that is an element of entries, in original key insertion order */
-    i := 0; 
-    len := l_len(entries);
-    while(i < len) {
+    i := 0;
+    while (i < (l_len entries)) {
       e := l_nth(entries, i);
-      
       /* a. If e.[[key]] is not empty, then */
       if (!(e.key = 'empty)) {
         
@@ -395,12 +353,8 @@ function mapForEachObject(global, this, strict, args) {
         /* ii. ReturnIfAbrupt(funcResult). */
         @ReturnIfAbrupt(funcResult)
       };
-
       i := i + 1;
-
-      /* Martelada Provisoria para o iterates-values-added-after-foreach-begins.js */
-      entries := M.MapData;
-      len := l_len(entries)
+      entries := M.MapData._entries /* This is needed because the callback might have side-effects that delete or add values to the map. */
     };
     
     /* 8. Return undefined. */
@@ -427,26 +381,9 @@ function mapGetObject(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   }; 
 
-  /* Let entries be the List that is the value of M’s [[MapData]] internal slot. */
-  entries := M.MapData; 
+  mapData := M.MapData;
 
-  /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
-  i := 0; 
-  len := l_len entries;
-
-  while (i < len) { 
-    p := l_nth(entries, i); 
-
-    /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true, return p.[[value]]. */
-    if ((!(p.key = 'empty)) &&& (SameValueZero(p.key, key) = true)) { 
-      /* return p.[[value]] */
-      return p.value 
-    }; 
-
-    i := i + 1
-  }; 
-
-  return 'undefined 
+  return {mapData.Get}(mapData, key)
 }; 
 
 
@@ -470,27 +407,9 @@ function mapHasObject(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   }; 
 
-  /* Let entries be the List that is the value of M’s [[MapData]] internal slot. */
-  entries := M.MapData; 
+  mapData := M.MapData;
 
-  /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
-  i := 0; 
-  len := l_len entries;
-
-  while (i < len) { 
-    p := l_nth(entries, i); 
-
-    /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true */
-    if ((!(p.key = 'empty)) &&& (SameValueZero(p.key, key) = true)) { 
-      /* return true. */
-      return true 
-    }; 
-
-    i := i + 1
-  }; 
-
-  /* Return false. */
-  return false 
+  return {mapData.Has}(mapData, key)
 }; 
 
 
@@ -499,7 +418,7 @@ function mapHasObject(global, this, strict, args) {
 */
 function mapKeysObject(global, this, strict, args) {
   M := this;
-  return createMapIterator(M, "key")
+  return CreateMapIterator(M, "key")
 };
 
 
@@ -523,38 +442,9 @@ function mapSetObject(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   }; 
 
-  /* Let entries be the List that is the value of M’s [[MapData]] internal slot. */
-  entries := M.MapData; 
-
-  /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
-  i := 0; 
-  len := l_len entries;
-
-  while (i < len) { 
-    p := l_nth(entries, i); 
-
-    /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true, then */
-    if ((!(p.key = 'empty)) &&& (SameValueZero(p.key, key) = true)) {
-      /* Set p.[[value]] to value. */
-      p.value := value; 
-
-      /* Return M. */
-      return M
-    }; 
-
-    i := i+1
-  }; 
-
-  /* If key is −0, let key be +0. */
-  if (key = (-(0.))) {
-    key := 0.
-  };
+  mapData := M.MapData;
   
-  /* Let p be the Record {[[key]]: key, [[value]]: value}. */ 
-  p := { key: key, value: value }; 
-
-  /* Append p as the last element of entries. */
-  M.MapData := l_add(M.MapData, p);
+  {mapData.Set}(mapData, key, value);
 
   /* Return M. */
   return M
@@ -580,24 +470,18 @@ function mapSizeObject(global, this, strict, args) {
   };
 
   /* Let entries be the List that is the value of M’s [[MapData]] internal slot. */
-  entries := M.MapData;
+  entries := M.MapData._entries;
 
   /* Let count be 0. */
   count := 0;
 
   /* For each Record {[[key]], [[value]]} p that is an element of entries */
-  i := 0;
-  len := l_len entries;
 
-  while (i < len) {
-    p := l_nth(entries, i);
-
+  foreach (p : entries) {
     /* If p.[[key]] is not empty, set count to count+1. */
     if (!(p.key = 'empty)) {
       count := count + 1
-    };
-
-    i := i + 1
+    }
   };
 
   /* Return count. */
@@ -611,7 +495,7 @@ function mapSizeObject(global, this, strict, args) {
 function mapValuesObject(global, this, strict, args) { 
   /* 1. Let M be the this value. */
   M := this; 
-  x := createMapIterator(M, "value");
+  x := CreateMapIterator(M, "value");
   /* 2. Return CreateMapIterator(M, "value").*/
   return x
 };
@@ -620,11 +504,7 @@ function mapValuesObject(global, this, strict, args) {
 /*
 23.1.5.2 CreateMapIterator Abstract Operation
 */
-function createMapIterator(map, kind) { 
-
-  print "ICHECKPOINT 3.3.1";
-  print map; 
-
+function CreateMapIterator(map, kind) { 
   /* 1. If Type(map) is not Object, throw a TypeError exception. */
   if (!(Type(map) = "Object")) { 
     throw TypeErrorConstructorInternal()
@@ -636,7 +516,7 @@ function createMapIterator(map, kind) {
   };
 
   /* 3. Let iterator be ObjectCreate(%MapIteratorPrototype%, «‍[[Map]], [[MapNextIndex]], [[MapIterationKind]]»). */
-  iterator := createMapIteratorObject(); 
+  iterator := ObjectCreate(|Intrinsics|.MapIteratorPrototype, ["Map", "MapNextIndex", "MapIterationKind"]); 
 
   /* 4. Set iterator’s [[Map]] internal slot to map. */
   iterator.Map := map; 
@@ -675,24 +555,8 @@ function initMapIteratorPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull("Map Iterator", false, false, true);
   setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
 
-  |MapIteratorPrototype| := prototype; 
-  return null
+  return prototype
 }; 
-
-function createMapIteratorObject() {
-
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
-
-  setInternalProperty(newlyConstructedObject, "Prototype", |MapIteratorPrototype|);
-  
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  
-  setInternalProperty(newlyConstructedObject, "Class", "Object");
-
- 
-  return newlyConstructedObject
-};
 
 function isMapIteratorInstance(obj) {
   return ("Map" in_obj obj) &&& ("MapNextIndex" in_obj obj) &&& ("MapIterationKind" in_obj obj)
@@ -735,16 +599,12 @@ function MapIteratorPrototypeNext(global, this, strict, args) {
   assert ("MapData" in_obj m);
 
   /* 9. Let entries be the List that is the value of the [[MapData]] internal slot of m.*/
-  entries := m.MapData; 
+  entries := m.MapData._entries; 
 
   /* 10. Repeat while index is less than the total number of elements of entries. The number of elements must be redetermined each time this method is evaluated.*/
   len := l_len entries; 
 
   while (index < len) {
-    print "DEBUG Next 2";
-    print len;
-    print entries;
-    print index;
     /* a. Let e be the Record {[[key]], [[value]]} that is the value of entries[index].*/
     e := l_nth(entries, index);
 
@@ -756,9 +616,6 @@ function MapIteratorPrototypeNext(global, this, strict, args) {
 
     /* d. If e.[[key]] is not empty, then */
     if (!(e.key = 'empty)) {
-      print "DEBUG Next 3";
-      print itemKind;
-      print index;
       if (itemKind = "key") {
         result := e.key
       } elif (itemKind = "value") {
@@ -767,22 +624,12 @@ function MapIteratorPrototypeNext(global, this, strict, args) {
         /* Assert: itemKind is "key+value".*/
         assert (itemKind = "key+value"); 
         /* Let result be CreateArrayFromList(«e.[[key]], e.[[value]]»). */
-        print "DEBUG Next 3.1";
-        print e.key;
-        print e.value;
         result :=  CreateArrayFromList( [e.key, e.value ] )
       };
-      print "DEBUG Next 4";
       x := CreateIterResultObject(result, false);
-      print "DEBUG Next 5";
-      print x;
-      print x.JSProperties;
-      print x.JSProperties.value;
-      print x.JSProperties.value.Value;
       return x
     }
-  }; 
-  print "DEBUG Next 6";
+  };
 
   /* 11. Set the [[Map]] internal slot of O to undefined. */
   O.Map := 'undefined; 
@@ -793,33 +640,186 @@ function MapIteratorPrototypeNext(global, this, strict, args) {
 
 /* Temporary Code */
 
-/*
-  OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList ) 
-*/
-function OrdinaryCreateFromConstructorMap(global, this, strict, items) {
-  mapPrototype := getMapPrototype(strict);
-
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
-
-  /* The [[Prototype]] internal property of the newly constructed object
-      is set to the original Array prototype object, the one that is the
-      initial value of Array.prototype (15.4.3.1). */
-  setInternalProperty(newlyConstructedObject, "Prototype", mapPrototype);
-  /* The [[Extensible]] internal property of the newly constructed object
-      is set to true. */
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  /* The [[Class]] internal property of the newly constructed object is
-      set to "Array". */
-  setInternalProperty(newlyConstructedObject, "Class", "Object");
-
-  return newlyConstructedObject
-}; 
-
 function CreateMapIteratorJS(global, this, strict, items) {
-  return createMapIterator(this, "key+value")
+  return CreateMapIterator(this, "key+value")
 }; 
 
 function CreateMapIteratorFromIterator(global, this, strict, items) {
   return this 
+};
+
+function InternalMap() {
+  map := {};
+  map.entries := {};
+  map._entries := [];
+  map.Clear := "InternalMapClear";
+  map.Delete := "InternalMapDelete";
+  map.Get := "InternalMapGet";
+  map._Get := "InternalMap_Get";
+  map.Set := "InternalMapSet";
+  map.Has := "InternalMapHas";
+  return map
+};
+
+function keyToString(key) {
+  if (Type(key) = "Symbol") {
+    return symbolDescriptiveString(key)
+  } else {
+    return ToString(key)
+  }
+};
+
+function InternalMapClear(map) {
+  /* Let entries be the List that is the value of M’s [[MapData]] internal slot. */
+  entries := map.entries;
+  
+  /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
+  foreach (keyGroup : obj_fields entries) {
+    keyGroupEntries := entries[keyGroup];
+
+    foreach (p: keyGroupEntries) {
+      /* Set p.[[key]] to empty. */
+      p.key := 'empty;
+      
+      /* Set p.[[value]] to empty. */
+      p.value := 'empty
+    }
+  };
+  
+  /* Return undefined */
+  return 'undefined
+};
+
+function InternalMapDelete(map, key) {
+  key_str := keyToString(key);
+  entries := map.entries;
+
+  /* 4. Let entries be the List that is the value of M’s [[MapData]] internal slot. */
+  if (!(key_str in_obj entries)) {
+    return false
+  };
+  
+  entries := entries[key_str];
+
+  /* 5. Repeat for each Record {[[key]], [[value]]} p that is an element of entries, */
+  foreach (p : entries) {
+    /* a. If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true, then */
+    if ((!(p.key = 'empty)) &&& (SameValue(p.key, key) = true)) {
+      
+      /* i. Set p.[[key]] to empty. */
+      p.key := 'empty;
+      
+      /* ii. Set p.[[value]] to empty. */
+      p.value := 'empty;
+      
+      /* iii. Return true. */
+      return true
+    }
+  };
+  
+  /* 6.Return false. */
+  return false
+};
+
+function InternalMapGet(map, key) {
+  key_str := keyToString(key);
+
+  /* Let entries be the List that is the value of M’s [[MapData]] internal slot. */
+  if (!(key_str in_obj map.entries)) {
+    return 'undefined
+  };
+
+  entries := map.entries[key_str]; 
+
+  /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
+  foreach (p : entries) {
+    /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true, return p.[[value]]. */
+    if ((!(p.key = 'empty)) &&& (SameValueZero(p.key, key) = true)) { 
+      /* return p.[[value]] */
+      return p.value 
+    }
+  };
+  
+  /* Return undefined. */
+  return 'undefined 
+};
+
+function InternalMap_Get(map, key) {
+  key_str := keyToString(key);
+  entries := map.entries[key_str];
+
+  /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
+  foreach (p : entries) {
+    if (p.key = key) {
+      return p
+    }
+  };
+  
+  /* Return undefined. */
+  return 'undefined 
+};
+
+function InternalMapSet(map, key, value) {
+  key_str := keyToString(key);
+  entries := map.entries;
+  /* Let entries be the List that is the value of M’s [[MapData]] internal slot. */
+  if (key_str in_obj entries) {
+    entries := entries[key_str]
+  } else {
+    entries := []
+  };
+  
+  /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
+  foreach (p : entries) {
+    /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true, then */
+    if ((!(p.key = 'empty)) &&& (SameValueZero(p.key, key) = true)) {
+      /* Set p.[[value]] to value. */
+      p.value := value; 
+
+      /* Return M. */
+      return map
+    }
+  };
+
+  /* If key is −0, let key be +0. */
+  if (isMinusZero(key)) {
+    key := 0.
+  };
+  
+  /* Let p be the Record {[[key]]: key, [[value]]: value}. */ 
+  p := { key: key, value: value }; 
+
+  /* Append p as the last element of entries. */
+  entries := l_add(entries, p);
+
+  _entries := l_add(map._entries, p);
+
+  map._entries := _entries;
+  map.entries[key_str] := entries;
+
+  return map
+};
+
+function InternalMapHas(map, key) {
+  key_str := keyToString(key);
+  entries := map.entries;
+
+  /* Let entries be the List that is the value of M’s [[MapData]] internal slot. */
+  if (!(key_str in_obj entries)) {
+    return false
+  };
+
+  entries := entries[key_str]; 
+
+  /* Repeat for each Record {[[key]], [[value]]} p that is an element of entries */
+  foreach(p: entries) {
+    /* If p.[[key]] is not empty and SameValueZero(p.[[key]], key) is true */
+    if ((!(p.key = 'empty)) &&& (SameValueZero(p.key, key) = true)) { 
+      /* return true. */
+      return true 
+    }
+  };
+
+  /* Return false. */
+  return false 
 }
