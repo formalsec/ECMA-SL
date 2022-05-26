@@ -2269,6 +2269,8 @@ function arrayJoin(global, this, strict, args) {
   /* 9. Let element0 be Get(O, "0"). */
   element0 := Get(O, "0");
 
+  @ReturnIfAbrupt(element0);
+
   /* 10. If element0 is undefined or null, let R be the empty String;
         otherwise, Let R be ToString(element0). */
   if ((element0 = 'undefined) || (element0 = 'null)) {
@@ -2293,6 +2295,8 @@ function arrayJoin(global, this, strict, args) {
 
     /* b. Let element be Get(O, ToString(k)). */
     element := Get(O, ToString(k));
+
+    @ReturnIfAbrupt(element);
 
     /* c. If element is undefined or null, Let next be the empty String;
           otherwise, let next be ToString(element). */
@@ -4395,7 +4399,7 @@ function CreateArrayIterator (array, kind) {
   assert( Type(array) = "Object" );
 
   /* 2. Let iterator be ObjectCreate(%ArrayIteratorPrototype%, «‍[[IteratedObject]], [[ArrayIteratorNextIndex]], [[ArrayIterationKind]]»). */
-  iterator := ObjectCreate(|ArrayIteratorPrototype|, ["IteratedObject", "ArrayIteratorNextIndex", "ArrayIterationKind"]);
+  iterator := ObjectCreate(|Intrinsics|.ArrayIteratorPrototype, ["IteratedObject", "ArrayIteratorNextIndex", "ArrayIterationKind"]);
   
   /* 3. Set iterator’s [[IteratedObject]] internal slot to array. */
   iterator.IteratedObject := array;
@@ -4414,7 +4418,7 @@ function CreateArrayIterator (array, kind) {
  * 22.1.5.2 The %ArrayIteratorPrototype% Object
  */
 function initArrayIteratorPrototype(global, objectPrototype, strict) { 
-  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  prototype := NewECMAScriptObjectFull(|Intrinsics|.IteratorPrototype, "Object", true);
   setAllInternalMethodsOfOrdinaryObject(prototype);
 
   /* 22.1.5.2.1 %ArrayIteratorPrototype%.next( ) */
@@ -4432,8 +4436,7 @@ function initArrayIteratorPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull("Array Iterator", false, false, true);
   setJSProperty(prototype, getToStringTagPropertyName(), descriptor);
 
-  |ArrayIteratorPrototype| := prototype; 
-  return null
+  return prototype
 }; 
 
 /**

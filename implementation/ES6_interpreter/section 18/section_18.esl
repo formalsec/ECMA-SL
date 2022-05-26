@@ -94,11 +94,9 @@ function initGlobalObject(strict) {
   /* 15.1.4.3 Array ( . . . ) */
   ArrayObject := initArrayObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Array", ArrayObject);
-  initArrayIteratorPrototype(globalObject, ObjectPrototype, strict);
   /* 15.1.4.4 String ( . . . ) */
   StringObject := initStringObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "String", StringObject);
-  initStringIteratorPrototype(globalObject, ObjectPrototype, strict);
   /* 15.1.4.5 Boolean ( . . . ) */
   BooleanObject := initBooleanObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Boolean", BooleanObject);
@@ -178,7 +176,6 @@ function initGlobalObject(strict) {
   /* 23.1 Map */
   MapObject := initMapObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Map", MapObject);
-  initMapIteratorPrototype(globalObject, ObjectPrototype, strict);
   
   symbolObject := initSymbolObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Symbol", symbolObject);
@@ -186,7 +183,6 @@ function initGlobalObject(strict) {
   /* 23.2 Set */
   SetObject := initSetObject(globalObject, ObjectPrototype, strict);
   createBuiltInProperty(globalObject, "Set", SetObject);
-  initSetIteratorPrototype(globalObject, ObjectPrototype, strict);
 
   /* 23.3 WeakMap Objects */
   WeakMapObject := initWeakMapObject(globalObject, ObjectPrototype, strict);

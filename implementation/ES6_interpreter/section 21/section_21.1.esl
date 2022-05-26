@@ -1338,6 +1338,8 @@ function StringPrototypeReplace(global, this, strict, args){
 
   pos := StringPrototypeSearch(global, string, strict, [searchString]);
 
+  @ReturnIfAbrupt(pos);
+
   matched := searchString;
 
   if (pos = -(1.)){
@@ -2339,7 +2341,7 @@ function CreateStringIterator(string){
   assert(Type(string) = "String");
 
   /* 2. Let iterator be ObjectCreate(%StringIteratorPrototype%, «[[IteratedString]], [[StringIteratorNextIndex]] »). */
-  iterator := createStringIteratorObject();
+  iterator := ObjectCreate(|Intrinsics|.StringIteratorPrototype, ["IteratedString", "StringIteratorNextIndex"]);
 
   /* 3. Set iterator’s [[IteratedString]] internal slot to string. */
   iterator.IteratedString := string;
@@ -2351,29 +2353,14 @@ function CreateStringIterator(string){
   return iterator
 };
 
-/* Auxiliary function - TO BE DELETED LATER */
-function createStringIteratorObject() {
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
-
-  setInternalProperty(newlyConstructedObject, "Prototype", |StringIteratorPrototype|); 
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  setInternalProperty(newlyConstructedObject, "Class", "Object");
-
-  return newlyConstructedObject
-};
-
 /** 21.1.5.2 The %StringIteratorPrototype% Object 
  * 21.1.5.2.1 %StringIteratorPrototype%.next ( )
  * 21.1.5.2.2 %StringIteratorPrototype% [ @@toStringTag ]
  */
 
 function initStringIteratorPrototype(global, objectPrototype, strict) { 
-  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  prototype := NewECMAScriptObjectFull(|Intrinsics|.IteratorPrototype, "Object", true);
   setAllInternalMethodsOfOrdinaryObject(prototype);
-
-  setInternalProperty(prototype, "Class", "Object");
-  setInternalProperty(prototype, "Prototype", objectPrototype);
 
   /* 21.1.5.2.1 %StringIteratorPrototype%.next ( ) */
   nextObject := CreateBuiltInFunctionObject([], "stringIteratorNext", global, strict, null);
@@ -2384,8 +2371,6 @@ function initStringIteratorPrototype(global, objectPrototype, strict) {
   /* 21.1.5.2.2 %StringIteratorPrototype% [ @@toStringTag ] */
   descriptor := newDataPropertyDescriptorFull("String Iterator", false, false, true);
   setJSProperty(prototype, getToStringTagPropertyName(), descriptor);
-
-  |StringIteratorPrototype| := prototype; 
   
   return prototype
 }; 

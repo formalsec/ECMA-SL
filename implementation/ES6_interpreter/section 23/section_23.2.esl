@@ -755,10 +755,6 @@ function setValuesObject(global, this, strict, args) {
  * 
 */
 function createSetIterator(set, kind) {
-  print("in createSetIterator");
-  print("set, kind");
-  print(set);
-  print(kind);
   /* 1. If Type(set) is not Object, throw a TypeError exception. */
   if (!(Type(set) = "Object")) {
     throw TypeErrorConstructorInternal()
@@ -770,7 +766,7 @@ function createSetIterator(set, kind) {
   };
 
   /* 3. Let iterator be ObjectCreate(%SetIteratorPrototype%, «‍[[IteratedSet]], [[SetNextIndex]], [[SetIterationKind]]»). */
-  iterator := createSetIteratorObject();
+  iterator := ObjectCreate(|Intrinsics|.SetIteratorPrototype, ["IteratedSet", "SetNextIndex", "SetIterationKind"]);
 
   /* 4. Set iterator’s [[IteratedSet]] internal slot to set. */
   iterator.IteratedSet := set;
@@ -781,8 +777,6 @@ function createSetIterator(set, kind) {
   /* 6. Set iterator’s [[SetIterationKind]] internal slot to kind. */
   iterator.SetIterationKind := kind;
   
-  print("Iterator: ");
-  print(iterator);
   /* 7. Return iterator. */
   return iterator
 };
@@ -802,8 +796,6 @@ function createSetIterator(set, kind) {
  *    
  */
  function setIteratorPrototypeNext(global, this, strict, args) {
-    print("in setIteratorPrototypeNext");
-    
     /* 1. Let O be the this value. */
     O := this;
     
@@ -825,7 +817,7 @@ function createSetIterator(set, kind) {
     
     /* 6. Let itemKind be the value of the [[SetIterationKind]] internal slot of O. */
     itemKind := O.SetIterationKind;
-  print(itemKind);
+
     /* 7. If s is undefined, return CreateIterResultObject(undefined, true). */
     if (s = 'undefined){
       return CreateIterResultObject('undefined, true)
@@ -886,9 +878,7 @@ function createSetIterator(set, kind) {
 
 
 function initSetIteratorPrototype(global, objectPrototype, strict) { 
-  print("in initSetIteratorPrototype");
-  
-  prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
+  prototype := NewECMAScriptObjectFull(|Intrinsics|.IteratorPrototype, "Object", true);
   setAllInternalMethodsOfOrdinaryObject(prototype);
 
   /* 23.2.5.2.1 %SetIteratorPrototype%.next ( )*/
@@ -902,25 +892,8 @@ function initSetIteratorPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull("Set Iterator", false, false, true);
   setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
 
-
-  |SetIteratorPrototype| := prototype; 
   nextObject.IteratorFunction := "iterator"; 
-  return null
-};
-
-function createSetIteratorObject() {
-  print("in createSetIteratorObject");
-
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
-
-  setInternalProperty(newlyConstructedObject, "Prototype", |SetIteratorPrototype|);
-  
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  
-  setInternalProperty(newlyConstructedObject, "Class", "Object");
-
-  return newlyConstructedObject
+  return prototype
 };
 
 function isSetIteratorInstance(obj) {
