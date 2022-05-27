@@ -22,29 +22,17 @@ function GetIterator(obj, method) {
     @ReturnIfAbrupt(obj);
 
     /* 2. If method was not passed, then */
-    if(method = null &&& (Type(obj) = "Object")) {
-        iteratorFunName := 'undefined;
-        if ("IteratorFunction" in_obj obj) {
-            iteratorFunName := obj.IteratorFunction
-        };
-        if (iteratorFunName = 'undefined) {
-            iteratorFunName := getIteratorPropertyName() /* TODO mudar */
-        };
+    if(method = null) {
 
         /* a. Let method be GetMethod(obj, @@iterator). */
-        method := GetMethod(obj, iteratorFunName);
-
-        /* TODO perceber Map/iterator-close-after-set-failure.js */
-        if ((method = 'null) ||| (method = 'undefined)) {
-            throw TypeErrorConstructorInternal()
-        };
+        method := GetMethod(obj, getIteratorPropertyName());
 
         /* b. ReturnIfAbrupt(method). */
         @ReturnIfAbrupt(method)
-    }; 
+    };
 
     /* 3. Let iterator be Call(method,obj). */
-    iterator := CallNew(null, null, method, obj, []);
+    iterator := WrappedCall(null, null, method, obj, []);
     
     /* 4. ReturnIfAbrupt(iterator). */
     @ReturnIfAbrupt(iterator);
