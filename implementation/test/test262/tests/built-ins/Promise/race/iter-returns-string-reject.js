@@ -33,5 +33,5 @@ try {
     assert(error instanceof TypeError);
   }).then($DONE, $DONE);
 } catch (error) {
-  $DONE(`The promise should be rejected, but threw an exception: ${error.message}`);
+  $DONE(""/* TODO: TemplateLiteral `The promise should be rejected, but threw an exception: ${error.message}` */);
 }

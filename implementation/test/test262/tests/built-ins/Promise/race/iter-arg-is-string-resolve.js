@@ -29,5 +29,5 @@ try {
     $DONE('The promise should be resolved, but was rejected');
   }).then($DONE, $DONE);
 } catch (error) {
-  $DONE(`The promise should be resolved, but threw an exception: ${error.message}`);
+  $DONE(""/* TODO: TemplateLiteral `The promise should be resolved, but threw an exception: ${error.message}` */);
 }

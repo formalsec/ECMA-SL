@@ -12,17 +12,19 @@ flags: [async]
 var iterThrows = {};
 Object.defineProperty(iterThrows, Symbol.iterator, {
   get: function() {
-    return {
-      next: function() {
-        var v = {};
-        Object.defineProperty(v, 'value', {
-          get: function() {
-            throw new Error("abrupt completion");
-          }
-        });
-        return v;
-      }
-    };
+    return function () { /* *??* The object returned was not callable so the test was not working properly. */
+      return {
+        next: function() {
+          var v = {};
+          Object.defineProperty(v, 'value', {
+            get: function() {
+              throw new Error("abrupt completion");
+            }
+          });
+          return v;
+        }
+      };
+    }
   }
 });
 
