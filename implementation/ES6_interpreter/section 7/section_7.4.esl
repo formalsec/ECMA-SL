@@ -19,11 +19,14 @@ function CreateIterResultObject ( value, done ) {
 function GetIterator(obj, method) {
 
     /* 1. ReturnIfAbrupt(obj). */
-    @ReturnIfAbrupt(obj); 
+    @ReturnIfAbrupt(obj);
 
     /* 2. If method was not passed, then */
-    if(method = null) {
-        iteratorFunName := obj.IteratorFunction;
+    if(method = null &&& (Type(obj) = "Object")) {
+        iteratorFunName := 'undefined;
+        if ("IteratorFunction" in_obj obj) {
+            iteratorFunName := obj.IteratorFunction
+        };
         if (iteratorFunName = 'undefined) {
             iteratorFunName := getIteratorPropertyName() /* TODO mudar */
         };
@@ -44,7 +47,7 @@ function GetIterator(obj, method) {
     iterator := CallNew(null, null, method, obj, []);
     
     /* 4. ReturnIfAbrupt(iterator). */
-    @ReturnIfAbrupt(obj); 
+    @ReturnIfAbrupt(iterator);
 
     /* If Type(iterator) is not Object, throw a TypeError exception. */
     if (!(Type(iterator) = "Object")) {
@@ -260,6 +263,9 @@ function ListIteratornext(scope, V, strict, args) {
    index := O.ListIteratorNextIndex;
 
   /* 9. Let len be the number of elements of list. */
+  print "DEBUG HERE YO";
+  print list;
+  print index;
   len := l_len(list);
 
   /* 10. If index ≥ len, then */

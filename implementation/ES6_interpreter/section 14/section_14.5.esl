@@ -115,7 +115,8 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
         setLexicalEnvironment(scope, classScope);
 
         /* 6b. Let superclass be the result of evaluating ClassHeritage. */
-        superclass := ClassHeritageopt.name;
+        superclass := JS_Interpreter_Expr(ClassHeritageopt, scope);
+        superclass := GetValue(superclass);
 
         /* 6c. Set the running execution context’s LexicalEnvironment to lex. */
         setLexicalEnvironment(scope, lex);

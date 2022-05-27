@@ -7,6 +7,7 @@ const {
 const { isSimpleParameterList } = require("../utils/isSimpleParameterList");
 const { containsExpressions } = require("../utils/containsExpression");
 const { hasStrictDirective } = require("../utils/strict");
+const { getParamsNames } = require("../utils/getParamsNames");
 
 module.exports = {
   transform: function (obj) {
@@ -16,24 +17,9 @@ module.exports = {
       );
     }
 
-    const paramsInitializers = []
 
-    paramsNames = obj.params.map((param) => {
-      switch (param.type) {
-        case "Identifier": {
-          paramsInitializers.push({name: param.name, initializer: null, rest: false});
-          return param.name;
-        }
-        case "AssignmentPattern": {
-          paramsInitializers.push({name: param.left.name, initializer: param, rest: false});
-          return param.left.name;
-        }
-        case "RestElement": {
-          paramsInitializers.push({name: param.argument.name, initializer: null, rest: true});
-          return param.argument.name;
-        }
-      }
-    });
+    const paramsDetails = obj.params;
+    const paramsNames = getParamsNames(paramsDetails);
 
     const variableDeclarations = getVarDeclarations(obj.body).reduce(
       // remove repeated variables
@@ -57,7 +43,8 @@ module.exports = {
     obj.body.functionDeclarations = functionDeclarations;
     obj.body.letDeclarations = letDeclarations;
     obj.body.containsExpression = containsExpressions(obj.params);
-    obj.body.paramsInitializers = paramsInitializers;
+    obj.body.paramsDetails = paramsDetails;
+    obj.body.paramsNames = paramsNames;
 
     obj.params = paramsNames;
 

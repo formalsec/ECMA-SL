@@ -447,6 +447,15 @@ function JS_Interpreter_Expr(e, scope) {
   | { type: "MetaProperty", meta: meta, property: property } -> {
     return GetNewTarget(scope)
   }
+  | { type: "Super"} -> {
+    fail "Unsupported: Super"
+  }
+  | { type: "YieldExpression"} -> {
+    fail "Unsupported: Yield"
+  }
+  | { type: "ClassExpression"} -> {
+    fail "Unsupported: Class"
+  }
   | default -> {
     print "default case";
     print e
@@ -560,7 +569,7 @@ function JS_Interpreter_AssignmentPattern(AssignmentPattern, scope) {
   /* This is currently used for functions with default parameters, to evaluate the right side
       Example function foo(a, b = 2) { ... } */
   /* 2. Let rref be the result of evaluating AssignmentPattern. */
-  rref := JS_Interpreter_Expr(AssignmentPattern.right, scope);
+  rref := JS_Interpreter_Expr(AssignmentPattern, scope);
 
   /* 3. Let rval be GetValue(rref). */
   rval := GetValue(rref);
@@ -914,7 +923,9 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
   /* 13 Function Definition */
   match FunctionDeclaration with
   | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
-
+    if (FunctionDeclaration.generator = true){
+      fail "Unsupported: Generators"
+    };
     /* 1. If the function code for FunctionDeclaration is strict mode code, let strict be true.
           Otherwise let strict be false. */
     if ( isStrictModeCode(FunctionBody, scope)) {
@@ -943,6 +954,10 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
   /* 13 Function Definition */
   match FunctionExpression with
   | { id: null, params: FormalParameterList, body: FunctionBody } -> {
+    /* We still do not support generators ): */
+    if (FunctionExpression.generator = true) {
+      fail "Unsupported: Generators"
+    };
     if ( isStrictModeCode(FunctionBody, scope)) {
       strict := true
     } else {
@@ -956,6 +971,9 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
     return closure
   }
   | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
+    if (FunctionExpression.generator = true) {
+      fail "Unsupported: Generators"
+    };
     if ( isStrictModeCode(FunctionBody, scope)) {
       strict := true
     } else {
