@@ -1,5 +1,17 @@
 /* The functions are those that are not explicitly specified in the standard */
 
+/** 
+ * The abstract operation Completion(completionRecord) is used to emphasize that
+ * a previously computed Completion Record is being returned. The Completion abstract
+ * operation takes a single argument, completionRecord, and performs the following steps:
+ */
+function Completion(completionRecord) {
+  /* Assert: completionRecord is a Completion Record. */
+  assert(Type(completionRecord) = "Completion");
+  /* Return completionRecord as the Completion Record of this abstract operation. */
+  return completionRecord
+};
+
 /* auxiliary functions */
 function isAnAbruptCompletion (completion) {
   if (!(Type(completion) = "Completion")) {
@@ -161,7 +173,7 @@ function HasPrimitiveBase(V) {
 function IsPropertyReference (V) {
   base := GetBase(V);
 
-  if ( ( Type(base) = "Object" ) ||| (HasPrimitiveBase(V) = true) ) {
+  if ( ( Type(base) = "Object" ) ||| ( Type(base) = "Symbol" ) ||| (HasPrimitiveBase(V) = true) ) {
     return true
   };
 
@@ -477,6 +489,9 @@ function FromPropertyDescriptor(Desc) {
 
   /* Assert: all of the above CreateDataProperty operations return true. */
 
+  print "debug fromdesc";
+  print obj;
+
    /** 7. Return obj. */
    return obj
 };
@@ -642,6 +657,7 @@ function FromPropertyDescriptor(Desc) {
     assert( isPropertyDescriptor(Desc) = true );
 
     /* Let like be Record{[[Value]]: undefined, [[Writable]]: false, [[Get]]: undefined, [[Set]]: undefined, [[Enumerable]]: false, [[Configurable]]: false}. */
+    like := {Value: 'undefined, Writable: false, Get: 'undefined, Set: 'undefined, Enumerable: false, Configurable: false};
     
     /* If either IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then */
     if ( (IsGenericDescriptor(Desc) = true) ||| (IsDataDescriptor(Desc) = true)) {

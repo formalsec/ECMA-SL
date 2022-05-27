@@ -102,6 +102,7 @@ let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
   | ShiftRightLogical -> Oper.shift_right_logical (v1, v2)
   | Lnth     -> Oper.list_nth (v1, v2)
   | LRemNth  -> Oper.list_remove_nth (v1, v2)
+  | LRem     -> Oper.list_remove (v1, v2)
   | Tnth     -> Oper.tuple_nth (v1, v2)
   | Snth     -> Oper.s_nth (v1,v2)
   | Snth_u   -> Oper.s_nth_u (v1,v2)
@@ -126,6 +127,7 @@ let eval_triopt_expr (op : Oper.topt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : V
   | Ssubstr  -> Oper.s_substr (v1,v2,v3)
   | SsubstrU  -> Oper.s_substr_u (v1,v2,v3)
   | Aset      -> Oper.array_set (v1,v2,v3)
+  | Lset      -> Oper.list_set (v1,v2,v3)
 
 let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
   match op with

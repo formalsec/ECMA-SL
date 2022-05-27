@@ -87,7 +87,7 @@ function IteratorClose(iterator, completion) {
     /* 5. If return is undefined, return Completion(completion). */
     if (returnVar = 'undefined) {
         print "DEBUG IteratorClose 1";
-        throw getCompletionValue(completion)
+        return Completion(completion)
     };
 
     /* 6. Let innerResult be Call(return, iterator, «‍ »). */
@@ -96,15 +96,13 @@ function IteratorClose(iterator, completion) {
     /* 7. If completion.[[type]] is throw, return Completion(completion). */
     if (getCompletionType(completion) = 'throw) {
         print "DEBUG IteratorClose 2";
-        /* TODO completion should be returned */
-        throw getCompletionValue(completion)
+        return Completion(completion)
     };
 
     /* 8. If innerResult.[[type]] is throw, return Completion(innerResult). */
     if (getCompletionType(getCompletionValue(innerResult)) = 'throw) {
         print "DEBUG IteratorClose 3";
-        /* TODO completion should be returned */
-        throw getCompletionValue(getCompletionValue(innerResult))
+        return Completion(getCompletionValue(innerResult))
     };
 
     /* 9. If Type(innerResult.[[value]]) is not Object, throw a TypeError exception. */
@@ -115,7 +113,7 @@ function IteratorClose(iterator, completion) {
 
     /* 10. Return Completion(completion). */
     print "DEBUG IteratorClose 5";
-    return completion
+    return Completion(completion)
 };
 
 /*
@@ -199,7 +197,7 @@ function IteratorStep(iterator) {
 function CreateListIterator(list) {
   /* 1. Let iterator be ObjectCreate(%IteratorPrototype%, «[[IteratorNext]],
      [[IteratedList]], [[ListIteratorNextIndex]]»). */
-  iterator := ObjectCreate(|ObjectPrototype|, ["IteratorNext", "IteratedList", "ListIteratorNextIndex"]);
+  iterator := ObjectCreate(|Intrinsics|.IteratorPrototype, ["IteratorNext", "IteratedList", "ListIteratorNextIndex"]);
   CreateDataProperty(iterator, "value", 'undefined);
   CreateDataProperty(iterator, "done", false);
 
@@ -225,7 +223,7 @@ function CreateListIterator(list) {
 };
 
 /**
- * 7.4.8.1 ListIterator next
+ * 7.4.8.1 ListIterator next()
  *
  * The ListIterator next method is a standard built-in function object (clause
  * 17) that performs the following steps:
@@ -246,8 +244,10 @@ function ListIteratornext(scope, V, strict, args) {
   /* 4. Let next be the value of the [[IteratorNext]] internal slot of O. */
   next := O.IteratorNext;
 
-  /* 5. If SameValue(f, next) is false, */
-  /*TODO */
+  /* 5. If SameValue(f, next) is false, throw a TypeError exception. */
+  if (SameValue(f, next) = false) {
+    throw TypeErrorConstructorInternal() 
+  };
 
   /* 6. If O does not have a [[IteratedList]] internal slot, */
   if (!("IteratedList" in_obj O)) {
@@ -276,7 +276,7 @@ function ListIteratornext(scope, V, strict, args) {
 
   /* 11. Set the value of the [[ListIteratorNextIndex]] internal slot of O to
      index+1. */
-    O.ListIteratorNextIndex := index + 1;
+  O.ListIteratorNextIndex := index + 1;
 
   /* 12. Return CreateIterResultObject(list[index], false). */
   return CreateIterResultObject(l_nth(list, index), false)

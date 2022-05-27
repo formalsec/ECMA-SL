@@ -4,7 +4,7 @@
 function OrdinaryToPrimitive(O, hint) {
 
     /* Assert: Type(O) is Object*/ 
-    assert( Type(O) = "Object" ||| Type(O) = "Symbol" );
+    assert( Type(O) = "Object" );
 
     /* Assert: Type(hint) is String and its value is either "string" or "number".*/ 
     assert( (Type(hint) = "String") &&& (( hint = "string" ) ||| ( hint = "number" )) );
@@ -71,9 +71,7 @@ function ToPrimitive(input, PreferredType) {
 		case "Boolean": { return input }
 		case "Number": { return input }
 		case "String": { return input }
-		case "Symbol": {
-      return OrdinaryToPrimitive(input, "string")
-    }
+		case "Symbol": { return input }
 
 		case "Object": {
     		/* If PreferredType was not passed, let hint be "default". */
@@ -417,7 +415,7 @@ function ToString( argument ) {
 			/* 1. Let primValue be ToPrimitive(input argument, hint String). */
 			primValue := ToPrimitive(argument, 'String);
 
-			/* 2. Return ToNumber(primValue). */
+			/* 2. Return ToString(primValue). */
 			return ToString(primValue)
 		}
   }
@@ -447,7 +445,7 @@ function ToObject(argument) {
 
 		case "String": { return StringConstructor(|global|, true, false, [argument]) }
 		
-		case "Symbol": { return SymbolConstructor(|global|, true, false, [argument]) }
+		case "Symbol": { return SymbolObjectConstructor(argument) }
 
 		case "Object": { return argument }
 	}

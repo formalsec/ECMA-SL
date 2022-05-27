@@ -11,22 +11,22 @@ features: [regexp-dotall, regexp-match-indices]
 ---*/
 
 new RegExp("", "mig"); // single g will not throw SyntaxError
-assert.throws(SyntaxError, () => new RegExp("", "migg"), "duplicate g");
+assert.throws(SyntaxError, function () /* TODO: => */ {return new RegExp("", "migg")}, "duplicate g");
 
 new RegExp("", "i"); // single i will not throw SyntaxError
-assert.throws(SyntaxError, () => new RegExp("", "ii"), "duplicate i");
+assert.throws(SyntaxError, function () /* TODO: => */ {return new RegExp("", "ii")}, "duplicate i");
 
 new RegExp("", "m"); // single m will not throw SyntaxError
-assert.throws(SyntaxError, () => new RegExp("", "mm"), "duplicate m");
+assert.throws(SyntaxError, function () /* TODO: => */ {return new RegExp("", "mm")}, "duplicate m");
 
 new RegExp("", "s"); // single s will not throw SyntaxError
-assert.throws(SyntaxError, () => new RegExp("", "ss"), "duplicate s");
+assert.throws(SyntaxError, function () /* TODO: => */ {return new RegExp("", "ss")}, "duplicate s");
 
 new RegExp("", "u"); // single u will not throw SyntaxError
-assert.throws(SyntaxError, () => new RegExp("", "uu"), "duplicate u");
+assert.throws(SyntaxError, function () /* TODO: => */ {return new RegExp("", "uu")}, "duplicate u");
 
 new RegExp("", "y"); // single y will not throw SyntaxError
-assert.throws(SyntaxError, () => new RegExp("", "yy"), "duplicate y");
+assert.throws(SyntaxError, function () /* TODO: => */ {return new RegExp("", "yy")}, "duplicate y");
 
 new RegExp("", "d"); // single d will not throw SyntaxError
-assert.throws(SyntaxError, () => new RegExp("", "dd"), "duplicate d");
+assert.throws(SyntaxError, function () /* TODO: => */ {return new RegExp("", "dd")}, "duplicate d");

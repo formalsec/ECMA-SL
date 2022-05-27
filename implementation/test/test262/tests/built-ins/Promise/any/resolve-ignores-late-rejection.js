@@ -32,6 +32,6 @@ var lateRejector = {
 };
 
 Promise.any([resolver, lateRejector])
-  .then(resolution => {
+  .then(function (resolution) /* TODO: => */ {
     assert.sameValue(resolution, 42);
   }).then($DONE, $DONE);

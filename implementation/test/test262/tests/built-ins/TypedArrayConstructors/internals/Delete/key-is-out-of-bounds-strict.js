@@ -41,11 +41,11 @@ testWithTypedArrayConstructors(function(TA) {
   assert.sameValue(delete sample["-1"], true, 'The value of `delete sample["-1"]` is true');
   assert.sameValue(delete sample[-1], true, 'The value of `delete sample[-1]` is true');
 
-  assert.throws(TypeError, () => {
+  assert.throws(TypeError, function () /* TODO: => */ {
     delete sample["0"];
   }, '`delete sample["0"]` throws TypeError');
 
-  assert.throws(TypeError, () => {
+  assert.throws(TypeError, function () /* TODO: => */ {
     delete sample[0];
   }, '`delete sample[0]` throws TypeError');
 

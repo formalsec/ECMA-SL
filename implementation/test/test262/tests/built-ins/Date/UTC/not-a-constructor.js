@@ -23,7 +23,7 @@ features: [Reflect.construct, arrow-function]
 
 assert.sameValue(isConstructor(Date.UTC), false, 'isConstructor(Date.UTC) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Date.UTC();
 }, '`new Date.UTC()` throws TypeError');
 

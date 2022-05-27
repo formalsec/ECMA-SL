@@ -46,7 +46,7 @@ assert.notSameValue(resolve, originalFinallyHandler, 'The value of `resolve` is 
 assert.sameValue(resolve.length, 1, 'The value of resolve.length is 1');
 assert.sameValue(resolve.name, '', 'The value of resolve.name is ""');
 assert.sameValue(isConstructor(resolve), false, 'isConstructor(resolve) must return false');
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new resolve();
 }, '`new resolve()` throws TypeError');
 
@@ -60,7 +60,7 @@ assert.notSameValue(reject, originalFinallyHandler, 'The value of `reject` is ex
 assert.sameValue(reject.length, 1, 'The value of reject.length is 1');
 assert.sameValue(reject.name, '', 'The value of reject.name is ""');
 assert.sameValue(isConstructor(reject), false, 'isConstructor(reject) must return false');
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new reject();
 }, '`new reject()` throws TypeError');
 

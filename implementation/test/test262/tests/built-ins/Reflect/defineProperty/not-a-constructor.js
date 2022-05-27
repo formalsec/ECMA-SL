@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Reflect.defineProperty) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Reflect.defineProperty({}, '');
 }, '`new Reflect.defineProperty({}, \'\')` throws TypeError');
 

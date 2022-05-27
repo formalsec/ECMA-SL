@@ -22,7 +22,7 @@ var getter = Object.getOwnPropertyDescriptor(
   TypedArrayPrototype, "buffer"
 ).get;
 
-testWithTypedArrayConstructors(TA => {
+testWithTypedArrayConstructors(function (TA) /* TODO: => */ {
   var typedArray = new TA(5);
   var o = {};
   Object.setPrototypeOf(o, typedArray);

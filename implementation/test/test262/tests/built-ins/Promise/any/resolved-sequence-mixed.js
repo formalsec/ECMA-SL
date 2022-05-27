@@ -30,31 +30,31 @@ features: [Promise.any]
 
 let sequence = [];
 
-let p1 = new Promise((_, reject) => {
+let p1 = new Promise(function (_, reject) /* TODO: => */ {
   reject('');
 });
-let p2 = new Promise(resolve => {
+let p2 = new Promise(function (resolve) /* TODO: => */ {
   resolve('');
 });
-let p3 = new Promise((_, reject) => {
+let p3 = new Promise(function (_, reject) /* TODO: => */ {
   reject('');
 });
 
 sequence.push(1);
 
-p1.catch(() => {
+p1.catch(function () /* TODO: => */ {
   sequence.push(3);
   assert.sameValue(sequence.length, 3);
   checkSequence(sequence, 'Expected to be called first.');
 }).catch($DONE);
 
-Promise.any([p1, p2, p3]).then(() => {
+Promise.any([p1, p2, p3]).then(function () /* TODO: => */ {
   sequence.push(6);
   assert.sameValue(sequence.length, 6);
   checkSequence(sequence, 'Expected to be called fourth.');
 }).then($DONE, $DONE);
 
-p2.then(() => {
+p2.then(function () /* TODO: => */ {
   sequence.push(4);
   assert.sameValue(sequence.length, 4);
   checkSequence(sequence, 'Expected to be called second.');
@@ -62,7 +62,7 @@ p2.then(() => {
 
 sequence.push(2);
 
-p3.catch(() => {
+p3.catch(function () /* TODO: => */ {
   sequence.push(5);
   assert.sameValue(sequence.length, 5);
   checkSequence(sequence, 'Expected to be called third.');

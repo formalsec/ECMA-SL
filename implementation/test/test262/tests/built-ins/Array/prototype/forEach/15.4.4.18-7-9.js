@@ -2,27 +2,32 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.18-7-9
+esid: sec-array.prototype.foreach
 description: >
     Array.prototype.forEach - modifications to length don't change
     number of iterations
 ---*/
 
-        var called = 0;
-        function callbackfn(val, idx, obj) {
-            called++;
-        }
+var called = 0;
 
-        var obj = { 1: 12, 2: 9, length: 2 };
+function callbackfn(val, idx, obj) {
+  called++;
+}
 
-        Object.defineProperty(obj, "0", {
-            get: function () {
-                obj.length = 3;
-                return 11;
-            },
-            configurable: true
-        });
+var obj = {
+  1: 12,
+  2: 9,
+  length: 2
+};
 
-        Array.prototype.forEach.call(obj, callbackfn);
+Object.defineProperty(obj, "0", {
+  get: function() {
+    obj.length = 3;
+    return 11;
+  },
+  configurable: true
+});
+
+Array.prototype.forEach.call(obj, callbackfn);
 
 assert.sameValue(called, 2, 'called');

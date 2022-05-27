@@ -2,20 +2,20 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.19-8-c-iii-1
+esid: sec-array.prototype.map
 description: >
     Array.prototype.map - getOwnPropertyDescriptor(all true) of
     returned array element
 ---*/
-  
-  function callbackfn(val, idx, obj){
-	  if(val % 2)
-	    return (2 * val + 1); 
-	  else
-	    return (val / 2);
-  }
-  var srcArr = [0,1,2,3,4];
-  var resArr = srcArr.map(callbackfn);
+
+function callbackfn(val, idx, obj) {
+  if (val % 2)
+    return (2 * val + 1);
+  else
+    return (val / 2);
+}
+var srcArr = [0, 1, 2, 3, 4];
+var resArr = srcArr.map(callbackfn);
 
 assert(resArr.length > 0, 'resArr.length > 0');
 

@@ -2,23 +2,28 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.14-9-a-15
+esid: sec-array.prototype.indexof
 description: >
     Array.prototype.indexOf - deleting own property with prototype
     property causes prototype index property to be visited on an
     Array-like object
 ---*/
 
-        var arr = { 0: 0, 1: 111, 2: 2, length: 10 };
-        
-        Object.defineProperty(arr, "0", {
-            get: function () {
-                delete arr[1];
-                return 0;
-            },
-            configurable: true
-        });
+var arr = {
+  0: 0,
+  1: 111,
+  2: 2,
+  length: 10
+};
 
-            Object.prototype[1] = 1;
+Object.defineProperty(arr, "0", {
+  get: function() {
+    delete arr[1];
+    return 0;
+  },
+  configurable: true
+});
+
+Object.prototype[1] = 1;
 
 assert.sameValue(Array.prototype.indexOf.call(arr, 1), 1, 'Array.prototype.indexOf.call(arr, 1)');

@@ -23,7 +23,7 @@ features: [Reflect.construct, Set, arrow-function]
 
 assert.sameValue(isConstructor(Set.prototype.has), false, 'isConstructor(Set.prototype.has) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let s = new Set([]); new s.has();
 }, '`let s = new Set([]); new s.has()` throws TypeError');
 

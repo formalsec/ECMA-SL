@@ -1,12 +1,127 @@
+/**
+ * 6.1.5 The Symbol Type
+ * 
+ * The Symbol type is the set of all non-String values that may be used as the key of an Object property (6.1.7).
+ *
+ * Each possible Symbol value is unique and immutable.
+ *
+ * Each Symbol value immutably holds an associated value called [[Description]] that is either undefined or a String value.
+ */
+function InternalSymbolConstructor(description, proto) {
+  if (proto = null) {
+    proto := |Intrinsics|.SymbolPrototype
+  };
+  sym := {
+    Description: description,
+    Prototype: proto,
+    _id: |__CUR__SYMB__|
+  };
+  |__CUR__SYMB__| := |__CUR__SYMB__| + 1;
+  /* functions to simulate auto-boxing */
+  setAllInternalMethodsOfOrdinaryObject(sym);
+  sym.Get := "SymbolGet";
+  sym.Set := "SymbolSet";
+  return sym
+};
+
+function SymbolGet(O, P, Receiver) {
+  /* Assert: IsPropertyKey(P) is true. */
+  assert( IsPropertyKey(P) = true );
+
+  /* Let parent be O.[[GetPrototypeOf]](). */
+  parent := {O.GetPrototypeOf}(O);
+
+  /* ReturnIfAbrupt(parent). */
+  @ReturnIfAbrupt(parent);
+
+  /* If parent is null, return undefined. */
+  if (parent = 'null) {
+    return 'undefined
+  };
+
+  /* Return parent.[[Get]](P, Receiver). */
+  return {parent.Get}(parent, P, Receiver)
+};
+
+function SymbolSet(O, P, V, Receiver) {
+  /* Assert: IsPropertyKey(P) is true. */
+  assert( IsPropertyKey(P) = true );
+
+  /* Let parent be O.[[GetPrototypeOf]](). */
+  parent := {O.GetPrototypeOf}(O);
+
+  /* ReturnIfAbrupt(parent). */
+  @ReturnIfAbrupt(parent);
+
+  /* Return parent.[[Set]](P, V, Receiver). */
+  return {parent.Set}(parent, P, V, Receiver)
+};
+
+/**
+ * 6.1.5.1 Well-Known Symbols
+ */
+function initWellKnownSymbols() {
+  proto := 'undefined;
+  initWellKnownSymbol("Symbol.hasInstance", proto);
+  initWellKnownSymbol("Symbol.isConcatSpreadable", proto);
+  initWellKnownSymbol("Symbol.iterator", proto);
+  initWellKnownSymbol("Symbol.match", proto);
+  initWellKnownSymbol("Symbol.replace", proto);
+  initWellKnownSymbol("Symbol.search", proto);
+  initWellKnownSymbol("Symbol.species", proto);
+  initWellKnownSymbol("Symbol.split", proto);
+  initWellKnownSymbol("Symbol.toPrimitive", proto);
+  initWellKnownSymbol("Symbol.toStringTag", proto);
+  initWellKnownSymbol("Symbol.unscopables", proto);
+  return
+};
+
+function initWellKnownSymbol(description, proto) {
+  sym := InternalSymbolConstructor(description, proto);
+  rec := {
+    key: description,
+    symbol: sym
+  };
+  |GlobalSymbolRegistry|[description] := rec;
+  return
+};
+
+function setPrototypeOfWellKnownSymbols(proto) {
+  |GlobalSymbolRegistry|["Symbol.hasInstance"].symbol.Prototype := proto;
+  |GlobalSymbolRegistry|["Symbol.isConcatSpreadable"].symbol.Prototype := proto;
+  |GlobalSymbolRegistry|["Symbol.iterator"].symbol.Prototype := proto;
+  |GlobalSymbolRegistry|["Symbol.match"].symbol.Prototype := proto;
+  |GlobalSymbolRegistry|["Symbol.replace"].symbol.Prototype := proto;
+  |GlobalSymbolRegistry|["Symbol.search"].symbol.Prototype := proto;
+  |GlobalSymbolRegistry|["Symbol.species"].symbol.Prototype := proto;
+  |GlobalSymbolRegistry|["Symbol.split"].symbol.Prototype := proto;
+  |GlobalSymbolRegistry|["Symbol.toPrimitive"].symbol.Prototype := proto;
+  |GlobalSymbolRegistry|["Symbol.toStringTag"].symbol.Prototype := proto;
+  |GlobalSymbolRegistry|["Symbol.unscopables"].symbol.Prototype := proto;
+  return
+};
+
+function getWellKnownSymbol(key) {
+  if (key in_obj |GlobalSymbolRegistry|) {
+    return |GlobalSymbolRegistry|[key].symbol
+  };
+  return 'undefined
+};
+
 /** 6.1.7.4 Well-Known Intrinsic Objects
     Just initializing the intrinsic container here and assign the well-known objects when they are created (section 18/section_18.esl)
 */
 function initIntrinsics(global, strict) {
   |Intrinsics| := NewECMAScriptObject();
 
+  objectPrototype := getConstructorProto(global, "Object", strict);
+
+  |Intrinsics|["IteratorPrototype"] := initIteratorPrototype(global, objectPrototype, strict);
+
   |Intrinsics|["Array"] := getProp(global, "Array", strict);
   |Intrinsics|["ArrayPrototype"] := getConstructorProto(global, "Array", strict);
   |Intrinsics|["ArrayProto_values"] := getJSProperty(getConstructorProto(global, "Array", strict), "values").Value;
+  |Intrinsics|["ArrayIteratorPrototype"] := initArrayIteratorPrototype(global, objectPrototype, strict);
 
   |Intrinsics|["ArrayBuffer"] := getProp(global, "ArrayBuffer", strict);
   |Intrinsics|["ArrayBufferPrototype"] := getConstructorProto(global, "ArrayBuffer", strict);
@@ -56,6 +171,7 @@ function initIntrinsics(global, strict) {
 
   |Intrinsics|["Map"] := getProp(global, "Map", strict);
   |Intrinsics|["MapPrototype"] := getConstructorProto(global, "Map", strict);
+  |Intrinsics|["MapIteratorPrototype"] := initMapIteratorPrototype(global, objectPrototype, strict);
 
   |Intrinsics|["Math"] := getProp(global, "Math", strict);
 
@@ -63,8 +179,8 @@ function initIntrinsics(global, strict) {
   |Intrinsics|["NumberPrototype"] := getConstructorProto(global, "Number", strict);
  
   |Intrinsics|["Object"] := getProp(global, "Object", strict);
-  |Intrinsics|["ObjectPrototype"] := getConstructorProto(global, "Object", strict);
-  |Intrinsics|["ObjProto_toString"] := getJSProperty(getConstructorProto(global, "Object", strict), "toString").Value;
+  |Intrinsics|["ObjectPrototype"] := objectPrototype;
+  |Intrinsics|["ObjProto_toString"] := getJSProperty(objectPrototype, "toString").Value;
 
   |Intrinsics|["parseFloat"] := getProp(global, "parseFloat", strict);
   |Intrinsics|["parseInt"] := getProp(global, "parseInt", strict);
@@ -86,9 +202,11 @@ function initIntrinsics(global, strict) {
   |Intrinsics|["RegExpPrototype"] := getConstructorProto(global, "RegExp", strict);
   
   |Intrinsics|["Set"] := getProp(global, "Set", strict);
+  |Intrinsics|["SetIteratorPrototype"] := initSetIteratorPrototype(global, objectPrototype, strict);
   |Intrinsics|["SetPrototype"] := getConstructorProto(global, "Set", strict);
   
   |Intrinsics|["String"] := getProp(global, "String", strict);
+  |Intrinsics|["StringIteratorPrototype"] := initStringIteratorPrototype(global, objectPrototype, strict);
   |Intrinsics|["StringPrototype"] := getConstructorProto(global, "String", strict);
   
   |Intrinsics|["Symbol"] := getProp(global, "Symbol", strict);

@@ -36,7 +36,7 @@ Promise.resolve = function(...args) {
 };
 
 Promise.allSettled.call(Custom, values)
-  .then(() => {
+  .then(function () /* TODO: => */ {
       assert.sameValue(presolveCallCount, 0, '`Promise.resolve` is never invoked');
       assert.sameValue(cresolveCallCount, 3, '`Custom.resolve` invoked once for every iterated promise');
     }).then($DONE, $DONE);

@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.normalize) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.normalize();
 }, '`new String.prototype.normalize()` throws TypeError');
 

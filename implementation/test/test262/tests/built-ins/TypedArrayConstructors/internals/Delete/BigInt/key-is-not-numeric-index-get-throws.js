@@ -32,7 +32,7 @@ testWithBigIntTypedArrayConstructors(function(TA) {
     }
   });
 
-  assert.throws(Test262Error, () => {
+  assert.throws(Test262Error, function () /* TODO: => */ {
     sample.foo;
   }, '`sample.foo` throws Test262Error');
 });

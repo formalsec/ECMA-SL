@@ -23,7 +23,7 @@ features: [Reflect.construct, arrow-function]
 
 assert.sameValue(isConstructor(Date.parse), false, 'isConstructor(Date.parse) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Date.parse();
 }, '`new Date.parse()` throws TypeError');
 

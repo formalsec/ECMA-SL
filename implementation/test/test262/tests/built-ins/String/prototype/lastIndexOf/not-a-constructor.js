@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.lastIndexOf) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.lastIndexOf();
 }, '`new String.prototype.lastIndexOf()` throws TypeError');
 

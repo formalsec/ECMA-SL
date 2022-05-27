@@ -35,15 +35,10 @@ function IsArray(argument) {
     	return false
     };
 
-    if (argument.Class = "Array") {
-      return true
-    };
-
-    /* If argument is an Array exotic object, return true. 
+    /* If argument is an Array exotic object, return true.  */
     if ( isArrayExoticObject(argument) ) {
       return true
-    }; 
-    */
+    };
 
     /* If argument is a Proxy exotic object, then */ 
         /* If the value of the [[ProxyHandler]] internal slot of argument is null, throw a TypeError exception. */
@@ -52,6 +47,27 @@ function IsArray(argument) {
     
     /* Return false. */
     return false
+};
+function isArrayExoticObject(arr) {
+  if (inJSProperties(arr, "length")) {
+    len := getJSProperty(arr, "length");
+    if (len.Configurable = true) {
+      return false
+    };
+
+    lenValue := len.Value;
+    if ((lenValue < 0.) ||| (lenValue >= 2. ** 32.)) {
+      return false
+    }
+  } else {
+    return false
+  };
+
+  if (!(arr.DefineOwnProperty = "ArrayDefineOwnProperty")) {
+    return false
+  };
+
+  return true
 };
 
 /**
@@ -156,14 +172,16 @@ function IsInteger(argument){
 function IsPropertyKey( argument ) {
 	/* ReturnIfAbrupt(argument). */
 	@ReturnIfAbrupt(argument);
+  
+  t := Type(argument);
 
 	/* If Type(argument) is String, return true. */
-	if ( Type(argument) = "String" ) {
+	if ( t = "String" ) {
 		return true
 	};
 
 	/* If Type(argument) is Symbol, return true. */
-	if ( Type(argument) = "Symbol" ) {
+	if ( t = "Symbol" ) {
 		return true
 	};
 

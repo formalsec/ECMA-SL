@@ -39,7 +39,7 @@ var thenable = {
 };
 
 Promise.allSettled([thenable])
-  .then((settleds) => {
+  .then(function (settleds) /* TODO: => */ {
     assert.sameValue(settleds.length, 1);
     assert.sameValue(settleds[0].status, 'rejected');
     assert.sameValue(settleds[0].reason, simulation);

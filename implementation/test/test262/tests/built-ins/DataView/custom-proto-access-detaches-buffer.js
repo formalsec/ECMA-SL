@@ -30,10 +30,7 @@ Object.defineProperty(newTarget, "prototype", {
   }
 });
 
-console.log("check1");
 assert.throws(TypeError, function() {
   Reflect.construct(DataView, [buffer, byteOffset], newTarget);
 });
-console.log("check2");
-assert.sameValue(called, true);console.log("check1");
-console.log("check3");
+assert.sameValue(called, true);

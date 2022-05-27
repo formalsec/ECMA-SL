@@ -487,7 +487,7 @@ function ReflectSetPrototypeOf(global, this, strict, args) {
   };
   /* 2. If Type(proto) is not Object and proto is not null, throw a TypeError
      exception */
-  if ((!(Type(proto) = "Object")) &&& (!(proto = null))) {
+  if (!(Type(proto) = "Object") &&& !(proto = 'null)) {
       throw TypeErrorConstructorInternal()
   };
   /* 3. Return target.[[SetPrototypeOf]](proto). */

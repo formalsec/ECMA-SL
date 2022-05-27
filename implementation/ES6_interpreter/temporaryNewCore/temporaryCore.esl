@@ -57,6 +57,11 @@ function CreateDataPropertyNew(O,P,V) {
 	return {O.DefineOwnProperty}(O, P, newDesc)  
 };
 
+function CreateDataPropertyOrThrowNew(O,P,V) {
+	x := CreateDataPropertyOrThrow(O, P, V) catch CallHandler;
+  return x
+};
+
 /**
  * 7.3.13 Construct (F, [argumentsList], [newTarget]) 
  * The abstract operation Construct is used to call the [[Construct]] internal method of a function object.
@@ -203,12 +208,6 @@ function newSetAccessorPropertyDescriptorFull(set, enumerable, configurable) {
 
 function temporaryInternalGetPrototypeOf (O) {
 	return O.Prototype
-};
-
-/* Used GetIterator function as reference. */
-function IsIterable(obj) {
-  iterator := GetMethod(obj, "Symbol(iterator)");
-  return !(iterator = 'undefined)
 };
 
 function GuardedDelete(O, P) {

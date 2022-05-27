@@ -11,15 +11,15 @@ features: [Promise.any, arrow-function]
 
 let rejections = [
   Promise.reject('a'),
-  new Promise((_, reject) => reject('b')),
+  new Promise(function(_, reject) /* TODO: => */ {return reject('b')}),
   Promise.all([Promise.reject('c')]),
   Promise.resolve(Promise.reject('d')),
 ];
 
 Promise.any(rejections)
   .then(
-    () => $DONE('The promise should be rejected, but was resolved'),
-    error => {
+    function () /* TODO: => */ { return $DONE('The promise should be rejected, but was resolved')},
+    function (error)/* TODO: => */ {
       assert.sameValue(error.errors.length, rejections.length);
       assert.sameValue(error.errors.join(''), 'abcd');
     }

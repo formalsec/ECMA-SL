@@ -8,7 +8,7 @@ description: toJSON method called with BigInt as receiver
 features: [BigInt]
 ---*/
 
-assert.throws(TypeError, () => JSON.stringify(1n),
+assert.throws(TypeError, function () /* TODO: => */ {return JSON.stringify(1n)},
               "toString throws for BigInt object");
 
 // The BigInt proposal changes the SerializeJSONProperty algorithm to
@@ -17,7 +17,7 @@ assert.throws(TypeError, () => JSON.stringify(1n),
 Object.defineProperty(BigInt.prototype, "toJSON", {
     get() {
         "use strict";
-        return () => typeof this;
+        return function () /* TODO: => */ {return typeof this};
     }
 });
 

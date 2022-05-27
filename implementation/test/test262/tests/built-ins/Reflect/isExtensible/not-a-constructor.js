@@ -23,7 +23,7 @@ features: [Reflect.construct, Reflect, arrow-function]
 
 assert.sameValue(isConstructor(Reflect.isExtensible), false, 'isConstructor(Reflect.isExtensible) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Reflect.isExtensible({});
 }, '`new Reflect.isExtensible({})` throws TypeError');
 

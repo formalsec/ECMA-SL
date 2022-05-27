@@ -31,7 +31,7 @@ testWithTypedArrayConstructors(function(TA) {
     "0.0000001"
   ];
 
-  keys.forEach((key) => {
+  keys.forEach(function (key) /* TODO: => */ {
     var sample = new TA(); // <- intentionally empty
 
     assert.sameValue(
@@ -57,7 +57,7 @@ testWithTypedArrayConstructors(function(TA) {
       get() { return key; }
     });
 
-    assert.throws(TypeError, () => {
+    assert.throws(TypeError, function () /* TODO: => */ {
       delete sample[key];
     }, '`delete sample[key]` throws TypeError');
 

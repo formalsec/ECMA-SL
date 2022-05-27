@@ -1,18 +1,49 @@
-/**
- * 8.3.4 GetNewTarget
+/* 8.3.2 GetThisEnvironment ( )
+ * 
+ * The abstract operation GetThisEnvironment finds the Environment Record that currently supplies the binding of the keyword this. GetThisEnvironment performs the following steps:
+ */
+function GetThisEnvironment(scope) {
+  /* 1. Let lex be the running execution context’s LexicalEnvironment. */
+  lex := getLexicalEnvironment(scope);
+  /* 2. Repeat */
+  repeat {
+    /* a. Let envRec be lex’s EnvironmentRecord. */
+    envRec := lex.EnvRec;
+    /* b. Let exists be envRec.HasThisBinding(). */
+    exists := {envRec.HasThisBinding}(envRec);
+    /* c. If exists is true, return envRec. */
+    if (exists) {
+      return envRec
+    };
+    /* d. Let outer be the value of lex’s outer environment reference. */
+    outer := lex.OuterEnvRef;
+    /* e. Let lex be outer. */
+    lex := outer
+  }
+};
+/* NOTE: The loop in step 2 will always terminate because the list of environments always ends with the global environment which has a this binding. */
+
+/* 8.3.3 ResolveThisBinding ( )
  *
- * The abstract operation GetNewTarget determines the NewTarget value using the
- * LexicalEnvironment of the running execution context. GetNewTarget performs
- * the following steps:
+ * The abstract operation ResolveThisBinding determines the binding of the keyword this using the LexicalEnvironment of the running execution context.
+ * ResolveThisBinding performs the following steps:
+ */
+function ResolveThisBinding(scope) {
+  /* 1. Let envRec be GetThisEnvironment( ). */
+  envRec := GetThisEnvironment(scope);
+  /* 2. Return envRec.GetThisBinding(). */
+  return {envRec.GetThisBinding}(envRec)
+};
+
+/* 8.3.4 GetNewTarget ( )
+ *
+ * The abstract operation GetNewTarget determines the NewTarget value using the LexicalEnvironment of the running execution context.
+ * GetNewTarget performs the following steps:
  */
 function GetNewTarget(scope) {
-  fail "Unsupported: NewTarget";
   /* 1. Let envRec be GetThisEnvironment( ). */
-  envRec := scope.LexicalEnvironment.EnvRec;
+  envRec := GetThisEnvironment(scope);
   /* 2. Assert: envRec has a [[NewTarget]] field. */
-  print "DEBUG GET NEW TARGET";
-  print scope;
-  print envRec;
   assert("NewTarget" in_obj envRec);
   /* 3. Return envRec.[[NewTarget]]. */
   return envRec.NewTarget

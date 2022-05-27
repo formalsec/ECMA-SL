@@ -6,7 +6,7 @@ es5id: 15.2.3.14-2-3
 description: Object.keys returns the standard built-in Array (Array overridden)
 ---*/
 
-  function Array() { }
+/* function Array() { } */ /* *??* corre antes da harness? */
 
   var o = { x: 1, y: 2};
 

@@ -21,7 +21,7 @@ assert.sameValue(
   'Object.prototype.hasOwnProperty.call(revocationFunction, "prototype") must return false'
 );
 assert.sameValue(isConstructor(revocationFunction), false, 'isConstructor(revocationFunction) must return false');
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new revocationFunction();
 }, '`new revocationFunction()` throws TypeError');
 

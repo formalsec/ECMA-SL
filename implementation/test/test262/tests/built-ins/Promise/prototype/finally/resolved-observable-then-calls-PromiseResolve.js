@@ -35,10 +35,10 @@ Promise.prototype.then = function(resolve, reject) {
   return then.call(this, resolve, reject);
 };
 
-mp1.finally(() => mp2).then(() => {
+mp1.finally(function () /* TODO: => */ {return mp2}).then(function () /* TODO: => */ {
   assert.sameValue(thenCalls.length, 5);
 
-  var mp2Calls = thenCalls.filter(c => c.promise === mp2);
+  var mp2Calls = thenCalls.filter(function (c) /* TODO: => */ {return c.promise === mp2});
   assert.sameValue(mp2Calls.length, 1);
   assert.sameValue(mp2Calls[0].reject, undefined);
   assert.sameValue(mp2Calls[0].resolve(), mp1Value);

@@ -65,6 +65,7 @@
                 "l_concat"        , LCONCAT;
                 "l_remove_last"   , LREMOVELAST;
                 "l_remove_nth"    , LREMNTH;
+                "l_remove"    , LREM;
                 "l_sort"          , LSORT;
                 "l_reverse"       , LREVERSE;
                 "hd"              , HD;
@@ -140,6 +141,7 @@
                 "array_make"            , ARRAY_MAKE;
                 "a_nth"                 , ANTH;
                 "a_set"                 , ASET;
+                "l_set"                 , LSET;
                 "a_len"                 , ALEN;
                 "list_to_array"         , LIST_TO_ARRAY;
                 ]

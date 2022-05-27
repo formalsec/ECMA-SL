@@ -12,11 +12,10 @@ var y = +0;
 var x = new Array();
 x[0] = 0.000000000000001;
 x[2] = +Infinity;
-x[1] = 1; 
+x[1] = 1;
 var xnum = 3;
 
 for (var i = 0; i < xnum; i++)
 {
-	if (Math.atan2(y,x[i]) !== +0)
-		$ERROR("#1: Math.atan2(" + y + ", " + x[i] + ") !== +0");
+  assert.sameValue(Math.atan2(y, x[i]), 0, x[i]);
 }

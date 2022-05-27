@@ -24,16 +24,16 @@ info: |
 flags: [async]
 ---*/
 
-let a = Promise.reject('a').catch((v) => v);
-let b = Promise.resolve('b').then((v) => { throw v });
-let c = Promise.reject('c').then((v) => { throw v; });
-let d = Promise.resolve('d').finally((v) => v);
-let e = Promise.reject('e').finally((v) => v);
-let f = Promise.resolve('f').finally((v) => { throw v; });
-let g = Promise.reject('g').finally((v) => { throw v; });
-let h = Promise.reject('h').then((v) => v, () => 'j');
-let i = Promise.resolve('i').then(v => v);
+let a = Promise.reject('a').catch(function (v) /* TODO: => */ {return v});
+let b = Promise.resolve('b').then(function (v) /* TODO: => */ { throw v });
+let c = Promise.reject('c').then(function (v) /* TODO: => */ { throw v; });
+let d = Promise.resolve('d').finally(function (v) /* TODO: => */ {return v});
+let e = Promise.reject('e').finally(function (v) /* TODO: => */ {return v});
+let f = Promise.resolve('f').finally(function (v) /* TODO: => */ { throw v; });
+let g = Promise.reject('g').finally(function (v) /* TODO: => */ { throw v; });
+let h = Promise.reject('h').then(function (v) /* => */ {return v}, function () /* TODO: => */ {return 'j'});
+let i = Promise.resolve('i').then(function (v) /* TODO: => */ {return v});
 
-Promise.race([a, b, c, d, e, f, g, h, i]).then(winner => {
+Promise.race([a, b, c, d, e, f, g, h, i]).then(function(winner) /* TODO: => */ {
   assert.sameValue(winner, 'a');
 }).then($DONE, $DONE);

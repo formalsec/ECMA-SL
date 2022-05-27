@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(TypedArray.prototype.every) must return false'
 );
 
-assert.throws(TypeError, () => {
-  let u8 = new Uint8Array(1); new u8.every(() => {});
-}, '`let u8 = new Uint8Array(1); new u8.every(() => {})` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  let u8 = new Uint8Array(1); new u8.every(function () /* TODO: => */ {});
+}, '`let u8 = new Uint8Array(1); new u8.every(function () /* TODO: => */ {})` throws TypeError');
 

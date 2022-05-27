@@ -315,12 +315,12 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
 
   /* 22.2.3.30 %TypedArray%.prototype [ @@iterator ] ( ) */
   iteratorDesc := newDataPropertyDescriptorFull(valuesObj, true, false, true);
-  setJSProperty(prototype, "Symbol(iterator)", iteratorDesc);
+  setJSProperty(prototype, getIteratorPropertyName(), iteratorDesc);
 
   /* 22.2.3.31 get %TypedArray%.prototype [ @@toStringTag ] */
   toStringTagFunc := CreateBuiltInFunctionObject([], "getTypedArrayToStringTag", global, strict, null);
   toStringTagDesc := newGetAccessorPropertyDescriptorFull(toStringTagFunc, false, true);
-  setJSProperty(prototype, "Symbol(toStringTag)", toStringTagDesc);
+  setJSProperty(prototype, getToStringTagPropertyName(), toStringTagDesc);
   /* Length */
   descLen := newDataPropertyDescriptorFull(0., false, false, true);
   setJSProperty(toStringTagFunc, "length", descLen);
@@ -955,7 +955,7 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
     mapping := true
   };
   /* 6. Let usingIterator be GetMethod(items, @@iterator). */
-  usingIterator := GetMethod(items, "Symbol(iterator)");
+  usingIterator := GetMethod(items, getIteratorPropertyName());
   /* 7. ReturnIfAbrupt(usingIterator). */
   @ReturnIfAbrupt(usingIterator);
   /* 8. If usingIterator is not undefined, then */

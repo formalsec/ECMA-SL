@@ -23,6 +23,7 @@ type bopt = Plus
           | InObj
           | InList
           | Lnth
+          | LRem
           | LRemNth
           | Tnth
           | Snth
@@ -47,6 +48,7 @@ type bopt = Plus
 type topt = Ssubstr
           | SsubstrU
           | Aset
+          | Lset
 
 type uopt = Neg
           | Not
@@ -406,6 +408,19 @@ let tail (v : Val.t) : Val.t = match v with
   | List l -> List (List.tl l)
   | _      -> invalid_arg "Exception in Oper.tail: this operation is only applicable to List arguments"
 
+let rec list_remove_aux l e =
+  match l with
+    | [] -> []
+    | h::tl ->
+      if (h = e) then 
+        tl
+      else
+        h::list_remove_aux tl e
+
+let list_remove (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
+  | List l, e  -> List(list_remove_aux l e)
+  | _       -> invalid_arg "Exception in Oper.list_remove: this operation is only applicable to List and Any arguments"
+
 let list_remove_last (v : Val.t) : Val.t = match v with
 | List l  ->
   let l' = List.rev l in
@@ -420,15 +435,15 @@ let rec list_remove_nth_aux (v1, v2 : Val.t * Val.t) : Val.t list = match v1, v2
       List.tl l
     else
       List.hd l :: list_remove_nth_aux (List (List.tl l), Int(idx - 1))
-  | _                -> invalid_arg "Exception in Oper.list_remove_last: this operation is only applicable to List and Int arguments"
+  | _                -> invalid_arg "Exception in Oper.list_remove_nth: this operation is only applicable to List and Int arguments"
 
 let list_remove_nth (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | List l, Int idx  -> 
     if (idx >= 0) then 
       List(list_remove_nth_aux (List(l), Int(idx)))
     else
-      invalid_arg "Exception in Oper.list_remove_last: this operation is only applicable to List and Int greater or equal to 0 arguments"
-  | _                -> invalid_arg "Exception in Oper.list_remove_last: this operation is only applicable to List and Int arguments"
+      invalid_arg "Exception in Oper.list_remove_nth: this operation is only applicable to List and Int greater or equal to 0 arguments"
+  | _                -> invalid_arg "Exception in Oper.list_remove_nth: this operation is only applicable to List and Int arguments"
 
 let list_sort (v : Val.t) : Val.t = match v with
   | List l ->
@@ -457,6 +472,22 @@ let array_set (v1, v2, v3 : Val.t * Val.t * Val.t) : Val.t = match v1, v2, v3 wi
   | Arr a, Int n, x -> (Array.set a n x;
                         Val.Null)
   | _       -> invalid_arg "Exception in Oper.array_set: this operation is only applicable to Array, Int and Value arguments"
+
+let rec list_set_aux (v1, v2, v3, v4 : Val.t * Val.t * Val.t * Val.t) : Val.t list = match v1, v2, v3, v4 with
+  | List l, Int idx, x, Int n ->
+      if (n = idx) then
+        x :: (List.tl l)
+      else
+        List.hd l :: list_set_aux (List (List.tl l), Int idx, x, Int (n + 1))
+  | _                        -> invalid_arg "Exception in Oper.list_set: this operation is only applicable to List and Int arguments"
+
+let list_set (v1, v2, v3 : Val.t * Val.t * Val.t) : Val.t = match v1, v2, v3 with
+  | List l, Int idx, x ->
+    if (idx >= 0 && idx < (List.length l)) then
+      List(list_set_aux (List l, Int idx, x, Int 0))
+    else
+      invalid_arg "Exception in Oper.list_set: this operation is only applicable to List, Int greater or equal to 0 and Any arguments"
+  | _                  -> invalid_arg "Exception in Oper.list_set: this operation is only applicable to List, Int and Any arguments"
 
 let first (v : Val.t) : Val.t = match v with
   | Tuple t -> List.hd t
@@ -821,6 +852,7 @@ let str_of_binopt_single (op : bopt) : string = match op with
   | InObj    -> "in_obj"
   | InList   -> "in_list"
   | Lnth     -> "l_nth"
+  | LRem     -> "l_remove"
   | LRemNth  -> "l_remove_nth"
   | Tnth     -> "t_nth"
   | Snth     -> "s_nth"
@@ -864,6 +896,7 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string = match op wi
   | InObj    -> e1 ^ " in_obj " ^ e2
   | InList   -> e1 ^ " in_list " ^ e2
   | Lnth     -> "l_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
+  | LRem     -> "l_remove(" ^ e1 ^ ", " ^ e2 ^ ")"
   | LRemNth  -> "l_remove_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Tnth     -> "t_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
   | Snth     -> "s_nth(" ^ e1 ^ ", " ^ e2 ^ ")"
@@ -890,6 +923,7 @@ let str_of_triopt (op : topt) (e1 : string) (e2 : string) (e3 : string) : string
   | Ssubstr  -> "s_substr(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
   | SsubstrU  -> "s_substr_u(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
   | Aset      -> "a_set(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
+  | Lset      -> "l_set(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string = match op with
   | ListExpr  -> "[ " ^ (String.concat ", " es) ^ " ]"
@@ -959,6 +993,7 @@ let bopt_to_json (op : bopt) : string =
      | InObj   -> Printf.sprintf "InObj\" }"
      | InList  -> Printf.sprintf "InList\" }"
      | Lnth    -> Printf.sprintf "Lnth\" }"
+     | LRem    -> Printf.sprintf "LRem\" }"
      | LRemNth -> Printf.sprintf "LRemNth\" }"
      | Tnth    -> Printf.sprintf "Tnth\" }"
      | Snth    -> Printf.sprintf "Snth\" }"
@@ -985,7 +1020,8 @@ let topt_to_json (op : topt) : string =
     (match op with
       | Ssubstr -> Printf.sprintf "Ssubstr\" }"
       | SsubstrU -> Printf.sprintf "SsubstrU\" }"
-      | Aset -> Printf.sprintf "Aset\" }")
+      | Aset -> Printf.sprintf "Aset\" }"
+      | Lset -> Printf.sprintf "Lset\" }")
 
 let nopt_to_json (op : nopt) : string =
   Printf.sprintf "{ \"type\" : \"nopt\", \"value\" : \"%s"

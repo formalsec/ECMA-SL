@@ -3,14 +3,14 @@
 
 /*---
 info: Array.prototype.splice sets `length` on `this`
-es5id: 15.4.4.12_A6.1_T2
+esid: sec-array.prototype.splice
 description: Array.prototype.splice throws if `length` is read-only
 ---*/
 
 var a = [0, 1, 2];
 
 Object.defineProperty(a, 'length', {
-    writable: false
+  writable: false
 });
 
 assert.throws(TypeError, function() {

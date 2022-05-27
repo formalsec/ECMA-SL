@@ -67,14 +67,14 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, argumentLi
     /* 9. If result.[[type]] is return, return NormalCompletion(result.[[value]]). */
     if (getCompletionType(result) = 'return) {
       value := getCompletionValue(result);
-      return value
+      return NormalCompletion(value)
 	};
 
     /* 10. ReturnIfAbrupt(result). */
     @ReturnIfAbrupt(result);
 
     /* 11. Return NormalCompletion(undefined). */
-    return 'undefined
+    return NormalCompletion('undefined)
 };
 
 /**
@@ -712,7 +712,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   /* 7. Let parameterNames be the BoundNames of formals. */
   parameterNames := getParamsNamesInFromFunction(code);
 
-  /* 8. If parameterNames has any duplicate entries, */
+  /* 8. If parameterNames has any duplicate entries, let hasDuplicates be true. Otherwise, let hasDuplicates be false. */
   if (parametersHasDuplicates(parameterNames) = true) {
     hasDuplicates := true
   } else {
@@ -833,7 +833,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   };
   /* 23. Let iteratorRecord be Record {[[iterator]]:
         CreateListIterator(argumentsList), [[done]]: false}. */
-  iteratorRecord := CreateListIterator(argumentsList);
+  iteratorRecord := {iterator: CreateListIterator(argumentsList), done: false};
 
   paramsDetails := getParamsDetails(code);
   /* 24. If hasDuplicates is true, then */

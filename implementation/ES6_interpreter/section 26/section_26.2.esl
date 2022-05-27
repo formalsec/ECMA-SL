@@ -110,13 +110,13 @@ function proxyRevocable (global, this, strict, args) {
     @ReturnIfAbrupt(p);
 
     /* 3. Let revoker be a new built-in function object as defined in 26.2.2.1.1. */
-    revoker := null;
+    revoker := CreateBuiltInFunctionObject([], "ProxyRevocation", global, strict, 0.);
 
     /* 4. Set the [[RevocableProxy]] internal slot of revoker to p. */
     revoker.RevocableProxy := p;
 
     /* 5. Let result be ObjectCreate(%ObjectPrototype%). */
-    result := ObjectCreate("func");
+    result := ObjectCreate(|Intrinsics|.ObjectPrototype, null);
 
     /* 6. Perform CreateDataProperty(result, "proxy", p). */
     CreateDataProperty(result, "proxy", p);
@@ -126,7 +126,7 @@ function proxyRevocable (global, this, strict, args) {
 
     /* 8. Return result. */
     return result
-}
+};
 
 /**
 * 26.2.2.1.1 Proxy Revocation Functions
@@ -137,13 +137,24 @@ function proxyRevocable (global, this, strict, args) {
 *  Each Proxy revocation function has a [[RevocableProxy]] internal slot.
 *
 *  When a Proxy revocation function, F, is called the following steps are taken:
-
-    Let p be the value of F’s [[RevocableProxy]] internal slot.
-    If p is null, return undefined.
-    Set the value of F’s [[RevocableProxy]] internal slot to null.
-    Assert: p is a Proxy object.
-    Set the [[ProxyTarget]] internal slot of p to null.
-    Set the [[ProxyHandler]] internal slot of p to null.
-    Return undefined.
-
 */
+function ProxyRevocation(global, this, strict, args) {
+    F := getJSProperty(this, "revoke").Value;
+    /* 1. Let p be the value of F’s [[RevocableProxy]] internal slot. */
+    p := F.RevocableProxy;
+    /* 2. If p is null, return undefined. */
+    if (p = 'null) {
+        return 'undefined
+    };
+    /* 3. Set the value of F’s [[RevocableProxy]] internal slot to null. */
+    F.RevocableProxy := 'null;
+    /* 4. Assert: p is a Proxy object. */
+    print p;
+    assert(IsProxy(p));
+    /* 5. Set the [[ProxyTarget]] internal slot of p to null. */
+    p.ProxyTarget := 'null;
+    /* 6. Set the [[ProxyHandler]] internal slot of p to null. */
+    p.ProxyHandler := 'null;
+    /* 7. Return undefined. */
+    return 'undefined
+}

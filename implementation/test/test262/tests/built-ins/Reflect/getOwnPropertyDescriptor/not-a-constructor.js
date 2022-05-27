@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Reflect.getOwnPropertyDescriptor) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Reflect.getOwnPropertyDescriptor({}, '');
 }, '`new Reflect.getOwnPropertyDescriptor({}, \'\')` throws TypeError');
 

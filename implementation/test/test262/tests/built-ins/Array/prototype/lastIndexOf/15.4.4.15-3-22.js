@@ -2,33 +2,33 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.15-3-22
+esid: sec-array.prototype.lastindexof
 description: >
     Array.prototype.lastIndexOf throws TypeError exception when
     'length' is an object with toString and valueOf methods that don�t
     return primitive values
 ---*/
 
-        var toStringAccessed = false;
-        var valueOfAccessed = false;
+var toStringAccessed = false;
+var valueOfAccessed = false;
 
-        var obj = {
-            1: true,
-            length: {
-                toString: function () {
-                    toStringAccessed = true;
-                    return {};
-                },
+var obj = {
+  1: true,
+  length: {
+    toString: function() {
+      toStringAccessed = true;
+      return {};
+    },
 
-                valueOf: function () {
-                    valueOfAccessed = true;
-                    return {};
-                }
-            }
-        };
+    valueOf: function() {
+      valueOfAccessed = true;
+      return {};
+    }
+  }
+};
 
 assert.throws(TypeError, function() {
-            Array.prototype.lastIndexOf.call(obj, true);
+  Array.prototype.lastIndexOf.call(obj, true);
 });
 
 assert(toStringAccessed, 'toStringAccessed');

@@ -8,21 +8,22 @@ function setInternalProperty(object, pname, pvalue) {
 
 /* see 9.1.13 */
 function setAllInternalMethodsOfOrdinaryObject(obj) {
-  obj.GetPrototypeOf    := "OrdinaryObjectGetPrototypeOf";
-  obj.SetPrototypeOf    := "OrdinaryObjectSetPrototypeOf";
-  obj.IsExtensible 		:= "OrdinaryObjectIsExtensible";
-  obj.PreventExtensions	:= "OrdinaryObjectPreventExtensions";
-  obj.GetOwnProperty 	:= "OrdinaryObjectGetOwnProperty";
-  obj.DefineOwnProperty := "OrdinaryObjectDefineOwnProperty";
-  obj.HasProperty       := "OrdinaryObjectHasProperty";
-  obj.Get  				:= "OrdinaryObjectGet";
-  obj.Set  				:= "OrdinaryObjectSet"; 
-  obj.Delete            := "OrdinaryObjectDelete";
-  obj.Enumerate			:= "OrdinaryObjectEnumerate";
-  obj.OwnPropertyKeys   := "OrdinaryObjectOwnPropertyKeys";
-  obj.JSProperties      := {};
-
-  obj.internalSlotsList := [];
+  obj.GetPrototypeOf      := "OrdinaryObjectGetPrototypeOf";
+  obj.SetPrototypeOf      := "OrdinaryObjectSetPrototypeOf";
+  obj.IsExtensible 		  := "OrdinaryObjectIsExtensible";
+  obj.PreventExtensions	  := "OrdinaryObjectPreventExtensions";
+  obj.GetOwnProperty 	  := "OrdinaryObjectGetOwnProperty";
+  obj.DefineOwnProperty   := "OrdinaryObjectDefineOwnProperty";
+  obj.HasProperty         := "OrdinaryObjectHasProperty";
+  obj.Get  				  := "OrdinaryObjectGet";
+  obj.Set  				  := "OrdinaryObjectSet"; 
+  obj.Delete              := "OrdinaryObjectDelete";
+  obj.Enumerate			  := "OrdinaryObjectEnumerate";
+  obj.OwnPropertyKeys     := "OrdinaryObjectOwnPropertyKeys";
+  obj.JSProperties        := {};
+  obj.JSPropertiesSymbols := {};
+  obj.SymbolKeys          := {};
+  obj.internalSlotsList   := [];
 
   return obj
 };
@@ -84,9 +85,9 @@ function OrdinaryObjectSetPrototypeOf(O, V) {
     done := false;
 
     /* Repeat while done is false, */
-    while (done) {
+    while (done = false) {
         /* If p is null, let done be true. */
-        if ( p = null) {
+        if ( p = 'null) {
         	done := true
         } 
     	/* Else, if SameValue(p, O) is true, return false. */
@@ -96,7 +97,7 @@ function OrdinaryObjectSetPrototypeOf(O, V) {
         /* Else, */
         else {
             /* If the [[GetPrototypeOf]] internal method of p is not the ordinary object internal method defined in 9.1.1, let done be true. */
-            if ( {p.GetPrototypeOf}(p) ) { /* nao esta bem feito nao sei como verificar o que esta em cima */
+            if ( !(p.GetPrototypeOf = "OrdinaryObjectGetPrototypeOf") ) {
             	done := true
             }
             /* Else, let p be the value of p’s [[Prototype]] internal slot. */
@@ -150,7 +151,7 @@ function OrdinaryGetOwnProperty(O, P) {
     assert( IsPropertyKey(P) = true);
 
     /* If O does not have an own property with key P, return undefined. */
-    if ( !(P in_obj O.JSProperties) ) {
+    if ( !inJSProperties(O, P) ) {
     	return 'undefined
     };
 
@@ -158,7 +159,7 @@ function OrdinaryGetOwnProperty(O, P) {
     D := NewPropertyDescriptor();
 
     /* Let X be O’s own property whose key is P. */
-    X := O.JSProperties[P];
+    X := getJSProperty(O, P);
 
     /* If X is a data property, then */
     if ( IsDataDescriptor(X) ) {
@@ -229,14 +230,18 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
             /* If O is not undefined, create an own data property named P of object O whose [[Value]], [[Writable]], [[Enumerable]]
             and [[Configurable]] attribute values are described by Desc. If the value of an attribute field of Desc is absent, the
             attribute of the newly created property is set to its default value. */
-            setJSProperty(O, P, CreateDataPropertyFrom(Desc))
+            if (!(O = 'undefined)) {
+                setJSProperty(O, P, CreateDataPropertyFrom(Desc))    
+            }
         }
         /* Else Desc must be an accessor Property Descriptor, */
         else {
             /* If O is not undefined, create an own accessor property named P of object O whose [[Get]], [[Set]], [[Enumerable]] and
             [[Configurable]] attribute values are described by Desc. If the value of an attribute field of Desc is absent, the attribute
-            of the newly created property is set to its default value. */            
-            setJSProperty(O, P, CreateAccessorPropertyFrom(Desc))
+            of the newly created property is set to its default value. */
+            if (!(O = 'undefined)) {
+                setJSProperty(O, P, CreateAccessorPropertyFrom(Desc))
+            }
         };
 
         /* Return true. */
@@ -264,7 +269,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
 
         /* Return false, if the [[Enumerable]] field of Desc is present and the [[Enumerable]] fields of current
            and Desc are the Boolean negation of each other. */
-        if ( ("Enumerable" in_obj Desc) &&& !( current.Enumerable = Desc.Enumerable) ) {
+        if ( ("Enumerable" in_obj Desc) &&& !( ToBoolean(current.Enumerable) = ToBoolean(Desc.Enumerable)) ) {
         	return false
         }
     };
@@ -361,7 +366,7 @@ function ValidateAndApplyPropertyDescriptor(O, P, extensible, Desc, current) {
           current.Configurable := Desc.Configurable
         };
 
-        (O.JSProperties)[P] := current
+        setJSProperty(O, P, current)
     };
 
     /* Return true. */
@@ -627,15 +632,11 @@ function OrdinaryObjectDelete(O, P) {
     /* If desc.[[Configurable]] is true, then */
     if ( desc.Configurable = true) {
         /* Remove the own property with name P from O. */
-        delete (O.JSProperties)[P];
+        deleteJSProperty(O, P);
 
         /* Return true. */
         return true
     };
-
-    print "OBDELETE";
-    print desc;
-    print O;
 
     /* Return false. */
     return false
@@ -683,15 +684,13 @@ function OrdinaryObjectOwnPropertyKeys(O) {
     };
 
     /* For each own property key P of O that is a Symbol, in property creation order */
-    foreach ( P : obj_fields O.JSProperties ) {
-        if ( Type(P) = "Symbol" ) {
-            /* Add P as the last element of keys. */
-            keys := l_add(keys, P)
-        }
+    foreach ( P : obj_fields O.SymbolKeys ) {
+        /* Add P as the last element of keys. */
+        keys := l_add(keys, O.SymbolKeys[P])
     };
 
     /* Return keys.	*/
-    return l_sort(keys)
+    return keys
 };
 
 /**

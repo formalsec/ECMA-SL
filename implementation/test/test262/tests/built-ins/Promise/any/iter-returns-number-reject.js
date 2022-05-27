@@ -27,9 +27,9 @@ Promise.any({
     callCount++;
     return 1;
   }
-}).then(() => {
+}).then(function () /* TODO: => */ {
   $DONE('The promise should be rejected, but was resolved');
-}, (error) => {
+}, function (error) /* TODO: => */ {
   assert.sameValue(callCount, 1, 'callCount === 1');
   assert(error instanceof TypeError);
 }).then($DONE, $DONE);

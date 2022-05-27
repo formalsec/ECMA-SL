@@ -25,16 +25,16 @@ testWithTypedArrayConstructors(function(TA) {
   let sab = new SharedArrayBuffer(TA.BYTES_PER_ELEMENT * 2);
   let sample = new TA(sab);
 
-  assert.throws(TypeError, () => {
+  assert.throws(TypeError, function () /* TODO: => */ {
     delete sample["0"];
   });
-  assert.throws(TypeError, () => {
+  assert.throws(TypeError, function () /* TODO: => */ {
     delete sample[0];
   });
-  assert.throws(TypeError, () => {
+  assert.throws(TypeError, function () /* TODO: => */ {
     delete sample["1"];
   });
-  assert.throws(TypeError, () => {
+  assert.throws(TypeError, function () /* TODO: => */ {
     delete sample[1];
   });
 });

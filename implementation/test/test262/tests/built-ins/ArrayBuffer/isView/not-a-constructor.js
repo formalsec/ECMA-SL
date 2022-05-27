@@ -23,7 +23,7 @@ features: [Reflect.construct, ArrayBuffer, arrow-function]
 
 assert.sameValue(isConstructor(ArrayBuffer.isView), false, 'isConstructor(ArrayBuffer.isView) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new ArrayBuffer.isView();
 }, '`new ArrayBuffer.isView()` throws TypeError');
 

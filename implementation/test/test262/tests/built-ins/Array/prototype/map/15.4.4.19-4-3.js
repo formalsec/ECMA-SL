@@ -2,11 +2,11 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.19-4-3
+esid: sec-array.prototype.map
 description: Array.prototype.map throws TypeError if callbackfn is null
 ---*/
 
-  var arr = new Array(10);
+var arr = new Array(10);
 assert.throws(TypeError, function() {
-    arr.map(null);
+  arr.map(null);
 });

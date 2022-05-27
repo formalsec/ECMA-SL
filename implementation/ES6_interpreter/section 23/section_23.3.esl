@@ -29,18 +29,19 @@ are only intended to describe the required observable semantics of WeakMap objec
 is not intended to be a viable implementation model.
 */
 
+
+/** 23.3.3 Properties of the WeakMap Prototype Object
+ *
+ * The WeakMap prototype object is the intrinsic object %WeakMapPrototype%.
+ * The value of the [[Prototype]] internal slot of the WeakMap prototype object is the intrinsic object %ObjectPrototype% (19.1.3).
+ * The WeakMap prototype object is an ordinary object. It does not have a [[WeakMapData]] internal slot.
+ */
 function initWeakMapPrototype(global, objectPrototype, objectConstructor, strict){
 
     prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
     setAllInternalMethodsOfOrdinaryObject(prototype);
 
-    setJSProperty(prototype, "length", newDataPropertyDescriptorFull(0., true, false, false));
-
     /* 23.3.3.1 WeakMap.prototype.constructor */
-    /* length */
-    setJSProperty(objectConstructor, "length", newDataPropertyDescriptorFull(1., false, false, true));
-    /* name */
-    setJSProperty(objectConstructor, "name", newDataPropertyDescriptorFull("constructor", false, false, true));
     createBuiltInProperty(prototype, "constructor", objectConstructor);
     
     /* 23.3.3.2 WeakMap.prototype.delete ( key ) */
@@ -75,36 +76,36 @@ function initWeakMapPrototype(global, objectPrototype, objectConstructor, strict
     setJSProperty(setFunctionObject, "name", newDataPropertyDescriptorFull("set", false, false, true));
     createBuiltInProperty(prototype, "set", setFunctionObject);
     
-    /* 23.3.3.6 WeakMap.prototype [ @@toStringTag ] */
-    /* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true }. */
-    /* The initial value of the @@toStringTag property is the String value "WeakMap". */
-    setJSProperty(prototype, "@@toStringTag", newDataPropertyDescriptorFull("WeakMap", false, false, true));
+    /** 23.3.3.6 WeakMap.prototype [ @@toStringTag ]
+     *
+     * The initial value of the @@toStringTag property is the String value "WeakMap".
+     * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true }. 
+     */
+    setJSProperty(prototype, getWellKnownSymbol("Symbol.toStringTag"), newDataPropertyDescriptorFull("WeakMap", false, false, true));
     
     return prototype
 };
 
-function getWeakMapPrototype(strict) {
-    refWeakMap := newPropertyReference(|global|, "WeakMap", strict);
-    WeakMapObject := GetValue(refWeakMap);
+/* 23.3.2 Properties of the WeakMap Constructor */
 
-    refWeakMapProto := newPropertyReference(WeakMapObject, "prototype", strict);
-    objectWeakMapProto := GetValue(refWeakMapProto);
-    
-    return objectWeakMapProto
-};
-
-function initWeakMapObject(global, objectPrototype, strict) {  
-    objWeakMapConstructor := CreateFunctionObject(["items"], "WeakMapConstructor", global, strict, 0.);
+/*
+    The value of the [[Prototype]] internal slot of the WeakMap constructor is the intrinsic object %FunctionPrototype% (19.2.3).
+    Besides the length property (whose value is 0), the WeakMap constructor has the following properties:
+*/
+function initWeakMapObject(global, objectPrototype, strict) {
+    objWeakMapConstructor := CreateBuiltInConstructorObject(getJSProperty(global, "Function").Value.Prototype, ["items"], "WeakMapConstructor", global, strict, 0., "constructor");
     /* length */
-    setJSProperty(objWeakMapConstructor, "length", newDataPropertyDescriptorFull(1., false, false, true));
+    setJSProperty(objWeakMapConstructor, "length", newDataPropertyDescriptorFull(0., false, false, true));
     /* name */
     setJSProperty(objWeakMapConstructor, "name", newDataPropertyDescriptorFull("constructor", false, false, true));
 
     objWeakMapPrototype := initWeakMapPrototype(global, objectPrototype, objWeakMapConstructor, strict);
-    
-    descriptor := newDataPropertyDescriptorFull(objWeakMapConstructor, true, false, true);
-    setJSProperty(objWeakMapPrototype, "constructor", descriptor);
 
+    /** 23.3.2.1 WeakMap.prototype 
+     *
+     *  The initial value of WeakMap.prototype is the intrinsic object %WeakMapPrototype% (23.3.3).
+     *  This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.
+    */
     descriptor := newDataPropertyDescriptorFull(objWeakMapPrototype, false, false, false);
     setJSProperty(objWeakMapConstructor, "prototype", descriptor);
 
@@ -137,7 +138,7 @@ that will be used as a WeakMap key and whose second element is the value to asso
 
 function WeakMapConstructor(global, this, strict, items) {
     iterable := getOptionalParam(items, 0);
-    NewTarget := this;
+    NewTarget := getJSProperty(global, "WeakMap").Value; /* TODO: What function (FunctionCreate?) to generate constructor so this is not needed. */
 
     /* 1. If NewTarget is undefined, throw a TypeError exception. */
     if (NewTarget = 'undefined) {
@@ -145,7 +146,7 @@ function WeakMapConstructor(global, this, strict, items) {
     };
     
     /* 2. Let map be OrdinaryCreateFromConstructor(NewTarget, "%WeakMapPrototype%", «‍[[WeakMapData]]» ). */
-    map := OrdinaryCreateFromConstructorWeakMap(global, this, strict, iterable);
+    map := OrdinaryCreateFromConstructor(NewTarget, "WeakMapPrototype", ["WeakMapData"]);
 
     /* 3. ReturnIfAbrupt(map). */
     @ReturnIfAbrupt(map);
@@ -154,8 +155,7 @@ function WeakMapConstructor(global, this, strict, items) {
     map.WeakMapData := [];
 
     /* 5. If iterable is not present, let iterable be undefined. */
-    len := l_len items;
-    if (len = 0) {
+    if (iterable = null) {
         iterable := 'undefined
     };
 
@@ -190,7 +190,7 @@ function WeakMapConstructor(global, this, strict, items) {
     };
 
     /* 9. Repeat */
-    while (true) {
+    repeat {
         /* a. Let next be IteratorStep(iter). */
         next := IteratorStep(iter);
 
@@ -211,7 +211,7 @@ function WeakMapConstructor(global, this, strict, items) {
         /* f. If Type(nextItem) is not Object, */
         if (!(Type(nextItem) = "Object")){
             /* i. Let error be Completion{[[type]]: throw, [[value]]: a newly created TypeError object, [[target]]:empty}. */
-            error :=  throwEmptyCompletion(TypeErrorConstructorInternal());
+            error := throwEmptyCompletion(TypeErrorConstructorInternal());
 
             /* ii. Return IteratorClose(iter, error). */
             return IteratorClose(iter, error)
@@ -221,7 +221,7 @@ function WeakMapConstructor(global, this, strict, items) {
         k := Get(nextItem, "0");
 
         /* h. If k is an abrupt completion, return IteratorClose(iter, k). */
-        if ((Type(k) = "Completion") &&& (isAnAbruptCompletion(k))) {
+        if (isAnAbruptCompletion(k)) {
             return IteratorClose(iter, k)
         };
 
@@ -229,68 +229,22 @@ function WeakMapConstructor(global, this, strict, items) {
         v := Get(nextItem, "1");
 
         /* j. If v is an abrupt completion, return IteratorClose(iter, v). */
-        if ((Type(v) = "Completion") &&& (isAnAbruptCompletion(v))) {
+        if (isAnAbruptCompletion(v)) {
             return IteratorClose(iter, v)
         };
 
         /* k. Let status be Call(adder, map, «k.[[value]], v.[[value]]»). */
-        print "DEBUG CONSTRUCTOR 0";
-        print k;
-        print k.JSProperties;
-        status := Call(adder, map, [k.value, v.value]);
+        status := Call(null, null, adder, map, [getCompletionValue(k), getCompletionValue(v)]);
 
         /* l. If status is an abrupt completion, return IteratorClose(iter, status). */
-        if ((Type(status) = "Completion") &&& (isAnAbruptCompletion(status))) {
+        if (isAnAbruptCompletion(status)) {
             return IteratorClose(iter, status)
         }
     }    
 };
 
-/* Temporary Code */
-/*
-  OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList ) 
-*/
-function OrdinaryCreateFromConstructorWeakMap(global, this, strict, items) {
-    mapPrototype := getWeakMapPrototype(strict);
-
-    newlyConstructedObject := NewECMAScriptObject();
-    setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
-
-    setInternalProperty(newlyConstructedObject, "Prototype", mapPrototype);
-    setInternalProperty(newlyConstructedObject, "Extensible", true);
-    setInternalProperty(newlyConstructedObject, "Class", "Object");
-
-    return newlyConstructedObject
-}; 
-
-
-/* 23.3.2 Properties of the WeakMap Constructor */
-
-/*
-    The value of the [[Prototype]] internal slot of the WeakMap constructor is the intrinsic object %FunctionPrototype% (19.2.3).
-    Besides the length property (whose value is 0), the WeakMap constructor has the following properties:
-*/
-
-/* 23.3.2.1 WeakMap.prototype */
-
-/*
-    The initial value of WeakMap.prototype is the intrinsic object %WeakMapPrototype% (23.3.3).
-    This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.
-*/
-
 
 /* 23.3.3 Properties of the WeakMap Prototype Object */
-
-/*
-    The WeakMap prototype object is the intrinsic object %WeakMapPrototype%. 
-    The value of the [[Prototype]] internal slot of the WeakMap prototype object is the 
-intrinsic object %ObjectPrototype% (19.1.3). The WeakMap prototype object is an ordinary 
-object. It does not have a [[WeakMapData]] internal slot.
-*/
-
-/* 23.3.3.1 WeakMap.prototype.constructor */
-
-/* The initial value of WeakMap.prototype.constructor is the intrinsic object %WeakMap%. */
 
 /* 23.3.3.2 WeakMap.prototype.delete ( key ) */
 function weakMapDeleteObject(global, this, strict, args){
@@ -488,12 +442,6 @@ function weakMapSetObject(global, this, strict, args){
     /* 9. Return M. */
     return M
 }
-
-/* 23.3.3.6 WeakMap.prototype [ @@toStringTag ] */
-
-/* The initial value of the @@toStringTag property is the String value "WeakMap". */
-/* This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true }. */
-
 
 /* 23.3.4 Properties of WeakMap Instances */
 

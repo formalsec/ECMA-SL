@@ -731,7 +731,9 @@ function RegExpBuiltinExec(R, S){
    A := ArrayConstructor(null, null, false, [n + 1.]);
 
    /* 21. Assert: The value of A’s "length" property is n + 1. */
-   assert(Get(A, "length") = (n + 1.));
+   A_length := Get(A, "length");
+   @ReturnIfAbrupt(A_length);
+   assert(A_length = (n + 1.));
 
    /* 22. Let matchIndex be lastIndex. */
    matchIndex := lastIndex;

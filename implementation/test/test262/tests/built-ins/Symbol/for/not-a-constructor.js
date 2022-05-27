@@ -23,7 +23,7 @@ features: [Reflect.construct, Symbol, arrow-function]
 
 assert.sameValue(isConstructor(Symbol.for), false, 'isConstructor(Symbol.for) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Symbol.for();
 }, '`new Symbol.for()` throws TypeError');
 

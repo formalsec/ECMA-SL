@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(TypedArray.prototype.keys) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let u8 = new Uint8Array(1); new u8.keys();
 }, '`let u8 = new Uint8Array(1); new u8.keys()` throws TypeError');
 

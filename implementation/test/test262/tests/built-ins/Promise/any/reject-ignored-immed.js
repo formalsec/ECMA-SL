@@ -45,8 +45,8 @@ let lateRejector = {
 };
 
 Promise.any([fulfiller, lateRejector])
-  .then(() => {
+  .then(function () /* TODO: => */ {
     $DONE();
-  }, () => {
+  }, function () /* TODO: => */ {
     $DONE('The promise should not be rejected.');
   });

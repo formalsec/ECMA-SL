@@ -2,16 +2,16 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.21-1-14
+esid: sec-array.prototype.reduce
 description: Array.prototype.reduce applied to Error object
 ---*/
 
-        function callbackfn(prevVal, curVal, idx, obj) {
-            return obj instanceof Error;
-        }
+function callbackfn(prevVal, curVal, idx, obj) {
+  return obj instanceof Error;
+}
 
-        var obj = new Error();
-        obj.length = 1;
-        obj[0] = 1;
+var obj = new Error();
+obj.length = 1;
+obj[0] = 1;
 
 assert(Array.prototype.reduce.call(obj, callbackfn, 1), 'Array.prototype.reduce.call(obj, callbackfn, 1) !== true');

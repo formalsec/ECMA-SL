@@ -2,35 +2,35 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.18-7-b-5
+esid: sec-array.prototype.foreach
 description: >
     Array.prototype.forEach - properties added into own object after
     current position are visited on an Array
 ---*/
 
-        var testResult = false;
+var testResult = false;
 
-        function callbackfn(val, idx, obj) {
-            if (idx === 1 && val === 1) {
-                testResult = true;
-            }
-        }
+function callbackfn(val, idx, obj) {
+  if (idx === 1 && val === 1) {
+    testResult = true;
+  }
+}
 
-        var arr = [0, , 2];
+var arr = [0, , 2];
 
-        Object.defineProperty(arr, "0", {
-            get: function () {
-                Object.defineProperty(arr, "1", {
-                    get: function () {
-                        return 1;
-                    },
-                    configurable: true
-                });
-                return 0;
-            },
-            configurable: true
-        });
+Object.defineProperty(arr, "0", {
+  get: function() {
+    Object.defineProperty(arr, "1", {
+      get: function() {
+        return 1;
+      },
+      configurable: true
+    });
+    return 0;
+  },
+  configurable: true
+});
 
-        arr.forEach(callbackfn);
+arr.forEach(callbackfn);
 
 assert(testResult, 'testResult !== true');

@@ -10,11 +10,11 @@ features: [TypedArray]
 ---*/
 
 // Treat 0..3, 4..7, etc. as equal.
-const compare = (a, b) => (a / 4 | 0) - (b / 4 | 0);
+const compare = function (a, b) /* TODO: => */ {return (a / 4 | 0) - (b / 4 | 0)};
 
-testWithTypedArrayConstructors((TA) => {
+testWithTypedArrayConstructors(function (TA) /* TODO: => */ {
   // Create an array of the form `[0, 1, …, 126, 127]`.
-  const array = Array.from({ length: 128 }, (_, i) => i);
+  const array = Array.from({ length: 128 }, function (_, i) /* TODO: => */ {return i});
 
   const typedArray1 = new TA(array);
   assert(compareArray(

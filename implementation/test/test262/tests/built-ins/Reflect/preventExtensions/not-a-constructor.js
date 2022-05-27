@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Reflect.preventExtensions) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Reflect.preventExtensions({});
 }, '`new Reflect.preventExtensions({})` throws TypeError');
 

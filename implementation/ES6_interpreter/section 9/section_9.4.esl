@@ -1,5 +1,326 @@
 /* 9.4 Built-in Exotic Object Internal Methods and Slots */
 
+/*
+  |------------------------------|
+  |                              |
+  |  9.4.2 Array Exotic objects  |
+  |                              |
+  |------------------------------|
+*/
+
+/**
+ * A String property name P (in the form of a String value) is an array index if and
+ * only if ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal to 2^32−1.
+ */
+function IsArrayIndex(P) {
+  if (Type(P) = "Symbol") {
+    return false
+  };
+  p_uint := ToUint32(P);
+  p_str := ToString(p_uint);
+  return ((p_str = P) && !(p_uint = ((2. ** 32.) - 1.) )) /* (2^32)-1 = 4294967295 */
+};
+
+/**
+ * 9.4.2.1 [[DefineOwnProperty]] (P, Desc)
+ *
+ * When the [[DefineOwnProperty]] internal method of an Array exotic object A is
+ * called with property key P, and Property Descriptor Desc the following steps
+ * are taken:
+ */
+function ArrayDefineOwnProperty(A, P, Desc) {
+  /* 1. Assert: IsPropertyKey(P) is true. */
+  assert(IsPropertyKey(P) = true);
+  print "debug arraydop";
+  print P;
+  print Desc;
+  /* 2. If P is "length", then */
+  if (P = "length") {
+    /* a. Return ArraySetLength(A, Desc). */
+    return ArraySetLength(A, Desc)
+  }
+  /* 3. Else if P is an array index, then */
+  elif (IsArrayIndex(P)) {
+    /* a. Let oldLenDesc be OrdinaryGetOwnProperty(A, "length"). */
+    oldLenDesc := OrdinaryGetOwnProperty(A, "length");
+    /* b. Assert: oldLenDesc will never be undefined or an accessor descriptor
+       because Array objects are created with a length data property that
+       cannot be deleted or reconfigured. */
+    assert((!(oldLenDesc = 'undefined)) &&& (!IsAccessorDescriptor(oldLenDesc)));
+    /* c. Let oldLen be oldLenDesc.[[Value]]. */
+    oldLen := oldLenDesc.Value;
+    /* d. Let index be ToUint32(P). */
+    index := ToUint32(P);
+    /* e. Assert: index will never be an abrupt completion. */
+    assert(!isAnAbruptCompletion(index));
+    /* f. If index ≥ oldLen and oldLenDesc.[[Writable]] is false, */
+    if ((index >= oldLen) &&& (oldLenDesc.Writable = false)) {
+      /* return false */
+      return false
+    };
+    /* g. Let succeeded be OrdinaryDefineOwnProperty(A, P, Desc). */
+    succeeded := OrdinaryDefineOwnProperty(A, P, Desc);
+    /* h. Assert: succeeded is not an abrupt completion. */
+    assert(!isAnAbruptCompletion(succeeded));
+    /* i. If succeeded is false, */
+    if (succeeded = false) {
+      /* return false */
+      return false
+    };
+    /* j. If index ≥ oldLen */
+    if (index >= oldLen) {
+      /* i. Set oldLenDesc.[[Value]] to index + 1. */
+      oldLenDesc.Value := index + 1.;
+      /* ii. Let succeeded be OrdinaryDefineOwnProperty(A, "length", oldLenDesc). */
+      succeeded := OrdinaryDefineOwnProperty(A, "length", oldLenDesc);
+      /* iii. Assert: succeeded is true. */
+      assert(succeeded)
+    };
+    /* k. Return true. */
+    return true
+  };
+  /* 4. Return OrdinaryDefineOwnProperty(A, P, Desc). */
+  return OrdinaryDefineOwnProperty(A, P, Desc)
+};
+
+/**
+ * 9.4.2.2 ArrayCreate (length, proto)
+ *
+ * The abstract operation ArrayCreate with argument length (a positive integer)
+ * and optional argument proto is used to specify the creation of new Array
+ * exotic objects. It performs the following steps:
+ */
+function ArrayCreate(length, proto) {
+  /* 1. Assert: length is an integer Number ≥ 0. */
+  assert((IsInteger(length)) &&& (length >= 0.));
+  /* 2. If length is -0, */
+  if (isMinusZero(length)) {
+    /* let length be +0 */
+    length := 0.
+  };
+  /* 3. If length > 2^32 - 1, */
+  if (length > (4294967295.)) {
+    /* throw a RangeError exception */
+    throw RangeErrorConstructorInternal()
+  };
+  /* 4. If the proto argument was not passed, */
+  if ((proto = null) ||| (proto = 'undefined)) {
+    /* let proto be the intrinsic object %ArrayPrototype% */
+    proto := |Intrinsics|.ArrayPrototype
+  };
+  /* 5. Let A be a newly created Array exotic object. */
+  A := NewECMAScriptObject();
+  /* 6. Set A's essential internal methods except for [[DefineOwnProperty]] to
+     the default ordinary object definitions specified in 9.1. */
+  setAllInternalMethodsOfOrdinaryObject(A);
+  /* 7. Set the [[DefineOwnProperty]] internal method of A as specified in
+     9.4.2.1. */
+  A.DefineOwnProperty := "ArrayDefineOwnProperty";
+  /* 8. Set the [[Prototype]] internal slot of A to proto. */
+  A.Prototype := proto;
+  /* 9. Set the [[Extensible]] internal slot of A to true. */
+  A.Extensible := true;
+  /* 10. Perform OrdinaryDefineOwnProperty(A, "length",
+     PropertyDescriptor{[[Value]]: length, [[Writable]]: true,
+     [[Enumerable]]: false, [[Configurable]]: false}). */
+  completion := OrdinaryDefineOwnProperty(A, "length", newDataPropertyDescriptorFull(length, true, false, false));
+  /* 11. Assert: the preceding step never produces an abrupt completion. */
+  assert(!isAnAbruptCompletion(completion));
+  /* 12. Return A. */
+  return A
+};
+
+/**
+ * 9.4.2.3 ArraySpeciesCreate (originalArray, length)
+ *
+ * The abstract operation ArraySpeciesCreate with arguments originalArray and
+ * length is used to specify the creation of a new Array object using a
+ * constructor function that is derived from originalArray. It performs the
+ * following steps:
+ */
+function ArraySpeciesCreate(originalArray, length) {
+  /* 1. Assert: length is an integer Number ≥ 0. */
+  assert((IsInteger(length)) &&& (length >= 0.));
+  /* 2. If length is -0, */
+  if (isMinusZero(length)) {
+    /* let length be +0 */
+    length := 0.
+  };
+  /* 3. Let C be undefined. */
+  C := 'undefined;
+  /* 4. Let isArray be IsArray(originalArray). */
+  isArray := IsArray(originalArray);
+  /* 5. ReturnIfAbrupt(isArray). */
+  @ReturnIfAbrupt(isArray);
+  /* 6. If isArray is true, then */
+  if (isArray = true) {
+    /* a. Let C be Get(originalArray, "constructor"). */
+    C := Get(originalArray, "constructor");
+    /* b. ReturnIfAbrupt(C). */
+    @ReturnIfAbrupt(C);
+    /* c. If IsConstructor(C) is true, then */
+    if (IsConstructor(C) = true) {
+      /* i. Let thisRealm be the running execution context's Realm. */
+      thisRealm := null; /* TODO: Provavelment depende do Rafael */
+      /* ii. Let realmC be GetFunctionRealm(C). */
+      /* realmC := GetFunctionRealm(C); */
+      /* iii. ReturnIfAbrupt(realmC). */
+      /* @ReturnIfAbrupt(realmC); */
+      /* iv. If thisRealm and realmC are not the same Realm Record, then */
+      if (false) { /* TODO */
+        /* 1. If SameValue(C, realmC.[[intrinsics]].[[%Array%]]) is true, */
+        if (SameValue(C, realmC.intrinsics.Array) = true) {/* TODO */
+          /* let C be undefined */
+          C := 'undefined
+        }
+      }
+    };
+    /* d. If Type(C) is Object, then */
+    if (Type(C) = "Object") {
+      /* i. Let C be Get(C, @@species). */
+      C := Get(C, getSpeciesPropertyName());
+      /* ii. ReturnIfAbrupt(C). */
+      @ReturnIfAbrupt(C);
+      /* iii. If C is null, */
+      if (C = 'null) {
+        /* let C be undefined */
+        C := 'undefined
+      }
+    }
+  };
+  /* 7. If C is undefined, */
+  if (C = 'undefined) {
+    /* return ArrayCreate(length) */
+    return ArrayCreate(length, null)
+  };
+  /* 8. If IsConstructor(C) is false, throw a TypeError exception. */
+  if (IsConstructor(C) = false) {
+    throw TypeErrorConstructorInternal()
+  };
+  /* 9. Return Construct(C, «length»). */
+  return Construct(null, null, C, [length], null)
+};
+/**
+ * NOTE If originalArray was created using the standard built-in Array
+ * constructor for a Realm that is not the Realm of the running execution
+ * context, then a new Array is created using the Realm of the running execution
+ * context. This maintains compatibility with Web browsers that have
+ * historically had that behaviour for the Array.prototype methods that now are
+ * defined using ArraySpeciesCreate.
+ */
+
+/**
+ * 9.4.2.4 ArraySetLength (A, Desc)
+ *
+ * When the abstract operation ArraySetLength is called with an Array exotic
+ * object A, and Property Descriptor Desc the following steps are taken:
+ */
+function ArraySetLength(A, Desc) {
+  /* 1. If the [[Value]] field of Desc is absent, then */
+  if (!("Value" in_obj Desc)) {
+    /* a. Return OrdinaryDefineOwnProperty(A, "length", Desc). */
+    return OrdinaryDefineOwnProperty(A, "length", Desc)
+  };
+  /* 2. Let newLenDesc be a copy of Desc. */
+  newLenDesc := copyDescriptor(Desc);
+  /* 3. Let newLen be ToUint32(Desc.[[Value]]). */
+  newLen := ToUint32(Desc.Value);
+  /* 4. ReturnIfAbrupt(newLen). */
+  @ReturnIfAbrupt(newLen);
+  /* 5. Let numberLen be ToNumber(Desc.[[Value]]). */
+  numberLen := ToNumber(Desc.Value);
+  /* 6. ReturnIfAbrupt(newLen). */
+  @ReturnIfAbrupt(newLen);
+  /* 7. If newLen ≠ numberLen, */
+  if (!(newLen = numberLen)) {
+    /* throw a RangeError exception */
+    throw RangeErrorConstructorInternal()
+  };
+  /* 8. Set newLenDesc.[[Value]] to newLen. */
+  newLenDesc.Value := newLen;
+  /* 9. Let oldLenDesc be OrdinaryGetOwnProperty(A, "length"). */
+  oldLenDesc := OrdinaryGetOwnProperty(A, "length");
+  /* 10. Assert: oldLenDesc will never be undefined or an accessor descriptor
+     because Array objects are created with a length data property that
+     cannot be deleted or reconfigured. */
+  assert((!(oldLenDesc = 'undefined)) &&& (!IsAccessorDescriptor(oldLenDesc)));
+  /* 11. Let oldLen be oldLenDesc.[[Value]]. */
+  oldLen := oldLenDesc.Value;
+  /* 12. If newLen ≥oldLen, then */
+  if (newLen >= oldLen) {
+    /* a. Return OrdinaryDefineOwnProperty(A, "length", newLenDesc). */
+    print "debug arraysetlength";
+    print newLenDesc;
+    return OrdinaryDefineOwnProperty(A, "length", newLenDesc)
+  };
+  /* 13. If oldLenDesc.[[Writable]] is false, */
+  if (oldLenDesc.Writable = false) {
+    /* return false */
+    return false
+  };
+  /* 14. If newLenDesc.[[Writable]] is absent or has the value true, */
+  if ((!("Writable" in_obj newLenDesc)) ||| (newLenDesc.Writable)) {
+    /* let newWritable be true */
+    newWritable := true
+  }
+  /* 15. Else, */
+  else {
+    /* a. Need to defer setting the [[Writable]] attribute to false in case any elements cannot be deleted. */
+
+    /* b. Let newWritable be false. */
+    newWritable := false;
+    /* c. Set newLenDesc.[[Writable]] to true. */
+    newLenDesc.Writable := true
+  };
+  /* 16. Let succeeded be OrdinaryDefineOwnProperty(A, "length", newLenDesc). */
+  succeeded := OrdinaryDefineOwnProperty(A, "length", newLenDesc);
+  /* 17. Assert: succeeded is not an abrupt completion. */
+  assert(!isAnAbruptCompletion(succeeded));
+  /* 18. If succeeded is false, */
+  if (succeeded = false) {
+    /* return false */
+    return false
+  };
+  /* 19. While newLen < oldLen repeat, */
+  while (newLen < oldLen) {
+    /* a. Set oldLen to oldLen – 1. */
+    oldLen := oldLen - 1.;
+    /* b. Let deleteSucceeded be A.[[Delete]](ToString(oldLen)). */
+    deleteSucceeded := {A.Delete}(A, ToString(oldLen));
+    /* c. Assert: deleteSucceeded is not an abrupt completion. */
+    assert(!isAnAbruptCompletion(deleteSucceeded));
+    /* d. If deleteSucceeded is false, then */
+    if (deleteSucceeded = false) {
+      /* i. Set newLenDesc.[[Value]] to oldLen + 1. */
+      newLenDesc.Value := oldLen + 1.;
+      /* ii. If newWritable is false, set newLenDesc.[[Writable]] to false. */
+      if (newWritable = false) {
+        newLenDesc.Writable := false
+      };
+      /* iii. Let succeeded be OrdinaryDefineOwnProperty(A, "length", newLenDesc). */
+      succeeded := OrdinaryDefineOwnProperty(A, "length", newLenDesc);
+      /* iv. Assert: succeeded is not an abrupt completion. */
+      assert(!isAnAbruptCompletion(succeeded));
+      /* v. Return false. */
+      return false
+    }
+  };
+  /* 20. If newWritable is false, then */
+  if (newWritable = false) {
+    /* a. Return OrdinaryDefineOwnProperty(A, "length",
+       PropertyDescriptor{[[Writable]]: false}). This call will always return
+       true. */
+    return OrdinaryDefineOwnProperty(A, "length", {Writable: false})
+  };
+  /* 21. Return true. */
+  return true
+};
+/**
+ * NOTE In steps 3 and 4, if Desc.[[Value]] is an object then its valueOf method
+ * is called twice. This is legacy behaviour that was specified with this effect
+ * starting with the 2nd Edition of this specification.
+ */
+
 /* 9.4.3 String Exotic Objects */
  
 /**
@@ -246,11 +567,9 @@ function OwnPropertyKeysString(O){
   };
     
   /* 7. For each own property key P of O such that Type(P) is Symbol, in property creation order, */
-  foreach(P : obj_fields O.JSProperties){
-    if (Type(P) = "Symbol"){
-      /* a. Add P as the last element of keys. */
-      keys := l_add(keys, P)
-    }
+  foreach(P : obj_fields O.SymbolKeys){
+    /* a. Add P as the last element of keys. */
+    keys := l_add(keys, O.SymbolKeys[P])
   };
     
   /* 8. Return keys. */

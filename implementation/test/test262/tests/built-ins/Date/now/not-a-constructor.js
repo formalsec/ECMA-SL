@@ -23,7 +23,7 @@ features: [Reflect.construct, arrow-function]
 
 assert.sameValue(isConstructor(Date.now), false, 'isConstructor(Date.now) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Date.now();
 }, '`new Date.now()` throws TypeError');
 

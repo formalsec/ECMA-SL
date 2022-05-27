@@ -33,7 +33,7 @@ promise.then = function(resolver, rejectElement) {
   return boundThen(resolver, rejectElement);
 };
 
-Promise.any([promise]).then(() => {
+Promise.any([promise]).then(function () /* TODO: => */ {
   assert.sameValue(callCount, 1);
   $DONE();
 }, $DONE);

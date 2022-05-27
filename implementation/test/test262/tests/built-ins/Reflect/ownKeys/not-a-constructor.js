@@ -23,7 +23,7 @@ features: [Reflect.construct, Reflect, arrow-function]
 
 assert.sameValue(isConstructor(Reflect.ownKeys), false, 'isConstructor(Reflect.ownKeys) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Reflect.ownKeys({});
 }, '`new Reflect.ownKeys({})` throws TypeError');
 

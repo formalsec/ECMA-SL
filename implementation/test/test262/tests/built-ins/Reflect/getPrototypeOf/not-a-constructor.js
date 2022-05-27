@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Reflect.getPrototypeOf) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Reflect.getPrototypeOf({});
 }, '`new Reflect.getPrototypeOf({})` throws TypeError');
 

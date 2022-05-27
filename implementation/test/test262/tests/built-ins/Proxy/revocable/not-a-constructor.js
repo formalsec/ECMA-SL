@@ -23,7 +23,7 @@ features: [Reflect.construct, Reflect, arrow-function, Proxy]
 
 assert.sameValue(isConstructor(Proxy.revocable), false, 'isConstructor(Proxy.revocable) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new Proxy.revocable({}, {});
 }, '`new Proxy.revocable({}, {})` throws TypeError');
 

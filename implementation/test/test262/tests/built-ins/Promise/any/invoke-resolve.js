@@ -28,4 +28,4 @@ Promise.resolve = function(...args) {
   return boundPromiseResolve(...args);
 };
 
-Promise.any([1]).then(() => $DONE(), $DONE);
+Promise.any([1]).then(function () /* TODO: => */ {return $DONE()}, $DONE);

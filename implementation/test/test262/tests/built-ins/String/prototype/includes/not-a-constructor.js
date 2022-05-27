@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.includes) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.includes(1);
 }, '`new String.prototype.includes(1)` throws TypeError');
 

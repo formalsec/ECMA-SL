@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(TypedArray.prototype.filter) must return false'
 );
 
-assert.throws(TypeError, () => {
-  let u8 = new Uint8Array(1); new u8.filter(() => {});
-}, '`let u8 = new Uint8Array(1); new u8.filter(() => {})` throws TypeError');
+assert.throws(TypeError, function () /* TODO: => */ {
+  let u8 = new Uint8Array(1); new u8.filter(function () /* TODO: => */ {});
+}, '`let u8 = new Uint8Array(1); new u8.filter(function () /* TODO: => */ {})` throws TypeError');
 

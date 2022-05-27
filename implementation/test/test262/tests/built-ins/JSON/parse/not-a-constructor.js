@@ -23,7 +23,7 @@ features: [Reflect.construct, arrow-function]
 
 assert.sameValue(isConstructor(JSON.parse), false, 'isConstructor(JSON.parse) must return false');
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new JSON.parse('{}');
 }, '`new JSON.parse(\'{}\')` throws TypeError');
 

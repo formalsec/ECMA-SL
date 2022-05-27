@@ -96,6 +96,9 @@ function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
     throw TypeErrorConstructorInternal()
   };
 
+  value := ToNumber(value);
+  @ReturnIfAbrupt(value);
+
   /* 3. Let numberIndex be ToNumber(requestIndex). */
   numberIndex := ToNumber(requestIndex);
 
@@ -132,7 +135,7 @@ function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
   viewSize := view.ByteLength;
 
   /* 12. Let elementSize be the Number value of the Element Size value specified in Table 49 for Element Type type. */
-  elementSize :=  getElementSize(type);
+  elementSize := getElementSize(type);
   print "setViewValue elementSize: ";
   print elementSize;
   print getIndex;

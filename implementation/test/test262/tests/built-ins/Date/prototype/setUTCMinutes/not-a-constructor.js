@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(Date.prototype.setUTCMinutes) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let date = new Date(Date.now()); new date.setUTCMinutes();
 }, '`let date = new Date(Date.now()); new date.setUTCMinutes()` throws TypeError');
 

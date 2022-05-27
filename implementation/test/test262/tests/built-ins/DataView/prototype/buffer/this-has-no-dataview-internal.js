@@ -17,7 +17,7 @@ info: |
 features: [Int8Array]
 ---*/
 
-/* var getter = Object.getOwnPropertyDescriptor(
+var getter = Object.getOwnPropertyDescriptor(
   DataView.prototype, "buffer"
 ).get;
 
@@ -37,6 +37,4 @@ assert.throws(TypeError, function() {
 var ta = new Int8Array();
 assert.throws(TypeError, function() {
   getter.call(ta);
-}, "TypedArray"); */
-
-var ta = new Int8Array();
+}, "TypedArray");

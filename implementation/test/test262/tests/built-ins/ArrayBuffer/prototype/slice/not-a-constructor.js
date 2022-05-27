@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(ArrayBuffer.prototype.slice) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let ab = new ArrayBuffer(); new ab.slice();
 }, '`let ab = new ArrayBuffer(); new ab.slice()` throws TypeError');
 

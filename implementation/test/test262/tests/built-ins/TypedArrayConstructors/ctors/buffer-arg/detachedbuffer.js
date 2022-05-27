@@ -17,5 +17,5 @@ testWithTypedArrayConstructors(function(TA) {
   var offset = TA.BYTES_PER_ELEMENT;
   var buffer = new ArrayBuffer(3 * offset);
   $DETACHBUFFER(buffer);
-  assert.throws(TypeError, () => new TA(buffer));
+  assert.throws(TypeError, function () /* TODO: => */ {return new TA(buffer)});
 });

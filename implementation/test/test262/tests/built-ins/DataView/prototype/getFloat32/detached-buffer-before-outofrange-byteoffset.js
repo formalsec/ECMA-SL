@@ -30,7 +30,6 @@ sample = new DataView(buffer, 0);
 
 $DETACHBUFFER(buffer);
 
-sample.getFloat32(10);
 assert.throws(TypeError, function() {
   sample.getFloat32(13);
 }, "13");

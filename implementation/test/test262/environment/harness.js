@@ -110,6 +110,7 @@ assert.throws = function (expectedErrorConstructor, func, message) {
 
 /* @id harnessIsConfigurable */
 function isConfigurable(obj, name) {
+    var hasOwnProperty = Object.prototype.hasOwnProperty;
     try {
         delete obj[name];
     } catch (e) {
@@ -117,12 +118,34 @@ function isConfigurable(obj, name) {
             $ERROR("Expected TypeError, got " + e);
         }
     }
-    return !obj.hasOwnProperty(name);
+    return !hasOwnProperty.call(obj, name);
 }
 
 function isEnumerable(obj, name) {
-    return obj.hasOwnProperty(name) &&
-    obj.propertyIsEnumerable(name);
+    var stringCheck = false;
+  
+    if (typeof name === "string") {
+        for (var x in obj) {
+            if (x === name) {
+                stringCheck = true;
+                break;
+            }
+        }
+    } else {
+        // skip it if name is not string, works for Symbol names.
+        stringCheck = true;
+    }
+  
+    return stringCheck &&
+        Object.prototype.hasOwnProperty.call(obj, name) &&
+        Object.prototype.propertyIsEnumerable.call(obj, name);
+}
+
+function isSameValue(a, b) {
+    if (a === 0 && b === 0) return 1 / a === 1 / b;
+    if (a !== a && b !== b) return true;
+  
+    return a === b;
 }
 
 function isEqualTo(obj, name, expectedValue) {
@@ -131,34 +154,38 @@ function isEqualTo(obj, name, expectedValue) {
     return assert._isSameValue(actualValue, expectedValue);
 }
 
+var __isArray = Array.isArray;
 function isWritable(obj, name, verifyProp, value) {
-    var newValue = value || "unlikelyValue";
-    var hadValue = obj.hasOwnProperty(name);
-    var oldValue = obj[name];
-    var writeSucceeded;
+  var unlikelyValue = __isArray(obj) && name === "length" ?
+    Math.pow(2, 32) - 1 :
+    "unlikelyValue";
+  var newValue = value || unlikelyValue;
+  var hadValue = Object.prototype.hasOwnProperty.call(obj, name);
+  var oldValue = obj[name];
+  var writeSucceeded;
 
-    try {
-        obj[name] = newValue;
-    } catch (e) {
-        if (!(e instanceof TypeError)) {
-            $ERROR("Expected TypeError, got " + e);
-        }
+  try {
+    obj[name] = newValue;
+  } catch (e) {
+    if (!(e instanceof TypeError)) {
+      throw new Test262Error("Expected TypeError, got " + e);
     }
+  }
 
-    writeSucceeded = isEqualTo(obj, verifyProp || name, newValue);
+  writeSucceeded = isSameValue(obj[verifyProp || name], newValue);
 
-    // Revert the change only if it was successful (in other cases, reverting
-    // is unnecessary and may trigger exceptions for certain property
-    // configurations)
-    if (writeSucceeded) {
-      if (hadValue) {
-        obj[name] = oldValue;
-      } else {
-        delete obj[name];
-      }
+  // Revert the change only if it was successful (in other cases, reverting
+  // is unnecessary and may trigger exceptions for certain property
+  // configurations)
+  if (writeSucceeded) {
+    if (hadValue) {
+      obj[name] = oldValue;
+    } else {
+      delete obj[name];
     }
+  }
 
-    return writeSucceeded;
+  return writeSucceeded;
 }
 
 function verifyEqualTo(obj, name, value) {
@@ -982,3 +1009,35 @@ var byteConversionValues = {
         ]
     }
 };
+
+// Copyright (C) 2016 Jordan Harband.  All rights reserved.
+// This code is governed by the BSD license found in the LICENSE file.
+/*---
+description: |
+    Used to assert the correctness of object behavior in the presence
+    and context of Proxy objects.
+defines: [allowProxyTraps]
+---*/
+
+function allowProxyTraps(overrides) {
+    function throwTest262Error(msg) {
+        return function () { throw new Test262Error(msg); };
+    }
+    if (!overrides) { overrides = {}; }
+    return {
+        getPrototypeOf: overrides.getPrototypeOf || throwTest262Error('[[GetPrototypeOf]] trap called'),
+        setPrototypeOf: overrides.setPrototypeOf || throwTest262Error('[[SetPrototypeOf]] trap called'),
+        isExtensible: overrides.isExtensible || throwTest262Error('[[IsExtensible]] trap called'),
+        preventExtensions: overrides.preventExtensions || throwTest262Error('[[PreventExtensions]] trap called'),
+        getOwnPropertyDescriptor: overrides.getOwnPropertyDescriptor || throwTest262Error('[[GetOwnProperty]] trap called'),
+        has: overrides.has || throwTest262Error('[[HasProperty]] trap called'),
+        get: overrides.get || throwTest262Error('[[Get]] trap called'),
+        set: overrides.set || throwTest262Error('[[Set]] trap called'),
+        deleteProperty: overrides.deleteProperty || throwTest262Error('[[Delete]] trap called'),
+        defineProperty: overrides.defineProperty || throwTest262Error('[[DefineOwnProperty]] trap called'),
+        enumerate: throwTest262Error('[[Enumerate]] trap called: this trap has been removed'),
+        ownKeys: overrides.ownKeys || throwTest262Error('[[OwnPropertyKeys]] trap called'),
+        apply: overrides.apply || throwTest262Error('[[Call]] trap called'),
+        construct: overrides.construct || throwTest262Error('[[Construct]] trap called')
+    };
+}

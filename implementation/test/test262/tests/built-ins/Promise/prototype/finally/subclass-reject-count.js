@@ -16,8 +16,8 @@ class FooPromise extends Promise {
   }
 }
 
-FooPromise.reject().finally(() => {}).then(value => {
+FooPromise.reject().finally(function () /* TODO: => */ {}).then(function (value) /* TODO: => */ {
   throw new Test262Error("Expected Promise to be rejected, got: resolved with " + value);
-}, () => {
+}, function () /* TODO: => */ {
   assert.sameValue(count, 7);
 }).then($DONE, $DONE);

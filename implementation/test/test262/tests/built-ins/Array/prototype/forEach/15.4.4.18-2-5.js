@@ -2,38 +2,39 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.18-2-5
+esid: sec-array.prototype.foreach
 description: >
     Array.prototype.forEach applied to Array-like object, 'length' is
     an own data property that overrides an inherited accessor property
 ---*/
 
-        var result = false;
-        function callbackfn(val, idx, obj) {
-            result = (obj.length === 2);
-        }
+var result = false;
 
-        var proto = {};
+function callbackfn(val, idx, obj) {
+  result = (obj.length === 2);
+}
 
-        Object.defineProperty(proto, "length", {
-            get: function () {
-                return 3;
-            },
-            configurable: true
-        });
+var proto = {};
 
-        var Con = function () { };
-        Con.prototype = proto;
+Object.defineProperty(proto, "length", {
+  get: function() {
+    return 3;
+  },
+  configurable: true
+});
 
-        var child = new Con();
-        Object.defineProperty(child, "length", {
-            value: 2,
-            configurable: true
-        });
-        child[0] = 12;
-        child[1] = 11;
-        child[2] = 9;
+var Con = function() {};
+Con.prototype = proto;
 
-        Array.prototype.forEach.call(child, callbackfn);
+var child = new Con();
+Object.defineProperty(child, "length", {
+  value: 2,
+  configurable: true
+});
+child[0] = 12;
+child[1] = 11;
+child[2] = 9;
+
+Array.prototype.forEach.call(child, callbackfn);
 
 assert(result, 'result !== true');

@@ -2,30 +2,30 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.19-3-22
+esid: sec-array.prototype.map
 description: >
     Array.prototype.map throws TypeError exception when 'length' is an
     object with toString and valueOf methods that don�t return
     primitive values
 ---*/
 
-        function callbackfn(val, idx, obj) {
-            return val > 10;
-        }
+function callbackfn(val, idx, obj) {
+  return val > 10;
+}
 
-        var obj = {
-            1: 11,
-            2: 12,
+var obj = {
+  1: 11,
+  2: 12,
 
-            length: {
-                valueOf: function () {
-                    return {};
-                },
-                toString: function () {
-                    return {};
-                }
-            }
-        };
+  length: {
+    valueOf: function() {
+      return {};
+    },
+    toString: function() {
+      return {};
+    }
+  }
+};
 assert.throws(TypeError, function() {
-            Array.prototype.map.call(obj, callbackfn);
+  Array.prototype.map.call(obj, callbackfn);
 });

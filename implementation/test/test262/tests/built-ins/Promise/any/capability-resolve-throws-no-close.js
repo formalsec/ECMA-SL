@@ -44,12 +44,12 @@ let iter = {
 
 function P(executor) {
   callCount++;
-  return new Promise((_, reject) => {
+  return new Promise(function (_, reject) /* TODO: => */ {
     callCount++;
-    executor(() => {
+    executor(function () /* TODO: => */ {
       callCount++;
       throw new Test262Error();
-    }, (...args) => {
+    }, function (...args) /* TODO: => */ {
       callCount++;
       reject(...args);
     });
@@ -59,9 +59,9 @@ function P(executor) {
 P.resolve = Promise.resolve;
 
 Promise.any.call(P, iter).then(
-  () => {
+  function () /* TODO: => */ {
   $DONE('The promise should be rejected.');
-}, (reason) => {
+}, function (reason) /* TODO: => */ {
   assert.sameValue(nextCount, 1);
   assert.sameValue(returnCount, 0);
   assert.sameValue(callCount, 5);

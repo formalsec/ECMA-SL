@@ -32,7 +32,7 @@ function Constructor(executor) {
     callCount += 1;
     sequence.push(value);
   }
-  executor(() => {
+  executor(function () /* TODO: => */ {
     throw new Test262Error();
   }, reject);
 }

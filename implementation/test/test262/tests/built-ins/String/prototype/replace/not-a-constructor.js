@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.replace) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.replace();
 }, '`new String.prototype.replace()` throws TypeError');
 

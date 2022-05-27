@@ -2,20 +2,22 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.15-2-6
+esid: sec-array.prototype.lastindexof
 description: >
     Array.prototype.lastIndexOf - 'length' is an inherited data
     property on an Array-like object
 ---*/
 
-        var proto = { length: 2 };
+var proto = {
+  length: 2
+};
 
-        var Con = function () {};
-        Con.prototype = proto;
+var Con = function() {};
+Con.prototype = proto;
 
-        var child = new Con();
-        child[1] = "x";
-        child[2] = "y";
+var child = new Con();
+child[1] = "x";
+child[2] = "y";
 
 assert.sameValue(Array.prototype.lastIndexOf.call(child, "x"), 1, 'Array.prototype.lastIndexOf.call(child, "x")');
 assert.sameValue(Array.prototype.lastIndexOf.call(child, "y"), -1, 'Array.prototype.lastIndexOf.call(child, "y")');

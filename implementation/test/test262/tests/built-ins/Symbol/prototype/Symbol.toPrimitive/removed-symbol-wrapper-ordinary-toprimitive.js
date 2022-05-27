@@ -21,9 +21,9 @@ assert(delete Symbol.prototype[Symbol.toPrimitive]);
 
 let valueOfGets = 0;
 let valueOfCalls = 0;
-let valueOfFunction = () => { ++valueOfCalls; return 123; };
+let valueOfFunction = function () /* TODO: => */ { ++valueOfCalls; return 123; };
 Object.defineProperty(Symbol.prototype, "valueOf", {
-    get: () => { ++valueOfGets; return valueOfFunction; },
+    get: function () /* TODO: => */ { ++valueOfGets; return valueOfFunction; },
 });
 
 assert(Object(Symbol()) == 123, "hint: default");
@@ -35,9 +35,9 @@ assert.sameValue(valueOfCalls, 2);
 
 let toStringGets = 0;
 let toStringCalls = 0;
-let toStringFunction = () => { ++toStringCalls; return "foo"; };
+let toStringFunction = function () /* TODO: => */ { ++toStringCalls; return "foo"; };
 Object.defineProperty(Symbol.prototype, "toString", {
-    get: () => { ++toStringGets; return toStringFunction; },
+    get: function () /* TODO: => */ { ++toStringGets; return toStringFunction; },
 });
 
 assert.sameValue("" + Object(Symbol()), "123", "hint: default");
@@ -62,9 +62,9 @@ assert.sameValue(toStringCalls, 4);
 
 toStringFunction = function() { throw new Test262Error(); };
 
-assert.throws(Test262Error, () => { Object(Symbol()) != 123; }, "hint: default");
-assert.throws(Test262Error, () => { Object(Symbol()) / 0; }, "hint: number");
-assert.throws(Test262Error, () => { "".concat(Object(Symbol())); }, "hint: string");
+assert.throws(Test262Error, function () /* TODO: => */ { Object(Symbol()) != 123; }, "hint: default");
+assert.throws(Test262Error, function () /* TODO: => */ { Object(Symbol()) / 0; }, "hint: number");
+assert.throws(Test262Error, function () /* TODO: => */ { "".concat(Object(Symbol())); }, "hint: string");
 
 assert.sameValue(valueOfGets, 8);
 assert.sameValue(valueOfCalls, 4);
@@ -73,9 +73,9 @@ assert.sameValue(toStringCalls, 4);
 
 toStringFunction = undefined;
 
-assert.throws(TypeError, () => { 1 + Object(Symbol()); }, "hint: default");
-assert.throws(TypeError, () => { Number(Object(Symbol())); }, "hint: number");
-assert.throws(TypeError, () => { String(Object(Symbol())); }, "hint: string");
+assert.throws(TypeError, function () /* TODO: => */ { 1 + Object(Symbol()); }, "hint: default");
+assert.throws(TypeError, function () /* TODO: => */ { Number(Object(Symbol())); }, "hint: number");
+assert.throws(TypeError, function () /* TODO: => */ { String(Object(Symbol())); }, "hint: string");
 
 assert.sameValue(valueOfGets, 11);
 assert.sameValue(valueOfCalls, 4);

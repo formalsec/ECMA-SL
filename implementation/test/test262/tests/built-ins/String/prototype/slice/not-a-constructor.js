@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(String.prototype.slice) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   new String.prototype.slice();
 }, '`new String.prototype.slice()` throws TypeError');
 

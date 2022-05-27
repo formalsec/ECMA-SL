@@ -2,18 +2,21 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-es5id: 15.4.4.17-7-c-iii-2
+esid: sec-array.prototype.some
 description: Array.prototype.some - return value of callbackfn is null
 ---*/
 
-        var accessed = false;
+var accessed = false;
 
-        function callbackfn(val, idx, obj) {
-            accessed = true;
-            return null;
-        }
+function callbackfn(val, idx, obj) {
+  accessed = true;
+  return null;
+}
 
-        var obj = { 0: 11, length: 2 };
+var obj = {
+  0: 11,
+  length: 2
+};
 
 assert.sameValue(Array.prototype.some.call(obj, callbackfn), false, 'Array.prototype.some.call(obj, callbackfn)');
 assert(accessed, 'accessed !== true');

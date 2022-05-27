@@ -43,9 +43,9 @@ Object.defineProperty(Promise, 'resolve', {
   }
 });
 
-Promise.any(promises).then(() => {
+Promise.any(promises).then(function () /* TODO: => */ {
     $DONE('The promise should be rejected, but was resolved');
-  }, ({errors}) => {
+  }, function ({errors}) /* TODO: => */ {
     assert.sameValue(getCount, 1);
     assert.sameValue(callCount, 3);
     assert.sameValue(errors.length, 3);

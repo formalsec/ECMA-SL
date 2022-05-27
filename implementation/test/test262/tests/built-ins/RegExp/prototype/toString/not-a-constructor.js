@@ -27,7 +27,7 @@ assert.sameValue(
   'isConstructor(RegExp.prototype.toString) must return false'
 );
 
-assert.throws(TypeError, () => {
+assert.throws(TypeError, function () /* TODO: => */ {
   let re = new RegExp(''); new re.toString();
 }, '`let re = new RegExp(\'\'); new re.toString()` throws TypeError');
 

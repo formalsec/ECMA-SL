@@ -11,12 +11,12 @@ features: [Promise.any, arrow-function]
 
 let fulfillables = [
   Promise.reject('a'),
-  new Promise((resolve, reject) => reject('b')),
+  new Promise(function (resolve, reject) /* TODO: => */ {return reject('b')}),
   Promise.all([Promise.reject('c')]),
-  Promise.resolve(Promise.reject('d').catch(v => v)),
+  Promise.resolve(Promise.reject('d').catch(function (v) /* TODO: => */ {return v})),
 ];
 
 Promise.any(fulfillables)
-  .then((resolution) => {
+  .then(function (resolution) /* TODO: => */ {
     assert.sameValue(resolution, 'd');
   }).then($DONE, $DONE);

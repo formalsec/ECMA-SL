@@ -16,6 +16,24 @@ function getEnumerablePropertiesRecursive(object, enumProps, checkedProps) {
   if (object = 'null) {
     return (enumProps, checkedProps)
   };
+  if ("JSPropertiesSymbols" in_obj object) {
+    namedPropertiesObj := object.JSPropertiesSymbols;
+    list := obj_fields namedPropertiesObj;
+    llist := l_len list;
+
+    i := 0;
+    while(llist > i) {
+      p_name := l_nth(list, i);
+      p_value := namedPropertiesObj[p_name];
+      if (isPropertyDescriptor(p_value)) {
+        if ((p_value.Enumerable = true) &&& !(p_name in_list checkedProps)) {
+          enumProps := l_add(enumProps, p_name)
+        };
+        checkedProps := l_add(checkedProps, p_name)
+      };
+      i := i + 1
+    }
+  };
   if ("JSProperties" in_obj object) {
     namedPropertiesObj := object.JSProperties;
     list := l_sort (obj_fields namedPropertiesObj);
