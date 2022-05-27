@@ -12,7 +12,7 @@
   "license": "MIT",
   "dependencies": {
     "escodegen": "^2.0.0",
-    "esprima": "^4.0.1",
+    "esprima-next": "^5.8.2",
     "regexp-tree": "^0.1.23",
     "yargs": "^15.4.1"
   }
