@@ -27,13 +27,13 @@ function getParameterIteratorValue(param, listIterator, environment) {
   print initializer;
 
   /* If iteratorRecord.[[done]] is false, then */
-  if (Get(listIterator, "done") = false) {
+  if (listIterator.done = false) {
     /* a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
-    next := IteratorStep(listIterator);
+    next := IteratorStep(listIterator.iterator);
 
     /* b. If next is an abrupt completion, set iteratorRecord.[[done]] to true. */
     if (isAnAbruptCompletion(next)) {
-      Set(listIterator, "done", true, false)
+      listIterator.done := true
     };
 
     /* c. ReturnIfAbrupt(next). */
@@ -41,14 +41,14 @@ function getParameterIteratorValue(param, listIterator, environment) {
 
     /* d. If next is false, set iteratorRecord.[[done]] to true. */
     if (next = false) {
-      Set(listIterator, "done", true, false)
+      listIterator.done := true
     } else {
       /* i. Let v be IteratorValue(next). */
       v := IteratorValue(next);
 
       /* ii.If v is an abrupt completion, set iteratorRecord.[[done]] to true. */
       if (isAnAbruptCompletion(v)) {
-        Set(listIterator, "done", true, false)
+        listIterator.done := true
       };
 
       /* iii. ReturnIfAbrupt(v). */
@@ -56,7 +56,7 @@ function getParameterIteratorValue(param, listIterator, environment) {
     }
   };
   /* 5. If iteratorRecord.[[done]] is true, let v be undefined. */
-  if (Get(listIterator, "done") = true) {
+  if (listIterator.done = true) {
     v := 'undefined
   };
    /* 6. If Initializer is present and v is undefined, then */
@@ -158,17 +158,17 @@ function BindingInitializationRestElement(name, listIterator, scope) {
   n := 0.;
   /* 5. Repeat, */
   repeat {
-    if (Get(listIterator, "done") = false) {
-      next := IteratorStep(listIterator);
+    if (listIterator.done = false) {
+      next := IteratorStep(listIterator.iterator);
       if (isAnAbruptCompletion(next)) {
-        Set(listIterator, "done", true, false)
+        listIterator.done := true
       };
       @ReturnIfAbrupt(next);
       if (next = false) {
-        Set(listIterator, "done", true, false)
+        listIterator.done := true
       }
     };
-    if (Get(listIterator, "done") = true) {
+    if (listIterator.done = true) {
       if (scope = 'undefined) {
         return PutValue(lhs, A)
       };
@@ -176,13 +176,13 @@ function BindingInitializationRestElement(name, listIterator, scope) {
     };
     nextValue := IteratorValue(next);
     if (isAnAbruptCompletion(nextValue)) {
-      Set(listIterator, "done", true, false)
+      listIterator.done := true
     };
     @ReturnIfAbrupt(nextValue);
     status := CreateDataProperty(A, ToString(n), nextValue);
     assert(status = true);
     n := n + 1.;
-    done := Get(listIterator, "done")
+    done := listIterator.done
   };
   return
 };
@@ -250,7 +250,11 @@ function BindingInitializationArrayPattern(param, value, environment) {
       @ReturnIfAbrupt(iterValue);
       print "DEBUG ELEMENT 2";
       print iterValue;
-      BindingInitialization(element, iterValue, environment, CreateListIterator(CreateListFromArrayLike(value, null)))
+      iteratorRecord := NewECMAScriptObject();
+      iteratorRecord.iterator := CreateListIterator(CreateListFromArrayLike(value, null));
+      iteratorRecord.done := false;
+      setAllInternalMethodsOfOrdinaryObject(iteratorRecord);
+      BindingInitialization(element, iterValue, environment, iteratorRecord)
     };
     i := i + 1
   };
@@ -263,35 +267,35 @@ function GetRestValue(listIterator) {
   /* 4. Let n=0. */
   n := 0.;
   /* 5. Repeat, */
-  listDone := Get(listIterator, "done");
+  listDone := listIterator.done;
   print "DEBUG REST - listDone: ";
   print listIterator;
   print listDone;
   repeat {
-    if (Get(listIterator, "done") = false) {
-      next := IteratorStep(listIterator);
+    if (listIterator.done = false) {
+      next := IteratorStep(listIterator.iterator);
       if (isAnAbruptCompletion(next)) {
-        Set(listIterator, "done", true, false)
+        listIterator.done := true
       };
       @ReturnIfAbrupt(next);
       if (next = false) {
-        Set(listIterator, "done", true, false)
+        listIterator.done := true
       }
     };
-    if (Get(listIterator, "done") = true) {
+    if (listIterator.done = true) {
       return A
     };
     print "DEBUG GET REST VALUE";
     print next;
     nextValue := IteratorValue(next);
     if (isAnAbruptCompletion(nextValue)) {
-      Set(listIterator, "done", true, false)
+      listIterator.done := true
     };
     @ReturnIfAbrupt(nextValue);
     status := CreateDataProperty(A, ToString(n), nextValue);
     assert(status = true);
     n := n + 1.;
-    done := Get(listIterator, "done")
+    done := listIterator.done
   };
   return
 };

@@ -833,7 +833,10 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   };
   /* 23. Let iteratorRecord be Record {[[iterator]]:
         CreateListIterator(argumentsList), [[done]]: false}. */
-  iteratorRecord := {iterator: CreateListIterator(argumentsList), done: false};
+  iteratorRecord := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(iteratorRecord);
+  iteratorRecord.iterator := CreateListIterator(argumentsList);
+  iteratorRecord.done := false;
 
   paramsDetails := getParamsDetails(code);
   /* 24. If hasDuplicates is true, then */

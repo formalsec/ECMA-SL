@@ -233,7 +233,7 @@ function ListIteratornext(scope, V, strict, args) {
   O := V;
 
   /* 2. Let f be the active function object. */
-  /*f := F; */
+  f := getJSProperty(O, "next").Value;
 
   /* 3. If O does not have a [[IteratorNext]] internal slot, */
   if (!("IteratorNext" in_obj O)) {
