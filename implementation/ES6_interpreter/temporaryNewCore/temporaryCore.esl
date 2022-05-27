@@ -116,7 +116,7 @@ function WrappedGet(O, P) {
   getResult := Get(O, P) catch GetHandler;
 
   if (!(Type(getResult) = "Completion")) {
-    return normalEmptyCompletion(getResult)
+    return NormalCompletion(getResult)
   };
 
   return getResult

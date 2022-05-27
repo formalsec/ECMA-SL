@@ -7,7 +7,7 @@ function JS_Interpreter_ClassEvaluationExports(scope, BindingIdentifier, ClassHe
     @ReturnIfAbrupt(status);
 
     /* 3. Return NormalCompletion(empty). */
-    return normalEmptyCompletion('empty)
+    return NormalCompletion('empty)
 };
 
 function JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt){
