@@ -23,8 +23,7 @@ function getParameterIteratorValue(param, listIterator, environment) {
   } else {
     initializer := null
   };
-  print "DEBUG - getParameterIteratorValue - initializer: ";
-  print initializer;
+
 
   /* If iteratorRecord.[[done]] is false, then */
   if (listIterator.done = false) {
@@ -62,9 +61,6 @@ function getParameterIteratorValue(param, listIterator, environment) {
    /* 6. If Initializer is present and v is undefined, then */
    if (!(initializer = null) &&& (v = 'undefined)) {
     /* a. Let defaultValue be the result of evaluating Initializer. */
-    print "DEBUG: Initializer is present and v is undefined";
-    print initializer;
-    print environment;
     defaultValue := JS_Interpreter_AssignmentPattern(initializer, environment);
 
     /* b. Let v be GetValue(defaultValue). */
@@ -80,8 +76,6 @@ function getParameterIteratorValue(param, listIterator, environment) {
 };
 
 function BindingInitialization(param, value, environment, listIterator) {
-  print "DEBUG BINDING INITI";
-  print param;
   match param with
   | { type: "Identifier" } -> {
     /* Identifier Case - Base case */
@@ -108,8 +102,7 @@ function BindingInitialization(param, value, environment, listIterator) {
       return BindingInitialization(param.left, value, environment, listIterator)
     };
     newValue := JS_Interpreter_AssignmentPattern(param.right, environment);
-    print "DEBUG AssignmentPattern";
-    print newValue;
+
     return BindingInitialization(param.left, newValue, environment, listIterator)
   }
 };
@@ -136,19 +129,13 @@ function BindingInitializationIdentifier(param, value, environment) {
    };
 
    /* 8. Return InitializeReferencedBinding(lhs, v). */
-   print "DEBUG - BindingInitializationIdentifier - lhs: ";
-   print lhs;
-   print value;
    return InitializeReferencedBinding(lhs, value, environment.LexicalEnvironment.EnvRec)
 };
 
 function BindingInitializationRestElement(name, listIterator, scope) {
   /* 1. Let lhs be ResolveBinding(StringValue of BindingIdentifier,
      environment). */
-  print "Debug Rest";
-  print name;
-  print listIterator;
-  print scope;
+
   lhs := GetIdentifierReference(scope.LexicalEnvironment, name, false);
   /* 2. ReturnIfAbrupt(lhs). */
   @ReturnIfAbrupt(lhs);
@@ -193,16 +180,12 @@ function BindingInitializationObjectPattern(param, value, environment) {
   i := 0;
   while (i < l_properties) {
     property := l_nth(properties, i);
-    print "DEBUT OBJECT PATTERN PROPERTY";
-    print property;
+
     if (!("key" in_obj property)) {
       BindingInitialization(property, value, environment, null)
     } else {
       key := JS_Interpreter_Expr(property.key, environment);
       @ReturnIfAbrupt(key);
-      print "DEBUG BindingInitializationObjectPattern";
-      print key;
-      print property.key;
       property_name := GetPropertyName(key);
       InitializeSingleObjectBinding(property, property_name, value, environment)
     };
@@ -212,12 +195,8 @@ function BindingInitializationObjectPattern(param, value, environment) {
 };
 
 function InitializeSingleObjectBinding(property, property_name, objectValue, environment) {
-  print "DEBUG InitializeSingleObjectBinding";
-  print property.key;
-  print objectValue;
   property_value := GetV(objectValue, property_name);
-  print "DEBUG - InitializeSingleObjectBinding - property_value: ";
-  print property_value;
+
   BindingInitialization(property.value, property_value, environment, null);
   return
 };
@@ -226,30 +205,23 @@ function BindingInitializationArrayPattern(param, value, environment) {
   elements := param.elements;
   l_elements := l_len(elements);
   i := 0;
-  print "DEBUG ARRAY PATTERN";
-  print elements;
-  print value;
+
   arrayIterator := GetIterator(value, null);
   @ReturnIfAbrupt(arrayIterator);
   while (i < l_elements) {
     step := IteratorStep(arrayIterator);
     @ReturnIfAbrupt(step);
     element := l_nth(elements, i);
-    print "DEBUG ELEMENT 0";
-    print element;
-    print step;
-    print arrayIterator;
+
     if (step = false) {
       /* Iterator is done */
       return
     };
     if (!(element = null)) {
       /* When the element inside the array is an elision, it comes in as null  */
-      print "DEBUG ELEMENT 1";
       iterValue := IteratorValue(step);
       @ReturnIfAbrupt(iterValue);
-      print "DEBUG ELEMENT 2";
-      print iterValue;
+
       iteratorRecord := NewECMAScriptObject();
       iteratorRecord.iterator := CreateListIterator(CreateListFromArrayLike(value, null));
       iteratorRecord.done := false;
@@ -268,9 +240,7 @@ function GetRestValue(listIterator) {
   n := 0.;
   /* 5. Repeat, */
   listDone := listIterator.done;
-  print "DEBUG REST - listDone: ";
-  print listIterator;
-  print listDone;
+
   repeat {
     if (listIterator.done = false) {
       next := IteratorStep(listIterator.iterator);
@@ -285,8 +255,7 @@ function GetRestValue(listIterator) {
     if (listIterator.done = true) {
       return A
     };
-    print "DEBUG GET REST VALUE";
-    print next;
+
     nextValue := IteratorValue(next);
     if (isAnAbruptCompletion(nextValue)) {
       listIterator.done := true
