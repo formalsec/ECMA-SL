@@ -85,14 +85,6 @@ function initSetPrototype(global, objectPrototype, strict) {
   setJSProperty(sizeObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
   setJSProperty(sizeObject, "name", newDataPropertyDescriptorFull("get size", false, false, true));  
 
-
-  /* Martelada Provisoria */
-  /* newlyConstructedObject.IteratorFunction := "CreateSetIteratorJS"; */
-  CreateSetIteratorJSObject := CreateBuiltInFunctionObject(["items"], "CreateSetIteratorJS", global, strict, 1.);
-  descriptor := newDataPropertyDescriptorFull(CreateSetIteratorJSObject, true, false, true);
-  setJSProperty(prototype, "iterator", descriptor); 
-
-
   /* 23.2.3.12 Set.prototype [ @@toStringTag ] */
   descriptor := newDataPropertyDescriptorFull("Set", false, false, true);
   setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
@@ -113,11 +105,11 @@ function getSetPrototype (strict) {
 
 
 function initSetObject(global, objectPrototype, strict) {
-  print "inside initSetObject";
+  FunctionPrototype := getJSProperty(getJSProperty(global, "Function").Value, "prototype").Value;
 
   objSetPrototype := initSetPrototype(global, objectPrototype, strict);
 
-  objSetConstructor := CreateFunctionObject(["items"], "setConstructor", global, strict, 0.);
+  objSetConstructor := CreateBuiltInConstructorObject(FunctionPrototype, ["items"], "setConstructor", global, strict, 0., "Set");
 
   descriptor := newDataPropertyDescriptorFull(0., false, false, true);
   setJSProperty(objSetConstructor, "length", descriptor);
@@ -162,7 +154,7 @@ When the Set function is called with optional argument iterable the following st
 */
 
 function setConstructor(global, this, strict, items) {
-  NewTarget := this;
+  NewTarget := getJSProperty(global, "Set").Value;
   iterable := getOptionalParam(items, 0);
 
   /* 1. If NewTarget is undefined, throw a TypeError exception. */
@@ -170,7 +162,7 @@ function setConstructor(global, this, strict, items) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Let set be OrdinaryCreateFromConstructor(NewTarget, "%SetPrototype%", «‍[[SetData]]» ). */
-  set := OrdinaryCreateFromConstructorSet(global, this, strict, iterable);
+  set := OrdinaryCreateFromConstructor(NewTarget, "SetPrototype", ["SetData"]);
 
   /* 3. ReturnIfAbrupt(set). */
   @ReturnIfAbrupt(set);
@@ -191,8 +183,7 @@ function setConstructor(global, this, strict, items) {
   else {
     /* a. Let adder be Get(set, "add"). */
     adder := Get(set, "add");
-  print("Debug8");
-  print(adder);
+
     /* b. ReturnIfAbrupt(adder). */
     @ReturnIfAbrupt(adder);
 
@@ -200,83 +191,37 @@ function setConstructor(global, this, strict, items) {
     if (IsCallable(adder) = false) {
       throw TypeErrorConstructorInternal()
     };
-  print("Debug10");
-  print(iterable);
     /* d. Let iter be GetIterator(iterable). */
     iter := GetIterator(iterable, null);
-print("Debug11");
-print(iter);
     /* e. ReturnIfAbrupt(iter). */
     @ReturnIfAbrupt(iter)
   };
-  print("Debug12");
   /* 8. If iter is undefined, return set. */
   if (iter = 'undefined) {
     return set
   };
-print("Debug13, iter");
-print(iter);
   /* 9. Repeat */
-  while (true) {
+  repeat {
     /* a. Let next be IteratorStep(iter). */
     next := IteratorStep(iter);
-print("Debug14");
-print(next);
     /* b. ReturnIfAbrupt(next). */
     @ReturnIfAbrupt(next);
-print("Debug15");
     /* c. If next is false, return set. */
     if (next = false) {
       return set
     };
-print("Debug16");
     /* d. Let nextValue be IteratorValue(next). */
     nextValue := IteratorValue(next);
-print("Debug17");
-print(nextValue);
     /* e. ReturnIfAbrupt(nextValue). */
     @ReturnIfAbrupt(nextValue);
-print("Debug18");
-print(adder);
-print(set);
-
     /* f. Let status be Call(adder, set, «nextValue.[[value]]»). */
     status := WrappedCall(null, null, adder, set, [nextValue]);
-    print("Debug19");
-    print(status);
-
     /* g. If status is an abrupt completion, return IteratorClose(iter, status). */
     if ((Type(status) = "Completion") &&& (isAnAbruptCompletion(status))) {
-      close := IteratorClose(iter, status);
-      print("Debug20");
-      print(close);
-      throw getCompletionValue(close)
-      /* return close */
+      return IteratorClose(iter, status)
     }
   }
 
-};
-
-/**
- * OrdinaryCreateFromConstructor
- */
-function OrdinaryCreateFromConstructorSet(global, this, strict, items) {
-  setPrototype := getSetPrototype(strict);
-
-  print "inside Ordinary Set constructor with prototype";
-  print setPrototype.JSProperties; 
-
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
-
-
-  setInternalProperty(newlyConstructedObject, "Prototype", setPrototype);
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  setInternalProperty(newlyConstructedObject, "Class", "Object");
-
-  newlyConstructedObject.IteratorFunction := "iterator"; 
-
-  return newlyConstructedObject
 };
 
 /**
@@ -892,17 +837,9 @@ function initSetIteratorPrototype(global, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull("Set Iterator", false, false, true);
   setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
 
-  nextObject.IteratorFunction := "iterator"; 
   return prototype
 };
 
 function isSetIteratorInstance(obj) {
   return ("IteratedSet" in_obj obj) &&& ("SetNextIndex" in_obj obj) &&& ("SetIterationKind" in_obj obj)
-};
-
-function CreateSetIteratorJS(global, this, strict, args) {
-  print("in CreateSetIteratorJS");
-  return createSetIterator(this, "key+value")
 }
-
-
