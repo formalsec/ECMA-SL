@@ -33,6 +33,7 @@ module.exports = {
   transform: function (obj) {
     if (obj.computed === false) {
       return {
+        ...obj,
         type: obj.type,
         object: obj.object,
         property: {

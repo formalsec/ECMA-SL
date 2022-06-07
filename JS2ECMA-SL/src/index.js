@@ -1,4 +1,4 @@
-const esprima = require("esprima");
+const esprima = require("esprima-next");
 const yargs = require("yargs");
 const fs = require("fs");
 const translator = require("./ECMA-SL/translator");
