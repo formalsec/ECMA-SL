@@ -97,9 +97,51 @@ function JS_Interpreter_SourceElements(SourceElements, scope) {
 
 function JS_Interpreter_Expr(e, scope) {
   match e with
-  | {type: "ArrowFunctionExpression"} -> {
-    print "foo";
-    fail "Unsupported : Arrow Expression"
+  | {type: "ArrowFunctionExpression", id: Identifier, params: ArrowParameters, body: ConciseBody} -> {
+    /**
+      * 14.2.16 Runtime Semantics: Evaluation
+      *
+      * NOTE An ArrowFunction does not define local bindings for arguments, super,
+      * this, or new.target. Any reference to arguments, super, this, or new.target
+      * within an ArrowFunction must resolve to a binding in a lexically enclosing
+      * environment. Typically this will be the Function Environment of an
+      * immediately enclosing function. Even though an ArrowFunction may contain
+      * references to super, the function object created in step 4 is not made into a
+      * method by performing MakeMethod. An ArrowFunction that references super is
+      * always contained within a non-ArrowFunction and the necessary state to
+      * implement super is accessible via the scope that is captured by the function
+      * object of the ArrowFunction.
+    */
+    /* 1. If the function code for this ArrowFunction is strict mode code
+     (10.2.1), */
+    if (isStrictModeCode(ConciseBody, scope)) {
+      /* let strict be true. Otherwise let strict be false */
+      strict := true
+    } else {
+      strict := false
+    };
+
+    /* 2. Let scope be the LexicalEnvironment of the running execution context. */
+    lexEnv := scope.LexicalEnvironment;
+    /* 3. Let parameters be CoveredFormalsList of ArrowParameters. */
+    parameters := ArrowParameters;
+    /* 4. Let closure be FunctionCreate(Arrow, parameters, ConciseBody, scope,
+      strict). */
+    closure := FunctionCreate("Arrow", parameters, ConciseBody, lexEnv, strict, null);
+    /* 5. Return closure. */
+    return closure
+    /**
+      * NOTE An ArrowFunction does not define local bindings for arguments, super,
+      * this, or new.target. Any reference to arguments, super, this, or new.target
+      * within an ArrowFunction must resolve to a binding in a lexically enclosing
+      * environment. Typically this will be the Function Environment of an
+      * immediately enclosing function. Even though an ArrowFunction may contain
+      * references to super, the function object created in step 4 is not made into a
+      * method by performing MakeMethod. An ArrowFunction that references super is
+      * always contained within a non-ArrowFunction and the necessary state to
+      * implement super is accessible via the scope that is captured by the function
+      * object of the ArrowFunction.
+    */
   }
   | { type: "ThisExpression" } -> {
     /* 11.1.1 The this Keyword */
@@ -404,6 +446,18 @@ function JS_Interpreter_Expr(e, scope) {
 
     /* NOTE GetValue must be called even though its value is not used because it may have observable side-effects. */
   }
+  | { type: "MetaProperty", meta: meta, property: property } -> {
+    return GetNewTarget(scope)
+  }
+  | { type: "Super"} -> {
+    fail "Unsupported: Super"
+  }
+  | { type: "YieldExpression"} -> {
+    fail "Unsupported: Yield"
+  }
+  | { type: "ClassExpression"} -> {
+    fail "Unsupported: Class"
+  }
   | default -> {
     print "default case";
     print e
@@ -517,7 +571,7 @@ function JS_Interpreter_AssignmentPattern(AssignmentPattern, scope) {
   /* This is currently used for functions with default parameters, to evaluate the right side
       Example function foo(a, b = 2) { ... } */
   /* 2. Let rref be the result of evaluating AssignmentPattern. */
-  rref := JS_Interpreter_Expr(AssignmentPattern.right, scope);
+  rref := JS_Interpreter_Expr(AssignmentPattern, scope);
 
   /* 3. Let rval be GetValue(rref). */
   rval := GetValue(rref);
@@ -871,7 +925,9 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
   /* 13 Function Definition */
   match FunctionDeclaration with
   | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
-
+    if (FunctionDeclaration.generator = true){
+      fail "Unsupported: Generators"
+    };
     /* 1. If the function code for FunctionDeclaration is strict mode code, let strict be true.
           Otherwise let strict be false. */
     if ( isStrictModeCode(FunctionBody, scope)) {
@@ -900,6 +956,10 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
   /* 13 Function Definition */
   match FunctionExpression with
   | { id: null, params: FormalParameterList, body: FunctionBody } -> {
+    /* We still do not support generators ): */
+    if (FunctionExpression.generator = true) {
+      fail "Unsupported: Generators"
+    };
     if ( isStrictModeCode(FunctionBody, scope)) {
       strict := true
     } else {
@@ -913,6 +973,9 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
     return closure
   }
   | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
+    if (FunctionExpression.generator = true) {
+      fail "Unsupported: Generators"
+    };
     if ( isStrictModeCode(FunctionBody, scope)) {
       strict := true
     } else {
@@ -960,6 +1023,24 @@ function JS_Interpreter_FunctionBody(FunctionBody, scope) {
     else {
       return normalEmptyCompletion('undefined)
     }
+  }
+  | default -> {
+    /**
+      * 14.2.15 Runtime Semantics: EvaluateBody
+      *
+      * With parameter functionObject.
+      *
+      * See also: 14.1.17, 14.4.11.
+    */
+    /* 1. Let exprRef be the result of evaluating AssignmentExpression. */
+    exprRef := JS_Interpreter_Expr(FunctionBody, scope);
+    /* 2. Let exprValue be GetValue(exprRef). */
+    exprValue := GetValue(exprRef);
+    /* 3. ReturnIfAbrupt(exprValue). */
+    @ReturnIfAbrupt(exprValue);
+    /* 4. Return Completion{[[type]]: return, [[value]]: exprValue, [[target]]:
+      empty}. */
+    return newCompletion('return, exprValue, 'empty)
   }
 };
 

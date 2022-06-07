@@ -4410,6 +4410,8 @@ function CreateArrayIterator (array, kind) {
   /* 5. Set iterator’s [[ArrayIterationKind]] internal slot to kind. */
   iterator.ArrayIterationKind := kind;
 
+  iterator.done := false;
+
   /* 6. Return iterator. */
   return iterator
 };

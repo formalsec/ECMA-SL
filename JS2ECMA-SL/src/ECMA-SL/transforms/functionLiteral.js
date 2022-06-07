@@ -7,29 +7,19 @@ const {
 const { isSimpleParameterList } = require("../utils/isSimpleParameterList");
 const { containsExpressions } = require("../utils/containsExpression");
 const { hasStrictDirective } = require("../utils/strict");
+const { getParamsNames } = require("../utils/getParamsNames");
 
 module.exports = {
   transform: function (obj) {
-    if (!["FunctionExpression", "FunctionDeclaration"].includes(obj.type)) {
+    if (!["FunctionExpression", "FunctionDeclaration", "ArrowFunctionExpression"].includes(obj.type)) {
       throw Error(
-        'Unexpected object type; Expecting "FunctionExpression" or "FunctionDeclaration"'
+        'Unexpected object type; Expecting "FunctionExpression", "FunctionDeclaration" or "ArrowFunctionExpression"'
       );
     }
 
-    const paramsInitializers = []
 
-    paramsNames = obj.params.map((param) => {
-      switch (param.type) {
-        case "Identifier": {
-          paramsInitializers.push({name: param.name, initializer: null});
-          return param.name;
-        }
-        case "AssignmentPattern": {
-          paramsInitializers.push({name: param.left.name, initializer: param});
-          return param.left.name;
-        }
-      }
-    });
+    const paramsDetails = obj.params;
+    const paramsNames = getParamsNames(paramsDetails);
 
     const variableDeclarations = getVarDeclarations(obj.body).reduce(
       // remove repeated variables
@@ -53,7 +43,8 @@ module.exports = {
     obj.body.functionDeclarations = functionDeclarations;
     obj.body.letDeclarations = letDeclarations;
     obj.body.containsExpression = containsExpressions(obj.params);
-    obj.body.paramsInitializers = paramsInitializers;
+    obj.body.paramsDetails = paramsDetails;
+    obj.body.paramsNames = paramsNames;
 
     obj.params = paramsNames;
 

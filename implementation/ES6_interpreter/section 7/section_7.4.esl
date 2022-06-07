@@ -19,11 +19,14 @@ function CreateIterResultObject ( value, done ) {
 function GetIterator(obj, method) {
 
     /* 1. ReturnIfAbrupt(obj). */
-    @ReturnIfAbrupt(obj); 
+    @ReturnIfAbrupt(obj);
 
     /* 2. If method was not passed, then */
-    if(method = null) {
-        iteratorFunName := obj.IteratorFunction;
+    if(method = null &&& (Type(obj) = "Object")) {
+        iteratorFunName := 'undefined;
+        if ("IteratorFunction" in_obj obj) {
+            iteratorFunName := obj.IteratorFunction
+        };
         if (iteratorFunName = 'undefined) {
             iteratorFunName := getIteratorPropertyName() /* TODO mudar */
         };
@@ -44,7 +47,7 @@ function GetIterator(obj, method) {
     iterator := CallNew(null, null, method, obj, []);
     
     /* 4. ReturnIfAbrupt(iterator). */
-    @ReturnIfAbrupt(iterator); 
+    @ReturnIfAbrupt(iterator);
 
     /* If Type(iterator) is not Object, throw a TypeError exception. */
     if (!(Type(iterator) = "Object")) {
@@ -225,9 +228,9 @@ function CreateListIterator(list) {
  * The ListIterator next method is a standard built-in function object (clause
  * 17) that performs the following steps:
  */
-function ListIteratornext(global, thisValue, strict, args) {
+function ListIteratornext(scope, V, strict, args) {
   /* 1. Let O be the this value. */
-  O := thisValue;
+  O := V;
 
   /* 2. Let f be the active function object. */
   f := getJSProperty(O, "next").Value;

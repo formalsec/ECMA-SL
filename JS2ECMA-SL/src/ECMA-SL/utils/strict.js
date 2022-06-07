@@ -23,6 +23,7 @@ function hasStrictDirective(stmts) {
     appropriate notification mechanism exists, an implementation should issue a warning if it encounters in a Directive
     Prologue an ExpressionStatement that is not a Use Strict Directive or which does not have a meaning defined by the
     implementation. */
+  if (!stmts) return false;
 
   if (stmts.length > 0) {
     let useStrictDirectiveFound = false;

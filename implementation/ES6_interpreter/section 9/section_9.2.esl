@@ -710,7 +710,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   formals := func.FormalParameters;
 
   /* 7. Let parameterNames be the BoundNames of formals. */
-  parameterNames := formals;
+  parameterNames := getParamsNamesInFromFunction(code);
 
   /* 8. If parameterNames has any duplicate entries, let hasDuplicates be true. Otherwise, let hasDuplicates be false. */
   if (parametersHasDuplicates(parameterNames) = true) {
@@ -799,12 +799,12 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     if (strict = true ||| simpleParameterList = false) {
       /* i. Let ao be CreateUnmappedArgumentsObject(argumentsList). */
       /*TODO CreateUnmappedArgumentsObject */
-      ao := CreateMappedArgumentsObject(func, formals, argumentsList, env)
+      ao := CreateMappedArgumentsObject(func, parameterNames, argumentsList, env)
 
     } else {
       /* b. Else */
       /* Let ao be CreateMappedArgumentsObject(func, formals, argumentsList, env). */
-      ao := CreateMappedArgumentsObject(func, formals, argumentsList, env)
+      ao := CreateMappedArgumentsObject(func, parameterNames, argumentsList, env)
     };
     /* c. ReturnIfAbrupt(ao) */
     @ReturnIfAbrupt(ao);
@@ -833,17 +833,20 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   };
   /* 23. Let iteratorRecord be Record {[[iterator]]:
         CreateListIterator(argumentsList), [[done]]: false}. */
-  iteratorRecord := {iterator: CreateListIterator(argumentsList), done: false};
+  iteratorRecord := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(iteratorRecord);
+  iteratorRecord.iterator := CreateListIterator(argumentsList);
+  iteratorRecord.done := false;
 
-  paramsInitializers := getParamsInitializers(code);
+  paramsDetails := getParamsDetails(code);
   /* 24. If hasDuplicates is true, then */
   if (hasDuplicates = true) {
     /* TODO: FIX ME, WE DO NOT HANDLE THE UNDEFINED */
     /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and undefined as arguments. */
-    formalStatus := IteratorBindingInitialization(paramsInitializers, iteratorRecord, 'undefined, func)
+    formalStatus := IteratorBindingInitialization(paramsDetails, iteratorRecord, 'undefined, func)
   } else {
     /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and env as arguments. */
-    formalStatus := IteratorBindingInitialization(paramsInitializers, iteratorRecord, calleeContext, func)
+    formalStatus := IteratorBindingInitialization(paramsDetails, iteratorRecord, calleeContext, func)
   };
 
   print "DEBUG FUNCTION DECL INSTANTIATION - FINISHED INITIALIZATION 0";
@@ -996,87 +999,6 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
  */
  /* NOT IMPLEMENTED */
 
-function IteratorBindingInitialization(paramsInitializers, listIterator, scope, func) {
-  l_paramsInitializers := l_len (paramsInitializers);
-  i := 0;
-  while(i < l_paramsInitializers) {
-    param := l_nth(paramsInitializers, i);
-    IteratorBindingInitializationBindingIdentifier(param.name, listIterator, scope, func, param.initializer);
-    i := i + 1
-  };
-  return NormalCompletion('empty)
-};
-
-function IteratorBindingInitializationBindingIdentifier(paramName, iteratorRecord, environment, func, initializer) {
-  /* 1. Let bindingId be StringValue of BindingIdentifier. */
-  bindingId := StringValue(paramName);
-
-  /* 2.Let lhs be ResolveBinding(bindingId, environment). */
-  if (environment = 'undefined) {
-    lhs := GetIdentifierReference(null, bindingId, false)
-  } else {
-    lhs := GetIdentifierReference(environment.LexicalEnvironment, bindingId, false)
-  };
-
-  /* ReturnIfAbrupt(lhs). */
-  @ReturnIfAbrupt(lhs);
-
-  /* If iteratorRecord.[[done]] is false, then */
-  if (iteratorRecord.done = false) {
-    /* a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
-    next := IteratorStep(iteratorRecord.iterator);
-
-    /* b. If next is an abrupt completion, set iteratorRecord.[[done]] to true. */
-    if (isAnAbruptCompletion(next)) {
-      iteratorRecord.done := true
-    };
-
-    /* c. ReturnIfAbrupt(next). */
-    @ReturnIfAbrupt(next);
-
-    /* d. If next is false, set iteratorRecord.[[done]] to true. */
-    if (next = false) {
-      iteratorRecord.done := true
-    } else {
-      /* i. Let v be IteratorValue(next). */
-      v := IteratorValue(next);
-
-      /* ii.If v is an abrupt completion, set iteratorRecord.[[done]] to true. */
-      if (isAnAbruptCompletion(v)) {
-        iteratorRecord.done := true
-      };
-
-      /* iii. ReturnIfAbrupt(v). */
-      @ReturnIfAbrupt(v)
-    }
-  };
-  /* 5. If iteratorRecord.[[done]] is true, let v be undefined. */
-  if (iteratorRecord.done = true) {
-    v := 'undefined
-  };
-   /* 6. If Initializer is present and v is undefined, then */
-   if (!(initializer = null) && v = 'undefined) {
-    /* a. Let defaultValue be the result of evaluating Initializer. */
-    defaultValue := JS_Interpreter_AssignmentPattern(initializer, environment);
-
-    /* b. Let v be GetValue(defaultValue). */
-    v := GetValue(defaultValue);
-
-    /* c. ReturnIfAbrupt(v). */
-    @ReturnIfAbrupt(v)
-    /* d. TODO */
-
-   };
-
-   /* 7. If environment is undefined, return PutValue(lhs, v). */
-   if (environment = 'undefined) {
-     return PutValue(lhs, v)
-   };
-
-   /* 8. Return InitializeReferencedBinding(lhs, v). */
-   return InitializeReferencedBinding(lhs, v, environment.LexicalEnvironment.EnvRec)
-};
-
 /* Auxiliary Functions */
 
 function parametersHasDuplicates(parameters) {
@@ -1125,9 +1047,16 @@ function getIsSimpleParameterListFromFunction(codeObj) {
   return codeObj.isSimpleParameterList
 };
 
-function getParamsInitializers(codeObj) {
+function getParamsNamesInFromFunction(codeObj) {
+  if (codeObj = 'undefined ||| (!(Type(codeObj) = "Object"))) {
+    return []
+  };
+  return codeObj.paramsNames
+};
+
+function getParamsDetails(codeObj) {
   if ((codeObj = 'undefined )||| (!(Type(codeObj) = "Object"))) {
     return []
   };
-  return codeObj.paramsInitializers
+  return codeObj.paramsDetails
 }
