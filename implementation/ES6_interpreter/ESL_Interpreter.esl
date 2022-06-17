@@ -8,7 +8,7 @@ function JS_Interpreter_Program(p, callingExecCtx) {
   match p with
   | { sourceType: "script", type: "Program", codeType: "eval", body: SourceElementsopt, strict: strict } -> {
     if (SourceElementsopt = []) {
-      return normalEmptyCompletion('empty)
+      return NormalCompletion('empty)
     };
 
     result := JS_Interpreter_SourceElements(SourceElementsopt, callingExecCtx);
@@ -36,7 +36,7 @@ function JS_Interpreter_Program(p, callingExecCtx) {
 
     /* 2. If SourceElements is not present, return (normal, empty, empty). */
     if (SourceElementsopt = []) {
-      return normalEmptyCompletion('empty)
+      return NormalCompletion('empty)
     };
 
     |__CUR__SYMB__| := 0; 
@@ -966,6 +966,11 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
       strict := false
     };
 
+    /* *??* function () {} has FormalParameterList of ['undefined] instead of []. Might actually be caused by a RestElement (...args) */
+    if ((l_len FormalParameterList > 0) &&& (l_nth(FormalParameterList, 0) = 'undefined)) {
+      FormalParameterList := []
+    };
+
     closure := FunctionCreate("normal", FormalParameterList, FunctionBody, scope.LexicalEnvironment, strict, null);
 
     MakeConstructor(closure, null, null);
@@ -1021,7 +1026,7 @@ function JS_Interpreter_FunctionBody(FunctionBody, scope) {
     }
     /* 3. Else return (normal, undefined, empty). */
     else {
-      return normalEmptyCompletion('undefined)
+      return NormalCompletion('undefined)
     }
   }
   | default -> {
@@ -1229,7 +1234,7 @@ function JS_Interpreter_Stmt(s, scope) {
   | { type: "BlockStatement", body: StatementList } -> {
     /* 12.1 Block */
     if ((l_len StatementList) = 0) {
-      return normalEmptyCompletion('empty)
+      return NormalCompletion('empty)
     };
 
     @PropagateBlockLabelSet(s, StatementList);
@@ -1250,16 +1255,16 @@ function JS_Interpreter_Stmt(s, scope) {
       i := i + 1
     };
     /* 2. Return (normal, empty, empty).*/
-    return normalEmptyCompletion('empty)
+    return NormalCompletion('empty)
   }
   | { type: "EmptyStatement" } -> {
-    return normalEmptyCompletion('empty)
+    return NormalCompletion('empty)
   }
   | { type: "ExpressionStatement", expression: Expression } -> {
     /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
     /* 2. Return (normal, GetValue(exprRef), empty). */
-    return normalEmptyCompletion(GetValue(exprRef))
+    return NormalCompletion(GetValue(exprRef))
   }
   | { type: "IfStatement" } -> {
     /* 12.5 The if Statement */
@@ -1429,7 +1434,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 2. Else */
     else {
       /* a. Let result be (normal, empty, empty). */
-      result := normalEmptyCompletion('empty)
+      result := NormalCompletion('empty)
     };
     /* 3. Return result. */
     return result
@@ -1450,7 +1455,7 @@ function JS_Interpreter_IfStatement(IfStatement, scope) {
     exprValue := GetValue(exprRef);
     @ReturnIfAbrupt(exprValue);
     if (ToBoolean(exprValue) = false) {
-      return normalEmptyCompletion('empty)
+      return NormalCompletion('empty)
     };
     /* 3. Return the result of evaluating Statement. */
     return JS_Interpreter_Stmt(Statement, scope)
@@ -2247,7 +2252,7 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
       if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in_list currentLabelSet))) {
         /* i. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
         if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
-          return normalEmptyCompletion(V)
+          return NormalCompletion(V)
         };
         /* ii. If stmt is an abrupt completion, return stmt. */
         if (isAnAbruptCompletion(stmt)) {
@@ -2264,7 +2269,7 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
       }
     } until iterating = false;
     /* 4. Return (normal, V, empty); */
-    return normalEmptyCompletion(V)
+    return NormalCompletion(V)
   }
   | { type: "WhileStatement", test: Expression, body: Statement, labelSet: currentLabelSet } -> {
     /* 12.6.2 The while Statement */
@@ -2278,7 +2283,7 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
       @ReturnIfAbrupt(exprValue);
       /* b. If ToBoolean(GetValue(exprRef)) is false, return (normal, V, empty). */
       if (ToBoolean(exprValue) = false) {
-        return normalEmptyCompletion(V)
+        return NormalCompletion(V)
       };
       /* c. Let stmt be the result of evaluating Statement. */
       stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
@@ -2291,7 +2296,7 @@ function JS_Interpreter_IterationStatement(iterStmt, scope) {
         /* i. If stmt.type is break and stmt.target is in the current label set, then */
         if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
           /* 1. Return (normal, V, empty). */
-          return normalEmptyCompletion(V)
+          return NormalCompletion(V)
         };
         /* ii. If stmt is an abrupt completion, return stmt. */
         if (isAnAbruptCompletion(stmt)) {
@@ -2337,7 +2342,7 @@ function JS_Interpreter_SwitchStatement(switchStmt, scope) {
     R := JS_Interpreter_CaseBlock(CaseBlock, GetValue(exprRef), scope);
     /* 3. If R.type is break and R.target is in the current label set, return (normal, R.value, empty). */
     if ((getCompletionType(R) = 'break) && (getCompletionTarget(R) in_list currentLabelSet)) {
-      return normalEmptyCompletion(getCompletionValue(R))
+      return NormalCompletion(getCompletionValue(R))
     };
     /* 4. Return R. */
     return R
@@ -2355,7 +2360,7 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
     experValue := GetValue(exprRef);
     /* 3. If experValue is null or undefined, return (normal, empty, empty). */
     if ((experValue = 'null) || (experValue = 'undefined)) {
-      return normalEmptyCompletion('empty)
+      return NormalCompletion('empty)
     };
     /* 4. Let obj be ToObject(experValue). */
     obj := ToObject(experValue);
@@ -2373,7 +2378,7 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
       P := getNextPropertyName(obj_enums, i);
       i := i + 1;
       if (P = "None") {
-        return normalEmptyCompletion(V)
+        return NormalCompletion(V)
       };
       /* b. Let lhsRef be the result of evaluating the LeftHandSideExpression ( it may be evaluated repeatedly). */
       lhsRef := JS_Interpreter_Expr(LeftHandSideExpression, scope);
@@ -2387,7 +2392,7 @@ function JS_Interpreter_ForInStmt_lhsExpr(forInStmt, scope) {
       };
       /* f. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
       if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
-        return normalEmptyCompletion(V)
+        return NormalCompletion(V)
       };
       /* g. If stmt.type is not continue || stmt.target is not in the current label set, then */
       if (!(getCompletionType(stmt) = 'continue) || !(getCompletionTarget(stmt) in_list currentLabelSet)) {
@@ -2413,7 +2418,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
     experValue := GetValue(exprRef);
     /* 4. If experValue is null or undefined, return (normal, empty, empty). */
     if ((experValue = 'null) || (experValue = 'undefined)) {
-      return normalEmptyCompletion('empty)
+      return NormalCompletion('empty)
     };
     /* 5. Let obj be ToObject(experValue). */
     obj := ToObject(experValue);
@@ -2431,7 +2436,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
       P := getNextPropertyName(obj_enums, i);
       i := i + 1;
       if (P = "None") {
-        return normalEmptyCompletion(V)
+        return NormalCompletion(V)
       };
       /* b. Let varRef be the result of evaluating varName as if it were an Identifier Reference (11.1.2);
             it may be evaluated repeatedly. */
@@ -2446,7 +2451,7 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
       };
       /* f. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
       if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
-        return normalEmptyCompletion(V)
+        return NormalCompletion(V)
       };
       /* g. If stmt.type is not continue || stmt.target is not in the current label set, then */
       if (!(getCompletionType(stmt) = 'continue) || !(getCompletionTarget(stmt) in_list currentLabelSet)) {
@@ -2485,7 +2490,7 @@ function JS_Interpreter_ForStmt_Expr(forStmt, scope) {
         @ReturnIfAbrupt(testValue);
         /* ii. If ToBoolean(GetValue(testExprRef)) is false, return (normal, V, empty). */
         if (ToBoolean(GetValue(testExprRef)) = false) {
-          return normalEmptyCompletion(V)
+          return NormalCompletion(V)
         }
       };
       /* b. Let stmt be the result of evaluating Statement. */
@@ -2496,7 +2501,7 @@ function JS_Interpreter_ForStmt_Expr(forStmt, scope) {
       };
       /* d. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
       if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
-        return normalEmptyCompletion(V)
+        return NormalCompletion(V)
       };
       /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
       if (!(getCompletionType(stmt) = 'continue) || !((getCompletionTarget(stmt) in_list currentLabelSet))) {
@@ -2535,7 +2540,7 @@ function JS_Interpreter_ForStmt_VarDecl(forStmt, scope) {
         testExprRef := JS_Interpreter_Expr(Expression1, scope);
         /* ii. If ToBoolean(GetValue(testExprRef)) is false, return (normal, V, empty). */
         if (ToBoolean(GetValue(testExprRef)) = false) {
-          return normalEmptyCompletion(V)
+          return NormalCompletion(V)
         }
       };
       /* b. Let stmt be the result of evaluating Statement. */
@@ -2546,7 +2551,7 @@ function JS_Interpreter_ForStmt_VarDecl(forStmt, scope) {
       };
       /* d. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
       if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
-        return normalEmptyCompletion(V)
+        return NormalCompletion(V)
       };
       /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
       if (!(getCompletionType(stmt) = 'continue) || !((getCompletionTarget(stmt) in_list currentLabelSet))) {
@@ -2594,7 +2599,7 @@ function JS_Interpreter_CaseBlock_CaseClauses(caseClauses, input, scope) {
     C := getNextCaseClause(A, i);
     i := i + 1;
     if (C = "None") {
-      return normalEmptyCompletion(V)
+      return NormalCompletion(V)
     };
     /* b. Let clauseSelector be the result of evaluating C. */
     clauseSelector := JS_Interpreter_SwitchCase(C, scope);
@@ -2622,7 +2627,7 @@ function JS_Interpreter_CaseBlock_CaseClauses(caseClauses, input, scope) {
     C := getNextCaseClause(A, i);
     i := i + 1;
     if (C = "None") {
-      return normalEmptyCompletion(V)
+      return NormalCompletion(V)
     };
     /* b. If C has a StatementList, then */
     if (hasStatementList(C)) {
@@ -2735,7 +2740,7 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
     C := getNextCaseClause(B, i);
     i := i + 1;
     if (C = "None") {
-      return normalEmptyCompletion(V)
+      return NormalCompletion(V)
     };
     /* b. If C has a StatementList, then */
     if (hasStatementList(C)) {

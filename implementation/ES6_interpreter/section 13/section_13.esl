@@ -139,7 +139,7 @@ function OrdinaryFunctionCall(externalScope, ref, F, this, args) {
         If F does not have a [[Code]] internal property or if its value is an empty FunctionBody,
         then result is (normal, undefined, empty). */
   if (!("Code" in_obj F) ||| ((typeof F.Code = __$Obj) &&& ("body" in_obj F.Code) &&& (F.Code.body = []))) {
-    result := normalEmptyCompletion('undefined)
+    result := NormalCompletion('undefined)
   } else {
     result := JS_Interpreter_FunctionBody(F.Code, funcCtx)
   };
@@ -296,10 +296,20 @@ function WrappedCall(externalScope, ref, F, this, args) {
   print(callResult);
 
   if (!(Type(callResult) = "Completion")) {
-    return normalEmptyCompletion(callResult)
+    return NormalCompletion(callResult)
   };
 
   return callResult
+};
+
+function WrappedInvoke(externalScope, ref, F, this, args) {
+  invokeResult := Invoke(externalScope, ref, F, this, args) catch CallHandler;
+  
+  if (!(Type(invokeResult) = "Completion")) {
+    return NormalCompletion(invokeResult)
+  };
+
+  return invokeResult
 };
 
 function CallHandler(x) {

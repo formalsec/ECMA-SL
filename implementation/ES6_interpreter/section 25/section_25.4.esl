@@ -1,111 +1,1245 @@
 /**
- * Internal functions
+ * 25.4 Promise Objects
+ * 
+ * A Promise is an object that is used as a placeholder for the eventual
+ * results of a deferred (and possibly asynchronous) computation.
+ *
+ * Any Promise object is in one of three mutually
+ * exclusive states: fulfilled, rejected, and pending:
+ * 
+ * - A promise p is fulfilled if p.then(f, r) will immediately enqueue a Job to call the function f.
+ * - A promise p is rejected if p.then(f, r) will immediately enqueue a Job to call the function r.
+ * - A promise is pending if it is neither fulfilled nor rejected.
+ *
+ * A promise is said to be settled if it is not pending, i.e. if it is either fulfilled or rejected.
+ *
+ * A promise is resolved if it is settled or if it has been “locked in” to match the state of another promise.
+ * Attempting to resolve or reject a resolved promise has no effect.
+ * A promise is unresolved if it is not resolved. An unresolved promise is always in the pending state.
+ * A resolved promise may be pending, fulfilled or rejected.
  */
-function initPromiseObject(globalObject, ObjectPrototype, strict) {
-  objPromisePrototype := initPromisePrototype(globalObject, ObjectPrototype, strict);
-  objPromiseConstructor := CreateBuiltInConstructorObject(objPromisePrototype, ["executor"], "PromiseConstructor", globalObject, strict, 0., "Promise");
 
-  descriptor := newDataPropertyDescriptorFull(objPromiseConstructor, true, false, true);
-  setJSProperty(objPromisePrototype, "constructor", descriptor);
+/**
+ * 25.4.1 Promise Abstract Operations
+ */
+
+/**
+ * 25.4.1.1 PromiseCapability Records
+ * 
+ * A PromiseCapability is a Record value used to encapsulate a promise object along
+ * with the functions that are capable of resolving or rejecting that promise object.
+ * PromiseCapability records are produced by the NewPromiseCapability abstract operation.
+ * 
+ * PromiseCapability Records have the fields listed in Table 57.
+ * 
+ * Table 57 — PromiseCapability Record Fields
+ * 
+ * ----------------------------------------------------------------------------------------------------
+ * | Field Name  | Value             | Meaning                                                        |
+ * |-------------|-------------------|----------------------------------------------------------------|
+ * | [[Promise]] | An object         | An object that is usable as a promise.                         |
+ * |-------------|-------------------|----------------------------------------------------------------|
+ * | [[Resolve]] | A function object | The function that is used to resolve the given promise object. |
+ * |-------------|-------------------|----------------------------------------------------------------|
+ * | [[Reject]]  | A function object | The function that is used to reject the given promise object.  |
+ * ----------------------------------------------------------------------------------------------------
+ */
+
+/**
+ * 25.4.1.1.1 IfAbruptRejectPromise (value, capability)
+ *
+ * IfAbruptRejectPromise is a short hand for a sequence of algorithm steps that 
+ * use a PromiseCapability record. An algorithm step of the form: 
+ *
+ * 1. IfAbruptRejectPromise(value, capability).
+ *
+ * means the same thing as: 
+ */
+macro IfAbruptRejectPromise(value, capability) {
+  /* 1. If value is an abrupt completion, */
+  if (isAnAbruptCompletion(value)) {
+    /* a. Let rejectResult be Call(capability.[[Reject]], undefined, 
+       «value.[[value]]»). */
+    rejectResult := Call(null, null, capability.Reject, 'undefined, [getCompletionValue(value)]);
+    /* b. ReturnIfAbrupt(rejectResult). */
+    /* @ReturnIfAbrupt(rejectResult); NOTE: Nested macros are not allowed */
+    if (Type(rejectResult) = "Completion") {
+      /* If argument is an abrupt completion, return argument. */
+      if( isAnAbruptCompletion(rejectResult) ) {
+        return rejectResult
+      } 
+      /* Else if argument is a Completion Record, let argument be argument.[[value]]. */
+      else {
+        rejectResult := getCompletionValue(rejectResult)
+      }
+    };
+    /* c. Return capability.[[Promise]]. */
+    return capability.Promise
+  }
+  /* 2. Else if value is a Completion Record, */
+  elif (isCompletionRecord(value)) {
+    /* let value be value.[[value]] */
+    value := getCompletionValue(value)
+  }
+};
+
+/**
+ * 25.4.1.2 PromiseReaction Records
+ *
+ * The PromiseReaction is a Record value used to store information about
+ * how a promise should react when it becomes resolved or rejected with a
+ * given value. PromiseReaction records are created by the then method of
+ * the Promise prototype, and are used by a PromiseReactionJob.
+ *
+ * PromiseReaction records have the fields listed in Table 58.
+ *
+ * Table 58 — PromiseReaction Record Fields
+ *
+ * ---------------------------------------------------------------------------------------------------------------
+ * | Field Name       | Value                         | Meaning                                                  |
+ * |------------------|-------------------------------|----------------------------------------------------------|
+ * | [[Capabilities]] | A PromiseCapability record    | The capabilities of the promise for which                |
+ * |                  |                               | this record provides a reaction handler.                 |
+ * |------------------|-------------------------------|----------------------------------------------------------|
+ * | [[Handler]]      | A function object or a String | The function that should be applied to the               |
+ * |                  |                               | incoming value, and whose return value will              |
+ * |                  |                               | govern what happens to the derived promise.              |
+ * |                  |                               | If [[Handler]] is "Identity" it is equivalent            |
+ * |                  |                               | to a function that simply returns its first argument.    |
+ * |                  |                               | If [[Handler]] is "Thrower" it is equivalent to a        |
+ * |                  |                               | function that throws its first argument as an exception. |
+ * ---------------------------------------------------------------------------------------------------------------
+ */
+
+/**
+ * 25.4.1.3 CreateResolvingFunctions (promise)
+ *
+ * When CreateResolvingFunctions is performed with argument promise, the 
+ * following steps are taken: 
+ */
+function CreateResolvingFunctions(strict, promise) {
+  /* 1. Let alreadyResolved be a new Record { [[value]]: false }. */
+  alreadyResolved := { value: false };
+  /* 2. Let resolve be a new built-in function object as defined in Promise 
+     Resolve Functions (25.4.1.3.2). */
+     /* function CreateBuiltInFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, n) { */
+  resolve := CreateBuiltInFunctionObject(["resolution"], "PromiseResolveFunctions", |global|, strict, null);
+  resolveFun := lambda(global, this, strict, args)[resolve] {
+    return PromiseResolveFunctions(resolve, global, this, strict, args)
+  };
+  resolve.Code := resolveFun;
+  /* 3. Set the [[Promise]] internal slot of resolve to promise. */
+  resolve.Promise := promise;
+  /* 4. Set the [[AlreadyResolved]] internal slot of resolve to 
+     alreadyResolved. */
+  resolve.AlreadyResolved := alreadyResolved;
+  /* 5. Let reject be a new built-in function object as defined in Promise 
+     Reject Functions (25.4.1.3.1). */
+  reject := CreateBuiltInFunctionObject(["reason"], "PromiseRejectFunctions", |global|, strict, null);
+  rejectFun := lambda(global, this, strict, args)[reject] {
+    return PromiseRejectFunctions(reject, global, this, strict, args)
+  };
+  reject.Code := rejectFun;
+  /* 6. Set the [[Promise]] internal slot of reject to promise. */
+  reject.Promise := promise;
+  /* 7. Set the [[AlreadyResolved]] internal slot of reject to 
+     alreadyResolved. */
+  reject.AlreadyResolved := alreadyResolved;
+  /* 8. Return a new Record { [[Resolve]]: resolve, [[Reject]]: reject }. */
+  return { Resolve: resolve, Reject: reject }
+};
+
+/**
+ * 25.4.1.3.1 Promise Reject Functions
+ *
+ * A promise reject function is an anonymous built-in function that has 
+ * [[Promise]] and [[AlreadyResolved]] internal slots. 
+ *
+ * When a promise reject function F is called with argument reason, the 
+ * following steps are taken: 
+ */
+function PromiseRejectFunctions(F, global, this, strict, args) {
+  reason := getOptionalParam(args, 0);
+  /* 1. Assert: F has a [[Promise]] internal slot whose value is an Object. */
+  assert(Type(F.Promise) = "Object");
+  /* 2. Let promise be the value of F's [[Promise]] internal slot. */
+  promise := F.Promise;
+  /* 3. Let alreadyResolved be the value of F's [[AlreadyResolved]] internal 
+     slot. */
+  alreadyResolved := F.AlreadyResolved;
+  /* 4. If alreadyResolved.[[value]] is true, */
+  if (alreadyResolved.value = true) {
+    /* return undefined */
+    return NormalCompletion('undefined)
+  };
+  /* 5. Set alreadyResolved.[[value]] to true. */
+  alreadyResolved.value := true;
+  /* 6. Return RejectPromise(promise, reason). */
+  return RejectPromise(promise, reason)
+};
+/**
+ * The length property of a promise reject function is 1. 
+ */
+
+/**
+ * 25.4.1.3.2 Promise Resolve Functions
+ *
+ * A promise resolve function is an anonymous built-in function that has 
+ * [[Promise]] and [[AlreadyResolved]] internal slots. 
+ *
+ * When a promise resolve function F is called with argument resolution, the 
+ * following steps are taken: 
+ */
+function PromiseResolveFunctions(F, global, this, strict, args) {
+  resolution := getOptionalParam(args, 0);
+  /* 1. Assert: F has a [[Promise]] internal slot whose value is an Object. */
+  assert(Type(F.Promise) = "Object");
+  /* 2. Let promise be the value of F's [[Promise]] internal slot. */
+  promise := F.Promise;
+  /* 3. Let alreadyResolved be the value of F's [[AlreadyResolved]] internal 
+     slot. */
+  alreadyResolved := F.AlreadyResolved;
+  /* 4. If alreadyResolved.[[value]] is true, */
+  if (alreadyResolved.value = true) {
+    /* return undefined */
+    return NormalCompletion('undefined)
+  };
+  /* 5. Set alreadyResolved.[[value]] to true. */
+  alreadyResolved.value := true;
+  /* 6. If SameValue(resolution, promise) is true, then */
+  if (SameValue(resolution, promise) = true) {
+    /* a. Let selfResolutionError be a newly created TypeError object. */
+    selfResolutionError := TypeErrorConstructorInternal();
+    /* b. Return RejectPromise(promise, selfResolutionError). */
+    return RejectPromise(promise, selfResolutionError)
+  };
+  /* 7. If Type(resolution) is not Object, then */
+  if (!(Type(resolution) = "Object")) {
+    /* a. Return FulfillPromise(promise, resolution). */
+    return FulfillPromise(promise, resolution)
+  };
+  /* 8. Let then be Get(resolution, "then"). */
+  then := Get(resolution, "then") catch PromiseExceptionHandler;
+  /* 9. If then is an abrupt completion, then */
+  if (isAnAbruptCompletion(then)) {
+    /* a. Return RejectPromise(promise, then.[[value]]). */
+    return RejectPromise(promise, getCompletionValue(then))
+  };
+  /* 10. Let thenAction be then.[[value]]. */
+  thenAction := getCompletionValue(then);
+  /* 11. If IsCallable(thenAction) is false, then */
+  if (IsCallable(thenAction) = false) {
+    /* a. Return FulfillPromise(promise, resolution). */
+    return FulfillPromise(promise, resolution)
+  };
+  /* 12. Perform EnqueueJob ("PromiseJobs", PromiseResolveThenableJob, 
+     «‍promise, resolution, thenAction») */
+  EnqueueJob("PromiseJobs", "PromiseResolveThenableJob", [strict, promise, resolution, thenAction]);
+  /* 13. Return undefined. */
+  return NormalCompletion('undefined)
+};
+/**
+ * The length property of a promise resolve function is 1. 
+ */
+
+/**
+ * 25.4.1.4 FulfillPromise (promise, value)
+ *
+ * When the FulfillPromise abstract operation is called with arguments promise 
+ * and value the following steps are taken: 
+ */
+function FulfillPromise(promise, value) {
+  /* 1. Assert: the value of promise's [[PromiseState]] internal slot is 
+     "pending". */
+  assert(promise.PromiseState = "pending");
+  /* 2. Let reactions be the value of promise's [[PromiseFulfillReactions]] 
+     internal slot. */
+  reactions := promise.PromiseFulfillReactions;
+  /* 3. Set the value of promise's [[PromiseResult]] internal slot to value. */
+  promise.PromiseResult := value;
+  /* 4. Set the value of promise's [[PromiseFulfillReactions]] internal slot 
+     to undefined. */
+  promise.PromiseFulfillReactions := 'undefined;
+  /* 5. Set the value of promise's [[PromiseRejectReactions]] internal slot to 
+     undefined. */
+  promise.PromiseRejectReactions := 'undefined;
+  /* 6. Set the value of promise's [[PromiseState]] internal slot to 
+     "fulfilled". */
+  promise.PromiseState := "fulfilled";
+  /* 7. Return TriggerPromiseReactions(reactions, value). */
+  return TriggerPromiseReactions(reactions, value)
+};
+
+/**
+ * 25.4.1.5 NewPromiseCapability (C)
+ *
+ * The abstract operation NewPromiseCapability takes a constructor function, and 
+ * attempts to use that constructor function in the fashion of the built-in 
+ * Promise constructor to create a Promise object and extract its resolve and 
+ * reject functions. The promise plus the resolve and reject functions are used 
+ * to initialize a new PromiseCapability record which is returned as the value 
+ * of this abstract operation. 
+ */
+function NewPromiseCapability(strict, C) {
+  /* 1. If IsConstructor(C) is false, */
+  if (IsConstructor(C) = false) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. NOTE C is assumed to be a constructor function that supports the 
+     parameter conventions of the Promise constructor (see 25.4.3.1). */
+  /* 3. Let promiseCapability be a new PromiseCapability { [[Promise]]: 
+     undefined, [[Resolve]]: undefined, [[Reject]]: undefined }. */
+  promiseCapability := { Promise: 'undefined, Resolve: 'undefined, Reject: 'undefined };
+  /* 4. Let executor be a new built-in function object as defined in 
+     GetCapabilitiesExecutor Functions (25.4.1.5.1). */
+  executor := CreateBuiltInFunctionObject(["resolve","reject"], "GetCapabilitiesExecutorFunctions", |global|, strict, null);
+  executorFun := lambda(global, this, strict, args)[executor] {
+    return GetCapabilitiesExecutorFunctions(executor, global, this, strict, args)
+  };
+  executor.Code := executorFun;
+  /* 5. Set the [[Capability]] internal slot of executor to promiseCapability. */
+  executor.Capability := promiseCapability;
+  /* 6. Let promise be Construct(C, «executor»). */
+  promise := Construct(null, null, C, [executor], null);
+  /* 7. ReturnIfAbrupt(promise). */
+  @ReturnIfAbrupt(promise);
+  /* 8. If IsCallable(promiseCapability.[[Resolve]]) is false, */
+  if (IsCallable(promiseCapability.Resolve) = false) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 9. If IsCallable(promiseCapability.[[Reject]]) is false, */
+  if (IsCallable(promiseCapability.Reject) = false) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 10. Set promiseCapability.[[Promise]] to promise. */
+  promiseCapability.Promise := promise;
+  /* 11. Return promiseCapability. */
+  return promiseCapability
+};
+/**
+ * NOTE This abstract operation supports Promise subclassing, as it is generic 
+ * on any constructor that calls a passed executor function argument in the same 
+ * way as the Promise constructor. It is used to generalize static methods of 
+ * the Promise constructor to any subclass. 
+ */
+
+/**
+ * 25.4.1.5.1 GetCapabilitiesExecutor Functions
+ *
+ * A GetCapabilitiesExecutor function is an anonymous built-in function that has 
+ * a [[Capability]] internal slot. 
+ *
+ * When a GetCapabilitiesExecutor function F is called with arguments resolve 
+ * and reject the following steps are taken: 
+ */
+function GetCapabilitiesExecutorFunctions(F, global, this, strict, args) {
+  resolve := getOptionalParam(args, 0);
+  reject := getOptionalParam(args, 1);
+  /* 1. Assert: F has a [[Capability]] internal slot whose value is a 
+     PromiseCapability Record. */
+  assert(isPromiseCapabilityRecord(F.Capability));
+  /* 2. Let promiseCapability be the value of F's [[Capability]] internal 
+     slot. */
+  promiseCapability := F.Capability;
+  /* 3. If promiseCapability.[[Resolve]] is not undefined, */
+  if (!(promiseCapability.Resolve = 'undefined)) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 4. If promiseCapability.[[Reject]] is not undefined, */
+  if (!(promiseCapability.Reject = 'undefined)) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 5. Set promiseCapability.[[Resolve]] to resolve. */
+  promiseCapability.Resolve := resolve;
+  /* 6. Set promiseCapability.[[Reject]] to reject. */
+  promiseCapability.Reject := reject;
+  /* 7. Return undefined. */
+  return 'undefined
+};
+/**
+ * The length property of a GetCapabilitiesExecutor function is 2. 
+ */
+
+/**
+ * 25.4.1.6 IsPromise (x)
+ *
+ * The abstract operation IsPromise checks for the promise brand on an object. 
+ */
+function IsPromise(x) {
+  /* 1. If Type(x) is not Object, */
+  if (!(Type(x) = "Object")) {
+    /* return false */
+    return false
+  };
+  /* 2. If x does not have a [[PromiseState]] internal slot, */
+  if (!("PromiseState" in_obj x)) {
+    /* return false */
+    return false
+  };
+  /* 3. Return true. */
+  return true
+};
+
+/**
+ * 25.4.1.7 RejectPromise (promise, reason)
+ *
+ * When the RejectPromise abstract operation is called with arguments promise 
+ * and reason the following steps are taken: 
+ */
+function RejectPromise(promise, reason) {
+  /* 1. Assert: the value of promise's [[PromiseState]] internal slot is 
+     "pending". */
+  assert(promise.PromiseState = "pending");
+  /* 2. Let reactions be the value of promise's [[PromiseRejectReactions]] 
+     internal slot. */
+  reactions := promise.PromiseRejectReactions;
+  /* 3. Set the value of promise's [[PromiseResult]] internal slot to reason. */
+  promise.PromiseResult := reason;
+  /* 4. Set the value of promise's [[PromiseFulfillReactions]] internal slot 
+     to undefined. */
+  promise.PromiseFulfillReactions := 'undefined;
+  /* 5. Set the value of promise's [[PromiseRejectReactions]] internal slot to 
+     undefined. */
+  promise.PromiseRejectReactions := 'undefined;
+  /* 6. Set the value of promise's [[PromiseState]] internal slot to 
+     "rejected". */
+  promise.PromiseState := "rejected";
+  /* 7. Return TriggerPromiseReactions(reactions, reason). */
+  return TriggerPromiseReactions(reactions, reason)
+};
+
+/**
+ * 25.4.1.8 TriggerPromiseReactions (reactions, argument)
+ *
+ * The abstract operation TriggerPromiseReactions takes a collection of 
+ * PromiseReactionRecords and enqueues a new Job for each record. Each such Job 
+ * processes the [[Handler]] of the PromiseReactionRecord, and if the 
+ * [[Handler]] is a function calls it passing the given argument. 
+ */
+function TriggerPromiseReactions(reactions, argument) {
+  /* 1. Repeat for each reaction in reactions, in original insertion order */
+  foreach (reaction : reactions) {
+    /* a. Perform EnqueueJob("PromiseJobs", PromiseReactionJob, «‍reaction, 
+       argument»). */
+    EnqueueJob("PromiseJobs", "PromiseReactionJob", [reaction, argument])
+  };
+  /* 2. Return undefined. */
+  return NormalCompletion('undefined)
+};
+
+/**
+ * 25.4.2 Promise Jobs
+ */
+
+/**
+ * 25.4.2.1 PromiseReactionJob (reaction, argument)
+ *
+ * The job PromiseReactionJob with parameters reaction and argument applies the 
+ * appropriate handler to the incoming value, and uses the handler's return 
+ * value to resolve or reject the derived promise associated with that handler. 
+ */
+function PromiseReactionJob(reaction, argument) {
+  /* 1. Assert: reaction is a PromiseReaction Record. */
+  assert(isPromiseReactionRecord(reaction));
+  /* 2. Let promiseCapability be reaction.[[Capabilities]]. */
+  promiseCapability := reaction.Capabilities;
+  /* 3. Let handler be reaction.[[Handler]]. */
+  handler := reaction.Handler;
+  /* 4. If handler is "Identity", */
+  if (handler = "Identity") {
+    /* let handlerResult be NormalCompletion(argument) */
+    handlerResult := NormalCompletion(argument)
+  }
+  /* 5. Else if handler is "Thrower", */
+  elif (handler = "Thrower") {
+    /* let handlerResult be Completion{[[type]]: throw, [[value]]: argument, 
+       [[target]]: empty} */
+    handlerResult := throwEmptyCompletion(argument)
+  }
+  /* 6. Else, */
+  else {
+    /* let handlerResult be Call(handler, undefined, «argument») */
+    handlerResult := Call(null, null, handler, 'undefined, [argument])
+  };
+  /* 7. If handlerResult is an abrupt completion, then */
+  if (isAnAbruptCompletion(handlerResult)) {
+    /* a. Let status be Call(promiseCapability.[[Reject]], undefined, 
+       «handlerResult.[[value]]»). */
+    status := Call(null, null, promiseCapability.Reject, 'undefined, [getCompletionValue(handlerResult)]);
+    /* b. NextJob Completion(status). */
+    NextJob(Completion(status))
+  };
+  /* 8. Let status be Call(promiseCapability.[[Resolve]], undefined, 
+     «handlerResult.[[value]]»). */
+  status := Call(null, null, promiseCapability.Resolve, 'undefined, [getCompletionValue(handlerResult)]);
+  /* 9. NextJob Completion(status). */
+  NextJob(Completion(status));
+  return
+};
+
+/**
+ * 25.4.2.2 PromiseResolveThenableJob (promiseToResolve, thenable, then)
+ *
+ * The job PromiseResolveThenableJob with parameters promiseToResolve, thenable, 
+ * and then performs the following steps: 
+ */
+function PromiseResolveThenableJob(strict, promiseToResolve, thenable, then) {
+  /* 1. Let resolvingFunctions be CreateResolvingFunctions(promiseToResolve). */
+  resolvingFunctions := CreateResolvingFunctions(strict, promiseToResolve);
+  /* 2. Let thenCallResult be Call(then, thenable, 
+     «resolvingFunctions.[[Resolve]], resolvingFunctions.[[Reject]]»). */
+  thenCallResult := Call(null, null, then, thenable, [resolvingFunctions.Resolve, resolvingFunctions.Reject]);
+  /* 3. If thenCallResult is an abrupt completion, */
+  if (isAnAbruptCompletion(thenCallResult)) {
+    /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined, 
+       «thenCallResult.[[value]]»). */
+    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [getCompletionValue(thenCallResult)]);
+    /* b. NextJob Completion(status). */
+    NextJob(Completion(status))
+  };
+  /* 4. NextJob Completion(thenCallResult). */
+  NextJob(Completion(thenCallResult));
+  return
+};
+/**
+ * NOTE This Job uses the supplied thenable and its then method to resolve the 
+ * given promise. This process must take place as a Job to ensure that the 
+ * evaluation of the then method occurs after evaluation of any surrounding code 
+ * has completed. 
+ */
+
+/**
+ * 25.4.3 The Promise Constructor
+ *
+ * The Promise constructor is the %Promise% intrinsic object and the
+ * initial value of the Promise property of the global object. When
+ * called as a constructor it creates and initializes a new Promise
+ * object. Promise is not intended to be called as a function and will
+ * throw an exception when called in that manner.
+ *
+ * The Promise constructor is designed to be subclassable. It may be
+ * used as the value in an extends clause of a class definition. Subclass
+ * constructors that intend to inherit the specified Promise behaviour
+ * must include a super call to the Promise constructor to create and
+ * initialize the subclass instance with the internal state necessary
+ * to support the Promise and Promise.prototype built-in methods.
+ */
+function initPromiseObject(global, ObjectPrototype, strict) {
+  FunctionPrototype := getJSProperty(getJSProperty(global, "Function").Value, "prototype").Value;
+
+  objPromiseConstructor := CreateBuiltInConstructorObject(FunctionPrototype, ["executor"], "PromiseConstructor", global, strict, 0., "Promise");
+  objPromisePrototype := initPromisePrototype(global, ObjectPrototype, objPromiseConstructor, strict);
 
   /* 25.4.4.1 Promise.all ( iterable ) */
-  PromiseAllObject := CreateBuiltInFunctionObject(["iterable"], "PromiseAll", globalObject, strict, null);
-  descriptor := newDataPropertyDescriptorFull(PromiseAllObject, true, false, true);
-  setJSProperty(objPromiseConstructor, "all", descriptor);
+  PromiseAllObj := CreateBuiltInFunctionObject(["iterable"], "PromiseAll", global, strict, null);
+  createBuiltInPropertyWithFullDescriptor(objPromiseConstructor, "all", PromiseAllObj, true, false, true);
+  /* Length */
+  createBuiltInPropertyWithFullDescriptor(PromiseAllObj, "length", 1., false, false, true);
+  /* Name */
+  createBuiltInPropertyWithFullDescriptor(PromiseAllObj, "name", "all", false, false, true);
 
   /* 25.4.4.3 Promise.race ( iterable ) */
-  PromiseRaceObject := CreateBuiltInFunctionObject(["iterable"], "PromiseRace", globalObject, strict, null);
-  descriptor := newDataPropertyDescriptorFull(PromiseRaceObject, true, false, true);
-  setJSProperty(objPromiseConstructor, "race", descriptor);
+  raceObj := CreateBuiltInFunctionObject(["iterable"], "PromiseRace", global, strict, null);
+  createBuiltInPropertyWithFullDescriptor(objPromiseConstructor, "race", raceObj, true, false, true);
+  /* Length */
+  createBuiltInPropertyWithFullDescriptor(raceObj, "length", 1., false, false, true);
+  /* Name */
+  createBuiltInPropertyWithFullDescriptor(raceObj, "name", "race", false, false, true);
 
   /* 25.4.4.4 Promise.reject ( r ) */
-  PromiseRejectObject := CreateBuiltInFunctionObject(["r"], "PromiseReject", globalObject, strict, null);
-  descriptor := newDataPropertyDescriptorFull(PromiseRejectObject, true, false, true);
-  setJSProperty(objPromiseConstructor, "reject", descriptor);
+  rejectObj := CreateBuiltInFunctionObject(["r"], "PromiseReject", global, strict, null);
+  createBuiltInPropertyWithFullDescriptor(objPromiseConstructor, "reject", rejectObj, true, false, true);
+  /* Length */
+  createBuiltInPropertyWithFullDescriptor(rejectObj, "length", 1., false, false, true);
+  /* Name */
+  createBuiltInPropertyWithFullDescriptor(rejectObj, "name", "reject", false, false, true);
 
   /* 25.4.4.5 Promise.resolve ( x ) */
-  PromiseResolveObject := CreateBuiltInFunctionObject(["x"], "PromiseResolve", globalObject, strict, null);
-  descriptor := newDataPropertyDescriptorFull(PromiseResolveObject, true, false, true);
-  setJSProperty(objPromiseConstructor, "resolve", descriptor);
+  resolveObj := CreateBuiltInFunctionObject(["x"], "PromiseResolve", global, strict, null);
+  createBuiltInPropertyWithFullDescriptor(objPromiseConstructor, "resolve", resolveObj, true, false, true);
+  /* Length */
+  createBuiltInPropertyWithFullDescriptor(resolveObj, "length", 1., false, false, true);
+  /* Name */
+  createBuiltInPropertyWithFullDescriptor(resolveObj, "name", "resolve", false, false, true);
 
   /**
    * 25.4.4.2 Promise.prototype
+   * 
    * The initial value of Promise.prototype is the intrinsic object %PromisePrototype% (25.4.5).
+   * 
    * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.
    */
-  descriptor := newDataPropertyDescriptorFull(objPromisePrototype, false, false, false);
-  setJSProperty(objPromiseConstructor, "prototype", descriptor);
+  createBuiltInPropertyWithFullDescriptor(objPromiseConstructor, "prototype", objPromisePrototype, false, false, false);
 
   /* 25.4.4.6 get Promise [@@species] */
-  symbolSpeciesObject := CreateBuiltInFunctionObject([], "promiseSpeciesGetter", globalObject, strict, null);
+  symbolSpeciesObject := CreateBuiltInFunctionObject([], "promiseSpeciesGetter", global, strict, null);
   descriptor := newGetAccessorPropertyDescriptorFull(symbolSpeciesObject, false, true);
   setJSProperty(objPromiseConstructor, getSpeciesPropertyName(), descriptor);
   setJSProperty(symbolSpeciesObject, "name", newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true));
 
   return objPromiseConstructor
 };
-function initPromisePrototype(globalObject, ObjectPrototype, strict) {
+
+/**
+ * 25.4.3.1 Promise (executor)
+ *
+ * When the Promise function is called with argument executor the following 
+ * steps are taken: 
+ */
+function PromiseConstructor(global, this, strict, args) {
+  NewTarget := getJSProperty(global, "Promise").Value;
+  executor := getOptionalParam(args, 0);
+  /* 1. If NewTarget is undefined, */
+  if (NewTarget = 'undefined) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 2. If IsCallable(executor) is false, */
+  if (IsCallable(executor) = false) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 3. Let promise be OrdinaryCreateFromConstructor(NewTarget, 
+     "%PromisePrototype%", «‍[[PromiseState]], [[PromiseResult]], 
+     [[PromiseFulfillReactions]], [[PromiseRejectReactions]]» ). */
+  promise := OrdinaryCreateFromConstructor(NewTarget, "PromisePrototype",
+    ["PromiseState", "PromiseResult", "PromiseFulfillReactions", "PromiseRejectReactions"]);
+  /* 4. ReturnIfAbrupt(promise). */
+  @ReturnIfAbrupt(promise);
+  /* 5. Set promise's [[PromiseState]] internal slot to "pending". */
+  promise.PromiseState := "pending";
+  /* 6. Set promise's [[PromiseFulfillReactions]] internal slot to a new empty 
+     List. */
+  promise.PromiseFulfillReactions := [];
+  /* 7. Set promise's [[PromiseRejectReactions]] internal slot to a new empty 
+     List. */
+  promise.PromiseRejectReactions := [];
+  /* 8. Let resolvingFunctions be CreateResolvingFunctions(promise). */
+  resolvingFunctions := CreateResolvingFunctions(strict, promise);
+  /* 9. Let completion be Call(executor, undefined, 
+     «resolvingFunctions.[[Resolve]], resolvingFunctions.[[Reject]]»). */
+  completion := Call(null, null, executor, 'undefined, [resolvingFunctions.Resolve, resolvingFunctions.Reject])
+  catch PromiseExceptionHandler; /* FIXME: Done by Call */
+  /* 10. If completion is an abrupt completion, then */
+  if (isAnAbruptCompletion(completion)) {
+    /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined, 
+       «completion.[[value]]»). */
+    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [getCompletionValue(completion)]);
+    /* b. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status)
+  };
+  /* 11. Return promise. */
+  return promise
+};
+/**
+ * NOTE The executor argument must be a function object. It is called for 
+ * initiating and reporting completion of the possibly deferred action 
+ * represented by this Promise object. The executor is called with two 
+ * arguments: resolve and reject. These are functions that may be used by the 
+ * executor function to report eventual completion or failure of the deferred 
+ * computation. Returning from the executor function does not mean that the 
+ * deferred action has been completed but only that the request to eventually 
+ * perform the deferred action has been accepted. 
+ *
+ * The resolve function that is passed to an executor function accepts a single 
+ * argument. The executor code may eventually call the resolve function to 
+ * indicate that it wishes to resolve the associated Promise object. The 
+ * argument passed to the resolve function represents the eventual value of the 
+ * deferred action and can be either the actual fulfillment value or another 
+ * Promise object which will provide the value if it is fulfilled. 
+ *
+ * The reject function that is passed to an executor function accepts a single 
+ * argument. The executor code may eventually call the reject function to 
+ * indicate that the associated Promise is rejected and will never be fulfilled. 
+ * The argument passed to the reject function is used as the rejection value of 
+ * the promise. Typically it will be an Error object. 
+ *
+ * The resolve and reject functions passed to an executor function by the 
+ * Promise constructor have the capability to actually resolve and reject the 
+ * associated promise. Subclasses may have different constructor behaviour that 
+ * passes in customized values for resolve and reject. 
+ */
+
+/**
+ * 25.4.4 Properties of the Promise Constructor
+ *
+ * The value of the [[Prototype]] internal slot of the Promise constructor is
+ * the intrinsic object %FunctionPrototype% (19.2.3).
+ *
+ * Besides the length property (whose value is 1), the Promise constructor has
+ * the following properties:
+ */
+
+/**
+ * 25.4.4.1 Promise.all (iterable)
+ *
+ * The all function returns a new promise which is fulfilled with an array of 
+ * fulfillment values for the passed promises, or rejects with the reason of the 
+ * first passed promise that rejects. It resolves all elements of the passed 
+ * iterable to promises as it runs this algorithm. 
+ */
+function PromiseAll(global, this, strict, args) {
+
+  iterable := l_nth(args, 0);
+
+  /* 1. Let C be the this value. */
+  C := this;
+  /* 2. If Type(C) is not Object, */
+  if (!(Type(C) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 3. Let S be Get(C, @@species). */
+  S := Get(C, getSpeciesPropertyName());
+  /* 4. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+  /* 5. If S is neither undefined nor null, */
+  if (!((S = 'undefined) ||| (S = 'null))) {
+    /* let C be S */
+    C := S
+  };
+  /* 6. Let promiseCapability be NewPromiseCapability(C). */
+  promiseCapability := NewPromiseCapability(strict, C);
+  /* 7. ReturnIfAbrupt(promiseCapability). */
+  @ReturnIfAbrupt(promiseCapability);
+  /* 8. Let iterator be GetIterator(iterable). */
+  iterator := GetIterator(iterable, null);
+  /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
+  @IfAbruptRejectPromise(iterator, promiseCapability);
+  /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: 
+     false}. */
+  iteratorRecord := { iterator: iterator, done: false };
+  /* 11. Let result be PerformPromiseAll(iteratorRecord, C, promiseCapability). */
+  result := PerformPromiseAll(strict, iteratorRecord, C, promiseCapability);
+  /* 12. If result is an abrupt completion, */
+  if (isAnAbruptCompletion(result)) {
+    /* a. If iteratorRecord.[[done]] is false, */
+    if (iteratorRecord.done = false) {
+      /* let result be IteratorClose(iterator, result) */
+      result := IteratorClose(iterator, result)
+    };
+    /* b. IfAbruptRejectPromise(result, promiseCapability). */
+    @IfAbruptRejectPromise(result, promiseCapability)
+  };
+  /* 13. Return Completion(result). */
+  return Completion(result)
+};
+/**
+ * NOTE The all function requires its this value to be a constructor function 
+ * that supports the parameter conventions of the Promise constructor. 
+ */
+
+/**
+ * 25.4.4.1.1 Runtime Semantics: PerformPromiseAll (iteratorRecord, constructor, resultCapability)
+ *
+ * When the PerformPromiseAll abstract operation is called with arguments 
+ * iteratorRecord, constructor, and resultCapability the following steps are 
+ * taken: 
+ */
+function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability) {
+  /* 1. Assert: constructor is a constructor function. */
+  assert(IsConstructor(constructor));
+  /* 2. Assert: resultCapability is a PromiseCapability record. */
+  assert(isPromiseCapabilityRecord(resultCapability));
+  /* 3. Let values be a new empty List. */
+  values := [];
+  /* 4. Let remainingElementsCount be a new Record { [[value]]: 1 }. */
+  remainingElementsCount := { value: 1. };
+  /* 5. Let index be 0. */
+  index := 0.;
+  /* 6. Repeat */
+  repeat {
+    /* a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
+    next := IteratorStep(iteratorRecord.iterator);
+    /* b. If next is an abrupt completion, */
+    if (isAnAbruptCompletion(next)) {
+      /* set iteratorRecord.[[done]] to true */
+      iteratorRecord.done := true
+    };
+    /* c. ReturnIfAbrupt(next). */
+    @ReturnIfAbrupt(next);
+    /* d. If next is false, */
+    if (next = false) {
+      /* i. Set iteratorRecord.[[done]] to true. */
+      iteratorRecord.done := true;
+      /* ii. Set remainingElementsCount.[[value]] to 
+         remainingElementsCount.[[value]] - 1. */
+      remainingElementsCount.value := remainingElementsCount.value - 1.;
+      /* iii. If remainingElementsCount.[[value]] is 0, */
+      if (remainingElementsCount.value = 0.) {
+        /* 1. Let valuesArray be CreateArrayFromList(values). */
+        valuesArray := CreateArrayFromList(values);
+        /* 2. Let resolveResult be Call(resultCapability.[[Resolve]], undefined, 
+           «valuesArray»). */
+        resolveResult := WrappedCall(null, null, resultCapability.Resolve, 'undefined, [valuesArray]);
+        /* 3. ReturnIfAbrupt(resolveResult) */
+        @ReturnIfAbrupt(resolveResult)
+      };
+      /* iv. Return resultCapability.[[Promise]]. */
+      return NormalCompletion(resultCapability.Promise)
+    };
+    /* e. Let nextValue be IteratorValue(next). */
+    nextValue := IteratorValue(next);
+    /* f. If nextValue is an abrupt completion, */
+    if (isAnAbruptCompletion(nextValue)) {
+      /* set iteratorRecord.[[done]] to true */
+      iteratorRecord.done := true
+    };
+    /* g. ReturnIfAbrupt(nextValue). */
+    @ReturnIfAbrupt(nextValue);
+    /* h. Append undefined to values. */
+    values := l_add(values, 'undefined);
+    /* i. Let nextPromise be Invoke(constructor, "resolve", «‍nextValue»). */
+    nextPromise := WrappedInvoke(null, null, constructor, "resolve", [nextValue]);
+    /* j. ReturnIfAbrupt(nextPromise ). */
+    @ReturnIfAbrupt(nextPromise);
+    /* k. Let resolveElement be a new built-in function object as defined in 
+       Promise.all Resolve Element Functions. */
+    resolveElement := CreateBuiltInFunctionObject(["iterable"], "PromiseAllResolveElementFunctions", |global|, strict, null);
+    resolveElementFun := lambda(global, this, strict, args)[resolveElement] {
+      return PromiseAllResolveElementFunctions(resolveElement, global, this, strict, args)
+    };
+    resolveElement.Code := resolveElementFun;
+    /* l. Set the [[AlreadyCalled]] internal slot of resolveElement to a new 
+       Record {[[value]]: false }. */
+    resolveElement.AlreadyCalled := { value: false };
+    /* m. Set the [[Index]] internal slot of resolveElement to index. */
+    resolveElement.Index := index;
+    /* n. Set the [[Values]] internal slot of resolveElement to values. */
+    resolveElement.Values := values;
+    /* o. Set the [[Capabilities]] internal slot of resolveElement to 
+       resultCapability. */
+    resolveElement.Capabilities := resultCapability;
+    /* p. Set the [[RemainingElements]] internal slot of resolveElement to 
+       remainingElementsCount. */
+    resolveElement.RemainingElements := remainingElementsCount;
+    /* q. Set remainingElementsCount.[[value]] to 
+       remainingElementsCount.[[value]] + 1. */
+    remainingElementsCount.value := remainingElementsCount.value + 1.;
+    /* r. Let result be Invoke(nextPromise, "then", «‍resolveElement, 
+       resultCapability.[[Reject]]»). */
+    result := WrappedInvoke(null, null, nextPromise, "then", [resolveElement, resultCapability.Reject]);
+    /* s. ReturnIfAbrupt(result). */
+    @ReturnIfAbrupt(result);
+    /* t. Set index to index + 1. */
+    index := index + 1.
+  }
+};
+
+/**
+ * 25.4.4.1.2 Promise.all Resolve Element Functions
+ *
+ * A Promise.all resolve element function is an anonymous built-in function that 
+ * is used to resolve a specific Promise.all element. Each Promise.all resolve 
+ * element function has [[Index]], [[Values]], [[Capabilities]], 
+ * [[RemainingElements]], and [[AlreadyCalled]] internal slots. 
+ *
+ * When a Promise.all resolve element function F is called with argument x, the 
+ * following steps are taken: 
+ */
+function PromiseAllResolveElementFunctions(F, global, this, strict, args) {
+  /* TODO: Set F */
+  x := getOptionalParam(args, 0);
+  /* 1. Let alreadyCalled be the value of F's [[AlreadyCalled]] internal slot. */
+  alreadyCalled := F.AlreadyCalled;
+  /* 2. If alreadyCalled.[[value]] is true, */
+  if (alreadyCalled.value = true) {
+    /* return undefined */
+    return NormalCompletion('undefined)
+  };
+  /* 3. Set alreadyCalled.[[value]] to true. */
+  alreadyCalled.value := true;
+  /* 4. Let index be the value of F's [[Index]] internal slot. */
+  index := F.Index;
+  /* 5. Let values be the value of F's [[Values]] internal slot. */
+  values := F.Values;
+  /* 6. Let promiseCapability be the value of F's [[Capabilities]] internal 
+     slot. */
+  promiseCapability := F.Capabilities;
+  /* 7. Let remainingElementsCount be the value of F's [[RemainingElements]] 
+     internal slot. */
+  remainingElementsCount := F.RemainingElements;
+  /* 8. Set values[index] to x. */
+  values := l_set(values, int_of_float index, x);
+  /* 9. Set remainingElementsCount.[[value]] to 
+     remainingElementsCount.[[value]] - 1. */
+  remainingElementsCount.value := remainingElementsCount.value - 1.;
+  /* 10. If remainingElementsCount.[[value]] is 0, */
+  if (remainingElementsCount.value = 0.) {
+    /* a. Let valuesArray be CreateArrayFromList(values). */
+    valuesArray := CreateArrayFromList(values);
+    /* b. Return Call(promiseCapability.[[Resolve]], undefined, «valuesArray»). */
+    return Call(null, null, promiseCapability.Resolve, 'undefined, [valuesArray])
+  };
+  /* 11. Return undefined. */
+  return NormalCompletion('undefined)
+};
+/**
+ * The length property of a Promise.all resolve element function is 1. 
+ */
+
+/**
+ * 25.4.4.3 Promise.race (iterable)
+ *
+ * The race function returns a new promise which is settled in the same way as 
+ * the first passed promise to settle. It resolves all elements of the passed 
+ * iterable to promises as it runs this algorithm. 
+ */
+function PromiseRace(global, this, strict, args) {
+  iterable := l_nth(args, 0);
+  /* 1. Let C be the this value. */
+  C := this;
+  /* 2. If Type(C) is not Object, */
+  if (!(Type(C) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 3. Let S be Get(C, @@species). */
+  S := Get(C, getSpeciesPropertyName());
+  /* 4. ReturnIfAbrupt(S). */
+  @ReturnIfAbrupt(S);
+  /* 5. If S is neither undefined nor null, */
+  if (!((S = 'undefined) ||| (S = 'null))) {
+    /* let C be S */
+    C := S
+  };
+  /* 6. Let promiseCapability be NewPromiseCapability(C). */
+  promiseCapability := NewPromiseCapability(strict, C);
+  /* 7. ReturnIfAbrupt(promiseCapability). */
+  @ReturnIfAbrupt(promiseCapability);
+  /* 8. Let iterator be GetIterator(iterable). */
+  iterator := GetIterator(iterable, null);
+  /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
+  @IfAbruptRejectPromise(iterator, promiseCapability);
+  /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: 
+     false}. */
+  iteratorRecord := { iterator: iterator, done: false };
+  /* 11. Let result be PerformPromiseRace(iteratorRecord, promiseCapability, 
+     C). */
+  result := PerformPromiseRace(iteratorRecord, promiseCapability, C);
+  /* 12. If result is an abrupt completion, then */
+  if (isAnAbruptCompletion(result)) {
+    /* a. If iteratorRecord.[[done]] is false, */
+    if (iteratorRecord.done = false) {
+      /* let result be IteratorClose(iterator,result) */
+      result := IteratorClose(iterator, result)
+    };
+    /* b. IfAbruptRejectPromise(result, promiseCapability). */
+    @IfAbruptRejectPromise(result, promiseCapability)
+  };
+  /* 13. Return Completion(result). */
+  return Completion(result)
+};
+/**
+ * NOTE 1 If the iterable argument is empty or if none of the promises in 
+ * iterable ever settle then the pending promise returned by this method will 
+ * never be settled 
+ *
+ * NOTE 2 The race function expects its this value to be a constructor function 
+ * that supports the parameter conventions of the Promise constructor. It also 
+ * expects that its this value provides a resolve method. 
+ */
+
+/**
+ * 25.4.4.3.1 Runtime Semantics: PerformPromiseRace (iteratorRecord, promiseCapability, C)
+ *
+ * When the PerformPromiseRace abstract operation is called with arguments 
+ * iteratorRecord, promiseCapability, and C the following steps are taken: 
+ */
+function PerformPromiseRace(iteratorRecord, promiseCapability, C) {
+  /* 1. Repeat */
+  repeat {
+    /* a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
+    next := IteratorStep(iteratorRecord.iterator);
+    /* b. If next is an abrupt completion, */
+    if (isAnAbruptCompletion(next)) {
+      /* set iteratorRecord.[[done]] to true */
+      iteratorRecord.done := true
+    };
+    /* c. ReturnIfAbrupt(next). */
+    @ReturnIfAbrupt(next);
+    /* d. If next is false, then */
+    if (next = false) {
+      /* i. Set iteratorRecord.[[done]] to true. */
+      iteratorRecord.done := true;
+      /* ii. Return promiseCapability.[[Promise]]. */
+      return NormalCompletion(promiseCapability.Promise)
+    };
+    /* e. Let nextValue be IteratorValue(next). */
+    nextValue := IteratorValue(next);
+    /* f. If nextValue is an abrupt completion, */
+    if (isAnAbruptCompletion(nextValue)) {
+      /* set iteratorRecord.[[done]] to true */
+      iteratorRecord.done := true
+    };
+    /* g. ReturnIfAbrupt(nextValue). */
+    @ReturnIfAbrupt(nextValue);
+    /* h. Let nextPromise be Invoke(C, "resolve", «‍nextValue»). */
+    nextPromise := Invoke(null, null, C, "resolve", [nextValue]);
+    /* i. ReturnIfAbrupt(nextPromise). */
+    @ReturnIfAbrupt(nextPromise);
+    /* j. Let result be Invoke(nextPromise, "then", 
+       «‍promiseCapability.[[Resolve]], promiseCapability.[[Reject]]»). */
+    result := Invoke(null, null, nextPromise, "then", [promiseCapability.Resolve, promiseCapability.Reject]);
+    /* k. ReturnIfAbrupt(result). */
+    @ReturnIfAbrupt(result)
+  }
+};
+
+/**
+ * 25.4.4.4 Promise.reject (r)
+ *
+ * The reject function returns a new promise rejected with the passed argument. 
+ */
+function PromiseReject(global, this, strict, args) {
+  r := l_nth(args, 0);
+  /* 1. Let C be the this value. */
+  C := this;
+  /* 2. If Type(C) is not Object, */
+  if (!(Type(C) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 3. Let promiseCapability be NewPromiseCapability(C). */
+  promiseCapability := NewPromiseCapability(strict, C);
+  /* 4. ReturnIfAbrupt(promiseCapability). */
+  @ReturnIfAbrupt(promiseCapability);
+  /* 5. Let rejectResult be Call(promiseCapability.[[Reject]], undefined, 
+     «r»). */
+  rejectResult := Call(null, null, promiseCapability.Reject, 'undefined, [r]);
+  /* 6. ReturnIfAbrupt(rejectResult). */
+  @ReturnIfAbrupt(rejectResult);
+  /* 7. Return promiseCapability.[[Promise]]. */
+  return promiseCapability.Promise
+};
+/**
+ * NOTE The reject function expects its this value to be a constructor function 
+ * that supports the parameter conventions of the Promise constructor. 
+ */
+
+/**
+ * 25.4.4.5 Promise.resolve (x)
+ *
+ * The resolve function returns either a new promise resolved with the passed 
+ * argument, or the argument itself if the argument is a promise produced by 
+ * this constructor. 
+ */
+function PromiseResolve(global, this, strict, args) {
+  x := l_nth(args, 0);
+  /* 1. Let C be the this value. */
+  C := this;
+  /* 2. If Type(C) is not Object, */
+  if (!(Type(C) = "Object")) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 3. If IsPromise(x) is true, */
+  if (IsPromise(x) = true) {
+    /* a. Let xConstructor be Get(x, "constructor"). */
+    xConstructor := Get(x, "constructor");
+    /* b. ReturnIfAbrupt(xConstructor). */
+    @ReturnIfAbrupt(xConstructor);
+    /* c. If SameValue(xConstructor, C) is true, */
+    if (SameValue(xConstructor, C) = true) {
+      /* return x */
+      return x
+    }
+  };
+  /* 4. Let promiseCapability be NewPromiseCapability(C). */
+  promiseCapability := NewPromiseCapability(strict, C);
+  /* 5. ReturnIfAbrupt(promiseCapability). */
+  @ReturnIfAbrupt(promiseCapability);
+  /* 6. Let resolveResult be Call(promiseCapability.[[Resolve]], undefined, 
+     «x»). */
+  resolveResult := Call(null, null, promiseCapability.Resolve, 'undefined, [x]);
+  /* 7. ReturnIfAbrupt(resolveResult). */
+  @ReturnIfAbrupt(resolveResult);
+  /* 8. Return promiseCapability.[[Promise]]. */
+  return promiseCapability.Promise
+};
+/**
+ * NOTE The resolve function expects its this value to be a constructor function 
+ * that supports the parameter conventions of the Promise constructor. 
+ */
+
+/**
+ * 25.4.4.6 get Promise [ @@species ]
+ *
+ * Promise[@@species] is an accessor property whose set accessor function
+ * is undefined. Its get accessor function performs the following steps:
+ */
+function promiseSpeciesGetter(global, this, strict, args){
+  /* 1. Return the this value. */
+  return this
+};
+/** 
+ * The value of the name property of this function is "get [Symbol.species]".
+ *
+ * NOTE Promise prototype methods normally use their this object’s constructor
+ * to create a derived object. However, a subclass constructor may over-ride
+ * that default behaviour by redefining its @@species property.
+ */
+
+
+
+/**
+ * 25.4.5 Properties of the Promise Prototype Object
+ *
+ * The Promise prototype object is the intrinsic object %PromisePrototype%.
+ * The value of the [[Prototype]] internal slot of the Promise prototype
+ * object is the intrinsic object %ObjectPrototype% (19.1.3). The Promise
+ * prototype object is an ordinary object. It does not have a [[PromiseState]]
+ * internal slot or any of the other internal slots of Promise instances.
+ */
+function initPromisePrototype(global, ObjectPrototype, PromiseConstructor, strict) {
   prototype := NewECMAScriptObjectFull(ObjectPrototype, "Promise", true);
   setAllInternalMethodsOfOrdinaryObject(prototype);
 
   /* Add built-in function objects to Promise's prototype */
 
   /* 25.4.5.1 Promise.prototype.catch ( onRejected ) */
-  catchFunctionObject := CreateBuiltInFunctionObject(["onRejected"],
-    "PromisePrototypeCatch", globalObject, strict, null);
-  descriptor := newDataPropertyDescriptorFull(catchFunctionObject, true, false, true);
-  setJSProperty(prototype, "catch", descriptor);
+  catchObj := CreateBuiltInFunctionObject(["onRejected"], "PromisePrototypeCatch", global, strict, null);
+  createBuiltInPropertyWithFullDescriptor(prototype, "catch", catchObj, true, false, true);
+  /* Length */
+  createBuiltInPropertyWithFullDescriptor(catchObj, "length", 1., false, false, true);
+  /* Name */
+  createBuiltInPropertyWithFullDescriptor(catchObj, "name", "catch", false, false, true);
 
-  /* 25.4.5.2 Promise.prototype.constructor */
-  setJSProperty(prototype, "constructor", getPromiseConstructor(strict));
+  /**
+   * 25.4.5.2 Promise.prototype.constructor
+   *
+   * The initial value of Promise.prototype.constructor is the intrinsic object %Promise%.
+   */
+  createBuiltInPropertyWithFullDescriptor(prototype, "constructor", PromiseConstructor, true, false, true);
 
   /* 25.4.5.3 Promise.prototype.then ( onFulfilled , onRejected ) */
-  thenFunctionObject := CreateBuiltInFunctionObject(["onFulfilled", "onReject"],
-    "PromisePrototypeThen", globalObject, strict, null);
-  descriptor := newDataPropertyDescriptorFull(thenFunctionObject, true, false, true);
-  setJSProperty(prototype, "then", descriptor);
+  thenObj := CreateBuiltInFunctionObject(["onFulfilled", "onRejected"], "PromisePrototypeThen", global, strict, null);
+  createBuiltInPropertyWithFullDescriptor(prototype, "then", thenObj, true, false, true);
+  /* Length */
+  createBuiltInPropertyWithFullDescriptor(thenObj, "length", 2., false, false, true);
+  /* Name */
+  createBuiltInPropertyWithFullDescriptor(thenObj, "name", "then", false, false, true);
+
+  /**
+   * 25.4.5.4 Promise.prototype [ @@toStringTag ]
+   * 
+   * The initial value of the @@toStringTag property is the String value "Promise".
+   * 
+   * This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true }.
+   */
+  createBuiltInPropertyWithFullDescriptor(prototype, getToStringTagPropertyName(), "Promise", false, false, true);
 
   return prototype
 };
 
-function promiseSpeciesGetter(global, this, strict, args){
-  return this
+/**
+ * 25.4.5.1 Promise.prototype.catch (onRejected)
+ *
+ * When the catch method is called with argument onRejected the following steps 
+ * are taken: 
+ */
+function PromisePrototypeCatch(global, this, strict, args) {
+  onRejected := l_nth(args, 0);
+  /* 1. Let promise be the this value. */
+  promise := this;
+  /* 2. Return Invoke(promise, "then", «‍undefined, onRejected»). */
+  return Invoke(null, null, promise, "then", ['undefined, onRejected])
 };
 
-function InternalPromiseConstructor(obj, strict) {
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
-
-  PromisePrototype := getPromisePrototype(strict);
-
-  setInternalProperty(newlyConstructedObject, "Prototype", PromisePrototype);
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  setInternalProperty(newlyConstructedObject, "Class", "Promise");
-
-  setInternalProperty(newlyConstructedObject, "PromiseState", null);
-  setInternalProperty(newlyConstructedObject, "PromiseResult", null);
-  setInternalProperty(newlyConstructedObject, "PromiseFulfillReactions", null);
-  setInternalProperty(newlyConstructedObject, "PromiseRejectReactions", null);
-
-  return newlyConstructedObject
-};
-function getPromiseConstructor(strict) {
-  refPromise := newPropertyReference(|global|, "Promise", strict);
-  return GetValue(refPromise)
-};
-function getPromisePrototype(strict) {
-  PromiseObject := getPromiseConstructor(strict);
-  refPromiseProto := newPropertyReference(PromiseObject, "prototype", strict);
-  return GetValue(refPromiseProto)
-};
-function getPromiseConstructorFromPromiseObject(promiseObj, strict) {
-  /* promiseObj.constructor */
-  if (promiseObj.Code = "PromiseConstructor") {
-    return promiseObj
+/**
+ * 25.4.5.3 Promise.prototype.then (onFulfilled, onRejected)
+ *
+ * When the then method is called with arguments onFulfilled and onRejected the 
+ * following steps are taken: 
+ */
+function PromisePrototypeThen(global, this, strict, args) {
+  onFulfilled := l_nth(args, 0);
+  onRejected := l_nth(args, 1);
+  /* 1. Let promise be the this value. */
+  promise := this;
+  /* 2. If IsPromise(promise) is false, */
+  if (IsPromise(promise) = false) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
   };
-  refPromise := newPropertyReference(promiseObj, "constructor", strict);
-  return GetValue(refPromise)
+  /* 3. Let C be SpeciesConstructor(promise, %Promise%). */
+  C := SpeciesConstructor(promise, |Intrinsics|["Promise"]);
+  /* 4. ReturnIfAbrupt(C). */
+  @ReturnIfAbrupt(C);
+  /* 5. Let resultCapability be NewPromiseCapability(C). */
+  resultCapability := NewPromiseCapability(strict, C);
+  /* 6. ReturnIfAbrupt(resultCapability). */
+  @ReturnIfAbrupt(resultCapability);
+  /* 7. Return PerformPromiseThen(promise, onFulfilled, onRejected, 
+     resultCapability). */
+  return PerformPromiseThen(promise, onFulfilled, onRejected, resultCapability)
 };
+
+/**
+ * 25.4.5.3.1 PerformPromiseThen (promise, onFulfilled, onRejected, resultCapability)
+ *
+ * The abstract operation PerformPromiseThen performs the “then” operation on 
+ * promise using onFulfilled and onRejected as its settlement actions. The 
+ * result is resultCapability’s promise. 
+ */
+function PerformPromiseThen(promise, onFulfilled, onRejected, resultCapability) {
+  /* 1. Assert: IsPromise(promise) is true. */
+  assert(IsPromise(promise) = true);
+  /* 2. Assert: resultCapability is a PromiseCapability record. */
+  assert(isPromiseCapabilityRecord(resultCapability));
+  /* 3. If IsCallable(onFulfilled) is false, then */
+  if (IsCallable(onFulfilled) = false) {
+    /* a. Let onFulfilled be "Identity". */
+    onFulfilled := "Identity"
+  };
+  /* 4. If IsCallable(onRejected) is false, then */
+  if (IsCallable(onRejected) = false) {
+    /* a. Let onRejected be "Thrower". */
+    onRejected := "Thrower"
+  };
+  /* 5. Let fulfillReaction be the PromiseReaction { [[Capabilities]]: 
+     resultCapability, [[Handler]]: onFulfilled }. */
+  fulfillReaction := newPromiseReaction(resultCapability, onFulfilled);
+  /* 6. Let rejectReaction be the PromiseReaction { [[Capabilities]]: 
+     resultCapability, [[Handler]]: onRejected}. */
+  rejectReaction := newPromiseReaction(resultCapability, onRejected);
+  /* 7. If the value of promise's [[PromiseState]] internal slot is "pending", */
+  if (promise.PromiseState = "pending") {
+    /* a. Append fulfillReaction as the last element of the List that is the 
+       value of promise's [[PromiseFulfillReactions]] internal slot. */
+    promise.PromiseFulfillReactions := l_add(promise.PromiseFulfillReactions, fulfillReaction);
+    /* b. Append rejectReaction as the last element of the List that is the 
+       value of promise's [[PromiseRejectReactions]] internal slot. */
+    promise.PromiseRejectReactions := l_add(promise.PromiseRejectReactions, rejectReaction)
+  }
+  /* 8. Else if the value of promise's [[PromiseState]] internal slot is 
+     "fulfilled", */
+  elif (promise.PromiseState = "fulfilled") {
+    /* a. Let value be the value of promise's [[PromiseResult]] internal slot. */
+    value := promise.PromiseResult;
+    /* b. Perform EnqueueJob("PromiseJobs", PromiseReactionJob, 
+       «‍fulfillReaction, value»). */
+    EnqueueJob("PromiseJobs", "PromiseReactionJob", [fulfillReaction, value])
+  }
+  /* 9. Else if the value of promise's [[PromiseState]] internal slot is 
+     "rejected", */
+  elif (promise.PromiseState = "rejected") {
+    /* a. Let reason be the value of promise's [[PromiseResult]] internal slot. */
+    reason := promise.PromiseResult;
+    /* b. Perform EnqueueJob("PromiseJobs", PromiseReactionJob, 
+       «‍rejectReaction, reason»). */
+    EnqueueJob("PromiseJobs", "PromiseReactionJob", [rejectReaction, reason])
+  };
+  /* 10. Return resultCapability.[[Promise]]. */
+  return NormalCompletion(resultCapability.Promise)
+};
+
+
 function newPromiseReaction(capability, handler) {
   return { Capabilities: capability, Handler: handler }
 };
@@ -201,1287 +1335,10 @@ function NextJob(completion) {
 
 
 
-
-
-
-/* TODO - This function already exists in section 8.9 as "normalEmptyCompletion", but 
-  the function in section 8.9 should probably be renamed to "NormalCompletion"
-/*
-6.2.2.1 NormalCompletion
-
-The abstract operation NormalCompletion with a single argument, such as:
-
-    Return NormalCompletion(argument).
-
-Is a shorthand that is defined as follows:
-
-    Return Completion{[[type]]: normal, [[value]]: argument, [[target]]:empty}.
-*/
-function NormalCompletion(argument) {
-  return newCompletion('normal, argument, 'empty)
-};
-
-
-/**
- * 25.4 Promise Objects
- *
- * A Promise is an object that is used as a placeholder for the eventual
- * results of a deferred (and possibly asynchronous) computation.
- *
- * Any Promise object is in one of three mutually exclusive states:
- * fulfilled, rejected, and pending:
- *
- * - A promise p is fulfilled if p.then(f, r) will immediately enqueue
- *   a Job to call the function f.
- * - A promise p is rejected if p.then(f, r) will immediately enqueue
- *   a Job to call the function r.
- * - A promise is pending if it is neither fulfilled nor rejected.
- * 
- * A promise is said to be settled if it is not pending, i.e. if it is
- * either fulfilled or rejected.
- *
- * A promise is resolved if it is settled or if it has been “locked in”
- * to match the state of another promise. Attempting to resolve or reject
- * a resolved promise has no effect. A promise is unresolved if it is not
- * resolved. An unresolved promise is always in the pending state. A
- * resolved promise may be pending, fulfilled or rejected.
- */
-
-/**
- * 25.4.1 Promise Abstract Operations
- */
-
-/**
- * 25.4.1.1 PromiseCapability Records
- *
- * A PromiseCapability is a Record value used to encapsulate a promise
- * object along with the functions that are capable of resolving or
- * rejecting that promise object. PromiseCapability records are produced
- * by the NewPromiseCapability abstract operation.
- *
- * PromiseCapability Records have the fields listed in Table 57.
- *
- * Table 57 — PromiseCapability Record Fields
- * Field Name    Value                Meaning
- * [[Promise]]   An object            An object that is usable as a promise.
- * [[Resolve]]   A function object    The function that is used to resolve the given promise object.
- * [[Reject]]    A function object    The function that is used to reject the given promise object.
- */
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.1.1.1 IfAbruptRejectPromise (value, capability)
- *
- * IfAbruptRejectPromise is a short hand for a sequence of algorithm steps that 
- * use a PromiseCapability record. An algorithm step of the form: 
- *
- * 1. IfAbruptRejectPromise(value, capability).
- *
- * means the same thing as: 
- */
-macro IfAbruptRejectPromise(value, capability) {
-  /* 1. If value is an abrupt completion, */
-  if (isAnAbruptCompletion(value)) {
-    /* a. Let rejectResult be Call(capability.[[Reject]], undefined, 
-       «value.[[value]]»). */
-    rejectResult := Call(null, null, capability.Reject, 'undefined, [value]);
-    /* b. ReturnIfAbrupt(rejectResult). */
-    ReturnIfAbrupt(rejectResult); /* No need for @ when in side a macro */
-    /* c. Return capability.[[Promise]]. */
-    return capability.Promise
-  }
-  /* 2. Else if value is a Completion Record, */
-  elif (isCompletionRecord(value)) {
-    /* let value be value.[[value]] */
-    value := value
-  }
-};
-
-
-
-
-/**
- * 25.4.1.2 PromiseReaction Records
- *
- * The PromiseReaction is a Record value used to store information about
- * how a promise should react when it becomes resolved or rejected with a
- * given value. PromiseReaction records are created by the then method of
- * the Promise prototype, and are used by a PromiseReactionJob.
- *
- * PromiseReaction records have the fields listed in Table 58.
- *
- * Table 58 — PromiseReaction Record Fields
- * Field Name        Value                          Meaning
- * [[Capabilities]]  A PromiseCapability record     The capabilities of the promise for which this record provides a reaction handler.
- * [[Handler]]       A function object or a String  The function that should be applied to the incoming value, and whose return value will govern what happens to the derived promise. If [[Handler]] is "Identity" it is equivalent to a function that simply returns its first argument. If [[Handler]] is "Thrower" it is equivalent to a function that throws its first argument as an exception.
- */
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.1.3 CreateResolvingFunctions (promise)
- *
- * When CreateResolvingFunctions is performed with argument promise, the 
- * following steps are taken: 
- */
-function CreateResolvingFunctions(strict, promise) {
-  /* 1. Let alreadyResolved be a new Record { [[value]]: false }. */
-  alreadyResolved := { value: false };
-  /* 2. Let resolve be a new built-in function object as defined in Promise 
-     Resolve Functions (25.4.1.3.2). */
-     /* function CreateBuiltInFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, n) { */
-  resolve := CreateBuiltInFunctionObject(["resolution"], "PromiseResolveFunctions", |global|, strict, null);
-  resolveFun := lambda(global, this, strict, args)[resolve] {
-    return PromiseResolveFunctions(resolve, global, this, strict, args)
-  };
-  resolve.Code := resolveFun;
-  /* 3. Set the [[Promise]] internal slot of resolve to promise. */
-  resolve.Promise := promise;
-  /* 4. Set the [[AlreadyResolved]] internal slot of resolve to 
-     alreadyResolved. */
-  resolve.AlreadyResolved := alreadyResolved;
-  /* 5. Let reject be a new built-in function object as defined in Promise 
-     Reject Functions (25.4.1.3.1). */
-  reject := CreateBuiltInFunctionObject(["reason"], "PromiseRejectFunctions", |global|, strict, null);
-  rejectFun := lambda(global, this, strict, args)[reject] {
-    return PromiseRejectFunctions(reject, global, this, strict, args)
-  };
-  reject.Code := rejectFun;
-  /* 6. Set the [[Promise]] internal slot of reject to promise. */
-  reject.Promise := promise;
-  /* 7. Set the [[AlreadyResolved]] internal slot of reject to 
-     alreadyResolved. */
-  reject.AlreadyResolved := alreadyResolved;
-  /* 8. Return a new Record { [[Resolve]]: resolve, [[Reject]]: reject }. */
-  return { Resolve: resolve, Reject: reject }
-};
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.1.3.1 Promise Reject Functions
- *
- * A promise reject function is an anonymous built-in function that has 
- * [[Promise]] and [[AlreadyResolved]] internal slots. 
- *
- * When a promise reject function F is called with argument reason, the 
- * following steps are taken: 
- */
-function PromiseRejectFunctions(F, global, this, strict, args) {
-  reason := getOptionalParam(args, 0);
-  /* 1. Assert: F has a [[Promise]] internal slot whose value is an Object. */
-  assert(Type(F.Promise) = "Object");
-  /* 2. Let promise be the value of F's [[Promise]] internal slot. */
-  promise := F.Promise;
-  /* 3. Let alreadyResolved be the value of F's [[AlreadyResolved]] internal 
-     slot. */
-  alreadyResolved := F.AlreadyResolved;
-  /* 4. If alreadyResolved.[[value]] is true, */
-  if (alreadyResolved.value = true) {
-    /* return undefined */
-    return 'undefined
-  };
-  /* 5. Set alreadyResolved.[[value]] to true. */
-  alreadyResolved.value := true;
-  /* 6. Return RejectPromise(promise, reason). */
-  return RejectPromise(promise, reason)
-};
-/**
- * The length property of a promise reject function is 1. 
- */
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.1.3.2 Promise Resolve Functions
- *
- * A promise resolve function is an anonymous built-in function that has 
- * [[Promise]] and [[AlreadyResolved]] internal slots. 
- *
- * When a promise resolve function F is called with argument resolution, the 
- * following steps are taken: 
- */
-function PromiseResolveFunctions(F, global, this, strict, args) {
-  resolution := getOptionalParam(args, 0);
-  /* 1. Assert: F has a [[Promise]] internal slot whose value is an Object. */
-  assert(Type(F.Promise) = "Object");
-  /* 2. Let promise be the value of F's [[Promise]] internal slot. */
-  promise := F.Promise;
-  /* 3. Let alreadyResolved be the value of F's [[AlreadyResolved]] internal 
-     slot. */
-  alreadyResolved := F.AlreadyResolved;
-  /* 4. If alreadyResolved.[[value]] is true, */
-  if (alreadyResolved.value = true) {
-    /* return undefined */
-    return NormalCompletion('undefined)
-  };
-  /* 5. Set alreadyResolved.[[value]] to true. */
-  alreadyResolved.value := true;
-  /* 6. If SameValue(resolution, promise) is true, then */
-  if (SameValue(resolution, promise) = true) {
-    /* a. Let selfResolutionError be a newly created TypeError object. */
-    selfResolutionError := TypeErrorConstructorInternal();
-    /* b. Return RejectPromise(promise, selfResolutionError). */
-    return RejectPromise(promise, selfResolutionError)
-  };
-  /* 7. If Type(resolution) is not Object, then */
-  if (!(Type(resolution) = "Object")) {
-    /* a. Return FulfillPromise(promise, resolution). */
-    return FulfillPromise(promise, resolution)
-  };
-  /* 8. Let then be Get(resolution, "then"). */
-  then := Get(resolution, "then") catch PromiseExceptionHandler;
-  /* 9. If then is an abrupt completion, then */
-  if (isAnAbruptCompletion(then)) {
-    /* a. Return RejectPromise(promise, then.[[value]]). */
-    return RejectPromise(promise, then)
-  };
-  /* 10. Let thenAction be then.[[value]]. */
-  thenAction := then;
-  /* 11. If IsCallable(thenAction) is false, then */
-  if (IsCallable(thenAction) = false) {
-    /* a. Return FulfillPromise(promise, resolution). */
-    return FulfillPromise(promise, resolution)
-  };
-  /* 12. Perform EnqueueJob ("PromiseJobs", PromiseResolveThenableJob, 
-     «‍promise, resolution, thenAction») */
-  EnqueueJob("PromiseJobs", "PromiseResolveThenableJob", [strict, promise, resolution, thenAction]);
-  /* 13. Return undefined. */
-  return NormalCompletion('undefined)
-};
-/**
- * The length property of a promise resolve function is 1. 
- */
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.1.4 FulfillPromise (promise, value)
- *
- * When the FulfillPromise abstract operation is called with arguments promise 
- * and value the following steps are taken: 
- */
-function FulfillPromise(promise, value) {
-  /* 1. Assert: the value of promise's [[PromiseState]] internal slot is 
-     "pending". */
-  assert(promise.PromiseState = "pending");
-  /* 2. Let reactions be the value of promise's [[PromiseFulfillReactions]] 
-     internal slot. */
-  reactions := promise.PromiseFulfillReactions;
-  /* 3. Set the value of promise's [[PromiseResult]] internal slot to value. */
-  promise.PromiseResult := value;
-  /* 4. Set the value of promise's [[PromiseFulfillReactions]] internal slot 
-     to undefined. */
-  promise.PromiseFulfillReactions := 'undefined;
-  /* 5. Set the value of promise's [[PromiseRejectReactions]] internal slot to 
-     undefined. */
-  promise.PromiseRejectReactions := 'undefined;
-  /* 6. Set the value of promise's [[PromiseState]] internal slot to 
-     "fulfilled". */
-  promise.PromiseState := "fulfilled";
-  /* 7. Return TriggerPromiseReactions(reactions, value). */
-  return TriggerPromiseReactions(reactions, value)
-};
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.1.5 NewPromiseCapability (C)
- *
- * The abstract operation NewPromiseCapability takes a constructor function, and 
- * attempts to use that constructor function in the fashion of the built-in 
- * Promise constructor to create a Promise object and extract its resolve and 
- * reject functions. The promise plus the resolve and reject functions are used 
- * to initialize a new PromiseCapability record which is returned as the value 
- * of this abstract operation. 
- */
-function NewPromiseCapability(strict, C) {
-  /* 1. If IsConstructor(C) is false, */
-  if (IsConstructor(C) = false) {
-    /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-  /* 2. NOTE C is assumed to be a constructor function that supports the 
-     parameter conventions of the Promise constructor (see 25.4.3.1). */
-  /* TODO: A note to consider. */
-  /* 3. Let promiseCapability be a new PromiseCapability { [[Promise]]: 
-     undefined, [[Resolve]]: undefined, [[Reject]]: undefined }. */
-  promiseCapability := { Promise: 'undefined, Resolve: 'undefined, Reject: 'undefined };
-  /* 4. Let executor be a new built-in function object as defined in 
-     GetCapabilitiesExecutor Functions (25.4.1.5.1). */
-  executor := CreateBuiltInFunctionObject(["resolve","reject"], "GetCapabilitiesExecutorFunctions", |global|, strict, null);
-  executorFun := lambda(global, this, strict, args)[executor] {
-    return GetCapabilitiesExecutorFunctions(executor, global, this, strict, args)
-  };
-  executor.Code := executorFun;
-  /* 5. Set the [[Capability]] internal slot of executor to promiseCapability. */
-  executor.Capability := promiseCapability;
-  /* 6. Let promise be Construct(C, «executor»). */
-  promise := Construct(null, null, C, [executor], null);
-  /* 7. ReturnIfAbrupt(promise). */
-  @ReturnIfAbrupt(promise);
-  /* 8. If IsCallable(promiseCapability.[[Resolve]]) is false, */
-  if (IsCallable(promiseCapability.Resolve) = false) {
-    /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-  /* 9. If IsCallable(promiseCapability.[[Reject]]) is false, */
-  if (IsCallable(promiseCapability.Reject) = false) {
-    /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-  /* 10. Set promiseCapability.[[Promise]] to promise. */
-  promiseCapability.Promise := promise;
-  /* 11. Return promiseCapability. */
-  return promiseCapability
-};
-/**
- * NOTE This abstract operation supports Promise subclassing, as it is generic 
- * on any constructor that calls a passed executor function argument in the same 
- * way as the Promise constructor. It is used to generalize static methods of 
- * the Promise constructor to any subclass. 
- */
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.1.5.1 GetCapabilitiesExecutor Functions
- *
- * A GetCapabilitiesExecutor function is an anonymous built-in function that has 
- * a [[Capability]] internal slot. 
- *
- * When a GetCapabilitiesExecutor function F is called with arguments resolve 
- * and reject the following steps are taken: 
- */
-function GetCapabilitiesExecutorFunctions(F, global, this, strict, args) {
-  resolve := getOptionalParam(args, 0);
-  reject := getOptionalParam(args, 1);
-  /* 1. Assert: F has a [[Capability]] internal slot whose value is a 
-     PromiseCapability Record. */
-  assert(isPromiseCapabilityRecord(F.Capability));
-  /* 2. Let promiseCapability be the value of F's [[Capability]] internal 
-     slot. */
-  promiseCapability := F.Capability;
-  /* 3. If promiseCapability.[[Resolve]] is not undefined, */
-  if (!(promiseCapability.Resolve = 'undefined)) {
-    /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-  /* 4. If promiseCapability.[[Reject]] is not undefined, */
-  if (!(promiseCapability.Reject = 'undefined)) {
-    /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-  /* 5. Set promiseCapability.[[Resolve]] to resolve. */
-  promiseCapability.Resolve := resolve;
-  /* 6. Set promiseCapability.[[Reject]] to reject. */
-  promiseCapability.Reject := reject;
-  /* 7. Return undefined. */
-  return 'undefined
-};
-/**
- * The length property of a GetCapabilitiesExecutor function is 2. 
- */
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.1.6 IsPromise (x)
- *
- * The abstract operation IsPromise checks for the promise brand on an object. 
- */
-function IsPromise(x) {
-  /* 1. If Type(x) is not Object, */
-  if (!(Type(x) = "Object")) {
-    /* return false */
-    return false
-  };
-  /* 2. If x does not have a [[PromiseState]] internal slot, */
-  if (!("PromiseState" in_obj x)) {
-    /* return false */
-    return false
-  };
-  /* 3. Return true. */
-  return true
-};
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.1.7 RejectPromise (promise, reason)
- *
- * When the RejectPromise abstract operation is called with arguments promise 
- * and reason the following steps are taken: 
- */
-function RejectPromise(promise, reason) {
-  /* 1. Assert: the value of promise's [[PromiseState]] internal slot is 
-     "pending". */
-  assert(promise.PromiseState = "pending");
-  /* 2. Let reactions be the value of promise's [[PromiseRejectReactions]] 
-     internal slot. */
-  reactions := promise.PromiseRejectReactions;
-  /* 3. Set the value of promise's [[PromiseResult]] internal slot to reason. */
-  promise.PromiseResult := reason;
-  /* 4. Set the value of promise's [[PromiseFulfillReactions]] internal slot 
-     to undefined. */
-  promise.PromiseFulfillReactions := 'undefined;
-  /* 5. Set the value of promise's [[PromiseRejectReactions]] internal slot to 
-     undefined. */
-  promise.PromiseRejectReactions := 'undefined;
-  /* 6. Set the value of promise's [[PromiseState]] internal slot to 
-     "rejected". */
-  promise.PromiseState := "rejected";
-  /* 7. Return TriggerPromiseReactions(reactions, reason). */
-  return TriggerPromiseReactions(reactions, reason)
-};
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.1.8 TriggerPromiseReactions (reactions, argument)
- *
- * The abstract operation TriggerPromiseReactions takes a collection of 
- * PromiseReactionRecords and enqueues a new Job for each record. Each such Job 
- * processes the [[Handler]] of the PromiseReactionRecord, and if the 
- * [[Handler]] is a function calls it passing the given argument. 
- */
-function TriggerPromiseReactions(reactions, argument) {
-  /* 1. Repeat for each reaction in reactions, in original insertion order */
-  foreach (reaction : reactions) {
-    /* a. Perform EnqueueJob("PromiseJobs", PromiseReactionJob, «‍reaction, 
-       argument»). */
-    EnqueueJob("PromiseJobs", "PromiseReactionJob", [reaction, argument])
-  };
-  /* 2. Return undefined. */
-  return NormalCompletion('undefined)
-};
-
-
-
-
-/**
- * 25.4.2 Promise Jobs
- */
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.2.1 PromiseReactionJob (reaction, argument)
- *
- * The job PromiseReactionJob with parameters reaction and argument applies the 
- * appropriate handler to the incoming value, and uses the handler's return 
- * value to resolve or reject the derived promise associated with that handler. 
- */
-function PromiseReactionJob(reaction, argument) {
-  /* 1. Assert: reaction is a PromiseReaction Record. */
-  assert(isPromiseReactionRecord(reaction));
-  /* 2. Let promiseCapability be reaction.[[Capabilities]]. */
-  promiseCapability := reaction.Capabilities;
-  /* 3. Let handler be reaction.[[Handler]]. */
-  handler := reaction.Handler;
-  /* 4. If handler is "Identity", */
-  if (handler = "Identity") {
-    /* let handlerResult be NormalCompletion(argument) */
-    handlerResult := NormalCompletion(argument)
-  }
-  /* 5. Else if handler is "Thrower", */
-  elif (handler = "Thrower") {
-    /* let handlerResult be Completion{[[type]]: throw, [[value]]: argument, 
-       [[target]]: empty} */
-    handlerResult := throwEmptyCompletion(argument)
-  }
-  /* 6. Else, */
-  else {
-    /* let handlerResult be Call(handler, undefined, «argument») */
-    handlerResult := Call(null, null, handler, 'undefined, [argument])
-  };
-  /* 7. If handlerResult is an abrupt completion, then */
-  if (isAnAbruptCompletion(handlerResult)) {
-    /* a. Let status be Call(promiseCapability.[[Reject]], undefined, 
-       «handlerResult.[[value]]»). */
-    status := Call(null, null, promiseCapability.Reject, 'undefined, [handlerResult]);
-    /* b. NextJob Completion(status). */
-    NextJob(Completion(status))
-  };
-  /* 8. Let status be Call(promiseCapability.[[Resolve]], undefined, 
-     «handlerResult.[[value]]»). */
-  status := Call(null, null, promiseCapability.Resolve, 'undefined, [handlerResult]);
-  /* 9. NextJob Completion(status). */
-  NextJob(Completion(status));
-  return
-};
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.2.2 PromiseResolveThenableJob (promiseToResolve, thenable, then)
- *
- * The job PromiseResolveThenableJob with parameters promiseToResolve, thenable, 
- * and then performs the following steps: 
- */
-function PromiseResolveThenableJob(strict, promiseToResolve, thenable, then) {
-  /* 1. Let resolvingFunctions be CreateResolvingFunctions(promiseToResolve). */
-  resolvingFunctions := CreateResolvingFunctions(strict, promiseToResolve);
-  /* 2. Let thenCallResult be Call(then, thenable, 
-     «resolvingFunctions.[[Resolve]], resolvingFunctions.[[Reject]]»). */
-  thenCallResult := Call(null, null, then, thenable, [resolvingFunctions.Resolve, resolvingFunctions.Reject]);
-  /* 3. If thenCallResult is an abrupt completion, */
-  if (isAnAbruptCompletion(thenCallResult)) {
-    /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined, 
-       «thenCallResult.[[value]]»). */
-    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [thenCallResult]);
-    /* b. NextJob Completion(status). */
-    NextJob(Completion(status))
-  };
-  /* 4. NextJob Completion(thenCallResult). */
-  NextJob(Completion(thenCallResult));
-  return
-};
-/**
- * NOTE This Job uses the supplied thenable and its then method to resolve the 
- * given promise. This process must take place as a Job to ensure that the 
- * evaluation of the then method occurs after evaluation of any surrounding code 
- * has completed. 
- */
-
-
-
-
-
-/**
- * 25.4.3 The Promise Constructor
- *
- * The Promise constructor is the %Promise% intrinsic object and the
- * initial value of the Promise property of the global object. When
- * called as a constructor it creates and initializes a new Promise
- * object. Promise is not intended to be called as a function and will
- * throw an exception when called in that manner.
- *
- * The Promise constructor is designed to be subclassable. It may be
- * used as the value in an extends clause of a class definition. Subclass
- * constructors that intend to inherit the specified Promise behaviour
- * must include a super call to the Promise constructor to create and
- * initialize the subclass instance with the internal state necessary
- * to support the Promise and Promise.prototype built-in methods.
- */
-
-
 function PromiseExceptionHandler(x) {
   return throwEmptyCompletion(x)
-};
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.3.1 Promise (executor)
- *
- * When the Promise function is called with argument executor the following 
- * steps are taken: 
- */
-function PromiseConstructor(global, NewTarget, strict, args) {
-  executor := l_nth(args, 0);
-  /* 1. If NewTarget is undefined, */
-  if (NewTarget = 'undefined) {
-    /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-  /* 2. If IsCallable(executor) is false, */
-  if (IsCallable(executor) = false) {
-    /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-  /* 3. Let promise be OrdinaryCreateFromConstructor(NewTarget, 
-     "%PromisePrototype%", «‍[[PromiseState]], [[PromiseResult]], 
-     [[PromiseFulfillReactions]], [[PromiseRejectReactions]]» ). */
-  /*promise := OrdinaryCreateFromConstructor(NewTarget, "%PromisePrototype%", [null, null, null, null]);*/
-  /* ES5 workaround: */
-  promise := InternalPromiseConstructor(NewTarget, strict);
-
-  /* 4. ReturnIfAbrupt(promise). */
-  @ReturnIfAbrupt(promise);
-  /* 5. Set promise's [[PromiseState]] internal slot to "pending". */
-  promise.PromiseState := "pending";
-  /* 6. Set promise's [[PromiseFulfillReactions]] internal slot to a new empty 
-     List. */
-  promise.PromiseFulfillReactions := [];
-  /* 7. Set promise's [[PromiseRejectReactions]] internal slot to a new empty 
-     List. */
-  promise.PromiseRejectReactions := [];
-  /* 8. Let resolvingFunctions be CreateResolvingFunctions(promise). */
-  resolvingFunctions := CreateResolvingFunctions(strict, promise);
-  /* 9. Let completion be Call(executor, undefined, 
-     «resolvingFunctions.[[Resolve]], resolvingFunctions.[[Reject]]»). */
-  completion := Call(null, null, executor, 'undefined, [resolvingFunctions.Resolve, resolvingFunctions.Reject])
-  catch PromiseExceptionHandler; /* FIXME: Done by Call */
-  /* 10. If completion is an abrupt completion, then */
-  if (isAnAbruptCompletion(completion)) {
-    /* a. Let status be Call(resolvingFunctions.[[Reject]], undefined, 
-       «completion.[[value]]»). */
-    status := Call(null, null, resolvingFunctions.Reject, 'undefined, [completion]);
-    /* b. ReturnIfAbrupt(status). */
-    @ReturnIfAbrupt(status)
-  };
-  /* 11. Return promise. */
-  return promise
-};
-/**
- * NOTE The executor argument must be a function object. It is called for 
- * initiating and reporting completion of the possibly deferred action 
- * represented by this Promise object. The executor is called with two 
- * arguments: resolve and reject. These are functions that may be used by the 
- * executor function to report eventual completion or failure of the deferred 
- * computation. Returning from the executor function does not mean that the 
- * deferred action has been completed but only that the request to eventually 
- * perform the deferred action has been accepted. 
- *
- * The resolve function that is passed to an executor function accepts a single 
- * argument. The executor code may eventually call the resolve function to 
- * indicate that it wishes to resolve the associated Promise object. The 
- * argument passed to the resolve function represents the eventual value of the 
- * deferred action and can be either the actual fulfillment value or another 
- * Promise object which will provide the value if it is fulfilled. 
- *
- * The reject function that is passed to an executor function accepts a single 
- * argument. The executor code may eventually call the reject function to 
- * indicate that the associated Promise is rejected and will never be fulfilled. 
- * The argument passed to the reject function is used as the rejection value of 
- * the promise. Typically it will be an Error object. 
- *
- * The resolve and reject functions passed to an executor function by the 
- * Promise constructor have the capability to actually resolve and reject the 
- * associated promise. Subclasses may have different constructor behaviour that 
- * passes in customized values for resolve and reject. 
- */
-
-
-
-
-/**
- * 25.4.4 Properties of the Promise Constructor
- *
- * The value of the [[Prototype]] internal slot of the Promise constructor is
- * the intrinsic object %FunctionPrototype% (19.2.3).
- *
- * Besides the length property (whose value is 1), the Promise constructor has
- * the following properties:
- */
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.4.1 Promise.all (iterable)
- *
- * The all function returns a new promise which is fulfilled with an array of 
- * fulfillment values for the passed promises, or rejects with the reason of the 
- * first passed promise that rejects. It resolves all elements of the passed 
- * iterable to promises as it runs this algorithm. 
- */
-function PromiseAll(global, this, strict, args) {
-
-  iterable := l_nth(args, 0);
-
-  /* 1. Let C be the this value. */
-  C := this;
-  /* 2. If Type(C) is not Object, */
-  if (!(Type(C) = "Object")) {
-    /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-  /* 3. Let S be Get(C, @@species). */
-  /*S := Get(C, Symbol.species);*/
-  /* TODO ES5 workaround: */
-  S := getPromiseConstructorFromPromiseObject(C, strict);
-  /* 4. ReturnIfAbrupt(S). */
-  @ReturnIfAbrupt(S);
-  /* 5. If S is neither undefined nor null, */
-  if (!(S = 'undefined) &&& !(S = 'null)) {
-    /* let C be S */
-    C := S
-  };
-  /* 6. Let promiseCapability be NewPromiseCapability(C). */
-  promiseCapability := NewPromiseCapability(strict, C);
-  /* 7. ReturnIfAbrupt(promiseCapability). */
-  @ReturnIfAbrupt(promiseCapability);
-  /* 8. Let iterator be GetIterator(iterable). */
-  iterator := GetIterator(iterable, null);
-  /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
-  @IfAbruptRejectPromise(iterator, promiseCapability);
-  /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: 
-     false}. */
-  iteratorRecord := { iterator: iterator, done: false };
-  /* 11. Let result be PerformPromiseAll(iteratorRecord, C, promiseCapability). */
-  result := PerformPromiseAll(strict, iteratorRecord, C, promiseCapability);
-  /* 12. If result is an abrupt completion, */
-  if (isAnAbruptCompletion(result)) {
-    /* a. If iteratorRecord.[[done]] is false, */
-    if (iteratorRecord.done = false) {
-      /* let result be IteratorClose(iterator, result) */
-      result := IteratorClose(iterator, result)
-    };
-    /* b. IfAbruptRejectPromise(result, promiseCapability). */
-    @IfAbruptRejectPromise(result, promiseCapability)
-  };
-  /* 13. Return Completion(result). */
-  return Completion(result)
-};
-/**
- * NOTE The all function requires its this value to be a constructor function 
- * that supports the parameter conventions of the Promise constructor. 
- */
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.4.1.1 Runtime Semantics: PerformPromiseAll (iteratorRecord, constructor, resultCapability)
- *
- * When the PerformPromiseAll abstract operation is called with arguments 
- * iteratorRecord, constructor, and resultCapability the following steps are 
- * taken: 
- */
-function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability) {
-  /* 1. Assert: constructor is a constructor function. */
-  assert(IsConstructor(constructor));
-  /* 2. Assert: resultCapability is a PromiseCapability record. */
-  assert(isPromiseCapabilityRecord(resultCapability));
-  /* 3. Let values be a new empty List. */
-  values := [];
-  /* 4. Let remainingElementsCount be a new Record { [[value]]: 1 }. */
-  remainingElementsCount := { value: 1. };
-  /* 5. Let index be 0. */
-  index := 0.;
-  /* 6. Repeat */
-  repeat {
-    /* a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
-    next := IteratorStep(iteratorRecord.iterator);
-    /* b. If next is an abrupt completion, */
-    if (isAnAbruptCompletion(next)) {
-      /* set iteratorRecord.[[done]] to true */
-      iteratorRecord.done := true
-    };
-    /* c. ReturnIfAbrupt(next). */
-    @ReturnIfAbrupt(next);
-    /* d. If next is false, */
-    if (next = false) {
-      /* i. Set iteratorRecord.[[done]] to true. */
-      iteratorRecord.done := true;
-      /* ii. Set remainingElementsCount.[[value]] to 
-         remainingElementsCount.[[value]] - 1. */
-      remainingElementsCount.value := remainingElementsCount.value - 1.;
-      /* iii. If remainingElementsCount.[[value]] is 0, */
-      if (remainingElementsCount.value = 0.) {
-        /* 1. Let valuesArray be CreateArrayFromList(values). */
-        valuesArray := CreateArrayFromList(values);
-        /* 2. Let resolveResult be Call(resultCapability.[[Resolve]], undefined, 
-           «valuesArray»). */
-        resolveResult := Call(null, null, resultCapability.Resolve, 'undefined, [valuesArray]);
-        /* 3. ReturnIfAbrupt(resolveResult) */
-        @ReturnIfAbrupt(resolveResult)
-      };
-      /* iv. Return resultCapability.[[Promise]]. */
-      return NormalCompletion(resultCapability.Promise)
-    };
-    /* e. Let nextValue be IteratorValue(next). */
-    nextValue := IteratorValue(next);
-    /* f. If nextValue is an abrupt completion, */
-    if (isAnAbruptCompletion(nextValue)) {
-      /* set iteratorRecord.[[done]] to true */
-      iteratorRecord.done := true
-    };
-    /* g. ReturnIfAbrupt(nextValue). */
-    @ReturnIfAbrupt(nextValue);
-    /* h. Append undefined to values. */
-    stack := l_add(values, 'undefined);
-    /* i. Let nextPromise be Invoke(constructor, "resolve", «‍nextValue»). */
-    nextPromise := Invoke(null, null, constructor, "resolve", [nextValue]);
-    /* j. ReturnIfAbrupt(nextPromise ). */
-    @ReturnIfAbrupt(nextPromise);
-    /* k. Let resolveElement be a new built-in function object as defined in 
-       Promise.all Resolve Element Functions. */
-    resolveElement := CreateBuiltInFunctionObject(["iterable"], "PromiseAll", |global|, strict, null);
-    /* l. Set the [[AlreadyCalled]] internal slot of resolveElement to a new 
-       Record {[[value]]: false }. */
-    resolveElement.AlreadyCalled := { value: false };
-    /* m. Set the [[Index]] internal slot of resolveElement to index. */
-    resolveElement.Index := index;
-    /* n. Set the [[Values]] internal slot of resolveElement to values. */
-    resolveElement.Values := values;
-    /* o. Set the [[Capabilities]] internal slot of resolveElement to 
-       resultCapability. */
-    resolveElement.Capabilities := resultCapability;
-    /* p. Set the [[RemainingElements]] internal slot of resolveElement to 
-       remainingElementsCount. */
-    resolveElement.RemainingElements := remainingElementsCount;
-    /* q. Set remainingElementsCount.[[value]] to 
-       remainingElementsCount.[[value]] + 1. */
-    remainingElementsCount.value := remainingElementsCount.value + 1.;
-    /* r. Let result be Invoke(nextPromise, "then", «‍resolveElement, 
-       resultCapability.[[Reject]]»). */
-    result := Invoke(null, null, nextPromise, "then", [resolveElement, resultCapability.Reject]);
-    /* s. ReturnIfAbrupt(result). */
-    @ReturnIfAbrupt(result);
-    /* t. Set index to index + 1. */
-    index := index + 1.
-  };
-  return
-};
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.4.1.2 Promise.all Resolve Element Functions
- *
- * A Promise.all resolve element function is an anonymous built-in function that 
- * is used to resolve a specific Promise.all element. Each Promise.all resolve 
- * element function has [[Index]], [[Values]], [[Capabilities]], 
- * [[RemainingElements]], and [[AlreadyCalled]] internal slots. 
- *
- * When a Promise.all resolve element function F is called with argument x, the 
- * following steps are taken: 
- */
-function PromiseAllResolveElementFunctions(F, global, this, strict, args) {
-  x := getOptionalParam(args, 0);
-  /* 1. Let alreadyCalled be the value of F's [[AlreadyCalled]] internal slot. */
-  alreadyCalled := F.AlreadyCalled;
-  /* 2. If alreadyCalled.[[value]] is true, */
-  if (alreadyCalled.value = true) {
-    /* return undefined */
-    return 'undefined
-  };
-  /* 3. Set alreadyCalled.[[value]] to true. */
-  alreadyCalled.value := true;
-  /* 4. Let index be the value of F's [[Index]] internal slot. */
-  index := F.Index;
-  /* 5. Let values be the value of F's [[Values]] internal slot. */
-  values := F.Values;
-  /* 6. Let promiseCapability be the value of F's [[Capabilities]] internal 
-     slot. */
-  promiseCapability := F.Capabilities;
-  /* 7. Let remainingElementsCount be the value of F's [[RemainingElements]] 
-     internal slot. */
-  remainingElementsCount := F.RemainingElements;
-  /* 8. Set values[index] to x. */
-  values[index] := x;
-  /* 9. Set remainingElementsCount.[[value]] to 
-     remainingElementsCount.[[value]] - 1. */
-  remainingElementsCount.value := remainingElementsCount.value - 1.;
-  /* 10. If remainingElementsCount.[[value]] is 0, */
-  if (remainingElementsCount.value = 0.) {
-    /* a. Let valuesArray be CreateArrayFromList(values). */
-    valuesArray := CreateArrayFromList(values);
-    /* b. Return Call(promiseCapability.[[Resolve]], undefined, «valuesArray»). */
-    return Call(null, null, promiseCapability.Resolve, 'undefined, [valuesArray])
-  };
-  /* 11. Return undefined. */
-  return 'undefined
-};
-/**
- * The length property of a Promise.all resolve element function is 1. 
- */
-
-
-
-
-/**
- * 25.4.4.2 Promise.prototype
- * 
- * The initial value of Promise.prototype is the intrinsic object
- * %PromisePrototype% (25.4.5).
- * 
- * This property has the attributes { [[Writable]]: false, [[Enumerable]]:
- * false, [[Configurable]]: false }.
- */
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.4.3 Promise.race (iterable)
- *
- * The race function returns a new promise which is settled in the same way as 
- * the first passed promise to settle. It resolves all elements of the passed 
- * iterable to promises as it runs this algorithm. 
- */
-function PromiseRace(global, this, strict, args) {
-  iterable := l_nth(args, 0);
-  /* 1. Let C be the this value. */
-  C := this;
-  /* 2. If Type(C) is not Object, */
-  if (!(Type(C) = "Object")) {
-    /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-  /* 3. Let S be Get(C, @@species). */
-  /*S := Get(C, Symbol.species);*/
-  /* TODO ES5 workaround: */
-  S := getPromiseConstructorFromPromiseObject(C, strict);
-  /* 4. ReturnIfAbrupt(S). */
-  @ReturnIfAbrupt(S);
-  /* 5. If S is neither undefined nor null, */
-  if (!(S = 'undefined) &&& !(S = 'null)) {
-    /* let C be S */
-    C := S
-  };
-  /* 6. Let promiseCapability be NewPromiseCapability(C). */
-  promiseCapability := NewPromiseCapability(strict, C);
-  /* 7. ReturnIfAbrupt(promiseCapability). */
-  @ReturnIfAbrupt(promiseCapability);
-  /* 8. Let iterator be GetIterator(iterable). */
-  iterator := GetIterator(iterable, null);
-  /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
-  @IfAbruptRejectPromise(iterator, promiseCapability);
-  /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: 
-     false}. */
-  iteratorRecord := { iterator: iterator, done: false };
-  /* 11. Let result be PerformPromiseRace(iteratorRecord, promiseCapability, 
-     C). */
-  result := PerformPromiseRace(iteratorRecord, promiseCapability, C);
-  /* 12. If result is an abrupt completion, then */
-  if (isAnAbruptCompletion(result)) {
-    /* a. If iteratorRecord.[[done]] is false, */
-    if (iteratorRecord.done = false) {
-      /* let result be IteratorClose(iterator,result) */
-      result := IteratorClose(iterator, result)
-    };
-    /* b. IfAbruptRejectPromise(result, promiseCapability). */
-    @IfAbruptRejectPromise(result, promiseCapability)
-  };
-  /* 13. Return Completion(result). */
-  return Completion(result)
-};
-/**
- * NOTE 1 If the iterable argument is empty or if none of the promises in 
- * iterable ever settle then the pending promise returned by this method will 
- * never be settled 
- *
- * NOTE 2 The race function expects its this value to be a constructor function 
- * that supports the parameter conventions of the Promise constructor. It also 
- * expects that its this value provides a resolve method. 
- */
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.4.3.1 Runtime Semantics: PerformPromiseRace (iteratorRecord, promiseCapability, C)
- *
- * When the PerformPromiseRace abstract operation is called with arguments 
- * iteratorRecord, promiseCapability, and C the following steps are taken: 
- */
-function PerformPromiseRace(iteratorRecord, promiseCapability, C) {
-  /* 1. Repeat */
-  repeat {
-    /* a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
-    next := IteratorStep(iteratorRecord.iterator);
-    /* b. If next is an abrupt completion, */
-    if (isAnAbruptCompletion(next)) {
-      /* set iteratorRecord.[[done]] to true */
-      iteratorRecord.done := true
-    };
-    /* c. ReturnIfAbrupt(next). */
-    @ReturnIfAbrupt(next);
-    /* d. If next is false, then */
-    if (next = false) {
-      /* i. Set iteratorRecord.[[done]] to true. */
-      iteratorRecord.done := true;
-      /* ii. Return promiseCapability.[[Promise]]. */
-      return NormalCompletion(promiseCapability.Promise)
-    };
-    /* e. Let nextValue be IteratorValue(next). */
-    nextValue := IteratorValue(next);
-    /* f. If nextValue is an abrupt completion, */
-    if (isAnAbruptCompletion(nextValue)) {
-      /* set iteratorRecord.[[done]] to true */
-      iteratorRecord.done := true
-    };
-    /* g. ReturnIfAbrupt(nextValue). */
-    @ReturnIfAbrupt(nextValue);
-    /* h. Let nextPromise be Invoke(C, "resolve", «‍nextValue»). */
-    nextPromise := Invoke(null, null, C, "resolve", [nextValue]);
-    /* i. ReturnIfAbrupt(nextPromise). */
-    @ReturnIfAbrupt(nextPromise);
-    /* j. Let result be Invoke(nextPromise, "then", 
-       «‍promiseCapability.[[Resolve]], promiseCapability.[[Reject]]»). */
-    result := Invoke(null, null, nextPromise, "then", [promiseCapability.Resolve, promiseCapability.Reject]);
-    /* k. ReturnIfAbrupt(result). */
-    @ReturnIfAbrupt(result)
-  };
-  return
-};
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.4.4 Promise.reject (r)
- *
- * The reject function returns a new promise rejected with the passed argument. 
- */
-function PromiseReject(global, this, strict, args) {
-  r := l_nth(args, 0);
-  /* 1. Let C be the this value. */
-  C := this;
-  /* 2. If Type(C) is not Object, */
-  if (!(Type(C) = "Object")) {
-    /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-  /* 3. Let promiseCapability be NewPromiseCapability(C). */
-  promiseCapability := NewPromiseCapability(strict, C);
-  /* 4. ReturnIfAbrupt(promiseCapability). */
-  @ReturnIfAbrupt(promiseCapability);
-  /* 5. Let rejectResult be Call(promiseCapability.[[Reject]], undefined, 
-     «r»). */
-  rejectResult := Call(null, null, promiseCapability.Reject, 'undefined, [r]);
-  /* 6. ReturnIfAbrupt(rejectResult). */
-  @ReturnIfAbrupt(rejectResult);
-  /* 7. Return promiseCapability.[[Promise]]. */
-  return promiseCapability.Promise
-};
-/**
- * NOTE The reject function expects its this value to be a constructor function 
- * that supports the parameter conventions of the Promise constructor. 
- */
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.4.5 Promise.resolve (x)
- *
- * The resolve function returns either a new promise resolved with the passed 
- * argument, or the argument itself if the argument is a promise produced by 
- * this constructor. 
- */
-function PromiseResolve(global, this, strict, args) {
-  x := l_nth(args, 0);
-  /* 1. Let C be the this value. */
-  C := this;
-  /* 2. If Type(C) is not Object, */
-  if (!(Type(C) = "Object")) {
-    /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-  /* 3. If IsPromise(x) is true, */
-  if (IsPromise(x) = true) {
-    /* a. Let xConstructor be Get(x, "constructor"). */
-    xConstructor := Get(x, "constructor");
-    /* b. ReturnIfAbrupt(xConstructor). */
-    @ReturnIfAbrupt(xConstructor);
-    /* c. If SameValue(xConstructor, C) is true, */
-    if (SameValue(xConstructor, C) = true) {
-      /* return x */
-      return x
-    }
-  };
-  /* 4. Let promiseCapability be NewPromiseCapability(C). */
-  promiseCapability := NewPromiseCapability(strict, C);
-  /* 5. ReturnIfAbrupt(promiseCapability). */
-  @ReturnIfAbrupt(promiseCapability);
-  /* 6. Let resolveResult be Call(promiseCapability.[[Resolve]], undefined, 
-     «x»). */
-  resolveResult := Call(null, null, promiseCapability.Resolve, 'undefined, [x]);
-  /* 7. ReturnIfAbrupt(resolveResult). */
-  @ReturnIfAbrupt(resolveResult);
-  /* 8. Return promiseCapability.[[Promise]]. */
-  return promiseCapability.Promise
-};
-/**
- * NOTE The resolve function expects its this value to be a constructor function 
- * that supports the parameter conventions of the Promise constructor. 
- */
-
-
-/**
- * 25.4.4.6 get Promise [ @@species ]
- *
- * Promise[@@species] is an accessor property whose set accessor function
- * is undefined. Its get accessor function performs the following steps:
- *
- * 1. Return the this value.
- *
- * The value of the name property of this function is "get [Symbol.species]".
- *
- * NOTE Promise prototype methods normally use their this object’s constructor
- * to create a derived object. However, a subclass constructor may over-ride
- * that default behaviour by redefining its @@species property.
- */
-
-/**
- * 25.4.5 Properties of the Promise Prototype Object
- *
- * The Promise prototype object is the intrinsic object %PromisePrototype%.
- * The value of the [[Prototype]] internal slot of the Promise prototype
- * object is the intrinsic object %ObjectPrototype% (19.1.3). The Promise
- * prototype object is an ordinary object. It does not have a [[PromiseState]]
- * internal slot or any of the other internal slots of Promise instances.
- */
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.5.1 Promise.prototype.catch (onRejected)
- *
- * When the catch method is called with argument onRejected the following steps 
- * are taken: 
- */
-function PromisePrototypeCatch(global, this, strict, args) {
-  onRejected := l_nth(args, 0);
-  /* 1. Let promise be the this value. */
-  promise := this;
-  /* 2. Return Invoke(promise, "then", «‍undefined, onRejected»). */
-  return Invoke(null, null, promise, "then", ['undefined, onRejected])
-};
-
-
-
-
-/**
- * 25.4.5.2 Promise.prototype.constructor
- *
- * The initial value of Promise.prototype.constructor is the intrinsic object %Promise%.
- */
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.5.3 Promise.prototype.then (onFulfilled, onRejected)
- *
- * When the then method is called with arguments onFulfilled and onRejected the 
- * following steps are taken: 
- */
-function PromisePrototypeThen(global, this, strict, args) {
-  onFulfilled := l_nth(args, 0);
-  onRejected := l_nth(args, 1);
-  /* 1. Let promise be the this value. */
-  promise := this;
-  /* 2. If IsPromise(promise) is false, */
-  if (IsPromise(promise) = false) {
-    /* throw a TypeError exception */
-    throw TypeErrorConstructorInternal()
-  };
-  
-  /* 3. Let C be SpeciesConstructor(promise, %Promise%). */
-  /*C := SpeciesConstructor(promise, getPromiseConstructor(strict));*/
-  /* ES5 workaround */
-  C := getPromiseConstructor(strict);
-
-  /* 4. ReturnIfAbrupt(C). */
-  @ReturnIfAbrupt(C);
-  /* 5. Let resultCapability be NewPromiseCapability(C). */
-  resultCapability := NewPromiseCapability(strict, C);
-  /* 6. ReturnIfAbrupt(resultCapability). */
-  @ReturnIfAbrupt(resultCapability);
-  /* 7. Return PerformPromiseThen(promise, onFulfilled, onRejected, 
-     resultCapability). */
-  return PerformPromiseThen(promise, onFulfilled, onRejected, resultCapability)
-};
-
-
-
-
-/* XXX Function generated with HTML2ECMA-SL */
-/**
- * 25.4.5.3.1 PerformPromiseThen (promise, onFulfilled, onRejected, resultCapability)
- *
- * The abstract operation PerformPromiseThen performs the “then” operation on 
- * promise using onFulfilled and onRejected as its settlement actions. The 
- * result is resultCapability’s promise. 
- */
-function PerformPromiseThen(promise, onFulfilled, onRejected, resultCapability) {
-  /* 1. Assert: IsPromise(promise) is true. */
-  assert(IsPromise(promise) = true);
-  /* 2. Assert: resultCapability is a PromiseCapability record. */
-  assert(isPromiseCapabilityRecord(resultCapability));
-  /* 3. If IsCallable(onFulfilled) is false, then */
-  if (IsCallable(onFulfilled) = false) {
-    /* a. Let onFulfilled be "Identity". */
-    onFulfilled := "Identity"
-  };
-  /* 4. If IsCallable(onRejected) is false, then */
-  if (IsCallable(onRejected) = false) {
-    /* a. Let onRejected be "Thrower". */
-    onRejected := "Thrower"
-  };
-  /* 5. Let fulfillReaction be the PromiseReaction { [[Capabilities]]: 
-     resultCapability, [[Handler]]: onFulfilled }. */
-  fulfillReaction := newPromiseReaction(resultCapability, onFulfilled);
-  /* 6. Let rejectReaction be the PromiseReaction { [[Capabilities]]: 
-     resultCapability, [[Handler]]: onRejected}. */
-  rejectReaction := newPromiseReaction(resultCapability, onRejected);
-  /* 7. If the value of promise's [[PromiseState]] internal slot is "pending", */
-  if (promise.PromiseState = "pending") {
-    /* a. Append fulfillReaction as the last element of the List that is the 
-       value of promise's [[PromiseFulfillReactions]] internal slot. */
-    promise.PromiseFulfillReactions := l_add(promise.PromiseFulfillReactions, fulfillReaction);
-    /* b. Append rejectReaction as the last element of the List that is the 
-       value of promise's [[PromiseRejectReactions]] internal slot. */
-    promise.PromiseRejectReactions := l_add(promise.PromiseRejectReactions, rejectReaction)
-  }
-  /* 8. Else if the value of promise's [[PromiseState]] internal slot is 
-     "fulfilled", */
-  elif (promise.PromiseState = "fulfilled") {
-    /* a. Let value be the value of promise's [[PromiseResult]] internal slot. */
-    value := promise.PromiseResult;
-    /* b. Perform EnqueueJob("PromiseJobs", PromiseReactionJob, 
-       «‍fulfillReaction, value»). */
-    EnqueueJob("PromiseJobs", "PromiseReactionJob", [fulfillReaction, value])
-  }
-  /* 9. Else if the value of promise's [[PromiseState]] internal slot is 
-     "rejected", */
-  elif (promise.PromiseState = "rejected") {
-    /* a. Let reason be the value of promise's [[PromiseResult]] internal slot. */
-    reason := promise.PromiseResult;
-    /* b. Perform EnqueueJob("PromiseJobs", PromiseReactionJob, 
-       «‍rejectReaction, reason»). */
-    EnqueueJob("PromiseJobs", "PromiseReactionJob", [rejectReaction, reason])
-  };
-  /* 10. Return resultCapability.[[Promise]]. */
-  return NormalCompletion(resultCapability.Promise)
 }
 
-
-
-/**
- * 25.4.5.4 Promise.prototype [ @@toStringTag ]
- *
- * The initial value of the @@toStringTag property is the String value "Promise".
- *
- * This property has the attributes { [[Writable]]: false, [[Enumerable]]:
- *                                    false, [[Configurable]]: true }.
- */
 
 /**
  * 25.4.6 Properties of Promise Instances
@@ -1492,19 +1349,22 @@ function PerformPromiseThen(promise, onFulfilled, onRejected, resultCapability) 
  *
  * Table 59 — Internal Slots of Promise Instances
  *
- * Internal Slot                 Description
- *
- * [[PromiseState]]              A String value that governs how a promise will react
- *                               to incoming calls to its then method. The possible
- *                               values are: "pending", "fulfilled", and "rejected".
- *
- * [[PromiseResult]]             The value with which the promise has been fulfilled
- *                               or rejected, if any. Only meaningful if [[PromiseState]]
- *                               is not "pending".
- *
- * [[PromiseFulfillReactions]]   A List of PromiseReaction records to be processed when/if
- *                               the promise transitions from the "pending" state to the "fulfilled" state.
- *
- * [[PromiseRejectReactions]]    A List of PromiseReaction records to be processed when/if
- *                               the promise transitions from the "pending" state to the "rejected" state.
+ * -------------------------------------------------------------------------------------------------------------
+ * | Internal Slot               | Description                                                                 |
+ * |-----------------------------|-----------------------------------------------------------------------------|
+ * |-----------------------------|-----------------------------------------------------------------------------|
+ * | [[PromiseState]]            | A String value that governs how a promise will react                        |
+ * |                             | to incoming calls to its then method. The possible                          |
+ * |                             | values are: "pending", "fulfilled", and "rejected".                         |
+ * |-----------------------------|-----------------------------------------------------------------------------|
+ * | [[PromiseResult]]           | The value with which the promise has been fulfilled                         |
+ * |                             | or rejected, if any. Only meaningful if [[PromiseState]]                    |
+ * |                             | is not "pending".                                                           |
+ * |-----------------------------|-----------------------------------------------------------------------------|
+ * | [[PromiseFulfillReactions]] | A List of PromiseReaction records to be processed when/if                   |
+ * |                             | the promise transitions from the "pending" state to the "fulfilled" state.  |
+ * |-----------------------------|-----------------------------------------------------------------------------|
+ * | [[PromiseRejectReactions]]  | A List of PromiseReaction records to be processed when/if                   |
+ * |                             | the promise transitions from the "pending" state to the "rejected" state.   |
+ * -------------------------------------------------------------------------------------------------------------
  */

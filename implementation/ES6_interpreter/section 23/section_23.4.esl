@@ -47,21 +47,12 @@ function initWeakSetPrototype(global, objectPrototype, strict) {
     return prototype
 };
 
-function getWeakSetPrototype (strict) { 
-
-    refWeakSet := newPropertyReference(|global|, "WeakSet", strict);
-    WeakSetObject := GetValue(refWeakSet);
-
-    refWeakSetProto := newPropertyReference(WeakSetObject, "prototype", strict);
-    objectWeakSetProto := GetValue(refWeakSetProto);
-
-    return objectWeakSetProto
-}; 
 
 function initWeakSetObject(global, objectPrototype, strict) {
+    FunctionPrototype := getJSProperty(getJSProperty(global, "Function").Value, "prototype").Value;
 
     objWeakSetPrototype := initWeakSetPrototype(global, objectPrototype, strict);
-    objWeakSetConstructor := CreateFunctionObject(["items"], "WeakSetConstructor", global, strict, 0.);
+    objWeakSetConstructor := CreateBuiltInConstructorObject(FunctionPrototype, ["items"], "WeakSetConstructor", global, strict, 0., "WeakSet");
 
     descriptor := newDataPropertyDescriptorFull(objWeakSetConstructor, true, false, true);
     setJSProperty(objWeakSetPrototype, "constructor", descriptor);
@@ -85,7 +76,7 @@ function initWeakSetObject(global, objectPrototype, strict) {
 function WeakSetConstructor(global, this, strict, items) {
 
     iterable := getOptionalParam(items, 0);
-    NewTarget := this;
+    NewTarget := getJSProperty(global, "WeakSet").Value;
 
     /* 1. If NewTarget is undefined, throw a TypeError exception. */
     if (NewTarget = 'undefined) {
@@ -93,7 +84,7 @@ function WeakSetConstructor(global, this, strict, items) {
     };
     
     /* 2. Let set be OrdinaryCreateFromConstructor(NewTarget, "%WeakSetPrototype%", «‍[[WeakSetData]]» ). */
-    set := OrdinaryCreateFromConstructorWeakSet(strict);
+    set := OrdinaryCreateFromConstructor(NewTarget, "WeakSetPrototype", ["WeakSetData"]);
     
     /* 3. ReturnIfAbrupt(set). */
     @ReturnIfAbrupt(set);
@@ -138,7 +129,7 @@ function WeakSetConstructor(global, this, strict, items) {
     };
 
     /* 9. Repeat */
-    while (true) {
+    repeat {
 
         /* a. Let next be IteratorStep(iter). */
         next := IteratorStep(iter);
@@ -166,23 +157,6 @@ function WeakSetConstructor(global, this, strict, items) {
         }
     }
 };
-
-function OrdinaryCreateFromConstructorWeakSet(strict) {
-
-    objPrototype := getWeakSetPrototype(strict);
-
-    newlyConstructedObject := NewECMAScriptObject();
-    setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
-
-
-    setInternalProperty(newlyConstructedObject, "Prototype", objPrototype);
-    setInternalProperty(newlyConstructedObject, "Extensible", true);
-    setInternalProperty(newlyConstructedObject, "Class", "Object");
-
-
-    return newlyConstructedObject
-};
-
 
 /*
 *   23.4.3.1 WeakSet.prototype.add ( value )

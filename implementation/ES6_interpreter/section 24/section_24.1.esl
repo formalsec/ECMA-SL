@@ -716,27 +716,6 @@ function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isLittleEndian) {
   return 'undefined
 };
 
-/*
-  OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList ) 
-*/
-function OrdinaryCreateFromConstructorArrayBuffer(global, this, strict, items) {
-  arrayBufferPrototype := getArrayBufferPrototype(strict);
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
-  /* The [[Prototype]] internal property of the newly constructed object
-      is set to the original Array prototype object, the one that is the
-      initial value of Array.prototype (15.4.3.1). */
-  setInternalProperty(newlyConstructedObject, "Prototype", arrayBufferPrototype);
-  /* The [[Extensible]] internal property of the newly constructed object
-      is set to true. */
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  /* The [[Class]] internal property of the newly constructed object is
-      set to "Array". */
-  setInternalProperty(newlyConstructedObject, "Class", "Object");
-  newlyConstructedObject.IteratorFunction := "IteratorFunction";
-  return newlyConstructedObject
-};
-
 function getElementSize(type) {
   if (type = "Int8") {
     return 1

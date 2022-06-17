@@ -21,11 +21,13 @@ flags: [async]
 features: [Symbol.iterator]
 ---*/
 
-const iter = { 
-  get [Symbol.iterator]() {
+const iter = {
+  /* get [Symbol.iterator]() { // TODO: ComputedPropertyName
     throw new Test262Error("unreachable");
-  },
+  }, */
 };
+
+Object.defineProperty(iter, Symbol.iterator, { get: function() { throw new Test262Error("unreachable"); }})
 
 Promise.resolve = "certainly not callable";
 

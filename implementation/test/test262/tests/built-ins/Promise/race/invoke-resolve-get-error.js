@@ -21,10 +21,12 @@ features: [Symbol.iterator]
 ---*/
 
 const iter = {
-  get [Symbol.iterator]() {
+  /* get [Symbol.iterator]() { // Needs ComputedPropertyNames
     throw new Test262Error('unreachable');
-  },
+  }, */
 };
+
+Object.defineProperty(iter, Symbol.iterator, { get: function() { throw new Test262Error('unreachable'); } });
 
 const resolveError = { name: 'MyError' };
 Object.defineProperty(Promise, 'resolve', {

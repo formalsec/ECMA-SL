@@ -827,7 +827,7 @@ function OrdinaryCall(externalScope, ref, F, this, argumentsList) {
 	      If F does not have a [[Code]] internal property or if its value is an empty FunctionBody,
 	      then result is (normal, undefined, empty). */
 	if (!("Code" in_obj F) ||| ((typeof F.Code = __$Obj) &&& ("body" in_obj F.Code) &&& (F.Code.body = []))) {
-	  result := normalEmptyCompletion('undefined)
+	  result := NormalCompletion('undefined)
 	} else {
 	  result := JS_Interpreter_FunctionBody(F.Code, funcCtx)
 	};
