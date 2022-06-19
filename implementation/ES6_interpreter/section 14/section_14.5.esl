@@ -1,5 +1,4 @@
 function JS_Interpreter_ClassEvaluationExports(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt){
-    
     /* 1. Let status be the result of BindingClassDeclarationEvaluation of this ClassDeclaration. */
     status := BindingClassDeclarationEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt);
 
@@ -16,7 +15,6 @@ function JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageo
         /* let className be undefined */
         className := 'undefined
     }
-    
     /* 2. Else, */
     else {
         /* let className be StringValue of BindingIdentifier */
@@ -125,10 +123,10 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
         @ReturnIfAbrupt(superclass);
 
         /* 6e. If superclass is null, then */
-        if (superclass = null){
+        if (superclass = 'null){
 
             /* 6e i. Let protoParent be null. */
-            protoParent := null;
+            protoParent := 'null;
 
             /* 6e ii. Let constructorParent be the intrinsic object %FunctionPrototype%. */
             constructorParent := getFunctionPrototype(false)
@@ -142,7 +140,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
         /* 6g. Else */
         else{
             /* 6g i. If superclass has a [[FunctionKind]] internal slot whose value is "generator", throw a TypeError exception. */
-            if ("FunctionKind" in_obj superclass && superclass.FunctionKind = "generator"){
+            if ("FunctionKind" in_obj superclass &&& superclass.FunctionKind = "generator"){
                 throw TypeErrorConstructorInternal()
             };
             
@@ -154,7 +152,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
 
             /* 6g iv. If Type(protoParent) is neither Object nor Null, throw a TypeError exception. */
             type := Type(protoParent);
-            if (!( type = "Object" || type = "Null")){
+            if (!( type = "Object" ||| type = "Null")){
                 throw TypeErrorConstructorInternal()
             };
 
@@ -169,26 +167,29 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     /* 8. If ClassBodyopt is not present, let constructor be empty. */
     /* 9. Else, let constructor be ConstructorMethod of ClassBody. */
     allMethods := getSeparateMethods(ClassBodyopt.body);
-    constructor := allMethods.constructor.value;
+
+    if (allMethods.constructor = 'empty){
+        constructor := 'empty
+    } else {
+        constructor := allMethods.constructor.value;
+    };
 
     /* 10. If constructor is empty, then, */
-    if (constructor = 'empty){
+    if (constructor = 'empty) {
         /* 10a. If ClassHeritageopt is present, then */
         if (!(ClassHeritageopt = null)){
             /* 10a i. Let constructor be the result of parsing the source text
                 constructor(... args){ super (...args);}
             using the syntactic grammar with the goal symbol MethodDefinition. */
-
-            /* TO-DO */
+            constructor := CreateEmptyConstructor()
         }
-            
+
         /* 10b. Else, */
         else{
             /* 10b i. Let constructor be the result of parsing the source text
                 constructor( ){ }
-            using the syntactic grammar with the goal symbol MethodDefinition. 
-            
-                Nothing to do! */
+            using the syntactic grammar with the goal symbol MethodDefinition.*/
+            constructor := CreateEmptyConstructor()
         }
             
     };
@@ -248,7 +249,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
                 setLexicalEnvironment(scope, lex);
 
                 /* 21c ii. Return Completion(status). */
-                return newCompletion(status)
+                return Completion(status)
             }
             
         };
@@ -286,9 +287,26 @@ function getSeparateMethods(body){
             } else {
                 regularMethods := l_add (regularMethods, e)
             }
+        } elif (e.type = "Property") {
+            regularMethods := l_add (regularMethods, e)
         };
         i := i + 1
     };
 
     return {constructor: constructor, regularMethods: regularMethods}
+};
+
+function CreateEmptyConstructor(){
+    constructor := {};
+    constructor.type := "FunctionExpression";
+	constructor.id := 'null;
+	constructor.params := [];
+	constructor.body := {
+		type: "BlockStatement",
+		body: []
+	};
+	constructor.generator := false;
+	constructor.expression := false;
+	constructor.async := false;
+    return constructor
 }

@@ -1,8 +1,8 @@
 function DefineMethodAlt(scope, object, method, functionPrototype){
     FunctionBody := method.body;
     FormalParameterListopt := method.params;
-    F := CreateFunctionObject(FormalParameterListopt, FunctionBody, getVariableEnvironment(scope), false, null);
-    return { closure: F } 
+    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, false, null);
+    return { closure: F }
 };
 
 /**
@@ -13,7 +13,7 @@ function DefineMethodAlt(scope, object, method, functionPrototype){
 function DefineMethodProperty(scope, object, propertyName, func, functionPrototype){
   
   /* 1. Let propKey be the result of evaluating PropertyName. */
-  propKey := propertyName.name;
+  propKey := EvaluateMethod(propertyName, scope);
 
   /* 2. ReturnIfAbrupt(propKey). */
   @ReturnIfAbrupt(propKey);
@@ -22,7 +22,7 @@ function DefineMethodProperty(scope, object, propertyName, func, functionPrototy
   /* strict := isStrictModeCode(getFunctionCode(functionPrototype), scope); */
 
   /* 4. Let scope be the running execution context’s LexicalEnvironment. */
-  scope := getLexicalEnvironment(scope);
+  lexEnv := getLexicalEnvironment(scope);
 
   /* 5. If functionPrototype was passed as a parameter, let kind be Normal; otherwise let kind be Method. */
   if (!(functionPrototype = null)) {
@@ -35,12 +35,13 @@ function DefineMethodProperty(scope, object, propertyName, func, functionPrototy
      FunctionBody, scope, strict). If functionPrototype was passed as a 
      parameter then pass its value as the functionPrototype optional 
      argument of FunctionCreate. */
-  closure := CreateFunctionObject(func.params, func.body, scope, false, null);
+  closure := FunctionCreate(kind, func.params, func.body, lexEnv, false, functionPrototype);
 
   /* 7. Perform MakeMethod(closure, object). */
   MakeMethod(closure, object);
 
   /* 8. Return the Record{[[key]]: propKey, [[closure]]: closure}. */
+  propKey := ToString(propKey);
   return {key: propKey, closure: closure}
 };
 
@@ -65,7 +66,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
     }
     | {type: "MethodDefinition", kind: "get", key: key, value: func} -> {
         /* 1. Let propKey be the result of evaluating PropertyName. */
-        propKey := key.name;
+        propKey := EvaluateMethod(key, scope);
 
         /* 2. ReturnIfAbrupt(propKey). */
         @ReturnIfAbrupt(propKey);
@@ -75,14 +76,14 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
         /* strict := isStrictModeCode(getFunctionCode(func), scope); */
 
         /* 4. Let scope be the running execution context’s LexicalEnvironment. */
-        scope := getLexicalEnvironment(scope);
+        lexEnv := getLexicalEnvironment(scope);
 
         /* 5. Let formalParameterList be the production FormalParameters : [empty] */
-        formalParameterList := ['empty]; /* Pode não estar correto!!! */
+        formalParameterList := [];
 
         /* 6. Let closure be FunctionCreate(Method, formalParameterList, 
             FunctionBody, scope, strict). */
-        closure := CreateFunctionObject(func.params, func.body, scope, false, null);
+        closure := FunctionCreate("Method", func.params, func.body, lexEnv, false, null);
 
         /* 7. Perform MakeMethod(closure, object). */
         MakeMethod(closure, object);
@@ -99,7 +100,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
     }
     | {type: "MethodDefinition", kind: "set", key: key, value: func} -> {
         /* 1. Let propKey be the result of evaluating PropertyName. */
-        propKey := key.name;
+        propKey := EvaluateMethod(key, scope);
 
         /* 2. ReturnIfAbrupt(propKey). */
         @ReturnIfAbrupt(propKey);
@@ -109,11 +110,11 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
         /* strict := isStrictModeCode(getFunctionCode(func), scope); */
 
         /* 4. Let scope be the running execution context’s LexicalEnvironment. */
-        scope := getLexicalEnvironment(scope);
+        lexEnv := getLexicalEnvironment(scope);
 
         /* 5. Let closure be FunctionCreate(Method, formalParameterList, 
             FunctionBody, scope, strict). */
-        closure := CreateFunctionObject(func.params, func.body, scope, false, null);
+        closure := FunctionCreate("Method", func.params, func.body, lexEnv, false, null);
 
         /* 6. Perform MakeMethod(closure, object). */
         MakeMethod(closure, object);
@@ -129,6 +130,33 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
         return DefinePropertyOrThrow(object, propKey, desc)
 
     }
+    | {type: "Property", key: key, value: value } -> {
+      /* 1. Let propKey be the result of evaluating PropertyName. */
+      propKey := JS_Interpreter_Expr(key, scope);
+      /* 2. ReturnIfAbrupt(propKey). */
+      @ReturnIfAbrupt(propKey);
+      /* 3. Let exprValueRef be the result of evaluating AssignmentExpression. */
+      exprValueRef := JS_Interpreter_Expr(value, scope);
+      /* 4. Let propValue be GetValue(exprValueRef). */
+      propValue := GetValue(exprValueRef);
+      /* 5. ReturnIfAbrupt(propValue). */
+      @ReturnIfAbrupt(propValue);
+      /*TODO 6:*/
+      /* 7. Assert: enumerable is true. */
+      /* assert(enumerable = true); */
+      /* 8. Return CreateDataPropertyOrThrow(object, propName, propValue). */
 
+      return CreateDataPropertyOrThrow(object, ToString(propKey), propValue)
+    }
+
+};
+
+function EvaluateMethod(expression, scope) {
+    evaluation := JS_Interpreter_Expr(expression, scope);
+    @ReturnIfAbrupt(evaluation);
+    if (Type(evaluation) = "Reference") {
+        return GetReferencedName(evaluation)
+    } else {
+        return ToString(evaluation)
+    }
 }
-

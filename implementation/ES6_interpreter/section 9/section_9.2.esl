@@ -89,10 +89,10 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
     assert(Type(newTarget) = "Undefined" ||| Type(newTarget) = "Object");
 
     /* 2. Let callerContext be the running execution context. */
-    if (externalScope = null) {
-      externalScope := F.Environment
-    };
     callerContext := externalScope;
+    if (externalScope = null) {
+      callerContext := F.Environment
+    };
 
     /* 3. Let calleeContext be a new ECMAScript code execution context. */
     calleeContext := createExecutionContext();
@@ -1048,7 +1048,7 @@ function getIsSimpleParameterListFromFunction(codeObj) {
 };
 
 function getParamsNamesInFromFunction(codeObj) {
-  if (codeObj = 'undefined ||| (!(Type(codeObj) = "Object"))) {
+  if (codeObj = 'undefined ||| (!(Type(codeObj) = "Object")) ||| !("paramsNames" in_obj codeObj)) {
     return []
   };
   return codeObj.paramsNames

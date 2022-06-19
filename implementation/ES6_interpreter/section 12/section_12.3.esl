@@ -57,54 +57,125 @@ function ArgumentListEvaluation(Arguments, scope) {
 };
 
 /* 12.3.5 The super Keyword */
+function SuperPropertyEvaluationA(scope, Expression) {
+    /* 1. Let propertyNameReference be the result of evaluating Expression. */
+    propertyNameReference := JS_Interpreter_Expr(Expression);
 
-/* 12.3.5.1 Runtime Semantics: Evaluation */
+    /* 2. Let propertyNameValue be GetValue(propertyNameReference). */
+    propertyNameValue := GetValue(propertyNameReference);
 
-/* SuperCall : super Arguments */
-function SuperCall(Arguments, scope) {
-  /* 1. Let newTarget be GetNewTarget(). */
-  newTarget := GetNewTarget(scope);
-  /* 2. If newTarget is undefined, throw a ReferenceError exception. */
-  if (newTarget = 'undefined) {
-    throw ReferenceErrorConstructorInternal()
-  };
-  /* 3. Let func be GetSuperConstructor(). */
-  func := GetSuperConstructor(scope);
-  /* 4. ReturnIfAbrupt(func). */
-  @ReturnIfAbrupt(func);
-  /* 5. Let argList be ArgumentListEvaluation of Arguments. */
-  argList := ArgumentListEvaluation(Arguments, scope);
-  /* 6. ReturnIfAbrupt(argList). */
-  @ReturnIfAbrupt(argList);
-  /* 7. Let result be Construct(func, argList, newTarget). */
-  result := Construct(scope, null, func, argList, newTarget);
-  /* 8. ReturnIfAbrupt(result). */
-  @ReturnIfAbrupt(result);
-  /* 9. Let thisER be GetThisEnvironment( ). */
-  thisER := GetThisEnvironment(scope);
-  /* 10. Return thisER.BindThisValue(result). */
-  return {thisER.BindThisValue}(thisER, result)
+    /* 3. Let propertyKey be ToPropertyKey(propertyNameValue). */
+    propertyKey := ToPropertyKey(propertyNameValue);
+
+    /* 4. ReturnIfAbrupt(propertyKey). */
+    @ReturnIfAbrupt(propertyKey);
+
+    /* 5. If the code matched by the syntactic production that is being 
+        evaluated is strict mode code, let strict be true, else let strict be false */
+    /* strict = ???? */
+
+    /* 6. Return MakeSuperPropertyReference(propertyKey, strict). */
+    return MakeSuperPropertyReference(propertyKey, strict)
 };
 
-/* 12.3.5.2 Runtime Semantics: GetSuperConstructor ( )
- * 
- * The abstract operation GetSuperConstructor performs the following steps:
+function SuperPropertyEvaluationB(IdentifierName, propertyKey) {
+    /* 1. Let propertyKey be StringValue of IdentifierName. */
+    propertyKey := StringValue(IdentifierName);
+
+    /* 2. If the code matched by the syntactic production that is being 
+        evaluated is strict mode code, let strict be true, else let strict be false */
+    /* strict = ???? */
+
+    /* 3. Return MakeSuperPropertyReference(propertyKey, strict). */
+    return MakeSuperPropertyReference(propertyKey, strict)
+};
+
+function SuperPropertyEvaluationAlt(scope, propExpression){
+    lex := getLexicalEnvironment(scope);
+    newTarget := GetNewTargetAlt(scope, lex);
+    if (newTarget = 'undefined){
+        throw ReferenceErrorConstructorInternal()
+    };
+    func := GetSuperConstructorAlt(newTarget);
+    propertyNameReference := JS_Interpreter_Expr(propExpression, scope);
+    propertyNameValue := GetValue(propertyNameReference);
+    propertyNameString := ToPropertyKey(propertyNameValue);
+    if (isContainedInStrictCode(scope)) {
+      strict := true
+    } else {
+      strict := false
+    };
+    return newPropertyReference(func, propertyNameString, strict)
+};
+
+function SuperCallEvaluation(scope, Arguments) {
+    /* 1. Let newTarget be GetNewTarget(). */
+    lex := getLexicalEnvironment(scope);
+    print "debug43";
+    newTarget := GetNewTargetAlt(scope, lex);
+
+    /* 2. If newTarget is undefined, throw a ReferenceError exception. */
+    if (newTarget = 'undefined){
+        throw ReferenceErrorConstructorInternal()
+    };
+
+    /* 3. Let func be GetSuperConstructor(). */
+    func := GetSuperConstructorAlt(newTarget);
+
+    /* 4. ReturnIfAbrupt(func). */
+    @ReturnIfAbrupt(func);
+
+    /* 5. Let argList be ArgumentListEvaluation of Arguments. */
+    argList := JS_Interpreter_Arguments(Arguments, scope);
+
+    /* 6. ReturnIfAbrupt(argList). */
+    @ReturnIfAbrupt(argList);
+
+    /* 7. Let result be Construct(func, argList, newTarget). */
+    {func.Call}(null, null, func, newTarget, argList);
+    print "debug44";
+    print newTarget;
+    print newTarget.JSProperties;
+    /* 8. ReturnIfAbrupt(result). */
+    /* @ReturnIfAbrupt(result); */
+
+    /* 9. Let thisER be GetThisEnvironment( ). */
+    /* thisER := GetThisEnvironmentAlt(scope, lex) */
+
+    /* 10. Return thisER.BindThisValue(result). */
+    /* return BindThisValue(thisER, result) */
+    return newTarget
+};
+
+/**
+ * 12.3.5.2 Runtime Semantics: GetSuperConstructor
+ *
+ * The abstract operation GetSuperConstructor performs the following steps: 
  */
-function GetSuperConstructor(scope) {
-  /* 1. Let envRec be GetThisEnvironment( ). */
-  envRec := GetThisEnvironment(scope);
-  /* 2. Assert: envRec is a function Environment Record. */
-  assert(Type(envRec) = "EnvironmentRecord");
-  /* 3. Let activeFunction be envRec.[[FunctionObject]]. */
-  activeFunction := envRec.FunctionObject;
-  /* 4. Let superConstructor be activeFunction.[[GetPrototypeOf]](). */
-  superConstructor := {activeFunction.GetPrototypeOf}(activeFunction);
-  /* 5. ReturnIfAbrupt(superConstructor). */
-  @ReturnIfAbrupt(superConstructor);
-  /* 6. If IsConstructor(superConstructor) is false, throw a TypeError exception. */
-  if (IsConstructor(superConstructor) = false) {
-    throw TypeErrorConstructorInternal()
-  };
-  /* 7. Return superConstructor. */
-  return superConstructor
+function GetSuperConstructor(scope, lex) {
+    print "debug46";
+    /* 1. Let envRec be GetThisEnvironment( ). */
+    envRec := GetThisEnvironmentAlt(scope, lex);
+    /* 2. Assert: envRec is a function Environment Record. */
+    /* assert(type(envRec) = "EnvironmentRecord"); */
+    /* 3. Let activeFunction be envRec.[[FunctionObject]]. */
+    /* activeFunction := envRec.FunctionObject; */
+    /* 4. Let superConstructor be activeFunction.[[GetPrototypeOf]](). */
+    superConstructor := GetPrototypeOf(activeFunction);
+    /* 5. ReturnIfAbrupt(superConstructor). */
+    @ReturnIfAbrupt(superConstructor);
+    /* 6. If IsConstructor(superConstructor) is false, */
+    if (IsConstructor(superConstructor) = false) {
+        /* throw a TypeError exception */
+        throw TypeErrorConstructorInternal()
+    };
+    /* 7. Return superConstructor. */
+    return superConstructor
+};
+
+function GetSuperConstructorAlt (this){
+    thisProto := this.Prototype;
+    superProto := thisProto.Prototype;
+    constructor := getJSProperty(superProto, "constructor");
+    return constructor.Value
 }

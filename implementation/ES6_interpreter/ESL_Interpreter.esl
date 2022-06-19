@@ -233,13 +233,16 @@ function JS_Interpreter_Expr(e, scope) {
     
     /* 3. Let propertyNameReference be the result of evaluating Expression. */
     propertyNameReference := JS_Interpreter_Expr(Expression, scope);
-    
+
     /* 4. Let propertyNameValue be GetValue(propertyNameReference). */
     propertyNameValue := GetValue(propertyNameReference);
 
     @ReturnIfAbrupt(propertyNameValue);
     
     /* 5. Call CheckObjectCoercible(baseValue). */
+    if (propertyNameReference = "next") {
+      fail "Unsupported: next"
+    };
     CheckObjectCoercible(baseValue);
     /* 6. Let propertyNameString be ToString(propertyNameValue). */
     propertyNameString := ToPropertyKey(propertyNameValue);
@@ -455,8 +458,36 @@ function JS_Interpreter_Expr(e, scope) {
   | { type: "YieldExpression"} -> {
     fail "Unsupported: Yield"
   }
-  | { type: "ClassExpression"} -> {
-    fail "Unsupported: Class"
+  | { type: "ClassExpression", id: id, body: body, superClass: superClass } -> {
+    /* 1. If BindingIdentifieropt is not present, */
+    if (id = null) {
+      /* let className be undefined */
+      className := 'undefined
+    }
+    /* 2. Else, */
+    else {
+      /* let className be StringValue of BindingIdentifier */
+      className := StringValue(id.name)
+    };
+    /* 3. Let value be the result of ClassDefinitionEvaluation of ClassTail with
+      argument className. */
+    value := ClassDefinitionEvaluation(scope, className, superClass, body);
+    /* 4. ReturnIfAbrupt(value). */
+    @ReturnIfAbrupt(value);
+    /* 5. If className is not undefined, then */
+    if (!(className = 'undefined)) {
+      /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
+      hasNameProperty := HasOwnProperty(value, "name");
+      /* b. ReturnIfAbrupt(hasNameProperty). */
+      @ReturnIfAbrupt(hasNameProperty);
+      /* c. If hasNameProperty is false, then */
+      if (hasNameProperty = false) {
+        /* i. Perform SetFunctionName(value, className). */
+        SetFunctionName(value, className, null)
+      }
+    };
+    /* 6. Return NormalCompletion(value). */
+    return NormalCompletion(value)
   }
   | default -> {
     print "default case";
