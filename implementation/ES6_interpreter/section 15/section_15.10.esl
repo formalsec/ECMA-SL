@@ -72,7 +72,7 @@ function escapePattern(P) {
   return S
 };
 
-function regExpSpeciesGetter(global, this, strict, args){
+function regExpSpeciesGetter(global, this, NewTarget, strict, args){
   return this
 };
 
@@ -257,7 +257,7 @@ function getRegExpPrototypeExec(strict) {
  * The String ToString(string) is searched for an occurrence of the regular
  * expression pattern as follows:
  */
-function RegExpPrototypeExec(global, this, strict, args) {
+function RegExpPrototypeExec(global, this, NewTarget, strict, args) {
   string := l_nth (args, 0);
   
   /* 1. Let R be this RegExp object. */
@@ -352,7 +352,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
   n := int_to_float r.caps.len;
   /* 13. Let A be a new array created as if by the expression new Array()
     where Array is the standard built-in constructor with that name. */
-  A := ArrayConstructor(global, this, strict, []);
+  A := ArrayConstructor(global, this, 'undefined, strict, []);
   /* 14. Let matchIndex be the position of the matched substring within
     the complete String S. */
   matchIndex := int_to_float i;
@@ -415,13 +415,13 @@ function isRegExpObject(arg) {
  *
  * The following steps are taken:
  */
-function RegExpPrototypeTest(global, this, strict, args) {
+function RegExpPrototypeTest(global, this, NewTarget, strict, args) {
 
   string := l_nth (args, 0);
 
   /* 1. Let match be the result of evaluating the RegExp.prototype.exec
     (15.10.6.2) algorithm upon this RegExp object using string as the argument. */
-  match2 := RegExpPrototypeExec(global, this, strict, [string]);
+  match2 := RegExpPrototypeExec(global, this, 'undefined, strict, [string]);
   /* 2. If match is not null, then return true; else return false. */
   if (!(match2 = 'null)) {
     return true
@@ -441,7 +441,7 @@ function RegExpPrototypeTest(global, this, strict, args) {
  * NOTE The returned String has the form of a RegularExpressionLiteral that
  * evaluates to another RegExp object with the same behaviour as this object. 
  */
-function RegExpPrototypeToString(global, this, strict, args) {
+function RegExpPrototypeToString(global, this, NewTarget, strict, args) {
   source := s_concat(["/", this.OriginalSource, "/"]);
   g := this.OriginalFlags.gb;
   i := this.OriginalFlags.ic;

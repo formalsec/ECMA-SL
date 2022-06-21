@@ -137,7 +137,7 @@ function initSymbolObject(global, objectPrototype, strict) {
 };
 
 /* 19.4.1.1 Symbol ([description]) */
-function SymbolConstructor(global, NewTarget, strict, args) {
+function SymbolConstructor(global, this, NewTarget, strict, args) {
   description := getOptionalParam(args, 0); 
 
   /* 1. If NewTarget is not undefined, throw a TypeError exception. */ 
@@ -168,7 +168,7 @@ function SymbolObjectConstructor(symbolData) {
 };
 
 /* 19.4.2.1 Symbol.for (key) */
-function symbolFor(global, this, strict, args) {
+function symbolFor(global, this, NewTarget, strict, args) {
   
   key := l_nth(args, 0);
 
@@ -199,7 +199,7 @@ function symbolFor(global, this, strict, args) {
 };
 
 /* 19.4.2.5 Symbol.keyFor (sym) */
-function symbolKeyFor(global, this, strict, args) {
+function symbolKeyFor(global, this, NewTarget, strict, args) {
 
   sym := l_nth(args, 0);
   
@@ -222,7 +222,7 @@ function symbolKeyFor(global, this, strict, args) {
 };
 
 /* 19.4.3.2 Symbol.prototype.toString () */
-function symbolToString(global, this, strict, args){
+function symbolToString(global, this, NewTarget, strict, args){
 
   /* 1. Let s be the this value. */
   s := this;
@@ -275,7 +275,7 @@ function symbolDescriptiveString(sym){
 };
 
 /* 19.4.3.3 Symbol.prototype.valueOf () */
-function symbolValueOf(global, this, strict, args){
+function symbolValueOf(global, this, NewTarget, strict, args){
   
   /* 1. Let s be the this value. */
   s := this;
@@ -323,7 +323,7 @@ function thisSymbolValue(value){
   throw TypeErrorConstructorInternal()
 };
 
-function getSymbolDescriptionAccessorProperty(global, this, strict, args){
+function getSymbolDescriptionAccessorProperty(global, this, NewTarget, strict, args){
 
   /* 1. Let s be the this value. */
   s := this;

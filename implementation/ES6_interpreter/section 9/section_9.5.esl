@@ -1183,7 +1183,7 @@ function OwnPropertyKeysProxy(O) {
  * parameters thisArgument and argumentsList, a List of ECMAScript language
  * values. The following steps are taken:
  */
-function CallProxy(externalScope, ref, O, thisArgument, argumentsList) {
+function CallProxy(externalScope, ref, O, thisArgument, NewTarget, argumentsList) {
     /* 1. Let handler be the value of the [[ProxyHandler]] internal slot of O. */
     handler := O.ProxyHandler;
     /* 2. If handler is null, */

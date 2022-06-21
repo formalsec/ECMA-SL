@@ -14,7 +14,7 @@ function initConsoleObject(globalObject, objectPrototype, strict) {
   return console
 };
 
-function __internalLog(globalObject, this, strict, params) {
+function __internalLog(globalObject, this, NewTarget, strict, params) {
   str := l_nth(params, 0);
 
   if (!(typeof str = __$Str)) {
@@ -29,11 +29,11 @@ function __internalLog(globalObject, this, strict, params) {
   return 'null
 };
 
-function __internalLogObject(globalObject, this, strict, params) {
+function __internalLogObject(globalObject, this, NewTarget, strict, params) {
   obj := l_nth(params, 0);
 
   if (!((typeof obj) = __$Obj)) {
-    return __internalLog(globalObject, this, strict, params)
+    return __internalLog(globalObject, this, NewTarget, strict, params)
   };
 
   /*props := getOwnProperties(obj);*/ /* Doesn't print all because enumerable */
@@ -74,11 +74,11 @@ function initTest262Object(globalObject, objectPrototype, strict) {
 };
 
 
-function __detachArrayBuffer(global, this, strict, items) {
+function __detachArrayBuffer(global, this, NewTarget, strict, items) {
   return DetachArrayBuffer(l_nth(items, 0))
 };
 
-function __internalSetInternalClass(globalObject, this, strict, params) {
+function __internalSetInternalClass(globalObject, this, NewTarget, strict, params) {
   obj := l_nth(params, 0);
   class := l_nth(params, 1);
 
@@ -87,7 +87,7 @@ function __internalSetInternalClass(globalObject, this, strict, params) {
   return 'null
 };
 
-function __internalSetInternalName(globalObject, this, strict, params) {
+function __internalSetInternalName(globalObject, this, NewTarget, strict, params) {
   obj := l_nth(params, 0);
   name := l_nth(params, 1);
 

@@ -211,7 +211,7 @@ function temporaryInternalGetPrototypeOf (O) {
 };
 
 function GuardedDelete(O, P) {
-  status := {O.Delete}(O, P, true) catch deleteWrapper;
+  status := {O.Delete}(O, P) catch deleteWrapper;
   return status
 };
 

@@ -82,7 +82,7 @@ function initArrayBufferObject(global, objectPrototype, strict) {
 };
 
 /* Temporary */
-function arrayBufferToString(global, this, strict, args) {
+function arrayBufferToString(global, this, NewTarget, strict, args) {
   print "in arrayBufferToString";
   print this.ArrayBufferData;
   string := s_concat["Byte: ", bytes_to_string(this.ArrayBufferData), "Float littleEndian: ", float_to_string(float32_from_le_bytes(this.ArrayBufferData)), ", Float BigEndian: ", float_to_string(float32_from_be_bytes(this.ArrayBufferData))];
@@ -90,7 +90,7 @@ function arrayBufferToString(global, this, strict, args) {
 };
 
 /* 24.1.3.3 get ArrayBuffer [ @@species ] */
-function ArrayBufferSpeciesGetter(global, this, strict, args) {
+function ArrayBufferSpeciesGetter(global, this, NewTarget, strict, args) {
   return this
 };
 
@@ -99,9 +99,8 @@ function ArrayBufferSpeciesGetter(global, this, strict, args) {
  *
  * ArrayBuffer called with argument length performs the following steps: 
  */
-function ArrayBufferConstructor(global, this, strict, args) {
+function ArrayBufferConstructor(global, this, NewTarget, strict, args) {
   length := getOptionalParam(args, 0);
-  NewTarget := |Intrinsics|.ArrayBuffer;
   /* 1. If NewTarget is undefined, */
   if (NewTarget = 'undefined) {
     /* throw a TypeError exception */
@@ -139,7 +138,7 @@ function getArrayBufferPrototype(strict) {
  * The isView function takes one argument arg, and performs the following steps 
  * are taken: 
  */
-function ArrayBufferIsView(global, this, strict, args) {
+function ArrayBufferIsView(global, this, NewTarget, strict, args) {
   print "in ArrayBufferIsView";
   arg := getOptionalParam(args, 0);
   if (arg = null) {
@@ -166,7 +165,7 @@ function ArrayBufferIsView(global, this, strict, args) {
  * function is undefined. Its get accessor function performs the following 
  * steps: 
  */
-function getArrayBufferPrototypeByteLength(global, this, strict, args) {
+function getArrayBufferPrototypeByteLength(global, this, NewTarget, strict, args) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
@@ -195,7 +194,7 @@ function getArrayBufferPrototypeByteLength(global, this, strict, args) {
  *
  * The following steps are taken: 
  */
-function ArrayBufferPrototypeSlice(global, this, strict, args) {
+function ArrayBufferPrototypeSlice(global, this, NewTarget, strict, args) {
   start := getOptionalParam(args, 0);
   end := getOptionalParam(args, 1);
   if (start = null) {
@@ -532,7 +531,7 @@ function GetValueFromBuffer(arrayBuffer, byteIndex, type, isLittleEndian) {
   return intValue
 };
 
-function arrayBufferSetValueInBufferObject(global, this, strict, args) {
+function arrayBufferSetValueInBufferObject(global, this, NewTarget, strict, args) {
   print "in arrayBufferSetValueInBufferObject";
   byteIndex := l_nth(args, 0); 
   type := l_nth(args, 1); 
@@ -544,7 +543,7 @@ function arrayBufferSetValueInBufferObject(global, this, strict, args) {
   return 0
 }; 
 
-function arrayBufferGetValueFromBufferObject(global, this, strict, args) {
+function arrayBufferGetValueFromBufferObject(global, this, NewTarget, strict, args) {
   print "in arrayBufferGetValueFromBufferObject";
   byteIndex := l_nth(args, 0); 
   type := l_nth(args, 1); 

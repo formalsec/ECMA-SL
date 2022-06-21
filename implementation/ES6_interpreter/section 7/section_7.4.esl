@@ -216,7 +216,7 @@ function CreateListIterator(list) {
  * The ListIterator next method is a standard built-in function object (clause
  * 17) that performs the following steps:
  */
-function ListIteratornext(scope, V, strict, args) {
+function ListIteratornext(scope, V, NewTarget, strict, args) {
   /* 1. Let O be the this value. */
   O := V;
 

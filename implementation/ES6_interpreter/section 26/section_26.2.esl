@@ -53,13 +53,13 @@ function initProxyObject(global, objectPrototype, strict) {
 *
 */
 
-function ProxyConstructor (global, this, strict, args) {
+function ProxyConstructor(global, this, NewTarget, strict, args) {
     
     target := l_nth(args, 0);
     handler := l_nth(args, 1);
     
     /* 1. If NewTarget is undefined, throw a TypeError exception. */
-    if (target = 'undefined) {
+    if (NewTarget = 'undefined) {
         throw TypeErrorConstructorInternal()
     };
 
@@ -98,7 +98,7 @@ function initProxyPrototype(global, objectPrototype, strict) {
 *
 */
 
-function proxyRevocable (global, this, strict, args) {
+function proxyRevocable(global, this, NewTarget, strict, args) {
 
     target := l_nth(args, 0);
     handler := l_nth(args, 1);
@@ -138,7 +138,7 @@ function proxyRevocable (global, this, strict, args) {
 *
 *  When a Proxy revocation function, F, is called the following steps are taken:
 */
-function ProxyRevocation(global, this, strict, args) {
+function ProxyRevocation(global, this, NewTarget, strict, args) {
     F := getJSProperty(this, "revoke").Value;
     /* 1. Let p be the value of F’s [[RevocableProxy]] internal slot. */
     p := F.RevocableProxy;

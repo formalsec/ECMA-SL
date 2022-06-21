@@ -220,7 +220,7 @@ function initGlobalObject(strict) {
 };
 
 /* 15.1.2.1 eval (x) */
-function GlobalObjectEval(externalScope, ref, this, strict, params) {
+function GlobalObjectEval(externalScope, ref, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   /* When the eval function is called with one argument x, the following steps are taken: */
 
@@ -258,7 +258,7 @@ function GlobalObjectEval(externalScope, ref, this, strict, params) {
 
 /* 15.1.2.2 parseInt (string , radix) */
 /* TODO: RE-CHECK THIS, IT WAS COPIED FROM ES5 - MAYBE THERE IS DIFFERENCES ON ES6 */
-function GlobalObjectParseInt(globalObject, this, strict, params) {
+function GlobalObjectParseInt(globalObject, this, NewTarget, strict, params) {
   string := getOptionalParam(params, 0);
   radix := getOptionalParam(params, 1);
   /* The parseInt function produces an integer value dictated by interpretation of the contents of the string
@@ -338,7 +338,7 @@ function GlobalObjectParseInt(globalObject, this, strict, params) {
 };
 
 /* 15.1.2.3 parseFloat (string) */
-function GlobalObjectParseFloat(globalObject, this, strict, params) {
+function GlobalObjectParseFloat(globalObject, this, NewTarget, strict, params) {
   string := getOptionalParam(params, 0);
   /* The parseFloat function produces a Number value dictated by interpretation of the contents of the string
      argument as a decimal literal. */
@@ -365,7 +365,7 @@ function GlobalObjectParseFloat(globalObject, this, strict, params) {
 };
 
 /* 15.1.2.3 parseFloat (string) */
-function GlobalObjectParseFloatAlt(globalObject, this, strict, params) {
+function GlobalObjectParseFloatAlt(globalObject, this, NewTarget, strict, params) {
   string := getOptionalParam(params, 0);
   /* 1. Let inputString be ToString(string). */
   inputString := ToString(string);
@@ -408,7 +408,7 @@ function GlobalObjectParseFloatAlt(globalObject, this, strict, params) {
 };
 
 /* 15.1.2.4 isNaN (number) */
-function GlobalObjectIsNaN(globalObject, this, strict, params) {
+function GlobalObjectIsNaN(globalObject, this, NewTarget, strict, params) {
   number := getOptionalParam(params, 0);
   /* Returns true if the argument coerces to NaN, and otherwise returns false. */
 
@@ -424,7 +424,7 @@ function GlobalObjectIsNaN(globalObject, this, strict, params) {
 };
 
 /* 15.1.2.5 isFinite (number) */
-function GlobalObjectIsFinite(globalObject, this, strict, params) {
+function GlobalObjectIsFinite(globalObject, this, NewTarget, strict, params) {
   number := l_nth(params, 0);
   /* Returns false if the argument coerces to NaN, +Infinity, or -Infinity, and otherwise returns true. */
 

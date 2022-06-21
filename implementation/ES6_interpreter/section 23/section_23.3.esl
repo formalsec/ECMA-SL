@@ -136,9 +136,8 @@ that returns an iterator object that produces a two element array-like object wh
 that will be used as a WeakMap key and whose second element is the value to associate with that key.
 */
 
-function WeakMapConstructor(global, this, strict, items) {
+function WeakMapConstructor(global, this, NewTarget, strict, items) {
     iterable := getOptionalParam(items, 0);
-    NewTarget := getJSProperty(global, "WeakMap").Value; /* TODO: What function (FunctionCreate?) to generate constructor so this is not needed. */
 
     /* 1. If NewTarget is undefined, throw a TypeError exception. */
     if (NewTarget = 'undefined) {
@@ -247,7 +246,7 @@ function WeakMapConstructor(global, this, strict, items) {
 /* 23.3.3 Properties of the WeakMap Prototype Object */
 
 /* 23.3.3.2 WeakMap.prototype.delete ( key ) */
-function weakMapDeleteObject(global, this, strict, args){
+function weakMapDeleteObject(global, this, NewTarget, strict, args){
 
     key := l_nth(args, 0);
 
@@ -298,7 +297,7 @@ function weakMapDeleteObject(global, this, strict, args){
 };
 
 /* 23.3.3.3 WeakMap.prototype.get ( key ) */
-function weakMapGetObject(global, this, strict, args){
+function weakMapGetObject(global, this, NewTarget, strict, args){
     
     key := l_nth(args, 0);
 
@@ -343,7 +342,7 @@ function weakMapGetObject(global, this, strict, args){
 };
 
 /* 23.3.3.4 WeakMap.prototype.has ( key ) */
-function weakMapHasObject(global, this, strict, args){
+function weakMapHasObject(global, this, NewTarget, strict, args){
 
     key := l_nth(args, 0);
 
@@ -388,7 +387,7 @@ function weakMapHasObject(global, this, strict, args){
 };
 
 /* 23.3.3.5 WeakMap.prototype.set ( key , value ) */
-function weakMapSetObject(global, this, strict, args){
+function weakMapSetObject(global, this, NewTarget, strict, args){
 
     key := l_nth(args, 0);
     value := l_nth(args, 1);

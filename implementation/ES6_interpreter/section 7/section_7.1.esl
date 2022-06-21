@@ -439,11 +439,11 @@ function ToObject(argument) {
 
 		case "Undefined": { throw TypeErrorConstructorInternal() }
 		case "Null": { throw TypeErrorConstructorInternal() }
-		case "Boolean": { return BooleanConstructor(|global|, true, false, [argument]) }
+		case "Boolean": { return BooleanConstructor(|global|, true, |Intrinsics|["Boolean"], false, [argument]) }
 
-		case "Number": { return NumberConstructor(|global|, true, false, [argument]) }
+		case "Number": { return NumberConstructor(|global|, true, |Intrinsics|["Number"], false, [argument]) }
 
-		case "String": { return StringConstructor(|global|, true, false, [argument]) }
+		case "String": { return StringCreate(argument, |Intrinsics|["StringPrototype"]) }
 		
 		case "Symbol": { return SymbolObjectConstructor(argument) }
 
