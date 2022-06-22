@@ -2,8 +2,6 @@ function initSymbolPrototype(global, objectPrototype, strict) {
   prototype := NewECMAScriptObjectFull(objectPrototype, "Object", true);
   setAllInternalMethodsOfOrdinaryObject(prototype);
 
-  setPrototypeOfWellKnownSymbols(prototype);
-
   /* 19.4.3.2 Symbol.prototype.toString () */
   toStringFunctionObject := CreateBuiltInFunctionObject([], "symbolToString", global, strict, null);
   descriptor := newDataPropertyDescriptorFull(toStringFunctionObject, true, false, true);
@@ -156,7 +154,7 @@ function SymbolConstructor(global, this, NewTarget, strict, args) {
   @ReturnIfAbrupt(descString);
 
   /* 4. Return a new unique Symbol value whose [[Description]] value is descString. */
-  return InternalSymbolConstructor(descString, null)
+  return InternalSymbolConstructor(descString)
 };
 
 function SymbolObjectConstructor(symbolData) {
@@ -189,7 +187,7 @@ function symbolFor(global, this, NewTarget, strict, args) {
   /* assert(false); *//* It was just verified. */
 
   /* 5. Let newSymbol be a new unique Symbol value whose [[Description]] value is stringKey. */
-  newSymbol := InternalSymbolConstructor(stringKey, null);
+  newSymbol := InternalSymbolConstructor(stringKey);
 
   /* 6. Append the record { [[key]]: stringKey, [[symbol]]: newSymbol } to the GlobalSymbolRegistry List. */
   |GlobalSymbolRegistry|[stringKey] := {key: stringKey, symbol: newSymbol};
