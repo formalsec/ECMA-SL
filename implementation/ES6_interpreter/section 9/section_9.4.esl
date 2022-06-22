@@ -805,7 +805,7 @@ function IntegerIndexedDefineOwnProperty(O, P, Desc) {
     /* c. If numericIndex is not undefined, then */
     if (!(numericIndex = 'undefined)) {
       /* i. If IsInteger(numericIndex) is false, return false */
-      if (!(isInteger(numericIndex))) {
+      if (!(IsInteger(numericIndex))) {
         return false
       };
       /* ii. Let intIndex be numericIndex. */
@@ -932,23 +932,24 @@ function IntegerIndexedOwnPropertyKeys(O) {
   len := O.ArrayLength;
   /* 4. For each integer i starting with 0 such that i < len, in ascending
      order, */
-  i := 0;
+  i := 0.;
   while (i < len) {
     /* a. Add ToString(i) as the last element of keys.*/
     keys := l_concat(keys, [ToString(i)]);
-    i := i + 1
+    i := i + 1.
   };
   /* 5. For each own property key P of O such that Type(P) is String and P is
      not an integer index, in property creation order */
-  foreach(P : O)[]{
-    if ((Type(P) = "String") && !(Type(P) = "Integer")){
+  foreach(P : obj_fields O.JSProperties)[]{
+    if ((Type(P) = "String") &&& !IsIntegerIndex(P)){
       /* a. Add P as the last element of keys. */
       keys := l_concat(keys, [P])
     }
   };
   /* 6. For each own property key P of O such that Type(P) is Symbol, in
      property creation order */
-  foreach(P : O)[]{
+  foreach(P : obj_fields O.JSPropertiesSymbols)[]{
+    P := O.SymbolKeys[P];
     if (Type(P) = "Symbol"){
       /* a. Add P as the last element of keys. */
       keys := l_concat(keys, [P])
@@ -1113,4 +1114,19 @@ function IntegerIndexedElementSet(O, index, value) {
   SetValueInBuffer(buffer, indexedPosition, elementType, numValue, 'undefined);
   /* 17. Return true. */
   return true
+};
+
+/**
+ * An integer index is a String-valued property key that is a canonical numeric String (see 7.1.16)
+ * and whose numeric value is either +0 or a positive integer ≤ 253−1.
+ * An array index is an integer index whose numeric value i is in the range +0 ≤ i < 232−1.
+ */
+function IsIntegerIndex(idx) {
+  canonicalNumericIndexString := CanonicalNumericIndexString(idx);
+
+  if (canonicalNumericIndexString = 'undefined) {
+    return false
+  };
+
+  return (canonicalNumericIndexString >= 0.) &&& (canonicalNumericIndexString <= (253. - 1.))
 }

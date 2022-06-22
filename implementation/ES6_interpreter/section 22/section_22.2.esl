@@ -447,7 +447,7 @@ function initTypedArrayObject(global, strict, typeOfArray, typedArray) {
   objTypedArrayPrototype := initTypedArrayPrototype(global, typedArrayPrototype, strict, typeOfArray);
   
   name := s_concat([typeOfArray, "Array"]);
-  objTypedArrayConstructor := CreateBuiltInConstructorObject(typedArray, ["argumentList"], s_concat([typeOfArray, "TypedArrayConstructor"]), global, strict, 0., name);
+  objTypedArrayConstructor := CreateBuiltInConstructorObject(typedArray, ["argumentList"], "TypedArraySubConstructor", global, strict, 0., name);
   /* 22.2.5 */
   /* Length */
   descLen := newDataPropertyDescriptorFull(3., false, false, true);
@@ -976,17 +976,17 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
       }
     };
     /* f. Let len be the number of elements in values. */
-    len := l_len values;
+    len := int_to_float l_len values;
     /* g. Let targetObj be AllocateTypedArray(C, len). */
-    targetObj := AllocateTypedArray(C, int_to_float(len), strict);
+    targetObj := AllocateTypedArray(C, len, strict);
     /* h. ReturnIfAbrupt(targetObj). */
     @ReturnIfAbrupt(targetObj);
     /* i. Let k be 0. */
-    k := 0;
+    k := 0.;
     /* j. Repeat, while k < len */
     while (k < len) {
       /* i. Let Pk be ToString(k). */
-      Pk := ToString(int_to_float k);
+      Pk := ToString(k);
       /* ii. Let kValue be the first element of values and remove that element from values. */
       kValue := l_nth(values, 0);
       values := l_remove_nth(values, 0);
@@ -1006,7 +1006,7 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
       /* vi. ReturnIfAbrupt(setStatus). */
       @ReturnIfAbrupt(setStatus);
       /* vii. Increase k by 1. */
-      k := k + 1
+      k := k + 1.
     };
     /* k. Assert: values is now an empty List. */
     assert((l_len values) = 0);
@@ -1067,7 +1067,7 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
  */
 function TypedArrayOf(global, this, NewTarget, strict, args) {
   /* 1. Let len be the actual number of arguments passed to this function. */
-  len := l_len args;
+  len := int_to_float l_len args;
   /* 2. Let items be the List of arguments passed to this function. */
   items := args;
   /* 3. Let C be the this value. */
@@ -1078,15 +1078,15 @@ function TypedArrayOf(global, this, NewTarget, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 5. Let newObj be AllocateTypedArray(C, len). */
-  newObj := AllocateTypedArray(C, int_to_float len, strict);
+  newObj := AllocateTypedArray(C, len, strict);
   /* 6. ReturnIfAbrupt(newObj). */
   @ReturnIfAbrupt(newObj);
   /* 7. Let k be 0. */
-  k := 0;
+  k := 0.;
   /* 8. Repeat, while k < len */
   while (k < len) {
     /* a. Let kValue be items[k]. */
-    kValue := l_nth(items, k);
+    kValue := l_nth(items, int_of_float k);
     /* b. Let Pk be ToString(k). */
     Pk := ToString(k);
     /* c. Let status be Set(newObj, Pk, kValue, true). */
@@ -1094,7 +1094,7 @@ function TypedArrayOf(global, this, NewTarget, strict, args) {
     /* d. ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
     /* e. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 9. Return newObj. */
   return newObj
@@ -3737,44 +3737,14 @@ function getTypedArrayToStringTag(global, this, NewTarget, strict, args) {
  * call to the TypedArray constructor to create and initialize the subclass instance
  * with the internal state necessary to support the %TypedArray%.prototype built-in methods.
  */
-function Int8TypedArrayConstructor(global, this, NewTarget, strict, items) {
-  return TypedArrayConstructorAux("Int8", global, this, strict, items)
-};
-function Uint8TypedArrayConstructor(global, this, NewTarget, strict, items) {
-  return TypedArrayConstructorAux("Uint8", global, this, strict, items)
-};
-function Uint8ClampedTypedArrayConstructor(global, this, NewTarget, strict, items) {
-  return TypedArrayConstructorAux("Uint8Clamped", global, this, strict, items)
-};
-function Int16TypedArrayConstructor(global, this, NewTarget, strict, items) {
-  return TypedArrayConstructorAux("Int16", global, this, strict, items)
-};
-function Uint16TypedArrayConstructor(global, this, NewTarget, strict, items) {
-  return TypedArrayConstructorAux("Uint16", global, this, strict, items)
-};
-function Int32TypedArrayConstructor(global, this, NewTarget, strict, items) {
-  return TypedArrayConstructorAux("Int32", global, this, strict, items)
-};
-function Uint32TypedArrayConstructor(global, this, NewTarget, strict, items) {
-  return TypedArrayConstructorAux("Uint32", global, this, strict, items)
-};
-function Float32TypedArrayConstructor(global, this, NewTarget, strict, items) {
-  return TypedArrayConstructorAux("Float32", global, this, strict, items)
-};
-function Float64TypedArrayConstructor(global, this, NewTarget, strict, items) {
-  return TypedArrayConstructorAux("Float64", global, this, strict, items)
-};
-function TypedArrayConstructorAux(typeOfArray, global, this, strict, items) {
-  name := s_concat([typeOfArray, "Array"]);
-  return TypedArrayConstructor(global, 'undefined, |Intrinsics|[name], strict, items)
-};
+
 /**
  * 22.2.4.1 TypedArray (... argumentsList)
  *
  * A TypedArray constructor with a list of arguments argumentsList performs the
  * following steps:
  */
-function TypedArray(global, this, NewTarget, strict, argumentsList) {
+function TypedArraySubConstructor(global, this, NewTarget, strict, argumentsList) {
   /* 1. If NewTarget is undefined, */
   if (NewTarget = 'undefined) {
     /* throw a TypeError exception */
@@ -3795,5 +3765,5 @@ function TypedArray(global, this, NewTarget, strict, argumentsList) {
      internal method that invoked the active function. */
   argumentsList := argumentsList; /* ??? */
   /* 7. Return Construct(super, argumentsList, NewTarget). */
-  return ConstructNew(super, argumentsList, NewTarget)
+  return Construct(global, null, super, argumentsList, NewTarget)
 }
