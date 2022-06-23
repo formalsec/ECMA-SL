@@ -34,7 +34,7 @@ function fillFunctionConstructor(FunctionConstructor, globalObject, strict) {
 
 /* The Function prototype object is itself a Function object (its [[Class]] is "Function") that, when invoked,
    accepts any arguments and returns undefined. */
-function functionPrototypeFunction(globalObject, this, strict, params) {
+function functionPrototypeFunction(globalObject, this, NewTarget, strict, params) {
   return 'undefined
 };
 
@@ -79,7 +79,7 @@ function fillFunctionPrototype(functionPrototypeObject, FunctionConstructor, glo
 };
 
 /* 15.3.2.1 new Function (p1, p2, ... , pn, body) */
-function FunctionConstructor(globalObject, this, strict, params) {
+function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
   /* The last argument specifies the body (executable code) of a function; any preceding arguments specify formal
      parameters. */
 
@@ -170,7 +170,7 @@ function FunctionConstructor(globalObject, this, strict, params) {
 };
 
 /* 15.3.4.2 Function.prototype.toString ( ) */
-function FunctionPrototypeToString(globalObject, this, strict, params) {
+function FunctionPrototypeToString(globalObject, this, NewTarget, strict, params) {
   /* An implementation-dependent representation of the function is returned. This representation has the syntax of
      a FunctionDeclaration. Note in particular that the use and placement of white space, line terminators, and
      semicolons within the representation String is implementation-dependent. */
@@ -184,7 +184,7 @@ function FunctionPrototypeToString(globalObject, this, strict, params) {
 };
 
 /* 15.3.4.3 Function.prototype.apply (thisArg, argArray) */
-function FunctionPrototypeApply(globalObject, func, strict, params) {
+function FunctionPrototypeApply(globalObject, func, NewTarget, strict, params) {
   thisArg := l_nth(params, 0);
   argArray := l_nth(params, 1);
   print "DEBUG APPLY";
@@ -201,7 +201,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
   if ((argArray = 'null) ||| (argArray = 'undefined)) {
     /* a. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value
           and an empty list of arguments. */
-    return {func.Call}(null, null, func, thisArg, [])
+    return {func.Call}(null, null, func, thisArg, 'undefined, [])
   };
   /* 3. If Type(argArray) is not Object, then throw a TypeError exception. */
   if (!(Type(argArray) = "Object")) {
@@ -231,7 +231,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
   };
   /* 9. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
-  return {func.Call}(null, null, func, thisArg, argList)
+  return {func.Call}(null, null, func, thisArg, 'undefined, argList)
 
   /* The length property of the apply method is 2. */
 
@@ -241,7 +241,7 @@ function FunctionPrototypeApply(globalObject, func, strict, params) {
 };
 
 /* 15.3.4.4 Function.prototype.call (thisArg [ , arg1 [ , arg2, ... ] ] ) */
-function FunctionPrototypeCall(globalObject, func, strict, params) {
+function FunctionPrototypeCall(globalObject, func, NewTarget, strict, params) {
   thisArg := l_nth(params, 0);
   args := tl params;
   /* When the call method is called on an object func with argument thisArg and optional arguments arg1, arg2
@@ -260,7 +260,7 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
   };
   /* 4. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
-  return {func.Call}(null, null, func, thisArg, argList)
+  return {func.Call}(null, null, func, thisArg, NewTarget, argList)
 
   /* The length property of the call method is 1. */
 
@@ -270,7 +270,7 @@ function FunctionPrototypeCall(globalObject, func, strict, params) {
 };
 
 /* 15.3.4.5 Function.prototype.bind (thisArg [, arg1 [, arg2, ...]]) */
-function FunctionPrototypeBind(globalObject, this, strict, params) {
+function FunctionPrototypeBind(globalObject, this, NewTarget, strict, params) {
   thisArg := l_nth(params, 0);
   args := tl params;
   /* The bind method takes one or more arguments, thisArg and (optionally) arg1, arg2, etc, and returns a new
@@ -358,7 +358,7 @@ function FunctionPrototypeBind(globalObject, this, strict, params) {
 };
 
 /* 15.3.4.5.1 [[Call]] */
-function CallBind(externalScope, ref, F, this, ExtraArgs) {
+function CallBind(externalScope, ref, F, this, NewTarget, ExtraArgs) {
   /* When the [[Call]] internal method of a function object, F, which was created using the bind function is called
      with a this value and a list of arguments ExtraArgs, the following steps are taken: */
 
@@ -373,7 +373,7 @@ function CallBind(externalScope, ref, F, this, ExtraArgs) {
   args := l_concat(boundArgs, ExtraArgs);
   /* 5. Return the result of calling the [[Call]] internal method of target providing boundThis as the this value and
         providing args as the arguments. */
-  return {target.Call}(externalScope, ref, target, boundThis, args)
+  return {target.Call}(externalScope, ref, target, boundThis, NewTarget, args)
 };
 
 /* 15.3.4.5.2 [[Construct]] */

@@ -274,7 +274,7 @@ function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
 };
 
 /* 20.2.2.1 Math.abs ( x ) */
-function MathAbs(globalObject, this, stric, params) {
+function MathAbs(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -286,7 +286,7 @@ function MathAbs(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.2 Math.acos ( x ) */
-function MathACos(globalObject, this, stric, params) {
+function MathACos(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -300,7 +300,7 @@ function MathACos(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.3 Math.acosh( x ) */
-function MathACosh(globalObject, this, strict, params) {
+function MathACosh(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -314,7 +314,7 @@ function MathACosh(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.4 Math.asin ( x ) */
-function MathASin(globalObject, this, stric, params) {
+function MathASin(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -328,7 +328,7 @@ function MathASin(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.5 Math.asinh( x ) */
-function MathASinh(globalObject, this, strict, params) {
+function MathASinh(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -358,7 +358,7 @@ function MathASinh(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.6 Math.atan ( x ) */
-function MathATan(globalObject, this, stric, params) {
+function MathATan(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -372,7 +372,7 @@ function MathATan(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.7 Math.atanh( x ) */
-function MathATanh(globalObject, this, strict, params) {
+function MathATanh(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -409,7 +409,7 @@ function MathATanh(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.8 Math.atan2 ( y, x ) */
-function MathATan2(globalObject, this, stric, params) {
+function MathATan2(globalObject, this, NewTarget, stric, params) {
   y := getOptionalParam(params, 0);
   x := getOptionalParam(params, 1);
   y := ToNumber(y);
@@ -444,7 +444,7 @@ function MathATan2(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.9 Math.cbrt ( x ) */
-function MathCBRT(globalObject, this, strict, params) {
+function MathCBRT(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -473,7 +473,7 @@ function MathCBRT(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.10 Math.ceil ( x ) */
-function MathCeil(globalObject, this, stric, params) {
+function MathCeil(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   /* Returns the smallest (closest to −∞) Number value that is not less than x and is equal to a mathematical integer. If x is already an integer, the result is x. */
@@ -488,7 +488,7 @@ function MathCeil(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.11 Math.clz32 ( x ) */
-function MathCLZ32(globalObject, this, strict, params) {
+function MathCLZ32(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -512,7 +512,7 @@ function MathCLZ32(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.12 Math.cos ( x ) */
-function MathCos(globalObject, this, stric, params) {
+function MathCos(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -526,7 +526,7 @@ function MathCos(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.13 Math.cosh ( x ) */
-function MathCosh(globalObject, this, strict, params) {
+function MathCosh(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -542,7 +542,7 @@ function MathCosh(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.14 Math.exp ( x ) */
-function MathExp(globalObject, this, stric, params) {
+function MathExp(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -556,7 +556,7 @@ function MathExp(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.15 Math.expm1 ( x ) */
-function MathExpM1(globalObject, this, strict, params) {
+function MathExpM1(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -586,7 +586,7 @@ function MathExpM1(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.16 Math.floor ( x ) */
-function MathFloor(globalObject, this, stric, params) {
+function MathFloor(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -603,7 +603,7 @@ function MathFloor(globalObject, this, stric, params) {
 };
 
 /* TODO 20.2.2.17 Math.fround ( x ) */
-function MathFRound(globalObject, this, strict, params) {
+function MathFRound(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -622,7 +622,7 @@ function MathFRound(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.18 Math.hypot ( value1 , value2 , …values ) */
-function MathHypot(globalObject, this, strict, params) {
+function MathHypot(globalObject, this, NewTarget, strict, params) {
   /* Math.hypot returns an implementation-dependent approximation of the square root of the sum of squares of its arguments. */
   /* 
   NOTE 
@@ -668,7 +668,7 @@ function MathHypot(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.19 Math.imul ( x, y ) */
-function MathImul(globalObject, this, strict, params) {
+function MathImul(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -696,7 +696,7 @@ function MathImul(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.20 Math.log ( x ) */
-function MathLog(globalObject, this, stric, params) {
+function MathLog(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -710,7 +710,7 @@ function MathLog(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.21 Math.log1p ( x ) */
-function MathLog1P(globalObject, this, strict, params) {
+function MathLog1P(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -744,7 +744,7 @@ function MathLog1P(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.22 Math.log10 ( x ) */
-function MathLog10(globalObject, this, strict, params) {
+function MathLog10(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -759,7 +759,7 @@ function MathLog10(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.23 Math.log2 ( x ) */
-function MathLog2(globalObject, this, strict, params) {
+function MathLog2(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -774,7 +774,7 @@ function MathLog2(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.24 Math.max ( value1, value2 , …values ) */
-function MathMax(globalObject, this, stric, params) {
+function MathMax(globalObject, this, NewTarget, stric, params) {
   /* Given zero or more arguments, calls ToNumber on each of the arguments and returns the largest of the resulting values. */
   /* If no arguments are given, the result is −∞. */
   /* If any value is NaN, the result is NaN. */
@@ -796,7 +796,7 @@ function MathMax(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.25 Math.min ( value1, value2 , …values ) */
-function MathMin(globalObject, this, stric, params) {
+function MathMin(globalObject, this, NewTarget, stric, params) {
   /* Given zero or more arguments, calls ToNumber on each of the arguments and returns the smallest of the resulting values. */
   /* If no arguments are given, the result is +∞. */
   /* If any value is NaN, the result is NaN. */
@@ -818,7 +818,7 @@ function MathMin(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.26 Math.pow ( x, y ) */
-function MathPow(globalObject, this, stric, params) {
+function MathPow(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   y := getOptionalParam(params, 1);
   x := ToNumber(x);
@@ -858,7 +858,7 @@ function MathPow(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.27 Math.random ( ) */
-function MathRandom(globalObject, this, stric, params) {
+function MathRandom(globalObject, this, NewTarget, stric, params) {
   /* Returns a Number value with positive sign, greater than or equal to 0 but less than 1, 
   chosen randomly or pseudo randomly with approximately uniform distribution over that range, 
   using an implementation-dependent algorithm or strategy. This function takes no arguments. */
@@ -868,7 +868,7 @@ function MathRandom(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.28 Math.round ( x ) */
-function MathRound(globalObject, this, stric, params) {
+function MathRound(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -912,7 +912,7 @@ function MathRound(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.29 Math.sign(x) */
-function MathSign(globalObject, this, strict, params) {
+function MathSign(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -936,7 +936,7 @@ function MathSign(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.30 Math.sin ( x ) */
-function MathSin(globalObject, this, stric, params) {
+function MathSin(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -949,7 +949,7 @@ function MathSin(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.31 Math.sinh( x ) */
-function MathSinh(globalObject, this, strict, params) {
+function MathSinh(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -963,7 +963,7 @@ function MathSinh(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.32 Math.sqrt ( x ) */
-function MathSqrt(globalObject, this, stric, params) {
+function MathSqrt(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -977,7 +977,7 @@ function MathSqrt(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.33 Math.tan ( x ) */
-function MathTan(globalObject, this, stric, params) {
+function MathTan(globalObject, this, NewTarget, stric, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -990,7 +990,7 @@ function MathTan(globalObject, this, stric, params) {
 };
 
 /* 20.2.2.34 Math.tanh ( x ) */
-function MathTanh(globalObject, this, strict, params) {
+function MathTanh(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);
@@ -1006,7 +1006,7 @@ function MathTanh(globalObject, this, strict, params) {
 };
 
 /* 20.2.2.35 Math.trunc ( x ) */
-function MathTrunc(globalObject, this, strict, params) {
+function MathTrunc(globalObject, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
   x := ToNumber(x);
   @ReturnIfAbrupt(x);

@@ -330,7 +330,7 @@ function Call(externalScope, ref, F, V, argumentsList) {
 	};
 
   /* Return F.[[Call]](V, argumentsList). */
-	return {F.Call}(externalScope, ref, F, V, argumentsList)
+	return {F.Call}(externalScope, ref, F, V, 'undefined, argumentsList)
 };
 
 /**
@@ -519,8 +519,7 @@ function CreateArrayFromList(elements) {
   /* TODO */
 
   /* 2. Let array be ArrayCreate(0) (see 9.4.2.2). */
-  /* array := ArrayCreate(0.); */ 
-  array := ArrayConstructor(null, 'null, false, []);
+  array := ArrayCreate(0., null);
 
   /* 3. Let n be 0. */
   n := 0.;
@@ -807,14 +806,14 @@ function GetFunctionRealm(obj) {
     /* Return the running execution context’s Realm. */
 };
 
-function OrdinaryCall(externalScope, ref, F, this, argumentsList) {
+function OrdinaryCall(externalScope, ref, F, this, NewTarget, argumentsList) {
 	if (("Code" in_obj F) &&& (typeof F.Code = __$Str) &&& (F.Code = "GlobalObjectEval")) {
 	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(externalScope, ref, this, F.strict, args)
+	  return {F.Code}(externalScope, ref, this, NewTarget, F.strict, args)
 	};
 	if (("Code" in_obj F) &&& ((typeof F.Code = __$Str) || (typeof F.Code = __$Curry))) {
 	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(F.Scope, this, F.strict, args)
+	  return {F.Code}(F.Scope, this, NewTarget, F.strict, args)
 	};
 	/* When the [[Call]] internal method for a Function object F is called with a this value and a list of arguments,
 	  the following steps are taken: */
@@ -846,13 +845,13 @@ function OrdinaryCall(externalScope, ref, F, this, argumentsList) {
 	return 'undefined
 };
 
-function BuiltInCall(externalScope, ref, F, V, argumentsList) {
+function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
 	if (("Code" in_obj F) &&& (typeof F.Code = __$Str) &&& (F.Code = "GlobalObjectEval")) {
 	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(externalScope, ref, V, F.strict, args)
+	  return {F.Code}(externalScope, ref, V, NewTarget, F.strict, args)
 	};
 	if (("Code" in_obj F) &&& ((typeof F.Code = __$Str) ||| (typeof F.Code = __$Curry))) {
 	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(F.Scope, V, F.strict, args)
+	  return {F.Code}(F.Scope, V, NewTarget, F.strict, args)
 	}
 }

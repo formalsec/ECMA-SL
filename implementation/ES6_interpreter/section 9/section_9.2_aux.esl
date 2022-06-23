@@ -140,7 +140,7 @@ function BindingInitializationRestElement(name, listIterator, scope) {
   /* 2. ReturnIfAbrupt(lhs). */
   @ReturnIfAbrupt(lhs);
   /* 3. Let A be ArrayCreate(0). */
-  A := ArrayConstructor(null, 'null, false, []);
+  A := ArrayCreate(0., null);
   /* 4. Let n=0. */
   n := 0.;
   /* 5. Repeat, */
@@ -235,7 +235,7 @@ function BindingInitializationArrayPattern(param, value, environment) {
 
 function GetRestValue(listIterator) {
   /* 3. Let A be ArrayCreate(0). */
-  A := ArrayConstructor(null, 'null, false, []);
+  A := ArrayCreate(0., null);
   /* 4. Let n=0. */
   n := 0.;
   /* 5. Repeat, */

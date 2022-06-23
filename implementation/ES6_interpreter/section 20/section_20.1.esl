@@ -91,8 +91,7 @@ function getNumberPrototype(strict) {
 
 
 /* 20.1.1.1 Number ( [ value ] ) */
-function NumberConstructor(global, this, strict, items) {
-  NewTarget := this;
+function NumberConstructor(global, this, NewTarget, strict, items) {
   value := getOptionalParam(items, 0);
   /* 1. If no arguments were passed to this function invocation, let n be +0. */
   if (value = null) {
@@ -108,7 +107,7 @@ function NumberConstructor(global, this, strict, items) {
     return n
   };
   /* 5. Let O be OrdinaryCreateFromConstructor(NewTarget, "%NumberPrototype%", «[[NumberData]]» ). */
-  O := OrdinaryCreateFromConstructorNumber(NewTarget, this, strict, items);
+  O := OrdinaryCreateFromConstructor(NewTarget, "NumberPrototype", ["NumberData"]);
   /* 6. ReturnIfAbrupt(O). */
   @ReturnIfAbrupt(O);
   /* 7. Set the value of O’s [[NumberData]] internal slot to n. */
@@ -194,7 +193,7 @@ function initNumberConstructor(prototype, global, strict) {
 
 
 /* 20.1.2.2 Number.isFinite ( number ) */
-function NumberConstructorIsFinite(global, this, strict, items) {
+function NumberConstructorIsFinite(global, this, NewTarget, strict, items) {
   number := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
   if (number = null ||| !(Type(number) = "Number")) {
@@ -210,7 +209,7 @@ function NumberConstructorIsFinite(global, this, strict, items) {
 
 
 /* 20.1.2.3 Number.isInteger ( number ) */
-function NumberConstructorIsInteger(global, this, strict, items) {
+function NumberConstructorIsInteger(global, this, NewTarget, strict, items) {
   number := getOptionalParam(items, 0);
   
   /* 1. If Type(number) is not Number, return false. */
@@ -233,7 +232,7 @@ function NumberConstructorIsInteger(global, this, strict, items) {
 
 
 /* 20.1.2.4 Number.isNaN ( number ) */
-function NumberConstructorIsNaN(global, this, strict, items) {
+function NumberConstructorIsNaN(global, this, NewTarget, strict, items) {
   number := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
   if (number = null ||| !(Type(number) = "Number")) {
@@ -249,7 +248,7 @@ function NumberConstructorIsNaN(global, this, strict, items) {
 
 
 /* 20.1.2.5 Number.isSafeInteger ( number ) */
-function NumberConstructorIsSafeInteger(global, this, strict, items) {
+function NumberConstructorIsSafeInteger(global, this, NewTarget, strict, items) {
   number := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
   if (number = null ||| !(Type(number) = "Number")) {
@@ -275,7 +274,7 @@ function NumberConstructorIsSafeInteger(global, this, strict, items) {
 
 
 /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
-function NumberPrototypeToExponential(global, this, strict, items) {
+function NumberPrototypeToExponential(global, this, NewTarget, strict, items) {
   fractionDigits := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
@@ -319,7 +318,7 @@ function NumberPrototypeToExponential(global, this, strict, items) {
 };
 
 /* 20.1.3.2 Number.prototype.toExponential ( fractionDigits ) */
-function NumberPrototypeToExponentialAlt(global, this, strict, items) {
+function NumberPrototypeToExponentialAlt(global, this, NewTarget, strict, items) {
   fractionDigits := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
@@ -423,7 +422,7 @@ function NumberPrototypeToExponentialAlt(global, this, strict, items) {
 };
 
 /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
-function NumberPrototypeToFixed(global, this, strict, items) {
+function NumberPrototypeToFixed(global, this, NewTarget, strict, items) {
   fractionDigits := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
@@ -448,7 +447,7 @@ function NumberPrototypeToFixed(global, this, strict, items) {
 };
 
 /* 20.1.3.3 Number.prototype.toFixed ( fractionDigits ) */
-function NumberPrototypeToFixedAlt(global, this, strict, items) {
+function NumberPrototypeToFixedAlt(global, this, NewTarget, strict, items) {
   fractionDigits := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
@@ -528,7 +527,7 @@ function NumberPrototypeToFixedAlt(global, this, strict, items) {
 
 
 /* Number.prototype.toLocaleString( [ reserved1 [ , reserved2 ] ]) */
-function NumberPrototypeToLocaleString(global, this, strict, items) {
+function NumberPrototypeToLocaleString(global, this, NewTarget, strict, items) {
   if (!isNumberOrNumberObject(this)) {
     throw TypeErrorConstructorInternal()
   };
@@ -542,7 +541,7 @@ function NumberPrototypeToLocaleString(global, this, strict, items) {
 
 
 /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
-function NumberPrototypeToPrecision(global, this, strict, items) {
+function NumberPrototypeToPrecision(global, this, NewTarget, strict, items) {
   precision := getOptionalParam(items, 0);
   /* 1. NumberValue(this value). */
   x := thisNumberValue(this);
@@ -581,7 +580,7 @@ function NumberPrototypeToPrecision(global, this, strict, items) {
 };
 
 /* 20.1.3.5 Number.prototype.toPrecision ( precision ) */
-function NumberPrototypeToPrecisionAlt(global, this, strict, items) {
+function NumberPrototypeToPrecisionAlt(global, this, NewTarget, strict, items) {
   precision := getOptionalParam(items, 0);
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
@@ -675,7 +674,7 @@ function isNumberOrNumberObject(arg) {
 
 
 /* 20.1.3.6 Number.prototype.toString ( [ radix ] ) */
-function NumberPrototypeToString(global, this, strict, items) {
+function NumberPrototypeToString(global, this, NewTarget, strict, items) {
   radix := getOptionalParam(items, 0);
   
   /* 1. Let x be thisNumberValue(this value). */
@@ -710,7 +709,7 @@ function NumberPrototypeToString(global, this, strict, items) {
 
 
 /* 20.1.3.7 Number.prototype.valueOf ( ) */
-function NumberPrototypeValueOf(global, this, strict, items) {
+function NumberPrototypeValueOf(global, this, NewTarget, strict, items) {
   /* 1. Let x be thisNumberValue(this value). */
   x := thisNumberValue(this);
   /* 2. Return x. */
@@ -735,21 +734,6 @@ function thisNumberValue(value) {
   };
   /* 3. Throw a TypeError exception. */
   throw TypeErrorConstructorInternal()
-};
-
-
-/* OrdinaryCreateFromConstructor ( constructor, intrinsicDefaultProto, internalSlotsList ) */
-function OrdinaryCreateFromConstructorNumber(global, this, strict, items) {
-  numberPrototype := getNumberPrototype(strict);
-
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
-
-  setInternalProperty(newlyConstructedObject, "Prototype", numberPrototype);
-  setInternalProperty(newlyConstructedObject, "Extensible", true);
-  setInternalProperty(newlyConstructedObject, "Class", "Number");
-
-  return newlyConstructedObject
 };
 
 

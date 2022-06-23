@@ -35,7 +35,7 @@ function isESFunctionObject(obj) {
  * values. The following steps are taken:
  */
 
-function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, argumentList) {
+function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, NewTarget, argumentList) {
     /* 1. Assert: F is an ECMAScript function object. */
     assert(isESFunctionObject(F));
 

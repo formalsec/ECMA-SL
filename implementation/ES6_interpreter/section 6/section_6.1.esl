@@ -7,97 +7,39 @@
  *
  * Each Symbol value immutably holds an associated value called [[Description]] that is either undefined or a String value.
  */
-function InternalSymbolConstructor(description, proto) {
-  if (proto = null) {
-    proto := |Intrinsics|.SymbolPrototype
-  };
+function InternalSymbolConstructor(description) {
   sym := {
     Description: description,
-    Prototype: proto,
     _id: |__CUR__SYMB__|
   };
   |__CUR__SYMB__| := |__CUR__SYMB__| + 1;
-  /* functions to simulate auto-boxing */
-  setAllInternalMethodsOfOrdinaryObject(sym);
-  sym.Get := "SymbolGet";
-  sym.Set := "SymbolSet";
   return sym
-};
-
-function SymbolGet(O, P, Receiver) {
-  /* Assert: IsPropertyKey(P) is true. */
-  assert( IsPropertyKey(P) = true );
-
-  /* Let parent be O.[[GetPrototypeOf]](). */
-  parent := {O.GetPrototypeOf}(O);
-
-  /* ReturnIfAbrupt(parent). */
-  @ReturnIfAbrupt(parent);
-
-  /* If parent is null, return undefined. */
-  if (parent = 'null) {
-    return 'undefined
-  };
-
-  /* Return parent.[[Get]](P, Receiver). */
-  return {parent.Get}(parent, P, Receiver)
-};
-
-function SymbolSet(O, P, V, Receiver) {
-  /* Assert: IsPropertyKey(P) is true. */
-  assert( IsPropertyKey(P) = true );
-
-  /* Let parent be O.[[GetPrototypeOf]](). */
-  parent := {O.GetPrototypeOf}(O);
-
-  /* ReturnIfAbrupt(parent). */
-  @ReturnIfAbrupt(parent);
-
-  /* Return parent.[[Set]](P, V, Receiver). */
-  return {parent.Set}(parent, P, V, Receiver)
 };
 
 /**
  * 6.1.5.1 Well-Known Symbols
  */
 function initWellKnownSymbols() {
-  proto := 'undefined;
-  initWellKnownSymbol("Symbol.hasInstance", proto);
-  initWellKnownSymbol("Symbol.isConcatSpreadable", proto);
-  initWellKnownSymbol("Symbol.iterator", proto);
-  initWellKnownSymbol("Symbol.match", proto);
-  initWellKnownSymbol("Symbol.replace", proto);
-  initWellKnownSymbol("Symbol.search", proto);
-  initWellKnownSymbol("Symbol.species", proto);
-  initWellKnownSymbol("Symbol.split", proto);
-  initWellKnownSymbol("Symbol.toPrimitive", proto);
-  initWellKnownSymbol("Symbol.toStringTag", proto);
-  initWellKnownSymbol("Symbol.unscopables", proto);
+  wellKnownSymbols := ["Symbol.hasInstance","Symbol.isConcatSpreadable",
+                       "Symbol.iterator", "Symbol.match",
+                       "Symbol.replace", "Symbol.search",
+                       "Symbol.species", "Symbol.split", "Symbol.toPrimitive",
+                       "Symbol.toStringTag", "Symbol.unscopables"];
+
+  foreach (sym : wellKnownSymbols) {
+    initWellKnownSymbol(sym)
+  };
+
   return
 };
 
-function initWellKnownSymbol(description, proto) {
-  sym := InternalSymbolConstructor(description, proto);
+function initWellKnownSymbol(description) {
+  sym := InternalSymbolConstructor(description);
   rec := {
     key: description,
     symbol: sym
   };
   |GlobalSymbolRegistry|[description] := rec;
-  return
-};
-
-function setPrototypeOfWellKnownSymbols(proto) {
-  |GlobalSymbolRegistry|["Symbol.hasInstance"].symbol.Prototype := proto;
-  |GlobalSymbolRegistry|["Symbol.isConcatSpreadable"].symbol.Prototype := proto;
-  |GlobalSymbolRegistry|["Symbol.iterator"].symbol.Prototype := proto;
-  |GlobalSymbolRegistry|["Symbol.match"].symbol.Prototype := proto;
-  |GlobalSymbolRegistry|["Symbol.replace"].symbol.Prototype := proto;
-  |GlobalSymbolRegistry|["Symbol.search"].symbol.Prototype := proto;
-  |GlobalSymbolRegistry|["Symbol.species"].symbol.Prototype := proto;
-  |GlobalSymbolRegistry|["Symbol.split"].symbol.Prototype := proto;
-  |GlobalSymbolRegistry|["Symbol.toPrimitive"].symbol.Prototype := proto;
-  |GlobalSymbolRegistry|["Symbol.toStringTag"].symbol.Prototype := proto;
-  |GlobalSymbolRegistry|["Symbol.unscopables"].symbol.Prototype := proto;
   return
 };
 

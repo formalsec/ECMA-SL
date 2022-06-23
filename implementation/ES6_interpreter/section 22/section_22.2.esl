@@ -447,7 +447,7 @@ function initTypedArrayObject(global, strict, typeOfArray, typedArray) {
   objTypedArrayPrototype := initTypedArrayPrototype(global, typedArrayPrototype, strict, typeOfArray);
   
   name := s_concat([typeOfArray, "Array"]);
-  objTypedArrayConstructor := CreateBuiltInConstructorObject(typedArray, ["argumentList"], s_concat([typeOfArray, "TypedArrayConstructor"]), global, strict, 0., name);
+  objTypedArrayConstructor := CreateBuiltInConstructorObject(typedArray, ["argumentList"], "TypedArraySubConstructor", global, strict, 0., name);
   /* 22.2.5 */
   /* Length */
   descLen := newDataPropertyDescriptorFull(3., false, false, true);
@@ -472,29 +472,25 @@ function initTypedArrayObject(global, strict, typeOfArray, typedArray) {
  *    22.2.1 %TypedArray%() Overloads    *
  *                                     *
  ***************************************/
-function TypedArrayConstructor(global, this, strict, items) {
-  if (this = 'undefined) { /* Call to %TypedArray% instead one of the other valid constructors*/
-    this := |Intrinsics|.TypedArray
-  };
-
+function TypedArrayConstructor(global, this, NewTarget, strict, items) {
   len := l_len items; 
   if (len = 0) {
     /* 22.2.1.1 */
-    return TypedArrayConstructorEmpty(global, this, strict, items)
+    return TypedArrayConstructorEmpty(global, this, NewTarget, strict, items)
   } else {
     if (len > 0) {
       obj := l_nth(items, 0);
       /* 22.2.1.2 */
       if (!(Type(obj) = "Object")) {
-        return TypedArrayConstructorLength(global, this, strict, obj)
+        return TypedArrayConstructorLength(global, this, NewTarget, strict, obj)
       } else {
         /* 22.2.1.3 */
         if ("TypedArrayName" in_obj obj) {
-          return TypedArrayConstructorTypedArray(global, this, strict, obj)
+          return TypedArrayConstructorTypedArray(global, this, NewTarget, strict, obj)
         } else {
           /* 22.2.1.4 */
           if (!("ArrayBufferData" in_obj obj)) {
-            return TypedArrayConstructorObject(global, this, strict, obj)
+            return TypedArrayConstructorObject(global, this, NewTarget, strict, obj)
           /* 22.2.1.5 */
           } else {
             /* optional parameters default values. */
@@ -508,7 +504,7 @@ function TypedArrayConstructor(global, this, strict, items) {
               length := l_nth(items, 2)
             };
 
-            return TypedArrayConstructorBuffer(global, this, strict, obj, byteOffset, length)
+            return TypedArrayConstructorBuffer(global, this, NewTarget, strict, obj, byteOffset, length)
           }
         }
       }
@@ -522,8 +518,7 @@ function TypedArrayConstructor(global, this, strict, items) {
  * This description applies only if the %TypedArray% function is called with no
  * arguments.
  */
-function TypedArrayConstructorEmpty(global, this, strict, items) {
-  NewTarget := this;
+function TypedArrayConstructorEmpty(global, this, NewTarget, strict, items) {
   /* 1. If NewTarget is undefined, */
   if (NewTarget = 'undefined) {
     /* throw a TypeError exception */
@@ -541,8 +536,7 @@ function TypedArrayConstructorEmpty(global, this, strict, items) {
  *
  * %TypedArray% called with argument length performs the following steps:
  */
-function TypedArrayConstructorLength(global, this, strict, length) {
-  NewTarget := this;
+function TypedArrayConstructorLength(global, this, NewTarget, strict, length) {
   /* 1. Assert: Type(length) is not Object. */
   assert(!(Type(length) = "Object"));
   /* 2. If NewTarget is undefined, */
@@ -671,8 +665,7 @@ function AllocateTypedArray(newTarget, length, strict) {
  *
  * %TypedArray% called with argument typedArray performs the following steps:
  */
-function TypedArrayConstructorTypedArray(global, this, strict, typedArray) {
-  NewTarget := this;
+function TypedArrayConstructorTypedArray(global, this, NewTarget, strict, typedArray) {
   /* 1. Assert: Type(typedArray) is Object and typedArray has a
      [[TypedArrayName]] internal slot. */
   assert((Type(typedArray) = "Object") &&& ("TypedArrayName" in_obj typedArray));
@@ -783,8 +776,7 @@ function TypedArrayConstructorTypedArray(global, this, strict, typedArray) {
  *
  * %TypedArray% called with argument object performs the following steps:
  */
-function TypedArrayConstructorObject(global, this, strict, object) {
-  NewTarget := this;
+function TypedArrayConstructorObject(global, this, NewTarget, strict, object) {
   /* 1. Assert: Type(object) is Object and object does not have either a
      [[TypedArrayName]] or an [[ArrayBufferData]] internal slot. */
   assert((Type(object) = "Object") &&& !(("TypedArrayName" in_obj object) || ("ArrayBufferData" in_obj object)));
@@ -807,8 +799,7 @@ function TypedArrayConstructorObject(global, this, strict, object) {
  * %TypedArray% called with arguments buffer, byteOffset, and length performs
  * the following steps:
  */
-function TypedArrayConstructorBuffer(global, this, strict, buffer, byteOffset, length) {
-  NewTarget := this;
+function TypedArrayConstructorBuffer(global, this, NewTarget, strict, buffer, byteOffset, length) {
   /* 1. Assert: Type(buffer) is Object and buffer has an [[ArrayBufferData]]
      internal slot. */
   assert((Type(buffer) = "Object") &&& ("ArrayBufferData" in_obj buffer));
@@ -895,7 +886,7 @@ function TypedArrayConstructorBuffer(global, this, strict, buffer, byteOffset, l
  * When the from method is called with argument source, and optional arguments
  * mapfn and thisArg, the following steps are taken:
  */
-function TypedArrayFromMethod(global, this, strict, args) {
+function TypedArrayFromMethod(global, this, NewTarget, strict, args) {
   source := l_nth(args, 0);
   mapfn := getOptionalParam(args, 1);
   thisArg := getOptionalParam(args, 2);
@@ -985,17 +976,17 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
       }
     };
     /* f. Let len be the number of elements in values. */
-    len := l_len values;
+    len := int_to_float l_len values;
     /* g. Let targetObj be AllocateTypedArray(C, len). */
-    targetObj := AllocateTypedArray(C, int_to_float(len), strict);
+    targetObj := AllocateTypedArray(C, len, strict);
     /* h. ReturnIfAbrupt(targetObj). */
     @ReturnIfAbrupt(targetObj);
     /* i. Let k be 0. */
-    k := 0;
+    k := 0.;
     /* j. Repeat, while k < len */
     while (k < len) {
       /* i. Let Pk be ToString(k). */
-      Pk := ToString(int_to_float k);
+      Pk := ToString(k);
       /* ii. Let kValue be the first element of values and remove that element from values. */
       kValue := l_nth(values, 0);
       values := l_remove_nth(values, 0);
@@ -1015,7 +1006,7 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
       /* vi. ReturnIfAbrupt(setStatus). */
       @ReturnIfAbrupt(setStatus);
       /* vii. Increase k by 1. */
-      k := k + 1
+      k := k + 1.
     };
     /* k. Assert: values is now an empty List. */
     assert((l_len values) = 0);
@@ -1074,9 +1065,9 @@ function TypedArrayFrom(constructor, items, mapfn, thisArg, strict) {
  * When the of method is called with any number of arguments, the following
  * steps are taken:
  */
-function TypedArrayOf(global, this, strict, args) {
+function TypedArrayOf(global, this, NewTarget, strict, args) {
   /* 1. Let len be the actual number of arguments passed to this function. */
-  len := l_len args;
+  len := int_to_float l_len args;
   /* 2. Let items be the List of arguments passed to this function. */
   items := args;
   /* 3. Let C be the this value. */
@@ -1087,15 +1078,15 @@ function TypedArrayOf(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 5. Let newObj be AllocateTypedArray(C, len). */
-  newObj := AllocateTypedArray(C, int_to_float len, strict);
+  newObj := AllocateTypedArray(C, len, strict);
   /* 6. ReturnIfAbrupt(newObj). */
   @ReturnIfAbrupt(newObj);
   /* 7. Let k be 0. */
-  k := 0;
+  k := 0.;
   /* 8. Repeat, while k < len */
   while (k < len) {
     /* a. Let kValue be items[k]. */
-    kValue := l_nth(items, k);
+    kValue := l_nth(items, int_of_float k);
     /* b. Let Pk be ToString(k). */
     Pk := ToString(k);
     /* c. Let status be Set(newObj, Pk, kValue, true). */
@@ -1103,7 +1094,7 @@ function TypedArrayOf(global, this, strict, args) {
     /* d. ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
     /* e. Increase k by 1. */
-    k := k + 1
+    k := k + 1.
   };
   /* 9. Return newObj. */
   return newObj
@@ -1115,14 +1106,14 @@ function TypedArrayOf(global, this, strict, args) {
  * %TypedArray%[@@species] is an accessor property whose set accessor function
  * is undefined. Its get accessor function performs the following steps:
  */
-function typedArraySpeciesGetter(global, this, strict, args) {
+function typedArraySpeciesGetter(global, this, NewTarget, strict, args) {
   /* 1. Return the this value. */
   return this
 };
 
 /* 22.2.3 Accessor property functions */
 /* 22.2.3.1 get %TypedArray%.prototype.buffer */
-function getTypedArrayBuffer(global, this, strict, args) {
+function getTypedArrayBuffer(global, this, NewTarget, strict, args) {
   /* Let O be the this value.*/
   O := this;
   /* If Type(O) is not Object, throw a TypeError exception. */
@@ -1140,7 +1131,7 @@ function getTypedArrayBuffer(global, this, strict, args) {
 };
 
 /* 22.2.3.2 get %TypedArray%.prototype.byteLength */
-function getTypedArrayByteLength(global, this, strict, args) {
+function getTypedArrayByteLength(global, this, NewTarget, strict, args) {
   /* Let O be the this value. */
   O := this;
   /* If Type(O) is not Object, throw a TypeError exception. */
@@ -1164,7 +1155,7 @@ function getTypedArrayByteLength(global, this, strict, args) {
 };
 
 /* 22.2.3.3 get %TypedArray%.prototype.byteOffset */
-function getTypedArrayByteOffset(global, this, strict, args) {
+function getTypedArrayByteOffset(global, this, NewTarget, strict, args) {
   /* Let O be the this value. */
   O := this;
   /* If Type(O) is not Object, throw a TypeError exception. */
@@ -1218,7 +1209,7 @@ function getTypedArrayByteOffset(global, this, strict, args) {
  *
  * The following steps are taken:
  */
-function TypedArrayCopyWithin(global, this, strict, args) {
+function TypedArrayCopyWithin(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
   target := l_nth(args, 0);
@@ -1390,7 +1381,7 @@ function ValidateTypedArray(O) {
  *
  * The following steps are taken:
  */
-function TypedArrayEntries(global, this, strict, args) {
+function TypedArrayEntries(global, this, NewTarget, strict, args) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. Let valid be ValidateTypedArray(O). */
@@ -1455,7 +1446,7 @@ function TypedArrayEntries(global, this, strict, args) {
  * When the every method is called with one or two arguments, the following
  * steps are taken:
  */
-function TypedArrayEvery(global, this, strict, args) {
+function TypedArrayEvery(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
   callbackfn := l_nth(args, 0);
@@ -1543,7 +1534,7 @@ function TypedArrayEvery(global, this, strict, args) {
  *
  * The following steps are taken:
  */
-function TypedArrayFill(global, this, strict, args) {
+function TypedArrayFill(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
   value := l_nth(args, 0);
@@ -1620,7 +1611,7 @@ function TypedArrayFill(global, this, strict, args) {
  * When the filter method is called with one or two arguments, the following
  * steps are taken:
  */
-function TypedArrayFilter(global, this, strict, args) {
+function TypedArrayFilter(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
   /* 1. Let O be the this value. */
@@ -1746,7 +1737,7 @@ function TypedArrayFilter(global, this, strict, args) {
  *
  * When the find method is called, the following steps are taken:
  */
-function TypedArrayFind(global, this, strict, args) {
+function TypedArrayFind(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
 
@@ -1850,7 +1841,7 @@ function TypedArrayFind(global, this, strict, args) {
  * When the findIndex method is called with one or two arguments, the following
  * steps are taken:
  */
-function TypedArrayFindIndex(global, this, strict, args) {
+function TypedArrayFindIndex(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
 
@@ -1945,7 +1936,7 @@ function TypedArrayFindIndex(global, this, strict, args) {
  * When the forEach method is called with one or two arguments, the following
  * steps are taken:
  */
-function TypedArrayForEach(global, this, strict, args) {
+function TypedArrayForEach(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
 
@@ -2038,7 +2029,7 @@ function TypedArrayForEach(global, this, strict, args) {
  * When the indexOf method is called with one or two arguments, the following
  * steps are taken:
  */
-function TypedArrayIndexOf(global, this, strict, args) {
+function TypedArrayIndexOf(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
 
@@ -2139,7 +2130,7 @@ function TypedArrayIndexOf(global, this, strict, args) {
  * The join method takes one argument, separator, and performs the following
  * steps:
  */
-function TypedArrayJoin(global, this, strict, args) {
+function TypedArrayJoin(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
   separator := l_nth(args, 0);
@@ -2208,7 +2199,7 @@ function TypedArrayJoin(global, this, strict, args) {
  *
  * The following steps are taken:
  */
-function TypedArrayKeys(global, this, strict, args) {
+function TypedArrayKeys(global, this, NewTarget, strict, args) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. Let valid be ValidateTypedArray(O). */
@@ -2257,7 +2248,7 @@ function TypedArrayKeys(global, this, strict, args) {
  * When the lastIndexOf method is called with one or two arguments, the
  * following steps are taken:
  */
-function TypedArrayLastIndexOf(global, this, strict, args) {
+function TypedArrayLastIndexOf(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
 
@@ -2327,7 +2318,7 @@ function TypedArrayLastIndexOf(global, this, strict, args) {
  * function is undefined. Its get accessor function performs the following
  * steps:
  */
-function getTypedArrayLength(global, this, strict, args) {
+function getTypedArrayLength(global, this, NewTarget, strict, args) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
@@ -2365,7 +2356,7 @@ function getTypedArrayLength(global, this, strict, args) {
  * When the map method is called with one or two arguments, the following steps
  * are taken:
  */
-function TypedArrayMap(global, this, strict, args) {
+function TypedArrayMap(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
   /* 1. Let O be the this value. */
@@ -2479,7 +2470,7 @@ function TypedArrayMap(global, this, strict, args) {
  * When the reduce method is called with one or two arguments, the following
  * steps are taken:
  */
-function TypedArrayReduce(global, this, strict, args) {
+function TypedArrayReduce(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
 
@@ -2617,7 +2608,7 @@ function TypedArrayReduce(global, this, strict, args) {
  * When the reduceRight method is called with one or two arguments, the
  * following steps are taken:
  */
-function TypedArrayReduceRight(global, this, strict, args) {
+function TypedArrayReduceRight(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
 
@@ -2729,7 +2720,7 @@ function TypedArrayReduceRight(global, this, strict, args) {
  *
  * When the reverse method is called the following steps are taken:
  */
-function TypedArrayReverse(global, this, strict, args) {
+function TypedArrayReverse(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
   
@@ -2829,7 +2820,7 @@ function TypedArrayReverse(global, this, strict, args) {
  * 
  * The length property of the set method is 1.
  */
-function TypedArraySet(global, this, strict, args) {
+function TypedArraySet(global, this, NewTarget, strict, args) {
   array := l_nth(args, 0);
   offset := getOptionalParam(args, 1);
   if (offset = null) {
@@ -3091,7 +3082,7 @@ function TypedArraySetTypedArray(global, this, strict, typedArray, offset) {
  * are the same as for Array.prototype.slice as defined in 22.1.3.22. The
  * following steps are taken:
  */
-function TypedArraySlice(global, this, strict, args) {
+function TypedArraySlice(global, this, NewTarget, strict, args) {
   start := l_nth(args, 0);
   end := l_nth(args, 1);
   /* 1. Let O be the this value. */
@@ -3277,7 +3268,7 @@ function TypedArraySlice(global, this, strict, args) {
  * When the some method is called with one or two arguments, the following steps
  * are taken:
  */
-function TypedArraySome(global, this, strict, args) {
+function TypedArraySome(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
 
@@ -3355,7 +3346,7 @@ function TypedArraySome(global, this, strict, args) {
  * Upon entry, the following steps are performed to initialize evaluation of the
  * sort function. These steps are used instead of the entry steps in 22.1.3.24:
  */
-function TypedArraySort(global, this, strict, args) {
+function TypedArraySort(global, this, NewTarget, strict, args) {
   comparefn := l_nth(args, 0);
   /* 1. Let obj be the this value as the argument. */
   obj := this;
@@ -3462,7 +3453,7 @@ function TypedArraySortCompare(x, y, comparefn, buffer) {
  * exclusive. If either begin or end is negative, it refers to an index from the
  * end of the array, as opposed to from the beginning.
  */
-function TypedArraySubarray(global, this, strict, args) {
+function TypedArraySubarray(global, this, NewTarget, strict, args) {
   begin := getOptionalParam(args, 0);
   end := getOptionalParam(args, 1);
   if (end = null) {
@@ -3591,7 +3582,7 @@ function TypedArraySubarray(global, this, strict, args) {
  *
  * The following steps are taken:
  */
-function TypedArrayToLocaleString(global, this, strict, args) {
+function TypedArrayToLocaleString(global, this, NewTarget, strict, args) {
   valid := ValidateTypedArray(this);
   @ReturnIfAbrupt(valid);
 
@@ -3674,7 +3665,7 @@ function TypedArrayToLocaleString(global, this, strict, args) {
  *
  * The following steps are taken:
  */
-function TypedArrayValues(global, this, strict, args) {
+function TypedArrayValues(global, this, NewTarget, strict, args) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. Let valid be ValidateTypedArray(O). */
@@ -3699,7 +3690,7 @@ function TypedArrayValues(global, this, strict, args) {
  * accessor function is undefined. Its get accessor function performs the
  * following steps:
  */
-function getTypedArrayToStringTag(global, this, strict, args) {
+function getTypedArrayToStringTag(global, this, NewTarget, strict, args) {
   /* 1. Let O be the this value. */
   O := this;
   /* 2. If Type(O) is not Object, */
@@ -3746,45 +3737,14 @@ function getTypedArrayToStringTag(global, this, strict, args) {
  * call to the TypedArray constructor to create and initialize the subclass instance
  * with the internal state necessary to support the %TypedArray%.prototype built-in methods.
  */
-function Int8TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructorAux("Int8", global, this, strict, items)
-};
-function Uint8TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructorAux("Uint8", global, this, strict, items)
-};
-function Uint8ClampedTypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructorAux("Uint8Clamped", global, this, strict, items)
-};
-function Int16TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructorAux("Int16", global, this, strict, items)
-};
-function Uint16TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructorAux("Uint16", global, this, strict, items)
-};
-function Int32TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructorAux("Int32", global, this, strict, items)
-};
-function Uint32TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructorAux("Uint32", global, this, strict, items)
-};
-function Float32TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructorAux("Float32", global, this, strict, items)
-};
-function Float64TypedArrayConstructor(global, this, strict, items) {
-  return TypedArrayConstructorAux("Float64", global, this, strict, items)
-};
-function TypedArrayConstructorAux(typeOfArray, global, this, strict, items) {
-  name := s_concat([typeOfArray, "Array"]);
-  return TypedArrayConstructor(global, |Intrinsics|[name], strict, items)
-};
+
 /**
  * 22.2.4.1 TypedArray (... argumentsList)
  *
  * A TypedArray constructor with a list of arguments argumentsList performs the
  * following steps:
  */
-function TypedArray(global, this, strict, argumentsList) {
-  NewTarget := this; /* ??? */
+function TypedArraySubConstructor(global, this, NewTarget, strict, argumentsList) {
   /* 1. If NewTarget is undefined, */
   if (NewTarget = 'undefined) {
     /* throw a TypeError exception */
@@ -3805,5 +3765,5 @@ function TypedArray(global, this, strict, argumentsList) {
      internal method that invoked the active function. */
   argumentsList := argumentsList; /* ??? */
   /* 7. Return Construct(super, argumentsList, NewTarget). */
-  return ConstructNew(super, argumentsList, NewTarget)
+  return Construct(global, null, super, argumentsList, NewTarget)
 }

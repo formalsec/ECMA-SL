@@ -153,8 +153,7 @@ function initSetObject(global, objectPrototype, strict) {
 When the Set function is called with optional argument iterable the following steps are taken:
 */
 
-function setConstructor(global, this, strict, items) {
-  NewTarget := getJSProperty(global, "Set").Value;
+function setConstructor(global, this, NewTarget, strict, items) {
   iterable := getOptionalParam(items, 0);
 
   /* 1. If NewTarget is undefined, throw a TypeError exception. */
@@ -253,7 +252,7 @@ function setConstructor(global, this, strict, items) {
  *
  * NOTE Methods that create derived collection objects should call @@species to determine the constructor to use to create the derived objects. Subclass constructor may over-ride @@species to change the default constructor assignment.
  */
-function getSpeciesObject (global, this, strict, args) {
+function getSpeciesObject(global, this, NewTarget, strict, args) {
   /* 1. Return the this value. */
   return this
 };
@@ -277,7 +276,7 @@ function getSpeciesObject (global, this, strict, args) {
  * 23.2.3.1 Set.prototype.add ( value )
  *  
  */
-function setAddObject(global, this, strict, args) {
+function setAddObject(global, this, NewTarget, strict, args) {
   print("in setAddObject");
   
   value := l_nth(args, 0);
@@ -338,7 +337,7 @@ function setAddObject(global, this, strict, args) {
  * 23.2.3.2 Set.prototype.clear ( )
  *    
  */
-function setClearObject(global, this, strict, args) {
+function setClearObject(global, this, NewTarget, strict, args) {
   print("in clearSetObject");
   newSetData := [];
   /* 1. Let S be the this value. */
@@ -387,7 +386,7 @@ function setClearObject(global, this, strict, args) {
  *      Actual implementations may take other actions such as physically 
  *      removing the entry from internal data structures.
  */
-function setDeleteObject(global, this, strict, args) {
+function setDeleteObject(global, this, NewTarget, strict, args) {
   value := l_nth(args, 0);
   newSetData := [];
 
@@ -453,7 +452,7 @@ function setDeleteObject(global, this, strict, args) {
  * NOTE For iteration purposes, a Set appears similar to a Set where each entry has the same value for its key and value.
  * 
  */
-function setEntriesObject(global, this, strict, args) {
+function setEntriesObject(global, this, NewTarget, strict, args) {
   print("in setEntriesObject");
   /* 1. Let S be the this value. */
   S := this;
@@ -483,7 +482,7 @@ function setEntriesObject(global, this, strict, args) {
  * New values added after the call to forEach begins are visited.
  * 
  */
-function setForEachObject(global, this, strict, args) {
+function setForEachObject(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
 
@@ -526,7 +525,7 @@ function setForEachObject(global, this, strict, args) {
     /* a. If e is not empty, then */
     if (!(e = 'empty)) {
       /* i. Let funcResult be Call(callbackfn, T, «e, e, S»). */
-      funcResult := {callbackfn.Call}(null, null, callbackfn, T, [e, e, S]);
+      funcResult := {callbackfn.Call}(null, null, callbackfn, T, 'undefined, [e, e, S]);
       
       /* ii. ReturnIfAbrupt(funcResult). */
       @ReturnIfAbrupt(funcResult)
@@ -546,7 +545,7 @@ function setForEachObject(global, this, strict, args) {
 /**
  * 23.2.3.7 Set.prototype.has ( value )
  */
-function setHasObject(global, this, strict, args) {
+function setHasObject(global, this, NewTarget, strict, args) {
   value := l_nth(args, 0);
   
   /* 1. Let S be the this value. */
@@ -596,7 +595,7 @@ function setHasObject(global, this, strict, args) {
  * NOTE For iteration purposes, a Set appears similar to a Map where each entry has the same value for its key and value.
  *
  */
-function setKeysObject(global, this, strict, args) {
+function setKeysObject(global, this, NewTarget, strict, args) {
   /* 1. Let S be the this value. */
   S := this;
   
@@ -611,7 +610,7 @@ function setKeysObject(global, this, strict, args) {
  * Set.prototype.size is an accessor property whose set accessor function is undefined. Its get accessor function performs the following steps:
  * 
  */
-function setSizeObject(global, this, strict, args) {
+function setSizeObject(global, this, NewTarget, strict, args) {
   /* 1. Let S be the this value. */
   S := this;
 
@@ -658,7 +657,7 @@ function setSizeObject(global, this, strict, args) {
  * 23.2.3.10 Set.prototype.values ( )
  * 
  */
-function setValuesObject(global, this, strict, args) {
+function setValuesObject(global, this, NewTarget, strict, args) {
   /* 1. Let S be the this value. */
   S := this;
   
@@ -740,7 +739,7 @@ function createSetIterator(set, kind) {
  *   23.2.5.2.1 %SetIteratorPrototype%.next ( )
  *    
  */
- function setIteratorPrototypeNext(global, this, strict, args) {
+ function setIteratorPrototypeNext(global, this, NewTarget, strict, args) {
     /* 1. Let O be the this value. */
     O := this;
     

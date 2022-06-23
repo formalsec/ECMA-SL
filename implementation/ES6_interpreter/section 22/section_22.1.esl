@@ -732,7 +732,7 @@ function ArrayConstructorItems (args) {
  * This description applies if and only if the Array constructor is given
  * no arguments or at least two arguments.
  */
-function ArrayConstructor(global, this, strict, items) {
+function ArrayConstructor(global, this, NewTarget, strict, items) {
   prototype := getArrayPrototype(strict);
   if ((l_len items) = 1) {
     len := l_nth (items, 0);
@@ -845,7 +845,7 @@ function internalNewArrayLen(arrayPrototype, len) {
 *  any other constructors that may be called with a single numeric argument.
 *
 */
-function arrayFrom (global, this, strict, args) {
+function arrayFrom(global, this, NewTarget, strict, args) {
 
   /* method is called with argument items and optional arguments mapfn and thisArg */
   items := l_nth(args, 0);
@@ -1056,7 +1056,7 @@ function arrayFrom (global, this, strict, args) {
  * value true if the argument is an object whose class internal property
  * is "Array"; otherwise it returns false. The following steps are taken:
  */
-function isArray(global, this, strict, args) {
+function isArray(global, this, NewTarget, strict, args) {
   
   arg := l_nth(args, 0);
 
@@ -1080,7 +1080,7 @@ function isArray(global, this, strict, args) {
 *  to or inherited by other constructors that may be called with a single numeric argument.
 *
 */
-function arrayOf (global, this, strict, args) {
+function arrayOf(global, this, NewTarget, strict, args) {
 
   /* 1. Let len be the actual number of arguments passed to this function. */
   len := l_len args;
@@ -1138,7 +1138,7 @@ function arrayOf (global, this, strict, args) {
 
 
 /* 22.1.2.5 get Array [@@species] */
-function arraySpeciesGetter(global, this, strict, args){
+function arraySpeciesGetter(global, this, NewTarget, strict, args){
   return this
 };
 
@@ -1172,7 +1172,7 @@ function arraySpeciesGetter(global, this, strict, args){
  *
  * The following steps are taken:
  */
-function arrayConcat(global, this, strict, items) {
+function arrayConcat(global, this, NewTarget, strict, items) {
 
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -1330,7 +1330,7 @@ function IsConcatSpreadable(O) {
 *  object. Therefore it can be transferred to other kinds of objects for use as a method.
 *
 */
-function arraycopyWithin (global, this, strict, args) {
+function arraycopyWithin(global, this, NewTarget, strict, args) {
 
   /* The copyWithin method takes up to three arguments target, start and end. */
   target := l_nth(args, 0);
@@ -1467,7 +1467,7 @@ function arraycopyWithin (global, this, strict, args) {
 /**
 *  22.1.3.4 Array.prototype.entries ( )
 */
-function arrayEntries (global, this, strict, args) {
+function arrayEntries(global, this, NewTarget, strict, args) {
 
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -1515,7 +1515,7 @@ function arrayEntries (global, this, strict, args) {
  * When the every method is called with one or two arguments, the following
  * steps are taken:
  */
-function arrayEvery(global, this, strict, args) {
+function arrayEvery(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
 
@@ -1608,7 +1608,7 @@ function arrayEvery(global, this, strict, args) {
 *  an Array object. Therefore it can be transferred to other kinds of objects for use as a method.
 *
 */
-function arrayFill (global, this, strict, args) {
+function arrayFill(global, this, NewTarget, strict, args) {
   
   /* The fill method takes up to three arguments value, start and end. */
   value := l_nth(args, 0);
@@ -1715,7 +1715,7 @@ function arrayFill (global, this, strict, args) {
  * steps are taken:
  */
  
-function arrayFilter(global, this, strict, args) {
+function arrayFilter(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
 
@@ -1842,7 +1842,7 @@ function arrayFilter(global, this, strict, args) {
 *  be an Array object. Therefore it can be transferred to other kinds of objects for use as a method.
 *
 */
-function arrayFind (global, this, strict, args) {
+function arrayFind(global, this, NewTarget, strict, args) {
 
   /* The find method is called with one or two arguments, predicate and thisArg. */
   predicate := l_nth(args, 0);
@@ -1937,7 +1937,7 @@ function arrayFind (global, this, strict, args) {
 *  as a method.
 *
 */
-function arrayFindIndex (global, this, strict, args) {
+function arrayFindIndex(global, this, NewTarget, strict, args) {
     /* The find method is called with one or two arguments, predicate and thisArg. */
   predicate := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
@@ -2030,7 +2030,7 @@ function arrayFindIndex (global, this, strict, args) {
  * When the forEach method is called with one or two arguments, the
  * following steps are taken:
  */
-function arrayForEach(global, this, strict, args) {
+function arrayForEach(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
 
@@ -2122,7 +2122,7 @@ function arrayForEach(global, this, strict, args) {
  * When the indexOf method is called with one or two arguments, the following
  * steps are taken:
  */
-function arrayIndexOf(global, this, strict, args) {
+function arrayIndexOf(global, this, NewTarget, strict, args) {
   searchElement := l_nth(args, 0);
   fromIndex := getOptionalParam(args, 1);
 
@@ -2234,7 +2234,7 @@ function arrayIndexOf(global, this, strict, args) {
  * following steps:
  */
 /* function join (global, this, [ separator ]) */
-function arrayJoin(global, this, strict, args) {
+function arrayJoin(global, this, NewTarget, strict, args) {
   separator := l_nth(args, 0);
 
   /* 1. Let O be ToObject(this value). */
@@ -2333,7 +2333,7 @@ function arrayJoin(global, this, strict, args) {
 /** 
 *  22.1.3.13 Array.prototype.keys ( )
 */
-function arrayKeys (global, this, strict, args) {
+function arrayKeys(global, this, NewTarget, strict, args) {
 
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -2364,7 +2364,7 @@ function arrayKeys (global, this, strict, args) {
  * When the lastIndexOf method is called with one or two arguments, the
  * following steps are taken:
  */
-function arrayLastIndexOf(global, this, strict, args) {
+function arrayLastIndexOf(global, this, NewTarget, strict, args) {
   searchElement := l_nth(args, 0);
   fromIndex := getOptionalParam(args, 1);
 
@@ -2485,7 +2485,7 @@ function arrayLastIndexOf(global, this, strict, args) {
  * When the map method is called with one or two arguments, the following
  * steps are taken:
  */
-function arrayMap(global, this, strict, args) {
+function arrayMap(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
 
@@ -2578,7 +2578,7 @@ function arrayMap(global, this, strict, args) {
  *
  * The last element of the array is removed from the array and returned.
  */
-function arrayPop(global, this, strict, args) {
+function arrayPop(global, this, NewTarget, strict, args) {
   
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -2651,7 +2651,7 @@ function arrayPop(global, this, strict, args) {
  * When the push method is called with zero or more arguments item1,item2, etc.,
  * the following steps are taken:
  */
-function arrayPush(global, this, strict, items) {
+function arrayPush(global, this, NewTarget, strict, items) {
 
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -2745,7 +2745,7 @@ function arrayPush(global, this, strict, items) {
  * When the reduce method is called with one or two arguments, the
  * following steps are taken:
  */
-function arrayReduce(global, this, strict, args) {
+function arrayReduce(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   initialValue := getOptionalParam(args, 1);
 
@@ -2890,7 +2890,7 @@ function arrayReduce(global, this, strict, args) {
  * When the reduceRight method is called with one or two arguments,
  * the following steps are taken:
  */
-function arrayReduceRight(global, this, strict, args) {
+function arrayReduceRight(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   initialValue := getOptionalParam(args, 1);
 
@@ -3009,7 +3009,7 @@ function arrayReduceRight(global, this, strict, args) {
  * The elements of the array are rearranged so as to reverse their order.
  * The object is returned as the result of the call.
  */
-function arrayReverse(global, this, strict, args) {
+function arrayReverse(global, this, NewTarget, strict, args) {
 
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -3139,7 +3139,7 @@ function arrayReverse(global, this, strict, args) {
  *
  * The first element of the array is removed from the array and returned.
  */
-function arrayShift(global, this, strict, args) {
+function arrayShift(global, this, NewTarget, strict, args) {
 
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -3245,7 +3245,7 @@ function arrayShift(global, this, strict, args) {
  * it is treated as length+end where length is the length of the array. The following
  * steps are taken:
  */
-function arraySlice(global, this, strict, args) {
+function arraySlice(global, this, NewTarget, strict, args) {
   start := l_nth(args, 0);
   end := l_nth(args, 1);
 
@@ -3392,7 +3392,7 @@ function arraySlice(global, this, strict, args) {
  * When the some method is called with one or two arguments, the following
  * steps are taken:
  */
-function arraySome(global, this, strict, args) {
+function arraySome(global, this, NewTarget, strict, args) {
   callbackfn := l_nth(args, 0);
   thisArg := getOptionalParam(args, 1);
 
@@ -3481,7 +3481,7 @@ function arraySome(global, this, strict, args) {
  * that accepts two arguments x and y and returns a negative value if x < y,
  * zero if x = y, or a positive value if x > y.
  */
-function arraySort(global, this, strict, args) {
+function arraySort(global, this, NewTarget, strict, args) {
   comparefn := l_nth(args, 0);
 
   /* 1. Let obj be ToObject(this value). */
@@ -3752,7 +3752,7 @@ function SortCompare(comparefn, x, y) {
  * item1, item2, etc. An Array object containing the deleted elements (if any)
  * is returned. The following steps are taken:
  */
-function arraySplice(global, this, strict, args) {
+function arraySplice(global, this, NewTarget, strict, args) {
   start := getOptionalParam(args, 0);
   deleteCount := getOptionalParam(args, 1);
   items := getOptionalParamList(args, 2);
@@ -4047,7 +4047,7 @@ function arraySplice(global, this, strict, args) {
  *
  * The result is calculated as follows:
  */
-function arrayToLocaleString(global, this, strict, args) {
+function arrayToLocaleString(global, this, NewTarget, strict, args) {
 
   /* 1. Let array be ToObject(this value). */
   array := ToObject(this);
@@ -4149,7 +4149,7 @@ function arrayToLocaleString(global, this, strict, args) {
  *
  * When the toString method is called, the following steps are taken:
  */
-function arrayToString(global, this, strict, args) {
+function arrayToString(global, this, NewTarget, strict, args) {
   /* 1. Let array be ToObject(this value). */
   array := ToObject(this);
 
@@ -4190,7 +4190,7 @@ function arrayToString(global, this, strict, args) {
  * When the unshift method is called with zero or more arguments item1,
  * item2, etc., the following steps are taken:
  */
-function arrayUnshift(global, this, strict, items) {
+function arrayUnshift(global, this, NewTarget, strict, items) {
 
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -4309,7 +4309,7 @@ function arrayUnshift(global, this, strict, items) {
 *  
 *  This function is the %ArrayProto_values% intrinsic object.
 */
-function arrayValues (global, this, strict, args) {
+function arrayValues(global, this, NewTarget, strict, args) {
 
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -4448,7 +4448,7 @@ function isArrayIteratorInstance(obj) {
   return ("IteratedObject" in_obj obj) &&& ("ArrayIteratorNextIndex" in_obj obj) &&& ("ArrayIterationKind" in_obj obj)
 };
 
-function arrayIteratorNext (global, this, strict, args) {
+function arrayIteratorNext(global, this, NewTarget, strict, args) {
 
   /* 1. Let O be the this value. */
   O := this;

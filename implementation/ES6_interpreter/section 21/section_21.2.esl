@@ -232,8 +232,8 @@ function initRegExpPrototype(global, objectPrototype, objectConstructor, strict)
  * internal slots.
  */
 
-function RegExpConstructorAsFunction(externalScope, this, strict, args) {
-   return RegExpConstructor(externalScope, null, null, args, this)
+function RegExpConstructorAsFunction(externalScope, this, NewTarget, strict, args) {
+   return RegExpConstructor(externalScope, null, null, args, NewTarget)
 };
 /* 21.2.3.1 RegExp ( pattern, flags ) */
 /**
@@ -242,7 +242,7 @@ function RegExpConstructorAsFunction(externalScope, this, strict, args) {
  * RegExp, any U+005C (REVERSE SOLIDUS) code points must be escaped within the StringLiteral to prevent them
  * being removed when the contents of the StringLiteral are formed.
  */
-function RegExpConstructor(externalScope, ref, F, args, this){
+function RegExpConstructor(externalScope, ref, F, args, NewTarget){
    n_args := l_len args;
 
    if (n_args >= 1){
@@ -256,8 +256,6 @@ function RegExpConstructor(externalScope, ref, F, args, this){
    } else{
       flags := 'undefined
    };
-
-   NewTarget := this;
 
    /* 1. Let patternIsRegExp be IsRegExp(pattern). */
    patternIsRegExp := IsRegExp(pattern);
@@ -538,7 +536,7 @@ function getRegExpSpecies(global, strict, this, args){
  * Performs a regular expression match of string against the regular expression and returns an Array object 
  * containing the results of the match, or null if string did not match.
  */
-function RegExpPrototypeexec(global, this, strict, args){
+function RegExpPrototypeexec(global, this, NewTarget, strict, args){
    string := l_nth(args, 0);
 
    /* 1. Let R be the this value. */
@@ -728,7 +726,7 @@ function RegExpBuiltinExec(R, S){
    n := int_to_float r.caps.len;
 
    /* 20. Let A be ArrayCreate(n + 1). */
-   A := ArrayConstructor(null, null, false, [n + 1.]);
+   A := ArrayCreate(n + 1., null);
 
    /* 21. Assert: The value of A’s "length" property is n + 1. */
    A_length := Get(A, "length");
@@ -841,7 +839,7 @@ function AdvanceStringIndex(S, index, unicode){
  * RegExp.prototype.flags is an accessor property whose set accessor function is undefined. Its get accessor 
  * function performs the following steps:
  */
-function getRegExpFlagsAccessorProperty(global, this, strict, args){
+function getRegExpFlagsAccessorProperty(global, this, NewTarget, strict, args){
    /* 1. Let R be the this value. */
    R := this;
 
@@ -917,7 +915,7 @@ function getRegExpFlagsAccessorProperty(global, this, strict, args){
  * RegExp.prototype.global is an accessor property whose set accessor function is undefined. Its get accessor
  * function performs the following steps:
  */
-function getRegExpGlobalAccessorProperty(global, this, strict, args){
+function getRegExpGlobalAccessorProperty(global, this, NewTarget, strict, args){
    /* 1. Let R be the this value. */
    R := this;
 
@@ -948,7 +946,7 @@ function getRegExpGlobalAccessorProperty(global, this, strict, args){
  * RegExp.prototype.ignoreCase is an accessor property whose set accessor function is undefined. Its get 
  * accessor function performs the following steps:
  */
-function getRegExpIgnoreCaseAccessorProperty(global, this, strict, args){
+function getRegExpIgnoreCaseAccessorProperty(global, this, NewTarget, strict, args){
    /* 1. Let R be the this value. */
    R := this;
 
@@ -983,7 +981,7 @@ function getRegExpIgnoreCaseAccessorProperty(global, this, strict, args){
  * value does not Boolean coerce to true indicates that the object is not intended to be used as a regular 
  * expression object.
  */
-function RegExpPrototypematch(global, this, strict, args){
+function RegExpPrototypematch(global, this, NewTarget, strict, args){
    string := l_nth(args, 0);
 
    /* 1. Let rx be the this value. */
@@ -1026,8 +1024,7 @@ function RegExpPrototypematch(global, this, strict, args){
       @ReturnIfAbrupt(setStatus);
 
       /* e. Let A be ArrayCreate(0). */
-      /* A := ArrayCreate(0); */
-      A := ArrayConstructor(global, null, strict, []);
+      A := ArrayCreate(0., null);
 
       /* f. Let n be 0. */
       n := 0;
@@ -1095,7 +1092,7 @@ function RegExpPrototypematch(global, this, strict, args){
  * RegExp.prototype.multiline is an accessor property whose set accessor function is undefined. Its get 
  * accessor function performs the following steps:
  */
-function getRegExpMultilineAccessorProperty(global, this, strict, args){
+function getRegExpMultilineAccessorProperty(global, this, NewTarget, strict, args){
    /* 1. Let R be the this value. */
    R := this;
 
@@ -1125,7 +1122,7 @@ function getRegExpMultilineAccessorProperty(global, this, strict, args){
 /**
  * The value of the name property of this function is "[Symbol.replace]".
  */
-function RegExpPrototypereplace(global, this, strict, args){
+function RegExpPrototypereplace(global, this, NewTarget, strict, args){
    string := l_nth(args, 0);
    replaceValue := l_nth(args, 1);
     
@@ -1373,7 +1370,7 @@ function RegExpPrototypereplace(global, this, strict, args){
  * NOTE The lastIndex and global properties of this RegExp object are ignored when performing the search. 
  * The lastIndex property is left unchanged.
  */
-function RegExpPrototypesearch(global, this, strict, args){
+function RegExpPrototypesearch(global, this, NewTarget, strict, args){
    string := l_nth(args, 0);
 
    /* 1. Let rx be the this value. */
@@ -1428,7 +1425,7 @@ function RegExpPrototypesearch(global, this, strict, args){
  * RegExp.prototype.source is an accessor property whose set accessor function is undefined. Its get accessor 
  * function performs the following steps:
  */
-function getRegExpSourceAccessorProperty(global, this, strict, args){
+function getRegExpSourceAccessorProperty(global, this, NewTarget, strict, args){
       /* 1. Let R be the this value. */
    R := this;
 
@@ -1486,7 +1483,7 @@ function getRegExpSourceAccessorProperty(global, this, strict, args){
  *
  * NOTE 2 The @@split method ignores the value of the global and sticky properties of this RegExp object.
  */
-function RegExpPrototypesplit(global, this, strict, args){
+function RegExpPrototypesplit(global, this, NewTarget, strict, args){
    string := l_nth(args, 0);
    limit := l_nth(args, 1);
 
@@ -1551,8 +1548,7 @@ function RegExpPrototypesplit(global, this, strict, args){
    @ReturnIfAbrupt(splitter);
 
    /* 15. Let A be ArrayCreate(0). */
-   /* A := ArrayCreate(0); */
-   A := ArrayConstructor(global, null, strict, []);
+   A := ArrayCreate(0., null);
 
    /* 16. Let lengthA be 0. */
    lengthA := 0.;
@@ -1717,7 +1713,7 @@ function RegExpPrototypesplit(global, this, strict, args){
  * RegExp.prototype.sticky is an accessor property whose set accessor function is undefined. Its get accessor 
  * function performs the following steps:
  */
-function getRegExpStickyAccessorProperty(global, this, strict, args){
+function getRegExpStickyAccessorProperty(global, this, NewTarget, strict, args){
    /* 1. Let R be the this value. */ 
    R := this;
 
@@ -1744,7 +1740,7 @@ function getRegExpStickyAccessorProperty(global, this, strict, args){
 };
 
 /* 21.2.5.13 RegExp.prototype.test( S ) */
-function RegExpPrototypetest(global, this, strict, args){
+function RegExpPrototypetest(global, this, NewTarget, strict, args){
    n_args := l_len args;
 
   if (n_args >= 1){
@@ -1786,7 +1782,7 @@ function RegExpPrototypetest(global, this, strict, args){
  * NOTE The returned String has the form of a RegularExpressionLiteral that evaluates to another RegExp object 
  * with the same behaviour as this object.
  */
-function RegExpPrototypetoString(global, this, strict, args){
+function RegExpPrototypetoString(global, this, NewTarget, strict, args){
    /* 1. Let R be the this value. */
    R := this;
 
@@ -1819,7 +1815,7 @@ function RegExpPrototypetoString(global, this, strict, args){
  * RegExp.prototype.unicode is an accessor property whose set accessor function is undefined. Its get accessor
  * function performs the following steps:
  */
-function getRegExpUnicodeAccessorProperty(global, this, strict, args){
+function getRegExpUnicodeAccessorProperty(global, this, NewTarget, strict, args){
    /* 1. Let R be the this value. */ 
    R := this;
 

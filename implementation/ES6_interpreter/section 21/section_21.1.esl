@@ -19,9 +19,8 @@
 **/
 
 /* 21.1.1.1 String ( value ) */
-function StringConstructor (global, this, strict, args) {
+function StringConstructor(global, this, NewTarget, strict, args) {
   value := getOptionalParam(args, 0);
-  NewTarget := this;
 
   /* 1. If no arguments were passed to this function invocation, let s be "". */
   if ( value = null ){
@@ -363,7 +362,7 @@ function initStringPrototype(global, objectPrototype, objStringConstructor, stri
 **/
 
 /* 21.1.2.1 String.fromCharCode ( ...codeUnits )  */
-function StringFromCharCode(global, this, strict, args){
+function StringFromCharCode(global, this, NewTarget, strict, args){
   /* 1. Let codeUnits be a List containing the arguments passed to this function. */
   codeUnits := args;
 
@@ -401,7 +400,7 @@ function StringFromCharCode(global, this, strict, args){
 };
 
 /* 21.1.2.2 String.fromCodePoint ( ...codePoints ) */
-function StringFromCodePoint(global, this, strict, args){
+function StringFromCodePoint(global, this, NewTarget, strict, args){
   /* 1. Let codePoints be a List containing the arguments passed to this function. */
   codePoints := args;
 
@@ -454,7 +453,7 @@ function StringFromCodePoint(global, this, strict, args){
 /* 21.1.2.3 String.prototype */
 
 /* 21.1.2.4 String.raw ( template , ...substitutions ) */
-function StringRaw(global, this, strict, args){
+function StringRaw(global, this, NewTarget, strict, args){
   template  := hd args;
 
   /* 1. Let substitutions be a List consisting of all of the arguments passed to this function, 
@@ -574,7 +573,7 @@ function thisStringValue(value){
 };
 
 /* 21.1.3.1 String.prototype.charAt ( pos ) */
-function StringPrototypecharAt(global, this, strict, args) {
+function StringPrototypecharAt(global, this, NewTarget, strict, args) {
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -611,7 +610,7 @@ function StringPrototypecharAt(global, this, strict, args) {
 };
 
 /* 21.1.3.2 String.prototype.charCodeAt ( pos ) */
-function StringPrototypecharCodeAt (global, this, strict, args) {
+function StringPrototypecharCodeAt(global, this, NewTarget, strict, args) {
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -648,7 +647,7 @@ function StringPrototypecharCodeAt (global, this, strict, args) {
 };
 
 /* 21.1.3.3 String.prototype.codePointAt ( pos ) */
-function StringPrototypecodePointAt(global, this, strict, args){
+function StringPrototypecodePointAt(global, this, NewTarget, strict, args){
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -704,7 +703,7 @@ function StringPrototypecodePointAt(global, this, strict, args){
 };
 
 /* 21.1.3.4 String.prototype.concat ( ...args ) */
-function StringPrototypeconcat(global, this, strict, args) {
+function StringPrototypeconcat(global, this, NewTarget, strict, args) {
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
 
@@ -743,7 +742,7 @@ function StringPrototypeconcat(global, this, strict, args) {
 /* 21.1.3.5 String.prototype.constructor */
 
 /* 21.1.3.6 String.prototype.endsWith ( searchString [ , endPosition] ) */
-function StringPrototypeendsWith(global, this, strict, args){
+function StringPrototypeendsWith(global, this, NewTarget, strict, args){
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -836,7 +835,7 @@ function StringPrototypeendsWith(global, this, strict, args){
 };
 
 /* 21.1.3.7 String.prototype.includes ( searchString [ , position ] ) */
-function StringPrototypeincludes(global, this, strict, args){
+function StringPrototypeincludes(global, this, NewTarget, strict, args){
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -919,7 +918,7 @@ function includes(S, searchStr, start, searchLength, len){
 };
 
 /* 21.1.3.8 String.prototype.indexOf ( searchString [ , position ] ) */
-function StringPrototypeindexOf(global, this, strict, args){
+function StringPrototypeindexOf(global, this, NewTarget, strict, args){
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -987,7 +986,7 @@ function StringPrototypeindexOf(global, this, strict, args){
 };
 
 /* 21.1.3.9 String.prototype.lastIndexOf ( searchString [ , position ] ) */
-function StringPrototypelastIndexOf(global, this, strict, args) {
+function StringPrototypelastIndexOf(global, this, NewTarget, strict, args) {
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -1066,7 +1065,7 @@ function StringPrototypelastIndexOf(global, this, strict, args) {
 };
 
 /* 21.1.3.10 String.prototype.localeCompare ( that [, reserved1 [ , reserved2 ] ] ) */
-function StringPrototypelocaleCompare (global, this, strict, args) {
+function StringPrototypelocaleCompare(global, this, NewTarget, strict, args) {
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -1132,7 +1131,7 @@ function StringPrototypelocaleCompare (global, this, strict, args) {
 };
 
 /* 21.1.3.11 String.prototype.match ( regexp ) */
-function StringPrototypeMatch(global, this, strict, args) {
+function StringPrototypeMatch(global, this, NewTarget, strict, args) {
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -1179,7 +1178,7 @@ function StringPrototypeMatch(global, this, strict, args) {
 };
 
 /* 21.1.3.12 String.prototype.normalize ( [ form ] ) */
-function StringPrototypenormalize(global, this, strict, args){
+function StringPrototypenormalize(global, this, NewTarget, strict, args){
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -1221,7 +1220,7 @@ function StringPrototypenormalize(global, this, strict, args){
 };
 
 /* 21.1.3.13 String.prototype.repeat ( count ) */
-function StringPrototyperepeat(global, this, strict, args){
+function StringPrototyperepeat(global, this, NewTarget, strict, args){
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -1271,7 +1270,7 @@ function StringPrototyperepeat(global, this, strict, args){
 };
 
 /* 21.1.3.14 String.prototype.replace (searchValue, replaceValue ) */
-function StringPrototypeReplace(global, this, strict, args){
+function StringPrototypeReplace(global, this, NewTarget, strict, args){
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -1336,7 +1335,7 @@ function StringPrototypeReplace(global, this, strict, args){
   and let matched be searchString. If no occurrences of searchString were 
   found, return string. */
 
-  pos := StringPrototypeSearch(global, string, strict, [searchString]);
+  pos := StringPrototypeSearch(global, string, 'undefined, strict, [searchString]);
 
   @ReturnIfAbrupt(pos);
 
@@ -1576,7 +1575,7 @@ function GetSubstitution(matched, str, position, captures, replacement, global, 
 };
 
 /* 21.1.3.15 String.prototype.search ( regexp ) */
-function StringPrototypeSearch(global, this, strict, args) {
+function StringPrototypeSearch(global, this, NewTarget, strict, args) {
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -1623,7 +1622,7 @@ function StringPrototypeSearch(global, this, strict, args) {
 }; 
 
 /* 21.1.3.16 String.prototype.slice ( start, end ) */
-function StringPrototypeSlice(global, this, strict, args) {
+function StringPrototypeSlice(global, this, NewTarget, strict, args) {
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -1694,7 +1693,7 @@ function StringPrototypeSlice(global, this, strict, args) {
 };
 
 /* 21.1.3.17 String.prototype.split ( separator, limit ) */
-function StringPrototypeSplit(global, this, strict, args){
+function StringPrototypeSplit(global, this, NewTarget, strict, args){
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -1743,9 +1742,7 @@ function StringPrototypeSplit(global, this, strict, args){
   @ReturnIfAbrupt(S);
 
   /* 6. Let A be ArrayCreate(0). */
-  /* A := ArrayCreate(0); */
-  A := ArrayConstructor(global, null, strict, []);
-  setJSProperty(A, "length", newDataPropertyDescriptorFull(0., true, false, false));
+  A := ArrayCreate(0., null);
 
   /* 7. Let lengthA be 0. */
   lengthA := 0.;
@@ -1904,7 +1901,7 @@ function SplitMatch(S, q, R){
 };
  
 /* 21.1.3.18 String.prototype.startsWith ( searchString [, position ] ) */
-function StringPrototypestartsWith(global, this, strict, args){
+function StringPrototypestartsWith(global, this, NewTarget, strict, args){
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -1990,7 +1987,7 @@ function StringPrototypestartsWith(global, this, strict, args){
 };
 
 /* 21.1.3.19 String.prototype.substring ( start, end ) */
-function StringPrototypesubstring(global, this, strict, args){
+function StringPrototypesubstring(global, this, NewTarget, strict, args){
   n_args := l_len args;
 
   if (n_args >= 1){
@@ -2074,7 +2071,7 @@ function substring(S, intStart, intEnd){
 };
 
 /* 21.1.3.20 String.prototype.toLocaleLowerCase ( [ reserved1 [ , reserved2 ] ] ) */
-function StringPrototypetoLocaleLowerCase (global, this, strict, args) {
+function StringPrototypetoLocaleLowerCase(global, this, NewTarget, strict, args) {
   /* This function works exactly the same as toLowerCase except that its 
   result is intended to yield the correct result for the host environment’s
   current locale, rather than a locale-independent result. There will only 
@@ -2093,7 +2090,7 @@ function StringPrototypetoLocaleLowerCase (global, this, strict, args) {
 };
 
 /* 21.1.3.21 String.prototype.toLocaleUpperCase ([ reserved1 [ , reserved2 ] ] ) */
-function StringPrototypetoLocaleUpperCase (global, this, strict, args) {
+function StringPrototypetoLocaleUpperCase(global, this, NewTarget, strict, args) {
   /* This function works exactly the same as toLowerCase except that its 
   result is intended to yield the correct result for the host environment’s
   current locale, rather than a locale-independent result. There will only 
@@ -2112,7 +2109,7 @@ function StringPrototypetoLocaleUpperCase (global, this, strict, args) {
 };
 
 /* 21.1.3.22 String.prototype.toLowerCase ( ) */
-function StringPrototypetoLowerCase (global, this, strict, args) {
+function StringPrototypetoLowerCase(global, this, NewTarget, strict, args) {
   /* This function interprets a String value as a sequence of UTF-16 encoded code points */
   /* 
     1. Let O be RequireObjectCoercible(this value).
@@ -2136,7 +2133,7 @@ function StringPrototypetoLowerCase (global, this, strict, args) {
 };
 
 /* 21.1.3.23 String.prototype.toString ( ) */
-function StringPrototypetoString (global, this, strict, args) {
+function StringPrototypetoString(global, this, NewTarget, strict, args) {
   /* 1. Let s be thisStringValue(this value). */
   s := thisStringValue(this);
 
@@ -2145,7 +2142,7 @@ function StringPrototypetoString (global, this, strict, args) {
 };
 
 /* 21.1.3.24 String.prototype.toUpperCase ( ) */
-function StringPrototypetoUpperCase (global, this, strict, args) {
+function StringPrototypetoUpperCase(global, this, NewTarget, strict, args) {
   O := RequireObjectCoercible(this);
 
   S := ToString(O);
@@ -2158,7 +2155,7 @@ function StringPrototypetoUpperCase (global, this, strict, args) {
 };
 
 /* 21.1.3.25 String.prototype.trim ( ) */
-function StringPrototypetrim (global, this, strict, args) {
+function StringPrototypetrim(global, this, NewTarget, strict, args) {
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
 
@@ -2283,7 +2280,7 @@ function endwhiteSpace_or_lineTerminator(c1, c2){
 };
 
 /* 21.1.3.26 String.prototype.valueOf ( ) */
-function StringPrototypevalueOf (global, this, strict, args) {
+function StringPrototypevalueOf(global, this, NewTarget, strict, args) {
   /* 1. Let s be thisStringValue(this value). */
   s := thisStringValue(this);
 
@@ -2297,7 +2294,7 @@ function StringPrototypevalueOf (global, this, strict, args) {
  * iterates over the code points of a String value, returning each code point as a 
  * String value. 
  */
-function StringPrototypeiterator(global, this, strict, args){  
+function StringPrototypeiterator(global, this, NewTarget, strict, args){  
   /* 1. Let O be RequireObjectCoercible(this value). */
   O := RequireObjectCoercible(this);
 
@@ -2376,7 +2373,7 @@ function initStringIteratorPrototype(global, objectPrototype, strict) {
 }; 
 
 /* 21.1.5.2.1 %StringIteratorPrototype%.next ( ) */
-function stringIteratorNext(global, this, strict, args){
+function stringIteratorNext(global, this, NewTarget, strict, args){
   /* 1. Let O be the this value. */
   O := this;
 

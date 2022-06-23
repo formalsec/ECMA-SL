@@ -150,8 +150,7 @@ function fillObjectPrototype(objectPrototypeObject, ObjectConstructor, globalObj
 /** 19.1.1.1 Object ( [ value ] )
  *  When Object function is called with optional argument value, the following steps are taken: 
 */
-function ObjectConstructor(globalObject, this, strict, params) {
-  NewTarget := this;
+function ObjectConstructor(globalObject, this, NewTarget, strict, params) {
   value := getOptionalParam(params, 0);
   ObjectPrototype := getObjectPrototype(false); 
   
@@ -191,7 +190,7 @@ function auxCreateList(origin) {
  * The assign function is used to copy the values of all of the enumerable own properties from one or more
  * source objects to a target object. When the assign function is called, the following steps are taken:
 */
-function ObjectAssign(globalObject, this, strict, params) {
+function ObjectAssign(globalObject, this, NewTarget, strict, params) {
   target := l_nth(params, 0);
 
   /* Let to be ToObject(target). */
@@ -268,7 +267,7 @@ function ObjectAssign(globalObject, this, strict, params) {
  * The create function creates a new object with a specified prototype. When the
  * create function is called, the following steps are taken:
 */
-function StandardObjectCreate(globalObject, this, strict, params) {
+function StandardObjectCreate(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   Properties := l_nth(params, 1);
 
@@ -294,7 +293,7 @@ function StandardObjectCreate(globalObject, this, strict, params) {
 /* 19.1.2.3 Object.defineProperties ( O, Properties ) */
 /* The defineProperties function is used to add own properties and/or update the attributes of existing own
    properties of an object. When the defineProperties function is called, the following steps are taken: */
-function StandardObjectDefineProperties(globalObject, this, strict, params) {
+function StandardObjectDefineProperties(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   Properties := l_nth(params, 1);
 
@@ -376,7 +375,7 @@ function ObjectDefineProperties(O, Properties) {
  * The defineProperty function is used to add an own property and/or update the attributes of an existing
  * own property of an object. When the defineProperty function is called, the following steps are taken: 
 */
-function ObjectDefineProperty(globalObject, this, strict, params) {
+function ObjectDefineProperty(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   P := l_nth(params, 1);
   Attributes := l_nth(params, 2);
@@ -409,7 +408,7 @@ function ObjectDefineProperty(globalObject, this, strict, params) {
 };
 
 /* 19.1.2.5 Object.freeze ( O ) */
-function ObjectFreeze(globalObject, this, strict, params) {
+function ObjectFreeze(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   /* When the freeze function is called, the following steps are taken: */
 
@@ -435,7 +434,7 @@ function ObjectFreeze(globalObject, this, strict, params) {
 
 /* 19.1.2.6 Object.getOwnPropertyDescriptor ( O, P ) */
 /* When the getOwnPropertyDescriptor function is called, the following steps are taken: */
-function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
+function ObjectGetOwnPropertyDescriptor(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   P := l_nth(params, 1);
 
@@ -463,7 +462,7 @@ function ObjectGetOwnPropertyDescriptor(globalObject, this, strict, params) {
 
 /* 19.1.2.7 Object.getOwnPropertyNames ( O ) */
 /* When the getOwnPropertyNames function is called, the following steps are taken: */
-function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
+function ObjectGetOwnPropertyNames(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
 
   return GetOwnPropertyKeys(O, "String")
@@ -471,7 +470,7 @@ function ObjectGetOwnPropertyNames(globalObject, this, strict, params) {
 
 /* 19.1.2.8 Object.getOwnPropertySymbols ( O ) */
 /* When the getOwnPropertySymbols function is called, the following steps are taken: */
-function ObjectGetOwnPropertySymbols(globalObject, this, strict, params) {
+function ObjectGetOwnPropertySymbols(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
 
   return GetOwnPropertyKeys(O, "Symbol")
@@ -514,7 +513,7 @@ function GetOwnPropertyKeys(O, Type) {
 
 /* 19.1.2.9 Object.getPrototypeOf ( O ) */
 /* When the getPrototypeOf function is called with argument O, the following steps are taken: */
-function ObjectGetPrototypeOf(globalObject, this, strict, params) {
+function ObjectGetPrototypeOf(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
 
   /* Let obj be ToObject(O). */
@@ -528,7 +527,7 @@ function ObjectGetPrototypeOf(globalObject, this, strict, params) {
 };
 
 /* 19.1.2.10 Object.is ( value1, value2 ) */
-function ObjectIs(globalObject, this, strict, params) {
+function ObjectIs(globalObject, this, NewTarget, strict, params) {
   value1 := l_nth(params, 0);
   value2 := l_nth(params, 1);
 
@@ -538,7 +537,7 @@ function ObjectIs(globalObject, this, strict, params) {
 
 /* 19.1.2.11 Object.isExtensible ( O ) */
 /* When the isExtensible function is called with argument O, the following steps are taken: */
-function ObjectIsExtensible(globalObject, this, strict, params) {
+function ObjectIsExtensible(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
 
   /* 1. If Type(O) is not Object return false. */
@@ -552,7 +551,7 @@ function ObjectIsExtensible(globalObject, this, strict, params) {
 
 /* 19.1.2.12 Object.isFrozen ( O ) */
 /* When the isFrozen function is called with argument O, the following steps are taken: */
-function ObjectIsFrozen(globalObject, this, strict, params) {
+function ObjectIsFrozen(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
 
   /* 1. If Type(O) is not Object return true. */
@@ -566,7 +565,7 @@ function ObjectIsFrozen(globalObject, this, strict, params) {
 
 /* 19.1.2.12 Object.isSealed ( O ) */
 /* When the isSealed function is called with argument O, the following steps are taken: */
-function ObjectIsSealed(globalObject, this, strict, params) {
+function ObjectIsSealed(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
 
   /* 1. If Type(O) is not Object return true. */
@@ -579,7 +578,7 @@ function ObjectIsSealed(globalObject, this, strict, params) {
 };
 
 /* 19.1.2.14 Object.keys ( O ) */
-function ObjectKeys(globalObject, this, strict, params) {
+function ObjectKeys(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   /* When the keys function is called with argument O, the following steps are taken: */
   
@@ -603,7 +602,7 @@ function ObjectKeys(globalObject, this, strict, params) {
 };
 
 /* 19.1.2.15 Object.preventExtensions ( O ) */
-function ObjectPreventExtensions(globalObject, this, strict, params) {
+function ObjectPreventExtensions(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   /* When the preventExtensions function is called, the following steps are taken: */
 
@@ -628,7 +627,7 @@ function ObjectPreventExtensions(globalObject, this, strict, params) {
 };
 
 /* 19.1.2.17 Object.seal ( O ) */
-function ObjectSeal(globalObject, this, strict, params) {
+function ObjectSeal(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   /* When the seal function is called, the following steps are taken: */
 
@@ -653,7 +652,7 @@ function ObjectSeal(globalObject, this, strict, params) {
 };
 
 /* 19.1.2.18 Object.setPrototypeOf ( O, proto ) */
-function ObjectSetPrototypeOf(globalObject, this, strict, params) {
+function ObjectSetPrototypeOf(globalObject, this, NewTarget, strict, params) {
   O := l_nth(params, 0);
   proto := l_nth(params, 1);
   /* When the setPrototypeOf function is called with arguments O and proto, the following steps are taken: */
@@ -690,7 +689,7 @@ function ObjectSetPrototypeOf(globalObject, this, strict, params) {
 };
 
 /* 19.1.3.2 Object.prototype.hasOwnProperty ( V ) */
-function ObjectPrototypeHasOwnProperty(globalObject, this, strict, params) {
+function ObjectPrototypeHasOwnProperty(globalObject, this, NewTarget, strict, params) {
   V := l_nth(params, 0);
   /* When the hasOwnProperty method is called with argument V, the following steps are taken: */
 
@@ -715,7 +714,7 @@ function ObjectPrototypeHasOwnProperty(globalObject, this, strict, params) {
 };
 
 /* 19.1.3.3 Object.prototype.isPrototypeOf ( V ) */
-function ObjectPrototypeIsPrototypeOf(globalObject, this, strict, params) {
+function ObjectPrototypeIsPrototypeOf(globalObject, this, NewTarget, strict, params) {
   V := l_nth(params, 0);
   /* When the isPrototypeOf method is called with argument V, the following steps are taken: */
 
@@ -745,7 +744,7 @@ function ObjectPrototypeIsPrototypeOf(globalObject, this, strict, params) {
 };
 
 /* 19.1.3.4 Object.prototype.propertyIsEnumerable ( V ) */
-function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params) {
+function ObjectPrototypePropertyIsEnumerable(globalObject, this, NewTarget, strict, params) {
   V := l_nth(params, 0);
   /* When the propertyIsEnumerable method is called with argument V, the following steps are taken: */
 
@@ -776,7 +775,7 @@ function ObjectPrototypePropertyIsEnumerable(globalObject, this, strict, params)
 };
 
 /* 19.1.3.5 Object.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ] ) */
-function ObjectPrototypeToLocaleString(globalObject, this, strict, params) {
+function ObjectPrototypeToLocaleString(globalObject, this, NewTarget, strict, params) {
   /* When the toLocaleString method is called, the following steps are taken: */
 
   /* 1. Let O be the this value. */
@@ -798,7 +797,7 @@ function ObjectPrototypeToLocaleString(globalObject, this, strict, params) {
 };
 
 /* 19.1.3.6 Object.prototype.toString ( ) */
-function ObjectPrototypeToString(globalObject, this, strict, params) {
+function ObjectPrototypeToString(globalObject, this, NewTarget, strict, params) {
   /* When the toString method is called, the following steps are taken: */
 
   /* 1. If the this value is undefined, return "[object Undefined]". */
@@ -875,7 +874,7 @@ function ObjectPrototypeToString(globalObject, this, strict, params) {
 };
 
 /* 19.1.3.7 Object.prototype.valueOf ( ) */
-function ObjectPrototypeValueOf(globalObject, this, strict, params) {
+function ObjectPrototypeValueOf(globalObject, this, NewTarget, strict, params) {
   /* When the valueOf method is called, the following steps are taken: */
 
   /* Return ToObject(this value). */

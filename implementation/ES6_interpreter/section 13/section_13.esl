@@ -63,7 +63,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   /* 16. Let proto be the result of creating a new object as would be constructed by the expression new Object()
         where Object is the standard built-in constructor with that name. */
   if (!(typeof FunctionBody = __$Str)) {
-    proto := ObjectConstructor(|global|, 'null, Strict, [null]);
+    proto := ObjectConstructor(|global|, 'null, Strict, |Intrinsics|["Object"], [null]);
     /* 17. Call the [[DefineOwnProperty]] internal method of proto with arguments "constructor", Property Descriptor
           {[[Value]]: F, { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}, and false. */
     {proto.DefineOwnProperty}(proto, "constructor", {
@@ -119,14 +119,14 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
 };
 
 /* 13.2.1 [[Call]] */
-function OrdinaryFunctionCall(externalScope, ref, F, this, args) {
+function OrdinaryFunctionCall(externalScope, ref, F, this, newTarget, args) {
   if (("Code" in_obj F) &&& (typeof F.Code = __$Str) &&& (F.Code = "GlobalObjectEval")) {
     args := completeArgs(args, F);
-    return {F.Code}(externalScope, ref, this, F.strict, args)
+    return {F.Code}(externalScope, ref, this, newTarget, F.strict, args)
   };
   if (("Code" in_obj F) &&& ((typeof F.Code = __$Str) || (typeof F.Code = __$Curry))) {
     args := completeArgs(args, F);
-    return {F.Code}(F.Scope, this, F.strict, args)
+    return {F.Code}(F.Scope, this, newTarget, F.strict, args)
   };
   /* When the [[Call]] internal method for a Function object F is called with a this value and a list of arguments,
     the following steps are taken: */
@@ -191,7 +191,7 @@ function OrdinaryFunctionConstruct(externalScope, ref, F, argumentList, newTarge
         argument list passed into [[Construct]] as args. */
   print "Chamei o call";
 
-  result := {F.Call}(externalScope, ref, F, obj, argumentList);
+  result := {F.Call}(externalScope, ref, F, obj, newTarget, argumentList);
   /* 9. If Type(result) is Object then return result. */
   if (Type(result) = "Object") {
     return result
@@ -259,7 +259,7 @@ function completeArgs(args, functionObject) {
   return l_concat (args, aux)
 };
 
-function internalTypeErrorThrower(globalObject, this, strict, args) {
+function internalTypeErrorThrower(globalObject, this, NewTarget, strict, args) {
   throw TypeErrorConstructorInternal()
 };
 

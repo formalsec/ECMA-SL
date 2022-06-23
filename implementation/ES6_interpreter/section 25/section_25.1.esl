@@ -103,7 +103,7 @@ function initIteratorPrototype(global, objectPrototype, strict) {
  *
  * The following steps are taken:
  */
-function IteratorPrototypeIterator(global, this, strict, args) {
+function IteratorPrototypeIterator(global, this, NewTarget, strict, args) {
     /* 1. Return the this value. */
     return this
 } 

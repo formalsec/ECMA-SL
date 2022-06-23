@@ -165,7 +165,7 @@ function initReflectObject(global, objectPrototype, strict) {
  * When the apply function is called with arguments target, thisArgument, and
  * argumentsList the following steps are taken:
  */
-function ReflectApply(global, this, strict, args) {
+function ReflectApply(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   thisArgument := l_nth(args, 1);
   argumentsList := l_nth(args, 2);
@@ -190,7 +190,7 @@ function ReflectApply(global, this, strict, args) {
  * When the construct function is called with arguments target, argumentsList,
  * and newTarget the following steps are taken:
  */
-function ReflectConstruct(global, this, strict, args) {
+function ReflectConstruct(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   argumentsList := l_nth(args, 1);
   newTarget := getOptionalParam(args, 2);
@@ -228,7 +228,7 @@ function ReflectConstruct(global, this, strict, args) {
  * When the defineProperty function is called with arguments target,
  * propertyKey, and attributes the following steps are taken:
  */
-function ReflectDefineProperty(global, this, strict, args) {
+function ReflectDefineProperty(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   propertyKey := l_nth(args, 1);
   attributes := l_nth(args, 2);
@@ -255,7 +255,7 @@ function ReflectDefineProperty(global, this, strict, args) {
  * When the deleteProperty function is called with arguments target and
  * propertyKey, the following steps are taken:
  */
-function ReflectDeleteProperty(global, this, strict, args) {
+function ReflectDeleteProperty(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   propertyKey := l_nth(args, 1);
   /* 1. If Type(target) is not Object, */
@@ -277,7 +277,7 @@ function ReflectDeleteProperty(global, this, strict, args) {
  * When the enumerate function is called with argument target the following
  * steps are taken:
  */
-function ReflectEnumerate(global, this, strict, args) {
+function ReflectEnumerate(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   /* 1. If Type(target) is not Object, */
   if (!(Type(target) = "Object")) {
@@ -294,7 +294,7 @@ function ReflectEnumerate(global, this, strict, args) {
  * When the get function is called with arguments target, propertyKey, and
  * receiver the following steps are taken:
  */
-function ReflectGet(global, this, strict, args) {
+function ReflectGet(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   propertyKey := l_nth(args, 1);
   receiver := getOptionalParam(args, 2);
@@ -325,7 +325,7 @@ function ReflectGet(global, this, strict, args) {
  * When the getOwnPropertyDescriptor function is called with arguments target
  * and propertyKey, the following steps are taken:
  */
-function ReflectGetOwnPropertyDescriptor(global, this, strict, args) {
+function ReflectGetOwnPropertyDescriptor(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   propertyKey := l_nth(args, 1);
   /* 1. If Type(target) is not Object, */
@@ -351,7 +351,7 @@ function ReflectGetOwnPropertyDescriptor(global, this, strict, args) {
  * When the getPrototypeOf function is called with argument target the following
  * steps are taken:
  */
-function ReflectGetPrototypeOf(global, this, strict, args) {
+function ReflectGetPrototypeOf(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   /* 1. If Type(target) is not Object, */
   if (!(Type(target) = "Object")) {
@@ -368,7 +368,7 @@ function ReflectGetPrototypeOf(global, this, strict, args) {
  * When the has function is called with arguments target and propertyKey, the
  * following steps are taken:
  */
-function ReflectHas(global, this, strict, args) {
+function ReflectHas(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   propertyKey := l_nth(args, 1);
   /* 1. If Type(target) is not Object, */
@@ -390,7 +390,7 @@ function ReflectHas(global, this, strict, args) {
  * When the isExtensible function is called with argument target the following
  * steps are taken:
  */
-function ReflectIsExtensible(global, this, strict, args) {
+function ReflectIsExtensible(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   /* 1. If Type(target) is not Object, */
   if (!(Type(target) = "Object")) {
@@ -407,7 +407,7 @@ function ReflectIsExtensible(global, this, strict, args) {
  * When the ownKeys function is called with argument target the following steps
  * are taken:
  */
-function ReflectOwnKeys(global, this, strict, args) {
+function ReflectOwnKeys(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   /* 1. If Type(target) is not Object, */
   if (!(Type(target) = "Object")) {
@@ -428,7 +428,7 @@ function ReflectOwnKeys(global, this, strict, args) {
  * When the preventExtensions function is called with argument target, the
  * following steps are taken:
  */
-function ReflectPreventExtensions(global, this, strict, args) {
+function ReflectPreventExtensions(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   /* 1. If Type(target) is not Object, */
   if (!(Type(target) = "Object")) {
@@ -445,7 +445,7 @@ function ReflectPreventExtensions(global, this, strict, args) {
  * When the set function is called with arguments target, V, propertyKey, and
  * receiver the following steps are taken:
  */
-function ReflectSet(global, this, strict, args) {
+function ReflectSet(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   propertyKey := l_nth(args, 1);
   V := l_nth(args, 2);
@@ -477,7 +477,7 @@ function ReflectSet(global, this, strict, args) {
  * When the setPrototypeOf function is called with arguments target and
  * propertyKey, the following steps are taken:
  */
-function ReflectSetPrototypeOf(global, this, strict, args) {
+function ReflectSetPrototypeOf(global, this, NewTarget, strict, args) {
   target := l_nth(args, 0);
   proto := l_nth(args, 1);
   /* 1. If Type(target) is not Object, */

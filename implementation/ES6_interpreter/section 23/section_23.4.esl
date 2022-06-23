@@ -73,10 +73,9 @@ function initWeakSetObject(global, objectPrototype, strict) {
 /*
 *   23.4.1.1 WeakSet ( [ iterable ] )
 */
-function WeakSetConstructor(global, this, strict, items) {
+function WeakSetConstructor(global, this, NewTarget, strict, items) {
 
     iterable := getOptionalParam(items, 0);
-    NewTarget := getJSProperty(global, "WeakSet").Value;
 
     /* 1. If NewTarget is undefined, throw a TypeError exception. */
     if (NewTarget = 'undefined) {
@@ -161,7 +160,7 @@ function WeakSetConstructor(global, this, strict, items) {
 /*
 *   23.4.3.1 WeakSet.prototype.add ( value )
 */
-function weakSetAdd (global, this, strict, args) {
+function weakSetAdd(global, this, NewTarget, strict, args) {
 
     value := getOptionalParam(args, 0);
 
@@ -214,7 +213,7 @@ function weakSetAdd (global, this, strict, args) {
 * 23.4.3.3 WeakSet.prototype.delete ( value )
 */
 
-function weakSetDelete (global, this, strict, args) {
+function weakSetDelete(global, this, NewTarget, strict, args) {
     
     value := l_nth(args, 0);
 
@@ -271,7 +270,7 @@ function weakSetDelete (global, this, strict, args) {
 /*
 * 23.4.3.4 WeakSet.prototype.has ( value )
 */
-function weakSetHas (global, this, strict, args) {
+function weakSetHas(global, this, NewTarget, strict, args) {
     
     value := l_nth(args, 0);
 

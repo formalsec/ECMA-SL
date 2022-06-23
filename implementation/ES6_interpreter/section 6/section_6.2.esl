@@ -162,7 +162,9 @@ function IsStrictReference(V) {
 /* Returns true if the base value is a Boolean, String, or Number. */
 function HasPrimitiveBase(V) {
   print "HasPrimitiveBase";
-  if ((Type (GetBase(V)) = "Boolean") || (Type (GetBase(V)) = "String") || (Type (GetBase(V)) = "Number")) {
+  base := GetBase(V);
+  baseType := Type(base);
+  if ((baseType = "Boolean") || (baseType = "String") || (baseType = "Number") || (baseType = "Symbol")) {
     return true
   } else {
     return false

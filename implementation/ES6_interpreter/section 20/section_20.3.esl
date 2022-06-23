@@ -612,7 +612,7 @@ function DateConstructorCalledAsFunction(datePrototypeObject, strict, args) {
 
 /* 15.9.3 The Date Constructor */
 /* When Date is called as part of a new expression, it is a constructor: it initialises the newly created object. */
-function DateConstructor(global, this, strict, args) {
+function DateConstructor(global, this, NewTarget, strict, args) {
   prototype := getDatePrototype(strict);
 
   if ((this = 'undefined) ||| (this = 'null)) {
@@ -629,39 +629,17 @@ function DateConstructor(global, this, strict, args) {
   return internalNewDate(prototype, args)
 };
 
-
-function OrdinaryCreateFromConstructorDate(global, this, strict, items) {
-  datePrototype := getDatePrototype(strict);
-
-  print "inside Date constructor with prototype";
-  print datePrototype.JSProperties; 
-
-  newlyConstructedObject := NewECMAScriptObject();
-  setAllInternalMethodsOfOrdinaryObject(newlyConstructedObject);
-
-  /* The [[Prototype]] internal property of the newly constructed object is set to the original Date prototype object,
-    the one that is the initial value of Date.prototype. */
-  setInternalProperty(newlyConstructedObject, "Prototype", datePrototype);
-  
-  /* The [[Class]] internal property of the newly constructed object is set to "Date". */
-  setInternalProperty(newlyConstructedObject, "Class", "Date");
-  
-  /* The [[Extensible]] internal property of the newly constructed object is set to true. */
-  setInternalProperty(newlyConstructedObject, "Extensible", true); 
-  return newlyConstructedObject
-};
-
-function newDateConstructor(global, this, strict, args) {
+function newDateConstructor(global, this, NewTarget, strict, args) {
    numberOfArgs := l_len(args);
 
    if (numberOfArgs >= 2) {
-      return dateConstructorMultipleArgs(global, this, strict, args)
+      return dateConstructorMultipleArgs(global, this, NewTarget, strict, args)
    }
    elif (numberOfArgs = 0) { 
-      return dateConstructorNoArgs(global, this, strict, args)
+      return dateConstructorNoArgs(global, this, NewTarget, strict, args)
    }
    elif (numberOfArgs = 1) {
-      return dateConstructorOneArg(global, this, strict, args)
+      return dateConstructorOneArg(global, this, NewTarget, strict, args)
    }
 };
 
@@ -672,10 +650,9 @@ function newDateConstructor(global, this, strict, args) {
  *
  * This description applies only if the Date constructor is called with at least two arguments.
  */
-function dateConstructorMultipleArgs(global, this, strict, args){
+function dateConstructorMultipleArgs(global, this, NewTarget, strict, args){
   print("in dateConstructorMultipleArgs");
   
-  NewTarget := this;
   year := l_nth(args, 0);
   month := l_nth(args, 1);
   date := getOptionalParam(args, 2);
@@ -787,7 +764,7 @@ print(MakeTime(h, mins, s, milli));
     finalDate := MakeDate(MakeDay(yr, m, dt), MakeTime(h, mins, s, milli));
 
     /* q. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»). */
-    O := OrdinaryCreateFromConstructorDate(global, this, strict, NewTarget);
+    O := OrdinaryCreateFromConstructor(NewTarget, "DatePrototype", ["DateValue"]);
     
     /* r. ReturnIfAbrupt(O). */
     @ReturnIfAbrupt(O);
@@ -814,9 +791,8 @@ print(MakeTime(h, mins, s, milli));
  * This description applies only if the Date constructor is called
  * with exactly one argument.
 */
-function dateConstructorOneArg(global, this, strict, args) {
+function dateConstructorOneArg(global, this, NewTarget, strict, args) {
   print("in dateConstructorOneArg");
-  NewTarget := this;
   value := l_nth(args, 0);
 
   /* 1. Let numberOfArgs be the number of arguments passed to this function call. */
@@ -859,7 +835,7 @@ function dateConstructorOneArg(global, this, strict, args) {
     @ReturnIfAbrupt(tv);
 
     /* d. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»). */
-    O := OrdinaryCreateFromConstructorDate(global, this, strict, NewTarget);
+    O := OrdinaryCreateFromConstructor(NewTarget, "DatePrototype", ["DateValue"]);
 
     /* e. ReturnIfAbrupt(O). */
     @ReturnIfAbrupt(O);
@@ -899,9 +875,7 @@ function dateConstructorOneArg(global, this, strict, args) {
  *       a. Let now be the Number that is the time value (UTC) identifying the current time.
  *       b. Return ToDateString (now).
  */
-function dateConstructorNoArgs(global, this, strict, args){
-   NewTarget := this;
-
+function dateConstructorNoArgs(global, this, NewTarget, strict, args){
    /* 1. Let numberOfArgs be the number of arguments passed to this function call. */
    numberOfArgs := l_len(args);
    print("numberOfArgs:");
@@ -914,7 +888,7 @@ function dateConstructorNoArgs(global, this, strict, args){
    /* 3. If NewTarget is not undefined, then */
    if (!(NewTarget = 'undefined)) {
       /* a. Let O be OrdinaryCreateFromConstructor(NewTarget, "%DatePrototype%", «‍ [[DateValue]]»). */
-      O := OrdinaryCreateFromConstructorDate(global, this, strict, NewTarget);
+      O := OrdinaryCreateFromConstructor(NewTarget, "DatePrototype", ["DateValue"]);
       
       /* b. ReturnIfAbrupt(O). */
       @ReturnIfAbrupt(O);
@@ -942,7 +916,7 @@ function dateConstructorNoArgs(global, this, strict, args){
  * 
  * The now function returns a Number value that is the time value designating the UTC date and time of the occurrence of the call to now.
  */
-function DateNow(globalObject, this, strict, args) {
+function DateNow(globalObject, this, NewTarget, strict, args) {
   return getTimeValueIdentifyingCurrentTime()
 };
 
@@ -969,7 +943,7 @@ Date.parse(x.toLocaleString())
 
 is not required to produce the same Number value as the preceding three expressions and, in general, the value produced by Date.parse is implementation-dependent when given any String value that does not conform to the Date Time String Format (20.3.1.16) and that could not be produced in that implementation by the toString or toUTCString method.
 */
-function DateParse(global, this, strict, args) {
+function DateParse(global, this, NewTarget, strict, args) {
   print("in DateParse");
   arg := l_nth(args, 0);
 
@@ -1002,7 +976,7 @@ function DateParse(global, this, strict, args) {
  * it returns a time value as a Number, rather than creating a Date object, 
  * and it interprets the arguments in UTC rather than as local time.
  */
-function DateUTC(global, this, strict, args) {
+function DateUTC(global, this, NewTarget, strict, args) {
   print("inside DateUTC");
  
   year := l_nth(args, 0);
@@ -1081,7 +1055,7 @@ print(milli);
 /**
  * 20.3.4.2 Date.prototype.getDate ( )
  */
-function DatePrototypeGetDate(global, this, strict, args) {
+function DatePrototypeGetDate(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   
@@ -1101,7 +1075,7 @@ function DatePrototypeGetDate(global, this, strict, args) {
 /**
  * 20.3.4.3 Date.prototype.getDay ( )
  */
-function DatePrototypeGetDay(global, this, strict, args) {
+function DatePrototypeGetDay(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   
@@ -1120,7 +1094,7 @@ function DatePrototypeGetDay(global, this, strict, args) {
 /**
  * 20.3.4.4 Date.prototype.getFullYear ( )
  */
-function DatePrototypeGetFullYear(global, this, strict, args) {
+function DatePrototypeGetFullYear(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   
@@ -1140,7 +1114,7 @@ function DatePrototypeGetFullYear(global, this, strict, args) {
 /**
  * 20.3.4.5 Date.prototype.getHours ( )
  */
-function DatePrototypeGetHours(global, this, strict, args) {
+function DatePrototypeGetHours(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   
@@ -1162,7 +1136,7 @@ function DatePrototypeGetHours(global, this, strict, args) {
 /**
  * 20.3.4.6 Date.prototype.getMilliseconds ( )
  */
-function DatePrototypeGetMilliseconds(global, this, strict, args) {
+function DatePrototypeGetMilliseconds(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   
@@ -1182,7 +1156,7 @@ function DatePrototypeGetMilliseconds(global, this, strict, args) {
 /**
  * 20.3.4.7 Date.prototype.getMinutes ( )
  */
-function DatePrototypeGetMinutes(global, this, strict, args) {
+function DatePrototypeGetMinutes(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   
@@ -1202,7 +1176,7 @@ function DatePrototypeGetMinutes(global, this, strict, args) {
 /**
  * 20.3.4.8 Date.prototype.getMonth ( )
  */
-function DatePrototypeGetMonth(global, this, strict, args) {
+function DatePrototypeGetMonth(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   
@@ -1222,7 +1196,7 @@ function DatePrototypeGetMonth(global, this, strict, args) {
 /**
  * 20.3.4.9 Date.prototype.getSeconds ( )
  */
-function DatePrototypeGetSeconds(global, this, strict, args) {
+function DatePrototypeGetSeconds(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   
@@ -1243,7 +1217,7 @@ function DatePrototypeGetSeconds(global, this, strict, args) {
  * 20.3.4.10 Date.prototype.getTime ( )
  *
 */
-function  DatePrototypeGetTime (global, this, strict, args) {
+function  DatePrototypeGetTime(global, this, NewTarget, strict, args) {
    /* 1. Return this time value. */
    return thisTimeValue(this)
 };
@@ -1253,7 +1227,7 @@ function  DatePrototypeGetTime (global, this, strict, args) {
  * 20.3.4.11 Date.prototype.getTimezoneOffset ( )
  *
  */
-function  DatePrototypeGetTimezoneOffset (global, this, strict, args) {
+function  DatePrototypeGetTimezoneOffset(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
   
@@ -1277,7 +1251,7 @@ function  DatePrototypeGetTimezoneOffset (global, this, strict, args) {
  * 20.3.4.12 Date.prototype.getUTCDate ( )
  *
  */
-function  DatePrototypeGetUTCDate (global, this, strict, args) {
+function  DatePrototypeGetUTCDate(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
    
@@ -1299,7 +1273,7 @@ function  DatePrototypeGetUTCDate (global, this, strict, args) {
  * 20.3.4.13 Date.prototype.getUTCDay ( )
  *
  */
-function  DatePrototypeGetUTCDay (global, this, strict, args) {
+function  DatePrototypeGetUTCDay(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
    
@@ -1321,7 +1295,7 @@ function  DatePrototypeGetUTCDay (global, this, strict, args) {
  * 20.3.4.14 Date.prototype.getUTCFullYear ( )
  *
  */
-function  DatePrototypeGetUTCFullYear (global, this, strict, args) {
+function  DatePrototypeGetUTCFullYear(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
    
@@ -1343,7 +1317,7 @@ function  DatePrototypeGetUTCFullYear (global, this, strict, args) {
  * 20.3.4.15 Date.prototype.getUTCHours ( )
  *
  */
-function  DatePrototypeGetUTCHours(global, this, strict, args) {
+function  DatePrototypeGetUTCHours(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
    
@@ -1366,7 +1340,7 @@ function  DatePrototypeGetUTCHours(global, this, strict, args) {
  * 20.3.4.16 Date.prototype.getUTCMilliseconds ( )
  *
  */
-function  DatePrototypeGetUTCMilliseconds (global, this, strict, args) {
+function  DatePrototypeGetUTCMilliseconds(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
    
@@ -1388,7 +1362,7 @@ function  DatePrototypeGetUTCMilliseconds (global, this, strict, args) {
  * 20.3.4.17 Date.prototype.getUTCMinutes ( )
  *
  */
-function  DatePrototypeGetUTCMinutes (global, this, strict, args) {
+function  DatePrototypeGetUTCMinutes(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
    
@@ -1410,7 +1384,7 @@ function  DatePrototypeGetUTCMinutes (global, this, strict, args) {
  * 20.3.4.18 Date.prototype.getUTCMonth ( )
  *
  */
-function  DatePrototypeGetUTCMonth (global, this, strict, args) {
+function  DatePrototypeGetUTCMonth(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
    
@@ -1432,7 +1406,7 @@ function  DatePrototypeGetUTCMonth (global, this, strict, args) {
  * 20.3.4.19 Date.prototype.getUTCSeconds ( )
  *
  */
-function  DatePrototypeGetUTCSeconds (global, this, strict, args) {
+function  DatePrototypeGetUTCSeconds(global, this, NewTarget, strict, args) {
   /* 1. Let t be this time value. */
   t := thisTimeValue(this);
    
@@ -1454,7 +1428,7 @@ function  DatePrototypeGetUTCSeconds (global, this, strict, args) {
  * 20.3.4.20 Date.prototype.setDate ( date )
  *
  */
-function DatePrototypeSetDate (global, this, strict, args) {
+function DatePrototypeSetDate(global, this, NewTarget, strict, args) {
   date := l_nth(args, 0);
 
   /* 1. Let t be this time value. */
@@ -1490,7 +1464,7 @@ function DatePrototypeSetDate (global, this, strict, args) {
  * NOTE If month is not specified, this method behaves as if month were specified with the value getMonth(). 
  *      If date is not specified, it behaves as if date were specified with the value getDate().
  */
-function DatePrototypeSetFullYear (global, this, strict, args) {
+function DatePrototypeSetFullYear(global, this, NewTarget, strict, args) {
   year := l_nth(args, 0);
   month := getOptionalParam(args, 1);
   date := getOptionalParam(args, 2);
@@ -1561,7 +1535,7 @@ function DatePrototypeSetFullYear (global, this, strict, args) {
  *      If ms is not specified, it behaves as if ms were specified 
  *      with the value getMilliseconds().
  */
-function DatePrototypeSetHours (global, this, strict, args) {
+function DatePrototypeSetHours(global, this, NewTarget, strict, args) {
   print("in DatePrototypeSetHours");
   hour := l_nth(args, 0);
   mins := getOptionalParam(args, 1);
@@ -1627,7 +1601,7 @@ function DatePrototypeSetHours (global, this, strict, args) {
  * 20.3.4.22 Date.prototype.setMilliseconds ( ms )
  *
  */
-function DatePrototypeSetMilliseconds (global, this, strict, args) {
+function DatePrototypeSetMilliseconds(global, this, NewTarget, strict, args) {
   ms := l_nth(args, 0);
   
   /* 1. Let t be LocalTime(this time value). */
@@ -1664,7 +1638,7 @@ function DatePrototypeSetMilliseconds (global, this, strict, args) {
  *       If ms is not specified, this behaves as if 
  *       ms were specified with the value getMilliseconds().
  */
-function DatePrototypeSetMinutes (global, this, strict, args) {
+function DatePrototypeSetMinutes(global, this, NewTarget, strict, args) {
   mins := l_nth(args, 0);
   sec := getOptionalParam(args, 1);
   ms := getOptionalParam(args, 2);
@@ -1722,7 +1696,7 @@ function DatePrototypeSetMinutes (global, this, strict, args) {
  * NOTE   If date is not specified, this method behaves as if
  *        date were specified with the value getDate().
  */
-function DatePrototypeSetMonth (global, this, strict, args) {
+function DatePrototypeSetMonth(global, this, NewTarget, strict, args) {
   month := l_nth(args, 0);
   date := getOptionalParam(args, 1);
 
@@ -1769,7 +1743,7 @@ function DatePrototypeSetMonth (global, this, strict, args) {
  * NOTE   If ms is not specified, this method behaves as if
  *        ms were specified with the value getMilliseconds().
  */
-function DatePrototypeSetSeconds (global, this, strict, args) {
+function DatePrototypeSetSeconds(global, this, NewTarget, strict, args) {
   print("in DatePrototypeSetSeconds");
 
   sec := l_nth(args, 0);
@@ -1824,7 +1798,7 @@ function DatePrototypeSetSeconds (global, this, strict, args) {
  * 20.3.4.27 Date.prototype.setTime ( time )
  *
  */
-function DatePrototypeSetTime (global, this, strict, args) {
+function DatePrototypeSetTime(global, this, NewTarget, strict, args) {
   time := l_nth(args, 0);
   
   /* 1. Let valueNotUsed be this time value. */
@@ -1853,7 +1827,7 @@ function DatePrototypeSetTime (global, this, strict, args) {
  * 20.3.4.28 Date.prototype.setUTCDate ( date )
  *
  */
-function DatePrototypeSetUTCDate (global, this, strict, args) {
+function DatePrototypeSetUTCDate(global, this, NewTarget, strict, args) {
   date := l_nth(args, 0);
 
   /* 1. Let t be this time value. */
@@ -1893,7 +1867,7 @@ function DatePrototypeSetUTCDate (global, this, strict, args) {
  *      date were specified with the value getUTCDate().
 
  */
-function DatePrototypeSetUTCFullYear (global, this, strict, args) {
+function DatePrototypeSetUTCFullYear(global, this, NewTarget, strict, args) {
   year := l_nth(args, 0);
   month := getOptionalParam(args, 1);
   date := getOptionalParam(args, 2);
@@ -1963,7 +1937,7 @@ function DatePrototypeSetUTCFullYear (global, this, strict, args) {
  *      specified with the value getUTCMilliseconds().
  *
  */
-function DatePrototypeSetUTCHours (global, this, strict, args) {
+function DatePrototypeSetUTCHours(global, this, NewTarget, strict, args) {
   hour := l_nth(args, 0);
   mins := getOptionalParam(args, 1);
   sec := getOptionalParam(args, 2);
@@ -2030,7 +2004,7 @@ function DatePrototypeSetUTCHours (global, this, strict, args) {
  * 20.3.4.31 Date.prototype.setUTCMilliseconds ( ms )
  *
  */
-function DatePrototypeSetUTCMilliseconds (global, this, strict, args) {
+function DatePrototypeSetUTCMilliseconds(global, this, NewTarget, strict, args) {
   ms := l_nth(args, 0);
   
   /* 1. Let t be this time value. */
@@ -2068,7 +2042,7 @@ function DatePrototypeSetUTCMilliseconds (global, this, strict, args) {
  *      specified with the value return by getUTCMilliseconds().
  *
  */
-function DatePrototypeSetUTCMinutes (global, this, strict, args) {
+function DatePrototypeSetUTCMinutes(global, this, NewTarget, strict, args) {
   mins := l_nth(args, 0);
   sec := getOptionalParam(args, 1);
   ms := getOptionalParam(args, 2);
@@ -2130,7 +2104,7 @@ function DatePrototypeSetUTCMinutes (global, this, strict, args) {
  * NOTE   If date is not specified, this method behaves as if
  *        date were specified with the value getUTCDate().
  */
-function DatePrototypeSetUTCMonth (global, this, strict, args) {
+function DatePrototypeSetUTCMonth(global, this, NewTarget, strict, args) {
   month := l_nth(args, 0);
   date := getOptionalParam(args, 1);
 
@@ -2233,7 +2207,7 @@ function DatePrototypeSetUTCSeconds (global, this, stric, args) {
  * in a convenient, human-readable form.
  * 
  */
-function DatePrototypeToDateString(globalObject, this, strict, args){
+function DatePrototypeToDateString(globalObject, this, NewTarget, strict, args){
    print("in DatePrototypeToDateString");
    
    return toDateString(thisTimeValue(this))
@@ -2251,7 +2225,7 @@ function DatePrototypeToDateString(globalObject, this, strict, args){
  * If this time value is not a finite Number or if the year is not a value that can be represented in that format (if necessary using extended year format), a RangeError exception is thrown.
  * 
  */
-function DatePrototypeToISOString(globalObject, this, strict, args) {
+function DatePrototypeToISOString(globalObject, this, NewTarget, strict, args) {
   print("in DatePrototypeToISOString");
   print(thisTimeValue(this));
   print(!auxIsFinite(thisTimeValue(this)));
@@ -2277,7 +2251,7 @@ function DatePrototypeToISOString(globalObject, this, strict, args) {
  *  Therefore, it can be transferred to other kinds of objects for use as a method. 
  *  However, it does require that any such object have a toISOString method.
  */
-function DatePrototypeToJSON(globalObject, this, strict, args){
+function DatePrototypeToJSON(globalObject, this, NewTarget, strict, args){
 
   /* 1. Let O be ToObject(this value). */
   O := ToObject(this);
@@ -2306,7 +2280,7 @@ function DatePrototypeToJSON(globalObject, this, strict, args){
  * NOTE 2 The toString function is intentionally generic; it does not require that its this value be a Date object. Therefore, it can be transferred to other kinds of objects for use as a method.
  *
  */
-function DatePrototypeToString(globalObject, this, strict, args) {
+function DatePrototypeToString(globalObject, this, NewTarget, strict, args) {
    print("in DatePrototypeToString");
   
    /* 1. Let O be this Date object. */
@@ -2352,7 +2326,7 @@ function toDateString(tv){
  * 20.3.4.42 Date.prototype.toTimeString ( )
  *
  */
-function DatePrototypeToTimeString(globalObject, this, strict, args) {
+function DatePrototypeToTimeString(globalObject, this, NewTarget, strict, args) {
   return toDateString(thisTimeValue(this))
 };
 
@@ -2360,7 +2334,7 @@ function DatePrototypeToTimeString(globalObject, this, strict, args) {
  * 20.3.4.43 Date.prototype.toUTCString ( )
  *
  */
-function DatePrototypeToUTCString(globalObject, this, strict, args) {
+function DatePrototypeToUTCString(globalObject, this, NewTarget, strict, args) {
   tv := thisTimeValue(this);
 
   if (is_NaN tv){
@@ -2399,7 +2373,7 @@ function DatePrototypeToUTCString(globalObject, this, strict, args) {
 /**
  * 20.3.4.44 Date.prototype.valueOf ( )
 */
-function DatePrototypeValueOf (globalObject, this, strict, args) {
+function DatePrototypeValueOf (globalObject, this, NewTarget, strict, args) {
   print("in DatePrototypeValueOf");
   /* The valueOf function returns a Number, which is this time value. */
   return thisTimeValue(this)
@@ -2416,7 +2390,7 @@ function DatePrototypeValueOf (globalObject, this, strict, args) {
  * All other built-in ECMAScript objects treat "default" as being equivalent to "number".
  *
  */
-function DatePrototypeToPrimitive (globalObject, this, strict, args) {
+function DatePrototypeToPrimitive (globalObject, this, NewTarget, strict, args) {
   print("in DatePrototypeToPrimitive");
   hint := l_nth(args, 0);
   /* 1. Let O be the this value. */

@@ -98,21 +98,21 @@ function initJsonObject(globalObject, ObjectPrototype, strict) {
 /**
  * ES6: ECMA-404: https://www.ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf
  */
-function parseJSONText(global, this, strict, args) {
+function parseJSONText(global, this, NewTarget, strict, args) {
 
   JText := l_nth(args, 0);
 
   if (s_len JText = 0) {
-    throw SyntaxErrorConstructor(global, this, strict, ["JSON.parse: Unexpected end of JSON input"])
+    throw SyntaxErrorConstructor(global, this, 'undefined, strict, ["JSON.parse: Unexpected end of JSON input"])
   };
-  tokens := getTokens(global, this, strict, [JText]);
+  tokens := getTokens(global, this, 'undefined, strict, [JText]);
 
-  ret := parseJSONValue(global, this, strict, tokens);
+  ret := parseJSONValue(global, this, 'undefined, strict, tokens);
 
   tokens := l_nth(ret, 1);
 
   if (!((l_len tokens) = 0)) {
-    throw SyntaxErrorConstructor(global, this, strict, ["JSON.parse: Invalid syntax."])
+    throw SyntaxErrorConstructor(global, this, 'undefined, strict, ["JSON.parse: Invalid syntax."])
   } else {
     return l_nth(ret, 0)
   }
@@ -139,7 +139,7 @@ function unescapeJSONString(S) {
             S2 := s_concat([S2, u]);
             i := i + 4
           } else {
-            throw SyntaxErrorConstructor(global, this, strict,
+            throw SyntaxErrorConstructor(global, this, 'undefined, strict,
               ["JSON.parse: Invalid unicode escape sequence."])
           }
         } elif ((c2 = "\\") ||| (c2 = "/") ||| (c2 = "\"")) {
@@ -165,7 +165,7 @@ function unescapeJSONString(S) {
   return S2
 };
 
-function getTokens(global, this, strict, args) {
+function getTokens(global, this, NewTarget, strict, args) {
   JText := l_nth(args, 0);
 
   whitespaces := ["\x20", "\t", "\r", "\n"];
@@ -203,7 +203,7 @@ function getTokens(global, this, strict, args) {
       number := parse_number (s_substr_u (JText, i, (s_len_u JText) - i));
       num_len := s_len_u number;
       if (num_len = 0) {
-        throw SyntaxErrorConstructor(global, this, strict,
+        throw SyntaxErrorConstructor(global, this, 'undefined, strict,
           [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
       };
       i := i + num_len;
@@ -221,7 +221,7 @@ function getTokens(global, this, strict, args) {
       str_len := s_len_u string;
 
       if (str_len = 0) {
-        throw SyntaxErrorConstructor(global, this, strict,
+        throw SyntaxErrorConstructor(global, this, 'undefined, strict,
           [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
       };
       i := i + str_len;
@@ -253,7 +253,7 @@ function getTokens(global, this, strict, args) {
       };
 
       if (!valid_tok) {
-        throw SyntaxErrorConstructor(global, this, strict,
+        throw SyntaxErrorConstructor(global, this, 'undefined, strict,
           [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
       }
     }
@@ -261,7 +261,7 @@ function getTokens(global, this, strict, args) {
   return tokens
 };
 
-function parseJSONValue(global, this, strict, tokens) {
+function parseJSONValue(global, this, NewTarget, strict, tokens) {
   token := hd tokens;
   tokens := tl tokens;
 
@@ -281,21 +281,21 @@ function parseJSONValue(global, this, strict, tokens) {
     ret := findClosingCurlyBracket(tokens);
     obj_tokens := l_nth(ret, 0);
     tokens := l_nth(ret, 1);
-    obj := parseJSONObject(global, this, strict, obj_tokens);
+    obj := parseJSONObject(global, this, 'undefined, strict, obj_tokens);
     return [obj, tokens]
   } elif (token = "[") {
     ret := findClosingSquareBracket(tokens);
     arr_tokens := l_nth(ret, 0);
     tokens := l_nth(ret, 1);
-    arr := parseJSONArray(global, this, strict, arr_tokens);
+    arr := parseJSONArray(global, this, 'undefined, strict, arr_tokens);
     return [arr, tokens]
   } else {
     return []
   }
 };
 
-function parseJSONObject(global, this, strict, tokens) {
-  obj := ObjectConstructor(global, this, strict, [null]);
+function parseJSONObject(global, this, NewTarget, strict, tokens) {
+  obj := ObjectConstructor(global, this, 'undefined, strict, [null]);
   keys := [];
 
   while ((l_len tokens) > 2) {
@@ -305,14 +305,14 @@ function parseJSONObject(global, this, strict, tokens) {
     
     colon := hd (tl tokens);
     if (!(colon = ":")) {
-      throw SyntaxErrorConstructor(global, this, strict, [s_concat(["JSON.parse: Invalid syntax. Expected colon after object key."])])
+      throw SyntaxErrorConstructor(global, this, 'undefined, strict, [s_concat(["JSON.parse: Invalid syntax. Expected colon after object key."])])
     };
     tokens := tl (tl tokens);
 
-    ret := parseJSONValue(global, this, strict, tokens);
+    ret := parseJSONValue(global, this, 'undefined, strict, tokens);
 
     if ((l_len ret) = 0) {
-      throw SyntaxErrorConstructor(global, this, strict, [s_concat(["JSON.parse: Invalid syntax. Invalid value for JSON key: ", key])])
+      throw SyntaxErrorConstructor(global, this, 'undefined, strict, [s_concat(["JSON.parse: Invalid syntax. Invalid value for JSON key: ", key])])
     };
     value := l_nth (ret, 0);
 
@@ -328,7 +328,7 @@ function parseJSONObject(global, this, strict, tokens) {
       if ((l_len tokens) > 0) {
         comma := hd tokens;
         if (!(comma = ",")) {
-          throw SyntaxErrorConstructor(global, this, strict, ["JSON.parse: Expected comma after JSON array value."])
+          throw SyntaxErrorConstructor(global, this, 'undefined, strict, ["JSON.parse: Expected comma after JSON array value."])
         };
         tokens := tl tokens
       }
@@ -339,18 +339,18 @@ function parseJSONObject(global, this, strict, tokens) {
   };
   tokens_len := l_len tokens;
   if (tokens_len > 0) {
-    throw SyntaxErrorConstructor(global, this, strict, [s_concat(["JSON.parse: Invalid syntax. Incomplete JSON object"])])
+    throw SyntaxErrorConstructor(global, this, 'undefined, strict, [s_concat(["JSON.parse: Invalid syntax. Incomplete JSON object"])])
   };
   return obj
 };
 
-function parseJSONArray(global, this, strict, tokens) {
-  arr := ArrayConstructor(global, this, strict, []);
+function parseJSONArray(global, this, NewTarget, strict, tokens) {
+  arr := ArrayConstructor(global, this, 'undefined, strict, []);
   i := 0.;
   while ((l_len tokens) > 0) {
-    ret := parseJSONValue(global, this, strict, tokens);
+    ret := parseJSONValue(global, this, 'undefined, strict, tokens);
     if ((l_len ret) = 0) {
-      throw SyntaxErrorConstructor(global, this, strict, ["JSON.parse: Invalid syntax. Invalid value in JSON array."])
+      throw SyntaxErrorConstructor(global, this, 'undefined, strict, ["JSON.parse: Invalid syntax. Invalid value in JSON array."])
     };
     value := l_nth (ret, 0);
 
@@ -367,7 +367,7 @@ function parseJSONArray(global, this, strict, tokens) {
       if ((l_len tokens) > 0) {
         comma := hd tokens;
         if (!(comma = ",")) {
-          throw SyntaxErrorConstructor(global, this, strict, ["JSON.parse: Expected comma after JSON array value."])
+          throw SyntaxErrorConstructor(global, this, 'undefined, strict, ["JSON.parse: Expected comma after JSON array value."])
         };
         tokens := tl tokens
       }
@@ -433,7 +433,7 @@ function findClosingSquareBracket(tokens) {
  * of the original value. If it returns what it received, the structure is not
  * modified. If it returns undefined then the property is deleted from the result.
  */
-function jsonParse(global, this, strict, args) {
+function jsonParse(global, this, NewTarget, strict, args) {
   text := l_nth(args, 0);
   reviver := getOptionalParam(args, 1); /* - not passing 'null*/
   /*reviver := l_nth(args, 1);*/
@@ -442,7 +442,7 @@ function jsonParse(global, this, strict, args) {
   JText := ToString(text);
   /* 2. Parse JText using the grammars in 15.12.1. Throw a SyntaxError exception
         if JText did not conform to the JSON grammar for the goal symbol JSONText. */
-  objJSON := parseJSONText(global, this, strict, [JText]);
+  objJSON := parseJSONText(global, this, 'undefined, strict, [JText]);
 
   /* 3. Let unfiltered be the result of parsing and evaluating JText as if it
         was the source text of an ECMAScript Program but using JSONString in place
@@ -456,7 +456,7 @@ function jsonParse(global, this, strict, args) {
   if (IsCallable(reviver) = true) {
     /* a. Let root be a new object created as if by the expression new Object(),
           where Object is the standard built-in constructor with that name. */
-    root := ObjectConstructor(|global|, 'null, strict, [null]);
+    root := ObjectConstructor(|global|, 'null, 'undefined, strict, [null]);
     /* b. Call the [[DefineOwnProperty]] internal method of root with the empty
           String, the PropertyDescriptor {[[Value]]: unfiltered, [[Writable]]: true,
           [[Enumerable]]: true, [[Configurable]]: true}, and false as arguments. */
@@ -585,7 +585,7 @@ function Walk(holder, name, reviver) {
  *
  * These are the steps in stringifying an object:
  */
-function jsonStringify(global, this, strict, args) {
+function jsonStringify(global, this, NewTarget, strict, args) {
   value := l_nth(args, 0);
 
   replacer := getOptionalParam(args, 1);
@@ -704,7 +704,7 @@ function jsonStringify(global, this, strict, args) {
   };
   /* 9. Let wrapper be a new object created as if by the expression new Object(),
         where Object is the standard built-in constructor with that name. */
-  wrapper := ObjectConstructor(|global|, 'null, strict, [null]);
+  wrapper := ObjectConstructor(|global|, 'null, 'undefined, strict, [null]);
   /* 10. Call the [[DefineOwnProperty]] internal method of wrapper with arguments
          the empty String, the Property Descriptor {[[Value]]: value, [[Writable]]:
          true, [[Enumerable]]: true, [[Configurable]]: true}, and false. */
