@@ -1,4 +1,6 @@
 /* Auxiliary functions used to deal with Lexical Environments and Environment Records */
+
+/* to get global object we will probably need to access the only global record */
 function getGlobalObject(lexicalEnvironment) {
   if (!("EnvRec" in_obj lexicalEnvironment)) { return lexicalEnvironment };
   lex := lexicalEnvironment;
@@ -77,9 +79,13 @@ function newObjectEnvironmentRecord(bindingObj) {
      Both own and inherited properties are included in the set regardless of the setting of their [[Enumerable]] attribute. */
   objEnvRec := {
     bindingObject: bindingObj,
+    withEnvironment: false,
+    
+    /* TODO old flags tirar mais tarde */
     provideThis: false,
 
-    HasBinding: 						"HasBindingObjectRecord",
+    HasBinding: 						"HasBindingObjectEnvRecord",
+    /* HasBinding: 						"HasBindingObjectRecord", */
   	CreateMutableBinding: 	"CreateMutableBindingObjectRecord",
   	CreateImmutableBinding: "CreateImmutableBindingObjectRecord",
   	InitializeBinding: 			"InitializeBindingObjectRecord",
@@ -537,7 +543,7 @@ function HasBindingObjectRecord(envRec, N) {
 	};
 
 	/* Let unscopables be Get(bindings, @@unscopables). */
-	unscopables := Get(bindings, "unscopables");
+	unscopables := Get(bindings, getUnscopablesPropertyName());
 
 	/* ReturnIfAbrupt(unscopables). */
 	@ReturnIfAbrupt(unscopables);
@@ -628,7 +634,7 @@ function SetMutableBindingObjectRecord(envRec, N, V, S) {
     bindings := getBindingObject(envRec);
 
     /* Return Set(bindings, N, V, S). */
-    Set(bindings, N, V, S)
+    return Set(bindings, N, V, S)
 };
 
 /* 8.1.1.2.6 GetBindingValue(N,S) */
@@ -1441,7 +1447,7 @@ Boolean flag strict. The value of lex may be null. When called, the following st
 */
 function GetIdentifierReference(lex, name, strict) {
     /* If lex is the value null, then */
-    if ( lex = 'null ) {
+    if ( lex = 'null ||| lex = null ||| lex = 'undefined ) {
         /* Return a value of type Reference whose base value is undefined, whose referenced name is name, and whose strict reference flag is strict. */
         return newValueReference('undefined, name, strict)
     };
@@ -1451,6 +1457,10 @@ function GetIdentifierReference(lex, name, strict) {
 
     /* Let exists be envRec.HasBinding(name). */
     exists := {envRec.HasBinding}(envRec, name);
+
+    print "EXISTS: ";
+    print envRec;
+    print exists;
 
     /* ReturnIfAbrupt(exists). */
     @ReturnIfAbrupt(exists);
@@ -1466,7 +1476,7 @@ function GetIdentifierReference(lex, name, strict) {
         outer := getOuterEnvironmentReference(lex); 
 
         /* Return GetIdentifierReference(outer, name, strict). */
-        GetIdentifierReference(outer, name, strict)
+        return GetIdentifierReference(outer, name, strict)
     }
 };
 
@@ -1477,7 +1487,7 @@ the following steps are performed:
 */
 function NewDeclarativeEnvironment(E) {
     /* Let env be a new Lexical Environment. */
-    env := newLexicalEnvironment(E);
+    env := newLexicalEnvironment();
 
     /* Let envRec be a new declarative Environment Record containing no bindings. */
     envRec := newDeclarativeEnvironmentRecord();

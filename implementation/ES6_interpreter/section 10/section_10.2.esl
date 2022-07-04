@@ -433,70 +433,6 @@ function InitializeImmutableBindingDeclarative(declarativeEnvRec, N, V) {
 
 /* 10.2.2 Lexical Environment Operations */
 
-/* The following abstract operations are used in this specification to operate upon lexical environments: */
-
-function GetIdentifierReference(lex, name, strict) {
-  print "GetIdentifierReference";
-  /* The abstract operation GetIdentifierReference is called with a Lexical Environment lex, an identifier String
-     name, and a Boolean flag strict. The value of lex may be null. When called, the following steps are performed: */
-  /* 1. If lex is the value null or true, then */
-  if (lex = 'null ||| lex = null ||| lex = 'undefined) {
-    /* a. Return a value of type Reference whose base value is undefined, whose referenced name is name,
-          and whose strict mode flag is strict. */
-    return newValueReference('undefined, name, strict)
-  };
-  /* 2. Let envRec be lex‘s environment record. */
-  envRec := getEnvironmentRecord(lex);
-  /* 3. Let exists be the result of calling the HasBinding(N) concrete method of envRec passing name as the argument N. */
-  exists := HasBinding(envRec, name);
-  /* 4. If exists is true, then */
-  if (exists = true) {
-    /* a. Return a value of type Reference whose base value is envRec, whose referenced name is name, and whose strict mode flag is strict. */
-    return newValueReference(envRec, name, strict)
-  }
-  /* 5. Else */
-  else {
-    /* a. Let outer be the value of lex’s outer environment reference. */
-    outer := getOuterEnvironmentReference(lex);
-    /* b. Return the result of calling GetIdentifierReference passing outer, name, and strict as arguments. */
-    return GetIdentifierReference(outer, name, strict)
-  }
-};
-
-function NewDeclarativeEnvironment(E) {
-  /* 10.2.2.2 NewDeclarativeEnvironment (E) */
-  /* When the abstract operation NewDeclarativeEnvironment is called with either a Lexical Environment or null
-     as argument E the following steps are performed: */
-
-  /* 1. Let env be a new Lexical Environment. */
-  env := newLexicalEnvironment();
-  /* 2. Let envRec be a new declarative environment record containing no bindings. */
-  envRec := newDeclarativeEnvironmentRecord();
-  /* 3. Set env’s environment record to be envRec. */
-  setEnvironmentRecord(env, envRec);
-  /* 4. Set the outer lexical environment reference of env to E. */
-  setOuterLexicalEnvironmentReference(env, E);
-  /* 5. Return env. */
-  return env
-};
-
-function NewObjectEnvironment(O, E) {
-  /* 10.2.2.3 NewObjectEnvironment (O, E) */
-  /* When the abstract operation NewObjectEnvironment is called with an Object O and a Lexical Environment E (or null)
-     as arguments, the following steps are performed: */
-
-  /* 1. Let env be a new Lexical Environment. */
-  env := newLexicalEnvironment();
-  /* 2. Let envRec be a new object environment record containing O as the binding object. */
-  envRec := newObjectEnvironmentRecord(O);
-  /* 3. Set env’s environment record to be envRec. */
-  setEnvironmentRecord(env, envRec);
-  /* 4. Set the outer lexical environment reference of env to E. */
-  setOuterLexicalEnvironmentReference(env, E);
-  /* 5. Return env. */
-  return env
-};
-
 function GlobalEnvironment(globalObject) { /* TODO global object (15.1) */
   /* 10.2.3 The Global Environment */
 
@@ -520,52 +456,19 @@ function GlobalEnvironment(globalObject) { /* TODO global object (15.1) */
   return globalEnv
 };
 
-
-/* Auxiliary functions used to deal with Lexical Environments and Environment Records */
-function getGlobalObject(lexicalEnvironment) {
-  if (!("EnvRec" in_obj lexicalEnvironment)) { return lexicalEnvironment };
-  lex := lexicalEnvironment;
-  outer := getOuterEnvironmentReference(lexicalEnvironment);
-  while(!(outer = 'null)) {
-    lex := outer;
-    outer := getOuterEnvironmentReference(lex)
-  };
-
-  return getBindingObject(getEnvironmentRecord(lex))
-};
-
-function getGlobalEnvironment(globalObject) {
-  return globalObject.GlobalEnv
-};
-
-function setGlobalEnvironment(globalObject, globalEnv) {
-  globalObject.GlobalEnv := globalEnv;
-
-  return
-};
-
-function newLexicalEnvironment() {
-  return {
-    /* environment‘s outer environment reference */
-    OuterEnvRef: 'undefined,
-    /* environment‘s Environment Record */
-    EnvRec: 'undefined
-  }
-};
-
-function newDeclarativeEnvironmentRecord() {
+/* function newDeclarativeEnvironmentRecord() {
   env := {
     SetMutableBinding: "SetMutableBinding",
     GetBindingValue: "GetBindingValue"
   };
 
   return env
-};
+}; */
 
-function newObjectEnvironmentRecord(bindingObj) {
+/* function newObjectEnvironmentRecord(bindingObj) {
   /* An object environment record binds the set of identifier names that directly correspond to the property names
      of its binding object. Property names that are not an IdentifierName are not included in the set of bound identifiers.
-     Both own and inherited properties are included in the set regardless of the setting of their [[Enumerable]] attribute. */
+     Both own and inherited properties are included in the set regardless of the setting of their [[Enumerable]] attribute. 
   objEnvRec := {
     isObjectEnvRec: true,
     bindingObject: bindingObj,
@@ -575,7 +478,7 @@ function newObjectEnvironmentRecord(bindingObj) {
   };
 
   return objEnvRec
-};
+}; */
 
 function isDeclarativeEnvironmentRecord(envRec) {
   print "isDeclarativeEnvironmentRecord";
@@ -584,124 +487,5 @@ function isDeclarativeEnvironmentRecord(envRec) {
   } else {
     return true
   }
-};
-
-function getBindingObject(objectEnvRec) {
-  return objectEnvRec.bindingObject
-};
-
-function setProvideThis(objectEnvironment, value) {
-  getEnvironmentRecord(objectEnvironment).provideThis := value;
-
-  return value /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
-
-function getProvideThis(objectEnvRec) {
-  return objectEnvRec.provideThis
-};
-
-function getEnvironmentRecord(lexicalEnvironment) {
-  return lexicalEnvironment.EnvRec
-};
-
-function getOuterEnvironmentReference(lexicalEnvironment) {
-  return lexicalEnvironment.OuterEnvRef
-};
-
-function setEnvironmentRecord(lexicalEnvironment, environmentRecord) {
-  lexicalEnvironment.EnvRec := environmentRecord;
-  return environmentRecord /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
-
-function setOuterLexicalEnvironmentReference(lexicalEnvironment, outerLexicalEnvironment) {
-  lexicalEnvironment.OuterEnvRef := outerLexicalEnvironment;
-  return outerLexicalEnvironment /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
-
-function createMutableBinding(declarativeEnvRec, name, value) {
-  declarativeEnvRec[name] := newMutableBinding(value);
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
-
-function createImmutableBinding(declarativeEnvRec, name) {
-  declarativeEnvRec[name] := newImmutableBinding('undefined);
-  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
-
-function newBinding(initialised, value, deletable, modifiable) {
-  return (initialised, value, deletable, modifiable)
-};
-
-function newMutableBinding(value) {
-  return newBinding(true, value, false, true)
-};
-
-function newImmutableBinding(value) {
-  return newBinding(false, value, false, false)
-};
-
-function isMutableBinding(envRec, name) {
-  binding := envRec[name];
-  return t_nth(binding, 3)
-};
-
-function isUninitialisedBinding(envRec, name) {
-  binding := envRec[name];
-  return !(t_nth(binding, 0))
-};
-
-function getBindingValue(envRec, name) {
-  binding := envRec[name];
-  return t_nth(binding, 1)
-};
-
-function setBindingValue(envRec, name, value) {
-  binding := envRec[name];
-  newBinding := newBinding(t_nth(binding, 0), value, t_nth(binding, 2), t_nth(binding, 3));
-
-  envRec[name] := newBinding;
-
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
-
-function setBindingInitialised(envRec, name, initialised) {
-  binding := envRec[name];
-  newBinding := newBinding(initialised, t_nth(binding, 1), t_nth(binding, 2), t_nth(binding, 3));
-
-  envRec[name] := newBinding;
-
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
-
-function setBindingDeletable(envRec, name, deletable) {
-  binding := envRec[name];
-  newBinding := newBinding(t_nth(binding, 0), t_nth(binding, 1), deletable, t_nth(binding, 3));
-
-  envRec[name] := newBinding;
-
-  return /* TODO the return statement is necessary because of the Monitor. Check why! */
-};
-
-function hasUninitialisedImmutableBinding(envRec, name) {
-  return (name in_obj envRec) &&& isUninitialisedBinding(envRec, name)
-};
-
-function isBindingCannotBeDeleted(envRec, name) {
-  binding := envRec[name];
-  return !t_nth(binding, 2)
-};
-
-function BindThisValue(envRec, V) {
-  assert(!(envRec.thisBindingStatus = "lexical"));
-
-  if (envRec.thisBindingStatus = "initialized") {
-    throw ReferenceErrorConstructorInternal()
-  };
-
-  /* envRec.thisValue := V; */
-
-  /*envRec.thisBindingStatus := "initialized"; */
-
-
-  return V
 }
+
