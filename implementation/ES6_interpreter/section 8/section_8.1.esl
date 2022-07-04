@@ -83,9 +83,9 @@ function newObjectEnvironmentRecord(bindingObj) {
     
     /* TODO old flags tirar mais tarde */
     provideThis: false,
+    isObjectEnvRec: true,
 
-    HasBinding: 						"HasBindingObjectEnvRecord",
-    /* HasBinding: 						"HasBindingObjectRecord", */
+    HasBinding: 						"HasBindingObjectRecord",
   	CreateMutableBinding: 	"CreateMutableBindingObjectRecord",
   	CreateImmutableBinding: "CreateImmutableBindingObjectRecord",
   	InitializeBinding: 			"InitializeBindingObjectRecord",
