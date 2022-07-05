@@ -775,7 +775,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   while(i < lparameterNames) {
     paramName := l_nth(parameterNames, i);
     /* a.  Let alreadyDeclared be envRec.HasBinding(paramName). */
-    alreadyDeclared := HasBinding(envRec, paramName);
+    alreadyDeclared := {envRec.HasBinding}(envRec, paramName);
 
     /* b. If alreadyDeclared is false, then */
     if (alreadyDeclared = false) {

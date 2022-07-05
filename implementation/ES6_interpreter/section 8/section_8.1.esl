@@ -375,7 +375,7 @@ function InitializeBindingDeclarativeRecord(envRec, N, V) {
 	assert( isUninitialisedBinding(envRec, N) );
 
 	/* Set the bound value for N in envRec to V. */
-	setBindingValue(N, V);
+	setBindingValue(envRec, N, V);
 
 	/* Record that the binding for N in envRec has been initialized. */
 	setBindingInitialised(envRec, N, true);
@@ -421,7 +421,7 @@ function SetMutableBindingDeclarativeRecord(envRec, N, V, S) {
 	}
 	/* Else if the binding for N in envRec is a mutable binding, change its bound value to V. */
 	elif ( isMutableBinding(envRec, N) ) {
-		setBindingValue(envRec, V)
+		setBindingValue(envRec, N, V)
 	}
 	/* Else this must be an attempt to change the value of an immutable binding so if S is true throw a TypeError exception. */
 	else {

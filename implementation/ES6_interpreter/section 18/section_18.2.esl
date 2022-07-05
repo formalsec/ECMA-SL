@@ -134,7 +134,7 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
         /* 1. If varEnvRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
         while (i < varNames_l) {
           name := l_nth(varNames, i);
-          if (HasBinding(varEnvRec, name)) {
+          if ({varEnvRec.HasBinding}(varEnvRec, name)) {
             throw SyntaxErrorConstructorInternal()
           };
           i := i + 1
@@ -207,7 +207,7 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
         SetMutableBinding(varEnvRec, fn, fo, false);
         @ReturnIfAbrupt(status)
     } else {
-        bindingExists := HasBinding(varEnvRec, fn);
+        bindingExists := {varEnvRec.HasBinding}(varEnvRec, fn);
         if (!(bindingExists)) {
             status := CreateMutableBinding(varEnvRec, fn, true);
             assert(!(isAnAbruptCompletion(status)));
@@ -229,7 +229,7 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
           /* TODO */
           status := CreateMutableBinding(varEnvRec, vn, false)
       } else {
-          bindingExists := HasBinding(varEnvRec, vn);
+          bindingExists := {varEnvRec.HasBinding}(varEnvRec, vn);
           if (!(bindingExists)) {
               status := CreateMutableBinding(varEnvRec, vn, true);
               assert(!(isAnAbruptCompletion(status)));

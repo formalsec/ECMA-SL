@@ -50,7 +50,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
       };
       /* iii. Let argAlreadyDeclared be the result of calling env’s HasBinding concrete method passing
               argName as the argument. */
-      argAlreadyDeclared := HasBinding(env, argName);
+      argAlreadyDeclared := {env.HasBinding}(env, argName);
       /* iv. If argAlreadyDeclared is false, call env’s CreateMutableBinding concrete method passing
              argName as the argument. */
       if (argAlreadyDeclared = false) {
@@ -75,7 +75,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     fo := JS_Interpreter_FunctionDeclaration(f, runningExecCtx);
     /* c. Let funcAlreadyDeclared be the result of calling env’s HasBinding concrete method passing fn as
           the argument. */
-    funcAlreadyDeclared := HasBinding(env, fn);
+    funcAlreadyDeclared := {env.HasBinding}(env, fn);
     /* d. If funcAlreadyDeclared is false, call env’s CreateMutableBinding concrete method passing fn and
           configurableBindings as the arguments. */
     if (funcAlreadyDeclared = false) {
@@ -116,7 +116,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
   };
   /* 6. Let argumentsAlreadyDeclared be the result of calling env’s HasBinding concrete method passing
       "arguments" as the argument. */
-  argumentsAlreadyDeclared := HasBinding(env, "arguments");
+  argumentsAlreadyDeclared := {env.HasBinding}(env, "arguments");
   /* 7. If code is function code and argumentsAlreadyDeclared is false, then */
   if (isFunctionCode(code) && (argumentsAlreadyDeclared = false)) {
     /* a. Let argsObj be the result of calling the abstract operation CreateArgumentsObject (10.6) passing
@@ -150,7 +150,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     dn := d;
     /* b. Let varAlreadyDeclared be the result of calling env’s HasBinding concrete method passing dn as the
           argument. */
-    varAlreadyDeclared := HasBinding(env, dn);
+    varAlreadyDeclared := {env.HasBinding}(env, dn);
     /* c. If varAlreadyDeclared is false, then */
     if (varAlreadyDeclared = false) {
       /* i. Call env‘s CreateMutableBinding concrete method passing dn and configurableBindings as
