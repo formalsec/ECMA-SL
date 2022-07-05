@@ -54,11 +54,11 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
       /* iv. If argAlreadyDeclared is false, call env’s CreateMutableBinding concrete method passing
              argName as the argument. */
       if (argAlreadyDeclared = false) {
-        CreateMutableBinding(env, argName, false) /* TODO the third argument is optional as in the method signature */
+        {env.CreateMutableBinding}(env, argName, false) /* TODO the third argument is optional as in the method signature */
       };
       /* v. Call env’s SetMutableBinding concrete method passing argName, v, and strict as the
             arguments. */
-      SetMutableBinding(env, argName, v, strict);
+      {env.SetMutableBinding}(env, argName, v, strict);
 
       i := i + 1
     }
@@ -79,7 +79,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     /* d. If funcAlreadyDeclared is false, call env’s CreateMutableBinding concrete method passing fn and
           configurableBindings as the arguments. */
     if (funcAlreadyDeclared = false) {
-      CreateMutableBinding(env, fn, configurableBindings)
+      {env.CreateMutableBinding}(env, fn, configurableBindings)
     } else {
       /* e. Else if env is the environment record component of the global environment then */
       if (env = |global|) {
@@ -110,7 +110,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
       }
     };
     /* f. Call env’s SetMutableBinding concrete method passing fn, fo, and strict as the arguments. */
-    SetMutableBinding(env, fn, fo, strict);
+    {env.SetMutableBinding}(env, fn, fo, strict);
 
     i := i + 1
   };
@@ -134,10 +134,10 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     /* c. Else, */
     else {
       /* i. Call env‘s CreateMutableBinding concrete method passing the String "arguments" as the argument. */
-      CreateMutableBinding(env, "arguments", false); /* TODO the third argument is optional as in the method signature */
+      {env.CreateMutableBinding}(env, "arguments", false); /* TODO the third argument is optional as in the method signature */
       /* ii. Call env‘s SetMutableBinding concrete method passing "arguments", argsObj, and false
              as arguments. */
-      SetMutableBinding(env, "arguments", argsObj, false)
+      {env.SetMutableBinding}(env, "arguments", argsObj, false)
     }
   };
   /* 8. For each VariableDeclaration and VariableDeclarationNoIn d in code, in source text order do */
@@ -155,10 +155,10 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     if (varAlreadyDeclared = false) {
       /* i. Call env‘s CreateMutableBinding concrete method passing dn and configurableBindings as
             the arguments. */
-      CreateMutableBinding(env, dn, configurableBindings);
+      {env.CreateMutableBinding}(env, dn, configurableBindings);
       /* ii. Call env‘s SetMutableBinding concrete method passing dn, undefined, and strict as the
              arguments.*/
-      SetMutableBinding(env, dn, 'undefined, strict)
+      {env.SetMutableBinding}(env, dn, 'undefined, strict)
     };
 
     i := i + 1

@@ -780,7 +780,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     /* b. If alreadyDeclared is false, then */
     if (alreadyDeclared = false) {
       /* b. Let status be envRec.CreateMutableBinding(paramName). */
-      status := CreateMutableBinding(envRec, paramName, false);
+      status := {envRec.CreateMutableBinding}(envRec, paramName, false);
 
       /* If hasDuplicates is true, then
         Let status be envRec.InitializeBinding(paramName, undefined). */
@@ -817,7 +817,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     } else {
       /* e. Else */
       /* i. Let status be envRec.CreateMutableBinding("arguments"). */
-      status := CreateMutableBinding(envRec, "arguments", true)
+      status := {envRec.CreateMutableBinding}(envRec, "arguments", true)
     };
 
     /* f. Assert: status is never an abrupt completion. */
@@ -827,7 +827,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     if (strict = true) {
       InitializeImmutableBinding(envRec, "arguments", ao)
     } else {
-      SetMutableBinding(envRec, "arguments", ao, false)
+      {envRec.SetMutableBinding}(envRec, "arguments", ao, false)
     }
     /*h. Append "arguments" to parameterNames. */
     /*parameterNames := l_add(parameterNames, "arguments") */
@@ -874,13 +874,13 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
         instantiatedVarNames := l_add(instantiatedVarNames, element);
 
         /* Let status be envRec.CreateMutableBinding(n). */
-        status := CreateMutableBinding(envRec, element, false);
+        status := {envRec.CreateMutableBinding}(envRec, element, false);
 
         /* Assert: status is never an abrupt completion. */
         assert(!(isAnAbruptCompletion(status)));
 
         /* Call envRec.InitializeBinding(n, undefined). */
-        SetMutableBinding(envRec, element, 'undefined, false)
+        {envRec.SetMutableBinding}(envRec, element, 'undefined, false)
       };
       i := i + 1
     };
@@ -917,7 +917,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
         instantiatedVarNames := l_add(instantiatedVarNames, element);
 
         /* 2. Let status be varEnvRec.CreateMutableBinding(n, true). */
-        status := CreateMutableBinding(varEnvRec, element, true);
+        status := {varEnvRec.CreateMutableBinding}(varEnvRec, element, true);
 
         /* 3. Assert: status is never an abrupt completion. */
         assert(!(isAnAbruptCompletion(status)));
@@ -981,8 +981,8 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
 
     fo := JS_Interpreter_FunctionDeclaration(f, calleeContext);
 
-    status := CreateMutableBinding(lexEnvRec, fn, false);
-    status_two := SetMutableBinding(lexEnvRec, fn, fo, false);
+    status := {lexEnvRec.CreateMutableBinding}(lexEnvRec, fn, false);
+    status_two := {lexEnvRec.SetMutableBinding}(lexEnvRec, fn, fo, false);
     i := i + 1
   };
     /* 37. Return NormalCompletion(empty). */

@@ -1381,7 +1381,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 5. Set the provideThis flag of newEnv to true. */
     setProvideThis(newEnv, true);
     newEnv.withEnvironment = true;
-    
+
     /* 6. Set the running execution context‘s LexicalEnvironment to newEnv. */
     setLexicalEnvironment(scope, newEnv);
     /* 7. Let C be the result of evaluating Statement but if an exception is thrown during the evaluation, let C be
@@ -1547,10 +1547,12 @@ function JS_Interpreter_Catch(Catch, parameter, scope) {
     catchEnv := NewDeclarativeEnvironment(oldEnv);
     /* 4. Call the CreateMutableBinding concrete method of catchEnv passing the Identifier String value as the
           argument. */
-    CreateMutableBinding(getEnvironmentRecord(catchEnv), Identifier.name, false); /* TODO the third argument is optional as in the method signature */
+    envRec := getEnvironmentRecord(catchEnv);
+
+    {envRec.CreateMutableBinding}(envRec, Identifier.name, false); /* TODO the third argument is optional as in the method signature */
     /* 5. Call the SetMutableBinding concrete method of catchEnv passing the Identifier, C, and false as arguments.
           Note that the last argument is immaterial in this situation. */
-    SetMutableBinding(getEnvironmentRecord(catchEnv), Identifier.name, C, false);
+    {envRec.SetMutableBinding}(envRec, Identifier.name, C, false);
     /* 6. Set the running execution context‘s LexicalEnvironment to catchEnv. */
     setLexicalEnvironment(scope, catchEnv);
     /* 7. Let B be the result of evaluating Block. */

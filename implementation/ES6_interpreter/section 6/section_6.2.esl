@@ -358,7 +358,10 @@ function InitializeReferencedBinding(V, W, envRec) {
     /*assert( isEnvironmentRecord(base) ); */
 
     /* Return base.InitializeBinding(GetReferencedName(V), W). */
-    SetMutableBinding(envRec, GetReferencedName(V), W, false);
+    /* return {base.InitializeBinding}(base, GetReferencedName(V), W) */
+
+    /* TODO mudar isto para InitializeBinding */
+    {envRec.SetMutableBinding}(envRec, GetReferencedName(V), W, false);
     return NormalCompletion('empty)
 };
 

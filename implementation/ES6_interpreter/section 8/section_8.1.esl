@@ -329,7 +329,7 @@ function CreateMutableBindingDeclarativeRecord(envRec, N, D) {
 
     /* Create a mutable binding in envRec for N and record that it is uninitialized. If D is true record that the
        newly created binding may be deleted by a subsequent DeleteBinding call. */
-    CreateMutableBinding(envRec, N, 'undefined);
+    createMutableBinding(envRec, N, 'undefined);
 
     if ( D = true ) {
     	setBindingDeletable(envRec, N, true)
@@ -394,7 +394,7 @@ function SetMutableBindingDeclarativeRecord(envRec, N, V, S) {
 	/* Let envRec be the declarative Environment Record for which the method was invoked. */
 
 	/* If envRec does not have a binding for N, then */
-	if ( !(HasBinding(envRec, N)) ) {
+	if ( !(HasBindingDeclarativeRecord(envRec, N)) ) {
 	    /* If S is true throw a ReferenceError exception. */
 	    if ( S = true ) {
 	    	throw ReferenceErrorConstructorInternal()
@@ -666,7 +666,11 @@ function GetBindingValueObjectRecord(envRec, N, S) {
 	};
 
 	/* Return Get(bindings, N). */
-	return Get(bindings, N)
+	V:= Get(bindings, N);
+
+  @ReturnIfAbrupt(V);
+
+  return V
 };
 
 /* 8.1.1.2.7 DeleteBinding (N) */
