@@ -1,3 +1,32 @@
+/* 8.3.1 ResolveBinding ( name, [env] ) */
+
+/* The ResolveBinding abstract operation is used to determine the binding of name passed as a String
+  value. The optional argument env can be used to explicitly provide the Lexical Environment that is
+  to be searched for the binding. During execution of ECMAScript code, ResolveBinding is performed
+  using the following algorithm: */
+function ResolveBinding(scope, name, env)  {
+  
+  /* If env was not passed or if env is undefined, then */
+  if ( env = 'undefined ||| env = null )
+  {
+    /* Let env be the running execution context’s LexicalEnvironment. */
+    env := getLexicalEnvironment(scope)
+  };
+
+  /* Assert: env is a Lexical Environment. */
+  /* assert( isLexicalEnvironment(env) ); */
+
+  /* If the code matching the syntactic production that is being evaluated is contained in strict
+  mode code, let strict be true, else let strict be false. */
+
+  strict := false;
+
+  /* Return GetIdentifierReference(env, name, strict ). */
+  return GetIdentifierReference(env, name, strict)
+
+  /* NOTE The result of ResolveBinding is always a Reference value with its referenced name component equal to the name argument. */
+};
+
 /* 8.3.2 GetThisEnvironment ( )
  * 
  * The abstract operation GetThisEnvironment finds the Environment Record that currently supplies the binding of the keyword this. GetThisEnvironment performs the following steps:

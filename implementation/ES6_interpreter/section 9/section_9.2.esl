@@ -813,11 +813,11 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     /* d. If strict is true, then */
     if (strict = true) {
       /* i. Let status be envRec.CreateImmutableBinding("arguments").*/
-      status := CreateImmutableBinding(envRec, "arguments")
+      status := {envRec.CreateImmutableBinding}(envRec, "arguments", true)
     } else {
       /* e. Else */
       /* i. Let status be envRec.CreateMutableBinding("arguments"). */
-      status := {envRec.CreateMutableBinding}(envRec, "arguments", true)
+      status := {envRec.CreateMutableBinding}(envRec, "arguments", false)
     };
 
     /* f. Assert: status is never an abrupt completion. */
@@ -825,7 +825,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
 
     /* g. Call envRec.InitializeBinding("arguments", ao). */
     if (strict = true) {
-      InitializeImmutableBinding(envRec, "arguments", ao)
+      {envRec.InitializeBinding}(envRec, "arguments", ao)
     } else {
       {envRec.SetMutableBinding}(envRec, "arguments", ao, false)
     }

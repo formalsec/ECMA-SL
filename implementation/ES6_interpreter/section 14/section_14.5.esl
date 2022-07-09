@@ -97,7 +97,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     /* 4. If className is not undefined, then */
     if (!(className = 'undefined)){
         /* 4a. Perform classScopeEnvRec.CreateImmutableBinding(className, true). */
-        CreateImmutableBinding(classScopeEnvRec, className)
+        {classScopeEnvRec.CreateImmutableBinding}(classScopeEnvRec, className, true)
     };
         
     /* 5. If ClassHeritageopt is not present, then */

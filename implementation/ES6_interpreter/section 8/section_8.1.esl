@@ -353,7 +353,7 @@ function CreateImmutableBindingDeclarativeRecord(envRec, N, S) {
 
 	/* Create an immutable binding in envRec for N and record that it is uninitialized. If S is true record that
 	the newly created binding is a strict binding. */
-	CreateImmutableBinding(envRec, N, 'undefined);
+	createImmutableBinding(envRec, N);
 
 	if ( S = true ) {
 		setBindingStrict(envRec, N, true)
@@ -1461,10 +1461,6 @@ function GetIdentifierReference(lex, name, strict) {
 
     /* Let exists be envRec.HasBinding(name). */
     exists := {envRec.HasBinding}(envRec, name);
-
-    print "EXISTS: ";
-    print envRec;
-    print exists;
 
     /* ReturnIfAbrupt(exists). */
     @ReturnIfAbrupt(exists);

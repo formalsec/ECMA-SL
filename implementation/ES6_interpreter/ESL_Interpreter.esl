@@ -667,7 +667,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       bindings := GetBase(ref);
       /* c. Return the result of calling the DeleteBinding concrete method of bindings, providing
             GetReferencedName(ref) as the argument. */
-      return DeleteBinding(bindings, GetReferencedName(ref))
+      return {bindings.DeleteBinding}(bindings, GetReferencedName(ref))
     }
 
     /* NOTE When a delete operator occurs within strict mode code, a SyntaxError exception is thrown if its
@@ -995,7 +995,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
 
     name := StringValue(Identifier.name);
 
-    CreateImmutableBinding(envRec, name);
+    {envRec.CreateImmutableBinding}(envRec, name, false);
 
     closure := FunctionCreate("normal", FormalParameterListopt, FunctionBody, funcEnv, strict, null);
 
@@ -1003,7 +1003,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
 
     SetFunctionName(closure, name, null);
 
-    InitializeImmutableBinding(envRec, name, closure);
+    {envRec.InitializeBinding}(envRec, name, closure);
 
     return NormalCompletion(closure)
   }

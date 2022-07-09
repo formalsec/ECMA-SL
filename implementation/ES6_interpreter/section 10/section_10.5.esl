@@ -126,10 +126,10 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     if (strict = true) {
       /* i. Call env‘s CreateImmutableBinding concrete method passing the String "arguments" as
             the argument. */
-      CreateImmutableBinding(env, "arguments");
+      {env.CreateImmutableBinding}(env, "arguments", false);
       /* ii. Call env‘s InitializeImmutableBinding concrete method passing "arguments" and
              argsObj as arguments. */
-      InitializeImmutableBinding(env, "arguments", argsObj)
+      {env.InitializeBinding}(env, "arguments", argsObj)
     }
     /* c. Else, */
     else {
