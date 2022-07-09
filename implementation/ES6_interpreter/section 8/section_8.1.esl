@@ -80,10 +80,6 @@ function newObjectEnvironmentRecord(bindingObj) {
   objEnvRec := {
     bindingObject: bindingObj,
     withEnvironment: false,
-    
-    /* TODO old flags tirar mais tarde */
-    provideThis: false,
-    isObjectEnvRec: true,
 
     HasBinding: 						"HasBindingObjectRecord",
   	CreateMutableBinding: 	"CreateMutableBindingObjectRecord",
