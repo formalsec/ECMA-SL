@@ -109,7 +109,7 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
 
     /* 7. Let localEnv be NewFunctionEnvironment(F, newTarget). */
     /* TODO mudar para new function Environment */
-    localEnv := NewDeclarativeEnvironment(F.Environment);
+    localEnv := NewFunctionEnvironment(F, newTarget);
 
     /* 8. Set the LexicalEnvironment of calleeContext to localEnv. */
     calleeContext.LexicalEnvironment := localEnv;
