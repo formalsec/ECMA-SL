@@ -112,12 +112,16 @@ function BindingInitializationIdentifier(param, value, environment) {
   bindingId := StringValue(param.name);
 
   /* 2.Let lhs be ResolveBinding(bindingId, environment). */
-  if (environment = 'undefined) {
+  /* ver como fazer isto melhor */
+  lhs := ResolveBinding(environment, bindingId, 'undefined);
+  
+  /* if (environment = 'undefined) {
     lhs := GetIdentifierReference(null, bindingId, false)
   } else {
     lhs := GetIdentifierReference(environment.LexicalEnvironment, bindingId, false)
-  };
+  }; */
 
+  
   /* ReturnIfAbrupt(lhs). */
   @ReturnIfAbrupt(lhs);
 
@@ -129,14 +133,14 @@ function BindingInitializationIdentifier(param, value, environment) {
    };
 
    /* 8. Return InitializeReferencedBinding(lhs, v). */
-   return InitializeReferencedBinding(lhs, value, environment.LexicalEnvironment.EnvRec)
+   return InitializeReferencedBinding(lhs, value)
 };
 
 function BindingInitializationRestElement(name, listIterator, scope) {
   /* 1. Let lhs be ResolveBinding(StringValue of BindingIdentifier,
      environment). */
+  lhs := ResolveBinding(scope, name, null);
 
-  lhs := GetIdentifierReference(scope.LexicalEnvironment, name, false);
   /* 2. ReturnIfAbrupt(lhs). */
   @ReturnIfAbrupt(lhs);
   /* 3. Let A be ArrayCreate(0). */
@@ -159,7 +163,7 @@ function BindingInitializationRestElement(name, listIterator, scope) {
       if (scope = 'undefined) {
         return PutValue(lhs, A)
       };
-      return InitializeReferencedBinding(lhs, A, scope.LexicalEnvironment.EnvRec)
+      return InitializeReferencedBinding(scope, lhs, A)
     };
     nextValue := IteratorValue(next);
     if (isAnAbruptCompletion(nextValue)) {

@@ -80,6 +80,7 @@ function newObjectEnvironmentRecord(bindingObj) {
   objEnvRec := {
     bindingObject: bindingObj,
     withEnvironment: false,
+    provideThis: false,
 
     HasBinding: 						"HasBindingObjectRecord",
   	CreateMutableBinding: 	"CreateMutableBindingObjectRecord",
@@ -169,7 +170,7 @@ function newBinding(initialised, value, deletable, modifiable, strict) {
 };
 
 function newMutableBinding(value) {
-  return newBinding(true, value, false, true, false)
+  return newBinding(false, value, false, true, false)
 };
 
 function newImmutableBinding(value) {
@@ -581,6 +582,9 @@ function CreateMutableBindingObjectRecord(envRec, N, D) {
     else {
     	configValue := false
     };
+
+    /* TODO check pq e que isto e preciso  */
+    createMutableBinding(envRec, N, 'undefined);
 
     /* Return DefinePropertyOrThrow(bindings, N,
     PropertyDescriptor{[[Value]]:undefined, [[Writable]]: true, [[Enumerable]]: true , [[Configurable]]: configValue}). */

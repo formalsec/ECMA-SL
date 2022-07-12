@@ -262,7 +262,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     /* 23. If className is not undefined, then */
     if (!(className = 'undefined)){
         /* 23a. Perform classScopeEnvRec.InitializeBinding(className, F). */
-        InitializeBindingDeclarativeRecordTemp(lex, className, F)
+        {classScopeEnvRec.InitializeBinding}(classScopeEnvRec, className, F)
     };
 
     /* 24. Return F. */

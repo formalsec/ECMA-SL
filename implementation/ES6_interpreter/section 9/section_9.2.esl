@@ -785,7 +785,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
       /* If hasDuplicates is true, then
         Let status be envRec.InitializeBinding(paramName, undefined). */
         if (hasDuplicates = true) {
-          status := InitializeBindingDeclarativeRecordTemp(env, paramName, 'undefined)
+          status := {envRec.InitializeBinding}(envRec, paramName, 'undefined)
         };
 
       /* Assert: status is never an abrupt completion for either of the above operations. */
@@ -824,11 +824,8 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     assert(!(isAnAbruptCompletion(status)));
 
     /* g. Call envRec.InitializeBinding("arguments", ao). */
-    if (strict = true) {
-      {envRec.InitializeBinding}(envRec, "arguments", ao)
-    } else {
-      {envRec.SetMutableBinding}(envRec, "arguments", ao, false)
-    }
+    {envRec.InitializeBinding}(envRec, "arguments", ao)
+    
     /*h. Append "arguments" to parameterNames. */
     /*parameterNames := l_add(parameterNames, "arguments") */
   };
@@ -880,7 +877,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
         assert(!(isAnAbruptCompletion(status)));
 
         /* Call envRec.InitializeBinding(n, undefined). */
-        {envRec.SetMutableBinding}(envRec, element, 'undefined, false)
+        {envRec.InitializeBinding}(envRec, element, 'undefined)
       };
       i := i + 1
     };
@@ -982,6 +979,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     fo := JS_Interpreter_FunctionDeclaration(f, calleeContext);
 
     status := {lexEnvRec.CreateMutableBinding}(lexEnvRec, fn, false);
+    {lexEnvRec.InitializeBinding}(lexEnvRec, fn, fo);
     status_two := {lexEnvRec.SetMutableBinding}(lexEnvRec, fn, fo, false);
     i := i + 1
   };

@@ -1552,6 +1552,9 @@ function JS_Interpreter_Catch(Catch, parameter, scope) {
     {envRec.CreateMutableBinding}(envRec, Identifier.name, false); /* TODO the third argument is optional as in the method signature */
     /* 5. Call the SetMutableBinding concrete method of catchEnv passing the Identifier, C, and false as arguments.
           Note that the last argument is immaterial in this situation. */
+
+    {envRec.InitializeBinding}(envRec, Identifier.name, C);
+
     {envRec.SetMutableBinding}(envRec, Identifier.name, C, false);
     /* 6. Set the running execution context‘s LexicalEnvironment to catchEnv. */
     setLexicalEnvironment(scope, catchEnv);

@@ -58,6 +58,8 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
       };
       /* v. Call env’s SetMutableBinding concrete method passing argName, v, and strict as the
             arguments. */
+      print "INIT 0";
+      {env.InitializeBinding}(env, argName, v);
       {env.SetMutableBinding}(env, argName, v, strict);
 
       i := i + 1
@@ -79,7 +81,9 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     /* d. If funcAlreadyDeclared is false, call env’s CreateMutableBinding concrete method passing fn and
           configurableBindings as the arguments. */
     if (funcAlreadyDeclared = false) {
-      {env.CreateMutableBinding}(env, fn, configurableBindings)
+      {env.CreateMutableBinding}(env, fn, configurableBindings);
+      print "INIT 1";
+      {env.InitializeBinding}(env, fn, fo)
     } else {
       /* e. Else if env is the environment record component of the global environment then */
       if (env = |global|) {
@@ -109,6 +113,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
         }
       }
     };
+
     /* f. Call env’s SetMutableBinding concrete method passing fn, fo, and strict as the arguments. */
     {env.SetMutableBinding}(env, fn, fo, strict);
 
@@ -137,6 +142,8 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
       {env.CreateMutableBinding}(env, "arguments", false); /* TODO the third argument is optional as in the method signature */
       /* ii. Call env‘s SetMutableBinding concrete method passing "arguments", argsObj, and false
              as arguments. */
+      print "INIT 2";
+      {env.InitializeBinding}(env, "arguments", argsObj);
       {env.SetMutableBinding}(env, "arguments", argsObj, false)
     }
   };
@@ -158,6 +165,9 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
       {env.CreateMutableBinding}(env, dn, configurableBindings);
       /* ii. Call env‘s SetMutableBinding concrete method passing dn, undefined, and strict as the
              arguments.*/
+      print "INIT 3";
+      {env.InitializeBinding}(env, dn, 'undefined);
+
       {env.SetMutableBinding}(env, dn, 'undefined, strict)
     };
 
