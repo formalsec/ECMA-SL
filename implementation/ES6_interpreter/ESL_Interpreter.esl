@@ -1234,6 +1234,7 @@ function JS_Interpreter_Stmt(s, scope) {
   | { type: "BlockStatement", body: StatementList } -> {
     /* 12.1 Block */
     if ((l_len StatementList) = 0) {
+      print("kapau");
       return NormalCompletion('empty)
     };
 
@@ -1263,8 +1264,11 @@ function JS_Interpreter_Stmt(s, scope) {
   | { type: "ExpressionStatement", expression: Expression } -> {
     /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
-    /* 2. Return (normal, GetValue(exprRef), empty). */
+    /* 2. Return (normal, GetValue(exprRef), empty). ES5 */
     return NormalCompletion(GetValue(exprRef))
+    
+    /* 2. Return GetValue(exprRef). ES6 */
+    /* TODO return GetValue(exprRef) */
   }
   | { type: "IfStatement" } -> {
     /* 12.5 The if Statement */
@@ -1444,37 +1448,109 @@ function JS_Interpreter_Stmt(s, scope) {
   }
 };
 
+/* 13.6.7 If Statement Runtime Semantics: Evaluation */
 function JS_Interpreter_IfStatement(IfStatement, scope) {
   match IfStatement with
   | { type: "IfStatement", test: Expression, consequent: Statement, alternate: null } -> {
     /* The production IfStatement : if ( Expression ) Statement is evaluated as follows: */
-
+    print("check-1");
     /* 1. Let exprRef be the result of evaluating Expression. */
-    exprRef := JS_Interpreter_Expr(Expression, scope);
-    /* 2. If ToBoolean(GetValue(exprRef)) is false, return (normal, empty, empty). */
-    exprValue := GetValue(exprRef);
+    exprRef := JS_Interpreter_Expr(Expression, scope) catch Interpreter_Statement_Guard;
+    print("check0");
+    /* 2. Let exprValue be ToBoolean(GetValue(exprRef)). */
+    exprValue :=  ToBoolean(GetValue(exprRef));
+    /* 3.ReturnIfAbrupt(exprValue). */
     @ReturnIfAbrupt(exprValue);
-    if (ToBoolean(exprValue) = false) {
-      return NormalCompletion('empty)
-    };
-    /* 3. Return the result of evaluating Statement. */
-    return JS_Interpreter_Stmt(Statement, scope)
+    /* 4. If exprValue is false, then */
+    print("check1");
+    print(exprValue);
+    print(exprRef);
+    if (exprValue = false) {
+      /* a. Return NormalCompletion(undefined). */
+      return NormalCompletion('undefined)
+    }
+    /* 5. Else, */
+    else {
+      print("check2");
+      /* a. Let stmtCompletion be the result of evaluating Statement. */
+      stmtCompletion := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+      print("check3");
+      print("Statement");
+      print(Statement);
+      print("stmtCompletion");
+      print(stmtCompletion);
+
+      /* b. ReturnIfAbrupt(stmtCompletion). */
+      copy := stmtCompletion;
+      @ReturnIfAbrupt(copy);
+    
+      
+      /* c. If stmtCompletion.[[value]] is not empty, return stmtCompletion. */
+      if (!(getCompletionValue(stmtCompletion) = 'empty)){
+        print("check4");
+        print("tunguska");
+        print("returning stmtCompletion");
+        return stmtCompletion
+      };
+      /* d. Return NormalCompletion(undefined). */
+      return NormalCompletion('undefined)
+    }
   }
   | { type: "IfStatement", test: Expression, consequent: Statement1, alternate: Statement2 } -> {
     /* The production IfStatement : if ( Expression ) Statement else Statement is evaluated as follows: */
-
     /* 1. Let exprRef be the result of evaluating Expression. */
+    print("check-1");
     exprRef := JS_Interpreter_Expr(Expression, scope);
-    /* 2. If ToBoolean(GetValue(exprRef)) is true, then */
-    if (ToBoolean(GetValue(exprRef)) = true) {
-      /* a. Return the result of evaluating the first Statement. */
-      return JS_Interpreter_Stmt(Statement1, scope)
+    /* 2. Let exprValue be ToBoolean(GetValue(exprRef)). */
+    print("check0");
+    exprValue := ToBoolean(GetValue(exprRef));
+    /* 3. ReturnIfAbrupt(exprValue). */
+    @ReturnIfAbrupt(exprValue);
+    /* 4. If exprValue is true, then */
+    if (exprValue = true) {
+      print("check1");
+      /* a. Let stmtCompletion be the result of evaluating the first Statement. */
+      stmtCompletion := JS_Interpreter_Stmt(Statement1, scope);
+      print("Statement1");
+      print(Statement1)
     }
-    /* 3. Else, */
+    /* 5. Else, */
     else {
-      /* a. Return the result of evaluating the second Statement. */
-      return JS_Interpreter_Stmt(Statement2, scope)
-    }
+      print("check2");
+      /* a. Let stmtCompletion be the result of evaluating the second Statement. */
+      stmtCompletion := JS_Interpreter_Stmt(Statement2, scope);
+      print("Statement2");
+      print(Statement2)
+    };
+    print("check3");
+    print("stmtCompletion");
+    print(stmtCompletion);
+    /* 6. ReturnIfAbrupt(stmtCompletion). */
+    copy := stmtCompletion;
+    @ReturnIfAbrupt(copy);
+    print("check3.5");
+    /* 7. If stmtCompletion.[[value]] is not empty, return stmtCompletion. */
+    /* getCompletionValue(stmtCompletion) */
+    if (!(getCompletionValue(stmtCompletion) = 'empty)){
+      print("check4");
+      print("tunguska");
+      print("returning stmtCompletion");
+      return stmtCompletion
+    };
+    /* 8. Return NormalCompletion(undefined). */
+    return NormalCompletion('undefined)
+
+    /*----/* 1. Let exprRef be the result of evaluating Expression. */
+    /*exprRef := JS_Interpreter_Expr(Expression, scope);*/
+    /*/* 2. If ToBoolean(GetValue(exprRef)) is true, then */    /*if (ToBoolean(GetValue(exprRef)) = true) {*/
+    /*  /* a. Return the result of evaluating the first Statement. */
+    /*  return JS_Interpreter_Stmt(Statement1, scope)*/
+    /*}*/
+    /*/* 3. Else, */
+    /*else {*/
+    /*  /* a. Return the result of evaluating the second Statement. */
+    /*  return JS_Interpreter_Stmt(Statement2, scope)*/
+    /*  ----*/
   }
 };
 
