@@ -7,8 +7,12 @@ es5id: 12.9_A1_T5
 description: >
     Checking if execution of "return" with no function, placed into a
     Block, fails
-negative: SyntaxError
+negative:
+  phase: parse
+  type: SyntaxError
 ---*/
+
+$DONOTEVALUATE();
 
 //////////////////////////////////////////////////////////////////////////////
 //CHECK#1

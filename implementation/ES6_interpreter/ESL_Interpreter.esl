@@ -1361,16 +1361,23 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 2. Return Completion{[[type]]: break, [[value]]: empty, [[target]]: label }. */
     return newCompletion('break, 'empty, label)
   }
+  | { type: "ReturnStatement", argument: null } -> {
+    /* 13.10 The return Statement */
+    
+    /* 1. Return Completion{[[type]]: return, [[value]]: undefined, [[target]]: empty}. */
+    return newCompletion('return, 'undefined, 'empty)
+  }
   | { type: "ReturnStatement", argument: Expression } -> {
-    /* 12.9 The return Statement */
-    /* 1. If the Expression is not present, return (return, undefined, empty). */
-    if (Expression = null) {
-      return newCompletion('return, 'undefined, 'empty)
-    };
-    /* 2. Let exprRef be the result of evaluating Expression. */
+    /* 13.10 The return Statement */
+
+    /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
-    /* 3. Return (return, GetValue(exprRef), empty). */
-    return newCompletion('return, GetValue(exprRef), 'empty)
+    /* 2. Let exprValue be GetValue(exprRef). */
+    exprValue := GetValue(exprRef);
+    /* 3. ReturnIfAbrupt(exprValue). */
+    @ReturnIfAbrupt(exprValue);
+    /* 4. Return Completion{[[type]]: return, [[value]]: exprValue, [[target]]: empty}. */
+    return newCompletion('return, exprValue, 'empty)
   }
   | { type: "WithStatement", object: Expression, body: Statement } -> {
     /* 12.10 The with Statement */
