@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     "throw Expression" returns (throw, GetValue(Result(1)), empty), where 1
     evaluates Expression
 es5id: 12.13_A2_T7
@@ -25,6 +25,6 @@ try{
 }
 catch(e){
   for (var i=0;i<3;i++){
-    if (e[i]!==mycars[i]) $ERROR('#1.'+i+': Exception['+i+'] === mycars['+i+']. Actual:  Exception['+i+'] ==='+ e[i]  );
+    if (e[i]!==mycars[i]) throw new Test262Error('#1.'+i+': Exception['+i+'] === mycars['+i+']. Actual:  Exception['+i+'] ==='+ e[i]  );
   }
 }

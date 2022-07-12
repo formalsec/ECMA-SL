@@ -1234,7 +1234,6 @@ function JS_Interpreter_Stmt(s, scope) {
   | { type: "BlockStatement", body: StatementList } -> {
     /* 12.1 Block */
     if ((l_len StatementList) = 0) {
-      print("kapau");
       return NormalCompletion('empty)
     };
 
@@ -1259,6 +1258,8 @@ function JS_Interpreter_Stmt(s, scope) {
     return NormalCompletion('empty)
   }
   | { type: "EmptyStatement" } -> {
+    /* 13.4 Empty Statement */
+    /* 1. Return NormalCompletion(empty). */
     return NormalCompletion('empty)
   }
   | { type: "ExpressionStatement", expression: Expression } -> {
@@ -1271,7 +1272,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* TODO return GetValue(exprRef) */
   }
   | { type: "IfStatement" } -> {
-    /* 12.5 The if Statement */
+    /* 13.6 The if Statement */
     /* Each else for which the choice of associated if is ambiguous shall be associated with the nearest possible
        if that would otherwise have no corresponding else. */
     return JS_Interpreter_IfStatement(s, scope)
@@ -1405,12 +1406,16 @@ function JS_Interpreter_Stmt(s, scope) {
   }
   | { type: "ThrowStatement", argument: Expression } -> {
     /* 12.13 The throw Statement */
-    /* 1. Let exprRef be the result of evaluating Expression. */ 
+    /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
+
+    /* 2. Let exprValue be GetValue(exprRef). */
     exprValue := GetValue(exprRef);
+    /* 3. ReturnIfAbrupt(exprValue). */
     @ReturnIfAbrupt(exprValue);
-    /* 2. Return (throw, GetValue(exprRef), empty). */
-    return newCompletion('throw, GetValue(exprRef), 'empty)
+
+    /* 4. Return Completion{[[type]]: throw, [[value]]: exprValue, [[target]]: empty}. */
+    return newCompletion('throw, exprValue, 'empty)
   }
   | { type: "TryStatement" } -> {
     /* 12.14 The try Statement */

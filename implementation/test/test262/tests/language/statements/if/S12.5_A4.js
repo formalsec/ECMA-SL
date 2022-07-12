@@ -15,7 +15,7 @@ console.log("checkpoint0")
 try {
 	if (true) (function(){throw "instatement"})();
 	console.log("Did not catch exception");
-	throw new Test262Error("#1 failed")
+	throw new Test262Error("#1 failed") // se comentar ista linha funciona
 } catch (e) {
 	console.log("Caught Exception: " + e);
 	if (e !== "instatement") {
@@ -30,7 +30,7 @@ console.log("checkpoint1")
 //CHECK#2
 try {
 	if (false) (function(){throw "truebranch"})(); (function(){throw "missbranch"})();
-	throw new Test262Error("#2 failed")
+	throw new Test262Error("#2 failed") // se comentar esta linha funciona
 } catch (e) {
 	if (e !== "missbranch") {
 		throw new Test262Error('#2: Exception === "missbranch". Actual:  Exception ==='+ e);
