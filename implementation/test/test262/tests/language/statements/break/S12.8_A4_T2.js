@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     When "break Identifier" is evaluated, (break, empty, Identifier) is
     returned
 es5id: 12.8_A4_T2
@@ -35,7 +35,7 @@ function OUT_FUNC(){}
 //////////////////////////////////////////////////////////////////////////////
 //CHECK#1
 if ((x!==1)&&(y!==1)&&(xx!==1)&(yy!==0)) {
-	$ERROR('#1: x === 1 and y === 1 and xx === 1 and yy === 0. Actual:  x==='+x+' and y==='+y+' and xx==='+xx+' and yy==='+yy );
+	throw new Test262Error('#1: x === 1 and y === 1 and xx === 1 and yy === 0. Actual:  x==='+x+' and y==='+y+' and xx==='+xx+' and yy==='+yy );
 }
 //
 //////////////////////////////////////////////////////////////////////////////
