@@ -86,7 +86,7 @@ function BindingInitialization(param, value, environment, listIterator) {
     if (listIterator = null) {
       return BindingInitialization(param.argument, value, environment, null)
     };
-    restValue := GetRestValue(listIterator);
+    restValue := GetRestValue(listIterator, value);
     return BindingInitialization(param.argument, restValue, environment, listIterator)
   }
   | { type: "ArrayPattern" } -> {
@@ -233,11 +233,12 @@ function BindingInitializationArrayPattern(param, value, environment) {
   return
 };
 
-function GetRestValue(listIterator) {
+function GetRestValue(listIterator, initialValue) {
   /* 3. Let A be ArrayCreate(0). */
-  A := ArrayCreate(0., null);
+  A := ArrayConstructor(null, 'null, false, []);
+  CreateDataProperty(A, "0", initialValue);
   /* 4. Let n=0. */
-  n := 0.;
+  n := 1.;
   /* 5. Repeat, */
   listDone := listIterator.done;
 

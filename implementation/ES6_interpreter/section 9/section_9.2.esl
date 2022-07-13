@@ -108,7 +108,7 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
     /* TODO */
 
     /* 7. Let localEnv be NewFunctionEnvironment(F, newTarget). */
-    localEnv := NewDeclarativeEnvironment(F.Environment);
+    localEnv := NewFunctionEnvironment(F, newTarget);
 
     /* 8. Set the LexicalEnvironment of calleeContext to localEnv. */
     calleeContext.LexicalEnvironment := localEnv;
@@ -272,7 +272,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
       return thisArgument
     };
     /* c. If result.[[value]] is not undefined, */
-    if (!(getCompletionType(result) = 'undefined)) {
+    if (!(getCompletionValue(result) = 'undefined)) {
       /* throw a TypeError exception */
       throw TypeErrorConstructorInternal()
     }
@@ -285,7 +285,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
   };
 
   /* 15. Return envRec.GetThisBinding(). */
-  return getThisBinding(calleeContext)
+  return GetThisBinding(envRec)
 };
 
 /**

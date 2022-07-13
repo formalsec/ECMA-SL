@@ -1,7 +1,8 @@
 function DefineMethodAlt(scope, object, method, functionPrototype){
     FunctionBody := method.body;
     FormalParameterListopt := method.params;
-    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, false, null);
+    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, false, functionPrototype);
+    MakeMethod(F, object);
     return { closure: F }
 };
 

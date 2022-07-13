@@ -10,7 +10,7 @@ function GetThisEnvironment(scope) {
     /* a. Let envRec be lex’s EnvironmentRecord. */
     envRec := lex.EnvRec;
     /* b. Let exists be envRec.HasThisBinding(). */
-    exists := {envRec.HasThisBinding}(envRec);
+    exists := HasThisBinding(envRec);
     /* c. If exists is true, return envRec. */
     if (exists) {
       return envRec
@@ -32,7 +32,7 @@ function ResolveThisBinding(scope) {
   /* 1. Let envRec be GetThisEnvironment( ). */
   envRec := GetThisEnvironment(scope);
   /* 2. Return envRec.GetThisBinding(). */
-  return {envRec.GetThisBinding}(envRec)
+  return GetThisBinding(envRec)
 };
 
 /* 8.3.4 GetNewTarget ( )

@@ -152,14 +152,13 @@ function SuperCallEvaluation(scope, Arguments) {
  *
  * The abstract operation GetSuperConstructor performs the following steps: 
  */
-function GetSuperConstructor(scope, lex) {
-    print "debug46";
+function GetSuperConstructor(scope) {
     /* 1. Let envRec be GetThisEnvironment( ). */
-    envRec := GetThisEnvironmentAlt(scope, lex);
+    envRec := GetThisEnvironment(scope);
     /* 2. Assert: envRec is a function Environment Record. */
-    /* assert(type(envRec) = "EnvironmentRecord"); */
+    /* TODO */
     /* 3. Let activeFunction be envRec.[[FunctionObject]]. */
-    /* activeFunction := envRec.FunctionObject; */
+    activeFunction := envRec.FunctionObject;
     /* 4. Let superConstructor be activeFunction.[[GetPrototypeOf]](). */
     superConstructor := GetPrototypeOf(activeFunction);
     /* 5. ReturnIfAbrupt(superConstructor). */
@@ -178,4 +177,40 @@ function GetSuperConstructorAlt (this){
     superProto := thisProto.Prototype;
     constructor := getJSProperty(superProto, "constructor");
     return constructor.Value
+};
+
+/**
+ * 12.3.5.3 Runtime Semantics: MakeSuperPropertyReference (propertyKey, strict)
+ *
+ * The abstract operation MakeSuperPropertyReference with arguments propertyKey
+ * and strict performs the following steps:
+ */
+function MakeSuperPropertyReference(propertyKey, strict, scope) {
+  /* 1. Let env be GetThisEnvironment( ). */
+  env := GetThisEnvironment(scope);
+  /* 2. If env.HasSuperBinding() is false, */
+  if (HasSuperBinding(env) = false) {
+    /* throw a ReferenceError exception */
+    throw ReferenceErrorConstructorInternal
+  };
+  /* 3. Let actualThis be env.GetThisBinding(). */
+  actualThis := GetThisBinding(env);
+  /* 4. ReturnIfAbrupt(actualThis). */
+  @ReturnIfAbrupt(actualThis);
+  /* 5. Let baseValue be env.GetSuperBase(). */
+  baseValue := GetSuperBase(env);
+  /* 6. Let bv be RequireObjectCoercible(baseValue). */
+  bv := RequireObjectCoercible(baseValue);
+  /* 7. ReturnIfAbrupt(bv). */
+  @ReturnIfAbrupt(bv);
+  /* 8. Return a value of type Reference that is a Super Reference whose base
+     value is bv, whose referenced name is propertyKey, whose thisValue is
+     actualThis, and whose strict reference flag is strict. */
+  return newSuperReference(bv, propertyKey, actualThis, strict)
+};
+
+function MakeSuperPropertyReferenceAlt(scope) {
+  func := scope.Function.HomeObject.Prototype;
+
+  return newPropertyReference(func, "constructor", false)
 }

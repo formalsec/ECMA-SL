@@ -248,7 +248,7 @@ function ListIteratornext(scope, V, NewTarget, strict, args) {
 
   /* 8. Let index be the value of the [[ListIteratorNextIndex]] internal slot
      of O. */
-   index := O.ListIteratorNextIndex;
+  index := O.ListIteratorNextIndex;
 
   /* 9. Let len be the number of elements of list. */
   len := l_len(list);

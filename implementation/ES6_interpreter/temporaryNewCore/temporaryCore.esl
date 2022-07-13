@@ -217,4 +217,106 @@ function GuardedDelete(O, P) {
 
 function deleteWrapper(error) {
     return false
+};
+
+/**
+ * 8.1.2.4 NewFunctionEnvironment (F, newTarget)
+ *
+ * When the abstract operation NewFunctionEnvironment is called with arguments F
+ * and newTarget the following steps are performed:
+ */
+function NewFunctionEnvironment(F, newTarget) {
+  /* 1. Assert: F is an ECMAScript function. */
+  assert(isESFunctionObject(F));
+  /* 2. Assert: Type(newTarget) is Undefined or Object. */
+  /* TODO */
+
+  /* 3. Let env be a new Lexical Environment. */
+  env := newLexicalEnvironment();
+  /* 4. Let envRec be a new function Environment Record containing no
+     bindings. */
+  envRec := newFunctionEnvironmentRecord();
+  /* 5. Set envRec.[[FunctionObject]] to F. */
+  envRec.FunctionObject := F;
+  /* 6. If F's [[ThisMode]] internal slot is lexical, */
+  if (F.ThisMode = "lexical") {
+    /* set envRec.[[thisBindingStatus]] to "lexical" */
+    envRec.thisBindingStatus := "lexical"
+  }
+  /* 7. Else, */
+  else {
+    /* Set envRec.[[thisBindingStatus]] to "uninitialized" */
+    envRec.thisBindingStatus := "uninitialized"
+  };
+  /* 8. Let home be the value of F's [[HomeObject]] internal slot. */
+  home := F.HomeObject;
+  /* 9. Set envRec.[[HomeObject]] to home. */
+  envRec.HomeObject := home;
+  /* 10. Set envRec.[[NewTarget]] to newTarget. */
+  envRec.NewTarget := newTarget;
+  /* 11. Set env's EnvironmentRecord to be envRec. */
+  env.EnvRec := envRec;
+  /* 12. Set the outer lexical environment reference of env to the value of F's
+     [[Environment]] internal slot. */
+  env.OuterEnvRef := F.Environment;
+  /* 13. Return env. */
+  print "DEBUG NEW FUNCTION ENV 0";
+  print envRec;
+  return env
+};
+
+function newFunctionEnvironmentRecord() {
+	env := newDeclarativeEnvironmentRecord();
+
+	env.BindThisValue 	:= "BindThisValue";
+	env.GetThisBinding 	:= "GetThisBinding";
+	env.GetSuperBase 		:= "GetSuperBase";
+	env.HasThisBinding 	:= "HasThisBindingFunctionRecord";
+	env.HasSuperBinding := "HasSuperBindingFunctionRecord";
+
+	return env
+};
+
+function HasThisBinding(envRec) {
+  if (!("thisBindingStatus" in_obj envRec)) {
+    return false
+  } else {
+    if (envRec.thisBindingStatus = "lexical") {
+      return false
+    };
+    return true
+  }
+};
+
+function HasSuperBinding(envRec) {
+  if (!("thisBindingStatus" in_obj envRec)) {
+    return false
+  } else {
+    if (envRec.thisBindingStatus = "lexical") {
+      return false
+    };
+    if (envRec.HomeObject = 'undefined) {
+      return false
+    };
+    return true
+  }
+};
+
+function GetSuperBase(envRec) {
+  home := envRec.HomeObject;
+  if (home = 'undefined) {
+    return 'undefined
+  };
+  return GetPrototypeOf(home)
+};
+
+function GetThisBinding(envRec) {
+  assert(!(envRec.thisBindingStatus = "lexical"));
+
+  if (envRec.thisBindingStatus = "uninitialized") {
+    throw ReferenceErrorConstructorInternal()
+  };
+
+  return envRec._thisValue
 }
+
