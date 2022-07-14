@@ -978,12 +978,11 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
 
     fo := JS_Interpreter_FunctionDeclaration(f, calleeContext);
 
-    status := {lexEnvRec.CreateMutableBinding}(lexEnvRec, fn, false);
-    {lexEnvRec.InitializeBinding}(lexEnvRec, fn, fo);
-    status_two := {lexEnvRec.SetMutableBinding}(lexEnvRec, fn, fo, false);
+    status := {lexEnvRec.SetMutableBinding}(lexEnvRec, fn, fo, false);
     i := i + 1
   };
-    /* 37. Return NormalCompletion(empty). */
+  
+  /* 37. Return NormalCompletion(empty). */
   return NormalCompletion('empty)
 };
 /**

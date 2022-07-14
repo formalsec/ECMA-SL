@@ -595,7 +595,9 @@ function CreateMutableBindingObjectRecord(envRec, N, D) {
 /* The concrete Environment Record method CreateImmutableBinding is never used within this specification in
    association with Object Environment Records.
 */
-function CreateImmutableBindingObjectRecord(envRec, N, S) {};
+function CreateImmutableBindingObjectRecord(envRec, N, S) {
+  assert(false)
+};
 
 /* 8.1.1.2.4 InitializeBinding (N,V) */
 /* The concrete Environment Record method InitializeBinding for object Environment Records is used to set the
