@@ -123,9 +123,8 @@ function SetDefaultGlobalBindings(realmRec) {
     global := realmRec.globalThis;
 
     /* TODO passar isto para uma funcao */
-    
+    initGlobalObject();
     /* For each property of the Global Object specified in clause 18, do */
-    for ( auto p :  )
         /* Let name be the String value of the property name. */
 
         
@@ -134,11 +133,8 @@ function SetDefaultGlobalBindings(realmRec) {
            of the [[Value]] attribute is the corresponding intrinsic object from realmRec. */
 
         /* Let status be DefinePropertyOrThrow(global, name, desc). */
-        status := DefinePropertyOrThrow(global, name, desc);
 
         /* ReturnIfAbrupt(status). */
-        @ReturnIfAbrupt(status)
-    };
 
     /* Return global. */
     return global

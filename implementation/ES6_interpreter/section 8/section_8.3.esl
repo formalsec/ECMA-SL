@@ -87,10 +87,6 @@ function ResolveBinding(scope, name, env)  {
     env := getLexicalEnvironment(scope)
   };
 
-  print "LEXICAL ENV";
-  print scope;
-  print env;
-
   /* Assert: env is a Lexical Environment. */
   /* assert( isLexicalEnvironment(env) ); */
 
@@ -159,4 +155,18 @@ function GetNewTarget(scope) {
   assert("NewTarget" in_obj envRec);
   /* 3. Return envRec.[[NewTarget]]. */
   return envRec.NewTarget
+};
+
+/* 8.3.5 GetGlobalObject ( )
+
+The abstract operation GetGlobalObject returns the global object used by the currently running
+execution context. GetGlobalObject performs the following steps: */
+function GetGlobalObject(ctx) {
+  /* Let ctx be the running execution context. */
+  
+  /* Let currentRealm be ctx’s Realm. */
+  currentRealm := ctx.Realm;
+
+  /* Return currentRealm.[[globalThis]]. */
+  return currentRealm.globalThis
 }
