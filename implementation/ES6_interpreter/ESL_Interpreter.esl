@@ -1759,27 +1759,27 @@ function JS_Interpreter_Catch(Catch, parameter, scope) {
     print(Catch);
     /* The production Catch : catch ( CatchParameter ) Block is evaluated as follows: */
 
+
     /* 1. Let C be the parameter that has been passed to this production. */
-    C := parameter;
+    /*C := parameter;
     /* 2. Let oldEnv be the running execution context‘s LexicalEnvironment. */
-    oldEnv := getLexicalEnvironment(scope);
+    /*oldEnv := getLexicalEnvironment(scope);
     /* 3. Let catchEnv be the result of calling NewDeclarativeEnvironment passing oldEnv as the argument. */
-    catchEnv := NewDeclarativeEnvironment(oldEnv);
+    /*catchEnv := NewDeclarativeEnvironment(oldEnv);
     /* 4. Call the CreateMutableBinding concrete method of catchEnv passing the Identifier String value as the
           argument. */
-    CreateMutableBinding(getEnvironmentRecord(catchEnv), Identifier.name, false); /* TODO the third argument is optional as in the method signature */
+    /*CreateMutableBinding(getEnvironmentRecord(catchEnv), Identifier.name, false); /* TODO the third argument is optional as in the method signature */
     /* 5. Call the SetMutableBinding concrete method of catchEnv passing the Identifier, C, and false as arguments.
           Note that the last argument is immaterial in this situation. */
-    SetMutableBinding(getEnvironmentRecord(catchEnv), Identifier.name, C, false);
+    /*SetMutableBinding(getEnvironmentRecord(catchEnv), Identifier.name, C, false);
     /* 6. Set the running execution context‘s LexicalEnvironment to catchEnv. */
-    setLexicalEnvironment(scope, catchEnv);
+    /*setLexicalEnvironment(scope, catchEnv);
     /* 7. Let B be the result of evaluating Block. */
-    B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
+    /*B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
     /* 8. Set the running execution context‘s LexicalEnvironment to oldEnv. */
-    setLexicalEnvironment(scope, oldEnv);
+    /*setLexicalEnvironment(scope, oldEnv);
     /* 9. Return B. */
-    return B;
-
+    /*return B; 
     /* ES6 */
 
     /* 1. Let oldEnv be the running execution context’s LexicalEnvironment. */
@@ -1792,17 +1792,14 @@ function JS_Interpreter_Catch(Catch, parameter, scope) {
     print(Catch.paramsNames);
 
     /* 3. For each element argName of the BoundNames of CatchParameter, do */
-    len := l_len(Catch.paramsNames);
-    
-    i := 0; /* TODO passar para foreach */
-    while (i < len) {
-      argName := l_nth(Catch.paramsNames, i);
+
+    foreach(argName : Catch.paramsNames) {
       /* a. Perform catchEnv.CreateMutableBinding(argName). */
-      res := CreateMutableBinding(catchEnv, argName, false);
+      res := CreateMutableBindingDeclarative(catchEnv.EnvRec, argName, false);
       /* b. Assert: The above call to CreateMutableBinding will never return an abrupt completion. */
-      assert(!(isAnAbruptCompletion(res)));
-      i := i + 1
+      assert(!(isAnAbruptCompletion(res)))
     };
+    
     /* 4. Set the running execution context’s LexicalEnvironment to catchEnv. */
     setLexicalEnvironment(scope, catchEnv);
     /* 5. Let status be the result of performing BindingInitialization for CatchParameter 
