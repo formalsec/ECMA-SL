@@ -70,9 +70,38 @@ macro ReturnIfAbrupt(e) {
     } 
     /* Else if argument is a Completion Record, let argument be argument.[[value]]. */
     else {
+      print(e);
       e := getCompletionValue(e)
     }
   }
+};
+
+
+/**
+ * 6.2.2.5 UpdateEmpty (completionRecord, value)
+ *
+ * The abstract operation UpdateEmpty with arguments completionRecord and value 
+ * performs the following steps: 
+ */
+function UpdateEmpty(completionRecord, value) {
+  /* 1. Assert: if completionRecord.[[type]] is throw then 
+     completionRecord.[[value]] is not empty. */
+  assert(!(getCompletionType(completionRecord) = 'throw &&& getCompletionValue(completionRecord) = 'empty));
+  /* 2. If completionRecord.[[type]] is throw, */
+  if (getCompletionType(completionRecord) = 'throw) {
+    /* return Completion(completionRecord) */
+    return Completion(completionRecord)
+  };
+  /* 3. If completionRecord.[[value]] is not empty, */
+  if (!(getCompletionValue(completionRecord) = 'empty)) {
+    /* return Completion(completionRecord) */
+    print("debugUpdateEmpty1");
+    return Completion(completionRecord)
+  };
+  /* 4. Return Completion{[[type]]: completionRecord.[[type]], [[value]]: 
+     value, [[target]]: completionRecord.[[target]] }. */
+  print("debugUpdateEmpty2");
+  return newCompletion(getCompletionType(completionRecord), value, getCompletionTarget(completionRecord))
 };
 
 /* 6.2.6.1 CreateByteDataBlock(size) */
@@ -186,6 +215,10 @@ function IsPropertyReference (V) {
 /* Returns true if the base value is undefined and false otherwise. */
 function IsUnresolvableReference (V) {
   print "IsUnresolvableReference";
+  print("debug44");
+  print(V);
+  print(GetBase(V));
+  print(Type(GetBase(V)));
   if ( Type(GetBase(V)) = "Undefined" ) {
     return true
   } else {

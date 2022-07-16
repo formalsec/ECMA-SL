@@ -50,6 +50,10 @@ declarations contained within its scope. */
 following algorithms. */
 
 function HasBinding(envRec, N) {
+  print "in HasBinding";
+/*  HasBindingObjectRecord(envRec, N);*/
+  print envRec;
+  print N;
   if (isDeclarativeEnvironmentRecord(envRec)) {
     return HasBindingDeclarativeEnvRecord(envRec, N)
   };
@@ -57,6 +61,8 @@ function HasBinding(envRec, N) {
 };
 
 function HasBindingDeclarativeEnvRecord(declarativeEnvRec, N) {
+  print "in HasBindingDeclarativeEnvRecord";
+
   /* 10.2.1.1.1 HasBinding(N) */
   /* The concrete environment record method HasBinding for declarative environment records simply determines
      if the argument identifier is one of the identifiers bound by the record: */
@@ -72,6 +78,8 @@ function HasBindingDeclarativeEnvRecord(declarativeEnvRec, N) {
 };
 
 function HasBindingObjectEnvRecord(objectEnvRec, N) {
+  print "in HasBindingObjectEnvRecord";
+
   /* 10.2.1.2.1 HasBinding(N) */
   /* The concrete Environment Record method HasBinding for object environment records determines if its
      associated binding object has a property whose name is the value of the argument N: */
@@ -437,6 +445,9 @@ function InitializeImmutableBindingDeclarative(declarativeEnvRec, N, V) {
 
 function GetIdentifierReference(lex, name, strict) {
   print "GetIdentifierReference";
+  print lex;
+  print name;
+  print strict;
   /* The abstract operation GetIdentifierReference is called with a Lexical Environment lex, an identifier String
      name, and a Boolean flag strict. The value of lex may be null. When called, the following steps are performed: */
   /* 1. If lex is the value null or true, then */
@@ -447,8 +458,11 @@ function GetIdentifierReference(lex, name, strict) {
   };
   /* 2. Let envRec be lex‘s environment record. */
   envRec := getEnvironmentRecord(lex);
+  /* envRec*/
   /* 3. Let exists be the result of calling the HasBinding(N) concrete method of envRec passing name as the argument N. */
   exists := HasBinding(envRec, name);
+  print(envRec);
+  print(exists);
   /* 4. If exists is true, then */
   if (exists = true) {
     /* a. Return a value of type Reference whose base value is envRec, whose referenced name is name, and whose strict mode flag is strict. */

@@ -352,7 +352,10 @@ function JS_Interpreter_Expr(e, scope) {
 
     /* 9. Return EvaluateDirectCall(func, thisValue, Arguments, tailCall). */
     print "DEBUG CALL EXPRESSION, CALLING EvaluateDirectCall";
-    return EvaluateDirectCall(func, thisValue, Arguments, false, scope)
+    res := EvaluateDirectCall(func, thisValue, Arguments, false, scope);
+    print "debug42";
+    print res;
+    return res
   }
   | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
     /* 11.2.5 Function Expressions */
@@ -1263,13 +1266,26 @@ function JS_Interpreter_Stmt(s, scope) {
     return NormalCompletion('empty)
   }
   | { type: "ExpressionStatement", expression: Expression } -> {
+    /* 13.5 Expression Statement */
+    print("In ExpressionStatement");
     /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
     /* 2. Return (normal, GetValue(exprRef), empty). ES5 */
-    return NormalCompletion(GetValue(exprRef))
+    /* return NormalCompletion(GetValue(exprRef)) */
     
+    exprValue := GetValue(exprRef);
+    
+    print(exprValue);
+    /*return NormalCompletion(exprValue);*/
+
+    if (Type(exprValue) = "Completion") {
+      return exprValue
+    }
+    else {
+      return NormalCompletion(exprValue) 
+    }
     /* 2. Return GetValue(exprRef). ES6 */
-    /* TODO return GetValue(exprRef) */
+    /*return GetValue(exprRef)*/
   }
   | { type: "IfStatement" } -> {
     /* 13.6 The if Statement */
@@ -1331,6 +1347,7 @@ function JS_Interpreter_Stmt(s, scope) {
     return JS_Interpreter_IterationStatement(s, scope)
   }
   | { type: "ContinueStatement", label: LabelIdentifier } -> {
+    print("CONTINUEASD");
     /* 13.8 The continue Statement */
     /* A ContinueStatement without an Identifier is evaluated as follows: */
 
@@ -1382,32 +1399,75 @@ function JS_Interpreter_Stmt(s, scope) {
   | { type: "WithStatement", object: Expression, body: Statement } -> {
     /* 12.10 The with Statement */
 
-    /* The with statement adds an object environment record for a computed object to the lexical environment of
-       the current execution context. It then executes a statement using this augmented lexical environment.
-       Finally, it restores the original lexical environment. */
+  /*  /* The with statement adds an object environment record for a computed object to the lexical environment of
+  /*     the current execution context. It then executes a statement using this augmented lexical environment.
+  /*     Finally, it restores the original lexical environment. */
+/*
+  /*  /* The production WithStatement : with ( Expression ) Statement is evaluated as follows: */
+/*
+  /*  /* 1. Let val be the result of evaluating Expression. */
+  /*  val := JS_Interpreter_Expr(Expression, scope);
+  /*  /* 2. Let obj be ToObject(GetValue(val)). */
+  /*  obj := ToObject(GetValue(val));
+  /*  @ReturnIfAbrupt(obj);
+  /*  /* 3. Let oldEnv be the running execution context‘s LexicalEnvironment. */
+  /*  oldEnv := getLexicalEnvironment(scope);
+  /*  /* 4. Let newEnv be the result of calling NewObjectEnvironment passing obj and oldEnv as the arguments. */
+  /*  newEnv := NewObjectEnvironment(obj, oldEnv);
+  /*  /* 5. Set the provideThis flag of newEnv to true. */
+  /*  setProvideThis(newEnv, true);
+  /*  /* 6. Set the running execution context‘s LexicalEnvironment to newEnv. */
+  /*  setLexicalEnvironment(scope, newEnv);
+  /*  /* 7. Let C be the result of evaluating Statement but if an exception is thrown during the evaluation, let C be
+  /*        (throw, V, empty), where V is the exception. (Execution now proceeds as if no exception were thrown.) */
+  /*  C := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+  /*  /* 8. Set the running execution context‘s Lexical Environment to oldEnv. */
+  /*  setLexicalEnvironment(scope, oldEnv);
+  /*  /* 9. Return C. */
+  /*  return C; */
 
-    /* The production WithStatement : with ( Expression ) Statement is evaluated as follows: */
+/**
+ * 13.11.7 Runtime Semantics: Evaluation
+ *
+ * NOTE No matter how control leaves the embedded Statement, whether normally or 
+ * by some form of abrupt completion or exception, the LexicalEnvironment is 
+ * always restored to its former state. 
+ */
+  /* 1. Let val be the result of evaluating Expression. */
+  val := JS_Interpreter_Expr(Expression, scope);
+  /* 2. Let obj be ToObject(GetValue(val)). */
+  obj := ToObject(GetValue(val));
+  /* 3. ReturnIfAbrupt(obj). */
+  @ReturnIfAbrupt(obj);
+  /* 4. Let oldEnv be the running execution context's LexicalEnvironment. */
+  oldEnv := getLexicalEnvironment(scope);
+  /* 5. Let newEnv be NewObjectEnvironment(obj, oldEnv). */
+  newEnv := NewObjectEnvironment(obj, oldEnv);
+  /* 6. Set the withEnvironment flag of newEnv's EnvironmentRecord to true. */
+  print("debug75");
+  print(newEnv);
+  print(newEnv.EnvRec);
+  newEnv.EnvRec.withEnvironment := true;
+  setProvideThis(newEnv, true);
+  /* 7. Set the running execution context's LexicalEnvironment to newEnv. */
+  setLexicalEnvironment(scope, newEnv);
+  /* 8. Let C be the result of evaluating Statement. */
+  C := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+  /* 9. Set the running execution context's Lexical Environment to oldEnv. */
+  setLexicalEnvironment(scope, oldEnv);
+  /* 10. If C.[[type]] is normal and C.[[value]] is empty, */
+  if (getCompletionType(C) = 'normal &&& getCompletionValue(C) = 'empty) {
+    /* return NormalCompletion(undefined) */
+    return NormalCompletion('undefined)
+  };
+  /* 11. Return Completion(C). */
+  return Completion(C)
+/**
+ * NOTE No matter how control leaves the embedded Statement, whether normally or 
+ * by some form of abrupt completion or exception, the LexicalEnvironment is 
+ * always restored to its former state. 
+ */
 
-    /* 1. Let val be the result of evaluating Expression. */
-    val := JS_Interpreter_Expr(Expression, scope);
-    /* 2. Let obj be ToObject(GetValue(val)). */
-    obj := ToObject(GetValue(val));
-    @ReturnIfAbrupt(obj);
-    /* 3. Let oldEnv be the running execution context‘s LexicalEnvironment. */
-    oldEnv := getLexicalEnvironment(scope);
-    /* 4. Let newEnv be the result of calling NewObjectEnvironment passing obj and oldEnv as the arguments. */
-    newEnv := NewObjectEnvironment(obj, oldEnv);
-    /* 5. Set the provideThis flag of newEnv to true. */
-    setProvideThis(newEnv, true);
-    /* 6. Set the running execution context‘s LexicalEnvironment to newEnv. */
-    setLexicalEnvironment(scope, newEnv);
-    /* 7. Let C be the result of evaluating Statement but if an exception is thrown during the evaluation, let C be
-          (throw, V, empty), where V is the exception. (Execution now proceeds as if no exception were thrown.) */
-    C := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
-    /* 8. Set the running execution context‘s Lexical Environment to oldEnv. */
-    setLexicalEnvironment(scope, oldEnv);
-    /* 9. Return C. */
-    return C
   }
   | { type: "SwitchStatement" } -> {
     if (!("labelSet" in_obj s)) {
@@ -1432,7 +1492,7 @@ function JS_Interpreter_Stmt(s, scope) {
     return newCompletion('throw, exprValue, 'empty)
   }
   | { type: "TryStatement" } -> {
-    /* 12.14 The try Statement */
+    /* 13.15 The try Statement */
 
     /* The try statement encloses a block of code in which an exceptional condition can occur, such as a runtime
        error or a throw statement. The catch clause provides the exception-handling code. When a catch clause
@@ -1441,7 +1501,7 @@ function JS_Interpreter_Stmt(s, scope) {
     return JS_Interpreter_TryStatement(s, scope)
   }
   | { type: "DebuggerStatement" } -> {
-    /* 12.15 The debugger statement */
+    /* 13.16.1 The debugger statement */
 
     /* Evaluating the DebuggerStatement production may allow an implementation to cause a breakpoint when run
        under a debugger. If a debugger is not present or active this statement has no observable effect. */
@@ -1456,7 +1516,7 @@ function JS_Interpreter_Stmt(s, scope) {
     }
     /* 2. Else */
     else {
-      /* a. Let result be (normal, empty, empty). */
+      /* a. Let result be NormalCompletion(empty). */
       result := NormalCompletion('empty)
     };
     /* 3. Return result. */
@@ -1561,6 +1621,7 @@ function JS_Interpreter_IfStatement(IfStatement, scope) {
   }
 };
 
+/** 13.15 */
 function JS_Interpreter_TryStatement(TryStatement, scope) {
   match TryStatement with
   | { type: "TryStatement", block: Block, handler: Catch, finalizer: null } -> {
@@ -1568,57 +1629,135 @@ function JS_Interpreter_TryStatement(TryStatement, scope) {
 
     /* 1. Let B be the result of evaluating Block. */
     B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
-    /* 2. If B.type is not throw, return B. */
-    if (!(getCompletionType(B) = 'throw)) {
-      return B
+
+    /* 2. If B.[[type]] is throw, then */
+    if (getCompletionType(B) = 'throw) {
+      /* a. Let C be CatchClauseEvaluation of Catch with parameter B.[[value]]. */
+      C := JS_Interpreter_Catch(Catch, getCompletionValue(B), scope)
+    }
+    /* 3. Else B.[[type]] is not throw, */
+    else {
+      /* a. Let C be B. */
+      C := B
     };
-    /* 3. Return the result of evaluating Catch with parameter B.value. */
-    return JS_Interpreter_Catch(Catch, getCompletionValue(B), scope)
+    /* 4. If C.[[type]] is return, or C.[[type]] is throw, return Completion(C). */
+    if (getCompletionType(C) = 'return ||| getCompletionType(C) = 'throw) {
+      return Completion(C)
+    };
+    /* 5. If C.[[value]] is not empty, return Completion(C). */
+    if (!(getCompletionValue(C) = 'empty)) {
+      return Completion(C)
+    };
+    /* 6. Return Completion{[[type]]: C.[[type]], [[value]]: undefined, [[target]]: C.[[target]]}. */
+    return newCompletion(getCompletionType(C), 'undefined, getCompletionTarget(C))
+    
+    /* /* 1. Let B be the result of evaluating Block. */
+    /* B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
+    /* /* 2. If B.type is not throw, return B. */
+    /* if (!(getCompletionType(B) = 'throw)) {
+    /*   return B
+    /* };
+    /* /* 3. Return the result of evaluating Catch with parameter B.value. */
+    /* return JS_Interpreter_Catch(Catch, getCompletionValue(B), scope) */
   }
   | { type: "TryStatement", block: Block, handler: null, finalizer: Finally } -> {
     /* The production TryStatement : try Block Finally is evaluated as follows: */
 
     /* 1. Let B be the result of evaluating Block. */
     B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
+    
     /* 2. Let F be the result of evaluating Finally. */
     F := JS_Interpreter_Stmt(Finally, scope) catch Interpreter_Statement_Guard;
-    /* 3. If F.type is normal, return B. */
+    
+    /* 3. If F.[[type]] is normal, let F be B. */
     if (getCompletionType(F) = 'normal) {
-      return B
+      F := B
     };
-    /* 4. Return F. */
-    return F
+    /* 4. If F.[[type]] is return, or F.[[type]] is throw, return Completion(F). */
+    if (getCompletionType(F) = 'return ||| getCompletionType(F) = 'throw) {
+      return Completion(F)
+    };
+    /* 5. If F.[[value]] is not empty, return Completion(F). */
+    if (!(getCompletionValue(F) = 'empty)) {
+      return Completion(F)
+    };
+    
+    /* 6. Return Completion{[[type]]: F.[[type]], [[value]]: undefined, [[target]]: F.[[target]]}. */
+    return newCompletion(getCompletionType(F), 'undefined, getCompletionTarget(F))
+
+     /* /* 1. Let B be the result of evaluating Block. */
+     /* B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
+     /* /* 2. Let F be the result of evaluating Finally. */
+     /* F := JS_Interpreter_Stmt(Finally, scope) catch Interpreter_Statement_Guard;
+     /* /* 3. If F.type is normal, return B. */
+     /* if (getCompletionType(F) = 'normal) {
+     /*   return B
+     /* };
+     /* /* 4. Return F. */
+     /* return F */
   }
   | { type: "TryStatement", block: Block, handler: Catch, finalizer: Finally } -> {
     /* The production TryStatement : try Block Catch Finally is evaluated as follows: */
-
-    /* 1. Let B be the result of evaluating Block. */
+    /* 1. Let B be the result of evaluating Block. */ 
     B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
-    /* 2. If B.type is throw, then */
+    
+    /* 2. If B.[[type]] is throw, then */ 
     if (getCompletionType(B) = 'throw) {
-      /* a. Let C be the result of evaluating Catch with parameter B.value. */
+      /* a. Let C be CatchClauseEvaluation of Catch with parameter B.[[value]]. */ 
       C := JS_Interpreter_Catch(Catch, getCompletionValue(B), scope)
     }
-    /* 3. Else, B.type is not throw, */
+    /* 3. Else B.[[type]] is not throw, let C be B. */ 
     else {
-      /* a. Let C be B. */
       C := B
     };
-    /* 4. Let F be the result of evaluating Finally. */
+    /* 4. Let F be the result of evaluating Finally. */ 
     F := JS_Interpreter_Stmt(Finally, scope) catch Interpreter_Statement_Guard;
-    /* 5. If F.type is normal, return C. */
+    /* 5. If F.[[type]] is normal, let F be C. */ 
     if (getCompletionType(F) = 'normal) {
-      return C
+      F := C
     };
-    /* 6. Return F. */
-    return F
+    /* 6. If F.[[type]] is return, or F.[[type]] is throw, return Completion(F). */ 
+    if (getCompletionType(F) = 'return ||| getCompletionType(F) = 'throw) {
+      return Completion(F)
+    };
+    /* 7. If F.[[value]] is not empty, return NormalCompletion(F.[[value]]). */ 
+    if (!(getCompletionValue(F) = 'empty)) {
+      return NormalCompletion(getCompletionValue(F))
+    };
+    /* 8. Return Completion{[[type]]: F.[[type]], [[value]]: undefined, [[target]]: F.[[target]]}. */ 
+    return newCompletion(getCompletionType(F), 'undefined, getCompletionTarget(F))
+    
+    /* /* 1. Let B be the result of evaluating Block. */
+    /* B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
+    /* /* 2. If B.type is throw, then */
+    /* if (getCompletionType(B) = 'throw) {
+    /*   /* a. Let C be the result of evaluating Catch with parameter B.value. */
+    /*   C := JS_Interpreter_Catch(Catch, getCompletionValue(B), scope)
+    /* }
+    /* /* 3. Else, B.type is not throw, */
+    /* else {
+    /*   /* a. Let C be B. */
+    /*   C := B
+    /* };
+    /* /* 4. Let F be the result of evaluating Finally. */
+    /* F := JS_Interpreter_Stmt(Finally, scope) catch Interpreter_Statement_Guard;
+    /* /* 5. If F.type is normal, return C. */
+    /* if (getCompletionType(F) = 'normal) {
+    /*   return C
+    /* };
+    /* /* 6. Return F. */
+    /* return F*/
   }
 };
 
+/* 13.15.7 Runtime Semantics: CatchClauseEvaluation */
 function JS_Interpreter_Catch(Catch, parameter, scope) {
   match Catch with
   | { type: "CatchClause", param: Identifier, body: Block } -> {
-    /* The production Catch : catch ( Identifier ) Block is evaluated as follows: */
+    print("In catchClause");
+    print(Identifier);
+    print(Catch);
+    /* The production Catch : catch ( CatchParameter ) Block is evaluated as follows: */
 
     /* 1. Let C be the parameter that has been passed to this production. */
     C := parameter;
@@ -1639,10 +1778,57 @@ function JS_Interpreter_Catch(Catch, parameter, scope) {
     /* 8. Set the running execution context‘s LexicalEnvironment to oldEnv. */
     setLexicalEnvironment(scope, oldEnv);
     /* 9. Return B. */
-    return B
+    return B;
+
+    /* ES6 */
+
+    /* 1. Let oldEnv be the running execution context’s LexicalEnvironment. */
+    oldEnv := getLexicalEnvironment(scope);
+    /* 2. Let catchEnv be NewDeclarativeEnvironment(oldEnv). */
+    catchEnv := NewDeclarativeEnvironment(oldEnv);
+    
+    print("debug43");
+    print("Catch.paramsNames");
+    print(Catch.paramsNames);
+
+    /* 3. For each element argName of the BoundNames of CatchParameter, do */
+    len := l_len(Catch.paramsNames);
+    
+    i := 0; /* TODO passar para foreach */
+    while (i < len) {
+      argName := l_nth(Catch.paramsNames, i);
+      /* a. Perform catchEnv.CreateMutableBinding(argName). */
+      res := CreateMutableBinding(catchEnv, argName, false);
+      /* b. Assert: The above call to CreateMutableBinding will never return an abrupt completion. */
+      assert(!(isAnAbruptCompletion(res)));
+      i := i + 1
+    };
+    /* 4. Set the running execution context’s LexicalEnvironment to catchEnv. */
+    setLexicalEnvironment(scope, catchEnv);
+    /* 5. Let status be the result of performing BindingInitialization for CatchParameter 
+          passing thrownValue and catchEnv as arguments. */
+    print("debug44");
+    print(Identifier);
+    print(parameter);
+
+    status := BindingInitialization(Identifier, parameter, {LexicalEnvironment: catchEnv}, null);
+    /* 6. If status is an abrupt completion, then */
+    if (isAnAbruptCompletion(status)) {
+      /* a. Set the running execution context’s LexicalEnvironment to oldEnv. */
+      setLexicalEnvironment(scope, oldEnv);
+      /* b. Return Completion(status). */
+      return Completion(status)
+    };
+    /* 7. Let B be the result of evaluating Block. */
+    B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
+    /* 8. Set the running execution context’s LexicalEnvironment to oldEnv. */
+    setLexicalEnvironment(scope, oldEnv);
+    /* 9. Return Completion(B). */
+    return Completion(B)
   }
 };
 
+/* 13.15.8 Runtime Semantics: Evaluation */
 function JS_Interpreter_VarDecl(variableDeclaration, scope) {
   match variableDeclaration with
   | { type: "VariableDeclarator", id: Identifier, init: null } -> {
@@ -2318,6 +2504,7 @@ function JS_Interpreter_BinExpr(e, scope) {
 function JS_Interpreter_IterationStatement(iterStmt, scope) {
   match iterStmt with
   | { type: "DoWhileStatement", test: Expression, body: Statement, labelSet: currentLabelSet } -> {
+    /*return LabelledEvaluation(iterStmt, Statement, Expression, currentLabelSet, scope);
     /* 12.6.1 The do-while Statement */
     /* 1. Let V = empty. */
     V := 'empty;
@@ -2894,7 +3081,7 @@ function LoopContinues(completion, labelSet) {
  */
 function LabelledEvaluation(IterationStatement, Statement, Expression, labelSet, scope) {
   /* 1. Let V = undefined. */
-  V = 'undefined;
+  V := 'undefined;
   /* 2. Repeat */
   repeat {
     /* a. Let stmt be the result of evaluating Statement. */
@@ -2902,11 +3089,12 @@ function LabelledEvaluation(IterationStatement, Statement, Expression, labelSet,
     /* b. If LoopContinues(stmt, labelSet) is false, */
     if (LoopContinues(stmt, labelSet) = false) {
       /* return Completion(UpdateEmpty(stmt, V)) */
+      print("LoopContinues is false");
       return Completion(UpdateEmpty(stmt, V))
     };
     /* c. If stmt.[[value]] is not empty, let V = stmt.[[value]]. */
     if (!(getCompletionValue(stmt) = 'empty)) {
-      V = getCompletionValue(stmt)
+      V := getCompletionValue(stmt)
     };
     /* d. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
@@ -2921,4 +3109,12 @@ function LabelledEvaluation(IterationStatement, Statement, Expression, labelSet,
     }
   };
   return
+};
+
+/* auxiliary functions */
+function getParamNameInFromCatch(codeObj) {
+  if (codeObj = 'undefined ||| (!(Type(codeObj) = "Object"))) {
+    return []
+  };
+  return codeObj.paramName
 }

@@ -115,6 +115,10 @@ function BindingInitializationIdentifier(param, value, environment) {
   if (environment = 'undefined) {
     lhs := GetIdentifierReference(null, bindingId, false)
   } else {
+    print("debug44");
+    print(environment);
+
+    print(environment.LexicalEnvironment);
     lhs := GetIdentifierReference(environment.LexicalEnvironment, bindingId, false)
   };
 
@@ -129,6 +133,9 @@ function BindingInitializationIdentifier(param, value, environment) {
    };
 
    /* 8. Return InitializeReferencedBinding(lhs, v). */
+   print("debug44");
+   print(lhs);
+   print(environment.LexicalEnvironment.EnvRec);
    return InitializeReferencedBinding(lhs, value, environment.LexicalEnvironment.EnvRec)
 };
 
