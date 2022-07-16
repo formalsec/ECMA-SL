@@ -9,6 +9,7 @@ const EarlySyntaxError = require("./earlySyntaxError");
 const ForIn = require("./forIn");
 const Break = require("./break");
 const Continue = require("./continue");
+const CatchClause = require("./catchClause");
 
 module.exports = {
   transformObject: function (obj) {
@@ -48,6 +49,9 @@ module.exports = {
     }
     if (obj.type === "Literal") {
       return Literal.transform(obj);
+    }
+    if (obj.type === "CatchClause") {
+      return CatchClause.transform(obj);
     }
     return obj;
   },
