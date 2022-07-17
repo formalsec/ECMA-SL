@@ -522,6 +522,14 @@ function AddRestrictedFunctionProperties(F, realm) {
   return arguments
 };
 
+/* 9.2.7.1 %ThrowTypeError% ( )
+
+The %ThrowTypeError% intrinsic is an anonymous built-in function object that is defined once for
+each Realm. When %ThrowTypeError% is called it performs the following steps: */
+function ThrowTypeError() {
+  throw TypeErrorConstructorInternal()
+};
+
 /**
  * 9.2.8 MakeConstructor (F, writablePrototype, prototype)
  *

@@ -45,7 +45,7 @@ function CreateIntrinsics(realmRec) {
     intrinsics.ObjectPrototype := objProto;
 
     /* Let throwerSteps be the algorithm steps specified in 9.2.7.1 for the %ThrowTypeError% function. */
-    throwerSteps := null;
+    throwerSteps := "ThrowTypeError";
 
     /* Let thrower be CreateBuiltinFunction(realmRec, throwerSteps, null). */
     thrower := CreateBuiltinFunction(realmRec, throwerSteps, null);
@@ -78,6 +78,7 @@ function CreateIntrinsics(realmRec) {
        the function’s [[Prototype]] internal slot and <slots> is a list of the names, if any, of the functions
        specified internal slots. The creation of the intrinsics and their properties must be ordered to
        avoid any dependencies upon objects that have not yet been created. */
+    initIntrinsics();
     
     /* Return intrinsics. */
     return intrinsics
