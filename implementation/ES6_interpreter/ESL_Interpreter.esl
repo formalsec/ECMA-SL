@@ -1332,8 +1332,8 @@ function JS_Interpreter_Stmt(s, scope) {
     };
 
     s.labelSet := l_add(s.labelSet, 'empty);
-
-    return JS_Interpreter_IterationStatement(s, scope)
+    return JS_Interpreter_BreakableStatement(s, scope)
+    /*return JS_Interpreter_IterationStatement(s, scope)*/
   }
   | { type: "ForStatement" } -> {
     if (!("labelSet" in_obj s)) {
@@ -3120,43 +3120,80 @@ function LoopContinues(completion, labelSet) {
  /**
  * 13.7.2.6 Runtime Semantics: LabelledEvaluation
  * 
- * IterationStatement : do Statement while ( Expression ) ;
- * With argument labelSet. 
+ * 
+ * 
  *
  * See also: 13.1.7, 13.7.3.6, 13.7.4.7, 13.7.5.11, 13.13.14. 
  */
-function LabelledEvaluation(IterationStatement, Statement, Expression, labelSet, scope) {
-  /* 1. Let V = undefined. */
-  V := 'undefined;
-  /* 2. Repeat */
-  repeat {
-    /* a. Let stmt be the result of evaluating Statement. */
-    stmt := JS_Interpreter_Stmt(Statement, scope); /* catch Interpreter_Statement_Guard;*/
-    print(stmt);
-    print(Statement);
-    /* b. If LoopContinues(stmt, labelSet) is false, */
-    if (LoopContinues(stmt, labelSet) = false) {
-      /* return Completion(UpdateEmpty(stmt, V)) */
-      print("LoopContinues is false");
-      return Completion(UpdateEmpty(stmt, V))
-    };
-    /* c. If stmt.[[value]] is not empty, let V = stmt.[[value]]. */
-    if (!(getCompletionValue(stmt) = 'empty)) {
-      V := getCompletionValue(stmt)
-    };
-    /* d. Let exprRef be the result of evaluating Expression. */
-    exprRef := JS_Interpreter_Expr(Expression, scope);
-    /* e. Let exprValue be GetValue(exprRef). */
-    exprValue := GetValue(exprRef);
-    /* f. ReturnIfAbrupt(exprValue). */
-    @ReturnIfAbrupt(exprValue);
-    /* g. If ToBoolean(exprValue) is false, */
-    if (ToBoolean(exprValue) = false) {
-      /* return NormalCompletion(V) */
-      return NormalCompletion(V)
+function LabelledEvaluation(IterationStatement, scope) {
+   match IterationStatement with
+  | { type: "DoWhileStatement", test: Expression, body: Statement, labelSet: labelSet } -> {
+    /* IterationStatement : do Statement while ( Expression ) 
+       With argument labelSet.*/
+    /* 1. Let V = undefined. */
+    V := 'undefined;
+    /* 2. Repeat */
+    repeat {
+      /* a. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope)  catch Interpreter_Statement_Guard;
+      print(stmt);
+      print(Statement);
+      /* b. If LoopContinues(stmt, labelSet) is false, */
+      if (LoopContinues(stmt, labelSet) = false) {
+        /* return Completion(UpdateEmpty(stmt, V)) */
+        print("LoopContinues is false");
+        return Completion(UpdateEmpty(stmt, V))
+      };
+      /* c. If stmt.[[value]] is not empty, let V = stmt.[[value]]. */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        V := getCompletionValue(stmt)
+      };
+      /* d. Let exprRef be the result of evaluating Expression. */
+      exprRef := JS_Interpreter_Expr(Expression, scope);
+      /* e. Let exprValue be GetValue(exprRef). */
+      exprValue := GetValue(exprRef);
+      /* f. ReturnIfAbrupt(exprValue). */
+      @ReturnIfAbrupt(exprValue);
+      /* g. If ToBoolean(exprValue) is false, */
+      if (ToBoolean(exprValue) = false) {
+        /* return NormalCompletion(V) */
+        return NormalCompletion(V)
+      }
     }
-  };
-  return
+  }
+  | { type: "WhileStatement", test: Expression, body: Statement, labelSet: labelSet } -> {
+    /* IterationStatement : while ( Expression ) Statement
+      With argument labelSet.*/
+
+    /* 1. Let V = undefined. */
+    V := 'undefined;
+    /* 2. Repeat */
+    repeat {
+      /* a. Let exprRef be the result of evaluating Expression. */
+      exprRef := JS_Interpreter_Expr(Expression, scope);
+      /* b. Let exprValue be GetValue(exprRef). */
+      exprValue := GetValue(exprRef);
+      /* c. ReturnIfAbrupt(exprValue). */
+      @ReturnIfAbrupt(exprValue);
+      /* d. If ToBoolean(exprValue) is false, */
+      if (ToBoolean(exprValue) = false) {
+        /* return NormalCompletion(V) */
+        return NormalCompletion(V)
+      };
+      /* e. Let stmt be the result of evaluating Statement. */
+      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+      /* f. If LoopContinues (stmt, labelSet) is false, */
+      if (LoopContinues(stmt, labelSet) = false) {
+        /* return Completion(UpdateEmpty(stmt, V)) */
+        return Completion(UpdateEmpty(stmt, V))
+      };
+      /* g. If stmt.[[value]] is not empty, */
+      if (!(getCompletionValue(stmt) = 'empty)) {
+        /* let V = stmt.[[value]] */
+        V := getCompletionValue(stmt)
+      }
+    }
+  }
 };
 
 function JS_Interpreter_LabelledStmt(LabelledStatement, scope){
@@ -3213,9 +3250,9 @@ function JS_Interpreter_BreakableStatement(BreakableStatement, scope) {
   
   /* 1. Let stmtResult be the result of performing LabelledEvaluation of 
      IterationStatement with argument labelSet. */
-  match BreakableStatement with
-  | { type: "DoWhileStatement", test: Expression, body: Statement, labelSet: currentLabelSet } -> {
-      stmtResult := LabelledEvaluation(BreakableStatement, Statement, Expression, currentLabelSet, scope);
+  /*match BreakableStatement with
+  | { type: "DoWhileStatement", test: Expression, body: Statement, labelSet: currentLabelSet } -> {*/
+      stmtResult := LabelledEvaluation(BreakableStatement/*, Statement, Expression, currentLabelSet,*/, scope);
     /* 2. If stmtResult.[[type]] is break, then */
     if (getCompletionType(stmtResult) = 'break) {
       /* a. If stmtResult.[[target]] is empty, then */
@@ -3234,7 +3271,7 @@ function JS_Interpreter_BreakableStatement(BreakableStatement, scope) {
     };
     /* 3. Return Completion(stmtResult). */
     return Completion(stmtResult)
-  }
+  /*}*/
   /* TODO SWITCH STATEMENT */
 };
 /**
