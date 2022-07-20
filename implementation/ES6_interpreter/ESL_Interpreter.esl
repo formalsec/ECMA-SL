@@ -862,7 +862,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
 function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
   match PostfixExpression with
   | { type: "UpdateExpression", operator: "++", argument: LeftHandSideExpression, prefix: false } -> {
-    /* 11.3.1 Postfix Increment Operator */
+    /* 12.4.4 Postfix Increment Operator */
 
     /* The production PostfixExpression : LeftHandSideExpression [no LineTerminator here] ++ is evaluated as follows: */
 
@@ -883,7 +883,7 @@ function JS_Interpreter_PostfixExpressions(PostfixExpression, scope) {
     return oldValue
   }
   | { type: "UpdateExpression", operator: "--", argument: LeftHandSideExpression, prefix: false } -> {
-    /* 11.3.2 Postfix Decrement Operator */
+    /* 12.4.5 Postfix Decrement Operator */
 
     /* The production PostfixExpression : LeftHandSideExpression [no LineTerminator here] -- is evaluated as follows: */
 
