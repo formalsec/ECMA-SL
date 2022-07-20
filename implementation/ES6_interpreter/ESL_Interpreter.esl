@@ -703,22 +703,22 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
      * objects. 
      */
 
-  /* 1. Let val be the result of evaluating UnaryExpression. */
-   val := JS_Interpreter_Expr(UnaryExpression, scope);
+    /* 1. Let val be the result of evaluating UnaryExpression. */
+    val := JS_Interpreter_Expr(UnaryExpression, scope);
 
-  /* 2. If Type(val) is Reference, then */
-  if (Type(val) = "Reference") {
-    /* a. If IsUnresolvableReference(val) is true, */
-    if (IsUnresolvableReference(val) = true) {
-      /* return "undefined" */
-      return "undefined"
-    }
-  };
-  /* 3. Let val be GetValue(val). */
-  val := GetValue(val);
-  /* 4. ReturnIfAbrupt(val). */
-  @ReturnIfAbrupt(val);
-  /* 5. Return a String according to Table 35. */
+    /* 2. If Type(val) is Reference, then */
+    if (Type(val) = "Reference") {
+      /* a. If IsUnresolvableReference(val) is true, */
+      if (IsUnresolvableReference(val) = true) {
+        /* return "undefined" */
+        return "undefined"
+      }
+    };
+    /* 3. Let val be GetValue(val). */
+    val := GetValue(val);
+    /* 4. ReturnIfAbrupt(val). */
+    @ReturnIfAbrupt(val);
+    /* 5. Return a String according to Table 35. */
     if (Type(val) = "Undefined") {
       return "undefined"
     };
@@ -750,7 +750,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     }
   }
   | { type: "UpdateExpression", operator: "++", argument: UnaryExpression, prefix: true } -> {
-    /* 11.4.4 Prefix Increment Operator */
+    /* 12.5.7.1 Prefix Increment Operator */
 
     /* The production UnaryExpression : ++ UnaryExpression is evaluated as follows: */
 
