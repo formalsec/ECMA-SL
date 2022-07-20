@@ -679,15 +679,20 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     }
   }
   | { type: "UnaryExpression", operator: "void", argument: UnaryExpression } -> {
-    /* 11.4.2 The void Operator */
+    /* 12.5.5.1 The void Operator */
 
-    /* The production UnaryExpression : void UnaryExpression is evaluated as follows: */
-
+    /* The production UnaryExpression : void UnaryExpression is evaluated as follows:
+     * NOTE GetValue must be called even though its value is not used because it may 
+     * have observable side-effects. */
+    
     /* 1. Let expr be the result of evaluating UnaryExpression. */
     expr := JS_Interpreter_Expr(UnaryExpression, scope);
-    /* 2. Call GetValue(expr). */
-    GetValue(expr);
-    /* 3. Return undefined. */
+
+    /* 2. Let status be GetValue(expr). */
+    status := GetValue(expr);
+    /* 3. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 4. Return undefined. */
     return 'undefined
   }
   | { type: "UnaryExpression", operator: "typeof", argument: UnaryExpression } -> {
