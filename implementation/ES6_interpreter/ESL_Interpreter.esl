@@ -826,20 +826,21 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     return -(oldValue)
   }
   | { type: "UnaryExpression", operator: "~", argument: UnaryExpression } -> {
-    /* 11.4.8 Bitwise NOT Operator ( ~ ) */
+    /* 12.5.11 Bitwise NOT Operator ( ~ ) */
 
     /* The production UnaryExpression : ~ UnaryExpression is evaluated as follows: */
 
-    /* Let expr be the result of evaluating UnaryExpression. */
+    /* 1. Let expr be the result of evaluating UnaryExpression. */
     expr := JS_Interpreter_Expr(UnaryExpression, scope);
-    /* Let oldValue be ToInt32(GetValue(expr)). */
+    /* 2. Let oldValue be ToInt32(GetValue(expr)). */
     oldValue := ToInt32(GetValue(expr));
+    /* 3. ReturnIfAbrupt(oldValue). */
     @ReturnIfAbrupt(oldValue);
-    /* Return the result of applying bitwise complement to oldValue. The result is a signed 32-bit integer. */
+    /* 4. Return the result of applying bitwise complement to oldValue. The result is a signed 32-bit integer. */
     return ~oldValue
   }
   | { type: "UnaryExpression", operator: "!", argument: UnaryExpression } -> {
-    /* 11.4.9 Logical NOT Operator ( ! ) */
+    /* 12.5.12 Logical NOT Operator ( ! ) */
 
     /* The production UnaryExpression : ! UnaryExpression is evaluated as follows: */
 
@@ -847,14 +848,13 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     expr := JS_Interpreter_Expr(UnaryExpression, scope);
     /* 2. Let oldValue be ToBoolean(GetValue(expr)). */
     oldValue := ToBoolean(GetValue(expr));
-    /* 3. If oldValue is true, return false. */
-
+    /* 3. ReturnIfAbrupt(oldValue). */
     @ReturnIfAbrupt(oldValue);
-
+    /* 4. If oldValue is true, return false. */
     if (oldValue = true) {
       return false
     };
-    /* 4. Return true. */
+    /* 5. Return true. */
     return true
   }
 };
