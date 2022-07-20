@@ -771,7 +771,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     return newValue
   }
   | { type: "UpdateExpression", operator: "--", argument: UnaryExpression, prefix: true } -> {
-    /* 11.4.5 Prefix Decrement Operator */
+    /* 12.5.8.1 Prefix Decrement Operator */
 
     /* The production UnaryExpression : -- UnaryExpression is evaluated as follows: */
 
