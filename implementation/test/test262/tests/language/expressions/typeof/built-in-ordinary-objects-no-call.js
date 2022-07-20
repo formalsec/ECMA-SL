@@ -3,7 +3,7 @@
 
 /*---
 esid: sec-typeof-operator-runtime-semantics-evaluation
-description: typeof Boolean literal
+description: typeof Object (ordinary and does not implement [[Call]]) === "object"
 info: |
   The typeof Operator
 
@@ -14,19 +14,18 @@ info: |
 
   #table-35
 
-  Boolean "boolean"
-
+  Object (ordinary and does not implement [[Call]]) "object"
 
 ---*/
 
 assert.sameValue(
-  typeof true,
-   "boolean",
-  'typeof true === "boolean"'
+  typeof Math,
+   "object",
+  'typeof Math === "object"'
 );
 
 assert.sameValue(
-  typeof false,
-   "boolean",
-  'typeof false === "boolean"'
+  typeof Reflect,
+   "object",
+  'typeof Reflect === "object"'
 );
