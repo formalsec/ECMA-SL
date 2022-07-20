@@ -352,10 +352,7 @@ function JS_Interpreter_Expr(e, scope) {
 
     /* 9. Return EvaluateDirectCall(func, thisValue, Arguments, tailCall). */
     print "DEBUG CALL EXPRESSION, CALLING EvaluateDirectCall";
-    res := EvaluateDirectCall(func, thisValue, Arguments, false, scope);
-    print "debug42";
-    print res;
-    return res
+    return EvaluateDirectCall(func, thisValue, Arguments, false, scope)
   }
   | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
     /* 11.2.5 Function Expressions */
@@ -1342,7 +1339,8 @@ function JS_Interpreter_Stmt(s, scope) {
 
     s.labelSet := l_add(s.labelSet, 'empty);
 
-    return JS_Interpreter_IterationStatement(s, scope)
+    return JS_Interpreter_BreakableStatement(s, scope)
+    /*return JS_Interpreter_IterationStatement(s, scope)*/
   }
   | { type: "ForInStatement" } -> {
     if (!("labelSet" in_obj s)) {
@@ -2550,7 +2548,6 @@ function JS_Interpreter_BinExpr(e, scope) {
 function JS_Interpreter_IterationStatement(iterStmt, scope) {
   match iterStmt with
   | { type: "DoWhileStatement", test: Expression, body: Statement, labelSet: currentLabelSet } -> {
-    return LabelledEvaluation(iterStmt, Statement, Expression, currentLabelSet, scope);
     /* 12.6.1 The do-while Statement */
     /* 1. Let V = empty. */
     V := 'empty;
@@ -3194,10 +3191,53 @@ function LabelledEvaluation(IterationStatement, scope) {
       }
     }
   }
+  | { type: "ForStatement", init: Expression1, test: Expression2, update: Expression3, body: Statement, labelSet: labelSet} -> {
+    if (Expression2 = null) {
+      Expression2 := 'empty
+    };
+    if (Expression3 = null) {
+      Expression3 := 'empty
+    };
+
+
+
+    if (!(Expression1 = null)) {
+      match Expression1 with
+      | { type: "VariableDeclaration" } -> {
+        /* IterationStatement : for ( var VariableDeclarationList ; Expressionopt ; Expressionopt ) Statement */
+
+        /* 1. Let varDcl be the result of evaluating VariableDeclarationList. */
+        varDcl := JS_Interpreter_Stmt(Expression1, scope) catch Interpreter_Statement_Guard;
+        /* 2. ReturnIfAbrupt(varDcl). */
+        @ReturnIfAbrupt(varDcl);
+        /* 3. Return ForBodyEvaluation(the first Expression, the second Expression, Statement, « », labelSet). */
+        return ForBodyEvaluation(Expression2, Expression3, Statement, [], labelSet, scope)
+      }
+    };
+
+    /* IterationStatement : for ( Expressionopt ; Expressionopt ; Expressionopt ) Statement */
+    /* 1. If the first Expression is present, then */
+    if (!(Expression1 = null)){
+      /* a. Let exprRef be the result of evaluating the first Expression. */
+      exprRef := JS_Interpreter_Expr(Expression1, scope);
+      /* b. Let exprValue be GetValue(exprRef). */
+      exprValue :=  GetValue(exprRef);
+      /* c. ReturnIfAbrupt(exprValue). */
+      @ReturnIfAbrupt(exprValue)
+    };
+
+    /* 2. Return ForBodyEvaluation(the second Expression, the third Expression, Statement, « », labelSet). */
+    return ForBodyEvaluation(Expression2, Expression3, Statement, [], labelSet, scope)
+  }
+
+
+
+    
+    
+
 };
 
 function JS_Interpreter_LabelledStmt(LabelledStatement, scope){
-  print("yoyo");
   match LabelledStatement with
   | { type: "LabeledStatement", label: LabelIdentifier, body: LabelledItem} -> {
     /* LabelledStatement : LabelIdentifier : LabelledItem */
@@ -3214,7 +3254,7 @@ function JS_Interpreter_LabelledStmt(LabelledStatement, scope){
     /* 3. Let stmtResult be LabelledEvaluation of LabelledItem with argument 
       labelSet. */
     LabelledItem.labelSet := labelSet;
-    stmtResult := JS_Interpreter_Stmt(LabelledItem, scope); /* catch Interpreter_Statement_Guard;*/
+    stmtResult := JS_Interpreter_Stmt(LabelledItem, scope) catch Interpreter_Statement_Guard;
     /* 4. If stmtResult.[[type]] is break and SameValue(stmtResult.[[target]], 
       label), then */
     print(LabelledItem.labelSet);
@@ -3279,8 +3319,105 @@ function JS_Interpreter_BreakableStatement(BreakableStatement, scope) {
  * BreakStatement. 
  */
 
+/**
+ * 13.7.4.8 Runtime Semantics: ForBodyEvaluation (test, increment, stmt, perIterationBindings, labelSet)
+ *
+ * The abstract operation ForBodyEvaluation with arguments test, increment, 
+ * stmt, perIterationBindings, and labelSet is performed as follows: 
+ */
+function ForBodyEvaluation(test, increment, stmt, perIterationBindings, labelSet, scope) {
+  /* 1. Let V = undefined. */
+  V := 'undefined;
+  /* 2. Let status be CreatePerIterationEnvironment(perIterationBindings). */
+  status := CreatePerIterationEnvironment(perIterationBindings, scope);
+  /* 3. ReturnIfAbrupt(status). */
+  @ReturnIfAbrupt(status);
+  /* 4. Repeat */
+  repeat {
+    /* a. If test is not [empty], then */
+    if (!(test = 'empty)) {
+      /* i. Let testRef be the result of evaluating test. */
+      testRef := JS_Interpreter_Expr(test, scope);
+      /* ii. Let testValue be GetValue(testRef). */
+      testValue := GetValue(testRef);
+      /* iii. ReturnIfAbrupt(testValue). */
+      @ReturnIfAbrupt(testValue);
+      /* iv. If ToBoolean(testValue) is false, */
+      if (ToBoolean(testValue) = false) {
+        /* return NormalCompletion(V) */
+        return NormalCompletion(V)
+      }
+    };
+    /* b. Let result be the result of evaluating stmt. */
+    result := JS_Interpreter_Stmt(stmt, scope) catch Interpreter_Statement_Guard;
+    /* c. If LoopContinues(result, labelSet) is false, */
+    if (LoopContinues(result, labelSet) = false) {
+      /* return Completion(UpdateEmpty(result, V)) */
+      return Completion(UpdateEmpty(result, V))
+    };
+    /* d. If result.[[value]] is not empty, */
+    if (!(getCompletionValue(result) = 'empty)) {
+      /* let V = result.[[value]] */
+      V := getCompletionValue(result)
+    };
+    /* e. Let status be CreatePerIterationEnvironment(perIterationBindings). */
+    status := CreatePerIterationEnvironment(perIterationBindings, scope);
+    /* f. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* g. If increment is not [empty], then */
+    if (!(increment = 'empty)) {
+      /* i. Let incRef be the result of evaluating increment. */
+      incRef := JS_Interpreter_Expr(increment, scope);
+      /* ii. Let incValue be GetValue(incRef). */
+      incValue := GetValue(incRef);
+      /* iii. ReturnIfAbrupt(incValue). */
+      @ReturnIfAbrupt(incValue)
+    }
+  };
+  return
+};
+
+/**
+ * 13.7.4.9 Runtime Semantics: CreatePerIterationEnvironment (perIterationBindings)
+ *
+ * The abstract operation CreatePerIterationEnvironment with argument 
+ * perIterationBindings is performed as follows: 
+ */
+function CreatePerIterationEnvironment(perIterationBindings, scope) {
+  /* 1. If perIterationBindings has any elements, then */
+  if (!(perIterationBindings = [])) {
+    /* a. Let lastIterationEnv be the running execution context's LexicalEnvironment. */
+    lastIterationEnv := getLexicalEnvironment(scope);
+    /* b. Let outer be lastIterationEnv's outer environment reference. */
+    outer := getOuterEnvironmentReference(lastIterationEnv);
+    /* c. Assert: outer is not null. */
+    assert(!(outer = 'null));
+    /* d. Let thisIterationEnv be NewDeclarativeEnvironment(outer). */
+    thisIterationEnv := NewDeclarativeEnvironment(outer);
+    /* e. For each element bn of perIterationBindings do, */
+    foreach(bn : perIterationBindings){
+      /* i. Let status be thisIterationEnv.CreateMutableBinding(bn, false). */
+      status := CreateMutableBinding(thisIterationEnv.EnvRec, bn, false);
+      /* ii. Assert: status is never an abrupt completion. */
+      assert(!(isAnAbruptCompletion(status)));
+      /* iii. Let lastValue be lastIterationEnv.GetBindingValue(bn, true). */
+      lastValue := {lastIterationEnv.GetBindingValue}(lastIterationEnv, bn, true);
+      /* iii. ReturnIfAbrupt(lastValue). */
+      @ReturnIfAbrupt(lastValue);
+      /* iv. Perform thisIterationEnv.InitializeBinding(bn, lastValue). */
+      InitializeBindingDeclarativeRecordTemp(thisIterationEnv, bn, 'lastValue)
+    };
+    /* f. Set the running execution context's LexicalEnvironment to 
+       thisIterationEnv. */
+    setLexicalEnvironment(scope, thisIterationEnv)
+  };
+  /* 2. Return undefined */
+  return
+};
+
+
 /* auxiliary functions */
-function getParamNameInFromCatch(codeObj) {
+function getParamNameFromCatch(codeObj) {
   if (codeObj = 'undefined ||| (!(Type(codeObj) = "Object"))) {
     return []
   };
