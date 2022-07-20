@@ -792,7 +792,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     return newValue
   }
   | { type: "UnaryExpression", operator: "+", argument: UnaryExpression } -> {
-    /* 11.4.6 Unary + Operator */
+    /* 12.5.9.1 Unary + Operator */
 
     /* The unary + operator converts its operand to Number type. */
 
@@ -804,7 +804,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     return ToNumber(GetValue(expr))
   }
   | { type: "UnaryExpression", operator: "-", argument: UnaryExpression } -> {
-    /* 11.4.7 Unary - Operator */
+    /* 12.5.10.1 Unary - Operator */
 
     /* The unary - operator converts its operand to Number type and then negates it. Note that negating +0
        produces -0, and negating -0 produces +0. */
