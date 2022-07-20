@@ -622,58 +622,61 @@ function JS_Interpreter_LogicalExpression(LogicalExpression, scope) {
 function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
   match UnaryExpression with
   | { type: "UnaryExpression", operator: "delete", argument: UnaryExpression } -> {
-    /* 11.4.1 The delete Operator */
-
-    /* The production UnaryExpression : delete UnaryExpression is evaluated as follows: */
+    /* 12.5.4 The delete Operator 
+    * UnaryExpression : delete UnaryExpression 
+    * NOTE When a delete operator occurs within strict mode code, a SyntaxError 
+    * exception is thrown if its UnaryExpression is a direct reference to a 
+    * variable, function argument, or function name. In addition, if a delete 
+    * operator occurs within strict mode code and the property to be deleted has 
+    * the attribute { [[Configurable]]: false }, a TypeError exception is thrown. 
+    */
 
     /* 1. Let ref be the result of evaluating UnaryExpression. */
     ref := JS_Interpreter_Expr(UnaryExpression, scope);
-    /* 2. If Type(ref) is not Reference, return true. */
+    /* 2. ReturnIfAbrupt(ref). */
+    @ReturnIfAbrupt(ref);
+    /* 3. If Type(ref) is not Reference, */
     if (!(Type(ref) = "Reference")) {
+      /* return true */
       return true
     };
-    /* 3. If IsUnresolvableReference(ref) then, */
-    if (IsUnresolvableReference(ref)) {
-      /* a. If IsStrictReference(ref) is true, throw a SyntaxError exception. */
-      if (IsStrictReference(ref) = true) {
-        throw SyntaxErrorConstructorInternal()
-      }
-      /* b. Else, return true. */
-      else {
-        return true
-      }
+    /* 4. If IsUnresolvableReference(ref) is true, then */
+    if (IsUnresolvableReference(ref) = true) {
+      /* a. Assert: IsStrictReference(ref) is false. */
+      assert(IsStrictReference(ref) = false);
+      /* b. Return true. */
+      return true
     };
-    /* 4. If IsPropertyReference(ref) is true, then */
+    /* 5. If IsPropertyReference(ref) is true, then */
     if (IsPropertyReference(ref) = true) {
-      /* a. Return the result of calling the [[Delete]] internal method on ToObject(GetBase(ref)) providing
-            GetReferencedName(ref) and IsStrictReference(ref) as the arguments. */
-      obj := ToObject(GetBase(ref));
-
-      deleteStatus := {obj.Delete}(obj, GetReferencedName(ref));
-
+      /* a. If IsSuperReference(ref), */
+      if (IsSuperReference(ref)) {
+        /* throw a ReferenceError exception */
+        throw ReferenceErrorConstructorInternal()
+      };
+      /* b. Let baseObj be ToObject(GetBase(ref)). */
+      baseObj := ToObject(GetBase(ref));
+      /* c. Assert: baseObj is not an abrupt completion. */
+      assert(!isAnAbruptCompletion(baseObj));
+      /* d. Let deleteStatus be baseObj.[[Delete]](GetReferencedName(ref)). */
+      deleteStatus :=  {baseObj.Delete}(baseObj, GetReferencedName(ref));
+      /* e. ReturnIfAbrupt(deleteStatus). */
+      @ReturnIfAbrupt(deleteStatus);
+      /* f. If deleteStatus is false and IsStrictReference(ref) is true, */
       if ( (deleteStatus = false) &&& (IsStrictReference(ref) = true) ) {
+        /* throw a TypeError exception */
         throw TypeErrorConstructorInternal()
       };
-
+      /* g. Return deleteStatus. */
       return deleteStatus
     }
-    /* 5. Else, ref is a Reference to an Environment Record binding, so */
+    /* 6. Else ref is a Reference to an Environment Record binding, */
     else {
-      /* a. If IsStrictReference(ref) is true, throw a SyntaxError exception. */
-      if (IsStrictReference(ref) = true) {
-        throw SyntaxErrorConstructorInternal()
-      };
-      /* b. Let bindings be GetBase(ref). */
+      /* a.Let bindings be GetBase(ref). */
       bindings := GetBase(ref);
-      /* c. Return the result of calling the DeleteBinding concrete method of bindings, providing
-            GetReferencedName(ref) as the argument. */
+      /* b.Return bindings.DeleteBinding(GetReferencedName(ref)). */
       return DeleteBinding(bindings, GetReferencedName(ref))
     }
-
-    /* NOTE When a delete operator occurs within strict mode code, a SyntaxError exception is thrown if its
-            UnaryExpression is a direct reference to a variable, function argument, or function name.
-            In addition, if a delete operator occurs within strict mode code and the property to be deleted has
-            the attribute { [[Configurable]]: false }, a TypeError exception is thrown. */
   }
   | { type: "UnaryExpression", operator: "void", argument: UnaryExpression } -> {
     /* 11.4.2 The void Operator */
@@ -1232,11 +1235,33 @@ macro PropagateBlockLabelSet(Block, Stmts) {
 function JS_Interpreter_Stmt(s, scope) {
   match s with
   | { type: "BlockStatement", body: StatementList } -> {
-    /* 12.1 Block */
+    /* 13.2.13 Block */
+
+    /* Block : { } */
     if ((l_len StatementList) = 0) {
+    /* 1. Return NormalCompletion(empty). */
       return NormalCompletion('empty)
     };
 
+
+    /* Block : { StatementList } */
+
+    /* /* 1. Let oldEnv be the running execution context's LexicalEnvironment. */
+    /* oldEnv := getLexicalEnvironment(scope);
+    /* /* 2. Let blockEnv be NewDeclarativeEnvironment(oldEnv). */
+    /* blockEnv := NewDeclarativeEnvironment(oldEnv);
+    /* /* 3. Perform BlockDeclarationInstantiation(StatementList, blockEnv). */
+    /* BlockDeclarationInstantiation(StatementList, blockEnv);
+    /* /* 4. Set the running execution context's LexicalEnvironment to blockEnv. */
+    /* setLexicalEnvironment(scope, blockEnv);
+    /* /* 5. Let blockValue be the result of evaluating StatementList. */
+    /* blockValue := JS_Interpreter_StmtList(StatementList, scope);
+    /* /* 6. Set the running execution context's LexicalEnvironment to oldEnv. */
+    /* setLexicalEnvironment(scope, oldEnv);
+    /* /* 7. Return blockValue. */
+    /* return blockValue */
+
+    
     @PropagateBlockLabelSet(s, StatementList);
 
     print("BlockList:");
@@ -1248,7 +1273,7 @@ function JS_Interpreter_Stmt(s, scope) {
   }
   | { type: "VariableDeclaration", declarations: VariableDeclarationList } -> {
     /* 12.2 Variable Statement */
-
+    print("--debugVAR matched VariableDeclaration");
     /* The production VariableStatement : var VariableDeclarationList ; is evaluated as follows: */
 
     i := 0;
@@ -1369,7 +1394,6 @@ function JS_Interpreter_Stmt(s, scope) {
   | { type: "BreakStatement", label: LabelIdentifier } -> {
     /* 13.9 The break Statement */
     /* A BreakStatement without an LabelIdentifier is evaluated as follows: */
-    
     if (LabelIdentifier = null) {
       /* 1. Return Completion{[[type]]: break, [[value]]: empty, [[target]]: empty}. */
       return newCompletion('break, 'empty, 'empty)
@@ -1530,6 +1554,43 @@ function JS_Interpreter_Stmt(s, scope) {
     return JS_Interpreter_ClassEvaluation(scope, BindingIdentifier.name, ClassHeritageopt, ClassBodyopt)
   }
 };
+
+/**
+ * 13.2.14 Runtime Semantics: BlockDeclarationInstantiation (code, env)
+ *
+ * NOTE When a Block or CaseBlock production is evaluated a new declarative 
+ * Environment Record is created and bindings for each block scoped variable, 
+ * constant, function, generator function, or class declared in the block are 
+ * instantiated in the Environment Record. 
+ *
+ * BlockDeclarationInstantiation is performed as follows using arguments code 
+ * and env. code is the grammar production corresponding to the body of the 
+ * block. env is the declarative Environment Record in which bindings are to be 
+ * created. 
+ */
+function BlockDeclarationInstantiation(code, env) {
+  /* 1. Let declarations be the LexicallyScopedDeclarations of code. */
+  /* declarations := /* TODO: Instruction not yet implemented. */
+  /* 2. For each element d in declarations do */
+  foreach (d : declarations){
+    /* a. For each element dn of the BoundNames of d do */
+    foreach(dn : BoundNames){
+      /* i. If IsConstantDeclaration of d is true, then */
+      /* 1. Let status be env.CreateImmutableBinding(dn, true). */
+      CreateImmutableBinding(envRec, dn);
+      /* ii. Else, */
+      /* 1. Let status be env.CreateMutableBinding(dn, false). */
+      /* iii. Assert: status is never an abrupt completion. */
+      assert(!(isAnAbruptCompletion(status)))
+    }
+    /* b. If d is a GeneratorDeclaration production or a FunctionDeclaration production, then */
+      /* i. Let fn be the sole element of the BoundNames of d */
+      /* ii. Let fo be the result of performing InstantiateFunctionObject for d with argument env. */
+      /* iii. Perform env.InitializeBinding(fn, fo). */
+  };
+  return
+};
+
 
 /* 13.6.7 If Statement Runtime Semantics: Evaluation */
 function JS_Interpreter_IfStatement(IfStatement, scope) {
@@ -1831,6 +1892,11 @@ function JS_Interpreter_Catch(Catch, parameter, scope) {
 
 /* 13.15.8 Runtime Semantics: Evaluation */
 function JS_Interpreter_VarDecl(variableDeclaration, scope) {
+  print("--debugVAR in JS_Interpreter_VarDecl");
+  print(variableDeclaration);
+  print(variableDeclaration.id);
+  print(variableDeclaration.init);
+
   match variableDeclaration with
   | { type: "VariableDeclarator", id: Identifier, init: null } -> {
     /* The production VariableDeclaration : Identifier is evaluated as follows: */
