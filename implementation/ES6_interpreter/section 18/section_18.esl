@@ -222,30 +222,7 @@ function initGlobalObject(strict) {
 /* 15.1.2.1 eval (x) */
 function GlobalObjectEval(externalScope, ref, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
-  /* When the eval function is called with one argument x, the following steps are taken: */
-
-  /* 1. If Type(x) is not String, return x. */
-  if (!(Type(x) = "String")) {
-    return x
-  };
-  /* 2. Let prog be the ECMAScript code that is the result of parsing x as a Program. If the parse fails, throw a
-        SyntaxError exception (but see also clause 16). */
-  prog := parseAsProgram(x, strict);
-  /* 3. Let evalCtx be the result of establishing a new execution context (10.4.2) for the eval code prog. */
-  evalCtx := EnteringEvalCode(prog, ref, externalScope);
-  /* 4. Let result be the result of evaluating the program prog. */
-  result := JS_Interpreter_Program(prog, evalCtx);
-  /* 5. Exit the running execution context evalCtx, restoring the previous execution context. */
-  /* 6. If result.type is normal and its completion value is a value V, then return the value V. */
-  if ((getCompletionType(result) = 'normal) &&& !(getCompletionValue(result) = 'empty)) {
-    return getCompletionValue(result)
-  };
-  /* 7. If result.type is normal and its completion value is empty, then return the value undefined. */
-  if ((getCompletionType(result) = 'normal) &&& (getCompletionValue(result) = 'empty)) {
-    return 'undefined
-  };
-  /* 8. Otherwise, result.type must be throw. Throw result.value as an exception. */
-  throw getCompletionValue(result)
+  return PerformEval(externalScope, x, null, false, false)
 };
 
 /* 15.1.2.1.1 Direct Call to Eval */

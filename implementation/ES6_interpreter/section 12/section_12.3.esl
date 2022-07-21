@@ -191,7 +191,7 @@ function MakeSuperPropertyReference(propertyKey, strict, scope) {
   /* 2. If env.HasSuperBinding() is false, */
   if (HasSuperBinding(env) = false) {
     /* throw a ReferenceError exception */
-    throw ReferenceErrorConstructorInternal
+    throw ReferenceErrorConstructorInternal()
   };
   /* 3. Let actualThis be env.GetThisBinding(). */
   actualThis := GetThisBinding(env);

@@ -479,10 +479,13 @@ function JS_Interpreter_Expr(e, scope) {
   }
   | { type: "SuperProperty", property: property } -> {
     /* 1. Let propertyNameReference be the result of evaluating Expression. */
-    propertyKey := StringValue(property.name);
+    propertyNameReference := JS_Interpreter_Expr(property, scope);
+    propertyNameValue := GetValue(propertyNameReference);
+    propertyKey := ToPropertyKey(propertyNameValue);
+    @ReturnIfAbrupt(propertyKey);
     /* 5. If the code matched by the syntactic production that is being evaluated
           is strict mode code, let strict be true, else let strict be false. */
-    if (scope.strictCode) {
+    if (isContainedInStrictCode(scope)) {
       strict := true
     } else {
       strict := false
@@ -1283,6 +1286,35 @@ function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) {
     desc := newSetAccessorPropertyDescriptor(closure);
     /* 4. Return Property Identifier (propName, desc). */
     return newPropertyIdentifier(propName, desc)
+  }
+  | { type: "SpreadElement", argument: Argument } -> {
+    /* 1. Let list be an empty List. */
+    list := [];
+    /* 2. Let spreadRef be the result of evaluating AssignmentExpression. */
+    spreadRef := JS_Interpreter_Expr(Argument, scope);
+    /* 3. Let spreadObj be GetValue(spreadRef). */
+    spreadObj := GetValue(spreadRef);
+    /* 4. Let iterator be GetIterator(spreadObj). */
+    iterator := GetIterator(spreadObj, null);
+    /* 5. ReturnIfAbrupt(iterator). */
+    @ReturnIfAbrupt(iterator);
+    /* 6. Repeat */
+    repeat {
+      /* a. Let next be IteratorStep(iterator). */
+      next := IteratorStep(iterator);
+      /* b. ReturnIfAbrupt(next) .*/
+      @ReturnIfAbrupt(next);
+      /* c. If next is false, return nextIndex. */
+      if (next = false) {
+        return list
+      };
+      /* d. Let nextArg be IteratorValue(next). */
+      nextArg := IteratorValue(next);
+      /* e. ReturnIfAbrupt(nextArg). */
+      @ReturnIfAbrupt(nextArg);
+      /* f. Append nextArg as the last element of list. */
+      list := l_add(list, nextArg)
+    }
   }
 };
 
