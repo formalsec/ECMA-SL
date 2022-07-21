@@ -115,10 +115,6 @@ function BindingInitializationIdentifier(param, value, environment) {
   if (environment = 'undefined) {
     lhs := GetIdentifierReference(null, bindingId, false)
   } else {
-    print("debug44");
-    print(environment);
-
-    print(environment.LexicalEnvironment);
     lhs := GetIdentifierReference(environment.LexicalEnvironment, bindingId, false)
   };
 
@@ -133,9 +129,6 @@ function BindingInitializationIdentifier(param, value, environment) {
    };
 
    /* 8. Return InitializeReferencedBinding(lhs, v). */
-   print("debug44");
-   print(lhs);
-   print(environment.LexicalEnvironment.EnvRec);
    return InitializeReferencedBinding(lhs, value, environment.LexicalEnvironment.EnvRec)
 };
 
@@ -191,9 +184,10 @@ function BindingInitializationObjectPattern(param, value, environment) {
     if (!("key" in_obj property)) {
       BindingInitialization(property, value, environment, null)
     } else {
-      key := JS_Interpreter_Expr(property.key, environment);
+      /*key := JS_Interpreter_Expr(property.key, environment);
       @ReturnIfAbrupt(key);
-      property_name := GetPropertyName(key);
+      property_name := GetPropertyName(key);*/
+      property_name := property.key.name;
       InitializeSingleObjectBinding(property, property_name, value, environment)
     };
     i := i + 1
