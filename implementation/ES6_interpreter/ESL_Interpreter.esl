@@ -1261,7 +1261,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* /* 2. Let blockEnv be NewDeclarativeEnvironment(oldEnv). */
     /* blockEnv := NewDeclarativeEnvironment(oldEnv);
     /* /* 3. Perform BlockDeclarationInstantiation(StatementList, blockEnv). */
-    /* BlockDeclarationInstantiation(StatementList, blockEnv);
+    /* BlockDeclarationInstantiation(StatementList, blockEnv.EnvRecord);
     /* /* 4. Set the running execution context's LexicalEnvironment to blockEnv. */
     /* setLexicalEnvironment(scope, blockEnv);
     /* /* 5. Let blockValue be the result of evaluating StatementList. */
@@ -1392,6 +1392,10 @@ function JS_Interpreter_Stmt(s, scope) {
 
     if (LabelIdentifier = null) {
       /* 1. Return Completion{[[type]]: continue, [[value]]: empty, [[target]]: empty}. */
+      
+      res := getCompletionValue(newCompletion('continue, 'empty, 'empty));
+      print("--debugcontinue");
+      print(res);
       return newCompletion('continue, 'empty, 'empty)
     };
 
@@ -1399,6 +1403,9 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 1. Let label be the StringValue of LabelIdentifier. */
     label := LabelIdentifier;
     /* 2. Return Completion{[[type]]: continue, [[value]]: empty, [[target]]: label }. */
+    res := getCompletionValue(newCompletion('continue, 'empty, 'label));
+    print("--debugcontinue");
+    print(res);
     return newCompletion('continue, 'empty, label)
   }
   | { type: "BreakStatement", label: LabelIdentifier } -> {
@@ -1773,6 +1780,8 @@ function JS_Interpreter_TryStatement(TryStatement, scope) {
   }
   | { type: "TryStatement", block: Block, handler: Catch, finalizer: Finally } -> {
     /* The production TryStatement : try Block Catch Finally is evaluated as follows: */
+    print ("in Try Catch Finally");
+    print("--debugTRY");
     /* 1. Let B be the result of evaluating Block. */ 
     B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
     
@@ -1791,12 +1800,23 @@ function JS_Interpreter_TryStatement(TryStatement, scope) {
     if (getCompletionType(F) = 'normal) {
       F := C
     };
+
+    print("--debugTRY");
+    print(B);
+    print(C);
+    print(F);
     /* 6. If F.[[type]] is return, or F.[[type]] is throw, return Completion(F). */ 
     if (getCompletionType(F) = 'return ||| getCompletionType(F) = 'throw) {
       return Completion(F)
     };
+
+ 
     /* 7. If F.[[value]] is not empty, return NormalCompletion(F.[[value]]). */ 
     if (!(getCompletionValue(F) = 'empty)) {
+      /* Non empty continue/break is lost wihout this check */
+      if (getCompletionType(F) in_list ['continue, 'break]){
+        return Completion(F)
+      };
       return NormalCompletion(getCompletionValue(F))
     };
     /* 8. Return Completion{[[type]]: F.[[type]], [[value]]: undefined, [[target]]: F.[[target]]}. */ 
