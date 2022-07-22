@@ -7,12 +7,16 @@ es5id: 12.11_A3_T4
 description: >
     Using "case" that has no Expresson after it. "CaseClause: case
     Expression : [StatementList]"
-negative: SyntaxError
+negative:
+  phase: parse
+  type: SyntaxError
 ---*/
+
+$DONOTEVALUATE();
 
 function SwitchTest(value){
   var result = 0;
-  
+
   switch(value) {
     case:
       result += 2;
@@ -20,7 +24,7 @@ function SwitchTest(value){
       result += 32;
       break;
   }
-  
+
   return result;
 }
 

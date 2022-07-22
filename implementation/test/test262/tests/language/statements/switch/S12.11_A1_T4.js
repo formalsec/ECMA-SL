@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     If Result.type is break and Result.target is in the current
     label set, return (normal, Result.value, empty)
 es5id: 12.11_A1_T4
@@ -41,39 +41,41 @@ function SwitchTest(value){
   
   return result;
 }
-        
-if(!(SwitchTest(eval('Number(false)')) === 6)){
-  $ERROR("#1: SwitchTest(0) === 6. Actual:  SwitchTest(0) ==="+ SwitchTest(0)  );
+
+var n = Number(false);
+
+if(!(SwitchTest(n) === 6)){
+  throw new Test262Error("#1: SwitchTest(Number(false)) === 6. Actual:  SwitchTest(Number(false)) ==="+ SwitchTest(n)  );
 }
 
 if(!(SwitchTest(parseInt) === 32)){
-  $ERROR("#2: SwitchTest(parseInt) === 32. Actual:  SwitchTest(parseInt) ==="+ SwitchTest(parseInt)  );
+  throw new Test262Error("#2: SwitchTest(parseInt) === 32. Actual:  SwitchTest(parseInt) ==="+ SwitchTest(parseInt)  );
 }
 
 if(!(SwitchTest(isNaN) === 128)){
-  $ERROR("#3: SwitchTest(isNaN) === 128. Actual:  SwitchTest(isNaN) ==="+ SwitchTest(isNaN)  );
+  throw new Test262Error("#3: SwitchTest(isNaN) === 128. Actual:  SwitchTest(isNaN) ==="+ SwitchTest(isNaN)  );
 }
 
 if(!(SwitchTest(true) === 32)){
-  $ERROR("#6: SwitchTest(true) === 32. Actual:  SwitchTest(true) ==="+ SwitchTest(true)  );
+  throw new Test262Error("#6: SwitchTest(true) === 32. Actual:  SwitchTest(true) ==="+ SwitchTest(true)  );
 }
 
 if(!(SwitchTest(false) === 48)){
-  $ERROR("#7: SwitchTest(false) === 48. Actual:  SwitchTest(false) ==="+ SwitchTest(false)  );
+  throw new Test262Error("#7: SwitchTest(false) === 48. Actual:  SwitchTest(false) ==="+ SwitchTest(false)  );
 }
 
 if(!(SwitchTest(null) === 192)){
-  $ERROR("#8: SwitchTest(null) === 192. Actual:  SwitchTest(null) ==="+ SwitchTest(null)  );
+  throw new Test262Error("#8: SwitchTest(null) === 192. Actual:  SwitchTest(null) ==="+ SwitchTest(null)  );
 }
 
 if(!(SwitchTest(void 0) === 1024)){
-  $ERROR("#9: SwitchTest(void 0) === 1024. Actual:  SwitchTest(void 0) ==="+ SwitchTest(void 0)  );
+  throw new Test262Error("#9: SwitchTest(void 0) === 1024. Actual:  SwitchTest(void 0) ==="+ SwitchTest(void 0)  );
 }
 
 if(!(SwitchTest(NaN) === 32)){
-  $ERROR("#10: SwitchTest(NaN) === 32. Actual:  SwitchTest(NaN) ==="+ SwitchTest(NaN)  );
+  throw new Test262Error("#10: SwitchTest(NaN) === 32. Actual:  SwitchTest(NaN) ==="+ SwitchTest(NaN)  );
 }
 
 if(!(SwitchTest(Infinity) === 768)){
-  $ERROR("#10: SwitchTest(NaN) === 768. Actual:  SwitchTest(NaN) ==="+ SwitchTest(NaN)  );
+  throw new Test262Error("#10: SwitchTest(NaN) === 768. Actual:  SwitchTest(NaN) ==="+ SwitchTest(NaN)  );
 }
