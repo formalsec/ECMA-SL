@@ -44,7 +44,7 @@ function GetNewTarget(scope) {
   /* 1. Let envRec be GetThisEnvironment( ). */
   envRec := GetThisEnvironment(scope);
   /* 2. Assert: envRec has a [[NewTarget]] field. */
-  assert("NewTarget" in_obj envRec);
+  assert("__NewTarget" in_obj envRec);
   /* 3. Return envRec.[[NewTarget]]. */
-  return envRec.NewTarget
+  return envRec.__NewTarget
 }

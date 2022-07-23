@@ -32,8 +32,8 @@ function GetIterator(obj, method) {
     };
 
     /* 3. Let iterator be Call(method,obj). */
-    iterator := WrappedCall(null, null, method, obj, []);
-    
+    iterator := Call(null, null, method, obj, []);
+
     /* 4. ReturnIfAbrupt(iterator). */
     @ReturnIfAbrupt(iterator);
 

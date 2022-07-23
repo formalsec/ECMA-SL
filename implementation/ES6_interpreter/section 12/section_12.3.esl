@@ -90,62 +90,6 @@ function SuperPropertyEvaluationB(IdentifierName, propertyKey) {
     return MakeSuperPropertyReference(propertyKey, strict)
 };
 
-function SuperPropertyEvaluationAlt(scope, propExpression){
-    lex := getLexicalEnvironment(scope);
-    newTarget := GetNewTargetAlt(scope, lex);
-    if (newTarget = 'undefined){
-        throw ReferenceErrorConstructorInternal()
-    };
-    func := GetSuperConstructorAlt(newTarget);
-    propertyNameReference := JS_Interpreter_Expr(propExpression, scope);
-    propertyNameValue := GetValue(propertyNameReference);
-    propertyNameString := ToPropertyKey(propertyNameValue);
-    if (isContainedInStrictCode(scope)) {
-      strict := true
-    } else {
-      strict := false
-    };
-    return newPropertyReference(func, propertyNameString, strict)
-};
-
-function SuperCallEvaluation(scope, Arguments) {
-    /* 1. Let newTarget be GetNewTarget(). */
-    lex := getLexicalEnvironment(scope);
-    print "debug43";
-    newTarget := GetNewTargetAlt(scope, lex);
-
-    /* 2. If newTarget is undefined, throw a ReferenceError exception. */
-    if (newTarget = 'undefined){
-        throw ReferenceErrorConstructorInternal()
-    };
-
-    /* 3. Let func be GetSuperConstructor(). */
-    func := GetSuperConstructorAlt(newTarget);
-
-    /* 4. ReturnIfAbrupt(func). */
-    @ReturnIfAbrupt(func);
-
-    /* 5. Let argList be ArgumentListEvaluation of Arguments. */
-    argList := JS_Interpreter_Arguments(Arguments, scope);
-
-    /* 6. ReturnIfAbrupt(argList). */
-    @ReturnIfAbrupt(argList);
-
-    /* 7. Let result be Construct(func, argList, newTarget). */
-    {func.Call}(null, null, func, newTarget, argList);
-    print "debug44";
-    print newTarget;
-    print newTarget.JSProperties;
-    /* 8. ReturnIfAbrupt(result). */
-    /* @ReturnIfAbrupt(result); */
-
-    /* 9. Let thisER be GetThisEnvironment( ). */
-    /* thisER := GetThisEnvironmentAlt(scope, lex) */
-
-    /* 10. Return thisER.BindThisValue(result). */
-    /* return BindThisValue(thisER, result) */
-    return newTarget
-};
 
 /**
  * 12.3.5.2 Runtime Semantics: GetSuperConstructor

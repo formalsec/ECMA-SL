@@ -253,7 +253,7 @@ function NewFunctionEnvironment(F, newTarget) {
   /* 9. Set envRec.[[HomeObject]] to home. */
   envRec.HomeObject := home;
   /* 10. Set envRec.[[NewTarget]] to newTarget. */
-  envRec.NewTarget := newTarget;
+  envRec.__NewTarget := newTarget;
   /* 11. Set env's EnvironmentRecord to be envRec. */
   env.EnvRec := envRec;
   /* 12. Set the outer lexical environment reference of env to the value of F's
@@ -308,6 +308,20 @@ function GetSuperBase(envRec) {
     return 'undefined
   };
   return GetPrototypeOf(home)
+};
+
+function spreadElementObjectInitializer(resultingObj, spreadExpr, scope) {
+  spreadRef := JS_Interpreter_Expr(spreadExpr, scope);
+  spreadObj := GetValue(spreadRef);
+  if (spreadObj = 'null ||| spreadObj = 'undefined ||| !("JSPropertires" in_obj spreadObj)) {
+    return
+  };
+  props := OrdinaryObjectOwnPropertyKeys(spreadObj);
+  foreach (P : props) {
+    desc := {spreadObj.GetOwnProperty}(spreadObj, P);
+    OrdinaryObjectDefineOwnProperty(resultingObj, P, desc)
+  };
+  return
 };
 
 function GetThisBinding(envRec) {
