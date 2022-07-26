@@ -2202,7 +2202,7 @@ function JS_Interpreter_BinExpr(e, scope) {
 
     return lnum % rnum
   }
-  /* 11.6 Additive Operators */
+  /* 12.7 Additive Operators */
   | { type: "BinaryExpression", operator: "+", left: AdditiveExpression, right: MultiplicativeExpression } -> {
     /* 12.7.3.1 */
     /* 1. Let lref be the result of evaluating AdditiveExpression. */
@@ -2251,7 +2251,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     return applyingTheAdditionOperation(lnum, rnum)
   }
   | { type: "BinaryExpression", operator: "-", left: AdditiveExpression, right: MultiplicativeExpression } -> {
-
+    /* 12.7.4The Subtraction Operator ( - ) */
     /* 1. Let lref be the result of evaluating AdditiveExpression. */
     lref := JS_Interpreter_Expr(AdditiveExpression, scope);
     /* 2. Let lval be GetValue(lref). */
