@@ -2068,7 +2068,7 @@ function JS_Interpreter_StmtList(stmts, scope) {
 
 function JS_Interpreter_BinExpr(e, scope) {
   match e with
-  /* 11.5 Multiplicative Operators */
+  /* 12.6.3 Multiplicative Operators */
   | { type: "BinaryExpression", operator: "*", left: MultiplicativeExpression, right: UnaryExpression } -> {
     /* 1. Let left be the result of evaluating MultiplicativeExpression. */
     left := JS_Interpreter_Expr(MultiplicativeExpression, scope);
@@ -2088,7 +2088,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     rnum := ToNumber(rightValue);
     /* 9. ReturnIfAbrupt(rnum). */
     @ReturnIfAbrupt(rnum);
-    /* 11.5.1 Applying the * Operator */
+    /* 12.6.3.1 Applying the * Operator */
     /* The * operator performs multiplication, producing the product of its operands. Multiplication is commutative.
        Multiplication is not always associative in ECMAScript, because of finite precision.
        The result of a floating-point multiplication is governed by the rules of IEEE 754 binary double-precision
@@ -2106,6 +2106,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     return lnum * rnum
   }
   | { type: "BinaryExpression", operator: "/", left: MultiplicativeExpression, right: UnaryExpression } -> {
+    /* 12.6.3 Multiplicative Operators */
     /* The production MultiplicativeExpression : MultiplicativeExpression @ UnaryExpression, where @ stands for one
        of the operators in the above definitions, is evaluated as follows: */
 
@@ -2128,7 +2129,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* 9. ReturnIfAbrupt(rnum). */
     @ReturnIfAbrupt(rnum);
 
-    /* 11.5.1 Applying the / Operator */
+    /* 12.6.3.2 Applying the / Operator */
     /* The / operator performs division, producing the quotient of its operands. The left operand is the dividend and
        the right operand is the divisor. ECMAScript does not perform integer division. The operands and result of all
        division operations are double-precision floating-point numbers. The result of division is determined by the
@@ -2151,6 +2152,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     return lnum / rnum
   }
   | { type: "BinaryExpression", operator: "%", left: MultiplicativeExpression, right: UnaryExpression } -> {
+    /* 12.6.3 Multiplicative Operators */
     /* The production MultiplicativeExpression : MultiplicativeExpression @ UnaryExpression, where @ stands for one
        of the operators in the above definitions, is evaluated as follows: */
 
@@ -2172,7 +2174,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     rnum := ToNumber(rightValue);
     /* 9. ReturnIfAbrupt(rnum). */
     @ReturnIfAbrupt(rnum);
-    /* 11.5.3 Applying the % Operator */
+    /* 12.6.3.3 Applying the % Operator */
     /* The % operator yields the remainder of its operands from an implied division; the left operand is the dividend
        and the right operand is the divisor. */
     /* NOTE In C and C++, the remainder operator accepts only integral operands; in ECMAScript, it also accepts floating-
