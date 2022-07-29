@@ -192,14 +192,14 @@ function isStrictModeCode(code, execCtx) {
 };
 
 function getFunctionDeclarationsInCode(object) {
-  if (object = 'undefined) {
+  if (object = 'undefined ||| !("functionDeclarations" in_obj object)) {
     return []
   };
   return object.functionDeclarations
 };
 
 function getVariableDeclarationsInCode(object) {
-  if (object = 'undefined) {
+  if (object = 'undefined ||| !("variableDeclarations" in_obj object)) {
     return []
   };
   return object.variableDeclarations

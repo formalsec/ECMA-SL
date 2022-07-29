@@ -4495,6 +4495,9 @@ function arrayIteratorNext(global, this, NewTarget, strict, args) {
   if (index >= len) {
     /* a. Set the value of the [[IteratedObject]] internal slot of O to undefined. */
     O.IteratedObject := 'undefined;
+    tst := Get(a, "0");
+    print "DEBUG ITERATED OBJ";
+    print tst;
 
     /* b. Return CreateIterResultObject(undefined, true). */
     return CreateIterResultObject('undefined, true)

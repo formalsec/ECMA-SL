@@ -6,7 +6,9 @@
  */
 function PerformEval(scope, x, evalRealm, strictCaller, direct) {
   /* 1. Assert: If direct is false then strictCaller is also false. */
-  assert((direct) ||| (strictCaller));
+  if (direct = false) {
+    assert(strictCaller = false)
+  };
   /* 2. If Type(x) is not String, */
   if (!(Type(x) = "String")) {
     /* return x */
