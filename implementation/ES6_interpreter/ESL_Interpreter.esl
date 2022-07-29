@@ -2276,8 +2276,13 @@ function JS_Interpreter_BinExpr(e, scope) {
       rnum. See the note below 12.7.5. */
     return applyingTheSubtractionOperation(lnum, rnum)
   }
-  /* 11.7 Bitwise Shift Operators */
+  /* 12.8 Bitwise Shift Operators */
   | { type: "BinaryExpression", operator: "<<", left: ShiftExpression, right: AdditiveExpression } -> {
+    /** 
+     * 12.8.3 The Left Shift Operator ( << )
+     * ShiftExpression : ShiftExpression << AdditiveExpression
+     * NOTE: Performs a bitwise left shift operation on the left operand by the amount specified by the right operand. 
+     */
 
     /* 1. Let lref be the result of evaluating ShiftExpression. */
     lref := JS_Interpreter_Expr(ShiftExpression, scope);
@@ -2307,7 +2312,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     return lnum << shiftCount
   }
   | { type: "BinaryExpression", operator: ">>", left: ShiftExpression, right: AdditiveExpression } -> {
-    /* 11.7.2 The Signed Right Shift Operator ( >> ) */
+    /* 12.8.4 The Signed Right Shift Operator ( >> ) */
 
     /* Performs a sign-filling bitwise right shift operation on the left operand by the amount specified by the
        right operand. */
@@ -2342,7 +2347,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     return lnum >> shiftCount
   }
   | { type: "BinaryExpression", operator: ">>>", left: ShiftExpression, right: AdditiveExpression } -> {
-    /* 11.7.3 The Unsigned Right Shift Operator ( >>> ) */
+    /* 12.8.5 The Unsigned Right Shift Operator ( >>> ) */
 
     /* Performs a zero-filling bitwise right shift operation on the left operand by the amount specified by
        the right operand. */
@@ -2361,8 +2366,8 @@ function JS_Interpreter_BinExpr(e, scope) {
     rval := GetValue(rref);
     /* 6. ReturnIfAbrupt(rval). */
     @ReturnIfAbrupt(rval);
-    /* 7. Let lnum be ToInt32(lval). */
-    lnum := ToInt32(lval);
+    /* 7. Let lnum be ToUInt32(lval). */
+    lnum := ToUint32(lval);
     /* 8. ReturnIfAbrupt(lnum). */
     @ReturnIfAbrupt(lnum);
     /* 9. Let rnum be ToUint32(rval). */
