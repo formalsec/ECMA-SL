@@ -74,20 +74,4 @@ function GlobalEnvironment(globalObject) { /* TODO global object (15.1) */
   setGlobalEnvironment(globalObject, globalEnv);
 
   return globalEnv
-};
-
-function BindThisValue(envRec, V) {
-  assert(!(envRec.thisBindingStatus = "lexical"));
-
-  if (envRec.thisBindingStatus = "initialized") {
-    throw ReferenceErrorConstructorInternal()
-  };
-
-  envRec._thisValue := V;
-
-  envRec.thisBindingStatus := "initialized";
-
-
-  return V
 }
-

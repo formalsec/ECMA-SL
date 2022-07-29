@@ -745,7 +745,7 @@ function BindThisValue(envRec, V) {
     };
 
     /* Set envRec.[[thisValue]] to V. */
-    envRec.thisValue := V;
+    envRec.__thisValue := V;
 
     /* Set envRec.[[thisBindingStatus]] to "initialized". */
     envRec.thisBindingStatus := "initialized";
@@ -796,7 +796,7 @@ function GetThisBinding(envRec) {
 	};
 
 	/* Return envRec.[[thisValue]]. */
-	return envRec.thisValue
+	return envRec.__thisValue
 };
 
 /* 8.1.1.3.5 GetSuperBase () */
@@ -1053,9 +1053,11 @@ function HasThisBindingGlobalRecord(envRec) {
 };
 
 /* 8.1.1.4.9 HasSuperBinding () */
+/*
 function HasSuperBinding(envRec) {
 	return false
 };
+*/
 
 /* 8.1.1.4.10 WithBaseObject() */
 /* Global Environment Records always return undefined as their WithBaseObject */
@@ -1532,46 +1534,42 @@ When the abstract operation NewFunctionEnvironment is called with arguments F an
 following steps are performed:
 */
 function NewFunctionEnvironment(F, newTarget) {
-    /* Assert: F is an ECMAScript function. TODO */
+  /* 1. Assert: F is an ECMAScript function. */
+  assert(isESFunctionObject(F));
 
-    /* Assert: Type(newTarget) is Undefined or Object. */
+      /* Assert: Type(newTarget) is Undefined or Object. */
     assert( (Type(newTarget) = "Undefined") ||| (Type(newTarget) = "Object") );
 
-    /* Let env be a new Lexical Environment. */
-    env := newLexicalEnvironment();
-
-    /* Let envRec be a new function Environment Record containing no bindings. */
-    envRec := newFunctionEnvironmentRecord();
-
-    /* Set envRec.[[FunctionObject]] to F. */
-    envRec.FunctionObject := F;
-
-    /* If F’s [[ThisMode]] internal slot is lexical, set envRec.[[thisBindingStatus]] to "lexical". */
-    if ( F.ThisMode = "lexical" ) {
-    	envRec.thisBindingStatus := "lexical"
-    }
-    /* Else, Set envRec.[[thisBindingStatus]] to "uninitialized". */
-    else {
-    	envRec.thisBindingStatus := "uninitialized"
-    };
-
-    /* Let home be the value of F’s [[HomeObject]] internal slot. */
-    home := F.HomeObject;
-
-    /* Set envRec.[[HomeObject]] to home. */
-    envRec.HomeObject := home;
-
-    /* Set envRec.[[NewTarget]] to newTarget. */
-    envRec.NewTarget := newTarget;
-
-    /* Set env’s EnvironmentRecord to be envRec. */
-    setEnvironmentRecord(env, envRec);
-
-    /* Set the outer lexical environment reference of env to the value of F’s [[Environment]] internal slot. */
-    setOuterLexicalEnvironmentReference(env, F.Environment);
-
-    /* Return env. */
-    return env
+  /* 3. Let env be a new Lexical Environment. */
+  env := newLexicalEnvironment();
+  /* 4. Let envRec be a new function Environment Record containing no
+     bindings. */
+  envRec := newFunctionEnvironmentRecord();
+  /* 5. Set envRec.[[FunctionObject]] to F. */
+  envRec.FunctionObject := F;
+  /* 6. If F's [[ThisMode]] internal slot is lexical, */
+  if (F.ThisMode = "lexical") {
+    /* set envRec.[[thisBindingStatus]] to "lexical" */
+    envRec.thisBindingStatus := "lexical"
+  }
+  /* 7. Else, */
+  else {
+    /* Set envRec.[[thisBindingStatus]] to "uninitialized" */
+    envRec.thisBindingStatus := "uninitialized"
+  };
+  /* 8. Let home be the value of F's [[HomeObject]] internal slot. */
+  home := F.HomeObject;
+  /* 9. Set envRec.[[HomeObject]] to home. */
+  envRec.HomeObject := home;
+  /* 10. Set envRec.[[NewTarget]] to newTarget. */
+  envRec.__NewTarget := newTarget;
+  /* 11. Set env's EnvironmentRecord to be envRec. */
+  setEnvironmentRecord(env, envRec);
+  /* 12. Set the outer lexical environment reference of env to the value of F's
+     [[Environment]] internal slot. */
+  setOuterLexicalEnvironmentReference(env, F.Environment);
+  /* 13. Return env. */
+  return env
 };
 
 /* 8.1.2.5 NewGlobalEnvironment ( G ) */
