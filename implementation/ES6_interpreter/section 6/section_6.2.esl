@@ -137,6 +137,10 @@ function newValueReference(base, referencedName, strict) {
   return ("R", "V", base, referencedName, strict)
 };
 
+function newSuperReference(base, referencedName, thisValue, strict) {
+  return ("R", "S", base, referencedName, strict, thisValue)
+};
+
 function newPropertyReference(base, referencedName, strict) {
   return ("R", "P", base, referencedName, strict)
 };
@@ -195,7 +199,7 @@ function IsUnresolvableReference (V) {
 
 /* Returns true if this reference has a thisValue component. */
 function IsSuperReference (V) {
-  if ( t_len V = 7 ) {
+  if ( t_len V = 6 ) {
     return true
   } else {
     return false
@@ -328,7 +332,7 @@ function GetThisValue(V) {
     /* If IsSuperReference(V), then */
     if ( IsSuperReference(V) ) {
         /* Return the value of the thisValue component of the reference V. */
-        return t_nth(V, 6)
+        return t_nth(V, 5)
     };
 
     /* Return GetBase(V). */

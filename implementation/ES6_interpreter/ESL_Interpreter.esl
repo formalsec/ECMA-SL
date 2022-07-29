@@ -147,7 +147,7 @@ function JS_Interpreter_Expr(e, scope) {
     /* 11.1.1 The this Keyword */
 
     /* The this keyword evaluates to the value of the ThisBinding of the current execution context. */
-    return getThisBinding(scope)
+    return ResolveThisBinding(scope)
   }
   | { type: "Identifier", name: name } -> {
     /* 11.1.2 Identifier Reference */
@@ -233,7 +233,7 @@ function JS_Interpreter_Expr(e, scope) {
     
     /* 3. Let propertyNameReference be the result of evaluating Expression. */
     propertyNameReference := JS_Interpreter_Expr(Expression, scope);
-    
+
     /* 4. Let propertyNameValue be GetValue(propertyNameReference). */
     propertyNameValue := GetValue(propertyNameReference);
 
@@ -449,14 +449,112 @@ function JS_Interpreter_Expr(e, scope) {
   | { type: "MetaProperty", meta: meta, property: property } -> {
     return GetNewTarget(scope)
   }
-  | { type: "Super"} -> {
-    fail "Unsupported: Super"
+  | { type: "SuperCall", arguments: Arguments } -> {
+    /* 1. Let newTarget be GetNewTarget().*/
+    newTarget := GetNewTarget(scope);
+    /* 2. If newTarget is undefined, throw a ReferenceError exception. */
+    if (newTarget = 'undefined) {
+      throw ReferenceErrorConstructorInternal()
+    };
+    /* 3. Let func be GetSuperConstructor(). */
+    func := GetSuperConstructor(scope);
+    /* 4. ReturnIfAbrupt(func). */
+    @ReturnIfAbrupt(func);
+    /* 5. Let argList be ArgumentListEvaluation of Arguments. */
+    argList := JS_Interpreter_Arguments(Arguments, scope);
+    /* 6. ReturnIfAbrupt(argList). */
+    @ReturnIfAbrupt(argList);
+    print "Debug SuperCall";
+    print Arguments;
+    print argList;
+    print newTarget;
+    /* 7. Let result be Construct(func, argList, newTarget). */
+    result := Construct(scope, null, func, argList, newTarget);
+    /* 8. ReturnIfAbrupt(result). */
+    @ReturnIfAbrupt(result);
+    /* 9. Let thisER be GetThisEnvironment( ). */
+    thisER := GetThisEnvironment(scope);
+    /* 10. Return thisER.BindThisValue(result).*/
+    return BindThisValue(thisER, result)
+  }
+  | { type: "SuperProperty", property: property } -> {
+    /* 1. Let propertyNameReference be the result of evaluating Expression. */
+    propertyNameReference := JS_Interpreter_Expr(property, scope);
+    propertyNameValue := GetValue(propertyNameReference);
+    propertyKey := ToPropertyKey(propertyNameValue);
+    @ReturnIfAbrupt(propertyKey);
+    /* 5. If the code matched by the syntactic production that is being evaluated
+          is strict mode code, let strict be true, else let strict be false. */
+    if (isContainedInStrictCode(scope)) {
+      strict := true
+    } else {
+      strict := false
+    };
+    /* 6. Return MakeSuperPropertyReference(propertyKey, strict). */
+    return MakeSuperPropertyReference(propertyKey, strict, scope)
   }
   | { type: "YieldExpression"} -> {
     fail "Unsupported: Yield"
   }
-  | { type: "ClassExpression"} -> {
-    fail "Unsupported: Class"
+  | { type: "ClassExpression", id: id, body: body, superClass: superClass } -> {
+    /* 1. If BindingIdentifieropt is not present, */
+    if (id = null) {
+      /* let className be undefined */
+      className := 'undefined
+    }
+    /* 2. Else, */
+    else {
+      /* let className be StringValue of BindingIdentifier */
+      className := StringValue(id.name)
+    };
+    /* 3. Let value be the result of ClassDefinitionEvaluation of ClassTail with
+      argument className. */
+    value := ClassDefinitionEvaluation(scope, className, superClass, body);
+    /* 4. ReturnIfAbrupt(value). */
+    @ReturnIfAbrupt(value);
+    /* 5. If className is not undefined, then */
+    if (!(className = 'undefined)) {
+      /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
+      hasNameProperty := HasOwnProperty(value, "name");
+      /* b. ReturnIfAbrupt(hasNameProperty). */
+      @ReturnIfAbrupt(hasNameProperty);
+      /* c. If hasNameProperty is false, then */
+      if (hasNameProperty = false) {
+        /* i. Perform SetFunctionName(value, className). */
+        SetFunctionName(value, className, null)
+      }
+    };
+    /* 6. Return NormalCompletion(value). */
+    return NormalCompletion(value)
+  }
+  | { type: "SpreadElement", argument: Argument } -> {
+    /* 1. Let list be an empty List. */
+    list := [];
+    /* 2. Let spreadRef be the result of evaluating AssignmentExpression. */
+    spreadRef := JS_Interpreter_Expr(Argument, scope);
+    /* 3. Let spreadObj be GetValue(spreadRef). */
+    spreadObj := GetValue(spreadRef);
+    /* 4. Let iterator be GetIterator(spreadObj). */
+    iterator := GetIterator(spreadObj, null);
+    /* 5. ReturnIfAbrupt(iterator). */
+    @ReturnIfAbrupt(iterator);
+    /* 6. Repeat */
+    repeat {
+      /* a. Let next be IteratorStep(iterator). */
+      next := IteratorStep(iterator);
+      /* b. ReturnIfAbrupt(next) .*/
+      @ReturnIfAbrupt(next);
+      /* c. If next is false, return nextIndex. */
+      if (next = false) {
+        return list
+      };
+      /* d. Let nextArg be IteratorValue(next). */
+      nextArg := IteratorValue(next);
+      /* e. ReturnIfAbrupt(nextArg). */
+      @ReturnIfAbrupt(nextArg);
+      /* f. Append nextArg as the last element of list. */
+      list := l_add(list, nextArg)
+    }
   }
   | default -> {
     print "default case";
@@ -904,13 +1002,23 @@ function JS_Interpreter_Arguments(ArgumentsList, scope) {
   /* 1. Let precedingArgs be the result of evaluating ArgumentList. */
   while(lArguments > i) {
     /* 2. Let ref be the result of evaluating AssignmentExpression. */
-    ref := JS_Interpreter_Expr(l_nth(ArgumentsList, i), scope);
+    argument := l_nth(ArgumentsList, i);
+    ref := JS_Interpreter_Expr(argument, scope);
     /* 3. Let arg be GetValue(ref). */
     arg := GetValue(ref);
 
     @ReturnIfAbrupt(arg);
 
-    args := l_add(args, arg);
+    if (argument.type = "SpreadElement") {
+      j := 0;
+      lSpread := l_len arg;
+      while (lSpread > j) {
+        args := l_add(args, l_nth(arg, j));
+        j := j + 1
+      }
+    } else {
+      args := l_add(args, arg)
+    };
 
     i := i + 1
   };
@@ -1085,43 +1193,48 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
     i := 0;
     while (i < lPropList) {
       /* 2. Let propId be the result of evaluating PropertyAssignment. */
-      propId := JS_Interpreter_PropertyAssignment(l_nth(PropertyNameAndValueList, i), scope);
-      /* 3. Let previous be the result of calling the [[GetOwnProperty]] internal method of obj with argument
-            propId.name. */
-      previous := {obj.GetOwnProperty}(obj, getPropertyName(propId));
-      /* 4. If previous is not undefined then throw a SyntaxError exception if any of the following conditions are true */
-      if (!(previous = 'undefined)) {
-        /* a. This production is contained in strict code and IsDataDescriptor(previous) is true and
-              IsDataDescriptor(propId.descriptor) is true. */
-        if (isContainedInStrictCode(scope) &&
-            (IsDataDescriptor(previous) = true) &&
-            (IsDataDescriptor(getPropertyDescriptor(propId)) = true)) {
-          throw SyntaxErrorConstructorInternal()
+      propExpr := l_nth(PropertyNameAndValueList, i);
+      if (propExpr.type = "SpreadElement") {
+        spreadElementObjectInitializer(obj, propExpr.argument, scope)
+      } else {
+        propId := JS_Interpreter_PropertyAssignment(propExpr, scope);
+        /* 3. Let previous be the result of calling the [[GetOwnProperty]] internal method of obj with argument
+              propId.name. */
+        previous := {obj.GetOwnProperty}(obj, getPropertyName(propId));
+        /* 4. If previous is not undefined then throw a SyntaxError exception if any of the following conditions are true */
+        if (!(previous = 'undefined)) {
+          /* a. This production is contained in strict code and IsDataDescriptor(previous) is true and
+                IsDataDescriptor(propId.descriptor) is true. */
+          if (isContainedInStrictCode(scope) &&
+              (IsDataDescriptor(previous) = true) &&
+              (IsDataDescriptor(getPropertyDescriptor(propId)) = true)) {
+            throw SyntaxErrorConstructorInternal()
+          };
+          /* b. IsDataDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true. */
+          if ((IsDataDescriptor(previous) = true) &&
+              (IsAccessorDescriptor(getPropertyDescriptor(propId)) = true)) {
+            throw SyntaxErrorConstructorInternal()
+          };
+          /* c. IsAccessorDescriptor(previous) is true and IsDataDescriptor(propId.descriptor) is true. */
+          if ((IsAccessorDescriptor(previous) = true) &&
+              (IsDataDescriptor(getPropertyDescriptor(propId)) = true)) {
+            throw SyntaxErrorConstructorInternal()
+          };
+          /* d. IsAccessorDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true and
+                either both previous and propId.descriptor have [[Get]] fields or both previous and propId.descriptor
+                have [[Set]] fields */
+          if ((IsAccessorDescriptor(previous) = true) &&
+              (IsAccessorDescriptor(getPropertyDescriptor(propId)) = true) &&
+              ((("Get" in_obj previous) && (!(previous.Get = 'undefined)) && ("Get" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Get = 'undefined)) ||
+              (("Set" in_obj previous) && (!(previous.Set = 'undefined)) && ("Set" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Set = 'undefined)))) {
+            throw SyntaxErrorConstructorInternal()
+          }
         };
-        /* b. IsDataDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true. */
-        if ((IsDataDescriptor(previous) = true) &&
-            (IsAccessorDescriptor(getPropertyDescriptor(propId)) = true)) {
-          throw SyntaxErrorConstructorInternal()
-        };
-        /* c. IsAccessorDescriptor(previous) is true and IsDataDescriptor(propId.descriptor) is true. */
-        if ((IsAccessorDescriptor(previous) = true) &&
-            (IsDataDescriptor(getPropertyDescriptor(propId)) = true)) {
-          throw SyntaxErrorConstructorInternal()
-        };
-        /* d. IsAccessorDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true and
-              either both previous and propId.descriptor have [[Get]] fields or both previous and propId.descriptor
-              have [[Set]] fields */
-        if ((IsAccessorDescriptor(previous) = true) &&
-            (IsAccessorDescriptor(getPropertyDescriptor(propId)) = true) &&
-            ((("Get" in_obj previous) && (!(previous.Get = 'undefined)) && ("Get" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Get = 'undefined)) ||
-             (("Set" in_obj previous) && (!(previous.Set = 'undefined)) && ("Set" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Set = 'undefined)))) {
-          throw SyntaxErrorConstructorInternal()
-        }
-      };
 
-      /* 5. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and
-            false. */
-      {obj.DefineOwnProperty}(obj, getPropertyName(propId), getPropertyDescriptor(propId));
+        /* 5. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and
+              false. */
+        {obj.DefineOwnProperty}(obj, getPropertyName(propId), getPropertyDescriptor(propId))
+      };
 
       i := i + 1
     };
@@ -1178,6 +1291,35 @@ function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) {
     desc := newSetAccessorPropertyDescriptor(closure);
     /* 4. Return Property Identifier (propName, desc). */
     return newPropertyIdentifier(propName, desc)
+  }
+  | { type: "SpreadElement", argument: Argument } -> {
+    /* 1. Let list be an empty List. */
+    list := [];
+    /* 2. Let spreadRef be the result of evaluating AssignmentExpression. */
+    spreadRef := JS_Interpreter_Expr(Argument, scope);
+    /* 3. Let spreadObj be GetValue(spreadRef). */
+    spreadObj := GetValue(spreadRef);
+    /* 4. Let iterator be GetIterator(spreadObj). */
+    iterator := GetIterator(spreadObj, null);
+    /* 5. ReturnIfAbrupt(iterator). */
+    @ReturnIfAbrupt(iterator);
+    /* 6. Repeat */
+    repeat {
+      /* a. Let next be IteratorStep(iterator). */
+      next := IteratorStep(iterator);
+      /* b. ReturnIfAbrupt(next) .*/
+      @ReturnIfAbrupt(next);
+      /* c. If next is false, return nextIndex. */
+      if (next = false) {
+        return list
+      };
+      /* d. Let nextArg be IteratorValue(next). */
+      nextArg := IteratorValue(next);
+      /* e. ReturnIfAbrupt(nextArg). */
+      @ReturnIfAbrupt(nextArg);
+      /* f. Append nextArg as the last element of list. */
+      list := l_add(list, nextArg)
+    }
   }
 };
 

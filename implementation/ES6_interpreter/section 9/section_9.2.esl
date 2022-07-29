@@ -89,10 +89,10 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
     assert(Type(newTarget) = "Undefined" ||| Type(newTarget) = "Object");
 
     /* 2. Let callerContext be the running execution context. */
-    if (externalScope = null) {
-      externalScope := F.Environment
-    };
     callerContext := externalScope;
+    if (externalScope = null) {
+      callerContext := F.Environment
+    };
 
     /* 3. Let calleeContext be a new ECMAScript code execution context. */
     calleeContext := createExecutionContext();
@@ -108,7 +108,7 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
     /* TODO */
 
     /* 7. Let localEnv be NewFunctionEnvironment(F, newTarget). */
-    localEnv := NewDeclarativeEnvironment(F.Environment);
+    localEnv := NewFunctionEnvironment(F, newTarget);
 
     /* 8. Set the LexicalEnvironment of calleeContext to localEnv. */
     calleeContext.LexicalEnvironment := localEnv;
@@ -272,7 +272,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
       return thisArgument
     };
     /* c. If result.[[value]] is not undefined, */
-    if (!(getCompletionType(result) = 'undefined)) {
+    if (!(getCompletionValue(result) = 'undefined)) {
       /* throw a TypeError exception */
       throw TypeErrorConstructorInternal()
     }
@@ -285,7 +285,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
   };
 
   /* 15. Return envRec.GetThisBinding(). */
-  return getThisBinding(calleeContext)
+  return GetThisBinding(envRec)
 };
 
 /**
@@ -1048,7 +1048,7 @@ function getIsSimpleParameterListFromFunction(codeObj) {
 };
 
 function getParamsNamesInFromFunction(codeObj) {
-  if (codeObj = 'undefined ||| (!(Type(codeObj) = "Object"))) {
+  if (codeObj = 'undefined ||| (!(Type(codeObj) = "Object")) ||| !("paramsNames" in_obj codeObj)) {
     return []
   };
   return codeObj.paramsNames
