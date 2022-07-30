@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     If Type(Primitive(x)) is not String or Type(Primitive(y)) is not String,
     then operator x > y returns ToNumber(x) > ToNumber(y)
 es5id: 11.8.2_A3.1_T1.3
@@ -13,20 +13,20 @@ description: >
 
 //CHECK#1
 if (null > undefined !== false) {
-  $ERROR('#1: null > undefined === false');
+  throw new Test262Error('#1: null > undefined === false');
 }
 
 //CHECK#2
 if (undefined > null !== false) {
-  $ERROR('#2: undefined > null === false');
+  throw new Test262Error('#2: undefined > null === false');
 }
 
 //CHECK#3
 if (undefined > undefined !== false) {
-  $ERROR('#3: undefined > undefined === false');
+  throw new Test262Error('#3: undefined > undefined === false');
 }
 
 //CHECK#4
 if (null > null !== false) {
-  $ERROR('#4: null > null === false');
+  throw new Test262Error('#4: null > null === false');
 }

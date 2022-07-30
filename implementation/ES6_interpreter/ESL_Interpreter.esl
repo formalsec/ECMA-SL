@@ -2381,14 +2381,14 @@ function JS_Interpreter_BinExpr(e, scope) {
       is a signed 32-bit integer. */
     return lnum >>> shiftCount
   }
-  /* 11.8 Relational Operators */
+  /* 12.9 Relational Operators */
   /* The result of evaluating a relational operator is always of type Boolean, reflecting whether the relationship
      named by the operator holds between its two operands.
      The RelationalExpressionNoIn productions are evaluated in the same manner as the RelationalExpression
      productions except that the contained RelationalExpressionNoIn is evaluated instead of the contained
      RelationalExpression. */
   | { type: "BinaryExpression", operator: "<", left: RelationalExpression, right: ShiftExpression } -> {
-    /* 11.8.1 The Less-than Operator ( < ) */
+    /* The Less-than Operator ( < ) */
 
     /* The production RelationalExpression : RelationalExpression < ShiftExpression is evaluated as follows: */
 
@@ -2396,13 +2396,17 @@ function JS_Interpreter_BinExpr(e, scope) {
     lref := JS_Interpreter_Expr(RelationalExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. Let rref be the result of evaluating ShiftExpression. */
+    /* 3. ReturnIfAbrupt(lval).*/
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating ShiftExpression. */
     rref := JS_Interpreter_Expr(ShiftExpression, scope);
-    /* 4. Let rval be GetValue(rref). */
+    /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-    /* 5. Let r be the result of performing abstract relational comparison lval < rval. (see 11.8.5) */
+    /* 6. Let r be the result of performing abstract relational comparison lval < rval. (see 7.2.11) */
     r := AbstractRelationalComparison(lval, rval, true);
-    /* 6. If r is undefined, return false. Otherwise, return r.*/
+    /* 7. ReturnIfAbrupt(r).*/
+    @ReturnIfAbrupt(r);
+    /* 8. If r is undefined, return false. Otherwise, return r.*/
     if (r = 'undefined) {
       return false
     };
@@ -2410,7 +2414,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     return r
   }
   | { type: "BinaryExpression", operator: ">", left: RelationalExpression, right: ShiftExpression } -> {
-    /* 11.8.2 The Greater-than Operator ( > ) */
+    /* The Greater-than Operator ( > ) */
 
     /* The production RelationalExpression : RelationalExpression > ShiftExpression is evaluated as follows: */
 
@@ -2418,13 +2422,17 @@ function JS_Interpreter_BinExpr(e, scope) {
     lref := JS_Interpreter_Expr(RelationalExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. Let rref be the result of evaluating ShiftExpression. */
+    /* 3. ReturnIfAbrupt(lval).*/
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating ShiftExpression. */
     rref := JS_Interpreter_Expr(ShiftExpression, scope);
-    /* 4. Let rval be GetValue(rref). */
+    /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-    /* 5. Let r be the result of performing abstract relational comparison rval < lval with LeftFirst equal to false. (see 11.8.5). */
+    /* 6. Let r be the result of performing abstract relational comparison rval < lval with LeftFirst equal to false. */
     r := AbstractRelationalComparison(rval, lval, false);
-    /* 6. If r is undefined, return false. Otherwise, return r. */
+    /* 7. ReturnIfAbrupt(r).*/
+    @ReturnIfAbrupt(r);
+    /* 8. If r is undefined, return false. Otherwise, return r.*/
     if (r = 'undefined) {
       return false
     };
@@ -2432,7 +2440,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     return r
   }
   | { type: "BinaryExpression", operator: "<=", left: RelationalExpression, right: ShiftExpression } -> {
-    /* 11.8.3 The Less-than-or-equal Operator ( <= ) */
+    /* The Less-than-or-equal Operator ( <= ) */
 
     /* The production RelationalExpression : RelationalExpression <= ShiftExpression is evaluated as follows: */
 
@@ -2440,14 +2448,17 @@ function JS_Interpreter_BinExpr(e, scope) {
     lref := JS_Interpreter_Expr(RelationalExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. Let rref be the result of evaluating ShiftExpression. */
+    /* 3. ReturnIfAbrupt(lval).*/
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating ShiftExpression. */
     rref := JS_Interpreter_Expr(ShiftExpression, scope);
-    /* 4. Let rval be GetValue(rref). */
+    /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-    /* 5. Let r be the result of performing abstract relational comparison rval < lval with LeftFirst equal to false.
-          (see 11.8.5). */
+    /* 6. Let r be the result of performing abstract relational comparison rval < lval with LeftFirst equal to false. */
     r := AbstractRelationalComparison(rval, lval, false);
-    /* 6. If r is true or undefined, return false. Otherwise, return true. */
+    /* 7. ReturnIfAbrupt(r).*/
+    @ReturnIfAbrupt(r);
+    /* 8. If r is true or undefined, return false. Otherwise, return true. */
     if ((r = true) || (r = 'undefined)) {
       return false
     };
@@ -2455,7 +2466,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     return true
   }
   | { type: "BinaryExpression", operator: ">=", left: RelationalExpression, right: ShiftExpression } -> {
-    /* 11.8.4 The Greater-than-or-equal Operator ( >= ) */
+    /* The Greater-than-or-equal Operator ( >= ) */
 
     /* The production RelationalExpression : RelationalExpression >= ShiftExpression is evaluated as follows: */
 
@@ -2463,13 +2474,17 @@ function JS_Interpreter_BinExpr(e, scope) {
     lref := JS_Interpreter_Expr(RelationalExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. Let rref be the result of evaluating ShiftExpression. */
+    /* 3. ReturnIfAbrupt(lval).*/
+    @ReturnIfAbrupt(lval);
+    /* 4. Let rref be the result of evaluating ShiftExpression. */
     rref := JS_Interpreter_Expr(ShiftExpression, scope);
-    /* 4. Let rval be GetValue(rref). */
+    /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-    /* 5. Let r be the result of performing abstract relational comparison lval < rval. (see 11.8.5) */
+    /* 6. Let r be the result of performing abstract relational comparison lval < rval. (see 7.2.11) */
     r := AbstractRelationalComparison(lval, rval, true);
-    /* 6. If r is true or undefined, return false. Otherwise, return true. */
+    /* 7. ReturnIfAbrupt(r).*/
+    @ReturnIfAbrupt(r);
+    /* 8. If r is true or undefined, return false. Otherwise, return true. */
     if ((r = true) || (r = 'undefined)) {
       return false
     };
@@ -2477,7 +2492,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     return true
   }
   | { type: "BinaryExpression", operator: "instanceof", left: RelationalExpression, right: ShiftExpression } -> {
-    /* 11.8.6 The instanceof operator */
+    /* The instanceof operator */
 
     /* The production RelationalExpression: RelationalExpression instanceof ShiftExpression is evaluated as follows: */
 
@@ -2497,7 +2512,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     return InstanceofOperator(lval, rval)
   }
   | { type: "BinaryExpression", operator: "in", left: RelationalExpression, right: ShiftExpression } -> {
-    /* 11.8.7 The in operator */
+    /* The in operator */
 
     /* The production RelationalExpression : RelationalExpression in ShiftExpression is evaluated as follows: */
 

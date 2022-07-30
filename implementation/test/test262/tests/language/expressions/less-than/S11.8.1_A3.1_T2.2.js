@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     If Type(Primitive(x)) is not String or Type(Primitive(y)) is not String,
     then operator x < y returns ToNumber(x) < ToNumber(y)
 es5id: 11.8.1_A3.1_T2.2
@@ -14,50 +14,50 @@ description: >
 
 //CHECK#1
 if ("1" < 1 !== false) {
-  $ERROR('#1: "1" < 1 === false');
+  throw new Test262Error('#1: "1" < 1 === false');
 }
 
 //CHECK#2
 if (1 < "1" !== false) {
-  $ERROR('#2: 1 < "1" === false');
+  throw new Test262Error('#2: 1 < "1" === false');
 }
 
 //CHECK#3
 if (new String("1") < 1 !== false) {
-  $ERROR('#3: new String("1") < 1 === false');
+  throw new Test262Error('#3: new String("1") < 1 === false');
 }
 
 //CHECK#4
 if (1 < new String("1") !== false) {
-  $ERROR('#4: 1 < new String("1") === false');
+  throw new Test262Error('#4: 1 < new String("1") === false');
 }
 
 //CHECK#5
 if ("1" < new Number(1) !== false) {
-  $ERROR('#5: "1" < new Number(1) === false');
+  throw new Test262Error('#5: "1" < new Number(1) === false');
 }
 
 //CHECK#6
 if (new Number(1) < "1" !== false) {
-  $ERROR('#6: new Number(1) < "1" === false');
+  throw new Test262Error('#6: new Number(1) < "1" === false');
 }
 
 //CHECK#7
 if (new String("1") < new Number(1) !== false) {
-  $ERROR('#7: new String("1") < new Number(1) === false');
+  throw new Test262Error('#7: new String("1") < new Number(1) === false');
 }
 
 //CHECK#8
 if (new Number(1) < new String("1") !== false) {
-  $ERROR('#8: new Number(1) < new String("1") === false');
+  throw new Test262Error('#8: new Number(1) < new String("1") === false');
 }
 
 //CHECK#9
 if ("x" < 1 !== false) {
-  $ERROR('#9: "x" < 1 === false');
+  throw new Test262Error('#9: "x" < 1 === false');
 }
 
 //CHECK#10
 if (1 < "x" !== false) {
-  $ERROR('#10: 1 < "x" === false');
+  throw new Test262Error('#10: 1 < "x" === false');
 }
