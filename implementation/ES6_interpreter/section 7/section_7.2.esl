@@ -392,11 +392,7 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
  * a comparison is performed as follows: 
  */
 function AbstractEqualityComparison(x, y) {
-  TypeX := Type(x);
-  TypeY := Type(y);
-  print("Types:");
-  print(TypeX);
-  print(TypeY);
+
   /* 1. ReturnIfAbrupt(x). */
   @ReturnIfAbrupt(x);
   /* 2. ReturnIfAbrupt(y). */
@@ -429,7 +425,6 @@ function AbstractEqualityComparison(x, y) {
   /* 8. If Type(x) is Boolean, */
   if (Type(x) = "Boolean") {
     /* return the result of the comparison ToNumber(x) == y */
-    print("teide");
     return AbstractEqualityComparison(ToNumber(x), y)
   };
   /* 9. If Type(y) is Boolean, */
@@ -452,48 +447,99 @@ function AbstractEqualityComparison(x, y) {
   return false
 };
 
-
 /**
  * 7.2.13 Strict Equality Comparison
- * 
- * The comparison x === y, where x and y are values, produces true or false. Such a comparison is performed as
- * follows:
-*/
+ *
+ * The comparison x === y, where x and y are values, produces true or false. 
+ * Such a comparison is performed as follows: 
+ */
 function StrictEqualityComparison(x, y) {
-  /* The comparison x === y, where x and y are values, produces true or false. Such a comparison is performed
-     as follows: */
-
-  @ReturnIfAbrupt(x);
-  @ReturnIfAbrupt(y);
-
-  /* 1. If Type(x) is different from Type(y), return false. */
-  if (!(Type(x) = Type(y))) { return false };
-  /* 2. If Type(x) is Undefined, return true. */
-  if (Type(x) = "Undefined") { return true };
-  /* 3. If Type(x) is Null, return true. */
-  if (Type(x) = "Null") { return true };
+  /* 1. If Type(x) is different from Type(y), */
+    if (!(Type(x) = Type(y))){
+    /* return false */
+    return false
+  };
+  /* 2. If Type(x) is Undefined, */
+  if (Type(x) = 'undefined) {
+    /* return true */
+    return true
+  };
+  /* 3. If Type(x) is Null, */
+  if (Type(x) = 'null) {
+    /* return true */
+    return true
+  };
   /* 4. If Type(x) is Number, then */
   if (Type(x) = "Number") {
-    /* a. If x is NaN, return false. */
-    if (x = NaN) { return false };
-    /* b. If y is NaN, return false. */
-    if (y = NaN) { return false };
-    /* c. If x is the same Number value as y, return true. */
-    if (x = y) { return true };
-    /* d. If x is +0 and y is -0, return true. */
-    if ((x = 0.) && (y = -(0.))) { return true };
-    /* e. If x is -0 and y is +0, return true. */
-    if ((x = -(0.)) && (y = 0.)) { return true };
+    /* a. If x is NaN, */
+    if (x = NaN) {
+      /* return false */
+      return false
+    };
+    /* b. If y is NaN, */
+    if (y = NaN) {
+      /* return false */
+      return false
+    };
+    /* c. If x is the same Number value as y, */
+    if (x = y) {
+      /* return true */
+      return true
+    };
+    /* d. If x is +0 and y is -0, */
+    if (isZero(x) &&& isMinusZero(y)) {
+      /* return true */
+      return true
+    };
+    /* e. If x is -0 and y is +0, */
+    if (isMinusZero(x) &&& isZero(y)) {
+      /* return true */
+      return true
+    };
     /* f. Return false. */
     return false
   };
-  /* 5. If Type(x) is String, then return true if x and y are exactly the same sequence of characters (same length and
-        same characters in corresponding positions); otherwise, return false. */
-  if (Type(x) = "String") { return x = y };
-  /* 6. If Type(x) is Boolean, return true if x and y are both true or both false; otherwise, return false. */
-  if (Type(x) = "Boolean") { return x = y };
-  /* 7. Return true if x and y refer to the same object. Otherwise, return false. */
-  return x = y
-
-  /* NOTE This algorithm differs from the SameValue Algorithm (9.12) in its treatment of signed zeroes and NaNs. */
+  /* 5. If Type(x) is String, then */
+  if (Type(x) = "String") {
+    /* a. If x and y are exactly the same sequence of code units (same length 
+       and same code units at corresponding indices), */
+    if (x = y) {
+      /* return true */
+      return true
+    }
+    /* b. Else, */
+    else {
+      /* return false */
+      return false
+    }
+  };
+  /* 6. If Type(x) is Boolean, then */
+  if (Type(x) = "Boolean") {
+    /* a. If x and y are both true or both false, */
+    if (x = y) {
+      /* return true */
+      return true
+    }
+    /* b. Else, */
+    else {
+      /* return false */
+      return false
+    }
+  };
+  /* 7. If x and y are the same Symbol value, */
+  if (x = y) {
+    /* return true */
+    return true
+  };
+  /* 8. If x and y are the same Object value, */
+  if (x = y) {
+    /* return true */
+    return true
+  };
+  /* 9. Return false. */
+  return false
 }
+/**
+ * NOTE This algorithm differs from the SameValue Algorithm (7.2.9) in its 
+ * treatment of signed zeroes and NaNs. 
+ */
