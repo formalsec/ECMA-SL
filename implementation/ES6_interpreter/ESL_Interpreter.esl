@@ -2648,9 +2648,13 @@ function JS_Interpreter_BinExpr(e, scope) {
 
     return x
   }
-  /* 11.10 Binary Bitwise Operators */
-  | { type: "BinaryExpression", operator: operator, left: A, right: B } -> {
-
+  /**
+   * 12.11 Binary Bitwise Operators
+   *
+   * The production A : A @ B, where @ is one of the bitwise operators in the productions above,
+   * is evaluated as follows:
+   */ 
+  | { type: "BinaryExpression", operator: operator, left: A, right: B } -> {    
     /* 1. Let lref be the result of evaluating A. */
     lref := JS_Interpreter_Expr(A, scope);
     /* 2. Let lval be GetValue(lref). */
