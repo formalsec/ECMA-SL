@@ -377,7 +377,7 @@ function JS_Interpreter_Expr(e, scope) {
     return JS_Interpreter_BinExpr(e, scope)
   }
   | { type: "LogicalExpression" } -> {
-    /* 11.11 Binary Logical Operators */
+    /* 12.12 Binary Logical Operators */
     return JS_Interpreter_LogicalExpression(e, scope)
   }
   | { type: "ConditionalExpression", test: LogicalORExpression, consequent: firstAssignmentExpression, alternate: secondAssignmentExpression } -> {
@@ -608,13 +608,18 @@ function JS_Interpreter_LogicalExpression(LogicalExpression, scope) {
     lref := JS_Interpreter_Expr(LogicalORExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-    /* 3. If ToBoolean(lval) is true, return lval. */
-    if (ToBoolean(lval) = true) {
+    /* 3. Let lbool be ToBoolean(lval). */
+    lbool := ToBoolean(lval);
+    /* 4. ReturnIfAbrupt(lbool). */
+    @ReturnIfAbrupt(lbool);
+    /* 5. If lbool is true, */
+    if (lbool = true) {
+      /* return lval */
       return lval
     };
-    /* 4. Let rref be the result of evaluating LogicalANDExpression. */
+    /* 6. Let rref be the result of evaluating LogicalANDExpression. */
     rref := JS_Interpreter_Expr(LogicalANDExpression, scope);
-    /* 5. Return GetValue(rref). */
+    /* 7. Return GetValue(rref). */
     return GetValue(rref)
   }
 };
