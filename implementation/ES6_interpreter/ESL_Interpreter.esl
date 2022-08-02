@@ -425,17 +425,23 @@ function JS_Interpreter_Expr(e, scope) {
     return JS_Interpreter_AssignmentExpression(e, scope)
   }
   | { type: "SequenceExpression", expressions: Expressions } -> {
-    /* 11.14 Comma Operator ( , ) */
+    /* 12.15 Comma Operator ( , ) */
 
     /* The production Expression : Expression , AssignmentExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating Expression. */
-    /* 2. Call GetValue(lref). */
+    /* 2. ReturnIfAbrupt(GetValue(lref)) */
     /* 3. Let rref be the result of evaluating AssignmentExpression. */
     /* 4. Return GetValue(rref). */
+
     lExpression := l_len Expressions;
-    i := 0;
+    
+    ref := JS_Interpreter_Expr(l_nth(Expressions, 0), scope);
+    val := GetValue(ref);
+    
+    i := 1;
     while(i < lExpression) {
+      @ReturnIfAbrupt(val);
       ref := JS_Interpreter_Expr(l_nth(Expressions, i), scope);
       val := GetValue(ref);
 
@@ -444,11 +450,11 @@ function JS_Interpreter_Expr(e, scope) {
 
     return val
 
-    /* The ExpressionNoIn production is evaluated in the same manner as the Expression production except that the
-        contained ExpressionNoIn and AssignmentExpressionNoIn are evaluated instead of the contained Expression and
-        AssignmentExpression, respectively. */
+    /**
+     * NOTE GetValue must be called even though its value is not used because it may 
+     * have observable side-effects. 
+     */
 
-    /* NOTE GetValue must be called even though its value is not used because it may have observable side-effects. */
   }
   | { type: "MetaProperty", meta: meta, property: property } -> {
     return GetNewTarget(scope)
