@@ -26,11 +26,11 @@ function Get(O, P) {
 	assert( IsPropertyKey(P) = true );
 
 	/* Return O.[[Get]](P, O). */
-	V:= {O.Get}(O, P, O);
+	V := {O.Get}(O, P, O);
 
-  	@ReturnIfAbrupt(V);
+  @ReturnIfAbrupt(V);
 
-  	return V
+  return V
 };
 
 /**

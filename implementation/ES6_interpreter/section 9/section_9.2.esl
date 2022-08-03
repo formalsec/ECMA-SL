@@ -846,7 +846,6 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   paramsDetails := getParamsDetails(code);
   /* 24. If hasDuplicates is true, then */
   if (hasDuplicates = true) {
-    /* TODO: FIX ME, WE DO NOT HANDLE THE UNDEFINED */
     /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and undefined as arguments. */
     formalStatus := IteratorBindingInitialization(paramsDetails, iteratorRecord, 'undefined, func)
   } else {
@@ -938,7 +937,8 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
           @ReturnIfAbrupt(initialValue)
           /* NOTE vars whose names are the same as a formal parameter
             initially have the same value as the corresponding initialized parameter.*/
-        }
+        };
+        {varEnvRec.InitializeBinding}(varEnvRec, element, initialValue)
       };
       i := i + 1
     }

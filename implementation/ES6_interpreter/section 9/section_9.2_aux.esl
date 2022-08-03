@@ -112,16 +112,15 @@ function BindingInitializationIdentifier(param, value, environment) {
   bindingId := StringValue(param.name);
 
   /* 2.Let lhs be ResolveBinding(bindingId, environment). */
-  /* ver como fazer isto melhor */
-  lhs := ResolveBinding(environment, bindingId, 'undefined);
-  
-  /* if (environment = 'undefined) {
+  /* TODO  ver como fazer isto melhor */
+  /*hs := ResolveBinding(environment, bindingId, 'undefined);*/
+
+  if (environment = 'undefined) {
     lhs := GetIdentifierReference(null, bindingId, false)
   } else {
     lhs := GetIdentifierReference(environment.LexicalEnvironment, bindingId, false)
-  }; */
+  };
 
-  
   /* ReturnIfAbrupt(lhs). */
   @ReturnIfAbrupt(lhs);
 

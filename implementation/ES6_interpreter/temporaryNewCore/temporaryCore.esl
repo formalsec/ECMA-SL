@@ -183,10 +183,10 @@ function InitializeBindingDeclarativeRecordTemp(env, N, V) {
   if (varAlreadyDeclared = false) {
     /* i. Call env’s CreateMutableBinding concrete method passing dn and configurableBindings as
           the arguments. */
-    CreateMutableBinding(env, N, true);
+    {env.CreateMutableBinding}(env, N, true);
     /* ii. Call env’s SetMutableBinding concrete method passing dn, undefined, and strict as the
             arguments.*/
-    SetMutableBinding(env, N, V, true)
+    {env.SetMutableBinding}(env, N, V, true)
   };
   return 'undefined
 };
