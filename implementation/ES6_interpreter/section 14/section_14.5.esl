@@ -21,7 +21,7 @@ function JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageo
     else {
         /* let className be StringValue of BindingIdentifier */
         className := StringValue(BindingIdentifier);
-        CreateMutableBinding(envRec, className, true)
+        {envRec.CreateMutableBinding}(envRec, className, true)
     };
 
     /* 3. Let value be the result of ClassDefinitionEvaluation of ClassTail with 
@@ -45,7 +45,7 @@ function JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageo
     };
 
 
-    status := SetMutableBinding(envRec, className, value, false);
+    status :=  {envRec.SetMutableBinding}(envRec, className, value, false);
 
     /* 6. Return NormalCompletion(value). */
     return NormalCompletion(value)
@@ -66,7 +66,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     /* 4. If className is not undefined, then */
     if (!(className = 'undefined)){
         /* 4a. Perform classScopeEnvRec.CreateImmutableBinding(className, true). */
-        CreateImmutableBinding(classScopeEnvRec, className)
+        {classScopeEnvRec.CreateImmutableBinding}(classScopeEnvRec, className, true)
     };
 
     /* 5. If ClassHeritageopt is not present, then */
@@ -223,7 +223,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     /* 23. If className is not undefined, then */
     if (!(className = 'undefined)){
         /* 23a. Perform classScopeEnvRec.InitializeBinding(className, F). */
-        InitializeImmutableBinding(classScopeEnvRec, className, F)
+        {classScopeEnvRec.InitializeBinding}(classScopeEnvRec, className, F)
     };
 
     /* 24. Return F. */

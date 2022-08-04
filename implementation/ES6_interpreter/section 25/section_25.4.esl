@@ -226,7 +226,7 @@ function PromiseResolveFunctions(F, global, this, strict, args) {
     return RejectPromise(promise, getCompletionValue(then))
   };
   /* 10. Let thenAction be then.[[value]]. */
-  thenAction := getCompletionValue(then);
+  thenAction := then;
   /* 11. If IsCallable(thenAction) is false, then */
   if (IsCallable(thenAction) = false) {
     /* a. Return FulfillPromise(promise, resolution). */

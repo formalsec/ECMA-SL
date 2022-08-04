@@ -1,0 +1,65 @@
+/* 8.5 ECMAScript Initialization()
+
+An ECMAScript implementation performs the following steps prior to the execution of any Jobs or
+the evaluation of any ECMAScript code: */
+function ECMAScriptInitialization() {
+    /* Let realm be CreateRealm(). */
+    realm := CreateRealm();
+
+    /* Let newContext be a new execution context. */
+    newContext := createExecutionContext();
+
+    /* Set the Function of newContext to null. */
+    newContext.Function := 'null;
+
+    /* Set the Realm of newContext to realm. */
+    newContext.Realm := realm;
+
+    /* Push newContext onto the execution context stack; newContext is now the running execution context. */
+
+    /* Let status be InitializeHostDefinedRealm(realm). */
+    status := InitializeHostDefinedRealm(realm);
+
+    /* If status is an abrupt completion, then */
+    if ( isAnAbruptCompletion(status) )
+    {
+        /* Assert: The first realm could not be created. */
+        assert( realm = null );
+
+        /* Terminate ECMAScript execution. */
+        return;
+    }
+
+    /* In an implementation dependent manner, obtain the ECMAScript source texts (see clause 10) for zero or more ECMAScript scripts and/or ECMAScript modules. For each such sourceText do, */
+        /* If sourceText is the source code of a script, then */
+            /* Perform EnqueueJob("ScriptJobs", ScriptEvaluationJob, « sourceText »). */
+        /* Else sourceText is the source code of a module, */
+            /* Perform EnqueueJob("ScriptJobs", TopLevelModuleEvaluationJob, « sourceText »). */
+    
+    /* NextJob NormalCompletion(undefined). */
+};
+
+/* 8.5.1 InitializeHostDefinedRealm ( realm )
+
+The abstract operation InitializeHostDefinedRealm with parameter realm performs the following
+steps: */
+function InitializeHostDefinedRealm(realm) {
+    /* If this implementation requires use of an exotic object to serve as realm’s global object, let
+    global be such an object created in an implementation defined manner. Otherwise, let global
+    be undefined indicating that an ordinary object should be created as the global object. */
+    global := 'undefined;
+
+    /* Perform SetRealmGlobalObject(realm, global). */
+    SetRealmGlobalObject(realm, global);
+
+    /* Let globalObj be SetDefaultGlobalBindings(realm). */
+    globalObj := SetDefaultGlobalBindings(realm);
+
+    /* ReturnIfAbrupt(globalObj). */
+    @ReturnIfAbrupt(globalObj);
+
+    /* Create any implementation defined global object properties on globalObj. */
+
+    /* Return NormalCompletion(undefined).   */
+    return NormalCompletion('undefined)
+}

@@ -1,0 +1,142 @@
+/* 8.2 Code Realms */
+/* Before it is evaluated, all ECMAScript code must be associated with a Realm. Conceptually, a realm
+   consists of a set of intrinsic objects, an ECMAScript global environment, all of the ECMAScript code
+   that is loaded within the scope of that global environment, and other associated state and resources.
+   
+   A Realm is specified as a Record with the fields specified in Table 21: 
+*/
+
+/* 8.2.1 CreateRealm ( ) */
+/* The abstract operation CreateRealm with no arguments performs the following steps: */
+function CreateRealm() {
+    /* Let realmRec be a new Record. */
+    realmRec := {};
+    
+    /* Perform CreateIntrinsics(realmRec). */
+    CreateIntrinsics(realmRec);
+    
+    /* Set realmRec.[[globalThis]] to undefined. */
+    realmRec.globalThis := 'undefined;
+    
+    /* Set realmRec.[[globalEnv]] to undefined. */
+    realmRec.globalEnv := 'undefined;
+    
+    /* Set realmRec.[[templateMap]] to a new empty List. */
+    realmRec.templateMap := [];
+    
+    /* Return realmRec. */
+    return realmRec
+};
+
+/* 8.2.2 CreateIntrinsics ( realmRec ) */
+/* When the abstract operation CreateIntrinsics with argument realmRec performs the following
+ steps: */
+function CreateIntrinsics(realmRec) {
+    /* Let intrinsics be a new Record. */
+    intrinsics := {};
+
+    /* Set realmRec.[[intrinsics]] to intrinsics. */
+    realmRec.intrinsics := intrinsics;
+
+    /* Let objProto be ObjectCreate(null). */
+    objProto := ObjectCreate(null, null);
+
+    /* Set intrinsics.[[%ObjectPrototype%]] to objProto. */
+    intrinsics.ObjectPrototype := objProto;
+
+    /* Let throwerSteps be the algorithm steps specified in 9.2.7.1 for the %ThrowTypeError% function. */
+    throwerSteps := "ThrowTypeError";
+
+    /* Let thrower be CreateBuiltinFunction(realmRec, throwerSteps, null). */
+    thrower := CreateBuiltinFunction(realmRec, throwerSteps, null);
+
+    /* Set intrinsics.[[%ThrowTypeError%]] to thrower. */
+    intrinsics.ThrowTypeError := thrower;
+
+    /* Let noSteps be an empty sequence of algorithm steps. */
+    noSteps := null;
+
+    /* Let funcProto be CreateBuiltinFunction(realmRec, noSteps, objProto). */
+    funcProto := CreateBuiltinFunction(realmRec, noSteps, objProto);
+
+    /* Set intrinsics.[[%FunctionPrototype%]] to funcProto. */
+    intrinsics.FunctionPrototype := funcProto;
+
+    /* Call thrower.[[SetPrototypeOf]](funcProto). */
+    {thrower.SetPrototypeOf}(thrower, funcProto);
+
+    /* Perform AddRestrictedFunctionProperties(funcProto, realmRec). */
+    AddRestrictedFunctionProperties(funcProto, realmRec);
+
+    /* Set fields of intrinsics with the values listed in Table 7 that have not already been handled
+       above. The field names are the names listed in column one of the table. The value of each
+       field is a new object value fully and recursively populated with property values as defined by
+       the specification of each object in clauses 18-26. All object property values are newly created 
+       object values. All values that are built-in function objects are created by performing 
+       CreateBuiltinFunction(realmRec, <steps>, <prototype>, <slots>) where <steps> is the definition
+       of that function provided by this specification, <prototype> is the specified value of
+       the function’s [[Prototype]] internal slot and <slots> is a list of the names, if any, of the functions
+       specified internal slots. The creation of the intrinsics and their properties must be ordered to
+       avoid any dependencies upon objects that have not yet been created. */
+    initIntrinsics();
+    
+    /* Return intrinsics. */
+    return intrinsics
+};
+
+/* 8.2.3 SetRealmGlobalObject ( realmRec, globalObj ) */
+
+/* The abstract operation SetRealmGlobalObject with arguments realmRec and globalObj performs
+   the following steps: */
+function SetRealmGlobalObject (realmRec, globalObj) {
+    /* If globalObj is undefined, then */
+    if ( globalObj = 'undefined )
+    {
+        /* Let intrinsics be realmRec.[[intrinsics]]. */
+        intrinsics := realmRec.intrinsics;
+
+        /* Let globalObj be ObjectCreate(intrinsics.[[%ObjectPrototype%]]). */
+        globalObj := ObjectCreate(intrinsics.ObjectPrototype)
+    };
+
+    /* Assert: Type(globalObj) is Object. */
+    assert( Type(globalObj) = "Object" );
+
+    /* Set realmRec.[[globalThis]] to globalObj. */
+    realmRec.globalThis := globalObj;
+
+    /* Let newGlobalEnv be NewGlobalEnvironment(globalObj). */
+    newGlobalEnv := NewGlobalEnvironment(globalObj);
+
+    /* Set realmRec.[[globalEnv]] to newGlobalEnv. */
+    realmRec.globalEnv := newGlobalEnv;
+
+    /* Return realmRec. */
+    return realmRec
+};
+
+/* 8.2.4 SetDefaultGlobalBindings ( realmRec ) */
+
+/* The abstract operation SetDefaultGlobalBindings with argument realmRec performs the following
+   steps: */
+function SetDefaultGlobalBindings(realmRec) {
+    /* Let global be realmRec.[[globalThis]]. */
+    global := realmRec.globalThis;
+
+    /* TODO passar isto para uma funcao */
+    initGlobalObject();
+    /* For each property of the Global Object specified in clause 18, do */
+        /* Let name be the String value of the property name. */
+
+        
+        /* Let desc be the fully populated data property descriptor for the property containing the
+           specified attributes for the property. For properties listed in 18.2, 18.3, or 18.4 the value
+           of the [[Value]] attribute is the corresponding intrinsic object from realmRec. */
+
+        /* Let status be DefinePropertyOrThrow(global, name, desc). */
+
+        /* ReturnIfAbrupt(status). */
+
+    /* Return global. */
+    return global
+}

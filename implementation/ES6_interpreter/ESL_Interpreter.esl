@@ -765,7 +765,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       bindings := GetBase(ref);
       /* c. Return the result of calling the DeleteBinding concrete method of bindings, providing
             GetReferencedName(ref) as the argument. */
-      return DeleteBinding(bindings, GetReferencedName(ref))
+      return {bindings.DeleteBinding}(bindings, GetReferencedName(ref))
     }
 
     /* NOTE When a delete operator occurs within strict mode code, a SyntaxError exception is thrown if its
@@ -1103,7 +1103,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
 
     name := StringValue(Identifier.name);
 
-    CreateImmutableBinding(envRec, name);
+    {envRec.CreateImmutableBinding}(envRec, name, false);
 
     closure := FunctionCreate("normal", FormalParameterListopt, FunctionBody, funcEnv, strict, null);
 
@@ -1111,7 +1111,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
 
     SetFunctionName(closure, name, null);
 
-    InitializeImmutableBinding(envRec, name, closure);
+    {envRec.InitializeBinding}(envRec, name, closure);
 
     return NormalCompletion(closure)
   }
@@ -1522,6 +1522,8 @@ function JS_Interpreter_Stmt(s, scope) {
     newEnv := NewObjectEnvironment(obj, oldEnv);
     /* 5. Set the provideThis flag of newEnv to true. */
     setProvideThis(newEnv, true);
+    newEnv.withEnvironment = true;
+
     /* 6. Set the running execution context‘s LexicalEnvironment to newEnv. */
     setLexicalEnvironment(scope, newEnv);
     /* 7. Let C be the result of evaluating Statement but if an exception is thrown during the evaluation, let C be
@@ -1687,10 +1689,15 @@ function JS_Interpreter_Catch(Catch, parameter, scope) {
     catchEnv := NewDeclarativeEnvironment(oldEnv);
     /* 4. Call the CreateMutableBinding concrete method of catchEnv passing the Identifier String value as the
           argument. */
-    CreateMutableBinding(getEnvironmentRecord(catchEnv), Identifier.name, false); /* TODO the third argument is optional as in the method signature */
+    envRec := getEnvironmentRecord(catchEnv);
+
+    {envRec.CreateMutableBinding}(envRec, Identifier.name, false); /* TODO the third argument is optional as in the method signature */
     /* 5. Call the SetMutableBinding concrete method of catchEnv passing the Identifier, C, and false as arguments.
           Note that the last argument is immaterial in this situation. */
-    SetMutableBinding(getEnvironmentRecord(catchEnv), Identifier.name, C, false);
+
+    {envRec.InitializeBinding}(envRec, Identifier.name, C);
+
+    {envRec.SetMutableBinding}(envRec, Identifier.name, C, false);
     /* 6. Set the running execution context‘s LexicalEnvironment to catchEnv. */
     setLexicalEnvironment(scope, catchEnv);
     /* 7. Let B be the result of evaluating Block. */

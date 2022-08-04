@@ -521,6 +521,14 @@ function AddRestrictedFunctionProperties(F, realm) {
   return arguments
 };
 
+/* 9.2.7.1 %ThrowTypeError% ( )
+
+The %ThrowTypeError% intrinsic is an anonymous built-in function object that is defined once for
+each Realm. When %ThrowTypeError% is called it performs the following steps: */
+function ThrowTypeError() {
+  throw TypeErrorConstructorInternal()
+};
+
 /**
  * 9.2.8 MakeConstructor (F, writablePrototype, prototype)
  *
@@ -774,17 +782,17 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   while(i < lparameterNames) {
     paramName := l_nth(parameterNames, i);
     /* a.  Let alreadyDeclared be envRec.HasBinding(paramName). */
-    alreadyDeclared := HasBinding(envRec, paramName);
+    alreadyDeclared := {envRec.HasBinding}(envRec, paramName);
 
     /* b. If alreadyDeclared is false, then */
     if (alreadyDeclared = false) {
       /* b. Let status be envRec.CreateMutableBinding(paramName). */
-      status := CreateMutableBinding(envRec, paramName, false);
+      status := {envRec.CreateMutableBinding}(envRec, paramName, false);
 
       /* If hasDuplicates is true, then
         Let status be envRec.InitializeBinding(paramName, undefined). */
         if (hasDuplicates = true) {
-          status := InitializeBindingDeclarativeRecordTemp(env, paramName, 'undefined)
+          status := {envRec.InitializeBinding}(envRec, paramName, 'undefined)
         };
 
       /* Assert: status is never an abrupt completion for either of the above operations. */
@@ -812,22 +820,19 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     /* d. If strict is true, then */
     if (strict = true) {
       /* i. Let status be envRec.CreateImmutableBinding("arguments").*/
-      status := CreateImmutableBinding(envRec, "arguments")
+      status := {envRec.CreateImmutableBinding}(envRec, "arguments", true)
     } else {
       /* e. Else */
       /* i. Let status be envRec.CreateMutableBinding("arguments"). */
-      status := CreateMutableBinding(envRec, "arguments", true)
+      status := {envRec.CreateMutableBinding}(envRec, "arguments", false)
     };
 
     /* f. Assert: status is never an abrupt completion. */
     assert(!(isAnAbruptCompletion(status)));
 
     /* g. Call envRec.InitializeBinding("arguments", ao). */
-    if (strict = true) {
-      InitializeImmutableBinding(envRec, "arguments", ao)
-    } else {
-      SetMutableBinding(envRec, "arguments", ao, false)
-    }
+    {envRec.InitializeBinding}(envRec, "arguments", ao)
+    
     /*h. Append "arguments" to parameterNames. */
     /*parameterNames := l_add(parameterNames, "arguments") */
   };
@@ -841,7 +846,6 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   paramsDetails := getParamsDetails(code);
   /* 24. If hasDuplicates is true, then */
   if (hasDuplicates = true) {
-    /* TODO: FIX ME, WE DO NOT HANDLE THE UNDEFINED */
     /* a. Let formalStatus be IteratorBindingInitialization for formals with iteratorRecord and undefined as arguments. */
     formalStatus := IteratorBindingInitialization(paramsDetails, iteratorRecord, 'undefined, func)
   } else {
@@ -873,13 +877,13 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
         instantiatedVarNames := l_add(instantiatedVarNames, element);
 
         /* Let status be envRec.CreateMutableBinding(n). */
-        status := CreateMutableBinding(envRec, element, false);
+        status := {envRec.CreateMutableBinding}(envRec, element, false);
 
         /* Assert: status is never an abrupt completion. */
         assert(!(isAnAbruptCompletion(status)));
 
         /* Call envRec.InitializeBinding(n, undefined). */
-        SetMutableBinding(envRec, element, 'undefined, false)
+        {envRec.InitializeBinding}(envRec, element, 'undefined)
       };
       i := i + 1
     };
@@ -916,7 +920,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
         instantiatedVarNames := l_add(instantiatedVarNames, element);
 
         /* 2. Let status be varEnvRec.CreateMutableBinding(n, true). */
-        status := CreateMutableBinding(varEnvRec, element, true);
+        status := {varEnvRec.CreateMutableBinding}(varEnvRec, element, true);
 
         /* 3. Assert: status is never an abrupt completion. */
         assert(!(isAnAbruptCompletion(status)));
@@ -933,7 +937,8 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
           @ReturnIfAbrupt(initialValue)
           /* NOTE vars whose names are the same as a formal parameter
             initially have the same value as the corresponding initialized parameter.*/
-        }
+        };
+        {varEnvRec.InitializeBinding}(varEnvRec, element, initialValue)
       };
       i := i + 1
     }
@@ -980,11 +985,11 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
 
     fo := JS_Interpreter_FunctionDeclaration(f, calleeContext);
 
-    status := CreateMutableBinding(lexEnvRec, fn, false);
-    status_two := SetMutableBinding(lexEnvRec, fn, fo, false);
+    status := {lexEnvRec.SetMutableBinding}(lexEnvRec, fn, fo, false);
     i := i + 1
   };
-    /* 37. Return NormalCompletion(empty). */
+  
+  /* 37. Return NormalCompletion(empty). */
   return NormalCompletion('empty)
 };
 /**
