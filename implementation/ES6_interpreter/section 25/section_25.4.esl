@@ -1290,7 +1290,8 @@ function executeJobs() {
 };
 
 function newPendingJob(Job, Arguments, realm, HostDefined) {
-  return { Job: Job,
+  return { 
+    Job: Job,
     Arguments: Arguments,
     realm: realm,
     HostDefined: HostDefined }

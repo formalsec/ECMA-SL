@@ -12,7 +12,7 @@
 
 function EnteringGlobalCode(program) {
   /* 10.4.1 Entering Global Code */
-  globalObject := initGlobalObject(program.strict);
+  globalObject := initGlobalObject(null, program.strict);
   /* globalObject := optimizeInitGlobalObject(program.strict); */
 
   /* The following steps are performed when control enters the execution context for global code: */

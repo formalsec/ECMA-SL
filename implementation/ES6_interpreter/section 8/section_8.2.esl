@@ -8,12 +8,12 @@
 
 /* 8.2.1 CreateRealm ( ) */
 /* The abstract operation CreateRealm with no arguments performs the following steps: */
-function CreateRealm() {
+function CreateRealm(strict) {
     /* Let realmRec be a new Record. */
     realmRec := {};
     
     /* Perform CreateIntrinsics(realmRec). */
-    CreateIntrinsics(realmRec);
+    CreateIntrinsics(realmRec, strict);
     
     /* Set realmRec.[[globalThis]] to undefined. */
     realmRec.globalThis := 'undefined;
@@ -31,7 +31,7 @@ function CreateRealm() {
 /* 8.2.2 CreateIntrinsics ( realmRec ) */
 /* When the abstract operation CreateIntrinsics with argument realmRec performs the following
  steps: */
-function CreateIntrinsics(realmRec) {
+function CreateIntrinsics(realmRec, strict) {
     /* Let intrinsics be a new Record. */
     intrinsics := {};
 
@@ -48,7 +48,10 @@ function CreateIntrinsics(realmRec) {
     throwerSteps := "ThrowTypeError";
 
     /* Let thrower be CreateBuiltinFunction(realmRec, throwerSteps, null). */
-    thrower := CreateBuiltinFunction(realmRec, throwerSteps, null);
+    /* thrower := CreateBuiltinFunction(realmRec, throwerSteps, null); */
+    thrower := CreateBuiltInFunctionObject([], throwerSteps, intrinsics, strict, 0);
+    thrower.Realm := realmRec;
+    thrower.Prototype := null;
 
     /* Set intrinsics.[[%ThrowTypeError%]] to thrower. */
     intrinsics.ThrowTypeError := thrower;
@@ -57,7 +60,10 @@ function CreateIntrinsics(realmRec) {
     noSteps := null;
 
     /* Let funcProto be CreateBuiltinFunction(realmRec, noSteps, objProto). */
-    funcProto := CreateBuiltinFunction(realmRec, noSteps, objProto);
+    /* funcProto := CreateBuiltinFunction(realmRec, noSteps, objProto); */
+    funcProto := CreateGeneralBuiltInFunctionObject(objProto, [], noSteps, intrinsics, strict, null);
+    funcProto.Realm := realmRec;
+    funcProto.Prototype := null;
 
     /* Set intrinsics.[[%FunctionPrototype%]] to funcProto. */
     intrinsics.FunctionPrototype := funcProto;
@@ -78,7 +84,7 @@ function CreateIntrinsics(realmRec) {
        the function’s [[Prototype]] internal slot and <slots> is a list of the names, if any, of the functions
        specified internal slots. The creation of the intrinsics and their properties must be ordered to
        avoid any dependencies upon objects that have not yet been created. */
-    initIntrinsics();
+    initIntrinsics(intrinsics, strict);
     
     /* Return intrinsics. */
     return intrinsics
@@ -88,7 +94,7 @@ function CreateIntrinsics(realmRec) {
 
 /* The abstract operation SetRealmGlobalObject with arguments realmRec and globalObj performs
    the following steps: */
-function SetRealmGlobalObject (realmRec, globalObj) {
+function SetRealmGlobalObject(realmRec, globalObj) {
     /* If globalObj is undefined, then */
     if ( globalObj = 'undefined )
     {
@@ -96,7 +102,7 @@ function SetRealmGlobalObject (realmRec, globalObj) {
         intrinsics := realmRec.intrinsics;
 
         /* Let globalObj be ObjectCreate(intrinsics.[[%ObjectPrototype%]]). */
-        globalObj := ObjectCreate(intrinsics.ObjectPrototype)
+        globalObj := ObjectCreate(intrinsics.ObjectPrototype, null)
     };
 
     /* Assert: Type(globalObj) is Object. */
@@ -119,12 +125,10 @@ function SetRealmGlobalObject (realmRec, globalObj) {
 
 /* The abstract operation SetDefaultGlobalBindings with argument realmRec performs the following
    steps: */
-function SetDefaultGlobalBindings(realmRec) {
+function SetDefaultGlobalBindings(realmRec, strict) {
     /* Let global be realmRec.[[globalThis]]. */
     global := realmRec.globalThis;
 
-    /* TODO passar isto para uma funcao */
-    initGlobalObject();
     /* For each property of the Global Object specified in clause 18, do */
         /* Let name be the String value of the property name. */
 
@@ -136,6 +140,7 @@ function SetDefaultGlobalBindings(realmRec) {
         /* Let status be DefinePropertyOrThrow(global, name, desc). */
 
         /* ReturnIfAbrupt(status). */
+    initGlobalObject(global, realmRec.intrinsics, strict);
 
     /* Return global. */
     return global

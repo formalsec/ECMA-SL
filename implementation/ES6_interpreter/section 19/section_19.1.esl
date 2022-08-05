@@ -10,7 +10,7 @@ function initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject,
      of a class definition. */
 
   /* The value of the [[Prototype]] internal slot of the Object constructor is the intrinsic object
-     %FunctionPrototype%. */
+    %FunctionPrototype%. */
   ObjectConstructor := CreateGeneralFunctionObject(FunctionPrototype, ["value"], "ObjectConstructor", globalObject, strict, 1.);
 
   /* 19.1.2.16 Object.prototype */
