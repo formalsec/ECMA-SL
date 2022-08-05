@@ -12,7 +12,13 @@
 
 function EnteringGlobalCode(program) {
   /* 10.4.1 Entering Global Code */
-  globalObject := initGlobalObject(null, program.strict);
+  
+  /* cria o realm para poder criar os intrinsics */
+  realm := CreateRealm(program.strict);
+
+  print "REALM CRIADO";
+
+  initGlobalObject(realm.intrinsic.GlobalObject, realm.intrinsic, program.strict);
   /* globalObject := optimizeInitGlobalObject(program.strict); */
 
   /* The following steps are performed when control enters the execution context for global code: */

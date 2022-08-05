@@ -292,7 +292,7 @@ function initTypedArrayMainPrototype(global, objectPrototype, strict) {
   setJSProperty(toLocaleStringObj, "name", descName);
 
   /* 22.2.3.28 %TypedArray%.prototype.toString ( ) */
-  toStringObj := global.JSProperties.Array.Value.JSProperties.prototype.Value.JSProperties.toString.Value;
+  toStringObj := |Intrinsics|.ArrayPrototype.JSProperties.toString.Value;
   toStringDesc := newDataPropertyDescriptorFull(toStringObj, true, false, true);
   setJSProperty(prototype, "toString", toStringDesc);
   /* Length */

@@ -175,7 +175,7 @@ function handleSingleFile() {
   # Evaluate program and write the computed heap to the file heap.json."
   local toggle_silent_mode=""
   [ $LOG_ENTIRE_EVAL_OUTPUT -eq 0 ] && toggle_silent_mode="-s"
-  ECMASLCI=$(time (./main.native -mode ci -i output/core_$now.esl $toggle_silent_mode) 2>&1 1>&1)
+  ECMASLCI=$(time (timeout 2 ./main.native -mode ci -i output/core_$now.esl $toggle_silent_mode) 2>&1 1>&1)
 
   local EXIT_CODE=$?
 

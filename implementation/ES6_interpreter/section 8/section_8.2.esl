@@ -31,15 +31,25 @@ function CreateRealm(strict) {
 /* 8.2.2 CreateIntrinsics ( realmRec ) */
 /* When the abstract operation CreateIntrinsics with argument realmRec performs the following
  steps: */
-function CreateIntrinsics(realmRec, strict) {
+function OldCreateIntrinsics(realmRec, strict) {
+    initWellKnownSymbols();
+    
     /* Let intrinsics be a new Record. */
     intrinsics := {};
 
     /* Set realmRec.[[intrinsics]] to intrinsics. */
     realmRec.intrinsics := intrinsics;
 
+    /* Criar global Object */
+    globalObject := NewECMAScriptObjectFull('null, "Object", true);
+    |global| := globalObject;
+    setAllInternalMethodsOfOrdinaryObject(globalObject);
+
+    intrinsics.GlobalObject := globalObject;
+
     /* Let objProto be ObjectCreate(null). */
-    objProto := ObjectCreate(null, null);
+    /* objProto := ObjectCreate(null, null); */
+    objProto := initObjectPrototype();
 
     /* Set intrinsics.[[%ObjectPrototype%]] to objProto. */
     intrinsics.ObjectPrototype := objProto;
@@ -49,30 +59,54 @@ function CreateIntrinsics(realmRec, strict) {
 
     /* Let thrower be CreateBuiltinFunction(realmRec, throwerSteps, null). */
     /* thrower := CreateBuiltinFunction(realmRec, throwerSteps, null); */
-    thrower := CreateBuiltInFunctionObject([], throwerSteps, intrinsics, strict, 0);
+    /* thrower := CreateGeneralBuiltInFunctionObject(null, [], throwerSteps, intrinsics, strict, null);
     thrower.Realm := realmRec;
-    thrower.Prototype := null;
-
-    /* Set intrinsics.[[%ThrowTypeError%]] to thrower. */
-    intrinsics.ThrowTypeError := thrower;
+    thrower.Prototype := null; */
 
     /* Let noSteps be an empty sequence of algorithm steps. */
-    noSteps := null;
+    noSteps := "functionPrototypeFunction";
 
     /* Let funcProto be CreateBuiltinFunction(realmRec, noSteps, objProto). */
     /* funcProto := CreateBuiltinFunction(realmRec, noSteps, objProto); */
-    funcProto := CreateGeneralBuiltInFunctionObject(objProto, [], noSteps, intrinsics, strict, null);
+    /* funcProto := CreateGeneralBuiltInFunctionObject(objProto, [], noSteps, intrinsics, strict, null);
     funcProto.Realm := realmRec;
-    funcProto.Prototype := null;
+    funcProto.Prototype := objProto; */
+
+    FunctionPrototype := initFunctionPrototype(objProto, globalObject, strict);
+    
+    intrinsics.FunctionPrototype := FunctionPrototype;
+
+    ObjectConstructor := initObjectConstructor(objProto, FunctionPrototype, globalObject, strict);
+    |objectConstructor| := ObjectConstructor;
+     
+    FunctionConstructor := initFunctionConstructor(FunctionPrototype, globalObject, strict);
+    /* setInternalProperty(globalObject, "Prototype", ObjectPrototype); */
+
+    intrinsics.Object := ObjectConstructor;
+    intrinsics.Function := FunctionConstructor;
+
+    createBuiltInProperty(globalObject, "Object", ObjectConstructor);
+    createBuiltInProperty(globalObject, "Function", FunctionConstructor);
+
+    fillObjectPrototype(ObjectPrototype, ObjectConstructor, globalObject, strict);
+    fillFunctionPrototype(FunctionPrototype, FunctionConstructor, globalObject, strict);
+    fillObjectConstructor(ObjectConstructor, globalObject, strict);
+    fillFunctionConstructor(FunctionConstructor, globalObject, strict);
+
 
     /* Set intrinsics.[[%FunctionPrototype%]] to funcProto. */
-    intrinsics.FunctionPrototype := funcProto;
+
+    /* CHECK THROWER */
+    /* thrower := createThrowTypeErrorFunctionObject(funcProto, strict); */
+
+    /* Set intrinsics.[[%ThrowTypeError%]] to thrower. */
+    /* intrinsics.ThrowTypeError := thrower; */
 
     /* Call thrower.[[SetPrototypeOf]](funcProto). */
-    {thrower.SetPrototypeOf}(thrower, funcProto);
+    /* {thrower.SetPrototypeOf}(thrower, funcProto); */
 
     /* Perform AddRestrictedFunctionProperties(funcProto, realmRec). */
-    AddRestrictedFunctionProperties(funcProto, realmRec);
+    /* AddRestrictedFunctionProperties(funcProto, realmRec); */
 
     /* Set fields of intrinsics with the values listed in Table 7 that have not already been handled
        above. The field names are the names listed in column one of the table. The value of each
@@ -84,6 +118,55 @@ function CreateIntrinsics(realmRec, strict) {
        the function’s [[Prototype]] internal slot and <slots> is a list of the names, if any, of the functions
        specified internal slots. The creation of the intrinsics and their properties must be ordered to
        avoid any dependencies upon objects that have not yet been created. */
+    initIntrinsics(intrinsics, strict);
+    
+    /* Return intrinsics. */
+    return intrinsics
+};
+
+function CreateIntrinsics(realmRec, strict) {
+    /* Initializing global symbols */
+    initWellKnownSymbols();
+    
+    /* Let intrinsics be a new Record. */
+    intrinsics := {};
+
+    /* Set realmRec.[[intrinsics]] to intrinsics. */
+    realmRec.intrinsics := intrinsics;
+
+    /* Criar global Object */
+    globalObject := NewECMAScriptObjectFull('null, "Object", true);
+    |global| := globalObject;
+    setAllInternalMethodsOfOrdinaryObject(globalObject);
+    intrinsics.GlobalObject := globalObject;
+
+    /* Set intrinsics.[[%ObjectPrototype%]] to ObjectPrototype. */
+    ObjectPrototype := initObjectPrototype();
+    intrinsics.ObjectPrototype := ObjectPrototype;
+    setInternalProperty(globalObject, "Prototype", ObjectPrototype);
+
+    /* Set intrinsics.[[%FunctionPrototype%]] to FunctionPrototype. */
+    FunctionPrototype := initFunctionPrototype(ObjectPrototype, globalObject, strict);
+    intrinsics.FunctionPrototype := FunctionPrototype;
+
+    /* Initializing ObjectConstructor */
+    ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, strict);
+    |objectConstructor| := ObjectConstructor;
+    intrinsics.Object := ObjectConstructor;
+    createBuiltInProperty(globalObject, "Object", ObjectConstructor);
+
+    /* Initializing FunctionConstructor */
+    FunctionConstructor := initFunctionConstructor(FunctionPrototype, globalObject, strict);
+    intrinsics.Function := FunctionConstructor;
+    createBuiltInProperty(globalObject, "Function", FunctionConstructor);
+
+    /* Filling Protos and Constructors */
+    fillObjectPrototype(ObjectPrototype, ObjectConstructor, globalObject, strict);
+    fillFunctionPrototype(FunctionPrototype, FunctionConstructor, globalObject, strict);
+    fillObjectConstructor(ObjectConstructor, globalObject, strict);
+    fillFunctionConstructor(FunctionConstructor, globalObject, strict);
+
+    /* Initializing Intrinsics */
     initIntrinsics(intrinsics, strict);
     
     /* Return intrinsics. */

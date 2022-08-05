@@ -18,20 +18,6 @@ properties. This may include a property whose value is the global object itself;
 document object model the window property of the global object is the global object itself. */
 
 function initGlobalObject(globalObject, intrinsic, strict) {
-  /* TODO tirar isto apenas para funcionar com versao anterior */
-  if ( globalObject = null ) {
-    globalObject := NewECMAScriptObjectFull('null, "Object", true)
-  };
-
-  |global| := globalObject;
-
-  setAllInternalMethodsOfOrdinaryObject(globalObject);
-
-  setInternalProperty(globalObject, "Prototype", intrinsic.ObjectPrototype);
-
-  createBuiltInProperty(globalObject, "Object", intrinsic.Object);
-  createBuiltInProperty(globalObject, "Function", intrinsic.Function);
-
   /* 15.1.1 Value Properties of the Global Object */
   /* 15.1.1.1 NaN */
   /* The value of NaN is NaN (see 8.5). This property has the attributes { [[Writable]]: false, [[Enumerable]]: false,
@@ -119,7 +105,6 @@ function initGlobalObject(globalObject, intrinsic, strict) {
   /* 18.3.29 Uint16Array () */
   createBuiltInProperty(globalObject, "Uint16Array", intrinsic.Uint16Array);
   /* 18.3.30 Uint32Array () */
-  Uint32ArrayObject := initTypedArrayObject(globalObject, strict, "Uint32", typedArray);
   createBuiltInProperty(globalObject, "Uint32Array", intrinsic.Uint32Array);
 
   /* 25.4.3.1 Promise */
