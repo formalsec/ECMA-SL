@@ -59,7 +59,7 @@ function initIntrinsics(intrinsic, strict) {
   /* initWellKnownSymbols(); */
 
   objectPrototype := intrinsic.ObjectPrototype;
-  funcPrototypetype := intrinsic.FunctionPrototype;
+  funcPrototype := intrinsic.FunctionPrototype;
   globalObj := intrinsic.GlobalObject;
 
   |Intrinsics|["IteratorPrototype"] := initIteratorPrototype(globalObj, objectPrototype, strict);
@@ -283,7 +283,9 @@ function initIntrinsics(intrinsic, strict) {
   /* WeakSet */
   WeakSetObject := initWeakSetObject(globalObj, objectPrototype, strict);
   |Intrinsics|["WeakSet"] := WeakSetObject;
-  |Intrinsics|["WeakSetPrototype"] := getPrototypeValue(WeakSetObject)
+  |Intrinsics|["WeakSetPrototype"] := getPrototypeValue(WeakSetObject);
+
+  return
 };
 
 function getProp(global, prop, strict) {
