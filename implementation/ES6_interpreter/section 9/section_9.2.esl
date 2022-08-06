@@ -516,7 +516,9 @@ function AddRestrictedFunctionProperties(F, realm) {
   arguments := DefinePropertyOrThrow(F, "arguments", newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true));
 
   /* 6. Assert: The above returned value is not an abrupt completion. */
-  assert(!isAnAbruptCompletion(arguments))
+  assert(!isAnAbruptCompletion(arguments));
+
+  return
 };
 
 /* 9.2.7.1 %ThrowTypeError% ( )

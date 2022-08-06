@@ -141,7 +141,9 @@ function CreateIntrinsics(realmRec, strict) {
     intrinsics.GlobalObject := globalObject;
 
     /* Set intrinsics.[[%ObjectPrototype%]] to ObjectPrototype. */
-    ObjectPrototype := initObjectPrototype();
+    /* ObjectPrototype := initObjectPrototype(); */
+    ObjectPrototype := ObjectCreate('null, null);
+    
     intrinsics.ObjectPrototype := ObjectPrototype;
     setInternalProperty(globalObject, "Prototype", ObjectPrototype);
 
@@ -165,6 +167,12 @@ function CreateIntrinsics(realmRec, strict) {
     fillFunctionPrototype(FunctionPrototype, FunctionConstructor, globalObject, strict);
     fillObjectConstructor(ObjectConstructor, globalObject, strict);
     fillFunctionConstructor(FunctionConstructor, globalObject, strict);
+
+    /* ThrowTypeError */
+    thrower := CreateGeneralBuiltInFunctionObject(FunctionPrototype, [], "internalTypeErrorThrower", globalObject, strict, null);
+    intrinsics.ThrowTypeError := thrower;
+
+    AddRestrictedFunctionProperties(FunctionPrototype, realmRec);
 
     /* Initializing Intrinsics */
     initIntrinsics(intrinsics, strict);

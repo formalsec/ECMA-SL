@@ -708,7 +708,8 @@ function ObjectCreate(proto, internalSlotsList) {
     };
 
     /* Let obj be a newly created object with an internal slot for each name in internalSlotsList. */
-    obj := {};
+    obj := NewECMAScriptObject();
+    
     l_internalSlotsList := l_len(internalSlotsList);
     i := 0;
     while ( i < l_internalSlotsList ) {
