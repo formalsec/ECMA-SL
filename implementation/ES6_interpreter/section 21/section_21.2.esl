@@ -364,13 +364,13 @@ function RegExpAlloc(newTarget){
 
 /* AUXILIARY FUNCTIONS */
 function getRegExpPrototype(strict) { 
-   refRegExp := newPropertyReference(|global|, "RegExp", strict);
+   /* refRegExp := newPropertyReference(|global|, "RegExp", strict);
    RegExpObject := GetValue(refRegExp);
 
    refRegExpProto := newPropertyReference(RegExpObject, "prototype", strict);
-   objectRegExpProto := GetValue(refRegExpProto);
+   objectRegExpProto := GetValue(refRegExpProto); */
     
-   return objectRegExpProto
+   return |Intrinsics|["RegExpPrototype"]
 };
 
 function OrdinaryCreateFromConstructorRegExp(strict) {  

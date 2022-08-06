@@ -118,11 +118,11 @@ function MapSpeciesGetter(global, this, NewTarget, strict, args) {
 };
 
 function getMapPrototype(strict) { 
-  refMap := newPropertyReference(|global|, "Map", strict);
+  /* refMap := newPropertyReference(|global|, "Map", strict);
   MapObject := GetValue(refMap);
   refMapProto := newPropertyReference(MapObject, "prototype", strict);
-  objectMapProto := GetValue(refMapProto);
-  return objectMapProto
+  objectMapProto := GetValue(refMapProto); */
+  return |Intrinsics|["MapPrototype"]
 };
 
 

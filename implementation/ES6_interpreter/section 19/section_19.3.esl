@@ -176,11 +176,11 @@ function thisBooleanValue(value) {
 };
 
 function getBooleanPrototype(strict) {
-  refError := newPropertyReference(|global|, "Boolean", strict);
+  /* refError := newPropertyReference(|global|, "Boolean", strict);
   BooleanObject := GetValue(refError);
 
   refBooleanProto := newPropertyReference(BooleanObject, "prototype", strict);
-  booleanObjectProto := GetValue(refBooleanProto);
+  booleanObjectProto := GetValue(refBooleanProto); */
 
-  return booleanObjectProto
+  return |Intrinsics|["BooleanPrototype"]
 }

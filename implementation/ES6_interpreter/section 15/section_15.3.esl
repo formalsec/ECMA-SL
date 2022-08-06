@@ -498,13 +498,13 @@ function GetF(F, P) {
 
 /* Auxiliary functions */
 function getFunctionPrototype(strict) {
-  refObj := newPropertyReference(|global|, "Function", strict);
+  /* refObj := newPropertyReference(|global|, "Function", strict);
   FunctionObject := GetValue(refObj);
 
   refObjProto := newPropertyReference(FunctionObject, "prototype", strict);
-  functionObjectProto := GetValue(refObjProto);
+  functionObjectProto := GetValue(refObjProto); */
 
-  return functionObjectProto
+  return |Intrinsics|["FunctionPrototype"]
 };
 
 function isFunctionObject(object) {

@@ -125,11 +125,11 @@ function ArrayBufferConstructor(global, this, NewTarget, strict, args) {
 };
 
 function getArrayBufferPrototype(strict) { 
-  refArrayBuffer := newPropertyReference(|global|, "ArrayBuffer", strict);
+  /* refArrayBuffer := newPropertyReference(|global|, "ArrayBuffer", strict);
   ArrayBufferObject := GetValue(refArrayBuffer);
   refArrayBufferProto := newPropertyReference(ArrayBufferObject, "prototype", strict);
-  objectArrayBufferProto := GetValue(refArrayBufferProto);
-  return objectArrayBufferProto
+  objectArrayBufferProto := GetValue(refArrayBufferProto); */
+  return |Intrinsics|["ArrayBufferPrototype"]
 };
 
 /**

@@ -44,18 +44,13 @@ function JS_Interpreter_Program(p, callingExecCtx) {
 
     /* 3. Let progCxt be a new execution context for global code as described in 10.4.1. */
     progCxt := EnteringGlobalCode(p);
-    print "DEBUG 000"; 
-    print progCxt.VariableEnvironment.EnvRec.bindingObject; 
     /* 4. Let result be the result of evaluating SourceElements. */
     result := JS_Interpreter_SourceElements(SourceElementsopt, progCxt);
     /* 5. Exit the execution context progCxt. */
 
-
     executeJobs();
 
-
     /* 6. Return result. */
-    print progCxt;
     return result
   }
   | { sourceType: "script", type: "EarlySyntaxError", message: message } -> {
@@ -85,6 +80,9 @@ function JS_Interpreter_SourceElements(SourceElements, scope) {
     /* 3. Let tailResult be result of evaluating SourceElement. */
     /* 4. If tailResult.value is empty, let V = headResult.value, otherwise let V = tailResult.value. */
     result := JS_Interpreter_Stmt(l_nth(SourceElements, i), scope) catch Interpreter_Statement_Guard;
+
+    print "JSSOURCE";
+
     if (isAnAbruptCompletion(result)) {
       return result
     };
@@ -225,7 +223,11 @@ function JS_Interpreter_Expr(e, scope) {
     /* The production MemberExpression : MemberExpression [ Expression ] is evaluated as follows: */
     /* 1. Let baseReference be the result of evaluating MemberExpression. */
     baseReference := JS_Interpreter_Expr(MemberExpression, scope);
-        
+    
+    print "base REF";
+    print MemberExpression;
+    print scope;
+
     /* 2. Let baseValue be GetValue(baseReference). */
     baseValue := GetValue(baseReference);
 
@@ -1387,6 +1389,8 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 12.2 Variable Statement */
 
     /* The production VariableStatement : var VariableDeclarationList ; is evaluated as follows: */
+
+    print "VARDECL";
 
     i := 0;
     lVarDecl := l_len VariableDeclarationList;

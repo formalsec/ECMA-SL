@@ -889,18 +889,18 @@ function getObjectPrototype(strict) {
   refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
   objectObjectProto := GetValue(refObjProto);
 
-  return objectObjectProto
+  return |Intrinsics|["ObjectPrototype"]
 };
 
 function getObjectPrototypeToString(strict) {
-  refObj := newPropertyReference(|global|, "Object", strict);
+  /* refObj := newPropertyReference(|global|, "Object", strict);
   ObjectObject := GetValue(refObj);
 
   refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
   objectObjectProto := GetValue(refObjProto);
 
   refToStringObjProto := newPropertyReference(objectObjectProto, "toString", strict);
-  objectObjectToString := GetValue(refToStringObjProto);
+  objectObjectToString := GetValue(refToStringObjProto); */
 
-  return objectObjectToString
+  return |Intrinsics|["ObjectPrototype"].JSProperties.toString.Value
 }

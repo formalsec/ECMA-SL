@@ -54,8 +54,6 @@ function getWellKnownSymbol(key) {
     Just initializing the intrinsic container here and assign the well-known objects when they are created (section 18/section_18.esl)
 */
 function initIntrinsics(intrinsic, strict) {
-  |Intrinsics| := intrinsic;
-
   /* initWellKnownSymbols(); */
 
   objectPrototype := intrinsic.ObjectPrototype;

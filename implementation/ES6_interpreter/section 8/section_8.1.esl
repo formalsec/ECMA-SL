@@ -856,6 +856,9 @@ function HasBindingGlobalRecord(envRec, N) {
     /* Let DclRec be envRec.[[DeclarativeRecord]]. */
     DclRec := envRec.DeclarativeRecord;
 
+    print "HAS GLOBALREC 1";
+    print DclRec;
+
     /* If DclRec.HasBinding(N) is true, return true. */
     if ( {DclRec.HasBinding}(DclRec, N) = true ) {
     	return true
@@ -863,6 +866,10 @@ function HasBindingGlobalRecord(envRec, N) {
 
     /* Let ObjRec be envRec.[[ObjectRecord]]. */
     ObjRec := envRec.ObjectRecord;
+
+    print "HAS GLOBALREC 2";
+    print ObjRec.bindingObject.JSProperties;
+    print |global|.JSProperties;
 
     /* Return ObjRec.HasBinding(N). */
     return {ObjRec.HasBinding}(ObjRec, N)

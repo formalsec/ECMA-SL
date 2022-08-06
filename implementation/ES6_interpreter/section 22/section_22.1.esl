@@ -469,7 +469,7 @@ function initArrayPrototype(global, objectPrototype, strict) {
 
 
 function getArrayPrototype(strict) {
-  return |ArrayPrototype|
+  return |Intrinsics|["ArrayPrototype"]
   /*refArray := newPropertyReference(|global|, "Array", strict);
   ArrayObject := GetValue(refArray);
   refArrayProto := newPropertyReference(ArrayObject, "prototype", strict);

@@ -130,6 +130,7 @@ function CreateIntrinsics(realmRec, strict) {
     
     /* Let intrinsics be a new Record. */
     intrinsics := {};
+    |Intrinsics| := intrinsics;
 
     /* Set realmRec.[[intrinsics]] to intrinsics. */
     realmRec.intrinsics := intrinsics;

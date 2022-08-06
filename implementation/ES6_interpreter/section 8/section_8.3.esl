@@ -8,6 +8,10 @@ function IdentifierResolution(Identifier, runningExecCtx) {
   /* 1. Let env be the running execution context‘s LexicalEnvironment. */
   env := getLexicalEnvironment(runningExecCtx);
 
+  print "LEX ENV PLS";
+  print runningExecCtx;
+  print env;
+
   /* 2. If the syntactic production that is being evaluated is contained in a strict mode code,
         then let strict be true, else let strict be false. */
   if (isContainedInStrictCode(runningExecCtx)) {
