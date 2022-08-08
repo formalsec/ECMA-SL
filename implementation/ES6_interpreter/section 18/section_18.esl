@@ -86,7 +86,7 @@ function initGlobalObject(globalObject, intrinsic, strict) {
   /* 15.1.5.1 Math */
   createBuiltInProperty(globalObject, "Math", intrinsic.Math);
   /* 15.1.5.2 JSON */
-  createBuiltInProperty(globalObject, "JSON", intrinsic.Json);
+  createBuiltInProperty(globalObject, "JSON", intrinsic.JSON);
 
   /* 18.3.8 Float32Array () */
   createBuiltInProperty(globalObject, "Float32Array", intrinsic.Float32);

@@ -68,7 +68,7 @@ function InitializeHostDefinedRealm(realm, strict) {
     /* If this implementation requires use of an exotic object to serve as realm’s global object, let
     global be such an object created in an implementation defined manner. Otherwise, let global
     be undefined indicating that an ordinary object should be created as the global object. */
-    global := |global|;
+    global := realm.intrinsics.GlobalObject;
 
     /* Perform SetRealmGlobalObject(realm, global). */
     SetRealmGlobalObject(realm, global);

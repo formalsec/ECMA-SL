@@ -497,7 +497,7 @@ function GeneratorFunctionCreate(kind, ParameterList, Body, Scope, Strict) {
 function AddRestrictedFunctionProperties(F, realm) {
   /* 1. Assert: realm.[[intrinsics]].[[%ThrowTypeError%]] exists and has been
      initialized. */
-  /* TODO  */
+  assert( "ThrowTypeError" in_obj realm.intrinsics &&& !(realm.intrinsics.ThrowTypeError = 'undefined) );
 
   /* 2. Let thrower be realm.[[intrinsics]].[[%ThrowTypeError%]]. */
   thrower := createThrowTypeErrorFunctionObject(getFunctionPrototype(F.Strict), F.Strict);
