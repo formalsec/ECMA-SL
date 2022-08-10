@@ -1,0 +1,121 @@
+/* Auxiliary functions */
+function getVariableDeclarationsInCode(object) {
+  if (object = 'undefined ||| !("variableDeclarations" in_obj object)) {
+    return []
+  };
+
+  return object.variableDeclarations
+};
+
+/* 15.1.8 Runtime Semantics: GlobalDeclarationInstantiation (script, env) */
+/* NOTE 1 When an execution context is established for evaluating scripts, declarations are
+          instantiated in the current global environment. Each global binding declared in the
+          code is instantiated.
+*/
+function GlobalDeclarationInstantiation(script, env) {
+    /* Let envRec be env’s EnvironmentRecord. */
+    envRec := getEnvironmentRecord(env);
+
+    /* Assert: envRec is a global Environment Record. */
+
+    /* Let lexNames be the LexicallyDeclaredNames of script. */
+    
+    /* Let varNames be the VarDeclaredNames of script. */
+    varNames := getVariableDeclarationsInCode(script);
+
+    /* For each name in lexNames, do */
+        /* If envRec.HasVarDeclaration(name) is true, throw a SyntaxError exception. */
+        /* If envRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
+        /* Let hasRestrictedGlobal be envRec.HasRestrictedGlobalProperty(name). */
+        /* ReturnIfAbrupt(hasRestrictedGlobal). */
+        /* If hasRestrictedGlobal is true, throw a SyntaxError exception. */
+
+    /* For each name in varNames, do */
+    foreach ( name : varNames ) {
+        /* If envRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
+        if ( {envRec.HasLexicalDeclaration}(envRec, name) = true ) {
+            throw SyntaxErrorConstructorInternal()
+        }
+    };
+
+    /* Let varDeclarations be the VarScopedDeclarations of script. */
+    /* TODO ver a diferenca entre VarDeclaredNames e VarScopedDeclarations */
+    varDeclarations := getVariableDeclarationsInCode(script);
+    
+    /* Let functionsToInitialize be an empty List. */
+    functionsToInitialize := [];
+
+    /* Let declaredFunctionNames be an empty List. */
+    declaredFunctionNames := [];
+
+    /* For each d in varDeclarations, in reverse list order do */
+    i := (l_len varDeclarations) - 1;
+    while( i > 0 ) {
+        d := l_nth(varDeclarations, i);
+        /* If d is neither a VariableDeclaration or a ForBinding, then */
+            /* Assert: d is either a FunctionDeclaration or a GeneratorDeclaration. */
+            /* NOTE If there are multiple FunctionDeclarations for the same name, the last declaration is used. */
+            /* Let fn be the sole element of the BoundNames of d. */
+            /* If fn is not an element of declaredFunctionNames, then */
+                /* Let fnDefinable be envRec.CanDeclareGlobalFunction(fn). */
+                /* If fnDefinable is false, throw TypeError exception. */
+                /* Append fn to declaredFunctionNames. */
+                /* Insert d as the first element of functionsToInitialize. */
+        i := i - 1;
+    }
+
+    /* Let declaredVarNames be an empty List. */
+    declaredVarNames := [];
+
+    /* For each d in varDeclarations, do */
+        /* If d is a VariableDeclaration or a ForBinding, then */
+            /* For each String vn in the BoundNames of d, do */
+                /* If vn is not an element of declaredFunctionNames, then */
+                    /* Let vnDefinable be envRec.CanDeclareGlobalVar(vn). */
+                    /* ReturnIfAbrupt(vnDefinable). */
+                    /* If vnDefinable is false, throw TypeError exception. */
+                    /* If vn is not an element of declaredVarNames, then */
+                        /* Append vn to declaredVarNames. */
+
+    /* NOTE: No abnormal terminations occur after this algorithm step if the global object is an
+             ordinary object. However, if the global object is a Proxy exotic object it may exhibit
+             behaviours that cause abnormal terminations in some of the following steps. */
+    
+    /* Let lexDeclarations be the LexicallyScopedDeclarations of script. */
+    /* For each element d in lexDeclarations do */
+        /* NOTE Lexically declared names are only instantiated here but not initialized. */
+        /* For each element dn of the BoundNames of d do */
+            /* If IsConstantDeclaration of d is true, then */
+                /* Let status be envRec.CreateImmutableBinding(dn, true). */
+            /* Else, */
+                /* Let status be envRec.CreateMutableBinding(dn, false). */
+            /* ReturnIfAbrupt(status). */
+
+    /* For each production f in functionsToInitialize, do */
+    foreach ( f : functionsToInitialize ) {
+        /* Let fn be the sole element of the BoundNames of f. */
+        fn := f.BoundNames;
+
+        /* Let fo be the result of performing InstantiateFunctionObject for f with argument env. */
+        fo := InstantiateFunctionObject(f, env);
+
+        /* Let status be envRec.CreateGlobalFunctionBinding(fn, fo, false). */
+        status := {envRec.CreateGlobalFunctionBinding}(envRec, fn, fo, false);
+
+        /* ReturnIfAbrupt(status). */
+        @ReturnIfAbrupt(status)
+    };
+    
+    /* For each String vn in declaredVarNames, in list order do */
+    foreach( vn : declaredVarNames) {
+        /* Let status be envRec.CreateGlobalVarBinding(vn, false). */
+        status := {envRec.CreateGlobalVarBinding}(envRec, vn, false);
+        
+        /* ReturnIfAbrupt(status). */
+        @ReturnIfAbrupt(status)
+    };
+
+    /* Return NormalCompletion(empty) */
+    return NormalCompletion('empty)
+}
+

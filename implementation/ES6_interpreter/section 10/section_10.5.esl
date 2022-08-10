@@ -81,9 +81,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     /* d. If funcAlreadyDeclared is false, call env’s CreateMutableBinding concrete method passing fn and
           configurableBindings as the arguments. */
     if (funcAlreadyDeclared = false) {
-      {env.CreateMutableBinding}(env, fn, configurableBindings);
-      print "INIT 1";
-      {env.InitializeBinding}(env, fn, fo)
+      {env.CreateGlobalFunctionBinding}(env, fn, fo, false)
     } else {
       /* e. Else if env is the environment record component of the global environment then */
       if (env = |global|) {
@@ -162,13 +160,15 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
     if (varAlreadyDeclared = false) {
       /* i. Call env‘s CreateMutableBinding concrete method passing dn and configurableBindings as
             the arguments. */
-      {env.CreateMutableBinding}(env, dn, configurableBindings);
+      /* {env.CreateMutableBinding}(env, dn, configurableBindings);
       /* ii. Call env‘s SetMutableBinding concrete method passing dn, undefined, and strict as the
-             arguments.*/
+             arguments.
       print "INIT 3";
       {env.InitializeBinding}(env, dn, 'undefined);
 
-      {env.SetMutableBinding}(env, dn, 'undefined, strict)
+      {env.SetMutableBinding}(env, dn, 'undefined, strict) */
+
+      {env.CreateGlobalVarBinding}(env, dn, false)
     };
 
     i := i + 1
@@ -202,5 +202,10 @@ function getVariableDeclarationsInCode(object) {
   if (object = 'undefined ||| !("variableDeclarations" in_obj object)) {
     return []
   };
+
+  print "VARDECLS OBJ";
+  print object.variableDeclarations;
+  print object;
+
   return object.variableDeclarations
 }

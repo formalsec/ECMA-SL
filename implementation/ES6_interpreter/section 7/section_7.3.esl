@@ -28,9 +28,9 @@ function Get(O, P) {
 	/* Return O.[[Get]](P, O). */
 	V := {O.Get}(O, P, O);
 
-  @ReturnIfAbrupt(V);
-
-  return V
+ 	@ReturnIfAbrupt(V);
+	
+ 	return V
 };
 
 /**

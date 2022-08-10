@@ -21,7 +21,8 @@ function JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageo
     else {
         /* let className be StringValue of BindingIdentifier */
         className := StringValue(BindingIdentifier);
-        {envRec.CreateMutableBinding}(envRec, className, true)
+        {envRec.CreateMutableBinding}(envRec, className, true);
+        {envRec.InitializeBinding}(envRec, className, true)
     };
 
     /* 3. Let value be the result of ClassDefinitionEvaluation of ClassTail with 

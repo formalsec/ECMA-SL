@@ -693,6 +693,11 @@ function ObjectPrototypeHasOwnProperty(globalObject, this, NewTarget, strict, pa
   V := l_nth(params, 0);
   /* When the hasOwnProperty method is called with argument V, the following steps are taken: */
 
+  print "OWNPROP!";
+  print this;
+  print this.JSProperties;
+  print V;
+  
   /* 1. ToPropertyKey(V). */
   P := ToPropertyKey(V);
 
