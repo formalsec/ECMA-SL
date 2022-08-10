@@ -521,6 +521,10 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
     print rval;
     status := PutValue(lref, rval);
 
+    print "DEBUG AE 5";
+    print lref;
+
+
     @ReturnIfAbrupt(status);
     /* 6. Return rval. */
     return rval
@@ -1260,9 +1264,17 @@ macro PropagateBlockLabelSet(Block, Stmts) {
 };
 
 function JS_Interpreter_Stmt(s, scope) {
+  print("debugBlock: Statement");
+  print(s);
   match s with
-  | { type: "BlockStatement", body: StatementList } -> {
+  | { type: "BlockStatement", body: StatementList, letDeclarations: letDeclarations } -> {
     /* 13.2.13 Block */
+    print(s);
+    print(letDeclarations);
+    foreach (decl: letDeclarations){
+      print("debugdecl");
+      print(decl)
+    };
 
     /* Block : { } */
     if ((l_len StatementList) = 0) {
@@ -1270,33 +1282,29 @@ function JS_Interpreter_Stmt(s, scope) {
       return NormalCompletion('empty)
     };
 
+    @PropagateBlockLabelSet(s, StatementList);
 
     /* Block : { StatementList } */
 
-    /* /* 1. Let oldEnv be the running execution context's LexicalEnvironment. */
-    /* oldEnv := getLexicalEnvironment(scope);
-    /* /* 2. Let blockEnv be NewDeclarativeEnvironment(oldEnv). */
-    /* blockEnv := NewDeclarativeEnvironment(oldEnv);
-    /* /* 3. Perform BlockDeclarationInstantiation(StatementList, blockEnv). */
-    /* BlockDeclarationInstantiation(StatementList, blockEnv.EnvRecord);
-    /* /* 4. Set the running execution context's LexicalEnvironment to blockEnv. */
-    /* setLexicalEnvironment(scope, blockEnv);
-    /* /* 5. Let blockValue be the result of evaluating StatementList. */
-    /* blockValue := JS_Interpreter_StmtList(StatementList, scope);
-    /* /* 6. Set the running execution context's LexicalEnvironment to oldEnv. */
-    /* setLexicalEnvironment(scope, oldEnv);
-    /* /* 7. Return blockValue. */
-    /* return blockValue */
-
-    
-    @PropagateBlockLabelSet(s, StatementList);
-
-    print("BlockList:");
-    print(StatementList);
-    foreach (stmt: StatementList){
-      print(stmt)
-    };
-    return JS_Interpreter_StmtList(StatementList, scope)
+    /* 1. Let oldEnv be the running execution context's LexicalEnvironment. */
+    oldEnv := getLexicalEnvironment(scope);
+    /* 2. Let blockEnv be NewDeclarativeEnvironment(oldEnv). */
+    blockEnv := NewDeclarativeEnvironment(oldEnv);
+    /* 3. Perform BlockDeclarationInstantiation(StatementList, blockEnv). */
+    BlockDeclarationInstantiation(letDeclarations, blockEnv.EnvRec);
+    /* 4. Set the running execution context's LexicalEnvironment to blockEnv. */
+    setLexicalEnvironment(scope, blockEnv);
+    /* 5. Let blockValue be the result of evaluating StatementList. */
+    print("debugBlock: entering statement list");
+    print(blockEnv);
+    print(blockEnv.EnvRec);
+    blockValue := JS_Interpreter_StmtList(StatementList, scope);
+    print("debugBlock: exiting statement list");
+    print(blockEnv.EnvRec);
+    /* 6. Set the running execution context's LexicalEnvironment to oldEnv. */
+    setLexicalEnvironment(scope, oldEnv);
+    /* 7. Return blockValue. */
+    return blockValue
   }
   | { type: "VariableDeclaration", declarations: VariableDeclarationList } -> {
     /* 12.2 Variable Statement */
@@ -1604,26 +1612,31 @@ function JS_Interpreter_Stmt(s, scope) {
  * block. env is the declarative Environment Record in which bindings are to be 
  * created. 
  */
-function BlockDeclarationInstantiation(code, env) {
+function BlockDeclarationInstantiation(letDeclarations, env) {
   /* 1. Let declarations be the LexicallyScopedDeclarations of code. */
-  /* declarations := /* TODO: Instruction not yet implemented. */
-  /* 2. For each element d in declarations do */
+  declarations := letDeclarations;
+
   foreach (d : declarations){
+      status := CreateMutableBinding(env, d, false);
+      assert(!(isAnAbruptCompletion(status)))
+  };
+
+  /*constDeclarations := constDeclarations; */
+  
+  /* 2. For each element d in declarations do */
     /* a. For each element dn of the BoundNames of d do */
-    foreach(dn : BoundNames){
+    /* foreach(dn : BoundNames){ */
       /* i. If IsConstantDeclaration of d is true, then */
+
       /* 1. Let status be env.CreateImmutableBinding(dn, true). */
-      CreateImmutableBinding(envRec, dn);
       /* ii. Else, */
       /* 1. Let status be env.CreateMutableBinding(dn, false). */
+
       /* iii. Assert: status is never an abrupt completion. */
-      assert(!(isAnAbruptCompletion(status)))
-    }
     /* b. If d is a GeneratorDeclaration production or a FunctionDeclaration production, then */
       /* i. Let fn be the sole element of the BoundNames of d */
       /* ii. Let fo be the result of performing InstantiateFunctionObject for d with argument env. */
       /* iii. Perform env.InitializeBinding(fn, fo). */
-  };
   return
 };
 
@@ -3613,8 +3626,6 @@ function LabelledEvaluation(IterationStatement, scope) {
       Expression3 := 'empty
     };
 
-
-
     if (!(Expression1 = null)) {
       match Expression1 with
       | { type: "VariableDeclaration" } -> {
@@ -3705,13 +3716,17 @@ function JS_Interpreter_LabelledStmt(LabelledStatement, scope){
  */
 function JS_Interpreter_BreakableStatement(BreakableStatement, scope) {
   
-  /* 1. Let stmtResult be the result of performing LabelledEvaluation of 
-     IterationStatement with argument labelSet. */
+  
   match BreakableStatement with
   | { type: "SwitchStatement"} -> {
+    /* BreakableStatement : SwitchStatement */
+    /* 1. Let stmtResult be the result of evaluating SwitchStatement. */
     stmtResult := JS_Interpreter_SwitchStatement(BreakableStatement, scope) 
   }
-  |  default -> { /* Iteration Statement */
+  |  default -> { 
+    /* BreakableStatement : IterationStatement */
+    /* 1. Let stmtResult be the result of performing LabelledEvaluation of 
+        IterationStatement with argument labelSet. */
     stmtResult := LabelledEvaluation(BreakableStatement, scope)
   };
   /* 2. If stmtResult.[[type]] is break, then */

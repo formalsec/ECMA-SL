@@ -10,6 +10,7 @@ const ForIn = require("./forIn");
 const Break = require("./break");
 const Continue = require("./continue");
 const CatchClause = require("./catchClause");
+const Block = require("./block");
 
 module.exports = {
   transformObject: function (obj) {
@@ -52,6 +53,9 @@ module.exports = {
     }
     if (obj.type === "CatchClause") {
       return CatchClause.transform(obj);
+    }
+    if (obj.type === "BlockStatement") {
+      return Block.transform(obj);
     }
     return obj;
   },
