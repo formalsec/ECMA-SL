@@ -7,6 +7,13 @@ function getVariableDeclarationsInCode(object) {
   return object.variableDeclarations
 };
 
+function getFunctionDeclarationsInCode(object) {
+  if (object = 'undefined ||| !("functionDeclarations" in_obj object)) {
+    return []
+  };
+  return object.functionDeclarations
+};
+
 /* 15.1.8 Runtime Semantics: GlobalDeclarationInstantiation (script, env) */
 /* NOTE 1 When an execution context is established for evaluating scripts, declarations are
           instantiated in the current global environment. Each global binding declared in the
@@ -40,42 +47,67 @@ function GlobalDeclarationInstantiation(script, env) {
 
     /* Let varDeclarations be the VarScopedDeclarations of script. */
     /* TODO ver a diferenca entre VarDeclaredNames e VarScopedDeclarations */
-    varDeclarations := getVariableDeclarationsInCode(script);
+    varDeclarations := varNames;
     
     /* Let functionsToInitialize be an empty List. */
     functionsToInitialize := [];
 
     /* Let declaredFunctionNames be an empty List. */
-    declaredFunctionNames := [];
+    declaredFunctionNames := getFunctionDeclarationsInCode(script);
 
     /* For each d in varDeclarations, in reverse list order do */
-    i := (l_len varDeclarations) - 1;
-    while( i > 0 ) {
-        d := l_nth(varDeclarations, i);
+    foreach ( d : declaredFunctionNames ) {
         /* If d is neither a VariableDeclaration or a ForBinding, then */
             /* Assert: d is either a FunctionDeclaration or a GeneratorDeclaration. */
             /* NOTE If there are multiple FunctionDeclarations for the same name, the last declaration is used. */
-            /* Let fn be the sole element of the BoundNames of d. */
-            /* If fn is not an element of declaredFunctionNames, then */
-                /* Let fnDefinable be envRec.CanDeclareGlobalFunction(fn). */
-                /* If fnDefinable is false, throw TypeError exception. */
-                /* Append fn to declaredFunctionNames. */
-                /* Insert d as the first element of functionsToInitialize. */
-        i := i - 1;
-    }
+        
+        /* Let fn be the sole element of the BoundNames of d. */
+        fn := d;
+            
+        /* If fn is not an element of declaredFunctionNames, then */
+        if ( !InList(fn, declaredFunctionNames) ) {
+            /* Let fnDefinable be envRec.CanDeclareGlobalFunction(fn). */
+            fnDefinable := {envRec.CanDeclareGlobalFunction}(envRec, fn);
+
+            /* If fnDefinable is false, throw TypeError exception. */
+            if ( fnDefinable = false ) {
+                throw TypeErrorConstructorInternal()
+            };
+
+            /* Append fn to declaredFunctionNames. */
+            /* Insert d as the first element of functionsToInitialize. */
+            functionsToInitialize := l_add( d, functionsToInitialize )
+        }
+    };
 
     /* Let declaredVarNames be an empty List. */
     declaredVarNames := [];
 
     /* For each d in varDeclarations, do */
+    foreach ( d : varDeclarations ) {
         /* If d is a VariableDeclaration or a ForBinding, then */
-            /* For each String vn in the BoundNames of d, do */
-                /* If vn is not an element of declaredFunctionNames, then */
-                    /* Let vnDefinable be envRec.CanDeclareGlobalVar(vn). */
-                    /* ReturnIfAbrupt(vnDefinable). */
-                    /* If vnDefinable is false, throw TypeError exception. */
-                    /* If vn is not an element of declaredVarNames, then */
-                        /* Append vn to declaredVarNames. */
+        /* For each String vn in the BoundNames of d, do */
+        vn := d;
+        /* If vn is not an element of declaredFunctionNames, then */
+        if (!InList(vn, declaredFunctionNames)) {
+            /* Let vnDefinable be envRec.CanDeclareGlobalVar(vn). */
+            vnDefinable := {envRec.CanDeclareGlobalVar}(envRec, vn);
+
+            /* ReturnIfAbrupt(vnDefinable). */
+            @ReturnIfAbrupt(vnDefinable);
+
+            /* If vnDefinable is false, throw TypeError exception. */
+            if ( vnDefinable = false ) {
+                throw TypeErrorConstructorInternal()
+            };
+
+            /* If vn is not an element of declaredVarNames, then */
+            if (!InList(vn, declaredVarNames)) {
+                /* Append vn to declaredVarNames. */
+                declaredVarNames := l_add(declaredVarNames, vn)
+            }
+        }
+    };
 
     /* NOTE: No abnormal terminations occur after this algorithm step if the global object is an
              ordinary object. However, if the global object is a Proxy exotic object it may exhibit
@@ -94,10 +126,10 @@ function GlobalDeclarationInstantiation(script, env) {
     /* For each production f in functionsToInitialize, do */
     foreach ( f : functionsToInitialize ) {
         /* Let fn be the sole element of the BoundNames of f. */
-        fn := f.BoundNames;
+        fn := f;
 
         /* Let fo be the result of performing InstantiateFunctionObject for f with argument env. */
-        fo := InstantiateFunctionObject(f, env);
+        fo := JS_Interpreter_FunctionDeclaration(f, env);
 
         /* Let status be envRec.CreateGlobalFunctionBinding(fn, fo, false). */
         status := {envRec.CreateGlobalFunctionBinding}(envRec, fn, fo, false);

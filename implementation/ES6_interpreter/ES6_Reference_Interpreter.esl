@@ -53,6 +53,8 @@ import "ES6_interpreter/section 14/section_14.3.esl";
 import "ES6_interpreter/section 14/section_14.5.esl";
 import "ES6_interpreter/section 14/section_14.6.esl";
 
+import "ES6_interpreter/section 15/section_15.1.esl";
+
 import "ES6_interpreter/section 15/section_15.esl";
 import "ES6_interpreter/section 15/section_15.3.esl";
 import "ES6_interpreter/section 15/section_15.10.esl";
