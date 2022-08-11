@@ -89,7 +89,7 @@ function initGlobalObject(globalObject, intrinsic, strict) {
   createBuiltInProperty(globalObject, "JSON", intrinsic.JSON);
 
   /* 18.3.8 Float32Array () */
-  createBuiltInProperty(globalObject, "Float32Array", intrinsic.Float32);
+  createBuiltInProperty(globalObject, "Float32Array", intrinsic.Float32Array);
   /* 18.3.9 Float64Array () */
   createBuiltInProperty(globalObject, "Float64Array", intrinsic.Float64Array);
   /* 18.3.11 Int8Array () */
@@ -151,7 +151,16 @@ function initGlobalObject(globalObject, intrinsic, strict) {
 /* 15.1.2.1 eval (x) */
 function GlobalObjectEval(externalScope, ref, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
-  return PerformEval(externalScope, x, null, false, false)
+
+  /* TODO hack para sacar realm mudar isto */
+  if ( externalScope.Function = 'null ) {
+    realm := externalScope.Realm
+  }
+  else {
+    realm := externalScope.Function.Realm
+  };
+
+  return PerformEval(externalScope, x, realm, false, false)
 };
 
 /* 15.1.2.1.1 Direct Call to Eval */

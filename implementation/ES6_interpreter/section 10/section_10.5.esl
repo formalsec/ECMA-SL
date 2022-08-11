@@ -189,23 +189,4 @@ function isFunctionCode(code) {
 function isStrictModeCode(code, execCtx) {
   print code;
   return (!(code = 'undefined) &&& (code.strict = true)) ||| isContainedInStrictCode(execCtx)
-};
-
-function getFunctionDeclarationsInCode(object) {
-  if (object = 'undefined ||| !("functionDeclarations" in_obj object)) {
-    return []
-  };
-  return object.functionDeclarations
-};
-
-function getVariableDeclarationsInCode(object) {
-  if (object = 'undefined ||| !("variableDeclarations" in_obj object)) {
-    return []
-  };
-
-  print "VARDECLS OBJ";
-  print object.variableDeclarations;
-  print object;
-
-  return object.variableDeclarations
 }

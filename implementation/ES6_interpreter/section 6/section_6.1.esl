@@ -94,14 +94,14 @@ function initIntrinsics(intrinsic, strict) {
   |Intrinsics|["decodeURI"] := decodeURI;
   
   decodeURIComponent := CreateBuiltInFunctionObject(["encodedURIComponent"], "GlobalObjectDecodeURIComponent", globalObj, strict, null);
-  |Intrinsics|["decodeURIcomponent"] := decodeURIComponent;
+  |Intrinsics|["decodeURIComponent"] := decodeURIComponent;
   
   /* encodeURI */
   encodeURI := CreateBuiltInFunctionObject(["uri"], "GlobalObjectEncodeURI", globalObj, strict, null);
   |Intrinsics|["encodeURI"] := encodeURI;
 
   encodeURIComponent := CreateBuiltInFunctionObject(["uriComponent"], "GlobalObjectEncodeURIComponent", globalObj, strict, null);
-  |Intrinsics|["encodeURIcomponent"] := encodeURIComponent;
+  |Intrinsics|["encodeURIComponent"] := encodeURIComponent;
 
   /* Error */
   ErrorObject := initErrorObject(globalObj, objectPrototype, strict);

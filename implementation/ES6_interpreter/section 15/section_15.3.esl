@@ -154,7 +154,11 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
   if ((strict = true) &&& anyStrictModeRestrictionApplicable(body)) {
     throw SyntaxErrorConstructorInternal()
   };
-  F := FunctionAllocate(getFunctionPrototype(strict), strict, "normal");
+
+  print "NEWFUNC";
+  print globalObject;
+
+  F := FunctionAllocate('undefined, getFunctionPrototype(strict), strict, "normal");
   FunctionInitialize(F, "normal", P, body, getGlobalEnvironment(globalObject));
   MakeConstructor(F, null, null);
   SetFunctionName(F, "anonymous", null);

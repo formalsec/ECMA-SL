@@ -44,6 +44,9 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, NewTarget,
         throw TypeErrorConstructorInternal()
     };
 
+    print "ORDINARY FUNC CALL";
+    print externalScope;
+
     /* 3. Let callerContext be the running execution context. */
     callerContext := externalScope;
 
@@ -102,10 +105,10 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
     calleeContext.Function := F;
 
     /* 5. Let calleeRealm be the value of F’s [[Realm]] internal slot. */
-    /* TODO */
+    calleeRealm := F.Realm;
 
     /* 6. Set the Realm of calleeContext to calleeRealm. */
-    /* TODO */
+    calleeContext.Realm := calleeRealm;
 
     /* 7. Let localEnv be NewFunctionEnvironment(F, newTarget). */
     localEnv := NewFunctionEnvironment(F, newTarget);
@@ -201,6 +204,9 @@ function OrdinaryCallEvaluateBody(scope, F, argumentsList) {
   /* 3. Return the result of EvaluateBody of the parsed code that is the value
      of F's [[ECMAScriptCode]] internal slot passing F as the argument. */
   print "DEBUG: ORDINARY CALL EVALUATE BODY";
+  print scope;
+  print F.ECMAScriptCode;
+
   return JS_Interpreter_FunctionBody(F.ECMAScriptCode, scope)
 };
 
@@ -285,7 +291,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
   };
 
   /* 15. Return envRec.GetThisBinding(). */
-  return GetThisBinding(envRec)
+  return {envRec.GetThisBinding}(envRec)
 };
 
 /**
@@ -295,7 +301,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
  * functionPrototype and strict. It also accepts one optional argument,
  * functionKind. FunctionAllocate performs the following steps:
  */
-function FunctionAllocate(functionPrototype, strict, functionKind) {
+function FunctionAllocate(Realm, functionPrototype, strict, functionKind) {
   /* 1. Assert: Type(functionPrototype) is Object. */
   assert(Type(functionPrototype) = "Object");
 
@@ -367,11 +373,9 @@ function FunctionAllocate(functionPrototype, strict, functionKind) {
 
   /* 14. Set the [[Realm]] internal slot of F to the running execution
      context's Realm. */
-  /* TODO: Instruction not yet implemented. */
+  F.Realm := Realm;
 
   /* 15. Return F. */
-  print "DEBUG FunctionAllocate";
-  print F;
   return F
 };
 
@@ -442,7 +446,7 @@ function FunctionInitialize(F, kind, ParameterList, Body, Scope) {
  * specified by Scope, a Boolean flag Strict, and optionally, an object
  * prototype. FunctionCreate performs the following steps:
  */
-function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype) {
+function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype, Realm) {
   /* 1. If the prototype argument was not passed, then */
   if (prototype = null) {
     /* a. Let prototype be the intrinsic object %FunctionPrototype%. */
@@ -460,7 +464,7 @@ function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype) {
   };
 
   /* 4. Let F be FunctionAllocate(prototype, Strict, allocKind). */
-  F := FunctionAllocate(prototype, Strict, allocKind);
+  F := FunctionAllocate(Realm, prototype, Strict, allocKind);
 
   /* 5. Return FunctionInitialize(F, kind, ParameterList, Body, Scope). */
   return FunctionInitialize(F, kind, ParameterList, Body, Scope)
@@ -475,13 +479,13 @@ function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype) {
  * specified by Scope, and a Boolean flag Strict. GeneratorFunctionCreate
  * performs the following steps:
  */
-function GeneratorFunctionCreate(kind, ParameterList, Body, Scope, Strict) {
+function GeneratorFunctionCreate(kind, ParameterList, Body, Scope, Strict, Realm) {
   /* 1. Let functionPrototype be the intrinsic object %Generator%. */
   /* TODO: Add the generator object here. */
   functionPrototype := NewECMAScriptObject();
 
   /* 2. Let F be FunctionAllocate(functionPrototype, Strict, "generator"). */
-  F := FunctionAllocate(functionPrototype, Strict, "generator");
+  F := FunctionAllocate(Realm, functionPrototype, Strict, "generator");
 
   /* 3. Return FunctionInitialize(F, kind, ParameterList, Body, Scope). */
   return FunctionInitialize(F, kind, ParameterList, Body, Scope)
@@ -500,12 +504,14 @@ function AddRestrictedFunctionProperties(F, realm) {
   assert( "ThrowTypeError" in_obj realm.intrinsics &&& !(realm.intrinsics.ThrowTypeError = 'undefined) );
 
   /* 2. Let thrower be realm.[[intrinsics]].[[%ThrowTypeError%]]. */
-  thrower := createThrowTypeErrorFunctionObject(getFunctionPrototype(F.Strict), F.Strict);
+  thrower := realm.intrinsics.ThrowTypeError;
 
   /* 3. Let status be DefinePropertyOrThrow(F, "caller", PropertyDescriptor
      {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false,
      [[Configurable]]: true}). */
-  status := DefinePropertyOrThrow(F, "caller", newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true));
+  /* status := DefinePropertyOrThrow(F, "caller", newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true)); */
+  F.JSProperties.caller := newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true);
+  status := true;
 
   /* 4. Assert: status is not an abrupt completion. */
   assert(!isAnAbruptCompletion(status));
@@ -513,7 +519,9 @@ function AddRestrictedFunctionProperties(F, realm) {
   /* 5. Return DefinePropertyOrThrow(F , "arguments", PropertyDescriptor
      {[[Get]]: thrower, [[Set]]: thrower, [[Enumerable]]: false,
      [[Configurable]]: true}). */
-  arguments := DefinePropertyOrThrow(F, "arguments", newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true));
+  /* arguments := DefinePropertyOrThrow(F, "arguments", newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true)); */
+  F.JSProperties.arguments := newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, true);
+  arguments := true;
 
   /* 6. Assert: The above returned value is not an abrupt completion. */
   assert(!isAnAbruptCompletion(arguments));

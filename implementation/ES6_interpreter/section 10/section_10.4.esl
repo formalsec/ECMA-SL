@@ -41,6 +41,9 @@ function InitialGlobalExecutionContext(realm, program) {
   globalObject := realm.intrinsics.GlobalObject;
 
   globalExecCtx := createExecutionContext();
+  
+  globalExecCtx.Realm := realm;
+  globalExecCtx.Function := 'null;
   /* The following steps are performed to initialise a global execution context for ECMAScript code C: */
   /* globalEnv := GlobalEnvironment(globalObject); */
 
@@ -55,6 +58,12 @@ function InitialGlobalExecutionContext(realm, program) {
   /* setThisBinding(globalExecCtx, globalObject); */
 
   setContainedInStrictCode(globalExecCtx, isStrictModeCode(program, globalExecCtx));
+
+  /* GlobalDeclarationInstantiation(program, globalEnv); */
+
+  /* print "INITGLOBAL 2";
+  print globalEnv;
+  print globalExecCtx; */
 
   return globalExecCtx
 };
