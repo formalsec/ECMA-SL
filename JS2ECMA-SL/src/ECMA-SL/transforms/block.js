@@ -12,7 +12,7 @@ module.exports = {
       );
 
       obj.letDeclarations = letDeclarations;
-      
+
       return obj;
     },
 };

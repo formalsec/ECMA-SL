@@ -1264,7 +1264,7 @@ macro PropagateBlockLabelSet(Block, Stmts) {
 };
 
 function JS_Interpreter_Stmt(s, scope) {
-  print("debugBlock: Statement");
+  print("in JS_Interpreter_Stmt");
   print(s);
   match s with
   | { type: "BlockStatement", body: StatementList, letDeclarations: letDeclarations } -> {
@@ -1908,7 +1908,7 @@ function JS_Interpreter_Catch(Catch, parameter, scope) {
     /*return B; 
     /* ES6 */
 
-    /* 1. Let oldEnv be the running execution context’s LexicalEnvironment. */
+    /* 1. Let oldEnv be the running execution context's LexicalEnvironment. */
     oldEnv := getLexicalEnvironment(scope);
     /* 2. Let catchEnv be NewDeclarativeEnvironment(oldEnv). */
     catchEnv := NewDeclarativeEnvironment(oldEnv);
@@ -1926,7 +1926,7 @@ function JS_Interpreter_Catch(Catch, parameter, scope) {
       assert(!(isAnAbruptCompletion(res)))
     };
     
-    /* 4. Set the running execution context’s LexicalEnvironment to catchEnv. */
+    /* 4. Set the running execution context's LexicalEnvironment to catchEnv. */
     setLexicalEnvironment(scope, catchEnv);
     /* 5. Let status be the result of performing BindingInitialization for CatchParameter 
           passing thrownValue and catchEnv as arguments. */
@@ -1937,14 +1937,14 @@ function JS_Interpreter_Catch(Catch, parameter, scope) {
     status := BindingInitialization(Identifier, parameter, {LexicalEnvironment: catchEnv}, null);
     /* 6. If status is an abrupt completion, then */
     if (isAnAbruptCompletion(status)) {
-      /* a. Set the running execution context’s LexicalEnvironment to oldEnv. */
+      /* a. Set the running execution context's LexicalEnvironment to oldEnv. */
       setLexicalEnvironment(scope, oldEnv);
       /* b. Return Completion(status). */
       return Completion(status)
     };
     /* 7. Let B be the result of evaluating Block. */
     B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
-    /* 8. Set the running execution context’s LexicalEnvironment to oldEnv. */
+    /* 8. Set the running execution context's LexicalEnvironment to oldEnv. */
     setLexicalEnvironment(scope, oldEnv);
     /* 9. Return Completion(B). */
     return Completion(B)
@@ -3463,7 +3463,7 @@ function JS_Interpreter_CaseBlock_ClausesA_DefaultClause_ClausesB(clausesA, Defa
   };
   /* 8. If foundInB is false and the DefaultClause has a StatementList, then */
   if ((foundInB = false) && hasStatementList(DefaultClause)) {
-    /* a. Evaluate the DefaultClause’s StatementList and let R be the result. */
+    /* a. Evaluate the DefaultClause's StatementList and let R be the result. */
     R := JS_Interpreter_StmtList(getCaseClauseStatementList(DefaultClause), scope);
     /* b. If R.value is not empty, then let V = R.value. */
     if (!(getCompletionValue(R) = 'empty)) {
@@ -3550,6 +3550,7 @@ function LoopContinues(completion, labelSet) {
  * See also: 13.1.7, 13.7.3.6, 13.7.4.7, 13.7.5.11, 13.13.14. 
  */
 function LabelledEvaluation(IterationStatement, scope) {
+  print(IterationStatement);
    match IterationStatement with
   | { type: "DoWhileStatement", test: Expression, body: Statement, labelSet: labelSet } -> {
     /* IterationStatement : do Statement while ( Expression ) 
@@ -3618,7 +3619,7 @@ function LabelledEvaluation(IterationStatement, scope) {
       }
     }
   }
-  | { type: "ForStatement", init: Expression1, test: Expression2, update: Expression3, body: Statement, labelSet: labelSet} -> {
+  | { type: "ForStatement", init: Expression1, test: Expression2, update: Expression3, body: Statement, labelSet: labelSet, lexicalDeclarations: None} -> {
     if (Expression2 = null) {
       Expression2 := 'empty
     };
@@ -3654,12 +3655,71 @@ function LabelledEvaluation(IterationStatement, scope) {
     /* 2. Return ForBodyEvaluation(the second Expression, the third Expression, Statement, « », labelSet). */
     return ForBodyEvaluation(Expression2, Expression3, Statement, [], labelSet, scope)
   }
+  | { type: "ForStatement", init: LexicalDeclaration, test: Expression1, update: Expression2, body: Statement, 
+          labelSet: labelSet, lexicalDeclarations: lexicalDeclarations, isConstant: isConst} -> {
+    if (Expression1 = null) {
+      Expression1 := 'empty
+    };
+    if (Expression2 = null) {
+      Expression2 := 'empty
+    };
+    print(lexicalDeclarations);
+    print(isConst);
+    /* IterationStatement : for ( LexicalDeclaration Expressionopt ; Expressionopt ) Statement */
 
-
-
+    /* 1. Let oldEnv be the running execution context's LexicalEnvironment. */
+    oldEnv := getLexicalEnvironment(scope);
+    /* 2. Let loopEnv be NewDeclarativeEnvironment(oldEnv). */
+    loopEnv := NewDeclarativeEnvironment(oldEnv);
+    /* 3. Let isConst be the result of performing IsConstantDeclaration of LexicalDeclaration. */
     
-    
-
+    /* 4. Let boundNames be the BoundNames of LexicalDeclaration. */
+    boundNames := lexicalDeclarations;
+    print(boundNames);
+    /* 5. For each element dn of boundNames do */
+    foreach (dn : boundNames){
+      print(dn);
+      /* a. If isConst is true, then */
+      if (isConst = true){ print("1");
+        /* i. Perform loopEnv.CreateImmutableBinding(dn, true). */
+        CreateMutableBinding(loopEnv.EnvRec, dn, false)/*, true)*/
+      }
+      /* b. Else, */
+      else {
+        print("2");
+        /* i. Perform loopEnv.CreateMutableBinding(dn, false). */
+        status := CreateMutableBinding(loopEnv.EnvRec, dn, false);
+        /* ii. Assert: The above call to CreateMutableBinding will never return an abrupt completion. */
+        assert(!(isAnAbruptCompletion(status)))
+      }
+    };
+    print(loopEnv.EnvRec);
+    /* 6. Set the running execution context's LexicalEnvironment to loopEnv. */
+    setLexicalEnvironment(scope, loopEnv);
+    /* 7. Let forDcl be the result of evaluating LexicalDeclaration. */
+    forDcl := JS_Interpreter_Stmt(LexicalDeclaration, scope);
+    /* 8. If forDcl is an abrupt completion, then */
+    if (isAnAbruptCompletion(forDcl)){
+      /* a. Set the running execution context's LexicalEnvironment to oldEnv. */
+      setLexicalEnvironment(scope, oldEnv);
+      /* b. Return Completion(forDcl). */
+      return Completion(forDcl)
+    };
+    /* 9. If isConst is false, let perIterationLets be boundNames otherwise let perIterationLets be « ». */
+    if (isConst = false){
+      perIterationLets := boundNames
+    }
+    else {
+      perIterationLets := []
+    };
+    /* 10. Let bodyResult be ForBodyEvaluation(the first Expression, the second Expression, 
+    Statement, perIterationLets, labelSet). */
+    bodyResult := ForBodyEvaluation(Expression1, Expression2, Statement, perIterationLets, labelSet, scope);
+    /* 11. Set the running execution context's LexicalEnvironment to oldEnv. */
+    setLexicalEnvironment(scope, oldEnv);
+    /* 12. Return Completion(bodyResult). */
+    return Completion(bodyResult)
+  }
 };
 
 function JS_Interpreter_LabelledStmt(LabelledStatement, scope){
@@ -3831,19 +3891,26 @@ function CreatePerIterationEnvironment(perIterationBindings, scope) {
       status := CreateMutableBinding(thisIterationEnv.EnvRec, bn, false);
       /* ii. Assert: status is never an abrupt completion. */
       assert(!(isAnAbruptCompletion(status)));
+      print("teide");
+      print(lastIterationEnv.EnvRec);
+      print(thisIterationEnv.EnvRec);
       /* iii. Let lastValue be lastIterationEnv.GetBindingValue(bn, true). */
-      lastValue := {lastIterationEnv.GetBindingValue}(lastIterationEnv, bn, true);
+      lastValue := GetBindingValue(lastIterationEnv.EnvRec, bn, true);
+      print(lastValue);
       /* iii. ReturnIfAbrupt(lastValue). */
       @ReturnIfAbrupt(lastValue);
+      print(bn);
       /* iv. Perform thisIterationEnv.InitializeBinding(bn, lastValue). */
-      InitializeBindingDeclarativeRecordTemp(thisIterationEnv, bn, 'lastValue)
+      /* TODO swap to new core: 
+      {thisIterationEnv.InitializeBinding}(thisIterationEnv, bn, last);*/
+      InitializeBindingDeclarativeTemp(thisIterationEnv, bn, lastValue)
     };
     /* f. Set the running execution context's LexicalEnvironment to 
        thisIterationEnv. */
     setLexicalEnvironment(scope, thisIterationEnv)
   };
   /* 2. Return undefined */
-  return
+  return 'undefined
 };
 
 
@@ -3853,4 +3920,14 @@ function getParamNameFromCatch(codeObj) {
     return []
   };
   return codeObj.paramName
+};
+
+/** TODO remove
+ * temp until new core is used */
+function InitializeBindingDeclarativeTemp(env, N, V) {
+  env := env.EnvRec;
+ 
+  SetMutableBinding(env, N, V, true);
+
+  return 'undefined
 }
