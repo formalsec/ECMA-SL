@@ -155,11 +155,8 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
     throw SyntaxErrorConstructorInternal()
   };
 
-  print "NEWFUNC";
-  print globalObject;
-
-  F := FunctionAllocate('undefined, getFunctionPrototype(strict), strict, "normal");
-  FunctionInitialize(F, "normal", P, body, getGlobalEnvironment(globalObject));
+  F := FunctionAllocate(globalObject.Realm, getFunctionPrototype(strict), strict, "normal");
+  FunctionInitialize(F, "normal", P, body, getLexicalEnvironment(globalObject));
   MakeConstructor(F, null, null);
   SetFunctionName(F, "anonymous", null);
   return F
