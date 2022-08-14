@@ -262,7 +262,7 @@ function FunctionPrototypeCall(globalObject, func, NewTarget, strict, params) {
   };
   /* 4. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
-  return {func.Call}(null, null, func, thisArg, NewTarget, argList)
+  return {func.Call}(globalObject, null, func, thisArg, NewTarget, argList)
 
   /* The length property of the call method is 1. */
 
