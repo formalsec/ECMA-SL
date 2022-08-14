@@ -29,7 +29,8 @@ function EnteringGlobalCode(program) {
   globalScope := InitialGlobalExecutionContext(realm, program);
 
   /* 2. Perform Declaration Binding Instantiation as described in 10.5 using the global code. */
-  DeclarationBindingInstantiation(program, [], globalScope, null);
+  /* DeclarationBindingInstantiation(program, [], globalScope, null); */
+  GlobalDeclarationInstantiation(program, globalScope);
 
   return globalScope
 };
@@ -58,8 +59,6 @@ function InitialGlobalExecutionContext(realm, program) {
   /* setThisBinding(globalExecCtx, globalObject); */
 
   setContainedInStrictCode(globalExecCtx, isStrictModeCode(program, globalExecCtx));
-
-  /* GlobalDeclarationInstantiation(program, globalEnv); */
 
   /* print "INITGLOBAL 2";
   print globalEnv;

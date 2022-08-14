@@ -21,7 +21,11 @@ function getFunctionDeclarationsInCode(object) {
 */
 function GlobalDeclarationInstantiation(script, env) {
     /* Let envRec be env’s EnvironmentRecord. */
-    envRec := getEnvironmentRecord(env);
+    /* envRec := getEnvironmentRecord(env); */
+    
+    /* TODO env devia ser apenas globalEnv */
+    /* apenas tou a fazer isto para FunctionDeclaration mais a baixo */
+    envRec := getEnvironmentRecord(env.Realm.globalEnv);
 
     /* Assert: envRec is a global Environment Record. */
 
@@ -62,22 +66,24 @@ function GlobalDeclarationInstantiation(script, env) {
             /* NOTE If there are multiple FunctionDeclarations for the same name, the last declaration is used. */
         
         /* Let fn be the sole element of the BoundNames of d. */
-        fn := d;
+        print "DECLFUNC";
+        print d.id.name;
+
+        fn := d.id.name;
             
         /* If fn is not an element of declaredFunctionNames, then */
-        if ( !InList(fn, declaredFunctionNames) ) {
-            /* Let fnDefinable be envRec.CanDeclareGlobalFunction(fn). */
-            fnDefinable := {envRec.CanDeclareGlobalFunction}(envRec, fn);
+        
+        /* Let fnDefinable be envRec.CanDeclareGlobalFunction(fn). */
+        fnDefinable := {envRec.CanDeclareGlobalFunction}(envRec, fn);
 
-            /* If fnDefinable is false, throw TypeError exception. */
-            if ( fnDefinable = false ) {
-                throw TypeErrorConstructorInternal()
-            };
+        /* If fnDefinable is false, throw TypeError exception. */
+        if ( fnDefinable = false ) {
+            throw TypeErrorConstructorInternal()
+        };
 
-            /* Append fn to declaredFunctionNames. */
-            /* Insert d as the first element of functionsToInitialize. */
-            functionsToInitialize := l_add( d, functionsToInitialize )
-        }
+        /* Append fn to declaredFunctionNames. */
+        /* Insert d as the first element of functionsToInitialize. */
+        functionsToInitialize := l_add(functionsToInitialize, d)
     };
 
     /* Let declaredVarNames be an empty List. */
@@ -87,6 +93,9 @@ function GlobalDeclarationInstantiation(script, env) {
     foreach ( d : varDeclarations ) {
         /* If d is a VariableDeclaration or a ForBinding, then */
         /* For each String vn in the BoundNames of d, do */
+        print "VARDECL";
+        print d;
+
         vn := d;
         /* If vn is not an element of declaredFunctionNames, then */
         if (!InList(vn, declaredFunctionNames)) {
@@ -124,9 +133,12 @@ function GlobalDeclarationInstantiation(script, env) {
             /* ReturnIfAbrupt(status). */
 
     /* For each production f in functionsToInitialize, do */
+    print "GLOBALBIND";
+    print functionsToInitialize;
+
     foreach ( f : functionsToInitialize ) {
         /* Let fn be the sole element of the BoundNames of f. */
-        fn := f;
+        fn := f.id.name;
 
         /* Let fo be the result of performing InstantiateFunctionObject for f with argument env. */
         fo := JS_Interpreter_FunctionDeclaration(f, env);
