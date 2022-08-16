@@ -448,6 +448,13 @@ function initTypedArrayObject(global, strict, typeOfArray, typedArray) {
   
   name := s_concat([typeOfArray, "Array"]);
   objTypedArrayConstructor := CreateBuiltInConstructorObject(typedArray, ["argumentList"], "TypedArraySubConstructor", global, strict, 0., name);
+  
+  objectTypedArrayFun := lambda(global, this, NewTarget, strict, args)[objTypedArrayConstructor] {
+    return TypedArraySubConstructor(global, this, NewTarget, strict, args, objTypedArrayConstructor)
+  };
+
+  objTypedArrayConstructor.Code := objectTypedArrayFun; 
+  
   /* 22.2.5 */
   /* Length */
   descLen := newDataPropertyDescriptorFull(3., false, false, true);
@@ -3744,16 +3751,23 @@ function getTypedArrayToStringTag(global, this, NewTarget, strict, args) {
  * A TypedArray constructor with a list of arguments argumentsList performs the
  * following steps:
  */
-function TypedArraySubConstructor(global, this, NewTarget, strict, argumentsList) {
+function TypedArraySubConstructor(ctx, this, NewTarget, strict, argumentsList, here) {
   /* 1. If NewTarget is undefined, */
   if (NewTarget = 'undefined) {
     /* throw a TypeError exception */
     throw TypeErrorConstructorInternal()
   };
+
   /* 2. Let here be the active function. */ /* Is there a reflection mechanism for this? *??* */
-  here := NewTarget;/* TODO: Instruction not yet implemented. */
+  /* TODO: Instruction not yet implemented. */
+
   /* 3. Let super be here.[[GetPrototypeOf]](). */
-  super := GetPrototypeOf(here);
+  super := {here.GetPrototypeOf}(here);
+
+  print "TYPECONST";
+  print here;
+  print super;
+
   /* 4. ReturnIfAbrupt(super). */
   @ReturnIfAbrupt(super);
   /* 5. If IsConstructor (super) is false, */
@@ -3765,5 +3779,5 @@ function TypedArraySubConstructor(global, this, NewTarget, strict, argumentsList
      internal method that invoked the active function. */
   argumentsList := argumentsList; /* ??? */
   /* 7. Return Construct(super, argumentsList, NewTarget). */
-  return Construct(global, null, super, argumentsList, NewTarget)
+  return Construct(ctx, null, super, argumentsList, NewTarget)
 }

@@ -854,7 +854,7 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
 	/* Hack para poder passar o Realm no FunctionConstruct */
 	/* Ver se ainda e preciso o globalObject para alguma coisa */
 	if (("Code" in_obj F) &&& (typeof F.Code = __$Str) 
-		&&& ((F.Code = "FunctionConstructor") ||| (F.Code = "FunctionPrototypeCall"))) {
+		&&& ((F.Code = "FunctionConstructor") ||| (F.Code = "FunctionPrototypeCall") ||| (F.Code = "TypedArraySubConstructor"))) {
 	  args := completeArgs(argumentsList, F);
 	  return {F.Code}(externalScope, V, NewTarget, F.strict, args)
 	};
