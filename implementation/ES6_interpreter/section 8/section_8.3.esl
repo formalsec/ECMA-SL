@@ -29,11 +29,17 @@ function createExecutionContext() {
     LexicalEnvironment: 'undefined,
     VariableEnvironment: 'undefined,
     ThisBinding: 'undefined,
-    strictCode: false,
     Function: 'undefined,
     Realm: 'undefined,
-    CodeEvaluationState: 'undefined
+    /* CodeEvaluationState: 'undefined */
+    running: true,
+    strictCode: false
   }
+};
+
+/* TODO ver como para contexto de execucao */
+function setStateExecutionContext(runningExecCtx, running) {
+  runningExecCtx.running := running
 };
 
 function getLexicalEnvironment(runningExecCtx) {

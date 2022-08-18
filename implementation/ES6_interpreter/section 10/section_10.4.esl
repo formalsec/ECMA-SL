@@ -12,37 +12,57 @@
 
 function EnteringGlobalCode(program) {
   /* 10.4.1 Entering Global Code */
-  globalObject := initGlobalObject(program.strict);
+  
+  /* cria o realm para poder criar os intrinsics */
+  realm := CreateRealm(program.strict);
+
+  InitializeHostDefinedRealm(realm, program.strict);
+  
+  /* globalObject := realm.intrinsics.GlobalObject; */
+
+  /* initGlobalObject(globalObject, realm.intrinsics, program.strict); */
   /* globalObject := optimizeInitGlobalObject(program.strict); */
 
   /* The following steps are performed when control enters the execution context for global code: */
 
   /* 1. Initialise the execution context using the global code as described in 10.4.1.1. */
-  globalScope := InitialGlobalExecutionContext(globalObject, program);
+  globalScope := InitialGlobalExecutionContext(realm, program);
 
   /* 2. Perform Declaration Binding Instantiation as described in 10.5 using the global code. */
-  DeclarationBindingInstantiation(program, [], globalScope, null);
+  /* DeclarationBindingInstantiation(program, [], globalScope, null); */
+  GlobalDeclarationInstantiation(program, globalScope);
 
   return globalScope
 };
 
-function InitialGlobalExecutionContext(globalObject, program) {
+function InitialGlobalExecutionContext(realm, program) {
   /* 10.4.1.1 Initial Global Execution Context */
 
-  globalExecCtx := createExecutionContext();
-  /* The following steps are performed to initialise a global execution context for ECMAScript code C: */
+  globalEnv := realm.globalEnv;
+  globalObject := realm.intrinsics.GlobalObject;
 
-  globalEnv := GlobalEnvironment(globalObject);
+  globalExecCtx := createExecutionContext();
+  
+  globalExecCtx.Realm := realm;
+  globalExecCtx.Function := 'null;
+  /* The following steps are performed to initialise a global execution context for ECMAScript code C: */
+  /* globalEnv := GlobalEnvironment(globalObject); */
+
   /* 1. Set the VariableEnvironment to the Global Environment. */
   setVariableEnvironment(globalExecCtx, globalEnv);
   /* 2. Set the LexicalEnvironment to the Global Environment. */
   setLexicalEnvironment(globalExecCtx, globalEnv);
   /* 3. Set the ThisBinding to the global object. */
+
   globalEnvRec := globalEnv.EnvRec;
   BindThisValue(globalEnvRec, globalObject);
-  /*setThisBinding(globalExecCtx, globalObject); */
+  /* setThisBinding(globalExecCtx, globalObject); */
 
   setContainedInStrictCode(globalExecCtx, isStrictModeCode(program, globalExecCtx));
+
+  /* print "INITGLOBAL 2";
+  print globalEnv;
+  print globalExecCtx; */
 
   return globalExecCtx
 };

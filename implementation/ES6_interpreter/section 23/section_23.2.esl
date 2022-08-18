@@ -96,11 +96,11 @@ function initSetPrototype(global, objectPrototype, strict) {
 function getSetPrototype (strict) { 
   print "inside getSetPrototype";
 
-  refSet := newPropertyReference(|global|, "Set", strict);
+  /* refSet := newPropertyReference(|global|, "Set", strict);
   SetObject := GetValue(refSet);
   refSetProto := newPropertyReference(SetObject, "prototype", strict);
-  objectSetProto := GetValue(refSetProto);
-  return objectSetProto
+  objectSetProto := GetValue(refSetProto); */
+  return |Intrinsics|["SetPrototype"]
 }; 
 
 

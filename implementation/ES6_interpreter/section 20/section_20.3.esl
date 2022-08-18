@@ -2855,13 +2855,13 @@ function fillDatePrototype(datePrototypeObject, dateConstructor, globalObject, s
 
 
 function getDatePrototype(strict) {
-  refDate := newPropertyReference(|global|, "Date", strict);
+  /* refDate := newPropertyReference(|global|, "Date", strict);
   DateObject := GetValue(refDate);
 
   refDateProto := newPropertyReference(DateObject, "prototype", strict);
-  objectDateProto := GetValue(refDateProto);
+  objectDateProto := GetValue(refDateProto); */
 
-  return objectDateProto
+  return |Intrinsics|["DatePrototype"]
 };
 
 function getTimeValueIdentifyingCurrentTime() {

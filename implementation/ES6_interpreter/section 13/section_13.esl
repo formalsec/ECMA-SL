@@ -33,7 +33,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   /* 5. Set the [[Get]] internal property of F as described in 15.3.5.4. */
   F.Get := "OrdinaryObjectGet";
   /* 6. Set the [[Call]] internal property of F as described in 13.2.1. */
-  F.Call := "OrdinaryCall";
+  F.Call := "OrdinaryFunctionCall";
   /* 7. Set the [[Construct]] internal property of F as described in 13.2.2. */
   F.Construct := "OrdinaryFunctionConstruct";
   /* 8. Set the [[HasInstance]] internal property of F as described in 15.3.5.3. */

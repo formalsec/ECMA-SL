@@ -373,21 +373,21 @@ function NativeErrorConstructor(globalObject, strict, message, nativeErrorName) 
 
 /* Auxiliary functions */
 function getErrorPrototype(strict) {
-  refError := newPropertyReference(|global|, "Error", strict);
+  /* refError := newPropertyReference(|global|, "Error", strict);
   ErrorObject := GetValue(refError);
 
   refErrorProto := newPropertyReference(ErrorObject, "prototype", strict);
-  errorObjectProto := GetValue(refErrorProto);
+  errorObjectProto := GetValue(refErrorProto); */
 
-  return errorObjectProto
+  return |Intrinsics|["ErrorPrototype"]
 };
 
 function getNativeErrorPrototype(strict, nativeErrorName) {
-  refNativeError := newPropertyReference(|global|, nativeErrorName, strict);
+  /* refNativeError := newPropertyReference(|global|, nativeErrorName, strict);
   NativeErrorObject := GetValue(refNativeError);
 
   refNativeErrorProto := newPropertyReference(NativeErrorObject, "prototype", strict);
-  nativeErrorObjectProto := GetValue(refNativeErrorProto);
+  nativeErrorObjectProto := GetValue(refNativeErrorProto); */
 
-  return nativeErrorObjectProto
+  return |Intrinsics|[s_concat [nativeErrorName,"Prototype"]]
 }

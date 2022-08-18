@@ -1,10 +1,30 @@
+/* aux functions to handle execution stack */
+
+function pushExecStack(newExecCtx) {
+   l_add(|ctxStack|, newExecCtx) 
+};
+
+function popExecStack() {
+    l_remove_last |ctxStack|
+};
+
+function topExecStack() {
+    return l_nth(|ctxStack|, l_len(|ctxStack|) - 1)
+};
+
+function execStackIsEmpty() {
+    return l_len(|ctxStack|) = 0
+};
+
 /* 8.5 ECMAScript Initialization()
 
 An ECMAScript implementation performs the following steps prior to the execution of any Jobs or
 the evaluation of any ECMAScript code: */
-function ECMAScriptInitialization() {
+function ECMAScriptInitialization(program) {
+    |ctxStack| = [];
+
     /* Let realm be CreateRealm(). */
-    realm := CreateRealm();
+    realm := CreateRealm(program.strict);
 
     /* Let newContext be a new execution context. */
     newContext := createExecutionContext();
@@ -16,9 +36,10 @@ function ECMAScriptInitialization() {
     newContext.Realm := realm;
 
     /* Push newContext onto the execution context stack; newContext is now the running execution context. */
+    pushExecStack(newContext);
 
     /* Let status be InitializeHostDefinedRealm(realm). */
-    status := InitializeHostDefinedRealm(realm);
+    status := InitializeHostDefinedRealm(realm, program.strict);
 
     /* If status is an abrupt completion, then */
     if ( isAnAbruptCompletion(status) )
@@ -27,7 +48,7 @@ function ECMAScriptInitialization() {
         assert( realm = null );
 
         /* Terminate ECMAScript execution. */
-        return;
+        return
     }
 
     /* In an implementation dependent manner, obtain the ECMAScript source texts (see clause 10) for zero or more ECMAScript scripts and/or ECMAScript modules. For each such sourceText do, */
@@ -43,17 +64,17 @@ function ECMAScriptInitialization() {
 
 The abstract operation InitializeHostDefinedRealm with parameter realm performs the following
 steps: */
-function InitializeHostDefinedRealm(realm) {
+function InitializeHostDefinedRealm(realm, strict) {
     /* If this implementation requires use of an exotic object to serve as realm’s global object, let
     global be such an object created in an implementation defined manner. Otherwise, let global
     be undefined indicating that an ordinary object should be created as the global object. */
-    global := 'undefined;
+    global := realm.intrinsics.GlobalObject;
 
     /* Perform SetRealmGlobalObject(realm, global). */
     SetRealmGlobalObject(realm, global);
 
     /* Let globalObj be SetDefaultGlobalBindings(realm). */
-    globalObj := SetDefaultGlobalBindings(realm);
+    globalObj := SetDefaultGlobalBindings(realm, strict);
 
     /* ReturnIfAbrupt(globalObj). */
     @ReturnIfAbrupt(globalObj);
