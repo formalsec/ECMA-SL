@@ -322,6 +322,71 @@ function mapper(callback, obj) {
         body: mapper(callback, new_obj.body),
       };
 
+    case "ClassDeclaration":
+      return {
+        type: "ClassDeclaration",
+        id: mapper(callback, new_obj.id),
+        superClass: mapper(callback, new_obj.superClass),
+        body: mapper(callback, new_obj.body)
+      }
+
+    case "ClassExpression":
+      return {
+        type: "ClassExpression",
+        id: mapper(callback, new_obj.id),
+        superClass: mapper(callback, new_obj.superClass),
+        body: mapper(callback, new_obj.body)
+      }
+
+      case "ClassBody": {
+        return {
+          type: "ClassBody",
+          body: new_obj.body.map((stmt) => mapper(callback, stmt))
+        }
+      }
+
+      case "MethodDefinition": {
+        return {
+          type: "MethodDefinition",
+          key: mapper(callback, new_obj.key),
+          value: mapper(callback, new_obj.value),
+          kind: new_obj.kind,
+          static: new_obj.static
+        }
+      }
+
+      case "AssignmentPattern": {
+        return {
+          type: "AssignmentPattern",
+          left: mapper(callback, new_obj.left),
+          right: mapper(callback, new_obj.right)
+        }
+      }
+
+      case "ObjectPattern": {
+        return {
+          type: "ObjectPattern",
+          properties: new_obj.properties.map(stmt => mapper(callback, stmt)),
+          kind: new_obj.kind,
+          shorthand: new_obj.shorthand,
+          method: new_obj.method
+        }
+      }
+
+      case "SuperCall": {
+        return {
+          type: "SuperCall",
+          arguments: new_obj.arguments.map(stmt => mapper(callback, stmt))
+        }
+      }
+
+      case "SuperProperty": {
+        return {
+          type: "SuperProperty",
+          property: mapper(callback, new_obj.property)
+        }
+      }
+
     default:
       return new_obj;
   }
