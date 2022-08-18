@@ -14,6 +14,7 @@ function EnteringGlobalCode(program) {
   /* 10.4.1 Entering Global Code */
   
   /* cria o realm para poder criar os intrinsics */
+  |ctxStack| := [];
   realm := CreateRealm(program.strict);
 
   InitializeHostDefinedRealm(realm, program.strict);
@@ -45,6 +46,8 @@ function InitialGlobalExecutionContext(realm, program) {
   
   globalExecCtx.Realm := realm;
   globalExecCtx.Function := 'null;
+
+  pushExecStack(globalExecCtx);
   /* The following steps are performed to initialise a global execution context for ECMAScript code C: */
   /* globalEnv := GlobalEnvironment(globalObject); */
 

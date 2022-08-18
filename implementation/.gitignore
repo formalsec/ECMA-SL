@@ -2,6 +2,7 @@
 __parse_js_aux_input_file__.js
 __parse_js_aux_output_file__.js
 result.txt
+result2.txt
 heap.json
 ES5_interpreter/core.esl
 ES5_interpreter/test262.esl

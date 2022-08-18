@@ -7,11 +7,13 @@ function initJobQueue() {
 
 function appendToJobQueue(job, queueName) {
   if ( queueName = "PromiseJobs") {
-    |PromiseJobQueue| := l_add(|PromiseJobQueue|, job);
+    |PromiseJobQueue| := l_add(|PromiseJobQueue|, job)
   }
   else {
     |ScriptJobQueue| := l_add(|ScriptJobQueue|, job)
-  }
+  };
+
+  return
 };
 
 function executeJob(job) {
@@ -28,6 +30,14 @@ function executeJob(job) {
         argument := l_nth(job.Arguments, 1);
         PromiseReactionJob(reaction, argument)
       }
+      case "ScriptEvaluationJob": {
+        sourceText := l_nth(job.Arguments, 0);
+        ScriptEvaluationJob(sourceText)
+      }
+      case "TopLevelModuleEvaluationJob": {
+        sourceText := l_nth(job.Arguments, 0);
+        TopLevelModuleEvaluationJob(sourceText)
+      }
       sdefault: throw "Job not implemented."  
     }
 };
@@ -37,7 +47,8 @@ function newPendingJob(Job, Arguments, realm, HostDefined) {
     Job: Job,
     Arguments: Arguments,
     Realm: realm,
-    HostDefined: HostDefined }
+    HostDefined: HostDefined 
+  }
 };
 
 /* 8.4.1 EnqueueJob (queueName, job, arguments) */
@@ -98,10 +109,10 @@ function NextJob(result) {
     /* Let nextQueue be a non-empty Job Queue chosen in an implementation defined manner. If all Job Queues are
     empty, the result is implementation defined. */
     if ( !(l_len(|PromiseJobQueue|) = 0) ) {
-      nextQueue := |PromiseJobQueue|;
+      nextQueue := |PromiseJobQueue|
     }
     else {
-      nextQueue := |ScriptJobQueue|;
+      nextQueue := |ScriptJobQueue|
     };
 
     /* Let nextPending be the PendingJob record at the front of nextQueue. Remove that record from nextQueue. */
@@ -109,7 +120,7 @@ function NextJob(result) {
     nextQueue := tl nextQueue;
 
     /* Let newContext be a new execution context. */
-    newContext := newExecCtx();
+    newContext := createExecutionContext();
 
     /* Set newContext’s Realm to nextPending.[[Realm]]. */
     newContext.Realm := nextPending.Realm;
@@ -120,5 +131,6 @@ function NextJob(result) {
     /* Perform any implementation or host environment defined job initialization using nextPending. */
 
     /* Perform the abstract operation named by nextPending.[[Job]] using the elements of nextPending.[[Arguments]] as its arguments. */
-    executeJob(nextPending)
+    executeJob(nextPending);
+    return
 }

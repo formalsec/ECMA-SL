@@ -1,15 +1,17 @@
 /* aux functions to handle execution stack */
 
 function pushExecStack(newExecCtx) {
-   l_add(|ctxStack|, newExecCtx) 
+   |ctxStack| := l_prepend(newExecCtx, |ctxStack|);
+   return 
 };
 
 function popExecStack() {
-    l_remove_last |ctxStack|
+    |ctxStack| := tl |ctxStack|;
+    return
 };
 
 function topExecStack() {
-    return l_nth(|ctxStack|, l_len(|ctxStack|) - 1)
+    return hd |ctxStack|
 };
 
 function execStackIsEmpty() {
@@ -22,6 +24,7 @@ An ECMAScript implementation performs the following steps prior to the execution
 the evaluation of any ECMAScript code: */
 function ECMAScriptInitialization(program) {
     |ctxStack| = [];
+    initJobQueue();
 
     /* Let realm be CreateRealm(). */
     realm := CreateRealm(program.strict);
@@ -49,15 +52,18 @@ function ECMAScriptInitialization(program) {
 
         /* Terminate ECMAScript execution. */
         return
-    }
+    };
 
-    /* In an implementation dependent manner, obtain the ECMAScript source texts (see clause 10) for zero or more ECMAScript scripts and/or ECMAScript modules. For each such sourceText do, */
+    /* In an implementation dependent manner, obtain the ECMAScript source texts (see clause 10)
+       for zero or more ECMAScript scripts and/or ECMAScript modules. For each such sourceText
+       do, */
         /* If sourceText is the source code of a script, then */
             /* Perform EnqueueJob("ScriptJobs", ScriptEvaluationJob, « sourceText »). */
         /* Else sourceText is the source code of a module, */
             /* Perform EnqueueJob("ScriptJobs", TopLevelModuleEvaluationJob, « sourceText »). */
     
     /* NextJob NormalCompletion(undefined). */
+    return NextJob( NormalCompletion('undefined) )
 };
 
 /* 8.5.1 InitializeHostDefinedRealm ( realm )

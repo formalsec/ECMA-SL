@@ -14,7 +14,7 @@ import "ES6_interpreter/section 8/section_8.esl";
 import "ES6_interpreter/section 8/section_8.1.esl";
 import "ES6_interpreter/section 8/section_8.2.esl";
 import "ES6_interpreter/section 8/section_8.3.esl";
-/* import "ES6_interpreter/section 8/section_8.4.esl"; */
+import "ES6_interpreter/section 8/section_8.4.esl";
 import "ES6_interpreter/section 8/section_8.5.esl";
 
 import "ES6_interpreter/section 8/section_8.6.esl";

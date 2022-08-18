@@ -546,7 +546,7 @@ function HasBindingObjectRecord(envRec, N) {
 	@ReturnIfAbrupt(unscopables);
 
 	/* If Type(unscopables) is Object, then */
-	if ( !(Type(unscopables) = "Object") ) {
+	if ( Type(unscopables) = "Object" ) {
 	    /* Let blocked be ToBoolean(Get(unscopables, N)). */
 	    blocked := ToBoolean(Get(unscopables, N));
 

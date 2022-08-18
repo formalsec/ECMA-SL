@@ -35,8 +35,6 @@ function JS_Interpreter_Program(p, callingExecCtx) {
 
     initJobQueue();
 
-    
-
     /* 2. If SourceElements is not present, return (normal, empty, empty). */
     if (SourceElementsopt = []) {
       return NormalCompletion('empty)
@@ -55,10 +53,11 @@ function JS_Interpreter_Program(p, callingExecCtx) {
     result := JS_Interpreter_SourceElements(SourceElementsopt, progCxt);
     /* 5. Exit the execution context progCxt. */
 
-    executeJobs();
+    /* executeJobs(); */
+    return NextJob(NormalCompletion('undefined) )
 
     /* 6. Return result. */
-    return result
+    /* return result */
   }
   | { sourceType: "script", type: "EarlySyntaxError", message: message } -> {
     |__CUR__SYMB__| := 0; 
