@@ -472,13 +472,15 @@ function PromiseReactionJob(reaction, argument) {
        «handlerResult.[[value]]»). */
     status := Call(null, null, promiseCapability.Reject, 'undefined, [getCompletionValue(handlerResult)]);
     /* b. NextJob Completion(status). */
-    return NextJob(Completion(status))
+    NextJob(Completion(status));
+    return
   };
   /* 8. Let status be Call(promiseCapability.[[Resolve]], undefined, 
      «handlerResult.[[value]]»). */
   status := Call(null, null, promiseCapability.Resolve, 'undefined, [getCompletionValue(handlerResult)]);
   /* 9. NextJob Completion(status). */
-  return NextJob(Completion(status))
+  NextJob(Completion(status));
+  return
 };
 
 /**
@@ -499,10 +501,12 @@ function PromiseResolveThenableJob(strict, promiseToResolve, thenable, then) {
        «thenCallResult.[[value]]»). */
     status := Call(null, null, resolvingFunctions.Reject, 'undefined, [getCompletionValue(thenCallResult)]);
     /* b. NextJob Completion(status). */
-    return NextJob(Completion(status))
+    NextJob(Completion(status));
+    return
   };
   /* 4. NextJob Completion(thenCallResult). */
-  return NextJob(Completion(thenCallResult))
+  NextJob(Completion(thenCallResult));
+  return 
 };
 /**
  * NOTE This Job uses the supplied thenable and its then method to resolve the 

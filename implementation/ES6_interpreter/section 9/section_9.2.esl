@@ -44,28 +44,24 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, NewTarget,
         throw TypeErrorConstructorInternal()
     };
 
-    print "ORDINARY FUNC CALL";
-    print externalScope;
-
     /* 3. Let callerContext be the running execution context. */
-    callerContext := externalScope;
+    callerContext := topExecStack();
 
     /* 4. Let calleeContext be PrepareForOrdinaryCall(F, undefined). */
-    calleeContext := PrepareForOrdinaryCall(callerContext, F, 'undefined);
+    calleeContext := PrepareForOrdinaryCall(F, 'undefined);
 
-    /* TODO */
     /* 5. Assert: calleeContext is now the running execution context. */
+    assert( calleeContext = topExecStack() );
 
-    /* TODO */
     /* 6. Perform OrdinaryCallBindThis(F, calleeContext, thisArgument). */
     OrdinaryCallBindThis(F, calleeContext, thisArgument);
-
 
     /* 7. Let result be OrdinaryCallEvaluateBody(F, argumentsList). */
     result := OrdinaryCallEvaluateBody(calleeContext, F, argumentList);
 
     /* 8. Remove calleeContext from the execution context stack and restore callerContext as the running execution context. */
-    /* TODO */
+    popExecStack();
+    callerContext.Suspend := false;
 
     /* 9. If result.[[type]] is return, return NormalCompletion(result.[[value]]). */
     if (getCompletionType(result) = 'return) {
@@ -87,15 +83,15 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, NewTarget,
  *   and ECMAScript language value newTarget, the following steps are taken:
  */
 
-function PrepareForOrdinaryCall(externalScope, F, newTarget) {
+function PrepareForOrdinaryCall(F, newTarget) {
     /* 1. Assert: Type(newTarget) is Undefined or Object. */
     assert(Type(newTarget) = "Undefined" ||| Type(newTarget) = "Object");
 
     /* 2. Let callerContext be the running execution context. */
-    callerContext := externalScope;
-    if (externalScope = null) {
+    callerContext := topExecStack();
+    /* if (externalScope = null) {
       callerContext := F.Environment
-    };
+    }; */
 
     /* 3. Let calleeContext be a new ECMAScript code execution context. */
     calleeContext := createExecutionContext();
@@ -120,17 +116,14 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
     calleeContext.VariableEnvironment := localEnv;
 
     /* 10. If callerContext is not already suspended, Suspend callerContext. */
-    /* TODO */
+    callerContext.Suspend = true;
 
     /* 11. Push calleeContext onto the execution context stack; calleeContext is now the running execution context. */
-    /* TODO */
+    pushExecStack(calleeContext);
 
     /* 12. NOTE Any exception objects produced after this point are associated with calleeRealm. */
 
     /* 13. Return calleeContext. */
-    print "calleeContext debug";
-    print calleeContext;
-    print calleeContext.LexicalEnvironment;
     return calleeContext
 };
 
@@ -226,7 +219,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
   assert(Type(newTarget) = "Object");
 
   /* 3. Let callerContext be the running execution context. */
-  callerContext := scope;
+  callerContext := topExecStack();
 
   /* 4. Let kind be F's [[ConstructorKind]] internal slot. */
   kind := F.ConstructorKind;
@@ -241,10 +234,10 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
   };
 
   /* 6. Let calleeContext be PrepareForOrdinaryCall(F, newTarget). */
-  calleeContext := PrepareForOrdinaryCall(scope, F, newTarget);
+  calleeContext := PrepareForOrdinaryCall(F, newTarget);
 
   /* 7. Assert: calleeContext is now the running execution context. */
-  /* TODO: Instruction not yet implemented. */
+  assert( calleeContext = topExecStack() );
 
   /* 8. If kind is "base", */
   if (kind = "base") {
@@ -263,7 +256,8 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
 
   /* 12. Remove calleeContext from the execution context stack and restore
      callerContext as the running execution context. */
-  /* TODO: Instruction not yet implemented. */
+  popExecStack();
+  callerContext.Suspend := false;
 
   /* 13. If result.[[type]] is return, then */
   if (getCompletionType(result) = 'return) {

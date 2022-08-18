@@ -39,7 +39,9 @@ function executeJob(job) {
         TopLevelModuleEvaluationJob(sourceText)
       }
       sdefault: throw "Job not implemented."  
-    }
+    };
+
+    return
 };
 
 function newPendingJob(Job, Arguments, realm, HostDefined) {
@@ -75,7 +77,7 @@ function EnqueueJob(queueName, job, arguments) {
     the [[HostDefined]] field or any other field of pending. */
 
     /* Add pending at the back of the Job Queue named by queueName. */
-    appendToJobQueue(job, queueName);
+    appendToJobQueue(pending, queueName);
 
     /* Return NormalCompletion(empty). */
     return NormalCompletion('empty)
@@ -116,8 +118,17 @@ function NextJob(result) {
     };
 
     /* Let nextPending be the PendingJob record at the front of nextQueue. Remove that record from nextQueue. */
+    print "DOING NEXTJOB 1";
+    print nextQueue;
+    print |PromiseJobQueue|;
+   
     nextPending := hd nextQueue;
     nextQueue := tl nextQueue;
+
+    print "DOING NEXTJOB 2";
+    print |PromiseJobQueue|;
+    print nextPending;
+    print nextQueue;
 
     /* Let newContext be a new execution context. */
     newContext := createExecutionContext();

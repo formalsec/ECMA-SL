@@ -54,10 +54,10 @@ function JS_Interpreter_Program(p, callingExecCtx) {
     /* 5. Exit the execution context progCxt. */
 
     /* executeJobs(); */
-    return NextJob(NormalCompletion('undefined) )
+    NextJob(NormalCompletion('undefined) );
 
     /* 6. Return result. */
-    /* return result */
+    return result
   }
   | { sourceType: "script", type: "EarlySyntaxError", message: message } -> {
     |__CUR__SYMB__| := 0; 
