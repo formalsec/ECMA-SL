@@ -111,24 +111,18 @@ function NextJob(result) {
     /* Let nextQueue be a non-empty Job Queue chosen in an implementation defined manner. If all Job Queues are
     empty, the result is implementation defined. */
     if ( !(l_len(|PromiseJobQueue|) = 0) ) {
-      nextQueue := |PromiseJobQueue|
+      nextPending := hd |PromiseJobQueue|;
+      |PromiseJobQueue| := tl |PromiseJobQueue|
+    }
+    elif ( !(l_len(|ScriptJobQueue|) = 0 ) ) {
+      nextPending := hd |ScriptJobQueue|;
+      |ScriptJobQueue| := tl |ScriptJobQueue|
     }
     else {
-      nextQueue := |ScriptJobQueue|
+      return result
     };
 
     /* Let nextPending be the PendingJob record at the front of nextQueue. Remove that record from nextQueue. */
-    print "DOING NEXTJOB 1";
-    print nextQueue;
-    print |PromiseJobQueue|;
-   
-    nextPending := hd nextQueue;
-    nextQueue := tl nextQueue;
-
-    print "DOING NEXTJOB 2";
-    print |PromiseJobQueue|;
-    print nextPending;
-    print nextQueue;
 
     /* Let newContext be a new execution context. */
     newContext := createExecutionContext();
@@ -143,5 +137,6 @@ function NextJob(result) {
 
     /* Perform the abstract operation named by nextPending.[[Job]] using the elements of nextPending.[[Arguments]] as its arguments. */
     executeJob(nextPending);
-    return
+    
+    return result
 }

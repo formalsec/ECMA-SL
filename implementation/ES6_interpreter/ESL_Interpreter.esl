@@ -54,7 +54,7 @@ function JS_Interpreter_Program(p, callingExecCtx) {
     /* 5. Exit the execution context progCxt. */
 
     /* executeJobs(); */
-    NextJob(NormalCompletion('undefined) );
+    NextJob(NormalCompletion('undefined));
 
     /* 6. Return result. */
     return result
