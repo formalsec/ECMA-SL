@@ -166,6 +166,10 @@ function newValueReference(base, referencedName, strict) {
   return ("R", "V", base, referencedName, strict)
 };
 
+function newSuperReference(base, referencedName, thisValue, strict) {
+  return ("R", "S", base, referencedName, strict, thisValue)
+};
+
 function newPropertyReference(base, referencedName, strict) {
   return ("R", "P", base, referencedName, strict)
 };
@@ -228,7 +232,7 @@ function IsUnresolvableReference (V) {
 
 /* Returns true if this reference has a thisValue component. */
 function IsSuperReference (V) {
-  if ( t_len V = 7 ) {
+  if ( t_len V = 6 ) {
     return true
   } else {
     return false
@@ -361,7 +365,7 @@ function GetThisValue(V) {
     /* If IsSuperReference(V), then */
     if ( IsSuperReference(V) ) {
         /* Return the value of the thisValue component of the reference V. */
-        return t_nth(V, 6)
+        return t_nth(V, 5)
     };
 
     /* Return GetBase(V). */
@@ -371,7 +375,7 @@ function GetThisValue(V) {
 /**
  * 6.2.3.4 InitializeReferencedBinding (V, W)
 */
-function InitializeReferencedBinding(V, W, envRec) {
+function InitializeReferencedBinding(V, W) {
     /* ReturnIfAbrupt(V). */
     @ReturnIfAbrupt(V);
 
@@ -391,8 +395,7 @@ function InitializeReferencedBinding(V, W, envRec) {
     /*assert( isEnvironmentRecord(base) ); */
 
     /* Return base.InitializeBinding(GetReferencedName(V), W). */
-    SetMutableBinding(envRec, GetReferencedName(V), W, false);
-    return NormalCompletion('empty)
+    return {base.InitializeBinding}(base, GetReferencedName(V), W)
 };
 
 /* Auxiliary functions created for the purposes of dealing with the Property Identifier type. */

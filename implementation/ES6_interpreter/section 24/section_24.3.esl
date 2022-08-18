@@ -536,7 +536,7 @@ function InternalizeJSONProperty(holder, name, reviver) {
     /* c. If isArray is true, then */
     if (isArray) {
       /* i. Set I to 0. */
-      I := 0.; 
+      I := 0.;
       /* ii. Let len be ToLength(Get(val, "length")). */
       len := ToLength(Get(val, "length"));
       print "debug len:";
@@ -558,8 +558,8 @@ function InternalizeJSONProperty(holder, name, reviver) {
           print "debug in if";
           print val.JSProperties;
           /* a. Let status be val.[[Delete]](ToString(I)).*/
-          /* status := {val.Delete}(val, ToString(I), true); */
-          status := GuardedDelete(val, ToString(I));
+          status := {val.Delete}(val, ToString(I));
+          /*status := GuardedDelete(val, ToString(I)); */
           print "survived Delete"
         }
         /* 4. Else */
@@ -597,8 +597,7 @@ function InternalizeJSONProperty(holder, name, reviver) {
         if (newElement = 'undefined) {
 
           /* a. Let status be val.[[Delete]](P).*/
-          /*status := {val.Delete}(val, P, true)*/
-          GuardedDelete(val, P)
+          status := {val.Delete}(val, P)
         }
         /* 4. Else */
         else {

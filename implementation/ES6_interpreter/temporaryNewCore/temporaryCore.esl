@@ -183,10 +183,10 @@ function InitializeBindingDeclarativeRecordTemp(env, N, V) {
   if (varAlreadyDeclared = false) {
     /* i. Call env’s CreateMutableBinding concrete method passing dn and configurableBindings as
           the arguments. */
-    CreateMutableBinding(env, N, true);
+    {env.CreateMutableBinding}(env, N, true);
     /* ii. Call env’s SetMutableBinding concrete method passing dn, undefined, and strict as the
             arguments.*/
-    SetMutableBinding(env, N, V, true)
+    {env.SetMutableBinding}(env, N, V, true)
   };
   return 'undefined
 };
@@ -217,4 +217,43 @@ function GuardedDelete(O, P) {
 
 function deleteWrapper(error) {
     return false
+};
+
+function HasThisBinding(envRec) {
+  if (!("thisBindingStatus" in_obj envRec)) {
+    return false
+  } else {
+    if (envRec.thisBindingStatus = "lexical") {
+      return false
+    };
+    return true
+  }
+};
+
+function HasSuperBinding(envRec) {
+  if (!("thisBindingStatus" in_obj envRec)) {
+    return false
+  } else {
+    if (envRec.thisBindingStatus = "lexical") {
+      return false
+    };
+    if (envRec.HomeObject = 'undefined) {
+      return false
+    };
+    return true
+  }
+};
+
+function spreadElementObjectInitializer(resultingObj, spreadExpr, scope) {
+  spreadRef := JS_Interpreter_Expr(spreadExpr, scope);
+  spreadObj := GetValue(spreadRef);
+  if (spreadObj = 'null ||| spreadObj = 'undefined ||| !("JSPropertires" in_obj spreadObj)) {
+    return
+  };
+  props := OrdinaryObjectOwnPropertyKeys(spreadObj);
+  foreach (P : props) {
+    desc := {spreadObj.GetOwnProperty}(spreadObj, P);
+    OrdinaryObjectDefineOwnProperty(resultingObj, P, desc)
+  };
+  return
 }

@@ -154,10 +154,11 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
   if ((strict = true) &&& anyStrictModeRestrictionApplicable(body)) {
     throw SyntaxErrorConstructorInternal()
   };
-  /* 11. Return a new Function object created as specified in 13.2 passing P as the FormalParameterList opt and body
-         as the FunctionBody. Pass in the Global Environment as the Scope parameter and strict as the Strict flag. */
-  return CreateFunctionObject(P, body, getGlobalEnvironment(globalObject), strict, null)
-
+  F := FunctionAllocate(getFunctionPrototype(strict), strict, "normal");
+  FunctionInitialize(F, "normal", P, body, getGlobalEnvironment(globalObject));
+  MakeConstructor(F, null, null);
+  SetFunctionName(F, "anonymous", null);
+  return F
   /* A prototype property is automatically created for every function, to provide for the possibility that the
      function will be used as a constructor. */
 

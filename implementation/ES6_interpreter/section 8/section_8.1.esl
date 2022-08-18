@@ -1,4 +1,6 @@
 /* Auxiliary functions used to deal with Lexical Environments and Environment Records */
+
+/* to get global object we will probably need to access the only global record */
 function getGlobalObject(lexicalEnvironment) {
   if (!("EnvRec" in_obj lexicalEnvironment)) { return lexicalEnvironment };
   lex := lexicalEnvironment;
@@ -77,6 +79,7 @@ function newObjectEnvironmentRecord(bindingObj) {
      Both own and inherited properties are included in the set regardless of the setting of their [[Enumerable]] attribute. */
   objEnvRec := {
     bindingObject: bindingObj,
+    withEnvironment: false,
     provideThis: false,
 
     HasBinding: 						"HasBindingObjectRecord",
@@ -167,7 +170,7 @@ function newBinding(initialised, value, deletable, modifiable, strict) {
 };
 
 function newMutableBinding(value) {
-  return newBinding(true, value, false, true, false)
+  return newBinding(false, value, false, true, false)
 };
 
 function newImmutableBinding(value) {
@@ -323,7 +326,7 @@ function CreateMutableBindingDeclarativeRecord(envRec, N, D) {
 
     /* Create a mutable binding in envRec for N and record that it is uninitialized. If D is true record that the
        newly created binding may be deleted by a subsequent DeleteBinding call. */
-    CreateMutableBinding(envRec, N, 'undefined);
+    createMutableBinding(envRec, N, 'undefined);
 
     if ( D = true ) {
     	setBindingDeletable(envRec, N, true)
@@ -347,7 +350,7 @@ function CreateImmutableBindingDeclarativeRecord(envRec, N, S) {
 
 	/* Create an immutable binding in envRec for N and record that it is uninitialized. If S is true record that
 	the newly created binding is a strict binding. */
-	CreateImmutableBinding(envRec, N, 'undefined);
+	createImmutableBinding(envRec, N);
 
 	if ( S = true ) {
 		setBindingStrict(envRec, N, true)
@@ -369,7 +372,7 @@ function InitializeBindingDeclarativeRecord(envRec, N, V) {
 	assert( isUninitialisedBinding(envRec, N) );
 
 	/* Set the bound value for N in envRec to V. */
-	setBindingValue(N, V);
+	setBindingValue(envRec, N, V);
 
 	/* Record that the binding for N in envRec has been initialized. */
 	setBindingInitialised(envRec, N, true);
@@ -388,7 +391,7 @@ function SetMutableBindingDeclarativeRecord(envRec, N, V, S) {
 	/* Let envRec be the declarative Environment Record for which the method was invoked. */
 
 	/* If envRec does not have a binding for N, then */
-	if ( !(HasBinding(envRec, N)) ) {
+	if ( !(HasBindingDeclarativeRecord(envRec, N)) ) {
 	    /* If S is true throw a ReferenceError exception. */
 	    if ( S = true ) {
 	    	throw ReferenceErrorConstructorInternal()
@@ -415,7 +418,7 @@ function SetMutableBindingDeclarativeRecord(envRec, N, V, S) {
 	}
 	/* Else if the binding for N in envRec is a mutable binding, change its bound value to V. */
 	elif ( isMutableBinding(envRec, N) ) {
-		setBindingValue(envRec, V)
+		setBindingValue(envRec, N, V)
 	}
 	/* Else this must be an attempt to change the value of an immutable binding so if S is true throw a TypeError exception. */
 	else {
@@ -537,13 +540,13 @@ function HasBindingObjectRecord(envRec, N) {
 	};
 
 	/* Let unscopables be Get(bindings, @@unscopables). */
-	unscopables := Get(bindings, "unscopables");
+	unscopables := Get(bindings, getUnscopablesPropertyName());
 
 	/* ReturnIfAbrupt(unscopables). */
 	@ReturnIfAbrupt(unscopables);
 
 	/* If Type(unscopables) is Object, then */
-	if ( !(Type(unscopables) = "Object") ) {
+	if ((Type(unscopables) = "Object") ) {
 	    /* Let blocked be ToBoolean(Get(unscopables, N)). */
 	    blocked := ToBoolean(Get(unscopables, N));
 
@@ -580,6 +583,9 @@ function CreateMutableBindingObjectRecord(envRec, N, D) {
     	configValue := false
     };
 
+    /* TODO check pq e que isto e preciso  */
+    createMutableBinding(envRec, N, 'undefined);
+
     /* Return DefinePropertyOrThrow(bindings, N,
     PropertyDescriptor{[[Value]]:undefined, [[Writable]]: true, [[Enumerable]]: true , [[Configurable]]: configValue}). */
     return DefinePropertyOrThrow(bindings, N, newDataPropertyDescriptorFull('undefined, true, true, configValue))
@@ -589,7 +595,9 @@ function CreateMutableBindingObjectRecord(envRec, N, D) {
 /* The concrete Environment Record method CreateImmutableBinding is never used within this specification in
    association with Object Environment Records.
 */
-function CreateImmutableBindingObjectRecord(envRec, N, S) {};
+function CreateImmutableBindingObjectRecord(envRec, N, S) {
+  assert(false)
+};
 
 /* 8.1.1.2.4 InitializeBinding (N,V) */
 /* The concrete Environment Record method InitializeBinding for object Environment Records is used to set the
@@ -628,7 +636,7 @@ function SetMutableBindingObjectRecord(envRec, N, V, S) {
     bindings := getBindingObject(envRec);
 
     /* Return Set(bindings, N, V, S). */
-    Set(bindings, N, V, S)
+    return Set(bindings, N, V, S)
 };
 
 /* 8.1.1.2.6 GetBindingValue(N,S) */
@@ -660,7 +668,11 @@ function GetBindingValueObjectRecord(envRec, N, S) {
 	};
 
 	/* Return Get(bindings, N). */
-	return Get(bindings, N)
+	V:= Get(bindings, N);
+
+  @ReturnIfAbrupt(V);
+
+  return V
 };
 
 /* 8.1.1.2.7 DeleteBinding (N) */
@@ -733,7 +745,7 @@ function BindThisValue(envRec, V) {
     };
 
     /* Set envRec.[[thisValue]] to V. */
-    envRec.thisValue := V;
+    envRec.__thisValue := V;
 
     /* Set envRec.[[thisBindingStatus]] to "initialized". */
     envRec.thisBindingStatus := "initialized";
@@ -784,7 +796,7 @@ function GetThisBinding(envRec) {
 	};
 
 	/* Return envRec.[[thisValue]]. */
-	return envRec.thisValue
+	return envRec.__thisValue
 };
 
 /* 8.1.1.3.5 GetSuperBase () */
@@ -1041,9 +1053,11 @@ function HasThisBindingGlobalRecord(envRec) {
 };
 
 /* 8.1.1.4.9 HasSuperBinding () */
+/*
 function HasSuperBinding(envRec) {
 	return false
 };
+*/
 
 /* 8.1.1.4.10 WithBaseObject() */
 /* Global Environment Records always return undefined as their WithBaseObject */
@@ -1441,7 +1455,7 @@ Boolean flag strict. The value of lex may be null. When called, the following st
 */
 function GetIdentifierReference(lex, name, strict) {
     /* If lex is the value null, then */
-    if ( lex = 'null ) {
+    if ( lex = 'null ||| lex = null ||| lex = 'undefined ) {
         /* Return a value of type Reference whose base value is undefined, whose referenced name is name, and whose strict reference flag is strict. */
         return newValueReference('undefined, name, strict)
     };
@@ -1466,7 +1480,7 @@ function GetIdentifierReference(lex, name, strict) {
         outer := getOuterEnvironmentReference(lex); 
 
         /* Return GetIdentifierReference(outer, name, strict). */
-        GetIdentifierReference(outer, name, strict)
+        return GetIdentifierReference(outer, name, strict)
     }
 };
 
@@ -1477,7 +1491,7 @@ the following steps are performed:
 */
 function NewDeclarativeEnvironment(E) {
     /* Let env be a new Lexical Environment. */
-    env := newLexicalEnvironment(E);
+    env := newLexicalEnvironment();
 
     /* Let envRec be a new declarative Environment Record containing no bindings. */
     envRec := newDeclarativeEnvironmentRecord();
@@ -1520,46 +1534,42 @@ When the abstract operation NewFunctionEnvironment is called with arguments F an
 following steps are performed:
 */
 function NewFunctionEnvironment(F, newTarget) {
-    /* Assert: F is an ECMAScript function. TODO */
+  /* 1. Assert: F is an ECMAScript function. */
+  assert(isESFunctionObject(F));
 
-    /* Assert: Type(newTarget) is Undefined or Object. */
+      /* Assert: Type(newTarget) is Undefined or Object. */
     assert( (Type(newTarget) = "Undefined") ||| (Type(newTarget) = "Object") );
 
-    /* Let env be a new Lexical Environment. */
-    env := newLexicalEnvironment();
-
-    /* Let envRec be a new function Environment Record containing no bindings. */
-    envRec := newFunctionEnvironmentRecord();
-
-    /* Set envRec.[[FunctionObject]] to F. */
-    envRec.FunctionObject := F;
-
-    /* If F’s [[ThisMode]] internal slot is lexical, set envRec.[[thisBindingStatus]] to "lexical". */
-    if ( F.ThisMode = "lexical" ) {
-    	envRec.thisBindingStatus := "lexical"
-    }
-    /* Else, Set envRec.[[thisBindingStatus]] to "uninitialized". */
-    else {
-    	envRec.thisBindingStatus := "uninitialized"
-    };
-
-    /* Let home be the value of F’s [[HomeObject]] internal slot. */
-    home := F.HomeObject;
-
-    /* Set envRec.[[HomeObject]] to home. */
-    envRec.HomeObject := home;
-
-    /* Set envRec.[[NewTarget]] to newTarget. */
-    envRec.NewTarget := newTarget;
-
-    /* Set env’s EnvironmentRecord to be envRec. */
-    setEnvironmentRecord(env, envRec);
-
-    /* Set the outer lexical environment reference of env to the value of F’s [[Environment]] internal slot. */
-    setOuterLexicalEnvironmentReference(env, F.Environment);
-
-    /* Return env. */
-    return env
+  /* 3. Let env be a new Lexical Environment. */
+  env := newLexicalEnvironment();
+  /* 4. Let envRec be a new function Environment Record containing no
+     bindings. */
+  envRec := newFunctionEnvironmentRecord();
+  /* 5. Set envRec.[[FunctionObject]] to F. */
+  envRec.FunctionObject := F;
+  /* 6. If F's [[ThisMode]] internal slot is lexical, */
+  if (F.ThisMode = "lexical") {
+    /* set envRec.[[thisBindingStatus]] to "lexical" */
+    envRec.thisBindingStatus := "lexical"
+  }
+  /* 7. Else, */
+  else {
+    /* Set envRec.[[thisBindingStatus]] to "uninitialized" */
+    envRec.thisBindingStatus := "uninitialized"
+  };
+  /* 8. Let home be the value of F's [[HomeObject]] internal slot. */
+  home := F.HomeObject;
+  /* 9. Set envRec.[[HomeObject]] to home. */
+  envRec.HomeObject := home;
+  /* 10. Set envRec.[[NewTarget]] to newTarget. */
+  envRec.__NewTarget := newTarget;
+  /* 11. Set env's EnvironmentRecord to be envRec. */
+  setEnvironmentRecord(env, envRec);
+  /* 12. Set the outer lexical environment reference of env to the value of F's
+     [[Environment]] internal slot. */
+  setOuterLexicalEnvironmentReference(env, F.Environment);
+  /* 13. Return env. */
+  return env
 };
 
 /* 8.1.2.5 NewGlobalEnvironment ( G ) */

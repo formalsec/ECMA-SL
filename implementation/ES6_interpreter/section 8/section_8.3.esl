@@ -1,3 +1,111 @@
+/* function IdentifierResolution(Identifier) { */
+function IdentifierResolution(Identifier, runningExecCtx) {
+  /* 10.3.1 Identifier Resolution */
+  /* Identifier resolution is the process of determining the binding of an Identifier using the LexicalEnvironment of
+    the running execution context. During execution of ECMAScript code, the syntactic production
+    PrimaryExpression : Identifier is evaluated using the following algorithm: */
+
+  /* 1. Let env be the running execution context‘s LexicalEnvironment. */
+  env := getLexicalEnvironment(runningExecCtx);
+
+  /* 2. If the syntactic production that is being evaluated is contained in a strict mode code,
+        then let strict be true, else let strict be false. */
+  if (isContainedInStrictCode(runningExecCtx)) {
+    strict := true
+  } else {
+    strict := false
+  };
+  
+  /* 3. Return the result of calling GetIdentifierReference function passing env, Identifier, and strict as arguments.
+        The result of evaluating an identifier is always a value of type Reference with its referenced name component
+        equal to the Identifier String. */
+  return GetIdentifierReference(env, Identifier, strict)
+};
+
+
+/* Auxiliary functions created to deal with Execution Contexts */
+function createExecutionContext() {
+  return {
+    LexicalEnvironment: 'undefined,
+    VariableEnvironment: 'undefined,
+    ThisBinding: 'undefined,
+    strictCode: false,
+    Function: 'undefined,
+    Realm: 'undefined,
+    CodeEvaluationState: 'undefined
+  }
+};
+
+function getLexicalEnvironment(runningExecCtx) {
+  return runningExecCtx.LexicalEnvironment
+};
+
+function getVariableEnvironment(runningExecCtx) {
+  return runningExecCtx.VariableEnvironment
+};
+
+function getThisBinding(runningExecCtx) {
+  return runningExecCtx.ThisBinding
+};
+
+function setLexicalEnvironment(runningExecCtx, lexicalEnvironment) {
+  runningExecCtx.LexicalEnvironment := lexicalEnvironment;
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function setVariableEnvironment(runningExecCtx, variableEnvironment) {
+  runningExecCtx.VariableEnvironment := variableEnvironment;
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function setThisBinding(runningExecCtx, thisBinding) {
+  runningExecCtx.ThisBinding := thisBinding;
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function setContainedInStrictCode(execCtx, strictCode) {
+  execCtx.strictCode := strictCode;
+  return 'undefined /* TODO the return statement is necessary because of the Monitor. Check why! */
+};
+
+function isContainedInStrictCode(execCtx) {
+  return execCtx.strictCode
+};
+
+/* 8.3.1 ResolveBinding ( name, [env] ) */
+
+/* The ResolveBinding abstract operation is used to determine the binding of name passed as a String
+  value. The optional argument env can be used to explicitly provide the Lexical Environment that is
+  to be searched for the binding. During execution of ECMAScript code, ResolveBinding is performed
+  using the following algorithm: */
+function ResolveBinding(scope, name, env)  {
+  
+  /* If env was not passed or if env is undefined, then */
+  if ( env = 'undefined ||| env = null )
+  {
+    /* Let env be the running execution context’s LexicalEnvironment. */
+    env := getLexicalEnvironment(scope)
+  };
+
+  /* Assert: env is a Lexical Environment. */
+  /* assert( isLexicalEnvironment(env) ); */
+
+  /* If the code matching the syntactic production that is being evaluated is contained in strict
+  mode code, let strict be true, else let strict be false. */
+  if (isContainedInStrictCode(scope)) {
+    strict := true
+  } else {
+    strict := false
+  };
+
+  strict := false;
+
+  /* Return GetIdentifierReference(env, name, strict ). */
+  return GetIdentifierReference(env, name, strict)
+
+  /* NOTE The result of ResolveBinding is always a Reference value with its referenced name component equal to the name argument. */
+};
+
 /* 8.3.2 GetThisEnvironment ( )
  * 
  * The abstract operation GetThisEnvironment finds the Environment Record that currently supplies the binding of the keyword this. GetThisEnvironment performs the following steps:
@@ -10,7 +118,7 @@ function GetThisEnvironment(scope) {
     /* a. Let envRec be lex’s EnvironmentRecord. */
     envRec := lex.EnvRec;
     /* b. Let exists be envRec.HasThisBinding(). */
-    exists := {envRec.HasThisBinding}(envRec);
+    exists := HasThisBinding(envRec);
     /* c. If exists is true, return envRec. */
     if (exists) {
       return envRec
@@ -32,7 +140,7 @@ function ResolveThisBinding(scope) {
   /* 1. Let envRec be GetThisEnvironment( ). */
   envRec := GetThisEnvironment(scope);
   /* 2. Return envRec.GetThisBinding(). */
-  return {envRec.GetThisBinding}(envRec)
+  return GetThisBinding(envRec)
 };
 
 /* 8.3.4 GetNewTarget ( )
@@ -44,7 +152,21 @@ function GetNewTarget(scope) {
   /* 1. Let envRec be GetThisEnvironment( ). */
   envRec := GetThisEnvironment(scope);
   /* 2. Assert: envRec has a [[NewTarget]] field. */
-  assert("NewTarget" in_obj envRec);
+  assert("__NewTarget" in_obj envRec);
   /* 3. Return envRec.[[NewTarget]]. */
-  return envRec.NewTarget
+  return envRec.__NewTarget
+};
+
+/* 8.3.5 GetGlobalObject ( )
+
+The abstract operation GetGlobalObject returns the global object used by the currently running
+execution context. GetGlobalObject performs the following steps: */
+function GetGlobalObject(ctx) {
+  /* Let ctx be the running execution context. */
+  
+  /* Let currentRealm be ctx’s Realm. */
+  currentRealm := ctx.Realm;
+
+  /* Return currentRealm.[[globalThis]]. */
+  return currentRealm.globalThis
 }

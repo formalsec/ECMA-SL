@@ -6,7 +6,9 @@
  */
 function PerformEval(scope, x, evalRealm, strictCaller, direct) {
   /* 1. Assert: If direct is false then strictCaller is also false. */
-  assert((direct) ||| (strictCaller));
+  if (direct = false) {
+    assert(strictCaller = false)
+  };
   /* 2. If Type(x) is not String, */
   if (!(Type(x) = "String")) {
     /* return x */
@@ -125,6 +127,7 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   /* 4. Let varEnvRec be varEnv's EnvironmentRecord. */
   varEnvRec := varEnv.EnvRec;
   /* 5. If strict is false, then */
+  isGlobalEnvRec := ("CreateGlobalVarBinding" in_obj lexEnvRec);
   if (strict = false) {
     /* a. If varEnvRec is a global Environment Record, then */
     if (isGlobalEnvRec) {
@@ -134,7 +137,7 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
         /* 1. If varEnvRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
         while (i < varNames_l) {
           name := l_nth(varNames, i);
-          if (HasBinding(varEnvRec, name)) {
+          if ({varEnvRec.HasBinding}(varEnvRec, name)) {
             throw SyntaxErrorConstructorInternal()
           };
           i := i + 1
@@ -203,17 +206,17 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
     fo := JS_Interpreter_FunctionDeclaration(f, lexEnv);
     if (isGlobalEnvRec) {
         /* TODO */
-        status := CreateMutableBinding(varEnvRec, fn, true);
-        SetMutableBinding(varEnvRec, fn, fo, false);
+        status := {varEnvRec.CreateMutableBinding}(varEnvRec, fn, true);
+        {varEnvRec.SetMutableBinding}(varEnvRec, fn, fo, false);
         @ReturnIfAbrupt(status)
     } else {
-        bindingExists := HasBinding(varEnvRec, fn);
+        bindingExists := {varEnvRec.HasBinding}(varEnvRec, fn);
         if (!(bindingExists)) {
-            status := CreateMutableBinding(varEnvRec, fn, true);
+            status := {varEnvRec.CreateMutableBinding}(varEnvRec, fn, true);
             assert(!(isAnAbruptCompletion(status)));
-            status := SetMutableBinding(varEnvRec, fn, fo, false)
+            status := {varEnvRec.InitializeBinding}(varEnvRec, fn, fo)
         } else {
-            status := SetMutableBinding(varEnvRec, fn, fo, false)
+            status := {varEnvRec.SetMutableBinding}(varEnvRec, fn, fo, false)
         }
     };
     @ReturnIfAbrupt(status);
@@ -227,13 +230,13 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
       /* If varEnvRec is a global Environment Record, then */
       if (isGlobalEnvRec) {
           /* TODO */
-          status := CreateMutableBinding(varEnvRec, vn, false)
+          status := {varEnvRec.CreateMutableBinding}(varEnvRec, vn, false)
       } else {
-          bindingExists := HasBinding(varEnvRec, vn);
+          bindingExists := {varEnvRec.HasBinding}(varEnvRec, vn);
           if (!(bindingExists)) {
-              status := CreateMutableBinding(varEnvRec, vn, true);
+              status := {varEnvRec.CreateMutableBinding}(varEnvRec, vn, true);
               assert(!(isAnAbruptCompletion(status)));
-              status := SetMutableBinding(varEnvRec, vn, 'undefined, false);
+              status := {varEnvRec.InitializeBinding}(varEnvRec, vn, 'undefined);
               assert(!(isAnAbruptCompletion(status)))
           }
       };

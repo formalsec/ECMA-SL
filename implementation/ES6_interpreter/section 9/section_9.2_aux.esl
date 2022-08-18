@@ -86,7 +86,7 @@ function BindingInitialization(param, value, environment, listIterator) {
     if (listIterator = null) {
       return BindingInitialization(param.argument, value, environment, null)
     };
-    restValue := GetRestValue(listIterator);
+    restValue := GetRestValue(listIterator, value);
     return BindingInitialization(param.argument, restValue, environment, listIterator)
   }
   | { type: "ArrayPattern" } -> {
@@ -112,6 +112,9 @@ function BindingInitializationIdentifier(param, value, environment) {
   bindingId := StringValue(param.name);
 
   /* 2.Let lhs be ResolveBinding(bindingId, environment). */
+  /* TODO  ver como fazer isto melhor */
+  /*hs := ResolveBinding(environment, bindingId, 'undefined);*/
+
   if (environment = 'undefined) {
     lhs := GetIdentifierReference(null, bindingId, false)
   } else {
@@ -129,14 +132,14 @@ function BindingInitializationIdentifier(param, value, environment) {
    };
 
    /* 8. Return InitializeReferencedBinding(lhs, v). */
-   return InitializeReferencedBinding(lhs, value, environment.LexicalEnvironment.EnvRec)
+   return InitializeReferencedBinding(lhs, value)
 };
 
 function BindingInitializationRestElement(name, listIterator, scope) {
   /* 1. Let lhs be ResolveBinding(StringValue of BindingIdentifier,
      environment). */
+  lhs := ResolveBinding(scope, name, null);
 
-  lhs := GetIdentifierReference(scope.LexicalEnvironment, name, false);
   /* 2. ReturnIfAbrupt(lhs). */
   @ReturnIfAbrupt(lhs);
   /* 3. Let A be ArrayCreate(0). */
@@ -159,7 +162,7 @@ function BindingInitializationRestElement(name, listIterator, scope) {
       if (scope = 'undefined) {
         return PutValue(lhs, A)
       };
-      return InitializeReferencedBinding(lhs, A, scope.LexicalEnvironment.EnvRec)
+      return InitializeReferencedBinding(scope, lhs, A)
     };
     nextValue := IteratorValue(next);
     if (isAnAbruptCompletion(nextValue)) {
@@ -234,11 +237,12 @@ function BindingInitializationArrayPattern(param, value, environment) {
   return
 };
 
-function GetRestValue(listIterator) {
+function GetRestValue(listIterator, initialValue) {
   /* 3. Let A be ArrayCreate(0). */
-  A := ArrayCreate(0., null);
+  A := ArrayConstructor(null, 'null, null, false, []);
+  CreateDataProperty(A, "0", initialValue);
   /* 4. Let n=0. */
-  n := 0.;
+  n := 1.;
   /* 5. Repeat, */
   listDone := listIterator.done;
 

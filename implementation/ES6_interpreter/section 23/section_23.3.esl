@@ -233,7 +233,7 @@ function WeakMapConstructor(global, this, NewTarget, strict, items) {
         };
 
         /* k. Let status be Call(adder, map, «k.[[value]], v.[[value]]»). */
-        status := Call(null, null, adder, map, [getCompletionValue(k), getCompletionValue(v)]);
+        status := Call(null, null, adder, map, [k, v]);
 
         /* l. If status is an abrupt completion, return IteratorClose(iter, status). */
         if (isAnAbruptCompletion(status)) {

@@ -38,7 +38,9 @@ function InitialGlobalExecutionContext(globalObject, program) {
   /* 2. Set the LexicalEnvironment to the Global Environment. */
   setLexicalEnvironment(globalExecCtx, globalEnv);
   /* 3. Set the ThisBinding to the global object. */
-  setThisBinding(globalExecCtx, globalObject);
+  globalEnvRec := globalEnv.EnvRec;
+  BindThisValue(globalEnvRec, globalObject);
+  /*setThisBinding(globalExecCtx, globalObject); */
 
   setContainedInStrictCode(globalExecCtx, isStrictModeCode(program, globalExecCtx));
 

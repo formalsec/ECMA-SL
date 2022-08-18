@@ -147,10 +147,25 @@ function JS_Interpreter_Expr(e, scope) {
     /* 11.1.1 The this Keyword */
 
     /* The this keyword evaluates to the value of the ThisBinding of the current execution context. */
-    return getThisBinding(scope)
+    return ResolveThisBinding(scope)
   }
   | { type: "Identifier", name: name } -> {
     /* 11.1.2 Identifier Reference */
+    print("debugIdentifier");
+    print(name);
+    print(scope);
+    /*if (name = "x"){
+      print("--debugWITH");
+      print(name);
+      print(scope);
+      print(scope.LexicalEnvironment);
+      print(scope.LexicalEnvironment.EnvRec);
+      
+      print(scope.LexicalEnvironment.OuterEnvRef);
+      print(scope.LexicalEnvironment.OuterEnvRef.EnvRec);
+      print(scope.LexicalEnvironment.OuterEnvRef.EnvRec.bindingObject);
+      print(scope.LexicalEnvironment.OuterEnvRef.EnvRec.bindingObject.JSProperties)
+    };*/
 
     /* An Identifier is evaluated by performing Identifier Resolution as specified in 10.3.1. The result of evaluating an
        Identifier is always a value of type Reference. */
@@ -233,7 +248,7 @@ function JS_Interpreter_Expr(e, scope) {
     
     /* 3. Let propertyNameReference be the result of evaluating Expression. */
     propertyNameReference := JS_Interpreter_Expr(Expression, scope);
-    
+
     /* 4. Let propertyNameValue be GetValue(propertyNameReference). */
     propertyNameValue := GetValue(propertyNameReference);
 
@@ -459,14 +474,112 @@ function JS_Interpreter_Expr(e, scope) {
   | { type: "MetaProperty", meta: meta, property: property } -> {
     return GetNewTarget(scope)
   }
-  | { type: "Super"} -> {
-    fail "Unsupported: Super"
+  | { type: "SuperCall", arguments: Arguments } -> {
+    /* 1. Let newTarget be GetNewTarget().*/
+    newTarget := GetNewTarget(scope);
+    /* 2. If newTarget is undefined, throw a ReferenceError exception. */
+    if (newTarget = 'undefined) {
+      throw ReferenceErrorConstructorInternal()
+    };
+    /* 3. Let func be GetSuperConstructor(). */
+    func := GetSuperConstructor(scope);
+    /* 4. ReturnIfAbrupt(func). */
+    @ReturnIfAbrupt(func);
+    /* 5. Let argList be ArgumentListEvaluation of Arguments. */
+    argList := JS_Interpreter_Arguments(Arguments, scope);
+    /* 6. ReturnIfAbrupt(argList). */
+    @ReturnIfAbrupt(argList);
+    print "Debug SuperCall";
+    print Arguments;
+    print argList;
+    print newTarget;
+    /* 7. Let result be Construct(func, argList, newTarget). */
+    result := Construct(scope, null, func, argList, newTarget);
+    /* 8. ReturnIfAbrupt(result). */
+    @ReturnIfAbrupt(result);
+    /* 9. Let thisER be GetThisEnvironment( ). */
+    thisER := GetThisEnvironment(scope);
+    /* 10. Return thisER.BindThisValue(result).*/
+    return BindThisValue(thisER, result)
+  }
+  | { type: "SuperProperty", property: property } -> {
+    /* 1. Let propertyNameReference be the result of evaluating Expression. */
+    propertyNameReference := JS_Interpreter_Expr(property, scope);
+    propertyNameValue := GetValue(propertyNameReference);
+    propertyKey := ToPropertyKey(propertyNameValue);
+    @ReturnIfAbrupt(propertyKey);
+    /* 5. If the code matched by the syntactic production that is being evaluated
+          is strict mode code, let strict be true, else let strict be false. */
+    if (isContainedInStrictCode(scope)) {
+      strict := true
+    } else {
+      strict := false
+    };
+    /* 6. Return MakeSuperPropertyReference(propertyKey, strict). */
+    return MakeSuperPropertyReference(propertyKey, strict, scope)
   }
   | { type: "YieldExpression"} -> {
     fail "Unsupported: Yield"
   }
-  | { type: "ClassExpression"} -> {
-    fail "Unsupported: Class"
+  | { type: "ClassExpression", id: id, body: body, superClass: superClass } -> {
+    /* 1. If BindingIdentifieropt is not present, */
+    if (id = null) {
+      /* let className be undefined */
+      className := 'undefined
+    }
+    /* 2. Else, */
+    else {
+      /* let className be StringValue of BindingIdentifier */
+      className := StringValue(id.name)
+    };
+    /* 3. Let value be the result of ClassDefinitionEvaluation of ClassTail with
+      argument className. */
+    value := ClassDefinitionEvaluation(scope, className, superClass, body);
+    /* 4. ReturnIfAbrupt(value). */
+    @ReturnIfAbrupt(value);
+    /* 5. If className is not undefined, then */
+    if (!(className = 'undefined)) {
+      /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
+      hasNameProperty := HasOwnProperty(value, "name");
+      /* b. ReturnIfAbrupt(hasNameProperty). */
+      @ReturnIfAbrupt(hasNameProperty);
+      /* c. If hasNameProperty is false, then */
+      if (hasNameProperty = false) {
+        /* i. Perform SetFunctionName(value, className). */
+        SetFunctionName(value, className, null)
+      }
+    };
+    /* 6. Return NormalCompletion(value). */
+    return NormalCompletion(value)
+  }
+  | { type: "SpreadElement", argument: Argument } -> {
+    /* 1. Let list be an empty List. */
+    list := [];
+    /* 2. Let spreadRef be the result of evaluating AssignmentExpression. */
+    spreadRef := JS_Interpreter_Expr(Argument, scope);
+    /* 3. Let spreadObj be GetValue(spreadRef). */
+    spreadObj := GetValue(spreadRef);
+    /* 4. Let iterator be GetIterator(spreadObj). */
+    iterator := GetIterator(spreadObj, null);
+    /* 5. ReturnIfAbrupt(iterator). */
+    @ReturnIfAbrupt(iterator);
+    /* 6. Repeat */
+    repeat {
+      /* a. Let next be IteratorStep(iterator). */
+      next := IteratorStep(iterator);
+      /* b. ReturnIfAbrupt(next) .*/
+      @ReturnIfAbrupt(next);
+      /* c. If next is false, return nextIndex. */
+      if (next = false) {
+        return list
+      };
+      /* d. Let nextArg be IteratorValue(next). */
+      nextArg := IteratorValue(next);
+      /* e. ReturnIfAbrupt(nextArg). */
+      @ReturnIfAbrupt(nextArg);
+      /* f. Append nextArg as the last element of list. */
+      list := l_add(list, nextArg)
+    }
   }
   | default -> {
     print "default case";
@@ -639,6 +752,7 @@ function JS_Interpreter_LogicalExpression(LogicalExpression, scope) {
 };
 
 function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
+  print(UnaryExpression);
   match UnaryExpression with
   | { type: "UnaryExpression", operator: "delete", argument: UnaryExpression } -> {
     /* 12.5.4 The delete Operator 
@@ -651,7 +765,10 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     */
 
     /* 1. Let ref be the result of evaluating UnaryExpression. */
+    print(UnaryExpression);
+    print("tunguska");
     ref := JS_Interpreter_Expr(UnaryExpression, scope);
+    print(ref);
     /* 2. ReturnIfAbrupt(ref). */
     @ReturnIfAbrupt(ref);
     /* 3. If Type(ref) is not Reference, */
@@ -668,6 +785,8 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     };
     /* 5. If IsPropertyReference(ref) is true, then */
     if (IsPropertyReference(ref) = true) {
+      print("check1");
+      print(UnaryExpression);
       /* a. If IsSuperReference(ref), */
       if (IsSuperReference(ref)) {
         /* throw a ReferenceError exception */
@@ -675,10 +794,12 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       };
       /* b. Let baseObj be ToObject(GetBase(ref)). */
       baseObj := ToObject(GetBase(ref));
+      print(baseObj);
       /* c. Assert: baseObj is not an abrupt completion. */
       assert(!isAnAbruptCompletion(baseObj));
       /* d. Let deleteStatus be baseObj.[[Delete]](GetReferencedName(ref)). */
       deleteStatus :=  {baseObj.Delete}(baseObj, GetReferencedName(ref));
+      print(deleteStatus);
       /* e. ReturnIfAbrupt(deleteStatus). */
       @ReturnIfAbrupt(deleteStatus);
       /* f. If deleteStatus is false and IsStrictReference(ref) is true, */
@@ -694,8 +815,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       /* a.Let bindings be GetBase(ref). */
       bindings := GetBase(ref);
       /* b.Return bindings.DeleteBinding(GetReferencedName(ref)). */
-      /*{bindings.DeleteBinding}(bindings, GetReferencedName(ref)). */
-      return DeleteBinding(bindings, GetReferencedName(ref))
+      return {bindings.DeleteBinding}(bindings, GetReferencedName(ref))
     }
   }
   | { type: "UnaryExpression", operator: "void", argument: UnaryExpression } -> {
@@ -937,13 +1057,23 @@ function JS_Interpreter_Arguments(ArgumentsList, scope) {
   /* 1. Let precedingArgs be the result of evaluating ArgumentList. */
   while(lArguments > i) {
     /* 2. Let ref be the result of evaluating AssignmentExpression. */
-    ref := JS_Interpreter_Expr(l_nth(ArgumentsList, i), scope);
+    argument := l_nth(ArgumentsList, i);
+    ref := JS_Interpreter_Expr(argument, scope);
     /* 3. Let arg be GetValue(ref). */
     arg := GetValue(ref);
 
     @ReturnIfAbrupt(arg);
 
-    args := l_add(args, arg);
+    if (argument.type = "SpreadElement") {
+      j := 0;
+      lSpread := l_len arg;
+      while (lSpread > j) {
+        args := l_add(args, l_nth(arg, j));
+        j := j + 1
+      }
+    } else {
+      args := l_add(args, arg)
+    };
 
     i := i + 1
   };
@@ -1028,7 +1158,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
 
     name := StringValue(Identifier.name);
 
-    CreateImmutableBinding(envRec, name);
+    {envRec.CreateImmutableBinding}(envRec, name, false);
 
     closure := FunctionCreate("normal", FormalParameterListopt, FunctionBody, funcEnv, strict, null);
 
@@ -1036,7 +1166,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
 
     SetFunctionName(closure, name, null);
 
-    InitializeImmutableBinding(envRec, name, closure);
+    {envRec.InitializeBinding}(envRec, name, closure);
 
     return NormalCompletion(closure)
   }
@@ -1118,43 +1248,48 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
     i := 0;
     while (i < lPropList) {
       /* 2. Let propId be the result of evaluating PropertyAssignment. */
-      propId := JS_Interpreter_PropertyAssignment(l_nth(PropertyNameAndValueList, i), scope);
-      /* 3. Let previous be the result of calling the [[GetOwnProperty]] internal method of obj with argument
-            propId.name. */
-      previous := {obj.GetOwnProperty}(obj, getPropertyName(propId));
-      /* 4. If previous is not undefined then throw a SyntaxError exception if any of the following conditions are true */
-      if (!(previous = 'undefined)) {
-        /* a. This production is contained in strict code and IsDataDescriptor(previous) is true and
-              IsDataDescriptor(propId.descriptor) is true. */
-        if (isContainedInStrictCode(scope) &&
-            (IsDataDescriptor(previous) = true) &&
-            (IsDataDescriptor(getPropertyDescriptor(propId)) = true)) {
-          throw SyntaxErrorConstructorInternal()
+      propExpr := l_nth(PropertyNameAndValueList, i);
+      if (propExpr.type = "SpreadElement") {
+        spreadElementObjectInitializer(obj, propExpr.argument, scope)
+      } else {
+        propId := JS_Interpreter_PropertyAssignment(propExpr, scope);
+        /* 3. Let previous be the result of calling the [[GetOwnProperty]] internal method of obj with argument
+              propId.name. */
+        previous := {obj.GetOwnProperty}(obj, getPropertyName(propId));
+        /* 4. If previous is not undefined then throw a SyntaxError exception if any of the following conditions are true */
+        if (!(previous = 'undefined)) {
+          /* a. This production is contained in strict code and IsDataDescriptor(previous) is true and
+                IsDataDescriptor(propId.descriptor) is true. */
+          if (isContainedInStrictCode(scope) &&
+              (IsDataDescriptor(previous) = true) &&
+              (IsDataDescriptor(getPropertyDescriptor(propId)) = true)) {
+            throw SyntaxErrorConstructorInternal()
+          };
+          /* b. IsDataDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true. */
+          if ((IsDataDescriptor(previous) = true) &&
+              (IsAccessorDescriptor(getPropertyDescriptor(propId)) = true)) {
+            throw SyntaxErrorConstructorInternal()
+          };
+          /* c. IsAccessorDescriptor(previous) is true and IsDataDescriptor(propId.descriptor) is true. */
+          if ((IsAccessorDescriptor(previous) = true) &&
+              (IsDataDescriptor(getPropertyDescriptor(propId)) = true)) {
+            throw SyntaxErrorConstructorInternal()
+          };
+          /* d. IsAccessorDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true and
+                either both previous and propId.descriptor have [[Get]] fields or both previous and propId.descriptor
+                have [[Set]] fields */
+          if ((IsAccessorDescriptor(previous) = true) &&
+              (IsAccessorDescriptor(getPropertyDescriptor(propId)) = true) &&
+              ((("Get" in_obj previous) && (!(previous.Get = 'undefined)) && ("Get" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Get = 'undefined)) ||
+              (("Set" in_obj previous) && (!(previous.Set = 'undefined)) && ("Set" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Set = 'undefined)))) {
+            throw SyntaxErrorConstructorInternal()
+          }
         };
-        /* b. IsDataDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true. */
-        if ((IsDataDescriptor(previous) = true) &&
-            (IsAccessorDescriptor(getPropertyDescriptor(propId)) = true)) {
-          throw SyntaxErrorConstructorInternal()
-        };
-        /* c. IsAccessorDescriptor(previous) is true and IsDataDescriptor(propId.descriptor) is true. */
-        if ((IsAccessorDescriptor(previous) = true) &&
-            (IsDataDescriptor(getPropertyDescriptor(propId)) = true)) {
-          throw SyntaxErrorConstructorInternal()
-        };
-        /* d. IsAccessorDescriptor(previous) is true and IsAccessorDescriptor(propId.descriptor) is true and
-              either both previous and propId.descriptor have [[Get]] fields or both previous and propId.descriptor
-              have [[Set]] fields */
-        if ((IsAccessorDescriptor(previous) = true) &&
-            (IsAccessorDescriptor(getPropertyDescriptor(propId)) = true) &&
-            ((("Get" in_obj previous) && (!(previous.Get = 'undefined)) && ("Get" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Get = 'undefined)) ||
-             (("Set" in_obj previous) && (!(previous.Set = 'undefined)) && ("Set" in_obj getPropertyDescriptor(propId)) && !(getPropertyDescriptor(propId).Set = 'undefined)))) {
-          throw SyntaxErrorConstructorInternal()
-        }
-      };
 
-      /* 5. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and
-            false. */
-      {obj.DefineOwnProperty}(obj, getPropertyName(propId), getPropertyDescriptor(propId));
+        /* 5. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and
+              false. */
+        {obj.DefineOwnProperty}(obj, getPropertyName(propId), getPropertyDescriptor(propId))
+      };
 
       i := i + 1
     };
@@ -1211,6 +1346,35 @@ function JS_Interpreter_PropertyAssignment (PropertyAssignment, scope) {
     desc := newSetAccessorPropertyDescriptor(closure);
     /* 4. Return Property Identifier (propName, desc). */
     return newPropertyIdentifier(propName, desc)
+  }
+  | { type: "SpreadElement", argument: Argument } -> {
+    /* 1. Let list be an empty List. */
+    list := [];
+    /* 2. Let spreadRef be the result of evaluating AssignmentExpression. */
+    spreadRef := JS_Interpreter_Expr(Argument, scope);
+    /* 3. Let spreadObj be GetValue(spreadRef). */
+    spreadObj := GetValue(spreadRef);
+    /* 4. Let iterator be GetIterator(spreadObj). */
+    iterator := GetIterator(spreadObj, null);
+    /* 5. ReturnIfAbrupt(iterator). */
+    @ReturnIfAbrupt(iterator);
+    /* 6. Repeat */
+    repeat {
+      /* a. Let next be IteratorStep(iterator). */
+      next := IteratorStep(iterator);
+      /* b. ReturnIfAbrupt(next) .*/
+      @ReturnIfAbrupt(next);
+      /* c. If next is false, return nextIndex. */
+      if (next = false) {
+        return list
+      };
+      /* d. Let nextArg be IteratorValue(next). */
+      nextArg := IteratorValue(next);
+      /* e. ReturnIfAbrupt(nextArg). */
+      @ReturnIfAbrupt(nextArg);
+      /* f. Append nextArg as the last element of list. */
+      list := l_add(list, nextArg)
+    }
   }
 };
 
@@ -1411,7 +1575,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 1. Let label be the StringValue of LabelIdentifier. */
     label := LabelIdentifier;
     /* 2. Return Completion{[[type]]: continue, [[value]]: empty, [[target]]: label }. */
-    return getCompletionValue(newCompletion('continue, 'empty, 'label))
+    return newCompletion('continue, 'empty, label)
   }
   | { type: "BreakStatement", label: LabelIdentifier } -> {
     /* 13.9 The break Statement */
@@ -1452,9 +1616,9 @@ function JS_Interpreter_Stmt(s, scope) {
   /*  /* The with statement adds an object environment record for a computed object to the lexical environment of
   /*     the current execution context. It then executes a statement using this augmented lexical environment.
   /*     Finally, it restores the original lexical environment. */
-/*
+  /*
   /*  /* The production WithStatement : with ( Expression ) Statement is evaluated as follows: */
-/*
+  /*
   /*  /* 1. Let val be the result of evaluating Expression. */
   /*  val := JS_Interpreter_Expr(Expression, scope);
   /*  /* 2. Let obj be ToObject(GetValue(val)). */
@@ -1493,11 +1657,19 @@ function JS_Interpreter_Stmt(s, scope) {
   oldEnv := getLexicalEnvironment(scope);
   /* 5. Let newEnv be NewObjectEnvironment(obj, oldEnv). */
   newEnv := NewObjectEnvironment(obj, oldEnv);
+  print("--2debugWith");
+  print(newEnv);
+  print(newEnv.EnvRec);
   /* 6. Set the withEnvironment flag of newEnv's EnvironmentRecord to true. */
   newEnv.EnvRec.withEnvironment := true;
   setProvideThis(newEnv, true);
   /* 7. Set the running execution context's LexicalEnvironment to newEnv. */
   setLexicalEnvironment(scope, newEnv);
+  print("--3debugWith");
+  print(scope.LexicalEnvironment);
+  print(scope.LexicalEnvironment.EnvRec);
+  print(scope.LexicalEnvironment.OuterEnvRef);
+  print(Statement);
   /* 8. Let C be the result of evaluating Statement. */
   C := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
   /* 9. Set the running execution context's Lexical Environment to oldEnv. */
@@ -1509,12 +1681,11 @@ function JS_Interpreter_Stmt(s, scope) {
   };
   /* 11. Return Completion(C). */
   return Completion(C)
-/**
- * NOTE No matter how control leaves the embedded Statement, whether normally or 
- * by some form of abrupt completion or exception, the LexicalEnvironment is 
- * always restored to its former state. 
- */
-
+  /**
+   * NOTE No matter how control leaves the embedded Statement, whether normally or 
+   * by some form of abrupt completion or exception, the LexicalEnvironment is 
+   * always restored to its former state. 
+   */
   }
   | { type: "SwitchStatement" } -> {
     if (!("labelSet" in_obj s)) {
@@ -1592,10 +1763,11 @@ function JS_Interpreter_Stmt(s, scope) {
 function BlockDeclarationInstantiation(letDeclarations, env) {
   /* 1. Let declarations be the LexicallyScopedDeclarations of code. */
   declarations := letDeclarations;
-
+  
   foreach (d : declarations){
-      status := CreateMutableBinding(env, d, false);
-      /* status := {env.CreateMutableBinding}(env, d, false);*/
+      status := {env.CreateMutableBinding}(env, d, false);
+      {env.InitializeBinding}(env, d, 'undefined);
+
       assert(!(isAnAbruptCompletion(status)))
   };
 
@@ -1615,6 +1787,7 @@ function BlockDeclarationInstantiation(letDeclarations, env) {
       /* i. Let fn be the sole element of the BoundNames of d */
       /* ii. Let fo be the result of performing InstantiateFunctionObject for d with argument env. */
       /* iii. Perform env.InitializeBinding(fn, fo). */
+
   return
 };
 
@@ -1806,8 +1979,7 @@ function JS_Interpreter_Catch(Catch, parameter, scope) {
     /* 3. For each element argName of the BoundNames of CatchParameter, do */
     foreach(argName : Catch.paramsNames) {
       /* a. Perform catchEnv.CreateMutableBinding(argName). */
-      res := CreateMutableBindingDeclarative(catchEnv.EnvRec, argName, false);
-      /* TODO res := {catchEnv.EnvRec.CreateMutableBinding}(catchEnv.EnvRec, argName, false); */
+      res := {catchEnv.EnvRec.CreateMutableBinding}(catchEnv.EnvRec, argName, false);
       /* b. Assert: The above call to CreateMutableBinding will never return an abrupt completion. */
       assert(!(isAnAbruptCompletion(res)))
     };
@@ -1869,7 +2041,7 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
     /* 4. Call PutValue(lhs, value). */
     PutValue(lhs, value);
 
-        print "DEBUG VARDECL 3"; 
+    print "DEBUG VARDECL 3"; 
     /* 5. Return a String value containing the same sequence of characters as in the Identifier. */
     /* return Identifier.name */
     return Identifier
@@ -1895,6 +2067,9 @@ function JS_Interpreter_StmtList(stmts, scope) {
   if (l_len stmts = 1) {
   Statement := l_nth(stmts, 0);
     s := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
+    print("___debugblock");
+    print(Statement);
+    print(s);
     return s
   };
 
@@ -1914,7 +2089,8 @@ function JS_Interpreter_StmtList(stmts, scope) {
   /* 3. Let s be the result of evaluating StatementListItem. */
   s := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
   /* 4. Return Completion(UpdateEmpty(s, sl.[[value]])). */
-  return Completion(UpdateEmpty(s, getCompletionValue(sl))) /* ES6 */
+  return Completion(UpdateEmpty(s, getCompletionValue(sl)))
+
 };
 
 function JS_Interpreter_BinExpr(e, scope) {
@@ -3335,6 +3511,7 @@ function JS_Interpreter_SwitchCase(switchCase, scope) {
  * is defined by the following steps: 
  */
 function LoopContinues(completion, labelSet) {
+  print(completion);
   /* 1. If completion.[[type]] is normal, */
   if (getCompletionType(completion) = 'normal) {
     /* return true */
@@ -3497,20 +3674,28 @@ function LabelledEvaluation(IterationStatement, scope) {
       /* a. If isConst is true, then */
       if (isConst = true){
         /* i. Perform loopEnv.CreateImmutableBinding(dn, true). */
-        CreateMutableBinding(loopEnv.EnvRec, dn, false)/*, true)*/
+        {loopEnv.EnvRec.CreateImmutableBinding}(loopEnv.EnvRec, dn, true)
       }
       /* b. Else, */
       else {
         /* i. Perform loopEnv.CreateMutableBinding(dn, false). */
-        status := CreateMutableBinding(loopEnv.EnvRec, dn, false);
+        status := {loopEnv.EnvRec.CreateMutableBinding}(loopEnv.EnvRec, dn, false);
+        {loopEnv.EnvRec.InitializeBinding}(loopEnv.EnvRec, dn, 'undefined);
+
         /* ii. Assert: The above call to CreateMutableBinding will never return an abrupt completion. */
         assert(!(isAnAbruptCompletion(status)))
       }
     };
+    print("--debugFor");
+    print(loopEnv);
+    print(loopEnv.EnvRec);
     /* 6. Set the running execution context's LexicalEnvironment to loopEnv. */
     setLexicalEnvironment(scope, loopEnv);
     /* 7. Let forDcl be the result of evaluating LexicalDeclaration. */
     forDcl := JS_Interpreter_Stmt(LexicalDeclaration, scope);
+    print("--2debugFor");
+    print(loopEnv);
+    print(loopEnv.EnvRec);
     /* 8. If forDcl is an abrupt completion, then */
     if (isAnAbruptCompletion(forDcl)){
       /* a. Set the running execution context's LexicalEnvironment to oldEnv. */
@@ -3709,17 +3894,15 @@ function CreatePerIterationEnvironment(perIterationBindings, scope) {
     /* e. For each element bn of perIterationBindings do, */
     foreach(bn : perIterationBindings){
       /* i. Let status be thisIterationEnv.CreateMutableBinding(bn, false). */
-      status := CreateMutableBinding(thisIterationEnv.EnvRec, bn, false);
+      status := {thisIterationEnv.EnvRec.CreateMutableBinding}(thisIterationEnv.EnvRec, bn, false);
       /* ii. Assert: status is never an abrupt completion. */
       assert(!(isAnAbruptCompletion(status)));
       /* iii. Let lastValue be lastIterationEnv.GetBindingValue(bn, true). */
-      lastValue := GetBindingValue(lastIterationEnv.EnvRec, bn, true);
+      lastValue := {lastIterationEnv.EnvRec.GetBindingValue}(lastIterationEnv.EnvRec, bn, true);
       /* iii. ReturnIfAbrupt(lastValue). */
       @ReturnIfAbrupt(lastValue);
       /* iv. Perform thisIterationEnv.InitializeBinding(bn, lastValue). */
-      /* TODO swap to new core: 
-      {thisIterationEnv.InitializeBinding}(thisIterationEnv, bn, last);*/
-      InitializeBindingDeclarativeTemp(thisIterationEnv, bn, lastValue)
+      {thisIterationEnv.EnvRec.InitializeBinding}(thisIterationEnv.EnvRec, bn, lastValue)
     };
     /* f. Set the running execution context's LexicalEnvironment to 
        thisIterationEnv. */
@@ -3748,7 +3931,7 @@ function ForIn_OfHeadEvaluation(TDZnames, expr, iterationKind, scope) {
     /* c. For each string name in TDZnames, do */
     foreach (name : TDZnames){
       /* i. Let status be TDZ.CreateMutableBinding(name, false). */
-      status := CreateMutableBinding(TDZ, name, false);
+      status := {TDZ.EnvRec.CreateMutableBinding}(TDZ.EnvRec, name, false);
       /* ii. Assert: status is never an abrupt completion. */
       assert(!(isAnAbruptCompletion(status)))
     };
@@ -3858,7 +4041,7 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
         /* 2. Let lhsName be the sole element of BoundNames of lhs. */
 
         /* 3. Let lhsRef be ResolveBinding(lhsName). */
-        lhsRef := ResolveBinding(lhsName);
+        lhsRef := ResolveBinding(scope, lhsName, null);
         /* 4. Assert: lhsRef is not an abrupt completion. */
         assert(!isAnAbruptCompletion(lhsRef))
       }

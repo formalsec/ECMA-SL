@@ -661,7 +661,6 @@ function OrdinaryObjectEnumerate(O) {
  * 
  * When the [[OwnPropertyKeys]] internal method of O is called the following steps are taken:
  * 
- * TODO duvida a fazer este 
 */
 function OrdinaryObjectOwnPropertyKeys(O) {
     /* Let keys be a new empty List. */
