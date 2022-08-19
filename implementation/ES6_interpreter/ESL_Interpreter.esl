@@ -1427,6 +1427,7 @@ function JS_Interpreter_Stmt(s, scope) {
   | { type: "ExpressionStatement", expression: Expression } -> {
     /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
+    @ReturnIfAbrupt(exprRef);
     /* 2. Return (normal, GetValue(exprRef), empty). */
     return NormalCompletion(GetValue(exprRef))
   }
