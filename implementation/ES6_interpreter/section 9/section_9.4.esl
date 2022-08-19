@@ -550,28 +550,35 @@ function OwnPropertyKeysString(O){
     i := i + 1.
   };
 
-  /* 5. For each own property key P of O such that P is an integer index and ToInteger(P) ≥ len, in ascending numeric index order, */
-  foreach(P : obj_fields O.JSProperties){
-    if ((Type(P) = "Number") &&& (ToInteger(P) >= len)){
-      /* a. Add P as the last element of keys. */
-      keys := l_add(keys, P)
+  numbers := [];
+  strings := [];
+  symbols := [];
+
+  /* 5. For each own property key P of O such that P is an integer index and ToInteger(P) ≥ len, in ascending numeric index order, */    
+  foreach ( P : O.internalSlotsList ) {
+    if ( IsArrayIndex(P) &&& (ToInteger(P) >= len) ) {
+        /* Add P as the last element of keys. */
+        numbers := l_add(numbers, P)
+    }
+
+    /* For each own property key P of O that is a String but is not an integer index, in property creation order */
+    elif ( Type(P) = "String" &&& !(Type(P) = "Number") &&& P in_list (obj_fields O.JSProperties) ) {
+        /* Add P as the last element of keys. */
+        strings := l_add(strings, P)
+    }
+    
+    /* For each own property key P of O that is a Symbol, in property creation order */
+    elif ( P in_list (obj_fields O.SymbolKeys) ){
+        /* Add P as the last element of keys. */
+        symbols := l_add(symbols, O.SymbolKeys[P])
     }
   };
     
-  /* 6. For each own property key P of O such that Type(P) is String and P is not an integer index, in property creation order, */
-  foreach(P : obj_fields O.JSProperties){
-    if ((Type(P) = "String") &&& !(Type(P) = "Number")){
-      /* a. Add P as the last element of keys. */
-      keys := l_add(keys, P)
-    }
-  };
-    
-  /* 7. For each own property key P of O such that Type(P) is Symbol, in property creation order, */
-  foreach(P : obj_fields O.SymbolKeys){
-    /* a. Add P as the last element of keys. */
-    keys := l_add(keys, O.SymbolKeys[P])
-  };
-    
+  numbers := l_sort(numbers);
+  keys := l_concat(keys, numbers);
+  keys := l_concat(keys, strings);
+  keys := l_concat(keys, symbols);
+
   /* 8. Return keys. */
   return keys
 };
