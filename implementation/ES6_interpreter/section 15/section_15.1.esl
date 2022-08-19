@@ -98,7 +98,7 @@ function GlobalDeclarationInstantiation(script, env) {
 
         vn := d;
         /* If vn is not an element of declaredFunctionNames, then */
-        if (!InList(vn, declaredFunctionNames)) {
+        if (!(vn in_list declaredFunctionNames)) {
             /* Let vnDefinable be envRec.CanDeclareGlobalVar(vn). */
             vnDefinable := {envRec.CanDeclareGlobalVar}(envRec, vn);
 
@@ -111,7 +111,7 @@ function GlobalDeclarationInstantiation(script, env) {
             };
 
             /* If vn is not an element of declaredVarNames, then */
-            if (!InList(vn, declaredVarNames)) {
+            if (!(vn in_list declaredVarNames)) {
                 /* Append vn to declaredVarNames. */
                 declaredVarNames := l_add(declaredVarNames, vn)
             }

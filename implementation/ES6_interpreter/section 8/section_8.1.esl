@@ -1033,8 +1033,16 @@ function DeleteBindingGlobalRecord(envRec, N) {
             varNames := envRec.VarNames;
 
             /* If N is an element of varNames, remove that element from the varNames. */
-            if ( InList(N, varNames) ) {
-            	/* TODO eliminar da lista */
+            if ( N in_list varNames) {
+              
+              newVarNames := [];
+              foreach( name : varNames ) {
+                if ( !(name = N)) {
+                  newVarNames := l_add(newVarNames, name)
+                }
+              };
+
+              envRec.VarNames := newVarNames
             }
         };
 
@@ -1092,7 +1100,7 @@ function HasVarDeclaration(envRec, N) {
     varDeclaredNames := envRec.VarNames;
 
     /* If varDeclaredNames contains the value of N, return true. */
-    if ( InList(N, varDeclaredNames) ) {
+    if ( N in_list varDeclaredNames ) {
     	return true
     };
 
@@ -1273,7 +1281,7 @@ function CreateGlobalVarBinding(envRec, N, D) {
     varDeclaredNames := envRec.VarNames;
 
     /* If varDeclaredNames does not contain the value of N, then */
-    if ( !(InList(N, varDeclaredNames)) ) {
+    if ( !((N in_list varDeclaredNames)) ) {
         /* Append N to varDeclaredNames. */
         varDeclaredNames := l_add(varDeclaredNames, N)
     };
@@ -1335,7 +1343,7 @@ function CreateGlobalFunctionBinding(envRec, N, V, D) {
     varDeclaredNames := envRec.VarNames;
 
     /* If varDeclaredNames does not contain the value of N, then */
-    if ( !(InList(N, varDeclaredNames)) ) {
+    if ( !((N in_list varDeclaredNames)) ) {
         /* Append N to varDeclaredNames. */
         varDeclaredNames := l_add(varDeclaredNames, N)
     };

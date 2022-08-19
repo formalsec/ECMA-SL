@@ -57,6 +57,12 @@ function JS_Interpreter_Program(p, callingExecCtx) {
     NextJob(NormalCompletion('undefined));
 
     /* 6. Return result. */
+    if ( getCompletionType(result) = 'throw ) {
+      val := getCompletionValue(result).JSProperties.message;
+      print "FIM PROG";
+      print val
+    };
+
     return result
   }
   | { sourceType: "script", type: "EarlySyntaxError", message: message } -> {
@@ -1252,14 +1258,20 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
 
         /* 5. Call the [[DefineOwnProperty]] internal method of obj with arguments propId.name, propId.descriptor, and
               false. */
+        print "DEBUG OBJ 1";
+        print propId;
+
         {obj.DefineOwnProperty}(obj, getPropertyName(propId), getPropertyDescriptor(propId))
       };
 
       i := i + 1
     };
     /* 6. Return obj. */
-    print "DEBUG OBJ 1"; 
+    print "DEBUG OBJ 2"; 
     print obj; 
+    print obj.JSProperties;
+    print obj.internalSlotsList;
+
     return obj
   }
 };

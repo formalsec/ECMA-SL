@@ -1,15 +1,3 @@
-/* axuliriary functions */
-
-function InList(arg, elements) {
-	foreach( element : elements ) {
-		if ( arg = element ) {
-			return true
-		}
-	};
-
-	return false
-};
-
 /**
  * 7.3.1 Get (O, P)
  * The abstract operation Get is used to retrieve the value of a specific property of an object. 

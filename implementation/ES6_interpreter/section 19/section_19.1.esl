@@ -397,6 +397,11 @@ function ObjectDefineProperty(globalObject, this, NewTarget, strict, params) {
   /* ReturnIfAbrupt(desc). */
   @ReturnIfAbrupt(desc);
 
+  print "DEFPROP";
+  print O;
+  print key;
+  print desc;
+
   /* 4. Let success be DefinePropertyOrThrow(O,key, desc). */
   success := DefinePropertyOrThrow(O, key, desc);
 
@@ -487,10 +492,12 @@ function GetOwnPropertyKeys(O, Type) {
   /* ReturnIfAbrupt(obj). */
   @ReturnIfAbrupt(obj);
 
-  print obj;
-
   /* Let keys be obj.[[OwnPropertyKeys]](). */
   keys := {obj.OwnPropertyKeys}(obj);
+
+  print "OWNPROPKEYS";
+  print obj;
+  print keys;
 
   /* ReturnIfAbrupt(keys). */
   @ReturnIfAbrupt(keys);
