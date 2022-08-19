@@ -495,10 +495,6 @@ function GetOwnPropertyKeys(O, Type) {
   /* Let keys be obj.[[OwnPropertyKeys]](). */
   keys := {obj.OwnPropertyKeys}(obj);
 
-  print "OWNPROPKEYS";
-  print obj;
-  print keys;
-
   /* ReturnIfAbrupt(keys). */
   @ReturnIfAbrupt(keys);
 
