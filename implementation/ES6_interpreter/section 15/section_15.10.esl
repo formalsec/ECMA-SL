@@ -235,16 +235,16 @@ function newRegExp(strict, pattern, flags) {
 
 
 function getRegExpPrototypeExec(strict) {
-  refObj := newPropertyReference(|global|, "RegExp", strict);
+  /* refObj := newPropertyReference(|global|, "RegExp", strict);
   RegExpObject := GetValue(refObj);
 
   refRegExpProto := newPropertyReference(RegExpObject, "prototype", strict);
   regexpObjectProto := GetValue(refRegExpProto);
 
   refExec := newPropertyReference(regexpObjectProto, "exec", strict);
-  regExpObjectExec := GetValue(refExec);
+  regExpObjectExec := GetValue(refExec); */
 
-  return regExpObjectExec
+  return |Intrinsics|["RegExpPrototype"]
 };
 
 /**

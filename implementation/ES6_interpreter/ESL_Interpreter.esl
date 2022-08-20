@@ -11,6 +11,9 @@ function JS_Interpreter_Program(p, callingExecCtx) {
       return NormalCompletion('empty)
     };
 
+    print "PROG 1";
+    print callingExecCtx;
+
     result := JS_Interpreter_SourceElements(SourceElementsopt, callingExecCtx);
     return result
   }
@@ -44,18 +47,17 @@ function JS_Interpreter_Program(p, callingExecCtx) {
 
     /* 3. Let progCxt be a new execution context for global code as described in 10.4.1. */
     progCxt := EnteringGlobalCode(p);
-    print "DEBUG 000"; 
-    print progCxt.VariableEnvironment.EnvRec.bindingObject; 
     /* 4. Let result be the result of evaluating SourceElements. */
+
+    print "PROG 2";
+    print progCxt;
+
     result := JS_Interpreter_SourceElements(SourceElementsopt, progCxt);
     /* 5. Exit the execution context progCxt. */
 
-
     executeJobs();
 
-
     /* 6. Return result. */
-    print progCxt;
     return result
   }
   | { sourceType: "script", type: "EarlySyntaxError", message: message } -> {
@@ -77,6 +79,9 @@ function Interpreter_Statement_Guard(error) {
 function JS_Interpreter_SourceElements(SourceElements, scope) {
   /* The production SourceElements : SourceElements SourceElement is evaluated as follows: */
 
+  print "SOURCE ELE";
+  print scope;
+
   i := 0;
   lSourceElements := l_len(SourceElements);
   while (i < lSourceElements) {
@@ -85,6 +90,9 @@ function JS_Interpreter_SourceElements(SourceElements, scope) {
     /* 3. Let tailResult be result of evaluating SourceElement. */
     /* 4. If tailResult.value is empty, let V = headResult.value, otherwise let V = tailResult.value. */
     result := JS_Interpreter_Stmt(l_nth(SourceElements, i), scope) catch Interpreter_Statement_Guard;
+
+    print "JSSOURCE";
+
     if (isAnAbruptCompletion(result)) {
       return result
     };
@@ -127,7 +135,7 @@ function JS_Interpreter_Expr(e, scope) {
     parameters := ArrowParameters;
     /* 4. Let closure be FunctionCreate(Arrow, parameters, ConciseBody, scope,
       strict). */
-    closure := FunctionCreate("Arrow", parameters, ConciseBody, lexEnv, strict, null);
+    closure := FunctionCreate("Arrow", parameters, ConciseBody, lexEnv, strict, null, scope.Realm);
     /* 5. Return closure. */
     return closure
     /**
@@ -240,7 +248,11 @@ function JS_Interpreter_Expr(e, scope) {
     /* The production MemberExpression : MemberExpression [ Expression ] is evaluated as follows: */
     /* 1. Let baseReference be the result of evaluating MemberExpression. */
     baseReference := JS_Interpreter_Expr(MemberExpression, scope);
-        
+    
+    print "base REF";
+    print MemberExpression;
+    print scope;
+
     /* 2. Let baseValue be GetValue(baseReference). */
     baseValue := GetValue(baseReference);
 
@@ -272,6 +284,7 @@ function JS_Interpreter_Expr(e, scope) {
   }
   | { type: "NewExpression", callee: MemberExpression, arguments: Arguments } -> {
     print "DEBUG: NewExpre 1";
+    print scope;
     /* 11.2.2 The new Operator */
 
     /* The production MemberExpression : new MemberExpression Arguments is evaluated as follows: */
@@ -304,6 +317,10 @@ function JS_Interpreter_Expr(e, scope) {
     /* 12.3.4.1 Function Calls */
 
     /* 1. Let ref be the result of evaluating MemberExpression. */
+    print "DEBUG: CALL";
+    print scope;
+    print scope.Function;
+
     ref := JS_Interpreter_Expr(MemberExpression, scope);
 
     /* 2. Let func be GetValue(ref). */
@@ -1103,7 +1120,7 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
     name := Identifier.name;
 
     /* 3. Let F be FunctionCreate(Normal, FormalParameters, FunctionBody, scope, strict) */
-    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, strict, null);
+    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, strict, null, scope.Realm);
 
     /* 4. Perform MakeConstructor(F) */
     MakeConstructor(F, null, null);
@@ -1134,7 +1151,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
       FormalParameterList := []
     };
 
-    closure := FunctionCreate("normal", FormalParameterList, FunctionBody, scope.LexicalEnvironment, strict, null);
+    closure := FunctionCreate("normal", FormalParameterList, FunctionBody, scope.LexicalEnvironment, strict, null, scope.Realm);
 
     MakeConstructor(closure, null, null);
 
@@ -1160,7 +1177,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
 
     {envRec.CreateImmutableBinding}(envRec, name, false);
 
-    closure := FunctionCreate("normal", FormalParameterListopt, FunctionBody, funcEnv, strict, null);
+    closure := FunctionCreate("normal", FormalParameterListopt, FunctionBody, funcEnv, strict, null, scope.Realm);
 
     MakeConstructor(closure, null, null);
 
@@ -1184,6 +1201,9 @@ function JS_Interpreter_FunctionBody(FunctionBody, scope) {
           steps as strict mode code. Otherwise, SourceElements is evaluated in the following steps as
           non-strict mode code. */
     /* 2. If SourceElements is present return the result of evaluating SourceElements. */
+    print "FUNC SOURCE";
+    print scope;
+    
     if (!(SourceElementsopt = [])) {
       return JS_Interpreter_SourceElements(SourceElementsopt, scope)
     }
@@ -1461,6 +1481,9 @@ function JS_Interpreter_Stmt(s, scope) {
     print("--debugVAR matched VariableDeclaration");
     /* The production VariableStatement : var VariableDeclarationList ; is evaluated as follows: */
 
+    print "VARDECL";
+    print scope;
+
     i := 0;
     lVarDecl := l_len VariableDeclarationList;
     while(lVarDecl > i) {
@@ -1497,6 +1520,10 @@ function JS_Interpreter_Stmt(s, scope) {
     }
     /* 2. Return GetValue(exprRef). ES6 */
     /*return GetValue(exprRef)*/
+
+    /* @ReturnIfAbrupt(exprRef);
+    /* 2. Return (normal, GetValue(exprRef), empty). */
+    /* return NormalCompletion(GetValue(exprRef)) */
   }
   | { type: "IfStatement" } -> {
     /* 13.6 The if Statement */

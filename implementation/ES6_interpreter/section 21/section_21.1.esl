@@ -49,12 +49,12 @@ function StringConstructor(global, this, NewTarget, strict, args) {
 };
 
 function getStringPrototype(strict) {
-  refString := newPropertyReference(|global|, "String", strict);
+  /* refString := newPropertyReference(|global|, "String", strict);
   StringObject := GetValue(refString);
   refStringProto := newPropertyReference(StringObject, "prototype", strict);
-  StringProto := GetValue(refStringProto);
+  StringProto := GetValue(refStringProto); */
 
-  return StringProto
+  return |Intrinsics|["StringPrototype"]
 };
 
 function initStringObject(global, objectPrototype, strict) {

@@ -7,62 +7,62 @@
 function PerformEval(scope, x, evalRealm, strictCaller, direct) {
   /* 1. Assert: If direct is false then strictCaller is also false. */
   if (direct = false) {
-    assert(strictCaller = false)
+		assert(strictCaller = false)
   };
   /* 2. If Type(x) is not String, */
   if (!(Type(x) = "String")) {
-    /* return x */
-    return x
+		/* return x */
+		return x
   };
   /* 3. Let script be the ECMAScript code that is the result of parsing x,
-     interpreted as UTF-16 encoded Unicode text as described in 6.1.4, for
-     the goal symbol Script. If the parse fails or any early errors are
-     detected, throw a SyntaxError exception (but see also clause 16). */
+	 interpreted as UTF-16 encoded Unicode text as described in 6.1.4, for
+	 the goal symbol Script. If the parse fails or any early errors are
+	 detected, throw a SyntaxError exception (but see also clause 16). */
   script := parseAsProgram(x, strictCaller);
   if ("message" in_obj script) {
-      throw SyntaxErrorConstructorInternal()
+	  throw SyntaxErrorConstructorInternal()
   };
   /* 4. If script Contains ScriptBody is false, */
   if (!("body" in_obj script)) {
-    /* return undefined */
-    return 'undefined
+		/* return undefined */
+		return 'undefined
   };
 
   /* 5. Let body be the ScriptBody of script. */
   body := script.body;
   /* 6. If strictCaller is true, let strictEval be true. */
   if (strictCaller) {
-    strictEval := true
+		strictEval := true
   } /* 7. Else, */
   else {
-    /* let strictEval be IsStrict of script */
-    strictEval := false
+	/* let strictEval be IsStrict of script */
+	strictEval := false
   };
 
   /* 8. Let ctx be the running execution context. If direct is true ctx will
-     be the execution context that performed the direct eval. If direct is
-     false ctx will be the execution context for the invocation of the eval
-     function. */
+	 be the execution context that performed the direct eval. If direct is
+	 false ctx will be the execution context for the invocation of the eval
+	 function. */
   ctx := scope;
   /* 9. If direct is true, then */
   if (direct = true) {
-    /* a. Let lexEnv be NewDeclarativeEnvironment(ctx's LexicalEnvironment). */
-    lexEnv := NewDeclarativeEnvironment(ctx.LexicalEnvironment);
-    /* b. Let varEnv be ctx's VariableEnvironment. */
-    isGlobalEnvRec := false;
-    varEnv := ctx.VariableEnvironment
+		/* a. Let lexEnv be NewDeclarativeEnvironment(ctx's LexicalEnvironment). */
+		lexEnv := NewDeclarativeEnvironment(ctx.LexicalEnvironment);
+		/* b. Let varEnv be ctx's VariableEnvironment. */
+		isGlobalEnvRec := false;
+		varEnv := ctx.VariableEnvironment
   } else {
-    /* 10. Else, */
-    /* a. Let lexEnv be NewDeclarativeEnvironment(evalRealm.[[globalEnv]]). */
-    lexEnv := NewDeclarativeEnvironment(getGlobalEnvironment(|global|));
-    /* a. Let varEnv be evalRealm.[[globalEnv]]. */
-    isGlobalEnvRec := true;
-    varEnv := getGlobalEnvironment(|global|)
-  };
+	/* 10. Else, */
+		/* a. Let lexEnv be NewDeclarativeEnvironment(evalRealm.[[globalEnv]]). */
+		lexEnv := NewDeclarativeEnvironment(evalRealm.globalEnv);
+		/* a. Let varEnv be evalRealm.[[globalEnv]]. */
+		varEnv := evalRealm.globalEnv;
+		isGlobalEnvRec := true
+  	};
   /* 11. If strictEval is true, */
   if (strictEval = true) {
-    /* let varEnv be lexEnv */
-    varEnv := lexEnv
+	/* let varEnv be lexEnv */
+		varEnv := lexEnv
   };
   /* 12. If ctx is not already suspended, Suspend ctx */
   /* TODO */
@@ -77,26 +77,26 @@ function PerformEval(scope, x, evalRealm, strictCaller, direct) {
   /* 16. Set the evalCxt's LexicalEnvironment to lexEnv. */
   evalCxt.LexicalEnvironment := lexEnv;
   /* 17. Push evalCxt on to the execution context stack; evalCxt is now the
-     running execution context. */
+	 running execution context. */
   /*TODO*/
 
   /* 18. Let result be EvalDeclarationInstantiation(body, varEnv, lexEnv,
-     strictEval). */
+	 strictEval). */
   result := EvalDeclarationInstantiation(script, varEnv, lexEnv, strictEval, isGlobalEnvRec);
   /* 19. If result.[[type]] is normal, then */
   if (getCompletionType(result) = 'normal) {
-    /* a. Let result be the result of evaluating body. */
-    result := JS_Interpreter_Program(script, evalCxt)
+	/* a. Let result be the result of evaluating body. */
+	result := JS_Interpreter_Program(script, evalCxt)
   };
   /* 20. If result.[[type]] is normal and result.[[value]] is empty, then */
   if ((getCompletionType(result) = 'normal) &&& (getCompletionValue(result) = 'empty)) {
-    /* a. Let result be NormalCompletion(undefined). */
-    return NormalCompletion('undefined)
+	/* a. Let result be NormalCompletion(undefined). */
+	return NormalCompletion('undefined)
   };
   /* 21. Suspend evalCxt and remove it from the execution context stack. */
   /* TODO */
   /* 22. Resume the context that is now on the top of the execution context
-     stack as the running execution context. */
+	 stack as the running execution context. */
   /* TODO */
   /* 23. Return Completion(result). */
   return Completion(result)
@@ -122,6 +122,11 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   varNames := getVariableDeclarationsInCode(body);
   /* 2. Let varDeclarations be the VarScopedDeclarations of body. */
   varDeclarations := getFunctionDeclarationsInCode(body);
+
+	print "EVALDECLINST";
+	print lexEnv;
+	print varEnv;
+
   /* 3. Let lexEnvRec be lexEnv's EnvironmentRecord. */
   lexEnvRec := lexEnv.EnvRec;
   /* 4. Let varEnvRec be varEnv's EnvironmentRecord. */
@@ -129,27 +134,27 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   /* 5. If strict is false, then */
   isGlobalEnvRec := ("CreateGlobalVarBinding" in_obj lexEnvRec);
   if (strict = false) {
-    /* a. If varEnvRec is a global Environment Record, then */
-    if (isGlobalEnvRec) {
-        /* i. For each name in varNames, do */
-        i := 0;
-        varNames_l := l_len(varNames);
-        /* 1. If varEnvRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
-        while (i < varNames_l) {
-          name := l_nth(varNames, i);
-          if ({varEnvRec.HasBinding}(varEnvRec, name)) {
-            throw SyntaxErrorConstructorInternal()
-          };
-          i := i + 1
-        }
-        /* NOTE: eval will not create a global var declaration that would be shadowed by a global lexical declaration. */
-    };
-    /* b. Let thisLex be lexEnv. */
-    thisLex := lexEnv
-    /* c. Assert: the following loop will terminate. */
-    /* TODO */
-    /* d. Repeat while thisLex is not the same as varEnv, */
-    /* TODO*/
+	/* a. If varEnvRec is a global Environment Record, then */
+	if (isGlobalEnvRec) {
+		/* i. For each name in varNames, do */
+		i := 0;
+		varNames_l := l_len(varNames);
+		/* 1. If varEnvRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
+		while (i < varNames_l) {
+		  name := l_nth(varNames, i);
+		  if ({varEnvRec.HasBinding}(varEnvRec, name)) {
+			throw SyntaxErrorConstructorInternal()
+		  };
+		  i := i + 1
+		}
+		/* NOTE: eval will not create a global var declaration that would be shadowed by a global lexical declaration. */
+	};
+	/* b. Let thisLex be lexEnv. */
+	thisLex := lexEnv
+	/* c. Assert: the following loop will terminate. */
+	/* TODO */
+	/* d. Repeat while thisLex is not the same as varEnv, */
+	/* TODO*/
   };
   /* 6. Let functionsToInitialize be an empty List. */
   functionsToInitialize := [];
@@ -159,16 +164,16 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   functionNames_l := l_len(varDeclarations);
   i := functionNames_l - 1;
   while (i >= 0) {
-      f := l_nth(varDeclarations, i);
-      fn := f.id.name;
-      if (!(fn in_list declaredFunctionNames)) {
-          if  (isGlobalEnvRec) {
-              /* TODO */
-          };
-      declaredFunctionNames := l_add(declaredFunctionNames, fn);
-      functionsToInitialize := l_add(functionsToInitialize, f)
-    };
-    i := i - 1
+	  f := l_nth(varDeclarations, i);
+	  fn := f.id.name;
+	  if (!(fn in_list declaredFunctionNames)) {
+		  if  (isGlobalEnvRec) {
+			  /* TODO */
+		  };
+	  declaredFunctionNames := l_add(declaredFunctionNames, fn);
+	  functionsToInitialize := l_add(functionsToInitialize, f)
+	};
+	i := i - 1
   };
   /* 9. Let declaredVarNames be an empty List. */
   declaredVarNames := [];
@@ -176,20 +181,20 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   varNames_l := l_len(varNames);
   i := 0;
   while (i < varNames_l) {
-      vn := l_nth(varNames, i);
-      if (!(vn in_list declaredFunctionNames)) {
-          if (isGlobalEnvRec) {
-              /* TODO */
-          };
-          if (!(vn in_list declaredVarNames)) {
-              declaredVarNames := l_add(declaredVarNames, vn)
-          }
-      };
-      i := i + 1
+	  vn := l_nth(varNames, i);
+	  if (!(vn in_list declaredFunctionNames)) {
+		  if (isGlobalEnvRec) {
+			  /* TODO */
+		  };
+		  if (!(vn in_list declaredVarNames)) {
+			  declaredVarNames := l_add(declaredVarNames, vn)
+		  }
+	  };
+	  i := i + 1
   };
   /* 11. NOTE: No abnormal terminations occur after this algorithm step unless
-     varEnvRec is a global Environment Record and the global object is a
-     Proxy exotic object. */
+	 varEnvRec is a global Environment Record and the global object is a
+	 Proxy exotic object. */
 
   /* TODO - Lexically Scoped Declarations of body */
   /* 12. Let lexDeclarations be the LexicallyScopedDeclarations of body. */
@@ -199,48 +204,48 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   functionsToInitialize_l := l_len(functionsToInitialize);
   i := 0;
   while (i < functionsToInitialize_l) {
-    f := l_nth(functionsToInitialize, i);
-    print "DEBUG FUNC TO INIT";
-    print f;
-    fn := f.id.name;
-    fo := JS_Interpreter_FunctionDeclaration(f, lexEnv);
-    if (isGlobalEnvRec) {
-        /* TODO */
-        status := {varEnvRec.CreateMutableBinding}(varEnvRec, fn, true);
-        {varEnvRec.SetMutableBinding}(varEnvRec, fn, fo, false);
-        @ReturnIfAbrupt(status)
-    } else {
-        bindingExists := {varEnvRec.HasBinding}(varEnvRec, fn);
-        if (!(bindingExists)) {
-            status := {varEnvRec.CreateMutableBinding}(varEnvRec, fn, true);
-            assert(!(isAnAbruptCompletion(status)));
-            status := {varEnvRec.InitializeBinding}(varEnvRec, fn, fo)
-        } else {
-            status := {varEnvRec.SetMutableBinding}(varEnvRec, fn, fo, false)
-        }
-    };
-    @ReturnIfAbrupt(status);
-    i := i + 1
+	f := l_nth(functionsToInitialize, i);
+	print "DEBUG FUNC TO INIT";
+	print f;
+	fn := f.id.name;
+	fo := JS_Interpreter_FunctionDeclaration(f, lexEnv);
+	if (isGlobalEnvRec) {
+		/* TODO */
+		status := {varEnvRec.CreateMutableBinding}(varEnvRec, fn, true);
+		{varEnvRec.SetMutableBinding}(varEnvRec, fn, fo, false);
+		@ReturnIfAbrupt(status)
+	} else {
+		bindingExists := {varEnvRec.HasBinding}(varEnvRec, fn);
+		if (!(bindingExists)) {
+			status := {varEnvRec.CreateMutableBinding}(varEnvRec, fn, true);
+			assert(!(isAnAbruptCompletion(status)));
+			status := {varEnvRec.InitializeBinding}(varEnvRec, fn, fo)
+		} else {
+			status := {varEnvRec.SetMutableBinding}(varEnvRec, fn, fo, false)
+		}
+	};
+	@ReturnIfAbrupt(status);
+	i := i + 1
   };
   /* 15. For each String vn in declaredVarNames, in list order do */
   varNames_l := l_len(declaredVarNames);
   i := 0;
   while (i < varNames_l) {
-      vn := l_nth(declaredVarNames, i);
-      /* If varEnvRec is a global Environment Record, then */
-      if (isGlobalEnvRec) {
-          /* TODO */
-          status := {varEnvRec.CreateMutableBinding}(varEnvRec, vn, false)
-      } else {
-          bindingExists := {varEnvRec.HasBinding}(varEnvRec, vn);
-          if (!(bindingExists)) {
-              status := {varEnvRec.CreateMutableBinding}(varEnvRec, vn, true);
-              assert(!(isAnAbruptCompletion(status)));
-              status := {varEnvRec.InitializeBinding}(varEnvRec, vn, 'undefined);
-              assert(!(isAnAbruptCompletion(status)))
-          }
-      };
-    i := i + 1
+	  vn := l_nth(declaredVarNames, i);
+	  /* If varEnvRec is a global Environment Record, then */
+	  if (isGlobalEnvRec) {
+		  /* TODO */
+		  status := {varEnvRec.CreateMutableBinding}(varEnvRec, vn, false)
+	  } else {
+		  bindingExists := {varEnvRec.HasBinding}(varEnvRec, vn);
+		  if (!(bindingExists)) {
+			  status := {varEnvRec.CreateMutableBinding}(varEnvRec, vn, true);
+			  assert(!(isAnAbruptCompletion(status)));
+			  status := {varEnvRec.InitializeBinding}(varEnvRec, vn, 'undefined);
+			  assert(!(isAnAbruptCompletion(status)))
+		  }
+	  };
+	i := i + 1
   };
   /* 16. Return NormalCompletion(empty) */
   return NormalCompletion('empty)
@@ -265,7 +270,7 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
 /* 18.2.6.1 URI Syntax and Semantics */
 /**
  * A URI is composed of a sequence of components separated by component separators. The general form is:
-    Scheme : First / Second ; Third ? Fourth
+	Scheme : First / Second ; Third ? Fourth
  * where the italicized names represent components and “:”, “/”, “;” and “?” are reserved for use as 
  * separators. The encodeURI and decodeURI functions are intended to work with complete URIs; they assume
  * that any reserved code units in the URI are intended to have special meaning and so are not encoded. 
@@ -276,27 +281,27 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
  *
  * The following lexical grammar specifies the form of encoded URIs.
  * Syntax
-    uri :::
-        uriCharactersopt
-    uriCharacters :::
-        uriCharacter uriCharactersopt
-    uriCharacter :::
-        uriReserved
-        uriUnescaped
-        uriEscaped
-    uriReserved ::: one of
-        ; / ? : @ & = + $ ,
-    uriUnescaped :::
-        uriAlpha
-        DecimalDigit
-        uriMark
-    uriEscaped :::
-        % HexDigit HexDigit
-    uriAlpha ::: one of
-        a b c d e f g h i j k l m n o p q r s t u v w x y z
-        A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-    uriMark ::: one of
-        - _ . ! ~ * ' ( )
+	uri :::
+		uriCharactersopt
+	uriCharacters :::
+		uriCharacter uriCharactersopt
+	uriCharacter :::
+		uriReserved
+		uriUnescaped
+		uriEscaped
+	uriReserved ::: one of
+		; / ? : @ & = + $ ,
+	uriUnescaped :::
+		uriAlpha
+		DecimalDigit
+		uriMark
+	uriEscaped :::
+		% HexDigit HexDigit
+	uriAlpha ::: one of
+		a b c d e f g h i j k l m n o p q r s t u v w x y z
+		A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+	uriMark ::: one of
+		- _ . ! ~ * ' ( )
  *
  * NOTE The above syntax is based upon RFC 2396 and does not reflect changes introduced by the more recent
  * RFC 3986.
@@ -316,213 +321,213 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
  * arguments string and unescapedSet.
  */
 function Encode(string, unescapedSet){
-    /* 1. Let strLen be the number of code units in string. */
-    strLen := s_len_u string;
+	/* 1. Let strLen be the number of code units in string. */
+	strLen := s_len_u string;
 
-    /* 2. Let R be the empty String. */
-    R := "";
+	/* 2. Let R be the empty String. */
+	R := "";
 
-    /* 3. Let k be 0. */
-    k := 0;
+	/* 3. Let k be 0. */
+	k := 0;
 
-    /* 4. Repeat */
-    while (true){
-        /* a. If k equals strLen, return R. */
-        if (k = strLen){
-            return R
-        };
+	/* 4. Repeat */
+	while (true){
+		/* a. If k equals strLen, return R. */
+		if (k = strLen){
+			return R
+		};
 
-        /* b. Let C be the code unit at index k within string. */
-        C := s_nth_u(string, k);
+		/* b. Let C be the code unit at index k within string. */
+		C := s_nth_u(string, k);
 
-        /* c. If C is in unescapedSet, then */
-        if (includes(unescapedSet, C, 0., 1., int_to_float(s_len_u unescapedSet)) = true){
-            /* i. Let S be a String containing only the code unit C. */
-            S := C;
+		/* c. If C is in unescapedSet, then */
+		if (includes(unescapedSet, C, 0., 1., int_to_float(s_len_u unescapedSet)) = true){
+			/* i. Let S be a String containing only the code unit C. */
+			S := C;
 
-            /* ii. Let R be a new String value computed by concatenating the previous value of R and S. */
-            R := s_concat([R, S])
-        }
-        /* d. Else C is not in unescapedSet, */
-        else{
-            /* i. If the code unit value of C is not less than 0xDC00 and not greater than 0xDFFF, throw a URIError exception. */
-            C := to_char_code_u(C);
-            if (!(C < 0xDC00) &&& !(C > 0xDFFF)){
-                throw TypeErrorConstructorInternal()
-            };
+			/* ii. Let R be a new String value computed by concatenating the previous value of R and S. */
+			R := s_concat([R, S])
+		}
+		/* d. Else C is not in unescapedSet, */
+		else{
+			/* i. If the code unit value of C is not less than 0xDC00 and not greater than 0xDFFF, throw a URIError exception. */
+			C := to_char_code_u(C);
+			if (!(C < 0xDC00) &&& !(C > 0xDFFF)){
+				throw TypeErrorConstructorInternal()
+			};
 
-            /* ii. If the code unit value of C is less than 0xD800 or greater than 0xDBFF, then */
-            if ((C < 0xD800) ||| (C > 0xDBFF)){
-                /* 1. Let V be the code unit value of C. */
-                V := C
-            }
-            /* iii. Else, */
-            else{
-                print "surrogate pairs"
-                /* 1. Increase k by 1. */
-                /* 2. If k equals strLen, throw a URIError exception. */
-                /* 3. Let kChar be the code unit value of the code unit at index k within string. */
-                /* 4. If kChar is less than 0xDC00 or greater than 0xDFFF, throw a URIError exception. */
-                /* 5. Let V be UTF16Decode(C, kChar). */
-            };
+			/* ii. If the code unit value of C is less than 0xD800 or greater than 0xDBFF, then */
+			if ((C < 0xD800) ||| (C > 0xDBFF)){
+				/* 1. Let V be the code unit value of C. */
+				V := C
+			}
+			/* iii. Else, */
+			else{
+				print "surrogate pairs"
+				/* 1. Increase k by 1. */
+				/* 2. If k equals strLen, throw a URIError exception. */
+				/* 3. Let kChar be the code unit value of the code unit at index k within string. */
+				/* 4. If kChar is less than 0xDC00 or greater than 0xDFFF, throw a URIError exception. */
+				/* 5. Let V be UTF16Decode(C, kChar). */
+			};
 
-            /* iv. Let Octets be the array of octets resulting by applying the UTF-8 transformation to V, and let L be the array size. */
-            Octets := [];
-            /* V to UTF-8 string */
-            V_Str := from_char_code_u V;
-            /* Obtain number of bytes of V_Str */
-            V_Str_len_b := s_len V_Str;
-            i := 0;
-            /* For each byte in V_Str */
-            while (i < V_Str_len_b) {
-                b := s_nth(V_Str, i);
-                Octets := l_add(Octets, b);
-                i := i + 1
-            };
-            /* let L be the array size. */
-            L := l_len Octets;
+			/* iv. Let Octets be the array of octets resulting by applying the UTF-8 transformation to V, and let L be the array size. */
+			Octets := [];
+			/* V to UTF-8 string */
+			V_Str := from_char_code_u V;
+			/* Obtain number of bytes of V_Str */
+			V_Str_len_b := s_len V_Str;
+			i := 0;
+			/* For each byte in V_Str */
+			while (i < V_Str_len_b) {
+				b := s_nth(V_Str, i);
+				Octets := l_add(Octets, b);
+				i := i + 1
+			};
+			/* let L be the array size. */
+			L := l_len Octets;
 
-            /* v. Let j be 0. */
-            j := 0;
+			/* v. Let j be 0. */
+			j := 0;
 
-            /* vi. Repeat, while j < L */
-            while (j < L){
-                /* 1. Let jOctet be the value at index j within Octets. */
-                jOctet := l_nth(Octets, j);
+			/* vi. Repeat, while j < L */
+			while (j < L){
+				/* 1. Let jOctet be the value at index j within Octets. */
+				jOctet := l_nth(Octets, j);
 
-                /* 2. Let S be a String containing three code units "%XY" where XY are two uppercase hexadecimal digits encoding the value of jOctet. */
-                XY_ := int_to_four_hex (to_char_code_u jOctet);
-                X := s_nth_u(XY_, 2);
-                Y := s_nth_u(XY_, 3);
-                XY := s_concat([X, Y]);
-                S := s_concat(["%", XY]);
+				/* 2. Let S be a String containing three code units "%XY" where XY are two uppercase hexadecimal digits encoding the value of jOctet. */
+				XY_ := int_to_four_hex (to_char_code_u jOctet);
+				X := s_nth_u(XY_, 2);
+				Y := s_nth_u(XY_, 3);
+				XY := s_concat([X, Y]);
+				S := s_concat(["%", XY]);
 
-                /* 3. Let R be a new String value computed by concatenating the previous value of R and S. */
-                R := s_concat([R, S]);
+				/* 3. Let R be a new String value computed by concatenating the previous value of R and S. */
+				R := s_concat([R, S]);
 
-                /* 4. Increase j by 1. */
-                j := j + 1
-            }
-        };
+				/* 4. Increase j by 1. */
+				j := j + 1
+			}
+		};
 
-        /* e. Increase k by 1. */
-        k := k + 1
-    }
+		/* e. Increase k by 1. */
+		k := k + 1
+	}
 };
 
 /* AUXILIARY FUNCTIONS */
 function BinToHex(n){
-    
+	
 };
 function get_hex(bin){
-    if (bin = "0000"){
-        return "0"
-    } elif (bin = "0001"){
-        return "1"
-    } elif (bin = "0010"){
-        return "2"
-    } elif (bin = "0011"){
-        return "3"
-    } elif (bin = "0100"){
-        return "4"
-    } elif (bin = "0101"){
-        return "5"
-    } elif (bin = "0110"){
-        return "6"
-    } elif (bin = "0111"){
-        return "7"
-    } elif (bin = "1000"){
-        return "8"
-    } elif (bin = "1001"){
-        return "9"
-    } elif (bin = "1010"){
-        return "A"
-    } elif (bin = "1011"){
-        return "B"
-    } elif (bin = "1100"){
-        return "C"
-    } elif (bin = "1101"){
-        return "D"
-    } elif (bin = "1110"){
-        return "E"
-    } elif (bin = "1111"){
-        return "F"
-    } else {
-        print "something is wrong"
-    }
+	if (bin = "0000"){
+		return "0"
+	} elif (bin = "0001"){
+		return "1"
+	} elif (bin = "0010"){
+		return "2"
+	} elif (bin = "0011"){
+		return "3"
+	} elif (bin = "0100"){
+		return "4"
+	} elif (bin = "0101"){
+		return "5"
+	} elif (bin = "0110"){
+		return "6"
+	} elif (bin = "0111"){
+		return "7"
+	} elif (bin = "1000"){
+		return "8"
+	} elif (bin = "1001"){
+		return "9"
+	} elif (bin = "1010"){
+		return "A"
+	} elif (bin = "1011"){
+		return "B"
+	} elif (bin = "1100"){
+		return "C"
+	} elif (bin = "1101"){
+		return "D"
+	} elif (bin = "1110"){
+		return "E"
+	} elif (bin = "1111"){
+		return "F"
+	} else {
+		print "something is wrong"
+	}
 };
 function is_hexa(c){
-    return (c = "0") ||| (c = "1") ||| (c = "2") ||| (c = "3") ||| (c = "4") |||
-           (c = "5") ||| (c = "6") ||| (c = "7") ||| (c = "8") ||| (c = "9") |||
-           (c = "A") ||| (c = "B") ||| (c = "C") ||| (c = "D") ||| (c = "E") ||| (c = "F")
+	return (c = "0") ||| (c = "1") ||| (c = "2") ||| (c = "3") ||| (c = "4") |||
+		   (c = "5") ||| (c = "6") ||| (c = "7") ||| (c = "8") ||| (c = "9") |||
+		   (c = "A") ||| (c = "B") ||| (c = "C") ||| (c = "D") ||| (c = "E") ||| (c = "F")
 };
 function HexToBin(s){
-    /* https://www.geeksforgeeks.org/program-to-convert-hexadecimal-number-to-binary/ */
-    k := 0;
-    lim := s_len_u s;
+	/* https://www.geeksforgeeks.org/program-to-convert-hexadecimal-number-to-binary/ */
+	k := 0;
+	lim := s_len_u s;
 
-    res := "";
+	res := "";
  
-    while (k < lim) {
-        hex := s_nth_u(s, k);
-        if ((hex = "0") &&& (s_nth_u(s, k + 1) = "x")){
-            res := s_concat([res, "00000"]);
-            k := k + 1
-        } elif (hex = "0"){
-            res := s_concat([res, "0000"])
-        } elif (hex = "1"){
-            res := s_concat([res, "0001"])
-        } elif (hex = "2"){
-            res := s_concat([res, "0010"])
-        } elif (hex = "3"){
-            res := s_concat([res, "0011"])
-        } elif (hex = "4"){
-            res := s_concat([res, "0100"])
-        } elif (hex = "5"){
-            res := s_concat([res, "0101"])
-        } elif (hex = "6"){
-            res := s_concat([res, "0110"])
-        } elif (hex = "7"){
-            res := s_concat([res, "0111"])
-        } elif (hex = "8"){
-            res := s_concat([res, "1000"])
-        } elif (hex = "9"){
-            res := s_concat([res, "1001"])
-        } elif (hex = "A"){
-            res := s_concat([res, "1010"])
-        } elif (hex = "B"){
-            res := s_concat([res, "1011"])
-        } elif (hex = "C"){
-            res := s_concat([res, "1100"])
-        } elif (hex = "D"){
-            res := s_concat([res, "1101"])
-        } elif (hex = "E"){
-            res := s_concat([res, "1110"])
-        } elif (hex = "F"){
-            res := s_concat([res, "1111"])
-        } else {
-            print "something is wrong"
-        };
+	while (k < lim) {
+		hex := s_nth_u(s, k);
+		if ((hex = "0") &&& (s_nth_u(s, k + 1) = "x")){
+			res := s_concat([res, "00000"]);
+			k := k + 1
+		} elif (hex = "0"){
+			res := s_concat([res, "0000"])
+		} elif (hex = "1"){
+			res := s_concat([res, "0001"])
+		} elif (hex = "2"){
+			res := s_concat([res, "0010"])
+		} elif (hex = "3"){
+			res := s_concat([res, "0011"])
+		} elif (hex = "4"){
+			res := s_concat([res, "0100"])
+		} elif (hex = "5"){
+			res := s_concat([res, "0101"])
+		} elif (hex = "6"){
+			res := s_concat([res, "0110"])
+		} elif (hex = "7"){
+			res := s_concat([res, "0111"])
+		} elif (hex = "8"){
+			res := s_concat([res, "1000"])
+		} elif (hex = "9"){
+			res := s_concat([res, "1001"])
+		} elif (hex = "A"){
+			res := s_concat([res, "1010"])
+		} elif (hex = "B"){
+			res := s_concat([res, "1011"])
+		} elif (hex = "C"){
+			res := s_concat([res, "1100"])
+		} elif (hex = "D"){
+			res := s_concat([res, "1101"])
+		} elif (hex = "E"){
+			res := s_concat([res, "1110"])
+		} elif (hex = "F"){
+			res := s_concat([res, "1111"])
+		} else {
+			print "something is wrong"
+		};
 
-        k := k + 1
-    };
-    return res
+		k := k + 1
+	};
+	return res
 };
 function BinToDec(s){
-    num := float_of_string(s);
-    dec_value := 0;
-    base := 1;
-    temp := num;
-    
-    while (temp > 0.){
-        last_digit := (temp % 10.);
-        temp := temp / (10.);
+	num := float_of_string(s);
+	dec_value := 0;
+	base := 1;
+	temp := num;
+	
+	while (temp > 0.){
+		last_digit := (temp % 10.);
+		temp := temp / (10.);
 
-        dec_value := dec_value + (int_of_float last_digit * base);
-        base := base * 2
-    };
+		dec_value := dec_value + (int_of_float last_digit * base);
+		base := base * 2
+	};
  
-    return dec_value
+	return dec_value
 };
 
 /* 18.2.6.1.2 Runtime Semantics: Decode ( string, reservedSet ) */
@@ -531,109 +536,109 @@ function BinToDec(s){
  * arguments string and reservedSet.
  */
 function Decode(string, reservedSet){
-    /* 1. Let strLen be the number of code units in string. */
-    strLen := s_len_u string;
+	/* 1. Let strLen be the number of code units in string. */
+	strLen := s_len_u string;
 
-    /* 2. Let R be the empty String. */
-    R := "";
+	/* 2. Let R be the empty String. */
+	R := "";
 
-    /* 3. Let k be 0. */
-    k := 0;
+	/* 3. Let k be 0. */
+	k := 0;
 
-    /* 4. Repeat */
-    while (true){
-        /* a. If k equals strLen, return R. */
-        if (k = strLen){
-            return R
-        };
+	/* 4. Repeat */
+	while (true){
+		/* a. If k equals strLen, return R. */
+		if (k = strLen){
+			return R
+		};
 
-        /* b. Let C be the code unit at index k within string. */
-        C := s_nth_u(string, k);
+		/* b. Let C be the code unit at index k within string. */
+		C := s_nth_u(string, k);
 
-        /* c. If C is not "%", then */
-        if (!(C = "%")){
-            /* i. Let S be the String containing only the code unit C. */
-            S := C
-        }
-        /* d. Else C is "%", */
-        else{
-            /* i. Let start be k. */
-            start := k;
+		/* c. If C is not "%", then */
+		if (!(C = "%")){
+			/* i. Let S be the String containing only the code unit C. */
+			S := C
+		}
+		/* d. Else C is "%", */
+		else{
+			/* i. Let start be k. */
+			start := k;
 
-            /* ii. If k + 2 is greater than or equal to strLen, throw a URIError exception. */
-            if ((k + 2) >= strLen){
-                throw URIErrorConstructorInternal()
-            };
+			/* ii. If k + 2 is greater than or equal to strLen, throw a URIError exception. */
+			if ((k + 2) >= strLen){
+				throw URIErrorConstructorInternal()
+			};
 
-            /* iii. If the code units at index (k+1) and (k + 2) within string do not represent hexadecimal digits, throw a URIError exception. */
-            k1 := s_nth_u(string, (k + 1));
-            k2 := s_nth_u(string, (k + 2));
-            if (!(is_hexa(k1)) ||| !(is_hexa(k2))){
-                throw URIErrorConstructorInternal()
-            };
+			/* iii. If the code units at index (k+1) and (k + 2) within string do not represent hexadecimal digits, throw a URIError exception. */
+			k1 := s_nth_u(string, (k + 1));
+			k2 := s_nth_u(string, (k + 2));
+			if (!(is_hexa(k1)) ||| !(is_hexa(k2))){
+				throw URIErrorConstructorInternal()
+			};
 
-            /* iv. Let B be the 8-bit value represented by the two hexadecimal digits at index (k + 1) and (k + 2). */
-            k1_b := HexToBin(k1);
-            k2_b := HexToBin(k2);
-            B := s_concat([k1_b, k2_b]);
+			/* iv. Let B be the 8-bit value represented by the two hexadecimal digits at index (k + 1) and (k + 2). */
+			k1_b := HexToBin(k1);
+			k2_b := HexToBin(k2);
+			B := s_concat([k1_b, k2_b]);
 
-            /* v. Increment k by 2. */
-            k := k + 2;
+			/* v. Increment k by 2. */
+			k := k + 2;
 
-            /* vi. If the most significant bit in B is 0, then */
-            if (s_nth_u(B, 0) = "0"){
-                /* 1. Let C be the code unit with code unit value B. */
-                C := from_char_code_u(BinToDec(B));
+			/* vi. If the most significant bit in B is 0, then */
+			if (s_nth_u(B, 0) = "0"){
+				/* 1. Let C be the code unit with code unit value B. */
+				C := from_char_code_u(BinToDec(B));
 
-                /* 2. If C is not in reservedSet, then */
-                if (includes(reservedSet, C, 0., 1., int_to_float(s_len_u reservedSet)) = false){
-                    /* a. Let S be the String containing only the code unit C. */
-                    S := C
-                }
-                /* 3. Else C is in reservedSet, */
-                else{
-                    /* a. Let S be the substring of string from index start to index k inclusive. */
-                    S := substring(string, int_to_float start, int_to_float (k + 1))
-                }
-            }
-            /* vii. Else the most significant bit in B is 1, */
-            else{
-                print "surrogate pairs"
-                /* 1. Let n be the smallest nonnegative integer such that (B << n) & 0x80 is equal to 0. */
-                /* 2. If n equals 1 or n is greater than 4, throw a URIError exception. */
-                /* 3. Let Octets be an array of 8-bit integers of size n. */
-                /* 4. Put B into Octets at index 0. */
-                /* 5. If k + (3 × (n – 1)) is greater than or equal to strLen, throw a URIError exception. */
-                /* 6. Let j be 1. */
-                /* 7. Repeat, while j < n */
-                    /* a. Increment k by 1. */
-                    /* b. If the code unit at index k within string is not "%", throw a URIError exception. */
-                    /* c. If the code units at index (k +1) and (k + 2) within string do not represent hexadecimal digits, throw a URIError exception. */
-                    /* d. Let B be the 8-bit value represented by the two hexadecimal digits at index (k + 1) and (k + 2). */
-                    /* e. If the two most significant bits in B are not 10, throw a URIError exception. */
-                    /* f. Increment k by 2. */
-                    /* g. Put B into Octets at index j. */
-                    /* h. Increment j by 1. */                    
-                /* 8. Let V be the value obtained by applying the UTF-8 transformation to Octets, that is, from an array of octets into a 21-bit value. If Octets does not contain a valid UTF-8 encoding of a Unicode code point throw a URIError exception. */
-                /* 9. If V < 0x10000, then */
-                    /* a. Let C be the code unit V. */
-                    /* b. If C is not in reservedSet, then */
-                        /* i. Let S be the String containing only the code unit C. */
-                    /* c. Else C is in reservedSet, */
-                        /* i. Let S be the substring of string from index start to index k inclusive. */
-                /* 10. Else V ≥ 0x10000, */
-                    /* a. Let L be (((V – 0x10000) & 0x3FF) + 0xDC00). */
-                    /* b. Let H be ((((V – 0x10000) >> 10) & 0x3FF) + 0xD800). */
-                    /* c. Let S be the String containing the two code units H and L. */
-            }
-        };
+				/* 2. If C is not in reservedSet, then */
+				if (includes(reservedSet, C, 0., 1., int_to_float(s_len_u reservedSet)) = false){
+					/* a. Let S be the String containing only the code unit C. */
+					S := C
+				}
+				/* 3. Else C is in reservedSet, */
+				else{
+					/* a. Let S be the substring of string from index start to index k inclusive. */
+					S := substring(string, int_to_float start, int_to_float (k + 1))
+				}
+			}
+			/* vii. Else the most significant bit in B is 1, */
+			else{
+				print "surrogate pairs"
+				/* 1. Let n be the smallest nonnegative integer such that (B << n) & 0x80 is equal to 0. */
+				/* 2. If n equals 1 or n is greater than 4, throw a URIError exception. */
+				/* 3. Let Octets be an array of 8-bit integers of size n. */
+				/* 4. Put B into Octets at index 0. */
+				/* 5. If k + (3 × (n – 1)) is greater than or equal to strLen, throw a URIError exception. */
+				/* 6. Let j be 1. */
+				/* 7. Repeat, while j < n */
+					/* a. Increment k by 1. */
+					/* b. If the code unit at index k within string is not "%", throw a URIError exception. */
+					/* c. If the code units at index (k +1) and (k + 2) within string do not represent hexadecimal digits, throw a URIError exception. */
+					/* d. Let B be the 8-bit value represented by the two hexadecimal digits at index (k + 1) and (k + 2). */
+					/* e. If the two most significant bits in B are not 10, throw a URIError exception. */
+					/* f. Increment k by 2. */
+					/* g. Put B into Octets at index j. */
+					/* h. Increment j by 1. */                    
+				/* 8. Let V be the value obtained by applying the UTF-8 transformation to Octets, that is, from an array of octets into a 21-bit value. If Octets does not contain a valid UTF-8 encoding of a Unicode code point throw a URIError exception. */
+				/* 9. If V < 0x10000, then */
+					/* a. Let C be the code unit V. */
+					/* b. If C is not in reservedSet, then */
+						/* i. Let S be the String containing only the code unit C. */
+					/* c. Else C is in reservedSet, */
+						/* i. Let S be the substring of string from index start to index k inclusive. */
+				/* 10. Else V ≥ 0x10000, */
+					/* a. Let L be (((V – 0x10000) & 0x3FF) + 0xDC00). */
+					/* b. Let H be ((((V – 0x10000) >> 10) & 0x3FF) + 0xD800). */
+					/* c. Let S be the String containing the two code units H and L. */
+			}
+		};
 
-        /* e. Let R be a new String value computed by concatenating the previous value of R and S. */
-        R := s_concat([R, S]);
+		/* e. Let R be a new String value computed by concatenating the previous value of R and S. */
+		R := s_concat([R, S]);
 
-        /* f. Increase k by 1. */
-        k := k + 1
-    }
+		/* f. Increase k by 1. */
+		k := k + 1
+	}
 }
 
 

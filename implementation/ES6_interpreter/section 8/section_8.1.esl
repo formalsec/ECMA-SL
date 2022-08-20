@@ -1324,7 +1324,9 @@ function CreateGlobalFunctionBinding(envRec, N, V, D) {
     status := Set(globalObject, N, V, false);
 
     /* Record that the binding for N in ObjRec has been initialized. */
-    setBindingInitialised(ObjRec, N, true);
+    
+    /* TODO check como por o binding a initialized */
+    /* setBindingInitialised(ObjRec, N, true); */
 
     /* ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
@@ -1462,6 +1464,16 @@ function GetIdentifierReference(lex, name, strict) {
 
     /* Let envRec be lex’s EnvironmentRecord. */
     envRec := getEnvironmentRecord(lex);
+
+    if ( name = "f" ) {
+      print "IDENTREF";
+      print lex;
+      print envRec; 
+
+      if ( "ObjectRecord" in_obj envRec ) {
+        print envRec.ObjectRecord.bindingObject.JSProperties
+      }
+    };
 
     /* Let exists be envRec.HasBinding(name). */
     exists := {envRec.HasBinding}(envRec, name);

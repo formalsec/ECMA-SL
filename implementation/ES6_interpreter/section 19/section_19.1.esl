@@ -10,7 +10,7 @@ function initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject,
      of a class definition. */
 
   /* The value of the [[Prototype]] internal slot of the Object constructor is the intrinsic object
-     %FunctionPrototype%. */
+    %FunctionPrototype%. */
   ObjectConstructor := CreateGeneralFunctionObject(FunctionPrototype, ["value"], "ObjectConstructor", globalObject, strict, 1.);
 
   /* 19.1.2.16 Object.prototype */
@@ -692,7 +692,7 @@ function ObjectSetPrototypeOf(globalObject, this, NewTarget, strict, params) {
 function ObjectPrototypeHasOwnProperty(globalObject, this, NewTarget, strict, params) {
   V := l_nth(params, 0);
   /* When the hasOwnProperty method is called with argument V, the following steps are taken: */
-
+  
   /* 1. ToPropertyKey(V). */
   P := ToPropertyKey(V);
 
@@ -889,18 +889,18 @@ function getObjectPrototype(strict) {
   refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
   objectObjectProto := GetValue(refObjProto);
 
-  return objectObjectProto
+  return |Intrinsics|["ObjectPrototype"]
 };
 
 function getObjectPrototypeToString(strict) {
-  refObj := newPropertyReference(|global|, "Object", strict);
+  /* refObj := newPropertyReference(|global|, "Object", strict);
   ObjectObject := GetValue(refObj);
 
   refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
   objectObjectProto := GetValue(refObjProto);
 
   refToStringObjProto := newPropertyReference(objectObjectProto, "toString", strict);
-  objectObjectToString := GetValue(refToStringObjProto);
+  objectObjectToString := GetValue(refToStringObjProto); */
 
-  return objectObjectToString
+  return |Intrinsics|["ObjectPrototype"].JSProperties.toString.Value
 }
