@@ -3,19 +3,13 @@
 
 /*---
 info: The isFinite property can't be used as constructor
-es5id: 15.1.2.5_A2.7
+esid: sec-isfinite-number
 description: >
     If property does not implement the internal [[Construct]] method,
     throw a TypeError exception
 ---*/
 
-//CHECK#1
-
-try {
+assert.throws(TypeError, () => {
   new isFinite();
-  $ERROR('#1.1: new isFinite() throw TypeError. Actual: ' + (new isFinite()));
-} catch (e) {
-  if ((e instanceof TypeError) !== true) {
-    $ERROR('#1.2: new isFinite() throw TypeError. Actual: ' + (e));
-  }
-}
+  throw new Test262Error();
+});
