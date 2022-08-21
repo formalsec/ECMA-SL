@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     Assume F is a Function object. When the [[HasInstance]] method of
     F is called with value V and V is an object, the following steps
     are taken: i) Call the [[Get]] method of F with property name
@@ -25,14 +25,14 @@ FACTORY.prototype = void 0;
 // CHECK#1
 try {
   instance instanceof FACTORY;
-  $ERROR('#1: O is not an object, throw a TypeError exception');
+  throw new Test262Error('#1: O is not an object, throw a TypeError exception');
 } catch (e) {
   if (!(e instanceof TypeError)) {
-    $ERROR('#1.1: O is not an object, throw a TypeError exception');
+    throw new Test262Error('#1.1: O is not an object, throw a TypeError exception');
   }
 }
 
 // CHECK#2
 if ((instance.constructor !== FACTORY) || (instance.name !== "fairy")) {
-  $ERROR('#2: instance.constructor === FACTORY');
+  throw new Test262Error('#2: instance.constructor === FACTORY');
 }

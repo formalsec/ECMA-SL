@@ -7,8 +7,12 @@ es5id: 12.7_A1_T3
 description: >
     Checking if laballed "continue" with no IterationStatement, placed
     into a block, fails
-negative: SyntaxError
+negative:
+  phase: parse
+  type: SyntaxError
 ---*/
+
+$DONOTEVALUATE();
 
 LABEL : x=3.14;
 

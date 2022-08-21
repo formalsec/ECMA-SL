@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     FunctionExpression within a "while" IterationStatement is allowed, but no
     function with the given name will appear in the global context
 es5id: 12.6.2_A10
@@ -23,7 +23,7 @@ while(function f(){}){
 //////////////////////////////////////////////////////////////////////////////
 //CHECK#1
 if (check !== 1) {
-	$ERROR('#1: FunctionExpression inside while construction expression allowed but function not declare');
+	throw new Test262Error('#1: FunctionExpression inside while construction expression allowed but function not declare');
 }
 //
 //////////////////////////////////////////////////////////////////////////////

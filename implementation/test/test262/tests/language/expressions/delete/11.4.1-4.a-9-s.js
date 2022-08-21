@@ -2,17 +2,16 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     This test is actually testing the [[Delete]] internal method (8.12.8). Since the
     language provides no way to directly exercise [[Delete]], the tests are placed here.
-es5id: 11.4.1-4.a-9-s
+esid: sec-delete-operator-runtime-semantics-evaluation
 description: >
     delete operator throws TypeError when deleting a non-configurable
     data property (Math.LN2) in strict mode
 flags: [onlyStrict]
 ---*/
 
-
 assert.throws(TypeError, function() {
-    delete Math.LN2;
+  delete Math.LN2;
 });

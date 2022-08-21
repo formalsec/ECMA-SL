@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     Using "break" within "try/catch" statement that is nested in a loop is
     allowed
 es5id: 12.8_A9_T2
@@ -26,7 +26,7 @@ FOR : for(;;){
 //////////////////////////////////////////////////////////////////////////////
 //CHECK#1
 if (x!==1) {
-	$ERROR('#1: break inside of try-catch nested in loop is allowed');
+	throw new Test262Error('#1: break inside of try-catch nested in loop is allowed');
 }
 //
 //////////////////////////////////////////////////////////////////////////////

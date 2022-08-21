@@ -5,12 +5,16 @@
 info: Syntax constructions of switch statement
 es5id: 12.11_A3_T2
 description: Checking if execution of "switch {}" fails
-negative: SyntaxError
+negative:
+  phase: parse
+  type: SyntaxError
 ---*/
+
+$DONOTEVALUATE();
 
 function SwitchTest(value){
   var result = 0;
-  
+
   switch {
     case 0:
       result += 2;
@@ -18,7 +22,7 @@ function SwitchTest(value){
       result += 32;
       break;
   }
-  
+
   return result;
 }
 

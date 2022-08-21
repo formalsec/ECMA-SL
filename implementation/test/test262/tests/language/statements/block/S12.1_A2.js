@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The production StatementList  Statement is evaluated as follows
     1. Evaluate Statement.
     2. If an exception was thrown, return (throw, V, empty) where V is the exception
@@ -25,10 +25,10 @@ assert.throws(ReferenceError, function() {
 //CHECK#2
 try {
     throw "catchme";	
-    $ERROR('#2: throw "catchme" lead to throwing exception');
+    throw new Test262Error('#2: throw "catchme" lead to throwing exception');
 } catch (e) {
 	if (e!=="catchme") {
-		$ERROR('#2.1: Exception === "catchme". Actual:  Exception ==='+ e  );
+		throw new Test262Error('#2.1: Exception === "catchme". Actual:  Exception ==='+ e  );
 	}
 }
 
