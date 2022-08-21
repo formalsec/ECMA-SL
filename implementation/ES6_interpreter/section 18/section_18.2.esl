@@ -43,6 +43,9 @@ function PerformEval(scope, x, evalRealm, strictCaller, direct) {
 	 be the execution context that performed the direct eval. If direct is
 	 false ctx will be the execution context for the invocation of the eval
 	 function. */
+  /* ctx := topExecStack(); */
+  
+  /* TODO mudar de scope para topExecStack */
   ctx := scope;
   /* 9. If direct is true, then */
   if (direct = true) {
@@ -65,7 +68,7 @@ function PerformEval(scope, x, evalRealm, strictCaller, direct) {
 		varEnv := lexEnv
   };
   /* 12. If ctx is not already suspended, Suspend ctx */
-  /* TODO */
+  ctx.Suspend := true;
 
   /* 13. Let evalCxt be a new ECMAScript code execution context. */
   evalCxt := createExecutionContext();
@@ -94,7 +97,7 @@ function PerformEval(scope, x, evalRealm, strictCaller, direct) {
 	return NormalCompletion('undefined)
   };
   /* 21. Suspend evalCxt and remove it from the execution context stack. */
-  evalCtx.Suspend := true;
+  evalCxt.Suspend := true;
   popExecStack();
 
   /* 22. Resume the context that is now on the top of the execution context

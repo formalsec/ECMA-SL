@@ -2990,8 +2990,8 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
     /* 7. Repeat */
     i := 0;
 
-    /* obj_enums := EnumerableOwnNames(obj); */
-    obj_enums := getEnumerableProperties(obj);
+    obj_enums := EnumerableOwnNames(obj);
+    /* obj_enums := getEnumerableProperties(obj); */
 
     repeat {
       /* a. Let P be the name of the next property of obj whose [[Enumerable]] attribute is true.
