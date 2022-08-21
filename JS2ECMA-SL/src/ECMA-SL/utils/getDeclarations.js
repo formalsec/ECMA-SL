@@ -5,7 +5,8 @@ module.exports = {
   getVarDeclarations: getVarDeclrs,
   getFunctionDeclarations: getFuncDeclrs,
   replaceFuncDeclarations: replaceFuncDeclarations,
-  getLetDeclarations: getLetDeclrs
+  getLetDeclarations: getLetDeclrs,
+  getConstDeclarations : getConstDeclrs
 };
 
 
@@ -61,16 +62,22 @@ function getVarDeclrs(obj) {
 
 
 
-function getLetDeclrs(obj) {
-  function callback(obj) {
-    if (!obj) {
+function getLetDeclrs(obj1) {
+  function callback(obj2) {
+    if (!obj2) {
       return {
         stop: true,
         data: [],
       };
     }
 
-    switch (obj.type) {
+    
+    switch (obj2.type) {
+      case "BlockStatement":
+        return {
+          stop: obj1 !== obj2,
+          data: [],
+        };
       case "FunctionDeclaration":
       case "FunctionExpression":
       case "ArrowFunctionExpression":
@@ -81,8 +88,8 @@ function getLetDeclrs(obj) {
 
       case "VariableDeclaration":
         
-        if (obj.kind == "let") {
-          const vars = obj.declarations.reduce(
+        if (obj2.kind == "let") {
+          const vars = obj2.declarations.reduce(
             (acc, declr) => acc.concat(declr.id.name),
             []
           );
@@ -106,10 +113,62 @@ function getLetDeclrs(obj) {
     }
   }
 
-  return traverse(callback, obj).data;
+  return traverse(callback, obj1).data;
 }
 
+function getConstDeclrs(obj1) {
+  function callback(obj2) {
+    if (!obj2) {
+      return {
+        stop: true,
+        data: [],
+      };
+    }
 
+    
+    switch (obj2.type) {
+      case "BlockStatement":
+        return {
+          stop: obj1 !== obj2,
+          data: [],
+        };
+      case "FunctionDeclaration":
+      case "FunctionExpression":
+      case "ArrowFunctionExpression":
+        return {
+          stop: true,
+          data: [],
+        };
+
+      case "VariableDeclaration":
+        
+        if (obj2.kind == "const") {
+          const vars = obj2.declarations.reduce(
+            (acc, declr) => acc.concat(declr.id.name),
+            []
+          );
+
+          return {
+            stop: true,
+            data: vars,
+          };
+        } else {
+          return {
+            stop: true,
+            data: [],
+          };
+        }
+
+      default:
+        return {
+          stop: false,
+          data: [],
+        };
+    }
+  }
+
+  return traverse(callback, obj1).data;
+}
 
 function getFuncDeclrs(obj) {
   function callback(obj) {

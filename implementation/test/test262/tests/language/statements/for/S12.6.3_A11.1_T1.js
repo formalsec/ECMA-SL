@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     If (Evaluate Statement).type is "continue" and (Evaluate
     Statement).target is in the current label set, iteration of labeled
     "var-loop" breaks
@@ -19,5 +19,5 @@ for(var index=0; index<10; index+=1) {
 }
 
 if (__str!=="56789") {
-	$ERROR('#1: __str === "56789". Actual:  __str ==='+ __str  );
+	throw new Test262Error('#1: __str === "56789". Actual:  __str ==='+ __str  );
 }

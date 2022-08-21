@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The "while" Statement is evaluted according to 12.6.2 and returns
     (normal, V, empty)
 es5id: 12.6.2_A7
@@ -17,7 +17,7 @@ __evaluated = eval("while (__condition<5) eval(\"__condition++\");");
 //////////////////////////////////////////////////////////////////////////////
 //CHECK#1
 if (__condition !== 5) {
-	$ERROR('#1: The "while" statement is evaluated as described in the Standard');
+	throw new Test262Error('#1: The "while" statement is evaluated as described in the Standard');
 }
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ if (__condition !== 5) {
 //////////////////////////////////////////////////////////////////////////////
 //CHECK#2
 if (__evaluated !== 4) {
-	$ERROR('#2: The "while" statement returns (normal, V, empty)');
+	throw new Test262Error('#2: The "while" statement returns (normal, V, empty)');
 }
 //
 //////////////////////////////////////////////////////////////////////////////

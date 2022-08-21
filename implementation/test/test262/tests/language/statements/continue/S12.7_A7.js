@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     Appearing of continue within eval statement that is within an
     IterationStatement yields SyntaxError
 es5id: 12.7_A7
@@ -19,10 +19,10 @@ try{
         eval("continue LABEL1");
         y++;
     } while(0);
-	$ERROR('#1: eval("continue LABEL1") does not lead to throwing exception');
+	throw new Test262Error('#1: eval("continue LABEL1") does not lead to throwing exception');
 } catch(e){
 	if(!(e instanceof SyntaxError)){
-		$ERROR("1.1: Appearing of continue within eval statement inside of IterationStatement yields SyntaxError");
+		throw new Test262Error("1.1: Appearing of continue within eval statement inside of IterationStatement yields SyntaxError");
 	}
 }
 //

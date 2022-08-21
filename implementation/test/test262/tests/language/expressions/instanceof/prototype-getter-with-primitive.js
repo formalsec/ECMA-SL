@@ -5,7 +5,7 @@
 es6id: 12.9.3
 description: >
   "prototype" property is not retrieved when left-hand side expression in `instanceof` is primitive.
-info: >
+info: |
   12.9.3 Runtime Semantics: Evaluation
   RelationalExpression : RelationalExpression instanceof ShiftExpression
     ...
@@ -25,7 +25,7 @@ info: >
 // therefore we need to use a non-constructor function to install the getter.
 Object.defineProperty(Function.prototype, "prototype", {
   get: function() {
-    $ERROR("getter for 'prototype' called");
+    throw new Test262Error("getter for 'prototype' called");
   }
 });
 

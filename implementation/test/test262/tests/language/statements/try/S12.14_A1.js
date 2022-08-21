@@ -2,7 +2,7 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
+info: |
     The production TryStatement : try Block Catch is evaluated as follows: 2.
     If Result(1).type is not throw, return Result(1)
 es5id: 12.14_A1
@@ -16,7 +16,7 @@ try {
   var x=0;
 }
 catch (e) {
-  $ERROR('#1: If Result(1).type is not throw, return Result(1). Actual: 4 Return(Result(3))');
+  throw new Test262Error('#1: If Result(1).type is not throw, return Result(1). Actual: 4 Return(Result(3))');
 }
 
 // CHECK#2
@@ -29,10 +29,10 @@ finally
   c1=1;
 }
 if(x1!==1){
-  $ERROR('#2.1: "try" block must be evaluated. Actual: try Block has not been evaluated');
+  throw new Test262Error('#2.1: "try" block must be evaluated. Actual: try Block has not been evaluated');
 }
 if (c1!==1){
-  $ERROR('#2.2: "finally" block must be evaluated. Actual: finally Block has not been evaluated');
+  throw new Test262Error('#2.2: "finally" block must be evaluated. Actual: finally Block has not been evaluated');
 }
 
 // CHECK#3
@@ -41,14 +41,14 @@ try{
   var x2=1;
 }
 catch(e){
-  $ERROR('#3.1: If Result(1).type is not throw, return Result(1). Actual: 4 Return(Result(3))');	
+  throw new Test262Error('#3.1: If Result(1).type is not throw, return Result(1). Actual: 4 Return(Result(3))');	
 }
 finally{
   c2=1;
 }
 if(x2!==1){
-  $ERROR('#3.2: "try" block must be evaluated. Actual: try Block has not been evaluated');
+  throw new Test262Error('#3.2: "try" block must be evaluated. Actual: try Block has not been evaluated');
 }
 if (c2!==1){
-  $ERROR('#3.3: "finally" block must be evaluated. Actual: finally Block has not been evaluated');
+  throw new Test262Error('#3.3: "finally" block must be evaluated. Actual: finally Block has not been evaluated');
 }

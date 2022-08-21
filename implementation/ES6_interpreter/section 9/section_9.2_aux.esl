@@ -187,9 +187,10 @@ function BindingInitializationObjectPattern(param, value, environment) {
     if (!("key" in_obj property)) {
       BindingInitialization(property, value, environment, null)
     } else {
-      key := JS_Interpreter_Expr(property.key, environment);
+      /*key := JS_Interpreter_Expr(property.key, environment);
       @ReturnIfAbrupt(key);
-      property_name := GetPropertyName(key);
+      property_name := GetPropertyName(key);*/
+      property_name := property.key.name;
       InitializeSingleObjectBinding(property, property_name, value, environment)
     };
     i := i + 1
