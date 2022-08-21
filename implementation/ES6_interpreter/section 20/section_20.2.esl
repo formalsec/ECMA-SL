@@ -180,10 +180,11 @@ function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
   descriptor := newDataPropertyDescriptorFull("fround", false, false, true);
   setJSProperty(fround_fo, "name", descriptor);
   /* 20.2.2.18 Math.hypot ( value1 , value2 , …values ) */
-  hypot_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathHypot", globalObject, strict, null);
+  hypot_fo := CreateBuiltInFunctionObject(["value1"], "MathHypot", globalObject, strict, null);
   createBuiltInProperty(mathObject, "hypot", hypot_fo);
   descriptor := newDataPropertyDescriptorFull("hypot", false, false, true);
   setJSProperty(hypot_fo, "name", descriptor);
+  setJSProperty(hypot_fo, "length", newDataPropertyDescriptorFull(2., false, false, true));
   /* 20.2.2.19 Math.imul ( x, y ) */
   imul_fo := CreateBuiltInFunctionObject(["x", "y"], "MathImul", globalObject, strict, null);
   createBuiltInProperty(mathObject, "imul", imul_fo);
