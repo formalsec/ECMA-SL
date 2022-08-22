@@ -404,7 +404,10 @@ function FunctionInitialize(F, kind, ParameterList, Body, Scope) {
   assert(F.Extensible = true &&& !("length" in_obj F));
 
   /* 2. Let len be the ExpectedArgumentCount of ParameterList. */
-  len := l_len ParameterList;
+  paramsDetails := getParamsDetails(Body);
+  len := ExpectedArgumentCount(paramsDetails);
+  print "DEBUG FunctionInitialize";
+  print len;
 
   /* 3. Let status be DefinePropertyOrThrow(F, "length",
      PropertyDescriptor{[[Value]]: len, [[Writable]]: false,
@@ -1097,4 +1100,18 @@ function getParamsDetails(codeObj) {
     return []
   };
   return codeObj.paramsDetails
+};
+
+function ExpectedArgumentCount(paramsDetails){
+  count := 0;
+  foreach (param: paramsDetails) {
+    print "DEBUG ExpectedArgumentCount";
+    print param;
+    if (param.type = "Identifier") {
+      print "INSIDE PARAM";
+      print param;
+      count := count + 1
+    }
+  };
+  return count
 }

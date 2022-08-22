@@ -857,8 +857,12 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     }
     /* 6. Else ref is a Reference to an Environment Record binding, */
     else {
+      print "INSIDE THE ELSE CLAUSE";
       /* a.Let bindings be GetBase(ref). */
       bindings := GetBase(ref);
+
+      print "DEBUG BINDINGS";
+      print bindings;
       /* b.Return bindings.DeleteBinding(GetReferencedName(ref)). */
       return {bindings.DeleteBinding}(bindings, GetReferencedName(ref))
     }

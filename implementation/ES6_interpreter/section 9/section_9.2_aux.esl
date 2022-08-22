@@ -24,7 +24,6 @@ function getParameterIteratorValue(param, listIterator, environment) {
     initializer := null
   };
 
-
   /* If iteratorRecord.[[done]] is false, then */
   if (listIterator.done = false) {
     /* a. Let next be IteratorStep(iteratorRecord.[[iterator]]). */
@@ -87,6 +86,8 @@ function BindingInitialization(param, value, environment, listIterator) {
       return BindingInitialization(param.argument, value, environment, null)
     };
     restValue := GetRestValue(listIterator, value);
+    print "DEBUG REST ELEMENT";
+    print listIterator;
     return BindingInitialization(param.argument, restValue, environment, listIterator)
   }
   | { type: "ArrayPattern" } -> {
@@ -133,48 +134,6 @@ function BindingInitializationIdentifier(param, value, environment) {
 
    /* 8. Return InitializeReferencedBinding(lhs, v). */
    return InitializeReferencedBinding(lhs, value)
-};
-
-function BindingInitializationRestElement(name, listIterator, scope) {
-  /* 1. Let lhs be ResolveBinding(StringValue of BindingIdentifier,
-     environment). */
-  lhs := ResolveBinding(scope, name, null);
-
-  /* 2. ReturnIfAbrupt(lhs). */
-  @ReturnIfAbrupt(lhs);
-  /* 3. Let A be ArrayCreate(0). */
-  A := ArrayCreate(0., null);
-  /* 4. Let n=0. */
-  n := 0.;
-  /* 5. Repeat, */
-  repeat {
-    if (listIterator.done = false) {
-      next := IteratorStep(listIterator.iterator);
-      if (isAnAbruptCompletion(next)) {
-        listIterator.done := true
-      };
-      @ReturnIfAbrupt(next);
-      if (next = false) {
-        listIterator.done := true
-      }
-    };
-    if (listIterator.done = true) {
-      if (scope = 'undefined) {
-        return PutValue(lhs, A)
-      };
-      return InitializeReferencedBinding(scope, lhs, A)
-    };
-    nextValue := IteratorValue(next);
-    if (isAnAbruptCompletion(nextValue)) {
-      listIterator.done := true
-    };
-    @ReturnIfAbrupt(nextValue);
-    status := CreateDataProperty(A, ToString(n), nextValue);
-    assert(status = true);
-    n := n + 1.;
-    done := listIterator.done
-  };
-  return
 };
 
 function BindingInitializationObjectPattern(param, value, environment) {
@@ -239,12 +198,17 @@ function BindingInitializationArrayPattern(param, value, environment) {
 
 function GetRestValue(listIterator, initialValue) {
   /* 3. Let A be ArrayCreate(0). */
-  A := ArrayCreate(0., null);
-  CreateDataProperty(A, "0", initialValue);
+  A := ArrayConstructor(null, 'null, null, false, []);
   /* 4. Let n=0. */
-  n := 1.;
+  n := 0.;
   /* 5. Repeat, */
   listDone := listIterator.done;
+  if (listIterator.done = true) {
+    return A
+  } else {
+    CreateDataProperty(A, "0", initialValue);
+    n := n + 1.
+  };
 
   repeat {
     if (listIterator.done = false) {
@@ -262,6 +226,8 @@ function GetRestValue(listIterator, initialValue) {
     };
 
     nextValue := IteratorValue(next);
+    print "DEBUG LIST ITERATOR NEXT VALUE";
+    print nextValue;
     if (isAnAbruptCompletion(nextValue)) {
       listIterator.done := true
     };
