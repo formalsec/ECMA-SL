@@ -838,9 +838,20 @@ function OrdinaryCall(externalScope, ref, F, this, NewTarget, argumentsList) {
 };
 
 function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
+
+	callerContext := topExecStack();
+	callerContext.Suspend := true;
+
+	calleeContext := createExecutionContext();
+	calleeContext.Function := F;
+	calleeRealm := F.Realm;
+	calleeContext.Realm := calleeRealm;
+
+	pushExecStack(calleeContext);
+
 	if (("Code" in_obj F) &&& (typeof F.Code = __$Str) &&& (F.Code = "GlobalObjectEval")) {
 	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(externalScope, ref, V, NewTarget, F.strict, args)
+	  result := {F.Code}(externalScope, ref, V, NewTarget, F.strict, args)
 	};
 
 	/* Hack para poder passar o Realm no FunctionConstruct */
@@ -848,11 +859,16 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
 	if (("Code" in_obj F) &&& (typeof F.Code = __$Str) 
 		&&& ((F.Code = "FunctionConstructor") ||| (F.Code = "FunctionPrototypeCall") ||| (F.Code = "TypedArraySubConstructor"))) {
 	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(externalScope, V, NewTarget, F.strict, args)
+	  result := {F.Code}(externalScope, V, NewTarget, F.strict, args)
 	};
 
 	if (("Code" in_obj F) &&& ((typeof F.Code = __$Str) ||| (typeof F.Code = __$Curry))) {
 	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(F.Scope, V, NewTarget, F.strict, args)
-	}
+	  result := {F.Code}(F.Scope, V, NewTarget, F.strict, args)
+	};
+
+	popExecStack();
+	callerContext.Suspend := false;
+
+	return result
 }

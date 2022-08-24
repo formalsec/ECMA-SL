@@ -13,6 +13,8 @@ assert.sameValue(
   'Error.prototype.isPrototypeOf(new Error()) returns true'
 );
 
+console.log(1)
+
 assert.sameValue(
   Error.prototype.isPrototypeOf(Error()), true,
   'Error.prototype.isPrototypeOf(Error()) returns true'
