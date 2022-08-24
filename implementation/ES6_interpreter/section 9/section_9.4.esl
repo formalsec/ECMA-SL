@@ -666,7 +666,7 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
   /* 22. Perform DefinePropertyOrThrow(obj, @@iterator, PropertyDescriptor
      {[[Value]]:%ArrayProto_values%, [[Writable]]: true, [[Enumerable]]:
      false, [[Configurable]]: true}). */
-  status1 := DefinePropertyOrThrow(obj, "Symbol.iterator", newDataPropertyDescriptorFull(getArrayPrototype(false), true, false, true));
+  status1 := DefinePropertyOrThrow(obj, getWellKnownSymbol("Symbol.iterator"), newDataPropertyDescriptorFull(|Intrinsics|["ArrayProto_values"], true, false, true));
 
   /* 23. Perform DefinePropertyOrThrow(obj, "callee", PropertyDescriptor
      {[[Value]]: func, [[Writable]]: true, [[Enumerable]]: false,
