@@ -11,4 +11,7 @@ features: [Symbol.species]
 
 class MyRegExp extends RegExp {};
 
+console.logObject(MyRegExp[Symbol.species]);
+console.logObject(MyRegExp);
+
 assert.sameValue(MyRegExp[Symbol.species], MyRegExp);

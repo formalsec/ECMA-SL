@@ -13,6 +13,8 @@ features: [Symbol.species]
 
 var desc = Object.getOwnPropertyDescriptor(RegExp, Symbol.species);
 
+console.logObject(desc);
+
 assert.sameValue(desc.set, undefined);
 assert.sameValue(typeof desc.get, 'function');
 

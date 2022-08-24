@@ -176,6 +176,8 @@ function symbolFor(global, this, NewTarget, strict, args) {
   /* 2. ReturnIfAbrupt(stringKey). */
   @ReturnIfAbrupt(stringKey);
 
+  /* TODO ver como fazer a GlobalSymbolRegistry */
+
   /* 3. For each element e of the GlobalSymbolRegistry List */
   /* The GlobalSymbolRegistry has been changed to an object instead of a list for optimization reasons. There seems to be no way to write in the GlobalSymbolRegistry besides this function so it should have no downside. */
   if (stringKey in_obj |GlobalSymbolRegistry|) {
@@ -206,10 +208,19 @@ function symbolKeyFor(global, this, NewTarget, strict, args) {
     throw TypeErrorConstructorInternal()
   };
 
+  print "KEYFOR";
+  print sym;
+  print |GlobalSymbolRegistry|;
+  print |GlobalSymbolRegistry|[sym.Description].symbol;
+
   /* 2. For each element e of the GlobalSymbolRegistry List (see 19.4.2.1), */
     /* 2a. If SameValue(e.[[symbol]], sym) is true, return e.[[key]]. */
   if (sym.Description in_obj |GlobalSymbolRegistry|) {
-    return |GlobalSymbolRegistry|[sym.Description].key
+    e := |GlobalSymbolRegistry|[sym.Description];
+
+    if ( SameValue(e.symbol, sym) ) {
+      return e.key
+    }
   };
 
   /* 3. Assert: GlobalSymbolRegistry does not currently contain an entry for sym. */

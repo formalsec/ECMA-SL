@@ -755,6 +755,9 @@ function GetPrototypeFromConstructor(constructor, intrinsicDefaultProto) {
     corresponding object must be an intrinsic that is intended to be used as the [[Prototype]] value of an object. */
     assert((typeof intrinsicDefaultProto = __$Str) &&& (isIntrinsic(intrinsicDefaultProto)));
 
+    print "GETPROTO";
+    print constructor;
+
     /* Assert: IsConstructor (constructor) is true. */
     assert( IsConstructor(constructor) = true );
 

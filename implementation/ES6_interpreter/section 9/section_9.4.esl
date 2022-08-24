@@ -623,6 +623,9 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
   /* 11. Set the [[Extensible]] internal slot of obj to true. */
   obj.Extensible := true;
 
+  print "ARG CREATE";
+  print formals;
+
   /* 12. Let parameterNames be the BoundNames of formals. */
   parameterNames := formals;
 
@@ -669,6 +672,8 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
 
   /* 21. Set the [[ParameterMap]] internal slot of obj to map. */
   obj.ParameterMap := map;
+
+  setInternalProperty(obj, "DefineOwnProperty", "ArgumentsObjectDefineOwnProperty");
 
   /* 22. Perform DefinePropertyOrThrow(obj, @@iterator, PropertyDescriptor
      {[[Value]]:%ArrayProto_values%, [[Writable]]: true, [[Enumerable]]:

@@ -270,9 +270,14 @@ function JS_Interpreter_Expr(e, scope) {
     propertyNameValue := GetValue(propertyNameReference);
 
     @ReturnIfAbrupt(propertyNameValue);
+
+    print "OBEJCTCOHERS";
+    print baseValue;
+    print propertyNameValue;
     
     /* 5. Call CheckObjectCoercible(baseValue). */
     CheckObjectCoercible(baseValue);
+
     /* 6. Let propertyNameString be ToString(propertyNameValue). */
     propertyNameString := ToPropertyKey(propertyNameValue);
     @ReturnIfAbrupt(propertyNameString);

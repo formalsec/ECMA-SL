@@ -208,7 +208,7 @@ function ArgumentsObjectGetOwnProperty(argumentsObject, P) {
 
   /* 1. Let desc be the result of calling the default [[GetOwnProperty]] internal method (8.12.1) on the arguments
         object passing P as the argument. */
-  desc := OrdinaryObjectGetOwnProperty(argumentsObject, P);
+  desc := OrdinaryGetOwnProperty(argumentsObject, P);
   /* 2. If desc is undefined then return desc. */
   if (desc = 'undefined) {
     return desc
@@ -236,6 +236,7 @@ function ArgumentsObjectDefineOwnProperty(argumentsObject, P, Desc) {
 
   /* 1. Let map be the value of the [[ParameterMap]] internal property of the arguments object. */
   map := argumentsObject.ParameterMap;
+
   /* 2. Let isMapped be the result of calling the [[GetOwnProperty]] internal method of map passing P as the
         argument. */
   isMapped := HasOwnProperty(map, P);
@@ -251,6 +252,11 @@ function ArgumentsObjectDefineOwnProperty(argumentsObject, P, Desc) {
       return false
     }
   };
+
+  print "ARGSDEFOWNPROP";
+  print map.JSProperties;
+  print isMapped;
+
   /* 5. If the value of isMapped is not undefined, then */
   if ( (isMapped = true)) {
     /* a. If IsAccessorDescriptor(Desc) is true, then */

@@ -813,7 +813,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
 
     } else {
       /* b. Else */
-      /* Let ao be CreateMappedArgumentsObject(func, formals, argumentsList, env). */
+       /*Let ao be CreateMappedArgumentsObject(func, formals, argumentsList, env). */
       ao := CreateMappedArgumentsObject(func, parameterNames, argumentsList, env)
     };
     /* c. ReturnIfAbrupt(ao) */

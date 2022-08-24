@@ -167,6 +167,9 @@ function DefinePropertyOrThrow(O, P, desc) {
 	/* Assert: IsPropertyKey(P) is true. */
 	assert( IsPropertyKey(P) = true );
 
+	print "ABC1";
+	print O;
+
 	/* Let success be O.[[DefineOwnProperty]](P, desc). */
 	success := {O.DefineOwnProperty}(O, P, desc);
 
@@ -779,7 +782,7 @@ function GetFunctionRealm(obj) {
     if ( "Realm" in_obj obj ) {
         /* Return obj’s [[Realm]] internal slot. */
         return obj.Realm
-    }
+    };
 
 
     /* TODO todo o resto disto */
@@ -792,6 +795,7 @@ function GetFunctionRealm(obj) {
         /* Return GetFunctionRealm(proxyTarget). */
 
     /* Return the running execution context’s Realm. */
+    return topExecStack().Realm
 };
 
 function OrdinaryCall(externalScope, ref, F, this, NewTarget, argumentsList) {

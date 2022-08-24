@@ -132,9 +132,6 @@ function initIntrinsics(intrinsic, strict) {
   |Intrinsics|["Float64Array"] := Float64ArrayObject;
   |Intrinsics|["Float64ArrayPrototype"] := getPrototypeValue(Float64ArrayObject);
  
-  FunctionConstructor := initFunctionConstructor(funcPrototype, globalObj, strict);
-  |Intrinsics|["Function"] := getProp(globalObj, "Function", strict);
- 
   /* TODO GENERATOR */
 
   /* Int8 Array */
@@ -180,9 +177,6 @@ function initIntrinsics(intrinsic, strict) {
   |Intrinsics|["NumberPrototype"] := getPrototypeValue(NumberObject);
  
   /* Object */
-  ObjectConstructor := initObjectConstructor(objectPrototype, funcPrototype, globalObj, strict);
-  |objectConstructor| := ObjectConstructor;
-  |Intrinsics|["Object"] := ObjectConstructor;
   |Intrinsics|["ObjProto_toString"] := getJSProperty(objectPrototype, "toString").Value;
 
   /* parseFloat */

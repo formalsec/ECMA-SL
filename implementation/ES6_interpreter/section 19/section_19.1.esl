@@ -461,6 +461,11 @@ function ObjectGetOwnPropertyDescriptor(globalObject, this, NewTarget, strict, p
   /* ReturnIfAbrupt(desc). */
   @ReturnIfAbrupt(desc);
 
+  print "GETOWNPROPDESC";
+  print obj.JSPropertiesSymbols;
+  print desc;
+  print key;
+
   /* Return FromPropertyDescriptor(desc). */
   return FromPropertyDescriptor(desc)
 };
@@ -886,11 +891,11 @@ function ObjectPrototypeValueOf(globalObject, this, NewTarget, strict, params) {
 
 /* Auxiliary functions */
 function getObjectPrototype(strict) {
-  refObj := newPropertyReference(|global|, "Object", strict);
+  /* refObj := newPropertyReference(|global|, "Object", strict);
   ObjectObject := GetValue(refObj);
 
   refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
-  objectObjectProto := GetValue(refObjProto);
+  objectObjectProto := GetValue(refObjProto); */
 
   return |Intrinsics|["ObjectPrototype"]
 };
@@ -905,5 +910,5 @@ function getObjectPrototypeToString(strict) {
   refToStringObjProto := newPropertyReference(objectObjectProto, "toString", strict);
   objectObjectToString := GetValue(refToStringObjProto); */
 
-  return |Intrinsics|["ObjectPrototype"].JSProperties.toString.Value
+  return |Intrinsics|["ObjectObjProto_toString"]
 }
