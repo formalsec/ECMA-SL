@@ -195,8 +195,7 @@ function JS_Interpreter_Expr(e, scope) {
   }
   | { type: "ArrayExpression", elements: ElementList } -> {
     /* 11.1.4 Array Initialiser */
-    arrayPrototype := getArrayPrototype(false);
-    array := internalNewArray(arrayPrototype, []);
+    array := ArrayCreate(0., null);
     len := l_len ElementList;
     i := 0;
     while (i < len) {
@@ -1412,16 +1411,15 @@ function JS_Interpreter_PropertyName(PropertyName, scope) {
   }
   /* The production PropertyName : MemberExpression is evaluated as follows: */
   | { type: "MemberExpression" } -> { /* TODO: Temporary solution. Not according to standard. To fix */
-    exprVal := JS_Interpreter_Expr(PropertyName, scope);
-    print exprVal;
-    val := GetValue(exprVal);
-    print val;
-    if (Type(val) = "Symbol") { 
-      str := symbolDescriptiveString(val);
-      return str
-    } else {
-      fail "JS_Interpreter_PropertyName: memberexpr not symbol"
-    }
+    /* 12.2.6.8 ComputedPropertyName : [ AssignmentExpression ] */
+    /* 1. Let exprValue be the result of evaluating AssignmentExpression. */
+    exprValue := JS_Interpreter_Expr(PropertyName, scope);
+    /* 2. Let propName be GetValue(exprValue). */
+    propName := GetValue(exprValue);
+    /* 3. ReturnIfAbrupt(propName). */
+    @ReturnIfAbrupt(propName);
+    /* 4. Return ToPropertyKey(propName). */
+    return ToPropertyKey(propName)
   }
 };
 

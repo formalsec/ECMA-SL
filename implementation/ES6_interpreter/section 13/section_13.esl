@@ -192,6 +192,9 @@ function OrdinaryFunctionConstruct(externalScope, ref, F, argumentList, newTarge
   print "Chamei o call";
 
   result := {F.Call}(externalScope, ref, F, obj, newTarget, argumentList);
+
+  @ReturnIfAbrupt(result);
+
   /* 9. If Type(result) is Object then return result. */
   if (Type(result) = "Object") {
     return result

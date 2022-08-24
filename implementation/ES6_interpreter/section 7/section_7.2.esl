@@ -41,9 +41,16 @@ function IsArray(argument) {
     };
 
     /* If argument is a Proxy exotic object, then */ 
-        /* If the value of the [[ProxyHandler]] internal slot of argument is null, throw a TypeError exception. */
-        /* Let target be the value of the [[ProxyTarget]] internal slot of argument. */
-        /* Return IsArray(target). */
+    if ( IsProxy(argument) ) {
+      /* a. If the value of the [[ProxyHandler]] internal slot of argument is null, throw a TypeError exception. */
+      if (argument.ProxyHandler = 'null) {
+        throw TypeErrorConstructorInternal()
+      };
+      /* b. Let target be the value of the [[ProxyTarget]] internal slot of argument. */
+      target := argument.ProxyTarget;
+      /* c. Return IsArray(target). */
+      return IsArray(target)
+    };
     
     /* Return false. */
     return false
