@@ -684,14 +684,10 @@ function MathImul(globalObject, this, NewTarget, strict, params) {
   /* 3. Let product be (a × b) modulo 2^32 . */
   product := (a * b) % (2. ** 32.);
   print "DEBUG Math.imul 1";
-  print(x);
-  print(y);
   print a;
   print b;
   print (a * b);
   print product;
-  print((2. ** 32.));
-  print((a * b) / (2.**32.));
   /* 4. If product ≥ 2^31 , return product − 2^32 , otherwise return product. */
   if (product >= (2. ** 31.)) {
     return product - (2. ** 32.)
@@ -912,10 +908,7 @@ function MathRound(globalObject, this, NewTarget, stric, params) {
   Math.round(3.5) returns 4, but Math.round(–3.5) returns –3. */
   /* NOTE 2 
   The value of Math.round(x) is not always the same as the value of Math.floor(x+0.5). When x is −0 or is less than 0 but greater than or equal to -0.5, Math.round(x) 
-  returns −0, but Math.floor(x+0.5) returns +0. Math.round(x) may also differ from the value of Math.floor(x+0.5)because of internal rounding when computing x+0.5. */
-  /*if (IsInteger(x)){
-    return x
-  };*/
+  returns −0, but Math.floor(x+0.5) returns +0. Math.round(x) may also differ from the value of Math.floor(x+0.5)because of internal rounding when computing x+0.5. */ 
   
   ceil_number := ceil(x);
   floor_number := -ceil (-(x));
