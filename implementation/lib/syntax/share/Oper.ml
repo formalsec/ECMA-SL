@@ -239,6 +239,13 @@ let to_precision (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
 let to_exponential (v1, v2 : Val.t * Val.t) : Val.t = match v1, v2 with
   | (Flt x, Int y) -> 
       let exp = Float.log10(x) in
+      (* Printf.printf "list_prepend: %s" (Val.str v2); *)
+      Printf.printf "to_exponential: %s\n" (Float.to_string (exp));
+      Printf.printf "to_exponential: %s\n" (Float.to_string (10.**(Float.trunc exp)));
+      Printf.printf "to_exponential: %s\n" (Float.to_string ((x/.(10.**(Float.trunc exp)))));
+      Printf.printf "to_exponential: %s\n" (Float.to_string (10.**(Float.of_int y)));
+      Printf.printf "to_exponential: %s\n" (Float.to_string (((10.**(Float.of_int y)))/.(10.**(Float.of_int y))));
+      Printf.printf "to_exponential: %s\n" (Float.to_string ((((x/.(10.**(Float.trunc exp)))*.(10.**(Float.of_int y)))/.(10.**(Float.of_int y)))));
       if exp >= 0. then
         let num = Float.round((x/.(10.**(Float.trunc exp)))*.(10.**(Float.of_int y)))/.(10.**(Float.of_int y)) in 
         if (Float.is_integer num) then
@@ -364,12 +371,35 @@ let parse_string (v : Val.t) : Val.t = match v with
 
 
 let parse_date (v :Val.t) : Val.t = match v with
-  | Str s -> 
-    let res = Date_Utils.parse_date s in
-    (match res with 
-      | None -> Val.Flt (-(1.)) 
-      | Some ([year; month; day; hour; min; sec; msec], tz) -> Val.List [Val.Flt year; Val.Flt month; Val.Flt day; Val.Flt hour; Val.Flt min; Val.Flt sec; Val.Flt msec; Val.Str tz]
-      | _ -> raise (Failure "Impossible: parse_date")
+  | Str s ->
+    let negative_year = s.[0] == '-' in
+    Printf.printf "negative_year: %b\n" negative_year;
+    if negative_year then(
+      let res = Date_Utils.parse_date (String.sub s 1 ((String.length s) - 1)) in
+      (match res with 
+        | None -> Val.Flt (-(1.)) 
+        | Some ([year; month; day; hour; min; sec; msec], tz) -> Val.List [Val.Flt (-.year); Val.Flt month; Val.Flt day; Val.Flt hour; Val.Flt min; Val.Flt sec; Val.Flt msec; Val.Str tz]
+        | _ -> raise (Failure "Impossible: parse_date")
+      )
+    )
+    else(
+      let positive_year = s.[0] == '+' in
+      if positive_year then (
+        let res = Date_Utils.parse_date (String.sub s 1 ((String.length s) - 1)) in
+        (match res with 
+          | None -> Val.Flt (-(1.)) 
+          | Some ([year; month; day; hour; min; sec; msec], tz) -> Val.List [Val.Flt year; Val.Flt month; Val.Flt day; Val.Flt hour; Val.Flt min; Val.Flt sec; Val.Flt msec; Val.Str tz]
+          | _ -> raise (Failure "Impossible: parse_date")
+        )
+      )
+      else(
+        let res = Date_Utils.parse_date s in
+        (match res with 
+          | None -> Val.Flt (-(1.)) 
+          | Some ([year; month; day; hour; min; sec; msec], tz) -> Val.List [Val.Flt year; Val.Flt month; Val.Flt day; Val.Flt hour; Val.Flt min; Val.Flt sec; Val.Flt msec; Val.Str tz]
+          | _ -> raise (Failure "Impossible: parse_date")
+        )
+      )
     )
   | _  -> invalid_arg "Exception in Oper.parse_date: this operation is only applicable to a String argument"
 
@@ -520,7 +550,7 @@ let float_to_string (v : Val.t) : Val.t = match v with
 let float_of_string (v : Val.t) : Val.t = match v with
   | Str s -> (let trimmed = String.trim s in
               if String.length trimmed == 0
-              then Flt 0.
+              then Flt nan
               else (try Flt (float_of_string trimmed) with _ -> Flt nan))
   | _     -> invalid_arg "Exception in Oper.float_of_string: this operation is only applicable to Str arguments"
 
