@@ -87,6 +87,7 @@ function mapper(callback, obj) {
       return {
         type: "CallExpression",
         callee: mapper(callback, new_obj.callee),
+        is_tail_call: new_obj.is_tail_call,
         arguments: new_obj.arguments.map((arg) => mapper(callback, arg)),
       };
 
