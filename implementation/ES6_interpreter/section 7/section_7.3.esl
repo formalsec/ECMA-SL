@@ -799,14 +799,6 @@ function GetFunctionRealm(obj) {
 };
 
 function OrdinaryCall(externalScope, ref, F, this, NewTarget, argumentsList) {
-	if (("Code" in_obj F) &&& (typeof F.Code = __$Str) &&& (F.Code = "GlobalObjectEval")) {
-	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(externalScope, ref, this, NewTarget, F.strict, args)
-	};
-	if (("Code" in_obj F) &&& ((typeof F.Code = __$Str) || (typeof F.Code = __$Curry))) {
-	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(F.Scope, this, NewTarget, F.strict, args)
-	};
 	/* When the [[Call]] internal method for a Function object F is called with a this value and a list of arguments,
 	  the following steps are taken: */
 
@@ -824,6 +816,8 @@ function OrdinaryCall(externalScope, ref, F, this, NewTarget, argumentsList) {
 	};
 
 	/* 3. Exit the execution context funcCtx, restoring the previous execution context. */
+	popExecStack();
+	topExecStack().Suspend := false;
 
 	/* 4. If result.type is throw then throw result.value. */
 	if (getCompletionType(result) = 'throw) {
@@ -846,6 +840,9 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
 	calleeContext.Function := F;
 	calleeRealm := F.Realm;
 	calleeContext.Realm := calleeRealm;
+
+	setLexicalEnvironment(calleeContext, getLexicalEnvironment(callerContext));
+	setVariableEnvironment(calleeContext, getVariableEnvironment(callerContext));
 
 	pushExecStack(calleeContext);
 

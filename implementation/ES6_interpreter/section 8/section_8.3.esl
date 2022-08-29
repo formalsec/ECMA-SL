@@ -118,13 +118,17 @@ function ResolveBinding(scope, name, env)  {
  */
 function GetThisEnvironment(scope) {
   /* 1. Let lex be the running execution context’s LexicalEnvironment. */
+  scope := topExecStack();
+
+  print scope;
+
   lex := getLexicalEnvironment(scope);
   /* 2. Repeat */
   repeat {
     /* a. Let envRec be lex’s EnvironmentRecord. */
     envRec := lex.EnvRec;
     /* b. Let exists be envRec.HasThisBinding(). */
-    exists := HasThisBinding(envRec);
+    exists := {envRec.HasThisBinding}(envRec);
     /* c. If exists is true, return envRec. */
     if (exists) {
       return envRec

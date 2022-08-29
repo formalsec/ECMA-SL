@@ -330,6 +330,7 @@ function JS_Interpreter_Expr(e, scope) {
     print "DEBUG: CALL";
     print scope;
     print scope.Function;
+    print |ctxStack|;
 
     ref := JS_Interpreter_Expr(MemberExpression, scope);
 
@@ -379,8 +380,7 @@ function JS_Interpreter_Expr(e, scope) {
         refEnv := GetBase(ref);
 
         /* ii.  Let thisValue be refEnv.WithBaseObject(). */
-        /* TODO: Fix This -> WithBaseObject not being used  */
-        thisValue := 'undefined
+        thisValue := {refEnv.WithBaseObject}(refEnv)
       }
     } else {
       /* 6. Else Type(ref) is not Reference, */

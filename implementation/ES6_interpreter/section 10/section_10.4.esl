@@ -122,7 +122,14 @@ function EnteringEvalCode(evalCode, ref, callingExecCtx) {
 function EnteringFunctionCode(F, thisArg, argumentsList) {
   /* 10.4.3 Entering Function Code */
 
+  callerContext := topExecStack();
+  callerContext.Suspend := true;
+
   functionExecCtx := createExecutionContext();
+  functionExecCtx.Function := F;
+  calleeRealm := F.Realm;
+  functionExecCtx.Realm := calleeRealm;
+  
   setContainedInStrictCode(functionExecCtx, isStrictFunctionObject(F));
 
   /* The following steps are performed when control enters the execution context for function code contained in

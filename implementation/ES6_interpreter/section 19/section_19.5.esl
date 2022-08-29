@@ -86,12 +86,6 @@ function ErrorConstructor(globalObject, this, NewTarget, strict, params) {
     	newTarget := NewTarget
     };
 
-    exec := topExecStack();
-    print "CONSERROR";
-    print exec;
-    print newTarget;
-    print newTarget.Prototype;
-
     /*Let O be OrdinaryCreateFromConstructor(newTarget, "%ErrorPrototype%", «[[ErrorData]]»).*/
     O := OrdinaryCreateFromConstructor(newTarget, "ErrorPrototype", ["ErrorData"]);
 
@@ -206,7 +200,7 @@ function EvalErrorConstructor(globalObject, this, NewTarget, strict, params) {
   return NativeErrorConstructor(message, "EvalError", NewTarget)
 };
 function EvalErrorConstructorInternal() {
-  return NativeErrorConstructor('undefined, "EvalError", 'undefined)
+  return NativeErrorConstructor('undefined, "EvalError", |Intrinsics|["EvalError"])
 };
 
 /*
@@ -223,7 +217,7 @@ function RangeErrorConstructor(globalObject, this, NewTarget, strict, params) {
   return NativeErrorConstructor(message, "RangeError", NewTarget)
 };
 function RangeErrorConstructorInternal() {
-  return NativeErrorConstructor('undefined, "RangeError", 'undefined)
+  return NativeErrorConstructor('undefined, "RangeError", |Intrinsics|["RangeError"])
 };
 
 /*
@@ -240,7 +234,7 @@ function ReferenceErrorConstructor(globalObject, this, NewTarget, strict, params
   return NativeErrorConstructor(message, "ReferenceError", NewTarget)
 };
 function ReferenceErrorConstructorInternal() {
-  return NativeErrorConstructor('undefined, "ReferenceError", 'undefined)
+  return NativeErrorConstructor('undefined, "ReferenceError", |Intrinsics|["ReferenceError"])
 };
 
 /*
@@ -257,7 +251,7 @@ function SyntaxErrorConstructor(globalObject, this, NewTarget, strict, params) {
   return NativeErrorConstructor(message, "SyntaxError", NewTarget)
 };
 function SyntaxErrorConstructorInternal() {
-  return NativeErrorConstructor('undefined, "SyntaxError",'undefined)
+  return NativeErrorConstructor('undefined, "SyntaxError", |Intrinsics|["SyntaxError"])
 };
 
 /*
@@ -274,7 +268,7 @@ function TypeErrorConstructor(globalObject, this, NewTarget, strict, params) {
   return NativeErrorConstructor(message, "TypeError", NewTarget)
 };
 function TypeErrorConstructorInternal() {
-  return NativeErrorConstructor('undefined, "TypeError", 'undefined)
+  return NativeErrorConstructor('undefined, "TypeError", |Intrinsics|["TypeError"])
 };
 
 /*
@@ -292,7 +286,7 @@ function URIErrorConstructor(globalObject, this, NewTarget, strict, params) {
   return NativeErrorConstructor(message, "URIError", NewTarget)
 };
 function URIErrorConstructorInternal() {
-  return NativeErrorConstructor('undefined, "URIError", 'undefined)
+  return NativeErrorConstructor('undefined, "URIError", |Intrinsics|["URIError"])
 };
 
 /*
@@ -385,6 +379,13 @@ function initNativeErrorPrototype(errorPrototypeObject, nativeErrorName) {
 When a NativeError function is called with argument message the following steps are taken:
 */
 function NativeErrorConstructor(message, nativeErrorName, NewTarget) {
+    
+    exec := topExecStack();
+    print "NATIVECONS";
+    print exec;
+    print NewTarget;
+    print nativeErrorName;
+
     /*If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget.*/
     if ( NewTarget = 'undefined ) {
         newTarget := topExecStack().Function

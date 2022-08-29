@@ -689,12 +689,6 @@ function OrdinaryObjectOwnPropertyKeys(O) {
         }
     };
 
-    print "OWNPROPKEYS";
-    print O.internalSlotsList;
-    print keys;
-    print strings;
-    print symbols;
-
     keys := l_sort(keys);
     keys := l_concat(keys, strings);
     keys := l_concat(keys, symbols);

@@ -1070,7 +1070,7 @@ function HasSuperBinding(envRec) {
 /* 8.1.1.4.10 WithBaseObject() */
 /* Global Environment Records always return undefined as their WithBaseObject */
 function WithBaseObjectGlobalRecord(envRec) {
-	return 'undefnied
+	return 'undefined
 };
 
 /* 8.1.1.4.11 GetThisBinding () */

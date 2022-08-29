@@ -1,3 +1,25 @@
 function PrepareForTailCall() {
-    return
+    /*Let leafContext be the running execution context.*/
+    leafContext := topExecStack();
+
+    /*Suspend leafContext.*/
+    leafContext.Suspend := true;
+
+    /*Pop leafContext from the execution context stack. The execution context now on the top of the
+    stack becomes the running execution context.*/
+    popExecStack();
+    topExecStack().Suspend := false
+
+    /*Assert: leafContext has no further use. It will never be activated as the running execution context.*/
+    /* TODO */
+
+    /*
+    A tail position call must either release any transient internal resources associated with the
+    currently executing function execution context before invoking the target function or reuse those
+    resources in support of the target function.
+
+    NOTE For example, a tail position call should only grow an implementation’s activation
+    record stack by the amount that the size of the target function’s activation record
+    exceeds the size of the calling function’s activation record. If the target function’s
+    activation record is smaller, then the total size of the stack should decrease.*/
 }
