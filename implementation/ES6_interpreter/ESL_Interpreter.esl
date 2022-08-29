@@ -1585,7 +1585,7 @@ function JS_Interpreter_Stmt(s, scope) {
     };
 
     s.labelSet := l_add(s.labelSet, 'empty);
-    return JS_Interpreter_BreakableStatement(s, scope);
+    /* return JS_Interpreter_BreakableStatement(s, scope); TODO*/
     return JS_Interpreter_IterationStatement(s, scope)
   }
   | { type: "ForOfStatement" } -> {
@@ -2942,12 +2942,12 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
     /* The production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement is evaluated as follows: */
 
     /* ES6 */
-    /* 1. Let keyResult be ForIn/OfHeadEvaluation( « », Expression, enumerate). */
-    keyResult := ForIn_OfHeadEvaluation([], Expression, "enumerate", scope);
-    /* 2. ReturnIfAbrupt(keyResult). */
-    @ReturnIfAbrupt(keyResult);
-    /* 3. Return ForIn/OfBodyEvaluation(LeftHandSideExpression, Statement, keyResult, assignment, labelSet). */
-    return ForIn_OfBodyEvaluation(LeftHandSideExpression, Statement, keyResult, "assignment", labelSet, scope);
+     /* /* 1. Let keyResult be ForIn/OfHeadEvaluation( « », Expression, enumerate). */
+     /* keyResult := ForIn_OfHeadEvaluation([], Expression, "enumerate", scope);
+     /* /* 2. ReturnIfAbrupt(keyResult). */
+     /* @ReturnIfAbrupt(keyResult);
+     /* /* 3. Return ForIn/OfBodyEvaluation(LeftHandSideExpression, Statement, keyResult, assignment, labelSet). */
+     /* return ForIn_OfBodyEvaluation(LeftHandSideExpression, Statement, keyResult, "assignment", labelSet, scope);
 
     /* ES5 */
     /* 1. Let varName be the result of evaluating VariableDeclarationNoIn. */
