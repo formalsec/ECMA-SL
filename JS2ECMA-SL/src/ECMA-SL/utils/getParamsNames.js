@@ -1,5 +1,6 @@
 module.exports = {
-  getParamsNames: getParamsNames
+  getParamsNames: getParamsNames,
+  getParamName: getParamName
 };
 
 function getParamsNames(params) {
