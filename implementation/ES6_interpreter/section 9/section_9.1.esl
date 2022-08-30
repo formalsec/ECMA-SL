@@ -649,12 +649,62 @@ function OrdinaryObjectDelete(O, P) {
  * 
  * TODO falta implementar iterators
 */
+
+ /*
+  function* enumerate(obj) {
+  let visited=new Set;
+  for (let key of Reflect.ownKeys(obj)) {
+      if (typeof key === "string") {
+          let desc = Reflect.getOwnPropertyDescriptor(obj,key);
+          if (desc) {
+              visited.add(key);
+              if (desc.enumerable) yield key;
+          }
+      }
+  }
+  let proto = Reflect.getPrototypeOf(obj)
+  if (proto === null) return;
+  for (let protoName of Reflect.enumerate(proto)) {
+      if (!visited.has(protoName)) yield protoName;
+  }
+}
+  */
 function OrdinaryObjectEnumerate(O) {
 	/* Return an Iterator object (25.1.1.2) whose next method iterates over all the String-valued keys of
 	enumerable properties of O. The Iterator object must inherit from %IteratorPrototype% (25.1.2). The
 	mechanics and order of enumerating the properties is not specified but must conform to the rules
 	specified below.*/
+
+  retKeys := [];   
+  visited := {}; 
+
+  ownKeys := {O.OwnPropertyKeys}(O); 
+
+  foreach (k : ownKeys) {
+    if ((typeof k) = __$Str) {
+      desc_k := getJSProperty(O, k); 
+      if (isEnumerablePropertyDescriptor(desc_k)) {
+        retKeys := l_add (retKeys, k); 
+        visited[k] := true 
+      }
+    }
+  }; 
+
+  proto := O.Prototype; 
+
+  if ((!(proto = null)) &&& (!(proto = 'undefined))) {
+    protoKeys := {proto.Enumerate}(proto);
+    foreach (k : protoKeys) {
+      if (!(k in_obj visited)) {
+        visited[k] := true; 
+        retKeys := l_add (retKeys, k)
+      }
+    }
+  }; 
+
+  return retKeys 
 };
+
 
 /**
  * 9.1.12 [[OwnPropertyKeys]] ( )
