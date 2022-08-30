@@ -21,7 +21,7 @@ module.exports = {
     if (obj.type === "EarlySyntaxError") {
       return EarlySyntaxError.transform(obj);
     }
-    if (obj.type === "ForInStatement") {
+    if (obj.type === "ForInStatement" || obj.type === "ForOfStatement") {
       return ForIn.transform(obj);
     }
     if (obj.type === "ContinueStatement") {

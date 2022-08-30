@@ -1,5 +1,6 @@
 const traverse = require("./traverse");
 const mapper = require("./mapper");
+const getParamName = require("../utils/getParamsNames").getParamName;
 
 module.exports = {
   getVarDeclarations: getVarDeclrs,
@@ -144,7 +145,7 @@ function getConstDeclrs(obj1) {
         
         if (obj2.kind == "const") {
           const vars = obj2.declarations.reduce(
-            (acc, declr) => acc.concat(declr.id.name),
+            (acc, declr) => acc.concat(getParamName(declr.id)),
             []
           );
 
