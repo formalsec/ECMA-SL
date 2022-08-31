@@ -1447,6 +1447,8 @@ macro PropagateBlockLabelSet(Block, Stmts) {
 };
 
 function JS_Interpreter_Stmt(s, scope) {
+  print("in JS_Interpreter_Stmt");
+  print(s);
   match s with
   | { type: "BlockStatement", body: StatementList} -> {
     /* 13.2.13 Block */
@@ -1585,7 +1587,9 @@ function JS_Interpreter_Stmt(s, scope) {
     };
 
     s.labelSet := l_add(s.labelSet, 'empty);
-    return JS_Interpreter_BreakableStatement(s, scope);
+    /* TODO ForIn estraga algo no verifyNotEnumerable(SetIteratorProto.next, "length"); */
+    /* return JS_Interpreter_BreakableStatement(s, scope); */
+
     return JS_Interpreter_IterationStatement(s, scope)
   }
   | { type: "ForOfStatement" } -> {
@@ -1905,14 +1909,6 @@ function JS_Interpreter_TryStatement(TryStatement, scope) {
     /* 6. Return Completion{[[type]]: C.[[type]], [[value]]: undefined, [[target]]: C.[[target]]}. */
     return newCompletion(getCompletionType(C), 'undefined, getCompletionTarget(C))
     
-    /* /* 1. Let B be the result of evaluating Block. */
-    /* B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
-    /* /* 2. If B.type is not throw, return B. */
-    /* if (!(getCompletionType(B) = 'throw)) {
-    /*   return B
-    /* };
-    /* /* 3. Return the result of evaluating Catch with parameter B.value. */
-    /* return JS_Interpreter_Catch(Catch, getCompletionValue(B), scope) */
   }
   | { type: "TryStatement", block: Block, handler: null, finalizer: Finally } -> {
     /* The production TryStatement : try Block Finally is evaluated as follows: */
@@ -1938,17 +1934,6 @@ function JS_Interpreter_TryStatement(TryStatement, scope) {
     
     /* 6. Return Completion{[[type]]: F.[[type]], [[value]]: undefined, [[target]]: F.[[target]]}. */
     return newCompletion(getCompletionType(F), 'undefined, getCompletionTarget(F))
-
-     /* /* 1. Let B be the result of evaluating Block. */
-     /* B := JS_Interpreter_Stmt(Block, scope) catch Interpreter_Statement_Guard;
-     /* /* 2. Let F be the result of evaluating Finally. */
-     /* F := JS_Interpreter_Stmt(Finally, scope) catch Interpreter_Statement_Guard;
-     /* /* 3. If F.type is normal, return B. */
-     /* if (getCompletionType(F) = 'normal) {
-     /*   return B
-     /* };
-     /* /* 4. Return F. */
-     /* return F */
   }
   | { type: "TryStatement", block: Block, handler: Catch, finalizer: Finally } -> {
     /* The production TryStatement : try Block Catch Finally is evaluated as follows: */
@@ -2010,6 +1995,11 @@ function JS_Interpreter_Catch(Catch, thrownValue, scope) {
     /* 5. Let status be the result of performing BindingInitialization for CatchParameter 
           passing thrownValue and catchEnv as arguments. */
     status := BindingInitialization(Identifier, thrownValue, {LexicalEnvironment: catchEnv}, null);
+    print(Identifier);
+    print(thrownValue);
+    print(catchEnv);
+    print(catchEnv.EnvRec);
+
     /* 6. If status is an abrupt completion, then */
     if (isAnAbruptCompletion(status)) {
       /* a. Set the running execution context's LexicalEnvironment to oldEnv. */
@@ -2089,6 +2079,11 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
       print value; */
       
       status := BindingInitialization(Identifier, value, scope, null);
+      print(Identifier);
+      print(value);
+      print(scope);
+      print(scope.LexicalEnvironment);
+      print(scope.LexicalEnvironment.EnvRec);
       return status;
       /* 4. Call PutValue(lhs, value). */
       /* PutValue(lhs, value); */
@@ -3727,7 +3722,7 @@ function LabelledEvaluation(IterationStatement, scope) {
       else {
         /* i. Perform loopEnv.CreateMutableBinding(dn, false). */
         status := {loopEnv.EnvRec.CreateMutableBinding}(loopEnv.EnvRec, dn, false);
-        {loopEnv.EnvRec.InitializeBinding}(loopEnv.EnvRec, dn, 'undefined);
+        /*{loopEnv.EnvRec.InitializeBinding}(loopEnv.EnvRec, dn, 'undefined);*/
 
         /* ii. Assert: The above call to CreateMutableBinding will never return an abrupt completion. */
         assert(!(isAnAbruptCompletion(status)))

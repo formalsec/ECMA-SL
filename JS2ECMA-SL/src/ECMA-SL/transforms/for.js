@@ -12,7 +12,6 @@ module.exports = {
         (acc, localVar) => (acc.includes(localVar) ? acc : acc.concat(localVar)),
         []
       );
-      
       if (letDeclarations.length > 0){
         obj.lexicalDeclarations = letDeclarations;
         obj.isConstant = false;
