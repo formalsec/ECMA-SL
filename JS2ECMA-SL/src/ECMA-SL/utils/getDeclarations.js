@@ -91,7 +91,7 @@ function getLetDeclrs(obj1) {
         
         if (obj2.kind == "let") {
           const vars = obj2.declarations.reduce(
-            (acc, declr) => acc.concat(declr.id.name),
+            (acc, declr) => acc.concat(getParamName(declr.id)),
             []
           );
 
