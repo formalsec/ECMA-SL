@@ -1448,7 +1448,7 @@ macro PropagateBlockLabelSet(Block, Stmts) {
 
 function JS_Interpreter_Stmt(s, scope) {
   match s with
-  | { type: "BlockStatement", body: StatementList, letDeclarations: letDeclarations } -> {
+  | { type: "BlockStatement", body: StatementList} -> {
     /* 13.2.13 Block */
 
     /* Block : { } */
@@ -1466,7 +1466,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 2. Let blockEnv be NewDeclarativeEnvironment(oldEnv). */
     blockEnv := NewDeclarativeEnvironment(oldEnv);
     /* 3. Perform BlockDeclarationInstantiation(StatementList, blockEnv). */
-    BlockDeclarationInstantiation(letDeclarations, blockEnv.EnvRec);
+    BlockDeclarationInstantiation(s, blockEnv.EnvRec);
     /* 4. Set the running execution context's LexicalEnvironment to blockEnv. */
     setLexicalEnvironment(scope, blockEnv);
     /* 5. Let blockValue be the result of evaluating StatementList. */
@@ -1775,14 +1775,20 @@ function JS_Interpreter_Stmt(s, scope) {
  * block. env is the declarative Environment Record in which bindings are to be 
  * created. 
  */
-function BlockDeclarationInstantiation(letDeclarations, env) {
+function BlockDeclarationInstantiation(stmt, env) {
   /* 1. Let declarations be the LexicallyScopedDeclarations of code. */
-  declarations := letDeclarations;
-  
-  foreach (d : declarations){
+  print(stmt.letDeclarations);
+  print(stmt.constDeclarations);
+  print(stmt);
+  foreach (d : stmt.letDeclarations){
       status := {env.CreateMutableBinding}(env, d, false);
       {env.InitializeBinding}(env, d, 'undefined);
 
+      assert(!(isAnAbruptCompletion(status)))
+  };
+
+  foreach (d : stmt.constDeclarations){
+      status := {env.CreateImmutableBinding}(env, d, true);
       assert(!(isAnAbruptCompletion(status)))
   };
 
@@ -2875,17 +2881,7 @@ function JS_Interpreter_SwitchStatement(switchStmt, scope) {
   match switchStmt with
   | { type: "SwitchStatement", discriminant: Expression, cases: CaseBlock, labelSet: currentLabelSet } -> {
     /* 13.12.11 The switch Statement */
-    
-    /* /* 1. Let exprRef be the result of evaluating Expression. */
-    /* exprRef := JS_Interpreter_Expr(Expression, scope);
-    /* /* 2. Let R be the result of evaluating CaseBlock, passing it GetValue(exprRef) as a parameter. */
-    /* R := JS_Interpreter_CaseBlock(CaseBlock, GetValue(exprRef), scope);
-    /* /* 3. If R.type is break and R.target is in the current label set, return (normal, R.value, empty). */
-    /* if ((getCompletionType(R) = 'break) && (getCompletionTarget(R) in_list currentLabelSet)) {
-    /*   return NormalCompletion(getCompletionValue(R))
-    /* };
-    /* /* 4. Return R. */
-    /* return R;
+    print(switchStmt);
     
     /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
@@ -2898,9 +2894,9 @@ function JS_Interpreter_SwitchStatement(switchStmt, scope) {
     /* 5. Let blockEnv be NewDeclarativeEnvironment(oldEnv). */
     blockEnv := NewDeclarativeEnvironment(oldEnv);
     /* 6. Perform BlockDeclarationInstantiation(CaseBlock, blockEnv). */
-    /* BlockDeclarationInstantiation(CaseBlock, blockEnv);  TODO */
+    BlockDeclarationInstantiation(switchStmt, blockEnv.EnvRec);
     /* 7. Set the running execution context's LexicalEnvironment to blockEnv. */
-      setLexicalEnvironment(scope, blockEnv);
+    setLexicalEnvironment(scope, blockEnv);
     /* 8. Let R be the result of performing CaseBlockEvaluation of CaseBlock 
       with argument switchValue. */
     R := JS_Interpreter_CaseBlock(CaseBlock, GetValue(exprRef), scope);
@@ -3919,6 +3915,8 @@ function JS_Interpreter_BreakableStatement(BreakableStatement, scope) {
   
   match BreakableStatement with
   | { type: "SwitchStatement"} -> {
+    print("debugSwitch");
+    print(BreakableStatement);
     /* BreakableStatement : SwitchStatement */
     /* 1. Let stmtResult be the result of evaluating SwitchStatement. */
     stmtResult := JS_Interpreter_SwitchStatement(BreakableStatement, scope) 
