@@ -669,7 +669,7 @@ function OrdinaryObjectDelete(O, P) {
   }
 }
   */
-function OrdinaryObjectEnumerate(O) {
+function OrdinaryObjectEnumerateAux(O) {
 	/* Return an Iterator object (25.1.1.2) whose next method iterates over all the String-valued keys of
 	enumerable properties of O. The Iterator object must inherit from %IteratorPrototype% (25.1.2). The
 	mechanics and order of enumerating the properties is not specified but must conform to the rules
@@ -682,18 +682,17 @@ function OrdinaryObjectEnumerate(O) {
 
   foreach (k : ownKeys) {
     if ((typeof k) = __$Str) {
-      desc_k := getJSProperty(O, k); 
+      desc_k := getJSProperty(O, k);
+      visited[k] := true;
       if (isEnumerablePropertyDescriptor(desc_k)) {
-        retKeys := l_add (retKeys, k); 
-        visited[k] := true 
+        retKeys := l_add (retKeys, k)
       }
     }
   }; 
 
   proto := O.Prototype; 
-
-  if ((!(proto = null)) &&& (!(proto = 'undefined))) {
-    protoKeys := {proto.Enumerate}(proto);
+  if ((!(proto = 'null)) &&& (!(proto = 'undefined))) {
+    protoKeys := OrdinaryObjectEnumerateAux(proto);
     foreach (k : protoKeys) {
       if (!(k in_obj visited)) {
         visited[k] := true; 
@@ -704,8 +703,15 @@ function OrdinaryObjectEnumerate(O) {
 
   return retKeys 
 };
-
-
+function OrdinaryObjectEnumerate(O) {
+    print(CreateListIterator(OrdinaryObjectEnumerateAux(O)));
+    return CreateListIterator(OrdinaryObjectEnumerateAux(O))
+};
+/*
+function CreateIterator(){
+    iterator := ObjectCreate(|Intrinsics|.IteratorPrototype, ["Iterated"]);
+    setJSProperty
+}*/
 /**
  * 9.1.12 [[OwnPropertyKeys]] ( )
  * 

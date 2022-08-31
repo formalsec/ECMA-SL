@@ -1988,7 +1988,7 @@ function JS_Interpreter_TryStatement(TryStatement, scope) {
 };
 
 /* 13.15.7 Runtime Semantics: CatchClauseEvaluation */
-function JS_Interpreter_Catch(Catch, parameter, scope) {
+function JS_Interpreter_Catch(Catch, thrownValue, scope) {
   match Catch with
   | { type: "CatchClause", param: Identifier, body: Block } -> {
     /* The production Catch : catch ( CatchParameter ) Block is evaluated as follows: */
@@ -2009,7 +2009,7 @@ function JS_Interpreter_Catch(Catch, parameter, scope) {
     setLexicalEnvironment(scope, catchEnv);
     /* 5. Let status be the result of performing BindingInitialization for CatchParameter 
           passing thrownValue and catchEnv as arguments. */
-    status := BindingInitialization(Identifier, parameter, {LexicalEnvironment: catchEnv}, null);
+    status := BindingInitialization(Identifier, thrownValue, {LexicalEnvironment: catchEnv}, null);
     /* 6. If status is an abrupt completion, then */
     if (isAnAbruptCompletion(status)) {
       /* a. Set the running execution context's LexicalEnvironment to oldEnv. */
@@ -3781,7 +3781,7 @@ function LabelledEvaluation(IterationStatement, scope) {
     print("debug12345");
     print(lhsExpr_or_VarDecl);
     match lhsExpr_or_VarDecl with
-    | { type: "VariableDeclaration", kind: "var" } -> {
+    | { type: "VariableDeclarator", kind: "var" } -> {
       ForBinding := lhsExpr_or_VarDecl;
       /* production IterationStatement : for ( var ForBinding of AssignmentExpression ) Statement */
 
@@ -3792,7 +3792,7 @@ function LabelledEvaluation(IterationStatement, scope) {
       /* 3. Return ForIn/OfBodyEvaluation(ForBinding, Statement, keyResult, varBinding, labelSet). */
       return ForIn_OfBodyEvaluation(ForBinding, Statement, keyResult, "varBinding", labelSet, scope)
     }
-    | { type: "VariableDeclaration", lexicalDeclarations: boundNames} -> {
+    | { type: "VariableDeclarator", boundNames: boundNames} -> {
       ForDeclaration := lhsExpr_or_VarDecl;
       print(boundNames);
       /* ForDeclaration.boundNames := boundNames; */
@@ -4126,11 +4126,7 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
   /* 2. Let V = undefined . */
   V := 'undefined;
   /* 3. Let destructuring be IsDestructuring of lhs. */
-  print "kebab";
-  print(lhs);
   destructuring := IsDestructuring(lhs);
-  print "kebab";
-  print(lhs);
   /* 4. If destructuring is true and if lhsKind is assignment, then */
   if (destructuring = true &&& lhsKind = "assignment") {
     fail " a. Assert: lhs is a LeftHandSideExpression."
@@ -4235,21 +4231,21 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
     else {
       /* i. If lhsKind is assignment, then */
       if (lhsKind = "assignment") {
-      /* 1. Let status be the result of performing DestructuringAssignmentEvaluation of assignmentPattern using nextValue as the argument. */
+        /* 1. Let status be the result of performing DestructuringAssignmentEvaluation of assignmentPattern using nextValue as the argument. */
         fail "1. Let status be the result of performing DestructuringAssignmentEvaluation of assignmentPattern using nextValue as the argument. */"
       }
       /* ii. Else if lhsKind is varBinding, then */
       elif (lhsKind = "varBinding") {
-      /* 1. Assert: lhs is a ForBinding. */
-      fail " 1. Assert: lhs is a ForBinding."
-      /* 2. Let status be the result of performing BindingInitialization for lhs passing nextValue and undefined as the arguments. */
+        /* 1. Assert: lhs is a ForBinding. */
+        fail " 1. Assert: lhs is a ForBinding."
+        /* 2. Let status be the result of performing BindingInitialization for lhs passing nextValue and undefined as the arguments. */
       }
       /* iii. Else, */
       else {
-      /* 1. Assert: lhsKind is lexicalBinding. */
-      fail "Assert: lhsKind is lexicalBinding."
-      /* 2. Assert: lhs is a ForDeclaration. */
-      /* 3. Let status be the result of performing BindingInitialization for lhs passing nextValue and iterationEnv as arguments. */
+        /* 1. Assert: lhsKind is lexicalBinding. */
+        fail "Assert: lhsKind is lexicalBinding."
+        /* 2. Assert: lhs is a ForDeclaration. */
+        /* 3. Let status be the result of performing BindingInitialization for lhs passing nextValue and iterationEnv as arguments. */
       }
     };
     /* j. If status is an abrupt completion, then */
