@@ -14,6 +14,22 @@ function getFunctionDeclarationsInCode(object) {
   return object.functionDeclarations
 };
 
+function getLetDeclarationsInCode(object) {
+  if (object = 'undefined ||| !("letDeclarations" in_obj object)) {
+    return []
+  };
+
+  return object.letDeclarations
+};
+
+function getConstDeclarationsInCode(object) {
+  if (object = 'undefined ||| !("constDeclarations" in_obj object)) {
+    return []
+  };
+
+  return object.constDeclarations
+};
+
 /* 15.1.8 Runtime Semantics: GlobalDeclarationInstantiation (script, env) */
 /* NOTE 1 When an execution context is established for evaluating scripts, declarations are
           instantiated in the current global environment. Each global binding declared in the
@@ -131,6 +147,17 @@ function GlobalDeclarationInstantiation(script, env) {
             /* Else, */
                 /* Let status be envRec.CreateMutableBinding(dn, false). */
             /* ReturnIfAbrupt(status). */
+
+    foreach (d : getLetDeclarationsInCode(script)){
+        status := {envRec.CreateMutableBinding}(envRec, d, false);
+
+        @ReturnIfAbrupt(status)
+    };
+
+    foreach (d :  getConstDeclarationsInCode(script)){
+        status := {envRec.CreateImmutableBinding}(envRec, d, true);
+        @ReturnIfAbrupt(status)
+    };
 
     /* For each production f in functionsToInitialize, do */
     print "GLOBALBIND";

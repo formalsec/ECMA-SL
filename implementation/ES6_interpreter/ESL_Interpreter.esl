@@ -77,6 +77,7 @@ function Interpreter_Statement_Guard(error) {
 
 
 function JS_Interpreter_SourceElements(SourceElements, scope) {
+  return JS_Interpreter_StmtList(SourceElements, scope);
   /* The production SourceElements : SourceElements SourceElement is evaluated as follows: */
 
   print "SOURCE ELE";
@@ -177,7 +178,10 @@ function JS_Interpreter_Expr(e, scope) {
 
     /* An Identifier is evaluated by performing Identifier Resolution as specified in 10.3.1. The result of evaluating an
        Identifier is always a value of type Reference. */
-    return IdentifierResolution(name, scope)
+    res := ResolveBinding(scope, name, null);
+    print(res);
+    return res
+    /*return IdentifierResolution(name, scope)*/
   }
   | { type: "Literal", regex: re, source: source } -> {
 
@@ -605,6 +609,9 @@ function JS_Interpreter_Expr(e, scope) {
 };
 
 function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
+  print(AssignmentExpression);
+  print(AssignmentExpression.left);
+  print(AssignmentExpression.right);
   match AssignmentExpression with
   | { operator: "=", left: LeftHandSideExpression, right: AssignmentExpression } -> {
     /* 11.13.1 Simple Assignment ( = ) */
@@ -1478,7 +1485,7 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 7. Return blockValue. */
     return blockValue
   }
-  | { type: "VariableDeclaration", declarations: VariableDeclarationList } -> {
+  | { type: "VariableDeclaration", declarations: VariableDeclarationList, kind: "var" } -> {
     /* 12.2 Variable Statement */
     print("--debugVAR matched VariableDeclaration");
     /* The production VariableStatement : var VariableDeclarationList ; is evaluated as follows: */
@@ -1491,6 +1498,34 @@ function JS_Interpreter_Stmt(s, scope) {
     while(lVarDecl > i) {
       /* 1. Evaluate VariableDeclarationList. */
       next := JS_Interpreter_VarDecl(l_nth(VariableDeclarationList, i), scope);
+      @ReturnIfAbrupt(next);
+      i := i + 1
+    };
+    /* 2. Return (normal, empty, empty).*/
+    return NormalCompletion('empty)
+  }
+  | { type: "VariableDeclaration", declarations: VariableDeclarationList} -> {
+    /* 13.3.1 Let and Const Declarations */
+    print("--debugVAR matched LexicalDeclaration");
+    /* The production VariableStatement : var VariableDeclarationList ; is evaluated as follows: */
+
+    /* LexicalDeclaration : LetOrConst BindingList ; */
+    /* 1. Let next be the result of evaluating BindingList. */
+    /* 2. ReturnIfAbrupt(next). */
+    /* 3. Return NormalCompletion(empty). */
+     
+    /* BindingList : BindingList , LexicalBinding */
+    /* 1. Let next be the result of evaluating BindingList. */
+    /* 2. ReturnIfAbrupt(next). */
+    /* 3. Return the result of evaluating LexicalBinding. */
+    print "LEXDECL";
+    print scope;
+
+    i := 0;
+    lVarDecl := l_len VariableDeclarationList;
+    while(lVarDecl > i) {
+      /* 1. Evaluate VariableDeclarationList. */
+      next := JS_Interpreter_LexicalDecl(l_nth(VariableDeclarationList, i), scope);
       @ReturnIfAbrupt(next);
       i := i + 1
     };
@@ -1587,8 +1622,8 @@ function JS_Interpreter_Stmt(s, scope) {
     };
 
     s.labelSet := l_add(s.labelSet, 'empty);
-    /* TODO ForIn estraga algo no verifyNotEnumerable(SetIteratorProto.next, "length"); */
-    /* return JS_Interpreter_BreakableStatement(s, scope); */
+    /* DO ForIn estraga algo no verifyNotEnumerable(SetIteratorProto.next, "length");*/
+    return JS_Interpreter_BreakableStatement(s, scope);
 
     return JS_Interpreter_IterationStatement(s, scope)
   }
@@ -1786,7 +1821,7 @@ function BlockDeclarationInstantiation(stmt, env) {
   print(stmt);
   foreach (d : stmt.letDeclarations){
       status := {env.CreateMutableBinding}(env, d, false);
-      {env.InitializeBinding}(env, d, 'undefined);
+      /* {env.InitializeBinding}(env, d, 'undefined); */
 
       assert(!(isAnAbruptCompletion(status)))
   };
@@ -2106,6 +2141,50 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
     };
 
     return ret
+  }
+};
+
+function JS_Interpreter_LexicalDecl(LexicalDeclaration, scope){
+  print(LexicalDeclaration);
+  match LexicalDeclaration with
+  | { type: "VariableDeclarator", id: id, init: null } -> {
+    BindingIdentifier := id.name;
+    /* LexicalBinding : BindingIdentifier */
+    /* 1. Let lhs be ResolveBinding(StringValue of BindingIdentifier). */
+    lhs := ResolveBinding(scope, StringValue(BindingIdentifier), null);
+    /* 2. Return InitializeReferencedBinding(lhs, undefined). */
+    return InitializeReferencedBinding(lhs, 'undefined)
+  
+  /* NOTE: A static semantics rule ensures that this form of LexicalBinding never occurs in a const declaration. */
+
+  }
+  | { type: "VariableDeclarator", id: id, init: Initializer } -> {
+    BindingIdentifier := id.name;
+    /* LexicalBinding : BindingIdentifier Initializer */
+    /* 1. Let bindingId be StringValue of BindingIdentifier. */
+    bindingId := StringValue(BindingIdentifier);
+    /* 2. Let lhs be ResolveBinding(bindingId). */
+    print(bindingId);
+    lhs := ResolveBinding(scope, bindingId, null);
+    /* 3. Let rhs be the result of evaluating Initializer. */
+    rhs := JS_Interpreter_Expr(Initializer, scope);
+    /* 4. Let value be GetValue(rhs). */
+    value := GetValue(rhs);
+    /* 5. ReturnIfAbrupt(value). */
+    @ReturnIfAbrupt(value);
+    /* 6. If IsAnonymousFunctionDefinition(Initializer) is true, then */
+    if (IsAnonymousFunctionDefinition(Initializer) = true){
+      /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
+      hasNameProperty := HasOwnProperty(value, "name");
+      /* b. ReturnIfAbrupt(hasNameProperty). */
+      @ReturnIfAbrupt(hasNameProperty);
+      /* c. If hasNameProperty is false, perform SetFunctionName(value, bindingId). */
+      if (hasNameProperty = false){
+        SetFunctionName(value, bindingId, null)
+      }
+    };
+    /* 7. Return InitializeReferencedBinding(lhs, value). */
+    return InitializeReferencedBinding(lhs, value)
   }
 };
 
@@ -4124,12 +4203,18 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
   destructuring := IsDestructuring(lhs);
   /* 4. If destructuring is true and if lhsKind is assignment, then */
   if (destructuring = true &&& lhsKind = "assignment") {
-    fail " a. Assert: lhs is a LeftHandSideExpression."
+    /*fail " a. Assert: lhs is a LeftHandSideExpression." */
     /* a. Assert: lhs is a LeftHandSideExpression. */
     /*assert( TODO: Instruction not yet implemented. )
     /* b. Let assignmentPattern be the parse of the source text corresponding to 
        lhs using AssignmentPattern as the goal symbol. */
     /* assignmentPattern :=  TODO: Instruction not yet implemented. */
+    fail " aqui "
+    
+    /* exprRef := JS_Interpreter_Expr(Expression1, scope); */
+    /* /* b. Let exprValue be GetValue(exprRef). */
+    /*   exprValue :=  GetValue(exprRef); */
+
   };
   /* 5. Repeat */
   repeat {
@@ -4313,6 +4398,38 @@ function BindingInstantiation(ForDeclaration, environment) {
   return
 };
 
+/**
+ * 14.1.9 Static Semantics: IsAnonymousFunctionDefinition (production)
+ *
+ * The abstract operation IsAnonymousFunctionDefinition determines if its 
+ * argument is a function definition that does not bind a name. The argument 
+ * production is the result of parsing an AssignmentExpression or Initializer. 
+ * The following steps are taken: 
+ */
+function IsAnonymousFunctionDefinition(production) {
+  /* 1. If IsFunctionDefinition of production is false, */
+  if (IsFunctionDefinition(production) = false) {
+    /* return false */
+    return false
+  };
+  /* 2. Let hasName be the result of HasName of production. */
+  hasName := HasName(production);
+  /* 3. If hasName is true, */
+  if (hasName = true) {
+    /* return false */
+    return false
+  };
+  /* 4. Return true. */
+  return true
+};
+
+function IsFunctionDefinition(expression){
+  return (expression.type in_list ["ArrowFunctionExpression", "FunctionExpression", "ClassExpression"])
+};
+
+function HasName(expression){
+  return !(expression.id = null)
+};
 
 /* auxiliary functions */
 function getParamNameFromCatch(codeObj) {
@@ -4322,15 +4439,6 @@ function getParamNameFromCatch(codeObj) {
   return codeObj.paramName
 };
 
-/** TODO remove
- * temp until new core is used */
-function InitializeBindingDeclarativeTemp(env, N, V) {
-  env := env.EnvRec;
- 
-  SetMutableBinding(env, N, V, true);
-
-  return 'undefined
-};
 
 function isForDeclaration(Statement){
   print(Statement);
