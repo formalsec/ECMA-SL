@@ -2159,32 +2159,50 @@ function JS_Interpreter_LexicalDecl(LexicalDeclaration, scope){
 
   }
   | { type: "VariableDeclarator", id: id, init: Initializer } -> {
-    BindingIdentifier := id.name;
-    /* LexicalBinding : BindingIdentifier Initializer */
-    /* 1. Let bindingId be StringValue of BindingIdentifier. */
-    bindingId := StringValue(BindingIdentifier);
-    /* 2. Let lhs be ResolveBinding(bindingId). */
-    print(bindingId);
-    lhs := ResolveBinding(scope, bindingId, null);
-    /* 3. Let rhs be the result of evaluating Initializer. */
-    rhs := JS_Interpreter_Expr(Initializer, scope);
-    /* 4. Let value be GetValue(rhs). */
-    value := GetValue(rhs);
-    /* 5. ReturnIfAbrupt(value). */
-    @ReturnIfAbrupt(value);
-    /* 6. If IsAnonymousFunctionDefinition(Initializer) is true, then */
-    if (IsAnonymousFunctionDefinition(Initializer) = true){
-      /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
-      hasNameProperty := HasOwnProperty(value, "name");
-      /* b. ReturnIfAbrupt(hasNameProperty). */
-      @ReturnIfAbrupt(hasNameProperty);
-      /* c. If hasNameProperty is false, perform SetFunctionName(value, bindingId). */
-      if (hasNameProperty = false){
-        SetFunctionName(value, bindingId, null)
-      }
-    };
-    /* 7. Return InitializeReferencedBinding(lhs, value). */
-    return InitializeReferencedBinding(lhs, value)
+    if (id.type = "Identifier"){
+      BindingIdentifier := id.name;
+      /* LexicalBinding : BindingIdentifier Initializer */
+      /* 1. Let bindingId be StringValue of BindingIdentifier. */
+      bindingId := StringValue(BindingIdentifier);
+      /* 2. Let lhs be ResolveBinding(bindingId). */
+      print(bindingId);
+      lhs := ResolveBinding(scope, bindingId, null);
+      /* 3. Let rhs be the result of evaluating Initializer. */
+      rhs := JS_Interpreter_Expr(Initializer, scope);
+      /* 4. Let value be GetValue(rhs). */
+      value := GetValue(rhs);
+      /* 5. ReturnIfAbrupt(value). */
+      @ReturnIfAbrupt(value);
+      /* 6. If IsAnonymousFunctionDefinition(Initializer) is true, then */
+      if (IsAnonymousFunctionDefinition(Initializer) = true){
+        /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
+        hasNameProperty := HasOwnProperty(value, "name");
+        /* b. ReturnIfAbrupt(hasNameProperty). */
+        @ReturnIfAbrupt(hasNameProperty);
+        /* c. If hasNameProperty is false, perform SetFunctionName(value, bindingId). */
+        if (hasNameProperty = false){
+          SetFunctionName(value, bindingId, null)
+        }
+      };
+      /* 7. Return InitializeReferencedBinding(lhs, value). */
+      return InitializeReferencedBinding(lhs, value)
+    }
+    else {
+      /* LexicalBinding : BindingPattern Initializer */
+      BindingPattern := id;
+      print(id);
+      /* 1. Let rhs be the result of evaluating Initializer. */
+      rhs := JS_Interpreter_Expr(Initializer, scope);
+      /* 2. Let value be GetValue(rhs). */
+      value := GetValue(rhs);
+      /* 3. ReturnIfAbrupt(value). */
+      @ReturnIfAbrupt(value);
+      /* 4. Let env be the running execution context’s LexicalEnvironment. */
+      env := getLexicalEnvironment(scope);
+      /* 5. Return the result of performing BindingInitialization for BindingPattern 
+            using value and env as the arguments. */
+      return BindingInitialization(BindingPattern, value, {LexicalEnvironment: env}, null)
+    }
   }
 };
 
@@ -4357,20 +4375,12 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
  *
  */
 function IsDestructuring(arg){
-  /* PROGRAM PRINT: { "id": "$loc_1074", "init": null, "type": "VariableDeclarator", "kind": "let" } */
-  /* PROGRAM PRINT: { "id": "$loc_1074", "init": null, "type": "VariableDeclarator", "kind": "var" } */
-  /* PROGRAM PRINT: { "name": "e", "type": "Identifier" } */
-  /* PROGRAM PRINT: { "type": "ArrayPattern", "elements": ["$loc_1074"] } */
-  /* PROGRAM PRINT: { "type": "ArrayPattern", "elements": ["$loc_1075"] } */
-  print(arg);
   if (arg.type = "VariableDeclarator"){
     arg := arg.id
   };
-  print(arg);
-  print(arg.type);
 
-  return (arg.type in_list ["ArrayPattern", "ObjectPattern", "AssignmentPattern"]);
-  return !(arg.type = "Identifier")
+  return (arg.type in_list ["ArrayPattern", "ObjectPattern", "AssignmentPattern"])
+  
 };
 /**
  * 13.7.5.10 Runtime Semantics: BindingInstantiation
