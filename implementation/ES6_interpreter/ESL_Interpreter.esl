@@ -789,10 +789,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     */
 
     /* 1. Let ref be the result of evaluating UnaryExpression. */
-    print(UnaryExpression);
-    print("tunguska");
     ref := JS_Interpreter_Expr(UnaryExpression, scope);
-    print(ref);
     /* 2. ReturnIfAbrupt(ref). */
     @ReturnIfAbrupt(ref);
     /* 3. If Type(ref) is not Reference, */
@@ -1486,28 +1483,32 @@ function JS_Interpreter_Stmt(s, scope) {
     return blockValue
   }
   | { type: "VariableDeclaration", declarations: VariableDeclarationList, kind: "var" } -> {
-    /* 12.2 Variable Statement */
+    /* 13.3.2.4 Variable Statement */
     print("--debugVAR matched VariableDeclaration");
-    /* The production VariableStatement : var VariableDeclarationList ; is evaluated as follows: */
 
+    /* VariableStatement : var VariableDeclarationList ; */
+    /* 1. Let next be the result of evaluating VariableDeclarationList. */
+    /* 2. ReturnIfAbrupt(next). */
+    /* 3. Return NormalCompletion( empty). */
+    /* VariableDeclarationList : VariableDeclarationList , VariableDeclaration */
+    /* 1. Let next be the result of evaluating VariableDeclarationList. */
+    /* 2. ReturnIfAbrupt(next). */
+    /* 3. Return the result of evaluating VariableDeclaration. */
     print "VARDECL";
     print scope;
 
     i := 0;
     lVarDecl := l_len VariableDeclarationList;
     while(lVarDecl > i) {
-      /* 1. Evaluate VariableDeclarationList. */
       next := JS_Interpreter_VarDecl(l_nth(VariableDeclarationList, i), scope);
       @ReturnIfAbrupt(next);
       i := i + 1
     };
-    /* 2. Return (normal, empty, empty).*/
     return NormalCompletion('empty)
   }
   | { type: "VariableDeclaration", declarations: VariableDeclarationList} -> {
     /* 13.3.1 Let and Const Declarations */
     print("--debugVAR matched LexicalDeclaration");
-    /* The production VariableStatement : var VariableDeclarationList ; is evaluated as follows: */
 
     /* LexicalDeclaration : LetOrConst BindingList ; */
     /* 1. Let next be the result of evaluating BindingList. */
@@ -2051,7 +2052,7 @@ function JS_Interpreter_Catch(Catch, thrownValue, scope) {
   }
 };
 
-/* 13.15.8 Runtime Semantics: Evaluation */
+/* 13.3.2.4 Runtime Semantics: Evaluation */
 function JS_Interpreter_VarDecl(variableDeclaration, scope) {
   print("--debugVAR in JS_Interpreter_VarDecl");
   print(variableDeclaration);
@@ -2060,73 +2061,64 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
 
   match variableDeclaration with
   | { type: "VariableDeclarator", id: Identifier, init: null } -> {
-    /* The production VariableDeclaration : Identifier is evaluated as follows: */
-
-    /* 1. Return a String value containing the same sequence of characters as in the Identifier. */
-    /* return Identifier.name */
-    return Identifier
+    /* VariableDeclaration : BindingIdentifier */
+    /* 1. Return NormalCompletion(empty). */
+    return NormalCompletion('empty)
   }
-  | { type: "VariableDeclarator", id: Identifier, init: Initialiser } -> {
-    if (Identifier.type = "Identifier") {
-      /* The production VariableDeclaration : Identifier Initialiser is evaluated as follows: */
+  | { type: "VariableDeclarator", id: id, init: Initializer } -> {
+    if (id.type = "Identifier"){
+    BindingIdentifier := id.name;
 
-      /* 1. Let lhs be the result of evaluating Identifier as described in 11.1.2. */
-      lhs := JS_Interpreter_Expr(Identifier, scope);
+      /* VariableDeclaration : BindingIdentifier Initializer */
+
+      /** NOTE: If a VariableDeclaration is nested within a with statement and the 
+            BindingIdentifier in the VariableDeclaration is the same as a property name 
+            of the binding object of the with statement’s object Environment Record,
+            then step 7 will assign value to the property instead of assigning to the 
+            VariableEnvironment binding of the Identifier.*/
+
+      /* 1. Let bindingId be StringValue of BindingIdentifier. */
+      bindingId := StringValue(BindingIdentifier);
+      /* 2. Let lhs be ResolveBinding(bindingId). */
+      print(bindingId);
+      lhs := ResolveBinding(scope, bindingId, null);
+      /* 3. ReturnIfAbrupt(lhs). */
       @ReturnIfAbrupt(lhs);
-      /* 2. Let rhs be the result of evaluating Initialiser. */
-      rhs := JS_Interpreter_Expr(Initialiser, scope);
-      @ReturnIfAbrupt(rhs);
-      print "DEBUG VARDECL 1"; 
-      print rhs;
-      /* 3. Let value be GetValue(rhs). */
+      /* 4. Let rhs be the result of evaluating Initializer. */
+      rhs := JS_Interpreter_Expr(Initializer, scope);
+      /* 5. Let value be GetValue(rhs). */
       value := GetValue(rhs);
+      /* 6. ReturnIfAbrupt(value). */
       @ReturnIfAbrupt(value);
+      /* 7. If IsAnonymousFunctionDefinition(Initializer) is true, then */
+      if (IsAnonymousFunctionDefinition(Initializer) = true){
+        /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
+        hasNameProperty := HasOwnProperty(value, "name");
+        /* b. ReturnIfAbrupt(hasNameProperty). */
+        @ReturnIfAbrupt(hasNameProperty);
+        /* c. If hasNameProperty is false, perform SetFunctionName(value, bindingId). */
+        if (hasNameProperty = false){
+          SetFunctionName(value, bindingId, null)
+        }
+      };
+      /* 8. Return PutValue(lhs, value). */
+      return PutValue(lhs, value)
+    }
+    else{
+      /* VariableDeclaration : BindingPattern Initializer */
+      BindingPattern := id;
+      print(id);
 
-      print "DEBUG VARDECL 2"; 
-      print lhs; 
-      print value;
-      
-      /* 4. Call PutValue(lhs, value). */
-      PutValue(lhs, value);
-
-      print "DEBUG VARDECL 3"; 
-      /* 5. Return a String value containing the same sequence of characters as in the Identifier. */
-      /* return Identifier.name */
-      return Identifier
-      }
-    else {
-      /* The production VariableDeclaration : Identifier Initialiser is evaluated as follows: */
-
-      /* 1. Let lhs be the result of evaluating Identifier as described in 11.1.2. */
-      /* lhs := JS_Interpreter_Expr(Identifier, scope);
-      @ReturnIfAbrupt(lhs); */
-      /* 2. Let rhs be the result of evaluating Initialiser. */
-      rhs := JS_Interpreter_Expr(Initialiser, scope);
-      @ReturnIfAbrupt(rhs);
-      print "DEBUG VARDECL 1"; 
-      print rhs;
-      /* 3. Let value be GetValue(rhs). */
-      value := GetValue(rhs);
-      @ReturnIfAbrupt(value);
-
-      print "DEBUG VARDECL 2"; 
-      /* print lhs; 
-      print value; */
-      
-      status := BindingInitialization(Identifier, value, scope, null);
-      print(Identifier);
-      print(value);
-      print(scope);
-      print(scope.LexicalEnvironment);
-      print(scope.LexicalEnvironment.EnvRec);
-      return status;
-      /* 4. Call PutValue(lhs, value). */
-      /* PutValue(lhs, value); */
-
-      print "DEBUG VARDECL 3"; 
-      /* 5. Return a String value containing the same sequence of characters as in the Identifier. */
-      /* return Identifier.name */
-      return Identifier
+      /* 1. Let rhs be the result of evaluating Initializer. */
+      rhs := JS_Interpreter_Expr(Initializer, scope);
+      /* 2. Let rval be GetValue(rhs). */
+      rval := GetValue(rhs);
+      /* 3. ReturnIfAbrupt(rval). */
+      @ReturnIfAbrupt(rval);
+      /* 4. Return the result of performing BindingInitialization for BindingPattern 
+              passing rval and undefined as arguments.*/
+      print("where u @?");
+      return BindingInitialization(BindingPattern, rval, 'undefined, null)
     }
   }
   | { type: "VariableDeclaration", declarations: VariableDeclarationListNoIn } -> {
