@@ -2117,7 +2117,6 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
       @ReturnIfAbrupt(rval);
       /* 4. Return the result of performing BindingInitialization for BindingPattern 
               passing rval and undefined as arguments.*/
-      print("where u @?");
       return BindingInitialization(BindingPattern, rval, 'undefined, null)
     }
   }
@@ -4327,15 +4326,20 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
       /* ii. Else if lhsKind is varBinding, then */
       elif (lhsKind = "varBinding") {
         /* 1. Assert: lhs is a ForBinding. */
-        fail " 1. Assert: lhs is a ForBinding."
+        assert(lhs.type = "VariableDeclarator" && lhs.kind ="var");
         /* 2. Let status be the result of performing BindingInitialization for lhs passing nextValue and undefined as the arguments. */
+        status := BindingInitialization(lhs.id, nextValue, 'undefined, null)
+
       }
       /* iii. Else, */
       else {
         /* 1. Assert: lhsKind is lexicalBinding. */
-        fail "Assert: lhsKind is lexicalBinding."
+        assert(lhsKind = "lexicalBinding");
         /* 2. Assert: lhs is a ForDeclaration. */
+        assert(lhs.type = "VariableDeclarator" && lhs.kind ="let");
         /* 3. Let status be the result of performing BindingInitialization for lhs passing nextValue and iterationEnv as arguments. */
+        status := BindingInitialization(lhs.id, nextValue, {LexicalEnvironment: iterationEnv}, null)
+
       }
     };
     /* j. If status is an abrupt completion, then */
@@ -4363,7 +4367,7 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
   return
 };
 /**
- * 13.7.5.6Static Semantics: IsDestructuring
+ * 13.7.5.6 Static Semantics: IsDestructuring
  *
  */
 function IsDestructuring(arg){
