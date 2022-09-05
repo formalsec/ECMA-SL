@@ -34,7 +34,7 @@ function getVarDeclrs(obj) {
         
         if (obj.kind == "var") {
           const vars = obj.declarations.reduce(
-            (acc, declr) => acc.concat(declr.id.name),
+            (acc, declr) => acc.concat(getParamName(declr.id)),
             []
           );
 

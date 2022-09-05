@@ -42,7 +42,6 @@ module.exports = {
     obj.codeType = "global";
 
     obj.strict = hasStrictDirective(obj.body);
-
     return obj;
   },
 };
