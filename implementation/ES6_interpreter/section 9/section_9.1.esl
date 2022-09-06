@@ -679,10 +679,10 @@ function OrdinaryObjectEnumerateAux(O) {
   visited := {}; 
 
   ownKeys := {O.OwnPropertyKeys}(O); 
-
   foreach (k : ownKeys) {
     if ((typeof k) = __$Str) {
-      desc_k := getJSProperty(O, k);
+    /*if (Type(k) = "String") {*/
+      desc_k := {O.GetOwnProperty}(O, k);
       visited[k] := true;
       if (isEnumerablePropertyDescriptor(desc_k)) {
         retKeys := l_add (retKeys, k)
@@ -703,15 +703,91 @@ function OrdinaryObjectEnumerateAux(O) {
 
   return retKeys 
 };
+
 function OrdinaryObjectEnumerate(O) {
-    print(CreateListIterator(OrdinaryObjectEnumerateAux(O)));
-    return CreateListIterator(OrdinaryObjectEnumerateAux(O))
+    return ObjectIteratorConstructor(OrdinaryObjectEnumerateAux(O), O)
 };
-/*
-function CreateIterator(){
-    iterator := ObjectCreate(|Intrinsics|.IteratorPrototype, ["Iterated"]);
-    setJSProperty
-}*/
+
+function initObjectIteratorPrototype(global, objectPrototype, strict) { 
+  prototype := NewECMAScriptObjectFull(|Intrinsics|.IteratorPrototype, "Object", true);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
+
+  /* 23.2.5.2.1 %SetIteratorPrototype%.next ( )*/
+  nextObject := CreateBuiltInFunctionObject([], "objectIteratorPrototypeNext", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(nextObject, true, false, true);
+  setJSProperty(prototype, "next", descriptor);
+  setJSProperty(nextObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(nextObject, "name", newDataPropertyDescriptorFull("next", false, false, true));
+
+  /* 23.2.5.2.2 %SetIteratorPrototype% [ @@toStringTag ]*/
+  descriptor := newDataPropertyDescriptorFull("Object Iterator", false, false, true);
+  setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
+
+  return prototype
+};
+
+function ObjectIteratorConstructor(properties, Obj){
+    
+  /* 3. Let iterator be ObjectCreate(%SetIteratorPrototype%, «‍[[IteratedSet]], [[SetNextIndex]], [[SetIterationKind]]»). */
+  iterator := ObjectCreate(|Intrinsics|.ObjectIteratorPrototype, ["IteratedObject", "ObjectNextIndex", "IteratedProperties"]);
+
+  /* 4. Set iterator’s [[IteratedSet]] internal slot to set. */
+  iterator.IteratedObject := Obj;
+
+  /* 5. Set iterator’s [[SetNextIndex]] internal slot to 0. */
+  iterator.ObjectNextIndex := 0;
+  
+  /* 6. Set iterator’s [[SetIterationKind]] internal slot to kind. */
+  iterator.IteratedProperties := properties;
+
+  return iterator
+};
+
+function objectIteratorPrototypeNext(global, this, NewTarget, strict, args) {
+
+    /* 1. Let O be the this value. */
+    O := this;
+    
+    /* 2. If Type(O) is not Object, throw a TypeError exception. */
+    if (!(Type(O) = "Object")){
+      throw TypeErrorConstructorInternal()
+    };
+
+
+    /* 4. Let s be the value of the [[IteratedSet]] internal slot of O. */
+    s := O.IteratedObject;
+
+    /* 5. Let index be the value of the [[SetNextIndex]] internal slot of O. */
+    index := O.ObjectNextIndex;
+
+
+    /* 9. Let entries be the List that is the value of the [[SetData]] internal slot of s. */
+    entries := O.IteratedProperties;
+
+    /* 10. Repeat while index is less than the total number of elements of entries. The number of elements must be redetermined each time this method is evaluated. */
+    len := l_len(entries);
+    while(index < len) {
+      /* a. Let e be entries[index]. */
+      e := l_nth(entries, index);
+      
+      /* b. Set index to index+1; */
+      index := index + 1;
+
+      /* c. Set the [[SetNextIndex]] internal slot of O to index. */
+      O.ObjectNextIndex := index;
+    
+    
+      if ({O.IteratedObject.HasProperty}(O.IteratedObject, e)){
+        return CreateIterResultObject(e, false)
+      }
+      
+    };
+    
+    /* 12. Return CreateIterResultObject(undefined, true). */
+    return CreateIterResultObject('undefined, true) 
+
+};
+
 /**
  * 9.1.12 [[OwnPropertyKeys]] ( )
  * 
