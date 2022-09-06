@@ -282,6 +282,7 @@ function setAllInternalMethodsExceptGet(obj) {
   obj.OwnPropertyKeys   := "OrdinaryObjectOwnPropertyKeys";
   obj.PreventExtensions := "OrdinaryObjectPreventExtensions";
   obj.IsExtensible      := "OrdinaryObjectIsExtensible";
+  obj.Enumerate			    := "OrdinaryObjectEnumerate";
 
   obj.internalSlotsList := [];
   

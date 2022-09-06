@@ -283,6 +283,9 @@ function initIntrinsics(intrinsic, strict) {
   |Intrinsics|["WeakSet"] := WeakSetObject;
   |Intrinsics|["WeakSetPrototype"] := getPrototypeValue(WeakSetObject);
 
+  /* ObjectIterator */
+  |Intrinsics|["ObjectIteratorPrototype"] := initObjectIteratorPrototype(globalObj, objectPrototype, strict);
+
   return
 };
 
