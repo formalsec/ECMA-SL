@@ -3,7 +3,8 @@ const yargs = require("yargs");
 const fs = require("fs");
 const translator = require("./ECMA-SL/translator");
 const ParseRegExps = require("./ECMA-SL/utils/parse_regexp");
-const { processClasses } = require("./ECMA-SL/utils/processClasses")
+const { processClasses } = require("./ECMA-SL/utils/processClasses");
+const { processTailCalls } = require("./ECMA-SL/utils/processTailCalls");
 
 const argv = yargs
   .option("input", { alias: "i", description: "JS input file", type: "string" })
@@ -42,6 +43,7 @@ fs.readFile(argv.input, "utf-8", (err, data) => {
     progObj = esprima.parseScript(data);
     prog = ParseRegExps(progObj);
     prog = processClasses(prog);
+    prog = processTailCalls(prog);
   } catch (ex) {
     prog = newEarlySyntaxError(ex.description);
   }
