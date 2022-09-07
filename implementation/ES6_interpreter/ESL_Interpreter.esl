@@ -3052,14 +3052,6 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
   | { type: "ForInStatement", left: VariableDeclarationNoIn, right: Expression, body: Statement, labelSet: currentLabelSet } -> {
     /* The production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement is evaluated as follows: */
 
-    /* ES6 */
-     /* /* 1. Let keyResult be ForIn/OfHeadEvaluation( « », Expression, enumerate). */
-     /* keyResult := ForIn_OfHeadEvaluation([], Expression, "enumerate", scope);
-     /* /* 2. ReturnIfAbrupt(keyResult). */
-     /* @ReturnIfAbrupt(keyResult);
-     /* /* 3. Return ForIn/OfBodyEvaluation(LeftHandSideExpression, Statement, keyResult, assignment, labelSet). */
-     /* return ForIn_OfBodyEvaluation(LeftHandSideExpression, Statement, keyResult, "assignment", labelSet, scope);
-
     /* ES5 */
     /* 1. Let varName be the result of evaluating VariableDeclarationNoIn. */
     varName := JS_Interpreter_VarDecl(VariableDeclarationNoIn, scope);
@@ -4218,11 +4210,10 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
     /* b. Let assignmentPattern be the parse of the source text corresponding to 
        lhs using AssignmentPattern as the goal symbol. */
     /* assignmentPattern :=  TODO: Instruction not yet implemented. */
-    fail " aqui "
-    
+    assignmentPattern := lhs
     /* exprRef := JS_Interpreter_Expr(Expression1, scope); */
-    /* /* b. Let exprValue be GetValue(exprRef). */
-    /*   exprValue :=  GetValue(exprRef); */
+    /* b. Let exprValue be GetValue(exprRef). */
+    /* exprValue :=  GetValue(exprRef); */
 
   };
   /* 5. Repeat */
@@ -4320,8 +4311,10 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
     else {
       /* i. If lhsKind is assignment, then */
       if (lhsKind = "assignment") {
+         /* fail "destructuring";*/
         /* 1. Let status be the result of performing DestructuringAssignmentEvaluation of assignmentPattern using nextValue as the argument. */
-        fail "1. Let status be the result of performing DestructuringAssignmentEvaluation of assignmentPattern using nextValue as the argument. */"
+        /*status := DestructuringAssignmentEvaluation(assignmentPattern, nextValue, scope) */
+        status := BindingInitialization(assignmentPattern, nextValue, 'undefined, null)
       }
       /* ii. Else if lhsKind is varBinding, then */
       elif (lhsKind = "varBinding") {
@@ -4436,6 +4429,55 @@ function IsFunctionDefinition(expression){
 function HasName(expression){
   return !(expression.id = null)
 };
+
+/*
+ * 12.14.5.2 Runtime Semantics: DestructuringAssignmentEvaluation
+ * with parameter value 
+*/
+function DestructuringAssignmentEvaluation(Pattern, value , scope){
+  print(Pattern);
+  print(Pattern.properties);
+  match Pattern with
+  | { type: "ObjectPattern",  properties: []} -> {
+    /* ObjectAssignmentPattern : { } */
+    /* 1. Let valid be RequireObjectCoercible(value). */
+    valid := RequireObjectCoercible(value);
+    /* 2. ReturnIfAbrupt(valid). */
+    @ReturnIfAbrupt(valid);
+    /* 3. Return NormalCompletion(empty). */
+    return NormalCompletion('empty)
+  }
+  | { type: "ObjectPattern",  properties: AssignmentPropertyList} -> {
+    /* ObjectAssignmentPattern : 
+       { AssignmentPropertyList } 
+      { AssignmentPropertyList , } */
+    /* 1. Let valid be RequireObjectCoercible(value). */
+    valid := RequireObjectCoercible(value);
+    /* 2. ReturnIfAbrupt(valid). */
+    @ReturnIfAbrupt(valid);
+    /* 3. Return the result of performing DestructuringAssignmentEvaluation for AssignmentPropertyList using value as the argument. */
+    AssignmentPropertyList_DestructuringAssignmentEvaluation(AssignmentPropertyList, value, scope)
+  }
+};
+
+function AssignmentPropertyList_DestructuringAssignmentEvaluation(AssignmentPropertyList,  value , scope){
+  /* AssignmentPropertyList : AssignmentPropertyList , AssignmentProperty
+  /* 1. Let status be the result of performing DestructuringAssignmentEvaluation for AssignmentPropertyList using value as the argument. */
+  /* 2. ReturnIfAbrupt(status). */
+  /* 3. Return the result of performing DestructuringAssignmentEvaluation for AssignmentProperty using value as the argument.*/
+
+  foreach(AssignmentProperty : AssignmentPropertyList){
+    status := AssignmentProperty_DestructuringAssignmentEvaluation(AssignmentProperty, value, scope);
+    @ReturnIfAbrupt(status)
+  };
+
+  return status
+};
+
+function AssignmentProperty_DestructuringAssignmentEvaluation(AssignmentProperty,  value , scope){
+  print(AssignmentProperty.key);
+  print(AssignmentProperty.value)
+};  
 
 /* auxiliary functions */
 function getParamNameFromCatch(codeObj) {
