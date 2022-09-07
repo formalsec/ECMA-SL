@@ -982,7 +982,19 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
 
   /* 35. For each element d in lexDeclarations do */
   /* TODO */
+  print("debug1234Func");
+  print(func);
+  print(func.ECMAScriptCode);
+  foreach (d : getLetDeclarationsInCode(func.ECMAScriptCode)){
+    print("inside loop;");
+    status := {lexEnvRec.CreateMutableBinding}(lexEnvRec, d, false);
+    @ReturnIfAbrupt(status)
+  };
 
+  foreach (d :  getConstDeclarationsInCode(func.ECMAScriptCode)){
+    status := {lexEnvRec.CreateImmutableBinding}(lexEnvRec, d, true);
+    @ReturnIfAbrupt(status)
+  };
   /* 36. For each parsed grammar phrase f in functionsToInitialize, do */
   i := 0;
   lfunctionsToInitialize := l_len functionsToInitialize;
