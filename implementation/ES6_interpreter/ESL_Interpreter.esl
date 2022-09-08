@@ -388,13 +388,14 @@ function JS_Interpreter_Expr(e, scope) {
       thisValue := 'undefined
     };
 
-    /* TODO */
     /* 7. Let thisCall be this CallExpression. */
+    thisCall := e;
+
     /* 8. Let tailCall be IsInTailPosition(thisCall). (See 14.6.1) */
+    tailCall := IsInTailPosition(thisCall);
 
     /* 9. Return EvaluateDirectCall(func, thisValue, Arguments, tailCall). */
-    print "DEBUG CALL EXPRESSION, CALLING EvaluateDirectCall";
-    return EvaluateDirectCall(func, thisValue, Arguments, false, scope)
+    return EvaluateDirectCall(func, thisValue, Arguments, tailCall, scope)
   }
   | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
     /* 11.2.5 Function Expressions */
