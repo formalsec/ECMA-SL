@@ -60,7 +60,10 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, NewTarget,
     result := OrdinaryCallEvaluateBody(calleeContext, F, argumentList);
 
     /* 8. Remove calleeContext from the execution context stack and restore callerContext as the running execution context. */
-    popExecStack();
+    if ( calleeContext = topExecStack() ) {
+        popExecStack()
+    };
+
     callerContext.Suspend := false;
 
     /* 9. If result.[[type]] is return, return NormalCompletion(result.[[value]]). */

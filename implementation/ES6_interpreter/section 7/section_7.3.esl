@@ -868,7 +868,10 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
 	  result := {F.Code}(F.Scope, V, NewTarget, F.strict, args) catch BuiltInCall_Handler
 	};
 
-	popExecStack();
+	if ( calleeContext = topExecStack() ) {
+        popExecStack()
+    };
+
 	callerContext.Suspend := false;
 
 	return result
