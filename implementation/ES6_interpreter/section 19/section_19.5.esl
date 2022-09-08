@@ -55,10 +55,10 @@ function initErrorPrototype(ObjectPrototype, global, strict) {
   setAllInternalMethodsOfOrdinaryObject(errorPrototypeObject);
 
   /* 19.5.3.2 Error.prototype.message */
-  setJSProperty(errorPrototypeObject, "message", newDataPropertyDescriptorFull("", false, false, true));  
+  setJSProperty(errorPrototypeObject, "message", newDataPropertyDescriptorFull("", true, false, true));  
 
   /* 19.5.3.3 Error.prototype.name */
-  setJSProperty(errorPrototypeObject, "name", newDataPropertyDescriptorFull("Error", false, false, true));
+  setJSProperty(errorPrototypeObject, "name", newDataPropertyDescriptorFull("Error", true, false, true));
 
   /* 19.5.3.4 Error.prototype.toString ( ) */
   toStringFunctionObject := CreateBuiltInFunctionObject([], "ErrorToString", global, strict, null);
@@ -365,10 +365,10 @@ function initNativeErrorPrototype(errorPrototypeObject, nativeErrorName) {
   setAllInternalMethodsOfOrdinaryObject(nativeErrorPrototypeObject);
 
   /* 19.5.6.3.2 NativeError.prototype.message */
-  setJSProperty(nativeErrorPrototypeObject, "message", newDataPropertyDescriptorFull("", false, false, true));
+  setJSProperty(nativeErrorPrototypeObject, "message", newDataPropertyDescriptorFull("", true, false, true));
 
   /* 19.5.6.3.3 NativeError.prototype.name */
-  setJSProperty(nativeErrorPrototypeObject, "name", newDataPropertyDescriptorFull(nativeErrorName, false, false, true));
+  setJSProperty(nativeErrorPrototypeObject, "name", newDataPropertyDescriptorFull(nativeErrorName, true, false, true));
 
   return nativeErrorPrototypeObject
 };
@@ -380,12 +380,6 @@ When a NativeError function is called with argument message the following steps 
 */
 function NativeErrorConstructor(message, nativeErrorName, NewTarget) {
     
-    exec := topExecStack();
-    print "NATIVECONS";
-    print exec;
-    print NewTarget;
-    print nativeErrorName;
-
     /*If NewTarget is undefined, let newTarget be the active function object, else let newTarget be NewTarget.*/
     if ( NewTarget = 'undefined ) {
         newTarget := topExecStack().Function
