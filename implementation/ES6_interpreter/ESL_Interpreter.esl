@@ -659,7 +659,10 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
     status := PutValue(lref, rval);
 
     print "DEBUG AE 5";
+    print(scope);
     print lref;
+    print rval;
+    print status;
 
 
     @ReturnIfAbrupt(status);
@@ -1596,7 +1599,6 @@ function JS_Interpreter_Stmt(s, scope) {
     s.labelSet := l_add(s.labelSet, 'empty);
 
     return JS_Interpreter_BreakableStatement(s, scope)
-    /*return JS_Interpreter_IterationStatement(s, scope)*/
   }
   | { type: "WhileStatement" } -> {
     if (!("labelSet" in_obj s)) {
@@ -1605,7 +1607,6 @@ function JS_Interpreter_Stmt(s, scope) {
 
     s.labelSet := l_add(s.labelSet, 'empty);
     return JS_Interpreter_BreakableStatement(s, scope)
-    /*return JS_Interpreter_IterationStatement(s, scope)*/
   }
   | { type: "ForStatement" } -> {
     if (!("labelSet" in_obj s)) {
@@ -1615,7 +1616,6 @@ function JS_Interpreter_Stmt(s, scope) {
     s.labelSet := l_add(s.labelSet, 'empty);
 
     return JS_Interpreter_BreakableStatement(s, scope)
-    /*return JS_Interpreter_IterationStatement(s, scope)*/
   }
   | { type: "ForInStatement" } -> {
     if (!("labelSet" in_obj s)) {
@@ -1624,9 +1624,8 @@ function JS_Interpreter_Stmt(s, scope) {
 
     s.labelSet := l_add(s.labelSet, 'empty);
     
-    return JS_Interpreter_BreakableStatement(s, scope);
+    return JS_Interpreter_BreakableStatement(s, scope)
 
-    return JS_Interpreter_IterationStatement(s, scope)
   }
   | { type: "ForOfStatement" } -> {
     if (!("labelSet" in_obj s)) {
@@ -1635,7 +1634,6 @@ function JS_Interpreter_Stmt(s, scope) {
 
     s.labelSet := l_add(s.labelSet, 'empty);
     return JS_Interpreter_BreakableStatement(s, scope)
-    /*return JS_Interpreter_IterationStatement(s, scope)*/
   }
   | { type: "ContinueStatement", label: LabelIdentifier } -> {
     /* 13.8 The continue Statement */
@@ -2838,106 +2836,6 @@ function JS_Interpreter_BinExpr(e, scope) {
     /* 11. Return the result of applying the bitwise operator @ to lnum and rnum.
       The result is a signed 32 bit integer. */
     return applyBitwiseOperator(operator, lnum, rnum)
-  }
-};
-
-function JS_Interpreter_IterationStatement(iterStmt, scope) {
-  match iterStmt with
-  | { type: "DoWhileStatement", test: Expression, body: Statement, labelSet: currentLabelSet } -> {
-    /* 12.6.1 The do-while Statement */
-    /* 1. Let V = empty. */
-    V := 'empty;
-    /* 2. Let iterating be true. */
-    iterating := true;
-    /* 3. Repeat, while iterating is true */
-    repeat {
-      /* a. Let stmt be the result of evaluating Statement. */
-      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
-      /* b. If stmt.value is not empty, let V = stmt.value. */
-      if (!(getCompletionValue(stmt) = 'empty)) {
-        V := getCompletionValue(stmt)
-      };
-      /* c. If stmt.type is not continue || stmt.target is not in the current label set, then */
-      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in_list currentLabelSet))) {
-        /* i. If stmt.type is break and stmt.target is in the current label set, return (normal, V, empty). */
-        if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
-          return NormalCompletion(V)
-        };
-        /* ii. If stmt is an abrupt completion, return stmt. */
-        if (isAnAbruptCompletion(stmt)) {
-          return stmt
-        }
-      };
-      /* d. Let exprRef be the result of evaluating Expression. */
-      exprRef := JS_Interpreter_Expr(Expression, scope);
-      exprValue := GetValue(exprRef);
-      @ReturnIfAbrupt(exprValue);
-      /* e. If ToBoolean(GetValue(exprRef)) is false, set iterating to false. */
-      if (ToBoolean(exprValue) = false) {
-        iterating := false
-      }
-    } until iterating = false;
-    /* 4. Return (normal, V, empty); */
-    return NormalCompletion(V)
-  }
-  | { type: "WhileStatement", test: Expression, body: Statement, labelSet: currentLabelSet } -> {
-    /* 12.6.2 The while Statement */
-    /* 1. Let V = empty. */
-    V := 'empty;
-    /* 2. Repeat */
-    repeat {
-      /* a. Let exprRef be the result of evaluating Expression. */
-      exprRef := JS_Interpreter_Expr(Expression, scope);
-      exprValue := GetValue(exprRef);
-      @ReturnIfAbrupt(exprValue);
-      /* b. If ToBoolean(GetValue(exprRef)) is false, return (normal, V, empty). */
-      if (ToBoolean(exprValue) = false) {
-        return NormalCompletion(V)
-      };
-      /* c. Let stmt be the result of evaluating Statement. */
-      stmt := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
-      /* d. If stmt.value is not empty, let V = stmt.value. */
-      if (!(getCompletionValue(stmt) = 'empty)) {
-        V := getCompletionValue(stmt)
-      };
-      /* e. If stmt.type is not continue || stmt.target is not in the current label set, then */
-      if (!(getCompletionType(stmt) = 'continue) || (!(getCompletionTarget(stmt) in_list currentLabelSet))) {
-        /* i. If stmt.type is break and stmt.target is in the current label set, then */
-        if ((getCompletionType(stmt) = 'break) && (getCompletionTarget(stmt) in_list currentLabelSet)) {
-          /* 1. Return (normal, V, empty). */
-          return NormalCompletion(V)
-        };
-        /* ii. If stmt is an abrupt completion, return stmt. */
-        if (isAnAbruptCompletion(stmt)) {
-          return stmt
-        }
-      }
-    }
-  }
-  | { type: "ForStatement", init: Expr_or_VarDecl_or_Null } -> {
-    if (Expr_or_VarDecl_or_Null = null) {
-      return JS_Interpreter_ForStmt_Expr(iterStmt, scope)
-    };
-
-    match Expr_or_VarDecl_or_Null with
-    | { type: "VariableDeclaration" } -> {
-      return JS_Interpreter_ForStmt_VarDecl(iterStmt, scope)
-    }
-    | default -> {
-      return JS_Interpreter_ForStmt_Expr(iterStmt, scope)
-    }
-  }
-  | { type: "ForInStatement", left: lhsExpr_or_VarDecl } -> {
-    /* 12.6.4 The for-in Statement */
-    match lhsExpr_or_VarDecl with
-    | { type: "VariableDeclarator", kind: "var" } -> {
-      /* production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement */
-      return JS_Interpreter_ForInStmt_VarDecl(iterStmt, scope)
-    }
-    | default -> {
-      /* production IterationStatement : for ( LeftHandSideExpression in Expression ) Statement */
-      return JS_Interpreter_ForInStmt_lhsExpr(iterStmt, scope)
-    }
   }
 };
 
