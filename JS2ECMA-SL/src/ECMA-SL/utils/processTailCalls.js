@@ -10,12 +10,9 @@ function ProcessTailCalls (obj) {
     function callback (obj) {
       switch (obj.type) {
         case "ReturnStatement": {
-            if (obj.argument.type === "CallExpression") {
+            if (obj.argument && obj.argument.type === "CallExpression") {
                 obj.argument.is_tail_call = true;
-            } else {
-                obj.argument.is_tail_call = false;
-            }
-
+            } 
             return {
                 obj, 
                 recurse: true
@@ -24,7 +21,7 @@ function ProcessTailCalls (obj) {
          default:
           return {
             obj,
-            recurse: false
+            recurse: true
           }
       }
     }
