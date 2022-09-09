@@ -1685,7 +1685,7 @@ function JS_Interpreter_Stmt(s, scope) {
     return newCompletion('return, exprValue, 'empty)
   }
   | { type: "WithStatement", object: Expression, body: Statement } -> {
-    /* 12.10 The with Statement */
+    /* 13.11 The with Statement */
 
   /*  /* The with statement adds an object environment record for a computed object to the lexical environment of
   /*     the current execution context. It then executes a statement using this augmented lexical environment.
@@ -1710,19 +1710,11 @@ function JS_Interpreter_Stmt(s, scope) {
   oldEnv := getLexicalEnvironment(scope);
   /* 5. Let newEnv be NewObjectEnvironment(obj, oldEnv). */
   newEnv := NewObjectEnvironment(obj, oldEnv);
-  print("--2debugWith");
-  print(newEnv);
-  print(newEnv.EnvRec);
   /* 6. Set the withEnvironment flag of newEnv's EnvironmentRecord to true. */
   newEnv.EnvRec.withEnvironment := true;
   setProvideThis(newEnv, true);
   /* 7. Set the running execution context's LexicalEnvironment to newEnv. */
   setLexicalEnvironment(scope, newEnv);
-  print("--3debugWith");
-  print(scope.LexicalEnvironment);
-  print(scope.LexicalEnvironment.EnvRec);
-  print(scope.LexicalEnvironment.OuterEnvRef);
-  print(Statement);
   /* 8. Let C be the result of evaluating Statement. */
   C := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
   /* 9. Set the running execution context's Lexical Environment to oldEnv. */
@@ -1752,7 +1744,7 @@ function JS_Interpreter_Stmt(s, scope) {
   /* return JS_Interpreter_SwitchStatement(s, scope) */
   }
   | { type: "ThrowStatement", argument: Expression } -> {
-    /* 12.13 The throw Statement */
+    /* 13.14 The throw Statement */
     /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
 
@@ -2859,7 +2851,6 @@ function JS_Interpreter_SwitchStatement(switchStmt, scope) {
   match switchStmt with
   | { type: "SwitchStatement", discriminant: Expression, cases: CaseBlock, labelSet: currentLabelSet } -> {
     /* 13.12.11 The switch Statement */
-    print(switchStmt);
     
     /* 1. Let exprRef be the result of evaluating Expression. */
     exprRef := JS_Interpreter_Expr(Expression, scope);
@@ -3561,7 +3552,7 @@ function LoopContinues(completion, labelSet) {
  *
  * See also: 13.1.7, 13.7.3.6, 13.7.4.7, 13.7.5.11, 13.13.14. 
  */
-function LabelledEvaluation(IterationStatement, scope) {
+function JS_Interpreter_IterationStmt(IterationStatement, scope) {
    match IterationStatement with
   | { type: "DoWhileStatement", test: Expression, body: Statement, labelSet: labelSet } -> {
     /* IterationStatement : do Statement while ( Expression ) 
@@ -3735,21 +3726,11 @@ function LabelledEvaluation(IterationStatement, scope) {
     /* 12. Return Completion(bodyResult). */
     return Completion(bodyResult)
   }
-    /* 13.7.5 The for-in Statement */
-    /* match lhsExpr_or_VarDecl with 
-    /* | { type: "VariableDeclarator", kind: "var" } -> { 
-    /*   /* production IterationStatement : for ( var VariableDeclarationNoIn in Expression ) Statement */ 
-    /*   return JS_Interpreter_ForInStmt_VarDecl(IterationStatement, scope) 
-    /* } 
-    /* | default -> { 
-    /*   /* production IterationStatement : for ( LeftHandSideExpression in Expression ) Statement */ 
-    /*   return JS_Interpreter_ForInStmt_lhsExpr(IterationStatement, scope) 
-    /* } */
-    | { type: "ForInStatement", left: lhsExpr_or_VarDecl, right: AssignmentExpression, 
-      body: Statement, labelSet: labelSet} -> {
-    /* 12.6.4 The for-in Statement */
-    print("debug12345");
-    print(lhsExpr_or_VarDecl);
+  /* 13.7.5 The for-in Statement */
+  | { type: "ForInStatement", left: lhsExpr_or_VarDecl, right: AssignmentExpression, 
+    body: Statement, labelSet: labelSet} -> {
+  print("debug12345");
+  print(lhsExpr_or_VarDecl);
     match lhsExpr_or_VarDecl with
     | { type: "VariableDeclarator", kind: "var" } -> {
       ForBinding := lhsExpr_or_VarDecl;
@@ -3787,7 +3768,7 @@ function LabelledEvaluation(IterationStatement, scope) {
   }
   | { type: "ForOfStatement", left: lhsExpr_or_VarDecl, right: AssignmentExpression, 
       body: Statement, labelSet: labelSet} -> {
-    /* 12.6.4 The for-of Statement */
+    /* 13.7.5 The for-of Statement */
     print("debug12345");
     print(lhsExpr_or_VarDecl);
     match lhsExpr_or_VarDecl with
@@ -3895,7 +3876,7 @@ function JS_Interpreter_BreakableStatement(BreakableStatement, scope) {
     /* BreakableStatement : IterationStatement */
     /* 1. Let stmtResult be the result of performing LabelledEvaluation of 
         IterationStatement with argument labelSet. */
-    stmtResult := LabelledEvaluation(BreakableStatement, scope)
+    stmtResult := JS_Interpreter_IterationStmt(BreakableStatement, scope)
   };
   /* 2. If stmtResult.[[type]] is break, then */
   if (getCompletionType(stmtResult) = 'break) {
@@ -4137,7 +4118,7 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
         print(lhs);
         if (lhsKind = "varBinding"){
           print(lhs.id);
-          /* 13.7.5.14Runtime Semantics: Evaluation */
+          /* 13.7.5.14 Runtime Semantics: Evaluation */
           /* ForBinding : BindingIdentifier */
           /* 1. Let bindingId be StringValue of BindingIdentifier. */
           bindingId := StringValue(lhs.id.name);
