@@ -313,13 +313,7 @@ function PutValue(V, W) {
 
     /* Let base be GetBase(V). */
     base := GetBase(V);
-
-    if ( W = 1002. ) {
-      print "coisas0";
-      print W;
-      print V
-    };
-    
+ 
     /* If IsUnresolvableReference(V), then */
     if ( IsUnresolvableReference(V) ) {
         /* If IsStrictReference(V) is true, then */
@@ -337,13 +331,6 @@ function PutValue(V, W) {
     }
     /* Else if IsPropertyReference(V), then */
     elif ( IsPropertyReference(V) ) {
-
-        if ( W = 1002. ) {
-          print "coisas1";
-          print W;
-          print V
-        };
-
         /* If HasPrimitiveBase(V) is true, then */
         if ( HasPrimitiveBase(V) = true ) {
             /* Assert: In this case, base will never be null or undefined. */
@@ -368,13 +355,6 @@ function PutValue(V, W) {
     }
     /* Else base must be an Environment Record. */
     else {
-
-        if ( W = 1002. ) {
-          print "coisas2";
-          print W;
-          print V
-        };
-
         /* Return base.SetMutableBinding(GetReferencedName(V), W, IsStrictReference(V)) (see 8.1.1). */
         return {base.SetMutableBinding}(base, GetReferencedName(V), W, IsStrictReference(V))
     }
