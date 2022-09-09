@@ -678,7 +678,12 @@ function OrdinaryObjectEnumerateAux(O) {
   retKeys := [];   
   visited := {}; 
 
-  ownKeys := {O.OwnPropertyKeys}(O); 
+  ownKeys := {O.OwnPropertyKeys}(O);
+
+  print("debugOwnKeys");
+  print(O.OwnPropertyKeys);
+  print(ownKeys);
+
   foreach (k : ownKeys) {
     if ((typeof k) = __$Str) {
     /*if (Type(k) = "String") {*/
@@ -699,8 +704,10 @@ function OrdinaryObjectEnumerateAux(O) {
         retKeys := l_add (retKeys, k)
       }
     }
-  }; 
-
+  };
+  
+  print("debugKeys");
+  print(retKeys);
   return retKeys 
 };
 
@@ -798,31 +805,38 @@ function OrdinaryObjectOwnPropertyKeys(O) {
     /* Let keys be a new empty List. */
     keys := [];
 
+    /* aux lists */
+    strings := [];
+    symbols := [];
+
     /* For each own property key P of O that is an integer index, in ascending numeric index order */
-    foreach ( P : obj_fields O.JSProperties ) {
-        if ( Type(P) = "Number" ) {
+    foreach ( P : O.internalSlotsList ) {
+        if ( IsArrayIndex(P) ) {
             /* Add P as the last element of keys. */
             keys := l_add(keys, P)
         }
-    };
 
-    /* For each own property key P of O that is a String but is not an integer index, in property creation order */
-    foreach ( P : obj_fields O.JSProperties ) {
-        if ( Type(P) = "String" &&& !(Type(P) = "Number")  ) {
+        /* For each own property key P of O that is a String but is not an integer index, in property creation order */
+        elif ( Type(P) = "String" &&& !(Type(P) = "Number") &&& P in_list (obj_fields O.JSProperties) ) {
             /* Add P as the last element of keys. */
-            keys := l_add(keys, P)
+            strings := l_add(strings, P)
+        }
+        
+        /* For each own property key P of O that is a Symbol, in property creation order */
+        elif ( P in_list (obj_fields O.SymbolKeys) ){
+            /* Add P as the last element of keys. */
+            symbols := l_add(symbols, O.SymbolKeys[P])
         }
     };
 
-    /* For each own property key P of O that is a Symbol, in property creation order */
-    foreach ( P : obj_fields O.SymbolKeys ) {
-        /* Add P as the last element of keys. */
-        keys := l_add(keys, O.SymbolKeys[P])
-    };
+    keys := l_sort(keys);
+    keys := l_concat(keys, strings);
+    keys := l_concat(keys, symbols);
 
     /* Return keys.	*/
     return keys
 };
+
 
 /**
  * 9.1.13 ObjectCreate(proto, internalSlotsList)
