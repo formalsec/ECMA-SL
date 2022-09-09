@@ -1441,11 +1441,11 @@ macro PropagateBlockLabelSet(Block, Stmts) {
   if ("labelSet" in_obj Block) {
     labelSet := Block.labelSet;
 
-    s := l_nth(Stmts, 0);
-    if ("labelSet" in_obj s) {
-      s.labelSet := l_concat(s.labelSet, labelSet)
+    first_stmt := l_nth(Stmts, 0);
+    if ("labelSet" in_obj first_stmt) {
+      first_stmt.labelSet := l_concat(first_stmt.labelSet, labelSet)
     } else {
-      s.labelSet := labelSet
+      first_stmt.labelSet := labelSet
     }
   }
 };
@@ -1623,7 +1623,7 @@ function JS_Interpreter_Stmt(s, scope) {
     };
 
     s.labelSet := l_add(s.labelSet, 'empty);
-    /* DO ForIn estraga algo no verifyNotEnumerable(SetIteratorProto.next, "length");*/
+    
     return JS_Interpreter_BreakableStatement(s, scope);
 
     return JS_Interpreter_IterationStatement(s, scope)
@@ -1634,8 +1634,8 @@ function JS_Interpreter_Stmt(s, scope) {
     };
 
     s.labelSet := l_add(s.labelSet, 'empty);
-    return JS_Interpreter_BreakableStatement(s, scope);
-    return JS_Interpreter_IterationStatement(s, scope)
+    return JS_Interpreter_BreakableStatement(s, scope)
+    /*return JS_Interpreter_IterationStatement(s, scope)*/
   }
   | { type: "ContinueStatement", label: LabelIdentifier } -> {
     /* 13.8 The continue Statement */
@@ -1817,9 +1817,6 @@ function JS_Interpreter_Stmt(s, scope) {
  */
 function BlockDeclarationInstantiation(stmt, env) {
   /* 1. Let declarations be the LexicallyScopedDeclarations of code. */
-  print(stmt.letDeclarations);
-  print(stmt.constDeclarations);
-  print(stmt);
   foreach (d : stmt.letDeclarations){
       status := {env.CreateMutableBinding}(env, d, false);
       /* {env.InitializeBinding}(env, d, 'undefined); */
@@ -4311,7 +4308,7 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
     else {
       /* i. If lhsKind is assignment, then */
       if (lhsKind = "assignment") {
-         /* fail "destructuring";*/
+        /* fail "destructuring";*/
         /* 1. Let status be the result of performing DestructuringAssignmentEvaluation of assignmentPattern using nextValue as the argument. */
         /*status := DestructuringAssignmentEvaluation(assignmentPattern, nextValue, scope) */
         status := BindingInitialization(assignmentPattern, nextValue, 'undefined, null)
