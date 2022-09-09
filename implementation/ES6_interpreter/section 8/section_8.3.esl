@@ -104,7 +104,6 @@ function ResolveBinding(scope, name, env)  {
     strict := false
   };
 
-  strict := false;
 
   /* Return GetIdentifierReference(env, name, strict ). */
   return GetIdentifierReference(env, name, strict)
