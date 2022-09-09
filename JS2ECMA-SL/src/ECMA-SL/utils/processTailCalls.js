@@ -25,7 +25,7 @@ function ProcessTailCalls (obj) {
          default:
           return {
             obj,
-            recurse: true
+            recurse: false
           }
       }
     }
