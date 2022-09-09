@@ -7,10 +7,10 @@ module.exports = {
 
 function ProcessTailCalls (obj) {
 
-
     function callback (obj) {
+      console.log(obj)
       switch (obj.type) {
-        case "ReturnStatement": 
+        case "ReturnStatement": { 
             if (obj.argument.type === "CallExpression") {
                 obj.argument.is_tail_call = true;
             } else {
@@ -21,7 +21,7 @@ function ProcessTailCalls (obj) {
                 obj, 
                 recurse: true
             }
-
+        }
          default:
           return {
             obj,
