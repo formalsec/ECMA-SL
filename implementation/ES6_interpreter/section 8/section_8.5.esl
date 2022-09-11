@@ -18,16 +18,24 @@ function execStackIsEmpty() {
     return l_len(|ctxStack|) = 0
 };
 
+function initGlobalVars() {
+    |ctxStack| := [];
+    initJobQueue();
+    |__CUR__SYMB__| := 0; 
+    |GlobalSymbolRegistry| := {};
+
+    return
+};
+
 /* 8.5 ECMAScript Initialization()
 
 An ECMAScript implementation performs the following steps prior to the execution of any Jobs or
 the evaluation of any ECMAScript code: */
-function ECMAScriptInitialization(program) {
-    |ctxStack| = [];
-    initJobQueue();
+function ECMAScriptInitialization() {
+    initGlobalVars();
 
     /* Let realm be CreateRealm(). */
-    realm := CreateRealm(program.strict);
+    realm := CreateRealm();
 
     /* Let newContext be a new execution context. */
     newContext := createExecutionContext();
@@ -42,7 +50,7 @@ function ECMAScriptInitialization(program) {
     pushExecStack(newContext);
 
     /* Let status be InitializeHostDefinedRealm(realm). */
-    status := InitializeHostDefinedRealm(realm, program.strict);
+    status := InitializeHostDefinedRealm(realm);
 
     /* If status is an abrupt completion, then */
     if ( isAnAbruptCompletion(status) )
@@ -59,6 +67,7 @@ function ECMAScriptInitialization(program) {
        do, */
         /* If sourceText is the source code of a script, then */
             /* Perform EnqueueJob("ScriptJobs", ScriptEvaluationJob, « sourceText »). */
+    EnqueueJob("ScriptJobs", "ScriptEvaluationJob", []);
         /* Else sourceText is the source code of a module, */
             /* Perform EnqueueJob("ScriptJobs", TopLevelModuleEvaluationJob, « sourceText »). */
     
@@ -70,7 +79,7 @@ function ECMAScriptInitialization(program) {
 
 The abstract operation InitializeHostDefinedRealm with parameter realm performs the following
 steps: */
-function InitializeHostDefinedRealm(realm, strict) {
+function InitializeHostDefinedRealm(realm) {
     /* If this implementation requires use of an exotic object to serve as realm’s global object, let
     global be such an object created in an implementation defined manner. Otherwise, let global
     be undefined indicating that an ordinary object should be created as the global object. */
@@ -80,7 +89,7 @@ function InitializeHostDefinedRealm(realm, strict) {
     SetRealmGlobalObject(realm, global);
 
     /* Let globalObj be SetDefaultGlobalBindings(realm). */
-    globalObj := SetDefaultGlobalBindings(realm, strict);
+    globalObj := SetDefaultGlobalBindings(realm);
 
     /* ReturnIfAbrupt(globalObj). */
     @ReturnIfAbrupt(globalObj);

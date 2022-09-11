@@ -8,12 +8,12 @@
 
 /* 8.2.1 CreateRealm ( ) */
 /* The abstract operation CreateRealm with no arguments performs the following steps: */
-function CreateRealm(strict) {
+function CreateRealm() {
     /* Let realmRec be a new Record. */
     realmRec := {};
     
     /* Perform CreateIntrinsics(realmRec). */
-    CreateIntrinsics(realmRec, strict);
+    CreateIntrinsics(realmRec);
     
     /* Set realmRec.[[globalThis]] to undefined. */
     realmRec.globalThis := 'undefined;
@@ -29,7 +29,7 @@ function CreateRealm(strict) {
 };
 
 /* 8.2.2 CreateIntrinsics ( realmRec ) */
-function CreateIntrinsics(realmRec, strict) {
+function CreateIntrinsics(realmRec) {
     /* Initializing global symbols */
     initWellKnownSymbols();
     
@@ -54,34 +54,34 @@ function CreateIntrinsics(realmRec, strict) {
     setInternalProperty(globalObject, "Prototype", ObjectPrototype);
 
     /* Set intrinsics.[[%FunctionPrototype%]] to FunctionPrototype. */
-    FunctionPrototype := initFunctionPrototype(ObjectPrototype, globalObject, strict);
+    FunctionPrototype := initFunctionPrototype(ObjectPrototype, globalObject, false);
     intrinsics.FunctionPrototype := FunctionPrototype;
 
     /* Initializing ObjectConstructor */
-    ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, strict);
+    ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, false);
     |objectConstructor| := ObjectConstructor;
     intrinsics.Object := ObjectConstructor;
     createBuiltInProperty(globalObject, "Object", ObjectConstructor);
 
     /* Initializing FunctionConstructor */
-    FunctionConstructor := initFunctionConstructor(FunctionPrototype, globalObject, strict);
+    FunctionConstructor := initFunctionConstructor(FunctionPrototype, globalObject, false);
     intrinsics.Function := FunctionConstructor;
     createBuiltInProperty(globalObject, "Function", FunctionConstructor);
 
     /* Filling Protos and Constructors */
-    fillObjectPrototype(ObjectPrototype, ObjectConstructor, globalObject, strict);
-    fillFunctionPrototype(FunctionPrototype, FunctionConstructor, globalObject, strict);
-    fillObjectConstructor(ObjectConstructor, globalObject, strict);
-    fillFunctionConstructor(FunctionConstructor, globalObject, strict);
+    fillObjectPrototype(ObjectPrototype, ObjectConstructor, globalObject, false);
+    fillFunctionPrototype(FunctionPrototype, FunctionConstructor, globalObject, false);
+    fillObjectConstructor(ObjectConstructor, globalObject, false);
+    fillFunctionConstructor(FunctionConstructor, globalObject, false);
 
     /* ThrowTypeError */
-    thrower := CreateGeneralBuiltInFunctionObject(FunctionPrototype, [], "internalTypeErrorThrower", globalObject, strict, null);
+    thrower := CreateGeneralBuiltInFunctionObject(FunctionPrototype, [], "internalTypeErrorThrower", globalObject, false, null);
     intrinsics.ThrowTypeError := thrower;
 
     AddRestrictedFunctionProperties(FunctionPrototype, realmRec);
 
     /* Initializing Intrinsics */
-    initIntrinsics(intrinsics, strict);
+    initIntrinsics(intrinsics, false);
     
     /* Return intrinsics. */
     return intrinsics
@@ -122,7 +122,7 @@ function SetRealmGlobalObject(realmRec, globalObj) {
 
 /* The abstract operation SetDefaultGlobalBindings with argument realmRec performs the following
    steps: */
-function SetDefaultGlobalBindings(realmRec, strict) {
+function SetDefaultGlobalBindings(realmRec) {
     /* Let global be realmRec.[[globalThis]]. */
     global := realmRec.globalThis;
 
@@ -137,7 +137,7 @@ function SetDefaultGlobalBindings(realmRec, strict) {
         /* Let status be DefinePropertyOrThrow(global, name, desc). */
 
         /* ReturnIfAbrupt(status). */
-    initGlobalObject(global, realmRec.intrinsics, strict);
+    initGlobalObject(global, realmRec.intrinsics);
 
     /* Return global. */
     return global

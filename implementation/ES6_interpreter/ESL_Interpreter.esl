@@ -140,7 +140,7 @@ function JS_Interpreter_Expr(e, scope) {
     parameters := ArrowParameters;
     /* 4. Let closure be FunctionCreate(Arrow, parameters, ConciseBody, scope,
       strict). */
-    closure := FunctionCreate("Arrow", parameters, ConciseBody, lexEnv, strict, null, scope.Realm);
+    closure := FunctionCreate("Arrow", parameters, ConciseBody, lexEnv, strict, null);
     /* 5. Return closure. */
     return closure
     /**
@@ -1131,7 +1131,7 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
     name := Identifier.name;
 
     /* 3. Let F be FunctionCreate(Normal, FormalParameters, FunctionBody, scope, strict) */
-    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, strict, null, scope.Realm);
+    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope, strict, null);
 
     /* 4. Perform MakeConstructor(F) */
     MakeConstructor(F, null, null);
@@ -1162,7 +1162,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
       FormalParameterList := []
     };
 
-    closure := FunctionCreate("normal", FormalParameterList, FunctionBody, scope.LexicalEnvironment, strict, null, scope.Realm);
+    closure := FunctionCreate("normal", FormalParameterList, FunctionBody, scope.LexicalEnvironment, strict, null);
 
     MakeConstructor(closure, null, null);
 
@@ -1188,7 +1188,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
 
     {envRec.CreateImmutableBinding}(envRec, name, false);
 
-    closure := FunctionCreate("normal", FormalParameterListopt, FunctionBody, funcEnv, strict, null, scope.Realm);
+    closure := FunctionCreate("normal", FormalParameterListopt, FunctionBody, funcEnv, strict, null);
 
     MakeConstructor(closure, null, null);
 

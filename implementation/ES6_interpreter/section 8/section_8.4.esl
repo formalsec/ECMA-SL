@@ -31,8 +31,8 @@ function executeJob(job) {
         PromiseReactionJob(reaction, argument)
       }
       case "ScriptEvaluationJob": {
-        sourceText := l_nth(job.Arguments, 0);
-        ScriptEvaluationJob(sourceText)
+        /*sourceText := l_nth(job.Arguments, 0);*/
+        ScriptEvaluationJob()
       }
       case "TopLevelModuleEvaluationJob": {
         sourceText := l_nth(job.Arguments, 0);
@@ -110,13 +110,13 @@ function NextJob(result) {
 
     /* Let nextQueue be a non-empty Job Queue chosen in an implementation defined manner. If all Job Queues are
     empty, the result is implementation defined. */
-    if ( !(l_len(|PromiseJobQueue|) = 0) ) {
-      nextPending := hd |PromiseJobQueue|;
-      |PromiseJobQueue| := tl |PromiseJobQueue|
-    }
-    elif ( !(l_len(|ScriptJobQueue|) = 0 ) ) {
+    if ( !(l_len(|ScriptJobQueue|) = 0 ) ) {
       nextPending := hd |ScriptJobQueue|;
       |ScriptJobQueue| := tl |ScriptJobQueue|
+    }
+    elif ( !(l_len(|PromiseJobQueue|) = 0) ) {
+      nextPending := hd |PromiseJobQueue|;
+      |PromiseJobQueue| := tl |PromiseJobQueue|
     }
     else {
       return result

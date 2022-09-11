@@ -298,7 +298,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
  * functionPrototype and strict. It also accepts one optional argument,
  * functionKind. FunctionAllocate performs the following steps:
  */
-function FunctionAllocate(Realm, functionPrototype, strict, functionKind) {
+function FunctionAllocate(functionPrototype, strict, functionKind) {
   /* 1. Assert: Type(functionPrototype) is Object. */
   assert(Type(functionPrototype) = "Object");
 
@@ -370,7 +370,7 @@ function FunctionAllocate(Realm, functionPrototype, strict, functionKind) {
 
   /* 14. Set the [[Realm]] internal slot of F to the running execution
      context's Realm. */
-  F.Realm := Realm;
+  F.Realm := topExecStack().Realm;
 
   /* 15. Return F. */
   return F
@@ -443,7 +443,7 @@ function FunctionInitialize(F, kind, ParameterList, Body, Scope) {
  * specified by Scope, a Boolean flag Strict, and optionally, an object
  * prototype. FunctionCreate performs the following steps:
  */
-function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype, Realm) {
+function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype) {
   /* 1. If the prototype argument was not passed, then */
   if (prototype = null) {
     /* a. Let prototype be the intrinsic object %FunctionPrototype%. */
@@ -461,7 +461,7 @@ function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype, Rea
   };
 
   /* 4. Let F be FunctionAllocate(prototype, Strict, allocKind). */
-  F := FunctionAllocate(Realm, prototype, Strict, allocKind);
+  F := FunctionAllocate(prototype, Strict, allocKind);
 
   /* 5. Return FunctionInitialize(F, kind, ParameterList, Body, Scope). */
   return FunctionInitialize(F, kind, ParameterList, Body, Scope)
@@ -476,13 +476,13 @@ function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype, Rea
  * specified by Scope, and a Boolean flag Strict. GeneratorFunctionCreate
  * performs the following steps:
  */
-function GeneratorFunctionCreate(kind, ParameterList, Body, Scope, Strict, Realm) {
+function GeneratorFunctionCreate(kind, ParameterList, Body, Scope, Strict) {
   /* 1. Let functionPrototype be the intrinsic object %Generator%. */
   /* TODO: Add the generator object here. */
   functionPrototype := NewECMAScriptObject();
 
   /* 2. Let F be FunctionAllocate(functionPrototype, Strict, "generator"). */
-  F := FunctionAllocate(Realm, functionPrototype, Strict, "generator");
+  F := FunctionAllocate(functionPrototype, Strict, "generator");
 
   /* 3. Return FunctionInitialize(F, kind, ParameterList, Body, Scope). */
   return FunctionInitialize(F, kind, ParameterList, Body, Scope)
