@@ -106,6 +106,12 @@ function getLetDeclrs(obj1) {
           };
         }
 
+      case "ClassDeclaration":
+        return {
+          stop: true,
+          data: [getParamName(obj2.id)]
+        }
+
       default:
         return {
           stop: false,
