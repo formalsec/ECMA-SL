@@ -2,13 +2,17 @@
 // This code is governed by the BSD license found in the LICENSE file.
 
 /*---
-info: >
-    It is an early Reference Error if LeftHandSideExpression is neither an
-    ObjectLiteral nor an ArrayLiteral and IsValidSimpleAssignmentTarget of
-    LeftHandSideExpression is false.
-es6id: 12.14.1
+esid: sec-assignment-operators-static-semantics-early-errors
+info: |
+    It is an early Syntax Error if LeftHandSideExpression is neither an
+    ObjectLiteral nor an ArrayLiteral and AssignmentTargetType of
+    LeftHandSideExpression is invalid or strict.
 description: Assignment with non-simple target
-negative: ReferenceError
+negative:
+  phase: parse
+  type: SyntaxError
 ---*/
+
+$DONOTEVALUATE();
 
 1 = 1;

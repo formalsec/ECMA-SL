@@ -453,7 +453,7 @@ function JS_Interpreter_Expr(e, scope) {
             conditional and to eliminate the confusing and fairly useless case of a comma expression as the centre expression. */
   }
   | { type: "AssignmentExpression" } -> {
-    /* 11.13 Assignment Operators */
+    /* 12.4 Assignment Operators */
 
     /* The AssignmentExpressionNoIn productions are evaluated in the same manner as the AssignmentExpression
        productions except that the contained ConditionalExpressionNoIn and AssignmentExpressionNoIn are evaluated
@@ -609,64 +609,66 @@ function JS_Interpreter_Expr(e, scope) {
 };
 
 function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
-  print(AssignmentExpression);
-  print(AssignmentExpression.left);
-  print(AssignmentExpression.right);
+
   match AssignmentExpression with
   | { operator: "=", left: LeftHandSideExpression, right: AssignmentExpression } -> {
-    /* 11.13.1 Simple Assignment ( = ) */
+    /**
+    * 12.14.4 Runtime Semantics: Evaluation
+    *
+    * AssignmentExpression[In, Yield] : LeftHandSideExpression[?Yield] = 
+    * AssignmentExpression[?In, ?Yield] 
+    */
 
-    /* The production AssignmentExpression : LeftHandSideExpression = AssignmentExpression is evaluated as follows: */
-     print "DEBUG AE 0";
-
-    /* 1. Let lref be the result of evaluating LeftHandSideExpression. */
-    lref := JS_Interpreter_Expr(LeftHandSideExpression, scope);
-
-    @ReturnIfAbrupt(lref);
-    print "DEBUG AE 1";
-    print lref;
+    /* 1. If LeftHandSideExpression is neither an ObjectLiteral nor an 
+     ArrayLiteral, then */
+    if (!(LeftHandSideExpression.type = "ObjectPattern") &&& !(LeftHandSideExpression.type = "ArrayPattern")) {
     
-    /* 2. Let rref be the result of evaluating AssignmentExpression. */
-    rref := JS_Interpreter_Expr(AssignmentExpression, scope);
-    print "DEBUG AE 2";
-    print rref;
-    @ReturnIfAbrupt(rref);
+      /* a. Let lref be the result of evaluating LeftHandSideExpression. */
+      lref := JS_Interpreter_Expr(LeftHandSideExpression, scope);
 
-    /* 3. Let rval be GetValue(rref). */
-    rval := GetValue(rref);
-    print "DEBUG AE 3";
-    print rval;
-
-    @ReturnIfAbrupt(rval);
-
-    /* 4. Throw a SyntaxError exception if the following conditions are all true: */
-      /* Type(lref) is Reference is true */
-    if ((Type(lref) = "Reference") &&&
-      /* IsStrictReference(lref) is true */
-        (IsStrictReference(lref)) &&&
-      /* Type(GetBase(lref)) is Environment Record */
-        (Type(GetBase(lref)) = "EnvironmentRecord") &&&
-      /* GetReferencedName(lref) is either "eval" or "arguments" */
-        ((GetReferencedName(lref) = "eval") ||| (GetReferencedName(lref) = "arguments")))
-      {
-        throw SyntaxErrorConstructorInternal()
+      /* b. ReturnIfAbrupt(lref). */
+      @ReturnIfAbrupt(lref);
+      /* c. Let rref be the result of evaluating AssignmentExpression. */
+      rref := JS_Interpreter_Expr(AssignmentExpression, scope);
+      /* d. Let rval be GetValue(rref). */
+      rval := GetValue(rref);
+      /* e. If IsAnonymousFunctionDefinition(AssignmentExpression) and 
+        IsIdentifierRef of LeftHandSideExpression are both true, then */
+      if ((IsAnonymousFunctionDefinition(AssignmentExpression) = true) /* &&& (IsIdentifierRef(LeftHandSideExpression) = true)*/) {
+        /* i. Let hasNameProperty be HasOwnProperty(rval, "name"). */
+        hasNameProperty := HasOwnProperty(rval, "name");
+        /* ii. ReturnIfAbrupt(hasNameProperty). */
+        @ReturnIfAbrupt(hasNameProperty);
+        /* iii. If hasNameProperty is false, */
+        if (hasNameProperty = false) {
+          /* perform SetFunctionName(rval, GetReferencedName(lref)) */
+          SetFunctionName(rval, GetReferencedName(lref), null)
+        }
       };
-    /* 5. Call PutValue(lref, rval). */
-
-    print "DEBUG AE 4";
-    print lref;
-    print rval;
-    status := PutValue(lref, rval);
-
-    print "DEBUG AE 5";
-    print(scope);
-    print lref;
-    print rval;
-    print status;
-
-
+      /* f. Let status be PutValue(lref, rval). */
+      status := PutValue(lref, rval);
+      /* g. ReturnIfAbrupt(status). */
+      @ReturnIfAbrupt(status);
+      /* h. Return rval. */
+      return rval
+    };
+    /* 2. Let assignmentPattern be the parse of the source text corresponding to 
+      LeftHandSideExpression using AssignmentPattern[?Yield] as the goal 
+      symbol. */
+    assignmentPattern := LeftHandSideExpression;
+    /* 3. Let rref be the result of evaluating AssignmentExpression. */
+    rref :=  JS_Interpreter_Expr(AssignmentExpression, scope);
+    /* 4. Let rval be GetValue(rref). */
+    rval := GetValue(rref);
+    /* 5. ReturnIfAbrupt(rval). */
+    @ReturnIfAbrupt(rval);
+    /* 6. Let status be the result of performing 
+      DestructuringAssignmentEvaluation of assignmentPattern using rval as 
+      the argument. */
+    status :=  BindingInitialization(assignmentPattern, rval, 'undefined, null);
+    /* 7. ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
-    /* 6. Return rval. */
+    /* 8. Return rval. */
     return rval
 
   /* NOTE When an assignment occurs within strict mode code, its LeftHandSide must not evaluate to an unresolvable
@@ -677,46 +679,29 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
   }
   | { operator: AssignmentOperator, left: LeftHandSideExpression, right: AssignmentExpression } -> {
     /* 11.13.2 Compound Assignment ( op= ) */
-
-    /* The production AssignmentExpression : LeftHandSideExpression AssignmentOperator AssignmentExpression, where
-       AssignmentOperator is @= and @ represents one of the operators indicated above, is evaluated as follows: */
-
     /* 1. Let lref be the result of evaluating LeftHandSideExpression. */
     lref := JS_Interpreter_Expr(LeftHandSideExpression, scope);
     /* 2. Let lval be GetValue(lref). */
     lval := GetValue(lref);
-
+    /* 3. ReturnIfAbrupt(lval). */
     @ReturnIfAbrupt(lval);
-
-    /* 3. Let rref be the result of evaluating AssignmentExpression. */
+    /* 4. Let rref be the result of evaluating AssignmentExpression. */
     rref := JS_Interpreter_Expr(AssignmentExpression, scope);
-    /* 4. Let rval be GetValue(rref). */
+    /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-
+    /* 6. ReturnIfAbrupt(rval). */
     @ReturnIfAbrupt(rval);
-
-    /* 5. Let r be the result of applying operator @ to lval and rval. */
+    /* 7. Let op be the @ where AssignmentOperator is @= */
+    /* op := */
+    /* 8. Let r be the result of applying op to lval and rval as if evaluating 
+      the expression lval op rval. */
     r := applyOperator(AssignmentOperator, lval, rval);
-    /* 6. Throw a SyntaxError exception if the following conditions are all true: */
-      /* Type(lref) is Reference is true */
-    if ((Type(lref) = "Reference") &&
-      /* IsStrictReference(lref) is true */
-        (IsStrictReference(lref)) &&
-      /* Type(GetBase(lref)) is Environment Record */
-        (Type(GetBase(lref)) = "EnvironmentRecord") &&
-      /* GetReferencedName(lref) is either "eval" or "arguments" */
-        ((GetReferencedName(lref) = "eval") || (GetReferencedName(lref) = "arguments")))
-      {
-        throw SyntaxErrorConstructorInternal()
-      };
-    /* 7. Call PutValue(lref, r). */
+    /* 9. Let status be PutValue(lref, r). */
     status := PutValue(lref, r);
-
+    /* 10. ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
-    /* 8. Return r. */
+    /* 11. Return r. */
     return r
-
-    /* NOTE See NOTE 11.13.1. */
   }
 };
 
@@ -2018,10 +2003,6 @@ function JS_Interpreter_Catch(Catch, thrownValue, scope) {
     /* 5. Let status be the result of performing BindingInitialization for CatchParameter 
           passing thrownValue and catchEnv as arguments. */
     status := BindingInitialization(Identifier, thrownValue, {LexicalEnvironment: catchEnv}, null);
-    print(Identifier);
-    print(thrownValue);
-    print(catchEnv);
-    print(catchEnv.EnvRec);
 
     /* 6. If status is an abrupt completion, then */
     if (isAnAbruptCompletion(status)) {
@@ -2401,7 +2382,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     return applyingTheAdditionOperation(lnum, rnum)
   }
   | { type: "BinaryExpression", operator: "-", left: AdditiveExpression, right: MultiplicativeExpression } -> {
-    /* 12.7.4The Subtraction Operator ( - ) */
+    /* 12.7.4 The Subtraction Operator ( - ) */
     /* 1. Let lref be the result of evaluating AdditiveExpression. */
     lref := JS_Interpreter_Expr(AdditiveExpression, scope);
     /* 2. Let lval be GetValue(lref). */
@@ -2642,7 +2623,7 @@ function JS_Interpreter_BinExpr(e, scope) {
     return true
   }
   | { type: "BinaryExpression", operator: "instanceof", left: RelationalExpression, right: ShiftExpression } -> {
-    /* The instanceof operator */
+    /* 12.9.4 The instanceof operator */
 
     /* The production RelationalExpression: RelationalExpression instanceof ShiftExpression is evaluated as follows: */
 
@@ -4106,7 +4087,6 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
     };
     /* d. Let nextValue be IteratorValue(nextResult). */
     nextValue := IteratorValue(nextResult);
-    print(nextValue);
     /* e. ReturnIfAbrupt(nextValue). */
     @ReturnIfAbrupt(nextValue);
     /* f. If lhsKind is either assignment or varBinding, then */
@@ -4115,7 +4095,6 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
       if (destructuring = false) {
         /* 1. Let lhsRef be the result of evaluating lhs ( it may be evaluated 
            repeatedly). */
-        print(lhs);
         if (lhsKind = "varBinding"){
           print(lhs.id);
           /* 13.7.5.14 Runtime Semantics: Evaluation */
@@ -4152,12 +4131,6 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
         /* 2. Let lhsName be the sole element of BoundNames of lhs. */
         lhsName := l_nth(lhs.boundNames, 0);
         /* 3. Let lhsRef be ResolveBinding(lhsName). */
-        print("--ZXCdebug");
-        print(scope);
-        print(getLexicalEnvironment(scope));
-        print(iterationEnv);
-        print(iterationEnv.EnvRec);
-        print(getLexicalEnvironment(scope).EnvRec);
         lhsRef := ResolveBinding(scope, lhsName, null);
         /* 4. Assert: lhsRef is not an abrupt completion. */
         assert(!isAnAbruptCompletion(lhsRef))
@@ -4177,8 +4150,6 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
       }
       /* iii. Else, */
       else {
-        print(lhsRef);
-        print(nextValue);
         /* 1. Let status be PutValue(lhsRef, nextValue). */
         status := PutValue(lhsRef, nextValue)
       }
@@ -4306,6 +4277,9 @@ function HasName(expression){
   return !(expression.id = null)
 };
 
+function IsIdentifierRef(ref){
+  fail "TODO IsIdentifierRef"
+};
 /*
  * 12.14.5.2 Runtime Semantics: DestructuringAssignmentEvaluation
  * with parameter value 
@@ -4354,6 +4328,7 @@ function AssignmentProperty_DestructuringAssignmentEvaluation(AssignmentProperty
   print(AssignmentProperty.key);
   print(AssignmentProperty.value)
 };  
+
 
 /* auxiliary functions */
 function getParamNameFromCatch(codeObj) {
