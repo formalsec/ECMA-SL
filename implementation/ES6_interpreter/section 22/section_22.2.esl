@@ -399,7 +399,7 @@ function initTypedArrayMainConstructor(global, objectPrototype, strict) {
   setJSProperty(fromObj, "name", descName);
 
   /* 22.2.2.2 %TypedArray%.of ( ...items ) */
-  ofObj := CreateBuiltInFunctionObject(["items"], "TypedArrayOf", global, strict, null);
+  ofObj := CreateBuiltInFunctionObject([], "TypedArrayOf", global, strict, null);
   ofDesc := newDataPropertyDescriptorFull(ofObj, true, false, true);
   setJSProperty(typedArrayConstructor, "of", ofDesc);
   /* Length */

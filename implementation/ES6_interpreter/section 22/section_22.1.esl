@@ -657,7 +657,7 @@ function ArrayConstructorLen(args, NewTarget, here) {
 
     /* b. If intLen ≠ len, throw a RangeError exception. */
     if (!(intLen = len)) {
-      throw TypeErrorConstructorInternal()
+      throw RangeErrorConstructorInternal()
     }
   };
 
