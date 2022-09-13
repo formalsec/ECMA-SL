@@ -96,9 +96,6 @@ function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
     throw TypeErrorConstructorInternal()
   };
 
-  value := ToNumber(value);
-  @ReturnIfAbrupt(value);
-
   /* 3. Let numberIndex be ToNumber(requestIndex). */
   numberIndex := ToNumber(requestIndex);
 
@@ -115,6 +112,9 @@ function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
     print getIndex;
     throw RangeErrorConstructorInternal()
   };
+
+  value := ToNumber(value);
+  @ReturnIfAbrupt(value);
 
   /* 7. Let isLittleEndian be ToBoolean(isLittleEndian). */
   isLittleEndian := ToBoolean(isLittleEndian);
