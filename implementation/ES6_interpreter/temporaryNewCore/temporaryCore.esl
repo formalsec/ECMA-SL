@@ -191,12 +191,6 @@ function InitializeBindingDeclarativeRecordTemp(env, N, V) {
   return 'undefined
 };
 
-
-function InitializeBoundName(className, value, env){
-  CreateMutableBindingDeclarative(env, className, value);
-  return true
-};
-
 function newSetAccessorPropertyDescriptorFull(set, enumerable, configurable) {
   desc := NewPropertyDescriptor();
   desc.Set := set;

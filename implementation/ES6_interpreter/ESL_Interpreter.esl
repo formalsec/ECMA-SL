@@ -618,29 +618,24 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
     * AssignmentExpression[?In, ?Yield] 
     */
 
-    /* 1. If LeftHandSideExpression is neither an ObjectLiteral nor an 
-     ArrayLiteral, then */
-    if (!(LeftHandSideExpression.type = "ObjectPattern") &&& !(LeftHandSideExpression.type = "ArrayPattern")) {
-    
+    /* 1. If LeftHandSideExpression is neither an ObjectLiteral nor an ArrayLiteral, then */
+    if (! (IsObjectLiteral(LeftHandSideExpression) ||| IsArrayLiteral(LeftHandSideExpression))) {
       /* a. Let lref be the result of evaluating LeftHandSideExpression. */
       lref := JS_Interpreter_Expr(LeftHandSideExpression, scope);
-
       /* b. ReturnIfAbrupt(lref). */
       @ReturnIfAbrupt(lref);
       /* c. Let rref be the result of evaluating AssignmentExpression. */
       rref := JS_Interpreter_Expr(AssignmentExpression, scope);
       /* d. Let rval be GetValue(rref). */
       rval := GetValue(rref);
-      /* e. If IsAnonymousFunctionDefinition(AssignmentExpression) and 
-        IsIdentifierRef of LeftHandSideExpression are both true, then */
-      if ((IsAnonymousFunctionDefinition(AssignmentExpression) = true) /* &&& (IsIdentifierRef(LeftHandSideExpression) = true)*/) {
+      /* e. If IsAnonymousFunctionDefinition(AssignmentExpression) and IsIdentifierRef of LeftHandSideExpression are both true, then */
+      if (IsAnonymousFunctionDefinition(AssignmentExpression) &&& IsIdentifierRef(LeftHandSideExpression)) {
         /* i. Let hasNameProperty be HasOwnProperty(rval, "name"). */
         hasNameProperty := HasOwnProperty(rval, "name");
         /* ii. ReturnIfAbrupt(hasNameProperty). */
         @ReturnIfAbrupt(hasNameProperty);
-        /* iii. If hasNameProperty is false, */
+        /* iii. If hasNameProperty is false, perform SetFunctionName(rval, GetReferencedName(lref)). */
         if (hasNameProperty = false) {
-          /* perform SetFunctionName(rval, GetReferencedName(lref)) */
           SetFunctionName(rval, GetReferencedName(lref), null)
         }
       };
@@ -1483,41 +1478,21 @@ function JS_Interpreter_Stmt(s, scope) {
     print "VARDECL";
     print scope;
 
-    i := 0;
-    lVarDecl := l_len VariableDeclarationList;
-    while(lVarDecl > i) {
-      next := JS_Interpreter_VarDecl(l_nth(VariableDeclarationList, i), scope);
-      @ReturnIfAbrupt(next);
-      i := i + 1
-    };
-    return NormalCompletion('empty)
-  }
-  | { type: "VariableDeclaration", declarations: VariableDeclarationList} -> {
-    /* 13.3.1 Let and Const Declarations */
-    print("--debugVAR matched LexicalDeclaration");
-
-    /* LexicalDeclaration : LetOrConst BindingList ; */
-    /* 1. Let next be the result of evaluating BindingList. */
-    /* 2. ReturnIfAbrupt(next). */
-    /* 3. Return NormalCompletion(empty). */
-     
-    /* BindingList : BindingList , LexicalBinding */
-    /* 1. Let next be the result of evaluating BindingList. */
-    /* 2. ReturnIfAbrupt(next). */
-    /* 3. Return the result of evaluating LexicalBinding. */
-    print "LEXDECL";
-    print scope;
-
-    i := 0;
-    lVarDecl := l_len VariableDeclarationList;
-    while(lVarDecl > i) {
-      /* 1. Evaluate VariableDeclarationList. */
-      next := JS_Interpreter_LexicalDecl(l_nth(VariableDeclarationList, i), scope);
-      @ReturnIfAbrupt(next);
-      i := i + 1
+    foreach (VariableDeclaration : VariableDeclarationList) {
+      next := JS_Interpreter_VarDecl(VariableDeclaration, scope);
+      @ReturnIfAbrupt(next)
     };
     /* 2. Return (normal, empty, empty).*/
     return NormalCompletion('empty)
+  }
+  | { type: "VariableDeclaration", declarations: BindingList, kind: kind } -> {
+    /* 13.3.1.4 LexicalDeclaration : LetOrConst BindingList */
+    /* 1. Let next be the result of evaluating BindingList. */
+    next := JS_Interpreter_BindingList(BindingList, scope);
+    /* 2. ReturnIfAbrupt(next). */
+    @ReturnIfAbrupt(next);
+    /* 3. Return NormalCompletion(empty). */
+    return NormalCompletion('empty)    
   }
   | { type: "EmptyStatement" } -> {
     /* 13.4 Empty Statement */
@@ -1775,53 +1750,17 @@ function JS_Interpreter_Stmt(s, scope) {
   }
 };
 
-/**
- * 13.2.14 Runtime Semantics: BlockDeclarationInstantiation (code, env)
- *
- * NOTE When a Block or CaseBlock production is evaluated a new declarative 
- * Environment Record is created and bindings for each block scoped variable, 
- * constant, function, generator function, or class declared in the block are 
- * instantiated in the Environment Record. 
- *
- * BlockDeclarationInstantiation is performed as follows using arguments code 
- * and env. code is the grammar production corresponding to the body of the 
- * block. env is the declarative Environment Record in which bindings are to be 
- * created. 
- */
-function BlockDeclarationInstantiation(stmt, env) {
-  /* 1. Let declarations be the LexicallyScopedDeclarations of code. */
-  foreach (d : stmt.letDeclarations){
-      status := {env.CreateMutableBinding}(env, d, false);
-      /* {env.InitializeBinding}(env, d, 'undefined); */
-
-      assert(!(isAnAbruptCompletion(status)))
+function JS_Interpreter_BindingList(BindingList, scope) {
+  /* 13.3.1.4 BindingList : BindingList , LexicalBinding */
+  foreach (LexicalBinding : BindingList) {
+    /* 1. Let next be the result of evaluating BindingList. */
+    next := JS_Interpreter_LexicalDecl(LexicalBinding, scope);
+    /* 2. ReturnIfAbrupt(next). */
+    @ReturnIfAbrupt(next)
   };
-
-  foreach (d : stmt.constDeclarations){
-      status := {env.CreateImmutableBinding}(env, d, true);
-      assert(!(isAnAbruptCompletion(status)))
-  };
-
-  /*constDeclarations := constDeclarations; */
-  
-  /* 2. For each element d in declarations do */
-    /* a. For each element dn of the BoundNames of d do */
-    /* foreach(dn : BoundNames){ */
-      /* i. If IsConstantDeclaration of d is true, then */
-
-      /* 1. Let status be env.CreateImmutableBinding(dn, true). */
-      /* ii. Else, */
-      /* 1. Let status be env.CreateMutableBinding(dn, false). */
-
-      /* iii. Assert: status is never an abrupt completion. */
-    /* b. If d is a GeneratorDeclaration production or a FunctionDeclaration production, then */
-      /* i. Let fn be the sole element of the BoundNames of d */
-      /* ii. Let fo be the result of performing InstantiateFunctionObject for d with argument env. */
-      /* iii. Perform env.InitializeBinding(fn, fo). */
-
-  return
+  /* 3. Return the result of evaluating LexicalBinding. */
+  return next
 };
-
 
 /* 13.6.7 If Statement Runtime Semantics: Evaluation */
 function JS_Interpreter_IfStatement(IfStatement, scope) {
@@ -4275,9 +4214,6 @@ function HasName(expression){
   return !(expression.id = null)
 };
 
-function IsIdentifierRef(ref){
-  fail "TODO IsIdentifierRef"
-};
 /*
  * 12.14.5.2 Runtime Semantics: DestructuringAssignmentEvaluation
  * with parameter value 
@@ -4340,4 +4276,20 @@ function getParamNameFromCatch(codeObj) {
 function isForDeclaration(Statement){
   print(Statement);
   return Statement.type = "VariableDeclarator" &&& (Statement.kind = "let" ||| Statement.kind = "const")
+};
+
+function IsObjectLiteral(arg) {
+  return IsOfType(arg, "ObjectExpression")
+};
+
+function IsArrayLiteral(arg) {
+  return IsOfType(arg, "ArrayExpression")
+};
+
+function IsIdentifierRef(arg) {
+  return IsOfType(arg, "Identifier")
+};
+
+function IsOfType(arg, type) {
+  return ("type" in_obj arg) &&& (arg.type = type)
 }
