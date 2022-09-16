@@ -1,6 +1,42 @@
 /* Auxiliary functions to function calls on ES6 */
 
 /**
+ * 12.3.3.1.1 Runtime Semantics: EvaluateNew(constructProduction, arguments)
+ *
+ * The abstract operation EvaluateNew with arguments constructProduction, and arguments performs the following steps:
+ */
+function EvaluateNew(constructProduction, arguments, scope) {
+  /* 1. Assert: constructProduction is either a NewExpression or a MemberExpression. */
+  memberExpressionTypes := ["NewExpression", "MemberExpression", "Identifier", "CallExpression", "FunctionExpression", "ClassExpression", "Literal"];
+  /* assert(constructProduction.type in_list memberExpressionTypes); */
+  /* 2. Assert: arguments is either empty or an Arguments production. */
+  assert(arguments = 'empty ||| Type(arguments) = "List");
+  /* 3. Let ref be the result of evaluating constructProduction. */
+  ref := JS_Interpreter_Expr(constructProduction, scope);
+  /* 4. Let constructor be GetValue(ref). */
+  constructor := GetValue(ref);
+  /* 5. ReturnIfAbrupt(constructor). */
+  @ReturnIfAbrupt(constructor);
+  /* 6. If arguments is empty, let argList be an empty List. */
+  if (arguments = 'empty) {
+    argList := []
+  }
+  /* 7. Else, */
+  else {
+    /* a. Let argList be ArgumentListEvaluation of arguments. */
+    argList := ArgumentListEvaluation(arguments, scope);
+    /* b. ReturnIfAbrupt(argList). */
+    @ReturnIfAbrupt(argList)
+  };
+  /* 8. If IsConstructor (constructor) is false, throw a TypeError exception. */
+  if (IsConstructor(constructor) = false) {
+    throw TypeErrorConstructorInternal()
+  };
+  /* 9. Return Construct(constructor, argList). */
+  return Construct(scope, ref, constructor, argList, null)
+};
+
+/**
  * 12.3.4.3 Runtime Semantics: EvaluateDirectCall (func, thisValue, arguments, tailPosition)
  *
  * The abstract operation EvaluateDirectCall takes as arguments a value func, a

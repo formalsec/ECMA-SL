@@ -666,7 +666,7 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
   /* 22. Perform DefinePropertyOrThrow(obj, @@iterator, PropertyDescriptor
      {[[Value]]:%ArrayProto_values%, [[Writable]]: true, [[Enumerable]]:
      false, [[Configurable]]: true}). */
-  status1 := DefinePropertyOrThrow(obj, "Symbol.iterator", newDataPropertyDescriptorFull(getArrayPrototype(false), true, false, true));
+  status1 := DefinePropertyOrThrow(obj, getWellKnownSymbol("Symbol.iterator"), newDataPropertyDescriptorFull(|Intrinsics|["ArrayProto_values"], true, false, true));
 
   /* 23. Perform DefinePropertyOrThrow(obj, "callee", PropertyDescriptor
      {[[Value]]: func, [[Writable]]: true, [[Enumerable]]: false,
@@ -714,7 +714,7 @@ function IntegerIndexedGetOwnProperty(O, P) {
       };
       /* iv. Return a PropertyDescriptor{ [[Value]]: value, [[Enumerable]]: true,
          [[Writable]]: true, [[Configurable]]: false }. */
-      return newDataPropertyDescriptorFull(value, true, true, true)
+      return newDataPropertyDescriptorFull(value, true, true, false)
     }
   };
   /* 4. Return OrdinaryGetOwnProperty(O, P). */
@@ -811,12 +811,12 @@ function IntegerIndexedDefineOwnProperty(O, P, Desc) {
       /* ii. Let intIndex be numericIndex. */
       intIndex := numericIndex;
       /* iii. If intIndex = -0, */
-      if (intIndex = -(0.)) {
+      if (isMinusZero(intIndex)) {
         /* return false */
         return false
       };
       /* iv. If intIndex < 0, */
-      if (intIndex < 0) {
+      if (intIndex < 0.) {
         /* return false */
         return false
       };
@@ -1025,34 +1025,33 @@ function IntegerIndexedElementGet(O, index) {
   if (!IsInteger(index)) {
     return 'undefined
   };
-  index := int_of_float index;
   /* 6. If index = -0, */
   if (isMinusZero(index)) {
     /* return undefined */
     return 'undefined
   };
   /* 7. Let length be the value of O's [[ArrayLength]] internal slot. */
-  length := int_of_float O.ArrayLength;
+  length := O.ArrayLength;
   /* 8. If index < 0 or index ≥ length, */
-  if ((index < 0) ||| (index >= length)) {
+  if ((index < 0.) ||| (index >= length)) {
     /* return undefined */
     return 'undefined
   };
   /* 9. Let offset be the value of O's [[ByteOffset]] internal slot. */
-  offset := int_of_float O.ByteOffset;
+  offset := O.ByteOffset;
   /* 10. Let arrayTypeName be the String value of O's [[TypedArrayName]]
      internal slot. */
   arrayTypeName := O.TypedArrayName;
   /* 11. Let elementSize be the Number value of the Element Size value
      specified in Table 49 for arrayTypeName. */
-  elementSize := int_of_float |ElementTable|[arrayTypeName].size;
+  elementSize := |ElementTable|[arrayTypeName].size;
   /* 12. Let indexedPosition = (index × elementSize) + offset. */
   indexedPosition := (index * elementSize) + offset;
   /* 13. Let elementType be the String value of the Element Type value in Table
      49 for arrayTypeName. */
   elementType := |ElementTable|[arrayTypeName].type;
   /* 14. Return GetValueFromBuffer(buffer, indexedPosition, elementType). */
-  return GetValueFromBuffer(buffer, indexedPosition, elementType, 'undefined)
+  return GetValueFromBuffer(buffer, int_of_float indexedPosition, elementType, 'undefined)
 };
 
 /**
@@ -1083,27 +1082,26 @@ function IntegerIndexedElementSet(O, index, value) {
   if (!IsInteger(index)) {
     return false
   };
-  index := int_of_float index;
   /* 8. If index = -0, */
-  if (index = -(0)) { /* TODO oper.ml sign operator */
+  if (isMinusZero(index)) {
     /* return false */
-    /* return false 0 = -0 */ 
+    return false
   };
   /* 9. Let length be the value of O's [[ArrayLength]] internal slot. */
-  length := int_of_float O.ArrayLength;
+  length := O.ArrayLength;
   /* 10. If index < 0 or index ≥ length, */
-  if ((index < 0) ||| (index >= length)) {
+  if ((index < 0.) ||| (index >= length)) {
     /* return false */
     return false
   };
   /* 11. Let offset be the value of O's [[ByteOffset]] internal slot. */
-  offset := int_of_float O.ByteOffset;
+  offset := O.ByteOffset;
   /* 12. Let arrayTypeName be the String value of O's [[TypedArrayName]]
      internal slot. */
   arrayTypeName := O.TypedArrayName;
   /* 13. Let elementSize be the Number value of the Element Size value
      specified in Table 49 for arrayTypeName. */
-  elementSize := int_of_float |ElementTable|[arrayTypeName].size;
+  elementSize := |ElementTable|[arrayTypeName].size;
   /* 14. Let indexedPosition = (index × elementSize) + offset. */
   indexedPosition := (index * elementSize) + offset;
   /* 15. Let elementType be the String value of the Element Type value in Table
@@ -1111,7 +1109,7 @@ function IntegerIndexedElementSet(O, index, value) {
   elementType := |ElementTable|[arrayTypeName].type;
   /* 16. Perform SetValueInBuffer(buffer, indexedPosition, elementType,
      numValue). */
-  SetValueInBuffer(buffer, indexedPosition, elementType, numValue, 'undefined);
+  SetValueInBuffer(buffer, int_of_float indexedPosition, elementType, numValue, 'undefined);
   /* 17. Return true. */
   return true
 };

@@ -14,7 +14,7 @@ function DefineMethodAlt(scope, object, method, functionPrototype){
 function DefineMethodProperty(scope, object, propertyName, func, functionPrototype){
   
   /* 1. Let propKey be the result of evaluating PropertyName. */
-  propKey := EvaluateMethod(propertyName, scope);
+  propKey := JS_Interpreter_PropertyName(propertyName, scope);
 
   /* 2. ReturnIfAbrupt(propKey). */
   @ReturnIfAbrupt(propKey);
@@ -42,30 +42,14 @@ function DefineMethodProperty(scope, object, propertyName, func, functionPrototy
   MakeMethod(closure, object);
 
   /* 8. Return the Record{[[key]]: propKey, [[closure]]: closure}. */
-  propKey := ToString(propKey);
+  /* propKey := ToString(propKey); */
   return {key: propKey, closure: closure}
 };
 
 function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPropertyDefinition){
-    
+
     match methodPropertyDefinition with
-    | { type: "MethodDefinition", kind: "method", key: key, value: func} -> {
-        /* 1. Let methodDef be DefineMethod of MethodDefinition with argument object. */
-        methodDef := DefineMethodProperty(scope, object, key, func, null);
-        
-        /* 2. ReturnIfAbrupt(methodDef). */
-        @ReturnIfAbrupt(methodDef);
-
-        /* 3. Perform SetFunctionName(methodDef.[[closure]], methodDef.[[key]]). */
-        SetFunctionName(methodDef.closure, methodDef.key, null);
-
-        /* 4. Let desc be the Property Descriptor{[[Value]]: methodDef.[[closure]], [[Writable]]: true, [[Enumerable]]: enumerable, [[Configurable]]: true}. */
-        desc := newDataPropertyDescriptorFull(methodDef.closure, true, enumerable, true);
-
-        /* 5. Return DefinePropertyOrThrow(object, methodDef.[[key]], desc). */
-        return DefinePropertyOrThrow(object, methodDef.key, desc)
-    }
-    | {type: "MethodDefinition", kind: "get", key: key, value: func} -> {
+    | { kind: "get", key: key, value: func} -> {
         /* 1. Let propKey be the result of evaluating PropertyName. */
         propKey := EvaluateMethod(key, scope);
 
@@ -99,7 +83,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
         /* 10. Return DefinePropertyOrThrow(object, propKey, desc). */
         return DefinePropertyOrThrow(object, propKey, desc)
     }
-    | {type: "MethodDefinition", kind: "set", key: key, value: func} -> {
+    | { kind: "set", key: key, value: func} -> {
         /* 1. Let propKey be the result of evaluating PropertyName. */
         propKey := EvaluateMethod(key, scope);
 
@@ -130,6 +114,26 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
         /* 9. Return DefinePropertyOrThrow(object, propKey, desc). */
         return DefinePropertyOrThrow(object, propKey, desc)
 
+    }
+    | { key: key, value: func} -> {
+        /* 1. Let methodDef be DefineMethod of MethodDefinition with argument object. */
+        methodDef := DefineMethodProperty(scope, object, key, func, null);
+        
+        /* 2. ReturnIfAbrupt(methodDef). */
+        @ReturnIfAbrupt(methodDef);
+
+        /* 3. Perform SetFunctionName(methodDef.[[closure]], methodDef.[[key]]). */
+        SetFunctionName(methodDef.closure, methodDef.key, null);
+
+        /* 4. Let desc be the Property Descriptor{[[Value]]: methodDef.[[closure]], [[Writable]]: true, [[Enumerable]]: enumerable, [[Configurable]]: true}. */
+        desc := newDataPropertyDescriptorFull(methodDef.closure, true, enumerable, true);
+
+        /* 5. Return DefinePropertyOrThrow(object, methodDef.[[key]], desc). */
+        return DefinePropertyOrThrow(object, methodDef.key, desc)
+    }
+    | default -> {
+        print methodPropertyDefinition;
+        fail "MethodPropertyDefinitionEvaluation"
     }
 };
 

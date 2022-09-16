@@ -10,46 +10,13 @@ function JS_Interpreter_ClassEvaluationExports(scope, BindingIdentifier, ClassHe
 };
 
 function JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt){
-    /* 1. If BindingIdentifieropt is not present, */
-    lex := getLexicalEnvironment(scope);
-    envRec := getEnvironmentRecord(lex);
-    if (BindingIdentifier = null) {
-        /* let className be undefined */
-        className := 'undefined
-    }
-    /* 2. Else, */
-    else {
-        /* let className be StringValue of BindingIdentifier */
-        className := StringValue(BindingIdentifier);
-        {envRec.CreateMutableBinding}(envRec, className, true);
-        {envRec.InitializeBinding}(envRec, className, true)
-    };
-
-    /* 3. Let value be the result of ClassDefinitionEvaluation of ClassTail with 
-        argument className. */
-    value := ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBodyopt);
-
-    /* 4. ReturnIfAbrupt(value). */
-    @ReturnIfAbrupt(value);
-
-    /* 5. If className is not undefined, then */
-    if (!(className = 'undefined)) {
-        /* a. Let hasNameProperty be HasOwnProperty(value, "name"). */
-        hasNameProperty := HasProperty(value, "name");
-        /* b. ReturnIfAbrupt(hasNameProperty). */
-        @ReturnIfAbrupt(hasNameProperty);
-        /* c. If hasNameProperty is false, then */
-        if (hasNameProperty = false) {
-        /* i. Perform SetFunctionName(value, className). */
-            SetFunctionName(value, className, null)
-        }
-    };
-
-
-    status :=  {envRec.SetMutableBinding}(envRec, className, value, false);
-
-    /* 6. Return NormalCompletion(value). */
-    return NormalCompletion(value)
+    /* 14.5.16 ClassDeclaration : class BindingIdentifier ClassTail */
+    /* 1. Let status be the result of BindingClassDeclarationEvaluation of this ClassDeclaration. */
+    status := BindingClassDeclarationEvaluation({id : BindingIdentifier, body: ClassBodyopt, superClass: ClassHeritageopt}, scope);
+    /* 2. ReturnIfAbrupt(status). */
+    @ReturnIfAbrupt(status);
+    /* 3. Return NormalCompletion(empty). */
+    return NormalCompletion('empty)
 };
 
 
@@ -186,12 +153,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     methods := allMethods.regularMethods;
 
     /* 21. For each ClassElement m in order from methods */
-    i := 0;
-    len := l_len methods;
-
-    while(i < len){
-        m := l_nth(methods, i);
-
+    foreach(m : methods) {
         /* 21a. If IsStatic of m is false, then */
         if (m.static = false){
             /* 21a i. Let status be the result of performing PropertyDefinitionEvaluation for m with arguments proto and false. */
@@ -213,9 +175,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
                 return Completion(status)
             }
             
-        };
-        
-        i := i + 1
+        }
     };
 
     /* 22. Set the running execution context’s LexicalEnvironment to lex. */
@@ -230,6 +190,48 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     /* 24. Return F. */
     return F
 
+};
+
+/**
+ * 14.5.15 Runtime Semantics: BindingClassDeclarationEvaluation
+ */
+function BindingClassDeclarationEvaluation(ClassDeclaration, scope) {
+    match ClassDeclaration with
+    | {id: BindingIdentifier, body: ClassTail, superClass: ClassHeritage} -> {
+        /* ClassDeclaration : class BindingIdentifier ClassTail */
+        /* 1. Let className be StringValue of BindingIdentifier. */
+        className := BindingIdentifier.name;
+        /* 2. Let value be the result of ClassDefinitionEvaluation of ClassTail with argument className. */
+        value := ClassDefinitionEvaluation(scope, className, ClassHeritage, ClassTail);
+        /* 3. ReturnIfAbrupt(value). */
+        @ReturnIfAbrupt(value);
+        /* 4. Let hasNameProperty be HasOwnProperty(value, "name"). */
+        hasNameProperty := HasOwnProperty(value, "name");
+        /* 5. ReturnIfAbrupt(hasNameProperty). */
+        @ReturnIfAbrupt(hasNameProperty);
+        /* 6. If hasNameProperty is false, then perform SetFunctionName(value, className). */
+        if (hasNameProperty = false) {
+            SetFunctionName(value, className, null)
+        };
+        /* 7. Let env be the running execution context’s LexicalEnvironment. */
+        env := getLexicalEnvironment(scope);
+        /* 8. Let status be InitializeBoundName(className, value, env). */
+        status := InitializeBoundName(className, value, env, scope);
+        /* 9. ReturnIfAbrupt(status). */
+        @ReturnIfAbrupt(status);
+        /* 10. Return value. */
+        return value
+    }
+    | {id: null, body: ClassTail, superClass: ClassHeritage} -> {
+        /* ClassDeclaration : class ClassTail */
+        /* 1. Return the result of ClassDefinitionEvaluation of ClassTail with argument undefined. */
+        return ClassDefinitionEvaluation(scope, 'undefined, ClassHeritage, ClassTail)
+        /**
+         * NOTE ClassDeclaration : class ClassTail only occurs as part of an ExportDeclaration and
+         * the setting of a name property and establishing its binding are handled as part of the
+         * evaluation action for that production. See 15.2.3.11.
+         */
+    }
 };
 
 function getSeparateMethods(body){

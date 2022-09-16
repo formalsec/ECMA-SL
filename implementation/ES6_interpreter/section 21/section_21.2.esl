@@ -24,15 +24,15 @@ function initRegExpObject(globalObject, ObjectPrototype, strict){
 
    /* 21.2.4.2 get RegExp [ @@species ] */
    species := CreateBuiltInFunctionObject([], "getRegExpSpecies", globalObject, strict, null);
+   /* length */
+   createBuiltInPropertyWithFullDescriptor(species, "length", 0., false, false, true);
+   /* The value of the name property of this function is "get [Symbol.species]". */
+   createBuiltInPropertyWithFullDescriptor(species, "name", "get [Symbol.species]", false, false, true);
+   setInternalProperty(species, "Construct", "RegExpConstructor");
+
    species_desc := newGetAccessorPropertyDescriptorFull(species, false, true);
    /* setJSProperty(regExpConstructor, getSpeciesPropertyName(), species_desc); */
-   setInternalProperty(species, "Construct", "RegExpConstructor");
-   createBuiltInProperty(regExpConstructor, getSpeciesPropertyName(), species);
-
-   /* length */
-   setJSProperty(species, "length", newDataPropertyDescriptorFull(0., false, false, true));
-   /* The value of the name property of this function is "get [Symbol.species]". */
-   setJSProperty(species, "name", newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true));
+   setJSProperty(regExpConstructor, getSpeciesPropertyName(), species_desc);   
 
    /* 21.2.6.1 lastIndex */
    /**
@@ -505,7 +505,7 @@ function EscapeRegExpPattern(P, F){
  * NOTE RegExp prototype methods normally use their this object’s constructor to create a derived object. 
  * However, a subclass constructor may over-ride that default behaviour by redefining its @@species property.
  */
-function getRegExpSpecies(global, strict, this, args){
+function getRegExpSpecies(global, this, NewTarget, strict, args){
    /* 1. Return the this value. */
    return this
 };

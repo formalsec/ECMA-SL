@@ -192,6 +192,9 @@ function OrdinaryFunctionConstruct(externalScope, ref, F, argumentList, newTarge
   print "Chamei o call";
 
   result := {F.Call}(externalScope, ref, F, obj, newTarget, argumentList);
+
+  @ReturnIfAbrupt(result);
+
   /* 9. If Type(result) is Object then return result. */
   if (Type(result) = "Object") {
     return result
@@ -237,6 +240,46 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
   setInternalProperty(F, "internalLength", 0.);
 
   return F
+};
+
+/**
+ * 13.2.14 Runtime Semantics: BlockDeclarationInstantiation (code, env)
+ *
+ * NOTE When a Block or CaseBlock production is evaluated a new declarative 
+ * Environment Record is created and bindings for each block scoped variable, 
+ * constant, function, generator function, or class declared in the block are 
+ * instantiated in the Environment Record. 
+ *
+ * BlockDeclarationInstantiation is performed as follows using arguments code 
+ * and env. code is the grammar production corresponding to the body of the 
+ * block. env is the declarative Environment Record in which bindings are to be 
+ * created. 
+ */
+function BlockDeclarationInstantiation(code, env) {
+  /* 1. Let declarations be the LexicallyScopedDeclarations of code. */
+  declarations := LexicallyScopedDeclarations(code);
+  /* 2. For each element d in declarations do */
+  foreach (d : declarations) {
+    /* a. For each element dn of the BoundNames of d do */
+    /* foreach(dn : BoundNames){ */
+      /* i. If IsConstantDeclaration of d is true, then */
+      if (IsConstantDeclaration(d)) {
+        /* 1. Let status be env.CreateImmutableBinding(dn, true). */
+        status := {env.CreateImmutableBinding}(env, d.name, true)
+      }      
+      /* ii. Else, */
+      else {
+        /* 1. Let status be env.CreateMutableBinding(dn, false). */
+        status := {env.CreateMutableBinding}(env, d.name, false)
+      };
+      /* iii. Assert: status is never an abrupt completion. */
+      assert(!isAnAbruptCompletion(status))
+    /* b. If d is a GeneratorDeclaration production or a FunctionDeclaration production, then */
+      /* i. Let fn be the sole element of the BoundNames of d */
+      /* ii. Let fo be the result of performing InstantiateFunctionObject for d with argument env. */
+      /* iii. Perform env.InitializeBinding(fn, fo). */
+  };
+  return
 };
 
 /* Unless otherwise specified in the description of a particular function, if a function or constructor described in

@@ -749,8 +749,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   varDeclarations := varNames;
 
   /* 13. Let lexicalNames be the LexicallyDeclaredNames of code. */
-  /* TODO: LexicallyDeclaredNames. */
-  lexicalNames := varNames;
+  lexicalNames := getLexicallyDeclaredNames(code);
 
   /* 14. Let functionNames be an empty List. */
   functionNames := [];
@@ -839,10 +838,10 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     assert(!(isAnAbruptCompletion(status)));
 
     /* g. Call envRec.InitializeBinding("arguments", ao). */
-    {envRec.InitializeBinding}(envRec, "arguments", ao)
+    {envRec.InitializeBinding}(envRec, "arguments", ao);
     
     /*h. Append "arguments" to parameterNames. */
-    /*parameterNames := l_add(parameterNames, "arguments") */
+    parameterNames := l_add(parameterNames, "arguments")
   };
   /* 23. Let iteratorRecord be Record {[[iterator]]:
         CreateListIterator(argumentsList), [[done]]: false}. */
@@ -978,23 +977,28 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
   calleeContext.LexicalEnvironment := lexEnv;
 
   /* 34. Let lexDeclarations be the LexicallyScopedDeclarations of code. */
-  /* TODO */
+  lexDeclarations := LexicallyScopedDeclarations(code);
 
   /* 35. For each element d in lexDeclarations do */
-  /* TODO */
-  print("debug1234Func");
-  print(func);
-  print(func.ECMAScriptCode);
-  foreach (d : getLetDeclarationsInCode(func.ECMAScriptCode)){
-    print("inside loop;");
-    status := {lexEnvRec.CreateMutableBinding}(lexEnvRec, d, false);
-    @ReturnIfAbrupt(status)
+  foreach(d : lexDeclarations) {
+    /* a. NOTE A lexically declared name cannot be the same as a function/generator declaration, formal parameter, or a var name. Lexically declared names are only instantiated here but not initialized. */
+    /* b. For each element dn of the BoundNames of d do */
+    
+      /* i. If IsConstantDeclaration of d is true, then */
+      if (IsConstantDeclaration(d)) {
+        /* 1. Let status be lexEnvRec.CreateImmutableBinding(dn, true). */
+        status := {lexEnvRec.CreateImmutableBinding}(lexEnvRec, d.name, true)
+      }        
+      /* ii. Else, */
+      else {
+        /* 1. Let status be lexEnvRec.CreateMutableBinding(dn, false). */
+        status := {lexEnvRec.CreateMutableBinding}(lexEnvRec, d.name, false)
+      };
+  
+    /* c. Assert: status is never an abrupt completion. */
+    assert(!isAnAbruptCompletion(status))
   };
 
-  foreach (d :  getConstDeclarationsInCode(func.ECMAScriptCode)){
-    status := {lexEnvRec.CreateImmutableBinding}(lexEnvRec, d, true);
-    @ReturnIfAbrupt(status)
-  };
   /* 36. For each parsed grammar phrase f in functionsToInitialize, do */
   i := 0;
   lfunctionsToInitialize := l_len functionsToInitialize;

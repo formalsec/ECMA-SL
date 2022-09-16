@@ -352,7 +352,7 @@ function RegExpPrototypeExec(global, this, NewTarget, strict, args) {
   n := int_to_float r.caps.len;
   /* 13. Let A be a new array created as if by the expression new Array()
     where Array is the standard built-in constructor with that name. */
-  A := ArrayConstructor(global, this, 'undefined, strict, []);
+  A := ArrayConstructor(global, 'undefined, |Intrinsics|["Array"], strict, [], |Intrinsics|["Array"]);
   /* 14. Let matchIndex be the position of the matched substring within
     the complete String S. */
   matchIndex := int_to_float i;
