@@ -4266,11 +4266,11 @@ function isForDeclaration(Statement){
 };
 
 function IsObjectLiteral(arg) {
-  return IsOfType(arg, "ObjectExpression")
+  return IsOfType(arg, "ObjectExpression") || IsOfType(arg, "ObjectPattern")
 };
 
 function IsArrayLiteral(arg) {
-  return IsOfType(arg, "ArrayExpression")
+  return IsOfType(arg, "ArrayExpression")  || IsOfType(arg, "ArrayPattern")
 };
 
 function IsIdentifierRef(arg) {
