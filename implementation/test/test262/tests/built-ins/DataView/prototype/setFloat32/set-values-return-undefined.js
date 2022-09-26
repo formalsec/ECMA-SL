@@ -46,7 +46,7 @@ var expectedValues = byteConversionValues.expected.Float32;
 values.forEach(function(value, i) {
   var result;
   var expected = expectedValues[i];
-
+  console.log(i);
   result = sample.setFloat32(0, value, false);
 
   assert.sameValue(

@@ -190,7 +190,7 @@ function symbolFor(global, this, NewTarget, strict, args) {
   newSymbol := InternalSymbolConstructor(stringKey);
 
   /* 6. Append the record { [[key]]: stringKey, [[symbol]]: newSymbol } to the GlobalSymbolRegistry List. */
-  |GlobalSymbolRegistry|[stringKey] := {key: stringKey, symbol: newSymbol};
+  |GlobalSymbolRegistry|[stringKey] := {key: stringKey, symbol: newSymbol, wellknown: false};
 
   /* 7. Return newSymbol. */
   return newSymbol
@@ -209,7 +209,10 @@ function symbolKeyFor(global, this, NewTarget, strict, args) {
   /* 2. For each element e of the GlobalSymbolRegistry List (see 19.4.2.1), */
     /* 2a. If SameValue(e.[[symbol]], sym) is true, return e.[[key]]. */
   if (sym.Description in_obj |GlobalSymbolRegistry|) {
-    return |GlobalSymbolRegistry|[sym.Description].key
+    record := |GlobalSymbolRegistry|[sym.Description];
+    if (record.wellknown = false) {
+      return record.key
+    }
   };
 
   /* 3. Assert: GlobalSymbolRegistry does not currently contain an entry for sym. */

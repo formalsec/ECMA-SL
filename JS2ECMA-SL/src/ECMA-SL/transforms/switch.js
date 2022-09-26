@@ -1,3 +1,6 @@
+const getLetDeclarations = require("../utils/getDeclarations").getLetDeclarations;
+const getConstDeclarations = require("../utils/getDeclarations").getConstDeclarations;
+
 module.exports = {
   /**
    * Transform a Esprima SwitchStatement in a slightly different object that better fits the needs of
@@ -13,7 +16,6 @@ module.exports = {
     const casesA = [];
     const casesB = [];
     let defaultCase = null;
-
     obj.cases.forEach((caze) => {
       if (defaultCase === null && caze.test) {
         casesA.push(caze);
@@ -27,6 +29,8 @@ module.exports = {
     newObj.cases.push(casesA);
     newObj.cases.push(defaultCase);
     newObj.cases.push(casesB);
+    newObj.letDeclarations = getLetDeclarations(obj)
+    newObj.constDeclarations = getConstDeclarations(obj)
 
     return newObj;
   },

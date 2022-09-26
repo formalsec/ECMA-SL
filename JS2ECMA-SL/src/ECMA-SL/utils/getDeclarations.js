@@ -1,5 +1,6 @@
 const traverse = require("./traverse");
 const mapper = require("./mapper");
+const getParamName = require("../utils/getParamsNames").getParamName;
 
 module.exports = {
   getVarDeclarations: getVarDeclrs,
@@ -33,7 +34,7 @@ function getVarDeclrs(obj) {
         
         if (obj.kind == "var") {
           const vars = obj.declarations.reduce(
-            (acc, declr) => acc.concat(declr.id.name),
+            (acc, declr) => acc.concat(getParamName(declr.id)),
             []
           );
 
@@ -90,7 +91,7 @@ function getLetDeclrs(obj1) {
         
         if (obj2.kind == "let") {
           const vars = obj2.declarations.reduce(
-            (acc, declr) => acc.concat(declr.id.name),
+            (acc, declr) => acc.concat(getParamName(declr.id)),
             []
           );
 
@@ -103,6 +104,12 @@ function getLetDeclrs(obj1) {
             stop: true,
             data: [],
           };
+        }
+
+      case "ClassDeclaration":
+        return {
+          stop: true,
+          data: [getParamName(obj2.id)]
         }
 
       default:
@@ -144,7 +151,7 @@ function getConstDeclrs(obj1) {
         
         if (obj2.kind == "const") {
           const vars = obj2.declarations.reduce(
-            (acc, declr) => acc.concat(declr.id.name),
+            (acc, declr) => acc.concat(getParamName(declr.id)),
             []
           );
 

@@ -201,7 +201,7 @@ function ToNumber( argument ) {
 
 		case "Number": { return argument }
 
-		case "String": { return float_of_string argument }
+		case "String": { return MV(argument) }
 
 		case "Symbol": { throw TypeErrorConstructorInternal() }
 
@@ -213,6 +213,16 @@ function ToNumber( argument ) {
 			return ToNumber(primValue)
     }
   }
+};
+
+/* 7.1.3.1 ToNumber Applied to the String Type */
+/* 7.1.3.1.1 Runtime Semantics: MV’s */
+function MV(str) {
+  str := trim str;
+  if ((s_len str) = 0) {
+    return 0.
+  };
+  return float_of_string str
 };
 
 /**

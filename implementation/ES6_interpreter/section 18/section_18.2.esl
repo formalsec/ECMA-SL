@@ -199,6 +199,17 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   /* TODO - Lexically Scoped Declarations of body */
   /* 12. Let lexDeclarations be the LexicallyScopedDeclarations of body. */
   /* 13. For each element d in lexDeclarations do */
+    foreach (d : getLetDeclarationsInCode(body)){
+        status := {lexEnvRec.CreateMutableBinding}(lexEnvRec, d, false);
+
+        @ReturnIfAbrupt(status)
+    };
+
+    foreach (d :  getConstDeclarationsInCode(body)){
+        status := {lexEnvRec.CreateImmutableBinding}(lexEnvRec, d, true);
+        @ReturnIfAbrupt(status)
+    };
+
 
   /* 14. For each production f in functionsToInitialize, do */
   functionsToInitialize_l := l_len(functionsToInitialize);

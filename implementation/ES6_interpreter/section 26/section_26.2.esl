@@ -111,6 +111,7 @@ function proxyRevocable(global, this, NewTarget, strict, args) {
 
     /* 3. Let revoker be a new built-in function object as defined in 26.2.2.1.1. */
     revoker := CreateBuiltInFunctionObject([], "ProxyRevocation", global, strict, 0.);
+    createBuiltInPropertyWithFullDescriptor(revoker, "name", "", false, false, true);
 
     /* 4. Set the [[RevocableProxy]] internal slot of revoker to p. */
     revoker.RevocableProxy := p;

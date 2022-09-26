@@ -180,10 +180,11 @@ function setFunctionPropertiesOfMathObject(mathObject, globalObject, strict) {
   descriptor := newDataPropertyDescriptorFull("fround", false, false, true);
   setJSProperty(fround_fo, "name", descriptor);
   /* 20.2.2.18 Math.hypot ( value1 , value2 , …values ) */
-  hypot_fo := CreateBuiltInFunctionObject(["value1", "value2"], "MathHypot", globalObject, strict, null);
+  hypot_fo := CreateBuiltInFunctionObject(["value1"], "MathHypot", globalObject, strict, null);
   createBuiltInProperty(mathObject, "hypot", hypot_fo);
   descriptor := newDataPropertyDescriptorFull("hypot", false, false, true);
   setJSProperty(hypot_fo, "name", descriptor);
+  setJSProperty(hypot_fo, "length", newDataPropertyDescriptorFull(2., false, false, true));
   /* 20.2.2.19 Math.imul ( x, y ) */
   imul_fo := CreateBuiltInFunctionObject(["x", "y"], "MathImul", globalObject, strict, null);
   createBuiltInProperty(mathObject, "imul", imul_fo);
@@ -907,8 +908,19 @@ function MathRound(globalObject, this, NewTarget, stric, params) {
   Math.round(3.5) returns 4, but Math.round(–3.5) returns –3. */
   /* NOTE 2 
   The value of Math.round(x) is not always the same as the value of Math.floor(x+0.5). When x is −0 or is less than 0 but greater than or equal to -0.5, Math.round(x) 
-  returns −0, but Math.floor(x+0.5) returns +0. Math.round(x) may also differ from the value of Math.floor(x+0.5)because of internal rounding when computing x+0.5. */
-  return -(ceil (-(x + 0.5)))
+  returns −0, but Math.floor(x+0.5) returns +0. Math.round(x) may also differ from the value of Math.floor(x+0.5)because of internal rounding when computing x+0.5. */ 
+  
+  ceil_number := ceil(x);
+  floor_number := -ceil (-(x));
+
+  if ((ceil_number - x) <= (x - floor_number)){
+    return ceil_number
+  }
+  else {
+    return floor_number
+  }
+  
+  /*return -(ceil (-(x + 0.5)))*/
 };
 
 /* 20.2.2.29 Math.sign(x) */
@@ -1039,5 +1051,10 @@ function MathTrunc(globalObject, this, NewTarget, strict, params) {
   if (x < 0. &&& x > -(1.)) {
     return -(0.)
   };
-  return int_to_float(int_of_float x)
+  if (x < 0.){
+    return ceil (x)
+  }
+  else {
+    return -ceil(-x)
+  }
 }

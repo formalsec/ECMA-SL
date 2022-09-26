@@ -649,13 +649,151 @@ function OrdinaryObjectDelete(O, P) {
  * 
  * TODO falta implementar iterators
 */
-function OrdinaryObjectEnumerate(O) {
+
+ /*
+  function* enumerate(obj) {
+  let visited=new Set;
+  for (let key of Reflect.ownKeys(obj)) {
+      if (typeof key === "string") {
+          let desc = Reflect.getOwnPropertyDescriptor(obj,key);
+          if (desc) {
+              visited.add(key);
+              if (desc.enumerable) yield key;
+          }
+      }
+  }
+  let proto = Reflect.getPrototypeOf(obj)
+  if (proto === null) return;
+  for (let protoName of Reflect.enumerate(proto)) {
+      if (!visited.has(protoName)) yield protoName;
+  }
+}
+  */
+function OrdinaryObjectEnumerateAux(O) {
 	/* Return an Iterator object (25.1.1.2) whose next method iterates over all the String-valued keys of
 	enumerable properties of O. The Iterator object must inherit from %IteratorPrototype% (25.1.2). The
 	mechanics and order of enumerating the properties is not specified but must conform to the rules
 	specified below.*/
+
+  retKeys := [];   
+  visited := {}; 
+
+  ownKeys := {O.OwnPropertyKeys}(O);
+
+  print("debugOwnKeys");
+  print(O.OwnPropertyKeys);
+  print(ownKeys);
+
+  foreach (k : ownKeys) {
+    if ((typeof k) = __$Str) {
+    /*if (Type(k) = "String") {*/
+      desc_k := {O.GetOwnProperty}(O, k);
+      visited[k] := true;
+      if (isEnumerablePropertyDescriptor(desc_k)) {
+        retKeys := l_add (retKeys, k)
+      }
+    }
+  }; 
+
+  proto := O.Prototype; 
+  if ((!(proto = 'null)) &&& (!(proto = 'undefined))) {
+    protoKeys := OrdinaryObjectEnumerateAux(proto);
+    foreach (k : protoKeys) {
+      if (!(k in_obj visited)) {
+        visited[k] := true; 
+        retKeys := l_add (retKeys, k)
+      }
+    }
+  };
+  
+  print("debugKeys");
+  print(retKeys);
+  return retKeys 
 };
 
+function OrdinaryObjectEnumerate(O) {
+    return ObjectIteratorConstructor(OrdinaryObjectEnumerateAux(O), O)
+};
+
+function initObjectIteratorPrototype(global, objectPrototype, strict) { 
+  prototype := NewECMAScriptObjectFull(|Intrinsics|.IteratorPrototype, "Object", true);
+  setAllInternalMethodsOfOrdinaryObject(prototype);
+
+  /* 23.2.5.2.1 %SetIteratorPrototype%.next ( )*/
+  nextObject := CreateBuiltInFunctionObject([], "objectIteratorPrototypeNext", global, strict, null);
+  descriptor := newDataPropertyDescriptorFull(nextObject, true, false, true);
+  setJSProperty(prototype, "next", descriptor);
+  setJSProperty(nextObject, "length", newDataPropertyDescriptorFull(0., false, false, true));
+  setJSProperty(nextObject, "name", newDataPropertyDescriptorFull("next", false, false, true));
+
+  /* 23.2.5.2.2 %SetIteratorPrototype% [ @@toStringTag ]*/
+  descriptor := newDataPropertyDescriptorFull("Object Iterator", false, false, true);
+  setJSProperty(prototype, getToStringTagPropertyName(), descriptor); 
+
+  return prototype
+};
+
+function ObjectIteratorConstructor(properties, Obj){
+    
+  /* 3. Let iterator be ObjectCreate(%SetIteratorPrototype%, «‍[[IteratedSet]], [[SetNextIndex]], [[SetIterationKind]]»). */
+  iterator := ObjectCreate(|Intrinsics|.ObjectIteratorPrototype, ["IteratedObject", "ObjectNextIndex", "IteratedProperties"]);
+
+  /* 4. Set iterator’s [[IteratedSet]] internal slot to set. */
+  iterator.IteratedObject := Obj;
+
+  /* 5. Set iterator’s [[SetNextIndex]] internal slot to 0. */
+  iterator.ObjectNextIndex := 0;
+  
+  /* 6. Set iterator’s [[SetIterationKind]] internal slot to kind. */
+  iterator.IteratedProperties := properties;
+
+  return iterator
+};
+
+function objectIteratorPrototypeNext(global, this, NewTarget, strict, args) {
+
+    /* 1. Let O be the this value. */
+    O := this;
+    
+    /* 2. If Type(O) is not Object, throw a TypeError exception. */
+    if (!(Type(O) = "Object")){
+      throw TypeErrorConstructorInternal()
+    };
+
+
+    /* 4. Let s be the value of the [[IteratedSet]] internal slot of O. */
+    s := O.IteratedObject;
+
+    /* 5. Let index be the value of the [[SetNextIndex]] internal slot of O. */
+    index := O.ObjectNextIndex;
+
+
+    /* 9. Let entries be the List that is the value of the [[SetData]] internal slot of s. */
+    entries := O.IteratedProperties;
+
+    /* 10. Repeat while index is less than the total number of elements of entries. The number of elements must be redetermined each time this method is evaluated. */
+    len := l_len(entries);
+    while(index < len) {
+      /* a. Let e be entries[index]. */
+      e := l_nth(entries, index);
+      
+      /* b. Set index to index+1; */
+      index := index + 1;
+
+      /* c. Set the [[SetNextIndex]] internal slot of O to index. */
+      O.ObjectNextIndex := index;
+    
+    
+      if ({O.IteratedObject.HasProperty}(O.IteratedObject, e)){
+        return CreateIterResultObject(e, false)
+      }
+      
+    };
+    
+    /* 12. Return CreateIterResultObject(undefined, true). */
+    return CreateIterResultObject('undefined, true) 
+
+};
 /**
  * 9.1.12 [[OwnPropertyKeys]] ( )
  * 
@@ -691,6 +829,49 @@ function OrdinaryObjectOwnPropertyKeys(O) {
     /* Return keys.	*/
     return keys
 };
+
+/**
+ * 9.1.12 [[OwnPropertyKeys]] ( )
+ * 
+ * When the [[OwnPropertyKeys]] internal method of O is called the following steps are taken:
+ * 
+*/
+function OrdinaryObjectOwnPropertyKeysUpdated(O) {
+    /* Let keys be a new empty List. */
+    keys := [];
+
+    /* aux lists */
+    strings := [];
+    symbols := [];
+
+    /* For each own property key P of O that is an integer index, in ascending numeric index order */
+    foreach ( P : O.internalSlotsList ) {
+        if ( IsArrayIndex(P) ) {
+            /* Add P as the last element of keys. */
+            keys := l_add(keys, P)
+        }
+
+        /* For each own property key P of O that is a String but is not an integer index, in property creation order */
+        elif ( Type(P) = "String" &&& !(Type(P) = "Number") &&& P in_list (obj_fields O.JSProperties) ) {
+            /* Add P as the last element of keys. */
+            strings := l_add(strings, P)
+        }
+        
+        /* For each own property key P of O that is a Symbol, in property creation order */
+        elif ( P in_list (obj_fields O.SymbolKeys) ){
+            /* Add P as the last element of keys. */
+            symbols := l_add(symbols, O.SymbolKeys[P])
+        }
+    };
+
+    keys := l_sort(keys);
+    keys := l_concat(keys, strings);
+    keys := l_concat(keys, symbols);
+
+    /* Return keys.	*/
+    return keys
+};
+
 
 /**
  * 9.1.13 ObjectCreate(proto, internalSlotsList)

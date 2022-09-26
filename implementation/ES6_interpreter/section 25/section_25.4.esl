@@ -707,7 +707,7 @@ function PromiseAll(global, this, NewTarget, strict, args) {
   /* 7. ReturnIfAbrupt(promiseCapability). */
   @ReturnIfAbrupt(promiseCapability);
   /* 8. Let iterator be GetIterator(iterable). */
-  iterator := GetIterator(iterable, null);
+  iterator := GetIterator(iterable, null) catch PromiseExceptionHandler;
   /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
   @IfAbruptRejectPromise(iterator, promiseCapability);
   /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: 
@@ -746,7 +746,7 @@ function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability
   /* 2. Assert: resultCapability is a PromiseCapability record. */
   assert(isPromiseCapabilityRecord(resultCapability));
   /* 3. Let values be a new empty List. */
-  values := [];
+  values := { list: [] }; /* Necessary to keep track of the list as things are added to it. */
   /* 4. Let remainingElementsCount be a new Record { [[value]]: 1 }. */
   remainingElementsCount := { value: 1. };
   /* 5. Let index be 0. */
@@ -772,7 +772,7 @@ function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability
       /* iii. If remainingElementsCount.[[value]] is 0, */
       if (remainingElementsCount.value = 0.) {
         /* 1. Let valuesArray be CreateArrayFromList(values). */
-        valuesArray := CreateArrayFromList(values);
+        valuesArray := CreateArrayFromList(values.list);
         /* 2. Let resolveResult be Call(resultCapability.[[Resolve]], undefined, 
            «valuesArray»). */
         resolveResult := WrappedCall(null, null, resultCapability.Resolve, 'undefined, [valuesArray]);
@@ -792,7 +792,7 @@ function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability
     /* g. ReturnIfAbrupt(nextValue). */
     @ReturnIfAbrupt(nextValue);
     /* h. Append undefined to values. */
-    values := l_add(values, 'undefined);
+    values.list := l_add(values.list, 'undefined);
     /* i. Let nextPromise be Invoke(constructor, "resolve", «‍nextValue»). */
     nextPromise := WrappedInvoke(null, null, constructor, "resolve", [nextValue]);
     /* j. ReturnIfAbrupt(nextPromise ). */
@@ -800,6 +800,7 @@ function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability
     /* k. Let resolveElement be a new built-in function object as defined in 
        Promise.all Resolve Element Functions. */
     resolveElement := CreateBuiltInFunctionObject(["iterable"], "PromiseAllResolveElementFunctions", |global|, strict, null);
+    createBuiltInPropertyWithFullDescriptor(resolveElement, "name", "", false, false, true);
     resolveElementFun := lambda(global, this, NewTarget, strict, args)[resolveElement] {
       return PromiseAllResolveElementFunctions(resolveElement, global, this, strict, args)
     };
@@ -864,14 +865,14 @@ function PromiseAllResolveElementFunctions(F, global, this, strict, args) {
      internal slot. */
   remainingElementsCount := F.RemainingElements;
   /* 8. Set values[index] to x. */
-  values := l_set(values, int_of_float index, x);
+  values.list := l_set(values.list, int_of_float index, x);
   /* 9. Set remainingElementsCount.[[value]] to 
      remainingElementsCount.[[value]] - 1. */
   remainingElementsCount.value := remainingElementsCount.value - 1.;
   /* 10. If remainingElementsCount.[[value]] is 0, */
   if (remainingElementsCount.value = 0.) {
     /* a. Let valuesArray be CreateArrayFromList(values). */
-    valuesArray := CreateArrayFromList(values);
+    valuesArray := CreateArrayFromList(values.list);
     /* b. Return Call(promiseCapability.[[Resolve]], undefined, «valuesArray»). */
     return Call(null, null, promiseCapability.Resolve, 'undefined, [valuesArray])
   };
@@ -912,7 +913,7 @@ function PromiseRace(global, this, NewTarget, strict, args) {
   /* 7. ReturnIfAbrupt(promiseCapability). */
   @ReturnIfAbrupt(promiseCapability);
   /* 8. Let iterator be GetIterator(iterable). */
-  iterator := GetIterator(iterable, null);
+  iterator := GetIterator(iterable, null) catch PromiseExceptionHandler;
   /* 9. IfAbruptRejectPromise(iterator, promiseCapability). */
   @IfAbruptRejectPromise(iterator, promiseCapability);
   /* 10. Let iteratorRecord be Record {[[iterator]]: iterator, [[done]]: 
