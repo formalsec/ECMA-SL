@@ -609,6 +609,32 @@ function JS_Interpreter_Expr(e, scope) {
       list := l_add(list, nextArg)
     }
   }
+  | { type: "TemplateLiteral", quasis: quasis, expressions: expressions } -> {
+    
+    template := (hd quasis).value.raw;
+    quasis := tl quasis;
+
+    len := l_len(quasis);
+    i := 0;
+    while ( i < len ) {
+      sub := JS_Interpreter_Expr( l_nth(expressions, i), scope );
+      
+      sub := GetValue(sub);
+    
+      middle := ToString(sub);
+
+      @ReturnIfAbrupt(middle);
+
+      /* quasis values are TemplateElements */
+      rest := l_nth(quasis, i).value.raw;
+
+      template := s_concat [template, middle, rest];
+
+      i := i + 1
+    };
+
+    return template
+  }
   | default -> {
     print "default case";
     print e

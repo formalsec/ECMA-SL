@@ -2,7 +2,7 @@ import "ES6_interpreter/ast.esl";
 import "ES6_interpreter/ESL_Interpreter.esl";
 
 function main() {
-  x := buildAST();
+ /* x := buildAST();
   ret := JS_Interpreter_Program(x, null);
 
   c_value := getCompletionValue(ret);
@@ -15,5 +15,7 @@ function main() {
     return newCompletion(getCompletionType(ret), error_name, getCompletionTarget(ret))
   };
 
-  return ret
+  return ret*/
+
+  return ECMAScriptInitialization()
 }

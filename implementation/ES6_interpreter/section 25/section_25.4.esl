@@ -501,12 +501,10 @@ function PromiseResolveThenableJob(strict, promiseToResolve, thenable, then) {
        «thenCallResult.[[value]]»). */
     status := Call(null, null, resolvingFunctions.Reject, 'undefined, [getCompletionValue(thenCallResult)]);
     /* b. NextJob Completion(status). */
-    NextJob(Completion(status));
-    return
+    return NextJob(Completion(status))
   };
   /* 4. NextJob Completion(thenCallResult). */
-  NextJob(Completion(thenCallResult));
-  return 
+  return NextJob(Completion(thenCallResult))
 };
 /**
  * NOTE This Job uses the supplied thenable and its then method to resolve the 

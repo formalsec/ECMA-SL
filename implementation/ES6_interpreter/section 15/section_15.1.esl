@@ -237,10 +237,10 @@ function ScriptEvaluationJob() {
         
         /* ver como reportar/log */
         if (x.message = "Invalid left-hand side in assignment") {
-          return throwEmptyCompletion(ReferenceErrorConstructorInternal())
+          return NextJob( throwEmptyCompletion( ReferenceErrorConstructorInternal()))
         };
 
-        return throwEmptyCompletion(SyntaxErrorConstructorInternal());
+        return NextJob( throwEmptyCompletion(SyntaxErrorConstructorInternal()) );
 
         /*Let status be NormalCompletion(undefined).*/
         status := NormalCompletion('undefined)

@@ -23,20 +23,20 @@ function executeJob(job) {
         promise := l_nth(job.Arguments, 1);
         resolution := l_nth(job.Arguments, 2);
         thenAction := l_nth(job.Arguments, 3);
-        PromiseResolveThenableJob(strict, promise, resolution, thenAction)
+        return romiseResolveThenableJob(strict, promise, resolution, thenAction)
       }
       case "PromiseReactionJob": {
         reaction := l_nth(job.Arguments, 0);
         argument := l_nth(job.Arguments, 1);
-        PromiseReactionJob(reaction, argument)
+        return PromiseReactionJob(reaction, argument)
       }
       case "ScriptEvaluationJob": {
         /*sourceText := l_nth(job.Arguments, 0);*/
-        ScriptEvaluationJob()
+        return ScriptEvaluationJob()
       }
       case "TopLevelModuleEvaluationJob": {
         sourceText := l_nth(job.Arguments, 0);
-        TopLevelModuleEvaluationJob(sourceText)
+        return TopLevelModuleEvaluationJob(sourceText)
       }
       sdefault: throw "Job not implemented."  
     };
@@ -136,7 +136,7 @@ function NextJob(result) {
     /* Perform any implementation or host environment defined job initialization using nextPending. */
 
     /* Perform the abstract operation named by nextPending.[[Job]] using the elements of nextPending.[[Arguments]] as its arguments. */
-    executeJob(nextPending);
+    result := executeJob(nextPending);
     
     return result
 }
