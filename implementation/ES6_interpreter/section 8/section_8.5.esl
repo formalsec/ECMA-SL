@@ -31,7 +31,7 @@ function initGlobalVars() {
 
 An ECMAScript implementation performs the following steps prior to the execution of any Jobs or
 the evaluation of any ECMAScript code: */
-function ECMAScriptInitialization() {
+function ECMAScriptInitialization(sourceText) {
     initGlobalVars();
 
     /* Let realm be CreateRealm(). */
@@ -67,7 +67,7 @@ function ECMAScriptInitialization() {
        do, */
         /* If sourceText is the source code of a script, then */
             /* Perform EnqueueJob("ScriptJobs", ScriptEvaluationJob, « sourceText »). */
-    EnqueueJob("ScriptJobs", "ScriptEvaluationJob", []);
+    EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [sourceText]);
         /* Else sourceText is the source code of a module, */
             /* Perform EnqueueJob("ScriptJobs", TopLevelModuleEvaluationJob, « sourceText »). */
     

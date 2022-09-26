@@ -220,7 +220,7 @@ function GlobalDeclarationInstantiation(script, env) {
 
 The job ScriptEvaluationJob with parameter sourceText parses, validates, and evaluates sourceText as a Script.
 */
-function ScriptEvaluationJob() {
+function ScriptEvaluationJob(sourceText) {
     /*Assert: sourceText is an ECMAScript source text (see clause 10).*/
     /* TODO */
 
@@ -229,10 +229,9 @@ function ScriptEvaluationJob() {
        code be an indication of one or more parsing errors and/or early errors. Parsing and early error detection may
        be interweaved in an implementation dependent manner. If more than one parse or early error is present, the
        number and ordering of reported errors is implementation dependent but at least one error must be reported.*/
-    x := buildAST();
 
     /*If code is an error indication, then*/
-    if ( x.type = "EarlySyntaxError" )  {
+    if ( sourceText.type = "EarlySyntaxError" )  {
         /*Report or log the error(s) in an implementation dependent manner.*/
         
         /* ver como reportar/log */
@@ -251,7 +250,7 @@ function ScriptEvaluationJob() {
         realm := topExecStack().Realm;
 
         /*Let status be the result of ScriptEvaluation of code with argument realm.*/
-        status := ScriptEvaluation(x, realm)
+        status := ScriptEvaluation(sourceText, realm)
     };
     
     /*NextJob Completion(status).*/

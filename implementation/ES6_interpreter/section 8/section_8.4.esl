@@ -31,8 +31,8 @@ function executeJob(job) {
         return PromiseReactionJob(reaction, argument)
       }
       case "ScriptEvaluationJob": {
-        /*sourceText := l_nth(job.Arguments, 0);*/
-        return ScriptEvaluationJob()
+        sourceText := l_nth(job.Arguments, 0);
+        return ScriptEvaluationJob(sourceText)
       }
       case "TopLevelModuleEvaluationJob": {
         sourceText := l_nth(job.Arguments, 0);
