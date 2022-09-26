@@ -1,4 +1,5 @@
 const getLetDeclarations = require("../utils/getDeclarations").getLetDeclarations;
+const getConstDeclarations = require("../utils/getDeclarations").getConstDeclarations;
 
 module.exports = {
     transform: function (obj) {
@@ -10,8 +11,18 @@ module.exports = {
         (acc, localVar) => (acc.includes(localVar) ? acc : acc.concat(localVar)),
         []
       );
+      
+      const constDeclarations = getConstDeclarations(obj).reduce(
+        // remove repeated variables
+        (acc, localVar) => (acc.includes(localVar) ? acc : acc.concat(localVar)),
+        []
+      );
 
       obj.letDeclarations = letDeclarations;
+
+     
+
+      obj.constDeclarations = constDeclarations;
 
       return obj;
     },
