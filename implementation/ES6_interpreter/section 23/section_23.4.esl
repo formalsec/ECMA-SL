@@ -48,9 +48,7 @@ function initWeakSetPrototype(global, objectPrototype, strict) {
 };
 
 
-function initWeakSetObject(global, objectPrototype, strict) {
-    FunctionPrototype := getJSProperty(getJSProperty(global, "Function").Value, "prototype").Value;
-
+function initWeakSetObject(global, FunctionPrototype, objectPrototype, strict) {
     objWeakSetPrototype := initWeakSetPrototype(global, objectPrototype, strict);
     objWeakSetConstructor := CreateBuiltInConstructorObject(FunctionPrototype, ["items"], "WeakSetConstructor", global, strict, 0., "WeakSet");
 

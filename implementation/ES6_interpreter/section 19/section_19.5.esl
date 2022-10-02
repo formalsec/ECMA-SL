@@ -37,6 +37,7 @@ function initErrorConstructor(ErrorPrototype, globalObject, strict) {
  */
   ErrorConstructor := CreateFunctionObject(["message"], "ErrorConstructor", globalObject, strict, null);
   setInternalProperty(ErrorConstructor, "Call", "BuiltInCall");
+  setInternalProperty(ErrorConstructor, "Realm", globalObject);
   
   setJSProperty(ErrorConstructor, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setInternalProperty(ErrorConstructor, "ErrorData", 'undefined);
@@ -346,6 +347,7 @@ function initNativeErrorConstructor(NativeErrorPrototype, nativeErrorName, const
 
   createBuiltInProperty(NativeErrorConstructor, "name", nativeErrorName);
   setInternalProperty(NativeErrorConstructor, "Call", "BuiltInCall");
+  setInternalProperty(NativeErrorConstructor, "Realm", globalObject);
   setInternalProperty(NativeErrorConstructor, "ErrorData", 'undefined);
 
   return NativeErrorConstructor

@@ -527,9 +527,7 @@ function PromiseResolveThenableJob(strict, promiseToResolve, thenable, then) {
  * initialize the subclass instance with the internal state necessary
  * to support the Promise and Promise.prototype built-in methods.
  */
-function initPromiseObject(global, ObjectPrototype, strict) {
-  FunctionPrototype := getJSProperty(getJSProperty(global, "Function").Value, "prototype").Value;
-
+function initPromiseObject(global, FunctionPrototype, ObjectPrototype, strict) {
   objPromiseConstructor := CreateBuiltInConstructorObject(FunctionPrototype, ["executor"], "PromiseConstructor", global, strict, 0., "Promise");
   objPromisePrototype := initPromisePrototype(global, ObjectPrototype, objPromiseConstructor, strict);
 

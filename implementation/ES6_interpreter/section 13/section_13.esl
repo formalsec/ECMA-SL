@@ -7,16 +7,21 @@ function CreateFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, 
   return CreateGeneralFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict, n)
 };
 
-function CreateGeneralBuiltInFunctionObject(prototype, FormalParameterList, FunctionBody, Scope, Strict, n) {
-  F := CreateGeneralFunctionObject(prototype, FormalParameterList, FunctionBody, Scope, Strict, n);
+function CreateGeneralBuiltInFunctionObject(prototype, FormalParameterList, FunctionBody, Realm, Strict, n) {
+  F := CreateGeneralFunctionObject(prototype, FormalParameterList, FunctionBody, Realm, Strict, n);
+  F.Realm := Realm;
   delete F.Construct;
+
   return F
 };
 
-function CreateBuiltInFunctionObject(FormalParameterList, FunctionBody, Scope, Strict, n) {
-  functionObj := CreateGeneralBuiltInFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Scope, Strict, n);
+function CreateBuiltInFunctionObject(FormalParameterList, FunctionBody, Realm, Strict, n) {
+  functionObj := CreateGeneralBuiltInFunctionObject(getFunctionPrototype(Strict), FormalParameterList, FunctionBody, Realm, Strict, n);
 
   functionObj.Call := "BuiltInCall";
+
+  /* TODO ver como por o Realm em Built-Ins */
+  functionObj.Realm := Realm;
 
   return functionObj
 };
@@ -40,6 +45,7 @@ function CreateGeneralFunctionObject(FunctionPrototype, FormalParameterList, Fun
   F.HasInstance := "HasInstance";
   /* 9. Set the [[Scope]] internal property of F to the value of Scope. */
   F.Scope := Scope;
+  F.Realm := Scope;
   /* 10. Let names be a List containing, in left to right textual order, the Strings corresponding to the identifiers of
         FormalParameterList. If no parameters are specified, let names be the empty list. */
   names := FormalParameterList;
