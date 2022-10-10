@@ -125,6 +125,9 @@ function PrepareForOrdinaryCall(F, newTarget) {
     pushExecStack(calleeContext);
 
     /* 12. NOTE Any exception objects produced after this point are associated with calleeRealm. */
+    print "PERPORDCALL";
+    print F;
+    print localEnv;
 
     /* 13. Return calleeContext. */
     return calleeContext
@@ -337,6 +340,10 @@ function FunctionAllocate(functionPrototype, strict, functionKind) {
 
   /* 8. Set F's [[Call]] internal method to the definition specified in 9.2.1. */
   F.Call := "NewOrdinaryFunctionCall";
+
+  if ( strict = false ) {
+    setJSProperty(F, "caller",  newDataPropertyDescriptorFull('null, false, false, false) )
+  };
 
   /* 9. If needsConstruct is true, then */
   if (needsConstruct = true) {

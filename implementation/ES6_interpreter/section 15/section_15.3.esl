@@ -104,11 +104,10 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
       /* a. Let firstArg be the first argument. */
       firstArg := l_nth(params, 0);
 
+      /* b. Let P be ToString(firstArg). */
       P := ToString(firstArg);
 
       @ReturnIfAbrupt(P);
-
-      /* b. Let P be ToString(firstArg). */
 
       /* c. Let k be 2. */
       k := 2;
@@ -130,6 +129,7 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
       body := l_nth(params, k - 1)
     }
   };
+
   /* 6. Let body be ToString(body). */
   body := ToString(body);
 
@@ -166,6 +166,10 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
   FunctionInitialize(F, "normal", P, body, scope);
   MakeConstructor(F, null, null);
   SetFunctionName(F, "anonymous", null);
+
+  print "FUNCCREATE";
+  print F;
+
   return F
   /* A prototype property is automatically created for every function, to provide for the possibility that the
      function will be used as a constructor. */
@@ -233,6 +237,9 @@ function FunctionPrototypeApply(globalObject, func, NewTarget, strict, params) {
     /* b. Let nextArg be the result of calling the [[Get]] internal method of argArray with indexName as the
           argument. */
     nextArg := {argArray.Get}(argArray, indexName, argArray);
+
+    @ReturnIfAbrupt(nextArg);
+
     /* c. Append nextArg as the last element of argList. */
     argList := l_add(argList, nextArg);
     /* d. Set index to index + 1. */
