@@ -364,7 +364,7 @@ function JS_Interpreter_Expr(e, scope) {
       /* vi. Let evalRealm be the running execution context's Realm. */
       evalRealm := scope.Realm;
       /* vii. Return PerformEval(evalText, evalRealm, strictCaller, true). . */
-      return PerformEval(scope, evalText, evalRealm, strictCaller, true)
+      return PerformEval(evalText, evalRealm, strictCaller, true)
     };
 
     /* 5. If Type(ref) is Reference, then */
@@ -1145,6 +1145,8 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
     if (FunctionDeclaration.generator = true){
       fail "Unsupported: Generators"
     };
+    scope := topExecStack();
+
     /* 1. If the function code for FunctionDeclaration is strict mode code, let strict be true.
           Otherwise let strict be false. */
     if ( isStrictModeCode(FunctionBody, scope)) {
@@ -1155,6 +1157,8 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
 
     /* 2. Let name br StringValue of BindingIdentifier */
     name := Identifier.name;
+
+    lex := getLexicalEnvironment(scope);
 
     /* 3. Let F be FunctionCreate(Normal, FormalParameters, FunctionBody, scope, strict) */
     F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, getLexicalEnvironment(scope), strict, null);

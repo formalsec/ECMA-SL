@@ -59,6 +59,13 @@ function ScriptEvaluation(script, realm) {
     /*Resume the context that is now on the top of the execution context stack as the running execution context.*/
     topExecStack().Suspend := false;
 
+    if ( getCompletionType(result) = 'throw ) {
+        val := getCompletionValue(result).JSProperties.message;
+        print "FIMPROG";
+        print result;
+        print val
+    };
+
     /*Return Completion(result).*/
     return Completion(result)
 };

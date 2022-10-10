@@ -54,34 +54,34 @@ function CreateIntrinsics(realmRec) {
     setInternalProperty(globalObject, "Prototype", ObjectPrototype);
 
     /* Set intrinsics.[[%FunctionPrototype%]] to FunctionPrototype. */
-    FunctionPrototype := initFunctionPrototype(ObjectPrototype, globalObject, false);
+    FunctionPrototype := initFunctionPrototype(ObjectPrototype, realmRec, false);
     intrinsics.FunctionPrototype := FunctionPrototype;
 
     /* Initializing ObjectConstructor */
-    ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, globalObject, false);
+    ObjectConstructor := initObjectConstructor(ObjectPrototype, FunctionPrototype, realmRec, false);
     |objectConstructor| := ObjectConstructor;
     intrinsics.Object := ObjectConstructor;
     createBuiltInProperty(globalObject, "Object", ObjectConstructor);
 
     /* Initializing FunctionConstructor */
-    FunctionConstructor := initFunctionConstructor(FunctionPrototype, globalObject, false);
+    FunctionConstructor := initFunctionConstructor(FunctionPrototype, realmRec, false);
     intrinsics.Function := FunctionConstructor;
     createBuiltInProperty(globalObject, "Function", FunctionConstructor);
 
     /* Filling Protos and Constructors */
-    fillObjectPrototype(ObjectPrototype, ObjectConstructor, globalObject, false);
-    fillFunctionPrototype(FunctionPrototype, FunctionConstructor, globalObject, false);
-    fillObjectConstructor(ObjectConstructor, globalObject, false);
-    fillFunctionConstructor(FunctionConstructor, globalObject, false);
+    fillObjectPrototype(ObjectPrototype, ObjectConstructor, realmRec, false);
+    fillFunctionPrototype(FunctionPrototype, FunctionConstructor, realmRec, false);
+    fillObjectConstructor(ObjectConstructor, realmRec, false);
+    fillFunctionConstructor(FunctionConstructor, realmRec, false);
 
     /* ThrowTypeError */
-    thrower := CreateGeneralBuiltInFunctionObject(FunctionPrototype, [], "internalTypeErrorThrower", globalObject, false, null);
+    thrower := CreateGeneralBuiltInFunctionObject(FunctionPrototype, [], "internalTypeErrorThrower", realmRec, false, null);
     intrinsics.ThrowTypeError := thrower;
 
     AddRestrictedFunctionProperties(FunctionPrototype, realmRec);
 
     /* Initializing Intrinsics */
-    initIntrinsics(intrinsics, false);
+    initIntrinsics(intrinsics, realmRec, false);
     
     /* Return intrinsics. */
     return intrinsics

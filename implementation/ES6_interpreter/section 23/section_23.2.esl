@@ -104,9 +104,7 @@ function getSetPrototype (strict) {
 }; 
 
 
-function initSetObject(global, objectPrototype, strict) {
-  FunctionPrototype := getJSProperty(getJSProperty(global, "Function").Value, "prototype").Value;
-
+function initSetObject(global, FunctionPrototype, objectPrototype, strict) {
   objSetPrototype := initSetPrototype(global, objectPrototype, strict);
 
   objSetConstructor := CreateBuiltInConstructorObject(FunctionPrototype, ["items"], "setConstructor", global, strict, 0., "Set");

@@ -167,9 +167,6 @@ function DefinePropertyOrThrow(O, P, desc) {
 	/* Assert: IsPropertyKey(P) is true. */
 	assert( IsPropertyKey(P) = true );
 
-	print "ABC1";
-	print O;
-
 	/* Let success be O.[[DefineOwnProperty]](P, desc). */
 	success := {O.DefineOwnProperty}(O, P, desc);
 
@@ -832,7 +829,8 @@ function OrdinaryCall(externalScope, ref, F, this, NewTarget, argumentsList) {
 };
 
 function BuiltInCall_Handler(error) {
-	return throwEmptyCompletion(error)
+	popExecStack();
+	throw error
 };
 
 function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
@@ -843,6 +841,7 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
 	calleeContext := createExecutionContext();
 	calleeContext.Function := F;
 	calleeRealm := F.Realm;
+
 	calleeContext.Realm := calleeRealm;
 
 	setLexicalEnvironment(calleeContext, getLexicalEnvironment(callerContext));
@@ -850,20 +849,24 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
 
 	pushExecStack(calleeContext);
 
-	if (("Code" in_obj F) &&& (typeof F.Code = __$Str) &&& (F.Code = "GlobalObjectEval")) {
-	  args := completeArgs(argumentsList, F);
-	  result := {F.Code}(externalScope, ref, V, NewTarget, F.strict, args) catch BuiltInCall_Handler
-	};
- 
+	/*BuiltInCall_Handler := lambda(error)[callerContext, calleeContext] {
+		if ( calleeContext = topExecStack() ) {
+		    popExecStack()
+		};
+
+		callerContext.Suspend := false;
+
+		throw error
+	};*/
+
 	/* Hack para poder passar o Realm no FunctionConstruct */
 	/* Ver se ainda e preciso o globalObject para alguma coisa */
 	if (("Code" in_obj F) &&& (typeof F.Code = __$Str) 
-		&&& ((F.Code = "FunctionConstructor") ||| (F.Code = "FunctionPrototypeCall") ||| (F.Code = "TypedArraySubConstructor"))) {
+		&&& ((F.Code = "FunctionPrototypeCall") ||| (F.Code = "TypedArraySubConstructor"))) {
 	  args := completeArgs(argumentsList, F);
 	  result := {F.Code}(externalScope, V, NewTarget, F.strict, args) catch BuiltInCall_Handler
-	};
-
-	if (("Code" in_obj F) &&& ((typeof F.Code = __$Str) ||| (typeof F.Code = __$Curry))) {
+	} 
+	elif (("Code" in_obj F) &&& ((typeof F.Code = __$Str) ||| (typeof F.Code = __$Curry))) {
 	  args := completeArgs(argumentsList, F);
 	  result := {F.Code}(F.Scope, V, NewTarget, F.strict, args) catch BuiltInCall_Handler
 	};
@@ -873,6 +876,10 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
     };
 
 	callerContext.Suspend := false;
+
+	if ( isErrorCompletion(result) ) {
+		throw getCompletionValue(result)
+	};
 
 	return result
 }

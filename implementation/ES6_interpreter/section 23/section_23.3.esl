@@ -92,8 +92,8 @@ function initWeakMapPrototype(global, objectPrototype, objectConstructor, strict
     The value of the [[Prototype]] internal slot of the WeakMap constructor is the intrinsic object %FunctionPrototype% (19.2.3).
     Besides the length property (whose value is 0), the WeakMap constructor has the following properties:
 */
-function initWeakMapObject(global, objectPrototype, strict) {
-    objWeakMapConstructor := CreateBuiltInConstructorObject(getJSProperty(global, "Function").Value.Prototype, ["items"], "WeakMapConstructor", global, strict, 0., "constructor");
+function initWeakMapObject(global, functionPrototype, objectPrototype, strict) {
+    objWeakMapConstructor := CreateBuiltInConstructorObject(functionPrototype, ["items"], "WeakMapConstructor", global, strict, 0., "constructor");
     /* length */
     setJSProperty(objWeakMapConstructor, "length", newDataPropertyDescriptorFull(0., false, false, true));
     /* name */

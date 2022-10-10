@@ -4,7 +4,7 @@
  * The abstract operation PerformEval with arguments x, evalRealm, strictCaller,
  * and direct performs the following steps:
  */
-function PerformEval(scope, x, evalRealm, strictCaller, direct) {
+function PerformEval(x, evalRealm, strictCaller, direct) {
   /* 1. Assert: If direct is false then strictCaller is also false. */
   if (direct = false) {
 		assert(strictCaller = false)
@@ -43,10 +43,7 @@ function PerformEval(scope, x, evalRealm, strictCaller, direct) {
 	 be the execution context that performed the direct eval. If direct is
 	 false ctx will be the execution context for the invocation of the eval
 	 function. */
-  /* ctx := topExecStack(); */
-  
-  /* TODO mudar de scope para topExecStack */
-  ctx := scope;
+   ctx := topExecStack(); 
   /* 9. If direct is true, then */
   if (direct = true) {
 		/* a. Let lexEnv be NewDeclarativeEnvironment(ctx's LexicalEnvironment). */
