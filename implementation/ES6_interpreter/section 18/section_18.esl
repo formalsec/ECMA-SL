@@ -80,7 +80,7 @@ function initGlobalObject(globalObject, intrinsic) {
   /* 15.1.4.13 SyntaxError ( . . . ) */
   createBuiltInProperty(globalObject, "SyntaxError", intrinsic.SyntaxError);
   /* 15.1.4.14 TypeError ( . . . ) */
-  createBuiltInProperty(globalObject, "TypeError", intrinsic.TypeError);
+  createBuiltInProperty(globalObject, "TypeError", |Intrinsics|["TypeError"]);
   /* 15.1.4.15 URIError ( . . . ) */
   createBuiltInProperty(globalObject, "URIError", intrinsic.URIError);
 
@@ -379,6 +379,8 @@ function parseAsProgram(progStr, strict) {
   if (strict) {
     progStr := s_concat ["\"use strict\";", progStr]
   };
+  print "DEBUG PARSE AS PROGRAM";
+  print progStr;
   prog := extern parseJS(progStr);
   progObj := {prog}();
   progObj.codeType := "eval";

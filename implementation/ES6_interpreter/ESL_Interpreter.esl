@@ -142,6 +142,10 @@ function JS_Interpreter_Expr(e, scope) {
     /* 4. Let closure be FunctionCreate(Arrow, parameters, ConciseBody, scope,
       strict). */
     closure := FunctionCreate("Arrow", parameters, ConciseBody, lexEnv, strict, null);
+
+    /* Because of section 16.1 */
+    delete closure.JSProperties["caller"];
+
     /* 5. Return closure. */
     return closure
     /**
@@ -525,10 +529,6 @@ function JS_Interpreter_Expr(e, scope) {
     argList := JS_Interpreter_Arguments(Arguments, scope);
     /* 6. ReturnIfAbrupt(argList). */
     @ReturnIfAbrupt(argList);
-    print "Debug SuperCall";
-    print Arguments;
-    print argList;
-    print newTarget;
     /* 7. Let result be Construct(func, argList, newTarget). */
     result := Construct(scope, null, func, argList, newTarget);
     /* 8. ReturnIfAbrupt(result). */
@@ -539,11 +539,24 @@ function JS_Interpreter_Expr(e, scope) {
     return BindThisValue(thisER, result)
   }
   | { type: "SuperProperty", property: property } -> {
-    /* 1. Let propertyNameReference be the result of evaluating Expression. */
-    propertyNameReference := JS_Interpreter_Expr(property, scope);
-    propertyNameValue := GetValue(propertyNameReference);
-    propertyKey := ToPropertyKey(propertyNameValue);
-    @ReturnIfAbrupt(propertyKey);
+    print "DEBUG SUPER PROPERTY 0";
+    print property;
+    if (property.type = "Identifier") {
+      propertyKey := property.name
+    } else {
+      /* 1. Let propertyNameReference be the result of evaluating Expression. */
+      propertyNameReference := JS_Interpreter_Expr(property, scope);
+
+      propertyNameValue := GetValue(propertyNameReference);
+      @ReturnIfAbrupt(propertyNameValue);
+
+      print "DEBUG SUPER PROPERTY";
+      print propertyNameReference;
+      print propertyNameValue;
+
+      propertyKey := ToPropertyKey(propertyNameValue);
+      @ReturnIfAbrupt(propertyKey)
+    };
     /* 5. If the code matched by the syntactic production that is being evaluated
           is strict mode code, let strict be true, else let strict be false. */
     if (isContainedInStrictCode(scope)) {
@@ -1408,6 +1421,8 @@ function PropertyDefinitionEvaluation(PropertyDefinition, object, enumerable, sc
 };
 
 function JS_Interpreter_PropertyName(PropertyName, scope) {
+  print "DEBUG JS_Interpreter_PropertyName";
+  print PropertyName;
   match PropertyName with
   /* The production PropertyName : IdentifierName is evaluated as follows: */
   | { type: "Identifier", name: IdentifierName } -> {
@@ -2665,8 +2680,12 @@ function JS_Interpreter_BinExpr(e, scope) {
     @ReturnIfAbrupt(lval);
     /* 4. Let rref be the result of evaluating RelationalExpression. */
     rref := JS_Interpreter_Expr(RelationalExpression, scope);
+    print "DEBUG INEQUALITY 0";
+    print rref;
     /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
+    print "DEBUG INEQUALITY 1";
+    print rval;
     /* 6. ReturnIfAbrupt(rval). */
     @ReturnIfAbrupt(rval);
     /* 7. Let r be the result of performing abstract equality comparison rval == lval. */

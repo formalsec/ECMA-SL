@@ -9,7 +9,9 @@ function IteratorBindingInitialization(params, listIterator, scope, func) {
   while(i < l_params) {
     param := l_nth(params, i);
     value := getParameterIteratorValue(param, listIterator, scope);
-    BindingInitialization(param, value, scope, listIterator);
+    @ReturnIfAbrupt(value);
+    status := BindingInitialization(param, value, scope, listIterator);
+    @ReturnIfAbrupt(status);
     i := i + 1
   };
   return NormalCompletion('empty)
@@ -66,9 +68,18 @@ function getParameterIteratorValue(param, listIterator, environment) {
     v := GetValue(defaultValue);
 
     /* c. ReturnIfAbrupt(v). */
-    @ReturnIfAbrupt(v)
-    /* d. TODO */
-
+    @ReturnIfAbrupt(v);
+    /* d. If IsAnonymousFunctionDefinition(Initializer) is true, then */
+    if (IsAnonymousFunctionDefinition(initializer)) {
+      /* i. Let hasNameProperty be HasOwnProperty(v, "name"). */
+      hasNameProperty := HasOwnProperty(v, "name");
+      /* ii. ReturnIfAbrupt(hasNameProperty). */
+      @ReturnIfAbrupt(hasNameProperty);
+      /* iii. If hasNameProperty is false, perform SetFunctionName(v, P). */
+      if (hasNameProperty = false) {
+        SetFunctionName(v, P, null)
+      }
+    }
    };
 
    return v
@@ -102,9 +113,29 @@ function BindingInitialization(param, value, environment, listIterator) {
     if (!(value = 'undefined)) {
       return BindingInitialization(param.left, value, environment, listIterator)
     };
-    newValue := JS_Interpreter_AssignmentPattern(param.right, environment);
+    /* TODO: Falta uns return if abrupt aqui */
+    initializer := param.right;
 
-    return BindingInitialization(param.left, newValue, environment, listIterator)
+
+    newValue := JS_Interpreter_AssignmentPattern(initializer, environment);
+
+    v := GetValue(newValue);
+
+    @ReturnIfAbrupt(v);
+
+    if (IsAnonymousFunctionDefinition(initializer)) {
+      /* i. Let hasNameProperty be HasOwnProperty(v, "name"). */
+      hasNameProperty := HasOwnProperty(v, "name");
+      /* ii. ReturnIfAbrupt(hasNameProperty). */
+      @ReturnIfAbrupt(hasNameProperty);
+      /* iii. If hasNameProperty is false, perform SetFunctionName(v, P). */
+      P := param.left.name;
+      if (hasNameProperty = false) {
+        SetFunctionName(v, P, null)
+      }
+    };
+
+    return BindingInitialization(param.left, v, environment, listIterator)
   }
 };
 
@@ -140,17 +171,34 @@ function BindingInitializationObjectPattern(param, value, environment) {
   properties := param.properties;
   l_properties := l_len(properties);
   i := 0;
+  valid := RequireObjectCoercible(value);
+  @ReturnIfAbrupt(valid);
+  initialized_keys := [];
   while (i < l_properties) {
     property := l_nth(properties, i);
 
     if (!("key" in_obj property)) {
-      BindingInitialization(property, value, environment, null)
+      /* Rest Element case*/
+      argument := property.argument;
+      /* If its a rest Element which is an identifier */
+      if (argument.type = "Identifier") {
+        /* Creates an Empty Object for that identifier */
+        status := BindingInitialization(property, ObjectCreate(getObjectPrototype(false), null), environment, null);
+        @ReturnIfAbrupt(status);
+
+        /* Initialize the remaining keys on that object */
+        restElementObjectInitializer(property.argument, value, environment, initialized_keys)
+      } elif (argument.type = "ObjectPattern") {
+        /* if the rest element is an object pattern, we just call the function recursively */
+        BindingInitializationObjectPattern(argument, value, environment)
+      }
     } else {
-      /*key := JS_Interpreter_Expr(property.key, environment);
+      key := JS_Interpreter_Expr(property.key, environment);
       @ReturnIfAbrupt(key);
-      property_name := GetPropertyName(key);*/
-      property_name := property.key.name;
-      InitializeSingleObjectBinding(property, property_name, value, environment)
+      property_name := GetPropertyName(key);
+      status := InitializeSingleObjectBinding(property, property_name, value, environment);
+      initialized_keys := l_add(initialized_keys, property_name);
+      @ReturnIfAbrupt(status)
     };
     i := i + 1
   };
@@ -160,7 +208,10 @@ function BindingInitializationObjectPattern(param, value, environment) {
 function InitializeSingleObjectBinding(property, property_name, objectValue, environment) {
   property_value := GetV(objectValue, property_name);
 
-  BindingInitialization(property.value, property_value, environment, null);
+  @ReturnIfAbrupt(property_value);
+
+  status := BindingInitialization(property.value, property_value, environment, null);
+  @ReturnIfAbrupt(status);
   return
 };
 
@@ -171,27 +222,29 @@ function BindingInitializationArrayPattern(param, value, environment) {
 
   arrayIterator := GetIterator(value, null);
   @ReturnIfAbrupt(arrayIterator);
+  step := 'undefined;
   while (i < l_elements) {
     step := IteratorStep(arrayIterator);
     @ReturnIfAbrupt(step);
     element := l_nth(elements, i);
-
     if (step = false) {
-      /* Iterator is done */
-      return
-    };
-    if (!(element = null)) {
-      /* When the element inside the array is an elision, it comes in as null  */
-      iterValue := IteratorValue(step);
-      @ReturnIfAbrupt(iterValue);
+     status := BindingInitialization(element, 'undefined, environment, {iterator: arrayIterator, done: true});
+     @ReturnIfAbrupt(status)
+    } else {
+      if (!(element = null)) {
+        /* When the element inside the array is an elision, it comes in as null  */
+        iterValue := IteratorValue(step);
+        @ReturnIfAbrupt(iterValue);
 
-      iteratorRecord := NewECMAScriptObject();
-      iteratorRecord.iterator := CreateListIterator(CreateListFromArrayLike(value, null));
-      iteratorRecord.done := false;
-      setAllInternalMethodsOfOrdinaryObject(iteratorRecord);
-      BindingInitialization(element, iterValue, environment, iteratorRecord)
+        status := BindingInitialization(element, iterValue, environment, {iterator: arrayIterator, done: false});
+        @ReturnIfAbrupt(status)
+      }
     };
     i := i + 1
+  };
+
+  if (!(step = false) &&& (step = 'undefined ||| !(IteratorComplete(step)))) {
+    IteratorClose(arrayIterator, NormalCompletion(null))
   };
   return
 };

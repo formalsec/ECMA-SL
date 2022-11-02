@@ -330,6 +330,8 @@ function CreateMutableBindingDeclarativeRecord(envRec, N, D) {
 
     if ( D = true ) {
     	setBindingDeletable(envRec, N, true)
+    } else {
+      setBindingDeletable(envRec, N, false)
     };
 
     /* Return NormalCompletion(empty). */

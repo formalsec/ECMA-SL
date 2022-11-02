@@ -1,2 +1,6 @@
 /* Section 9.2 - Built-in Function Objects */
 
+function CreateBuiltinFunction(realm, functionName, prototype, internalSlotsList) {
+  return
+}
+

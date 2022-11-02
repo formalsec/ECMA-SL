@@ -375,6 +375,13 @@ function mapper(callback, obj) {
         }
       }
 
+      case "ArrayPattern": {
+        return {
+          type: "ArrayPattern",
+          elements: new_obj.elements.map(stmt => mapper(callback, stmt)),
+        }
+      }
+
       case "SuperCall": {
         return {
           type: "SuperCall",

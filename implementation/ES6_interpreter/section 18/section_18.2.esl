@@ -36,7 +36,7 @@ function PerformEval(x, evalRealm, strictCaller, direct) {
   } /* 7. Else, */
   else {
 	/* let strictEval be IsStrict of script */
-	strictEval := false
+	strictEval := isStrictModeCode(script, scope)
   };
 
   /* 8. Let ctx be the running execution context. If direct is true ctx will
@@ -69,6 +69,7 @@ function PerformEval(x, evalRealm, strictCaller, direct) {
 
   /* 13. Let evalCxt be a new ECMAScript code execution context. */
   evalCxt := createExecutionContext();
+	evalCxt.strictCode := strictEval;
   evalCxt.ThisBinding := ctx.ThisBinding;
   /* 14. Set the evalCxt's Realm to evalRealm. */
   evalCxt.Realm := evalRealm;
@@ -137,27 +138,39 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   /* 5. If strict is false, then */
   isGlobalEnvRec := ("CreateGlobalVarBinding" in_obj lexEnvRec);
   if (strict = false) {
-	/* a. If varEnvRec is a global Environment Record, then */
-	if (isGlobalEnvRec) {
-		/* i. For each name in varNames, do */
-		i := 0;
-		varNames_l := l_len(varNames);
-		/* 1. If varEnvRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
-		while (i < varNames_l) {
-		  name := l_nth(varNames, i);
-		  if ({varEnvRec.HasBinding}(varEnvRec, name)) {
-			throw SyntaxErrorConstructorInternal()
-		  };
-		  i := i + 1
-		}
-		/* NOTE: eval will not create a global var declaration that would be shadowed by a global lexical declaration. */
-	};
-	/* b. Let thisLex be lexEnv. */
-	thisLex := lexEnv
-	/* c. Assert: the following loop will terminate. */
-	/* TODO */
-	/* d. Repeat while thisLex is not the same as varEnv, */
-	/* TODO*/
+		/* a. If varEnvRec is a global Environment Record, then */
+		if (isGlobalEnvRec) {
+			/* i. For each name in varNames, do */
+			i := 0;
+			varNames_l := l_len(varNames);
+			/* 1. If varEnvRec.HasLexicalDeclaration(name) is true, throw a SyntaxError exception. */
+			while (i < varNames_l) {
+				name := l_nth(varNames, i);
+
+				if ({varEnvRec.HasBinding}(varEnvRec, name)) {
+					throw SyntaxErrorConstructorInternal()
+				};
+				i := i + 1
+			}
+			/* NOTE: eval will not create a global var declaration that would be shadowed by a global lexical declaration. */
+		};
+		/* b. Let thisLex be lexEnv. */
+		thisLex := lexEnv;
+		/* c. Assert: the following loop will terminate. */
+		/* d. Repeat while thisLex is not the same as varEnv, */
+		repeat {
+			thisEnvRec := thisLex.EnvRec;
+			if (!("bindingObject" in_obj thisEnvRec)) {
+				print "DEBUG YOYOYO ->";
+				print thisEnvRec;
+				foreach (name : varNames) {
+					if ({thisEnvRec.HasBinding}(thisEnvRec, name)) {
+						throw SyntaxErrorConstructorInternal()
+					}
+				}
+			};
+			thisLex := getOuterEnvironmentReference(thisLex)
+		} until (thisLex = varEnv)
   };
   /* 6. Let functionsToInitialize be an empty List. */
   functionsToInitialize := [];
@@ -175,8 +188,8 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
 		  };
 	  declaredFunctionNames := l_add(declaredFunctionNames, fn);
 	  functionsToInitialize := l_add(functionsToInitialize, f)
-	};
-	i := i - 1
+		};
+		i := i - 1
   };
   /* 9. Let declaredVarNames be an empty List. */
   declaredVarNames := [];
