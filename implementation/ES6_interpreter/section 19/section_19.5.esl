@@ -255,6 +255,10 @@ function SyntaxErrorConstructorInternal() {
   return NativeErrorConstructor('undefined, "SyntaxError", |Intrinsics|["SyntaxError"])
 };
 
+function getSyntaxErrorConstructor() {
+  return |Intrinsics|["SyntaxError"] 
+};
+
 /*
 19.5.5.5 TypeError
 
