@@ -62,6 +62,7 @@ function mapper(callback, obj) {
         computed: new_obj.computed,
         kind: new_obj.kind,
         shorthand: new_obj.shorthand,
+        method: new_obj.method
       };
 
     case "FunctionExpression":
