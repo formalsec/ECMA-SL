@@ -37,7 +37,8 @@ function initWellKnownSymbol(description) {
   sym := InternalSymbolConstructor(description);
   rec := {
     key: description,
-    symbol: sym
+    symbol: sym,
+    wellknown: true
   };
   |GlobalSymbolRegistry|[description] := rec;
   return
@@ -275,6 +276,9 @@ function initIntrinsics(intrinsic, realm, strict) {
   WeakSetObject := initWeakSetObject(realm, funcPrototype, objectPrototype, strict);
   |Intrinsics|["WeakSet"] := WeakSetObject;
   |Intrinsics|["WeakSetPrototype"] := getPrototypeValue(WeakSetObject);
+
+  /* ObjectIterator */
+  |Intrinsics|["ObjectIteratorPrototype"] := initObjectIteratorPrototype(globalObj, objectPrototype, strict);
 
   return
 };

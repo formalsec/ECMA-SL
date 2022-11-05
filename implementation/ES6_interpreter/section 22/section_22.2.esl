@@ -379,7 +379,7 @@ function initTypedArrayMainConstructor(global, objectPrototype, strict) {
   prototype := initTypedArrayMainPrototype(global, objectPrototype, strict);
   functionPrototype := getFunctionPrototype(strict);
 
-  typedArrayConstructor := CreateBuiltInConstructorObject(functionPrototype, ["argumentList"], "TypedArrayConstructor", global, strict, 0., "TypedArray");
+  typedArrayConstructor := CreateBuiltInConstructorObject(functionPrototype, [], "TypedArrayConstructor", global, strict, 0., "TypedArray");
 
   descriptor := newDataPropertyDescriptorFull(typedArrayConstructor, true, false, true);
   setJSProperty(prototype, "constructor", descriptor);
@@ -399,7 +399,7 @@ function initTypedArrayMainConstructor(global, objectPrototype, strict) {
   setJSProperty(fromObj, "name", descName);
 
   /* 22.2.2.2 %TypedArray%.of ( ...items ) */
-  ofObj := CreateBuiltInFunctionObject(["items"], "TypedArrayOf", global, strict, null);
+  ofObj := CreateBuiltInFunctionObject([], "TypedArrayOf", global, strict, null);
   ofDesc := newDataPropertyDescriptorFull(ofObj, true, false, true);
   setJSProperty(typedArrayConstructor, "of", ofDesc);
   /* Length */
@@ -447,7 +447,7 @@ function initTypedArrayObject(global, strict, typeOfArray, typedArray) {
   objTypedArrayPrototype := initTypedArrayPrototype(global, typedArrayPrototype, strict, typeOfArray);
   
   name := s_concat([typeOfArray, "Array"]);
-  objTypedArrayConstructor := CreateBuiltInConstructorObject(typedArray, ["argumentList"], "TypedArraySubConstructor", global, strict, 0., name);
+  objTypedArrayConstructor := CreateBuiltInConstructorObject(typedArray, [], "TypedArraySubConstructor", global, strict, 0., name);
   
   objectTypedArrayFun := lambda(global, this, NewTarget, strict, args)[objTypedArrayConstructor] {
     return TypedArraySubConstructor(global, this, NewTarget, strict, args, objTypedArrayConstructor)
@@ -615,8 +615,7 @@ function AllocateTypedArray(newTarget, length, strict) {
       constructorName := subclass.TypedArrayConstructorName
     };
     /* d. Let subclass be subclass.[[GetPrototypeOf]](). */
-    subclass := GetPrototypeOf(subclass);
-    /* subclass := {subclass.GetPrototypeOf}(); */
+    subclass := {subclass.GetPrototypeOf}(subclass);
     /* e. ReturnIfAbrupt(subclass). */
     @ReturnIfAbrupt(subclass)
   };
@@ -3763,10 +3762,6 @@ function TypedArraySubConstructor(ctx, this, NewTarget, strict, argumentsList, h
 
   /* 3. Let super be here.[[GetPrototypeOf]](). */
   super := {here.GetPrototypeOf}(here);
-
-  print "TYPECONST";
-  print here;
-  print super;
 
   /* 4. ReturnIfAbrupt(super). */
   @ReturnIfAbrupt(super);

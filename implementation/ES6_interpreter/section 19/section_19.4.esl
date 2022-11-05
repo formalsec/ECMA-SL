@@ -192,7 +192,7 @@ function symbolFor(global, this, NewTarget, strict, args) {
   newSymbol := InternalSymbolConstructor(stringKey);
 
   /* 6. Append the record { [[key]]: stringKey, [[symbol]]: newSymbol } to the GlobalSymbolRegistry List. */
-  |GlobalSymbolRegistry|[stringKey] := {key: stringKey, symbol: newSymbol};
+  |GlobalSymbolRegistry|[stringKey] := {key: stringKey, symbol: newSymbol, wellknown: false};
 
   /* 7. Return newSymbol. */
   return newSymbol

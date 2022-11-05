@@ -479,7 +479,7 @@ function GetOwnPropertyProxy (O, P) {
     /* 22. If resultDesc.[[Configurable]] is false, then */
     if (resultDesc.Configurable = false) {
         /* a. If targetDesc is undefined or targetDesc.[[Configurable]] is true, then */
-        if (targetDesc = 'undefined ||| targetDesc.configurable = true) {
+        if (targetDesc = 'undefined ||| targetDesc.Configurable = true) {
             /* i. Throw a TypeError exception. */
             throw TypeErrorConstructorInternal()
         }

@@ -41,9 +41,16 @@ function IsArray(argument) {
     };
 
     /* If argument is a Proxy exotic object, then */ 
-        /* If the value of the [[ProxyHandler]] internal slot of argument is null, throw a TypeError exception. */
-        /* Let target be the value of the [[ProxyTarget]] internal slot of argument. */
-        /* Return IsArray(target). */
+    if ( IsProxy(argument) ) {
+      /* a. If the value of the [[ProxyHandler]] internal slot of argument is null, throw a TypeError exception. */
+      if (argument.ProxyHandler = 'null) {
+        throw TypeErrorConstructorInternal()
+      };
+      /* b. Let target be the value of the [[ProxyTarget]] internal slot of argument. */
+      target := argument.ProxyTarget;
+      /* c. Return IsArray(target). */
+      return IsArray(target)
+    };
     
     /* Return false. */
     return false
@@ -229,14 +236,16 @@ function SameValue (x, y) {
   @ReturnIfAbrupt(x);
   @ReturnIfAbrupt(y);
 
+  typeX := Type(x);
+
   /* 1. If Type(x) is different from Type(y), return false. */
-  if (!(Type(x) = Type(y))) { return false };
+  if (!(typeX = Type(y))) { return false };
   /* 2. If Type(x) is Undefined, return true. */
-  if (Type(x) = "Undefined") { return true };
+  if (typeX = "Undefined") { return true };
   /* 3. If Type(x) is Null, return true. */
-  if (Type(x) = "Null") { return true };
+  if (typeX = "Null") { return true };
   /* 4. If Type(x) is Number, then. */
-  if (Type(x) = "Number") {
+  if (typeX = "Number") {
     /* a. If x is NaN and y is NaN, return true. */
     if ((is_NaN x) && (is_NaN y)) { return true };
     /* b. If x is +0 and y is -0, return false. */
@@ -250,11 +259,11 @@ function SameValue (x, y) {
   };
   /* 5. If Type(x) is String, then return true if x and y are exactly the same sequence of characters
     (same length and same characters in corresponding positions); otherwise, return false. */
-  if (Type(x) = "String") { return x = y };
+  if (typeX = "String") { return x = y };
   /* 6. If Type(x) is Boolean, return true if x and y are both true or both false; otherwise, return false. */
-  if (Type(x) = "Boolean") { return x = y };
+  if (typeX = "Boolean") { return x = y };
   /*  */
-  if ( Type(x) = "Symbol" ) { return x = y };
+  if ( typeX = "Symbol" ) { return x = y };
   /* 7. Return true if x and y refer to the same object. Otherwise, return false. */
   return x = y
 };
@@ -270,14 +279,16 @@ function SameValueZero(x, y) {
   @ReturnIfAbrupt(x);
   @ReturnIfAbrupt(y);
 
+  typeX := Type(x);
+
   /* 1. If Type(x) is different from Type(y), return false. */
-  if (!(Type(x) = Type(y))) { return false };
+  if (!(typeX = Type(y))) { return false };
   /* 2. If Type(x) is Undefined, return true. */
-  if (Type(x) = "Undefined") { return true };
+  if (typeX = "Undefined") { return true };
   /* 3. If Type(x) is Null, return true. */
-  if (Type(x) = "Null") { return true };
+  if (typeX = "Null") { return true };
   /* 4. If Type(x) is Number, then. */
-  if (Type(x) = "Number") {
+  if (typeX = "Number") {
     /* a. If x is NaN and y is NaN, return true. */
     if ((is_NaN x) && (is_NaN y)) { return true };
     /* b. If x is +0 and y is -0, return false. */
@@ -291,11 +302,11 @@ function SameValueZero(x, y) {
   };
   /* 5. If Type(x) is String, then return true if x and y are exactly the same sequence of characters
     (same length and same characters in corresponding positions); otherwise, return false. */
-  if (Type(x) = "String") { return x = y };
+  if (typeX = "String") { return x = y };
   /* 6. If Type(x) is Boolean, return true if x and y are both true or both false; otherwise, return false. */
-  if (Type(x) = "Boolean") { return x = y };
+  if (typeX = "Boolean") { return x = y };
   /*  */
-  if ( Type(x) = "Symbol" ) { return x = y };
+  if ( typeX = "Symbol" ) { return x = y };
   /* 7. Return true if x and y refer to the same object. Otherwise, return false. */
   return x = y
 };
@@ -397,8 +408,11 @@ function AbstractEqualityComparison(x, y) {
   @ReturnIfAbrupt(x);
   /* 2. ReturnIfAbrupt(y). */
   @ReturnIfAbrupt(y);
+
+  tx := Type(x);
+  ty := Type(y);
   /* 3. If Type(x) is the same as Type(y), then */
-  if (Type(x) = Type(y)){
+  if (tx = ty){
     /* a. Return the result of performing Strict Equality Comparison x === y. */
     return StrictEqualityComparison(x, y)
   };
@@ -413,32 +427,32 @@ function AbstractEqualityComparison(x, y) {
     return true
   };
   /* 6. If Type(x) is Number and Type(y) is String, */
-  if (Type(x) = "Number" &&& Type(y) = "String") {
+  if (tx = "Number" &&& ty = "String") {
     /* return the result of the comparison x == ToNumber(y) */
     return AbstractEqualityComparison(x, ToNumber(y))
   };
   /* 7. If Type(x) is String and Type(y) is Number, */
-  if (Type(x) = "String" &&& Type(y) = "Number") {
+  if (tx = "String" &&& ty = "Number") {
     /* return the result of the comparison ToNumber(x) == y */
     return AbstractEqualityComparison(ToNumber(x), y)
   };
   /* 8. If Type(x) is Boolean, */
-  if (Type(x) = "Boolean") {
+  if (tx = "Boolean") {
     /* return the result of the comparison ToNumber(x) == y */
     return AbstractEqualityComparison(ToNumber(x), y)
   };
   /* 9. If Type(y) is Boolean, */
-  if (Type(y) = "Boolean") {
+  if (ty = "Boolean") {
     /* return the result of the comparison x == ToNumber(y) */
     return AbstractEqualityComparison(x, ToNumber(y))
   };
   /* 10. If Type(x) is either String, Number, or Symbol and Type(y) is Object,  */
-  if ((Type(x) =  "String" ||| Type(x) =  "Number" ||| Type(x) =  "Symbol") &&& Type(y) = "Object") {
+  if ((tx =  "String" ||| tx =  "Number" ||| tx =  "Symbol") &&& ty = "Object") {
     /* then return the result of the comparison x == ToPrimitive(y)  */
     return AbstractEqualityComparison(x, ToPrimitive(y, null))
   };
   /* 11. If Type(x) is Object and Type(y) is either String, Number, or Symbol, */
-  if (Type(x) = "Object" &&& (Type(y) =  "String" ||| Type(y) =  "Number" ||| Type(y) =  "Symbol")) {
+  if (tx = "Object" &&& (ty =  "String" ||| ty =  "Number" ||| ty =  "Symbol")) {
     /*  then return the result of the comparison ToPrimitive(x) == y */
     return AbstractEqualityComparison(ToPrimitive(x, null), y)
 
@@ -454,23 +468,24 @@ function AbstractEqualityComparison(x, y) {
  * Such a comparison is performed as follows: 
  */
 function StrictEqualityComparison(x, y) {
+  tx := Type(x);
   /* 1. If Type(x) is different from Type(y), */
-    if (!(Type(x) = Type(y))){
+    if (!(tx = Type(y))){
     /* return false */
     return false
   };
   /* 2. If Type(x) is Undefined, */
-  if (Type(x) = 'undefined) {
+  if (tx = 'undefined) {
     /* return true */
     return true
   };
   /* 3. If Type(x) is Null, */
-  if (Type(x) = 'null) {
+  if (tx = 'null) {
     /* return true */
     return true
   };
   /* 4. If Type(x) is Number, then */
-  if (Type(x) = "Number") {
+  if (tx = "Number") {
     /* a. If x is NaN, */
     if (x = NaN) {
       /* return false */
@@ -500,7 +515,7 @@ function StrictEqualityComparison(x, y) {
     return false
   };
   /* 5. If Type(x) is String, then */
-  if (Type(x) = "String") {
+  if (tx = "String") {
     /* a. If x and y are exactly the same sequence of code units (same length 
        and same code units at corresponding indices), */
     if (x = y) {
@@ -514,7 +529,7 @@ function StrictEqualityComparison(x, y) {
     }
   };
   /* 6. If Type(x) is Boolean, then */
-  if (Type(x) = "Boolean") {
+  if (tx = "Boolean") {
     /* a. If x and y are both true or both false, */
     if (x = y) {
       /* return true */

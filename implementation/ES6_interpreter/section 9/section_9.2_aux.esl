@@ -239,7 +239,7 @@ function BindingInitializationArrayPattern(param, value, environment) {
 
 function GetRestValue(listIterator, initialValue) {
   /* 3. Let A be ArrayCreate(0). */
-  A := ArrayConstructor(null, 'null, null, false, []);
+  A := ArrayCreate(0., null);
   CreateDataProperty(A, "0", initialValue);
   /* 4. Let n=0. */
   n := 1.;

@@ -1,5 +1,6 @@
 const {
   getLetDeclarations,
+  getConstDeclarations,
   getVarDeclarations,
   getFunctionDeclarations,
   replaceFuncDeclarations,
@@ -33,6 +34,12 @@ module.exports = {
       []
     );
 
+    const constDeclarations = getConstDeclarations(obj.body).reduce(
+      // remove repeated variables
+      (acc, localVar) => (acc.includes(localVar) ? acc : acc.concat(localVar)),
+      []
+    );
+
 
     const functionDeclarations = getFunctionDeclarations(obj.body);
 
@@ -42,6 +49,7 @@ module.exports = {
     obj.body.variableDeclarations = variableDeclarations;
     obj.body.functionDeclarations = functionDeclarations;
     obj.body.letDeclarations = letDeclarations;
+    obj.body.constDeclarations = constDeclarations;
     obj.body.containsExpression = containsExpressions(obj.params);
     obj.body.paramsDetails = paramsDetails;
     obj.body.paramsNames = paramsNames;

@@ -70,7 +70,6 @@ macro ReturnIfAbrupt(e) {
     } 
     /* Else if argument is a Completion Record, let argument be argument.[[value]]. */
     else {
-      print(e);
       e := getCompletionValue(e)
     }
   }
