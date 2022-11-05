@@ -1,19 +1,4 @@
 /**
- * 14.1.9 Static Semantics: IsAnonymousFunctionDefinition (production)
- *
- * The abstract operation IsAnonymousFunctionDefinition determines if its
- * argument is a function definition that does not bind a name. The argument
- * production is the result of parsing an AssignmentExpression or Initializer.
- * The following steps are taken:
- */
-function IsAnonymousFunctionDefinition(production) {
-  isArrow := (production.type = "ArrowFunctionExpression");
-  isFunctionWithoutName := (production.type = "FunctionExpression" &&& production.id = null);
-  isClassWithoutName := (production.type = "ClassExpression" &&& production.id = null);
-  return (isArrow ||| isFunctionWithoutName ||| isClassWithoutName)
-};
-
-/**
  * 14.1.19 Runtime Semantics: InstantiateFunctionObject
  *
  * With parameter scope.

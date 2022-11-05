@@ -345,7 +345,7 @@ function parseJSONObject(global, this, NewTarget, strict, tokens) {
 };
 
 function parseJSONArray(global, this, NewTarget, strict, tokens) {
-  arr := ArrayConstructor(global, this, 'undefined, strict, []);
+  arr := ArrayConstructor(global, this, 'undefined, strict, [], |Intrinsics|["Array"]);
   i := 0.;
   while ((l_len tokens) > 0) {
     ret := parseJSONValue(global, this, 'undefined, strict, tokens);

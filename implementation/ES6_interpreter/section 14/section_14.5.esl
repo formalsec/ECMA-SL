@@ -181,9 +181,7 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
 
             /* 21c ii. Return Completion(status). */
             return Completion(status)
-        };
-
-        i := i + 1
+        }
     };
 
     /* 22. Set the running execution context’s LexicalEnvironment to lex. */

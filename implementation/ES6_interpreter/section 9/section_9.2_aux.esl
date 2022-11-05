@@ -251,7 +251,7 @@ function BindingInitializationArrayPattern(param, value, environment) {
 
 function GetRestValue(listIterator, initialValue) {
   /* 3. Let A be ArrayCreate(0). */
-  A := ArrayConstructor(null, 'null, null, false, []);
+  A := ArrayConstructor('null, 'undefined, |Intrinsics|["Array"], false, [], |Intrinsics|["Array"]);
   /* 4. Let n=0. */
   n := 0.;
   /* 5. Repeat, */
