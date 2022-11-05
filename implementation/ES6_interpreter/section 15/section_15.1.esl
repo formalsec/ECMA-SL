@@ -242,7 +242,7 @@ function ScriptEvaluationJob(sourceText) {
         /*Report or log the error(s) in an implementation dependent manner.*/
         
         /* ver como reportar/log */
-        if (x.message = "Invalid left-hand side in assignment") {
+        if (sourceText.message = "Invalid left-hand side in assignment") {
           return NextJob( throwEmptyCompletion( ReferenceErrorConstructorInternal()))
         };
 
