@@ -149,7 +149,7 @@ function unescapeJSONString(S) {
             S2 := s_concat([S2, u]);
             i := i + 4
           } else {
-            throw SyntaxErrorConstructor(global, this, 'undefined, strict,
+            throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict,
               ["JSON.parse: Invalid unicode escape sequence."])
           }
         } elif ((c2 = "\\") ||| (c2 = "/") ||| (c2 = "\"")) {
@@ -213,7 +213,7 @@ function getTokens(global, this, NewTarget, strict, args) {
       number := parse_number (s_substr_u (JText, i, (s_len_u JText) - i));
       num_len := s_len_u number;
       if (num_len = 0) {
-        throw SyntaxErrorConstructor(global, this, 'undefined, strict,
+        throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict,
           [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
       };
       i := i + num_len;
@@ -231,7 +231,7 @@ function getTokens(global, this, NewTarget, strict, args) {
       str_len := s_len_u string;
 
       if (str_len = 0) {
-        throw SyntaxErrorConstructor(global, this, 'undefined, strict,
+        throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict,
           [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
       };
       i := i + str_len;
@@ -271,7 +271,7 @@ function getTokens(global, this, NewTarget, strict, args) {
       };
 
       if (!valid_tok) {
-        throw SyntaxErrorConstructor(global, this, 'undefined, strict, 
+        throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, 
           [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
       }
     }
@@ -323,14 +323,14 @@ function parseJSONObject(global, this, NewTarget, strict, tokens) {
 
     colon := hd (tl tokens);
     if (!(colon = ":")) {
-      throw SyntaxErrorConstructor(global, this, 'undefined, strict, [s_concat(["JSON.parse: Invalid syntax. Expected colon after object key."])])
+      throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, [s_concat(["JSON.parse: Invalid syntax. Expected colon after object key."])])
     };
     tokens := tl (tl tokens);
 
     ret := parseJSONValue(global, this, 'undefined, strict, tokens);
 
     if ((l_len ret) = 0) {
-      throw SyntaxErrorConstructor(global, this, 'undefined, strict, [s_concat(["JSON.parse: Invalid syntax. Invalid value for JSON key: ", key])])
+      throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, [s_concat(["JSON.parse: Invalid syntax. Invalid value for JSON key: ", key])])
     };
     value := l_nth (ret, 0);
 
@@ -342,7 +342,7 @@ function parseJSONObject(global, this, NewTarget, strict, tokens) {
       if ((l_len tokens) > 0) {
         comma := hd tokens;
         if (!(comma = ",")) {
-          throw SyntaxErrorConstructor(global, this, 'undefined, strict, ["JSON.parse: Expected comma after JSON array value."])
+          throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Expected comma after JSON array value."])
         };
         tokens := tl tokens
       }
@@ -353,7 +353,7 @@ function parseJSONObject(global, this, NewTarget, strict, tokens) {
   };
   tokens_len := l_len tokens;
   if (tokens_len > 0) {
-    throw SyntaxErrorConstructor(global, this, 'undefined, strict, [s_concat(["JSON.parse: Invalid syntax. Incomplete JSON object"])])
+    throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, [s_concat(["JSON.parse: Invalid syntax. Incomplete JSON object"])])
   };
   return obj
 };
@@ -364,7 +364,7 @@ function parseJSONArray(global, this, NewTarget, strict, tokens) {
   while ((l_len tokens) > 0) {
     ret := parseJSONValue(global, this, 'undefined, strict, tokens);
     if ((l_len ret) = 0) {
-      throw SyntaxErrorConstructor(global, this, 'undefined, strict, ["JSON.parse: Invalid syntax. Invalid value in JSON array."])
+      throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Invalid syntax. Invalid value in JSON array."])
     };
     value := l_nth (ret, 0);
 
@@ -376,7 +376,7 @@ function parseJSONArray(global, this, NewTarget, strict, tokens) {
       if ((l_len tokens) > 0) {
         comma := hd tokens;
         if (!(comma = ",")) {
-          throw SyntaxErrorConstructor(global, this, 'undefined, strict, ["JSON.parse: Expected comma after JSON array value."])
+          throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Expected comma after JSON array value."])
         };
         tokens := tl tokens
       }

@@ -23,7 +23,7 @@ function executeJob(job) {
         promise := l_nth(job.Arguments, 1);
         resolution := l_nth(job.Arguments, 2);
         thenAction := l_nth(job.Arguments, 3);
-        return romiseResolveThenableJob(strict, promise, resolution, thenAction)
+        return PromiseResolveThenableJob(strict, promise, resolution, thenAction)
       }
       case "PromiseReactionJob": {
         reaction := l_nth(job.Arguments, 0);
