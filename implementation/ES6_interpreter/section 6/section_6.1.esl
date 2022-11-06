@@ -278,7 +278,7 @@ function initIntrinsics(intrinsic, realm, strict) {
   |Intrinsics|["WeakSetPrototype"] := getPrototypeValue(WeakSetObject);
 
   /* ObjectIterator */
-  |Intrinsics|["ObjectIteratorPrototype"] := initObjectIteratorPrototype(globalObj, objectPrototype, strict);
+  |Intrinsics|["ObjectIteratorPrototype"] := initObjectIteratorPrototype(realm, objectPrototype, strict);
 
   return
 };
