@@ -610,7 +610,9 @@ function InitializeBindingObjectRecord(envRec, N, V) {
 	/* Let envRec be the object Environment Record for which the method was invoked. */
 
 	/* Assert: envRec must have an uninitialized binding for N. */
-	assert( isUninitialisedBinding(envRec, N) );
+	if( isUninitialisedBinding(envRec, N) ) {
+    {envRec.CreateMutableBinding}(envRec, N, true)
+  };
 
 	/* Record that the binding for N in envRec has been initialized. */
 	setBindingInitialised(envRec, N, true);
@@ -937,6 +939,10 @@ function InitializeBindingGlobalRecord(envRec, N, V) {
 
     /* Return ObjRec.InitializeBinding(N, V). */
     return {ObjRec.InitializeBinding}(ObjRec, N, V)
+};
+
+function isObjectEnvRec(envRec) {
+  return ("ObjectRecord" in_obj envRec)
 };
 
 /* 8.1.1.4.5 SetMutableBinding (N,V,S) */

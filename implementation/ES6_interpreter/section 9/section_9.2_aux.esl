@@ -113,7 +113,6 @@ function BindingInitialization(param, value, environment, listIterator) {
     if (!(value = 'undefined)) {
       return BindingInitialization(param.left, value, environment, listIterator)
     };
-    /* TODO: Falta uns return if abrupt aqui */
     initializer := param.right;
 
 
@@ -193,7 +192,7 @@ function BindingInitializationObjectPattern(param, value, environment) {
         BindingInitializationObjectPattern(argument, value, environment)
       }
     } else {
-      key := JS_Interpreter_Expr(property.key, environment);
+      key := JS_Interpreter_PropertyName(property.key, environment);
       @ReturnIfAbrupt(key);
       property_name := GetPropertyName(key);
       status := InitializeSingleObjectBinding(property, property_name, value, environment);
