@@ -27,6 +27,12 @@ function isESFunctionObject(obj) {
 };
 
 
+function OrdinaryCall_Handler(error) {
+    popExecStack();
+    throw error
+};
+
+
 /**
  * 9.2.1 [[Call]] (thisArgument, argumentsList)
  *
@@ -34,7 +40,6 @@ function isESFunctionObject(obj) {
  * with parameters thisArgument and argumentsList, a List of ECMAScript language
  * values. The following steps are taken:
  */
-
 function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, NewTarget, argumentList) {
     /* 1. Assert: F is an ECMAScript function object. */
     assert(isESFunctionObject(F));
@@ -57,7 +62,7 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, NewTarget,
     OrdinaryCallBindThis(F, calleeContext, thisArgument);
 
     /* 7. Let result be OrdinaryCallEvaluateBody(F, argumentsList). */
-    result := OrdinaryCallEvaluateBody(calleeContext, F, argumentList);
+    result := OrdinaryCallEvaluateBody(calleeContext, F, argumentList) catch OrdinaryCall_Handler;
 
     /* 8. Remove calleeContext from the execution context stack and restore callerContext as the running execution context. */
     if ( calleeContext = topExecStack() ) {
@@ -164,8 +169,8 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
     else {
         if (thisArgument = 'undefined ||| thisArgument = 'null) {
             /* a. Let thisValue be calleeRealm.[[globalThis]].  */
-            /* thisValue := calleeRealm.globalThis */
-            thisValue := |global|
+            thisValue := calleeRealm.globalThis 
+            /*thisValue := |global|*/
         } /* b. Else,  */
         else {
             /* c. Let thisValue be ToObject(thisArgument).  */
@@ -182,9 +187,9 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
     /* 8. Assert: The next step never returns an abrupt completion because envRec.[[thisBindingStatus]] is not "uninitialized".  */
 
     /* 9. Return envRec.BindThisValue(thisValue). */
+    return {envRec.BindThisValue}(envRec, thisValue)
     /* TODO - Fix this we should not do this ThisBinding  */
-    calleeContext.ThisBinding := thisValue;
-    return BindThisValue(envRec, thisValue)
+    /*calleeContext.ThisBinding := thisValue;*/
 };
 
 /**
