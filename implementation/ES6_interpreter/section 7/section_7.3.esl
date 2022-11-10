@@ -882,5 +882,59 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
 	};
 
 	return result
-}
+};
 
+/**
+ * 7.3.25(ES12) CopyDataProperties ( target, source, excludedItems )
+
+ * The abstract operation CopyDataProperties takes arguments target, source, and excludedItems. It performs the following steps when called:
+ */
+function CopyDataProperties(target, source, excludedItems) {
+	/* 1. Assert: Type(target) is Object. */
+	assert(Type(target) = "Object");
+	/* 2. Assert: excludedItems is a List of property keys. */
+	assert(Type(excludedItems) = "List");
+	/* 3. If source is undefined or null, return target. */
+	if (source = 'undefined ||| source = 'null) {
+		return target
+	};
+	/* 4. Let from be ! ToObject(source). */
+	from := ToObject(source);
+	assert(isAnAbruptCompletion(from) = false);
+	if (Type(from) = "Completion") {
+		from := getCompletionValue(from)
+	};
+	/* 5. Let keys be ? from.[[OwnPropertyKeys]](). */
+	keys := {from.OwnPropertyKeys}(from);
+	@ReturnIfAbrupt(keys);
+	/* 6. For each element nextKey of keys, do */
+	foreach(nextKey : keys) {
+		/* a. Let excluded be false. */
+		excluded := false;
+		/* b. For each element e of excludedItems, do */
+		foreach(e : excludedItems) {
+			/* i. If SameValue(e, nextKey) is true, then */
+			if (SameValue(e, nextKey)) {
+				/* 1. Set excluded to true. */
+				excluded := true
+			}				
+		};			
+		/* c. If excluded is false, then */
+		if (excluded = false) {
+			/* i. Let desc be ? from.[[GetOwnProperty]](nextKey). */
+			desc := {from.GetOwnProperty}(from, nextKey);
+			@ReturnIfAbrupt(desc);
+			/* ii. If desc is not undefined and desc.[[Enumerable]] is true, then */
+			if (!(desc = 'undefined) &&& desc.Enumerable) {
+				/* 1. Let propValue be ? Get(from, nextKey). */
+				propValue := Get(from, nextKey);
+				@ReturnIfAbrupt(propValue);
+				/* 2. Perform ! CreateDataPropertyOrThrow(target, nextKey, propValue). */
+				success := CreateDataPropertyOrThrow(target, nextKey, propValue);
+				assert(isAnAbruptCompletion(success) = false)
+			}
+		}
+	};
+	/* 7. Return target. */
+	return target
+}
