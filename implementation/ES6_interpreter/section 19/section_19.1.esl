@@ -397,6 +397,11 @@ function ObjectDefineProperty(globalObject, this, NewTarget, strict, params) {
   /* ReturnIfAbrupt(desc). */
   @ReturnIfAbrupt(desc);
 
+  print "DEFPROP";
+  print O;
+  print key;
+  print desc;
+
   /* 4. Let success be DefinePropertyOrThrow(O,key, desc). */
   success := DefinePropertyOrThrow(O, key, desc);
 
@@ -456,6 +461,11 @@ function ObjectGetOwnPropertyDescriptor(globalObject, this, NewTarget, strict, p
   /* ReturnIfAbrupt(desc). */
   @ReturnIfAbrupt(desc);
 
+  print "GETOWNPROPDESC";
+  print obj.JSPropertiesSymbols;
+  print desc;
+  print key;
+
   /* Return FromPropertyDescriptor(desc). */
   return FromPropertyDescriptor(desc)
 };
@@ -486,8 +496,6 @@ function GetOwnPropertyKeys(O, Type) {
 
   /* ReturnIfAbrupt(obj). */
   @ReturnIfAbrupt(obj);
-
-  print obj;
 
   /* Let keys be obj.[[OwnPropertyKeys]](). */
   keys := {obj.OwnPropertyKeys}(obj);
@@ -883,11 +891,11 @@ function ObjectPrototypeValueOf(globalObject, this, NewTarget, strict, params) {
 
 /* Auxiliary functions */
 function getObjectPrototype(strict) {
-  refObj := newPropertyReference(|global|, "Object", strict);
+  /* refObj := newPropertyReference(|global|, "Object", strict);
   ObjectObject := GetValue(refObj);
 
   refObjProto := newPropertyReference(ObjectObject, "prototype", strict);
-  objectObjectProto := GetValue(refObjProto);
+  objectObjectProto := GetValue(refObjProto); */
 
   return |Intrinsics|["ObjectPrototype"]
 };
@@ -902,5 +910,5 @@ function getObjectPrototypeToString(strict) {
   refToStringObjProto := newPropertyReference(objectObjectProto, "toString", strict);
   objectObjectToString := GetValue(refToStringObjProto); */
 
-  return |Intrinsics|["ObjectPrototype"].JSProperties.toString.Value
+  return |Intrinsics|["ObjectObjProto_toString"]
 }

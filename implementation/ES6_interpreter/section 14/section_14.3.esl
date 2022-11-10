@@ -1,7 +1,7 @@
 function DefineMethodAlt(scope, object, method, functionPrototype){
     FunctionBody := method.body;
     FormalParameterListopt := method.params;
-    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, true, functionPrototype, scope.Realm);
+    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, true, functionPrototype);
     MakeMethod(F, object);
     return { closure: F }
 };
@@ -36,7 +36,7 @@ function DefineMethodProperty(scope, object, propertyName, func, functionPrototy
      FunctionBody, scope, strict). If functionPrototype was passed as a 
      parameter then pass its value as the functionPrototype optional 
      argument of FunctionCreate. */
-  closure := FunctionCreate(kind, func.params, func.body, lexEnv, true, functionPrototype, scope.Realm);
+  closure := FunctionCreate(kind, func.params, func.body, lexEnv, true, functionPrototype);
 
   /* 7. Perform MakeMethod(closure, object). */
   MakeMethod(closure, object);
@@ -68,7 +68,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
 
         /* 6. Let closure be FunctionCreate(Method, formalParameterList, 
             FunctionBody, scope, strict). */
-        closure := FunctionCreate("Method", func.params, func.body, lexEnv, true, null, scope.Realm);
+        closure := FunctionCreate("Method", func.params, func.body, lexEnv, true, null);
 
         /* 7. Perform MakeMethod(closure, object). */
         MakeMethod(closure, object);
@@ -99,7 +99,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
 
         /* 5. Let closure be FunctionCreate(Method, formalParameterList, 
             FunctionBody, scope, strict). */
-        closure := FunctionCreate("Method", func.params, func.body, lexEnv, true, null, scope.Realm);
+        closure := FunctionCreate("Method", func.params, func.body, lexEnv, true, null);
 
         /* 6. Perform MakeMethod(closure, object). */
         MakeMethod(closure, object);

@@ -1,30 +1,41 @@
 /* aux functions to handle execution stack */
 
 function pushExecStack(newExecCtx) {
-   l_add(|ctxStack|, newExecCtx) 
+   |ctxStack| := l_prepend(newExecCtx, |ctxStack|);
+   return 
 };
 
 function popExecStack() {
-    l_remove_last |ctxStack|
+    |ctxStack| := tl |ctxStack|;
+    return
 };
 
 function topExecStack() {
-    return l_nth(|ctxStack|, l_len(|ctxStack|) - 1)
+    return hd |ctxStack|
 };
 
 function execStackIsEmpty() {
     return l_len(|ctxStack|) = 0
 };
 
+function initGlobalVars() {
+    |ctxStack| := [];
+    initJobQueue();
+    |__CUR__SYMB__| := 0; 
+    |GlobalSymbolRegistry| := {};
+
+    return
+};
+
 /* 8.5 ECMAScript Initialization()
 
 An ECMAScript implementation performs the following steps prior to the execution of any Jobs or
 the evaluation of any ECMAScript code: */
-function ECMAScriptInitialization(program) {
-    |ctxStack| = [];
+function ECMAScriptInitialization(sourceText) {
+    initGlobalVars();
 
     /* Let realm be CreateRealm(). */
-    realm := CreateRealm(program.strict);
+    realm := CreateRealm();
 
     /* Let newContext be a new execution context. */
     newContext := createExecutionContext();
@@ -39,7 +50,7 @@ function ECMAScriptInitialization(program) {
     pushExecStack(newContext);
 
     /* Let status be InitializeHostDefinedRealm(realm). */
-    status := InitializeHostDefinedRealm(realm, program.strict);
+    status := InitializeHostDefinedRealm(realm);
 
     /* If status is an abrupt completion, then */
     if ( isAnAbruptCompletion(status) )
@@ -49,22 +60,26 @@ function ECMAScriptInitialization(program) {
 
         /* Terminate ECMAScript execution. */
         return
-    }
+    };
 
-    /* In an implementation dependent manner, obtain the ECMAScript source texts (see clause 10) for zero or more ECMAScript scripts and/or ECMAScript modules. For each such sourceText do, */
+    /* In an implementation dependent manner, obtain the ECMAScript source texts (see clause 10)
+       for zero or more ECMAScript scripts and/or ECMAScript modules. For each such sourceText
+       do, */
         /* If sourceText is the source code of a script, then */
             /* Perform EnqueueJob("ScriptJobs", ScriptEvaluationJob, « sourceText »). */
+    EnqueueJob("ScriptJobs", "ScriptEvaluationJob", [sourceText]);
         /* Else sourceText is the source code of a module, */
             /* Perform EnqueueJob("ScriptJobs", TopLevelModuleEvaluationJob, « sourceText »). */
     
     /* NextJob NormalCompletion(undefined). */
+    return NextJob( NormalCompletion('undefined) )
 };
 
 /* 8.5.1 InitializeHostDefinedRealm ( realm )
 
 The abstract operation InitializeHostDefinedRealm with parameter realm performs the following
 steps: */
-function InitializeHostDefinedRealm(realm, strict) {
+function InitializeHostDefinedRealm(realm) {
     /* If this implementation requires use of an exotic object to serve as realm’s global object, let
     global be such an object created in an implementation defined manner. Otherwise, let global
     be undefined indicating that an ordinary object should be created as the global object. */
@@ -74,7 +89,7 @@ function InitializeHostDefinedRealm(realm, strict) {
     SetRealmGlobalObject(realm, global);
 
     /* Let globalObj be SetDefaultGlobalBindings(realm). */
-    globalObj := SetDefaultGlobalBindings(realm, strict);
+    globalObj := SetDefaultGlobalBindings(realm);
 
     /* ReturnIfAbrupt(globalObj). */
     @ReturnIfAbrupt(globalObj);

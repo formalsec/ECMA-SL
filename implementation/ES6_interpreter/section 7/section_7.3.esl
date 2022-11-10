@@ -1,15 +1,3 @@
-/* axuliriary functions */
-
-function InList(arg, elements) {
-	foreach( element : elements ) {
-		if ( arg = element ) {
-			return true
-		}
-	};
-
-	return false
-};
-
 /**
  * 7.3.1 Get (O, P)
  * The abstract operation Get is used to retrieve the value of a specific property of an object. 
@@ -791,7 +779,7 @@ function GetFunctionRealm(obj) {
     if ( "Realm" in_obj obj ) {
         /* Return obj’s [[Realm]] internal slot. */
         return obj.Realm
-    }
+    };
 
 
     /* TODO todo o resto disto */
@@ -804,17 +792,10 @@ function GetFunctionRealm(obj) {
         /* Return GetFunctionRealm(proxyTarget). */
 
     /* Return the running execution context’s Realm. */
+    return topExecStack().Realm
 };
 
 function OrdinaryCall(externalScope, ref, F, this, NewTarget, argumentsList) {
-	if (("Code" in_obj F) &&& (typeof F.Code = __$Str) &&& (F.Code = "GlobalObjectEval")) {
-	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(externalScope, ref, this, NewTarget, F.strict, args)
-	};
-	if (("Code" in_obj F) &&& ((typeof F.Code = __$Str) || (typeof F.Code = __$Curry))) {
-	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(F.Scope, this, NewTarget, F.strict, args)
-	};
 	/* When the [[Call]] internal method for a Function object F is called with a this value and a list of arguments,
 	  the following steps are taken: */
 
@@ -832,6 +813,8 @@ function OrdinaryCall(externalScope, ref, F, this, NewTarget, argumentsList) {
 	};
 
 	/* 3. Exit the execution context funcCtx, restoring the previous execution context. */
+	popExecStack();
+	topExecStack().Suspend := false;
 
 	/* 4. If result.type is throw then throw result.value. */
 	if (getCompletionType(result) = 'throw) {
@@ -845,24 +828,60 @@ function OrdinaryCall(externalScope, ref, F, this, NewTarget, argumentsList) {
 	return 'undefined
 };
 
+function BuiltInCall_Handler(error) {
+	popExecStack();
+	throw error
+};
+
 function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
-	if (("Code" in_obj F) &&& (typeof F.Code = __$Str) &&& (F.Code = "GlobalObjectEval")) {
-	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(externalScope, ref, V, NewTarget, F.strict, args)
-	};
+
+	callerContext := topExecStack();
+	callerContext.Suspend := true;
+
+	calleeContext := createExecutionContext();
+	calleeContext.Function := F;
+	calleeRealm := F.Realm;
+
+	calleeContext.Realm := calleeRealm;
+
+	setLexicalEnvironment(calleeContext, getLexicalEnvironment(callerContext));
+	setVariableEnvironment(calleeContext, getVariableEnvironment(callerContext));
+
+	pushExecStack(calleeContext);
+
+	/*BuiltInCall_Handler := lambda(error)[callerContext, calleeContext] {
+		if ( calleeContext = topExecStack() ) {
+		    popExecStack()
+		};
+
+		callerContext.Suspend := false;
+
+		throw error
+	};*/
 
 	/* Hack para poder passar o Realm no FunctionConstruct */
 	/* Ver se ainda e preciso o globalObject para alguma coisa */
 	if (("Code" in_obj F) &&& (typeof F.Code = __$Str) 
-		&&& ((F.Code = "FunctionConstructor") ||| (F.Code = "FunctionPrototypeCall") ||| (F.Code = "TypedArraySubConstructor"))) {
+		&&& ((F.Code = "FunctionPrototypeCall") ||| (F.Code = "TypedArraySubConstructor"))) {
 	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(externalScope, V, NewTarget, F.strict, args)
+	  result := {F.Code}(externalScope, V, NewTarget, F.strict, args) catch BuiltInCall_Handler
+	} 
+	elif (("Code" in_obj F) &&& ((typeof F.Code = __$Str) ||| (typeof F.Code = __$Curry))) {
+	  args := completeArgs(argumentsList, F);
+	  result := {F.Code}(F.Scope, V, NewTarget, F.strict, args) catch BuiltInCall_Handler
 	};
 
-	if (("Code" in_obj F) &&& ((typeof F.Code = __$Str) ||| (typeof F.Code = __$Curry))) {
-	  args := completeArgs(argumentsList, F);
-	  return {F.Code}(F.Scope, V, NewTarget, F.strict, args)
-	}
+	if ( calleeContext = topExecStack() ) {
+        popExecStack()
+    };
+
+	callerContext.Suspend := false;
+
+	if ( isErrorCompletion(result) ) {
+		throw getCompletionValue(result)
+	};
+
+	return result
 };
 
 /**
@@ -919,4 +938,3 @@ function CopyDataProperties(target, source, excludedItems) {
 	/* 7. Return target. */
 	return target
 }
-

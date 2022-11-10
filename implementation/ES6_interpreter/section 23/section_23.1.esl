@@ -85,9 +85,9 @@ function initMapPrototype(global, objectPrototype, strict) {
 };
 
 
-function initMapObject(global, objectPrototype, strict) {
+function initMapObject(global, functionPrototype, objectPrototype, strict) {
   objMapPrototype := initMapPrototype(global, objectPrototype, strict);
-  objMapConstructor := CreateBuiltInConstructorObject(getJSProperty(global, "Function").Value.Prototype, ["items"], "MapConstructor", global, strict, 0., "Map");
+  objMapConstructor := CreateBuiltInConstructorObject(functionPrototype, ["items"], "MapConstructor", global, strict, 0., "Map");
 
   descriptor := newDataPropertyDescriptorFull(objMapConstructor, true, false, true);
   setJSProperty(objMapPrototype, "constructor", descriptor);

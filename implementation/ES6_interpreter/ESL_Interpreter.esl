@@ -35,8 +35,6 @@ function JS_Interpreter_Program(p, callingExecCtx) {
 
     initJobQueue();
 
-    
-
     /* 2. If SourceElements is not present, return (normal, empty, empty). */
     if (SourceElementsopt = []) {
       return NormalCompletion('empty)
@@ -55,9 +53,16 @@ function JS_Interpreter_Program(p, callingExecCtx) {
     result := JS_Interpreter_SourceElements(SourceElementsopt, progCxt);
     /* 5. Exit the execution context progCxt. */
 
-    executeJobs();
+    /* executeJobs(); */
+    NextJob(NormalCompletion('undefined));
 
     /* 6. Return result. */
+    if ( getCompletionType(result) = 'throw ) {
+      val := getCompletionValue(result).JSProperties.message;
+      print "FIM PROG";
+      print val
+    };
+
     return result
   }
   | { sourceType: "script", type: "EarlySyntaxError", message: message } -> {
@@ -136,7 +141,7 @@ function JS_Interpreter_Expr(e, scope) {
     parameters := ArrowParameters;
     /* 4. Let closure be FunctionCreate(Arrow, parameters, ConciseBody, scope,
       strict). */
-    closure := FunctionCreate("Arrow", parameters, ConciseBody, lexEnv, strict, null, scope.Realm);
+    closure := FunctionCreate("Arrow", parameters, ConciseBody, lexEnv, strict, null);
     /* 5. Return closure. */
     return closure
     /**
@@ -268,9 +273,14 @@ function JS_Interpreter_Expr(e, scope) {
     propertyNameValue := GetValue(propertyNameReference);
 
     @ReturnIfAbrupt(propertyNameValue);
+
+    print "OBEJCTCOHERS";
+    print baseValue;
+    print propertyNameValue;
     
     /* 5. Call CheckObjectCoercible(baseValue). */
     CheckObjectCoercible(baseValue);
+
     /* 6. Let propertyNameString be ToString(propertyNameValue). */
     propertyNameString := ToPropertyKey(propertyNameValue);
     @ReturnIfAbrupt(propertyNameString);
@@ -328,6 +338,7 @@ function JS_Interpreter_Expr(e, scope) {
     print "DEBUG: CALL";
     print scope;
     print scope.Function;
+    print |ctxStack|;
 
     ref := JS_Interpreter_Expr(MemberExpression, scope);
 
@@ -361,7 +372,7 @@ function JS_Interpreter_Expr(e, scope) {
       /* vi. Let evalRealm be the running execution context's Realm. */
       evalRealm := scope.Realm;
       /* vii. Return PerformEval(evalText, evalRealm, strictCaller, true). . */
-      return PerformEval(scope, evalText, evalRealm, strictCaller, true)
+      return PerformEval(evalText, evalRealm, strictCaller, true)
     };
 
     /* 5. If Type(ref) is Reference, then */
@@ -377,8 +388,7 @@ function JS_Interpreter_Expr(e, scope) {
         refEnv := GetBase(ref);
 
         /* ii.  Let thisValue be refEnv.WithBaseObject(). */
-        /* TODO: Fix This -> WithBaseObject not being used  */
-        thisValue := 'undefined
+        thisValue := {refEnv.WithBaseObject}(refEnv)
       }
     } else {
       /* 6. Else Type(ref) is not Reference, */
@@ -386,13 +396,14 @@ function JS_Interpreter_Expr(e, scope) {
       thisValue := 'undefined
     };
 
-    /* TODO */
     /* 7. Let thisCall be this CallExpression. */
+    thisCall := e;
+
     /* 8. Let tailCall be IsInTailPosition(thisCall). (See 14.6.1) */
+    tailCall := IsInTailPosition(thisCall);
 
     /* 9. Return EvaluateDirectCall(func, thisValue, Arguments, tailCall). */
-    print "DEBUG CALL EXPRESSION, CALLING EvaluateDirectCall";
-    return EvaluateDirectCall(func, thisValue, Arguments, false, scope)
+    return EvaluateDirectCall(func, thisValue, Arguments, tailCall, scope)
   }
   | { type: "FunctionExpression", id: Identifier, params: FormalParameterList, body: FunctionBody } -> {
     /* 11.2.5 Function Expressions */
@@ -606,8 +617,31 @@ function JS_Interpreter_Expr(e, scope) {
       list := l_add(list, nextArg)
     }
   }
-  | { type: "TemplateLiteral" } -> {
-    fail "Unsupported: Template Literals"
+  | { type: "TemplateLiteral", quasis: quasis, expressions: expressions } -> {
+    
+    template := (hd quasis).value.raw;
+    quasis := tl quasis;
+
+    len := l_len(quasis);
+    i := 0;
+    while ( i < len ) {
+      sub := JS_Interpreter_Expr( l_nth(expressions, i), scope );
+      
+      sub := GetValue(sub);
+    
+      middle := ToString(sub);
+
+      @ReturnIfAbrupt(middle);
+
+      /* quasis values are TemplateElements */
+      rest := l_nth(quasis, i).value.raw;
+
+      template := s_concat [template, middle, rest];
+
+      i := i + 1
+    };
+
+    return template
   }
   | default -> {
     print "default case";
@@ -1102,6 +1136,8 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
     if (FunctionDeclaration.generator = true){
       fail "Unsupported: Generators"
     };
+    scope := topExecStack();
+
     /* 1. If the function code for FunctionDeclaration is strict mode code, let strict be true.
           Otherwise let strict be false. */
     if ( isStrictModeCode(FunctionBody, scope)) {
@@ -1113,8 +1149,10 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
     /* 2. Let name br StringValue of BindingIdentifier */
     name := Identifier.name;
 
+    lex := getLexicalEnvironment(scope);
+
     /* 3. Let F be FunctionCreate(Normal, FormalParameters, FunctionBody, scope, strict) */
-    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, strict, null, scope.Realm);
+    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, getLexicalEnvironment(scope), strict, null);
 
     /* 4. Perform MakeConstructor(F) */
     MakeConstructor(F, null, null);
@@ -1170,7 +1208,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
       FormalParameterList := []
     };
 
-    closure := FunctionCreate("normal", FormalParameterList, FunctionBody, scope.LexicalEnvironment, strict, null, scope.Realm);
+    closure := FunctionCreate("normal", FormalParameterList, FunctionBody, scope.LexicalEnvironment, strict, null);
 
     MakeConstructor(closure, null, null);
 
@@ -1196,7 +1234,7 @@ function JS_Interpreter_FunctionExpression(FunctionExpression, scope) {
 
     {envRec.CreateImmutableBinding}(envRec, name, false);
 
-    closure := FunctionCreate("normal", FormalParameterListopt, FunctionBody, funcEnv, strict, null, scope.Realm);
+    closure := FunctionCreate("normal", FormalParameterListopt, FunctionBody, funcEnv, strict, null);
 
     MakeConstructor(closure, null, null);
 
@@ -2861,8 +2899,8 @@ function JS_Interpreter_ForInStmt_VarDecl(forInStmt, scope) {
     /* 7. Repeat */
     i := 0;
 
-    /* obj_enums := EnumerableOwnNames(obj); */
-    obj_enums := getEnumerableProperties(obj);
+    obj_enums := EnumerableOwnNames(obj);
+    /* obj_enums := getEnumerableProperties(obj); */
 
     repeat {
       /* a. Let P be the name of the next property of obj whose [[Enumerable]] attribute is true.

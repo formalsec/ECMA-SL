@@ -1,3 +1,75 @@
+/* 15.1.7 Runtime Semantics: ScriptEvaluation */
+function ScriptEvaluation(script, realm) {
+    ScriptBody := script.body;
+
+    /*If ScriptBody is not present, return NormalCompletion(empty).*/
+    if ( ScriptBody = [] ) {
+        return NormalCompletion('empty)
+    };
+
+    /*Let globalEnv be realm.[[globalEnv]].*/
+    globalEnv := realm.globalEnv;
+
+    /*Let scriptCxt be a new ECMAScript code execution context.*/
+    scriptCtx := createExecutionContext();
+
+    /*Set the Function of scriptCxt to null.*/
+    scriptCtx.Function := 'null;
+
+    /*Set the Realm of scriptCxt to realm.*/
+    scriptCtx.Realm := realm;
+
+    /*Set the VariableEnvironment of scriptCxt to globalEnv.*/
+    setVariableEnvironment(scriptCtx, globalEnv);
+
+    /*Set the LexicalEnvironment of scriptCxt to globalEnv.*/
+    setLexicalEnvironment(scriptCtx, globalEnv);
+
+    /* colocar o strict mode no contexto */
+    setContainedInStrictCode(scriptCtx, isStrictModeCode(script, scriptCtx));
+
+    /*Suspend the currently running execution context.*/
+    topExecStack().Suspend := true;
+
+    /*Push scriptCxt on to the execution context stack; scriptCxt is now the running execution context.*/
+    pushExecStack(scriptCtx);
+
+    /*Let result be GlobalDeclarationInstantiation(ScriptBody, globalEnv).*/
+    result := GlobalDeclarationInstantiation(script, globalEnv);
+
+    /*If result.[[type]] is normal, then*/
+    if ( getCompletionType(result) = 'normal ) {
+        /*Let result be the result of evaluating ScriptBody.*/
+        result := JS_Interpreter_SourceElements(ScriptBody, scriptCtx)
+    };
+
+    /*If result.[[type]] is normal and result.[[value]] is empty, then*/
+    if ( getCompletionType(result) = 'normal &&& getCompletionValue(result) = 'empty ) {
+        /*Let result be NormalCompletion(undefined).*/
+        result := NormalCompletion('undefined')
+    };
+
+    /*Suspend scriptCxt and remove it from the execution context stack.*/
+    scriptCtx.Suspend := true;
+    popExecStack();
+
+    /*Assert: the execution context stack is not empty.*/
+    assert( !execStackIsEmpty() );
+
+    /*Resume the context that is now on the top of the execution context stack as the running execution context.*/
+    topExecStack().Suspend := false;
+
+   /* if ( getCompletionType(result) = 'throw ) {
+        val := getCompletionValue(result).JSProperties.message;
+        print "FIMPROG";
+        print result;
+        print val
+    };*/
+
+    /*Return Completion(result).*/
+    return Completion(result)
+};
+
 /* Auxiliary functions */
 function getVariableDeclarationsInCode(object) {
   if (object = 'undefined ||| !("variableDeclarations" in_obj object)) {
@@ -83,12 +155,8 @@ function getConstDeclarationsInCode(object) {
 */
 function GlobalDeclarationInstantiation(script, env) {
     /* Let envRec be env’s EnvironmentRecord. */
-    /* envRec := getEnvironmentRecord(env); */
+    envRec := getEnvironmentRecord(env); 
     
-    /* TODO env devia ser apenas globalEnv */
-    /* apenas tou a fazer isto para FunctionDeclaration mais a baixo */
-    envRec := getEnvironmentRecord(env.Realm.globalEnv);
-
     /* Assert: envRec is a global Environment Record. */
 
     /* Let lexNames be the LexicallyDeclaredNames of script. */
@@ -143,9 +211,6 @@ function GlobalDeclarationInstantiation(script, env) {
             /* NOTE If there are multiple FunctionDeclarations for the same name, the last declaration is used. */
         
         /* Let fn be the sole element of the BoundNames of d. */
-        print "DECLFUNC";
-        print d.id.name;
-
         fn := d.id.name;
             
         /* If fn is not an element of declaredFunctionNames, then */
@@ -170,12 +235,9 @@ function GlobalDeclarationInstantiation(script, env) {
     foreach ( d : varDeclarations ) {
         /* If d is a VariableDeclaration or a ForBinding, then */
         /* For each String vn in the BoundNames of d, do */
-        print "VARDECL";
-        print d;
-
         vn := d;
         /* If vn is not an element of declaredFunctionNames, then */
-        if (!InList(vn, declaredFunctionNames)) {
+        if (!(vn in_list declaredFunctionNames)) {
             /* Let vnDefinable be envRec.CanDeclareGlobalVar(vn). */
             vnDefinable := {envRec.CanDeclareGlobalVar}(envRec, vn);
 
@@ -188,7 +250,7 @@ function GlobalDeclarationInstantiation(script, env) {
             };
 
             /* If vn is not an element of declaredVarNames, then */
-            if (!InList(vn, declaredVarNames)) {
+            if (!(vn in_list declaredVarNames)) {
                 /* Append vn to declaredVarNames. */
                 declaredVarNames := l_add(declaredVarNames, vn)
             }
@@ -221,9 +283,6 @@ function GlobalDeclarationInstantiation(script, env) {
     };
 
     /* For each production f in functionsToInitialize, do */
-    print "GLOBALBIND";
-    print functionsToInitialize;
-
     foreach ( f : functionsToInitialize ) {
         /* Let fn be the sole element of the BoundNames of f. */
         fn := f.id.name;
@@ -249,5 +308,50 @@ function GlobalDeclarationInstantiation(script, env) {
 
     /* Return NormalCompletion(empty) */
     return NormalCompletion('empty)
+};
+
+/*
+15.1.9 Runtime Semantics: ScriptEvaluationJob ( sourceText ) 
+
+The job ScriptEvaluationJob with parameter sourceText parses, validates, and evaluates sourceText as a Script.
+*/
+function ScriptEvaluationJob(sourceText) {
+    /*Assert: sourceText is an ECMAScript source text (see clause 10).*/
+    /* TODO */
+
+    /* Parse sourceText using Script as the goal symbol and analyze the parse result for any Early Error conditions. If
+       the parse was successful and no early errors were found, let code be the resulting parse tree. Otherwise, let
+       code be an indication of one or more parsing errors and/or early errors. Parsing and early error detection may
+       be interweaved in an implementation dependent manner. If more than one parse or early error is present, the
+       number and ordering of reported errors is implementation dependent but at least one error must be reported.*/
+
+    /*If code is an error indication, then*/
+    if ( sourceText.type = "EarlySyntaxError" )  {
+        /*Report or log the error(s) in an implementation dependent manner.*/
+        
+        /* ver como reportar/log */
+        if (sourceText.message = "Invalid left-hand side in assignment") {
+          return NextJob( throwEmptyCompletion( ReferenceErrorConstructorInternal()))
+        };
+
+        return NextJob( throwEmptyCompletion(SyntaxErrorConstructorInternal()) );
+
+        /*Let status be NormalCompletion(undefined).*/
+        status := NormalCompletion('undefined)
+    }
+    /*Else,*/
+    else {
+        /*Let realm be the running execution context’s Realm.*/
+        realm := topExecStack().Realm;
+
+        /*Let status be the result of ScriptEvaluation of code with argument realm.*/
+        status := ScriptEvaluation(sourceText, realm)
+    };
+    
+    /*NextJob Completion(status).*/
+    return NextJob(Completion(status))
+    /*NOTE An implementation may parse a sourceText as a Script and analyze it for Early Error conditions prior
+           to the execution of the ScriptEvaluationJob for that sourceText. However, the reporting of any errors
+           must be deferred until the ScriptEvaluationJob is actually executed.*/
 }
 

@@ -7,11 +7,13 @@ function initJobQueue() {
 
 function appendToJobQueue(job, queueName) {
   if ( queueName = "PromiseJobs") {
-    |PromiseJobQueue| := l_add(|PromiseJobQueue|, job);
+    |PromiseJobQueue| := l_add(|PromiseJobQueue|, job)
   }
   else {
     |ScriptJobQueue| := l_add(|ScriptJobQueue|, job)
-  }
+  };
+
+  return
 };
 
 function executeJob(job) {
@@ -21,15 +23,25 @@ function executeJob(job) {
         promise := l_nth(job.Arguments, 1);
         resolution := l_nth(job.Arguments, 2);
         thenAction := l_nth(job.Arguments, 3);
-        PromiseResolveThenableJob(strict, promise, resolution, thenAction)
+        return PromiseResolveThenableJob(strict, promise, resolution, thenAction)
       }
       case "PromiseReactionJob": {
         reaction := l_nth(job.Arguments, 0);
         argument := l_nth(job.Arguments, 1);
-        PromiseReactionJob(reaction, argument)
+        return PromiseReactionJob(reaction, argument)
+      }
+      case "ScriptEvaluationJob": {
+        sourceText := l_nth(job.Arguments, 0);
+        return ScriptEvaluationJob(sourceText)
+      }
+      case "TopLevelModuleEvaluationJob": {
+        sourceText := l_nth(job.Arguments, 0);
+        return TopLevelModuleEvaluationJob(sourceText)
       }
       sdefault: throw "Job not implemented."  
-    }
+    };
+
+    return
 };
 
 function newPendingJob(Job, Arguments, realm, HostDefined) {
@@ -37,7 +49,8 @@ function newPendingJob(Job, Arguments, realm, HostDefined) {
     Job: Job,
     Arguments: Arguments,
     Realm: realm,
-    HostDefined: HostDefined }
+    HostDefined: HostDefined 
+  }
 };
 
 /* 8.4.1 EnqueueJob (queueName, job, arguments) */
@@ -64,7 +77,7 @@ function EnqueueJob(queueName, job, arguments) {
     the [[HostDefined]] field or any other field of pending. */
 
     /* Add pending at the back of the Job Queue named by queueName. */
-    appendToJobQueue(job, queueName);
+    appendToJobQueue(pending, queueName);
 
     /* Return NormalCompletion(empty). */
     return NormalCompletion('empty)
@@ -97,19 +110,22 @@ function NextJob(result) {
 
     /* Let nextQueue be a non-empty Job Queue chosen in an implementation defined manner. If all Job Queues are
     empty, the result is implementation defined. */
-    if ( !(l_len(|PromiseJobQueue|) = 0) ) {
-      nextQueue := |PromiseJobQueue|;
+    if ( !(l_len(|ScriptJobQueue|) = 0 ) ) {
+      nextPending := hd |ScriptJobQueue|;
+      |ScriptJobQueue| := tl |ScriptJobQueue|
+    }
+    elif ( !(l_len(|PromiseJobQueue|) = 0) ) {
+      nextPending := hd |PromiseJobQueue|;
+      |PromiseJobQueue| := tl |PromiseJobQueue|
     }
     else {
-      nextQueue := |ScriptJobQueue|;
+      return result
     };
 
     /* Let nextPending be the PendingJob record at the front of nextQueue. Remove that record from nextQueue. */
-    nextPending := hd nextQueue;
-    nextQueue := tl nextQueue;
 
     /* Let newContext be a new execution context. */
-    newContext := newExecCtx();
+    newContext := createExecutionContext();
 
     /* Set newContext’s Realm to nextPending.[[Realm]]. */
     newContext.Realm := nextPending.Realm;
@@ -120,5 +136,7 @@ function NextJob(result) {
     /* Perform any implementation or host environment defined job initialization using nextPending. */
 
     /* Perform the abstract operation named by nextPending.[[Job]] using the elements of nextPending.[[Arguments]] as its arguments. */
-    executeJob(nextPending)
+    result := executeJob(nextPending);
+    
+    return result
 }

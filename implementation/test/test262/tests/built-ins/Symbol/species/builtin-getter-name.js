@@ -12,6 +12,10 @@ features: [Symbol.species]
 
 function getGetterName(obj, name) {
   var getter = Object.getOwnPropertyDescriptor(obj, Symbol.species).get;
+
+  console.log(getter);
+  console.log(getter.name);
+  
   return getter && getter.name;
 }
 

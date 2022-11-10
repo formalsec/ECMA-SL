@@ -17,7 +17,7 @@ dependent. */
 properties. This may include a property whose value is the global object itself; for example, in the HTML
 document object model the window property of the global object is the global object itself. */
 
-function initGlobalObject(globalObject, intrinsic, strict) {
+function initGlobalObject(globalObject, intrinsic) {
   /* 15.1.1 Value Properties of the Global Object */
   /* 15.1.1.1 NaN */
   /* The value of NaN is NaN (see 8.5). This property has the attributes { [[Writable]]: false, [[Enumerable]]: false,
@@ -141,28 +141,23 @@ function initGlobalObject(globalObject, intrinsic, strict) {
   createBuiltInProperty(globalObject, "Proxy", intrinsic.Proxy);
 
   /* Extras */
-  ConsoleObject := initConsoleObject(globalObject, intrinsic.ObjectPrototype, strict);
+  ConsoleObject := initConsoleObject(globalObject, intrinsic.ObjectPrototype, false);
   createBuiltInProperty(globalObject, "console", ConsoleObject);
 
-  test262Object := initTest262Object(globalObject, intrinsic.ObjectPrototype, strict);
+  test262Object := initTest262Object(globalObject, intrinsic.ObjectPrototype, false);
   createBuiltInProperty(globalObject, "$262", test262Object);
 
   return globalObject
 };
 
 /* 15.1.2.1 eval (x) */
-function GlobalObjectEval(externalScope, ref, this, NewTarget, strict, params) {
+function GlobalObjectEval(ref, this, NewTarget, strict, params) {
   x := getOptionalParam(params, 0);
+  externalScope := topExecStack();
 
-  /* TODO hack para sacar realm mudar isto */
-  if ( externalScope.Function = 'null ) {
-    realm := externalScope.Realm
-  }
-  else {
-    realm := externalScope.Function.Realm
-  };
+  realm := externalScope.Function.Realm;
 
-  return PerformEval(externalScope, x, realm, false, false)
+  return PerformEval(x, realm, false, false)
 };
 
 /* 15.1.2.1.1 Direct Call to Eval */

@@ -4,7 +4,7 @@
  * The abstract operation PerformEval with arguments x, evalRealm, strictCaller,
  * and direct performs the following steps:
  */
-function PerformEval(scope, x, evalRealm, strictCaller, direct) {
+function PerformEval(x, evalRealm, strictCaller, direct) {
   /* 1. Assert: If direct is false then strictCaller is also false. */
   if (direct = false) {
 		assert(strictCaller = false)
@@ -43,7 +43,7 @@ function PerformEval(scope, x, evalRealm, strictCaller, direct) {
 	 be the execution context that performed the direct eval. If direct is
 	 false ctx will be the execution context for the invocation of the eval
 	 function. */
-  ctx := scope;
+   ctx := topExecStack(); 
   /* 9. If direct is true, then */
   if (direct = true) {
 		/* a. Let lexEnv be NewDeclarativeEnvironment(ctx's LexicalEnvironment). */
@@ -65,7 +65,7 @@ function PerformEval(scope, x, evalRealm, strictCaller, direct) {
 		varEnv := lexEnv
   };
   /* 12. If ctx is not already suspended, Suspend ctx */
-  /* TODO */
+  ctx.Suspend := true;
 
   /* 13. Let evalCxt be a new ECMAScript code execution context. */
   evalCxt := createExecutionContext();
@@ -78,7 +78,7 @@ function PerformEval(scope, x, evalRealm, strictCaller, direct) {
   evalCxt.LexicalEnvironment := lexEnv;
   /* 17. Push evalCxt on to the execution context stack; evalCxt is now the
 	 running execution context. */
-  /*TODO*/
+  pushExecStack(evalCxt);
 
   /* 18. Let result be EvalDeclarationInstantiation(body, varEnv, lexEnv,
 	 strictEval). */
@@ -90,14 +90,17 @@ function PerformEval(scope, x, evalRealm, strictCaller, direct) {
   };
   /* 20. If result.[[type]] is normal and result.[[value]] is empty, then */
   if ((getCompletionType(result) = 'normal) &&& (getCompletionValue(result) = 'empty)) {
-	/* a. Let result be NormalCompletion(undefined). */
-	return NormalCompletion('undefined)
+		/* a. Let result be NormalCompletion(undefined). */
+		result:=  NormalCompletion('undefined)
   };
   /* 21. Suspend evalCxt and remove it from the execution context stack. */
-  /* TODO */
+  evalCxt.Suspend := true;
+  popExecStack();
+
   /* 22. Resume the context that is now on the top of the execution context
 	 stack as the running execution context. */
-  /* TODO */
+  topExecStack().Suspend := false;
+
   /* 23. Return Completion(result). */
   return Completion(result)
 };

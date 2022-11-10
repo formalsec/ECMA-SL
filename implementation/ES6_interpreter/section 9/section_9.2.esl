@@ -27,6 +27,12 @@ function isESFunctionObject(obj) {
 };
 
 
+function OrdinaryCall_Handler(error) {
+    popExecStack();
+    throw error
+};
+
+
 /**
  * 9.2.1 [[Call]] (thisArgument, argumentsList)
  *
@@ -34,7 +40,6 @@ function isESFunctionObject(obj) {
  * with parameters thisArgument and argumentsList, a List of ECMAScript language
  * values. The following steps are taken:
  */
-
 function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, NewTarget, argumentList) {
     /* 1. Assert: F is an ECMAScript function object. */
     assert(isESFunctionObject(F));
@@ -44,28 +49,27 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, NewTarget,
         throw TypeErrorConstructorInternal()
     };
 
-    print "ORDINARY FUNC CALL";
-    print externalScope;
-
     /* 3. Let callerContext be the running execution context. */
-    callerContext := externalScope;
+    callerContext := topExecStack();
 
     /* 4. Let calleeContext be PrepareForOrdinaryCall(F, undefined). */
-    calleeContext := PrepareForOrdinaryCall(callerContext, F, 'undefined);
+    calleeContext := PrepareForOrdinaryCall(F, 'undefined);
 
-    /* TODO */
     /* 5. Assert: calleeContext is now the running execution context. */
+    assert( calleeContext = topExecStack() );
 
-    /* TODO */
     /* 6. Perform OrdinaryCallBindThis(F, calleeContext, thisArgument). */
     OrdinaryCallBindThis(F, calleeContext, thisArgument);
 
-
     /* 7. Let result be OrdinaryCallEvaluateBody(F, argumentsList). */
-    result := OrdinaryCallEvaluateBody(calleeContext, F, argumentList);
+    result := OrdinaryCallEvaluateBody(calleeContext, F, argumentList) catch OrdinaryCall_Handler;
 
     /* 8. Remove calleeContext from the execution context stack and restore callerContext as the running execution context. */
-    /* TODO */
+    if ( calleeContext = topExecStack() ) {
+        popExecStack()
+    };
+
+    callerContext.Suspend := false;
 
     /* 9. If result.[[type]] is return, return NormalCompletion(result.[[value]]). */
     if (getCompletionType(result) = 'return) {
@@ -87,15 +91,15 @@ function NewOrdinaryFunctionCall(externalScope, ref, F, thisArgument, NewTarget,
  *   and ECMAScript language value newTarget, the following steps are taken:
  */
 
-function PrepareForOrdinaryCall(externalScope, F, newTarget) {
+function PrepareForOrdinaryCall(F, newTarget) {
     /* 1. Assert: Type(newTarget) is Undefined or Object. */
     assert(Type(newTarget) = "Undefined" ||| Type(newTarget) = "Object");
 
     /* 2. Let callerContext be the running execution context. */
-    callerContext := externalScope;
-    if (externalScope = null) {
+    callerContext := topExecStack();
+    /* if (externalScope = null) {
       callerContext := F.Environment
-    };
+    }; */
 
     /* 3. Let calleeContext be a new ECMAScript code execution context. */
     calleeContext := createExecutionContext();
@@ -120,17 +124,17 @@ function PrepareForOrdinaryCall(externalScope, F, newTarget) {
     calleeContext.VariableEnvironment := localEnv;
 
     /* 10. If callerContext is not already suspended, Suspend callerContext. */
-    /* TODO */
+    callerContext.Suspend = true;
 
     /* 11. Push calleeContext onto the execution context stack; calleeContext is now the running execution context. */
-    /* TODO */
+    pushExecStack(calleeContext);
 
     /* 12. NOTE Any exception objects produced after this point are associated with calleeRealm. */
+    print "PERPORDCALL";
+    print F;
+    print localEnv;
 
     /* 13. Return calleeContext. */
-    print "calleeContext debug";
-    print calleeContext;
-    print calleeContext.LexicalEnvironment;
     return calleeContext
 };
 
@@ -165,8 +169,8 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
     else {
         if (thisArgument = 'undefined ||| thisArgument = 'null) {
             /* a. Let thisValue be calleeRealm.[[globalThis]].  */
-            /* thisValue := calleeRealm.globalThis */
-            thisValue := |global|
+            thisValue := calleeRealm.globalThis 
+            /*thisValue := |global|*/
         } /* b. Else,  */
         else {
             /* c. Let thisValue be ToObject(thisArgument).  */
@@ -183,9 +187,9 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
     /* 8. Assert: The next step never returns an abrupt completion because envRec.[[thisBindingStatus]] is not "uninitialized".  */
 
     /* 9. Return envRec.BindThisValue(thisValue). */
+    return {envRec.BindThisValue}(envRec, thisValue)
     /* TODO - Fix this we should not do this ThisBinding  */
-    calleeContext.ThisBinding := thisValue;
-    return BindThisValue(envRec, thisValue)
+    /*calleeContext.ThisBinding := thisValue;*/
 };
 
 /**
@@ -226,7 +230,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
   assert(Type(newTarget) = "Object");
 
   /* 3. Let callerContext be the running execution context. */
-  callerContext := scope;
+  callerContext := topExecStack();
 
   /* 4. Let kind be F's [[ConstructorKind]] internal slot. */
   kind := F.ConstructorKind;
@@ -241,10 +245,10 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
   };
 
   /* 6. Let calleeContext be PrepareForOrdinaryCall(F, newTarget). */
-  calleeContext := PrepareForOrdinaryCall(scope, F, newTarget);
+  calleeContext := PrepareForOrdinaryCall(F, newTarget);
 
   /* 7. Assert: calleeContext is now the running execution context. */
-  /* TODO: Instruction not yet implemented. */
+  assert( calleeContext = topExecStack() );
 
   /* 8. If kind is "base", */
   if (kind = "base") {
@@ -263,7 +267,8 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
 
   /* 12. Remove calleeContext from the execution context stack and restore
      callerContext as the running execution context. */
-  /* TODO: Instruction not yet implemented. */
+  popExecStack();
+  callerContext.Suspend := false;
 
   /* 13. If result.[[type]] is return, then */
   if (getCompletionType(result) = 'return) {
@@ -301,7 +306,7 @@ function FunctionConstruct(scope, ref, F, argumentsList, newTarget) {
  * functionPrototype and strict. It also accepts one optional argument,
  * functionKind. FunctionAllocate performs the following steps:
  */
-function FunctionAllocate(Realm, functionPrototype, strict, functionKind) {
+function FunctionAllocate(functionPrototype, strict, functionKind) {
   /* 1. Assert: Type(functionPrototype) is Object. */
   assert(Type(functionPrototype) = "Object");
 
@@ -341,6 +346,10 @@ function FunctionAllocate(Realm, functionPrototype, strict, functionKind) {
   /* 8. Set F's [[Call]] internal method to the definition specified in 9.2.1. */
   F.Call := "NewOrdinaryFunctionCall";
 
+  if ( strict = false ) {
+    setJSProperty(F, "caller",  newDataPropertyDescriptorFull('null, false, false, false) )
+  };
+
   /* 9. If needsConstruct is true, then */
   if (needsConstruct = true) {
     /* a. Set F's [[Construct]] internal method to the definition specified in
@@ -373,7 +382,7 @@ function FunctionAllocate(Realm, functionPrototype, strict, functionKind) {
 
   /* 14. Set the [[Realm]] internal slot of F to the running execution
      context's Realm. */
-  F.Realm := Realm;
+  F.Realm := topExecStack().Realm;
 
   /* 15. Return F. */
   return F
@@ -446,7 +455,7 @@ function FunctionInitialize(F, kind, ParameterList, Body, Scope) {
  * specified by Scope, a Boolean flag Strict, and optionally, an object
  * prototype. FunctionCreate performs the following steps:
  */
-function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype, Realm) {
+function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype) {
   /* 1. If the prototype argument was not passed, then */
   if (prototype = null) {
     /* a. Let prototype be the intrinsic object %FunctionPrototype%. */
@@ -464,7 +473,7 @@ function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype, Rea
   };
 
   /* 4. Let F be FunctionAllocate(prototype, Strict, allocKind). */
-  F := FunctionAllocate(Realm, prototype, Strict, allocKind);
+  F := FunctionAllocate(prototype, Strict, allocKind);
 
   /* 5. Return FunctionInitialize(F, kind, ParameterList, Body, Scope). */
   return FunctionInitialize(F, kind, ParameterList, Body, Scope)
@@ -479,13 +488,13 @@ function FunctionCreate(kind, ParameterList, Body, Scope, Strict, prototype, Rea
  * specified by Scope, and a Boolean flag Strict. GeneratorFunctionCreate
  * performs the following steps:
  */
-function GeneratorFunctionCreate(kind, ParameterList, Body, Scope, Strict, Realm) {
+function GeneratorFunctionCreate(kind, ParameterList, Body, Scope, Strict) {
   /* 1. Let functionPrototype be the intrinsic object %Generator%. */
   /* TODO: Add the generator object here. */
   functionPrototype := NewECMAScriptObject();
 
   /* 2. Let F be FunctionAllocate(functionPrototype, Strict, "generator"). */
-  F := FunctionAllocate(Realm, functionPrototype, Strict, "generator");
+  F := FunctionAllocate(functionPrototype, Strict, "generator");
 
   /* 3. Return FunctionInitialize(F, kind, ParameterList, Body, Scope). */
   return FunctionInitialize(F, kind, ParameterList, Body, Scope)
@@ -818,7 +827,7 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
 
     } else {
       /* b. Else */
-      /* Let ao be CreateMappedArgumentsObject(func, formals, argumentsList, env). */
+       /*Let ao be CreateMappedArgumentsObject(func, formals, argumentsList, env). */
       ao := CreateMappedArgumentsObject(func, parameterNames, argumentsList, env)
     };
     /* c. ReturnIfAbrupt(ao) */

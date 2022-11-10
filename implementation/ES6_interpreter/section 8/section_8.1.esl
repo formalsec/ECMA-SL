@@ -546,7 +546,7 @@ function HasBindingObjectRecord(envRec, N) {
 	@ReturnIfAbrupt(unscopables);
 
 	/* If Type(unscopables) is Object, then */
-	if ((Type(unscopables) = "Object") ) {
+	if ( Type(unscopables) = "Object" ) {
 	    /* Let blocked be ToBoolean(Get(unscopables, N)). */
 	    blocked := ToBoolean(Get(unscopables, N));
 
@@ -1033,8 +1033,16 @@ function DeleteBindingGlobalRecord(envRec, N) {
             varNames := envRec.VarNames;
 
             /* If N is an element of varNames, remove that element from the varNames. */
-            if ( InList(N, varNames) ) {
-            	/* TODO eliminar da lista */
+            if ( N in_list varNames) {
+              
+              newVarNames := [];
+              foreach( name : varNames ) {
+                if ( !(name = N)) {
+                  newVarNames := l_add(newVarNames, name)
+                }
+              };
+
+              envRec.VarNames := newVarNames
             }
         };
 
@@ -1062,7 +1070,7 @@ function HasSuperBinding(envRec) {
 /* 8.1.1.4.10 WithBaseObject() */
 /* Global Environment Records always return undefined as their WithBaseObject */
 function WithBaseObjectGlobalRecord(envRec) {
-	return 'undefnied
+	return 'undefined
 };
 
 /* 8.1.1.4.11 GetThisBinding () */
@@ -1092,7 +1100,7 @@ function HasVarDeclaration(envRec, N) {
     varDeclaredNames := envRec.VarNames;
 
     /* If varDeclaredNames contains the value of N, return true. */
-    if ( InList(N, varDeclaredNames) ) {
+    if ( N in_list varDeclaredNames ) {
     	return true
     };
 
@@ -1273,7 +1281,7 @@ function CreateGlobalVarBinding(envRec, N, D) {
     varDeclaredNames := envRec.VarNames;
 
     /* If varDeclaredNames does not contain the value of N, then */
-    if ( !(InList(N, varDeclaredNames)) ) {
+    if ( !((N in_list varDeclaredNames)) ) {
         /* Append N to varDeclaredNames. */
         varDeclaredNames := l_add(varDeclaredNames, N)
     };
@@ -1335,7 +1343,7 @@ function CreateGlobalFunctionBinding(envRec, N, V, D) {
     varDeclaredNames := envRec.VarNames;
 
     /* If varDeclaredNames does not contain the value of N, then */
-    if ( !(InList(N, varDeclaredNames)) ) {
+    if ( !((N in_list varDeclaredNames)) ) {
         /* Append N to varDeclaredNames. */
         varDeclaredNames := l_add(varDeclaredNames, N)
     };
@@ -1465,15 +1473,9 @@ function GetIdentifierReference(lex, name, strict) {
     /* Let envRec be lex’s EnvironmentRecord. */
     envRec := getEnvironmentRecord(lex);
 
-    if ( name = "f" ) {
-      print "IDENTREF";
-      print lex;
-      print envRec; 
-
-      if ( "ObjectRecord" in_obj envRec ) {
-        print envRec.ObjectRecord.bindingObject.JSProperties
-      }
-    };
+    print "GETREF";
+    print lex;
+    print envRec;
 
     /* Let exists be envRec.HasBinding(name). */
     exists := {envRec.HasBinding}(envRec, name);
