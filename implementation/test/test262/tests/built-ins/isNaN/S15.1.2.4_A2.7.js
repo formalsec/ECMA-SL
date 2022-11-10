@@ -3,19 +3,13 @@
 
 /*---
 info: The isNaN property can't be used as constructor
-es5id: 15.1.2.4_A2.7
+esid: sec-isnan-number
 description: >
     If property does not implement the internal [[Construct]] method,
     throw a TypeError exception
 ---*/
 
-//CHECK#1
-
-try {
+assert.throws(TypeError, () => {
   new isNaN();
-  $ERROR('#1.1: new isNaN() throw TypeError. Actual: ' + (new isNaN()));
-} catch (e) {
-  if ((e instanceof TypeError) !== true) {
-    $ERROR('#1.2: new isNaN() throw TypeError. Actual: ' + (e));
-  }
-}
+  throw new Test262Error();
+});

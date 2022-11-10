@@ -3,11 +3,7 @@
 
 /*---
 info: The isFinite property has not prototype property
-es5id: 15.1.2.5_A2.6
-description: Checking isFinit.prototype
+esid: sec-isfinite-number
+description: Checking isFinite.prototype
 ---*/
-
-//CHECK#1
-if (isFinite.prototype !== undefined) {
-  $ERROR('#1: isFinite.prototype === undefined. Actual: ' + (isFinite.prototype));
-}
+assert.sameValue(isFinite.prototype, undefined, 'The value of isFinite.prototype is expected to equal undefined');

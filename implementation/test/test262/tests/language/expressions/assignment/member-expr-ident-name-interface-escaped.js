@@ -18,5 +18,4 @@ info: |
 var obj = {};
 
 obj.interf\u0061ce = 42;
-
 assert.sameValue(obj['interface'], 42, 'property exists');

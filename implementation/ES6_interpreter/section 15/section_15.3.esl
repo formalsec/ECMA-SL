@@ -55,6 +55,12 @@ function initFunctionPrototype(objectPrototype, globalObject, strict) {
 
 /* 15.3.4 Properties of the Function Prototype Object */
 function fillFunctionPrototype(functionPrototypeObject, FunctionConstructor, globalObject, strict) {
+  /* 19.2.3 The value of the length property of the Function prototype object is 0. */
+  createBuiltInPropertyWithFullDescriptor(functionPrototypeObject, "length", 0., false, false, true);
+
+  /* 19.2.3 The value of the name property of the Function prototype object is the empty String. */
+  createBuiltInPropertyWithFullDescriptor(functionPrototypeObject, "name", "", false, false, true);
+
   /* 15.3.4.1 Function.prototype.constructor */
   /* The initial value of Function.prototype.constructor is the built-in Function constructor. */
   createBuiltInProperty(functionPrototypeObject, "constructor", FunctionConstructor);
@@ -216,35 +222,42 @@ function FunctionPrototypeApply(globalObject, func, NewTarget, strict, params) {
           and an empty list of arguments. */
     return {func.Call}(null, null, func, thisArg, 'undefined, [])
   };
+  /* 3. Let argList be CreateListFromArrayLike(argArray). */
+  argList := CreateListFromArrayLike(argArray, null);
+  /* 4. ReturnIfAbrupt(argList). */
+  @ReturnIfAbrupt(argList);
+  /*5. Perform PrepareForTailCall(). */
+  /* TODO */
+  /*6. Return Call(func, thisArg, argList). */ 
+  
+  /* --ES5
   /* 3. If Type(argArray) is not Object, then throw a TypeError exception. */
-  if (!(Type(argArray) = "Object")) {
-    throw TypeErrorConstructorInternal()
-  };
-  /* 4. Let len be the result of calling the [[Get]] internal method of argArray with argument "length". */
-  len := {argArray.Get}(argArray, "length", argArray);
-
-  @ReturnIfAbrupt(len);
-  /* 5. Let n be ToUint32(len). */
-  n := ToUint32(len);
-  /* 6. Let argList be an empty List. */
-  argList := [];
-  /* 7. Let index be 0. */
-  index := 0.;
-  /* 8. Repeat while index < n */
-  while(index < n) {
-    /* a. Let indexName be ToString(index). */
-    indexName := ToString(index);
-    /* b. Let nextArg be the result of calling the [[Get]] internal method of argArray with indexName as the
-          argument. */
-    nextArg := {argArray.Get}(argArray, indexName, argArray);
-
-    @ReturnIfAbrupt(nextArg);
-
-    /* c. Append nextArg as the last element of argList. */
-    argList := l_add(argList, nextArg);
-    /* d. Set index to index + 1. */
-    index := index + 1.
-  };
+  /* if (!(Type(argArray) = "Object")) {
+  /*   throw TypeErrorConstructorInternal()
+  /* };
+  /* /* 4. Let len be the result of calling the [[Get]] internal method of argArray with argument "length". */
+  /* len := {argArray.Get}(argArray, "length", argArray);
+/* 
+  /* @ReturnIfAbrupt(len);
+  /* /* 5. Let n be ToUint32(len). */
+  /* n := ToUint32(len);
+  /* /* 6. Let argList be an empty List. */
+  /* argList := [];
+  /* /* 7. Let index be 0. */
+  /* index := 0.;
+  /* /* 8. Repeat while index < n */
+  /* while(index < n) {
+  /*   /* a. Let indexName be ToString(index). */
+  /*   indexName := ToString(index);
+  /*   /* b. Let nextArg be the result of calling the [[Get]] internal method of argArray with indexName as the
+  /*         argument. */
+  /*   nextArg := {argArray.Get}(argArray, indexName, argArray);
+  /*   /* c. Append nextArg as the last element of argList. */
+  /*   argList := l_add(argList, nextArg);
+  /*   /* d. Set index to index + 1. */
+  /*   index := index + 1.
+  /* };
+  
   /* 9. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
   return {func.Call}(null, null, func, thisArg, 'undefined, argList)

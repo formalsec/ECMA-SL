@@ -763,7 +763,7 @@ function EnumerableOwnNames(O) {
     that would be returned if the [[Enumerate]] internal method was invoked on O. */
 
     /* Return names. */
-    return l_sort(names)
+    return names
 };
 
 /**
@@ -883,3 +883,4 @@ function BuiltInCall(externalScope, ref, F, V, NewTarget, argumentsList) {
 
 	return result
 }
+

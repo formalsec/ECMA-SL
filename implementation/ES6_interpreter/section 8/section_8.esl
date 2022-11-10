@@ -44,8 +44,10 @@ function Type(V) {
     if (ft = "P") { return "PropertyIdentifier" }
   };
   if (v_type = __$Null) { return "Null" };
+  if (V = 'empty) { return null };
 
-  assert false
+  print V;
+  fail "Value V has a non-defined type"
 };
 
 /* Auxiliary functions */
