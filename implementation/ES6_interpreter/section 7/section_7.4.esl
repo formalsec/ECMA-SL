@@ -90,7 +90,7 @@ function IteratorClose(iterator, completion) {
     };
 
     /* 8. If innerResult.[[type]] is throw, return Completion(innerResult). */
-    if (getCompletionType(/*getCompletionValue(*/innerResult/*)*/) = 'throw) {
+    if (getCompletionType(innerResult) = 'throw) {
         print "DEBUG IteratorClose 3";
         return Completion(getCompletionValue(innerResult))
     };

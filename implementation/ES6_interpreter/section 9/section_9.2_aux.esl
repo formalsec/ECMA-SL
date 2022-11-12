@@ -9,7 +9,9 @@ function IteratorBindingInitialization(params, listIterator, scope, func) {
   while(i < l_params) {
     param := l_nth(params, i);
     value := getParameterIteratorValue(param, listIterator, scope);
-    BindingInitialization(param, value, scope, listIterator);
+    @ReturnIfAbrupt(value);
+    status := BindingInitialization(param, value, scope, listIterator);
+    @ReturnIfAbrupt(status);
     i := i + 1
   };
   return NormalCompletion('empty)
@@ -23,7 +25,6 @@ function getParameterIteratorValue(param, listIterator, environment) {
   } else {
     initializer := null
   };
-
 
   /* If iteratorRecord.[[done]] is false, then */
   if (listIterator.done = false) {
@@ -67,9 +68,18 @@ function getParameterIteratorValue(param, listIterator, environment) {
     v := GetValue(defaultValue);
 
     /* c. ReturnIfAbrupt(v). */
-    @ReturnIfAbrupt(v)
-    /* d. TODO */
-
+    @ReturnIfAbrupt(v);
+    /* d. If IsAnonymousFunctionDefinition(Initializer) is true, then */
+    if (IsAnonymousFunctionDefinition(initializer)) {
+      /* i. Let hasNameProperty be HasOwnProperty(v, "name"). */
+      hasNameProperty := HasOwnProperty(v, "name");
+      /* ii. ReturnIfAbrupt(hasNameProperty). */
+      @ReturnIfAbrupt(hasNameProperty);
+      /* iii. If hasNameProperty is false, perform SetFunctionName(v, P). */
+      if (hasNameProperty = false) {
+        SetFunctionName(v, P, null)
+      }
+    }
    };
 
    return v
@@ -87,6 +97,8 @@ function BindingInitialization(param, value, environment, listIterator) {
       return BindingInitialization(param.argument, value, environment, null)
     };
     restValue := GetRestValue(listIterator, value);
+    print "DEBUG REST ELEMENT";
+    print listIterator;
     return BindingInitialization(param.argument, restValue, environment, listIterator)
   }
   | { type: "ArrayPattern" } -> {
@@ -101,9 +113,28 @@ function BindingInitialization(param, value, environment, listIterator) {
     if (!(value = 'undefined)) {
       return BindingInitialization(param.left, value, environment, listIterator)
     };
-    newValue := JS_Interpreter_AssignmentPattern(param.right, environment);
+    initializer := param.right;
 
-    return BindingInitialization(param.left, newValue, environment, listIterator)
+
+    newValue := JS_Interpreter_AssignmentPattern(initializer, environment);
+
+    v := GetValue(newValue);
+
+    @ReturnIfAbrupt(v);
+
+    if (IsAnonymousFunctionDefinition(initializer)) {
+      /* i. Let hasNameProperty be HasOwnProperty(v, "name"). */
+      hasNameProperty := HasOwnProperty(v, "name");
+      /* ii. ReturnIfAbrupt(hasNameProperty). */
+      @ReturnIfAbrupt(hasNameProperty);
+      /* iii. If hasNameProperty is false, perform SetFunctionName(v, P). */
+      P := param.left.name;
+      if (hasNameProperty = false) {
+        SetFunctionName(v, P, null)
+      }
+    };
+
+    return BindingInitialization(param.left, v, environment, listIterator)
   }
 };
 
@@ -135,63 +166,38 @@ function BindingInitializationIdentifier(param, value, environment) {
    return InitializeReferencedBinding(lhs, value)
 };
 
-function BindingInitializationRestElement(name, listIterator, scope) {
-  /* 1. Let lhs be ResolveBinding(StringValue of BindingIdentifier,
-     environment). */
-  lhs := ResolveBinding(scope, name, null);
-
-  /* 2. ReturnIfAbrupt(lhs). */
-  @ReturnIfAbrupt(lhs);
-  /* 3. Let A be ArrayCreate(0). */
-  A := ArrayCreate(0., null);
-  /* 4. Let n=0. */
-  n := 0.;
-  /* 5. Repeat, */
-  repeat {
-    if (listIterator.done = false) {
-      next := IteratorStep(listIterator.iterator);
-      if (isAnAbruptCompletion(next)) {
-        listIterator.done := true
-      };
-      @ReturnIfAbrupt(next);
-      if (next = false) {
-        listIterator.done := true
-      }
-    };
-    if (listIterator.done = true) {
-      if (scope = 'undefined) {
-        return PutValue(lhs, A)
-      };
-      return InitializeReferencedBinding(scope, lhs, A)
-    };
-    nextValue := IteratorValue(next);
-    if (isAnAbruptCompletion(nextValue)) {
-      listIterator.done := true
-    };
-    @ReturnIfAbrupt(nextValue);
-    status := CreateDataProperty(A, ToString(n), nextValue);
-    assert(status = true);
-    n := n + 1.;
-    done := listIterator.done
-  };
-  return
-};
-
 function BindingInitializationObjectPattern(param, value, environment) {
   properties := param.properties;
   l_properties := l_len(properties);
   i := 0;
+  valid := RequireObjectCoercible(value);
+  @ReturnIfAbrupt(valid);
+  initialized_keys := [];
   while (i < l_properties) {
     property := l_nth(properties, i);
 
     if (!("key" in_obj property)) {
-      BindingInitialization(property, value, environment, null)
+      /* Rest Element case*/
+      argument := property.argument;
+      /* If its a rest Element which is an identifier */
+      if (argument.type = "Identifier") {
+        /* Creates an Empty Object for that identifier */
+        status := BindingInitialization(property, ObjectCreate(getObjectPrototype(false), null), environment, null);
+        @ReturnIfAbrupt(status);
+
+        /* Initialize the remaining keys on that object */
+        restElementObjectInitializer(property.argument, value, environment, initialized_keys)
+      } elif (argument.type = "ObjectPattern") {
+        /* if the rest element is an object pattern, we just call the function recursively */
+        BindingInitializationObjectPattern(argument, value, environment)
+      }
     } else {
-      /*key := JS_Interpreter_Expr(property.key, environment);
+      key := JS_Interpreter_PropertyName(property.key, environment);
       @ReturnIfAbrupt(key);
-      property_name := GetPropertyName(key);*/
-      property_name := property.key.name;
-      InitializeSingleObjectBinding(property, property_name, value, environment)
+      property_name := GetPropertyName(key);
+      status := InitializeSingleObjectBinding(property, property_name, value, environment);
+      initialized_keys := l_add(initialized_keys, property_name);
+      @ReturnIfAbrupt(status)
     };
     i := i + 1
   };
@@ -201,7 +207,10 @@ function BindingInitializationObjectPattern(param, value, environment) {
 function InitializeSingleObjectBinding(property, property_name, objectValue, environment) {
   property_value := GetV(objectValue, property_name);
 
-  BindingInitialization(property.value, property_value, environment, null);
+  @ReturnIfAbrupt(property_value);
+
+  status := BindingInitialization(property.value, property_value, environment, null);
+  @ReturnIfAbrupt(status);
   return
 };
 
@@ -212,39 +221,46 @@ function BindingInitializationArrayPattern(param, value, environment) {
 
   arrayIterator := GetIterator(value, null);
   @ReturnIfAbrupt(arrayIterator);
+  step := 'undefined;
   while (i < l_elements) {
     step := IteratorStep(arrayIterator);
     @ReturnIfAbrupt(step);
     element := l_nth(elements, i);
-
     if (step = false) {
-      /* Iterator is done */
-      return
-    };
-    if (!(element = null)) {
-      /* When the element inside the array is an elision, it comes in as null  */
-      iterValue := IteratorValue(step);
-      @ReturnIfAbrupt(iterValue);
+     status := BindingInitialization(element, 'undefined, environment, {iterator: arrayIterator, done: true});
+     @ReturnIfAbrupt(status)
+    } else {
+      if (!(element = null)) {
+        /* When the element inside the array is an elision, it comes in as null  */
+        iterValue := IteratorValue(step);
+        @ReturnIfAbrupt(iterValue);
 
-      iteratorRecord := NewECMAScriptObject();
-      iteratorRecord.iterator := CreateListIterator(CreateListFromArrayLike(value, null));
-      iteratorRecord.done := false;
-      setAllInternalMethodsOfOrdinaryObject(iteratorRecord);
-      BindingInitialization(element, iterValue, environment, iteratorRecord)
+        status := BindingInitialization(element, iterValue, environment, {iterator: arrayIterator, done: false});
+        @ReturnIfAbrupt(status)
+      }
     };
     i := i + 1
+  };
+
+  if (!(step = false) &&& (step = 'undefined ||| !(IteratorComplete(step)))) {
+    IteratorClose(arrayIterator, NormalCompletion(null))
   };
   return
 };
 
 function GetRestValue(listIterator, initialValue) {
   /* 3. Let A be ArrayCreate(0). */
-  A := ArrayCreate(0., null);
-  CreateDataProperty(A, "0", initialValue);
+  A := ArrayConstructor('null, 'undefined, |Intrinsics|["Array"], false, [], |Intrinsics|["Array"]);
   /* 4. Let n=0. */
-  n := 1.;
+  n := 0.;
   /* 5. Repeat, */
   listDone := listIterator.done;
+  if (listIterator.done = true) {
+    return A
+  } else {
+    CreateDataProperty(A, "0", initialValue);
+    n := n + 1.
+  };
 
   repeat {
     if (listIterator.done = false) {
@@ -262,6 +278,8 @@ function GetRestValue(listIterator, initialValue) {
     };
 
     nextValue := IteratorValue(next);
+    print "DEBUG LIST ITERATOR NEXT VALUE";
+    print nextValue;
     if (isAnAbruptCompletion(nextValue)) {
       listIterator.done := true
     };

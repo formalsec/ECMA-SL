@@ -1,4 +1,6 @@
 function DefineMethodAlt(scope, object, method, functionPrototype){
+    print "DEBUG DefineMethodAlt";
+    print method;
     FunctionBody := method.body;
     FormalParameterListopt := method.params;
     F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, true, functionPrototype);
@@ -51,14 +53,27 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
     match methodPropertyDefinition with
     | { kind: "get", key: key, value: func} -> {
         /* 1. Let propKey be the result of evaluating PropertyName. */
-        propKey := EvaluateMethod(key, scope);
+        /* propKey := JS_Interpreter_PropertyName(key, scope);
+        print "DEBUG MethodDefinition";
+        print propKey; */
+
+        exprValue := JS_Interpreter_Expr(key, scope);
+        print "DEBUG GET METHOD DEF";
+        print key;
+        if (key.type = "Identifier" &&&  GetBase(exprValue) = 'undefined) {
+            propKey := key.name
+        } else {
+            propName := GetValue(exprValue);
+            @ReturnIfAbrupt(propName);
+            propKey := ToPropertyKey(propName)
+        };
 
         /* 2. ReturnIfAbrupt(propKey). */
         @ReturnIfAbrupt(propKey);
 
         /* 3. If the function code for this MethodDefinition is strict mode code,
               let strict be true. Otherwise let strict be false. */
-        /* strict := isStrictModeCode(getFunctionCode(func), scope); */
+        strict := isStrictModeCode(getFunctionCode(func), scope);
 
         /* 4. Let scope be the running execution context’s LexicalEnvironment. */
         lexEnv := getLexicalEnvironment(scope);
@@ -68,13 +83,14 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
 
         /* 6. Let closure be FunctionCreate(Method, formalParameterList, 
             FunctionBody, scope, strict). */
-        closure := FunctionCreate("Method", func.params, func.body, lexEnv, true, null);
+        closure := FunctionCreate("Method", func.params, func.body, lexEnv, strict, null);
 
         /* 7. Perform MakeMethod(closure, object). */
         MakeMethod(closure, object);
 
         /* 8. Perform SetFunctionName(closure, propKey, "get"). */
         SetFunctionName(closure, propKey, "get");
+        delete closure.JSProperties["caller"];
 
         /* 9. Let desc be the PropertyDescriptor{[[Get]]: closure, [[Enumerable]]: 
             enumerable, [[Configurable]]: true} */
@@ -85,21 +101,29 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
     }
     | { kind: "set", key: key, value: func} -> {
         /* 1. Let propKey be the result of evaluating PropertyName. */
-        propKey := EvaluateMethod(key, scope);
+        exprValue := JS_Interpreter_Expr(key, scope);
+        if (key.type = "Identifier" &&&  GetBase(exprValue) = 'undefined) {
+            propKey := key.name
+        } else {
+            propName := GetValue(exprValue);
+            @ReturnIfAbrupt(propName);
+            propKey := ToPropertyKey(propName)
+        };
 
         /* 2. ReturnIfAbrupt(propKey). */
         @ReturnIfAbrupt(propKey);
 
         /* 3. If the function code for this MethodDefinition is strict mode code,
               let strict be true. Otherwise let strict be false. */
-        /* strict := isStrictModeCode(getFunctionCode(func), scope); */
+        strict := isStrictModeCode(getFunctionCode(func), scope);
 
         /* 4. Let scope be the running execution context’s LexicalEnvironment. */
         lexEnv := getLexicalEnvironment(scope);
 
         /* 5. Let closure be FunctionCreate(Method, formalParameterList, 
             FunctionBody, scope, strict). */
-        closure := FunctionCreate("Method", func.params, func.body, lexEnv, true, null);
+        closure := FunctionCreate("Method", func.params, func.body, lexEnv, strict, null);
+        delete closure.JSProperties["caller"];
 
         /* 6. Perform MakeMethod(closure, object). */
         MakeMethod(closure, object);
@@ -140,9 +164,7 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
 function EvaluateMethod(expression, scope) {
     evaluation := JS_Interpreter_Expr(expression, scope);
     @ReturnIfAbrupt(evaluation);
-    if (Type(evaluation) = "Reference") {
-        return GetReferencedName(evaluation)
-    } else {
-        return ToString(evaluation)
-    }
+    value := GetValue(evaluation);
+    @ReturnIfAbrupt(value);
+    return ToPropertyKey(value)
 }

@@ -167,12 +167,12 @@ function MakeSuperPropertyReference(propertyKey, strict, scope) {
   /* 1. Let env be GetThisEnvironment( ). */
   env := GetThisEnvironment(scope);
   /* 2. If env.HasSuperBinding() is false, */
-  if (HasSuperBinding(env) = false) {
+  if ({env.HasSuperBinding}(env) = false) {
     /* throw a ReferenceError exception */
     throw ReferenceErrorConstructorInternal()
   };
   /* 3. Let actualThis be env.GetThisBinding(). */
-  actualThis := GetThisBinding(env);
+  actualThis := {env.GetThisBinding}(env);
   /* 4. ReturnIfAbrupt(actualThis). */
   @ReturnIfAbrupt(actualThis);
   /* 5. Let baseValue be env.GetSuperBase(). */
@@ -185,10 +185,4 @@ function MakeSuperPropertyReference(propertyKey, strict, scope) {
      value is bv, whose referenced name is propertyKey, whose thisValue is
      actualThis, and whose strict reference flag is strict. */
   return newSuperReference(bv, propertyKey, actualThis, strict)
-};
-
-function MakeSuperPropertyReferenceAlt(scope) {
-  func := scope.Function.HomeObject.Prototype;
-
-  return newPropertyReference(func, "constructor", false)
 }

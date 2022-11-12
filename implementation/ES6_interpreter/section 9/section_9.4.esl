@@ -584,6 +584,52 @@ function OwnPropertyKeysString(O){
 };
 
 /**
+ * 9.4.4.6 CreateUnmappedArgumentsObject (argumentsList)
+ *
+ * The abstract operation CreateUnmappedArgumentsObject called with an argument
+ * argumentsList performs the following steps:
+ */
+function CreateUnmappedArgumentsObject(func, parameterNames, argumentsList, env) {
+  /* 1. Let len be the number of elements in argumentsList. */
+  len := l_len argumentsList;
+  /* 2. Let obj be ObjectCreate(%ObjectPrototype%, «‍[[ParameterMap]]»). */
+  obj := ObjectCreate(getObjectPrototype(true), ["ParameterMap"]);
+  /* 3. Set obj's [[ParameterMap]] internal slot to undefined. */
+  obj.ParameterMap := 'undefined;
+  /* 4. Perform DefinePropertyOrThrow(obj, "length",
+     PropertyDescriptor{[[Value]]: len, [[Writable]]: true, [[Enumerable]]:
+     false, [[Configurable]]: true}). */
+  DefinePropertyOrThrow(obj, "length", newDataPropertyDescriptorFull(int_to_float len, true, false, true));
+  /* 5. Let index be 0. */
+  index := 0.;
+  /* 6. Repeat while index < len, */
+    /* Let val be argumentsList[index]. */
+  foreach (val : argumentsList) {
+      /*  Perform CreateDataProperty(obj, ToString(index), val). */
+      CreateDataProperty(obj, ToString(index), val);
+      index := index + 1.
+  };
+  thrower := createThrowTypeErrorFunctionObject(getFunctionPrototype(true), true);
+  /* 7. Perform DefinePropertyOrThrow(obj, @@iterator, PropertyDescriptor
+     {[[Value]]:%ArrayProto_values%, [[Writable]]: true, [[Enumerable]]:
+     false, [[Configurable]]: true}). */
+
+  /* 8. Perform DefinePropertyOrThrow(obj, "caller", PropertyDescriptor
+     {[[Get]]: %ThrowTypeError%, [[Set]]: %ThrowTypeError%, [[Enumerable]]:
+     false, [[Configurable]]: false}). */
+     status2 := DefinePropertyOrThrow(obj, "caller", newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, false));
+  /* 9. Perform DefinePropertyOrThrow(obj, "callee", PropertyDescriptor
+     {[[Get]]: %ThrowTypeError%, [[Set]]: %ThrowTypeError%, [[Enumerable]]:
+     false, [[Configurable]]: false}). */
+     status3 := DefinePropertyOrThrow(obj, "callee",  newGetAndSetAccessorPropertyDescriptorFull(thrower, thrower, false, false));
+  /* 10. Assert: the above property definitions will not produce an abrupt
+     completion. */
+     assert(!(isAnAbruptCompletion(status3)) ||| !(isAnAbruptCompletion(status2)));
+  /* 11. Return obj */
+  return obj
+};
+
+/**
  * 9.4.4.7 CreateMappedArgumentsObject (func, formals, argumentsList, env)
  *
  * The abstract operation CreateMappedArgumentsObject is called with object
@@ -593,7 +639,7 @@ function OwnPropertyKeysString(O){
 function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
   /* 1. Assert: formals does not contain a rest parameter, any binding
      patterns, or any initializers. It may contain duplicate identifiers. */
-  /* TODO */
+
   /* 2. Let len be the number of elements in argumentsList. */
   len := l_len(argumentsList);
   /* 3. Let obj be a newly created arguments exotic object with a
@@ -603,21 +649,9 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
 
   setAllInternalMethodsOfOrdinaryObject(obj);
 
-  /* 4. Set the [[GetOwnProperty]] internal method of obj as specified in
-     9.4.4.1. */
-  /* TODO */
-  /* 5. Set the [[DefineOwnProperty]] internal method of obj as specified in
-     9.4.4.2. */
-  /* TODO: Instruction not yet implemented. */
-  /* 6. Set the [[Get]] internal method of obj as specified in 9.4.4.3. */
-  /* TODO: Instruction not yet implemented. */
-  /* 7. Set the [[Set]] internal method of obj as specified in 9.4.4.4. */
-  /* TODO: Instruction not yet implemented. */
-  /* 8. Set the [[Delete]] internal method of obj as specified in 9.4.4.5. */
-  /* TODO: Instruction not yet implemented. */
+
   /* 9. Set the remainder of obj's essential internal methods to the default
      ordinary object definitions specified in 9.1. */
-  /* TODO */
   /* 10. Set the [[Prototype]] internal slot of obj to %ObjectPrototype%. */
   obj.Prototype := getObjectPrototype(false);
   /* 11. Set the [[Extensible]] internal slot of obj to true. */
@@ -650,7 +684,7 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
   DefinePropertyOrThrow(obj, "length", newDataPropertyDescriptorFull(int_to_float len, true, false, true));
 
   /* 17. Let map be ObjectCreate(null). */
-  map := ObjectCreate('null, null);
+  map := ObjectCreate(getObjectPrototype(false), null);
 
   /* 18. Let mappedNames be an empty List. */
   mappedNames := [];
@@ -658,14 +692,37 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
   /* 19. Let index be numberOfParameters - 1. */
   index := numberOfParameters - 1;
 
+  /* 4. Set the [[GetOwnProperty]] internal method of obj as specified in
+    9.4.4.1. */
+  obj.GetOwnProperty := "ArgumentsObjectGetOwnProperty";
+  /* 5. Set the [[DefineOwnProperty]] internal method of obj as specified in
+     9.4.4.2. */
+  obj.DefineOwnProperty := "ArgumentsObjectDefineOwnProperty";
+  /* 6. Set the [[Get]] internal method of obj as specified in 9.4.4.3. */
+  obj.Get := "ArgumentsObjectGet";
+  /* 7. Set the [[Set]] internal method of obj as specified in 9.4.4.4. */
+  obj.Set := "ArgumentsObjectSet";
+  /* 8. Set the [[Delete]] internal method of obj as specified in 9.4.4.5. */
+  obj.Delete := "ArgumentsObjectDelete";
+
   /* 20. Repeat while index ≥ 0 , */
   while (index >= 0) {
     /* a. Let name be parameterNames[index]. */
     name := l_nth(parameterNames, index);
-
     /* b. If name is not an element of mappedNames, then */
-    /* TODO */
-
+    if (!(name in_list mappedNames)) {
+      mappedNames := l_add(mappedNames, name);
+      /* If index < len, then */
+      if (index < len) {
+        /* 1. Let g be MakeArgGetter(name, env). */
+        g := MakeArgGetter(name, env);
+        /* 2. Let p be MakeArgSetter(name, env). */
+        p := MakeArgSetter(name, env);
+        /* Call map.[[DefineOwnProperty]](ToString(index),
+        PropertyDescriptor{[[Set]]: p, [[Get]]: g, [[Enumerable]]: false, [[Configurable]]: true}). */
+        {map.DefineOwnProperty}(map, ToString(int_to_float index), newGetAndSetAccessorPropertyDescriptorFull(g, p, false,true))
+      }
+    };
     /* c. Let index be index − 1 */
     index := index - 1
   };
@@ -683,6 +740,8 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
   /* 23. Perform DefinePropertyOrThrow(obj, "callee", PropertyDescriptor
      {[[Value]]: func, [[Writable]]: true, [[Enumerable]]: false,
      [[Configurable]]: true}). */
+  print "DEBUG STATUS 2";
+  print func;
   status2 := DefinePropertyOrThrow(obj, "callee", newDataPropertyDescriptorFull(func, true, false, true));
   /* 24. Assert: the above property definitions will not produce an abrupt
      completion. */
@@ -690,6 +749,206 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
   /* 25. Return obj */
   return obj
 };
+
+/**
+ * 9.4.4.1 [[GetOwnProperty]] (P)
+ *
+ * The [[GetOwnProperty]] internal method of an arguments exotic object when
+ * called with a property key P performs the following steps:
+ */
+function ArgumentsObjectGetOwnProperty(O, P) {
+  /* 1. Let args be the arguments object. */
+  args := O;
+  /* 2. Let desc be OrdinaryGetOwnProperty(args, P). */
+  desc := OrdinaryGetOwnProperty(args, P);
+  print "DEBUG ArgumentsObjectGetOwnProperty";
+  print desc;
+  /* 3. If desc is undefined, */
+  if (desc = 'undefined) {
+    /* return desc */
+    return desc
+  };
+  /* 4. Let map be the value of the [[ParameterMap]] internal slot of the
+     arguments object. */
+  map := args.ParameterMap;
+  /* 5. Let isMapped be HasOwnProperty(map, P). */
+  isMapped := HasOwnProperty(map, P);
+  /* 6. Assert: isMapped is never an abrupt completion. */
+  assert(!(isAnAbruptCompletion(isMapped)));
+  /* 7. If the value of isMapped is true, then */
+  if (isMapped = true) {
+    /* a. Set desc.[[Value]] to Get(map, P). */
+    desc.Value := Get(map, P)
+  };
+  /* 8. If IsDataDescriptor(desc) is true and P is "caller" and desc.[[Value]]
+     is a strict mode Function object, */
+  if (IsDataDescriptor(desc) = true &&  P = "caller" && DescriptorValueIsStrictFunction(desc) = true) {
+    /* throw a TypeError exception */
+    throw TypeErrorConstructorInternal()
+  };
+  /* 9. Return desc. */
+  return desc
+};
+/**
+ * If an implementation does not provide a built-in caller property for argument
+ * exotic objects then step 8 of this algorithm is must be skipped.
+ */
+
+/**
+ * ArgumentsObjectDefineOwnProperty
+ * 9.4.4.2 [[DefineOwnProperty]] (P, Desc)
+ *
+ * The [[DefineOwnProperty]] internal method of an arguments exotic object when
+ * called with a property key P and Property Descriptor Desc performs the
+ * following steps:
+ */
+function ArgumentsObjectDefineOwnProperty(O, P, Desc) {
+  /* 1. Let args be the arguments object. */
+  args := O;
+  /* 2. Let map be the value of the [[ParameterMap]] internal slot of the
+     arguments object. */
+  map := args.ParameterMap;
+  /* 3. Let isMapped be HasOwnProperty(map, P). */
+  isMapped := HasOwnProperty(map, P);
+  /* 4. Let allowed be OrdinaryDefineOwnProperty(args, P, Desc). */
+  allowed := OrdinaryDefineOwnProperty(args, P, Desc);
+  /* 5. ReturnIfAbrupt(allowed). */
+  @ReturnIfAbrupt(allowed);
+  /* 6. If allowed is false, */
+  if (allowed = false) {
+    /* return false */
+    return false
+  };
+  /* 7. If the value of isMapped is true, then */
+  if (isMapped = true) {
+    /* a. If IsAccessorDescriptor(Desc) is true, then */
+    if (IsAccessorDescriptor(Desc) = true) {
+      /* i. Call map.[[Delete]](P). */
+      {map.Delete}(map, P)
+    }
+    /* b. Else */
+    else {
+      /* If Desc.[[Value]] is present, then */
+      if ("Value" in_obj Desc) {
+        /* Let setStatus be Set(map, P, Desc.[[Value]], false). */
+        setStatus := Set(map, P, Desc.Value, false);
+        /* Assert: setStatus is true because formal parameters mapped by argument objects are always writable. */
+        assert(setStatus = true)
+      };
+      if ("Writable" in_obj Desc) {
+        if (Desc.Writable = false) {
+          {map.Delete}(map, P)
+        }
+      }
+    }
+  };
+  /* 8. Return true. */
+  return true
+};
+
+/**
+ * ArgumentsObjectGet
+ * 9.4.4.3 [[Get]] (P, Receiver)
+ *
+ * The [[Get]] internal method of an arguments exotic object when called with a
+ * property key P and ECMAScript language value Receiver performs the following
+ * steps:
+ */
+function ArgumentsObjectGet(O,P, Receiver) {
+  /* 1. Let args be the arguments object. */
+  args := O;
+  /* 2. Let map be the value of the [[ParameterMap]] internal slot of the
+     arguments object. */
+  map := args.ParameterMap;
+  /* 3. Let isMapped be HasOwnProperty(map, P). */
+  isMapped := HasOwnProperty(map, P);
+  /* 4. Assert: isMapped is not an abrupt completion. */
+  assert(!isAnAbruptCompletion(isMapped));
+  /* 5. If the value of isMapped is false, then */
+  if (isMapped = false) {
+    /* a. Return the result of calling the default ordinary object [[Get]]
+       internal method (9.1.8) on args passing P and Receiver as the
+       arguments. */
+    return OrdinaryObjectGet(O, P, Receiver)
+  }
+  /* 6. Else map contains a formal parameter mapping for P, */
+    /* a. Return Get(map, P). */;
+  return Get(map, P)
+};
+
+/**
+ + ArgumentsObjectSet
+ * 9.4.4.4 [[Set]] (P, V, Receiver)
+ *
+ * The [[Set]] internal method of an arguments exotic object when called with
+ * property key P, value V, and ECMAScript language value Receiver performs the
+ * following steps:
+ */
+function ArgumentsObjectSet(O, P, V, Receiver) {
+  /* 1. Let args be the arguments object. */
+  args := O;
+  /* 2. If SameValue(args, Receiver) is false, then */
+  if (SameValue(args, Receiver) = false) {
+    /* a. Let isMapped be false. */
+    isMapped := false
+  }
+  /* 3. Else, */
+  else {
+    /* a. Let map be the value of the [[ParameterMap]] internal slot of the arguments object.*/
+    map := args.ParameterMap;
+    /* b. Let isMapped be HasOwnProperty(map, P). */
+    isMapped := HasOwnProperty(map, P);
+    /* c. Assert: isMapped is not an abrupt completion. */
+    assert(!(isAnAbruptCompletion(isMapped)))
+  };
+  /* 4. If isMapped is true, then */
+  if (isMapped = true) {
+    /* a. Let setStatus be Set(map, P, V, false). */
+    setStatus := Set(map, P, V, false);
+    /* b. Assert: setStatus is true because formal parameters mapped by argument
+       objects are always writable. */
+    assert((setStatus = true))
+  };
+  /* 5. Return the result of calling the default ordinary object [[Set]]
+     internal method (9.1.9) on args passing P, V and Receiver as the
+     arguments. */
+  return OrdinaryObjectSet(args, P, V, Receiver)
+};
+
+function MakeArgGetter(name, lexicalEnvironment) {
+  /* The abstract operation MakeArgGetter called with String name and environment record env creates a function
+     object that when executed returns the value bound for name in env. It performs the following steps: */
+
+  /* 1. Let body be the result of concatenating the Strings "return ", name, and ";". */
+  body := lambda (scope, this, newTarget, strict, args) [name] {
+    envRec := getEnvironmentRecord(scope);
+    val := getBindingValue(envRec, name);
+    return val
+  };
+  /* 2. Return the result of creating a function object as described in 13.2 using no FormalParameterList, body for
+        FunctionBody, env as Scope, and true for Strict. */
+  return CreateFunctionObject([], body, lexicalEnvironment, true, null)
+};
+
+function MakeArgSetter(name, lexicalEnvironment) {
+  /* The abstract operation MakeArgSetter called with String name and environment record env creates a function
+     object that when executed sets the value bound for name in env. It performs the following steps: */
+
+  /* 1. Let param be the String name concatenated with the String "_arg". */
+  /* 2. Let body be the String "<name> = <param>;" with <name> replaced by the value of name and <param>
+        replaced by the value of param. */
+  body := lambda (scope, this, newTarget, strict, args) [name] {
+    param := l_nth(args, 0);
+    envRec := getEnvironmentRecord(scope);
+    setBindingValue(envRec, name, param);
+    return 'undefined
+  };
+
+  /* 3. Return the result of creating a function object as described in 13.2 using a List containing the single String
+        param as FormalParameterList, body for FunctionBody, env as Scope, and true for Strict. */
+  return CreateFunctionObject(["param"], body, lexicalEnvironment, true, null)
+};
+
 /*
  * |--------------------------------|
  * | Integer Indexed Exotic objects |

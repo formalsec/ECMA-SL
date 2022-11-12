@@ -241,13 +241,38 @@ function HasSuperBinding(envRec) {
 function spreadElementObjectInitializer(resultingObj, spreadExpr, scope) {
   spreadRef := JS_Interpreter_Expr(spreadExpr, scope);
   spreadObj := GetValue(spreadRef);
-  if (spreadObj = 'null ||| spreadObj = 'undefined ||| !("JSPropertires" in_obj spreadObj)) {
+  if (spreadObj = 'null ||| spreadObj = 'undefined ||| !("JSProperties" in_obj spreadObj)) {
     return
   };
-  props := OrdinaryObjectOwnPropertyKeys(spreadObj);
+  props := getOwnEnumerableProperties(spreadObj);
+  print "DEBUG PROPS";
+  print props;
   foreach (P : props) {
     desc := {spreadObj.GetOwnProperty}(spreadObj, P);
+    print "DEBUG DESC";
+    print desc;
     OrdinaryObjectDefineOwnProperty(resultingObj, P, desc)
   };
+  return
+};
+
+function restElementObjectInitializer(resultingObjExpr, objectValue, scope, initialized_keys) {
+  spreadRef := JS_Interpreter_Expr(resultingObjExpr, scope);
+  spreadObj := GetValue(spreadRef);
+
+  props := getOwnEnumerableProperties(objectValue);
+  foreach (P : props) {
+    if (!(P in_list initialized_keys)) {
+      desc := {objectValue.GetOwnProperty}(objectValue, P);
+      if (IsAccessorDescriptor(desc)) {
+        getter := desc.Get;
+        {getter.Call}(null, null, getter, spreadObj, null, [])
+      };
+      OrdinaryObjectDefineOwnProperty(spreadObj, P, desc)
+    }
+  };
+  new_props := OrdinaryObjectOwnPropertyKeys(spreadObj);
+  print "DEBUG restElementObjectInitializer 1";
+  print new_props;
   return
 }

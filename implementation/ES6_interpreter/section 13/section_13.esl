@@ -223,7 +223,7 @@ function createThrowTypeErrorFunctionObject(functionPrototypeObject, strict) {
   /* 4. Set the [[Prototype]] internal property of F to the standard built-in Function prototype object as specified in 15.3.3.1. */
   setInternalProperty(F, "Prototype", functionPrototypeObject);
   /* 5. Set the [[Call]] internal property of F as described in 13.2.1. */
-  setInternalProperty(F, "Call", "OrdinaryCall");
+  setInternalProperty(F, "Call", "BuiltInCall");
   /* 6. Set the [[Scope]] internal property of F to the Global Environment. */
   setInternalProperty(F, "Scope", getGlobalEnvironment(|global|));
   /* 7. Set the [[FormalParameters]] internal property of F to an empty List. */
@@ -318,6 +318,16 @@ function getFunctionCode(F) {
 
 function isStrictFunctionObject(F) {
   return F.strict
+};
+
+function DescriptorValueIsStrictFunction(desc) {
+  print "DEBUG DescriptorValueIsStrictFunction";
+  print desc;
+  F := desc.Value;
+  if (typeof F = __$Obj) {
+    return F.Strict
+  };
+  return false
 };
 
 function setAllInternalMethodsExceptGet(obj) {

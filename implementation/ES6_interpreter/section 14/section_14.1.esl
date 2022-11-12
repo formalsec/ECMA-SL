@@ -1,0 +1,36 @@
+/**
+ * 14.1.19 Runtime Semantics: InstantiateFunctionObject
+ *
+ * With parameter scope.
+ *
+ * See also: 14.4.12.
+ */
+function InstantiateFunctionObject(f, scope, realm) {
+  print "DEBUG InstantiateFunctionObject 0";
+  print scope;
+  lexEnv := getLexicalEnvironment(scope);
+  match f with
+  | { id: Identifier, params: FormalParameters, body: FunctionBody } -> {
+    /* 1. If the function code for FunctionDeclaration is strict mode code,
+    let strict be true. Otherwise let strict be false. */
+    print "DEBUG InstantiateFunctionObject 1";
+    print FunctionBody;
+    if ( isStrictModeCode(FunctionBody, scope)) {
+      strict := true
+    } else {
+      strict := false
+    };
+
+    /* 2. Let name be StringValue of BindingIdentifier. */
+    name := StringValue(Identifier.name);
+    /* 3. Let F be FunctionCreate(Normal, FormalParameters, FunctionBody, scope,
+      strict). */
+    F := FunctionCreate("normal", FormalParameters, FunctionBody, lexEnv, strict, null, realm);
+    /* 4. Perform MakeConstructor(F). */
+    MakeConstructor(F, null, null);
+    /* 5. Perform SetFunctionName(F, name). */
+    SetFunctionName(F, name, null);
+    /* 6. Return F. */
+    return F
+  }
+}

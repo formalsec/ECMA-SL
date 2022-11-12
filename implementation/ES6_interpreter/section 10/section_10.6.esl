@@ -138,41 +138,8 @@ function CreateArgumentsObject(func, names, args, env, lexicalEnvironment, stric
   return obj
 };
 
-function MakeArgGetter(name, lexicalEnvironment) {
-  /* The abstract operation MakeArgGetter called with String name and environment record env creates a function
-     object that when executed returns the value bound for name in env. It performs the following steps: */
 
-  /* 1. Let body be the result of concatenating the Strings "return ", name, and ";". */
-  body := lambda (scope, this, strict, args) [name] {
-    envRec := getEnvironmentRecord(scope);
-    val := getBindingValue(envRec, name);
-    return val
-  };
-  /* 2. Return the result of creating a function object as described in 13.2 using no FormalParameterList, body for
-        FunctionBody, env as Scope, and true for Strict. */
-  return CreateFunctionObject([], body, lexicalEnvironment, true, null)
-};
-
-function MakeArgSetter(name, lexicalEnvironment) {
-  /* The abstract operation MakeArgSetter called with String name and environment record env creates a function
-     object that when executed sets the value bound for name in env. It performs the following steps: */
-
-  /* 1. Let param be the String name concatenated with the String "_arg". */
-  /* 2. Let body be the String "<name> = <param>;" with <name> replaced by the value of name and <param>
-        replaced by the value of param. */
-  body := lambda (scope, this, strict, args) [name] {
-    param := l_nth(args, 0);
-    envRec := getEnvironmentRecord(scope);
-    setBindingValue(envRec, name, param);
-    return 'undefined
-  };
-
-  /* 3. Return the result of creating a function object as described in 13.2 using a List containing the single String
-        param as FormalParameterList, body for FunctionBody, env as Scope, and true for Strict. */
-  return CreateFunctionObject(["param"], body, lexicalEnvironment, true, null)
-};
-
-function ArgumentsObjectGet(argumentObject, P, Receiver) {
+function ArgumentsObjectGetOld(argumentObject, P, Receiver) {
   /* The [[Get]] internal method of an arguments object for a non-strict mode function with formal parameters when
      called with a property name P performs the following steps: */
 
@@ -202,7 +169,7 @@ function ArgumentsObjectGet(argumentObject, P, Receiver) {
   }
 };
 
-function ArgumentsObjectGetOwnProperty(argumentsObject, P) {
+function ArgumentsObjectGetOwnPropertyOld(argumentsObject, P) {
   /* The [[GetOwnProperty]] internal method of an arguments object for a non-strict mode function with formal
      parameters when called with a property name P performs the following steps: */
 
@@ -227,7 +194,7 @@ function ArgumentsObjectGetOwnProperty(argumentsObject, P) {
   return desc
 };
 
-function ArgumentsObjectDefineOwnProperty(argumentsObject, P, Desc) {
+function ArgumentsObjectDefineOwnPropertyOld(argumentsObject, P, Desc) {
   /* The [[DefineOwnProperty]] internal method of an arguments object for a non-strict mode function with formal
      parameters when called with a property name P, Property Descriptor Desc, and Boolean flag Throw performs
      the following steps: */
