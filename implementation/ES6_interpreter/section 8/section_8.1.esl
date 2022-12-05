@@ -610,9 +610,7 @@ function InitializeBindingObjectRecord(envRec, N, V) {
 	/* Let envRec be the object Environment Record for which the method was invoked. */
 
 	/* Assert: envRec must have an uninitialized binding for N. */
-	if( isUninitialisedBinding(envRec, N) ) {
-    {envRec.CreateMutableBinding}(envRec, N, true)
-  };
+	assert( isUninitialisedBinding(envRec, N) );
 
 	/* Record that the binding for N in envRec has been initialized. */
 	setBindingInitialised(envRec, N, true);
