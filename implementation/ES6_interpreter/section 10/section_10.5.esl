@@ -186,6 +186,10 @@ function isFunctionCode(code) {
   return (typeof code = __$Obj) &&& (code.codeType = "function")
 };
 
+function isStrict(code) {
+  return (!(code = 'undefined) &&& (code.strict = true))
+};
+
 function isStrictModeCode(code, execCtx) {
   print code;
   return (!(code = 'undefined) &&& (code.strict = true)) ||| isContainedInStrictCode(execCtx)

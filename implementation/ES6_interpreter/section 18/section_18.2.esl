@@ -19,6 +19,8 @@ function PerformEval(x, evalRealm, strictCaller, direct) {
 	 the goal symbol Script. If the parse fails or any early errors are
 	 detected, throw a SyntaxError exception (but see also clause 16). */
   script := parseAsProgram(x, strictCaller);
+	print "DEBUG PERFORM EVAL 0";
+	print script;
   if ("message" in_obj script) {
 	  throw SyntaxErrorConstructorInternal()
   };
@@ -36,7 +38,7 @@ function PerformEval(x, evalRealm, strictCaller, direct) {
   } /* 7. Else, */
   else {
 	/* let strictEval be IsStrict of script */
-	strictEval := isStrictModeCode(script, scope)
+	strictEval := isStrict(script)
   };
 
   /* 8. Let ctx be the running execution context. If direct is true ctx will
