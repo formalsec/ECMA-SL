@@ -347,7 +347,7 @@ function FunctionAllocate(functionPrototype, strict, functionKind) {
   F.Call := "NewOrdinaryFunctionCall";
 
   if ( strict = false ) {
-    setJSProperty(F, "caller",  newDataPropertyDescriptorFull('null, false, false, false) )
+    setJSProperty(F, "caller",  newDataPropertyDescriptorFull('null, false, false, true) )
   };
 
   /* 9. If needsConstruct is true, then */
