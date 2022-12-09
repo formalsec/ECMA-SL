@@ -5,5 +5,7 @@ true: package(extlib)
 true: package(menhirLib)
 true: package(containers)
 true: package(yojson)
-<lib/**>: include
-<src>: include
+<semantics/**>: include
+<syntax/**>: include
+<utils/**>: include
+<main>: include
