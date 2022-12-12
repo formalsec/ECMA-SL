@@ -1,0 +1,3 @@
+[submodule "ECMA-SL_VSCode"]
+	path = ECMA-SL_VSCode
+	url = https://github.com/luisloureiro-ist/ECMA-SL_VSCode.git
