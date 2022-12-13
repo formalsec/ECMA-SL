@@ -9,12 +9,13 @@
   (modules_without_implementation securityLevel securityMonitor topLevelM))
 
 (executable 
-  (public_name ECMA_SL)
+  (public_name ECMA-SL)
   (name main)
   (modules main)
   (libraries ECMA_SL))
 
 (executable
+  (public_name generate_standard)
   (name generate_standard)
   (modules generate_standard)
   (libraries ECMA_SL))
