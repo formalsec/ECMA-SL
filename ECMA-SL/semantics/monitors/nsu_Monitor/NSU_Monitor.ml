@@ -1,4 +1,6 @@
 (*Each monitor is independent of the other ones*)
+open SecCallStack
+open SecLabel
 
 module M (SL : SecurityLevel.M) = struct 
 (*module SSet = Set.Make(String)*)
@@ -35,7 +37,7 @@ let check_pc (pc : sl list) : sl =
   | s::ss'-> s
   | _ -> raise(Except "PC list is empty!")
 
-let rec expr_lvl (ssto: sl SecStore.t) (exp:Expr.t) : sl =
+let expr_lvl (ssto: sl SecStore.t) (exp:Expr.t) : sl =
   (*Criar lub entre lista de variaveis*)
   let vars = Expr.vars exp in
   List.fold_left  (SL.lub) (SL.get_low ())  (List.map (SecStore.get ssto) vars)

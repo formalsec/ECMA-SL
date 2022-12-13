@@ -1,6 +1,9 @@
+open Stmt
+open Func
+open NSU_CompilerConstants
+
 (*Each monitor is independent of the other ones*)
 exception Except of string
-open NSU_CompilerConstants
 
 module M (SL : SecurityLevel.M) = struct
 

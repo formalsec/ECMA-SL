@@ -313,7 +313,7 @@ let utf8decode s =
   let re = Str.regexp "\\\\u{[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?}" in
     let subst = function
     | Str.Delim u -> utf8encode (String.sub u 3 ((String.length u)-4))
-    | Str.Text t ->
+    | Str.Text _ ->
       let re2 = Str.regexp "\\\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]" in
         let subst2 = function
         | Str.Delim u2 -> utf8encode (String.sub u2 2 ((String.length u2)-2))

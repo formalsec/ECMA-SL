@@ -1,4 +1,4 @@
-open Yojson.Basic
+open Val
 
 let rec read_primitive_type (p_type : Yojson.Basic.t) : Val.t =
   match p_type with

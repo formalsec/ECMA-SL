@@ -38,14 +38,14 @@ let rec str ?(flt_with_dot=true) (v : t) : string = match v with
   | Bool v   -> string_of_bool v
   | Str v    -> Printf.sprintf "%S" v
   | Loc v    -> Loc.str v
-  | List vs  -> "[" ^ (String.concat ", " (List.map str vs)) ^ "]"
-  | Arr vs   -> "[|" ^  (String.concat ", " (Array.to_list (Array.map str vs))) ^ "|]" 
+  | List vs  -> "[" ^ (String.concat ", " (List.map (str ~flt_with_dot:flt_with_dot) vs)) ^ "]"
+  | Arr vs   -> "[|" ^  (String.concat ", " (Array.to_list (Array.map (str ~flt_with_dot:flt_with_dot) vs))) ^ "|]" 
   | Type v   -> Type.str v
-  | Tuple vs -> "(" ^ (String.concat ", " (List.map str vs)) ^ ")"
+  | Tuple vs -> "(" ^ (String.concat ", " (List.map (str ~flt_with_dot:flt_with_dot) vs)) ^ ")"
   | Void     -> ""
   | Null     -> "null"
   | Symbol s -> "'" ^ s
-  | Curry (s, vs) -> Printf.sprintf "{\"%s\"}@(%s)" s (String.concat ", " (List.map str vs))
+  | Curry (s, vs) -> Printf.sprintf "{\"%s\"}@(%s)" s (String.concat ", " (List.map (str ~flt_with_dot:flt_with_dot) vs))
   | Byte i   -> string_of_int i 
 (*  | Byte64 i  -> Int64.to_string i 
   | Byte32 i  -> Int32.to_string i *)
@@ -59,7 +59,7 @@ let rec to_json (v : t): string =
   | Str v    ->  Printf.sprintf "{ \"type\" : \"string\", \"value\" : \"%s\" }" v
   | Loc v    ->  Printf.sprintf "{ \"type\" : \"location\", \"value\" : %s }" v
   | List vs  ->  Printf.sprintf "{ \"type\" : \"list\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
-  | Arr vs  ->   Printf.sprintf "{ \"type\" : \"array\", \"value\" : [| %s |] }" (String.concat ", " (Array.to_list (Array.map str vs)))
+  | Arr vs  ->   Printf.sprintf "{ \"type\" : \"array\", \"value\" : [| %s |] }" (String.concat ", " (Array.to_list (Array.map (str ~flt_with_dot:true) vs)))
   | Type v   ->  Printf.sprintf "{ \"type\" : \"type\", \"value\" : %s }" (Type.str v)
   | Tuple vs ->  Printf.sprintf "{ \"type\" : \"tuple\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
   | Void     ->  Printf.sprintf "{ \"type\" : \"void\" }"

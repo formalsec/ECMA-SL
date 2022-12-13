@@ -82,7 +82,7 @@ let parse_msec (str : string) (i : int) : (float * int) option =
 
 
 let parse_time_zone (str : string) (i : int) : string option = 
-    Some("")
+    Some (str ^ (string_of_int i ))
 
 let parse_sth (str : string) (fs : (string -> int -> (float * int) option) list) : (float list * int) option =
     Printf.printf "debug 42: parse_sth %s\n" str; 
@@ -112,5 +112,4 @@ let parse_date (date_str : string) : ((float list) * string) option =
       (match zone with 
       | None -> None 
       | Some zone -> Some (ns, zone))
-      
 

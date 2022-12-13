@@ -1,3 +1,5 @@
+open Val
+
 type const = MAX_VALUE
            | MIN_VALUE
            | PI

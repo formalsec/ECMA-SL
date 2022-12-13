@@ -1,3 +1,8 @@
+open Val
+open Oper
+open Expr
+open Stmt
+open Func
 open Logging
 
 module M
@@ -405,13 +410,13 @@ let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> (
                     if (mon = "nsu") then (
                      let mon_return : Mon.monitor_return = Mon.eval_small_step mon_state label in
                      (match mon_return with
-                      | MReturn mon_state' -> (
+                      | Mon.MReturn mon_state' -> (
                           match return with
                           | Finalv v -> Finalv v
                           | Errorv v -> Errorv v
                           | Intermediate (state', stmts'') ->
                             small_step_iter interceptor prog state' mon_state' stmts'' context)
-                      | MFail  (mon_state', str) ->
+                      | Mon.MFail  (mon_state', str) ->
                         print_string ("MONITOR EXCEPTION -> "^str);
                         exit 1;))
                   else (

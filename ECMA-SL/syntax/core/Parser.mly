@@ -357,11 +357,11 @@ stmt_target:
   | THROW; str = STRING;
     { Stmt.Exception str}
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;
-    { Stmt.FieldAssign (e1, Expr.Val (Str f), e2) }
+    { Stmt.FieldAssign (e1, Expr.Val (Val.Str f), e2) }
   | e1 = expr_target; LBRACK; f = expr_target; RBRACK; DEFEQ; e2 = expr_target;
     { Stmt.FieldAssign (e1, f, e2) }
   | DELETE; e = expr_target; PERIOD; f = VAR;
-    { Stmt.FieldDelete (e, Expr.Val (Str f)) }
+    { Stmt.FieldDelete (e, Expr.Val (Val.Str f)) }
   | DELETE; e = expr_target; LBRACK; f = expr_target; RBRACK;
     { Stmt.FieldDelete (e, f) }
   | SKIP;
@@ -383,7 +383,7 @@ stmt_target:
   | v = VAR; DEFEQ; e1 = expr_target; IN_OBJ; e2 = expr_target;
     { Stmt.AssignInObjCheck (v,e1,e2)}
   | v = VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;
-    { Stmt.FieldLookup (v,e, Expr.Val (Str f)) }
+    { Stmt.FieldLookup (v,e, Expr.Val (Val.Str f)) }
   | v = VAR; DEFEQ; e = expr_target; LBRACK; f = expr_target; RBRACK;
     { Stmt.FieldLookup (v,e, f) }
   | v = VAR; DEFEQ; LBRACE; RBRACE;

@@ -1,0 +1,38 @@
+(lang dune 3.2)
+(using menhir 2.1)
+
+(name ECMA_SL)
+
+(generate_opam_files true)
+
+(source
+ (github username/reponame))
+
+(authors "Author Name")
+
+(maintainers "Maintainer Name")
+
+(license LICENSE)
+
+(documentation https://url/to/documentation)
+
+(package
+ (name ECMA_SL)
+ (synopsis "A short synopsis")
+ (description "A longer description")
+ (depends
+   ocaml
+   dune
+   batteries
+   ppx_import
+   ppx_compare
+   ppx_deriving
+   extlib
+   menhir
+   menhirLib
+   containers
+   yojson)
+ (tags
+  (topics "to describe" your project)))
+
+; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project

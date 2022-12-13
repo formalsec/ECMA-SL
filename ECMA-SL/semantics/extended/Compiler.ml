@@ -1,3 +1,12 @@
+open Val
+open Expr
+open Oper
+open EOper
+open E_Pat
+open E_Pat_v
+open E_Expr
+open E_Stmt
+
 let make_fresh_var_generator (pref : string) : (unit -> string) =
   let count = ref 0 in
   fun () -> let x = !count in

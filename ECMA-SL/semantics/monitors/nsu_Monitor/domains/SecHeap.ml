@@ -65,19 +65,19 @@ let newSecObj (heap : 'sl t) (loc : Loc.t) (struct_lvl : 'sl) (obj_lvl : 'sl)  :
   insert heap loc sec_obj struct_lvl obj_lvl
 
 let upg_prop_exists_lvl (heap : 'sl t) (loc : Loc.t) (field : Field.t ) (lvl : 'sl) : unit =
-  let (sec_obj, struct_lvl, obj_lvl) = get heap loc in
+  let sec_obj, _, _ = get heap loc in
   SecObject.upg_exists sec_obj field lvl
 
 let upg_prop_val_lvl (heap : 'sl t) (loc : Loc.t) (field : Field.t) (lvl : 'sl) : unit =
-  let (sec_obj,struct_lvl, object_lvl) = get heap loc in
+  let sec_obj, _, _ = get heap loc in
   SecObject.upg_val sec_obj field lvl
 
 let upg_object_lvl (heap : 'sl t) (loc : Loc.t) (lvl : 'sl) : unit =
-  let (sec_obj,struct_lvl, object_lvl) = get heap loc in
+  let sec_obj, struct_lvl, _ = get heap loc in
   update heap loc sec_obj struct_lvl  lvl
 
 let upg_struct_lvl (heap : 'sl t) (loc :Loc.t) (lvl : 'sl) : unit =
-  let (sec_obj,struct_lvl,object_lvl) = get heap loc in
+  let sec_obj, _, object_lvl = get heap loc in
   update heap loc sec_obj lvl object_lvl
 
 let str (str_sl : 'sl -> string) (heap : 'sl t): string =

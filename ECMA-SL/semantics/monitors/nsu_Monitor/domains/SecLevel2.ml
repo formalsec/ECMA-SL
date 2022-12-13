@@ -1,3 +1,5 @@
+open Common
+
 exception Except of string
 
 type t=
@@ -6,13 +8,17 @@ type t=
   | MidTwo
   | Low
 
-let top : SSet.t option ref = raise (Except "Illegal Lattice operation ")
+let top : SSet.t option ref = 
+  raise (Except "Illegal Lattice operation ")
 
-let flows : (SSet.t * SSet.t) list ref = raise (Except "Illegal Lattice operation ")
+let flows : (SSet.t * SSet.t) list ref = 
+  raise (Except "Illegal Lattice operation ")
 
-let addFlow (lst1: t) (lst2 : t) : unit = raise (Except "Illegal Lattice operation ")
+let addFlow (_ : t) (_ : t) : unit = 
+  raise (Except "Illegal Lattice operation ")
 
-let setTop (l_top : t): unit = raise (Except "Illegal Lattice operation ")
+let setTop (_ : t) : unit = 
+  raise (Except "Illegal Lattice operation ")
 
 
 let str (l:t) =

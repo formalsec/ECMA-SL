@@ -1,3 +1,5 @@
+open Func
+
 type t = (string, Func.t) Hashtbl.t
 
 let create_empty () : t =

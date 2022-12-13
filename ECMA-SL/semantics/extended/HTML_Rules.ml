@@ -77,8 +77,8 @@ let apply_binoper_rule (rule : binoper_t) (oper : string) (left : string) (right
   let replace (ix : int) : string =
     if ix = 0 then left
     else if ix = 1 then right
-    else raise (Failure "apply_binoper_rule") in
-  build_phrase replace rule.expressions_order rule.phrases rule.final_phrase
+    else failwith "apply_binoper_rule: " ^ oper
+  in build_phrase replace rule.expressions_order rule.phrases rule.final_phrase
 
 
 let apply_func_call_rule_by_name (func_name : string) (param_to_str : int -> string) : string option =

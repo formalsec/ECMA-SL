@@ -1,4 +1,5 @@
 open HTMLExtensions
+open HTMLExtensions.E_Stmt
 
 
 let compare_funcs (f1 : E_Func.t) (f2 : E_Func.t) : int =
@@ -126,7 +127,7 @@ let rec generate_html (std : std_t) : string =
   match std with
   | Leaf (f, fs) ->
     let fs_html = String.concat "" (
-        List.map E_Func.to_html fs
+        List.map (E_Func.to_html ~inner_sections:"") fs
       ) in
     (E_Func.to_html ~inner_sections:fs_html f)
   | Node (Some f, stds) ->
@@ -150,14 +151,14 @@ let mapper (new_funcs : (string, E_Func.t) Hashtbl.t) (s : E_Stmt.t) : E_Stmt.t 
       List.filter (
         fun ((pat : E_Pat.t), (stmt : E_Stmt.t)) ->
           match pat with
-          | ObjPat (_, Some meta) -> true
+          | E_Pat.ObjPat (_, Some meta) -> true
           | _                     -> false
       ) pats_stmts in
     (* Convert MatchWith in a E_Func *)
     List.iter (
       fun ((pat : E_Pat.t), (stmt : E_Stmt.t)) ->
         match pat with
-        | ObjPat (_, Some meta) ->
+        | E_Pat.ObjPat (_, Some meta) ->
           let prod_name =
             match E_Pat_Metadata.get_production_name meta with
             | None   -> Val.Null
@@ -242,11 +243,5 @@ let generate (json_file : string) (prog : E_Prog.t) : string =
         (List.map generate_html stds)
     | _ -> generate_html std in
   Printf.sprintf
-    "<!DOCTYPE html>
-      <html>
-      <head>
-      <link rel=\"stylesheet\" href=\"es5.1.css\">
-      <meta charset=\"utf-8\"></head>
-      <body>%s</body>
-      </html>"
+    "<!DOCTYPE html><html><head><link rel=\"stylesheet\" href=\"es5.1.css\"><meta charset=\"utf-8\"></head><body>%s</body></html>"
     body

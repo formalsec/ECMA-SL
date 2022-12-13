@@ -19,18 +19,18 @@ let rec str (e : t) : string =
   | NOpt (op, es)           -> (Oper.str_of_nopt op (List.map str es))
   | Curry (f, es)           ->  Printf.sprintf "{%s}@(%s)" (str f) (str_es es)
 
-let rec js (e : t) : string =
-  "missing js"
+let js (e : t) : string =
+  failwith "missing js"
 
 
 let rec vars (exp:t): string list =
   (*returns every var used in exp*)
   match exp with
   | Var x                -> [x]
-  | UnOpt (op,e)         -> (vars e)
-  | BinOpt (op,e1,e2)    -> (vars e1) @ (vars e2)
-  | TriOpt (op,e1,e2,e3) -> (vars e1) @ (vars e2) @ (vars e3)
-  | NOpt (op,es)         -> List.concat (List.map vars es)
+  | UnOpt (_, e)         -> (vars e)
+  | BinOpt (_, e1,e2)    -> (vars e1) @ (vars e2)
+  | TriOpt (_, e1,e2,e3) -> (vars e1) @ (vars e2) @ (vars e3)
+  | NOpt (_, es)         -> List.concat (List.map vars es)
   | Curry (e, es)        -> List.concat ((vars e)::(List.map vars es))
   | _                    -> []
 

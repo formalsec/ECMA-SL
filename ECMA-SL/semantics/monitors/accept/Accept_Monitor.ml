@@ -13,7 +13,7 @@ type monitor_return = | MReturn of state_t
                       | MFail of (state_t * string)
 
 
-let rec eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
+let eval_small_step (m_state: state_t) (tl:sl SecLabel.t) : monitor_return =
 	MReturn m_state
 
 let initial_monitor_state (): state_t =

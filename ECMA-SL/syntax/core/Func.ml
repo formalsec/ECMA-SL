@@ -1,3 +1,5 @@
+open Stmt
+
 exception Except of string
 module StringSet = Set.Make(String)
 

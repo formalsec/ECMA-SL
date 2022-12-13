@@ -1,3 +1,5 @@
+open Val
+
 type t = {
   section_number : string;
   pre : string;

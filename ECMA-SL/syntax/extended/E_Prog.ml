@@ -1,3 +1,6 @@
+open E_Func
+open E_Macro
+
 type t = {
   mutable file_name : string;
   imports           : string list;

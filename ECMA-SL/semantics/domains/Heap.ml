@@ -40,7 +40,7 @@ let str (heap : t) : string =
   ) ^ " }"
 
 let str_with_global (heap : t) : string =
-  let global = Hashtbl.fold (fun loc obj acc ->
+  let global = Hashtbl.fold (fun _ obj acc ->
       match acc with
       | Some _ -> acc
       (* Keep this in sync with Compiler.ml function *)

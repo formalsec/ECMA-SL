@@ -2,6 +2,8 @@
 
 
 %{
+  open E_Stmt
+
   let fresh_lambda_id_gen = String_Utils.make_fresh_var_generator "__lambda__"
 %}
 
@@ -203,7 +205,7 @@ e_expr_target:
   | LBRACE; fes = separated_list (COMMA, fv_target); RBRACE;
     { E_Expr.NewObj (fes) }
   | e = e_expr_target; PERIOD; f = VAR;
-    { E_Expr.Lookup (e, E_Expr.Val (Str f)) }
+    { E_Expr.Lookup (e, E_Expr.Val (Val.Str f)) }
   | e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
     { E_Expr.Lookup (e, f) }
   | v = val_target;
@@ -479,11 +481,11 @@ e_stmt_target:
   | ASSERT; e = e_expr_target;
     { E_Stmt.Assert e }
   | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;
-    { E_Stmt.FieldAssign (e1, E_Expr.Val (Str f), e2) }
+    { E_Stmt.FieldAssign (e1, E_Expr.Val (Val.Str f), e2) }
   | e1 = e_expr_target; LBRACK; f = e_expr_target; RBRACK; DEFEQ; e2 = e_expr_target;
     { E_Stmt.FieldAssign (e1, f, e2) }
   | DELETE; e = e_expr_target; PERIOD; f = VAR;
-    { E_Stmt.FieldDelete (e, E_Expr.Val (Str f)) }
+    { E_Stmt.FieldDelete (e, E_Expr.Val (Val.Str f)) }
   | DELETE; e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
     { E_Stmt.FieldDelete (e, f) }
   | SKIP;
@@ -571,7 +573,7 @@ e_stmt_metadata_target:
         fun (m : string) : E_Stmt.metadata_t ->
           let sep_idx = String.index_opt m ':' in
           match sep_idx with
-          | None   -> { where=m; html="" }
+          | None   -> { where = m; html = "" }
           | Some idx ->
             let where = String.sub m 0 idx in
             let html = String.sub m (idx+1) ((String.length m)-idx-1) in

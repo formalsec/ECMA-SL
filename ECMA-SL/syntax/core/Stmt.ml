@@ -36,7 +36,7 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
                                     match s2 with
                                     | None   -> v
                                     | Some s -> v ^ " else {\n" ^ str s ^ "\n}" )
-  | Block (block)               -> String.concat ";\n" (List.map str block)
+  | Block (block)               -> String.concat ";\n" (List.map (str ~print_expr:str_e) block)
   | While (exp, s)              -> "while (" ^ (str_e exp) ^ ") { " ^ (str s) ^ " }"
   | Return exp                  -> "return " ^ (str_e exp)
   | FieldAssign (e_o, f, e_v)   -> str_e e_o ^ "[" ^ str_e f ^ "] := " ^ str_e e_v

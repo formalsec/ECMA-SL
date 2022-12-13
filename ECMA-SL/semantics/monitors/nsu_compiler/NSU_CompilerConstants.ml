@@ -17,7 +17,7 @@ let _LEQ_ = "leq"
 
 let mk_fresh_var (str : string) : (unit -> string)=
   let counter = ref 0 in
-  let rec f () =
+  let f () =
     (let v = str ^ (string_of_int !counter) in
     counter := !counter +1;
     v)
@@ -32,7 +32,7 @@ let fresh_field_lev  = mk_fresh_var "_fresh_field_lev_"
 
 let mk_fresh_pc (): (unit -> string)=
   let counterpc = ref 1 in
-  let rec f () =
+  let f () =
     (let v = "_pc_" ^ (string_of_int !counterpc) in
     counterpc := !counterpc +1;
     v)

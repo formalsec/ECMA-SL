@@ -1,3 +1,5 @@
+open Val
+
 exception Except of string
 
 type 'sl t =

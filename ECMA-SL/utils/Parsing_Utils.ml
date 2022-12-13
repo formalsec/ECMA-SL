@@ -1,7 +1,9 @@
+open Lexing 
+
 exception ImportException of string
 
-type e_token = [%import: E_Parser.token] [@@deriving show]
 type token = [%import: Parser.token] [@@deriving show]
+type e_token = [%import: E_Parser.token] [@@deriving show]
 
 let print_position
     (outx : Format.formatter)

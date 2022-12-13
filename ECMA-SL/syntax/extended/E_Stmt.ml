@@ -89,7 +89,7 @@ let rec map
   let fx (x : string) : string =
     let e' = fe (E_Expr.Var x) in
     match (e' : E_Expr.t) with
-    | Var y -> y
+    | E_Expr.Var y -> y
     | _ -> raise (Failure "Substituting non-var expression on LHS") in
 
   let s' =

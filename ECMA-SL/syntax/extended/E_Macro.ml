@@ -26,8 +26,8 @@ let str (func : t) : string =
 
 let apply_macros_stmt (get_macro : string -> t option) (s : E_Stmt.t) : E_Stmt.t = 
   let mapper s = 
-    match (s:E_Stmt.t) with 
-    | MacroApply (m, es) -> 
+    match (s : E_Stmt.t) with 
+    | E_Stmt.MacroApply (m, es) -> 
       let macro = get_macro m in 
       (match macro with 
       | None -> raise (Failure ("Unknown macro "^m))
