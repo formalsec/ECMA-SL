@@ -3,8 +3,8 @@
 (library
   (name ECMA_SL)
   (wrapped false)
-  (preprocess (staged_pps ppx_import ppx_compare ppx_deriving.std))
-  (libraries batteries extlib menhirLib containers yojson)
+  (preprocess (staged_pps ppx_import ppx_deriving.std))
+  (libraries batteries extlib menhirLib yojson)
   (modules :standard \ main generate_standard)
   (modules_without_implementation callStack securityLevel securityMonitor topLevelM))
 
