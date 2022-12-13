@@ -1,0 +1,51 @@
+(include_subdirs unqualified)
+
+(library
+  (name ECMA_SL)
+  (wrapped false)
+  (preprocess (staged_pps ppx_import ppx_compare ppx_deriving.std))
+  (libraries batteries extlib menhirLib containers yojson)
+  (modules :standard \ main generate_standard)
+  (modules_without_implementation callStack securityLevel securityMonitor topLevelM))
+
+(executable 
+  (public_name ECMA_SL)
+  (name main)
+  (modules main)
+  (libraries ECMA_SL))
+
+(executable
+  (name generate_standard)
+  (modules generate_standard)
+  (libraries ECMA_SL))
+
+(subdir
+  syntax/core
+  (rule
+    (target Lexer.ml)
+    (deps Lexer.mll)
+    (action 
+      (chdir
+        %{workspace_root}
+        (run %{bin:ocamllex} -ml -q -o %{target} %{deps}))))
+  (menhir
+    (modules Parser)
+    (flags --table)))
+
+(subdir
+  syntax/extended
+  (rule
+    (target E_Lexer.ml)
+    (deps E_Lexer.mll)
+    (action 
+      (chdir
+        %{workspace_root}
+        (run %{bin:ocamllex} -ml -q -o %{target} %{deps}))))
+  (menhir
+    (modules E_Parser)
+    (flags --table)))
+
+(env
+ (_
+  (flags
+   (-w +a-4-27-42-44-45-70 -warn-error +a-3))))
