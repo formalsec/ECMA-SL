@@ -11,7 +11,7 @@ module M
 
 exception Except of string
 
-type state_t = Callstack.t * Heap.t * Store.t * string
+type state_t = CallStack.t * Heap.t * Store.t * string
 
 type return =
   | Intermediate of state_t * Stmt.t list
@@ -178,8 +178,8 @@ let get_func_id (sto:Store.t) (exp:Expr.t) : (string * Val.t list) =
   | Val.Curry (f, vs) -> (f, vs)
   | _ -> raise (Except "Wrong/Invalid Function ID")
 
-let prepare_call (prog:Prog.t) (calling_f : string) (cs:Callstack.t) (sto: Store.t) (cont: Stmt.t list) (x:string) (es:Expr.t list) (f:string) (vs: Val.t list) : (Callstack.t * Store.t * string list) =
-  let cs' = Callstack.push cs (Callstack.Intermediate (cont, sto, x, calling_f)) in
+let prepare_call (prog:Prog.t) (calling_f : string) (cs:CallStack.t) (sto: Store.t) (cont: Stmt.t list) (x:string) (es:Expr.t list) (f:string) (vs: Val.t list) : (CallStack.t * Store.t * string list) =
+  let cs' = CallStack.push cs (CallStack.Intermediate (cont, sto, x, calling_f)) in
   let params = Prog.get_params prog f in
   let pvs = try
     List.combine params vs
@@ -268,13 +268,13 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
 
   | Return e ->
     let v = eval_expr sto e in
-    let  (f,cs') = Callstack.pop cs in (
+    let  (f,cs') = CallStack.pop cs in (
       match f with
-      | Callstack.Intermediate (cont',sto', x, f') ->   (Store.set sto'  x v;
+      | CallStack.Intermediate (cont',sto', x, f') ->   (Store.set sto'  x v;
                                                      (Intermediate ((cs', heap, sto', f'), cont'), SecLabel.ReturnLab e))
 
 
-      | Callstack.Toplevel -> (Finalv (Some v), SecLabel.ReturnLab e))
+      | CallStack.Toplevel -> (Finalv (Some v), SecLabel.ReturnLab e))
 
   | Block block ->
     (Intermediate ((cs, heap, sto, f), (block @ cont)), SecLabel.EmptyLab )
@@ -436,7 +436,7 @@ let rec  small_step_iter (interceptor: string -> Val.t list -> Expr.t list  -> (
 
 let initial_state () : state_t =
   let sto = Store.create [] in
-  let cs = Callstack.push [] (Callstack.Toplevel) in
+  let cs = CallStack.push CallStack.empty (CallStack.Toplevel) in
   let heap = Heap.create () in
   (cs, heap, sto, "main")
 
