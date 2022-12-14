@@ -2,10 +2,11 @@ type sft =
   | Intermediate of (Stmt.t list * Store.t * string * string)
   | Toplevel
 
-type t 
+type t
+
+exception Except of string
 
 val empty : t 
 
-val pop : t -> (sft * t)
-
+val pop  : t -> (sft * t)
 val push :  t -> sft -> t

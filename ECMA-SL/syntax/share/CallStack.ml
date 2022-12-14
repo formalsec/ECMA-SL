@@ -1,17 +1,18 @@
-exception Except of string
-
 type sft =
   | Intermediate of (Stmt.t list * Store.t * string * string)
   | Toplevel
 
 type t = sft list
 
+(* Perhaps empty would be better? *)
+exception Except of string
+
 let empty : t = []
 
 let pop (cs : t) : sft * t =
   match cs with
-  | [] -> (raise(Except "The stack is Empty already!")(*ERROR*))
-  | f::frames -> (f,frames)
+  (* Maybe raise Empty ? instead of a Except*)
+  | [] -> raise (Except "The stack is Empty already!")
+  | f :: frames -> (f , frames)
 
 let push (cs : t) (frame : sft) : t = frame :: cs
-

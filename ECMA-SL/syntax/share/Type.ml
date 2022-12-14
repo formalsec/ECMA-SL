@@ -25,6 +25,3 @@ let str (v : t) : string = match v with
   | SymbolType -> "__$Symbol"
   | CurryType  -> "__$Curry"
   | ArrayType  -> "__$Array"
-
-
-
