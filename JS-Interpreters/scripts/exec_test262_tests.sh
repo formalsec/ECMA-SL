@@ -13,7 +13,6 @@ INV='\e[7m'         #INVERTED
 LGREEN='\e[102m'
 BOLD='\e[1m'
 
-
 function usage {
   echo -e "Usage: $(basename $0) [OPTION]... [-dfirp]"
   echo -e '
@@ -33,19 +32,6 @@ function usage {
   -H         Consider harness file during execution with pre-generated ASTs.
   -S         Skip OCaml compilation.'
   exit 1
-}
-
-function start_timer() {
-  start_time=$(date +%s%N)
-}
-
-function stop_timer() {
-  end_time=$(date +%s%N)
-}
-
-function set_duration_str() {
-  local duration=$((end_time-start_time))
-  duration_str=$(echo $duration | awk '{printf "%02dh:%02dm:%06.3fs\n", $0/3600000000000, $0%3600000000000/60000000000, $0/1000000000%60}')
 }
 
 function writeToFile() {
@@ -93,30 +79,30 @@ function checkConstraints() {
 
   METADATA=$2
   # in case it's a negative test, save its expected error name in a variable to be used later.
-  NEGATIVE=$(echo -e "$METADATA" | awk '/negative:/ {print $2}')
+  neg=$(echo -e "$METADATA" | awk '/negative:/ {print $2}')
 
   # If NEGATIVE is the empty string, we may be in a case where the negative metadata is split in "phase" and "type":
-  if [[ "$NEGATIVE" == "" ]]; then
-    NEGATIVE=$(echo -e "$METADATA" | awk '/negative:/,/---\*\//' | awk '/type:/ { print $2 }')
+  if [[ "$neg" == "" ]]; then
+    neg=$(echo -e "$METADATA" | awk '/negative:/,/---\*\//' | awk '/type:/ { print $2 }')
   fi
 
-  return 0
+  return $neg
 }
 
 
 function createMain262JSFile() {
   # echo "3.1. Copy contents to temporary file"
-  cat /dev/null > "output/main262_$now.js"
+  cat /dev/null > "$OUTPUT_ROOT/main262_$3.js"
   # Check if test is to run in strict code mode.
   if [[ $(echo -e "$2" | grep -e 'flags:.*onlyStrict') != "" ]]; then
-    echo "\"use strict\";" >> "output/main262_$now.js"
+    echo "\"use strict\";" >> "$OUTPUT_ROOT/main262_$3.js"
   fi
   # Only include harness file if not using pre-compiled ASTs or
   # if using pre-compiled ASTs they do not include the harness
   if [[ $WITH_PRE_COMPILED -ne 1 || $WITH_HARNESS -ne 1 ]]; then
-    cat "test/test262/environment/harness.js" >> "output/main262_$now.js"
+    cat "$TEST_ROOT/test262/environment/harness.js" >> "$OUTPUT_ROOT/main262_$3.js"
   fi
-  cat "$1" >> "output/main262_$now.js"
+  cat "$1" >> "$OUTPUT_ROOT/main262_$3.js"
 
   if [ $? -ne 0 ]; then
     exit 1
@@ -124,28 +110,38 @@ function createMain262JSFile() {
 }
 
 function handleSingleFile() {
-  # increment number of files being tested.
-  incTotal
+  test -f $1 \
+    || (echo "Ignoring \"$1\". It's not a valid file." \
+    && return)
+
+  local test_result=""
 
   FILENAME=$1
   printf "Testing ${FILENAME} ... "
 
   METADATA=$(cat "$FILENAME" | awk '/\/\*---/,/---\*\//')
 
-  checkConstraints $FILENAME "$METADATA"
+  local ID=$RANDOM
+
+  local NEG=$(checkConstraints $FILENAME "$METADATA")
 
   if [ $WITH_PRE_COMPILED -eq 1 ]; then # Copy pre-compiled AST file contents to target file.
     if [ $WITH_HARNESS -eq 1 ]; then
-      cp "$OUTPUT_FOLDER_WITH_HARNESS$FILENAME.esl" "output/test262_ast_$now.esl"
+      cp "$OUTPUT_FOLDER_WITH_HARNESS/$FILENAME.esl" "$OUTPUT_ROOT/test262_ast_$ID.esl"
     else
-      cp "$OUTPUT_FOLDER$FILENAME.esl" "output/test262_ast_$now.esl"
+      cp "$OUTPUT_FOLDER/$FILENAME.esl" "$OUTPUT_ROOT/test262_ast_$ID.esl"
     fi
   else
     # Copy contents to temporary file
-    createMain262JSFile $FILENAME "$METADATA"
+    createMain262JSFile $FILENAME "$METADATA" "$ID"
 
     # Create the AST of the program in the file FILENAME and compile it directly to \"Core\" ECMA-SL
-    JS2ECMASL=$(time (node ../JS2ECMA-SL/src/index.js -c -i output/main262_$now.js -o output/test262_ast_$now.esl) 2>&1 1>&1)
+    JS2ECMASL=$(time \
+      (node ../JS2ECMA-SL/src/index.js \
+        -c \
+        -i "$OUTPUT_ROOT/main262_$ID.js" \
+        -o "$OUTPUT_ROOT/test262_ast_$ID.esl") 2>&1 1>&1
+    )
 
     ast_duration_str=$(echo "$JS2ECMASL" | sed '$!d')
 
@@ -153,29 +149,31 @@ function handleSingleFile() {
     if [[ "$JS2ECMASL" != "The file has been saved!"* ]]; then
       printf "${BOLD}${RED}${INV}ERROR${NC}\n"
 
-      # increment number of tests with error
-      incError
-
       if [ $LOG_ERRORS -eq 1 ]; then
         log_errors_arr+=("$FILENAME")
       fi
 
       ERROR_MESSAGE=$(echo -e "$JS2ECMASL" | head -n 1)
 
-      test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "$ast_duration_str" "" "")
+      test_result="$FILENAME,**ERROR**,$ERROR_MESSAGE,$ast_duration_str, , "
       return
     fi
   fi
 
   # Create the Core file by concatenating the AST and Interpreter Core version files."
-  cat "output/test262_ast_$now.esl" > "output/core_$now.esl"
-  echo ";" >> "output/core_$now.esl"
-  cat "output/interpreter_$now.esl" >> "output/core_$now.esl"
+  cat "$OUTPUT_ROOT/test262_ast_$ID.esl" > "$OUTPUT_ROOT/core_$ID.esl"
+  echo ";" >> "$OUTPUT_ROOT/core_$ID.esl"
+  cat "$OUTPUT_ROOT/interpreter.esl" >> "$OUTPUT_ROOT/core_$ID.esl"
 
   # Evaluate program and write the computed heap to the file heap.json."
   local toggle_silent_mode=""
   [ $LOG_ENTIRE_EVAL_OUTPUT -eq 0 ] && toggle_silent_mode="-s"
-  ECMASLCI=$(time (timeout 100 ./main.native -mode ci -i output/core_$now.esl $toggle_silent_mode) 2>&1 1>&1)
+  ECMASLCI=$(time \
+    (timeout 100 \
+      ECMA-SL \
+        -mode ci \
+        -i "$OUTPUT_ROOT/core_$ID.esl" $toggle_silent_mode) 2>&1 1>&1
+  )
 
   local EXIT_CODE=$?
 
@@ -184,59 +182,44 @@ function handleSingleFile() {
   ECMASLCI=$(echo "$ECMASLCI" | sed '$d')
 
   # In case of a negative test, we're expecting to have a failure in the interpretation
-  if [ -n "$NEGATIVE" ]; then
+  if [ -n "$NEG" ]; then
     # the "print substr" part of the piped awk command is to remove the double-quotes present in the string we're extracting
     local completion_value=$(echo -e "$ECMASLCI" | tail -n 10 | awk -F ", " '/MAIN pc ->/ {print substr($3, 2, length($3)-2)}')
-    if [[ $NEGATIVE == $completion_value ]]; then
+    if [[ $NEG == $completion_value ]]; then
       printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
-
-      # increment number of tests successfully executed
-      incOk
 
       if [ $LOG_OKS -eq 1 ]; then
         log_oks_arr+=("$FILENAME")
       fi
 
-      test_result=("$FILENAME" "_OK_" "" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
+      test_result="$FILENAME,_OK_, ,$ast_duration_str,$plus2core_duration_str,$duration_str"
     else
       printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC}\n"
-
-      # increment number of tests failed
-      incFail
 
       if [ $LOG_FAILURES -eq 1 ]; then
         log_failures_arr+=("$FILENAME")
       fi
 
-      test_result=("$FILENAME" "**FAIL**" "$RESULT" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
+      test_result="$FILENAME,**FAIL**, $RESULT, $ast_duration_str, $plus2core_duration_str, $duration_str"
     fi
   elif [ $EXIT_CODE -eq 0 ]; then
     printf "${BOLD}${GREEN}${INV}OK!${NC}\n"
-
-    # increment number of tests successfully executed
-    incOk
 
     if [ $LOG_OKS -eq 1 ]; then
       log_oks_arr+=("$FILENAME")
     fi
 
-    test_result=("$FILENAME" "_OK_" "" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
+    test_result="$FILENAME, _OK_, ,$ast_duration_str, $plus2core_duration_str, $duration_str"
   elif [ $EXIT_CODE -eq 1 ]; then
     printf "${BOLD}${RED}${BLINK1}${INV}FAIL${NC}\n"
-
-    # increment number of tests failed
-    incFail
 
     if [ $LOG_FAILURES -eq 1 ]; then
       log_failures_arr+=("$FILENAME")
     fi
 
-    test_result=("$FILENAME" "**FAIL**" "$RESULT" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
+    test_result="$FILENAME, **FAIL**, $RESULT, $ast_duration_str, $plus2core_duration_str, $duration_str"
   elif [ $EXIT_CODE -eq 2 ]; then 
     printf "${BOLD}${RED}${INV}ERROR${NC}\n"
-
-    # increment number of tests with error
-    incError
 
     if [ $LOG_ERRORS -eq 1 ]; then
       log_errors_arr+=("$FILENAME")
@@ -244,50 +227,36 @@ function handleSingleFile() {
 
     ERROR_MESSAGE=$(echo -e "$ECMASLCI" | tail -n 1)
 
-    test_result=("$FILENAME" "**ERROR**" "$ERROR_MESSAGE" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
+    test_result="$FILENAME, **ERROR**, $ERROR_MESSAGE, $ast_duration_str, $plus2core_duration_str, $duration_str"
   elif [ $EXIT_CODE -eq 3 ]; then 
     printf "${BOLD}${YELLOW}${INV}UNSUPPORTED${NC}\n"
-
-    # increment number of tests with unsupported features
-    incUnsupported
 
     if [ $LOG_UNSUPPORTED -eq 1 ]; then
       log_unsupported_arr+=("$FILENAME")
     fi
 
 
-    test_result=("$FILENAME" "**UNSUPPORTED**" "$RESULT" "$ast_duration_str" "$plus2core_duration_str" "$duration_str")
+    test_result="$FILENAME, **UNSUPPORTED**, $RESULT, $ast_duration_str, $plus2core_duration_str, $duration_str"
   fi
 
+  local output_file="$OUTPUT_ROOT/$(echo "${FILENAME%.js}.out" | sed "s/^..//")"
+  test -e $(dirname $output_file) || mkdir -p $(dirname $output_file)
+  echo $test_result > $output_file
+
+  rm $OUTPUT_ROOT/test262_ast_$ID.esl $OUTPUT_ROOT/core_$ID.esl $OUTPUT_ROOT/main262_$ID.js
 
   if [ $LOG_ENTIRE_EVAL_OUTPUT -eq 1 ]; then
     # Output of the execution is written to the file result.txt
     echo "Writing interpretation output to file..."
-    echo "$ECMASLCI" > result.txt
+    echo "$ECMASLCI" > $OUTPUT_ROOT/result_$ID.txt
   fi
 }
+
 
 function testFiles() {
   local files=($@)
 
-  for file in "${files[@]}"; do
-    if [ -f $file ]; then
-      # Test file
-      handleSingleFile $file
-    else
-      echo "Ignoring \"$file\". It's not a valid file."
-      continue
-    fi
-
-    # Write results to file
-    # transform returned results in a string ready to be written to file
-    local str="${test_result[0]}"
-    for s in "${test_result[@]:1}"; do
-      str+=" | "
-      str+=$s
-    done
-    files_results+=("$str")
-  done
+  parallel -j $JOBS handleSingleFile ::: "${files[@]}"
 }
 
 function handleFiles() {
@@ -355,21 +324,20 @@ function handleDirectories() {
 
   for dir in "${dirs[@]}"; do
     if [ -d $dir ]; then
-      # Save current state of the dir counters.
-      declare -i curr_dir_ok_tests=$dir_ok_tests
-      declare -i curr_dir_fail_tests=$dir_fail_tests
-      declare -i curr_dir_error_tests=$dir_error_tests
-      declare -i curr_dir_unsupported_tests=$dir_unsupported_tests
-      declare -i curr_dir_not_executed_tests=$dir_not_executed_tests
-      declare -i curr_dir_total_tests=$dir_total_tests
-      # Reset directories' counters
-      resetDirCounters
       # Test directory
-      files_results=()
       handleSingleDirectory $output_file $dir
 
-      if [[ $dir_total_tests -ne 0 ]]; then
+      local output_dir="$OUTPUT_ROOT/$(echo $dir | sed "s/^..//")"
+      local outputs=$(find $output_dir -type f -name "*.out")
+      local count=$(find $output_dir -type f -name "*.out" | wc -l)
+      if [[ $count -ne 0 ]]; then
         local params=()
+        dir_ok_tests=$(grep "_OK_" -R $output_dir | wc -l)
+        dir_fail_tests=$(grep "**FAIL**" -R $output_dir | wc -l)
+        dir_error_tests=$(grep "**ERROR**" -R $output_dir | wc -l)
+        dir_unsupported_tests=$(grep "**UNSUPPORTED**" -R $output_dir | wc -l)
+        dir_not_executed_tests=0 # these are never incremented?
+        dir_total_tests=$count
         params+=("## Summary of the tests executed in \"$dir\"")
         params+=("OK | FAIL | ERROR | UNSUPPORTED | NOT EXECUTED | Total")
         params+=(":---: | :---: | :---: | :---: | :---: | :---:")
@@ -378,65 +346,19 @@ function handleDirectories() {
         params+=("### Individual results")
         params+=("File path | Result | Observations | Creation of the AST | Plus to Core | Interpretation")
         params+=("--- | :---: | :---: | :---: | :---: | :---:")
-        params+=("${files_results[@]}")
+        for out in $outputs; do
+          params+=("$(cat $out | sed "s/,/|/g")")
+        done
         params+=("")
 
         writeToFile $output_file "${params[@]}"
       fi
-
-      # Set directories' counters to the sum of the values before handling directory and the values obtained after handling directory
-      dir_ok_tests+=$curr_dir_ok_tests
-      dir_fail_tests+=$curr_dir_fail_tests
-      dir_error_tests+=$curr_dir_error_tests
-      dir_unsupported_tests+=$curr_dir_unsupported_tests
-      dir_not_executed_tests+=$curr_dir_not_executed_tests
-      dir_total_tests+=$curr_dir_total_tests
     else
       echo "Ignoring \"$dir\". It's not a valid directory"
       continue
     fi
   done
 }
-
-function incTotal() {
-  total_tests+=1
-  dir_total_tests+=1
-}
-
-function incOk() {
-  ok_tests+=1
-  dir_ok_tests+=1
-}
-
-function incFail() {
-  fail_tests+=1
-  dir_fail_tests+=1
-}
-
-function incError() {
-  error_tests+=1
-  dir_error_tests+=1
-}
-
-function incUnsupported() {
-  unsupported_tests+=1
-  dir_unsupported_tests+=1
-}
-
-function incNotExecuted() {
-  not_executed_tests+=1
-  dir_not_executed_tests+=1
-}
-
-function resetDirCounters() {
-  dir_total_tests=0
-  dir_ok_tests=0
-  dir_fail_tests=0
-  dir_error_tests=0
-  dir_unsupported_tests=0
-  dir_not_executed_tests=0
-}
-
 
 function processFromInputFile() {
   local INPUT_FILES=($@)
@@ -481,90 +403,70 @@ if [[ ${#} -eq 0 ]]; then
 fi
 
 # Initialise global variables
-declare now=$(date +%y%m%dT%H%M%S)
-declare -i start_time=0
-declare -i end_time=0
+declare NOW=$(date +%y%m%dT%H%M%S); export NOW
 declare duration_str=""
 # Counters
-declare -i total_tests=0
-declare -i ok_tests=0
-declare -i fail_tests=0
-declare -i error_tests=0
-declare -i unsupported_tests=0
-declare -i not_executed_tests=0
 # Counters used in the directories
-declare -i dir_total_tests=0
-declare -i dir_ok_tests=0
-declare -i dir_fail_tests=0
-declare -i dir_error_tests=0
-declare -i dir_unsupported_tests=0
-declare -i dir_not_executed_tests=0
 
+declare JOBS=1; export JOBS
 declare NEGATIVE=""
 declare -a results=()
 declare -a files_results=()
-declare -a test_result=()
 
-declare -i RECURSIVE=0
-declare -i WITH_PRE_COMPILED=0
-declare -i WITH_HARNESS=0
-declare OUTPUT_FOLDER="generated_ASTs/"
-declare OUTPUT_FOLDER_WITH_HARNESS=$OUTPUT_FOLDER"with_harness/"
-declare -r OUTPUT_FILE="logs/results_$now.md"
+declare -i RECURSIVE=0; export RECURSIVE
+declare -i WITH_PRE_COMPILED=0; export WITH_PRE_COMPILED
+declare -i WITH_HARNESS=0; export WITH_HARNESS
+declare    TEST_ROOT=../test; export TEST_ROOT
+declare    OUTPUT_ROOT=output; export OUTPUT_ROOT
+declare    OUTPUT_FOLDER="$TEST_ROOT"/generated_ASTs; export OUPUT_FOLDER
+declare    OUTPUT_FOLDER_WITH_HARNESS="$OUTPUT_FOLDER"/with_harness; export OUTPUT_FOLDER_WITH_HARNESS
+declare -r OUTPUT_FILE="$OUTPUT_ROOT"/logs/results_"$NOW".md; export OUTPUT_FILE
 
-declare -i LOG_ENTIRE_EVAL_OUTPUT=0
+declare -i LOG_ENTIRE_EVAL_OUTPUT=0; export LOG_ENTIRE_EVAL_OUTPUT
 
-declare -i ES6=0
+declare -i ES6=0; export ES6
 
-declare -i SKIP_COMPILATION=0
-declare -i LOG_ERRORS=0
-declare -i LOG_UNSUPPORTED=0
-declare -i LOG_FAILURES=0
-declare -i LOG_OKS=0
-declare -r LOG_ERRORS_FILE="logs/errors_$now.log"
-declare -r LOG_UNSUPPORTED_FILE="logs/unsupported_$now.log"
-declare -r LOG_FAILURES_FILE="logs/failures_$now.log"
-declare -r LOG_OKS_FILE="logs/oks_$now.log"
+declare -i SKIP_COMPILATION=0; export SKIP_COMPILATION
+declare -i LOG_ERRORS=0; export LOG_ERRORS
+declare -i LOG_UNSUPPORTED=0; export LOG_UNSUPPORTED
+declare -i LOG_FAILURES=0; export LOG_FAILURES
+declare -i LOG_OKS=0; export LOG_OKS
+declare -r LOG_ERRORS_FILE="$OUTPUT_ROOT/logs/errors_$NOW.log"; export LOG_ERRORS_FILE
+declare -r LOG_UNSUPPORTED_FILE="$OUTPUT_ROOT/logs/unsupported_$NOW.log"; export LOG_UNSUPPORTED_FILE
+declare -r LOG_FAILURES_FILE="$OUTPUT_ROOT/logs/failures_$NOW.log"; export LOG_FAILURES_FILE
+declare -r LOG_OKS_FILE="$OUTPUT_ROOT/logs/oks_$NOW.log"; export LOG_OKS_FILE
 declare -a log_errors_arr=()
 declare -a log_unsupported_arr=()
 declare -a log_failures_arr=()
 declare -a log_ok_arr=()
 
+# Check that "output" directory exists and, if not, create it
+# Check that "logs" directory exists and, if not, create it
+test -e "$OUTPUT_ROOT"/logs || mkdir -p "$OUTPUT_ROOT"/logs
+test -e "$OUTPUT_ROOT"/test && rm -rf "$OUTPUT_ROOT"/test
+
 # Empty the contents of the output file
 cat /dev/null > $OUTPUT_FILE
-# Check that "logs" directory exists and, if not, create it
-if [ ! -d "logs" ]; then
-  mkdir "logs"
-fi
-# Check that "output" directory exists and, if not, create it
-if [ ! -d "output" ]; then
-  mkdir "output"
-fi
 
 # Set OPAM environment variables
 eval `opam env`
 
 function compile() {
   #echo "1. Compile the ECMA-SL language"
-  # OCAMLMAKE=$(make)
-  make
-
-  if [ $? -ne 0 ]
-  then
-    # echo $OCAMLMAKE
-    exit 1
-  fi
+  (cd ../ECMA-SL \
+    && dune build \
+    && dune install) || exit 1
 
   #echo "2. Install JS2ECMA-SL dependencies"
-  cd ../JS2ECMA-SL
-  npm install
-  cd ../implementation
+  (cd ../JS2ECMA-SL && npm install) || exit 1
+
+  cd ../JS-Interpreters
 
   echo ""
 }
 
 # Define list of arguments expected in the input
-optstring=":6EUFOHSd:f:i:r:p:"
+optstring=":6EUFOHSd:f:i:r:p:j:"
 
 declare -a dDirs=() # Array that will contain the directories to use with the arg "-d"
 declare -a fFiles=() # Array that will contain the files to use with the arg "-f"
@@ -586,6 +488,7 @@ while getopts ${optstring} arg; do
     i) iFiles+=("$OPTARG") ;;
     r) rDirs+=("$OPTARG") ;;
     p) preCompiledDirs+=("$OPTARG");;
+    j) JOBS="$OPTARG";;
 
     ?)
       echo "Invalid option: -${OPTARG}."
@@ -605,16 +508,21 @@ function process() {
   TIMEFORMAT='%3lR'
 
 
-  #echo "3. Create the file that will be compiled from \"Plus\" to \"Core\" in step 3.4."
+  #echo "3. Create the file that will be compiled from \"Main\" to \"Core\" in step 3.4."
   if [ $ES6 -eq 1 ]; then
     echo "GOING TO RUN ES6"
-    sed '1d' "ES6_interpreter/plus.esl" >> "output/test262_$now.esl"
+    sed '1d' "ES6_interpreter/main.esl" > "$OUTPUT_ROOT/main.esl"
   else
-    sed '1d' "ES5_interpreter/plus.esl" >> "output/test262_$now.esl"
+    sed '1d' "ES5_interpreter/main.esl" > "$OUTPUT_ROOT/main.esl"
   fi
 
   # Compile program written in \"Plus\" to \"Core\
-  ECMASLC=$(time (./main.native -mode c -i output/test262_$now.esl -o output/interpreter_$now.esl) 2>&1 1>/dev/null)
+  ECMASLC=$(time \
+    (ECMA-SL \
+      -mode c \
+      -i "$OUTPUT_ROOT/main.esl" \
+      -o "$OUTPUT_ROOT/interpreter.esl") 2>&1 1>/dev/null
+  )
 
   EXIT_CODE=$?
 
@@ -654,13 +562,22 @@ function process() {
   TIMEFORMAT='Executed in %3lR'
 }
 
+export -f handleSingleFile \
+  checkConstraints \
+  logStatusToFiles \
+  createMain262JSFile
+
 time process
+
+ok_tests=$(grep "_OK_" -R "$OUTPUT_ROOT/test" | wc -l)
+fail_tests=$(grep "**FAIL**" -R "$OUTPUT_ROOT/test" | wc -l)
+error_tests=$(grep "**ERROR**" -R "$OUTPUT_ROOT/test" | wc -l)
+unsupported_tests=$(grep "**UNSUPPORTED**" -R "$OUTPUT_ROOT/test" | wc -l)
+total_tests=$(find "$OUTPUT_ROOT/test" -type f -name "*.out" -size +2c | wc -l)
 
 printf "\n${BOLD}SUMMARY:${NC}\n\n"
 printf "OK: $ok_tests    "
 printf "FAIL: $fail_tests    "
 printf "ERROR: $error_tests    "
 printf "UNSUPPORTED: $unsupported_tests    "
-printf "NOT EXECUTED: $not_executed_tests    "
 printf "Total: $total_tests\n"
-

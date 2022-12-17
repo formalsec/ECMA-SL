@@ -1,4 +1,3 @@
-import "ES6_interpreter/ast.esl";
 import "ES6_interpreter/ESL_Interpreter.esl";
 
 function main() {
