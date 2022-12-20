@@ -25,7 +25,7 @@ function InstantiateFunctionObject(f, scope, realm) {
     name := StringValue(Identifier.name);
     /* 3. Let F be FunctionCreate(Normal, FormalParameters, FunctionBody, scope,
       strict). */
-    F := FunctionCreate("normal", FormalParameters, FunctionBody, lexEnv, strict, null, realm);
+    F := FunctionCreate("normal", FormalParameters, FunctionBody, lexEnv, strict, null);
     /* 4. Perform MakeConstructor(F). */
     MakeConstructor(F, null, null);
     /* 5. Perform SetFunctionName(F, name). */

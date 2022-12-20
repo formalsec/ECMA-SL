@@ -1193,7 +1193,7 @@ function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
     };
 
     /* 2. Let F be FunctionCreate(Normal, FormalParameters, FunctionBody, scope, strict) */
-    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, strict, null, scope.Realm);
+    F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, strict, null);
 
     /* 3. Perform MakeConstructor(F) */
     MakeConstructor(F, null, null);
