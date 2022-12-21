@@ -1,0 +1,36 @@
+(lang dune 3.2)
+(using menhir 2.1)
+
+(name ECMA_SL)
+
+(generate_opam_files true)
+
+(source
+ (github j3fsantos/ECMA-SL))
+
+(authors "José Fragoso Santos")
+
+(maintainers "José Fragoso Santos")
+
+(license LICENSE)
+
+(documentation https://url/to/documentation)
+
+(package
+ (name ECMA_SL)
+ (synopsis "ECMA-SL")
+ (description "A Platform for specifying and running the ECMAScript standard.")
+ (depends
+   (ocaml (>= 4.08.0))
+   dune
+   batteries
+   ppx_import
+   ppx_deriving
+   extlib
+   menhir
+   menhirLib
+   yojson)
+ (tags
+  (ECMAScript "Specification Language" "Reference Interpreters" "OCaml")))
+
+; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project
