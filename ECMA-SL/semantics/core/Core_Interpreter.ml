@@ -231,9 +231,10 @@ let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t) (e : E
 
 let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl SecLabel.t) option) (prog: Prog.t) (state : state_t) (cont: Stmt.t list) (verbose: bool) (s: Stmt.t) : (return * (Mon.sl SecLabel.t))  =
   let (cs, heap, sto, f) = state in
-  let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
+  (*let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
   if Stmt.is_basic_stmt s then
     print_endline (lazy (Printf.sprintf "====================================\nEvaluating >>>>> %s: %s (%s)" f (Stmt.str s) (Stmt.str ~print_expr:str_e s)));
+    *)
 
   match s with
   | Skip ->
@@ -256,6 +257,11 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
      (Intermediate ((cs, heap, sto, f), cont), SecLabel.PrintLab (e))
 
   | Fail e -> (
+      let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
+      print_endline (lazy (Printf.sprintf "====================================\nEvaluating >>>>> %s: %s (%s) in the callstack:\n %s" f (Stmt.str s) (Stmt.str ~print_expr:str_e s) (CallStack.str cs)));
+      
+      
+
       let v = eval_expr sto e in
       Errorv (Some v), SecLabel.EmptyLab
     )
@@ -278,8 +284,6 @@ let eval_small_step (interceptor: string -> Val.t list -> Expr.t list -> (Mon.sl
 
   | Block block ->
     (Intermediate ((cs, heap, sto, f), (block @ cont)), SecLabel.EmptyLab )
-
-
 
   | If (e,s1,s2) ->
     let v = eval_expr sto e in
