@@ -1,26 +1,33 @@
 # ECMA-SL
 
-This project is composed of two sub-projects, each presented in its own folder:
+This project is composed of three sub-projects, each presented in its own folder:
 
-- **JS2ECMASL** - a tool that transforms a JSON AST created using the [Esprima parser](https://esprima.org) and representing a JavaScript program in an ECMA-SL function that returns an ECMA-SL object containing the AST.
-- **Heap2HTML** - a tool that creates an HTML representation of a JSON file. With this tool, we can visualise a Heap and navigate through its containing objects.
+- **JS2ECMASL:** a tool that transforms a JSON AST created using the 
+  [Esprima parser](https://esprima.org) and representing a JavaScript program 
+  in an ECMA-SL function that returns an ECMA-SL object containing the AST.
+- **Heap2HTML:** a tool that creates an HTML representation of a JSON file. 
+  With this tool, we can visualise a Heap and navigate through its containing 
+  objects.
+- **ECMA-SL:** the ECMA-SL interpreter. 
 
-## Compile ECMA-SL to an executable
+## Build and install ECMA-SL
 
+```sh
+cd ECMA-SL
+dune build
+dune install
 ```
-cd implementation
-make
-```
 
-We use the [OCamlbuild](https://ocaml.org/learn/tutorials/ocamlbuild/) automated build system to compile this project.
-Only the OCaml modules created and present in the `lib/` and `src/` directories and their subdirectories are considered.
+We use the [dune](https://github.com/ocaml/dune) a A composable build system 
+for OCaml to compile this project.
 
-After compiling ECMA-SL, a file named `main.native` is created at the root of the project.
+After installing ECMA-SL, an executable named `ECMA-SL` is installed in the 
+system.
 
 ## Compilation of an ECMA-SL program written in Plus to one in Core
 
-```
-./main.native -mode c -i ES5_interpreter/plus.esl -o ES5_interpreter/core.esl
+```sh
+ECMA-SL -mode c -i ES5_interpreter/plus.esl -o ES5_interpreter/core.esl
 ```
 
 This example expects that a file named `plus.esl` exists in the folder `./ES5_interpreter` and the compilation output is written to a file named `core.esl` put in the folder `./ES5_interpreter`.
