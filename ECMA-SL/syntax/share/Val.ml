@@ -1,71 +1,92 @@
 type t =
-  | Flt    of float
-  | Int    of int
-  | Bool   of bool
-  | Str    of string
-  | Loc    of Loc.t
-  | List   of t list
-  | Arr    of t array
-  | Type   of Type.t
-  | Tuple  of t list
+  | Flt of float
+  | Int of int
+  | Bool of bool
+  | Str of string
+  | Loc of Loc.t
+  | List of t list
+  | Arr of t array
+  | Type of Type.t
+  | Tuple of t list
   | Void
   | Null
   | Symbol of string
-  | Curry  of string * t list
-  | Byte   of int 
-(*  | Byte32   of int32
-  | Byte64   of int64 *)
-  
+  | Curry of string * t list
+  | Byte of int
+(* | Byte32   of int32
+   | Byte64   of int64 *)
 
 let is_special_number (s : string) : bool =
-  List.mem s ["nan" ; "inf" ; "-inf" ] || String.contains s 'e' ||  String.contains s 'E'
+  List.mem s [ "nan"; "inf"; "-inf" ]
+  || String.contains s 'e' || String.contains s 'E'
 
 let add_final_dot (s : string) : string =
-  if is_special_number s
-  then s
+  if is_special_number s then s
   else
     try
-      let _ = String.rindex s '.' in s
+      let _ = String.rindex s '.' in
+      s
     with _ -> s ^ "."
 
-let rec str ?(flt_with_dot=true) (v : t) : string = match v with
-  | Flt v    ->
-    let s = Printf.sprintf "%.17g" v in
-    if flt_with_dot
-    then add_final_dot s
-    else s
-  | Int v    -> string_of_int v
-  | Bool v   -> string_of_bool v
-  | Str v    -> Printf.sprintf "%S" v
-  | Loc v    -> Loc.str v
-  | List vs  -> "[" ^ (String.concat ", " (List.map (str ~flt_with_dot:flt_with_dot) vs)) ^ "]"
-  | Arr vs   -> "[|" ^  (String.concat ", " (Array.to_list (Array.map (str ~flt_with_dot:flt_with_dot) vs))) ^ "|]" 
-  | Type v   -> Type.str v
-  | Tuple vs -> "(" ^ (String.concat ", " (List.map (str ~flt_with_dot:flt_with_dot) vs)) ^ ")"
-  | Void     -> ""
-  | Null     -> "null"
-  | Symbol s -> "'" ^ s
-  | Curry (s, vs) -> Printf.sprintf "{\"%s\"}@(%s)" s (String.concat ", " (List.map (str ~flt_with_dot:flt_with_dot) vs))
-  | Byte i   -> string_of_int i 
-(*  | Byte64 i  -> Int64.to_string i 
-  | Byte32 i  -> Int32.to_string i *)
-
-
-let rec to_json (v : t): string =
+let rec str ?(flt_with_dot = true) (v : t) : string =
   match v with
-  | Flt v    ->  Printf.sprintf "{ \"type\" : \"float\", \"value\" : %s }" (Printf.sprintf "%.12g" v)
-  | Int v    ->  Printf.sprintf "{ \"type\" : \"int\", \"value\" : %s }" (string_of_int v)
-  | Bool v   ->  Printf.sprintf "{ \"type\" : \"boolean\", \"value\" : %s }" (string_of_bool v)
-  | Str v    ->  Printf.sprintf "{ \"type\" : \"string\", \"value\" : \"%s\" }" v
-  | Loc v    ->  Printf.sprintf "{ \"type\" : \"location\", \"value\" : %s }" v
-  | List vs  ->  Printf.sprintf "{ \"type\" : \"list\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
-  | Arr vs  ->   Printf.sprintf "{ \"type\" : \"array\", \"value\" : [| %s |] }" (String.concat ", " (Array.to_list (Array.map (str ~flt_with_dot:true) vs)))
-  | Type v   ->  Printf.sprintf "{ \"type\" : \"type\", \"value\" : %s }" (Type.str v)
-  | Tuple vs ->  Printf.sprintf "{ \"type\" : \"tuple\", \"value\" : [ %s ] }" (String.concat ", " (List.map to_json vs))
-  | Void     ->  Printf.sprintf "{ \"type\" : \"void\" }"
-  | Null     ->  Printf.sprintf "{ \"type\" : \"null\" }"
-  | Symbol s ->  Printf.sprintf "{ \"type\" : \"symbol\", \"value\" : \"%s\" }" s
-  | Curry (s, vs) -> Printf.sprintf "{ \"type\" : \"curry\", \"fun\" : \"%s\", \"args\" : [ %s ] }" s (String.concat ", " (List.map to_json vs))
-  | Byte i   ->  Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }" (string_of_int i)
-(*  | Byte64 i   ->  Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }" (Int64.to_string i)
-  | Byte32 i   ->  Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }" (Int32.to_string i)*)
+  | Flt v ->
+      let s = Printf.sprintf "%.17g" v in
+      if flt_with_dot then add_final_dot s else s
+  | Int v -> string_of_int v
+  | Bool v -> string_of_bool v
+  | Str v -> Printf.sprintf "%S" v
+  | Loc v -> Loc.str v
+  | List vs -> "[" ^ String.concat ", " (List.map (str ~flt_with_dot) vs) ^ "]"
+  | Arr vs ->
+      "[|"
+      ^ String.concat ", " (Array.to_list (Array.map (str ~flt_with_dot) vs))
+      ^ "|]"
+  | Type v -> Type.str v
+  | Tuple vs -> "(" ^ String.concat ", " (List.map (str ~flt_with_dot) vs) ^ ")"
+  | Void -> ""
+  | Null -> "null"
+  | Symbol s -> "'" ^ s
+  | Curry (s, vs) ->
+      Printf.sprintf "{\"%s\"}@(%s)" s
+        (String.concat ", " (List.map (str ~flt_with_dot) vs))
+  | Byte i -> string_of_int i
+(* | Byte64 i  -> Int64.to_string i
+   | Byte32 i  -> Int32.to_string i *)
+
+let rec to_json (v : t) : string =
+  match v with
+  | Flt v ->
+      Printf.sprintf "{ \"type\" : \"float\", \"value\" : %s }"
+        (Printf.sprintf "%.12g" v)
+  | Int v ->
+      Printf.sprintf "{ \"type\" : \"int\", \"value\" : %s }" (string_of_int v)
+  | Bool v ->
+      Printf.sprintf "{ \"type\" : \"boolean\", \"value\" : %s }"
+        (string_of_bool v)
+  | Str v -> Printf.sprintf "{ \"type\" : \"string\", \"value\" : \"%s\" }" v
+  | Loc v -> Printf.sprintf "{ \"type\" : \"location\", \"value\" : %s }" v
+  | List vs ->
+      Printf.sprintf "{ \"type\" : \"list\", \"value\" : [ %s ] }"
+        (String.concat ", " (List.map to_json vs))
+  | Arr vs ->
+      Printf.sprintf "{ \"type\" : \"array\", \"value\" : [| %s |] }"
+        (String.concat ", "
+           (Array.to_list (Array.map (str ~flt_with_dot:true) vs)))
+  | Type v ->
+      Printf.sprintf "{ \"type\" : \"type\", \"value\" : %s }" (Type.str v)
+  | Tuple vs ->
+      Printf.sprintf "{ \"type\" : \"tuple\", \"value\" : [ %s ] }"
+        (String.concat ", " (List.map to_json vs))
+  | Void -> Printf.sprintf "{ \"type\" : \"void\" }"
+  | Null -> Printf.sprintf "{ \"type\" : \"null\" }"
+  | Symbol s -> Printf.sprintf "{ \"type\" : \"symbol\", \"value\" : \"%s\" }" s
+  | Curry (s, vs) ->
+      Printf.sprintf
+        "{ \"type\" : \"curry\", \"fun\" : \"%s\", \"args\" : [ %s ] }" s
+        (String.concat ", " (List.map to_json vs))
+  | Byte i ->
+      Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }"
+        (string_of_int i)
+(* | Byte64 i   ->  Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }" (Int64.to_string i)
+   | Byte32 i   ->  Printf.sprintf "{ \"type\" : \"byte\", \"value\" : \"%s\" }" (Int32.to_string i)*)

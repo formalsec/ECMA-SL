@@ -6,9 +6,7 @@ type t
 
 exception Except of string
 
-val empty : t 
-
-val pop  : t -> (sft * t)
-val push :  t -> sft -> t
-
-val str : t -> string 
+val empty : t
+val pop : t -> sft * t
+val push : t -> sft -> t
+val str : t -> string

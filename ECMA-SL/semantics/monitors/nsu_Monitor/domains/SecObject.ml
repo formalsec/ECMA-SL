@@ -1,6 +1,6 @@
 exception Exists of string
 
-type 'sl t = (Field.t, ('sl * 'sl)) Hashtbl.t
+type 'sl t = (Field.t, 'sl * 'sl) Hashtbl.t
 (*              Exists_lvl   Val_lvl    *)
 
 let create () : 'sl t = Hashtbl.create 511
@@ -9,18 +9,19 @@ let get (obj : 'sl t) (f : Field.t) : ('sl * 'sl) option =
   Hashtbl.find_opt obj f
 
 let set (obj : 'sl t) (f : Field.t) (exist_lvl : 'sl) (value_lvl : 'sl) : unit =
-  Hashtbl.replace obj f (exist_lvl,value_lvl)
+  Hashtbl.replace obj f (exist_lvl, value_lvl)
 
-let delete (obj : 'sl t) (f : Field.t) : unit =
-  Hashtbl.remove obj f
+let delete (obj : 'sl t) (f : Field.t) : unit = Hashtbl.remove obj f
 
 let str (str_sl : 'sl -> string) (obj : 'sl t) : string =
   Hashtbl.fold
     (fun prop (exists_lvl, val_lvl) acc ->
-       Printf.sprintf "%s: (%s, %s), %s" prop (str_sl exists_lvl) (str_sl val_lvl) acc)
+      Printf.sprintf "%s: (%s, %s), %s" prop (str_sl exists_lvl)
+        (str_sl val_lvl) acc)
     obj ""
 
-let new_sec_prop (obj : 'sl t) (field : Field.t) (exists_lvl : 'sl) (val_lvl : 'sl) : unit =
+let new_sec_prop (obj : 'sl t) (field : Field.t) (exists_lvl : 'sl)
+    (val_lvl : 'sl) : unit =
   Hashtbl.replace obj field (exists_lvl, val_lvl)
 
 let upg_exists (obj : 'sl t) (field : Field.t) (lvl : 'sl) : unit =
