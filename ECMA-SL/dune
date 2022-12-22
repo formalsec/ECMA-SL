@@ -5,7 +5,7 @@
  (wrapped false)
  (preprocess
   (staged_pps ppx_import ppx_deriving.std))
- (libraries batteries extlib menhirLib yojson)
+ (libraries batteries extlib menhirLib yojson z3)
  (modules :standard \ main generate_standard)
  (modules_without_implementation securityLevel securityMonitor topLevelM))
 

@@ -13,6 +13,9 @@ type t =
   | NewObj of (string * t) list
   | Lookup of t * t
   | Curry of t * t list
+  | CreateSymb Type.t * t
+  | Assume t 
+  | Assert t  
 
 type subst_t = (string, t) Hashtbl.t
 

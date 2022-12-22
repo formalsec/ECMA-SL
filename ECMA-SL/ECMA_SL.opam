@@ -15,6 +15,7 @@ depends: [
   "ocaml" {>= "4.08.0"}
   "ocamlformat" {= "0.24.1"}
   "dune" {>= "3.2"}
+  "z3"
   "batteries"
   "ppx_import"
   "ppx_deriving"

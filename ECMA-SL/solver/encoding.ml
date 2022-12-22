@@ -1,3 +1,7 @@
+open Val 
+open Expr 
+open Oper
+
 module Arithmetic    = Z3.Arithmetic
 module Boolean       = Z3.Boolean
 module Datatype      = Z3.Datatype
