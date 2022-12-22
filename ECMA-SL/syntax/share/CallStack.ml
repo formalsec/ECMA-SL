@@ -13,14 +13,10 @@ let pop (cs : t) : sft * t =
   match cs with
   (* Maybe raise Empty ? instead of a Except*)
   | [] -> raise (Except "The stack is Empty already!")
-  | f :: frames -> (f , frames)
+  | f :: frames -> (f, frames)
 
-let str_sft (frame : sft) : string = 
-  match frame with 
-  | Intermediate (_, _, _, f) -> f 
-  | Toplevel -> "TopLevel"
+let str_sft (frame : sft) : string =
+  match frame with Intermediate (_, _, _, f) -> f | Toplevel -> "TopLevel"
 
-let str (cs : t) : string =
-  String.concat "; " (List.map str_sft cs)
-
+let str (cs : t) : string = String.concat "; " (List.map str_sft cs)
 let push (cs : t) (frame : sft) : t = frame :: cs
