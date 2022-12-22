@@ -22,6 +22,7 @@
  (description "A Platform for specifying and running the ECMAScript standard.")
  (depends
    (ocaml (>= 4.08.0))
+   (ocamlformat (= 0.24.1))
    dune
    batteries
    ppx_import

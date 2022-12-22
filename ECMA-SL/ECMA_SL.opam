@@ -13,6 +13,7 @@ doc: "https://url/to/documentation"
 bug-reports: "https://github.com/j3fsantos/ECMA-SL/issues"
 depends: [
   "ocaml" {>= "4.08.0"}
+  "ocamlformat" {= "0.24.1"}
   "dune" {>= "3.2"}
   "batteries"
   "ppx_import"
