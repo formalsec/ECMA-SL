@@ -5,7 +5,7 @@ open NSU_CompilerConstants
 (*Each monitor is independent of the other ones*)
 exception Except of string
 
-module M (SL : SecurityLevel.M) = struct
+module M (SL : SecLevel.M) = struct
   let shadow_var_e (s : string) : Expr.t = Expr.Var (shadowvar s)
 
   let binopt_e (op : Oper.bopt) (e1 : Expr.t) (e2 : Expr.t) : Expr.t =

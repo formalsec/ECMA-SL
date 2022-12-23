@@ -1,10 +1,6 @@
 function main () {
   x := symb_int(); 
-
   assume (x > 10); 
-
   x := x * 2; 
-
   assert (x > 20); 
-
 }

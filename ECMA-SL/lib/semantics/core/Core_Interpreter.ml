@@ -5,7 +5,17 @@ open Stmt
 open Func
 open Logging
 
-module M (Mon : SecurityMonitor.M) = struct
+module type SecurityMonitor = sig
+  type state_t
+  type sl
+  type monitor_return = MReturn of state_t | MFail of (state_t * string)
+
+  val eval_small_step : state_t -> sl SecLabel.t -> monitor_return
+  val initial_monitor_state : unit -> state_t
+  val parse_lvl : string -> sl
+end
+
+module M (Mon : SecurityMonitor) = struct
   exception Except of string
 
   type state_t = CallStack.t * Heap.t * Store.t * string

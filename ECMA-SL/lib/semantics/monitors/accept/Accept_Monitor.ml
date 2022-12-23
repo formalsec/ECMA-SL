@@ -1,4 +1,4 @@
-module M (SL : SecurityLevel.M) = struct
+module M (SL : SecLevel.M) = struct
   exception Except of string
 
   type sl = SL.t
@@ -7,7 +7,7 @@ module M (SL : SecurityLevel.M) = struct
 
   let eval_small_step (m_state : state_t) (tl : sl SecLabel.t) : monitor_return
       =
-    MFail (m_state, "Everything is declined!")
+    MReturn m_state
 
   let initial_monitor_state () : state_t =
     let sheap = SecHeap.create () in

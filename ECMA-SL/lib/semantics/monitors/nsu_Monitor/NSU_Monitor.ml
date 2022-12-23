@@ -2,7 +2,7 @@
 open SecCallStack
 open SecLabel
 
-module M (SL : SecurityLevel.M) = struct
+module M (SL : SecLevel.M) = struct
   (*module SSet = Set.Make(String)*)
 
   exception Except of string
