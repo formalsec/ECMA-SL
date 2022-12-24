@@ -547,20 +547,17 @@ and compile_assume (e : E_Expr.t) : Stmt.t list =
   @ [
       Stmt.If
         ( Expr.UnOpt (Oper.Not, e'),
-          Stmt.Fail (Expr.Val (Str ("Assume failed: " ^ E_Expr.str e))),
+          Stmt.Abort (Expr.Val (Str ("Assume failed: " ^ E_Expr.str e))),
           None );
     ]
 
-and compile_assert (expr : E_Expr.t) : Stmt.t list =
-  let stmts_expr, expr' = compile_expr expr in
-  stmts_expr
+and compile_assert (e : E_Expr.t) : Stmt.t list =
+  let stmts, e' = compile_expr e in
+  stmts
   @ [
       Stmt.If
-        ( Expr.UnOpt (Oper.Not, expr'),
-          Stmt.Fail
-            (Expr.Val
-               (Oper.string_concat
-                  (List [ Str "Assert failed: "; Str (E_Expr.str expr) ]))),
+        ( Expr.UnOpt (Oper.Not, e'),
+          Stmt.Fail (Expr.Val (Str ("Assert failed: " ^ E_Expr.str e))),
           None );
     ]
 

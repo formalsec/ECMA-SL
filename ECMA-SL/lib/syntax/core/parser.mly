@@ -19,6 +19,7 @@
 %token PERIOD COMMA SEMICOLON
 %token DELETE
 %token FAIL
+%token ABORT
 %token THROW
 %token <float> FLOAT
 %token <int> INT
@@ -354,6 +355,8 @@ stmt_target:
     { Stmt.Print e }
   | FAIL; e = expr_target;
     { Stmt.Fail e }
+  | ABORT; e = expr_target;
+    { Stmt.Abort e }
   | THROW; str = STRING;
     { Stmt.Exception str}
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;

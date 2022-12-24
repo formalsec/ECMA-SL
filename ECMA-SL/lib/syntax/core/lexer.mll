@@ -92,6 +92,7 @@
                   "throw"           , THROW;
                   "null"            , NULL;
                   "fail"            , FAIL;
+                  "abort"           , ABORT;
                   "print"           , PRINT; 
                   "to_precision"    , TO_PRECISION;
                   "to_exponential"    , TO_EXPONENTIAL;

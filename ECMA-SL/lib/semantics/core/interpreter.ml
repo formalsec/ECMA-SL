@@ -310,6 +310,8 @@ module M (Mon : SecurityMonitor) = struct
                 print_endline (lazy "PROGRAM PRINT: Non-existent location"))
         | _ -> print_endline (lazy ("PROGRAM PRINT: " ^ Val.str v)));
         (Intermediate ((cs, heap, sto, f), cont), SecLabel.PrintLab e)
+    | Abort e ->
+        let v = eval_expr sto e in (Finalv (Some v), SecLabel.EmptyLab)
     | Fail e ->
         let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
         print_endline
@@ -320,7 +322,6 @@ module M (Mon : SecurityMonitor) = struct
                \ %s" f (Stmt.str s)
                (Stmt.str ~print_expr:str_e s)
                (Call_stack.str cs)));
-
         let v = eval_expr sto e in
         (Errorv (Some v), SecLabel.EmptyLab)
     | Assign (x, e) ->

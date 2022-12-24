@@ -3,6 +3,7 @@ type t =
   | Merge
   | Print of Expr.t
   | Fail of Expr.t
+  | Abort of Expr.t
   | Assign of string * Expr.t
   | If of Expr.t * t * t option
   | While of Expr.t * t
@@ -30,6 +31,7 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | Skip | Merge -> ""
   | Print e -> "print " ^ str_e e
   | Fail e -> "fail " ^ str_e e
+  | Abort e -> "abort " ^ str_e e
   | Assign (v, exp) -> v ^ " := " ^ str_e exp
   | If (e, s1, s2) -> (
       let v = "if (" ^ str_e e ^ ") {\n" ^ str s1 ^ "\n}" in
@@ -88,7 +90,7 @@ let rec js (stmt : t) : string =
   | AssignObjFields (x, e) ->
       Printf.sprintf "%s = Object.keys(%s)" x (Expr.js e)
   | Exception st -> Printf.sprintf "throw \"%s\"" st
-  | Fail e -> Printf.sprintf "throw %s" (Expr.js e)
+  | Fail e | Abort e -> Printf.sprintf "throw %s" (Expr.js e)
 
 let rec to_json (stmt : t) : string =
   (*Stmts args : rhs/ lhs / expr / obj / field/ stringvar *)
@@ -99,6 +101,8 @@ let rec to_json (stmt : t) : string =
       Printf.sprintf "{\"type\" : \"print\", \"expr\" :  %s }" (Expr.to_json e)
   | Fail e ->
       Printf.sprintf "{\"type\" : \"fail\", \"expr\" :  %s }" (Expr.to_json e)
+  | Abort e ->
+      Printf.sprintf "{\"type\" : \"abort\", \"expr\" :  %s }" (Expr.to_json e)
   | Assign (v, exp) ->
       Printf.sprintf "{\"type\" : \"assign\", \"lhs\" :  \"%s\", \"rhs\" :  %s}"
         v (Expr.to_json exp)
