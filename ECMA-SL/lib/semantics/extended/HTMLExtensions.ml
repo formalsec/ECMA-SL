@@ -45,6 +45,7 @@ module E_Expr = struct
     | Let
     | Negative
     | Assert
+    | Assume
     | AssertNegative
     | ExprStmt
     | Table
@@ -1120,8 +1121,11 @@ module E_Stmt = struct
                      s_html
                      (if prod_post <> "" then sprintf "<p>%s</p>" prod_post else ""))
            ) e_pats), MatchWith *)
-    | Assert e ->
+    | Assume e ->
         let e_html = E_Expr.(to_html Assert e) in
+        (sprintf "<li>Assert: %s.</li>" e_html, ctxt')
+    | Assert e ->
+        let e_html = E_Expr.(to_html Assume e) in
         (sprintf "<li>Assert: %s.</li>" e_html, ctxt')
     | Wrapper (meta, s) -> (
         let m = List.hd meta in

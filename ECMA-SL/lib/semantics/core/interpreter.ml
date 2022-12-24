@@ -18,14 +18,12 @@ end
 module M (Mon : SecurityMonitor) = struct
   exception Except of string
 
-  type state_t = CallStack.t * Heap.t * Store.t * string
+  type state_t = Call_stack.t * Heap.t * Store.t * string
 
   type return =
     | Intermediate of state_t * Stmt.t list
     | Errorv of Val.t option
     | Finalv of Val.t option
-
-  type ctx_t = string * string * bool
 
   let add_fields_to (obj : Object.t) (fes : (Field.t * Expr.t) list)
       (eval_e : Expr.t -> Val.t) : unit =
@@ -67,13 +65,11 @@ module M (Mon : SecurityMonitor) = struct
     | ObjToList ->
         raise
           (Failure
-             "Unexpected call to Core_Interpreter.eval_unop with operator \
-              ObjToList")
+             "Unexpected call to Interpreter.eval_unop with operator ObjToList")
     | ObjFields ->
         raise
           (Failure
-             "Unexpected call to Core_Interpreter.eval_unop with operator \
-              ObjFields")
+             "Unexpected call to Interpreter.eval_unop with operator ObjFields")
     | ToInt -> Oper.to_int v
     | ToInt32 -> Oper.to_int32 v
     | ToUint32 -> Oper.to_uint32 v
@@ -197,11 +193,11 @@ module M (Mon : SecurityMonitor) = struct
     | Val.Curry (f, vs) -> (f, vs)
     | _ -> raise (Except "Wrong/Invalid Function ID")
 
-  let prepare_call (prog : Prog.t) (calling_f : string) (cs : CallStack.t)
+  let prepare_call (prog : Prog.t) (calling_f : string) (cs : Call_stack.t)
       (sto : Store.t) (cont : Stmt.t list) (x : string) (es : Expr.t list)
-      (f : string) (vs : Val.t list) : CallStack.t * Store.t * string list =
+      (f : string) (vs : Val.t list) : Call_stack.t * Store.t * string list =
     let cs' =
-      CallStack.push cs (CallStack.Intermediate (cont, sto, x, calling_f))
+      Call_stack.push cs (Call_stack.Intermediate (cont, sto, x, calling_f))
     in
     let params = Prog.get_params prog f in
     let pvs =
@@ -231,15 +227,15 @@ module M (Mon : SecurityMonitor) = struct
       | Loc l -> l
       | _ ->
           invalid_arg
-            "Exception in Core_Interpreter.eval_objtolist_oper: \"loc\" is not \
-             a Loc value"
+            "Exception in Interpreter.eval_objtolist_oper: \"loc\" is not a \
+             Loc value"
     in
     let obj = Heap.get heap loc' in
     match obj with
     | None ->
         invalid_arg
-          ("Exception in Core_Interpreter.eval_objtolist_oper: \""
-         ^ Loc.str loc' ^ "\" doesn't exist in the Heap")
+          ("Exception in Interpreter.eval_objtolist_oper: \"" ^ Loc.str loc'
+         ^ "\" doesn't exist in the Heap")
     | Some o ->
         let fvs = Object.to_list o in
         List (List.map (fun (f, v) -> Val.Tuple (Str f :: [ v ])) fvs)
@@ -252,15 +248,15 @@ module M (Mon : SecurityMonitor) = struct
       | Loc l -> l
       | _ ->
           invalid_arg
-            "Exception in Core_Interpreter.eval_objfields_oper: \"loc\" is not \
-             a Loc value"
+            "Exception in Interpreter.eval_objfields_oper: \"loc\" is not a \
+             Loc value"
     in
     let obj = Heap.get heap loc' in
     match obj with
     | None ->
         invalid_arg
-          ("Exception in Core_Interpreter.eval_objfields_oper: \""
-         ^ Loc.str loc' ^ "\" doesn't exist in the Heap")
+          ("Exception in Interpreter.eval_objfields_oper: \"" ^ Loc.str loc'
+         ^ "\" doesn't exist in the Heap")
     | Some o -> List (List.map (fun f -> Val.Str f) (Object.get_fields o))
 
   let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t)
@@ -289,8 +285,8 @@ module M (Mon : SecurityMonitor) = struct
   let eval_small_step
       (interceptor :
         string -> Val.t list -> Expr.t list -> Mon.sl SecLabel.t option)
-      (prog : Prog.t) (state : state_t) (cont : Stmt.t list) (verbose : bool)
-      (s : Stmt.t) : return * Mon.sl SecLabel.t =
+      (prog : Prog.t) (state : state_t) (cont : Stmt.t list) (s : Stmt.t) :
+      return * Mon.sl SecLabel.t =
     let cs, heap, sto, f = state in
 
     (*let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
@@ -323,7 +319,7 @@ module M (Mon : SecurityMonitor) = struct
                 Evaluating >>>>> %s: %s (%s) in the callstack:\n\
                \ %s" f (Stmt.str s)
                (Stmt.str ~print_expr:str_e s)
-               (CallStack.str cs)));
+               (Call_stack.str cs)));
 
         let v = eval_expr sto e in
         (Errorv (Some v), SecLabel.EmptyLab)
@@ -333,12 +329,12 @@ module M (Mon : SecurityMonitor) = struct
         (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (x, e))
     | Return e -> (
         let v = eval_expr sto e in
-        let f, cs' = CallStack.pop cs in
+        let f, cs' = Call_stack.pop cs in
         match f with
-        | CallStack.Intermediate (cont', sto', x, f') ->
+        | Call_stack.Intermediate (cont', sto', x, f') ->
             Store.set sto' x v;
             (Intermediate ((cs', heap, sto', f'), cont'), SecLabel.ReturnLab e)
-        | CallStack.Toplevel -> (Finalv (Some v), SecLabel.ReturnLab e))
+        | Call_stack.Toplevel -> (Finalv (Some v), SecLabel.ReturnLab e))
     | Block block ->
         (Intermediate ((cs, heap, sto, f), block @ cont), SecLabel.EmptyLab)
     | If (e, s1, s2) -> (
@@ -463,72 +459,64 @@ module M (Mon : SecurityMonitor) = struct
       (interceptor :
         string -> Val.t list -> Expr.t list -> Mon.sl SecLabel.t option)
       (prog : Prog.t) (state : state_t) (mon_state : Mon.state_t)
-      (stmts : Stmt.t list) (context : ctx_t) : return =
-    match context with
-    | out, mon, verbose -> (
-        match stmts with
-        | [] -> raise (Except "Empty list")
-        | s :: stmts' -> (
-            let return, label =
-              eval_small_step interceptor prog state stmts' verbose s
-            in
-            if mon = "nsu" then (
-              let mon_return : Mon.monitor_return =
-                Mon.eval_small_step mon_state label
-              in
-              match mon_return with
-              | Mon.MReturn mon_state' -> (
-                  match return with
-                  | Finalv v -> Finalv v
-                  | Errorv v -> Errorv v
-                  | Intermediate (state', stmts'') ->
-                      small_step_iter interceptor prog state' mon_state' stmts''
-                        context)
-              | Mon.MFail (mon_state', str) ->
-                  print_string ("MONITOR EXCEPTION -> " ^ str);
-                  exit 1)
-            else
+      (stmts : Stmt.t list) (monitor : string) : return =
+    match stmts with
+    | [] -> raise (Except "Empty list")
+    | s :: stmts' -> (
+        let return, label = eval_small_step interceptor prog state stmts' s in
+        if monitor = "nsu" then (
+          let mon_return : Mon.monitor_return =
+            Mon.eval_small_step mon_state label
+          in
+          match mon_return with
+          | Mon.MReturn mon_state' -> (
               match return with
               | Finalv v -> Finalv v
-              (* | Finalv v -> (match v with
-                  | Some v -> (match v with
-                      | Tuple t -> Finalv (Some (List.nth t 1))
-                      | _       -> Finalv (Some v))
-                  | None   -> Finalv v) *)
               | Errorv v -> Errorv v
               | Intermediate (state', stmts'') ->
-                  small_step_iter interceptor prog state' mon_state stmts''
-                    context))
+                  small_step_iter interceptor prog state' mon_state' stmts''
+                    monitor)
+          | Mon.MFail (mon_state', str) ->
+              print_string ("MONITOR EXCEPTION -> " ^ str);
+              exit 1)
+        else
+          match return with
+          | Finalv v -> Finalv v
+          (* | Finalv v -> (match v with
+              | Some v -> (match v with
+                  | Tuple t -> Finalv (Some (List.nth t 1))
+                  | _       -> Finalv (Some v))
+              | None   -> Finalv v) *)
+          | Errorv v -> Errorv v
+          | Intermediate (state', stmts'') ->
+              small_step_iter interceptor prog state' mon_state stmts'' monitor)
 
   let initial_state () : state_t =
     let sto = Store.create [] in
-    let cs = CallStack.push CallStack.empty CallStack.Toplevel in
+    let cs = Call_stack.push Call_stack.empty Call_stack.Toplevel in
     let heap = Heap.create () in
     (cs, heap, sto, "main")
 
   (*Worker class of the Interpreter*)
-  let eval_prog (prog : Prog.t) (context : ctx_t) (main : string) :
+  let eval_prog (prog : Prog.t) (monitor : string) (main : string) :
       Val.t option * Heap.t =
-    match context with
-    | out, mon, verbose -> (
-        let func = Prog.get_func prog main in
-        let state_0 = initial_state () in
-        let mon_state_0 = Mon.initial_monitor_state () in
-        let interceptor = SecLabel.interceptor Mon.parse_lvl in
-        let v =
-          small_step_iter interceptor prog state_0 mon_state_0 [ func.body ]
-            context
-        in
-        let _, heap, _, _ = state_0 in
-        match v with
-        | Finalv v -> (v, heap)
-        | Errorv (Some (Val.Str s)) ->
-            let subStr = String.sub s 0 11 in
-            print_endline (lazy subStr);
-            if subStr = "Unsupported" then (Some (Val.Str s), heap)
-            else (
-              print_endline (lazy "eval_prog else");
-              raise (Except s))
-        | _ -> raise (Except "No return value"))
+    let func = Prog.get_func prog main in
+    let state_0 = initial_state () in
+    let mon_state_0 = Mon.initial_monitor_state () in
+    let interceptor = SecLabel.interceptor Mon.parse_lvl in
+    let v =
+      small_step_iter interceptor prog state_0 mon_state_0 [ func.body ] monitor
+    in
+    let _, heap, _, _ = state_0 in
+    match v with
+    | Finalv v -> (v, heap)
+    | Errorv (Some (Val.Str s)) ->
+        let subStr = String.sub s 0 11 in
+        print_endline (lazy subStr);
+        if subStr = "Unsupported" then (Some (Val.Str s), heap)
+        else (
+          print_endline (lazy "eval_prog else");
+          raise (Except s))
+    | _ -> raise (Except "No return value")
   (*ERROR*)
 end

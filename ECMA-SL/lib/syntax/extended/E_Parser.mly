@@ -14,6 +14,7 @@
 %token SKIP
 %token PRINT WRAPPER
 %token ASSERT
+%token ASSUME
 %token DEFEQ
 %token WHILE FOREACH
 %token IF ELSE ELIF
@@ -478,6 +479,8 @@ e_stmt_target:
     { E_Stmt.Print e }
   | WRAPPER; meta = e_stmt_metadata_target; s = e_block_target;
     { E_Stmt.Wrapper (meta, s) }
+  | ASSUME; e = e_expr_target;
+    { E_Stmt.Assume e }
   | ASSERT; e = e_expr_target;
     { E_Stmt.Assert e }
   | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;

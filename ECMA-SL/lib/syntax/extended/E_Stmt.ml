@@ -21,6 +21,7 @@ type t =
   | MatchWith of E_Expr.t * (E_Pat.t * t) list
   | Throw of E_Expr.t
   | Fail of E_Expr.t
+  | Assume of E_Expr.t
   | Assert of E_Expr.t
   | MacroApply of string * E_Expr.t list
   | Switch of E_Expr.t * (E_Expr.t * t) list * t option * string
@@ -80,6 +81,7 @@ let rec str (stmt : t) : string =
   | Fail e -> "fail " ^ E_Expr.str e
   | Throw e -> "throw " ^ E_Expr.str e
   | Assert e -> "assert " ^ E_Expr.str e
+  | Assume e -> "assume " ^ E_Expr.str e
   | MacroApply (m, es) ->
       "@" ^ m ^ " (" ^ String.concat ", " (List.map E_Expr.str es) ^ ")"
   | Switch (e, cases, so, _) ->
@@ -127,6 +129,7 @@ let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
     | Fail e -> Fail (fe e)
     | Throw e -> Throw (fe e)
     | Assert e -> Assert (fe e)
+    | Assume e -> Assume (fe e)
     | MacroApply (m, es) -> MacroApply (m, List.map fe es)
     | Switch (e, cases, so, meta) ->
         Switch (fe e, f_cases cases, Option.map (map ~fe f) so, meta)
@@ -154,7 +157,7 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
       match s with
       | Skip | Print _ | Wrapper _ | Assign _ | GlobAssign _ | Return _
       | FieldAssign _ | FieldDelete _ | ExprStmt _ | Throw _ | Fail _ | Assert _
-        ->
+      | Assume _ ->
           []
       | Block stmts -> f_stmts stmts
       | If (e, st, sf, _, _) -> f' st @ f_o sf
@@ -167,7 +170,7 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
       | RepeatUntil (s, e, _) -> f' s
       | MatchWith (e, pats) -> f_pat pats
       | Lambda (_, _, _, _, s) -> f' s
-      | MacroApply _ -> failwith "S_Stmt.map on MacroApply"
+      | MacroApply _ -> failwith "E_Stmt.to_list on MacroApply"
       | Switch (_, cases, so, _) ->
           f_stmts (f_cases cases @ Option.map_default (fun x -> [ x ]) [] so)
     in

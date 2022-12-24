@@ -110,7 +110,7 @@
                 "with"            , WITH;
                 "print"           , PRINT;
                 "gen_wrapper"     , WRAPPER;
-               (* "assume"          , ASSUME;*)
+                "assume"          , ASSUME;
                 "assert"          , ASSERT;
                 "switch"          , SWITCH;
                 "case"            , CASE;

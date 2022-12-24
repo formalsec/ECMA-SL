@@ -8,10 +8,9 @@ open E_Expr
 open E_Stmt
 
 let make_fresh_var_generator (pref : string) : unit -> string =
-  let count = ref 0 in
+  let next, _ = Counter.count 0 1 in
   fun () ->
-    let x = !count in
-    count := x + 1;
+    let x = next () in
     pref ^ string_of_int x
 
 let __INTERNAL_ESL_GLOBAL__ = "___internal_esl_global"
@@ -542,6 +541,16 @@ and compile_print (expr : E_Expr.t) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in
   stmts_expr @ [ Stmt.Print expr' ]
 
+and compile_assume (e : E_Expr.t) : Stmt.t list =
+  let stmts, e' = compile_expr e in
+  stmts
+  @ [
+      Stmt.If
+        ( Expr.UnOpt (Oper.Not, e'),
+          Stmt.Fail (Expr.Val (Str ("Assume failed: " ^ E_Expr.str e))),
+          None );
+    ]
+
 and compile_assert (expr : E_Expr.t) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in
   stmts_expr
@@ -614,6 +623,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | ExprStmt e_e -> compile_exprstmt e_e
   | RepeatUntil (e_s, e_e, _) -> compile_repeatuntil e_s e_e
   | MatchWith (e_e, e_pats_e_stmts) -> compile_matchwith e_e e_pats_e_stmts
+  | Assume e_e -> compile_assume e_e
   | Assert e_e -> compile_assert e_e
   | Lambda (x, f, xs, ys, s) ->
       let ret = compile_lambda_call x f ys in

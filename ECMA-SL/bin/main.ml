@@ -9,19 +9,18 @@ let exit_prog (code : exit_code) : unit =
 
 module NSU = NSU_Monitor.M (SecLevel)
 module Inliner = NSU_Inliner.M (SecLevel)
-module CoreInterp = Core_Interpreter.M (NSU)
+module Interpreter = Interpreter.M (NSU)
 
 let _INLINE_LATTICE_ = "semantics/monitors/nsu_compiler/runtime/H-L-Lattice.esl"
 
 (*
 module DCM = Decline_Monitor.M(SecLevel)
-module CoreInterp = Core_Interpreter.M(DCM)
+module Interpreter = Interpreter.M(DCM)
 *)
 (* Argument read function *)
 let name = "ECMA-SL"
 let version = "v0.2"
 let banner () = print_endline (name ^ " " ^ version)
-
 let usage = "Usage: " ^ name ^ " [option] [file ...]"
 
 let argspec =
@@ -89,9 +88,7 @@ let inline_compiler () : Prog.t =
   final_prog
 
 let core_interpretation (prog : Prog.t) : exit_code =
-  let v, heap =
-    CoreInterp.eval_prog prog (!Flags.output, !Flags.mon, !Flags.verbose) "main"
-  in
+  let v, heap = Interpreter.eval_prog prog !Flags.mon !Flags.target in
   if !Flags.heap_file <> "" then
     File_Utils.burn_to_disk !Flags.heap_file (Heap.str_with_global heap);
   match v with
@@ -166,6 +163,5 @@ let () =
       compile_from_plus_to_core ();
       SUCCESS)
   in
-
   print_string "\n=====================\n\tFINISHED\n=====================\n";
   exit_prog code
