@@ -22,9 +22,7 @@ let name = "ECMA-SL"
 let version = "v0.2"
 let banner () = print_endline (name ^ " " ^ version)
 
-let usage =
-  "Usage: " ^ name
-  ^ " -i <path> -mode <c/p> -o <path> [-v|-s] -h <path> [--parse]"
+let usage = "Usage: " ^ name ^ " [option] [file ...]"
 
 let argspec =
   Arg.align
@@ -122,9 +120,9 @@ let core_interpretation (prog : Prog.t) : exit_code =
       print_string "ERROR Core_Interpretation";
       ERROR
 
-(* Main function - Run *)
-let run () =
-  Arg.parse argspec (fun s -> print_endline ("Ignored Argument: " ^ s)) usage;
+(* Main function *)
+let () =
+  Arg.parse argspec (fun file -> Flags.file := file) usage;
   print_string "=====================\n\tECMA-SL\n=====================\n";
   if !Flags.silent then Logging.set_silent ();
   (* Disable logging (when using "print_endline" and/or "print_string") *)
@@ -171,5 +169,3 @@ let run () =
 
   print_string "\n=====================\n\tFINISHED\n=====================\n";
   exit_prog code
-
-let _ = run ()
