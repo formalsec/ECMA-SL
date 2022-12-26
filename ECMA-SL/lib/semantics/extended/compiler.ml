@@ -388,9 +388,9 @@ and compile_lookup (expr : E_Expr.t) (field : E_Expr.t) : Stmt.t list * Expr.t =
   ( stmts_expr @ stmts_field @ [ Stmt.FieldLookup (var, expr', field') ],
     Expr.Var var )
 
-and compile_assign (var : string) (e_exp : E_Expr.t) : Stmt.t list =
-  let stmts, aux_var = compile_expr e_exp in
-  stmts @ [ Stmt.Assign (var, aux_var) ]
+and compile_assign (lval : string) (rval : E_Expr.t) : Stmt.t list =
+  let stmts, rval' = compile_expr rval in
+  stmts @ [ Stmt.Assign (lval, rval') ]
 
 and compile_block (e_stmts : E_Stmt.t list) : Stmt.t list =
   let stmts_lists = List.map compile_stmt e_stmts in
@@ -537,29 +537,17 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
       let ret_es = List.map compile_expr es in
       compile_e_call f ret_es
 
-and compile_print (expr : E_Expr.t) : Stmt.t list =
-  let stmts_expr, expr' = compile_expr expr in
-  stmts_expr @ [ Stmt.Print expr' ]
+and compile_print (e : E_Expr.t) : Stmt.t list =
+  let stmts_expr, e' = compile_expr e in
+  stmts_expr @ [ Stmt.Print e' ]
 
 and compile_assume (e : E_Expr.t) : Stmt.t list =
   let stmts, e' = compile_expr e in
-  stmts
-  @ [
-      Stmt.If
-        ( Expr.UnOpt (Oper.Not, e'),
-          Stmt.Abort (Expr.Val (Str ("Assume failed: " ^ E_Expr.str e))),
-          None );
-    ]
+  stmts @ [ Stmt.Assume e' ]
 
 and compile_assert (e : E_Expr.t) : Stmt.t list =
   let stmts, e' = compile_expr e in
-  stmts
-  @ [
-      Stmt.If
-        ( Expr.UnOpt (Oper.Not, e'),
-          Stmt.Fail (Expr.Val (Str ("Assert failed: " ^ E_Expr.str e))),
-          None );
-    ]
+  stmts @ [ Stmt.Assert e' ]
 
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   let compile_cases =
@@ -573,7 +561,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | Skip -> [ Stmt.Skip ]
   | Print e -> compile_print e
   | Wrapper (_, s) -> compile_stmt s
-  | Assign (v, e_exp) -> compile_assign v e_exp
+  | Assign (lval, rval) -> compile_assign lval rval
   | GlobAssign (x, e) ->
       let stmts_e, e' = compile_expr e in
       compile_glob_assign x stmts_e e'

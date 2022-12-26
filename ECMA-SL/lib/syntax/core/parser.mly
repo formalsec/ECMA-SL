@@ -20,6 +20,8 @@
 %token DELETE
 %token FAIL
 %token ABORT
+%token ASSUME
+%token ASSERT
 %token THROW
 %token <float> FLOAT
 %token <int> INT
@@ -357,6 +359,10 @@ stmt_target:
     { Stmt.Fail e }
   | ABORT; e = expr_target;
     { Stmt.Abort e }
+  | ASSUME; LPAREN; e = expr_target; RPAREN;
+    { Stmt.Assume e }
+  | ASSERT; LPAREN; e = expr_target; RPAREN;
+    { Stmt.Assert e }
   | THROW; str = STRING;
     { Stmt.Exception str}
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;

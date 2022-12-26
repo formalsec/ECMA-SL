@@ -93,6 +93,8 @@
                   "null"            , NULL;
                   "fail"            , FAIL;
                   "abort"           , ABORT;
+                  "assume"          , ASSUME;
+                  "assert"          , ASSERT;
                   "print"           , PRINT; 
                   "to_precision"    , TO_PRECISION;
                   "to_exponential"    , TO_EXPONENTIAL;

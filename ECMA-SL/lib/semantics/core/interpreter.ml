@@ -288,7 +288,6 @@ module M (Mon : SecurityMonitor) = struct
       (prog : Prog.t) (state : state_t) (cont : Stmt.t list) (s : Stmt.t) :
       return * Mon.sl SecLabel.t =
     let cs, heap, sto, f = state in
-
     (*let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
       if Stmt.is_basic_stmt s then
         print_endline (lazy (Printf.sprintf "====================================\nEvaluating >>>>> %s: %s (%s)" f (Stmt.str s) (Stmt.str ~print_expr:str_e s)));
@@ -311,7 +310,8 @@ module M (Mon : SecurityMonitor) = struct
         | _ -> print_endline (lazy ("PROGRAM PRINT: " ^ Val.str v)));
         (Intermediate ((cs, heap, sto, f), cont), SecLabel.PrintLab e)
     | Abort e ->
-        let v = eval_expr sto e in (Finalv (Some v), SecLabel.EmptyLab)
+        let v = eval_expr sto e in
+        (Finalv (Some v), SecLabel.EmptyLab)
     | Fail e ->
         let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
         print_endline
@@ -324,6 +324,18 @@ module M (Mon : SecurityMonitor) = struct
                (Call_stack.str cs)));
         let v = eval_expr sto e in
         (Errorv (Some v), SecLabel.EmptyLab)
+    | Assume e ->
+        let v = eval_expr sto e in
+        if Oper.is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)
+        else
+          let e' = "Assume false: " ^ Expr.str e in
+          (Finalv (Some (Val.Str e')), SecLabel.EmptyLab)
+    | Assert e ->
+        let v = eval_expr sto e in
+        if Oper.is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)
+        else
+          let e' = "Assert false: " ^ Expr.str e in
+          (Errorv (Some (Val.Str e')), SecLabel.EmptyLab)
     | Assign (x, e) ->
         let v = eval_expr sto e in
         Store.set sto x v;
