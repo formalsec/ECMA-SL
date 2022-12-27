@@ -1,12 +1,12 @@
-type sft =
-  | Intermediate of (Stmt.t list * Store.t * string * string)
+type 'a sft =
+  | Intermediate of (Stmt.t list * 'a * string * string)
   | Toplevel
 
-type t
+type 'a t
 
-exception Except of string
+exception Empty_stack
 
-val empty : t
-val pop : t -> sft * t
-val push : t -> sft -> t
-val str : t -> string
+val empty : 'a t
+val pop : 'a t -> 'a sft * 'a t
+val push : 'a t -> 'a sft -> 'a t
+val str : 'a t -> string

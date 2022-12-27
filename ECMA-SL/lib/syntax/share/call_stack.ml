@@ -1,22 +1,23 @@
-type sft =
-  | Intermediate of (Stmt.t list * Store.t * string * string)
+type func  = string
+
+type 'a sft =
+  | Intermediate of (Stmt.t list * 'a * string * func)
   | Toplevel
 
-type t = sft list
+type 'a t = 'a sft list
 
-(* Perhaps empty would be better? *)
-exception Except of string
+exception Empty_stack
 
-let empty : t = []
+let empty : 'a t = []
 
-let pop (cs : t) : sft * t =
+let pop (cs : 'a t) : 'a sft * 'a t =
   match cs with
-  (* Maybe raise Empty ? instead of a Except*)
-  | [] -> raise (Except "The stack is Empty already!")
+  | [] -> raise Empty_stack
   | f :: frames -> (f, frames)
 
-let str_sft (frame : sft) : string =
+let str_sft (frame : 'a sft) : string =
   match frame with Intermediate (_, _, _, f) -> f | Toplevel -> "TopLevel"
 
-let str (cs : t) : string = String.concat "; " (List.map str_sft cs)
-let push (cs : t) (frame : sft) : t = frame :: cs
+let str (cs : 'a t) : string = String.concat "; " (List.map str_sft cs)
+let push (cs : 'a t) (frame : 'a sft) : 'a t = frame :: cs
+

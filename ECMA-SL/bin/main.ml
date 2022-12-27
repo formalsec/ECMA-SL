@@ -111,7 +111,7 @@ let core_interpretation (prog : Prog.t) : exit_code =
       ERROR
 
 let symbolic_interpretation (prog : Prog.t) : exit_code =
-  let _ = Symbolic_interpreter.invoke prog !Flags.target in
+  let _ = Seval.invoke prog !Flags.target in
   SUCCESS
 
 (* Main function *)

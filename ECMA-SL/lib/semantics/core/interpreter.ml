@@ -18,7 +18,9 @@ end
 module M (Mon : SecurityMonitor) = struct
   exception Except of string
 
-  type state_t = Call_stack.t * Heap.t * Store.t * string
+  type stack_t = Store.t Call_stack.t
+
+  type state_t = stack_t * Heap.t * Store.t * string
 
   type return =
     | Intermediate of state_t * Stmt.t list
@@ -199,9 +201,9 @@ module M (Mon : SecurityMonitor) = struct
     | Val.Curry (f, vs) -> (f, vs)
     | _ -> raise (Except "Wrong/Invalid Function ID")
 
-  let prepare_call (prog : Prog.t) (calling_f : string) (cs : Call_stack.t)
+  let prepare_call (prog : Prog.t) (calling_f : string) (cs : stack_t)
       (sto : Store.t) (cont : Stmt.t list) (x : string) (es : Expr.t list)
-      (f : string) (vs : Val.t list) : Call_stack.t * Store.t * string list =
+      (f : string) (vs : Val.t list) : stack_t * Store.t * string list =
     let cs' =
       Call_stack.push cs (Call_stack.Intermediate (cont, sto, x, calling_f))
     in
