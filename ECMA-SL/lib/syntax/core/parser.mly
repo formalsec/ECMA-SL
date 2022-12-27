@@ -20,8 +20,7 @@
 %token DELETE
 %token FAIL
 %token ABORT
-%token ASSUME
-%token ASSERT
+%token ASSUME ASSERT SYMBOLIC
 %token THROW
 %token <float> FLOAT
 %token <int> INT
@@ -148,6 +147,8 @@ expr_target:
     { Expr.Val v }
   | v = VAR;
     { Expr.Var v }
+  | SYMBOLIC; LPAREN; t = type_target; RPAREN;
+    { Expr.Symbolic t }
   | LBRACE; e = expr_target; RBRACE; AT_SIGN; LPAREN; es = separated_list (COMMA, expr_target); RPAREN;
     { Expr.Curry (e, es) }
   | MINUS; e = expr_target;

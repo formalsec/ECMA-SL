@@ -185,6 +185,12 @@ module M (Mon : SecurityMonitor) = struct
         match fv with
         | Str s -> Val.Curry (s, vs)
         | _ -> failwith "Illegal Curry Expression")
+    | Symbolic t -> (
+        match t with
+        | Type.IntType ->
+            Random.self_init ();
+            Val.Int (Random.int 128)
+        | _ -> failwith "eval_expr: Symbolic not implemented!")
 
   let get_func_id (sto : Store.t) (exp : Expr.t) : string * Val.t list =
     let res = eval_expr sto exp in
@@ -288,10 +294,9 @@ module M (Mon : SecurityMonitor) = struct
       (prog : Prog.t) (state : state_t) (cont : Stmt.t list) (s : Stmt.t) :
       return * Mon.sl SecLabel.t =
     let cs, heap, sto, f = state in
-    (*let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
+    let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
       if Stmt.is_basic_stmt s then
         print_endline (lazy (Printf.sprintf "====================================\nEvaluating >>>>> %s: %s (%s)" f (Stmt.str s) (Stmt.str ~print_expr:str_e s)));
-    *)
     match s with
     | Skip -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
     | Exception str ->

@@ -147,7 +147,7 @@ let is_NaN (v : Val.t) : Val.t =
 
 let bitwise_not (v : Val.t) : Val.t =
   match v with
-  | Flt f -> Flt (Arith_Utils.int32_bitwise_not f)
+  | Flt f -> Flt (Arith_utils.int32_bitwise_not f)
   | _ ->
       invalid_arg
         "Exception in Oper.bitwise_not: this operation is only applicable to \
@@ -226,7 +226,7 @@ let log_or ((v1, v2) : Val.t * Val.t) : Val.t =
 
 let bitwise_and ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
-  | Flt f1, Flt f2 -> Flt (Arith_Utils.int32_bitwise_and f1 f2)
+  | Flt f1, Flt f2 -> Flt (Arith_utils.int32_bitwise_and f1 f2)
   | _ ->
       invalid_arg
         "Exception in Oper.bitwise_and: this operation is only applicable to \
@@ -234,7 +234,7 @@ let bitwise_and ((v1, v2) : Val.t * Val.t) : Val.t =
 
 let bitwise_or ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
-  | Flt f1, Flt f2 -> Flt (Arith_Utils.int32_bitwise_or f1 f2)
+  | Flt f1, Flt f2 -> Flt (Arith_utils.int32_bitwise_or f1 f2)
   | _ ->
       invalid_arg
         "Exception in Oper.bitwise_or: this operation is only applicable to \
@@ -242,7 +242,7 @@ let bitwise_or ((v1, v2) : Val.t * Val.t) : Val.t =
 
 let bitwise_xor ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
-  | Flt f1, Flt f2 -> Flt (Arith_Utils.int32_bitwise_xor f1 f2)
+  | Flt f1, Flt f2 -> Flt (Arith_utils.int32_bitwise_xor f1 f2)
   | _ ->
       invalid_arg
         "Exception in Oper.bitwise_xor: this operation is only applicable to \
@@ -352,7 +352,7 @@ let to_fixed ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
   | Flt x, Int y ->
       (* let res = Float.round(x*.(10.**(Float.of_int(y))))/.(10.**(Float.of_int(y))) in *)
-      (* let digits = Arith_Utils.count_digits res in *)
+      (* let digits = Arith_utils.count_digits res in *)
       (* let missing_zeros = y - digits in *)
       (* Str (Float.to_string res) *)
       Str (Printf.sprintf "%0.*f" y x)
@@ -413,7 +413,7 @@ let s_len (v : Val.t) : Val.t =
 
 let s_len_u (v : Val.t) : Val.t =
   match v with
-  | Str s -> Int (String_Utils.s_len_u s)
+  | Str s -> Int (String_utils.s_len_u s)
   | _ ->
       invalid_arg
         "Exception in Oper.s_len_u: this operation is only applicable to \
@@ -453,7 +453,7 @@ let s_nth ((v1, v2) : Val.t * Val.t) : Val.t =
 
 let s_nth_u ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
-  | Str s, Int i -> Str (String_Utils.s_nth_u s i)
+  | Str s, Int i -> Str (String_utils.s_nth_u s i)
   | _ ->
       invalid_arg
         "Exception in Oper.s_nth_u: this operation is only applicable to \
@@ -469,7 +469,7 @@ let s_substr ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
 
 let s_substr_u ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
   match (v1, v2, v3) with
-  | Str s, Int i, Int j -> Str (String_Utils.s_substr_u s i j)
+  | Str s, Int i, Int j -> Str (String_utils.s_substr_u s i j)
   | _ ->
       invalid_arg
         "Exception in Oper.s_substr_u: this operation is only applicable to \
@@ -529,7 +529,7 @@ let parse_date (v : Val.t) : Val.t =
       Printf.printf "negative_year: %b\n" negative_year;
       if negative_year then
         let res =
-          Date_Utils.parse_date (String.sub s 1 (String.length s - 1))
+          Date_utils.parse_date (String.sub s 1 (String.length s - 1))
         in
         match res with
         | None -> Val.Flt (-1.)
@@ -550,7 +550,7 @@ let parse_date (v : Val.t) : Val.t =
         let positive_year = s.[0] == '+' in
         if positive_year then
           let res =
-            Date_Utils.parse_date (String.sub s 1 (String.length s - 1))
+            Date_utils.parse_date (String.sub s 1 (String.length s - 1))
           in
           match res with
           | None -> Val.Flt (-1.)
@@ -568,7 +568,7 @@ let parse_date (v : Val.t) : Val.t =
                 ]
           | _ -> raise (Failure "Impossible: parse_date")
         else
-          let res = Date_Utils.parse_date s in
+          let res = Date_utils.parse_date s in
           match res with
           | None -> Val.Flt (-1.)
           | Some ([ year; month; day; hour; min; sec; msec ], tz) ->
@@ -823,7 +823,7 @@ let int_of_float (v : Val.t) : Val.t =
 
 let float_to_string (v : Val.t) : Val.t =
   match v with
-  | Flt i -> Str (Arith_Utils.float_to_string_inner i)
+  | Flt i -> Str (Arith_utils.float_to_string_inner i)
   | _ ->
       invalid_arg
         ("Exception in Oper.float_to_string: this operation is only applicable \
@@ -887,7 +887,7 @@ let string_split ((v, c) : Val.t * Val.t) : Val.t =
 
 let shift_left ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
-  | Flt f1, Flt f2 -> Flt (Arith_Utils.int32_left_shift f1 f2)
+  | Flt f1, Flt f2 -> Flt (Arith_utils.int32_left_shift f1 f2)
   | _ ->
       invalid_arg
         "Exception in Oper.shift_left: this operation is only applicable to \
@@ -895,7 +895,7 @@ let shift_left ((v1, v2) : Val.t * Val.t) : Val.t =
 
 let shift_right ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
-  | Flt f1, Flt f2 -> Flt (Arith_Utils.int32_right_shift f1 f2)
+  | Flt f1, Flt f2 -> Flt (Arith_utils.int32_right_shift f1 f2)
   | _ ->
       invalid_arg
         "Exception in Oper.shift_right: this operation is only applicable to \
@@ -903,7 +903,7 @@ let shift_right ((v1, v2) : Val.t * Val.t) : Val.t =
 
 let shift_right_logical ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
-  | Flt f1, Flt f2 -> Flt (Arith_Utils.uint32_right_shift f1 f2)
+  | Flt f1, Flt f2 -> Flt (Arith_utils.uint32_right_shift f1 f2)
   | _ ->
       invalid_arg
         "Exception in Oper.shift_right_logical: this operation is only \
@@ -911,7 +911,7 @@ let shift_right_logical ((v1, v2) : Val.t * Val.t) : Val.t =
 
 let to_int (v : Val.t) : Val.t =
   match v with
-  | Flt n -> Flt (Arith_Utils.to_int n)
+  | Flt n -> Flt (Arith_utils.to_int n)
   | _ ->
       invalid_arg
         "Exception in Oper.to_int: this operation is only applicable to Float \
@@ -919,7 +919,7 @@ let to_int (v : Val.t) : Val.t =
 
 let to_int32 (v : Val.t) : Val.t =
   match v with
-  | Flt n -> Flt (Arith_Utils.to_int32 n)
+  | Flt n -> Flt (Arith_utils.to_int32 n)
   | _ ->
       invalid_arg
         "Exception in Oper.to_int32: this operation is only applicable to \
@@ -927,7 +927,7 @@ let to_int32 (v : Val.t) : Val.t =
 
 let to_uint32 (v : Val.t) : Val.t =
   match v with
-  | Flt n -> Flt (Arith_Utils.to_uint32 n)
+  | Flt n -> Flt (Arith_utils.to_uint32 n)
   | _ ->
       invalid_arg
         "Exception in Oper.to_uint32: this operation is only applicable to \
@@ -935,7 +935,7 @@ let to_uint32 (v : Val.t) : Val.t =
 
 let to_uint16 (v : Val.t) : Val.t =
   match v with
-  | Flt n -> Flt (Arith_Utils.to_uint16 n)
+  | Flt n -> Flt (Arith_utils.to_uint16 n)
   | _ ->
       invalid_arg
         "Exception in Oper.to_uint16: this operation is only applicable to \
@@ -1003,7 +1003,7 @@ let float_to_byte (v : Val.t) : Val.t =
 let float64_to_le_bytes (v : Val.t) : Val.t =
   match v with
   | Flt x ->
-      let bytes = Byte_Utils.float64_to_le_bytes x in
+      let bytes = Byte_utils.float64_to_le_bytes x in
       let val_bytes = List.map (fun b -> Val.Byte (Int64.to_int b)) bytes in
       List val_bytes
   | _ ->
@@ -1014,7 +1014,7 @@ let float64_to_le_bytes (v : Val.t) : Val.t =
 let float64_to_be_bytes (v : Val.t) : Val.t =
   match v with
   | Flt x ->
-      let bytes = Byte_Utils.float64_to_be_bytes x in
+      let bytes = Byte_utils.float64_to_be_bytes x in
       let val_bytes = List.map (fun b -> Val.Byte (Int64.to_int b)) bytes in
       List val_bytes
   | _ ->
@@ -1025,7 +1025,7 @@ let float64_to_be_bytes (v : Val.t) : Val.t =
 let float32_to_le_bytes (v : Val.t) : Val.t =
   match v with
   | Flt x ->
-      let bytes = Byte_Utils.float32_to_le_bytes x in
+      let bytes = Byte_utils.float32_to_le_bytes x in
       let val_bytes = List.map (fun b -> Val.Byte (Int32.to_int b)) bytes in
       List val_bytes
   | _ ->
@@ -1036,7 +1036,7 @@ let float32_to_le_bytes (v : Val.t) : Val.t =
 let float32_to_be_bytes (v : Val.t) : Val.t =
   match v with
   | Flt x ->
-      let bytes = Byte_Utils.float32_to_be_bytes x in
+      let bytes = Byte_utils.float32_to_be_bytes x in
       let val_bytes = List.map (fun b -> Val.Byte (Int32.to_int b)) bytes in
       List val_bytes
   | _ ->
@@ -1047,7 +1047,7 @@ let float32_to_be_bytes (v : Val.t) : Val.t =
 let int_to_be_bytes ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
   | Flt x, Int n ->
-      let bytes = Byte_Utils.int_to_be_bytes (x, n) in
+      let bytes = Byte_utils.int_to_be_bytes (x, n) in
       let val_bytes = List.map (fun b -> Val.Byte b) bytes in
       List val_bytes
   | _ ->
@@ -1060,7 +1060,7 @@ let float64_from_le_bytes (v : Val.t) : Val.t =
   | Arr bytes ->
       let int_bytes = Array.map unpack_byte bytes in
       let int64_bytes = Array.map Int64.of_int int_bytes in
-      let f = Byte_Utils.float64_from_le_bytes int64_bytes in
+      let f = Byte_utils.float64_from_le_bytes int64_bytes in
       Flt f
   | _ ->
       invalid_arg
@@ -1072,7 +1072,7 @@ let float64_from_be_bytes (v : Val.t) : Val.t =
   | Arr bytes ->
       let int_bytes = Array.map unpack_byte bytes in
       let int64_bytes = Array.map Int64.of_int int_bytes in
-      let f = Byte_Utils.float64_from_be_bytes int64_bytes in
+      let f = Byte_utils.float64_from_be_bytes int64_bytes in
       Flt f
   | _ ->
       invalid_arg
@@ -1084,7 +1084,7 @@ let float32_from_le_bytes (v : Val.t) : Val.t =
   | Arr bytes ->
       let int_bytes = Array.map unpack_byte bytes in
       let int32_bytes = Array.map Int32.of_int int_bytes in
-      let f = Byte_Utils.float32_from_le_bytes int32_bytes in
+      let f = Byte_utils.float32_from_le_bytes int32_bytes in
       Flt f
   | _ ->
       invalid_arg
@@ -1096,7 +1096,7 @@ let float32_from_be_bytes (v : Val.t) : Val.t =
   | Arr bytes ->
       let int_bytes = Array.map unpack_byte bytes in
       let int32_bytes = Array.map Int32.of_int int_bytes in
-      let f = Byte_Utils.float32_from_be_bytes int32_bytes in
+      let f = Byte_utils.float32_from_be_bytes int32_bytes in
       Flt f
   | _ ->
       invalid_arg
@@ -1116,7 +1116,7 @@ let int_from_le_bytes ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
   | Arr bytes, Int n ->
       let arr_bytes = Array.map unpack_tmp bytes in
-      let int = Byte_Utils.int_from_le_bytes (arr_bytes, n) in
+      let int = Byte_utils.int_from_le_bytes (arr_bytes, n) in
       Flt int
   | _ ->
       invalid_arg
@@ -1127,7 +1127,7 @@ let uint_from_le_bytes ((v1, v2) : Val.t * Val.t) : Val.t =
   match (v1, v2) with
   | Arr bytes, Int n ->
       let arr_bytes = Array.map unpack_tmp bytes in
-      let uint = Byte_Utils.uint_from_le_bytes (arr_bytes, n) in
+      let uint = Byte_utils.uint_from_le_bytes (arr_bytes, n) in
       Flt uint
   | _ ->
       invalid_arg
@@ -1136,7 +1136,7 @@ let uint_from_le_bytes ((v1, v2) : Val.t * Val.t) : Val.t =
 
 let from_char_code (v : Val.t) : Val.t =
   match v with
-  | Int n -> Str (String_Utils.from_char_code n)
+  | Int n -> Str (String_utils.from_char_code n)
   | _ ->
       invalid_arg
         "Exception in Oper.from_char_code: this operation is only applicable \
@@ -1144,7 +1144,7 @@ let from_char_code (v : Val.t) : Val.t =
 
 let from_char_code_u (v : Val.t) : Val.t =
   match v with
-  | Int n -> Str (String_Utils.from_char_code_u n)
+  | Int n -> Str (String_utils.from_char_code_u n)
   | _ ->
       invalid_arg
         "Exception in Oper.from_char_code_u: this operation is only applicable \
@@ -1152,7 +1152,7 @@ let from_char_code_u (v : Val.t) : Val.t =
 
 let to_char_code (v : Val.t) : Val.t =
   match v with
-  | Str s -> Int (String_Utils.to_char_code s)
+  | Str s -> Int (String_utils.to_char_code s)
   | _ ->
       invalid_arg
         "Exception in Oper.to_char_code: this operation is only applicable to \
@@ -1160,7 +1160,7 @@ let to_char_code (v : Val.t) : Val.t =
 
 let to_char_code_u (v : Val.t) : Val.t =
   match v with
-  | Str s -> Int (String_Utils.to_char_code_u s)
+  | Str s -> Int (String_utils.to_char_code_u s)
   | _ ->
       invalid_arg
         "Exception in Oper.to_char_code_u: this operation is only applicable \
@@ -1176,7 +1176,7 @@ let int_to_four_hex (v : Val.t) : Val.t =
 
 let utf8_decode (v : Val.t) : Val.t =
   match v with
-  | Str s -> Str (String_Utils.utf8decode s)
+  | Str s -> Str (String_utils.utf8decode s)
   | _ ->
       invalid_arg
         "Exception in Oper.utf8_decode: this operation is only applicable to \
@@ -1184,7 +1184,7 @@ let utf8_decode (v : Val.t) : Val.t =
 
 let hex_decode (v : Val.t) : Val.t =
   match v with
-  | Str s -> Str (String_Utils.hexdecode s)
+  | Str s -> Str (String_utils.hexdecode s)
   | _ ->
       invalid_arg
         "Exception in Oper.hex_decode: this operation is only applicable to \
@@ -1207,7 +1207,7 @@ let octal_to_decimal (v : Val.t) : Val.t =
 
 let to_lower_case (v : Val.t) : Val.t =
   match v with
-  | Str s -> Str (String_Utils.to_lower_case s)
+  | Str s -> Str (String_utils.to_lower_case s)
   | _ ->
       invalid_arg
         "Exception in Oper.to_lower_case: this operation is only applicable to \
@@ -1215,7 +1215,7 @@ let to_lower_case (v : Val.t) : Val.t =
 
 let to_upper_case (v : Val.t) : Val.t =
   match v with
-  | Str s -> Str (String_Utils.to_upper_case s)
+  | Str s -> Str (String_utils.to_upper_case s)
   | _ ->
       invalid_arg
         "Exception in Oper.to_upper_case: this operation is only applicable to \
@@ -1223,7 +1223,7 @@ let to_upper_case (v : Val.t) : Val.t =
 
 let trim (v : Val.t) : Val.t =
   match v with
-  | Str s -> Str (String_Utils.trim s)
+  | Str s -> Str (String_utils.trim s)
   | _ ->
       invalid_arg
         "Exception in Oper.trim: this operation is only applicable to Str \

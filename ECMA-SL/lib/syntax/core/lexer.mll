@@ -95,6 +95,7 @@
                   "abort"           , ABORT;
                   "assume"          , ASSUME;
                   "assert"          , ASSERT;
+                  "symbolic"        , SYMBOLIC;
                   "print"           , PRINT; 
                   "to_precision"    , TO_PRECISION;
                   "to_exponential"    , TO_EXPONENTIAL;
@@ -215,7 +216,7 @@ rule read =
                                         Hashtbl.find keyword_table id
                                       with Not_found -> VAR id }
   | var               { VAR (Lexing.lexeme lexbuf) }
-  | symbol            { SYMBOL (String_Utils.chop_first_char (Lexing.lexeme lexbuf)) }
+  | symbol            { SYMBOL (String_utils.chop_first_char (Lexing.lexeme lexbuf)) }
   | loc               { LOC (Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }
   | _                 { raise (create_syntax_error "Unexpected char" lexbuf) }

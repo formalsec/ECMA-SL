@@ -4,7 +4,7 @@
 %{
   open E_Stmt
 
-  let fresh_lambda_id_gen = String_Utils.make_fresh_var_generator "__lambda__"
+  let fresh_lambda_id_gen = String_utils.make_fresh_var_generator "__lambda__"
 %}
 
 (*
@@ -13,8 +13,7 @@
 *)
 %token SKIP
 %token PRINT WRAPPER
-%token ASSERT
-%token ASSUME
+%token ASSERT ASSUME SYMBOLIC
 %token DEFEQ
 %token WHILE FOREACH
 %token IF ELSE ELIF
@@ -209,6 +208,8 @@ e_expr_target:
     { E_Expr.Lookup (e, E_Expr.Val (Val.Str f)) }
   | e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
     { E_Expr.Lookup (e, f) }
+  | SYMBOLIC; LPAREN; t = type_target; RPAREN;
+    { E_Expr.Symbolic t }
   | v = val_target;
     { E_Expr.Val v }
   | v = VAR;

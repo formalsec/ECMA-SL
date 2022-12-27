@@ -112,6 +112,7 @@
                 "gen_wrapper"     , WRAPPER;
                 "assume"          , ASSUME;
                 "assert"          , ASSERT;
+                "symbolic"        , SYMBOLIC;
                 "switch"          , SWITCH;
                 "case"            , CASE;
                 "sdefault"        , SDEFAULT;
@@ -239,12 +240,12 @@ rule read =
   | float          { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool           { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | '"'            { read_string (Buffer.create 16) lexbuf }
-  | gvar           { GVAR (String_Utils.trim_ends (Lexing.lexeme lexbuf))}
+  | gvar           { GVAR (String_utils.trim_ends (Lexing.lexeme lexbuf))}
   | letter(letter|digit|'_')* as id { try
                                         Hashtbl.find keyword_table id
                                       with Not_found -> VAR id }
   | var            { VAR (Lexing.lexeme lexbuf) }
-  | symbol         { SYMBOL (String_Utils.chop_first_char (Lexing.lexeme lexbuf)) }
+  | symbol         { SYMBOL (String_utils.chop_first_char (Lexing.lexeme lexbuf)) }
   | loc            { LOC (Lexing.lexeme lexbuf) }
   | hex_literal     { INT(Stdlib.int_of_string (Lexing.lexeme lexbuf)) }
   | "/*"           { read_comment lexbuf }
@@ -269,12 +270,12 @@ and read_string buf =
   | '\\' '0'             { Buffer.add_char buf '\000'; read_string buf lexbuf }
   | '\\' 'x' hex_digit hex_digit as h
                          {
-                           Buffer.add_string buf (String_Utils.hexdecode h);
+                           Buffer.add_string buf (String_utils.hexdecode h);
                            read_string buf lexbuf
                          }
   | '\\' 'u' '{' hex_digit hex_digit hex_digit hex_digit hex_digit? hex_digit? '}' as h
                          {
-                           Buffer.add_string buf (String_Utils.utf8decode h);
+                           Buffer.add_string buf (String_utils.utf8decode h);
                            read_string buf lexbuf
                          }
   | [^ '"' '\\']+        {

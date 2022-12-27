@@ -1,4 +1,4 @@
-open Number_Parsing_Utils
+open Parsing_number_utils
 
 let assert_equals x y =
   if x <> y then

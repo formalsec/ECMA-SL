@@ -13,7 +13,7 @@ function main() {
 	ECMA-SL -mode c -i ES6_interpreter/main2.esl -o $output_dir/core.cesl 
 	echo "; " >> $output_dir/core.cesl 
 	cat $output_dir/ast.cesl >> $output_dir/core.cesl
-	ECMA-SL -mode ci -i $output_dir/core.cesl -s > $output_dir/result2.txt
+	ECMA-SL --verbose -mode ci -i $output_dir/core.cesl -s > $output_dir/result2.txt
 	echo $?
 #	rm $output_dir/core.cesl $output_dir/ast.cesl
 	return 0

@@ -26,24 +26,17 @@ let usage = "Usage: " ^ name ^ " [option] [file ...]"
 let argspec =
   Arg.align
     [
-      ("-i", Arg.String (fun f -> Flags.file := f), " input file");
-      ( "-h",
-        Arg.String (fun f -> Flags.heap_file := f),
-        " file where to write the computed heap" );
-      ("-o", Arg.String (fun o -> Flags.output := o), " output file");
-      ("-v", Arg.Set Flags.verbose, " verbose");
-      ("-s", Arg.Set Flags.silent, " silent mode");
-      ("-mon", Arg.String (fun m -> Flags.mon := m), " monitor mode");
-      ( "-mode",
+      ("-i", Arg.String (fun f -> Flags.file := f), " read program from file");
+      ("-o", Arg.String (fun o -> Flags.output := o), " write program to file");
+      ("-h",
+        Arg.String (fun f -> Flags.heap_file := f), " write heap to file" );
+      ("-m", Arg.String (fun m -> Flags.mon := m), " monitor mode");
+      ("-mode",
         Arg.String (fun m -> Flags.mode := m),
         " mode to run: c - Core / p - Plus " );
+      ("-v", Arg.Unit (fun () -> banner (); exit 0), " show version");
+      ("--verbose", Arg.Set Flags.verbose, " verbose interpreter");
       ("--parse", Arg.Set Flags.parse, " parse to JSON");
-      ( "--version",
-        Arg.Unit
-          (fun () ->
-            banner ();
-            exit 0),
-        " show version" );
     ]
 
 let combine_progs (prog1 : Prog.t) (prog2 : Prog.t) : Prog.t =
@@ -56,30 +49,30 @@ let parse_program (prog : Prog.t) (inline : string) : unit =
   print_string json;
   print_string "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   let jsonfile = Filename.remove_extension !Flags.file in
-  File_Utils.burn_to_disk (jsonfile ^ inline ^ ".json") json;
+  File_utils.burn_to_disk (jsonfile ^ inline ^ ".json") json;
   Printf.printf "%s" jsonfile
 
 let compile_from_plus_to_core () : unit =
-  let e_prog_contents = Parsing_Utils.load_file !Flags.file in
-  let e_prog = Parsing_Utils.parse_e_prog !Flags.file e_prog_contents in
-  let e_prog_imports_resolved = Parsing_Utils.resolve_prog_imports e_prog in
+  let e_prog_contents = Parsing_utils.load_file !Flags.file in
+  let e_prog = Parsing_utils.parse_e_prog !Flags.file e_prog_contents in
+  let e_prog_imports_resolved = Parsing_utils.resolve_prog_imports e_prog in
   let e_prog_macros_applied =
-    Parsing_Utils.apply_prog_macros e_prog_imports_resolved
+    Parsing_utils.apply_prog_macros e_prog_imports_resolved
   in
   let c_prog = Compiler.compile_prog e_prog_macros_applied in
   if !Flags.output <> "" then
-    File_Utils.burn_to_disk !Flags.output (Prog.str c_prog)
+    File_utils.burn_to_disk !Flags.output (Prog.str c_prog)
 
 let inline_compiler () : Prog.t =
-  let prog_contents = Parsing_Utils.load_file !Flags.file in
-  let prog = Parsing_Utils.parse_prog prog_contents in
+  let prog_contents = Parsing_utils.load_file !Flags.file in
+  let prog = Parsing_utils.parse_prog prog_contents in
   let inlined_prog = Inliner.compile_functions prog in
   (* Add Security funcs. H-L-Lattice.esl*)
-  let sec_prog_contents = Parsing_Utils.load_file _INLINE_LATTICE_ in
-  let lattice_prog = Parsing_Utils.parse_prog sec_prog_contents in
+  let sec_prog_contents = Parsing_utils.load_file _INLINE_LATTICE_ in
+  let lattice_prog = Parsing_utils.parse_prog sec_prog_contents in
   let final_prog = combine_progs inlined_prog lattice_prog in
   let inlinedfile = Filename.remove_extension !Flags.file in
-  File_Utils.burn_to_disk (inlinedfile ^ "_inlined.esl") (Prog.str final_prog);
+  File_utils.burn_to_disk (inlinedfile ^ "_inlined.esl") (Prog.str final_prog);
   Printf.printf
     "================= FINAL PROGRAM ================= \n\
     \ %s \n\
@@ -90,7 +83,7 @@ let inline_compiler () : Prog.t =
 let core_interpretation (prog : Prog.t) : exit_code =
   let v, heap = Interpreter.eval_prog prog !Flags.mon !Flags.target in
   if !Flags.heap_file <> "" then
-    File_Utils.burn_to_disk !Flags.heap_file (Heap.str_with_global heap);
+    File_utils.burn_to_disk !Flags.heap_file (Heap.str_with_global heap);
   match v with
   | Some z -> (
       match z with
@@ -117,11 +110,15 @@ let core_interpretation (prog : Prog.t) : exit_code =
       print_string "ERROR Core_Interpretation";
       ERROR
 
+let symbolic_interpretation (prog : Prog.t) : exit_code =
+  let _ = Symbolic_interpreter.invoke prog !Flags.target in
+  SUCCESS
+
 (* Main function *)
 let () =
   Arg.parse argspec (fun file -> Flags.file := file) usage;
   print_string "=====================\n\tECMA-SL\n=====================\n";
-  if !Flags.silent then Logging.set_silent ();
+  if !Flags.verbose then Logging.set_verbose ();
   (* Disable logging (when using "print_endline" and/or "print_string") *)
   let code : exit_code =
     if !Flags.file = "" && !Flags.mode = "" && !Flags.output = "" then (
@@ -143,13 +140,14 @@ let () =
       FAILURE)
     else if !Flags.mode = "ci" then (
       print_string "======================= CORE =======================\n";
-      let prog_contents = Parsing_Utils.load_file !Flags.file in
-      let prog = Parsing_Utils.parse_prog prog_contents in
+      let prog = Parsing_utils.(parse_prog (load_file !Flags.file)) in
       if !Flags.parse then parse_program prog "";
       core_interpretation prog)
+    else if !Flags.mode = "symbolic" then (
+      let prog = Parsing_utils.(parse_prog (load_file !Flags.file)) in
+      symbolic_interpretation prog)
     else if !Flags.mode = "parse" then (
-      let prog_contents = Parsing_Utils.load_file !Flags.file in
-      let prog = Parsing_Utils.parse_prog prog_contents in
+      let prog = Parsing_utils.(parse_prog (load_file !Flags.file)) in
       parse_program prog "";
       SUCCESS)
     else if !Flags.mode = "ic" then (

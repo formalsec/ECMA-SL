@@ -6,6 +6,7 @@ type t =
   | UnOpt of (Oper.uopt * t)
   | NOpt of Oper.nopt * t list
   | Curry of t * t list
+  | Symbolic of Type.t
 
 (*-----------String-------------*)
 
@@ -18,7 +19,8 @@ let rec str (e : t) : string =
   | BinOpt (op, e1, e2) -> Oper.str_of_binopt op (str e1) (str e2)
   | TriOpt (op, e1, e2, e3) -> Oper.str_of_triopt op (str e1) (str e2) (str e3)
   | NOpt (op, es) -> Oper.str_of_nopt op (List.map str es)
-  | Curry (f, es) -> Printf.sprintf "{%s}@(%s)" (str f) (str_es es)
+  | Curry (f, es) -> "{" ^ str f ^ "}@(" ^ str_es es ^ ")"
+  | Symbolic t -> "symbolic (" ^ Type.str t ^ ")"
 
 let js (e : t) : string = failwith "missing js"
 
@@ -59,3 +61,6 @@ let rec to_json (e : t) : string =
       Printf.sprintf
         "{ \"type\" : \"curry\", \"function:\": %s, \"args\": [ %s ]}"
         (to_json f) (to_json_es es)
+  | Symbolic t ->
+      Printf.sprintf " { \"type\" : \"symbolic\", \"type\" : \"%s\" }"
+        (Type.str t)

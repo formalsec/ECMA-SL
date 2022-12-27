@@ -13,11 +13,7 @@ type t =
   | NewObj of (string * t) list
   | Lookup of t * t
   | Curry of t * t list
-(*
-  | CreateSymb Type.t * t
-  | Assume t 
-  | Assert t  
-  *)
+  | Symbolic of Type.t
 
 type subst_t = (string, t) Hashtbl.t
 
@@ -33,19 +29,16 @@ let rec str (e : t) : string =
   | BinOpt (op, e1, e2) -> Oper.str_of_binopt op (str e1) (str e2)
   | TriOpt (op, e1, e2, e3) -> Oper.str_of_triopt op (str e1) (str e2) (str e3)
   | NOpt (op, es) -> Oper.str_of_nopt op (List.map str es)
-  | ECall (f, es) -> Printf.sprintf "extern %s(%s)" f (str_es es)
-  | Call (f, es, None) ->
-      Printf.sprintf "%s(%s)" (str f) (String.concat ", " (List.map str es))
-  | Call (f, es, Some g) ->
-      Printf.sprintf "%s(%s) catch %s" (str f)
-        (String.concat ", " (List.map str es))
-        g
+  | ECall (f, es) -> "extern " ^ f ^ "(" ^ str_es es ^ ")"
+  | Call (f, es, None) -> str f ^ "(" ^ str_es es ^ ")"
+  | Call (f, es, Some g) -> str f ^ "(" ^ str_es es ^ ") catch " ^ g
   | NewObj fes ->
       "{ "
       ^ String.concat ", " (List.map (fun (f, e) -> f ^ ": " ^ str e) fes)
       ^ " }"
   | Lookup (e, f) -> str e ^ "[" ^ str f ^ "]"
-  | Curry (f, es) -> Printf.sprintf "%s@(%s)" (str f) (str_es es)
+  | Curry (f, es) -> str f ^ "@(" ^ str_es es ^ ")"
+  | Symbolic t -> "symbolic(" ^ Type.str t ^ ")"
 
 (* Used in module HTMLExtensions but not yet terminated.
    This still contains defects. *)
@@ -90,7 +83,7 @@ let rec map (f : t -> t) (e : t) : t =
   let map_obj = List.map (fun (x, e) -> (x, mapf e)) in
   let e' =
     match e with
-    | Val _ | Var _ | Const _ | GVar _ -> e
+    | Val _ | Var _ | Const _ | GVar _ | Symbolic _ -> e
     | UnOpt (op, e) -> UnOpt (op, mapf e)
     | EBinOpt (op, e1, e2) -> EBinOpt (op, mapf e1, mapf e2)
     | BinOpt (op, e1, e2) -> BinOpt (op, mapf e1, mapf e2)

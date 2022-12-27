@@ -1,8 +1,5 @@
-function symbolic (t) {
-  return 9
-};
 function main () {
-  x := symbolic("int");
+  x := symbolic(__$Int);
   assume (x > 10);
   x := x * 2;
   assert (x > 20);

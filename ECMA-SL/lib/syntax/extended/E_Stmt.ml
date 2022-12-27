@@ -2,7 +2,12 @@ type metadata_t = { where : string; html : string }
 
 type t =
   | Skip
+  | Fail of E_Expr.t
+  | Throw of E_Expr.t
   | Print of E_Expr.t
+  | Assume of E_Expr.t
+  | Assert of E_Expr.t
+  | Return of E_Expr.t
   | Wrapper of metadata_t list * t
   | Assign of string * E_Expr.t
   | GlobAssign of string * E_Expr.t
@@ -13,16 +18,11 @@ type t =
   | While of E_Expr.t * t
   | ForEach of
       string * E_Expr.t * t * metadata_t list * (string * string) option
-  | Return of E_Expr.t
   | FieldAssign of E_Expr.t * E_Expr.t * E_Expr.t
   | FieldDelete of E_Expr.t * E_Expr.t
   | ExprStmt of E_Expr.t
   | RepeatUntil of t * E_Expr.t * metadata_t list
   | MatchWith of E_Expr.t * (E_Pat.t * t) list
-  | Throw of E_Expr.t
-  | Fail of E_Expr.t
-  | Assume of E_Expr.t
-  | Assert of E_Expr.t
   | MacroApply of string * E_Expr.t list
   | Switch of E_Expr.t * (E_Expr.t * t) list * t option * string
       (** metadata; just "table caption" for now. *)
@@ -47,7 +47,12 @@ let rec str (stmt : t) : string =
 
   match stmt with
   | Skip -> ""
+  | Fail e -> "fail " ^ E_Expr.str e
+  | Throw e -> "throw " ^ E_Expr.str e
   | Print e -> "print " ^ E_Expr.str e
+  | Assert e -> "assert " ^ E_Expr.str e
+  | Assume e -> "assume " ^ E_Expr.str e
+  | Return exp -> "return " ^ E_Expr.str exp
   | Wrapper (m, s) -> str s
   | Assign (x, exp) -> x ^ " := " ^ E_Expr.str exp
   | GlobAssign (x, exp) -> "|" ^ x ^ "| := " ^ E_Expr.str exp
@@ -68,7 +73,6 @@ let rec str (stmt : t) : string =
   | While (exp, s) -> "while (" ^ E_Expr.str exp ^ ") " ^ str s
   | ForEach (x, exp, s, _, _) ->
       Printf.sprintf "foreach (%s, %s) %s" x (E_Expr.str exp) (str s)
-  | Return exp -> "return " ^ E_Expr.str exp
   | FieldAssign (e_o, f, e_v) ->
       E_Expr.str e_o ^ "[" ^ E_Expr.str f ^ "] := " ^ E_Expr.str e_v
   | FieldDelete (e, f) -> "delete " ^ E_Expr.str e ^ "[" ^ E_Expr.str f ^ "]"
@@ -78,10 +82,6 @@ let rec str (stmt : t) : string =
       "match " ^ E_Expr.str e ^ " with | "
       ^ String.concat " | "
           (List.map (fun (e, s) -> E_Pat.str e ^ ": " ^ str s) pats_stmts)
-  | Fail e -> "fail " ^ E_Expr.str e
-  | Throw e -> "throw " ^ E_Expr.str e
-  | Assert e -> "assert " ^ E_Expr.str e
-  | Assume e -> "assume " ^ E_Expr.str e
   | MacroApply (m, es) ->
       "@" ^ m ^ " (" ^ String.concat ", " (List.map E_Expr.str es) ^ ")"
   | Switch (e, cases, so, _) ->
@@ -107,7 +107,12 @@ let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
   let s' =
     match s with
     | Skip -> Skip
+    | Fail e -> Fail (fe e)
+    | Throw e -> Throw (fe e)
     | Print e -> Print (fe e)
+    | Assert e -> Assert (fe e)
+    | Assume e -> Assume (fe e)
+    | Return e -> Return (fe e)
     | Wrapper (m, s) -> Wrapper (m, map ~fe f s)
     | Assign (x, e) -> Assign (fx x, fe e)
     | GlobAssign (x, e) -> GlobAssign (fx x, fe e)
@@ -120,16 +125,11 @@ let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
             Option.map (fun (s, m) -> (map ~fe f s, m)) final_else )
     | While (e, s) -> While (fe e, map ~fe f s)
     | ForEach (x, e, s, m, v_m) -> ForEach (fx x, fe e, map ~fe f s, m, v_m)
-    | Return e -> Return (fe e)
     | FieldAssign (e_o, e_f, e_v) -> FieldAssign (fe e_o, fe e_f, fe e_v)
     | FieldDelete (e, f) -> FieldDelete (fe e, fe f)
     | ExprStmt e -> ExprStmt (fe e)
     | RepeatUntil (s, e, m) -> RepeatUntil (map ~fe f s, fe e, m)
     | MatchWith (e, pats_stmts) -> MatchWith (fe e, f_pat pats_stmts)
-    | Fail e -> Fail (fe e)
-    | Throw e -> Throw (fe e)
-    | Assert e -> Assert (fe e)
-    | Assume e -> Assume (fe e)
     | MacroApply (m, es) -> MacroApply (m, List.map fe es)
     | Switch (e, cases, so, meta) ->
         Switch (fe e, f_cases cases, Option.map (map ~fe f) so, meta)
