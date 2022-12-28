@@ -28,13 +28,17 @@ let argspec =
     [
       ("-i", Arg.String (fun f -> Flags.file := f), " read program from file");
       ("-o", Arg.String (fun o -> Flags.output := o), " write program to file");
-      ("-h",
-        Arg.String (fun f -> Flags.heap_file := f), " write heap to file" );
+      ("-h", Arg.String (fun f -> Flags.heap_file := f), " write heap to file");
       ("-m", Arg.String (fun m -> Flags.mon := m), " monitor mode");
-      ("-mode",
+      ( "-mode",
         Arg.String (fun m -> Flags.mode := m),
         " mode to run: c - Core / p - Plus " );
-      ("-v", Arg.Unit (fun () -> banner (); exit 0), " show version");
+      ( "-v",
+        Arg.Unit
+          (fun () ->
+            banner ();
+            exit 0),
+        " show version" );
       ("--verbose", Arg.Set Flags.verbose, " verbose interpreter");
       ("--parse", Arg.Set Flags.parse, " parse to JSON");
     ]
@@ -143,9 +147,9 @@ let () =
       let prog = Parsing_utils.(parse_prog (load_file !Flags.file)) in
       if !Flags.parse then parse_program prog "";
       core_interpretation prog)
-    else if !Flags.mode = "symbolic" then (
+    else if !Flags.mode = "symbolic" then
       let prog = Parsing_utils.(parse_prog (load_file !Flags.file)) in
-      symbolic_interpretation prog)
+      symbolic_interpretation prog
     else if !Flags.mode = "parse" then (
       let prog = Parsing_utils.(parse_prog (load_file !Flags.file)) in
       parse_program prog "";

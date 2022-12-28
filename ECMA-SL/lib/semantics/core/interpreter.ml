@@ -19,7 +19,6 @@ module M (Mon : SecurityMonitor) = struct
   exception Except of string
 
   type stack_t = Store.t Call_stack.t
-
   type state_t = stack_t * Heap.t * Store.t * string
 
   type return =
@@ -297,8 +296,13 @@ module M (Mon : SecurityMonitor) = struct
       return * Mon.sl SecLabel.t =
     let cs, heap, sto, f = state in
     let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
-      if Stmt.is_basic_stmt s then
-        print_endline (lazy (Printf.sprintf "====================================\nEvaluating >>>>> %s: %s (%s)" f (Stmt.str s) (Stmt.str ~print_expr:str_e s)));
+    if Stmt.is_basic_stmt s then
+      print_endline
+        (lazy
+          (Printf.sprintf
+             "====================================\n\
+              Evaluating >>>>> %s: %s (%s)" f (Stmt.str s)
+             (Stmt.str ~print_expr:str_e s)));
     match s with
     | Skip -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
     | Exception str ->

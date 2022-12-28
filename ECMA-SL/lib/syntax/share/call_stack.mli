@@ -1,7 +1,4 @@
-type 'a sft =
-  | Intermediate of (Stmt.t list * 'a * string * string)
-  | Toplevel
-
+type 'a sft = Intermediate of (Stmt.t list * 'a * string * string) | Toplevel
 type 'a t
 
 exception Empty_stack
