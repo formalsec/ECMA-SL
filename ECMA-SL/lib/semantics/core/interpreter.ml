@@ -26,7 +26,7 @@ module M (Mon : SecurityMonitor) = struct
     | Errorv of Val.t option
     | Finalv of Val.t option
 
-  let add_fields_to (obj : Object.t) (fes : (Field.t * Expr.t) list)
+  let add_fields_to (obj : Val.t Object.t) (fes : (Field.t * Expr.t) list)
       (eval_e : Expr.t -> Val.t) : unit =
     List.iter
       (fun (f, e) ->
@@ -315,7 +315,9 @@ module M (Mon : SecurityMonitor) = struct
         (match v with
         | Loc l -> (
             match Heap.get heap l with
-            | Some o -> print_endline (lazy ("PROGRAM PRINT: " ^ Object.str o))
+            | Some o ->
+                print_endline
+                  (lazy ("PROGRAM PRINT: " ^ Heap.object_to_string o))
             | None ->
                 print_endline (lazy "PROGRAM PRINT: Non-existent location"))
         | _ -> print_endline (lazy ("PROGRAM PRINT: " ^ Val.str v)));

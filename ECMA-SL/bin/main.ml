@@ -87,7 +87,7 @@ let inline_compiler () : Prog.t =
 let core_interpretation (prog : Prog.t) : exit_code =
   let v, heap = Interpreter.eval_prog prog !Flags.mon !Flags.target in
   if !Flags.heap_file <> "" then
-    File_utils.burn_to_disk !Flags.heap_file (Heap.str_with_global heap);
+    File_utils.burn_to_disk !Flags.heap_file (Heap.to_string_with_glob heap);
   match v with
   | Some z -> (
       match z with
@@ -115,7 +115,7 @@ let core_interpretation (prog : Prog.t) : exit_code =
       ERROR
 
 let symbolic_interpretation (prog : Prog.t) : exit_code =
-  let _ = Seval.invoke prog !Flags.target in
+  let _ = Eval.invoke prog !Flags.target in
   SUCCESS
 
 (* Main function *)

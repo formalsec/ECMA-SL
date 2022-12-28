@@ -40,11 +40,12 @@ let rec encode_value (v : Sval.t) : Z3.Expr.expr =
   | _ ->
       failwith ("Encoding: encode_value: '" ^ Sval.str v ^ "' not implemented!")
 
-let check_unsat (vs : Sval.t list) : bool =
+let check (vs : Sval.t list) : bool =
   let vs' = List.map encode_value vs in
+  List.iter (fun e -> Logging.print_endline (lazy (Z3.Expr.to_string e))) vs';
   let solver = Z3.Solver.mk_solver ctx None in
   let _ = Z3.Solver.add solver vs' in
   let ret = Z3.Solver.check solver [] in
-  let b = ret = Z3.Solver.UNSATISFIABLE in
-  Printf.printf "leaving unsat check with return %b\n" b;
+  let b = ret = Z3.Solver.SATISFIABLE in
+  Logging.print_endline (lazy ("leaving check with return " ^ string_of_bool b));
   b

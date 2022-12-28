@@ -25,7 +25,7 @@ let rec read_primitive_type (p_type : Yojson.Basic.t) : Val.t =
         | _ -> Str s)
   | _ -> invalid_arg "Expecting a primitive type or Null"
 
-let read_json_obj (json_obj : Yojson.Basic.t) : Object.t =
+let read_json_obj (json_obj : Yojson.Basic.t) : Val.t Object.t =
   match json_obj with
   | `Assoc fvs ->
       let obj = Object.create () in

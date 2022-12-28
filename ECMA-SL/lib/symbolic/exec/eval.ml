@@ -11,11 +11,11 @@ let eval_small_step
     (prog : Prog.t) 
     (state : state_t) 
     (cont : Stmt.t list) 
-    (s : Stmt.t) : intermediate_t list =
-  
+    (s : Stmt.t) : (intermediate_t list, return_t list) =
+
   let (cs, hp, sto, f) = state in 
 
-  match s with      
+  match s with
     | Assign (x, e) ->
       let v = eval_expr sto e in
       SStore.set sto x v;
@@ -23,13 +23,14 @@ let eval_small_step
 
 let rec small_step_iter
   (prog : Prog.t) 
-  (states : intermediate_t list) : return_t list = 
+  (states : intermediate_t list)
+  (finals : return_t list) : return_t list = 
 *)
 open Func
 
 type func = string
 type stack = Sstore.t Call_stack.t
-type state = Heap.t * Sstore.t * stack * func
+type state = Sheap.t * Sstore.t * stack * func
 
 type outcome =
   | Cont of Stmt.t list
@@ -68,7 +69,9 @@ let step (c : config) : config =
   let { prog; code; state; pc } = c in
   let heap, store, stack, f = state in
   let stmts =
-    match code with Cont stmts -> stmts | _ -> failwith "Empty Cont"
+    match code with
+    | Cont stmts -> stmts
+    | _ -> raise (Runtime_error "Empty Cont")
   in
   let s = List.hd stmts in
   let code', state', pc' =
@@ -83,12 +86,12 @@ let step (c : config) : config =
     | Stmt.Fail e -> (Error (Some (eval_expression store e)), state, pc)
     | Stmt.Assume e ->
         let v = eval_expression store e in
-        if Encoding.check_unsat (v :: pc) then (Final (Some v), state, pc)
+        if not (Encoding.check (v :: pc)) then (Final (Some v), state, pc)
         else (Cont (List.tl stmts), state, v :: pc)
     | Stmt.Assert e ->
         let v = eval_expression store e in
         let v' = eval_expression store (Expr.UnOpt (Oper.Not, e)) in
-        if not (Encoding.check_unsat (v' :: pc)) then (Error (Some v), state, pc)
+        if Encoding.check (v' :: pc) then (Error (Some v), state, pc)
         else (Cont (List.tl stmts), state, v :: pc)
     | Stmt.Assign (x, e) ->
         let v = eval_expression store e in
@@ -103,8 +106,11 @@ let step (c : config) : config =
     | Stmt.Block block -> (Cont (block @ List.tl stmts), state, pc)
     | Stmt.AssignNewObj x ->
         let obj = Object.create () in
-        let loc = Sval.Loc (Heap.insert heap obj) in
-        (Cont (List.tl stmts), (heap, Sstore.add store x loc, stack, f), pc)
+        let loc = Loc.newloc () in
+        let loc' = Sval.Loc loc in
+        ( Cont (List.tl stmts),
+          (Sheap.add heap loc obj, Sstore.add store x loc', stack, f),
+          pc )
     | _ -> failwith ("Seval: step: \"" ^ Stmt.str s ^ "\" not implemented!")
   in
   { c with code = code'; state = state'; pc = pc' }
@@ -121,7 +127,7 @@ let rec eval (c : config) : config =
 
 let invoke (prog : Prog.t) (f : func) : config =
   let func = Prog.get_func prog f in
-  let heap = Heap.create ()
+  let heap = Sheap.create ()
   and store = Sstore.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
   let state = (heap, store, stack, f) in

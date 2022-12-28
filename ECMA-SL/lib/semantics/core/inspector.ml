@@ -70,7 +70,7 @@ let rec inspector (heap : Heap.t) (sto : Store.t) : unit =
       (match v with
       | Val.Loc l -> (
           match Heap.get heap l with
-          | Some o -> Printf.printf "Obj: %s\n" (Object.str o)
+          | Some o -> Printf.printf "Obj: %s\n" (Heap.object_to_string o)
           | None -> Printf.printf "Obj: %s\n" "Non-Existent")
       | _ -> Printf.printf "Provided Location is not an object. Try again!\n");
       f ()
@@ -78,7 +78,7 @@ let rec inspector (heap : Heap.t) (sto : Store.t) : unit =
       Printf.printf "%s" (Store.str sto);
       f ()
   | Some ShowHeap ->
-      Printf.printf "%s" (Heap.str heap);
+      Printf.printf "%s" (Heap.to_string heap);
       f ()
   | Some Continue -> ()
   | None ->

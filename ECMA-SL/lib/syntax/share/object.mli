@@ -1,10 +1,8 @@
-type t
+type 'a t = (Field.t, 'a) Hashtbl.t
 
-val create : unit -> t
-val get : t -> Field.t -> Val.t option
-val set : t -> Field.t -> Val.t -> unit
-val delete : t -> Field.t -> unit
-val to_list : t -> (Field.t * Val.t) list
-val get_fields : t -> Field.t list
-val str : t -> string
-val to_json : t -> string
+val create : unit -> 'a t
+val get : 'a t -> Field.t -> 'a option
+val set : 'a t -> Field.t -> 'a -> unit
+val delete : 'a t -> Field.t -> unit
+val to_list : 'a t -> (Field.t * 'a) list
+val get_fields : 'a t -> Field.t list
