@@ -13,7 +13,7 @@ type t =
   | Symbol of string
   | Curry of string * t list
   | Byte of int
-  | Symbolic of Type.t
+  | Symbolic of Type.t * string
   | Unop of Oper.uopt * t
   | Binop of Oper.bopt * t * t
 
@@ -69,7 +69,7 @@ let rec str ?(flt_with_dot = true) (v : t) : string =
       Printf.sprintf "{\"%s\"}@(%s)" s
         (String.concat ", " (List.map (str ~flt_with_dot) vs))
   | Byte i -> string_of_int i
-  | Symbolic t -> ""
+  | Symbolic (_, _) -> ""
   | Unop (_, _) -> ""
   | Binop (_, _, _) -> ""
 

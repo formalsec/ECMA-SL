@@ -1,5 +1,5 @@
 function main () {
-  x := symbolic(__$Int);
+  x := symbolic(__$Int, "x");
   assume (x > 10);
   x := x * 2;
   assert (x > 20);

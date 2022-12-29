@@ -208,8 +208,8 @@ e_expr_target:
     { E_Expr.Lookup (e, E_Expr.Val (Val.Str f)) }
   | e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
     { E_Expr.Lookup (e, f) }
-  | SYMBOLIC; LPAREN; t = type_target; RPAREN;
-    { E_Expr.Symbolic t }
+  | SYMBOLIC; LPAREN; t = type_target; COMMA; x = STRING; RPAREN;
+    { E_Expr.Symbolic (t, x) }
   | v = val_target;
     { E_Expr.Val v }
   | v = VAR;

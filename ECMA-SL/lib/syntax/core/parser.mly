@@ -147,8 +147,8 @@ expr_target:
     { Expr.Val v }
   | v = VAR;
     { Expr.Var v }
-  | SYMBOLIC; LPAREN; t = type_target; RPAREN;
-    { Expr.Symbolic t }
+  | SYMBOLIC; LPAREN; t = type_target; COMMA; x = STRING; RPAREN;
+    { Expr.Symbolic (t, x) }
   | LBRACE; e = expr_target; RBRACE; AT_SIGN; LPAREN; es = separated_list (COMMA, expr_target); RPAREN;
     { Expr.Curry (e, es) }
   | MINUS; e = expr_target;

@@ -62,7 +62,7 @@ let rec eval_expression (store : Sstore.t) (e : Expr.t) : Sval.t =
   | Expr.NOpt (op, es) ->
       let vs = List.map (eval_expression store) es in
       Eval_operations.eval_nop op vs
-  | Expr.Symbolic t -> Sval.Symbolic t
+  | Expr.Symbolic (t, x) -> Sval.Symbolic (t, x)
   | _ -> failwith ("eval_expression: \"" ^ Expr.str e ^ "\"not implemented!")
 
 let step (c : config) : config =

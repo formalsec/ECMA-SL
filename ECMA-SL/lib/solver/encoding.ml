@@ -30,7 +30,7 @@ let encode_binop (op : Oper.bopt) (v1 : Z3.Expr.expr) (v2 : Z3.Expr.expr) :
 let rec encode_value (v : Sval.t) : Z3.Expr.expr =
   match v with
   | Sval.Int i -> Z3.Arithmetic.Integer.mk_numeral_i ctx i
-  | Sval.Symbolic t -> Z3.Expr.mk_const_s ctx "x" int_sort
+  | Sval.Symbolic (t, x) -> Z3.Expr.mk_const_s ctx x int_sort
   | Sval.Unop (op, v) ->
       let v' = encode_value v in
       encode_unop op v'

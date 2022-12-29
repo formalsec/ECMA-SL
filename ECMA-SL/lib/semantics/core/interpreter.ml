@@ -186,7 +186,7 @@ module M (Mon : SecurityMonitor) = struct
         match fv with
         | Str s -> Val.Curry (s, vs)
         | _ -> failwith "Illegal Curry Expression")
-    | Symbolic t -> (
+    | Symbolic (t, _) -> (
         match t with
         | Type.IntType ->
             Random.self_init ();
