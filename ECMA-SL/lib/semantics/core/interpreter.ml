@@ -1,9 +1,9 @@
 open Val
-open Oper
 open Expr
 open Stmt
 open Func
 open Logging
+open Operators
 
 module type SecurityMonitor = sig
   type state_t
@@ -34,35 +34,35 @@ module M (Mon : SecurityMonitor) = struct
         Object.set obj f e')
       fes
 
-  let eval_unop (op : Oper.uopt) (v : Val.t) : Val.t =
+  let eval_unop (op : uopt) (v : Val.t) : Val.t =
     match op with
-    | Neg -> Oper.neg v
-    | Not -> Oper.not v
-    | IsNaN -> Oper.is_NaN v
-    | BitwiseNot -> Oper.bitwise_not v
-    | Typeof -> Oper.typeof v
-    | ListLen -> Oper.l_len v
-    | TupleLen -> Oper.t_len v
-    | StringLen -> Oper.s_len v
-    | StringLenU -> Oper.s_len_u v
-    | Head -> Oper.head v
-    | Tail -> Oper.tail v
-    | First -> Oper.first v
-    | Second -> Oper.second v
-    | LRemoveLast -> Oper.list_remove_last v
-    | LSort -> Oper.list_sort v
-    | LReverse -> Oper.list_reverse v
-    | IntToFloat -> Oper.int_to_float v
-    | IntToString -> Oper.int_to_string v
-    | IntToFourHex -> Oper.int_to_four_hex v
-    | IntOfString -> Oper.int_of_string v
-    | IntOfFloat -> Oper.int_of_float v
-    | FloatToString -> Oper.float_to_string v
-    | FloatOfString -> Oper.float_of_string v
-    | HexDecode -> Oper.hex_decode v
-    | Utf8Decode -> Oper.utf8_decode v
-    | OctalToDecimal -> Oper.octal_to_decimal v
-    | Sconcat -> Oper.string_concat v
+    | Neg -> neg v
+    | Not -> not v
+    | IsNaN -> is_NaN v
+    | BitwiseNot -> bitwise_not v
+    | Typeof -> typeof v
+    | ListLen -> l_len v
+    | TupleLen -> t_len v
+    | StringLen -> s_len v
+    | StringLenU -> s_len_u v
+    | Head -> head v
+    | Tail -> tail v
+    | First -> first v
+    | Second -> second v
+    | LRemoveLast -> list_remove_last v
+    | LSort -> list_sort v
+    | LReverse -> list_reverse v
+    | IntToFloat -> int_to_float v
+    | IntToString -> int_to_string v
+    | IntToFourHex -> int_to_four_hex v
+    | IntOfString -> int_of_string v
+    | IntOfFloat -> int_of_float v
+    | FloatToString -> float_to_string v
+    | FloatOfString -> float_of_string v
+    | HexDecode -> hex_decode v
+    | Utf8Decode -> utf8_decode v
+    | OctalToDecimal -> octal_to_decimal v
+    | Sconcat -> string_concat v
     | ObjToList ->
         raise
           (Failure
@@ -71,91 +71,91 @@ module M (Mon : SecurityMonitor) = struct
         raise
           (Failure
              "Unexpected call to Interpreter.eval_unop with operator ObjFields")
-    | ToInt -> Oper.to_int v
-    | ToInt32 -> Oper.to_int32 v
-    | ToUint32 -> Oper.to_uint32 v
-    | FromCharCode -> Oper.from_char_code v
-    | FromCharCodeU -> Oper.from_char_code_u v
-    | ToCharCode -> Oper.to_char_code v
-    | ToCharCodeU -> Oper.to_char_code_u v
-    | ToLowerCase -> Oper.to_lower_case v
-    | ToUpperCase -> Oper.to_upper_case v
-    | Trim -> Oper.trim v
-    | ToUint16 -> Oper.to_uint16 v
-    | ParseNumber -> Oper.parse_number v
-    | ParseString -> Oper.parse_string v
-    | ParseDate -> Oper.parse_date v
-    | Log_2 -> Oper.log_2 v
-    | Float64ToLEBytes -> Oper.float64_to_le_bytes v
-    | Float64ToBEBytes -> Oper.float64_to_be_bytes v
-    | Float32ToLEBytes -> Oper.float32_to_le_bytes v
-    | Float32ToBEBytes -> Oper.float32_to_be_bytes v
-    | Float64FromLEBytes -> Oper.float64_from_le_bytes v
-    | Float64FromBEBytes -> Oper.float64_from_be_bytes v
-    | Float32FromLEBytes -> Oper.float32_from_le_bytes v
-    | Float32FromBEBytes -> Oper.float32_from_be_bytes v
-    | BytesToString -> Oper.bytes_to_string v
-    | FloatToByte -> Oper.float_to_byte v
-    | ArrayLen -> Oper.a_len v
-    | ListToArray -> Oper.list_to_array v
-    | _ -> Oper.apply_uopt_oper op v
+    | ToInt -> to_int v
+    | ToInt32 -> to_int32 v
+    | ToUint32 -> to_uint32 v
+    | FromCharCode -> from_char_code v
+    | FromCharCodeU -> from_char_code_u v
+    | ToCharCode -> to_char_code v
+    | ToCharCodeU -> to_char_code_u v
+    | ToLowerCase -> to_lower_case v
+    | ToUpperCase -> to_upper_case v
+    | Trim -> trim v
+    | ToUint16 -> to_uint16 v
+    | ParseNumber -> parse_number v
+    | ParseString -> parse_string v
+    | ParseDate -> parse_date v
+    | Log_2 -> log_2 v
+    | Float64ToLEBytes -> float64_to_le_bytes v
+    | Float64ToBEBytes -> float64_to_be_bytes v
+    | Float32ToLEBytes -> float32_to_le_bytes v
+    | Float32ToBEBytes -> float32_to_be_bytes v
+    | Float64FromLEBytes -> float64_from_le_bytes v
+    | Float64FromBEBytes -> float64_from_be_bytes v
+    | Float32FromLEBytes -> float32_from_le_bytes v
+    | Float32FromBEBytes -> float32_from_be_bytes v
+    | BytesToString -> bytes_to_string v
+    | FloatToByte -> float_to_byte v
+    | ArrayLen -> a_len v
+    | ListToArray -> list_to_array v
+    | _ -> apply_uopt_oper op v
 
-  let eval_binopt_expr (op : Oper.bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
+  let eval_binopt_expr (op : bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
     match op with
-    | Plus -> Oper.plus (v1, v2)
-    | Minus -> Oper.minus (v1, v2)
-    | Times -> Oper.times (v1, v2)
-    | Div -> Oper.div (v1, v2)
-    | Modulo -> Oper.modulo (v1, v2)
-    | Equal -> Oper.equal (v1, v2)
-    | Gt -> Oper.gt (v1, v2)
-    | Lt -> Oper.lt (v1, v2)
-    | Egt -> Oper.egt (v1, v2)
-    | Elt -> Oper.elt (v1, v2)
-    | Log_And -> Oper.log_and (v1, v2)
-    | Log_Or -> Oper.log_or (v1, v2)
-    | BitwiseAnd -> Oper.bitwise_and (v1, v2)
-    | BitwiseOr -> Oper.bitwise_or (v1, v2)
-    | BitwiseXor -> Oper.bitwise_xor (v1, v2)
-    | ShiftLeft -> Oper.shift_left (v1, v2)
-    | ShiftRight -> Oper.shift_right (v1, v2)
-    | ShiftRightLogical -> Oper.shift_right_logical (v1, v2)
-    | Lnth -> Oper.list_nth (v1, v2)
-    | LRemNth -> Oper.list_remove_nth (v1, v2)
-    | LRem -> Oper.list_remove (v1, v2)
-    | Tnth -> Oper.tuple_nth (v1, v2)
-    | Snth -> Oper.s_nth (v1, v2)
-    | Snth_u -> Oper.s_nth_u (v1, v2)
-    | Ssplit -> Oper.string_split (v1, v2)
-    | Ladd -> Oper.list_add (v1, v2)
-    | Lprepend -> Oper.list_prepend (v1, v2)
-    | Lconcat -> Oper.list_concat (v1, v2)
-    | InList -> Oper.list_in (v1, v2)
+    | Plus -> plus (v1, v2)
+    | Minus -> minus (v1, v2)
+    | Times -> times (v1, v2)
+    | Div -> div (v1, v2)
+    | Modulo -> modulo (v1, v2)
+    | Equal -> equal (v1, v2)
+    | Gt -> gt (v1, v2)
+    | Lt -> lt (v1, v2)
+    | Egt -> egt (v1, v2)
+    | Elt -> elt (v1, v2)
+    | Log_And -> log_and (v1, v2)
+    | Log_Or -> log_or (v1, v2)
+    | BitwiseAnd -> bitwise_and (v1, v2)
+    | BitwiseOr -> bitwise_or (v1, v2)
+    | BitwiseXor -> bitwise_xor (v1, v2)
+    | ShiftLeft -> shift_left (v1, v2)
+    | ShiftRight -> shift_right (v1, v2)
+    | ShiftRightLogical -> shift_right_logical (v1, v2)
+    | Lnth -> list_nth (v1, v2)
+    | LRemNth -> list_remove_nth (v1, v2)
+    | LRem -> list_remove (v1, v2)
+    | Tnth -> tuple_nth (v1, v2)
+    | Snth -> s_nth (v1, v2)
+    | Snth_u -> s_nth_u (v1, v2)
+    | Ssplit -> string_split (v1, v2)
+    | Ladd -> list_add (v1, v2)
+    | Lprepend -> list_prepend (v1, v2)
+    | Lconcat -> list_concat (v1, v2)
+    | InList -> list_in (v1, v2)
     | InObj -> raise (Except "Not expected")
-    | ToPrecision -> Oper.to_precision (v1, v2)
-    | ToExponential -> Oper.to_exponential (v1, v2)
-    | ToFixed -> Oper.to_fixed (v1, v2)
-    | ArrayMake -> Oper.array_make (v1, v2)
-    | Anth -> Oper.array_nth (v1, v2)
-    | IntToBEBytes -> Oper.int_to_be_bytes (v1, v2)
-    | IntFromBytes -> Oper.int_from_le_bytes (v1, v2)
-    | UintFromBytes -> Oper.uint_from_le_bytes (v1, v2)
-    | _ -> Oper.apply_bopt_oper op v1 v2
+    | ToPrecision -> to_precision (v1, v2)
+    | ToExponential -> to_exponential (v1, v2)
+    | ToFixed -> to_fixed (v1, v2)
+    | ArrayMake -> array_make (v1, v2)
+    | Anth -> array_nth (v1, v2)
+    | IntToBEBytes -> int_to_be_bytes (v1, v2)
+    | IntFromBytes -> int_from_le_bytes (v1, v2)
+    | UintFromBytes -> uint_from_le_bytes (v1, v2)
+    | _ -> apply_bopt_oper op v1 v2
 
-  let eval_triopt_expr (op : Oper.topt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) :
+  let eval_triopt_expr (op : topt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) :
       Val.t =
     match op with
-    | Ssubstr -> Oper.s_substr (v1, v2, v3)
-    | SsubstrU -> Oper.s_substr_u (v1, v2, v3)
-    | Aset -> Oper.array_set (v1, v2, v3)
-    | Lset -> Oper.list_set (v1, v2, v3)
+    | Ssubstr -> s_substr (v1, v2, v3)
+    | SsubstrU -> s_substr_u (v1, v2, v3)
+    | Aset -> array_set (v1, v2, v3)
+    | Lset -> list_set (v1, v2, v3)
 
-  let eval_nopt_expr (op : Oper.nopt) (vals : Val.t list) : Val.t =
+  let eval_nopt_expr (op : nopt) (vals : Val.t list) : Val.t =
     match op with
     | ListExpr -> Val.List vals
     | TupleExpr -> Val.Tuple vals
-    | NAry_And -> Val.Bool (List.for_all Oper.is_true vals)
-    | NAry_Or -> Val.Bool (List.exists Oper.is_true vals)
+    | NAry_And -> Val.Bool (List.for_all is_true vals)
+    | NAry_Or -> Val.Bool (List.exists is_true vals)
     | ArrExpr -> Val.Arr (Array.of_list vals)
 
   let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
@@ -339,13 +339,13 @@ module M (Mon : SecurityMonitor) = struct
         (Errorv (Some v), SecLabel.EmptyLab)
     | Assume e ->
         let v = eval_expr sto e in
-        if Oper.is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)
+        if is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)
         else
           let e' = "Assume false: " ^ Expr.str e in
           (Finalv (Some (Val.Str e')), SecLabel.EmptyLab)
     | Assert e ->
         let v = eval_expr sto e in
-        if Oper.is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)
+        if is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)
         else
           let e' = "Assert false: " ^ Expr.str e in
           (Errorv (Some (Val.Str e')), SecLabel.EmptyLab)
@@ -365,7 +365,7 @@ module M (Mon : SecurityMonitor) = struct
         (Intermediate ((cs, heap, sto, f), block @ cont), SecLabel.EmptyLab)
     | If (e, s1, s2) -> (
         let v = eval_expr sto e in
-        if Oper.is_true v then
+        if is_true v then
           match s1 with
           | Block block -> (
               let blockm = block @ (Stmt.Merge :: []) in

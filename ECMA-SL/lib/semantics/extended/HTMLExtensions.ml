@@ -76,7 +76,7 @@ module E_Expr = struct
         | Negative, None -> sprintf "the result of negating <i>%s</i>" x
         | _, None -> "<i>" ^ x ^ "</i>")
     | UnOpt (op, e) -> (
-        let op_str = Oper.str_of_unopt op in
+        let op_str = Operators.str_of_unopt op in
         let f_op = Hashtbl.find_opt unoper_hashtable_html op_str in
         let res_op =
           Option.map_default (fun f -> f ctxt op_str e (Val Val.Null)) None f_op
@@ -86,7 +86,7 @@ module E_Expr = struct
         | None ->
             let e_html = to_html ctxt e in
             sprintf "%s %s" op_str e_html)
-    (* | BinOpt (Oper.Log_And, e1, e2) ->
+    (* | BinOpt (Operators.Log_And, e1, e2) ->
        let e1_html = (to_html TopLevel e1) in
        let e2_html = (to_html TopLevel e2) in
        let subst = Hashtbl.create 0 in
@@ -98,7 +98,7 @@ module E_Expr = struct
        | Negative -> "it is not the case that " ^ str
        | _ -> "it is the case that " ^ str) *)
     | BinOpt (op, e1, e2) -> (
-        let op_str = Oper.str_of_binopt_single op in
+        let op_str = Operators.str_of_binopt_single op in
         let default () =
           let f_op = Hashtbl.find_opt binoper_hashtable_html op_str in
           let res_op =
@@ -145,17 +145,17 @@ module E_Expr = struct
                 sprintf "%s %s %s" e1_html op_str e2_html))
     | NOpt (op, es) -> (
         match (op, es) with
-        | Oper.ListExpr, [] -> "an empty <a href=\"#sec-8.8\">List</a>"
-        | Oper.ListExpr, [ e1 ] ->
+        | Operators.ListExpr, [] -> "an empty <a href=\"#sec-8.8\">List</a>"
+        | Operators.ListExpr, [ e1 ] ->
             sprintf "a <a href=\"#sec-8.8\">List</a> whose sole item is %s"
               (to_html ctxt e1)
-        | Oper.ListExpr, [ e1; e2 ] ->
+        | Operators.ListExpr, [ e1; e2 ] ->
             sprintf "the pair (a two element List) consisting of %s and %s"
               (to_html ctxt e1) (to_html ctxt e2)
         | _, _ ->
             invalid_arg
               ("Invalid n-ary operator passed to E_Expr.to_html: "
-              ^ Oper.str_of_nopt op (List.map str es)))
+              ^ Operators.str_of_nopt op (List.map str es)))
     | Call (f, es, Some g) ->
         let es_idx_to_html (idx : int) : string = aux (List.nth es idx) in
         let f' = to_html Call f in
@@ -348,7 +348,7 @@ module E_Expr = struct
   let call_html_call (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match (ctxt, es) with
     | ( ExprStmt,
-        [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Oper.ListExpr, []) ] )
+        [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, []) ] )
       ->
         Some
           (sprintf
@@ -356,7 +356,7 @@ module E_Expr = struct
               <b>this</b> value and providing no arguments"
              (to_html TopLevel e_o) (to_html TopLevel e_this))
     | ( ExprStmt,
-        [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Oper.ListExpr, [ e ]) ]
+        [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, [ e ]) ]
       ) ->
         Some
           (sprintf
@@ -364,7 +364,7 @@ module E_Expr = struct
               <b>this</b> value and an argument list containing only %s"
              (to_html TopLevel e_o) (to_html TopLevel e_this)
              (to_html TopLevel e))
-    | Let, [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Oper.ListExpr, []) ]
+    | Let, [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, []) ]
       ->
         Some
           (sprintf
@@ -379,7 +379,7 @@ module E_Expr = struct
               <i>args</i>"
              (to_html TopLevel e_o) (to_html TopLevel e_this)
              (to_html TopLevel e_args))
-    | _, [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Oper.ListExpr, []) ]
+    | _, [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, []) ]
       ->
         Some
           (sprintf
@@ -387,7 +387,7 @@ module E_Expr = struct
               providing %s as the <b>this</b> value and providing no arguments"
              (to_html TopLevel e_o) (to_html TopLevel e_this))
     | ( _,
-        [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Oper.ListExpr, [ e ]) ]
+        [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, [ e ]) ]
       ) ->
         Some
           (sprintf
@@ -396,7 +396,7 @@ module E_Expr = struct
               containing only %s"
              (to_html TopLevel e_o) (to_html TopLevel e_this)
              (to_html TopLevel e))
-    | _, [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Oper.ListExpr, arr) ]
+    | _, [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, arr) ]
       ->
         Some
           (sprintf
@@ -478,7 +478,7 @@ module E_Expr = struct
   let call_html_constructor (constructor : string) (ctxt : ctxt_t) (e : t)
       (es : t list) : string option =
     match (ctxt, es) with
-    | Table, [ GVar _; _; _; NOpt (Oper.ListExpr, [ expr ]) ] ->
+    | Table, [ GVar _; _; _; NOpt (Operators.ListExpr, [ expr ]) ] ->
         let built_in, section_html =
           match e with
           | Val (Val.Str "BooleanConstructor") ->
@@ -500,9 +500,9 @@ module E_Expr = struct
           GVar _;
           Val (Val.Symbol "null");
           _;
-          NOpt (Oper.ListExpr, [ Val Val.Null ]);
+          NOpt (Operators.ListExpr, [ Val Val.Null ]);
         ] )
-    | _, [ _; _; _; NOpt (Oper.ListExpr, []) ] ->
+    | _, [ _; _; _; NOpt (Operators.ListExpr, []) ] ->
         let const_hmtl =
           match e with
           | Val (Val.Str "ObjectConstructor") ->
@@ -515,7 +515,7 @@ module E_Expr = struct
              "the result of creating a new object as if by the expression \
               <code><b>new %s()</b></code> where <code><b>%s</b></code> is %s"
              constructor constructor const_hmtl)
-    | _, [ _; _; _; NOpt (Oper.ListExpr, [ e1 ]) ] ->
+    | _, [ _; _; _; NOpt (Operators.ListExpr, [ e1 ]) ] ->
         let const_hmtl =
           match e with
           | Val (Val.Str "ObjectConstructor") ->
@@ -534,7 +534,7 @@ module E_Expr = struct
   let call_html_objectdefineproperties_builtin_method (ctxt : ctxt_t) (e : t)
       (es : t list) : string option =
     match es with
-    | [ _; _; _; NOpt (Oper.ListExpr, [ e1; e2 ]) ] ->
+    | [ _; _; _; NOpt (Operators.ListExpr, [ e1; e2 ]) ] ->
         Some
           (sprintf
              "Add own properties to %s as if by calling the standard built-in \
@@ -662,7 +662,7 @@ module E_Expr = struct
   let call_html_createfunctionobject (ctxt : ctxt_t) (e : t) (es : t list) :
       string option =
     match es with
-    | [ NOpt (Oper.ListExpr, []); e1; e2; e3; _ ] ->
+    | [ NOpt (Operators.ListExpr, []); e1; e2; e3; _ ] ->
         Some
           (sprintf
              "the result of creating a function object as described in <a \
@@ -670,7 +670,7 @@ module E_Expr = struct
               %s for <i><a href=\"#sec-13\">FunctionBody</a></i>, %s as Scope, \
               and %s for <i>Strict</i>"
              (to_html ctxt e1) (to_html ctxt e2) (to_html ctxt e3))
-    | [ NOpt (Oper.ListExpr, [ Val (Val.Str s) ]); e1; e2; e3; _ ] ->
+    | [ NOpt (Operators.ListExpr, [ Val (Val.Str s) ]); e1; e2; e3; _ ] ->
         Some
           (sprintf
              "the result of creating a function object as described in <a \
@@ -747,7 +747,7 @@ module E_Expr = struct
   let oper_html_lnth (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) :
       string option =
     match e2 with
-    | BinOpt (Oper.Minus, x, Val (Val.Int 1)) ->
+    | BinOpt (Operators.Minus, x, Val (Val.Int 1)) ->
         Some
           (sprintf "the value of the %s'th element of %s" (to_html ctxt x)
              (to_html ctxt e1))
@@ -845,13 +845,13 @@ module E_Expr = struct
   let oper_html_sconcat (ctxt : ctxt_t) (op : string) (e : t) _ : string option
       =
     match e with
-    | NOpt (Oper.ListExpr, [ e1; e2; e3 ]) ->
+    | NOpt (Operators.ListExpr, [ e1; e2; e3 ]) ->
         Some
           (sprintf
              "the String value that is the result of concatenating the three \
               Strings %s, %s, and %s"
              (to_html ctxt e1) (to_html ctxt e2) (to_html ctxt e3))
-    | NOpt (Oper.ListExpr, es) ->
+    | NOpt (Operators.ListExpr, es) ->
         Some
           (sprintf "the String that is the result of concatenating %s"
              (match es with
@@ -882,34 +882,34 @@ module E_Expr = struct
 
   let () =
     Hashtbl.add binoper_hashtable_html
-      (Oper.str_of_binopt_single Oper.InObj)
+      (Operators.str_of_binopt_single Operators.InObj)
       oper_html_inobj;
     Hashtbl.add binoper_hashtable_html
-      (Oper.str_of_binopt_single Oper.InList)
+      (Operators.str_of_binopt_single Operators.InList)
       oper_html_inlist;
     Hashtbl.add binoper_hashtable_html
-      (Oper.str_of_binopt_single Oper.Lnth)
+      (Operators.str_of_binopt_single Operators.Lnth)
       oper_html_lnth;
     Hashtbl.add binoper_hashtable_html
-      (Oper.str_of_binopt_single Oper.Equal)
+      (Operators.str_of_binopt_single Operators.Equal)
       oper_html_equal;
     Hashtbl.add unoper_hashtable_html
-      (Oper.str_of_unopt Oper.IntToFloat)
+      (Operators.str_of_unopt Operators.IntToFloat)
       oper_hmtl_print_ignore;
     Hashtbl.add unoper_hashtable_html
-      (Oper.str_of_unopt Oper.Neg)
+      (Operators.str_of_unopt Operators.Neg)
       oper_html_unary_neg;
     Hashtbl.add unoper_hashtable_html
-      (Oper.str_of_unopt Oper.Not)
+      (Operators.str_of_unopt Operators.Not)
       oper_html_unary_neg;
     Hashtbl.add unoper_hashtable_html
-      (Oper.str_of_unopt Oper.ListLen)
+      (Operators.str_of_unopt Operators.ListLen)
       oper_html_unary_len;
     Hashtbl.add unoper_hashtable_html
-      (Oper.str_of_unopt Oper.Sconcat)
+      (Operators.str_of_unopt Operators.Sconcat)
       oper_html_sconcat;
     Hashtbl.add unoper_hashtable_html
-      (Oper.str_of_unopt Oper.BitwiseNot)
+      (Operators.str_of_unopt Operators.BitwiseNot)
       oper_html_bitwisenot;
     Hashtbl.add lookup_hashtable_html "\"Value\""
       (lookup_html_attribute "Value");
@@ -1041,7 +1041,7 @@ module E_Stmt = struct
   let is_special_expr (e : E_Expr.t) : bool =
     match e with
     | E_Expr.Call (E_Expr.Val (Val.Str "InitialGlobalExecutionContext"), _, _)
-    | E_Expr.BinOpt (Oper.Ladd, _, _) ->
+    | E_Expr.BinOpt (Operators.Ladd, _, _) ->
         true
     | _ -> false
 

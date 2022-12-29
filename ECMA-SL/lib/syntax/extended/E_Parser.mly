@@ -3,6 +3,7 @@
 
 %{
   open E_Stmt
+  open Operators
 
   let fresh_lambda_id_gen = String_utils.make_fresh_var_generator "__lambda__"
 %}
@@ -217,11 +218,11 @@ e_expr_target:
   | v = GVAR;
     { E_Expr.GVar v }
   | MAX_VALUE;
-    { E_Expr.Const Oper.MAX_VALUE }
+    { E_Expr.Const MAX_VALUE }
   | MIN_VALUE;
-    { E_Expr.Const Oper.MIN_VALUE }
+    { E_Expr.Const MIN_VALUE }
   | PI;
-    { E_Expr.Const Oper.PI }
+    { E_Expr.Const PI }
   | EXTERN; f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Expr.ECall (f, es) }
   | f = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN; CATCH; g = VAR;
@@ -250,214 +251,214 @@ e_expr_target:
 
 nary_op_target:
   | LBRACK; es = separated_list (COMMA, e_expr_target); RBRACK;
-    { E_Expr.NOpt (Oper.ListExpr, es) }
+    { E_Expr.NOpt (ListExpr, es) }
   | LPAREN; t = tuple_target; RPAREN;
-    { E_Expr.NOpt (Oper.TupleExpr, List.rev t) }
+    { E_Expr.NOpt (TupleExpr, List.rev t) }
   (*| LARRBRACK; es = separated_list (COMMA, e_expr_target); RARRBRACK;
-    { E_Expr.NOpt (Oper.ArrExpr, es) }*)
+    { E_Expr.NOpt (ArrExpr, es) }*)
 
 prefix_unary_op_target:
   | MINUS; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Neg, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Neg, e) } %prec unopt_prec
   | NOT; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Not, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Not, e) } %prec unopt_prec
   | IS_NAN; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.IsNaN, e) } %prec unopt_prec
+    { E_Expr.UnOpt (IsNaN, e) } %prec unopt_prec
   | BITWISE_NOT; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.BitwiseNot, e) } %prec unopt_prec
+    { E_Expr.UnOpt (BitwiseNot, e) } %prec unopt_prec
   | LLEN; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ListLen, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ListLen, e) } %prec unopt_prec
   | TLEN; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.TupleLen, e) } %prec unopt_prec
+    { E_Expr.UnOpt (TupleLen, e) } %prec unopt_prec
   | SLEN; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.StringLen, e) } %prec unopt_prec
+    { E_Expr.UnOpt (StringLen, e) } %prec unopt_prec
   | SLEN_U; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.StringLenU, e) } %prec unopt_prec
+    { E_Expr.UnOpt (StringLenU, e) } %prec unopt_prec
   | TYPEOF; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Typeof, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Typeof, e) } %prec unopt_prec
   | HD; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Head, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Head, e) } %prec unopt_prec
   | TL; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Tail, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Tail, e) } %prec unopt_prec
   | FST; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.First, e) } %prec unopt_prec
+    { E_Expr.UnOpt (First, e) } %prec unopt_prec
   | SND; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Second, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Second, e) } %prec unopt_prec
   | LREMOVELAST; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.LRemoveLast, e) } %prec unopt_prec
+    { E_Expr.UnOpt (LRemoveLast, e) } %prec unopt_prec
   | LSORT; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.LSort, e) } %prec unopt_prec
+    { E_Expr.UnOpt (LSort, e) } %prec unopt_prec
   | INT_TO_FLOAT; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.IntToFloat, e) } %prec unopt_prec
+    { E_Expr.UnOpt (IntToFloat, e) } %prec unopt_prec
   | INT_TO_STRING; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.IntToString, e) } %prec unopt_prec
+    { E_Expr.UnOpt (IntToString, e) } %prec unopt_prec
   | INT_TO_FOUR_HEX; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.IntToFourHex, e) } %prec unopt_prec
+    { E_Expr.UnOpt (IntToFourHex, e) } %prec unopt_prec
   | HEX_DECODE; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.HexDecode, e) } %prec unopt_prec
+    { E_Expr.UnOpt (HexDecode, e) } %prec unopt_prec
   | UTF8_DECODE; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Utf8Decode, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Utf8Decode, e) } %prec unopt_prec
   | OCTAL_TO_DECIMAL; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.OctalToDecimal, e) } %prec unopt_prec
+    { E_Expr.UnOpt (OctalToDecimal, e) } %prec unopt_prec
   | INT_OF_STRING; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.IntOfString, e) } %prec unopt_prec
+    { E_Expr.UnOpt (IntOfString, e) } %prec unopt_prec
   | INT_OF_FLOAT; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.IntOfFloat, e) } %prec unopt_prec
+    { E_Expr.UnOpt (IntOfFloat, e) } %prec unopt_prec
   | FLOAT_TO_STRING; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.FloatToString, e) } %prec unopt_prec
+    { E_Expr.UnOpt (FloatToString, e) } %prec unopt_prec
   | FLOAT_OF_STRING; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.FloatOfString, e) } %prec unopt_prec
+    { E_Expr.UnOpt (FloatOfString, e) } %prec unopt_prec
   | TO_INT; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ToInt, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ToInt, e) } %prec unopt_prec
   | TO_INT32; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ToInt32, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ToInt32, e) } %prec unopt_prec
   | TO_UINT32; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ToUint32, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ToUint32, e) } %prec unopt_prec
   | FROM_CHAR_CODE; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.FromCharCode, e) } %prec unopt_prec
+    { E_Expr.UnOpt (FromCharCode, e) } %prec unopt_prec
   | FROM_CHAR_CODE_U; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.FromCharCodeU, e) } %prec unopt_prec
+    { E_Expr.UnOpt (FromCharCodeU, e) } %prec unopt_prec
   | TO_CHAR_CODE; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ToCharCode, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ToCharCode, e) } %prec unopt_prec
   | TO_CHAR_CODE_U; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ToCharCodeU, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ToCharCodeU, e) } %prec unopt_prec
   | TO_LOWER_CASE; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ToLowerCase, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ToLowerCase, e) } %prec unopt_prec
   | TO_UPPER_CASE; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ToUpperCase, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ToUpperCase, e) } %prec unopt_prec
   | TRIM; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Trim, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Trim, e) } %prec unopt_prec
   | TO_UINT16; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ToUint16, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ToUint16, e) } %prec unopt_prec
   | ABS; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Abs, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Abs, e) } %prec unopt_prec
   | ACOS; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Acos, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Acos, e) } %prec unopt_prec
   | ASIN; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Asin, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Asin, e) } %prec unopt_prec
   | ATAN; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Atan, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Atan, e) } %prec unopt_prec
   | CEIL; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Ceil, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Ceil, e) } %prec unopt_prec
   | COS; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Cos, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Cos, e) } %prec unopt_prec
   | EXP; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Exp, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Exp, e) } %prec unopt_prec
   | FLOOR; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Floor, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Floor, e) } %prec unopt_prec
   | LOG_E; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Log_e, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Log_e, e) } %prec unopt_prec
   | LOG_10; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Log_10, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Log_10, e) } %prec unopt_prec
   | RANDOM; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Random, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Random, e) } %prec unopt_prec
   | SIN; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Sin, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Sin, e) } %prec unopt_prec
   | SQRT; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Sqrt, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Sqrt, e) } %prec unopt_prec
   | TAN; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Tan, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Tan, e) } %prec unopt_prec
   | OBJ_TO_LIST; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ObjToList, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ObjToList, e) } %prec unopt_prec
   | SCONCAT; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Sconcat, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Sconcat, e) } %prec unopt_prec
   | OBJ_FIELDS; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ObjFields, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ObjFields, e) } %prec unopt_prec
   | PARSE_NUMBER; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ParseNumber, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ParseNumber, e) } %prec unopt_prec
   | PARSE_STRING; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ParseString, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ParseString, e) } %prec unopt_prec
   | PARSE_DATE; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ParseDate, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ParseDate, e) } %prec unopt_prec
   | LREVERSE; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.LReverse, e) } %prec unopt_prec
+    { E_Expr.UnOpt (LReverse, e) } %prec unopt_prec
   | COSH; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Cosh, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Cosh, e) } %prec unopt_prec
   | LOG_2; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Log_2, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Log_2, e) } %prec unopt_prec
   | SINH; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Sinh, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Sinh, e) } %prec unopt_prec
   | TANH; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Tanh, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Tanh, e) } %prec unopt_prec
   | FLOAT64_TO_LE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Float64ToLEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float64ToLEBytes, e) } %prec unopt_prec 
   | FLOAT64_TO_BE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Float64ToBEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float64ToBEBytes, e) } %prec unopt_prec 
   | FLOAT32_TO_LE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Float32ToLEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float32ToLEBytes, e) } %prec unopt_prec 
   | FLOAT32_TO_BE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Float32ToBEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float32ToBEBytes, e) } %prec unopt_prec 
   | FLOAT64_FROM_LE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Float64FromLEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float64FromLEBytes, e) } %prec unopt_prec 
   | FLOAT64_FROM_BE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Float64FromBEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float64FromBEBytes, e) } %prec unopt_prec 
   | FLOAT32_FROM_LE_BYTES; e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Float32FromLEBytes, e) } %prec unopt_prec 
+    { E_Expr.UnOpt (Float32FromLEBytes, e) } %prec unopt_prec 
   | FLOAT32_FROM_BE_BYTES  e = e_expr_target;
-    { E_Expr.UnOpt (Oper.Float32FromBEBytes, e) } %prec unopt_prec
+    { E_Expr.UnOpt (Float32FromBEBytes, e) } %prec unopt_prec
   | BYTES_TO_STRING  e = e_expr_target;
-    { E_Expr.UnOpt (Oper.BytesToString, e) } %prec unopt_prec
+    { E_Expr.UnOpt (BytesToString, e) } %prec unopt_prec
   | FLOAT_TO_BYTE e = e_expr_target;
-    { E_Expr.UnOpt (Oper.FloatToByte, e) } %prec unopt_prec
+    { E_Expr.UnOpt (FloatToByte, e) } %prec unopt_prec
   | ALEN  e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ArrayLen, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ArrayLen, e) } %prec unopt_prec
   |  LIST_TO_ARRAY e = e_expr_target;
-    { E_Expr.UnOpt (Oper.ListToArray, e) } %prec unopt_prec
+    { E_Expr.UnOpt (ListToArray, e) } %prec unopt_prec
 
 
 prefix_binary_op_target:
   | LNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.Lnth, e1, e2) }
+    { E_Expr.BinOpt (Lnth, e1, e2) }
   | LREM; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.LRem, e1, e2) }
+    { E_Expr.BinOpt (LRem, e1, e2) }
   | LREMNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.LRemNth, e1, e2) }
+    { E_Expr.BinOpt (LRemNth, e1, e2) }
   | TNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.Tnth, e1, e2) }
+    { E_Expr.BinOpt (Tnth, e1, e2) }
   | SNTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.Snth, e1, e2) }
+    { E_Expr.BinOpt (Snth, e1, e2) }
   | SNTH_U; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.Snth_u, e1, e2) }
+    { E_Expr.BinOpt (Snth_u, e1, e2) }
   | SSPLIT; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.Ssplit, e1, e2) }
+    { E_Expr.BinOpt (Ssplit, e1, e2) }
   | LADD; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.Ladd, e1, e2) }
+    { E_Expr.BinOpt (Ladd, e1, e2) }
   | LPREPEND; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.Lprepend, e1, e2) }
+    { E_Expr.BinOpt (Lprepend, e1, e2) }
   | LCONCAT; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.Lconcat, e1, e2) }
+    { E_Expr.BinOpt (Lconcat, e1, e2) }
   | ATAN_2; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.Atan2, e1, e2) }
+    { E_Expr.BinOpt (Atan2, e1, e2) }
   | MAX; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.Max, e1, e2) }
+    { E_Expr.BinOpt (Max, e1, e2) }
   | MIN; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.Min, e1, e2) }
+    { E_Expr.BinOpt (Min, e1, e2) }
   | TO_PRECISION; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN; 
-    { E_Expr.BinOpt (Oper.ToPrecision, e1, e2) }
+    { E_Expr.BinOpt (ToPrecision, e1, e2) }
   | TO_EXPONENTIAL; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN; 
-    { E_Expr.BinOpt (Oper.ToExponential, e1, e2) }
+    { E_Expr.BinOpt (ToExponential, e1, e2) }
   | TO_FIXED; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN; 
-    { E_Expr.BinOpt (Oper.ToFixed, e1, e2) }
+    { E_Expr.BinOpt (ToFixed, e1, e2) }
   | ARRAY_MAKE; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.ArrayMake, e1, e2) }
+    { E_Expr.BinOpt (ArrayMake, e1, e2) }
   | ANTH; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.Anth, e1, e2) }
+    { E_Expr.BinOpt (Anth, e1, e2) }
   | INT_TO_BE_BYTES; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.IntToBEBytes, e1, e2) }
+    { E_Expr.BinOpt (IntToBEBytes, e1, e2) }
   | INT_FROM_BYTES; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.IntFromBytes, e1, e2) }
+    { E_Expr.BinOpt (IntFromBytes, e1, e2) }
   | UINT_FROM_BYTES; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; RPAREN;
-    { E_Expr.BinOpt (Oper.UintFromBytes, e1, e2) }
+    { E_Expr.BinOpt (UintFromBytes, e1, e2) }
 
 prefix_trinary_op_target:
   | SSUBSTR; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
-    { E_Expr.TriOpt (Oper.Ssubstr, e1, e2, e3) }
+    { E_Expr.TriOpt (Ssubstr, e1, e2, e3) }
   | SSUBSTR_U; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
-    { E_Expr.TriOpt (Oper.SsubstrU, e1, e2, e3) }
+    { E_Expr.TriOpt (SsubstrU, e1, e2, e3) }
   | ASET; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
-    { E_Expr.TriOpt (Oper.Aset, e1, e2, e3) }
+    { E_Expr.TriOpt (Aset, e1, e2, e3) }
   | LSET; LPAREN; e1 = e_expr_target; COMMA; e2 = e_expr_target; COMMA; e3 = e_expr_target; RPAREN;
-    { E_Expr.TriOpt (Oper.Lset, e1, e2, e3) }
+    { E_Expr.TriOpt (Lset, e1, e2, e3) }
 
 infix_binary_op_target:
   | e1 = e_expr_target; bop = op_target; e2 = e_expr_target;
@@ -617,27 +618,27 @@ e_pat_v_pat_target:
     { E_Pat_v.PatNone }
 
 %inline op_target:
-  | MINUS   { Oper.Minus }
-  | PLUS    { Oper.Plus }
-  | TIMES   { Oper.Times }
-  | DIVIDE  { Oper.Div }
-  | MODULO  { Oper.Modulo }
-  | EQUAL   { Oper.Equal }
-  | GT      { Oper.Gt }
-  | LT      { Oper.Lt }
-  | EGT     { Oper.Egt }
-  | ELT     { Oper.Elt }
-  | LAND    { Oper.Log_And }
-  | LOR     { Oper.Log_Or }
-  | BITWISE_AND { Oper.BitwiseAnd }
-  | PIPE { Oper.BitwiseOr }
-  | BITWISE_XOR { Oper.BitwiseXor }
-  | SHIFT_LEFT { Oper.ShiftLeft }
-  | SHIFT_RIGHT { Oper.ShiftRight }
-  | SHIFT_RIGHT_LOGICAL { Oper.ShiftRightLogical }
-  | IN_OBJ  { Oper.InObj }
-  | IN_LIST { Oper.InList }
-  | POW     { Oper.Pow }
+  | MINUS   { Minus }
+  | PLUS    { Plus }
+  | TIMES   { Times }
+  | DIVIDE  { Div }
+  | MODULO  { Modulo }
+  | EQUAL   { Equal }
+  | GT      { Gt }
+  | LT      { Lt }
+  | EGT     { Egt }
+  | ELT     { Elt }
+  | LAND    { Log_And }
+  | LOR     { Log_Or }
+  | BITWISE_AND { BitwiseAnd }
+  | PIPE { BitwiseOr }
+  | BITWISE_XOR { BitwiseXor }
+  | SHIFT_LEFT { ShiftLeft }
+  | SHIFT_RIGHT { ShiftRight }
+  | SHIFT_RIGHT_LOGICAL { ShiftRightLogical }
+  | IN_OBJ  { InObj }
+  | IN_LIST { InList }
+  | POW     { Pow }
 
 %inline e_op_target:
   | SCLAND  { EOper.SCLogAnd }

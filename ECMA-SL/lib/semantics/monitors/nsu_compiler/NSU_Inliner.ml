@@ -8,7 +8,7 @@ exception Except of string
 module M (SL : SecLevel.M) = struct
   let shadow_var_e (s : string) : Expr.t = Expr.Var (shadowvar s)
 
-  let binopt_e (op : Oper.bopt) (e1 : Expr.t) (e2 : Expr.t) : Expr.t =
+  let binopt_e (op : Operators.bopt) (e1 : Expr.t) (e2 : Expr.t) : Expr.t =
     Expr.BinOpt (op, e1, e2)
 
   let bottom_e () : Expr.t = Expr.Val (Val.Str (SL.str (SL.get_low ())))
@@ -22,7 +22,7 @@ module M (SL : SecLevel.M) = struct
   let c_expr (e : Expr.t) : Stmt.t * string =
     let xs = Expr.vars e in
     let x_lev = fresh_expr_lev () in
-    let e = Expr.NOpt (Oper.ListExpr, List.map (fun x -> shadow_var_e x) xs) in
+    let e = Expr.NOpt (Operators.ListExpr, List.map (fun x -> shadow_var_e x) xs) in
     (Stmt.AssignCall (x_lev, lubn_func (), [ e ]), x_lev)
 
   let prepare_args (es : Expr.t list) : Expr.t list * Stmt.t list =
@@ -85,7 +85,7 @@ C(x := e1[e2]) =
             lubn_func (),
             [
               Expr.NOpt
-                ( Oper.ListExpr,
+                ( Operators.ListExpr,
                   [ Expr.Var x_1_lev; Expr.Var x_2_lev; Expr.Var pc ] );
             ] );
         Stmt.AssignCall
@@ -150,7 +150,7 @@ C(if(e){s1} else {s2}) =
     [
       stmt_e;
       Stmt.AssignCall (lub_1, lub_func (), [ Expr.Var x_e_lev; Expr.Var pc ]);
-      Stmt.Return (Expr.NOpt (Oper.TupleExpr, [ e; Expr.Var lub_1 ]));
+      Stmt.Return (Expr.NOpt (Operators.TupleExpr, [ e; Expr.Var lub_1 ]));
     ]
 
   (*
@@ -233,8 +233,8 @@ C(if(e){s1} else {s2}) =
     let st1 =
       [
         Stmt.AssignCall (res, f, new_args @ [ Expr.Var pc ]);
-        Stmt.Assign (x, Expr.UnOpt (Oper.First, Expr.Var res));
-        Stmt.Assign (shadowvar x, Expr.UnOpt (Oper.Second, Expr.Var res));
+        Stmt.Assign (x, Expr.UnOpt (Operators.First, Expr.Var res));
+        Stmt.Assign (shadowvar x, Expr.UnOpt (Operators.Second, Expr.Var res));
       ]
     in
     stmt_args
@@ -364,14 +364,14 @@ C(e_o[e_f]:= e_v)=
           lubn_func (),
           [
             Expr.NOpt
-              ( Oper.ListExpr,
+              ( Operators.ListExpr,
                 [ Expr.Var x_o_lev; Expr.Var x_f_lev; Expr.Var pc ] );
           ] );
       Stmt.AssignCall
         (prop_val_lev_name, Expr.Val (Val.Str _SHADOW_PROP_VALUE_), [ x_f ]);
       Stmt.FieldLookup (prop_val_lev, x_o, Expr.Var prop_val_lev_name);
       Stmt.If
-        ( binopt_e Oper.Equal (Expr.Var prop_val_lev)
+        ( binopt_e Operators.Equal (Expr.Var prop_val_lev)
             (Expr.Val (Val.Symbol "undefined")),
           Stmt.Block
             [
@@ -416,7 +416,7 @@ C(e_o[e_f]:= e_v)=
                              lubn_func (),
                              [
                                Expr.NOpt
-                                 ( Oper.ListExpr,
+                                 ( Operators.ListExpr,
                                    [ Expr.Var ctx; Expr.Var x_v_lev ] );
                              ] );
                          Stmt.FieldAssign
@@ -473,14 +473,14 @@ C(delete(e_o[e_f]))=
           lubn_func (),
           [
             Expr.NOpt
-              ( Oper.ListExpr,
+              ( Operators.ListExpr,
                 [ Expr.Var x_o_lev; Expr.Var x_f_lev; Expr.Var pc ] );
           ] );
       Stmt.AssignCall
         (prop_exists_lev_name, Expr.Val (Val.Str _SHADOW_PROP_EXISTS_), [ x_f ]);
       Stmt.FieldLookup (prop_exists_lev, x_o, Expr.Var prop_exists_lev_name);
       Stmt.If
-        ( binopt_e Oper.Equal (Expr.Var prop_exists_lev)
+        ( binopt_e Operators.Equal (Expr.Var prop_exists_lev)
             (Expr.Val (Val.Symbol "undefined")),
           Stmt.Block [ Stmt.Exception "Internal Error" ],
           Some
@@ -546,7 +546,7 @@ C(delete(e_o[e_f]))=
           lubn_func (),
           [
             Expr.NOpt
-              ( Oper.ListExpr,
+              ( Operators.ListExpr,
                 [ Expr.Var x_o_lev; Expr.Var x_f_lev; Expr.Var pc ] );
           ] );
       Stmt.AssignCall
@@ -560,7 +560,7 @@ C(delete(e_o[e_f]))=
           Stmt.Block
             [
               Stmt.If
-                ( binopt_e Oper.Equal (Expr.Var prop_exists_lev)
+                ( binopt_e Operators.Equal (Expr.Var prop_exists_lev)
                     (Expr.Val (Val.Symbol "undefined")),
                   Stmt.Block
                     [

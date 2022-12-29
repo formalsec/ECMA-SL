@@ -2,12 +2,12 @@ type t =
   | Val of Val.t
   | Var of string
   | GVar of string
-  | Const of Oper.const
-  | BinOpt of Oper.bopt * t * t
-  | TriOpt of Oper.topt * t * t * t
+  | Const of Operators.const
+  | BinOpt of Operators.bopt * t * t
+  | TriOpt of Operators.topt * t * t * t
   | EBinOpt of EOper.bopt * t * t  (** non-shared binary operators *)
-  | UnOpt of Oper.uopt * t
-  | NOpt of Oper.nopt * t list
+  | UnOpt of Operators.uopt * t
+  | NOpt of Operators.nopt * t list
   | Call of t * t list * string option
   | ECall of string * t list
   | NewObj of (string * t) list
@@ -23,12 +23,12 @@ let rec str (e : t) : string =
   | Val n -> Val.str n
   | Var x -> x
   | GVar x -> "|" ^ x ^ "|"
-  | Const c -> Oper.str_of_const c
-  | UnOpt (op, e) -> Oper.str_of_unopt op ^ "(" ^ str e ^ ")"
+  | Const c -> Operators.str_of_const c
+  | UnOpt (op, e) -> Operators.str_of_unopt op ^ "(" ^ str e ^ ")"
   | EBinOpt (op, e1, e2) -> EOper.str_of_binopt op (str e1) (str e2)
-  | BinOpt (op, e1, e2) -> Oper.str_of_binopt op (str e1) (str e2)
-  | TriOpt (op, e1, e2, e3) -> Oper.str_of_triopt op (str e1) (str e2) (str e3)
-  | NOpt (op, es) -> Oper.str_of_nopt op (List.map str es)
+  | BinOpt (op, e1, e2) -> Operators.str_of_binopt op (str e1) (str e2)
+  | TriOpt (op, e1, e2, e3) -> Operators.str_of_triopt op (str e1) (str e2) (str e3)
+  | NOpt (op, es) -> Operators.str_of_nopt op (List.map str es)
   | ECall (f, es) -> "extern " ^ f ^ "(" ^ str_es es ^ ")"
   | Call (f, es, None) -> str f ^ "(" ^ str_es es ^ ")"
   | Call (f, es, Some g) -> str f ^ "(" ^ str_es es ^ ") catch " ^ g

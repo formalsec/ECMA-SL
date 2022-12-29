@@ -1,3 +1,5 @@
+open Operators
+
 let cfg =
   [
     ("model", "true");
@@ -9,20 +11,20 @@ let cfg =
 let ctx : Z3.context = Z3.mk_context cfg
 let int_sort = Z3.Arithmetic.Integer.mk_sort ctx
 
-let encode_unop (op : Oper.uopt) (v : Z3.Expr.expr) : Z3.Expr.expr =
+let encode_unop (op : uopt) (v : Z3.Expr.expr) : Z3.Expr.expr =
   let f =
     match op with
-    | Oper.Not -> Z3.Boolean.mk_not ctx
+    | Not -> Z3.Boolean.mk_not ctx
     | _ -> failwith "Encoding: encode_unop: not implemented!"
   in
   f v
 
-let encode_binop (op : Oper.bopt) (v1 : Z3.Expr.expr) (v2 : Z3.Expr.expr) :
+let encode_binop (op : bopt) (v1 : Z3.Expr.expr) (v2 : Z3.Expr.expr) :
     Z3.Expr.expr =
   let f =
     match op with
-    | Oper.Gt -> Z3.Arithmetic.mk_gt ctx
-    | Oper.Times -> fun v1 v2 -> Z3.Arithmetic.mk_mul ctx [ v1; v2 ]
+    | Gt -> Z3.Arithmetic.mk_gt ctx
+    | Times -> fun v1 v2 -> Z3.Arithmetic.mk_mul ctx [ v1; v2 ]
     | _ -> failwith "Encoding: encode_binop: not implemented!"
   in
   f v1 v2

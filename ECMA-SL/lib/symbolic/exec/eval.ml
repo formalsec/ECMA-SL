@@ -47,23 +47,24 @@ let rec eval_expression (store : Sstore.t) (e : Expr.t) : Sval.t =
   | Expr.Var x -> (
       match Sstore.find_opt store x with
       | Some v -> v
-      | None -> raise (Runtime_error ("Cannot find var \"" ^ x ^ "\"")))
+      | None -> raise (Runtime_error ("Cannot find var '" ^ x ^ "'")))
   | Expr.UnOpt (op, e) ->
       let v = eval_expression store e in
-      Eval_operations.eval_unop op v
+      Eval_operators.eval_unop op v
   | Expr.BinOpt (op, e1, e2) ->
       let v1 = eval_expression store e1 and v2 = eval_expression store e2 in
-      Eval_operations.eval_binop op v1 v2
+      Eval_operators.eval_binop op v1 v2
   | Expr.TriOpt (op, e1, e2, e3) ->
       let v1 = eval_expression store e1
       and v2 = eval_expression store e2
       and v3 = eval_expression store e3 in
-      Eval_operations.eval_triop op v1 v2 v3
+      Eval_operators.eval_triop op v1 v2 v3
   | Expr.NOpt (op, es) ->
       let vs = List.map (eval_expression store) es in
-      Eval_operations.eval_nop op vs
+      Eval_operators.eval_nop op vs
+  | Expr.Curry (_, _) ->
+      raise (Runtime_error "eval_expression: 'Curry' not implemented!")
   | Expr.Symbolic (t, x) -> Sval.Symbolic (t, x)
-  | _ -> failwith ("eval_expression: \"" ^ Expr.str e ^ "\"not implemented!")
 
 let step (c : config) : config =
   let { prog; code; state; pc } = c in
@@ -71,7 +72,7 @@ let step (c : config) : config =
   let stmts =
     match code with
     | Cont stmts -> stmts
-    | _ -> raise (Runtime_error "Empty Cont")
+    | _ -> raise (Runtime_error "step: Empty continuation!")
   in
   let s = List.hd stmts in
   let code', state', pc' =
@@ -90,7 +91,7 @@ let step (c : config) : config =
         else (Cont (List.tl stmts), state, v :: pc)
     | Stmt.Assert e ->
         let v = eval_expression store e in
-        let v' = eval_expression store (Expr.UnOpt (Oper.Not, e)) in
+        let v' = eval_expression store (Expr.UnOpt (Operators.Not, e)) in
         if Encoding.check (v' :: pc) then (Error (Some v), state, pc)
         else (Cont (List.tl stmts), state, v :: pc)
     | Stmt.Assign (x, e) ->
@@ -117,12 +118,12 @@ let step (c : config) : config =
 
 let rec eval (c : config) : config =
   match c.code with
-  | Cont [] -> raise (Runtime_error "Empty stmts list")
+  | Cont [] -> raise (Runtime_error "eval: Empty continuation!")
   | Cont stmts -> eval (step c)
   | Error v -> (
       match v with
-      | Some v' -> raise (Runtime_error ("Error: " ^ Sval.str v'))
-      | None -> raise (Runtime_error "Unknown runtime error"))
+      | Some v' -> raise (Runtime_error ("eval: Runtime error: " ^ Sval.str v'))
+      | None -> raise (Runtime_error "eval: Runtime error detected!"))
   | Final v -> c
 
 let invoke (prog : Prog.t) (f : func) : config =
