@@ -877,6 +877,39 @@ function ArgumentsObjectGet(O,P, Receiver) {
 };
 
 /**
+ * ArgumentsObjectDelete
+ * 9.4.4.3 [[Delete]] (P)
+ *
+ * The [[Delete]] internal method of an arguments exotic object
+ * when called with a property key P performs the following steps:
+ */
+
+function ArgumentsObjectDelete(argumentsObject, P) {
+  /* The [[Delete]] internal method of an arguments object for a non-strict mode function with formal parameters
+     when called with a property name P and Boolean flag Throw performs the following steps: */
+  Throw := true;
+
+  /* 1. Let map be the value of the [[ParameterMap]] internal property of the arguments object. */
+  map := argumentsObject.ParameterMap;
+  /* 2. Let isMapped be the result of calling the [[GetOwnProperty]] internal method of map passing P as the
+        argument. */
+
+  isMapped := HasOwnProperty(map, P);
+  /* 3. Let result be the result of calling the default [[Delete]] internal method (8.12.7) on the arguments object
+        passing P and Throw as the arguments. */
+  result := OrdinaryObjectDelete(argumentsObject, P);
+
+  /* 4. If result is true and the value of isMapped is not undefined, then */
+  if ((result = true) &&& (isMapped = true)) {
+    /* a. Call the [[Delete]] internal method of map passing P, and false as the arguments. */
+    {map.Delete}(map, P)
+  };
+  /* 5. Return result. */
+  return result
+};
+
+
+/**
  + ArgumentsObjectSet
  * 9.4.4.4 [[Set]] (P, V, Receiver)
  *

@@ -1057,4 +1057,14 @@ function MathTrunc(globalObject, this, NewTarget, strict, params) {
   else {
     return -ceil(-x)
   }
+};
+
+/* Auxiliary functions */
+function isZero(x) {
+  return (x = 0.) &&& ((1. / x) = Infinity)
+};
+
+function isMinusZero(x) {
+  return (x = 0.) &&& ((1. / x) = -Infinity)
 }
+

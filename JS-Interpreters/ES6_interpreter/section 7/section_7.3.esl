@@ -22,6 +22,27 @@ function Get(O, P) {
 };
 
 /**
+ *
+ * The 7.3.1 does not deal with errors on the Get result, so we created this
+ * wrapped get to deal with it on Iterators
+ *
+*/
+
+function WrappedGet(O, P) {
+  getResult := Get(O, P) catch GetHandler;
+
+  if (!(Type(getResult) = "Completion")) {
+    return NormalCompletion(getResult)
+  };
+
+  return getResult
+};
+
+function GetHandler(x) {
+  return throwEmptyCompletion(x)
+};
+
+/**
  * 7.3.2 GetV (V, P)
  * The abstract operation GetV is used to retrieve the value of a specific property of an ECMAScript language value. 
  * If the value is not an object, the property lookup is performed using a wrapper object appropriate for the type of the value. 
@@ -937,4 +958,9 @@ function CopyDataProperties(target, source, excludedItems) {
 	};
 	/* 7. Return target. */
 	return target
+};
+
+function StringValue(value){
+	return value
 }
+

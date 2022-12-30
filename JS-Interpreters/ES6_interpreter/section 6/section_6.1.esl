@@ -1,6 +1,66 @@
 /**
+ * 6.1 Types
+ */
+function Type(V) {
+  v_type := typeof V;
+  if (v_type = __$Int) { return "Number" };
+  if (v_type = __$Flt) { return "Number" };
+  if (v_type = __$Bool) { return "Boolean" };
+  if (v_type = __$Str) { return "String" };
+  if (v_type = __$Obj) {
+    if (isJavaScriptSymbol(V)) { return "Symbol" };
+    if (isJavaScriptObject(V)) { return "Object" };
+    if (isPropertyDescriptor(V)) { return "PropertyDescriptor" };
+    if (isCodeObject(V)) { return "Object" };
+    return "EnvironmentRecord"
+  };
+  if (v_type = __$List) { return "List" };
+  if (v_type = __$Symbol) {
+    if (V = 'null) { return "Null" };
+    if (V = 'undefined) { return "Undefined" }
+  };
+  if (v_type = __$Tuple) {
+    ft := fst V;
+    if (ft = "R") { return "Reference" };
+    if (ft = "C") { return "Completion" };
+    if (ft = "P") { return "PropertyIdentifier" }
+  };
+  if (v_type = __$Null) { return "Null" };
+  if (V = 'empty) { return null };
+
+  print V;
+  fail "Value V has a non-defined type"
+};
+
+/* Auxiliary functions */
+function isJavaScriptObject(obj) {
+  return "Prototype" in_obj obj
+};
+
+function isCodeObject(obj) {
+  return "codeType" in_obj obj
+};
+
+
+function isPropertyDescriptor(obj) {
+  return ("Enumerable" in_obj obj) || ("Configurable" in_obj obj)
+};
+
+function isJavaScriptSymbol(obj) {
+  return "Description" in_obj obj
+};
+
+function setConfigurability(obj, prop, b) {
+  desc := getJSProperty(obj, prop);
+  desc.Configurable := b;
+  return b
+};
+
+
+
+/**
  * 6.1.5 The Symbol Type
- * 
+ *
  * The Symbol type is the set of all non-String values that may be used as the key of an Object property (6.1.7).
  *
  * Each possible Symbol value is unique and immutable.
