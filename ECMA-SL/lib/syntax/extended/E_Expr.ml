@@ -27,7 +27,8 @@ let rec str (e : t) : string =
   | UnOpt (op, e) -> Operators.str_of_unopt op ^ "(" ^ str e ^ ")"
   | EBinOpt (op, e1, e2) -> EOper.str_of_binopt op (str e1) (str e2)
   | BinOpt (op, e1, e2) -> Operators.str_of_binopt op (str e1) (str e2)
-  | TriOpt (op, e1, e2, e3) -> Operators.str_of_triopt op (str e1) (str e2) (str e3)
+  | TriOpt (op, e1, e2, e3) ->
+      Operators.str_of_triopt op (str e1) (str e2) (str e3)
   | NOpt (op, es) -> Operators.str_of_nopt op (List.map str es)
   | ECall (f, es) -> "extern " ^ f ^ "(" ^ str_es es ^ ")"
   | Call (f, es, None) -> str f ^ "(" ^ str_es es ^ ")"

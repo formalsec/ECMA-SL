@@ -17,7 +17,8 @@ let rec str (e : t) : string =
   | Var x -> x
   | UnOpt (op, e) -> Operators.str_of_unopt op ^ "(" ^ str e ^ ")"
   | BinOpt (op, e1, e2) -> Operators.str_of_binopt op (str e1) (str e2)
-  | TriOpt (op, e1, e2, e3) -> Operators.str_of_triopt op (str e1) (str e2) (str e3)
+  | TriOpt (op, e1, e2, e3) ->
+      Operators.str_of_triopt op (str e1) (str e2) (str e3)
   | NOpt (op, es) -> Operators.str_of_nopt op (List.map str es)
   | Curry (f, es) -> "{" ^ str f ^ "}@(" ^ str_es es ^ ")"
   | Symbolic (t, x) -> "symbolic (" ^ Type.str t ^ ", \"" ^ x ^ "\")"
@@ -43,16 +44,19 @@ let rec to_json (e : t) : string =
   | Var x -> Printf.sprintf "{ \"type\" : \"var\", \"name\" : \"%s\"}" x
   | UnOpt (op, e) ->
       Printf.sprintf "{ \"type\" : \"unop\", \"rhs\" : %s, \"op\": %s}"
-        (to_json e) (Operators.uopt_to_json op)
+        (to_json e)
+        (Operators.uopt_to_json op)
   | BinOpt (op, e1, e2) ->
       Printf.sprintf
         "{ \"type\" : \"binop\", \"lhs\" : %s, \"rhs\": %s,  \"op\": %s}"
-        (to_json e1) (to_json e2) (Operators.bopt_to_json op)
+        (to_json e1) (to_json e2)
+        (Operators.bopt_to_json op)
   | TriOpt (op, e1, e2, e3) ->
       Printf.sprintf
         "{ \"type\" : \"triop\", \"arg1\" : %s, \"arg2\" : %s, \"arg3\": %s,  \
          \"op\": %s}"
-        (to_json e1) (to_json e2) (to_json e3) (Operators.topt_to_json op)
+        (to_json e1) (to_json e2) (to_json e3)
+        (Operators.topt_to_json op)
   | NOpt (op, es) ->
       Printf.sprintf "{ \"type\" : \"nop\", \"op\": %s, \"args\" : [ %s ]}"
         (Operators.nopt_to_json op)

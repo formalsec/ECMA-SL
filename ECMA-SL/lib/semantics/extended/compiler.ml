@@ -1,7 +1,6 @@
 open Val
 open Expr
 open Operators
-
 open EOper
 open E_Pat
 open E_Pat_v
@@ -43,14 +42,14 @@ let compile_sc_and (x : string) (stmts_1 : Stmt.t list) (e1' : Expr.t)
     (stmts_2 : Stmt.t list) (e2' : Expr.t) : Stmt.t list * Expr.t =
   let inner_if =
     Stmt.If
-      ( Expr.BinOpt (Equal, e2', Expr.Val (Val.Bool false)),
+      ( Expr.BinOpt (Eq, e2', Expr.Val (Val.Bool false)),
         Stmt.Assign (x, Expr.Val (Val.Bool false)),
         Some (Stmt.Assign (x, Expr.Val (Val.Bool true))) )
   in
 
   let outer_if =
     Stmt.If
-      ( Expr.BinOpt (Equal, e1', Expr.Val (Val.Bool false)),
+      ( Expr.BinOpt (Eq, e1', Expr.Val (Val.Bool false)),
         Stmt.Assign (x, Expr.Val (Val.Bool false)),
         Some (Stmt.Block (stmts_2 @ [ inner_if ])) )
   in
@@ -79,21 +78,22 @@ let compile_sc_or (x : string) (stmts_1 : Stmt.t list) (e1' : Expr.t)
     (stmts_2 : Stmt.t list) (e2' : Expr.t) : Stmt.t list * Expr.t =
   let inner_if =
     Stmt.If
-      ( Expr.BinOpt (Equal, e2', Expr.Val (Val.Bool true)),
+      ( Expr.BinOpt (Eq, e2', Expr.Val (Val.Bool true)),
         Stmt.Assign (x, Expr.Val (Val.Bool true)),
         Some (Stmt.Assign (x, Expr.Val (Val.Bool false))) )
   in
 
   let outer_if =
     Stmt.If
-      ( Expr.BinOpt (Equal, e1', Expr.Val (Val.Bool true)),
+      ( Expr.BinOpt (Eq, e1', Expr.Val (Val.Bool true)),
         Stmt.Assign (x, Expr.Val (Val.Bool true)),
         Some (Stmt.Block (stmts_2 @ [ inner_if ])) )
   in
 
   (stmts_1 @ [ outer_if ], Expr.Var x)
 
-let compile_binopt (binop : Operators.bopt) ((stmts_1, e1) : Stmt.t list * Expr.t)
+let compile_binopt (binop : Operators.bopt)
+    ((stmts_1, e1) : Stmt.t list * Expr.t)
     ((stmts_2, e2) : Stmt.t list * Expr.t) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   ( stmts_1 @ stmts_2 @ [ Stmt.Assign (var, Expr.BinOpt (binop, e1, e2)) ],
@@ -227,7 +227,7 @@ let compile_switch (ret_e : Stmt.t list * Expr.t)
   let stmts'' =
     List.fold_right
       (fun (stmts_i, e_i', stmts_i') stmts_else ->
-        let guard_i = Expr.BinOpt (Equal, e_i', e') in
+        let guard_i = Expr.BinOpt (Eq, e_i', e') in
         let stmt_if =
           Stmt.If (guard_i, Stmt.Block stmts_i', Some (Stmt.Block stmts_else))
         in
@@ -301,9 +301,7 @@ let build_if_throw (x : string) (g : string option) : Stmt.t =
   | None -> build_if_throw_basic x (Stmt.Return (Expr.Var x))
   | Some g ->
       let args =
-        [
-          Expr.Var __INTERNAL_ESL_GLOBAL__; Expr.UnOpt (Second, Expr.Var x);
-        ]
+        [ Expr.Var __INTERNAL_ESL_GLOBAL__; Expr.UnOpt (Second, Expr.Var x) ]
       in
       let call_stmt = Stmt.AssignCall (x, Expr.Val (Val.Str g), args) in
       let inner_if = build_if_throw_basic x (Stmt.Return (Expr.Var x)) in
@@ -362,8 +360,7 @@ and compile_unopt (op : uopt) (expr : E_Expr.t) : Stmt.t list * Expr.t =
   | _ ->
       (stmts_expr @ [ Stmt.Assign (var, Expr.UnOpt (op, expr')) ], Expr.Var var)
 
-and compile_nopt (nop : nopt) (e_exprs : E_Expr.t list) :
-    Stmt.t list * Expr.t =
+and compile_nopt (nop : nopt) (e_exprs : E_Expr.t list) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   let stmts_exprs = List.map compile_expr e_exprs in
   let stmts, exprs = List.split stmts_exprs in
@@ -447,7 +444,7 @@ and compile_patv (expr : Expr.t) (pname : string) (pat_v : E_Pat_v.t)
       let w = generate_fresh_var () in
       let stmt = Stmt.FieldLookup (w, expr, Expr.Val (Val.Str pname)) in
       let stmt_assign =
-        Stmt.Assign (b, Expr.BinOpt (Equal, Expr.Var w, Expr.Val v))
+        Stmt.Assign (b, Expr.BinOpt (Eq, Expr.Var w, Expr.Val v))
       in
       ([ b ], [ stmt; stmt_assign ], [])
   | PatNone ->
@@ -481,8 +478,7 @@ and compile_pats_stmts (expr : Expr.t) ((pat, stmt) : E_Pat.t * E_Stmt.t) :
   let stmts = compile_stmt stmt in
   let and_bs =
     Expr.NOpt
-      ( NAry_And,
-        Expr.Val (Val.Bool true) :: List.map (fun b -> Expr.Var b) bs )
+      (NAry_And, Expr.Val (Val.Bool true) :: List.map (fun b -> Expr.Var b) bs)
   in
   let if_stmt = in_pat_stmts @ stmts in
   (pre_pat_stmts, and_bs, if_stmt)

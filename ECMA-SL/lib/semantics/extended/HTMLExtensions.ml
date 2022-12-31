@@ -348,24 +348,32 @@ module E_Expr = struct
   let call_html_call (ctxt : ctxt_t) (e : t) (es : t list) : string option =
     match (ctxt, es) with
     | ( ExprStmt,
-        [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, []) ] )
-      ->
+        [
+          Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, []);
+        ] ) ->
         Some
           (sprintf
              "Call the [[Call]] internal method of %s providing %s as the \
               <b>this</b> value and providing no arguments"
              (to_html TopLevel e_o) (to_html TopLevel e_this))
     | ( ExprStmt,
-        [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, [ e ]) ]
-      ) ->
+        [
+          Val Val.Null;
+          Val Val.Null;
+          e_o;
+          e_this;
+          NOpt (Operators.ListExpr, [ e ]);
+        ] ) ->
         Some
           (sprintf
              "Call the [[Call]] internal method of %s providing %s as the \
               <b>this</b> value and an argument list containing only %s"
              (to_html TopLevel e_o) (to_html TopLevel e_this)
              (to_html TopLevel e))
-    | Let, [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, []) ]
-      ->
+    | ( Let,
+        [
+          Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, []);
+        ] ) ->
         Some
           (sprintf
              "the result of calling the [[Call]] internal method of %s, with \
@@ -379,16 +387,23 @@ module E_Expr = struct
               <i>args</i>"
              (to_html TopLevel e_o) (to_html TopLevel e_this)
              (to_html TopLevel e_args))
-    | _, [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, []) ]
-      ->
+    | ( _,
+        [
+          Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, []);
+        ] ) ->
         Some
           (sprintf
              "the result of calling the [[Call]] internal method of %s \
               providing %s as the <b>this</b> value and providing no arguments"
              (to_html TopLevel e_o) (to_html TopLevel e_this))
     | ( _,
-        [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, [ e ]) ]
-      ) ->
+        [
+          Val Val.Null;
+          Val Val.Null;
+          e_o;
+          e_this;
+          NOpt (Operators.ListExpr, [ e ]);
+        ] ) ->
         Some
           (sprintf
              "the result of calling the [[Call]] internal method of %s \
@@ -396,8 +411,10 @@ module E_Expr = struct
               containing only %s"
              (to_html TopLevel e_o) (to_html TopLevel e_this)
              (to_html TopLevel e))
-    | _, [ Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, arr) ]
-      ->
+    | ( _,
+        [
+          Val Val.Null; Val Val.Null; e_o; e_this; NOpt (Operators.ListExpr, arr);
+        ] ) ->
         Some
           (sprintf
              "the result of calling the [[Call]] internal method of %s \
@@ -891,7 +908,7 @@ module E_Expr = struct
       (Operators.str_of_binopt_single Operators.Lnth)
       oper_html_lnth;
     Hashtbl.add binoper_hashtable_html
-      (Operators.str_of_binopt_single Operators.Equal)
+      (Operators.str_of_binopt_single Operators.Eq)
       oper_html_equal;
     Hashtbl.add unoper_hashtable_html
       (Operators.str_of_unopt Operators.IntToFloat)

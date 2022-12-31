@@ -623,11 +623,11 @@ e_pat_v_pat_target:
   | TIMES   { Times }
   | DIVIDE  { Div }
   | MODULO  { Modulo }
-  | EQUAL   { Equal }
+  | EQUAL   { Eq }
   | GT      { Gt }
   | LT      { Lt }
-  | EGT     { Egt }
-  | ELT     { Elt }
+  | EGT     { Ge }
+  | ELT     { Le }
   | LAND    { Log_And }
   | LOR     { Log_Or }
   | BITWISE_AND { BitwiseAnd }

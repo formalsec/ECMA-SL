@@ -420,11 +420,11 @@ ifelse_target:
   | TIMES   { Times }
   | DIVIDE  { Div }
   | MODULO  { Modulo }
-  | EQUAL   { Equal }
+  | EQUAL   { Eq }
   | GT      { Gt }
   | LT      { Lt }
-  | EGT     { Egt }
-  | ELT     { Elt }
+  | EGT     { Ge }
+  | ELT     { Le }
   | LAND    { Log_And }
   | BITWISE_AND { BitwiseAnd }
   | BITWISE_OR { BitwiseOr }

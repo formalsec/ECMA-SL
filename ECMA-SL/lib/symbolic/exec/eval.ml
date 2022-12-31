@@ -36,8 +36,13 @@ type outcome =
   | Cont of Stmt.t list
   | Error of Sval.t option
   | Final of Sval.t option
+  (* TODO:
+  | AsrtFail of Sval.t option
+  | Unknwon of Sval.t option
+  *)
 
-type config = { prog : Prog.t; code : outcome; state : state; pc : Sval.t list }
+type pc = Sval.t list
+type config = { prog : Prog.t; code : outcome; state : state; pc : pc }
 
 exception Runtime_error of string
 
@@ -66,7 +71,10 @@ let rec eval_expression (store : Sstore.t) (e : Expr.t) : Sval.t =
       raise (Runtime_error "eval_expression: 'Curry' not implemented!")
   | Expr.Symbolic (t, x) -> Sval.Symbolic (t, x)
 
-let step (c : config) : config =
+let update (c : config) (o : outcome) (s : state) (pc : pc) : config =
+  { c with code = o; state = s; pc }
+
+let step (c : config) : config list =
   let { prog; code; state; pc } = c in
   let heap, store, stack, f = state in
   let stmts =
@@ -75,61 +83,117 @@ let step (c : config) : config =
     | _ -> raise (Runtime_error "step: Empty continuation!")
   in
   let s = List.hd stmts in
-  let code', state', pc' =
-    match s with
-    | Stmt.Skip -> (Cont (List.tl stmts), state, pc)
-    | Stmt.Merge -> (Cont (List.tl stmts), state, pc)
-    | Stmt.Exception err -> (Error (Some (Sval.Str err)), state, pc)
-    | Stmt.Print e ->
-        print_endline "print ignored.";
-        (Cont (List.tl stmts), state, pc)
-    | Stmt.Abort e -> (Final (Some (eval_expression store e)), state, pc)
-    | Stmt.Fail e -> (Error (Some (eval_expression store e)), state, pc)
-    | Stmt.Assume e ->
-        let v = eval_expression store e in
-        if not (Encoding.check (v :: pc)) then (Final (Some v), state, pc)
-        else (Cont (List.tl stmts), state, v :: pc)
-    | Stmt.Assert e ->
-        let v = eval_expression store e in
-        let v' = eval_expression store (Expr.UnOpt (Operators.Not, e)) in
-        if Encoding.check (v' :: pc) then (Error (Some v), state, pc)
-        else (Cont (List.tl stmts), state, v :: pc)
-    | Stmt.Assign (x, e) ->
-        let v = eval_expression store e in
-        (Cont (List.tl stmts), (heap, Sstore.add store x v, stack, f), pc)
-    | Stmt.Return e -> (
-        let v = eval_expression store e in
-        let frame, stack' = Call_stack.pop stack in
-        match frame with
-        | Call_stack.Intermediate (stmts', store', x, f') ->
-            (Cont stmts', (heap, Sstore.add store' x v, stack', f'), pc)
-        | Call_stack.Toplevel -> (Final (Some v), state, pc))
-    | Stmt.Block block -> (Cont (block @ List.tl stmts), state, pc)
-    | Stmt.AssignNewObj x ->
-        let obj = Object.create () in
-        let loc = Loc.newloc () in
-        let loc' = Sval.Loc loc in
-        ( Cont (List.tl stmts),
-          (Sheap.add heap loc obj, Sstore.add store x loc', stack, f),
-          pc )
-    | _ -> failwith ("Seval: step: \"" ^ Stmt.str s ^ "\" not implemented!")
-  in
-  { c with code = code'; state = state'; pc = pc' }
+  match s with
+  | Stmt.Skip -> [ update c (Cont (List.tl stmts)) state pc ]
+  | Stmt.Merge -> [ update c (Cont (List.tl stmts)) state pc ]
+  | Stmt.Exception err -> [ update c (Error (Some (Sval.Str err))) state pc ]
+  | Stmt.Print e ->
+      print_endline "print ignored.";
+      [ update c (Cont (List.tl stmts)) state pc ]
+  | Stmt.Fail e ->
+      [ update c (Error (Some (eval_expression store e))) state pc ]
+  | Stmt.Abort e ->
+      [ update c (Final (Some (eval_expression store e))) state pc ]
+  | Stmt.Assume e ->
+      let v = eval_expression store e in
+      if not (Encoding.check (v :: pc)) then
+        [ update c (Final (Some v)) state pc ]
+      else [ update c (Cont (List.tl stmts)) state (v :: pc) ]
+  | Stmt.Assert e ->
+      let v = eval_expression store e in
+      let v' = eval_expression store (Expr.UnOpt (Operators.Not, e)) in
+      if Encoding.check (v' :: pc) then [ update c (Error (Some v)) state pc ]
+      else [ update c (Cont (List.tl stmts)) state (v :: pc) ]
+  | Stmt.Assign (x, e) ->
+      let v = eval_expression store e in
+      [
+        update c
+          (Cont (List.tl stmts))
+          (heap, Sstore.add store x v, stack, f)
+          pc;
+      ]
+  | Stmt.Block block -> [ update c (Cont (block @ List.tl stmts)) state pc ]
+  | Stmt.If (cond, stmts1, stmts2) ->
+      let cond' = eval_expression store cond
+      and not_cond' = eval_expression store (Expr.UnOpt (Operators.Not, cond)) in
+      let then_branch =
+        if Encoding.check (cond' :: pc) then
+          match stmts1 with
+          | Stmt.Block b -> 
+              let b' = b @ ([ Stmt.Merge ] @ List.tl stmts) in
+              [ update c (Cont b') state (cond' :: pc) ]
+          | _ -> raise (Runtime_error "Malformed if statement!")
+        else []
+      in
+      let else_branch =
+        if Encoding.check (not_cond' :: pc) then
+          match stmts2 with
+          | None -> [ update c (Cont (List.tl stmts)) state (not_cond' :: pc) ]
+          | Some (Stmt.Block b) ->
+              let b' = b @ ([ Stmt.Merge ] @ List.tl stmts) in
+              [ update c (Cont b') state (not_cond' :: pc) ]
+          | Some _ -> raise (Runtime_error "Malformed if statement!")
+        else []
+      in
+      then_branch @ else_branch
+  | Stmt.While (cond, stmts') ->
+      let stmts1 = Stmt.Block (stmts' :: [ Stmt.While (cond, stmts') ]) in
+      [
+        update c (Cont (Stmt.If (cond, stmts1, None) :: List.tl stmts)) state pc;
+      ]
+  | Stmt.Return e -> (
+      let v = eval_expression store e in
+      let frame, stack' = Call_stack.pop stack in
+      match frame with
+      | Call_stack.Intermediate (stmts', store', x, f') ->
+          [
+            update c (Cont stmts') (heap, Sstore.add store' x v, stack', f') pc;
+          ]
+      | Call_stack.Toplevel -> [ update c (Final (Some v)) state pc ])
+  | Stmt.AssignCall (f, e, es) ->
+      raise (Runtime_error "Eval: step: 'AssignCall' not implemented!")
+  | Stmt.AssignECall (x, y, es) ->
+      raise (Runtime_error "Eval: step: 'AssignECall' not implemented!")
+  | Stmt.AssignNewObj x ->
+      let obj = Object.create () in
+      let loc = Loc.newloc () in
+      let loc' = Sval.Loc loc in
+      [
+        update c
+          (Cont (List.tl stmts))
+          (Sheap.add heap loc obj, Sstore.add store x loc', stack, f)
+          pc;
+      ]
+  | Stmt.AssignInObjCheck (x, e1, e2) ->
+      raise (Runtime_error "Eval: step: 'AssignInObjCheck' not implemented!")
+  | Stmt.AssignObjToList (x, e) ->
+      raise (Runtime_error "Eval: step: 'AssignObjToList' not implemented!")
+  | Stmt.AssignObjFields (x, e) ->
+      raise (Runtime_error "Eval: step: 'AssignObjFields' not implemented!")
+  | Stmt.FieldAssign (e1, e2, e3) ->
+      raise (Runtime_error "Eval: step: 'FieldAssign' not implemented!")
+  | Stmt.FieldDelete (e1, e2) ->
+      raise (Runtime_error "Eval: step: 'FieldDelete' not implemented!")
+  | Stmt.FieldLookup (x, e1, e2) ->
+      raise (Runtime_error "Eval: step: 'FieldLookup' not implemented!")
 
-let rec eval (c : config) : config =
-  match c.code with
-  | Cont [] -> raise (Runtime_error "eval: Empty continuation!")
-  | Cont stmts -> eval (step c)
-  | Error v -> (
-      match v with
-      | Some v' -> raise (Runtime_error ("eval: Runtime error: " ^ Sval.str v'))
-      | None -> raise (Runtime_error "eval: Runtime error detected!"))
-  | Final v -> c
+let rec eval (input_confs : config list) (output_confs : config list) : config list =
+  match input_confs with
+  | [] -> output_confs
+  | c :: input_confs' -> (
+      match c.code with
+      | Cont [] -> raise (Runtime_error "eval: Empty continuation!")
+      | Cont _ -> eval (step c @ input_confs') output_confs
+      | Error v -> eval input_confs' (c :: output_confs)
+      | Final v -> eval input_confs' (c :: output_confs))
 
-let invoke (prog : Prog.t) (f : func) : config =
+let invoke (prog : Prog.t) (f : func) : config list =
   let func = Prog.get_func prog f in
   let heap = Sheap.create ()
   and store = Sstore.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
   let state = (heap, store, stack, f) in
-  eval { prog; code = Cont [ func.body ]; state; pc = [] }
+  eval [ { prog; code = Cont [ func.body ]; state; pc = [] } ] []
+
+let analyse (prog : Prog.t) (f : func) : unit =
+  ()

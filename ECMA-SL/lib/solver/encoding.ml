@@ -1,13 +1,8 @@
 open Operators
 
-let cfg =
-  [
-    ("model", "true");
-    ("proof", "true");
-    ("unsat_core", "true");
-    ("timeout", "16384");
-  ]
+exception Unknown
 
+let cfg = [ ("model", "false"); ("proof", "false"); ("unsat_core", "false") ]
 let ctx : Z3.context = Z3.mk_context cfg
 let int_sort = Z3.Arithmetic.Integer.mk_sort ctx
 
@@ -23,9 +18,17 @@ let encode_binop (op : bopt) (v1 : Z3.Expr.expr) (v2 : Z3.Expr.expr) :
     Z3.Expr.expr =
   let f =
     match op with
+    | Eq -> Z3.Boolean.mk_eq ctx
     | Gt -> Z3.Arithmetic.mk_gt ctx
+    | Lt -> Z3.Arithmetic.mk_lt ctx
+    | Ge -> Z3.Arithmetic.mk_ge ctx
+    | Le -> Z3.Arithmetic.mk_le ctx
+    | Log_And -> fun v1 v2 -> Z3.Boolean.mk_and ctx [ v1; v2 ]
+    | Plus -> fun v1 v2 -> Z3.Arithmetic.mk_add ctx [ v1; v2 ]
     | Times -> fun v1 v2 -> Z3.Arithmetic.mk_mul ctx [ v1; v2 ]
-    | _ -> failwith "Encoding: encode_binop: not implemented!"
+    | _ ->
+        failwith ("Encoding: encode_binop: '"
+          ^ (str_of_binopt_single  op) ^ "' not implemented!")
   in
   f v1 v2
 
@@ -47,7 +50,11 @@ let check (vs : Sval.t list) : bool =
   List.iter (fun e -> Logging.print_endline (lazy (Z3.Expr.to_string e))) vs';
   let solver = Z3.Solver.mk_solver ctx None in
   let _ = Z3.Solver.add solver vs' in
-  let ret = Z3.Solver.check solver [] in
-  let b = ret = Z3.Solver.SATISFIABLE in
+  let b =
+    match Z3.Solver.check solver [] with
+    | Z3.Solver.SATISFIABLE -> true
+    | Z3.Solver.UNKNOWN -> raise Unknown
+    | Z3.Solver.UNSATISFIABLE -> false
+  in
   Logging.print_endline (lazy ("leaving check with return " ^ string_of_bool b));
   b

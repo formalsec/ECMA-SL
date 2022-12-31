@@ -8,11 +8,11 @@ type bopt =
   | Times
   | Div
   | Modulo
-  | Equal
-  | Gt
+  | Eq
   | Lt
-  | Egt
-  | Elt
+  | Gt
+  | Le
+  | Ge
   | Log_And
   | Log_Or
   | BitwiseAnd
@@ -1318,11 +1318,11 @@ let str_of_binopt_single (op : bopt) : string =
   | Times -> "*"
   | Div -> "/"
   | Modulo -> "%"
-  | Equal -> "="
+  | Eq -> "="
   | Gt -> ">"
   | Lt -> "<"
-  | Egt -> ">="
-  | Elt -> "<="
+  | Ge -> ">="
+  | Le -> "<="
   | Log_And -> "&&"
   | Log_Or -> "||"
   | BitwiseAnd -> "&"
@@ -1363,11 +1363,11 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string =
   | Times -> e1 ^ " * " ^ e2
   | Div -> e1 ^ " / " ^ e2
   | Modulo -> e1 ^ " % " ^ e2
-  | Equal -> e1 ^ " = " ^ e2
+  | Eq -> e1 ^ " = " ^ e2
   | Gt -> e1 ^ " > " ^ e2
   | Lt -> e1 ^ " < " ^ e2
-  | Egt -> e1 ^ " >= " ^ e2
-  | Elt -> e1 ^ " <= " ^ e2
+  | Ge -> e1 ^ " >= " ^ e2
+  | Le -> e1 ^ " <= " ^ e2
   | Log_And -> e1 ^ " && " ^ e2
   | Log_Or -> e1 ^ " || " ^ e2
   | BitwiseAnd -> e1 ^ " & " ^ e2
@@ -1478,11 +1478,11 @@ let bopt_to_json (op : bopt) : string =
     | Times -> Printf.sprintf "Times\" }"
     | Div -> Printf.sprintf "Div\" }"
     | Modulo -> Printf.sprintf "Modulo\" }"
-    | Equal -> Printf.sprintf "Equal\" }"
+    | Eq -> Printf.sprintf "Equal\" }"
     | Gt -> Printf.sprintf "Gt\" }"
     | Lt -> Printf.sprintf "Lt\" }"
-    | Egt -> Printf.sprintf "Egt\" }"
-    | Elt -> Printf.sprintf "Elt\" }"
+    | Ge -> Printf.sprintf "Egt\" }"
+    | Le -> Printf.sprintf "Elt\" }"
     | Log_And -> Printf.sprintf "Log_And\" }"
     | Log_Or -> Printf.sprintf "Log_Or\" }"
     | BitwiseAnd -> Printf.sprintf "BitwiseAnd\" }"

@@ -22,7 +22,9 @@ module M (SL : SecLevel.M) = struct
   let c_expr (e : Expr.t) : Stmt.t * string =
     let xs = Expr.vars e in
     let x_lev = fresh_expr_lev () in
-    let e = Expr.NOpt (Operators.ListExpr, List.map (fun x -> shadow_var_e x) xs) in
+    let e =
+      Expr.NOpt (Operators.ListExpr, List.map (fun x -> shadow_var_e x) xs)
+    in
     (Stmt.AssignCall (x_lev, lubn_func (), [ e ]), x_lev)
 
   let prepare_args (es : Expr.t list) : Expr.t list * Stmt.t list =
@@ -371,7 +373,7 @@ C(e_o[e_f]:= e_v)=
         (prop_val_lev_name, Expr.Val (Val.Str _SHADOW_PROP_VALUE_), [ x_f ]);
       Stmt.FieldLookup (prop_val_lev, x_o, Expr.Var prop_val_lev_name);
       Stmt.If
-        ( binopt_e Operators.Equal (Expr.Var prop_val_lev)
+        ( binopt_e Operators.Eq (Expr.Var prop_val_lev)
             (Expr.Val (Val.Symbol "undefined")),
           Stmt.Block
             [
@@ -480,7 +482,7 @@ C(delete(e_o[e_f]))=
         (prop_exists_lev_name, Expr.Val (Val.Str _SHADOW_PROP_EXISTS_), [ x_f ]);
       Stmt.FieldLookup (prop_exists_lev, x_o, Expr.Var prop_exists_lev_name);
       Stmt.If
-        ( binopt_e Operators.Equal (Expr.Var prop_exists_lev)
+        ( binopt_e Operators.Eq (Expr.Var prop_exists_lev)
             (Expr.Val (Val.Symbol "undefined")),
           Stmt.Block [ Stmt.Exception "Internal Error" ],
           Some
@@ -560,7 +562,7 @@ C(delete(e_o[e_f]))=
           Stmt.Block
             [
               Stmt.If
-                ( binopt_e Operators.Equal (Expr.Var prop_exists_lev)
+                ( binopt_e Operators.Eq (Expr.Var prop_exists_lev)
                     (Expr.Val (Val.Symbol "undefined")),
                   Stmt.Block
                     [

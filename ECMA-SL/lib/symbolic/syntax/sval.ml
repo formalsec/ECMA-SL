@@ -72,37 +72,3 @@ let rec str ?(flt_with_dot = true) (v : t) : string =
   | Symbolic (_, _) -> "symbolic"
   | Unop (_, _) -> "unop"
   | Binop (_, _, _) -> "binop"
-
-let neg v = match v with Flt v -> Flt (-.v) | Int v -> Int (-v) | _ -> v
-let not v = match v with Bool v -> Bool (not v) | _ -> Unop (Operators.Not, v)
-let is_NaN v = match v with Flt v -> Bool (Float.is_nan v) | _ -> Bool false
-
-let times v1 v2 =
-  match (v1, v2) with
-  | Flt v1, Flt v2 -> Flt (v1 *. v2)
-  | Int v1, Int v2 -> Int (v1 * v2)
-  | _ -> Binop (Operators.Times, v1, v2)
-
-let gt v1 v2 =
-  match (v1, v2) with
-  | Flt v1', Flt v2' -> Bool (v1' > v2')
-  | Int v1', Int v2' -> Bool (v1' > v2')
-  | _ -> Binop (Operators.Gt, v1, v2)
-
-let lt v1 v2 =
-  match (v1, v2) with
-  | Flt v1', Flt v2' -> Bool (v1' < v2')
-  | Int v1', Int v2' -> Bool (v1' < v2')
-  | _ -> Binop (Operators.Lt, v1, v2)
-
-let gte v1 v2 =
-  match (v1, v2) with
-  | Flt v1', Flt v2' -> Bool (v1' >= v2')
-  | Int v1', Int v2' -> Bool (v1' >= v2')
-  | _ -> Binop (Operators.Egt, v1, v2)
-
-let lte v1 v2 =
-  match (v1, v2) with
-  | Flt v1', Flt v2' -> Bool (v1' <= v2')
-  | Int v1', Int v2' -> Bool (v1' <= v2')
-  | _ -> Binop (Operators.Elt, v1, v2)
