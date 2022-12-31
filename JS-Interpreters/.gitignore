@@ -10,5 +10,8 @@ ES5_interpreter/test262_ast.esl
 test/main262.js
 ../JS2ECMA-SL/package-lock.json
 
+scripts/output/*
+output/*
+
 functions.log
 compare_res.md
