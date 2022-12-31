@@ -170,7 +170,16 @@ function CreateDataPropertyOrThrow(O, P, V) {
 	};
 
 	/* Return success. */
-	return success 
+	return success
+};
+
+/**
+ *  The Standard sometimes wants not a throw but a throw completion
+ *  ecause of this we need a Wrapped CreateDataPropertyOrThrow
+ */
+function WrappedCreateDataPropertyOrThrow(O,P,V) {
+	x := CreateDataPropertyOrThrow(O, P, V) catch CallHandler;
+  return x
 };
 
 /**

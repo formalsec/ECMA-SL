@@ -138,7 +138,7 @@ function GetSuperConstructor(scope) {
     /* 3. Let activeFunction be envRec.[[FunctionObject]]. */
     activeFunction := envRec.FunctionObject;
     /* 4. Let superConstructor be activeFunction.[[GetPrototypeOf]](). */
-    superConstructor := {activeFunction.GetPrototypeOf}();
+    superConstructor := {activeFunction.GetPrototypeOf}(activeFunction);
     /* 5. ReturnIfAbrupt(superConstructor). */
     @ReturnIfAbrupt(superConstructor);
     /* 6. If IsConstructor(superConstructor) is false, */

@@ -871,7 +871,7 @@ function arrayFrom(global, this, NewTarget, strict, args) {
         mappedValue := nextValue
       };
       /* ix. Let defineStatus be CreateDataPropertyOrThrow(A, Pk, mappedValue). */
-      defineStatus := CreateDataPropertyOrThrowNew(A, Pk, mappedValue);
+      defineStatus := WrappedCreateDataPropertyOrThrow(A, Pk, mappedValue);
       /* x. If defineStatus is an abrupt completion, return IteratorClose(iterator, defineStatus). */
       if ((Type(defineStatus) = "Completion") &&& (isAnAbruptCompletion(defineStatus))) {
         return IteratorClose(iterator, defineStatus)
