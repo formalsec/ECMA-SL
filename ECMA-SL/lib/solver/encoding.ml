@@ -2,9 +2,20 @@ open Operators
 
 exception Unknown
 
+let time_solver = ref 0.0
+
 let cfg = [ ("model", "false"); ("proof", "false"); ("unsat_core", "false") ]
 let ctx : Z3.context = Z3.mk_context cfg
 let int_sort = Z3.Arithmetic.Integer.mk_sort ctx
+let real_sort = Z3.Arithmetic.Real.mk_sort ctx
+let bool_sort = Z3.Boolean.mk_sort ctx
+
+let sort_of_type (t : Type.t) : Z3.Sort.sort =
+  match t with
+  | Type.IntType -> int_sort
+  | Type.FltType -> real_sort
+  | Type.BoolType -> bool_sort
+  | _ -> failwith "Encoding: sort_of_type: Unsupported type!"
 
 let encode_unop (op : uopt) (v : Z3.Expr.expr) : Z3.Expr.expr =
   let f =
@@ -35,7 +46,10 @@ let encode_binop (op : bopt) (v1 : Z3.Expr.expr) (v2 : Z3.Expr.expr) :
 let rec encode_value (v : Sval.t) : Z3.Expr.expr =
   match v with
   | Sval.Int i -> Z3.Arithmetic.Integer.mk_numeral_i ctx i
-  | Sval.Symbolic (t, x) -> Z3.Expr.mk_const_s ctx x int_sort
+  | Sval.Flt f -> Z3.Arithmetic.Real.mk_numeral_s ctx (string_of_float f)
+  | Sval.Bool b -> Z3.Boolean.mk_val ctx b
+  | Sval.Byte i -> Z3.Arithmetic.Integer.mk_numeral_i ctx i
+  | Sval.Symbolic (t, x) -> Z3.Expr.mk_const_s ctx x (sort_of_type t) 
   | Sval.Unop (op, v) ->
       let v' = encode_value v in
       encode_unop op v'
@@ -51,7 +65,10 @@ let check (vs : Sval.t list) : bool =
   let solver = Z3.Solver.mk_solver ctx None in
   let _ = Z3.Solver.add solver vs' in
   let b =
-    match Z3.Solver.check solver [] with
+    let sat =
+      Time_utils.time_call time_solver (fun () -> Z3.Solver.check solver [])
+    in
+    match sat with
     | Z3.Solver.SATISFIABLE -> true
     | Z3.Solver.UNKNOWN -> raise Unknown
     | Z3.Solver.UNSATISFIABLE -> false

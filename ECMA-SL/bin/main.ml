@@ -39,6 +39,7 @@ let argspec =
             banner ();
             exit 0),
         " show version" );
+      ("--workspace", Arg.String (fun o -> Flags.workspace := o), " workspace directory");
       ("--verbose", Arg.Set Flags.verbose, " verbose interpreter");
       ("--parse", Arg.Set Flags.parse, " parse to JSON");
     ]
@@ -53,7 +54,7 @@ let parse_program (prog : Prog.t) (inline : string) : unit =
   print_string json;
   print_string "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   let jsonfile = Filename.remove_extension !Flags.file in
-  File_utils.burn_to_disk (jsonfile ^ inline ^ ".json") json;
+  Io.write_file (jsonfile ^ inline ^ ".json") json;
   Printf.printf "%s" jsonfile
 
 let compile_from_plus_to_core () : unit =
@@ -65,7 +66,7 @@ let compile_from_plus_to_core () : unit =
   in
   let c_prog = Compiler.compile_prog e_prog_macros_applied in
   if !Flags.output <> "" then
-    File_utils.burn_to_disk !Flags.output (Prog.str c_prog)
+    Io.write_file !Flags.output (Prog.str c_prog)
 
 let inline_compiler () : Prog.t =
   let prog_contents = Parsing_utils.load_file !Flags.file in
@@ -76,7 +77,7 @@ let inline_compiler () : Prog.t =
   let lattice_prog = Parsing_utils.parse_prog sec_prog_contents in
   let final_prog = combine_progs inlined_prog lattice_prog in
   let inlinedfile = Filename.remove_extension !Flags.file in
-  File_utils.burn_to_disk (inlinedfile ^ "_inlined.esl") (Prog.str final_prog);
+  Io.write_file (inlinedfile ^ "_inlined.esl") (Prog.str final_prog);
   Printf.printf
     "================= FINAL PROGRAM ================= \n\
     \ %s \n\
@@ -87,7 +88,7 @@ let inline_compiler () : Prog.t =
 let core_interpretation (prog : Prog.t) : exit_code =
   let v, heap = Interpreter.eval_prog prog !Flags.mon !Flags.target in
   if !Flags.heap_file <> "" then
-    File_utils.burn_to_disk !Flags.heap_file (Heap.to_string_with_glob heap);
+    Io.write_file !Flags.heap_file (Heap.to_string_with_glob heap);
   match v with
   | Some z -> (
       match z with
@@ -115,7 +116,10 @@ let core_interpretation (prog : Prog.t) : exit_code =
       ERROR
 
 let symbolic_interpretation (prog : Prog.t) : exit_code =
-  let _ = Eval.invoke prog !Flags.target in
+  Io.safe_mkdir !Flags.workspace;
+  let report_file = Filename.concat !Flags.workspace "report.json"
+  and report_list = Eval.analyse prog !Flags.target in
+  Io.write_file report_file ("{ " ^ String.concat ", " report_list ^ " }");
   SUCCESS
 
 (* Main function *)

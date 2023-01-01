@@ -195,5 +195,19 @@ let invoke (prog : Prog.t) (f : func) : config list =
   let state = (heap, store, stack, f) in
   eval [ { prog; code = Cont [ func.body ]; state; pc = [] } ] []
 
-let analyse (prog : Prog.t) (f : func) : unit =
-  ()
+let analyse (prog : Prog.t) (f : func) : string list =
+  let time_analysis = ref 0.0 in
+  let outcomes = Time_utils.time_call time_analysis (fun () -> invoke prog f) in
+  List.iter
+    (fun c ->
+      match c.code with Error v -> print_endline "Found Error!" | _ -> ())
+    outcomes;
+  [
+    "\"file\" : \"" ^ !Flags.file  ^ "\"";
+    "\"paths_total\" : " ^ (string_of_int (List.length outcomes));
+    "\"paths_error\" : 0";
+    "\"paths_unknown\" : 0";
+    "\"time_analysis\" : \"" ^ string_of_float !time_analysis ^ "\"";
+    "\"time_solver\" : \"" ^ string_of_float !Encoding.time_solver ^ "\"";
+  ]
+

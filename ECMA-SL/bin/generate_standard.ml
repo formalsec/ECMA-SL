@@ -17,7 +17,7 @@ let generate_html_doc () : unit =
   let file_contents = Parsing_utils.load_file !input_file in
   let e_prog = Parsing_utils.parse_e_prog !input_file file_contents in
   let html_str = HTMLGenerator.generate !json_file e_prog in
-  File_utils.burn_to_disk !output_file html_str;
+  Io.write_file !output_file html_str;
   print_endline "HTML file generated!"
 
 let run () =
