@@ -1777,7 +1777,7 @@ function StringPrototypeSplit(global, this, NewTarget, strict, args){
   /* 15. If separator is undefined, then */
   if (separator = 'undefined){
     /* a. Perform CreateDataProperty(A, "0", S). */
-    CreateDataPropertyNew(A, "0", S);
+    CreateDataProperty(A, "0", S);
     /* setJSProperty(A, "length", newDataPropertyDescriptorFull(1., true, false, false)); */
 
     /* b. Assert: The above call will never result in an abrupt completion. */
@@ -1797,7 +1797,7 @@ function StringPrototypeSplit(global, this, NewTarget, strict, args){
     };
 
     /* c. Perform CreateDataProperty(A, "0", S). */
-    CreateDataPropertyNew(A, "0", S);
+    CreateDataProperty(A, "0", S);
     /* setJSProperty(A, "length", newDataPropertyDescriptorFull(1., true, false, false)); */
 
     /* d. Assert: The above call will never result in an abrupt completion. */
@@ -1831,7 +1831,7 @@ function StringPrototypeSplit(global, this, NewTarget, strict, args){
         T := substring(S, p, q);
 
         /* 2. Perform CreateDataProperty(A, ToString(lengthA), T). */
-        CreateDataPropertyNew(A, ToString(lengthA), T);
+        CreateDataProperty(A, ToString(lengthA), T);
         /* setJSProperty(A, "length", newDataPropertyDescriptorFull(lengthA + 1., true, false, false)); */
 
         /* 3. Assert: The above call will never result in an abrupt completion. */
@@ -1858,7 +1858,7 @@ function StringPrototypeSplit(global, this, NewTarget, strict, args){
   T := substring(S, p, q);
   
   /* 20. Perform CreateDataProperty(A, ToString(lengthA), T). */
-  CreateDataPropertyNew(A, ToString(lengthA), T);
+  CreateDataProperty(A, ToString(lengthA), T);
   /* setJSProperty(A, "length", newDataPropertyDescriptorFull(lengthA + 1., true, false, false)); */
 
   /* 21. Assert: The above call will never result in an abrupt completion. */

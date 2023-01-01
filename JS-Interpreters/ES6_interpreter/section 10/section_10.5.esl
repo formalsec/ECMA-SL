@@ -124,7 +124,7 @@ function DeclarationBindingInstantiation(code, args, runningExecCtx, F) {
   if (isFunctionCode(code) && (argumentsAlreadyDeclared = false)) {
     /* a. Let argsObj be the result of calling the abstract operation CreateArgumentsObject (10.6) passing
           func, names, args, env and strict as arguments. */
-    argsObj := CreateArgumentsObject(func, names, args, env, getVariableEnvironment(runningExecCtx), strict);
+    argsObj := CreateMappedArgumentsObject(func, names, args, env);
     /* b. If strict is true, then */
     if (strict = true) {
       /* i. Call env‘s CreateImmutableBinding concrete method passing the String "arguments" as

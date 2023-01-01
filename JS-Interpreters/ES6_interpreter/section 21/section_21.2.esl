@@ -740,16 +740,16 @@ function RegExpBuiltinExec(R, S){
    /* ??? */
 
    /* 24. Perform CreateDataProperty(A, "index", matchIndex). */
-   CreateDataPropertyNew(A, "index", matchIndex);
+   CreateDataProperty(A, "index", matchIndex);
 
    /* 25. Perform CreateDataProperty(A, "input", S). */
-   CreateDataPropertyNew(A, "input", S);
+   CreateDataProperty(A, "input", S);
 
    /* 26. Let matchedSubstr be the matched substring (i.e. the portion of S between offset lastIndex inclusive and offset e exclusive). */
    matchedSubstr := substring(S, lastIndex, e);
 
    /* 27. Perform CreateDataProperty(A, "0", matchedSubstr). */
-   CreateDataPropertyNew(A, "0", matchedSubstr);
+   CreateDataProperty(A, "0", matchedSubstr);
 
    /* 28. For each integer i such that i > 0 and i ≤ n */
    i := 1;
@@ -778,7 +778,7 @@ function RegExpBuiltinExec(R, S){
       };
 
       /* e. Perform CreateDataProperty(A, ToString(i) , capturedValue). */
-      CreateDataPropertyNew(A, ToString(int_to_float i), capturedValue);
+      CreateDataProperty(A, ToString(int_to_float i), capturedValue);
 
       i := i + 1
    };
@@ -1057,7 +1057,7 @@ function RegExpPrototypematch(global, this, NewTarget, strict, args){
             @ReturnIfAbrupt(matchStr);
 
             /* 3. Let status be CreateDataProperty(A, ToString(n), matchStr). */
-            status := CreateDataPropertyNew(A, ToString(int_to_float n), matchStr);
+            status := CreateDataProperty(A, ToString(int_to_float n), matchStr);
 
             /* 4. Assert: status is true. */
             /* assert(status = true); */
@@ -1541,7 +1541,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
    print "step 21";
 
    /* 13. Let splitter be Construct(C, «rx, newFlags»). */
-   splitter := ConstructNew(C, [rx, newFlags], null);
+   splitter := Construct(null, null, C, [rx, newFlags], null);
    print "step 22";
 
    /* 14. ReturnIfAbrupt(splitter). */
@@ -1591,7 +1591,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
       /* ???? */
 
       /* e. Perform CreateDataProperty(A, "0", S). */
-      CreateDataPropertyNew(A, "0", S);
+      CreateDataProperty(A, "0", S);
 
       /* f. Return A. */
       return A
@@ -1640,7 +1640,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
             /* ???? */
 
             /* 3. Perform CreateDataProperty(A, ToString(lengthA), T). */
-            CreateDataPropertyNew(A, ToString(lengthA), T);
+            CreateDataProperty(A, ToString(lengthA), T);
 
             /* 4. Let lengthA be lengthA +1. */
             lengthA := lengthA + 1.;
@@ -1674,7 +1674,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
                @ReturnIfAbrupt(nextCapture);
 
                /* c. Perform CreateDataProperty(A, ToString(lengthA), nextCapture). */ 
-               CreateDataPropertyNew(A, ToString(lengthA), nextCapture);
+               CreateDataProperty(A, ToString(lengthA), nextCapture);
 
                /* d. Let i be i+1. */
                i := i + 1.;
@@ -1701,7 +1701,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
    /* ???? */
 
    /* 27. Perform CreateDataProperty(A, ToString(lengthA), T ). */
-   CreateDataPropertyNew(A, ToString(lengthA), T);
+   CreateDataProperty(A, ToString(lengthA), T);
    /* setJSProperty(A, "length", newDataPropertyDescriptorFull(lengthA + 1., true, false, false)); */
 
    /* 28. Return A. */

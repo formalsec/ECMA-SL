@@ -41,6 +41,15 @@ function newGetAccessorPropertyDescriptorFull(get, enumerable, configurable) {
   return desc
 };
 
+function newSetAccessorPropertyDescriptorFull(set, enumerable, configurable) {
+  desc := NewPropertyDescriptor();
+  desc.Set := set;
+  desc.Enumerable := enumerable;
+  desc.Configurable := configurable;
+
+  return desc
+};
+
 function newSetAccessorPropertyDescriptor(set) {
   desc := NewPropertyDescriptor();
   desc.Set := set;

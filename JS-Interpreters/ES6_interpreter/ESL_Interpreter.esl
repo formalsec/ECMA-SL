@@ -283,7 +283,9 @@ function JS_Interpreter_Expr(e, scope) {
     print propertyNameValue;
     
     /* 5. Call CheckObjectCoercible(baseValue). */
-    CheckObjectCoercible(baseValue);
+    coercibleObject := RequireObjectCoercible(baseValue);
+
+    @ReturnIfAbrupt(coercibleObject);
 
     /* 6. Let propertyNameString be ToString(propertyNameValue). */
     propertyNameString := ToPropertyKey(propertyNameValue);

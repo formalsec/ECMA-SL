@@ -982,4 +982,52 @@ function OrdinaryCreateFromConstructor(constructor, intrinsicDefaultProto, inter
 
     /* Return ObjectCreate(proto, internalSlotsList).	 */
     return ObjectCreate(proto, internalSlotsList)
+};
+
+/* Auxiliary Functions */
+
+function GetProps(Desc) {
+  list := [];
+  if ("Value" in_obj Desc) { list := l_add(list, "Value") };
+  if ("Writable" in_obj Desc) { list := l_add(list, "Writable") };
+  if ("Get" in_obj Desc) { list := l_add(list, "Get") };
+  if ("Set" in_obj Desc) { list := l_add(list, "Set") };
+  if ("Enumerable" in_obj Desc) { list := l_add(list, "Enumerable") };
+  if ("Configurable" in_obj Desc) { list := l_add(list, "Configurable") };
+
+  return list
+};
+
+function GetValueOrDefault(propDesc, propName) {
+  objectDefaultAttributeValues := {
+    Value       : 'undefined,
+    Get         : 'undefined,
+    Set         : 'undefined,
+    Writable    : false,
+    Enumerable  : false,
+    Configurable: false
+  };
+  if (propName in_obj propDesc) {
+    return propDesc[propName]
+  } else {
+    return objectDefaultAttributeValues[propName]
+  }
+};
+
+function CreateAccessorPropertyFrom(Desc) {
+  return {
+    Get: GetValueOrDefault(Desc, "Get"),
+    Set: GetValueOrDefault(Desc, "Set"),
+    Enumerable: GetValueOrDefault(Desc, "Enumerable"),
+    Configurable: GetValueOrDefault(Desc, "Configurable")
+  }
+};
+
+function CreateDataPropertyFrom(Desc) {
+  return {
+    Value: GetValueOrDefault(Desc, "Value"),
+    Writable: GetValueOrDefault(Desc, "Writable"),
+    Enumerable: GetValueOrDefault(Desc, "Enumerable"),
+    Configurable: GetValueOrDefault(Desc, "Configurable")
+  }
 }

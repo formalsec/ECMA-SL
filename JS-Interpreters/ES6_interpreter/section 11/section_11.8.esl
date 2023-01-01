@@ -1,19 +1,8 @@
-/*
-  11.8.5 The Abstract Relational Comparison Algorithm
-
-  The comparison x < y, where x and y are values, produces true, false, or undefined (which indicates that at
-  least one operand is NaN). In addition to x and y the algorithm takes a Boolean flag named LeftFirst as a
-  parameter. The flag is used to control the order in which operations with potentially visible side-effects are
-  performed upon x and y. It is necessary because ECMAScript specifies left to right evaluation of expressions.
-  The default value of LeftFirst is true and indicates that the x parameter corresponds to an expression that
-  occurs to the left of the y parameter‘s corresponding expression. If LeftFirst is false, the reverse is the case
-  and operations must be performed upon y before x. Such a comparison is performed as follows:
-
-    NOTE 1    Step 3 differs from step 7 in the algorithm for the addition operator + (11.6.1) in using and instead of or.
-    NOTE 2    The comparison of Strings uses a simple lexicographic ordering on sequences of code unit values. There is no
-              attempt to use the more complex, semantically oriented definitions of character or string equality and collating order
-              defined in the Unicode specification. Therefore String values that are canonically equal according to the Unicode standard
-              could test as unequal. In effect this algorithm assumes that both Strings are already in normalised form. Also, note that for
-              strings containing supplementary characters, lexicographic ordering on sequences of UTF-16 code unit values differs from
-              that on sequences of code point values.
-*/
+/* Section 11.8: Literals */
+function formingTheValueOfTheNumericLiteral(literal) {
+  if ((typeof literal = __$Int)) {
+    return int_to_float literal
+  } else {
+    return literal
+  }
+}
