@@ -1,4 +1,4 @@
-/* Auxiliary function */
+/* Auxiliary function for 12.14 Assignment Operators */
 function applyOperator(operator, lval, rval) {
   if ((operator = "*=") || (operator = "/=") || (operator = "%=")) {
     /* Let leftNum be ToNumber(leftValue). */
@@ -32,7 +32,6 @@ function applyOperator(operator, lval, rval) {
     return applyingTheAdditionOperation(ToNumber(lprim), ToNumber(rprim))
   };
   if (operator = "-=") {
-    /* Check 11.6.2 */
     /* Let lnum be ToNumber(lval). */
     lnum := ToNumber(lval);
     /* Let rnum be ToNumber(rval). */
@@ -43,7 +42,6 @@ function applyOperator(operator, lval, rval) {
   };
 
   if ((operator = "<<=") || (operator = ">>=") || (operator = ">>>=")) {
-    /* Check 11.7.1, 11.7.2, and 11.7.3 */
     /* Let lnum be ToInt32(lval). */
     lnum := ToInt32(lval);
     /* Let rnum be ToUint32(rval). */

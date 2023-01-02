@@ -1,77 +1,10 @@
-/* 10.2 Lexical Environments */
+/* 10.2 Strict Code */
 
-/* A Lexical Environment is a specification type used to define the association of Identifiers to specific variables
-and functions based upon the lexical nesting structure of ECMAScript code. A Lexical Environment consists of
-an Environment Record and a possibly null reference to an outer Lexical Environment. Usually a Lexical
-Environment is associated with some specific syntactic structure of ECMAScript code such as a
-FunctionDeclaration, a WithStatement, or a Catch clause of a TryStatement and a new Lexical Environment is
-created each time such code is evaluated. */
+function isStrict(code) {
+  return (!(code = 'undefined) &&& (code.strict = true))
+};
 
-/* An Environment Record records the identifier bindings that are created within the scope of its associated
-Lexical Environment. */
-
-/* The outer environment reference is used to model the logical nesting of Lexical Environment values. The
-outer reference of a (inner) Lexical Environment is a reference to the Lexical Environment that logically
-surrounds the inner Lexical Environment. An outer Lexical Environment may, of course, have its own outer
-Lexical Environment. A Lexical Environment may serve as the outer environment for multiple inner Lexical
-Environments. For example, if a FunctionDeclaration contains two nested FunctionDeclarations then the Lexical
-Environments of each of the nested functions will have as their outer Lexical Environment the Lexical
-Environment of the current execution of the surrounding function. */
-
-/* Lexical Environments and Environment Record values are purely specification mechanisms and need not
-correspond to any specific artefact of an ECMAScript implementation. It is impossible for an ECMAScript
-program to directly access or manipulate such values. */
-
-
-
-/* 10.2.1 Environment Records */
-
-/* There are two kinds of Environment Record values used in this specification: declarative environment records
-and object environment records. Declarative environment records are used to define the effect of ECMAScript
-language syntactic elements such as FunctionDeclarations, VariableDeclarations, and Catch clauses that directly
-associate identifier bindings with ECMAScript language values. Object environment records are used to define
-the effect of ECMAScript elements such as Program and WithStatement that associate identifier bindings with
-the properties of some object. */
-
-/* For specification purposes Environment Record values can be thought of as existing in a simple object-
-oriented hierarchy where Environment Record is an abstract class with two concrete subclasses, declarative
-environment record and object environment record. The abstract class includes the abstract specification
-methods defined in Table 17. These abstract methods have distinct concrete algorithms for each of the
-concrete subclasses. */
-
-/* In addition to the mutable bindings supported by all Environment Records, declarative environment records
-also provide for immutable bindings. An immutable binding is one where the association between an identifier
-and a value may not be modified once it has been established. Creation and initialisation of immutable binding
-are distinct steps so it is possible for such bindings to exist in either an initialised or uninitialised state.
-Declarative environment records support the methods listed in Table 18 in addition to the Environment Record
-abstract specification methods: */
-
-/*
-  Create a new but uninitialised immutable binding in an environment record.
-  The String value N is the text of the bound name.
-*/
-
-/* 10.2.2 Lexical Environment Operations */
-
-function GlobalEnvironment(globalObject) { /* TODO global object (15.1) */
-  /* 10.2.3 The Global Environment */
-
-  /* The global environment is a unique Lexical Environment which is created before any ECMAScript code is
-     executed. The global environment‘s Environment Record is an object environment record whose binding
-     object is the global object (15.1). The global environment‘s outer environment reference is null.
-
-  /* As ECMAScript code is executed, additional properties may be added to the global object and the initial
-     properties may be modified.*/
-
-  globalEnv := newLexicalEnvironment();
-  /* The global environment‘s Environment Record is an object environment record whose binding
-     object is the global object (15.1) */
-  globalEnvRec := newObjectEnvironmentRecord(globalObject);
-  setEnvironmentRecord(globalEnv, globalEnvRec);
-  /* The global environment‘s outer environment reference is null. */
-  setOuterLexicalEnvironmentReference(globalEnv, 'null);
-
-  setGlobalEnvironment(globalObject, globalEnv);
-
-  return globalEnv
+function isStrictModeCode(code, execCtx) {
+  print code;
+  return (!(code = 'undefined) &&& (code.strict = true)) ||| isContainedInStrictCode(execCtx)
 }

@@ -1,3 +1,19 @@
+/* 12.11 Binary Bitwise Operators */
+function applyBitwiseOperator(operator, lnum, rnum) {
+  if (operator = "&") {
+    return lnum & rnum
+  };
+  if (operator = "^") {
+    return lnum ^ rnum
+  };
+  if (operator = "|") {
+    return lnum | rnum
+  };
+
+  assert false
+};
+
+
 /* Auxiliary functions used to deal with the switch statement and its case clauses */
 function getNextCaseClause(caseClauseItems, idx) {
   if ((l_len caseClauseItems) <= idx) {

@@ -1,4 +1,4 @@
-/* 11.6.3 Applying the Additive Operators to Numbers */
+/* 12.7.5 Applying the Additive Operators to Numbers */
 function applyingTheAdditionOperation(leftOperand, rightOperand) {
   /* The + operator performs addition when applied to two operands of numeric type, producing the sum of the
     operands. The - operator performs subtraction, producing the difference of two numeric operands.

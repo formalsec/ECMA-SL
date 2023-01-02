@@ -134,34 +134,8 @@ function OrdinaryFunctionCall(externalScope, ref, F, this, newTarget, args) {
     args := completeArgs(args, F);
     return {F.Code}(F.Scope, this, newTarget, F.strict, args)
   };
-  /* When the [[Call]] internal method for a Function object F is called with a this value and a list of arguments,
-    the following steps are taken: */
 
-  /* 1. Let funcCtx be the result of establishing a new execution context for function code using the value of F's
-        [[FormalParameters]] internal property, the passed arguments List args, and the this value as described in 10.4.3. */
-  funcCtx := EnteringFunctionCode(F, this, args);
-
-  /* 2. Let result be the result of evaluating the FunctionBody that is the value of F's [[Code]] internal property.
-        If F does not have a [[Code]] internal property or if its value is an empty FunctionBody,
-        then result is (normal, undefined, empty). */
-  if (!("Code" in_obj F) ||| ((typeof F.Code = __$Obj) &&& ("body" in_obj F.Code) &&& (F.Code.body = []))) {
-    result := NormalCompletion('undefined)
-  } else {
-    result := JS_Interpreter_FunctionBody(F.Code, funcCtx)
-  };
-
-  /* 3. Exit the execution context funcCtx, restoring the previous execution context. */
-
-  /* 4. If result.type is throw then throw result.value. */
-  if (getCompletionType(result) = 'throw) {
-    throw getCompletionValue(result)
-  };
-  /* 5. If result.type is return then return result.value. */
-  if (getCompletionType(result) = 'return) {
-    return getCompletionValue(result)
-  };
-  /* 6. Otherwise result.type must be normal. Return undefined. */
-  return 'undefined
+  return NewOrdinaryFunctionCall(externalScope, ref, F, this, newTarget, args)
 };
 
 
