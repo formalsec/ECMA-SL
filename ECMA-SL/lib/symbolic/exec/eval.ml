@@ -28,23 +28,32 @@ let rec small_step_iter
 *)
 open Func
 
-type func = string
-type stack = Sstore.t Call_stack.t
-type state = Sheap.t * Sstore.t * stack * func
+type config = {
+  prog : Prog.t;
+  code : outcome;
+  state : state;
+  pc : pc;
+  solver : Z3.Solver.solver;
+}
 
-type outcome =
+and outcome =
   | Cont of Stmt.t list
   | Error of Sval.t option
   | Final of Sval.t option
-  (* TODO:
-  | AsrtFail of Sval.t option
-  | Unknwon of Sval.t option
-  *)
 
-type pc = Sval.t list
-type config = { prog : Prog.t; code : outcome; state : state; pc : pc }
+(* TODO:
+   | AsrtFail of Sval.t option
+   | Unknwon of Sval.t option
+*)
+and func = string
+and stack = Sstore.t Call_stack.t
+and state = Sheap.t * Sstore.t * stack * func
+and pc = Sval.t list
 
 exception Runtime_error of string
+
+let is_error (o : outcome) : bool = match o with Error _ -> true | _ -> false
+let is_final (o : outcome) : bool = match o with Final _ -> true | _ -> false
 
 let rec eval_expression (store : Sstore.t) (e : Expr.t) : Sval.t =
   match e with
@@ -71,11 +80,12 @@ let rec eval_expression (store : Sstore.t) (e : Expr.t) : Sval.t =
       raise (Runtime_error "eval_expression: 'Curry' not implemented!")
   | Expr.Symbolic (t, x) -> Sval.Symbolic (t, x)
 
-let update (c : config) (o : outcome) (s : state) (pc : pc) : config =
-  { c with code = o; state = s; pc }
+let update (c : config) (o : outcome) (s : state) (pc : pc)
+    (solver : Z3.Solver.solver) : config =
+  { c with code = o; state = s; pc; solver }
 
 let step (c : config) : config list =
-  let { prog; code; state; pc } = c in
+  let { prog; code; state; pc; solver } = c in
   let heap, store, stack, f = state in
   let stmts =
     match code with
@@ -84,54 +94,64 @@ let step (c : config) : config list =
   in
   let s = List.hd stmts in
   match s with
-  | Stmt.Skip -> [ update c (Cont (List.tl stmts)) state pc ]
-  | Stmt.Merge -> [ update c (Cont (List.tl stmts)) state pc ]
-  | Stmt.Exception err -> [ update c (Error (Some (Sval.Str err))) state pc ]
+  | Stmt.Skip -> [ update c (Cont (List.tl stmts)) state pc solver ]
+  | Stmt.Merge -> [ update c (Cont (List.tl stmts)) state pc solver ]
+  | Stmt.Exception err ->
+      [ update c (Error (Some (Sval.Str err))) state pc solver ]
   | Stmt.Print e ->
       print_endline "print ignored.";
-      [ update c (Cont (List.tl stmts)) state pc ]
+      [ update c (Cont (List.tl stmts)) state pc solver ]
   | Stmt.Fail e ->
-      [ update c (Error (Some (eval_expression store e))) state pc ]
+      [ update c (Error (Some (eval_expression store e))) state pc solver ]
   | Stmt.Abort e ->
-      [ update c (Final (Some (eval_expression store e))) state pc ]
+      [ update c (Final (Some (eval_expression store e))) state pc solver ]
   | Stmt.Assume e ->
       let v = eval_expression store e in
-      if not (Encoding.check (v :: pc)) then
-        [ update c (Final (Some v)) state pc ]
-      else [ update c (Cont (List.tl stmts)) state (v :: pc) ]
+      Encoding.add solver [ v ];
+      if not (Encoding.check solver []) then
+        [ update c (Final (Some v)) state pc solver ]
+      else [ update c (Cont (List.tl stmts)) state (v :: pc) solver ]
   | Stmt.Assert e ->
       let v = eval_expression store e in
       let v' = eval_expression store (Expr.UnOpt (Operators.Not, e)) in
-      if Encoding.check (v' :: pc) then [ update c (Error (Some v)) state pc ]
-      else [ update c (Cont (List.tl stmts)) state (v :: pc) ]
+      if Encoding.check solver [ v' ] then
+        [ update c (Error (Some v)) state pc solver ]
+      else [ update c (Cont (List.tl stmts)) state pc solver ]
   | Stmt.Assign (x, e) ->
       let v = eval_expression store e in
       [
         update c
           (Cont (List.tl stmts))
           (heap, Sstore.add store x v, stack, f)
-          pc;
+          pc solver;
       ]
-  | Stmt.Block block -> [ update c (Cont (block @ List.tl stmts)) state pc ]
+  | Stmt.Block block ->
+      [ update c (Cont (block @ List.tl stmts)) state pc solver ]
   | Stmt.If (cond, stmts1, stmts2) ->
       let cond' = eval_expression store cond
-      and not_cond' = eval_expression store (Expr.UnOpt (Operators.Not, cond)) in
+      and not_cond' = eval_expression store (Expr.UnOpt (Operators.Not, cond))
+      and solver' = Encoding.clone solver in
       let then_branch =
-        if Encoding.check (cond' :: pc) then
+        Encoding.add solver [ cond' ];
+        if Encoding.check solver [] then
           match stmts1 with
-          | Stmt.Block b -> 
-              let b' = b @ ([ Stmt.Merge ] @ List.tl stmts) in
-              [ update c (Cont b') state (cond' :: pc) ]
+          | Stmt.Block b ->
+              let b' = b @ [ Stmt.Merge ] @ List.tl stmts in
+              [ update c (Cont b') state (cond' :: pc) solver ]
           | _ -> raise (Runtime_error "Malformed if statement!")
         else []
       in
       let else_branch =
-        if Encoding.check (not_cond' :: pc) then
+        Encoding.add solver' [ not_cond' ];
+        if Encoding.check solver' [] then
           match stmts2 with
-          | None -> [ update c (Cont (List.tl stmts)) state (not_cond' :: pc) ]
+          | None ->
+              [
+                update c (Cont (List.tl stmts)) state (not_cond' :: pc) solver';
+              ]
           | Some (Stmt.Block b) ->
-              let b' = b @ ([ Stmt.Merge ] @ List.tl stmts) in
-              [ update c (Cont b') state (not_cond' :: pc) ]
+              let b' = b @ [ Stmt.Merge ] @ List.tl stmts in
+              [ update c (Cont b') state (not_cond' :: pc) solver' ]
           | Some _ -> raise (Runtime_error "Malformed if statement!")
         else []
       in
@@ -139,7 +159,9 @@ let step (c : config) : config list =
   | Stmt.While (cond, stmts') ->
       let stmts1 = Stmt.Block (stmts' :: [ Stmt.While (cond, stmts') ]) in
       [
-        update c (Cont (Stmt.If (cond, stmts1, None) :: List.tl stmts)) state pc;
+        update c
+          (Cont (Stmt.If (cond, stmts1, None) :: List.tl stmts))
+          state pc solver;
       ]
   | Stmt.Return e -> (
       let v = eval_expression store e in
@@ -147,9 +169,11 @@ let step (c : config) : config list =
       match frame with
       | Call_stack.Intermediate (stmts', store', x, f') ->
           [
-            update c (Cont stmts') (heap, Sstore.add store' x v, stack', f') pc;
+            update c (Cont stmts')
+              (heap, Sstore.add store' x v, stack', f')
+              pc solver;
           ]
-      | Call_stack.Toplevel -> [ update c (Final (Some v)) state pc ])
+      | Call_stack.Toplevel -> [ update c (Final (Some v)) state pc solver ])
   | Stmt.AssignCall (f, e, es) ->
       raise (Runtime_error "Eval: step: 'AssignCall' not implemented!")
   | Stmt.AssignECall (x, y, es) ->
@@ -162,7 +186,7 @@ let step (c : config) : config list =
         update c
           (Cont (List.tl stmts))
           (Sheap.add heap loc obj, Sstore.add store x loc', stack, f)
-          pc;
+          pc solver;
       ]
   | Stmt.AssignInObjCheck (x, e1, e2) ->
       raise (Runtime_error "Eval: step: 'AssignInObjCheck' not implemented!")
@@ -177,7 +201,8 @@ let step (c : config) : config list =
   | Stmt.FieldLookup (x, e1, e2) ->
       raise (Runtime_error "Eval: step: 'FieldLookup' not implemented!")
 
-let rec eval (input_confs : config list) (output_confs : config list) : config list =
+let rec eval (input_confs : config list) (output_confs : config list) :
+    config list =
   match input_confs with
   | [] -> output_confs
   | c :: input_confs' -> (
@@ -192,22 +217,31 @@ let invoke (prog : Prog.t) (f : func) : config list =
   let heap = Sheap.create ()
   and store = Sstore.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
-  let state = (heap, store, stack, f) in
-  eval [ { prog; code = Cont [ func.body ]; state; pc = [] } ] []
+  let initial_config =
+    {
+      prog;
+      code = Cont [ func.body ];
+      state = (heap, store, stack, f);
+      pc = [];
+      solver = Encoding.mk_solver ();
+    }
+  in
+  eval [ initial_config ] []
 
-let analyse (prog : Prog.t) (f : func) : string list =
+let analyse (prog : Prog.t) (f : func) : Report.t =
   let time_analysis = ref 0.0 in
-  let outcomes = Time_utils.time_call time_analysis (fun () -> invoke prog f) in
-  List.iter
-    (fun c ->
-      match c.code with Error v -> print_endline "Found Error!" | _ -> ())
-    outcomes;
-  [
-    "\"file\" : \"" ^ !Flags.file  ^ "\"";
-    "\"paths_total\" : " ^ (string_of_int (List.length outcomes));
-    "\"paths_error\" : 0";
-    "\"paths_unknown\" : 0";
-    "\"time_analysis\" : \"" ^ string_of_float !time_analysis ^ "\"";
-    "\"time_solver\" : \"" ^ string_of_float !Encoding.time_solver ^ "\"";
-  ]
-
+  let out_configs =
+    Time_utils.time_call time_analysis (fun () -> invoke prog f)
+  in
+  let final_configs = List.filter (fun c -> is_final c.code) out_configs
+  and error_configs = List.filter (fun c -> is_error c.code) out_configs in
+  let final_testsuite, error_testsuite =
+    ( List.map (fun c -> Encoding.model c.solver) final_configs,
+      List.map (fun c -> Encoding.model c.solver) error_configs )
+  in
+  let report =
+    Report.create !Flags.file (List.length out_configs)
+      (List.length error_configs)
+      0 !time_analysis !Encoding.time_solver
+  in
+  Report.add_testsuites report final_testsuite error_testsuite

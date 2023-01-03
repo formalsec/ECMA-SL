@@ -39,7 +39,9 @@ let argspec =
             banner ();
             exit 0),
         " show version" );
-      ("--workspace", Arg.String (fun o -> Flags.workspace := o), " workspace directory");
+      ( "--workspace",
+        Arg.String (fun o -> Flags.workspace := o),
+        " workspace directory" );
       ("--verbose", Arg.Set Flags.verbose, " verbose interpreter");
       ("--parse", Arg.Set Flags.parse, " parse to JSON");
     ]
@@ -65,8 +67,7 @@ let compile_from_plus_to_core () : unit =
     Parsing_utils.apply_prog_macros e_prog_imports_resolved
   in
   let c_prog = Compiler.compile_prog e_prog_macros_applied in
-  if !Flags.output <> "" then
-    Io.write_file !Flags.output (Prog.str c_prog)
+  if !Flags.output <> "" then Io.write_file !Flags.output (Prog.str c_prog)
 
 let inline_compiler () : Prog.t =
   let prog_contents = Parsing_utils.load_file !Flags.file in
@@ -116,10 +117,16 @@ let core_interpretation (prog : Prog.t) : exit_code =
       ERROR
 
 let symbolic_interpretation (prog : Prog.t) : exit_code =
-  Io.safe_mkdir !Flags.workspace;
-  let report_file = Filename.concat !Flags.workspace "report.json"
-  and report_list = Eval.analyse prog !Flags.target in
-  Io.write_file report_file ("{ " ^ String.concat ", " report_list ^ " }");
+  let testsuite_path = Filename.concat !Flags.workspace "test-suite" in
+  Io.safe_mkdir testsuite_path;
+  let report = Eval.analyse prog !Flags.target
+  and report_file = Filename.concat !Flags.workspace "report.json" in
+  Io.write_file report_file (Report.report_to_json report);
+  List.iter
+    (fun (file, testcase) ->
+      let file' = Filename.concat testsuite_path file in
+      Io.write_file file' testcase)
+    (Report.testsuite_to_json report);
   SUCCESS
 
 (* Main function *)

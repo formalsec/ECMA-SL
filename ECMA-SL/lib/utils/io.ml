@@ -1,6 +1,5 @@
 let safe_mkdir (dir : string) : unit =
-  if not (Sys.file_exists dir) then
-    ignore (Sys.command ("mkdir -p " ^ dir))
+  if not (Sys.file_exists dir) then ignore (Sys.command ("mkdir -p " ^ dir))
 
 let write_file (file : string) (data : string) : unit =
   let oc = open_out file in
