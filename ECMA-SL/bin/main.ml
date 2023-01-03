@@ -59,15 +59,19 @@ let parse_program (prog : Prog.t) (inline : string) : unit =
   Io.write_file (jsonfile ^ inline ^ ".json") json;
   Printf.printf "%s" jsonfile
 
-let compile_from_plus_to_core () : unit =
-  let e_prog_contents = Parsing_utils.load_file !Flags.file in
-  let e_prog = Parsing_utils.parse_e_prog !Flags.file e_prog_contents in
+let core_of_plus (file : string) : Prog.t =
+  let e_prog_contents = Parsing_utils.load_file file in
+  let e_prog = Parsing_utils.parse_e_prog file e_prog_contents in
   let e_prog_imports_resolved = Parsing_utils.resolve_prog_imports e_prog in
   let e_prog_macros_applied =
     Parsing_utils.apply_prog_macros e_prog_imports_resolved
   in
-  let c_prog = Compiler.compile_prog e_prog_macros_applied in
+  Compiler.compile_prog e_prog_macros_applied
+
+let compile_from_plus_to_core (file : string) : unit =
+  let c_prog = core_of_plus file in
   if !Flags.output <> "" then Io.write_file !Flags.output (Prog.str c_prog)
+  else print_endline (Prog.str c_prog)
 
 let inline_compiler () : Prog.t =
   let prog_contents = Parsing_utils.load_file !Flags.file in
@@ -159,8 +163,7 @@ let () =
       if !Flags.parse then parse_program prog "";
       core_interpretation prog)
     else if !Flags.mode = "symbolic" then
-      let prog = Parsing_utils.(parse_prog (load_file !Flags.file)) in
-      symbolic_interpretation prog
+      symbolic_interpretation (core_of_plus !Flags.file)
     else if !Flags.mode = "parse" then (
       let prog = Parsing_utils.(parse_prog (load_file !Flags.file)) in
       parse_program prog "";
@@ -173,7 +176,7 @@ let () =
       if !Flags.parse then parse_program prog "_inlined";
       core_interpretation prog)
     else (
-      compile_from_plus_to_core ();
+      compile_from_plus_to_core !Flags.file;
       SUCCESS)
   in
   print_string "\n=====================\n\tFINISHED\n=====================\n";
