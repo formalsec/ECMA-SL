@@ -1,6 +1,6 @@
 module Symbolic_heap = Map.Make (String)
 
-type object_t = Sval.t Object.t
+type object_t = Sval.t Sobject.t
 type t = object_t Symbolic_heap.t
 
 let create () : t = Symbolic_heap.empty
@@ -14,20 +14,20 @@ let find_opt (h : t) (l : Loc.t) : object_t option = Symbolic_heap.find_opt l h
 
 let get_field (h : t) (l : Loc.t) (f : Field.t) : Sval.t option =
   let obj = find_opt h l in
-  let v = match obj with None -> None | Some o -> Object.get o f in
+  let v = match obj with None -> None | Some o -> Sobject.find_opt o f in
   v
 
-let set_field (h : t) (l : Loc.t) (f : Field.t) (v : Sval.t) : unit =
-  let obj = find_opt h l in
-  match obj with None -> () | Some o -> Object.set o f v
+let set_field (h : t) (l : Loc.t) (f : Field.t) (v : Sval.t) : t =
+  (* Deletes binding l if (find_opt l h) is None *)
+  Symbolic_heap.update l (fun o' -> Sobject.add_opt o' f v) h
 
-let delete_field (h : t) (l : Loc.t) (f : Field.t) : unit =
-  let obj = find_opt h l in
-  match obj with None -> () | Some o -> Object.delete o f
+let delete_field (h : t) (l : Loc.t) (f : Field.t) : t =
+  (* Deletes binding l if (find_opt l h) is None *)
+  Symbolic_heap.update l (fun o' -> Sobject.remove_opt o' f) h
 
 let object_to_string (o : object_t) : string =
   let str_obj =
-    Hashtbl.fold
+    Sobject.Symbolic_object.fold
       (fun n v ac ->
         if ac <> "{ " then ac ^ ", "
         else
@@ -40,7 +40,7 @@ let object_to_string (o : object_t) : string =
 
 let object_to_json (o : object_t) : string =
   let str_obj =
-    Hashtbl.fold
+    Sobject.Symbolic_object.fold
       (fun n v ac ->
         if ac <> "{ " then ac ^ ", "
         else
@@ -68,7 +68,7 @@ let to_string_with_glob (h : t) : string =
         | Some _ -> acc
         (* Keep this in sync with Compiler.ml function *)
         (* "compile_gvar" and "compile_glob_assign" *)
-        | None -> Object.get obj Common.global_var_compiled)
+        | None -> Sobject.find_opt obj Common.global_var_compiled)
       h None
   in
   match global with

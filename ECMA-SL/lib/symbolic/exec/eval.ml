@@ -52,8 +52,21 @@ and pc = Sval.t list
 
 exception Runtime_error of string
 
+let rte (msg : string) =
+  raise (Runtime_error msg)
+
 let is_error (o : outcome) : bool = match o with Error _ -> true | _ -> false
 let is_final (o : outcome) : bool = match o with Final _ -> true | _ -> false
+
+let update (c : config) (o : outcome) (s : state) (pc : pc)
+    (solver : Z3.Solver.solver) : config =
+  { c with code = o; state = s; pc; solver }
+
+let func (v : Sval.t) : string * Sval.t list =
+  match v with
+  | Sval.Str x -> (x, [])
+  | Sval.Curry (x, vs) -> (x, vs)
+  | _ -> rte "Wrong/Invalid function identifier"
 
 let rec eval_expression (store : Sstore.t) (e : Expr.t) : Sval.t =
   match e with
@@ -61,7 +74,7 @@ let rec eval_expression (store : Sstore.t) (e : Expr.t) : Sval.t =
   | Expr.Var x -> (
       match Sstore.find_opt store x with
       | Some v -> v
-      | None -> raise (Runtime_error ("Cannot find var '" ^ x ^ "'")))
+      | None -> rte ("Cannot find var '" ^ x ^ "'"))
   | Expr.UnOpt (op, e) ->
       let v = eval_expression store e in
       Eval_operators.eval_unop op v
@@ -76,13 +89,8 @@ let rec eval_expression (store : Sstore.t) (e : Expr.t) : Sval.t =
   | Expr.NOpt (op, es) ->
       let vs = List.map (eval_expression store) es in
       Eval_operators.eval_nop op vs
-  | Expr.Curry (_, _) ->
-      raise (Runtime_error "eval_expression: 'Curry' not implemented!")
+  | Expr.Curry (_, _) -> rte "eval_expression: 'Curry' not implemented!"
   | Expr.Symbolic (t, x) -> Sval.Symbolic (t, x)
-
-let update (c : config) (o : outcome) (s : state) (pc : pc)
-    (solver : Z3.Solver.solver) : config =
-  { c with code = o; state = s; pc; solver }
 
 let step (c : config) : config list =
   let { prog; code; state; pc; solver } = c in
@@ -90,7 +98,7 @@ let step (c : config) : config list =
   let stmts =
     match code with
     | Cont stmts -> stmts
-    | _ -> raise (Runtime_error "step: Empty continuation!")
+    | _ -> rte "step: Empty continuation!"
   in
   let s = List.hd stmts in
   match s with
@@ -99,7 +107,7 @@ let step (c : config) : config list =
   | Stmt.Exception err ->
       [ update c (Error (Some (Sval.Str err))) state pc solver ]
   | Stmt.Print e ->
-      print_endline "print ignored.";
+      print_endline (Expr.str e);
       [ update c (Cont (List.tl stmts)) state pc solver ]
   | Stmt.Fail e ->
       [ update c (Error (Some (eval_expression store e))) state pc solver ]
@@ -138,7 +146,7 @@ let step (c : config) : config list =
           | Stmt.Block b ->
               let b' = b @ [ Stmt.Merge ] @ List.tl stmts in
               [ update c (Cont b') state (cond' :: pc) solver ]
-          | _ -> raise (Runtime_error "Malformed if statement!")
+          | _ -> rte "Malformed if statement!"
         else []
       in
       let else_branch =
@@ -152,7 +160,7 @@ let step (c : config) : config list =
           | Some (Stmt.Block b) ->
               let b' = b @ [ Stmt.Merge ] @ List.tl stmts in
               [ update c (Cont b') state (not_cond' :: pc) solver' ]
-          | Some _ -> raise (Runtime_error "Malformed if statement!")
+          | Some _ -> rte "Malformed if statement!"
         else []
       in
       then_branch @ else_branch
@@ -174,12 +182,20 @@ let step (c : config) : config list =
               pc solver;
           ]
       | Call_stack.Toplevel -> [ update c (Final (Some v)) state pc solver ])
-  | Stmt.AssignCall (f, e, es) ->
-      raise (Runtime_error "Eval: step: 'AssignCall' not implemented!")
+  | Stmt.AssignCall (x, e, es) ->
+      let f', vs = func (eval_expression store e) in
+      let vs' = vs @ List.map (eval_expression store) es in
+      let func = Prog.get_func prog f' in
+      let stack' =
+        Call_stack.push stack
+          (Call_stack.Intermediate (List.tl stmts, store, x, f))
+      in
+      let store' = Sstore.create (List.combine (Prog.get_params prog f') vs') in
+      [ update c (Cont [ func.body ]) (heap, store', stack', f') pc solver ]
   | Stmt.AssignECall (x, y, es) ->
-      raise (Runtime_error "Eval: step: 'AssignECall' not implemented!")
+      rte "Eval: step: 'AssignECall' not implemented!"
   | Stmt.AssignNewObj x ->
-      let obj = Object.create () in
+      let obj = Sobject.create () in
       let loc = Loc.newloc () in
       let loc' = Sval.Loc loc in
       [
@@ -188,18 +204,45 @@ let step (c : config) : config list =
           (Sheap.add heap loc obj, Sstore.add store x loc', stack, f)
           pc solver;
       ]
-  | Stmt.AssignInObjCheck (x, e1, e2) ->
-      raise (Runtime_error "Eval: step: 'AssignInObjCheck' not implemented!")
+  | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
+      let loc = eval_expression store e_loc
+      and field = eval_expression store e_field in
+      let v =
+        match (loc, field) with
+          | Sval.Loc l, Sval.Str f ->
+              Sval.Bool (Option.is_some (Sheap.get_field heap l f))
+          | _ -> rte "Invalid field/object in AssignInObjCheck"
+      in
+      [
+        update c
+          (Cont (List.tl stmts)) (heap, Sstore.add store x v, stack, f) pc solver 
+      ]
   | Stmt.AssignObjToList (x, e) ->
-      raise (Runtime_error "Eval: step: 'AssignObjToList' not implemented!")
+      let loc =
+        match eval_expression store e with Sval.Loc l -> l | _ -> rte "Invalid location!"
+      in
+      let v =
+        match Sheap.find_opt heap loc with
+        | None -> Sval.List []
+        | Some obj ->
+            Sval.List (
+              List.map
+                (fun (f, v) -> Sval.(Tuple (Str f :: [ v ])))
+                (Sobject.to_list obj))
+      in
+      [
+        update c
+          (Cont (List.tl stmts))
+          (heap, Sstore.add store x v, stack, f) pc solver 
+      ]
   | Stmt.AssignObjFields (x, e) ->
-      raise (Runtime_error "Eval: step: 'AssignObjFields' not implemented!")
+      rte "Eval: step: 'AssignObjFields' not implemented!"
   | Stmt.FieldAssign (e1, e2, e3) ->
-      raise (Runtime_error "Eval: step: 'FieldAssign' not implemented!")
+      rte "Eval: step: 'FieldAssign' not implemented!"
   | Stmt.FieldDelete (e1, e2) ->
-      raise (Runtime_error "Eval: step: 'FieldDelete' not implemented!")
+      rte "Eval: step: 'FieldDelete' not implemented!"
   | Stmt.FieldLookup (x, e1, e2) ->
-      raise (Runtime_error "Eval: step: 'FieldLookup' not implemented!")
+      rte "Eval: step: 'FieldLookup' not implemented!"
 
 let rec eval (input_confs : config list) (output_confs : config list) :
     config list =
@@ -207,7 +250,7 @@ let rec eval (input_confs : config list) (output_confs : config list) :
   | [] -> output_confs
   | c :: input_confs' -> (
       match c.code with
-      | Cont [] -> raise (Runtime_error "eval: Empty continuation!")
+      | Cont [] -> rte "eval: Empty continuation!"
       | Cont _ -> eval (step c @ input_confs') output_confs
       | Error v -> eval input_confs' (c :: output_confs)
       | Final v -> eval input_confs' (c :: output_confs))

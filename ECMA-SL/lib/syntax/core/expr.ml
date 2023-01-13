@@ -1,14 +1,12 @@
 type t =
   | Val of Val.t
   | Var of string
+  | Symbolic of Type.t * string
   | UnOpt of (Operators.uopt * t)
   | BinOpt of (Operators.bopt * t * t)
   | TriOpt of (Operators.topt * t * t * t)
   | NOpt of Operators.nopt * t list
   | Curry of t * t list
-  | Symbolic of Type.t * string
-
-(*-----------String-------------*)
 
 let rec str (e : t) : string =
   let str_es es = String.concat ", " (List.map str es) in
