@@ -52,9 +52,7 @@ and pc = Sval.t list
 
 exception Runtime_error of string
 
-let rte (msg : string) =
-  raise (Runtime_error msg)
-
+let rte (msg : string) = raise (Runtime_error msg)
 let is_error (o : outcome) : bool = match o with Error _ -> true | _ -> false
 let is_final (o : outcome) : bool = match o with Final _ -> true | _ -> false
 
@@ -96,9 +94,7 @@ let step (c : config) : config list =
   let { prog; code; state; pc; solver } = c in
   let heap, store, stack, f = state in
   let stmts =
-    match code with
-    | Cont stmts -> stmts
-    | _ -> rte "step: Empty continuation!"
+    match code with Cont stmts -> stmts | _ -> rte "step: Empty continuation!"
   in
   let s = List.hd stmts in
   match s with
@@ -209,31 +205,36 @@ let step (c : config) : config list =
       and field = eval_expression store e_field in
       let v =
         match (loc, field) with
-          | Sval.Loc l, Sval.Str f ->
-              Sval.Bool (Option.is_some (Sheap.get_field heap l f))
-          | _ -> rte "Invalid field/object in AssignInObjCheck"
+        | Sval.Loc l, Sval.Str f ->
+            Sval.Bool (Option.is_some (Sheap.get_field heap l f))
+        | _ -> rte "Invalid field/object in AssignInObjCheck"
       in
       [
         update c
-          (Cont (List.tl stmts)) (heap, Sstore.add store x v, stack, f) pc solver 
+          (Cont (List.tl stmts))
+          (heap, Sstore.add store x v, stack, f)
+          pc solver;
       ]
   | Stmt.AssignObjToList (x, e) ->
       let loc =
-        match eval_expression store e with Sval.Loc l -> l | _ -> rte "Invalid location!"
+        match eval_expression store e with
+        | Sval.Loc l -> l
+        | _ -> rte "Invalid location!"
       in
       let v =
         match Sheap.find_opt heap loc with
         | None -> Sval.List []
         | Some obj ->
-            Sval.List (
-              List.map
-                (fun (f, v) -> Sval.(Tuple (Str f :: [ v ])))
-                (Sobject.to_list obj))
+            Sval.List
+              (List.map
+                 (fun (f, v) -> Sval.(Tuple (Str f :: [ v ])))
+                 (Sobject.to_list obj))
       in
       [
         update c
           (Cont (List.tl stmts))
-          (heap, Sstore.add store x v, stack, f) pc solver 
+          (heap, Sstore.add store x v, stack, f)
+          pc solver;
       ]
   | Stmt.AssignObjFields (x, e) ->
       rte "Eval: step: 'AssignObjFields' not implemented!"
