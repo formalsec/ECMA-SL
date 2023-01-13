@@ -140,23 +140,20 @@ let step (c : config) : config list =
         if Encoding.check solver [] then
           match stmts1 with
           | Stmt.Block b ->
-              let b' = b @ [ Stmt.Merge ] @ List.tl stmts in
+              let b' = b @ (Stmt.Merge :: List.tl stmts) in
               [ update c (Cont b') state (cond' :: pc) solver ]
-          | _ -> rte "Malformed if statement!"
+          | _ -> rte "Malformed if statement 'then' block!"
         else []
       in
       let else_branch =
         Encoding.add solver' [ not_cond' ];
         if Encoding.check solver' [] then
-          match stmts2 with
-          | None ->
-              [
-                update c (Cont (List.tl stmts)) state (not_cond' :: pc) solver';
-              ]
-          | Some (Stmt.Block b) ->
-              let b' = b @ [ Stmt.Merge ] @ List.tl stmts in
-              [ update c (Cont b') state (not_cond' :: pc) solver' ]
-          | Some _ -> rte "Malformed if statement!"
+          let b' = match stmts2 with
+            | None -> List.tl stmts
+            | Some (Stmt.Block b) -> b @ (Stmt.Merge :: List.tl stmts)
+            | Some s -> s :: Stmt.Merge :: List.tl stmts
+          in
+          [ update c (Cont b') state (not_cond' :: pc) solver' ]
         else []
       in
       then_branch @ else_branch

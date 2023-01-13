@@ -23,6 +23,7 @@ let encode_unop (op : uopt) (v : Z3.Expr.expr) : Z3.Expr.expr =
   let f =
     match op with
     | Not -> Z3.Boolean.mk_not ctx
+    | Neg -> Z3.Arithmetic.mk_unary_minus ctx
     | _ -> failwith "Encoding: encode_unop: not implemented!"
   in
   f v

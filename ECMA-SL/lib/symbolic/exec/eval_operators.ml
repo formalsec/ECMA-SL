@@ -12,7 +12,20 @@ let eval_unop (op : Op.uopt) (v : t) : t =
       | Int i -> Int (-i)
       | _ -> Unop (Op.Neg, v))
   | Op.Not -> ( match v with Bool b -> Bool (not b) | _ -> Unop (Op.Not, v))
-  | _ -> failwith "Eval_operations: eval_unop not implemented"
+  | Op.First -> (
+      match v with
+      | Tuple t -> List.hd t
+      | _ ->
+          invalid_arg "Oper.fst: operation only applicable to Tuple arguments")
+  | Op.Second -> (
+      match v with
+      | Tuple t -> List.nth t 1
+      | _ ->
+          invalid_arg "Oper.snd: operation only applicable to Tuple arguments")
+  | _ ->
+      failwith
+        ("Eval_operations: eval_unop: '" ^ Op.str_of_unopt op
+       ^ "' not implemented")
 
 let eval_binop (op : Op.bopt) (v1 : t) (v2 : t) : t =
   match op with
