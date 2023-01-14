@@ -80,9 +80,6 @@ function IteratorClose(iterator, completion) {
 
     /* 6. Let innerResult be Call(return, iterator, «‍ »). */
     innerResult := WrappedCall(null, null, returnVar, iterator, []);
-    print(iterator);
-    print(completion);
-    print(innerResult);
     /* 7. If completion.[[type]] is throw, return Completion(completion). */
     if (getCompletionType(completion) = 'throw) {
         print "DEBUG IteratorClose 2";
@@ -92,7 +89,7 @@ function IteratorClose(iterator, completion) {
     /* 8. If innerResult.[[type]] is throw, return Completion(innerResult). */
     if (getCompletionType(innerResult) = 'throw) {
         print "DEBUG IteratorClose 3";
-        return Completion(getCompletionValue(innerResult))
+        return Completion(innerResult)
     };
 
     /* 9. If Type(innerResult.[[value]]) is not Object, throw a TypeError exception. */

@@ -22,8 +22,10 @@ function NewECMAScriptObjectFull(prototype, class, extensible) {
 
 /* Returns a list containing the names of each own property of object. */
 function getOwnProperties(object) {
+
   props := l_sort obj_fields object.JSProperties;
   syms := [];
+
   foreach (P : obj_fields object.SymbolKeys) {
     syms := l_add(syms, object.SymbolKeys[P])
   };

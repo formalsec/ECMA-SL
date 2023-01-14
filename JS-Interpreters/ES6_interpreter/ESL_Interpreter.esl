@@ -665,7 +665,7 @@ function JS_Interpreter_AssignmentExpression(AssignmentExpression, scope) {
     /* 6. Let status be the result of performing 
       DestructuringAssignmentEvaluation of assignmentPattern using rval as 
       the argument. */
-    status :=  BindingInitialization(assignmentPattern, rval, scope, null);
+    status := DestructuringAssignmentEvaluation(assignmentPattern, rval, scope, null);
     /* 7. ReturnIfAbrupt(status). */
     @ReturnIfAbrupt(status);
     /* 8. Return rval. */
@@ -1405,6 +1405,15 @@ function JS_Interpreter_PropertyName(PropertyName, scope) {
     /* 4. Return ToPropertyKey(propName). */
     return ToPropertyKey(propName)
   }
+  | default -> {
+    exprValue := JS_Interpreter_Expr(PropertyName, scope);
+    /* 2. Let propName be GetValue(exprValue). */
+    propName := GetValue(exprValue);
+    /* 3. ReturnIfAbrupt(propName). */
+    @ReturnIfAbrupt(propName);
+    /* 4. Return ToPropertyKey(propName). */
+    return ToPropertyKey(propName)
+  }
 };
 
 macro PropagateBlockLabelSet(Block, Stmts) {
@@ -2014,7 +2023,7 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
       @ReturnIfAbrupt(rval);
       /* 4. Return the result of performing BindingInitialization for BindingPattern 
               passing rval and undefined as arguments.*/
-      return BindingInitialization(BindingPattern, rval, scope, null)
+      return DestructuringAssignmentEvaluation(BindingPattern, rval, scope, null)
     }
   }
   | { type: "VariableDeclaration", declarations: VariableDeclarationListNoIn } -> {
@@ -3874,7 +3883,7 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
         /* fail "destructuring";*/
         /* 1. Let status be the result of performing DestructuringAssignmentEvaluation of assignmentPattern using nextValue as the argument. */
         /*status := DestructuringAssignmentEvaluation(assignmentPattern, nextValue, scope) */
-        status := BindingInitialization(assignmentPattern, nextValue, scope, null)
+        status := DestructuringAssignmentEvaluation(assignmentPattern, nextValue, scope, null)
       }
       /* ii. Else if lhsKind is varBinding, then */
       elif (lhsKind = "varBinding") {

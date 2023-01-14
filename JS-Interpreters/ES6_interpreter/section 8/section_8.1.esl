@@ -194,7 +194,7 @@ function isMutableBinding(envRec, name) {
 
 function isStrictBinding(envRec, name) {
   binding := envRec[name];
-  return !(t_nth(binding, 4))
+  return t_nth(binding, 4)
 };
 
 function setBindingValue(envRec, name, value) {

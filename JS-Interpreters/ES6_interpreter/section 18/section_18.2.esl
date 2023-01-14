@@ -94,7 +94,7 @@ function PerformEval(x, evalRealm, strictCaller, direct) {
   /* 20. If result.[[type]] is normal and result.[[value]] is empty, then */
   if ((getCompletionType(result) = 'normal) &&& (getCompletionValue(result) = 'empty)) {
 		/* a. Let result be NormalCompletion(undefined). */
-		result:=  NormalCompletion('undefined)
+		result := NormalCompletion('undefined)
   };
   /* 21. Suspend evalCxt and remove it from the execution context stack. */
   evalCxt.Suspend := true;
