@@ -56,9 +56,14 @@ let rte (msg : string) = raise (Runtime_error msg)
 let is_error (o : outcome) : bool = match o with Error _ -> true | _ -> false
 let is_final (o : outcome) : bool = match o with Final _ -> true | _ -> false
 
-let update (c : config) (o : outcome) (s : state) (pc : pc)
-    (solver : Z3.Solver.solver) : config =
-  { c with code = o; state = s; pc; solver }
+let update (c : config) code state pc solver : config =
+  { c with code; state; pc; solver }
+
+let loc (v : Sval.t) : string =
+  match v with Sval.Loc l -> l | _ -> rte "Invalid location!"
+
+let field (v : Sval.t) : string =
+  match v with Sval.Str f -> f | _ -> rte "Invalid field!"
 
 let func (v : Sval.t) : string * Sval.t list =
   match v with
@@ -87,7 +92,8 @@ let rec eval_expression (store : Sstore.t) (e : Expr.t) : Sval.t =
   | Expr.NOpt (op, es) ->
       let vs = List.map (eval_expression store) es in
       Eval_operators.eval_nop op vs
-  | Expr.Curry (_, _) -> rte "eval_expression: 'Curry' not implemented!"
+  | Expr.Curry (_, _) ->
+      (* TODO: *) rte "eval_expression: 'Curry' not implemented!"
   | Expr.Symbolic (t, x) -> Sval.Symbolic (t, x)
 
 let step (c : config) : config list =
@@ -137,24 +143,23 @@ let step (c : config) : config list =
       and solver' = Encoding.clone solver in
       let then_branch =
         Encoding.add solver [ cond' ];
-        if Encoding.check solver [] then
+        if not (Encoding.check solver []) then []
+        else
           match stmts1 with
           | Stmt.Block b ->
               let b' = b @ (Stmt.Merge :: List.tl stmts) in
               [ update c (Cont b') state (cond' :: pc) solver ]
           | _ -> rte "Malformed if statement 'then' block!"
-        else []
       in
       let else_branch =
         Encoding.add solver' [ not_cond' ];
-        if Encoding.check solver' [] then
-          let b' = match stmts2 with
-            | None -> List.tl stmts
-            | Some (Stmt.Block b) -> b @ (Stmt.Merge :: List.tl stmts)
-            | Some s -> s :: Stmt.Merge :: List.tl stmts
+        if not (Encoding.check solver' []) then []
+        else
+          let stmts' =
+            let t = List.tl stmts in
+            match stmts2 with None -> t | Some s -> s :: Stmt.Merge :: t
           in
-          [ update c (Cont b') state (not_cond' :: pc) solver' ]
-        else []
+          [ update c (Cont stmts') state (not_cond' :: pc) solver' ]
       in
       then_branch @ else_branch
   | Stmt.While (cond, stmts') ->
@@ -186,7 +191,7 @@ let step (c : config) : config list =
       let store' = Sstore.create (List.combine (Prog.get_params prog f') vs') in
       [ update c (Cont [ func.body ]) (heap, store', stack', f') pc solver ]
   | Stmt.AssignECall (x, y, es) ->
-      rte "Eval: step: 'AssignECall' not implemented!"
+      (* TODO: *) rte "Eval: step: 'AssignECall' not implemented!"
   | Stmt.AssignNewObj x ->
       let obj = Sobject.create () in
       let loc = Loc.newloc () in
@@ -198,14 +203,9 @@ let step (c : config) : config list =
           pc solver;
       ]
   | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
-      let loc = eval_expression store e_loc
-      and field = eval_expression store e_field in
-      let v =
-        match (loc, field) with
-        | Sval.Loc l, Sval.Str f ->
-            Sval.Bool (Option.is_some (Sheap.get_field heap l f))
-        | _ -> rte "Invalid field/object in AssignInObjCheck"
-      in
+      let loc = loc (eval_expression store e_loc)
+      and field = field (eval_expression store e_field) in
+      let v = Sval.Bool (Option.is_some (Sheap.get_field heap loc field)) in
       [
         update c
           (Cont (List.tl stmts))
@@ -213,14 +213,10 @@ let step (c : config) : config list =
           pc solver;
       ]
   | Stmt.AssignObjToList (x, e) ->
-      let loc =
-        match eval_expression store e with
-        | Sval.Loc l -> l
-        | _ -> rte "Invalid location!"
-      in
+      let loc = loc (eval_expression store e) in
       let v =
         match Sheap.find_opt heap loc with
-        | None -> Sval.List []
+        | None -> rte ("AssignObjToList: '" ^ loc ^ "' not found in heap")
         | Some obj ->
             Sval.List
               (List.map
@@ -234,13 +230,51 @@ let step (c : config) : config list =
           pc solver;
       ]
   | Stmt.AssignObjFields (x, e) ->
-      rte "Eval: step: 'AssignObjFields' not implemented!"
-  | Stmt.FieldAssign (e1, e2, e3) ->
-      rte "Eval: step: 'FieldAssign' not implemented!"
-  | Stmt.FieldDelete (e1, e2) ->
-      rte "Eval: step: 'FieldDelete' not implemented!"
-  | Stmt.FieldLookup (x, e1, e2) ->
-      rte "Eval: step: 'FieldLookup' not implemented!"
+      let loc = loc (eval_expression store e) in
+      let v =
+        match Sheap.find_opt heap loc with
+        | None -> rte ("AssignObjFields: '" ^ loc ^ "' not found in heap")
+        | Some obj ->
+            Sval.List (List.map (fun f -> Sval.Str f) (Sobject.get_fields obj))
+      in
+      [
+        update c
+          (Cont (List.tl stmts))
+          (heap, Sstore.add store x v, stack, f)
+          pc solver;
+      ]
+  | Stmt.FieldAssign (e_loc, e_field, e_v) ->
+      let loc = loc (eval_expression store e_loc)
+      and field = field (eval_expression store e_field)
+      and v = eval_expression store e_v in
+      [
+        update c
+          (Cont (List.tl stmts))
+          (Sheap.set_field heap loc field v, store, stack, f)
+          pc solver;
+      ]
+  | Stmt.FieldDelete (e_loc, e_field) ->
+      let loc = loc (eval_expression store e_loc)
+      and field = field (eval_expression store e_field) in
+      [
+        update c
+          (Cont (List.tl stmts))
+          (Sheap.delete_field heap loc field, store, stack, f)
+          pc solver;
+      ]
+  | Stmt.FieldLookup (x, e_loc, e_field) ->
+      let loc = loc (eval_expression store e_loc)
+      and field = field (eval_expression store e_field) in
+      let v =
+        Option.default (Sval.Symbol "undefined")
+          (Sheap.get_field heap loc field)
+      in
+      [
+        update c
+          (Cont (List.tl stmts))
+          (heap, Sstore.add store x v, stack, f)
+          pc solver;
+      ]
 
 let rec eval (input_confs : config list) (output_confs : config list) :
     config list =
