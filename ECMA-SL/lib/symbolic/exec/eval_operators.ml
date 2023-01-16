@@ -95,6 +95,7 @@ let eval_triop (op : Op.topt) (v1 : t) (v2 : t) (v1 : t) : t =
 
 let eval_nop (op : Op.nopt) (vs : t list) : t =
   match op with
+  | Op.ListExpr -> List vs
   | Op.TupleExpr -> Tuple vs
   | _ ->
       failwith

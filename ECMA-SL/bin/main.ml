@@ -163,7 +163,18 @@ let () =
       if !Flags.parse then parse_program prog "";
       core_interpretation prog)
     else if !Flags.mode = "symbolic" then
-      symbolic_interpretation (core_of_plus !Flags.file)
+      let prog =
+        if Filename.check_suffix !Flags.file ".esl" then
+          core_of_plus !Flags.file
+        else if Filename.check_suffix !Flags.file ".cesl" then
+          Parsing_utils.(parse_prog (load_file !Flags.file))
+        else
+          failwith
+            ("Unknown file with extension '"
+            ^ Filename.extension !Flags.file
+            ^ "'")
+      in
+      symbolic_interpretation prog
     else if !Flags.mode = "parse" then (
       let prog = Parsing_utils.(parse_prog (load_file !Flags.file)) in
       parse_program prog "";

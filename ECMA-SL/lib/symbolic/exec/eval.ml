@@ -137,6 +137,19 @@ let step (c : config) : config list =
       ]
   | Stmt.Block block ->
       [ update c (Cont (block @ List.tl stmts)) state pc solver ]
+  | Stmt.If (e, stmts', _) when Sval.Bool true = eval_expression store e ->
+      let cont =
+        match stmts' with
+        | Stmt.Block b -> b @ (Stmt.Merge :: List.tl stmts)
+        | _ -> rte "Malformed if statement 'then' block!"
+      in
+      [ update c (Cont cont) state pc solver ]
+  | Stmt.If (e, _, stmts') when Sval.Bool false = eval_expression store e ->
+      let cont =
+        let t = List.tl stmts in
+        match stmts' with None -> t | Some s -> s :: Stmt.Merge :: t
+      in
+      [ update c (Cont cont) state pc solver ]
   | Stmt.If (cond, stmts1, stmts2) ->
       let cond' = eval_expression store cond
       and not_cond' = eval_expression store (Expr.UnOpt (Operators.Not, cond))
@@ -280,12 +293,12 @@ let rec eval (input_confs : config list) (output_confs : config list) :
     config list =
   match input_confs with
   | [] -> output_confs
-  | c :: input_confs' -> (
+  | c :: tl_confs -> (
       match c.code with
       | Cont [] -> rte "eval: Empty continuation!"
-      | Cont _ -> eval (step c @ input_confs') output_confs
-      | Error v -> eval input_confs' (c :: output_confs)
-      | Final v -> eval input_confs' (c :: output_confs))
+      | Cont _ -> eval (step c @ tl_confs) output_confs
+      | Error v -> eval tl_confs (c :: output_confs)
+      | Final v -> eval tl_confs (c :: output_confs))
 
 let invoke (prog : Prog.t) (f : func) : config list =
   let func = Prog.get_func prog f in
