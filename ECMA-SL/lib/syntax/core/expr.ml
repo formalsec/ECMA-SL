@@ -1,7 +1,7 @@
 type t =
   | Val of Val.t
   | Var of string
-  | Symbolic of Type.t * string
+  | Symbolic of Type.t * t
   | UnOpt of (Operators.uopt * t)
   | BinOpt of (Operators.bopt * t * t)
   | TriOpt of (Operators.topt * t * t * t)
@@ -19,7 +19,7 @@ let rec str (e : t) : string =
       Operators.str_of_triopt op (str e1) (str e2) (str e3)
   | NOpt (op, es) -> Operators.str_of_nopt op (List.map str es)
   | Curry (f, es) -> "{" ^ str f ^ "}@(" ^ str_es es ^ ")"
-  | Symbolic (t, x) -> "symbolic (" ^ Type.str t ^ ", \"" ^ x ^ "\")"
+  | Symbolic (t, x) -> "symbolic (" ^ Type.str t ^ ", \"" ^ str x ^ "\")"
 
 let js (e : t) : string = failwith "missing js"
 
@@ -66,4 +66,4 @@ let rec to_json (e : t) : string =
   | Symbolic (t, x) ->
       Printf.sprintf
         "{ \"type\" : \"symbolic\", \"val_type\" : \"%s\", \"name\" : \"%s\" }"
-        (Type.str t) x
+        (Type.str t) (str x)

@@ -13,7 +13,7 @@ type t =
   | NewObj of (string * t) list
   | Lookup of t * t
   | Curry of t * t list
-  | Symbolic of Type.t * string
+  | Symbolic of Type.t * t
 
 type subst_t = (string, t) Hashtbl.t
 
@@ -39,7 +39,7 @@ let rec str (e : t) : string =
       ^ " }"
   | Lookup (e, f) -> str e ^ "[" ^ str f ^ "]"
   | Curry (f, es) -> str f ^ "@(" ^ str_es es ^ ")"
-  | Symbolic (t, x) -> "symbolic(" ^ Type.str t ^ ", \"" ^ x ^ "\")"
+  | Symbolic (t, x) -> "symbolic(" ^ Type.str t ^ ", \"" ^ str x ^ "\")"
 
 (* Used in module HTMLExtensions but not yet terminated.
    This still contains defects. *)

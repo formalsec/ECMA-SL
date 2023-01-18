@@ -21,40 +21,23 @@ function initESLSymbolicObject(globalObject, objectPrototype, strict) {
 
 
 function __internalSymbolicNumber(globalObject, this, NewTarget, strict, params) {
-  x := l_nth(params, 1);
-
-  print "trying to create a symbolic variable with name: "; 
-  print x; 
-
   /*
     Criar a variavel simbolica usando o operador ESL correspondente e retorna-la
   */
-
-  fail "symbolic value creation not implemented yet!"
+  name := l_nth(params, 1);
+  return symbolic(__$Int, name)
 };
 
 
 
 function __internalSymbolicAssume(globalObject, this, NewTarget, strict, params) {
-
-  print "trying to assume";
-
-  /*
-    Criar a variavel simbolica usando o operador ESL correspondente e retorna-la
-  */
-
-  fail "symbolic assume operation implemented yet!"
+  expr := l_nth(params, 0);
+  assume(expr)
 };
 
 
 
 function __internalSymbolicAssert(globalObject, this, NewTarget, strict, params) {
-
-  print "trying to assert";
-
-  /*
-    Criar a variavel simbolica usando o operador ESL correspondente e retorna-la
-  */
-
-  fail "symbolic assert operation not implemented yet!"
+  expr := l_nth(params, 0);
+  assert(expr)
 }

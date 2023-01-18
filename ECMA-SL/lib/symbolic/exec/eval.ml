@@ -92,9 +92,19 @@ let rec eval_expression (store : Sstore.t) (e : Expr.t) : Sval.t =
   | Expr.NOpt (op, es) ->
       let vs = List.map (eval_expression store) es in
       Eval_operators.eval_nop op vs
-  | Expr.Curry (_, _) ->
-      (* TODO: *) rte "eval_expression: 'Curry' not implemented!"
-  | Expr.Symbolic (t, x) -> Sval.Symbolic (t, x)
+  | Expr.Curry (f, es) -> (
+      let f' = eval_expression store f
+      and vs = List.map (eval_expression store) es in
+      match f' with
+      | Sval.Str s -> Sval.Curry (s, vs)
+      | _ -> rte "eval_expression: Illegal 'Curry' expresion!")
+  | Expr.Symbolic (t, x) -> 
+      let x' =
+        match eval_expression store x with
+        | Sval.Str s -> s
+        | _ -> rte "invalid symbolic variable name"
+      in
+      Sval.Symbolic (t, x')
 
 let step (c : config) : config list =
   let { prog; code; state; pc; solver } = c in
@@ -121,6 +131,10 @@ let step (c : config) : config list =
       if not (Encoding.check solver []) then
         [ update c (Final (Some v)) state pc solver ]
       else [ update c (Cont (List.tl stmts)) state (v :: pc) solver ]
+  | Stmt.Assert e when Sval.Bool true = eval_expression store e ->
+      [ update c (Cont (List.tl stmts)) state pc solver ]
+  | Stmt.Assert e when Sval.Bool false = eval_expression store e ->
+      [ update c (Error (Some (eval_expression store e))) state pc solver ]
   | Stmt.Assert e ->
       let v = eval_expression store e in
       let v' = eval_expression store (Expr.UnOpt (Operators.Not, e)) in

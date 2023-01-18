@@ -69,6 +69,7 @@ let clone (solver : Z3.Solver.solver) : Z3.Solver.solver =
   Z3.Solver.translate solver ctx
 
 let add (solver : Z3.Solver.solver) (vs : Sval.t list) : unit =
+  List.iter (fun v -> Logging.print_endline (lazy ("Add: " ^ Sval.str v))) vs;
   let vs' = List.map encode_value vs in
   Z3.Solver.add solver vs'
 

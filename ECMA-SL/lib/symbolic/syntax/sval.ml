@@ -34,6 +34,16 @@ let rec of_val (v : Val.t) : t =
   | Val.Curry (c, a) -> Curry (c, List.map of_val a)
   | Val.Byte b -> Byte b
 
+let rec is_symbolic (v : t) : bool =
+  match v with
+  | Symbolic (t, x) -> true
+  | Unop (_, v) -> is_symbolic v
+  | Binop (_, v1, v2) -> is_symbolic v1 || is_symbolic v2
+  | List t | Tuple t | Curry (_, t) ->
+      List.fold_left ( || ) false (List.map is_symbolic t)
+  | Arr a -> Array.fold_left ( || ) false (Array.map is_symbolic a)
+  | _ -> false
+
 let is_special_number (s : string) : bool =
   List.mem s [ "nan"; "inf"; "-inf" ]
   || String.contains s 'e' || String.contains s 'E'
@@ -69,6 +79,28 @@ let rec str ?(flt_with_dot = true) (v : t) : string =
       Printf.sprintf "{\"%s\"}@(%s)" s
         (String.concat ", " (List.map (str ~flt_with_dot) vs))
   | Byte i -> string_of_int i
-  | Symbolic (_, _) -> "symbolic"
-  | Unop (_, _) -> "unop"
-  | Binop (_, _, _) -> "binop"
+  | Symbolic (t, x) -> "Symbolic(" ^ Type.str t ^ ", " ^ x ^ ")"
+  | Unop (op, v) -> Operators.str_of_unopt op ^ "(" ^ str v ^ ")"
+  | Binop (op, v1, v2) ->
+      let v1' = str v1 and v2' = str v2 in
+      Operators.str_of_binopt op v1' v2'
+
+let to_int (v : t) : int =
+  match v with
+  | Int i -> i
+  | _ -> invalid_arg ("to_int: expects Int argument but got " ^ str v)
+
+let to_float (v : t) : float =
+  match v with
+  | Flt f -> f
+  | _ -> invalid_arg ("to_float: expects Flt argument but got " ^ str v)
+
+let to_list (v : t) : t list =
+  match v with
+  | List l -> l
+  | _ -> invalid_arg ("to_list: expects List argument but got" ^ str v)
+
+let to_tuple (v : t) : t list =
+  match v with
+  | Tuple t -> t
+  | _ -> invalid_arg ("to_tuple: expects Tuple argument but got" ^ str v)
