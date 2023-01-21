@@ -10,6 +10,7 @@ let ctx =
 
 let fp_sort = Z3.FloatingPoint.mk_sort_double ctx
 let int_sort = Z3.Arithmetic.Integer.mk_sort ctx
+
 (*let real_sort = Z3.Arithmetic.Real.mk_sort ctx*)
 let bool_sort = Z3.Boolean.mk_sort ctx
 
@@ -52,9 +53,9 @@ let arith_binop (op : Op.bopt) : Z3.Expr.expr -> Z3.Expr.expr -> Z3.Expr.expr =
   | Op.Times -> fun v1 v2 -> Z3.Arithmetic.mk_mul ctx [ v1; v2 ]
   | Op.Div -> Z3.Arithmetic.mk_div ctx
   | _ ->
-    failwith
-      ("Encoding: encode_binop: '" ^ Op.str_of_binopt_single op 
-      ^ "' not implemented!")
+      failwith
+        ("Encoding: encode_binop: '" ^ Op.str_of_binopt_single op
+       ^ "' not implemented!")
 
 let fp_binop (op : Op.bopt) : Z3.Expr.expr -> Z3.Expr.expr -> Z3.Expr.expr =
   match op with
@@ -68,10 +69,9 @@ let fp_binop (op : Op.bopt) : Z3.Expr.expr -> Z3.Expr.expr -> Z3.Expr.expr =
   | Op.Times -> Z3.FloatingPoint.mk_mul ctx rne
   | Op.Div -> Z3.FloatingPoint.mk_div ctx rne
   | _ ->
-    failwith
-      ("Encoding: encode_binop: '" ^ Op.str_of_binopt_single op 
-      ^ "' not implemented!")
-
+      failwith
+        ("Encoding: encode_binop: '" ^ Op.str_of_binopt_single op
+       ^ "' not implemented!")
 
 let encode_binop (op : Op.bopt) (v1 : Z3.Expr.expr) (v2 : Z3.Expr.expr) :
     Z3.Expr.expr =
