@@ -98,7 +98,7 @@ let rec eval_expression (store : Sstore.t) (e : Expr.t) : Sval.t =
       match f' with
       | Sval.Str s -> Sval.Curry (s, vs)
       | _ -> rte "eval_expression: Illegal 'Curry' expresion!")
-  | Expr.Symbolic (t, x) -> 
+  | Expr.Symbolic (t, x) ->
       let x' =
         match eval_expression store x with
         | Sval.Str s -> s

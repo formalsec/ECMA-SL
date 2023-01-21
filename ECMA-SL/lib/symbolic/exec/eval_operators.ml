@@ -36,7 +36,10 @@ let eval_unop (op : Op.uopt) (v : t) : t =
       | Curry _ -> Type Type.CurryType
       | Void -> invalid_arg "Exception in Oper.typeof: unexpected void value"
       | Symbolic (t, _) -> Type t
-      | _ -> failwith "Eval_operations: typeof: not implemented!")
+      | Binop (_, _, _) -> Type Type.FltType
+      | _ ->
+          failwith
+            ("Eval_operations: typeof(" ^ Sval.str v ^ ") not implemented!"))
   | Op.Sconcat ->
       Str
         (String.concat ""

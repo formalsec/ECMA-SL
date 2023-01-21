@@ -1,4 +1,4 @@
-open Operators
+module Op = Operators
 
 exception Unknown
 
@@ -8,49 +8,83 @@ let ctx =
   Z3.mk_context
     [ ("model", "true"); ("proof", "false"); ("unsat_core", "false") ]
 
+let fp_sort = Z3.FloatingPoint.mk_sort_double ctx
 let int_sort = Z3.Arithmetic.Integer.mk_sort ctx
-let real_sort = Z3.Arithmetic.Real.mk_sort ctx
+(*let real_sort = Z3.Arithmetic.Real.mk_sort ctx*)
 let bool_sort = Z3.Boolean.mk_sort ctx
+
+(* Rouding modes *)
+let rne = Z3.FloatingPoint.RoundingMode.mk_rne ctx
+(*let rtz = Z3.FloatingPoint.RoundingMode.mk_rtz ctx*)
 
 let sort_of_type (ctx : Z3.context) (t : Type.t) : Z3.Sort.sort =
   match t with
   | Type.IntType -> int_sort
-  | Type.FltType -> real_sort
+  | Type.FltType -> fp_sort
   | Type.BoolType -> bool_sort
   | _ -> failwith "Encoding: sort_of_type: Unsupported type!"
 
-let encode_unop (op : uopt) (v : Z3.Expr.expr) : Z3.Expr.expr =
-  let f =
-    match op with
-    | Not -> Z3.Boolean.mk_not ctx
-    | Neg -> Z3.Arithmetic.mk_unary_minus ctx
-    | _ -> failwith "Encoding: encode_unop: not implemented!"
-  in
-  f v
+let arith_unop (op : Op.uopt) : Z3.Expr.expr -> Z3.Expr.expr =
+  match op with
+  | Op.Not -> Z3.Boolean.mk_not ctx
+  | Op.Neg -> Z3.Arithmetic.mk_unary_minus ctx
+  | _ -> failwith "Encoding: arith_unop: not implemented!"
 
-let encode_binop (op : bopt) (v1 : Z3.Expr.expr) (v2 : Z3.Expr.expr) :
+let fp_unop (op : Op.uopt) : Z3.Expr.expr -> Z3.Expr.expr =
+  match op with
+  | Op.Not -> Z3.Boolean.mk_not ctx
+  | Op.Neg -> Z3.FloatingPoint.mk_neg ctx
+  | _ -> failwith "Encoding: fp_unop: not implemente!"
+
+let encode_unop (op : Op.uopt) (v : Z3.Expr.expr) : Z3.Expr.expr =
+  let op' = if Z3.FloatingPoint.is_fp v then fp_unop op else arith_unop op in
+  op' v
+
+let arith_binop (op : Op.bopt) : Z3.Expr.expr -> Z3.Expr.expr -> Z3.Expr.expr =
+  match op with
+  | Op.Eq -> Z3.Boolean.mk_eq ctx
+  | Op.Gt -> Z3.Arithmetic.mk_gt ctx
+  | Op.Lt -> Z3.Arithmetic.mk_lt ctx
+  | Op.Ge -> Z3.Arithmetic.mk_ge ctx
+  | Op.Le -> Z3.Arithmetic.mk_le ctx
+  | Op.Log_And -> fun v1 v2 -> Z3.Boolean.mk_and ctx [ v1; v2 ]
+  | Op.Plus -> fun v1 v2 -> Z3.Arithmetic.mk_add ctx [ v1; v2 ]
+  | Op.Times -> fun v1 v2 -> Z3.Arithmetic.mk_mul ctx [ v1; v2 ]
+  | Op.Div -> Z3.Arithmetic.mk_div ctx
+  | _ ->
+    failwith
+      ("Encoding: encode_binop: '" ^ Op.str_of_binopt_single op 
+      ^ "' not implemented!")
+
+let fp_binop (op : Op.bopt) : Z3.Expr.expr -> Z3.Expr.expr -> Z3.Expr.expr =
+  match op with
+  | Op.Eq -> Z3.Boolean.mk_eq ctx
+  | Op.Gt -> Z3.FloatingPoint.mk_gt ctx
+  | Op.Lt -> Z3.FloatingPoint.mk_lt ctx
+  | Op.Ge -> Z3.FloatingPoint.mk_geq ctx
+  | Op.Le -> Z3.FloatingPoint.mk_leq ctx
+  | Op.Log_And -> fun v1 v2 -> Z3.Boolean.mk_and ctx [ v1; v2 ]
+  | Op.Plus -> Z3.FloatingPoint.mk_add ctx rne
+  | Op.Times -> Z3.FloatingPoint.mk_mul ctx rne
+  | Op.Div -> Z3.FloatingPoint.mk_div ctx rne
+  | _ ->
+    failwith
+      ("Encoding: encode_binop: '" ^ Op.str_of_binopt_single op 
+      ^ "' not implemented!")
+
+
+let encode_binop (op : Op.bopt) (v1 : Z3.Expr.expr) (v2 : Z3.Expr.expr) :
     Z3.Expr.expr =
-  let f =
-    match op with
-    | Eq -> Z3.Boolean.mk_eq ctx
-    | Gt -> Z3.Arithmetic.mk_gt ctx
-    | Lt -> Z3.Arithmetic.mk_lt ctx
-    | Ge -> Z3.Arithmetic.mk_ge ctx
-    | Le -> Z3.Arithmetic.mk_le ctx
-    | Log_And -> fun v1 v2 -> Z3.Boolean.mk_and ctx [ v1; v2 ]
-    | Plus -> fun v1 v2 -> Z3.Arithmetic.mk_add ctx [ v1; v2 ]
-    | Times -> fun v1 v2 -> Z3.Arithmetic.mk_mul ctx [ v1; v2 ]
-    | _ ->
-        failwith
-          ("Encoding: encode_binop: '" ^ str_of_binopt_single op
-         ^ "' not implemented!")
+  let op' =
+    if Z3.FloatingPoint.is_fp v1 || Z3.FloatingPoint.is_fp v2 then fp_binop op
+    else arith_binop op
   in
-  f v1 v2
+  op' v1 v2
 
 let rec encode_value (v : Sval.t) : Z3.Expr.expr =
   match v with
   | Sval.Int i -> Z3.Arithmetic.Integer.mk_numeral_i ctx i
-  | Sval.Flt f -> Z3.Arithmetic.Real.mk_numeral_s ctx (string_of_float f)
+  | Sval.Flt f -> Z3.FloatingPoint.mk_numeral_f ctx f fp_sort
   | Sval.Bool b -> Z3.Boolean.mk_val ctx b
   | Sval.Byte i -> Z3.Arithmetic.Integer.mk_numeral_i ctx i
   | Sval.Symbolic (t, x) -> Z3.Expr.mk_const_s ctx x (sort_of_type ctx t)

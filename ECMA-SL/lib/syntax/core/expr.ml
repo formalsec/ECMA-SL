@@ -19,7 +19,7 @@ let rec str (e : t) : string =
       Operators.str_of_triopt op (str e1) (str e2) (str e3)
   | NOpt (op, es) -> Operators.str_of_nopt op (List.map str es)
   | Curry (f, es) -> "{" ^ str f ^ "}@(" ^ str_es es ^ ")"
-  | Symbolic (t, x) -> "symbolic (" ^ Type.str t ^ ", \"" ^ str x ^ "\")"
+  | Symbolic (t, x) -> "symbolic (" ^ Type.str t ^ ", " ^ str x ^ ")"
 
 let js (e : t) : string = failwith "missing js"
 

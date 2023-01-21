@@ -511,7 +511,7 @@ and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | Var x -> ([], Expr.Var x)
   | GVar x -> compile_gvar x
   | Const c -> compile_const c
-  | Symbolic (t, x) -> 
+  | Symbolic (t, x) ->
       let stmts, x' = compile_expr x in
       (stmts, Expr.Symbolic (t, x'))
   | BinOpt (op, e1, e2) ->

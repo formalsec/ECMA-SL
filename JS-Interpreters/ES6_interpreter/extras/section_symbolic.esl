@@ -25,19 +25,25 @@ function __internalSymbolicNumber(globalObject, this, NewTarget, strict, params)
     Criar a variavel simbolica usando o operador ESL correspondente e retorna-la
   */
   name := l_nth(params, 1);
-  return symbolic(__$Int, name)
+  symb := symbolic(__$Flt, name);
+  assume(!(symb = NaN));
+  assume(!(symb = Infinity));
+  assume(!(symb = -Infinity));
+  return symb
 };
 
 
 
 function __internalSymbolicAssume(globalObject, this, NewTarget, strict, params) {
   expr := l_nth(params, 0);
-  assume(expr)
+  assume(expr);
+  return 0
 };
 
 
 
 function __internalSymbolicAssert(globalObject, this, NewTarget, strict, params) {
   expr := l_nth(params, 0);
-  assert(expr)
+  assert(expr);
+  return 0
 }
