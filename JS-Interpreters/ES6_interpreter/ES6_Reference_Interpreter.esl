@@ -1,5 +1,6 @@
 
 import "ES6_interpreter/extras/section_extras.esl";
+import "ES6_interpreter/extras/section_symbolic.esl";
 
 import "ES6_interpreter/section 6/section_6.1.esl";
 import "ES6_interpreter/section 6/section_6.2.esl";

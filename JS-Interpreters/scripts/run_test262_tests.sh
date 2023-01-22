@@ -164,11 +164,10 @@ function handleSingleFile() {
   cat "$OUTPUT_ROOT/interpreter_$now.esl" >> "$OUTPUT_ROOT/core_$now.esl"
 
   # Evaluate program and write the computed heap to the file heap.json."
-  local toggle_silent_mode=""
-  [ $LOG_ENTIRE_EVAL_OUTPUT -eq 0 ] && toggle_silent_mode="-s"
+  [ $LOG_ENTIRE_EVAL_OUTPUT -eq 1 ] && toggle_verbose="--verbose"
   ECMASLCI=$(time (timeout 100 \
-    ECMA-SL -mode ci \
-    -i $OUTPUT_ROOT/core_$now.esl $toggle_silent_mode) 2>&1 1>&1)
+    ECMA-SL $toggle_verbose -mode ci \
+      $OUTPUT_ROOT/core_$now.esl) 2>&1 1>&1)
 
   local EXIT_CODE=$?
 
@@ -301,7 +300,7 @@ function runFile() {
   # Evaluate program and write the computed heap to the file heap.json."
   ECMASLCI=$(time (timeout 100 \
     ECMA-SL -mode ci \
-    -i $OUTPUT_ROOT/$BASE.esl -s) 2>&1 1>&1)
+      $OUTPUT_ROOT/$BASE.esl) 2>&1 1>&1)
 
   local EXIT_CODE=$?
 

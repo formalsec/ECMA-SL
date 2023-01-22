@@ -1,0 +1,34 @@
+(include_subdirs unqualified)
+
+(library
+ (name ECMA_SL)
+ (wrapped false)
+ (preprocess
+  (staged_pps ppx_import ppx_deriving.std))
+ (libraries batteries extlib menhirLib yojson z3))
+
+(subdir
+ syntax/core
+ (rule
+  (target lexer.ml)
+  (deps lexer.mll)
+  (action
+   (chdir
+    %{workspace_root}
+    (run %{bin:ocamllex} -ml -q -o %{target} %{deps}))))
+ (menhir
+  (modules parser)
+  (flags --table)))
+
+(subdir
+ syntax/extended
+ (rule
+  (target E_Lexer.ml)
+  (deps E_Lexer.mll)
+  (action
+   (chdir
+    %{workspace_root}
+    (run %{bin:ocamllex} -ml -q -o %{target} %{deps}))))
+ (menhir
+  (modules E_Parser)
+  (flags --table)))

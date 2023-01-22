@@ -1,0 +1,49 @@
+function initESLSymbolicObject(globalObject, objectPrototype, strict) {
+  esl_symbolic := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(esl_symbolic);
+
+  internalSymbolicNumber := CreateBuiltInFunctionObject(["type", "var"], "__internalSymbolicNumber", globalObject, strict, null);
+  internalSymbolicAssume := CreateBuiltInFunctionObject(["expr"], "__internalSymbolicAssume", globalObject, strict, null);
+  internalSymbolicAssert := CreateBuiltInFunctionObject(["expr"], "__internalSymbolicAssert", globalObject, strict, null);
+
+  createBuiltInProperty(esl_symbolic, "number", internalSymbolicNumber);
+  createBuiltInProperty(esl_symbolic, "assume", internalSymbolicAssume);
+  createBuiltInProperty(esl_symbolic, "assert", internalSymbolicAssert);
+
+  createBuiltInProperty(internalSymbolicNumber, "prototype", objectPrototype);
+  createBuiltInProperty(internalSymbolicAssume, "prototype", objectPrototype);
+  createBuiltInProperty(internalSymbolicAssert, "prototype", objectPrototype);
+
+  setInternalProperty(esl_symbolic, "Prototype", objectPrototype);
+
+  return esl_symbolic
+};
+
+
+function __internalSymbolicNumber(globalObject, this, NewTarget, strict, params) {
+  /*
+    Criar a variavel simbolica usando o operador ESL correspondente e retorna-la
+  */
+  name := l_nth(params, 1);
+  symb := symbolic(__$Flt, name);
+  assume(!(symb = NaN));
+  assume(!(symb = Infinity));
+  assume(!(symb = -Infinity));
+  return symb
+};
+
+
+
+function __internalSymbolicAssume(globalObject, this, NewTarget, strict, params) {
+  expr := l_nth(params, 0);
+  assume(expr);
+  return 0
+};
+
+
+
+function __internalSymbolicAssert(globalObject, this, NewTarget, strict, params) {
+  expr := l_nth(params, 0);
+  assert(expr);
+  return 0
+}

@@ -1,0 +1,548 @@
+open Val
+open Expr
+open Stmt
+open Func
+open Logging
+open Operators
+
+module type SecurityMonitor = sig
+  type state_t
+  type sl
+  type monitor_return = MReturn of state_t | MFail of (state_t * string)
+
+  val eval_small_step : state_t -> sl SecLabel.t -> monitor_return
+  val initial_monitor_state : unit -> state_t
+  val parse_lvl : string -> sl
+end
+
+module M (Mon : SecurityMonitor) = struct
+  exception Except of string
+
+  type stack_t = Store.t Call_stack.t
+  type state_t = stack_t * Heap.t * Store.t * string
+
+  type return =
+    | Intermediate of state_t * Stmt.t list
+    | Errorv of Val.t option
+    | Finalv of Val.t option
+
+  let add_fields_to (obj : Val.t Object.t) (fes : (Field.t * Expr.t) list)
+      (eval_e : Expr.t -> Val.t) : unit =
+    List.iter
+      (fun (f, e) ->
+        let e' = eval_e e in
+        Object.set obj f e')
+      fes
+
+  let eval_unop (op : uopt) (v : Val.t) : Val.t =
+    match op with
+    | Neg -> neg v
+    | Not -> not v
+    | IsNaN -> is_NaN v
+    | BitwiseNot -> bitwise_not v
+    | Typeof -> typeof v
+    | ListLen -> l_len v
+    | TupleLen -> t_len v
+    | StringLen -> s_len v
+    | StringLenU -> s_len_u v
+    | Head -> head v
+    | Tail -> tail v
+    | First -> first v
+    | Second -> second v
+    | LRemoveLast -> list_remove_last v
+    | LSort -> list_sort v
+    | LReverse -> list_reverse v
+    | IntToFloat -> int_to_float v
+    | IntToString -> int_to_string v
+    | IntToFourHex -> int_to_four_hex v
+    | IntOfString -> int_of_string v
+    | IntOfFloat -> int_of_float v
+    | FloatToString -> float_to_string v
+    | FloatOfString -> float_of_string v
+    | HexDecode -> hex_decode v
+    | Utf8Decode -> utf8_decode v
+    | OctalToDecimal -> octal_to_decimal v
+    | Sconcat -> string_concat v
+    | ObjToList ->
+        raise
+          (Failure
+             "Unexpected call to Interpreter.eval_unop with operator ObjToList")
+    | ObjFields ->
+        raise
+          (Failure
+             "Unexpected call to Interpreter.eval_unop with operator ObjFields")
+    | ToInt -> to_int v
+    | ToInt32 -> to_int32 v
+    | ToUint32 -> to_uint32 v
+    | FromCharCode -> from_char_code v
+    | FromCharCodeU -> from_char_code_u v
+    | ToCharCode -> to_char_code v
+    | ToCharCodeU -> to_char_code_u v
+    | ToLowerCase -> to_lower_case v
+    | ToUpperCase -> to_upper_case v
+    | Trim -> trim v
+    | ToUint16 -> to_uint16 v
+    | ParseNumber -> parse_number v
+    | ParseString -> parse_string v
+    | ParseDate -> parse_date v
+    | Log_2 -> log_2 v
+    | Float64ToLEBytes -> float64_to_le_bytes v
+    | Float64ToBEBytes -> float64_to_be_bytes v
+    | Float32ToLEBytes -> float32_to_le_bytes v
+    | Float32ToBEBytes -> float32_to_be_bytes v
+    | Float64FromLEBytes -> float64_from_le_bytes v
+    | Float64FromBEBytes -> float64_from_be_bytes v
+    | Float32FromLEBytes -> float32_from_le_bytes v
+    | Float32FromBEBytes -> float32_from_be_bytes v
+    | BytesToString -> bytes_to_string v
+    | FloatToByte -> float_to_byte v
+    | ArrayLen -> a_len v
+    | ListToArray -> list_to_array v
+    | _ -> apply_uopt_oper op v
+
+  let eval_binopt_expr (op : bopt) (v1 : Val.t) (v2 : Val.t) : Val.t =
+    match op with
+    | Plus -> plus (v1, v2)
+    | Minus -> minus (v1, v2)
+    | Times -> times (v1, v2)
+    | Div -> div (v1, v2)
+    | Modulo -> modulo (v1, v2)
+    | Eq -> equal (v1, v2)
+    | Gt -> gt (v1, v2)
+    | Lt -> lt (v1, v2)
+    | Ge -> egt (v1, v2)
+    | Le -> elt (v1, v2)
+    | Log_And -> log_and (v1, v2)
+    | Log_Or -> log_or (v1, v2)
+    | BitwiseAnd -> bitwise_and (v1, v2)
+    | BitwiseOr -> bitwise_or (v1, v2)
+    | BitwiseXor -> bitwise_xor (v1, v2)
+    | ShiftLeft -> shift_left (v1, v2)
+    | ShiftRight -> shift_right (v1, v2)
+    | ShiftRightLogical -> shift_right_logical (v1, v2)
+    | Lnth -> list_nth (v1, v2)
+    | LRemNth -> list_remove_nth (v1, v2)
+    | LRem -> list_remove (v1, v2)
+    | Tnth -> tuple_nth (v1, v2)
+    | Snth -> s_nth (v1, v2)
+    | Snth_u -> s_nth_u (v1, v2)
+    | Ssplit -> string_split (v1, v2)
+    | Ladd -> list_add (v1, v2)
+    | Lprepend -> list_prepend (v1, v2)
+    | Lconcat -> list_concat (v1, v2)
+    | InList -> list_in (v1, v2)
+    | InObj -> raise (Except "Not expected")
+    | ToPrecision -> to_precision (v1, v2)
+    | ToExponential -> to_exponential (v1, v2)
+    | ToFixed -> to_fixed (v1, v2)
+    | ArrayMake -> array_make (v1, v2)
+    | Anth -> array_nth (v1, v2)
+    | IntToBEBytes -> int_to_be_bytes (v1, v2)
+    | IntFromBytes -> int_from_le_bytes (v1, v2)
+    | UintFromBytes -> uint_from_le_bytes (v1, v2)
+    | _ -> apply_bopt_oper op v1 v2
+
+  let eval_triopt_expr (op : topt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) :
+      Val.t =
+    match op with
+    | Ssubstr -> s_substr (v1, v2, v3)
+    | SsubstrU -> s_substr_u (v1, v2, v3)
+    | Aset -> array_set (v1, v2, v3)
+    | Lset -> list_set (v1, v2, v3)
+
+  let eval_nopt_expr (op : nopt) (vals : Val.t list) : Val.t =
+    match op with
+    | ListExpr -> Val.List vals
+    | TupleExpr -> Val.Tuple vals
+    | NAry_And -> Val.Bool (List.for_all is_true vals)
+    | NAry_Or -> Val.Bool (List.exists is_true vals)
+    | ArrExpr -> Val.Arr (Array.of_list vals)
+
+  let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
+    match e with
+    | Val n -> n
+    | Var x -> (
+        match Store.get sto x with
+        | Some v -> v
+        | None ->
+            let msg = Printf.sprintf "Cannot find variable %s" x in
+            raise (Failure msg))
+    | UnOpt (uop, e) ->
+        let v = eval_expr sto e in
+        eval_unop uop v
+    | BinOpt (bop, e1, e2) ->
+        let v1 = eval_expr sto e1 in
+        let v2 = eval_expr sto e2 in
+        eval_binopt_expr bop v1 v2
+    | TriOpt (top, e1, e2, e3) ->
+        let v1 = eval_expr sto e1 in
+        let v2 = eval_expr sto e2 in
+        let v3 = eval_expr sto e3 in
+        eval_triopt_expr top v1 v2 v3
+    | NOpt (nop, es) -> eval_nopt_expr nop (List.map (eval_expr sto) es)
+    | Curry (f, es) -> (
+        let fv = eval_expr sto f in
+        let vs = List.map (eval_expr sto) es in
+        match fv with
+        | Str s -> Val.Curry (s, vs)
+        | _ -> failwith "Illegal Curry Expression")
+    | Symbolic (t, _) -> (
+        match t with
+        | Type.IntType ->
+            Random.self_init ();
+            Val.Int (Random.int 128)
+        | _ -> failwith "eval_expr: Symbolic not implemented!")
+
+  let get_func_id (sto : Store.t) (exp : Expr.t) : string * Val.t list =
+    let res = eval_expr sto exp in
+    match res with
+    | Val.Str f -> (f, [])
+    | Val.Curry (f, vs) -> (f, vs)
+    | _ -> raise (Except "Wrong/Invalid Function ID")
+
+  let prepare_call (prog : Prog.t) (calling_f : string) (cs : stack_t)
+      (sto : Store.t) (cont : Stmt.t list) (x : string) (es : Expr.t list)
+      (f : string) (vs : Val.t list) : stack_t * Store.t * string list =
+    let cs' =
+      Call_stack.push cs (Call_stack.Intermediate (cont, sto, x, calling_f))
+    in
+    let params = Prog.get_params prog f in
+    let pvs =
+      try List.combine params vs
+      with _ -> raise (Failure ("Invalid number of arguments: " ^ f))
+    in
+    let sto_aux = Store.create pvs in
+    (cs', sto_aux, params)
+
+  let eval_inobj_expr (prog : Prog.t) (heap : Heap.t) (sto : Store.t)
+      (field : Val.t) (loc : Val.t) : Val.t =
+    let b =
+      match (loc, field) with
+      | Loc l, Str f -> Heap.get_field heap l f
+      | _ ->
+          invalid_arg
+            "Exception in Interpreter.eval_inobj_expr : \"loc\" is not a Loc \
+             value or \"field\" is not a string"
+    in
+    match b with Some v -> Bool true | None -> Bool false
+
+  let eval_objtolist_oper (heap : Heap.t) (st : Store.t) (loc_expr : Expr.t) :
+      Val.t =
+    let loc = eval_expr st loc_expr in
+    let loc' =
+      match loc with
+      | Loc l -> l
+      | _ ->
+          invalid_arg
+            "Exception in Interpreter.eval_objtolist_oper: \"loc\" is not a \
+             Loc value"
+    in
+    let obj = Heap.get heap loc' in
+    match obj with
+    | None ->
+        invalid_arg
+          ("Exception in Interpreter.eval_objtolist_oper: \"" ^ Loc.str loc'
+         ^ "\" doesn't exist in the Heap")
+    | Some o ->
+        let fvs = Object.to_list o in
+        List (List.map (fun (f, v) -> Val.Tuple (Str f :: [ v ])) fvs)
+
+  let eval_objfields_oper (heap : Heap.t) (st : Store.t) (loc_expr : Expr.t) :
+      Val.t =
+    let loc = eval_expr st loc_expr in
+    let loc' =
+      match loc with
+      | Loc l -> l
+      | _ ->
+          invalid_arg
+            "Exception in Interpreter.eval_objfields_oper: \"loc\" is not a \
+             Loc value"
+    in
+    let obj = Heap.get heap loc' in
+    match obj with
+    | None ->
+        invalid_arg
+          ("Exception in Interpreter.eval_objfields_oper: \"" ^ Loc.str loc'
+         ^ "\" doesn't exist in the Heap")
+    | Some o -> List (List.map (fun f -> Val.Str f) (Object.get_fields o))
+
+  let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t)
+      (e : Expr.t) (f : Expr.t) : unit =
+    let loc = eval_expr sto e and field = eval_expr sto f in
+    let loc' =
+      match loc with
+      | Loc loc -> loc
+      | _ ->
+          invalid_arg
+            "Exception in Interpreter.eval_fielddelete_stmt : \"e\" is not a \
+             Loc value"
+    in
+    let field' =
+      match field with
+      | Str field -> field
+      | _ ->
+          invalid_arg
+            "Exception in Interpreter.eval_fielddelete_stmt : \"f\" didn't \
+             evaluate to Str"
+    in
+    Heap.delete_field heap loc' field'
+
+  (* \/ ======================================= Main InterpreterFunctions ======================================= \/ *)
+
+  let eval_small_step
+      (interceptor :
+        string -> Val.t list -> Expr.t list -> Mon.sl SecLabel.t option)
+      (prog : Prog.t) (state : state_t) (cont : Stmt.t list) (s : Stmt.t) :
+      return * Mon.sl SecLabel.t =
+    let cs, heap, sto, f = state in
+    let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
+    if Stmt.is_basic_stmt s then
+      print_endline
+        (lazy
+          (Printf.sprintf
+             "====================================\n\
+              Evaluating >>>>> %s: %s (%s)" f (Stmt.str s)
+             (Stmt.str ~print_expr:str_e s)));
+    match s with
+    | Skip -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
+    | Exception str ->
+        print_string "Exception thrown:\n";
+        print_string str;
+        exit 1
+    | Merge -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.MergeLab)
+    | Print e ->
+        let v = eval_expr sto e in
+        (match v with
+        | Loc l -> (
+            match Heap.get heap l with
+            | Some o ->
+                print_endline
+                  (lazy ("PROGRAM PRINT: " ^ Heap.object_to_string o))
+            | None ->
+                print_endline (lazy "PROGRAM PRINT: Non-existent location"))
+        | _ -> print_endline (lazy ("PROGRAM PRINT: " ^ Val.str v)));
+        (Intermediate ((cs, heap, sto, f), cont), SecLabel.PrintLab e)
+    | Abort e ->
+        let v = eval_expr sto e in
+        (Finalv (Some v), SecLabel.EmptyLab)
+    | Fail e ->
+        let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
+        print_endline
+          (lazy
+            (Printf.sprintf
+               "====================================\n\
+                Evaluating >>>>> %s: %s (%s) in the callstack:\n\
+               \ %s" f (Stmt.str s)
+               (Stmt.str ~print_expr:str_e s)
+               (Call_stack.str cs)));
+        let v = eval_expr sto e in
+        (Errorv (Some v), SecLabel.EmptyLab)
+    | Assume e ->
+        let v = eval_expr sto e in
+        if is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)
+        else
+          let e' = "Assume false: " ^ Expr.str e in
+          (Finalv (Some (Val.Str e')), SecLabel.EmptyLab)
+    | Assert e ->
+        let v = eval_expr sto e in
+        if is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)
+        else
+          let e' = "Assert false: " ^ Expr.str e in
+          (Errorv (Some (Val.Str e')), SecLabel.EmptyLab)
+    | Assign (x, e) ->
+        let v = eval_expr sto e in
+        Store.set sto x v;
+        (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (x, e))
+    | Return e -> (
+        let v = eval_expr sto e in
+        let f, cs' = Call_stack.pop cs in
+        match f with
+        | Call_stack.Intermediate (cont', sto', x, f') ->
+            Store.set sto' x v;
+            (Intermediate ((cs', heap, sto', f'), cont'), SecLabel.ReturnLab e)
+        | Call_stack.Toplevel -> (Finalv (Some v), SecLabel.ReturnLab e))
+    | Block block ->
+        (Intermediate ((cs, heap, sto, f), block @ cont), SecLabel.EmptyLab)
+    | If (e, s1, s2) -> (
+        let v = eval_expr sto e in
+        if is_true v then
+          match s1 with
+          | Block block -> (
+              let blockm = block @ (Stmt.Merge :: []) in
+              match s2 with
+              | Some v ->
+                  ( Intermediate ((cs, heap, sto, f), blockm @ cont),
+                    SecLabel.BranchLab (e, v) )
+              | None ->
+                  ( Intermediate ((cs, heap, sto, f), blockm @ cont),
+                    SecLabel.BranchLab (e, Stmt.Skip) ))
+          | _ -> raise (Except "IF block expected ")
+        else
+          match s2 with
+          | Some v -> (
+              match v with
+              | Block block2 ->
+                  let block2m = block2 @ (Stmt.Merge :: []) in
+                  ( Intermediate ((cs, heap, sto, f), block2m @ cont),
+                    SecLabel.BranchLab (e, s1) )
+              | _ -> raise (Except "Not expected"))
+          | None -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
+        )
+    | While (e, s) ->
+        let s1 = (s :: []) @ (Stmt.While (e, s) :: []) in
+        let stms = Stmt.If (e, Stmt.Block s1, None) in
+        (Intermediate ((cs, heap, sto, f), stms :: cont), SecLabel.EmptyLab)
+    | AssignCall (x, func, es) -> (
+        let f', vs' = get_func_id sto func in
+        let vs'' = List.map (eval_expr sto) es in
+        let vs = vs' @ vs'' in
+        let b = interceptor f' vs es in
+        match b with
+        | None ->
+            let func = Prog.get_func prog f' in
+            let cs', sto_aux, params =
+              prepare_call prog f cs sto cont x es f' vs
+            in
+            let (cont' : Stmt.t) = func.body in
+            let aux_list = cont' :: [] in
+            ( Intermediate ((cs', heap, sto_aux, f'), aux_list),
+              SecLabel.AssignCallLab (params, es, x, f') )
+        | Some lab -> (Intermediate ((cs, heap, sto, f), cont), lab))
+    | AssignECall (x, func, es) ->
+        let vs = List.map (eval_expr sto) es in
+        let v = External.execute prog heap func vs in
+        Store.set sto x v;
+        (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
+    | AssignInObjCheck (st, e_f, e_o) ->
+        let field = eval_expr sto e_f in
+        let obj = eval_expr sto e_o in
+        let field', obj' =
+          match (field, obj) with
+          | Str f, Loc o -> (f, o)
+          | _ -> raise (Except "Internal Error")
+        in
+        let v = eval_inobj_expr prog heap sto field obj in
+        Store.set sto st v;
+        ( Intermediate ((cs, heap, sto, f), cont),
+          SecLabel.AssignInObjCheckLab (st, field', obj', e_f, e_o) )
+    | AssignNewObj x ->
+        let newobj = Object.create () in
+        let loc = Heap.insert heap newobj in
+        Store.set sto x (Val.Loc loc);
+        (Intermediate ((cs, heap, sto, f), cont), SecLabel.NewLab (x, loc))
+    | FieldLookup (x, e_o, e_f) -> (
+        let loc = eval_expr sto e_o in
+        let field = eval_expr sto e_f in
+        match (loc, field) with
+        | Loc loc', Str field' ->
+            let v = Heap.get_field heap loc' field' in
+            let v' =
+              match v with None -> Val.Symbol "undefined" | Some v'' -> v''
+            in
+            Store.set sto x v';
+            ( Intermediate ((cs, heap, sto, f), cont),
+              SecLabel.FieldLookupLab (x, loc', field', e_o, e_f) )
+        | _ ->
+            invalid_arg
+              "Exception in Interpreter.eval_access_expr : \"e\" didn't \
+               evaluate to Loc.")
+    | FieldAssign (e_o, e_f, e_v) -> (
+        let loc = eval_expr sto e_o in
+        let field = eval_expr sto e_f in
+        let v = eval_expr sto e_v in
+        match (loc, field) with
+        | Loc loc, Str field ->
+            Heap.set_field heap loc field v;
+            ( Intermediate ((cs, heap, sto, f), cont),
+              SecLabel.FieldAssignLab (loc, field, e_o, e_f, e_v) )
+        | _ ->
+            invalid_arg
+              "Exception in Interpreter.eval_fieldassign_stmt : \"e_o\" is not \
+               a Loc value")
+    | FieldDelete (e, e_f) -> (
+        let loc = eval_expr sto e in
+        let field = eval_expr sto e_f in
+        match (loc, field) with
+        | Loc loc', Str field' ->
+            Heap.delete_field heap loc' field';
+            ( Intermediate ((cs, heap, sto, f), cont),
+              SecLabel.FieldDeleteLab (loc', field', e, e_f) )
+        | _ ->
+            invalid_arg
+              "Exception in Interpreter.eval_fielddelete_stmt : \"e\" is not a \
+               Loc value")
+    | AssignObjToList (st, e) ->
+        let v = eval_objtolist_oper heap sto e in
+        Store.set sto st v;
+        (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (st, e))
+    | AssignObjFields (st, e) ->
+        let v = eval_objfields_oper heap sto e in
+        Store.set sto st v;
+        (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (st, e))
+
+  (*This function will iterate smallsteps in a list of functions*)
+  let rec small_step_iter
+      (interceptor :
+        string -> Val.t list -> Expr.t list -> Mon.sl SecLabel.t option)
+      (prog : Prog.t) (state : state_t) (mon_state : Mon.state_t)
+      (stmts : Stmt.t list) (monitor : string) : return =
+    match stmts with
+    | [] -> raise (Except "Empty list")
+    | s :: stmts' -> (
+        let return, label = eval_small_step interceptor prog state stmts' s in
+        if monitor = "nsu" then (
+          let mon_return : Mon.monitor_return =
+            Mon.eval_small_step mon_state label
+          in
+          match mon_return with
+          | Mon.MReturn mon_state' -> (
+              match return with
+              | Finalv v -> Finalv v
+              | Errorv v -> Errorv v
+              | Intermediate (state', stmts'') ->
+                  small_step_iter interceptor prog state' mon_state' stmts''
+                    monitor)
+          | Mon.MFail (mon_state', str) ->
+              print_string ("MONITOR EXCEPTION -> " ^ str);
+              exit 1)
+        else
+          match return with
+          | Finalv v -> Finalv v
+          (* | Finalv v -> (match v with
+              | Some v -> (match v with
+                  | Tuple t -> Finalv (Some (List.nth t 1))
+                  | _       -> Finalv (Some v))
+              | None   -> Finalv v) *)
+          | Errorv v -> Errorv v
+          | Intermediate (state', stmts'') ->
+              small_step_iter interceptor prog state' mon_state stmts'' monitor)
+
+  let initial_state () : state_t =
+    let sto = Store.create [] in
+    let cs = Call_stack.push Call_stack.empty Call_stack.Toplevel in
+    let heap = Heap.create () in
+    (cs, heap, sto, "main")
+
+  (*Worker class of the Interpreter*)
+  let eval_prog (prog : Prog.t) (monitor : string) (main : string) :
+      Val.t option * Heap.t =
+    let func = Prog.get_func prog main in
+    let state_0 = initial_state () in
+    let mon_state_0 = Mon.initial_monitor_state () in
+    let interceptor = SecLabel.interceptor Mon.parse_lvl in
+    let v =
+      small_step_iter interceptor prog state_0 mon_state_0 [ func.body ] monitor
+    in
+    let _, heap, _, _ = state_0 in
+    match v with
+    | Finalv v -> (v, heap)
+    | Errorv (Some (Val.Str s)) ->
+        let subStr = String.sub s 0 11 in
+        print_endline (lazy subStr);
+        if subStr = "Unsupported" then (Some (Val.Str s), heap)
+        else (
+          print_endline (lazy "eval_prog else");
+          raise (Except s))
+    | _ -> raise (Except "No return value")
+  (*ERROR*)
+end
