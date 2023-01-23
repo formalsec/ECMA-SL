@@ -2,6 +2,7 @@ open Val
 open Expr
 open Stmt
 open Func
+open Source
 open Logging
 open Operators
 
@@ -303,11 +304,11 @@ module M (Mon : SecurityMonitor) = struct
              "====================================\n\
               Evaluating >>>>> %s: %s (%s)" f (Stmt.str s)
              (Stmt.str ~print_expr:str_e s)));
-    match s with
+    match s.it with
     | Skip -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
     | Exception str ->
-        print_string "Exception thrown:\n";
-        print_string str;
+        print_string (
+          Source.string_of_region s.at ^ ": Exception: " ^ str ^ "\n");
         exit 1
     | Merge -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.MergeLab)
     | Print e ->
@@ -366,31 +367,31 @@ module M (Mon : SecurityMonitor) = struct
     | If (e, s1, s2) -> (
         let v = eval_expr sto e in
         if is_true v then
-          match s1 with
+          match s1.it with
           | Block block -> (
-              let blockm = block @ (Stmt.Merge :: []) in
+              let blockm = block @ ((Stmt.Merge @@ s1.at) :: []) in
               match s2 with
               | Some v ->
                   ( Intermediate ((cs, heap, sto, f), blockm @ cont),
                     SecLabel.BranchLab (e, v) )
               | None ->
                   ( Intermediate ((cs, heap, sto, f), blockm @ cont),
-                    SecLabel.BranchLab (e, Stmt.Skip) ))
+                    SecLabel.BranchLab (e, Stmt.Skip @@ s.at) ))
           | _ -> raise (Except "IF block expected ")
         else
           match s2 with
           | Some v -> (
-              match v with
+              match v.it with
               | Block block2 ->
-                  let block2m = block2 @ (Stmt.Merge :: []) in
+                  let block2m = block2 @ ((Stmt.Merge @@ v.at) :: []) in
                   ( Intermediate ((cs, heap, sto, f), block2m @ cont),
                     SecLabel.BranchLab (e, s1) )
               | _ -> raise (Except "Not expected"))
           | None -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
         )
-    | While (e, s) ->
-        let s1 = (s :: []) @ (Stmt.While (e, s) :: []) in
-        let stms = Stmt.If (e, Stmt.Block s1, None) in
+    | While (e, s') ->
+        let s1 = (s' :: []) @ ((Stmt.While (e, s') @@ s.at) :: []) in
+        let stms = Stmt.If (e, Stmt.Block s1 @@ s'.at, None) @@ s.at in
         (Intermediate ((cs, heap, sto, f), stms :: cont), SecLabel.EmptyLab)
     | AssignCall (x, func, es) -> (
         let f', vs' = get_func_id sto func in

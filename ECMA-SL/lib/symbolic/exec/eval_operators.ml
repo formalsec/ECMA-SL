@@ -85,6 +85,7 @@ let eval_binop (op : Op.bopt) (v1 : t) (v2 : t) : t =
       match (v1, v2) with
       | Flt f1, Flt f2 -> Bool (Float.equal f1 f2)
       | Arr a1, Arr a2 -> Bool (a1 == a2)
+(*   | v',  Symbol s when not (is_symbol v') -> Bool false *)
       | _ when (not (Sval.is_symbolic v1)) && not (Sval.is_symbolic v2) ->
           Bool (v1 = v2)
       | _ -> Binop (op, v1, v2))
