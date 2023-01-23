@@ -705,10 +705,15 @@ C(delete(e_o[e_f]))=
                 (x_shadow, lub_func (), [ Expr.Var level; Expr.Var pc ])
               @@ no_region;
             ]
-           @@ no_region,
+          @@ no_region,
           Some
             (Stmt.Block
-               [ Stmt.Exception "MONITOR EXCEPTION -> Illegal UpgVarLab" @@ no_region] @@ no_region) ) @@ no_region;
+               [
+                 Stmt.Exception "MONITOR EXCEPTION -> Illegal UpgVarLab"
+                 @@ no_region;
+               ]
+            @@ no_region) )
+      @@ no_region;
     ]
   (*(*
       C(e_o) = (stmt_x_o, x_o_lev)
@@ -949,7 +954,7 @@ C(delete(e_o[e_f]))=
     let compile_o pc = Option.map (compile pc) in
 
     match stmt.it with
-    | Block lst -> c_block pc lst 
+    | Block lst -> c_block pc lst
     | Skip -> [ Stmt.Skip @@ stmt.at ]
     | Assign (x, e) -> c_assign pc x e
     | Return e -> c_return pc e
@@ -1017,7 +1022,11 @@ C(delete(e_o[e_f]))=
                   new_params
               then ac
               else
-                ac @ [ Stmt.Assign (shadowvar var, Expr.Val (Val.Bool true)) @@ no_region ])
+                ac
+                @ [
+                    Stmt.Assign (shadowvar var, Expr.Val (Val.Bool true))
+                    @@ no_region;
+                  ])
             [] asgn_vars
         in
         let new_body = translist pc f.body in
@@ -1030,9 +1039,11 @@ C(delete(e_o[e_f]))=
                     Stmt.AssignCall
                       ( pc,
                         Expr.Val (Val.Str "parse_lvl"),
-                        [ Expr.Val (Val.Str _INITIAL_PC_) ] ) @@ no_region;
+                        [ Expr.Val (Val.Str _INITIAL_PC_) ] )
+                    @@ no_region;
                   ]
-                 @ asgn_vars_clean @ new_body ) @@ no_region)
+                 @ asgn_vars_clean @ new_body)
+              @@ no_region)
           in
           Prog.add_func new_prog f.name new_f
         else

@@ -47,14 +47,16 @@ let compile_sc_and (x : string) (stmts_1 : Stmt.t list) (e1' : Expr.t)
     Stmt.If
       ( Expr.BinOpt (Eq, e2', Expr.Val (Val.Bool false)),
         Stmt.Assign (x, Expr.Val (Val.Bool false)) @@ no_region,
-        Some (Stmt.Assign (x, Expr.Val (Val.Bool true)) @@ no_region) ) @@ no_region
+        Some (Stmt.Assign (x, Expr.Val (Val.Bool true)) @@ no_region) )
+    @@ no_region
   in
 
   let outer_if =
     Stmt.If
       ( Expr.BinOpt (Eq, e1', Expr.Val (Val.Bool false)),
         Stmt.Assign (x, Expr.Val (Val.Bool false)) @@ no_region,
-        Some (Stmt.Block (stmts_2 @ [ inner_if ] ) @@ no_region) ) @@ no_region
+        Some (Stmt.Block (stmts_2 @ [ inner_if ]) @@ no_region) )
+    @@ no_region
   in
 
   (stmts_1 @ [ outer_if ], Expr.Var x)
@@ -83,14 +85,16 @@ let compile_sc_or (x : string) (stmts_1 : Stmt.t list) (e1' : Expr.t)
     Stmt.If
       ( Expr.BinOpt (Eq, e2', Expr.Val (Val.Bool true)),
         Stmt.Assign (x, Expr.Val (Val.Bool true)) @@ no_region,
-        Some (Stmt.Assign (x, Expr.Val (Val.Bool false)) @@ no_region) ) @@ no_region
+        Some (Stmt.Assign (x, Expr.Val (Val.Bool false)) @@ no_region) )
+    @@ no_region
   in
 
   let outer_if =
     Stmt.If
       ( Expr.BinOpt (Eq, e1', Expr.Val (Val.Bool true)),
         Stmt.Assign (x, Expr.Val (Val.Bool true)) @@ no_region,
-        Some (Stmt.Block (stmts_2 @ [ inner_if ]) @@ no_region) ) @@ no_region
+        Some (Stmt.Block (stmts_2 @ [ inner_if ]) @@ no_region) )
+    @@ no_region
   in
 
   (stmts_1 @ [ outer_if ], Expr.Var x)
@@ -99,7 +103,8 @@ let compile_binopt (binop : Operators.bopt)
     ((stmts_1, e1) : Stmt.t list * Expr.t)
     ((stmts_2, e2) : Stmt.t list * Expr.t) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
-  ( stmts_1 @ stmts_2 @ [ Stmt.Assign (var, Expr.BinOpt (binop, e1, e2)) @@ no_region ],
+  ( stmts_1 @ stmts_2
+    @ [ Stmt.Assign (var, Expr.BinOpt (binop, e1, e2)) @@ no_region ],
     Expr.Var var )
 
 let compile_triopt (triop : topt) ((stmts_1, e1) : Stmt.t list * Expr.t)
@@ -126,7 +131,8 @@ let compile_gvar (x : string) : Stmt.t list * Expr.t =
   in
   let f_lookup =
     Stmt.FieldLookup
-      (y, Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str var)) @@ no_region
+      (y, Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str var))
+    @@ no_region
   in
   ([ f_lookup ], Expr.Var y)
 
@@ -147,7 +153,8 @@ let compile_glob_assign (x : string) (stmts_e : Stmt.t list) (e : Expr.t) :
   in
   let f_asgn =
     Stmt.FieldAssign
-      (Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str var), e) @@ no_region
+      (Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str var), e)
+    @@ no_region
   in
   stmts_e @ [ f_asgn ]
 
@@ -232,7 +239,11 @@ let compile_switch (ret_e : Stmt.t list * Expr.t)
       (fun (stmts_i, e_i', stmts_i') stmts_else ->
         let guard_i = Expr.BinOpt (Eq, e_i', e') in
         let stmt_if =
-          Stmt.If (guard_i, Stmt.Block stmts_i' @@ no_region, Some (Stmt.Block stmts_else @@ no_region)) @@ no_region
+          Stmt.If
+            ( guard_i,
+              Stmt.Block stmts_i' @@ no_region,
+              Some (Stmt.Block stmts_else @@ no_region) )
+          @@ no_region
         in
         stmts_i @ [ stmt_if ])
       ret_cases ret_so
@@ -246,14 +257,16 @@ let compile_fail (ret_e : Stmt.t list * Expr.t) : Stmt.t list =
 let compile_throw (ret_e : Stmt.t list * Expr.t) : Stmt.t list =
   let stmts_expr, e' = ret_e in
   let ret_stmt =
-    Stmt.Return (Expr.NOpt (TupleExpr, [ Expr.Val (Val.Bool true); e' ])) @@ no_region
+    Stmt.Return (Expr.NOpt (TupleExpr, [ Expr.Val (Val.Bool true); e' ]))
+    @@ no_region
   in
   stmts_expr @ [ ret_stmt ]
 
 let compile_return (ret_e : Stmt.t list * Expr.t) : Stmt.t list =
   let stmts_expr, e' = ret_e in
   let ret_stmt =
-    Stmt.Return (Expr.NOpt (TupleExpr, [ Expr.Val (Val.Bool false); e' ])) @@ no_region
+    Stmt.Return (Expr.NOpt (TupleExpr, [ Expr.Val (Val.Bool false); e' ]))
+    @@ no_region
   in
   stmts_expr @ [ ret_stmt ]
 
@@ -306,8 +319,12 @@ let build_if_throw (x : string) (g : string option) : Stmt.t =
       let args =
         [ Expr.Var __INTERNAL_ESL_GLOBAL__; Expr.UnOpt (Second, Expr.Var x) ]
       in
-      let call_stmt = Stmt.AssignCall (x, Expr.Val (Val.Str g), args) @@ no_region in
-      let inner_if = build_if_throw_basic x (Stmt.Return (Expr.Var x) @@ no_region) in
+      let call_stmt =
+        Stmt.AssignCall (x, Expr.Val (Val.Str g), args) @@ no_region
+      in
+      let inner_if =
+        build_if_throw_basic x (Stmt.Return (Expr.Var x) @@ no_region)
+      in
       build_if_throw_basic x (Stmt.Block [ call_stmt; inner_if ] @@ no_region)
 
 let compile_call (ret_f : Stmt.t list * Expr.t)
@@ -336,7 +353,8 @@ let compile_e_call (f : string) (ret_args : (Stmt.t list * Expr.t) list) :
     Stmt.t list * Expr.t =
   let x = generate_fresh_var () in
   let fargs_stmts, fargs_exprs = List.split ret_args in
-  ( List.concat fargs_stmts @ [ Stmt.AssignECall (x, f, fargs_exprs) @@ no_region ],
+  ( List.concat fargs_stmts
+    @ [ Stmt.AssignECall (x, f, fargs_exprs) @@ no_region ],
     Expr.Var x )
 
 let compile_const (c : const) : Stmt.t list * Expr.t =
@@ -359,15 +377,18 @@ and compile_unopt (op : uopt) (expr : E_Expr.t) : Stmt.t list * Expr.t =
   let stmts_expr, expr' = compile_expr expr in
   match op with
   | ObjToList ->
-      (stmts_expr @ [ Stmt.AssignObjToList (var, expr') @@ no_region ], Expr.Var var)
+      ( stmts_expr @ [ Stmt.AssignObjToList (var, expr') @@ no_region ],
+        Expr.Var var )
   | _ ->
-      (stmts_expr @ [ Stmt.Assign (var, Expr.UnOpt (op, expr')) @@ no_region ], Expr.Var var)
+      ( stmts_expr @ [ Stmt.Assign (var, Expr.UnOpt (op, expr')) @@ no_region ],
+        Expr.Var var )
 
 and compile_nopt (nop : nopt) (e_exprs : E_Expr.t list) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   let stmts_exprs = List.map compile_expr e_exprs in
   let stmts, exprs = List.split stmts_exprs in
-  ( List.concat stmts @ [ Stmt.Assign (var, Expr.NOpt (nop, exprs)) @@ no_region ],
+  ( List.concat stmts
+    @ [ Stmt.Assign (var, Expr.NOpt (nop, exprs)) @@ no_region ],
     Expr.Var var )
 
 and compile_newobj (e_fes : (string * E_Expr.t) list) : Stmt.t list * Expr.t =
@@ -377,7 +398,11 @@ and compile_newobj (e_fes : (string * E_Expr.t) list) : Stmt.t list * Expr.t =
     List.map
       (fun (pn, e) ->
         let stmts, e' = compile_expr e in
-        stmts @ [ Stmt.FieldAssign (Expr.Var var, Expr.Val (Val.Str pn), e') @@ no_region])
+        stmts
+        @ [
+            Stmt.FieldAssign (Expr.Var var, Expr.Val (Val.Str pn), e')
+            @@ no_region;
+          ])
       e_fes
   in
   (newObj :: List.concat stmts, Expr.Var var)
@@ -386,7 +411,8 @@ and compile_lookup (expr : E_Expr.t) (field : E_Expr.t) : Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
   let stmts_expr, expr' = compile_expr expr in
   let stmts_field, field' = compile_expr field in
-  ( stmts_expr @ stmts_field @ [ Stmt.FieldLookup (var, expr', field') @@ no_region ],
+  ( stmts_expr @ stmts_field
+    @ [ Stmt.FieldLookup (var, expr', field') @@ no_region ],
     Expr.Var var )
 
 and compile_assign (lval : string) (rval : E_Expr.t) : Stmt.t list =
@@ -411,7 +437,11 @@ and compile_if (expr : E_Expr.t) (stmt1 : E_Stmt.t) (stmt2 : E_Stmt.t option) :
 and compile_while (expr : E_Expr.t) (stmt : E_Stmt.t) : Stmt.t list =
   let stmts_expr, expr' = compile_expr expr in
   let stmts_stmt = compile_stmt stmt in
-  stmts_expr @ [ Stmt.While (expr', Stmt.Block (stmts_stmt @ stmts_expr) @@ no_region) @@ no_region ]
+  stmts_expr
+  @ [
+      Stmt.While (expr', Stmt.Block (stmts_stmt @ stmts_expr) @@ no_region)
+      @@ no_region;
+    ]
 
 and compile_fieldassign (e_eo : E_Expr.t) (e_f : E_Expr.t) (e_ev : E_Expr.t) :
     Stmt.t list =
@@ -441,23 +471,31 @@ and compile_patv (expr : Expr.t) (pname : string) (pat_v : E_Pat_v.t)
     (var_b : string) : string list * Stmt.t list * Stmt.t list =
   match pat_v with
   | PatVar v ->
-      ([], [], [ Stmt.FieldLookup (v, expr, Expr.Val (Val.Str pname)) @@ no_region ])
+      ( [],
+        [],
+        [ Stmt.FieldLookup (v, expr, Expr.Val (Val.Str pname)) @@ no_region ] )
   | PatVal v ->
       let b = generate_fresh_var () in
       let w = generate_fresh_var () in
-      let stmt = Stmt.FieldLookup (w, expr, Expr.Val (Val.Str pname)) @@ no_region in
+      let stmt =
+        Stmt.FieldLookup (w, expr, Expr.Val (Val.Str pname)) @@ no_region
+      in
       let stmt_assign =
         Stmt.Assign (b, Expr.BinOpt (Eq, Expr.Var w, Expr.Val v)) @@ no_region
       in
       ([ b ], [ stmt; stmt_assign ], [])
   | PatNone ->
-      let stmt = Stmt.Assign (var_b, Expr.UnOpt (Not, Expr.Var var_b)) @@ no_region in
+      let stmt =
+        Stmt.Assign (var_b, Expr.UnOpt (Not, Expr.Var var_b)) @@ no_region
+      in
       ([], [ stmt ], [])
 
 and compile_pn_pat (expr : Expr.t) ((pn, patv) : string * E_Pat_v.t) :
     string list * Stmt.t list * Stmt.t list =
   let fresh_b = generate_fresh_var () in
-  let in_stmt = Stmt.AssignInObjCheck (fresh_b, Expr.Val (Val.Str pn), expr) @@ no_region in
+  let in_stmt =
+    Stmt.AssignInObjCheck (fresh_b, Expr.Val (Val.Str pn), expr) @@ no_region
+  in
   let bs, stmts, stmts' = compile_patv expr pn patv fresh_b in
   (fresh_b :: bs, in_stmt :: stmts, stmts')
 
@@ -497,11 +535,22 @@ and compile_matchwith (expr : E_Expr.t) (pats_stmts : (E_Pat.t * E_Stmt.t) list)
     | [] -> []
     | (pat_stmts, bs_expr, stmts) :: rest ->
         let last_if =
-          pat_stmts @ [ Stmt.If (bs_expr, Stmt.Block stmts @@ no_region, None) @@ no_region ]
+          pat_stmts
+          @ [
+              Stmt.If (bs_expr, Stmt.Block stmts @@ no_region, None)
+              @@ no_region;
+            ]
         in
         List.fold_left
           (fun acc (ps, be, ss) ->
-            ps @ [ Stmt.If (be, Stmt.Block ss @@ no_region, Some (Stmt.Block acc @@ no_region)) @@ no_region ])
+            ps
+            @ [
+                Stmt.If
+                  ( be,
+                    Stmt.Block ss @@ no_region,
+                    Some (Stmt.Block acc @@ no_region) )
+                @@ no_region;
+              ])
           last_if rest
   in
   stmts_expr @ chained_ifs
@@ -579,7 +628,14 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
         (fun acc (e, s, _) ->
           let stmts_e, e' = compile_expr e in
           let stmts_s = compile_stmt s in
-          stmts_e @ [ Stmt.If (e', Stmt.Block stmts_s @@ no_region, Some (Stmt.Block acc @@ no_region)) @@ no_region ])
+          stmts_e
+          @ [
+              Stmt.If
+                ( e',
+                  Stmt.Block stmts_s @@ no_region,
+                  Some (Stmt.Block acc @@ no_region) )
+              @@ no_region;
+            ])
         acc ifs'
   | While (e_exp, e_s) -> compile_while e_exp e_s
   | ForEach (x, e_e, e_s, _, _) ->
@@ -587,7 +643,8 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
       let idx_str = generate_fresh_var () in
       let e_test = E_Expr.BinOpt (Gt, Var len_str, Var idx_str) in
       let stmt_inc =
-        Stmt.Assign (idx_str, Expr.BinOpt (Plus, Var idx_str, Val (Int 1))) @@ no_region
+        Stmt.Assign (idx_str, Expr.BinOpt (Plus, Var idx_str, Val (Int 1)))
+        @@ no_region
       in
       let stmts_e_test, e_test' = compile_expr e_test in
       let stmts_e, e_e' = compile_expr e_e in
@@ -605,7 +662,8 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
             ( e_test',
               Stmt.Block
                 ((stmt_assign_x :: stmts_s) @ (stmt_inc :: stmts_e_test))
-              @@ no_region ) @@ no_region;
+              @@ no_region )
+          @@ no_region;
         ]
   | FieldAssign (e_eo, e_f, e_ev) -> compile_fieldassign e_eo e_f e_ev
   | FieldDelete (e_e, e_f) -> compile_fielddelete e_e e_f

@@ -307,8 +307,8 @@ module M (Mon : SecurityMonitor) = struct
     match s.it with
     | Skip -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
     | Exception str ->
-        print_string (
-          Source.string_of_region s.at ^ ": Exception: " ^ str ^ "\n");
+        print_string
+          (Source.string_of_region s.at ^ ": Exception: " ^ str ^ "\n");
         exit 1
     | Merge -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.MergeLab)
     | Print e ->

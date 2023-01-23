@@ -4,11 +4,11 @@
  (modules ecma_sl)
  (libraries ECMA_SL))
 
-(executable 
-  (public_name ecma-se)
-  (name ecma_se)
-  (modules ecma_se)
-  (libraries ECMA_SL))
+(executable
+ (public_name ecma-se)
+ (name ecma_se)
+ (modules ecma_se)
+ (libraries ECMA_SL))
 
 (executable
  (public_name generate_standard)
