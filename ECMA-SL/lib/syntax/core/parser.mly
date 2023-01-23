@@ -1,6 +1,21 @@
 (* parser-specification file *)
 %{
+open Source
 open Operators
+
+let position_to_pos position =
+  {
+    file = position.Lexing.pos_fname;
+    line = position.Lexing.pos_lnum;
+    column = position.Lexing.pos_cnum - position.Lexing.pos_bol;
+  }
+
+let position_to_region pos1 pos2 =
+  { left = position_to_pos pos1; right = position_to_pos pos2 }
+
+let at (startpos, endpos) =
+  position_to_region startpos endpos
+
 %}
 (*
   BEGIN first section - declarations
@@ -351,68 +366,68 @@ expr_target:
     { Expr.UnOpt (ListToArray, e) } %prec unopt_prec
 
 stmt_block:
-  | s = separated_list (SEMICOLON, stmt_target);
-    { Stmt.Block s }
+  | s = separated_list (SEMICOLON, stmt_target); 
+    { Stmt.Block s @@ at $sloc }
 
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return *)
 stmt_target:
   | PRINT; e = expr_target;
-    { Stmt.Print e }
+    { Stmt.Print e @@ at $sloc }
   | FAIL; e = expr_target;
-    { Stmt.Fail e }
+    { Stmt.Fail e @@ at $sloc }
   | ABORT; e = expr_target;
-    { Stmt.Abort e }
+    { Stmt.Abort e @@ at $sloc }
   | ASSUME; LPAREN; e = expr_target; RPAREN;
-    { Stmt.Assume e }
+    { Stmt.Assume e @@ at $sloc }
   | ASSERT; LPAREN; e = expr_target; RPAREN;
-    { Stmt.Assert e }
+    { Stmt.Assert e @@ at $sloc }
   | THROW; str = STRING;
-    { Stmt.Exception str}
+    { Stmt.Exception str @@ at $sloc }
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;
-    { Stmt.FieldAssign (e1, Expr.Val (Val.Str f), e2) }
+    { Stmt.FieldAssign (e1, Expr.Val (Val.Str f), e2) @@ at $sloc }
   | e1 = expr_target; LBRACK; f = expr_target; RBRACK; DEFEQ; e2 = expr_target;
-    { Stmt.FieldAssign (e1, f, e2) }
+    { Stmt.FieldAssign (e1, f, e2) @@ at $sloc }
   | DELETE; e = expr_target; PERIOD; f = VAR;
-    { Stmt.FieldDelete (e, Expr.Val (Val.Str f)) }
+    { Stmt.FieldDelete (e, Expr.Val (Val.Str f)) @@ at $sloc }
   | DELETE; e = expr_target; LBRACK; f = expr_target; RBRACK;
-    { Stmt.FieldDelete (e, f) }
+    { Stmt.FieldDelete (e, f) @@ at $sloc }
   | SKIP;
-    { Stmt.Skip }
+    { Stmt.Skip @@ at $sloc }
   | v = VAR; DEFEQ; e = expr_target;
-    { Stmt.Assign (v, e) }
+    { Stmt.Assign (v, e) @@ at $sloc }
   | exps_stmts = ifelse_target;
     { exps_stmts }
   | WHILE; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block; RBRACE;
-    { Stmt.While (e, s) }
+    { Stmt.While (e, s) @@ at $sloc }
   | RETURN; e = expr_target;
-    { Stmt.Return e }
+    { Stmt.Return e @@ at $sloc }
   | RETURN;
-    { Stmt.Return (Expr.Val Val.Void) }
+    { Stmt.Return (Expr.Val Val.Void) @@ at $sloc }
   | v = VAR; DEFEQ; f = expr_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
-    { Stmt.AssignCall (v,f,vs)}
+    { Stmt.AssignCall (v,f,vs) @@ at $sloc }
   | x = VAR; DEFEQ; EXTERN; f = VAR; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
-    { Stmt.AssignECall (x,f,vs)}
+    { Stmt.AssignECall (x,f,vs) @@ at $sloc }
   | v = VAR; DEFEQ; e1 = expr_target; IN_OBJ; e2 = expr_target;
-    { Stmt.AssignInObjCheck (v,e1,e2)}
+    { Stmt.AssignInObjCheck (v,e1,e2) @@ at $sloc }
   | v = VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;
-    { Stmt.FieldLookup (v,e, Expr.Val (Val.Str f)) }
+    { Stmt.FieldLookup (v,e, Expr.Val (Val.Str f)) @@ at $sloc }
   | v = VAR; DEFEQ; e = expr_target; LBRACK; f = expr_target; RBRACK;
-    { Stmt.FieldLookup (v,e, f) }
+    { Stmt.FieldLookup (v,e, f) @@ at $sloc }
   | v = VAR; DEFEQ; LBRACE; RBRACE;
-    { Stmt.AssignNewObj (v) }
+    { Stmt.AssignNewObj v @@ at $sloc }
   | v = VAR; DEFEQ; OBJ_TO_LIST; e = expr_target;
-    { Stmt.AssignObjToList (v, e) }
+    { Stmt.AssignObjToList (v, e) @@ at $sloc }
   | v = VAR; DEFEQ; OBJ_FIELDS; e = expr_target;
-    { Stmt.AssignObjFields (v, e) }
+    { Stmt.AssignObjFields (v, e) @@ at $sloc }
 
 
 
 (* if (e) { s } | if (e) {s} else { s } *)
 ifelse_target:
   | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s1 = stmt_block; RBRACE; ELSE;LBRACE; s2 = stmt_block; RBRACE;
-    { Stmt.If(e, s1, Some s2) }
+    { Stmt.If (e, s1, Some s2) @@ at $sloc }
   | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block; RBRACE;
-    { Stmt.If(e, s, None) }
+    { Stmt.If (e, s, None) @@ at $sloc }
 
 %inline op_target:
   | MINUS   { Minus }

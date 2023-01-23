@@ -27,6 +27,7 @@ let rec small_step_iter
   (finals : return_t list) : return_t list = 
 *)
 open Func
+open Source
 
 type config = {
   prog : Prog.t;
@@ -113,10 +114,11 @@ let step (c : config) : config list =
     match code with Cont stmts -> stmts | _ -> rte "step: Empty continuation!"
   in
   let s = List.hd stmts in
-  match s with
+  match s.it with
   | Stmt.Skip -> [ update c (Cont (List.tl stmts)) state pc solver ]
   | Stmt.Merge -> [ update c (Cont (List.tl stmts)) state pc solver ]
   | Stmt.Exception err ->
+      print_endline (Source.string_of_region s.at ^ ": Exception: " ^ err);
       [ update c (Error (Some (Sval.Str err))) state pc solver ]
   | Stmt.Print e ->
       print_endline (Expr.str e);
@@ -129,6 +131,7 @@ let step (c : config) : config list =
       let v = eval_expression store e in
       Encoding.add solver [ v ];
       if not (Encoding.check solver []) then
+        (* TODO: @return [] *)
         [ update c (Final (Some v)) state pc solver ]
       else [ update c (Cont (List.tl stmts)) state (v :: pc) solver ]
   | Stmt.Assert e when Sval.Bool true = eval_expression store e ->
@@ -149,22 +152,21 @@ let step (c : config) : config list =
           (heap, Sstore.add store x v, stack, f)
           pc solver;
       ]
-  | Stmt.Block block ->
-      [ update c (Cont (block @ List.tl stmts)) state pc solver ]
-  | Stmt.If (e, stmts', _) when Sval.Bool true = eval_expression store e ->
+  | Stmt.Block blk -> [ update c (Cont (blk @ List.tl stmts)) state pc solver ]
+  | Stmt.If (e, blk, _) when Sval.Bool true = eval_expression store e ->
       let cont =
-        match stmts' with
-        | Stmt.Block b -> b @ (Stmt.Merge :: List.tl stmts)
+        match blk.it with
+        | Stmt.Block b -> b @ ((Stmt.Merge @@ blk.at) :: List.tl stmts)
         | _ -> rte "Malformed if statement 'then' block!"
       in
       [ update c (Cont cont) state pc solver ]
-  | Stmt.If (e, _, stmts') when Sval.Bool false = eval_expression store e ->
+  | Stmt.If (e, _, blk) when Sval.Bool false = eval_expression store e ->
       let cont =
         let t = List.tl stmts in
-        match stmts' with None -> t | Some s -> s :: Stmt.Merge :: t
+        match blk with None -> t | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: t
       in
       [ update c (Cont cont) state pc solver ]
-  | Stmt.If (cond, stmts1, stmts2) ->
+  | Stmt.If (cond, b1, b2) ->
       let cond' = eval_expression store cond
       and not_cond' = eval_expression store (Expr.UnOpt (Operators.Not, cond))
       and solver' = Encoding.clone solver in
@@ -172,28 +174,28 @@ let step (c : config) : config list =
         Encoding.add solver [ cond' ];
         if not (Encoding.check solver []) then []
         else
-          match stmts1 with
-          | Stmt.Block b ->
-              let b' = b @ (Stmt.Merge :: List.tl stmts) in
-              [ update c (Cont b') state (cond' :: pc) solver ]
-          | _ -> rte "Malformed if statement 'then' block!"
+          let b' = b1 :: (Stmt.Merge @@ b1.at) :: List.tl stmts in
+          [ update c (Cont b') state (cond' :: pc) solver ]
       in
       let else_branch =
         Encoding.add solver' [ not_cond' ];
         if not (Encoding.check solver' []) then []
         else
           let stmts' =
-            let t = List.tl stmts in
-            match stmts2 with None -> t | Some s -> s :: Stmt.Merge :: t
+            match b2 with
+            | None -> List.tl stmts
+            | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl stmts
           in
           [ update c (Cont stmts') state (not_cond' :: pc) solver' ]
       in
       then_branch @ else_branch
-  | Stmt.While (cond, stmts') ->
-      let stmts1 = Stmt.Block (stmts' :: [ Stmt.While (cond, stmts') ]) in
+  | Stmt.While (cond, blk) ->
+      let blk' =
+        Stmt.Block (blk :: [ Stmt.While (cond, blk) @@ s.at ]) @@ blk.at
+      in
       [
         update c
-          (Cont (Stmt.If (cond, stmts1, None) :: List.tl stmts))
+          (Cont ((Stmt.If (cond, blk', None) @@ s.at) :: List.tl stmts))
           state pc solver;
       ]
   | Stmt.Return e -> (

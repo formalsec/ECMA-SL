@@ -1,7 +1,13 @@
 (executable
- (public_name ECMA-SL)
- (name main)
- (modules main)
+ (public_name ecma-sl)
+ (name ecma_sl)
+ (modules ecma_sl)
+ (libraries ECMA_SL))
+
+(executable
+ (public_name ecma-se)
+ (name ecma_se)
+ (modules ecma_se)
  (libraries ECMA_SL))
 
 (executable

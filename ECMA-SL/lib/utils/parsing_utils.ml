@@ -12,6 +12,8 @@ let print_position (outx : Format.formatter) (lexbuf : Lexing.lexbuf) : unit =
     (pos.pos_cnum - pos.pos_bol + 1)
 
 let e_parse start (lexbuf : Lexing.lexbuf) =
+  lexbuf.Lexing.lex_curr_p <-
+    { lexbuf.Lexing.lex_curr_p with Lexing.pos_fname = !Flags.file };
   let module ESLMI = E_Parser.MenhirInterpreter in
   let last_token = ref E_Parser.EOF in
   let lexer lexbuf =
@@ -34,6 +36,8 @@ let e_parse start (lexbuf : Lexing.lexbuf) =
     (start lexbuf.Lexing.lex_curr_p)
 
 let parse start (lexbuf : Lexing.lexbuf) =
+  lexbuf.Lexing.lex_curr_p <-
+    { lexbuf.Lexing.lex_curr_p with Lexing.pos_fname = !Flags.file };
   let module Core_ESLMI = Parser.MenhirInterpreter in
   let last_token = ref Parser.EOF in
   let lexer lexbuf =
@@ -41,7 +45,6 @@ let parse start (lexbuf : Lexing.lexbuf) =
     last_token := token;
     token
   in
-
   Core_ESLMI.loop_handle
     (fun result -> result)
     (function

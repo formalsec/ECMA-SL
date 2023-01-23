@@ -1,5 +1,6 @@
 open Stmt
 open Func
+open Source
 open NSU_CompilerConstants
 
 (*Each monitor is independent of the other ones*)
@@ -13,7 +14,7 @@ module M (SL : SecLevel.M) = struct
 
   let bottom_e () : Expr.t = Expr.Val (Val.Str (SL.str (SL.get_low ())))
   let shadow_fun_e () : Expr.t = Expr.Val (Val.Str _SHADOW_FUN_NAME_)
-  let block_s (stmts : Stmt.t list) : Stmt.t = Stmt.Block stmts
+  let block_s (stmts : Stmt.t list) : Stmt.t = Stmt.Block stmts @@ no_region
   let lub_func () : Expr.t = Expr.Val (Val.Str _LUB_)
   let lubn_func () : Expr.t = Expr.Val (Val.Str _LUBN_)
   let parse_lvl_func () : Expr.t = Expr.Val (Val.Str _PARSE_LVL_)
@@ -25,7 +26,7 @@ module M (SL : SecLevel.M) = struct
     let e =
       Expr.NOpt (Operators.ListExpr, List.map (fun x -> shadow_var_e x) xs)
     in
-    (Stmt.AssignCall (x_lev, lubn_func (), [ e ]), x_lev)
+    (Stmt.AssignCall (x_lev, lubn_func (), [ e ]) @@ no_region, x_lev)
 
   let prepare_args (es : Expr.t list) : Expr.t list * Stmt.t list =
     let lst =
@@ -77,11 +78,12 @@ C(x := e1[e2]) =
       [
         stmt_1;
         stmt_2;
-        Stmt.Assign (x_o, e_o);
-        Stmt.Assign (x_f, e_f);
+        Stmt.Assign (x_o, e_o) @@ no_region;
+        Stmt.Assign (x_f, e_f) @@ no_region;
         Stmt.AssignCall
-          (f_shadow, Expr.Val (Val.Str _SHADOW_PROP_VALUE_), [ Expr.Var x_f ]);
-        Stmt.FieldLookup (x_f_lev, Expr.Var x_o, Expr.Var f_shadow);
+          (f_shadow, Expr.Val (Val.Str _SHADOW_PROP_VALUE_), [ Expr.Var x_f ])
+        @@ no_region;
+        Stmt.FieldLookup (x_f_lev, Expr.Var x_o, Expr.Var f_shadow) @@ no_region;
         Stmt.AssignCall
           ( lub_1,
             lubn_func (),
@@ -89,22 +91,30 @@ C(x := e1[e2]) =
               Expr.NOpt
                 ( Operators.ListExpr,
                   [ Expr.Var x_1_lev; Expr.Var x_2_lev; Expr.Var pc ] );
-            ] );
+            ] )
+        @@ no_region;
         Stmt.AssignCall
-          (leq_1, leq_func (), [ Expr.Var lub_1; Expr.Var (shadowvar x) ]);
+          (leq_1, leq_func (), [ Expr.Var lub_1; Expr.Var (shadowvar x) ])
+        @@ no_region;
         Stmt.If
           ( Expr.Var leq_1,
             Stmt.Block
               [
                 Stmt.AssignCall
-                  (lub_2, lub_func (), [ Expr.Var x_f_lev; Expr.Var lub_1 ]);
-                Stmt.Assign (shadowvar x, Expr.Var lub_2);
-                FieldLookup (x, Expr.Var x_o, Expr.Var x_f);
-              ],
+                  (lub_2, lub_func (), [ Expr.Var x_f_lev; Expr.Var lub_1 ])
+                @@ no_region;
+                Stmt.Assign (shadowvar x, Expr.Var lub_2) @@ no_region;
+                FieldLookup (x, Expr.Var x_o, Expr.Var x_f) @@ no_region;
+              ]
+            @@ no_region,
             Some
               (Stmt.Block
-                 [ Stmt.Exception "MONITOR EXCEPTION -> Illegal Field Lookup" ])
-          );
+                 [
+                   Stmt.Exception "MONITOR EXCEPTION -> Illegal Field Lookup"
+                   @@ no_region;
+                 ]
+              @@ no_region) )
+        @@ no_region;
       ]
     in
 
@@ -132,9 +142,10 @@ C(if(e){s1} else {s2}) =
     in
     [
       stmt_e;
-      Stmt.AssignCall (lub_1, lub_func (), [ Expr.Var pc; Expr.Var x_e_lev ]);
-      Stmt.Assign (pc', Expr.Var lub_1);
-      if_stmt;
+      Stmt.AssignCall (lub_1, lub_func (), [ Expr.Var pc; Expr.Var x_e_lev ])
+      @@ no_region;
+      Stmt.Assign (pc', Expr.Var lub_1) @@ no_region;
+      if_stmt @@ no_region;
     ]
 
   (*
@@ -151,8 +162,10 @@ C(if(e){s1} else {s2}) =
     let lub_1 = fresh_var_lev () in
     [
       stmt_e;
-      Stmt.AssignCall (lub_1, lub_func (), [ Expr.Var x_e_lev; Expr.Var pc ]);
-      Stmt.Return (Expr.NOpt (Operators.TupleExpr, [ e; Expr.Var lub_1 ]));
+      Stmt.AssignCall (lub_1, lub_func (), [ Expr.Var x_e_lev; Expr.Var pc ])
+      @@ no_region;
+      Stmt.Return (Expr.NOpt (Operators.TupleExpr, [ e; Expr.Var lub_1 ]))
+      @@ no_region;
     ]
 
   (*
@@ -168,10 +181,13 @@ C(if(e){s1} else {s2}) =
   let c_while (pc : string) (pc' : string) (e : Expr.t) (stmts : Stmt.t list) :
       Stmt.t list =
     let stmt_e, x_e_lev = c_expr e in
-    let while_stmt = [ Stmt.While (e, Stmt.Block stmts) ] in
+    let while_stmt =
+      [ Stmt.While (e, Stmt.Block stmts @@ no_region) @@ no_region ]
+    in
     [
       stmt_e;
-      Stmt.AssignCall (pc', lub_func (), [ Expr.Var pc; Expr.Var x_e_lev ]);
+      Stmt.AssignCall (pc', lub_func (), [ Expr.Var pc; Expr.Var x_e_lev ])
+      @@ no_region;
     ]
     @ while_stmt
 
@@ -198,18 +214,25 @@ C(if(e){s1} else {s2}) =
         [
           stmt_e;
           Stmt.AssignCall
-            (shadowvar x, lub_func (), [ Expr.Var pc; Expr.Var x_e_lev ]);
-          Stmt.Assign (x, e);
+            (shadowvar x, lub_func (), [ Expr.Var pc; Expr.Var x_e_lev ])
+          @@ no_region;
+          Stmt.Assign (x, e) @@ no_region;
         ]
     in
     [
-      Stmt.AssignCall (leq_1, leq_func (), [ Expr.Var pc; x_shadow ]);
+      Stmt.AssignCall (leq_1, leq_func (), [ Expr.Var pc; x_shadow ])
+      @@ no_region;
       Stmt.If
         ( Expr.Var leq_1,
-          st1,
+          st1 @@ no_region,
           Some
             (Stmt.Block
-               [ Stmt.Exception "MONITOR EXCEPTION -> Illegal Assignment" ]) );
+               [
+                 Stmt.Exception "MONITOR EXCEPTION -> Illegal Assignment"
+                 @@ no_region;
+               ]
+            @@ no_region) )
+      @@ no_region;
     ]
 
   (*
@@ -234,23 +257,28 @@ C(if(e){s1} else {s2}) =
     let leq_1 = fresh_var () in
     let st1 =
       [
-        Stmt.AssignCall (res, f, new_args @ [ Expr.Var pc ]);
-        Stmt.Assign (x, Expr.UnOpt (Operators.First, Expr.Var res));
-        Stmt.Assign (shadowvar x, Expr.UnOpt (Operators.Second, Expr.Var res));
+        Stmt.AssignCall (res, f, new_args @ [ Expr.Var pc ]) @@ no_region;
+        Stmt.Assign (x, Expr.UnOpt (Operators.First, Expr.Var res)) @@ no_region;
+        Stmt.Assign (shadowvar x, Expr.UnOpt (Operators.Second, Expr.Var res))
+        @@ no_region;
       ]
     in
     stmt_args
     @ [
-        Stmt.AssignCall (leq_1, leq_func (), [ Expr.Var pc; shadow_var_e x ]);
+        Stmt.AssignCall (leq_1, leq_func (), [ Expr.Var pc; shadow_var_e x ])
+        @@ no_region;
         Stmt.If
           ( Expr.Var leq_1,
-            Stmt.Block st1,
+            Stmt.Block st1 @@ no_region,
             Some
               (Stmt.Block
                  [
                    Stmt.Exception
-                     "MONITOR EXCEPTION -> Pc bigger than x in AssignCall";
-                 ]) );
+                     "MONITOR EXCEPTION -> Pc bigger than x in AssignCall"
+                   @@ no_region;
+                 ]
+              @@ no_region) )
+        @@ no_region;
       ]
 
   (*
@@ -272,13 +300,19 @@ C(if(e){s1} else {s2}) =
     let leq_1 = fresh_var () in
     [
       stmt_e;
-      Stmt.AssignCall (leq_1, leq_func (), [ Expr.Var pc; Expr.Var x_e_lev ]);
+      Stmt.AssignCall (leq_1, leq_func (), [ Expr.Var pc; Expr.Var x_e_lev ])
+      @@ no_region;
       Stmt.If
         ( Expr.Var leq_1,
-          Stmt.Block [ Stmt.Print e ],
+          Stmt.Block [ Stmt.Print e @@ no_region ] @@ no_region,
           Some
-            (Stmt.Block [ Stmt.Exception "MONITOR EXCEPTION -> Illegal Print" ])
-        );
+            (Stmt.Block
+               [
+                 Stmt.Exception "MONITOR EXCEPTION -> Illegal Print"
+                 @@ no_region;
+               ]
+            @@ no_region) )
+      @@ no_region;
     ]
 
   (*
@@ -292,12 +326,14 @@ C(x:={})=
     (*TODO - NSU*)
     let x_lev = shadowvar x in
     [
-      Stmt.AssignNewObj x;
+      Stmt.AssignNewObj x @@ no_region;
       Stmt.FieldAssign
-        (Expr.Var x, Expr.Val (Val.Str _OBJ_STRUCT_LEV_PROP_), Expr.Var pc);
+        (Expr.Var x, Expr.Val (Val.Str _OBJ_STRUCT_LEV_PROP_), Expr.Var pc)
+      @@ no_region;
       Stmt.FieldAssign
-        (Expr.Var x, Expr.Val (Val.Str _OBJ_VALUE_LEV_PROP_), Expr.Var pc);
-      Stmt.Assign (x_lev, Expr.Var pc);
+        (Expr.Var x, Expr.Val (Val.Str _OBJ_VALUE_LEV_PROP_), Expr.Var pc)
+      @@ no_region;
+      Stmt.Assign (x_lev, Expr.Var pc) @@ no_region;
     ]
 
   (*
@@ -368,19 +404,24 @@ C(e_o[e_f]:= e_v)=
             Expr.NOpt
               ( Operators.ListExpr,
                 [ Expr.Var x_o_lev; Expr.Var x_f_lev; Expr.Var pc ] );
-          ] );
+          ] )
+      @@ no_region;
       Stmt.AssignCall
-        (prop_val_lev_name, Expr.Val (Val.Str _SHADOW_PROP_VALUE_), [ x_f ]);
-      Stmt.FieldLookup (prop_val_lev, x_o, Expr.Var prop_val_lev_name);
+        (prop_val_lev_name, Expr.Val (Val.Str _SHADOW_PROP_VALUE_), [ x_f ])
+      @@ no_region;
+      Stmt.FieldLookup (prop_val_lev, x_o, Expr.Var prop_val_lev_name)
+      @@ no_region;
       Stmt.If
         ( binopt_e Operators.Eq (Expr.Var prop_val_lev)
             (Expr.Val (Val.Symbol "undefined")),
           Stmt.Block
             [
               Stmt.FieldLookup
-                (struct_lev, x_o, Expr.Val (Val.Str _OBJ_STRUCT_LEV_PROP_));
+                (struct_lev, x_o, Expr.Val (Val.Str _OBJ_STRUCT_LEV_PROP_))
+              @@ no_region;
               Stmt.AssignCall
-                (leq_1, leq_func (), [ Expr.Var ctx; Expr.Var struct_lev ]);
+                (leq_1, leq_func (), [ Expr.Var ctx; Expr.Var struct_lev ])
+              @@ no_region;
               Stmt.If
                 ( Expr.Var leq_1,
                   Stmt.Block
@@ -388,27 +429,37 @@ C(e_o[e_f]:= e_v)=
                       Stmt.AssignCall
                         ( prop_exists_lev_name,
                           Expr.Val (Val.Str _SHADOW_PROP_EXISTS_),
-                          [ x_f ] );
+                          [ x_f ] )
+                      @@ no_region;
                       Stmt.AssignCall
-                        (lub_1, lub_func (), [ Expr.Var ctx; Expr.Var x_v_lev ]);
+                        (lub_1, lub_func (), [ Expr.Var ctx; Expr.Var x_v_lev ])
+                      @@ no_region;
                       Stmt.FieldAssign
-                        (x_o, Expr.Var prop_val_lev_name, Expr.Var lub_1);
+                        (x_o, Expr.Var prop_val_lev_name, Expr.Var lub_1)
+                      @@ no_region;
                       Stmt.FieldAssign
-                        (x_o, Expr.Var prop_exists_lev_name, Expr.Var ctx);
-                      Stmt.FieldAssign (x_o, x_f, x_v);
-                    ],
+                        (x_o, Expr.Var prop_exists_lev_name, Expr.Var ctx)
+                      @@ no_region;
+                      Stmt.FieldAssign (x_o, x_f, x_v) @@ no_region;
+                    ]
+                  @@ no_region,
                   Some
                     (Stmt.Block
                        [
                          Stmt.Exception
-                           "MONITOR EXCEPTION -> Illegal Field Assign";
-                       ]) );
-            ],
+                           "MONITOR EXCEPTION -> Illegal Field Assign"
+                         @@ no_region;
+                       ]
+                    @@ no_region) )
+              @@ no_region;
+            ]
+          @@ no_region,
           Some
             (Stmt.Block
                [
                  Stmt.AssignCall
-                   (leq_1, leq_func (), [ Expr.Var ctx; Expr.Var prop_val_lev ]);
+                   (leq_1, leq_func (), [ Expr.Var ctx; Expr.Var prop_val_lev ])
+                 @@ no_region;
                  Stmt.If
                    ( Expr.Var leq_1,
                      Stmt.Block
@@ -420,18 +471,26 @@ C(e_o[e_f]:= e_v)=
                                Expr.NOpt
                                  ( Operators.ListExpr,
                                    [ Expr.Var ctx; Expr.Var x_v_lev ] );
-                             ] );
+                             ] )
+                         @@ no_region;
                          Stmt.FieldAssign
-                           (x_o, Expr.Var prop_val_lev_name, Expr.Var lub_1);
-                         Stmt.FieldAssign (x_o, x_f, x_v);
-                       ],
+                           (x_o, Expr.Var prop_val_lev_name, Expr.Var lub_1)
+                         @@ no_region;
+                         Stmt.FieldAssign (x_o, x_f, x_v) @@ no_region;
+                       ]
+                     @@ no_region,
                      Some
                        (Stmt.Block
                           [
                             Stmt.Exception
-                              "MONITOR EXCEPTION -> Illegal Field Assign";
-                          ]) );
-               ]) );
+                              "MONITOR EXCEPTION -> Illegal Field Assign"
+                            @@ no_region;
+                          ]
+                       @@ no_region) )
+                 @@ no_region;
+               ]
+            @@ no_region) )
+      @@ no_region;
     ]
 
   (*
@@ -477,31 +536,42 @@ C(delete(e_o[e_f]))=
             Expr.NOpt
               ( Operators.ListExpr,
                 [ Expr.Var x_o_lev; Expr.Var x_f_lev; Expr.Var pc ] );
-          ] );
+          ] )
+      @@ no_region;
       Stmt.AssignCall
-        (prop_exists_lev_name, Expr.Val (Val.Str _SHADOW_PROP_EXISTS_), [ x_f ]);
-      Stmt.FieldLookup (prop_exists_lev, x_o, Expr.Var prop_exists_lev_name);
+        (prop_exists_lev_name, Expr.Val (Val.Str _SHADOW_PROP_EXISTS_), [ x_f ])
+      @@ no_region;
+      Stmt.FieldLookup (prop_exists_lev, x_o, Expr.Var prop_exists_lev_name)
+      @@ no_region;
       Stmt.If
         ( binopt_e Operators.Eq (Expr.Var prop_exists_lev)
             (Expr.Val (Val.Symbol "undefined")),
-          Stmt.Block [ Stmt.Exception "Internal Error" ],
+          Stmt.Block [ Stmt.Exception "Internal Error" @@ no_region ]
+          @@ no_region,
           Some
             (Stmt.Block
                [
                  Stmt.AssignCall
                    ( leq_1,
                      leq_func (),
-                     [ Expr.Var ctx; Expr.Var prop_exists_lev ] );
+                     [ Expr.Var ctx; Expr.Var prop_exists_lev ] )
+                 @@ no_region;
                  Stmt.If
                    ( Expr.Var leq_1,
-                     Stmt.Block [ Stmt.FieldDelete (x_o, x_f) ],
+                     Stmt.Block [ Stmt.FieldDelete (x_o, x_f) @@ no_region ]
+                     @@ no_region,
                      Some
                        (Stmt.Block
                           [
                             Stmt.Exception
-                              "MONITOR EXCEPTION -> Illegal Field Delete";
-                          ]) );
-               ]) );
+                              "MONITOR EXCEPTION -> Illegal Field Delete"
+                            @@ no_region;
+                          ]
+                       @@ no_region) )
+                 @@ no_region;
+               ]
+            @@ no_region) )
+      @@ no_region;
     ]
 
   (*
@@ -550,13 +620,18 @@ C(delete(e_o[e_f]))=
             Expr.NOpt
               ( Operators.ListExpr,
                 [ Expr.Var x_o_lev; Expr.Var x_f_lev; Expr.Var pc ] );
-          ] );
+          ] )
+      @@ no_region;
       Stmt.AssignCall
-        (prop_exists_lev_name, Expr.Val (Val.Str _SHADOW_PROP_EXISTS_), [ x_f ]);
-      Stmt.FieldLookup (prop_exists_lev, x_o, Expr.Var prop_exists_lev_name);
+        (prop_exists_lev_name, Expr.Val (Val.Str _SHADOW_PROP_EXISTS_), [ x_f ])
+      @@ no_region;
+      Stmt.FieldLookup (prop_exists_lev, x_o, Expr.Var prop_exists_lev_name)
+      @@ no_region;
       Stmt.FieldLookup
-        (struct_lev, x_o, Expr.Val (Val.Str _OBJ_STRUCT_LEV_PROP_));
-      Stmt.AssignCall (leq_1, leq_func (), [ Expr.Var ctx; shadow_var_e x ]);
+        (struct_lev, x_o, Expr.Val (Val.Str _OBJ_STRUCT_LEV_PROP_))
+      @@ no_region;
+      Stmt.AssignCall (leq_1, leq_func (), [ Expr.Var ctx; shadow_var_e x ])
+      @@ no_region;
       Stmt.If
         ( Expr.Var leq_1,
           Stmt.Block
@@ -569,21 +644,32 @@ C(delete(e_o[e_f]))=
                       Stmt.AssignCall
                         ( shadowvar x,
                           lub_func (),
-                          [ Expr.Var ctx; Expr.Var struct_lev ] );
-                    ],
+                          [ Expr.Var ctx; Expr.Var struct_lev ] )
+                      @@ no_region;
+                    ]
+                  @@ no_region,
                   Some
                     (Stmt.Block
                        [
                          Stmt.AssignCall
                            ( shadowvar x,
                              lub_func (),
-                             [ Expr.Var ctx; Expr.Var prop_exists_lev ] );
-                       ]) );
-            ],
+                             [ Expr.Var ctx; Expr.Var prop_exists_lev ] )
+                         @@ no_region;
+                       ]
+                    @@ no_region) )
+              @@ no_region;
+            ]
+          @@ no_region,
           Some
             (Stmt.Block
-               [ Stmt.Exception "MONITOR EXCEPTION -> Illegal Assignment" ]) );
-      Stmt.AssignInObjCheck (x, x_f, x_o);
+               [
+                 Stmt.Exception "MONITOR EXCEPTION -> Illegal Assignment"
+                 @@ no_region;
+               ]
+            @@ no_region) )
+      @@ no_region;
+      Stmt.AssignInObjCheck (x, x_f, x_o) @@ no_region;
     ]
 
   (*
@@ -607,18 +693,27 @@ C(delete(e_o[e_f]))=
     let level = fresh_var_lev () in
     let leq_1 = fresh_var () in
     [
-      Stmt.AssignCall (level, parse_lvl_func (), [ Expr.Val (Val.Str lev_str) ]);
-      Stmt.AssignCall (leq_1, leq_func (), [ Expr.Var pc; shadow_var_e x_name ]);
+      Stmt.AssignCall (level, parse_lvl_func (), [ Expr.Val (Val.Str lev_str) ])
+      @@ no_region;
+      Stmt.AssignCall (leq_1, leq_func (), [ Expr.Var pc; shadow_var_e x_name ])
+      @@ no_region;
       Stmt.If
         ( Expr.Var leq_1,
           Stmt.Block
             [
               Stmt.AssignCall
-                (x_shadow, lub_func (), [ Expr.Var level; Expr.Var pc ]);
-            ],
+                (x_shadow, lub_func (), [ Expr.Var level; Expr.Var pc ])
+              @@ no_region;
+            ]
+          @@ no_region,
           Some
             (Stmt.Block
-               [ Stmt.Exception "MONITOR EXCEPTION -> Illegal UpgVarLab" ]) );
+               [
+                 Stmt.Exception "MONITOR EXCEPTION -> Illegal UpgVarLab"
+                 @@ no_region;
+               ]
+            @@ no_region) )
+      @@ no_region;
     ]
   (*(*
       C(e_o) = (stmt_x_o, x_o_lev)
@@ -858,9 +953,9 @@ C(delete(e_o[e_f]))=
   let rec compile (pc : string) (stmt : Stmt.t) : Stmt.t list =
     let compile_o pc = Option.map (compile pc) in
 
-    match stmt with
+    match stmt.it with
     | Block lst -> c_block pc lst
-    | Skip -> [ Stmt.Skip ]
+    | Skip -> [ Stmt.Skip @@ stmt.at ]
     | Assign (x, e) -> c_assign pc x e
     | Return e -> c_return pc e
     | If (e, s1, s2) ->
@@ -885,8 +980,8 @@ C(delete(e_o[e_f]))=
     | FieldLookup (x, e_o, e_f) -> c_fieldlookup pc x e_o e_f
     | FieldAssign (e_o, e_f, e_v) -> c_fieldassign pc e_o e_f e_v
     | FieldDelete (e_o, e_f) -> c_fielddelete pc e_o e_f
-    | AssignObjToList (st, e) -> [ Stmt.AssignObjToList (st, e) ]
-    | AssignObjFields (st, e) -> [ Stmt.AssignObjFields (st, e) ]
+    | AssignObjToList (st, e) -> [ Stmt.AssignObjToList (st, e) @@ stmt.at ]
+    | AssignObjFields (st, e) -> [ Stmt.AssignObjFields (st, e) @@ stmt.at ]
     | _ -> raise (Except ("Unknown Op -> " ^ Stmt.str stmt))
   (*ERROR*)
 
@@ -897,7 +992,7 @@ C(delete(e_o[e_f]))=
     res
 
   let translist (pc : string) (_stmts : Stmt.t) : Stmt.t list =
-    match _stmts with
+    match _stmts.it with
     | Block stmts -> List.fold_left (fun ac s -> ac @ compile pc s) [] stmts
     | _ -> []
 
@@ -927,7 +1022,11 @@ C(delete(e_o[e_f]))=
                   new_params
               then ac
               else
-                ac @ [ Stmt.Assign (shadowvar var, Expr.Val (Val.Bool true)) ])
+                ac
+                @ [
+                    Stmt.Assign (shadowvar var, Expr.Val (Val.Bool true))
+                    @@ no_region;
+                  ])
             [] asgn_vars
         in
         let new_body = translist pc f.body in
@@ -940,15 +1039,17 @@ C(delete(e_o[e_f]))=
                     Stmt.AssignCall
                       ( pc,
                         Expr.Val (Val.Str "parse_lvl"),
-                        [ Expr.Val (Val.Str _INITIAL_PC_) ] );
+                        [ Expr.Val (Val.Str _INITIAL_PC_) ] )
+                    @@ no_region;
                   ]
-                 @ asgn_vars_clean @ new_body))
+                 @ asgn_vars_clean @ new_body)
+              @@ no_region)
           in
           Prog.add_func new_prog f.name new_f
         else
           let (new_f : Func.t) =
             Func.create f.name (new_params @ [ pc ])
-              (Stmt.Block (asgn_vars_clean @ new_body))
+              (Stmt.Block (asgn_vars_clean @ new_body) @@ no_region)
           in
           Prog.add_func new_prog f.name new_f)
       prog;

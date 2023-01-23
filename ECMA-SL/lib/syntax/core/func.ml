@@ -1,4 +1,5 @@
 open Stmt
+open Source
 
 exception Except of string
 
@@ -36,18 +37,21 @@ let rec asgn_search (stmts : Stmt.t list) : StringSet.t =
   let set =
     List.fold_left
       (fun ac stmts ->
-        match stmts with
+        match stmts.it with
         | Stmt.Assign (x, e) -> StringSet.add x ac
-        | Stmt.If (e, _s1, _s2) -> (
-            match (_s1, _s2) with
-            | Block s1, Some (Block s2) ->
+        | Stmt.If (e, _s1, Some _s2) -> (
+            match (_s1.it, _s2.it) with
+            | Block s1, Block s2 ->
                 StringSet.union
                   (StringSet.union (asgn_search s1) (asgn_search s2))
                   ac
-            | Block s1, None -> StringSet.union (asgn_search s1) ac
             | _, _ -> ac)
+        | Stmt.If (e, _s1, None) -> (
+            match _s1.it with
+            | Block s1 -> StringSet.union (asgn_search s1) ac
+            | _ -> ac)
         | Stmt.While (e, _s) -> (
-            match _s with
+            match _s.it with
             | Block s -> StringSet.union (asgn_search s) ac
             | _ -> ac)
         | FieldLookup (x, e_o, e_f) -> StringSet.add x ac
@@ -62,7 +66,7 @@ let rec asgn_search (stmts : Stmt.t list) : StringSet.t =
   set
 
 let asgn_vars (stmt : Stmt.t) : string list =
-  match stmt with
+  match stmt.it with
   | Block stmts ->
       let set = asgn_search stmts in
       let list = StringSet.to_seq set in

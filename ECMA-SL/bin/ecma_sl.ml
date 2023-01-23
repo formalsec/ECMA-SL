@@ -18,7 +18,7 @@ module DCM = Decline_Monitor.M(SecLevel)
 module Interpreter = Interpreter.M(DCM)
 *)
 (* Argument read function *)
-let name = "ECMA-SL"
+let name = "ecma-sl"
 let version = "v0.2"
 let banner () = print_endline (name ^ " " ^ version)
 let usage = "Usage: " ^ name ^ " [option] [file ...]"
@@ -120,19 +120,6 @@ let core_interpretation (prog : Prog.t) : exit_code =
       print_string "ERROR Core_Interpretation";
       ERROR
 
-let symbolic_interpretation (prog : Prog.t) : exit_code =
-  let testsuite_path = Filename.concat !Flags.workspace "test-suite" in
-  Io.safe_mkdir testsuite_path;
-  let report = Eval.analyse prog !Flags.target
-  and report_file = Filename.concat !Flags.workspace "report.json" in
-  Io.write_file report_file (Report.report_to_json report);
-  List.iter
-    (fun (file, testcase) ->
-      let file' = Filename.concat testsuite_path file in
-      Io.write_file file' testcase)
-    (Report.testsuite_to_json report);
-  SUCCESS
-
 (* Main function *)
 let () =
   Arg.parse argspec (fun file -> Flags.file := file) usage;
@@ -162,19 +149,6 @@ let () =
       let prog = Parsing_utils.(parse_prog (load_file !Flags.file)) in
       if !Flags.parse then parse_program prog "";
       core_interpretation prog)
-    else if !Flags.mode = "symbolic" then
-      let prog =
-        if Filename.check_suffix !Flags.file ".esl" then
-          core_of_plus !Flags.file
-        else if Filename.check_suffix !Flags.file ".cesl" then
-          Parsing_utils.(parse_prog (load_file !Flags.file))
-        else
-          failwith
-            ("Unknown file with extension '"
-            ^ Filename.extension !Flags.file
-            ^ "'")
-      in
-      symbolic_interpretation prog
     else if !Flags.mode = "parse" then (
       let prog = Parsing_utils.(parse_prog (load_file !Flags.file)) in
       parse_program prog "";

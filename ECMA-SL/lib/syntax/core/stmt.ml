@@ -1,4 +1,8 @@
-type t =
+open Source
+
+type t = t' Source.phrase
+
+and t' =
   | Skip
   | Merge
   | Print of Expr.t
@@ -24,12 +28,12 @@ type t =
 (*---------------Strings------------------*)
 
 let is_basic_stmt (s : t) : bool =
-  match s with If _ | While _ | Block _ -> false | _ -> true
+  match s.it with If _ | While _ | Block _ -> false | _ -> true
 
 let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   let str_e = Option.default Expr.str print_expr in
   let str_es es = String.concat ", " (List.map str_e es) in
-  match stmt with
+  match stmt.it with
   | Skip | Merge -> ""
   | Print e -> "print " ^ str_e e
   | Fail e -> "fail " ^ str_e e
@@ -62,7 +66,7 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
 let rec js (stmt : t) : string =
   let str_es es = String.concat ", " (List.map Expr.js es) in
 
-  match stmt with
+  match stmt.it with
   | Skip -> Printf.sprintf ""
   | Merge -> Printf.sprintf ""
   | Assign (x, e) -> Printf.sprintf "%s = %s" x (Expr.js e)
@@ -99,7 +103,7 @@ let rec js (stmt : t) : string =
 
 let rec to_json (stmt : t) : string =
   (*Stmts args : rhs/ lhs / expr / obj / field/ stringvar *)
-  match stmt with
+  match stmt.it with
   | Skip -> Printf.sprintf "{\"type\" : \"skip\"}"
   | Merge -> Printf.sprintf "{\"type\" : \"merge\"}"
   | Print e ->
