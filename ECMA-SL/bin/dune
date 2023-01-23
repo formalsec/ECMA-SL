@@ -1,5 +1,5 @@
 (executable
- (public_name ecma-sl)
+ (public_name ECMA-SL)
  (name ecma_sl)
  (modules ecma_sl)
  (libraries ECMA_SL))
