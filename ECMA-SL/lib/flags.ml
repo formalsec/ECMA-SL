@@ -4,6 +4,7 @@ let mode = ref ""
 let mon = ref ""
 let output = ref ""
 let target = ref "main"
+let policy = ref "breadth"
 let workspace = ref "output"
 let verbose = ref false
 let silent = ref false

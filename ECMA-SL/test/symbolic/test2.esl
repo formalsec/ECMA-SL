@@ -6,5 +6,5 @@ function main () {
   } else {
     assert ( y <= 20 )
   };
-  return 1 /* Core crashes without this return */
+  return 1
 }

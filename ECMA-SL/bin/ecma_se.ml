@@ -9,6 +9,7 @@ let argspec =
       ("-i", Arg.Set_string Flags.file, " read program from file");
       ("-o", Arg.Set_string Flags.workspace, " write result files to directory");
       ("-t", Arg.Set_string Flags.target, " target function to analyse");
+      ("-p", Arg.Set_string Flags.policy, " search policy (depth|breadth)");
       ( "-v",
         Arg.Unit
           (fun () ->

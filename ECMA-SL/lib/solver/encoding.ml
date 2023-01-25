@@ -8,7 +8,7 @@ let ctx =
   Z3.mk_context
     [ ("model", "true"); ("proof", "false"); ("unsat_core", "false") ]
 
-let fp_sort = Z3.FloatingPoint.mk_sort_double ctx
+let fp_sort = Z3.FloatingPoint.mk_sort_32 ctx
 let int_sort = Z3.Arithmetic.Integer.mk_sort ctx
 
 (*let real_sort = Z3.Arithmetic.Real.mk_sort ctx*)
@@ -142,3 +142,10 @@ let model (solver : Z3.Solver.solver) :
           and interp = Z3.Model.get_const_interp model const in
           (sort, name, interp))
         (Z3.Model.get_const_decls model)
+
+let string_of_value (e : Z3.Expr.expr) : string =
+  let str =
+    if Z3.FloatingPoint.is_fp e then Z3.FloatingPoint.numeral_to_string
+    else Z3.Arithmetic.Integer.numeral_to_string
+  in
+  str e
