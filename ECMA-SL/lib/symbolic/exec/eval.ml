@@ -41,6 +41,7 @@ and outcome =
   | Cont of Stmt.t list
   | Error of Sval.t option
   | Final of Sval.t option
+  | Failure of Sval.t option
 
 (* TODO:
    | AsrtFail of Sval.t option
@@ -54,7 +55,7 @@ and pc = Sval.t list
 exception Runtime_error of string
 
 let rte (msg : string) = raise (Runtime_error msg)
-let is_error (o : outcome) : bool = match o with Error _ -> true | _ -> false
+let is_fail (o : outcome) : bool = match o with Failure _ -> true | _ -> false
 let is_final (o : outcome) : bool = match o with Final _ -> true | _ -> false
 
 let update (c : config) code state pc solver : config =
@@ -127,22 +128,23 @@ let step (c : config) : config list =
       [ update c (Error (Some (eval_expression store e))) state pc solver ]
   | Stmt.Abort e ->
       [ update c (Final (Some (eval_expression store e))) state pc solver ]
+  | Stmt.Assume e when Sval.Bool true = eval_expression store e ->
+      [ update c (Cont (List.tl stmts)) state pc solver ]
+  | Stmt.Assume e when Sval.Bool false = eval_expression store e -> []
   | Stmt.Assume e ->
       let v = eval_expression store e in
       Encoding.add solver [ v ];
-      if not (Encoding.check solver []) then
-        (* TODO: @return [] *)
-        [ update c (Final (Some v)) state pc solver ]
+      if not (Encoding.check solver []) then []
       else [ update c (Cont (List.tl stmts)) state (v :: pc) solver ]
   | Stmt.Assert e when Sval.Bool true = eval_expression store e ->
       [ update c (Cont (List.tl stmts)) state pc solver ]
   | Stmt.Assert e when Sval.Bool false = eval_expression store e ->
-      [ update c (Error (Some (eval_expression store e))) state pc solver ]
+      [ update c (Failure (Some (eval_expression store e))) state pc solver ]
   | Stmt.Assert e ->
       let v = eval_expression store e in
       let v' = eval_expression store (Expr.UnOpt (Operators.Not, e)) in
       if Encoding.check solver [ v' ] then
-        [ update c (Error (Some v)) state pc solver ]
+        [ update c (Failure (Some v)) state pc solver ]
       else [ update c (Cont (List.tl stmts)) state pc solver ]
   | Stmt.Assign (x, e) ->
       let v = eval_expression store e in
@@ -305,18 +307,44 @@ let step (c : config) : config list =
           pc solver;
       ]
 
-let rec eval (input_confs : config list) (output_confs : config list) :
-    config list =
-  match input_confs with
-  | [] -> output_confs
-  | c :: tl_confs -> (
+(* Credit: Thanks to Joao Borges for writing this code *)
+module type Work_list = sig
+  type 'a t
+
+  exception Empty
+
+  val create : unit -> 'a t
+  val push : 'a -> 'a t -> unit
+  val pop : 'a t -> 'a
+  val is_empty : 'a t -> bool
+  val length : 'a t -> int
+end
+
+(* Credit: Thanks to Joao Borges for writing this code *)
+module Strategy (L : Work_list) = struct
+  let eval c : config list =
+    let w = L.create () in
+    L.push c w;
+    let out = ref [] and err = ref false in
+    while not (!err || L.is_empty w) do
+      let c = L.pop w in
       match c.code with
       | Cont [] -> rte "eval: Empty continuation!"
-      | Cont _ -> eval (step c @ tl_confs) output_confs
-      | Error v -> eval tl_confs (c :: output_confs)
-      | Final v -> eval tl_confs (c :: output_confs))
+      | Cont _ -> List.iter (fun c -> L.push c w) (step c)
+      | Error v -> out := c :: !out
+      | Final v -> out := c :: !out
+      | Failure v ->
+          err := true;
+          out := c :: !out
+    done;
+    !out
+end
 
-let invoke (prog : Prog.t) (f : func) : config list =
+module DFS = Strategy (Stack)
+module BFS = Strategy (Queue)
+
+let invoke (prog : Prog.t) (f : func) (eval : config -> config list) :
+    config list =
   let func = Prog.get_func prog f in
   let heap = Sheap.create ()
   and store = Sstore.create []
@@ -330,15 +358,21 @@ let invoke (prog : Prog.t) (f : func) : config list =
       solver = Encoding.mk_solver ();
     }
   in
-  eval [ initial_config ] []
+  eval initial_config
 
 let analyse (prog : Prog.t) (f : func) : Report.t =
   let time_analysis = ref 0.0 in
+  let eval =
+    match !Flags.policy with
+    | "breadth" -> BFS.eval
+    | "depth" -> DFS.eval
+    | _ -> rte ("Invalid search policy '" ^ !Flags.policy ^ "'")
+  in
   let out_configs =
-    Time_utils.time_call time_analysis (fun () -> invoke prog f)
+    Time_utils.time_call time_analysis (fun () -> invoke prog f eval)
   in
   let final_configs = List.filter (fun c -> is_final c.code) out_configs
-  and error_configs = List.filter (fun c -> is_error c.code) out_configs in
+  and error_configs = List.filter (fun c -> is_fail c.code) out_configs in
   let final_testsuite, error_testsuite =
     ( List.map (fun c -> Encoding.model c.solver) final_configs,
       List.map (fun c -> Encoding.model c.solver) error_configs )

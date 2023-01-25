@@ -3,5 +3,5 @@ function main () {
   assume (x > 10);
   x := x * 2;
   assert (x > 20);
-  return 1 /* Core crashes without this return */
+  return 1
 }

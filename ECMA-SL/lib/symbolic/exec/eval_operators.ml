@@ -20,6 +20,7 @@ let eval_unop (op : Op.uopt) (v : t) : t =
   | Op.TupleLen -> Int (List.length (to_tuple v))
   | Op.IntToFloat -> Flt (float_of_int (to_int v))
   | Op.IntToString -> Str (string_of_int (to_int v))
+  | Op.FloatToString -> Str (string_of_float (to_float v))
   | Op.Typeof -> (
       match v with
       | Int _ -> Type Type.IntType
@@ -36,6 +37,8 @@ let eval_unop (op : Op.uopt) (v : t) : t =
       | Curry _ -> Type Type.CurryType
       | Void -> invalid_arg "Exception in Oper.typeof: unexpected void value"
       | Symbolic (t, _) -> Type t
+      (* FIXME: get type of Sval Binop and Unop *)
+      | Unop (_, _) -> Type Type.FltType
       | Binop (_, _, _) -> Type Type.FltType
       | _ ->
           failwith
@@ -46,10 +49,14 @@ let eval_unop (op : Op.uopt) (v : t) : t =
            (List.fold_left
               (fun a b -> match b with Str s -> a @ [ s ] | _ -> a)
               [] (to_list v)))
-  | Op.Exp -> Flt (Float.exp (Sval.to_float v))
-  | Op.Log_e -> Flt (Float.log (Sval.to_float v))
-  | Op.Log_10 -> Flt (Float.log10 (Sval.to_float v))
-  | Op.Sqrt -> Flt (Float.sqrt (Sval.to_float v))
+  | Op.Exp -> Flt (Float.exp (to_float v))
+  | Op.Log_e -> Flt (Float.log (to_float v))
+  | Op.Log_10 -> Flt (Float.log10 (to_float v))
+  | Op.Sqrt -> Flt (Float.sqrt (to_float v))
+  | Op.IsNaN -> (
+      match v with
+      | Flt f -> Bool (Float.is_nan f)
+      | v' -> Binop (Op.Eq, v', Flt nan))
   | _ ->
       failwith
         ("Eval_operations: eval_unop: '" ^ Op.str_of_unopt op
@@ -85,9 +92,9 @@ let eval_binop (op : Op.bopt) (v1 : t) (v2 : t) : t =
       match (v1, v2) with
       | Flt f1, Flt f2 -> Bool (Float.equal f1 f2)
       | Arr a1, Arr a2 -> Bool (a1 == a2)
-      (*   | v',  Symbol s when not (is_symbol v') -> Bool false *)
-      | _ when (not (Sval.is_symbolic v1)) && not (Sval.is_symbolic v2) ->
-          Bool (v1 = v2)
+      | v', Null when is_symbolic v' -> Bool false
+      | v', Symbol s when not (is_symbol v') -> Bool false
+      | _ when (not (is_symbolic v1)) && not (is_symbolic v2) -> Bool (v1 = v2)
       | _ -> Binop (op, v1, v2))
   | Op.Lt -> (
       match (v1, v2) with

@@ -1,6 +1,8 @@
 // test3.js: while-loop
 
-var x = esl_symbolic.number("int", "x");
-while (x < 10) {
-  x = x + 1;
+let x = esl_symbolic.number("int", "x");
+esl_symbolic.assume( x > 1 && x < 10 );
+let i = 0;
+while (i < x) {
+  i = i + 1;
 }

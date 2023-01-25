@@ -34,6 +34,8 @@ let rec of_val (v : Val.t) : t =
   | Val.Curry (c, a) -> Curry (c, List.map of_val a)
   | Val.Byte b -> Byte b
 
+let is_symbol (v : t) : bool = match v with Symbol _ -> true | _ -> false
+
 let rec is_symbolic (v : t) : bool =
   match v with
   | Symbolic (t, x) -> true

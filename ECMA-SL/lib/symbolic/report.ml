@@ -48,7 +48,7 @@ let testsuite_to_json (report : t) : (string * string) list =
       (fun (sort, name, interp) ->
         let sort' = Z3.Sort.to_string sort
         and name' = Z3.Symbol.to_string name
-        and interp' = Option.map_default Z3.Expr.to_string "" interp in
+        and interp' = Option.map_default Encoding.string_of_value "" interp in
         "{ \"type\" : \"" ^ sort' ^ "\", \"name\" : \"" ^ name'
         ^ "\", \"value\" : \"" ^ interp' ^ "\" }")
       testcase
