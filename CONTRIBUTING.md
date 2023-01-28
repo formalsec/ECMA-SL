@@ -2,6 +2,8 @@
 
 We appreciate contributions to ECMA-SL, but please be aware of the following guidelines:
 
+- When working on an ECMA-SL interpreter a [test-driven methodology](https://en.wikipedia.org/wiki/Test-driven_development) methodology is **highly** encouraged. Refer to [#154](https://github.com/j3fsantos/ECMA-SL/pull/154) for unit-testing creation in ocaml.
+
 - Always **create a new branch to start developing**, and make sure that the base branch is the most recent version of `master`.
   - To create a branch, go to `master` and execute the following commands:
     ```bash
