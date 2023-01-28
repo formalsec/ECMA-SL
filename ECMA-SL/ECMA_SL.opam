@@ -19,6 +19,7 @@ depends: [
   "batteries"
   "ppx_import"
   "ppx_deriving"
+  "ppx_inline_test"
   "extlib"
   "menhir"
   "menhirLib"

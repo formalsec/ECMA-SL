@@ -1,3 +1,7 @@
-(tests
- (names test_parsing_number)
+(library
+ (name unit_tests)
+ (modules test_parsing_number test_encoding)
+ (inline_tests)
+ (preprocess
+  (pps ppx_inline_test))
  (libraries ECMA_SL))
