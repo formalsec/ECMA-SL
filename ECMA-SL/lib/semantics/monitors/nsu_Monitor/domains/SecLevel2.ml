@@ -4,9 +4,9 @@ exception Except of string
 
 type t = High | MidOne | MidTwo | Low
 
-let top : SSet.t option ref = raise (Except "Illegal Lattice operation ")
+let top () : SSet.t option ref = raise (Except "Illegal Lattice operation ")
 
-let flows : (SSet.t * SSet.t) list ref =
+let flows () : (SSet.t * SSet.t) list ref =
   raise (Except "Illegal Lattice operation ")
 
 let addFlow (_ : t) (_ : t) : unit = raise (Except "Illegal Lattice operation ")

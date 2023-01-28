@@ -56,6 +56,7 @@ let eval_unop (op : Op.uopt) (v : t) : t =
   | Op.IsNaN -> (
       match v with
       | Flt f -> Bool (Float.is_nan f)
+      (* Encode to unary op *)
       | v' -> Binop (Op.Eq, v', Flt nan))
   | _ ->
       failwith

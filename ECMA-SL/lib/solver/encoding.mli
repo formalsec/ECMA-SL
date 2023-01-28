@@ -1,6 +1,7 @@
 exception Unknown
 
 val time_solver : float ref
+val encode_value : Sval.t -> Z3.Expr.expr
 val mk_solver : unit -> Z3.Solver.solver
 val clone : Z3.Solver.solver -> Z3.Solver.solver
 val add : Z3.Solver.solver -> Sval.t list -> unit
