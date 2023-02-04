@@ -2515,7 +2515,7 @@ function internalNewDateWithoutValue(datePrototypeObject) {
 /* 20.3.3 Properties of the Date Constructor */
 function initDateConstructor(DatePrototype, globalObject, strict) {
   /* The value of the [[Prototype]] internal property of the Date constructor is the Function prototype object (19.2.3). */
-  DateConstructor := CreateFunctionObject(["year", "month", "date", "hours", "minutes", "seconds", "ms"], "newDateConstructor", globalObject, strict, 0.);
+  DateConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["year", "month", "date", "hours", "minutes", "seconds", "ms"], "newDateConstructor", globalObject, strict, 0.);
 
   /* Besides the length property (whose value is 7), the Date constructor has the following properties: */
 

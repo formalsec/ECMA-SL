@@ -28,7 +28,7 @@ function initSymbolPrototype(global, objectPrototype, strict) {
   setJSProperty(prototype, getToStringTagPropertyName(), descriptor);
 
   /* Symbol.prototype.description: Existe apenas no ES10 */
-  descriptionFunctionObject := CreateFunctionObject([], "getSymbolDescriptionAccessorProperty", global, false, null);
+  descriptionFunctionObject := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), [], "getSymbolDescriptionAccessorProperty", global, false, null);
   descriptor := newGetAccessorPropertyDescriptorFull(descriptionFunctionObject, false, true);
   setJSProperty(prototype, "description", descriptor);
 
@@ -37,7 +37,7 @@ function initSymbolPrototype(global, objectPrototype, strict) {
 
 function initSymbolObject(global, objectPrototype, strict) {
   objSymbolPrototype := initSymbolPrototype(global, objectPrototype, strict);
-  objSymbolConstructor := CreateFunctionObject(["items"], "SymbolConstructor", global, strict, 0.);
+  objSymbolConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["items"], "SymbolConstructor", global, strict, 0.);
   setJSProperty(objSymbolConstructor, "length", newDataPropertyDescriptorFull(0., false, false, true));
   setJSProperty(objSymbolConstructor, "name", newDataPropertyDescriptorFull("Symbol", false, false, true));
   setJSProperty(objSymbolConstructor, "species", newDataPropertyDescriptorFull("species", false, false, true));

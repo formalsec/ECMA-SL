@@ -127,7 +127,7 @@ function CreateResolvingFunctions(strict, promise) {
   resolveFun := lambda(global, this, NewTarget, strict, args)[resolve] {
     return PromiseResolveFunctions(resolve, global, this, strict, args)
   };
-  resolve.Code := resolveFun;
+  resolve.ECMAScriptCode := resolveFun;
   /* 3. Set the [[Promise]] internal slot of resolve to promise. */
   resolve.Promise := promise;
   /* 4. Set the [[AlreadyResolved]] internal slot of resolve to 
@@ -139,7 +139,7 @@ function CreateResolvingFunctions(strict, promise) {
   rejectFun := lambda(global, this, NewTarget, strict, args)[reject] {
     return PromiseRejectFunctions(reject, global, this, strict, args)
   };
-  reject.Code := rejectFun;
+  reject.ECMAScriptCode := rejectFun;
   /* 6. Set the [[Promise]] internal slot of reject to promise. */
   reject.Promise := promise;
   /* 7. Set the [[AlreadyResolved]] internal slot of reject to 
@@ -297,7 +297,7 @@ function NewPromiseCapability(strict, C) {
   executorFun := lambda(global, this, NewTarget, strict, args)[executor] {
     return GetCapabilitiesExecutorFunctions(executor, global, this, strict, args)
   };
-  executor.Code := executorFun;
+  executor.ECMAScriptCode := executorFun;
   /* 5. Set the [[Capability]] internal slot of executor to promiseCapability. */
   executor.Capability := promiseCapability;
   /* 6. Let promise be Construct(C, «executor»). */
@@ -800,7 +800,7 @@ function PerformPromiseAll(strict, iteratorRecord, constructor, resultCapability
     resolveElementFun := lambda(global, this, NewTarget, strict, args)[resolveElement] {
       return PromiseAllResolveElementFunctions(resolveElement, global, this, strict, args)
     };
-    resolveElement.Code := resolveElementFun;
+    resolveElement.ECMAScriptCode := resolveElementFun;
     /* l. Set the [[AlreadyCalled]] internal slot of resolveElement to a new 
        Record {[[value]]: false }. */
     resolveElement.AlreadyCalled := { value: false };

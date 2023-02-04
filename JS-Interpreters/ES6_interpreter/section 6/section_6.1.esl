@@ -27,9 +27,7 @@ function Type(V) {
   };
   if (v_type = __$Null) { return "Null" };
   if (V = 'empty) { return null };
-
-  print V;
-  fail "Value V has a non-defined type"
+  return "Lambda"
 };
 
 /* Auxiliary functions */

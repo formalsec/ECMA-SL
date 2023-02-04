@@ -953,14 +953,14 @@ function MakeArgGetter(name, lexicalEnvironment) {
      object that when executed returns the value bound for name in env. It performs the following steps: */
 
   /* 1. Let body be the result of concatenating the Strings "return ", name, and ";". */
-  body := lambda (scope, this, newTarget, strict, args) [name] {
-    envRec := getEnvironmentRecord(scope);
+  body := lambda (scope, this, newTarget, strict, args) [name, lexicalEnvironment] {
+    envRec := getEnvironmentRecord(lexicalEnvironment);
     val := getBindingValue(envRec, name);
     return val
   };
   /* 2. Return the result of creating a function object as described in 13.2 using no FormalParameterList, body for
         FunctionBody, env as Scope, and true for Strict. */
-  return CreateFunctionObject([], body, lexicalEnvironment, true, null)
+  return CreateBuiltInFunctionObject([], body, lexicalEnvironment, true, null)
 };
 
 function MakeArgSetter(name, lexicalEnvironment) {
@@ -970,16 +970,16 @@ function MakeArgSetter(name, lexicalEnvironment) {
   /* 1. Let param be the String name concatenated with the String "_arg". */
   /* 2. Let body be the String "<name> = <param>;" with <name> replaced by the value of name and <param>
         replaced by the value of param. */
-  body := lambda (scope, this, newTarget, strict, args) [name] {
+  body := lambda (scope, this, newTarget, strict, args) [name, lexicalEnvironment] {
     param := l_nth(args, 0);
-    envRec := getEnvironmentRecord(scope);
+    envRec := getEnvironmentRecord(lexicalEnvironment);
     setBindingValue(envRec, name, param);
     return 'undefined
   };
 
   /* 3. Return the result of creating a function object as described in 13.2 using a List containing the single String
         param as FormalParameterList, body for FunctionBody, env as Scope, and true for Strict. */
-  return CreateFunctionObject(["param"], body, lexicalEnvironment, true, null)
+  return CreateBuiltInFunctionObject(["param"], body, lexicalEnvironment, true, null)
 };
 
 /*

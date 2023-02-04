@@ -259,7 +259,7 @@ function DataViewConstructor(global, this, NewTarget, strict, args) {
 /* 24.2.3 Properties of the DataView Constructor */
 function initDataViewObject(global, objectPrototype, strict) {
   objDataViewPrototype := initDataViewPrototype(global, objectPrototype, strict);
-  objDataViewConstructor := CreateFunctionObject(["length"], "DataViewConstructor", global, strict, 0.);
+  objDataViewConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["length"], "DataViewConstructor", global, strict, 0.);
 
   /* 24.2.4.4 DataView.prototype.constructor*/
   descriptor := newDataPropertyDescriptorFull(objDataViewConstructor, true, false, true);

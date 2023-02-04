@@ -7,7 +7,7 @@ function initFunctionConstructor(FunctionPrototype, globalObject, strict) {
      [[Prototype]] internal property of the Function constructor is the standard built-in Function prototype object
      (15.3.4). */
   /* The value of the [[Extensible]] internal property of the Function constructor is true. */
-  FunctionConstructor := CreateGeneralFunctionObject(FunctionPrototype, [], "FunctionConstructor", globalObject, strict, null);
+  FunctionConstructor := CreateGeneralBuiltInFunction(FunctionPrototype, [], "FunctionConstructor", globalObject, strict, null);
 
   /* 15.3.3.1 Function.prototype */
   /* The initial value of Function.prototype is the standard built-in Function prototype object (15.3.4). */
@@ -42,12 +42,13 @@ function functionPrototypeFunction(globalObject, this, NewTarget, strict, params
 function initFunctionPrototype(objectPrototype, globalObject, strict) {
   /* The Function prototype object is itself a Function object (its [[Class]] is "Function") that, when invoked,
      accepts any arguments and returns undefined. */
-  functionPrototypeObject := CreateGeneralBuiltInFunctionObject(objectPrototype, [], "functionPrototypeFunction", globalObject, strict, null);
+  functionPrototypeObject := CreateGeneralBuiltInFunction(objectPrototype, [], "functionPrototypeFunction", globalObject, strict, null);
   /* The value of the [[Prototype]] internal property of the Function prototype object is the standard built-in Object
      prototype object (15.2.4). The initial value of the [[Extensible]] internal property of the Function prototype
      object is true.*/
   /* The Function prototype object does not have a valueOf property of its own; however, it inherits the valueOf
      property from the Object prototype Object. */
+  delete functionPrototypeObject.Construct;
   /* The length property of the Function prototype object is 0. */
 
   return functionPrototypeObject
@@ -228,37 +229,7 @@ function FunctionPrototypeApply(globalObject, func, NewTarget, strict, params) {
   @ReturnIfAbrupt(argList);
   /*5. Perform PrepareForTailCall(). */
   /* TODO */
-  /*6. Return Call(func, thisArg, argList). */ 
-  
-  /* --ES5
-  /* 3. If Type(argArray) is not Object, then throw a TypeError exception. */
-  /* if (!(Type(argArray) = "Object")) {
-  /*   throw TypeErrorConstructorInternal()
-  /* };
-  /* /* 4. Let len be the result of calling the [[Get]] internal method of argArray with argument "length". */
-  /* len := {argArray.Get}(argArray, "length", argArray);
-/* 
-  /* @ReturnIfAbrupt(len);
-  /* /* 5. Let n be ToUint32(len). */
-  /* n := ToUint32(len);
-  /* /* 6. Let argList be an empty List. */
-  /* argList := [];
-  /* /* 7. Let index be 0. */
-  /* index := 0.;
-  /* /* 8. Repeat while index < n */
-  /* while(index < n) {
-  /*   /* a. Let indexName be ToString(index). */
-  /*   indexName := ToString(index);
-  /*   /* b. Let nextArg be the result of calling the [[Get]] internal method of argArray with indexName as the
-  /*         argument. */
-  /*   nextArg := {argArray.Get}(argArray, indexName, argArray);
-  /*   /* c. Append nextArg as the last element of argList. */
-  /*   argList := l_add(argList, nextArg);
-  /*   /* d. Set index to index + 1. */
-  /*   index := index + 1.
-  /* };
-  
-  /* 9. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
+  /* 6. Return the result of calling the [[Call]] internal method of func, providing thisArg as the this value and
         argList as the list of arguments. */
   return {func.Call}(null, null, func, thisArg, 'undefined, argList)
 
@@ -456,77 +427,8 @@ function HasInstanceBind(F, V) {
    TypeError exception. An ECMAScript implementation must not associate any implementation specific
    behaviour with accesses of these properties from strict mode function code. */
 
-/* 15.3.5.1 length */
-/* The value of the length property is an integer that indicates the "typical" number of arguments expected by
-   the function. However, the language permits the function to be invoked with some other number of arguments.
-   The behaviour of a function when invoked on a number of arguments other than the number specified by its
-   length property depends on the function. This property has the attributes { [[Writable]]: false, [[Enumerable]]:
-   false, [[Configurable]]: false }. */
-
-/* 15.3.5.2 prototype */
-/* The value of the prototype property is used to initialise the [[Prototype]] internal property of a newly created
-   object before the Function object is invoked as a constructor for that newly created object. This property has
-   the attribute { [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: false }. */
-/* NOTE Function objects created using Function.prototype.bind do not have a prototype property.*/
-
-
-/* 15.3.5.3 [[HasInstance]] (V) */
-function HasInstance(F, V) {
-  /* Assume F is a Function object. */
-
-  /* When the [[HasInstance]] internal method of F is called with value V, the following steps are taken: */
-
-  /* 1. If V is not an object, return false. */
-  if (!(Type(V) = "Object")) {
-    return false
-  };
-  /* 2. Let O be the result of calling the [[Get]] internal method of F with property name "prototype". */
-  O := {F.Get}(F, "prototype", F);
-  /* 3. If Type(O) is not Object, throw a TypeError exception. */
-  if (!(Type(O) = "Object")) {
-    throw TypeErrorConstructorInternal()
-  };
-  /* 4. Repeat */
-  repeat {
-    /* a. Let V be the value of the [[Prototype]] internal property of V. */
-    V := V.Prototype;
-    /* b. If V is null, return false. */
-    if (V = 'null) {
-      return false
-    };
-    /* c. If O and V refer to the same object, return true. */
-    if (O = V) {
-      return true
-    }
-  }
-
-  /* NOTE Function objects created using Function.prototype.bind have a different implementation of
-          [[HasInstance]] defined in 15.3.4.5.3. */
-};
-
-/* 15.3.5.4 [[Get]] (P) */
-function GetF(F, P) {
-  /* Function objects use a variation of the [[Get]] internal method used for other native ECMAScript objects
-   (8.12.3). */
-
-  /* Assume F is a Function object. When the [[Get]] internal method of F is called with property name P, the
-    following steps are taken: */
-
-  /* 1. Let v be the result of calling the default [[Get]] internal method (8.12.3) on F passing P as the property name
-        argument. */
-  v := Get(F, P);
-  /* 2. If P is "caller" and v is a strict mode Function object, throw a TypeError exception. */
-  if ((P = "caller") &&& isStrictModeFunctionObject(F)) {
-    throw TypeErrorConstructorInternal()
-  };
-  /* 3. Return v. */
-  return v
-
-  /* NOTE Function objects created using Function.prototype.bind use the default [[Get]] internal method. */
-};
-
-
 /* Auxiliary functions */
+
 function getFunctionPrototype(strict) {
   /* refObj := newPropertyReference(|global|, "Function", strict);
   FunctionObject := GetValue(refObj);

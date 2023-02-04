@@ -12,7 +12,7 @@
  */
 
 function initRegExpObject(globalObject, ObjectPrototype, strict){
-   regExpConstructor := CreateFunctionObject( ["patern", "flags"], "RegExpConstructorAsFunction", globalObject, strict, 0.);
+   regExpConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["patern", "flags"], "RegExpConstructorAsFunction", globalObject, strict, 0.);
    regExpPrototype := initRegExpPrototype(globalObject, ObjectPrototype, regExpConstructor, strict);
 
    descriptor := newDataPropertyDescriptorFull(regExpConstructor, true, false, true);

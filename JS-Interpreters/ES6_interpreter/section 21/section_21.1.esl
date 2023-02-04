@@ -58,7 +58,7 @@ function getStringPrototype(strict) {
 };
 
 function initStringObject(global, objectPrototype, strict) {
-  objStringConstructor := CreateFunctionObject( [ "value" ], "StringConstructor", global, strict, 0.);
+  objStringConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), [ "value" ], "StringConstructor", global, strict, 0.);
   /* The length property of the String function is 1. */
   setJSProperty(objStringConstructor, "length", newDataPropertyDescriptorFull(1., false, false, true)); 
   objStringPrototype := initStringPrototype(global, objectPrototype, objStringConstructor, strict);

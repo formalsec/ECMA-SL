@@ -121,7 +121,7 @@ function NumberConstructor(global, this, NewTarget, strict, items) {
 /* 20.1.1 The Number Constructor */
 function initNumberConstructor(prototype, global, strict) {
   /* 20.1.2 Properties of the Number Constructor */
-  NumberConstructor := CreateFunctionObject(["value"], "NumberConstructor", global, strict, 0.);
+  NumberConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["value"], "NumberConstructor", global, strict, 0.);
 
   /* The value of the [[Prototype]] internal slot of the Number constructor is the intrinsic object %FunctionPrototype% */
   createBuiltInPropertyWithFullDescriptor(NumberConstructor, "prototype", prototype, false, false, false);

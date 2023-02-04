@@ -382,8 +382,11 @@ function FunctionAllocate(functionPrototype, strict, functionKind) {
 
   /* 14. Set the [[Realm]] internal slot of F to the running execution
      context's Realm. */
-  F.Realm := topExecStack().Realm;
-
+  if (!execStackIsEmpty()) {
+   F.Realm := topExecStack().Realm
+  } else {
+   F.Realm := null
+  };
   /* 15. Return F. */
   return F
 };
@@ -405,15 +408,17 @@ function FunctionInitialize(F, kind, ParameterList, Body, Scope) {
 
   /* 2. Let len be the ExpectedArgumentCount of ParameterList. */
   paramsDetails := getParamsDetails(Body);
-  len := ExpectedArgumentCount(paramsDetails);
-  print "DEBUG FunctionInitialize";
-  print len;
+  if (paramsDetails = false) {
+    len := l_len ParameterList
+  } else {
+   len := ExpectedArgumentCount(paramsDetails)
+  };
 
   /* 3. Let status be DefinePropertyOrThrow(F, "length",
      PropertyDescriptor{[[Value]]: len, [[Writable]]: false,
      [[Enumerable]]: false, [[Configurable]]: true}). */
   status := DefinePropertyOrThrow(F, "length", newDataPropertyDescriptorFull(int_to_float len, false, false, true));
-
+  setInternalProperty(F, "internalLength", int_to_float len);
   /* 4. Assert: status is not an abrupt completion. */
   assert(!isAnAbruptCompletion(status));
 
@@ -852,7 +857,6 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
 
     /* g. Call envRec.InitializeBinding("arguments", ao). */
     {envRec.InitializeBinding}(envRec, "arguments", ao);
-    
     /*h. Append "arguments" to parameterNames. */
     parameterNames := l_add(parameterNames, "arguments")
   };
@@ -1102,7 +1106,7 @@ function getParamsNamesInFromFunction(codeObj) {
 
 function getParamsDetails(codeObj) {
   if ((codeObj = 'undefined )||| (!(Type(codeObj) = "Object"))) {
-    return []
+    return false
   };
   return codeObj.paramsDetails
 };

@@ -453,7 +453,7 @@ function initTypedArrayObject(global, strict, typeOfArray, typedArray) {
     return TypedArraySubConstructor(global, this, NewTarget, strict, args, objTypedArrayConstructor)
   };
 
-  objTypedArrayConstructor.Code := objectTypedArrayFun; 
+  objTypedArrayConstructor.ECMAScriptCode := objectTypedArrayFun; 
   
   /* 22.2.5 */
   /* Length */

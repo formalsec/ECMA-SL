@@ -17,7 +17,7 @@
 function initProxyObject(global, objectPrototype, strict) {
 
     objProxyPrototype := initProxyPrototype(global, objectPrototype, strict);
-    objProxyConstructor := CreateFunctionObject(["target", "handler"], "ProxyConstructor", global, strict, 0.);
+    objProxyConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["target", "handler"], "ProxyConstructor", global, strict, 0.);
 
     /* 26.2.1.1 Proxy ( target, handler ) */
     descriptor := newDataPropertyDescriptorFull(objProxyConstructor, true, false, true);
@@ -110,7 +110,7 @@ function proxyRevocable(global, this, NewTarget, strict, args) {
     @ReturnIfAbrupt(p);
 
     /* 3. Let revoker be a new built-in function object as defined in 26.2.2.1.1. */
-    revoker := CreateBuiltInFunctionObject([], "ProxyRevocation", global, strict, 0.);
+    revoker := CreateBuiltInFunctionObject([], "ProxyRevocation", |global|, strict, 0.);
     createBuiltInPropertyWithFullDescriptor(revoker, "name", "", false, false, true);
 
     /* 4. Set the [[RevocableProxy]] internal slot of revoker to p. */

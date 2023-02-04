@@ -35,10 +35,8 @@ function initErrorConstructor(ErrorPrototype, globalObject, strict) {
  
  Besides the length property (whose value is 1), the Error constructor has the following properties:
  */
-  ErrorConstructor := CreateFunctionObject(["message"], "ErrorConstructor", globalObject, strict, null);
-  setInternalProperty(ErrorConstructor, "Call", "BuiltInCall");
-  setInternalProperty(ErrorConstructor, "Realm", globalObject);
-  
+  ErrorConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["message"], "ErrorConstructor", globalObject, strict, null);
+ 
   setJSProperty(ErrorConstructor, "length", newDataPropertyDescriptorFull(1., false, false, true));
   setInternalProperty(ErrorConstructor, "ErrorData", 'undefined);
 
@@ -337,7 +335,7 @@ function initNativeErrorConstructor(NativeErrorPrototype, nativeErrorName, const
   The value of the [[Prototype]] internal slot of a NativeError constructor is the intrinsic object %Error% (19.5.1).
   Besides the length property (whose value is 1), each NativeError constructor has the following properties:
   */
-  NativeErrorConstructor := CreateGeneralFunctionObject(getErrorPrototype(false), ["message"], constructorFunction, globalObject, strict, null);
+  NativeErrorConstructor := CreateGeneralBuiltInFunction(getErrorPrototype(false), ["message"], constructorFunction, globalObject, strict, null);
 
   /*
   19.5.6.2.1 NativeError.prototype

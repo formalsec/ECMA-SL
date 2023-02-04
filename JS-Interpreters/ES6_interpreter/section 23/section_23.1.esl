@@ -101,7 +101,7 @@ function initMapObject(global, functionPrototype, objectPrototype, strict) {
   descriptor := newDataPropertyDescriptorFull(objMapPrototype, false, false, false);
   setJSProperty(objMapConstructor, "prototype", descriptor);
 
-  mapSpeciesObject := CreateFunctionObject([], "MapSpeciesGetter", global, strict, null);
+  mapSpeciesObject := CreateGeneralBuiltInFunction(functionPrototype, [], "MapSpeciesGetter", global, strict, null);
   descriptor := newGetAccessorPropertyDescriptorFull(mapSpeciesObject, false, true);
   setJSProperty(objMapConstructor, getSpeciesPropertyName(), descriptor);
   descriptor := newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true);

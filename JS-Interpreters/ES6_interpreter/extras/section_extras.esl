@@ -64,7 +64,7 @@ function initTest262Object(globalObject, objectPrototype, strict) {
   test262Obj := NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(test262Obj);
 
-  detachArrayBuffer := CreateFunctionObject([], "__detachArrayBuffer", globalObject, strict, null);
+  detachArrayBuffer := CreateGeneralBuiltInFunction(objectPrototype, [], "__detachArrayBuffer", globalObject, strict, null);
 
   createBuiltInProperty(test262Obj, "detachArrayBuffer", detachArrayBuffer);
   createBuiltInProperty(detachArrayBuffer, "prototype", objectPrototype);

@@ -484,11 +484,11 @@ function initArrayObject(global, objectPrototype, strict) {
   |ArrayPrototype| := objArrayPrototype;
 
   /* 22.1.1 The Array Constructor */
-  objArrayConstructor := CreateFunctionObject(["items"], "ArrayConstructor", global, strict, 0.);
+  objArrayConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["items"], "ArrayConstructor", global, strict, 0.);
   objArrayConstructorFun := lambda (global, this, NewTarget, strict, args)[objArrayConstructor] {
     return ArrayConstructor(global, this, NewTarget, strict, args, objArrayConstructor)
   };
-  objArrayConstructor.Code := objArrayConstructorFun;
+  objArrayConstructor.ECMAScriptCode := objArrayConstructorFun;
 
   descriptor := newDataPropertyDescriptorFull(objArrayConstructor, true, false, true);
   setJSProperty(objArrayPrototype, "constructor", descriptor);
@@ -4078,6 +4078,8 @@ function arrayToString(global, this, NewTarget, strict, args) {
   if (IsCallable(func) = false) {
     func := getObjectPrototypeToString(strict)
   };
+  print "DEBUG ARRAY TO STRING";
+  print args;
 
   /* 6. Return Call(func, array). */
   return Call(null, null, func, array, [])

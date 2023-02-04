@@ -28,7 +28,7 @@ function initArrayBufferPrototype(global, objectPrototype, strict) {
 
 function initArrayBufferObject(global, objectPrototype, strict) {
   objArrayBufferPrototype := initArrayBufferPrototype(global, objectPrototype, strict);
-  objArrayBufferConstructor := CreateFunctionObject(["length"], "ArrayBufferConstructor", global, strict, 0.);
+  objArrayBufferConstructor := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), ["length"], "ArrayBufferConstructor", global, strict, 0.);
   
   /* 24.1.4.2 ArrayBuffer.prototype.constructor */
   descriptor := newDataPropertyDescriptorFull(objArrayBufferConstructor, true, false, true);
@@ -70,7 +70,7 @@ function initArrayBufferObject(global, objectPrototype, strict) {
   setJSProperty(objArrayBufferPrototype, "get", descriptor);
 
   /* 24.1.3.3 get ArrayBuffer [ @@species ] */
-  arrayBufferSpeciesObject := CreateFunctionObject([], "ArrayBufferSpeciesGetter", global, strict, null);
+  arrayBufferSpeciesObject := CreateGeneralBuiltInFunction(getFunctionPrototype(strict), [], "ArrayBufferSpeciesGetter", global, strict, null);
   descriptor := newGetAccessorPropertyDescriptorFull(arrayBufferSpeciesObject, false, true);
   setJSProperty(objArrayBufferConstructor, getSpeciesPropertyName(), descriptor);
   descriptor := newDataPropertyDescriptorFull("get [Symbol.species]", false, false, true);

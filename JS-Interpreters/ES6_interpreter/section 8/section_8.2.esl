@@ -75,7 +75,7 @@ function CreateIntrinsics(realmRec) {
     fillFunctionConstructor(FunctionConstructor, realmRec, false);
 
     /* ThrowTypeError */
-    thrower := CreateGeneralBuiltInFunctionObject(FunctionPrototype, [], "internalTypeErrorThrower", realmRec, false, null);
+    thrower := CreateGeneralBuiltInFunction(FunctionPrototype, [], "internalTypeErrorThrower", realmRec, false, null);
     intrinsics.ThrowTypeError := thrower;
 
     AddRestrictedFunctionProperties(FunctionPrototype, realmRec);
