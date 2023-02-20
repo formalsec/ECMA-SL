@@ -11,6 +11,7 @@ val check : Z3.Solver.solver -> Sval.t list -> bool
 
 val model :
   Z3.Solver.solver ->
+  Sval.t list ->
   (Z3.Sort.sort * Z3.Symbol.symbol * Z3.Expr.expr option) list
 
 val string_of_value : Z3.Expr.expr -> string

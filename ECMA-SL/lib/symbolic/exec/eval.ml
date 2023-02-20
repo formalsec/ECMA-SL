@@ -56,9 +56,7 @@ exception Runtime_error of string
 let rte (msg : string) = raise (Runtime_error msg)
 let is_fail (o : outcome) : bool = match o with Failure _ -> true | _ -> false
 let is_final (o : outcome) : bool = match o with Final _ -> true | _ -> false
-
-let update (c : config) code state pc solver : config =
-  { c with code; state; pc; solver }
+let update (c : config) code state pc : config = { c with code; state; pc }
 
 let loc (v : Sval.t) : string =
   match v with Sval.Loc l -> l | _ -> rte "Invalid location!"
@@ -115,89 +113,85 @@ let step (c : config) : config list =
   in
   let s = List.hd stmts in
   match s.it with
-  | Stmt.Skip -> [ update c (Cont (List.tl stmts)) state pc solver ]
-  | Stmt.Merge -> [ update c (Cont (List.tl stmts)) state pc solver ]
+  | Stmt.Skip -> [ update c (Cont (List.tl stmts)) state pc ]
+  | Stmt.Merge -> [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Exception err ->
       print_endline (Source.string_of_region s.at ^ ": Exception: " ^ err);
-      [ update c (Error (Some (Sval.Str err))) state pc solver ]
+      [ update c (Error (Some (Sval.Str err))) state pc ]
   | Stmt.Print e ->
       print_endline (Expr.str e);
-      [ update c (Cont (List.tl stmts)) state pc solver ]
+      [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Fail e ->
-      [ update c (Error (Some (eval_expression store e))) state pc solver ]
+      [ update c (Error (Some (eval_expression store e))) state pc ]
   | Stmt.Abort e ->
-      [ update c (Final (Some (eval_expression store e))) state pc solver ]
+      [ update c (Final (Some (eval_expression store e))) state pc ]
   | Stmt.Assume e when Sval.Bool true = eval_expression store e ->
-      [ update c (Cont (List.tl stmts)) state pc solver ]
+      [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Assume e when Sval.Bool false = eval_expression store e -> []
   | Stmt.Assume e ->
-      let v = eval_expression store e in
-      Encoding.add solver [ v ];
-      if not (Encoding.check solver []) then []
-      else [ update c (Cont (List.tl stmts)) state (v :: pc) solver ]
+      let pc' = eval_expression store e :: pc in
+      if not (Encoding.check solver pc') then []
+      else [ update c (Cont (List.tl stmts)) state pc' ]
   | Stmt.Assert e when Sval.Bool true = eval_expression store e ->
-      [ update c (Cont (List.tl stmts)) state pc solver ]
+      [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Assert e when Sval.Bool false = eval_expression store e ->
-      [ update c (Failure (Some (eval_expression store e))) state pc solver ]
+      [ update c (Failure (Some (eval_expression store e))) state pc ]
   | Stmt.Assert e ->
       let v = eval_expression store e in
       let v' = eval_expression store (Expr.UnOpt (Operators.Not, e)) in
-      if Encoding.check solver [ v' ] then
-        [ update c (Failure (Some v)) state pc solver ]
-      else [ update c (Cont (List.tl stmts)) state pc solver ]
+      if Encoding.check solver (v' :: pc) then
+        [ update c (Failure (Some v)) state pc ]
+      else [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Assign (x, e) ->
       let v = eval_expression store e in
       [
         update c
           (Cont (List.tl stmts))
           (heap, Sstore.add store x v, stack, f)
-          pc solver;
+          pc;
       ]
-  | Stmt.Block blk -> [ update c (Cont (blk @ List.tl stmts)) state pc solver ]
-  | Stmt.If (e, blk, _) when Sval.Bool true = eval_expression store e ->
+  | Stmt.Block blk -> [ update c (Cont (blk @ List.tl stmts)) state pc ]
+  | Stmt.If (br, blk, _) when Sval.Bool true = eval_expression store br ->
       let cont =
         match blk.it with
         | Stmt.Block b -> b @ ((Stmt.Merge @@ blk.at) :: List.tl stmts)
         | _ -> rte "Malformed if statement 'then' block!"
       in
-      [ update c (Cont cont) state pc solver ]
-  | Stmt.If (e, _, blk) when Sval.Bool false = eval_expression store e ->
+      [ update c (Cont cont) state pc ]
+  | Stmt.If (br, _, blk) when Sval.Bool false = eval_expression store br ->
       let cont =
         let t = List.tl stmts in
         match blk with None -> t | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: t
       in
-      [ update c (Cont cont) state pc solver ]
-  | Stmt.If (cond, b1, b2) ->
-      let cond' = eval_expression store cond
-      and not_cond' = eval_expression store (Expr.UnOpt (Operators.Not, cond))
-      and solver' = Encoding.clone solver in
+      [ update c (Cont cont) state pc ]
+  | Stmt.If (br, blk1, blk2) ->
+      let br_t = eval_expression store br
+      and br_f = eval_expression store (Expr.UnOpt (Operators.Not, br)) in
       let then_branch =
-        Encoding.add solver [ cond' ];
-        if not (Encoding.check solver []) then []
+        if not (Encoding.check solver (br_t :: pc)) then []
         else
-          let b' = b1 :: (Stmt.Merge @@ b1.at) :: List.tl stmts in
-          [ update c (Cont b') state (cond' :: pc) solver ]
+          let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl stmts in
+          [ update c (Cont stmts') state (br_t :: pc) ]
       in
       let else_branch =
-        Encoding.add solver' [ not_cond' ];
-        if not (Encoding.check solver' []) then []
+        if not (Encoding.check solver (br_f :: pc)) then []
         else
           let stmts' =
-            match b2 with
+            match blk2 with
             | None -> List.tl stmts
             | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl stmts
           in
-          [ update c (Cont stmts') state (not_cond' :: pc) solver' ]
+          [ update c (Cont stmts') state (br_f :: pc) ]
       in
       then_branch @ else_branch
-  | Stmt.While (cond, blk) ->
+  | Stmt.While (br, blk) ->
       let blk' =
-        Stmt.Block (blk :: [ Stmt.While (cond, blk) @@ s.at ]) @@ blk.at
+        Stmt.Block (blk :: [ Stmt.While (br, blk) @@ s.at ]) @@ blk.at
       in
       [
         update c
-          (Cont ((Stmt.If (cond, blk', None) @@ s.at) :: List.tl stmts))
-          state pc solver;
+          (Cont ((Stmt.If (br, blk', None) @@ s.at) :: List.tl stmts))
+          state pc;
       ]
   | Stmt.Return e -> (
       let v = eval_expression store e in
@@ -205,11 +199,9 @@ let step (c : config) : config list =
       match frame with
       | Call_stack.Intermediate (stmts', store', x, f') ->
           [
-            update c (Cont stmts')
-              (heap, Sstore.add store' x v, stack', f')
-              pc solver;
+            update c (Cont stmts') (heap, Sstore.add store' x v, stack', f') pc;
           ]
-      | Call_stack.Toplevel -> [ update c (Final (Some v)) state pc solver ])
+      | Call_stack.Toplevel -> [ update c (Final (Some v)) state pc ])
   | Stmt.AssignCall (x, e, es) ->
       let f', vs = func (eval_expression store e) in
       let vs' = vs @ List.map (eval_expression store) es in
@@ -219,7 +211,7 @@ let step (c : config) : config list =
           (Call_stack.Intermediate (List.tl stmts, store, x, f))
       in
       let store' = Sstore.create (List.combine (Prog.get_params prog f') vs') in
-      [ update c (Cont [ func.body ]) (heap, store', stack', f') pc solver ]
+      [ update c (Cont [ func.body ]) (heap, store', stack', f') pc ]
   | Stmt.AssignECall (x, y, es) ->
       (* TODO: *) rte "Eval: step: 'AssignECall' not implemented!"
   | Stmt.AssignNewObj x ->
@@ -230,7 +222,7 @@ let step (c : config) : config list =
         update c
           (Cont (List.tl stmts))
           (Sheap.add heap loc obj, Sstore.add store x loc', stack, f)
-          pc solver;
+          pc;
       ]
   | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
       let loc = loc (eval_expression store e_loc)
@@ -240,7 +232,7 @@ let step (c : config) : config list =
         update c
           (Cont (List.tl stmts))
           (heap, Sstore.add store x v, stack, f)
-          pc solver;
+          pc;
       ]
   | Stmt.AssignObjToList (x, e) ->
       let loc = loc (eval_expression store e) in
@@ -257,7 +249,7 @@ let step (c : config) : config list =
         update c
           (Cont (List.tl stmts))
           (heap, Sstore.add store x v, stack, f)
-          pc solver;
+          pc;
       ]
   | Stmt.AssignObjFields (x, e) ->
       let loc = loc (eval_expression store e) in
@@ -271,7 +263,7 @@ let step (c : config) : config list =
         update c
           (Cont (List.tl stmts))
           (heap, Sstore.add store x v, stack, f)
-          pc solver;
+          pc;
       ]
   | Stmt.FieldAssign (e_loc, e_field, e_v) ->
       let loc = loc (eval_expression store e_loc)
@@ -281,7 +273,7 @@ let step (c : config) : config list =
         update c
           (Cont (List.tl stmts))
           (Sheap.set_field heap loc field v, store, stack, f)
-          pc solver;
+          pc;
       ]
   | Stmt.FieldDelete (e_loc, e_field) ->
       let loc = loc (eval_expression store e_loc)
@@ -290,7 +282,7 @@ let step (c : config) : config list =
         update c
           (Cont (List.tl stmts))
           (Sheap.delete_field heap loc field, store, stack, f)
-          pc solver;
+          pc;
       ]
   | Stmt.FieldLookup (x, e_loc, e_field) ->
       let loc = loc (eval_expression store e_loc)
@@ -303,7 +295,7 @@ let step (c : config) : config list =
         update c
           (Cont (List.tl stmts))
           (heap, Sstore.add store x v, stack, f)
-          pc solver;
+          pc;
       ]
 
 (* Credit: Thanks to Joao Borges for writing this code *)
@@ -390,8 +382,8 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
   let final_configs = List.filter (fun c -> is_final c.code) out_configs
   and error_configs = List.filter (fun c -> is_fail c.code) out_configs in
   let final_testsuite, error_testsuite =
-    ( List.map (fun c -> Encoding.model c.solver) final_configs,
-      List.map (fun c -> Encoding.model c.solver) error_configs )
+    ( List.map (fun c -> Encoding.model c.solver c.pc) final_configs,
+      List.map (fun c -> Encoding.model c.solver c.pc) error_configs )
   in
   let report =
     Report.create !Flags.file (List.length out_configs)

@@ -129,10 +129,11 @@ let check (solver : Z3.Solver.solver) (vs : Sval.t list) : bool =
   Logging.print_endline (lazy ("leaving check with return " ^ string_of_bool b));
   b
 
-let model (solver : Z3.Solver.solver) :
+let model (solver : Z3.Solver.solver) (vs : Sval.t list) :
     (Z3.Sort.sort * Z3.Symbol.symbol * Z3.Expr.expr option) list =
+  assert (check solver vs);
   match Z3.Solver.get_model solver with
-  | None -> []
+  | None -> assert false
   | Some model ->
       Logging.print_endline (lazy (Z3.Model.to_string model));
       List.map
