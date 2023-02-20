@@ -2,10 +2,10 @@ open Func
 
 type t = (string, Func.t) Hashtbl.t
 
-let create_empty () : t = Hashtbl.create Common.default_hashtable_size
+let create_empty () : t = Hashtbl.create !Flags.default_hashtbl_sz
 
 let create (funcs : Func.t list) : t =
-  let prog = Hashtbl.create Common.default_hashtable_size in
+  let prog = Hashtbl.create !Flags.default_hashtbl_sz in
   List.iter (fun (f : Func.t) -> Hashtbl.replace prog f.name f) funcs;
   prog
 

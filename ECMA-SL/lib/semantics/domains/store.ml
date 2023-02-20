@@ -1,19 +1,19 @@
-type t = (string, Val.t) Hashtbl.t
+type var = string
+type 'a t = (var, 'a) Hashtbl.t
 
-let create (varvals : (string * Val.t) list) : t =
-  let sto = Hashtbl.create Common.default_hashtable_size in
-  List.iter (fun (x, v) -> Hashtbl.replace sto x v) varvals;
+let create (values : (var * 'a) list) : 'a t =
+  let sto = Hashtbl.create !Flags.default_hashtbl_sz in
+  List.iter (fun (x, v) -> Hashtbl.replace sto x v) values;
   sto
 
-let get (sto : t) (name : string) : Val.t option = Hashtbl.find_opt sto name
+let clone (s : 'a t) : 'a t = Hashtbl.copy s
+let get (s : 'a t) (x : var) : 'a option = Hashtbl.find_opt s x
+let set (s : 'a t) (x : var) (v : 'a) : unit = Hashtbl.replace s x v
 
-let set (sto : t) (name : string) (value : Val.t) : unit =
-  Hashtbl.replace sto name value
-
-let str (sto : t) : string =
+let str (s : 'a t) (printer : 'a -> string) : string =
   Hashtbl.fold
-    (fun n v ac ->
+    (fun x v ac ->
       (if ac <> "{ " then ac ^ ", " else ac)
-      ^ Printf.sprintf "%s: %s" n (Val.str v))
-    sto "{ "
+      ^ Printf.sprintf "%s: %s" x (printer v))
+    s "{ "
   ^ " }"

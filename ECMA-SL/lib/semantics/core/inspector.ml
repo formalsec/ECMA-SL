@@ -8,7 +8,7 @@ type t =
   | ShowHeap
   | Continue
 
-let eval (heap : Heap.t) (sto : Store.t) (e : obj_exp_t) : Val.t =
+let eval (heap : Val.t Heap.t) (sto : Val.t Store.t) (e : obj_exp_t) : Val.t =
   let b, ps = e in
   let v_b =
     match b with
@@ -55,7 +55,7 @@ let parse_cmd (str : string) : t option =
   | [ "continue" ] -> Some Continue
   | _ -> None
 
-let rec inspector (heap : Heap.t) (sto : Store.t) : unit =
+let rec inspector (heap : Val.t Heap.t) (sto : Val.t Store.t) : unit =
   let f () = inspector heap sto in
   show_inspector_dialog ();
   let line = read_line () in
@@ -70,15 +70,17 @@ let rec inspector (heap : Heap.t) (sto : Store.t) : unit =
       (match v with
       | Val.Loc l -> (
           match Heap.get heap l with
-          | Some o -> Printf.printf "Obj: %s\n" (Heap.object_to_string o)
+          | Some o ->
+              Printf.printf "Obj: %s\n"
+                (Object.to_string o (Val.str ~flt_with_dot:false))
           | None -> Printf.printf "Obj: %s\n" "Non-Existent")
       | _ -> Printf.printf "Provided Location is not an object. Try again!\n");
       f ()
   | Some ShowStore ->
-      Printf.printf "%s" (Store.str sto);
+      Printf.printf "%s" (Store.str sto Val.str);
       f ()
   | Some ShowHeap ->
-      Printf.printf "%s" (Heap.to_string heap);
+      Printf.printf "%s" (Heap.to_string heap (Val.str ~flt_with_dot:false));
       f ()
   | Some Continue -> ()
   | None ->

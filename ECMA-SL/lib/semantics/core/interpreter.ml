@@ -19,8 +19,8 @@ end
 module M (Mon : SecurityMonitor) = struct
   exception Except of string
 
-  type stack_t = Store.t Call_stack.t
-  type state_t = stack_t * Heap.t * Store.t * string
+  type stack_t = Val.t Store.t Call_stack.t
+  type state_t = stack_t * Val.t Heap.t * Val.t Store.t * string
 
   type return =
     | Intermediate of state_t * Stmt.t list
@@ -159,7 +159,7 @@ module M (Mon : SecurityMonitor) = struct
     | NAry_Or -> Val.Bool (List.exists is_true vals)
     | ArrExpr -> Val.Arr (Array.of_list vals)
 
-  let rec eval_expr (sto : Store.t) (e : Expr.t) : Val.t =
+  let rec eval_expr (sto : Val.t Store.t) (e : Expr.t) : Val.t =
     match e with
     | Val n -> n
     | Var x -> (
@@ -194,7 +194,7 @@ module M (Mon : SecurityMonitor) = struct
             Val.Int (Random.int 128)
         | _ -> failwith "eval_expr: Symbolic not implemented!")
 
-  let get_func_id (sto : Store.t) (exp : Expr.t) : string * Val.t list =
+  let get_func_id (sto : Val.t Store.t) (exp : Expr.t) : string * Val.t list =
     let res = eval_expr sto exp in
     match res with
     | Val.Str f -> (f, [])
@@ -202,8 +202,8 @@ module M (Mon : SecurityMonitor) = struct
     | _ -> raise (Except "Wrong/Invalid Function ID")
 
   let prepare_call (prog : Prog.t) (calling_f : string) (cs : stack_t)
-      (sto : Store.t) (cont : Stmt.t list) (x : string) (es : Expr.t list)
-      (f : string) (vs : Val.t list) : stack_t * Store.t * string list =
+      (sto : Val.t Store.t) (cont : Stmt.t list) (x : string) (es : Expr.t list)
+      (f : string) (vs : Val.t list) : stack_t * Val.t Store.t * string list =
     let cs' =
       Call_stack.push cs (Call_stack.Intermediate (cont, sto, x, calling_f))
     in
@@ -215,8 +215,8 @@ module M (Mon : SecurityMonitor) = struct
     let sto_aux = Store.create pvs in
     (cs', sto_aux, params)
 
-  let eval_inobj_expr (prog : Prog.t) (heap : Heap.t) (sto : Store.t)
-      (field : Val.t) (loc : Val.t) : Val.t =
+  let eval_inobj_expr (prog : Prog.t) (heap : Val.t Heap.t)
+      (sto : Val.t Store.t) (field : Val.t) (loc : Val.t) : Val.t =
     let b =
       match (loc, field) with
       | Loc l, Str f -> Heap.get_field heap l f
@@ -227,8 +227,8 @@ module M (Mon : SecurityMonitor) = struct
     in
     match b with Some v -> Bool true | None -> Bool false
 
-  let eval_objtolist_oper (heap : Heap.t) (st : Store.t) (loc_expr : Expr.t) :
-      Val.t =
+  let eval_objtolist_oper (heap : Val.t Heap.t) (st : Val.t Store.t)
+      (loc_expr : Expr.t) : Val.t =
     let loc = eval_expr st loc_expr in
     let loc' =
       match loc with
@@ -248,8 +248,8 @@ module M (Mon : SecurityMonitor) = struct
         let fvs = Object.to_list o in
         List (List.map (fun (f, v) -> Val.Tuple (Str f :: [ v ])) fvs)
 
-  let eval_objfields_oper (heap : Heap.t) (st : Store.t) (loc_expr : Expr.t) :
-      Val.t =
+  let eval_objfields_oper (heap : Val.t Heap.t) (st : Val.t Store.t)
+      (loc_expr : Expr.t) : Val.t =
     let loc = eval_expr st loc_expr in
     let loc' =
       match loc with
@@ -267,8 +267,8 @@ module M (Mon : SecurityMonitor) = struct
          ^ "\" doesn't exist in the Heap")
     | Some o -> List (List.map (fun f -> Val.Str f) (Object.get_fields o))
 
-  let eval_fielddelete_stmt (prog : Prog.t) (heap : Heap.t) (sto : Store.t)
-      (e : Expr.t) (f : Expr.t) : unit =
+  let eval_fielddelete_stmt (prog : Prog.t) (heap : Val.t Heap.t)
+      (sto : Val.t Store.t) (e : Expr.t) (f : Expr.t) : unit =
     let loc = eval_expr sto e and field = eval_expr sto f in
     let loc' =
       match loc with
@@ -318,7 +318,9 @@ module M (Mon : SecurityMonitor) = struct
             match Heap.get heap l with
             | Some o ->
                 print_endline
-                  (lazy ("PROGRAM PRINT: " ^ Heap.object_to_string o))
+                  (lazy
+                    ("PROGRAM PRINT: "
+                    ^ Object.to_string o (Val.str ~flt_with_dot:false)))
             | None ->
                 print_endline (lazy "PROGRAM PRINT: Non-existent location"))
         | _ -> print_endline (lazy ("PROGRAM PRINT: " ^ Val.str v)));
@@ -526,7 +528,7 @@ module M (Mon : SecurityMonitor) = struct
 
   (*Worker class of the Interpreter*)
   let eval_prog (prog : Prog.t) (monitor : string) (main : string) :
-      Val.t option * Heap.t =
+      Val.t option * Val.t Heap.t =
     let func = Prog.get_func prog main in
     let state_0 = initial_state () in
     let mon_state_0 = Mon.initial_monitor_state () in

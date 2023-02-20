@@ -7,7 +7,7 @@ module StringSet = Set.Make (String)
 
 type t = { name : string; params : string list; body : Stmt.t }
 
-let create_store (func : t) (vals : Val.t list) : Store.t =
+let create_store (func : t) (vals : Val.t list) : Val.t Store.t =
   let varvals = List.combine func.params vals in
   Store.create varvals
 

@@ -1,31 +1,3 @@
-(*
-val eval_expr : SStore.t -> Expr.t -> SVal.t
-
-type state_t = SCallStack.t * SHeap.t * SStore.t * string
-
-type intermediate_t = ((state_t * Stmt.t) list * (state_t * SVal.t option) list * (state_t * SVal.t option) list) 
-
-type return_t = ((state_t * SVal.t option) list * (state_t * SVal.t option) list)
-
-let eval_small_step
-    (prog : Prog.t) 
-    (state : state_t) 
-    (cont : Stmt.t list) 
-    (s : Stmt.t) : (intermediate_t list, return_t list) =
-
-  let (cs, hp, sto, f) = state in 
-
-  match s with
-    | Assign (x, e) ->
-      let v = eval_expr sto e in
-      SStore.set sto x v;
-      ([ (state, cont) ], [], [])
-
-let rec small_step_iter
-  (prog : Prog.t) 
-  (states : intermediate_t list)
-  (finals : return_t list) : return_t list = 
-*)
 open Func
 open Source
 
@@ -48,7 +20,7 @@ and outcome =
 *)
 and func = string
 and stack = Sstore.t Call_stack.t
-and state = Sheap.t * Sstore.t * stack * func
+and state = Sval.t Heap.t * Sstore.t * stack * func
 and pc = Sval.t list
 
 exception Runtime_error of string
@@ -176,12 +148,13 @@ let step (c : config) : config list =
       let else_branch =
         if not (Encoding.check solver (br_f :: pc)) then []
         else
+          let state' = (Heap.clone heap, store, stack, f) in
           let stmts' =
             match blk2 with
             | None -> List.tl stmts
             | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl stmts
           in
-          [ update c (Cont stmts') state (br_f :: pc) ]
+          [ update c (Cont stmts') state' (br_f :: pc) ]
       in
       then_branch @ else_branch
   | Stmt.While (br, blk) ->
@@ -215,19 +188,18 @@ let step (c : config) : config list =
   | Stmt.AssignECall (x, y, es) ->
       (* TODO: *) rte "Eval: step: 'AssignECall' not implemented!"
   | Stmt.AssignNewObj x ->
-      let obj = Sobject.create () in
-      let loc = Loc.newloc () in
-      let loc' = Sval.Loc loc in
+      let obj = Object.create () in
+      let loc = Heap.insert heap obj in
       [
         update c
           (Cont (List.tl stmts))
-          (Sheap.add heap loc obj, Sstore.add store x loc', stack, f)
+          (heap, Sstore.add store x (Sval.Loc loc), stack, f)
           pc;
       ]
   | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
       let loc = loc (eval_expression store e_loc)
       and field = field (eval_expression store e_field) in
-      let v = Sval.Bool (Option.is_some (Sheap.get_field heap loc field)) in
+      let v = Sval.Bool (Option.is_some (Heap.get_field heap loc field)) in
       [
         update c
           (Cont (List.tl stmts))
@@ -237,13 +209,13 @@ let step (c : config) : config list =
   | Stmt.AssignObjToList (x, e) ->
       let loc = loc (eval_expression store e) in
       let v =
-        match Sheap.find_opt heap loc with
+        match Heap.get heap loc with
         | None -> rte ("AssignObjToList: '" ^ loc ^ "' not found in heap")
         | Some obj ->
             Sval.List
               (List.map
                  (fun (f, v) -> Sval.(Tuple (Str f :: [ v ])))
-                 (Sobject.to_list obj))
+                 (Object.to_list obj))
       in
       [
         update c
@@ -254,10 +226,10 @@ let step (c : config) : config list =
   | Stmt.AssignObjFields (x, e) ->
       let loc = loc (eval_expression store e) in
       let v =
-        match Sheap.find_opt heap loc with
+        match Heap.get heap loc with
         | None -> rte ("AssignObjFields: '" ^ loc ^ "' not found in heap")
         | Some obj ->
-            Sval.List (List.map (fun f -> Sval.Str f) (Sobject.get_fields obj))
+            Sval.List (List.map (fun f -> Sval.Str f) (Object.get_fields obj))
       in
       [
         update c
@@ -269,27 +241,18 @@ let step (c : config) : config list =
       let loc = loc (eval_expression store e_loc)
       and field = field (eval_expression store e_field)
       and v = eval_expression store e_v in
-      [
-        update c
-          (Cont (List.tl stmts))
-          (Sheap.set_field heap loc field v, store, stack, f)
-          pc;
-      ]
+      Heap.set_field heap loc field v;
+      [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.FieldDelete (e_loc, e_field) ->
       let loc = loc (eval_expression store e_loc)
       and field = field (eval_expression store e_field) in
-      [
-        update c
-          (Cont (List.tl stmts))
-          (Sheap.delete_field heap loc field, store, stack, f)
-          pc;
-      ]
+      Heap.delete_field heap loc field;
+      [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.FieldLookup (x, e_loc, e_field) ->
       let loc = loc (eval_expression store e_loc)
       and field = field (eval_expression store e_field) in
       let v =
-        Option.default (Sval.Symbol "undefined")
-          (Sheap.get_field heap loc field)
+        Option.default (Sval.Symbol "undefined") (Heap.get_field heap loc field)
       in
       [
         update c
@@ -353,7 +316,7 @@ module RND = Strategy (RandArray)
 let invoke (prog : Prog.t) (f : func) (eval : config -> config list) :
     config list =
   let func = Prog.get_func prog f in
-  let heap = Sheap.create ()
+  let heap = Heap.create ()
   and store = Sstore.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
   let initial_config =

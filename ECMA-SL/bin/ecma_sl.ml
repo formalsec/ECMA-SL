@@ -93,7 +93,8 @@ let inline_compiler () : Prog.t =
 let core_interpretation (prog : Prog.t) : exit_code =
   let v, heap = Interpreter.eval_prog prog !Flags.mon !Flags.target in
   if !Flags.heap_file <> "" then
-    Io.write_file !Flags.heap_file (Heap.to_string_with_glob heap);
+    Io.write_file !Flags.heap_file
+      (Heap.to_string_with_glob heap (Val.str ~flt_with_dot:false));
   match v with
   | Some z -> (
       match z with

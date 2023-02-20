@@ -1,7 +1,7 @@
 type t = (string, Val.t) Hashtbl.t
 
 let create (varvals : (string * Val.t) list) : t =
-  let sto = Hashtbl.create Common.default_hashtable_size in
+  let sto = Hashtbl.create !Flags.default_hashtbl_sz in
   List.iter (fun (x, v) -> Hashtbl.replace sto x v) varvals;
   sto
 

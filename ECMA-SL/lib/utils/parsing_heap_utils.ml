@@ -37,7 +37,7 @@ let read_json_obj (json_obj : Yojson.Basic.t) : Val.t Object.t =
       obj
   | _ -> invalid_arg "The JSON data must start with an object"
 
-let json_to_heap (heap : Heap.t) (data : Yojson.Basic.t) : unit =
+let json_to_heap (heap : 'a Heap.t) (data : Yojson.Basic.t) : unit =
   let update_heap_inplace ((loc, json_obj) : Loc.t * Yojson.Basic.t) : unit =
     let obj = read_json_obj json_obj in
     Heap.update heap loc obj
@@ -46,7 +46,7 @@ let json_to_heap (heap : Heap.t) (data : Yojson.Basic.t) : unit =
   | `Assoc objs -> List.iter update_heap_inplace objs
   | _ -> invalid_arg "The JSON data must start with an object"
 
-let parse_and_update (heap : Heap.t) (js_file : string) : string =
+let parse_and_update (heap : 'a Heap.t) (js_file : string) : string =
   let data = Yojson.Basic.from_file js_file in
   let heap_in_file, global_loc =
     match data with

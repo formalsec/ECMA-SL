@@ -1,70 +1,48 @@
-type object_t = Val.t Object.t
-type t = (Loc.t, object_t) Hashtbl.t
+type 'a obj = 'a Object.t
+type 'a t = (Loc.t, 'a obj) Hashtbl.t
 
-let create () : t = Hashtbl.create Common.default_hashtable_size
+let create () : 'a t = Hashtbl.create !Flags.default_hashtbl_sz
 
-let insert (heap : t) (obj : object_t) : Loc.t =
+let clone (heap : 'a t) : 'a t =
+  let heap' = create () in
+  Hashtbl.iter (fun l o -> Hashtbl.replace heap' l (Object.clone o)) heap;
+  heap'
+
+let insert (heap : 'a t) (obj : 'a obj) : Loc.t =
   let loc = Loc.newloc () in
   Hashtbl.replace heap loc obj;
   loc
 
-let remove (heap : t) (loc : Loc.t) : unit = Hashtbl.remove heap loc
+let remove (heap : 'a t) (loc : Loc.t) : unit = Hashtbl.remove heap loc
 
-let update (heap : t) (loc : Loc.t) (obj : object_t) : unit =
+let update (heap : 'a t) (loc : Loc.t) (obj : 'a obj) : unit =
   Hashtbl.replace heap loc obj
 
-let get (heap : t) (loc : Loc.t) : object_t option = Hashtbl.find_opt heap loc
+let get (heap : 'a t) (loc : Loc.t) : 'a obj option = Hashtbl.find_opt heap loc
 
-let get_field (heap : t) (loc : Loc.t) (field : Field.t) : Val.t option =
+let get_field (heap : 'a t) (loc : Loc.t) (field : Field.t) : 'a option =
   let obj = get heap loc in
   let v = match obj with None -> None | Some o -> Object.get o field in
   v
 
-let set_field (heap : t) (loc : Loc.t) (field : Field.t) (value : Val.t) : unit
-    =
+let set_field (heap : 'a t) (loc : Loc.t) (field : Field.t) (v : 'a) : unit =
   let obj = get heap loc in
-  match obj with None -> () | Some o -> Object.set o field value
+  match obj with None -> () | Some o -> Object.set o field v
 
-let delete_field (heap : t) (loc : Loc.t) (field : Field.t) : unit =
+let delete_field (heap : 'a t) (loc : Loc.t) (field : Field.t) : unit =
   let obj = get heap loc in
   match obj with None -> () | Some o -> Object.delete o field
 
-let object_to_string (o : object_t) : string =
-  let str_obj =
-    Hashtbl.fold
-      (fun n v ac ->
-        if ac <> "{ " then ac ^ ", "
-        else
-          ac
-          ^ Printf.sprintf "%s: %s" (Field.str n)
-              (Val.str ~flt_with_dot:false v))
-      o "{ "
-  in
-  str_obj ^ " }"
-
-let object_to_json (o : object_t) : string =
-  let str_obj =
-    Hashtbl.fold
-      (fun n v ac ->
-        if ac <> "{ " then ac ^ ", "
-        else
-          ac
-          ^ Printf.sprintf "\"%s\": %s" (Field.str n)
-              (Val.str ~flt_with_dot:false v))
-      o "{ "
-  in
-  str_obj ^ " }"
-
-let to_string (h : t) : string =
+let to_string (h : 'a t) (pp : 'a -> string) : string =
   "{ "
   ^ String.concat ", "
       (Hashtbl.fold
          (fun n v acc ->
-           Printf.sprintf "%s: %s" (Loc.str n) (object_to_string v) :: acc)
+           Printf.sprintf "%s: %s" (Loc.str n) (Object.to_string v pp) :: acc)
          h [])
   ^ " }"
 
-let to_string_with_glob (h : t) : string =
+let to_string_with_glob (h : 'a t) (pp : 'a -> string) : string =
   let glob =
     Hashtbl.fold
       (fun _ obj acc ->
@@ -77,7 +55,7 @@ let to_string_with_glob (h : t) : string =
   in
   match glob with
   | Some l ->
-      Printf.sprintf "{ \"heap\": %s, \"global\": %s }" (to_string h)
+      Printf.sprintf "{ \"heap\": %s, \"global\": %s }" (to_string h pp)
         (Val.str l)
   | None ->
       raise
