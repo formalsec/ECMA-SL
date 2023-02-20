@@ -14,10 +14,8 @@ and outcome =
   | Error of Sval.t option
   | Final of Sval.t option
   | Failure of Sval.t option
+  | Unknown of Sval.t option
 
-(* TODO:
-   | Unknwon of Sval.t option
-*)
 and func = string
 and stack = Sstore.t Call_stack.t
 and state = Sval.t Heap.t * Sstore.t * stack * func
@@ -100,20 +98,24 @@ let step (c : config) : config list =
   | Stmt.Assume e when Sval.Bool true = eval_expression store e ->
       [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Assume e when Sval.Bool false = eval_expression store e -> []
-  | Stmt.Assume e ->
-      let pc' = eval_expression store e :: pc in
-      if not (Encoding.check solver pc') then []
-      else [ update c (Cont (List.tl stmts)) state pc' ]
+  | Stmt.Assume e -> (
+      let v = eval_expression store e in
+      try
+        if not (Encoding.check solver (v :: pc)) then []
+        else [ update c (Cont (List.tl stmts)) state (v :: pc) ]
+      with Encoding.Unknown -> [ update c (Unknown (Some v)) state (v :: pc) ])
   | Stmt.Assert e when Sval.Bool true = eval_expression store e ->
       [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Assert e when Sval.Bool false = eval_expression store e ->
       [ update c (Failure (Some (eval_expression store e))) state pc ]
-  | Stmt.Assert e ->
+  | Stmt.Assert e -> (
       let v = eval_expression store e in
       let v' = eval_expression store (Expr.UnOpt (Operators.Not, e)) in
-      if Encoding.check solver (v' :: pc) then
-        [ update c (Failure (Some v)) state pc ]
-      else [ update c (Cont (List.tl stmts)) state pc ]
+      try
+        if Encoding.check solver (v' :: pc) then
+          [ update c (Failure (Some v)) state pc ]
+        else [ update c (Cont (List.tl stmts)) state pc ]
+      with Encoding.Unknown -> [ update c (Unknown (Some v)) state pc ])
   | Stmt.Assign (x, e) ->
       let v = eval_expression store e in
       [
@@ -140,21 +142,27 @@ let step (c : config) : config list =
       let br_t = eval_expression store br
       and br_f = eval_expression store (Expr.UnOpt (Operators.Not, br)) in
       let then_branch =
-        if not (Encoding.check solver (br_t :: pc)) then []
-        else
-          let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl stmts in
-          [ update c (Cont stmts') state (br_t :: pc) ]
+        try
+          if not (Encoding.check solver (br_t :: pc)) then []
+          else
+            let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl stmts in
+            [ update c (Cont stmts') state (br_t :: pc) ]
+        with Encoding.Unknown ->
+          [ update c (Unknown (Some br_t)) state (br_t :: pc) ]
       in
       let else_branch =
-        if not (Encoding.check solver (br_f :: pc)) then []
-        else
-          let state' = (Heap.clone heap, store, stack, f) in
-          let stmts' =
-            match blk2 with
-            | None -> List.tl stmts
-            | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl stmts
-          in
-          [ update c (Cont stmts') state' (br_f :: pc) ]
+        try
+          if not (Encoding.check solver (br_f :: pc)) then []
+          else
+            let state' = (Heap.clone heap, store, stack, f) in
+            let stmts' =
+              match blk2 with
+              | None -> List.tl stmts
+              | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl stmts
+            in
+            [ update c (Cont stmts') state' (br_f :: pc) ]
+        with Encoding.Unknown ->
+          [ update c (Unknown (Some br_f)) state (br_f :: pc) ]
       in
       then_branch @ else_branch
   | Stmt.While (br, blk) ->
@@ -284,8 +292,7 @@ module Strategy (L : Work_list) = struct
       match c.code with
       | Cont [] -> rte "eval: Empty continuation!"
       | Cont _ -> List.iter (fun c -> L.push c w) (step c)
-      | Error v -> out := c :: !out
-      | Final v -> out := c :: !out
+      | Error v | Final v | Unknown v -> out := c :: !out
       | Failure v ->
           err := true;
           out := c :: !out
