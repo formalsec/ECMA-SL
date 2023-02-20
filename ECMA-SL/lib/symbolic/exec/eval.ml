@@ -44,7 +44,6 @@ and outcome =
   | Failure of Sval.t option
 
 (* TODO:
-   | AsrtFail of Sval.t option
    | Unknwon of Sval.t option
 *)
 and func = string
@@ -317,10 +316,9 @@ module type Work_list = sig
   val push : 'a -> 'a t -> unit
   val pop : 'a t -> 'a
   val is_empty : 'a t -> bool
-  val length : 'a t -> int
 end
 
-(* Credit: Thanks to Joao Borges for writing this code *)
+(* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
 module Strategy (L : Work_list) = struct
   let eval c : config list =
     let w = L.create () in
@@ -340,8 +338,25 @@ module Strategy (L : Work_list) = struct
     !out
 end
 
+module RandArray : Work_list = struct
+  type 'a t = 'a BatDynArray.t
+
+  exception Empty
+
+  let create () = BatDynArray.create ()
+  let is_empty a = BatDynArray.empty a
+  let push v a = BatDynArray.add a v
+
+  let pop a =
+    let i = Random.int (BatDynArray.length a) in
+    let v = BatDynArray.get a i in
+    BatDynArray.delete a i;
+    v
+end
+
 module DFS = Strategy (Stack)
 module BFS = Strategy (Queue)
+module RND = Strategy (RandArray)
 
 let invoke (prog : Prog.t) (f : func) (eval : config -> config list) :
     config list =
@@ -366,6 +381,7 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
     match !Flags.policy with
     | "breadth" -> BFS.eval
     | "depth" -> DFS.eval
+    | "random" -> RND.eval
     | _ -> rte ("Invalid search policy '" ^ !Flags.policy ^ "'")
   in
   let out_configs =
