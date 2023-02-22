@@ -40,23 +40,23 @@ C(e1 &&& e2) =
 
 *)
 let compile_sc_and (x : string) (stmts_1 : Stmt.t list) (e1' : Expr.t)
-    (stmts_2 : Stmt.t list) (e2' : Expr.t) : Stmt.t list * Expr.t =
+    (stmts_2 : Stmt.t list) (e2' : Expr.t) (at : region) : Stmt.t list * Expr.t
+    =
   let inner_if =
     Stmt.If
       ( Expr.BinOpt (Eq, e2', Expr.Val (Val.Bool false)),
-        Stmt.Assign (x, Expr.Val (Val.Bool false)) @@ no_region,
-        Some (Stmt.Assign (x, Expr.Val (Val.Bool true)) @@ no_region) )
-    @@ no_region
+        Stmt.Assign (x, Expr.Val (Val.Bool false)) @@ at,
+        Some (Stmt.Assign (x, Expr.Val (Val.Bool true)) @@ at) )
+    @@ at
   in
 
   let outer_if =
     Stmt.If
       ( Expr.BinOpt (Eq, e1', Expr.Val (Val.Bool false)),
-        Stmt.Assign (x, Expr.Val (Val.Bool false)) @@ no_region,
-        Some (Stmt.Block (stmts_2 @ [ inner_if ]) @@ no_region) )
-    @@ no_region
+        Stmt.Assign (x, Expr.Val (Val.Bool false)) @@ at,
+        Some (Stmt.Block (stmts_2 @ [ inner_if ]) @@ at) )
+    @@ at
   in
-
   (stmts_1 @ [ outer_if ], Expr.Var x)
 
 (*
@@ -78,39 +78,41 @@ C(e1 ||| e2) =
     }, x
 *)
 let compile_sc_or (x : string) (stmts_1 : Stmt.t list) (e1' : Expr.t)
-    (stmts_2 : Stmt.t list) (e2' : Expr.t) : Stmt.t list * Expr.t =
+    (stmts_2 : Stmt.t list) (e2' : Expr.t) (at : region) : Stmt.t list * Expr.t
+    =
   let inner_if =
     Stmt.If
       ( Expr.BinOpt (Eq, e2', Expr.Val (Val.Bool true)),
-        Stmt.Assign (x, Expr.Val (Val.Bool true)) @@ no_region,
-        Some (Stmt.Assign (x, Expr.Val (Val.Bool false)) @@ no_region) )
-    @@ no_region
+        Stmt.Assign (x, Expr.Val (Val.Bool true)) @@ at,
+        Some (Stmt.Assign (x, Expr.Val (Val.Bool false)) @@ at) )
+    @@ at
   in
 
   let outer_if =
     Stmt.If
       ( Expr.BinOpt (Eq, e1', Expr.Val (Val.Bool true)),
-        Stmt.Assign (x, Expr.Val (Val.Bool true)) @@ no_region,
-        Some (Stmt.Block (stmts_2 @ [ inner_if ]) @@ no_region) )
-    @@ no_region
+        Stmt.Assign (x, Expr.Val (Val.Bool true)) @@ at,
+        Some (Stmt.Block (stmts_2 @ [ inner_if ]) @@ at) )
+    @@ at
   in
 
   (stmts_1 @ [ outer_if ], Expr.Var x)
 
 let compile_binopt (binop : Operators.bopt)
     ((stmts_1, e1) : Stmt.t list * Expr.t)
-    ((stmts_2, e2) : Stmt.t list * Expr.t) : Stmt.t list * Expr.t =
+    ((stmts_2, e2) : Stmt.t list * Expr.t) (at : region) : Stmt.t list * Expr.t
+    =
   let var = generate_fresh_var () in
-  ( stmts_1 @ stmts_2
-    @ [ Stmt.Assign (var, Expr.BinOpt (binop, e1, e2)) @@ no_region ],
+  ( stmts_1 @ stmts_2 @ [ Stmt.Assign (var, Expr.BinOpt (binop, e1, e2)) @@ at ],
     Expr.Var var )
 
 let compile_triopt (triop : topt) ((stmts_1, e1) : Stmt.t list * Expr.t)
     ((stmts_2, e2) : Stmt.t list * Expr.t)
-    ((stmts_3, e3) : Stmt.t list * Expr.t) : Stmt.t list * Expr.t =
+    ((stmts_3, e3) : Stmt.t list * Expr.t) (at : region) : Stmt.t list * Expr.t
+    =
   let var = generate_fresh_var () in
   ( stmts_1 @ stmts_2 @ stmts_3
-    @ [ Stmt.Assign (var, Expr.TriOpt (triop, e1, e2, e3)) @@ no_region ],
+    @ [ Stmt.Assign (var, Expr.TriOpt (triop, e1, e2, e3)) @@ at ],
     Expr.Var var )
 
 (*
@@ -119,7 +121,7 @@ let compile_triopt (triop : topt) ((stmts_1, e1) : Stmt.t list * Expr.t)
 C_e(|x|) =
    y := ___internal_esl_global["x"], y
 *)
-let compile_gvar (x : string) : Stmt.t list * Expr.t =
+let compile_gvar (x : string) (at : region) : Stmt.t list * Expr.t =
   let y = generate_fresh_var () in
   let var =
     match x with
@@ -130,7 +132,7 @@ let compile_gvar (x : string) : Stmt.t list * Expr.t =
   let f_lookup =
     Stmt.FieldLookup
       (y, Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str var))
-    @@ no_region
+    @@ at
   in
   ([ f_lookup ], Expr.Var y)
 
@@ -141,8 +143,8 @@ C(|x| := e) =
   stmts_e;
   ___internal_esl_global["x"] := x_e
 *)
-let compile_glob_assign (x : string) (stmts_e : Stmt.t list) (e : Expr.t) :
-    Stmt.t list =
+let compile_glob_assign (x : string) (stmts_e : Stmt.t list) (e : Expr.t)
+    (at : region) : Stmt.t list =
   let var =
     match x with
     (* Keep this in sync with Heap.ml function "str_with_global" *)
@@ -152,15 +154,15 @@ let compile_glob_assign (x : string) (stmts_e : Stmt.t list) (e : Expr.t) :
   let f_asgn =
     Stmt.FieldAssign
       (Expr.Var __INTERNAL_ESL_GLOBAL__, Expr.Val (Val.Str var), e)
-    @@ no_region
+    @@ at
   in
   stmts_e @ [ f_asgn ]
 
 (*
   C(x := lambda_{id_x} (xs) [ys] {s}) := x := {"id_x"}@(ys)
 *)
-let compile_lambda_call (x : string) (f : string) (ys : string list) (at : region) :
-    Stmt.t list =
+let compile_lambda_call (x : string) (f : string) (ys : string list)
+    (at : region) : Stmt.t list =
   let e =
     Expr.Curry (Expr.Val (Val.Str f), List.map (fun v -> Expr.Var v) ys)
   in
@@ -180,13 +182,13 @@ C(e_f@(e1, ..., en)) =
       x
 *)
 let compile_curry ((stmts_f, e_f) : Stmt.t list * Expr.t)
-    (args : (Stmt.t list * Expr.t) list) : Stmt.t list * Expr.t =
+    (args : (Stmt.t list * Expr.t) list) (at : region) : Stmt.t list * Expr.t =
   let x = generate_fresh_var () in
   let stmtss, es = List.split args in
   let stmts = List.concat stmtss in
   let stmts' = stmts_f @ stmts in
   let e_call = Expr.Curry (e_f, es) in
-  let asgn = Stmt.Assign (x, e_call) @@ no_region in
+  let asgn = Stmt.Assign (x, e_call) @@ at in
   (stmts' @ [ asgn ], Expr.Var x)
 
 (*
@@ -252,8 +254,7 @@ let compile_fail (ret_e : Stmt.t list * Expr.t) (at : region) : Stmt.t list =
 let compile_throw (ret_e : Stmt.t list * Expr.t) (at : region) : Stmt.t list =
   let stmts_expr, e' = ret_e in
   let ret_stmt =
-    Stmt.Return (Expr.NOpt (TupleExpr, [ Expr.Val (Val.Bool true); e' ]))
-    @@ at
+    Stmt.Return (Expr.NOpt (TupleExpr, [ Expr.Val (Val.Bool true); e' ])) @@ at
   in
   stmts_expr @ [ ret_stmt ]
 
@@ -301,37 +302,35 @@ C_s({e}(e1, ..., en) catch g) =
 
 
 *)
-let build_if_throw_basic (x : string) (s_then : Stmt.t) : Stmt.t =
+let build_if_throw_basic (x : string) (s_then : Stmt.t) (at : region) : Stmt.t =
   let guard = Expr.UnOpt (First, Expr.Var x) in
-  let s_else = Stmt.Assign (x, Expr.UnOpt (Second, Expr.Var x)) @@ no_region in
-  Stmt.If (guard, s_then, Some s_else) @@ no_region
+  let s_else = Stmt.Assign (x, Expr.UnOpt (Second, Expr.Var x)) @@ at in
+  Stmt.If (guard, s_then, Some s_else) @@ at
 
-let build_if_throw (x : string) (g : string option) : Stmt.t =
+let build_if_throw (x : string) (g : string option) (at : region) : Stmt.t =
   match g with
-  | None -> build_if_throw_basic x (Stmt.Return (Expr.Var x) @@ no_region)
+  | None -> build_if_throw_basic x (Stmt.Return (Expr.Var x) @@ at) at
   | Some g ->
       let args =
         [ Expr.Var __INTERNAL_ESL_GLOBAL__; Expr.UnOpt (Second, Expr.Var x) ]
       in
-      let call_stmt =
-        Stmt.AssignCall (x, Expr.Val (Val.Str g), args) @@ no_region
-      in
+      let call_stmt = Stmt.AssignCall (x, Expr.Val (Val.Str g), args) @@ at in
       let inner_if =
-        build_if_throw_basic x (Stmt.Return (Expr.Var x) @@ no_region)
+        build_if_throw_basic x (Stmt.Return (Expr.Var x) @@ at) at
       in
-      build_if_throw_basic x (Stmt.Block [ call_stmt; inner_if ] @@ no_region)
+      build_if_throw_basic x (Stmt.Block [ call_stmt; inner_if ] @@ at) at
 
 let compile_call (ret_f : Stmt.t list * Expr.t)
-    (ret_args : (Stmt.t list * Expr.t) list) (g : string option) :
+    (ret_args : (Stmt.t list * Expr.t) list) (g : string option) (at : region) :
     Stmt.t list * Expr.t =
   let x = generate_fresh_var () in
   let fname_stmts, fname_expr = ret_f in
   let fargs_stmts_exprs = ret_args in
   let fargs_stmts, fargs_exprs = List.split fargs_stmts_exprs in
   let fargs_exprs' = Expr.Var __INTERNAL_ESL_GLOBAL__ :: fargs_exprs in
-  let stmt_if = build_if_throw x g in
+  let stmt_if = build_if_throw x g at in
   ( fname_stmts @ List.concat fargs_stmts
-    @ [ Stmt.AssignCall (x, fname_expr, fargs_exprs') @@ no_region; stmt_if ],
+    @ [ Stmt.AssignCall (x, fname_expr, fargs_exprs') @@ at; stmt_if ],
     Expr.Var x )
 
 (*
@@ -343,12 +342,11 @@ x fresh
      x := extern f(x_i|i=1^n), x
 *)
 
-let compile_e_call (f : string) (ret_args : (Stmt.t list * Expr.t) list) :
-    Stmt.t list * Expr.t =
+let compile_e_call (f : string) (ret_args : (Stmt.t list * Expr.t) list)
+    (at : region) : Stmt.t list * Expr.t =
   let x = generate_fresh_var () in
   let fargs_stmts, fargs_exprs = List.split ret_args in
-  ( List.concat fargs_stmts
-    @ [ Stmt.AssignECall (x, f, fargs_exprs) @@ no_region ],
+  ( List.concat fargs_stmts @ [ Stmt.AssignECall (x, f, fargs_exprs) @@ at ],
     Expr.Var x )
 
 let compile_const (c : const) : Stmt.t list * Expr.t =
@@ -358,60 +356,58 @@ let compile_const (c : const) : Stmt.t list * Expr.t =
   | PI -> ([], Expr.Val (Val.Flt Float.pi))
 
 let rec compile_ebinopt (binop : EOper.bopt) (e_e1 : E_Expr.t) (e_e2 : E_Expr.t)
-    : Stmt.t list * Expr.t =
+    (at : region) : Stmt.t list * Expr.t =
   let x = generate_fresh_var () in
-  let stmts_1, e1 = compile_expr e_e1 in
-  let stmts_2, e2 = compile_expr e_e2 in
+  let stmts_1, e1 = compile_expr at e_e1 in
+  let stmts_2, e2 = compile_expr at e_e2 in
   match binop with
-  | SCLogAnd -> compile_sc_and x stmts_1 e1 stmts_2 e2
-  | SCLogOr -> compile_sc_or x stmts_1 e1 stmts_2 e2
+  | SCLogAnd -> compile_sc_and x stmts_1 e1 stmts_2 e2 at
+  | SCLogOr -> compile_sc_or x stmts_1 e1 stmts_2 e2 at
 
-and compile_unopt (op : uopt) (expr : E_Expr.t) : Stmt.t list * Expr.t =
+and compile_unopt (op : uopt) (expr : E_Expr.t) (at : region) :
+    Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
-  let stmts_expr, expr' = compile_expr expr in
+  let stmts_expr, expr' = compile_expr at expr in
   match op with
   | ObjToList ->
-      ( stmts_expr @ [ Stmt.AssignObjToList (var, expr') @@ no_region ],
-        Expr.Var var )
+      (stmts_expr @ [ Stmt.AssignObjToList (var, expr') @@ at ], Expr.Var var)
   | _ ->
-      ( stmts_expr @ [ Stmt.Assign (var, Expr.UnOpt (op, expr')) @@ no_region ],
+      ( stmts_expr @ [ Stmt.Assign (var, Expr.UnOpt (op, expr')) @@ at ],
         Expr.Var var )
 
-and compile_nopt (nop : nopt) (e_exprs : E_Expr.t list) : Stmt.t list * Expr.t =
+and compile_nopt (nop : nopt) (e_exprs : E_Expr.t list) (at : region) :
+    Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
-  let stmts_exprs = List.map compile_expr e_exprs in
+  let stmts_exprs = List.map (compile_expr at) e_exprs in
   let stmts, exprs = List.split stmts_exprs in
-  ( List.concat stmts
-    @ [ Stmt.Assign (var, Expr.NOpt (nop, exprs)) @@ no_region ],
+  ( List.concat stmts @ [ Stmt.Assign (var, Expr.NOpt (nop, exprs)) @@ at ],
     Expr.Var var )
 
-and compile_newobj (e_fes : (string * E_Expr.t) list) : Stmt.t list * Expr.t =
+and compile_newobj (e_fes : (string * E_Expr.t) list) (at : region) :
+    Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
-  let newObj = Stmt.AssignNewObj var @@ no_region in
+  let newObj = Stmt.AssignNewObj var @@ at in
   let stmts =
     List.map
       (fun (pn, e) ->
-        let stmts, e' = compile_expr e in
+        let stmts, e' = compile_expr at e in
         stmts
-        @ [
-            Stmt.FieldAssign (Expr.Var var, Expr.Val (Val.Str pn), e')
-            @@ no_region;
-          ])
+        @ [ Stmt.FieldAssign (Expr.Var var, Expr.Val (Val.Str pn), e') @@ at ])
       e_fes
   in
   (newObj :: List.concat stmts, Expr.Var var)
 
-and compile_lookup (expr : E_Expr.t) (field : E_Expr.t) : Stmt.t list * Expr.t =
+and compile_lookup (expr : E_Expr.t) (field : E_Expr.t) (at : region) :
+    Stmt.t list * Expr.t =
   let var = generate_fresh_var () in
-  let stmts_expr, expr' = compile_expr expr in
-  let stmts_field, field' = compile_expr field in
-  ( stmts_expr @ stmts_field
-    @ [ Stmt.FieldLookup (var, expr', field') @@ no_region ],
+  let stmts_expr, expr' = compile_expr at expr in
+  let stmts_field, field' = compile_expr at field in
+  ( stmts_expr @ stmts_field @ [ Stmt.FieldLookup (var, expr', field') @@ at ],
     Expr.Var var )
 
 and compile_assign (lval : string) (rval : E_Expr.t) (at : region) : Stmt.t list
     =
-  let stmts, rval' = compile_expr rval in
+  let stmts, rval' = compile_expr at rval in
   stmts @ [ Stmt.Assign (lval, rval') @@ at ]
 
 and compile_block (e_stmts : E_Stmt.t list) : Stmt.t list =
@@ -420,7 +416,7 @@ and compile_block (e_stmts : E_Stmt.t list) : Stmt.t list =
 
 and compile_if (expr : E_Expr.t) (stmt1 : E_Stmt.t) (stmt2 : E_Stmt.t option)
     (at : region) : Stmt.t list =
-  let stmts_expr, expr' = compile_expr expr in
+  let stmts_expr, expr' = compile_expr at expr in
   let stmts_s1 = Stmt.Block (compile_stmt stmt1) @@ stmt1.at in
   let stmts_s2 =
     match stmt2 with
@@ -431,70 +427,66 @@ and compile_if (expr : E_Expr.t) (stmt1 : E_Stmt.t) (stmt2 : E_Stmt.t option)
 
 and compile_while (expr : E_Expr.t) (stmt : E_Stmt.t) (at : region) :
     Stmt.t list =
-  let stmts_expr, expr' = compile_expr expr in
+  let stmts_expr, expr' = compile_expr at expr in
   let stmts_stmt = compile_stmt stmt in
   stmts_expr
   @ [
       Stmt.While (expr', Stmt.Block (stmts_stmt @ stmts_expr) @@ stmt.at) @@ at;
     ]
 
-and compile_fieldassign (e_eo : E_Expr.t) (e_f : E_Expr.t) (e_ev : E_Expr.t) (at : region) :
-    Stmt.t list =
-  let stmts_eo, expr_eo = compile_expr e_eo in
-  let stmts_f, expr_f = compile_expr e_f in
-  let stmts_ev, expr_ev = compile_expr e_ev in
+and compile_fieldassign (e_eo : E_Expr.t) (e_f : E_Expr.t) (e_ev : E_Expr.t)
+    (at : region) : Stmt.t list =
+  let stmts_eo, expr_eo = compile_expr at e_eo in
+  let stmts_f, expr_f = compile_expr at e_f in
+  let stmts_ev, expr_ev = compile_expr at e_ev in
   stmts_eo @ stmts_f @ stmts_ev
   @ [ Stmt.FieldAssign (expr_eo, expr_f, expr_ev) @@ at ]
 
-and compile_fielddelete (expr : E_Expr.t) (field : E_Expr.t) (at : region) : Stmt.t list =
-  let stmts_expr, expr' = compile_expr expr in
-  let stmts_field, field' = compile_expr field in
+and compile_fielddelete (expr : E_Expr.t) (field : E_Expr.t) (at : region) :
+    Stmt.t list =
+  let stmts_expr, expr' = compile_expr at expr in
+  let stmts_field, field' = compile_expr at field in
   stmts_expr @ stmts_field @ [ Stmt.FieldDelete (expr', field') @@ at ]
 
-and compile_exprstmt (expr : E_Expr.t) : Stmt.t list =
-  let stmts_expr, _ = compile_expr expr in
+and compile_exprstmt (expr : E_Expr.t) (at : region) : Stmt.t list =
+  let stmts_expr, _ = compile_expr at expr in
   stmts_expr
 
-and compile_repeatuntil (stmt : E_Stmt.t) (expr : E_Expr.t) (at : region) : Stmt.t list =
+and compile_repeatuntil (stmt : E_Stmt.t) (expr : E_Expr.t) (at : region) :
+    Stmt.t list =
   let stmts_stmt = compile_stmt stmt in
-  let stmts_expr, expr' = compile_expr expr in
+  let stmts_expr, expr' = compile_expr at expr in
   let not_expr = Expr.UnOpt (Not, expr') in
   let stmts = stmts_stmt @ stmts_expr in
   stmts @ [ Stmt.While (not_expr, Stmt.Block stmts @@ stmt.at) @@ at ]
 
 and compile_patv (expr : Expr.t) (pname : string) (pat_v : E_Pat_v.t)
-    (var_b : string) : string list * Stmt.t list * Stmt.t list =
+    (var_b : string) (at : region) : string list * Stmt.t list * Stmt.t list =
   match pat_v with
   | PatVar v ->
-      ( [],
-        [],
-        [ Stmt.FieldLookup (v, expr, Expr.Val (Val.Str pname)) @@ no_region ] )
+      ([], [], [ Stmt.FieldLookup (v, expr, Expr.Val (Val.Str pname)) @@ at ])
   | PatVal v ->
       let b = generate_fresh_var () in
       let w = generate_fresh_var () in
-      let stmt =
-        Stmt.FieldLookup (w, expr, Expr.Val (Val.Str pname)) @@ no_region
-      in
+      let stmt = Stmt.FieldLookup (w, expr, Expr.Val (Val.Str pname)) @@ at in
       let stmt_assign =
-        Stmt.Assign (b, Expr.BinOpt (Eq, Expr.Var w, Expr.Val v)) @@ no_region
+        Stmt.Assign (b, Expr.BinOpt (Eq, Expr.Var w, Expr.Val v)) @@ at
       in
       ([ b ], [ stmt; stmt_assign ], [])
   | PatNone ->
-      let stmt =
-        Stmt.Assign (var_b, Expr.UnOpt (Not, Expr.Var var_b)) @@ no_region
-      in
+      let stmt = Stmt.Assign (var_b, Expr.UnOpt (Not, Expr.Var var_b)) @@ at in
       ([], [ stmt ], [])
 
-and compile_pn_pat (expr : Expr.t) ((pn, patv) : string * E_Pat_v.t) :
-    string list * Stmt.t list * Stmt.t list =
+and compile_pn_pat (expr : Expr.t) ((pn, patv) : string * E_Pat_v.t)
+    (at : region) : string list * Stmt.t list * Stmt.t list =
   let fresh_b = generate_fresh_var () in
   let in_stmt =
-    Stmt.AssignInObjCheck (fresh_b, Expr.Val (Val.Str pn), expr) @@ no_region
+    Stmt.AssignInObjCheck (fresh_b, Expr.Val (Val.Str pn), expr) @@ at
   in
-  let bs, stmts, stmts' = compile_patv expr pn patv fresh_b in
+  let bs, stmts, stmts' = compile_patv expr pn patv fresh_b at in
   (fresh_b :: bs, in_stmt :: stmts, stmts')
 
-and compile_pat (expr : Expr.t) (e_pat : E_Pat.t) :
+and compile_pat (expr : Expr.t) (e_pat : E_Pat.t) (at : region) :
     string list * Stmt.t list * Stmt.t list =
   match e_pat with
   | DefaultPat -> ([], [], [])
@@ -502,15 +494,15 @@ and compile_pat (expr : Expr.t) (e_pat : E_Pat.t) :
       let bs, pre_stmts, in_stmts =
         List.fold_left
           (fun (bs, pre_stmts, in_stmts) pn_pat ->
-            let bs', pre_stmts', in_stmts' = compile_pn_pat expr pn_pat in
+            let bs', pre_stmts', in_stmts' = compile_pn_pat expr pn_pat at in
             (bs @ bs', pre_stmts @ pre_stmts', in_stmts @ in_stmts'))
           ([], [], []) pn_pats
       in
       (bs, pre_stmts, in_stmts)
 
-and compile_pats_stmts (expr : Expr.t) ((pat, stmt) : E_Pat.t * E_Stmt.t) :
-    Stmt.t list * Expr.t * Stmt.t list =
-  let bs, pre_pat_stmts, in_pat_stmts = compile_pat expr pat in
+and compile_pats_stmts (at : region) (expr : Expr.t)
+    ((pat, stmt) : E_Pat.t * E_Stmt.t) : Stmt.t list * Expr.t * Stmt.t list =
+  let bs, pre_pat_stmts, in_pat_stmts = compile_pat expr pat at in
   let stmts = compile_stmt stmt in
   let and_bs =
     Expr.NOpt
@@ -519,19 +511,18 @@ and compile_pats_stmts (expr : Expr.t) ((pat, stmt) : E_Pat.t * E_Stmt.t) :
   let if_stmt = in_pat_stmts @ stmts in
   (pre_pat_stmts, and_bs, if_stmt)
 
-and compile_matchwith (expr : E_Expr.t) (pats_stmts : (E_Pat.t * E_Stmt.t) list) (at : region)
-    : Stmt.t list =
-  let stmts_expr, expr' = compile_expr expr in
+and compile_matchwith (expr : E_Expr.t) (pats_stmts : (E_Pat.t * E_Stmt.t) list)
+    (at : region) : Stmt.t list =
+  let stmts_expr, expr' = compile_expr at expr in
   let pat_stmts_bs_stmts_list =
-    List.rev (List.map (compile_pats_stmts expr') pats_stmts)
+    List.rev (List.map (compile_pats_stmts at expr') pats_stmts)
   in
   let chained_ifs =
     match pat_stmts_bs_stmts_list with
     | [] -> []
     | (pat_stmts, bs_expr, stmts) :: rest ->
         let last_if =
-          pat_stmts
-          @ [ Stmt.If (bs_expr, Stmt.Block stmts @@ at, None) @@ at ]
+          pat_stmts @ [ Stmt.If (bs_expr, Stmt.Block stmts @@ at, None) @@ at ]
         in
         List.fold_left
           (fun acc (ps, be, ss) ->
@@ -544,56 +535,56 @@ and compile_matchwith (expr : E_Expr.t) (pats_stmts : (E_Pat.t * E_Stmt.t) list)
   in
   stmts_expr @ chained_ifs
 
-and compile_expr (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
-  let c = compile_expr in
-  let cs = List.map compile_expr in
+and compile_expr (at : region) (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   match e_expr with
   | Val x -> ([], Expr.Val x)
   | Var x -> ([], Expr.Var x)
-  | GVar x -> compile_gvar x
+  | GVar x -> compile_gvar x at
   | Const c -> compile_const c
   | Symbolic (t, x) ->
-      let stmts, x' = compile_expr x in
+      let stmts, x' = compile_expr at x in
       (stmts, Expr.Symbolic (t, x'))
   | BinOpt (op, e1, e2) ->
-      let stmts_1, e1' = compile_expr e1 in
-      let stmts_2, e2' = compile_expr e2 in
-      compile_binopt op (stmts_1, e1') (stmts_2, e2')
+      let stmts_1, e1' = compile_expr at e1 in
+      let stmts_2, e2' = compile_expr at e2 in
+      compile_binopt op (stmts_1, e1') (stmts_2, e2') at
   | TriOpt (op, e1, e2, e3) ->
-      let stmts_1, e1' = compile_expr e1 in
-      let stmts_2, e2' = compile_expr e2 in
-      let stmts_3, e3' = compile_expr e3 in
-      compile_triopt op (stmts_1, e1') (stmts_2, e2') (stmts_3, e3')
-  | EBinOpt (e_op, e_e1, e_e2) -> compile_ebinopt e_op e_e1 e_e2
-  | UnOpt (op, e_e) -> compile_unopt op e_e
-  | NOpt (op, e_es) -> compile_nopt op e_es
-  | NewObj e_fes -> compile_newobj e_fes
-  | Lookup (e_e, e_f) -> compile_lookup e_e e_f
-  | Curry (f, es) -> compile_curry (c f) (cs es)
+      let stmts_1, e1' = compile_expr at e1 in
+      let stmts_2, e2' = compile_expr at e2 in
+      let stmts_3, e3' = compile_expr at e3 in
+      compile_triopt op (stmts_1, e1') (stmts_2, e2') (stmts_3, e3') at
+  | EBinOpt (e_op, e_e1, e_e2) -> compile_ebinopt e_op e_e1 e_e2 at
+  | UnOpt (op, e_e) -> compile_unopt op e_e at
+  | NOpt (op, e_es) -> compile_nopt op e_es at
+  | NewObj e_fes -> compile_newobj e_fes at
+  | Lookup (e_e, e_f) -> compile_lookup e_e e_f at
+  | Curry (f, es) ->
+      let f' = compile_expr at f and es' = List.map (compile_expr at) es in
+      compile_curry f' es' at
   | Call (f, e_es, g) ->
-      let ret_f = compile_expr f in
-      let ret_es = List.map compile_expr e_es in
-      compile_call ret_f ret_es g
+      let ret_f = compile_expr at f in
+      let ret_es = List.map (compile_expr at) e_es in
+      compile_call ret_f ret_es g at
   | ECall (f, es) ->
-      let ret_es = List.map compile_expr es in
-      compile_e_call f ret_es
+      let ret_es = List.map (compile_expr at) es in
+      compile_e_call f ret_es at
 
 and compile_print (e : E_Expr.t) (at : region) : Stmt.t list =
-  let stmts_expr, e' = compile_expr e in
+  let stmts_expr, e' = compile_expr at e in
   stmts_expr @ [ Stmt.Print e' @@ at ]
 
 and compile_assume (e : E_Expr.t) (at : region) : Stmt.t list =
-  let stmts, e' = compile_expr e in
+  let stmts, e' = compile_expr at e in
   stmts @ [ Stmt.Assume e' @@ at ]
 
 and compile_assert (e : E_Expr.t) (at : region) : Stmt.t list =
-  let stmts, e' = compile_expr e in
+  let stmts, e' = compile_expr at e in
   stmts @ [ Stmt.Assert e' @@ at ]
 
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   let compile_cases =
     List.map (fun (e, s) ->
-        let stmts_e, e' = compile_expr e in
+        let stmts_e, e' = compile_expr e_stmt.at e in
         let stmts_s = compile_stmt s in
         (stmts_e, e', stmts_s))
   in
@@ -604,8 +595,8 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | Wrapper (_, s) -> compile_stmt s
   | Assign (lval, rval) -> compile_assign lval rval e_stmt.at
   | GlobAssign (x, e) ->
-      let stmts_e, e' = compile_expr e in
-      compile_glob_assign x stmts_e e'
+      let stmts_e, e' = compile_expr e_stmt.at e in
+      compile_glob_assign x stmts_e e' e_stmt.at
   | Block e_stmts -> compile_block e_stmts
   | If (e_e, e_s1, e_s2, _, _) -> compile_if e_e e_s1 e_s2 e_stmt.at
   | EIf (ifs, final_else) ->
@@ -615,7 +606,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
       let ifs' = List.rev ifs in
       List.fold_left
         (fun acc (e, s, _) ->
-          let stmts_e, e' = compile_expr e in
+          let stmts_e, e' = compile_expr s.at e in
           let stmts_s = compile_stmt s in
           stmts_e
           @ [
@@ -636,8 +627,8 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
         Stmt.Assign (idx_str, Expr.BinOpt (Plus, Var idx_str, Val (Int 1)))
         @@ e_stmt.at
       in
-      let stmts_e_test, e_test' = compile_expr e_test in
-      let stmts_e, e_e' = compile_expr e_e in
+      let stmts_e_test, e_test' = compile_expr e_stmt.at e_test in
+      let stmts_e, e_e' = compile_expr e_stmt.at e_e in
       let stmts_before =
         (Stmt.Assign (idx_str, Val (Int 0)) @@ e_stmt.at)
         :: [ Stmt.Assign (len_str, Expr.UnOpt (ListLen, e_e')) @@ e_stmt.at ]
@@ -657,7 +648,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
         ]
   | FieldAssign (e_eo, e_f, e_ev) -> compile_fieldassign e_eo e_f e_ev e_stmt.at
   | FieldDelete (e_e, e_f) -> compile_fielddelete e_e e_f e_stmt.at
-  | ExprStmt e_e -> compile_exprstmt e_e
+  | ExprStmt e_e -> compile_exprstmt e_e e_stmt.at
   | RepeatUntil (e_s, e_e, _) -> compile_repeatuntil e_s e_e e_stmt.at
   | MatchWith (e_e, e_pats_e_stmts) ->
       compile_matchwith e_e e_pats_e_stmts e_stmt.at
@@ -669,18 +660,18 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | MacroApply (_, _) ->
       invalid_arg "Macros are not valid compilable statements."
   | Throw e_e ->
-      let ret_e = compile_expr e_e in
+      let ret_e = compile_expr e_stmt.at e_e in
       compile_throw ret_e e_stmt.at
   | Fail e_e ->
-      let ret_e = compile_expr e_e in
+      let ret_e = compile_expr e_stmt.at e_e in
       compile_fail ret_e e_stmt.at
   | Switch (e, cases, so, _) ->
-      let ret_e = compile_expr e in
+      let ret_e = compile_expr e_stmt.at e in
       let ret_cases = compile_cases cases in
       let ret_so = Option.map_default compile_stmt [] so in
       compile_switch ret_e ret_cases ret_so e_stmt.at
   | Return e_e ->
-      let ret_e = compile_expr e_e in
+      let ret_e = compile_expr e_stmt.at e_e in
       compile_return ret_e e_stmt.at
 
 (*
