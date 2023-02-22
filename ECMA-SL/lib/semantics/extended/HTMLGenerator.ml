@@ -134,7 +134,7 @@ let rec generate_html (std : std_t) : string =
 
 let mapper (new_funcs : (string, E_Func.t) Hashtbl.t) (s : E_Stmt.t) : E_Stmt.t
     =
-  match s with
+  match s.Source.it with
   | MatchWith (e, pats_stmts) ->
       (* Filter MatchWith statements that have metadata *)
       let pats_stmts_filtered =
@@ -190,7 +190,7 @@ let mapper (new_funcs : (string, E_Func.t) Hashtbl.t) (s : E_Stmt.t) : E_Stmt.t
           | _ -> invalid_arg "Unexpected E_Pat")
         pats_stmts_filtered;
       (* Replace MatchWith by a Skip statement *)
-      Skip
+      { Source.it = Skip; Source.at = s.Source.at }
   | _ -> s
 
 let parse_html_rules (file_name : string) : unit =
