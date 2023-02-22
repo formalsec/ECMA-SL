@@ -2,10 +2,24 @@
 
 
 %{
-  open E_Stmt
-  open Operators
+open E_Stmt
+open Source
+open Operators
 
-  let fresh_lambda_id_gen = String_utils.make_fresh_var_generator "__lambda__"
+let fresh_lambda_id_gen = String_utils.make_fresh_var_generator "__lambda__"
+
+let position_to_pos position =
+  {
+    file = position.Lexing.pos_fname;
+    line = position.Lexing.pos_lnum;
+    column = position.Lexing.pos_cnum - position.Lexing.pos_bol;
+  }
+
+let position_to_region pos1 pos2 =
+  { left = position_to_pos pos1; right = position_to_pos pos2 }
+
+let at (startpos, endpos) =
+  position_to_region startpos endpos
 %}
 
 (*
@@ -473,32 +487,33 @@ fv_target:
 (* { s1; ...; sn } *)
 e_block_target:
   | LBRACE; stmts = separated_list (SEMICOLON, e_stmt_target); RBRACE;
-    { if List.length stmts = 1 then List.nth stmts 0 else E_Stmt.Block stmts }
+    { if List.length stmts = 1 then List.nth stmts 0
+      else E_Stmt.Block stmts @@ at $sloc }
 
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return | repeat s until e*)
 e_stmt_target:
   | PRINT; e = e_expr_target;
-    { E_Stmt.Print e }
+    { E_Stmt.Print e @@ at $sloc }
   | WRAPPER; meta = e_stmt_metadata_target; s = e_block_target;
-    { E_Stmt.Wrapper (meta, s) }
+    { E_Stmt.Wrapper (meta, s) @@ at $sloc }
   | ASSUME; e = e_expr_target;
-    { E_Stmt.Assume e }
+    { E_Stmt.Assume e @@ at $sloc }
   | ASSERT; e = e_expr_target;
-    { E_Stmt.Assert e }
+    { E_Stmt.Assert e @@ at $sloc }
   | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;
-    { E_Stmt.FieldAssign (e1, E_Expr.Val (Val.Str f), e2) }
+    { E_Stmt.FieldAssign (e1, E_Expr.Val (Val.Str f), e2) @@ at $sloc }
   | e1 = e_expr_target; LBRACK; f = e_expr_target; RBRACK; DEFEQ; e2 = e_expr_target;
-    { E_Stmt.FieldAssign (e1, f, e2) }
+    { E_Stmt.FieldAssign (e1, f, e2) @@ at $sloc }
   | DELETE; e = e_expr_target; PERIOD; f = VAR;
-    { E_Stmt.FieldDelete (e, E_Expr.Val (Val.Str f)) }
+    { E_Stmt.FieldDelete (e, E_Expr.Val (Val.Str f)) @@ at $sloc }
   | DELETE; e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
-    { E_Stmt.FieldDelete (e, f) }
+    { E_Stmt.FieldDelete (e, f) @@ at $sloc }
   | SKIP;
-    { E_Stmt.Skip }
+    { E_Stmt.Skip @@ at $sloc }
   | v = VAR; DEFEQ; e = e_expr_target;
-    { E_Stmt.Assign (v, e) }
+    { E_Stmt.Assign (v, e) @@ at $sloc }
   | v = GVAR; DEFEQ; e = e_expr_target;
-    { E_Stmt.GlobAssign (v, e) }
+    { E_Stmt.GlobAssign (v, e) @@ at $sloc }
   | e_stmt = ifelse_target;
     { e_stmt }
   | IF; LPAREN; e1 = e_expr_target; RPAREN; meta1 = option(e_stmt_metadata_target); s1 = e_block_target;
@@ -506,41 +521,41 @@ e_stmt_target:
     {
       let meta1' = Option.default [] meta1 in
       let ess' = (e1, s1, meta1')::es2::ess in
-      E_Stmt.EIf (ess', else_stmt)
+      E_Stmt.EIf (ess', else_stmt) @@ at $sloc
     }
   | WHILE; LPAREN; e = e_expr_target; RPAREN; s = e_block_target;
-    { E_Stmt.While (e, s) }
+    { E_Stmt.While (e, s) @@ at $sloc }
   | FOREACH; LPAREN; x = VAR; COLON; e = e_expr_target; RPAREN; s = e_block_target;
-    { E_Stmt.ForEach (x, e, s, [], None) }
+    { E_Stmt.ForEach (x, e, s, [], None) @@ at $sloc }
   | FOREACH; LPAREN; x = VAR; COLON; e = e_expr_target; RPAREN; meta = e_stmt_metadata_target; var_meta_opt = option(delimited(LBRACK, var_metadata_target, RBRACK)); s = e_block_target;
-    { E_Stmt.ForEach (x, e, s, meta, var_meta_opt) }
+    { E_Stmt.ForEach (x, e, s, meta, var_meta_opt) @@ at $sloc }
   | RETURN; e = e_expr_target;
-    { E_Stmt.Return e }
+    { E_Stmt.Return e @@ at $sloc }
   | RETURN;
     /* { E_Stmt.Return (E_Expr.Val (Val.Void)) } */
-    { E_Stmt.Return (E_Expr.Val Val.Null) }
+    { E_Stmt.Return (E_Expr.Val Val.Null) @@ at $sloc }
   | THROW; e = e_expr_target;
-    { E_Stmt.Throw e }
+    { E_Stmt.Throw e @@ at $sloc }
   | FAIL; e = e_expr_target;
-    { E_Stmt.Fail e }
+    { E_Stmt.Fail e @@ at $sloc }
   | e = e_expr_target;
-    { E_Stmt.ExprStmt e }
+    { E_Stmt.ExprStmt e @@ at $sloc }
   | REPEAT; meta = option(e_stmt_metadata_target); s = e_block_target;
-    { E_Stmt.RepeatUntil (s, E_Expr.Val (Val.Bool false), Option.map_default (fun x -> x) [] meta) }
+    { E_Stmt.RepeatUntil (s, E_Expr.Val (Val.Bool false), Option.map_default (fun x -> x) [] meta) @@ at $sloc }
   | REPEAT; meta = option(e_stmt_metadata_target); s = e_block_target; UNTIL; e = e_expr_target;
-    { E_Stmt.RepeatUntil (s, e, Option.map_default (fun x -> x) [] meta) }
+    { E_Stmt.RepeatUntil (s, e, Option.map_default (fun x -> x) [] meta) @@ at $sloc }
   | MATCH; e = e_expr_target; WITH; PIPE; pat_stmts = separated_list (PIPE, pat_stmt_target);
-    { E_Stmt.MatchWith (e, pat_stmts) }
+    { E_Stmt.MatchWith (e, pat_stmts) @@ at $sloc }
   | x = VAR; DEFEQ; LAMBDA; LPAREN;  xs = separated_list (COMMA, VAR); RPAREN; LBRACK; ys = separated_list (COMMA, VAR); RBRACK; s = e_block_target;
-    { E_Stmt.Lambda (x, fresh_lambda_id_gen (), xs, ys, s) }
+    { E_Stmt.Lambda (x, fresh_lambda_id_gen (), xs, ys, s) @@ at $sloc }
   | AT_SIGN; m = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
-    { E_Stmt.MacroApply (m, es) }
+    { E_Stmt.MacroApply (m, es) @@ at $sloc }
   | SWITCH; LPAREN; e=e_expr_target; RPAREN; meta = option(case_metadata_target); LBRACE; cases = list (switch_case_target); RBRACE
     { let m = Option.default "" meta in
-      E_Stmt.Switch(e, cases, None, m) }
+      E_Stmt.Switch(e, cases, None, m) @@ at $sloc }
   | SWITCH; LPAREN; e=e_expr_target; RPAREN; meta = option(case_metadata_target); LBRACE; cases = list (switch_case_target); SDEFAULT; COLON; s = e_stmt_target; RBRACE
     { let m = Option.default "" meta in
-      E_Stmt.Switch(e, cases, Some s, m) }
+      E_Stmt.Switch(e, cases, Some s, m) @@ at $sloc }
 
 switch_case_target:
   | CASE; e = e_expr_target; COLON; s = e_block_target;
@@ -556,12 +571,12 @@ ifelse_target:
     {
       let meta_if' = Option.default [] meta_if in
       let meta_else' = Option.default [] meta_else in
-      E_Stmt.If (e, s1, Some s2, meta_if', meta_else')
+      E_Stmt.If (e, s1, Some s2, meta_if', meta_else') @@ at $sloc
     }
   | IF; LPAREN; e = e_expr_target; RPAREN; meta_if = option(e_stmt_metadata_target); s = e_block_target;
     {
       let meta_if' = Option.default [] meta_if in
-      E_Stmt.If (e, s, None, meta_if', [])
+      E_Stmt.If (e, s, None, meta_if', []) @@ at $sloc
     }
 
 elif_target:

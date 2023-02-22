@@ -1014,6 +1014,7 @@ end
 
 module E_Stmt = struct
   include E_Stmt
+  open Source
   open HTMLHashtables.E_Stmt
 
   type ctxt_t =
@@ -1053,7 +1054,7 @@ module E_Stmt = struct
 
   let is_basic_if (s : t) : bool =
     is_basic s
-    || match s with If (e, s1, None, _, _) -> is_basic s1 | _ -> false
+    || match s.it with If (e, s1, None, _, _) -> is_basic s1 | _ -> false
 
   let is_special_expr (e : E_Expr.t) : bool =
     match e with
@@ -1065,18 +1066,18 @@ module E_Stmt = struct
   let is_basic_and_not_call (s : t) : bool =
     is_basic_if s
     &&
-    match s with
+    match s.it with
     | ExprStmt e -> ( match e with E_Expr.Call _ -> false | _ -> true)
     | _ -> true
 
   let is_special_assign_expr (s : t) : bool =
-    match s with Assign (_, e) when is_special_expr e -> true | _ -> false
+    match s.it with Assign (_, e) when is_special_expr e -> true | _ -> false
 
   let is_let_stmt (s : t) : bool =
-    match s with Assign (x, e) -> true | _ -> false
+    match s.it with Assign (x, e) -> true | _ -> false
 
   let swappable (s : t) : bool =
-    match s with
+    match s.it with
     | MacroApply (f, _) -> Hashtbl.mem swappable_hashtable_html f
     | _ -> false
 
@@ -1089,7 +1090,7 @@ module E_Stmt = struct
       | Append s -> (CNone, "", s, "")
       | Replace s -> (CNone, "", "", s)
     in
-    match stmt with
+    match stmt.it with
     | Skip | Print _ | GlobAssign _ | Fail _ -> ("", ctxt')
     | MatchWith (_, e_pats) ->
         invalid_arg "MatchWith"
@@ -1440,10 +1441,12 @@ module E_Stmt = struct
     | Switch (e, es_ss, sd, meta) ->
         let table_caption = meta in
         let contain_ifs (stmts : t list) : bool =
-          List.exists (fun s -> match s with If _ -> true | _ -> false) stmts
+          List.exists
+            (fun s -> match s.it with If _ -> true | _ -> false)
+            stmts
         in
         let cell_data (s : t) =
-          match s with
+          match s.it with
           | Block stmts when not (contain_ifs stmts) ->
               sprintf
                 "<p>Apply the following steps:</p><ol class=\"proc\">%s</ol>"

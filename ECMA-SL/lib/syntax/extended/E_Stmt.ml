@@ -1,6 +1,10 @@
+open Source
+
 type metadata_t = { where : string; html : string }
 
-type t =
+type t = t' Source.phrase
+
+and t' =
   | Skip
   | Fail of E_Expr.t
   | Throw of E_Expr.t
@@ -29,7 +33,9 @@ type t =
   | Lambda of string * string * string list * string list * t
 
 let is_basic (s : t) : bool =
-  match s with If _ | While _ | RepeatUntil _ | Block _ -> false | _ -> true
+  match s.it with
+  | If _ | While _ | RepeatUntil _ | Block _ -> false
+  | _ -> true
 
 let rec str (stmt : t) : string =
   let str_cases cases =
@@ -45,7 +51,7 @@ let rec str (stmt : t) : string =
     Option.map_default (fun s -> Printf.sprintf "default: %s" (str s)) ""
   in
 
-  match stmt with
+  match stmt.it with
   | Skip -> ""
   | Fail e -> "fail " ^ E_Expr.str e
   | Throw e -> "throw " ^ E_Expr.str e
@@ -105,7 +111,7 @@ let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
   in
 
   let s' =
-    match s with
+    match s.it with
     | Skip -> Skip
     | Fail e -> Fail (fe e)
     | Throw e -> Throw (fe e)
@@ -135,7 +141,7 @@ let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
         Switch (fe e, f_cases cases, Option.map (map ~fe f) so, meta)
     | Lambda (z, id, xs, ys, s) -> Lambda (z, id, xs, ys, map ~fe f s)
   in
-  f s'
+  f (s' @@ s.at)
 
 let subst (sbst : E_Expr.subst_t) (s : t) : t =
   (*Printf.printf "Applying the subst: %s\nOn statement:\n%s\n" (E_Expr.string_of_subst sbst) (str s); *)
@@ -154,7 +160,7 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
   if not (is_rec s) then ret
   else
     let ret_rec =
-      match s with
+      match s.it with
       | Skip | Print _ | Wrapper _ | Assign _ | GlobAssign _ | Return _
       | FieldAssign _ | FieldDelete _ | ExprStmt _ | Throw _ | Fail _ | Assert _
       | Assume _ ->
@@ -178,7 +184,9 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
 
 let lambdas (s : t) : (string * string list * string list * t) list =
   let f_l s =
-    match s with Lambda (_, fid, xs, ys, s) -> [ (fid, ys, xs, s) ] | _ -> []
+    match s.it with
+    | Lambda (_, fid, xs, ys, s) -> [ (fid, ys, xs, s) ]
+    | _ -> []
   in
   let f_rec s = true in
   to_list f_rec f_l s
