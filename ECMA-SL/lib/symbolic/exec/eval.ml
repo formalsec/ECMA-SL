@@ -1,5 +1,8 @@
 open Func
 open Source
+module Crash = Error.Make ()
+module Runtime = Error.Make ()
+module Invalid_arg = Error.Make ()
 
 type config = {
   prog : Prog.t;
@@ -21,57 +24,60 @@ and stack = Sstore.t Call_stack.t
 and state = Sval.t Heap.t * Sstore.t * stack * func
 and pc = Sval.t list
 
-exception Runtime_error of string
-
-let rte (msg : string) = raise (Runtime_error msg)
 let is_fail (o : outcome) : bool = match o with Failure _ -> true | _ -> false
 let is_final (o : outcome) : bool = match o with Final _ -> true | _ -> false
 let update (c : config) code state pc : config = { c with code; state; pc }
 
-let loc (v : Sval.t) : string =
-  match v with Sval.Loc l -> l | _ -> rte "Invalid location!"
+let loc (at : region) (v : Sval.t) : string =
+  match v with
+  | Sval.Loc l -> l
+  | _ -> Invalid_arg.error at "Sval is not a 'loc' expression"
 
-let field (v : Sval.t) : string =
-  match v with Sval.Str f -> f | _ -> rte "Invalid field!"
+let field (at : region) (v : Sval.t) : string =
+  match v with
+  | Sval.Str f -> f
+  | _ -> Invalid_arg.error at "Sval is not a 'field' expression"
 
-let func (v : Sval.t) : string * Sval.t list =
+let func (at : region) (v : Sval.t) : string * Sval.t list =
   match v with
   | Sval.Str x -> (x, [])
   | Sval.Curry (x, vs) -> (x, vs)
-  | _ -> rte "Wrong/Invalid function identifier"
+  | _ -> Invalid_arg.error at "Sval is not a 'func' identifier"
 
-let rec eval_expression (store : Sstore.t) (e : Expr.t) : Sval.t =
+let rec eval_expression ?(at = no_region) (store : Sstore.t) (e : Expr.t) :
+    Sval.t =
   match e with
   | Expr.Val n -> Sval.of_val n
   | Expr.Var x -> (
       match Sstore.find_opt store x with
       | Some v -> v
-      | None -> rte ("Cannot find var '" ^ x ^ "'"))
+      | None -> Runtime.error at ("Cannot find var '" ^ x ^ "'"))
   | Expr.UnOpt (op, e) ->
-      let v = eval_expression store e in
+      let v = eval_expression ~at store e in
       Eval_operators.eval_unop op v
   | Expr.BinOpt (op, e1, e2) ->
-      let v1 = eval_expression store e1 and v2 = eval_expression store e2 in
+      let v1 = eval_expression ~at store e1
+      and v2 = eval_expression ~at store e2 in
       Eval_operators.eval_binop op v1 v2
   | Expr.TriOpt (op, e1, e2, e3) ->
-      let v1 = eval_expression store e1
-      and v2 = eval_expression store e2
-      and v3 = eval_expression store e3 in
+      let v1 = eval_expression ~at store e1
+      and v2 = eval_expression ~at store e2
+      and v3 = eval_expression ~at store e3 in
       Eval_operators.eval_triop op v1 v2 v3
   | Expr.NOpt (op, es) ->
-      let vs = List.map (eval_expression store) es in
+      let vs = List.map (eval_expression ~at store) es in
       Eval_operators.eval_nop op vs
   | Expr.Curry (f, es) -> (
-      let f' = eval_expression store f
-      and vs = List.map (eval_expression store) es in
+      let f' = eval_expression ~at store f
+      and vs = List.map (eval_expression ~at store) es in
       match f' with
       | Sval.Str s -> Sval.Curry (s, vs)
-      | _ -> rte "eval_expression: Illegal 'Curry' expresion!")
+      | _ -> Invalid_arg.error at "Sval is not a 'Curry' identifier")
   | Expr.Symbolic (t, x) ->
       let x' =
-        match eval_expression store x with
+        match eval_expression ~at store x with
         | Sval.Str s -> s
-        | _ -> rte "invalid symbolic variable name"
+        | _ -> Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
       in
       Sval.Symbolic (t, x')
 
@@ -79,7 +85,9 @@ let step (c : config) : config list =
   let { prog; code; state; pc; solver } = c in
   let heap, store, stack, f = state in
   let stmts =
-    match code with Cont stmts -> stmts | _ -> rte "step: Empty continuation!"
+    match code with
+    | Cont stmts -> stmts
+    | _ -> Crash.error no_region "Empty continuation!"
   in
   let s = List.hd stmts in
   match s.it with
@@ -92,32 +100,32 @@ let step (c : config) : config list =
       print_endline (Expr.str e);
       [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Fail e ->
-      [ update c (Error (Some (eval_expression store e))) state pc ]
+      [ update c (Error (Some (eval_expression ~at:s.at store e))) state pc ]
   | Stmt.Abort e ->
-      [ update c (Final (Some (eval_expression store e))) state pc ]
-  | Stmt.Assume e when Sval.Bool true = eval_expression store e ->
+      [ update c (Final (Some (eval_expression ~at:s.at store e))) state pc ]
+  | Stmt.Assume e when Sval.Bool true = eval_expression ~at:s.at store e ->
       [ update c (Cont (List.tl stmts)) state pc ]
-  | Stmt.Assume e when Sval.Bool false = eval_expression store e -> []
+  | Stmt.Assume e when Sval.Bool false = eval_expression ~at:s.at store e -> []
   | Stmt.Assume e -> (
-      let v = eval_expression store e in
+      let v = eval_expression ~at:s.at store e in
       try
         if not (Encoding.check solver (v :: pc)) then []
         else [ update c (Cont (List.tl stmts)) state (v :: pc) ]
       with Encoding.Unknown -> [ update c (Unknown (Some v)) state (v :: pc) ])
-  | Stmt.Assert e when Sval.Bool true = eval_expression store e ->
+  | Stmt.Assert e when Sval.Bool true = eval_expression ~at:s.at store e ->
       [ update c (Cont (List.tl stmts)) state pc ]
-  | Stmt.Assert e when Sval.Bool false = eval_expression store e ->
-      [ update c (Failure (Some (eval_expression store e))) state pc ]
+  | Stmt.Assert e when Sval.Bool false = eval_expression ~at:s.at store e ->
+      [ update c (Failure (Some (eval_expression ~at:s.at store e))) state pc ]
   | Stmt.Assert e -> (
-      let v = eval_expression store e in
-      let v' = eval_expression store (Expr.UnOpt (Operators.Not, e)) in
+      let v = eval_expression ~at:s.at store e in
+      let v' = eval_expression ~at:s.at store (Expr.UnOpt (Operators.Not, e)) in
       try
         if Encoding.check solver (v' :: pc) then
           [ update c (Failure (Some v)) state pc ]
         else [ update c (Cont (List.tl stmts)) state pc ]
       with Encoding.Unknown -> [ update c (Unknown (Some v)) state pc ])
   | Stmt.Assign (x, e) ->
-      let v = eval_expression store e in
+      let v = eval_expression ~at:s.at store e in
       [
         update c
           (Cont (List.tl stmts))
@@ -125,22 +133,26 @@ let step (c : config) : config list =
           pc;
       ]
   | Stmt.Block blk -> [ update c (Cont (blk @ List.tl stmts)) state pc ]
-  | Stmt.If (br, blk, _) when Sval.Bool true = eval_expression store br ->
+  | Stmt.If (br, blk, _) when Sval.Bool true = eval_expression ~at:s.at store br
+    ->
       let cont =
         match blk.it with
         | Stmt.Block b -> b @ ((Stmt.Merge @@ blk.at) :: List.tl stmts)
-        | _ -> rte "Malformed if statement 'then' block!"
+        | _ -> Crash.error s.at "Malformed if statement 'then' block!"
       in
       [ update c (Cont cont) state pc ]
-  | Stmt.If (br, _, blk) when Sval.Bool false = eval_expression store br ->
+  | Stmt.If (br, _, blk)
+    when Sval.Bool false = eval_expression ~at:s.at store br ->
       let cont =
         let t = List.tl stmts in
         match blk with None -> t | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: t
       in
       [ update c (Cont cont) state pc ]
   | Stmt.If (br, blk1, blk2) ->
-      let br_t = eval_expression store br
-      and br_f = eval_expression store (Expr.UnOpt (Operators.Not, br)) in
+      let br_t = eval_expression ~at:s.at store br
+      and br_f =
+        eval_expression ~at:s.at store (Expr.UnOpt (Operators.Not, br))
+      in
       let then_branch =
         try
           if not (Encoding.check solver (br_t :: pc)) then []
@@ -175,7 +187,7 @@ let step (c : config) : config list =
           state pc;
       ]
   | Stmt.Return e -> (
-      let v = eval_expression store e in
+      let v = eval_expression ~at:s.at store e in
       let frame, stack' = Call_stack.pop stack in
       match frame with
       | Call_stack.Intermediate (stmts', store', x, f') ->
@@ -184,8 +196,8 @@ let step (c : config) : config list =
           ]
       | Call_stack.Toplevel -> [ update c (Final (Some v)) state pc ])
   | Stmt.AssignCall (x, e, es) ->
-      let f', vs = func (eval_expression store e) in
-      let vs' = vs @ List.map (eval_expression store) es in
+      let f', vs = func s.at (eval_expression ~at:s.at store e) in
+      let vs' = vs @ List.map (eval_expression ~at:s.at store) es in
       let func = Prog.get_func prog f' in
       let stack' =
         Call_stack.push stack
@@ -194,7 +206,7 @@ let step (c : config) : config list =
       let store' = Sstore.create (List.combine (Prog.get_params prog f') vs') in
       [ update c (Cont [ func.body ]) (heap, store', stack', f') pc ]
   | Stmt.AssignECall (x, y, es) ->
-      (* TODO: *) rte "Eval: step: 'AssignECall' not implemented!"
+      Crash.error s.at "'AssignECall' not implemented!"
   | Stmt.AssignNewObj x ->
       let obj = Object.create () in
       let loc = Heap.insert heap obj in
@@ -205,8 +217,8 @@ let step (c : config) : config list =
           pc;
       ]
   | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
-      let loc = loc (eval_expression store e_loc)
-      and field = field (eval_expression store e_field) in
+      let loc = loc s.at (eval_expression ~at:s.at store e_loc)
+      and field = field s.at (eval_expression ~at:s.at store e_field) in
       let v = Sval.Bool (Option.is_some (Heap.get_field heap loc field)) in
       [
         update c
@@ -215,10 +227,10 @@ let step (c : config) : config list =
           pc;
       ]
   | Stmt.AssignObjToList (x, e) ->
-      let loc = loc (eval_expression store e) in
+      let loc = loc s.at (eval_expression ~at:s.at store e) in
       let v =
         match Heap.get heap loc with
-        | None -> rte ("AssignObjToList: '" ^ loc ^ "' not found in heap")
+        | None -> Runtime.error s.at ("'" ^ loc ^ "' not found in heap")
         | Some obj ->
             Sval.List
               (List.map
@@ -232,10 +244,10 @@ let step (c : config) : config list =
           pc;
       ]
   | Stmt.AssignObjFields (x, e) ->
-      let loc = loc (eval_expression store e) in
+      let loc = loc s.at (eval_expression ~at:s.at store e) in
       let v =
         match Heap.get heap loc with
-        | None -> rte ("AssignObjFields: '" ^ loc ^ "' not found in heap")
+        | None -> Runtime.error s.at ("'" ^ loc ^ "' not found in heap")
         | Some obj ->
             Sval.List (List.map (fun f -> Sval.Str f) (Object.get_fields obj))
       in
@@ -246,19 +258,19 @@ let step (c : config) : config list =
           pc;
       ]
   | Stmt.FieldAssign (e_loc, e_field, e_v) ->
-      let loc = loc (eval_expression store e_loc)
-      and field = field (eval_expression store e_field)
-      and v = eval_expression store e_v in
+      let loc = loc s.at (eval_expression ~at:s.at store e_loc)
+      and field = field s.at (eval_expression ~at:s.at store e_field)
+      and v = eval_expression ~at:s.at store e_v in
       Heap.set_field heap loc field v;
       [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.FieldDelete (e_loc, e_field) ->
-      let loc = loc (eval_expression store e_loc)
-      and field = field (eval_expression store e_field) in
+      let loc = loc s.at (eval_expression ~at:s.at store e_loc)
+      and field = field s.at (eval_expression ~at:s.at store e_field) in
       Heap.delete_field heap loc field;
       [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.FieldLookup (x, e_loc, e_field) ->
-      let loc = loc (eval_expression store e_loc)
-      and field = field (eval_expression store e_field) in
+      let loc = loc s.at (eval_expression ~at:s.at store e_loc)
+      and field = field s.at (eval_expression ~at:s.at store e_field) in
       let v =
         Option.default (Sval.Symbol "undefined") (Heap.get_field heap loc field)
       in
@@ -269,7 +281,7 @@ let step (c : config) : config list =
           pc;
       ]
 
-(* Credit: Thanks to Joao Borges for writing this code *)
+(* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
 module type Work_list = sig
   type 'a t
 
@@ -290,7 +302,7 @@ module Strategy (L : Work_list) = struct
     while not (!err || L.is_empty w) do
       let c = L.pop w in
       match c.code with
-      | Cont [] -> rte "eval: Empty continuation!"
+      | Cont [] -> Crash.error no_region "Empty continuation!"
       | Cont _ -> List.iter (fun c -> L.push c w) (step c)
       | Error v | Final v | Unknown v -> out := c :: !out
       | Failure v ->
@@ -320,9 +332,8 @@ module DFS = Strategy (Stack)
 module BFS = Strategy (Queue)
 module RND = Strategy (RandArray)
 
-let invoke (prog : Prog.t) (f : func) (eval : config -> config list) :
+let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
     config list =
-  let func = Prog.get_func prog f in
   let heap = Heap.create ()
   and store = Sstore.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
@@ -330,7 +341,7 @@ let invoke (prog : Prog.t) (f : func) (eval : config -> config list) :
     {
       prog;
       code = Cont [ func.body ];
-      state = (heap, store, stack, f);
+      state = (heap, store, stack, func.name);
       pc = [];
       solver = Encoding.mk_solver ();
     }
@@ -339,12 +350,14 @@ let invoke (prog : Prog.t) (f : func) (eval : config -> config list) :
 
 let analyse (prog : Prog.t) (f : func) : Report.t =
   let time_analysis = ref 0.0 in
+  let f = Prog.get_func prog f in
   let eval =
     match !Flags.policy with
     | "breadth" -> BFS.eval
     | "depth" -> DFS.eval
     | "random" -> RND.eval
-    | _ -> rte ("Invalid search policy '" ^ !Flags.policy ^ "'")
+    | _ ->
+        Crash.error f.body.at ("Invalid search policy '" ^ !Flags.policy ^ "'")
   in
   let out_configs =
     Time_utils.time_call time_analysis (fun () -> invoke prog f eval)
