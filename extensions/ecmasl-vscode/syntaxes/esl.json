@@ -56,7 +56,7 @@
 			"patterns": [
 				{
 					"name": "keyword.other.esl",
-					"match": "\\b(se_assume|se_abort|se_is_sat|se_is_symbolic|se_mk_symbolic|se_evaluate|se_maximize|se_minimize)\\b"
+					"match": "\\b(se_assume|se_abort|se_is_sat|se_is_symbolic|se_is_number|se_mk_symbolic|se_evaluate|se_maximize|se_minimize)\\b"
 				}
 			]
 		},
