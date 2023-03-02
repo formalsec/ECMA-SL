@@ -1,0 +1,8 @@
+function main() {
+  intergerVariable: number := 10;
+  floatVariable: number := 10.10;
+  stringVariable: string := "abc";
+  booleanVariable: boolean := true;
+  anyVariable: any := 10;
+  return 0
+}

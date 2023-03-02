@@ -1,0 +1,6 @@
+function main() {
+  numberList: [number] := [1, 2, 3];
+  stringList: [string] := ["abc", "def"];
+  listOfLists: [[number]] := [[1, 2, 3], [4, 5, 6]];
+  return 0
+}

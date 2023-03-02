@@ -1,0 +1,12 @@
+(library
+ (name ecmasl_typed_tests)
+ (modules test test_typed_syntax)
+ (inline_tests)
+ (preprocess
+  (pps ppx_expect ppx_inline_test))
+ (libraries ECMA_SL))
+
+(alias
+ (name runtest)
+ (deps
+  (source_tree example)))

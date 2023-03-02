@@ -1,0 +1,6 @@
+function main() {
+  standardTyping: number := 10;
+  parentherizedTyping: (number) := 10;
+  doubleParentherizedTyping: ((number)) := 10;
+  return 0
+}
