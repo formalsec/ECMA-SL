@@ -167,6 +167,13 @@
                 "se_evaluate"           , API_EVAL;
                 "se_maximize"           , API_MAXIMIZE;
                 "se_minimize"           , API_MINIMIZE;
+
+                (* Types *)
+                "type"      , TYPE;
+                "any"       , TYPE_ANY;
+                "number"    , TYPE_NUMBER;
+                "string"    , TYPE_STRING;
+                "boolean"   , TYPE_BOOLEAN;
               ]
 
   exception Syntax_error of string

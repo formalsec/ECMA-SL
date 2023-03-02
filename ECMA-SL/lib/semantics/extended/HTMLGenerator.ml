@@ -183,7 +183,7 @@ let mapper (new_funcs : (string, E_Func.t) Hashtbl.t) (s : E_Stmt.t) : E_Stmt.t
                   (E_Pat_Metadata.get_meta_params meta)
               in
               let func_name = "dummy" in
-              let newfunc = E_Func.create (Some func_meta) func_name [] stmt in
+              let newfunc = E_Func.create (Some func_meta) func_name [] None stmt in
               Hashtbl.replace new_funcs
                 (E_Pat_Metadata.get_production_number meta)
                 newfunc
@@ -213,7 +213,8 @@ let generate (json_file : string) (prog : E_Prog.t) : string =
     List.map
       (fun f ->
         E_Func.create (E_Func.get_metadata f) (E_Func.get_name f)
-          (E_Func.get_params f)
+          (E_Func.get_params_t f)
+          (E_Func.get_return_t f)
           (E_Stmt.map (mapper converted_table) (E_Func.get_body f)))
       filtered_funcs_list
   in

@@ -68,6 +68,7 @@ let at (startpos, endpos) =
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
+%token TYPE, TYPE_ANY, TYPE_NUMBER, TYPE_STRING, TYPE_BOOLEAN
 
 
 %token API_ASSUME API_MK_SYMBOLIC API_ABORT
@@ -113,12 +114,16 @@ e_prog_e_func_target:
   ;
 
 e_prog_target:
-  | imports = list (import_target); macros_funcs = separated_list (SEMICOLON, e_prog_elem_target); EOF;
+  | imports = list (import_target); prog_elemts = separated_list (SEMICOLON, e_prog_elem_target); EOF;
    {
-    let (funcs, macros) = List.split macros_funcs in
-    let funcs' = List.concat (List.map (fun o -> Option.map_default (fun x -> [ x ]) [] o) funcs) in
-    let macros' = List.concat (List.map (fun o -> Option.map_default (fun x -> [ x ]) [] o) macros) in
-    E_Prog.create imports funcs' macros'
+    let prog_elemts_split = fun el (type_decls', funcs', macros') -> 
+      match el with
+        | E_Prog.ElementType.TypeDeclaration el' -> (el'::type_decls', funcs', macros')
+        | E_Prog.ElementType.Procedure el' -> (type_decls', el'::funcs', macros')
+        | E_Prog.ElementType.Macro el' -> (type_decls', funcs', el'::macros')
+    in
+    let (type_decls, funcs, macros) = List.fold_right prog_elemts_split prog_elemts ([], [], []) in
+    E_Prog.create imports type_decls funcs macros
    }
   ;
 
@@ -128,28 +133,37 @@ import_target:
   ;
 
 e_prog_elem_target:
+  | t = type_decl_target;
+    { E_Prog.ElementType.TypeDeclaration t }
   | f = proc_target;
-    { (Some f, None) }
+    { E_Prog.ElementType.Procedure f }
   | m = macro_target;
-    { (None, Some m) }
-  ;
+    { E_Prog.ElementType.Macro m }
+
+type_decl_target:
+  | TYPE; v = VAR; DEFEQ; t = e_type_target;
+    { (v, t) }
 
 proc_target:
-  | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; s = e_block_target;
-   { E_Func.create None f vars s }
-  | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; meta = metadata_target; vars_meta_opt = option(vars_metadata_target); s = e_block_target;
+  | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; ret_t = option(e_typing_target); s = e_block_target;
+   { E_Func.create None f vars ret_t s }
+  | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; meta = metadata_target; vars_meta_opt = option(vars_metadata_target); 
+    ret_t = option(e_typing_target); s = e_block_target;
    {
      let vars_meta = Option.default [] vars_meta_opt in
      let metadata = E_Func_Metadata.build_func_metadata meta vars_meta in
-     E_Func.create (Some metadata) f vars s }
-  ;
+     E_Func.create (Some metadata) f vars ret_t s }
 
 proc_params_target:
-  | params = separated_list (COMMA, VAR);
+  | params = separated_list (COMMA, param_target);
     { params }
   (* | params = separated_list (COMMA, VAR); COMMA; LBRACK; fparams = separated_list(COMMA, VAR); RBRACK;
     { params @ fparams } *)
   ;
+
+param_target:
+  | v = VAR; t = option(e_typing_target)
+    { (v, t) }
 
 macro_target:
   | MACRO; m = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; s = e_block_target;
@@ -548,8 +562,8 @@ e_stmt_target:
     { E_Stmt.FieldDelete (e, f) @@ at $sloc }
   | SKIP;
     { E_Stmt.Skip @@ at $sloc }
-  | v = VAR; DEFEQ; e = e_expr_target;
-    { E_Stmt.Assign (v, e) @@ at $sloc }
+  | v = VAR; t = option (e_typing_target); DEFEQ; e = e_expr_target;
+    { E_Stmt.Assign (v, t, e) @@ at $sloc }
   | v = GVAR; DEFEQ; e = e_expr_target;
     { E_Stmt.GlobAssign (v, e) @@ at $sloc }
   | e_stmt = ifelse_target;
@@ -584,7 +598,7 @@ e_stmt_target:
     { E_Stmt.RepeatUntil (s, e, Option.map_default (fun x -> x) [] meta) @@ at $sloc }
   | MATCH; e = e_expr_target; WITH; PIPE; pat_stmts = separated_list (PIPE, pat_stmt_target);
     { E_Stmt.MatchWith (e, pat_stmts) @@ at $sloc }
-  | x = VAR; DEFEQ; LAMBDA; LPAREN;  xs = separated_list (COMMA, VAR); RPAREN; LBRACK; ys = separated_list (COMMA, VAR); RBRACK; s = e_block_target;
+  | x = VAR; option (e_typing_target); DEFEQ; LAMBDA; LPAREN;  xs = separated_list (COMMA, VAR); RPAREN; LBRACK; ys = separated_list (COMMA, VAR); RBRACK; s = e_block_target;
     { E_Stmt.Lambda (x, fresh_lambda_id_gen (), xs, ys, s) @@ at $sloc }
   | AT_SIGN; m = VAR; LPAREN; es = separated_list (COMMA, e_expr_target); RPAREN;
     { E_Stmt.MacroApply (m, es) @@ at $sloc }
@@ -696,3 +710,48 @@ e_pat_v_pat_target:
 %inline e_op_target:
   | SCLAND  { EOper.SCLogAnd }
   | SCLOR   { EOper.SCLogOr }
+
+
+e_typing_target:
+  | COLON; t = e_type_target;
+    { t }
+
+e_type_target:
+  | t = e_simple_type_target;
+    { t }
+  | t = e_nary_type_target;
+    { t }
+
+e_simple_type_target:
+  | LPAREN; t = e_type_target; RPAREN;
+    { t }
+  | TYPE_ANY;
+    { E_Type.AnyType }
+  | TYPE_NUMBER;
+    { E_Type.NumberType }
+  | TYPE_STRING;
+    { E_Type.StringType }
+  | TYPE_BOOLEAN;
+    { E_Type.BooleanType }
+  | LBRACE; props = separated_list (COMMA, e_type_property_target); RBRACE;
+    { let (named_props, sumry_prop) = E_Type.parse_obj_prps props in E_Type.ObjectType (named_props, sumry_prop) }
+  | v = VAR;
+    { E_Type.UserDefinedType v }
+  | v = val_target;
+    { E_Type.LiteralType v }
+  | LBRACK; t = option(e_type_target); RBRACK;
+    { match t with None -> E_Type.LiteralType (Val.List []) | Some t' -> E_Type.ListType t' }
+
+e_nary_type_target:
+  | t1 = e_type_target; merge_func = e_nary_type_op_target; t2 = e_simple_type_target;
+    { merge_func t1 t2 }
+
+e_nary_type_op_target:
+  | TIMES; { E_Type.merge_tuple_type }
+  | PIPE;  { E_Type.merge_union_type }
+  
+e_type_property_target:
+  | v = VAR; COLON; t = e_type_target;
+    { E_Type.Prop.NamedProp (v, t) }
+  | TIMES; COLON; t = e_type_target;
+    { E_Type.Prop.SumryProp t }

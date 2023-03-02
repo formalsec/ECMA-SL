@@ -12,7 +12,7 @@ and t' =
   | Print of E_Expr.t
   | Return of E_Expr.t
   | Wrapper of metadata_t list * t
-  | Assign of string * E_Expr.t
+  | Assign of string * E_Type.t option * E_Expr.t
   | GlobAssign of string * E_Expr.t
   | Block of t list
   | If of E_Expr.t * t * t option * metadata_t list * metadata_t list
@@ -61,7 +61,9 @@ let rec str (stmt : t) : string =
   | Assert e -> "assert " ^ E_Expr.str e
   | Return exp -> "return " ^ E_Expr.str exp
   | Wrapper (m, s) -> str s
-  | Assign (x, exp) -> x ^ " := " ^ E_Expr.str exp
+  | Assign (x, t, exp) ->
+      let x' = match t with None -> x | Some t' -> x ^ ": " ^ E_Type.str t' in
+      x' ^ " := " ^ E_Expr.str exp
   | GlobAssign (x, exp) -> "|" ^ x ^ "| := " ^ E_Expr.str exp
   | Block stmts -> "{ " ^ String.concat ";" (List.map str stmts) ^ " }"
   | If (e, s1, s2, _, _) -> (
@@ -122,7 +124,7 @@ let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
     | Assert e -> Assert (fe e)
     | Return e -> Return (fe e)
     | Wrapper (m, s) -> Wrapper (m, map ~fe f s)
-    | Assign (x, e) -> Assign (fx x, fe e)
+    | Assign (x, t, e) -> Assign (fx x, t, fe e)
     | GlobAssign (x, e) -> GlobAssign (fx x, fe e)
     | Block ss -> Block (List.map (map ~fe f) ss)
     | If (e, s1, s2, m_i, m_e) ->

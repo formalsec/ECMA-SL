@@ -1,12 +1,31 @@
 open E_Func
 open E_Macro
 
+module ElementType = struct
+  type t =
+    | TypeDeclaration of (string * E_Type.t)
+    | Procedure of E_Func.t
+    | Macro of E_Macro.t
+end
+
 type t = {
   mutable file_name : string;
   imports : string list;
+  type_decls : (string, E_Type.t) Hashtbl.t;
   funcs : (string, E_Func.t) Hashtbl.t;
   macros : (string, E_Macro.t) Hashtbl.t;
 }
+
+let add_type_decls (prog : t) (type_decls : (string * E_Type.t) list) =
+  List.iter
+    (fun (d : string * E_Type.t) ->
+      let id = fst d in
+      let t = snd d in
+      match Hashtbl.find_opt prog.type_decls id with
+      | None -> Hashtbl.replace prog.type_decls id t
+      | Some _ ->
+          invalid_arg ("Type \"" ^ id ^ "\" already exists in the program"))
+    type_decls
 
 let add_funcs (prog : t) (funcs : E_Func.t list) : unit =
   List.iter
@@ -27,21 +46,27 @@ let add_macros (prog : t) (macros : E_Macro.t list) : unit =
           invalid_arg ("Macro \"" ^ m.name ^ "\" already exists in the program"))
     macros
 
-let create (imports : string list) (funcs : E_Func.t list)
-    (macros : E_Macro.t list) : t =
+let create (imports : string list) (type_decls : (string * E_Type.t) list)
+    (funcs : E_Func.t list) (macros : E_Macro.t list) : t =
   let prog =
     {
       file_name = "temporary name";
       imports;
+      type_decls = Hashtbl.create !Config.default_hashtbl_sz;
       funcs = Hashtbl.create !Config.default_hashtbl_sz;
       macros = Hashtbl.create !Config.default_hashtbl_sz;
     }
   in
+  add_type_decls prog type_decls;
   add_funcs prog funcs;
   add_macros prog macros;
   prog
 
 let get_file_name (prog : t) : string = prog.file_name
+let get_type_decls (prog : t) : (string, E_Type.t) Hashtbl.t = prog.type_decls
+
+let get_type_decls_list (prog : t) : (string * E_Type.t) list =
+  Hashtbl.fold (fun n t tps -> (n, t) :: tps) prog.type_decls []
 
 let get_func (prog : t) (func : string) : E_Func.t =
   Hashtbl.find prog.funcs func
@@ -61,6 +86,11 @@ let str (prog : t) : string =
   prog.file_name ^ "\n"
   ^ String.concat " " (List.map (fun i -> "import " ^ i) prog.imports)
   ^ Hashtbl.fold
+      (fun n t tps ->
+        (if tps <> "" then tps ^ "\n" else tps)
+        ^ Printf.sprintf "%s := %s" n (E_Type.str t))
+      prog.type_decls ""
+  ^ Hashtbl.fold
       (fun n v ac ->
         (if ac <> "" then ac ^ "\n" else ac)
         ^ Printf.sprintf "(%s -> %s)" n (E_Func.str v))
@@ -72,7 +102,8 @@ let apply_macros (prog : t) : t =
       (fun _ f ac -> E_Func.apply_macros f (Hashtbl.find_opt prog.macros) :: ac)
       prog.funcs []
   in
-  create prog.imports new_funcs []
+  let type_decls = get_type_decls_list prog in
+  create prog.imports type_decls new_funcs []
 
 let lambdas (p : t) : (string * string list * string list * E_Stmt.t) list =
   Hashtbl.fold (fun _ f ac -> E_Func.lambdas f @ ac) p.funcs []
