@@ -66,6 +66,7 @@ let core_of_plus (file : string) : Prog.t =
   let e_prog_macros_applied =
     Parsing_utils.apply_prog_macros e_prog_imports_resolved
   in
+  let _ = T_Checker.type_program e_prog_macros_applied in
   Compiler.compile_prog e_prog_macros_applied
 
 let compile_from_plus_to_core (file : string) : unit =
