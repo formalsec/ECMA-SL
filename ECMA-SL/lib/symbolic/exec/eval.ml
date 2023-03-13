@@ -350,4 +350,4 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
       (List.length error_configs)
       0 !time_analysis !Encoding.time_solver
   in
-  Report.add_testsuites report final_testsuite error_testsuite
+  Report.add_testsuites report ~final:final_testsuite ~error:error_testsuite

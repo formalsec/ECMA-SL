@@ -24,7 +24,7 @@ let create file paths errors unknowns analysis solver : t =
     error_testsuite = [];
   }
 
-let add_testsuites (report : t) (final : testsuite) (error : testsuite) : t =
+let add_testsuites (report : t) ~(final : testsuite) ~(error : testsuite) : t =
   { report with final_testsuite = final; error_testsuite = error }
 
 let report_to_json (report : t) : string =
