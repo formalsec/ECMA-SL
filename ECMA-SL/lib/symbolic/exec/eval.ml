@@ -1,32 +1,9 @@
 open Func
+open State
 open Source
 module Crash = Error.Make ()
 module Runtime = Error.Make ()
 module Invalid_arg = Error.Make ()
-
-type config = {
-  prog : Prog.t;
-  code : outcome;
-  state : state;
-  pc : pc;
-  solver : Z3.Solver.solver;
-}
-
-and outcome =
-  | Cont of Stmt.t list
-  | Error of Sval.t option
-  | Final of Sval.t option
-  | Failure of Sval.t option
-  | Unknown of Sval.t option
-
-and func = string
-and stack = Sstore.t Call_stack.t
-and state = Sval.t Heap.t * Sstore.t * stack * func
-and pc = Sval.t list
-
-let is_fail (o : outcome) : bool = match o with Failure _ -> true | _ -> false
-let is_final (o : outcome) : bool = match o with Final _ -> true | _ -> false
-let update (c : config) code state pc : config = { c with code; state; pc }
 
 let loc (at : region) (v : Sval.t) : string =
   match v with
@@ -54,19 +31,19 @@ let rec eval_expression ?(at = no_region) (store : Sstore.t) (e : Expr.t) :
       | None -> Runtime.error at ("Cannot find var '" ^ x ^ "'"))
   | Expr.UnOpt (op, e) ->
       let v = eval_expression ~at store e in
-      Eval_operators.eval_unop op v
+      EvalOperators.eval_unop op v
   | Expr.BinOpt (op, e1, e2) ->
       let v1 = eval_expression ~at store e1
       and v2 = eval_expression ~at store e2 in
-      Eval_operators.eval_binop op v1 v2
+      EvalOperators.eval_binop op v1 v2
   | Expr.TriOpt (op, e1, e2, e3) ->
       let v1 = eval_expression ~at store e1
       and v2 = eval_expression ~at store e2
       and v3 = eval_expression ~at store e3 in
-      Eval_operators.eval_triop op v1 v2 v3
+      EvalOperators.eval_triop op v1 v2 v3
   | Expr.NOpt (op, es) ->
       let vs = List.map (eval_expression ~at store) es in
-      Eval_operators.eval_nop op vs
+      EvalOperators.eval_nop op vs
   | Expr.Curry (f, es) -> (
       let f' = eval_expression ~at store f
       and vs = List.map (eval_expression ~at store) es in
@@ -281,8 +258,7 @@ let step (c : config) : config list =
           pc;
       ]
 
-(* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
-module type Work_list = sig
+module type WorkList = sig
   type 'a t
 
   exception Empty
@@ -294,7 +270,7 @@ module type Work_list = sig
 end
 
 (* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
-module Strategy (L : Work_list) = struct
+module TreeSearch (L : WorkList) = struct
   let eval c : config list =
     let w = L.create () in
     L.push c w;
@@ -302,7 +278,7 @@ module Strategy (L : Work_list) = struct
     while not (!err || L.is_empty w) do
       let c = L.pop w in
       match c.code with
-      | Cont [] -> Crash.error no_region "Empty continuation!"
+      | Cont [] -> Crash.error Source.no_region "Empty continuation!"
       | Cont _ -> List.iter (fun c -> L.push c w) (step c)
       | Error v | Final v | Unknown v -> out := c :: !out
       | Failure v ->
@@ -312,7 +288,7 @@ module Strategy (L : Work_list) = struct
     !out
 end
 
-module RandArray : Work_list = struct
+module RandArray : WorkList = struct
   type 'a t = 'a BatDynArray.t
 
   exception Empty
@@ -328,10 +304,11 @@ module RandArray : Work_list = struct
     v
 end
 
-module DFS = Strategy (Stack)
-module BFS = Strategy (Queue)
-module RND = Strategy (RandArray)
+module DFS = TreeSearch (Stack)
+module BFS = TreeSearch (Queue)
+module RND = TreeSearch (RandArray)
 
+(* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
 let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
     config list =
   let heap = Heap.create ()
