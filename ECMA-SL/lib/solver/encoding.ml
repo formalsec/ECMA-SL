@@ -1,6 +1,7 @@
 module Op = Operators
 
 exception Unknown
+exception Error of string
 
 let time_solver = ref 0.0
 
@@ -103,9 +104,11 @@ let clone (solver : Z3.Solver.solver) : Z3.Solver.solver =
   Z3.Solver.translate solver ctx
 
 let add (solver : Z3.Solver.solver) (vs : Sval.t list) : unit =
-  List.iter (fun v -> Logging.print_endline (lazy ("Add: " ^ Sval.str v))) vs;
-  let vs' = List.map encode_value vs in
-  Z3.Solver.add solver vs'
+  try
+    List.iter (fun v -> Logging.print_endline (lazy ("Add: " ^ Sval.str v))) vs;
+    let vs' = List.map encode_value vs in
+    Z3.Solver.add solver vs'
+  with Z3.Error e -> raise (Error e)
 
 let pop (solver : Z3.Solver.solver) (lvl : int) : unit =
   Z3.Solver.pop solver lvl
@@ -113,21 +116,24 @@ let pop (solver : Z3.Solver.solver) (lvl : int) : unit =
 let push (solver : Z3.Solver.solver) : unit = Z3.Solver.push solver
 
 let check (solver : Z3.Solver.solver) (vs : Sval.t list) : bool =
-  let vs' = List.map encode_value vs in
-  List.iter
-    (fun e -> Logging.print_endline (lazy (Z3.Expr.to_string e)))
-    (vs' @ Z3.Solver.get_assertions solver);
-  let b =
-    let sat =
-      Time_utils.time_call time_solver (fun () -> Z3.Solver.check solver vs')
+  try
+    let vs' = List.map encode_value vs in
+    List.iter
+      (fun e -> Logging.print_endline (lazy (Z3.Expr.to_string e)))
+      (vs' @ Z3.Solver.get_assertions solver);
+    let b =
+      let sat =
+        Time_utils.time_call time_solver (fun () -> Z3.Solver.check solver vs')
+      in
+      match sat with
+      | Z3.Solver.SATISFIABLE -> true
+      | Z3.Solver.UNKNOWN -> raise Unknown
+      | Z3.Solver.UNSATISFIABLE -> false
     in
-    match sat with
-    | Z3.Solver.SATISFIABLE -> true
-    | Z3.Solver.UNKNOWN -> raise Unknown
-    | Z3.Solver.UNSATISFIABLE -> false
-  in
-  Logging.print_endline (lazy ("leaving check with return " ^ string_of_bool b));
-  b
+    Logging.print_endline
+      (lazy ("leaving check with return " ^ string_of_bool b));
+    b
+  with Z3.Error e -> raise (Error e)
 
 let model (solver : Z3.Solver.solver) (vs : Sval.t list) :
     (Z3.Sort.sort * Z3.Symbol.symbol * Z3.Expr.expr option) list =
@@ -147,8 +153,8 @@ let model (solver : Z3.Solver.solver) (vs : Sval.t list) :
 let string_of_value (e : Z3.Expr.expr) : string =
   let f =
     match Z3.Sort.get_sort_kind (Z3.Expr.get_sort e) with
-    | Z3enums.INT_SORT -> Z3.Arithmetic.Integer.numeral_to_string 
+    | Z3enums.INT_SORT -> Z3.Arithmetic.Integer.numeral_to_string
     | Z3enums.FLOATING_POINT_SORT -> Z3.FloatingPoint.numeral_to_string
     | _ -> Z3.Expr.to_string
-  in 
+  in
   f e

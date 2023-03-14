@@ -39,6 +39,16 @@ let prog_of_plus file =
 
 let prog_of_core file = Parsing_utils.(parse_prog (load_file file))
 
+let error at category msg =
+  prerr_endline (Source.string_of_region at ^ ":" ^ category ^ ":" ^ msg);
+  None
+
+let run_prog prog =
+  try Some (Eval.analyse prog !Flags.target) with
+  | Eval.Crash (at, msg) -> error at "runtime crash" msg
+  | Eval.Invalid_arg (at, msg) -> error at "invalid arg" msg
+  | exn -> raise exn
+
 let () =
   Printexc.record_backtrace true;
   try
@@ -46,14 +56,16 @@ let () =
     let testsuite_path = Filename.concat !Flags.workspace "test-suite" in
     Io.safe_mkdir testsuite_path;
     let prog = dispatch_file_ext prog_of_plus prog_of_core !Flags.file in
-    let report = Eval.analyse prog !Flags.target
-    and report_file = Filename.concat !Flags.workspace "report.json" in
-    Io.write_file report_file (Report.report_to_json report);
-    List.iter
-      (fun (file, testcase) ->
-        let file' = Filename.concat testsuite_path file in
-        Io.write_file file' testcase)
-      (Report.testsuite_to_json report)
+    match run_prog prog with
+    | Some report ->
+        let report_file = Filename.concat !Flags.workspace "report.json" in
+        Io.write_file report_file (Report.report_to_json report);
+        List.iter
+          (fun (file, testcase) ->
+            let file' = Filename.concat testsuite_path file in
+            Io.write_file file' testcase)
+          (Report.testsuite_to_json report)
+    | None -> exit 2
   with exn ->
     flush_all ();
     prerr_endline

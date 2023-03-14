@@ -2,8 +2,10 @@ open Func
 open State
 open Source
 module Crash = Error.Make ()
-module Runtime = Error.Make ()
 module Invalid_arg = Error.Make ()
+
+exception Crash = Crash.Error
+exception Invalid_arg = Invalid_arg.Error
 
 let loc (at : region) (v : Sval.t) : string =
   match v with
@@ -28,7 +30,7 @@ let rec eval_expression ?(at = no_region) (store : Sstore.t) (e : Expr.t) :
   | Expr.Var x -> (
       match Sstore.find_opt store x with
       | Some v -> v
-      | None -> Runtime.error at ("Cannot find var '" ^ x ^ "'"))
+      | None -> Crash.error at ("Cannot find var '" ^ x ^ "'"))
   | Expr.UnOpt (op, e) ->
       let v = eval_expression ~at store e in
       EvalOperators.eval_unop op v
@@ -71,10 +73,10 @@ let step (c : config) : config list =
   | Stmt.Skip -> [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Merge -> [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Exception err ->
-      print_endline (Source.string_of_region s.at ^ ": Exception: " ^ err);
+      prerr_endline (Source.string_of_region s.at ^ ": Exception: " ^ err);
       [ update c (Error (Some (Sval.Str err))) state pc ]
   | Stmt.Print e ->
-      print_endline (Expr.str e);
+      Logging.print_endline (lazy (Sval.str (eval_expression ~at:s.at store e)));
       [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Fail e ->
       [ update c (Error (Some (eval_expression ~at:s.at store e))) state pc ]
@@ -88,7 +90,9 @@ let step (c : config) : config list =
       try
         if not (Encoding.check solver (v :: pc)) then []
         else [ update c (Cont (List.tl stmts)) state (v :: pc) ]
-      with Encoding.Unknown -> [ update c (Unknown (Some v)) state (v :: pc) ])
+      with
+      | Encoding.Unknown -> [ update c (Unknown (Some v)) state (v :: pc) ]
+      | Encoding.Error e -> Crash.error s.at e)
   | Stmt.Assert e when Sval.Bool true = eval_expression ~at:s.at store e ->
       [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Assert e when Sval.Bool false = eval_expression ~at:s.at store e ->
@@ -100,7 +104,9 @@ let step (c : config) : config list =
         if Encoding.check solver (v' :: pc) then
           [ update c (Failure (Some v)) state pc ]
         else [ update c (Cont (List.tl stmts)) state pc ]
-      with Encoding.Unknown -> [ update c (Unknown (Some v)) state pc ])
+      with
+      | Encoding.Unknown -> [ update c (Unknown (Some v)) state pc ]
+      | Encoding.Error e -> Crash.error s.at e)
   | Stmt.Assign (x, e) ->
       let v = eval_expression ~at:s.at store e in
       [
@@ -136,8 +142,10 @@ let step (c : config) : config list =
           else
             let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl stmts in
             [ update c (Cont stmts') state (br_t :: pc) ]
-        with Encoding.Unknown ->
-          [ update c (Unknown (Some br_t)) state (br_t :: pc) ]
+        with
+        | Encoding.Unknown ->
+            [ update c (Unknown (Some br_t)) state (br_t :: pc) ]
+        | Encoding.Error e -> Crash.error s.at e
       in
       let else_branch =
         try
@@ -150,8 +158,10 @@ let step (c : config) : config list =
               | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl stmts
             in
             [ update c (Cont stmts') state' (br_f :: pc) ]
-        with Encoding.Unknown ->
-          [ update c (Unknown (Some br_f)) state (br_f :: pc) ]
+        with
+        | Encoding.Unknown ->
+            [ update c (Unknown (Some br_f)) state (br_f :: pc) ]
+        | Encoding.Error e -> Crash.error s.at e
       in
       then_branch @ else_branch
   | Stmt.While (br, blk) ->
@@ -207,7 +217,7 @@ let step (c : config) : config list =
       let loc = loc s.at (eval_expression ~at:s.at store e) in
       let v =
         match Heap.get heap loc with
-        | None -> Runtime.error s.at ("'" ^ loc ^ "' not found in heap")
+        | None -> Crash.error s.at ("'" ^ loc ^ "' not found in heap")
         | Some obj ->
             Sval.List
               (List.map
@@ -224,7 +234,7 @@ let step (c : config) : config list =
       let loc = loc s.at (eval_expression ~at:s.at store e) in
       let v =
         match Heap.get heap loc with
-        | None -> Runtime.error s.at ("'" ^ loc ^ "' not found in heap")
+        | None -> Crash.error s.at ("'" ^ loc ^ "' not found in heap")
         | Some obj ->
             Sval.List (List.map (fun f -> Sval.Str f) (Object.get_fields obj))
       in

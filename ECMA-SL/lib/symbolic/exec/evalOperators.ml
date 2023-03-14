@@ -49,18 +49,39 @@ let eval_unop (op : Op.uopt) (v : t) : t =
            (List.fold_left
               (fun a b -> match b with Str s -> a @ [ s ] | _ -> a)
               [] (to_list v)))
+  | Op.Trim -> (
+      match v with
+      | Str s -> Str (String_utils.trim s)
+      | _ -> invalid_arg ("Unop.Trim expects Str argument but got " ^ str v))
+  | Op.StringLen -> (
+      match v with
+      | Str s -> Int (String.length s)
+      | _ -> invalid_arg ("Unop.StringLen expects Str argument but got " ^ str v)
+      )
+  | Op.FloatOfString -> (
+      match v with
+      | Str s -> (
+          let trimmed = String.trim s in
+          if String.length trimmed == 0 then Flt nan
+          else try Flt (float_of_string trimmed) with exn -> Flt nan)
+      | _ ->
+          invalid_arg
+            ("Unop.FloatOfString expects Str argument but got " ^ str v))
   | Op.Exp -> Flt (Float.exp (to_float v))
   | Op.Log_e -> Flt (Float.log (to_float v))
   | Op.Log_10 -> Flt (Float.log10 (to_float v))
   | Op.Sqrt -> Flt (Float.sqrt (to_float v))
+  | Op.Abs -> Flt (Float.abs (to_float v))
+  | Op.Floor -> Flt (Float.floor (to_float v))
+  | Op.ToUint32 -> Flt (Arith_utils.to_uint32 (to_float v))
   | Op.IsNaN -> (
       match v with
-      | Flt f -> Bool (Float.is_nan f)
+      | Flt n -> Bool (Float.is_nan n)
       (* Encode to unary op *)
       | v' -> Binop (Op.Eq, v', Flt nan))
   | _ ->
       failwith
-        ("Eval_operations: eval_unop: '" ^ Op.str_of_unopt op
+        ("EvalOperators: eval_unop: '" ^ Op.str_of_unopt op
        ^ "' not implemented")
 
 let eval_binop (op : Op.bopt) (v1 : t) (v2 : t) : t =

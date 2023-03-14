@@ -58675,6 +58675,8 @@ __v12097 := __v12098["FunctionPrototype"];
 return ( false, __v12097 ) };
 function __internalSymbolicAssume (___internal_esl_global, globalObject, this, NewTarget, strict, params) { __v12099 := l_nth(params, 0);
 expr := __v12099;
+print "Inside assume with:";
+print expr;
 assume (expr);
 return ( false, 0 ) };
 function StringPrototypeReplace (___internal_esl_global, global, this, NewTarget, strict, args) { __v12100 := l_len(args);

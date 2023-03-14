@@ -1,4 +1,5 @@
 exception Unknown
+exception Error of string
 
 val time_solver : float ref
 val encode_value : Sval.t -> Z3.Expr.expr
