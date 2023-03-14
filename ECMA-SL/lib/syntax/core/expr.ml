@@ -7,6 +7,11 @@ type t =
   | TriOpt of (Operators.topt * t * t * t)
   | NOpt of Operators.nopt * t list
   | Curry of t * t list
+  | IsSymbolic of t
+  | Maximize of t
+  | Minimize of t
+  | IsSat of t
+  | Eval of t
 
 let rec str (e : t) : string =
   let str_es es = String.concat ", " (List.map str es) in
@@ -20,6 +25,11 @@ let rec str (e : t) : string =
   | NOpt (op, es) -> Operators.str_of_nopt op (List.map str es)
   | Curry (f, es) -> "{" ^ str f ^ "}@(" ^ str_es es ^ ")"
   | Symbolic (t, x) -> "symbolic (" ^ Type.str t ^ ", " ^ str x ^ ")"
+  | IsSymbolic e -> "is_symbolic (" ^ str e ^ ")"
+  | Maximize e -> "maximize (" ^ str e ^ ")"
+  | Minimize e -> "minimize (" ^ str e ^ ")"
+  | IsSat e -> "is_sat (" ^ str e ^ ")"
+  | Eval e -> "eval (" ^ str e ^ ")"
 
 let js (e : t) : string = failwith "missing js"
 
@@ -67,3 +77,14 @@ let rec to_json (e : t) : string =
       Printf.sprintf
         "{ \"type\" : \"symbolic\", \"val_type\" : \"%s\", \"name\" : \"%s\" }"
         (Type.str t) (str x)
+  | IsSymbolic e ->
+    Printf.sprintf "{ \"type\" : \"is_symbolic\", \"arg\" : \"%s\" }"
+      (to_json e)
+  | Maximize e ->
+      Printf.sprintf "{ \"type\" : \"maximize\", \"arg\" : \"%s\" }" (to_json e)
+  | Minimize e ->
+      Printf.sprintf "{ \"type\" : \"minimize\", \"arg\" : \"%s\" }" (to_json e)
+  | IsSat e ->
+      Printf.sprintf "{ \"type\" : \"is_sat\", \"arg\" : \"%s\" }" (to_json e)
+  | Eval e ->
+      Printf.sprintf "{ \"type\" : \"eval\", \"arg\" : \"%s\" }" (to_json e)

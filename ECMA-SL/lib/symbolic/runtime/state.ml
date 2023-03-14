@@ -4,6 +4,7 @@ type config = {
   state : state;
   pc : pc;
   solver : Z3.Solver.solver;
+  optimize : Z3.Optimize.optimize;
 }
 
 and outcome =

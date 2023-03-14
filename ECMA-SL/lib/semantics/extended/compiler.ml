@@ -568,6 +568,21 @@ and compile_expr (at : region) (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | ECall (f, es) ->
       let ret_es = List.map (compile_expr at) es in
       compile_e_call f ret_es at
+  | IsSymbolic e ->
+      let stmts', e' = compile_expr at e in
+      (stmts', Expr.IsSymbolic e')
+  | IsSat e ->
+      let stmts', e' = compile_expr at e in
+      (stmts', Expr.IsSat e')
+  | Maximize e ->
+      let stmts', e' = compile_expr at e in
+      (stmts', Expr.Maximize e')
+  | Minimize e ->
+      let stmts', e' = compile_expr at e in
+      (stmts', Expr.Minimize e')
+  | Eval e ->
+      let stmts', e' = compile_expr at e in
+      (stmts', Expr.Eval e')
 
 and compile_print (e : E_Expr.t) (at : region) : Stmt.t list =
   let stmts_expr, e' = compile_expr at e in
@@ -580,6 +595,11 @@ and compile_assume (e : E_Expr.t) (at : region) : Stmt.t list =
 and compile_assert (e : E_Expr.t) (at : region) : Stmt.t list =
   let stmts, e' = compile_expr at e in
   stmts @ [ Stmt.Assert e' @@ at ]
+
+and compile_summary_api_call (e: E_Expr.t) (at : region) : Stmt.t list =
+  let stmts, e' = compile_expr at e in
+  stmts @ [ Stmt.Assert e' @@ at ]
+
 
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   let compile_cases =

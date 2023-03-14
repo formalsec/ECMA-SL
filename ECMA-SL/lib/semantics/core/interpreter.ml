@@ -193,6 +193,11 @@ module M (Mon : SecurityMonitor) = struct
             Random.self_init ();
             Val.Int (Random.int 128)
         | _ -> failwith "eval_expr: Symbolic not implemented!")
+    | IsSymbolic e -> failwith "IsSymbolic not implemented!"
+    | IsSat e -> failwith "IsSat not implemented"
+    | Maximize e -> failwith "Maximize not implemented"
+    | Minimize e -> failwith "Minimize not implemented"
+    | Eval e -> failwith "Minimize not implemented"
 
   let get_func_id (sto : Val.t Store.t) (exp : Expr.t) : string * Val.t list =
     let res = eval_expr sto exp in

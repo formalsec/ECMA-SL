@@ -104,6 +104,8 @@ let rec encode_value (v : Sval.t) : Z3.Expr.expr =
 
 let mk_solver () : Z3.Solver.solver = Z3.Solver.mk_solver ctx None
 
+let mk_opt () : Z3.Optimize.optimize = Z3.Optimize.mk_opt ctx
+
 let clone (solver : Z3.Solver.solver) : Z3.Solver.solver =
   Z3.Solver.translate solver ctx
 
@@ -113,6 +115,11 @@ let add (solver : Z3.Solver.solver) (vs : Sval.t list) : unit =
     let vs' = List.map encode_value vs in
     Z3.Solver.add solver vs'
   with Z3.Error e -> raise (Error e)
+
+let add_opt (opt : Z3.Optimize.optimize) (vs : Sval.t list) : unit =
+  List.iter (fun v -> Logging.print_endline (lazy ("Add: " ^ Sval.str v))) vs;
+  let vs' = List.map encode_value vs in
+  Z3.Optimize.add opt vs'
 
 let pop (solver : Z3.Solver.solver) (lvl : int) : unit =
   Z3.Solver.pop solver lvl
@@ -162,3 +169,34 @@ let string_of_value (e : Z3.Expr.expr) : string =
     | _ -> Z3.Expr.to_string
   in
   f e
+
+
+let optimize (optimize : Z3.Optimize.optimize) (expr : Sval.t) 
+  (vs : Sval.t list) (f : Z3.Optimize.optimize -> Z3.Expr.expr -> Z3.Optimize.handle) : int =
+let _ = Z3.Optimize.push optimize in
+let _ = add_opt optimize vs in
+let h = f optimize (encode_value expr) in
+let ret =
+  let sat =
+    Time_utils.time_call time_solver (fun () -> Z3.Optimize.check optimize)
+  in
+  match sat with
+  | Z3.Solver.SATISFIABLE -> int_of_string (Z3.Expr.to_string (Z3.Optimize.get_upper h))
+  | _ -> -1
+in let _ = Z3.Optimize.pop optimize in ret
+
+
+let maximize (opt : Z3.Optimize.optimize) (expr : Sval.t)
+    (vs : Sval.t list) =
+    optimize opt expr vs Z3.Optimize.maximize
+
+let minimize (opt : Z3.Optimize.optimize) (expr : Sval.t)
+    (vs : Sval.t list) =
+  optimize opt expr vs Z3.Optimize.minimize
+
+let get_const_interp (solver : Z3.Solver.solver) (v : Sval.t) (vs : Sval.t list)
+    : int =
+  assert (check solver vs);
+  let model = Option.get (Z3.Solver.get_model solver) in
+  let res = Option.get (Z3.Model.eval model (encode_value v) true) in
+  int_of_string (Z3.Expr.to_string res)
