@@ -23,6 +23,7 @@
  (depends
    (ocaml (>= 4.08.0))
    (ocamlformat (= 0.24.1))
+   core
    dune
    z3
    batteries

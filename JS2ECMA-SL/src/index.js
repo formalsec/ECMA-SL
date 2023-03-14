@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const esprima = require("esprima-next");
 const yargs = require("yargs");
 const fs = require("fs");
