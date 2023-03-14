@@ -1,5 +1,4 @@
 // test4.js: with new context
-
 function myabs(x) {
   if (x >= 0) {
     return x;
