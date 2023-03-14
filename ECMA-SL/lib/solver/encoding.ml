@@ -145,8 +145,10 @@ let model (solver : Z3.Solver.solver) (vs : Sval.t list) :
         (Z3.Model.get_const_decls model)
 
 let string_of_value (e : Z3.Expr.expr) : string =
-  let str =
-    if Z3.FloatingPoint.is_fp e then Z3.FloatingPoint.numeral_to_string
-    else Z3.Arithmetic.Integer.numeral_to_string
-  in
-  str e
+  let f =
+    match Z3.Sort.get_sort_kind (Z3.Expr.get_sort e) with
+    | Z3enums.INT_SORT -> Z3.Arithmetic.Integer.numeral_to_string 
+    | Z3enums.FLOATING_POINT_SORT -> Z3.FloatingPoint.numeral_to_string
+    | _ -> Z3.Expr.to_string
+  in 
+  f e
