@@ -25,40 +25,42 @@ let func (at : region) (v : Sval.t) : string * Sval.t list =
 
 let rec eval_expression ?(at = no_region) (store : Sstore.t) (e : Expr.t) :
     Sval.t =
-  match e with
-  | Expr.Val n -> Sval.of_val n
-  | Expr.Var x -> (
-      match Sstore.find_opt store x with
-      | Some v -> v
-      | None -> Crash.error at ("Cannot find var '" ^ x ^ "'"))
-  | Expr.UnOpt (op, e) ->
-      let v = eval_expression ~at store e in
-      EvalOperators.eval_unop op v
-  | Expr.BinOpt (op, e1, e2) ->
-      let v1 = eval_expression ~at store e1
-      and v2 = eval_expression ~at store e2 in
-      EvalOperators.eval_binop op v1 v2
-  | Expr.TriOpt (op, e1, e2, e3) ->
-      let v1 = eval_expression ~at store e1
-      and v2 = eval_expression ~at store e2
-      and v3 = eval_expression ~at store e3 in
-      EvalOperators.eval_triop op v1 v2 v3
-  | Expr.NOpt (op, es) ->
-      let vs = List.map (eval_expression ~at store) es in
-      EvalOperators.eval_nop op vs
-  | Expr.Curry (f, es) -> (
-      let f' = eval_expression ~at store f
-      and vs = List.map (eval_expression ~at store) es in
-      match f' with
-      | Sval.Str s -> Sval.Curry (s, vs)
-      | _ -> Invalid_arg.error at "Sval is not a 'Curry' identifier")
-  | Expr.Symbolic (t, x) ->
-      let x' =
-        match eval_expression ~at store x with
-        | Sval.Str s -> s
-        | _ -> Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
-      in
-      Sval.Symbolic (t, x')
+  try
+    match e with
+    | Expr.Val n -> Sval.of_val n
+    | Expr.Var x -> (
+        match Sstore.find_opt store x with
+        | Some v -> v
+        | None -> Crash.error at ("Cannot find var '" ^ x ^ "'"))
+    | Expr.UnOpt (op, e) ->
+        let v = eval_expression ~at store e in
+        EvalOperators.eval_unop op v
+    | Expr.BinOpt (op, e1, e2) ->
+        let v1 = eval_expression ~at store e1
+        and v2 = eval_expression ~at store e2 in
+        EvalOperators.eval_binop op v1 v2
+    | Expr.TriOpt (op, e1, e2, e3) ->
+        let v1 = eval_expression ~at store e1
+        and v2 = eval_expression ~at store e2
+        and v3 = eval_expression ~at store e3 in
+        EvalOperators.eval_triop op v1 v2 v3
+    | Expr.NOpt (op, es) ->
+        let vs = List.map (eval_expression ~at store) es in
+        EvalOperators.eval_nop op vs
+    | Expr.Curry (f, es) -> (
+        let f' = eval_expression ~at store f
+        and vs = List.map (eval_expression ~at store) es in
+        match f' with
+        | Sval.Str s -> Sval.Curry (s, vs)
+        | _ -> invalid_arg "Sval is not a 'Curry' identifier")
+    | Expr.Symbolic (t, x) ->
+        let x' =
+          match eval_expression ~at store x with
+          | Sval.Str s -> s
+          | _ -> invalid_arg "Sval is not a 'Symbolic' identifier"
+        in
+        Sval.Symbolic (t, x')
+  with Invalid_argument e -> Invalid_arg.error at e
 
 let step (c : config) : config list =
   let { prog; code; state; pc; solver } = c in

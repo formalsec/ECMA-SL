@@ -35,14 +35,14 @@ let eval_unop (op : Op.uopt) (v : t) : t =
       | Null -> Type Type.NullType
       | Symbol _ -> Type Type.SymbolType
       | Curry _ -> Type Type.CurryType
-      | Void -> invalid_arg "Exception in Oper.typeof: unexpected void value"
+      | Void -> invalid_arg "typeof: unexpected void value"
       | Symbolic (t, _) -> Type t
       (* FIXME: get type of Sval Binop and Unop *)
       | Unop (_, _) -> Type Type.FltType
       | Binop (_, _, _) -> Type Type.FltType
       | _ ->
-          failwith
-            ("Eval_operations: typeof(" ^ Sval.str v ^ ") not implemented!"))
+          invalid_arg 
+            ("typeof(" ^ Sval.str v ^ ") not implemented!"))
   | Op.Sconcat ->
       Str
         (String.concat ""
@@ -52,12 +52,15 @@ let eval_unop (op : Op.uopt) (v : t) : t =
   | Op.Trim -> (
       match v with
       | Str s -> Str (String_utils.trim s)
-      | _ -> invalid_arg ("Unop.Trim expects Str argument but got " ^ str v))
+      | _ -> invalid_arg ("Trim: expects Str argument but got " ^ str v))
   | Op.StringLen -> (
       match v with
       | Str s -> Int (String.length s)
-      | _ -> invalid_arg ("Unop.StringLen expects Str argument but got " ^ str v)
-      )
+      | _ -> invalid_arg ("StringLen: expects Str argument but got " ^ str v))
+  | Op.StringLenU -> (
+      match v with
+      | Str s -> Int (String_utils.s_len_u s)
+      | _ -> invalid_arg ("StringLenU: expects Str argument but got " ^ str v))
   | Op.FloatOfString -> (
       match v with
       | Str s -> (
@@ -73,6 +76,7 @@ let eval_unop (op : Op.uopt) (v : t) : t =
   | Op.Sqrt -> Flt (Float.sqrt (to_float v))
   | Op.Abs -> Flt (Float.abs (to_float v))
   | Op.Floor -> Flt (Float.floor (to_float v))
+  | Op.ToInt -> Flt (Arith_utils.to_int (to_float v))
   | Op.ToUint32 -> Flt (Arith_utils.to_uint32 (to_float v))
   | Op.IsNaN -> (
       match v with
@@ -80,9 +84,7 @@ let eval_unop (op : Op.uopt) (v : t) : t =
       (* Encode to unary op *)
       | v' -> Binop (Op.Eq, v', Flt nan))
   | _ ->
-      failwith
-        ("EvalOperators: eval_unop: '" ^ Op.str_of_unopt op
-       ^ "' not implemented")
+      invalid_arg ("eval_unop: '" ^ Op.str_of_unopt op ^ "' not implemented")
 
 let eval_binop (op : Op.bopt) (v1 : t) (v2 : t) : t =
   match op with
@@ -138,6 +140,9 @@ let eval_binop (op : Op.bopt) (v1 : t) (v2 : t) : t =
       | Int i1, Int i2 -> Bool (i1 <= i2)
       | Flt f1, Flt f2 -> Bool (f1 <= f2)
       | _ -> Binop (op, v1, v2))
+  | Op.Min -> Flt (Float.min (to_float v1) (to_float v2))
+  | Op.Max -> Flt (Float.max (to_float v1) (to_float v2))
+  | Op.Pow -> Flt (Float.pow (to_float v1) (to_float v2))
   | Op.Log_And -> (
       match (v1, v2) with
       | Bool b1, Bool b2 -> Bool (b1 && b2)
@@ -173,20 +178,16 @@ let eval_binop (op : Op.bopt) (v1 : t) (v2 : t) : t =
       match v1 with
       | List l -> List (l @ [ v2 ])
       | _ -> invalid_arg "Op.Ladd: operation only applicable to List arguments")
-  | Op.Pow -> Flt (Float.pow (to_float v1) (to_float v2))
   | _ ->
-      failwith
-        ("Eval_operations: eval_binop: " ^ Op.str_of_binopt_single op
-       ^ " not implemented!")
+      invalid_arg
+        ("eval_binop: " ^ Op.str_of_binopt_single op ^ " not implemented!")
 
 let eval_triop (op : Op.topt) (v1 : t) (v2 : t) (v1 : t) : t =
-  failwith "Eval_operations: eval_triop not implemented"
+  invalid_arg "eval_triop: not implemented"
 
 let eval_nop (op : Op.nopt) (vs : t list) : t =
   match op with
   | Op.ListExpr -> List vs
   | Op.TupleExpr -> Tuple vs
   | _ ->
-      failwith
-        ("Eval_operations: eval_nop: " ^ Op.str_of_nopt op [ "" ]
-       ^ " not implemented")
+      invalid_arg ("eval_nop: " ^ Op.str_of_nopt op [ "" ] ^ " not implemented")

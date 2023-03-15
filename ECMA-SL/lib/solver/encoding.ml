@@ -24,19 +24,20 @@ let sort_of_type (ctx : Z3.context) (t : Type.t) : Z3.Sort.sort =
   | Type.IntType -> int_sort
   | Type.FltType -> fp_sort
   | Type.BoolType -> bool_sort
-  | _ -> failwith "Encoding: sort_of_type: Unsupported type!"
+  | _ -> raise (Error ("sort_of_type: Unsupported type '" ^ Type.str t ^ "'"))
 
 let arith_unop (op : Op.uopt) : Z3.Expr.expr -> Z3.Expr.expr =
   match op with
   | Op.Not -> Z3.Boolean.mk_not ctx
   | Op.Neg -> Z3.Arithmetic.mk_unary_minus ctx
-  | _ -> failwith "Encoding: arith_unop: not implemented!"
+  | _ ->
+      raise (Error ("arith_unop: '" ^ Op.str_of_unopt op ^ "' not implemented"))
 
 let fp_unop (op : Op.uopt) : Z3.Expr.expr -> Z3.Expr.expr =
   match op with
   | Op.Not -> Z3.Boolean.mk_not ctx
   | Op.Neg -> Z3.FloatingPoint.mk_neg ctx
-  | _ -> failwith "Encoding: fp_unop: not implemente!"
+  | _ -> raise (Error ("fp_unop: '" ^ Op.str_of_unopt op ^ "' not implemented"))
 
 let encode_unop (op : Op.uopt) (v : Z3.Expr.expr) : Z3.Expr.expr =
   let op' = if Z3.FloatingPoint.is_fp v then fp_unop op else arith_unop op in
@@ -54,9 +55,10 @@ let arith_binop (op : Op.bopt) : Z3.Expr.expr -> Z3.Expr.expr -> Z3.Expr.expr =
   | Op.Times -> fun v1 v2 -> Z3.Arithmetic.mk_mul ctx [ v1; v2 ]
   | Op.Div -> Z3.Arithmetic.mk_div ctx
   | _ ->
-      failwith
-        ("Encoding: encode_binop: '" ^ Op.str_of_binopt_single op
-       ^ "' not implemented!")
+      raise
+        (Error
+           ("Encoding: encode_binop: '" ^ Op.str_of_binopt_single op
+          ^ "' not implemented!"))
 
 let fp_binop (op : Op.bopt) : Z3.Expr.expr -> Z3.Expr.expr -> Z3.Expr.expr =
   match op with
@@ -70,9 +72,10 @@ let fp_binop (op : Op.bopt) : Z3.Expr.expr -> Z3.Expr.expr -> Z3.Expr.expr =
   | Op.Times -> Z3.FloatingPoint.mk_mul ctx rne
   | Op.Div -> Z3.FloatingPoint.mk_div ctx rne
   | _ ->
-      failwith
-        ("Encoding: encode_binop: '" ^ Op.str_of_binopt_single op
-       ^ "' not implemented!")
+      raise
+        (Error
+           ("Encoding: encode_binop: '" ^ Op.str_of_binopt_single op
+          ^ "' not implemented!"))
 
 let encode_binop (op : Op.bopt) (v1 : Z3.Expr.expr) (v2 : Z3.Expr.expr) :
     Z3.Expr.expr =
@@ -89,14 +92,15 @@ let rec encode_value (v : Sval.t) : Z3.Expr.expr =
   | Sval.Bool b -> Z3.Boolean.mk_val ctx b
   | Sval.Byte i -> Z3.Arithmetic.Integer.mk_numeral_i ctx i
   | Sval.Symbolic (t, x) -> Z3.Expr.mk_const_s ctx x (sort_of_type ctx t)
+  | Sval.List l ->
+      raise (Error ("encode_value: List '" ^ Sval.str v ^ "' not implemented"))
   | Sval.Unop (op, v) ->
       let v' = encode_value v in
       encode_unop op v'
   | Sval.Binop (op, v1, v2) ->
       let v1' = encode_value v1 and v2' = encode_value v2 in
       encode_binop op v1' v2'
-  | _ ->
-      failwith ("Encoding: encode_value: '" ^ Sval.str v ^ "' not implemented!")
+  | _ -> raise (Error ("encode_value: '" ^ Sval.str v ^ "' not implemented!"))
 
 let mk_solver () : Z3.Solver.solver = Z3.Solver.mk_solver ctx None
 
