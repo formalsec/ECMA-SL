@@ -353,10 +353,10 @@ buckets.Dictionary = function (toStrFunction) {
 
 var dict = new buckets.Dictionary();
 
-var x1 = symb_number(); //1
-var x2 = symb_number(); //2
-var s1 = symb_string(); // "2"
-var s2 = symb_string(); // "foo"
+var x1 = esl_symbolic.number("x1"); //1
+var x2 = esl_symbolic.number("x2"); //2
+var s1 = esl_symbolic.string("s1"); // "2"
+var s2 = esl_symbolic.string("s2"); // "foo"
 
 dict.set(s1, x1);
 dict.set(s2, x2);
@@ -364,4 +364,4 @@ dict.set(s2, x2);
 dict.remove(s2);
 
 var res = dict.containsKey(s1);
-Assert((not (s1 = s2)) and res or ((s1 = s2) and (not res)));
+esl_symbolic.assert((!(s1 == s2)) && res || ((s1 == s2) && (!res)));

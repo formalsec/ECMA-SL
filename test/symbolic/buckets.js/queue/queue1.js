@@ -679,10 +679,10 @@ buckets.Queue = function () {
 
 var queue = new buckets.Queue();
 
-var x1 = symb_number(); // 1
-var x2 = symb_number(); // 2
-var x3 = symb_number(); // 3
-Assume((x1 < x2) and (x2 < x3));
+var x1 = esl_symbolic.number( "x1"); // 1
+var x2 = esl_symbolic.number( "x2"); // 2
+var x3 = esl_symbolic.number( "x3"); // 3
+esl_symbolic.assume((x1 < x2) && (x2 < x3));
 
 function createQueue() {
   queue.enqueue(x1);
@@ -696,18 +696,18 @@ function createQueue() {
 //it('size gives the right value', function () {
 var queue = new buckets.Queue();
 var size = queue.size();
-Assert(size = 0);
+esl_symbolic.assert(size == 0);
 createQueue();
 var size = queue.size();
-Assert(size = 3);
-var x4 = symb_number();
+esl_symbolic.assert(size == 3);
+var x4 = esl_symbolic.number( "x4");
 queue.add(x4); // synonym to enqueue
 var size = queue.size();
-Assert(size = 4);
+esl_symbolic.assert(size == 4);
 queue.dequeue();
 var size = queue.size();
-Assert(size = 3);
+esl_symbolic.assert(size == 3);
 queue.clear();
 var size = queue.size();
-Assert(size = 0);
+esl_symbolic.assert(size == 0);
 queue.clear();

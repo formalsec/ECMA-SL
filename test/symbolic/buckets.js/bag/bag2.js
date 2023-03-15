@@ -952,10 +952,10 @@ buckets.Bag = function (toStrFunction) {
 var bag = new buckets.Bag();
 
 // size
-var n1 = symb_number();
-var n2 = symb_number();
+var n1 = esl_symbolic.number( "n1");
+var n2 = esl_symbolic.number( "n2");
 
 bag.add(n1);
 
 var res = bag.count(n2);
-Assert(((n1 = n2) and (res = 1)) or ((not (n1 = n2)) and (res = 0)));
+esl_symbolic.assert(((n1 == n2) && (res == 1)) || ((!(n1 == n2)) && (res == 0)));

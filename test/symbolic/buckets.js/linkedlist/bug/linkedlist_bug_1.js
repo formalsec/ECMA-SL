@@ -520,12 +520,12 @@ buckets.LinkedList = function () {
 
 var list = new buckets.LinkedList()
 
-var x1 = symb_number();
-var x2 = symb_number();
-var x3 = symb_number();
+var x1 = esl_symbolic.number("x1");
+var x2 = esl_symbolic.number("x2");
+var x3 = esl_symbolic.number("x3");
 
 list.add(x1)
 list.add(x2)
 
 var res = list.elementAtIndex(x3);
-Assert( (((x3 = 0) and (res = x1)) or ((x3 = 1) and (res = x2))) or (((not (x3 = 0)) and (not (x3 = 1))) and (res = undefined)) );
+esl_symbolic.assert( (((x3 == 0) && (res == x1)) || ((x3 == 1) && (res == x2))) || (((!(x3 == 0)) && (!(x3 == 1))) && (res == undefined)) );

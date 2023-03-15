@@ -536,14 +536,14 @@ buckets.LinkedList = function () {
 
 var list = new buckets.LinkedList()
 
-var x1 = symb_number();
-var x2 = symb_number();
-var x3 = symb_number();
-var x4 = symb_number();
+var x1 = esl_symbolic.number( "x1");
+var x2 = esl_symbolic.number( "x2");
+var x3 = esl_symbolic.number( "x3");
+var x4 = esl_symbolic.number( "x4");
 
-Assume(not (x1 = x2));
-Assume(not (x1 = x3));
-Assume(not (x2 = x3));
+esl_symbolic.assume(!(x1 == x2));
+esl_symbolic.assume(!(x1 == x3));
+esl_symbolic.assume(!(x2 == x3));
 
 list.add(x1)
 list.add(x2)
@@ -553,11 +553,11 @@ var ar = list.toArray();
 
 var l1 = list.size();
 var l2 = ar.length;
-Assert(l1 = l2);
+esl_symbolic.assert(l1 == l2);
 
 var i = 0
 for (i = 0; i < l1; i++) {
   var li = list.elementAtIndex(i);
   var ari = ar[i];
-  Assert(li = ari);
+  esl_symbolic.assert(li == ari);
 }

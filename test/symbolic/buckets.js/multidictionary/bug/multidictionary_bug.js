@@ -755,13 +755,13 @@ buckets.MultiDictionary = function (toStrFunction, valuesEqualsFunction) {
 
 var dict = new buckets.MultiDictionary()
 
-var s = symb_string();
-var x1 = symb_number();
-var x2 = symb_number();
+var s = esl_symbolic.string("s");
+var x1 = esl_symbolic.number( "x1");
+var x2 = esl_symbolic.number( "x2");
 
 dict.set(s, x1);
 dict.set(s, x2);
 
 dict.remove(s, x1);
 var res = dict.remove(s, x2);
-Assert(((not (x1 = x2)) and (res = true)) or ((x1 = x2) and (res = false)));
+esl_symbolic.assert(((!(x1 == x2)) && (res == true)) || ((x1 == x2) && (res == false)));

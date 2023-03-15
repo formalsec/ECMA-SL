@@ -749,15 +749,15 @@ buckets.MultiDictionary = function (toStrFunction, valuesEqualsFunction) {
 
 var dict = new buckets.MultiDictionary()
 
-var s1 = symb_string();
-var s2 = symb_string();
-var x1 = symb_number();
-var x2 = symb_number();
-var x3 = symb_number();
+var s1 = esl_symbolic.string("s1");
+var s2 = esl_symbolic.string("s2");
+var x1 = esl_symbolic.number("x1");
+var x2 = esl_symbolic.number("x2");
+var x3 = esl_symbolic.number("x3");
 
-Assume (not (x1 = x2));
-Assume (not (x1 = x3));
-Assume (not (x2 = x3));
+esl_symbolic.assume(not (x1 == x2));
+esl_symbolic.assume(not (x1 == x3));
+esl_symbolic.assume(not (x2 == x3));
 
 dict.set(s1, x1);
 dict.set(s1, x2);
@@ -766,8 +766,8 @@ dict.set(s2, x3);
 
 var keys = dict.keys();
 var l = keys.length;
-Assert(((s1 = s2) and (l = 1)) or ((not (s1 = s2)) and (l = 2)));
+esl_symbolic.assert(((s1 == s2) && (l == 1)) || ((not (s1 == s2)) && (l == 2)));
 
 var values = dict.values();
 var l2 = values.length;
-Assert(((s1 = s2) and (l2 = 3)) or ((not (s1 = s2)) and (l2 = 4)));
+esl_symbolic.assert(((s1 == s2) && (l2 == 3)) || ((not (s1 == s2)) && (l2 == 4)));

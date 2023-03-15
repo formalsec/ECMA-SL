@@ -536,14 +536,14 @@ buckets.LinkedList = function () {
 
 var list = new buckets.LinkedList()
 
-var x1 = symb_number();
-var x2 = symb_number();
-var x3 = symb_number();
-var x4 = symb_number();
+var x1 = esl_symbolic.number( "x1");
+var x2 = esl_symbolic.number( "x2");
+var x3 = esl_symbolic.number( "x3");
+var x4 = esl_symbolic.number( "x4");
 
-// Assume(not (x1 = x2));
-// Assume(not (x1 = x3));
-// Assume(not (x2 = x3));
+// esl_symbolic.assume(!(x1 == x2));
+// esl_symbolic.assume(!(x1 == x3));
+// esl_symbolic.assume(!(x2 == x3));
 
 list.add(x1);
 list.add(x2);
@@ -556,4 +556,4 @@ list.forEach(function (x) {
 
 list.reverse();
 var res = list.equals(list2);
-Assert(((x1 = x3) and res) or ((not (x1 = x3)) and (not res)));
+esl_symbolic.assert(((x1 == x3) && res) || ((!(x1 == x3)) && (!res)));

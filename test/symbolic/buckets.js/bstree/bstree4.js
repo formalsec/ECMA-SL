@@ -1114,13 +1114,13 @@ buckets.BSTree = function (compareFunction) {
 
 var bst = new buckets.BSTree();
 
-var x1 = symb_number();
-var x2 = symb_number();
-var x3 = symb_number();
+var x1 = esl_symbolic.number( "x1");
+var x2 = esl_symbolic.number( "x2");
+var x3 = esl_symbolic.number( "x3");
 
-Assume(not (x1 = x2));
-Assume(not (x1 = x3));
-Assume(not (x2 = x3));
+esl_symbolic.assume(!(x1 == x2));
+esl_symbolic.assume(!(x1 == x3));
+esl_symbolic.assume(!(x2 == x3));
 
 bst.add(x1);
 bst.add(x2);
@@ -1133,9 +1133,9 @@ bst.inorderTraversal(function (x) {
 });
 
 var l = ar1.length;
-Assert(l = 3);
+esl_symbolic.assert(l == 3);
 
 var y1 = ar1[0];
 var y2 = ar1[1];
 var y3 = ar1[2];
-Assert((y1 < y2) and (y2 < y3));
+esl_symbolic.assert((y1 < y2) && (y2 < y3));

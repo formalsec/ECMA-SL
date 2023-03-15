@@ -353,23 +353,23 @@ buckets.Dictionary = function (toStrFunction) {
 
 var dict = new buckets.Dictionary();
 
-var x1 = symb_number(); //1
-var x2 = symb_number(); //2
-var s1 = symb_string(); // "2"
-var s2 = symb_string(); // "foo"
+var x1 = esl_symbolic.number( "x1"); //1
+var x2 = esl_symbolic.number( "x2"); //2
+var s1 = esl_symbolic.string("s1"); // "2"
+var s2 = esl_symbolic.string("s2"); // "foo"
 
-Assume(not (s1 = s2));
+esl_symbolic.assume(!(s1 == s2));
 
 dict.set(s1, x1);
 dict.set(s2, x2);
 
 var dict2;
 var res2 = dict.equals(dict2);
-Assert(not res2);
+esl_symbolic.assert(!res2);
 dict2 = new buckets.Dictionary();
 
 var res1 = dict.equals(dict2);
-Assert(not res1);
+esl_symbolic.assert(!res1);
 
 var keys = dict.keys();
 var vals = dict.values();
@@ -380,4 +380,4 @@ for (i = 0; i < 2; i++) {
 }
 
 var res3 = dict2.equals(dict);
-Assert(res3);
+esl_symbolic.assert(res3);

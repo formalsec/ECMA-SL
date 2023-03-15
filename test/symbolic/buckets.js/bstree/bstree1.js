@@ -1114,13 +1114,13 @@ buckets.BSTree = function (compareFunction) {
 
 var bst = new buckets.BSTree();
 
-var x1 = symb_number();
-var x2 = symb_number();
-var x3 = symb_number();
+var x1 = esl_symbolic.number( "x1");
+var x2 = esl_symbolic.number( "x2");
+var x3 = esl_symbolic.number( "x3");
 
-Assume(not (x1 = x2));
-Assume(not (x1 = x3));
-Assume(not (x2 = x3));
+esl_symbolic.assume(!(x1 == x2));
+esl_symbolic.assume(!(x1 == x3));
+esl_symbolic.assume(!(x2 == x3));
 
 bst.add(x1);
 bst.add(x2);
@@ -1128,10 +1128,10 @@ bst.add(x3);
 
 bst.add(undefined);
 var size = bst.size();
-Assert(size = 3);
+esl_symbolic.assert(size == 3);
 
 var height = bst.height();
-Assert(((x1 < x2) and (x2 < x3) and (height = 2)) or ((x1 < x3) and (x3 < x2) and (height = 2)) or ((x2 < x1) and (x1 < x3) and (height = 1)) or ((x2 < x3) and (x3 < x1) and (height = 2)) or ((x3 < x1) and (x1 < x2) and (height = 1)) or ((x3 < x2) and (x2 < x1) and (height = 2)));
+esl_symbolic.assert(((x1 < x2) && (x2 < x3) && (height == 2)) || ((x1 < x3) && (x3 < x2) && (height == 2)) || ((x2 < x1) && (x1 < x3) && (height == 1)) || ((x2 < x3) && (x3 < x1) && (height == 2)) || ((x3 < x1) && (x1 < x2) && (height == 1)) || ((x3 < x2) && (x2 < x1) && (height == 2)));
 
 
 

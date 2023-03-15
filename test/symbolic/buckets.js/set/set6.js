@@ -549,11 +549,11 @@ buckets.Set = function (toStringFunction) {
 var set1 = new buckets.Set();
 var set2 = new buckets.Set();
 
-var x1 = symb_number();
-var x2 = symb_number();
-var x3 = symb_number();
+var x1 = esl_symbolic.number( "x1");
+var x2 = esl_symbolic.number( "x2");
+var x3 = esl_symbolic.number( "x3");
 
-Assume(not (x1 = x3));
+esl_symbolic.assume(!(x1 == x3));
 
 set1.add(x1);
 set1.add(x2);
@@ -562,11 +562,11 @@ set2.add(x3);
 set2.add(x2);
 
 var res1 = set1.equals(set2);
-Assert(not res1);
+esl_symbolic.assert(!res1);
 
 set2.add(x1);
 var res2 = set1.equals(set2);
-Assert(((x2 = x3) and res2) or ((not (x2 = x3)) and (not res2)));
+esl_symbolic.assert(((x2 == x3) && res2) || ((!(x2 == x3)) && (!res2)));
 
 var ar = [];
 set2.forEach(function (x) {
@@ -574,4 +574,4 @@ set2.forEach(function (x) {
 });
 
 var res3 = set2.equals(ar);
-Assert(not res3);
+esl_symbolic.assert(!res3);

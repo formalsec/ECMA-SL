@@ -716,9 +716,9 @@ buckets.PriorityQueue = function (compareFunction) {
 
 var pqueue = new buckets.PriorityQueue();
 
-var x1 = symb_number();
-var x2 = symb_number();
-var x3 = symb_number();
+var x1 = esl_symbolic.number( "x1");
+var x2 = esl_symbolic.number( "x2");
+var x3 = esl_symbolic.number( "x3");
 
 pqueue.enqueue(x1);
 pqueue.enqueue(x2);
@@ -727,4 +727,4 @@ pqueue.enqueue(x3);
 pqueue.dequeue();
 
 var res = pqueue.contains(x1);
-Assert((((x1 <= x2) or (x1 <= x3)) and res) or ((x1 > x2) and (x1 > x3) and (not res)));
+esl_symbolic.assert((((x1 <= x2) || (x1 <= x3)) && res) || ((x1 > x2) && (x1 > x3) && (!res)));

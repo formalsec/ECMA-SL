@@ -1114,13 +1114,13 @@ buckets.BSTree = function (compareFunction) {
 
 var bst = new buckets.BSTree();
 
-var x1 = symb_number();
-var x2 = symb_number();
-var x3 = symb_number();
+var x1 = esl_symbolic.number( "x1");
+var x2 = esl_symbolic.number( "x2");
+var x3 = esl_symbolic.number( "x3");
 
-Assume(not (x1 = x2));
-Assume(not (x1 = x3));
-Assume(not (x2 = x3));
+esl_symbolic.assume(!(x1 == x2));
+esl_symbolic.assume(!(x1 == x3));
+esl_symbolic.assume(!(x2 == x3));
 
 bst.add(x1);
 bst.add(x2);
@@ -1128,7 +1128,7 @@ bst.add(x3);
 
 // test2: something fails
 
-var x4 = symb_number();
+var x4 = esl_symbolic.number( "x4");
 var ar2 = [];
 bst.levelTraversal(function(x) {
   if (x === x4) {
@@ -1137,4 +1137,4 @@ bst.levelTraversal(function(x) {
   ar2.push(x);
 });
 var l2 = ar2.length;
-Assert(((not (x4 = x1)) and (not (x4 = x2)) and (not (x4 = x3)) and (l2 = 3)) or (((x4 = x1) or (x4 = x2) or (x4 = x3)) and (l2 < 3)));
+esl_symbolic.assert(((!(x4 == x1)) && (!(x4 == x2)) && (!(x4 == x3)) && (l2 == 3)) || (((x4 == x1) || (x4 == x2) || (x4 == x3)) && (l2 < 3)));
