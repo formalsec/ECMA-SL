@@ -1,6 +1,5 @@
 function main() {
   numberStringUnionVariable: number | string := 10;
   numberStringBooleanUnionVariable: number | string | boolean := true;
-  literalUnionVariable: "foo" | "bar" | "baz" := "foo";
   return 0
 }

@@ -1,0 +1,45 @@
+function plusInt() {
+  foo: number := 10;
+  bar: number := 20;
+  baz: number := foo + bar;
+  return 0
+};
+
+function plusFlt() {
+  foo: number := 10.0;
+  bar: number := 20.0;
+  baz: number := foo + bar;
+  return 0
+};
+
+function times() {
+  foo: number := 10;
+  bar: number := 20;
+  baz: number := foo * bar;
+  return 0
+};
+
+function and() {
+  foo: boolean := false;
+  bar: boolean := true;
+  baz: boolean := foo && bar;
+  return 0
+};
+
+function minimum() {
+  foo: number := 10;
+  bar: number := 20;
+  baz: number := min (foo, bar);
+  return 0
+};
+
+function shortcircuitAnd() {
+  foo: boolean := true;
+  bar: boolean := false;
+  baz: boolean := foo &&& bar;
+  return 0
+};
+
+function main() {
+  return 0
+}

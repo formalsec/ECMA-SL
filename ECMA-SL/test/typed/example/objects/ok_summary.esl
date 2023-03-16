@@ -1,6 +1,0 @@
-function main() {
-  emptySummaryNumberVariable: { *: number } := {};
-  summaryNumberVariable: { *: number } := { foo: 10, bar: 10 };
-  summaryNumberPlusStringVariable: { *: number, baz: string } := { foo: 10, bar: 10, baz: "abc" };
-  return 0
-}

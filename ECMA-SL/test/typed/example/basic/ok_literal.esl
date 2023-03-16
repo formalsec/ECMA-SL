@@ -1,8 +1,0 @@
-function main() {
-  numberLiteralVariable: 10 := 10;
-  stringLiteralVariable: "abc" := "abc";
-  booleanLiteralVariable: true := true;
-  nullLiteralVariable: null := null;
-  emptyListLiteralVarible: [] := [];
-  return 0
-}

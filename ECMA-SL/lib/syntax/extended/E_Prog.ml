@@ -1,4 +1,3 @@
-open E_Func
 open E_Macro
 
 module ElementType = struct
@@ -30,11 +29,12 @@ let add_type_decls (prog : t) (type_decls : (string * E_Type.t) list) =
 let add_funcs (prog : t) (funcs : E_Func.t list) : unit =
   List.iter
     (fun (f : E_Func.t) ->
-      match Hashtbl.find_opt prog.funcs f.name with
-      | None -> Hashtbl.replace prog.funcs f.name f
+      let fname = E_Func.get_name f in
+      match Hashtbl.find_opt prog.funcs fname with
+      | None -> Hashtbl.replace prog.funcs fname f
       | Some _ ->
           invalid_arg
-            ("Function \"" ^ f.name ^ "\" already exists in the program"))
+            ("Function \"" ^ fname ^ "\" already exists in the program"))
     funcs
 
 let add_macros (prog : t) (macros : E_Macro.t list) : unit =
@@ -70,6 +70,9 @@ let get_type_decls_list (prog : t) : (string * E_Type.t) list =
 
 let get_func (prog : t) (func : string) : E_Func.t =
   Hashtbl.find prog.funcs func
+
+let get_func_opt (prog : t) (func : string) : E_Func.t option =
+  Hashtbl.find_opt prog.funcs func
 
 let get_funcs (prog : t) : E_Func.t list =
   Hashtbl.fold (fun _ f fs -> f :: fs) prog.funcs []

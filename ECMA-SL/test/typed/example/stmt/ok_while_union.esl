@@ -1,0 +1,9 @@
+function main() {
+  foo: number := 10;
+  while (true) {
+    foo: string := "abc"
+  };
+  
+  bar: number | string := foo;
+  return 0
+}

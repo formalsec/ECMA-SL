@@ -146,13 +146,13 @@ type_decl_target:
 
 proc_target:
   | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; ret_t = option(e_typing_target); s = e_block_target;
-   { E_Func.create None f vars ret_t s }
+   { E_Func.create None f vars ret_t s @@ at $sloc }
   | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; meta = metadata_target; vars_meta_opt = option(vars_metadata_target); 
     ret_t = option(e_typing_target); s = e_block_target;
    {
      let vars_meta = Option.default [] vars_meta_opt in
      let metadata = E_Func_Metadata.build_func_metadata meta vars_meta in
-     E_Func.create (Some metadata) f vars ret_t s }
+     E_Func.create (Some metadata) f vars ret_t s @@ at $sloc  }
 
 proc_params_target:
   | params = separated_list (COMMA, param_target);

@@ -1,0 +1,8 @@
+function foo (x: number): number {
+  return x
+};
+
+function main () {
+  foo (10);
+  return 0
+}

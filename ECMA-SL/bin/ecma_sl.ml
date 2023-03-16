@@ -66,8 +66,12 @@ let core_of_plus (file : string) : Prog.t =
   let e_prog_macros_applied =
     Parsing_utils.apply_prog_macros e_prog_imports_resolved
   in
-  let _ = T_Checker.type_program e_prog_macros_applied in
-  Compiler.compile_prog e_prog_macros_applied
+  let terrors = T_Checker.type_program e_prog_macros_applied in
+  if terrors == [] then Compiler.compile_prog e_prog_macros_applied
+  else
+    let terrors_str = T_Checker.type_errors_str terrors in
+    let _ = Printf.eprintf "%s" terrors_str in
+    exit (-1)
 
 let compile_from_plus_to_core (file : string) : unit =
   let c_prog = core_of_plus file in

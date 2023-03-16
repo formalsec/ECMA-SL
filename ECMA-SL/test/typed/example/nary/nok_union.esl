@@ -1,0 +1,4 @@
+function main() {
+  numberStringUnionBadVariable: number | string := true;
+  return 0
+}

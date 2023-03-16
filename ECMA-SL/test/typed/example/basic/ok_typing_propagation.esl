@@ -1,0 +1,5 @@
+function main() {
+  numberVar1 : number := 10;
+  numberVar2 : number := numberVar1;
+  return 0
+}

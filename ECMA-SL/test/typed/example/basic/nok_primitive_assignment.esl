@@ -1,0 +1,4 @@
+function main() {
+  numberVariable: number := "abc";
+  return 0
+}

@@ -1,5 +1,7 @@
 type t =
   | AnyType
+  | UnknownType
+  | TypeType
   | NumberType
   | StringType
   | BooleanType
@@ -23,9 +25,11 @@ let get_prp_list (o : (string, t) Hashtbl.t * t option) : (string * t) list =
   List.append (get_named_prps o)
     (match get_sumry_prp o with Some t -> [ ("*", t) ] | None -> [])
 
-let rec str (tp : t) : string =
-  match tp with
+let rec str (t : t) : string =
+  match t with
   | AnyType -> "any"
+  | UnknownType -> "unknown"
+  | TypeType -> "_$type"
   | NumberType -> "number"
   | StringType -> "string"
   | BooleanType -> "boolean"
@@ -34,13 +38,13 @@ let rec str (tp : t) : string =
       "{ "
       ^ String.concat ", " (List.map (fun p -> fst p ^ ": " ^ str (snd p)) prps)
       ^ " }"
-  | UserDefinedType tp' -> tp'
+  | UserDefinedType t' -> t'
   | LiteralType v -> Val.str v
-  | ListType tp' -> "[" ^ str tp' ^ "]"
-  | TupleType tp ->
-      "(" ^ String.concat " * " (List.map (fun el -> str el) tp) ^ ")"
-  | UnionType tp ->
-      "(" ^ String.concat " | " (List.map (fun el -> str el) tp) ^ ")"
+  | ListType t' -> "[" ^ str t' ^ "]"
+  | TupleType t ->
+      "(" ^ String.concat " * " (List.map (fun el -> str el) t) ^ ")"
+  | UnionType t ->
+      "(" ^ String.concat " | " (List.map (fun el -> str el) t) ^ ")"
 
 let parse_obj_prps (prps : Prop.p_t list) : (string, t) Hashtbl.t * t option =
   let p_t_split p (named_prps, sumry_prps) =
@@ -64,12 +68,12 @@ let parse_obj_prps (prps : Prop.p_t list) : (string, t) Hashtbl.t * t option =
   | t :: [] -> (named_prps, Some t)
   | default -> invalid_arg "Duplicate summary property in the object"
 
-let merge_tuple_type (nary_tp : t) (simple_tp : t) : t =
-  match nary_tp with
-  | TupleType nary_tp' -> TupleType (List.append nary_tp' [ simple_tp ])
-  | default -> TupleType [ nary_tp; simple_tp ]
+let merge_tuple_type (nary_t : t) (simple_t : t) : t =
+  match nary_t with
+  | TupleType nary_t' -> TupleType (List.append nary_t' [ simple_t ])
+  | default -> TupleType [ nary_t; simple_t ]
 
-let merge_union_type (nary_tp : t) (simple_tp : t) : t =
-  match nary_tp with
-  | UnionType nary_tp' -> UnionType (List.append nary_tp' [ simple_tp ])
-  | default -> UnionType [ nary_tp; simple_tp ]
+let merge_union_type (nary_t : t) (simple_t : t) : t =
+  match nary_t with
+  | UnionType nary_t' -> UnionType (List.append nary_t' [ simple_t ])
+  | default -> UnionType [ nary_t; simple_t ]

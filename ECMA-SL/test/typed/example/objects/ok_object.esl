@@ -1,7 +1,0 @@
-function main() {
-  emptyObject: {} := {};
-  onePropertyObject: { foo: number } := { foo: 10 };
-  multiplePropertyObject: { foo: number, bar: string, baz: boolean } := { foo: 10, bar: "abc", baz: true };
-  objectPropertyObject: { foo:{ bar: number } } := { foo: { bar: 10 } };
-  return 0
-}

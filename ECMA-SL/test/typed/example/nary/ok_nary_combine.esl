@@ -1,6 +1,0 @@
-function main() {
-  x: number * string | boolean := 10;
-  y: number * (string | boolean) := 10;
-  z: (number | string) * (boolean | { foo: string }) * boolean := true;
-  return 0
-}

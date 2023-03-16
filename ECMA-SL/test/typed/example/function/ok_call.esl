@@ -1,0 +1,13 @@
+function numberFun(x: number): number {
+  return 10
+};
+
+function stringFun(x: number, y: boolean) : string {
+  return "abc"
+};
+
+function main() {
+  foo: number := numberFun(10);
+  bar: string := stringFun(10, true);
+  return 0
+}

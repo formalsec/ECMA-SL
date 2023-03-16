@@ -1,5 +1,6 @@
 open HTMLExtensions
 open HTMLExtensions.E_Stmt
+open Source
 
 let compare_funcs (f1 : E_Func.t) (f2 : E_Func.t) : int =
   let f1_metadata = E_Func.get_metadata f1 in
@@ -183,7 +184,10 @@ let mapper (new_funcs : (string, E_Func.t) Hashtbl.t) (s : E_Stmt.t) : E_Stmt.t
                   (E_Pat_Metadata.get_meta_params meta)
               in
               let func_name = "dummy" in
-              let newfunc = E_Func.create (Some func_meta) func_name [] None stmt in
+              let newfunc' =
+                E_Func.create (Some func_meta) func_name [] None stmt
+              in
+              let newfunc = { at = s.at; it = newfunc' } in
               Hashtbl.replace new_funcs
                 (E_Pat_Metadata.get_production_number meta)
                 newfunc
@@ -212,10 +216,13 @@ let generate (json_file : string) (prog : E_Prog.t) : string =
   let converted_funcs_list =
     List.map
       (fun f ->
-        E_Func.create (E_Func.get_metadata f) (E_Func.get_name f)
-          (E_Func.get_params_t f)
-          (E_Func.get_return_t f)
-          (E_Stmt.map (mapper converted_table) (E_Func.get_body f)))
+        {
+          at = f.at;
+          it =
+            E_Func.create (E_Func.get_metadata f) (E_Func.get_name f)
+              (E_Func.get_params_t f) (E_Func.get_return_t f)
+              (E_Stmt.map (mapper converted_table) (E_Func.get_body f));
+        })
       filtered_funcs_list
   in
   let merged_funcs =

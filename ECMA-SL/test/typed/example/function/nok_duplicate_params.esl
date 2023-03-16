@@ -1,0 +1,7 @@
+function foo (x: number, x: string) {
+  return 0
+};
+
+function main() {
+  return 0
+}

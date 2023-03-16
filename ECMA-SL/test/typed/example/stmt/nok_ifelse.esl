@@ -1,0 +1,10 @@
+function main() {
+  foo: number := 10;
+  if (foo) {
+    bar: string := 10
+  } else {
+    bar: boolean := 20
+  };
+
+  return 0
+}
