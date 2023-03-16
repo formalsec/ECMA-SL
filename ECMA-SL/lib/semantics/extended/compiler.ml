@@ -596,7 +596,7 @@ and compile_assert (e : E_Expr.t) (at : region) : Stmt.t list =
   let stmts, e' = compile_expr at e in
   stmts @ [ Stmt.Assert e' @@ at ]
 
-and compile_summary_api_call (e: E_Expr.t) (at : region) : Stmt.t list =
+and compile_summary_api_call (e : E_Expr.t) (at : region) : Stmt.t list =
   let stmts, e' = compile_expr at e in
   stmts @ [ Stmt.Assert e' @@ at ]
 

@@ -15,6 +15,8 @@ let int_sort = Z3.Arithmetic.Integer.mk_sort ctx
 (*let real_sort = Z3.Arithmetic.Real.mk_sort ctx*)
 let bool_sort = Z3.Boolean.mk_sort ctx
 
+let str_sort = Z3.Seq.mk_string_sort ctx
+
 (* Rouding modes *)
 let rne = Z3.FloatingPoint.RoundingMode.mk_rne ctx
 (*let rtz = Z3.FloatingPoint.RoundingMode.mk_rtz ctx*)
@@ -24,7 +26,8 @@ let sort_of_type (ctx : Z3.context) (t : Type.t) : Z3.Sort.sort =
   | Type.IntType -> int_sort
   | Type.FltType -> fp_sort
   | Type.BoolType -> bool_sort
-  | _ -> raise (Error ("sort_of_type: Unsupported type '" ^ Type.str t ^ "'"))
+  | Type.StrType -> str_sort
+  | _ -> failwith "Encoding: sort_of_type: Unsupported type!"
 
 let arith_unop (op : Op.uopt) : Z3.Expr.expr -> Z3.Expr.expr =
   match op with
@@ -33,6 +36,11 @@ let arith_unop (op : Op.uopt) : Z3.Expr.expr -> Z3.Expr.expr =
   | _ ->
       raise (Error ("arith_unop: '" ^ Op.str_of_unopt op ^ "' not implemented"))
 
+let str_unop (op : Op.uopt) : Z3.Expr.expr -> Z3.Expr.expr =
+  match op with 
+  | Op.StringLen -> Z3.Seq.mk_seq_length ctx
+  | _ -> failwith "Encoding: string_unop: not implemented!"
+
 let fp_unop (op : Op.uopt) : Z3.Expr.expr -> Z3.Expr.expr =
   match op with
   | Op.Not -> Z3.Boolean.mk_not ctx
@@ -40,7 +48,10 @@ let fp_unop (op : Op.uopt) : Z3.Expr.expr -> Z3.Expr.expr =
   | _ -> raise (Error ("fp_unop: '" ^ Op.str_of_unopt op ^ "' not implemented"))
 
 let encode_unop (op : Op.uopt) (v : Z3.Expr.expr) : Z3.Expr.expr =
-  let op' = if Z3.FloatingPoint.is_fp v then fp_unop op else arith_unop op in
+  (*let _ = Printf.printf "pain %s\n" (Z3.Sort.to_string (Z3.Expr.get_sort v)) in 
+  Z3.Seq.is_string returns false instead of true, even though the sort is String   
+  *)
+  let op' = if Z3.FloatingPoint.is_fp v then fp_unop op else (if Z3.Arithmetic.is_int v then arith_unop op else str_unop op) in
   op' v
 
 let arith_binop (op : Op.bopt) : Z3.Expr.expr -> Z3.Expr.expr -> Z3.Expr.expr =
@@ -91,6 +102,7 @@ let rec encode_value (v : Sval.t) : Z3.Expr.expr =
   | Sval.Flt f -> Z3.FloatingPoint.mk_numeral_f ctx f fp_sort
   | Sval.Bool b -> Z3.Boolean.mk_val ctx b
   | Sval.Byte i -> Z3.Arithmetic.Integer.mk_numeral_i ctx i
+  | Sval.Str s -> Z3.Seq.mk_string ctx s
   | Sval.Symbolic (t, x) -> Z3.Expr.mk_const_s ctx x (sort_of_type ctx t)
   | Sval.List l ->
       raise (Error ("encode_value: List '" ^ Sval.str v ^ "' not implemented"))
@@ -171,8 +183,8 @@ let string_of_value (e : Z3.Expr.expr) : string =
   f e
 
 
-let optimize (optimize : Z3.Optimize.optimize) (expr : Sval.t) 
-  (vs : Sval.t list) (f : Z3.Optimize.optimize -> Z3.Expr.expr -> Z3.Optimize.handle) : int =
+let optimize (optimize : Z3.Optimize.optimize) (expr : Sval.t) (expr_type : Type.t)
+  (vs : Sval.t list) (f : Z3.Optimize.optimize -> Z3.Expr.expr -> Z3.Optimize.handle) : Sval.t =
 let _ = Z3.Optimize.push optimize in
 let _ = add_opt optimize vs in
 let h = f optimize (encode_value expr) in
@@ -181,22 +193,21 @@ let ret =
     Time_utils.time_call time_solver (fun () -> Z3.Optimize.check optimize)
   in
   match sat with
-  | Z3.Solver.SATISFIABLE -> int_of_string (Z3.Expr.to_string (Z3.Optimize.get_upper h))
-  | _ -> -1
+  | Z3.Solver.SATISFIABLE -> Sval.Int (int_of_string (Z3.Expr.to_string (Z3.Optimize.get_upper h)))
+  | _ -> Sval.Int (-1)
 in let _ = Z3.Optimize.pop optimize in ret
 
 
-let maximize (opt : Z3.Optimize.optimize) (expr : Sval.t)
+let maximize (opt : Z3.Optimize.optimize) (expr : Sval.t) (expr_type : Type.t) 
     (vs : Sval.t list) =
-    optimize opt expr vs Z3.Optimize.maximize
+  optimize opt expr expr_type vs Z3.Optimize.maximize
 
-let minimize (opt : Z3.Optimize.optimize) (expr : Sval.t)
+let minimize (opt : Z3.Optimize.optimize) (expr : Sval.t) (expr_type : Type.t)
     (vs : Sval.t list) =
-  optimize opt expr vs Z3.Optimize.minimize
+  optimize opt expr expr_type vs Z3.Optimize.minimize
 
-let get_const_interp (solver : Z3.Solver.solver) (v : Sval.t) (vs : Sval.t list)
-    : int =
+let get_const_interp (solver : Z3.Solver.solver) (v : Sval.t) (vs : Sval.t list) =
   assert (check solver vs);
   let model = Option.get (Z3.Solver.get_model solver) in
   let res = Option.get (Z3.Model.eval model (encode_value v) true) in
-  int_of_string (Z3.Expr.to_string res)
+  Sval.Int (int_of_string (Z3.Expr.to_string res))

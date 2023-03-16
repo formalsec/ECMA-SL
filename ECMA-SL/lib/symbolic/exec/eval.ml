@@ -1,6 +1,7 @@
 open Func
 open State
 open Source
+open Sval_typing
 module Crash = Error.Make ()
 module Invalid_arg = Error.Make ()
 
@@ -60,30 +61,41 @@ let rec eval_expression ?(at = no_region) (store : Sstore.t) (c : config) (e : E
         | _ -> Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
       in
       Sval.Symbolic (t, x')
-    | Expr.IsSymbolic e ->
-        let v = eval_expression ~at store c e in
-        Sval.Bool (Sval.is_symbolic v)
-    | Expr.IsSat e ->
-        let v = eval_expression ~at store c e in
-        let { prog; code; state; pc; solver; optimize } = c in
-  
-        Sval.Bool (Encoding.check solver (v :: pc))
-    | Expr.Maximize e -> (
-        let v = eval_expression ~at store c e in
-        let { prog; code; state; pc; solver; optimize } = c in
-        Sval.Int (Encoding.maximize optimize v pc))
-    | Expr.Minimize e -> (
-        let v = eval_expression ~at store c e in
-        let { prog; code; state; pc; solver; optimize } = c in
-        Sval.Int (Encoding.minimize optimize v pc))
-    | Expr.Eval e ->
-        let v = eval_expression ~at store c e in
-        let { prog; code; state; pc; solver; optimize } = c in
-        Sval.Int (Encoding.get_const_interp solver v pc)
+  | Expr.IsSymbolic e ->
+      let v = eval_expression ~at store c e in
+      Sval.Bool (Sval.is_symbolic v)
+  | Expr.IsSat e ->
+      let v = eval_expression ~at store c e in
+      let { prog; code; state; pc; solver; optimize } = c in
+      Sval.Bool (Encoding.check solver (v :: pc))
+  | Expr.Maximize e ->
+      let v = eval_expression ~at store c e in
+      let v_type = type_of v in
+      let { prog; code; state; pc; solver; optimize } = c in
+      if Option.is_some v_type then
+        match Option.get v_type with
+        | Type.IntType -> Encoding.maximize optimize v Type.IntType pc
+        | Type.FltType -> Encoding.maximize optimize v Type.FltType pc
+        | _ -> Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
+      else Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
+  | Expr.Minimize e ->
+      let v = eval_expression ~at store c e in
+      let v_type = type_of v in
+      let { prog; code; state; pc; solver; optimize } = c in
+      if Option.is_some v_type then
+        match Option.get v_type with
+        | Type.IntType -> Encoding.minimize optimize v Type.IntType pc
+        | Type.FltType -> Encoding.minimize optimize v Type.FltType pc
+        | _ -> Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
+      else Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
+  | Expr.Eval e ->
+      let v = eval_expression ~at store c e in
+      let { prog; code; state; pc; solver; optimize } = c in
+      Encoding.get_const_interp solver v pc
   with Invalid_argument e -> Invalid_arg.error at e
 
 let step (c : config) : config list =
-  let { prog; code; state; pc; solver ; optimize} = c in
+  let { prog; code; state; pc; solver; optimize } = c in
   let heap, store, stack, f = state in
   let stmts =
     match code with
@@ -106,7 +118,8 @@ let step (c : config) : config list =
       [ update c (Final (Some (eval_expression ~at:s.at store c e))) state pc ]
   | Stmt.Assume e when Sval.Bool true = eval_expression ~at:s.at store c e ->
       [ update c (Cont (List.tl stmts)) state pc ]
-  | Stmt.Assume e when Sval.Bool false = eval_expression ~at:s.at store c e -> []
+  | Stmt.Assume e when Sval.Bool false = eval_expression ~at:s.at store c e ->
+      []
   | Stmt.Assume e -> (
       let v = eval_expression ~at:s.at store c e in
       try
@@ -118,10 +131,14 @@ let step (c : config) : config list =
   | Stmt.Assert e when Sval.Bool true = eval_expression ~at:s.at store e ->
       [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Assert e when Sval.Bool false = eval_expression ~at:s.at store c e ->
-      [ update c (Failure (Some (eval_expression ~at:s.at store c e))) state pc ]
+      [
+        update c (Failure (Some (eval_expression ~at:s.at store c e))) state pc;
+      ]
   | Stmt.Assert e -> (
       let v = eval_expression ~at:s.at store c e in
-      let v' = eval_expression ~at:s.at store c (Expr.UnOpt (Operators.Not, e)) in
+      let v' =
+        eval_expression ~at:s.at store c (Expr.UnOpt (Operators.Not, e))
+      in
       try
         if Encoding.check solver (v' :: pc) then
           [ update c (Failure (Some v)) state pc ]
@@ -138,8 +155,8 @@ let step (c : config) : config list =
           pc;
       ]
   | Stmt.Block blk -> [ update c (Cont (blk @ List.tl stmts)) state pc ]
-  | Stmt.If (br, blk, _) when Sval.Bool true = eval_expression ~at:s.at store c br
-    ->
+  | Stmt.If (br, blk, _)
+    when Sval.Bool true = eval_expression ~at:s.at store c br ->
       let cont =
         match blk.it with
         | Stmt.Block b -> b @ ((Stmt.Merge @@ blk.at) :: List.tl stmts)
@@ -353,7 +370,7 @@ let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
       state = (heap, store, stack, func.name);
       pc = [];
       solver = Encoding.mk_solver ();
-      optimize = Encoding.mk_opt();
+      optimize = Encoding.mk_opt ();
     }
   in
   eval initial_config

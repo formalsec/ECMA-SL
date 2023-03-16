@@ -4,6 +4,26 @@ type t = Sval.t
 
 module Op = Operators
 
+let s_len (v : t) : t =
+  match v with
+  | Str s -> Int (String.length s)
+  | Symbolic(Type.StrType, name) -> Unop(Op.StringLen, v)
+  | _ ->
+      invalid_arg
+        "Exception in Oper.s_len: this operation is only applicable to String \
+          arguments"
+
+
+let s_nth ((v1, v2) : t * t) : t =
+  match (v1, v2) with
+  | Str s, Int i -> Str (String.sub s i 1)
+  | Symbolic(Type.StrType, _), Int i-> Binop(Op.Snth, v1, v2)
+  | Str s, Symbolic(Type.IntType, _) -> Binop(Op.Snth, v1, v2)
+  | _ ->
+      invalid_arg
+        "Exception in Oper.s_nth: this operation is only applicable to String \
+          and Integer arguments"
+
 let eval_unop (op : Op.uopt) (v : t) : t =
   match op with
   | Op.Neg -> (
@@ -83,6 +103,7 @@ let eval_unop (op : Op.uopt) (v : t) : t =
       | Flt n -> Bool (Float.is_nan n)
       (* Encode to unary op *)
       | v' -> Binop (Op.Eq, v', Flt nan))
+  | Op.StringLen -> s_len v
   | _ ->
       invalid_arg ("eval_unop: '" ^ Op.str_of_unopt op ^ "' not implemented")
 
@@ -178,6 +199,8 @@ let eval_binop (op : Op.bopt) (v1 : t) (v2 : t) : t =
       match v1 with
       | List l -> List (l @ [ v2 ])
       | _ -> invalid_arg "Op.Ladd: operation only applicable to List arguments")
+  | Op.Pow -> Flt (Float.pow (to_float v1) (to_float v2))
+  | Op.Snth -> s_nth(v1, v2)
   | _ ->
       invalid_arg
         ("eval_binop: " ^ Op.str_of_binopt_single op ^ " not implemented!")

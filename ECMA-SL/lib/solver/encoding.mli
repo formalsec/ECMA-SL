@@ -10,10 +10,18 @@ val add : Z3.Solver.solver -> Sval.t list -> unit
 val pop : Z3.Solver.solver -> int -> unit
 val push : Z3.Solver.solver -> unit
 val check : Z3.Solver.solver -> Sval.t list -> bool
-val maximize : Z3.Optimize.optimize -> Sval.t -> Sval.t list -> int
-val minimize : Z3.Optimize.optimize -> Sval.t -> Sval.t list -> int
-val optimize : Z3.Optimize.optimize -> Sval.t -> Sval.t list -> (Z3.Optimize.optimize -> Z3.Expr.expr -> Z3.Optimize.handle) -> int
-val get_const_interp : Z3.Solver.solver -> Sval.t -> Sval.t list -> int
+val maximize : Z3.Optimize.optimize -> Sval.t -> Type.t -> Sval.t list -> Sval.t
+val minimize : Z3.Optimize.optimize -> Sval.t -> Type.t -> Sval.t list -> Sval.t
+
+val optimize :
+  Z3.Optimize.optimize ->
+  Sval.t ->
+  Type.t ->
+  Sval.t list ->
+  (Z3.Optimize.optimize -> Z3.Expr.expr -> Z3.Optimize.handle) ->
+  Sval.t
+
+val get_const_interp : Z3.Solver.solver -> Sval.t -> Sval.t list -> Sval.t
 
 val model :
   Z3.Solver.solver ->

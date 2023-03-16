@@ -78,8 +78,8 @@ let rec to_json (e : t) : string =
         "{ \"type\" : \"symbolic\", \"val_type\" : \"%s\", \"name\" : \"%s\" }"
         (Type.str t) (str x)
   | IsSymbolic e ->
-    Printf.sprintf "{ \"type\" : \"is_symbolic\", \"arg\" : \"%s\" }"
-      (to_json e)
+      Printf.sprintf "{ \"type\" : \"is_symbolic\", \"arg\" : \"%s\" }"
+        (to_json e)
   | Maximize e ->
       Printf.sprintf "{ \"type\" : \"maximize\", \"arg\" : \"%s\" }" (to_json e)
   | Minimize e ->
