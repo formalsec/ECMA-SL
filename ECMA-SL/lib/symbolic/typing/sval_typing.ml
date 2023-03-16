@@ -41,6 +41,7 @@ let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
   | Operators.Log_10 -> un_args_typing_float_math arg_t Type.FltType
   | Operators.Sqrt -> un_args_typing_float_math arg_t Type.FltType
   | Operators.IsNaN -> un_args_typing_float_math arg_t Type.BoolType
+  | Operators.StringLen -> Some Type.IntType
   | default ->
       failwith
         ("Typing Error: [type_of_unop] -> unsuported typing for unary \
@@ -67,6 +68,7 @@ let type_of_binop (op : Operators.bopt) (arg1_t : Type.t option)
   | Operators.Lprepend -> None
   | Operators.Ladd -> None
   | Operators.Pow -> bin_args_typing_pow arg1_t arg2_t
+  | Operators.Snth -> Some Type.StrType
   | default ->
       failwith
         ("Typing Error: [type_of_binop] -> unsuported typing for binary \

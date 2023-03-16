@@ -90,8 +90,9 @@ let rec eval_expression ?(at = no_region) (store : Sstore.t) (c : config) (e : E
       else Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
   | Expr.Eval e ->
       let v = eval_expression ~at store c e in
+      let v_type = type_of v in
       let { prog; code; state; pc; solver; optimize } = c in
-      Encoding.get_const_interp solver v pc
+      Encoding.get_const_interp solver v (Option.get v_type) pc
   with Invalid_argument e -> Invalid_arg.error at e
 
 let step (c : config) : config list =

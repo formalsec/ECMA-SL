@@ -88,11 +88,20 @@ let fp_binop (op : Op.bopt) : Z3.Expr.expr -> Z3.Expr.expr -> Z3.Expr.expr =
            ("Encoding: encode_binop: '" ^ Op.str_of_binopt_single op
           ^ "' not implemented!"))
 
+
+let str_binop (op: Op.bopt) : Z3.Expr.expr -> Z3.Expr.expr -> Z3.Expr.expr =
+  match op with 
+  | Op.Snth -> Z3.Seq.mk_seq_nth ctx
+  | Op.Eq -> Z3.Boolean.mk_eq ctx
+  | _ -> failwith
+      ("Encoding: str encode_binop: '" ^ Op.str_of_binopt_single op
+    ^ "' not implemented!")
+
 let encode_binop (op : Op.bopt) (v1 : Z3.Expr.expr) (v2 : Z3.Expr.expr) :
     Z3.Expr.expr =
   let op' =
     if Z3.FloatingPoint.is_fp v1 || Z3.FloatingPoint.is_fp v2 then fp_binop op
-    else arith_binop op
+    else (if Z3.Arithmetic.is_int v1 then arith_binop op else str_binop op)
   in
   op' v1 v2
 
@@ -182,6 +191,10 @@ let string_of_value (e : Z3.Expr.expr) : string =
   in
   f e
 
+let castValue (expr : Z3.Expr.expr) (expr_type : Type.t) : Sval.t =
+  match expr_type with
+  | Type.IntType -> Sval.Int (Big_int_Z.int_of_big_int (Z3.Arithmetic.Integer.get_big_int expr))
+  | _ -> Sval.Str (Z3.Expr.to_string expr)
 
 let optimize (optimize : Z3.Optimize.optimize) (expr : Sval.t) (expr_type : Type.t)
   (vs : Sval.t list) (f : Z3.Optimize.optimize -> Z3.Expr.expr -> Z3.Optimize.handle) : Sval.t =
@@ -193,7 +206,7 @@ let ret =
     Time_utils.time_call time_solver (fun () -> Z3.Optimize.check optimize)
   in
   match sat with
-  | Z3.Solver.SATISFIABLE -> Sval.Int (int_of_string (Z3.Expr.to_string (Z3.Optimize.get_upper h)))
+  | Z3.Solver.SATISFIABLE -> castValue (Z3.Optimize.get_upper h) expr_type
   | _ -> Sval.Int (-1)
 in let _ = Z3.Optimize.pop optimize in ret
 
@@ -206,8 +219,8 @@ let minimize (opt : Z3.Optimize.optimize) (expr : Sval.t) (expr_type : Type.t)
     (vs : Sval.t list) =
   optimize opt expr expr_type vs Z3.Optimize.minimize
 
-let get_const_interp (solver : Z3.Solver.solver) (v : Sval.t) (vs : Sval.t list) =
+let get_const_interp (solver : Z3.Solver.solver) (v : Sval.t) (expr_type : Type.t) (vs : Sval.t list) =
   assert (check solver vs);
   let model = Option.get (Z3.Solver.get_model solver) in
   let res = Option.get (Z3.Model.eval model (encode_value v) true) in
-  Sval.Int (int_of_string (Z3.Expr.to_string res))
+  castValue res expr_type 
