@@ -169,11 +169,12 @@
                 "se_minimize"           , API_MINIMIZE;
 
                 (* Types *)
-                "type"      , TYPE;
-                "any"       , TYPE_ANY;
-                "number"    , TYPE_NUMBER;
-                "string"    , TYPE_STRING;
-                "boolean"   , TYPE_BOOLEAN;
+                "typedef"               , TYPEDEF;
+                "any"                   , TYPE_ANY;
+                "unknown"               , TYPE_UNKNOWN;
+                "number"                , TYPE_NUMBER;
+                "string"                , TYPE_STRING;
+                "boolean"               , TYPE_BOOLEAN;
               ]
 
   exception Syntax_error of string

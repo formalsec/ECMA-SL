@@ -374,7 +374,7 @@ function getRegExpPrototypeExec(strict) {
  */
 function RegExpPrototypeExec(global, this, strict, args) {
 
-  string := l_nth (args, 0);
+  str := l_nth (args, 0);
   
   /* 1. Let R be this RegExp object. */
   R := this;
@@ -382,7 +382,7 @@ function RegExpPrototypeExec(global, this, strict, args) {
     throw TypeErrorConstructorInternal()
   };
   /* 2. Let S be the value of ToString(string). */
-  S := ToString(string);
+  S := ToString(str);
   /* 3. Let length be the length of S. */
   length := s_len_u S;
   /* 4. Let lastIndex be the result of calling the [[Get]]
@@ -522,11 +522,11 @@ function isRegExpObject(arg) {
  */
 function RegExpPrototypeTest(global, this, strict, args) {
 
-  string := l_nth (args, 0);
+  str := l_nth (args, 0);
 
   /* 1. Let match be the result of evaluating the RegExp.prototype.exec
     (15.10.6.2) algorithm upon this RegExp object using string as the argument. */
-  match2 := RegExpPrototypeExec(global, this, strict, [string]);
+  match2 := RegExpPrototypeExec(global, this, strict, [str]);
   /* 2. If match is not null, then return true; else return false. */
   if (!(match2 = 'null)) {
     return true
@@ -1584,7 +1584,7 @@ function JS_Interpreter_RegEx(re, flags) {
     return m
   }
   /* Backreference */
-  | { type: "Backreference", number: i } -> {
+  | { type: "Backreference", "number": i } -> {
 
     m := lambda (st, k) [i] {
       str_c := stateGetCap(st, int_of_float i);
@@ -1610,7 +1610,7 @@ function JS_Interpreter_RegEx(re, flags) {
 
   }
   /* Capturing group */
-  | { type: "Group", capturing: true, number: i, expression: re' } -> {
+  | { type: "Group", capturing: true, "number": i, expression: re' } -> {
 
     m' := JS_Interpreter_RegEx(re', flags);
 

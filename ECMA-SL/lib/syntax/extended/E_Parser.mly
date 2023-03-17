@@ -68,7 +68,7 @@ let at (startpos, endpos) =
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
-%token TYPE, TYPE_ANY, TYPE_NUMBER, TYPE_STRING, TYPE_BOOLEAN
+%token TYPEDEF, TYPE_ANY, TYPE_UNKNOWN, TYPE_NUMBER, TYPE_STRING, TYPE_BOOLEAN
 
 
 %token API_ASSUME API_MK_SYMBOLIC API_ABORT
@@ -141,7 +141,7 @@ e_prog_elem_target:
     { E_Prog.ElementType.Macro m }
 
 type_decl_target:
-  | TYPE; v = VAR; DEFEQ; t = e_type_target;
+  | TYPEDEF; v = VAR; DEFEQ; t = e_type_target;
     { (v, t) }
 
 proc_target:
@@ -533,6 +533,8 @@ infix_binary_op_target:
 fv_target:
   | f = VAR; COLON; e = e_expr_target;
     { (f, e) }
+  | f = STRING; COLON; e = e_expr_target;
+    { (f, e) }
 
 (* { s1; ...; sn } *)
 e_block_target:
@@ -673,6 +675,8 @@ pat_metadata_target:
 e_pat_v_target:
   | pn = VAR; COLON; pv = e_pat_v_pat_target;
     { (pn, pv) }
+  | pn = STRING; COLON; pv = e_pat_v_pat_target;
+    { ( pn, pv ) }
 
 e_pat_v_pat_target:
   | v = VAR;
@@ -727,6 +731,8 @@ e_simple_type_target:
     { t }
   | TYPE_ANY;
     { E_Type.AnyType }
+  | TYPE_UNKNOWN;
+    { E_Type.UnknownType }
   | TYPE_NUMBER;
     { E_Type.NumberType }
   | TYPE_STRING;

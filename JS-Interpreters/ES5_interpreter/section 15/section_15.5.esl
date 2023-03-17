@@ -754,7 +754,7 @@ function StringPrototypeReplace(global, this, strict, args) {
   CheckObjectCoercible(this);
   /* 2. Let string be the result of calling ToString, giving it the this
         value as its argument. */
-  string := ToString(this);
+  str := ToString(this);
 
   /* If searchValue is a regular expression (an object whose [[Class]]
     internal property is "RegExp"), do the following: If searchValue.global
@@ -766,9 +766,9 @@ function StringPrototypeReplace(global, this, strict, args) {
     in searchValue (using NcapturingParens as specified in 15.10.2.1). */
   if (isRegExpObject(searchValue)) {
     g := searchValue.OriginalFlags.gb;
-    matchArr := RegExpPrototypeExec(global, searchValue, strict, [string]);
+    matchArr := RegExpPrototypeExec(global, searchValue, strict, [str]);
     if (matchArr = 'null) {
-      return string
+      return str
     };
     m := {matchArr.Get}(matchArr, "length") - 1.;
     
@@ -781,7 +781,7 @@ function StringPrototypeReplace(global, this, strict, args) {
         setJSProperty(searchValue, "lastIndex", newDataPropertyDescriptorFull(1., true, false, false))
       };
       while (!(matchArr = 'null)) {
-        matchArr := RegExpPrototypeExec(global, searchValue, strict, [string]);
+        matchArr := RegExpPrototypeExec(global, searchValue, strict, [str]);
         /* Update lastIndex in case of an empty string match */
         lastIndex := getJSProperty(searchValue, "lastIndex").Value;
         if (lastIndex = prevLastIndex) {
@@ -801,12 +801,12 @@ function StringPrototypeReplace(global, this, strict, args) {
   else {
     searchString := ToString(searchValue);
     matches := [];
-    indexFound := StringPrototypeSearch(global, string, strict, [searchString]);
+    indexFound := StringPrototypeSearch(global, str, strict, [searchString]);
 
     if (indexFound >= 0.) {
       A := ArrayConstructor(global, this, strict, []);
       {A.DefineOwnProperty}(A, "index", newDataPropertyDescriptorFull(indexFound, true, true, true), true);
-      {A.DefineOwnProperty}(A, "input", newDataPropertyDescriptorFull(string, true, true, true), true);
+      {A.DefineOwnProperty}(A, "input", newDataPropertyDescriptorFull(str, true, true, true), true);
       {A.DefineOwnProperty}(A, "length", newDataPropertyDescriptorFull(1., true, false, false), true);
       {A.DefineOwnProperty}(A, "0", newDataPropertyDescriptorFull(searchString, true, true, true), true);
 
@@ -846,7 +846,7 @@ function StringPrototypeReplace(global, this, strict, args) {
                   range 01 to 99. If nn≤m and the nnth capture is undefined, use
                   the empty String instead. If nn>m, the result is implementation-defined. */
 
-  originalString := string;
+  originalString := str;
   prevOffset := 0;
   resultParts := [];
 
@@ -878,10 +878,10 @@ function StringPrototypeReplace(global, this, strict, args) {
     offset := int_of_float offset;
     startOffset := offset - prevOffset;
 
-    beforeStr := s_substr_u(string, 0, startOffset);
+    beforeStr := s_substr_u(str, 0, startOffset);
     matchStrLen := s_len_u matchStr;
-    stringLen := (s_len_u string) - (s_len_u beforeStr) - matchStrLen;
-    string := s_substr_u(string, startOffset + matchStrLen, stringLen);
+    stringLen := (s_len_u str) - (s_len_u beforeStr) - matchStrLen;
+    str := s_substr_u(str, startOffset + matchStrLen, stringLen);
 
     if ((Type(replaceValue) = "Object") &&& (replaceValue.Class = "Function")) {
       /* TODO - review "this" arg passed to the replace function is 'undefined 
@@ -905,7 +905,7 @@ function StringPrototypeReplace(global, this, strict, args) {
     i := i + 1
   };
 
-  resultParts := l_concat (resultParts, [string]);
+  resultParts := l_concat (resultParts, [str]);
   return s_concat resultParts
 };
 /**
@@ -1022,7 +1022,7 @@ function StringPrototypeSearch(global, this, strict, args) {
   CheckObjectCoercible(this);
   /* 2. Let string be the result of calling ToString, giving it
     the this value as its argument. */
-  string := ToString(this);
+  str := ToString(this);
   /* 3. If Type(regexp) is Object and the value of the [[Class]] internal
     property of regexp is "RegExp", then let rx be regexp; */
   if ((Type(regexp) = "Object") &&& (regexp.Class = "RegExp")) {
@@ -1038,7 +1038,7 @@ function StringPrototypeSearch(global, this, strict, args) {
     within string where the pattern matched, or –1 if there was no match. The
     lastIndex and global properties of regexp are ignored when performing the
     search. The lastIndex property of regexp is left unchanged. */
-  matchArr := RegExpPrototypeExec(global, rx, strict, [string]);
+  matchArr := RegExpPrototypeExec(global, rx, strict, [str]);
   result := -(1.);
   if (!(matchArr = 'null)) {
     result := getJSProperty(matchArr, "index").Value

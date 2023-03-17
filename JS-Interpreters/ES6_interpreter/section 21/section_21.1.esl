@@ -1307,10 +1307,10 @@ function StringPrototypeReplace(global, this, NewTarget, strict, args){
   };
   
   /* 4. Let string be ToString(O). */
-  string := ToString(O);
+  str := ToString(O);
 
   /* 5. ReturnIfAbrupt(string). */
-  @ReturnIfAbrupt(string);
+  @ReturnIfAbrupt(str);
 
   /* 6. Let searchString be ToString(searchValue). */
   searchString := ToString(searchValue);
@@ -1335,20 +1335,20 @@ function StringPrototypeReplace(global, this, NewTarget, strict, args){
   and let matched be searchString. If no occurrences of searchString were 
   found, return string. */
 
-  pos := StringPrototypeSearch(global, string, 'undefined, strict, [searchString]);
+  pos := StringPrototypeSearch(global, str, 'undefined, strict, [searchString]);
 
   @ReturnIfAbrupt(pos);
 
   matched := searchString;
 
   if (pos = -(1.)){
-    return string
+    return str
   };
 
   /* 11. If functionalReplace is true, then */
   if (functionalReplace = true){
     /* a. Let replValue be Call(replaceValue, undefined,«matched, pos, and string»). */
-    replValue := Call(null, null, replaceValue, 'undefined, [matched, pos, string]);
+    replValue := Call(null, null, replaceValue, 'undefined, [matched, pos, str]);
 
     /* b. Let replStr be ToString(replValue). */
     replStr := ToString(replValue);
@@ -1362,7 +1362,7 @@ function StringPrototypeReplace(global, this, NewTarget, strict, args){
     captures := [];
 
     /* b. Let replStr be GetSubstitution(matched, string, pos, captures, replaceValue). */  
-    replStr := GetSubstitution(matched, string, pos, captures, replaceValue, global, strict)
+    replStr := GetSubstitution(matched, str, pos, captures, replaceValue, global, strict)
   };
     
   /* 13. Let tailPos be pos + the number of code units in matched. */
@@ -1373,11 +1373,11 @@ function StringPrototypeReplace(global, this, NewTarget, strict, args){
   starting at index tailPos. If pos is 0, the first element of the 
   concatenation will be the empty String. */
   if (pos > 0.){
-    first := substring(string, 0. , pos)
+    first := substring(str, 0. , pos)
   } else{
     first := ""
   };
-  last := substring(string, tailPos, int_to_float(s_len_u string));
+  last := substring(str, tailPos, int_to_float(s_len_u str));
 
   newString := first;
   newString := s_concat([newString, replStr]);
@@ -1606,10 +1606,10 @@ function StringPrototypeSearch(global, this, NewTarget, strict, args) {
   };
 
   /* 4. Let string be ToString(O). */
-  string := ToString(O);
+  str := ToString(O);
 
   /* 5. ReturnIfAbrupt(string). */
-  @ReturnIfAbrupt(string);
+  @ReturnIfAbrupt(str);
 
   /* 6. Let rx be RegExpCreate(regexp, undefined) (see 21.2.3.2.3). */
   rx := RegExpCreate(regexp, 'undefined);
@@ -1618,7 +1618,7 @@ function StringPrototypeSearch(global, this, NewTarget, strict, args) {
   @ReturnIfAbrupt(rx);
 
   /* 8. Return Invoke(rx, @@search, «‍string»). */
-  return Invoke(null, null, rx, getSearchPropertyName(), [string])
+  return Invoke(null, null, rx, getSearchPropertyName(), [str])
 }; 
 
 /* 21.1.3.16 String.prototype.slice ( start, end ) */
@@ -2333,15 +2333,15 @@ function StringPrototypeiterator(global, this, NewTarget, strict, args){
   * objects.
 **/
 /* 21.1.5.1 CreateStringIterator Abstract Operation */
-function CreateStringIterator(string){
+function CreateStringIterator(str){
   /* 1. Assert: Type(string) is String. */
-  assert(Type(string) = "String");
+  assert(Type(str) = "String");
 
   /* 2. Let iterator be ObjectCreate(%StringIteratorPrototype%, «[[IteratedString]], [[StringIteratorNextIndex]] »). */
   iterator := ObjectCreate(|Intrinsics|.StringIteratorPrototype, ["IteratedString", "StringIteratorNextIndex"]);
 
   /* 3. Set iterator’s [[IteratedString]] internal slot to string. */
-  iterator.IteratedString := string;
+  iterator.IteratedString := str;
 
   /* 4. Set iterator’s [[StringIteratorNextIndex]] internal slot to 0. */
   iterator.StringIteratorNextIndex := 0.;

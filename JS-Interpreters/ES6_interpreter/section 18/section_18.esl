@@ -174,7 +174,7 @@ function GlobalObjectEval(ref, this, NewTarget, strict, params) {
 /* 15.1.2.2 parseInt (string , radix) */
 /* TODO: RE-CHECK THIS, IT WAS COPIED FROM ES5 - MAYBE THERE IS DIFFERENCES ON ES6 */
 function GlobalObjectParseInt(globalObject, this, NewTarget, strict, params) {
-  string := getOptionalParam(params, 0);
+  str := getOptionalParam(params, 0);
   radix := getOptionalParam(params, 1);
   /* The parseInt function produces an integer value dictated by interpretation of the contents of the string
       argument according to the specified radix. Leading white space in string is ignored. If radix is undefined or 0,
@@ -184,7 +184,7 @@ function GlobalObjectParseInt(globalObject, this, NewTarget, strict, params) {
   /* When the parseInt function is called, the following steps are taken: */
 
   /* 1. Let inputString be ToString(string). */
-  inputString := ToString(string);
+  inputString := ToString(str);
   /* 2. Let S be a newly created substring of inputString consisting of the first character that is not a
         StrWhiteSpaceChar and all characters following that character. (In other words, remove leading white
         space.) If inputString does not contain any such characters, let S be the empty string. */
@@ -247,9 +247,9 @@ function GlobalObjectParseInt(globalObject, this, NewTarget, strict, params) {
          approximation to the mathematical integer value that is represented by Z in radix-R notation.) */
   mathInt := mathIntegerOf(Z, R);
   /* 14. Let number be the Number value for mathInt. */
-  number := mathInt;
+  num := mathInt;
   /* 15. Return sign x number. */
-  return sign * number
+  return sign * num
 };
 
 /* 15.1.2.3 parseFloat (string) */
@@ -257,14 +257,14 @@ function GlobalObjectParseFloat(globalObject, this, NewTarget, strict, params) {
   print("debug1111 in parseFloat");
   print(params);
 
-  string := getOptionalParam(params, 0);
+  str := getOptionalParam(params, 0);
   /* The parseFloat function produces a Number value dictated by interpretation of the contents of the string
      argument as a decimal literal. */
 
   /* When the parseFloat function is called, the following steps are taken: */
 
   /* 1. Let inputString be ToString(string). */
-  inputString := ToString(string);
+  inputString := ToString(str);
   @ReturnIfAbrupt(inputString);
 
   return float_of_string inputString
@@ -284,9 +284,9 @@ function GlobalObjectParseFloat(globalObject, this, NewTarget, strict, params) {
 
 /* 15.1.2.3 parseFloat (string) */
 function GlobalObjectParseFloatAlt(globalObject, this, NewTarget, strict, params) {
-  string := getOptionalParam(params, 0);
+  str := getOptionalParam(params, 0);
   /* 1. Let inputString be ToString(string). */
-  inputString := ToString(string);
+  inputString := ToString(str);
   /* 2. ReturnIfAbrupt(inputString). */
   @ReturnIfAbrupt(inputString);
   /* 3. Let trimmedString be a substring of inputString
@@ -335,9 +335,9 @@ function GlobalObjectParseFloatAlt(globalObject, this, NewTarget, strict, params
  *      The result will be true if and only if X is a NaN.
  */
 function GlobalObjectIsNaN(globalObject, this, NewTarget, strict, params) {
-  number := getOptionalParam(params, 0);
+  num := getOptionalParam(params, 0);
   /* 1. Let num be ToNumber(number). */
-  num := ToNumber(number);
+  num := ToNumber(num);
   /* 2. ReturnIfAbrupt(num). */
   @ReturnIfAbrupt(num);
   /* 3. If num is NaN, return true. */
@@ -356,11 +356,11 @@ function GlobalObjectIsNaN(globalObject, this, NewTarget, strict, params) {
  * When the isFinite function is called with one argument x, the following steps are taken:
  */
 function GlobalObjectIsFinite(globalObject, this, NewTarget, strict, params) {
-  number := l_nth(params, 0);
+  num := l_nth(params, 0);
   /* Returns false if the argument coerces to NaN, +Infinity, or -Infinity, and otherwise returns true. */
 
     /* 1. Let num be ToNumber(number). */
-  num := ToNumber(number);
+  num := ToNumber(num);
   /* 2. ReturnIfAbrupt(num). */
   @ReturnIfAbrupt(num);
   /* 3. If num is NaN, +∞, or −∞, return false. */
@@ -401,8 +401,8 @@ function optimizeInitGlobalObject(strict) {
   return loc_global
 };
 
-function removeLeadingWhitespace(string) {
-  T := trim string;
+function removeLeadingWhitespace(str) {
+  T := trim str;
   /* Remove leading spaces */
   if (!(T = "")) {
     len := s_len_u T;
@@ -423,13 +423,13 @@ function removeLeadingWhitespace(string) {
   return T
 };
 
-function containsInvalidDigit(string, radix) {
+function containsInvalidDigit(str, radix) {
   radixInt := int_of_float radix;
-  str_len := s_len_u string;
+  str_len := s_len_u str;
   i := 0;
 
   while (i < str_len) {
-    char := s_nth_u(string, i);
+    char := s_nth_u(str, i);
     index := indexOfChar(char);
 
     if (index = -1 ||| index >= radixInt) {
@@ -498,13 +498,13 @@ function indexOfChar(char) {
   return -1
 };
 
-function mathIntegerOf(string, radix) {
-  str_len := s_len_u string;
+function mathIntegerOf(str, radix) {
+  str_len := s_len_u str;
   i := str_len;
   value := 0.;
 
   while(i > 0) {
-    char := s_nth_u(string, i - 1);
+    char := s_nth_u(str, i - 1);
     charValue := indexOfChar(char);
 
     value := value + ((radix ** (int_to_float (str_len - i))) * (int_to_float charValue));
@@ -515,22 +515,22 @@ function mathIntegerOf(string, radix) {
   return value
 };
 
-function stripInvalidChars(string, radix) {
+function stripInvalidChars(str, radix) {
   radixInt := int_of_float radix;
-  str_len := s_len_u string;
+  str_len := s_len_u str;
   i := 0;
 
   while (i < str_len) {
-    char := s_nth_u(string, i);
+    char := s_nth_u(str, i);
     index := indexOfChar(char);
 
     if (index = -1 ||| index >= radixInt) {
-      return s_substr_u(string, 0, i)
+      return s_substr_u(str, 0, i)
     };
 
     i:= i + 1
   };
 
-  return string
+  return str
 }
 

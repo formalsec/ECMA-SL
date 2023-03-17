@@ -537,7 +537,7 @@ function getRegExpSpecies(global, this, NewTarget, strict, args){
  * containing the results of the match, or null if string did not match.
  */
 function RegExpPrototypeexec(global, this, NewTarget, strict, args){
-   string := l_nth(args, 0);
+   str := l_nth(args, 0);
 
    /* 1. Let R be the this value. */
    R := this;
@@ -553,7 +553,7 @@ function RegExpPrototypeexec(global, this, NewTarget, strict, args){
    };
 
    /* 4. Let S be ToString(string). */
-   S := ToString(string);
+   S := ToString(str);
 
    /* 5. ReturnIfAbrupt(S). */
    @ReturnIfAbrupt(S);
@@ -982,7 +982,7 @@ function getRegExpIgnoreCaseAccessorProperty(global, this, NewTarget, strict, ar
  * expression object.
  */
 function RegExpPrototypematch(global, this, NewTarget, strict, args){
-   string := l_nth(args, 0);
+   str := l_nth(args, 0);
 
    /* 1. Let rx be the this value. */
    rx := this;
@@ -993,7 +993,7 @@ function RegExpPrototypematch(global, this, NewTarget, strict, args){
    };
 
    /* 3. Let S be ToString(string) */
-   S := ToString(string);
+   S := ToString(str);
 
    /* 4. ReturnIfAbrupt(S). */
    @ReturnIfAbrupt(S);
@@ -1123,7 +1123,7 @@ function getRegExpMultilineAccessorProperty(global, this, NewTarget, strict, arg
  * The value of the name property of this function is "[Symbol.replace]".
  */
 function RegExpPrototypereplace(global, this, NewTarget, strict, args){
-   string := l_nth(args, 0);
+   str := l_nth(args, 0);
    replaceValue := l_nth(args, 1);
     
    /* 1. Let rx be the this value. */
@@ -1135,7 +1135,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args){
    };
 
    /* 3. Let S be ToString(string). */
-   S := ToString(string);
+   S := ToString(str);
 
    /* 4. ReturnIfAbrupt(S). */
    @ReturnIfAbrupt(S);
@@ -1371,7 +1371,7 @@ function RegExpPrototypereplace(global, this, NewTarget, strict, args){
  * The lastIndex property is left unchanged.
  */
 function RegExpPrototypesearch(global, this, NewTarget, strict, args){
-   string := l_nth(args, 0);
+   str := l_nth(args, 0);
 
    /* 1. Let rx be the this value. */
    rx := this;
@@ -1382,7 +1382,7 @@ function RegExpPrototypesearch(global, this, NewTarget, strict, args){
    };
 
    /* 3. Let S be ToString(string). */
-   S := ToString(string);
+   S := ToString(str);
 
    /* 4. ReturnIfAbrupt(S). */
    @ReturnIfAbrupt(S);
@@ -1484,7 +1484,7 @@ function getRegExpSourceAccessorProperty(global, this, NewTarget, strict, args){
  * NOTE 2 The @@split method ignores the value of the global and sticky properties of this RegExp object.
  */
 function RegExpPrototypesplit(global, this, NewTarget, strict, args){
-   string := l_nth(args, 0);
+   str := l_nth(args, 0);
    limit := l_nth(args, 1);
 
    /* 1. Let rx be the this value. */
@@ -1497,7 +1497,7 @@ function RegExpPrototypesplit(global, this, NewTarget, strict, args){
    };
 
    /* 3. Let S be ToString(string). */
-   S := ToString(string);
+   S := ToString(str);
 
    /* 4. ReturnIfAbrupt(S). */
    @ReturnIfAbrupt(S);
@@ -1758,13 +1758,13 @@ function RegExpPrototypetest(global, this, NewTarget, strict, args){
    };
 
    /* 3. Let string be ToString(S). */
-   string := ToString(S);
+   str := ToString(S);
 
    /* 4. ReturnIfAbrupt(string). */
-   @ReturnIfAbrupt(string);
+   @ReturnIfAbrupt(str);
 
    /* 5. Let match be RegExpExec(R, string). */
-   match_ := RegExpExec(R, string);
+   match_ := RegExpExec(R, str);
 
    /* 6. ReturnIfAbrupt(match). */
    @ReturnIfAbrupt(match_);

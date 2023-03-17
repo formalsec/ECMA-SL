@@ -960,16 +960,16 @@ function DateParse(global, this, strict, args) {
   arg := l_nth(args, 0);
 
   /* The parse function applies the ToString operator to its argument. */
-  string := ToString(arg);
+  str := ToString(arg);
 
   /* If ToString results in an abrupt completion the Completion Record is immediately returned. */
-  if ((Type(string) = "Completion") &&& isAnAbruptCompletion(string)) {
-    return getCompletionValue(string)
+  if ((Type(str) = "Completion") &&& isAnAbruptCompletion(str)) {
+    return getCompletionValue(str)
   }
   /* Otherwise, parse interprets the resulting String as a date and time; it returns a Number, the UTC time value corresponding to the date and time.
   The String may be interpreted as a local time, a UTC time, or a time in some other time zone, depending on the contents of the String. The function first attempts to parse the format of the String according to the rules (including extended years) called out in Date Time String Format (20.3.1.16). If the String does not conform to that format the function may fall back to any implementation-specific heuristics or implementation-specific date formats. Unrecognizable Strings or dates containing illegal element values in the format String shall cause Date.parse to return NaN. */
   else {
-    return auxParseDate(string)
+    return auxParseDate(str)
   }
 
 };
@@ -2775,8 +2775,8 @@ function getTimeValueIdentifyingCurrentTime() {
   return 0.
 };
 
-function auxIsFinite(number) {
-   return !(number = Infinity ||| number = -Infinity ||| is_NaN number)
+function auxIsFinite(num) {
+   return !(num = Infinity ||| num = -Infinity ||| is_NaN num)
 };
 
 function timeValueRepresentation(tv) {
@@ -2800,18 +2800,18 @@ function timeValueRepresentation(tv) {
   return repr
 };
 
-function padding(number, size) {
-  string := float_to_string(number);
+function padding(num, size) {
+  str := float_to_string(num);
 
-  pad := size - s_len(string);
+  pad := size - s_len(str);
 
   i := 0;
   while (i < pad) {
-    string := s_concat["0", string];
+    str := s_concat["0", str];
     i := i + 1
   };
 
-  return  string
+  return  str
 };
 
 /** TimeFromMonth
@@ -2839,8 +2839,8 @@ function TimeFromMonth(m, t) {
   return (l_nth(daysInMonths, int_of_float(m)) * |msPerDay|)
 };
 
-function auxParseDate(string) {
-  list := parse_date(string);
+function auxParseDate(str) {
+  list := parse_date(str);
   print("inside parseDate if");
   print(list);
   if (list = - (1.)) {
