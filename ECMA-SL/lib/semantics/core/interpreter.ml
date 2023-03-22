@@ -193,11 +193,6 @@ module M (Mon : SecurityMonitor) = struct
             Random.self_init ();
             Val.Int (Random.int 128)
         | _ -> failwith "eval_expr: Symbolic not implemented!")
-    | IsSymbolic e -> failwith "IsSymbolic not implemented!"
-    | IsSat e -> failwith "IsSat not implemented"
-    | Maximize e -> failwith "Maximize not implemented"
-    | Minimize e -> failwith "Minimize not implemented"
-    | Eval e -> failwith "Minimize not implemented"
 
   let get_func_id (sto : Val.t Store.t) (exp : Expr.t) : string * Val.t list =
     let res = eval_expr sto exp in
@@ -487,6 +482,19 @@ module M (Mon : SecurityMonitor) = struct
         let v = eval_objfields_oper heap sto e in
         Store.set sto st v;
         (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (st, e))
+    | SymbStmt ss ->
+        let name, v, exp =
+        match ss with
+        | Symb_stmt.IsSymbolic (name, e) -> name, eval_expr sto e, e
+        | Symb_stmt.IsSat (name, e) -> name, eval_expr sto e, e
+        | Symb_stmt.Maximize (name, e) -> name, eval_expr sto e, e
+        | Symb_stmt.Minimize (name, e) -> name, eval_expr sto e, e
+        | Symb_stmt.Eval (name, e) -> name, eval_expr sto e, e
+        in
+        Store.set sto name v;
+        (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (name, exp))
+        
+
 
   (*This function will iterate smallsteps in a list of functions*)
   let rec small_step_iter

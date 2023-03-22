@@ -61,38 +61,41 @@ let rec eval_expression ?(at = no_region) (store : Sstore.t) (c : config) (e : E
         | _ -> Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
       in
       Sval.Symbolic (t, x')
-  | Expr.IsSymbolic e ->
+
+let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config) (st : Symb_stmt.t) : string * Sval.t =
+  match st with
+  | Symb_stmt.IsSymbolic (name, e) ->
       let v = eval_expression ~at store c e in
-      Sval.Bool (Sval.is_symbolic v)
-  | Expr.IsSat e ->
+      name, Sval.Bool (Sval.is_symbolic v)
+  | Symb_stmt.IsSat (name, e) ->
       let v = eval_expression ~at store c e in
       let { prog; code; state; pc; solver; optimize } = c in
-      Sval.Bool (Encoding.check solver (v :: pc))
-  | Expr.Maximize e ->
+      name, Sval.Bool (Encoding.check solver (v :: pc))
+  | Symb_stmt.Maximize (name, e) ->
       let v = eval_expression ~at store c e in
       let v_type = type_of v in
       let { prog; code; state; pc; solver; optimize } = c in
       if Option.is_some v_type then
         match Option.get v_type with
-        | Type.IntType -> Encoding.maximize optimize v Type.IntType pc
-        | Type.FltType -> Encoding.maximize optimize v Type.FltType pc
+        | Type.IntType -> name, Encoding.maximize optimize v Type.IntType pc
+        | Type.FltType -> name, Encoding.maximize optimize v Type.FltType pc
         | _ -> Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
       else Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
-  | Expr.Minimize e ->
+  | Symb_stmt.Minimize (name, e) ->
       let v = eval_expression ~at store c e in
       let v_type = type_of v in
       let { prog; code; state; pc; solver; optimize } = c in
       if Option.is_some v_type then
         match Option.get v_type with
-        | Type.IntType -> Encoding.minimize optimize v Type.IntType pc
-        | Type.FltType -> Encoding.minimize optimize v Type.FltType pc
+        | Type.IntType -> name, Encoding.minimize optimize v Type.IntType pc
+        | Type.FltType -> name, Encoding.minimize optimize v Type.FltType pc
         | _ -> Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
       else Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
-  | Expr.Eval e ->
+  | Symb_stmt.Eval (name, e) ->
       let v = eval_expression ~at store c e in
       let v_type = type_of v in
       let { prog; code; state; pc; solver; optimize } = c in
-      Encoding.get_const_interp solver v (Option.get v_type) pc
+      name, Encoding.get_const_interp solver v (Option.get v_type) pc
   with Invalid_argument e -> Invalid_arg.error at e
 
 let step (c : config) : config list =
@@ -307,6 +310,17 @@ let step (c : config) : config list =
           (heap, Sstore.add store x v, stack, f)
           pc;
       ]
+  | Stmt.SymbStmt symb_s ->
+    let name, v =
+      eval_api_call ~at:s.at store c symb_s
+    in
+      [
+        update c
+          (Cont (List.tl stmts))
+          (heap, Sstore.add store name v, stack, f)
+          pc;
+      ]
+    
 
 module type WorkList = sig
   type 'a t

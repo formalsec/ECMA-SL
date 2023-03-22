@@ -262,15 +262,15 @@ e_expr_target:
   | in_bin_op_expr = infix_binary_op_target;
     { in_bin_op_expr }
   | ISSAT; LPAREN; e = e_expr_target; RPAREN;
-    { E_Expr.IsSat e }
+    { E_Expr.SymbExpr(E_Expr.IsSat e) }
   | IS_SYMBOLIC; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.IsSymbolic e }
+    { E_Expr.SymbExpr(E_Expr.IsSymbolic e) }
   | EVAL; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.Eval e }
+    { E_Expr.SymbExpr (E_Expr.Eval e) }
   | MAXIMIZE; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.Maximize e }
+    { E_Expr.SymbExpr (E_Expr.Maximize e) }
   | MINIMIZE; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.Minimize e }
+    { E_Expr.SymbExpr (E_Expr.Minimize e) }
 
 
 nary_op_target:

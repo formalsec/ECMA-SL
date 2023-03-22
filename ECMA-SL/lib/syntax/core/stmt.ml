@@ -25,6 +25,7 @@ and t' =
   | FieldDelete of Expr.t * Expr.t
   | FieldLookup of string * Expr.t * Expr.t
   | Exception of string
+  | SymbStmt of Symb_stmt.t
 (*---------------Strings------------------*)
 
 let is_basic_stmt (s : t) : bool =
@@ -62,6 +63,8 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | AssignObjToList (st, e) -> st ^ " := obj_to_list " ^ str_e e
   | AssignObjFields (st, e) -> st ^ " := obj_fields " ^ str_e e
   | Exception st -> Printf.sprintf "throw \"%s\"" st
+  | SymbStmt st -> Symb_stmt.str st
+
 
 let rec js (stmt : t) : string =
   let str_es es = String.concat ", " (List.map Expr.js es) in
@@ -100,6 +103,8 @@ let rec js (stmt : t) : string =
   | Exception st -> Printf.sprintf "throw \"%s\"" st
   | Fail e | Abort e -> Printf.sprintf "throw %s" (Expr.js e)
   | Assume e | Assert e -> failwith "Stmt: js: Assume/Assert not implemented!"
+  | SymbStmt e -> failwith "Stmt: js: Assume/Assert not implemented!"
+  (*Printf.sprintf "throw %s" (Expr.js e)*)
 
 let rec to_json (stmt : t) : string =
   (*Stmts args : rhs/ lhs / expr / obj / field/ stringvar *)
@@ -177,3 +182,5 @@ let rec to_json (stmt : t) : string =
         (Expr.to_json e)
   | Exception st ->
       Printf.sprintf "{\"type\" : \"exception\", \"value\" : \"%s\"}" st
+| SymbStmt st ->
+    Printf.sprintf "{\"type\" : \"exception\", \"value\" : \"%s\"}" (Symb_stmt.str st)
