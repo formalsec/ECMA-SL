@@ -15,9 +15,9 @@ type t =
   | Curry of t * t list
   | Symbolic of Type.t * t
   | SymbExpr of st
-and 
-st = 
-  | IsSymbolic of t 
+
+and st =
+  | IsSymbolic of t
   | IsSat of t
   | Maximize of t
   | Minimize of t
@@ -48,12 +48,13 @@ let rec str (e : t) : string =
   | Lookup (e, f) -> str e ^ "[" ^ str f ^ "]"
   | Curry (f, es) -> str f ^ "@(" ^ str_es es ^ ")"
   | Symbolic (t, x) -> "symbolic(" ^ Type.str t ^ ", \"" ^ str x ^ "\")"
-  | SymbExpr st -> match st with
-    | IsSymbolic e -> "is_symbolic(" ^ str e ^ ")"
-    | IsSat e -> "is_sat (" ^ str e ^ ")"
-    | Maximize e -> "maximize (" ^ str e ^ ")"
-    | Minimize e -> "minimize (" ^ str e ^ ")"
-    | Eval e -> "eval (" ^ str e ^ ")"
+  | SymbExpr st -> (
+      match st with
+      | IsSymbolic e -> "is_symbolic(" ^ str e ^ ")"
+      | IsSat e -> "is_sat (" ^ str e ^ ")"
+      | Maximize e -> "maximize (" ^ str e ^ ")"
+      | Minimize e -> "minimize (" ^ str e ^ ")"
+      | Eval e -> "eval (" ^ str e ^ ")")
 
 (* Used in module HTMLExtensions but not yet terminated.
    This still contains defects. *)
@@ -109,14 +110,16 @@ let rec map (f : t -> t) (e : t) : t =
     | NewObj fes -> NewObj (map_obj fes)
     | Lookup (e, ef) -> Lookup (mapf e, mapf ef)
     | Curry (e, es) -> Curry (mapf e, List.map mapf es)
-    | SymbExpr statement -> 
-      let sb = match statement with 
-      | IsSymbolic e -> IsSymbolic (mapf e)
-      | IsSat e -> IsSat (mapf e)
-      | Maximize e -> Maximize (mapf e)
-      | Minimize e -> Minimize (mapf e)
-      | Eval e -> Eval (mapf e)
-      in SymbExpr (sb)
+    | SymbExpr statement ->
+        let sb =
+          match statement with
+          | IsSymbolic e -> IsSymbolic (mapf e)
+          | IsSat e -> IsSat (mapf e)
+          | Maximize e -> Maximize (mapf e)
+          | Minimize e -> Minimize (mapf e)
+          | Eval e -> Eval (mapf e)
+        in
+        SymbExpr sb
   in
   f e'
 

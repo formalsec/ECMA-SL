@@ -65,7 +65,6 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | Exception st -> Printf.sprintf "throw \"%s\"" st
   | SymbStmt st -> Symb_stmt.str st
 
-
 let rec js (stmt : t) : string =
   let str_es es = String.concat ", " (List.map Expr.js es) in
 
@@ -104,7 +103,7 @@ let rec js (stmt : t) : string =
   | Fail e | Abort e -> Printf.sprintf "throw %s" (Expr.js e)
   | Assume e | Assert e -> failwith "Stmt: js: Assume/Assert not implemented!"
   | SymbStmt e -> failwith "Stmt: js: Assume/Assert not implemented!"
-  (*Printf.sprintf "throw %s" (Expr.js e)*)
+(*Printf.sprintf "throw %s" (Expr.js e)*)
 
 let rec to_json (stmt : t) : string =
   (*Stmts args : rhs/ lhs / expr / obj / field/ stringvar *)
@@ -182,5 +181,6 @@ let rec to_json (stmt : t) : string =
         (Expr.to_json e)
   | Exception st ->
       Printf.sprintf "{\"type\" : \"exception\", \"value\" : \"%s\"}" st
-| SymbStmt st ->
-    Printf.sprintf "{\"type\" : \"exception\", \"value\" : \"%s\"}" (Symb_stmt.str st)
+  | SymbStmt st ->
+      Printf.sprintf "{\"type\" : \"exception\", \"value\" : \"%s\"}"
+        (Symb_stmt.str st)

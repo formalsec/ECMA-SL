@@ -568,8 +568,7 @@ and compile_expr (at : region) (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | ECall (f, es) ->
       let ret_es = List.map (compile_expr at) es in
       compile_e_call f ret_es at
-  | SymbExpr e ->
-    compile_symb_expr e at
+  | SymbExpr e -> compile_symb_expr e at
 
 and compile_print (e : E_Expr.t) (at : region) : Stmt.t list =
   let stmts_expr, e' = compile_expr at e in
@@ -583,32 +582,33 @@ and compile_assert (e : E_Expr.t) (at : region) : Stmt.t list =
   let stmts, e' = compile_expr at e in
   stmts @ [ Stmt.Assert e' @@ at ]
 
-and compile_symb_expr (se : E_Expr.st) (at : region): Stmt.t list * Expr.t =
-  match se with 
-  | IsSymbolic e -> 
-    let stmts, e' = compile_expr at e in 
-    let new_var = generate_fresh_var () in
-    stmts @ [ Stmt.SymbStmt (Symb_stmt.IsSymbolic(new_var, e')) @@ at], Expr.Var new_var 
-  | IsSat e -> 
-    let stmts, e' = compile_expr at e in 
-    let new_var = generate_fresh_var () in
-    stmts @ [ Stmt.SymbStmt (Symb_stmt.IsSat(new_var, e')) @@ at], Expr.Var new_var 
-  | Maximize e -> 
-    let stmts, e' = compile_expr at e in 
-    let new_var = generate_fresh_var () in
-    stmts @ [ Stmt.SymbStmt (Symb_stmt.Maximize(new_var, e')) @@ at], Expr.Var new_var 
-  | Minimize e -> 
-    let stmts, e' = compile_expr at e in 
-    let new_var = generate_fresh_var () in
-    stmts @ [ Stmt.SymbStmt (Symb_stmt.Minimize(new_var, e')) @@ at], Expr.Var new_var 
-  | Eval e -> 
-    let stmts, e' = compile_expr at e in 
-    let new_var = generate_fresh_var () in
-    stmts @ [ Stmt.SymbStmt (Symb_stmt.Eval(new_var, e')) @@ at], Expr.Var new_var 
-
-    
-
-    
+and compile_symb_expr (se : E_Expr.st) (at : region) : Stmt.t list * Expr.t =
+  match se with
+  | IsSymbolic e ->
+      let stmts, e' = compile_expr at e in
+      let new_var = generate_fresh_var () in
+      ( stmts @ [ Stmt.SymbStmt (Symb_stmt.IsSymbolic (new_var, e')) @@ at ],
+        Expr.Var new_var )
+  | IsSat e ->
+      let stmts, e' = compile_expr at e in
+      let new_var = generate_fresh_var () in
+      ( stmts @ [ Stmt.SymbStmt (Symb_stmt.IsSat (new_var, e')) @@ at ],
+        Expr.Var new_var )
+  | Maximize e ->
+      let stmts, e' = compile_expr at e in
+      let new_var = generate_fresh_var () in
+      ( stmts @ [ Stmt.SymbStmt (Symb_stmt.Maximize (new_var, e')) @@ at ],
+        Expr.Var new_var )
+  | Minimize e ->
+      let stmts, e' = compile_expr at e in
+      let new_var = generate_fresh_var () in
+      ( stmts @ [ Stmt.SymbStmt (Symb_stmt.Minimize (new_var, e')) @@ at ],
+        Expr.Var new_var )
+  | Eval e ->
+      let stmts, e' = compile_expr at e in
+      let new_var = generate_fresh_var () in
+      ( stmts @ [ Stmt.SymbStmt (Symb_stmt.Eval (new_var, e')) @@ at ],
+        Expr.Var new_var )
 
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   let compile_cases =

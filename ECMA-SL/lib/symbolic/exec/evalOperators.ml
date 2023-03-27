@@ -11,18 +11,17 @@ let s_len (v : t) : t =
   | _ ->
       invalid_arg
         "Exception in Oper.s_len: this operation is only applicable to String \
-          arguments"
-
+         arguments"
 
 let s_nth v1 v2 : t =
   match (v1, v2) with
   | Str s, Int i -> Str (String.sub s i 1)
-  | Symbolic(Type.StrType, _), Int i-> Binop(Op.Snth, v1, v2)
-  | Str s, Symbolic(Type.IntType, _) -> Binop(Op.Snth, v1, v2)
+  | Symbolic (Type.StrType, _), Int i -> Binop (Op.Snth, v1, v2)
+  | Str s, Symbolic (Type.IntType, _) -> Binop (Op.Snth, v1, v2)
   | _ ->
       invalid_arg
         "Exception in Oper.s_nth: this operation is only applicable to String \
-          and Integer arguments"
+         and Integer arguments"
 
 let eval_unop (op : Op.uopt) (v : t) : t =
   match op with
@@ -60,9 +59,7 @@ let eval_unop (op : Op.uopt) (v : t) : t =
       (* FIXME: get type of Sval Binop and Unop *)
       | Unop (_, _) -> Type Type.FltType
       | Binop (_, _, _) -> Type Type.FltType
-      | _ ->
-          invalid_arg 
-            ("typeof(" ^ Sval.str v ^ ") not implemented!"))
+      | _ -> invalid_arg ("typeof(" ^ Sval.str v ^ ") not implemented!"))
   | Op.Sconcat ->
       Str
         (String.concat ""
@@ -73,7 +70,7 @@ let eval_unop (op : Op.uopt) (v : t) : t =
       match v with
       | Str s -> Str (String_utils.trim s)
       | _ -> invalid_arg ("Trim: expects Str argument but got " ^ str v))
-  | Op.StringLen -> s_len  v
+  | Op.StringLen -> s_len v
   | Op.StringLenU -> (
       match v with
       | Str s -> Int (String_utils.s_len_u s)
@@ -100,8 +97,7 @@ let eval_unop (op : Op.uopt) (v : t) : t =
       | Flt n -> Bool (Float.is_nan n)
       (* Encode to unary op *)
       | v' -> Binop (Op.Eq, v', Flt nan))
-  | _ ->
-      invalid_arg ("eval_unop: '" ^ Op.str_of_unopt op ^ "' not implemented")
+  | _ -> invalid_arg ("eval_unop: '" ^ Op.str_of_unopt op ^ "' not implemented")
 
 let eval_binop (op : Op.bopt) (v1 : t) (v2 : t) : t =
   match op with

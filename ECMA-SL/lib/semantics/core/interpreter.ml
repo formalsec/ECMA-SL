@@ -484,17 +484,15 @@ module M (Mon : SecurityMonitor) = struct
         (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (st, e))
     | SymbStmt ss ->
         let name, v, exp =
-        match ss with
-        | Symb_stmt.IsSymbolic (name, e) -> name, eval_expr sto e, e
-        | Symb_stmt.IsSat (name, e) -> name, eval_expr sto e, e
-        | Symb_stmt.Maximize (name, e) -> name, eval_expr sto e, e
-        | Symb_stmt.Minimize (name, e) -> name, eval_expr sto e, e
-        | Symb_stmt.Eval (name, e) -> name, eval_expr sto e, e
+          match ss with
+          | Symb_stmt.IsSymbolic (name, e) -> (name, eval_expr sto e, e)
+          | Symb_stmt.IsSat (name, e) -> (name, eval_expr sto e, e)
+          | Symb_stmt.Maximize (name, e) -> (name, eval_expr sto e, e)
+          | Symb_stmt.Minimize (name, e) -> (name, eval_expr sto e, e)
+          | Symb_stmt.Eval (name, e) -> (name, eval_expr sto e, e)
         in
         Store.set sto name v;
         (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (name, exp))
-        
-
 
   (*This function will iterate smallsteps in a list of functions*)
   let rec small_step_iter

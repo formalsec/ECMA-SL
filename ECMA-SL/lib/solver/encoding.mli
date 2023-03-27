@@ -21,7 +21,8 @@ val optimize :
   (Z3.Optimize.optimize -> Z3.Expr.expr -> Z3.Optimize.handle) ->
   Sval.t
 
-val get_const_interp : Z3.Solver.solver -> Sval.t -> Type.t -> Sval.t list -> Sval.t
+val get_const_interp :
+  Z3.Solver.solver -> Sval.t -> Type.t -> Sval.t list -> Sval.t
 
 val model :
   Z3.Solver.solver ->

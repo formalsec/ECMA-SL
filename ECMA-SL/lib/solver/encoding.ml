@@ -2,7 +2,6 @@ open Encode_unop
 open Encode_binop
 module Op = Operators
 
-
 exception Unknown
 exception Error of string
 
@@ -17,7 +16,6 @@ let int_sort = Z3.Arithmetic.Integer.mk_sort ctx
 
 (*let real_sort = Z3.Arithmetic.Real.mk_sort ctx*)
 let bool_sort = Z3.Boolean.mk_sort ctx
-
 let str_sort = Z3.Seq.mk_string_sort ctx
 
 (* Rouding modes *)
@@ -32,31 +30,37 @@ let sort_of_type (ctx : Z3.context) (t : Type.t) : Z3.Sort.sort =
   | Type.StrType -> str_sort
   | _ -> failwith "Encoding: sort_of_type: Unsupported type!"
 
-let encode_unop (op : Op.uopt) (v : Sval.t) (encoded_v : Z3.Expr.expr) : Z3.Expr.expr =
-  let op' = 
-  match op with 
-  | Op.StringLen -> Z3.Seq.mk_seq_length ctx
-  | Op.Neg -> encode_neg v ctx
-  | Op.Not -> Z3.Boolean.mk_not ctx
-  | _ -> failwith "Encoding: unop not implemented!"
-  in op' encoded_v
+let encode_unop (op : Op.uopt) (v : Sval.t) (encoded_v : Z3.Expr.expr) :
+    Z3.Expr.expr =
+  let op' =
+    match op with
+    | Op.StringLen -> Z3.Seq.mk_seq_length ctx
+    | Op.Neg -> encode_neg v ctx
+    | Op.Not -> Z3.Boolean.mk_not ctx
+    | _ -> failwith "Encoding: unop not implemented!"
+  in
+  op' encoded_v
 
-let encode_binop (op : Op.bopt) (v1 : Sval.t) (v2 : Sval.t) (v1_encoded : Z3.Expr.expr) (v2_encoded : Z3.Expr.expr) : Z3.Expr.expr =
+let encode_binop (op : Op.bopt) (v1 : Sval.t) (v2 : Sval.t)
+    (v1_encoded : Z3.Expr.expr) (v2_encoded : Z3.Expr.expr) : Z3.Expr.expr =
   let v_type = Sval_typing.type_of v1 in
   (*FIXME: check if both values have the same type*)
   let op' =
-  match op with
-  | Op.Eq -> Z3.Boolean.mk_eq ctx
-  | Op.Gt -> encode_gt v_type ctx 
-  | Op.Lt -> encode_lt v_type ctx
-  | Op.Ge -> encode_ge v_type ctx
-  | Op.Le -> encode_le v_type ctx
-  | Op.Log_And -> fun v1 v2 -> Z3.Boolean.mk_and ctx [ v1; v2 ]
-  | Op.Plus -> encode_add v_type ctx rne
-  | Op.Times -> encode_times v_type ctx rne
-  | Op.Div -> encode_div v_type ctx rne
-  | Op.Snth -> fun v1 v2 -> Z3.Seq.mk_seq_extract ctx v1 v2 (Z3.Arithmetic.Integer.mk_numeral_i ctx 1)
-  | _ -> failwith "Encoding: binop not implemented."
+    match op with
+    | Op.Eq -> Z3.Boolean.mk_eq ctx
+    | Op.Gt -> encode_gt v_type ctx
+    | Op.Lt -> encode_lt v_type ctx
+    | Op.Ge -> encode_ge v_type ctx
+    | Op.Le -> encode_le v_type ctx
+    | Op.Log_And -> fun v1 v2 -> Z3.Boolean.mk_and ctx [ v1; v2 ]
+    | Op.Plus -> encode_add v_type ctx rne
+    | Op.Times -> encode_times v_type ctx rne
+    | Op.Div -> encode_div v_type ctx rne
+    | Op.Snth ->
+        fun v1 v2 ->
+          Z3.Seq.mk_seq_extract ctx v1 v2
+            (Z3.Arithmetic.Integer.mk_numeral_i ctx 1)
+    | _ -> failwith "Encoding: binop not implemented."
   in
   op' v1_encoded v2_encoded
 
@@ -72,7 +76,7 @@ let rec encode_value (v : Sval.t) : Z3.Expr.expr =
       raise (Error ("encode_value: List '" ^ Sval.str v ^ "' not implemented"))
   | Sval.Unop (op, v) ->
       let v' = encode_value v in
-      encode_unop op v v' 
+      encode_unop op v v'
   | Sval.Binop (op, v1, v2) ->
       let v1' = encode_value v1 and v2' = encode_value v2 in
       encode_binop op v1 v2 v1' v2'
@@ -80,7 +84,6 @@ let rec encode_value (v : Sval.t) : Z3.Expr.expr =
       failwith ("Encoding: encode_value: '" ^ Sval.str v ^ "' not implemented!")
 
 let mk_solver () : Z3.Solver.solver = Z3.Solver.mk_solver ctx None
-
 let mk_opt () : Z3.Optimize.optimize = Z3.Optimize.mk_opt ctx
 
 let clone (solver : Z3.Solver.solver) : Z3.Solver.solver =
@@ -149,26 +152,30 @@ let string_of_value (e : Z3.Expr.expr) : string =
 
 let castValue (expr : Z3.Expr.expr) (expr_type : Type.t) : Sval.t =
   match expr_type with
-  | Type.IntType -> Sval.Int (Big_int_Z.int_of_big_int (Z3.Arithmetic.Integer.get_big_int expr))
-  | Type.FltType -> Sval.Flt(Q.to_float (Z3.Arithmetic.Real.get_ratio expr))
+  | Type.IntType ->
+      Sval.Int
+        (Big_int_Z.int_of_big_int (Z3.Arithmetic.Integer.get_big_int expr))
+  | Type.FltType -> Sval.Flt (Q.to_float (Z3.Arithmetic.Real.get_ratio expr))
   | _ -> Sval.Str (Z3.Expr.to_string expr)
 
-let optimize (optimize : Z3.Optimize.optimize) (expr : Sval.t) (expr_type : Type.t)
-  (vs : Sval.t list) (f : Z3.Optimize.optimize -> Z3.Expr.expr -> Z3.Optimize.handle) : Sval.t =
-let _ = Z3.Optimize.push optimize in
-let _ = add_opt optimize vs in
-let h = f optimize (encode_value expr) in
-let ret =
-  let sat =
-    Time_utils.time_call time_solver (fun () -> Z3.Optimize.check optimize)
+let optimize (optimize : Z3.Optimize.optimize) (expr : Sval.t)
+    (expr_type : Type.t) (vs : Sval.t list)
+    (f : Z3.Optimize.optimize -> Z3.Expr.expr -> Z3.Optimize.handle) : Sval.t =
+  let _ = Z3.Optimize.push optimize in
+  let _ = add_opt optimize vs in
+  let h = f optimize (encode_value expr) in
+  let ret =
+    let sat =
+      Time_utils.time_call time_solver (fun () -> Z3.Optimize.check optimize)
+    in
+    match sat with
+    | Z3.Solver.SATISFIABLE -> castValue (Z3.Optimize.get_upper h) expr_type
+    | _ -> Sval.Null
   in
-  match sat with
-  | Z3.Solver.SATISFIABLE -> castValue (Z3.Optimize.get_upper h) expr_type
-  | _ -> Sval.Null
-in let _ = Z3.Optimize.pop optimize in ret
+  let _ = Z3.Optimize.pop optimize in
+  ret
 
-
-let maximize (opt : Z3.Optimize.optimize) (expr : Sval.t) (expr_type : Type.t) 
+let maximize (opt : Z3.Optimize.optimize) (expr : Sval.t) (expr_type : Type.t)
     (vs : Sval.t list) =
   optimize opt expr expr_type vs Z3.Optimize.maximize
 
@@ -176,8 +183,9 @@ let minimize (opt : Z3.Optimize.optimize) (expr : Sval.t) (expr_type : Type.t)
     (vs : Sval.t list) =
   optimize opt expr expr_type vs Z3.Optimize.minimize
 
-let get_const_interp (solver : Z3.Solver.solver) (v : Sval.t) (expr_type : Type.t) (vs : Sval.t list) =
+let get_const_interp (solver : Z3.Solver.solver) (v : Sval.t)
+    (expr_type : Type.t) (vs : Sval.t list) =
   assert (check solver vs);
   let model = Option.get (Z3.Solver.get_model solver) in
   let res = Option.get (Z3.Model.eval model (encode_value v) true) in
-  castValue res expr_type 
+  castValue res expr_type

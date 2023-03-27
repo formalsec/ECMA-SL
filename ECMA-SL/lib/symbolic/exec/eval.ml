@@ -24,62 +24,63 @@ let func (at : region) (v : Sval.t) : string * Sval.t list =
   | Sval.Curry (x, vs) -> (x, vs)
   | _ -> Invalid_arg.error at "Sval is not a 'func' identifier"
 
-let rec eval_expression ?(at = no_region) (store : Sstore.t) (c : config) (e : Expr.t):
-    Sval.t =
+let rec eval_expression ?(at = no_region) (store : Sstore.t) (c : config)
+    (e : Expr.t) : Sval.t =
   try
-  match e with
-  | Expr.Val n -> Sval.of_val n
-  | Expr.Var x -> (
-      match Sstore.find_opt store x with
-      | Some v -> v
-      | None -> Crash.error at ("Cannot find var '" ^ x ^ "'"))
-  | Expr.UnOpt (op, e) ->
-      let v = eval_expression ~at store c e in
-      EvalOperators.eval_unop op v
-  | Expr.BinOpt (op, e1, e2) ->
-      let v1 = eval_expression ~at store c e1
-      and v2 = eval_expression ~at store c e2 in
-      EvalOperators.eval_binop op v1 v2
-  | Expr.TriOpt (op, e1, e2, e3) ->
-      let v1 = eval_expression ~at store c e1
-      and v2 = eval_expression ~at store c e2
-      and v3 = eval_expression ~at store c e3 in
-      EvalOperators.eval_triop op v1 v2 v3
-  | Expr.NOpt (op, es) ->
-      let vs = List.map (eval_expression ~at store c) es in
-      EvalOperators.eval_nop op vs
-  | Expr.Curry (f, es) -> (
-      let f' = eval_expression ~at store c f
-      and vs = List.map (eval_expression ~at store c) es in
-      match f' with
-      | Sval.Str s -> Sval.Curry (s, vs)
-      | _ -> Invalid_arg.error at "Sval is not a 'Curry' identifier")
-  | Expr.Symbolic (t, x) ->
-      let x' =
-        match eval_expression ~at store c x with
-        | Sval.Str s -> s
-        | _ -> Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
-      in
-      Sval.Symbolic (t, x')
+    match e with
+    | Expr.Val n -> Sval.of_val n
+    | Expr.Var x -> (
+        match Sstore.find_opt store x with
+        | Some v -> v
+        | None -> Crash.error at ("Cannot find var '" ^ x ^ "'"))
+    | Expr.UnOpt (op, e) ->
+        let v = eval_expression ~at store c e in
+        EvalOperators.eval_unop op v
+    | Expr.BinOpt (op, e1, e2) ->
+        let v1 = eval_expression ~at store c e1
+        and v2 = eval_expression ~at store c e2 in
+        EvalOperators.eval_binop op v1 v2
+    | Expr.TriOpt (op, e1, e2, e3) ->
+        let v1 = eval_expression ~at store c e1
+        and v2 = eval_expression ~at store c e2
+        and v3 = eval_expression ~at store c e3 in
+        EvalOperators.eval_triop op v1 v2 v3
+    | Expr.NOpt (op, es) ->
+        let vs = List.map (eval_expression ~at store c) es in
+        EvalOperators.eval_nop op vs
+    | Expr.Curry (f, es) -> (
+        let f' = eval_expression ~at store c f
+        and vs = List.map (eval_expression ~at store c) es in
+        match f' with
+        | Sval.Str s -> Sval.Curry (s, vs)
+        | _ -> Invalid_arg.error at "Sval is not a 'Curry' identifier")
+    | Expr.Symbolic (t, x) ->
+        let x' =
+          match eval_expression ~at store c x with
+          | Sval.Str s -> s
+          | _ -> Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
+        in
+        Sval.Symbolic (t, x')
   with Invalid_argument e -> Invalid_arg.error at e
 
-let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config) (st : Symb_stmt.t) : string * Sval.t =
+let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config)
+    (st : Symb_stmt.t) : string * Sval.t =
   match st with
   | Symb_stmt.IsSymbolic (name, e) ->
       let v = eval_expression ~at store c e in
-      name, Sval.Bool (Sval.is_symbolic v)
+      (name, Sval.Bool (Sval.is_symbolic v))
   | Symb_stmt.IsSat (name, e) ->
       let v = eval_expression ~at store c e in
       let { prog; code; state; pc; solver; optimize } = c in
-      name, Sval.Bool (Encoding.check solver (v :: pc))
+      (name, Sval.Bool (Encoding.check solver (v :: pc)))
   | Symb_stmt.Maximize (name, e) ->
       let v = eval_expression ~at store c e in
       let v_type = type_of v in
       let { prog; code; state; pc; solver; optimize } = c in
       if Option.is_some v_type then
         match Option.get v_type with
-        | Type.IntType -> name, Encoding.maximize optimize v Type.IntType pc
-        | Type.FltType -> name, Encoding.maximize optimize v Type.FltType pc
+        | Type.IntType -> (name, Encoding.maximize optimize v Type.IntType pc)
+        | Type.FltType -> (name, Encoding.maximize optimize v Type.FltType pc)
         | _ -> Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
       else Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
   | Symb_stmt.Minimize (name, e) ->
@@ -88,15 +89,15 @@ let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config) (st : Symb_s
       let { prog; code; state; pc; solver; optimize } = c in
       if Option.is_some v_type then
         match Option.get v_type with
-        | Type.IntType -> name, Encoding.minimize optimize v Type.IntType pc
-        | Type.FltType -> name, Encoding.minimize optimize v Type.FltType pc
+        | Type.IntType -> (name, Encoding.minimize optimize v Type.IntType pc)
+        | Type.FltType -> (name, Encoding.minimize optimize v Type.FltType pc)
         | _ -> Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
       else Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
   | Symb_stmt.Eval (name, e) ->
       let v = eval_expression ~at store c e in
       let v_type = type_of v in
       let { prog; code; state; pc; solver; optimize } = c in
-      name, Encoding.get_const_interp solver v (Option.get v_type) pc
+      (name, Encoding.get_const_interp solver v (Option.get v_type) pc)
 
 let step (c : config) : config list =
   let { prog; code; state; pc; solver; optimize } = c in
@@ -114,7 +115,8 @@ let step (c : config) : config list =
       prerr_endline (Source.string_of_region s.at ^ ": Exception: " ^ err);
       [ update c (Error (Some (Sval.Str err))) state pc ]
   | Stmt.Print e ->
-      Logging.print_endline (lazy (Sval.str (eval_expression ~at:s.at store c e)));
+      Logging.print_endline
+        (lazy (Sval.str (eval_expression ~at:s.at store c e)));
       [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Fail e ->
       [ update c (Error (Some (eval_expression ~at:s.at store c e))) state pc ]
@@ -311,16 +313,13 @@ let step (c : config) : config list =
           pc;
       ]
   | Stmt.SymbStmt symb_s ->
-    let name, v =
-      eval_api_call ~at:s.at store c symb_s
-    in
+      let name, v = eval_api_call ~at:s.at store c symb_s in
       [
         update c
           (Cont (List.tl stmts))
           (heap, Sstore.add store name v, stack, f)
           pc;
       ]
-    
 
 module type WorkList = sig
   type 'a t
