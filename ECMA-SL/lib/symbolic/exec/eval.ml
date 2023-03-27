@@ -32,7 +32,7 @@ let rec eval_expression ?(at = no_region) (store : Sstore.t) (c : config) (e : E
   | Expr.Var x -> (
       match Sstore.find_opt store x with
       | Some v -> v
-      | None -> Runtime.error at ("Cannot find var '" ^ x ^ "'"))
+      | None -> Crash.error at ("Cannot find var '" ^ x ^ "'"))
   | Expr.UnOpt (op, e) ->
       let v = eval_expression ~at store c e in
       EvalOperators.eval_unop op v
@@ -61,6 +61,7 @@ let rec eval_expression ?(at = no_region) (store : Sstore.t) (c : config) (e : E
         | _ -> Invalid_arg.error at "Sval is not a 'Symbolic' identifier"
       in
       Sval.Symbolic (t, x')
+  with Invalid_argument e -> Invalid_arg.error at e
 
 let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config) (st : Symb_stmt.t) : string * Sval.t =
   match st with
@@ -96,7 +97,6 @@ let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config) (st : Symb_s
       let v_type = type_of v in
       let { prog; code; state; pc; solver; optimize } = c in
       name, Encoding.get_const_interp solver v (Option.get v_type) pc
-  with Invalid_argument e -> Invalid_arg.error at e
 
 let step (c : config) : config list =
   let { prog; code; state; pc; solver; optimize } = c in
@@ -114,7 +114,7 @@ let step (c : config) : config list =
       prerr_endline (Source.string_of_region s.at ^ ": Exception: " ^ err);
       [ update c (Error (Some (Sval.Str err))) state pc ]
   | Stmt.Print e ->
-      Logging.print_endline (lazy (Sval.str (eval_expression ~at:s.at store e)));
+      Logging.print_endline (lazy (Sval.str (eval_expression ~at:s.at store c e)));
       [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Fail e ->
       [ update c (Error (Some (eval_expression ~at:s.at store c e))) state pc ]
@@ -132,7 +132,7 @@ let step (c : config) : config list =
       with
       | Encoding.Unknown -> [ update c (Unknown (Some v)) state (v :: pc) ]
       | Encoding.Error e -> Crash.error s.at e)
-  | Stmt.Assert e when Sval.Bool true = eval_expression ~at:s.at store e ->
+  | Stmt.Assert e when Sval.Bool true = eval_expression ~at:s.at store c e ->
       [ update c (Cont (List.tl stmts)) state pc ]
   | Stmt.Assert e when Sval.Bool false = eval_expression ~at:s.at store c e ->
       [
