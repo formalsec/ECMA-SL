@@ -1,5 +1,5 @@
 function main() {
-  numberVar1 : number := 10;
-  numberVar2 : number := numberVar1;
+  foo : number := 10;
+  bar : number := foo;
   return 0
 }

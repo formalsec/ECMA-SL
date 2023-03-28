@@ -1,5 +1,5 @@
 function main() {
-  foo := 10;
-  bar: number := foo;
+  untypedVariable := 10;
+  typedVariable: number := untypedVariable;
   return 0
 } 

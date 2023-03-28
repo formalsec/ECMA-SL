@@ -1,52 +1,47 @@
-let match_any (texpr : E_Type.t list) : bool = true
+let match_any (texprs : E_Type.t list) : bool = true
 
 let match_all (tref : E_Type.t) (texprs : E_Type.t list) : bool =
-  List.for_all (fun texpr -> T_Typing.is_type_compatible tref texpr) texprs
+  List.for_all (fun texpr -> T_Typing.is_typeable tref texpr) texprs
 
 let match_list (trefs : E_Type.t list) (texprs : E_Type.t list) : bool =
   List.for_all
-    (fun (tref, texpr) -> T_Typing.is_type_compatible tref texpr)
+    (fun (tref, texpr) -> T_Typing.is_typeable tref texpr)
     (List.combine trefs texprs)
 
-let unop_type (op : Operators.uopt) (texpr : E_Type.t) : E_Type.t option =
-  let unop_type' (test : E_Type.t list -> bool) (tres : E_Type.t) :
-      E_Type.t option =
-    if test [ texpr ] then Some tres else None
-  in
+let test_op (test_fun : E_Type.t list -> bool) (tres : E_Type.t)
+    (exprs : E_Type.t list) : E_Type.t option =
+  if test_fun exprs then Some tres else None
+
+let unop_typing_fun (op : Operators.uopt) : E_Type.t list -> E_Type.t option =
   match op with
-  | Operators.Neg ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Not ->
-      unop_type' (match_list [ E_Type.BooleanType ]) E_Type.BooleanType
-  | Operators.IsNaN ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.BooleanType
+  | Operators.Neg -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Not -> test_op (match_all E_Type.BooleanType) E_Type.BooleanType
+  | Operators.IsNaN -> test_op (match_all E_Type.NumberType) E_Type.BooleanType
   | Operators.BitwiseNot ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Typeof -> unop_type' match_any E_Type.TypeType
+      test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Typeof -> test_op match_any E_Type.TypeType
   | Operators.IntToFloat ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
+      test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.IntToString ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.StringType
+      test_op (match_all E_Type.NumberType) E_Type.StringType
   | Operators.IntToFourHex ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.StringType
+      test_op (match_all E_Type.NumberType) E_Type.StringType
   | Operators.IntOfFloat ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
+      test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.IntOfString ->
-      unop_type' (match_list [ E_Type.StringType ]) E_Type.StringType
-  | Operators.ToInt ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.ToInt32 ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
+      test_op (match_all E_Type.StringType) E_Type.StringType
+  | Operators.ToInt -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.ToInt32 -> test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.ToUint16 ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
+      test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.ToUint32 ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
+      test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.OctalToDecimal ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
+      test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.FloatToString ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.StringType
+      test_op (match_all E_Type.NumberType) E_Type.StringType
   | Operators.FloatOfString ->
-      unop_type' (match_list [ E_Type.StringType ]) E_Type.NumberType
+      test_op (match_all E_Type.StringType) E_Type.NumberType
   (* | Operators.FloatToByte -> *)
   (* | Operators.Float64ToLEBytes ->  *)
   (* | Operators.Float64ToBEBytes ->  *)
@@ -58,68 +53,49 @@ let unop_type (op : Operators.uopt) (texpr : E_Type.t) : E_Type.t option =
   (* | Operators.Float32FromBEBytes ->  *)
   (* | Operators.BytesToString ->  *)
   | Operators.Utf8Decode ->
-      unop_type' (match_list [ E_Type.StringType ]) E_Type.StringType
+      test_op (match_all E_Type.StringType) E_Type.StringType
   | Operators.HexDecode ->
-      unop_type' (match_list [ E_Type.StringType ]) E_Type.StringType
+      test_op (match_all E_Type.StringType) E_Type.StringType
   | Operators.FromCharCode ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.StringType
+      test_op (match_all E_Type.NumberType) E_Type.StringType
   | Operators.FromCharCodeU ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.StringType
+      test_op (match_all E_Type.NumberType) E_Type.StringType
   | Operators.ToCharCode ->
-      unop_type' (match_list [ E_Type.StringType ]) E_Type.NumberType
+      test_op (match_all E_Type.StringType) E_Type.NumberType
   | Operators.ToCharCodeU ->
-      unop_type' (match_list [ E_Type.StringType ]) E_Type.NumberType
+      test_op (match_all E_Type.StringType) E_Type.NumberType
   | Operators.ToLowerCase ->
-      unop_type' (match_list [ E_Type.StringType ]) E_Type.StringType
+      test_op (match_all E_Type.StringType) E_Type.StringType
   | Operators.ToUpperCase ->
-      unop_type' (match_list [ E_Type.StringType ]) E_Type.StringType
-  | Operators.Trim ->
-      unop_type' (match_list [ E_Type.StringType ]) E_Type.StringType
-  | Operators.Abs ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Acos ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Asin ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Atan ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Ceil ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Cos ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Exp ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Floor ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Log_2 ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Log_e ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Log_10 ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Random ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Sin ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Sqrt ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Tan ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Cosh ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Sinh ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
-  | Operators.Tanh ->
-      unop_type' (match_list [ E_Type.NumberType ]) E_Type.NumberType
+      test_op (match_all E_Type.StringType) E_Type.StringType
+  | Operators.Trim -> test_op (match_all E_Type.StringType) E_Type.StringType
+  | Operators.Abs -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Acos -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Asin -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Atan -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Ceil -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Cos -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Exp -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Floor -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Log_2 -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Log_e -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Log_10 -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Random -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Sin -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Sqrt -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Tan -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Cosh -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Sinh -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Tanh -> test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.ParseNumber ->
-      unop_type' (match_list [ E_Type.StringType ]) E_Type.StringType
+      test_op (match_all E_Type.StringType) E_Type.StringType
   | Operators.ParseString ->
-      unop_type' (match_list [ E_Type.StringType ]) E_Type.StringType
+      test_op (match_all E_Type.StringType) E_Type.StringType
   (* | Operators.ParseDate ->  *)
   | Operators.StringLen ->
-      unop_type' (match_list [ E_Type.StringType ]) E_Type.NumberType
+      test_op (match_all E_Type.StringType) E_Type.NumberType
   | Operators.StringLenU ->
-      unop_type' (match_list [ E_Type.StringType ]) E_Type.NumberType
+      test_op (match_all E_Type.StringType) E_Type.NumberType
   (* | Operators.ListLen ->  *)
   (* | Operators.TupleLen ->  *)
   (* | Operators.ArrayLen ->  *)
@@ -134,65 +110,54 @@ let unop_type (op : Operators.uopt) (texpr : E_Type.t) : E_Type.t option =
   (* | Operators.ObjFields ->  *)
   (* | Operators.ListToArray ->  *)
   (* | Operators.Sconcat ->  *)
-  | default -> Some E_Type.AnyType
+  | default -> test_op match_any E_Type.AnyType
 
-let binop_type (op : Operators.bopt) (texpr1 : E_Type.t) (texpr2 : E_Type.t) :
-    E_Type.t option =
-  let binop_type' (test : E_Type.t list -> bool) (tres : E_Type.t) :
-      E_Type.t option =
-    if test [ texpr1; texpr2 ] then Some tres else None
-  in
+let binop_typing_fun (op : Operators.bopt) : E_Type.t list -> E_Type.t option =
   match op with
-  | Operators.Plus ->
-      binop_type' (match_all E_Type.NumberType) E_Type.NumberType
-  | Operators.Minus ->
-      binop_type' (match_all E_Type.NumberType) E_Type.NumberType
-  | Operators.Times ->
-      binop_type' (match_all E_Type.NumberType) E_Type.NumberType
-  | Operators.Div -> binop_type' (match_all E_Type.NumberType) E_Type.NumberType
-  | Operators.Modulo ->
-      binop_type' (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Plus -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Minus -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Times -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Div -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Modulo -> test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.BitwiseAnd ->
-      binop_type' (match_all E_Type.NumberType) E_Type.NumberType
+      test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.BitwiseOr ->
-      binop_type' (match_all E_Type.NumberType) E_Type.NumberType
+      test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.BitwiseXor ->
-      binop_type' (match_all E_Type.NumberType) E_Type.NumberType
+      test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.ShiftLeft ->
-      binop_type' (match_all E_Type.NumberType) E_Type.NumberType
+      test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.ShiftRight ->
-      binop_type' (match_all E_Type.NumberType) E_Type.NumberType
+      test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.ShiftRightLogical ->
-      binop_type' (match_all E_Type.NumberType) E_Type.NumberType
+      test_op (match_all E_Type.NumberType) E_Type.NumberType
   | Operators.Log_And ->
-      binop_type' (match_all E_Type.BooleanType) E_Type.BooleanType
+      test_op (match_all E_Type.BooleanType) E_Type.BooleanType
   | Operators.Log_Or ->
-      binop_type' (match_all E_Type.BooleanType) E_Type.BooleanType
+      test_op (match_all E_Type.BooleanType) E_Type.BooleanType
   (* | Operators.Eq ->  *)
   (* | Operators.Lt -> *)
   (* | Operators.Gt -> *)
   (* | Operators.Le -> *)
   (* | Operators.Ge -> *)
-  | Operators.Min -> binop_type' (match_all E_Type.NumberType) E_Type.NumberType
-  | Operators.Max -> binop_type' (match_all E_Type.NumberType) E_Type.NumberType
-  | Operators.Pow -> binop_type' (match_all E_Type.NumberType) E_Type.NumberType
-  | Operators.Atan2 ->
-      binop_type' (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Min -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Max -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Pow -> test_op (match_all E_Type.NumberType) E_Type.NumberType
+  | Operators.Atan2 -> test_op (match_all E_Type.NumberType) E_Type.NumberType
   (* | Operators.IntToBEBytes ->  *)
   (* | Operators.IntFromBytes ->  *)
   (* | Operators.UintFromBytes ->  *)
   | Operators.ToPrecision ->
-      binop_type' (match_all E_Type.NumberType) E_Type.StringType
+      test_op (match_all E_Type.NumberType) E_Type.StringType
   | Operators.ToExponential ->
-      binop_type' (match_all E_Type.NumberType) E_Type.StringType
-  | Operators.ToFixed ->
-      binop_type' (match_all E_Type.NumberType) E_Type.StringType
+      test_op (match_all E_Type.NumberType) E_Type.StringType
+  | Operators.ToFixed -> test_op (match_all E_Type.NumberType) E_Type.StringType
   | Operators.Snth ->
-      binop_type'
+      test_op
         (match_list [ E_Type.StringType; E_Type.NumberType ])
         E_Type.StringType
   | Operators.Snth_u ->
-      binop_type'
+      test_op
         (match_list [ E_Type.StringType; E_Type.NumberType ])
         E_Type.StringType
   (* | Operators.Ssplit ->  *)
@@ -207,35 +172,27 @@ let binop_type (op : Operators.bopt) (texpr1 : E_Type.t) (texpr2 : E_Type.t) :
   (* | Operators.Tnth ->  *)
   (* | Operators.Anth ->  *)
   (* | Operators.ArrayMake ->  *)
-  | default -> Some E_Type.AnyType
+  | default -> test_op match_any E_Type.AnyType
 
-let ebinop_type (op : EOper.bopt) (texpr1 : E_Type.t) (texpr2 : E_Type.t) :
-    E_Type.t option =
-  let ebinop_type' (test : E_Type.t list -> bool) (tres : E_Type.t) :
-      E_Type.t option =
-    if test [ texpr1; texpr2 ] then Some tres else None
-  in
+let ebinop_typing_fun (op : EOper.bopt) : E_Type.t list -> E_Type.t option =
   match op with
-  | EOper.SCLogAnd ->
-      ebinop_type' (match_all E_Type.BooleanType) E_Type.BooleanType
-  | EOper.SCLogOr ->
-      ebinop_type' (match_all E_Type.BooleanType) E_Type.BooleanType
+  | EOper.SCLogAnd -> test_op (match_all E_Type.BooleanType) E_Type.BooleanType
+  | EOper.SCLogOr -> test_op (match_all E_Type.BooleanType) E_Type.BooleanType
 
-let triop_type (op : Operators.topt) (texpr1 : E_Type.t) (texpr2 : E_Type.t)
-    (texpr3 : E_Type.t) : E_Type.t option =
-  let triop_type' (test : E_Type.t list -> bool) (tres : E_Type.t) :
-      E_Type.t option =
-    if test [ texpr1; texpr2; texpr3 ] then Some tres else None
-  in
+let triop_typing_fun (op : Operators.topt) : E_Type.t list -> E_Type.t option =
   match op with
   | Operators.Ssubstr ->
-      triop_type'
+      test_op
         (match_list [ E_Type.StringType; E_Type.NumberType; E_Type.NumberType ])
         E_Type.StringType
   | Operators.SsubstrU ->
-      triop_type'
+      test_op
         (match_list [ E_Type.StringType; E_Type.NumberType; E_Type.NumberType ])
         E_Type.StringType
   (* | Operators.Aset ->  *)
   (* | Operators.Lset ->  *)
-  | default -> Some E_Type.AnyType
+  | default -> test_op match_any E_Type.AnyType
+
+let type_op (typing_fun : E_Type.t list -> E_Type.t option)
+    (texprs : E_Type.t list) : E_Type.t option =
+  typing_fun texprs

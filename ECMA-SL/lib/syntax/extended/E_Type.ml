@@ -46,6 +46,15 @@ let rec str (t : t) : string =
   | UnionType t ->
       "(" ^ String.concat " | " (List.map (fun el -> str el) t) ^ ")"
 
+let simplify_type (t : t) : t =
+  let unique t ts = if List.mem t ts then ts else t :: ts in
+  let remove_duplicates ts = List.fold_right unique ts [] in
+  match t with
+  | UnionType t' -> (
+      let t' = remove_duplicates t' in
+      match t' with [] -> UnknownType | e :: [] -> e | e :: r -> UnionType t')
+  | default -> t
+
 let parse_obj_prps (prps : Prop.p_t list) : (string, t) Hashtbl.t * t option =
   let p_t_split p (named_prps, sumry_prps) =
     match p with

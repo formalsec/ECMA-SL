@@ -75,6 +75,14 @@ let%test _ =
           E_Type.BooleanType );
     ]
 
+let%test _ =
+  Test.type_checker_fail "example/nary/nok_union_simplify.esl"
+    [
+      T_Err.BadAssignment
+        ( E_Type.StringType,
+          E_Type.UnionType [ E_Type.NumberType; E_Type.StringType ] );
+    ]
+
 (* ======================================== Stmts ======================================== *)
 let%test _ = Test.type_checker_succ "example/stmt/ok_ifelse.esl"
 let%test _ = Test.type_checker_succ "example/stmt/ok_ifelse_union.esl"
@@ -111,3 +119,9 @@ let%test _ =
         ( E_Type.NumberType,
           E_Type.UnionType [ E_Type.NumberType; E_Type.UnknownType ] );
     ]
+
+(* ======================================== Extra ======================================== *)
+
+let%test _ =
+  Test.type_checker_fail "example/extra/nok_ifelse_return.esl"
+    [ T_Err.BadReturn (E_Type.NumberType, E_Type.StringType) ]

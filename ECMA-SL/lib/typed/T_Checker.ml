@@ -14,7 +14,9 @@ let type_function_params (tctx : T_Ctx.t) (func : E_Func.t) : unit =
             | None -> E_Type.AnyType
             | Some tparam' -> tparam')
       | Some _ ->
-          T_Ctx.terr_func tctx (T_Err.Str param) (T_Err.DuplicatedParam param))
+          T_Err.raise (T_Err.DuplicatedParam param)
+            ~src:(T_Err.Func (T_Ctx.get_func tctx))
+            ~cs:(T_Err.Str param))
     tparams
 
 let type_function (tctx : T_Ctx.t) (func : E_Func.t) : T_Err.t list =

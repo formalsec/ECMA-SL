@@ -1,0 +1,5 @@
+function main() {
+	foo: number | number | string := 10;
+	bar: string | string := foo;
+	return 0
+}

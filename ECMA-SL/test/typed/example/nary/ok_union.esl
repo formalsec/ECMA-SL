@@ -1,5 +1,5 @@
 function main() {
-  numberStringUnionVariable: number | string := 10;
-  numberStringBooleanUnionVariable: number | string | boolean := true;
+  foo: number | string := 10;
+  bar: number | string | boolean := true;
   return 0
 }

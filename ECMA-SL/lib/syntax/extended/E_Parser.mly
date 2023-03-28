@@ -724,7 +724,7 @@ e_type_target:
   | t = e_simple_type_target;
     { t }
   | t = e_nary_type_target;
-    { t }
+    { E_Type.simplify_type t }
 
 e_simple_type_target:
   | LPAREN; t = e_type_target; RPAREN;

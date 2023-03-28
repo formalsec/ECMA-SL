@@ -1,5 +1,5 @@
+open T_Err
 open E_Expr
-(* type t = Val of E_Type.t | Err of T_Err.t *)
 
 let type_val (expr : Val.t) : E_Type.t =
   match expr with
@@ -12,7 +12,7 @@ let type_val (expr : Val.t) : E_Type.t =
 let type_var (tctx : T_Ctx.t) (var : string) : E_Type.t =
   match T_Ctx.tenv_find tctx var with
   | Some tvar -> tvar
-  | None -> T_Ctx.terr_stmt tctx (T_Err.Str var) (T_Err.UnknownVar var)
+  | None -> T_Err.raise (T_Err.UnknownVar var) ~cs:(T_Err.Str var)
 
 let type_const (const : Operators.const) : E_Type.t =
   match const with
@@ -22,42 +22,57 @@ let type_const (const : Operators.const) : E_Type.t =
 
 let type_unop (tctx : T_Ctx.t) (expr : E_Expr.t) (op : Operators.uopt)
     (texpr : E_Type.t) : E_Type.t =
-  let tres = T_Op.unop_type op texpr in
+  let typing_fun = T_Op.unop_typing_fun op in
+  let tres = T_Op.type_op typing_fun [ texpr ] in
   match tres with
   | None ->
       let op_str = Operators.str_of_unopt op in
-      T_Ctx.terr_stmt tctx (T_Err.Expr expr) (T_Err.BadOp (op_str, [ texpr ]))
+      T_Err.raise (T_Err.BadOp (op_str, [ texpr ])) ~cs:(T_Err.Expr expr)
   | Some tres' -> tres'
 
 let type_binop (tctx : T_Ctx.t) (expr : E_Expr.t) (op : Operators.bopt)
     (texpr1 : E_Type.t) (texpr2 : E_Type.t) : E_Type.t =
-  let tres = T_Op.binop_type op texpr1 texpr2 in
+  let typing_fun = T_Op.binop_typing_fun op in
+  let tres = T_Op.type_op typing_fun [ texpr1; texpr2 ] in
   match tres with
   | None ->
       let op_str = Operators.str_of_binopt_single op in
-      T_Ctx.terr_stmt tctx (T_Err.Expr expr)
+      T_Err.raise
         (T_Err.BadOp (op_str, [ texpr1; texpr2 ]))
+        ~cs:(T_Err.Expr expr)
   | Some tres' -> tres'
 
 let type_ebinop (tctx : T_Ctx.t) (expr : E_Expr.t) (op : EOper.bopt)
     (texpr1 : E_Type.t) (texpr2 : E_Type.t) : E_Type.t =
-  let tres = T_Op.ebinop_type op texpr1 texpr2 in
+  let typing_fun = T_Op.ebinop_typing_fun op in
+  let tres = T_Op.type_op typing_fun [ texpr1; texpr2 ] in
   match tres with
   | None ->
       let op_str = EOper.str_of_binopt_single op in
-      T_Ctx.terr_stmt tctx (T_Err.Expr expr)
+      T_Err.raise
         (T_Err.BadOp (op_str, [ texpr1; texpr2 ]))
+        ~cs:(T_Err.Expr expr)
   | Some tres' -> tres'
 
 let type_triop (tctx : T_Ctx.t) (expr : E_Expr.t) (op : Operators.topt)
     (texpr1 : E_Type.t) (texpr2 : E_Type.t) (texpr3 : E_Type.t) : E_Type.t =
-  let tres = T_Op.triop_type op texpr1 texpr2 texpr3 in
+  let typing_fun = T_Op.triop_typing_fun op in
+  let tres = T_Op.type_op typing_fun [ texpr1; texpr2; texpr3 ] in
   match tres with
   | None ->
       let op_str = Operators.str_of_triopt_single op in
-      T_Ctx.terr_stmt tctx (T_Err.Expr expr)
+      T_Err.raise
         (T_Err.BadOp (op_str, [ texpr1; texpr2; texpr3 ]))
+        ~cs:(T_Err.Expr expr)
   | Some tres' -> tres'
+
+let type_arg (tparam : E_Type.t) (arg : E_Expr.t) (targ : E_Type.t) : unit =
+  try T_Typing.test_typing tparam targ
+  with T_Err.TypeError terr -> (
+    match terr.err with
+    | T_Err.BadExpectedType (tref, texpr) ->
+        T_Err.raise (T_Err.BadArgument (tparam, targ)) ~cs:(T_Err.Expr arg)
+    | default -> ())
 
 let type_fun_args (tctx : T_Ctx.t) (expr : E_Expr.t) (func : E_Func.t)
     (args : E_Expr.t list) (targs : E_Type.t list) : unit =
@@ -65,24 +80,21 @@ let type_fun_args (tctx : T_Ctx.t) (expr : E_Expr.t) (func : E_Func.t)
   let nparams = List.length tparams in
   let nargs = List.length targs in
   if nparams != nargs then
-    T_Ctx.terr_stmt tctx (T_Err.Expr expr) (T_Err.MissingArgs (nparams, nargs))
+    T_Err.raise (T_Err.MissingArgs (nparams, nargs)) ~cs:(T_Err.Expr expr)
   else
     let param_args = List.combine tparams (List.combine args targs) in
     List.iter
       (fun ((param, tparam), (arg, targ)) ->
         match tparam with
         | None -> ()
-        | Some tparam' ->
-            if not (T_Typing.is_type_compatible tparam' targ) then
-              T_Ctx.terr_stmt tctx (T_Err.Expr arg)
-                (T_Err.BadArgument (tparam', targ)))
+        | Some tparam' -> type_arg tparam' arg targ)
       param_args
 
 let type_named_fun_call (tctx : T_Ctx.t) (expr : E_Expr.t) (fname : string)
     (args : E_Expr.t list) (targs : E_Type.t list) : E_Type.t =
   let func = T_Ctx.get_func_by_name tctx fname in
   match func with
-  | None -> T_Ctx.terr_stmt tctx (T_Err.Str fname) (T_Err.UnknownFunction fname)
+  | None -> T_Err.raise (T_Err.UnknownFunction fname) ~cs:(T_Err.Str fname)
   | Some func' ->
       let _ = type_fun_args tctx expr func' args targs in
       Option.default E_Type.AnyType (E_Func.get_return_t func')

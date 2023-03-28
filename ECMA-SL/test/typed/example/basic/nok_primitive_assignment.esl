@@ -1,4 +1,4 @@
 function main() {
-  numberVariable: number := "abc";
+  foo: number := "abc";
   return 0
 }
