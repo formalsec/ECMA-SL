@@ -61,7 +61,7 @@ let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config)
   | Symb_stmt.IsSat (name, e) ->
       let e' = reduce_expr ~at store e in
       let is_sat =
-        Batch.check c.solver (List.map ~f:Translator.translate (e' :: c.pc))
+        Batch.check_sat c.solver (List.map ~f:Translator.translate (e' :: c.pc))
       in
       Sstore.add_exn store name (Val (Val.Bool is_sat))
   | Symb_stmt.Maximize (name, e) ->
@@ -119,7 +119,7 @@ let step (c : config) : config list =
       let v = reduce_expr ~at:s.at store e in
       try
         let pc' = List.map ~f:Translator.translate (v :: pc) in
-        if not (Batch.check solver pc') then []
+        if not (Batch.check_sat solver pc') then []
         else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
       with Batch.Unknown -> [ update c (Unknown (Some v)) state (v :: pc) ])
   | Stmt.Assert e
@@ -133,7 +133,7 @@ let step (c : config) : config list =
       let v' = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, e)) in
       try
         let pc' = List.map ~f:Translator.translate (v' :: pc) in
-        if Batch.check solver pc' then [ update c (Failure (Some v)) state pc ]
+        if Batch.check_sat solver pc' then [ update c (Failure (Some v)) state pc ]
         else [ update c (Cont (List.tl_exn stmts)) state pc ]
       with Batch.Unknown -> [ update c (Unknown (Some v)) state pc ])
   | Stmt.Assign (x, e) ->
@@ -166,7 +166,7 @@ let step (c : config) : config list =
       let then_branch =
         try
           let pc' = List.map ~f:Translator.translate (br_t :: pc) in
-          if not (Batch.check solver pc') then []
+          if not (Batch.check_sat solver pc') then []
           else
             let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl_exn stmts in
             [ update c (Cont stmts') state (br_t :: pc) ]
@@ -176,7 +176,7 @@ let step (c : config) : config list =
       let else_branch =
         try
           let pc' = List.map ~f:Translator.translate (br_f :: pc) in
-          if not (Batch.check solver pc') then []
+          if not (Batch.check_sat solver pc') then []
           else
             let state' = (Heap.clone heap, store, stack, f) in
             let stmts' =

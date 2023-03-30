@@ -5,7 +5,7 @@
  (wrapped false)
  (preprocess
   (staged_pps ppx_import ppx_deriving.std))
- (libraries encoding extlib menhirLib yojson z3 core))
+ (libraries encoding batteries extlib menhirLib yojson z3 core))
 
 (subdir
  syntax/core
