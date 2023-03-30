@@ -1,25 +1,23 @@
+open Val
 open Args_typing_unop
 open Args_typing_binop
 
-let type_of_val (v : Sval.t) : Type.t option =
+let type_of_val (v : Val.t) : Type.t option =
   match v with
-  | Sval.Void -> None
-  | Sval.Null -> Some Type.NullType
-  | Sval.Int _ -> Some Type.IntType
-  | Sval.Flt _ -> Some Type.FltType
-  | Sval.Bool _ -> Some Type.BoolType
-  | Sval.Str _ -> Some Type.StrType
-  | Sval.Loc _ -> Some Type.LocType
-  | Sval.List _ -> Some Type.ListType
-  | Sval.Arr _ -> Some Type.ArrayType
-  | Sval.Tuple _ -> Some Type.TupleType
-  | Sval.Curry _ -> Some Type.CurryType
-  | Sval.Byte _ -> Some Type.IntType
-  | Sval.Type _ -> Some Type.TypeType
-  | Sval.Symbol _ -> Some Type.SymbolType
-  | Sval.Symbolic (sym_t, str) -> Some sym_t
-  | default ->
-      failwith "Typing Error: [type_of_val] -> unsuported typing for value"
+  | Void -> None
+  | Null -> Some Type.NullType
+  | Int _ -> Some Type.IntType
+  | Flt _ -> Some Type.FltType
+  | Bool _ -> Some Type.BoolType
+  | Str _ -> Some Type.StrType
+  | Loc _ -> Some Type.LocType
+  | List _ -> Some Type.ListType
+  | Arr _ -> Some Type.ArrayType
+  | Tuple _ -> Some Type.TupleType
+  | Curry _ -> Some Type.CurryType
+  | Byte _ -> Some Type.IntType
+  | Type _ -> Some Type.TypeType
+  | Symbol _ -> Some Type.SymbolType
 
 let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
   match op with
@@ -75,12 +73,14 @@ let type_of_binop (op : Operators.bopt) (arg1_t : Type.t option)
           operation "
         ^ Operators.str_of_binopt_single op)
 
-let rec type_of (v : Sval.t) : Type.t option =
+let rec type_of (v : Expr.t) : Type.t option =
   match v with
-  | Sval.Unop (op, arg) ->
+  | Expr.Val v -> type_of_val v
+  | Expr.UnOpt (op, arg) ->
       let arg_t = type_of arg in
       type_of_unop op arg_t
-  | Sval.Binop (op, arg1, arg2) ->
+  | Expr.BinOpt (op, arg1, arg2) ->
       let arg1_t = type_of arg1 and arg2_t = type_of arg2 in
       type_of_binop op arg1_t arg2_t
-  | default -> type_of_val v
+  | Expr.Symbolic (t, _) -> Some t
+  | _ -> failwith (Expr.str v ^ ": Not typed!")

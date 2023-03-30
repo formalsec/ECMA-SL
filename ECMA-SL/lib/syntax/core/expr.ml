@@ -1,3 +1,5 @@
+open Base
+
 type t =
   | Val of Val.t
   | Var of string
@@ -8,8 +10,20 @@ type t =
   | NOpt of Operators.nopt * t list
   | Curry of t * t list
 
+let rec is_symbolic (v : t) : bool =
+  match v with
+  | Val _ | Var _ -> false
+  | Symbolic (t, x) -> true
+  | UnOpt (_, v) -> is_symbolic v
+  | BinOpt (_, v1, v2) -> is_symbolic v1 || is_symbolic v2
+  | TriOpt (_, v1, v2, v3) ->
+      List.map ~f:is_symbolic [ v1; v2; v3 ]
+      |> List.fold_left ~init:false ~f:( || )
+  | NOpt (_, es) | Curry (_, es) ->
+      List.map ~f:is_symbolic es |> List.fold_left ~init:false ~f:( || )
+
 let rec str (e : t) : string =
-  let str_es es = String.concat ", " (List.map str es) in
+  let str_es es = String.concat ~sep:", " (List.map ~f:str es) in
   match e with
   | Val n -> Val.str n
   | Var x -> x
@@ -17,7 +31,7 @@ let rec str (e : t) : string =
   | BinOpt (op, e1, e2) -> Operators.str_of_binopt op (str e1) (str e2)
   | TriOpt (op, e1, e2, e3) ->
       Operators.str_of_triopt op (str e1) (str e2) (str e3)
-  | NOpt (op, es) -> Operators.str_of_nopt op (List.map str es)
+  | NOpt (op, es) -> Operators.str_of_nopt op (List.map ~f:str es)
   | Curry (f, es) -> "{" ^ str f ^ "}@(" ^ str_es es ^ ")"
   | Symbolic (t, x) -> "symbolic (" ^ Type.str t ^ ", " ^ str x ^ ")"
 
@@ -30,12 +44,12 @@ let rec vars (exp : t) : string list =
   | UnOpt (_, e) -> vars e
   | BinOpt (_, e1, e2) -> vars e1 @ vars e2
   | TriOpt (_, e1, e2, e3) -> vars e1 @ vars e2 @ vars e3
-  | NOpt (_, es) -> List.concat (List.map vars es)
-  | Curry (e, es) -> List.concat (vars e :: List.map vars es)
+  | NOpt (_, es) -> List.concat (List.map ~f:vars es)
+  | Curry (e, es) -> List.concat (vars e :: List.map ~f:vars es)
   | _ -> []
 
 let rec to_json (e : t) : string =
-  let to_json_es es = String.concat ", " (List.map to_json es) in
+  let to_json_es es = String.concat ~sep:", " (List.map ~f:to_json es) in
   match e with
   | Val v ->
       Printf.sprintf "{ \"type\" : \"value\", \"value\" : %s }" (Val.to_json v)
@@ -58,7 +72,7 @@ let rec to_json (e : t) : string =
   | NOpt (op, es) ->
       Printf.sprintf "{ \"type\" : \"nop\", \"op\": %s, \"args\" : [ %s ]}"
         (Operators.nopt_to_json op)
-        (String.concat ", " (List.map to_json es))
+        (String.concat ~sep:", " (List.map ~f:to_json es))
   | Curry (f, es) ->
       Printf.sprintf
         "{ \"type\" : \"curry\", \"function:\": %s, \"args\": [ %s ]}"
