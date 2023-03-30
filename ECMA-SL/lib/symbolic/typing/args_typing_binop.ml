@@ -20,7 +20,7 @@ let bin_args_typing_comp (arg1_t : Type.t option) (arg2_t : Type.t option) :
     Type.t option =
   match (arg1_t, arg2_t) with
   | Some Type.IntType, Some Type.IntType -> Some Type.IntType
-  | Some Type.FltType, Some Type.FltType -> Some Type.BoolType
+  | Some Type.FltType, Some Type.FltType -> Some Type.FltType
   | default -> None
 
 let bin_args_typing_logic (arg1_t : Type.t option) (arg2_t : Type.t option) :

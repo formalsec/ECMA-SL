@@ -133,7 +133,8 @@ let step (c : config) : config list =
       let v' = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, e)) in
       try
         let pc' = List.map ~f:Translator.translate (v' :: pc) in
-        if Batch.check_sat solver pc' then [ update c (Failure (Some v)) state pc ]
+        if Batch.check_sat solver pc' then
+          [ update c (Failure (Some v)) state pc ]
         else [ update c (Cont (List.tl_exn stmts)) state pc ]
       with Batch.Unknown -> [ update c (Unknown (Some v)) state pc ])
   | Stmt.Assign (x, e) ->

@@ -5,11 +5,15 @@ open Operators
 
 let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   match (op, v) with
-  | Neg, Val v' -> (
-      match v' with
-      | Flt f -> Val (Flt (-.f))
-      | Int i -> Val (Int (-i))
-      | _ -> UnOpt (Neg, v))
+  | Neg, _ -> (
+      match v with
+      | Val v' -> (
+          match v' with
+          | Flt f -> Val (Flt (-.f))
+          | Int i -> Val (Int (-i))
+          | _ -> UnOpt (Neg, v))
+      | Symbolic (_, _) -> UnOpt (Neg, v)
+      | _ -> failwith "'-' of expression is not valid")
   | Not, Val (Bool b) -> Val (Bool (Caml.Bool.not b))
   | Not, v' -> UnOpt (Not, v)
   | Head, NOpt (ListExpr, a :: _) -> a
