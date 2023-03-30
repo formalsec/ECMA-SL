@@ -104,7 +104,7 @@ let step (c : config) : config list =
       [ update c (Error (Some (Val (Val.Str err)))) state pc ]
   | Print e ->
       Logging.print_endline (lazy (Expr.str (reduce_expr ~at:s.at store e)));
-    [ update c (Cont (List.tl_exn stmts)) state pc ]
+      [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Fail e ->
       [ update c (Error (Some (reduce_expr ~at:s.at store e))) state pc ]
   | Abort e ->
@@ -112,29 +112,30 @@ let step (c : config) : config list =
   | Assume e
     when Caml.( = ) (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
       [ update c (Cont (List.tl_exn stmts)) state pc ]
-  | Assume e when Caml.( = ) (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) -> []
+  | Assume e
+    when Caml.( = ) (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
+      []
   | Assume e -> (
       let v = reduce_expr ~at:s.at store e in
       try
         let pc' = List.map ~f:Translator.translate (v :: pc) in
         if not (Batch.check solver pc') then []
         else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
-      with
-      | Batch.Unknown -> [ update c (Unknown (Some v)) state (v :: pc) ])
-  | Stmt.Assert e when Caml.(=) (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
+      with Batch.Unknown -> [ update c (Unknown (Some v)) state (v :: pc) ])
+  | Stmt.Assert e
+    when Caml.( = ) (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
       [ update c (Cont (List.tl_exn stmts)) state pc ]
-  | Stmt.Assert e when Caml.(=) (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
+  | Stmt.Assert e
+    when Caml.( = ) (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
       [ update c (Failure (Some (reduce_expr ~at:s.at store e))) state pc ]
   | Stmt.Assert e -> (
       let v = reduce_expr ~at:s.at store e in
       let v' = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, e)) in
       try
         let pc' = List.map ~f:Translator.translate (v' :: pc) in
-        if Batch.check solver pc' then
-          [ update c (Failure (Some v)) state pc ]
+        if Batch.check solver pc' then [ update c (Failure (Some v)) state pc ]
         else [ update c (Cont (List.tl_exn stmts)) state pc ]
-      with
-      | Batch.Unknown -> [ update c (Unknown (Some v)) state pc ])
+      with Batch.Unknown -> [ update c (Unknown (Some v)) state pc ])
   | Stmt.Assign (x, e) ->
       let v = reduce_expr ~at:s.at store e in
       [
@@ -144,16 +145,16 @@ let step (c : config) : config list =
           pc;
       ]
   | Stmt.Block blk -> [ update c (Cont (blk @ List.tl_exn stmts)) state pc ]
-  | Stmt.If (br, blk, _) when Caml.(=) (Val (Val.Bool true)) (reduce_expr ~at:s.at store br)
-    ->
+  | Stmt.If (br, blk, _)
+    when Caml.( = ) (Val (Val.Bool true)) (reduce_expr ~at:s.at store br) ->
       let cont =
         match blk.it with
         | Stmt.Block b -> b @ ((Stmt.Merge @@ blk.at) :: List.tl_exn stmts)
         | _ -> Crash.error s.at "Malformed if statement 'then' block!"
       in
       [ update c (Cont cont) state pc ]
-        | Stmt.If (br, _, blk) when Caml.(=) (Val (Val.Bool false)) (reduce_expr ~at:s.at store br)
-    ->
+  | Stmt.If (br, _, blk)
+    when Caml.( = ) (Val (Val.Bool false)) (reduce_expr ~at:s.at store br) ->
       let cont =
         let t = List.tl_exn stmts in
         match blk with None -> t | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: t
@@ -161,9 +162,7 @@ let step (c : config) : config list =
       [ update c (Cont cont) state pc ]
   | Stmt.If (br, blk1, blk2) ->
       let br_t = reduce_expr ~at:s.at store br
-      and br_f =
-        reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, br))
-      in
+      and br_f = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, br)) in
       let then_branch =
         try
           let pc' = List.map ~f:Translator.translate (br_t :: pc) in
@@ -171,9 +170,8 @@ let step (c : config) : config list =
           else
             let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl_exn stmts in
             [ update c (Cont stmts') state (br_t :: pc) ]
-        with
-        | Batch.Unknown ->
-            [ update c (Unknown (Some br_t)) state (br_t :: pc) ]
+        with Batch.Unknown ->
+          [ update c (Unknown (Some br_t)) state (br_t :: pc) ]
       in
       let else_branch =
         try
@@ -187,9 +185,8 @@ let step (c : config) : config list =
               | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl_exn stmts
             in
             [ update c (Cont stmts') state' (br_f :: pc) ]
-        with
-        | Batch.Unknown ->
-            [ update c (Unknown (Some br_f)) state (br_f :: pc) ]
+        with Batch.Unknown ->
+          [ update c (Unknown (Some br_f)) state (br_f :: pc) ]
       in
       then_branch @ else_branch
   | Stmt.While (br, blk) ->
@@ -207,7 +204,9 @@ let step (c : config) : config list =
       match frame with
       | Call_stack.Intermediate (stmts', store', x, f') ->
           [
-            update c (Cont stmts') (heap, Sstore.add_exn store' x v, stack', f') pc;
+            update c (Cont stmts')
+              (heap, Sstore.add_exn store' x v, stack', f')
+              pc;
           ]
       | Call_stack.Toplevel -> [ update c (Final (Some v)) state pc ])
   | Stmt.AssignCall (x, e, es) ->
@@ -247,11 +246,12 @@ let step (c : config) : config list =
         match Heap.get heap loc with
         | None -> Crash.error s.at ("'" ^ loc ^ "' not found in heap")
         | Some obj ->
-            NOpt (Operators.ListExpr,
-              (List.map
-                 ~f:(fun (f, v) -> 
-                   NOpt (Operators.TupleExpr, (Val (Val.Str f) :: [ v ])))
-                 (Object.to_list obj)))
+            NOpt
+              ( Operators.ListExpr,
+                List.map
+                  ~f:(fun (f, v) ->
+                    NOpt (Operators.TupleExpr, Val (Val.Str f) :: [ v ]))
+                  (Object.to_list obj) )
       in
       [
         update c
@@ -265,8 +265,10 @@ let step (c : config) : config list =
         match Heap.get heap loc with
         | None -> Crash.error s.at ("'" ^ loc ^ "' not found in heap")
         | Some obj ->
-            NOpt (Operators.ListExpr,
-              (List.map ~f:(fun f -> Val (Val.Str f)) (Object.get_fields obj)))
+            NOpt
+              ( Operators.ListExpr,
+                List.map ~f:(fun f -> Val (Val.Str f)) (Object.get_fields obj)
+              )
       in
       [
         update c
@@ -289,7 +291,8 @@ let step (c : config) : config list =
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
       and field = field s.at (reduce_expr ~at:s.at store e_field) in
       let v =
-        Option.value ~default:(Val (Val.Symbol "undefined")) (Heap.get_field heap loc field)
+        Option.value ~default:(Val (Val.Symbol "undefined"))
+          (Heap.get_field heap loc field)
       in
       [
         update c
