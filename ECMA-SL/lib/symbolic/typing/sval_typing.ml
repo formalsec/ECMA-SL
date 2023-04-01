@@ -75,14 +75,12 @@ let type_of_binop (op : Operators.bopt) (arg1_t : Type.t option)
 
 let type_of_triop (op : Operators.topt) (arg1_t : Type.t option)
     (arg2_t : Type.t option) (arg3_t : Type.t option) : Type.t option =
-
   match op with
   | Operators.Ssubstr -> Some Type.StrType
   | default ->
-    failwith
-      ("Typing Error: [type_of_binop] -> unsuported typing for binary \
-        operation ") 
-
+      failwith
+        "Typing Error: [type_of_triop] -> unsuported typing for ternary \
+         operation "
 
 let rec type_of (v : Expr.t) : Type.t option =
   match v with
@@ -94,7 +92,9 @@ let rec type_of (v : Expr.t) : Type.t option =
       let arg1_t = type_of arg1 and arg2_t = type_of arg2 in
       type_of_binop op arg1_t arg2_t
   | Expr.TriOpt (op, arg1, arg2, arg3) ->
-    let arg1_t = type_of arg1 and arg2_t = type_of arg2 and arg3_t = type_of arg3 in
-    type_of_triop op arg1_t arg2_t arg3_t
+      let arg1_t = type_of arg1
+      and arg2_t = type_of arg2
+      and arg3_t = type_of arg3 in
+      type_of_triop op arg1_t arg2_t arg3_t
   | Expr.Symbolic (t, _) -> Some t
   | _ -> failwith (Expr.str v ^ ": Not typed!")

@@ -8,7 +8,7 @@ function main() {
 	assume(s_nth(x, 3) = "A");
 
 	z := s_substr(x, 0, 3);
-	assert(eval(s_substr(x, 0, 3)) = "AAA");
+	assert(eval(z) = "EFG");
 
 	return 1
 }

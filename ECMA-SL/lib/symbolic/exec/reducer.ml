@@ -5,15 +5,10 @@ open Operators
 
 let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   match (op, v) with
-  | Neg, _ -> (
-      match v with
-      | Val v' -> (
-          match v' with
-          | Flt f -> Val (Flt (-.f))
-          | Int i -> Val (Int (-i))
-          | _ -> UnOpt (Neg, v))
-      | Symbolic (_, _) -> UnOpt (Neg, v)
-      | _ -> failwith "'-' of expression is not valid")
+  | Neg, Val (Flt f) -> Val (Flt (-.f))
+  | Neg, Val (Int i) -> Val (Int (-i))
+  | Neg, Val v' -> UnOpt (Neg, v)
+  | Neg, Symbolic (_, _) -> UnOpt (Neg, v)
   | Not, Val (Bool b) -> Val (Bool (Caml.Bool.not b))
   | Not, v' -> UnOpt (Not, v)
   | Head, NOpt (ListExpr, a :: _) -> a
@@ -53,6 +48,81 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | ToUint32, Val (Flt f) -> Val (Flt (Arith_utils.to_uint32 f))
   | IsNaN, Val (Flt n) -> Val (Bool (Float.is_nan n))
   | IsNaN, v' -> BinOpt (Eq, v', Val (Flt Float.nan))
+  | BitwiseNot, Val (Flt f) -> Val (Flt (Arith_utils.int32_bitwise_not f))
+  | ListLen, Val (List l) -> Val (Val.Int (List.length l))
+  | TupleLen, Val (Tuple t) -> Val (Val.Int (List.length t))
+  | Head, Val v' -> Val (Operators.head v')
+  | Tail, Val v' -> Val (Operators.tail v')
+  | First, Val v' -> Val (Operators.first v')
+  | Second, Val v' -> Val (Operators.second v')
+  | LRemoveLast, Val v' -> Val (Operators.list_remove_last v')
+  | LSort, Val v' -> Val (Operators.list_sort v')
+  | LReverse, Val v' -> Val (Operators.list_reverse v')
+  | IntToFourHex, Val (Int i) -> Val (Str (Printf.sprintf "%04x" i))
+  | IntToFourHex, Symbolic (Type.IntType, _) -> UnOpt (op, v)
+  | IntOfString, Val v' -> Val (Operators.int_of_string v')
+  | IntOfString, Symbolic (Type.StrType, _) -> UnOpt (op, v)
+  | IntOfFloat, Val v' -> Val (Operators.int_of_float v')
+  | IntOfFloat, Symbolic (Type.FltType, _) -> UnOpt (op, v)
+  | HexDecode, Val v' -> Val (Operators.hex_decode v')
+  | HexDecode, Symbolic (Type.StrType, _) -> UnOpt (op, v)
+  | Utf8Decode, Val v' -> Val (Operators.utf8_decode v')
+  | Utf8Decode, Symbolic (Type.StrType, _) -> UnOpt (op, v)
+  | OctalToDecimal, Val v' -> Val (Operators.octal_to_decimal v')
+  | OctalToDecimal, Symbolic (Type.IntType, _) -> UnOpt (op, v)
+  | Sconcat, Val v' -> Val (Operators.string_concat v')
+  | ToInt, Val v' -> Val (Operators.to_int v')
+  | ToInt, Symbolic (Type.FltType, _) -> UnOpt (op, v)
+  | ToInt32, Val v' -> Val (Operators.to_int32 v')
+  | ToInt32, Symbolic (Type.FltType, _) -> UnOpt (op, v)
+  | ToUint16, Val v' -> Val (Operators.to_uint16 v')
+  | ToUint16, Symbolic (Type.FltType, _) -> UnOpt (op, v)
+  | ToUint32, Val v' -> Val (Operators.to_uint32 v')
+  | ToUint32, Symbolic (Type.FltType, _) -> UnOpt (op, v)
+  | FromCharCode, Val v' -> Val (Operators.from_char_code v')
+  | FromCharCode, Symbolic (Type.IntType, _) -> UnOpt (op, v)
+  | FromCharCodeU, Val v' -> Val (Operators.from_char_code_u v')
+  | FromCharCodeU, Symbolic (Type.IntType, _) -> UnOpt (op, v)
+  | ToCharCode, Val v' -> Val (Operators.to_char_code v')
+  | ToCharCode, Symbolic (Type.StrType, _) -> UnOpt (op, v)
+  | ToCharCodeU, Val v' -> Val (Operators.to_char_code_u v')
+  | ToCharCodeU, Symbolic (Type.StrType, _) -> UnOpt (op, v)
+  | ToLowerCase, Val v' -> Val (Operators.to_lower_case v')
+  | ToLowerCase, Symbolic (Type.StrType, _) -> UnOpt (op, v)
+  | ToUpperCase, Val v' -> Val (Operators.to_upper_case v')
+  | ToUpperCase, Symbolic (Type.StrType, _) -> UnOpt (op, v)
+  | Trim, Val v' -> Val (Operators.trim v')
+  | Trim, Symbolic (Type.StrType, _) -> UnOpt (op, v)
+  | ParseNumber, Val v' -> Val (Operators.parse_number v')
+  | ParseNumber, Symbolic (Type.StrType, _) -> UnOpt (op, v)
+  | ParseString, Val v' -> Val (Operators.parse_string v')
+  | ParseDate, Val v' -> Val (Operators.parse_date v')
+  | Float64ToLEBytes, Val v' -> Val (Operators.float64_to_le_bytes v')
+  | Float64ToBEBytes, Val v' -> Val (Operators.float64_to_be_bytes v')
+  | Float32ToLEBytes, Val v' -> Val (Operators.float32_to_le_bytes v')
+  | Float32ToBEBytes, Val v' -> Val (Operators.float32_to_be_bytes v')
+  | Float64FromLEBytes, Val v' -> Val (Operators.float64_from_le_bytes v')
+  | Float64FromBEBytes, Val v' -> Val (Operators.float64_from_be_bytes v')
+  | Float32FromLEBytes, Val v' -> Val (Operators.float32_from_le_bytes v')
+  | Float32FromBEBytes, Val v' -> Val (Operators.float32_from_be_bytes v')
+  | BytesToString, Val v' -> Val (Operators.bytes_to_string v')
+  | FloatToByte, Val v' -> Val (Operators.float_to_byte v')
+  | ArrayLen, Val v' -> Val (Operators.a_len v')
+  | ListToArray, Val v' -> Val (Operators.list_to_array v')
+  | Acos, Val v'
+  | Asin, Val v'
+  | Atan, Val v'
+  | Ceil, Val v'
+  | Cos, Val v'
+  | Random, Val v'
+  | Sin, Val v'
+  | Tan, Val v'
+  | Tanh, Val v'
+  | Sinh, Val v'
+  | Cosh, Val v'
+  | Log_2, Val v' ->
+      Val (Operators.apply_uopt_oper op v')
+  (* missing obj_to_list, obj_fields*)
   | _ ->
       (* TODO: clear error message *)
       invalid_arg
