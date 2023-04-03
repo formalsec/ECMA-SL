@@ -4,6 +4,9 @@ let un_args_typing_neg (arg_t : Type.t option) : Type.t option =
   | Some Type.FltType -> Some Type.FltType
   | default -> None
 
+let un_args_typing_bitwise_not (arg_t : Type.t option) : Type.t option =
+  match arg_t with Some Type.FltType -> Some Type.FltType | default -> None
+
 let un_args_typing_not (arg_t : Type.t option) : Type.t option =
   match arg_t with Some Type.BoolType -> Some Type.BoolType | default -> None
 

@@ -1,0 +1,8 @@
+function main() {
+  x := symbolic(__$Flt, "x");
+  assume(x = 2.0);
+  y := ~x;
+  assert(eval(~y) = eval(x));
+
+  return 1
+}

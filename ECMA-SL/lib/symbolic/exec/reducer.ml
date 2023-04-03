@@ -49,6 +49,7 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | IsNaN, Val (Flt n) -> Val (Bool (Float.is_nan n))
   | IsNaN, v' -> BinOpt (Eq, v', Val (Flt Float.nan))
   | BitwiseNot, Val (Flt f) -> Val (Flt (Arith_utils.int32_bitwise_not f))
+  | BitwiseNot, v' -> UnOpt (op, v)
   | ListLen, Val (List l) -> Val (Val.Int (List.length l))
   | TupleLen, Val (Tuple t) -> Val (Val.Int (List.length t))
   | Head, Val v' -> Val (Operators.head v')

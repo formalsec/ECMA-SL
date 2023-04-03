@@ -26,12 +26,48 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
   | Some IntType, Some IntType, Minus -> Binop (Int I.Sub, e1, e2)
   | Some IntType, Some IntType, Times -> Binop (Int I.Mul, e1, e2)
   | Some IntType, Some IntType, Div -> Binop (Int I.Div, e1, e2)
-  | Some FltType, Some FltType, BitwiseAnd -> Binop (Int I.And, e1, e2)
-  | Some FltType, Some FltType, BitwiseOr -> Binop (Int I.Or, e1, e2)
-  | Some FltType, Some FltType, BitwiseXor -> Binop (Int I.Xor, e1, e2)
-  | Some FltType, Some FltType, ShiftLeft -> Binop (Int I.Shl, e1, e2)
-  | Some FltType, Some FltType, ShiftRight -> Binop (Int I.ShrA, e1, e2)
-  | Some FltType, Some FltType, ShiftRightLogical -> Binop (Int I.ShrL, e1, e2)
+  | Some FltType, Some FltType, BitwiseAnd ->
+      Cvtop
+        ( F64 F64.ConvertSI64,
+          Binop
+            ( I64 I64.And,
+              Cvtop (I64 I64.TruncSF64, e1),
+              Cvtop (I64 I64.TruncSF64, e1) ) )
+  | Some FltType, Some FltType, BitwiseOr ->
+      Cvtop
+        ( F64 F64.ConvertSI64,
+          Binop
+            ( I64 I64.Or,
+              Cvtop (I64 I64.TruncSF64, e1),
+              Cvtop (I64 I64.TruncSF64, e1) ) )
+  | Some FltType, Some FltType, BitwiseXor ->
+      Cvtop
+        ( F64 F64.ConvertSI64,
+          Binop
+            ( I64 I64.Xor,
+              Cvtop (I64 I64.TruncSF64, e1),
+              Cvtop (I64 I64.TruncSF64, e1) ) )
+  | Some FltType, Some FltType, ShiftLeft ->
+      Cvtop
+        ( F64 F64.ConvertSI64,
+          Binop
+            ( I64 I64.Shl,
+              Cvtop (I64 I64.TruncSF64, e1),
+              Cvtop (I64 I64.TruncSF64, e2) ) )
+  | Some FltType, Some FltType, ShiftRight ->
+      Cvtop
+        ( F64 F64.ConvertSI64,
+          Binop
+            ( I64 I64.ShrS,
+              Cvtop (I64 I64.TruncSF64, e1),
+              Cvtop (I64 I64.TruncSF64, e2) ) )
+  | Some FltType, Some FltType, ShiftRightLogical ->
+      Cvtop
+        ( F64 F64.ConvertSI64,
+          Binop
+            ( I64 I64.ShrU,
+              Cvtop (I64 I64.TruncSF64, e1),
+              Cvtop (I64 I64.TruncSF64, e2) ) )
   | Some IntType, Some IntType, Modulo -> Binop (Int I.Rem, e1, e2)
   | Some FltType, Some FltType, Eq -> Relop (F64 F64.Eq, e1, e2)
   | Some FltType, Some FltType, Gt -> Relop (F64 F64.Gt, e1, e2)
@@ -48,7 +84,7 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
   | Some BoolType, Some BoolType, Log_Or -> Binop (Bool B.Or, e1, e2)
   | Some StrType, Some IntType, Snth -> Binop (Str S.Nth, e1, e2)
   | Some StrType, Some StrType, Eq -> Relop (Str S.Eq, e1, e2)
-  | None, _, _ -> assert false
+  | None, _, op -> assert false
   | _, _, _ ->
       print_endline (Type.str (Option.get t1));
       raise TODO
@@ -72,6 +108,9 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
   | Some FltType, Neg -> Unop (F64 F64.Neg, e)
   | Some FltType, Abs -> Unop (F64 F64.Abs, e)
   | Some FltType, Sqrt -> Unop (F64 F64.Sqrt, e)
+  | Some FltType, BitwiseNot ->
+      Cvtop
+        (F64 F64.ConvertSI64, Unop (I64 I64.Not, Cvtop (I64 I64.TruncSF64, e)))
   | Some IntType, Neg -> Unop (Int I.Neg, e)
   | Some StrType, StringLen -> Unop (Str S.Len, e)
   | Some BoolType, Not -> Unop (Bool B.Not, e)
@@ -93,7 +132,7 @@ let rec translate (e : Expr.t) : Expression.t =
     | Expr.Symbolic (Type.BoolType, Expr.Val (Val.Str x)) ->
         Symbolic (`BoolType, x)
     | Expr.Symbolic (Type.FltType, Expr.Val (Val.Str x)) ->
-        Symbolic (`IntType, x)
+        Symbolic (`F64Type, x)
     | Expr.UnOpt (op, e) ->
         let ty = Sval_typing.type_of e in
         let e' = translate e in
