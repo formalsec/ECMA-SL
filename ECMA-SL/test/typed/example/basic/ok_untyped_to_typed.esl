@@ -1,5 +1,0 @@
-function main() {
-  untypedVariable := 10;
-  typedVariable: number := untypedVariable;
-  return 0
-} 

@@ -38,7 +38,7 @@ let terr_catch_assign_return (tref : E_Type.t) (expr : E_Expr.t)
 let type_assign (tctx : T_Ctx.t) (var : string) (tvar : E_Type.t option)
     (expr : E_Expr.t) : unit =
   let texpr = T_Expr.type_expr tctx expr in
-  let tvar' =
+  let _ =
     match tvar with
     | None -> E_Type.AnyType (* TODO: Add type inference *)
     | Some tvar' ->
@@ -46,7 +46,8 @@ let type_assign (tctx : T_Ctx.t) (var : string) (tvar : E_Type.t option)
         let _ = terr_catch_assign_return tvar' expr texpr err_fun in
         tvar'
   in
-  T_Ctx.tenv_update tctx var tvar'
+  T_Ctx.tref_update tctx var tvar;
+  T_Ctx.tenv_update tctx var texpr
 
 let type_return (tctx : T_Ctx.t) (expr : E_Expr.t) : unit =
   let texpr = T_Expr.type_expr tctx expr in
@@ -77,7 +78,7 @@ let type_ifelse_while (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt1 : E_Stmt.t)
     | Some stmt2' ->
         terr_catch_stmt (fun () -> type_stmt_fun tctx2 stmt2') terrs
   in
-  let _ = T_Ctx.tenv_intersect tctx tctx2 in
+  let _ = T_Ctx.trefenv_intersect tctx tctx2 in
   terrs
 
 let rec type_stmt (tctx : T_Ctx.t) (stmt : E_Stmt.t) : T_Err.t list =

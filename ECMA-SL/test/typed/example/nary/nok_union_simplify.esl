@@ -1,5 +1,8 @@
+function unionVal() : number | string {
+	return 10
+};
+
 function main() {
-	foo: number | number | string := 10;
-	bar: string | string := foo;
+	foo: string | string := unionVal();
 	return 0
 }

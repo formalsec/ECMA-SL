@@ -1,7 +1,6 @@
 (* ======================================== Basic ======================================== *)
 let%test _ = Test.type_checker_succ "example/basic/ok_typing.esl"
 let%test _ = Test.type_checker_succ "example/basic/ok_typing_propagation.esl"
-let%test _ = Test.type_checker_succ "example/basic/ok_untyped_to_typed.esl"
 let%test _ = Test.type_checker_succ "example/basic/ok_primitive.esl"
 
 let%test _ =
@@ -119,6 +118,14 @@ let%test _ =
         ( E_Type.NumberType,
           E_Type.UnionType [ E_Type.NumberType; E_Type.UnknownType ] );
     ]
+
+(* ======================================== Inference ======================================== *)
+let%test _ = Test.type_checker_succ "example/inference/ok_assignment.esl"
+let%test _ = Test.type_checker_succ "example/inference/ok_union.esl"
+
+let%test _ =
+  Test.type_checker_fail "example/inference/nok_assignment.esl"
+    [ T_Err.BadAssignment (E_Type.NumberType, E_Type.StringType) ]
 
 (* ======================================== Extra ======================================== *)
 

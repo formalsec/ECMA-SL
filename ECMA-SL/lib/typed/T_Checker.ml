@@ -4,19 +4,18 @@ let type_errors_str (terrors : T_Err.t list) : string =
 
 let type_function_params (tctx : T_Ctx.t) (func : E_Func.t) : unit =
   let tparams = E_Func.get_params_t func in
-  let tenv = T_Ctx.tenv_reset tctx in
+  let _ = T_Ctx.trefenv_reset tctx in
   List.iter
-    (fun (param, tparam) ->
-      match Hashtbl.find_opt tenv param with
+    (fun (x, t) ->
+      match T_Ctx.tenv_find tctx x with
       | None ->
-          Hashtbl.add tenv param
-            (match tparam with
-            | None -> E_Type.AnyType
-            | Some tparam' -> tparam')
+          let t' = match t with None -> E_Type.AnyType | Some t' -> t' in
+          T_Ctx.tref_update tctx x (Some t');
+          T_Ctx.tenv_update tctx x t'
       | Some _ ->
-          T_Err.raise (T_Err.DuplicatedParam param)
+          T_Err.raise (T_Err.DuplicatedParam x)
             ~src:(T_Err.Func (T_Ctx.get_func tctx))
-            ~cs:(T_Err.Str param))
+            ~cs:(T_Err.Str x))
     tparams
 
 let type_function (tctx : T_Ctx.t) (func : E_Func.t) : T_Err.t list =
