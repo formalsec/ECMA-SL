@@ -32,21 +32,21 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
           Binop
             ( I64 I64.And,
               Cvtop (I64 I64.TruncSF64, e1),
-              Cvtop (I64 I64.TruncSF64, e1) ) )
+              Cvtop (I64 I64.TruncSF64, e2) ) )
   | Some FltType, Some FltType, BitwiseOr ->
       Cvtop
         ( F64 F64.ConvertSI64,
           Binop
             ( I64 I64.Or,
               Cvtop (I64 I64.TruncSF64, e1),
-              Cvtop (I64 I64.TruncSF64, e1) ) )
+              Cvtop (I64 I64.TruncSF64, e2) ) )
   | Some FltType, Some FltType, BitwiseXor ->
       Cvtop
         ( F64 F64.ConvertSI64,
           Binop
             ( I64 I64.Xor,
               Cvtop (I64 I64.TruncSF64, e1),
-              Cvtop (I64 I64.TruncSF64, e1) ) )
+              Cvtop (I64 I64.TruncSF64, e2) ) )
   | Some FltType, Some FltType, ShiftLeft ->
       Cvtop
         ( F64 F64.ConvertSI64,

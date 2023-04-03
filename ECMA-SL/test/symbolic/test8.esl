@@ -2,11 +2,15 @@ function main() {
   x := symbolic(__$Flt, "x");
   assume(x = 2.0);
   y := x & 2.0;
+
   assert(eval(y) = eval(x));
   y := x | 2.0;
+
   assert(eval(y) = eval(x));
-  y := x ^ 2.0;
-  assert(eval(y ^ 2.0) = eval(x));
+  y := (x ^ 2.0);
+  y := y ^ 2.0;
+
+  assert(eval(y) = eval(x));
 
   return 1
 }

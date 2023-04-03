@@ -20,7 +20,6 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | IntToFloat, Val (Int i) -> Val (Flt (Float.of_int i))
   | IntToString, Val (Int i) -> Val (Str (Int.to_string i))
   | FloatToString, Val (Flt f) -> Val (Str (Float.to_string f))
-  | FloatToString, Symbolic (_, _) -> UnOpt (FloatToString, v)
   | Typeof, v -> failwith "TODO"
   | Sconcat, NOpt (ListExpr, vs) ->
       Val
@@ -30,7 +29,6 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
                    match b with Val (Str s) -> a @ [ s ] | _ -> a))))
   | Trim, Val (Str s) -> Val (Str (String_utils.trim s))
   | StringLen, Val (Str s) -> Val (Int (String.length s))
-  | StringLen, Symbolic (Type.StrType, _) -> UnOpt (StringLen, v)
   | StringLenU, Val (Str s) -> Val (Int (String_utils.s_len_u s))
   | FloatOfString, Val (Str s) ->
       let trimmed = String.strip s in
@@ -60,42 +58,25 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | LSort, Val v' -> Val (Operators.list_sort v')
   | LReverse, Val v' -> Val (Operators.list_reverse v')
   | IntToFourHex, Val (Int i) -> Val (Str (Printf.sprintf "%04x" i))
-  | IntToFourHex, Symbolic (Type.IntType, _) -> UnOpt (op, v)
   | IntOfString, Val v' -> Val (Operators.int_of_string v')
-  | IntOfString, Symbolic (Type.StrType, _) -> UnOpt (op, v)
   | IntOfFloat, Val v' -> Val (Operators.int_of_float v')
-  | IntOfFloat, Symbolic (Type.FltType, _) -> UnOpt (op, v)
   | HexDecode, Val v' -> Val (Operators.hex_decode v')
-  | HexDecode, Symbolic (Type.StrType, _) -> UnOpt (op, v)
   | Utf8Decode, Val v' -> Val (Operators.utf8_decode v')
-  | Utf8Decode, Symbolic (Type.StrType, _) -> UnOpt (op, v)
   | OctalToDecimal, Val v' -> Val (Operators.octal_to_decimal v')
-  | OctalToDecimal, Symbolic (Type.IntType, _) -> UnOpt (op, v)
   | Sconcat, Val v' -> Val (Operators.string_concat v')
   | ToInt, Val v' -> Val (Operators.to_int v')
-  | ToInt, Symbolic (Type.FltType, _) -> UnOpt (op, v)
   | ToInt32, Val v' -> Val (Operators.to_int32 v')
-  | ToInt32, Symbolic (Type.FltType, _) -> UnOpt (op, v)
   | ToUint16, Val v' -> Val (Operators.to_uint16 v')
-  | ToUint16, Symbolic (Type.FltType, _) -> UnOpt (op, v)
   | ToUint32, Val v' -> Val (Operators.to_uint32 v')
-  | ToUint32, Symbolic (Type.FltType, _) -> UnOpt (op, v)
   | FromCharCode, Val v' -> Val (Operators.from_char_code v')
-  | FromCharCode, Symbolic (Type.IntType, _) -> UnOpt (op, v)
   | FromCharCodeU, Val v' -> Val (Operators.from_char_code_u v')
-  | FromCharCodeU, Symbolic (Type.IntType, _) -> UnOpt (op, v)
   | ToCharCode, Val v' -> Val (Operators.to_char_code v')
-  | ToCharCode, Symbolic (Type.StrType, _) -> UnOpt (op, v)
   | ToCharCodeU, Val v' -> Val (Operators.to_char_code_u v')
-  | ToCharCodeU, Symbolic (Type.StrType, _) -> UnOpt (op, v)
   | ToLowerCase, Val v' -> Val (Operators.to_lower_case v')
-  | ToLowerCase, Symbolic (Type.StrType, _) -> UnOpt (op, v)
   | ToUpperCase, Val v' -> Val (Operators.to_upper_case v')
-  | ToUpperCase, Symbolic (Type.StrType, _) -> UnOpt (op, v)
   | Trim, Val v' -> Val (Operators.trim v')
   | Trim, Symbolic (Type.StrType, _) -> UnOpt (op, v)
   | ParseNumber, Val v' -> Val (Operators.parse_number v')
-  | ParseNumber, Symbolic (Type.StrType, _) -> UnOpt (op, v)
   | ParseString, Val v' -> Val (Operators.parse_string v')
   | ParseDate, Val v' -> Val (Operators.parse_date v')
   | Float64ToLEBytes, Val v' -> Val (Operators.float64_to_le_bytes v')
@@ -124,10 +105,8 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | Log_2, Val v' ->
       Val (Operators.apply_uopt_oper op v')
   (* missing obj_to_list, obj_fields*)
-  | _ ->
-      (* TODO: clear error message *)
-      invalid_arg
-        ("ill-typed or not implemented UnOpt: '" ^ str_of_unopt op ^ "'")
+  | op', v1' -> UnOpt (op', v1')
+
 
 let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
   match (op, v1, v2) with
