@@ -68,7 +68,7 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
             ( I64 I64.ShrU,
               Cvtop (I64 I64.TruncSF64, e1),
               Cvtop (I64 I64.TruncSF64, e2) ) )
-  | Some IntType, Some IntType, Modulo -> Binop (Int I.Rem, e1, e2)
+  | Some FltType, Some FltType, Modulo -> Binop (F64 F64.Rem, e1, e2)
   | Some FltType, Some FltType, Eq -> Relop (F64 F64.Eq, e1, e2)
   | Some FltType, Some FltType, Gt -> Relop (F64 F64.Gt, e1, e2)
   | Some FltType, Some FltType, Ge -> Relop (F64 F64.Ge, e1, e2)
@@ -133,6 +133,13 @@ let rec translate (e : Expr.t) : Expression.t =
         Symbolic (`BoolType, x)
     | Expr.Symbolic (Type.FltType, Expr.Val (Val.Str x)) ->
         Symbolic (`F64Type, x)
+    | Expr.UnOpt (Operators.Sconcat, e) -> (
+      let binop' e1 e2 = Binop (Str S.Concat, e1, e2) in
+      match e with
+      | Expr.NOpt (_, (h::t)) -> (
+          List.fold_left binop' (translate h)
+          (List.map translate t))
+      | _ -> raise TODO)
     | Expr.UnOpt (op, e) ->
         let ty = Sval_typing.type_of e in
         let e' = translate e in

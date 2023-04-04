@@ -45,9 +45,7 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | ToInt, Val (Flt f) -> Val (Flt (Arith_utils.to_int f))
   | ToUint32, Val (Flt f) -> Val (Flt (Arith_utils.to_uint32 f))
   | IsNaN, Val (Flt n) -> Val (Bool (Float.is_nan n))
-  | IsNaN, v' -> BinOpt (Eq, v', Val (Flt Float.nan))
   | BitwiseNot, Val (Flt f) -> Val (Flt (Arith_utils.int32_bitwise_not f))
-  | BitwiseNot, v' -> UnOpt (op, v)
   | ListLen, Val (List l) -> Val (Val.Int (List.length l))
   | TupleLen, Val (Tuple t) -> Val (Val.Int (List.length t))
   | Head, Val v' -> Val (Operators.head v')
@@ -106,7 +104,6 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
       Val (Operators.apply_uopt_oper op v')
   (* missing obj_to_list, obj_fields*)
   | op', v1' -> UnOpt (op', v1')
-
 
 let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
   match (op, v1, v2) with
