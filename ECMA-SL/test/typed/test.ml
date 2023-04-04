@@ -17,3 +17,10 @@ let type_checker_fail (file : string) (eerrors : T_Err.err list) : bool =
   List.for_all (fun (terr, eerr) -> terr = eerr) (List.combine terrors eerrors)
 
 let type_checker_comp (file : string) : unit = ignore (type_checker_succ file)
+
+(* Auxiliary Functions *)
+
+let obj_fun (ps : (string * E_Type.t) list) : E_Type.t =
+  let obj_field_fun (fn, ft) = (fn, { E_Type.t = ft; E_Type.opt = false }) in
+  let flds = Hashtbl.of_seq (List.to_seq (List.map obj_field_fun ps)) in
+  E_Type.ObjectType { flds; E_Type.smry = None }

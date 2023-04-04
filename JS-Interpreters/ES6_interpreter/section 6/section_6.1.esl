@@ -95,7 +95,7 @@ function initWellKnownSymbol(description) {
   sym := InternalSymbolConstructor(description);
   rec := {
     key: description,
-    symbol: sym,
+    sym: sym,
     wellknown: true
   };
   |GlobalSymbolRegistry|[description] := rec;
@@ -104,7 +104,7 @@ function initWellKnownSymbol(description) {
 
 function getWellKnownSymbol(key) {
   if (key in_obj |GlobalSymbolRegistry|) {
-    return |GlobalSymbolRegistry|[key].symbol
+    return |GlobalSymbolRegistry|[key].sym
   };
   return 'undefined
 };

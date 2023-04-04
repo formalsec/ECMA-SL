@@ -1,0 +1,8 @@
+function main() {
+	foo: any := 10;
+	bar: boolean := foo; 
+	baz: undefined := 'undefined;
+	qux: unknown := 10;
+	quux: symbol := 'a;
+	return 0
+}

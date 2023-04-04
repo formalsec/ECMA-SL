@@ -68,7 +68,7 @@ let at (startpos, endpos) =
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
-%token TYPEDEF, TYPE_ANY, TYPE_UNKNOWN, TYPE_NUMBER, TYPE_STRING, TYPE_BOOLEAN
+%token TYPEDEF, OPTIONAL, TYPE_ANY, TYPE_UNDEFINED, TYPE_UNKNOWN, TYPE_NUMBER, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL
 
 
 %token API_ASSUME API_MK_SYMBOLIC API_ABORT
@@ -731,6 +731,8 @@ e_simple_type_target:
     { t }
   | TYPE_ANY;
     { E_Type.AnyType }
+  | TYPE_UNDEFINED;
+    { E_Type.UndefinedType }
   | TYPE_UNKNOWN;
     { E_Type.UnknownType }
   | TYPE_NUMBER;
@@ -739,8 +741,10 @@ e_simple_type_target:
     { E_Type.StringType }
   | TYPE_BOOLEAN;
     { E_Type.BooleanType }
+  | TYPE_SYMBOL;
+    { E_Type.SymbolType }
   | LBRACE; props = separated_list (COMMA, e_type_property_target); RBRACE;
-    { let (named_props, sumry_prop) = E_Type.parse_obj_prps props in E_Type.ObjectType (named_props, sumry_prop) }
+    { let t = E_Type.parse_obj_type props in E_Type.ObjectType t }
   | v = VAR;
     { E_Type.UserDefinedType v }
   | v = val_target;
@@ -758,6 +762,8 @@ e_nary_type_op_target:
   
 e_type_property_target:
   | v = VAR; COLON; t = e_type_target;
-    { E_Type.Prop.NamedProp (v, t) }
+    { E_Type.Field.NamedField (v, (t, false) ) }
+  | v = VAR; OPTIONAL; COLON; t = e_type_target;
+    { E_Type.Field.NamedField (v, (t, true) ) }
   | TIMES; COLON; t = e_type_target;
-    { E_Type.Prop.SumryProp t }
+    { E_Type.Field.SumryField t }

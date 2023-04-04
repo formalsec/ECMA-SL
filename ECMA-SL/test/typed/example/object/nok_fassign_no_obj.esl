@@ -1,0 +1,5 @@
+function main() {
+	x: number := 10;
+	x.foo := 20;
+	return 0
+}

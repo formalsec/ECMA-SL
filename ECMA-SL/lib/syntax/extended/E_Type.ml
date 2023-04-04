@@ -1,81 +1,97 @@
 type t =
   | AnyType
+  | UndefinedType
   | UnknownType
   | TypeType
   | NumberType
   | StringType
   | BooleanType
-  | ObjectType of (string, t) Hashtbl.t * t option
-  | UserDefinedType of string
+  | SymbolType
   | LiteralType of Val.t
+  | ObjectType of obj_t
   | ListType of t
   | TupleType of t list
   | UnionType of t list
+  | UserDefinedType of string
 
-module Prop = struct
-  type p_t = NamedProp of string * t | SumryProp of t
+and obj_t = { flds : (string, field_t) Hashtbl.t; smry : t option }
+and field_t = { t : t; opt : bool }
+
+module Field = struct
+  type ft = NamedField of string * (t * bool) | SumryField of t
 end
 
-let get_named_prps (o : (string, t) Hashtbl.t * t option) : (string * t) list =
-  Hashtbl.fold (fun name t prps -> (name, t) :: prps) (fst o) []
+let get_obj_fields (tobj : obj_t) : (string, field_t) Hashtbl.t = tobj.flds
+let get_obj_smry (tobj : obj_t) : t option = tobj.smry
 
-let get_sumry_prp (o : (string, t) Hashtbl.t * t option) : t option = snd o
+let get_obj_field_list (tobj : obj_t) : (string * field_t) list =
+  List.append
+    (Hashtbl.fold (fun fn ft r -> (fn, ft) :: r) tobj.flds [])
+    (match tobj.smry with
+    | Some smry' -> [ ("*", { t = smry'; opt = false }) ]
+    | None -> [])
 
-let get_prp_list (o : (string, t) Hashtbl.t * t option) : (string * t) list =
-  List.append (get_named_prps o)
-    (match get_sumry_prp o with Some t -> [ ("*", t) ] | None -> [])
+let get_field_type (tfld : field_t) : t = tfld.t
+let is_field_optional (tfld : field_t) : bool = tfld.opt
 
 let rec str (t : t) : string =
   match t with
   | AnyType -> "any"
+  | UndefinedType -> "undefined"
   | UnknownType -> "unknown"
   | TypeType -> "_$type"
   | NumberType -> "number"
   | StringType -> "string"
   | BooleanType -> "boolean"
-  | ObjectType (named_prps, sumry_prp) ->
-      let prps = get_prp_list (named_prps, sumry_prp) in
-      "{ "
-      ^ String.concat ", " (List.map (fun p -> fst p ^ ": " ^ str (snd p)) prps)
-      ^ " }"
-  | UserDefinedType t' -> t'
+  | SymbolType -> "symbol"
   | LiteralType v -> Val.str v
+  | ObjectType t' ->
+      let field_opt_str ft = if ft.opt then "?" else "" in
+      let field_str (fn, ft) = fn ^ field_opt_str ft ^ ": " ^ str ft.t in
+      let fields = get_obj_field_list t' in
+      "{ " ^ String.concat ", " (List.map (fun f -> field_str f) fields) ^ " }"
   | ListType t' -> "[" ^ str t' ^ "]"
   | TupleType t ->
       "(" ^ String.concat " * " (List.map (fun el -> str el) t) ^ ")"
   | UnionType t ->
       "(" ^ String.concat " | " (List.map (fun el -> str el) t) ^ ")"
+  | UserDefinedType t' -> t'
 
 let simplify_type (t : t) : t =
-  let unique t ts = if List.mem t ts then ts else t :: ts in
-  let remove_duplicates ts = List.fold_right unique ts [] in
+  let unique t tlst = if List.mem t tlst then tlst else t :: tlst in
+  let simplify_type' tlst =
+    if List.mem AnyType tlst then [ AnyType ]
+    else List.fold_right unique tlst []
+  in
   match t with
   | UnionType t' -> (
-      let t' = remove_duplicates t' in
+      let t' = simplify_type' t' in
       match t' with [] -> UnknownType | e :: [] -> e | e :: r -> UnionType t')
   | default -> t
 
-let parse_obj_prps (prps : Prop.p_t list) : (string, t) Hashtbl.t * t option =
-  let p_t_split p (named_prps, sumry_prps) =
-    match p with
-    | Prop.NamedProp (name, t) -> ((name, t) :: named_prps, sumry_prps)
-    | Prop.SumryProp t -> (named_prps, t :: sumry_prps)
+let parse_obj_type (field_lst : Field.ft list) : obj_t =
+  let field_split_fun f (named_fs, sumry_fs) =
+    match f with
+    | Field.NamedField (fn, ft) -> ((fn, ft) :: named_fs, sumry_fs)
+    | Field.SumryField t -> (named_fs, t :: sumry_fs)
   in
-  let named_prp, sumry_prp = List.fold_right p_t_split prps ([], []) in
-  let named_prps = Hashtbl.create !Config.default_hashtbl_sz in
+  let field_type_fun (t : t) (opt : bool) : t =
+    if opt then simplify_type (UnionType [ t; UndefinedType ]) else t
+  in
+  let named_fs, sumry_fs = List.fold_right field_split_fun field_lst ([], []) in
+  let flds = Hashtbl.create !Config.default_hashtbl_sz in
   let _ =
     List.iter
-      (fun (p : string * t) ->
-        match Hashtbl.find_opt named_prps (fst p) with
-        | None -> Hashtbl.replace named_prps (fst p) (snd p)
-        | Some _ ->
-            invalid_arg ("Property '" ^ fst p ^ "' already exists in the object"))
-      named_prp
+      (fun (fn, (t, opt)) ->
+        match Hashtbl.find_opt flds fn with
+        | None -> Hashtbl.replace flds fn { t = field_type_fun t opt; opt }
+        | Some _ -> invalid_arg ("Field '" ^ fn ^ "' already in the object."))
+      named_fs
   in
-  match sumry_prp with
-  | [] -> (named_prps, None)
-  | t :: [] -> (named_prps, Some t)
-  | default -> invalid_arg "Duplicate summary property in the object"
+  match sumry_fs with
+  | [] -> { flds; smry = None }
+  | t :: [] -> { flds; smry = Some t }
+  | default -> invalid_arg "Duplicated summary field in the object."
 
 let merge_tuple_type (nary_t : t) (simple_t : t) : t =
   match nary_t with

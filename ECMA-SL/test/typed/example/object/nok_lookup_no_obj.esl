@@ -1,0 +1,5 @@
+function main() {
+	x: number := 10;
+	y: number := x.foo;
+	return 0
+}

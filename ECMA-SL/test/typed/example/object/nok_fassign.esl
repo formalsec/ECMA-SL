@@ -1,0 +1,5 @@
+function main() {
+	x: { foo: number, bar: string } := { foo: 10, bar: "abc" };
+	x.foo := "def";
+	return 0
+}

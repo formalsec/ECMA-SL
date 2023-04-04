@@ -175,6 +175,7 @@
                 "number"                , TYPE_NUMBER;
                 "string"                , TYPE_STRING;
                 "boolean"               , TYPE_BOOLEAN;
+                "symbol"                , TYPE_SYMBOL;
               ]
 
   exception Syntax_error of string
@@ -264,6 +265,7 @@ rule read =
   | '}'            { RBRACE }
   | '['            { LBRACK }
   | ']'            { RBRACK }
+  | '?'            { OPTIONAL }
   | "__$"          { read_type lexbuf }
   | int            { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float          { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }

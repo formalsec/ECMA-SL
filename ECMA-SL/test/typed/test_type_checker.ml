@@ -2,6 +2,7 @@
 let%test _ = Test.type_checker_succ "example/basic/ok_typing.esl"
 let%test _ = Test.type_checker_succ "example/basic/ok_typing_propagation.esl"
 let%test _ = Test.type_checker_succ "example/basic/ok_primitive.esl"
+let%test _ = Test.type_checker_succ "example/basic/ok_extra_types.esl"
 
 let%test _ =
   Test.type_checker_fail "example/basic/nok_unknown_var.esl"
@@ -10,6 +11,10 @@ let%test _ =
 let%test _ =
   Test.type_checker_fail "example/basic/nok_primitive_assignment.esl"
     [ T_Err.BadAssignment (E_Type.NumberType, E_Type.StringType) ]
+
+let%test _ =
+  Test.type_checker_fail "example/basic/nok_typing_propagation.esl"
+    [ T_Err.BadAssignment (E_Type.StringType, E_Type.NumberType) ]
 
 (* ======================================== Functions ======================================== *)
 let%test _ = Test.type_checker_succ "example/function/ok_function.esl"
@@ -82,9 +87,86 @@ let%test _ =
           E_Type.UnionType [ E_Type.NumberType; E_Type.StringType ] );
     ]
 
+(* ======================================== Object ======================================== *)
+let%test _ = Test.type_checker_succ "example/object/ok_object.esl"
+let%test _ = Test.type_checker_succ "example/object/ok_opt_prop.esl"
+let%test _ = Test.type_checker_succ "example/object/ok_lookup.esl"
+let%test _ = Test.type_checker_succ "example/object/ok_fassign.esl"
+
+let%test _ =
+  Test.type_checker_fail "example/object/nok_duplicate_prop.esl"
+    [ T_Err.DuplicatedField "foo" ]
+
+let%test _ =
+  Test.type_checker_fail "example/object/nok_missing_prop.esl"
+    [ T_Err.MissingField "bar" ]
+
+let%test _ =
+  Test.type_checker_fail "example/object/nok_extra_prop.esl"
+    [ T_Err.ExtraField "bar" ]
+
+let%test _ =
+  Test.type_checker_fail "example/object/nok_bad_prop.esl"
+    [ T_Err.BadField ("bar", E_Type.StringType, E_Type.BooleanType) ]
+
+let%test _ =
+  let tobj1, tobj2, tobj3, tobj4 =
+    ( Test.obj_fun [ ("foo", E_Type.NumberType); ("bar", E_Type.StringType) ],
+      Test.obj_fun
+        [
+          ("foo", E_Type.NumberType);
+          ("bar", E_Type.StringType);
+          ("baz", E_Type.BooleanType);
+        ],
+      Test.obj_fun [ ("foo", E_Type.NumberType) ],
+      Test.obj_fun [ ("foo", E_Type.NumberType); ("bar", E_Type.BooleanType) ]
+    )
+  in
+  Test.type_checker_fail "example/object/nok_obj_ref.esl"
+    [
+      T_Err.BadAssignment (tobj2, tobj1);
+      T_Err.BadAssignment (tobj3, tobj1);
+      T_Err.BadAssignment (tobj4, tobj1);
+    ]
+
+let%test _ =
+  Test.type_checker_fail "example/object/nok_lookup_no_obj.esl"
+    [ T_Err.ExpectedObjectExpr (E_Expr.Var "x") ]
+
+let%test _ =
+  let tobj = Test.obj_fun [ ("foo", E_Type.NumberType) ] in
+  Test.type_checker_fail "example/object/nok_lookup_missing.esl"
+    [ T_Err.BadLookup (tobj, "bar") ]
+
+let%test _ =
+  Test.type_checker_fail "example/object/nok_lookup_assignment.esl"
+    [ T_Err.BadAssignment (E_Type.NumberType, E_Type.StringType) ]
+
+let%test _ =
+  Test.type_checker_fail "example/object/nok_lookup_opt.esl"
+    [
+      T_Err.BadAssignment
+        ( E_Type.StringType,
+          E_Type.UnionType [ E_Type.StringType; E_Type.UndefinedType ] );
+    ]
+
+let%test _ =
+  Test.type_checker_fail "example/object/nok_fassign_no_obj.esl"
+    [ T_Err.ExpectedObjectExpr (E_Expr.Var "x") ]
+
+let%test _ =
+  let tobj = Test.obj_fun [ ("foo", E_Type.NumberType) ] in
+  Test.type_checker_fail "example/object/nok_fassign_missing.esl"
+    [ T_Err.BadLookup (tobj, "bar") ]
+
+let%test _ =
+  Test.type_checker_fail "example/object/nok_fassign.esl"
+    [ T_Err.BadAssignment (E_Type.NumberType, E_Type.StringType) ]
+
 (* ======================================== Stmts ======================================== *)
 let%test _ = Test.type_checker_succ "example/stmt/ok_ifelse.esl"
 let%test _ = Test.type_checker_succ "example/stmt/ok_ifelse_union.esl"
+let%test _ = Test.type_checker_succ "example/stmt/ok_ifelse_union_any.esl"
 let%test _ = Test.type_checker_succ "example/stmt/ok_while_union.esl"
 
 let%test _ =
@@ -119,15 +201,8 @@ let%test _ =
           E_Type.UnionType [ E_Type.NumberType; E_Type.UnknownType ] );
     ]
 
-(* ======================================== Inference ======================================== *)
-let%test _ = Test.type_checker_succ "example/inference/ok_assignment.esl"
-let%test _ = Test.type_checker_succ "example/inference/ok_union.esl"
-
-let%test _ =
-  Test.type_checker_fail "example/inference/nok_assignment.esl"
-    [ T_Err.BadAssignment (E_Type.NumberType, E_Type.StringType) ]
-
 (* ======================================== Extra ======================================== *)
+let%test _ = Test.type_checker_succ "example/extra/ok_gcd.esl"
 
 let%test _ =
   Test.type_checker_fail "example/extra/nok_ifelse_return.esl"

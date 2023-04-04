@@ -1,0 +1,6 @@
+function main() {
+	x: {} := {};
+	y: { foo: number } := { foo: 10 };
+	z: { foo: number, bar: string } := { foo: 10, bar: "abc" };
+	return 0
+}

@@ -1,14 +1,14 @@
-open T_Err
 open E_Stmt
 open Source
+open T_Err
 
 let terr_none () : T_Err.t list = []
 
 let terr_stmt (terrs : T_Err.t list) (stmt : E_Stmt.t) : T_Err.t list =
   List.map
     (fun terr ->
-      if terr.source = T_Err.NoSource then
-        T_Err.create terr.err ~src:(T_Err.Stmt stmt) ~cs:terr.cause
+      if terr.src = T_Err.NoSource then
+        T_Err.create terr.err ~src:(T_Err.Stmt stmt) ~cs:terr.cs
       else terr)
     terrs
 
@@ -21,33 +21,22 @@ let terr_catch_expr (try_fun : unit -> E_Type.t) (terrs : T_Err.t list) :
 
 let terr_catch_stmt (try_fun : unit -> T_Err.t list) (terrs : T_Err.t list) :
     T_Err.t list =
-  try
-    let terrs' = try_fun () in
-    List.append terrs terrs'
+  try List.append terrs (try_fun ())
   with T_Err.TypeError terr -> List.append terrs [ terr ]
-
-let terr_catch_assign_return (tref : E_Type.t) (expr : E_Expr.t)
-    (texpr : E_Type.t) (err_fun : E_Type.t * E_Type.t -> T_Err.err) : unit =
-  try T_Typing.test_typing tref texpr
-  with TypeError terr -> (
-    match terr.err with
-    | T_Err.BadExpectedType (tref', texpr') ->
-        T_Err.raise (err_fun (tref', texpr')) ~cs:(T_Err.Expr expr)
-    | default -> ())
 
 let type_assign (tctx : T_Ctx.t) (var : string) (tvar : E_Type.t option)
     (expr : E_Expr.t) : unit =
   let texpr = T_Expr.type_expr tctx expr in
-  let _ =
+  let treal =
     match tvar with
     | None -> E_Type.AnyType (* TODO: Add type inference *)
     | Some tvar' ->
-        let err_fun (tref, texpr) = T_Err.BadAssignment (tref, texpr) in
-        let _ = terr_catch_assign_return tvar' expr texpr err_fun in
+        let gerr_fun = Some (fun () -> T_Err.BadAssignment (tvar', texpr)) in
+        let _ = T_Typing.test_typing_expr ~gerr_fun tvar' expr texpr in
         tvar'
   in
   T_Ctx.tref_update tctx var tvar;
-  T_Ctx.tenv_update tctx var texpr
+  T_Ctx.tenv_update tctx var treal
 
 let type_return (tctx : T_Ctx.t) (expr : E_Expr.t) : unit =
   let texpr = T_Expr.type_expr tctx expr in
@@ -55,8 +44,8 @@ let type_return (tctx : T_Ctx.t) (expr : E_Expr.t) : unit =
   match tret with
   | None -> () (* TODO: Add type inference *)
   | Some tret' ->
-      let err_fun (tref, texpr) = T_Err.BadReturn (tref, texpr) in
-      terr_catch_assign_return tret' expr texpr err_fun
+      let gerr_fun = Some (fun () -> T_Err.BadReturn (tret', texpr)) in
+      T_Typing.test_typing_expr ~gerr_fun tret' expr texpr
 
 let type_ifelse_while (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt1 : E_Stmt.t)
     (stmt2 : E_Stmt.t option)
@@ -81,6 +70,21 @@ let type_ifelse_while (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt1 : E_Stmt.t)
   let _ = T_Ctx.trefenv_intersect tctx tctx2 in
   terrs
 
+let type_fassign (tctx : T_Ctx.t) (oexpr : E_Expr.t) (fexpr : E_Expr.t)
+    (expr : E_Expr.t) : unit =
+  let texpr = T_Expr.type_expr tctx expr in
+  let tobj = T_Expr.type_expr tctx oexpr in
+  match (tobj, fexpr) with
+  | E_Type.ObjectType tobj', E_Expr.Val (Val.Str fn) -> (
+      match Hashtbl.find_opt (E_Type.get_obj_fields tobj') fn with
+      | None -> T_Err.raise (T_Err.BadLookup (tobj, fn)) ~cs:(T_Err.Expr fexpr)
+      | Some tfld ->
+          let tfld' = E_Type.get_field_type tfld in
+          let gerr_fun = Some (fun () -> T_Err.BadAssignment (tfld', texpr)) in
+          T_Typing.test_typing_expr ~gerr_fun tfld' expr texpr)
+  | default ->
+      T_Err.raise (T_Err.ExpectedObjectExpr oexpr) ~cs:(T_Err.Expr oexpr)
+
 let rec type_stmt (tctx : T_Ctx.t) (stmt : E_Stmt.t) : T_Err.t list =
   let type_stmt' (stmt : E_Stmt.t) : T_Err.t list =
     match stmt.it with
@@ -90,21 +94,20 @@ let rec type_stmt (tctx : T_Ctx.t) (stmt : E_Stmt.t) : T_Err.t list =
     | Print _ -> terr_none ()
     (* | Assume _ -> [] *)
     (* | Assert _ -> [] *)
-    | Return expr -> terr_none (type_return tctx expr)
+    | Return e -> terr_none (type_return tctx e)
     (* | Wrapper (_, _) -> [] *)
-    | Assign (var, tvar, expr) -> terr_none (type_assign tctx var tvar expr)
+    | Assign (x, t, e) -> terr_none (type_assign tctx x t e)
     (* | GlobAssign (_, _) -> [] *)
     | Block stmts ->
         List.concat (List.map (fun stmt -> type_stmt tctx stmt) stmts)
-    | If (expr, stmt1, stmt2, _, _) ->
-        terr_stmt (type_ifelse_while tctx expr stmt1 stmt2 type_stmt) stmt
+    | If (e, s1, s2, _, _) ->
+        terr_stmt (type_ifelse_while tctx e s1 s2 type_stmt) stmt
     (* | EIf (_, _) -> [] *)
-    | While (expr, stmt) ->
-        terr_stmt (type_ifelse_while tctx expr stmt None type_stmt) stmt
+    | While (e, s) -> terr_stmt (type_ifelse_while tctx e s None type_stmt) stmt
     (* | ForEach (_, _, _, _, _) -> [] *)
-    (* | FieldAssign (_, _, _) -> [] *)
+    | FieldAssign (oe, fe, e) -> terr_none (type_fassign tctx oe fe e)
     (* | FieldDelete (_, _) -> [] *)
-    | ExprStmt expr -> terr_none (ignore (T_Expr.type_expr tctx expr))
+    | ExprStmt e -> terr_none (ignore (T_Expr.type_expr tctx e))
     (* | RepeatUntil (_, _, _) -> [] *)
     (* | MatchWith (_, _) -> [] *)
     (* | MacroApply (_, _) -> [] *)
@@ -114,4 +117,4 @@ let rec type_stmt (tctx : T_Ctx.t) (stmt : E_Stmt.t) : T_Err.t list =
   in
   try type_stmt' stmt
   with T_Err.TypeError terr ->
-    [ T_Err.create terr.err ~src:(T_Err.Stmt stmt) ~cs:terr.cause ]
+    [ T_Err.create terr.err ~src:(T_Err.Stmt stmt) ~cs:terr.cs ]
