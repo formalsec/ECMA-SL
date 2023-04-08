@@ -10,6 +10,21 @@ type t =
   | NOpt of Operators.nopt * t list
   | Curry of t * t list
 
+let rec equal (e1 : t) (e2 : t) : bool =
+  match (e1, e2) with
+  | Val v1, Val v2 -> Val.equal v1 v2
+  | Var x1, Var x2 -> String.equal x1 x2
+  | Symbolic (t1, e1'), Symbolic (t2, e2') -> Type.(t1 = t2) && equal e1' e2'
+  | UnOpt (op1, e1'), UnOpt (op2, e2') -> Caml.( = ) op1 op2 && equal e1' e2'
+  | BinOpt (op1, e1', e2'), BinOpt (op2, e3', e4') ->
+      Caml.( = ) op1 op2 && equal e1' e3' && equal e2' e4'
+  | TriOpt (op1, e1', e2', e3'), TriOpt (op2, e4', e5', e6') ->
+      Caml.( = ) op1 op2 && equal e1' e4' && equal e2' e5' && equal e3' e6'
+  | NOpt (op1, es1), NOpt (op2, es2) ->
+      Caml.( = ) op1 op2 && List.equal equal es1 es2
+  | Curry (x1, es1), Curry (x2, es2) -> equal x1 x2 && List.equal equal es1 es2
+  | _ -> false
+
 let rec is_symbolic (v : t) : bool =
   match v with
   | Val _ | Var _ -> false

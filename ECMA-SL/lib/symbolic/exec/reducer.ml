@@ -20,7 +20,8 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | IntToFloat, Val (Int i) -> Val (Flt (Float.of_int i))
   | IntToString, Val (Int i) -> Val (Str (Int.to_string i))
   | FloatToString, Val (Flt f) -> Val (Str (Float.to_string f))
-  | Typeof, v -> failwith "TODO"
+  | Typeof, Val v -> Val (Operators.typeof v)
+  | Typeof, Symbolic (t, _) -> Val (Type t)
   | Sconcat, NOpt (ListExpr, vs) ->
       Val
         (Str

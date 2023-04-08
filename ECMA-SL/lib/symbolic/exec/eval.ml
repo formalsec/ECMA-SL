@@ -110,10 +110,10 @@ let step (c : config) : config list =
   | Abort e ->
       [ update c (Final (Some (reduce_expr ~at:s.at store e))) state pc ]
   | Assume e
-    when Caml.( = ) (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
+    when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
       [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Assume e
-    when Caml.( = ) (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
+    when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
       []
   | Assume e -> (
       let v = reduce_expr ~at:s.at store e in
@@ -123,10 +123,10 @@ let step (c : config) : config list =
         else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
       with Batch.Unknown -> [ update c (Unknown (Some v)) state (v :: pc) ])
   | Stmt.Assert e
-    when Caml.( = ) (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
+    when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
       [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Stmt.Assert e
-    when Caml.( = ) (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
+    when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
       [ update c (Failure (Some (reduce_expr ~at:s.at store e))) state pc ]
   | Stmt.Assert e -> (
       let v = reduce_expr ~at:s.at store e in
@@ -147,7 +147,7 @@ let step (c : config) : config list =
       ]
   | Stmt.Block blk -> [ update c (Cont (blk @ List.tl_exn stmts)) state pc ]
   | Stmt.If (br, blk, _)
-    when Caml.( = ) (Val (Val.Bool true)) (reduce_expr ~at:s.at store br) ->
+    when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store br) ->
       let cont =
         match blk.it with
         | Stmt.Block b -> b @ ((Stmt.Merge @@ blk.at) :: List.tl_exn stmts)
@@ -155,7 +155,7 @@ let step (c : config) : config list =
       in
       [ update c (Cont cont) state pc ]
   | Stmt.If (br, _, blk)
-    when Caml.( = ) (Val (Val.Bool false)) (reduce_expr ~at:s.at store br) ->
+    when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store br) ->
       let cont =
         let t = List.tl_exn stmts in
         match blk with None -> t | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: t
