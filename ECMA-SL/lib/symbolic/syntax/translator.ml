@@ -1,8 +1,7 @@
+open Core
 open Encoding
 open Expression
 open Types
-
-exception TODO
 
 let expr_of_value (e : Expression.value) : Expr.t =
   match e with
@@ -85,9 +84,7 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
   | Some StrType, Some IntType, Snth -> Binop (Str S.Nth, e1, e2)
   | Some StrType, Some StrType, Eq -> Relop (Str S.Eq, e1, e2)
   | None, _, op -> assert false
-  | _, _, _ ->
-      print_endline (Type.str (Option.get t1));
-      raise TODO
+  | _, _, _ -> failwith (Type.str (Option.value_exn t1))
 
 let translate_triop (t1 : Type.t option) (t2 : Type.t option)
     (t3 : Type.t option) (op : Operators.topt) (e1 : Expression.t)
@@ -96,9 +93,7 @@ let translate_triop (t1 : Type.t option) (t2 : Type.t option)
   match (t1, t2, t3, op) with
   | Some StrType, Some IntType, Some IntType, s_substr ->
       Triop (Str S.SubStr, e1, e2, e3)
-  | _, _, _, _ ->
-      print_endline (Type.str (Option.get t1));
-      raise TODO
+  | _, _, _, _ -> failwith (Type.str (Option.value_exn t1))
 
 let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
     : Expression.t =
@@ -114,46 +109,39 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
   | Some IntType, Neg -> Unop (Int I.Neg, e)
   | Some StrType, StringLen -> Unop (Str S.Len, e)
   | Some BoolType, Not -> Unop (Bool B.Not, e)
-  | _, _ ->
-      print_endline (Type.str (Option.get t));
-      raise TODO
+  | Some _, _ -> failwith (Type.str (Option.value_exn t))
+  | None, _ -> failwith "translate_unop: None type"
 
 let rec translate (e : Expr.t) : Expression.t =
-  try
-    match e with
-    | Expr.Val (Val.Int i) -> Val (Int i)
-    | Expr.Val (Val.Str s) -> Val (Str s)
-    | Expr.Val (Val.Bool b) -> Val (Bool b)
-    | Expr.Val (Val.Flt f) -> Val (Num (F64 (Int64.bits_of_float f)))
-    | Expr.Symbolic (Type.IntType, Expr.Val (Val.Str x)) ->
-        Symbolic (`IntType, x)
-    | Expr.Symbolic (Type.StrType, Expr.Val (Val.Str x)) ->
-        Symbolic (`StrType, x)
-    | Expr.Symbolic (Type.BoolType, Expr.Val (Val.Str x)) ->
-        Symbolic (`BoolType, x)
-    | Expr.Symbolic (Type.FltType, Expr.Val (Val.Str x)) ->
-        Symbolic (`F64Type, x)
-    | Expr.UnOpt (Operators.Sconcat, e) -> (
+  match e with
+  | Expr.Val (Val.Int i) -> Val (Int i)
+  | Expr.Val (Val.Str s) -> Val (Str s)
+  | Expr.Val (Val.Bool b) -> Val (Bool b)
+  | Expr.Val (Val.Flt f) -> Val (Num (F64 (Int64.bits_of_float f)))
+  | Expr.Symbolic (Type.IntType, Expr.Val (Val.Str x)) -> Symbolic (`IntType, x)
+  | Expr.Symbolic (Type.StrType, Expr.Val (Val.Str x)) -> Symbolic (`StrType, x)
+  | Expr.Symbolic (Type.BoolType, Expr.Val (Val.Str x)) ->
+      Symbolic (`BoolType, x)
+  | Expr.Symbolic (Type.FltType, Expr.Val (Val.Str x)) -> Symbolic (`F64Type, x)
+  | Expr.UnOpt (Operators.Sconcat, e) -> (
       let binop' e1 e2 = Binop (Str S.Concat, e1, e2) in
       match e with
-      | Expr.NOpt (_, (h::t)) -> (
-          List.fold_left binop' (translate h)
-          (List.map translate t))
-      | _ -> raise TODO)
-    | Expr.UnOpt (op, e) ->
-        let ty = Sval_typing.type_of e in
-        let e' = translate e in
-        translate_unop ty op e'
-    | Expr.BinOpt (op, e1, e2) ->
-        let ty1 = Sval_typing.type_of e1 in
-        let ty2 = Sval_typing.type_of e2 in
-        let e1' = translate e1 and e2' = translate e2 in
-        translate_binop ty1 ty2 op e1' e2'
-    | Expr.TriOpt (op, e1, e2, e3) ->
-        let ty1 = Sval_typing.type_of e1 in
-        let ty2 = Sval_typing.type_of e2 in
-        let ty3 = Sval_typing.type_of e3 in
-        let e1' = translate e1 and e2' = translate e2 and e3' = translate e3 in
-        translate_triop ty1 ty2 ty3 op e1' e2' e3'
-    | _ -> failwith (Expr.str e ^ ": Not translated!")
-  with TODO -> failwith (Expr.str e ^ ": Not translated!")
+      | Expr.NOpt (_, h :: t) ->
+          List.fold_left ~init:(translate h) ~f:binop' (List.map ~f:translate t)
+      | _ -> assert false)
+  | Expr.UnOpt (op, e) ->
+      let ty = Sval_typing.type_of e in
+      let e' = translate e in
+      translate_unop ty op e'
+  | Expr.BinOpt (op, e1, e2) ->
+      let ty1 = Sval_typing.type_of e1 in
+      let ty2 = Sval_typing.type_of e2 in
+      let e1' = translate e1 and e2' = translate e2 in
+      translate_binop ty1 ty2 op e1' e2'
+  | Expr.TriOpt (op, e1, e2, e3) ->
+      let ty1 = Sval_typing.type_of e1 in
+      let ty2 = Sval_typing.type_of e2 in
+      let ty3 = Sval_typing.type_of e3 in
+      let e1' = translate e1 and e2' = translate e2 and e3' = translate e3 in
+      translate_triop ty1 ty2 ty3 op e1' e2' e3'
+  | _ -> failwith (Expr.str e ^ ": Not translated!")

@@ -17,8 +17,9 @@ and outcome =
 and func = string
 and stack = Sstore.t Call_stack.t
 and state = Expr.t Heap.t * Sstore.t * stack * func
-and pc = Expr.t list
+and pc = Encoding.Expression.t list
 
+let is_cont (o : outcome) : bool = match o with Cont _ -> true | _ -> false
 let is_fail (o : outcome) : bool = match o with Failure _ -> true | _ -> false
 let is_final (o : outcome) : bool = match o with Final _ -> true | _ -> false
 let update (c : config) code state pc : config = { c with code; state; pc }

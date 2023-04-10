@@ -10,9 +10,11 @@ let bin_args_typing_arith (arg1_t : Type.t option) (arg2_t : Type.t option) :
 let bin_args_typing_eq (arg1_t : Type.t option) (arg2_t : Type.t option) :
     Type.t option =
   match (arg1_t, arg2_t) with
-  | Some Type.IntType, Some Type.IntType -> Some Type.BoolType
-  | Some Type.FltType, Some Type.FltType -> Some Type.BoolType
-  | Some Type.ArrayType, Some Type.ArrayType -> Some Type.BoolType
+  | Some Type.IntType, Some Type.IntType
+  | Some Type.FltType, Some Type.FltType
+  | Some Type.ArrayType, Some Type.ArrayType
+  | Some Type.StrType, Some Type.StrType ->
+      Some Type.BoolType
   (* missing the symbolic cases *)
   | default -> None
 

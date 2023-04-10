@@ -59,30 +59,27 @@ let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config)
       let e' = reduce_expr ~at store e in
       Sstore.add_exn store name (Val (Val.Bool (Expr.is_symbolic e')))
   | Symb_stmt.IsSat (name, e) ->
-      let e' = reduce_expr ~at store e in
-      let is_sat =
-        Batch.check_sat c.solver (List.map ~f:Translator.translate (e' :: c.pc))
-      in
-      Sstore.add_exn store name (Val (Val.Bool is_sat))
+      let e' = Translator.translate (reduce_expr ~at store e) in
+      let sat = Batch.check_sat c.solver (e' :: c.pc) in
+      Sstore.add_exn store name (Val (Val.Bool sat))
   | Symb_stmt.Maximize (name, e) ->
       let e' = Translator.translate (reduce_expr ~at store e) in
-      let pc' = List.map ~f:Translator.translate c.pc in
       let v =
-        Option.map ~f:Translator.expr_of_value (Optimizer.maximize c.opt e' pc')
+        Option.map ~f:Translator.expr_of_value
+          (Optimizer.maximize c.opt e' c.pc)
       in
       Sstore.add_exn store name (Option.value ~default:(Val Val.Null) v)
   | Symb_stmt.Minimize (name, e) ->
       let e' = Translator.translate (reduce_expr ~at store e) in
-      let pc' = List.map ~f:Translator.translate c.pc in
       let v =
-        Option.map ~f:Translator.expr_of_value (Optimizer.minimize c.opt e' pc')
+        Option.map ~f:Translator.expr_of_value
+          (Optimizer.minimize c.opt e' c.pc)
       in
       Sstore.add_exn store name (Option.value ~default:(Val Val.Null) v)
   | Symb_stmt.Eval (name, e) ->
       let e' = Translator.translate (reduce_expr ~at store e) in
-      let pc' = List.map ~f:Translator.translate c.pc in
       let v =
-        Option.map ~f:Translator.expr_of_value (Batch.eval c.solver e' pc')
+        Option.map ~f:Translator.expr_of_value (Batch.eval c.solver e' c.pc)
       in
       Sstore.add_exn store name (Option.value ~default:(Val Val.Null) v)
 
@@ -115,28 +112,38 @@ let step (c : config) : config list =
   | Assume e
     when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
       []
-  | Assume e -> (
-      let v = reduce_expr ~at:s.at store e in
-      try
-        let pc' = List.map ~f:Translator.translate (v :: pc) in
-        if not (Batch.check_sat solver pc') then []
-        else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
-      with Batch.Unknown -> [ update c (Unknown (Some v)) state (v :: pc) ])
+  | Assume e ->
+      let e' = reduce_expr ~at:s.at store e in
+      let v = Translator.translate e' in
+      let cont =
+        try
+          if not (Batch.check_sat solver (v :: pc)) then []
+          else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
+        with Batch.Unknown -> [ update c (Unknown (Some e')) state (v :: pc) ]
+      in
+      Logging.print_endline
+        (lazy
+          ("assume (" ^ Expr.str e' ^ ") = "
+          ^ Bool.to_string (List.length cont > 0)));
+      cont
   | Stmt.Assert e
     when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
       [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Stmt.Assert e
     when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
       [ update c (Failure (Some (reduce_expr ~at:s.at store e))) state pc ]
-  | Stmt.Assert e -> (
+  | Stmt.Assert e ->
       let v = reduce_expr ~at:s.at store e in
       let v' = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, e)) in
-      try
-        let pc' = List.map ~f:Translator.translate (v' :: pc) in
-        if Batch.check_sat solver pc' then
+      let cont =
+        if Batch.check_sat solver (Translator.translate v' :: pc) then
           [ update c (Failure (Some v)) state pc ]
         else [ update c (Cont (List.tl_exn stmts)) state pc ]
-      with Batch.Unknown -> [ update c (Unknown (Some v)) state pc ])
+      in
+      Logging.print_endline
+        (lazy
+          ("assert (" ^ Expr.str v ^ ") = " ^ Bool.to_string (is_cont c.code)));
+      cont
   | Stmt.Assign (x, e) ->
       let v = reduce_expr ~at:s.at store e in
       [
@@ -164,20 +171,21 @@ let step (c : config) : config list =
   | Stmt.If (br, blk1, blk2) ->
       let br_t = reduce_expr ~at:s.at store br
       and br_f = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, br)) in
+      let br_t' = Translator.translate br_t
+      and br_f' = Translator.translate br_f in
+      Logging.print_endline (lazy ("If (" ^ Expr.str br_t ^ ")"));
       let then_branch =
         try
-          let pc' = List.map ~f:Translator.translate (br_t :: pc) in
-          if not (Batch.check_sat solver pc') then []
+          if not (Batch.check_sat solver (br_t' :: pc)) then []
           else
             let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl_exn stmts in
-            [ update c (Cont stmts') state (br_t :: pc) ]
+            [ update c (Cont stmts') state (br_t' :: pc) ]
         with Batch.Unknown ->
-          [ update c (Unknown (Some br_t)) state (br_t :: pc) ]
+          [ update c (Unknown (Some br_t)) state (br_t' :: pc) ]
       in
       let else_branch =
         try
-          let pc' = List.map ~f:Translator.translate (br_f :: pc) in
-          if not (Batch.check_sat solver pc') then []
+          if not (Batch.check_sat solver (br_f' :: pc)) then []
           else
             let state' = (Heap.clone heap, store, stack, f) in
             let stmts' =
@@ -185,9 +193,9 @@ let step (c : config) : config list =
               | None -> List.tl_exn stmts
               | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl_exn stmts
             in
-            [ update c (Cont stmts') state' (br_f :: pc) ]
+            [ update c (Cont stmts') state' (br_f' :: pc) ]
         with Batch.Unknown ->
-          [ update c (Unknown (Some br_f)) state (br_f :: pc) ]
+          [ update c (Unknown (Some br_f)) state (br_f' :: pc) ]
       in
       then_branch @ else_branch
   | Stmt.While (br, blk) ->
@@ -322,13 +330,17 @@ module TreeSearch (L : WorkList) = struct
     let w = L.create () in
     L.push c w;
     let out = ref [] and err = ref false in
+    Logging.print_endline (lazy "---- Start ----");
     while not (!err || L.is_empty w) do
       let c = L.pop w in
       match c.code with
       | Cont [] -> Crash.error Source.no_region "Empty continuation!"
       | Cont _ -> List.iter ~f:(fun c -> L.push c w) (step c)
-      | Error v | Final v | Unknown v -> out := c :: !out
+      | Error v | Final v | Unknown v ->
+          if L.is_empty w then Logging.print_endline (lazy "---- End ---- ");
+          out := c :: !out
       | Failure v ->
+          Logging.print_endline (lazy "---- Failure ----");
           err := true;
           out := c :: !out
     done;
@@ -390,8 +402,11 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
   let final_configs = List.filter ~f:(fun c -> is_final c.code) out_configs
   and error_configs = List.filter ~f:(fun c -> is_fail c.code) out_configs in
   let final_testsuite, error_testsuite =
-    ( List.map ~f:(fun c -> Batch.string_binds c.solver) final_configs,
-      List.map ~f:(fun c -> Batch.string_binds c.solver) error_configs )
+    let f c =
+      ignore (Batch.check_sat c.solver c.pc);
+      Batch.string_binds c.solver
+    in
+    (List.map ~f final_configs, List.map ~f error_configs)
   in
   let report =
     Report.create ~file:!Flags.file ~paths:(List.length out_configs)

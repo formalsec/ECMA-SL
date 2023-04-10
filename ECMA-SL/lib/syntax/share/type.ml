@@ -40,5 +40,6 @@ let ( = ) t1 t2 =
   | NullType, NullType
   | SymbolType, SymbolType
   | CurryType, CurryType
-  | ArrayType, ArrayType -> true
+  | ArrayType, ArrayType ->
+      true
   | _ -> false
