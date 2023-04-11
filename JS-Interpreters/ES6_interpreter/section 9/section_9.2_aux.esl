@@ -97,8 +97,6 @@ function BindingInitialization(param, value, environment, listIterator) {
       return BindingInitialization(param.argument, value, environment, null)
     };
     restValue := GetRestValue(listIterator, value);
-    print "DEBUG REST ELEMENT";
-    print listIterator;
     return BindingInitialization(param.argument, restValue, environment, listIterator)
   }
   | { type: "ArrayPattern" } -> {
@@ -278,8 +276,6 @@ function GetRestValue(listIterator, initialValue) {
     };
 
     nextValue := IteratorValue(next);
-    print "DEBUG LIST ITERATOR NEXT VALUE";
-    print nextValue;
     if (isAnAbruptCompletion(nextValue)) {
       listIterator.done := true
     };

@@ -69,7 +69,7 @@ let () =
           (Report.testsuite_to_json report)
     | None -> exit 2
   with exn ->
-    Out_channel.flush stdout;
+    Caml.flush_all ();
     Printexc.print_backtrace stdout;
     prerr_endline
       ((Sys.get_argv ()).(0) ^ ": uncaught exception " ^ Exn.to_string exn);

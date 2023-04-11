@@ -68,13 +68,11 @@ function IteratorClose(iterator, completion) {
     
     /* 3. Let return be GetMethod(iterator, "return"). */
     returnVar := GetMethod(iterator, "return");
-    print(returnVar);
     /* 4. ReturnIfAbrupt(return). */
     @ReturnIfAbrupt(returnVar);
 
     /* 5. If return is undefined, return Completion(completion). */
     if (returnVar = 'undefined) {
-        print "DEBUG IteratorClose 1";
         return Completion(completion)
     };
 
@@ -82,24 +80,20 @@ function IteratorClose(iterator, completion) {
     innerResult := WrappedCall(null, null, returnVar, iterator, []);
     /* 7. If completion.[[type]] is throw, return Completion(completion). */
     if (getCompletionType(completion) = 'throw) {
-        print "DEBUG IteratorClose 2";
         return Completion(completion)
     };
 
     /* 8. If innerResult.[[type]] is throw, return Completion(innerResult). */
     if (getCompletionType(innerResult) = 'throw) {
-        print "DEBUG IteratorClose 3";
         return Completion(innerResult)
     };
 
     /* 9. If Type(innerResult.[[value]]) is not Object, throw a TypeError exception. */
     if (!(Type(getCompletionValue(innerResult)) = "Object")) {
-        print "DEBUG IteratorClose 4";
         throw TypeErrorConstructorInternal()
     };
 
     /* 10. Return Completion(completion). */
-    print "DEBUG IteratorClose 5";
     return Completion(completion)
 };
 

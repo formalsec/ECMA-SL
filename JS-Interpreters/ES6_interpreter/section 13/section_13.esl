@@ -86,8 +86,6 @@ function getFunctionCode(F) {
 };
 
 function DescriptorValueIsStrictFunction(desc) {
-  print "DEBUG DescriptorValueIsStrictFunction";
-  print desc;
   F := desc.Value;
   if (typeof F = __$Obj) {
     return F.Strict
@@ -117,8 +115,6 @@ function setAllInternalMethodsExceptGet(obj) {
 /*  */
 function WrappedCall(externalScope, ref, F, this, args) {
   callResult := Call(externalScope, ref, F, this, args) catch CallHandler;
-  print("WrappedCallDebug");
-  print(callResult);
 
   if (!(Type(callResult) = "Completion")) {
     return NormalCompletion(callResult)
@@ -138,8 +134,6 @@ function WrappedInvoke(externalScope, ref, F, this, args) {
 };
 
 function CallHandler(x) {
-  print("inside CallHandler");
-  print(x);
 
   return throwEmptyCompletion(x)
 };

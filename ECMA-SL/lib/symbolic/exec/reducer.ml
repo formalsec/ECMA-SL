@@ -22,6 +22,13 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | FloatToString, Val (Flt f) -> Val (Str (Float.to_string f))
   | Typeof, Val v -> Val (Operators.typeof v)
   | Typeof, Symbolic (t, _) -> Val (Type t)
+  | Typeof, NOpt (ListExpr, _) -> Val (Type Type.ListType)
+  | Typeof, NOpt (TupleExpr, _) -> Val (Type Type.TupleType)
+  | Typeof, NOpt (ArrExpr, _) -> Val (Type Type.ArrayType)
+  | Typeof, Curry (_, _) -> Val (Type Type.CurryType)
+  | Typeof, op ->
+      let t = Sval_typing.type_of op in
+      Val (Type (Option.value_exn t))
   | Sconcat, NOpt (ListExpr, vs) ->
       Val
         (Str
@@ -121,8 +128,9 @@ let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
   | Eq, Val (Arr a1), Val (Arr a2) -> Val (Bool (Caml.( == ) a1 a2))
   | Eq, v', Val Null when is_symbolic v' -> Val (Bool false)
   | Eq, Val v', Val (Symbol _) when Caml.not (is_symbol v') -> Val (Bool false)
+  | Eq, v, Val (Symbol _) when is_symbolic v -> Val (Bool false)
   | Eq, _, _ when Caml.not (is_symbolic v1 || is_symbolic v2) ->
-      Val (Bool (Caml.( = ) v1 v2))
+      Val (Bool (Expr.equal v1 v2))
   | Lt, Val (Int i1), Val (Int i2) -> Val (Bool (i1 < i2))
   | Lt, Val (Flt f1), Val (Flt f2) -> Val (Bool Float.(f1 < f2))
   | Gt, Val (Int i1), Val (Int i2) -> Val (Bool (i1 > i2))

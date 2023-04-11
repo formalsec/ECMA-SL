@@ -100,27 +100,18 @@ function initJsonObject(globalObject, ObjectPrototype, strict) {
  * ES6: ECMA-404: https://www.ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf
  */
 function parseJSONText(global, this, NewTarget, strict, args) {
-  print args;
   JText := l_nth(args, 0);
-  print JText;
-  print (s_len JText);
   /*if ((JText = 'null) ||| (JText = null) ||| (JText = null) ||| (JText = null)){
     return JText
   };*/
 
   
   if (s_len JText = 0) {
-    print ("in if");
     throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Unexpected end of JSON input"])
   };
-  print "skipped if";
   tokens := getTokens(global, this, getSyntaxErrorConstructor(), strict, [JText]);
-  print "got tokens";
   ret := parseJSONValue(global, this, getSyntaxErrorConstructor(), strict, tokens);
-  print tokens;
   tokens := l_nth(ret, 1);
-  print ret;
-  print tokens;
   if (!((l_len tokens) = 0)) {
     throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict, ["JSON.parse: Invalid syntax."])
   } else {
@@ -240,18 +231,13 @@ function getTokens(global, this, NewTarget, strict, args) {
     }
     /* literal name tokens */
     else {
-      print "getToken in else";
       /*re := "true\\|false\\|null";
       tok := re_exec (re, JText, i);*/
 
       valid_tok := false;
       len := s_len_u JText;
-      print i;
-      print len;
       if (i <= (len - 4)) {
         tok := s_substr_u (JText, i, 4);
-        print "getToken in if";
-        print tok;
         if ((tok = "true") ||| (tok = "null")) {
           i := i + 4;
           tokens := l_add(tokens, tok);
@@ -260,8 +246,6 @@ function getTokens(global, this, NewTarget, strict, args) {
       };
       if (!valid_tok &&& (i <= (len - 5))) {
         tok := s_substr_u (JText, i, 5);
-        print "getToken in 'false ' if";
-        print tok;
 
         if (tok = "false") {
           i := i + 5;
@@ -486,8 +470,6 @@ function jsonParse(global, this, NewTarget, strict, args) {
     assert (status = true);
     /* e. Return InternalizeJSONProperty(root, rootName). */
     res := InternalizeJSONProperty(root, rootName, reviver);
-    print "resultado do parse";
-    print res;
     return res
   }
   /* 9. Else */
@@ -539,34 +521,24 @@ function InternalizeJSONProperty(holder, name, reviver) {
       I := 0.;
       /* ii. Let len be ToLength(Get(val, "length")). */
       len := ToLength(Get(val, "length"));
-      print "debug len:";
-      print len;
       /* iii. ReturnIfAbrupt(len). */
       @ReturnIfAbrupt(len);
       /* iv. Repeat while I < len, */
       while (I < len) {
-        print "in Json loop";
-        print I;
         /* 1. Let newElement be InternalizeJSONProperty(val, ToString(I)). */
         newElement := InternalizeJSONProperty(val, ToString(I), reviver);
-        print "debug newElement: ";
-        print newElement;
         /* 2. ReturnIfAbrupt(newElement). */
         @ReturnIfAbrupt(newElement);
         /* 3. If newElement is undefined, then */
         if (newElement = 'undefined) {
-          print "debug in if";
-          print val.JSProperties;
           /* a. Let status be val.[[Delete]](ToString(I)).*/
-          status := {val.Delete}(val, ToString(I));
+          status := {val.Delete}(val, ToString(I))
           /*status := GuardedDelete(val, ToString(I)); */
-          print "survived Delete"
         }
         /* 4. Else */
         else {
           /* a. Let status be CreateDataProperty(val, ToString(I), newElement). */
-          status := CreateDataProperty(val, ToString(I), newElement);
-          print "survived CreateDataProperty"
+          status := CreateDataProperty(val, ToString(I), newElement)
           /* b. NOTE This algorithm intentionally does not throw an exception 
                 if status is false.*/
         };
@@ -755,8 +727,6 @@ function jsonStringify(global, this, NewTarget, strict, args) {
   wrapper := ObjectCreate(|Intrinsics|["ObjectPrototype"], null);
   /* 10. Let status be CreateDataProperty(wrapper, the empty String, value). */
   status := CreateDataProperty(wrapper, "", value);
-  print("debug Stringify value:");
-  print(value);
   /* 11. Assert: status is true. */
   assert (status = true);
 
@@ -806,8 +776,6 @@ function jsonStringify(global, this, NewTarget, strict, args) {
 function SerializeJSONProperty(key, holder, stack, indent, gap, PropertyList, space, ReplacerFunction) {
   /* 1. Let value be Get(holder, key). */
   value := Get(holder, key);
-  print("debug SerializeJSONProperty Type(value):");
-  print(Type(value));
   /* 2. ReturnIfAbrupt(value). */
   @ReturnIfAbrupt(value);
 
@@ -967,8 +935,6 @@ function QuoteJSONString(value) {
     }
     /* Else if C has a code unit value less than 0x0020 (SPACE), then  */
     elif (C_code < 32) {
-      print "INSIDE QUOTE";
-      print C_code;
       /* i. Let product be the concatenation of product and and code unit 0x005C (REVERSE SOLIDUS). */
       product := s_concat([product, "\\"]);
       /* ii. Let product be the concatenation of product and "u". */

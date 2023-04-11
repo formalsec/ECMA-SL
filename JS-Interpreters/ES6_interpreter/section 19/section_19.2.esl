@@ -174,8 +174,6 @@ function FunctionConstructor(globalObject, this, NewTarget, strict, params) {
   MakeConstructor(F, null, null);
   SetFunctionName(F, "anonymous", null);
 
-  print "FUNCCREATE";
-  print F;
 
   return F
   /* A prototype property is automatically created for every function, to provide for the possibility that the
@@ -207,9 +205,6 @@ function FunctionPrototypeToString(globalObject, this, NewTarget, strict, params
 function FunctionPrototypeApply(globalObject, func, NewTarget, strict, params) {
   thisArg := l_nth(params, 0);
   argArray := l_nth(params, 1);
-  print "DEBUG APPLY";
-  print thisArg;
-  print argArray;
   /* When the apply method is called on an object func with arguments thisArg and argArray, the following steps
    are taken: */
 

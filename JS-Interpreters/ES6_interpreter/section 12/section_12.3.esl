@@ -51,7 +51,6 @@ function EvaluateDirectCall(func, thisValue, arguments, tailPosition, scope) {
   @ReturnIfAbrupt(argList);
 
   funcType := Type(func);
-  print "DEBUG EvaluateDirectCall 0";
 
   /* 3. If Type(func) is not Object, */
   if (!(funcType = "Object")) {
@@ -65,7 +64,6 @@ function EvaluateDirectCall(func, thisValue, arguments, tailPosition, scope) {
     throw TypeErrorConstructorInternal()
   };
 
-    print "DEBUG EvaluateDirectCall 2";
   /* 5. If tailPosition is true, */
   if (tailPosition = true) {
     /* perform PrepareForTailCall() */

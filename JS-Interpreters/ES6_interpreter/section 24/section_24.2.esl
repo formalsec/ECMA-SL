@@ -10,8 +10,6 @@
  */
 function GetViewValue (view, requestIndex, isLittleEndian, type) {
 
-  print "debug 41-----"; 
-  print requestIndex; 
 
   /* 1. If Type(view) is not Object, throw a TypeError exception. */
   if (!(Type(view) = "Object")) {
@@ -26,8 +24,6 @@ function GetViewValue (view, requestIndex, isLittleEndian, type) {
   /* 3. Let numberIndex be ToNumber(requestIndex). */
   numberIndex := ToNumber(requestIndex);
 
-  print "debug 42-----"; 
-  print(numberIndex);
 
   /* 4. Let getIndex be ToInteger(numberIndex). */
   getIndex := ToInteger(numberIndex);
@@ -37,7 +33,6 @@ function GetViewValue (view, requestIndex, isLittleEndian, type) {
 
   /* 6. If numberIndex ≠ getIndex or getIndex < 0, throw a RangeError exception. */
   if ((!(numberIndex = getIndex)) ||| (getIndex < 0.)) {
-    print "throwing range error----"; 
     throw RangeErrorConstructorInternal()
   };
 
@@ -83,16 +78,13 @@ function GetViewValue (view, requestIndex, isLittleEndian, type) {
  * NOTE The algorithms for GetViewValue and SetViewValue are identical except for their final steps.
  */
 function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
-  print "in SetViewValue";
   /* 1. If Type(view) is not Object, throw a TypeError exception. */
   if (!(Type(view) = "Object")) {
-    print("SetView Debug 0");
     throw TypeErrorConstructorInternal()
   };
 
   /* 2. If view does not have a [[DataView]] internal slot, throw a TypeError exception. */
   if (!( "DataView" in_obj view)) {
-    print("SetView Debug 1");
     throw TypeErrorConstructorInternal()
   };
 
@@ -107,9 +99,6 @@ function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
 
   /* 6. If numberIndex ≠ getIndex or getIndex < 0, throw a RangeError exception. */
   if (!(numberIndex = getIndex) ||| (getIndex < 0.)) {
-    print "SetView Debug 1,5";
-    print "getIndex";
-    print getIndex;
     throw RangeErrorConstructorInternal()
   };
 
@@ -124,7 +113,6 @@ function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
 
   /* 9. If IsDetachedBuffer(buffer) is true, throw a TypeError exception. */
   if (IsDetachedBuffer(buffer) = true) {
-    print("SetView Debug 2");
     throw TypeErrorConstructorInternal()
   };
 
@@ -136,10 +124,6 @@ function SetViewValue (view, requestIndex, isLittleEndian, type, value) {
 
   /* 12. Let elementSize be the Number value of the Element Size value specified in Table 49 for Element Type type. */
   elementSize := getElementSize(type);
-  print "setViewValue elementSize: ";
-  print elementSize;
-  print getIndex;
-  print viewSize;
 
   /* 13. If getIndex +elementSize > viewSize, throw a RangeError exception. */
   if ((getIndex + int_to_float(elementSize)) > viewSize) {
@@ -194,9 +178,6 @@ function DataViewConstructor(global, this, NewTarget, strict, args) {
   @ReturnIfAbrupt(offset);
   /* 7. If numberOffset ≠ offset or offset < 0, */
   if (!(numberOffset = offset) |||  (offset < 0.)) {
-    print("Debug0");
-    print (offset);
-    print (numberOffset);
   
     /* throw a RangeError exception */
     throw RangeErrorConstructorInternal()
@@ -212,7 +193,6 @@ function DataViewConstructor(global, this, NewTarget, strict, args) {
   /* 10. If offset > bufferByteLength, */
   if (offset > bufferByteLength) {
     /* throw a RangeError exception */
-    print("Debug1");
     throw RangeErrorConstructorInternal()
   };
   /* 11. If byteLength is undefined, then */
@@ -224,17 +204,10 @@ function DataViewConstructor(global, this, NewTarget, strict, args) {
   else {
     /* a. Let viewByteLength be ToLength(byteLength). */
     viewByteLength := ToLength(byteLength);
-    print "debugbytelength";
-    print byteLength;
-    print viewByteLength;
     /* b. ReturnIfAbrupt(viewByteLength). */
     @ReturnIfAbrupt(viewByteLength);
     /* c. If offset+viewByteLength > (bufferByteLength, throw a RangeError exception.) */
     if ((offset + viewByteLength) > bufferByteLength) {
-      print "debug DataViewConstructor, inside if"; 
-      print offset;
-      print viewByteLength;
-      print bufferByteLength;
       throw RangeErrorConstructorInternal()
     }
   };
@@ -529,8 +502,6 @@ function DataViewPrototypeGetFloat32(global, this, NewTarget, strict, args) {
   /* 3. Return GetViewValue(v, byteOffset, littleEndian, "Float32"). */
   value := GetViewValue(v, byteOffset, littleEndian, "Float32");
 
-  print "debug-42 resultado";
-  print value;
 
   return value
 };
@@ -678,7 +649,6 @@ function DataViewPrototypeGetUint32(global, this, NewTarget, strict, args) {
  * optional argument littleEndian the following steps are taken: 
  */
 function DataViewPrototypeSetFloat32(global, this, NewTarget, strict, args) {
-  print "in DataViewPrototypeSetFloat32";
   byteOffset := getOptionalParam(args, 0);
   value := getOptionalParam(args, 1);
   littleEndian := getOptionalParam(args, 2);

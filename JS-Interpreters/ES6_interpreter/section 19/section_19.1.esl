@@ -395,10 +395,6 @@ function ObjectDefineProperty(globalObject, this, NewTarget, strict, params) {
   /* ReturnIfAbrupt(desc). */
   @ReturnIfAbrupt(desc);
 
-  print "DEFPROP";
-  print O;
-  print key;
-  print desc;
 
   /* 4. Let success be DefinePropertyOrThrow(O,key, desc). */
   success := DefinePropertyOrThrow(O, key, desc);
@@ -459,10 +455,6 @@ function ObjectGetOwnPropertyDescriptor(globalObject, this, NewTarget, strict, p
   /* ReturnIfAbrupt(desc). */
   @ReturnIfAbrupt(desc);
 
-  print "GETOWNPROPDESC";
-  print obj.JSPropertiesSymbols;
-  print desc;
-  print key;
 
   /* Return FromPropertyDescriptor(desc). */
   return FromPropertyDescriptor(desc)

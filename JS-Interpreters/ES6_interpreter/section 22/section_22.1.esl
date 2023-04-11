@@ -2189,8 +2189,6 @@ function arrayJoin(global, this, NewTarget, strict, args) {
     R := ToString(element0)
   };
 
-  print "DEBUG ARRAY JOIN";
-  print R;
 
   /* 11. ReturnIfAbrupt(R). */
   @ReturnIfAbrupt(R);
@@ -4078,8 +4076,6 @@ function arrayToString(global, this, NewTarget, strict, args) {
   if (IsCallable(func) = false) {
     func := getObjectPrototypeToString(strict)
   };
-  print "DEBUG ARRAY TO STRING";
-  print args;
 
   /* 6. Return Call(func, array). */
   return Call(null, null, func, array, [])
@@ -4410,8 +4406,6 @@ function arrayIteratorNext(global, this, NewTarget, strict, args) {
     /* a. Set the value of the [[IteratedObject]] internal slot of O to undefined. */
     O.IteratedObject := 'undefined;
     tst := Get(a, "0");
-    print "DEBUG ITERATED OBJ";
-    print tst;
 
     /* b. Return CreateIterResultObject(undefined, true). */
     return CreateIterResultObject('undefined, true)

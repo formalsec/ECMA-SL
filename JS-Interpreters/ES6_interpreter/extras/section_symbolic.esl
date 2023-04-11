@@ -27,7 +27,7 @@ function __internalSymbolicNumber(globalObject, this, NewTarget, strict, params)
   */
   name := l_nth(params, 0);
   symb := symbolic(__$Flt, name);
-  assume(!(symb = NaN));
+  assume(!is_NaN(symb));
   assume(!(symb = Infinity));
   assume(!(symb = -Infinity));
   return symb

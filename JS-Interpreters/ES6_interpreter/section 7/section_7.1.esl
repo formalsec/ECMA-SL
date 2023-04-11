@@ -666,8 +666,6 @@ function _ToUint16(argument) {
  * as follows: 
  */
 function ToInt8(argument) {
-  print "debug--intToInt8-1";
-  print argument;
   /* 1. Let number be ToNumber(argument). */
   number := ToNumber(argument);
   /* 2. ReturnIfAbrupt(number). */
@@ -680,12 +678,8 @@ function ToInt8(argument) {
   /* 4. Let int be the mathematical value that is the same sign as number and 
      whose magnitude is floor(abs(number)). */
   int := floor(abs(number)) *(abs(number)/number);
-  print "debug--intToInt8-2";
-  print int;
   /* 5. Let int8bit be int modulo 2^8. */
   int8bit := mod(int, 2.**8.); /*TODO usar modulo que funciona com negativos*/
-  print "debug--intToInt8-3";
-  print int8bit;
   /* 6. If int8bit ≥ 2^7, */
   if (int8bit >= 2.**7.) {
     /* return int8bit - 2^8, otherwise return int8bit */
@@ -702,8 +696,6 @@ function ToInt8(argument) {
  * as follows: 
  */
 function ToUint8(argument) {
-  print "debug--intToUint8-1";
-  print argument;
   /* 1. Let number be ToNumber(argument). */
   number := ToNumber(argument);
   /* 2. ReturnIfAbrupt(number). */
@@ -716,12 +708,8 @@ function ToUint8(argument) {
   /* 4. Let int be the mathematical value that is the same sign as number and 
      whose magnitude is floor(abs(number)). */
   int := floor(abs(number)) *(abs(number)/number);
-  print "debug--intToInt8-2";
-  print int;
   /* 5. Let int8bit be int modulo 2^8. */
   int8bit := mod(int, 2.**8.); /*TODO usar modulo que funciona com negativos*/
-  print "debug--intToInt8-3";
-  print int8bit;
   /* 6. Return int8bit. */
   return int8bit
 };

@@ -5,7 +5,7 @@ let bin_args_typing_arith (arg1_t : Type.t option) (arg2_t : Type.t option) :
   | Some Type.FltType, Some Type.IntType -> Some Type.FltType
   | Some Type.IntType, Some Type.FltType -> Some Type.FltType
   | Some Type.FltType, Some Type.FltType -> Some Type.FltType
-  | default -> None
+  | _ -> None
 
 let bin_args_typing_eq (arg1_t : Type.t option) (arg2_t : Type.t option) :
     Type.t option =
@@ -13,10 +13,10 @@ let bin_args_typing_eq (arg1_t : Type.t option) (arg2_t : Type.t option) :
   | Some Type.IntType, Some Type.IntType
   | Some Type.FltType, Some Type.FltType
   | Some Type.ArrayType, Some Type.ArrayType
-  | Some Type.StrType, Some Type.StrType ->
-      Some Type.BoolType
+  | Some Type.StrType, Some Type.StrType 
+  | Some Type.BoolType, Some Type.BoolType ->  Some Type.BoolType
   (* missing the symbolic cases *)
-  | default -> None
+  | _ -> None
 
 let bin_args_typing_comp (arg1_t : Type.t option) (arg2_t : Type.t option) :
     Type.t option =

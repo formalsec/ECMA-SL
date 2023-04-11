@@ -1291,19 +1291,6 @@ function TypedArrayCopyWithin(global, this, NewTarget, strict, args) {
     /* a. Let direction = 1. */
     direction := 1.
   };
-  print "debug copywithin";
-  print target;
-  print start;
-  print end;
-  print len;
-  print relativeTarget;
-  print to;
-  print relativeStart;
-  print from;
-  print relativeEnd;
-  print final;
-  print count;
-  print direction;
   /* 17. Repeat, while count > 0 */
   while (count > 0.) {
     /* a. Let fromKey be ToString(from). */
@@ -1312,11 +1299,6 @@ function TypedArrayCopyWithin(global, this, NewTarget, strict, args) {
     toKey := ToString(to);
     /* c. Let fromPresent be HasProperty(O, fromKey). */
     fromPresent := HasProperty(O, fromKey);
-    print "debug copywithin from present";
-    print fromKey;
-    print toKey;
-    print O;
-    print fromPresent;
     /* d. ReturnIfAbrupt(fromPresent). */
     @ReturnIfAbrupt(fromPresent);
     /* e. If fromPresent is true, then */
@@ -1327,8 +1309,6 @@ function TypedArrayCopyWithin(global, this, NewTarget, strict, args) {
       @ReturnIfAbrupt(fromVal);
       /* iii. Let setStatus be Set(O, toKey, fromVal, true). */
       setStatus := Set(O, toKey, fromVal, true);
-      print "debug copywithin from present true";
-      print setStatus;
       /* iv. ReturnIfAbrupt(setStatus). */
       @ReturnIfAbrupt(setStatus)
     } 

@@ -130,9 +130,6 @@ function PrepareForOrdinaryCall(F, newTarget) {
     pushExecStack(calleeContext);
 
     /* 12. NOTE Any exception objects produced after this point are associated with calleeRealm. */
-    print "PERPORDCALL";
-    print F;
-    print localEnv;
 
     /* 13. Return calleeContext. */
     return calleeContext
@@ -161,8 +158,6 @@ function OrdinaryCallBindThis (F, calleeContext, thisArgument) {
     localEnv := calleeContext.LexicalEnvironment;
 
     /* 5. If thisMode is strict, let thisValue be thisArgument.  */
-    print "DEBUG ORDINARY CALL BIND THIS";
-    print thisArgument;
     if (thisMode = "strict") {
         thisValue := thisArgument
     } /* 6. Else  */
@@ -207,9 +202,6 @@ function OrdinaryCallEvaluateBody(scope, F, argumentsList) {
 
   /* 3. Return the result of EvaluateBody of the parsed code that is the value
      of F's [[ECMAScriptCode]] internal slot passing F as the argument. */
-  print "DEBUG: ORDINARY CALL EVALUATE BODY";
-  print scope;
-  print F.ECMAScriptCode;
 
   return JS_Interpreter_FunctionBody(F.ECMAScriptCode, scope)
 };
@@ -877,8 +869,6 @@ function FunctionDeclarationInstantiation(calleeContext, func, argumentsList) {
     formalStatus := IteratorBindingInitialization(paramsDetails, iteratorRecord, calleeContext, func)
   };
 
-  print "DEBUG FUNCTION DECL INSTANTIATION - FINISHED INITIALIZATION 1";
-  print calleeContext.LexicalEnvironment.EnvRec;
 
   /* 26. ReturnIfAbrupt(formalStatus). */
   @ReturnIfAbrupt(formalStatus);
@@ -1114,11 +1104,7 @@ function getParamsDetails(codeObj) {
 function ExpectedArgumentCount(paramsDetails){
   count := 0;
   foreach (param: paramsDetails) {
-    print "DEBUG ExpectedArgumentCount";
-    print param;
     if (param.type = "Identifier") {
-      print "INSIDE PARAM";
-      print param;
       count := count + 1
     }
     elif (param.type = "AssignmentPattern") {

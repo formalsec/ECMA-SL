@@ -49,7 +49,7 @@ let rec reduce_expr ?(at = no_region) (store : Sstore.t) (e : Expr.t) : Expr.t =
         let vs = List.map ~f:(reduce_expr ~at store) es in
         Reducer.reduce_nop op vs
     | Curry (f, es) -> Curry (f, List.map ~f:(reduce_expr ~at store) es)
-    | Symbolic (t, x) -> Symbolic (t, x)
+    | Symbolic (t, x) -> Symbolic (t, reduce_expr ~at store x)
   with Invalid_argument e -> Invalid_arg.error at e
 
 let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config)
@@ -90,7 +90,7 @@ let step (c : config) : config list =
   let stmts =
     match code with
     | Cont stmts -> stmts
-    | _ -> Crash.error no_region "Empty continuation!"
+    | _ -> Crash.error no_region "step: Empty continuation!"
   in
   let s = List.hd_exn stmts in
   match s.it with
@@ -116,10 +116,8 @@ let step (c : config) : config list =
       let e' = reduce_expr ~at:s.at store e in
       let v = Translator.translate e' in
       let cont =
-        try
           if not (Batch.check_sat solver (v :: pc)) then []
           else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
-        with Batch.Unknown -> [ update c (Unknown (Some e')) state (v :: pc) ]
       in
       Logging.print_endline
         (lazy
@@ -131,6 +129,7 @@ let step (c : config) : config list =
       [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Stmt.Assert e
     when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
+      Logging.print_endline (lazy (Expression.pp_string_of_pc pc));
       [ update c (Failure (Some (reduce_expr ~at:s.at store e))) state pc ]
   | Stmt.Assert e ->
       let v = reduce_expr ~at:s.at store e in
@@ -152,7 +151,8 @@ let step (c : config) : config list =
           (heap, Sstore.add_exn store x v, stack, f)
           pc;
       ]
-  | Stmt.Block blk -> [ update c (Cont (blk @ List.tl_exn stmts)) state pc ]
+  | Stmt.Block blk ->
+      [ update c (Cont (blk @ List.tl_exn stmts)) state pc ]
   | Stmt.If (br, blk, _)
     when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store br) ->
       let cont =
@@ -171,9 +171,9 @@ let step (c : config) : config list =
   | Stmt.If (br, blk1, blk2) ->
       let br_t = reduce_expr ~at:s.at store br
       and br_f = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, br)) in
+      Logging.print_endline (lazy ("If (" ^ Expr.str br_t ^ ")"));
       let br_t' = Translator.translate br_t
       and br_f' = Translator.translate br_f in
-      Logging.print_endline (lazy ("If (" ^ Expr.str br_t ^ ")"));
       let then_branch =
         try
           if not (Batch.check_sat solver (br_t' :: pc)) then []
@@ -334,7 +334,7 @@ module TreeSearch (L : WorkList) = struct
     while not (!err || L.is_empty w) do
       let c = L.pop w in
       match c.code with
-      | Cont [] -> Crash.error Source.no_region "Empty continuation!"
+      | Cont [] -> Crash.error Source.no_region "eval: Empty continuation!"
       | Cont _ -> List.iter ~f:(fun c -> L.push c w) (step c)
       | Error v | Final v | Unknown v ->
           if L.is_empty w then Logging.print_endline (lazy "---- End ---- ");
@@ -404,7 +404,9 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
   let final_testsuite, error_testsuite =
     let f c =
       ignore (Batch.check_sat c.solver c.pc);
-      Batch.string_binds c.solver
+      let symbols = Formula.(get_symbols (to_formula c.pc)) in
+      List.map (Batch.value_binds c.solver symbols) ~f:(fun (k, v) ->
+        (k, "NA", Expression.to_string (Expression.Val v)))
     in
     (List.map ~f final_configs, List.map ~f error_configs)
   in

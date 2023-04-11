@@ -11,5 +11,5 @@ function fib_ite(n) {
 var x = esl_symbolic.number("x");
 var result = fib_ite(x);
 if ( x >= 8 && result < 34 ) {
-  esl_symbolic.assert( false );
+  esl_symbolic.assert( false )
 }

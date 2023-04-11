@@ -683,11 +683,6 @@ function MathImul(globalObject, this, NewTarget, strict, params) {
   b := ToUint32(y);
   /* 3. Let product be (a × b) modulo 2^32 . */
   product := (a * b) % (2. ** 32.);
-  print "DEBUG Math.imul 1";
-  print a;
-  print b;
-  print (a * b);
-  print product;
   /* 4. If product ≥ 2^31 , return product − 2^32 , otherwise return product. */
   if (product >= (2. ** 31.)) {
     return product - (2. ** 32.)
