@@ -1,0 +1,11 @@
+function main() {
+	x: number := 10;
+	xtest: number := x.foo;
+	y: { foo: number } := { foo: 10 };
+	ytest: number := y.bar;
+	z: { foo: number, bar: string } := { foo: 10, bar: "abc" };
+	ztest: number := z.bar;
+	w: { foo: number, bar?: string } := { foo: 10 };
+	wtest: string := w.bar;
+	return 0
+}

@@ -1,7 +1,0 @@
-function badReturn() : string {
-  return 10
-};
-
-function main() {
-  return 0
-}

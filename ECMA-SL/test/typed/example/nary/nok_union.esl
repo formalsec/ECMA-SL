@@ -1,4 +1,4 @@
 function main() {
-  foo: number | string := true;
+  foo: number | string := true;   /* BadAssignment: number | string <- boolean */
   return 0
 }

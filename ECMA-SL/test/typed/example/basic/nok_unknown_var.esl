@@ -1,4 +1,4 @@
 function main() {
-  foo: number := bar;
+  foo: number := bar;   /* UnknownVar: "bar" */
   return 0
 }

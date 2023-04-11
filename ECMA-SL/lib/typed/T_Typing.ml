@@ -77,17 +77,13 @@ let test_typing_expr ?(subtyping : bool = true)
         | Some gerr_fun' -> T_Err.raise (gerr_fun' ()) ~cs:(T_Err.Expr expr)))
 
 let intersect_types (t1 : E_Type.t) (t2 : E_Type.t) : E_Type.t =
-  match (t1, t2) with
-  | E_Type.UnionType t1', E_Type.UnionType t2' ->
-      let union_t = E_Type.UnionType (List.append t1' t2') in
-      E_Type.simplify_type union_t
-  | E_Type.UnionType t1', _ ->
-      let union_t = E_Type.UnionType (List.append t1' [ t2 ]) in
-      E_Type.simplify_type union_t
-  | _, E_Type.UnionType t2' ->
-      let union_t = E_Type.UnionType (List.append t2' [ t1 ]) in
-      E_Type.simplify_type union_t
-  | default -> E_Type.UnionType [ t1; t2 ]
+  E_Type.simplify_type
+    (match (t1, t2) with
+    | E_Type.UnionType t1', E_Type.UnionType t2' ->
+        E_Type.UnionType (List.append t1' t2')
+    | E_Type.UnionType t1', _ -> E_Type.UnionType (List.append t1' [ t2 ])
+    | _, E_Type.UnionType t2' -> E_Type.UnionType (List.append t2' [ t1 ])
+    | default -> E_Type.UnionType [ t1; t2 ])
 
 let intersect_opt_types (t1 : E_Type.t option) (t2 : E_Type.t option) :
     E_Type.t option =

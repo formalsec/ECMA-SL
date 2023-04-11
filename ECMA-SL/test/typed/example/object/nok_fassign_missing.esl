@@ -1,5 +1,0 @@
-function main() {
-	x: { foo: number } := { foo: 10 };
-	x.bar := "def";
-	return 0
-}

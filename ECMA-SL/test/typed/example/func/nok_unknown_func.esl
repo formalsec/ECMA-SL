@@ -1,0 +1,4 @@
+function main() {
+  foo();      /* UnknownFunc: "foo" */
+  return 0
+}

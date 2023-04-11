@@ -6,8 +6,13 @@ function stringFun(x: number, y: boolean) : string {
   return "abc"
 };
 
+function booleanFun(x: boolean) : boolean {
+  return x
+};
+
 function main() {
   foo: number := numberFun(10);
   bar: string := stringFun(10, true);
+  baz: boolean := booleanFun(true);
   return 0
 }

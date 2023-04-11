@@ -1,8 +1,0 @@
-function main() {
-  if (true) {
-    foo: number := 10
-  };
-
-  bar: number := foo;
-  return 0
-}

@@ -1,4 +1,0 @@
-function main() {
-	x: { foo: number } := { foo: 10, foo: 20 };
-	return 0
-}

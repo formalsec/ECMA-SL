@@ -1,4 +1,0 @@
-function main() {
-  foo: number := "abc";
-  return 0
-}

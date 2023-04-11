@@ -1,0 +1,7 @@
+function foo() : string {
+  return 10   /* BadReturn: string <- number */
+};
+
+function main() {
+  return 0
+}

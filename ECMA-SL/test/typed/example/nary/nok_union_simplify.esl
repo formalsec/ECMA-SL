@@ -1,8 +1,8 @@
-function unionVal() : number | string {
+function unionVal() : number | number | string {
 	return 10
 };
 
 function main() {
-	foo: string | string := unionVal();
+	foo: string | string := unionVal();		/* BadAssignment: string <- number | string */
 	return 0
 }

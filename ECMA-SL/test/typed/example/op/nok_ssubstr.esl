@@ -2,6 +2,6 @@ function main() {
   foo: string := "abcd";
   left: string := "test";
   right: number := 2;
-  bar: string := s_substr (foo, left, right);
+  bar: string := s_substr (foo, left, right);   /* BadOp: string * string * number */
   return 0
 }

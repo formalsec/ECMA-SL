@@ -1,0 +1,6 @@
+function main() {
+  foo: number := 10;
+  bar: string := 10;   /* BadAssignment: string <- number */
+  baz: string := foo;  /* BadAssignment: string <- number */
+  return 0
+}

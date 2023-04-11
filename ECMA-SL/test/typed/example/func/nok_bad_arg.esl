@@ -3,6 +3,6 @@ function foo(x: number, y: number) {
 };
 
 function main() {
-  foo(10, "abc");
+  foo(10, "abc");   /* BadArgument(2nd): number <- string */
   return 0
 }

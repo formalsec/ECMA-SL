@@ -1,5 +1,0 @@
-function main() {
-  foo : number := 10;
-  bar : string := foo;
-  return 0
-}

@@ -1,0 +1,16 @@
+function main() {
+  if (true) {
+    foo: number := 10;
+    bar: number := 10
+    /* baz does not exist in this branch */
+  } else {
+    foo: string := "abc";
+    /* bar does not exist in this branch */
+    baz: number := 10
+  };
+
+  x: number := foo;   /* BadAssignment: number <- number | string */
+  y: number := bar;   /* BadAssignment: number <- number | unknown */
+  z: number := bar;   /* BadAssignment: number <- unknown | number */
+  return 0
+}

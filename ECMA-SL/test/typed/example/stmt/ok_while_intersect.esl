@@ -1,0 +1,21 @@
+function main() {
+  foo: number := 10;
+  bar: number := 10;
+  baz: number := 10;
+  /* qux does not exist in this branch */
+  /* fred does not exist in this branch */
+  while (true) {
+    foo: number := 10;
+    bar: string := "abc";
+    baz: any := true;
+    qux: number := 10
+    fred: any := 10;
+  };
+  
+  x: number := foo;             /* foo: number */
+  y: number | string := bar;    /* bar: number | string */
+  z: string := baz;             /* baz: any */
+  w: number | unknown := qux;   /* qux: number | unknown */
+  v: string := fred;            /* fred: any */
+  return 0
+}
