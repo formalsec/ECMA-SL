@@ -134,12 +134,11 @@ let rec translate (e : Expr.t) : Expression.t =
     | Expr.Symbolic (Type.FltType, Expr.Val (Val.Str x)) ->
         Symbolic (`F64Type, x)
     | Expr.UnOpt (Operators.Sconcat, e) -> (
-      let binop' e1 e2 = Binop (Str S.Concat, e1, e2) in
-      match e with
-      | Expr.NOpt (_, (h::t)) -> (
-          List.fold_left binop' (translate h)
-          (List.map translate t))
-      | _ -> raise TODO)
+        let binop' e1 e2 = Binop (Str S.Concat, e1, e2) in
+        match e with
+        | Expr.NOpt (_, h :: t) ->
+            List.fold_left binop' (translate h) (List.map translate t)
+        | _ -> raise TODO)
     | Expr.UnOpt (op, e) ->
         let ty = Sval_typing.type_of e in
         let e' = translate e in

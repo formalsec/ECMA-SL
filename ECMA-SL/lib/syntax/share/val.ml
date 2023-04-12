@@ -21,7 +21,7 @@ let rec equal (v1 : t) (v2 : t) : bool =
   | Flt f1, Flt f2 -> Float.(f1 = f2)
   | Byte i1, Byte i2 | Int i1, Int i2 -> Int.(i1 = i2)
   | Bool b1, Bool b2 -> Bool.(b1 = b2)
-  | Symbol s1, Symbol s2 | Str s1, Str s2 | Loc s1, Loc s2  -> String.equal s1 s2
+  | Symbol s1, Symbol s2 | Str s1, Str s2 | Loc s1, Loc s2 -> String.equal s1 s2
   | Arr a1, Arr a2 -> Array.equal equal a1 a2
   | List l1, List l2 -> List.equal equal l1 l2
   | Type t1, Type t2 -> Type.(t1 = t2)
@@ -58,7 +58,8 @@ let rec str ?(flt_with_dot = true) (v : t) : string =
       "[" ^ String.concat ~sep:", " (List.map ~f:(str ~flt_with_dot) vs) ^ "]"
   | Arr vs ->
       "[|"
-      ^ String.concat ~sep:", " (Array.to_list (Array.map ~f:(str ~flt_with_dot) vs))
+      ^ String.concat ~sep:", "
+          (Array.to_list (Array.map ~f:(str ~flt_with_dot) vs))
       ^ "|]"
   | Type v -> Type.str v
   | Tuple vs ->
