@@ -137,9 +137,6 @@ function ClassDefinitionEvaluation(scope, className, ClassHeritageopt, ClassBody
     F := constructorInfo.closure;
 
     /* Because of section 16.1 of the ES6 standard */
-    print "DEBUG F - yo";
-    print F;
-    print F.JSProperties;
     delete F.JSProperties["caller"];
 
     /* 15. If ClassHeritageopt is present, set F’s [[ConstructorKind]] internal slot to "derived". */

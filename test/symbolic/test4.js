@@ -6,5 +6,5 @@ function myabs(x) {
   return -x;
 }
 
-var x = esl_symbolic.number("int", "x");
-esl_symbolic.assert( myabs(x) >= 0 );
+var x = esl_symbolic.number("x");
+esl_symbolic.assert( myabs(x) > 0 );

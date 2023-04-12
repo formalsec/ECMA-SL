@@ -1479,9 +1479,6 @@ function GetIdentifierReference(lex, name, strict) {
     /* Let envRec be lex’s EnvironmentRecord. */
     envRec := getEnvironmentRecord(lex);
 
-    print "GETREF";
-    print lex;
-    print envRec;
 
     /* Let exists be envRec.HasBinding(name). */
     exists := {envRec.HasBinding}(envRec, name);

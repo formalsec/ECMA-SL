@@ -2,7 +2,6 @@ import "ES6_interpreter/ES6_Reference_Interpreter.esl";
 
 function JS_Interpreter_Program(p, callingExecCtx) {
 
-  print "primeira sessao de debugging de verao"; 
 
   /* 14 Program */
   match p with
@@ -11,8 +10,6 @@ function JS_Interpreter_Program(p, callingExecCtx) {
       return NormalCompletion('empty)
     };
 
-    print "PROG 1";
-    print callingExecCtx;
 
     result := JS_Interpreter_SourceElements(SourceElementsopt, callingExecCtx);
     return result
@@ -34,8 +31,6 @@ function JS_Interpreter_SourceElements(SourceElements, scope) {
   return JS_Interpreter_StmtList(SourceElements, scope);
   /* The production SourceElements : SourceElements SourceElement is evaluated as follows: */
 
-  print "SOURCE ELE";
-  print scope;
 
   i := 0;
   lSourceElements := l_len(SourceElements);
@@ -46,7 +41,6 @@ function JS_Interpreter_SourceElements(SourceElements, scope) {
     /* 4. If tailResult.value is empty, let V = headResult.value, otherwise let V = tailResult.value. */
     result := JS_Interpreter_Stmt(l_nth(SourceElements, i), scope) catch Interpreter_Statement_Guard;
 
-    print "JSSOURCE";
 
     if (isAnAbruptCompletion(result)) {
       return result
@@ -118,26 +112,10 @@ function JS_Interpreter_Expr(e, scope) {
   }
   | { type: "Identifier", name: name } -> {
     /* 11.1.2 Identifier Reference */
-    print("debugIdentifier");
-    print(name);
-    print(scope);
-    /*if (name = "x"){
-      print("--debugWITH");
-      print(name);
-      print(scope);
-      print(scope.LexicalEnvironment);
-      print(scope.LexicalEnvironment.EnvRec);
-      
-      print(scope.LexicalEnvironment.OuterEnvRef);
-      print(scope.LexicalEnvironment.OuterEnvRef.EnvRec);
-      print(scope.LexicalEnvironment.OuterEnvRef.EnvRec.bindingObject);
-      print(scope.LexicalEnvironment.OuterEnvRef.EnvRec.bindingObject.JSProperties)
-    };*/
 
     /* An Identifier is evaluated by performing Identifier Resolution as specified in 10.3.1. The result of evaluating an
        Identifier is always a value of type Reference. */
     res := ResolveBinding(scope, name, null);
-    print(res);
     return res
     /*return IdentifierResolution(name, scope)*/
   }
@@ -199,7 +177,6 @@ function JS_Interpreter_Expr(e, scope) {
     arg := JS_Interpreter_Expr(Argument, scope);
     argValue := GetValue(arg);
 
-    print s_concat ["JSPrint - ", argValue];
 
     return argValue
   }
@@ -210,9 +187,6 @@ function JS_Interpreter_Expr(e, scope) {
     /* 1. Let baseReference be the result of evaluating MemberExpression. */
     baseReference := JS_Interpreter_Expr(MemberExpression, scope);
     
-    print "base REF";
-    print MemberExpression;
-    print scope;
 
     /* 2. Let baseValue be GetValue(baseReference). */
     baseValue := GetValue(baseReference);
@@ -227,9 +201,6 @@ function JS_Interpreter_Expr(e, scope) {
 
     @ReturnIfAbrupt(propertyNameValue);
 
-    print "OBEJCTCOHERS";
-    print baseValue;
-    print propertyNameValue;
     
     /* 5. Call CheckObjectCoercible(baseValue). */
     coercibleObject := RequireObjectCoercible(baseValue);
@@ -256,8 +227,6 @@ function JS_Interpreter_Expr(e, scope) {
     return EvaluateNew(MemberExpression, Arguments, scope);
 
 
-    print "DEBUG: NewExpre 1";
-    print scope;
     /* 11.2.2 The new Operator */
 
     /* The production MemberExpression : new MemberExpression Arguments is evaluated as follows: */
@@ -266,8 +235,6 @@ function JS_Interpreter_Expr(e, scope) {
     ref := JS_Interpreter_Expr(MemberExpression, scope);
     /* 2. Let constructor be GetValue(ref). */
     constructor := GetValue(ref);
-    print "DEBUG: constructor";
-    print constructor;
     /* 3. Let argList be the result of evaluating Arguments, producing an internal list of argument values (11.2.4). */
     argList := JS_Interpreter_Arguments(Arguments, scope);
     @ReturnIfAbrupt(argList);
@@ -281,19 +248,12 @@ function JS_Interpreter_Expr(e, scope) {
     };
     /* 6. Return the result of calling the [[Construct]] internal method on constructor, providing the list argList as the
           argument values. */
-    print "DEBUG: NewExpre 2";
-    print constructor;
-    print constructor.Call;
     return Construct(scope, ref, constructor, argList, null)
   }
   | { type: "CallExpression", callee: MemberExpression, arguments: Arguments } -> {
     /* 12.3.4.1 Function Calls */
 
     /* 1. Let ref be the result of evaluating MemberExpression. */
-    print "DEBUG: CALL";
-    print scope;
-    print scope.Function;
-    print |ctxStack|;
 
     ref := JS_Interpreter_Expr(MemberExpression, scope);
 
@@ -490,8 +450,6 @@ function JS_Interpreter_Expr(e, scope) {
     return BindThisValue(thisER, result)
   }
   | { type: "SuperProperty", property: property } -> {
-    print "DEBUG SUPER PROPERTY 0";
-    print property;
     if (property.type = "Identifier") {
       propertyKey := property.name
     } else {
@@ -501,9 +459,6 @@ function JS_Interpreter_Expr(e, scope) {
       propertyNameValue := GetValue(propertyNameReference);
       @ReturnIfAbrupt(propertyNameValue);
 
-      print "DEBUG SUPER PROPERTY";
-      print propertyNameReference;
-      print propertyNameValue;
 
       propertyKey := ToPropertyKey(propertyNameValue);
       @ReturnIfAbrupt(propertyKey)
@@ -608,7 +563,6 @@ function JS_Interpreter_Expr(e, scope) {
     return template
   }
   | default -> {
-    print "default case";
     print e
   }
 };
@@ -764,7 +718,6 @@ function JS_Interpreter_LogicalExpression(LogicalExpression, scope) {
 };
 
 function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
-  print(UnaryExpression);
   match UnaryExpression with
   | { type: "UnaryExpression", operator: "delete", argument: UnaryExpression } -> {
     /* 12.5.4 The delete Operator 
@@ -794,8 +747,6 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     };
     /* 5. If IsPropertyReference(ref) is true, then */
     if (IsPropertyReference(ref) = true) {
-      print("check1");
-      print(UnaryExpression);
       /* a. If IsSuperReference(ref), */
       if (IsSuperReference(ref)) {
         /* throw a ReferenceError exception */
@@ -803,12 +754,10 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
       };
       /* b. Let baseObj be ToObject(GetBase(ref)). */
       baseObj := ToObject(GetBase(ref));
-      print(baseObj);
       /* c. Assert: baseObj is not an abrupt completion. */
       assert(!isAnAbruptCompletion(baseObj));
       /* d. Let deleteStatus be baseObj.[[Delete]](GetReferencedName(ref)). */
       deleteStatus :=  {baseObj.Delete}(baseObj, GetReferencedName(ref));
-      print(deleteStatus);
       /* e. ReturnIfAbrupt(deleteStatus). */
       @ReturnIfAbrupt(deleteStatus);
       /* f. If deleteStatus is false and IsStrictReference(ref) is true, */
@@ -821,12 +770,9 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     }
     /* 6. Else ref is a Reference to an Environment Record binding, */
     else {
-      print "INSIDE THE ELSE CLAUSE";
       /* a.Let bindings be GetBase(ref). */
       bindings := GetBase(ref);
 
-      print "DEBUG BINDINGS";
-      print bindings;
       /* b.Return bindings.DeleteBinding(GetReferencedName(ref)). */
       return {bindings.DeleteBinding}(bindings, GetReferencedName(ref))
     }
@@ -1097,7 +1043,6 @@ function JS_Interpreter_Arguments(ArgumentsList, scope) {
 };
 
 function JS_Interpreter_FunctionDeclaration(FunctionDeclaration, scope) {
-  print "JS_Interpreter_FunctionDeclaration";
   /* 13 Function Definition */
   match FunctionDeclaration with
   | { id: Identifier, params: FormalParameterListopt, body: FunctionBody } -> {
@@ -1226,8 +1171,6 @@ function JS_Interpreter_FunctionBody(FunctionBody, scope) {
           steps as strict mode code. Otherwise, SourceElements is evaluated in the following steps as
           non-strict mode code. */
     /* 2. If SourceElements is present return the result of evaluating SourceElements. */
-    print "FUNC SOURCE";
-    print scope;
     
     if (!(SourceElementsopt = [])) {
       return JS_Interpreter_SourceElements(SourceElementsopt, scope)
@@ -1266,8 +1209,6 @@ function JS_Interpreter_ObjectInitializer(objExpr, scope) {
     return ObjectCreate(|Intrinsics|["ObjectPrototype"], null)
   }
   | { type: "ObjectExpression", properties: PropertyDefinitionList } -> {
-    print "OBJ EXP";
-    print PropertyDefinitionList;
     /**
      * ObjectLiteral :
      *    { PropertyDefinitionList }
@@ -1301,9 +1242,6 @@ function PropertyDefinitionListEvaluation(PropertyDefinitionList, object, enumer
 };
 
 function PropertyDefinitionEvaluation(PropertyDefinition, object, enumerable, scope) {
-  print "PDE";
-  print PropertyDefinition;
-  print PropertyDefinition.value;
   match PropertyDefinition with
   | {key: PropertyName, value: IdentifierReference, kind: "init", shorthand: true, method: false} -> {
     /* 12.2.6.9 PropertyDefinition : IdentifierReference */
@@ -1372,8 +1310,6 @@ function PropertyDefinitionEvaluation(PropertyDefinition, object, enumerable, sc
 };
 
 function JS_Interpreter_PropertyName(PropertyName, scope) {
-  print "DEBUG JS_Interpreter_PropertyName";
-  print PropertyName;
   match PropertyName with
   /* The production PropertyName : IdentifierName is evaluated as follows: */
   | { type: "Identifier", name: IdentifierName } -> {
@@ -1430,8 +1366,6 @@ macro PropagateBlockLabelSet(Block, Stmts) {
 };
 
 function JS_Interpreter_Stmt(s, scope) {
-  print("in JS_Interpreter_Stmt");
-  print(s);
   match s with
   | { type: "BlockStatement", body: StatementList} -> {
     /* 13.2.13 Block */
@@ -1463,7 +1397,6 @@ function JS_Interpreter_Stmt(s, scope) {
   }
   | { type: "VariableDeclaration", declarations: VariableDeclarationList, kind: "var" } -> {
     /* 13.3.2.4 Variable Statement */
-    print("--debugVAR matched VariableDeclaration");
 
     /* VariableStatement : var VariableDeclarationList ; */
     /* 1. Let next be the result of evaluating VariableDeclarationList. */
@@ -1473,8 +1406,6 @@ function JS_Interpreter_Stmt(s, scope) {
     /* 1. Let next be the result of evaluating VariableDeclarationList. */
     /* 2. ReturnIfAbrupt(next). */
     /* 3. Return the result of evaluating VariableDeclaration. */
-    print "VARDECL";
-    print scope;
 
     foreach (VariableDeclaration : VariableDeclarationList) {
       next := JS_Interpreter_VarDecl(VariableDeclaration, scope);
@@ -1746,7 +1677,6 @@ function JS_Interpreter_Stmt(s, scope) {
   | { type: "ClassDeclaration", id: BindingIdentifier, superClass: ClassHeritageopt, body: ClassBodyopt } -> {
     return JS_Interpreter_ClassEvaluation(scope, BindingIdentifier, ClassHeritageopt, ClassBodyopt)
   } | default -> {
-    print s;
     fail "Statement not matched"
   }
 };
@@ -1960,10 +1890,6 @@ function JS_Interpreter_Catch(Catch, thrownValue, scope) {
 
 /* 13.3.2.4 Runtime Semantics: Evaluation */
 function JS_Interpreter_VarDecl(variableDeclaration, scope) {
-  print("--debugVAR in JS_Interpreter_VarDecl");
-  print(variableDeclaration);
-  print(variableDeclaration.id);
-  print(variableDeclaration.init);
 
   match variableDeclaration with
   | { type: "VariableDeclarator", id: Identifier, init: null } -> {
@@ -1986,7 +1912,6 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
       /* 1. Let bindingId be StringValue of BindingIdentifier. */
       bindingId := StringValue(BindingIdentifier);
       /* 2. Let lhs be ResolveBinding(bindingId). */
-      print(bindingId);
       lhs := ResolveBinding(scope, bindingId, null);
       /* 3. ReturnIfAbrupt(lhs). */
       @ReturnIfAbrupt(lhs);
@@ -2013,7 +1938,6 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
     else{
       /* VariableDeclaration : BindingPattern Initializer */
       BindingPattern := id;
-      print(id);
 
       /* 1. Let rhs be the result of evaluating Initializer. */
       rhs := JS_Interpreter_Expr(Initializer, scope);
@@ -2042,7 +1966,6 @@ function JS_Interpreter_VarDecl(variableDeclaration, scope) {
 };
 
 function JS_Interpreter_LexicalDecl(LexicalDeclaration, scope){
-  print(LexicalDeclaration);
   match LexicalDeclaration with
   | { type: "VariableDeclarator", id: id, init: null } -> {
     BindingIdentifier := id.name;
@@ -2062,7 +1985,6 @@ function JS_Interpreter_LexicalDecl(LexicalDeclaration, scope){
       /* 1. Let bindingId be StringValue of BindingIdentifier. */
       bindingId := StringValue(BindingIdentifier);
       /* 2. Let lhs be ResolveBinding(bindingId). */
-      print(bindingId);
       lhs := ResolveBinding(scope, bindingId, null);
       /* 3. Let rhs be the result of evaluating Initializer. */
       rhs := JS_Interpreter_Expr(Initializer, scope);
@@ -2087,7 +2009,6 @@ function JS_Interpreter_LexicalDecl(LexicalDeclaration, scope){
     else {
       /* LexicalBinding : BindingPattern Initializer */
       BindingPattern := id;
-      print(id);
       /* 1. Let rhs be the result of evaluating Initializer. */
       rhs := JS_Interpreter_Expr(Initializer, scope);
       /* 2. Let value be GetValue(rhs). */
@@ -2109,9 +2030,6 @@ function JS_Interpreter_StmtList(stmts, scope) {
   if (l_len stmts = 1) {
   Statement := l_nth(stmts, 0);
     s := JS_Interpreter_Stmt(Statement, scope) catch Interpreter_Statement_Guard;
-    print("___debugblock");
-    print(Statement);
-    print(s);
     return s
   };
 
@@ -2640,12 +2558,8 @@ function JS_Interpreter_BinExpr(e, scope) {
     @ReturnIfAbrupt(lval);
     /* 4. Let rref be the result of evaluating RelationalExpression. */
     rref := JS_Interpreter_Expr(RelationalExpression, scope);
-    print "DEBUG INEQUALITY 0";
-    print rref;
     /* 5. Let rval be GetValue(rref). */
     rval := GetValue(rref);
-    print "DEBUG INEQUALITY 1";
-    print rval;
     /* 6. ReturnIfAbrupt(rval). */
     @ReturnIfAbrupt(rval);
     /* 7. Let r be the result of performing abstract equality comparison rval == lval. */
@@ -3218,7 +3132,6 @@ function JS_Interpreter_SwitchCase(switchCase, scope) {
  * is defined by the following steps: 
  */
 function LoopContinues(completion, labelSet) {
-  print(completion);
   /* 1. If completion.[[type]] is normal, */
   if (getCompletionType(completion) = 'normal) {
     /* return true */
@@ -3366,10 +3279,6 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
       Expression2 := 'empty
     };
 
-    print("debug4321");
-    print("in for lexicaldeclaration");
-    print(lexicalDeclarations);
-    print(LexicalDeclaration);
     /* IterationStatement : for ( LexicalDeclaration Expressionopt ; Expressionopt ) Statement */
 
     /* 1. Let oldEnv be the running execution context's LexicalEnvironment. */
@@ -3397,16 +3306,10 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
         assert(!(isAnAbruptCompletion(status)))
       }
     };
-    print("--debugFor");
-    print(loopEnv);
-    print(loopEnv.EnvRec);
     /* 6. Set the running execution context's LexicalEnvironment to loopEnv. */
     setLexicalEnvironment(scope, loopEnv);
     /* 7. Let forDcl be the result of evaluating LexicalDeclaration. */
     forDcl := JS_Interpreter_Stmt(LexicalDeclaration, scope);
-    print("--2debugFor");
-    print(loopEnv);
-    print(loopEnv.EnvRec);
     /* 8. If forDcl is an abrupt completion, then */
     if (isAnAbruptCompletion(forDcl)){
       /* a. Set the running execution context's LexicalEnvironment to oldEnv. */
@@ -3432,8 +3335,6 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
   /* 13.7.5 The for-in Statement */
   | { type: "ForInStatement", left: lhsExpr_or_VarDecl, right: AssignmentExpression, 
     body: Statement, labelSet: labelSet} -> {
-  print("debug12345");
-  print(lhsExpr_or_VarDecl);
     match lhsExpr_or_VarDecl with
     | { type: "VariableDeclarator", kind: "var" } -> {
       ForBinding := lhsExpr_or_VarDecl;
@@ -3448,7 +3349,6 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
     }
     | { type: "VariableDeclarator", boundNames: boundNames} -> {
       ForDeclaration := lhsExpr_or_VarDecl;
-      print(boundNames);
       /* ForDeclaration.boundNames := boundNames; */
       /* IterationStatement : for ( ForDeclaration of AssignmentExpression ) Statement */
       /* 1. Let keyResult be the result of performing ForIn/OfHeadEvaluation( BoundNames of ForDeclaration, AssignmentExpression, iterate). */
@@ -3472,11 +3372,8 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
   | { type: "ForOfStatement", left: lhsExpr_or_VarDecl, right: AssignmentExpression, 
       body: Statement, labelSet: labelSet} -> {
     /* 13.7.5 The for-of Statement */
-    print("debug12345");
-    print(lhsExpr_or_VarDecl);
     match lhsExpr_or_VarDecl with
     | { type: "VariableDeclarator", kind: "var" } -> {
-      print("varBinding");
       ForBinding := lhsExpr_or_VarDecl;
       /* production IterationStatement : for ( var ForBinding of AssignmentExpression ) Statement */
 
@@ -3488,9 +3385,7 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
       return ForIn_OfBodyEvaluation(ForBinding, Statement, keyResult, "varBinding", labelSet, scope)
       }
     | { type: "VariableDeclarator", boundNames: boundNames} -> {
-      print("lexicalBinding");
       ForDeclaration := lhsExpr_or_VarDecl;
-      print(boundNames);
       /* ForDeclaration.boundNames := boundNames;
       /* IterationStatement : for ( ForDeclaration of AssignmentExpression ) Statement */
       /* 1. Let keyResult be the result of performing ForIn/OfHeadEvaluation( BoundNames of ForDeclaration, AssignmentExpression, iterate). */
@@ -3502,7 +3397,6 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
       
     }
     | default -> {
-      print("assignment");
       LeftHandSideExpression := lhsExpr_or_VarDecl;
       /* production IterationStatement : for ( LeftHandSideExpression of Expression ) Statement */
       /* 1. Let keyResult be the result of performing ForIn/OfHeadEvaluation( « », AssignmentExpression, iterate). */
@@ -3512,8 +3406,7 @@ function JS_Interpreter_IterationStmt(IterationStatement, scope) {
       /* 3. Return ForIn/OfBodyEvaluation(LeftHandSideExpression, Statement, keyResult, assignment, labelSet). */
       return ForIn_OfBodyEvaluation(LeftHandSideExpression, Statement, keyResult, "assignment", labelSet, scope)
     }
-  };
-  print(IterationStatement)
+  }
 };
 
 function JS_Interpreter_LabelledStmt(LabelledStatement, scope){
@@ -3569,8 +3462,6 @@ function JS_Interpreter_BreakableStatement(BreakableStatement, scope) {
   
   match BreakableStatement with
   | { type: "SwitchStatement"} -> {
-    print("debugSwitch");
-    print(BreakableStatement);
     /* BreakableStatement : SwitchStatement */
     /* 1. Let stmtResult be the result of evaluating SwitchStatement. */
     stmtResult := JS_Interpreter_SwitchStatement(BreakableStatement, scope) 
@@ -3730,8 +3621,6 @@ function ForIn_OfHeadEvaluation(TDZnames, expr, iterationKind, scope) {
   setLexicalEnvironment(scope, oldEnv);
   /* 5. Let exprValue be GetValue(exprRef). */
   exprValue := GetValue(exprRef);
-  print("debugforin");
-  print(exprValue);
   /* 6. ReturnIfAbrupt(exprValue). */
   @ReturnIfAbrupt(exprValue);
   /* 7. If iterationKind is enumerate, then */
@@ -3745,10 +3634,7 @@ function ForIn_OfHeadEvaluation(TDZnames, expr, iterationKind, scope) {
     /* b. Let obj be ToObject(exprValue). */
     obj := ToObject(exprValue);
     /* c. Return obj.[[Enumerate]](). */
-    print(obj);
     res := {obj.Enumerate}(obj);
-    print("debugEnumerate");
-    print(res);
     return res
   }
   /* 8. Else, */
@@ -3756,7 +3642,6 @@ function ForIn_OfHeadEvaluation(TDZnames, expr, iterationKind, scope) {
     /* a. Assert: iterationKind is iterate. */
     assert(iterationKind = "iterate");
     /* b. Return GetIterator(exprValue). */
-    print(exprValue);
     return GetIterator(exprValue, null)
   }
 };
@@ -3769,12 +3654,6 @@ function ForIn_OfHeadEvaluation(TDZnames, expr, iterationKind, scope) {
  * assignment, varBinding or lexicalBinding. 
  */
 function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
-  print("in ForIn_OfBodyEvaluation");
-  print(lhs);
-  print(stmt);
-  print(iterator);
-  print(lhsKind);
-  print(labelSet);
   /* 1. Let oldEnv be the running execution context's LexicalEnvironment. */
   oldEnv := getLexicalEnvironment(scope);
   /* 2. Let V = undefined . */
@@ -3799,7 +3678,6 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
   repeat {
     /* a. Let nextResult be IteratorStep(iterator). */
     nextResult := IteratorStep(iterator);
-    print(nextResult);
     /* b. ReturnIfAbrupt(nextResult). */
     @ReturnIfAbrupt(nextResult);
     /* c. If nextResult is false, */
@@ -3818,19 +3696,16 @@ function ForIn_OfBodyEvaluation(lhs, stmt, iterator, lhsKind, labelSet, scope) {
         /* 1. Let lhsRef be the result of evaluating lhs ( it may be evaluated 
            repeatedly). */
         if (lhsKind = "varBinding"){
-          print(lhs.id);
           /* 13.7.5.14 Runtime Semantics: Evaluation */
           /* ForBinding : BindingIdentifier */
           /* 1. Let bindingId be StringValue of BindingIdentifier. */
           bindingId := StringValue(lhs.id.name);
           /* 2. Return ResolveBinding(bindingId) */
-          print(bindingId);
           lhsRef := ResolveBinding(scope, bindingId, null)
         }
         else {
           lhsRef := JS_Interpreter_Expr(lhs, scope)
-        };
-        print(lhsRef)
+        }
 
       }
     }
@@ -3947,7 +3822,6 @@ function IsDestructuring(arg){
  * ForDeclaration : LetOrConst ForBinding
  */
 function BindingInstantiation(ForDeclaration, environment) {
-  print(ForDeclaration);
   /* 1. For each element name of the BoundNames of ForBinding do */
   foreach(name : ForDeclaration.boundNames){
     /* a. If IsConstantDeclaration of LetOrConst is true, then */
@@ -4000,7 +3874,6 @@ function HasName(expression){
 };
 
 function isForDeclaration(Statement){
-  print(Statement);
   return Statement.type = "VariableDeclarator" &&& (Statement.kind = "let" ||| Statement.kind = "const")
 };
 

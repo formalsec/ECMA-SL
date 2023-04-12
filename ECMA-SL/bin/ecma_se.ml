@@ -1,3 +1,5 @@
+open Core
+
 let name = "ecma-se"
 let version = "v0.1"
 let banner () = print_endline (name ^ " " ^ version)
@@ -50,7 +52,7 @@ let run_prog prog =
   | exn -> raise exn
 
 let () =
-  Printexc.record_backtrace true;
+  Backtrace.Exn.set_recording true;
   try
     Arg.parse argspec (fun f -> Flags.file := f) usage;
     let testsuite_path = Filename.concat !Flags.workspace "test-suite" in
@@ -61,14 +63,14 @@ let () =
         let report_file = Filename.concat !Flags.workspace "report.json" in
         Io.write_file report_file (Report.report_to_json report);
         List.iter
-          (fun (file, testcase) ->
+          ~f:(fun (file, testcase) ->
             let file' = Filename.concat testsuite_path file in
             Io.write_file file' testcase)
           (Report.testsuite_to_json report)
     | None -> exit 2
   with exn ->
-    flush_all ();
-    prerr_endline
-      (Sys.argv.(0) ^ ": uncaught exception " ^ Printexc.to_string exn);
+    Caml.flush_all ();
     Printexc.print_backtrace stdout;
+    prerr_endline
+      ((Sys.get_argv ()).(0) ^ ": uncaught exception " ^ Exn.to_string exn);
     exit 2

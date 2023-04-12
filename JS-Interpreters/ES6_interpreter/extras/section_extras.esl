@@ -24,7 +24,6 @@ function __internalLog(globalObject, this, NewTarget, strict, params) {
       str := ToPropertyKey(str)
     }
   };
-  print s_concat ["JS Log: ", str];
 
   return 'null
 };
@@ -53,9 +52,6 @@ function __internalLogObject(globalObject, this, NewTarget, strict, params) {
   print s_concat ["JS Log: [", str, "]"];*/
 
   oProps := obj.JSProperties;
-  print "JS Log Object: ";
-  print oProps;
-  print obj.JSPropertiesSymbols;
 
   return 'null
 };

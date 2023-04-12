@@ -3,14 +3,14 @@ function main() {
   assume(x = 2.0);
   y := x & 2.0;
 
-  assert(eval(y) = eval(x));
+  assert(y = x);
   y := x | 2.0;
 
-  assert(eval(y) = eval(x));
+  assert(y = x);
   y := (x ^ 2.0);
   y := y ^ 2.0;
 
-  assert(eval(y) = eval(x));
+  assert(y = x);
 
   return 1
 }

@@ -560,7 +560,6 @@ function isMapIteratorInstance(obj) {
 23.1.5.2.1 %MapIteratorPrototype%.next ( ) 
 */
 function MapIteratorPrototypeNext(global, this, NewTarget, strict, args) { 
-  print "DEBUG NEXT 1";
   /* 1. Let O be the this value. */
   O := this; 
 
