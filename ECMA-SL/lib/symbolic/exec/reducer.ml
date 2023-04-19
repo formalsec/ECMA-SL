@@ -24,11 +24,27 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
         let t = Sval_typing.type_of op in
         Val (Type (Option.value_exn t))
     | Sconcat, NOpt (ListExpr, vs) ->
-        Val
-          (Str
-            (String.concat ~sep:""
-                (List.fold_left vs ~init:[] ~f:(fun a b ->
-                    match b with Val (Str s) -> a @ [ s ] | _ -> a))))
+      let s = List.fold_left vs ~init:[] ~f:(
+        fun a b -> match a with
+        | [] -> [b]
+        | h :: t -> 
+          match (h, b) with 
+          | Val (Str h'), Val (Str b') -> Val (Str (String.concat ~sep:"" [h' ; b'])) :: t
+          | Val (Str h'), _ -> b :: a
+          | _, Val (Str b') -> b :: a
+          (* | _,  Val (Str b') -> failwith (b' ^ "impossible argument types for concat "  ^ (Expr.str h)) *)
+
+          | _ -> failwith ("impossible argument types for concat "  ^ (Expr.str h))
+
+          ) in
+      let s = List.rev s in
+      if List.length s > 1 then
+        UnOpt(Sconcat, NOpt (ListExpr, s))
+      else Val
+        (Str
+          (String.concat ~sep:""
+              (List.fold_left vs ~init:[] ~f:(fun a b ->
+                  match b with Val (Str s) -> a @ [ s ] | _ -> a))))
     | FloatOfString, UnOpt (FloatToString, Symbolic (t, x)) -> Symbolic (t, x)
     | Trim, Symbolic (Type.StrType, _) -> UnOpt (op, v)
     | op', v1' -> UnOpt (op', v1')

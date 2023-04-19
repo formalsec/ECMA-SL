@@ -1,0 +1,14 @@
+function main() {
+	x := symbolic(__$Str, "x");
+  	y := s_len(x);
+	assume(y = 4);
+    z := "test";
+
+    x2 := s_concat([x, z]);
+    print(__api_eval(x2));
+
+    /*concat the result of a concat */
+    print(__api_eval(s_concat(["test", x2])));
+    assert(s_len(x2) = 8);
+	return 1
+}

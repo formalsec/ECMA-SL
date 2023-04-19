@@ -113,7 +113,7 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
   | Some StrType, StringLen -> Unop (Str S.Len, e)
   | Some BoolType, Not -> Unop (Bool B.Not, e)
   | Some _, _ -> failwith "TODO: unop" 
-  | None, op -> failwith (Expression.to_string e)
+  | None, op -> failwith ("oopsie" ^ Expression.to_string e)
 
 let rec translate (e : Expr.t) : Expression.t =
   match e with
@@ -128,17 +128,29 @@ let rec translate (e : Expr.t) : Expression.t =
   | Expr.Symbolic (Type.FltType, Expr.Val (Val.Str x)) -> Symbolic (`F32Type, x)
   | Expr.UnOpt (Operators.Sconcat, e) -> (
       let binop' e1 e2 = Binop (Str S.Concat, e1, e2) in
+      let _ = Printf.printf "Sconcat startiiing\n" in
       match e with
       | Expr.NOpt (_, h :: t) ->
           List.fold_left ~init:(translate h) ~f:binop' (List.map ~f:translate t)
       | _ -> assert false)
   | Expr.UnOpt (op, e') ->
       let ty = Sval_typing.type_of e' in
+      let s1= match ty with
+      | None -> "nothing"
+      | _-> Type.str (Option.value ty ~default:Type.ArrayType)
+      in
+      let _ = Printf.printf "Unopt %s %s\n" (Operators.str_of_unopt op) s1 in
       let e' = translate e' in
       translate_unop ty op e'
   | Expr.BinOpt (op, e1, e2) ->
       let ty1 = Sval_typing.type_of e1 in
       let ty2 = Sval_typing.type_of e2 in
+      let s1, s2 = match (ty1, ty2) with
+      | None, None -> "nothing", "nothing"
+      | _, None -> Type.str (Option.value ty1 ~default:Type.ArrayType), "nothing"
+      | _ -> "oops", "oops"
+      in
+      let _ = Printf.printf "BinOpt %s | %s %s %s\n" (Expr.str e1) (Expr.str e2) s1 s2 in
       let e1' = translate e1 and e2' = translate e2 in
       translate_binop ty1 ty2 op e1' e2'
   | Expr.TriOpt (op, e1, e2, e3) ->
