@@ -221,6 +221,8 @@ let step (c : config) : config list =
   | Stmt.AssignCall (x, e, es) ->
       let f', vs = func s.at (reduce_expr ~at:s.at store e) in
       let vs' = vs @ List.map ~f:(reduce_expr ~at:s.at store) es in
+      let _ = Stats.add_function f' Stats.function_calls in
+      Stats.to_str(Stats.function_calls);
       let func = Prog.get_func prog f' in
       let stack' =
         Call_stack.push stack
