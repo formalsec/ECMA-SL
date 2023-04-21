@@ -5,10 +5,10 @@ function main() {
     z := "test";
 
     x2 := s_concat([x, z]);
-    print(api_eval(x2));   
+    print(__api_eval(x2));   
 
     /*concat the result of a concat */
-    print(api_eval(s_concat(["test", x2])));
+    print(__api_eval(s_concat(["test", x2])));
     assert(s_len(x2) = 8);
 	return 1
 }
