@@ -246,7 +246,7 @@ rule read =
   | bool           { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | '"'            { read_string (Buffer.create 16) lexbuf }
   | gvar           { GVAR (String_utils.trim_ends (Lexing.lexeme lexbuf))}
-  | (letter| "api.") (letter|digit|'_') * as id { try
+  | (letter| "__") (letter|digit|'_') * as id { try
                                         Hashtbl.find keyword_table id
                                       with Not_found -> VAR id }
   | var            { VAR (Lexing.lexeme lexbuf) }
