@@ -102,4 +102,7 @@ let rec type_of (v : Expr.t) : Type.t option =
       and arg3_t = type_of arg3 in
       type_of_triop op arg1_t arg2_t arg3_t
   | Expr.Symbolic (t, _) -> Some t
+  | Expr.NOpt(Operators.ListExpr, _) -> Some Type.ListType
+  | Expr.NOpt(Operators.TupleExpr, _) -> Some Type.TupleType
+  | Expr.NOpt(Operators.ArrExpr, _) -> Some Type.ArrayType
   | _ -> failwith (Expr.str v ^ ": Not typed!")

@@ -9,4 +9,5 @@ let workspace = ref "output"
 let verbose = ref false
 let silent = ref false
 let parse = ref false
+let axioms = ref false
 let default_hashtbl_sz = ref 0

@@ -350,13 +350,18 @@ let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
   let heap = Heap.create ()
   and store = Sstore.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
+  let solver = 
+    let s = Batch.create () in
+    if !Flags.axioms then Batch.set_default_axioms (let open Batch in s.solver);
+    s
+  in
   let initial_config =
     {
       prog;
       code = Cont [ func.body ];
       state = (heap, store, stack, func.name);
       pc = [];
-      solver = Batch.create ();
+      solver;
       opt = Optimizer.create ();
     }
   in

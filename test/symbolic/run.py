@@ -21,7 +21,8 @@ def parse_report(file):
 
 def run_test(file):
     print(file, end="...\n")
-    output_dir = os.path.join("output", file)
+    f = "".join(file.split(".")[0:-1])
+    output_dir = f + "_output"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     start = time.time()

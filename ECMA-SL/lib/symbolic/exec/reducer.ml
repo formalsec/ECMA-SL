@@ -5,7 +5,7 @@ open Operators
 
 let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   match (op, v) with
-  | op, Val v -> Val (Interpreter.eval_unop op v)
+  | op, Val v -> Val (Eval_op.eval_unop op v)
   | Neg, Symbolic (_, _) -> UnOpt (Neg, v)
   | Not, v' -> UnOpt (Not, v)
   | Head, NOpt (ListExpr, a :: _) -> a
@@ -26,7 +26,7 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | Sconcat, NOpt (ListExpr, vs) ->
       Val
         (Str
-           (String.concat ~sep:""
+          (String.concat ~sep:""
               (List.fold_left vs ~init:[] ~f:(fun a b ->
                    match b with Val (Str s) -> a @ [ s ] | _ -> a))))
   | FloatOfString, UnOpt (FloatToString, Symbolic (t, x)) -> Symbolic (t, x)
@@ -35,7 +35,7 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
 
 let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
   match (op, v1, v2) with
-  | op, Val v1, Val v2 -> Val (Interpreter.eval_binopt_expr op v1 v2)
+  | op, Val v1, Val v2 -> Val (Eval_op.eval_binopt_expr op v1 v2)
   | Eq, v, Val (Symbol _) when is_symbolic v -> Val (Bool false)
   | Eq, NOpt (_, _), Val Null -> Val (Bool false)
   | Eq, v, Val Null when Caml.not (Expr.is_loc v) -> Val (Bool false)
@@ -53,7 +53,7 @@ let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
 let reduce_triop (op : topt) (v1 : Expr.t) (v2 : Expr.t) (v3 : Expr.t) : Expr.t
     =
   match (op, v1, v2, v3) with
-  | op, Val v1, Val v2, Val v3 -> Val (Interpreter.eval_triopt_expr op v1 v2 v3)
+  | op, Val v1, Val v2, Val v3 -> Val (Eval_op.eval_triopt_expr op v1 v2 v3)
   | _ -> TriOpt (op, v1, v2, v3)
 
 let reduce_nop (op : nopt) (vs : Expr.t list) : Expr.t = NOpt (op, vs)
