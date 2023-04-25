@@ -46,7 +46,8 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | If (e, s1, s2) -> (
       let v = "if (" ^ str_e e ^ ") {\n" ^ str s1 ^ "\n}" in
       match s2 with None -> v | Some s -> v ^ " else {\n" ^ str s ^ "\n}")
-  | Block block -> String.concat ~sep:";\n" (List.map ~f:(str ~print_expr:str_e) block)
+  | Block block ->
+      String.concat ~sep:";\n" (List.map ~f:(str ~print_expr:str_e) block)
   | While (exp, s) -> "while (" ^ str_e exp ^ ") { " ^ str s ^ " }"
   | Return exp -> "return " ^ str_e exp
   | FieldAssign (e_o, f, e_v) -> str_e e_o ^ "[" ^ str_e f ^ "] := " ^ str_e e_v
