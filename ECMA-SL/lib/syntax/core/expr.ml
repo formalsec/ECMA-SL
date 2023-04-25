@@ -25,17 +25,18 @@ let rec equal (e1 : t) (e2 : t) : bool =
   | Curry (x1, es1), Curry (x2, es2) -> equal x1 x2 && List.equal equal es1 es2
   | _ -> false
 
+let is_val (v : t) : bool = match v with Val _ -> true | _ -> false
 let is_loc (v : t) : bool = match v with Val (Val.Loc _) -> true | _ -> false
 
 let rec is_symbolic (v : t) : bool =
   match v with
   | Val _ | Var _ -> false
-  | Symbolic (t, x) -> true
+  | Symbolic _ -> true
   | UnOpt (_, v) -> is_symbolic v
   | BinOpt (_, v1, v2) -> is_symbolic v1 || is_symbolic v2
-  | TriOpt (_, v1, v2, v3) -> List.for_all ~f:is_symbolic [ v1; v2; v3 ]
+  | TriOpt (_, v1, v2, v3) -> List.exists ~f:is_symbolic [ v1; v2; v3 ]
   | NOpt (_, es) | Curry (_, es) ->
-      (not (List.is_empty es)) && List.for_all ~f:is_symbolic es
+      (not (List.is_empty es)) && List.exists es ~f:is_symbolic
 
 let rec str (e : t) : string =
   let str_es es = String.concat ~sep:", " (List.map ~f:str es) in

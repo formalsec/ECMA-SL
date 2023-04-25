@@ -75,7 +75,7 @@ let step (c : config) : config list =
   | Skip -> [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Merge -> [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Exception err ->
-      prerr_endline (Source.string_of_region s.at ^ ": Exception: " ^ err);
+      fprintf stderr "%s: Exception: %s\n" (Source.string_of_region s.at) err;
       [ update c (Error (Some (Val (Val.Str err)))) state pc ]
   | Print e ->
       Logging.print_endline (lazy (Expr.str (reduce_expr ~at:s.at store e)));
@@ -107,7 +107,6 @@ let step (c : config) : config list =
       [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Stmt.Assert e
     when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
-      Logging.print_endline (lazy (Expression.pp_string_of_pc pc));
       [ update c (Failure (Some (reduce_expr ~at:s.at store e))) state pc ]
   | Stmt.Assert e ->
       let v = reduce_expr ~at:s.at store e in
