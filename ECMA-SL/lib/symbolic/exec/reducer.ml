@@ -26,7 +26,7 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | Sconcat, NOpt (ListExpr, vs) ->
       Val
         (Str
-          (String.concat ~sep:""
+           (String.concat ~sep:""
               (List.fold_left vs ~init:[] ~f:(fun a b ->
                    match b with Val (Str s) -> a @ [ s ] | _ -> a))))
   | FloatOfString, UnOpt (FloatToString, Symbolic (t, x)) -> Symbolic (t, x)

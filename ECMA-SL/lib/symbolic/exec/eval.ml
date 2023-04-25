@@ -350,9 +350,9 @@ let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
   let heap = Heap.create ()
   and store = Sstore.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
-  let solver = 
+  let solver =
     let s = Batch.create () in
-    if !Flags.axioms then Batch.set_default_axioms (let open Batch in s.solver);
+    if !Flags.axioms then Batch.set_default_axioms s.Batch.solver;
     s
   in
   let initial_config =
@@ -386,9 +386,15 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
   let final_testsuite, error_testsuite =
     let f c =
       ignore (Batch.check_sat c.solver c.pc);
-      let symbols = Formula.(get_symbols (to_formula c.pc)) in
+      let symbols =
+        let equal (x1, _) (x2, _) = String.equal x1 x2 in
+        List.map c.pc ~f:Expression.get_symbols
+        |> List.concat
+        |> List.fold ~init:[] ~f:(fun accum x ->
+               if List.mem accum x ~equal then accum else x :: accum)
+      in
       List.map (Batch.value_binds c.solver symbols) ~f:(fun (k, v) ->
-          (k, "NA", Expression.to_string (Expression.Val v)))
+          ("NA", k, Expression.to_string (Expression.Val v)))
     in
     (List.map ~f final_configs, List.map ~f error_configs)
   in
