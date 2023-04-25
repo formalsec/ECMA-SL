@@ -1,4 +1,4 @@
-type 'a t = (Field.t, 'a) Hashtbl.t
+type 'a t
 
 val create : unit -> 'a t
 val clone : 'a t -> 'a t
