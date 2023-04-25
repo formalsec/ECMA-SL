@@ -4,6 +4,7 @@ open Expr
 open Func
 open State
 open Source
+open Reducer
 module Crash = Err.Make ()
 module Invalid_arg = Err.Make ()
 
@@ -13,44 +14,21 @@ exception Invalid_arg = Invalid_arg.Error
 let loc (at : region) (e : Expr.t) : string =
   match e with
   | Val (Val.Loc l) -> l
-  | _ -> Invalid_arg.error at "Sval is not a 'loc' expression"
+  | _ ->
+      Invalid_arg.error at "Expr '" ^ Expr.str e ^ "' is not a loc expression"
 
 let field (at : region) (v : Expr.t) : string =
   match v with
   | Val (Val.Str f) -> f
-  | _ -> Invalid_arg.error at "Sval is not a 'field' expression"
+  | _ ->
+      print_endline (Expr.str v);
+      Invalid_arg.error at "Sval is not a 'field' expression"
 
 let func (at : region) (v : Expr.t) : string * Expr.t list =
   match v with
   | Val (Val.Str x) -> (x, [])
   | Curry (Val (Val.Str x), vs) -> (x, vs)
   | _ -> Invalid_arg.error at "Sval is not a 'func' identifier"
-
-let rec reduce_expr ?(at = no_region) (store : Sstore.t) (e : Expr.t) : Expr.t =
-  try
-    match e with
-    | Val v -> Val v
-    | Var x -> (
-        match Sstore.find store x with
-        | Some v -> v
-        | None -> Crash.error at ("Cannot find var '" ^ x ^ "'"))
-    | UnOpt (op, e) ->
-        let v = reduce_expr ~at store e in
-        Reducer.reduce_unop op v
-    | BinOpt (op, e1, e2) ->
-        let v1 = reduce_expr ~at store e1 and v2 = reduce_expr ~at store e2 in
-        Reducer.reduce_binop op v1 v2
-    | TriOpt (op, e1, e2, e3) ->
-        let v1 = reduce_expr ~at store e1
-        and v2 = reduce_expr ~at store e2
-        and v3 = reduce_expr ~at store e3 in
-        Reducer.reduce_triop op v1 v2 v3
-    | NOpt (op, es) ->
-        let vs = List.map ~f:(reduce_expr ~at store) es in
-        Reducer.reduce_nop op vs
-    | Curry (f, es) -> Curry (f, List.map ~f:(reduce_expr ~at store) es)
-    | Symbolic (t, x) -> Symbolic (t, reduce_expr ~at store x)
-  with Invalid_argument e -> Invalid_arg.error at e
 
 let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config)
     (st : Symb_stmt.t) : Sstore.t =
@@ -116,8 +94,8 @@ let step (c : config) : config list =
       let e' = reduce_expr ~at:s.at store e in
       let v = Translator.translate e' in
       let cont =
-          if not (Batch.check_sat solver (v :: pc)) then []
-          else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
+        if not (Batch.check_sat solver (v :: pc)) then []
+        else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
       in
       Logging.print_endline
         (lazy
@@ -151,8 +129,7 @@ let step (c : config) : config list =
           (heap, Sstore.add_exn store x v, stack, f)
           pc;
       ]
-  | Stmt.Block blk ->
-      [ update c (Cont (blk @ List.tl_exn stmts)) state pc ]
+  | Stmt.Block blk -> [ update c (Cont (blk @ List.tl_exn stmts)) state pc ]
   | Stmt.If (br, blk, _)
     when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store br) ->
       let cont =
@@ -406,7 +383,7 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
       ignore (Batch.check_sat c.solver c.pc);
       let symbols = Formula.(get_symbols (to_formula c.pc)) in
       List.map (Batch.value_binds c.solver symbols) ~f:(fun (k, v) ->
-        (k, "NA", Expression.to_string (Expression.Val v)))
+          (k, "NA", Expression.to_string (Expression.Val v)))
     in
     (List.map ~f final_configs, List.map ~f error_configs)
   in
