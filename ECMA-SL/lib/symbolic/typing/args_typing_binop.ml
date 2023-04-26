@@ -13,8 +13,9 @@ let bin_args_typing_eq (arg1_t : Type.t option) (arg2_t : Type.t option) :
   | Some Type.IntType, Some Type.IntType
   | Some Type.FltType, Some Type.FltType
   | Some Type.ArrayType, Some Type.ArrayType
-  | Some Type.StrType, Some Type.StrType 
-  | Some Type.BoolType, Some Type.BoolType ->  Some Type.BoolType
+  | Some Type.StrType, Some Type.StrType
+  | Some Type.BoolType, Some Type.BoolType ->
+      Some Type.BoolType
   (* missing the symbolic cases *)
   | _ -> None
 

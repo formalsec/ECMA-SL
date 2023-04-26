@@ -107,13 +107,12 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
   | Some FltType, BitwiseNot ->
       Cvtop
         (F32 F32.ConvertSI32, Unop (I32 I32.Not, Cvtop (I32 I32.TruncSF32, e)))
-  | Some FltType, IsNaN ->
-      Unop (F32 F32.IsNan, e)
+  | Some FltType, IsNaN -> Unop (F32 F32.IsNan, e)
   | Some IntType, Neg -> Unop (Int I.Neg, e)
   | Some StrType, StringLen -> Unop (Str S.Len, e)
   | Some BoolType, Not -> Unop (Bool B.Not, e)
-  | Some _, _ -> failwith "TODO: unop" 
-  | None, op -> failwith ("oopsie" ^ Expression.to_string e)
+  | Some _, _ -> failwith "TODO: unop"
+  | None, op -> failwith ("Type not possible for" ^ Expression.to_string e)
 
 let rec translate (e : Expr.t) : Expression.t =
   match e with

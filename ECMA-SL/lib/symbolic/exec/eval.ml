@@ -116,8 +116,8 @@ let step (c : config) : config list =
       let e' = reduce_expr ~at:s.at store e in
       let v = Translator.translate e' in
       let cont =
-          if not (Batch.check_sat solver (v :: pc)) then []
-          else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
+        if not (Batch.check_sat solver (v :: pc)) then []
+        else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
       in
       Logging.print_endline
         (lazy
@@ -151,8 +151,7 @@ let step (c : config) : config list =
           (heap, Sstore.add_exn store x v, stack, f)
           pc;
       ]
-  | Stmt.Block blk ->
-      [ update c (Cont (blk @ List.tl_exn stmts)) state pc ]
+  | Stmt.Block blk -> [ update c (Cont (blk @ List.tl_exn stmts)) state pc ]
   | Stmt.If (br, blk, _)
     when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store br) ->
       let cont =
@@ -373,9 +372,12 @@ let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
   let heap = Heap.create ()
   and store = Sstore.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
-  let solv = 
+  let solv =
     let s = Batch.create () in
-    if !Flags.axioms then Batch.set_default_axioms (let open Batch in s.solver);
+    if !Flags.axioms then
+      Batch.set_default_axioms
+        (let open Batch in
+        s.solver);
     s
   in
   let initial_config =
@@ -411,7 +413,7 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
       ignore (Batch.check_sat c.solver c.pc);
       let symbols = Formula.(get_symbols (to_formula c.pc)) in
       List.map (Batch.value_binds c.solver symbols) ~f:(fun (k, v) ->
-        (k, "NA", Expression.to_string (Expression.Val v)))
+          (k, "NA", Expression.to_string (Expression.Val v)))
     in
     (List.map ~f final_configs, List.map ~f error_configs)
   in
