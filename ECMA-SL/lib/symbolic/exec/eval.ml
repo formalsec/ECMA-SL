@@ -4,6 +4,7 @@ open Expr
 open Func
 open State
 open Source
+open Reducer
 module Crash = Err.Make ()
 module Invalid_arg = Err.Make ()
 
@@ -13,44 +14,21 @@ exception Invalid_arg = Invalid_arg.Error
 let loc (at : region) (e : Expr.t) : string =
   match e with
   | Val (Val.Loc l) -> l
-  | _ -> Invalid_arg.error at "Sval is not a 'loc' expression"
+  | _ ->
+      Invalid_arg.error at "Expr '" ^ Expr.str e ^ "' is not a loc expression"
 
 let field (at : region) (v : Expr.t) : string =
   match v with
   | Val (Val.Str f) -> f
-  | _ -> Invalid_arg.error at "Sval is not a 'field' expression"
+  | _ ->
+      print_endline (Expr.str v);
+      Invalid_arg.error at "Sval is not a 'field' expression"
 
 let func (at : region) (v : Expr.t) : string * Expr.t list =
   match v with
   | Val (Val.Str x) -> (x, [])
   | Curry (Val (Val.Str x), vs) -> (x, vs)
   | _ -> Invalid_arg.error at "Sval is not a 'func' identifier"
-
-let rec reduce_expr ?(at = no_region) (store : Sstore.t) (e : Expr.t) : Expr.t =
-  try
-    match e with
-    | Val v -> Val v
-    | Var x -> (
-        match Sstore.find store x with
-        | Some v -> v
-        | None -> Crash.error at ("Cannot find var '" ^ x ^ "'"))
-    | UnOpt (op, e) ->
-        let v = reduce_expr ~at store e in
-        Reducer.reduce_unop op v
-    | BinOpt (op, e1, e2) ->
-        let v1 = reduce_expr ~at store e1 and v2 = reduce_expr ~at store e2 in
-        Reducer.reduce_binop op v1 v2
-    | TriOpt (op, e1, e2, e3) ->
-        let v1 = reduce_expr ~at store e1
-        and v2 = reduce_expr ~at store e2
-        and v3 = reduce_expr ~at store e3 in
-        Reducer.reduce_triop op v1 v2 v3
-    | NOpt (op, es) ->
-        let vs = List.map ~f:(reduce_expr ~at store) es in
-        Reducer.reduce_nop op vs
-    | Curry (f, es) -> Curry (f, List.map ~f:(reduce_expr ~at store) es)
-    | Symbolic (t, x) -> Symbolic (t, reduce_expr ~at store x)
-  with Invalid_argument e -> Invalid_arg.error at e
 
 let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config)
     (st : Symb_stmt.t) : Sstore.t =
@@ -97,7 +75,7 @@ let step (c : config) : config list =
   | Skip -> [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Merge -> [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Exception err ->
-      prerr_endline (Source.string_of_region s.at ^ ": Exception: " ^ err);
+      fprintf stderr "%s: Exception: %s\n" (Source.string_of_region s.at) err;
       [ update c (Error (Some (Val (Val.Str err)))) state pc ]
   | Print e ->
       Logging.print_endline (lazy (Expr.str (reduce_expr ~at:s.at store e)));
@@ -129,7 +107,6 @@ let step (c : config) : config list =
       [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Stmt.Assert e
     when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
-      Logging.print_endline (lazy (Expression.pp_string_of_pc pc));
       [ update c (Failure (Some (reduce_expr ~at:s.at store e))) state pc ]
   | Stmt.Assert e ->
       let v = reduce_expr ~at:s.at store e in
@@ -372,12 +349,9 @@ let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
   let heap = Heap.create ()
   and store = Sstore.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
-  let solv =
+  let solver =
     let s = Batch.create () in
-    if !Flags.axioms then
-      Batch.set_default_axioms
-        (let open Batch in
-        s.solver);
+    if !Flags.axioms then Batch.set_default_axioms s.Batch.solver;
     s
   in
   let initial_config =
@@ -386,7 +360,7 @@ let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
       code = Cont [ func.body ];
       state = (heap, store, stack, func.name);
       pc = [];
-      solver = solv;
+      solver;
       opt = Optimizer.create ();
     }
   in
@@ -411,9 +385,15 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
   let final_testsuite, error_testsuite =
     let f c =
       ignore (Batch.check_sat c.solver c.pc);
-      let symbols = Formula.(get_symbols (to_formula c.pc)) in
+      let symbols =
+        let equal (x1, _) (x2, _) = String.equal x1 x2 in
+        List.map c.pc ~f:Expression.get_symbols
+        |> List.concat
+        |> List.fold ~init:[] ~f:(fun accum x ->
+               if List.mem accum x ~equal then accum else x :: accum)
+      in
       List.map (Batch.value_binds c.solver symbols) ~f:(fun (k, v) ->
-          (k, "NA", Expression.to_string (Expression.Val v)))
+          ("NA", k, Expression.to_string (Expression.Val v)))
     in
     (List.map ~f final_configs, List.map ~f error_configs)
   in

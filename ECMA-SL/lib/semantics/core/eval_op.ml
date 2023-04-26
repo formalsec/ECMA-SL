@@ -30,13 +30,9 @@ let eval_unop (op : uopt) (v : Val.t) : Val.t =
   | OctalToDecimal -> octal_to_decimal v
   | Sconcat -> string_concat v
   | ObjToList ->
-      raise
-        (Failure
-           "Unexpected call to eval_unop with operator ObjToList")
+      raise (Failure "Unexpected call to eval_unop with operator ObjToList")
   | ObjFields ->
-      raise
-        (Failure
-           "Unexpected call to eval_unop with operator ObjFields")
+      raise (Failure "Unexpected call to eval_unop with operator ObjFields")
   | ToInt -> to_int v
   | ToInt32 -> to_int32 v
   | ToUint32 -> to_uint32 v

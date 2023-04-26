@@ -40,6 +40,7 @@ let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
   | Operators.Sqrt -> un_args_typing_float_math arg_t Type.FltType
   | Operators.IsNaN -> un_args_typing_float_math arg_t Type.BoolType
   | Operators.StringLen -> Some Type.IntType
+  | Operators.StringLenU -> Some Type.IntType
   | Operators.BitwiseNot -> un_args_typing_bitwise_not arg_t
   | default ->
       failwith

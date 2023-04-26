@@ -32,6 +32,7 @@ let rec equal (v1 : t) (v2 : t) : bool =
   | _ -> false
 
 let is_symbol = function Symbol _ -> true | _ -> false
+let is_loc = function Loc _ -> true | _ -> false
 
 let is_special_number (s : string) : bool =
   List.mem [ "nan"; "inf"; "-inf" ] s ~equal:String.equal
