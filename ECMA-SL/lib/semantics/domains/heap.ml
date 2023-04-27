@@ -5,8 +5,20 @@ type 'a t = { parent : 'a t option; map : (Loc.t, 'a obj) Hashtbl.t }
 
 let create () : 'a t = { parent = None; map = Hashtbl.create (module String) }
 
+let clone h =
+  let map : (String.t, 'a obj) Hashtbl.t =
+    let m = Hashtbl.create (module String) in
+    Hashtbl.iter_keys h.map ~f:(fun a ->
+      let obj = Hashtbl.find_exn h.map a in
+      Hashtbl.set m ~key:a ~data:(Object.clone obj));
+    m
+  in
+  { parent = None; map; }
+
+(*
 let clone (h : 'a t) : 'a t =
   { parent = Some h; map = Hashtbl.create (module String) }
+*)
 
 let insert (h : 'a t) (obj : 'a obj) : Loc.t =
   let loc = Loc.newloc () in

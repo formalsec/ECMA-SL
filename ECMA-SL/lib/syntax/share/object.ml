@@ -3,7 +3,10 @@ open Core
 type 'a t = { parent : 'a t option; map : (String.t, 'a) Hashtbl.t }
 
 let create () : 'a t = { parent = None; map = Hashtbl.create (module String) }
+let clone o = { parent = None; map = Hashtbl.copy o.map }
+(*
 let clone (o : 'a t) = { parent = Some o; map = Hashtbl.create (module String) }
+*)
 
 let rec get (o : 'a t) (key : String.t) : 'a option =
   match Hashtbl.find o.map key with

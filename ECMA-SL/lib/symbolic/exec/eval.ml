@@ -107,6 +107,7 @@ let step (c : config) : config list =
       [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Stmt.Assert e
     when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
+      printf "%s = %s\n" (Expr.str e) (Expr.str (reduce_expr ~at:s.at store e));
       [ update c (Failure (Some (reduce_expr ~at:s.at store e))) state pc ]
   | Stmt.Assert e ->
       let v = reduce_expr ~at:s.at store e in
