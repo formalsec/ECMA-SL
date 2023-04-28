@@ -3,17 +3,17 @@ open Encoding
 open Expression
 open Types
 
-let expr_of_value (e : Expression.value) : Expr.t =
+let expr_of_value (e : Value.t) : Expr.t =
   match e with
-  | Int i -> Expr.Val (Val.Int i)
-  | Str s -> Expr.Val (Val.Str s)
-  | Num (Types.F32 f) -> Expr.Val (Val.Flt (Int32.float_of_bits f))
+  | Value.Int x -> Expr.Val (Val.Int x)
+  | Value.Str x -> Expr.Val (Val.Str x)
+  | Value.Real x -> Expr.Val (Val.Flt x)
   | _ -> assert false
 
 let translate_val (v : Val.t) : Expression.t =
   match v with
   | Val.Int x -> Integer.mk_val x
-  | Val.Flt x -> FloatingPoint.mk_val x `F32Type
+  | Val.Flt x -> Real.mk_val x
   | Val.Str x -> Strings.mk_val x
   | Val.Bool x -> Boolean.mk_val x
   | _ -> failwith ("translate_val: unsupported value '" ^ Val.str v ^ "'")
@@ -21,7 +21,7 @@ let translate_val (v : Val.t) : Expression.t =
 let translate_symbol (t : Type.t) : String.t -> Expression.t =
   match t with
   | Type.IntType -> mk_symbol `IntType
-  | Type.FltType -> mk_symbol `F32Type
+  | Type.FltType -> mk_symbol `RealType
   | Type.StrType -> mk_symbol `StrType
   | Type.BoolType -> mk_symbol `BoolType
   | _ ->
@@ -38,19 +38,14 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
   let flt_unop op e =
     let op' =
       match op with
-      | Neg -> FloatingPoint.mk_neg
-      | Abs -> FloatingPoint.mk_abs
-      | Sqrt -> FloatingPoint.mk_sqrt
-      | IsNaN -> FloatingPoint.mk_is_nan
-      (* TODO: rewrite using `FloatingPoint` constructors *)
-      | BitwiseNot ->
-          fun e _ ->
-            Cvtop
-              ( F32 F32.ConvertSI32,
-                Unop (I32 I32.Not, Cvtop (I32 I32.TruncSF32, e)) )
+      | Neg -> Real.mk_neg
+      | Abs -> Real.mk_abs
+      | Sqrt -> Real.mk_sqrt
+      | IsNaN -> fun _ -> Boolean.mk_val false
+      | FloatToString -> Real.mk_to_string
       | _ -> assert false
     in
-    op' e `F32Type
+    op' e
   in
   let str_unop op e =
     let op' = match op with StringLen -> Strings.mk_len | _ -> assert false in
@@ -94,70 +89,29 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
   let flt_binop op e1 e2 =
     let op' =
       match op with
-      | Modulo -> FloatingPoint.mk_rem
-      | Eq -> FloatingPoint.mk_eq
-      | Gt -> FloatingPoint.mk_gt
-      | Ge -> FloatingPoint.mk_ge
-      | Lt -> FloatingPoint.mk_lt
-      | Le -> FloatingPoint.mk_le
-      | Plus -> FloatingPoint.mk_add
-      | Minus -> FloatingPoint.mk_sub
-      | Times -> FloatingPoint.mk_mul
-      | Div -> FloatingPoint.mk_div
-      | Min -> FloatingPoint.mk_min
-      | Max -> FloatingPoint.mk_max
-      (* TODO: rewrite using `FloatingPoint` constructors *)
-      | BitwiseAnd ->
-          fun e1 e2 _ ->
-            Cvtop
-              ( F32 F32.ConvertSI32,
-                Binop
-                  ( I32 I32.And,
-                    Cvtop (I32 I32.TruncSF32, e1),
-                    Cvtop (I32 I32.TruncSF32, e2) ) )
-      | BitwiseOr ->
-          fun e1 e2 _ ->
-            Cvtop
-              ( F32 F32.ConvertSI32,
-                Binop
-                  ( I32 I32.Or,
-                    Cvtop (I32 I32.TruncSF32, e1),
-                    Cvtop (I32 I32.TruncSF32, e2) ) )
-      | BitwiseXor ->
-          fun e1 e2 _ ->
-            Cvtop
-              ( F32 F32.ConvertSI32,
-                Binop
-                  ( I32 I32.Xor,
-                    Cvtop (I32 I32.TruncSF32, e1),
-                    Cvtop (I32 I32.TruncSF32, e2) ) )
-      | ShiftLeft ->
-          fun e1 e2 _ ->
-            Cvtop
-              ( F32 F32.ConvertSI32,
-                Binop
-                  ( I32 I32.Shl,
-                    Cvtop (I32 I32.TruncSF32, e1),
-                    Cvtop (I32 I32.TruncSF32, e2) ) )
-      | ShiftRight ->
-          fun e1 e2 _ ->
-            Cvtop
-              ( F32 F32.ConvertSI32,
-                Binop
-                  ( I32 I32.ShrS,
-                    Cvtop (I32 I32.TruncSF32, e1),
-                    Cvtop (I32 I32.TruncSF32, e2) ) )
-      | ShiftRightLogical ->
-          fun e1 e2 _ ->
-            Cvtop
-              ( F32 F32.ConvertSI32,
-                Binop
-                  ( I32 I32.ShrU,
-                    Cvtop (I32 I32.TruncSF32, e1),
-                    Cvtop (I32 I32.TruncSF32, e2) ) )
+      | Modulo -> assert false
+      | Eq -> Real.mk_eq
+      | Gt -> Real.mk_gt
+      | Ge -> Real.mk_ge
+      | Lt -> Real.mk_lt
+      | Le -> Real.mk_le
+      | Plus -> Real.mk_add
+      | Minus -> Real.mk_sub
+      | Times -> Real.mk_mul
+      | Div -> Real.mk_div
+      | Min -> Real.mk_min
+      | Max -> Real.mk_max
+      (* TODO: rewrite using `Real` constructors -- fails se we don't introduce
+               encoding errors *)
+      | BitwiseAnd -> assert false
+      | BitwiseOr -> assert false
+      | BitwiseXor -> assert false
+      | ShiftLeft -> assert false
+      | ShiftRight -> assert false
+      | ShiftRightLogical -> assert false
       | _ -> assert false
     in
-    op' e1 e2 `F32Type
+    op' e1 e2
   in
   let str_binop op e1 e2 =
     let op' =
