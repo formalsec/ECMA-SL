@@ -148,7 +148,9 @@ let step (c : config) : config list =
   | Stmt.If (br, blk1, blk2) ->
       let br_t = reduce_expr ~at:s.at store br
       and br_f = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, br)) in
-      Logging.print_endline (lazy ("If (" ^ Expr.str br_t ^ ")"));
+      Logging.print_endline
+        (lazy
+          (sprintf "%s: If (%s)" (Source.string_of_region s.at) (Expr.str br_t)));
       let br_t' = Translator.translate br_t
       and br_f' = Translator.translate br_f in
       let then_branch =

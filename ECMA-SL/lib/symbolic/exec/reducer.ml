@@ -7,6 +7,7 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   match (op, v) with
   | op, Val v -> Val (Eval_op.eval_unop op v)
   | Neg, Symbolic (_, _) -> UnOpt (Neg, v)
+  | IsNaN, Symbolic _ -> Val (Bool false)
   | Not, v' -> UnOpt (Not, v)
   | Head, NOpt (ListExpr, a :: _) -> a
   | Tail, NOpt (ListExpr, _ :: tl) -> NOpt (ListExpr, tl)
@@ -33,21 +34,19 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
                 | Val (Str h'), Val (Str b') ->
                     Val (Str (String.concat ~sep:"" [ h'; b' ])) :: t
                 | Val (Str h'), _ -> b :: a
-                | _, Val (Str b') ->
-                    b :: a
+                | _, Val (Str b') -> b :: a
                 | _ ->
                     failwith
-                      ("impossible argument types for concat " ^ Expr.str h)
-                ))
+                      ("impossible argument types for concat " ^ Expr.str h)))
       in
       let s = List.rev s in
       if List.length s > 1 then UnOpt (Sconcat, NOpt (ListExpr, s))
       else
         Val
           (Str
-              (String.concat ~sep:""
+             (String.concat ~sep:""
                 (List.fold_left vs ~init:[] ~f:(fun a b ->
-                      match b with Val (Str s) -> a @ [ s ] | _ -> a))))
+                     match b with Val (Str s) -> a @ [ s ] | _ -> a))))
   | FloatOfString, UnOpt (FloatToString, Symbolic (t, x)) -> Symbolic (t, x)
   (* missing obj_to_list, obj_fields*)
   | op', v1' -> UnOpt (op', v1')
@@ -56,6 +55,10 @@ let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
   match (op, v1, v2) with
   | op, Val v1, Val v2 -> Val (Eval_op.eval_binopt_expr op v1 v2)
   | Eq, v, Val (Symbol _) when is_symbolic v -> Val (Bool false)
+  | Eq, v, Val (Flt x)
+    when is_symbolic v
+         && (Float.is_inf x || Float.(x = neg_infinity) || Float.is_nan x) ->
+      Val (Bool false)
   | Eq, NOpt (_, _), Val Null -> Val (Bool false)
   | Eq, v, Val Null when Caml.not (Expr.is_loc v) -> Val (Bool false)
   | Eq, v1, v2 when Caml.not (is_symbolic v1 || is_symbolic v2) ->
