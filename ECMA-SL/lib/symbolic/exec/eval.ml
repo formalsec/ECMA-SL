@@ -354,7 +354,7 @@ let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
   let solver =
     let s = Batch.create () in
-    if !Flags.axioms then Batch.set_default_axioms s.Batch.solver;
+    if !Config.axioms then Batch.set_default_axioms s.Batch.solver;
     s
   in
   let initial_config =
@@ -373,12 +373,12 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
   let time_analysis = ref 0.0 in
   let f = Prog.get_func prog f in
   let eval =
-    match !Flags.policy with
+    match !Config.policy with
     | "breadth" -> BFS.eval
     | "depth" -> DFS.eval
     | "random" -> RND.eval
     | _ ->
-        Crash.error f.body.at ("Invalid search policy '" ^ !Flags.policy ^ "'")
+        Crash.error f.body.at ("Invalid search policy '" ^ !Config.policy ^ "'")
   in
   let out_configs =
     Time_utils.time_call time_analysis (fun () -> invoke prog f eval)
@@ -401,7 +401,7 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
     (List.map ~f final_configs, List.map ~f error_configs)
   in
   let report =
-    Report.create ~file:!Flags.file ~paths:(List.length out_configs)
+    Report.create ~file:!Config.file ~paths:(List.length out_configs)
       ~errors:(List.length error_configs)
       ~unknowns:0 ~analysis:!time_analysis ~solver:!Batch.solver_time
   in

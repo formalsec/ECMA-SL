@@ -2,7 +2,7 @@ type var = string
 type 'a t = (var, 'a) Hashtbl.t
 
 let create (values : (var * 'a) list) : 'a t =
-  let sto = Hashtbl.create !Flags.default_hashtbl_sz in
+  let sto = Hashtbl.create !Config.default_hashtbl_sz in
   List.iter (fun (x, v) -> Hashtbl.replace sto x v) values;
   sto
 

@@ -26,12 +26,12 @@ let usage = "Usage: " ^ name ^ " [option] [file ...]"
 let argspec =
   Arg.align
     [
-      ("-i", Arg.String (fun f -> Flags.file := f), " read program from file");
-      ("-o", Arg.String (fun o -> Flags.output := o), " write program to file");
-      ("-h", Arg.String (fun f -> Flags.heap_file := f), " write heap to file");
-      ("-m", Arg.String (fun m -> Flags.mon := m), " monitor mode");
+      ("-i", Arg.String (fun f -> Config.file := f), " read program from file");
+      ("-o", Arg.String (fun o -> Config.output := o), " write program to file");
+      ("-h", Arg.String (fun f -> Config.heap_file := f), " write heap to file");
+      ("-m", Arg.String (fun m -> Config.mon := m), " monitor mode");
       ( "-mode",
-        Arg.String (fun m -> Flags.mode := m),
+        Arg.String (fun m -> Config.mode := m),
         " mode to run: c - Core / p - Plus " );
       ( "-v",
         Arg.Unit
@@ -40,10 +40,10 @@ let argspec =
             exit 0),
         " show version" );
       ( "--workspace",
-        Arg.String (fun o -> Flags.workspace := o),
+        Arg.String (fun o -> Config.workspace := o),
         " workspace directory" );
-      ("--verbose", Arg.Set Flags.verbose, " verbose interpreter");
-      ("--parse", Arg.Set Flags.parse, " parse to JSON");
+      ("--verbose", Arg.Set Config.verbose, " verbose interpreter");
+      ("--parse", Arg.Set Config.parse, " parse to JSON");
     ]
 
 let combine_progs (prog1 : Prog.t) (prog2 : Prog.t) : Prog.t =
@@ -55,7 +55,7 @@ let parse_program (prog : Prog.t) (inline : string) : unit =
   let json = Prog.to_json prog in
   print_string json;
   print_string "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-  let jsonfile = Filename.remove_extension !Flags.file in
+  let jsonfile = Filename.remove_extension !Config.file in
   Io.write_file (jsonfile ^ inline ^ ".json") json;
   Printf.printf "%s" jsonfile
 
@@ -70,18 +70,18 @@ let core_of_plus (file : string) : Prog.t =
 
 let compile_from_plus_to_core (file : string) : unit =
   let c_prog = core_of_plus file in
-  if !Flags.output <> "" then Io.write_file !Flags.output (Prog.str c_prog)
+  if !Config.output <> "" then Io.write_file !Config.output (Prog.str c_prog)
   else print_endline (Prog.str c_prog)
 
 let inline_compiler () : Prog.t =
-  let prog_contents = Parsing_utils.load_file !Flags.file in
+  let prog_contents = Parsing_utils.load_file !Config.file in
   let prog = Parsing_utils.parse_prog prog_contents in
   let inlined_prog = Inliner.compile_functions prog in
   (* Add Security funcs. H-L-Lattice.esl*)
   let sec_prog_contents = Parsing_utils.load_file _INLINE_LATTICE_ in
   let lattice_prog = Parsing_utils.parse_prog sec_prog_contents in
   let final_prog = combine_progs inlined_prog lattice_prog in
-  let inlinedfile = Filename.remove_extension !Flags.file in
+  let inlinedfile = Filename.remove_extension !Config.file in
   Io.write_file (inlinedfile ^ "_inlined.esl") (Prog.str final_prog);
   Printf.printf
     "================= FINAL PROGRAM ================= \n\
@@ -91,9 +91,9 @@ let inline_compiler () : Prog.t =
   final_prog
 
 let core_interpretation (prog : Prog.t) : exit_code =
-  let v, heap = Interpreter.eval_prog prog !Flags.mon !Flags.target in
-  if !Flags.heap_file <> "" then
-    Io.write_file !Flags.heap_file
+  let v, heap = Interpreter.eval_prog prog !Config.mon !Config.target in
+  if !Config.heap_file <> "" then
+    Io.write_file !Config.heap_file
       (Heap.to_string_with_glob heap (Val.str ~flt_with_dot:false));
   match v with
   | Some z -> (
@@ -123,46 +123,46 @@ let core_interpretation (prog : Prog.t) : exit_code =
 
 (* Main function *)
 let () =
-  Arg.parse argspec (fun file -> Flags.file := file) usage;
+  Arg.parse argspec (fun file -> Config.file := file) usage;
   print_string "=====================\n\tECMA-SL\n=====================\n";
-  if !Flags.verbose then Logging.set_verbose ();
+  if !Config.verbose then Logging.set_verbose ();
   (* Disable logging (when using "print_endline" and/or "print_string") *)
   let code : exit_code =
-    if !Flags.file = "" && !Flags.mode = "" && !Flags.output = "" then (
+    if !Config.file = "" && !Config.mode = "" && !Config.output = "" then (
       print_string "No option selected. Use -h";
       FAILURE)
-    else if !Flags.file = "" then (
+    else if !Config.file = "" then (
       print_string
         "No input file. Use -i\n\
          =====================\n\
          \tFINISHED\n\
          =====================\n";
       FAILURE)
-    else if !Flags.mode = "" then (
+    else if !Config.mode = "" then (
       print_string
         "No mode selected. Use -mode\n\
          =====================\n\
          \tFINISHED\n\
          =====================\n";
       FAILURE)
-    else if !Flags.mode = "ci" then (
+    else if !Config.mode = "ci" then (
       print_string "======================= CORE =======================\n";
-      let prog = Parsing_utils.(parse_prog (load_file !Flags.file)) in
-      if !Flags.parse then parse_program prog "";
+      let prog = Parsing_utils.(parse_prog (load_file !Config.file)) in
+      if !Config.parse then parse_program prog "";
       core_interpretation prog)
-    else if !Flags.mode = "parse" then (
-      let prog = Parsing_utils.(parse_prog (load_file !Flags.file)) in
+    else if !Config.mode = "parse" then (
+      let prog = Parsing_utils.(parse_prog (load_file !Config.file)) in
       parse_program prog "";
       SUCCESS)
-    else if !Flags.mode = "ic" then (
+    else if !Config.mode = "ic" then (
       print_string
         "======================= Inlining Monitor =======================\n";
       let prog = inline_compiler () in
       (*Run the ci in inlined prog*)
-      if !Flags.parse then parse_program prog "_inlined";
+      if !Config.parse then parse_program prog "_inlined";
       core_interpretation prog)
     else (
-      compile_from_plus_to_core !Flags.file;
+      compile_from_plus_to_core !Config.file;
       SUCCESS)
   in
   print_string "\n=====================\n\tFINISHED\n=====================\n";

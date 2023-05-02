@@ -83,7 +83,7 @@ let rec pattern_match (subst : subst_t) (e1 : t) (e2 : t) : bool =
   | _ -> false
 
 let make_subst (xs_es : (string * t) list) : subst_t =
-  let subst = Hashtbl.create !Flags.default_hashtbl_sz in
+  let subst = Hashtbl.create !Config.default_hashtbl_sz in
   List.iter (fun (x, e) -> Hashtbl.replace subst x e) xs_es;
   subst
 

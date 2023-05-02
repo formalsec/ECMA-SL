@@ -1,28 +1,5 @@
 open Core
 
-let name = "ecma-se"
-let version = "v0.1"
-let banner () = print_endline (name ^ " " ^ version)
-let usage = "Usage: " ^ name ^ " [option] [file ...]"
-
-let argspec =
-  Arg.align
-    [
-      ("-i", Arg.Set_string Flags.file, " read program from file");
-      ("-o", Arg.Set_string Flags.workspace, " write result files to directory");
-      ("-t", Arg.Set_string Flags.target, " target function to analyse");
-      ( "-p",
-        Arg.Set_string Flags.policy,
-        " search policy (depth|breadth|random)" );
-      ( "-v",
-        Arg.Unit
-          (fun () ->
-            banner ();
-            exit 0),
-        " show version" );
-      ("--verbose", Arg.Set Flags.verbose, " verbose interpreter");
-    ]
-
 let plus_ext = ".esl"
 let core_ext = ".cesl"
 
@@ -45,32 +22,59 @@ let error at category msg =
   prerr_endline (Source.string_of_region at ^ ":" ^ category ^ ":" ^ msg);
   None
 
-let run_prog prog =
-  try Some (Eval.analyse prog !Flags.target) with
+let run_prog prog target =
+  try Some (Eval.analyse prog target) with
   | Eval.Crash (at, msg) -> error at "runtime crash" msg
   | Eval.Invalid_arg (at, msg) -> error at "invalid arg" msg
   | exn -> raise exn
 
+let command_parameters : (unit -> unit) Command.Param.t =
+  let%map_open.Command files =
+    anon (sequence ("filename" %: Filename_unix.arg_type))
+  and target =
+    flag "target"
+      ~aliases:[ "d" ]
+      (optional_with_default "main" string) 
+      ~doc:"string target function to analyse"
+  and workspace =
+    flag "workspace"
+      ~aliases:[ "o" ]
+      (optional_with_default "output" string)
+      ~doc:"string write result files to directory"
+  and policy =
+    flag "policy" (optional_with_default "breadth" string)
+      ~doc:"string search policy (depth|breadth|random)"
+  and verbose = flag "verbose" no_arg ~doc:" verbose interpreter" in
+  fun () ->
+    Config.target := target;
+    Config.workspace := workspace;
+    Config.policy := policy;
+    Config.verbose := verbose;
+    let testsuite_path = Filename.concat workspace "test-suite" in
+    Io.safe_mkdir testsuite_path;
+    List.iter files ~f:(fun f ->
+    let prog = dispatch_file_ext prog_of_plus prog_of_core f in
+    let f r =
+      let report_file = Filename.concat workspace "report.json" in
+      Io.write_file report_file (Report.report_to_json r);
+      List.iter (Report.testsuite_to_json r)
+        ~f:(fun (file, testcase) ->
+          let file' = Filename.concat testsuite_path file in
+          Io.write_file file' testcase)
+    in
+    Option.iter (run_prog prog target) ~f)
+
+let command =
+  Command.basic ~summary:"ECMA-SL symbolic analysis" command_parameters
+
 let () =
   Backtrace.Exn.set_recording true;
   try
-    Arg.parse argspec (fun f -> Flags.file := f) usage;
-    let testsuite_path = Filename.concat !Flags.workspace "test-suite" in
-    Io.safe_mkdir testsuite_path;
-    let prog = dispatch_file_ext prog_of_plus prog_of_core !Flags.file in
-    match run_prog prog with
-    | Some report ->
-        let report_file = Filename.concat !Flags.workspace "report.json" in
-        Io.write_file report_file (Report.report_to_json report);
-        List.iter
-          ~f:(fun (file, testcase) ->
-            let file' = Filename.concat testsuite_path file in
-            Io.write_file file' testcase)
-          (Report.testsuite_to_json report)
-    | None -> exit 2
+    Command_unix.run ~version:"0.1.0" command
   with exn ->
     Caml.flush_all ();
     Printexc.print_backtrace stdout;
-    prerr_endline
-      ((Sys.get_argv ()).(0) ^ ": uncaught exception " ^ Exn.to_string exn);
+    fprintf stderr "%s: uncaught exception %s" ((Sys.get_argv ()).(0)) 
+      (Exn.to_string exn);
     exit 2
+
