@@ -32,17 +32,16 @@ let command_parameters : (unit -> unit) Command.Param.t =
   let%map_open.Command files =
     anon (sequence ("filename" %: Filename_unix.arg_type))
   and target =
-    flag "target"
-      ~aliases:[ "d" ]
-      (optional_with_default "main" string) 
+    flag "target" ~aliases:[ "d" ]
+      (optional_with_default "main" string)
       ~doc:"string target function to analyse"
   and workspace =
-    flag "workspace"
-      ~aliases:[ "o" ]
+    flag "workspace" ~aliases:[ "o" ]
       (optional_with_default "output" string)
       ~doc:"string write result files to directory"
   and policy =
-    flag "policy" (optional_with_default "breadth" string)
+    flag "policy"
+      (optional_with_default "breadth" string)
       ~doc:"string search policy (depth|breadth|random)"
   and verbose = flag "verbose" no_arg ~doc:" verbose interpreter" in
   fun () ->
@@ -53,28 +52,26 @@ let command_parameters : (unit -> unit) Command.Param.t =
     let testsuite_path = Filename.concat workspace "test-suite" in
     Io.safe_mkdir testsuite_path;
     List.iter files ~f:(fun f ->
-    let prog = dispatch_file_ext prog_of_plus prog_of_core f in
-    let f r =
-      let report_file = Filename.concat workspace "report.json" in
-      Io.write_file report_file (Report.report_to_json r);
-      List.iter (Report.testsuite_to_json r)
-        ~f:(fun (file, testcase) ->
-          let file' = Filename.concat testsuite_path file in
-          Io.write_file file' testcase)
-    in
-    Option.iter (run_prog prog target) ~f)
+        let prog = dispatch_file_ext prog_of_plus prog_of_core f in
+        let f r =
+          let report_file = Filename.concat workspace "report.json" in
+          Io.write_file report_file (Report.report_to_json r);
+          List.iter (Report.testsuite_to_json r) ~f:(fun (file, testcase) ->
+              let file' = Filename.concat testsuite_path file in
+              Io.write_file file' testcase)
+        in
+        Option.iter (run_prog prog target) ~f)
 
 let command =
   Command.basic ~summary:"ECMA-SL symbolic analysis" command_parameters
 
 let () =
   Backtrace.Exn.set_recording true;
-  try
-    Command_unix.run ~version:"0.1.0" command
+  try Command_unix.run ~version:"0.1.0" command
   with exn ->
     Caml.flush_all ();
     Printexc.print_backtrace stdout;
-    fprintf stderr "%s: uncaught exception %s" ((Sys.get_argv ()).(0)) 
+    fprintf stderr "%s: uncaught exception %s"
+      (Sys.get_argv ()).(0)
       (Exn.to_string exn);
     exit 2
-
