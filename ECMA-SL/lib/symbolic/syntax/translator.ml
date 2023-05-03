@@ -20,10 +20,10 @@ let translate_val (v : Val.t) : Expression.t =
 
 let translate_symbol (t : Type.t) : String.t -> Expression.t =
   match t with
-  | Type.IntType -> mk_symbol `IntType
-  | Type.FltType -> mk_symbol `RealType
-  | Type.StrType -> mk_symbol `StrType
-  | Type.BoolType -> mk_symbol `BoolType
+  | Type.IntType -> mk_symbol_s `IntType
+  | Type.FltType -> mk_symbol_s `RealType
+  | Type.StrType -> mk_symbol_s `StrType
+  | Type.BoolType -> mk_symbol_s `BoolType
   | _ ->
       failwith ("translate_symbol: unsupported symbol type '" ^ Type.str t ^ "'")
 
@@ -48,9 +48,11 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
     op' e
   in
   let str_unop op e =
-    let op' = match op with 
-    | StringLen | StringLenU-> Strings.mk_len 
-    | _ -> assert false in
+    let op' =
+      match op with
+      | StringLen | StringLenU -> Strings.mk_len
+      | _ -> assert false
+    in
     op' e
   in
 
@@ -155,7 +157,9 @@ let translate_triop (t1 : Type.t option) (t2 : Type.t option)
   match (t1, t2, t3) with
   | Some StrType, _, _ -> str_triop op e1 e2 e3
   | None, _, _ | _, None, _ | _, _, None ->
-      failwith ("translate_triop: untyped operator! " ^ (Operators.str_of_triopt op "e1" "e2" "e3"))
+      failwith
+        ("translate_triop: untyped operator! "
+        ^ Operators.str_of_triopt op "e1" "e2" "e3")
   | _ -> failwith "translate_triop: ill-typed or unsupported operator!"
 
 let rec translate (e : Expr.t) : Expression.t =
