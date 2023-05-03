@@ -8,7 +8,9 @@
  (public_name ecma-se)
  (name ecma_se)
  (modules ecma_se)
- (libraries ECMA_SL))
+ (libraries ECMA_SL core core_unix.command_unix core_unix.filename_unix)
+ (preprocess
+  (pps ppx_jane)))
 
 (executable
  (public_name generate_standard)

@@ -13,7 +13,7 @@ let print_position (outx : Format.formatter) (lexbuf : Lexing.lexbuf) : unit =
 
 let e_parse start (lexbuf : Lexing.lexbuf) =
   lexbuf.Lexing.lex_curr_p <-
-    { lexbuf.Lexing.lex_curr_p with Lexing.pos_fname = !Flags.file };
+    { lexbuf.Lexing.lex_curr_p with Lexing.pos_fname = !Config.file };
   let module ESLMI = E_Parser.MenhirInterpreter in
   let last_token = ref E_Parser.EOF in
   let lexer lexbuf =
@@ -37,7 +37,7 @@ let e_parse start (lexbuf : Lexing.lexbuf) =
 
 let parse start (lexbuf : Lexing.lexbuf) =
   lexbuf.Lexing.lex_curr_p <-
-    { lexbuf.Lexing.lex_curr_p with Lexing.pos_fname = !Flags.file };
+    { lexbuf.Lexing.lex_curr_p with Lexing.pos_fname = !Config.file };
   let module Core_ESLMI = Parser.MenhirInterpreter in
   let last_token = ref Parser.EOF in
   let lexer lexbuf =

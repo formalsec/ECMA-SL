@@ -5,20 +5,8 @@ type 'a t = { parent : 'a t option; map : (Loc.t, 'a obj) Hashtbl.t }
 
 let create () : 'a t = { parent = None; map = Hashtbl.create (module String) }
 
-let clone h =
-  let map : (String.t, 'a obj) Hashtbl.t =
-    let m = Hashtbl.create (module String) in
-    Hashtbl.iter_keys h.map ~f:(fun a ->
-      let obj = Hashtbl.find_exn h.map a in
-      Hashtbl.set m ~key:a ~data:(Object.clone obj));
-    m
-  in
-  { parent = None; map; }
-
-(*
 let clone (h : 'a t) : 'a t =
   { parent = Some h; map = Hashtbl.create (module String) }
-*)
 
 let insert (h : 'a t) (obj : 'a obj) : Loc.t =
   let loc = Loc.newloc () in
@@ -40,16 +28,15 @@ let rec get (h : 'a t) (l : Loc.t) : 'a obj option =
 
 let get_field (heap : 'a t) (loc : Loc.t) (field : String.t) : 'a option =
   let obj = get heap loc in
-  let v = match obj with None -> None | Some o -> Object.get o field in
-  v
+  Option.bind obj ~f:(fun o -> Object.get o field)
 
 let set_field (heap : 'a t) (loc : Loc.t) (field : String.t) (v : 'a) : unit =
   let obj = get heap loc in
-  match obj with None -> () | Some o -> Object.set o field v
+  Option.iter obj ~f:(fun o -> Object.set o field v)
 
 let delete_field (heap : 'a t) (loc : Loc.t) (field : String.t) : unit =
   let obj = get heap loc in
-  match obj with None -> () | Some o -> Object.delete o field
+  Option.iter obj ~f:(fun o -> Object.delete o field)
 
 let to_string (h : 'a t) (pp : 'a -> string) : string =
   "{ "

@@ -25,6 +25,16 @@ let rec equal (e1 : t) (e2 : t) : bool =
   | Curry (x1, es1), Curry (x2, es2) -> equal x1 x2 && List.equal equal es1 es2
   | _ -> false
 
+let rec copy (e : t) : t =
+  match e with
+  | Val v -> Val (Val.copy v)
+  | (Var _ | Symbolic _) as x -> x
+  | UnOpt (op, e) -> UnOpt (op, copy e)
+  | BinOpt (op, e1, e2) -> BinOpt (op, copy e1, copy e2)
+  | TriOpt (op, e1, e2, e3) -> TriOpt (op, copy e1, copy e2, copy e3)
+  | NOpt (op, es) -> NOpt (op, List.map es ~f:copy)
+  | Curry (x, es) -> Curry (x, List.map es ~f:copy)
+
 let is_val (v : t) : bool = match v with Val _ -> true | _ -> false
 let is_loc (v : t) : bool = match v with Val (Val.Loc _) -> true | _ -> false
 

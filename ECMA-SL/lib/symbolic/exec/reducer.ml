@@ -34,6 +34,7 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   match (op, v) with
   | op, Val v -> Val (Eval_op.eval_unop op v)
   | Neg, Symbolic (_, _) -> UnOpt (Neg, v)
+  | IsNaN, Symbolic _ -> Val (Bool false)
   | Not, v' -> UnOpt (Not, v)
   | Head, NOpt (ListExpr, a :: _) -> a
   | Tail, NOpt (ListExpr, _ :: tl) -> NOpt (ListExpr, tl)
@@ -48,7 +49,6 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | Typeof, NOpt (ArrExpr, _) -> Val (Type Type.ArrayType)
   | Typeof, Curry (_, _) -> Val (Type Type.CurryType)
   | Typeof, op ->
-      Printf.printf "save me please %s\n"(Expr.str op);
       let t = Sval_typing.type_of op in
       Val (Type (Option.value_exn t))
   | Sconcat, NOpt (ListExpr, vs) -> reduce_sconcat vs
@@ -82,8 +82,8 @@ let reduce_list_compare (list1 : Expr.t list) (list2 : Expr.t list) : Expr.t =
         | Val (Bool false) -> res
         | Val (Bool true) | BinOpt (_,_,_) -> 
             fold_until t1 t2 (concat acc res)
-        | _ -> failwith "ahahhh")
-      | _ -> failwith "impossible2"
+        | _ -> failwith "impossible comparison result")
+      | _ -> failwith "lists must have same length"
       
     in fold_until list1 list2 (Val (Bool true))
   else
@@ -113,6 +113,10 @@ let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
   | op, Val v1, Val v2 -> Val (Eval_op.eval_binopt_expr op v1 v2)
   | Eq, NOpt(v1_t, list1), NOpt(v2_t, list2) -> reduce_list_compare list1 list2
   | Eq, v, Val (Symbol _) when is_symbolic v -> Val (Bool false)
+  | Eq, v, Val (Flt x)
+    when is_symbolic v
+         && (Float.is_inf x || Float.(x = neg_infinity) || Float.is_nan x) ->
+      Val (Bool false)
   | Eq, NOpt (_, _), Val Null -> Val (Bool false)
   | Eq, v, Val Null when Caml.not (Expr.is_loc v) -> Val (Bool false)
   | Eq, v1, v2 when Caml.not (is_symbolic v1 || is_symbolic v2) ->

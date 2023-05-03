@@ -1,7 +1,7 @@
 let eval_build_ast_func = String_utils.make_fresh_var_generator "eval_func_"
 
 let parseJS (prog : Prog.t) (heap : 'a Heap.t) (str : string) : Val.t =
-  let base = Filename.basename !Flags.file in
+  let base = Filename.basename !Config.file in
   let input_file = "__parse_in_" ^ base ^ "__.js"
   and output_file = "__parse_out_" ^ base ^ "__.js" in
   Io.write_file input_file str;
