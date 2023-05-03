@@ -30,8 +30,8 @@ let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
         ("Typing Error: [type_of_unop] -> unsuported typing for unary \
           operation " ^ Operators.str_of_unopt op)
 
-let type_of_binop (op : Operators.bopt) (arg1 : Expr.t) (arg2 : Expr.t) (arg1_t : Type.t option)
-    (arg2_t : Type.t option) : Type.t option =  
+let type_of_binop (op : Operators.bopt) (arg1 : Expr.t) (arg2 : Expr.t)
+    (arg1_t : Type.t option) (arg2_t : Type.t option) : Type.t option =
   match op with
   | Operators.Plus -> bin_args_typing_arith arg1_t arg2_t
   | Operators.Minus -> bin_args_typing_arith arg1_t arg2_t
