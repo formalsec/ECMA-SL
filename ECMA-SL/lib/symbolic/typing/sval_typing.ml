@@ -1,23 +1,6 @@
-open Val
 open Args_typing_unop
 open Args_typing_binop
-
-let type_of_val (v : Val.t) : Type.t option =
-  match v with
-  | Void -> None
-  | Null -> Some Type.NullType
-  | Int _ -> Some Type.IntType
-  | Flt _ -> Some Type.FltType
-  | Bool _ -> Some Type.BoolType
-  | Str _ -> Some Type.StrType
-  | Loc _ -> Some Type.LocType
-  | List _ -> Some Type.ListType
-  | Arr _ -> Some Type.ArrayType
-  | Tuple _ -> Some Type.TupleType
-  | Curry _ -> Some Type.CurryType
-  | Byte _ -> Some Type.IntType
-  | Type _ -> Some Type.TypeType
-  | Symbol _ -> Some Type.SymbolType
+open Type_of_val
 
 let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
   match op with
@@ -47,8 +30,8 @@ let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
         ("Typing Error: [type_of_unop] -> unsuported typing for unary \
           operation " ^ Operators.str_of_unopt op)
 
-let type_of_binop (op : Operators.bopt) (arg1_t : Type.t option)
-    (arg2_t : Type.t option) : Type.t option =
+let type_of_binop (op : Operators.bopt) (arg1 : Expr.t) (arg2 : Expr.t) (arg1_t : Type.t option)
+    (arg2_t : Type.t option) : Type.t option =  
   match op with
   | Operators.Plus -> bin_args_typing_arith arg1_t arg2_t
   | Operators.Minus -> bin_args_typing_arith arg1_t arg2_t
@@ -63,7 +46,7 @@ let type_of_binop (op : Operators.bopt) (arg1_t : Type.t option)
   | Operators.Log_And -> bin_args_typing_logic arg1_t arg2_t
   | Operators.Log_Or -> bin_args_typing_logic arg1_t arg2_t
   | Operators.Tnth -> None
-  | Operators.Lnth -> None
+  | Operators.Lnth -> bin_args_typing_lnth arg1 arg2
   | Operators.InList -> bin_args_typing_inlist arg1_t
   | Operators.Lprepend -> None
   | Operators.Ladd -> None
@@ -82,10 +65,9 @@ let type_of_triop (op : Operators.topt) (arg1_t : Type.t option)
     (arg2_t : Type.t option) (arg3_t : Type.t option) : Type.t option =
   match op with
   | Operators.Ssubstr -> Some Type.StrType
-  | default ->
-      failwith
-        "Typing Error: [type_of_triop] -> unsuported typing for ternary \
-         operation "
+  | Operators.SsubstrU -> Some Type.StrType
+  | Operators.Lset -> Some Type.ListType
+  | Operators.Aset -> Some Type.ArrayType
 
 let rec type_of (v : Expr.t) : Type.t option =
   match v with
@@ -95,7 +77,7 @@ let rec type_of (v : Expr.t) : Type.t option =
       type_of_unop op arg_t
   | Expr.BinOpt (op, arg1, arg2) ->
       let arg1_t = type_of arg1 and arg2_t = type_of arg2 in
-      type_of_binop op arg1_t arg2_t
+      type_of_binop op arg1 arg2 arg1_t arg2_t
   | Expr.TriOpt (op, arg1, arg2, arg3) ->
       let arg1_t = type_of arg1
       and arg2_t = type_of arg2
