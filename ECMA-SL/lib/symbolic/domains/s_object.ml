@@ -43,7 +43,7 @@ let set_symbolic_list (o : 'a t) (key : vt) (data : 'a) : unit =
 let set_concrete_field (o : 'a t) (key : vt) (data : 'a) : unit =
   match key with
   | Expr.Val (Val.Str s) -> Hashtbl.set o.concrete_fields ~key:s ~data
-  | _ -> failwith "bad key"
+  | _ -> failwith ("bad key: " ^ (Expr.str key))
 
 let has_concrete_key (o : 'a t) (key : string) : bool =
   let res = Hashtbl.find o.concrete_fields key in
@@ -62,22 +62,40 @@ let set (o : 'a t) (key : vt) (data : 'a) : ('a t * pct) list =
     (* check if pct are true, only add those *)
     let true_obj = clone o in
     (* possible problem copying list *)
-    if remove_symb_field then true_obj.symbolic_fields <- field_list;
-    
-    set_fun true_obj key v;
-    (true_obj, true_pct)
+    if remove_symb_field then 
+      let _ = true_obj.symbolic_fields <- field_list in
+      let _ = Printf.printf "AAA \n" in
+
+      let _ = set_fun true_obj key v in
+      let _ = Printf.printf "AAA 2\n" in
+
+      (true_obj, true_pct)
+    else
+      let _ = Printf.printf "oops \n" in
+      let _ = set_fun true_obj curr_key v in
+      let _ = Printf.printf "oops 2\n" in
+
+      (true_obj, true_pct)
   in
 
-  let rec create_not_branch (acc : pct) (o : 'a t) (key : vt) (v : vt) (new_objects : ('a t * pct) list) : 
-    ('a t * pct) = 
+  let rec create_not_branch (acc : pct) (o : 'a t) (key : vt) (v : vt) (new_objects : ('a t * pct) list) 
+    : ('a t * pct) = 
+
     match new_objects with 
-    | [] -> 
+    | [] -> (
       let o' = clone o in
-      set_concrete_field o' key v;
-      (o', acc)
+      let _ = Printf.printf "oops i did it again\n" in
+      let _ =
+        match key with
+        | Expr.Symbolic (_, _) -> set_symbolic_list o' key v;
+        | Expr.Val (Val.Str s) -> set_concrete_field o' key v;
+        | _ -> failwith "oops"
+        in
+      let _ = Printf.printf "oops i did it again2\n" in
+      (o', acc))
     | (_, pc) :: t -> 
       let ne = Expr.UnOpt (Operators.Not, pc) in
-      create_not_branch (Expr.BinOpt(Operators.Log_And, ne, acc)) o key v t 
+      create_not_branch (Expr.BinOpt(Operators.Log_And, ne, acc)) o key v t
   in
     
   let rec create_branch_objects (key : vt) (new_val : vt)
@@ -117,10 +135,12 @@ let set (o : 'a t) (key : vt) (data : 'a) : ('a t * pct) list =
     *)
       if (Hashtbl.length o.concrete_fields + List.length o.symbolic_fields) = 0 then
         (
+          let _ = Printf.printf "i dont have fields\n" in
           set_symbolic_list o key data;
           [ (o, Expr.Val (Val.Bool true)) ]
         )
       else
+        let _ = Printf.printf "i have fields\n" in
         let symb_objs = create_branch_objects key data [] o.symbolic_fields [] set_symbolic_list false false in
         let concrete_objs = create_branch_objects key data [] (concrete_to_list o) symb_objs set_concrete_field true false in
         concrete_objs

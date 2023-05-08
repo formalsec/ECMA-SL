@@ -9,6 +9,7 @@ let rec print_os (os : (Expr.t S_object.t * Expr.t) list) (curr : int) : int =
       let _ = Printf.printf "Object%d: %s\nPCT: %s\n" curr s1 s2 in
       print_os t (curr + 1)
 in
+
 let o : Expr.t S_object.t = S_object.create () in
 let objects =
   S_object.set o (Expr.Val (Val.Str "key")) (Expr.Val (Val.Str "val"))
@@ -26,7 +27,7 @@ let objects2 =
 in
 let count2 = print_os objects2 0 in
 let o2, _ =
-  match count2 with 1 -> List.hd objects2 | _ -> failwith "no objects"
+  match count2 with 2 -> List.hd objects2 | _ -> failwith "wrong count"
 in
 let objects2 =
   S_object.set o2
@@ -35,7 +36,7 @@ let objects2 =
 in
 let count2 = print_os objects2 0 in
 let o2, _ =
-  match count2 with 1 -> List.hd objects2 | _ -> failwith "no objects"
+  match count2 with 3 -> List.hd objects2 | _ -> failwith "wrong count"
 in
 let objects3 =
   S_object.set o2 (Expr.Val (Val.Str "key2")) (Expr.Val (Val.Str "val2"))
