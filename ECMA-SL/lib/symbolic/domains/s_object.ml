@@ -64,17 +64,10 @@ let set (o : 'a t) (key : vt) (data : 'a) : ('a t * pct) list =
     (* possible problem copying list *)
     if remove_symb_field then 
       let _ = true_obj.symbolic_fields <- field_list in
-      let _ = Printf.printf "AAA \n" in
-
       let _ = set_fun true_obj key v in
-      let _ = Printf.printf "AAA 2\n" in
-
       (true_obj, true_pct)
     else
-      let _ = Printf.printf "oops \n" in
       let _ = set_fun true_obj curr_key v in
-      let _ = Printf.printf "oops 2\n" in
-
       (true_obj, true_pct)
   in
 
@@ -84,14 +77,12 @@ let set (o : 'a t) (key : vt) (data : 'a) : ('a t * pct) list =
     match new_objects with 
     | [] -> (
       let o' = clone o in
-      let _ = Printf.printf "oops i did it again\n" in
       let _ =
         match key with
         | Expr.Symbolic (_, _) -> set_symbolic_list o' key v;
         | Expr.Val (Val.Str s) -> set_concrete_field o' key v;
-        | _ -> failwith "oops"
+        | _ -> failwith "invalid key"
         in
-      let _ = Printf.printf "oops i did it again2\n" in
       (o', acc))
     | (_, pc) :: t -> 
       let ne = Expr.UnOpt (Operators.Not, pc) in
@@ -116,31 +107,12 @@ let set (o : 'a t) (key : vt) (data : 'a) : ('a t * pct) list =
 
   match key with
   | Expr.Symbolic (tp, v) -> (
-      (*
-    ambas limpas -> adicionar simb
-    
-    1 concreto, 0 symb -> criar um branch em que é igual ao symb, outro nao
-    2 concreto, 0 symb -> criar dois branches em que é igual ao symb, outro em que é diferente
-    0 concreto, 1 symb -> symbs iguais, symbs diferentes
-    0 concreto, 2 symb -> 2x symbs iguais, symbs diferentes
-    1 concreto, 1 symb -> =concreto, =symb, diff
-    2 concreto, 1 symb -> =conc1, =conc2, =symb, diff
-    1 concreto, 2 symb -> =conc, =symb1, =symb2, diff
-    
-    1) chamar create_branch_objects para os valores simbolicos (should work fine)
-    2) chamar create_branch_objects para os valores concretos
-
-    adaptar o create_branching para nem sempre dar set dos symbolic fields
-    possivelmente ter 2 funcs de create_branching que passo para o create_branching
-    *)
       if (Hashtbl.length o.concrete_fields + List.length o.symbolic_fields) = 0 then
         (
-          let _ = Printf.printf "i dont have fields\n" in
           set_symbolic_list o key data;
           [ (o, Expr.Val (Val.Bool true)) ]
         )
       else
-        let _ = Printf.printf "i have fields\n" in
         let symb_objs = create_branch_objects key data [] o.symbolic_fields [] set_symbolic_list false false in
         let concrete_objs = create_branch_objects key data [] (concrete_to_list o) symb_objs set_concrete_field true false in
         concrete_objs
