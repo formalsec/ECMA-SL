@@ -56,28 +56,44 @@ let concrete_to_list (o : 'a t) : (pct * 'a) list =
 let set (o : 'a t) (key : vt) (data : 'a) : ('a t * pct) list =
   (* Hashtbl.set o.concrete_fields ~key ~data *)
   let create_branching (field_list : (pct * 'a) list) (key : vt) (v : vt)
-      (curr_key : vt) (set_fun : 'a t -> vt -> 'a -> unit) =
+      (curr_key : vt) (set_fun : 'a t -> vt -> 'a -> unit) 
+      (remove_symb_field : bool) : 'a t * pct =
     let true_pct = Expr.BinOpt (Operators.Eq, key, curr_key) in
-    let false_pct = Expr.UnOpt (Operators.Not, true_pct) in
     (* check if pct are true, only add those *)
     let true_obj = clone o in
     (* possible problem copying list *)
-    true_obj.symbolic_fields <- field_list;
+    if remove_symb_field then true_obj.symbolic_fields <- field_list;
+    
     set_fun true_obj key v;
-    let false_obj = clone o in
-    set_fun false_obj key v;
-    [ (true_obj, true_pct); (false_obj, false_pct) ]
+    (true_obj, true_pct)
   in
+
+  let rec create_not_branch (acc : pct) (o : 'a t) (key : vt) (v : vt) (new_objects : ('a t * pct) list) : 
+    ('a t * pct) = 
+    match new_objects with 
+    | [] -> 
+      let o' = clone o in
+      set_concrete_field o' key v;
+      (o', acc)
+    | (_, pc) :: t -> 
+      let ne = Expr.UnOpt (Operators.Not, pc) in
+      create_not_branch (Expr.BinOpt(Operators.Log_And, ne, acc)) o key v t 
+  in
+    
   let rec create_branch_objects (key : vt) (new_val : vt)
       (seen : (pct * 'a) list) (val_list : (pct * 'a) list)
-      (acc : ('a t * pct) list) (set_fun : 'a t -> vt -> 'a -> unit) :
-      ('a t * pct) list =
+      (acc : ('a t * pct) list) (set_fun : 'a t -> vt -> 'a -> unit) 
+      (create_not : bool) (remove_symb_field : bool) : ('a t * pct) list =
     match val_list with
-    | [] -> acc
+    | [] -> 
+      if create_not then 
+        (create_not_branch (Expr.Val (Val.Bool true)) o key data acc) :: acc
+      else
+        acc 
     | (curr_key, v) :: t ->
-        let bs = create_branching (seen @ t) key new_val curr_key set_fun in
-        create_branch_objects key new_val ((curr_key, v) :: seen) t (acc @ bs)
-          set_fun
+        let bs = create_branching (seen @ t) key new_val curr_key set_fun remove_symb_field in
+        create_branch_objects key new_val ((curr_key, v) :: seen) t (bs :: acc)
+          set_fun create_not remove_symb_field
   in
 
   match key with
@@ -105,10 +121,9 @@ let set (o : 'a t) (key : vt) (data : 'a) : ('a t * pct) list =
           [ (o, Expr.Val (Val.Bool true)) ]
         )
       else
-        let symb_objs = create_branch_objects key data [] o.symbolic_fields [] set_symbolic_list in
-        let concrete_objs = create_branch_objects key data [] (concrete_to_list o) [] set_concrete_field in
-
-        symb_objs @ concrete_objs
+        let symb_objs = create_branch_objects key data [] o.symbolic_fields [] set_symbolic_list false false in
+        let concrete_objs = create_branch_objects key data [] (concrete_to_list o) symb_objs set_concrete_field true false in
+        concrete_objs
   )
   | Expr.Val (Val.Str s) ->
       (* has_concrete_key poupa ida ao solver? confirmar *)
@@ -117,7 +132,7 @@ let set (o : 'a t) (key : vt) (data : 'a) : ('a t * pct) list =
         [ (o, Expr.Val (Val.Bool true)) ]
       else
         create_branch_objects key data [] o.symbolic_fields []
-          set_concrete_field
+          set_concrete_field true true
   | _ -> failwith "invalid key type for object"
 
 (* in replace_entry [] o.symbolic_fields (key, data)  *)
