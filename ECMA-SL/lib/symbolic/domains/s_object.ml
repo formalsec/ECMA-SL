@@ -43,7 +43,7 @@ let set_symbolic_list (o : 'a t) (key : vt) (data : 'a) : unit =
 let set_concrete_field (o : 'a t) (key : vt) (data : 'a) : unit =
   match key with
   | Expr.Val (Val.Str s) -> Hashtbl.set o.concrete_fields ~key:s ~data
-  | _ -> failwith ("bad key: " ^ (Expr.str key))
+  | _ -> failwith ("bad key: " ^ Expr.str key)
 
 let has_concrete_key (o : 'a t) (key : string) : bool =
   let res = Hashtbl.find o.concrete_fields key in
@@ -53,16 +53,27 @@ let concrete_to_list (o : 'a t) : (pct * 'a) list =
   let s_l = Hashtbl.to_alist o.concrete_fields in
   List.map s_l ~f:(fun (k, v) -> (Expr.Val (Val.Str k), v))
 
+let get_symbolic_field (o : 'a t) (key : vt) : 'a option =
+  let rec aux (list : (vt * 'a) list) (key : vt) : 'a option =
+    match list with
+    | [] -> None
+    | (k, v) :: t ->
+      if Expr.equal k key then
+        Some v
+      else
+        aux t key
+  in aux o.symbolic_fields key
+
 let set (o : 'a t) (key : vt) (data : 'a) : ('a t * pct) list =
   (* Hashtbl.set o.concrete_fields ~key ~data *)
   let create_branching (field_list : (pct * 'a) list) (key : vt) (v : vt)
-      (curr_key : vt) (set_fun : 'a t -> vt -> 'a -> unit) 
+      (curr_key : vt) (set_fun : 'a t -> vt -> 'a -> unit)
       (remove_symb_field : bool) : 'a t * pct =
     let true_pct = Expr.BinOpt (Operators.Eq, key, curr_key) in
     (* check if pct are true, only add those *)
     let true_obj = clone o in
     (* possible problem copying list *)
-    if remove_symb_field then 
+    if remove_symb_field then
       let _ = true_obj.symbolic_fields <- field_list in
       let _ = set_fun true_obj key v in
       (true_obj, true_pct)
@@ -71,52 +82,57 @@ let set (o : 'a t) (key : vt) (data : 'a) : ('a t * pct) list =
       (true_obj, true_pct)
   in
 
-  let rec create_not_branch (acc : pct) (o : 'a t) (key : vt) (v : vt) (new_objects : ('a t * pct) list) 
-    : ('a t * pct) = 
-
-    match new_objects with 
-    | [] -> (
-      let o' = clone o in
-      let _ =
-        match key with
-        | Expr.Symbolic (_, _) -> set_symbolic_list o' key v;
-        | Expr.Val (Val.Str s) -> set_concrete_field o' key v;
-        | _ -> failwith "invalid key"
+  let rec create_not_branch (acc : pct) (o : 'a t) (key : vt) (v : vt)
+      (new_objects : ('a t * pct) list) : 'a t * pct =
+    match new_objects with
+    | [] ->
+        let o' = clone o in
+        let _ =
+          match key with
+          | Expr.Symbolic (_, _) -> set_symbolic_list o' key v
+          | Expr.Val (Val.Str s) -> set_concrete_field o' key v
+          | _ -> failwith "invalid key"
         in
-      (o', acc))
-    | (_, pc) :: t -> 
-      let ne = Expr.UnOpt (Operators.Not, pc) in
-      create_not_branch (Expr.BinOpt(Operators.Log_And, ne, acc)) o key v t
+        (o', acc)
+    | (_, pc) :: t ->
+        let ne = Expr.UnOpt (Operators.Not, pc) in
+        create_not_branch (Expr.BinOpt (Operators.Log_And, ne, acc)) o key v t
   in
-    
+
   let rec create_branch_objects (key : vt) (new_val : vt)
       (seen : (pct * 'a) list) (val_list : (pct * 'a) list)
-      (acc : ('a t * pct) list) (set_fun : 'a t -> vt -> 'a -> unit) 
+      (acc : ('a t * pct) list) (set_fun : 'a t -> vt -> 'a -> unit)
       (create_not : bool) (remove_symb_field : bool) : ('a t * pct) list =
     match val_list with
-    | [] -> 
-      if create_not then 
-        (create_not_branch (Expr.Val (Val.Bool true)) o key data acc) :: acc
-      else
-        acc 
+    | [] ->
+        if create_not then
+          create_not_branch (Expr.Val (Val.Bool true)) o key data acc :: acc
+        else acc
     | (curr_key, v) :: t ->
-        let bs = create_branching (seen @ t) key new_val curr_key set_fun remove_symb_field in
+        let bs =
+          create_branching (seen @ t) key new_val curr_key set_fun
+            remove_symb_field
+        in
         create_branch_objects key new_val ((curr_key, v) :: seen) t (bs :: acc)
           set_fun create_not remove_symb_field
   in
 
   match key with
-  | Expr.Symbolic (tp, v) -> (
-      if (Hashtbl.length o.concrete_fields + List.length o.symbolic_fields) = 0 then
-        (
-          set_symbolic_list o key data;
-          [ (o, Expr.Val (Val.Bool true)) ]
-        )
+  | Expr.Symbolic (tp, v) ->
+      if Hashtbl.length o.concrete_fields + List.length o.symbolic_fields = 0
+      then (
+        set_symbolic_list o key data;
+        [ (o, Expr.Val (Val.Bool true)) ])
       else
-        let symb_objs = create_branch_objects key data [] o.symbolic_fields [] set_symbolic_list false false in
-        let concrete_objs = create_branch_objects key data [] (concrete_to_list o) symb_objs set_concrete_field true false in
+        let symb_objs =
+          create_branch_objects key data [] o.symbolic_fields []
+            set_symbolic_list false false
+        in
+        let concrete_objs =
+          create_branch_objects key data [] (concrete_to_list o) symb_objs
+            set_concrete_field true false
+        in
         concrete_objs
-  )
   | Expr.Val (Val.Str s) ->
       (* has_concrete_key poupa ida ao solver? confirmar *)
       if has_concrete_key o s || List.length o.symbolic_fields = 0 then
@@ -125,12 +141,54 @@ let set (o : 'a t) (key : vt) (data : 'a) : ('a t * pct) list =
       else
         create_branch_objects key data [] o.symbolic_fields []
           set_concrete_field true true
-  | _ -> failwith "invalid key type for object"
+  | _ -> failwith "Invalid key expression."
 
 (* in replace_entry [] o.symbolic_fields (key, data)  *)
 
-let get (o : 'a t) (key : String.t) : 'a option =
-  Hashtbl.find o.concrete_fields key
+let get (o : 'a t) (key : vt) : (pct * 'a option) list =
+  let rec get_with_key (l : (vt * 'a) list) (key : vt) 
+    (acc : (pct * 'a option) list) : (pct * 'a option) list = 
+    match l with 
+    | [] -> acc 
+    | (k, v) :: t ->
+      let new_pct = Expr.BinOpt (Operators.Eq, key, k) in
+      get_with_key t key ((new_pct, Some v) :: acc)
+  in
+  let create_not_pct (acc : (pct * 'a option) list) : pct = 
+    List.fold acc ~init:(Expr.Val (Val.Bool true)) 
+    ~f:(
+      fun acc (pc, _) -> 
+        let ne = Expr.UnOpt (Operators.Not, pc) in
+        Expr.BinOpt (Operators.Log_And, ne, acc)
+    )
+  in
+  (* Hashtbl.find o.concrete_fields key *)
+  match key with
+  | Expr.Val (Val.Str s) -> 
+    let res = Hashtbl.find o.concrete_fields s in
+    (match res with
+    | Some v -> [ (Expr.Val (Val.Bool true), Some v) ]
+    | None -> 
+      (* Get objects for all possible symb equalities *)
+      let acc = get_with_key o.symbolic_fields key [] in
+      (* Does not match any symbolic value, create new pct *)
+      let new_pct = create_not_pct acc in
+      (new_pct, None) :: acc
+    )
+  | Expr.Symbolic(_, _) -> 
+    let res = get_symbolic_field o key in
+    (match res with
+    | Some v -> [ (Expr.Val (Val.Bool true), Some v) ]
+    | None -> 
+      (* Get objects for all possible symb equalities *)
+      let acc = get_with_key o.symbolic_fields key [] in
+      (* Get objects for all possible concrete equalities *)
+      let acc = get_with_key (concrete_to_list o) key acc in
+      (* Does not match any symbolic value, create new pct *)
+      let new_pct = create_not_pct acc in
+      (new_pct, None) :: acc
+    )
+  | _ -> failwith "Invalid key expression."
 
 let delete (o : 'a t) (f : String.t) : unit = Hashtbl.remove o.concrete_fields f
 
