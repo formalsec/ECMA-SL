@@ -1,3 +1,5 @@
+open Core
+
 type t = {
   file : string;
   paths : int;
@@ -9,10 +11,10 @@ type t = {
   error_testsuite : testsuite;
 }
 
-and testcase = (Z3.Sort.sort * Z3.Symbol.symbol * Z3.Expr.expr option) list
+and testcase = (string * string * string) list
 and testsuite = testcase list
 
-let create file paths errors unknowns analysis solver : t =
+let create ~file ~paths ~errors ~unknowns ~analysis ~solver : t =
   {
     file;
     paths;
@@ -44,24 +46,17 @@ let report_to_json (report : t) : string =
  *)
 let testsuite_to_json (report : t) : (string * string) list =
   let testcase_to_json (testcase : testcase) =
-    List.map
-      (fun (sort, name, interp) ->
-        let sort' = Z3.Sort.to_string sort
-        and name' = Z3.Symbol.to_string name
-        and interp' = Option.map_default Encoding.string_of_value "" interp in
-        "{ \"type\" : \"" ^ sort' ^ "\", \"name\" : \"" ^ name'
-        ^ "\", \"value\" : \"" ^ interp' ^ "\" }")
-      testcase
+    List.map testcase ~f:(fun (sort, name, interp) ->
+        "{ \"type\" : \"" ^ sort ^ "\", \"name\" : \"" ^ name
+        ^ "\", \"value\" : \"" ^ interp ^ "\" }")
   in
-  List.mapi
-    (fun i test ->
-      let test_str = "[ " ^ String.concat ", " (testcase_to_json test) ^ " ]" in
+  List.mapi report.final_testsuite ~f:(fun i test ->
+      let test_str =
+        "[ " ^ String.concat ~sep:", " (testcase_to_json test) ^ " ]"
+      in
       ("testcase-" ^ string_of_int i ^ ".json", test_str))
-    report.final_testsuite
-  @ List.mapi
-      (fun i test ->
+  @ List.mapi report.error_testsuite ~f:(fun i test ->
         let test_str =
-          "[ " ^ String.concat ", " (testcase_to_json test) ^ " ]"
+          "[ " ^ String.concat ~sep:", " (testcase_to_json test) ^ " ]"
         in
         ("witness-" ^ string_of_int i ^ ".json", test_str))
-      report.error_testsuite

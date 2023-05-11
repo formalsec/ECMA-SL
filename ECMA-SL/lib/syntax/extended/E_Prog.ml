@@ -33,8 +33,8 @@ let create (imports : string list) (funcs : E_Func.t list)
     {
       file_name = "temporary name";
       imports;
-      funcs = Hashtbl.create !Flags.default_hashtbl_sz;
-      macros = Hashtbl.create !Flags.default_hashtbl_sz;
+      funcs = Hashtbl.create !Config.default_hashtbl_sz;
+      macros = Hashtbl.create !Config.default_hashtbl_sz;
     }
   in
   add_funcs prog funcs;

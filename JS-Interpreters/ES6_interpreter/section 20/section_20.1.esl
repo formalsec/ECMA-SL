@@ -575,8 +575,6 @@ function NumberPrototypeToPrecision(global, this, NewTarget, strict, items) {
   if ((p < 1.) ||| (p > 21.)) {
     throw RangeErrorConstructorInternal()
   };
-  print "DEBUG NumberPrototypeToPrecision 2";
-  print p;
   return to_precision(x, int_of_float(p))
 };
 

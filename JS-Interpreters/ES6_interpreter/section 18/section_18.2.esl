@@ -19,8 +19,6 @@ function PerformEval(x, evalRealm, strictCaller, direct) {
 	 the goal symbol Script. If the parse fails or any early errors are
 	 detected, throw a SyntaxError exception (but see also clause 16). */
   script := parseAsProgram(x, strictCaller);
-	print "DEBUG PERFORM EVAL 0";
-	print script;
   if ("message" in_obj script) {
 	  throw SyntaxErrorConstructorInternal()
   };
@@ -163,8 +161,6 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
 		repeat {
 			thisEnvRec := thisLex.EnvRec;
 			if (!("bindingObject" in_obj thisEnvRec)) {
-				print "DEBUG YOYOYO ->";
-				print thisEnvRec;
 				foreach (name : varNames) {
 					if ({thisEnvRec.HasBinding}(thisEnvRec, name)) {
 						throw SyntaxErrorConstructorInternal()
@@ -234,8 +230,6 @@ function EvalDeclarationInstantiation(body, varEnv, lexEnv, strict, isGlobalEnvR
   i := 0;
   while (i < functionsToInitialize_l) {
 	f := l_nth(functionsToInitialize, i);
-	print "DEBUG FUNC TO INIT";
-	print f;
 	fn := f.id.name;
 	fo := JS_Interpreter_FunctionDeclaration(f, lexEnv);
 	if (isGlobalEnvRec) {

@@ -1,169 +1,180 @@
+open Core
+open Encoding
+open Expr
 open Func
 open State
 open Source
-module Crash = Error.Make ()
-module Invalid_arg = Error.Make ()
+open Reducer
+module Crash = Err.Make ()
+module Invalid_arg = Err.Make ()
 
 exception Crash = Crash.Error
 exception Invalid_arg = Invalid_arg.Error
 
-let loc (at : region) (v : Sval.t) : string =
-  match v with
-  | Sval.Loc l -> l
-  | _ -> Invalid_arg.error at "Sval is not a 'loc' expression"
+let loc (at : region) (e : Expr.t) : string =
+  match e with
+  | Val (Val.Loc l) -> l
+  | _ ->
+      Invalid_arg.error at "Expr '" ^ Expr.str e ^ "' is not a loc expression"
 
-let field (at : region) (v : Sval.t) : string =
+let field (at : region) (v : Expr.t) : string =
   match v with
-  | Sval.Str f -> f
-  | _ -> Invalid_arg.error at "Sval is not a 'field' expression"
+  | Val (Val.Str f) -> f
+  | _ ->
+      print_endline (Expr.str v);
+      Invalid_arg.error at "Sval is not a 'field' expression"
 
-let func (at : region) (v : Sval.t) : string * Sval.t list =
+let func (at : region) (v : Expr.t) : string * Expr.t list =
   match v with
-  | Sval.Str x -> (x, [])
-  | Sval.Curry (x, vs) -> (x, vs)
+  | Val (Val.Str x) -> (x, [])
+  | Curry (Val (Val.Str x), vs) -> (x, vs)
   | _ -> Invalid_arg.error at "Sval is not a 'func' identifier"
 
-let rec eval_expression ?(at = no_region) (store : Sstore.t) (e : Expr.t) :
-    Sval.t =
-  try
-    match e with
-    | Expr.Val n -> Sval.of_val n
-    | Expr.Var x -> (
-        match Sstore.find_opt store x with
-        | Some v -> v
-        | None -> Crash.error at ("Cannot find var '" ^ x ^ "'"))
-    | Expr.UnOpt (op, e) ->
-        let v = eval_expression ~at store e in
-        EvalOperators.eval_unop op v
-    | Expr.BinOpt (op, e1, e2) ->
-        let v1 = eval_expression ~at store e1
-        and v2 = eval_expression ~at store e2 in
-        EvalOperators.eval_binop op v1 v2
-    | Expr.TriOpt (op, e1, e2, e3) ->
-        let v1 = eval_expression ~at store e1
-        and v2 = eval_expression ~at store e2
-        and v3 = eval_expression ~at store e3 in
-        EvalOperators.eval_triop op v1 v2 v3
-    | Expr.NOpt (op, es) ->
-        let vs = List.map (eval_expression ~at store) es in
-        EvalOperators.eval_nop op vs
-    | Expr.Curry (f, es) -> (
-        let f' = eval_expression ~at store f
-        and vs = List.map (eval_expression ~at store) es in
-        match f' with
-        | Sval.Str s -> Sval.Curry (s, vs)
-        | _ -> invalid_arg "Sval is not a 'Curry' identifier")
-    | Expr.Symbolic (t, x) ->
-        let x' =
-          match eval_expression ~at store x with
-          | Sval.Str s -> s
-          | _ -> invalid_arg "Sval is not a 'Symbolic' identifier"
-        in
-        Sval.Symbolic (t, x')
-  with Invalid_argument e -> Invalid_arg.error at e
+let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config)
+    (st : Symb_stmt.t) : Sstore.t =
+  match st with
+  | Symb_stmt.IsSymbolic (name, e) ->
+      let e' = reduce_expr ~at store e in
+      Sstore.add_exn store name (Val (Val.Bool (Expr.is_symbolic e')))
+  | Symb_stmt.IsSat (name, e) ->
+      let e' = Translator.translate (reduce_expr ~at store e) in
+      let sat = Batch.check_sat c.solver (e' :: c.pc) in
+      Sstore.add_exn store name (Val (Val.Bool sat))
+  | Symb_stmt.Maximize (name, e) ->
+      let e' = Translator.translate (reduce_expr ~at store e) in
+      let v =
+        Option.map ~f:Translator.expr_of_value
+          (Optimizer.maximize c.opt e' c.pc)
+      in
+      Sstore.add_exn store name (Option.value ~default:(Val Val.Null) v)
+  | Symb_stmt.Minimize (name, e) ->
+      let e' = Translator.translate (reduce_expr ~at store e) in
+      let v =
+        Option.map ~f:Translator.expr_of_value
+          (Optimizer.minimize c.opt e' c.pc)
+      in
+      Sstore.add_exn store name (Option.value ~default:(Val Val.Null) v)
+  | Symb_stmt.Eval (name, e) ->
+      let e' = Translator.translate (reduce_expr ~at store e) in
+      let v =
+        Option.map ~f:Translator.expr_of_value (Batch.eval c.solver e' c.pc)
+      in
+      Sstore.add_exn store name (Option.value ~default:(Val Val.Null) v)
 
 let step (c : config) : config list =
-  let { prog; code; state; pc; solver } = c in
+  let open Stmt in
+  let { prog; code; state; pc; solver; opt } = c in
   let heap, store, stack, f = state in
   let stmts =
     match code with
     | Cont stmts -> stmts
-    | _ -> Crash.error no_region "Empty continuation!"
+    | _ -> Crash.error no_region "step: Empty continuation!"
   in
-  let s = List.hd stmts in
+  let s = List.hd_exn stmts in
   match s.it with
-  | Stmt.Skip -> [ update c (Cont (List.tl stmts)) state pc ]
-  | Stmt.Merge -> [ update c (Cont (List.tl stmts)) state pc ]
-  | Stmt.Exception err ->
-      prerr_endline (Source.string_of_region s.at ^ ": Exception: " ^ err);
-      [ update c (Error (Some (Sval.Str err))) state pc ]
-  | Stmt.Print e ->
-      Logging.print_endline (lazy (Sval.str (eval_expression ~at:s.at store e)));
-      [ update c (Cont (List.tl stmts)) state pc ]
-  | Stmt.Fail e ->
-      [ update c (Error (Some (eval_expression ~at:s.at store e))) state pc ]
-  | Stmt.Abort e ->
-      [ update c (Final (Some (eval_expression ~at:s.at store e))) state pc ]
-  | Stmt.Assume e when Sval.Bool true = eval_expression ~at:s.at store e ->
-      [ update c (Cont (List.tl stmts)) state pc ]
-  | Stmt.Assume e when Sval.Bool false = eval_expression ~at:s.at store e -> []
-  | Stmt.Assume e -> (
-      let v = eval_expression ~at:s.at store e in
-      try
-        if not (Encoding.check solver (v :: pc)) then []
-        else [ update c (Cont (List.tl stmts)) state (v :: pc) ]
-      with
-      | Encoding.Unknown -> [ update c (Unknown (Some v)) state (v :: pc) ]
-      | Encoding.Error e -> Crash.error s.at e)
-  | Stmt.Assert e when Sval.Bool true = eval_expression ~at:s.at store e ->
-      [ update c (Cont (List.tl stmts)) state pc ]
-  | Stmt.Assert e when Sval.Bool false = eval_expression ~at:s.at store e ->
-      [ update c (Failure (Some (eval_expression ~at:s.at store e))) state pc ]
-  | Stmt.Assert e -> (
-      let v = eval_expression ~at:s.at store e in
-      let v' = eval_expression ~at:s.at store (Expr.UnOpt (Operators.Not, e)) in
-      try
-        if Encoding.check solver (v' :: pc) then
+  | Skip -> [ update c (Cont (List.tl_exn stmts)) state pc ]
+  | Merge -> [ update c (Cont (List.tl_exn stmts)) state pc ]
+  | Exception err ->
+      fprintf stderr "%s: Exception: %s\n" (Source.string_of_region s.at) err;
+      [ update c (Error (Some (Val (Val.Str err)))) state pc ]
+  | Print e ->
+      Logging.print_endline (lazy (Expr.str (reduce_expr ~at:s.at store e)));
+      [ update c (Cont (List.tl_exn stmts)) state pc ]
+  | Fail e ->
+      [ update c (Error (Some (reduce_expr ~at:s.at store e))) state pc ]
+  | Abort e ->
+      [ update c (Final (Some (reduce_expr ~at:s.at store e))) state pc ]
+  | Assume e
+    when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
+      [ update c (Cont (List.tl_exn stmts)) state pc ]
+  | Assume e
+    when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
+      []
+  | Assume e ->
+      let e' = reduce_expr ~at:s.at store e in
+      let v = Translator.translate e' in
+      let cont =
+        if not (Batch.check_sat solver (v :: pc)) then []
+        else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
+      in
+      Logging.print_endline
+        (lazy
+          ("assume (" ^ Expr.str e' ^ ") = "
+          ^ Bool.to_string (List.length cont > 0)));
+      cont
+  | Stmt.Assert e
+    when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
+      [ update c (Cont (List.tl_exn stmts)) state pc ]
+  | Stmt.Assert e
+    when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
+      printf "%s = %s\n" (Expr.str e) (Expr.str (reduce_expr ~at:s.at store e));
+      [ update c (Failure (Some (reduce_expr ~at:s.at store e))) state pc ]
+  | Stmt.Assert e ->
+      let v = reduce_expr ~at:s.at store e in
+      let v' = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, e)) in
+      let cont =
+        if Batch.check_sat solver (Translator.translate v' :: pc) then
           [ update c (Failure (Some v)) state pc ]
-        else [ update c (Cont (List.tl stmts)) state pc ]
-      with
-      | Encoding.Unknown -> [ update c (Unknown (Some v)) state pc ]
-      | Encoding.Error e -> Crash.error s.at e)
+        else [ update c (Cont (List.tl_exn stmts)) state pc ]
+      in
+      Logging.print_endline
+        (lazy
+          ("assert (" ^ Expr.str v ^ ") = " ^ Bool.to_string (is_cont c.code)));
+      cont
   | Stmt.Assign (x, e) ->
-      let v = eval_expression ~at:s.at store e in
+      let v = reduce_expr ~at:s.at store e in
       [
         update c
-          (Cont (List.tl stmts))
-          (heap, Sstore.add store x v, stack, f)
+          (Cont (List.tl_exn stmts))
+          (heap, Sstore.add_exn store x v, stack, f)
           pc;
       ]
-  | Stmt.Block blk -> [ update c (Cont (blk @ List.tl stmts)) state pc ]
-  | Stmt.If (br, blk, _) when Sval.Bool true = eval_expression ~at:s.at store br
-    ->
+  | Stmt.Block blk -> [ update c (Cont (blk @ List.tl_exn stmts)) state pc ]
+  | Stmt.If (br, blk, _)
+    when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store br) ->
       let cont =
         match blk.it with
-        | Stmt.Block b -> b @ ((Stmt.Merge @@ blk.at) :: List.tl stmts)
+        | Stmt.Block b -> b @ ((Stmt.Merge @@ blk.at) :: List.tl_exn stmts)
         | _ -> Crash.error s.at "Malformed if statement 'then' block!"
       in
       [ update c (Cont cont) state pc ]
   | Stmt.If (br, _, blk)
-    when Sval.Bool false = eval_expression ~at:s.at store br ->
+    when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store br) ->
       let cont =
-        let t = List.tl stmts in
+        let t = List.tl_exn stmts in
         match blk with None -> t | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: t
       in
       [ update c (Cont cont) state pc ]
   | Stmt.If (br, blk1, blk2) ->
-      let br_t = eval_expression ~at:s.at store br
-      and br_f =
-        eval_expression ~at:s.at store (Expr.UnOpt (Operators.Not, br))
-      in
+      let br_t = reduce_expr ~at:s.at store br
+      and br_f = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, br)) in
+      Logging.print_endline
+        (lazy
+          (sprintf "%s: If (%s)" (Source.string_of_region s.at) (Expr.str br_t)));
+      let br_t' = Translator.translate br_t
+      and br_f' = Translator.translate br_f in
       let then_branch =
         try
-          if not (Encoding.check solver (br_t :: pc)) then []
+          if not (Batch.check_sat solver (br_t' :: pc)) then []
           else
-            let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl stmts in
-            [ update c (Cont stmts') state (br_t :: pc) ]
-        with
-        | Encoding.Unknown ->
-            [ update c (Unknown (Some br_t)) state (br_t :: pc) ]
-        | Encoding.Error e -> Crash.error s.at e
+            let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl_exn stmts in
+            [ update c (Cont stmts') state (br_t' :: pc) ]
+        with Batch.Unknown ->
+          [ update c (Unknown (Some br_t)) state (br_t' :: pc) ]
       in
       let else_branch =
         try
-          if not (Encoding.check solver (br_f :: pc)) then []
+          if not (Batch.check_sat solver (br_f' :: pc)) then []
           else
             let state' = (Heap.clone heap, store, stack, f) in
             let stmts' =
               match blk2 with
-              | None -> List.tl stmts
-              | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl stmts
+              | None -> List.tl_exn stmts
+              | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl_exn stmts
             in
-            [ update c (Cont stmts') state' (br_f :: pc) ]
-        with
-        | Encoding.Unknown ->
-            [ update c (Unknown (Some br_f)) state (br_f :: pc) ]
-        | Encoding.Error e -> Crash.error s.at e
+            [ update c (Cont stmts') state' (br_f' :: pc) ]
+        with Batch.Unknown ->
+          [ update c (Unknown (Some br_f)) state (br_f' :: pc) ]
       in
       then_branch @ else_branch
   | Stmt.While (br, blk) ->
@@ -172,27 +183,29 @@ let step (c : config) : config list =
       in
       [
         update c
-          (Cont ((Stmt.If (br, blk', None) @@ s.at) :: List.tl stmts))
+          (Cont ((Stmt.If (br, blk', None) @@ s.at) :: List.tl_exn stmts))
           state pc;
       ]
   | Stmt.Return e -> (
-      let v = eval_expression ~at:s.at store e in
+      let v = reduce_expr ~at:s.at store e in
       let frame, stack' = Call_stack.pop stack in
       match frame with
       | Call_stack.Intermediate (stmts', store', x, f') ->
           [
-            update c (Cont stmts') (heap, Sstore.add store' x v, stack', f') pc;
+            update c (Cont stmts')
+              (heap, Sstore.add_exn store' x v, stack', f')
+              pc;
           ]
       | Call_stack.Toplevel -> [ update c (Final (Some v)) state pc ])
   | Stmt.AssignCall (x, e, es) ->
-      let f', vs = func s.at (eval_expression ~at:s.at store e) in
-      let vs' = vs @ List.map (eval_expression ~at:s.at store) es in
+      let f', vs = func s.at (reduce_expr ~at:s.at store e) in
+      let vs' = vs @ List.map ~f:(reduce_expr ~at:s.at store) es in
       let func = Prog.get_func prog f' in
       let stack' =
         Call_stack.push stack
-          (Call_stack.Intermediate (List.tl stmts, store, x, f))
+          (Call_stack.Intermediate (List.tl_exn stmts, store, x, f))
       in
-      let store' = Sstore.create (List.combine (Prog.get_params prog f') vs') in
+      let store' = Sstore.create (List.zip_exn (Prog.get_params prog f') vs') in
       [ update c (Cont [ func.body ]) (heap, store', stack', f') pc ]
   | Stmt.AssignECall (x, y, es) ->
       Crash.error s.at "'AssignECall' not implemented!"
@@ -201,74 +214,83 @@ let step (c : config) : config list =
       let loc = Heap.insert heap obj in
       [
         update c
-          (Cont (List.tl stmts))
-          (heap, Sstore.add store x (Sval.Loc loc), stack, f)
+          (Cont (List.tl_exn stmts))
+          (heap, Sstore.add_exn store x (Val (Val.Loc loc)), stack, f)
           pc;
       ]
   | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
-      let loc = loc s.at (eval_expression ~at:s.at store e_loc)
-      and field = field s.at (eval_expression ~at:s.at store e_field) in
-      let v = Sval.Bool (Option.is_some (Heap.get_field heap loc field)) in
+      let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
+      and field = field s.at (reduce_expr ~at:s.at store e_field) in
+      let v = Val (Val.Bool (Option.is_some (Heap.get_field heap loc field))) in
       [
         update c
-          (Cont (List.tl stmts))
-          (heap, Sstore.add store x v, stack, f)
+          (Cont (List.tl_exn stmts))
+          (heap, Sstore.add_exn store x v, stack, f)
           pc;
       ]
   | Stmt.AssignObjToList (x, e) ->
-      let loc = loc s.at (eval_expression ~at:s.at store e) in
+      let loc = loc s.at (reduce_expr ~at:s.at store e) in
       let v =
         match Heap.get heap loc with
         | None -> Crash.error s.at ("'" ^ loc ^ "' not found in heap")
         | Some obj ->
-            Sval.List
-              (List.map
-                 (fun (f, v) -> Sval.(Tuple (Str f :: [ v ])))
-                 (Object.to_list obj))
+            NOpt
+              ( Operators.ListExpr,
+                List.map
+                  ~f:(fun (f, v) ->
+                    NOpt (Operators.TupleExpr, Val (Val.Str f) :: [ v ]))
+                  (Object.to_list obj) )
       in
       [
         update c
-          (Cont (List.tl stmts))
-          (heap, Sstore.add store x v, stack, f)
+          (Cont (List.tl_exn stmts))
+          (heap, Sstore.add_exn store x v, stack, f)
           pc;
       ]
   | Stmt.AssignObjFields (x, e) ->
-      let loc = loc s.at (eval_expression ~at:s.at store e) in
+      let loc = loc s.at (reduce_expr ~at:s.at store e) in
       let v =
         match Heap.get heap loc with
         | None -> Crash.error s.at ("'" ^ loc ^ "' not found in heap")
         | Some obj ->
-            Sval.List (List.map (fun f -> Sval.Str f) (Object.get_fields obj))
+            NOpt
+              ( Operators.ListExpr,
+                List.map ~f:(fun f -> Val (Val.Str f)) (Object.get_fields obj)
+              )
       in
       [
         update c
-          (Cont (List.tl stmts))
-          (heap, Sstore.add store x v, stack, f)
+          (Cont (List.tl_exn stmts))
+          (heap, Sstore.add_exn store x v, stack, f)
           pc;
       ]
   | Stmt.FieldAssign (e_loc, e_field, e_v) ->
-      let loc = loc s.at (eval_expression ~at:s.at store e_loc)
-      and field = field s.at (eval_expression ~at:s.at store e_field)
-      and v = eval_expression ~at:s.at store e_v in
+      let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
+      and field = field s.at (reduce_expr ~at:s.at store e_field)
+      and v = reduce_expr ~at:s.at store e_v in
       Heap.set_field heap loc field v;
-      [ update c (Cont (List.tl stmts)) state pc ]
+      [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Stmt.FieldDelete (e_loc, e_field) ->
-      let loc = loc s.at (eval_expression ~at:s.at store e_loc)
-      and field = field s.at (eval_expression ~at:s.at store e_field) in
+      let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
+      and field = field s.at (reduce_expr ~at:s.at store e_field) in
       Heap.delete_field heap loc field;
-      [ update c (Cont (List.tl stmts)) state pc ]
+      [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Stmt.FieldLookup (x, e_loc, e_field) ->
-      let loc = loc s.at (eval_expression ~at:s.at store e_loc)
-      and field = field s.at (eval_expression ~at:s.at store e_field) in
+      let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
+      and field = field s.at (reduce_expr ~at:s.at store e_field) in
       let v =
-        Option.default (Sval.Symbol "undefined") (Heap.get_field heap loc field)
+        Option.value ~default:(Val (Val.Symbol "undefined"))
+          (Heap.get_field heap loc field)
       in
       [
         update c
-          (Cont (List.tl stmts))
-          (heap, Sstore.add store x v, stack, f)
+          (Cont (List.tl_exn stmts))
+          (heap, Sstore.add_exn store x v, stack, f)
           pc;
       ]
+  | Stmt.SymbStmt symb_s ->
+      let store' = eval_api_call ~at:s.at store c symb_s in
+      [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
 
 module type WorkList = sig
   type 'a t
@@ -287,13 +309,17 @@ module TreeSearch (L : WorkList) = struct
     let w = L.create () in
     L.push c w;
     let out = ref [] and err = ref false in
+    Logging.print_endline (lazy "---- Start ----");
     while not (!err || L.is_empty w) do
       let c = L.pop w in
       match c.code with
-      | Cont [] -> Crash.error Source.no_region "Empty continuation!"
-      | Cont _ -> List.iter (fun c -> L.push c w) (step c)
-      | Error v | Final v | Unknown v -> out := c :: !out
+      | Cont [] -> Crash.error Source.no_region "eval: Empty continuation!"
+      | Cont _ -> List.iter ~f:(fun c -> L.push c w) (step c)
+      | Error v | Final v | Unknown v ->
+          if L.is_empty w then Logging.print_endline (lazy "---- End ---- ");
+          out := c :: !out
       | Failure v ->
+          Logging.print_endline (lazy "---- Failure ----");
           err := true;
           out := c :: !out
     done;
@@ -316,8 +342,8 @@ module RandArray : WorkList = struct
     v
 end
 
-module DFS = TreeSearch (Stack)
-module BFS = TreeSearch (Queue)
+module DFS = TreeSearch (Caml.Stack)
+module BFS = TreeSearch (Caml.Queue)
 module RND = TreeSearch (RandArray)
 
 (* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
@@ -326,13 +352,19 @@ let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
   let heap = Heap.create ()
   and store = Sstore.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
+  let solver =
+    let s = Batch.create () in
+    if !Config.axioms then Batch.set_default_axioms s;
+    s
+  in
   let initial_config =
     {
       prog;
       code = Cont [ func.body ];
       state = (heap, store, stack, func.name);
       pc = [];
-      solver = Encoding.mk_solver ();
+      solver;
+      opt = Optimizer.create ();
     }
   in
   eval initial_config
@@ -341,25 +373,32 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
   let time_analysis = ref 0.0 in
   let f = Prog.get_func prog f in
   let eval =
-    match !Flags.policy with
+    match !Config.policy with
     | "breadth" -> BFS.eval
     | "depth" -> DFS.eval
     | "random" -> RND.eval
     | _ ->
-        Crash.error f.body.at ("Invalid search policy '" ^ !Flags.policy ^ "'")
+        Crash.error f.body.at ("Invalid search policy '" ^ !Config.policy ^ "'")
   in
   let out_configs =
     Time_utils.time_call time_analysis (fun () -> invoke prog f eval)
   in
-  let final_configs = List.filter (fun c -> is_final c.code) out_configs
-  and error_configs = List.filter (fun c -> is_fail c.code) out_configs in
+  let final_configs = List.filter ~f:(fun c -> is_final c.code) out_configs
+  and error_configs = List.filter ~f:(fun c -> is_fail c.code) out_configs in
   let final_testsuite, error_testsuite =
-    ( List.map (fun c -> Encoding.model c.solver c.pc) final_configs,
-      List.map (fun c -> Encoding.model c.solver c.pc) error_configs )
+    let f c =
+      ignore (Batch.check_sat c.solver c.pc);
+      let symbols = Expression.get_symbols c.pc in
+      List.map (Batch.value_binds ~symbols c.solver) ~f:(fun (s, v) ->
+          ( "NA",
+            Encoding.Symbol.to_string s,
+            Expression.to_string (Expression.Val v) ))
+    in
+    (List.map ~f final_configs, List.map ~f error_configs)
   in
   let report =
-    Report.create !Flags.file (List.length out_configs)
-      (List.length error_configs)
-      0 !time_analysis !Encoding.time_solver
+    Report.create ~file:!Config.file ~paths:(List.length out_configs)
+      ~errors:(List.length error_configs)
+      ~unknowns:0 ~analysis:!time_analysis ~solver:!Batch.solver_time
   in
   Report.add_testsuites report ~final:final_testsuite ~error:error_testsuite

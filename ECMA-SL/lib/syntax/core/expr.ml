@@ -1,3 +1,5 @@
+open Core
+
 type t =
   | Val of Val.t
   | Var of string
@@ -8,8 +10,46 @@ type t =
   | NOpt of Operators.nopt * t list
   | Curry of t * t list
 
+let rec equal (e1 : t) (e2 : t) : bool =
+  match (e1, e2) with
+  | Val v1, Val v2 -> Val.equal v1 v2
+  | Var x1, Var x2 -> String.equal x1 x2
+  | Symbolic (t1, e1'), Symbolic (t2, e2') -> Type.(t1 = t2) && equal e1' e2'
+  | UnOpt (op1, e1'), UnOpt (op2, e2') -> Caml.( = ) op1 op2 && equal e1' e2'
+  | BinOpt (op1, e1', e2'), BinOpt (op2, e3', e4') ->
+      Caml.( = ) op1 op2 && equal e1' e3' && equal e2' e4'
+  | TriOpt (op1, e1', e2', e3'), TriOpt (op2, e4', e5', e6') ->
+      Caml.( = ) op1 op2 && equal e1' e4' && equal e2' e5' && equal e3' e6'
+  | NOpt (op1, es1), NOpt (op2, es2) ->
+      Caml.( = ) op1 op2 && List.equal equal es1 es2
+  | Curry (x1, es1), Curry (x2, es2) -> equal x1 x2 && List.equal equal es1 es2
+  | _ -> false
+
+let rec copy (e : t) : t =
+  match e with
+  | Val v -> Val (Val.copy v)
+  | (Var _ | Symbolic _) as x -> x
+  | UnOpt (op, e) -> UnOpt (op, copy e)
+  | BinOpt (op, e1, e2) -> BinOpt (op, copy e1, copy e2)
+  | TriOpt (op, e1, e2, e3) -> TriOpt (op, copy e1, copy e2, copy e3)
+  | NOpt (op, es) -> NOpt (op, List.map es ~f:copy)
+  | Curry (x, es) -> Curry (x, List.map es ~f:copy)
+
+let is_val (v : t) : bool = match v with Val _ -> true | _ -> false
+let is_loc (v : t) : bool = match v with Val (Val.Loc _) -> true | _ -> false
+
+let rec is_symbolic (v : t) : bool =
+  match v with
+  | Val _ | Var _ -> false
+  | Symbolic _ -> true
+  | UnOpt (_, v) -> is_symbolic v
+  | BinOpt (_, v1, v2) -> is_symbolic v1 || is_symbolic v2
+  | TriOpt (_, v1, v2, v3) -> List.exists ~f:is_symbolic [ v1; v2; v3 ]
+  | NOpt (_, es) | Curry (_, es) ->
+      (not (List.is_empty es)) && List.exists es ~f:is_symbolic
+
 let rec str (e : t) : string =
-  let str_es es = String.concat ", " (List.map str es) in
+  let str_es es = String.concat ~sep:", " (List.map ~f:str es) in
   match e with
   | Val n -> Val.str n
   | Var x -> x
@@ -17,7 +57,7 @@ let rec str (e : t) : string =
   | BinOpt (op, e1, e2) -> Operators.str_of_binopt op (str e1) (str e2)
   | TriOpt (op, e1, e2, e3) ->
       Operators.str_of_triopt op (str e1) (str e2) (str e3)
-  | NOpt (op, es) -> Operators.str_of_nopt op (List.map str es)
+  | NOpt (op, es) -> Operators.str_of_nopt op (List.map ~f:str es)
   | Curry (f, es) -> "{" ^ str f ^ "}@(" ^ str_es es ^ ")"
   | Symbolic (t, x) -> "symbolic (" ^ Type.str t ^ ", " ^ str x ^ ")"
 
@@ -30,12 +70,12 @@ let rec vars (exp : t) : string list =
   | UnOpt (_, e) -> vars e
   | BinOpt (_, e1, e2) -> vars e1 @ vars e2
   | TriOpt (_, e1, e2, e3) -> vars e1 @ vars e2 @ vars e3
-  | NOpt (_, es) -> List.concat (List.map vars es)
-  | Curry (e, es) -> List.concat (vars e :: List.map vars es)
+  | NOpt (_, es) -> List.concat (List.map ~f:vars es)
+  | Curry (e, es) -> List.concat (vars e :: List.map ~f:vars es)
   | _ -> []
 
 let rec to_json (e : t) : string =
-  let to_json_es es = String.concat ", " (List.map to_json es) in
+  let to_json_es es = String.concat ~sep:", " (List.map ~f:to_json es) in
   match e with
   | Val v ->
       Printf.sprintf "{ \"type\" : \"value\", \"value\" : %s }" (Val.to_json v)
@@ -58,7 +98,7 @@ let rec to_json (e : t) : string =
   | NOpt (op, es) ->
       Printf.sprintf "{ \"type\" : \"nop\", \"op\": %s, \"args\" : [ %s ]}"
         (Operators.nopt_to_json op)
-        (String.concat ", " (List.map to_json es))
+        (String.concat ~sep:", " (List.map ~f:to_json es))
   | Curry (f, es) ->
       Printf.sprintf
         "{ \"type\" : \"curry\", \"function:\": %s, \"args\": [ %s ]}"

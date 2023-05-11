@@ -1,3 +1,4 @@
+open Core
 open Source
 
 type t = t' Source.phrase
@@ -25,14 +26,15 @@ and t' =
   | FieldDelete of Expr.t * Expr.t
   | FieldLookup of string * Expr.t * Expr.t
   | Exception of string
+  | SymbStmt of Symb_stmt.t
 (*---------------Strings------------------*)
 
 let is_basic_stmt (s : t) : bool =
   match s.it with If _ | While _ | Block _ -> false | _ -> true
 
 let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
-  let str_e = Option.default Expr.str print_expr in
-  let str_es es = String.concat ", " (List.map str_e es) in
+  let str_e = Option.value print_expr ~default:Expr.str in
+  let str_es es = String.concat ~sep:", " (List.map ~f:str_e es) in
   match stmt.it with
   | Skip | Merge -> ""
   | Print e -> "print " ^ str_e e
@@ -44,14 +46,15 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | If (e, s1, s2) -> (
       let v = "if (" ^ str_e e ^ ") {\n" ^ str s1 ^ "\n}" in
       match s2 with None -> v | Some s -> v ^ " else {\n" ^ str s ^ "\n}")
-  | Block block -> String.concat ";\n" (List.map (str ~print_expr:str_e) block)
+  | Block block ->
+      String.concat ~sep:";\n" (List.map ~f:(str ~print_expr:str_e) block)
   | While (exp, s) -> "while (" ^ str_e exp ^ ") { " ^ str s ^ " }"
   | Return exp -> "return " ^ str_e exp
   | FieldAssign (e_o, f, e_v) -> str_e e_o ^ "[" ^ str_e f ^ "] := " ^ str_e e_v
   | FieldDelete (e, f) -> "delete " ^ str_e e ^ "[" ^ str_e f ^ "]"
   | AssignCall (va, st, e_lst) ->
       va ^ " := " ^ str_e st ^ " ("
-      ^ String.concat ", " (List.map (fun e -> str_e e) e_lst)
+      ^ String.concat ~sep:", " (List.map ~f:(fun e -> str_e e) e_lst)
       ^ ")"
   | AssignECall (x, f, es) ->
       Printf.sprintf "%s := extern %s(%s)" x f (str_es es)
@@ -62,9 +65,10 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | AssignObjToList (st, e) -> st ^ " := obj_to_list " ^ str_e e
   | AssignObjFields (st, e) -> st ^ " := obj_fields " ^ str_e e
   | Exception st -> Printf.sprintf "throw \"%s\"" st
+  | SymbStmt st -> Symb_stmt.str st
 
 let rec js (stmt : t) : string =
-  let str_es es = String.concat ", " (List.map Expr.js es) in
+  let str_es es = String.concat ~sep:", " (List.map ~f:Expr.js es) in
 
   match stmt.it with
   | Skip -> Printf.sprintf ""
@@ -76,7 +80,7 @@ let rec js (stmt : t) : string =
         (match s2 with
         | None -> Printf.sprintf ""
         | Some s -> Printf.sprintf " else { %s }" (js s))
-  | Block block -> String.concat ";\n" (List.map js block)
+  | Block block -> String.concat ~sep:";\n" (List.map ~f:js block)
   | While (exp, s) -> Printf.sprintf "while ( %s ) { %s } " (Expr.js exp) (js s)
   | Return exp -> Printf.sprintf "return %s" (Expr.js exp)
   | FieldAssign (e_o, e_f, e_v) ->
@@ -100,6 +104,8 @@ let rec js (stmt : t) : string =
   | Exception st -> Printf.sprintf "throw \"%s\"" st
   | Fail e | Abort e -> Printf.sprintf "throw %s" (Expr.js e)
   | Assume e | Assert e -> failwith "Stmt: js: Assume/Assert not implemented!"
+  | SymbStmt e -> failwith "Stmt: js: Assume/Assert not implemented!"
+(*Printf.sprintf "throw %s" (Expr.js e)*)
 
 let rec to_json (stmt : t) : string =
   (*Stmts args : rhs/ lhs / expr / obj / field/ stringvar *)
@@ -128,7 +134,7 @@ let rec to_json (stmt : t) : string =
         | None -> "")
   | Block block ->
       Printf.sprintf "{\"type\" : \"block\", \"value\" : [ %s ]}"
-        (String.concat ", " (List.map to_json block))
+        (String.concat ~sep:", " (List.map ~f:to_json block))
   | While (exp, s) ->
       Printf.sprintf "{\"type\" : \"loop\", \"expr\" : %s, \"do\" : %s }"
         (Expr.to_json exp) (to_json s)
@@ -148,13 +154,13 @@ let rec to_json (stmt : t) : string =
         "{\"type\" : \"assigncall\", \"lhs\" : \"%s\", \"func\" : %s, \"args\" \
          : [%s]}"
         va (Expr.to_json st)
-        (String.concat ", " (List.map Expr.to_json e_lst))
+        (String.concat ~sep:", " (List.map ~f:Expr.to_json e_lst))
   | AssignECall (x, f, e_lst) ->
       Printf.sprintf
         "{\"type\" : \"assign_e_call\", \"lhs\" : \"%s\", \"func\" : \"%s\", \
          \"args\" : [%s]}"
         x f
-        (String.concat ", " (List.map Expr.to_json e_lst))
+        (String.concat ~sep:", " (List.map ~f:Expr.to_json e_lst))
   | AssignNewObj va ->
       Printf.sprintf "{\"type\" : \"assignnewobject\", \"lhs\" : \"%s\" }" va
   | FieldLookup (va, eo, p) ->
@@ -177,3 +183,6 @@ let rec to_json (stmt : t) : string =
         (Expr.to_json e)
   | Exception st ->
       Printf.sprintf "{\"type\" : \"exception\", \"value\" : \"%s\"}" st
+  | SymbStmt st ->
+      Printf.sprintf "{\"type\" : \"exception\", \"value\" : \"%s\"}"
+        (Symb_stmt.str st)

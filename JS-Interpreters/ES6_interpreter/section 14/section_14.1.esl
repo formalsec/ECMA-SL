@@ -6,15 +6,11 @@
  * See also: 14.4.12.
  */
 function InstantiateFunctionObject(f, scope, realm) {
-  print "DEBUG InstantiateFunctionObject 0";
-  print scope;
   lexEnv := getLexicalEnvironment(scope);
   match f with
   | { id: Identifier, params: FormalParameters, body: FunctionBody } -> {
     /* 1. If the function code for FunctionDeclaration is strict mode code,
     let strict be true. Otherwise let strict be false. */
-    print "DEBUG InstantiateFunctionObject 1";
-    print FunctionBody;
     if ( isStrictModeCode(FunctionBody, scope)) {
       strict := true
     } else {

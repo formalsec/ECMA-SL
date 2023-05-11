@@ -31,9 +31,6 @@ function IsArrayIndex(P) {
 function ArrayDefineOwnProperty(A, P, Desc) {
   /* 1. Assert: IsPropertyKey(P) is true. */
   assert(IsPropertyKey(P) = true);
-  print "debug arraydop";
-  print P;
-  print Desc;
   /* 2. If P is "length", then */
   if (P = "length") {
     /* a. Return ArraySetLength(A, Desc). */
@@ -249,8 +246,6 @@ function ArraySetLength(A, Desc) {
   /* 12. If newLen ≥oldLen, then */
   if (newLen >= oldLen) {
     /* a. Return OrdinaryDefineOwnProperty(A, "length", newLenDesc). */
-    print "debug arraysetlength";
-    print newLenDesc;
     return OrdinaryDefineOwnProperty(A, "length", newLenDesc)
   };
   /* 13. If oldLenDesc.[[Writable]] is false, */
@@ -330,9 +325,6 @@ function ArraySetLength(A, Desc) {
  * the creation of new exotic String objects. It performs the following steps:
  */
  function StringCreate(value, prototype){
-   print "1::::";
-   print value;
-   print prototype;
 
     /* 1. ReturnIfAbrupt(prototype). */
     @ReturnIfAbrupt(prototype);
@@ -398,8 +390,6 @@ function ArraySetLength(A, Desc) {
       assert(!isAnAbruptCompletion(status))
     };
     */
-    print "2::::";
-    print S;
     
     /* 14. Return S. */
     return S
@@ -447,14 +437,9 @@ function GetOwnPropertyString(S, P){
   /* 1. Assert: IsPropertyKey(P) is true. */
   assert(IsPropertyKey(P) = true);
 
-  print "?????";
-  print S;
-  print P;
   /* 2. Let desc be OrdinaryGetOwnProperty(S, P). */
   desc := OrdinaryGetOwnProperty(S, P);
 
-  print "helooooo";
-  print desc;
 
   /* 3. If desc is not undefined return desc. */
   if (!(desc = 'undefined)){
@@ -472,8 +457,6 @@ function StringGetIndexProperty(S, P){
     return 'undefined
   };
 
-  print "P:::::";
-  print P;
 
   /* 2. Let index be CanonicalNumericIndexString (P). */
   index := CanonicalNumericIndexString(P);
@@ -657,8 +640,6 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
   /* 11. Set the [[Extensible]] internal slot of obj to true. */
   obj.Extensible := true;
 
-  print "ARG CREATE";
-  print formals;
 
   /* 12. Let parameterNames be the BoundNames of formals. */
   parameterNames := formals;
@@ -740,8 +721,6 @@ function CreateMappedArgumentsObject(func, formals, argumentsList, env) {
   /* 23. Perform DefinePropertyOrThrow(obj, "callee", PropertyDescriptor
      {[[Value]]: func, [[Writable]]: true, [[Enumerable]]: false,
      [[Configurable]]: true}). */
-  print "DEBUG STATUS 2";
-  print func;
   status2 := DefinePropertyOrThrow(obj, "callee", newDataPropertyDescriptorFull(func, true, false, true));
   /* 24. Assert: the above property definitions will not produce an abrupt
      completion. */
@@ -761,8 +740,6 @@ function ArgumentsObjectGetOwnProperty(O, P) {
   args := O;
   /* 2. Let desc be OrdinaryGetOwnProperty(args, P). */
   desc := OrdinaryGetOwnProperty(args, P);
-  print "DEBUG ArgumentsObjectGetOwnProperty";
-  print desc;
   /* 3. If desc is undefined, */
   if (desc = 'undefined) {
     /* return desc */
@@ -1053,29 +1030,20 @@ function IntegerIndexedHasProperty(O, P) {
       };
       /* iii. If IsInteger(numericIndex) is false, return false */
       if (!(IsInteger(numericIndex))) {
-        print "debug hasproperty isinteger";
-        print numericIndex;
         return false
       };
       /* iv. If numericIndex = -0, */
       if (isMinusZero(numericIndex)) {
-        print "debug hasproperty minus zero";
-        print numericIndex;
         /* return false */
         return false
       };
       /* v. If numericIndex < 0, */
       if (numericIndex < 0.) {
-        print "debug hasproperty less than zero";
-        print numericIndex;
         /* return false */
         return false
       };
       /* vi. If numericIndex ≥ the value of O's [[ArrayLength]] internal slot, */
       if (numericIndex >= O.ArrayLength) {
-        print "debug hasproperty more than length";
-        print numericIndex;
-        print O.ArrayLength;
         /* return false */
         return false
       };
@@ -1083,7 +1051,6 @@ function IntegerIndexedHasProperty(O, P) {
       return true
     }
   };
-  print "debug hasproperty ordinary has property";
   /* 4. Return OrdinaryHasProperty(O, P). */
   return OrdinaryHasProperty(O, P)
 };

@@ -1,0 +1,14 @@
+function main() {
+  x := symbolic(__$Flt, "x");
+  assume(x = 4.0);
+
+  y := (x << 1.0);
+  assert(y = 8.0);
+
+  y1 := x >> 1.0;
+  assert(y1 = 2.0);
+
+  assert(y1 << 1.0 = x);  
+
+  return 1
+}

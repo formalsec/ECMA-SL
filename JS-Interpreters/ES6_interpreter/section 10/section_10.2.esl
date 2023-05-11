@@ -5,6 +5,5 @@ function isStrict(code) {
 };
 
 function isStrictModeCode(code, execCtx) {
-  print code;
   return (!(code = 'undefined) &&& (code.strict = true)) ||| isContainedInStrictCode(execCtx)
 }

@@ -320,6 +320,7 @@ esl_symbolic.assume(!(n1 == n4));
 
 esl_symbolic.assume(!(n2 == n3));
 esl_symbolic.assume(!(n2 == n4));
+//esl_symbolic.assume(n2 > 1 && n2 < 10);
 
 esl_symbolic.assume(!(n3 == n4));
 

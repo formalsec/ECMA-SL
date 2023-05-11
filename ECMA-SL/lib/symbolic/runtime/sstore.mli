@@ -1,8 +1,8 @@
-type bind = string
+type bind = String.t
 type t
 
-val create : (string * Sval.t) list -> t
+val create : (string * Expr.t) list -> t
 val mem : t -> bind -> bool
-val add : t -> bind -> Sval.t -> t
-val find_opt : t -> bind -> Sval.t option
+val add_exn : t -> bind -> Expr.t -> t
+val find : t -> bind -> Expr.t option
 val to_string : t -> string

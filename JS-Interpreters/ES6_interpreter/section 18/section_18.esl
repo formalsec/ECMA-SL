@@ -382,8 +382,6 @@ function parseAsProgram(progStr, strict) {
   if (strict) {
     progStr := s_concat ["\"use strict\";", progStr]
   };
-  print "DEBUG PARSE AS PROGRAM";
-  print progStr;
   prog := extern parseJS(progStr);
   progObj := {prog}();
   progObj.codeType := "eval";

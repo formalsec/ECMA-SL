@@ -40,7 +40,7 @@ let read_json_obj (json_obj : Yojson.Basic.t) : Val.t Object.t =
 let json_to_heap (heap : 'a Heap.t) (data : Yojson.Basic.t) : unit =
   let update_heap_inplace ((loc, json_obj) : Loc.t * Yojson.Basic.t) : unit =
     let obj = read_json_obj json_obj in
-    Heap.update heap loc obj
+    Heap.set heap loc obj
   in
   match data with
   | `Assoc objs -> List.iter update_heap_inplace objs

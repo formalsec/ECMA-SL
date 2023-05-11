@@ -1,6 +1,4 @@
 function DefineMethodAlt(scope, object, method, functionPrototype){
-    print "DEBUG DefineMethodAlt";
-    print method;
     FunctionBody := method.body;
     FormalParameterListopt := method.params;
     F := FunctionCreate("normal", FormalParameterListopt, FunctionBody, scope.LexicalEnvironment, true, functionPrototype);
@@ -54,12 +52,8 @@ function MethodPropertyDefinitionEvaluation(scope, object, enumerable, methodPro
     | { kind: "get", key: key, value: func} -> {
         /* 1. Let propKey be the result of evaluating PropertyName. */
         /* propKey := JS_Interpreter_PropertyName(key, scope);
-        print "DEBUG MethodDefinition";
-        print propKey; */
 
         exprValue := JS_Interpreter_Expr(key, scope);
-        print "DEBUG GET METHOD DEF";
-        print key;
         if (key.type = "Identifier" &&&  GetBase(exprValue) = 'undefined) {
             propKey := key.name
         } else {

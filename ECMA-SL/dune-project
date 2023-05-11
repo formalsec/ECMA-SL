@@ -24,6 +24,7 @@
    (ocaml (>= 4.14.0))
    (ocamlformat (= 0.24.1))
    core
+   core_unix
    dune
    z3
    batteries
