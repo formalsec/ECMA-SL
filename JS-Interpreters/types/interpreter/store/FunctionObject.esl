@@ -5,6 +5,7 @@ function FunctionObject(name, params, code, parent_scope) {
   function_object.code := code;
   function_object.scope := null;
   function_object.parent_scope := parent_scope;
+  function_object.prototype := {};
   return function_object
 };
 

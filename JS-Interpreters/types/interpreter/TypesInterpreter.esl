@@ -112,6 +112,9 @@ function interpreter(scope, s) {
 	| { type: "CallExpression", callee: callee, arguments: args } ->
 			{ return call_expression(scope, callee, args) }
 
+	| { type: "NewExpression", callee: callee, arguments: args } ->
+			{ return new_expression(scope, callee, args) }
+
 	/* logical expressions */
 	| { type: "UnaryExpression", argument: arg, operator: "!" } -> 
 			{ return logical_expression_not(scope, arg) }

@@ -20,16 +20,18 @@ function __initialize_scope_vdecls(scope, vdecls) {
 function __initialize_scope_fdecls(scope, fdecls) {
   foreach(fdecl : fdecls) {
     match fdecl with
-    | { type: "FunctionDeclaration", id: id, params: params, code_id: code_id, code_esl: code } -> {
+    | { type: "FunctionExpression", id: id, params: params, body: code } -> {
       match id with
       | { type: "Identifier", name: name } -> {
-        scope.store[name] := FunctionObject(name, params, code, scope)
-      }
-      | default -> {
-        throw "Invalid function identifier"
-      }
-    }
+        scope.store[name] := FunctionObject(name, params, code, scope) }
+      | default -> { throw "Invalid function identifier" } }
+    | { type: "FunctionDeclaration", id: id, params: params, body: code } -> {
+      match id with
+      | { type: "Identifier", name: name } -> {
+        scope.store[name] := FunctionObject(name, params, code, scope) }
+      | default -> { throw "Invalid function identifier" } }
     | default -> {
+      print fdecl;
       throw "Unexpected function declaration type"
     }
   };

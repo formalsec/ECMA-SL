@@ -1,6 +1,7 @@
 import "interpreter/TypesInterpreter.esl";
 
-function Interpret_Global_Code(code) {
+function main() {
+  code := buildAST();
   scope := Scope();
   scope.this_store := Object();
   return interpreter(scope, code)
