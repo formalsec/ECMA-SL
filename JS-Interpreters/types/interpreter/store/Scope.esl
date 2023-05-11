@@ -70,10 +70,9 @@ function resolve_left_value(scope, left, must_exist) {
     return { store: scope.store, name: "this", value: scope.this_store }
   }
   | { type: "MemberExpression", object: object, property: prop, computed: true } -> {
-    resolved_object := resolve_left_value(scope, object, true);
-    eval_object := resolved_object.value;
-    eval_prop := interpreter(scope, prop);
-    return resolve_property(eval_object, eval_object, eval_prop, must_exist)
+    base := interpreter(scope, object); 
+    prop := interpreter(scope, prop); 
+    return resolve_property(base, base, prop, must_exist)
   }
   | default -> {
     throw "Unsuported left value"
