@@ -1,0 +1,7 @@
+import "interpreter/TypesInterpreter.esl";
+
+function Interpret_Global_Code(code) {
+  scope := Scope();
+  scope.this_store := Object();
+  return interpreter(scope, code)
+}

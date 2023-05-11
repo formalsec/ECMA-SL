@@ -1,0 +1,30 @@
+function __initialize_function_args(scope, params, args) {
+  if (!(l_len(params) = l_len(args))) {
+    throw "Invalid number of arguments in function call"
+  };
+
+  eval_args := [];
+  foreach (arg : args) {
+    /* this is creating an assignment on the current scope (like its supposed to) */
+    v := interpreter(scope, arg);
+    eval_args := l_add(eval_args, v)
+  };
+  return eval_args
+};
+
+function call_expression(scope, callee, args) {
+  print("CallExpression [callee][args]");
+  print(callee);
+  print(args);
+  function_object := interpreter(scope, callee);
+  eval_args := __initialize_function_args(scope, function_object.params, args);
+  initialize_function_object(function_object, eval_args, scope.this_context);
+  print("________________________________________________________________________________");
+  print("Start of the function [func]");
+  print(function_object.name);
+  retval := interpreter(function_object.scope, function_object.code);
+  print("________________________________________________________________________________");
+  print("End of the function [retval]:");
+  print(retval);
+  return retval
+}

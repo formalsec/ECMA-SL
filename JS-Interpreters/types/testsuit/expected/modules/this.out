@@ -1,0 +1,515 @@
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Program [stmts]:"
+PROGRAM PRINT: ["$loc_3", "$loc_9", "$loc_15", "$loc_17", "$loc_22", "$loc_24", "$loc_34", "$loc_41", "$loc_43", "$loc_48", "$loc_50", "$loc_55", "$loc_57", "$loc_63"]
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_4" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_8", "left": "$loc_5", "operator": "=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "AssignmentExpression [left][right]:"
+PROGRAM PRINT: { "type": "MemberExpression", "object": "$loc_6", "computed": true, "property": "$loc_7" }
+PROGRAM PRINT: { "type": "Literal", "raw": "1", "value": 1 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: "retval_1_this"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_10"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_10"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "retval_1", "type": "Identifier" }
+PROGRAM PRINT: { "type": "MemberExpression", "object": "$loc_13", "computed": true, "property": "$loc_14" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "MemberExpression [object][prop]"
+PROGRAM PRINT: { "type": "ThisExpression" }
+PROGRAM PRINT: { "type": "Literal", "raw": "\"retval_1_this\"", "value": "retval_1_this" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: "retval_1_this"
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_16" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "name": "retval_2_fun_this", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_2_fun_this"
+PROGRAM PRINT: { "name": "retval_2_fun_this", "scope": null, "code": "$loc_77", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: { "name": "retval_2_fun_this", "scope": null, "code": "$loc_77", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_18"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_18"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "retval_2", "type": "Identifier" }
+PROGRAM PRINT: { "type": "CallExpression", "arguments": [], "callee": "$loc_21" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "CallExpression [callee][args]"
+PROGRAM PRINT: { "name": "retval_2_fun_this", "type": "Identifier" }
+PROGRAM PRINT: []
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_2_fun_this"
+PROGRAM PRINT: { "name": "retval_2_fun_this", "scope": null, "code": "$loc_77", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the function [func]"
+PROGRAM PRINT: "retval_2_fun_this"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_78", "$loc_84"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_79" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_83", "left": "$loc_80", "operator": "=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "AssignmentExpression [left][right]:"
+PROGRAM PRINT: { "type": "MemberExpression", "object": "$loc_81", "computed": true, "property": "$loc_82" }
+PROGRAM PRINT: { "type": "Literal", "raw": "20", "value": 20 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: "retval_2_this"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 20.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 20.
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_85" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ReturnStatement [arg]"
+PROGRAM PRINT: { "type": "MemberExpression", "object": "$loc_86", "computed": true, "property": "$loc_87" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "MemberExpression [object][prop]"
+PROGRAM PRINT: { "type": "ThisExpression" }
+PROGRAM PRINT: { "type": "Literal", "raw": "\"retval_2_this\"", "value": "retval_2_this" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: "retval_2_this"
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 20.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 20.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the function [retval]:"
+PROGRAM PRINT: 20.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 20.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_23" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "name": "retval_3_fun_this", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_3_fun_this"
+PROGRAM PRINT: { "name": "retval_3_fun_this", "scope": null, "code": "$loc_90", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: { "name": "retval_3_fun_this", "scope": null, "code": "$loc_90", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_25" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_27", "left": "$loc_26", "operator": "=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "AssignmentExpression [left][right]:"
+PROGRAM PRINT: { "name": "object_3", "type": "Identifier" }
+PROGRAM PRINT: { "type": "ObjectExpression", "properties": ["$loc_28", "$loc_31"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ObjectExpression [properties]"
+PROGRAM PRINT: ["$loc_28", "$loc_31"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ObjectProperty [key][value]"
+PROGRAM PRINT: { "name": "retval_3_this", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "300", "value": 300 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 300.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ObjectProperty [key][value]"
+PROGRAM PRINT: { "name": "fun", "type": "Identifier" }
+PROGRAM PRINT: { "name": "retval_3_fun_this", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_3_fun_this"
+PROGRAM PRINT: { "name": "retval_3_fun_this", "scope": null, "code": "$loc_90", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: { "retval_3_this": 300, "fun": "$loc_139", "__proto__": null }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_35"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_35"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "retval_3", "type": "Identifier" }
+PROGRAM PRINT: { "type": "CallExpression", "arguments": [], "callee": "$loc_38" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "CallExpression [callee][args]"
+PROGRAM PRINT: { "type": "MemberExpression", "object": "$loc_39", "computed": true, "property": "$loc_40" }
+PROGRAM PRINT: []
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "MemberExpression [object][prop]"
+PROGRAM PRINT: { "name": "object_3", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "\"fun\"", "value": "fun" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: "fun"
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the function [func]"
+PROGRAM PRINT: "retval_3_fun_this"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_91"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_92" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ReturnStatement [arg]"
+PROGRAM PRINT: { "type": "MemberExpression", "object": "$loc_93", "computed": true, "property": "$loc_94" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "MemberExpression [object][prop]"
+PROGRAM PRINT: { "type": "ThisExpression" }
+PROGRAM PRINT: { "type": "Literal", "raw": "\"retval_3_this\"", "value": "retval_3_this" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: "retval_3_this"
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 300.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 300.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the function [retval]:"
+PROGRAM PRINT: 300.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 300.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_42" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "name": "retval_4_fun_this", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_4_fun_this"
+PROGRAM PRINT: { "name": "retval_4_fun_this", "scope": null, "code": "$loc_97", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: { "name": "retval_4_fun_this", "scope": null, "code": "$loc_97", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_44"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_44"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "retval_4", "type": "Identifier" }
+PROGRAM PRINT: { "type": "CallExpression", "arguments": [], "callee": "$loc_47" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "CallExpression [callee][args]"
+PROGRAM PRINT: { "name": "retval_4_fun_this", "type": "Identifier" }
+PROGRAM PRINT: []
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_4_fun_this"
+PROGRAM PRINT: { "name": "retval_4_fun_this", "scope": null, "code": "$loc_97", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the function [func]"
+PROGRAM PRINT: "retval_4_fun_this"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_98", "$loc_104"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_99" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_103", "left": "$loc_100", "operator": "=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "AssignmentExpression [left][right]:"
+PROGRAM PRINT: { "type": "MemberExpression", "object": "$loc_101", "computed": true, "property": "$loc_102" }
+PROGRAM PRINT: { "type": "Literal", "raw": "4000", "value": 4000 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: "retval_4_this"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 4000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 4000.
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_105" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ReturnStatement [arg]"
+PROGRAM PRINT: { "name": "retval_4_this", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_4_this"
+PROGRAM PRINT: 4000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 4000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 4000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the function [retval]:"
+PROGRAM PRINT: 4000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 4000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_49" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "name": "retval_5_fun_this", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_5_fun_this"
+PROGRAM PRINT: { "name": "retval_5_fun_this", "scope": null, "code": "$loc_108", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: { "name": "retval_5_fun_this", "scope": null, "code": "$loc_108", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_51"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_51"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "retval_5", "type": "Identifier" }
+PROGRAM PRINT: { "type": "CallExpression", "arguments": [], "callee": "$loc_54" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "CallExpression [callee][args]"
+PROGRAM PRINT: { "name": "retval_5_fun_this", "type": "Identifier" }
+PROGRAM PRINT: []
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_5_fun_this"
+PROGRAM PRINT: { "name": "retval_5_fun_this", "scope": null, "code": "$loc_108", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the function [func]"
+PROGRAM PRINT: "retval_5_fun_this"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_109", "$loc_113"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_110" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_112", "left": "$loc_111", "operator": "=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "AssignmentExpression [left][right]:"
+PROGRAM PRINT: { "name": "retval_5_this", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "50000", "value": 50000 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 50000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 50000.
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_114" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ReturnStatement [arg]"
+PROGRAM PRINT: { "type": "MemberExpression", "object": "$loc_115", "computed": true, "property": "$loc_116" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "MemberExpression [object][prop]"
+PROGRAM PRINT: { "type": "ThisExpression" }
+PROGRAM PRINT: { "type": "Literal", "raw": "\"retval_5_this\"", "value": "retval_5_this" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: "retval_5_this"
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 50000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 50000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the function [retval]:"
+PROGRAM PRINT: 50000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 50000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_56" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "name": "retval_6_fun_this", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_6_fun_this"
+PROGRAM PRINT: { "name": "retval_6_fun_this", "scope": null, "code": "$loc_119", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: { "name": "retval_6_fun_this", "scope": null, "code": "$loc_119", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_58"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_58"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "retval_6", "type": "Identifier" }
+PROGRAM PRINT: { "type": "CallExpression", "arguments": [], "callee": "$loc_61" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "CallExpression [callee][args]"
+PROGRAM PRINT: { "type": "CallExpression", "arguments": [], "callee": "$loc_62" }
+PROGRAM PRINT: []
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "CallExpression [callee][args]"
+PROGRAM PRINT: { "name": "retval_6_fun_this", "type": "Identifier" }
+PROGRAM PRINT: []
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_6_fun_this"
+PROGRAM PRINT: { "name": "retval_6_fun_this", "scope": null, "code": "$loc_119", "params": [], "parent_scope": "$loc_135" }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the function [func]"
+PROGRAM PRINT: "retval_6_fun_this"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_120", "$loc_126", "$loc_128"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_121" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_125", "left": "$loc_122", "operator": "=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "AssignmentExpression [left][right]:"
+PROGRAM PRINT: { "type": "MemberExpression", "object": "$loc_123", "computed": true, "property": "$loc_124" }
+PROGRAM PRINT: { "type": "Literal", "raw": "600000", "value": 600000 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: "retval_6_this"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 600000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 600000.
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_127" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "name": "retval_6_fun_this_aux", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_6_fun_this_aux"
+PROGRAM PRINT: { "name": "retval_6_fun_this_aux", "scope": null, "code": "$loc_132", "params": [], "parent_scope": "$loc_183" }
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: { "name": "retval_6_fun_this_aux", "scope": null, "code": "$loc_132", "params": [], "parent_scope": "$loc_183" }
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_129" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ReturnStatement [arg]"
+PROGRAM PRINT: { "name": "retval_6_fun_this_aux", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_6_fun_this_aux"
+PROGRAM PRINT: { "name": "retval_6_fun_this_aux", "scope": null, "code": "$loc_132", "params": [], "parent_scope": "$loc_183" }
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: { "name": "retval_6_fun_this_aux", "scope": null, "code": "$loc_132", "params": [], "parent_scope": "$loc_183" }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: { "name": "retval_6_fun_this_aux", "scope": null, "code": "$loc_132", "params": [], "parent_scope": "$loc_183" }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the function [retval]:"
+PROGRAM PRINT: { "name": "retval_6_fun_this_aux", "scope": null, "code": "$loc_132", "params": [], "parent_scope": "$loc_183" }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the function [func]"
+PROGRAM PRINT: "retval_6_fun_this_aux"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_133"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_134" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ReturnStatement [arg]"
+PROGRAM PRINT: { "name": "retval_6_this", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_6_this"
+PROGRAM PRINT: 600000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 600000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 600000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the function [retval]:"
+PROGRAM PRINT: 600000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 600000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_64" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_74", "left": "$loc_65", "operator": "+" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPlus [left][right]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_73", "left": "$loc_66", "operator": "+" }
+PROGRAM PRINT: { "name": "retval_6", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPlus [left][right]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_72", "left": "$loc_67", "operator": "+" }
+PROGRAM PRINT: { "name": "retval_5", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPlus [left][right]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_71", "left": "$loc_68", "operator": "+" }
+PROGRAM PRINT: { "name": "retval_4", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPlus [left][right]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_70", "left": "$loc_69", "operator": "+" }
+PROGRAM PRINT: { "name": "retval_3", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPlus [left][right]"
+PROGRAM PRINT: { "name": "retval_1", "type": "Identifier" }
+PROGRAM PRINT: { "name": "retval_2", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_1"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_2"
+PROGRAM PRINT: 20.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_3"
+PROGRAM PRINT: 300.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_4"
+PROGRAM PRINT: 4000.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_5"
+PROGRAM PRINT: 50000.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_6"
+PROGRAM PRINT: 600000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 654321.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the program [retval]:"
+PROGRAM PRINT: 654321.

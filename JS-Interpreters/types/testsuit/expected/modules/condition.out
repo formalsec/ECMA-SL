@@ -1,0 +1,423 @@
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Program [stmts]:"
+PROGRAM PRINT: ["$loc_3", "$loc_7", "$loc_19", "$loc_23", "$loc_35", "$loc_39", "$loc_46", "$loc_53", "$loc_60", "$loc_64", "$loc_68", "$loc_99", "$loc_103", "$loc_107", "$loc_135"]
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_4"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_4"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "retval_1", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "0", "value": 0 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "test": "$loc_8", "type": "IfStatement", "alternate": "$loc_14", "consequent": "$loc_9" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "IfStatement [test][consequent][alternate]"
+PROGRAM PRINT: { "type": "Literal", "raw": "true", "value": true }
+PROGRAM PRINT: { "type": "BlockStatement", "body": ["$loc_10"] }
+PROGRAM PRINT: { "type": "BlockStatement", "body": ["$loc_15"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: true
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_10"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_11" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_13", "left": "$loc_12", "operator": "=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "AssignmentExpression [left][right]:"
+PROGRAM PRINT: { "name": "retval_1", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "1", "value": 1 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_20"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_20"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "retval_2", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "0", "value": 0 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "test": "$loc_24", "type": "IfStatement", "alternate": "$loc_30", "consequent": "$loc_25" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "IfStatement [test][consequent][alternate]"
+PROGRAM PRINT: { "type": "Literal", "raw": "false", "value": false }
+PROGRAM PRINT: { "type": "BlockStatement", "body": ["$loc_26"] }
+PROGRAM PRINT: { "type": "BlockStatement", "body": ["$loc_31"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: false
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_31"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_32" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_34", "left": "$loc_33", "operator": "=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "AssignmentExpression [left][right]:"
+PROGRAM PRINT: { "name": "retval_2", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "20", "value": 20 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 20.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 20.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 20.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 20.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_36"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_36"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "retval_3", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "300", "value": 300 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 300.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 300.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "test": "$loc_40", "type": "IfStatement", "alternate": null, "consequent": "$loc_41" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "IfStatement [test][consequent][alternate]"
+PROGRAM PRINT: { "type": "Literal", "raw": "false", "value": false }
+PROGRAM PRINT: { "type": "BlockStatement", "body": ["$loc_42"] }
+PROGRAM PRINT: null
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: false
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 'empty
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_47"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_47"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "retval_4", "type": "Identifier" }
+PROGRAM PRINT: { "test": "$loc_50", "type": "ConditionalExpression", "alternate": "$loc_52", "consequent": "$loc_51" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ConditionalExpression [test][consequent][alternate]"
+PROGRAM PRINT: { "type": "Literal", "raw": "true", "value": true }
+PROGRAM PRINT: { "type": "Literal", "raw": "4000", "value": 4000 }
+PROGRAM PRINT: { "type": "Literal", "raw": "5000", "value": 5000 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: true
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 4000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 4000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_54"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_54"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "retval_5", "type": "Identifier" }
+PROGRAM PRINT: { "test": "$loc_57", "type": "ConditionalExpression", "alternate": "$loc_59", "consequent": "$loc_58" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ConditionalExpression [test][consequent][alternate]"
+PROGRAM PRINT: { "type": "Literal", "raw": "false", "value": false }
+PROGRAM PRINT: { "type": "Literal", "raw": "40000", "value": 40000 }
+PROGRAM PRINT: { "type": "Literal", "raw": "50000", "value": 50000 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: false
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 50000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 50000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_61"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_61"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "cond", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "2", "value": 2 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_65"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_65"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "retval_6", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "0", "value": 0 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "discriminant": "$loc_69", "type": "SwitchStatement", "cases": [["$loc_70", "$loc_76", "$loc_82", "$loc_88"], "$loc_94", []] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "SwitchStatement [discriminat][cases]"
+PROGRAM PRINT: { "name": "cond", "type": "Identifier" }
+PROGRAM PRINT: [["$loc_70", "$loc_76", "$loc_82", "$loc_88"], "$loc_94", []]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "cond"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_84"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_85" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_87", "left": "$loc_86", "operator": "=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "AssignmentExpression [left][right]:"
+PROGRAM PRINT: { "name": "retval_6", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "200000", "value": 200000 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 200000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 200000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 200000.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_90"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_91" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_93", "left": "$loc_92", "operator": "+=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "PlusAssignmentExpression [left][right]:"
+PROGRAM PRINT: { "name": "retval_6", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "300000", "value": 300000 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 300000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 500000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 500000.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_95"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_96" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_98", "left": "$loc_97", "operator": "+=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "PlusAssignmentExpression [left][right]:"
+PROGRAM PRINT: { "name": "retval_6", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "100000", "value": 100000 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 100000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 600000.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 600000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 'retval
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_100"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_100"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "cond", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "1", "value": 1 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_104"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_104"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "retval_7", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "0", "value": 0 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "discriminant": "$loc_108", "type": "SwitchStatement", "cases": [["$loc_109", "$loc_116", "$loc_123"], "$loc_130", []] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "SwitchStatement [discriminat][cases]"
+PROGRAM PRINT: { "name": "cond", "type": "Identifier" }
+PROGRAM PRINT: [["$loc_109", "$loc_116", "$loc_123"], "$loc_130", []]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "cond"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_118", "$loc_122"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_119" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_121", "left": "$loc_120", "operator": "=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "AssignmentExpression [left][right]:"
+PROGRAM PRINT: { "name": "retval_7", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "7000000", "value": 7000000 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 7000000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 7000000.
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "label": null, "type": "BreakStatement" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BreakStatement"
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 'empty
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 'empty
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 'retval
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_136" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_148", "left": "$loc_137", "operator": "+" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPlus [left][right]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_147", "left": "$loc_138", "operator": "+" }
+PROGRAM PRINT: { "name": "retval_7", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPlus [left][right]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_146", "left": "$loc_139", "operator": "+" }
+PROGRAM PRINT: { "name": "retval_6", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPlus [left][right]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_145", "left": "$loc_140", "operator": "+" }
+PROGRAM PRINT: { "name": "retval_5", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPlus [left][right]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_144", "left": "$loc_141", "operator": "+" }
+PROGRAM PRINT: { "name": "retval_4", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPlus [left][right]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_143", "left": "$loc_142", "operator": "+" }
+PROGRAM PRINT: { "name": "retval_3", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPlus [left][right]"
+PROGRAM PRINT: { "name": "retval_1", "type": "Identifier" }
+PROGRAM PRINT: { "name": "retval_2", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_1"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_2"
+PROGRAM PRINT: 20.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_3"
+PROGRAM PRINT: 300.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_4"
+PROGRAM PRINT: 4000.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_5"
+PROGRAM PRINT: 50000.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_6"
+PROGRAM PRINT: 600000.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "retval_7"
+PROGRAM PRINT: 7000000.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 7654321.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the program [retval]:"
+PROGRAM PRINT: 7654321.

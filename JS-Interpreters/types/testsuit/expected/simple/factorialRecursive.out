@@ -1,0 +1,405 @@
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Program [stmts]:"
+PROGRAM PRINT: ["$loc_3", "$loc_5"]
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_4" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "name": "factorial", "type": "Identifier" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "factorial"
+PROGRAM PRINT: { "name": "factorial", "scope": null, "code": "$loc_11", "params": ["n"], "parent_scope": "$loc_26" }
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: { "name": "factorial", "scope": null, "code": "$loc_11", "params": ["n"], "parent_scope": "$loc_26" }
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_6" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "CallExpression", "arguments": ["$loc_8"], "callee": "$loc_7" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "CallExpression [callee][args]"
+PROGRAM PRINT: { "name": "factorial", "type": "Identifier" }
+PROGRAM PRINT: ["$loc_8"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "factorial"
+PROGRAM PRINT: { "name": "factorial", "scope": null, "code": "$loc_11", "params": ["n"], "parent_scope": "$loc_26" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the function [func]"
+PROGRAM PRINT: "factorial"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_12", "$loc_18"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "test": "$loc_13", "type": "IfStatement", "alternate": null, "consequent": "$loc_16" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "IfStatement [test][consequent][alternate]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_15", "left": "$loc_14", "operator": "==" }
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_17" }
+PROGRAM PRINT: null
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ComparisonExpressionEq [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "0", "value": 0 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 'empty
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_19" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ReturnStatement [arg]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_21", "left": "$loc_20", "operator": "*" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionTimes [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "CallExpression", "arguments": ["$loc_23"], "callee": "$loc_22" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "CallExpression [callee][args]"
+PROGRAM PRINT: { "name": "factorial", "type": "Identifier" }
+PROGRAM PRINT: ["$loc_23"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "factorial"
+PROGRAM PRINT: { "name": "factorial", "scope": "$loc_32", "code": "$loc_11", "params": ["n"], "parent_scope": "$loc_26" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionMinus [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "1", "value": 1 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the function [func]"
+PROGRAM PRINT: "factorial"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_12", "$loc_18"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "test": "$loc_13", "type": "IfStatement", "alternate": null, "consequent": "$loc_16" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "IfStatement [test][consequent][alternate]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_15", "left": "$loc_14", "operator": "==" }
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_17" }
+PROGRAM PRINT: null
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ComparisonExpressionEq [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "0", "value": 0 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 4.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 'empty
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_19" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ReturnStatement [arg]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_21", "left": "$loc_20", "operator": "*" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionTimes [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "CallExpression", "arguments": ["$loc_23"], "callee": "$loc_22" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 4.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "CallExpression [callee][args]"
+PROGRAM PRINT: { "name": "factorial", "type": "Identifier" }
+PROGRAM PRINT: ["$loc_23"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "factorial"
+PROGRAM PRINT: { "name": "factorial", "scope": "$loc_40", "code": "$loc_11", "params": ["n"], "parent_scope": "$loc_26" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionMinus [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "1", "value": 1 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 4.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the function [func]"
+PROGRAM PRINT: "factorial"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_12", "$loc_18"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "test": "$loc_13", "type": "IfStatement", "alternate": null, "consequent": "$loc_16" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "IfStatement [test][consequent][alternate]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_15", "left": "$loc_14", "operator": "==" }
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_17" }
+PROGRAM PRINT: null
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ComparisonExpressionEq [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "0", "value": 0 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 3.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 'empty
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_19" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ReturnStatement [arg]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_21", "left": "$loc_20", "operator": "*" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionTimes [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "CallExpression", "arguments": ["$loc_23"], "callee": "$loc_22" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 3.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "CallExpression [callee][args]"
+PROGRAM PRINT: { "name": "factorial", "type": "Identifier" }
+PROGRAM PRINT: ["$loc_23"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "factorial"
+PROGRAM PRINT: { "name": "factorial", "scope": "$loc_48", "code": "$loc_11", "params": ["n"], "parent_scope": "$loc_26" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionMinus [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "1", "value": 1 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 3.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the function [func]"
+PROGRAM PRINT: "factorial"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_12", "$loc_18"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "test": "$loc_13", "type": "IfStatement", "alternate": null, "consequent": "$loc_16" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "IfStatement [test][consequent][alternate]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_15", "left": "$loc_14", "operator": "==" }
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_17" }
+PROGRAM PRINT: null
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ComparisonExpressionEq [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "0", "value": 0 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 'empty
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_19" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ReturnStatement [arg]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_21", "left": "$loc_20", "operator": "*" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionTimes [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "CallExpression", "arguments": ["$loc_23"], "callee": "$loc_22" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "CallExpression [callee][args]"
+PROGRAM PRINT: { "name": "factorial", "type": "Identifier" }
+PROGRAM PRINT: ["$loc_23"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "factorial"
+PROGRAM PRINT: { "name": "factorial", "scope": "$loc_56", "code": "$loc_11", "params": ["n"], "parent_scope": "$loc_26" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionMinus [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "1", "value": 1 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the function [func]"
+PROGRAM PRINT: "factorial"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_12", "$loc_18"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "test": "$loc_13", "type": "IfStatement", "alternate": null, "consequent": "$loc_16" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "IfStatement [test][consequent][alternate]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_15", "left": "$loc_14", "operator": "==" }
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_17" }
+PROGRAM PRINT: null
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ComparisonExpressionEq [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "0", "value": 0 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 'empty
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_19" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ReturnStatement [arg]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_21", "left": "$loc_20", "operator": "*" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionTimes [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "CallExpression", "arguments": ["$loc_23"], "callee": "$loc_22" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "CallExpression [callee][args]"
+PROGRAM PRINT: { "name": "factorial", "type": "Identifier" }
+PROGRAM PRINT: ["$loc_23"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "factorial"
+PROGRAM PRINT: { "name": "factorial", "scope": "$loc_64", "code": "$loc_11", "params": ["n"], "parent_scope": "$loc_26" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionMinus [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "1", "value": 1 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the function [func]"
+PROGRAM PRINT: "factorial"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "BlockStatement [stmts]:"
+PROGRAM PRINT: ["$loc_12", "$loc_18"]
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "test": "$loc_13", "type": "IfStatement", "alternate": null, "consequent": "$loc_16" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "IfStatement [test][consequent][alternate]"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_15", "left": "$loc_14", "operator": "==" }
+PROGRAM PRINT: { "type": "ReturnStatement", "argument": "$loc_17" }
+PROGRAM PRINT: null
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ComparisonExpressionEq [left][right]"
+PROGRAM PRINT: { "name": "n", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "0", "value": 0 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Identifier [name][value]:"
+PROGRAM PRINT: "n"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 0.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ReturnStatement [arg]"
+PROGRAM PRINT: { "type": "Literal", "raw": "1", "value": 1 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the function [retval]:"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the function [retval]:"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the function [retval]:"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 6.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 6.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the function [retval]:"
+PROGRAM PRINT: 6.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 24.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 24.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the function [retval]:"
+PROGRAM PRINT: 24.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 120.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the block [retval]:"
+PROGRAM PRINT: 120.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the function [retval]:"
+PROGRAM PRINT: 120.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 120.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the program [retval]:"
+PROGRAM PRINT: 120.

@@ -1,0 +1,21 @@
+function unary_expression(scope, arg) {
+  print(arg);
+  eval := interpreter(scope, arg);
+  return eval
+};
+
+function binary_expression(scope, left, right) {
+  print(left);
+  print(right);
+  eval_left := interpreter(scope, left);
+  eval_right := interpreter(scope, right);
+  return { left: eval_left, right: eval_right }
+};
+
+function update_expression(scope, left, right, must_exist) {
+  print(left);
+  print(right);
+  update_data := resolve_left_value(scope, left, must_exist);
+  update_data.mod := interpreter(scope, right);
+  return update_data
+}

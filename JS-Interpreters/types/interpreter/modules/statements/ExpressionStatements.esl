@@ -1,0 +1,5 @@
+function expression_statement(scope, expr) {
+  print("ExpressionStatement [expression]:");
+  print(expr);
+  return interpreter(scope, expr)
+}
