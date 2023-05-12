@@ -1,0 +1,10 @@
+import "Interpreter.esl";
+import "Object.esl";
+import "Scope.esl";
+
+function main() {
+  code := buildAST();
+  thisBinding := Object();
+  scope := Scope(thisBinding);
+  return interpreter(scope, code)
+}

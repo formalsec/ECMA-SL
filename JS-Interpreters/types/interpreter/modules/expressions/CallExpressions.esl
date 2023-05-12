@@ -27,14 +27,16 @@ function call_expression(scope, callee, args) {
   print("End of the function [retval]:");
   print(retval);
   return retval
-}
+};
 
 function new_expression(scope, callee, args) {
+  print "INSIDE NEW 1";
+
   function_object := interpreter(scope, callee);
   eval_args := __initialize_function_args(scope, function_object.params, args);
   new_obj := {};
   new_obj.__proto__ := function_object.prototype;
-  initialize_function_object(function_object, eval_args, scope.this_context);
+  initialize_function_object(function_object, eval_args, new_obj);
   retval := interpreter(function_object.scope, function_object.code);
-
+  return "banana"
 }

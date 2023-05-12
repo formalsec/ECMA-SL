@@ -1,0 +1,63 @@
+function Scope(thisBinding) {
+  scope := {};
+  scope.parent := null;
+  scope.store := {};
+  scope.this_context := thisBinding;
+  return scope
+}; 
+
+
+function __initialize_scope_vdecls(scope, vdecls) {
+  foreach(vdecl : vdecls) {
+    scope.store[vdecl] := 'undefined
+  }; 
+  return 
+};
+
+function __initialize_scope_fdecls(scope, fdecls) {
+  foreach(fdecl : fdecls) {
+    match fdecl with
+    | { type: "FunctionDeclaration", id: id, params: params, body: code } -> {
+      match id with
+      | { type: "Identifier", name: name } -> {
+        scope.store[name] := FunctionObject(name, params, code, scope) }
+      | default -> { throw "Invalid function identifier" } }
+    | default -> {
+      print fdecl;
+      throw "Unexpected function declaration type"
+    }
+  }; 
+  return 
+};
+
+function initialize_scope(scope, vdecls, fdecls) {
+  __initialize_scope_vdecls(scope, vdecls);
+  __initialize_scope_fdecls(scope, fdecls); 
+  return 
+}; 
+
+function update_scope(base_scope, scope, var_name, val) {
+  if (var_name in_obj scope.store) {
+    scope.store[var_name] := val
+  } else {
+    if (scope.parent = null) {
+      base_scope.store[var_name] := val
+    } else {
+      update_scope(base_scope, scope.parent, var_name, val)
+    }
+  }; 
+  return 
+}; 
+
+function resolve_scope(scope, var_name) {
+  if (var_name in_obj scope.store) {
+    return scope.store[var_name]
+  } else {
+    if (scope.parent = null) {
+      'undefined
+    } else {
+      resolve_scope(scope.parent, var_name)
+    }
+  }
+}
+
