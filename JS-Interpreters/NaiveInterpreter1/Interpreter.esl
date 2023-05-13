@@ -15,11 +15,11 @@ function interpreter(scope, s) {
 
 	match s with
 	/* execution statements */
-	| { type: "Program", body: body, variableDeclarations: vdecls, functionDeclarations: fdecls } -> 
-			{ return program(scope, body, vdecls, fdecls) }
-	| { type: "BlockStatement", body: body } -> 
+	| { type : "Program", body : body, variableDeclarations : vdecls, functionDeclarations: fdecls } -> {
+		return program(scope, body, vdecls, fdecls) }
+	| { type : "BlockStatement", body: body } ->
 			{ return block_statement(scope, body) }
-	| { type: "ReturnStatement", argument: arg } -> 
+	| { type : "ReturnStatement", argument: arg } -> 
 			{ return return_statement(scope, arg) }
 
 	/* expression statements */
@@ -43,7 +43,6 @@ function interpreter(scope, s) {
 			{ return continue_statement(scope) }
 
 
-
 	/* arithmetic expressions */
 	| { type: "UnaryExpression", argument: arg, operator: "+" } -> 
 			{ return arithmetic_expression_pos(scope, arg) }
@@ -63,23 +62,17 @@ function interpreter(scope, s) {
 			{ return arithmetic_expression_power(scope, left, right) }
 
 	/* assignment expressions */
-	| { type: "AssignmentExpression", left: left, right: right, operator: op } -> 
-			{ 
-        if (left.type = "Identifier") {
-          var_name := left.name; 
-          rhs_c := interpreter(scope, right); 
-          if (isAbruptCompletion(rhs_c)) {
-            return rhs_c
-          }; 
-          rhs := getCompletionValue(rhs_c); 
-          update_scope(scope, scope, var_name, rhs); 
-          return rhs_c  
-        } else {
-
-        }
-      
-      
-      }
+	| { type: "AssignmentExpression", left: left, right: right, operator: op } -> { 
+      if (left.type = "Identifier") {
+				var_name := left.name; 
+        rhs_c := interpreter(scope, right); 
+        if (isAbruptCompletion(rhs_c)) {
+					return rhs_c
+        }; 
+        rhs := getCompletionValue(rhs_c); 
+        update_scope(scope, scope, var_name, rhs); 
+        return rhs_c
+      }}
 
 	/* bitwise expressions */
 	| { type: "UnaryExpression", argument: arg, operator: "~" } -> 
@@ -165,9 +158,6 @@ function interpreter(scope, s) {
 		{ return update_expression_inc(scope, arg, prefix) }
 	| { type: "UpdateExpression", argument: arg, operator: "--", prefix: prefix } -> 
 		{ return update_expression_dec(scope, arg, prefix) }
-
-
-
 	/* variable declarations */
 	| { type: "VariableDeclarator", id: id, init: init } -> 
 		{ return variable_declarator(scope, id, init) }
@@ -177,9 +167,6 @@ function interpreter(scope, s) {
 		{ return let_declaration(scope, decls) }
 	| { type: "VariableDeclaration", kind: "const", declarations: decls } -> 
 		{ return const_declaration(scope, decls) }
-
-
-
 	/* values */
 	| { type: "Literal", raw: raw, value: value } -> 
 			{ return NormalCompletion(value) }
@@ -188,38 +175,24 @@ function interpreter(scope, s) {
         v := resolve_scope(scope, name); 
         return NormalCompletion(v)
       }
-
 	/* custom empty value (to make our lives easier) */
 	| { type: "EmptyValue" } -> 
 			{ return 'empty }
-
 	| { type: "FunctionExpression", id: null, params: params, body: code } -> 
 		{
 			return FunctionObject(null, params, code, scope)
 		}
-
 	| default -> {
 		print("[ERROR]: Found an unsuported statement");
 		print(s);
-		throw "Unsuported statement" 
-	}
+		throw "Unsuported statement" }
 };
 
 function program(scope, stmts, vdecls, fdecls) {
-  print("Program [stmts]:");
-  print(stmts);
   initialize_scope(scope, vdecls, fdecls);
-  i := 0;
   retval := 'empty;
-  len := l_len(stmts);
-  while (i < len) {
-    stmt := l_nth(stmts, i);
-    print("________________________________________________________________________________");
-    print("Start of the statement [stmt]");
-    print(stmt);
+	foreach (stmt : stmts) {
     ret := interpreter(scope, stmt);
-    print("End of the statement [retval]");
-    print(retval);
     if (isAbruptCompletion(ret)) {
       return ret
     }; 
@@ -227,10 +200,6 @@ function program(scope, stmts, vdecls, fdecls) {
     if (!(retvalaux = 'empty)) {
       retval := retvalaux
     };
-    i := i + 1
   };
-  print("________________________________________________________________________________");
-  print("End of the program [retval]:");
-  print(retval);
   return NormalCompletion(retval)
 }

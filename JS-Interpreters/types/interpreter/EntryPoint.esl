@@ -1,8 +1,0 @@
-import "interpreter/TypesInterpreter.esl";
-
-function main() {
-  code := buildAST();
-  scope := Scope();
-  scope.this_store := Object();
-  return interpreter(scope, code)
-}
