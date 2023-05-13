@@ -1,0 +1,56 @@
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Program [stmts]:"
+PROGRAM PRINT: ["$loc_3", "$loc_7", "$loc_11"]
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_4" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "LogicalExpression", "right": "$loc_6", "left": "$loc_5", "operator": "&&" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "LogicalExpressionAnd [left][right]"
+PROGRAM PRINT: { "type": "Literal", "raw": "true", "value": true }
+PROGRAM PRINT: { "type": "Literal", "raw": "false", "value": false }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: true
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: false
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: false
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_8" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "LogicalExpression", "right": "$loc_10", "left": "$loc_9", "operator": "||" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "LogicalExpressionOr [left][right]"
+PROGRAM PRINT: { "type": "Literal", "raw": "true", "value": true }
+PROGRAM PRINT: { "type": "Literal", "raw": "false", "value": false }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: true
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: false
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: true
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_12" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "prefix": true, "type": "UnaryExpression", "argument": "$loc_13", "operator": "!" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "LogicalExpressionNot [arg]"
+PROGRAM PRINT: { "type": "Literal", "raw": "true", "value": true }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: true
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: false
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the program [retval]:"
+PROGRAM PRINT: false

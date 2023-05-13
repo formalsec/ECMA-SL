@@ -1,0 +1,87 @@
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Program [stmts]:"
+PROGRAM PRINT: ["$loc_3", "$loc_6", "$loc_10", "$loc_17", "$loc_21"]
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_4"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_4"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "x", "type": "Identifier" }
+PROGRAM PRINT: null
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 'undefined
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_7"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_7"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "x", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "1", "value": 1 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "var", "declarations": ["$loc_11", "$loc_14"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_11", "$loc_14"]
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "x", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "2", "value": 2 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "y", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "3", "value": 3 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 3.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 3.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "let", "declarations": ["$loc_18"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "LetDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_18"]
+PROGRAM PRINT: "[WARN]: Let/Const variables behave like normal variables"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "w", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "4", "value": 4 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 4.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 4.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "VariableDeclaration", "kind": "const", "declarations": ["$loc_22"] }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ConstDeclaration [decls]:"
+PROGRAM PRINT: ["$loc_22"]
+PROGRAM PRINT: "[WARN]: Let/Const variables behave like normal variables"
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "VariableDeclarator [id][init]:"
+PROGRAM PRINT: { "name": "z", "type": "Identifier" }
+PROGRAM PRINT: { "type": "Literal", "raw": "5", "value": 5 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the program [retval]:"
+PROGRAM PRINT: 5.

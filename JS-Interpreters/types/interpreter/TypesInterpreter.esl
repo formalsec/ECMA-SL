@@ -1,14 +1,6 @@
-import "Completion.esl"; 
-import "Object.esl";
-import "Scope.esl";
+import "interpreter/Import.esl";
 
-macro checkAbruptCompletion(c) {
-  if (isAbruptCompletion(c)) {
-    return c
-  } else {
-    c := getCompletionValue(c)
-  }
-};
+
 
 function interpreter(scope, s) {
 	print("........................................");
@@ -24,7 +16,7 @@ function interpreter(scope, s) {
 
 	/* expression statements */
 	| { type: "ExpressionStatement", expression: expr } -> 
-			{ return interpreter(scope, expr) }
+			{ return expression_statement(scope, expr) }
 
 	/* conditional statements */
 	| { type: "IfStatement", test: test, consequent: stmt1, alternate: stmt2 } -> 
@@ -63,23 +55,20 @@ function interpreter(scope, s) {
 			{ return arithmetic_expression_power(scope, left, right) }
 
 	/* assignment expressions */
-	| { type: "AssignmentExpression", left: left, right: right, operator: op } -> 
-			{ 
-        if (left.type = "Identifier") {
-          var_name := left.name; 
-          rhs_c := interpreter(scope, right); 
-          if (isAbruptCompletion(rhs_c)) {
-            return rhs_c
-          }; 
-          rhs := getCompletionValue(rhs_c); 
-          update_scope(scope, scope, var_name, rhs); 
-          return rhs_c  
-        } else {
-
-        }
-      
-      
-      }
+	| { type: "AssignmentExpression", left: left, right: right, operator: "=" } -> 
+			{ return assignment_expression(scope, left, right) }
+	| { type: "AssignmentExpression", left: left, right: right, operator: "+=" } ->
+			{ return plus_assignment_expression(scope, left, right) }
+	| { type: "AssignmentExpression", left: left, right: right, operator: "-=" } -> 
+			{ return minus_assignment_expression(scope, left, right) }
+	| { type: "AssignmentExpression", left: left, right: right, operator: "*=" } -> 
+			{ return times_assignment_expression(scope, left, right) }
+	| { type: "AssignmentExpression", left: left, right: right, operator: "/=" } -> 
+			{ return division_assignment_expression(scope, left, right) }
+	| { type: "AssignmentExpression", left: left, right: right, operator: "%=" } -> 
+			{ return modulus_assignment_expression(scope, left, right) }
+	| { type: "AssignmentExpression", left: left, right: right, operator: "**=" } -> 
+			{ return power_assignment_expression(scope, left, right) }
 
 	/* bitwise expressions */
 	| { type: "UnaryExpression", argument: arg, operator: "~" } -> 
@@ -138,26 +127,9 @@ function interpreter(scope, s) {
 	| { type: "Property", kind: kind, key: key, value: value, computed: false, shorthand: false } -> 
 			{ return object_property(scope, key, value) }
 	| { type: "ObjectExpression", properties: props } ->
-			{ 
-        object := Object();
-        foreach (prop : props) {
-          prop_name := prop.key.name; 
-          prop_value := interpreter(scope, prop.value); 
-          if (isAbruptCompletion(prop_value)) {
-            return prop_value
-          }; 
-          object[prop_name] := getCompletionValue(prop_value)
-        };
-        return NormalCompletion(object)
-      }
+			{ return object_expression(scope, props) }
 	| { type: "MemberExpression", object: object, property: prop, computed: true } ->
-			{ 
-        obj := interpreter(scope, object); 
-        @checkAbruptCompletion(obj); 
-        prop_name := interpreter(scope, prop);
-        @checkAbruptCompletion(prop_name);    
-        resolve_property(obj, prop_name)
-      }
+			{ return member_expression(scope, object, prop) }
 
 
 	/* update expressions */
@@ -182,12 +154,11 @@ function interpreter(scope, s) {
 
 	/* values */
 	| { type: "Literal", raw: raw, value: value } -> 
-			{ return NormalCompletion(value) }
+			{ return literal_value(scope, value) }
 	| { type: "Identifier", name: name } -> 
-			{  
-        v := resolve_scope(scope, name); 
-        return NormalCompletion(v)
-      }
+			{ return identifier_value(scope, name) }
+
+
 
 	/* custom empty value (to make our lives easier) */
 	| { type: "EmptyValue" } -> 
@@ -203,34 +174,4 @@ function interpreter(scope, s) {
 		print(s);
 		throw "Unsuported statement" 
 	}
-};
-
-function program(scope, stmts, vdecls, fdecls) {
-  print("Program [stmts]:");
-  print(stmts);
-  initialize_scope(scope, vdecls, fdecls);
-  i := 0;
-  retval := 'empty;
-  len := l_len(stmts);
-  while (i < len) {
-    stmt := l_nth(stmts, i);
-    print("________________________________________________________________________________");
-    print("Start of the statement [stmt]");
-    print(stmt);
-    ret := interpreter(scope, stmt);
-    print("End of the statement [retval]");
-    print(retval);
-    if (isAbruptCompletion(ret)) {
-      return ret
-    }; 
-    retvalaux := getCompletionValue(ret); 
-    if (!(retvalaux = 'empty)) {
-      retval := retvalaux
-    };
-    i := i + 1
-  };
-  print("________________________________________________________________________________");
-  print("End of the program [retval]:");
-  print(retval);
-  return NormalCompletion(retval)
 }

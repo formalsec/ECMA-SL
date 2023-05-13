@@ -1,0 +1,150 @@
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Program [stmts]:"
+PROGRAM PRINT: ["$loc_3", "$loc_8", "$loc_13", "$loc_17", "$loc_21", "$loc_25", "$loc_29", "$loc_33"]
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_4" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_6", "left": "$loc_5", "operator": "=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "AssignmentExpression [left][right]:"
+PROGRAM PRINT: { "name": "a", "type": "Identifier" }
+PROGRAM PRINT: { "prefix": true, "type": "UnaryExpression", "argument": "$loc_7", "operator": "+" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPos [arg]"
+PROGRAM PRINT: { "type": "Literal", "raw": "5", "value": 5 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_9" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "AssignmentExpression", "right": "$loc_11", "left": "$loc_10", "operator": "=" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "AssignmentExpression [left][right]:"
+PROGRAM PRINT: { "name": "b", "type": "Identifier" }
+PROGRAM PRINT: { "prefix": true, "type": "UnaryExpression", "argument": "$loc_12", "operator": "-" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionNeg [arg]"
+PROGRAM PRINT: { "type": "Literal", "raw": "5", "value": 5 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: -5.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_14" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_16", "left": "$loc_15", "operator": "+" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPlus [left][right]"
+PROGRAM PRINT: { "type": "Literal", "raw": "5", "value": 5 }
+PROGRAM PRINT: { "type": "Literal", "raw": "2", "value": 2 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 7.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_18" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_20", "left": "$loc_19", "operator": "-" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionMinus [left][right]"
+PROGRAM PRINT: { "type": "Literal", "raw": "5", "value": 5 }
+PROGRAM PRINT: { "type": "Literal", "raw": "2", "value": 2 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 3.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_22" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_24", "left": "$loc_23", "operator": "*" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionTimes [left][right]"
+PROGRAM PRINT: { "type": "Literal", "raw": "5", "value": 5 }
+PROGRAM PRINT: { "type": "Literal", "raw": "2", "value": 2 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 10.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_26" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_28", "left": "$loc_27", "operator": "/" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionDivision [left][right]"
+PROGRAM PRINT: { "type": "Literal", "raw": "5", "value": 5 }
+PROGRAM PRINT: { "type": "Literal", "raw": "2", "value": 2 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 2.5
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_30" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_32", "left": "$loc_31", "operator": "%" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionModulus [left][right]"
+PROGRAM PRINT: { "type": "Literal", "raw": "5", "value": 5 }
+PROGRAM PRINT: { "type": "Literal", "raw": "2", "value": 2 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 1.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "Start of the statement [stmt]"
+PROGRAM PRINT: { "type": "ExpressionStatement", "expression": "$loc_34" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ExpressionStatement [expression]:"
+PROGRAM PRINT: { "type": "BinaryExpression", "right": "$loc_36", "left": "$loc_35", "operator": "**" }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "ArithmeticExpressionPower [left][right]"
+PROGRAM PRINT: { "type": "Literal", "raw": "5", "value": 5 }
+PROGRAM PRINT: { "type": "Literal", "raw": "2", "value": 2 }
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 5.
+PROGRAM PRINT: "........................................"
+PROGRAM PRINT: "Literal [value]"
+PROGRAM PRINT: 2.
+PROGRAM PRINT: "End of the statement [retval]"
+PROGRAM PRINT: 25.
+PROGRAM PRINT: "________________________________________________________________________________"
+PROGRAM PRINT: "End of the program [retval]:"
+PROGRAM PRINT: 25.
