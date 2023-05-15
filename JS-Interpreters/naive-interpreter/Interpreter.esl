@@ -133,8 +133,8 @@ function interpreter(scope, s) {
         obj := interpreter(scope, object); 
         @checkAbruptCompletion(obj); 
         prop_name := interpreter(scope, prop);
-        @checkAbruptCompletion(prop_name);    
-        resolve_property(obj, prop_name)
+        @checkAbruptCompletion(prop_name);
+        return NormalCompletion(resolve_property(obj, prop_name))
       }
 	/* update expressions */
 	| { type: "UpdateExpression", argument: arg, operator: "++", prefix: prefix } -> 
@@ -169,7 +169,9 @@ function interpreter(scope, s) {
 function program(scope, stmts, vdecls, fdecls) {
   initialize_scope(scope, vdecls, fdecls);
 	retval := 'empty;
+	count := 0;
 	foreach (stmt : stmts) {
+		count := count + 1;
     ret := interpreter(scope, stmt);
     if (isAbruptCompletion(ret)) {
       return ret
@@ -178,6 +180,7 @@ function program(scope, stmts, vdecls, fdecls) {
     if (!(retvalaux = 'empty)) {
       retval := retvalaux
     };
+		print count
   };
   return NormalCompletion(retval)
 }

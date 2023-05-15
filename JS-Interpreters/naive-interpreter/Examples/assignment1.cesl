@@ -177,60 +177,51 @@ return ( true, "Unexpected function declaration type" )
 __v20 := __v20 + 1;
 __v21 := __v19 > __v20 };
 return ( false, null ) };
-function program (___internal_esl_global, scope, stmts, vdecls, fdecls) { print "Program [stmts]:";
-print stmts;
-__v34 := "initialize_scope" (___internal_esl_global, scope, vdecls, fdecls);
+function program (___internal_esl_global, scope, stmts, vdecls, fdecls) { __v34 := "initialize_scope" (___internal_esl_global, scope, vdecls, fdecls);
 if (fst(__v34)) {
 return __v34
 } else {
 __v34 := snd(__v34)
 };
-i := 0;
 retval := 'empty;
+count := 0;
+__v36 := 0;
 __v35 := l_len(stmts);
-len := __v35;
-__v36 := i < len;
-while (__v36) { __v37 := l_nth(stmts, i);
-stmt := __v37;
-print "________________________________________________________________________________";
-print "Start of the statement [stmt]";
-print stmt;
-__v38 := "interpreter" (___internal_esl_global, scope, stmt);
-if (fst(__v38)) {
-return __v38
-} else {
-__v38 := snd(__v38)
-};
-ret := __v38;
-print "End of the statement [retval]";
-print retval;
-__v39 := "isAbruptCompletion" (___internal_esl_global, ret);
+__v37 := __v35 > __v36;
+while (__v37) { stmt := l_nth(stmts, __v36);
+__v38 := count + 1;
+count := __v38;
+__v39 := "interpreter" (___internal_esl_global, scope, stmt);
 if (fst(__v39)) {
 return __v39
 } else {
 __v39 := snd(__v39)
 };
-if (__v39) {
-return ( false, ret )
-};
-__v40 := "getCompletionValue" (___internal_esl_global, ret);
+ret := __v39;
+__v40 := "isAbruptCompletion" (___internal_esl_global, ret);
 if (fst(__v40)) {
 return __v40
 } else {
 __v40 := snd(__v40)
 };
-retvalaux := __v40;
-__v42 := retvalaux = 'empty;
-__v41 := !(__v42);
-if (__v41) {
+if (__v40) {
+return ( false, ret )
+};
+__v41 := "getCompletionValue" (___internal_esl_global, ret);
+if (fst(__v41)) {
+return __v41
+} else {
+__v41 := snd(__v41)
+};
+retvalaux := __v41;
+__v43 := retvalaux = 'empty;
+__v42 := !(__v43);
+if (__v42) {
 retval := retvalaux
 };
-__v43 := i + 1;
-i := __v43;
-__v36 := i < len };
-print "________________________________________________________________________________";
-print "End of the program [retval]:";
-print retval;
+print count;
+__v36 := __v36 + 1;
+__v37 := __v35 > __v36 };
 __v44 := "NormalCompletion" (___internal_esl_global, retval);
 if (fst(__v44)) {
 return __v44
@@ -637,8 +628,6 @@ return __v207
 __v207 := snd(__v207)
 };
 return ( false, rhs_c )
-} else {
-
 }
 } else {
 __v208 := "type" in_obj s;
@@ -1171,174 +1160,180 @@ if (fst(__v429)) {
 return __v429
 } else {
 __v429 := snd(__v429)
-}
+};
+__v430 := "NormalCompletion" (___internal_esl_global, __v429);
+if (fst(__v430)) {
+return __v430
 } else {
-__v430 := "type" in_obj s;
-__v432 := s["type"];
-__v431 := __v432 = "UpdateExpression";
-__v433 := "argument" in_obj s;
-__v434 := "operator" in_obj s;
-__v436 := s["operator"];
-__v435 := __v436 = "++";
-__v437 := "prefix" in_obj s;
-if (true && __v430 && __v431 && __v433 && __v434 && __v435 && __v437) {
+__v430 := snd(__v430)
+};
+return ( false, __v430 )
+} else {
+__v431 := "type" in_obj s;
+__v433 := s["type"];
+__v432 := __v433 = "UpdateExpression";
+__v434 := "argument" in_obj s;
+__v435 := "operator" in_obj s;
+__v437 := s["operator"];
+__v436 := __v437 = "++";
+__v438 := "prefix" in_obj s;
+if (true && __v431 && __v432 && __v434 && __v435 && __v436 && __v438) {
 arg := s["argument"];
 prefix := s["prefix"];
-__v438 := "update_expression_inc" (___internal_esl_global, scope, arg, prefix);
-if (fst(__v438)) {
-return __v438
+__v439 := "update_expression_inc" (___internal_esl_global, scope, arg, prefix);
+if (fst(__v439)) {
+return __v439
 } else {
-__v438 := snd(__v438)
+__v439 := snd(__v439)
 };
-return ( false, __v438 )
+return ( false, __v439 )
 } else {
-__v439 := "type" in_obj s;
-__v441 := s["type"];
-__v440 := __v441 = "UpdateExpression";
-__v442 := "argument" in_obj s;
-__v443 := "operator" in_obj s;
-__v445 := s["operator"];
-__v444 := __v445 = "--";
-__v446 := "prefix" in_obj s;
-if (true && __v439 && __v440 && __v442 && __v443 && __v444 && __v446) {
+__v440 := "type" in_obj s;
+__v442 := s["type"];
+__v441 := __v442 = "UpdateExpression";
+__v443 := "argument" in_obj s;
+__v444 := "operator" in_obj s;
+__v446 := s["operator"];
+__v445 := __v446 = "--";
+__v447 := "prefix" in_obj s;
+if (true && __v440 && __v441 && __v443 && __v444 && __v445 && __v447) {
 arg := s["argument"];
 prefix := s["prefix"];
-__v447 := "update_expression_dec" (___internal_esl_global, scope, arg, prefix);
-if (fst(__v447)) {
-return __v447
+__v448 := "update_expression_dec" (___internal_esl_global, scope, arg, prefix);
+if (fst(__v448)) {
+return __v448
 } else {
-__v447 := snd(__v447)
+__v448 := snd(__v448)
 };
-return ( false, __v447 )
+return ( false, __v448 )
 } else {
-__v448 := "type" in_obj s;
-__v450 := s["type"];
-__v449 := __v450 = "VariableDeclarator";
-__v451 := "id" in_obj s;
-__v452 := "init" in_obj s;
-if (true && __v448 && __v449 && __v451 && __v452) {
+__v449 := "type" in_obj s;
+__v451 := s["type"];
+__v450 := __v451 = "VariableDeclarator";
+__v452 := "id" in_obj s;
+__v453 := "init" in_obj s;
+if (true && __v449 && __v450 && __v452 && __v453) {
 id := s["id"];
 init := s["init"];
-__v453 := "variable_declarator" (___internal_esl_global, scope, id, init);
-if (fst(__v453)) {
-return __v453
+__v454 := "variable_declarator" (___internal_esl_global, scope, id, init);
+if (fst(__v454)) {
+return __v454
 } else {
-__v453 := snd(__v453)
+__v454 := snd(__v454)
 };
-return ( false, __v453 )
+return ( false, __v454 )
 } else {
-__v454 := "type" in_obj s;
-__v456 := s["type"];
-__v455 := __v456 = "VariableDeclaration";
-__v457 := "kind" in_obj s;
-__v459 := s["kind"];
-__v458 := __v459 = "var";
-__v460 := "declarations" in_obj s;
-if (true && __v454 && __v455 && __v457 && __v458 && __v460) {
+__v455 := "type" in_obj s;
+__v457 := s["type"];
+__v456 := __v457 = "VariableDeclaration";
+__v458 := "kind" in_obj s;
+__v460 := s["kind"];
+__v459 := __v460 = "var";
+__v461 := "declarations" in_obj s;
+if (true && __v455 && __v456 && __v458 && __v459 && __v461) {
 decls := s["declarations"];
-__v461 := "var_declaration" (___internal_esl_global, scope, decls);
-if (fst(__v461)) {
-return __v461
+__v462 := "var_declaration" (___internal_esl_global, scope, decls);
+if (fst(__v462)) {
+return __v462
 } else {
-__v461 := snd(__v461)
+__v462 := snd(__v462)
 };
-return ( false, __v461 )
+return ( false, __v462 )
 } else {
-__v462 := "type" in_obj s;
-__v464 := s["type"];
-__v463 := __v464 = "VariableDeclaration";
-__v465 := "kind" in_obj s;
-__v467 := s["kind"];
-__v466 := __v467 = "let";
-__v468 := "declarations" in_obj s;
-if (true && __v462 && __v463 && __v465 && __v466 && __v468) {
+__v463 := "type" in_obj s;
+__v465 := s["type"];
+__v464 := __v465 = "VariableDeclaration";
+__v466 := "kind" in_obj s;
+__v468 := s["kind"];
+__v467 := __v468 = "let";
+__v469 := "declarations" in_obj s;
+if (true && __v463 && __v464 && __v466 && __v467 && __v469) {
 decls := s["declarations"];
-__v469 := "let_declaration" (___internal_esl_global, scope, decls);
-if (fst(__v469)) {
-return __v469
+__v470 := "let_declaration" (___internal_esl_global, scope, decls);
+if (fst(__v470)) {
+return __v470
 } else {
-__v469 := snd(__v469)
+__v470 := snd(__v470)
 };
-return ( false, __v469 )
+return ( false, __v470 )
 } else {
-__v470 := "type" in_obj s;
-__v472 := s["type"];
-__v471 := __v472 = "VariableDeclaration";
-__v473 := "kind" in_obj s;
-__v475 := s["kind"];
-__v474 := __v475 = "const";
-__v476 := "declarations" in_obj s;
-if (true && __v470 && __v471 && __v473 && __v474 && __v476) {
+__v471 := "type" in_obj s;
+__v473 := s["type"];
+__v472 := __v473 = "VariableDeclaration";
+__v474 := "kind" in_obj s;
+__v476 := s["kind"];
+__v475 := __v476 = "const";
+__v477 := "declarations" in_obj s;
+if (true && __v471 && __v472 && __v474 && __v475 && __v477) {
 decls := s["declarations"];
-__v477 := "const_declaration" (___internal_esl_global, scope, decls);
-if (fst(__v477)) {
-return __v477
+__v478 := "const_declaration" (___internal_esl_global, scope, decls);
+if (fst(__v478)) {
+return __v478
 } else {
-__v477 := snd(__v477)
+__v478 := snd(__v478)
 };
-return ( false, __v477 )
+return ( false, __v478 )
 } else {
-__v478 := "type" in_obj s;
-__v480 := s["type"];
-__v479 := __v480 = "Literal";
-__v481 := "raw" in_obj s;
-__v482 := "value" in_obj s;
-if (true && __v478 && __v479 && __v481 && __v482) {
+__v479 := "type" in_obj s;
+__v481 := s["type"];
+__v480 := __v481 = "Literal";
+__v482 := "raw" in_obj s;
+__v483 := "value" in_obj s;
+if (true && __v479 && __v480 && __v482 && __v483) {
 raw := s["raw"];
 value := s["value"];
-__v483 := "NormalCompletion" (___internal_esl_global, value);
-if (fst(__v483)) {
-return __v483
+__v484 := "NormalCompletion" (___internal_esl_global, value);
+if (fst(__v484)) {
+return __v484
 } else {
-__v483 := snd(__v483)
+__v484 := snd(__v484)
 };
-return ( false, __v483 )
+return ( false, __v484 )
 } else {
-__v484 := "type" in_obj s;
-__v486 := s["type"];
-__v485 := __v486 = "Identifier";
-__v487 := "name" in_obj s;
-if (true && __v484 && __v485 && __v487) {
+__v485 := "type" in_obj s;
+__v487 := s["type"];
+__v486 := __v487 = "Identifier";
+__v488 := "name" in_obj s;
+if (true && __v485 && __v486 && __v488) {
 name := s["name"];
-__v488 := "resolve_scope" (___internal_esl_global, scope, name);
-if (fst(__v488)) {
-return __v488
-} else {
-__v488 := snd(__v488)
-};
-v := __v488;
-__v489 := "NormalCompletion" (___internal_esl_global, v);
+__v489 := "resolve_scope" (___internal_esl_global, scope, name);
 if (fst(__v489)) {
 return __v489
 } else {
 __v489 := snd(__v489)
 };
-return ( false, __v489 )
+__v490 := "NormalCompletion" (___internal_esl_global, __v489);
+if (fst(__v490)) {
+return __v490
 } else {
-__v490 := "type" in_obj s;
-__v492 := s["type"];
-__v491 := __v492 = "EmptyValue";
-if (true && __v490 && __v491) {
+__v490 := snd(__v490)
+};
+return ( false, __v490 )
+} else {
+__v491 := "type" in_obj s;
+__v493 := s["type"];
+__v492 := __v493 = "EmptyValue";
+if (true && __v491 && __v492) {
 return ( false, 'empty )
 } else {
-__v493 := "type" in_obj s;
-__v495 := s["type"];
-__v494 := __v495 = "FunctionExpression";
-__v496 := "id" in_obj s;
-__v498 := s["id"];
-__v497 := __v498 = null;
-__v499 := "params" in_obj s;
-__v500 := "body" in_obj s;
-if (true && __v493 && __v494 && __v496 && __v497 && __v499 && __v500) {
+__v494 := "type" in_obj s;
+__v496 := s["type"];
+__v495 := __v496 = "FunctionExpression";
+__v497 := "id" in_obj s;
+__v499 := s["id"];
+__v498 := __v499 = null;
+__v500 := "params" in_obj s;
+__v501 := "body" in_obj s;
+if (true && __v494 && __v495 && __v497 && __v498 && __v500 && __v501) {
 params := s["params"];
 code := s["body"];
-__v501 := "FunctionObject" (___internal_esl_global, null, params, code, scope);
-if (fst(__v501)) {
-return __v501
+__v502 := "FunctionObject" (___internal_esl_global, null, params, code, scope);
+if (fst(__v502)) {
+return __v502
 } else {
-__v501 := snd(__v501)
+__v502 := snd(__v502)
 };
-return ( false, __v501 )
+return ( false, __v502 )
 } else {
 if (true) {
 print "[ERROR]: Found an unsuported statement";
@@ -1399,31 +1394,31 @@ return ( true, "Unsuported statement" )
 }
 } };
 function main () { ___internal_esl_global := { };
-__v502 := "buildAST" (___internal_esl_global);
-if (fst(__v502)) {
-return __v502
-} else {
-__v502 := snd(__v502)
-};
-code := __v502;
-__v503 := "Object" (___internal_esl_global);
+__v503 := "buildAST" (___internal_esl_global);
 if (fst(__v503)) {
 return __v503
 } else {
 __v503 := snd(__v503)
 };
-thisBinding := __v503;
-__v504 := "Scope" (___internal_esl_global, thisBinding);
+code := __v503;
+__v504 := "Object" (___internal_esl_global);
 if (fst(__v504)) {
 return __v504
 } else {
 __v504 := snd(__v504)
 };
-scope := __v504;
-__v505 := "interpreter" (___internal_esl_global, scope, code);
+thisBinding := __v504;
+__v505 := "Scope" (___internal_esl_global, thisBinding);
 if (fst(__v505)) {
 return __v505
 } else {
 __v505 := snd(__v505)
 };
-return ( false, __v505 ) }
+scope := __v505;
+__v506 := "interpreter" (___internal_esl_global, scope, code);
+if (fst(__v506)) {
+return __v506
+} else {
+__v506 := snd(__v506)
+};
+return ( false, __v506 ) }
