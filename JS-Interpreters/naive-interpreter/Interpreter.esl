@@ -31,72 +31,60 @@ function interpreter(scope, s) {
 	/* loop statements */
 	| { type: "WhileStatement", test: test, body: body } -> 
 			{ return while_loop_statement(scope, test, body) }
+	
+	
 	| { type: "ForStatement", init: init, test: test, update: update, body: body } -> 
 			{ return for_loop_statement(scope, init, test, update, body) }
+	
+	
 	| { type: "BreakStatement", label: null } ->
 			{ return break_statement(scope) }
+	
+	
 	| { type: "ContinueStatement", label: null } ->
 			{ return continue_statement(scope) }
-	/* arithmetic expressions */
-	| { type: "UnaryExpression", argument: arg, operator: "+" } -> 
-			{ return arithmetic_expression_pos(scope, arg) }
-	| { type: "UnaryExpression", argument: arg, operator: "-" } -> 
-			{ return arithmetic_expression_neg(scope, arg) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "+" } ->
-			{ return arithmetic_expression_plus(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "-" } -> 
-			{ return arithmetic_expression_minus(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "*" } -> 
-			{ return arithmetic_expression_times(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "/" } -> 
-			{ return arithmetic_expression_division(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "%" } -> 
-			{ return arithmetic_expression_modulus(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "**" } -> 
-			{ return arithmetic_expression_power(scope, left, right) }
-	/* assignment expressions */
-	| { type: "AssignmentExpression", left: left, right: right, operator: op } -> {
+	
+
+	| { type: "AssignmentExpression", left: left, right: right, operator: "=" } -> {
         if (left.type = "Identifier") {
           var_name := left.name; 
-          rhs_c := interpreter(scope, right); 
-          if (isAbruptCompletion(rhs_c)) {
-            return rhs_c
-          }; 
-          rhs := getCompletionValue(rhs_c); 
+          rhs := interpreter(scope, right); 
+          @checkAbruptCompletion(rhs);
           update_scope(scope, scope, var_name, rhs); 
-          return rhs_c}}
-	/* bitwise expressions */
-	| { type: "UnaryExpression", argument: arg, operator: "~" } -> 
-		{ return bitwise_expression_not(scope, arg) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "&" } -> 
-		{ return bitwise_expression_and(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "|" } -> 
-		{ return bitwise_expression_or(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "^" } -> 
-		{ return bitwise_expression_xor(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "<<" } -> 
-		{ return bitwise_expression_zero_fill_left_shift(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: ">>" } -> 
-		{ return bitwise_expression_signed_right_shift(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: ">>>" } -> 
-		{ return bitwise_expression_zero_fill_right_shift(scope, left, right) }
-	/* comparison expressions */
-	| { type: "BinaryExpression", left: left, right: right, operator: "==" } -> 
-			{ return comparison_expression_eq(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "!=" } -> 
-			{ return comparison_expression_ne(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "<" } -> 
-			{ return comparison_expression_lt(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: ">" } -> 
-			{ return comparison_expression_gt(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "<=" } -> 
-			{ return comparison_expression_le(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: ">=" } -> 
-			{ return comparison_expression_ge(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "===" } -> 
-			{ return comparison_expression_stricteq(scope, left, right) }
-	| { type: "BinaryExpression", left: left, right: right, operator: "!==" } -> 
-			{ return comparison_expression_strictne(scope, left, right) }
+          return NormalCompletion(rhs)
+				} elif (left.type = "MemberExpression") {
+					obj_val := interpreter(scope, left.object); 
+					@checkAbruptCompletion(obj_val); 
+					if (left.computed) {
+						/* o[p]*/
+						prop_name := interpreter(scope, left.property); 
+						@checkAbruptCompletion(prop_name)
+					} else {
+						/* o.p */
+						prop_name := prop.name
+					}
+					rhs := interpreter(scope, right); 
+          @checkAbruptCompletion(rhs);
+					update_object(obj_val, prop_name, rhs); 
+					return NormalCompletion(rhs)
+				} else {
+					throw "Illegal Assignment Expression"
+				}
+	
+	| { type: "UnaryExpression", argument: arg, operator: op } -> 
+		{ 
+			arg_val := interpreter(scope, arg); 
+      @checkAbruptCompletion(arg_val); 
+			return NormalCompletion(apply_binary_operator(op, arg))
+		}
+	| { type: "BinaryExpression", left: left, right: right, operator: op } -> 
+		{ 
+			left_val := interpreter(scope, left); 
+      @checkAbruptCompletion(left_val); 
+			right_val := interpreter(scope, right);
+			@checkAbruptCompletion(right_val);
+			return NormalCompletion(apply_binary_operator(op, left_val, right_val)) 
+		}
 	/* conditional expressions */
 	| { type: "ConditionalExpression", test: test, consequent: expr1, alternate: expr2 } -> 
 		{ return conditional_expression(scope, test, expr1, expr2) }
@@ -183,4 +171,17 @@ function program(scope, stmts, vdecls, fdecls) {
 		print count
   };
   return NormalCompletion(retval)
+};
+
+function apply_binary_operator(op, v1, v2) {
+	switch(op) {
+		case "+": { return v1 + v2 }
+		sdefault: { throw "unsupported binary operator" }
+	}
+};
+
+function apply_unary_operator(op, v) {
+	switch(op) {
+		sdefault: throw "unsupported unary operator"
+	}
 }

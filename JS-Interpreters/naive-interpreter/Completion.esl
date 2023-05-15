@@ -2,6 +2,14 @@ function NormalCompletion(v) {
   return ('Normal, v)
 };
 
+function ReturnCompletion(v) {
+  return ('Return, v)
+};
+
+function ThrowCompletion(v) {
+  return ('Throw, v)
+};
+
 function isAbruptCompletion(v) {
   return !(t_nth(v, 0) = 'Normal)
 }; 
