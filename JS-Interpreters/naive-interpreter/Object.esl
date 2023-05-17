@@ -15,4 +15,9 @@ function resolve_property(obj, prop_name) {
       return resolve_property(obj.__proto__, prop_name)
     }
   }
+}; 
+
+function update_object(obj_val, prop_name, rhs){
+  obj_val[prop_name] := rhs; 
+  return
 }
