@@ -1,0 +1,17 @@
+[
+    {
+        "type": "StrType",
+        "name": "iface___instr_symb_str_0",
+        "value": "\"A; $(touch success) #BCDEF\""
+    },
+    {
+        "type": "IntType",
+        "name": "__pos",
+        "value": "20"
+    },
+    {
+        "type": "IntType",
+        "name": "__len",
+        "value": "20"
+    }
+]

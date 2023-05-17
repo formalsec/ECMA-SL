@@ -1,0 +1,4 @@
+{
+    "sink": "eval",
+    "expression": "symbolic (__$Str, \"malicious___instr_symb_str_1\")"
+}

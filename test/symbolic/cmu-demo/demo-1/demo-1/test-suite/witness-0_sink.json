@@ -1,0 +1,7 @@
+{
+    "sink": "eval",
+    "expression":
+        "s_concat([ 
+            s_concat([ \"cat /sys/class/net/\", symbolic (__$Str, \"iface___instr_symb_str_0\") ]),
+            \"/address\" ])"
+}

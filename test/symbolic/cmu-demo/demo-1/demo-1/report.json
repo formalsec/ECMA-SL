@@ -1,0 +1,8 @@
+{
+    "file": "demo-1.cesl",
+    "paths": 1,
+    "errors": 1,
+    "unknowns": 0,
+    "time_analysis": "0.174192",
+    "time_solver": "0.085042"
+}
