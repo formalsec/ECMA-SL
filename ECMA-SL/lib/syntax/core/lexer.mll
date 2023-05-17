@@ -15,7 +15,7 @@
                 [
                   "parse_number"    , PARSE_NUMBER;
                   "parse_string"    , PARSE_STRING;
-                  "parse_date"    , PARSE_DATE;
+                  "parse_date"      , PARSE_DATE;
                   "l_len"           , LLEN;
                   "l_nth"           , LNTH;
                   "l_add"           , LADD;
@@ -212,6 +212,13 @@ rule read =
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | '"'               { read_string (Buffer.create 16) lexbuf }
+  | "__api_is_symbolic" { API_IS_SYMBOLIC }
+  | "__api_is_sat"    { API_IS_SAT }
+  | "__api_maximize"  { API_MAXIMIZE }
+  | "__api_minimize"  { API_MINIMIZE }
+  | "__api_eval"      { API_EVAL }
+  | "__api_eval_wrapper" { API_EVAL_WRAPPER }
+  | "__api_exec_wrapper" { API_EXEC_WRAPPER }
   | letter(letter|digit|'_')* as id { try
                                         Hashtbl.find keyword_table id
                                       with Not_found -> VAR id }

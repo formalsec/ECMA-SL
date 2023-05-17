@@ -3,29 +3,6 @@ open Expr
 open Val
 open Operators
 
-let reduce_sconcat (vs : Expr.t list) : Expr.t =
-  let s =
-    List.fold_left vs ~init:[] ~f:(fun a b ->
-        match a with
-        | [] -> [ b ]
-        | h :: t -> (
-            match (h, b) with
-            | Val (Str h'), Val (Str b') ->
-                Val (Str (String.concat ~sep:"" [ h'; b' ])) :: t
-            | Val (Str h'), _ -> b :: a
-            | _, Val (Str b') -> b :: a
-            | _ ->
-                failwith ("impossible argument types for concat " ^ Expr.str h)))
-  in
-  let s = List.rev s in
-  if List.length s > 1 then UnOpt (Sconcat, NOpt (ListExpr, s))
-  else
-    Val
-      (Str
-         (String.concat ~sep:""
-            (List.fold_left vs ~init:[] ~f:(fun a b ->
-                 match b with Val (Str s) -> a @ [ s ] | _ -> a))))
-
 let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   match (op, v) with
   | op, Val v -> Val (Eval_op.eval_unop op v)
@@ -47,7 +24,12 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | Typeof, op ->
       let t = Sval_typing.type_of op in
       Val (Type (Option.value_exn t))
-  | Sconcat, NOpt (ListExpr, vs) -> reduce_sconcat vs
+  | Sconcat, NOpt (ListExpr, vs) when Caml.not (Expr.is_symbolic v) ->
+      Val
+        (Str
+           (String.concat ~sep:""
+              (List.fold_left vs ~init:[] ~f:(fun a b ->
+                   match b with Val (Str s) -> a @ [ s ] | _ -> a))))
   | FloatOfString, UnOpt (FloatToString, Symbolic (t, x)) -> Symbolic (t, x)
   (* missing obj_to_list, obj_fields*)
   | op', v1' -> UnOpt (op', v1')

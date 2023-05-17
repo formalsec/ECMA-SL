@@ -45,6 +45,8 @@ let type_of_binop (op : Operators.bopt) (arg1 : Expr.t) (arg2 : Expr.t)
   | Operators.Ge -> bin_args_typing_comp arg1_t arg2_t
   | Operators.Log_And -> bin_args_typing_logic arg1_t arg2_t
   | Operators.Log_Or -> bin_args_typing_logic arg1_t arg2_t
+  | Operators.Min -> bin_args_typing_logic arg1_t arg2_t
+  | Operators.Max -> bin_args_typing_logic arg1_t arg2_t
   | Operators.Tnth -> None
   | Operators.Lnth -> bin_args_typing_lnth arg1 arg2
   | Operators.InList -> bin_args_typing_inlist arg1_t
@@ -52,6 +54,7 @@ let type_of_binop (op : Operators.bopt) (arg1 : Expr.t) (arg2 : Expr.t)
   | Operators.Ladd -> None
   | Operators.Pow -> bin_args_typing_pow arg1_t arg2_t
   | Operators.Snth -> Some Type.StrType
+  | Operators.Snth_u -> Some Type.StrType
   | Operators.BitwiseAnd | Operators.BitwiseOr | Operators.BitwiseXor
   | Operators.ShiftLeft | Operators.ShiftRight | Operators.ShiftRightLogical ->
       bitwise_operators_typing_logic arg1_t arg2_t

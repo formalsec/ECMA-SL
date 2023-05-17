@@ -32,7 +32,12 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
   let open Type in
   let open Operators in
   let int_unop op e =
-    let op' = match op with Neg -> Integer.mk_neg | _ -> assert false in
+    let op' =
+      match op with
+      | Neg -> Integer.mk_neg
+      | IntToFloat -> Real.mk_of_integer
+      | _ -> assert false
+    in
     op' e
   in
   let flt_unop op e =
@@ -121,6 +126,7 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
     let op' =
       match op with
       | Snth -> Strings.mk_nth
+      | Snth_u -> Strings.mk_nth
       | Eq -> Strings.mk_eq
       | _ -> assert false
     in

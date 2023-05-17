@@ -28,7 +28,9 @@ let at (startpos, endpos) =
 *)
 %token SKIP
 %token PRINT WRAPPER
-%token ASSERT ASSUME SYMBOLIC IS_SYMBOLIC MAXIMIZE MINIMIZE ISSAT EVAL
+%token ASSERT ASSUME SYMBOLIC 
+%token API_IS_SYMBOLIC API_MAXIMIZE API_MINIMIZE API_IS_SAT
+%token API_EVAL API_EVAL_WRAPPER API_EXEC_WRAPPER
 %token DEFEQ
 %token WHILE FOREACH
 %token IF ELSE ELIF
@@ -97,12 +99,15 @@ let at (startpos, endpos) =
 
 e_prog_e_expr_target:
   | e = e_expr_target; EOF; { e }
+  ;
 
 e_prog_e_stmt_target:
   | s = e_block_target; EOF; { s }
+  ;
 
 e_prog_e_func_target:
   | f = proc_target; EOF; { f }
+  ;
 
 e_prog_target:
   | imports = list (import_target); macros_funcs = separated_list (SEMICOLON, e_prog_elem_target); EOF;
@@ -112,16 +117,19 @@ e_prog_target:
     let macros' = List.concat (List.map (fun o -> Option.map_default (fun x -> [ x ]) [] o) macros) in
     E_Prog.create imports funcs' macros'
    }
+  ;
 
 import_target:
   | IMPORT; fname = STRING; SEMICOLON;
     { fname }
+  ;
 
 e_prog_elem_target:
   | f = proc_target;
     { (Some f, None) }
   | m = macro_target;
     { (None, Some m) }
+  ;
 
 proc_target:
   | FUNCTION; f = VAR; LPAREN; vars = proc_params_target; RPAREN; s = e_block_target;
@@ -131,24 +139,29 @@ proc_target:
      let vars_meta = Option.default [] vars_meta_opt in
      let metadata = E_Func_Metadata.build_func_metadata meta vars_meta in
      E_Func.create (Some metadata) f vars s }
+  ;
 
 proc_params_target:
   | params = separated_list (COMMA, VAR);
     { params }
-  /* | params = separated_list (COMMA, VAR); COMMA; LBRACK; fparams = separated_list(COMMA, VAR); RBRACK;
-    { params @ fparams } */
+  (* | params = separated_list (COMMA, VAR); COMMA; LBRACK; fparams = separated_list(COMMA, VAR); RBRACK;
+    { params @ fparams } *)
+  ;
 
 macro_target:
   | MACRO; m = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; s = e_block_target;
    { E_Macro.create m vars s }
+  ;
 
 metadata_target:
   | LBRACK; meta = separated_list (COMMA, val_target); RBRACK;
     { meta }
+  ;
 
 vars_metadata_target:
   | LBRACK; meta = separated_list (COMMA, var_metadata_target); RBRACK;
     { meta }
+  ;
 
 var_metadata_target:
   | meta = STRING;
@@ -158,6 +171,7 @@ var_metadata_target:
       | 2 -> ( List.nth param_alt 0, List.nth param_alt 1 )
       | _ -> raise (Failure "Invalid function's variables metadata")
     }
+  ;
 
 (*
   The pipes separate the individual productions, and the curly braces contain a semantic action:
@@ -171,6 +185,7 @@ tuple_target:
     { [v2; v1] }
   | vs = tuple_target; COMMA; v = e_expr_target;
     { v :: vs }
+  ;
 
 type_target:
   | INT_TYPE;
@@ -193,6 +208,7 @@ type_target:
     { Type.SymbolType }
   | CURRY_TYPE;
     { Type.CurryType }
+  ; 
 
 (* v ::= f | i | b | s *)
 val_target:
@@ -213,7 +229,7 @@ val_target:
     { Val.Loc l }
   | t = type_target;
     { Val.Type t }
-
+  ;
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 e_expr_target:
@@ -261,17 +277,25 @@ e_expr_target:
     { pre_tri_op_expr }
   | in_bin_op_expr = infix_binary_op_target;
     { in_bin_op_expr }
-  | ISSAT; LPAREN; e = e_expr_target; RPAREN;
-    { E_Expr.SymbExpr(E_Expr.IsSat e) }
-  | IS_SYMBOLIC; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.SymbExpr(E_Expr.IsSymbolic e) }
-  | EVAL; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.SymbExpr (E_Expr.Eval e) }
-  | MAXIMIZE; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.SymbExpr (E_Expr.Maximize e) }
-  | MINIMIZE; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.SymbExpr (E_Expr.Minimize e) }
+  | api_expr = api_op_target; { api_expr }
+  ;
 
+api_op_target:
+  | API_IS_SAT; LPAREN; e = e_expr_target; RPAREN;
+    { E_Expr.APIOp (E_Expr.Is_sat e) }
+  | API_IS_SYMBOLIC; LPAREN; e = e_expr_target; RPAREN; 
+    { E_Expr.APIOp (E_Expr.Is_symbolic e) }
+  | API_EVAL; LPAREN; e = e_expr_target; RPAREN; 
+    { E_Expr.APIOp (E_Expr.Eval e) }
+  | API_EVAL_WRAPPER; LPAREN; e = e_expr_target; RPAREN; 
+    { E_Expr.APIOp (E_Expr.Eval_wrapper e) }
+  | API_EXEC_WRAPPER; LPAREN; e = e_expr_target; RPAREN; 
+    { E_Expr.APIOp (E_Expr.Exec_wrapper e) }
+  | API_MAXIMIZE; LPAREN; e = e_expr_target; RPAREN; 
+    { E_Expr.APIOp (E_Expr.Maximize e) }
+  | API_MINIMIZE; LPAREN; e = e_expr_target; RPAREN; 
+    { E_Expr.APIOp (E_Expr.Minimize e) }
+  ;
 
 nary_op_target:
   | LBRACK; es = separated_list (COMMA, e_expr_target); RBRACK;
@@ -280,6 +304,7 @@ nary_op_target:
     { E_Expr.NOpt (TupleExpr, List.rev t) }
   (*| LARRBRACK; es = separated_list (COMMA, e_expr_target); RARRBRACK;
     { E_Expr.NOpt (ArrExpr, es) }*)
+  ;
 
 prefix_unary_op_target:
   | MINUS; e = e_expr_target;

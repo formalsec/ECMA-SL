@@ -359,14 +359,17 @@ module M (Mon : SecurityMonitor) = struct
         let v = eval_objfields_oper heap sto e in
         Store.set sto st v;
         (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (st, e))
-    | SymbStmt ss ->
+    | API_stmt ss ->
         let name, v, exp =
           match ss with
-          | Symb_stmt.IsSymbolic (name, e) -> (name, eval_expr sto e, e)
-          | Symb_stmt.IsSat (name, e) -> (name, eval_expr sto e, e)
-          | Symb_stmt.Maximize (name, e) -> (name, eval_expr sto e, e)
-          | Symb_stmt.Minimize (name, e) -> (name, eval_expr sto e, e)
-          | Symb_stmt.Eval (name, e) -> (name, eval_expr sto e, e)
+          | API_stmt.Is_symbolic (name, e) -> (name, eval_expr sto e, e)
+          | API_stmt.Is_sat (name, e) -> (name, eval_expr sto e, e)
+          | API_stmt.Maximize (name, e) -> (name, eval_expr sto e, e)
+          | API_stmt.Minimize (name, e) -> (name, eval_expr sto e, e)
+          | API_stmt.Eval (name, e) -> (name, eval_expr sto e, e)
+          | API_stmt.Eval_wrapper _ | API_stmt.Exec_wrapper _ ->
+              (* Does not happen in concrete executions *)
+              assert false
         in
         Store.set sto name v;
         (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (name, exp))

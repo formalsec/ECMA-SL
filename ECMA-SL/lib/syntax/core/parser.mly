@@ -58,6 +58,8 @@ let at (startpos, endpos) =
 %token SCONCAT SSPLIT AT_SIGN EXTERN
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
+%token API_IS_SYMBOLIC API_IS_SAT API_MAXIMIZE API_MINIMIZE
+%token API_EVAL API_EVAL_WRAPPER API_EXEC_WRAPPER
 %token EOF
 
 %left LAND LOR
@@ -93,10 +95,12 @@ prog_stmt_target:
 prog_target:
   | funcs = separated_list (SEMICOLON, proc_target); EOF;
    { funcs }
+  ;
 
 proc_target:
   | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; LBRACE; s = stmt_block; RBRACE
    { Func.create f vars s }
+  ;
 
 (*
   The pipes separate the individual productions, and the curly braces contain a semantic action:
@@ -110,6 +114,7 @@ tuple_target:
     { [v2; v1] }
   | vs = tuple_target; COMMA; v = expr_target;
     { v :: vs }
+  ;
 
 type_target:
   | INT_TYPE;
@@ -132,6 +137,7 @@ type_target:
     { Type.SymbolType }
   | CURRY_TYPE;
     { Type.CurryType }
+  ;
 
 (* v ::= f | i | b | s *)
 val_target:
@@ -151,6 +157,7 @@ val_target:
     { Val.Loc l }
   | t = type_target;
     { Val.Type t }
+  ;
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 expr_target:
@@ -364,10 +371,12 @@ expr_target:
     { Expr.UnOpt (ArrayLen, e) } %prec unopt_prec
   | LIST_TO_ARRAY; e = expr_target;
     { Expr.UnOpt (ListToArray, e) } %prec unopt_prec
+  ;
 
 stmt_block:
   | s = separated_list (SEMICOLON, stmt_target); 
     { Stmt.Block s @@ at $sloc }
+  ;
 
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return *)
 stmt_target:
@@ -403,6 +412,7 @@ stmt_target:
     { Stmt.Return e @@ at $sloc }
   | RETURN;
     { Stmt.Return (Expr.Val Val.Void) @@ at $sloc }
+  | api_stmt = api_stmt_target; { api_stmt @@ at $sloc }
   | v = VAR; DEFEQ; f = expr_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
     { Stmt.AssignCall (v,f,vs) @@ at $sloc }
   | x = VAR; DEFEQ; EXTERN; f = VAR; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
@@ -419,8 +429,24 @@ stmt_target:
     { Stmt.AssignObjToList (v, e) @@ at $sloc }
   | v = VAR; DEFEQ; OBJ_FIELDS; e = expr_target;
     { Stmt.AssignObjFields (v, e) @@ at $sloc }
+  ;
 
-
+api_stmt_target:
+  | v = VAR; DEFEQ; API_IS_SYMBOLIC; LPAREN; e = expr_target; RPAREN;
+    { Stmt.API_stmt (API_stmt.Is_symbolic (v, e)) }
+  | v = VAR; DEFEQ; API_IS_SAT; LPAREN; e = expr_target; RPAREN;
+    { Stmt.API_stmt (API_stmt.Is_sat (v, e)) }
+  | v = VAR; DEFEQ; API_MAXIMIZE; LPAREN; e = expr_target; RPAREN;
+    { Stmt.API_stmt (API_stmt.Maximize (v, e)) }
+  | v = VAR; DEFEQ; API_MINIMIZE; LPAREN; e = expr_target; RPAREN;
+    { Stmt.API_stmt (API_stmt.Minimize (v, e)) }
+  | v = VAR; DEFEQ; API_EVAL; LPAREN; e = expr_target; RPAREN;
+    { Stmt.API_stmt (API_stmt.Eval (v, e)) }
+  | v = VAR; DEFEQ; API_EVAL_WRAPPER; LPAREN; e = expr_target; RPAREN;
+    { Stmt.API_stmt (API_stmt.Eval_wrapper (v, e)) }
+  | v = VAR; DEFEQ; API_EXEC_WRAPPER; LPAREN; e = expr_target; RPAREN;
+    { Stmt.API_stmt (API_stmt.Exec_wrapper (v, e)) }
+  ;
 
 (* if (e) { s } | if (e) {s} else { s } *)
 ifelse_target:
@@ -428,6 +454,7 @@ ifelse_target:
     { Stmt.If (e, s1, Some s2) @@ at $sloc }
   | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block; RBRACE;
     { Stmt.If (e, s, None) @@ at $sloc }
+  ;
 
 %inline op_target:
   | MINUS   { Minus }
@@ -450,3 +477,4 @@ ifelse_target:
   | LOR     { Log_Or }
   | IN_LIST { InList }
   | POW     { Pow }
+  ;

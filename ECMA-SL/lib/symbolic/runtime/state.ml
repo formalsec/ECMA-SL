@@ -11,7 +11,7 @@ and outcome =
   | Cont of Stmt.t list
   | Error of Expr.t option
   | Final of Expr.t option
-  | Failure of Expr.t option
+  | Failure of string * Expr.t option
   | Unknown of Expr.t option
 
 and func = string

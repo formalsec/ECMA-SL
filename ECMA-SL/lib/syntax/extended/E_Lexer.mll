@@ -14,11 +14,13 @@
     let _ =
       List.iter (fun (kwd, tok) -> Hashtbl.add keyword_table kwd tok)
               [
-                "__api_is_sat"          , ISSAT;
-                "__api_maximize"        , MAXIMIZE; 
-                "__api_minimize"        , MINIMIZE; 
-                "__api_eval"            , EVAL;
-                "__api_is_symbolic"     , IS_SYMBOLIC;
+                "__api_is_sat"          , API_IS_SAT;
+                "__api_maximize"        , API_MAXIMIZE; 
+                "__api_minimize"        , API_MINIMIZE; 
+                "__api_is_symbolic"     , API_IS_SYMBOLIC;
+                "__api_eval"            , API_EVAL;
+                "__api_eval_wrapper"    , API_EVAL_WRAPPER;
+                "__api_exec_wrapper"    , API_EXEC_WRAPPER;
                 "parse_number"    , PARSE_NUMBER;
                 "parse_string"    , PARSE_STRING;
                 "parse_date"      , PARSE_DATE;

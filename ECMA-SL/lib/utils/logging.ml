@@ -1,5 +1,8 @@
 open Core
 
+let print (s : string lazy_t) : unit =
+  if !Config.verbose then printf "[verb] %s" (Lazy.force s)
+
 let print_endline (s : string lazy_t) : unit =
   if !Config.verbose then printf "[verb] %s\n" (Lazy.force s)
 
