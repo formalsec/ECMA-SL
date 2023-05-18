@@ -6,14 +6,37 @@ function ReturnCompletion(v) {
   return ('Return, v)
 };
 
+function BreakCompletion(v) {
+  return ('Break, v)
+};
+
+function ContinueCompletion(v) {
+  return ('Continue, v)
+};
+
 function ThrowCompletion(v) {
   return ('Throw, v)
 };
 
-function isAbruptCompletion(v) {
-  return !(t_nth(v, 0) = 'Normal)
-}; 
 
-function getCompletionValue(v) {
-  return t_nth(v, 1)
+function getCompletionType(c) {
+  return t_nth(c, 0)
+};
+
+function getCompletionValue(c) {
+  return t_nth(c, 1)
+};
+
+function isAbruptCompletion(c) {
+  return !(getCompletionType(c) = 'Normal)
+};
+
+
+
+macro checkAbruptCompletion(c) {
+  if (isAbruptCompletion(c)) {
+    return c
+  } else {
+    c := getCompletionValue(c)
+  }
 }

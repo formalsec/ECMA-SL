@@ -1,0 +1,6 @@
+function raiseError(msg, src) {
+	errMsg := s_concat (["[ERROR]: ", msg]);
+	print(errMsg);
+	print(src);
+	throw msg
+}

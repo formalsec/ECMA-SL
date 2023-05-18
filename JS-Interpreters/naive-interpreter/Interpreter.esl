@@ -1,187 +1,351 @@
 import "Completion.esl"; 
 import "Object.esl";
 import "Scope.esl";
+import "FunctionObject.esl";
+import "Error.esl";
 
-macro checkAbruptCompletion(c) {
-  if (isAbruptCompletion(c)) {
-    return c
-  } else {
-    c := getCompletionValue(c)
-  }
-};
 
 function interpreter(scope, s) {
-	print("........................................");
 	match s with
-	/* execution statements */
+
+	/* main statements */
 	| { type: "Program", body: body, variableDeclarations: vdecls, functionDeclarations: fdecls } -> 
-			{ return program(scope, body, vdecls, fdecls) }
-	| { type: "BlockStatement", body: body } -> 
-			{ return block_statement(scope, body) }
-	| { type: "ReturnStatement", argument: arg } -> 
-			{ return return_statement(scope, arg) }
-	/* expression statements */
+		{ return interpretProgram(scope, body, vdecls, fdecls) }
+
+	| { type: "BlockStatement", body: stmts } -> {
+			foreach (stmt : stmts) {
+				retVal := interpreter(scope, stmt);
+				@checkAbruptCompletion(retVal)
+			};
+			return NormalCompletion(retVal) 
+		}
+
+	| { type: "ReturnStatement", argument: arg } -> {
+			retVal := interpreter(scope, arg);
+			@checkAbruptCompletion(retVal);
+			return ReturnCompletion(retVal)
+		}
+
 	| { type: "ExpressionStatement", expression: expr } -> 
-			{ return interpreter(scope, expr) }
-	/* conditional statements */
-	| { type: "IfStatement", test: test, consequent: stmt1, alternate: stmt2 } -> 
-			{ return if_statement(scope, test, stmt1, stmt2) }
-	| { type: "SwitchStatement", discriminant: discriminant, cases: cases } -> 
-			{ return switch_statement(scope, discriminant, cases) }
-	/* loop statements */
-	| { type: "WhileStatement", test: test, body: body } -> 
-			{ return while_loop_statement(scope, test, body) }
-	
-	
-	| { type: "ForStatement", init: init, test: test, update: update, body: body } -> 
-			{ return for_loop_statement(scope, init, test, update, body) }
-	
-	
+		{ return interpreter(scope, expr) }
+
+
+	/* control flow statements */
 	| { type: "BreakStatement", label: null } ->
-			{ return break_statement(scope) }
-	
+			{ return BreakCompletion('empty) }	
 	
 	| { type: "ContinueStatement", label: null } ->
-			{ return continue_statement(scope) }
+			{ return ContinueCompletion('empty) }
+
+	| { type: "IfStatement", test: test, consequent: stmt1, alternate: stmt2 } -> {
+			testVal := interpreter(scope, test);
+			@checkAbruptCompletion(testVal);
+			if (testVal) {
+				return interpreter(scope, stmt1)
+			} elif (!(stmt2 = null)) {
+				return interpreter(scope, stmt2)
+			} else {
+				return NormalCompletion('empty)
+			}
+		}
+
+	| { type: "WhileStatement", test: test, body: stmt } -> {
+			testVal := interpreter(scope, test);
+			@checkAbruptCompletion(testVal);
+			while (testVal) {
+				retVal := interpreter(scope, stmt);
+				switch(getCompletionType(retVal)) {
+					case 'Break: { return NormalCompletion('empty) }
+					case 'Return: { return retVal }
+					case 'Throw: { return retVal }
+				};
+				testVal := interpreter(scope, test);
+				@checkAbruptCompletion(testVal)
+			};
+			return NormalCompletion('empty)
+		}
+
+		| { type: "ForStatement", init: init, test: test, update: update, body: stmt } -> {
+			initVal := interpreter(scope, init);
+			@checkAbruptCompletion(initVal);
+			testVal := interpreter(scope, test);
+			@checkAbruptCompletion(testVal);
+			while (testVal) {
+				retVal := interpreter(scope, stmt);
+				switch(getCompletionType(retVal)) {
+					case 'Break: { return NormalCompletion('empty) }
+					case 'Return: { return retVal }
+					case 'Throw: { return retVal }
+				};
+				updateVal := interpreter(scope, update);
+				@checkAbruptCompletion(updateVal);
+				testVal := interpreter(scope, test);
+				@checkAbruptCompletion(testVal)
+			};
+			return NormalCompletion('empty)
+		}
+
+
+	/* main expressions */
+	| { type: "UnaryExpression", operator: op, argument: arg } -> { 
+			argVal := interpreter(scope, arg); 
+      @checkAbruptCompletion(argVal);
+			return NormalCompletion(applyUnaryOperator(op, argVal))
+		}
+
+	| { type: "BinaryExpression", operator: op, left: left, right: right } -> { 
+			leftVal := interpreter(scope, left); 
+      @checkAbruptCompletion(leftVal); 
+			rightVal := interpreter(scope, right);
+			@checkAbruptCompletion(rightVal);
+			return NormalCompletion(applyBinaryOperator(op, leftVal, rightVal)) 
+		}
+
+	| { type: "LogicalExpression", operator: op, left: left, right: right } -> {
+			leftVal := interpreter(scope, left); 
+      @checkAbruptCompletion(leftVal); 
+			match s with
+			| { operator: "&&", leftVal: false } -> { return NormalCompletion(false) }
+			| { operator: "||", leftVal: true } -> { return NormalCompletion(true) };
+			return interpreter(scope, right)
+		}
+
+		| { type: "ConditionalExpression", test: test, consequent: expr1, alternate: expr2 } -> { 
+				testVal := interpreter(scope, test);
+				@checkAbruptCompletion(testVal);
+				if (testVal) {
+					return interpreter(scope, expr1)
+				} else {
+					return interpreter(scope, expr2)
+				}
+			}
+
+
+	/* assignment expression */
+	| { type: "AssignmentExpression", operator: op, left: left, right: right } -> {
+			rightVal := interpreter(scope, right);
+			@checkAbruptCompletion(rightVal);
+			match left with
+			| { type: "Identifier", name: name } -> {
+					oldVal := resolveName(scope, name);
+					newVal := applyAssignmentOperator(op, oldVal, rightVal);
+					updateScope(scope, scope, name, newVal);
+					return NormalCompletion(newVal)
+				}
+			| { type: "MemberExpression", object: object, property: prop, computed: computed } -> {
+					objVal := interpreter(scope, object);
+					@checkAbruptCompletion(objVal);
+					if (computed) {
+						propName := interpreter(scope, prop);
+						@checkAbruptCompletion(propName)
+					} else {
+						propName := prop.name
+					};
+					oldVal := resolveProperty(objVal, propName);
+					newVal := applyAssignmentOperator(op, oldVal, rightVal);
+					updateObject(objVal, propName, newVal);
+					return NormalCompletion(newVal)
+				}
+			| default -> { raiseError ("Illegal assignment expression", left) }
+		}
+
+	| { type: "UpdateExpression", operator: op, argument: arg, prefix: prefix } -> { 
+			rightVal := { type: "Literal", value: 1.0, raw: "1.0" };
+			oldVal := interpreter(scope, arg);
+			@checkAbruptCompletion(oldVal);
+			switch(op) {
+				case "++": { updateExpr := { type: "AssignmentExpression", operator: "+=", left: arg, right: rightVal } }
+				case "--": { updateExpr := { type: "AssignmentExpression", operator: "-=", left: arg, right: rightVal } }
+				sdefault: raiseError("Illegal update expression operator", op)
+			};
+			newVal := interpreter(scope, updateExpr);
+			@checkAbruptCompletion(newVal);
+			if (prefix) {
+				return NormalCompletion(newVal)
+			} else {
+				return NormalCompletion(oldVal)
+			}
+		}
+
+	
+	/* object expression */
+	| { type: "ObjectExpression", properties: props } -> {
+			object := Object();
+			foreach (prop : props) {
+				propName := prop.key.name;
+				propVal := interpreter(scope, prop.value);
+				@checkAbruptCompletion(propVal);
+				object[propName] := propVal
+			};	
+			return NormalCompletion(object)
+		}
+
+	| { type: "MemberExpression", object: object, property: prop, computed: computed } -> {
+			objVal := interpreter(scope, object); 
+			@checkAbruptCompletion(objVal);
+			if (computed) {
+				propName := interpreter(scope, prop);
+				@checkAbruptCompletion(propName)
+			} else {
+				propName := prop.name
+			};
+			return NormalCompletion(resolveProperty(objVal, propName))
+		}
+
+
+	/* call expressions */
+	| { type: "CallExpression", callee: callee, arguments: args } -> {
+			functionObject := interpreter(scope, callee);
+			@checkAbruptCompletion(functionObject);
+			match callee with
+			| { type: "MemberExpression", object: obj } -> {
+					thisBinding := interpreter(scope, obj);
+					@checkAbruptCompletion(thisBinding)
+				}
+			| default -> { thisBinding := functionObject };
+			retVal := interpretCall(scope, functionObject, args, thisBinding);
+			switch (getCompletionType(retVal)) {
+				case 'Throw: { return retVal }
+				sdefault: return NormalCompletion(getCompletionValue(retVal))
+			}
+		}
+
+	| { type: "NewExpression", callee: callee, arguments: args } -> {
+			functionObject := interpreter(scope, callee);
+			@checkAbruptCompletion(functionObject);
+			newObject := Object();
+			retVal := interpretCall(scope, functionObject, args, newObject);
+			switch (getCompletionType(retVal)) {
+				case 'Throw: { return retVal }
+				sdefault: return NormalCompletion(newObject)
+			}
+		}
 	
 
-	| { type: "AssignmentExpression", left: left, right: right, operator: "=" } -> {
-        if (left.type = "Identifier") {
-          var_name := left.name; 
-          rhs := interpreter(scope, right); 
-          @checkAbruptCompletion(rhs);
-          update_scope(scope, scope, var_name, rhs); 
-          return NormalCompletion(rhs)
-				} elif (left.type = "MemberExpression") {
-					obj_val := interpreter(scope, left.object); 
-					@checkAbruptCompletion(obj_val); 
-					if (left.computed) {
-						/* o[p]*/
-						prop_name := interpreter(scope, left.property); 
-						@checkAbruptCompletion(prop_name)
-					} else {
-						/* o.p */
-						prop_name := prop.name
-					}
-					rhs := interpreter(scope, right); 
-          @checkAbruptCompletion(rhs);
-					update_object(obj_val, prop_name, rhs); 
-					return NormalCompletion(rhs)
-				} else {
-					throw "Illegal Assignment Expression"
-				}
-	
-	| { type: "UnaryExpression", argument: arg, operator: op } -> 
-		{ 
-			arg_val := interpreter(scope, arg); 
-      @checkAbruptCompletion(arg_val); 
-			return NormalCompletion(apply_binary_operator(op, arg))
-		}
-	| { type: "BinaryExpression", left: left, right: right, operator: op } -> 
-		{ 
-			left_val := interpreter(scope, left); 
-      @checkAbruptCompletion(left_val); 
-			right_val := interpreter(scope, right);
-			@checkAbruptCompletion(right_val);
-			return NormalCompletion(apply_binary_operator(op, left_val, right_val)) 
-		}
-	/* conditional expressions */
-	| { type: "ConditionalExpression", test: test, consequent: expr1, alternate: expr2 } -> 
-		{ return conditional_expression(scope, test, expr1, expr2) }
-	/* function call */
-	| { type: "CallExpression", callee: callee, arguments: args } ->
-			{ return call_expression(scope, callee, args) }
-	| { type: "NewExpression", callee: callee, arguments: args } ->
-			{ return new_expression(scope, callee, args) }
-	/* logical expressions */
-	| { type: "UnaryExpression", argument: arg, operator: "!" } -> 
-			{ return logical_expression_not(scope, arg) }
-	| { type: "LogicalExpression", left: left, right: right, operator: "||" } -> 
-			{ return logical_expression_or(scope, left, right) }
-	| { type: "LogicalExpression", left: left, right: right, operator: "&&" } -> 
-			{ return logical_expression_and(scope, left, right) }
-	/* object expressions */
-	| { type: "Property", kind: kind, key: key, value: value, computed: false, shorthand: false } -> 
-			{ return object_property(scope, key, value) }
-	| { type: "ObjectExpression", properties: props } ->
-			{ 
-        object := Object();
-        foreach (prop : props) {
-          prop_name := prop.key.name; 
-          prop_value := interpreter(scope, prop.value); 
-          if (isAbruptCompletion(prop_value)) {
-            return prop_value
-          }; 
-          object[prop_name] := getCompletionValue(prop_value)
-        };
-        return NormalCompletion(object)
-      }
-	| { type: "MemberExpression", object: object, property: prop, computed: true } ->
-			{ 
-        obj := interpreter(scope, object); 
-        @checkAbruptCompletion(obj); 
-        prop_name := interpreter(scope, prop);
-        @checkAbruptCompletion(prop_name);
-        return NormalCompletion(resolve_property(obj, prop_name))
-      }
-	/* update expressions */
-	| { type: "UpdateExpression", argument: arg, operator: "++", prefix: prefix } -> 
-		{ return update_expression_inc(scope, arg, prefix) }
-	| { type: "UpdateExpression", argument: arg, operator: "--", prefix: prefix } -> 
-		{ return update_expression_dec(scope, arg, prefix) }
-	/* variable declarations */
-	| { type: "VariableDeclarator", id: id, init: init } -> 
-		{ return variable_declarator(scope, id, init) }
-	| { type: "VariableDeclaration", kind: "var", declarations: decls } -> 
-		{ return var_declaration(scope, decls) }
-	| { type: "VariableDeclaration", kind: "let", declarations: decls } -> 
-		{ return let_declaration(scope, decls) }
-	| { type: "VariableDeclaration", kind: "const", declarations: decls } -> 
-		{ return const_declaration(scope, decls) }
 	/* values */
-	| { type: "Literal", raw: raw, value: value } -> 
+	| { type: "Literal", value: value, raw: raw } -> 
 			{ return NormalCompletion(value) }
+
 	| { type: "Identifier", name: name } -> 
-			{ return NormalCompletion(resolve_scope(scope, name)) }
-	/* custom empty value (to make our lives easier) */
-	| { type: "EmptyValue" } -> { return 'empty }
-	| { type: "FunctionExpression", id: null, params: params, body: code } -> 
-		{ return FunctionObject(null, params, code, scope) }
-	| default -> {
-		print("[ERROR]: Found an unsuported statement");
-		print(s);
-		throw "Unsuported statement" 
+			{ return NormalCompletion(resolveName(scope, name)) }
+
+	| { type: "ThisExpression" } -> 
+			{ return NormalCompletion(getThisBinding(scope)) }
+
+
+	/* variable declarations */
+	| { type: "VariableDeclaration", kind: "var", declarations: decls } -> {
+			retVal := 'empty;
+			foreach (decl : decls) {
+				retValAux := interpreter(scope, decl);
+				@checkAbruptCompletion(retValAux);
+				if (!(retValAux = 'empty)) {
+					retVal := retValAux
+				}
+			};
+			return NormalCompletion(retVal)
+		}
+
+	| { type: "VariableDeclarator", id: id, init: init } -> {
+			if (!(init = null)) {
+				rightVal := interpreter(scope, init);
+				@checkAbruptCompletion(rightVal)
+			} else {
+				rightVal := 'undefined
+			};
+			match id with
+			| { type: "Identifier", name: name } -> {
+					updateScope(scope, scope, name, rightVal);
+					return NormalCompletion(rightVal)
+				}
+			| default -> { raiseError ("Illegal variable declarator", id) }
+		}
+
+
+	| default -> { raiseError("Unsuported construct", s) }
+};
+
+
+
+
+
+function interpretProgram(scope, stmts, vdecls, fdecls) {
+	initScope(scope, vdecls, fdecls);
+	retVal := 'empty;
+	foreach (stmt : stmts) {
+		retVal := interpreter(scope, stmt);
+		@checkAbruptCompletion(retVal)
+	};
+	return NormalCompletion(retVal)
+};
+
+function interpretCall(scope, functionObject, args, thisBinding) {
+	if (functionObject = 'undefined) {
+		raiseError("Unknown function", functionObject)
+	};
+	match functionObject with
+	| { name: name, params: params, code: code, scope: scope } -> {
+			if (!(l_len(params) = l_len(args))) {
+				raiseError("Invalid number of arguments in function call", name)
+			};
+			i := 0;
+			newScope := extendScope(scope, thisBinding);
+			while (i < l_len(params)) {
+				arg := l_nth(args, i);
+				paramName := l_nth(params, i);
+				val := interpreter(scope, arg);
+				@checkAbruptCompletion(val);
+				updateScope(newScope, newScope, paramName, val);
+				i := i + 1
+			};
+			return interpreter(newScope, code)
+		}
+	| default -> { raiseError("Illegal function call", functionObject) }
+};
+
+function applyUnaryOperator(op, v) {
+	switch(op) {
+		case "+": { return v }
+		case "-": { return -v }
+		case "~": { return ~v }
+		case "!": { return !v }
+		sdefault: raiseError("Unsuported unary operator", op)
 	}
 };
 
-function program(scope, stmts, vdecls, fdecls) {
-  initialize_scope(scope, vdecls, fdecls);
-	retval := 'empty;
-	count := 0;
-	foreach (stmt : stmts) {
-		count := count + 1;
-    ret := interpreter(scope, stmt);
-    if (isAbruptCompletion(ret)) {
-      return ret
-    }; 
-    retvalaux := getCompletionValue(ret); 
-    if (!(retvalaux = 'empty)) {
-      retval := retvalaux
-    };
-		print count
-  };
-  return NormalCompletion(retval)
-};
-
-function apply_binary_operator(op, v1, v2) {
+function applyBinaryOperator(op, v1, v2) {
 	switch(op) {
 		case "+": { return v1 + v2 }
-		sdefault: { throw "unsupported binary operator" }
+		case "-": { return v1 - v2 }
+		case "*": { return v1 * v2 }
+		case "/": { return v1 / v2 }
+		case "%": { return v1 % v2 }
+		case "**": { return v1 ** v2 }
+		case "&": { return v1 & v2 }
+		case "|": { return v1 | v2 }
+		case "^": { return v1 ^ v2 }
+		case "<<": { return v1 << v2 }
+		case ">>": { return v1 >> v2 }
+		case ">>>": { return v1 >>> v2 }
+		case "==": { return v1 = v2 }
+		case "!=": { return !(v1 = v2) }
+		case ">": { return v1 > v2 }
+		case "<": { return v1 < v2 }
+		case ">=": { return v1 >= v2 }
+		case "<=": { return v1 <= v2 }
+		sdefault: raiseError("Unsuported binary operator", op)
 	}
 };
 
-function apply_unary_operator(op, v) {
-	switch(op) {
-		sdefault: throw "unsupported unary operator"
-	}
+function applyAssignmentOperator(op, oldVal, rightVal) {
+	updateData := { op: op, oldVal: oldVal };
+	match updateData with 
+	| { op: "=", oldVal: oldVal } -> { return rightVal }
+	| { op: "+=", oldVal: oldVal } -> { return oldVal + rightVal }
+	| { op: "-=", oldVal: oldVal } -> { return oldVal - rightVal }
+	| { op: "*=", oldVal: oldVal } -> { return oldVal * rightVal }
+	| { op: "/=", oldVal: oldVal } -> { return oldVal / rightVal }
+	| { op: "%=", oldVal: oldVal } -> { return oldVal % rightVal }
+	| { op: "**=", oldVal: oldVal } -> { return oldVal ** rightVal }
+	| default -> { raiseError ("Illegal assignment operator", op) }
 }
