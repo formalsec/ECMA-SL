@@ -1,9 +1,0 @@
-function main() {
-  foo: number := 10;
-  if (foo) {              /* BadExpectedType: boolean <- number */
-    foo: string := 10     /* BadAssignment: string <- number */
-  } else {
-    foo: boolean := 10    /* BadAssignment: boolean <- number */
-  };
-  return 0
-}

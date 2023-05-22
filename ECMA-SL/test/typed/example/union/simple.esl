@@ -1,0 +1,9 @@
+function main() {
+  foo: number | any := "abc";       /* Valid */
+  bar: number | never := 10;        /* Valid */
+  baz: number | unknown := "abc";   /* Valid */
+  qux: number | string := 10;       /* Valid */
+  fred: number | string := "abc";   /* Valid */
+  thud: number | string := true;    /* BadValue: number | string <- boolean */
+  return 0
+}

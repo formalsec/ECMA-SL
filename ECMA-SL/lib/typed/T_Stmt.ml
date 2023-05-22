@@ -4,117 +4,126 @@ open T_Err
 
 let terr_none () : T_Err.t list = []
 
-let terr_stmt (terrs : T_Err.t list) (stmt : E_Stmt.t) : T_Err.t list =
-  List.map
-    (fun terr ->
-      if terr.src = T_Err.NoSource then
-        T_Err.create terr.err ~src:(T_Err.Stmt stmt) ~cs:terr.cs
-      else terr)
-    terrs
+let catch_terr_stmt (tctx : T_Ctx.t) (tstmt_fun : unit -> unit) : T_Err.t list =
+  try tstmt_fun () |> fun () -> []
+  with TypeError terr ->
+    [ { terr with src = T_Err.Stmt (T_Ctx.get_stmt tctx) } ]
 
-let terr_catch_expr (try_fun : unit -> E_Type.t) (terrs : T_Err.t list) :
-    E_Type.t * T_Err.t list =
-  try
-    let texpr = try_fun () in
-    (texpr, terrs)
-  with T_Err.TypeError terr -> (E_Type.AnyType, List.append terrs [ terr ])
-
-let terr_catch_stmt (try_fun : unit -> T_Err.t list) (terrs : T_Err.t list) :
-    T_Err.t list =
-  try List.append terrs (try_fun ())
-  with T_Err.TypeError terr -> List.append terrs [ terr ]
+let catch_terr_expr (tctx : T_Ctx.t) (texpr_fun : unit -> T_Expr.texpr_t) :
+    T_Expr.texpr_t * T_Err.t list =
+  try texpr_fun () |> fun texpr -> (texpr, [])
+  with T_Err.TypeError terr -> ((E_Type.AnyType, E_Type.AnyType), [ terr ])
 
 let type_assign (tctx : T_Ctx.t) (var : string) (tvar : E_Type.t option)
     (expr : E_Expr.t) : unit =
-  let texpr = T_Expr.type_expr tctx expr in
-  let treal =
-    match tvar with
-    | None -> E_Type.AnyType (* TODO: Add type inference *)
-    | Some tvar' ->
-        let gerr_fun = Some (fun () -> T_Err.BadAssignment (tvar', texpr)) in
-        let _ = T_Typing.test_typing_expr ~gerr_fun tvar' expr texpr in
-        tvar'
-  in
-  T_Ctx.tref_update tctx var tvar;
-  T_Ctx.tenv_update tctx var treal
+  let tdefault = T_Ctx.tvar_default E_Type.UnknownType in
+  let tprev = Option.default tdefault (T_Ctx.tenv_find tctx var) in
+  let rtprev, mut = (T_Ctx.tvar_tref tprev, T_Ctx.tvar_mut tprev) in
+  let tref = Option.default (T_Ctx.tvar_tref tprev) tvar in
+  let rtexpr, ntexpr = T_Expr.type_expr tctx expr in
+  let _ = T_Typing.type_check expr tref (rtexpr, ntexpr) in
+  if mut || rtprev = tref then
+    T_Ctx.tvar_create tref ntexpr mut |> fun tvar ->
+    T_Ctx.tenv_update tctx var tvar
+  else T_Err.raise (T_Err.BadTypeUpdate (rtprev, tref))
 
 let type_return (tctx : T_Ctx.t) (expr : E_Expr.t) : unit =
+  let tret = Option.default E_Type.AnyType (T_Ctx.get_return_t tctx) in
   let texpr = T_Expr.type_expr tctx expr in
-  let tret = T_Ctx.get_return_t tctx in
-  match tret with
-  | None -> () (* TODO: Add type inference *)
-  | Some tret' ->
-      let gerr_fun = Some (fun () -> T_Err.BadReturn (tret', texpr)) in
-      T_Typing.test_typing_expr ~gerr_fun tret' expr texpr
+  try ignore (T_Typing.type_check expr tret texpr)
+  with T_Err.TypeError terr -> (
+    match terr.T_Err.errs with
+    | T_Err.BadValue (tref, texpr) :: _ ->
+        T_Err.update terr (T_Err.BadReturn (tref, texpr))
+    | _ -> failwith "Typed ECMA-SL: T_Stmt.type_return")
 
-let type_ifelse_while (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt1 : E_Stmt.t)
+let type_guard (tctx : T_Ctx.t) (expr : E_Expr.t) (texpr : T_Expr.texpr_t) :
+    T_Err.t list =
+  try T_Typing.type_check expr E_Type.BooleanType texpr |> fun _ -> []
+  with T_Err.TypeError terr -> (
+    match terr.T_Err.errs with
+    | T_Err.BadValue (tref, texpr) :: _ ->
+        catch_terr_stmt tctx (fun () ->
+            T_Err.update terr (T_Err.BadExpectedType (tref, texpr)))
+    | _ -> failwith "Typed ECMA-SL: T_Stmt.type_ifelse_while")
+
+let type_ifelse (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt1 : E_Stmt.t)
     (stmt2 : E_Stmt.t option)
     (type_stmt_fun : T_Ctx.t -> E_Stmt.t -> T_Err.t list) : T_Err.t list =
-  let terrs = [] in
-  let if_guard_typing_fun () = T_Expr.type_expr tctx expr in
-  let texpr, terrs = terr_catch_expr if_guard_typing_fun terrs in
-  let terrs =
-    if not (T_Typing.is_typeable E_Type.BooleanType texpr) then
-      let err = T_Err.BadExpectedType (E_Type.BooleanType, texpr) in
-      List.append terrs [ T_Err.create err ~cs:(T_Err.Expr expr) ]
-    else terrs
-  in
-  let tctx2 = T_Ctx.copy tctx in
-  let terrs = terr_catch_stmt (fun () -> type_stmt_fun tctx stmt1) terrs in
-  let terrs =
-    match stmt2 with
-    | None -> terrs
-    | Some stmt2' ->
-        terr_catch_stmt (fun () -> type_stmt_fun tctx2 stmt2') terrs
-  in
-  let _ = T_Ctx.trefenv_intersect tctx tctx2 in
-  terrs
+  let texpr_fun () = T_Expr.type_expr tctx expr in
+  let texpr, terr_expr = catch_terr_expr tctx texpr_fun in
+  let stmt2 = Option.default (Skip @@ no_region) stmt2 in
+  let terrs_guard = type_guard tctx expr texpr in
+  let tctx1, tctx2 = (T_Ctx.copy tctx, T_Ctx.copy tctx) in
+  let terrs_stmt1 = type_stmt_fun tctx1 stmt1 in
+  let terrs_stmt2 = type_stmt_fun tctx2 stmt2 in
+  let _ = T_Ctx.tenv_intersect tctx [ tctx1; tctx2 ] in
+  List.concat [ terr_expr; terrs_guard; terrs_stmt1; terrs_stmt2 ]
+
+let type_while (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt : E_Stmt.t)
+    (type_stmt_fun : T_Ctx.t -> E_Stmt.t -> T_Err.t list) : T_Err.t list =
+  let texpr_fun () = T_Expr.type_expr tctx expr in
+  let texpr, terr_expr = catch_terr_expr tctx texpr_fun in
+  let terrs_guard = type_guard tctx expr texpr in
+  let _ = T_Ctx.tenv_reset_narrowing tctx in
+  let tctx' = T_Ctx.tenv_lock_types (T_Ctx.copy tctx) in
+  let terrs_stmt = type_stmt_fun tctx' stmt in
+  List.concat [ terr_expr; terrs_guard; terrs_stmt ]
 
 let type_fassign (tctx : T_Ctx.t) (oexpr : E_Expr.t) (fexpr : E_Expr.t)
     (expr : E_Expr.t) : unit =
+  let rt_of_nt rtoexpr nt =
+    match rtoexpr with
+    | E_Type.UnionType rts -> List.find (fun rt -> rt = nt) rts
+    | _ -> rtoexpr
+  in
+  let type_fassign' texpr fn rtoexpr nt =
+    let rt = rt_of_nt rtoexpr nt in
+    let tref = T_Expr.type_fld_lookup oexpr fexpr fn rt in
+    T_Typing.type_check expr tref texpr
+  in
   let texpr = T_Expr.type_expr tctx expr in
-  let tobj = T_Expr.type_expr tctx oexpr in
-  match (tobj, fexpr) with
-  | E_Type.ObjectType tobj', E_Expr.Val (Val.Str fn) -> (
-      match Hashtbl.find_opt (E_Type.get_obj_fields tobj') fn with
-      | None -> T_Err.raise (T_Err.BadLookup (tobj, fn)) ~cs:(T_Err.Expr fexpr)
-      | Some tfld ->
-          let tfld' = E_Type.get_field_type tfld in
-          let gerr_fun = Some (fun () -> T_Err.BadAssignment (tfld', texpr)) in
-          T_Typing.test_typing_expr ~gerr_fun tfld' expr texpr)
-  | default ->
-      T_Err.raise (T_Err.ExpectedObjectExpr oexpr) ~cs:(T_Err.Expr oexpr)
+  let rtoexpr, ntoexpr = T_Expr.type_expr tctx oexpr in
+  match (fexpr, ntoexpr) with
+  | E_Expr.Val (Val.Str fn), E_Type.UnionType nts ->
+      List.iter (type_fassign' texpr fn rtoexpr) nts
+  | E_Expr.Val (Val.Str fn), _ ->
+      List.iter (type_fassign' texpr fn rtoexpr) [ ntoexpr ]
+  | _ -> ()
 
 let rec type_stmt (tctx : T_Ctx.t) (stmt : E_Stmt.t) : T_Err.t list =
-  let type_stmt' (stmt : E_Stmt.t) : T_Err.t list =
-    match stmt.it with
-    | Skip -> terr_none ()
-    (* | Fail _ -> [] *)
-    (* | Throw _ -> [] *)
-    | Print _ -> terr_none ()
-    (* | Assume _ -> [] *)
-    (* | Assert _ -> [] *)
-    | Return e -> terr_none (type_return tctx e)
-    (* | Wrapper (_, _) -> [] *)
-    | Assign (x, t, e) -> terr_none (type_assign tctx x t e)
-    (* | GlobAssign (_, _) -> [] *)
-    | Block stmts ->
-        List.concat (List.map (fun stmt -> type_stmt tctx stmt) stmts)
-    | If (e, s1, s2, _, _) ->
-        terr_stmt (type_ifelse_while tctx e s1 s2 type_stmt) stmt
-    (* | EIf (_, _) -> [] *)
-    | While (e, s) -> terr_stmt (type_ifelse_while tctx e s None type_stmt) stmt
-    (* | ForEach (_, _, _, _, _) -> [] *)
-    | FieldAssign (oe, fe, e) -> terr_none (type_fassign tctx oe fe e)
-    (* | FieldDelete (_, _) -> [] *)
-    | ExprStmt e -> terr_none (ignore (T_Expr.type_expr tctx e))
-    (* | RepeatUntil (_, _, _) -> [] *)
-    (* | MatchWith (_, _) -> [] *)
-    (* | MacroApply (_, _) -> [] *)
-    (* | Switch (_, _, _, _) -> [] *)
-    (* | Lambda (_, _, _, _, _) -> [] *)
-    | default -> terr_none ()
-  in
-  try type_stmt' stmt
-  with T_Err.TypeError terr ->
-    [ T_Err.create terr.err ~src:(T_Err.Stmt stmt) ~cs:terr.cs ]
+  let _ = T_Ctx.set_stmt tctx stmt in
+  match stmt.it with
+  | Skip -> terr_none ()
+  (* | Fail _ -> [] *)
+  (* | Throw _ -> [] *)
+  | Print _ -> terr_none ()
+  (* | Assume _ -> [] *)
+  (* | Assert _ -> [] *)
+  | Return e ->
+      let return_fun () = type_return tctx e in
+      catch_terr_stmt tctx return_fun
+  (* | Wrapper (_, _) -> [] *)
+  | Assign (x, t, e) ->
+      let assign_fun () = type_assign tctx x t e in
+      catch_terr_stmt tctx assign_fun
+  (* | GlobAssign (_, _) -> [] *)
+  | Block stmts ->
+      List.concat (List.map (fun stmt -> type_stmt tctx stmt) stmts)
+  | If (e, s1, s2, _, _) -> type_ifelse tctx e s1 s2 type_stmt
+  (* | EIf (_, _) -> [] *)
+  | While (e, s) -> type_while tctx e s type_stmt
+  (* | ForEach (_, _, _, _, _) -> [] *)
+  | FieldAssign (oe, fe, e) ->
+      let fassign_fun () = type_fassign tctx oe fe e in
+      catch_terr_stmt tctx fassign_fun
+  (* | FieldDelete (_, _) -> [] *)
+  | ExprStmt e ->
+      let expr_fun () = ignore (T_Expr.type_expr tctx e) in
+      catch_terr_stmt tctx expr_fun
+  (* | RepeatUntil (_, _, _) -> [] *)
+  (* | MatchWith (_, _) -> [] *)
+  (* | MacroApply (_, _) -> [] *)
+  (* | Switch (_, _, _, _) -> [] *)
+  (* | Lambda (_, _, _, _, _) -> [] *)
+  | _ -> terr_none ()

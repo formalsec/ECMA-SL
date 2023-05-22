@@ -1,7 +1,0 @@
-function main() {
-	x: { foo: number } := { foo: 10, foo: 20 };
-	z: { foo: number } := { foo: 10, bar: "abc" };
-	x: { foo: number, bar: string } := { foo: 10 };
-	w: { foo: number, bar: string } := { foo: 10, bar: true };
-	return 0
-}

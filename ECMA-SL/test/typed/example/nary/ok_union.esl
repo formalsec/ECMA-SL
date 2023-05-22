@@ -1,5 +1,0 @@
-function main() {
-  foo: number | string := 10;
-  bar: number | string | boolean := true;
-  return 0
-}

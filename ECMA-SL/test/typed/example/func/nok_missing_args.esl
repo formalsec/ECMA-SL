@@ -1,8 +1,0 @@
-function foo(x: number, y: string) {
-  return 0
-};
-
-function main() {
-  foo(10);    /* MissingArgs: 1 */
-  return 0
-}

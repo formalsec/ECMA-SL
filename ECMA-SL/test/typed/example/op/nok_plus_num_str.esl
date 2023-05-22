@@ -1,6 +1,0 @@
-function main() {
-  foo: number := 10;
-  bar: string := "abc";
-  baz: number := foo + bar;   /* BadOp: number * string */
-  return 0
-}

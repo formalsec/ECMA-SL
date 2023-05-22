@@ -1,0 +1,8 @@
+function main() {
+	obj: { foo?: number, bar?: string } := { foo: 10 };
+	x: number := obj.foo;					/* BadValue: number <- undefined */
+	y: string := obj.bar;					/* BadValue: string <- undefined */
+	z: undefined := obj.foo;			/* BadValue: undefined <- number */
+	w: undefined := obj.bar;			/* BadValue: undefined <- string */
+	return 0
+}

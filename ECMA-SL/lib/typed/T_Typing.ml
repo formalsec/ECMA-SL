@@ -1,92 +1,111 @@
 open E_Type
 
-let test_typing_object (is_typeable_fun : E_Type.t -> E_Type.t -> bool)
-    (tref : E_Type.t) (texpr : E_Type.t) : unit =
-  match (tref, texpr) with
-  | E_Type.ObjectType oref, E_Type.ObjectType oexpr ->
-      Hashtbl.iter
-        (fun fn ft ->
-          match Hashtbl.find_opt oexpr.flds fn with
-          | None -> if not ft.opt then T_Err.raise (T_Err.MissingField fn)
-          | Some texpr' ->
-              if not (is_typeable_fun ft.t texpr'.t) then
-                T_Err.raise (T_Err.BadField (fn, ft.t, texpr'.t)))
-        oref.flds;
-      Hashtbl.iter
-        (fun fn _ ->
-          match Hashtbl.find_opt oref.flds fn with
-          | None -> T_Err.raise (T_Err.ExtraField fn)
-          | Some _ -> ())
-        oexpr.flds
-  | default -> ()
+let literal_terr (expr : E_Expr.t) (texpr : t) : t =
+  match expr with E_Expr.Val _ -> E_Type.type_widening texpr | _ -> texpr
 
-let test_typing_union (is_typeable_fun : E_Type.t -> E_Type.t -> bool)
-    (tref : E_Type.t) (texpr : E_Type.t) : unit =
-  let test_typing_union' () =
-    match (tref, texpr) with
-    | E_Type.UnionType tref', E_Type.UnionType texpr' ->
-        List.for_all (fun t -> is_typeable_fun tref t) texpr'
-    | E_Type.UnionType tref', _ ->
-        List.exists (fun t -> is_typeable_fun t texpr) tref'
-    | default -> false
+let check_literal_narrowing (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
+  match (tref, texpr) with
+  | NumberType, LiteralType (Val.Int _) -> ()
+  | NumberType, LiteralType (Val.Flt _) -> ()
+  | StringType, LiteralType (Val.Str _) -> ()
+  | BooleanType, LiteralType (Val.Bool _) -> ()
+  | SymbolType, LiteralType (Val.Symbol _) -> ()
+  | _ ->
+      let texpr_err = literal_terr expr texpr in
+      T_Err.raise (T_Err.BadValue (tref, texpr_err)) ~tkn:(T_Err.Expr expr)
+
+let check_literal_type_expr (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
+  match (tref, texpr) with
+  | LiteralType vref, LiteralType vexpr ->
+      if not (vref = vexpr) then
+        T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.Expr expr)
+  | _, LiteralType _ -> check_literal_narrowing expr tref texpr
+  | _ -> failwith "Typed ECMA-SL: T_Typing.check_literal_type"
+
+let check_union_expr (expr : E_Expr.t) (tref : t) (texpr : t)
+    (test_type_fun : t -> t -> unit) : unit =
+  let check_union_expr' (ts : t list) : unit =
+    try List.iter (test_type_fun tref) ts
+    with T_Err.TypeError terr ->
+      T_Err.push terr (T_Err.BadValue (tref, texpr))
   in
-  if not (test_typing_union' ()) then
-    T_Err.raise (T_Err.BadExpectedType (tref, texpr))
-
-let rec test_typing ?(subtyping : bool = true) (tref : E_Type.t)
-    (texpr : E_Type.t) : unit =
   match (tref, texpr) with
-  | _, E_Type.AnyType -> ()
-  | E_Type.AnyType, _ -> ()
-  | E_Type.UnknownType, _ -> ()
-  | E_Type.UndefinedType, E_Type.UndefinedType -> ()
-  | E_Type.NumberType, E_Type.NumberType -> ()
-  | E_Type.StringType, E_Type.StringType -> ()
-  | E_Type.BooleanType, E_Type.BooleanType -> ()
-  | E_Type.SymbolType, E_Type.SymbolType -> ()
-  | E_Type.ObjectType _, _ ->
-      test_typing_object (is_typeable ~subtyping:false) tref texpr
-  | E_Type.UnionType _, _ ->
-      test_typing_union (is_typeable ~subtyping) tref texpr
-  | default -> T_Err.raise (T_Err.BadExpectedType (tref, texpr))
+  | _, UnionType ts -> check_union_expr' ts
+  | _ -> failwith "Typed ECMA-SL: T_Typing.check_union_type_expr"
 
-and is_typeable ?(subtyping : bool = true) (tref : E_Type.t) (texpr : E_Type.t)
-    : bool =
+let check_union_type (expr : E_Expr.t) (tref : t) (texpr : t)
+    (test_type_fun : t -> t -> unit) : unit =
+  let is_typeable_fun (t : t) : bool =
+    try test_type_fun t texpr |> fun _ -> true with T_Err.TypeError _ -> false
+  in
+  let check_union_type_fun (ts : t list) : unit =
+    if not (List.exists is_typeable_fun ts) then
+      let texpr_err = literal_terr expr texpr in
+      T_Err.raise (T_Err.BadValue (tref, texpr_err)) ~tkn:(T_Err.Expr expr)
+  in
+  match (tref, texpr) with
+  | UnionType ts, _ -> check_union_type_fun ts
+  | _ -> failwith "Typed ECMA-SL: T_Typing.check_union_type"
+
+let check_obj_fields (expr : E_Expr.t) (otref : obj_t) (otexpr : obj_t)
+    (test_type_fun : E_Expr.t -> t -> t -> unit) : unit =
+  let check_expr_fld is_literal (fn, ft) =
+    let terr_tkn = if is_literal then T_Err.Str fn else T_Err.Expr expr in
+    let fld_opt = Hashtbl.find_opt otref.flds fn in
+    match (fld_opt, is_literal) with
+    | None, true -> T_Err.raise (T_Err.ExtraField fn) ~tkn:terr_tkn
+    | None, false -> T_Err.raise (T_Err.ExtraField fn) ~tkn:terr_tkn
+    (* FIXME : horizontal subtyping required above *)
+    | Some ft', _ -> (
+        let tref = E_Type.get_tfld ft' in
+        match expr with
+        | E_Expr.NewObj oexpr ->
+            let fe = snd (List.find (fun (fn', _) -> fn' = fn) oexpr) in
+            test_type_fun fe tref ft.t
+        | _ -> (
+            try test_type_fun expr tref ft.t
+            with T_Err.TypeError terr ->
+              T_Err.push terr (T_Err.IncompatibleField fn)))
+  in
+  let check_missing_fld flds fn ft =
+    if not (Seq.exists (fun (fn', _) -> fn' = fn) flds || ft_optional ft) then
+      T_Err.raise (T_Err.MissingField fn) ~tkn:(T_Err.Expr expr)
+  in
+  let is_literal = match expr with E_Expr.NewObj _ -> true | _ -> false in
+  let flds = Hashtbl.to_seq otexpr.flds in
+  Seq.iter (check_expr_fld is_literal) flds |> fun () ->
+  Hashtbl.iter (check_missing_fld flds) otref.flds
+
+let check_obj_type (expr : E_Expr.t) (tref : t) (texpr : t)
+    (test_type_fun : E_Expr.t -> t -> t -> unit) : unit =
   try
-    let _ = test_typing ~subtyping tref texpr in
-    true
+    match (tref, texpr) with
+    | ObjectType otref, ObjectType otexpr ->
+        check_obj_fields expr otref otexpr test_type_fun
+    | _ -> failwith "Typed ECMA-SL: T_Typing.check_object_type"
+  with T_Err.TypeError terr -> T_Err.push terr (T_Err.BadValue (tref, texpr))
+
+let rec test_type (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
+  match (tref, texpr) with
+  | _, AnyType -> ()
+  | AnyType, _ -> ()
+  | UnknownType, _ -> ()
+  | UndefinedType, UndefinedType -> ()
+  | NullType, NullType -> ()
+  | NumberType, NumberType -> ()
+  | StringType, StringType -> ()
+  | BooleanType, BooleanType -> ()
+  | SymbolType, SymbolType -> ()
+  | ObjectType _, ObjectType _ -> check_obj_type expr tref texpr test_type
+  | _, UnionType _ -> check_union_expr expr tref texpr (test_type expr)
+  | UnionType _, _ -> check_union_type expr tref texpr (test_type expr)
+  | _, LiteralType _ -> check_literal_type_expr expr tref texpr
+  | _ -> T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.Expr expr)
+
+let is_typeable (tref : t) (texpr : t) : bool =
+  try test_type (E_Expr.Val Val.Null) tref texpr |> fun _ -> true
   with T_Err.TypeError _ -> false
 
-let test_typing_expr ?(subtyping : bool = true)
-    ?(gerr_fun : (unit -> T_Err.err) option = None) (tref : E_Type.t)
-    (expr : E_Expr.t) (texpr : E_Type.t) : unit =
-  try test_typing ~subtyping tref texpr
-  with T_Err.TypeError terr -> (
-    match (T_Err.get_err terr, expr) with
-    | T_Err.MissingField fn, E_Expr.NewObj _ ->
-        T_Err.raise (T_Err.MissingField fn) ~cs:(T_Err.Expr expr)
-    | T_Err.ExtraField fn, E_Expr.NewObj fes ->
-        let fe = List.find (fun (fe, _) -> fn = fe) fes in
-        T_Err.raise (T_Err.ExtraField fn) ~cs:(T_Err.Str (fst fe))
-    | T_Err.BadField (fn, ft, texpr), E_Expr.NewObj fes ->
-        let fe = List.find (fun (fe, _) -> fn = fe) fes in
-        T_Err.raise (T_Err.BadField (fn, ft, texpr)) ~cs:(T_Err.Expr (snd fe))
-    | default -> (
-        match gerr_fun with
-        | None -> Caml.raise (T_Err.TypeError terr)
-        | Some gerr_fun' -> T_Err.raise (gerr_fun' ()) ~cs:(T_Err.Expr expr)))
-
-let intersect_types (t1 : E_Type.t) (t2 : E_Type.t) : E_Type.t =
-  E_Type.simplify_type
-    (match (t1, t2) with
-    | E_Type.UnionType t1', E_Type.UnionType t2' ->
-        E_Type.UnionType (List.append t1' t2')
-    | E_Type.UnionType t1', _ -> E_Type.UnionType (List.append t1' [ t2 ])
-    | _, E_Type.UnionType t2' -> E_Type.UnionType (List.append t2' [ t1 ])
-    | default -> E_Type.UnionType [ t1; t2 ])
-
-let intersect_opt_types (t1 : E_Type.t option) (t2 : E_Type.t option) :
-    E_Type.t option =
-  match (t1, t2) with
-  | Some t1', Some t2' -> Some (intersect_types t1' t2')
-  | default -> None
+let type_check (expr : E_Expr.t) (tref : t) ((rtexpr, ntexpr) : t * t) : unit =
+  try test_type expr tref ntexpr
+  with T_Err.TypeError nterr -> test_type expr tref rtexpr

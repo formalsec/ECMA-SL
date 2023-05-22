@@ -30,6 +30,9 @@ let print_list (lis : string list) : string = String.concat ", " lis
 let get_params (func : t) : string list =
   List.map (fun p -> fst p) func.it.params_t
 
+let get_tparams (func : t) : E_Type.t list =
+  List.map (fun (_, t) -> Option.default E_Type.AnyType t) func.it.params_t
+
 let create_store (func : t) (vals : Val.t list) : E_Store.t =
   let params = get_params func in
   let varvals = List.combine params vals in

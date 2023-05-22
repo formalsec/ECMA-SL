@@ -1,0 +1,19 @@
+function _unionFunc() : number | string { return 10 };
+
+function main() {
+	foo: number | string := 10;
+	bar: number | string := _unionFunc();
+	baz: number | any := 10;
+	qux: number | never := 10;
+	fred: number | unknown := 10;
+
+	x: number := foo;  	/* Valid */
+	y: string := foo;  	/* BadValue: string <- number */
+	z: number := bar;  	/* BadValue: number <- string */
+	w: string := bar;  	/* BadValue: string <- number */
+
+	x: string := baz;			/* Valid */
+	y: number := qux;			/* Valid */
+	z: number := fred;		/* BadValue: number <- unknown */
+	return 0
+}

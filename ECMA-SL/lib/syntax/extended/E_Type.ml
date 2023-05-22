@@ -1,104 +1,126 @@
 type t =
-  | AnyType
-  | UndefinedType
-  | UnknownType
   | TypeType
+  | AnyType
+  | UnknownType
+  | NeverType
+  | UndefinedType
+  | NullType
   | NumberType
   | StringType
   | BooleanType
   | SymbolType
   | LiteralType of Val.t
-  | ObjectType of obj_t
   | ListType of t
   | TupleType of t list
   | UnionType of t list
+  | ObjectType of obj_t
   | UserDefinedType of string
 
 and obj_t = { flds : (string, field_t) Hashtbl.t; smry : t option }
-and field_t = { t : t; opt : bool }
+and field_t = { t : t; status : status_t }
+and status_t = Required | Optional
 
 module Field = struct
   type ft = NamedField of string * (t * bool) | SumryField of t
 end
 
-let get_obj_fields (tobj : obj_t) : (string, field_t) Hashtbl.t = tobj.flds
-let get_obj_smry (tobj : obj_t) : t option = tobj.smry
+let parse_literal_type (v : Val.t) : t =
+  match v with
+  | Val.Int _ -> LiteralType v
+  | Val.Flt _ -> LiteralType v
+  | Val.Str _ -> LiteralType v
+  | Val.Bool _ -> LiteralType v
+  | Val.Symbol "undefined" -> UndefinedType
+  | Val.Symbol _ -> LiteralType v
+  | Val.Null -> NullType
+  | Val.List [] -> LiteralType v
+  | _ -> invalid_arg ("Invalid value '" ^ Val.str v ^ "' for literal type.")
 
-let get_obj_field_list (tobj : obj_t) : (string * field_t) list =
-  List.append
-    (Hashtbl.fold (fun fn ft r -> (fn, ft) :: r) tobj.flds [])
-    (match tobj.smry with
-    | Some smry' -> [ ("*", { t = smry'; opt = false }) ]
-    | None -> [])
+let parse_obj_type (field_lst : Field.ft list) : obj_t =
+  let fld_split_fun fld (nflds, sflds) =
+    match fld with
+    | Field.NamedField (fn, ft) -> ((fn, ft) :: nflds, sflds)
+    | Field.SumryField t -> (nflds, t :: sflds)
+  in
+  let nfld_add_fun flds (fn, (t, opt)) =
+    let status = if opt then Optional else Required in
+    match Hashtbl.find_opt flds fn with
+    | None -> Hashtbl.replace flds fn { t; status }
+    | Some _ -> invalid_arg ("Field '" ^ fn ^ "' already in the object.")
+  in
+  let nflds, sflds = List.fold_right fld_split_fun field_lst ([], []) in
+  let flds = Hashtbl.create !Config.default_hashtbl_sz in
+  let _ = List.iter (nfld_add_fun flds) nflds in
+  match sflds with
+  | [] -> { flds; smry = None }
+  | t :: [] -> { flds; smry = Some t }
+  | _ -> invalid_arg "Duplicated summary field in the object."
 
-let get_field_type (tfld : field_t) : t = tfld.t
-let is_field_optional (tfld : field_t) : bool = tfld.opt
+let merge_tuple_type (t1 : t) (t2 : t) : t =
+  match t1 with
+  | TupleType ts -> TupleType (List.append ts [ t2 ])
+  | _ -> TupleType [ t1; t2 ]
+
+let rec merge_union_type (t1 : t) (t2 : t) : t =
+  match (t1, t2) with
+  | _, UnionType ts -> List.fold_right (fun t r -> merge_union_type r t) ts t1
+  | UnionType ts, _ ->
+      UnionType (if List.mem t2 ts then ts else List.append ts [ t2 ])
+  | _ -> if t1 = t2 then t1 else UnionType [ t1; t2 ]
+
+let merge_type (merge_fun : t -> t -> t) (ts : t list) : t =
+  let tempty = (NeverType, []) in
+  let ts_f, ts_r = match ts with [] -> tempty | f :: r -> (f, r) in
+  List.fold_left merge_fun ts_f ts_r
+
+let ft_optional (ft : field_t) : bool =
+  match ft.status with Required -> false | Optional -> true
+
+let get_tfld (ft : field_t) : t =
+  match ft.status with
+  | Optional -> merge_union_type ft.t UndefinedType
+  | _ -> ft.t
+
+let get_obj_fld_list (tobj : obj_t) : (string * field_t) list =
+  let nflds = Hashtbl.fold (fun fn ft r -> (fn, ft) :: r) tobj.flds [] in
+  let sfld =
+    match tobj.smry with
+    | Some smry' -> [ ("*", { t = smry'; status = Required }) ]
+    | None -> []
+  in
+  List.append nflds sfld
 
 let rec str (t : t) : string =
   match t with
-  | AnyType -> "any"
-  | UndefinedType -> "undefined"
-  | UnknownType -> "unknown"
   | TypeType -> "_$type"
+  | AnyType -> "any"
+  | UnknownType -> "unknown"
+  | NeverType -> "never"
+  | UndefinedType -> "undefined"
+  | NullType -> "null"
   | NumberType -> "number"
   | StringType -> "string"
   | BooleanType -> "boolean"
   | SymbolType -> "symbol"
   | LiteralType v -> Val.str v
-  | ObjectType t' ->
-      let field_opt_str ft = if ft.opt then "?" else "" in
-      let field_str (fn, ft) = fn ^ field_opt_str ft ^ ": " ^ str ft.t in
-      let fields = get_obj_field_list t' in
-      "{ " ^ String.concat ", " (List.map (fun f -> field_str f) fields) ^ " }"
   | ListType t' -> "[" ^ str t' ^ "]"
-  | TupleType t ->
-      "(" ^ String.concat " * " (List.map (fun el -> str el) t) ^ ")"
-  | UnionType t ->
-      "(" ^ String.concat " | " (List.map (fun el -> str el) t) ^ ")"
+  | TupleType ts ->
+      "(" ^ String.concat " * " (List.map (fun el -> str el) ts) ^ ")"
+  | UnionType ts ->
+      "(" ^ String.concat " | " (List.map (fun el -> str el) ts) ^ ")"
+  | ObjectType t' ->
+      let field_opt_str ft = if ft_optional ft then "?" else "" in
+      let field_str (fn, ft) = fn ^ field_opt_str ft ^ ": " ^ str ft.t in
+      let fields = get_obj_fld_list t' in
+      "{ " ^ String.concat ", " (List.map (fun f -> field_str f) fields) ^ " }"
   | UserDefinedType t' -> t'
 
-let simplify_type (t : t) : t =
-  let unique t tlst = if List.mem t tlst then tlst else t :: tlst in
-  let simplify_type' tlst =
-    if List.mem AnyType tlst then [ AnyType ]
-    else List.fold_right unique tlst []
-  in
+let type_widening (t : t) : t =
   match t with
-  | UnionType t' -> (
-      let t' = simplify_type' t' in
-      match t' with [] -> UnknownType | e :: [] -> e | e :: r -> UnionType t')
-  | default -> t
-
-let parse_obj_type (field_lst : Field.ft list) : obj_t =
-  let field_split_fun f (named_fs, sumry_fs) =
-    match f with
-    | Field.NamedField (fn, ft) -> ((fn, ft) :: named_fs, sumry_fs)
-    | Field.SumryField t -> (named_fs, t :: sumry_fs)
-  in
-  let field_type_fun (t : t) (opt : bool) : t =
-    if opt then simplify_type (UnionType [ t; UndefinedType ]) else t
-  in
-  let named_fs, sumry_fs = List.fold_right field_split_fun field_lst ([], []) in
-  let flds = Hashtbl.create !Config.default_hashtbl_sz in
-  let _ =
-    List.iter
-      (fun (fn, (t, opt)) ->
-        match Hashtbl.find_opt flds fn with
-        | None -> Hashtbl.replace flds fn { t = field_type_fun t opt; opt }
-        | Some _ -> invalid_arg ("Field '" ^ fn ^ "' already in the object."))
-      named_fs
-  in
-  match sumry_fs with
-  | [] -> { flds; smry = None }
-  | t :: [] -> { flds; smry = Some t }
-  | default -> invalid_arg "Duplicated summary field in the object."
-
-let merge_tuple_type (nary_t : t) (simple_t : t) : t =
-  match nary_t with
-  | TupleType nary_t' -> TupleType (List.append nary_t' [ simple_t ])
-  | default -> TupleType [ nary_t; simple_t ]
-
-let merge_union_type (nary_t : t) (simple_t : t) : t =
-  match nary_t with
-  | UnionType nary_t' -> UnionType (List.append nary_t' [ simple_t ])
-  | default -> UnionType [ nary_t; simple_t ]
+  | LiteralType (Val.Int _) -> NumberType
+  | LiteralType (Val.Flt _) -> NumberType
+  | LiteralType (Val.Str _) -> StringType
+  | LiteralType (Val.Bool _) -> BooleanType
+  | LiteralType (Val.Symbol "undefined") -> UndefinedType
+  | LiteralType (Val.Symbol _) -> SymbolType
+  | _ -> t

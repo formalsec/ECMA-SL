@@ -1,0 +1,13 @@
+function main() {
+	foo: number := -10;											/* Valid */
+	bar: number := 10 + 20;									/* Valid */
+	baz: boolean := true &&& false;					/* Valid */
+  qux: string := s_substr ("abc", 1, 2);	/* Valid */
+
+	!"abc";																	/* BadOperand: boolean <- string */
+	10 - "abc";															/* BadOperand(2nd): number <- string */
+	"abc" ||| false;												/* BadOperand(1st): boolean <- string */
+	s_substr ("abc", 1, "a");								/* BadOperand(3rd): number <- string */
+	fred: string := 10 + 20 * 3;						/* BadValue: string <- number */
+	return 0
+}

@@ -3,49 +3,53 @@ open E_Stmt
 open E_Func
 open Source
 
-type err =
+type err_t =
   | UnknownVar of string
   | UnknownFunction of string
+  | NExpectedArgs of int * int
   | DuplicatedParam of string
   | DuplicatedField of string
-  | MissingArgs of int * int
   | MissingField of string
   | ExtraField of string
-  | ExpectedObjectExpr of E_Expr.t
+  | IncompatibleField of string
+  | BadValue of E_Type.t * E_Type.t
   | BadExpectedType of E_Type.t * E_Type.t
-  | BadAssignment of E_Type.t * E_Type.t
+  | BadTypeUpdate of E_Type.t * E_Type.t
   | BadReturn of E_Type.t * E_Type.t
   | BadArgument of E_Type.t * E_Type.t
-  | BadOp of string * E_Type.t list
-  | BadField of string * E_Type.t * E_Type.t
-  | BadLookup of E_Type.t * string
+  | BadOperand of E_Type.t * E_Type.t
+  | BadType of string option * E_Type.t
+  | BadPossibleType of string option * E_Type.t
+  | BadLookup of string * E_Type.t
 
-let err_str (err : err) : string =
+let err_str (err : err_t) : string =
   match err with
   | UnknownVar x -> Printf.sprintf "Cannot find variable '%s'." x
   | UnknownFunction fn -> Printf.sprintf "Cannot find function '%s'." fn
+  | NExpectedArgs (nparams, nargs) ->
+      Printf.sprintf "Expected %d arguments, but got %d." nparams nargs
   | DuplicatedParam pn ->
       Printf.sprintf
         "Functions cannot have two parameters with the same name: '%s'." pn
   | DuplicatedField fn ->
       Printf.sprintf
         "Object literals cannot have two field with the same name: '%s'." fn
-  | MissingArgs (nparams, nargs) ->
-      Printf.sprintf "Expected %d arguments, but got %d." nparams nargs
   | MissingField fn ->
       Printf.sprintf "Field '%s' is missing from the object's type." fn
   | ExtraField fn ->
-      Printf.sprintf "Field '%s' does not exist in the object's type" fn
-  | ExpectedObjectExpr e ->
-      Printf.sprintf "Expression '%s' is expected to be of type object."
-        (E_Expr.str e)
+      Printf.sprintf "Field '%s' is not defined in the object's type." fn
+  | IncompatibleField fn ->
+      Printf.sprintf "Types of field '%s' are incompatible." fn
+  | BadValue (tvar, texpr) ->
+      Printf.sprintf "Value of type '%s' is not assignable to type '%s'."
+        (E_Type.str texpr) (E_Type.str tvar)
   | BadExpectedType (tref, texpr) ->
       Printf.sprintf
         "Expected value of type '%s' but a value of type '%s' was provided."
         (E_Type.str tref) (E_Type.str texpr)
-  | BadAssignment (tvar, texpr) ->
-      Printf.sprintf "Value of type '%s' is not assignable to type '%s'."
-        (E_Type.str texpr) (E_Type.str tvar)
+  | BadTypeUpdate (tvar, texpr) ->
+      Printf.sprintf "Variable of type '%s' cannot change its type to '%s'."
+        (E_Type.str tvar) (E_Type.str texpr)
   | BadReturn (tret, texpr) ->
       Printf.sprintf "Value of type '%s' cannot be returned by a '%s' function."
         (E_Type.str texpr) (E_Type.str tret)
@@ -53,22 +57,35 @@ let err_str (err : err) : string =
       Printf.sprintf
         "Argument of type '%s' is not assignable to a parameter of type '%s'."
         (E_Type.str targ) (E_Type.str tparam)
-  | BadOp (op_str, texprs) ->
+  | BadOperand (tparam, targ) ->
       Printf.sprintf
-        "Arguments of type '(%s)' are not compatible with the '%s' operator."
-        (String.concat ", " (List.map (fun t -> E_Type.str t) texprs))
-        op_str
-  | BadField (fn, ft, texpr) ->
-      Printf.sprintf
-        "Value of type '%s' cannot be assigned to field '%s' of type '%s'."
-        (E_Type.str texpr) fn (E_Type.str ft)
-  | BadLookup (tobj, fn) ->
+        "Argument of type '%s' is not assignable to a operand of type '%s'."
+        (E_Type.str targ) (E_Type.str tparam)
+  | BadType (x, t) ->
+      let name = Option.default "Object" x in
+      Printf.sprintf "'%s' is of type '%s'." name (E_Type.str t)
+  | BadPossibleType (x, t) ->
+      let name = Option.default "Object" x in
+      Printf.sprintf "'%s' is possible of type '%s'." name (E_Type.str t)
+  | BadLookup (fn, tobj) ->
       Printf.sprintf "Field '%s' does not exist on type '%s'." fn
         (E_Type.str tobj)
 
-type src = NoSource | Stmt of E_Stmt.t | Func of E_Func.t
+type src_t = NoSource | Stmt of E_Stmt.t | Func of E_Func.t
 
-type token =
+let src_region (src : src_t) : Source.region =
+  match src with
+  | NoSource -> no_region
+  | Stmt stmt -> stmt.at
+  | Func func -> func.at
+
+let src_str (src : src_t) : string =
+  match src with
+  | NoSource -> ""
+  | Stmt stmt -> E_Stmt.str stmt
+  | Func func -> E_Func.str func
+
+type token_t =
   | NoToken
   | Literal of string
   | Str of string
@@ -77,68 +94,42 @@ type token =
   | Func of E_Func.t
   | Type of E_Type.t
 
-type t = { err : err; src : src; cs : token }
-
-exception TypeError of t
-
-let create ?(src : src = NoSource) ?(cs : token = NoToken) (err : err) : t =
-  { err; src; cs }
-
-let raise ?(src : src = NoSource) ?(cs : token = NoToken) (err : err) : 'a =
-  Caml.raise (TypeError (create err ~src ~cs))
-
-let get_err (terr : t) : err = terr.err
-let get_src (terr : t) : src = terr.src
-let get_cs (terr : t) : token = terr.cs
-
-let src_region (src : src) : Source.region =
-  match src with
-  | NoSource -> Source.no_region
-  | Stmt stmt -> stmt.at
-  | Func func -> func.at
-
-let src_to_token (src : src) : token =
+let token_of_source (src : src_t) : token_t =
   match src with
   | NoSource -> NoToken
   | Stmt stmt -> Stmt stmt
   | Func func -> Func func
 
-let src_str (src : src) : string =
-  match src with
-  | NoSource -> ""
-  | Stmt stmt -> E_Stmt.str stmt
-  | Func func -> E_Func.str func
-
-let concat_tokens (tkns : token list list) (s : string) : token list =
+let concat_tokens (tkns : token_t list list) (s : string) : token_t list =
   let separator_token r = match r with [] -> r | r' :: _ -> Literal s :: r in
   List.fold_right (fun p r -> List.append p (separator_token r)) tkns []
 
-let call_tokens (args : E_Expr.t list) (op_str : string) : token list =
+let get_call_tokens (fn_tkn : token_t) (args : E_Expr.t list) : token_t list =
   let arg_tkns = List.map (fun arg -> [ Expr arg ]) args in
   let arg_tkns = concat_tokens arg_tkns ", " in
-  let tkns = Literal op_str :: Literal "(" :: arg_tkns in
+  let tkns = fn_tkn :: Literal "(" :: arg_tkns in
   List.append tkns [ Literal ")" ]
 
-let get_expr_tokens (expr : E_Expr.t) : token list =
+let get_expr_tokens (expr : E_Expr.t) : token_t list =
   match expr with
   | Val v -> [ Literal (Val.str v) ]
   | Var x -> [ Str x ]
   (* | GVar _ -> [] *)
   | Const c -> [ Literal (Operators.str_of_const c) ]
   | UnOpt (op, e) ->
-      let op_str = Operators.str_of_unopt op in
-      call_tokens [ e ] op_str
+      let op_tkn = Literal (Operators.str_of_unopt op) in
+      get_call_tokens op_tkn [ e ]
   | BinOpt (op, e1, e2) ->
-      let op_str = Operators.str_of_binopt_single op in
-      call_tokens [ e1; e2 ] op_str
+      let op_tkn = Literal (Operators.str_of_binopt_single op) in
+      get_call_tokens op_tkn [ e1; e2 ]
   | EBinOpt (op, e1, e2) ->
-      let op_str = EOper.str_of_binopt_single op in
-      call_tokens [ e1; e2 ] op_str
+      let op_tkn = Literal (EOper.str_of_binopt_single op) in
+      get_call_tokens op_tkn [ e1; e2 ]
   | TriOpt (op, e1, e2, e3) ->
-      let op_str = Operators.str_of_triopt_single op in
-      call_tokens [ e1; e2; e3 ] op_str
+      let op_tkn = Literal (Operators.str_of_triopt_single op) in
+      get_call_tokens op_tkn [ e1; e2; e3 ]
   (* | NOpt (_, _) -> [] *)
-  | Call (Val (Val.Str fn), args, _) -> call_tokens args fn
+  | Call (Val (Val.Str fn), args, _) -> get_call_tokens (Str fn) args
   (* | ECall (_, _) -> [] *)
   | NewObj fes ->
       let ftoken_fun (fn, fe) = [ Str fn; Literal ": "; Expr fe ] in
@@ -148,9 +139,9 @@ let get_expr_tokens (expr : E_Expr.t) : token list =
   | Lookup (oe, fe) -> [ Expr oe; Literal "["; Expr fe; Literal "]" ]
   (* | Curry (_, _) -> [] *)
   (* | Symbolic (_, _) -> [] *)
-  | default -> []
+  | _ -> []
 
-let get_stmt_tokens (stmt : E_Stmt.t) : token list =
+let get_stmt_tokens (stmt : E_Stmt.t) : token_t list =
   match stmt.it with
   | Skip -> []
   (* | Fail _ -> [] *)
@@ -161,11 +152,9 @@ let get_stmt_tokens (stmt : E_Stmt.t) : token list =
   | Return e -> [ Literal "return "; Expr e ]
   (* | Wrapper (_, _) -> [] *)
   | Assign (x, t, e) ->
-      let ttkns =
-        match t with None -> [] | Some t' -> [ Literal ": "; Type t' ]
-      in
-      let tkns = Str x :: ttkns in
-      List.append tkns [ Literal " := "; Expr e ]
+      let type_tokens_fun (t : E_Type.t) = [ Literal ": "; Type t ] in
+      let tkns = match t with None -> [] | Some t' -> type_tokens_fun t' in
+      List.append (Str x :: tkns) [ Literal " := "; Expr e ]
   (* | GlobAssign (_, _) -> [] *)
   | Block stmts -> []
   | If (e, _, _, _, _) ->
@@ -185,11 +174,11 @@ let get_stmt_tokens (stmt : E_Stmt.t) : token list =
   (* | MacroApply (_, _) -> [] *)
   (* | Switch (_, _, _, _) -> [] *)
   (* | Lambda (_, _, _, _, _) -> [] *)
-  | default -> []
+  | _ -> []
 
-let get_func_tokens (func : E_Func.t) : token list =
+let get_func_tokens (func : E_Func.t) : token_t list =
   let fn, fparams, fr = (func.it.name, func.it.params_t, func.it.return_t) in
-  let param_token_fun (tparam : string * E_Type.t option) : token list =
+  let param_token_fun tparam =
     Str (fst tparam)
     :: (match snd tparam with None -> [] | Some t -> [ Str ": "; Type t ])
   in
@@ -200,7 +189,7 @@ let get_func_tokens (func : E_Func.t) : token list =
   let ftkns = List.append ftkns ret_tkn in
   ftkns
 
-let token_cmp (tkn1 : token) (tkn2 : token) : bool =
+let token_cmp (tkn1 : token_t) (tkn2 : token_t) : bool =
   match (tkn1, tkn2) with
   | Literal tkn1', Literal tkn2' -> tkn1' = tkn2'
   | Str tkn1', Str tkn2' -> tkn1' == tkn2'
@@ -208,9 +197,9 @@ let token_cmp (tkn1 : token) (tkn2 : token) : bool =
   | Expr tkn1', Expr tkn2' -> tkn1' == tkn2'
   | Stmt tkn1', Stmt tkn2' -> tkn1' == tkn2'
   | Func tkn1', Func tkn2' -> tkn1' == tkn2'
-  | default -> false
+  | _ -> false
 
-let token_is_splitable (tkn : token) : bool =
+let token_is_splitable (tkn : token_t) : bool =
   match tkn with
   | NoToken -> false
   | Literal _ -> false
@@ -220,14 +209,14 @@ let token_is_splitable (tkn : token) : bool =
   | Stmt _ -> true
   | Func _ -> true
 
-let split_token (tkn : token) : token list =
+let split_token (tkn : token_t) : token_t list =
   match tkn with
   | Expr tkn' -> get_expr_tokens tkn'
   | Stmt tkn' -> get_stmt_tokens tkn'
   | Func tkn' -> get_func_tokens tkn'
-  | default -> []
+  | _ -> []
 
-let rec token_str (tkn : token) : string =
+let rec token_str (tkn : token_t) : string =
   match tkn with
   | NoToken -> ""
   | Literal tkn' -> tkn'
@@ -236,6 +225,34 @@ let rec token_str (tkn : token) : string =
   | Expr tkn' -> String.concat "" (List.map token_str (get_expr_tokens tkn'))
   | Stmt tkn' -> String.concat "" (List.map token_str (get_stmt_tokens tkn'))
   | Func tkn' -> String.concat "" (List.map token_str (get_func_tokens tkn'))
+
+type t = { errs : err_t list; src : src_t; tkn : token_t }
+
+exception TypeError of t
+
+let create ?(src : src_t = NoSource) ?(tkn : token_t = NoToken)
+    (errs : err_t list) : t =
+  { errs; src; tkn }
+
+let raise ?(src : src_t = NoSource) ?(tkn : token_t = NoToken) (err : err_t) =
+  Caml.raise (TypeError (create ~src ~tkn [ err ]))
+
+let continue (terr : t) = Caml.raise (TypeError terr)
+
+let update (terr : t) (err : err_t) =
+  let errs =
+    match terr.errs with
+    | [] -> failwith "Typed ECMA-SL: T_Err.update"
+    | _ :: errs -> err :: errs
+  in
+  Caml.raise (TypeError { terr with errs })
+
+let push (terr : t) (err : err_t) =
+  Caml.raise (TypeError { terr with errs = err :: terr.errs })
+
+let set_token (terr : t) (tkn : token_t) =
+  let terr' = { terr with tkn } in
+  Caml.raise (TypeError terr')
 
 type loc_data = {
   mutable file : string;
@@ -250,7 +267,7 @@ type source_data = {
   mutable loc : loc_data;
 }
 
-let init_source_data (src : src) : source_data =
+let init_source_data (src : src_t) : source_data =
   let region = src_region src in
   {
     code = "";
@@ -264,17 +281,17 @@ let init_source_data (src : src) : source_data =
       };
   }
 
-let fill_empty_source_data (cause_data : source_data) : source_data =
-  let text_size = String.length cause_data.code in
-  if cause_data.loc.left > cause_data.loc.right then (
-    cause_data.loc.left <- cause_data.loc.right;
-    cause_data.loc.right <- cause_data.loc.left + text_size;
-    cause_data.hgl <- String.make text_size '^');
-  cause_data
+let process_empty_cause (source_data : source_data) (source : token_t) : unit =
+  let tkn_str = token_str source in
+  let tkn_size = String.length tkn_str in
+  source_data.code <- tkn_str;
+  source_data.hgl <- String.make tkn_size '^';
+  source_data.loc.left <- 0;
+  source_data.loc.right <- tkn_size - 1
 
-let rec process_cause (source_data : source_data) (cause : token)
-    (source : token) : unit =
-  let write_token_fun (hgl : char) : int =
+let rec process_cause (source_data : source_data) (cause : token_t)
+    (source : token_t) : unit =
+  let write_token_fun hgl =
     let tkn_str = token_str source in
     let tkn_size = String.length tkn_str in
     let _ = source_data.code <- source_data.code ^ tkn_str in
@@ -295,10 +312,23 @@ let rec process_cause (source_data : source_data) (cause : token)
 
 let find_cause (terr : t) : source_data =
   let source_data = init_source_data terr.src in
-  let first_tkn = src_to_token terr.src in
-  let _ = process_cause source_data terr.cs first_tkn in
+  let source_tkn = token_of_source terr.src in
+  let _ =
+    if terr.tkn = NoToken then process_empty_cause source_data source_tkn
+    else process_cause source_data terr.tkn source_tkn
+  in
   source_data
-(* fill_empty_source_data source_data *)
+
+let format_msg (errs : err_t list) : string =
+  let terr_header = Font.format "TypeError: " [ Font.red ] in
+  let terr_cause = Font.format "Caused by: " [ Font.yellow ] in
+  match errs with
+  | [] -> terr_header ^ "???"
+  | err :: errs ->
+      let side_err_str_fun err = terr_cause ^ err_str err ^ "\n" in
+      let str_main_err = err_str err in
+      let str_side_err = String.concat "" (List.map side_err_str_fun errs) in
+      terr_header ^ str_main_err ^ "\n" ^ str_side_err
 
 let format_loc (loc : loc_data) : string =
   Printf.sprintf "File \"%s\", line %d, characters %d-%d:" loc.file loc.line
@@ -315,14 +345,13 @@ let format_hgl (terr_cause : source_data) : string =
 let format_source (terr : t) (source_data : source_data) : string =
   match terr.src with
   | NoSource -> ""
-  | default ->
+  | _ ->
       Font.format (format_loc source_data.loc) [ Font.faint ]
       ^ "\n" ^ format_code source_data ^ "\n"
       ^ Font.format (format_hgl source_data) [ Font.red ]
 
 let format (terr : t) : string =
-  let terr_header = Font.format "TypeError" [ Font.red ] in
-  let terr_msg = err_str terr.err in
+  let terr_msg = format_msg terr.errs in
   let source_data = find_cause terr in
   let terr_source = format_source terr source_data in
-  Printf.sprintf "%s: %s\n%s\n" terr_header terr_msg terr_source
+  Printf.sprintf "%s%s\n" terr_msg terr_source

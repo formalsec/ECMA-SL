@@ -1,0 +1,7 @@
+function main() {
+  foo: 10 | 20 := 10;         	/* Valid */
+  bar: 10 | string := "abc";  	/* Valid */
+  baz: 10 | string := 20;     	/* BadValue: 10 | string <- number */
+  qux: 10 | string := true;   	/* BadValue: 10 | string <- boolean */
+  return 0
+}

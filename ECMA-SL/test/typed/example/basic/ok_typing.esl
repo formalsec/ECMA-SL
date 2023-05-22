@@ -1,5 +1,0 @@
-function main() {
-  untypedAssignment := 10;
-  typedAssignment: number := 10;
-  return 0
-}

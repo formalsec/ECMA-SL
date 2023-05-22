@@ -1,0 +1,10 @@
+function _literalCall10(x: 10) { return 0 };
+function _literalCall20(x: 20) { return 0 };
+function _stringCall(x: string) { return 0 };
+
+function main() {
+	_literalCall10(10);			/* Valid */
+	_literalCall20(10);			/* BadArgument: 20 <- 10 */
+	_stringCall(10);				/* BadArgument: string <- number */
+	return 0
+}

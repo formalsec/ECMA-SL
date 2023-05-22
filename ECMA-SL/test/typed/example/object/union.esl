@@ -1,0 +1,31 @@
+function _objCall(): { foo: number } | { foo: string } 
+	{ return { foo: 10 } };
+
+function _objComplex(): { foo: { bar: number } } | { foo: { bar: 10 } }
+	{ return { foo: { bar: 10 } } };
+
+function main() {
+	objSimple: { foo: number } | { foo: string } := { foo: 10 };
+	objSimpleUnion: { foo: number } | { foo: number | string } := { foo: 10 };
+	objCall: { foo: number } | { foo: string } := _objCall();
+	objComplex: { foo: { bar: number } } | { foo: { bar: 10 } } := _objComplex();
+
+	x: number := objSimple.foo;				/* Valid */
+	y: number := objSimpleUnion.foo;	/* BadValue: number <- string */
+	z: number := objCall.foo;					/* BadValue: number <- string */
+	w: string := objCall.foo;					/* BadValue: string <- number */
+
+	objSimple.foo := 20;							/* Valid */
+	objSimpleUnion.foo := 20;					/* Valid */
+	objSimple.foo := "abc";						/* BadValue: number <- string */
+	objSimpleUnion.foo := "abc"; 			/* BadValue: number <- string */
+
+	objCall.foo := 10;								/* BadValue: string <- number */
+	objCall.foo := "abc";							/* BadValue: number <- string */
+
+	x: number := objComplex.foo.bar;	/* Valid */
+	y: 10 := objComplex.foo.bar;			/* BadValue: 10 <- number */
+	objComplex.foo.bar := 10;					/* Valid */
+	objComplex.foo.bar := 20;					/* BadValue: 10 <- 20 */
+	return 0
+}

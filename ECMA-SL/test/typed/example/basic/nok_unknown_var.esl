@@ -1,4 +1,0 @@
-function main() {
-  foo: number := bar;   /* UnknownVar: "bar" */
-  return 0
-}

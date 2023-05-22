@@ -1,0 +1,12 @@
+function main() {
+  intergerVariable: number := 10;     /* Valid */
+  floatVariable: number := 10.10;     /* Valid */
+  stringVariable: string := "abc";    /* Valid */
+  booleanVariable: boolean := true;   /* Valid */
+	symbolVariable: symbol := 'a;       /* Valid */
+
+  foo: number := "abc";               /* BadValue: number <- string */
+  bar: string := 'a;                  /* BadValue: string <- symbol */
+  baz: boolean := 10;                 /* BadValue: boolean <- number */
+  return 0
+}

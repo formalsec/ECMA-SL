@@ -1,9 +1,0 @@
-function main() {
-	x: number := 10;
-	x.foo := 20;
-	y: { foo: number } := { foo: 10 };
-	y.bar := "def";
-	z: { foo: number, bar: string } := { foo: 10, bar: "abc" };
-	z.foo := "def";
-	return 0
-}

@@ -172,6 +172,8 @@
                 "typedef"               , TYPEDEF;
                 "any"                   , TYPE_ANY;
                 "unknown"               , TYPE_UNKNOWN;
+                "never"                 , TYPE_NEVER;
+                "undefined"             , TYPE_UNDEFINED;
                 "number"                , TYPE_NUMBER;
                 "string"                , TYPE_STRING;
                 "boolean"               , TYPE_BOOLEAN;
@@ -265,7 +267,7 @@ rule read =
   | '}'            { RBRACE }
   | '['            { LBRACK }
   | ']'            { RBRACK }
-  | '?'            { OPTIONAL }
+  | '?'            { QUESTION }
   | "__$"          { read_type lexbuf }
   | int            { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float          { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }

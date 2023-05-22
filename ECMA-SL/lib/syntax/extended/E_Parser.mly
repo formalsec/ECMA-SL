@@ -67,8 +67,9 @@ let at (startpos, endpos) =
 %token IMPORT THROW FAIL CATCH
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
+%token QUESTION
 %token EOF
-%token TYPEDEF, OPTIONAL, TYPE_ANY, TYPE_UNDEFINED, TYPE_UNKNOWN, TYPE_NUMBER, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL
+%token TYPEDEF, TYPE_ANY, TYPE_UNKNOWN, TYPE_NEVER, TYPE_UNDEFINED, TYPE_NUMBER, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL
 
 
 %token API_ASSUME API_MK_SYMBOLIC API_ABORT
@@ -724,17 +725,19 @@ e_type_target:
   | t = e_simple_type_target;
     { t }
   | t = e_nary_type_target;
-    { E_Type.simplify_type t }
+    { t }
 
 e_simple_type_target:
   | LPAREN; t = e_type_target; RPAREN;
     { t }
   | TYPE_ANY;
     { E_Type.AnyType }
-  | TYPE_UNDEFINED;
-    { E_Type.UndefinedType }
   | TYPE_UNKNOWN;
     { E_Type.UnknownType }
+  | TYPE_NEVER;
+    { E_Type.NeverType }
+  | TYPE_UNDEFINED;
+    { E_Type.UndefinedType }
   | TYPE_NUMBER;
     { E_Type.NumberType }
   | TYPE_STRING;
@@ -743,27 +746,29 @@ e_simple_type_target:
     { E_Type.BooleanType }
   | TYPE_SYMBOL;
     { E_Type.SymbolType }
+  | v = val_target;
+    { E_Type.parse_literal_type v }
+  | LBRACK; RBRACK;
+    { E_Type.parse_literal_type (Val.List []) }
+  | LBRACK; t = e_type_target; RBRACK;
+    { E_Type.ListType t }
   | LBRACE; props = separated_list (COMMA, e_type_property_target); RBRACE;
-    { let t = E_Type.parse_obj_type props in E_Type.ObjectType t }
+    { E_Type.ObjectType (E_Type.parse_obj_type props) }
   | v = VAR;
     { E_Type.UserDefinedType v }
-  | v = val_target;
-    { E_Type.LiteralType v }
-  | LBRACK; t = option(e_type_target); RBRACK;
-    { match t with None -> E_Type.LiteralType (Val.List []) | Some t' -> E_Type.ListType t' }
 
 e_nary_type_target:
   | t1 = e_type_target; merge_func = e_nary_type_op_target; t2 = e_simple_type_target;
     { merge_func t1 t2 }
 
 e_nary_type_op_target:
-  | TIMES; { E_Type.merge_tuple_type }
-  | PIPE;  { E_Type.merge_union_type }
+  | TIMES;        { E_Type.merge_tuple_type }
+  | PIPE;         { E_Type.merge_union_type }
   
 e_type_property_target:
   | v = VAR; COLON; t = e_type_target;
     { E_Type.Field.NamedField (v, (t, false) ) }
-  | v = VAR; OPTIONAL; COLON; t = e_type_target;
+  | v = VAR; QUESTION; COLON; t = e_type_target;
     { E_Type.Field.NamedField (v, (t, true) ) }
   | TIMES; COLON; t = e_type_target;
     { E_Type.Field.SumryField t }
