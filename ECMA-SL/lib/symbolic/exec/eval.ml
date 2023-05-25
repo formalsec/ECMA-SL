@@ -15,20 +15,21 @@ let loc (at : region) (e : Expr.t) : string =
   match e with
   | Val (Val.Loc l) -> l
   | _ ->
-      Invalid_arg.error at "Expr '" ^ Expr.str e ^ "' is not a loc expression"
+    Invalid_arg.error at "Expr '" ^ Expr.str e ^ "' is not a loc expression"
 
-let field (at : region) (v : Expr.t) : string =
+(* let field (at : region) (v : Expr.t) : string =
   match v with
   | Val (Val.Str f) -> f
   | _ ->
       print_endline (Expr.str v);
-      Invalid_arg.error at "Sval is not a 'field' expression"
+      Invalid_arg.error at "Sval is not a 'field' expression" *)
 
 let func (at : region) (v : Expr.t) : string * Expr.t list =
   match v with
   | Val (Val.Str x) -> (x, [])
   | Curry (Val (Val.Str x), vs) -> (x, vs)
-  | _ -> Invalid_arg.error at "Sval is not a 'func' identifier"
+  | _ -> 
+    Invalid_arg.error at "Sval is not a 'func' identifier"
 
 let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config)
     (st : Symb_stmt.t) : Sstore.t =
@@ -166,7 +167,7 @@ let step (c : config) : config list =
         try
           if not (Batch.check_sat solver (br_f' :: pc)) then []
           else
-            let state' = (Heap.clone heap, store, stack, f) in
+            let state' = (S_heap.clone heap, store, stack, f) in
             let stmts' =
               match blk2 with
               | None -> List.tl_exn stmts
@@ -210,8 +211,8 @@ let step (c : config) : config list =
   | Stmt.AssignECall (x, y, es) ->
       Crash.error s.at "'AssignECall' not implemented!"
   | Stmt.AssignNewObj x ->
-      let obj = Object.create () in
-      let loc = Heap.insert heap obj in
+      let obj = S_object.create () in
+      let loc = S_heap.insert heap obj in
       [
         update c
           (Cont (List.tl_exn stmts))
@@ -219,19 +220,33 @@ let step (c : config) : config list =
           pc;
       ]
   | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
-      let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
-      and field = field s.at (reduce_expr ~at:s.at store e_field) in
-      let v = Val (Val.Bool (Option.is_some (Heap.get_field heap loc field))) in
-      [
+      let loc = loc s.at (reduce_expr ~at:s.at store e_loc) in
+      let reduced_field = (reduce_expr ~at:s.at store e_field) in
+      let get_result = S_heap.get_field heap loc reduced_field solver pc in
+
+      List.map get_result ~f:(fun (new_heap, obj, new_pc, v) ->
+        let v' = Val (Val.Bool (Option.is_some v)) in
+        let new_pc' = match new_pc with 
+        | Some p -> [p]
+        | None -> []
+        in
+        update c 
+          (Cont (List.tl_exn stmts))
+          (new_heap, Sstore.add_exn store x v', stack, f)
+          (new_pc' @ pc);
+      )
+      (* let field = field s.at reduced_field in
+      let v = Val (Val.Bool (Option.is_some (Heap.get_field heap loc field))) in *)
+      (* [
         update c
           (Cont (List.tl_exn stmts))
           (heap, Sstore.add_exn store x v, stack, f)
           pc;
-      ]
+      ] *)
   | Stmt.AssignObjToList (x, e) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e) in
       let v =
-        match Heap.get heap loc with
+        match S_heap.get heap loc with
         | None -> Crash.error s.at ("'" ^ loc ^ "' not found in heap")
         | Some obj ->
             NOpt
@@ -239,7 +254,7 @@ let step (c : config) : config list =
                 List.map
                   ~f:(fun (f, v) ->
                     NOpt (Operators.TupleExpr, Val (Val.Str f) :: [ v ]))
-                  (Object.to_list obj) )
+                  (S_object.to_list obj) )
       in
       [
         update c
@@ -248,15 +263,13 @@ let step (c : config) : config list =
           pc;
       ]
   | Stmt.AssignObjFields (x, e) ->
+
       let loc = loc s.at (reduce_expr ~at:s.at store e) in
       let v =
-        match Heap.get heap loc with
+        match S_heap.get heap loc with
         | None -> Crash.error s.at ("'" ^ loc ^ "' not found in heap")
         | Some obj ->
-            NOpt
-              ( Operators.ListExpr,
-                List.map ~f:(fun f -> Val (Val.Str f)) (Object.get_fields obj)
-              )
+            NOpt(Operators.ListExpr, S_object.get_fields obj)
       in
       [
         update c
@@ -265,20 +278,60 @@ let step (c : config) : config list =
           pc;
       ]
   | Stmt.FieldAssign (e_loc, e_field, e_v) ->
+
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
-      and field = field s.at (reduce_expr ~at:s.at store e_field)
+      and reduced_field = (reduce_expr ~at:s.at store e_field)
       and v = reduce_expr ~at:s.at store e_v in
-      Heap.set_field heap loc field v;
-      [ update c (Cont (List.tl_exn stmts)) state pc ]
+      let objects = S_heap.set_field heap loc reduced_field v solver pc in
+
+      List.map objects ~f:(fun (new_heap, obj, new_pc) -> 
+        let new_pc' = match new_pc with
+        | Some p -> [p]
+        | None -> []
+        in
+        update c 
+          (Cont (List.tl_exn stmts)) 
+          (new_heap, store, stack, f)
+          (new_pc' @ pc)
+      )
+      (* [ update c (Cont (List.tl_exn stmts)) state pc ] *)
   | Stmt.FieldDelete (e_loc, e_field) ->
-      let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
-      and field = field s.at (reduce_expr ~at:s.at store e_field) in
-      Heap.delete_field heap loc field;
-      [ update c (Cont (List.tl_exn stmts)) state pc ]
+      let loc = loc s.at (reduce_expr ~at:s.at store e_loc) in
+      let reduced_field = (reduce_expr ~at:s.at store e_field) in
+      let objects = S_heap.delete_field heap loc reduced_field solver pc in
+
+      List.map objects ~f:(fun (new_heap, obj, new_pc) -> 
+        let new_pc' = match new_pc with
+        | Some p -> [p]
+        | None -> []
+        in
+        update c 
+          (Cont (List.tl_exn stmts)) 
+          (new_heap, store, stack, f)
+          (new_pc' @ pc)
+      )
+      (* [ update c (Cont (List.tl_exn stmts)) state pc ] *)
   | Stmt.FieldLookup (x, e_loc, e_field) ->
+
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
-      and field = field s.at (reduce_expr ~at:s.at store e_field) in
-      let v =
+      and reduced_field = (reduce_expr ~at:s.at store e_field) in
+      let objects = S_heap.get_field heap loc reduced_field solver pc in
+
+      List.map objects ~f:(fun (new_heap, obj, new_pc, v) ->
+        let new_pc' = match new_pc with
+        | Some p -> [p]
+        | None -> []
+        in
+        let v' = match v with
+        | Some v -> v
+        | None -> Val (Val.Symbol "undefined")
+        in
+        update c
+          (Cont (List.tl_exn stmts))
+          (new_heap, Sstore.add_exn store x v', stack, f)
+          (new_pc' @ pc);
+      )
+      (* let v =
         Option.value ~default:(Val (Val.Symbol "undefined"))
           (Heap.get_field heap loc field)
       in
@@ -287,7 +340,7 @@ let step (c : config) : config list =
           (Cont (List.tl_exn stmts))
           (heap, Sstore.add_exn store x v, stack, f)
           pc;
-      ]
+      ] *)
   | Stmt.SymbStmt symb_s ->
       let store' = eval_api_call ~at:s.at store c symb_s in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
@@ -349,7 +402,7 @@ module RND = TreeSearch (RandArray)
 (* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
 let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
     config list =
-  let heap = Heap.create ()
+  let heap = S_heap.create ()
   and store = Sstore.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
   let solver =

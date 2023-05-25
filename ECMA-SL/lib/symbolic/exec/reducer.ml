@@ -48,10 +48,18 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
       let t = Sval_typing.type_of op in
       Val (Type (Option.value_exn t))
   | Sconcat, NOpt (ListExpr, vs) -> reduce_sconcat vs
-  | FloatOfString, UnOpt (FloatToString, Symbolic (t, x)) -> Symbolic (t, x)
+  | FloatOfString, UnOpt (FloatToString, Symbolic (Type.FltType, x)) -> Symbolic (Type.FltType, x)
+  | FloatOfString, UnOpt(Trim, UnOpt(FloatToString, (Symbolic (Type.FltType, x)))) -> Symbolic (Type.FltType, x)
+  | FloatToString, UnOpt(ToUint32, UnOpt(FloatOfString, (Symbolic (Type.FltType, x)))) -> Symbolic (Type.FltType, x)
+  | ToUint32, Symbolic (Type.FltType, x) -> Symbolic(Type.FltType, x)
   (* missing obj_to_list, obj_fields*)
   | op', v1' -> UnOpt (op', v1')
 
+
+
+(* (float_to_string(to_uint32(float_of_string(trim(float_to_string(symbolic (__$Flt, "i"))))))
+   float_to_string(symbolic (__$Flt, "i")) && 
+   !(to_uint32(float_of_string(trim(float_to_string(symbolic (__$Flt, "i"))))) = 4294967295.)) *)
 let reduce_list_compare (list1 : Expr.t list) (list2 : Expr.t list) : Expr.t =
   if List.length list1 = List.length list2 then
     let comp val1 val2 =
@@ -121,7 +129,13 @@ let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
   | Eq, v, Val Null when Caml.not (Expr.is_loc v) -> Val (Bool false)
   | Eq, v1, v2 when Caml.not (is_symbolic v1 || is_symbolic v2) ->
       Val (Bool (Expr.equal v1 v2))
-  | Eq, Symbolic (_, n1), Symbolic (_, n2) -> Val (Bool (Expr.equal v1 v2))
+  | Eq, UnOpt(FloatToString, (Symbolic (Type.FltType, n1))), UnOpt(FloatToString, (Symbolic (Type.FltType, n2))) -> Val (Bool (Expr.equal n1 n2))
+  | Eq, Val(Str s), UnOpt(FloatToString, (Symbolic (Type.FltType, n))) 
+  | Eq, UnOpt(FloatToString, (Symbolic (Type.FltType, n))), Val (Str s) -> 
+    if Str.string_match (Str.regexp  "[0-9]+[.][0-9]*") s 0 then(
+      BinOpt (op, v1, v2))
+    else(
+      Val (Bool false))
   | Tnth, NOpt (TupleExpr, vs), Val (Int i) -> List.nth_exn vs i
   | Lnth, NOpt (ListExpr, vs), Val (Int i) -> List.nth_exn vs i
   | Lconcat, NOpt (ListExpr, vs1), NOpt (ListExpr, vs2) ->

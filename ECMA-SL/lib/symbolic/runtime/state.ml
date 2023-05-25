@@ -16,7 +16,7 @@ and outcome =
 
 and func = string
 and stack = Sstore.t Call_stack.t
-and state = Expr.t Heap.t * Sstore.t * stack * func
+and state = Expr.t S_heap.t * Sstore.t * stack * func
 and pc = Encoding.Expression.t list
 
 let is_cont (o : outcome) : bool = match o with Cont _ -> true | _ -> false

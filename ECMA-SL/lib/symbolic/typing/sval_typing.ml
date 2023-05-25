@@ -15,6 +15,8 @@ let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
   | Operators.IntToFloat -> un_args_typing_int_casts arg_t Type.FltType
   | Operators.IntToString -> un_args_typing_int_casts arg_t Type.StrType
   | Operators.FloatToString -> un_args_typing_float_casts arg_t Type.StrType
+  | Operators.FloatOfString -> Some Type.FltType
+  | Operators.ToUint32 -> Some Type.FltType
   | Operators.Typeof -> un_args_typing_typeof arg_t
   | Operators.Sconcat -> un_args_typing_sconcat arg_t
   | Operators.Exp -> un_args_typing_float_math arg_t Type.FltType
@@ -25,6 +27,7 @@ let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
   | Operators.StringLen -> Some Type.IntType
   | Operators.StringLenU -> Some Type.IntType
   | Operators.BitwiseNot -> un_args_typing_bitwise_not arg_t
+  | Operators.Trim -> Some Type.StrType
   | default ->
       failwith
         ("Typing Error: [type_of_unop] -> unsuported typing for unary \

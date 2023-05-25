@@ -1,0 +1,10 @@
+function main() {
+  y := {};
+  x := symbolic(__$Str, "x");
+
+  y["length"] := 2.0;
+  y[x] := 1.0;
+
+  assert(y["test"] = 'undefined || y["test"] = 1.0);
+  return 0
+}
