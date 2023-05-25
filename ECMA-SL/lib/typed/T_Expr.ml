@@ -4,13 +4,14 @@ type texpr_t = E_Type.t * E_Type.t
 
 let type_val (expr : Val.t) : E_Type.t =
   match expr with
+  | Val.Null -> E_Type.NullType
   | Val.Flt _ -> E_Type.LiteralType expr
   | Val.Int _ -> E_Type.LiteralType expr
   | Val.Str _ -> E_Type.LiteralType expr
   | Val.Bool _ -> E_Type.LiteralType expr
   | Val.Symbol "undefined" -> E_Type.UndefinedType
   | Val.Symbol _ -> E_Type.LiteralType expr
-  | Val.Null -> E_Type.NullType
+  | Val.Type t -> E_Type.RuntimeType t
   | _ -> E_Type.AnyType
 
 let type_var (tctx : T_Ctx.t) (var : string) : texpr_t =
@@ -24,7 +25,7 @@ let type_const (const : Operators.const) : E_Type.t =
   | Operators.MIN_VALUE -> E_Type.NumberType
   | Operators.PI -> E_Type.NumberType
 
-let type_operand (arg : E_Expr.t) (tparam : E_Type.t) (targ : texpr_t) : unit =
+let type_operand (arg : E_Expr.t) (targ : texpr_t) (tparam : E_Type.t) : unit =
   try ignore (T_Typing.type_check arg tparam targ)
   with T_Err.TypeError terr -> (
     match terr.T_Err.errs with
@@ -35,12 +36,12 @@ let type_operand (arg : E_Expr.t) (tparam : E_Type.t) (targ : texpr_t) : unit =
 let type_operator (args : E_Expr.t list) (tparams : E_Type.t list)
     (tret : E_Type.t) (type_expr_fun : E_Expr.t -> texpr_t) : texpr_t =
   let targs = List.map (fun arg -> type_expr_fun arg) args in
-  let param_args = List.combine args (List.combine tparams targs) in
-  let type_operand_fun (arg, (tparam, targ)) = type_operand arg tparam targ in
+  let param_args = List.combine args (List.combine targs tparams) in
+  let type_operand_fun (arg, (targ, tparam)) = type_operand arg targ tparam in
   let _ = List.iter type_operand_fun param_args in
   (tret, T_Narrowing.type_narrowing tret)
 
-let type_arg (arg : E_Expr.t) (tparam : E_Type.t) (targ : texpr_t) : unit =
+let type_arg (arg : E_Expr.t) (targ : texpr_t) (tparam : E_Type.t) : unit =
   try ignore (T_Typing.type_check arg tparam targ)
   with T_Err.TypeError terr -> (
     match terr.T_Err.errs with
@@ -49,14 +50,14 @@ let type_arg (arg : E_Expr.t) (tparam : E_Type.t) (targ : texpr_t) : unit =
     | _ -> failwith "Typed ECMA-SL: T_Expr.type_arg")
 
 let type_args (tctx : T_Ctx.t) (expr : E_Expr.t) (args : E_Expr.t list)
-    (tparams : E_Type.t list) (targs : texpr_t list) : unit =
+    (targs : texpr_t list) (tparams : E_Type.t list) : unit =
   let nparams = List.length tparams in
   let nargs = List.length targs in
   if nparams != nargs then
     T_Err.raise (T_Err.NExpectedArgs (nparams, nargs)) ~tkn:(T_Err.Expr expr)
   else
-    let param_args = List.combine args (List.combine tparams targs) in
-    List.iter (fun (arg, (tparam, targ)) -> type_arg arg tparam targ) param_args
+    let param_args = List.combine args (List.combine targs tparams) in
+    List.iter (fun (arg, (targ, tparam)) -> type_arg arg targ tparam) param_args
 
 let type_named_call (tctx : T_Ctx.t) (expr : E_Expr.t) (fname : string)
     (args : E_Expr.t list) (targs : texpr_t list) : E_Type.t =
@@ -64,7 +65,7 @@ let type_named_call (tctx : T_Ctx.t) (expr : E_Expr.t) (fname : string)
   | None -> T_Err.raise (T_Err.UnknownFunction fname) ~tkn:(T_Err.Str fname)
   | Some func' ->
       let tparams = E_Func.get_tparams func' in
-      let _ = type_args tctx expr args tparams targs in
+      let _ = type_args tctx expr args targs tparams in
       Option.default E_Type.AnyType (E_Func.get_return_t func')
 
 let type_call (tctx : T_Ctx.t) (expr : E_Expr.t) (fexpr : E_Expr.t)
@@ -155,9 +156,9 @@ let rec type_expr (tctx : T_Ctx.t) (expr : E_Expr.t) : texpr_t =
       let tparams, tret = T_Op.type_triop op in
       type_operator args tparams tret (type_expr tctx)
   (* | NOpt (_, _) ->  *)
-  | Call (fexpr, args, _) ->
+  | Call (fe, args, _) ->
       let targs = List.map (fun arg -> type_expr tctx arg) args in
-      let tret = type_call tctx expr fexpr args targs in
+      let tret = type_call tctx expr fe args targs in
       (tret, T_Narrowing.type_narrowing tret)
   (* | ECall (_, _) ->  *)
   | NewObj fes ->

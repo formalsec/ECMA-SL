@@ -19,10 +19,10 @@ let%test _ =
       BadValue (NumberType, StringType);
       BadLookup ("baz", tobj);
       BadValue (NumberType, StringType);
-      BadPossibleType (Some "obj_complex_undef[foo]", UndefinedType);
-      BadPossibleType (Some "obj_undef", UndefinedType);
-      BadPossibleType (Some "obj_null", NullType);
-      BadType (Some "obj_unknown", UnknownType);
+      BadPossibleType (Some "objComplexUndef[foo]", UndefinedType);
+      BadPossibleType (Some "objUndef", UndefinedType);
+      BadPossibleType (Some "objNull", NullType);
+      BadType (Some "objUnknown", UnknownType);
       BadLookup ("foo", NumberType);
     ]
 
@@ -33,10 +33,10 @@ let%test _ =
       BadValue (StringType, NumberType);
       BadLookup ("baz", tobj);
       BadValue (StringType, NumberType);
-      BadPossibleType (Some "obj_complex_undef[foo]", UndefinedType);
-      BadPossibleType (Some "obj_undef", UndefinedType);
-      BadPossibleType (Some "obj_null", NullType);
-      BadType (Some "obj_unknown", UnknownType);
+      BadPossibleType (Some "objComplexUndef[foo]", UndefinedType);
+      BadPossibleType (Some "objUndef", UndefinedType);
+      BadPossibleType (Some "objNull", NullType);
+      BadType (Some "objUnknown", UnknownType);
       BadLookup ("foo", NumberType);
     ]
 

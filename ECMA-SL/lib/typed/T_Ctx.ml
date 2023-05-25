@@ -8,7 +8,7 @@ let tvar_mut (tvar : tvar_t) : bool = tvar.mut
 let tvar_default (t : E_Type.t) : tvar_t = { tref = t; tnarrow = t; mut = true }
 
 let tvar_create (tref : E_Type.t) (tnarrow : E_Type.t) (mut : bool) : tvar_t =
-  let tnarrow' = T_Narrowing.create_nt tref tnarrow in
+  let tnarrow' = T_Narrowing.create_narrow_type tref tnarrow in
   { tref; tnarrow = tnarrow'; mut }
 
 type t = {
@@ -50,6 +50,12 @@ let tenv_find (tctx : t) (x : string) : tvar_t option =
 
 let tenv_update (tctx : t) (x : string) (t : tvar_t) : unit =
   Hashtbl.replace tctx.tenv x t
+
+let tenv_constrain (tctx : t) (x : string) (t : E_Type.t) : unit =
+  let tvar = tenv_find tctx x in
+  match tvar with
+  | None -> failwith "Typed ECMA-SL: T_Ctx.tenv_constrain"
+  | Some tvar' -> tenv_update tctx x { tvar' with tref = t; tnarrow = t }
 
 let tenv_reset (tctx : t) : t = Hashtbl.clear tctx.tenv |> fun () -> tctx
 

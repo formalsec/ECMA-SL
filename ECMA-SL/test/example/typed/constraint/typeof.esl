@@ -1,0 +1,35 @@
+function _numberString(): number | string { return 10 };
+function _stringBoolean(): string | boolean { return "abc" };
+function _objectNull(): { f: number } | null { return null };
+
+function main() {
+	foo: number | string := _numberString();
+	bar: string | boolean := _stringBoolean();
+	baz: { f: number } | null := _objectNull();
+
+	if (typeof(foo) = __$Int) {
+		x: number := foo;						/* Valid */
+		y: string := foo						/* BadValue: string <- number */
+	} else {
+		x: number := foo;						/* BadValue: number <- string */
+		y: string := foo						/* BadValue: string <- number */
+	};
+
+	if (typeof(bar) = __$Str) {
+		x: string := bar;						/* Valid */
+		y: boolean := bar						/* BadValue: boolean <- string */
+	} else {
+		x: string := bar;						/* BadValue: string <- boolean */
+		y: boolean := bar						/* Valid */
+	};
+
+	if (typeof(baz) = __$Null) {
+		x: null := baz;							/* Valid */
+		y: number := baz.f					/* BadPossibleType: baz <- null */
+	} else {
+		x: null := baz;							/* BadVal: null <- { f: number }  */
+		y: number := baz.f					/* Valid */
+	};
+
+	return 0
+}

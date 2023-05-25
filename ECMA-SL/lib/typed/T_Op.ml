@@ -4,7 +4,7 @@ let type_unop (op : Operators.uopt) : E_Type.t list * E_Type.t =
   | Operators.Not -> ([ E_Type.BooleanType ], E_Type.BooleanType)
   | Operators.IsNaN -> ([ E_Type.NumberType ], E_Type.BooleanType)
   | Operators.BitwiseNot -> ([ E_Type.NumberType ], E_Type.NumberType)
-  | Operators.Typeof -> ([ E_Type.AnyType ], E_Type.TypeType)
+  | Operators.Typeof -> ([ E_Type.AnyType ], E_Type.RuntimeType (Type.TypeType))
   | Operators.IntToFloat -> ([ E_Type.NumberType ], E_Type.NumberType)
   | Operators.IntToString -> ([ E_Type.NumberType ], E_Type.StringType)
   | Operators.IntToFourHex -> ([ E_Type.NumberType ], E_Type.StringType)
@@ -103,11 +103,11 @@ let type_binop (op : Operators.bopt) : E_Type.t list * E_Type.t =
       ([ E_Type.BooleanType; E_Type.BooleanType ], E_Type.BooleanType)
   | Operators.Log_Or ->
       ([ E_Type.BooleanType; E_Type.BooleanType ], E_Type.BooleanType)
-  (* | Operators.Eq ->  *)
-  (* | Operators.Lt -> *)
-  (* | Operators.Gt -> *)
-  (* | Operators.Le -> *)
-  (* | Operators.Ge -> *)
+  | Operators.Eq -> ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType)
+  | Operators.Lt -> ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType)
+  | Operators.Gt -> ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType)
+  | Operators.Le -> ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType)
+  | Operators.Ge -> ([ E_Type.AnyType; E_Type.AnyType ], E_Type.BooleanType)
   | Operators.Min ->
       ([ E_Type.NumberType; E_Type.NumberType ], E_Type.NumberType)
   | Operators.Max ->
@@ -160,5 +160,4 @@ let type_triop (op : Operators.topt) : E_Type.t list * E_Type.t =
         E_Type.StringType )
   (* | Operators.Aset ->  *)
   (* | Operators.Lset ->  *)
-  | _ ->
-      ([ E_Type.AnyType; E_Type.AnyType; E_Type.AnyType ], E_Type.AnyType)
+  | _ -> ([ E_Type.AnyType; E_Type.AnyType; E_Type.AnyType ], E_Type.AnyType)

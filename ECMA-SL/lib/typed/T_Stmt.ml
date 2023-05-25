@@ -12,7 +12,9 @@ let catch_terr_stmt (tctx : T_Ctx.t) (tstmt_fun : unit -> unit) : T_Err.t list =
 let catch_terr_expr (tctx : T_Ctx.t) (texpr_fun : unit -> T_Expr.texpr_t) :
     T_Expr.texpr_t * T_Err.t list =
   try texpr_fun () |> fun texpr -> (texpr, [])
-  with T_Err.TypeError terr -> ((E_Type.AnyType, E_Type.AnyType), [ terr ])
+  with T_Err.TypeError terr ->
+    let terr' = { terr with src = T_Err.Stmt (T_Ctx.get_stmt tctx) } in
+    ((E_Type.AnyType, E_Type.AnyType), [ terr' ])
 
 let type_assign (tctx : T_Ctx.t) (var : string) (tvar : E_Type.t option)
     (expr : E_Expr.t) : unit =
@@ -39,13 +41,21 @@ let type_return (tctx : T_Ctx.t) (expr : E_Expr.t) : unit =
 
 let type_guard (tctx : T_Ctx.t) (expr : E_Expr.t) (texpr : T_Expr.texpr_t) :
     T_Err.t list =
-  try T_Typing.type_check expr E_Type.BooleanType texpr |> fun _ -> []
+  try T_Typing.type_check expr E_Type.BooleanType texpr |> fun () -> []
   with T_Err.TypeError terr -> (
     match terr.T_Err.errs with
     | T_Err.BadValue (tref, texpr) :: _ ->
         catch_terr_stmt tctx (fun () ->
             T_Err.update terr (T_Err.BadExpectedType (tref, texpr)))
     | _ -> failwith "Typed ECMA-SL: T_Stmt.type_ifelse_while")
+
+let apply_constrains (tctx : T_Ctx.t) (form : T_Constraint.t) : T_Err.t list =
+  try T_Constraint.apply tctx form |> fun () -> []
+  with T_Err.TypeError terr -> (
+    match terr.T_Err.errs with
+    | T_Err.NoOverlapComp _ :: _ ->
+        catch_terr_stmt tctx (fun () -> T_Err.continue terr)
+    | _ -> [])
 
 let type_ifelse (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt1 : E_Stmt.t)
     (stmt2 : E_Stmt.t option)
@@ -55,10 +65,18 @@ let type_ifelse (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt1 : E_Stmt.t)
   let stmt2 = Option.default (Skip @@ no_region) stmt2 in
   let terrs_guard = type_guard tctx expr texpr in
   let tctx1, tctx2 = (T_Ctx.copy tctx, T_Ctx.copy tctx) in
+  let form1 = T_Constraint.generate tctx expr in
+  let form2 =
+    if stmt2 <> Skip @@ no_region then T_Constraint.Not form1
+    else T_Constraint.NoConstraint
+  in
+  let terr_form1 = apply_constrains tctx1 form1 in
+  let terr_form2 = apply_constrains tctx2 form2 in
   let terrs_stmt1 = type_stmt_fun tctx1 stmt1 in
   let terrs_stmt2 = type_stmt_fun tctx2 stmt2 in
   let _ = T_Ctx.tenv_intersect tctx [ tctx1; tctx2 ] in
-  List.concat [ terr_expr; terrs_guard; terrs_stmt1; terrs_stmt2 ]
+  List.concat
+    [ terr_expr; terrs_guard; terr_form1; terr_form2; terrs_stmt1; terrs_stmt2 ]
 
 let type_while (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt : E_Stmt.t)
     (type_stmt_fun : T_Ctx.t -> E_Stmt.t -> T_Err.t list) : T_Err.t list =
@@ -67,8 +85,10 @@ let type_while (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt : E_Stmt.t)
   let terrs_guard = type_guard tctx expr texpr in
   let _ = T_Ctx.tenv_reset_narrowing tctx in
   let tctx' = T_Ctx.tenv_lock_types (T_Ctx.copy tctx) in
+  let form = T_Constraint.generate tctx' expr in
+  let terr_form = apply_constrains tctx' form in
   let terrs_stmt = type_stmt_fun tctx' stmt in
-  List.concat [ terr_expr; terrs_guard; terrs_stmt ]
+  List.concat [ terr_expr; terrs_guard; terr_form; terrs_stmt ]
 
 let type_fassign (tctx : T_Ctx.t) (oexpr : E_Expr.t) (fexpr : E_Expr.t)
     (expr : E_Expr.t) : unit =
@@ -78,8 +98,7 @@ let type_fassign (tctx : T_Ctx.t) (oexpr : E_Expr.t) (fexpr : E_Expr.t)
     | _ -> rtoexpr
   in
   let type_fassign' texpr fn rtoexpr nt =
-    let rt = rt_of_nt rtoexpr nt in
-    let tref = T_Expr.type_fld_lookup oexpr fexpr fn rt in
+    let tref = T_Expr.type_fld_lookup oexpr fexpr fn (rt_of_nt rtoexpr nt) in
     T_Typing.type_check expr tref texpr
   in
   let texpr = T_Expr.type_expr tctx expr in

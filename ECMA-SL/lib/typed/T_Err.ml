@@ -21,6 +21,7 @@ type err_t =
   | BadType of string option * E_Type.t
   | BadPossibleType of string option * E_Type.t
   | BadLookup of string * E_Type.t
+  | NoOverlapComp of E_Type.t * E_Type.t
 
 let err_str (err : err_t) : string =
   match err with
@@ -70,6 +71,11 @@ let err_str (err : err_t) : string =
   | BadLookup (fn, tobj) ->
       Printf.sprintf "Field '%s' does not exist on type '%s'." fn
         (E_Type.str tobj)
+  | NoOverlapComp (t1, t2) ->
+      Printf.sprintf
+        "This comparison appears to be unintentional because the types '%s' \
+         and '%s' have no overlap."
+        (E_Type.str t1) (E_Type.str t2)
 
 type src_t = NoSource | Stmt of E_Stmt.t | Func of E_Func.t
 

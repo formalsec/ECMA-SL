@@ -1,0 +1,48 @@
+function _numberString(): number | string | boolean {
+	return 10
+};
+
+function _numberAbc(): number | "abc" {
+	return 10
+};
+
+function main() {
+	foo: number | string | boolean := _numberString();
+	bar: number | "abc" := _numberAbc();
+
+	if (typeof(foo) = __$Int || typeof(foo) = __$Bool) {
+		x: number | boolean := foo;			/* Valid */
+		y: number := foo;								/* BadValue: number <- boolean */
+		z: string := foo;								/* BadValue: string <- number */
+		w: boolean := foo								/* BadValue: boolean <- number */
+	} else {
+		x: number | string := foo;			/* Valid */
+		y: number := foo;								/* BadValue: number <- string */
+		z: string := foo;								/* BadValue: string <- number */
+		w: boolean := foo								/* BadValue: boolean <- number */
+	};
+
+	if (typeof(bar) = __$Str || bar = 10) {
+		x: "abc" | 10 := bar;						/* Valid */
+		y: "abc" := bar;								/* BadValue: "abc" <- 10 */
+		z: number := bar								/* BadValue: number <- "abc" */
+	};
+
+	if (foo = bar) {
+		x: number | "abc" := foo;				/* Valid */
+		y: number | "abc" := bar;				/* Valid */
+		z: number := foo;								/* BadValue: number <- "abc" */
+		w: number := bar								/* BadValue: number <- "abc" */
+	};
+
+	if (foo = bar && typeof(foo) = __$Str) {
+		x: "abc" := foo;
+		y: "abc" := bar									/* BadValue: "abc" <- number */
+	};
+
+	if (bar = "abc" && typeof(bar) = __$Int) {
+		x: number := bar								/* BadValue: number <- never */
+	};
+
+	return 0
+}

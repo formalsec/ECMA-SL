@@ -1,24 +1,24 @@
 function main() {
-	obj_simple: { foo: number, bar: string } := { foo: 10, bar: "abc" };
-	obj_complex: { foo: { bar: string } } := { foo: { bar: "abc" } };
-	obj_complex_undef: { foo: undefined } := { foo: 'undefined };
-	obj_undef: undefined := 'undefined;
-	obj_null: null := null;
-	obj_unknown: unknown := 10;
-	obj_false: number := 10;
+	objSimple: { foo: number, bar: string } := { foo: 10, bar: "abc" };
+	objComplex: { foo: { bar: string } } := { foo: { bar: "abc" } };
+	objComplexUndef: { foo: undefined } := { foo: 'undefined };
+	objUndef: undefined := 'undefined;
+	objNull: null := null;
+	objUnknown: unknown := 10;
+	objFalse: number := 10;
 
-	x: number := obj_simple.foo;				/* Valid */
-	y: string := obj_simple.bar;				/* Valid */
-	z: string := obj_complex.foo.bar;		/* Valid */
+	x: number := objSimple.foo;					/* Valid */
+	y: string := objSimple.bar;					/* Valid */
+	z: string := objComplex.foo.bar;		/* Valid */
 	
-	x: number := obj_simple.bar;				/* BadValue: number <- string */
-	y: number := obj_simple.baz;				/* BadLookup: obj.baz */
-	z: number := obj_complex.foo.bar;		/* BadLookup: number <- string */
+	x: number := objSimple.bar;					/* BadValue: number <- string */
+	y: number := objSimple.baz;					/* BadLookup: obj.baz */
+	z: number := objComplex.foo.bar;		/* BadLookup: number <- string */
 
-	obj_complex_undef.foo.bar;		/* BadPossibleType: obj_complex_undef.foo <- undefined */
-	obj_undef.foo;								/* BadPossibleType: undef_obj <- undefined */
-	obj_null.foo;									/* BadPossibleType: null_obj <- null */
-	obj_unknown.foo;							/* BadType: unknown_obj <- unknown */
-	obj_false.foo;								/* BadLookup: false_obj.foo */
+	objComplexUndef.foo.bar;		/* BadPossibleType: objComplexUndef.foo <- undefined */
+	objUndef.foo;								/* BadPossibleType: undef_obj <- undefined */
+	objNull.foo;								/* BadPossibleType: null_obj <- null */
+	objUnknown.foo;							/* BadType: unknown_obj <- unknown */
+	objFalse.foo;								/* BadLookup: false_obj.foo */
 	return 0
 }

@@ -82,8 +82,16 @@ let check_obj_type (expr : E_Expr.t) (tref : t) (texpr : t)
     match (tref, texpr) with
     | ObjectType otref, ObjectType otexpr ->
         check_obj_fields expr otref otexpr test_type_fun
-    | _ -> failwith "Typed ECMA-SL: T_Typing.check_object_type"
+    | _ -> failwith "Typed ECMA-SL: T_Typing.check_obj_type"
   with T_Err.TypeError terr -> T_Err.push terr (T_Err.BadValue (tref, texpr))
+
+let check_runtime_type (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
+  match (tref, texpr) with
+  | RuntimeType Type.TypeType, RuntimeType _ -> ()
+  | RuntimeType tref', RuntimeType texpr' ->
+      if not (tref' = texpr') then
+        T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.Expr expr)
+  | _ -> failwith "Typed ECMA-SL: T_Typing.check_runtime_type"
 
 let rec test_type (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   match (tref, texpr) with
@@ -100,6 +108,7 @@ let rec test_type (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   | _, UnionType _ -> check_union_expr expr tref texpr (test_type expr)
   | UnionType _, _ -> check_union_type expr tref texpr (test_type expr)
   | _, LiteralType _ -> check_literal_type_expr expr tref texpr
+  | RuntimeType _, RuntimeType _ -> check_runtime_type expr tref texpr
   | _ -> T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.Expr expr)
 
 let is_typeable (tref : t) (texpr : t) : bool =
