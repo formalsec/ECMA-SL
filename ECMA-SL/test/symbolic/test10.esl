@@ -1,7 +1,7 @@
 function main() {
-  x := symbolic(__$Str, "x");
+  x := __api_mk_symbolic(__$Str, "x");
   y := s_len(x);
-  assume(y = 4);
+  __api_assume(y = 4);
   z := "test";
 
   x2 := s_concat([x, z]);

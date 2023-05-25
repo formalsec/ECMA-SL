@@ -1,7 +1,7 @@
 function main () {
-  x := symbolic(__$Int, "x");
-  assume (x > 10);
+  x := __api_mk_symbolic(__$Int, "x");
+  __api_assume(x > 10);
   x := x * 2;
-  assert (x > 20);
+  assert(x > 20);
   return 1
 }

@@ -1,5 +1,5 @@
 function main () {
-  x := symbolic(__$Int, "x");
+  x := __api_mk_symbolic(__$Int, "x");
   y := x * 2;
   if (x > 10) {
     assert ( y > 20 )

@@ -1,14 +1,14 @@
 function main() {
-  x := symbolic(__$Flt, "x");
-  assume(x = 4.0);
+  x := __api_mk_symbolic(__$Int, "x");
+  __api_assume(x = 4);
 
-  y := (x << 1.0);
-  assert(y = 8.0);
+  y := (x << 1);
+  assert(y = 8);
 
-  y1 := x >> 1.0;
-  assert(y1 = 2.0);
+  y1 := x >> 1;
+  assert(y1 = 2);
 
-  assert(y1 << 1.0 = x);  
+  assert(y1 << 1 = x);  
 
   return 1
 }

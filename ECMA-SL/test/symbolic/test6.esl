@@ -1,10 +1,10 @@
 function main() {
-	x := symbolic(__$Str, "x");
+	x := __api_mk_symbolic(__$Str, "x");
   	y := s_len(x);
-	assume(y = 4);
+	__api_assume(y = 4);
 
-	assume(s_substr(x, 0, 3) = "EFG");
-	assume(s_nth(x, 3) = "A");
+	__api_assume(s_substr(x, 0, 3) = "EFG");
+	__api_assume(s_nth(x, 3) = "A");
 
 	z := s_substr(x, 0, 3);
 	assert(z = "EFG");

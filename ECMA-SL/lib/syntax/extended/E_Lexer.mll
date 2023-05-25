@@ -14,13 +14,18 @@
     let _ =
       List.iter (fun (kwd, tok) -> Hashtbl.add keyword_table kwd tok)
               [
-                "__api_is_sat"          , API_IS_SAT;
-                "__api_maximize"        , API_MAXIMIZE; 
-                "__api_minimize"        , API_MINIMIZE; 
-                "__api_is_symbolic"     , API_IS_SYMBOLIC;
-                "__api_eval"            , API_EVAL;
-                "__api_eval_wrapper"    , API_EVAL_WRAPPER;
-                "__api_exec_wrapper"    , API_EXEC_WRAPPER;
+                (* API *)
+                "__api_eval", API_EVAL;
+                "__api_maximize", API_MAXIMIZE;
+                "__api_minimize", API_MINIMIZE;
+                "__api_is_sat", API_IS_SAT;
+                "__api_is_symbolic", API_IS_SYMBOLIC;
+                "__api_eval_wrapper" , API_EVAL_WRAPPER;
+                "__api_exec_wrapper" , API_EXEC_WRAPPER;
+                "__api_assume"    , ASSUME;
+                "__api_mk_symbolic", SYMBOLIC;
+                "assert"          , ASSERT;
+                (* Keywords *)
                 "parse_number"    , PARSE_NUMBER;
                 "parse_string"    , PARSE_STRING;
                 "parse_date"      , PARSE_DATE;
@@ -117,9 +122,6 @@
                 "with"            , WITH;
                 "print"           , PRINT;
                 "gen_wrapper"     , WRAPPER;
-                "assume"          , ASSUME;
-                "assert"          , ASSERT;
-                "symbolic"        , SYMBOLIC;
                 "switch"          , SWITCH;
                 "case"            , CASE;
                 "sdefault"        , SDEFAULT;
@@ -178,7 +180,7 @@ let frac    = '.' digit*
 let exp     = ['e' 'E'] ['-' '+']? digit+
 let float   = digit* frac? exp?
 let bool    = "true"|"false"
-let var     = (letter | '_'*letter)(letter|digit|'_'|'\'')*
+let var     = (letter | '_')(letter|digit|'_'|'\'')*
 let gvar    = '|'(var)'|'
 let symbol  = '\''(var|int)
 let white   = (' '|'\t')+
@@ -242,16 +244,14 @@ rule read =
   | '}'            { RBRACE }
   | '['            { LBRACK }
   | ']'            { RBRACK }
+  | "__api"        { read_api lexbuf }
   | "__$"          { read_type lexbuf }
   | int            { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float          { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool           { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | '"'            { read_string (Buffer.create 16) lexbuf }
   | gvar           { GVAR (String_utils.trim_ends (Lexing.lexeme lexbuf))}
-  | (letter| "__") (letter|digit|'_') * as id { try
-                                        Hashtbl.find keyword_table id
-                                      with Not_found -> VAR id }
-  | var            { VAR (Lexing.lexeme lexbuf) }
+  | var as x { try Hashtbl.find keyword_table x with Not_found -> VAR x }
   | symbol         { SYMBOL (String_utils.chop_first_char (Lexing.lexeme lexbuf)) }
   | loc            { LOC (Lexing.lexeme lexbuf) }
   | hex_literal     { INT(Stdlib.int_of_string (Lexing.lexeme lexbuf)) }
@@ -300,6 +300,9 @@ and read_comment =
   | newline   { new_line lexbuf; read_comment lexbuf }
   | _         { read_comment lexbuf }
   | eof       { raise (create_syntax_error ~eof:true "Comment is not terminated" lexbuf)}
+
+and read_api = parse
+  | _        { raise (create_syntax_error "Unexpected API" lexbuf) }
 
 and read_type =
 (* Read Language Types *)

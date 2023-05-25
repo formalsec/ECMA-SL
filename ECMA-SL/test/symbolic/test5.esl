@@ -11,7 +11,7 @@ function fib(n) {
 };
 
 function main() {
-  x := symbolic(__$Int, "x");
+  x := __api_mk_symbolic(__$Int, "x");
   result := fib(x);
   if ((x >= 8) && (result < 34)) {
     assert( false )
