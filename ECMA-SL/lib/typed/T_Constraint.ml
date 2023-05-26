@@ -163,7 +163,7 @@ let rec apply_constrain (tctx : T_Ctx.t) (target : E_Expr.t list)
       match (fexpr, ntoexpr) with
       | E_Expr.Val (Val.Str fn), E_Type.UnionType nts ->
           List.filter (_test_union_case oexpr fexpr fn) nts |> fun ts ->
-          T_Narrowing.type_narrowing (E_Type.UnionType ts) |> fun t ->
+          T_Narrowing.narrow_type (E_Type.UnionType ts) |> fun t ->
           apply_constrain tctx [ oexpr ] t
       | _ -> ())
   | _ -> ()
@@ -193,7 +193,7 @@ let apply_clause (tctx : T_Ctx.t) (clause : t) : unit =
     let elements = List.map _inspect_element_f (cnf_or_clauses clause) in
     let tevals = List.concat (List.map _eval_constraint_f elements) in
     let tfolded = List.map _fold_number_f tevals in
-    let tconstraint = T_Narrowing.type_narrowing (E_Type.UnionType tfolded) in
+    let tconstraint = T_Narrowing.narrow_type (E_Type.UnionType tfolded) in
     let targets = _get_targets elements in
     apply_constrain tctx targets tconstraint
 

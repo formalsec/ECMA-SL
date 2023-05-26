@@ -1,4 +1,4 @@
-function _unionFunc() : number | string { return 10 };
+function _unionFunc()	: number | string { return 10 };
 
 function main() {
 	foo: number | string := 10;

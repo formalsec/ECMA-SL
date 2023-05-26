@@ -3,7 +3,7 @@ function main() {
 	bar: number := 10;
 	while (true) {
 		x: 10 := foo;				/* BadValue: 10 <- number */
-
+		
 		foo := 20;
 		y: 20 := foo;				/* Valid */
 

@@ -1,4 +1,5 @@
 function main() {
+  untypedVariable := 10;              /* Valid */
   intergerVariable: number := 10;     /* Valid */
   floatVariable: number := 10.10;     /* Valid */
   stringVariable: string := "abc";    /* Valid */

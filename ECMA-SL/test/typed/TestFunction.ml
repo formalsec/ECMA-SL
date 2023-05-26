@@ -16,7 +16,7 @@ let%test _ =
 
 let%test _ =
   Test.type_checker_test "example/function/return.esl"
-    [ BadReturn (NumberType, StringType) ]
+    [ BadReturn (StringType, NumberType) ]
 
 let%test _ =
   Test.type_checker_test "example/function/operator.esl"

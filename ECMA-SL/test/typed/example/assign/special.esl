@@ -3,9 +3,9 @@ function main() {
 	unknownVariable: unknown := 10;               /* Valid */
 	undefinedVariable: undefined := 'undefined;   /* Valid */
 
-  foo: string := anyVariable;       /* Valid */
-  baz: number := unknownVariable;   /* BadValue: number <- unknown */
-	bar: never := 10;                 /* BadValue: never <- number */
-  qux: symbol := 'undefined;        /* BadValue: symbol <- undefined */ 
+  foo: string := anyVariable;                   /* Valid */
+  baz: number := unknownVariable;               /* BadValue: number <- unknown */
+	bar: never := 10;                             /* BadValue: never <- number */
+  qux: symbol := 'undefined;                    /* BadValue: symbol <- undefined */ 
   return 0
 }

@@ -26,12 +26,12 @@ type err_t =
 let err_str (err : err_t) : string =
   match err with
   | UnknownVar x -> Printf.sprintf "Cannot find variable '%s'." x
-  | UnknownFunction fn -> Printf.sprintf "Cannot find function '%s'." fn
+  | UnknownFunction fname -> Printf.sprintf "Cannot find function '%s'." fname
   | NExpectedArgs (nparams, nargs) ->
       Printf.sprintf "Expected %d arguments, but got %d." nparams nargs
-  | DuplicatedParam pn ->
+  | DuplicatedParam param ->
       Printf.sprintf
-        "Functions cannot have two parameters with the same name: '%s'." pn
+        "Functions cannot have two parameters with the same name: '%s'." param
   | DuplicatedField fn ->
       Printf.sprintf
         "Object literals cannot have two field with the same name: '%s'." fn
@@ -41,16 +41,16 @@ let err_str (err : err_t) : string =
       Printf.sprintf "Field '%s' is not defined in the object's type." fn
   | IncompatibleField fn ->
       Printf.sprintf "Types of field '%s' are incompatible." fn
-  | BadValue (tvar, texpr) ->
+  | BadValue (tref, texpr) ->
       Printf.sprintf "Value of type '%s' is not assignable to type '%s'."
-        (E_Type.str texpr) (E_Type.str tvar)
+        (E_Type.str texpr) (E_Type.str tref)
   | BadExpectedType (tref, texpr) ->
       Printf.sprintf
         "Expected value of type '%s' but a value of type '%s' was provided."
         (E_Type.str tref) (E_Type.str texpr)
-  | BadTypeUpdate (tvar, texpr) ->
+  | BadTypeUpdate (tref, texpr) ->
       Printf.sprintf "Variable of type '%s' cannot change its type to '%s'."
-        (E_Type.str tvar) (E_Type.str texpr)
+        (E_Type.str tref) (E_Type.str texpr)
   | BadReturn (tret, texpr) ->
       Printf.sprintf "Value of type '%s' cannot be returned by a '%s' function."
         (E_Type.str texpr) (E_Type.str tret)
@@ -77,22 +77,22 @@ let err_str (err : err_t) : string =
          and '%s' have no overlap."
         (E_Type.str t1) (E_Type.str t2)
 
-type src_t = NoSource | Stmt of E_Stmt.t | Func of E_Func.t
+type src_t = NoSrc | Stmt of E_Stmt.t | Func of E_Func.t
 
 let src_region (src : src_t) : Source.region =
   match src with
-  | NoSource -> no_region
+  | NoSrc -> no_region
   | Stmt stmt -> stmt.at
   | Func func -> func.at
 
 let src_str (src : src_t) : string =
   match src with
-  | NoSource -> ""
+  | NoSrc -> ""
   | Stmt stmt -> E_Stmt.str stmt
   | Func func -> E_Func.str func
 
-type token_t =
-  | NoToken
+type tkn_t =
+  | NoTkn
   | Literal of string
   | Str of string
   | Expr of E_Expr.t
@@ -100,54 +100,54 @@ type token_t =
   | Func of E_Func.t
   | Type of E_Type.t
 
-let token_of_source (src : src_t) : token_t =
+let tkn_of_source (src : src_t) : tkn_t =
   match src with
-  | NoSource -> NoToken
+  | NoSrc -> NoTkn
   | Stmt stmt -> Stmt stmt
   | Func func -> Func func
 
-let concat_tokens (tkns : token_t list list) (s : string) : token_t list =
-  let separator_token r = match r with [] -> r | r' :: _ -> Literal s :: r in
-  List.fold_right (fun p r -> List.append p (separator_token r)) tkns []
+let concat_tkns (tkns : tkn_t list list) (split : string) : tkn_t list =
+  let _split_tkn_f r = match r with [] -> r | r' :: _ -> Literal split :: r in
+  List.fold_right (fun f r -> List.append f (_split_tkn_f r)) tkns []
 
-let get_call_tokens (fn_tkn : token_t) (args : E_Expr.t list) : token_t list =
-  let arg_tkns = List.map (fun arg -> [ Expr arg ]) args in
-  let arg_tkns = concat_tokens arg_tkns ", " in
-  let tkns = fn_tkn :: Literal "(" :: arg_tkns in
-  List.append tkns [ Literal ")" ]
+let get_call_tkns (fnTkn : tkn_t) (args : E_Expr.t list) : tkn_t list =
+  let argTkns = concat_tkns (List.map (fun arg -> [ Expr arg ]) args) ", " in
+  List.concat [ [ fnTkn ]; [ Literal "(" ]; argTkns; [ Literal ")" ] ]
 
-let get_expr_tokens (expr : E_Expr.t) : token_t list =
+let get_type_tkns (t : E_Type.t option) : tkn_t list =
+  match t with None -> [] | Some t' -> [ Literal ": "; Type t' ]
+
+let get_expr_tkns (expr : E_Expr.t) : tkn_t list =
   match expr with
   | Val v -> [ Literal (Val.str v) ]
   | Var x -> [ Str x ]
   (* | GVar _ -> [] *)
   | Const c -> [ Literal (Operators.str_of_const c) ]
   | UnOpt (op, e) ->
-      let op_tkn = Literal (Operators.str_of_unopt op) in
-      get_call_tokens op_tkn [ e ]
+      let opTkn = Literal (Operators.str_of_unopt op) in
+      get_call_tkns opTkn [ e ]
   | BinOpt (op, e1, e2) ->
-      let op_tkn = Literal (Operators.str_of_binopt_single op) in
-      get_call_tokens op_tkn [ e1; e2 ]
+      let opTkn = Literal (Operators.str_of_binopt_single op) in
+      get_call_tkns opTkn [ e1; e2 ]
   | EBinOpt (op, e1, e2) ->
-      let op_tkn = Literal (EOper.str_of_binopt_single op) in
-      get_call_tokens op_tkn [ e1; e2 ]
+      let opTkn = Literal (EOper.str_of_binopt_single op) in
+      get_call_tkns opTkn [ e1; e2 ]
   | TriOpt (op, e1, e2, e3) ->
-      let op_tkn = Literal (Operators.str_of_triopt_single op) in
-      get_call_tokens op_tkn [ e1; e2; e3 ]
+      let opTkn = Literal (Operators.str_of_triopt_single op) in
+      get_call_tkns opTkn [ e1; e2; e3 ]
   (* | NOpt (_, _) -> [] *)
-  | Call (Val (Val.Str fn), args, _) -> get_call_tokens (Str fn) args
+  | Call (Val (Val.Str fn), args, _) -> get_call_tkns (Str fn) args
   (* | ECall (_, _) -> [] *)
   | NewObj fes ->
-      let ftoken_fun (fn, fe) = [ Str fn; Literal ": "; Expr fe ] in
-      let ftkns = List.map ftoken_fun fes in
-      let tkns = Literal "{ " :: concat_tokens ftkns ", " in
-      List.append tkns [ Literal " }" ]
+      let _fe_tkn_f (fn, fe) = [ Str fn; Literal ": "; Expr fe ] in
+      let feTkns = concat_tkns (List.map _fe_tkn_f fes) ", " in
+      List.concat [ [ Literal "{ " ]; feTkns; [ Literal " }" ] ]
   | Lookup (oe, fe) -> [ Expr oe; Literal "["; Expr fe; Literal "]" ]
   (* | Curry (_, _) -> [] *)
   (* | Symbolic (_, _) -> [] *)
   | _ -> []
 
-let get_stmt_tokens (stmt : E_Stmt.t) : token_t list =
+let get_stmt_tkns (stmt : E_Stmt.t) : tkn_t list =
   match stmt.it with
   | Skip -> []
   (* | Fail _ -> [] *)
@@ -158,9 +158,8 @@ let get_stmt_tokens (stmt : E_Stmt.t) : token_t list =
   | Return e -> [ Literal "return "; Expr e ]
   (* | Wrapper (_, _) -> [] *)
   | Assign (x, t, e) ->
-      let type_tokens_fun (t : E_Type.t) = [ Literal ": "; Type t ] in
-      let tkns = match t with None -> [] | Some t' -> type_tokens_fun t' in
-      List.append (Str x :: tkns) [ Literal " := "; Expr e ]
+      let typeTkns = get_type_tkns t in
+      List.concat [ [ Str x ]; typeTkns; [ Literal " := " ]; [ Expr e ] ]
   (* | GlobAssign (_, _) -> [] *)
   | Block stmts -> []
   | If (e, _, _, _, _) ->
@@ -182,20 +181,16 @@ let get_stmt_tokens (stmt : E_Stmt.t) : token_t list =
   (* | Lambda (_, _, _, _, _) -> [] *)
   | _ -> []
 
-let get_func_tokens (func : E_Func.t) : token_t list =
-  let fn, fparams, fr = (func.it.name, func.it.params_t, func.it.return_t) in
-  let param_token_fun tparam =
-    Str (fst tparam)
-    :: (match snd tparam with None -> [] | Some t -> [ Str ": "; Type t ])
-  in
-  let param_tkns = concat_tokens (List.map param_token_fun fparams) ", " in
-  let ret_tkn = match fr with None -> [] | Some t -> [ Str " : "; Type t ] in
-  let ftkns = Str "function " :: Str fn :: Str " (" :: param_tkns in
-  let ftkns = List.append ftkns [ Str ")" ] in
-  let ftkns = List.append ftkns ret_tkn in
-  ftkns
+let get_func_tkns (func : E_Func.t) : tkn_t list =
+  let _param_tkn_f (param, tparam) = Str param :: get_type_tkns tparam in
+  let func' = func.it in
+  let fn, fparams, freturn = (func'.name, func'.params_t, func'.return_t) in
+  let funcTkns = [ Literal "function "; Str fn ] in
+  let paramTkns = concat_tkns (List.map _param_tkn_f fparams) ", " in
+  let retTkn = get_type_tkns freturn in
+  List.concat [ funcTkns; [ Literal " (" ]; paramTkns; [ Literal ")" ]; retTkn ]
 
-let token_cmp (tkn1 : token_t) (tkn2 : token_t) : bool =
+let tkn_cmp (tkn1 : tkn_t) (tkn2 : tkn_t) : bool =
   match (tkn1, tkn2) with
   | Literal tkn1', Literal tkn2' -> tkn1' = tkn2'
   | Str tkn1', Str tkn2' -> tkn1' == tkn2'
@@ -205,75 +200,67 @@ let token_cmp (tkn1 : token_t) (tkn2 : token_t) : bool =
   | Func tkn1', Func tkn2' -> tkn1' == tkn2'
   | _ -> false
 
-let token_is_splitable (tkn : token_t) : bool =
-  match tkn with
-  | NoToken -> false
-  | Literal _ -> false
-  | Str _ -> false
-  | Type _ -> false
-  | Expr _ -> true
-  | Stmt _ -> true
-  | Func _ -> true
+let tkn_is_splitable (tkn : tkn_t) : bool =
+  match tkn with Expr _ | Stmt _ | Func _ -> true | _ -> false
 
-let split_token (tkn : token_t) : token_t list =
+let split_tkn (tkn : tkn_t) : tkn_t list =
   match tkn with
-  | Expr tkn' -> get_expr_tokens tkn'
-  | Stmt tkn' -> get_stmt_tokens tkn'
-  | Func tkn' -> get_func_tokens tkn'
+  | Expr tkn' -> get_expr_tkns tkn'
+  | Stmt tkn' -> get_stmt_tkns tkn'
+  | Func tkn' -> get_func_tkns tkn'
   | _ -> []
 
-let rec token_str (tkn : token_t) : string =
+let rec tkn_str (tkn : tkn_t) : string =
   match tkn with
-  | NoToken -> ""
+  | NoTkn -> ""
   | Literal tkn' -> tkn'
   | Str tkn' -> tkn'
   | Type tkn' -> E_Type.str tkn'
-  | Expr tkn' -> String.concat "" (List.map token_str (get_expr_tokens tkn'))
-  | Stmt tkn' -> String.concat "" (List.map token_str (get_stmt_tokens tkn'))
-  | Func tkn' -> String.concat "" (List.map token_str (get_func_tokens tkn'))
+  | Expr tkn' -> String.concat "" (List.map tkn_str (get_expr_tkns tkn'))
+  | Stmt tkn' -> String.concat "" (List.map tkn_str (get_stmt_tkns tkn'))
+  | Func tkn' -> String.concat "" (List.map tkn_str (get_func_tkns tkn'))
 
-type t = { errs : err_t list; src : src_t; tkn : token_t }
+type t = { errs : err_t list; src : src_t; tkn : tkn_t }
 
 exception TypeError of t
 
-let create ?(src : src_t = NoSource) ?(tkn : token_t = NoToken)
-    (errs : err_t list) : t =
-  { errs; src; tkn }
+let create ?(src : src_t = NoSrc) ?(tkn : tkn_t = NoTkn) (err : err_t) : t =
+  { errs = [ err ]; src; tkn }
 
-let raise ?(src : src_t = NoSource) ?(tkn : token_t = NoToken) (err : err_t) =
-  Caml.raise (TypeError (create ~src ~tkn [ err ]))
+let raise ?(src : src_t = NoSrc) ?(tkn : tkn_t = NoTkn) (err : err_t) =
+  Caml.raise (TypeError (create ~src ~tkn err))
 
 let continue (terr : t) = Caml.raise (TypeError terr)
 
 let update (terr : t) (err : err_t) =
   let errs =
     match terr.errs with
-    | [] -> failwith "Typed ECMA-SL: T_Err.update"
     | _ :: errs -> err :: errs
+    | [] -> failwith "Typed ECMA-SL: T_Err.update"
   in
   Caml.raise (TypeError { terr with errs })
 
 let push (terr : t) (err : err_t) =
   Caml.raise (TypeError { terr with errs = err :: terr.errs })
 
-let set_token (terr : t) (tkn : token_t) =
+let set_tkn (terr : t) (tkn : tkn_t) =
   let terr' = { terr with tkn } in
   Caml.raise (TypeError terr')
 
-type loc_data = {
+type locData_t = {
   mutable file : string;
   mutable line : int;
   mutable left : int;
   mutable right : int;
 }
 
-type source_data = {
+type sourceData_t = {
   mutable code : string;
   mutable hgl : string;
-  mutable loc : loc_data;
+  mutable loc : locData_t;
 }
 
-let init_source_data (src : src_t) : source_data =
+let init_source_data (src : src_t) : sourceData_t =
   let region = src_region src in
   {
     code = "";
@@ -287,77 +274,74 @@ let init_source_data (src : src_t) : source_data =
       };
   }
 
-let process_empty_cause (source_data : source_data) (source : token_t) : unit =
-  let tkn_str = token_str source in
-  let tkn_size = String.length tkn_str in
-  source_data.code <- tkn_str;
-  source_data.hgl <- String.make tkn_size '^';
-  source_data.loc.left <- 0;
-  source_data.loc.right <- tkn_size - 1
+let process_empty_cause (sourceData : sourceData_t) (source : tkn_t) : unit =
+  let tknStr = tkn_str source in
+  let tknSize = String.length tknStr in
+  sourceData.code <- tknStr;
+  sourceData.hgl <- String.make tknSize '^';
+  sourceData.loc.left <- 0;
+  sourceData.loc.right <- tknSize - 1
 
-let rec process_cause (source_data : source_data) (cause : token_t)
-    (source : token_t) : unit =
-  let write_token_fun hgl =
-    let tkn_str = token_str source in
-    let tkn_size = String.length tkn_str in
-    let _ = source_data.code <- source_data.code ^ tkn_str in
-    let _ = source_data.hgl <- source_data.hgl ^ String.make tkn_size hgl in
-    tkn_size
+let rec process_cause (sourceData : sourceData_t) (cause : tkn_t)
+    (source : tkn_t) : unit =
+  let _write_tkn hgl =
+    let tknStr = tkn_str source in
+    let tknSize = String.length tknStr in
+    let _ = sourceData.code <- sourceData.code ^ tknStr in
+    let _ = sourceData.hgl <- sourceData.hgl ^ String.make tknSize hgl in
+    tknSize
   in
-  if source_data.loc.left >= source_data.loc.right then
-    if token_cmp cause source then
-      let tkn_size = write_token_fun '^' in
-      source_data.loc.right <- source_data.loc.left + tkn_size
-    else if token_is_splitable source then
-      let process_cause_fun = process_cause source_data cause in
-      List.iter (fun tkn -> process_cause_fun tkn) (split_token source)
+  if sourceData.loc.left >= sourceData.loc.right then
+    if tkn_cmp cause source then
+      let tknSize = _write_tkn '^' in
+      sourceData.loc.right <- sourceData.loc.left + tknSize
+    else if tkn_is_splitable source then
+      List.iter (process_cause sourceData cause) (split_tkn source)
     else
-      let tkn_size = write_token_fun ' ' in
-      source_data.loc.left <- source_data.loc.left + tkn_size
-  else ignore (write_token_fun ' ')
+      let tknSize = _write_tkn ' ' in
+      sourceData.loc.left <- sourceData.loc.left + tknSize
+  else ignore (_write_tkn ' ')
 
-let find_cause (terr : t) : source_data =
-  let source_data = init_source_data terr.src in
-  let source_tkn = token_of_source terr.src in
-  let _ =
-    if terr.tkn = NoToken then process_empty_cause source_data source_tkn
-    else process_cause source_data terr.tkn source_tkn
-  in
-  source_data
+let find_cause (terr : t) : sourceData_t =
+  let sourceData = init_source_data terr.src in
+  let sourceTkn = tkn_of_source terr.src in
+  (if terr.tkn = NoTkn then process_empty_cause sourceData sourceTkn
+  else process_cause sourceData terr.tkn sourceTkn)
+  |> fun () -> sourceData
 
 let format_msg (errs : err_t list) : string =
-  let terr_header = Font.format "TypeError: " [ Font.red ] in
-  let terr_cause = Font.format "Caused by: " [ Font.yellow ] in
+  let terrHeader = Font.format "TypeError: " [ Font.red ] in
+  let terrCause = Font.format "Caused by: " [ Font.yellow ] in
   match errs with
-  | [] -> terr_header ^ "???"
+  | [] -> terrHeader ^ "???"
   | err :: errs ->
-      let side_err_str_fun err = terr_cause ^ err_str err ^ "\n" in
-      let str_main_err = err_str err in
-      let str_side_err = String.concat "" (List.map side_err_str_fun errs) in
-      terr_header ^ str_main_err ^ "\n" ^ str_side_err
+      let _side_err_str_f err = terrCause ^ err_str err ^ "\n" in
+      let mainErrStr = err_str err in
+      let sideErrsStr = String.concat "" (List.map _side_err_str_f errs) in
+      terrHeader ^ mainErrStr ^ "\n" ^ sideErrsStr
 
-let format_loc (loc : loc_data) : string =
+let format_loc (loc : locData_t) : string =
   Printf.sprintf "File \"%s\", line %d, characters %d-%d:" loc.file loc.line
     loc.left (loc.right - 1)
 
-let format_code (source_data : source_data) : string =
-  Printf.sprintf "%d |   %s" source_data.loc.line source_data.code
+let format_code (sourceData : sourceData_t) : string =
+  Printf.sprintf "%d |   %s" sourceData.loc.line sourceData.code
 
-let format_hgl (terr_cause : source_data) : string =
-  let lineno_size = String.length (string_of_int terr_cause.loc.line) in
-  let terr_cause_ident = String.make (lineno_size + 5) ' ' in
-  terr_cause_ident ^ terr_cause.hgl
+let format_hgl (terrCause : sourceData_t) : string =
+  let linenoSize = String.length (string_of_int terrCause.loc.line) in
+  let terrCauseIdent = String.make (linenoSize + 5) ' ' in
+  terrCauseIdent ^ terrCause.hgl
 
-let format_source (terr : t) (source_data : source_data) : string =
+let format_source (terr : t) (sourceData : sourceData_t) : string =
   match terr.src with
-  | NoSource -> ""
+  | NoSrc -> ""
   | _ ->
-      Font.format (format_loc source_data.loc) [ Font.faint ]
-      ^ "\n" ^ format_code source_data ^ "\n"
-      ^ Font.format (format_hgl source_data) [ Font.red ]
+      Font.format (format_loc sourceData.loc) [ Font.faint ]
+      ^ "\n" ^ format_code sourceData ^ "\n"
+      ^ Font.format (format_hgl sourceData) [ Font.red ]
 
 let format (terr : t) : string =
-  let terr_msg = format_msg terr.errs in
-  let source_data = find_cause terr in
-  let terr_source = format_source terr source_data in
-  Printf.sprintf "%s%s\n" terr_msg terr_source
+  let terrMsg = format_msg terr.errs in
+  let sourceData = find_cause terr in
+  let terrSource = format_source terr sourceData in
+  Printf.sprintf "%s%s\n" terrMsg terrSource

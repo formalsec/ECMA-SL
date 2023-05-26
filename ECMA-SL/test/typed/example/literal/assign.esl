@@ -5,7 +5,6 @@ function main() {
 	literalBoolean: true := true;			/* Valid */
 	literalSymbol: 'a := 'a;					/* Valid */
 	literalNull: null := null;				/* Valid */
-	literalList: [] := [];						/* Valid */
 
 	foo: 10 := 20;										/* BadAssignment: 10 <- 20 */
 	bar: 10 := 10.2;									/* BadAssignment: 10 <- 10.2 */

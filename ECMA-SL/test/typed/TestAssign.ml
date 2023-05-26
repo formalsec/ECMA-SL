@@ -1,8 +1,6 @@
 open E_Type
 open T_Err
 
-let%test _ = Test.type_checker_test "example/assign/untyped.esl" []
-
 let%test _ =
   Test.type_checker_test "example/assign/primitive.esl"
     [

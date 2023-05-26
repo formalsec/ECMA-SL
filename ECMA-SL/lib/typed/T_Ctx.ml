@@ -1,92 +1,95 @@
 open Source
 
-type tvar_t = { tref : E_Type.t; tnarrow : E_Type.t; mut : bool }
+type tenv_t = (string, tvar_t) Hashtbl.t
+and tvar_t = { rt : E_Type.t; nt : E_Type.t; mt : bool }
 
-let tvar_tref (tvar : tvar_t) : E_Type.t = tvar.tref
-let tvar_tnarrow (tvar : tvar_t) : E_Type.t = tvar.tnarrow
-let tvar_mut (tvar : tvar_t) : bool = tvar.mut
-let tvar_default (t : E_Type.t) : tvar_t = { tref = t; tnarrow = t; mut = true }
+let get_tvar_rt (tvar : tvar_t) : E_Type.t = tvar.rt
+let get_tvar_nt (tvar : tvar_t) : E_Type.t = tvar.nt
+let get_tvar_mt (tvar : tvar_t) : bool = tvar.mt
+let get_tvar_t (tvar : tvar_t) : E_Type.t * E_Type.t = (tvar.rt, tvar.nt)
+let default_tvar (t : E_Type.t) : tvar_t = { rt = t; nt = t; mt = true }
 
-let tvar_create (tref : E_Type.t) (tnarrow : E_Type.t) (mut : bool) : tvar_t =
-  let tnarrow' = T_Narrowing.create_narrow_type tref tnarrow in
-  { tref; tnarrow = tnarrow'; mut }
+let create_tvar (rt : E_Type.t) (nt : E_Type.t) (mt : bool) : tvar_t =
+  let nt' = T_Narrowing.create_narrow_type rt nt in
+  { rt; nt = nt'; mt }
 
 type t = {
   prog : E_Prog.t;
+  tenv : tenv_t;
   mutable func : E_Func.t;
   mutable stmt : E_Stmt.t;
-  tenv : (string, tvar_t) Hashtbl.t;
 }
 
 let create (prog : E_Prog.t) : t =
   {
     prog;
+    tenv = Hashtbl.create !Config.default_hashtbl_sz;
     func = E_Prog.get_func prog "main";
     stmt = E_Stmt.Skip @@ no_region;
-    tenv = Hashtbl.create !Config.default_hashtbl_sz;
   }
 
 let copy (tctx : t) : t =
   {
     prog = tctx.prog;
+    tenv = Hashtbl.copy tctx.tenv;
     func = tctx.func;
     stmt = tctx.stmt;
-    tenv = Hashtbl.copy tctx.tenv;
   }
 
+let get_tenv (tctx : t) : tenv_t = tctx.tenv
 let get_func (tctx : t) : E_Func.t = tctx.func
 let set_func (tctx : t) (func : E_Func.t) : unit = tctx.func <- func
 let get_stmt (tctx : t) : E_Stmt.t = tctx.stmt
 let set_stmt (tctx : t) (stmt : E_Stmt.t) : unit = tctx.stmt <- stmt
-let get_tenv (tctx : t) : (string, tvar_t) Hashtbl.t = tctx.tenv
+
+let get_curr_return_t (tctx : t) : E_Type.t option =
+  E_Func.get_return_t tctx.func
 
 let get_func_by_name (tctx : t) (fname : string) : E_Func.t option =
   E_Prog.get_func_opt tctx.prog fname
 
-let get_return_t (tctx : t) : E_Type.t option = E_Func.get_return_t tctx.func
+let tenv_reset (tctx : t) : t = Hashtbl.clear tctx.tenv |> fun () -> tctx
 
 let tenv_find (tctx : t) (x : string) : tvar_t option =
   Hashtbl.find_opt tctx.tenv x
 
-let tenv_update (tctx : t) (x : string) (t : tvar_t) : unit =
-  Hashtbl.replace tctx.tenv x t
+let tenv_update (tctx : t) (x : string) (tvar : tvar_t) : unit =
+  Hashtbl.replace tctx.tenv x tvar
 
 let tenv_constrain (tctx : t) (x : string) (t : E_Type.t) : unit =
   let tvar = tenv_find tctx x in
   match tvar with
+  | Some tvar' -> tenv_update tctx x { tvar' with rt = t; nt = t }
   | None -> failwith "Typed ECMA-SL: T_Ctx.tenv_constrain"
-  | Some tvar' -> tenv_update tctx x { tvar' with tref = t; tnarrow = t }
 
-let tenv_reset (tctx : t) : t = Hashtbl.clear tctx.tenv |> fun () -> tctx
+let tenv_unnarrow (tctx : t) : t =
+  let _reset_tvar tvar = { tvar with nt = tvar.rt } in
+  let _reset_f x tvar = Hashtbl.replace tctx.tenv x (_reset_tvar tvar) in
+  Hashtbl.iter _reset_f tctx.tenv |> fun () -> tctx
 
-let tenv_reset_narrowing (tctx : t) : t =
-  let reset_fun x tvar =
-    Hashtbl.replace tctx.tenv x { tvar with tnarrow = tvar.tref }
-  in
-  Hashtbl.iter reset_fun tctx.tenv |> fun () -> tctx
-
-let tenv_lock_types (tctx : t) : t =
-  let lock_fun x tvar = Hashtbl.replace tctx.tenv x { tvar with mut = false } in
-  Hashtbl.iter lock_fun tctx.tenv |> fun () -> tctx
+let tenv_lock (tctx : t) : t =
+  let _lock_tvar tvar = { tvar with mt = false } in
+  let _lock_f x tvar = Hashtbl.replace tctx.tenv x (_lock_tvar tvar) in
+  Hashtbl.iter _lock_f tctx.tenv |> fun () -> tctx
 
 let tenv_intersect (tctx_src : t) (tctxs : t list) : unit =
-  let gather_var_fun (tenv : (string, E_Type.t list) Hashtbl.t) (tctx : t) =
+  let _gather_tvar_f (tenv : (string, E_Type.t list) Hashtbl.t) (tctx : t) =
     Hashtbl.iter (fun x _ -> Hashtbl.replace tenv x []) tctx.tenv
   in
-  let find_types_fun (x : string) : tvar_t list =
-    let unknown_var = tvar_default E_Type.UndefinedType in
-    List.map (fun tctx -> Option.default unknown_var (tenv_find tctx x)) tctxs
+  let _find_types_f (x : string) : tvar_t list =
+    let tvarUndef = default_tvar E_Type.UndefinedType in
+    List.map (fun tctx -> Option.default tvarUndef (tenv_find tctx x)) tctxs
   in
-  let typing_var_fun (tenv : (string, tvar_t) Hashtbl.t) (x : string) =
-    let tvars = find_types_fun x in
-    let rtvars = List.map (fun tvar -> tvar.tref) tvars in
-    let ntvars = List.map (fun tvar -> tvar.tnarrow) tvars in
-    let mut = List.for_all (fun tvar -> tvar.mut) tvars in
-    let rtvar = T_Narrowing.type_narrowing (E_Type.UnionType rtvars) in
-    let ntvar = T_Narrowing.type_narrowing (E_Type.UnionType ntvars) in
-    Hashtbl.add tenv x { tref = rtvar; tnarrow = ntvar; mut }
+  let _typing_var_f (tenv : tenv_t) (x : string) =
+    let tvars = _find_types_f x in
+    let rtvars = List.map get_tvar_rt tvars in
+    let ntvars = List.map get_tvar_nt tvars in
+    let mt = List.for_all get_tvar_mt tvars in
+    let rt = T_Narrowing.narrow_type (E_Type.UnionType rtvars) in
+    let nt = T_Narrowing.narrow_type (E_Type.UnionType ntvars) in
+    Hashtbl.add tenv x { rt; nt; mt }
   in
-  let tenv = tenv_reset tctx_src |> fun tctx -> tctx.tenv in
+  let tenv_src = tenv_reset tctx_src |> fun tctx -> tctx.tenv in
   let tenv_lst = Hashtbl.create !Config.default_hashtbl_sz in
-  List.iter (fun tctx -> gather_var_fun tenv_lst tctx) tctxs;
-  Hashtbl.iter (fun x _ -> typing_var_fun tenv x) tenv_lst
+  List.iter (_gather_tvar_f tenv_lst) tctxs;
+  Hashtbl.iter (fun x _ -> _typing_var_f tenv_src x) tenv_lst

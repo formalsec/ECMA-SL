@@ -1,4 +1,4 @@
-function _numberString(): number | string | boolean {
+function _numberStringBoolean(): number | string | boolean {
 	return 10
 };
 
@@ -7,7 +7,7 @@ function _numberAbc(): number | "abc" {
 };
 
 function main() {
-	foo: number | string | boolean := _numberString();
+	foo: number | string | boolean := _numberStringBoolean();
 	bar: number | "abc" := _numberAbc();
 
 	if (typeof(foo) = __$Int || typeof(foo) = __$Bool) {

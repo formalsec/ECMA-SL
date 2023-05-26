@@ -12,13 +12,16 @@ type t =
   | ListType of t
   | TupleType of t list
   | UnionType of t list
-  | ObjectType of obj_t
+  | ObjectType of tobj_t
   | RuntimeType of Type.t
   | UserDefinedType of string
 
-and obj_t = { flds : (string, field_t) Hashtbl.t; smry : t option }
-and field_t = { t : t; status : status_t }
-and status_t = Required | Optional
+and tobj_t = { flds : (string, tfld_t) Hashtbl.t; smry : t option }
+and tfld_t = t * tpres_t
+and tpres_t = Required | Optional
+
+let get_tfld (tobj : tobj_t) (fn : string) : tfld_t option =
+  Hashtbl.find_opt tobj.flds fn
 
 module Field = struct
   type ft = NamedField of string * (t * bool) | SumryField of t
@@ -33,25 +36,24 @@ let parse_literal_type (v : Val.t) : t =
   | Val.Symbol "undefined" -> UndefinedType
   | Val.Symbol _ -> LiteralType v
   | Val.Null -> NullType
-  | Val.List [] -> LiteralType v
   | _ -> invalid_arg ("Invalid value '" ^ Val.str v ^ "' for literal type.")
 
-let parse_obj_type (field_lst : Field.ft list) : obj_t =
-  let fld_split_fun fld (nflds, sflds) =
-    match fld with
+let parse_obj_type (fields : Field.ft list) : tobj_t =
+  let _field_split_f field (nflds, sflds) =
+    match field with
     | Field.NamedField (fn, ft) -> ((fn, ft) :: nflds, sflds)
     | Field.SumryField t -> (nflds, t :: sflds)
   in
-  let nfld_add_fun flds (fn, (t, opt)) =
-    let status = if opt then Optional else Required in
+  let _nfield_add_f flds (fn, (ft, opt)) =
+    let fp = if opt then Optional else Required in
     match Hashtbl.find_opt flds fn with
-    | None -> Hashtbl.replace flds fn { t; status }
+    | None -> Hashtbl.replace flds fn (ft, fp)
     | Some _ -> invalid_arg ("Field '" ^ fn ^ "' already in the object.")
   in
-  let nflds, sflds = List.fold_right fld_split_fun field_lst ([], []) in
+  let nfields, sfields = List.fold_right _field_split_f fields ([], []) in
   let flds = Hashtbl.create !Config.default_hashtbl_sz in
-  let _ = List.iter (nfld_add_fun flds) nflds in
-  match sflds with
+  let _ = List.iter (_nfield_add_f flds) nfields in
+  match sfields with
   | [] -> { flds; smry = None }
   | t :: [] -> { flds; smry = Some t }
   | _ -> invalid_arg "Duplicated summary field in the object."
@@ -68,44 +70,21 @@ let rec merge_union_type (t1 : t) (t2 : t) : t =
       UnionType (if List.mem t2 ts then ts else List.append ts [ t2 ])
   | _ -> if t1 = t2 then t1 else UnionType [ t1; t2 ]
 
-let merge_type (merge_fun : t -> t -> t) (ts : t list) : t =
-  let tempty = (NeverType, []) in
-  let ts_f, ts_r = match ts with [] -> tempty | f :: r -> (f, r) in
-  List.fold_left merge_fun ts_f ts_r
+let merge_type (merge_fun_f : t -> t -> t) (ts : t list) : t =
+  let tf, tr = match ts with [] -> (NeverType, []) | f :: r -> (f, r) in
+  List.fold_left merge_fun_f tf tr
 
-let rec unfold_type (addNonLiteral : bool) (t : t) : t list =
-  match (t, addNonLiteral) with
-  | UndefinedType, _ -> [ t ]
-  | NullType, _ -> [ t ]
-  | LiteralType v, _ -> [ t ]
-  | BooleanType, _ ->
-      [ LiteralType (Val.Bool true); LiteralType (Val.Bool false) ]
-  | UnionType ts, _ -> List.concat (List.map (unfold_type addNonLiteral) ts)
-  | _, true -> [ t ]
-  | _, false -> []
+let is_fld_opt ((_, fp) : tfld_t) : bool =
+  match fp with Required -> false | Optional -> true
 
-let fold_type (ts : t list) =
-  let _fold_bool_f t =
-    match t with LiteralType (Val.Bool _) -> false | _ -> true
-  in
-  let hasBoolTrue = List.mem (LiteralType (Val.Bool true)) ts in
-  let hasBoolFalse = List.mem (LiteralType (Val.Bool false)) ts in
-  if (not hasBoolTrue) || not hasBoolFalse then ts
-  else BooleanType :: List.filter _fold_bool_f ts
+let get_fld_t ((ft, fp) : tfld_t) : t =
+  if fp = Optional then merge_union_type ft UndefinedType else ft
 
-let ft_optional (ft : field_t) : bool =
-  match ft.status with Required -> false | Optional -> true
-
-let get_tfld (ft : field_t) : t =
-  match ft.status with
-  | Optional -> merge_union_type ft.t UndefinedType
-  | _ -> ft.t
-
-let get_obj_fld_list (tobj : obj_t) : (string * field_t) list =
+let get_fld_data (tobj : tobj_t) : (string * tfld_t) list =
   let nflds = Hashtbl.fold (fun fn ft r -> (fn, ft) :: r) tobj.flds [] in
   let sfld =
     match tobj.smry with
-    | Some smry' -> [ ("*", { t = smry'; status = Required }) ]
+    | Some tsmry -> [ ("*", (tsmry, Required)) ]
     | None -> []
   in
   List.append nflds sfld
@@ -127,15 +106,15 @@ let rec str (t : t) : string =
       "(" ^ String.concat " * " (List.map (fun el -> str el) ts) ^ ")"
   | UnionType ts ->
       "(" ^ String.concat " | " (List.map (fun el -> str el) ts) ^ ")"
-  | ObjectType t' ->
-      let field_opt_str ft = if ft_optional ft then "?" else "" in
-      let field_str (fn, ft) = fn ^ field_opt_str ft ^ ": " ^ str ft.t in
-      let fields = get_obj_fld_list t' in
-      "{ " ^ String.concat ", " (List.map (fun f -> field_str f) fields) ^ " }"
+  | ObjectType tobj ->
+      let fp_str_f tfld = if is_fld_opt tfld then "?" else "" in
+      let fld_str_f (fn, tfld) = fn ^ fp_str_f tfld ^ ": " ^ str (fst tfld) in
+      let flds = get_fld_data tobj in
+      "{ " ^ String.concat ", " (List.map (fun f -> fld_str_f f) flds) ^ " }"
   | RuntimeType t' -> "runtime(" ^ Type.str t' ^ ")"
   | UserDefinedType t' -> t'
 
-let type_widening (t : t) : t =
+let wide_type (t : t) : t =
   match t with
   | LiteralType Val.Null -> NullType
   | LiteralType (Val.Int _) -> NumberType
@@ -147,6 +126,23 @@ let type_widening (t : t) : t =
   | LiteralType (Val.Type t') -> RuntimeType t'
   | _ -> t
 
+let rec unfold_type (addNonLits : bool) (t : t) : t list =
+  let bLits = [ LiteralType (Val.Bool true); LiteralType (Val.Bool false) ] in
+  match (addNonLits, t) with
+  | _, UndefinedType -> [ t ]
+  | _, NullType -> [ t ]
+  | _, BooleanType -> bLits
+  | _, LiteralType _ -> [ t ]
+  | _, UnionType ts -> List.concat (List.map (unfold_type addNonLits) ts)
+  | true, _ -> [ t ]
+  | false, _ -> []
+
+let fold_type (ts : t list) =
+  let _fold_bool_f = function LiteralType (Val.Bool _) -> true | _ -> false in
+  let _find_bool_val ts b = List.mem (LiteralType (Val.Bool b)) ts in
+  let convertToBool = _find_bool_val ts true && _find_bool_val ts false in
+  if convertToBool then BooleanType :: List.filter _fold_bool_f ts else ts
+
 let to_runtime (t : t) : t =
   match t with
   | UndefinedType -> RuntimeType Type.SymbolType
@@ -155,9 +151,9 @@ let to_runtime (t : t) : t =
   | StringType -> RuntimeType Type.StrType
   | BooleanType -> RuntimeType Type.BoolType
   | SymbolType -> RuntimeType Type.SymbolType
+  | LiteralType Val.Null -> RuntimeType Type.NullType
   | LiteralType (Val.Int _) -> RuntimeType Type.IntType
   | LiteralType (Val.Flt _) -> RuntimeType Type.FltType
-  | LiteralType Val.Null -> RuntimeType Type.NullType
   | LiteralType (Val.Str _) -> RuntimeType Type.StrType
   | LiteralType (Val.Bool _) -> RuntimeType Type.BoolType
   | LiteralType (Val.Symbol _) -> RuntimeType Type.SymbolType

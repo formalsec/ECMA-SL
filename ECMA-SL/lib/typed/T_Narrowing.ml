@@ -27,30 +27,26 @@ let create_narrow_type (rt : t) (nt : t) : t =
   | _ -> nt
 
 let rec narrow_union_type (ts : t list) : t list =
-  let match_wide tsrc ttar =
-    match tsrc with
-    | LiteralType (Val.List []) -> false
-    | LiteralType Val.Null -> false
-    | LiteralType _ -> E_Type.type_widening tsrc = ttar
-    | _ -> false
-  in
-  let expand_inner_types t r =
+  let _expand_inner_unions_f t r =
     match t with
     | UnionType ts -> List.append (narrow_union_type ts) r
     | _ -> t :: r
   in
-  let f_never t r = match t with NeverType -> r | _ -> t :: r in
-  let f_unique t r = if List.mem t r then r else t :: r in
-  let f_narrow ts t r = if List.exists (match_wide t) ts then r else t :: r in
-  List.fold_right expand_inner_types ts [] |> fun ts ->
-  List.fold_right f_never ts [] |> fun ts ->
-  List.fold_right f_unique ts [] |> fun ts ->
-  List.fold_right (f_narrow ts) ts [] |> fun ts ->
+  let _has_wide_f tsrc ttar =
+    match tsrc with LiteralType _ -> E_Type.wide_type tsrc = ttar | _ -> false
+  in
+  let _never_f t r = match t with NeverType -> r | _ -> t :: r in
+  let _unique_f t r = if List.mem t r then r else t :: r in
+  let _narrow_f ts t r = if List.exists (_has_wide_f t) ts then r else t :: r in
+  List.fold_right _expand_inner_unions_f ts [] |> fun ts ->
+  List.fold_right _never_f ts [] |> fun ts ->
+  List.fold_right _unique_f ts [] |> fun ts ->
+  List.fold_right (_narrow_f ts) ts [] |> fun ts ->
   if List.mem AnyType ts then [ AnyType ]
   else if List.mem UnknownType ts then [ UnknownType ]
   else ts
 
-let type_narrowing (t : t) : t =
+let narrow_type (t : t) : t =
   match t with
   | UnionType ts -> (
       let ts' = narrow_union_type ts in

@@ -1,4 +1,0 @@
-function main() {
-	  untypedAssignment := 10;            /* Valid */
-		return 0
-}
