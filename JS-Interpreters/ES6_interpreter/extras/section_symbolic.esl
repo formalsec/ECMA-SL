@@ -32,44 +32,37 @@ function initESLSymbolicObject(globalObject, objectPrototype, strict) {
 };
 
 function __apiSymbolicNumber(globalObject, this, NewTarget, strict, params) {
-  name := l_nth(params, 0);
-  symb := symbolic(__$Flt, name);
-  return symb
+  return se_mk_symbolic(__$Flt, l_nth(params, 0))
 };
 
 function __apiSymbolicString(globalObject, this, NewTarget, strict, params) {
-  name := l_nth(params, 0);
-  symb := symbolic(__$Str, name);
-  return symb
+  return se_mk_symbolic(__$Str, l_nth(params, 0))
 };
 
 function __apiSymbolicAssume(globalObject, this, NewTarget, strict, params) {
-  expr := l_nth(params, 0);
-  assume(expr);
+  se_assume(l_nth(params, 0));
   return 0
 };
 
 function __apiSymbolicAssert(globalObject, this, NewTarget, strict, params) {
-  expr := l_nth(params, 0);
-  assert(expr);
+  assert(l_nth(params, 0));
   return 0
 };
 function __apiSymbolicIsSymbolic(globalObject, this, NewTarget, strict, params) {
-  x := l_nth(params, 0);
-  return __api_is_symbolic(x)
+  return se_is_symbolic(l_nth(params, 0))
 };
 function __apiSymbolicEvalWrapper(globalObject, this, NewTarget, strict, params) {
   x := l_nth(params, 0);
-  if (__api_is_symbolic(x)) {
-    __api_eval_wrapper(x)
+  if (se_is_symbolic(x)) {
+    assert(false)
   } else {
     return GlobalObjectEval(globalObject, this, NewTarget, strict, params)
   }
 };
 function __apiSymbolicExecWrapper(globalObject, this, NewTarget, strict, params) {
   x := l_nth(params, 0);
-  if (__api_is_symbolic(x)) {
-    __api_exec_wrapper(x)
+  if (se_is_symbolic(x)) {
+    assert(false)
   };
   return 0
 }
