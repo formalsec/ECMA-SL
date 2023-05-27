@@ -1,6 +1,6 @@
 function main() {
-  x := __api_mk_symbolic(__$Int, "x");
-  __api_assume(x = 4);
+  x := se_mk_symbolic(__$Int, "x");
+  se_assume(x = 4);
 
   y := (x << 1);
   assert(y = 8);
