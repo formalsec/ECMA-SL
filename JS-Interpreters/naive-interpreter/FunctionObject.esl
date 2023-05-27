@@ -1,0 +1,9 @@
+function FunctionObject(name, params, code, scope) {
+  functionObject := { 
+    name: name,
+    code: code,
+    params: params,
+    scope: scope
+  };
+  return functionObject
+}

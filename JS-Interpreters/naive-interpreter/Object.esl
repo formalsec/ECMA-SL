@@ -3,21 +3,22 @@ function Object() {
     __proto__: null
   };
   return object
-}; 
+};
 
-function resolve_property(obj, prop_name) {
-  if (prop_name in_obj obj) {
-    return obj[prop_name]
+
+function resolveProperty(objVal, propName) {
+  if (propName in_obj objVal) {
+    return objVal[propName]
   } else {
-    if (obj.__proto__ = null) {
+    if (objVal.__proto__ = null) {
       return 'undefined
     } else {
-      return resolve_property(obj.__proto__, prop_name)
+      return resolveProperty(objVal.__proto__, propName)
     }
   }
-}; 
+};
 
-function update_object(obj_val, prop_name, rhs){
-  obj_val[prop_name] := rhs; 
+function updateObject(objVal, propName, val){
+  objVal[propName] := val; 
   return
 }
