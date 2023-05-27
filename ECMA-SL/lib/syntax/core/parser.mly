@@ -37,7 +37,7 @@ let at (startpos, endpos) =
 %token DELETE
 %token FAIL
 %token ABORT
-%token ASSUME ASSERT SYMBOLIC
+%token ASSERT
 %token THROW
 %token <float> FLOAT
 %token <int> INT
@@ -58,9 +58,11 @@ let at (startpos, endpos) =
 %token SCONCAT SSPLIT AT_SIGN EXTERN
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
-%token API_IS_SYMBOLIC API_IS_SAT API_MAXIMIZE API_MINIMIZE
-%token API_EVAL API_EVAL_WRAPPER API_EXEC_WRAPPER
 %token EOF
+
+%token API_ASSUME API_MK_SYMBOLIC
+%token API_EVALUATE API_MAXIMIZE API_MINIMIZE
+%token API_IS_SYMBOLIC API_IS_SAT
 
 %left LAND LOR
 %left EQUAL
@@ -161,6 +163,8 @@ val_target:
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 expr_target:
+  | API_MK_SYMBOLIC; LPAREN; t = type_target; COMMA; x = expr_target; RPAREN;
+    { Expr.Symbolic (t, x) }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { Expr.NOpt (ListExpr, es) }
   | LARRBRACK; es = separated_list (COMMA, expr_target); RARRBRACK;
@@ -171,8 +175,6 @@ expr_target:
     { Expr.Val v }
   | v = VAR;
     { Expr.Var v }
-  | SYMBOLIC; LPAREN; t = type_target; COMMA; x = expr_target; RPAREN;
-    { Expr.Symbolic (t, x) }
   | LBRACE; e = expr_target; RBRACE; AT_SIGN; LPAREN; es = separated_list (COMMA, expr_target); RPAREN;
     { Expr.Curry (e, es) }
   | MINUS; e = expr_target;
@@ -386,8 +388,6 @@ stmt_target:
     { Stmt.Fail e @@ at $sloc }
   | ABORT; e = expr_target;
     { Stmt.Abort e @@ at $sloc }
-  | ASSUME; LPAREN; e = expr_target; RPAREN;
-    { Stmt.Assume e @@ at $sloc }
   | ASSERT; LPAREN; e = expr_target; RPAREN;
     { Stmt.Assert e @@ at $sloc }
   | THROW; str = STRING;
@@ -432,20 +432,18 @@ stmt_target:
   ;
 
 api_stmt_target:
+  | API_ASSUME; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymStmt (SymStmt.Assume e) }
   | v = VAR; DEFEQ; API_IS_SYMBOLIC; LPAREN; e = expr_target; RPAREN;
-    { Stmt.API_stmt (API_stmt.Is_symbolic (v, e)) }
+    { Stmt.SymStmt (SymStmt.Is_symbolic (v, e)) }
   | v = VAR; DEFEQ; API_IS_SAT; LPAREN; e = expr_target; RPAREN;
-    { Stmt.API_stmt (API_stmt.Is_sat (v, e)) }
+    { Stmt.SymStmt (SymStmt.Is_sat (v, e)) }
   | v = VAR; DEFEQ; API_MAXIMIZE; LPAREN; e = expr_target; RPAREN;
-    { Stmt.API_stmt (API_stmt.Maximize (v, e)) }
+    { Stmt.SymStmt (SymStmt.Maximize (v, e)) }
   | v = VAR; DEFEQ; API_MINIMIZE; LPAREN; e = expr_target; RPAREN;
-    { Stmt.API_stmt (API_stmt.Minimize (v, e)) }
-  | v = VAR; DEFEQ; API_EVAL; LPAREN; e = expr_target; RPAREN;
-    { Stmt.API_stmt (API_stmt.Eval (v, e)) }
-  | v = VAR; DEFEQ; API_EVAL_WRAPPER; LPAREN; e = expr_target; RPAREN;
-    { Stmt.API_stmt (API_stmt.Eval_wrapper (v, e)) }
-  | v = VAR; DEFEQ; API_EXEC_WRAPPER; LPAREN; e = expr_target; RPAREN;
-    { Stmt.API_stmt (API_stmt.Exec_wrapper (v, e)) }
+    { Stmt.SymStmt (SymStmt.Minimize (v, e)) }
+  | v = VAR; DEFEQ; API_EVALUATE; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymStmt (SymStmt.Evaluate (v, e)) }
   ;
 
 (* if (e) { s } | if (e) {s} else { s } *)

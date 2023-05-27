@@ -3,12 +3,12 @@ open Core
 type t =
   | Val of Val.t
   | Var of string
-  | Symbolic of Type.t * t
   | UnOpt of (Operators.uopt * t)
   | BinOpt of (Operators.bopt * t * t)
   | TriOpt of (Operators.topt * t * t * t)
   | NOpt of Operators.nopt * t list
   | Curry of t * t list
+  | Symbolic of Type.t * t
 
 let rec equal (e1 : t) (e2 : t) : bool =
   match (e1, e2) with

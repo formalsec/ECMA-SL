@@ -2,6 +2,8 @@ open Source
 
 type metadata_t = { where : string; html : string }
 
+type stmt = Assume of E_Expr.t
+
 type t = t' Source.phrase
 
 and t' =
@@ -9,7 +11,6 @@ and t' =
   | Fail of E_Expr.t
   | Throw of E_Expr.t
   | Print of E_Expr.t
-  | Assume of E_Expr.t
   | Assert of E_Expr.t
   | Return of E_Expr.t
   | Wrapper of metadata_t list * t
@@ -31,6 +32,8 @@ and t' =
   | Switch of E_Expr.t * (E_Expr.t * t) list * t option * string
       (** metadata; just "table caption" for now. *)
   | Lambda of string * string * string list * string list * t
+  | SymStmt of stmt
+
 
 let is_basic (s : t) : bool =
   match s.it with
@@ -57,7 +60,6 @@ let rec str (stmt : t) : string =
   | Throw e -> "throw " ^ E_Expr.str e
   | Print e -> "print " ^ E_Expr.str e
   | Assert e -> "assert " ^ E_Expr.str e
-  | Assume e -> "assume " ^ E_Expr.str e
   | Return exp -> "return " ^ E_Expr.str exp
   | Wrapper (m, s) -> str s
   | Assign (x, exp) -> x ^ " := " ^ E_Expr.str exp
@@ -96,6 +98,7 @@ let rec str (stmt : t) : string =
   | Lambda (x, fid, xs, ys, s) ->
       Printf.sprintf "%s := lambda <%s> (%s; %s) { %s }" x fid
         (String.concat ", " xs) (String.concat ", " ys) (str s)
+  | SymStmt (Assume e) -> "se_assume " ^ E_Expr.str e
 
 let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
   let fe = Option.default (fun x -> x) fe in
@@ -117,7 +120,6 @@ let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
     | Throw e -> Throw (fe e)
     | Print e -> Print (fe e)
     | Assert e -> Assert (fe e)
-    | Assume e -> Assume (fe e)
     | Return e -> Return (fe e)
     | Wrapper (m, s) -> Wrapper (m, map ~fe f s)
     | Assign (x, e) -> Assign (fx x, fe e)
@@ -140,6 +142,7 @@ let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
     | Switch (e, cases, so, meta) ->
         Switch (fe e, f_cases cases, Option.map (map ~fe f) so, meta)
     | Lambda (z, id, xs, ys, s) -> Lambda (z, id, xs, ys, map ~fe f s)
+    | SymStmt (Assume e) -> SymStmt (Assume (fe e))
   in
   f (s' @@ s.at)
 
@@ -163,7 +166,7 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
       match s.it with
       | Skip | Print _ | Wrapper _ | Assign _ | GlobAssign _ | Return _
       | FieldAssign _ | FieldDelete _ | ExprStmt _ | Throw _ | Fail _ | Assert _
-      | Assume _ ->
+      | SymStmt (Assume _) ->
           []
       | Block stmts -> f_stmts stmts
       | If (e, st, sf, _, _) -> f' st @ f_o sf

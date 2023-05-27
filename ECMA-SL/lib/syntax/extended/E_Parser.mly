@@ -28,9 +28,6 @@ let at (startpos, endpos) =
 *)
 %token SKIP
 %token PRINT WRAPPER
-%token ASSERT ASSUME SYMBOLIC 
-%token API_IS_SYMBOLIC API_MAXIMIZE API_MINIMIZE API_IS_SAT
-%token API_EVAL API_EVAL_WRAPPER API_EXEC_WRAPPER
 %token DEFEQ
 %token WHILE FOREACH
 %token IF ELSE ELIF
@@ -48,6 +45,7 @@ let at (startpos, endpos) =
 %token DELETE
 %token REPEAT UNTIL
 %token MATCH WITH RIGHT_ARROW NONE DEFAULT CASE LAMBDA EXTERN
+%token ASSERT
 %token <float> FLOAT
 %token <int> INT
 %token <bool> BOOLEAN
@@ -70,6 +68,11 @@ let at (startpos, endpos) =
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
+
+
+%token API_ASSUME API_MK_SYMBOLIC
+%token API_EVAL API_MAXIMIZE API_MINIMIZE
+%token API_IS_SYMBOLIC API_IS_SAT
 
 %left SCLAND SCLOR LAND LOR
 %left EQUAL
@@ -239,8 +242,6 @@ e_expr_target:
     { E_Expr.Lookup (e, E_Expr.Val (Val.Str f)) }
   | e = e_expr_target; LBRACK; f = e_expr_target; RBRACK;
     { E_Expr.Lookup (e, f) }
-  | SYMBOLIC; LPAREN; t = type_target; COMMA; x = e_expr_target; RPAREN;
-    { E_Expr.Symbolic (t, x) }
   | v = val_target;
     { E_Expr.Val v }
   | v = VAR;
@@ -277,24 +278,22 @@ e_expr_target:
     { pre_tri_op_expr }
   | in_bin_op_expr = infix_binary_op_target;
     { in_bin_op_expr }
-  | api_expr = api_op_target; { api_expr }
+  | se_op_target; { $1 }
   ;
 
-api_op_target:
-  | API_IS_SAT; LPAREN; e = e_expr_target; RPAREN;
-    { E_Expr.APIOp (E_Expr.Is_sat e) }
-  | API_IS_SYMBOLIC; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.APIOp (E_Expr.Is_symbolic e) }
+se_op_target:
+  | API_MK_SYMBOLIC; LPAREN; t = type_target; COMMA; x = e_expr_target; RPAREN;
+    { E_Expr.Symbolic (t, x) }
   | API_EVAL; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.APIOp (E_Expr.Eval e) }
-  | API_EVAL_WRAPPER; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.APIOp (E_Expr.Eval_wrapper e) }
-  | API_EXEC_WRAPPER; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.APIOp (E_Expr.Exec_wrapper e) }
+    { E_Expr.SymOpt (E_Expr.Evaluate e) }
   | API_MAXIMIZE; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.APIOp (E_Expr.Maximize e) }
+    { E_Expr.SymOpt (E_Expr.Maximize e) }
   | API_MINIMIZE; LPAREN; e = e_expr_target; RPAREN; 
-    { E_Expr.APIOp (E_Expr.Minimize e) }
+    { E_Expr.SymOpt (E_Expr.Minimize e) }
+  | API_IS_SAT; LPAREN; e = e_expr_target; RPAREN;
+    { E_Expr.SymOpt (E_Expr.Is_sat e) }
+  | API_IS_SYMBOLIC; LPAREN; e = e_expr_target; RPAREN; 
+    { E_Expr.SymOpt (E_Expr.Is_symbolic e) }
   ;
 
 nary_op_target:
@@ -531,8 +530,8 @@ e_stmt_target:
     { E_Stmt.Print e @@ at $sloc }
   | WRAPPER; meta = e_stmt_metadata_target; s = e_block_target;
     { E_Stmt.Wrapper (meta, s) @@ at $sloc }
-  | ASSUME; e = e_expr_target;
-    { E_Stmt.Assume e @@ at $sloc }
+  | API_ASSUME; e = e_expr_target;
+    { E_Stmt.SymStmt (Assume e) @@ at $sloc }
   | ASSERT; e = e_expr_target;
     { E_Stmt.Assert e @@ at $sloc }
   | e1 = e_expr_target; PERIOD; f = VAR; DEFEQ; e2 = e_expr_target;

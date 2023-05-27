@@ -30,38 +30,6 @@ let func (at : region) (v : Expr.t) : string * Expr.t list =
   | Curry (Val (Val.Str x), vs) -> (x, vs)
   | _ -> Invalid_arg.error at "Sval is not a 'func' identifier"
 
-let eval_api ?(at = no_region) (store : Sstore.t) (c : config) (st : API_stmt.t)
-    : Sstore.t =
-  match st with
-  | API_stmt.Is_symbolic (name, e) ->
-      let e' = reduce_expr ~at store e in
-      Sstore.add_exn store name (Val (Val.Bool (Expr.is_symbolic e')))
-  | API_stmt.Is_sat (name, e) ->
-      let e' = Translator.translate (reduce_expr ~at store e) in
-      let sat = Batch.check_sat c.solver (e' :: c.pc) in
-      Sstore.add_exn store name (Val (Val.Bool sat))
-  | API_stmt.Maximize (name, e) ->
-      let e' = Translator.translate (reduce_expr ~at store e) in
-      let v =
-        Option.map ~f:Translator.expr_of_value
-          (Optimizer.maximize c.opt e' c.pc)
-      in
-      Sstore.add_exn store name (Option.value ~default:(Val Val.Null) v)
-  | API_stmt.Minimize (name, e) ->
-      let e' = Translator.translate (reduce_expr ~at store e) in
-      let v =
-        Option.map ~f:Translator.expr_of_value
-          (Optimizer.minimize c.opt e' c.pc)
-      in
-      Sstore.add_exn store name (Option.value ~default:(Val Val.Null) v)
-  | API_stmt.Eval (name, e) ->
-      let e' = Translator.translate (reduce_expr ~at store e) in
-      let v =
-        Option.map ~f:Translator.expr_of_value (Batch.eval c.solver e' c.pc)
-      in
-      Sstore.add_exn store name (Option.value ~default:(Val Val.Null) v)
-  | API_stmt.Eval_wrapper _ | API_stmt.Exec_wrapper _ -> assert false
-
 let step (c : config) : config list =
   let open Stmt in
   let { prog; code; state; pc; solver; opt } = c in
@@ -85,24 +53,14 @@ let step (c : config) : config list =
       [ update c (Error (Some (reduce_expr ~at:s.at store e))) state pc ]
   | Abort e ->
       [ update c (Final (Some (reduce_expr ~at:s.at store e))) state pc ]
-  | Assume e
-    when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
-      [ update c (Cont (List.tl_exn stmts)) state pc ]
-  | Assume e
-    when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
-      []
-  | Assume e ->
-      let e' = reduce_expr ~at:s.at store e in
-      let v = Translator.translate e' in
-      let cont =
-        if not (Batch.check_sat solver (v :: pc)) then []
-        else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
-      in
-      Logging.print_endline
-        (lazy
-          ("assume (" ^ Expr.str e' ^ ") = "
-          ^ Bool.to_string (List.length cont > 0)));
-      cont
+  | Stmt.Assign (x, e) ->
+      let v = reduce_expr ~at:s.at store e in
+      [
+        update c
+          (Cont (List.tl_exn stmts))
+          (heap, Sstore.add_exn store x v, stack, f)
+          pc;
+      ]
   | Stmt.Assert e
     when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
       [ update c (Cont (List.tl_exn stmts)) state pc ]
@@ -124,14 +82,6 @@ let step (c : config) : config list =
         (lazy
           ("assert (" ^ Expr.str v ^ ") = " ^ Bool.to_string (is_cont c.code)));
       cont
-  | Stmt.Assign (x, e) ->
-      let v = reduce_expr ~at:s.at store e in
-      [
-        update c
-          (Cont (List.tl_exn stmts))
-          (heap, Sstore.add_exn store x v, stack, f)
-          pc;
-      ]
   | Stmt.Block blk -> [ update c (Cont (blk @ List.tl_exn stmts)) state pc ]
   | Stmt.If (br, blk, _)
     when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store br) ->
@@ -291,28 +241,61 @@ let step (c : config) : config list =
           (heap, Sstore.add_exn store x v, stack, f)
           pc;
       ]
-  | Stmt.API_stmt (API_stmt.Eval_wrapper (name, e)) ->
+  | Stmt.SymStmt (SymStmt.Assume e)
+    when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
+      [ update c (Cont (List.tl_exn stmts)) state pc ]
+  | Stmt.SymStmt (SymStmt.Assume e)
+    when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
+      []
+  | Stmt.SymStmt (SymStmt.Assume e) ->
       let e' = reduce_expr ~at:s.at store e in
-      if Expr.is_symbolic e' then
-        [ update c (Failure ("eval", Some e')) state pc ]
-      else [ update c (Cont (List.tl_exn stmts)) state pc ]
-  | Stmt.API_stmt (API_stmt.Exec_wrapper (name, e)) ->
-      let e = reduce_expr ~at:s.at store e in
-      let e' = Translator.translate e in
-      let query =
-        [
-          Strings.mk_eq
-            (Strings.mk_substr e'
-               ~pos:(Expression.mk_symbol_s `IntType "__pos")
-               ~len:(Expression.mk_symbol_s `IntType "__len"))
-            (Strings.mk_val "; $(touch success) #");
-        ]
+      let v = Translator.translate e' in
+      let cont =
+        if not (Batch.check_sat solver (v :: pc)) then []
+        else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
       in
-      if Batch.check_sat solver (query @ pc) then
-        [ update c (Failure ("eval", Some e)) state (query @ pc) ]
-      else [ update c (Failure ("eval", Some e)) state pc ]
-  | Stmt.API_stmt stmt ->
-      let store' = eval_api ~at:s.at store c stmt in
+      Logging.print_endline
+        (lazy
+          ("assume (" ^ Expr.str e' ^ ") = "
+          ^ Bool.to_string (List.length cont > 0)));
+      cont
+  | Stmt.SymStmt (SymStmt.Evaluate (x, e)) ->
+      let e' = Translator.translate (reduce_expr ~at:s.at store e) in
+      let v =
+        Option.map ~f:Translator.expr_of_value (Batch.eval c.solver e' c.pc)
+      in
+      let store' =
+        Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
+      in
+      [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
+  | Stmt.SymStmt (SymStmt.Is_symbolic (x, e)) ->
+      let e' = reduce_expr ~at:s.at store e in
+      let store' = Sstore.add_exn store x (Val (Val.Bool (Expr.is_symbolic e'))) in
+      [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
+  | Stmt.SymStmt (SymStmt.Is_sat (x, e)) ->
+      let e' = Translator.translate (reduce_expr ~at:s.at store e) in
+      let sat = Batch.check_sat c.solver (e' :: c.pc) in
+      let store' = Sstore.add_exn store x (Val (Val.Bool sat)) in
+      [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
+  | Stmt.SymStmt (SymStmt.Maximize (x, e)) ->
+      let e' = Translator.translate (reduce_expr ~at:s.at store e) in
+      let v =
+        Option.map ~f:Translator.expr_of_value
+          (Optimizer.maximize c.opt e' c.pc)
+      in
+      let store' =
+        Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
+      in
+      [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
+  | Stmt.SymStmt (SymStmt.Minimize (x, e)) ->
+      let e' = Translator.translate (reduce_expr ~at:s.at store e) in
+      let v =
+        Option.map ~f:Translator.expr_of_value
+          (Optimizer.minimize c.opt e' c.pc)
+      in
+      let store' =
+        Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
+      in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
 
 module type WorkList = sig

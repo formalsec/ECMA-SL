@@ -9,7 +9,6 @@ and t' =
   | Print of Expr.t
   | Fail of Expr.t
   | Abort of Expr.t
-  | Assume of Expr.t
   | Assert of Expr.t
   | Assign of string * Expr.t
   | If of Expr.t * t * t option
@@ -26,7 +25,8 @@ and t' =
   | FieldDelete of Expr.t * Expr.t
   | FieldLookup of string * Expr.t * Expr.t
   | Exception of string
-  | API_stmt of API_stmt.t
+  | SymStmt of SymStmt.t
+
 (*---------------Strings------------------*)
 
 let is_basic_stmt (s : t) : bool =
@@ -40,7 +40,6 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | Print e -> "print " ^ str_e e
   | Fail e -> "fail " ^ str_e e
   | Abort e -> "abort " ^ str_e e
-  | Assume e -> "assume (" ^ str_e e ^ ")"
   | Assert e -> "assert (" ^ str_e e ^ ")"
   | Assign (v, exp) -> v ^ " := " ^ str_e exp
   | If (e, s1, s2) -> (
@@ -65,7 +64,7 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | AssignObjToList (st, e) -> st ^ " := obj_to_list " ^ str_e e
   | AssignObjFields (st, e) -> st ^ " := obj_fields " ^ str_e e
   | Exception st -> Printf.sprintf "throw \"%s\"" st
-  | API_stmt st -> API_stmt.str st
+  | SymStmt stmt -> SymStmt.str stmt
 
 let rec js (stmt : t) : string =
   let str_es es = String.concat ~sep:", " (List.map ~f:Expr.js es) in
@@ -103,8 +102,8 @@ let rec js (stmt : t) : string =
       Printf.sprintf "%s = Object.keys(%s)" x (Expr.js e)
   | Exception st -> Printf.sprintf "throw \"%s\"" st
   | Fail e | Abort e -> Printf.sprintf "throw %s" (Expr.js e)
-  | Assume e | Assert e -> failwith "Stmt: js: Assume/Assert not implemented!"
-  | API_stmt e -> failwith "Stmt: js: Assume/Assert not implemented!"
+  | Assert e -> failwith "Stmt: js: Assert not implemented!"
+  | SymStmt e -> failwith "Stmt: js: SymStmt not implemented!"
 (*Printf.sprintf "throw %s" (Expr.js e)*)
 
 let rec to_json (stmt : t) : string =
@@ -118,8 +117,6 @@ let rec to_json (stmt : t) : string =
       Printf.sprintf "{\"type\" : \"fail\", \"expr\" :  %s }" (Expr.to_json e)
   | Abort e ->
       Printf.sprintf "{\"type\" : \"abort\", \"expr\" :  %s }" (Expr.to_json e)
-  | Assume e ->
-      Printf.sprintf "{\"type\" : \"assume\", \"expr\" :  %s }" (Expr.to_json e)
   | Assert e ->
       Printf.sprintf "{\"type\" : \"assert\", \"expr\" :  %s }" (Expr.to_json e)
   | Assign (v, exp) ->
@@ -183,6 +180,6 @@ let rec to_json (stmt : t) : string =
         (Expr.to_json e)
   | Exception st ->
       Printf.sprintf "{\"type\" : \"exception\", \"value\" : \"%s\"}" st
-  | API_stmt st ->
+  | SymStmt st ->
       Printf.sprintf "{\"type\" : \"exception\", \"value\" : \"%s\"}"
-        (API_stmt.str st)
+        (SymStmt.str st)

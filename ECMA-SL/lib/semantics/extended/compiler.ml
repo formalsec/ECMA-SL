@@ -568,57 +568,29 @@ and compile_expr (at : region) (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
   | ECall (f, es) ->
       let ret_es = List.map (compile_expr at) es in
       compile_e_call f ret_es at
-  | APIOp e -> compile_api_expr e at
-
-and compile_print (e : E_Expr.t) (at : region) : Stmt.t list =
-  let stmts_expr, e' = compile_expr at e in
-  stmts_expr @ [ Stmt.Print e' @@ at ]
-
-and compile_assume (e : E_Expr.t) (at : region) : Stmt.t list =
-  let stmts, e' = compile_expr at e in
-  stmts @ [ Stmt.Assume e' @@ at ]
-
-and compile_assert (e : E_Expr.t) (at : region) : Stmt.t list =
-  let stmts, e' = compile_expr at e in
-  stmts @ [ Stmt.Assert e' @@ at ]
-
-and compile_api_expr (se : E_Expr.api_t) (at : region) : Stmt.t list * Expr.t =
-  match se with
-  | Is_symbolic e ->
-      let stmts, e' = compile_expr at e in
-      let new_var = generate_fresh_var () in
-      ( stmts @ [ Stmt.API_stmt (API_stmt.Is_symbolic (new_var, e')) @@ at ],
-        Expr.Var new_var )
-  | Is_sat e ->
-      let stmts, e' = compile_expr at e in
-      let new_var = generate_fresh_var () in
-      ( stmts @ [ Stmt.API_stmt (API_stmt.Is_sat (new_var, e')) @@ at ],
-        Expr.Var new_var )
-  | Maximize e ->
-      let stmts, e' = compile_expr at e in
-      let new_var = generate_fresh_var () in
-      ( stmts @ [ Stmt.API_stmt (API_stmt.Maximize (new_var, e')) @@ at ],
-        Expr.Var new_var )
-  | Minimize e ->
-      let stmts, e' = compile_expr at e in
-      let new_var = generate_fresh_var () in
-      ( stmts @ [ Stmt.API_stmt (API_stmt.Minimize (new_var, e')) @@ at ],
-        Expr.Var new_var )
-  | Eval e ->
-      let stmts, e' = compile_expr at e in
-      let new_var = generate_fresh_var () in
-      ( stmts @ [ Stmt.API_stmt (API_stmt.Eval (new_var, e')) @@ at ],
-        Expr.Var new_var )
-  | Eval_wrapper e ->
-      let stmts, e' = compile_expr at e in
-      let new_var = generate_fresh_var () in
-      ( stmts @ [ Stmt.API_stmt (API_stmt.Eval_wrapper (new_var, e')) @@ at ],
-        Expr.Var new_var )
-  | Exec_wrapper e ->
-      let stmts, e' = compile_expr at e in
-      let new_var = generate_fresh_var () in
-      ( stmts @ [ Stmt.API_stmt (API_stmt.Exec_wrapper (new_var, e')) @@ at ],
-        Expr.Var new_var )
+  | SymOpt op -> (
+      let open SymStmt in
+      match op with
+      | Evaluate e ->
+          let stmts, e' = compile_expr at e in
+          let x = generate_fresh_var () in
+          (stmts @ [ Stmt.SymStmt (Evaluate (x, e')) @@ at ], Expr.Var x)
+      | Maximize e ->
+          let stmts, e' = compile_expr at e in
+          let x = generate_fresh_var () in
+          (stmts @ [ Stmt.SymStmt (Maximize (x, e')) @@ at ], Expr.Var x)
+      | Minimize e ->
+          let stmts, e' = compile_expr at e in
+          let x = generate_fresh_var () in
+          (stmts @ [ Stmt.SymStmt (Minimize (x, e')) @@ at ], Expr.Var x)
+      | Is_symbolic e ->
+          let stmts, e' = compile_expr at e in
+          let x = generate_fresh_var () in
+          (stmts @ [ Stmt.SymStmt (Is_symbolic (x, e')) @@ at ], Expr.Var x)
+      | Is_sat e ->
+          let stmts, e' = compile_expr at e in
+          let x = generate_fresh_var () in
+          (stmts @ [ Stmt.SymStmt (Is_sat (x, e')) @@ at ], Expr.Var x ))
 
 and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   let compile_cases =
@@ -630,7 +602,9 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
 
   match e_stmt.it with
   | Skip -> [ Stmt.Skip @@ e_stmt.at ]
-  | Print e -> compile_print e e_stmt.at
+  | Print e -> 
+      let stmts, e' = compile_expr e_stmt.at e in
+      stmts @ [ Stmt.Print e' @@ e_stmt.at ]
   | Wrapper (_, s) -> compile_stmt s
   | Assign (lval, rval) -> compile_assign lval rval e_stmt.at
   | GlobAssign (x, e) ->
@@ -691,8 +665,9 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | RepeatUntil (e_s, e_e, _) -> compile_repeatuntil e_s e_e e_stmt.at
   | MatchWith (e_e, e_pats_e_stmts) ->
       compile_matchwith e_e e_pats_e_stmts e_stmt.at
-  | Assume e_e -> compile_assume e_e e_stmt.at
-  | Assert e_e -> compile_assert e_e e_stmt.at
+  | Assert e_e ->
+      let stmts, e' = compile_expr e_stmt.at e_e in
+      stmts @ [ Stmt.Assert e' @@ e_stmt.at ]
   | Lambda (x, f, xs, ys, s) ->
       let ret = compile_lambda_call x f ys e_stmt.at in
       ret
@@ -712,6 +687,9 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | Return e_e ->
       let ret_e = compile_expr e_stmt.at e_e in
       compile_return ret_e e_stmt.at
+  | SymStmt (Assume e_e) ->
+      let stmts, e' = compile_expr e_stmt.at e_e in
+      stmts @ [ Stmt.SymStmt (SymStmt.Assume e') @@ e_stmt.at ]
 
 (*
 C(s) = s', _

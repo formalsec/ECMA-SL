@@ -9,10 +9,18 @@
   open Parser
 
   (* https://www.ocaml.org/releases/4.11/htmlman/lexyacc.html#s:lexyacc-common-errors *)
-  let keyword_table = Hashtbl.create 53
+  let keywords = Hashtbl.create 53
     let _ =
-      List.iter (fun (kwd, tok) -> Hashtbl.add keyword_table kwd tok)
+      List.iter (fun (kwd, tok) -> Hashtbl.add keywords kwd tok)
                 [
+                  (* API *)
+                  "se_assume", API_ASSUME;
+                  "se_mk_symbolic", API_MK_SYMBOLIC;
+                  "se_evaluate", API_EVALUATE;
+                  "se_maximize", API_MAXIMIZE;
+                  "se_minimize", API_MINIMIZE;
+                  "se_is_symbolic", API_IS_SYMBOLIC;
+                  "se_is_sat", API_IS_SAT;
                   "parse_number"    , PARSE_NUMBER;
                   "parse_string"    , PARSE_STRING;
                   "parse_date"      , PARSE_DATE;
@@ -93,9 +101,7 @@
                   "null"            , NULL;
                   "fail"            , FAIL;
                   "abort"           , ABORT;
-                  "assume"          , ASSUME;
                   "assert"          , ASSERT;
-                  "symbolic"        , SYMBOLIC;
                   "print"           , PRINT; 
                   "to_precision"    , TO_PRECISION;
                   "to_exponential"    , TO_EXPONENTIAL;
@@ -212,17 +218,7 @@ rule read =
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | '"'               { read_string (Buffer.create 16) lexbuf }
-  | "__api_is_symbolic" { API_IS_SYMBOLIC }
-  | "__api_is_sat"    { API_IS_SAT }
-  | "__api_maximize"  { API_MAXIMIZE }
-  | "__api_minimize"  { API_MINIMIZE }
-  | "__api_eval"      { API_EVAL }
-  | "__api_eval_wrapper" { API_EVAL_WRAPPER }
-  | "__api_exec_wrapper" { API_EXEC_WRAPPER }
-  | letter(letter|digit|'_')* as id { try
-                                        Hashtbl.find keyword_table id
-                                      with Not_found -> VAR id }
-  | var               { VAR (Lexing.lexeme lexbuf) }
+  | var as x          { try Hashtbl.find keywords x with Not_found -> VAR x }
   | symbol            { SYMBOL (String_utils.chop_first_char (Lexing.lexeme lexbuf)) }
   | loc               { LOC (Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }

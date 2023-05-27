@@ -16,16 +16,14 @@ type t =
   | Lookup of t * t
   | Curry of t * t list
   | Symbolic of Type.t * t
-  | APIOp of api_t
+  | SymOpt of sopt
 
-and api_t =
-  | Is_symbolic of t
-  | Is_sat of t
+and sopt =
+  | Evaluate of t
   | Maximize of t
   | Minimize of t
-  | Eval of t
-  | Eval_wrapper of t
-  | Exec_wrapper of t
+  | Is_symbolic of t
+  | Is_sat of t
 
 type subst_t = (string, t) Caml.Hashtbl.t
 
@@ -53,16 +51,14 @@ let rec str (e : t) : string =
   | Lookup (e, f) -> str e ^ "[" ^ str f ^ "]"
   | Curry (f, es) -> str f ^ "@(" ^ str_es es ^ ")"
   | Symbolic (t, x) -> "symbolic(" ^ Type.str t ^ ", \"" ^ str x ^ "\")"
-  | APIOp op ->
+  | SymOpt op ->
       let op' =
         match op with
-        | Is_symbolic e -> "__api_is_symbolic"
-        | Is_sat e -> "__api_is_sat"
-        | Maximize e -> "__api_maximize"
-        | Minimize e -> "__api_minimize"
-        | Eval e -> "__api_eval"
-        | Eval_wrapper e -> "__api_eval_wrapper"
-        | Exec_wrapper e -> "__api_exec_wrapper"
+        | Evaluate e -> "se_evaluate"
+        | Maximize e -> "se_maximize"
+        | Minimize e -> "se_minimize"
+        | Is_symbolic e -> "se_is_symbolic"
+        | Is_sat e -> "se_is_sat"
       in
       sprintf "%s(%s)" op' (str e)
 
@@ -120,18 +116,16 @@ let rec map (f : t -> t) (e : t) : t =
     | NewObj fes -> NewObj (map_obj fes)
     | Lookup (e, ef) -> Lookup (mapf e, mapf ef)
     | Curry (e, es) -> Curry (mapf e, List.map ~f:mapf es)
-    | APIOp op ->
+    | SymOpt op ->
         let op' =
           match op with
-          | Is_symbolic e -> Is_symbolic (mapf e)
-          | Is_sat e -> Is_sat (mapf e)
+          | Evaluate e -> Evaluate (mapf e)
           | Maximize e -> Maximize (mapf e)
           | Minimize e -> Minimize (mapf e)
-          | Eval e -> Eval (mapf e)
-          | Eval_wrapper e -> Eval_wrapper (mapf e)
-          | Exec_wrapper e -> Exec_wrapper (mapf e)
+          | Is_symbolic e -> Is_symbolic (mapf e)
+          | Is_sat e -> Is_sat (mapf e)
         in
-        APIOp op'
+        SymOpt op'
   in
   f e'
 
