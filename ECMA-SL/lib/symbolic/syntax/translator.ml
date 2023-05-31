@@ -32,9 +32,13 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
   let open Type in
   let open Operators in
   let int_unop op e =
-    let op' = match op with 
-    | Neg -> Integer.mk_neg 
-    | _ -> Printf.printf "op: %s\n" (Operators.str_of_unopt op);assert false in
+    let op' =
+      match op with
+      | Neg -> Integer.mk_neg
+      | _ ->
+          Printf.printf "op: %s\n" (Operators.str_of_unopt op);
+          assert false
+    in
     op' e
   in
   let flt_unop op e =
@@ -47,7 +51,9 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
       | IsNaN -> fun _ -> Boolean.mk_val false
       | FloatToString -> Real.mk_to_string
       | FloatOfString -> Real.mk_of_string
-      | _ -> Printf.printf "op: %s\n" (Operators.str_of_unopt op);assert false
+      | _ ->
+          Printf.printf "op: %s\n" (Operators.str_of_unopt op);
+          assert false
     in
     op' e
   in
@@ -57,13 +63,21 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
       | StringLen | StringLenU -> Strings.mk_len
       | Trim -> Strings.mk_trim
       | FloatOfString -> Real.mk_of_string
-      | _ -> Printf.printf "op: %s\n" (Operators.str_of_unopt op); assert false
+      | _ ->
+          Printf.printf "op: %s\n" (Operators.str_of_unopt op);
+          assert false
     in
     op' e
   in
 
   let bool_unop op e =
-    let op' = match op with Not -> Boolean.mk_not | _ -> Printf.printf "op: %s\n" (Operators.str_of_unopt op);assert false in
+    let op' =
+      match op with
+      | Not -> Boolean.mk_not
+      | _ ->
+          Printf.printf "op: %s\n" (Operators.str_of_unopt op);
+          assert false
+    in
     op' e
   in
   (* dispatch *)
@@ -92,7 +106,9 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
       | Minus -> Integer.mk_add
       | Times -> Integer.mk_mul
       | Div -> Integer.mk_div
-      | _ -> Printf.printf "op: %s\n" (Operators.str_of_binopt_single op);assert false
+      | _ ->
+          Printf.printf "op: %s\n" (Operators.str_of_binopt_single op);
+          assert false
     in
     op' e1 e2
   in
@@ -119,7 +135,9 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
       | ShiftLeft -> assert false
       | ShiftRight -> assert false
       | ShiftRightLogical -> assert false
-      | _ -> Printf.printf "op: %s\n" (Operators.str_of_binopt_single op);assert false
+      | _ ->
+          Printf.printf "op: %s\n" (Operators.str_of_binopt_single op);
+          assert false
     in
     op' e1 e2
   in
@@ -128,7 +146,9 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
       match op with
       | Snth -> Strings.mk_nth
       | Eq -> Strings.mk_eq
-      | _ -> Printf.printf "op: %s\n" (Operators.str_of_binopt_single op);assert false
+      | _ ->
+          Printf.printf "op: %s\n" (Operators.str_of_binopt_single op);
+          assert false
     in
     op' e1 e2
   in
@@ -138,7 +158,9 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
       | Eq -> Boolean.mk_eq
       | Log_And -> Boolean.mk_and
       | Log_Or -> Boolean.mk_or
-      | _ -> Printf.printf "op: %s\n" (Operators.str_of_binopt_single op);assert false
+      | _ ->
+          Printf.printf "op: %s\n" (Operators.str_of_binopt_single op);
+          assert false
     in
     op' e1 e2
   in
@@ -148,7 +170,11 @@ let translate_binop (t1 : Type.t option) (t2 : Type.t option)
   | Some StrType, _ -> str_binop op e1 e2
   | Some BoolType, Some BoolType -> bool_binop op e1 e2
   | None, _ | _, None -> failwith "translate_binop: untyped operator!"
-  | _ -> failwith ("translate_binop: ill-typed or unsupported operator!" ^ (Operators.str_of_binopt_single op) ^ (Expression.to_string e1) ^(Expression.to_string e2))
+  | _ ->
+      failwith
+        ("translate_binop: ill-typed or unsupported operator!"
+        ^ Operators.str_of_binopt_single op
+        ^ Expression.to_string e1 ^ Expression.to_string e2)
 
 let translate_triop (t1 : Type.t option) (t2 : Type.t option)
     (t3 : Type.t option) (op : Operators.topt) (e1 : Expression.t)
@@ -168,7 +194,9 @@ let translate_triop (t1 : Type.t option) (t2 : Type.t option)
         ^ Operators.str_of_triopt op "e1" "e2" "e3")
   | _ -> failwith "translate_triop: ill-typed or unsupported operator!"
 
-let rec translate (e : Expr.t) : Expression.t =
+let rec translate ?(b = true) (e : Expr.t): Expression.t =
+  if b then
+    Printf.printf "\n\ntranslating: %s\n\n" (Expr.str e);
   match e with
   | Expr.Val v -> translate_val v
   | Expr.Symbolic (t, Expr.Val (Val.Str x)) -> translate_symbol t x
@@ -176,21 +204,21 @@ let rec translate (e : Expr.t) : Expression.t =
       let binop' e1 e2 = Binop (Str S.Concat, e1, e2) in
       match e with
       | Expr.NOpt (_, h :: t) ->
-          List.fold_left ~init:(translate h) ~f:binop' (List.map ~f:translate t)
+          List.fold_left ~init:(translate ~b:false h) ~f:binop' (List.map ~f:(translate ~b:false) t)
       | _ -> assert false)
   | Expr.UnOpt (op, e') ->
       let ty = Sval_typing.type_of e' in
-      let e' = translate e' in
+      let e' = translate ~b:false e' in
       translate_unop ty op e'
   | Expr.BinOpt (op, e1, e2) ->
       let ty1 = Sval_typing.type_of e1 in
       let ty2 = Sval_typing.type_of e2 in
-      let e1' = translate e1 and e2' = translate e2 in
+      let e1' = translate ~b:false e1 and e2' = translate ~b:false e2 in
       translate_binop ty1 ty2 op e1' e2'
   | Expr.TriOpt (op, e1, e2, e3) ->
       let ty1 = Sval_typing.type_of e1 in
       let ty2 = Sval_typing.type_of e2 in
       let ty3 = Sval_typing.type_of e3 in
-      let e1' = translate e1 and e2' = translate e2 and e3' = translate e3 in
+      let e1' = translate ~b:false e1 and e2' = translate ~b:false e2 and e3' = translate ~b:false e3 in
       translate_triop ty1 ty2 ty3 op e1' e2' e3'
   | _ -> failwith (Expr.str e ^ ": Not translated!")

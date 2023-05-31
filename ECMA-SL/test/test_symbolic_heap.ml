@@ -1,179 +1,205 @@
 open S_object
+
 let solver = Encoding.Batch.create ()
-let pc = [] 
-let expr_TRUE = (Expr.Val (Val.Bool true))
-let o : Expr.t S_object.t = S_object.create () 
-let objects = 
+let pc = []
+let expr_TRUE = Expr.Val (Val.Bool true)
+let o : Expr.t S_object.t = S_object.create ()
+
+let objects =
   S_object.set o (Expr.Val (Val.Str "key")) (Expr.Val (Val.Str "val")) solver pc
 
-let%test "empty_concrete_set" = (List.length objects = 1) && (
-  let o, pc = match objects with 
-  | (o, pc) :: tail -> o, pc
-  | _ -> failwith "error"
+let%test "empty_concrete_set" =
+  List.length objects = 1
+  &&
+  let o, pc =
+    match objects with (o, pc) :: tail -> (o, pc) | _ -> failwith "error"
   in
   let v = get_concrete_field o "key" in
-  match v, pc with 
-  | Some v, None -> (Expr.equal v (Expr.Val (Val.Str "val")))
+  match (v, pc) with
+  | Some v, None -> Expr.equal v (Expr.Val (Val.Str "val"))
   | _ -> false
-)
-let o, new_pc = match objects with 
-| (o, pc) :: tail -> o, pc
-| _ -> failwith "error"
+
+let o, new_pc =
+  match objects with (o, pc) :: tail -> (o, pc) | _ -> failwith "error"
 
 let objects' = S_object.get o (Expr.Val (Val.Str "key")) solver pc
-let%test "concrete_get_exists" = (List.length objects' = 1) && (
-  let o, pc, v = match objects' with 
-  | (o, pc, v) :: tail -> o, pc, v
-  | _ -> failwith "error"
-  in
-  match v, pc with 
-  | Some v, None -> (Expr.equal v (Expr.Val (Val.Str "val")))
-  | _ -> false
-)
-let objects' = S_object.get o (Expr.Val (Val.Str "not_key")) solver pc
-let%test "concrete_get_doesnt_exist" = (List.length objects' = 1) && (
-  let o, pc, v = match objects' with 
-  | (o, pc, v) :: tail -> o, pc, v
-  | _ -> failwith "error"
-  in
-  let exp = Translator.translate (Expr.Val(Val.Bool true)) in
-  match v, pc with 
-  | None, Some p -> (Encoding.Expression.equal p exp)
-  | _ -> false
-)
 
-let orig_symb_key = (Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k")))
+let%test "concrete_get_exists" =
+  List.length objects' = 1
+  &&
+  let o, pc, v =
+    match objects' with
+    | (o, pc, v) :: tail -> (o, pc, v)
+    | _ -> failwith "error"
+  in
+  match (v, pc) with
+  | Some v, None -> Expr.equal v (Expr.Val (Val.Str "val"))
+  | _ -> false
+
+let objects' = S_object.get o (Expr.Val (Val.Str "not_key")) solver pc
+
+let%test "concrete_get_doesnt_exist" =
+  List.length objects' = 1
+  &&
+  let o, pc, v =
+    match objects' with
+    | (o, pc, v) :: tail -> (o, pc, v)
+    | _ -> failwith "error"
+  in
+  match (v, pc) with None, None -> true | _ -> false
+
+let orig_symb_key = Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k"))
+
 let objects2 =
   S_object.set o orig_symb_key (Expr.Val (Val.Str "new_symb_val")) solver pc
 
-let%test "symbolic_set" = (List.length objects2 = 2) && (
-  let o, pc, o', pc'= match objects2 with 
-  | (o, pc) :: (o', pc') :: _ -> o, pc, o', pc'
-  | _ -> failwith "error"
+let%test "symbolic_set" =
+  List.length objects2 = 2
+  &&
+  let o, pc, o', pc' =
+    match objects2 with
+    | (o, pc) :: (o', pc') :: _ -> (o, pc, o', pc')
+    | _ -> failwith "error"
   in
-  let v = S_object.get_symbolic_field o (Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k"))) in
+  let v =
+    S_object.get_symbolic_field o
+      (Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k")))
+  in
   let v' = S_object.get_concrete_field o' "key" in
-  let k = (Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k"))) in
-  let eq = Expr.BinOpt (Operators.Eq, k, (Expr.Val (Val.Str "key"))) in
+  let k = Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k")) in
+  let eq = Expr.BinOpt (Operators.Eq, k, Expr.Val (Val.Str "key")) in
   let not1 = Expr.UnOpt (Operators.Not, eq) in
   let translated_eq = Translator.translate eq in
-  let translated_expr = Translator.translate (Expr.BinOpt(Operators.Log_And, not1, expr_TRUE)) in
-  match v, pc, v', pc' with 
-  | Some v, Some p, Some v', Some p' -> 
-    (Expr.equal v (Expr.Val (Val.Str "new_symb_val"))) && 
-    (Expr.equal v' (Expr.Val (Val.Str "new_symb_val"))) &&
-    (Encoding.Expression.equal p translated_expr) &&
-    (Encoding.Expression.equal p' translated_eq)
-    | _ -> false
-)
+  let translated_expr =
+    Translator.translate (Expr.BinOpt (Operators.Log_And, not1, expr_TRUE))
+  in
+  match (v, pc, v', pc') with
+  | Some v, Some p, Some v', Some p' ->
+      Expr.equal v (Expr.Val (Val.Str "new_symb_val"))
+      && Expr.equal v' (Expr.Val (Val.Str "new_symb_val"))
+      && Encoding.Expression.equal p translated_expr
+      && Encoding.Expression.equal p' translated_eq
+  | _ -> false
 
-
-let o2, pc = match objects2 with 
-| (o, pc') :: tail -> (match pc' with | Some p -> o, p :: pc | None -> o, pc)
-| _ -> failwith "error"
-
+let o2, pc =
+  match objects2 with
+  | (o, pc') :: tail -> (
+      match pc' with Some p -> (o, p :: pc) | None -> (o, pc))
+  | _ -> failwith "error"
 
 (* check get for symb key that exists. *)
-let objects2' = S_object.get o2
+let objects2' =
+  S_object.get o2
     (Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k")))
     solver pc
 
-let%test "symbolic_get_exists" = (List.length objects2' = 1) && (
-  let o, pc, v = match objects2' with 
-  | (o, pc, v) :: tail -> o, pc, v
-  | _ -> failwith "error"
+let%test "symbolic_get_exists" =
+  List.length objects2' = 1
+  &&
+  let o, pc, v =
+    match objects2' with
+    | (o, pc, v) :: tail -> (o, pc, v)
+    | _ -> failwith "error"
   in
-  match v, pc with 
-  | Some v, None -> (Expr.equal v (Expr.Val (Val.Str "new_symb_val")))
+  match (v, pc) with
+  | Some v, None -> Expr.equal v (Expr.Val (Val.Str "new_symb_val"))
   | _ -> false
-)
 
 (* check get for symb key that doesn't exist. *)
-let symb_key = (Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "another_symb_k")))
+let symb_key = Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "another_symb_k"))
 let objects2'' = S_object.get o2 symb_key solver pc
 
-let%test "symbolic_get_doesnt_exist" = (List.length objects2'' = 3) && (
-  let o, pc, v, o', pc', v', o'', pc'', v'' = match objects2'' with 
-  | (o, pc, v) :: (o', pc', v') :: (o'', pc'', v'') :: _ -> o, pc, v, o', pc', v', o'', pc'', v''
-  | _ -> failwith "error"
+let%test "symbolic_get_doesnt_exist" =
+  List.length objects2'' = 3
+  &&
+  let o, pc, v, o', pc', v', o'', pc'', v'' =
+    match objects2'' with
+    | (o, pc, v) :: (o', pc', v') :: (o'', pc'', v'') :: _ ->
+        (o, pc, v, o', pc', v', o'', pc'', v'')
+    | _ -> failwith "error"
   in
-  let eq1 = Expr.BinOpt (Operators.Eq, symb_key, (Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k")))) in
-  let eq2 = Expr.BinOpt (Operators.Eq, symb_key, (Expr.Val (Val.Str "key"))) in
+  let eq1 =
+    Expr.BinOpt
+      ( Operators.Eq,
+        symb_key,
+        Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k")) )
+  in
+  let eq2 = Expr.BinOpt (Operators.Eq, symb_key, Expr.Val (Val.Str "key")) in
   let not1 = Expr.UnOpt (Operators.Not, eq1) in
   let not2 = Expr.UnOpt (Operators.Not, eq2) in
   let exp = Expr.BinOpt (Operators.Log_And, not1, expr_TRUE) in
-  let exp = Expr.BinOpt(Operators.Log_And, not2, exp) in
-
-  let exp = Translator.translate exp in
-  let eq1 = Translator.translate eq1 in
-  let eq2 = Translator.translate eq2 in
-
-
-  match v, pc, v', pc', v'', pc'' with 
-  | None, Some p, Some v', Some p', Some v'', Some p'' -> 
-    (Expr.equal v' (Expr.Val (Val.Str "new_symb_val"))) &&
-    (Expr.equal v'' (Expr.Val (Val.Str "val"))) &&
-    (Encoding.Expression.equal p exp) &&
-    (Encoding.Expression.equal p' eq1) &&
-    (Encoding.Expression.equal p'' eq2)
-    | _ -> false
-)
-
-let symb_key = (Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k2")))
-let new_val = (Expr.Val (Val.Str "new_symb_val2"))
-
-(* Set another symbolic value *)
-let objects3 = S_object.set o2 symb_key new_val solver pc
-
-let%test "set_another_symb_key" = (List.length objects3 = 3) && (
-  let o, pc, o', pc', o'', pc'' = match objects3 with 
-  | (o, pc) :: (o', pc') :: (o'', pc'') :: _ -> o, pc, o', pc', o'', pc''
-  | _ -> failwith "error"
-  in
-  let v = S_object.get_symbolic_field o symb_key in
-  let v' = S_object.get_concrete_field o' "key" in
-  let v'' = S_object.get_symbolic_field o'' orig_symb_key in
-  
-  let eq1 = Expr.BinOpt (Operators.Eq, symb_key, (Expr.Val (Val.Str "key"))) in
-  let eq2 = Expr.BinOpt (Operators.Eq, symb_key, orig_symb_key) in
-
-  let not1 = Expr.UnOpt (Operators.Not, eq1) in
-  let not2 = Expr.UnOpt (Operators.Not, eq2) in
-  
-  let exp = Expr.BinOpt (Operators.Log_And, not1, Expr.Val(Val.Bool true)) in
   let exp = Expr.BinOpt (Operators.Log_And, not2, exp) in
 
   let exp = Translator.translate exp in
   let eq1 = Translator.translate eq1 in
   let eq2 = Translator.translate eq2 in
 
-  match v, pc, v', pc', v'', pc'' with 
-  | Some v, Some p, Some v', Some p', Some v'', Some p'' -> 
-    (Expr.equal v new_val) && 
-    (Expr.equal v' new_val) &&
-    (Expr.equal v'' new_val) &&
-    (Encoding.Expression.equal p exp) &&
-    (Encoding.Expression.equal p' eq1) &&
-    (Encoding.Expression.equal p'' eq2)
-    | _ -> false
-)
- 
+  match (v, pc, v', pc', v'', pc'') with
+  | None, Some p, Some v', Some p', Some v'', Some p'' ->
+      Expr.equal v' (Expr.Val (Val.Str "new_symb_val"))
+      && Expr.equal v'' (Expr.Val (Val.Str "val"))
+      && Encoding.Expression.equal p exp
+      && Encoding.Expression.equal p' eq1
+      && Encoding.Expression.equal p'' eq2
+  | _ -> false
 
-let o3, pc = match objects3 with 
-| (o, pc') :: tail -> (match pc' with 
-  | Some p -> o, p :: pc
-  | None -> o, pc
-)
-| _ -> failwith "error"
+let symb_key = Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k2"))
+let new_val = Expr.Val (Val.Str "new_symb_val2")
 
-let concrete_key2 = (Expr.Val (Val.Str "key2"))
-let new_val2 = (Expr.Val (Val.Str "val2"))
+(* Set another symbolic value *)
+let objects3 = S_object.set o2 symb_key new_val solver pc
+
+let%test "set_another_symb_key" =
+  List.length objects3 = 3
+  &&
+  let o, pc, o', pc', o'', pc'' =
+    match objects3 with
+    | (o, pc) :: (o', pc') :: (o'', pc'') :: _ -> (o, pc, o', pc', o'', pc'')
+    | _ -> failwith "error"
+  in
+  let v = S_object.get_symbolic_field o symb_key in
+  let v' = S_object.get_concrete_field o' "key" in
+  let v'' = S_object.get_symbolic_field o'' orig_symb_key in
+
+  let eq1 = Expr.BinOpt (Operators.Eq, symb_key, Expr.Val (Val.Str "key")) in
+  let eq2 = Expr.BinOpt (Operators.Eq, symb_key, orig_symb_key) in
+
+  let not1 = Expr.UnOpt (Operators.Not, eq1) in
+  let not2 = Expr.UnOpt (Operators.Not, eq2) in
+
+  let exp = Expr.BinOpt (Operators.Log_And, not1, Expr.Val (Val.Bool true)) in
+  let exp = Expr.BinOpt (Operators.Log_And, not2, exp) in
+
+  let exp = Translator.translate exp in
+  let eq1 = Translator.translate eq1 in
+  let eq2 = Translator.translate eq2 in
+
+  match (v, pc, v', pc', v'', pc'') with
+  | Some v, Some p, Some v', Some p', Some v'', Some p'' ->
+      Expr.equal v new_val && Expr.equal v' new_val && Expr.equal v'' new_val
+      && Encoding.Expression.equal p exp
+      && Encoding.Expression.equal p' eq1
+      && Encoding.Expression.equal p'' eq2
+  | _ -> false
+
+let o3, pc =
+  match objects3 with
+  | (o, pc') :: tail -> (
+      match pc' with Some p -> (o, p :: pc) | None -> (o, pc))
+  | _ -> failwith "error"
+
+let concrete_key2 = Expr.Val (Val.Str "key2")
+let new_val2 = Expr.Val (Val.Str "val2")
 let objects4 = S_object.set o3 concrete_key2 new_val2 solver pc
 
-let%test "set_another_concrete_key" =  (List.length objects4 = 3) && (List.length objects3 = 3) && (
-  let o1, pc1, o2, pc2, o3, pc3 = match objects4 with 
-  | (o1, pc1) :: (o2, pc2) :: (o3, pc3) :: _ -> o1, pc1, o2, pc2, o3, pc3
-  | _ -> failwith "error"
+let%test "set_another_concrete_key" =
+  List.length objects4 = 3
+  && List.length objects3 = 3
+  &&
+  let o1, pc1, o2, pc2, o3, pc3 =
+    match objects4 with
+    | (o1, pc1) :: (o2, pc2) :: (o3, pc3) :: _ -> (o1, pc1, o2, pc2, o3, pc3)
+    | _ -> failwith "error"
   in
   let v1 = S_object.get_concrete_field o1 "key2" in
   let v2 = S_object.get_symbolic_field o2 symb_key in
@@ -184,18 +210,17 @@ let%test "set_another_concrete_key" =  (List.length objects4 = 3) && (List.lengt
 
   let not1 = Expr.UnOpt (Operators.Not, eq1) in
   let not2 = Expr.UnOpt (Operators.Not, eq2) in
-  
-  let exp = Expr.BinOpt (Operators.Log_And, not1, Expr.Val(Val.Bool true)) in
+
+  let exp = Expr.BinOpt (Operators.Log_And, not1, Expr.Val (Val.Bool true)) in
   let exp = Expr.BinOpt (Operators.Log_And, not2, exp) in
   let exp = Translator.translate exp in
   let eq1 = Translator.translate eq1 in
   let eq2 = Translator.translate eq2 in
 
-  match v1, pc1, v2, pc2, v3, pc3 with 
-  | Some v1, Some p1, None, Some p2, None, Some p3 -> 
-    (Expr.equal v1 new_val2) && 
-    (Encoding.Expression.equal p1 exp) &&
-    (Encoding.Expression.equal p2 eq1) &&
-    (Encoding.Expression.equal p3 eq2)
-    | _ -> false
-)
+  match (v1, pc1, v2, pc2, v3, pc3) with
+  | Some v1, Some p1, None, Some p2, None, Some p3 ->
+      Expr.equal v1 new_val2
+      && Encoding.Expression.equal p1 exp
+      && Encoding.Expression.equal p2 eq1
+      && Encoding.Expression.equal p3 eq2
+  | _ -> false

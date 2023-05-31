@@ -39,14 +39,12 @@ let get_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
   | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with
-      | [(obj, pc, v)] -> [ (heap, obj, pc, v) ]
-      | _ -> 
-        List.map objs ~f:(fun (obj, pc, v) -> 
-        let heap' = clone heap in
-        set heap' loc obj;  
-        (heap', obj, pc, v)
-      )
-  )
+      | [ (obj, pc, v) ] -> [ (heap, obj, pc, v) ]
+      | _ ->
+          List.map objs ~f:(fun (obj, pc, v) ->
+              let heap' = clone heap in
+              set heap' loc obj;
+              (heap', obj, pc, v)))
 
 let set_field (heap : 'a t) (loc : Loc.t) (field : Expr.t) (v : 'a)
     (solver : Encoding.Batch.t) (pc : encoded_pct list) :
@@ -60,14 +58,12 @@ let set_field (heap : 'a t) (loc : Loc.t) (field : Expr.t) (v : 'a)
   | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with
-      | [(obj, pc)] -> [ (heap, obj, pc) ]
+      | [ (obj, pc) ] -> [ (heap, obj, pc) ]
       | _ ->
-          List.map objs ~f:(fun (obj, pc) -> 
-            let heap' = clone heap in
-            set heap' loc obj;  
-            (heap', obj, pc)
-          )
-      )
+          List.map objs ~f:(fun (obj, pc) ->
+              let heap' = clone heap in
+              set heap' loc obj;
+              (heap', obj, pc)))
 
 let delete_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
     (solver : Encoding.Batch.t) (pc : encoded_pct list) :
@@ -81,14 +77,12 @@ let delete_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
   | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with
-      | [(obj, pc')] -> [ (heap, obj, pc') ]
+      | [ (obj, pc') ] -> [ (heap, obj, pc') ]
       | _ ->
-        List.map objs ~f:(fun (obj, pc) -> 
-          let heap' = clone heap in
-          set heap' loc obj;  
-          (heap', obj, pc)
-        )
-      )
+          List.map objs ~f:(fun (obj, pc) ->
+              let heap' = clone heap in
+              set heap' loc obj;
+              (heap', obj, pc)))
 
 let to_string (h : 'a t) (pp : 'a -> string) : string =
   "{ "

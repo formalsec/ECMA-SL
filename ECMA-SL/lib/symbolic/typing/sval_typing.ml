@@ -10,7 +10,6 @@ let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
   | Operators.Tail -> None
   | Operators.First -> None
   | Operators.Second -> None
-  | Operators.ListLen -> un_args_typing_container_length arg_t Type.ListType
   | Operators.TupleLen -> un_args_typing_container_length arg_t Type.TupleType
   | Operators.IntToFloat -> un_args_typing_int_casts arg_t Type.FltType
   | Operators.IntToString -> un_args_typing_int_casts arg_t Type.StrType
@@ -28,6 +27,8 @@ let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
   | Operators.StringLenU -> Some Type.IntType
   | Operators.BitwiseNot -> un_args_typing_bitwise_not arg_t
   | Operators.Trim -> Some Type.StrType
+  | Operators.ListLen -> Some Type.IntType
+  | Operators.LSort -> Some Type.ListType
   | default ->
       failwith
         ("Typing Error: [type_of_unop] -> unsuported typing for unary \
