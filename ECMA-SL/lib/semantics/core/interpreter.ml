@@ -69,7 +69,13 @@ module M (Mon : SecurityMonitor) = struct
         | Type.IntType ->
             Random.self_init ();
             Val.Int (Random.int 128)
-        | _ -> failwith "eval_expr: Symbolic not implemented!")
+        | Type.FltType ->
+            Random.self_init ();
+            Val.Flt (Random.float 128.0)
+        | _ ->
+            failwith
+              (Core.sprintf "eval_expr: Symbolic \"%s\" not implemented!"
+                (Type.str t)))
 
   let get_func_id (sto : Val.t Store.t) (exp : Expr.t) : string * Val.t list =
     let res = eval_expr sto exp in
