@@ -44,11 +44,13 @@
                 "print"                 , PRINT;
                 "delete"                , DELETE;
                 "symbolic"              , SYMBOLIC;
+                "typeof"                , TYPEOF;
                 "gen_wrapper"           , WRAPPER;
                 "NaN"                   , FLOAT (float_of_string "nan");
                 "Infinity"              , FLOAT (float_of_string "infinity");
                 
                 (* Built-Ins *)
+                "is_NaN"                , IS_NAN;
                 "to_int"                , TO_INT;
                 "to_int32"              , TO_INT32;
                 "to_uint16"             , TO_UINT16;
