@@ -24,7 +24,6 @@
 				{ "include": "#constants" },
 				{ "include": "#control" },
 				{ "include": "#builtin" },
-				{ "include": "#typeof" },
 				{ "include": "#api" }
 			]
 		},
@@ -33,7 +32,7 @@
 			"patterns": [
 				{
 					"name": "keyword.control.esl",
-					"match": "\\b(if|else|elif|while|foreach|repeat|until|switch|case|sdefault|match|with|default|None|null|function|return|lambda|macro|catch|throw|fail|assume|assert|import|extern|print|delete|symbolic|gen_wrapper|NaN|Infinity)\\b"
+					"match": "\\b(if|else|elif|while|foreach|repeat|until|switch|case|sdefault|match|with|default|None|null|function|return|lambda|macro|catch|throw|fail|assume|assert|import|extern|print|delete|symbolic|typeof|gen_wrapper|NaN|Infinity)\\b"
 				}
 			]
 		},
@@ -50,14 +49,6 @@
 				{
 					"name": "entity.name.function.esl",
 					"match": "\\b(is_NaN|to_int|to_int32|to_uint16|to_uint32|int_to_float|int_of_float|int_to_string|int_of_string|int_to_four_hex|int_to_be_bytes|int_from_le_bytes|uint_from_le_bytes|octal_to_decimal|float_to_string|float_of_string|float_to_byte|float64_to_le_bytes|float64_to_be_bytes|float32_to_le_bytes|float32_to_be_bytes|float64_from_le_bytes|float64_from_be_bytes|float32_from_le_bytes|float32_from_be_bytes|bytes_to_string|utf8_decode|hex_decode|from_char_code|from_char_code_u|to_char_code|to_char_code_u|to_lower_case|to_upper_case|trim|abs|sqrt|cos|sin|tan|cosh|sinh|tanh|acos|asin|atan|atan2|ceil|floor|exp|log_2|log_e|log_10|random|max|min|to_precision|to_exponential|to_fixed|parse_number|parse_string|parse_date|s_len|s_len_u|s_split|s_concat|s_nth|s_nth_u|s_substr|s_substr_u|a_nth|a_set|l_set|a_len|array_make|list_to_array|hd|tl|l_len|l_nth|l_add|l_prepend|l_concat|l_remove_last|l_remove_nth|l_remove|l_sort|l_reverse|in_list|fst|snd|t_len|t_nth|obj_to_list|obj_fields|in_obj)\\b"
-				}
-			]
-		},
-		"typeof": {
-			"patterns": [
-				{
-					"name": "keyword.other.esl",
-					"match": "\\b(typeof)\\b"
 				}
 			]
 		},
@@ -133,7 +124,7 @@
 					"match": "\\b(typedef|any|unknown|never|undefined|number|string|boolean|symbol|sigma)\\b"
 				},
 				{
-					"name": "constant.language.other",
+					"name": "entity.name.type",
 					"match": "\\b(__\\$Int|__\\$Flt|__\\$Bool|__\\$Str|__\\$Obj|__\\$List|__\\$Type|__\\$Tuple|__\\$Null|__\\$Symbol|__\\$Curry|__\\$Array)\\b"
 				}
 
