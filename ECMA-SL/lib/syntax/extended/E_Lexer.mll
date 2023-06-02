@@ -14,6 +14,39 @@
     let _ =
       List.iter (fun (kwd, tok) -> Hashtbl.add keyword_table kwd tok)
               [
+                (* Language *)
+                "if"                    , IF;
+                "else"                  , ELSE;
+                "elif"                  , ELIF;
+                "while"                 , WHILE;
+                "foreach"               , FOREACH;
+                "repeat"                , REPEAT;
+                "until"                 , UNTIL;
+                "switch"                , SWITCH;
+                "case"                  , CASE;
+                "sdefault"              , SDEFAULT;
+                "match"                 , MATCH;
+                "with"                  , WITH;
+                "default"               , DEFAULT;
+                "None"                  , NONE;
+                "null"                  , NULL;
+                "function"              , FUNCTION;
+                "return"                , RETURN;
+                "lambda"                , LAMBDA;
+                "macro"                 , MACRO;
+                "catch"                 , CATCH;
+                "throw"                 , THROW;
+                "fail"                  , FAIL;
+                "assume"                , ASSUME;
+                "assert"                , ASSERT;
+                "import"                , IMPORT;
+                "extern"                , EXTERN;
+                "print"                 , PRINT;
+                "delete"                , DELETE;
+                "symbolic"              , SYMBOLIC;
+                "gen_wrapper"           , WRAPPER;
+                "NaN"                   , FLOAT (float_of_string "nan");
+                "Infinity"              , FLOAT (float_of_string "infinity");
                 
                 (* Built-Ins *)
                 "to_int"                , TO_INT;
