@@ -16,6 +16,11 @@ function IsArrayIndex(P) {
   if (Type(P) = "Symbol") {
     return false
   };
+
+  if (__api_is_symbolic(P)) {
+    return __api_is_number(P)
+  };
+
   p_uint := ToUint32(P);
   p_str := ToString(p_uint);
   return ((p_str = P) && !(p_uint = ((2. ** 32.) - 1.) )) /* (2^32)-1 = 4294967295 */

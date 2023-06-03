@@ -363,6 +363,7 @@ module M (Mon : SecurityMonitor) = struct
         let name, v, exp =
           match ss with
           | Symb_stmt.IsSymbolic (name, e) -> (name, eval_expr sto e, e)
+          | Symb_stmt.IsNumber (name, e) -> (name, eval_expr sto e, e)
           | Symb_stmt.IsSat (name, e) -> (name, eval_expr sto e, e)
           | Symb_stmt.Maximize (name, e) -> (name, eval_expr sto e, e)
           | Symb_stmt.Minimize (name, e) -> (name, eval_expr sto e, e)

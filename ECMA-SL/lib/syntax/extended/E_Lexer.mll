@@ -19,6 +19,7 @@
                 "__api_minimize"        , MINIMIZE; 
                 "__api_eval"            , EVAL;
                 "__api_is_symbolic"     , IS_SYMBOLIC;
+                "__api_is_number"       , IS_NUMBER;
                 "parse_number"    , PARSE_NUMBER;
                 "parse_string"    , PARSE_STRING;
                 "parse_date"      , PARSE_DATE;

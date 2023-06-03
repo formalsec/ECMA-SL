@@ -90,12 +90,22 @@ let create_object (o : 'a t) (key1 : pct) (key2 : pct) :
   let eq = Translator.translate eq in
   (o', Some eq)
 
-let is_key_possible (key1 : Expr.t) (key2 : Expr.t) (solver : Encoding.Batch.t)
+let is_key_possible ?(b = false) (key1 : Expr.t) (key2 : Expr.t) (solver : Encoding.Batch.t)
     (pc : encoded_pct list) : bool =
   let eq = Expr.BinOpt (Operators.Eq, key1, key2) in
-  let eq = Translator.translate eq in
-  let ret = Encoding.Batch.check_sat solver (eq :: pc) in
-  ret
+  let eq' = Translator.translate eq in
+  let ret = Encoding.Batch.check_sat solver (eq' :: pc) in
+
+  if b then (
+    Printf.printf "\n\n";
+    if not ret then 
+      List.iter pc ~f:(fun v -> Printf.printf "%s\n" (Encoding.Expression.to_string v));
+    Printf.printf "create_object tested: %s, result: %b\n" (Expr.str eq) ret;
+    Printf.printf "\n\n";
+    ret
+  )
+  else
+    ret
 
 let set (o : 'a t) (key : vt) (data : 'a) (solver : Encoding.Batch.t)
     (pc : encoded_pct list) : ('a t * encoded_pct option) list =
@@ -129,6 +139,8 @@ let set (o : 'a t) (key : vt) (data : 'a) (solver : Encoding.Batch.t)
           (o, Some new_pc) :: rets
         else rets
   | _ ->
+    (* Printf.printf "SET FOR KEY: %s AND DATA: %s\n" (Expr.str key) (Expr.str data); *)
+
       let temp =
         Hashtbl.length o.concrete_fields + Expr_Hashtbl.length o.symbolic_fields
       in
@@ -139,6 +151,7 @@ let set (o : 'a t) (key : vt) (data : 'a) (solver : Encoding.Batch.t)
         let symbolic_conds =
           Expr_Hashtbl.fold o.symbolic_fields ~init:[]
             ~f:(fun ~key:k ~data:d acc ->
+              Printf.printf "getting dem keys symb-set\n";
               if is_key_possible key k solver pc then (k, d) :: acc else acc)
         in
 
@@ -165,8 +178,12 @@ let set (o : 'a t) (key : vt) (data : 'a) (solver : Encoding.Batch.t)
         let _ = Expr_Hashtbl.set o.symbolic_fields ~key ~data in
 
         let new_pc = create_not_pct (concrete_conds @ symbolic_conds) key in
-        if Encoding.Batch.check_sat solver (new_pc :: pc) then
-          (o, Some new_pc) :: rets
+        let check = Encoding.Batch.check_sat solver (new_pc :: pc)  in
+        (* Printf.printf "\n|%s| just tested: %s, result: %b\n\n" (Expr.str key) (Encoding.Expression.to_string new_pc) check; *)
+
+        if check then(
+          (* Printf.printf "\n|%s| just tested: %s, result: %b\n\n" (Expr.str key) (Encoding.Expression.to_string new_pc) check; *)
+          (o, Some new_pc) :: rets)
         else rets
 
 let get (o : 'a t) (key : vt) (solver : Encoding.Batch.t)
@@ -198,6 +215,8 @@ let get (o : 'a t) (key : vt) (solver : Encoding.Batch.t)
               (o, Some new_pc, None) :: obj_list
             else obj_list)
   | _ -> (
+    (* Printf.printf "GET FOR KEY: %s\n" (Expr.str key); *)
+
       let res = get_symbolic_field o key in
       match res with
       | Some v -> [ (o, None, Some v) ]
@@ -223,8 +242,10 @@ let get (o : 'a t) (key : vt) (solver : Encoding.Batch.t)
 
           (* Does not match any symbolic value, create new pct *)
           let new_pc = create_not_pct cond_list key in
-          if Encoding.Batch.check_sat solver (new_pc :: pc) then
-            (o, Some new_pc, None) :: rets
+          if Encoding.Batch.check_sat solver (new_pc :: pc) then(
+            (* Printf.printf "Check for %s was true\n" (Encoding.Expression.to_string new_pc); *)
+
+            (o, Some new_pc, None) :: rets)
           else rets)
 
 let delete (o : 'a t) (key : Expr.t) (solver : Encoding.Batch.t)
@@ -236,7 +257,6 @@ let delete (o : 'a t) (key : Expr.t) (solver : Encoding.Batch.t)
         [ (o, None) ]
       else if Expr_Hashtbl.length o.symbolic_fields = 0 then [ (o, None) ]
       else
-
         let lst =
           Expr_Hashtbl.fold o.symbolic_fields ~init:[]
             ~f:(fun ~key:k ~data:d acc ->
@@ -265,17 +285,18 @@ let delete (o : 'a t) (key : Expr.t) (solver : Encoding.Batch.t)
       match res with
       | Some v -> [ (o, None) ]
       | None ->
-        let symbolic_list =
-          Expr_Hashtbl.fold o.symbolic_fields ~init:[]
-            ~f:(fun ~key:k ~data:d acc ->
-              if is_key_possible key k solver pc then (k, d) :: acc else acc)
-        in
+          let symbolic_list =
+            Expr_Hashtbl.fold o.symbolic_fields ~init:[]
+              ~f:(fun ~key:k ~data:d acc ->
+                if is_key_possible key k solver pc then (k, d) :: acc else acc)
+          in
 
-        let concrete_list =
-          Hashtbl.fold o.concrete_fields ~init:[] ~f:(fun ~key:k ~data:d acc ->
-              let k' = Expr.Val (Val.Str k) in
-              if is_key_possible key k' solver pc then (k', d) :: acc else acc)
-        in
+          let concrete_list =
+            Hashtbl.fold o.concrete_fields ~init:[]
+              ~f:(fun ~key:k ~data:d acc ->
+                let k' = Expr.Val (Val.Str k) in
+                if is_key_possible key k' solver pc then (k', d) :: acc else acc)
+          in
 
           (* Get objects for all possible symb equalities *)
           let rets =

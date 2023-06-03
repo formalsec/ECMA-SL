@@ -23,6 +23,7 @@ let at (startpos, endpos) =
 *)
 %token SKIP
 %token PRINT
+%token ASSERT ASSUME SYMBOLIC IS_SYMBOLIC IS_NUMBER MAXIMIZE MINIMIZE ISSAT EVAL
 %token DEFEQ
 %token WHILE
 %token IF ELSE
@@ -37,7 +38,6 @@ let at (startpos, endpos) =
 %token DELETE
 %token FAIL
 %token ABORT
-%token ASSUME ASSERT SYMBOLIC
 %token THROW
 %token <float> FLOAT
 %token <int> INT
@@ -403,6 +403,19 @@ stmt_target:
     { Stmt.Return e @@ at $sloc }
   | RETURN;
     { Stmt.Return (Expr.Val Val.Void) @@ at $sloc }
+  | v = VAR; DEFEQ; IS_SYMBOLIC; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymbStmt(Symb_stmt.IsSymbolic(v, e)) @@ at $sloc }
+  | v = VAR; DEFEQ; ISSAT; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymbStmt(Symb_stmt.IsSat(v, e)) @@ at $sloc }
+  | v = VAR; DEFEQ; MAXIMIZE; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymbStmt(Symb_stmt.Maximize(v, e)) @@ at $sloc }
+  | v = VAR; DEFEQ; MINIMIZE; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymbStmt(Symb_stmt.Minimize(v, e)) @@ at $sloc }
+  | v = VAR; DEFEQ; EVAL; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymbStmt(Symb_stmt.Eval(v, e)) @@ at $sloc }
+  | v = VAR; DEFEQ; IS_NUMBER; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymbStmt(Symb_stmt.IsNumber(v, e)) @@ at $sloc }
+
   | v = VAR; DEFEQ; f = expr_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
     { Stmt.AssignCall (v,f,vs) @@ at $sloc }
   | x = VAR; DEFEQ; EXTERN; f = VAR; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;

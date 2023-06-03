@@ -36,6 +36,15 @@ let eval_api_call ?(at = no_region) (store : Sstore.t) (c : config)
   | Symb_stmt.IsSymbolic (name, e) ->
       let e' = reduce_expr ~at store e in
       Sstore.add_exn store name (Val (Val.Bool (Expr.is_symbolic e')))
+  | Symb_stmt.IsNumber (name, e) ->
+      let e' = reduce_expr ~at store e in
+      let tp = Sval_typing.type_of e' in
+      let result =
+        match tp with
+        | Some Type.IntType | Some Type.FltType -> true
+        | _ -> false
+      in
+      Sstore.add_exn store name (Val (Val.Bool result))
   | Symb_stmt.IsSat (name, e) ->
       let e' = Translator.translate (reduce_expr ~at store e) in
       let sat = Batch.check_sat c.solver (e' :: c.pc) in
@@ -176,7 +185,10 @@ let step (c : config) : config list =
         with Batch.Unknown ->
           [ update c (Unknown (Some br_f)) state (br_f' :: pc) ]
       in
-      then_branch @ else_branch
+      let temp = then_branch @ else_branch in 
+      if List.length temp > 1 then
+        Printf.printf "branching on if\n";
+      temp
   | Stmt.While (br, blk) ->
       let blk' =
         Stmt.Block (blk :: [ Stmt.While (br, blk) @@ s.at ]) @@ blk.at
@@ -223,13 +235,26 @@ let step (c : config) : config list =
       let reduced_field = reduce_expr ~at:s.at store e_field in
       let get_result = S_heap.get_field heap loc reduced_field solver pc in
 
+      if List.length get_result > 1 then
+        Printf.printf "branching in assignInObjCheck\n";
+        
+
+
       List.map get_result ~f:(fun (new_heap, obj, new_pc, v) ->
           let v' = Val (Val.Bool (Option.is_some v)) in
-          let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
+          let new_pc' = match new_pc with 
+            | Some p -> [ p ] 
+            | None -> [] in
+
+          let new_pc' = new_pc' @ pc in
+          (* if List.length get_result > 1 then(
+            List.iter new_pc' ~f:(fun v -> Printf.printf "----%s\n" (Encoding.Expression.to_string v));
+            Printf.printf "\n";
+          ); *)
           update c
             (Cont (List.tl_exn stmts))
             (new_heap, Sstore.add_exn store x v', stack, f)
-            (new_pc' @ pc))
+            (new_pc'))
       (* let field = field s.at reduced_field in
          let v = Val (Val.Bool (Option.is_some (Heap.get_field heap loc field))) in *)
       (* [
@@ -276,6 +301,8 @@ let step (c : config) : config list =
       and v = reduce_expr ~at:s.at store e_v in
       let objects = S_heap.set_field heap loc reduced_field v solver pc in
 
+      if List.length objects > 1 then
+        Printf.printf "branching on assign\n";
       List.map objects ~f:(fun (new_heap, obj, new_pc) ->
           let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
           update c
@@ -288,6 +315,8 @@ let step (c : config) : config list =
       let reduced_field = reduce_expr ~at:s.at store e_field in
       let objects = S_heap.delete_field heap loc reduced_field solver pc in
 
+      if List.length objects > 1 then
+        Printf.printf "branching on delete\n";
       List.map objects ~f:(fun (new_heap, obj, new_pc) ->
           let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
           update c
@@ -299,6 +328,9 @@ let step (c : config) : config list =
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
       and reduced_field = reduce_expr ~at:s.at store e_field in
       let objects = S_heap.get_field heap loc reduced_field solver pc in
+
+      if List.length objects > 1 then
+        Printf.printf "branching on lookup\n";
 
       List.map objects ~f:(fun (new_heap, obj, new_pc, v) ->
           let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
@@ -420,6 +452,8 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
     let f c =
       ignore (Batch.check_sat c.solver c.pc);
       let symbols = Expression.get_symbols c.pc in
+      List.iter c.pc ~f:( fun cond -> Printf.printf "PC: %s\n" (Expression.to_string cond));
+      Printf.printf"\n";
       List.map (Batch.value_binds ~symbols c.solver) ~f:(fun (s, v) ->
           ( "NA",
             Encoding.Symbol.to_string s,

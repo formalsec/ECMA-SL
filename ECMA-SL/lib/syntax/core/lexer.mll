@@ -13,6 +13,12 @@
     let _ =
       List.iter (fun (kwd, tok) -> Hashtbl.add keyword_table kwd tok)
                 [
+                  "__api_is_sat"          , ISSAT;
+                  "__api_maximize"        , MAXIMIZE; 
+                  "__api_minimize"        , MINIMIZE; 
+                  "__api_eval"            , EVAL;
+                  "__api_is_symbolic"     , IS_SYMBOLIC;
+                  "__api_is_number"       , IS_NUMBER;
                   "parse_number"    , PARSE_NUMBER;
                   "parse_string"    , PARSE_STRING;
                   "parse_date"    , PARSE_DATE;
@@ -212,7 +218,7 @@ rule read =
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | '"'               { read_string (Buffer.create 16) lexbuf }
-  | letter(letter|digit|'_')* as id { try
+  | (letter| "__") (letter|digit|'_')* as id { try
                                         Hashtbl.find keyword_table id
                                       with Not_found -> VAR id }
   | var               { VAR (Lexing.lexeme lexbuf) }

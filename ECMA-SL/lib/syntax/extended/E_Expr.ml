@@ -18,6 +18,7 @@ type t =
 
 and st =
   | IsSymbolic of t
+  | IsNumber of t
   | IsSat of t
   | Maximize of t
   | Minimize of t
@@ -51,6 +52,7 @@ let rec str (e : t) : string =
   | SymbExpr st -> (
       match st with
       | IsSymbolic e -> "is_symbolic(" ^ str e ^ ")"
+      | IsNumber e -> "is_number(" ^ str e ^ ")"
       | IsSat e -> "is_sat (" ^ str e ^ ")"
       | Maximize e -> "maximize (" ^ str e ^ ")"
       | Minimize e -> "minimize (" ^ str e ^ ")"
@@ -114,6 +116,7 @@ let rec map (f : t -> t) (e : t) : t =
         let sb =
           match statement with
           | IsSymbolic e -> IsSymbolic (mapf e)
+          | IsNumber e -> IsNumber (mapf e)
           | IsSat e -> IsSat (mapf e)
           | Maximize e -> Maximize (mapf e)
           | Minimize e -> Minimize (mapf e)

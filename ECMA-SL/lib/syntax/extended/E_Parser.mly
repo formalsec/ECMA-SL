@@ -28,7 +28,7 @@ let at (startpos, endpos) =
 *)
 %token SKIP
 %token PRINT WRAPPER
-%token ASSERT ASSUME SYMBOLIC IS_SYMBOLIC MAXIMIZE MINIMIZE ISSAT EVAL
+%token ASSERT ASSUME SYMBOLIC IS_SYMBOLIC IS_NUMBER MAXIMIZE MINIMIZE ISSAT EVAL
 %token DEFEQ
 %token WHILE FOREACH
 %token IF ELSE ELIF
@@ -265,6 +265,8 @@ e_expr_target:
     { E_Expr.SymbExpr(E_Expr.IsSat e) }
   | IS_SYMBOLIC; LPAREN; e = e_expr_target; RPAREN; 
     { E_Expr.SymbExpr(E_Expr.IsSymbolic e) }
+  | IS_NUMBER; LPAREN; e = e_expr_target; RPAREN; 
+    { E_Expr.SymbExpr(E_Expr.IsNumber e) }
   | EVAL; LPAREN; e = e_expr_target; RPAREN; 
     { E_Expr.SymbExpr (E_Expr.Eval e) }
   | MAXIMIZE; LPAREN; e = e_expr_target; RPAREN; 

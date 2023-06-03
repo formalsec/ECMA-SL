@@ -589,6 +589,11 @@ and compile_symb_expr (se : E_Expr.st) (at : region) : Stmt.t list * Expr.t =
       let new_var = generate_fresh_var () in
       ( stmts @ [ Stmt.SymbStmt (Symb_stmt.IsSymbolic (new_var, e')) @@ at ],
         Expr.Var new_var )
+  | IsNumber e ->
+      let stmts, e' = compile_expr at e in
+      let new_var = generate_fresh_var () in
+      ( stmts @ [ Stmt.SymbStmt (Symb_stmt.IsNumber (new_var, e')) @@ at ],
+        Expr.Var new_var )
   | IsSat e ->
       let stmts, e' = compile_expr at e in
       let new_var = generate_fresh_var () in
