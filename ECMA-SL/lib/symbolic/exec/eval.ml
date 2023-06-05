@@ -52,7 +52,7 @@ let step (c : config) : config list =
   | Fail e ->
       [ update c (Error (Some (reduce_expr ~at:s.at store e))) state pc ]
   | Abort e ->
-      [ update c (Final (Some (reduce_expr ~at:s.at store e))) state pc ]
+      [ update c (Failure ("Abort", Some (reduce_expr ~at:s.at store e))) state pc ]
   | Stmt.Assign (x, e) ->
       let v = reduce_expr ~at:s.at store e in
       [
@@ -66,7 +66,7 @@ let step (c : config) : config list =
       [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Stmt.Assert e
     when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
-      printf "%s" (Encoding.Expression.pp_string_of_pc pc);
+      printf "%s" (Encoding.Expression.string_of_pc pc);
       printf "%s = %s\n" (Expr.str e) (Expr.str (reduce_expr ~at:s.at store e));
       let e' = Some (reduce_expr ~at:s.at store e) in
       [ update c (Failure ("assert", e')) state pc ]
@@ -405,12 +405,7 @@ let main (prog : Prog.t) (f : func) : unit =
           and interp = Value.to_string v in
           (sort, name, interp))
     in
-    let pc =
-      if List.length c.pc > 0 then
-        ( Expression.pp_string_of_pc c.pc,
-          Z3_mappings.expr_to_smtstring c.pc (List.length testcase > 0) )
-      else ("", "")
-    in
+    let pc = (Expression.string_of_pc c.pc, Expression.to_smt c.pc) in
     let sink =
       match c.code with
       | Failure (sink, e) -> (sink, Option.value_map e ~default:"" ~f:Expr.str)

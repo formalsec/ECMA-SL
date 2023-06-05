@@ -70,7 +70,7 @@ let at (startpos, endpos) =
 %token EOF
 
 
-%token API_ASSUME API_MK_SYMBOLIC
+%token API_ASSUME API_MK_SYMBOLIC API_ABORT
 %token API_EVAL API_MAXIMIZE API_MINIMIZE
 %token API_IS_SYMBOLIC API_IS_SAT
 
@@ -530,6 +530,8 @@ e_stmt_target:
     { E_Stmt.Print e @@ at $sloc }
   | WRAPPER; meta = e_stmt_metadata_target; s = e_block_target;
     { E_Stmt.Wrapper (meta, s) @@ at $sloc }
+  | API_ABORT; e = e_expr_target;
+    { E_Stmt.Abort e @@ at $sloc }
   | API_ASSUME; e = e_expr_target;
     { E_Stmt.SymStmt (Assume e) @@ at $sloc }
   | ASSERT; e = e_expr_target;

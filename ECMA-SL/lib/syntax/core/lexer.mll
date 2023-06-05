@@ -21,6 +21,7 @@
                   "se_minimize", API_MINIMIZE;
                   "se_is_symbolic", API_IS_SYMBOLIC;
                   "se_is_sat", API_IS_SAT;
+                  "se_abort", API_ABORT;
                   "parse_number"    , PARSE_NUMBER;
                   "parse_string"    , PARSE_STRING;
                   "parse_date"      , PARSE_DATE;
@@ -100,7 +101,6 @@
                   "throw"           , THROW;
                   "null"            , NULL;
                   "fail"            , FAIL;
-                  "abort"           , ABORT;
                   "assert"          , ASSERT;
                   "print"           , PRINT; 
                   "to_precision"    , TO_PRECISION;

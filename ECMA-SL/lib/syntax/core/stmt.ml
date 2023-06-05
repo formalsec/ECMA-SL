@@ -39,8 +39,6 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | Skip | Merge -> ""
   | Print e -> "print " ^ str_e e
   | Fail e -> "fail " ^ str_e e
-  | Abort e -> "abort " ^ str_e e
-  | Assert e -> "assert (" ^ str_e e ^ ")"
   | Assign (v, exp) -> v ^ " := " ^ str_e exp
   | If (e, s1, s2) -> (
       let v = "if (" ^ str_e e ^ ") {\n" ^ str s1 ^ "\n}" in
@@ -64,6 +62,8 @@ let rec str ?(print_expr : (Expr.t -> string) option) (stmt : t) : string =
   | AssignObjToList (st, e) -> st ^ " := obj_to_list " ^ str_e e
   | AssignObjFields (st, e) -> st ^ " := obj_fields " ^ str_e e
   | Exception st -> Printf.sprintf "throw \"%s\"" st
+  | Assert e -> "assert (" ^ str_e e ^ ")"
+  | Abort e -> "se_abort " ^ str_e e
   | SymStmt stmt -> SymStmt.str stmt
 
 let rec js (stmt : t) : string =

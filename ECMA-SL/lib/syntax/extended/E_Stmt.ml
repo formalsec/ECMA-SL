@@ -11,7 +11,6 @@ and t' =
   | Fail of E_Expr.t
   | Throw of E_Expr.t
   | Print of E_Expr.t
-  | Assert of E_Expr.t
   | Return of E_Expr.t
   | Wrapper of metadata_t list * t
   | Assign of string * E_Expr.t
@@ -32,6 +31,8 @@ and t' =
   | Switch of E_Expr.t * (E_Expr.t * t) list * t option * string
       (** metadata; just "table caption" for now. *)
   | Lambda of string * string * string list * string list * t
+  | Abort of E_Expr.t
+  | Assert of E_Expr.t
   | SymStmt of stmt
 
 
@@ -98,6 +99,7 @@ let rec str (stmt : t) : string =
   | Lambda (x, fid, xs, ys, s) ->
       Printf.sprintf "%s := lambda <%s> (%s; %s) { %s }" x fid
         (String.concat ", " xs) (String.concat ", " ys) (str s)
+  | Abort e -> "se_abort " ^ E_Expr.str e
   | SymStmt (Assume e) -> "se_assume " ^ E_Expr.str e
 
 let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
@@ -142,6 +144,7 @@ let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
     | Switch (e, cases, so, meta) ->
         Switch (fe e, f_cases cases, Option.map (map ~fe f) so, meta)
     | Lambda (z, id, xs, ys, s) -> Lambda (z, id, xs, ys, map ~fe f s)
+    | Abort e -> Abort (fe e)
     | SymStmt (Assume e) -> SymStmt (Assume (fe e))
   in
   f (s' @@ s.at)
@@ -166,7 +169,7 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
       match s.it with
       | Skip | Print _ | Wrapper _ | Assign _ | GlobAssign _ | Return _
       | FieldAssign _ | FieldDelete _ | ExprStmt _ | Throw _ | Fail _ | Assert _
-      | SymStmt (Assume _) ->
+      | Abort _ | SymStmt (Assume _) ->
           []
       | Block stmts -> f_stmts stmts
       | If (e, st, sf, _, _) -> f' st @ f_o sf

@@ -687,6 +687,9 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
   | Return e_e ->
       let ret_e = compile_expr e_stmt.at e_e in
       compile_return ret_e e_stmt.at
+  | Abort e ->
+      let stmts, e' = compile_expr e_stmt.at e in
+      stmts @ [ Stmt.Abort e' @@ e_stmt.at ]
   | SymStmt (Assume e_e) ->
       let stmts, e' = compile_expr e_stmt.at e_e in
       stmts @ [ Stmt.SymStmt (SymStmt.Assume e') @@ e_stmt.at ]

@@ -36,7 +36,6 @@ let at (startpos, endpos) =
 %token PERIOD COMMA SEMICOLON
 %token DELETE
 %token FAIL
-%token ABORT
 %token ASSERT
 %token THROW
 %token <float> FLOAT
@@ -60,7 +59,7 @@ let at (startpos, endpos) =
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
 
-%token API_ASSUME API_MK_SYMBOLIC
+%token API_ASSUME API_MK_SYMBOLIC API_ABORT
 %token API_EVALUATE API_MAXIMIZE API_MINIMIZE
 %token API_IS_SYMBOLIC API_IS_SAT
 
@@ -386,7 +385,7 @@ stmt_target:
     { Stmt.Print e @@ at $sloc }
   | FAIL; e = expr_target;
     { Stmt.Fail e @@ at $sloc }
-  | ABORT; e = expr_target;
+  | API_ABORT; e = expr_target;
     { Stmt.Abort e @@ at $sloc }
   | ASSERT; LPAREN; e = expr_target; RPAREN;
     { Stmt.Assert e @@ at $sloc }

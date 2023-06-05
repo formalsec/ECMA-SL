@@ -22,6 +22,7 @@
                 "se_minimize", API_MINIMIZE;
                 "se_is_sat", API_IS_SAT;
                 "se_is_symbolic", API_IS_SYMBOLIC;
+                "se_abort", API_ABORT;
                 "assert"          , ASSERT;
                 (* Keywords *)
                 "parse_number"    , PARSE_NUMBER;
