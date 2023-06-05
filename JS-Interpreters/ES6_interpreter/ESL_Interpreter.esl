@@ -1366,8 +1366,13 @@ macro PropagateBlockLabelSet(Block, Stmts) {
 };
 
 function JS_Interpreter_Stmt(s, scope) {
+  /* TODO: Debug print
+   *  - Current statement
+   *  - Current Scope (Current Environment Record)
+   *  - Breakpoint
+   */
   match s with
-  | { type: "BlockStatement", body: StatementList} -> {
+  | { type: "BlockStatement", body: StatementList } -> {
     /* 13.2.13 Block */
 
     /* Block : { } */

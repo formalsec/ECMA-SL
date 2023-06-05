@@ -84238,6 +84238,7 @@ return __v17266
 __v17266 := snd(__v17266)
 };
 error_name := __v17266;
+se_abort error_name;
 __v17267 := "getCompletionType" (___internal_esl_global, ret);
 if (fst(__v17267)) {
 return __v17267

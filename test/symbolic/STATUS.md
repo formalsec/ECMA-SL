@@ -5,8 +5,6 @@
 
 ## Explode.js - Example dataset
 
-### Array summaries:
-
 Issues: 7
 
 - [X] Example-0
