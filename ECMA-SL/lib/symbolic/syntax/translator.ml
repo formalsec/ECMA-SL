@@ -35,6 +35,7 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
     let op' =
       match op with
       | Neg -> Integer.mk_neg
+      | IntToFloat -> Real.mk_of_integer
       | _ ->
           Printf.printf "op: %s\n" (Operators.str_of_unopt op);
           assert false

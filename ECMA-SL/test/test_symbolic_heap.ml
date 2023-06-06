@@ -4,9 +4,9 @@ let solver = Encoding.Batch.create ()
 let pc = []
 let expr_TRUE = Expr.Val (Val.Bool true)
 let o : Expr.t S_object.t = S_object.create ()
-
+let store = Sstore.create []
 let objects =
-  S_object.set o (Expr.Val (Val.Str "key")) (Expr.Val (Val.Str "val")) solver pc
+  S_object.set o (Expr.Val (Val.Str "key")) (Expr.Val (Val.Str "val")) solver pc store
 
 let%test "empty_concrete_set" =
   List.length objects = 1
@@ -22,7 +22,7 @@ let%test "empty_concrete_set" =
 let o, new_pc =
   match objects with (o, pc) :: tail -> (o, pc) | _ -> failwith "error"
 
-let objects' = S_object.get o (Expr.Val (Val.Str "key")) solver pc
+let objects' = S_object.get o (Expr.Val (Val.Str "key")) solver pc store
 
 let%test "concrete_get_exists" =
   List.length objects' = 1
@@ -36,7 +36,7 @@ let%test "concrete_get_exists" =
   | Some v, None -> Expr.equal v (Expr.Val (Val.Str "val"))
   | _ -> false
 
-let objects' = S_object.get o (Expr.Val (Val.Str "not_key")) solver pc
+let objects' = S_object.get o (Expr.Val (Val.Str "not_key")) solver pc store
 
 let%test "concrete_get_doesnt_exist" =
   List.length objects' = 1
@@ -51,7 +51,7 @@ let%test "concrete_get_doesnt_exist" =
 let orig_symb_key = Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k"))
 
 let objects2 =
-  S_object.set o orig_symb_key (Expr.Val (Val.Str "new_symb_val")) solver pc
+  S_object.set o orig_symb_key (Expr.Val (Val.Str "new_symb_val")) solver pc store
 
 let%test "symbolic_set" =
   List.length objects2 = 2
@@ -91,7 +91,7 @@ let o2, pc =
 let objects2' =
   S_object.get o2
     (Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k")))
-    solver pc
+    solver pc store
 
 let%test "symbolic_get_exists" =
   List.length objects2' = 1
@@ -107,7 +107,7 @@ let%test "symbolic_get_exists" =
 
 (* check get for symb key that doesn't exist. *)
 let symb_key = Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "another_symb_k"))
-let objects2'' = S_object.get o2 symb_key solver pc
+let objects2'' = S_object.get o2 symb_key solver pc store
 
 let%test "symbolic_get_doesnt_exist" =
   List.length objects2'' = 3
@@ -147,7 +147,7 @@ let symb_key = Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k2"))
 let new_val = Expr.Val (Val.Str "new_symb_val2")
 
 (* Set another symbolic value *)
-let objects3 = S_object.set o2 symb_key new_val solver pc
+let objects3 = S_object.set o2 symb_key new_val solver pc store
 
 let%test "set_another_symb_key" =
   List.length objects3 = 3
@@ -190,7 +190,7 @@ let o3, pc =
 
 let concrete_key2 = Expr.Val (Val.Str "key2")
 let new_val2 = Expr.Val (Val.Str "val2")
-let objects4 = S_object.set o3 concrete_key2 new_val2 solver pc
+let objects4 = S_object.set o3 concrete_key2 new_val2 solver pc store
 
 let%test "set_another_concrete_key" =
   List.length objects4 = 3

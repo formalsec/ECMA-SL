@@ -28,18 +28,19 @@ let rec get (h : 'a t) (l : Loc.t) : 'a obj option =
       obj
 
 let get_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
-    (solver : Encoding.Batch.t) (pc : encoded_pct list) :
+    (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t):
     ('a t * 'a obj * encoded_pct option * 'a option) list =
   let obj = get heap loc in
   let res =
-    Option.bind obj ~f:(fun o -> Some (S_object.get o field solver pc))
+    Option.bind obj ~f:(fun o -> Some (S_object.get o field solver pc store))
   in
   match res with
   | None -> failwith "Return is never none."
   | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with
-      | [ (obj, pc, v) ] -> [ (heap, obj, pc, v) ]
+      | [ (obj, pc, v) ] -> 
+        [ (heap, obj, pc, v) ]
       | _ ->
           List.map objs ~f:(fun (obj, pc, v) ->
               let heap' = clone heap in
@@ -47,37 +48,45 @@ let get_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
               (heap', obj, pc, v)))
 
 let set_field (heap : 'a t) (loc : Loc.t) (field : Expr.t) (v : 'a)
-    (solver : Encoding.Batch.t) (pc : encoded_pct list) :
+    (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
     ('a t * 'a obj * encoded_pct option) list =
+    (* Printf.printf "Heap field set %s\n"(Expr.str field); *)
   let obj = get heap loc in
   let res =
-    Option.bind obj ~f:(fun o -> Some (S_object.set o field v solver pc))
+    Option.bind obj ~f:(fun o -> Some (S_object.set o field v solver pc store))
   in
   match res with
   | None -> failwith "Return is never none"
   | Some objs -> (
+
       (* Don't clone heap unless necessary *)
       match objs with
-      | [ (obj, pc) ] -> [ (heap, obj, pc) ]
+      | [ (obj, pc) ] -> 
+        [ (heap, obj, pc) ]
       | _ ->
           List.map objs ~f:(fun (obj, pc) ->
+              (* Option.iter ~f:(fun pc -> 
+                Printf.printf "we branching on set %s %s %s\n" (Expr.str field) (Encoding.Expression.to_string pc) (S_object.to_string obj (Expr.str));
+              ) pc; *)
               let heap' = clone heap in
               set heap' loc obj;
               (heap', obj, pc)))
 
 let delete_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
-    (solver : Encoding.Batch.t) (pc : encoded_pct list) :
+    (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
     ('a t * 'a obj * encoded_pct option) list =
   let obj = get heap loc in
   let res =
-    Option.bind obj ~f:(fun o -> Some (S_object.delete o field solver pc))
+    Option.bind obj ~f:(fun o -> Some (S_object.delete o field solver pc store))
   in
+
   match res with
   | None -> failwith "Return is never none"
   | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with
-      | [ (obj, pc') ] -> [ (heap, obj, pc') ]
+      | [ (obj, pc') ] -> 
+        [ (heap, obj, pc') ]
       | _ ->
           List.map objs ~f:(fun (obj, pc) ->
               let heap' = clone heap in

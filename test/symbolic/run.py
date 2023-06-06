@@ -18,6 +18,8 @@ def parse_report(file):
         return read_json(file)
     except json.JSONDecodeError:
         return { "errors" : 1, "unknowns" : 0, "time_analysis" : "0.0" }
+    except FileNotFoundError:
+        return { "errors" : 1, "unknowns" : 0, "time_analysis" : "0.0" }
 
 def run_test(file):
     print(file, end="...\n")

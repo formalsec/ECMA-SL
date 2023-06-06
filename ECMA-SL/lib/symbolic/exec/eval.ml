@@ -186,8 +186,8 @@ let step (c : config) : config list =
           [ update c (Unknown (Some br_f)) state (br_f' :: pc) ]
       in
       let temp = then_branch @ else_branch in 
-      if List.length temp > 1 then
-        Printf.printf "branching on if\n";
+      (* if List.length temp > 1 then
+        Printf.printf "branching on if %s\n" (Expr.str br_t); *)
       temp
   | Stmt.While (br, blk) ->
       let blk' =
@@ -233,11 +233,11 @@ let step (c : config) : config list =
   | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc) in
       let reduced_field = reduce_expr ~at:s.at store e_field in
-      let get_result = S_heap.get_field heap loc reduced_field solver pc in
+      let get_result = S_heap.get_field heap loc reduced_field solver pc store in
 
-      if List.length get_result > 1 then
+      (* if List.length get_result > 1 then
         Printf.printf "branching in assignInObjCheck\n";
-        
+         *)
 
 
       List.map get_result ~f:(fun (new_heap, obj, new_pc, v) ->
@@ -299,10 +299,10 @@ let step (c : config) : config list =
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
       and reduced_field = reduce_expr ~at:s.at store e_field
       and v = reduce_expr ~at:s.at store e_v in
-      let objects = S_heap.set_field heap loc reduced_field v solver pc in
 
-      if List.length objects > 1 then
-        Printf.printf "branching on assign\n";
+      let objects = S_heap.set_field heap loc reduced_field v solver pc store in
+      (* if List.length objects > 1 then
+        Printf.printf "branching on assign\n"; *)
       List.map objects ~f:(fun (new_heap, obj, new_pc) ->
           let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
           update c
@@ -313,10 +313,10 @@ let step (c : config) : config list =
   | Stmt.FieldDelete (e_loc, e_field) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc) in
       let reduced_field = reduce_expr ~at:s.at store e_field in
-      let objects = S_heap.delete_field heap loc reduced_field solver pc in
-
+      let objects = S_heap.delete_field heap loc reduced_field solver pc store in
+(* 
       if List.length objects > 1 then
-        Printf.printf "branching on delete\n";
+        Printf.printf "branching on delete\n"; *)
       List.map objects ~f:(fun (new_heap, obj, new_pc) ->
           let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
           update c
@@ -327,10 +327,10 @@ let step (c : config) : config list =
   | Stmt.FieldLookup (x, e_loc, e_field) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
       and reduced_field = reduce_expr ~at:s.at store e_field in
-      let objects = S_heap.get_field heap loc reduced_field solver pc in
+      let objects = S_heap.get_field heap loc reduced_field solver pc store in
 
-      if List.length objects > 1 then
-        Printf.printf "branching on lookup\n";
+      (* if List.length objects > 1 then
+        Printf.printf "branching on lookup\n"; *)
 
       List.map objects ~f:(fun (new_heap, obj, new_pc, v) ->
           let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
@@ -452,8 +452,8 @@ let analyse (prog : Prog.t) (f : func) : Report.t =
     let f c =
       ignore (Batch.check_sat c.solver c.pc);
       let symbols = Expression.get_symbols c.pc in
-      List.iter c.pc ~f:( fun cond -> Printf.printf "PC: %s\n" (Expression.to_string cond));
-      Printf.printf"\n";
+      (* List.iter c.pc ~f:( fun cond -> Printf.printf "PC: %s\n" (Expression.to_string cond));
+      Printf.printf"\n"; *)
       List.map (Batch.value_binds ~symbols c.solver) ~f:(fun (s, v) ->
           ( "NA",
             Encoding.Symbol.to_string s,
