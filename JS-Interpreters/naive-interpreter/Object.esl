@@ -7,6 +7,9 @@ function Object() {
 
 
 function resolveProperty(objVal, propName) {
+  if (!(typeof objVal = __$Obj)) {
+    raiseError("Unable to access property from a non object value.", objVal)
+  };
   if (propName in_obj objVal) {
     return objVal[propName]
   } else {

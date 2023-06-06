@@ -1,12 +1,9 @@
-import "FunctionObject.esl";
-import "Error.esl";
-
-
-function Scope(thisBinding) {
+function Scope(thisBinding, globalObject) {
   scope := {
-    parent: null,
     store: {},
-    thisBinding: thisBinding
+    parent: null,
+    thisBinding: thisBinding,
+    globalObject: globalObject
   };
   return scope
 };
@@ -50,7 +47,7 @@ function resolveName(scope, name) {
     return scope.store[name]
   } else {
     if (scope.parent = null) {
-      return 'undefined
+      return resolveProperty(scope.globalObject, name)
     } else {
       return resolveName(scope.parent, name)
     }
@@ -71,7 +68,7 @@ function updateScope(currScope, scope, name, val) {
 };
 
 function extendScope(scope, thisBinding) {
-  newScope := Scope(thisBinding);
+  newScope := Scope(thisBinding, scope.globalObject);
   newScope.parent := scope;
   return newScope
 }

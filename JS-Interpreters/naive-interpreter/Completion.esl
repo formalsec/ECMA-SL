@@ -39,4 +39,19 @@ macro checkAbruptCompletion(c) {
   } else {
     c := getCompletionValue(c)
   }
+};
+
+macro checkLoopCompletion(c) {
+  switch(getCompletionType(c)) {
+    case 'Break: { return NormalCompletion('empty) }
+    case 'Return: { return c }
+    case 'Throw: { return c }
+  }
+};
+
+macro checkReturnCompletion(c, retVal) {
+  switch (getCompletionType(c)) {
+    case 'Throw: { return c }
+    sdefault: return NormalCompletion(retVal)
+  }
 }

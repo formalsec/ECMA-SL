@@ -50,7 +50,7 @@ let rec str (e : t) : string =
       ^ " }"
   | Lookup (e, f) -> str e ^ "[" ^ str f ^ "]"
   | Curry (f, es) -> str f ^ "@(" ^ str_es es ^ ")"
-  | Symbolic (t, x) -> "symbolic(" ^ Type.str t ^ ", \"" ^ str x ^ "\")"
+  | Symbolic (t, x) -> "se_mk_symbolic(" ^ Type.str t ^ ", \"" ^ str x ^ "\")"
   | SymOpt op ->
       let op' =
         match op with

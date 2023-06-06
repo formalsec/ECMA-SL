@@ -1,23 +1,17 @@
-import "Completion.esl"; 
-import "Object.esl";
-import "Scope.esl";
-import "FunctionObject.esl";
-import "Error.esl";
-
-
 function interpreter(scope, s) {
 	match s with
 
 	/* main statements */
-	| { type: "Program", body: body, variableDeclarations: vdecls, functionDeclarations: fdecls } -> 
-		{ return interpretProgram(scope, body, vdecls, fdecls) }
+	| { type: "Program", body: stmts, variableDeclarations: vdecls, functionDeclarations: fdecls } -> { 
+			initScope(scope, vdecls, fdecls);
+			return interpretBlock(scope, stmts)
+		}
 
 	| { type: "BlockStatement", body: stmts } -> {
-			foreach (stmt : stmts) {
-				retVal := interpreter(scope, stmt);
-				@checkAbruptCompletion(retVal)
+			if (s.codeType = "function") {
+				initScope(scope, s.variableDeclarations, s.functionDeclarations)
 			};
-			return NormalCompletion(retVal) 
+			return interpretBlock(scope, stmts)
 		}
 
 	| { type: "ReturnStatement", argument: arg } -> {
@@ -28,6 +22,7 @@ function interpreter(scope, s) {
 
 	| { type: "ExpressionStatement", expression: expr } -> 
 		{ return interpreter(scope, expr) }
+
 
 
 	/* control flow statements */
@@ -54,11 +49,7 @@ function interpreter(scope, s) {
 			@checkAbruptCompletion(testVal);
 			while (testVal) {
 				retVal := interpreter(scope, stmt);
-				switch(getCompletionType(retVal)) {
-					case 'Break: { return NormalCompletion('empty) }
-					case 'Return: { return retVal }
-					case 'Throw: { return retVal }
-				};
+				@checkLoopCompletion(retVal);
 				testVal := interpreter(scope, test);
 				@checkAbruptCompletion(testVal)
 			};
@@ -72,11 +63,7 @@ function interpreter(scope, s) {
 			@checkAbruptCompletion(testVal);
 			while (testVal) {
 				retVal := interpreter(scope, stmt);
-				switch(getCompletionType(retVal)) {
-					case 'Break: { return NormalCompletion('empty) }
-					case 'Return: { return retVal }
-					case 'Throw: { return retVal }
-				};
+				@checkLoopCompletion(retVal);
 				updateVal := interpreter(scope, update);
 				@checkAbruptCompletion(updateVal);
 				testVal := interpreter(scope, test);
@@ -84,6 +71,7 @@ function interpreter(scope, s) {
 			};
 			return NormalCompletion('empty)
 		}
+
 
 
 	/* main expressions */
@@ -121,7 +109,8 @@ function interpreter(scope, s) {
 			}
 
 
-	/* assignment expression */
+
+	/* assignment expressions */
 	| { type: "AssignmentExpression", operator: op, left: left, right: right } -> {
 			rightVal := interpreter(scope, right);
 			@checkAbruptCompletion(rightVal);
@@ -168,7 +157,8 @@ function interpreter(scope, s) {
 		}
 
 	
-	/* object expression */
+
+	/* object expressions */
 	| { type: "ObjectExpression", properties: props } -> {
 			object := Object();
 			foreach (prop : props) {
@@ -193,21 +183,19 @@ function interpreter(scope, s) {
 		}
 
 
+
 	/* call expressions */
 	| { type: "CallExpression", callee: callee, arguments: args } -> {
 			functionObject := interpreter(scope, callee);
 			@checkAbruptCompletion(functionObject);
-			match callee with
-			| { type: "MemberExpression", object: obj } -> {
-					thisBinding := interpreter(scope, obj);
+			if (callee.type = "MemberExpression") {
+					thisBinding := interpreter(scope, callee.object);
 					@checkAbruptCompletion(thisBinding)
-				}
-			| default -> { thisBinding := functionObject };
+			} else {
+					thisBinding := functionObject
+			};
 			retVal := interpretCall(scope, functionObject, args, thisBinding);
-			switch (getCompletionType(retVal)) {
-				case 'Throw: { return retVal }
-				sdefault: return NormalCompletion(getCompletionValue(retVal))
-			}
+			@checkReturnCompletion(retVal, getCompletionValue(retVal))
 		}
 
 	| { type: "NewExpression", callee: callee, arguments: args } -> {
@@ -215,10 +203,7 @@ function interpreter(scope, s) {
 			@checkAbruptCompletion(functionObject);
 			newObject := Object();
 			retVal := interpretCall(scope, functionObject, args, newObject);
-			switch (getCompletionType(retVal)) {
-				case 'Throw: { return retVal }
-				sdefault: return NormalCompletion(newObject)
-			}
+			@checkReturnCompletion(retVal, newObject)
 		}
 	
 
@@ -231,6 +216,11 @@ function interpreter(scope, s) {
 
 	| { type: "ThisExpression" } -> 
 			{ return NormalCompletion(getThisBinding(scope)) }
+
+	| { type: "FunctionExpression", params: params, body: body } -> {
+			functionObject := FunctionObject("", params, body, scope);
+			return NormalCompletion(functionObject)
+		}
 
 
 	/* variable declarations */
@@ -262,15 +252,13 @@ function interpreter(scope, s) {
 		}
 
 
+
 	| default -> { raiseError("Unsuported construct", s) }
 };
 
 
 
-
-
-function interpretProgram(scope, stmts, vdecls, fdecls) {
-	initScope(scope, vdecls, fdecls);
+function interpretBlock(scope, stmts) {
 	retVal := 'empty;
 	foreach (stmt : stmts) {
 		retVal := interpreter(scope, stmt);
@@ -279,29 +267,48 @@ function interpretProgram(scope, stmts, vdecls, fdecls) {
 	return NormalCompletion(retVal)
 };
 
+function interpretArgs(scope, args) {
+	i := 0;
+	argsLen := l_len(args);
+	evalArgs := [];
+	while (i < argsLen) {
+		arg := l_nth(args, i);
+		argVal := interpreter(scope, arg);
+		@checkAbruptCompletion(argVal);
+		evalArgs := l_add(evalArgs, argVal);
+		i := i + 1
+	};
+	return evalArgs
+};
+
 function interpretCall(scope, functionObject, args, thisBinding) {
 	if (functionObject = 'undefined) {
 		raiseError("Unknown function", functionObject)
 	};
 	match functionObject with
-	| { name: name, params: params, code: code, scope: scope } -> {
+	| { internal: false, name: name, params: params, code: code, scope: scope } -> {
 			if (!(l_len(params) = l_len(args))) {
 				raiseError("Invalid number of arguments in function call", name)
 			};
 			i := 0;
 			newScope := extendScope(scope, thisBinding);
-			while (i < l_len(params)) {
-				arg := l_nth(args, i);
+			evalArgs := interpretArgs(scope, args);
+			foreach (argVal : evalArgs) {
 				paramName := l_nth(params, i);
-				val := interpreter(scope, arg);
-				@checkAbruptCompletion(val);
-				updateScope(newScope, newScope, paramName, val);
+				updateScope(newScope, newScope, paramName, argVal);
 				i := i + 1
 			};
 			return interpreter(newScope, code)
 		}
+	| { internal: true, functionName: functionName } -> {
+			evalArgs := interpretArgs(scope, args);
+			retVal := {functionName}(evalArgs);
+			return NormalCompletion(retVal)
+		}
 	| default -> { raiseError("Illegal function call", functionObject) }
 };
+
+
 
 function applyUnaryOperator(op, v) {
 	switch(op) {

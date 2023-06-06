@@ -1,5 +1,6 @@
 function FunctionObject(name, params, code, scope) {
   functionObject := { 
+    internal: false,
     name: name,
     code: code,
     params: params,

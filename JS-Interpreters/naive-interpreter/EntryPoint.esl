@@ -1,12 +1,15 @@
-import "Interpreter.esl";
+import "Error.esl";
+import "Completion.esl"; 
+import "InternalFunction.esl";
+import "FunctionObject.esl";
 import "Object.esl";
+import "GlobalObject.esl";
 import "Scope.esl";
-
-
+import "Interpreter.esl";
 
 function main() {
   code := buildAST();
-  thisBinding := Object();
-  scope := Scope(thisBinding);
+  globalObject := GlobalObject();
+  scope := Scope(globalObject, globalObject);
   return interpreter(scope, code)
 }
