@@ -28,10 +28,6 @@ let at (startpos, endpos) =
 *)
 %token SKIP
 %token PRINT WRAPPER
-<<<<<<< HEAD
-%token ASSERT ASSUME SYMBOLIC IS_SYMBOLIC IS_NUMBER MAXIMIZE MINIMIZE ISSAT EVAL
-=======
->>>>>>> toy-ecma
 %token DEFEQ
 %token WHILE FOREACH
 %token IF ELSE ELIF

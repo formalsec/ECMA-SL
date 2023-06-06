@@ -23,7 +23,6 @@ let at (startpos, endpos) =
 *)
 %token SKIP
 %token PRINT
-%token ASSERT ASSUME SYMBOLIC IS_SYMBOLIC IS_NUMBER MAXIMIZE MINIMIZE ISSAT EVAL
 %token DEFEQ
 %token WHILE
 %token IF ELSE

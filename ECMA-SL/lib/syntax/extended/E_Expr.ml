@@ -50,17 +50,6 @@ let rec str (e : t) : string =
       ^ " }"
   | Lookup (e, f) -> str e ^ "[" ^ str f ^ "]"
   | Curry (f, es) -> str f ^ "@(" ^ str_es es ^ ")"
-<<<<<<< HEAD
-  | Symbolic (t, x) -> "symbolic(" ^ Type.str t ^ ", \"" ^ str x ^ "\")"
-  | SymbExpr st -> (
-      match st with
-      | IsSymbolic e -> "is_symbolic(" ^ str e ^ ")"
-      | IsNumber e -> "is_number(" ^ str e ^ ")"
-      | IsSat e -> "is_sat (" ^ str e ^ ")"
-      | Maximize e -> "maximize (" ^ str e ^ ")"
-      | Minimize e -> "minimize (" ^ str e ^ ")"
-      | Eval e -> "eval (" ^ str e ^ ")")
-=======
   | Symbolic (t, x) -> "se_mk_symbolic(" ^ Type.str t ^ ", \"" ^ str x ^ "\")"
   | SymOpt op ->
       let op' =
@@ -72,7 +61,6 @@ let rec str (e : t) : string =
         | Is_sat e -> "se_is_sat"
       in
       sprintf "%s(%s)" op' (str e)
->>>>>>> toy-ecma
 
 (* Used in module HTMLExtensions but not yet terminated.
    This still contains defects. *)
@@ -127,21 +115,11 @@ let rec map (f : t -> t) (e : t) : t =
     | ECall (f, es) -> ECall (f, List.map ~f:mapf es)
     | NewObj fes -> NewObj (map_obj fes)
     | Lookup (e, ef) -> Lookup (mapf e, mapf ef)
-<<<<<<< HEAD
-    | Curry (e, es) -> Curry (mapf e, List.map mapf es)
-    | SymbExpr statement ->
-        let sb =
-          match statement with
-          | IsSymbolic e -> IsSymbolic (mapf e)
-          | IsNumber e -> IsNumber (mapf e)
-          | IsSat e -> IsSat (mapf e)
-=======
     | Curry (e, es) -> Curry (mapf e, List.map ~f:mapf es)
     | SymOpt op ->
         let op' =
           match op with
           | Evaluate e -> Evaluate (mapf e)
->>>>>>> toy-ecma
           | Maximize e -> Maximize (mapf e)
           | Minimize e -> Minimize (mapf e)
           | Is_symbolic e -> Is_symbolic (mapf e)
