@@ -1,0 +1,1 @@
+(== (substr (++ (++ "cat /sys/class/net/" #iface___instr_symb_str_0) "/address") #__pos #__len) "; $(touch success) #")

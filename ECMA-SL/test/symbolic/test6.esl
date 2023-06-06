@@ -1,10 +1,10 @@
 function main() {
-	x := symbolic(__$Str, "x");
+	x := se_mk_symbolic(__$Str, "x");
   	y := s_len(x);
-	assume(y = 4);
+	se_assume(y = 4);
 
-	assume(s_substr(x, 0, 3) = "EFG");
-	assume(s_nth(x, 3) = "A");
+	se_assume(s_substr(x, 0, 3) = "EFG");
+	se_assume(s_nth(x, 3) = "A");
 
 	z := s_substr(x, 0, 3);
 	assert(z = "EFG");

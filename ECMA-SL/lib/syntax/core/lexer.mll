@@ -9,19 +9,22 @@
   open Parser
 
   (* https://www.ocaml.org/releases/4.11/htmlman/lexyacc.html#s:lexyacc-common-errors *)
-  let keyword_table = Hashtbl.create 53
+  let keywords = Hashtbl.create 53
     let _ =
-      List.iter (fun (kwd, tok) -> Hashtbl.add keyword_table kwd tok)
+      List.iter (fun (kwd, tok) -> Hashtbl.add keywords kwd tok)
                 [
-                  "__api_is_sat"          , ISSAT;
-                  "__api_maximize"        , MAXIMIZE; 
-                  "__api_minimize"        , MINIMIZE; 
-                  "__api_eval"            , EVAL;
-                  "__api_is_symbolic"     , IS_SYMBOLIC;
-                  "__api_is_number"       , IS_NUMBER;
+                  (* API *)
+                  "se_assume", API_ASSUME;
+                  "se_mk_symbolic", API_MK_SYMBOLIC;
+                  "se_evaluate", API_EVALUATE;
+                  "se_maximize", API_MAXIMIZE;
+                  "se_minimize", API_MINIMIZE;
+                  "se_is_symbolic", API_IS_SYMBOLIC;
+                  "se_is_sat", API_IS_SAT;
+                  "se_abort", API_ABORT;
                   "parse_number"    , PARSE_NUMBER;
                   "parse_string"    , PARSE_STRING;
-                  "parse_date"    , PARSE_DATE;
+                  "parse_date"      , PARSE_DATE;
                   "l_len"           , LLEN;
                   "l_nth"           , LNTH;
                   "l_add"           , LADD;
@@ -98,10 +101,7 @@
                   "throw"           , THROW;
                   "null"            , NULL;
                   "fail"            , FAIL;
-                  "abort"           , ABORT;
-                  "assume"          , ASSUME;
                   "assert"          , ASSERT;
-                  "symbolic"        , SYMBOLIC;
                   "print"           , PRINT; 
                   "to_precision"    , TO_PRECISION;
                   "to_exponential"    , TO_EXPONENTIAL;
@@ -218,10 +218,7 @@ rule read =
   | float             { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | bool              { BOOLEAN (bool_of_string (Lexing.lexeme lexbuf)) }
   | '"'               { read_string (Buffer.create 16) lexbuf }
-  | (letter| "__") (letter|digit|'_')* as id { try
-                                        Hashtbl.find keyword_table id
-                                      with Not_found -> VAR id }
-  | var               { VAR (Lexing.lexeme lexbuf) }
+  | var as x          { try Hashtbl.find keywords x with Not_found -> VAR x }
   | symbol            { SYMBOL (String_utils.chop_first_char (Lexing.lexeme lexbuf)) }
   | loc               { LOC (Lexing.lexeme lexbuf) }
   | "/*"              { read_comment lexbuf }

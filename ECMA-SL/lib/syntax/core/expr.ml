@@ -3,12 +3,12 @@ open Core
 type t =
   | Val of Val.t
   | Var of string
-  | Symbolic of Type.t * t
   | UnOpt of (Operators.uopt * t)
   | BinOpt of (Operators.bopt * t * t)
   | TriOpt of (Operators.topt * t * t * t)
   | NOpt of Operators.nopt * t list
   | Curry of t * t list
+  | Symbolic of Type.t * t
 
 let rec equal (e1 : t) (e2 : t) : bool =
   match (e1, e2) with
@@ -59,7 +59,7 @@ let rec str (e : t) : string =
       Operators.str_of_triopt op (str e1) (str e2) (str e3)
   | NOpt (op, es) -> Operators.str_of_nopt op (List.map ~f:str es)
   | Curry (f, es) -> "{" ^ str f ^ "}@(" ^ str_es es ^ ")"
-  | Symbolic (t, x) -> "symbolic (" ^ Type.str t ^ ", " ^ str x ^ ")"
+  | Symbolic (t, x) -> "se_mk_symbolic (" ^ Type.str t ^ ", " ^ str x ^ ")"
 
 let js (e : t) : string = failwith "missing js"
 
@@ -105,5 +105,5 @@ let rec to_json (e : t) : string =
         (to_json f) (to_json_es es)
   | Symbolic (t, x) ->
       Printf.sprintf
-        "{ \"type\" : \"symbolic\", \"val_type\" : \"%s\", \"name\" : \"%s\" }"
+        "{ \"type\" : \"se_mk_symbolic\", \"val_type\" : \"%s\", \"name\" : \"%s\" }"
         (Type.str t) (str x)

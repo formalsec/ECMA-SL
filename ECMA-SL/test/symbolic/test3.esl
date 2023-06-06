@@ -1,6 +1,6 @@
 function main () {
-  x := symbolic(__$Int, "x");
-  assume((x > 1) && (x < 10));
+  x := se_mk_symbolic(__$Int, "x");
+  se_assume((x > 1) && (x < 10));
   while (x < 10) {
     x := x + 1
   };

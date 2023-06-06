@@ -1,0 +1,74 @@
+function Scope(thisBinding, globalObject) {
+  scope := {
+    store: {},
+    parent: null,
+    thisBinding: thisBinding,
+    globalObject: globalObject
+  };
+  return scope
+};
+
+
+function _initScopeVdecls(scope, vdecls) {
+  foreach(vdecl : vdecls) {
+    scope.store[vdecl] := 'undefined
+  }; 
+  return 
+};
+
+function _initScopeFdecls(scope, fdecls) {
+  foreach(fdecl : fdecls) {
+    match fdecl with
+    | { type: "FunctionDeclaration", id: id, params: params, body: code } -> {
+        match id with
+        | { type: "Identifier", name: name } -> {
+            scope.store[name] := FunctionObject(name, params, code, scope)
+          }
+        | default -> { raiseError ("Unsuported function identifier", id) }
+      }
+    | default -> { raiseError ("Unsuported function declaration", fdecl) }
+  };
+  return 
+};
+
+function initScope(scope, vdecls, fdecls) {
+  _initScopeVdecls(scope, vdecls);
+  _initScopeFdecls(scope, fdecls); 
+  return 
+};
+
+
+function getThisBinding(scope) {
+  return scope.thisBinding
+};
+
+function resolveName(scope, name) {
+  if (name in_obj scope.store) {
+    return scope.store[name]
+  } else {
+    if (scope.parent = null) {
+      return resolveProperty(scope.globalObject, name)
+    } else {
+      return resolveName(scope.parent, name)
+    }
+  }
+};
+
+function updateScope(currScope, scope, name, val) {
+  if (name in_obj scope.store) {
+    scope.store[name] := val
+  } else {
+    if (scope.parent = null) {
+      currScope.store[name] := val
+    } else {
+      updateScope(currScope, scope.parent, name, val)
+    }
+  }; 
+  return
+};
+
+function extendScope(scope, thisBinding) {
+  newScope := Scope(thisBinding, scope.globalObject);
+  newScope.parent := scope;
+  return newScope
+}

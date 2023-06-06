@@ -37,7 +37,7 @@ let at (startpos, endpos) =
 %token PERIOD COMMA SEMICOLON
 %token DELETE
 %token FAIL
-%token ABORT
+%token ASSERT
 %token THROW
 %token <float> FLOAT
 %token <int> INT
@@ -59,6 +59,10 @@ let at (startpos, endpos) =
 %token TYPEOF INT_TYPE FLT_TYPE BOOL_TYPE STR_TYPE LOC_TYPE
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token EOF
+
+%token API_ASSUME API_MK_SYMBOLIC API_ABORT
+%token API_EVALUATE API_MAXIMIZE API_MINIMIZE
+%token API_IS_SYMBOLIC API_IS_SAT
 
 %left LAND LOR
 %left EQUAL
@@ -93,10 +97,12 @@ prog_stmt_target:
 prog_target:
   | funcs = separated_list (SEMICOLON, proc_target); EOF;
    { funcs }
+  ;
 
 proc_target:
   | FUNCTION; f = VAR; LPAREN; vars = separated_list (COMMA, VAR); RPAREN; LBRACE; s = stmt_block; RBRACE
    { Func.create f vars s }
+  ;
 
 (*
   The pipes separate the individual productions, and the curly braces contain a semantic action:
@@ -110,6 +116,7 @@ tuple_target:
     { [v2; v1] }
   | vs = tuple_target; COMMA; v = expr_target;
     { v :: vs }
+  ;
 
 type_target:
   | INT_TYPE;
@@ -132,6 +139,7 @@ type_target:
     { Type.SymbolType }
   | CURRY_TYPE;
     { Type.CurryType }
+  ;
 
 (* v ::= f | i | b | s *)
 val_target:
@@ -151,9 +159,12 @@ val_target:
     { Val.Loc l }
   | t = type_target;
     { Val.Type t }
+  ;
 
 (* e ::= {} | {f:e} | [] | [e] | e.f | e[f] | v | x | -e | e+e | f(e) | (e) *)
 expr_target:
+  | API_MK_SYMBOLIC; LPAREN; t = type_target; COMMA; x = expr_target; RPAREN;
+    { Expr.Symbolic (t, x) }
   | LBRACK; es = separated_list (COMMA, expr_target); RBRACK;
     { Expr.NOpt (ListExpr, es) }
   | LARRBRACK; es = separated_list (COMMA, expr_target); RARRBRACK;
@@ -164,8 +175,6 @@ expr_target:
     { Expr.Val v }
   | v = VAR;
     { Expr.Var v }
-  | SYMBOLIC; LPAREN; t = type_target; COMMA; x = expr_target; RPAREN;
-    { Expr.Symbolic (t, x) }
   | LBRACE; e = expr_target; RBRACE; AT_SIGN; LPAREN; es = separated_list (COMMA, expr_target); RPAREN;
     { Expr.Curry (e, es) }
   | MINUS; e = expr_target;
@@ -364,10 +373,12 @@ expr_target:
     { Expr.UnOpt (ArrayLen, e) } %prec unopt_prec
   | LIST_TO_ARRAY; e = expr_target;
     { Expr.UnOpt (ListToArray, e) } %prec unopt_prec
+  ;
 
 stmt_block:
   | s = separated_list (SEMICOLON, stmt_target); 
     { Stmt.Block s @@ at $sloc }
+  ;
 
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return *)
 stmt_target:
@@ -375,10 +386,8 @@ stmt_target:
     { Stmt.Print e @@ at $sloc }
   | FAIL; e = expr_target;
     { Stmt.Fail e @@ at $sloc }
-  | ABORT; e = expr_target;
+  | API_ABORT; e = expr_target;
     { Stmt.Abort e @@ at $sloc }
-  | ASSUME; LPAREN; e = expr_target; RPAREN;
-    { Stmt.Assume e @@ at $sloc }
   | ASSERT; LPAREN; e = expr_target; RPAREN;
     { Stmt.Assert e @@ at $sloc }
   | THROW; str = STRING;
@@ -403,19 +412,7 @@ stmt_target:
     { Stmt.Return e @@ at $sloc }
   | RETURN;
     { Stmt.Return (Expr.Val Val.Void) @@ at $sloc }
-  | v = VAR; DEFEQ; IS_SYMBOLIC; LPAREN; e = expr_target; RPAREN;
-    { Stmt.SymbStmt(Symb_stmt.IsSymbolic(v, e)) @@ at $sloc }
-  | v = VAR; DEFEQ; ISSAT; LPAREN; e = expr_target; RPAREN;
-    { Stmt.SymbStmt(Symb_stmt.IsSat(v, e)) @@ at $sloc }
-  | v = VAR; DEFEQ; MAXIMIZE; LPAREN; e = expr_target; RPAREN;
-    { Stmt.SymbStmt(Symb_stmt.Maximize(v, e)) @@ at $sloc }
-  | v = VAR; DEFEQ; MINIMIZE; LPAREN; e = expr_target; RPAREN;
-    { Stmt.SymbStmt(Symb_stmt.Minimize(v, e)) @@ at $sloc }
-  | v = VAR; DEFEQ; EVAL; LPAREN; e = expr_target; RPAREN;
-    { Stmt.SymbStmt(Symb_stmt.Eval(v, e)) @@ at $sloc }
-  | v = VAR; DEFEQ; IS_NUMBER; LPAREN; e = expr_target; RPAREN;
-    { Stmt.SymbStmt(Symb_stmt.IsNumber(v, e)) @@ at $sloc }
-
+  | api_stmt = api_stmt_target; { api_stmt @@ at $sloc }
   | v = VAR; DEFEQ; f = expr_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
     { Stmt.AssignCall (v,f,vs) @@ at $sloc }
   | x = VAR; DEFEQ; EXTERN; f = VAR; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
@@ -432,8 +429,22 @@ stmt_target:
     { Stmt.AssignObjToList (v, e) @@ at $sloc }
   | v = VAR; DEFEQ; OBJ_FIELDS; e = expr_target;
     { Stmt.AssignObjFields (v, e) @@ at $sloc }
+  ;
 
-
+api_stmt_target:
+  | API_ASSUME; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymStmt (SymStmt.Assume e) }
+  | v = VAR; DEFEQ; API_IS_SYMBOLIC; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymStmt (SymStmt.Is_symbolic (v, e)) }
+  | v = VAR; DEFEQ; API_IS_SAT; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymStmt (SymStmt.Is_sat (v, e)) }
+  | v = VAR; DEFEQ; API_MAXIMIZE; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymStmt (SymStmt.Maximize (v, e)) }
+  | v = VAR; DEFEQ; API_MINIMIZE; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymStmt (SymStmt.Minimize (v, e)) }
+  | v = VAR; DEFEQ; API_EVALUATE; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymStmt (SymStmt.Evaluate (v, e)) }
+  ;
 
 (* if (e) { s } | if (e) {s} else { s } *)
 ifelse_target:
@@ -441,6 +452,7 @@ ifelse_target:
     { Stmt.If (e, s1, Some s2) @@ at $sloc }
   | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block; RBRACE;
     { Stmt.If (e, s, None) @@ at $sloc }
+  ;
 
 %inline op_target:
   | MINUS   { Minus }
@@ -463,3 +475,4 @@ ifelse_target:
   | LOR     { Log_Or }
   | IN_LIST { InList }
   | POW     { Pow }
+  ;

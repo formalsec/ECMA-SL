@@ -1,14 +1,14 @@
 function main() {
-  x := symbolic(__$Flt, "x");
-  assume(x = 2.0);
-  y := x & 2.0;
+  x := se_mk_symbolic(__$Int, "x");
+  se_assume(x = 2);
+  y := x & 2;
 
   assert(y = x);
-  y := x | 2.0;
+  y := x | 2;
 
   assert(y = x);
-  y := (x ^ 2.0);
-  y := y ^ 2.0;
+  y := (x ^ 2);
+  y := y ^ 2;
 
   assert(y = x);
 

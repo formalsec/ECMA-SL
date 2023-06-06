@@ -6,7 +6,7 @@ function myabs(x) {
 };
 
 function main() {
-  x := symbolic(__$Int, "x");
+  x := se_mk_symbolic(__$Int, "x");
   assert (myabs(x) >= 0);
   return 1
 }

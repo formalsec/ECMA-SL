@@ -1,0 +1,24 @@
+function InternalFunction(name) {
+	object := {
+		internal: true,
+		functionName: name
+	};
+	return object
+};
+
+function esl_symbolic_number(args) {
+	name := l_nth(args, 0);
+	return se_mk_symbolic(__$Flt, name)
+};
+
+function esl_symbolic_assert(args) {
+	cond := l_nth(args, 0);
+  se_assert(cond);
+  return 0
+};
+
+function esl_symbolic_assume(args) {
+	cond := l_nth(args, 0);
+  se_assume(cond);
+  return 0
+}

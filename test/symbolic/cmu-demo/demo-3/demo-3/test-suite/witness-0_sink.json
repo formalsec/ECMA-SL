@@ -1,0 +1,4 @@
+{
+    "sink": "eval",
+    "expression": "s_concat([ \"2\", symbolic (__$Str, \"w\") ])"
+}

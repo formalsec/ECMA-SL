@@ -3,28 +3,36 @@ open Expr
 open Val
 open Operators
 
-let reduce_sconcat (vs : Expr.t list) : Expr.t =
-  let s =
-    List.fold_left vs ~init:[] ~f:(fun a b ->
-        match a with
-        | [] -> [ b ]
-        | h :: t -> (
-            match (h, b) with
-            | Val (Str h'), Val (Str b') ->
-                Val (Str (String.concat ~sep:"" [ h'; b' ])) :: t
-            | Val (Str h'), _ -> b :: a
-            | _, Val (Str b') -> b :: a
-            | _ ->
-                failwith ("impossible argument types for concat " ^ Expr.str h)))
-  in
-  let s = List.rev s in
-  if List.length s > 1 then UnOpt (Sconcat, NOpt (ListExpr, s))
-  else
-    Val
-      (Str
-         (String.concat ~sep:""
-            (List.fold_left vs ~init:[] ~f:(fun a b ->
-                 match b with Val (Str s) -> a @ [ s ] | _ -> a))))
+let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
+  match (op, v) with
+  | op, Val v -> Val (Eval_op.eval_unop op v)
+  | Neg, Symbolic (_, _) -> UnOpt (Neg, v)
+  | IsNaN, Symbolic _ -> Val (Bool false)
+  | Not, v' -> UnOpt (Not, v)
+  | Head, NOpt (ListExpr, a :: _) -> a
+  | Tail, NOpt (ListExpr, _ :: tl) -> NOpt (ListExpr, tl)
+  | First, NOpt (TupleExpr, a :: _) -> a
+  | Second, NOpt (TupleExpr, _ :: b :: _) -> b
+  | ListLen, NOpt (ListExpr, vs) -> Val (Int (List.length vs))
+  | TupleLen, NOpt (TupleExpr, vs) -> Val (Int (List.length vs))
+  | LSort, NOpt (ListExpr, []) -> NOpt (ListExpr, [])
+  | Typeof, Symbolic (t, _) -> Val (Type t)
+  | Typeof, NOpt (ListExpr, _) -> Val (Type Type.ListType)
+  | Typeof, NOpt (TupleExpr, _) -> Val (Type Type.TupleType)
+  | Typeof, NOpt (ArrExpr, _) -> Val (Type Type.ArrayType)
+  | Typeof, Curry (_, _) -> Val (Type Type.CurryType)
+  | Typeof, op ->
+      let t = Sval_typing.type_of op in
+      Val (Type (Option.value_exn t))
+  | Sconcat, NOpt (ListExpr, vs) when Caml.not (Expr.is_symbolic v) ->
+      Val
+        (Str
+           (String.concat ~sep:""
+              (List.fold_left vs ~init:[] ~f:(fun a b ->
+                   match b with Val (Str s) -> a @ [ s ] | _ -> a))))
+  | FloatOfString, UnOpt (FloatToString, Symbolic (t, x)) -> Symbolic (t, x)
+  (* missing obj_to_list, obj_fields*)
+  | op', v1' -> UnOpt (op', v1')
 
 let reduce_list_compare (list1 : Expr.t list) (list2 : Expr.t list) : Expr.t =
   if List.length list1 = List.length list2 then
