@@ -37,17 +37,15 @@
                 "catch"                 , CATCH;
                 "throw"                 , THROW;
                 "fail"                  , FAIL;
-                "assume"                , ASSUME;
                 "assert"                , ASSERT;
                 "import"                , IMPORT;
                 "extern"                , EXTERN;
                 "print"                 , PRINT;
                 "delete"                , DELETE;
-                "symbolic"              , SYMBOLIC;
                 "typeof"                , TYPEOF;
                 "gen_wrapper"           , WRAPPER;
-                "NaN"                   , FLOAT (float_of_string "nan");
-                "Infinity"              , FLOAT (float_of_string "infinity");
+                "NaN"                   , FLOAT (Float.nan);
+                "Infinity"              , FLOAT (Float.infinity);
                 
                 (* Built-Ins *)
                 "is_NaN"                , IS_NAN;
