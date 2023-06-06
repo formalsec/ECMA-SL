@@ -26,8 +26,7 @@ Issues: 7
 - [X] Example-13:
   - Internal `v2` not called
 - [X] Example-14
-- [ ] Example-15:
-  - No summary for `process.argv`
+- [X] Example-15:
 - [X] Example-16
 - [X] Example-17:
   - Internal `v3` not called
@@ -36,17 +35,13 @@ Issues: 7
 - [X] Example-19:
 - [ ] Example-20:
   - Missing `v1`
-- [ ] Example-21:
-  - No summary for `child_process.execSync`
+- [X] Example-21:
 - [X] Example-22:
 - [ ] Example-23:
   - Unsupported symbolic object reasoning
 - [X] Example-24:
-  - No summary for `child_process.execSync`
 - [X] Example-25:
-  - No summary for `child_process.execSync`
 - [X] Example-26:
-  - No summary for `child_process.execSync`
 - [X] Example-27
 - [X] Example-28:
   - No summary for `cross-spawn.exec`
@@ -60,10 +55,8 @@ Issues: 7
 - [ ] Example-33:
   - No summary for `yargs.argv`
 - [X] Example-34:
-  - No summary for `child_process.execSync`
 - [ ] Example-35:
   - No type for variable `arr`
 - [X] Example-36:
-  - No summary for `child_process.execSync`
 - [ ] Example-37:
   - Wrong test

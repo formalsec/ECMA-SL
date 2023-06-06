@@ -1,9 +1,10 @@
-var x___instr_symb_str_0 = esl_symbolic.string("x");
+// Summary: child_process.execSync
+var child_process = {};
+child_process.execSync = function (x) { return esl_symbolic.execWrapper(x) };
 
-//ignore: const child_process = require('child_process');
+// Test21
+var x___instr_symb_str_0 = esl_symbolic.string("x");
 const f = function (x) {
-	const instr_test_0 = !esl_symbolic.is_symbolic(x);
-	esl_symbolic.assert(instr_test_0);
 	const v1 = child_process.execSync(x);
 	v1;
 };
