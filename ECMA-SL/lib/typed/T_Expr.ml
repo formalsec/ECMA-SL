@@ -1,7 +1,5 @@
 open E_Expr
 
-type texpr_t = E_Type.t * E_Type.t
-
 let type_val (v : Val.t) : E_Type.t =
   match v with
   | Val.Null -> E_Type.NullType
@@ -14,9 +12,11 @@ let type_val (v : Val.t) : E_Type.t =
   | Val.Type t -> E_Type.RuntimeType t
   | _ -> E_Type.AnyType
 
-let type_var (tctx : T_Ctx.t) (x : string) : texpr_t =
+let type_var (narrow : bool) (tctx : T_Ctx.t) (x : string) : E_Type.t =
   match T_Ctx.tenv_find tctx x with
-  | Some tvar -> T_Ctx.get_tvar_t tvar
+  | Some tvar ->
+      let rtvar, ntvar = T_Ctx.get_tvar_t tvar in
+      if narrow then ntvar else rtvar
   | None -> T_Err.raise (T_Err.UnknownVar x) ~tkn:(T_Err.Str x)
 
 let type_const (c : Operators.const) : E_Type.t =
@@ -25,52 +25,53 @@ let type_const (c : Operators.const) : E_Type.t =
   | Operators.MIN_VALUE -> E_Type.NumberType
   | Operators.PI -> E_Type.NumberType
 
-let type_operand ((arg, (tparam, targ)) : E_Expr.t * (E_Type.t * texpr_t)) :
-    unit =
-  try ignore (T_Typing.type_check arg tparam targ)
+let test_operand (test_operand_f : E_Expr.t -> E_Type.t -> E_Type.t)
+    ((arg, tparam) : E_Expr.t * E_Type.t) : unit =
+  try ignore (test_operand_f arg tparam)
   with T_Err.TypeError terr -> (
     match terr.T_Err.errs with
     | T_Err.BadValue (tref, texpr) :: _ ->
         T_Err.update terr (T_Err.BadOperand (tref, texpr))
-    | _ -> failwith "Typed ECMA-SL: T_Expr.type_operand")
+    | _ -> T_Err.continue terr)
 
-let type_operator (tparams : E_Type.t list) (tret : E_Type.t)
-    (targs : texpr_t list) (args : E_Expr.t list) : texpr_t =
-  List.iter type_operand (List.combine args (List.combine tparams targs))
-  |> fun () -> (tret, T_Narrowing.narrow_type tret)
-
-let type_arg ((arg, (tparam, targ)) : E_Expr.t * (E_Type.t * texpr_t)) : unit =
-  try ignore (T_Typing.type_check arg tparam targ)
+let test_arg (test_arg_f : E_Expr.t -> E_Type.t -> E_Type.t)
+    ((arg, tparam) : E_Expr.t * E_Type.t) : unit =
+  try ignore (test_arg_f arg tparam)
   with T_Err.TypeError terr -> (
     match terr.T_Err.errs with
     | T_Err.BadValue (tref, texpr) :: _ ->
         T_Err.update terr (T_Err.BadArgument (tref, texpr))
-    | _ -> failwith "Typed ECMA-SL: T_Expr.type_arg")
+    | _ -> T_Err.continue terr)
 
-let type_args (tctx : T_Ctx.t) (expr : E_Expr.t) (args : E_Expr.t list)
-    (tparams : E_Type.t list) (targs : texpr_t list) : unit =
-  let nparams, nargs = (List.length tparams, List.length targs) in
-  if nparams == nargs then
-    List.iter type_arg (List.combine args (List.combine tparams targs))
-  else T_Err.raise (T_Err.NExpectedArgs (nparams, nargs)) ~tkn:(T_Err.Expr expr)
+let test_generic_call (tctx : T_Ctx.t) (args : E_Expr.t list)
+    (tparams : E_Type.t list) (tret : E_Type.t)
+    (test_f : E_Expr.t * E_Type.t -> unit) : E_Type.t =
+  List.combine args tparams |> List.iter test_f |> fun () ->
+  T_Narrowing.narrow_type tret
+
+let test_nargs (tctx : T_Ctx.t) (expr : E_Expr.t) (args : E_Expr.t list)
+    (tparams : E_Type.t list) : unit =
+  let nparams, nargs = (List.length tparams, List.length args) in
+  if nparams != nargs then
+    T_Err.raise (T_Err.NExpectedArgs (nparams, nargs)) ~tkn:(T_Err.Expr expr)
 
 let type_named_call (tctx : T_Ctx.t) (expr : E_Expr.t) (fname : string)
-    (args : E_Expr.t list) (targs : texpr_t list) : E_Type.t =
+    (args : E_Expr.t list) : E_Type.t list * E_Type.t =
   match T_Ctx.get_func_by_name tctx fname with
   | Some func ->
       let tparams = E_Func.get_tparams func in
-      let _ = type_args tctx expr args tparams targs in
-      Option.default E_Type.AnyType (E_Func.get_return_t func)
+      let tret = Option.default E_Type.AnyType (E_Func.get_return_t func) in
+      test_nargs tctx expr args tparams |> fun () -> (tparams, tret)
   | None -> T_Err.raise (T_Err.UnknownFunction fname) ~tkn:(T_Err.Str fname)
 
 let type_call (tctx : T_Ctx.t) (expr : E_Expr.t) (fexpr : E_Expr.t)
-    (args : E_Expr.t list) (targs : texpr_t list) : E_Type.t =
+    (args : E_Expr.t list) : E_Type.t list * E_Type.t =
   match fexpr with
-  | E_Expr.Val (Val.Str fname) -> type_named_call tctx expr fname args targs
-  | _ -> E_Type.AnyType
+  | E_Expr.Val (Val.Str fname) -> type_named_call tctx expr fname args
+  | _ -> (List.map (fun _ -> E_Type.AnyType) args, E_Type.AnyType)
 
-let type_newobj (tctx : T_Ctx.t) (tfes : (string * texpr_t) list) : E_Type.t =
-  let _type_obj_field_f flds (fn, (_, ft)) =
+let type_newobj (tctx : T_Ctx.t) (tfes : (string * E_Type.t) list) : E_Type.t =
+  let _type_obj_field_f flds (fn, ft) =
     match Hashtbl.find_opt flds fn with
     | None -> Hashtbl.add flds fn (ft, E_Type.Required)
     | Some _ -> T_Err.raise (T_Err.DuplicatedField fn) ~tkn:(T_Err.Str fn)
@@ -95,75 +96,87 @@ let type_fld_lookup (oe : E_Expr.t) (fe : E_Expr.t) (fn : string)
       | None -> _terr_fexpr (T_Err.BadLookup (fn, tobj)))
   | _ -> _terr_fexpr (T_Err.BadLookup (fn, tobj))
 
-let type_lookup (tctx : T_Ctx.t) (oe : E_Expr.t) (fe : E_Expr.t)
-    ((rtoexpr, ntoexpr) : texpr_t) : texpr_t =
-  let _type_fld_lookup raiseErr fn tobj =
+let type_lookup (narrow : bool) (tctx : T_Ctx.t) (oe : E_Expr.t) (fe : E_Expr.t)
+    (toe : E_Type.t) : E_Type.t =
+  let _union_to_sigma d t =
+    match t with E_Type.UnionType ts -> E_Type.SigmaType (d, ts) | _ -> t
+  in
+  let _type_fld_lookup fn tobj =
     try type_fld_lookup oe fe fn tobj
     with T_Err.TypeError terr -> (
-      match (raiseErr, terr.T_Err.errs) with
-      | true, T_Err.BadLookup (fn, t) :: _ ->
-          T_Err.raise (T_Err.BadLookup (fn, rtoexpr))
-      | true, _ -> T_Err.continue terr
-      | false, _ -> E_Type.UndefinedType)
+      match terr.T_Err.errs with
+      | T_Err.BadLookup (fn, t) :: _ ->
+          T_Err.push terr (T_Err.BadLookup (fn, toe))
+      | _ -> T_Err.continue terr)
   in
-  let _type_union_lookup narrowResult ts fn =
-    List.map (_type_fld_lookup narrowResult fn) ts
+  let _type_union_lookup fn ts =
+    List.map (_type_fld_lookup fn) ts
     |> E_Type.merge_type E_Type.merge_union_type
-    |> fun t -> if narrowResult then T_Narrowing.narrow_type t else t
+    |> fun t -> if narrow then T_Narrowing.narrow_type t else t
   in
-  match (fe, rtoexpr, ntoexpr) with
-  | E_Expr.Val (Val.Str fn), E_Type.UnionType rts, E_Type.UnionType nts ->
-      let rt = _type_union_lookup false rts fn in
-      let nt = _type_union_lookup true nts fn in
-      (rt, nt)
-  | E_Expr.Val (Val.Str fn), E_Type.UnionType rts, _ ->
-      let rt = _type_union_lookup false rts fn in
-      let nt = _type_fld_lookup true fn ntoexpr in
-      (rt, nt)
-  | E_Expr.Val (Val.Str fn), _, _ ->
-      let rt = _type_fld_lookup false fn rtoexpr in
-      let nt = _type_fld_lookup true fn ntoexpr in
-      (rt, nt)
-  | _ -> (E_Type.AnyType, E_Type.AnyType)
+  match (fe, toe) with
+  | E_Expr.Val (Val.Str fn), E_Type.SigmaType (d, ts) ->
+      _type_union_lookup fn ts |> _union_to_sigma d
+  | E_Expr.Val (Val.Str fn), E_Type.UnionType ts -> _type_union_lookup fn ts
+  | E_Expr.Val (Val.Str fn), _ -> _type_fld_lookup fn toe
+  | _ -> E_Type.AnyType
 
-let rec type_expr (tctx : T_Ctx.t) (expr : E_Expr.t) : texpr_t =
+let rec type_expr ?(narrow : bool = true) (tctx : T_Ctx.t) (expr : E_Expr.t) :
+    E_Type.t =
   match expr with
-  | Val v -> type_val v |> fun texpr -> (texpr, texpr)
-  | Var x -> type_var tctx x
+  | Val v -> type_val v
+  | Var x -> type_var narrow tctx x
   (* | GVar _ ->  *)
-  | Const c -> type_const c |> fun texpr -> (texpr, texpr)
+  | Const c -> type_const c
   | UnOpt (op, e) ->
       let args = [ e ] in
-      let targs = List.map (type_expr tctx) args in
       let tparams, tret = T_Op.type_unop op in
-      type_operator tparams tret targs args
+      let test_operand_f = test_operand (safe_type_expr tctx) in
+      test_generic_call tctx args tparams tret test_operand_f
   | BinOpt (op, e1, e2) ->
       let args = [ e1; e2 ] in
-      let targs = List.map (type_expr tctx) args in
       let tparams, tret = T_Op.type_binop op in
-      type_operator tparams tret targs args
+      let test_operand_f = test_operand (safe_type_expr tctx) in
+      test_generic_call tctx args tparams tret test_operand_f
   | EBinOpt (op, e1, e2) ->
       let args = [ e1; e2 ] in
-      let targs = List.map (type_expr tctx) args in
       let tparams, tret = T_Op.type_ebinop op in
-      type_operator tparams tret targs args
+      let test_operand_f = test_operand (safe_type_expr tctx) in
+      test_generic_call tctx args tparams tret test_operand_f
   | TriOpt (op, e1, e2, e3) ->
       let args = [ e1; e2; e3 ] in
-      let targs = List.map (type_expr tctx) args in
       let tparams, tret = T_Op.type_triop op in
-      type_operator tparams tret targs args
+      let test_operand_f = test_operand (safe_type_expr tctx) in
+      test_generic_call tctx args tparams tret test_operand_f
   (* | NOpt (_, _) ->  *)
   | Call (fexpr, args, _) ->
-      let targs = List.map (type_expr tctx) args in
-      let tret = type_call tctx expr fexpr args targs in
-      (tret, T_Narrowing.narrow_type tret)
+      let tparams, tret = type_call tctx expr fexpr args in
+      let test_arg_f = test_arg (safe_type_expr tctx) in
+      test_generic_call tctx args tparams tret test_arg_f
   (* | ECall (_, _) ->  *)
   | NewObj fes ->
-      let tfes = List.map (fun (fn, ft) -> (fn, type_expr tctx ft)) fes in
-      type_newobj tctx tfes |> fun tobj -> (tobj, tobj)
+      let tfes = List.map (fun (fn, e) -> (fn, type_expr tctx e)) fes in
+      type_newobj tctx tfes
   | Lookup (oe, fe) ->
-      let toexpr = type_expr tctx oe in
-      type_lookup tctx oe fe toexpr
+      let toe = type_expr ~narrow tctx oe in
+      type_lookup narrow tctx oe fe toe
   (* | Curry (_, _) ->  *)
   (* | Symbolic (_, _) ->  *)
-  | _ -> (E_Type.AnyType, E_Type.AnyType)
+  | _ -> E_Type.AnyType
+
+and safe_type_expr (tctx : T_Ctx.t) (expr : E_Expr.t) (tref : E_Type.t) :
+    E_Type.t =
+  try
+    let ntexpr = type_expr tctx expr in
+    T_Typing.type_check expr tref ntexpr |> fun () -> ntexpr
+  with T_Err.TypeError _ -> (
+    try
+      let rtexpr = type_expr ~narrow:false tctx expr in
+      T_Typing.type_check expr tref rtexpr |> fun () ->
+      failwith "Typed ECMA-SL: T_Expr.safe_type_expr"
+    with T_Err.TypeError terr -> T_Err.continue terr)
+
+let full_type_expr (tctx : T_Ctx.t) (expr : E_Expr.t) : E_Type.t * E_Type.t =
+  let rtexpr = type_expr ~narrow:false tctx expr in
+  let ntexpr = type_expr tctx expr in
+  (rtexpr, ntexpr)

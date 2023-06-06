@@ -28,6 +28,7 @@
 - **ListType** $\rightarrow$ represents a list of elements of a single type
 - **TupleType** $\rightarrow$ represents a tuple of elements
 - **UnionType** $\rightarrow$ represents a combination between multiple types
+- **SigmaType** $\rightarrow$ represents a tagged union of objects
 - **ObjectType** $\rightarrow$ represents an object type
 - **RuntimeType** $\rightarrow$ represents a type used at runtime
 
@@ -85,6 +86,62 @@
 
 
 # Implementation
+
+## Expressions
+
+**Type Environment** $(\Gamma) \Coloneqq x \rightarrow \phi$ where:
+- $\phi \rightarrow$ variable type
+
+**Narrow Flag** $(\Gamma) \Coloneqq x \rightarrow \phi$ where:
+- $\phi \rightarrow$ variable type
+
+**Variable Type** $(\phi) \Coloneqq \{rt, nt, mt\}$ where:
+- $rt \rightarrow$ reference type (type annotation of the variable)
+- $nt \rightarrow$ narrowed type (guaranteed subset of the reference type)
+- $mt \rightarrow$ mutable type (flag that specifies whether the variable can change type)
+
+
+<br>
+<center>
+
+**Value:** $\hspace{2em}$
+$\def\arraystretch{1.5}\begin{array}{c}
+Type(v) = \tau
+\\\hline \Gamma \vdash v : \tau
+\end{array}$
+
+**Variable**: $\hspace{2em}$
+$\def\arraystretch{1.5}\begin{array}{c}
+\Gamma(x) = \phi \hspace{2em} \phi^{nt} = \tau
+\\\hline \Gamma \vdash x : \tau
+\end{array}$
+
+**Unary Operators**: $\hspace{2em}$
+$\def\arraystretch{1.5}\begin{array}{c}
+\Gamma \vdash e : \tau_e \hspace{2em} \oplus(\tau_e^{nt}) = \tau
+\\\hline \Gamma \vdash \oplus(e) : \tau
+\end{array}$
+
+**Binary Operators**: $\hspace{2em}$
+$\def\arraystretch{1.5}\begin{array}{c}
+\Gamma \vdash e1 : \tau_{e1} \hspace{2em} \Gamma \vdash e2 : \tau_{e2} \hspace{2em} \otimes(\tau_{e1}^{nt}, \tau_{e2}^{nt}) = \tau
+\\\hline \Gamma \vdash \otimes(e1, e2) : \tau
+\end{array}$
+
+<!-- **Objects**: $\hspace{2em}$
+$\def\arraystretch{1.5}\begin{array}{c}
+\Gamma \vdash \{e_1, ..., e_n\}: \{\tau_{e_1}, ..., \tau_{e_n}\} \hspace{2em} \{\tau_{e_1}^{nt}, ..., \tau_{e_n}\} = \{\tau'_{e_1}, ..., \tau'_{e_n}\}
+\\\hline \Gamma \vdash \{f_1: e_1, ..., f_n: e_n\} : \tau
+\end{array}$ -->
+
+
+</center>
+<br>
+
+## Statements
+
+**Typing Contetxt** $(\Delta)$
+
 
 <br>
 <br>

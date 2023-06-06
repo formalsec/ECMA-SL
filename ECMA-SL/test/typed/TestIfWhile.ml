@@ -21,7 +21,7 @@ let%test _ =
 let%test _ =
   Test.type_checker_test "example/if_while/whileEval.esl"
     [
-      BadExpectedType (BooleanType, NumberType);
+      UnknownVar "test";
       BadTypeUpdate (NumberType, UnionType [ NumberType; StringType ]);
       BadTypeUpdate (NumberType, StringType);
       BadValue (StringType, NumberType);

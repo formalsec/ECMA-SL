@@ -12,6 +12,7 @@ type t =
   | ListType of t
   | TupleType of t list
   | UnionType of t list
+  | SigmaType of string * t list
   | ObjectType of tobj_t
   | RuntimeType of Type.t
   | UserDefinedType of string
@@ -20,8 +21,38 @@ and tobj_t = { flds : (string, tfld_t) Hashtbl.t; smry : t option }
 and tfld_t = t * tpres_t
 and tpres_t = Required | Optional
 
+let merge_tuple_type (t1 : t) (t2 : t) : t =
+  match (t1, t2) with
+  | _, TupleType ts -> TupleType (t1 :: ts)
+  | _ -> TupleType [ t1; t2 ]
+
+let rec merge_union_type (t1 : t) (t2 : t) : t =
+  match (t1, t2) with
+  | UnionType ts, _ -> List.fold_right merge_union_type ts t2
+  | _, UnionType ts -> if List.mem t1 ts then t2 else UnionType (t1 :: ts)
+  | _ -> if t1 = t2 then t1 else UnionType [ t1; t2 ]
+
+let merge_type (merge_fun_f : t -> t -> t) (ts : t list) : t =
+  let tf, tr = match ts with [] -> (NeverType, []) | f :: r -> (f, r) in
+  List.fold_left merge_fun_f tf tr
+
 let get_tfld (tobj : tobj_t) (fn : string) : tfld_t option =
   Hashtbl.find_opt tobj.flds fn
+
+let is_fld_opt ((_, fp) : tfld_t) : bool =
+  match fp with Required -> false | Optional -> true
+
+let get_fld_t ((ft, fp) : tfld_t) : t =
+  if fp = Optional then merge_union_type ft UndefinedType else ft
+
+let get_fld_data (tobj : tobj_t) : (string * tfld_t) list =
+  let nflds = Hashtbl.fold (fun fn ft r -> (fn, ft) :: r) tobj.flds [] in
+  let sfld =
+    match tobj.smry with
+    | Some tsmry -> [ ("*", (tsmry, Required)) ]
+    | None -> []
+  in
+  List.append nflds sfld
 
 module Field = struct
   type ft = NamedField of string * (t * bool) | SumryField of t
@@ -37,6 +68,25 @@ let parse_literal_type (v : Val.t) : t =
   | Val.Symbol _ -> LiteralType v
   | Val.Null -> NullType
   | _ -> invalid_arg ("Invalid value '" ^ Val.str v ^ "' for literal type.")
+
+let parse_sigma_type (d : string) (t : t) : t =
+  let _unique_f t r = if List.mem t r then r else t :: r in
+  let _parse_sigma_obj_f t =
+    match t with
+    | ObjectType tobj -> (
+        match Hashtbl.find_opt tobj.flds d with
+        | Some (LiteralType v, Required) -> v
+        | _ -> invalid_arg "Discriminant literal required for all sigma cases.")
+    | _ -> invalid_arg "Expecting a union of object for the sigma type."
+  in
+  match t with
+  | UnionType ts ->
+      let discriminants = List.map _parse_sigma_obj_f ts in
+      let uniqueDiscriminants = List.fold_right _unique_f discriminants [] in
+      if List.length discriminants != List.length uniqueDiscriminants then
+        invalid_arg "All discriminants must be of an unique literal type."
+      else SigmaType (d, ts)
+  | _ -> invalid_arg "Expecting a union of object for the sigma type."
 
 let parse_obj_type (fields : Field.ft list) : tobj_t =
   let _field_split_f field (nflds, sflds) =
@@ -58,38 +108,8 @@ let parse_obj_type (fields : Field.ft list) : tobj_t =
   | t :: [] -> { flds; smry = Some t }
   | _ -> invalid_arg "Duplicated summary field in the object."
 
-let merge_tuple_type (t1 : t) (t2 : t) : t =
-  match t1 with
-  | TupleType ts -> TupleType (List.append ts [ t2 ])
-  | _ -> TupleType [ t1; t2 ]
-
-let rec merge_union_type (t1 : t) (t2 : t) : t =
-  match (t1, t2) with
-  | _, UnionType ts -> List.fold_right (fun t r -> merge_union_type r t) ts t1
-  | UnionType ts, _ ->
-      UnionType (if List.mem t2 ts then ts else List.append ts [ t2 ])
-  | _ -> if t1 = t2 then t1 else UnionType [ t1; t2 ]
-
-let merge_type (merge_fun_f : t -> t -> t) (ts : t list) : t =
-  let tf, tr = match ts with [] -> (NeverType, []) | f :: r -> (f, r) in
-  List.fold_left merge_fun_f tf tr
-
-let is_fld_opt ((_, fp) : tfld_t) : bool =
-  match fp with Required -> false | Optional -> true
-
-let get_fld_t ((ft, fp) : tfld_t) : t =
-  if fp = Optional then merge_union_type ft UndefinedType else ft
-
-let get_fld_data (tobj : tobj_t) : (string * tfld_t) list =
-  let nflds = Hashtbl.fold (fun fn ft r -> (fn, ft) :: r) tobj.flds [] in
-  let sfld =
-    match tobj.smry with
-    | Some tsmry -> [ ("*", (tsmry, Required)) ]
-    | None -> []
-  in
-  List.append nflds sfld
-
 let rec str (t : t) : string =
+  let _tsToStr ts s = String.concat s (List.map (fun el -> str el) ts) in
   match t with
   | AnyType -> "any"
   | UnknownType -> "unknown"
@@ -102,10 +122,9 @@ let rec str (t : t) : string =
   | SymbolType -> "symbol"
   | LiteralType v -> Val.str v
   | ListType t' -> "[" ^ str t' ^ "]"
-  | TupleType ts ->
-      "(" ^ String.concat " * " (List.map (fun el -> str el) ts) ^ ")"
-  | UnionType ts ->
-      "(" ^ String.concat " | " (List.map (fun el -> str el) ts) ^ ")"
+  | TupleType ts -> "(" ^ _tsToStr ts " * " ^ ")"
+  | UnionType ts -> "(" ^ _tsToStr ts " | " ^ ")"
+  | SigmaType (d, ts) -> "sigma[" ^ d ^ "] " ^ _tsToStr ts " | "
   | ObjectType tobj ->
       let fp_str_f tfld = if is_fld_opt tfld then "?" else "" in
       let fld_str_f (fn, tfld) = fn ^ fp_str_f tfld ^ ": " ^ str (fst tfld) in

@@ -1,0 +1,30 @@
+function _sigmaCall(): sigma[type] { type: "foo", foo: number } | { type: false }
+	{ return { type: "foo", foo: 10 } };
+
+function main() {
+	sigmaSimple: sigma[type] { type: "foo" } | { type: "bar" } := { type: "foo" };
+	sigmaCall: sigma[type] { type: "foo", foo: number } | { type: false } := _sigmaCall();
+
+	x: "foo" := sigmaSimple.type;				/* Valid */
+	y: "bar" := sigmaSimple.type;				/* BadValue: "bar" <- "foo" */
+	z: "foo" := sigmaCall.type;					/* BadValue: "foo" <- false */
+	w: false := sigmaCall.type;					/* BadValue: false <- "foo" */
+	v: number := sigmaCall.foo;					/* BadLookup: sigmaCall.foo */
+
+	sigmaSimple.type := "foo";					/* Valid */
+	sigmaSimple.type := "bar";					/* BadValue: "foo" <- "bar" */
+	sigmaCall.type := "foo";						/* BadValue: "false" <- "foo" */
+	sigmaCall.type := false;						/* BadValue: "foo" <- "false" */
+	sigmaCall.foo := 10;								/* BadLookup: sigmaCall.foo */
+
+	if (sigmaCall.type = "foo") {
+		x: "foo" := sigmaCall.type;				/* Valid */
+		y: false := sigmaCall.type;				/* BadValue: false <- "foo" */
+		z: number := sigmaCall.foo				/* Valid */
+	} else {
+		x: false := sigmaCall.type;				/* Valid */
+		y: "foo" := sigmaCall.type				/* BadValue: "foo" <- false */
+	};
+	
+	return 0
+}

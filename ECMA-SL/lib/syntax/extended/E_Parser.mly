@@ -69,7 +69,7 @@ let at (startpos, endpos) =
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token QUESTION
 %token EOF
-%token TYPEDEF, TYPE_ANY, TYPE_UNKNOWN, TYPE_NEVER, TYPE_UNDEFINED, TYPE_NUMBER, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL
+%token TYPEDEF, TYPE_ANY, TYPE_UNKNOWN, TYPE_NEVER, TYPE_UNDEFINED, TYPE_NUMBER, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL, TYPE_SIGMA
 
 
 %token API_ASSUME API_MK_SYMBOLIC API_ABORT
@@ -758,8 +758,10 @@ e_simple_type_target:
     { E_Type.UserDefinedType v }
 
 e_nary_type_target:
-  | t1 = e_type_target; merge_func = e_nary_type_op_target; t2 = e_simple_type_target;
+  | t1 = e_simple_type_target; merge_func = e_nary_type_op_target; t2 = e_type_target;
     { merge_func t1 t2 }
+  | TYPE_SIGMA; LBRACK; d = VAR; RBRACK; t = e_nary_type_target;
+    { E_Type.parse_sigma_type d t }
 
 e_nary_type_op_target:
   | TIMES;        { E_Type.merge_tuple_type }

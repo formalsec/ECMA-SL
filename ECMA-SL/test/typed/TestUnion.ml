@@ -8,7 +8,7 @@ let%test _ =
 let%test _ =
   Test.type_checker_test "example/union/merge.esl"
     [
-      BadValue (UnionType [ NumberType; BooleanType ], StringType);
+      BadValue (UnionType [ BooleanType; NumberType ], StringType);
       BadValue (UnionType [ NumberType; StringType ], BooleanType);
     ]
 

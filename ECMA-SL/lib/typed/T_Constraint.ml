@@ -102,9 +102,8 @@ let inspect_element (tctx : T_Ctx.t) (expr : E_Expr.t) : element_t =
   let _eval_type expr =
     match expr with
     | E_Expr.UnOpt (Operators.Typeof, e) ->
-        let texpr = snd (T_Expr.type_expr tctx e) in
-        E_Type.to_runtime texpr
-    | _ -> snd (T_Expr.type_expr tctx expr)
+        E_Type.to_runtime (T_Expr.type_expr tctx e)
+    | _ -> T_Expr.type_expr tctx expr
   in
   match expr with
   | E_Expr.BinOpt (Operators.Eq, tar, cstr) -> (
@@ -158,13 +157,13 @@ let rec apply_constrain (tctx : T_Ctx.t) (target : E_Expr.t list)
   in
   match target with
   | E_Expr.Var var :: [] -> T_Ctx.tenv_constrain tctx var tconstraint
-  | E_Expr.Lookup (oexpr, fexpr) :: [] -> (
-      let ntoexpr = snd (T_Expr.type_expr tctx oexpr) in
-      match (fexpr, ntoexpr) with
+  | E_Expr.Lookup (oe, fexpr) :: [] -> (
+      let ntoe = T_Expr.type_expr tctx oe in
+      match (fexpr, ntoe) with
       | E_Expr.Val (Val.Str fn), E_Type.UnionType nts ->
-          List.filter (_test_union_case oexpr fexpr fn) nts |> fun ts ->
+          List.filter (_test_union_case oe fexpr fn) nts |> fun ts ->
           T_Narrowing.narrow_type (E_Type.UnionType ts) |> fun t ->
-          apply_constrain tctx [ oexpr ] t
+          apply_constrain tctx [ oe ] t
       | _ -> ())
   | _ -> ()
 
@@ -177,7 +176,7 @@ let apply_clause (tctx : T_Ctx.t) (clause : t) : unit =
     | _ -> failwith "Typed ECMA-SL: T_Constraint._inspect_element_f"
   in
   let _eval_constraint_f (tar, cstr) =
-    eval_constraint (snd (T_Expr.type_expr tctx tar)) cstr
+    eval_constraint (T_Expr.type_expr tctx tar) cstr
   in
   let _fold_number_f t =
     match t with

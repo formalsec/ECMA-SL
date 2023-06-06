@@ -1,7 +1,7 @@
 function main() {
 	foo: number := 10;
 	bar: number := 10;
-	while (foo) {												/* BadExpectedType: boolean <- number */
+	while (test) {											/* UnknownVar: test */
 		foo: number | string := "abc";		/* BadTypeUpdate: number <- number | string */
 		bar: string := "abc";							/* BadTypeUpdate: number <- string */
 		baz: string := "abc"							/* Valid */

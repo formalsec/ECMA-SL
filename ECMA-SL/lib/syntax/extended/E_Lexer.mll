@@ -178,6 +178,7 @@
                 "string"                , TYPE_STRING;
                 "boolean"               , TYPE_BOOLEAN;
                 "symbol"                , TYPE_SYMBOL;
+                "sigma"                 , TYPE_SIGMA;
               ]
 
   exception Syntax_error of string
