@@ -22,8 +22,9 @@ and sopt =
   | Evaluate of t
   | Maximize of t
   | Minimize of t
-  | Is_symbolic of t
   | Is_sat of t
+  | Is_number of t
+  | Is_symbolic of t
 
 type subst_t = (string, t) Caml.Hashtbl.t
 
@@ -59,6 +60,7 @@ let rec str (e : t) : string =
         | Minimize e -> "se_minimize"
         | Is_symbolic e -> "se_is_symbolic"
         | Is_sat e -> "se_is_sat"
+        | Is_number e -> "se_is_number"
       in
       sprintf "%s(%s)" op' (str e)
 
@@ -124,6 +126,7 @@ let rec map (f : t -> t) (e : t) : t =
           | Minimize e -> Minimize (mapf e)
           | Is_symbolic e -> Is_symbolic (mapf e)
           | Is_sat e -> Is_sat (mapf e)
+          | Is_number e -> Is_number (mapf e)
         in
         SymOpt op'
   in

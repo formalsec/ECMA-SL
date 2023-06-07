@@ -159,6 +159,7 @@
                 "se_abort"              , API_ABORT;
                 "se_is_sat"             , API_IS_SAT;
                 "se_is_symbolic"        , API_IS_SYMBOLIC;
+                "se_is_number"          , API_IS_NUMBER;
                 "se_mk_symbolic"        , API_MK_SYMBOLIC;
                 "se_evaluate"           , API_EVAL;
                 "se_maximize"           , API_MAXIMIZE;

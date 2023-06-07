@@ -72,7 +72,7 @@ let at (startpos, endpos) =
 
 %token API_ASSUME API_MK_SYMBOLIC API_ABORT
 %token API_EVAL API_MAXIMIZE API_MINIMIZE
-%token API_IS_SYMBOLIC API_IS_SAT
+%token API_IS_SYMBOLIC API_IS_SAT API_IS_NUMBER
 
 %left SCLAND SCLOR LAND LOR
 %left EQUAL
@@ -294,6 +294,8 @@ se_op_target:
     { E_Expr.SymOpt (E_Expr.Is_sat e) }
   | API_IS_SYMBOLIC; LPAREN; e = e_expr_target; RPAREN; 
     { E_Expr.SymOpt (E_Expr.Is_symbolic e) }
+  | API_IS_NUMBER; LPAREN; e = e_expr_target; RPAREN; 
+    { E_Expr.SymOpt (E_Expr.Is_number e) }
   ;
 
 nary_op_target:

@@ -319,15 +319,6 @@ let step (c : config) : config list =
         Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
       in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
-  | Stmt.SymStmt (SymStmt.Is_symbolic (x, e)) ->
-      let e' = reduce_expr ~at:s.at store e in
-      let store' = Sstore.add_exn store x (Val (Val.Bool (Expr.is_symbolic e'))) in
-      [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
-  | Stmt.SymStmt (SymStmt.Is_sat (x, e)) ->
-      let e' = Translator.translate (reduce_expr ~at:s.at store e) in
-      let sat = Batch.check_sat c.solver (e' :: c.pc) in
-      let store' = Sstore.add_exn store x (Val (Val.Bool sat)) in
-      [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Maximize (x, e)) ->
       let e' = Translator.translate (reduce_expr ~at:s.at store e) in
       let v =
@@ -348,6 +339,23 @@ let step (c : config) : config list =
         Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
       in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
+  | Stmt.SymStmt (SymStmt.Is_symbolic (x, e)) ->
+      let e' = reduce_expr ~at:s.at store e in
+      let store' = Sstore.add_exn store x (Val (Val.Bool (Expr.is_symbolic e'))) in
+      [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
+  | Stmt.SymStmt (SymStmt.Is_sat (x, e)) ->
+      let e' = Translator.translate (reduce_expr ~at:s.at store e) in
+      let sat = Batch.check_sat c.solver (e' :: c.pc) in
+      let store' = Sstore.add_exn store x (Val (Val.Bool sat)) in
+      [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
+  | Stmt.SymStmt (SymStmt.Is_number (x, e)) ->
+      let e' = reduce_expr ~at:s.at store e in
+      let is_num =
+        match Sval_typing.type_of e' with
+        | Some Type.IntType | Some Type.FltType -> true | _ -> false
+      in
+      let store' = Sstore.add_exn store x (Val (Val.Bool is_num)) in
+      [ update c (Cont (List.tl_exn stmts)) (heap, store', stack,f) pc ]
 
 module type WorkList = sig
   type 'a t

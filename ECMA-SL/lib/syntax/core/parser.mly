@@ -61,7 +61,7 @@ let at (startpos, endpos) =
 
 %token API_ASSUME API_MK_SYMBOLIC API_ABORT
 %token API_EVALUATE API_MAXIMIZE API_MINIMIZE
-%token API_IS_SYMBOLIC API_IS_SAT
+%token API_IS_SYMBOLIC API_IS_SAT API_IS_NUMBER
 
 %left LAND LOR
 %left EQUAL
@@ -437,6 +437,8 @@ api_stmt_target:
     { Stmt.SymStmt (SymStmt.Is_symbolic (v, e)) }
   | v = VAR; DEFEQ; API_IS_SAT; LPAREN; e = expr_target; RPAREN;
     { Stmt.SymStmt (SymStmt.Is_sat (v, e)) }
+  | v = VAR; DEFEQ; API_IS_NUMBER; LPAREN; e = expr_target; RPAREN;
+    { Stmt.SymStmt (SymStmt.Is_number (v, e)) }
   | v = VAR; DEFEQ; API_MAXIMIZE; LPAREN; e = expr_target; RPAREN;
     { Stmt.SymStmt (SymStmt.Maximize (v, e)) }
   | v = VAR; DEFEQ; API_MINIMIZE; LPAREN; e = expr_target; RPAREN;

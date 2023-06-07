@@ -21,6 +21,7 @@
                   "se_minimize", API_MINIMIZE;
                   "se_is_symbolic", API_IS_SYMBOLIC;
                   "se_is_sat", API_IS_SAT;
+                  "se_is_number", API_IS_NUMBER;
                   "se_abort", API_ABORT;
                   "parse_number"    , PARSE_NUMBER;
                   "parse_string"    , PARSE_STRING;
