@@ -336,6 +336,6 @@ reset();
 
 // indexOf
 var res2 = buckets.arrays.indexOf(numberArray, n2);
-esl_symbolic.assert(res2 == 1);
+esl_symbolic.assert(res2 == n2);
 var res3 = buckets.arrays.indexOf(numberArray, n4);
 esl_symbolic.assert(res3 == -1);

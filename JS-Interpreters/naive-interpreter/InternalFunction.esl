@@ -13,7 +13,7 @@ function esl_symbolic_number(args) {
 
 function esl_symbolic_assert(args) {
 	cond := l_nth(args, 0);
-  se_assert(cond);
+  assert(cond);
   return 0
 };
 

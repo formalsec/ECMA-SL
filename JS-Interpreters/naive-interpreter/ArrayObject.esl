@@ -1,0 +1,18 @@
+function ArrayObject(elements) {
+	nElements := l_len(elements);
+	arrayObject := Object();
+	arrayObject.__elements__ := elements; 
+	arrayObject.length := int_to_float(nElements);
+	initArrayIndicies(arrayObject, nElements);
+  return arrayObject
+};
+
+function initArrayIndicies(arrayObject, nElements) {
+	i := 0;
+	while (i < nElements) {
+		offset := int_to_string(i);
+		arrayObject[offset] := l_nth(arrayObject.__elements__, i);
+		i := i + 1
+	};
+	return
+}

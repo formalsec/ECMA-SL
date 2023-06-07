@@ -1,8 +1,8 @@
 function GlobalObject() {
-	object := Object();
-	object.esl_symbolic := Object();
-	object.esl_symbolic["number"] := InternalFunction("esl_symbolic_number");
-	object.esl_symbolic["assert"] := InternalFunction("esl_symbolic_assert");
-	object.esl_symbolic["assume"] := InternalFunction("esl_symbolic_assume");
-  return object
+	globalObject := Object();
+	globalObject.esl_symbolic := Object();
+	globalObject.esl_symbolic["number"] := InternalFunction("esl_symbolic_number");
+	globalObject.esl_symbolic["assert"] := InternalFunction("esl_symbolic_assert");
+	globalObject.esl_symbolic["assume"] := InternalFunction("esl_symbolic_assume");
+  return globalObject
 }
