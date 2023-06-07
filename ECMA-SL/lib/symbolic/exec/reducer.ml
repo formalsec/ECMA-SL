@@ -120,7 +120,7 @@ let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
   | ( Eq,
       UnOpt (FloatToString, Symbolic (Type.FltType, n1)),
       UnOpt (FloatToString, Symbolic (Type.FltType, n2)) ) ->
-      BinOpt(Eq, Symbolic (Type.FltType, n1), Symbolic (Type.FltType, n2))
+      BinOpt (Eq, Symbolic (Type.FltType, n1), Symbolic (Type.FltType, n2))
   | Eq, Val (Str s), UnOpt (FloatToString, Symbolic (Type.FltType, n))
   | Eq, UnOpt (FloatToString, Symbolic (Type.FltType, n)), Val (Str s) ->
       (* Exponential notation is not matched by regex *)

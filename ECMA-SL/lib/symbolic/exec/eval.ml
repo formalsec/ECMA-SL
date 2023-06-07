@@ -52,7 +52,11 @@ let step (c : config) : config list =
   | Fail e ->
       [ update c (Error (Some (reduce_expr ~at:s.at store e))) state pc ]
   | Abort e ->
-      [ update c (Failure ("Abort", Some (reduce_expr ~at:s.at store e))) state pc ]
+      [
+        update c
+          (Failure ("Abort", Some (reduce_expr ~at:s.at store e)))
+          state pc;
+      ]
   | Stmt.Assign (x, e) ->
       let v = reduce_expr ~at:s.at store e in
       [
@@ -178,24 +182,20 @@ let step (c : config) : config list =
 
       if List.length get_result > 1 then
         Printf.printf "branching in assignInObjCheck\n";
-        
-
 
       List.map get_result ~f:(fun (new_heap, obj, new_pc, v) ->
           let v' = Val (Val.Bool (Option.is_some v)) in
-          let new_pc' = match new_pc with 
-            | Some p -> [ p ] 
-            | None -> [] in
+          let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
 
           let new_pc' = new_pc' @ pc in
           (* if List.length get_result > 1 then(
-            List.iter new_pc' ~f:(fun v -> Printf.printf "----%s\n" (Encoding.Expression.to_string v));
-            Printf.printf "\n";
-          ); *)
+               List.iter new_pc' ~f:(fun v -> Printf.printf "----%s\n" (Encoding.Expression.to_string v));
+               Printf.printf "\n";
+             ); *)
           update c
             (Cont (List.tl_exn stmts))
             (new_heap, Sstore.add_exn store x v', stack, f)
-            (new_pc'))
+            new_pc')
       (* let field = field s.at reduced_field in
          let v = Val (Val.Bool (Option.is_some (Heap.get_field heap loc field))) in *)
       (* [
@@ -242,8 +242,7 @@ let step (c : config) : config list =
       and v = reduce_expr ~at:s.at store e_v in
       let objects = S_heap.set_field heap loc reduced_field v solver pc in
 
-      if List.length objects > 1 then
-        Printf.printf "branching on assign\n";
+      if List.length objects > 1 then Printf.printf "branching on assign\n";
       List.map objects ~f:(fun (new_heap, obj, new_pc) ->
           let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
           update c
@@ -256,8 +255,7 @@ let step (c : config) : config list =
       let reduced_field = reduce_expr ~at:s.at store e_field in
       let objects = S_heap.delete_field heap loc reduced_field solver pc in
 
-      if List.length objects > 1 then
-        Printf.printf "branching on delete\n";
+      if List.length objects > 1 then Printf.printf "branching on delete\n";
       List.map objects ~f:(fun (new_heap, obj, new_pc) ->
           let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
           update c
@@ -270,8 +268,7 @@ let step (c : config) : config list =
       and reduced_field = reduce_expr ~at:s.at store e_field in
       let objects = S_heap.get_field heap loc reduced_field solver pc in
 
-      if List.length objects > 1 then
-        Printf.printf "branching on lookup\n";
+      if List.length objects > 1 then Printf.printf "branching on lookup\n";
 
       List.map objects ~f:(fun (new_heap, obj, new_pc, v) ->
           let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
@@ -341,7 +338,9 @@ let step (c : config) : config list =
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Is_symbolic (x, e)) ->
       let e' = reduce_expr ~at:s.at store e in
-      let store' = Sstore.add_exn store x (Val (Val.Bool (Expr.is_symbolic e'))) in
+      let store' =
+        Sstore.add_exn store x (Val (Val.Bool (Expr.is_symbolic e')))
+      in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Is_sat (x, e)) ->
       let e' = Translator.translate (reduce_expr ~at:s.at store e) in
@@ -352,10 +351,11 @@ let step (c : config) : config list =
       let e' = reduce_expr ~at:s.at store e in
       let is_num =
         match Sval_typing.type_of e' with
-        | Some Type.IntType | Some Type.FltType -> true | _ -> false
+        | Some Type.IntType | Some Type.FltType -> true
+        | _ -> false
       in
       let store' = Sstore.add_exn store x (Val (Val.Bool is_num)) in
-      [ update c (Cont (List.tl_exn stmts)) (heap, store', stack,f) pc ]
+      [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
 
 module type WorkList = sig
   type 'a t

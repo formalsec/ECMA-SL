@@ -46,7 +46,7 @@
                 "gen_wrapper"           , WRAPPER;
                 "NaN"                   , FLOAT (Float.nan);
                 "Infinity"              , FLOAT (Float.infinity);
-                
+
                 (* Built-Ins *)
                 "is_NaN"                , IS_NAN;
                 "to_int"                , TO_INT;
@@ -62,7 +62,7 @@
                 "int_from_le_bytes"     , INT_FROM_BYTES;
                 "octal_to_decimal"      , OCTAL_TO_DECIMAL;
                 "uint_from_le_bytes"    , UINT_FROM_BYTES;
-                
+
                 "float_to_string"       , FLOAT_TO_STRING;
                 "float_of_string"       , FLOAT_OF_STRING;
                 "float_to_byte"         , FLOAT_TO_BYTE;

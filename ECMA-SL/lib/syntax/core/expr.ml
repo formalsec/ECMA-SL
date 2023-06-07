@@ -105,5 +105,6 @@ let rec to_json (e : t) : string =
         (to_json f) (to_json_es es)
   | Symbolic (t, x) ->
       Printf.sprintf
-        "{ \"type\" : \"se_mk_symbolic\", \"val_type\" : \"%s\", \"name\" : \"%s\" }"
+        "{ \"type\" : \"se_mk_symbolic\", \"val_type\" : \"%s\", \"name\" : \
+         \"%s\" }"
         (Type.str t) (str x)

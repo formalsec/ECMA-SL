@@ -590,7 +590,7 @@ and compile_expr (at : region) (e_expr : E_Expr.t) : Stmt.t list * Expr.t =
       | Is_sat e ->
           let stmts, e' = compile_expr at e in
           let x = generate_fresh_var () in
-          (stmts @ [ Stmt.SymStmt (Is_sat (x, e')) @@ at ], Expr.Var x )
+          (stmts @ [ Stmt.SymStmt (Is_sat (x, e')) @@ at ], Expr.Var x)
       | Is_number e ->
           let stmts, e' = compile_expr at e in
           let x = generate_fresh_var () in
@@ -606,7 +606,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
 
   match e_stmt.it with
   | Skip -> [ Stmt.Skip @@ e_stmt.at ]
-  | Print e -> 
+  | Print e ->
       let stmts, e' = compile_expr e_stmt.at e in
       stmts @ [ Stmt.Print e' @@ e_stmt.at ]
   | Wrapper (_, s) -> compile_stmt s

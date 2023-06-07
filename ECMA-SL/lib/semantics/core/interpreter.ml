@@ -75,7 +75,7 @@ module M (Mon : SecurityMonitor) = struct
         | _ ->
             failwith
               (Core.sprintf "eval_expr: Symbolic \"%s\" not implemented!"
-                (Type.str t)))
+                 (Type.str t)))
 
   let get_func_id (sto : Val.t Store.t) (exp : Expr.t) : string * Val.t list =
     let res = eval_expr sto exp in
@@ -223,7 +223,6 @@ module M (Mon : SecurityMonitor) = struct
                (Call_stack.str cs)));
         let v = eval_expr sto e in
         (Errorv (Some v), SecLabel.EmptyLab)
-
     | Assert e ->
         let v = eval_expr sto e in
         if is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)

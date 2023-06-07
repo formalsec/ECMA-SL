@@ -1,7 +1,6 @@
 open Source
 
 type metadata_t = { where : string; html : string }
-
 type stmt = Assume of E_Expr.t
 
 type t = t' Source.phrase
@@ -34,7 +33,6 @@ and t' =
   | Abort of E_Expr.t
   | Assert of E_Expr.t
   | SymStmt of stmt
-
 
 let is_basic (s : t) : bool =
   match s.it with
@@ -169,7 +167,8 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
       match s.it with
       | Skip | Print _ | Wrapper _ | Assign _ | GlobAssign _ | Return _
       | FieldAssign _ | FieldDelete _ | ExprStmt _ | Throw _ | Fail _ | Assert _
-      | Abort _ | SymStmt (Assume _) ->
+      | Abort _
+      | SymStmt (Assume _) ->
           []
       | Block stmts -> f_stmts stmts
       | If (e, st, sf, _, _) -> f' st @ f_o sf

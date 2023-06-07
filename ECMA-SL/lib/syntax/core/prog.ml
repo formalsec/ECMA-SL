@@ -1,4 +1,4 @@
-open Core 
+open Core
 open Func
 
 type t = (String.t, Func.t) Caml.Hashtbl.t
