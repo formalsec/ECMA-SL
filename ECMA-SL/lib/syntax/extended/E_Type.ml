@@ -4,7 +4,8 @@ type t =
   | NeverType
   | UndefinedType
   | NullType
-  | NumberType
+  | IntType
+  | FloatType
   | StringType
   | BooleanType
   | SymbolType
@@ -116,7 +117,8 @@ let rec str (t : t) : string =
   | NeverType -> "never"
   | UndefinedType -> "undefined"
   | NullType -> "null"
-  | NumberType -> "number"
+  | IntType -> "int"
+  | FloatType -> "float"
   | StringType -> "string"
   | BooleanType -> "boolean"
   | SymbolType -> "symbol"
@@ -136,8 +138,8 @@ let rec str (t : t) : string =
 let wide_type (t : t) : t =
   match t with
   | LiteralType Val.Null -> NullType
-  | LiteralType (Val.Int _) -> NumberType
-  | LiteralType (Val.Flt _) -> NumberType
+  | LiteralType (Val.Int _) -> IntType
+  | LiteralType (Val.Flt _) -> FloatType
   | LiteralType (Val.Str _) -> StringType
   | LiteralType (Val.Bool _) -> BooleanType
   | LiteralType (Val.Symbol "undefined") -> UndefinedType
@@ -166,7 +168,8 @@ let to_runtime (t : t) : t =
   match t with
   | UndefinedType -> RuntimeType Type.SymbolType
   | NullType -> RuntimeType Type.NullType
-  | NumberType -> RuntimeType Type.TypeType
+  | IntType -> RuntimeType Type.IntType
+  | FloatType -> RuntimeType Type.FltType
   | StringType -> RuntimeType Type.StrType
   | BooleanType -> RuntimeType Type.BoolType
   | SymbolType -> RuntimeType Type.SymbolType

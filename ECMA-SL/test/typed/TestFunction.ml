@@ -10,20 +10,20 @@ let%test _ =
     [
       NExpectedArgs (2, 1);
       NExpectedArgs (2, 3);
-      BadArgument (NumberType, StringType);
+      BadArgument (IntType, StringType);
       UnknownFunction "bar";
     ]
 
 let%test _ =
   Test.type_checker_test "example/function/return.esl"
-    [ BadReturn (StringType, NumberType) ]
+    [ BadReturn (StringType, IntType) ]
 
 let%test _ =
   Test.type_checker_test "example/function/operator.esl"
     [
       BadOperand (BooleanType, StringType);
-      BadOperand (NumberType, StringType);
+      BadOperand (IntType, FloatType);
+      BadOperand (IntType, StringType);
       BadOperand (BooleanType, StringType);
-      BadOperand (NumberType, StringType);
-      BadValue (StringType, NumberType);
+      BadOperand (IntType, StringType);
     ]

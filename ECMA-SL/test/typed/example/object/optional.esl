@@ -1,8 +1,8 @@
 function main() {
-	obj: { foo?: number, bar?: string } := { foo: 10 };
-	x: number := obj.foo;					/* BadValue: number <- undefined */
+	obj: { foo?: int, bar?: string } := { foo: 10 };
+	x: int := obj.foo;						/* BadValue: int <- undefined */
 	y: string := obj.bar;					/* BadValue: string <- undefined */
-	z: undefined := obj.foo;			/* BadValue: undefined <- number */
+	z: undefined := obj.foo;			/* BadValue: undefined <- int */
 	w: undefined := obj.bar;			/* BadValue: undefined <- string */
 	return 0
 }

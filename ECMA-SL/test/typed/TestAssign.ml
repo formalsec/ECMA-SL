@@ -4,23 +4,23 @@ open T_Err
 let%test _ =
   Test.type_checker_test "example/assign/primitive.esl"
     [
-      BadValue (NumberType, StringType);
+      BadValue (IntType, StringType);
       BadValue (StringType, SymbolType);
-      BadValue (BooleanType, NumberType);
+      BadValue (BooleanType, IntType);
     ]
 
 let%test _ =
   Test.type_checker_test "example/assign/special.esl"
     [
-      BadValue (NumberType, UnknownType);
-      BadValue (NeverType, NumberType);
+      BadValue (IntType, UnknownType);
+      BadValue (NeverType, IntType);
       BadValue (SymbolType, UndefinedType);
     ]
 
 let%test _ =
   Test.type_checker_test "example/assign/propagation.esl"
     [
-      BadValue (StringType, NumberType);
-      BadValue (NumberType, StringType);
+      BadValue (StringType, IntType);
+      BadValue (IntType, StringType);
       UnknownVar "baz";
     ]

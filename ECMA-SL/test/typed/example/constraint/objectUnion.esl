@@ -1,35 +1,35 @@
-function _objSimple(): { type: "A", foo: number } | { type: "B", foo: string } {
+function _objSimple(): { type: "A", foo: int } | { type: "B", foo: string } {
 	return { type: "A", foo: 10 }
 };
 
-function _objComplex(): { foo: { bar : number } } | { foo: { bar : string } } {
+function _objComplex(): { foo: { bar : int } } | { foo: { bar : string } } {
 	return { foo: { bar: 10 } }
 };
 
 function main() {
-	objSimple : { type: "A", foo: number } | { type: "B", foo: string } := _objSimple();
-	objComplex : { foo: { bar : number } } | { foo: { bar : string } } := _objComplex();
-	x: number := objSimple.foo;						/* BadValue: number <- string */
-	y: string := objSimple.foo;						/* BadValue: string <- number */
+	objSimple : { type: "A", foo: int } | { type: "B", foo: string } := _objSimple();
+	objComplex : { foo: { bar : int } } | { foo: { bar : string } } := _objComplex();
+	x: int := objSimple.foo;							/* BadValue: int <- string */
+	y: string := objSimple.foo;						/* BadValue: string <- int */
 
 	if (typeof(objSimple.foo) = __$Int) {
-		x: number := objSimple.foo;					/* Valid */
-		y: string := objSimple.foo					/* BadValue: string <- number */
+		x: int := objSimple.foo;						/* Valid */
+		y: string := objSimple.foo					/* BadValue: string <- int */
 	} else {
-		x: number := objSimple.foo;					/* BadValue: number <- string */
-		y: string := objSimple.foo					/* BadValue: string <- number */
+		x: int := objSimple.foo;						/* BadValue: int <- string */
+		y: string := objSimple.foo					/* Valid */
 	};
 
 	if (objSimple.type = "A") {
-		x: number := objSimple.foo;					/* Valid */
-		y: string := objSimple.foo					/* BadValue: string <- number */
+		x: int := objSimple.foo;						/* Valid */
+		y: string := objSimple.foo					/* BadValue: string <- int */
 	} else {
-		x: number := objSimple.foo;					/* BadValue: number <- string */
+		x: int := objSimple.foo;						/* BadValue: int <- string */
 		y: string := objSimple.foo					/* Valid */
 	};
 
 	if (typeof (objComplex.foo.bar) = __$Str) {
-		x: number := objComplex.foo.bar;		/* BadValue: number <- string */
+		x: int := objComplex.foo.bar;				/* BadValue: int <- string */
 		y: string := objComplex.foo.bar			/* Valid */
 	};
 

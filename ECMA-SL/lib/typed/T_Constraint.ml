@@ -123,11 +123,6 @@ let eval_constraint (ttar : E_Type.t) (cstr : constraint_t) : E_Type.t list =
     let tkn = T_Err.Expr cstr.expr in
     T_Err.raise (T_Err.NoOverlapComp (ttar, cstr.tcstr)) ~tkn
   in
-  let _unfold_number_f t =
-    let numInt = E_Type.RuntimeType Type.IntType in
-    let numFlt = E_Type.RuntimeType Type.FltType in
-    match t with E_Type.NumberType -> [ numInt; numFlt ] | _ -> [ t ]
-  in
   let _runtime_neq_f b = if cstr.isNeq then not b else b in
   let _runtime_cmp_f t =
     match cstr.tcstr with
@@ -135,8 +130,7 @@ let eval_constraint (ttar : E_Type.t) (cstr : constraint_t) : E_Type.t list =
     | _ -> E_Type.to_runtime t = cstr.tcstr
   in
   if cstr.isTypeof then
-    let ttar' = List.concat (List.map _unfold_number_f (_tlst ttar)) in
-    List.filter (fun t -> t |> _runtime_cmp_f |> _runtime_neq_f) ttar'
+    List.filter (fun t -> t |> _runtime_cmp_f |> _runtime_neq_f) (_tlst ttar)
   else if cstr.isNeq then
     let tlit = E_Type.unfold_type false ttar in
     let tunfolded = E_Type.unfold_type true ttar in
@@ -178,12 +172,6 @@ let apply_clause (tctx : T_Ctx.t) (clause : t) : unit =
   let _eval_constraint_f (tar, cstr) =
     eval_constraint (T_Expr.type_expr tctx tar) cstr
   in
-  let _fold_number_f t =
-    match t with
-    | E_Type.RuntimeType Type.IntType -> E_Type.NumberType
-    | E_Type.RuntimeType Type.FltType -> E_Type.NumberType
-    | _ -> t
-  in
   let _get_targets elements =
     let _unique_f e r = if List.mem e r then r else e :: r in
     List.fold_right _unique_f (fst (List.split elements)) []
@@ -191,8 +179,7 @@ let apply_clause (tctx : T_Ctx.t) (clause : t) : unit =
   if clause <> NoConstraint then
     let elements = List.map _inspect_element_f (cnf_or_clauses clause) in
     let tevals = List.concat (List.map _eval_constraint_f elements) in
-    let tfolded = List.map _fold_number_f tevals in
-    let tconstraint = T_Narrowing.narrow_type (E_Type.UnionType tfolded) in
+    let tconstraint = T_Narrowing.narrow_type (E_Type.UnionType tevals) in
     let targets = _get_targets elements in
     apply_constrain tctx targets tconstraint
 

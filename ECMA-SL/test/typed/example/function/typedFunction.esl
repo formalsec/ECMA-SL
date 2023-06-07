@@ -2,11 +2,11 @@ function untypedFunction(x) {
   return "abc"
 };
 
-function typedFunction(x: number, y: string): number {
+function typedFunction(x: int, y: string): int {
   return 0
 };
 
-function duplicatedParams (x: number, x: string) {   /* DuplicatedParam: "x" */
+function duplicatedParams (x: int, x: string) {   /* DuplicatedParam: "x" */
   return 0
 };
 

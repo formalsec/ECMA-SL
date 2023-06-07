@@ -1,18 +1,18 @@
-function _numberString(): number | string { return 10 };
+function _intFloat(): int | float { return 10 };
 function _stringBoolean(): string | boolean { return "abc" };
-function _objectNull(): { f: number } | null { return null };
+function _objectNull(): { f: int } | null { return null };
 
 function main() {
-	foo: number | string := _numberString();
+	foo: int | float := _intFloat();
 	bar: string | boolean := _stringBoolean();
-	baz: { f: number } | null := _objectNull();
+	baz: { f: int } | null := _objectNull();
 
 	if (typeof(foo) = __$Int) {
-		x: number := foo;						/* Valid */
-		y: string := foo						/* BadValue: string <- number */
+		x: int := foo;							/* Valid */
+		y: float := foo							/* BadValue: float <- int */
 	} else {
-		x: number := foo;						/* BadValue: number <- string */
-		y: string := foo						/* BadValue: string <- number */
+		x: int := foo;							/* BadValue: int <- float */
+		y: float := foo							/* Valid */
 	};
 
 	if (typeof(bar) = __$Str) {
@@ -25,10 +25,10 @@ function main() {
 
 	if (typeof(baz) = __$Null) {
 		x: null := baz;							/* Valid */
-		y: number := baz.f					/* BadPossibleType: baz <- null */
+		y: int := baz.f							/* BadPossibleType: baz <- null */
 	} else {
-		x: null := baz;							/* BadVal: null <- { f: number }  */
-		y: number := baz.f					/* Valid */
+		x: null := baz;							/* BadVal: null <- { f: int }  */
+		y: int := baz.f							/* Valid */
 	};
 
 	return 0

@@ -14,14 +14,14 @@ let%test _ =
   Test.type_checker_test "example/literal/call.esl"
     [
       BadArgument (LiteralType (Val.Int 20), LiteralType (Val.Int 10));
-      BadArgument (StringType, NumberType);
+      BadArgument (StringType, IntType);
     ]
 
 let%test _ =
   Test.type_checker_test "example/literal/narrowing.esl"
     [
-      BadValue (LiteralType (Val.Int 20), NumberType);
-      BadValue (StringType, NumberType);
-      BadArgument (LiteralType (Val.Int 20), NumberType);
-      BadArgument (StringType, NumberType);
+      BadValue (LiteralType (Val.Int 20), IntType);
+      BadValue (StringType, IntType);
+      BadArgument (LiteralType (Val.Int 20), IntType);
+      BadArgument (StringType, IntType);
     ]

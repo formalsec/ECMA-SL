@@ -1,11 +1,11 @@
 function main() {
-	foo: number := 10;
+	foo: int := 10;
 	foo := 20;								/* Valid */
 	foo: string := "abc";			/* Valid */
 	bar: string := foo;				/* Valid */
 
-	bar := 20;								/* BadValue: string <- number */
-	baz: number := foo;				/* BadValue: string <- number */
-	qux: number := baz;       /* UnknownVar: baz */
+	bar := 20;								/* BadValue: string <- int */
+	baz: int := foo;					/* BadValue: string <- int */
+	qux: int := baz;       		/* UnknownVar: baz */
 	return 0
 }

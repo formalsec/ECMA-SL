@@ -1,47 +1,46 @@
-function _numberStringBoolean(): number | string | boolean {
+function _intStringBoolean(): int | string | boolean {
 	return 10
 };
 
-function _numberAbc(): number | "abc" {
+function _intAbc(): int | "abc" {
 	return 10
 };
 
 function main() {
-	foo: number | string | boolean := _numberStringBoolean();
-	bar: number | "abc" := _numberAbc();
+	foo: int | string | boolean := _intStringBoolean();
+	bar: int | "abc" := _intAbc();
 
 	if (typeof(foo) = __$Int || typeof(foo) = __$Bool) {
-		x: number | boolean := foo;			/* Valid */
-		y: number := foo;								/* BadValue: number <- boolean */
-		z: string := foo;								/* BadValue: string <- number */
-		w: boolean := foo								/* BadValue: boolean <- number */
+		x: int | boolean := foo;		/* Valid */
+		y: int := foo;							/* BadValue: int <- boolean */
+		z: string := foo;						/* BadValue: string <- int */
+		w: boolean := foo						/* BadValue: boolean <- int */
 	} else {
-		x: number | string := foo;			/* Valid */
-		y: number := foo;								/* BadValue: number <- string */
-		z: string := foo;								/* BadValue: string <- number */
-		w: boolean := foo								/* BadValue: boolean <- number */
+		x: int := foo;							/* BadValue: int <- string */
+		y: string := foo;						/* Valid */
+		z: boolean := foo						/* BadValue: boolean <- string */
 	};
 
 	if (typeof(bar) = __$Str || bar = 10) {
-		x: "abc" | 10 := bar;						/* Valid */
-		y: "abc" := bar;								/* BadValue: "abc" <- 10 */
-		z: number := bar								/* BadValue: number <- "abc" */
+		x: "abc" | 10 := bar;				/* Valid */
+		y: "abc" := bar;						/* BadValue: "abc" <- 10 */
+		z: int := bar								/* BadValue: int <- "abc" */
 	};
 
 	if (foo = bar) {
-		x: number | "abc" := foo;				/* Valid */
-		y: number | "abc" := bar;				/* Valid */
-		z: number := foo;								/* BadValue: number <- "abc" */
-		w: number := bar								/* BadValue: number <- "abc" */
+		x: int | "abc" := foo;			/* Valid */
+		y: int | "abc" := bar;			/* Valid */
+		z: int := foo;							/* BadValue: int <- "abc" */
+		w: int := bar								/* BadValue: int <- "abc" */
 	};
 
 	if (foo = bar && typeof(foo) = __$Str) {
 		x: "abc" := foo;
-		y: "abc" := bar									/* BadValue: "abc" <- number */
+		y: "abc" := bar							/* BadValue: "abc" <- int */
 	};
 
 	if (bar = "abc" && typeof(bar) = __$Int) {
-		x: number := bar								/* BadValue: number <- never */
+		x: int := bar								/* BadValue: int <- never */
 	};
 
 	return 0

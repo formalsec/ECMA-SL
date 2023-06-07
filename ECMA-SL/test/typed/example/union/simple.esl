@@ -1,9 +1,9 @@
 function main() {
-  foo: number | any := "abc";       /* Valid */
-  bar: number | never := 10;        /* Valid */
-  baz: number | unknown := "abc";   /* Valid */
-  qux: number | string := 10;       /* Valid */
-  fred: number | string := "abc";   /* Valid */
-  thud: number | string := true;    /* BadValue: number | string <- boolean */
+  foo: int | any := "abc";        /* Valid */
+  bar: int | never := 10;         /* Valid */
+  baz: int | unknown := "abc";    /* Valid */
+  qux: int | string := 10;        /* Valid */
+  fred: int | string := "abc";    /* Valid */
+  thud: int | string := true;     /* BadValue: int | string <- boolean */
   return 0
 }

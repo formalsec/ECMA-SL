@@ -1,14 +1,14 @@
 function main() {
-	foo: number := 10;
-	bar: number := 10;
+	foo: int := 10;
+	bar: int := 10;
 	while (test) {											/* UnknownVar: test */
-		foo: number | string := "abc";		/* BadTypeUpdate: number <- number | string */
-		bar: string := "abc";							/* BadTypeUpdate: number <- string */
+		foo: int | string := "abc";				/* BadTypeUpdate: int <- int | string */
+		bar: string := "abc";							/* BadTypeUpdate: int <- string */
 		baz: string := "abc"							/* Valid */
 	};
 
-	x: string := foo;										/* BadValue: string <- number */
-	y: string := bar;										/* BadValue: string <- number */
+	x: string := foo;										/* BadValue: string <- int */
+	y: string := bar;										/* BadValue: string <- int */
 	z: string := baz;										/* UnknownVar: baz */
 	return 0
 }

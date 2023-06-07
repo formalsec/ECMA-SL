@@ -1,19 +1,19 @@
 function main() {
-	objSimple: { foo: number, bar: string } := { foo: 10, bar: "abc" };
+	objSimple: { foo: int, bar: string } := { foo: 10, bar: "abc" };
 	objComplex: { foo: { bar: string } } := { foo: { bar: "abc" } };
 	objComplexUndef: { foo: undefined } := { foo: 'undefined };
 	objUndef: undefined := 'undefined;
 	objNull: null := null;
 	objUnknown: unknown := 10;
-	objFalse: number := 10;
+	objFalse: int := 10;
 
-	x: number := objSimple.foo;					/* Valid */
+	x: int := objSimple.foo;						/* Valid */
 	y: string := objSimple.bar;					/* Valid */
 	z: string := objComplex.foo.bar;		/* Valid */
 	
-	x: number := objSimple.bar;					/* BadValue: number <- string */
-	y: number := objSimple.baz;					/* BadLookup: obj.baz */
-	z: number := objComplex.foo.bar;		/* BadLookup: number <- string */
+	x: int := objSimple.bar;						/* BadValue: int <- string */
+	y: int := objSimple.baz;						/* BadLookup: obj.baz */
+	z: int := objComplex.foo.bar;				/* BadLookup: int <- string */
 
 	objComplexUndef.foo.bar;		/* BadPossibleType: objComplexUndef.foo <- undefined */
 	objUndef.foo;								/* BadPossibleType: undef_obj <- undefined */

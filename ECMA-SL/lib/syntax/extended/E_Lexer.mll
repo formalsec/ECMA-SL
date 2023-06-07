@@ -84,10 +84,11 @@
                 "to_char_code_u"        , TO_CHAR_CODE_U;
                 "to_lower_case"         , TO_LOWER_CASE;
                 "to_upper_case"         , TO_UPPER_CASE;
-
                 "trim"                  , TRIM;
-                "sqrt"                  , SQRT;
+
+                "random"                , RANDOM;
                 "abs"                   , ABS;
+                "sqrt"                  , SQRT;
                 "ceil"                  , CEIL;
                 "floor"                 , FLOOR;
                 "PI"                    , PI;
@@ -97,7 +98,6 @@
                 "log_2"                 , LOG_2;
                 "log_e"                 , LOG_E;
                 "log_10"                , LOG_10;
-                "random"                , RANDOM;
                 "cos"                   , COS;
                 "sin"                   , SIN;
                 "tan"                   , TAN;
@@ -174,7 +174,8 @@
                 "unknown"               , TYPE_UNKNOWN;
                 "never"                 , TYPE_NEVER;
                 "undefined"             , TYPE_UNDEFINED;
-                "number"                , TYPE_NUMBER;
+                "int"                   , TYPE_INT;
+                "float"                 , TYPE_FLOAT;
                 "string"                , TYPE_STRING;
                 "boolean"               , TYPE_BOOLEAN;
                 "symbol"                , TYPE_SYMBOL;

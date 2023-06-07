@@ -5,6 +5,6 @@ function _stringCall(x: string) { return 0 };
 function main() {
 	_literalCall10(10);			/* Valid */
 	_literalCall20(10);			/* BadArgument: 20 <- 10 */
-	_stringCall(10);				/* BadArgument: string <- number */
+	_stringCall(10);				/* BadArgument: string <- int */
 	return 0
 }

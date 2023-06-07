@@ -1,19 +1,19 @@
 function main() {
-	objSimple: { foo: number | string } := { foo: 10 };
-	objComplex: { foo: { bar: number | string } } := { foo: { bar : 10 } };
+	objSimple: { foo: int | string } := { foo: 10 };
+	objComplex: { foo: { bar: int | string } } := { foo: { bar : 10 } };
 	objSpecial: { foo: any, bar: unknown } := { foo: 10, bar: "abc" };
 
-	x: number | string := objSimple.foo;				/* Valid */
-	y: number | string := objComplex.foo.bar;		/* Valid */
-	z: number := objSimple.foo;									/* BadValue: number <- string */
-	w: string := objComplex.foo.bar;						/* BadValue: string <- number */
+	x: int | string := objSimple.foo;					/* Valid */
+	y: int | string := objComplex.foo.bar;		/* Valid */
+	z: int := objSimple.foo;									/* BadValue: int <- string */
+	w: string := objComplex.foo.bar;					/* BadValue: string <- int */
 
 	objSimple.foo := "abc";
 	objComplex.foo.bar := "abc";
-	x: string := objSimple.foo;					/* BadValue: string <- number */
-	y: string := objComplex.foo.bar;		/* BadValue: string <- number */
+	x: string := objSimple.foo;					/* BadValue: string <- int */
+	y: string := objComplex.foo.bar;		/* BadValue: string <- int */
 
-	x: number := objSpecial.foo;				/* Valid */
+	x: int := objSpecial.foo;						/* Valid */
 	y: string := objSpecial.foo;				/* Valid */
 	z: string := objSpecial.bar;				/* BadValue: string <- unknown */
 	return 0

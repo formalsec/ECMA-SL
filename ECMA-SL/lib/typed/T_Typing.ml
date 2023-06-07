@@ -5,8 +5,8 @@ let literal_terr (expr : E_Expr.t) (texpr : t) : t =
 
 let check_literal_narrowing (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   match (tref, texpr) with
-  | NumberType, LiteralType (Val.Int _) -> ()
-  | NumberType, LiteralType (Val.Flt _) -> ()
+  | IntType, LiteralType (Val.Int _) -> ()
+  | FloatType, LiteralType (Val.Flt _) -> ()
   | StringType, LiteralType (Val.Str _) -> ()
   | BooleanType, LiteralType (Val.Bool _) -> ()
   | SymbolType, LiteralType (Val.Symbol _) -> ()
@@ -98,7 +98,8 @@ let rec type_check (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   | UnknownType, _ -> ()
   | UndefinedType, UndefinedType -> ()
   | NullType, NullType -> ()
-  | NumberType, NumberType -> ()
+  | IntType, IntType -> ()
+  | FloatType, FloatType -> ()
   | StringType, StringType -> ()
   | BooleanType, BooleanType -> ()
   | SymbolType, SymbolType -> ()

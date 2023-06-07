@@ -4,8 +4,8 @@ function main() {
 	undefinedVariable: undefined := 'undefined;   /* Valid */
 
   foo: string := anyVariable;                   /* Valid */
-  baz: number := unknownVariable;               /* BadValue: number <- unknown */
-	bar: never := 10;                             /* BadValue: never <- number */
+  baz: int := unknownVariable;                  /* BadValue: int <- unknown */
+	bar: never := 10;                             /* BadValue: never <- int */
   qux: symbol := 'undefined;                    /* BadValue: symbol <- undefined */ 
   return 0
 }

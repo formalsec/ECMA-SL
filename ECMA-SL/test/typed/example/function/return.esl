@@ -1,9 +1,9 @@
-function foo(): number {
+function foo(): int {
   return 10
 };
 
 function bar(): string {
-  return 10                 /* BadReturn: number <- string */
+  return 10                 /* BadReturn: int <- string */
 };
 
 function main() {

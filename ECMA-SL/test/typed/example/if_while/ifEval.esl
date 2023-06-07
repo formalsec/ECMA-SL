@@ -1,12 +1,12 @@
 function main() {
-	foo: number := 10;
-	if (foo) {							/* BadExpectedType: boolean <- number */
-		bar: number := 20
+	foo: int := 10;
+	if (foo) {							/* BadExpectedType: boolean <- int */
+		bar: int := 20
 	} else {
 		bar: string := "abc"
 	};
 
-	x: string := foo;				/* BadValue: string <- number */
-	y: string := bar;				/* BadValue: string <- number */
+	x: string := foo;				/* BadValue: string <- int */
+	y: string := bar;				/* BadValue: string <- int */
 	return 0
 }

@@ -69,7 +69,7 @@ let at (startpos, endpos) =
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token QUESTION
 %token EOF
-%token TYPEDEF, TYPE_ANY, TYPE_UNKNOWN, TYPE_NEVER, TYPE_UNDEFINED, TYPE_NUMBER, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL, TYPE_SIGMA
+%token TYPEDEF, TYPE_ANY, TYPE_UNKNOWN, TYPE_NEVER, TYPE_UNDEFINED, TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL, TYPE_SIGMA
 
 
 %token API_ASSUME API_MK_SYMBOLIC API_ABORT
@@ -738,8 +738,10 @@ e_simple_type_target:
     { E_Type.NeverType }
   | TYPE_UNDEFINED;
     { E_Type.UndefinedType }
-  | TYPE_NUMBER;
-    { E_Type.NumberType }
+  | TYPE_INT;
+    { E_Type.IntType }
+  | TYPE_FLOAT;
+    { E_Type.FloatType }
   | TYPE_STRING;
     { E_Type.StringType }
   | TYPE_BOOLEAN;

@@ -1,13 +1,13 @@
 function main() {
   untypedVariable := 10;              /* Valid */
-  intergerVariable: number := 10;     /* Valid */
-  floatVariable: number := 10.10;     /* Valid */
+  intergerVariable: int := 10;        /* Valid */
+  floatVariable: float := 10.10;      /* Valid */
   stringVariable: string := "abc";    /* Valid */
   booleanVariable: boolean := true;   /* Valid */
 	symbolVariable: symbol := 'a;       /* Valid */
 
-  foo: number := "abc";               /* BadValue: number <- string */
+  foo: int := "abc";                  /* BadValue: int <- string */
   bar: string := 'a;                  /* BadValue: string <- symbol */
-  baz: boolean := 10;                 /* BadValue: boolean <- number */
+  baz: boolean := 10;                 /* BadValue: boolean <- int */
   return 0
 }

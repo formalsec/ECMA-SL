@@ -1,7 +1,7 @@
 function main() {
-	x: number := 10;
+	x: int := 10;
 	if (typeof(x) = __$Str) {
-		x: number := x;						/* BadValue: number <- never */
+		x: int := x;							/* BadValue: int <- never */
 		y: string := x						/* BadValue: string <- never */
 	};
 

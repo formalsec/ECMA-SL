@@ -21,9 +21,9 @@ let type_var (narrow : bool) (tctx : T_Ctx.t) (x : string) : E_Type.t =
 
 let type_const (c : Operators.const) : E_Type.t =
   match c with
-  | Operators.MAX_VALUE -> E_Type.NumberType
-  | Operators.MIN_VALUE -> E_Type.NumberType
-  | Operators.PI -> E_Type.NumberType
+  | Operators.MAX_VALUE -> E_Type.FloatType
+  | Operators.MIN_VALUE -> E_Type.FloatType
+  | Operators.PI -> E_Type.FloatType
 
 let test_operand (test_operand_f : E_Expr.t -> E_Type.t -> E_Type.t)
     ((arg, tparam) : E_Expr.t * E_Type.t) : unit =
@@ -48,6 +48,28 @@ let test_generic_call (tctx : T_Ctx.t) (args : E_Expr.t list)
     (test_f : E_Expr.t * E_Type.t -> unit) : E_Type.t =
   List.combine args tparams |> List.iter test_f |> fun () ->
   T_Narrowing.narrow_type tret
+
+let test_operator_call (tctx : T_Ctx.t) (args : E_Expr.t list)
+    (funPrototype : T_Op.funPrototype_t list)
+    (test_f : E_Expr.t * E_Type.t -> unit) : E_Type.t =
+  let module CallRes = struct
+    type t = Succ of E_Type.t | Err of T_Err.t
+  end in
+  let _test_generic_call_f (tparams, tret) =
+    try CallRes.Succ (test_generic_call tctx args tparams tret test_f)
+    with T_Err.TypeError terr -> CallRes.Err terr
+  in
+  let _split_call_res_f f r =
+    match (f, r) with
+    | CallRes.Succ t, (rSucc, rErr) -> (t :: rSucc, rErr)
+    | CallRes.Err terr, (rSucc, rErr) -> (rSucc, terr :: rErr)
+  in
+  let calls = List.map _test_generic_call_f funPrototype in
+  let succCalls, errCalls = List.fold_right _split_call_res_f calls ([], []) in
+  match (succCalls, errCalls) with
+  | t :: _, _ -> t
+  | [], terr :: _ -> T_Err.continue terr
+  | _ -> failwith "Typed ECMA-SL: T_Expr.test_operator_call"
 
 let test_nargs (tctx : T_Ctx.t) (expr : E_Expr.t) (args : E_Expr.t list)
     (tparams : E_Type.t list) : unit =
@@ -130,24 +152,24 @@ let rec type_expr ?(narrow : bool = true) (tctx : T_Ctx.t) (expr : E_Expr.t) :
   | Const c -> type_const c
   | UnOpt (op, e) ->
       let args = [ e ] in
-      let tparams, tret = T_Op.type_unop op in
+      let funPrototype = T_Op.type_unop op in
       let test_operand_f = test_operand (safe_type_expr tctx) in
-      test_generic_call tctx args tparams tret test_operand_f
+      test_operator_call tctx args funPrototype test_operand_f
   | BinOpt (op, e1, e2) ->
       let args = [ e1; e2 ] in
-      let tparams, tret = T_Op.type_binop op in
+      let funPrototype = T_Op.type_binop op in
       let test_operand_f = test_operand (safe_type_expr tctx) in
-      test_generic_call tctx args tparams tret test_operand_f
+      test_operator_call tctx args funPrototype test_operand_f
   | EBinOpt (op, e1, e2) ->
       let args = [ e1; e2 ] in
-      let tparams, tret = T_Op.type_ebinop op in
+      let funPrototype = T_Op.type_ebinop op in
       let test_operand_f = test_operand (safe_type_expr tctx) in
-      test_generic_call tctx args tparams tret test_operand_f
+      test_operator_call tctx args funPrototype test_operand_f
   | TriOpt (op, e1, e2, e3) ->
       let args = [ e1; e2; e3 ] in
-      let tparams, tret = T_Op.type_triop op in
+      let funPrototype = T_Op.type_triop op in
       let test_operand_f = test_operand (safe_type_expr tctx) in
-      test_generic_call tctx args tparams tret test_operand_f
+      test_operator_call tctx args funPrototype test_operand_f
   (* | NOpt (_, _) ->  *)
   | Call (fexpr, args, _) ->
       let tparams, tret = type_call tctx expr fexpr args in

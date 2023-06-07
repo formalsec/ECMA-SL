@@ -1,15 +1,15 @@
-function _sigmaCall(): sigma[type] { type: "foo", foo: number } | { type: false }
+function _sigmaCall(): sigma[type] { type: "foo", foo: int } | { type: false }
 	{ return { type: "foo", foo: 10 } };
 
 function main() {
 	sigmaSimple: sigma[type] { type: "foo" } | { type: "bar" } := { type: "foo" };
-	sigmaCall: sigma[type] { type: "foo", foo: number } | { type: false } := _sigmaCall();
+	sigmaCall: sigma[type] { type: "foo", foo: int } | { type: false } := _sigmaCall();
 
 	x: "foo" := sigmaSimple.type;				/* Valid */
 	y: "bar" := sigmaSimple.type;				/* BadValue: "bar" <- "foo" */
 	z: "foo" := sigmaCall.type;					/* BadValue: "foo" <- false */
 	w: false := sigmaCall.type;					/* BadValue: false <- "foo" */
-	v: number := sigmaCall.foo;					/* BadLookup: sigmaCall.foo */
+	v: int := sigmaCall.foo;						/* BadLookup: sigmaCall.foo */
 
 	sigmaSimple.type := "foo";					/* Valid */
 	sigmaSimple.type := "bar";					/* BadValue: "foo" <- "bar" */
@@ -20,7 +20,7 @@ function main() {
 	if (sigmaCall.type = "foo") {
 		x: "foo" := sigmaCall.type;				/* Valid */
 		y: false := sigmaCall.type;				/* BadValue: false <- "foo" */
-		z: number := sigmaCall.foo				/* Valid */
+		z: int := sigmaCall.foo						/* Valid */
 	} else {
 		x: false := sigmaCall.type;				/* Valid */
 		y: "foo" := sigmaCall.type				/* BadValue: "foo" <- false */

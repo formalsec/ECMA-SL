@@ -1,6 +1,6 @@
 function main() {
-	literalNumberInt: 10 := 10;				/* Valid */
-	literalNumberFlt: 10.1 := 10.1;		/* Valid */
+	literalInt: 10 := 10;							/* Valid */
+	literalFlt: 10.1 := 10.1;					/* Valid */
 	literalString: "abc" := "abc";		/* Valid */
 	literalBoolean: true := true;			/* Valid */
 	literalSymbol: 'a := 'a;					/* Valid */
