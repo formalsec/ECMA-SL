@@ -69,7 +69,13 @@ module M (Mon : SecurityMonitor) = struct
         | Type.IntType ->
             Random.self_init ();
             Val.Int (Random.int 128)
-        | _ -> failwith "eval_expr: Symbolic not implemented!")
+        | Type.FltType ->
+            Random.self_init ();
+            Val.Flt (Random.float 128.0)
+        | _ ->
+            failwith
+              (Core.sprintf "eval_expr: Symbolic \"%s\" not implemented!"
+                 (Type.str t)))
 
   let get_func_id (sto : Val.t Store.t) (exp : Expr.t) : string * Val.t list =
     let res = eval_expr sto exp in
@@ -202,9 +208,9 @@ module M (Mon : SecurityMonitor) = struct
                 print_endline (lazy "PROGRAM PRINT: Non-existent location"))
         | _ -> print_endline (lazy ("PROGRAM PRINT: " ^ Val.str v)));
         (Intermediate ((cs, heap, sto, f), cont), SecLabel.PrintLab e)
-    | Abort e ->
-        let v = eval_expr sto e in
-        (Finalv (Some v), SecLabel.EmptyLab)
+    | Abort _ ->
+        (* NOP *)
+        (Intermediate (state, cont), SecLabel.EmptyLab)
     | Fail e ->
         let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
         print_endline
@@ -217,12 +223,6 @@ module M (Mon : SecurityMonitor) = struct
                (Call_stack.str cs)));
         let v = eval_expr sto e in
         (Errorv (Some v), SecLabel.EmptyLab)
-    | Assume e ->
-        let v = eval_expr sto e in
-        if is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)
-        else
-          let e' = "Assume false: " ^ Expr.str e in
-          (Finalv (Some (Val.Str e')), SecLabel.EmptyLab)
     | Assert e ->
         let v = eval_expr sto e in
         if is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)
@@ -359,18 +359,13 @@ module M (Mon : SecurityMonitor) = struct
         let v = eval_objfields_oper heap sto e in
         Store.set sto st v;
         (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (st, e))
-    | SymbStmt ss ->
-        let name, v, exp =
-          match ss with
-          | Symb_stmt.IsSymbolic (name, e) -> (name, eval_expr sto e, e)
-          | Symb_stmt.IsNumber (name, e) -> (name, eval_expr sto e, e)
-          | Symb_stmt.IsSat (name, e) -> (name, eval_expr sto e, e)
-          | Symb_stmt.Maximize (name, e) -> (name, eval_expr sto e, e)
-          | Symb_stmt.Minimize (name, e) -> (name, eval_expr sto e, e)
-          | Symb_stmt.Eval (name, e) -> (name, eval_expr sto e, e)
-        in
-        Store.set sto name v;
-        (Intermediate ((cs, heap, sto, f), cont), SecLabel.AssignLab (name, exp))
+    | SymStmt (SymStmt.Assume e) ->
+        let v = eval_expr sto e in
+        if is_true v then (Intermediate (state, cont), SecLabel.EmptyLab)
+        else
+          let e' = "Assume false: " ^ Expr.str e in
+          (Finalv (Some (Val.Str e')), SecLabel.EmptyLab)
+    | SymStmt _ -> failwith "eval_small_step: SymStmt: TODO"
 
   (*This function will iterate smallsteps in a list of functions*)
   let rec small_step_iter

@@ -1,0 +1,47 @@
+function arithmetic_expression_pos(scope, arg) {
+  print("ArithmeticExpressionPos [arg]");
+  eval := unary_expression(scope, arg);
+  return eval
+};
+
+function arithmetic_expression_neg(scope, arg) {
+  print("ArithmeticExpressionNeg [arg]");
+  eval := unary_expression(scope, arg);
+  return -eval
+};
+
+function arithmetic_expression_plus(scope, left, right) {
+  print("ArithmeticExpressionPlus [left][right]");
+  evals := binary_expression(scope, left, right);
+  return evals.left + evals.right
+};
+
+function arithmetic_expression_minus(scope, left, right) {
+  print("ArithmeticExpressionMinus [left][right]");
+  evals := binary_expression(scope, left, right);
+  return evals.left - evals.right
+};
+
+function arithmetic_expression_times(scope, left, right) {
+  print("ArithmeticExpressionTimes [left][right]");
+  evals := binary_expression(scope, left, right);
+  return evals.left * evals.right
+};
+
+function arithmetic_expression_division(scope, left, right) {
+  print("ArithmeticExpressionDivision [left][right]");
+  evals := binary_expression(scope, left, right);
+  return evals.left / evals.right
+};
+
+function arithmetic_expression_modulus(scope, left, right) {
+  print("ArithmeticExpressionModulus [left][right]");
+  evals := binary_expression(scope, left, right);
+  return evals.left % evals.right
+};
+
+function arithmetic_expression_power(scope, left, right) {
+  print("ArithmeticExpressionPower [left][right]");
+  evals := binary_expression(scope, left, right);
+  return evals.left ** evals.right
+}

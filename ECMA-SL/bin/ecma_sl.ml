@@ -56,7 +56,7 @@ let parse_program (prog : Prog.t) (inline : string) : unit =
   print_string json;
   print_string "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   let jsonfile = Filename.remove_extension !Config.file in
-  Io.write_file (jsonfile ^ inline ^ ".json") json;
+  Io.write_file ~file:(jsonfile ^ inline ^ ".json") ~data:json;
   Printf.printf "%s" jsonfile
 
 let core_of_plus (file : string) : Prog.t =
@@ -70,7 +70,8 @@ let core_of_plus (file : string) : Prog.t =
 
 let compile_from_plus_to_core (file : string) : unit =
   let c_prog = core_of_plus file in
-  if !Config.output <> "" then Io.write_file !Config.output (Prog.str c_prog)
+  if !Config.output <> "" then
+    Io.write_file ~file:!Config.output ~data:(Prog.str c_prog)
   else print_endline (Prog.str c_prog)
 
 let inline_compiler () : Prog.t =
@@ -82,7 +83,7 @@ let inline_compiler () : Prog.t =
   let lattice_prog = Parsing_utils.parse_prog sec_prog_contents in
   let final_prog = combine_progs inlined_prog lattice_prog in
   let inlinedfile = Filename.remove_extension !Config.file in
-  Io.write_file (inlinedfile ^ "_inlined.esl") (Prog.str final_prog);
+  Io.write_file ~file:(inlinedfile ^ "_inlined.esl") ~data:(Prog.str final_prog);
   Printf.printf
     "================= FINAL PROGRAM ================= \n\
     \ %s \n\
@@ -93,8 +94,8 @@ let inline_compiler () : Prog.t =
 let core_interpretation (prog : Prog.t) : exit_code =
   let v, heap = Interpreter.eval_prog prog !Config.mon !Config.target in
   if !Config.heap_file <> "" then
-    Io.write_file !Config.heap_file
-      (Heap.to_string_with_glob heap (Val.str ~flt_with_dot:false));
+    Io.write_file ~file:!Config.heap_file
+      ~data:(Heap.to_string_with_glob heap (Val.str ~flt_with_dot:false));
   match v with
   | Some z -> (
       match z with

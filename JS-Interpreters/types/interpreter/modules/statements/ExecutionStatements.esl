@@ -1,0 +1,55 @@
+function program(scope, stmts, vdecls, fdecls) {
+  print("Program [stmts]:");
+  print(stmts);
+  scope := initialize_scope(scope, vdecls, fdecls);
+  i := 0;
+  retval := 'empty;
+  len := l_len(stmts);
+  while (i < len && scope.flow_state = 'normal) {
+    stmt := l_nth(stmts, i);
+    print("________________________________________________________________________________");
+    print("Start of the statement [stmt]");
+    print(stmt);
+    scope.this_context := null;
+    retval := interpreter(scope, stmt);
+    print("End of the statement [retval]");
+    print(retval);
+    i := i + 1
+  };
+  print("________________________________________________________________________________");
+  print("End of the program [retval]:");
+  print(retval);
+  return retval
+};
+
+function block_statement(scope, stmts) {
+  print("BlockStatement [stmts]:");
+  print(stmts);
+  i := 0;
+  retval := 'empty;
+  len := l_len(stmts);
+  while (i < len && scope.flow_state = 'normal) {
+    stmt := l_nth(stmts, i);
+    print("Start of the statement [stmt]");
+    print(stmt);
+    scope.this_context := null;
+    retval := interpreter(scope, stmt);
+    print("End of the statement [retval]");
+    print(retval);
+    i := i + 1
+  };
+  print("________________________________________________________________________________");
+  print("End of the block [retval]:");
+  print(retval);
+  return retval
+};
+
+function return_statement(scope, arg) {
+  print("ReturnStatement [arg]");
+  print(arg);
+  scope.this_context := null;
+  retval := interpreter(scope, arg);
+  scope.flow_state := 'return;
+  return retval
+}
+

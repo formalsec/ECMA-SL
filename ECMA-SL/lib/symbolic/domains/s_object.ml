@@ -101,14 +101,13 @@ let is_key_possible ?(b = false) (key1 : Expr.t) (key2 : Expr.t) (solver : Encod
 
   if b then (
     Printf.printf "\n\n";
-    if not ret then 
-      List.iter pc ~f:(fun v -> Printf.printf "%s\n" (Encoding.Expression.to_string v));
+    if not ret then
+      List.iter pc ~f:(fun v ->
+          Printf.printf "%s\n" (Encoding.Expression.to_string v));
     Printf.printf "create_object tested: %s, result: %b\n" (Expr.str eq) ret;
     Printf.printf "\n\n";
-    ret
-  )
-  else
-    ret
+    ret)
+  else ret
 
 let set (o : 'a t) (key : vt) (data : 'a) (solver : Encoding.Batch.t)
     (pc : encoded_pct list) (store : Sstore.t) : ('a t * encoded_pct option) list =
@@ -218,7 +217,6 @@ let get (o : 'a t) (key : vt) (solver : Encoding.Batch.t)
               (o', Some new_pc, None) :: obj_list
             else obj_list)
   | _ -> (
-
       let res = get_symbolic_field o key in
       match res with
       | Some v -> 

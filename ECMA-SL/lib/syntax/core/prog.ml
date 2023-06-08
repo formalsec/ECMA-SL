@@ -1,19 +1,20 @@
+open Core
 open Func
 
-type t = (string, Func.t) Hashtbl.t
+type t = (String.t, Func.t) Caml.Hashtbl.t
 
-let create_empty () : t = Hashtbl.create !Config.default_hashtbl_sz
+let create_empty () : t = Caml.Hashtbl.create !Config.default_hashtbl_sz
 
 let create (funcs : Func.t list) : t =
-  let prog = Hashtbl.create !Config.default_hashtbl_sz in
-  List.iter (fun (f : Func.t) -> Hashtbl.replace prog f.name f) funcs;
+  let prog = Caml.Hashtbl.create !Config.default_hashtbl_sz in
+  List.iter ~f:(fun (f : Func.t) -> Caml.Hashtbl.replace prog f.name f) funcs;
   prog
 
 let get_func (prog : t) (id : string) : Func.t =
-  try Hashtbl.find prog id
+  try Caml.Hashtbl.find prog id
   with _ ->
-    Printf.printf "Could not find function %s" id;
-    raise (Failure "Function not found.")
+    Printf.printf "Could not find function %s " id;
+    failwith "Function not found."
 
 let get_body (prog : t) (id : string) : Stmt.t =
   let s = get_func prog id in
@@ -28,16 +29,16 @@ let get_name (prog : t) (id : string) : string =
   s.name
 
 let add_func (prog : t) (k : string) (v : Func.t) : unit =
-  Hashtbl.replace prog k v
+  Caml.Hashtbl.replace prog k v
 
 let get_funcs (prog : t) : Func.t list =
-  Hashtbl.fold (fun _ f fs -> f :: fs) prog []
+  Caml.Hashtbl.fold (fun _ f fs -> f :: fs) prog []
 
 (*------------Strings----------*)
 
 let str (prog : t) : string =
-  String.concat ";\n" (List.map Func.str (get_funcs prog))
+  String.concat ~sep:";\n" (List.map ~f:Func.str (get_funcs prog))
 
 let to_json (prog : t) : string =
   Printf.sprintf "{\"type\" : \" prog\", \"funcs\" : [ %s ] }"
-    (String.concat ", " (List.map Func.to_json (get_funcs prog)))
+    (String.concat ~sep:", " (List.map ~f:Func.to_json (get_funcs prog)))

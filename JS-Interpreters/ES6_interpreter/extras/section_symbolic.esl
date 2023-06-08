@@ -2,54 +2,67 @@ function initESLSymbolicObject(globalObject, objectPrototype, strict) {
   esl_symbolic := NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(esl_symbolic);
 
-  internalSymbolicNumber := CreateBuiltInFunctionObject(["var"], "__internalSymbolicNumber", globalObject, strict, null);
-  internalSymbolicString := CreateBuiltInFunctionObject(["var"], "__internalSymbolicString", globalObject, strict, null);
-  internalSymbolicAssume := CreateBuiltInFunctionObject(["expr"], "__internalSymbolicAssume", globalObject, strict, null);
-  internalSymbolicAssert := CreateBuiltInFunctionObject(["expr"], "__internalSymbolicAssert", globalObject, strict, null);
+  apiSymbolicNumber := CreateBuiltInFunctionObject(["var"], "__apiSymbolicNumber", globalObject, strict, null);
+  apiSymbolicString := CreateBuiltInFunctionObject(["var"], "__apiSymbolicString", globalObject, strict, null);
+  apiSymbolicAssume := CreateBuiltInFunctionObject(["expr"], "__apiSymbolicAssume", globalObject, strict, null);
+  apiSymbolicAssert := CreateBuiltInFunctionObject(["expr"], "__apiSymbolicAssert", globalObject, strict, null);
+  apiIsSymbolic := CreateBuiltInFunctionObject(["expr"], "__apiSymbolicIsSymbolic", globalObject, strict, null);
+  apiEvalWrapper := CreateBuiltInFunctionObject(["expr"], "__apiSymbolicEvalWrapper", globalObject, strict, null);
+  apiExecWrapper := CreateBuiltInFunctionObject(["expr"], "__apiSymbolicExecWrapper", globalObject, strict, null);
 
-  createBuiltInProperty(esl_symbolic, "number", internalSymbolicNumber);
-  createBuiltInProperty(esl_symbolic, "string", internalSymbolicString);
-  createBuiltInProperty(esl_symbolic, "assume", internalSymbolicAssume);
-  createBuiltInProperty(esl_symbolic, "assert", internalSymbolicAssert);
+  createBuiltInProperty(esl_symbolic, "number", apiSymbolicNumber);
+  createBuiltInProperty(esl_symbolic, "string", apiSymbolicString);
+  createBuiltInProperty(esl_symbolic, "assume", apiSymbolicAssume);
+  createBuiltInProperty(esl_symbolic, "assert", apiSymbolicAssert);
+  createBuiltInProperty(esl_symbolic, "is_symbolic", apiIsSymbolic);
+  createBuiltInProperty(esl_symbolic, "evalWrapper", apiEvalWrapper);
+  createBuiltInProperty(esl_symbolic, "execWrapper", apiExecWrapper);
 
-  createBuiltInProperty(internalSymbolicNumber, "prototype", objectPrototype);
-  createBuiltInProperty(internalSymbolicString, "prototype", objectPrototype);
-  createBuiltInProperty(internalSymbolicAssume, "prototype", objectPrototype);
-  createBuiltInProperty(internalSymbolicAssert, "prototype", objectPrototype);
+  createBuiltInProperty(apiSymbolicNumber, "prototype", objectPrototype);
+  createBuiltInProperty(apiSymbolicString, "prototype", objectPrototype);
+  createBuiltInProperty(apiSymbolicAssume, "prototype", objectPrototype);
+  createBuiltInProperty(apiSymbolicAssert, "prototype", objectPrototype);
+  createBuiltInProperty(apiIsSymbolic, "prototype", objectPrototype);
+  createBuiltInProperty(apiEvalWrapper, "prototype", objectPrototype);
+  createBuiltInProperty(apiExecWrapper, "prototype", objectPrototype);
 
   setInternalProperty(esl_symbolic, "Prototype", objectPrototype);
 
   return esl_symbolic
 };
-function __internalSymbolicNumber(globalObject, this, NewTarget, strict, params) {
-  /*
-    Criar a variavel simbolica usando o operador ESL correspondente e retorna-la
-  */
-  name := l_nth(params, 0);
-  symb := symbolic(__$Flt, name);
-  assume(!is_NaN(symb));
-  assume(!(symb = Infinity));
-  assume(!(symb = -Infinity));
-  return symb
+
+function __apiSymbolicNumber(globalObject, this, NewTarget, strict, params) {
+  return se_mk_symbolic(__$Flt, l_nth(params, 0))
 };
 
-function __internalSymbolicString(globalObject, this, NewTarget, strict, params) {
-  /*
-    Criar a variavel simbolica usando o operador ESL correspondente e retorna-la
-  */
-  name := l_nth(params, 0);
-  symb := symbolic(__$Str, name);
-  return symb
+function __apiSymbolicString(globalObject, this, NewTarget, strict, params) {
+  return se_mk_symbolic(__$Str, l_nth(params, 0))
 };
 
-function __internalSymbolicAssume(globalObject, this, NewTarget, strict, params) {
-  expr := l_nth(params, 0);
-  assume(expr);
+function __apiSymbolicAssume(globalObject, this, NewTarget, strict, params) {
+  se_assume(l_nth(params, 0));
   return 0
 };
 
-function __internalSymbolicAssert(globalObject, this, NewTarget, strict, params) {
-  expr := l_nth(params, 0);
-  assert(expr);
+function __apiSymbolicAssert(globalObject, this, NewTarget, strict, params) {
+  assert(l_nth(params, 0));
+  return 0
+};
+function __apiSymbolicIsSymbolic(globalObject, this, NewTarget, strict, params) {
+  return se_is_symbolic(l_nth(params, 0))
+};
+function __apiSymbolicEvalWrapper(globalObject, this, NewTarget, strict, params) {
+  x := l_nth(params, 0);
+  if (se_is_symbolic(x)) {
+    assert(false)
+  } else {
+    return GlobalObjectEval(globalObject, this, NewTarget, strict, params)
+  }
+};
+function __apiSymbolicExecWrapper(globalObject, this, NewTarget, strict, params) {
+  x := l_nth(params, 0);
+  if (se_is_symbolic(x)) {
+    assert(false)
+  };
   return 0
 }

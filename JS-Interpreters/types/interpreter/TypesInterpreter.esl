@@ -1,0 +1,177 @@
+import "interpreter/Import.esl";
+
+
+
+function interpreter(scope, s) {
+	print("........................................");
+
+	match s with
+	/* execution statements */
+	| { type: "Program", body: body, variableDeclarations: vdecls, functionDeclarations: fdecls } -> 
+			{ return program(scope, body, vdecls, fdecls) }
+	| { type: "BlockStatement", body: body } -> 
+			{ return block_statement(scope, body) }
+	| { type: "ReturnStatement", argument: arg } -> 
+			{ return return_statement(scope, arg) }
+
+	/* expression statements */
+	| { type: "ExpressionStatement", expression: expr } -> 
+			{ return expression_statement(scope, expr) }
+
+	/* conditional statements */
+	| { type: "IfStatement", test: test, consequent: stmt1, alternate: stmt2 } -> 
+			{ return if_statement(scope, test, stmt1, stmt2) }
+	| { type: "SwitchStatement", discriminant: discriminant, cases: cases } -> 
+			{ return switch_statement(scope, discriminant, cases) }
+
+	/* loop statements */
+	| { type: "WhileStatement", test: test, body: body } -> 
+			{ return while_loop_statement(scope, test, body) }
+	| { type: "ForStatement", init: init, test: test, update: update, body: body } -> 
+			{ return for_loop_statement(scope, init, test, update, body) }
+	| { type: "BreakStatement", label: null } ->
+			{ return break_statement(scope) }
+	| { type: "ContinueStatement", label: null } ->
+			{ return continue_statement(scope) }
+
+
+
+	/* arithmetic expressions */
+	| { type: "UnaryExpression", argument: arg, operator: "+" } -> 
+			{ return arithmetic_expression_pos(scope, arg) }
+	| { type: "UnaryExpression", argument: arg, operator: "-" } -> 
+			{ return arithmetic_expression_neg(scope, arg) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "+" } ->
+			{ return arithmetic_expression_plus(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "-" } -> 
+			{ return arithmetic_expression_minus(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "*" } -> 
+			{ return arithmetic_expression_times(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "/" } -> 
+			{ return arithmetic_expression_division(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "%" } -> 
+			{ return arithmetic_expression_modulus(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "**" } -> 
+			{ return arithmetic_expression_power(scope, left, right) }
+
+	/* assignment expressions */
+	| { type: "AssignmentExpression", left: left, right: right, operator: "=" } -> 
+			{ return assignment_expression(scope, left, right) }
+	| { type: "AssignmentExpression", left: left, right: right, operator: "+=" } ->
+			{ return plus_assignment_expression(scope, left, right) }
+	| { type: "AssignmentExpression", left: left, right: right, operator: "-=" } -> 
+			{ return minus_assignment_expression(scope, left, right) }
+	| { type: "AssignmentExpression", left: left, right: right, operator: "*=" } -> 
+			{ return times_assignment_expression(scope, left, right) }
+	| { type: "AssignmentExpression", left: left, right: right, operator: "/=" } -> 
+			{ return division_assignment_expression(scope, left, right) }
+	| { type: "AssignmentExpression", left: left, right: right, operator: "%=" } -> 
+			{ return modulus_assignment_expression(scope, left, right) }
+	| { type: "AssignmentExpression", left: left, right: right, operator: "**=" } -> 
+			{ return power_assignment_expression(scope, left, right) }
+
+	/* bitwise expressions */
+	| { type: "UnaryExpression", argument: arg, operator: "~" } -> 
+		{ return bitwise_expression_not(scope, arg) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "&" } -> 
+		{ return bitwise_expression_and(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "|" } -> 
+		{ return bitwise_expression_or(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "^" } -> 
+		{ return bitwise_expression_xor(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "<<" } -> 
+		{ return bitwise_expression_zero_fill_left_shift(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: ">>" } -> 
+		{ return bitwise_expression_signed_right_shift(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: ">>>" } -> 
+		{ return bitwise_expression_zero_fill_right_shift(scope, left, right) }
+
+	/* comparison expressions */
+	| { type: "BinaryExpression", left: left, right: right, operator: "==" } -> 
+			{ return comparison_expression_eq(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "!=" } -> 
+			{ return comparison_expression_ne(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "<" } -> 
+			{ return comparison_expression_lt(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: ">" } -> 
+			{ return comparison_expression_gt(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "<=" } -> 
+			{ return comparison_expression_le(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: ">=" } -> 
+			{ return comparison_expression_ge(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "===" } -> 
+			{ return comparison_expression_stricteq(scope, left, right) }
+	| { type: "BinaryExpression", left: left, right: right, operator: "!==" } -> 
+			{ return comparison_expression_strictne(scope, left, right) }
+
+	/* conditional expressions */
+	| { type: "ConditionalExpression", test: test, consequent: expr1, alternate: expr2 } -> 
+		{ return conditional_expression(scope, test, expr1, expr2) }
+
+	/* function call */
+	| { type: "CallExpression", callee: callee, arguments: args } ->
+			{ return call_expression(scope, callee, args) }
+
+	| { type: "NewExpression", callee: callee, arguments: args } ->
+			{ return new_expression(scope, callee, args) }
+
+	/* logical expressions */
+	| { type: "UnaryExpression", argument: arg, operator: "!" } -> 
+			{ return logical_expression_not(scope, arg) }
+	| { type: "LogicalExpression", left: left, right: right, operator: "||" } -> 
+			{ return logical_expression_or(scope, left, right) }
+	| { type: "LogicalExpression", left: left, right: right, operator: "&&" } -> 
+			{ return logical_expression_and(scope, left, right) }
+
+	/* object expressions */
+	| { type: "Property", kind: kind, key: key, value: value, computed: false, shorthand: false } -> 
+			{ return object_property(scope, key, value) }
+	| { type: "ObjectExpression", properties: props } ->
+			{ return object_expression(scope, props) }
+	| { type: "MemberExpression", object: object, property: prop, computed: true } ->
+			{ return member_expression(scope, object, prop) }
+
+
+	/* update expressions */
+	| { type: "UpdateExpression", argument: arg, operator: "++", prefix: prefix } -> 
+		{ return update_expression_inc(scope, arg, prefix) }
+	| { type: "UpdateExpression", argument: arg, operator: "--", prefix: prefix } -> 
+		{ return update_expression_dec(scope, arg, prefix) }
+
+
+
+	/* variable declarations */
+	| { type: "VariableDeclarator", id: id, init: init } -> 
+		{ return variable_declarator(scope, id, init) }
+	| { type: "VariableDeclaration", kind: "var", declarations: decls } -> 
+		{ return var_declaration(scope, decls) }
+	| { type: "VariableDeclaration", kind: "let", declarations: decls } -> 
+		{ return let_declaration(scope, decls) }
+	| { type: "VariableDeclaration", kind: "const", declarations: decls } -> 
+		{ return const_declaration(scope, decls) }
+
+
+
+	/* values */
+	| { type: "Literal", raw: raw, value: value } -> 
+			{ return literal_value(scope, value) }
+	| { type: "Identifier", name: name } -> 
+			{ return identifier_value(scope, name) }
+
+
+
+	/* custom empty value (to make our lives easier) */
+	| { type: "EmptyValue" } -> 
+			{ return 'empty }
+
+	| { type: "FunctionExpression", id: null, params: params, body: code } -> 
+		{
+			return FunctionObject(null, params, code, scope)
+		}
+
+	| default -> {
+		print("[ERROR]: Found an unsuported statement");
+		print(s);
+		throw "Unsuported statement" 
+	}
+}

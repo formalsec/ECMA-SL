@@ -1,0 +1,2176 @@
+function FunctionObject (___internal_esl_global, name, params, code, scope) { __v0 := { };
+__v0["internal"] := false;
+__v0["name"] := name;
+__v0["code"] := code;
+__v0["params"] := params;
+__v0["scope"] := scope;
+functionObject := __v0;
+return ( false, functionObject ) };
+function BreakCompletion (___internal_esl_global, v) { __v1 := ( 'Break, v );
+return ( false, __v1 ) };
+function interpretCall (___internal_esl_global, scope, functionObject, args, thisBinding) { __v2 := functionObject = 'undefined;
+if (__v2) {
+__v3 := "raiseError" (___internal_esl_global, "Unknown function", functionObject);
+if (fst(__v3)) {
+return __v3
+} else {
+__v3 := snd(__v3)
+}
+};
+__v4 := "internal" in_obj functionObject;
+__v6 := functionObject["internal"];
+__v5 := __v6 = false;
+__v7 := "name" in_obj functionObject;
+__v8 := "params" in_obj functionObject;
+__v9 := "code" in_obj functionObject;
+__v10 := "scope" in_obj functionObject;
+if (true && __v4 && __v5 && __v7 && __v8 && __v9 && __v10) {
+name := functionObject["name"];
+params := functionObject["params"];
+code := functionObject["code"];
+scope := functionObject["scope"];
+__v12 := l_len(params);
+__v13 := l_len(args);
+__v14 := __v12 = __v13;
+__v11 := !(__v14);
+if (__v11) {
+__v15 := "raiseError" (___internal_esl_global, "Invalid number of arguments in function call", name);
+if (fst(__v15)) {
+return __v15
+} else {
+__v15 := snd(__v15)
+}
+};
+i := 0;
+__v16 := "extendScope" (___internal_esl_global, scope, thisBinding);
+if (fst(__v16)) {
+return __v16
+} else {
+__v16 := snd(__v16)
+};
+newScope := __v16;
+__v17 := "interpretArgs" (___internal_esl_global, scope, args);
+if (fst(__v17)) {
+return __v17
+} else {
+__v17 := snd(__v17)
+};
+evalArgs := __v17;
+__v19 := 0;
+__v18 := l_len(evalArgs);
+__v20 := __v18 > __v19;
+while (__v20) { argVal := l_nth(evalArgs, __v19);
+__v21 := l_nth(params, i);
+paramName := __v21;
+__v22 := "updateScope" (___internal_esl_global, newScope, newScope, paramName, argVal);
+if (fst(__v22)) {
+return __v22
+} else {
+__v22 := snd(__v22)
+};
+__v23 := i + 1;
+i := __v23;
+__v19 := __v19 + 1;
+__v20 := __v18 > __v19 };
+__v24 := "interpreter" (___internal_esl_global, newScope, code);
+if (fst(__v24)) {
+return __v24
+} else {
+__v24 := snd(__v24)
+};
+return ( false, __v24 )
+} else {
+__v25 := "internal" in_obj functionObject;
+__v27 := functionObject["internal"];
+__v26 := __v27 = true;
+__v28 := "functionName" in_obj functionObject;
+if (true && __v25 && __v26 && __v28) {
+functionName := functionObject["functionName"];
+__v29 := "interpretArgs" (___internal_esl_global, scope, args);
+if (fst(__v29)) {
+return __v29
+} else {
+__v29 := snd(__v29)
+};
+evalArgs := __v29;
+__v30 := functionName (___internal_esl_global, evalArgs);
+if (fst(__v30)) {
+return __v30
+} else {
+__v30 := snd(__v30)
+};
+retVal := __v30;
+__v31 := "NormalCompletion" (___internal_esl_global, retVal);
+if (fst(__v31)) {
+return __v31
+} else {
+__v31 := snd(__v31)
+};
+return ( false, __v31 )
+} else {
+if (true) {
+__v32 := "raiseError" (___internal_esl_global, "Illegal function call", functionObject);
+if (fst(__v32)) {
+return __v32
+} else {
+__v32 := snd(__v32)
+}
+}
+}
+} };
+function GlobalObject (___internal_esl_global) { __v33 := "Object" (___internal_esl_global);
+if (fst(__v33)) {
+return __v33
+} else {
+__v33 := snd(__v33)
+};
+object := __v33;
+__v34 := "Object" (___internal_esl_global);
+if (fst(__v34)) {
+return __v34
+} else {
+__v34 := snd(__v34)
+};
+object["esl_symbolic"] := __v34;
+__v35 := object["esl_symbolic"];
+__v36 := "InternalFunction" (___internal_esl_global, "esl_symbolic_number");
+if (fst(__v36)) {
+return __v36
+} else {
+__v36 := snd(__v36)
+};
+__v35["number"] := __v36;
+__v37 := object["esl_symbolic"];
+__v38 := "InternalFunction" (___internal_esl_global, "esl_symbolic_assert");
+if (fst(__v38)) {
+return __v38
+} else {
+__v38 := snd(__v38)
+};
+__v37["assert"] := __v38;
+__v39 := object["esl_symbolic"];
+__v40 := "InternalFunction" (___internal_esl_global, "esl_symbolic_assume");
+if (fst(__v40)) {
+return __v40
+} else {
+__v40 := snd(__v40)
+};
+__v39["assume"] := __v40;
+return ( false, object ) };
+function _initScopeVdecls (___internal_esl_global, scope, vdecls) { __v42 := 0;
+__v41 := l_len(vdecls);
+__v43 := __v41 > __v42;
+while (__v43) { vdecl := l_nth(vdecls, __v42);
+__v44 := scope["store"];
+__v44[vdecl] := 'undefined;
+__v42 := __v42 + 1;
+__v43 := __v41 > __v42 };
+return ( false, null ) };
+function updateScope (___internal_esl_global, currScope, scope, name, val) { __v45 := scope["store"];
+__v46 := name in_obj __v45;
+if (__v46) {
+__v47 := scope["store"];
+__v47[name] := val
+} else {
+__v48 := scope["parent"];
+__v49 := __v48 = null;
+if (__v49) {
+__v50 := currScope["store"];
+__v50[name] := val
+} else {
+__v51 := scope["parent"];
+__v52 := "updateScope" (___internal_esl_global, currScope, __v51, name, val);
+if (fst(__v52)) {
+return __v52
+} else {
+__v52 := snd(__v52)
+}
+}
+};
+return ( false, null ) };
+function applyUnaryOperator (___internal_esl_global, op, v) { if ("+" = op) {
+return ( false, v )
+} else {
+if ("-" = op) {
+__v53 := -(v);
+return ( false, __v53 )
+} else {
+if ("~" = op) {
+__v54 := ~(v);
+return ( false, __v54 )
+} else {
+if ("!" = op) {
+__v55 := !(v);
+return ( false, __v55 )
+} else {
+__v56 := "raiseError" (___internal_esl_global, "Unsuported unary operator", op);
+if (fst(__v56)) {
+return __v56
+} else {
+__v56 := snd(__v56)
+}
+}
+}
+}
+} };
+function ReturnCompletion (___internal_esl_global, v) { __v57 := ( 'Return, v );
+return ( false, __v57 ) };
+function getThisBinding (___internal_esl_global, scope) { __v58 := scope["thisBinding"];
+return ( false, __v58 ) };
+function raiseError (___internal_esl_global, msg, src) { __v60 := [ "[ERROR]: ", msg ];
+__v59 := s_concat(__v60);
+errMsg := __v59;
+print errMsg;
+print src;
+return ( true, msg ) };
+function Scope (___internal_esl_global, thisBinding, globalObject) { __v61 := { };
+__v62 := { };
+__v61["store"] := __v62;
+__v61["parent"] := null;
+__v61["thisBinding"] := thisBinding;
+__v61["globalObject"] := globalObject;
+scope := __v61;
+return ( false, scope ) };
+function ThrowCompletion (___internal_esl_global, v) { __v63 := ( 'Throw, v );
+return ( false, __v63 ) };
+function esl_symbolic_number (___internal_esl_global, args) { __v64 := l_nth(args, 0);
+name := __v64;
+return ( false, se_mk_symbolic (__$Flt, name) ) };
+function NormalCompletion (___internal_esl_global, v) { __v65 := ( 'Normal, v );
+return ( false, __v65 ) };
+function interpreter (___internal_esl_global, scope, s) { __v66 := "type" in_obj s;
+__v68 := s["type"];
+__v67 := __v68 = "Program";
+__v69 := "body" in_obj s;
+__v70 := "variableDeclarations" in_obj s;
+__v71 := "functionDeclarations" in_obj s;
+if (true && __v66 && __v67 && __v69 && __v70 && __v71) {
+stmts := s["body"];
+vdecls := s["variableDeclarations"];
+fdecls := s["functionDeclarations"];
+__v72 := "initScope" (___internal_esl_global, scope, vdecls, fdecls);
+if (fst(__v72)) {
+return __v72
+} else {
+__v72 := snd(__v72)
+};
+__v73 := "interpretBlock" (___internal_esl_global, scope, stmts);
+if (fst(__v73)) {
+return __v73
+} else {
+__v73 := snd(__v73)
+};
+return ( false, __v73 )
+} else {
+__v74 := "type" in_obj s;
+__v76 := s["type"];
+__v75 := __v76 = "BlockStatement";
+__v77 := "body" in_obj s;
+if (true && __v74 && __v75 && __v77) {
+stmts := s["body"];
+__v78 := s["codeType"];
+__v79 := __v78 = "function";
+if (__v79) {
+__v80 := s["variableDeclarations"];
+__v81 := s["functionDeclarations"];
+__v82 := "initScope" (___internal_esl_global, scope, __v80, __v81);
+if (fst(__v82)) {
+return __v82
+} else {
+__v82 := snd(__v82)
+}
+};
+__v83 := "interpretBlock" (___internal_esl_global, scope, stmts);
+if (fst(__v83)) {
+return __v83
+} else {
+__v83 := snd(__v83)
+};
+return ( false, __v83 )
+} else {
+__v84 := "type" in_obj s;
+__v86 := s["type"];
+__v85 := __v86 = "ReturnStatement";
+__v87 := "argument" in_obj s;
+if (true && __v84 && __v85 && __v87) {
+arg := s["argument"];
+__v88 := "interpreter" (___internal_esl_global, scope, arg);
+if (fst(__v88)) {
+return __v88
+} else {
+__v88 := snd(__v88)
+};
+retVal := __v88;
+__v89 := "isAbruptCompletion" (___internal_esl_global, retVal);
+if (fst(__v89)) {
+return __v89
+} else {
+__v89 := snd(__v89)
+};
+if (__v89) {
+return ( false, retVal )
+} else {
+__v90 := "getCompletionValue" (___internal_esl_global, retVal);
+if (fst(__v90)) {
+return __v90
+} else {
+__v90 := snd(__v90)
+};
+retVal := __v90
+};
+__v91 := "ReturnCompletion" (___internal_esl_global, retVal);
+if (fst(__v91)) {
+return __v91
+} else {
+__v91 := snd(__v91)
+};
+return ( false, __v91 )
+} else {
+__v92 := "type" in_obj s;
+__v94 := s["type"];
+__v93 := __v94 = "ExpressionStatement";
+__v95 := "expression" in_obj s;
+if (true && __v92 && __v93 && __v95) {
+expr := s["expression"];
+__v96 := "interpreter" (___internal_esl_global, scope, expr);
+if (fst(__v96)) {
+return __v96
+} else {
+__v96 := snd(__v96)
+};
+return ( false, __v96 )
+} else {
+__v97 := "type" in_obj s;
+__v99 := s["type"];
+__v98 := __v99 = "BreakStatement";
+__v100 := "label" in_obj s;
+__v102 := s["label"];
+__v101 := __v102 = null;
+if (true && __v97 && __v98 && __v100 && __v101) {
+__v103 := "BreakCompletion" (___internal_esl_global, 'empty);
+if (fst(__v103)) {
+return __v103
+} else {
+__v103 := snd(__v103)
+};
+return ( false, __v103 )
+} else {
+__v104 := "type" in_obj s;
+__v106 := s["type"];
+__v105 := __v106 = "ContinueStatement";
+__v107 := "label" in_obj s;
+__v109 := s["label"];
+__v108 := __v109 = null;
+if (true && __v104 && __v105 && __v107 && __v108) {
+__v110 := "ContinueCompletion" (___internal_esl_global, 'empty);
+if (fst(__v110)) {
+return __v110
+} else {
+__v110 := snd(__v110)
+};
+return ( false, __v110 )
+} else {
+__v111 := "type" in_obj s;
+__v113 := s["type"];
+__v112 := __v113 = "IfStatement";
+__v114 := "test" in_obj s;
+__v115 := "consequent" in_obj s;
+__v116 := "alternate" in_obj s;
+if (true && __v111 && __v112 && __v114 && __v115 && __v116) {
+test := s["test"];
+stmt1 := s["consequent"];
+stmt2 := s["alternate"];
+__v117 := "interpreter" (___internal_esl_global, scope, test);
+if (fst(__v117)) {
+return __v117
+} else {
+__v117 := snd(__v117)
+};
+testVal := __v117;
+__v118 := "isAbruptCompletion" (___internal_esl_global, testVal);
+if (fst(__v118)) {
+return __v118
+} else {
+__v118 := snd(__v118)
+};
+if (__v118) {
+return ( false, testVal )
+} else {
+__v119 := "getCompletionValue" (___internal_esl_global, testVal);
+if (fst(__v119)) {
+return __v119
+} else {
+__v119 := snd(__v119)
+};
+testVal := __v119
+};
+if (testVal) {
+__v124 := "interpreter" (___internal_esl_global, scope, stmt1);
+if (fst(__v124)) {
+return __v124
+} else {
+__v124 := snd(__v124)
+};
+return ( false, __v124 )
+} else {
+__v122 := stmt2 = null;
+__v121 := !(__v122);
+if (__v121) {
+__v123 := "interpreter" (___internal_esl_global, scope, stmt2);
+if (fst(__v123)) {
+return __v123
+} else {
+__v123 := snd(__v123)
+};
+return ( false, __v123 )
+} else {
+__v120 := "NormalCompletion" (___internal_esl_global, 'empty);
+if (fst(__v120)) {
+return __v120
+} else {
+__v120 := snd(__v120)
+};
+return ( false, __v120 )
+}
+}
+} else {
+__v125 := "type" in_obj s;
+__v127 := s["type"];
+__v126 := __v127 = "WhileStatement";
+__v128 := "test" in_obj s;
+__v129 := "body" in_obj s;
+if (true && __v125 && __v126 && __v128 && __v129) {
+test := s["test"];
+stmt := s["body"];
+__v130 := "interpreter" (___internal_esl_global, scope, test);
+if (fst(__v130)) {
+return __v130
+} else {
+__v130 := snd(__v130)
+};
+testVal := __v130;
+__v131 := "isAbruptCompletion" (___internal_esl_global, testVal);
+if (fst(__v131)) {
+return __v131
+} else {
+__v131 := snd(__v131)
+};
+if (__v131) {
+return ( false, testVal )
+} else {
+__v132 := "getCompletionValue" (___internal_esl_global, testVal);
+if (fst(__v132)) {
+return __v132
+} else {
+__v132 := snd(__v132)
+};
+testVal := __v132
+};
+while (testVal) { __v133 := "interpreter" (___internal_esl_global, scope, stmt);
+if (fst(__v133)) {
+return __v133
+} else {
+__v133 := snd(__v133)
+};
+retVal := __v133;
+__v134 := "getCompletionType" (___internal_esl_global, retVal);
+if (fst(__v134)) {
+return __v134
+} else {
+__v134 := snd(__v134)
+};
+if ('Break = __v134) {
+__v135 := "NormalCompletion" (___internal_esl_global, 'empty);
+if (fst(__v135)) {
+return __v135
+} else {
+__v135 := snd(__v135)
+};
+return ( false, __v135 )
+} else {
+if ('Return = __v134) {
+return ( false, retVal )
+} else {
+if ('Throw = __v134) {
+return ( false, retVal )
+} else {
+
+}
+}
+};
+__v136 := "interpreter" (___internal_esl_global, scope, test);
+if (fst(__v136)) {
+return __v136
+} else {
+__v136 := snd(__v136)
+};
+testVal := __v136;
+__v137 := "isAbruptCompletion" (___internal_esl_global, testVal);
+if (fst(__v137)) {
+return __v137
+} else {
+__v137 := snd(__v137)
+};
+if (__v137) {
+return ( false, testVal )
+} else {
+__v138 := "getCompletionValue" (___internal_esl_global, testVal);
+if (fst(__v138)) {
+return __v138
+} else {
+__v138 := snd(__v138)
+};
+testVal := __v138
+} };
+__v139 := "NormalCompletion" (___internal_esl_global, 'empty);
+if (fst(__v139)) {
+return __v139
+} else {
+__v139 := snd(__v139)
+};
+return ( false, __v139 )
+} else {
+__v140 := "type" in_obj s;
+__v142 := s["type"];
+__v141 := __v142 = "ForStatement";
+__v143 := "init" in_obj s;
+__v144 := "test" in_obj s;
+__v145 := "update" in_obj s;
+__v146 := "body" in_obj s;
+if (true && __v140 && __v141 && __v143 && __v144 && __v145 && __v146) {
+init := s["init"];
+test := s["test"];
+update := s["update"];
+stmt := s["body"];
+__v147 := "interpreter" (___internal_esl_global, scope, init);
+if (fst(__v147)) {
+return __v147
+} else {
+__v147 := snd(__v147)
+};
+initVal := __v147;
+__v148 := "isAbruptCompletion" (___internal_esl_global, initVal);
+if (fst(__v148)) {
+return __v148
+} else {
+__v148 := snd(__v148)
+};
+if (__v148) {
+return ( false, initVal )
+} else {
+__v149 := "getCompletionValue" (___internal_esl_global, initVal);
+if (fst(__v149)) {
+return __v149
+} else {
+__v149 := snd(__v149)
+};
+initVal := __v149
+};
+__v150 := "interpreter" (___internal_esl_global, scope, test);
+if (fst(__v150)) {
+return __v150
+} else {
+__v150 := snd(__v150)
+};
+testVal := __v150;
+__v151 := "isAbruptCompletion" (___internal_esl_global, testVal);
+if (fst(__v151)) {
+return __v151
+} else {
+__v151 := snd(__v151)
+};
+if (__v151) {
+return ( false, testVal )
+} else {
+__v152 := "getCompletionValue" (___internal_esl_global, testVal);
+if (fst(__v152)) {
+return __v152
+} else {
+__v152 := snd(__v152)
+};
+testVal := __v152
+};
+while (testVal) { __v153 := "interpreter" (___internal_esl_global, scope, stmt);
+if (fst(__v153)) {
+return __v153
+} else {
+__v153 := snd(__v153)
+};
+retVal := __v153;
+__v154 := "getCompletionType" (___internal_esl_global, retVal);
+if (fst(__v154)) {
+return __v154
+} else {
+__v154 := snd(__v154)
+};
+if ('Break = __v154) {
+__v155 := "NormalCompletion" (___internal_esl_global, 'empty);
+if (fst(__v155)) {
+return __v155
+} else {
+__v155 := snd(__v155)
+};
+return ( false, __v155 )
+} else {
+if ('Return = __v154) {
+return ( false, retVal )
+} else {
+if ('Throw = __v154) {
+return ( false, retVal )
+} else {
+
+}
+}
+};
+__v156 := "interpreter" (___internal_esl_global, scope, update);
+if (fst(__v156)) {
+return __v156
+} else {
+__v156 := snd(__v156)
+};
+updateVal := __v156;
+__v157 := "isAbruptCompletion" (___internal_esl_global, updateVal);
+if (fst(__v157)) {
+return __v157
+} else {
+__v157 := snd(__v157)
+};
+if (__v157) {
+return ( false, updateVal )
+} else {
+__v158 := "getCompletionValue" (___internal_esl_global, updateVal);
+if (fst(__v158)) {
+return __v158
+} else {
+__v158 := snd(__v158)
+};
+updateVal := __v158
+};
+__v159 := "interpreter" (___internal_esl_global, scope, test);
+if (fst(__v159)) {
+return __v159
+} else {
+__v159 := snd(__v159)
+};
+testVal := __v159;
+__v160 := "isAbruptCompletion" (___internal_esl_global, testVal);
+if (fst(__v160)) {
+return __v160
+} else {
+__v160 := snd(__v160)
+};
+if (__v160) {
+return ( false, testVal )
+} else {
+__v161 := "getCompletionValue" (___internal_esl_global, testVal);
+if (fst(__v161)) {
+return __v161
+} else {
+__v161 := snd(__v161)
+};
+testVal := __v161
+} };
+__v162 := "NormalCompletion" (___internal_esl_global, 'empty);
+if (fst(__v162)) {
+return __v162
+} else {
+__v162 := snd(__v162)
+};
+return ( false, __v162 )
+} else {
+__v163 := "type" in_obj s;
+__v165 := s["type"];
+__v164 := __v165 = "UnaryExpression";
+__v166 := "operator" in_obj s;
+__v167 := "argument" in_obj s;
+if (true && __v163 && __v164 && __v166 && __v167) {
+op := s["operator"];
+arg := s["argument"];
+__v168 := "interpreter" (___internal_esl_global, scope, arg);
+if (fst(__v168)) {
+return __v168
+} else {
+__v168 := snd(__v168)
+};
+argVal := __v168;
+__v169 := "isAbruptCompletion" (___internal_esl_global, argVal);
+if (fst(__v169)) {
+return __v169
+} else {
+__v169 := snd(__v169)
+};
+if (__v169) {
+return ( false, argVal )
+} else {
+__v170 := "getCompletionValue" (___internal_esl_global, argVal);
+if (fst(__v170)) {
+return __v170
+} else {
+__v170 := snd(__v170)
+};
+argVal := __v170
+};
+__v171 := "applyUnaryOperator" (___internal_esl_global, op, argVal);
+if (fst(__v171)) {
+return __v171
+} else {
+__v171 := snd(__v171)
+};
+__v172 := "NormalCompletion" (___internal_esl_global, __v171);
+if (fst(__v172)) {
+return __v172
+} else {
+__v172 := snd(__v172)
+};
+return ( false, __v172 )
+} else {
+__v173 := "type" in_obj s;
+__v175 := s["type"];
+__v174 := __v175 = "BinaryExpression";
+__v176 := "operator" in_obj s;
+__v177 := "left" in_obj s;
+__v178 := "right" in_obj s;
+if (true && __v173 && __v174 && __v176 && __v177 && __v178) {
+op := s["operator"];
+left := s["left"];
+right := s["right"];
+__v179 := "interpreter" (___internal_esl_global, scope, left);
+if (fst(__v179)) {
+return __v179
+} else {
+__v179 := snd(__v179)
+};
+leftVal := __v179;
+__v180 := "isAbruptCompletion" (___internal_esl_global, leftVal);
+if (fst(__v180)) {
+return __v180
+} else {
+__v180 := snd(__v180)
+};
+if (__v180) {
+return ( false, leftVal )
+} else {
+__v181 := "getCompletionValue" (___internal_esl_global, leftVal);
+if (fst(__v181)) {
+return __v181
+} else {
+__v181 := snd(__v181)
+};
+leftVal := __v181
+};
+__v182 := "interpreter" (___internal_esl_global, scope, right);
+if (fst(__v182)) {
+return __v182
+} else {
+__v182 := snd(__v182)
+};
+rightVal := __v182;
+__v183 := "isAbruptCompletion" (___internal_esl_global, rightVal);
+if (fst(__v183)) {
+return __v183
+} else {
+__v183 := snd(__v183)
+};
+if (__v183) {
+return ( false, rightVal )
+} else {
+__v184 := "getCompletionValue" (___internal_esl_global, rightVal);
+if (fst(__v184)) {
+return __v184
+} else {
+__v184 := snd(__v184)
+};
+rightVal := __v184
+};
+__v185 := "applyBinaryOperator" (___internal_esl_global, op, leftVal, rightVal);
+if (fst(__v185)) {
+return __v185
+} else {
+__v185 := snd(__v185)
+};
+__v186 := "NormalCompletion" (___internal_esl_global, __v185);
+if (fst(__v186)) {
+return __v186
+} else {
+__v186 := snd(__v186)
+};
+return ( false, __v186 )
+} else {
+__v187 := "type" in_obj s;
+__v189 := s["type"];
+__v188 := __v189 = "LogicalExpression";
+__v190 := "operator" in_obj s;
+__v191 := "left" in_obj s;
+__v192 := "right" in_obj s;
+if (true && __v187 && __v188 && __v190 && __v191 && __v192) {
+op := s["operator"];
+left := s["left"];
+right := s["right"];
+__v193 := "interpreter" (___internal_esl_global, scope, left);
+if (fst(__v193)) {
+return __v193
+} else {
+__v193 := snd(__v193)
+};
+leftVal := __v193;
+__v194 := "isAbruptCompletion" (___internal_esl_global, leftVal);
+if (fst(__v194)) {
+return __v194
+} else {
+__v194 := snd(__v194)
+};
+if (__v194) {
+return ( false, leftVal )
+} else {
+__v195 := "getCompletionValue" (___internal_esl_global, leftVal);
+if (fst(__v195)) {
+return __v195
+} else {
+__v195 := snd(__v195)
+};
+leftVal := __v195
+};
+__v196 := "operator" in_obj s;
+__v198 := s["operator"];
+__v197 := __v198 = "&&";
+__v199 := "leftVal" in_obj s;
+__v201 := s["leftVal"];
+__v200 := __v201 = false;
+if (true && __v196 && __v197 && __v199 && __v200) {
+__v202 := "NormalCompletion" (___internal_esl_global, false);
+if (fst(__v202)) {
+return __v202
+} else {
+__v202 := snd(__v202)
+};
+return ( false, __v202 )
+} else {
+__v203 := "operator" in_obj s;
+__v205 := s["operator"];
+__v204 := __v205 = "||";
+__v206 := "leftVal" in_obj s;
+__v208 := s["leftVal"];
+__v207 := __v208 = true;
+if (true && __v203 && __v204 && __v206 && __v207) {
+__v209 := "NormalCompletion" (___internal_esl_global, true);
+if (fst(__v209)) {
+return __v209
+} else {
+__v209 := snd(__v209)
+};
+return ( false, __v209 )
+}
+};
+__v210 := "interpreter" (___internal_esl_global, scope, right);
+if (fst(__v210)) {
+return __v210
+} else {
+__v210 := snd(__v210)
+};
+return ( false, __v210 )
+} else {
+__v211 := "type" in_obj s;
+__v213 := s["type"];
+__v212 := __v213 = "ConditionalExpression";
+__v214 := "test" in_obj s;
+__v215 := "consequent" in_obj s;
+__v216 := "alternate" in_obj s;
+if (true && __v211 && __v212 && __v214 && __v215 && __v216) {
+test := s["test"];
+expr1 := s["consequent"];
+expr2 := s["alternate"];
+__v217 := "interpreter" (___internal_esl_global, scope, test);
+if (fst(__v217)) {
+return __v217
+} else {
+__v217 := snd(__v217)
+};
+testVal := __v217;
+__v218 := "isAbruptCompletion" (___internal_esl_global, testVal);
+if (fst(__v218)) {
+return __v218
+} else {
+__v218 := snd(__v218)
+};
+if (__v218) {
+return ( false, testVal )
+} else {
+__v219 := "getCompletionValue" (___internal_esl_global, testVal);
+if (fst(__v219)) {
+return __v219
+} else {
+__v219 := snd(__v219)
+};
+testVal := __v219
+};
+if (testVal) {
+__v220 := "interpreter" (___internal_esl_global, scope, expr1);
+if (fst(__v220)) {
+return __v220
+} else {
+__v220 := snd(__v220)
+};
+return ( false, __v220 )
+} else {
+__v221 := "interpreter" (___internal_esl_global, scope, expr2);
+if (fst(__v221)) {
+return __v221
+} else {
+__v221 := snd(__v221)
+};
+return ( false, __v221 )
+}
+} else {
+__v222 := "type" in_obj s;
+__v224 := s["type"];
+__v223 := __v224 = "AssignmentExpression";
+__v225 := "operator" in_obj s;
+__v226 := "left" in_obj s;
+__v227 := "right" in_obj s;
+if (true && __v222 && __v223 && __v225 && __v226 && __v227) {
+op := s["operator"];
+left := s["left"];
+right := s["right"];
+__v228 := "interpreter" (___internal_esl_global, scope, right);
+if (fst(__v228)) {
+return __v228
+} else {
+__v228 := snd(__v228)
+};
+rightVal := __v228;
+__v229 := "isAbruptCompletion" (___internal_esl_global, rightVal);
+if (fst(__v229)) {
+return __v229
+} else {
+__v229 := snd(__v229)
+};
+if (__v229) {
+return ( false, rightVal )
+} else {
+__v230 := "getCompletionValue" (___internal_esl_global, rightVal);
+if (fst(__v230)) {
+return __v230
+} else {
+__v230 := snd(__v230)
+};
+rightVal := __v230
+};
+__v231 := "type" in_obj left;
+__v233 := left["type"];
+__v232 := __v233 = "Identifier";
+__v234 := "name" in_obj left;
+if (true && __v231 && __v232 && __v234) {
+name := left["name"];
+__v235 := "resolveName" (___internal_esl_global, scope, name);
+if (fst(__v235)) {
+return __v235
+} else {
+__v235 := snd(__v235)
+};
+oldVal := __v235;
+__v236 := "applyAssignmentOperator" (___internal_esl_global, op, oldVal, rightVal);
+if (fst(__v236)) {
+return __v236
+} else {
+__v236 := snd(__v236)
+};
+newVal := __v236;
+__v237 := "updateScope" (___internal_esl_global, scope, scope, name, newVal);
+if (fst(__v237)) {
+return __v237
+} else {
+__v237 := snd(__v237)
+};
+__v238 := "NormalCompletion" (___internal_esl_global, newVal);
+if (fst(__v238)) {
+return __v238
+} else {
+__v238 := snd(__v238)
+};
+return ( false, __v238 )
+} else {
+__v239 := "type" in_obj left;
+__v241 := left["type"];
+__v240 := __v241 = "MemberExpression";
+__v242 := "object" in_obj left;
+__v243 := "property" in_obj left;
+__v244 := "computed" in_obj left;
+if (true && __v239 && __v240 && __v242 && __v243 && __v244) {
+object := left["object"];
+prop := left["property"];
+computed := left["computed"];
+__v245 := "interpreter" (___internal_esl_global, scope, object);
+if (fst(__v245)) {
+return __v245
+} else {
+__v245 := snd(__v245)
+};
+objVal := __v245;
+__v246 := "isAbruptCompletion" (___internal_esl_global, objVal);
+if (fst(__v246)) {
+return __v246
+} else {
+__v246 := snd(__v246)
+};
+if (__v246) {
+return ( false, objVal )
+} else {
+__v247 := "getCompletionValue" (___internal_esl_global, objVal);
+if (fst(__v247)) {
+return __v247
+} else {
+__v247 := snd(__v247)
+};
+objVal := __v247
+};
+if (computed) {
+__v248 := "interpreter" (___internal_esl_global, scope, prop);
+if (fst(__v248)) {
+return __v248
+} else {
+__v248 := snd(__v248)
+};
+propName := __v248;
+__v249 := "isAbruptCompletion" (___internal_esl_global, propName);
+if (fst(__v249)) {
+return __v249
+} else {
+__v249 := snd(__v249)
+};
+if (__v249) {
+return ( false, propName )
+} else {
+__v250 := "getCompletionValue" (___internal_esl_global, propName);
+if (fst(__v250)) {
+return __v250
+} else {
+__v250 := snd(__v250)
+};
+propName := __v250
+}
+} else {
+__v251 := prop["name"];
+propName := __v251
+};
+__v252 := "resolveProperty" (___internal_esl_global, objVal, propName);
+if (fst(__v252)) {
+return __v252
+} else {
+__v252 := snd(__v252)
+};
+oldVal := __v252;
+__v253 := "applyAssignmentOperator" (___internal_esl_global, op, oldVal, rightVal);
+if (fst(__v253)) {
+return __v253
+} else {
+__v253 := snd(__v253)
+};
+newVal := __v253;
+__v254 := "updateObject" (___internal_esl_global, objVal, propName, newVal);
+if (fst(__v254)) {
+return __v254
+} else {
+__v254 := snd(__v254)
+};
+__v255 := "NormalCompletion" (___internal_esl_global, newVal);
+if (fst(__v255)) {
+return __v255
+} else {
+__v255 := snd(__v255)
+};
+return ( false, __v255 )
+} else {
+if (true) {
+__v256 := "raiseError" (___internal_esl_global, "Illegal assignment expression", left);
+if (fst(__v256)) {
+return __v256
+} else {
+__v256 := snd(__v256)
+}
+}
+}
+}
+} else {
+__v257 := "type" in_obj s;
+__v259 := s["type"];
+__v258 := __v259 = "UpdateExpression";
+__v260 := "operator" in_obj s;
+__v261 := "argument" in_obj s;
+__v262 := "prefix" in_obj s;
+if (true && __v257 && __v258 && __v260 && __v261 && __v262) {
+op := s["operator"];
+arg := s["argument"];
+prefix := s["prefix"];
+__v263 := { };
+__v263["type"] := "Literal";
+__v263["value"] := 1.;
+__v263["raw"] := "1.0";
+rightVal := __v263;
+__v264 := "interpreter" (___internal_esl_global, scope, arg);
+if (fst(__v264)) {
+return __v264
+} else {
+__v264 := snd(__v264)
+};
+oldVal := __v264;
+__v265 := "isAbruptCompletion" (___internal_esl_global, oldVal);
+if (fst(__v265)) {
+return __v265
+} else {
+__v265 := snd(__v265)
+};
+if (__v265) {
+return ( false, oldVal )
+} else {
+__v266 := "getCompletionValue" (___internal_esl_global, oldVal);
+if (fst(__v266)) {
+return __v266
+} else {
+__v266 := snd(__v266)
+};
+oldVal := __v266
+};
+if ("++" = op) {
+__v267 := { };
+__v267["type"] := "AssignmentExpression";
+__v267["operator"] := "+=";
+__v267["left"] := arg;
+__v267["right"] := rightVal;
+updateExpr := __v267
+} else {
+if ("--" = op) {
+__v268 := { };
+__v268["type"] := "AssignmentExpression";
+__v268["operator"] := "-=";
+__v268["left"] := arg;
+__v268["right"] := rightVal;
+updateExpr := __v268
+} else {
+__v269 := "raiseError" (___internal_esl_global, "Illegal update expression operator", op);
+if (fst(__v269)) {
+return __v269
+} else {
+__v269 := snd(__v269)
+}
+}
+};
+__v270 := "interpreter" (___internal_esl_global, scope, updateExpr);
+if (fst(__v270)) {
+return __v270
+} else {
+__v270 := snd(__v270)
+};
+newVal := __v270;
+__v271 := "isAbruptCompletion" (___internal_esl_global, newVal);
+if (fst(__v271)) {
+return __v271
+} else {
+__v271 := snd(__v271)
+};
+if (__v271) {
+return ( false, newVal )
+} else {
+__v272 := "getCompletionValue" (___internal_esl_global, newVal);
+if (fst(__v272)) {
+return __v272
+} else {
+__v272 := snd(__v272)
+};
+newVal := __v272
+};
+if (prefix) {
+__v273 := "NormalCompletion" (___internal_esl_global, newVal);
+if (fst(__v273)) {
+return __v273
+} else {
+__v273 := snd(__v273)
+};
+return ( false, __v273 )
+} else {
+__v274 := "NormalCompletion" (___internal_esl_global, oldVal);
+if (fst(__v274)) {
+return __v274
+} else {
+__v274 := snd(__v274)
+};
+return ( false, __v274 )
+}
+} else {
+__v275 := "type" in_obj s;
+__v277 := s["type"];
+__v276 := __v277 = "ObjectExpression";
+__v278 := "properties" in_obj s;
+if (true && __v275 && __v276 && __v278) {
+props := s["properties"];
+__v279 := "Object" (___internal_esl_global);
+if (fst(__v279)) {
+return __v279
+} else {
+__v279 := snd(__v279)
+};
+object := __v279;
+__v281 := 0;
+__v280 := l_len(props);
+__v282 := __v280 > __v281;
+while (__v282) { prop := l_nth(props, __v281);
+__v284 := prop["key"];
+__v283 := __v284["name"];
+propName := __v283;
+__v285 := prop["value"];
+__v286 := "interpreter" (___internal_esl_global, scope, __v285);
+if (fst(__v286)) {
+return __v286
+} else {
+__v286 := snd(__v286)
+};
+propVal := __v286;
+__v287 := "isAbruptCompletion" (___internal_esl_global, propVal);
+if (fst(__v287)) {
+return __v287
+} else {
+__v287 := snd(__v287)
+};
+if (__v287) {
+return ( false, propVal )
+} else {
+__v288 := "getCompletionValue" (___internal_esl_global, propVal);
+if (fst(__v288)) {
+return __v288
+} else {
+__v288 := snd(__v288)
+};
+propVal := __v288
+};
+object[propName] := propVal;
+__v281 := __v281 + 1;
+__v282 := __v280 > __v281 };
+__v289 := "NormalCompletion" (___internal_esl_global, object);
+if (fst(__v289)) {
+return __v289
+} else {
+__v289 := snd(__v289)
+};
+return ( false, __v289 )
+} else {
+__v290 := "type" in_obj s;
+__v292 := s["type"];
+__v291 := __v292 = "MemberExpression";
+__v293 := "object" in_obj s;
+__v294 := "property" in_obj s;
+__v295 := "computed" in_obj s;
+if (true && __v290 && __v291 && __v293 && __v294 && __v295) {
+object := s["object"];
+prop := s["property"];
+computed := s["computed"];
+__v296 := "interpreter" (___internal_esl_global, scope, object);
+if (fst(__v296)) {
+return __v296
+} else {
+__v296 := snd(__v296)
+};
+objVal := __v296;
+__v297 := "isAbruptCompletion" (___internal_esl_global, objVal);
+if (fst(__v297)) {
+return __v297
+} else {
+__v297 := snd(__v297)
+};
+if (__v297) {
+return ( false, objVal )
+} else {
+__v298 := "getCompletionValue" (___internal_esl_global, objVal);
+if (fst(__v298)) {
+return __v298
+} else {
+__v298 := snd(__v298)
+};
+objVal := __v298
+};
+if (computed) {
+__v299 := "interpreter" (___internal_esl_global, scope, prop);
+if (fst(__v299)) {
+return __v299
+} else {
+__v299 := snd(__v299)
+};
+propName := __v299;
+__v300 := "isAbruptCompletion" (___internal_esl_global, propName);
+if (fst(__v300)) {
+return __v300
+} else {
+__v300 := snd(__v300)
+};
+if (__v300) {
+return ( false, propName )
+} else {
+__v301 := "getCompletionValue" (___internal_esl_global, propName);
+if (fst(__v301)) {
+return __v301
+} else {
+__v301 := snd(__v301)
+};
+propName := __v301
+}
+} else {
+__v302 := prop["name"];
+propName := __v302
+};
+__v303 := "resolveProperty" (___internal_esl_global, objVal, propName);
+if (fst(__v303)) {
+return __v303
+} else {
+__v303 := snd(__v303)
+};
+__v304 := "NormalCompletion" (___internal_esl_global, __v303);
+if (fst(__v304)) {
+return __v304
+} else {
+__v304 := snd(__v304)
+};
+return ( false, __v304 )
+} else {
+__v305 := "type" in_obj s;
+__v307 := s["type"];
+__v306 := __v307 = "CallExpression";
+__v308 := "callee" in_obj s;
+__v309 := "arguments" in_obj s;
+if (true && __v305 && __v306 && __v308 && __v309) {
+callee := s["callee"];
+args := s["arguments"];
+__v310 := "interpreter" (___internal_esl_global, scope, callee);
+if (fst(__v310)) {
+return __v310
+} else {
+__v310 := snd(__v310)
+};
+functionObject := __v310;
+__v311 := "isAbruptCompletion" (___internal_esl_global, functionObject);
+if (fst(__v311)) {
+return __v311
+} else {
+__v311 := snd(__v311)
+};
+if (__v311) {
+return ( false, functionObject )
+} else {
+__v312 := "getCompletionValue" (___internal_esl_global, functionObject);
+if (fst(__v312)) {
+return __v312
+} else {
+__v312 := snd(__v312)
+};
+functionObject := __v312
+};
+__v313 := callee["type"];
+__v314 := __v313 = "MemberExpression";
+if (__v314) {
+__v315 := callee["object"];
+__v316 := "interpreter" (___internal_esl_global, scope, __v315);
+if (fst(__v316)) {
+return __v316
+} else {
+__v316 := snd(__v316)
+};
+thisBinding := __v316;
+__v317 := "isAbruptCompletion" (___internal_esl_global, thisBinding);
+if (fst(__v317)) {
+return __v317
+} else {
+__v317 := snd(__v317)
+};
+if (__v317) {
+return ( false, thisBinding )
+} else {
+__v318 := "getCompletionValue" (___internal_esl_global, thisBinding);
+if (fst(__v318)) {
+return __v318
+} else {
+__v318 := snd(__v318)
+};
+thisBinding := __v318
+}
+} else {
+thisBinding := functionObject
+};
+__v319 := "interpretCall" (___internal_esl_global, scope, functionObject, args, thisBinding);
+if (fst(__v319)) {
+return __v319
+} else {
+__v319 := snd(__v319)
+};
+retVal := __v319;
+__v320 := "getCompletionType" (___internal_esl_global, retVal);
+if (fst(__v320)) {
+return __v320
+} else {
+__v320 := snd(__v320)
+};
+if ('Throw = __v320) {
+return ( false, retVal )
+} else {
+__v321 := "getCompletionValue" (___internal_esl_global, retVal);
+if (fst(__v321)) {
+return __v321
+} else {
+__v321 := snd(__v321)
+};
+__v322 := "NormalCompletion" (___internal_esl_global, __v321);
+if (fst(__v322)) {
+return __v322
+} else {
+__v322 := snd(__v322)
+};
+return ( false, __v322 )
+}
+} else {
+__v323 := "type" in_obj s;
+__v325 := s["type"];
+__v324 := __v325 = "NewExpression";
+__v326 := "callee" in_obj s;
+__v327 := "arguments" in_obj s;
+if (true && __v323 && __v324 && __v326 && __v327) {
+callee := s["callee"];
+args := s["arguments"];
+__v328 := "interpreter" (___internal_esl_global, scope, callee);
+if (fst(__v328)) {
+return __v328
+} else {
+__v328 := snd(__v328)
+};
+functionObject := __v328;
+__v329 := "isAbruptCompletion" (___internal_esl_global, functionObject);
+if (fst(__v329)) {
+return __v329
+} else {
+__v329 := snd(__v329)
+};
+if (__v329) {
+return ( false, functionObject )
+} else {
+__v330 := "getCompletionValue" (___internal_esl_global, functionObject);
+if (fst(__v330)) {
+return __v330
+} else {
+__v330 := snd(__v330)
+};
+functionObject := __v330
+};
+__v331 := "Object" (___internal_esl_global);
+if (fst(__v331)) {
+return __v331
+} else {
+__v331 := snd(__v331)
+};
+newObject := __v331;
+__v332 := "interpretCall" (___internal_esl_global, scope, functionObject, args, newObject);
+if (fst(__v332)) {
+return __v332
+} else {
+__v332 := snd(__v332)
+};
+retVal := __v332;
+__v333 := "getCompletionType" (___internal_esl_global, retVal);
+if (fst(__v333)) {
+return __v333
+} else {
+__v333 := snd(__v333)
+};
+if ('Throw = __v333) {
+return ( false, retVal )
+} else {
+__v334 := "NormalCompletion" (___internal_esl_global, newObject);
+if (fst(__v334)) {
+return __v334
+} else {
+__v334 := snd(__v334)
+};
+return ( false, __v334 )
+}
+} else {
+__v335 := "type" in_obj s;
+__v337 := s["type"];
+__v336 := __v337 = "Literal";
+__v338 := "value" in_obj s;
+__v339 := "raw" in_obj s;
+if (true && __v335 && __v336 && __v338 && __v339) {
+value := s["value"];
+raw := s["raw"];
+__v340 := "NormalCompletion" (___internal_esl_global, value);
+if (fst(__v340)) {
+return __v340
+} else {
+__v340 := snd(__v340)
+};
+return ( false, __v340 )
+} else {
+__v341 := "type" in_obj s;
+__v343 := s["type"];
+__v342 := __v343 = "Identifier";
+__v344 := "name" in_obj s;
+if (true && __v341 && __v342 && __v344) {
+name := s["name"];
+__v345 := "resolveName" (___internal_esl_global, scope, name);
+if (fst(__v345)) {
+return __v345
+} else {
+__v345 := snd(__v345)
+};
+__v346 := "NormalCompletion" (___internal_esl_global, __v345);
+if (fst(__v346)) {
+return __v346
+} else {
+__v346 := snd(__v346)
+};
+return ( false, __v346 )
+} else {
+__v347 := "type" in_obj s;
+__v349 := s["type"];
+__v348 := __v349 = "ThisExpression";
+if (true && __v347 && __v348) {
+__v350 := "getThisBinding" (___internal_esl_global, scope);
+if (fst(__v350)) {
+return __v350
+} else {
+__v350 := snd(__v350)
+};
+__v351 := "NormalCompletion" (___internal_esl_global, __v350);
+if (fst(__v351)) {
+return __v351
+} else {
+__v351 := snd(__v351)
+};
+return ( false, __v351 )
+} else {
+__v352 := "type" in_obj s;
+__v354 := s["type"];
+__v353 := __v354 = "FunctionExpression";
+__v355 := "params" in_obj s;
+__v356 := "body" in_obj s;
+if (true && __v352 && __v353 && __v355 && __v356) {
+params := s["params"];
+body := s["body"];
+__v357 := "FunctionObject" (___internal_esl_global, "", params, body, scope);
+if (fst(__v357)) {
+return __v357
+} else {
+__v357 := snd(__v357)
+};
+functionObject := __v357;
+__v358 := "NormalCompletion" (___internal_esl_global, functionObject);
+if (fst(__v358)) {
+return __v358
+} else {
+__v358 := snd(__v358)
+};
+return ( false, __v358 )
+} else {
+__v359 := "type" in_obj s;
+__v361 := s["type"];
+__v360 := __v361 = "VariableDeclaration";
+__v362 := "kind" in_obj s;
+__v364 := s["kind"];
+__v363 := __v364 = "var";
+__v365 := "declarations" in_obj s;
+if (true && __v359 && __v360 && __v362 && __v363 && __v365) {
+decls := s["declarations"];
+retVal := 'empty;
+__v367 := 0;
+__v366 := l_len(decls);
+__v368 := __v366 > __v367;
+while (__v368) { decl := l_nth(decls, __v367);
+__v369 := "interpreter" (___internal_esl_global, scope, decl);
+if (fst(__v369)) {
+return __v369
+} else {
+__v369 := snd(__v369)
+};
+retValAux := __v369;
+__v370 := "isAbruptCompletion" (___internal_esl_global, retValAux);
+if (fst(__v370)) {
+return __v370
+} else {
+__v370 := snd(__v370)
+};
+if (__v370) {
+return ( false, retValAux )
+} else {
+__v371 := "getCompletionValue" (___internal_esl_global, retValAux);
+if (fst(__v371)) {
+return __v371
+} else {
+__v371 := snd(__v371)
+};
+retValAux := __v371
+};
+__v373 := retValAux = 'empty;
+__v372 := !(__v373);
+if (__v372) {
+retVal := retValAux
+};
+__v367 := __v367 + 1;
+__v368 := __v366 > __v367 };
+__v374 := "NormalCompletion" (___internal_esl_global, retVal);
+if (fst(__v374)) {
+return __v374
+} else {
+__v374 := snd(__v374)
+};
+return ( false, __v374 )
+} else {
+__v375 := "type" in_obj s;
+__v377 := s["type"];
+__v376 := __v377 = "VariableDeclarator";
+__v378 := "id" in_obj s;
+__v379 := "init" in_obj s;
+if (true && __v375 && __v376 && __v378 && __v379) {
+id := s["id"];
+init := s["init"];
+__v381 := init = null;
+__v380 := !(__v381);
+if (__v380) {
+__v382 := "interpreter" (___internal_esl_global, scope, init);
+if (fst(__v382)) {
+return __v382
+} else {
+__v382 := snd(__v382)
+};
+rightVal := __v382;
+__v383 := "isAbruptCompletion" (___internal_esl_global, rightVal);
+if (fst(__v383)) {
+return __v383
+} else {
+__v383 := snd(__v383)
+};
+if (__v383) {
+return ( false, rightVal )
+} else {
+__v384 := "getCompletionValue" (___internal_esl_global, rightVal);
+if (fst(__v384)) {
+return __v384
+} else {
+__v384 := snd(__v384)
+};
+rightVal := __v384
+}
+} else {
+rightVal := 'undefined
+};
+__v385 := "type" in_obj id;
+__v387 := id["type"];
+__v386 := __v387 = "Identifier";
+__v388 := "name" in_obj id;
+if (true && __v385 && __v386 && __v388) {
+name := id["name"];
+__v389 := "updateScope" (___internal_esl_global, scope, scope, name, rightVal);
+if (fst(__v389)) {
+return __v389
+} else {
+__v389 := snd(__v389)
+};
+__v390 := "NormalCompletion" (___internal_esl_global, rightVal);
+if (fst(__v390)) {
+return __v390
+} else {
+__v390 := snd(__v390)
+};
+return ( false, __v390 )
+} else {
+if (true) {
+__v391 := "raiseError" (___internal_esl_global, "Illegal variable declarator", id);
+if (fst(__v391)) {
+return __v391
+} else {
+__v391 := snd(__v391)
+}
+}
+}
+} else {
+if (true) {
+__v392 := "raiseError" (___internal_esl_global, "Unsuported construct", s);
+if (fst(__v392)) {
+return __v392
+} else {
+__v392 := snd(__v392)
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+} };
+function _initScopeFdecls (___internal_esl_global, scope, fdecls) { __v394 := 0;
+__v393 := l_len(fdecls);
+__v395 := __v393 > __v394;
+while (__v395) { fdecl := l_nth(fdecls, __v394);
+__v396 := "type" in_obj fdecl;
+__v398 := fdecl["type"];
+__v397 := __v398 = "FunctionDeclaration";
+__v399 := "id" in_obj fdecl;
+__v400 := "params" in_obj fdecl;
+__v401 := "body" in_obj fdecl;
+if (true && __v396 && __v397 && __v399 && __v400 && __v401) {
+id := fdecl["id"];
+params := fdecl["params"];
+code := fdecl["body"];
+__v402 := "type" in_obj id;
+__v404 := id["type"];
+__v403 := __v404 = "Identifier";
+__v405 := "name" in_obj id;
+if (true && __v402 && __v403 && __v405) {
+name := id["name"];
+__v406 := scope["store"];
+__v407 := "FunctionObject" (___internal_esl_global, name, params, code, scope);
+if (fst(__v407)) {
+return __v407
+} else {
+__v407 := snd(__v407)
+};
+__v406[name] := __v407
+} else {
+if (true) {
+__v408 := "raiseError" (___internal_esl_global, "Unsuported function identifier", id);
+if (fst(__v408)) {
+return __v408
+} else {
+__v408 := snd(__v408)
+}
+}
+}
+} else {
+if (true) {
+__v409 := "raiseError" (___internal_esl_global, "Unsuported function declaration", fdecl);
+if (fst(__v409)) {
+return __v409
+} else {
+__v409 := snd(__v409)
+}
+}
+};
+__v394 := __v394 + 1;
+__v395 := __v393 > __v394 };
+return ( false, null ) };
+function extendScope (___internal_esl_global, scope, thisBinding) { __v410 := scope["globalObject"];
+__v411 := "Scope" (___internal_esl_global, thisBinding, __v410);
+if (fst(__v411)) {
+return __v411
+} else {
+__v411 := snd(__v411)
+};
+newScope := __v411;
+newScope["parent"] := scope;
+return ( false, newScope ) };
+function main () { ___internal_esl_global := { };
+__v412 := "buildAST" (___internal_esl_global);
+if (fst(__v412)) {
+return __v412
+} else {
+__v412 := snd(__v412)
+};
+code := __v412;
+__v413 := "GlobalObject" (___internal_esl_global);
+if (fst(__v413)) {
+return __v413
+} else {
+__v413 := snd(__v413)
+};
+globalObject := __v413;
+__v414 := "Scope" (___internal_esl_global, globalObject, globalObject);
+if (fst(__v414)) {
+return __v414
+} else {
+__v414 := snd(__v414)
+};
+scope := __v414;
+__v415 := "interpreter" (___internal_esl_global, scope, code);
+if (fst(__v415)) {
+return __v415
+} else {
+__v415 := snd(__v415)
+};
+return ( false, __v415 ) };
+function getCompletionType (___internal_esl_global, c) { __v416 := t_nth(c, 0);
+return ( false, __v416 ) };
+function initScope (___internal_esl_global, scope, vdecls, fdecls) { __v417 := "_initScopeVdecls" (___internal_esl_global, scope, vdecls);
+if (fst(__v417)) {
+return __v417
+} else {
+__v417 := snd(__v417)
+};
+__v418 := "_initScopeFdecls" (___internal_esl_global, scope, fdecls);
+if (fst(__v418)) {
+return __v418
+} else {
+__v418 := snd(__v418)
+};
+return ( false, null ) };
+function resolveName (___internal_esl_global, scope, name) { __v419 := scope["store"];
+__v420 := name in_obj __v419;
+if (__v420) {
+__v422 := scope["store"];
+__v421 := __v422[name];
+return ( false, __v421 )
+} else {
+__v423 := scope["parent"];
+__v424 := __v423 = null;
+if (__v424) {
+__v425 := scope["globalObject"];
+__v426 := "resolveProperty" (___internal_esl_global, __v425, name);
+if (fst(__v426)) {
+return __v426
+} else {
+__v426 := snd(__v426)
+};
+return ( false, __v426 )
+} else {
+__v427 := scope["parent"];
+__v428 := "resolveName" (___internal_esl_global, __v427, name);
+if (fst(__v428)) {
+return __v428
+} else {
+__v428 := snd(__v428)
+};
+return ( false, __v428 )
+}
+} };
+function InternalFunction (___internal_esl_global, name) { __v429 := { };
+__v429["internal"] := true;
+__v429["functionName"] := name;
+object := __v429;
+return ( false, object ) };
+function esl_symbolic_assert (___internal_esl_global, args) { __v430 := l_nth(args, 0);
+cond := __v430;
+__v431 := "se_assert" (___internal_esl_global, cond);
+if (fst(__v431)) {
+return __v431
+} else {
+__v431 := snd(__v431)
+};
+return ( false, 0 ) };
+function isAbruptCompletion (___internal_esl_global, c) { __v433 := "getCompletionType" (___internal_esl_global, c);
+if (fst(__v433)) {
+return __v433
+} else {
+__v433 := snd(__v433)
+};
+__v434 := __v433 = 'Normal;
+__v432 := !(__v434);
+return ( false, __v432 ) };
+function applyBinaryOperator (___internal_esl_global, op, v1, v2) { if ("+" = op) {
+__v435 := v1 + v2;
+return ( false, __v435 )
+} else {
+if ("-" = op) {
+__v436 := v1 - v2;
+return ( false, __v436 )
+} else {
+if ("*" = op) {
+__v437 := v1 * v2;
+return ( false, __v437 )
+} else {
+if ("/" = op) {
+__v438 := v1 / v2;
+return ( false, __v438 )
+} else {
+if ("%" = op) {
+__v439 := v1 % v2;
+return ( false, __v439 )
+} else {
+if ("**" = op) {
+__v440 := v1 ** v2;
+return ( false, __v440 )
+} else {
+if ("&" = op) {
+__v441 := v1 & v2;
+return ( false, __v441 )
+} else {
+if ("|" = op) {
+__v442 := v1 | v2;
+return ( false, __v442 )
+} else {
+if ("^" = op) {
+__v443 := v1 ^ v2;
+return ( false, __v443 )
+} else {
+if ("<<" = op) {
+__v444 := v1 << v2;
+return ( false, __v444 )
+} else {
+if (">>" = op) {
+__v445 := v1 >> v2;
+return ( false, __v445 )
+} else {
+if (">>>" = op) {
+__v446 := v1 >>> v2;
+return ( false, __v446 )
+} else {
+if ("==" = op) {
+__v447 := v1 = v2;
+return ( false, __v447 )
+} else {
+if ("!=" = op) {
+__v449 := v1 = v2;
+__v448 := !(__v449);
+return ( false, __v448 )
+} else {
+if (">" = op) {
+__v450 := v1 > v2;
+return ( false, __v450 )
+} else {
+if ("<" = op) {
+__v451 := v1 < v2;
+return ( false, __v451 )
+} else {
+if (">=" = op) {
+__v452 := v1 >= v2;
+return ( false, __v452 )
+} else {
+if ("<=" = op) {
+__v453 := v1 <= v2;
+return ( false, __v453 )
+} else {
+__v454 := "raiseError" (___internal_esl_global, "Unsuported binary operator", op);
+if (fst(__v454)) {
+return __v454
+} else {
+__v454 := snd(__v454)
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+} };
+function interpretArgs (___internal_esl_global, scope, args) { i := 0;
+__v455 := l_len(args);
+argsLen := __v455;
+__v456 := [  ];
+evalArgs := __v456;
+__v457 := i < argsLen;
+while (__v457) { __v458 := l_nth(args, i);
+arg := __v458;
+__v459 := "interpreter" (___internal_esl_global, scope, arg);
+if (fst(__v459)) {
+return __v459
+} else {
+__v459 := snd(__v459)
+};
+argVal := __v459;
+__v460 := "isAbruptCompletion" (___internal_esl_global, argVal);
+if (fst(__v460)) {
+return __v460
+} else {
+__v460 := snd(__v460)
+};
+if (__v460) {
+return ( false, argVal )
+} else {
+__v461 := "getCompletionValue" (___internal_esl_global, argVal);
+if (fst(__v461)) {
+return __v461
+} else {
+__v461 := snd(__v461)
+};
+argVal := __v461
+};
+__v462 := l_add(evalArgs, argVal);
+evalArgs := __v462;
+__v463 := i + 1;
+i := __v463;
+__v457 := i < argsLen };
+return ( false, evalArgs ) };
+function updateObject (___internal_esl_global, objVal, propName, val) { objVal[propName] := val;
+return ( false, null ) };
+function Object (___internal_esl_global) { __v464 := { };
+__v464["__proto__"] := null;
+object := __v464;
+return ( false, object ) };
+function ContinueCompletion (___internal_esl_global, v) { __v465 := ( 'Continue, v );
+return ( false, __v465 ) };
+function getCompletionValue (___internal_esl_global, c) { __v466 := t_nth(c, 1);
+return ( false, __v466 ) };
+function interpretBlock (___internal_esl_global, scope, stmts) { retVal := 'empty;
+__v468 := 0;
+__v467 := l_len(stmts);
+__v469 := __v467 > __v468;
+while (__v469) { stmt := l_nth(stmts, __v468);
+__v470 := "interpreter" (___internal_esl_global, scope, stmt);
+if (fst(__v470)) {
+return __v470
+} else {
+__v470 := snd(__v470)
+};
+retVal := __v470;
+__v471 := "isAbruptCompletion" (___internal_esl_global, retVal);
+if (fst(__v471)) {
+return __v471
+} else {
+__v471 := snd(__v471)
+};
+if (__v471) {
+return ( false, retVal )
+} else {
+__v472 := "getCompletionValue" (___internal_esl_global, retVal);
+if (fst(__v472)) {
+return __v472
+} else {
+__v472 := snd(__v472)
+};
+retVal := __v472
+};
+__v468 := __v468 + 1;
+__v469 := __v467 > __v468 };
+__v473 := "NormalCompletion" (___internal_esl_global, retVal);
+if (fst(__v473)) {
+return __v473
+} else {
+__v473 := snd(__v473)
+};
+return ( false, __v473 ) };
+function applyAssignmentOperator (___internal_esl_global, op, oldVal, rightVal) { __v474 := { };
+__v474["op"] := op;
+__v474["oldVal"] := oldVal;
+updateData := __v474;
+__v475 := "op" in_obj updateData;
+__v477 := updateData["op"];
+__v476 := __v477 = "=";
+__v478 := "oldVal" in_obj updateData;
+if (true && __v475 && __v476 && __v478) {
+oldVal := updateData["oldVal"];
+return ( false, rightVal )
+} else {
+__v479 := "op" in_obj updateData;
+__v481 := updateData["op"];
+__v480 := __v481 = "+=";
+__v482 := "oldVal" in_obj updateData;
+if (true && __v479 && __v480 && __v482) {
+oldVal := updateData["oldVal"];
+__v483 := oldVal + rightVal;
+return ( false, __v483 )
+} else {
+__v484 := "op" in_obj updateData;
+__v486 := updateData["op"];
+__v485 := __v486 = "-=";
+__v487 := "oldVal" in_obj updateData;
+if (true && __v484 && __v485 && __v487) {
+oldVal := updateData["oldVal"];
+__v488 := oldVal - rightVal;
+return ( false, __v488 )
+} else {
+__v489 := "op" in_obj updateData;
+__v491 := updateData["op"];
+__v490 := __v491 = "*=";
+__v492 := "oldVal" in_obj updateData;
+if (true && __v489 && __v490 && __v492) {
+oldVal := updateData["oldVal"];
+__v493 := oldVal * rightVal;
+return ( false, __v493 )
+} else {
+__v494 := "op" in_obj updateData;
+__v496 := updateData["op"];
+__v495 := __v496 = "/=";
+__v497 := "oldVal" in_obj updateData;
+if (true && __v494 && __v495 && __v497) {
+oldVal := updateData["oldVal"];
+__v498 := oldVal / rightVal;
+return ( false, __v498 )
+} else {
+__v499 := "op" in_obj updateData;
+__v501 := updateData["op"];
+__v500 := __v501 = "%=";
+__v502 := "oldVal" in_obj updateData;
+if (true && __v499 && __v500 && __v502) {
+oldVal := updateData["oldVal"];
+__v503 := oldVal % rightVal;
+return ( false, __v503 )
+} else {
+__v504 := "op" in_obj updateData;
+__v506 := updateData["op"];
+__v505 := __v506 = "**=";
+__v507 := "oldVal" in_obj updateData;
+if (true && __v504 && __v505 && __v507) {
+oldVal := updateData["oldVal"];
+__v508 := oldVal ** rightVal;
+return ( false, __v508 )
+} else {
+if (true) {
+__v509 := "raiseError" (___internal_esl_global, "Illegal assignment operator", op);
+if (fst(__v509)) {
+return __v509
+} else {
+__v509 := snd(__v509)
+}
+}
+}
+}
+}
+}
+}
+}
+} };
+function esl_symbolic_assume (___internal_esl_global, args) { __v510 := l_nth(args, 0);
+cond := __v510;
+se_assume(cond);
+return ( false, 0 ) };
+function resolveProperty (___internal_esl_global, objVal, propName) { __v512 := typeof(objVal);
+__v513 := __v512 = __$Obj;
+__v511 := !(__v513);
+if (__v511) {
+__v514 := "raiseError" (___internal_esl_global, "Unable to access property from a non object value.", objVal);
+if (fst(__v514)) {
+return __v514
+} else {
+__v514 := snd(__v514)
+}
+};
+__v515 := propName in_obj objVal;
+if (__v515) {
+__v516 := objVal[propName];
+return ( false, __v516 )
+} else {
+__v517 := objVal["__proto__"];
+__v518 := __v517 = null;
+if (__v518) {
+return ( false, 'undefined )
+} else {
+__v519 := objVal["__proto__"];
+__v520 := "resolveProperty" (___internal_esl_global, __v519, propName);
+if (fst(__v520)) {
+return __v520
+} else {
+__v520 := snd(__v520)
+};
+return ( false, __v520 )
+}
+} }

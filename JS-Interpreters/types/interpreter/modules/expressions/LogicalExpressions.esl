@@ -1,0 +1,17 @@
+function logical_expression_not(scope, arg) {
+  print("LogicalExpressionNot [arg]");
+  eval := unary_expression(scope, arg);
+  return !eval
+};
+
+function logical_expression_or(scope, left, right) {
+  print("LogicalExpressionOr [left][right]");
+  evals := binary_expression(scope, left, right);
+  return evals.left || evals.right
+};
+
+function logical_expression_and(scope, left, right) {
+  print("LogicalExpressionAnd [left][right]");
+  evals := binary_expression(scope, left, right);
+  return evals.left && evals.right
+}

@@ -98,6 +98,7 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | ListLen, UnOpt (LSort, NOpt (ListExpr, vs)) -> Val (Int (List.length vs))
   | ListLen, UnOpt (LSort, lst) -> UnOpt (ListLen, lst)
   | TupleLen, NOpt (TupleExpr, vs) -> Val (Int (List.length vs))
+  | LSort, NOpt (ListExpr, []) -> NOpt (ListExpr, [])
   | Typeof, Symbolic (t, _) -> Val (Type t)
   | Typeof, NOpt (ListExpr, _) -> Val (Type Type.ListType)
   | Typeof, NOpt (TupleExpr, _) -> Val (Type Type.TupleType)
@@ -143,7 +144,7 @@ let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
   | ( Eq,
       UnOpt (FloatToString, Symbolic (Type.FltType, n1)),
       UnOpt (FloatToString, Symbolic (Type.FltType, n2)) ) ->
-      BinOpt(Eq, Symbolic (Type.FltType, n1), Symbolic (Type.FltType, n2))
+      BinOpt (Eq, Symbolic (Type.FltType, n1), Symbolic (Type.FltType, n2))
   | Eq, Val (Str s), UnOpt (FloatToString, Symbolic (Type.FltType, n))
   | Eq, UnOpt (FloatToString, Symbolic (Type.FltType, n)), Val (Str s) ->
   let s' = Operators.float_of_string (Str s) in

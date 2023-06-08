@@ -1,0 +1,11 @@
+function conditional_expression(scope, test, expr1, expr2) {
+  print("ConditionalExpression [test][consequent][alternate]");
+  print(test);
+  print(expr1);
+  print(expr2);
+  if (interpreter(scope, test)) {
+    return interpreter(scope, expr1)
+  } else {
+    return interpreter(scope, expr2)
+  }
+}

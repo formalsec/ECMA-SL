@@ -24,6 +24,7 @@ function __internalLog(globalObject, this, NewTarget, strict, params) {
       str := ToPropertyKey(str)
     }
   };
+  print str;
 
   return 'null
 };

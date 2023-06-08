@@ -1,0 +1,27 @@
+function Object() {
+  object := { 
+    __proto__: null
+  };
+  return object
+};
+
+
+function resolveProperty(objVal, propName) {
+  if (!(typeof objVal = __$Obj)) {
+    raiseError("Unable to access property from a non object value.", objVal)
+  };
+  if (propName in_obj objVal) {
+    return objVal[propName]
+  } else {
+    if (objVal.__proto__ = null) {
+      return 'undefined
+    } else {
+      return resolveProperty(objVal.__proto__, propName)
+    }
+  }
+};
+
+function updateObject(objVal, propName, val){
+  objVal[propName] := val; 
+  return
+}

@@ -4,7 +4,7 @@ let parseJS (prog : Prog.t) (heap : 'a Heap.t) (str : string) : Val.t =
   let base = Filename.basename !Config.file in
   let input_file = "__parse_in_" ^ base ^ "__.js"
   and output_file = "__parse_out_" ^ base ^ "__.js" in
-  Io.write_file input_file str;
+  Io.write_file ~file:input_file ~data:str;
   let func_id = eval_build_ast_func () in
   let command =
     Printf.sprintf "node ../JS2ECMA-SL/src/index.js -c -i %s -o %s -n %s"

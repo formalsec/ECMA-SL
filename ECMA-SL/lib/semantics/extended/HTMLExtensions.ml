@@ -46,6 +46,7 @@ module E_Expr = struct
     | Negative
     | Assert
     | Assume
+    | Abort
     | AssertNegative
     | ExprStmt
     | Table
@@ -307,14 +308,14 @@ module E_Expr = struct
           (sprintf
              "Call the %s internal method of %s passing %s as the argument"
              (if print_brackets then "[[" ^ method_name ^ "]]"
-             else "<i>" ^ method_name ^ "</i>")
+              else "<i>" ^ method_name ^ "</i>")
              (to_html TopLevel e_o) (to_html TopLevel e_f))
     | ExprStmt, _, [ e_o; e_f1; e_f2 ] ->
         Some
           (sprintf
              "Call the %s internal method of %s passing %s, and %s as arguments"
              (if print_brackets then "[[" ^ method_name ^ "]]"
-             else "<i>" ^ method_name ^ "</i>")
+              else "<i>" ^ method_name ^ "</i>")
              (to_html TopLevel e_o) (to_html TopLevel e_f1)
              (to_html TopLevel e_f2))
     | ExprStmt, _, [ e_o; e_f1; e_f2; e_f3 ] ->
@@ -323,7 +324,7 @@ module E_Expr = struct
              "Call the %s internal method of %s passing %s, %s, and %s as \
               arguments"
              (if print_brackets then "[[" ^ method_name ^ "]]"
-             else "<i>" ^ method_name ^ "</i>")
+              else "<i>" ^ method_name ^ "</i>")
              (to_html TopLevel e_o) (to_html TopLevel e_f1)
              (to_html TopLevel e_f2) (to_html TopLevel e_f3))
     | _, _, [ e_o; e_f ] ->
@@ -332,7 +333,7 @@ module E_Expr = struct
              "the result of calling the %s internal method of %s with argument \
               %s"
              (if print_brackets then "[[" ^ method_name ^ "]]"
-             else "<i>" ^ method_name ^ "</i>")
+              else "<i>" ^ method_name ^ "</i>")
              (to_html TopLevel e_o) (to_html TopLevel e_f))
     | _, _, [ e_o; e_f1; e_f2 ] ->
         Some
@@ -340,7 +341,7 @@ module E_Expr = struct
              "the result of calling the %s internal method of %s with \
               arguments %s and %s"
              (if print_brackets then "[[" ^ method_name ^ "]]"
-             else "<i>" ^ method_name ^ "</i>")
+              else "<i>" ^ method_name ^ "</i>")
              (to_html TopLevel e_o) (to_html TopLevel e_f1)
              (to_html TopLevel e_f2))
     | _ -> None
@@ -1139,11 +1140,11 @@ module E_Stmt = struct
                      s_html
                      (if prod_post <> "" then sprintf "<p>%s</p>" prod_post else ""))
            ) e_pats), MatchWith *)
-    | Assume e ->
-        let e_html = E_Expr.(to_html Assert e) in
-        (sprintf "<li>Assert: %s.</li>" e_html, ctxt')
+    | Abort e ->
+        let e_html = E_Expr.(to_html Abort e) in
+        (sprintf "<li>Abort: %s.</li>" e_html, ctxt')
     | Assert e ->
-        let e_html = E_Expr.(to_html Assume e) in
+        let e_html = E_Expr.(to_html Assert e) in
         (sprintf "<li>Assert: %s.</li>" e_html, ctxt')
     | Wrapper (meta, s) -> (
         let m = List.hd meta in
@@ -1226,7 +1227,7 @@ module E_Stmt = struct
         let contents =
           sprintf "%s%s %s.%s to the value of %s. %s" prepend_str
             (if prepend_str = "" && not (ctxt' = SameParagraph) then "Set"
-            else "set")
+             else "set")
             (expr_to_html e_o) (expr_to_html f)
             E_Expr.(to_html Set e_v)
             append_str
@@ -1472,6 +1473,9 @@ module E_Stmt = struct
             (String.concat "" rows),
           Table )
     | Lambda _ -> ("", ctxt')
+    | SymStmt (Assume e) ->
+        let e_html = E_Expr.(to_html Assert e) in
+        (sprintf "<li>Assert: %s.</li>" e_html, ctxt')
 end
 
 module E_Func = struct
