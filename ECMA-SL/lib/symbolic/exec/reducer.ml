@@ -5,17 +5,20 @@ open Operators
 
 let reduce_sconcat (vs : Expr.t list) : Expr.t =
   let s =
-    List.fold_left vs ~init:[] ~f:(fun a b ->
-        match a with
-        | [] -> [ b ]
+    List.fold_left vs ~init:[] ~f:(fun acc v ->
+        match acc with
+        | [] -> [ v ]
         | h :: t -> (
-            match (h, b) with
+            match (h, v) with
             | Val (Str h'), Val (Str b') ->
                 Val (Str (String.concat ~sep:"" [ h'; b' ])) :: t
-            | Val (Str h'), _ -> b :: a
-            | _, Val (Str b') -> b :: a
+            | Val (Str h'), _ -> v :: acc
+            | _, Val (Str b') -> v :: acc
+            | Symbolic(Type.StrType, _), Symbolic(Type.StrType, _ ) ->
+              v :: acc
             | _ ->
-                failwith ("impossible argument types for concat " ^ Expr.str h)))
+              v :: acc))
+                (* failwith ("impossible argument types for concat " ^ Expr.str h ^" " ^ Expr.str v))) *)
   in
   let s = List.rev s in
   if List.length s > 1 then UnOpt (Sconcat, NOpt (ListExpr, s))
@@ -104,14 +107,6 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
       let t = Sval_typing.type_of op in
       Val (Type (Option.value_exn t))
   | Sconcat, NOpt (ListExpr, vs) -> reduce_sconcat vs
-  (* | FloatOfString, UnOpt (FloatToString, Symbolic (Type.FltType, x)) ->
-         Symbolic (Type.FltType, x)
-     | ( FloatOfString,
-         UnOpt (Trim, UnOpt (FloatToString, Symbolic (Type.FltType, x))) ) ->
-         Symbolic (Type.FltType, x)
-     | ( FloatToString,
-         UnOpt (ToUint32, UnOpt (FloatOfString, Symbolic (Type.FltType, x))) ) ->
-         Symbolic (Type.FltType, x) *)
   | FloatOfString, UnOpt (FloatToString, x) -> x
   (* Unsound *)
   | FloatToString, UnOpt (ToUint32, v) -> v

@@ -13,7 +13,7 @@ let insert (h : 'a t) (obj : 'a obj) : Loc.t =
   let loc = Loc.newloc () in
   Hashtbl.set h.map ~key:loc ~data:obj;
   loc
-
+  
 let remove (h : 'a t) (l : Loc.t) : unit = Hashtbl.remove h.map l
 
 let set (h : 'a t) (key : Loc.t) (data : 'a obj) : unit =
@@ -35,11 +35,13 @@ let get_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
     Option.bind obj ~f:(fun o -> Some (S_object.get o field solver pc store))
   in
   match res with
-  | None -> failwith "Return is never none."
+  | None -> 
+    failwith ("get Return is never none. loc: " ^ loc ^ (Expr.str field)) 
   | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with
       | [ (obj, pc, v) ] -> 
+        if (Option.is_some pc) then set heap loc obj;
         [ (heap, obj, pc, v) ]
       | _ ->
           List.map objs ~f:(fun (obj, pc, v) ->
@@ -50,24 +52,21 @@ let get_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
 let set_field (heap : 'a t) (loc : Loc.t) (field : Expr.t) (v : 'a)
     (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
     ('a t * 'a obj * encoded_pct option) list =
-    (* Printf.printf "Heap field set %s\n"(Expr.str field); *)
   let obj = get heap loc in
   let res =
     Option.bind obj ~f:(fun o -> Some (S_object.set o field v solver pc store))
   in
   match res with
-  | None -> failwith "Return is never none"
+  | None -> 
+    failwith ("set Return is never none. loc: " ^ loc) 
   | Some objs -> (
-
       (* Don't clone heap unless necessary *)
       match objs with
       | [ (obj, pc) ] -> 
+        if (Option.is_some pc) then set heap loc obj;
         [ (heap, obj, pc) ]
       | _ ->
-          List.map objs ~f:(fun (obj, pc) ->
-              (* Option.iter ~f:(fun pc -> 
-                Printf.printf "we branching on set %s %s %s\n" (Expr.str field) (Encoding.Expression.to_string pc) (S_object.to_string obj (Expr.str));
-              ) pc; *)
+          List.map objs ~f:(fun (obj, pc) ->  
               let heap' = clone heap in
               set heap' loc obj;
               (heap', obj, pc)))
@@ -81,11 +80,12 @@ let delete_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
   in
 
   match res with
-  | None -> failwith "Return is never none"
+  | None -> failwith ("delete Return is never none. loc: " ^ loc) 
   | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with
       | [ (obj, pc') ] -> 
+        if (Option.is_some pc') then set heap loc obj;
         [ (heap, obj, pc') ]
       | _ ->
           List.map objs ~f:(fun (obj, pc) ->
