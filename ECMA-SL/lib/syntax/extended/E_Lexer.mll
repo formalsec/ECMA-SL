@@ -90,6 +90,9 @@
                 "abs"                   , ABS;
                 "ceil"                  , CEIL;
                 "floor"                 , FLOOR;
+                "PI"                    , PI;
+                "MAX_VALUE"             , MAX_VALUE;
+                "MIN_VALUE"             , MIN_VALUE;
                 "exp"                   , EXP;
                 "log_2"                 , LOG_2;
                 "log_e"                 , LOG_E;
