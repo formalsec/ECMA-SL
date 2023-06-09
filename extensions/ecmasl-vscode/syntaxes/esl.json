@@ -3,10 +3,20 @@
 	"name": "ECMA-SL",
 	"patterns": [
 		{ "include": "#comments" },
-		{ "include": "#keywords" },
-		{ "include": "#literals" },
+		
+		{ "include": "#control" },
+		{ "include": "#constants" },
+		{ "include": "#builtin" },
+		{ "include": "#api" },
+
+		{ "include": "#numbers" },
+		{ "include": "#strings" },
+		{ "include": "#booleans" },
+		{ "include": "#symbols" },
+
 		{ "include": "#types" }
 	],
+
 	"repository": {
 
 		"comments": {
@@ -19,32 +29,25 @@
 			]
 		},
 
-		"keywords": {
-			"patterns": [
-				{ "include": "#constants" },
-				{ "include": "#control" },
-				{ "include": "#builtin" },
-				{ "include": "#api" }
-			]
-		},
-		
 		"control": {
 			"patterns": [
 				{
 					"name": "keyword.control.esl",
-					"match": "\\b(if|else|elif|while|foreach|repeat|until|switch|case|sdefault|match|with|default|None|null|function|return|lambda|macro|catch|throw|fail|assume|assert|import|extern|print|delete|symbolic|typeof|gen_wrapper|NaN|Infinity)\\b"
+					"match": "\\b(if|else|elif|while|foreach|repeat|until|switch|case|sdefault|match|with|default|None|null|function|return|lambda|macro|catch|throw|fail|assume|assert|import|extern|print|delete|symbolic|typeof|gen_wrapper)\\b"
 				}
 			]
 		},
+
 		"constants": {
 			"patterns": [
 				{
 					"name": "constant.language.esl",
-					"match": "\\b(PI|MAX_VALUE|MIN_VALUE)\\b"
+					"match": "\\b(NaN|Infinity|PI|MAX_VALUE|MIN_VALUE)\\b"
 				}
 			]
 		},
-		"builtin": {
+
+		"builtin":{
 			"patterns": [
 				{
 					"name": "entity.name.function.esl",
@@ -52,6 +55,7 @@
 				}
 			]
 		},
+
 		"api": {
 			"patterns": [
 				{
@@ -61,15 +65,6 @@
 			]
 		},
 
-
-		"literals": {
-			"patterns": [
-				{ "include": "#numbers" },
-				{ "include": "#strings" },
-				{ "include": "#boolean" },
-				{ "include": "#symbols" }
-			]
-		},
 		"numbers": {
 			"patterns": [
 				{
@@ -78,6 +73,7 @@
 				}
 			]
 		},
+
 		"strings": {
 			"name": "string.quoted.double.esl",
 			"begin": "\"",
@@ -96,7 +92,8 @@
 				}
 			]
 		},
-		"boolean": {
+
+		"booleans": {
 			"patterns": [
 				{
 					"name": "keyword.control.esl",
@@ -104,6 +101,7 @@
 				}
 			]
 		},
+
 		"symbols": {
 			"patterns": [
 				{
@@ -116,12 +114,12 @@
 				}
 			]
 		},
-
+		
 		"types": {
 			"patterns": [
 				{
 					"name": "entity.name.type",
-					"match": "\\b(typedef|any|unknown|never|undefined|int|float|string|boolean|symbol|sigma)\\b"
+					"match": "\\b(any|unknown|never|undefined|int|float|string|boolean|symbol|sigma)\\b"
 				},
 				{
 					"name": "entity.name.type",
@@ -132,4 +130,4 @@
 		}
 	},
 	"scopeName": "source.esl"
-}	
+}
