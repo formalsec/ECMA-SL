@@ -20,6 +20,10 @@ let purple = "35"
 let cyan = "36"
 let white = "37"
 
+let clean (text : string) : string =
+  let escapeRegex = Str.regexp "\027\\[[0-9;]*m" in
+  Str.global_replace escapeRegex "" text
+
 let format (text : string) (format : string list) : string =
   let format_str =
     "\027[" ^ List.fold_left (fun f s -> f ^ ";" ^ s) "" format ^ "m"

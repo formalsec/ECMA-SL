@@ -13,8 +13,8 @@ let type_function_params (tctx : T_Ctx.t) (func : E_Func.t) : unit =
           T_Ctx.tenv_update tctx param tparam'
       | Some _ ->
           T_Err.raise (T_Err.DuplicatedParam param)
-            ~src:(T_Err.Func (T_Ctx.get_func tctx))
-            ~tkn:(T_Err.Str param))
+            ~src:(T_Err.func_tkn (T_Ctx.get_func tctx))
+            ~tkn:(T_Err.str_tkn param))
     tparams
 
 let type_function (tctx : T_Ctx.t) (func : E_Func.t) : T_Err.t list =

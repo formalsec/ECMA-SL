@@ -1,9 +1,9 @@
-function _sigmaCall(): sigma[type] { type: "foo", foo: int } | { type: false }
+function _sigmaCall(): sigma[type] | { type: "foo", foo: int } | { type: false }
 	{ return { type: "foo", foo: 10 } };
 
 function main() {
-	sigmaSimple: sigma[type] { type: "foo" } | { type: "bar" } := { type: "foo" };
-	sigmaCall: sigma[type] { type: "foo", foo: int } | { type: false } := _sigmaCall();
+	sigmaSimple: sigma[type] | { type: "foo" } | { type: "bar" } := { type: "foo" };
+	sigmaCall: sigma[type] | { type: "foo", foo: int } | { type: false } := _sigmaCall();
 
 	x: "foo" := sigmaSimple.type;				/* Valid */
 	y: "bar" := sigmaSimple.type;				/* BadValue: "bar" <- "foo" */

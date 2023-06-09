@@ -17,7 +17,7 @@ let type_var (narrow : bool) (tctx : T_Ctx.t) (x : string) : E_Type.t =
   | Some tvar ->
       let rtvar, ntvar = T_Ctx.get_tvar_t tvar in
       if narrow then ntvar else rtvar
-  | None -> T_Err.raise (T_Err.UnknownVar x) ~tkn:(T_Err.Str x)
+  | None -> T_Err.raise (T_Err.UnknownVar x) ~tkn:(T_Err.str_tkn x)
 
 let type_const (c : Operators.const) : E_Type.t =
   match c with
@@ -29,8 +29,8 @@ let test_operand (test_operand_f : E_Expr.t -> E_Type.t -> E_Type.t)
     ((arg, tparam) : E_Expr.t * E_Type.t) : unit =
   try ignore (test_operand_f arg tparam)
   with T_Err.TypeError terr -> (
-    match terr.T_Err.errs with
-    | T_Err.BadValue (tref, texpr) :: _ ->
+    match T_Err.top_err terr with
+    | T_Err.BadValue (tref, texpr) ->
         T_Err.update terr (T_Err.BadOperand (tref, texpr))
     | _ -> T_Err.continue terr)
 
@@ -38,8 +38,8 @@ let test_arg (test_arg_f : E_Expr.t -> E_Type.t -> E_Type.t)
     ((arg, tparam) : E_Expr.t * E_Type.t) : unit =
   try ignore (test_arg_f arg tparam)
   with T_Err.TypeError terr -> (
-    match terr.T_Err.errs with
-    | T_Err.BadValue (tref, texpr) :: _ ->
+    match T_Err.top_err terr with
+    | T_Err.BadValue (tref, texpr) ->
         T_Err.update terr (T_Err.BadArgument (tref, texpr))
     | _ -> T_Err.continue terr)
 
@@ -75,7 +75,9 @@ let test_nargs (tctx : T_Ctx.t) (expr : E_Expr.t) (args : E_Expr.t list)
     (tparams : E_Type.t list) : unit =
   let nparams, nargs = (List.length tparams, List.length args) in
   if nparams != nargs then
-    T_Err.raise (T_Err.NExpectedArgs (nparams, nargs)) ~tkn:(T_Err.Expr expr)
+    T_Err.raise
+      (T_Err.NExpectedArgs (nparams, nargs))
+      ~tkn:(T_Err.expr_tkn expr)
 
 let type_named_call (tctx : T_Ctx.t) (expr : E_Expr.t) (fname : string)
     (args : E_Expr.t list) : E_Type.t list * E_Type.t =
@@ -84,7 +86,7 @@ let type_named_call (tctx : T_Ctx.t) (expr : E_Expr.t) (fname : string)
       let tparams = E_Func.get_tparams func in
       let tret = Option.default E_Type.AnyType (E_Func.get_return_t func) in
       test_nargs tctx expr args tparams |> fun () -> (tparams, tret)
-  | None -> T_Err.raise (T_Err.UnknownFunction fname) ~tkn:(T_Err.Str fname)
+  | None -> T_Err.raise (T_Err.UnknownFunction fname) ~tkn:(T_Err.str_tkn fname)
 
 let type_call (tctx : T_Ctx.t) (expr : E_Expr.t) (fexpr : E_Expr.t)
     (args : E_Expr.t list) : E_Type.t list * E_Type.t =
@@ -96,27 +98,27 @@ let type_newobj (tctx : T_Ctx.t) (tfes : (string * E_Type.t) list) : E_Type.t =
   let _type_obj_field_f flds (fn, ft) =
     match Hashtbl.find_opt flds fn with
     | None -> Hashtbl.add flds fn (ft, E_Type.Required)
-    | Some _ -> T_Err.raise (T_Err.DuplicatedField fn) ~tkn:(T_Err.Str fn)
+    | Some _ -> T_Err.raise (T_Err.DuplicatedField fn) ~tkn:(T_Err.str_tkn fn)
   in
   let flds = Hashtbl.create !Config.default_hashtbl_sz in
   List.iter (_type_obj_field_f flds) tfes |> fun () ->
   E_Type.ObjectType { E_Type.flds; E_Type.smry = None }
 
-let type_fld_lookup (oe : E_Expr.t) (fe : E_Expr.t) (fn : string)
-    (tobj : E_Type.t) : E_Type.t =
-  let _terr_obj msg = T_Err.raise msg ~tkn:(T_Err.Expr oe) in
-  let _terr_fexpr msg = T_Err.raise msg ~tkn:(T_Err.Expr fe) in
+let type_fld_lookup (oe : E_Expr.t) (fe : E_Expr.t) (fn : string) (t : E_Type.t)
+    : E_Type.t =
+  let _terr_obj msg = T_Err.raise msg ~tkn:(T_Err.expr_tkn oe) in
+  let _terr_fexpr msg = T_Err.raise msg ~tkn:(T_Err.expr_tkn fe) in
   let objName = E_Expr.get_expr_name oe in
-  match tobj with
+  match t with
   | E_Type.AnyType -> E_Type.AnyType
-  | E_Type.UnknownType -> _terr_obj (T_Err.BadType (objName, tobj))
-  | E_Type.UndefinedType -> _terr_obj (T_Err.BadPossibleType (objName, tobj))
-  | E_Type.NullType -> _terr_obj (T_Err.BadPossibleType (objName, tobj))
-  | E_Type.ObjectType tobj' -> (
-      match E_Type.get_tfld tobj' fn with
-      | Some ft -> E_Type.get_fld_t ft
-      | None -> _terr_fexpr (T_Err.BadLookup (fn, tobj)))
-  | _ -> _terr_fexpr (T_Err.BadLookup (fn, tobj))
+  | E_Type.UnknownType -> _terr_obj (T_Err.BadType (objName, t))
+  | E_Type.UndefinedType -> _terr_obj (T_Err.BadPossibleType (objName, t))
+  | E_Type.NullType -> _terr_obj (T_Err.BadPossibleType (objName, t))
+  | E_Type.ObjectType tobj -> (
+      match E_Type.find_tfld_opt tobj fn with
+      | Some tfld -> E_Type.tfld_t tfld
+      | None -> _terr_fexpr (T_Err.BadLookup (fn, t)))
+  | _ -> _terr_fexpr (T_Err.BadLookup (fn, t))
 
 let type_lookup (narrow : bool) (tctx : T_Ctx.t) (oe : E_Expr.t) (fe : E_Expr.t)
     (toe : E_Type.t) : E_Type.t =
@@ -126,9 +128,8 @@ let type_lookup (narrow : bool) (tctx : T_Ctx.t) (oe : E_Expr.t) (fe : E_Expr.t)
   let _type_fld_lookup fn tobj =
     try type_fld_lookup oe fe fn tobj
     with T_Err.TypeError terr -> (
-      match terr.T_Err.errs with
-      | T_Err.BadLookup (fn, t) :: _ ->
-          T_Err.push terr (T_Err.BadLookup (fn, toe))
+      match T_Err.top_err terr with
+      | T_Err.BadLookup (fn, t) -> T_Err.push terr (T_Err.BadLookup (fn, toe))
       | _ -> T_Err.continue terr)
   in
   let _type_union_lookup fn ts =

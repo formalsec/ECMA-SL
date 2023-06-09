@@ -41,6 +41,7 @@ let rec narrow_union_type (ts : t list) : t list =
   let _never_f t r = match t with NeverType -> r | _ -> t :: r in
   let _unique_f t r = if List.mem t r then r else t :: r in
   let _narrow_f ts t r = if List.exists (_has_wide_f t) ts then r else t :: r in
+  fold_type ts |> fun ts ->
   List.fold_right _expand_inner_unions_f ts [] |> fun ts ->
   List.fold_right _never_f ts [] |> fun ts ->
   List.fold_right _unique_f ts [] |> fun ts ->

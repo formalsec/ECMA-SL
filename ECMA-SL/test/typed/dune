@@ -9,7 +9,7 @@
   TestIfWhile
   TestObject
   TestConstraint
-  TestSigma
+  TestMatch
   )
  (inline_tests)
  (preprocess

@@ -12,15 +12,15 @@ let check_literal_narrowing (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   | SymbolType, LiteralType (Val.Symbol _) -> ()
   | _ ->
       let texpr' = literal_terr expr texpr in
-      T_Err.raise (T_Err.BadValue (tref, texpr')) ~tkn:(T_Err.Expr expr)
+      T_Err.raise (T_Err.BadValue (tref, texpr')) ~tkn:(T_Err.expr_tkn expr)
 
 let check_literal_expr (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   match (tref, texpr) with
   | LiteralType vref, LiteralType vexpr ->
       if not (vref = vexpr) then
-        T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.Expr expr)
+        T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.expr_tkn expr)
   | _, LiteralType _ -> check_literal_narrowing expr tref texpr
-  | _ -> failwith "Typed ECMA-SL: T_Typing.check_literal_type"
+  | _ -> failwith "Typed ECMA-SL: T_Typing.check_literal_expr"
 
 let check_union_expr (expr : E_Expr.t) (tref : t) (texpr : t)
     (type_check_f : t -> t -> unit) : unit =
@@ -29,45 +29,44 @@ let check_union_expr (expr : E_Expr.t) (tref : t) (texpr : t)
       try List.iter (type_check_f tref) ts
       with T_Err.TypeError terr ->
         T_Err.push terr (T_Err.BadValue (tref, texpr)))
-  | _ -> failwith "Typed ECMA-SL: T_Typing.check_union_type_expr"
+  | _ -> failwith "Typed ECMA-SL: T_Typing.check_union_expr"
 
 let check_union_type (expr : E_Expr.t) (tref : t) (texpr : t)
     (type_check_f : t -> t -> unit) : unit =
   let _is_typeable_f t =
     try type_check_f t texpr |> fun _ -> true with T_Err.TypeError _ -> false
   in
+  let _check_ts ts =
+    if not (List.exists _is_typeable_f ts) then
+      let texpr' = literal_terr expr texpr in
+      T_Err.raise (T_Err.BadValue (tref, texpr')) ~tkn:(T_Err.expr_tkn expr)
+  in
   match (tref, texpr) with
-  | UnionType ts, _ ->
-      if not (List.exists _is_typeable_f ts) then
-        let texpr' = literal_terr expr texpr in
-        T_Err.raise (T_Err.BadValue (tref, texpr')) ~tkn:(T_Err.Expr expr)
-  | SigmaType (_, ts), _ ->
-      if not (List.exists _is_typeable_f ts) then
-        let texpr' = literal_terr expr texpr in
-        T_Err.raise (T_Err.BadValue (tref, texpr')) ~tkn:(T_Err.Expr expr)
+  | UnionType ts, _ -> _check_ts ts
+  | SigmaType (_, ts), _ -> _check_ts ts
   | _ -> failwith "Typed ECMA-SL: T_Typing.check_union_type"
 
 let check_obj_fields (expr : E_Expr.t) (toref : tobj_t) (toe : tobj_t)
     (type_check_f : E_Expr.t -> t -> t -> unit) : unit =
   let _check_expr_fld_f isLiteral (fn, (ft, _)) =
-    let terrTkn = if isLiteral then T_Err.Str fn else T_Err.Expr expr in
+    let terrTkn = if isLiteral then T_Err.str_tkn fn else T_Err.expr_tkn expr in
     match (isLiteral, Hashtbl.find_opt toref.flds fn) with
     | true, None -> T_Err.raise (T_Err.ExtraField fn) ~tkn:terrTkn
     | false, None -> T_Err.raise (T_Err.ExtraField fn) ~tkn:terrTkn
-    (* FIXME : horizontal subtyping required above *)
+    (* FIXME: horizontal subtyping required above *)
     | _, Some (tref, _) -> (
         match expr with
         | E_Expr.NewObj oe ->
             let fe = snd (List.find (fun (fn', _) -> fn' = fn) oe) in
             type_check_f fe tref ft
         | _ -> (
-            try type_check_f expr tref ft
+            try type_check_f expr tref ft (* FIXME: prevent field subtyping *)
             with T_Err.TypeError terr ->
               T_Err.push terr (T_Err.IncompatibleField fn)))
   in
   let _check_missing_fld_f flds fn tfld =
-    if not (Seq.exists (fun (fn', _) -> fn' = fn) flds || is_fld_opt tfld) then
-      T_Err.raise (T_Err.MissingField fn) ~tkn:(T_Err.Expr expr)
+    if not (Seq.exists (fun (fn', _) -> fn' = fn) flds || tfld_is_opt tfld) then
+      T_Err.raise (T_Err.MissingField fn) ~tkn:(T_Err.expr_tkn expr)
   in
   let isLiteral = match expr with E_Expr.NewObj _ -> true | _ -> false in
   let flds = Hashtbl.to_seq toe.flds in
@@ -88,7 +87,7 @@ let check_runtime_type (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   | RuntimeType Type.TypeType, RuntimeType _ -> ()
   | RuntimeType tref', RuntimeType texpr' ->
       if not (tref' = texpr') then
-        T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.Expr expr)
+        T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.expr_tkn expr)
   | _ -> failwith "Typed ECMA-SL: T_Typing.check_runtime_type"
 
 let rec type_check (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
@@ -110,13 +109,8 @@ let rec type_check (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   | SigmaType _, _ -> check_union_type expr tref texpr (type_check expr)
   | _, LiteralType _ -> check_literal_expr expr tref texpr
   | RuntimeType _, RuntimeType _ -> check_runtime_type expr tref texpr
-  | _ -> T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.Expr expr)
+  | _ -> T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.expr_tkn expr)
 
 let is_typeable (tref : t) (texpr : t) : bool =
   try type_check (E_Expr.Val Val.Null) tref texpr |> fun _ -> true
   with T_Err.TypeError _ -> false
-
-let type_check_temp (expr : E_Expr.t) (tref : t) ((rtexpr, ntexpr) : t * t) :
-    unit =
-  try type_check expr tref ntexpr
-  with T_Err.TypeError nterr -> type_check expr tref rtexpr

@@ -488,7 +488,7 @@ and compile_pn_pat (expr : Expr.t) ((pn, patv) : string * E_Pat_v.t)
 
 and compile_pat (expr : Expr.t) (e_pat : E_Pat.t) (at : region) :
     string list * Stmt.t list * Stmt.t list =
-  match e_pat with
+  match e_pat.it with
   | DefaultPat -> ([], [], [])
   | ObjPat (pn_pats, _) ->
       let bs, pre_stmts, in_stmts =

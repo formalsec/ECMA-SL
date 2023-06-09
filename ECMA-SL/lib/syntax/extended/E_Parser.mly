@@ -662,9 +662,9 @@ pat_stmt_target:
 
 e_pat_target:
   | LBRACE; pn_patv = separated_list (COMMA, e_pat_v_target); RBRACE; meta = option(pat_metadata_target);
-    { E_Pat.ObjPat (pn_patv, meta) }
+    { E_Pat.ObjPat (pn_patv, meta) @@ at $sloc }
   | DEFAULT;
-    { E_Pat.DefaultPat }
+    { E_Pat.DefaultPat @@ at $sloc }
 
 pat_metadata_target:
   | LBRACK; meta = separated_list(COMMA, val_target); RBRACK; vars_meta_opt = option(vars_metadata_target);
@@ -762,7 +762,7 @@ e_simple_type_target:
 e_nary_type_target:
   | t1 = e_simple_type_target; merge_func = e_nary_type_op_target; t2 = e_type_target;
     { merge_func t1 t2 }
-  | TYPE_SIGMA; LBRACK; d = VAR; RBRACK; t = e_nary_type_target;
+  | TYPE_SIGMA; LBRACK; d = VAR; RBRACK; option(PIPE); t = e_nary_type_target;
     { E_Type.parse_sigma_type d t }
 
 e_nary_type_op_target:

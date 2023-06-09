@@ -72,3 +72,18 @@ let%test _ =
       BadValue (LiteralType (Val.Int 10), IntType);
       BadValue (LiteralType (Val.Int 10), LiteralType (Val.Int 20));
     ]
+
+let%test _ =
+  Test.type_checker_test "example/object/sigma.esl"
+    [
+      BadValue (LiteralType (Val.Str "bar"), LiteralType (Val.Str "foo"));
+      BadValue (LiteralType (Val.Str "foo"), LiteralType (Val.Bool false));
+      BadValue (LiteralType (Val.Bool false), LiteralType (Val.Str "foo"));
+      BadLookup ("foo", Test.obj_cons [ ("type", LiteralType (Val.Bool false)) ]);
+      BadValue (LiteralType (Val.Str "foo"), LiteralType (Val.Str "bar"));
+      BadValue (LiteralType (Val.Bool false), LiteralType (Val.Str "foo"));
+      BadValue (LiteralType (Val.Str "foo"), LiteralType (Val.Bool false));
+      BadLookup ("foo", Test.obj_cons [ ("type", LiteralType (Val.Bool false)) ]);
+      BadValue (LiteralType (Val.Bool false), LiteralType (Val.Str "foo"));
+      BadValue (LiteralType (Val.Str "foo"), LiteralType (Val.Bool false));
+    ]

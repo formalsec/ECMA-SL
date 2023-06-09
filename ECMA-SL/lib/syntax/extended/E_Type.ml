@@ -37,23 +37,35 @@ let merge_type (merge_fun_f : t -> t -> t) (ts : t list) : t =
   let tf, tr = match ts with [] -> (NeverType, []) | f :: r -> (f, r) in
   List.fold_left merge_fun_f tf tr
 
-let get_tfld (tobj : tobj_t) (fn : string) : tfld_t option =
+let create_tobj (flds : (string, tfld_t) Hashtbl.t) (smry : t option) : t =
+  ObjectType { flds; smry }
+
+let get_tobj (t : t) : tobj_t =
+  match t with
+  | ObjectType tobj -> tobj
+  | _ -> failwith "Typed ECMA-SL: E_Type.get_tobj"
+
+let flds (tobj : tobj_t) : (string, tfld_t) Hashtbl.t = tobj.flds
+let smry (tobj : tobj_t) : t option = tobj.smry
+
+let find_tfld (tobj : tobj_t) (fn : string) : tfld_t =
+  match Hashtbl.find_opt tobj.flds fn with
+  | Some tfld -> tfld
+  | None -> failwith "Typed ECMA-SL: E_Type.get_tfld"
+
+let find_tfld_opt (tobj : tobj_t) (fn : string) : tfld_t option =
   Hashtbl.find_opt tobj.flds fn
 
-let is_fld_opt ((_, fp) : tfld_t) : bool =
-  match fp with Required -> false | Optional -> true
-
-let get_fld_t ((ft, fp) : tfld_t) : t =
+let tfld_t ((ft, fp) : tfld_t) : t =
   if fp = Optional then merge_union_type ft UndefinedType else ft
 
-let get_fld_data (tobj : tobj_t) : (string * tfld_t) list =
-  let nflds = Hashtbl.fold (fun fn ft r -> (fn, ft) :: r) tobj.flds [] in
-  let sfld =
-    match tobj.smry with
-    | Some tsmry -> [ ("*", (tsmry, Required)) ]
-    | None -> []
-  in
-  List.append nflds sfld
+let tfld_is_opt ((_, fp) : tfld_t) : bool =
+  match fp with Required -> false | Optional -> true
+
+let tfld_data (tobj : tobj_t) : (string * tfld_t) list =
+  let _nflds flds = Hashtbl.fold (fun fn ft r -> (fn, ft) :: r) flds [] in
+  let _sfld = function Some tsmry -> [ ("*", (tsmry, Required)) ] | _ -> [] in
+  List.append (_nflds tobj.flds) (_sfld tobj.smry)
 
 module Field = struct
   type ft = NamedField of string * (t * bool) | SumryField of t
@@ -128,9 +140,9 @@ let rec str (t : t) : string =
   | UnionType ts -> "(" ^ _tsToStr ts " | " ^ ")"
   | SigmaType (d, ts) -> "sigma[" ^ d ^ "] " ^ _tsToStr ts " | "
   | ObjectType tobj ->
-      let fp_str_f tfld = if is_fld_opt tfld then "?" else "" in
+      let fp_str_f tfld = if tfld_is_opt tfld then "?" else "" in
       let fld_str_f (fn, tfld) = fn ^ fp_str_f tfld ^ ": " ^ str (fst tfld) in
-      let flds = get_fld_data tobj in
+      let flds = tfld_data tobj in
       "{ " ^ String.concat ", " (List.map (fun f -> fld_str_f f) flds) ^ " }"
   | RuntimeType t' -> "runtime(" ^ Type.str t' ^ ")"
   | UserDefinedType t' -> t'

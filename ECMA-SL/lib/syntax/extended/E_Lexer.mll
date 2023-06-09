@@ -44,8 +44,13 @@
                 "delete"                , DELETE;
                 "typeof"                , TYPEOF;
                 "gen_wrapper"           , WRAPPER;
-                "NaN"                   , FLOAT (Float.nan);
-                "Infinity"              , FLOAT (Float.infinity);
+                
+                (* Constants *)
+                "NaN"                   , FLOAT (float_of_string "nan");
+                "Infinity"              , FLOAT (float_of_string "infinity");
+                "PI"                    , PI;
+                "MAX_VALUE"             , MAX_VALUE;
+                "MIN_VALUE"             , MIN_VALUE;
 
                 (* Built-Ins *)
                 "is_NaN"                , IS_NAN;
@@ -74,8 +79,8 @@
                 "float64_from_be_bytes" , FLOAT64_FROM_BE_BYTES; 
                 "float32_from_le_bytes" , FLOAT32_FROM_LE_BYTES; 
                 "float32_from_be_bytes" , FLOAT32_FROM_BE_BYTES;
-                "bytes_to_string"       , BYTES_TO_STRING;
 
+                "bytes_to_string"       , BYTES_TO_STRING;
                 "utf8_decode"           , UTF8_DECODE;
                 "hex_decode"            , HEX_DECODE;
                 "from_char_code"        , FROM_CHAR_CODE;

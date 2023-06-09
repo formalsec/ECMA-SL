@@ -120,7 +120,7 @@ let inspect_element (tctx : T_Ctx.t) (expr : E_Expr.t) : element_t =
 let eval_constraint (ttar : E_Type.t) (cstr : constraint_t) : E_Type.t list =
   let _tlst t = match t with E_Type.UnionType ts -> ts | _ -> [ t ] in
   let _terr ttar cstr =
-    let tkn = T_Err.Expr cstr.expr in
+    let tkn = T_Err.expr_tkn cstr.expr in
     T_Err.raise (T_Err.NoOverlapComp (ttar, cstr.tcstr)) ~tkn
   in
   let _runtime_neq_f b = if cstr.isNeq then not b else b in

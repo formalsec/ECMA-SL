@@ -6,12 +6,12 @@ let terr_none () : T_Err.t list = []
 
 let set_terr_stmt (tctx : T_Ctx.t) (tstmt_f : unit -> unit) : T_Err.t list =
   try tstmt_f () |> fun () -> []
-  with TypeError terr ->
-    [ { terr with src = T_Err.Stmt (T_Ctx.get_stmt tctx) } ]
+  with T_Err.TypeError terr ->
+    [ { terr with src = T_Err.stmt_tkn (T_Ctx.get_stmt tctx) } ]
 
 let type_assign (tctx : T_Ctx.t) (var : string) (tvar : E_Type.t option)
     (expr : E_Expr.t) : unit =
-  let tdefault = T_Ctx.default_tvar E_Type.UnknownType in
+  let tdefault = T_Ctx.default_tvar E_Type.AnyType in
   let tprev = Option.default tdefault (T_Ctx.tenv_find tctx var) in
   let rtprev, mtprev = (T_Ctx.get_tvar_rt tprev, T_Ctx.get_tvar_mt tprev) in
   let tref = Option.default rtprev tvar in
@@ -89,6 +89,52 @@ let type_fassign (tctx : T_Ctx.t) (oe : E_Expr.t) (fe : E_Expr.t)
   | E_Expr.Val (Val.Str fn), _ -> List.iter (_type_fassign fn rtoe) [ ntoe ]
   | _ -> ()
 
+let type_match (tctx : T_Ctx.t) (expr : E_Expr.t)
+    (pats : (E_Pat.t * E_Stmt.t) list)
+    (type_stmt_f : T_Ctx.t -> E_Stmt.t -> T_Err.t list) : T_Err.t list =
+  let _update_tvar_f tctx (x, t) =
+    T_Ctx.create_tvar t t true |> T_Ctx.tenv_update tctx x
+  in
+  let _update_tenv tctx patResult =
+    match patResult with
+    | T_Pattern.Succ patUpdates ->
+        List.iter (_update_tvar_f tctx) patUpdates |> fun () -> []
+    | T_Pattern.Err (terr, vars) ->
+        List.map (fun v -> (v, E_Type.AnyType)) vars
+        |> List.iter (_update_tvar_f tctx)
+        |> fun () -> [ terr ]
+  in
+  let _type_match_case_f (stmt, patResult) =
+    let tctx' = T_Ctx.copy tctx in
+    let terrUpdate = _update_tenv tctx' patResult in
+    let terrsStmt = type_stmt_f tctx' stmt in
+    List.concat [ terrUpdate; terrsStmt ]
+  in
+  let _test_complete_model sigmaModel =
+    try T_Pattern.test_complete_model sigmaModel |> fun () -> []
+    with T_Err.TypeError terr -> [ terr ]
+  in
+  let _type_match d ts =
+    let sigmaModel = T_Pattern.generate_sigma_model ts d in
+    let _type_match_pat_f pat = T_Pattern.type_match_pattern sigmaModel d pat in
+    let patResults = List.map (fun (p, s) -> (s, _type_match_pat_f p)) pats in
+    let terrsComplete = _test_complete_model sigmaModel in
+    let terrs = List.map _type_match_case_f patResults in
+    List.append (List.concat terrs) terrsComplete
+  in
+  try
+    let rtexpr, ntexpr = T_Expr.full_type_expr tctx expr in
+    match (rtexpr, ntexpr) with
+    | _, E_Type.AnyType -> []
+    | E_Type.SigmaType (d, _), E_Type.UnionType ts -> _type_match d ts
+    | E_Type.SigmaType (d, _), _ -> _type_match d [ ntexpr ]
+    | _ ->
+        set_terr_stmt tctx (fun () ->
+            T_Err.raise (T_Err.BadSigma rtexpr) ~tkn:(T_Err.expr_tkn expr))
+  with T_Err.TypeError terr ->
+    let terr' = { terr with tkn = T_Err.expr_tkn expr } in
+    set_terr_stmt tctx (fun () -> T_Err.continue terr')
+
 let rec type_stmt (tctx : T_Ctx.t) (stmt : E_Stmt.t) : T_Err.t list =
   let _ = T_Ctx.set_stmt tctx stmt in
   match stmt.it with
@@ -119,7 +165,7 @@ let rec type_stmt (tctx : T_Ctx.t) (stmt : E_Stmt.t) : T_Err.t list =
       let _expr_f () = ignore (T_Expr.safe_type_expr tctx e E_Type.AnyType) in
       set_terr_stmt tctx _expr_f
   (* | RepeatUntil (_, _, _) -> [] *)
-  (* | MatchWith (_, _) -> [] *)
+  | MatchWith (e, pats) -> type_match tctx e pats type_stmt
   (* | MacroApply (_, _) -> [] *)
   (* | Switch (_, _, _, _) -> [] *)
   (* | Lambda (_, _, _, _, _) -> [] *)
