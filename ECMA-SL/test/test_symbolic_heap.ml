@@ -4,9 +4,11 @@ let solver = Encoding.Batch.create ()
 let pc = []
 let expr_TRUE = Expr.Val (Val.Bool true)
 let o : Expr.t S_object.t = S_object.create ()
-let store = Sstore.create []
+let store = S_store.create []
+
 let objects =
-  S_object.set o (Expr.Val (Val.Str "key")) (Expr.Val (Val.Str "val")) solver pc store
+  S_object.set o (Expr.Val (Val.Str "key")) (Expr.Val (Val.Str "val")) solver pc
+    store
 
 let%test "empty_concrete_set" =
   List.length objects = 1
@@ -51,7 +53,8 @@ let%test "concrete_get_doesnt_exist" =
 let orig_symb_key = Expr.Symbolic (Type.StrType, Expr.Val (Val.Str "symb_k"))
 
 let objects2 =
-  S_object.set o orig_symb_key (Expr.Val (Val.Str "new_symb_val")) solver pc store
+  S_object.set o orig_symb_key (Expr.Val (Val.Str "new_symb_val")) solver pc
+    store
 
 let%test "symbolic_set" =
   List.length objects2 = 2

@@ -62,7 +62,7 @@ let step (c : config) : config list =
       [
         update c
           (Cont (List.tl_exn stmts))
-          (heap, Sstore.add_exn store x v, stack, f)
+          (heap, S_store.add_exn store x v, stack, f)
           pc;
       ]
   | Stmt.Assert e
@@ -150,7 +150,7 @@ let step (c : config) : config list =
       | Call_stack.Intermediate (stmts', store', x, f') ->
           [
             update c (Cont stmts')
-              (heap, Sstore.add_exn store' x v, stack', f')
+              (heap, S_store.add_exn store' x v, stack', f')
               pc;
           ]
       | Call_stack.Toplevel -> [ update c (Final (Some v)) state pc ])
@@ -162,7 +162,7 @@ let step (c : config) : config list =
         Call_stack.push stack
           (Call_stack.Intermediate (List.tl_exn stmts, store, x, f))
       in
-      let store' = Sstore.create (List.zip_exn (Prog.get_params prog f') vs') in
+      let store' = S_store.create (List.zip_exn (Prog.get_params prog f') vs') in
       [ update c (Cont [ func.body ]) (heap, store', stack', f') pc ]
   | Stmt.AssignECall (x, y, es) ->
       Crash.error s.at "'AssignECall' not implemented!"
@@ -172,24 +172,26 @@ let step (c : config) : config list =
       [
         update c
           (Cont (List.tl_exn stmts))
-          (heap, Sstore.add_exn store x (Val (Val.Loc loc)), stack, f)
+          (heap, S_store.add_exn store x (Val (Val.Loc loc)), stack, f)
           pc;
       ]
   | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc) in
       let reduced_field = reduce_expr ~at:s.at store e_field in
-      let get_result = S_heap.get_field heap loc reduced_field solver pc store in
+      let get_result =
+        S_heap.get_field heap loc reduced_field solver pc store
+      in
 
       List.map get_result ~f:(fun (new_heap, obj, new_pc, v) ->
           let v' = Val (Val.Bool (Option.is_some v)) in
           let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
 
           let new_pc' = new_pc' @ pc in
-  
+
           update c
             (Cont (List.tl_exn stmts))
-            (new_heap, Sstore.add_exn store x v', stack, f)
-            (new_pc'))
+            (new_heap, S_store.add_exn store x v', stack, f)
+            new_pc')
   | Stmt.AssignObjToList (x, e) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e) in
       let v =
@@ -206,7 +208,7 @@ let step (c : config) : config list =
       [
         update c
           (Cont (List.tl_exn stmts))
-          (heap, Sstore.add_exn store x v, stack, f)
+          (heap, S_store.add_exn store x v, stack, f)
           pc;
       ]
   | Stmt.AssignObjFields (x, e) ->
@@ -219,7 +221,7 @@ let step (c : config) : config list =
       [
         update c
           (Cont (List.tl_exn stmts))
-          (heap, Sstore.add_exn store x v, stack, f)
+          (heap, S_store.add_exn store x v, stack, f)
           pc;
       ]
   | Stmt.FieldAssign (e_loc, e_field, e_v) ->
@@ -237,7 +239,9 @@ let step (c : config) : config list =
   | Stmt.FieldDelete (e_loc, e_field) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc) in
       let reduced_field = reduce_expr ~at:s.at store e_field in
-      let objects = S_heap.delete_field heap loc reduced_field solver pc store in
+      let objects =
+        S_heap.delete_field heap loc reduced_field solver pc store
+      in
 
       List.map objects ~f:(fun (new_heap, obj, new_pc) ->
           let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
@@ -257,7 +261,7 @@ let step (c : config) : config list =
           in
           update c
             (Cont (List.tl_exn stmts))
-            (new_heap, Sstore.add_exn store x v', stack, f)
+            (new_heap, S_store.add_exn store x v', stack, f)
             (new_pc' @ pc))
   | Stmt.SymStmt (SymStmt.Assume e)
     when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
@@ -283,7 +287,7 @@ let step (c : config) : config list =
         Option.map ~f:Translator.expr_of_value (Batch.eval c.solver e' c.pc)
       in
       let store' =
-        Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
+        S_store.add_exn store x (Option.value ~default:(Val Val.Null) v)
       in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Maximize (x, e)) ->
@@ -293,7 +297,7 @@ let step (c : config) : config list =
           (Optimizer.maximize c.opt e' c.pc)
       in
       let store' =
-        Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
+        S_store.add_exn store x (Option.value ~default:(Val Val.Null) v)
       in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Minimize (x, e)) ->
@@ -303,19 +307,19 @@ let step (c : config) : config list =
           (Optimizer.minimize c.opt e' c.pc)
       in
       let store' =
-        Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
+        S_store.add_exn store x (Option.value ~default:(Val Val.Null) v)
       in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Is_symbolic (x, e)) ->
       let e' = reduce_expr ~at:s.at store e in
       let store' =
-        Sstore.add_exn store x (Val (Val.Bool (Expr.is_symbolic e')))
+        S_store.add_exn store x (Val (Val.Bool (Expr.is_symbolic e')))
       in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Is_sat (x, e)) ->
       let e' = Translator.translate (reduce_expr ~at:s.at store e) in
       let sat = Batch.check_sat c.solver (e' :: c.pc) in
-      let store' = Sstore.add_exn store x (Val (Val.Bool sat)) in
+      let store' = S_store.add_exn store x (Val (Val.Bool sat)) in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Is_number (x, e)) ->
       let e' = reduce_expr ~at:s.at store e in
@@ -324,7 +328,7 @@ let step (c : config) : config list =
         | Some Type.IntType | Some Type.FltType -> true
         | _ -> false
       in
-      let store' = Sstore.add_exn store x (Val (Val.Bool is_num)) in
+      let store' = S_store.add_exn store x (Val (Val.Bool is_num)) in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
 
 module type WorkList = sig
@@ -385,7 +389,7 @@ module RND = TreeSearch (RandArray)
 let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
     config list =
   let heap = S_heap.create ()
-  and store = Sstore.create []
+  and store = S_store.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
   let solver =
     let s = Batch.create () in
@@ -427,12 +431,14 @@ let main (prog : Prog.t) (f : func) : unit =
   and error_configs = List.filter ~f:(fun c -> is_fail c.code) configs in
   let f c =
     let open Encoding in
+    let model = Batch.find_model c.solver c.pc in
     let testcase =
-      List.map (Batch.find_model c.solver c.pc) ~f:(fun (s, v) ->
-          let sort = Types.string_of_type (Symbol.type_of s)
-          and name = Symbol.to_string s
-          and interp = Value.to_string v in
-          (sort, name, interp))
+      Option.value_map model ~default:[] ~f:(fun m ->
+          List.map (Model.get_bindings m) ~f:(fun (s, v) ->
+              let sort = Types.string_of_type (Symbol.type_of s)
+              and name = Symbol.to_string s
+              and interp = Value.to_string v in
+              (sort, name, interp)))
     in
     let pc = (Expression.string_of_pc c.pc, Expression.to_smt c.pc) in
     let sink =
