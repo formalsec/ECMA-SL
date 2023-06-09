@@ -1,10 +1,14 @@
 function FunctionObject(name, params, code, scope) {
-  functionObject := { 
-    internal: false,
-    name: name,
-    code: code,
-    params: params,
-    scope: scope
-  };
+  functionObject := Object();
+  functionObject.internal := false;
+  functionObject.name := name;
+  functionObject.code := code;
+  functionObject.params := params;
+  functionObject.scope := scope;
+  functionObject.__js_props__.prototype := Object();
   return functionObject
+};
+
+function getFunctionPrototype(functionObject) {
+  return functionObject.__js_props__.prototype
 }

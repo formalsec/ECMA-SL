@@ -128,14 +128,17 @@ function interpreter(scope, s) {
 					objVal := interpreter(scope, object);
 					@checkAbruptCompletion(objVal);
 					if (computed) {
-						propName := interpreter(scope, prop);
-						@checkAbruptCompletion(propName)
+						propVal := interpreter(scope, prop);
+						@checkAbruptCompletion(propVal)
 					} else {
-						propName := prop.name
+						propVal := prop.name
 					};
-					oldVal := resolveProperty(objVal, propName);
+					if (!(typeof objVal = __$Obj)) {
+    				raiseError("Unable to update property from a non object value.", objVal)
+  				};
+					oldVal := {objVal.resolveProperty}(objVal, propVal);
 					newVal := applyAssignmentOperator(op, oldVal, rightVal);
-					updateObject(objVal, propName, newVal);
+					{objVal.updateProperty}(objVal, propVal, newVal);
 					return NormalCompletion(newVal)
 				}
 			| default -> { raiseError ("Illegal assignment expression", left) }
@@ -182,10 +185,11 @@ function interpreter(scope, s) {
 			} else {
 				propVal := prop.name
 			};
-			if (typeof(propVal) = __$Flt) {
-				propVal := float_to_string(propVal)
-			};
-			return NormalCompletion(resolveProperty(objVal, propVal))
+			if (!(typeof objVal = __$Obj)) {
+    		raiseError("Unable to access property from a non object value.", objVal)
+  		};
+			val := {objVal.resolveProperty}(objVal, propVal);
+			return NormalCompletion(val)
 		}
 
 
@@ -208,6 +212,7 @@ function interpreter(scope, s) {
 			functionObject := interpreter(scope, callee);
 			@checkAbruptCompletion(functionObject);
 			newObject := Object();
+			newObject.__proto__ := getFunctionPrototype(functionObject);
 			retVal := interpretCall(scope, functionObject, args, newObject);
 			@checkReturnCompletion(retVal, newObject)
 		}
