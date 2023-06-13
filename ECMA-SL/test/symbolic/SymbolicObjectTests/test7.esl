@@ -1,0 +1,12 @@
+function main() {
+  y := {};
+  x := se_mk_symbolic(__$Str, "x");
+  z := se_mk_symbolic(__$Str, "z");
+
+  y["length"] := 2.0;
+  y[x] := 1.0;
+  y[z] := 3.0;
+
+  assert(y["length"] = 2.0 || y["length"] = 1.0 || y["length"] = 3.0);
+  return 0
+}

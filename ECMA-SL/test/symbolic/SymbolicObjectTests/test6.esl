@@ -1,14 +1,14 @@
 function main() {
-  n1 := symbolic(__$Flt, "n1");
-  n2 := symbolic(__$Flt, "n2");
-  n3 := symbolic(__$Flt, "n3");
+  n1 := se_mk_symbolic(__$Flt, "n1");
+  n2 := se_mk_symbolic(__$Flt, "n2");
+  n3 := se_mk_symbolic(__$Flt, "n3");
 
   v1 := s_concat(["/$", float_to_string(n1)]);
   v2 := s_concat(["/$", float_to_string(n2)]);
   v3 := s_concat(["/$", float_to_string(n3)]);
 
-  assume(!(n1 = n2));
-  assume(!(n1 = n3));
+  se_assume(!(n1 = n2));
+  se_assume(!(n1 = n3));
 
   s1 := {};
   s1[v1] := n1;
