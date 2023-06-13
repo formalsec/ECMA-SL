@@ -47,7 +47,8 @@ function resolveName(scope, name) {
     return scope.store[name]
   } else {
     if (scope.parent = null) {
-      return resolveProperty(scope.globalObject, name)
+      globalObject := scope.globalObject;
+      return {globalObject.resolveProperty}(globalObject, name)
     } else {
       return resolveName(scope.parent, name)
     }

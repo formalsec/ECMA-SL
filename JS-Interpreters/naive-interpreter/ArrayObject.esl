@@ -1,18 +1,38 @@
 function ArrayObject(elements) {
-	nElements := l_len(elements);
 	arrayObject := Object();
-	arrayObject.__elements__ := elements; 
-	arrayObject.length := int_to_float(nElements);
-	initArrayIndicies(arrayObject, nElements);
+	arrayObject.resolveProperty := "resolveArray";
+	arrayObject.updateProperty := "updateArray";
+	arrayObject.__js_props__.length := int_to_float(l_len(elements));
+	arrayObject.__elements__ := elements;
   return arrayObject
 };
 
-function initArrayIndicies(arrayObject, nElements) {
-	i := 0;
-	while (i < nElements) {
-		offset := int_to_string(i);
-		arrayObject[offset] := l_nth(arrayObject.__elements__, i);
-		i := i + 1
-	};
-	return
+function resolveArray(arrayObject, propVal) {
+	if (typeof(propVal) = __$Flt) {
+		length := int_of_float(arrayObject.__js_props__.length);
+		index := int_of_float propVal;
+			if (index >= length) {
+				return 'undefined
+			} else {
+				return l_nth(arrayObject.__elements__, index)
+			}
+	} else {
+		return resolveObject(arrayObject, propVal)
+	}
+};
+
+function updateArray(arrayObject, propVal, val) {
+	if (typeof(propVal) = __$Flt) {
+		oldLength := int_of_float(arrayObject.__js_props__.length);
+		index := int_of_float propVal;
+		while (oldLength < index) {
+			arrayObject.__elements__ := l_add(arrayObject.__elements__, 'undefined);
+			oldLength := oldLength + 1
+		};
+		arrayObject.__js_props__.length := int_to_float(oldLength + 1);
+		arrayObject.__elements__ := l_add(arrayObject.__elements__, val);
+		return
+	} else {
+		raiseError("Unable to update property from array.", propVal)
+	}
 }
