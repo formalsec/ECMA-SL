@@ -12,7 +12,7 @@ default: all
 
 all: $(TESTS)
 
-$(BUILD_DIR)/%.cesl: %.js
+$(BUILD_DIR)/%.cesl: %.js $(ES6)
 	@mkdir -p $(dir $@)
 	@echo "$(CC) -interp $(ES6) -o $@ $<"; $(CC) -interp $(ES6) -o $@ $<
 
