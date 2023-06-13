@@ -17,8 +17,8 @@ function IsArrayIndex(P) {
     return false
   };
 
-  if (__api_is_symbolic(P)) {
-    return __api_is_number(P)
+  if (se_is_symbolic(P)) {
+    return se_is_number(P)
   };
 
   p_uint := ToUint32(P);

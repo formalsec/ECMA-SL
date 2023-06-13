@@ -950,11 +950,7 @@ function JS_Interpreter_UnaryOperator(UnaryExpression, scope) {
     /* 3. ReturnIfAbrupt(oldValue). */
     @ReturnIfAbrupt(oldValue);
     /* 4. If oldValue is true, return false. */
-    if (oldValue = true) {
-      return false
-    };
-    /* 5. Return true. */
-    return true
+    return !oldValue
   }
 };
 
