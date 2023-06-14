@@ -35,6 +35,18 @@ let clone (o : 'a t) : 'a t =
     symbolic_fields = Expr_Hashtbl.copy o.symbolic_fields;
   }
 
+(* let clone (o : 'a t) : 'a t =
+  let o' = create() in
+
+  Hashtbl.iteri o.concrete_fields ~f:(fun ~key ~data ->
+    Hashtbl.set o'.concrete_fields ~key:key ~data:data
+  );
+  Expr_Hashtbl.iteri o.symbolic_fields ~f:(fun ~key ~data ->
+    Expr_Hashtbl.set o'.symbolic_fields ~key:key ~data:data
+  );
+  o' *)
+
+
 let to_string (o : 'a t) (printer : 'a -> string) : string =
   let str_obj =
     Hashtbl.fold o.concrete_fields ~init:"{ " ~f:(fun ~key:n ~data:v ac ->
@@ -193,7 +205,7 @@ let get (o : 'a t) (key : vt) (solver : Encoding.Batch.t)
       let res = Hashtbl.find o.concrete_fields key_s in
       match res with
       | Some v -> 
-        [ (o, None, Some v) ]
+        [ (o, None, Some v) ]        
       | None ->
           if Expr_Hashtbl.length o.symbolic_fields = 0 then [ (o, None, None) ]
           else
@@ -243,11 +255,12 @@ let get (o : 'a t) (key : vt) (solver : Encoding.Batch.t)
 
           (* Does not match any symbolic value, create new pct *)
           let new_pc = create_not_pct cond_list key store in
-          if Encoding.Batch.check_sat solver (new_pc :: pc) then(
+          let rets = if Encoding.Batch.check_sat solver (new_pc :: pc) then (
             let o' = clone o in
             (o', Some new_pc, None) :: rets 
-          )
-          else rets)
+          ) else rets in 
+          rets
+      ) 
 
 let delete (o : 'a t) (key : Expr.t) (solver : Encoding.Batch.t)
     (pc : encoded_pct list) (store : Sstore.t) : ('a t * encoded_pct option) list =
@@ -279,7 +292,6 @@ let delete (o : 'a t) (key : Expr.t) (solver : Encoding.Batch.t)
         let new_pc = create_not_pct lst key store in
         if Encoding.Batch.check_sat solver (new_pc :: pc) then (
           let o' = clone o in
-          Hashtbl.remove o'.concrete_fields s;
           (o', Some new_pc) :: rets)
         else rets
   | _ -> (
@@ -339,6 +351,7 @@ let delete (o : 'a t) (key : Expr.t) (solver : Encoding.Batch.t)
    str_obj ^ " }" *)
 
 let to_list (o : 'a t) : (String.t * 'a) list =
+  (*TODO add symb values*)
   Hashtbl.to_alist o.concrete_fields
 
 let get_fields (o : 'a t) : Expr.t list =

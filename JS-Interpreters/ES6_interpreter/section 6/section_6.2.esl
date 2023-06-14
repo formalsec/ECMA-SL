@@ -201,9 +201,9 @@ function HasPrimitiveBase(V) {
 function IsPropertyReference (V) {
   base := GetBase(V);
 
-  if ( GetReferencedName(V) = "prop" ) {
+  /* if ( GetReferencedName(V) = "prop" ) {
     type := Type(base)
-  };
+  }; */
 
   if ( ( Type(base) = "Object" ) ||| ( Type(base) = "Symbol" ) ||| (HasPrimitiveBase(V) = true) ) {
     return true
@@ -268,7 +268,17 @@ function GetValue(V) {
       };
 
       /* Return base.[[Get]](GetReferencedName(V), GetThisValue(V)). */
-      return {base.Get}(base, GetReferencedName(V), GetThisValue(V))
+      ref_name := GetReferencedName(V);
+
+      x := {base.Get}(base, ref_name, GetThisValue(V));
+
+      /* if (se_is_symbolic(ref_name)) {
+        print "getValue";
+        print ref_name;
+        print x
+      }; */
+      return x
+      /* return {base.Get}(base, GetReferencedName(V), GetThisValue(V)) */
   }
   /* Else base must be an Environment Record, */
   else {

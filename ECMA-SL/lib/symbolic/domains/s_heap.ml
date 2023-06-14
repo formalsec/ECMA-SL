@@ -2,12 +2,10 @@ open Core
 
 type encoded_pct = Encoding.Expression.t
 type 'a obj = 'a S_object.t
-type 'a t = { parent : 'a t option; map : (Loc.t, 'a obj) Hashtbl.t }
-
-let create () : 'a t = { parent = None; map = Hashtbl.create (module String) }
-
+type 'a t = { parent : 'a t option; map : (Loc.t, 'a obj) Hashtbl.t}
+let create () : 'a t = { parent = None; map = Hashtbl.create (module String)}
 let clone (h : 'a t) : 'a t =
-  { parent = Some h; map = Hashtbl.create (module String) }
+  { parent = Some h; map = Hashtbl.create (module String)}
 
 let insert (h : 'a t) (obj : 'a obj) : Loc.t =
   let loc = Loc.newloc () in
@@ -17,19 +15,25 @@ let insert (h : 'a t) (obj : 'a obj) : Loc.t =
 let remove (h : 'a t) (l : Loc.t) : unit = Hashtbl.remove h.map l
 
 let set (h : 'a t) (key : Loc.t) (data : 'a obj) : unit =
-  Hashtbl.set h.map ~key ~data
+  Hashtbl.set h.map ~key:key ~data:data
 
 let rec get (h : 'a t) (l : Loc.t) : 'a obj option =
-  match Hashtbl.find h.map l with
-  | Some _ as v -> v
-  | None ->
-      let obj = Option.bind h.parent ~f:(fun h -> get h l) in
-      Option.iter obj ~f:(fun o -> set h l (S_object.clone o));
-      obj
+  let result = Hashtbl.find h.map l in
+  match result with
+  | Some o -> result
+  | None -> 
+    let obj = Option.bind h.parent ~f:(fun h -> get h l) in
+    match obj with
+    | Some o -> 
+        let o' = (S_object.clone o) in
+        set h l o';
+        Some o'
+    | None -> None
+    
 
 let get_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
     (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t):
-    ('a t * 'a obj * encoded_pct option * 'a option) list =
+    ('a t * encoded_pct option * 'a option) list =
   let obj = get heap loc in
   let res =
     Option.bind obj ~f:(fun o -> Some (S_object.get o field solver pc store))
@@ -41,17 +45,17 @@ let get_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
       (* Don't clone heap unless necessary *)
       match objs with
       | [ (obj, pc, v) ] -> 
-        if (Option.is_some pc) then set heap loc obj;
-        [ (heap, obj, pc, v) ]
+        set heap loc obj;
+        [ (heap, pc, v) ]
       | _ ->
           List.map objs ~f:(fun (obj, pc, v) ->
               let heap' = clone heap in
               set heap' loc obj;
-              (heap', obj, pc, v)))
+              (heap', pc, v)))
 
 let set_field (heap : 'a t) (loc : Loc.t) (field : Expr.t) (v : 'a)
     (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
-    ('a t * 'a obj * encoded_pct option) list =
+    ('a t * encoded_pct option) list =
   let obj = get heap loc in
   let res =
     Option.bind obj ~f:(fun o -> Some (S_object.set o field v solver pc store))
@@ -63,17 +67,17 @@ let set_field (heap : 'a t) (loc : Loc.t) (field : Expr.t) (v : 'a)
       (* Don't clone heap unless necessary *)
       match objs with
       | [ (obj, pc) ] -> 
-        if (Option.is_some pc) then set heap loc obj;
-        [ (heap, obj, pc) ]
+        set heap loc obj;
+        [ (heap, pc) ]
       | _ ->
           List.map objs ~f:(fun (obj, pc) ->  
               let heap' = clone heap in
               set heap' loc obj;
-              (heap', obj, pc)))
+              (heap', pc)))
 
 let delete_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
     (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
-    ('a t * 'a obj * encoded_pct option) list =
+    ('a t * encoded_pct option) list =
   let obj = get heap loc in
   let res =
     Option.bind obj ~f:(fun o -> Some (S_object.delete o field solver pc store))
@@ -85,13 +89,13 @@ let delete_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
       (* Don't clone heap unless necessary *)
       match objs with
       | [ (obj, pc') ] -> 
-        if (Option.is_some pc') then set heap loc obj;
-        [ (heap, obj, pc') ]
+        set heap loc obj;
+        [ (heap, pc') ]
       | _ ->
           List.map objs ~f:(fun (obj, pc) ->
               let heap' = clone heap in
               set heap' loc obj;
-              (heap', obj, pc)))
+              (heap', pc)))
 
 let to_string (h : 'a t) (pp : 'a -> string) : string =
   "{ "
