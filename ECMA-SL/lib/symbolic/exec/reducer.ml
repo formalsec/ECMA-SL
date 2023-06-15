@@ -7,31 +7,25 @@ let reduce_sconcat (vs : Expr.t list) : Expr.t =
   let s =
     List.fold_left vs ~init:[] ~f:(fun acc v ->
         match acc with
-        | [] -> [ v ]
+        | [] -> [v]
         | h :: t -> (
             match (h, v) with
             | Val (Str h'), Val (Str v') ->
                 Val (Str (String.concat ~sep:"" [ h'; v' ])) :: t
-            | Val (Str ""), _ -> acc
+            | Val (Str ""), _ -> v :: t
             | _, Val (Str "") -> acc
             | Val (Str h'), _ -> v :: acc
             | _, Val (Str v') -> v :: acc
             | Symbolic(Type.StrType, _), Symbolic(Type.StrType, _ ) ->
-              v :: acc
-            (* | _, Expr.UnOpt(Sconcat, NOpt(ListExpr, vs)) -> *)
-              
+              v :: acc              
             | _ ->
               v :: acc))
-                (* failwith ("impossible argument types for concat " ^ Expr.str h ^" " ^ Expr.str v))) *)
   in
   let s = List.rev s in
-  if List.length s > 1 then let ret = UnOpt (Sconcat, NOpt (ListExpr, s)) in ret
-  else
-    Val
-      (Str
-         (String.concat ~sep:""
-            (List.fold_left vs ~init:[] ~f:(fun a b ->
-                 match b with Val (Str s) -> a @ [ s ] | _ -> a))))
+  match s with
+  | [] -> Val(Str "")
+  | [ v ] -> v 
+  | _ -> UnOpt (Sconcat, NOpt (ListExpr, s))
 
 let reduce_list_compare (list1 : Expr.t list) (list2 : Expr.t list) : Expr.t =
   if List.length list1 = List.length list2 then
