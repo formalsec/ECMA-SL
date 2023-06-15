@@ -1,3 +1,6 @@
+open Core
+module ESet = Set.Make (Encoding.Expression)
+
 type config = {
   prog : Prog.t;
   code : outcome;
@@ -17,7 +20,7 @@ and outcome =
 and func = string
 and stack = Sstore.t Call_stack.t
 and state = Expr.t S_heap.t * Sstore.t * stack * func
-and pc = Encoding.Expression.t list
+and pc = ESet.t
 
 let is_cont (o : outcome) : bool = match o with Cont _ -> true | _ -> false
 let is_fail (o : outcome) : bool = match o with Failure _ -> true | _ -> false

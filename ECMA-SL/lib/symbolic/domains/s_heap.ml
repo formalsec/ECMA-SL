@@ -2,51 +2,51 @@ open Core
 
 type encoded_pct = Encoding.Expression.t
 type 'a obj = 'a S_object.t
-type 'a t = { parent : 'a t option; map : (Loc.t, 'a obj) Hashtbl.t}
-let create () : 'a t = { parent = None; map = Hashtbl.create (module String)}
+type 'a t = { parent : 'a t option; map : (Loc.t, 'a obj) Hashtbl.t }
+
+let create () : 'a t = { parent = None; map = Hashtbl.create (module String) }
+
 let clone (h : 'a t) : 'a t =
-  { parent = Some h; map = Hashtbl.create (module String)}
+  { parent = Some h; map = Hashtbl.create (module String) }
 
 let insert (h : 'a t) (obj : 'a obj) : Loc.t =
   let loc = Loc.newloc () in
   Hashtbl.set h.map ~key:loc ~data:obj;
   loc
-  
+
 let remove (h : 'a t) (l : Loc.t) : unit = Hashtbl.remove h.map l
 
 let set (h : 'a t) (key : Loc.t) (data : 'a obj) : unit =
-  Hashtbl.set h.map ~key:key ~data:data
+  Hashtbl.set h.map ~key ~data
 
 let rec get (h : 'a t) (l : Loc.t) : 'a obj option =
   let result = Hashtbl.find h.map l in
   match result with
   | Some o -> result
-  | None -> 
-    let obj = Option.bind h.parent ~f:(fun h -> get h l) in
-    match obj with
-    | Some o -> 
-        let o' = (S_object.clone o) in
-        set h l o';
-        Some o'
-    | None -> None
-    
+  | None -> (
+      let obj = Option.bind h.parent ~f:(fun h -> get h l) in
+      match obj with
+      | Some o ->
+          let o' = S_object.clone o in
+          set h l o';
+          Some o'
+      | None -> None)
 
 let get_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
-    (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t):
+    (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
     ('a t * encoded_pct option * 'a option) list =
   let obj = get heap loc in
   let res =
     Option.bind obj ~f:(fun o -> Some (S_object.get o field solver pc store))
   in
   match res with
-  | None -> 
-    failwith ("get Return is never none. loc: " ^ loc ^ (Expr.str field)) 
+  | None -> failwith ("get Return is never none. loc: " ^ loc ^ Expr.str field)
   | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with
-      | [ (obj, pc, v) ] -> 
-        set heap loc obj;
-        [ (heap, pc, v) ]
+      | [ (obj, pc, v) ] ->
+          set heap loc obj;
+          [ (heap, pc, v) ]
       | _ ->
           List.map objs ~f:(fun (obj, pc, v) ->
               let heap' = clone heap in
@@ -61,16 +61,15 @@ let set_field (heap : 'a t) (loc : Loc.t) (field : Expr.t) (v : 'a)
     Option.bind obj ~f:(fun o -> Some (S_object.set o field v solver pc store))
   in
   match res with
-  | None -> 
-    failwith ("set Return is never none. loc: " ^ loc) 
+  | None -> failwith ("set Return is never none. loc: " ^ loc)
   | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with
-      | [ (obj, pc) ] -> 
-        set heap loc obj;
-        [ (heap, pc) ]
+      | [ (obj, pc) ] ->
+          set heap loc obj;
+          [ (heap, pc) ]
       | _ ->
-          List.map objs ~f:(fun (obj, pc) ->  
+          List.map objs ~f:(fun (obj, pc) ->
               let heap' = clone heap in
               set heap' loc obj;
               (heap', pc)))
@@ -84,13 +83,13 @@ let delete_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
   in
 
   match res with
-  | None -> failwith ("delete Return is never none. loc: " ^ loc) 
+  | None -> failwith ("delete Return is never none. loc: " ^ loc)
   | Some objs -> (
       (* Don't clone heap unless necessary *)
       match objs with
-      | [ (obj, pc') ] -> 
-        set heap loc obj;
-        [ (heap, pc') ]
+      | [ (obj, pc') ] ->
+          set heap loc obj;
+          [ (heap, pc') ]
       | _ ->
           List.map objs ~f:(fun (obj, pc) ->
               let heap' = clone heap in

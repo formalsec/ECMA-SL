@@ -7,7 +7,7 @@ let reduce_sconcat (vs : Expr.t list) : Expr.t =
   let s =
     List.fold_left vs ~init:[] ~f:(fun acc v ->
         match acc with
-        | [] -> [v]
+        | [] -> [ v ]
         | h :: t -> (
             match (h, v) with
             | Val (Str h'), Val (Str v') ->
@@ -16,15 +16,13 @@ let reduce_sconcat (vs : Expr.t list) : Expr.t =
             | _, Val (Str "") -> acc
             | Val (Str h'), _ -> v :: acc
             | _, Val (Str v') -> v :: acc
-            | Symbolic(Type.StrType, _), Symbolic(Type.StrType, _ ) ->
-              v :: acc              
-            | _ ->
-              v :: acc))
+            | Symbolic (Type.StrType, _), Symbolic (Type.StrType, _) -> v :: acc
+            | _ -> v :: acc))
   in
   let s = List.rev s in
   match s with
-  | [] -> Val(Str "")
-  | [ v ] -> v 
+  | [] -> Val (Str "")
+  | [ v ] -> v
   | _ -> UnOpt (Sconcat, NOpt (ListExpr, s))
 
 let reduce_list_compare (list1 : Expr.t list) (list2 : Expr.t list) : Expr.t =
@@ -88,9 +86,9 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | Neg, Symbolic (_, _) -> UnOpt (Neg, v)
   | IsNaN, Symbolic _ -> Val (Bool false)
   | Not, v' -> UnOpt (Not, v)
-  | Head, NOpt (ListExpr, l) -> (List.hd_exn l)
+  | Head, NOpt (ListExpr, l) -> List.hd_exn l
   | Tail, NOpt (ListExpr, _ :: tl) -> NOpt (ListExpr, tl)
-  | First, NOpt (TupleExpr, l) -> (List.hd_exn l)
+  | First, NOpt (TupleExpr, l) -> List.hd_exn l
   | Second, NOpt (TupleExpr, _ :: b :: _) -> b
   | ListLen, NOpt (ListExpr, vs) -> Val (Int (List.length vs))
   | ListLen, UnOpt (LSort, NOpt (ListExpr, vs)) -> Val (Int (List.length vs))
@@ -117,11 +115,15 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
 let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
   match (op, v1, v2) with
   | op, Val v1, Val v2 -> Val (Eval_op.eval_binopt_expr op v1 v2)
-  (* int_to_float(s_len_u(symbolic (__$Str, "s1"))) < 0.  *)  
-  | Lt, UnOpt(IntToFloat, UnOpt(StringLenU, Symbolic(Type.StrType, _))), Expr.Val(Flt 0.0)->
-    Val (Bool false)
-  | Ge, UnOpt(IntToFloat, UnOpt(StringLenU, Symbolic(Type.StrType, _))), Expr.Val(Flt 4294967296.0)->
-    Val (Bool false)
+  (* int_to_float(s_len_u(symbolic (__$Str, "s1"))) < 0.  *)
+  | ( Lt,
+      UnOpt (IntToFloat, UnOpt (StringLenU, Symbolic (Type.StrType, _))),
+      Expr.Val (Flt 0.0) ) ->
+      Val (Bool false)
+  | ( Ge,
+      UnOpt (IntToFloat, UnOpt (StringLenU, Symbolic (Type.StrType, _))),
+      Expr.Val (Flt 4294967296.0) ) ->
+      Val (Bool false)
   | Eq, NOpt (v1_t, list1), NOpt (v2_t, list2) ->
       reduce_list_compare list1 list2
   | Eq, v, Val (Symbol _) when is_symbolic v -> Val (Bool false)
@@ -131,12 +133,11 @@ let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
       Val (Bool false)
   | Eq, NOpt (_, _), Val Null -> Val (Bool false)
   | Eq, v, Val Null when Caml.not (Expr.is_loc v) -> Val (Bool false)
-  | Eq, UnOpt(Sconcat, NOpt(_, l1)), UnOpt (Sconcat, NOpt(ListExpr, l2)) ->
-      (match l1, l2 with 
-    | [ pre1; target1], [pre2; target2] when (Expr.equal pre1 pre2) ->
-      BinOpt(Eq, target1, target2)
-    | _, _ -> BinOpt(Eq, v1, v2)
-    )
+  | Eq, UnOpt (Sconcat, NOpt (_, l1)), UnOpt (Sconcat, NOpt (ListExpr, l2)) -> (
+      match (l1, l2) with
+      | [ pre1; target1 ], [ pre2; target2 ] when Expr.equal pre1 pre2 ->
+          BinOpt (Eq, target1, target2)
+      | _, _ -> BinOpt (Eq, v1, v2))
   | Eq, v1, v2 when Caml.not (is_symbolic v1 || is_symbolic v2) ->
       Val (Bool (Expr.equal v1 v2))
   | ( Eq,
@@ -144,14 +145,11 @@ let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
       UnOpt (FloatToString, Symbolic (Type.FltType, n2)) ) ->
       BinOpt (Eq, Symbolic (Type.FltType, n1), Symbolic (Type.FltType, n2))
   | Eq, Val (Str s), UnOpt (FloatToString, Symbolic (Type.FltType, n))
-  | Eq, UnOpt (FloatToString, Symbolic (Type.FltType, n)), Val (Str s) ->
-  let s' = Operators.float_of_string (Str s) in
-  (match s' with
-  | Flt v when Val.equal (Flt v) (Flt Float.nan) -> 
-    Val (Bool false)
-  | _ -> 
-    BinOpt(Eq, Symbolic(Type.FltType, n), Expr.Val s')
-  )
+  | Eq, UnOpt (FloatToString, Symbolic (Type.FltType, n)), Val (Str s) -> (
+      let s' = Operators.float_of_string (Str s) in
+      match s' with
+      | Flt v when Val.equal (Flt v) (Flt Float.nan) -> Val (Bool false)
+      | _ -> BinOpt (Eq, Symbolic (Type.FltType, n), Expr.Val s'))
   | Tnth, NOpt (TupleExpr, vs), Val (Int i) -> List.nth_exn vs i
   | Lnth, NOpt (ListExpr, vs), Val (Int i) -> List.nth_exn vs i
   | Lconcat, NOpt (ListExpr, vs1), NOpt (ListExpr, vs2) ->
@@ -186,10 +184,8 @@ let rec reduce_expr ?(at = Source.no_region) (store : Sstore.t) (e : Expr.t) :
   | BinOpt (op, e1, e2) ->
       let v1 = reduce_expr ~at store e1 and v2 = reduce_expr ~at store e2 in
       let reduced_op = reduce_binop op v1 v2 in
-      if Expr.equal reduced_op e then
-        reduced_op
-      else
-        reduce_expr ~at:at store reduced_op
+      if Expr.equal reduced_op e then reduced_op
+      else reduce_expr ~at store reduced_op
   | TriOpt (op, e1, e2, e3) ->
       let v1 = reduce_expr ~at store e1
       and v2 = reduce_expr ~at store e2

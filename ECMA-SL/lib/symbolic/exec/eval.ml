@@ -11,18 +11,11 @@ module Invalid_arg = Err.Make ()
 exception Crash = Crash.Error
 exception Invalid_arg = Invalid_arg.Error
 
-let loc (at : region) (e : Expr.t) (source : string): string =
+let loc (at : region) (e : Expr.t) (source : string) : string =
   match e with
   | Val (Val.Loc l) -> l
   | _ ->
       Invalid_arg.error at ("Expr '" ^ Expr.str e ^ "' is not a loc expression")
-
-(* let field (at : region) (v : Expr.t) : string =
-   match v with
-   | Val (Val.Str f) -> f
-   | _ ->
-       print_endline (Expr.str v);
-       Invalid_arg.error at "Sval is not a 'field' expression" *)
 
 let func (at : region) (v : Expr.t) : string * Expr.t list =
   match v with
@@ -42,11 +35,11 @@ let step (c : config) : config list =
   let s = List.hd_exn stmts in
 
   (* let str_e (e : Expr.t) : string = Expr.str (e) in
-  if Stmt.is_basic_stmt s then
-        (Printf.printf
-           "====================================\n\
-            Evaluating >>>>> %s: %s (%s)" f (Stmt.str s)
-           (Stmt.str ~print_expr:str_e s)); *)
+     if Stmt.is_basic_stmt s then
+           (Printf.printf
+              "====================================\n\
+               Evaluating >>>>> %s: %s (%s)" f (Stmt.str s)
+              (Stmt.str ~print_expr:str_e s)); *)
   match s.it with
   | Skip -> [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Merge -> [ update c (Cont (List.tl_exn stmts)) state pc ]
@@ -54,12 +47,14 @@ let step (c : config) : config list =
       fprintf stderr "%s: Exception: %s\n" (Source.string_of_region s.at) err;
       [ update c (Error (Some (Val (Val.Str err)))) state pc ]
   | Print e ->
-    let e' = reduce_expr ~at:s.at store e in
-    let s = match e' with 
-    | Val (Val.Loc l) -> 
-      let o =  S_heap.get heap l in
-      S_object.to_string (Option.value_exn o) (Expr.str)
-    | _ -> Expr.str e' in
+      let e' = reduce_expr ~at:s.at store e in
+      let s =
+        match e' with
+        | Val (Val.Loc l) ->
+            let o = S_heap.get heap l in
+            S_object.to_string (Option.value_exn o) Expr.str
+        | _ -> Expr.str e'
+      in
       (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (S_heap.get_id heap); *)
       Logging.print_endline (lazy s);
       [ update c (Cont (List.tl_exn stmts)) state pc ]
@@ -79,27 +74,26 @@ let step (c : config) : config list =
           (heap, Sstore.add_exn store x v, stack, f)
           pc;
       ]
-  | Stmt.Assert e
-    when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
-      [ update c (Cont (List.tl_exn stmts)) state pc ]
-  | Stmt.Assert e
-    when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
-      (* printf "f:%s\nassert:%s" (f) (Encoding.Expression.string_of_pc pc); *)
-      (* printf "%s = %s\n" (Expr.str e) (Expr.str (reduce_expr ~at:s.at store e)); *)
-      let e' = Some (reduce_expr ~at:s.at store e) in
-      [ update c (Failure ("assert", e')) state pc ]
-  | Stmt.Assert e ->
-      let v = reduce_expr ~at:s.at store e in
-      let v' = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, e)) in
-      let cont =
-        if Batch.check_sat solver (Translator.translate v' :: pc) then
-          [ update c (Failure ("assert", Some v)) state pc ]
-        else [ update c (Cont (List.tl_exn stmts)) state pc ]
-      in
-      Logging.print_endline
-        (lazy
-          ("assert (" ^ Expr.str v ^ ") = " ^ Bool.to_string (is_cont c.code)));
-      cont
+  | Stmt.Assert e -> (
+      match reduce_expr ~at:s.at store e with
+      | Val (Val.Bool b) ->
+          if b then [ update c (Cont (List.tl_exn stmts)) state pc ]
+          else
+            let e' = Some (reduce_expr ~at:s.at store e) in
+            [ update c (Failure ("assert", e')) state pc ]
+      | v ->
+          let v' = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, v)) in
+          let cont =
+            let pc' = ESet.add pc (Translator.translate v') in
+            if Batch.check_sat solver (ESet.to_list pc') then
+              [ update c (Failure ("assert", Some v)) state pc' ]
+            else [ update c (Cont (List.tl_exn stmts)) state pc ]
+          in
+          Logging.print_endline
+            (lazy
+              ("assert (" ^ Expr.str v ^ ") = "
+              ^ Bool.to_string (is_cont c.code)));
+          cont)
   | Stmt.Block blk -> [ update c (Cont (blk @ List.tl_exn stmts)) state pc ]
   | Stmt.If (br, blk, _)
     when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store br) ->
@@ -125,18 +119,19 @@ let step (c : config) : config list =
       let br_t' = Translator.translate br_t
       and br_f' = Translator.translate br_f in
       let then_branch =
+        let pc' = ESet.add pc br_t' in
         try
-          if not (Batch.check_sat solver (br_t' :: pc)) then []
+          if not (Batch.check_sat solver (ESet.to_list pc')) then []
           else
             let state' = (S_heap.clone heap, store, stack, f) in
             let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl_exn stmts in
-            [ update c (Cont stmts') state' (br_t' :: pc) ]
-        with Batch.Unknown ->
-          [ update c (Unknown (Some br_t)) state (br_t' :: pc) ]
+            [ update c (Cont stmts') state' pc' ]
+        with Batch.Unknown -> [ update c (Unknown (Some br_t)) state pc' ]
       in
       let else_branch =
+        let pc' = ESet.add pc br_f' in
         try
-          if not (Batch.check_sat solver (br_f' :: pc)) then []
+          if not (Batch.check_sat solver (ESet.to_list pc')) then []
           else
             let state' = (S_heap.clone heap, store, stack, f) in
             let stmts' =
@@ -144,12 +139,11 @@ let step (c : config) : config list =
               | None -> List.tl_exn stmts
               | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl_exn stmts
             in
-            [ update c (Cont stmts') state' (br_f' :: pc) ]
-        with Batch.Unknown ->
-          [ update c (Unknown (Some br_f)) state (br_f' :: pc) ]
+            [ update c (Cont stmts') state' pc' ]
+        with Batch.Unknown -> [ update c (Unknown (Some br_f)) state pc' ]
       in
-      let temp = else_branch @ then_branch in 
-      
+      let temp = else_branch @ then_branch in
+
       temp
   | Stmt.While (br, blk) ->
       let blk' =
@@ -193,20 +187,20 @@ let step (c : config) : config list =
           pc;
       ]
   | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
-      let loc = loc s.at (reduce_expr ~at:s.at store e_loc) "assignInObjCheck" in
+      let loc =
+        loc s.at (reduce_expr ~at:s.at store e_loc) "assignInObjCheck"
+      in
       let reduced_field = reduce_expr ~at:s.at store e_field in
-      let get_result = S_heap.get_field heap loc reduced_field solver pc store in
-
+      let get_result =
+        S_heap.get_field heap loc reduced_field solver (ESet.to_list pc) store
+      in
       List.map get_result ~f:(fun (new_heap, new_pc, v) ->
           let v' = Val (Val.Bool (Option.is_some v)) in
-          let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
-
-          let new_pc' = new_pc' @ pc in
-  
+          let pc' = Option.fold new_pc ~init:pc ~f:ESet.add in
           update c
             (Cont (List.tl_exn stmts))
             (new_heap, Sstore.add_exn store x v', stack, f)
-            (new_pc'))
+            pc')
   | Stmt.AssignObjToList (x, e) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e) "AssignObjToList" in
       let v =
@@ -244,60 +238,56 @@ let step (c : config) : config list =
       let reduced_field = reduce_expr ~at:s.at store e_field
       and v = reduce_expr ~at:s.at store e_v in
 
-      let objects = S_heap.set_field heap loc reduced_field v solver pc store in
+      let objects =
+        S_heap.set_field heap loc reduced_field v solver (ESet.to_list pc) store
+      in
       List.map objects ~f:(fun (new_heap, new_pc) ->
-          let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
-          update c
-            (Cont (List.tl_exn stmts))
-            (new_heap, store, stack, f)
-            (new_pc' @ pc))
+          let pc' = Option.fold new_pc ~init:pc ~f:ESet.add in
+          update c (Cont (List.tl_exn stmts)) (new_heap, store, stack, f) pc')
   | Stmt.FieldDelete (e_loc, e_field) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc) "FieldDelete" in
       let reduced_field = reduce_expr ~at:s.at store e_field in
-      let objects = S_heap.delete_field heap loc reduced_field solver pc store in
-
+      let objects =
+        S_heap.delete_field heap loc reduced_field solver (ESet.to_list pc)
+          store
+      in
       List.map objects ~f:(fun (new_heap, new_pc) ->
-          let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
-          update c
-            (Cont (List.tl_exn stmts))
-            (new_heap, store, stack, f)
-            (new_pc' @ pc))
+          let pc' = Option.fold new_pc ~init:pc ~f:ESet.add in
+          update c (Cont (List.tl_exn stmts)) (new_heap, store, stack, f) pc')
   | Stmt.FieldLookup (x, e_loc, e_field) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc) "FieldLookup" in
       let reduced_field = reduce_expr ~at:s.at store e_field in
-      let objects = S_heap.get_field heap loc reduced_field solver pc store in
+      let objects =
+        S_heap.get_field heap loc reduced_field solver (ESet.to_list pc) store
+      in
 
       List.map objects ~f:(fun (new_heap, new_pc, v) ->
-          let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
-          let v' =
-            match v with Some v -> v | None -> Val (Val.Symbol "undefined")
-          in
+          let pc' = Option.fold new_pc ~init:pc ~f:ESet.add in
+          let v' = Option.value v ~default:(Val (Val.Symbol "undefined")) in
           update c
             (Cont (List.tl_exn stmts))
             (new_heap, Sstore.add_exn store x v', stack, f)
-            (new_pc' @ pc))
-  | Stmt.SymStmt (SymStmt.Assume e)
-    when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
-      [ update c (Cont (List.tl_exn stmts)) state pc ]
-  | Stmt.SymStmt (SymStmt.Assume e)
-    when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
-      []
-  | Stmt.SymStmt (SymStmt.Assume e) ->
-      let e' = reduce_expr ~at:s.at store e in
-      let v = Translator.translate e' in
-      let cont =
-        if not (Batch.check_sat solver (v :: pc)) then []
-        else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
-      in
-      Logging.print_endline
-        (lazy
-          ("assume (" ^ Expr.str e' ^ ") = "
-          ^ Bool.to_string (List.length cont > 0)));
-      cont
+            pc')
+  | Stmt.SymStmt (SymStmt.Assume e) -> (
+      match reduce_expr ~at:s.at store e with
+      | Val (Val.Bool b) ->
+          if b then [ update c (Cont (List.tl_exn stmts)) state pc ] else []
+      | e' ->
+          let pc' = ESet.add pc (Translator.translate e') in
+          let cont =
+            if not (Batch.check_sat solver (ESet.to_list pc')) then []
+            else [ update c (Cont (List.tl_exn stmts)) state pc' ]
+          in
+          Logging.print_endline
+            (lazy
+              ("assume (" ^ Expr.str e' ^ ") = "
+              ^ Bool.to_string (List.length cont > 0)));
+          cont)
   | Stmt.SymStmt (SymStmt.Evaluate (x, e)) ->
       let e' = Translator.translate (reduce_expr ~at:s.at store e) in
       let v =
-        Option.map ~f:Translator.expr_of_value (Batch.eval c.solver e' c.pc)
+        Option.map ~f:Translator.expr_of_value
+          (Batch.eval solver e' (ESet.to_list pc))
       in
       let store' =
         Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
@@ -307,7 +297,7 @@ let step (c : config) : config list =
       let e' = Translator.translate (reduce_expr ~at:s.at store e) in
       let v =
         Option.map ~f:Translator.expr_of_value
-          (Optimizer.maximize c.opt e' c.pc)
+          (Optimizer.maximize opt e' (ESet.to_list pc))
       in
       let store' =
         Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
@@ -317,7 +307,7 @@ let step (c : config) : config list =
       let e' = Translator.translate (reduce_expr ~at:s.at store e) in
       let v =
         Option.map ~f:Translator.expr_of_value
-          (Optimizer.minimize c.opt e' c.pc)
+          (Optimizer.minimize opt e' (ESet.to_list pc))
       in
       let store' =
         Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
@@ -330,8 +320,9 @@ let step (c : config) : config list =
       in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Is_sat (x, e)) ->
-      let e' = Translator.translate (reduce_expr ~at:s.at store e) in
-      let sat = Batch.check_sat c.solver (e' :: c.pc) in
+      let e' = reduce_expr ~at:s.at store e in
+      let pc' = ESet.add pc (Translator.translate e') in
+      let sat = Batch.check_sat c.solver (ESet.to_list pc') in
       let store' = Sstore.add_exn store x (Val (Val.Bool sat)) in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Is_number (x, e)) ->
@@ -414,7 +405,7 @@ let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
       prog;
       code = Cont [ func.body ];
       state = (heap, store, stack, func.name);
-      pc = [];
+      pc = ESet.empty;
       solver;
       opt = Optimizer.create ();
     }
@@ -444,14 +435,17 @@ let main (prog : Prog.t) (f : func) : unit =
   and error_configs = List.filter ~f:(fun c -> is_fail c.code) configs in
   let f c =
     let open Encoding in
+    let pc' = ESet.to_list c.pc in
+    let model = Batch.find_model c.solver pc' in
     let testcase =
-      List.map (Batch.find_model c.solver c.pc) ~f:(fun (s, v) ->
-          let sort = Types.string_of_type (Symbol.type_of s)
-          and name = Symbol.to_string s
-          and interp = Value.to_string v in
-          (sort, name, interp))
+      Option.value_map model ~default:[] ~f:(fun m ->
+          List.map (Model.get_bindings m) ~f:(fun (s, v) ->
+              let sort = Types.string_of_type (Symbol.type_of s)
+              and name = Symbol.to_string s
+              and interp = Value.to_string v in
+              (sort, name, interp)))
     in
-    let pc = (Expression.string_of_pc c.pc, Expression.to_smt c.pc) in
+    let pc = (Expression.string_of_pc pc', Expression.to_smt pc') in
     let sink =
       match c.code with
       | Failure (sink, e) -> (sink, Option.value_map e ~default:"" ~f:Expr.str)
