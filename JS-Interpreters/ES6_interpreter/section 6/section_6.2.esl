@@ -201,10 +201,6 @@ function HasPrimitiveBase(V) {
 function IsPropertyReference (V) {
   base := GetBase(V);
 
-  if ( GetReferencedName(V) = "prop" ) {
-    type := Type(base)
-  };
-
   if ( ( Type(base) = "Object" ) ||| ( Type(base) = "Symbol" ) ||| (HasPrimitiveBase(V) = true) ) {
     return true
   };
@@ -249,7 +245,6 @@ function GetValue(V) {
   /* Let base be GetBase(V). */
   base := GetBase(V);
 
-
   /* If IsUnresolvableReference(V), throw a ReferenceError exception. */
   if ( IsUnresolvableReference(V) ) {
     throw ReferenceErrorConstructorInternal()
@@ -257,7 +252,6 @@ function GetValue(V) {
 
   /* If IsPropertyReference(V), then */
   if (IsPropertyReference(V)) {
-
     /* If HasPrimitiveBase(V) is true, then */
     if (HasPrimitiveBase(V) = true) {
         /* Assert: In this case, base will never be null or undefined. */
@@ -268,7 +262,8 @@ function GetValue(V) {
       };
 
       /* Return base.[[Get]](GetReferencedName(V), GetThisValue(V)). */
-      return {base.Get}(base, GetReferencedName(V), GetThisValue(V))
+      ref := {base.Get}(base, GetReferencedName(V), GetThisValue(V));
+      return ref
   }
   /* Else base must be an Environment Record, */
   else {

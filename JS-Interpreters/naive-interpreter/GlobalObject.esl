@@ -7,6 +7,7 @@ function GlobalObject() {
 function create_esl_symbolic() {
 	esl_symbolic := Object();
 	{esl_symbolic.updateProperty}(esl_symbolic, "number", InternalFunction("esl_symbolic_number"));
+	{esl_symbolic.updateProperty}(esl_symbolic, "string", InternalFunction("esl_symbolic_string"));
 	{esl_symbolic.updateProperty}(esl_symbolic, "assert", InternalFunction("esl_symbolic_assert"));
 	{esl_symbolic.updateProperty}(esl_symbolic, "assume", InternalFunction("esl_symbolic_assume"));
 	return esl_symbolic

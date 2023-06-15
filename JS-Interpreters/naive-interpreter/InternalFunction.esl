@@ -11,6 +11,11 @@ function esl_symbolic_number(args) {
 	return se_mk_symbolic(__$Flt, name)
 };
 
+function esl_symbolic_string(args) {
+	name := l_nth(args, 0);
+	return se_mk_symbolic(__$Str, name)
+};
+
 function esl_symbolic_assert(args) {
 	cond := l_nth(args, 0);
   assert(cond);

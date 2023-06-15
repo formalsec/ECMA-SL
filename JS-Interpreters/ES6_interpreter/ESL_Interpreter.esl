@@ -201,7 +201,6 @@ function JS_Interpreter_Expr(e, scope) {
 
     @ReturnIfAbrupt(propertyNameValue);
 
-    
     /* 5. Call CheckObjectCoercible(baseValue). */
     coercibleObject := RequireObjectCoercible(baseValue);
 
@@ -219,7 +218,8 @@ function JS_Interpreter_Expr(e, scope) {
     };
     /* 8. Return a value of type Reference whose base value is baseValue and whose referenced name is
           propertyNameString, and whose strict mode flag is strict. */
-    return newPropertyReference(baseValue, propertyNameString, strict)
+    ref := newPropertyReference(baseValue, propertyNameString, strict);
+    return ref
   }
   | { type: "NewExpression", callee: MemberExpression, arguments: Arguments } -> {
     /* 12.3.3.1 MemberExpression : new MemberExpression Arguments */
@@ -674,7 +674,7 @@ function JS_Interpreter_AssignmentPattern(AssignmentPattern, scope) {
 function JS_Interpreter_LogicalExpression(LogicalExpression, scope) {
   match LogicalExpression with
   | { operator: "&&", left: LogicalANDExpression, right: BitwiseORExpression } -> {
-    /* The production LogicalANDExpression : LogicalANDExpression && BitwiseORExpression is evaluated as follows:
+    /* The production LogicalANDExpression : LogicalANDExpression && BitwiseORExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating LogicalANDExpression. */
     lref := JS_Interpreter_Expr(LogicalANDExpression, scope);
@@ -695,7 +695,7 @@ function JS_Interpreter_LogicalExpression(LogicalExpression, scope) {
     return GetValue(rref)
   }
   | { operator: "||", left: LogicalORExpression, right: LogicalANDExpression } -> {
-    /* The production LogicalORExpression : LogicalORExpression || LogicalANDExpression is evaluated as follows:
+    /* The production LogicalORExpression : LogicalORExpression || LogicalANDExpression is evaluated as follows: */
 
     /* 1. Let lref be the result of evaluating LogicalORExpression. */
     lref := JS_Interpreter_Expr(LogicalORExpression, scope);
