@@ -34,7 +34,7 @@ let rec get (h : 'a t) (l : Loc.t) : 'a obj option =
 
 let get_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
     (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
-    ('a t * encoded_pct option * 'a option) list =
+    ('a t * encoded_pct list * 'a option) list =
   let obj = get heap loc in
   let res =
     Option.bind obj ~f:(fun o -> Some (S_object.get o field solver pc store))
@@ -55,7 +55,7 @@ let get_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
 
 let set_field (heap : 'a t) (loc : Loc.t) (field : Expr.t) (v : 'a)
     (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
-    ('a t * encoded_pct option) list =
+    ('a t * encoded_pct list) list =
   let obj = get heap loc in
   let res =
     Option.bind obj ~f:(fun o -> Some (S_object.set o field v solver pc store))
@@ -76,7 +76,7 @@ let set_field (heap : 'a t) (loc : Loc.t) (field : Expr.t) (v : 'a)
 
 let delete_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
     (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
-    ('a t * encoded_pct option) list =
+    ('a t * encoded_pct list) list =
   let obj = get heap loc in
   let res =
     Option.bind obj ~f:(fun o -> Some (S_object.delete o field solver pc store))

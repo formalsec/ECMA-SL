@@ -83,26 +83,24 @@ let get_concrete_field (o : 'a t) (key : string) : 'a option =
   Hashtbl.find o.concrete_fields key
 
 let create_not_pct (l : (pct * 'a) list) (key : pct) (store : Sstore.t) :
-    encoded_pct =
-  if List.length l = 0 then Translator.translate (Expr.Val (Val.Bool true))
+    encoded_pct list =
+  if List.length l = 0 then []
   else
-    let expr =
-      List.fold l ~init:(Expr.Val (Val.Bool true)) ~f:(fun acc (pc, _) ->
-          let ne =
-            Expr.UnOpt (Operators.Not, Expr.BinOpt (Operators.Eq, key, pc))
-          in
-          Expr.BinOpt (Operators.Log_And, ne, acc))
-    in
-    let expr = Reducer.reduce_expr store expr in
-    Translator.translate expr
+    List.fold l ~init:[] ~f:(fun acc (pc, _) ->
+        let ne =
+          Expr.UnOpt (Operators.Not, Expr.BinOpt (Operators.Eq, key, pc)) in
+        let expr = Reducer.reduce_expr store ne in
+        let expr = Translator.translate expr in
+        expr :: acc)
+
 
 let create_object (o : 'a t) (key1 : pct) (key2 : pct) (store : Sstore.t) :
-    'a t * encoded_pct option =
+    'a t * encoded_pct list =
   let o' = clone o in
   let eq = Expr.BinOpt (Operators.Eq, key1, key2) in
   let eq = Reducer.reduce_expr store eq in
   let eq = Translator.translate eq in
-  (o', Some eq)
+  (o', [eq])
 
 let is_key_possible ?(b = false) (key1 : Expr.t) (key2 : Expr.t)
     (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
@@ -124,12 +122,12 @@ let is_key_possible ?(b = false) (key1 : Expr.t) (key2 : Expr.t)
 
 let set (o : 'a t) (key : vt) (data : 'a) (solver : Encoding.Batch.t)
     (pc : encoded_pct list) (store : Sstore.t) :
-    ('a t * encoded_pct option) list =
+    ('a t * encoded_pct list) list =
   match key with
   | Expr.Val (Val.Str s) ->
       if has_concrete_key o s || Expr_Hashtbl.length o.symbolic_fields = 0 then
         let _ = set_concrete_field o key data in
-        [ (o, None) ]
+        [ (o, []) ]
       else
         let lst =
           Expr_Hashtbl.fold o.symbolic_fields ~init:[]
@@ -151,10 +149,10 @@ let set (o : 'a t) (key : vt) (data : 'a) (solver : Encoding.Batch.t)
          being equal to any of the existing fields
         *)
         let new_pc = create_not_pct lst key store in
-        if Encoding.Batch.check_sat solver (new_pc :: pc) then (
+        if Encoding.Batch.check_sat solver (new_pc @ pc) then (
           let o' = clone o in
           Hashtbl.set o'.concrete_fields ~key:s ~data;
-          (o', Some new_pc) :: rets)
+          (o', new_pc) :: rets)
         else rets
   | _ ->
       let temp =
@@ -162,7 +160,7 @@ let set (o : 'a t) (key : vt) (data : 'a) (solver : Encoding.Batch.t)
       in
       if temp = 0 then (
         set_symbolic_field o key data;
-        [ (o, None) ])
+        [ (o, []) ])
       else
         let symbolic_conds =
           Expr_Hashtbl.fold o.symbolic_fields ~init:[]
@@ -196,23 +194,23 @@ let set (o : 'a t) (key : vt) (data : 'a) (solver : Encoding.Batch.t)
         let new_pc =
           create_not_pct (concrete_conds @ symbolic_conds) key store
         in
-        let check = Encoding.Batch.check_sat solver (new_pc :: pc) in
+        let check = Encoding.Batch.check_sat solver (new_pc @ pc) in
         if check then
           let o' = clone o in
           let _ = Expr_Hashtbl.set o'.symbolic_fields ~key ~data in
-          (o', Some new_pc) :: rets
+          (o', new_pc) :: rets
         else rets
 
 let get (o : 'a t) (key : vt) (solver : Encoding.Batch.t)
     (pc : encoded_pct list) (store : Sstore.t) :
-    ('a t * encoded_pct option * 'a option) list =
+    ('a t * encoded_pct list * 'a option) list =
   match key with
   | Expr.Val (Val.Str key_s) -> (
       let res = Hashtbl.find o.concrete_fields key_s in
       match res with
-      | Some v -> [ (o, None, Some v) ]
+      | Some v -> [ (o, [], Some v) ]
       | None ->
-          if Expr_Hashtbl.length o.symbolic_fields = 0 then [ (o, None, None) ]
+          if Expr_Hashtbl.length o.symbolic_fields = 0 then [ (o, [], None) ]
           else
             let l =
               Expr_Hashtbl.fold o.symbolic_fields ~init:[]
@@ -230,14 +228,14 @@ let get (o : 'a t) (key : vt) (solver : Encoding.Batch.t)
             in
             (* Does not match any symbolic value, create new pct *)
             let new_pc = create_not_pct l key store in
-            if Encoding.Batch.check_sat solver (new_pc :: pc) then
+            if Encoding.Batch.check_sat solver (new_pc @ pc) then
               let o' = clone o in
-              (o', Some new_pc, None) :: obj_list
+              (o', new_pc, None) :: obj_list
             else obj_list)
   | _ -> (
       let res = get_symbolic_field o key in
       match res with
-      | Some v -> [ (o, None, Some v) ]
+      | Some v -> [ (o, [], Some v) ]
       | None ->
           let cond_list =
             Hashtbl.fold o.concrete_fields ~init:[]
@@ -263,22 +261,22 @@ let get (o : 'a t) (key : vt) (solver : Encoding.Batch.t)
           (* Does not match any symbolic value, create new pct *)
           let new_pc = create_not_pct cond_list key store in
           let rets =
-            if Encoding.Batch.check_sat solver (new_pc :: pc) then
+            if Encoding.Batch.check_sat solver (new_pc @ pc) then
               let o' = clone o in
-              (o', Some new_pc, None) :: rets
+              (o', new_pc, None) :: rets
             else rets
           in
           rets)
 
 let delete (o : 'a t) (key : Expr.t) (solver : Encoding.Batch.t)
     (pc : encoded_pct list) (store : Sstore.t) :
-    ('a t * encoded_pct option) list =
+    ('a t * encoded_pct list) list =
   match key with
   | Expr.Val (Val.Str s) ->
       if has_concrete_key o s then
         let _ = Hashtbl.remove o.concrete_fields s in
-        [ (o, None) ]
-      else if Expr_Hashtbl.length o.symbolic_fields = 0 then [ (o, None) ]
+        [ (o, []) ]
+      else if Expr_Hashtbl.length o.symbolic_fields = 0 then [ (o, []) ]
       else
         let lst =
           Expr_Hashtbl.fold o.symbolic_fields ~init:[]
@@ -300,16 +298,16 @@ let delete (o : 'a t) (key : Expr.t) (solver : Encoding.Batch.t)
             being equal to any of the existing fields
         *)
         let new_pc = create_not_pct lst key store in
-        if Encoding.Batch.check_sat solver (new_pc :: pc) then
+        if Encoding.Batch.check_sat solver (new_pc @ pc) then
           let o' = clone o in
-          (o', Some new_pc) :: rets
+          (o', new_pc) :: rets
         else rets
   | _ -> (
       let res = get_symbolic_field o key in
       match res with
       | Some v ->
           Expr_Hashtbl.remove o.symbolic_fields key;
-          [ (o, None) ]
+          [ (o, []) ]
       | None ->
           let symbolic_list =
             Expr_Hashtbl.fold o.symbolic_fields ~init:[]
@@ -351,9 +349,9 @@ let delete (o : 'a t) (key : Expr.t) (solver : Encoding.Batch.t)
           let new_pc =
             create_not_pct (symbolic_list @ concrete_list) key store
           in
-          if Encoding.Batch.check_sat solver (new_pc :: pc) then
+          if Encoding.Batch.check_sat solver (new_pc @ pc) then
             let o' = clone o in
-            (o', Some new_pc) :: rets
+            (o', new_pc) :: rets
           else rets)
 
 (* let to_json (o : 'a t) (printer : 'a -> string) : string =

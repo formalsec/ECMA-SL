@@ -196,7 +196,7 @@ let step (c : config) : config list =
       in
       List.map get_result ~f:(fun (new_heap, new_pc, v) ->
           let v' = Val (Val.Bool (Option.is_some v)) in
-          let pc' = Option.fold new_pc ~init:pc ~f:ESet.add in
+          let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
           update c
             (Cont (List.tl_exn stmts))
             (new_heap, Sstore.add_exn store x v', stack, f)
@@ -242,8 +242,8 @@ let step (c : config) : config list =
         S_heap.set_field heap loc reduced_field v solver (ESet.to_list pc) store
       in
       List.map objects ~f:(fun (new_heap, new_pc) ->
-          let pc' = Option.fold new_pc ~init:pc ~f:ESet.add in
-          update c (Cont (List.tl_exn stmts)) (new_heap, store, stack, f) pc')
+        let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
+        update c (Cont (List.tl_exn stmts)) (new_heap, store, stack, f) pc')
   | Stmt.FieldDelete (e_loc, e_field) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc) "FieldDelete" in
       let reduced_field = reduce_expr ~at:s.at store e_field in
@@ -252,7 +252,7 @@ let step (c : config) : config list =
           store
       in
       List.map objects ~f:(fun (new_heap, new_pc) ->
-          let pc' = Option.fold new_pc ~init:pc ~f:ESet.add in
+          let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
           update c (Cont (List.tl_exn stmts)) (new_heap, store, stack, f) pc')
   | Stmt.FieldLookup (x, e_loc, e_field) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc) "FieldLookup" in
@@ -262,7 +262,7 @@ let step (c : config) : config list =
       in
 
       List.map objects ~f:(fun (new_heap, new_pc, v) ->
-          let pc' = Option.fold new_pc ~init:pc ~f:ESet.add in
+          let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
           let v' = Option.value v ~default:(Val (Val.Symbol "undefined")) in
           update c
             (Cont (List.tl_exn stmts))
