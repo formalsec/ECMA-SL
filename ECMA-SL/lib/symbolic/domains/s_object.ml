@@ -82,47 +82,41 @@ let get_symbolic_field (o : 'a t) (key : vt) : 'a option =
 let get_concrete_field (o : 'a t) (key : string) : 'a option =
   Hashtbl.find o.concrete_fields key
 
+let mk_eq e1 e2 = Expr.BinOpt (Operators.Eq, e1, e2)
+
 let create_not_pct (l : (pct * 'a) list) (key : pct) (store : Sstore.t) :
     encoded_pct list =
-  if List.length l = 0 then []
-  else
-    List.fold l ~init:[] ~f:(fun acc (pc, _) ->
-        let ne =
-          Expr.UnOpt (Operators.Not, Expr.BinOpt (Operators.Eq, key, pc)) in
-        let expr = Reducer.reduce_expr store ne in
-        let expr = Translator.translate expr in
-        expr :: acc)
+  List.fold l ~init:[] ~f:(fun acc (pc, _) ->
+      let ne = Expr.UnOpt (Operators.Not, mk_eq key pc) in
+      let expr = Reducer.reduce_expr store ne |> Translator.translate in
+      expr :: acc)
 
-
-let create_object (o : 'a t) (key1 : pct) (key2 : pct) (store : Sstore.t) :
+let create_object (o : 'a t) (k1 : pct) (k2 : pct) (store : Sstore.t) :
     'a t * encoded_pct list =
   let o' = clone o in
-  let eq = Expr.BinOpt (Operators.Eq, key1, key2) in
-  let eq = Reducer.reduce_expr store eq in
-  let eq = Translator.translate eq in
-  (o', [eq])
+  let eq = Reducer.reduce_expr store (mk_eq k1 k2) |> Translator.translate in
+  (o', [ eq ])
 
-let is_key_possible ?(b = false) (key1 : Expr.t) (key2 : Expr.t)
+let is_key_possible ?(b = false) (k1 : Expr.t) (k2 : Expr.t)
     (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
     bool =
-  let eq = Expr.BinOpt (Operators.Eq, key1, key2) in
-  let eq = Reducer.reduce_expr store eq in
-  let eq' = Translator.translate eq in
-  let ret = Encoding.Batch.check_sat solver (eq' :: pc) in
+  let eq0 = mk_eq k1 k2 in
+  let eq = Reducer.reduce_expr store eq0 |> Translator.translate in
+  let ret = Encoding.Batch.check_sat solver (eq :: pc) in
 
   if b then (
     Printf.printf "\n\n";
     if not ret then
       List.iter pc ~f:(fun v ->
           Printf.printf "%s\n" (Encoding.Expression.to_string v));
-    Printf.printf "create_object tested: %s, result: %b\n" (Expr.str eq) ret;
+    Printf.printf "create_object tested: %s, result: %b\n" (Expr.str eq0) ret;
     Printf.printf "\n\n";
     ret)
   else ret
 
 let set (o : 'a t) (key : vt) (data : 'a) (solver : Encoding.Batch.t)
-    (pc : encoded_pct list) (store : Sstore.t) :
-    ('a t * encoded_pct list) list =
+    (pc : encoded_pct list) (store : Sstore.t) : ('a t * encoded_pct list) list
+    =
   match key with
   | Expr.Val (Val.Str s) ->
       if has_concrete_key o s || Expr_Hashtbl.length o.symbolic_fields = 0 then
@@ -269,8 +263,8 @@ let get (o : 'a t) (key : vt) (solver : Encoding.Batch.t)
           rets)
 
 let delete (o : 'a t) (key : Expr.t) (solver : Encoding.Batch.t)
-    (pc : encoded_pct list) (store : Sstore.t) :
-    ('a t * encoded_pct list) list =
+    (pc : encoded_pct list) (store : Sstore.t) : ('a t * encoded_pct list) list
+    =
   match key with
   | Expr.Val (Val.Str s) ->
       if has_concrete_key o s then

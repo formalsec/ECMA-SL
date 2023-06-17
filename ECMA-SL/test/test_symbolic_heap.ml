@@ -73,11 +73,9 @@ let%test "symbolic_set" =
   let eq = Expr.BinOpt (Operators.Eq, k, Expr.Val (Val.Str "key")) in
   let not1 = Expr.UnOpt (Operators.Not, eq) in
   let translated_eq = Translator.translate eq in
-  let translated_expr =
-    Translator.translate not1
-  in
+  let translated_expr = Translator.translate not1 in
   match (v, pc, v', pc') with
-  | Some v, [p], Some v', [p'] ->
+  | Some v, [ p ], Some v', [ p' ] ->
       Expr.equal v (Expr.Val (Val.Str "new_symb_val"))
       && Expr.equal v' (Expr.Val (Val.Str "new_symb_val"))
       && Encoding.Expression.equal p translated_expr
@@ -86,8 +84,7 @@ let%test "symbolic_set" =
 
 let o2, pc =
   match objects2 with
-  | (o, pc') :: tail -> (
-      match pc' with _ -> (o, pc' @ pc))
+  | (o, pc') :: tail -> ( match pc' with _ -> (o, pc' @ pc))
   | _ -> failwith "error"
 
 (* check get for symb key that exists. *)
@@ -137,12 +134,11 @@ let%test "symbolic_get_doesnt_exist" =
   let not2 = Translator.translate not2 in
 
   match (v, pc, v', pc', v'', pc'') with
-  | None, [p1; p2], Some v', [p'], Some v'', [p''] ->
+  | None, [ p1; p2 ], Some v', [ p' ], Some v'', [ p'' ] ->
       Expr.equal v' (Expr.Val (Val.Str "new_symb_val"))
       && Expr.equal v'' (Expr.Val (Val.Str "val"))
       && Encoding.Expression.equal p2 not1
       && Encoding.Expression.equal p1 not2
-
       && Encoding.Expression.equal p' eq1
       && Encoding.Expression.equal p'' eq2
   | _ -> false
@@ -178,19 +174,17 @@ let%test "set_another_symb_key" =
   let not2 = Translator.translate not2 in
 
   match (v, pc, v', pc', v'', pc'') with
-  | Some v, [p1; p2], Some v', [p'], Some v'', [p''] ->
+  | Some v, [ p1; p2 ], Some v', [ p' ], Some v'', [ p'' ] ->
       Expr.equal v new_val && Expr.equal v' new_val && Expr.equal v'' new_val
       && Encoding.Expression.equal p1 not2
       && Encoding.Expression.equal p2 not1
-
       && Encoding.Expression.equal p' eq1
       && Encoding.Expression.equal p'' eq2
   | _ -> false
 
 let o3, pc =
   match objects3 with
-  | (o, pc') :: tail -> (
-      match pc' with _ -> (o, pc' @ pc))
+  | (o, pc') :: tail -> ( match pc' with _ -> (o, pc' @ pc))
   | _ -> failwith "error"
 
 let concrete_key2 = Expr.Val (Val.Str "key2")
@@ -219,12 +213,11 @@ let%test "set_another_concrete_key" =
   let not1 = Translator.translate not1 in
   let not2 = Translator.translate not2 in
 
- 
   let eq1 = Translator.translate eq1 in
   let eq2 = Translator.translate eq2 in
 
   match (v1, pc1, v2, pc2, v3, pc3) with
-  | Some v1, [p1;p1'], None, [p2], None, [p3] ->
+  | Some v1, [ p1; p1' ], None, [ p2 ], None, [ p3 ] ->
       Expr.equal v1 new_val2
       && Encoding.Expression.equal p1 not2
       && Encoding.Expression.equal p1' not1
