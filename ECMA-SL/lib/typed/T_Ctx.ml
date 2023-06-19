@@ -15,32 +15,32 @@ let create_tvar (rt : E_Type.t) (nt : E_Type.t) (mt : bool) : tvar_t =
 
 type t = {
   prog : E_Prog.t;
-  tenv : tenv_t;
   mutable func : E_Func.t;
   mutable stmt : E_Stmt.t;
+  tenv : tenv_t;
 }
 
 let create (prog : E_Prog.t) : t =
   {
     prog;
-    tenv = Hashtbl.create !Config.default_hashtbl_sz;
     func = E_Prog.get_func prog "main";
     stmt = E_Stmt.Skip @@ no_region;
+    tenv = Hashtbl.create !Config.default_hashtbl_sz;
   }
 
 let copy (tctx : t) : t =
   {
     prog = tctx.prog;
-    tenv = Hashtbl.copy tctx.tenv;
     func = tctx.func;
     stmt = tctx.stmt;
+    tenv = Hashtbl.copy tctx.tenv;
   }
 
-let get_tenv (tctx : t) : tenv_t = tctx.tenv
 let get_func (tctx : t) : E_Func.t = tctx.func
 let set_func (tctx : t) (func : E_Func.t) : unit = tctx.func <- func
 let get_stmt (tctx : t) : E_Stmt.t = tctx.stmt
 let set_stmt (tctx : t) (stmt : E_Stmt.t) : unit = tctx.stmt <- stmt
+let get_tenv (tctx : t) : tenv_t = tctx.tenv
 
 let get_curr_return_t (tctx : t) : E_Type.t option =
   E_Func.get_return_t tctx.func

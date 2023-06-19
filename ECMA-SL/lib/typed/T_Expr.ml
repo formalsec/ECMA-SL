@@ -1,16 +1,8 @@
 open E_Expr
 
 let type_val (v : Val.t) : E_Type.t =
-  match v with
-  | Val.Null -> E_Type.NullType
-  | Val.Int _ -> E_Type.LiteralType v
-  | Val.Flt _ -> E_Type.LiteralType v
-  | Val.Str _ -> E_Type.LiteralType v
-  | Val.Bool _ -> E_Type.LiteralType v
-  | Val.Symbol "undefined" -> E_Type.UndefinedType
-  | Val.Symbol _ -> E_Type.LiteralType v
-  | Val.Type t -> E_Type.RuntimeType t
-  | _ -> E_Type.AnyType
+  try E_Type.parse_literal_type v with
+  | _ -> failwith "T_Expr.type_val"
 
 let type_var (narrow : bool) (tctx : T_Ctx.t) (x : string) : E_Type.t =
   match T_Ctx.tenv_find tctx x with

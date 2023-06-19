@@ -76,11 +76,11 @@ let get_pattern_discriminant (patFlds : (string * E_Pat_v.t) list) (d : string)
 let split_pattern_flds (patFlds : (string * E_Pat_v.t) list) :
     patValFld_t list * patVarFld_t list =
   let _get_pt pv = Some (snd (parse_pattern_val pv)) in
-  let _split_pattern_f (pn, pv) (valFlds, varFlds) =
+  let _split_pattern_f (pn, pv) (patValFlds, patVarFlds) =
     match pv with
-    | PatVal v -> ((pn, pv, _get_pt pv) :: valFlds, varFlds)
-    | PatVar x -> (valFlds, (pn, x) :: varFlds)
-    | PatNone -> ((pn, pv, None) :: valFlds, varFlds)
+    | PatVal v -> ((pn, pv, _get_pt pv) :: patValFlds, patVarFlds)
+    | PatVar x -> (patValFlds, (pn, x) :: patVarFlds)
+    | PatNone -> ((pn, pv, None) :: patValFlds, patVarFlds)
   in
   List.fold_right _split_pattern_f patFlds ([], [])
 

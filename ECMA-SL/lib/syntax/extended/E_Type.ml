@@ -73,13 +73,14 @@ end
 
 let parse_literal_type (v : Val.t) : t =
   match v with
+  | Val.Null -> NullType
   | Val.Int _ -> LiteralType v
   | Val.Flt _ -> LiteralType v
   | Val.Str _ -> LiteralType v
   | Val.Bool _ -> LiteralType v
   | Val.Symbol "undefined" -> UndefinedType
   | Val.Symbol _ -> LiteralType v
-  | Val.Null -> NullType
+  | Val.Type t -> RuntimeType t
   | _ -> invalid_arg ("Invalid value '" ^ Val.str v ^ "' for literal type.")
 
 let parse_sigma_type (d : string) (t : t) : t =
