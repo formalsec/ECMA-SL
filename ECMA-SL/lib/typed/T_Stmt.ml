@@ -11,14 +11,20 @@ let set_terr_stmt (tctx : T_Ctx.t) (tstmt_f : unit -> unit) : T_Err.t list =
 
 let type_assign (tctx : T_Ctx.t) (var : string) (tvar : E_Type.t option)
     (expr : E_Expr.t) : unit =
+  let _type_assign atprev mtprev tref =
+    let texpr = T_Expr.safe_type_expr tctx expr tref in
+    if mtprev || atprev = tref then
+      T_Ctx.create_tvar tref texpr mtprev |> T_Ctx.tenv_update tctx var
+    else T_Err.raise (T_Err.BadTypeUpdate (atprev, tref))
+  in
   let tdefault = T_Ctx.default_tvar E_Type.AnyType in
   let tprev = Option.default tdefault (T_Ctx.tenv_find tctx var) in
-  let rtprev, mtprev = (T_Ctx.get_tvar_rt tprev, T_Ctx.get_tvar_mt tprev) in
-  let tref = Option.default rtprev tvar in
-  let texpr = T_Expr.safe_type_expr tctx expr tref in
-  if mtprev || rtprev = tref then
-    T_Ctx.create_tvar tref texpr mtprev |> T_Ctx.tenv_update tctx var
-  else T_Err.raise (T_Err.BadTypeUpdate (rtprev, tref))
+  let atprev, mtprev = (T_Ctx.get_tvar_at tprev, T_Ctx.get_tvar_mt tprev) in
+  let tref = Option.default atprev tvar in
+  try _type_assign atprev mtprev tref
+  with T_Err.TypeError terr ->
+    T_Ctx.create_tvar tref tref true |> T_Ctx.tenv_update tctx var |> fun () ->
+    T_Err.continue terr
 
 let type_return (tctx : T_Ctx.t) (expr : E_Expr.t) : unit =
   let tret = Option.default E_Type.AnyType (T_Ctx.get_curr_return_t tctx) in
@@ -27,7 +33,7 @@ let type_return (tctx : T_Ctx.t) (expr : E_Expr.t) : unit =
     match terr.errs with
     | T_Err.BadValue (tref, texpr) :: _ ->
         T_Err.update terr (T_Err.BadReturn (tref, texpr))
-    | _ -> failwith "Typed ECMA-SL: T_Stmt.type_return")
+    | _ -> T_Err.continue terr)
 
 let type_guard (tctx : T_Ctx.t) (expr : E_Expr.t) : T_Err.t list =
   try T_Expr.safe_type_expr tctx expr E_Type.BooleanType |> fun _ -> []

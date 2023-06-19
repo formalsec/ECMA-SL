@@ -1,8 +1,7 @@
 open E_Expr
 
 let type_val (v : Val.t) : E_Type.t =
-  try E_Type.parse_literal_type v with
-  | _ -> failwith "T_Expr.type_val"
+  try E_Type.parse_literal_type v with _ -> failwith "T_Expr.type_val"
 
 let type_var (narrow : bool) (tctx : T_Ctx.t) (x : string) : E_Type.t =
   match T_Ctx.tenv_find tctx x with
@@ -42,24 +41,16 @@ let test_generic_call (tctx : T_Ctx.t) (args : E_Expr.t list)
   T_Narrowing.narrow_type tret
 
 let test_operator_call (tctx : T_Ctx.t) (args : E_Expr.t list)
-    (funPrototype : T_Op.funPrototype_t list)
-    (test_f : E_Expr.t * E_Type.t -> unit) : E_Type.t =
-  let module CallRes = struct
-    type t = Succ of E_Type.t | Err of T_Err.t
-  end in
-  let _test_generic_call_f (tparams, tret) =
-    try CallRes.Succ (test_generic_call tctx args tparams tret test_f)
-    with T_Err.TypeError terr -> CallRes.Err terr
+    (fProtos : T_Op.funcPrototype_t list) (test_f : E_Expr.t * E_Type.t -> unit)
+    : E_Type.t =
+  let _test_call_f (tparams, tret) (rSucc, rErr) =
+    try (test_generic_call tctx args tparams tret test_f :: rSucc, rErr)
+    with T_Err.TypeError terr -> (rSucc, terr :: rErr)
   in
-  let _split_call_res_f f r =
-    match (f, r) with
-    | CallRes.Succ t, (rSucc, rErr) -> (t :: rSucc, rErr)
-    | CallRes.Err terr, (rSucc, rErr) -> (rSucc, terr :: rErr)
-  in
-  let calls = List.map _test_generic_call_f funPrototype in
-  let succCalls, errCalls = List.fold_right _split_call_res_f calls ([], []) in
+  let succCalls, errCalls = List.fold_right _test_call_f fProtos ([], []) in
   match (succCalls, errCalls) with
-  | t :: _, _ -> t
+  | t :: [], _ -> t
+  | t :: _, _ -> E_Type.AnyType
   | [], terr :: _ -> T_Err.continue terr
   | _ -> failwith "Typed ECMA-SL: T_Expr.test_operator_call"
 

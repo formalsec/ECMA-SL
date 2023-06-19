@@ -20,6 +20,15 @@ let create (metadata : E_Func_Metadata.t option) (name : string)
     (body : E_Stmt.t) : t' =
   { metadata; name; params_t; return_t; body }
 
+let default () : t' =
+  {
+    metadata = None;
+    name = "";
+    params_t = [];
+    return_t = None;
+    body = E_Stmt.default () @@ no_region;
+  }
+
 let get_name (func : t) : string = func.it.name
 let get_params_t (func : t) : (string * E_Type.t option) list = func.it.params_t
 let get_return_t (func : t) : E_Type.t option = func.it.return_t

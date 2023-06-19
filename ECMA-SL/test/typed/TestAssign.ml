@@ -2,7 +2,7 @@ open E_Type
 open T_Err
 
 let%test _ =
-  Test.type_checker_test "example/assign/primitive.esl"
+  Test.type_checker_test "examples/assign/primitive.esl"
     [
       BadValue (IntType, StringType);
       BadValue (StringType, SymbolType);
@@ -10,7 +10,7 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/assign/special.esl"
+  Test.type_checker_test "examples/assign/special.esl"
     [
       BadValue (IntType, UnknownType);
       BadValue (NeverType, IntType);
@@ -18,9 +18,9 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/assign/propagation.esl"
+  Test.type_checker_test "examples/assign/propagation.esl"
     [
       BadValue (StringType, IntType);
       BadValue (IntType, StringType);
-      UnknownVar "baz";
+      BadValue (StringType, IntType);
     ]

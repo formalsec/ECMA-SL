@@ -81,7 +81,7 @@ By using the keyword `typedef` it is possible to define an alias for a type. Thi
 - ================================================================================
 - `tctx: T_Ctx.t` $\rightarrow$ typing context
 - `tvar: T_Ctx.tvar_t` $\rightarrow$ typing context variable
-- `rt: E_Type.t / nt: E_Type.t / mt: bool` $\rightarrow$ reference type / narrowed typed / mutable type flag
+- `at: E_Type.t / rt: E_Type.t / nt: E_Type.t / mt: bool` $\rightarrow$ annotation type / real type / narrowed typed / mutable type flag
 - ================================================================================
 - `tref: E_Type.t` $\rightarrow$ expected reference type
 - `texpr: E_Type.t` $\rightarrow$ provided expression type
@@ -119,9 +119,10 @@ A **typing environment** is a map between variable names and variable types.
 
 - **Type Environment** $(\Gamma) \Coloneqq x \mapsto \phi$ where:
   - $\phi \rightarrow$ variable type
-- **Variable Type** $(\phi) \Coloneqq \{rt, nt, mt\}$ where:
-  - $rt \rightarrow$ reference type (type annotation of the variable)
-  - $nt \rightarrow$ narrowed type (guaranteed subset of the reference type)
+- **Variable Type** $(\phi) \Coloneqq \{at, rt, nt, mt\}$ where:
+  - $at \rightarrow$ annotation type (type annotation of the variable)
+  - $rt \rightarrow$ real type (real type of the variable)
+  - $nt \rightarrow$ narrowed type (guaranteed subset of the real type)
   - $mt \rightarrow$ mutable type (flag that specifies whether the variable can change type)
 
 The **narrowed** flag $(\omega)$ determines if the result of typing an expression should be narrowed or not.

@@ -149,7 +149,7 @@ let func_tkns (func : E_Func.t) : tkn_t list =
   let funcTkns = [ Lit "function "; Str fn ] in
   let paramTkns = concat_tkns (List.map _param_tkn_f fparams) ", " in
   let retTkn = type_tkns freturn in
-  List.concat [ funcTkns; [ Lit " (" ]; paramTkns; [ Lit ")" ]; retTkn ]
+  List.concat [ funcTkns; [ Lit "(" ]; paramTkns; [ Lit ")" ]; retTkn ]
 
 let pat_tkns (pat : E_Pat.t) : tkn_t list =
   let threedots = Font.format "..." [ Font.faint ] in

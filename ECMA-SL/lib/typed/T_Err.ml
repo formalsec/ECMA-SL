@@ -28,6 +28,8 @@ type err_t =
   | BadNonePattern
   | UnusedPatternCase
   | MissingPatternCase
+  | MissingMainFunc
+  | BadMainArgs
 
 let err_str (err : err_t) : string =
   match err with
@@ -110,6 +112,8 @@ let err_str (err : err_t) : string =
   | UnusedPatternCase -> "This pattern-matching case is unused."
   | MissingPatternCase ->
       "This pattern-matching is not exhaustive. The following case is missing:"
+  | MissingMainFunc -> "The main function is missing from the program."
+  | BadMainArgs -> "The main function is not expected to have any parameters."
 
 let error_kind () : kind_t = Error
 let warning_kind () : kind_t = Warning

@@ -39,6 +39,8 @@ let is_basic (s : t) : bool =
   | If _ | While _ | RepeatUntil _ | Block _ -> false
   | _ -> true
 
+let default () : t' = Skip
+
 let rec str (stmt : t) : string =
   let str_cases cases =
     let strs =

@@ -2,7 +2,7 @@ open E_Type
 open T_Err
 
 let%test _ =
-  Test.type_checker_test "example/if_while/ifEval.esl"
+  Test.type_checker_test "examples/if_while/ifEval.esl"
     [
       BadExpectedType (BooleanType, IntType);
       BadValue (StringType, IntType);
@@ -10,7 +10,7 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/if_while/ifNarrowing.esl"
+  Test.type_checker_test "examples/if_while/ifNarrowing.esl"
     [
       BadValue (IntType, BooleanType);
       BadValue (IntType, StringType);
@@ -19,7 +19,7 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/if_while/whileEval.esl"
+  Test.type_checker_test "examples/if_while/whileEval.esl"
     [
       UnknownVar "test";
       BadTypeUpdate (IntType, UnionType [ IntType; StringType ]);
@@ -30,7 +30,7 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/if_while/whileNarrowing.esl"
+  Test.type_checker_test "examples/if_while/whileNarrowing.esl"
     [
       BadValue (LiteralType (Val.Int 10), IntType);
       BadValue (LiteralType (Val.Int 20), IntType);

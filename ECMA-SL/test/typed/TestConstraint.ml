@@ -2,7 +2,7 @@ open E_Type
 open T_Err
 
 let%test _ =
-  Test.type_checker_test "example/constraint/typeof.esl"
+  Test.type_checker_test "examples/constraint/typeof.esl"
     [
       BadValue (FloatType, IntType);
       BadValue (IntType, FloatType);
@@ -13,7 +13,7 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/constraint/eq.esl"
+  Test.type_checker_test "examples/constraint/eq.esl"
     [
       BadValue (LiteralType (Val.Int 20), LiteralType (Val.Int 10));
       BadValue (LiteralType (Val.Int 10), IntType);
@@ -25,7 +25,7 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/constraint/objectUnion.esl"
+  Test.type_checker_test "examples/constraint/objectUnion.esl"
     [
       BadValue (IntType, StringType);
       BadValue (StringType, IntType);
@@ -37,16 +37,16 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/constraint/overlap.esl"
+  Test.type_checker_test "examples/constraint/overlap.esl"
     [
       BadValue (IntType, NeverType);
-      BadValue (StringType, NeverType);
+      BadValue (StringType, IntType);
       NoOverlapComp (LiteralType (Val.Int 10), LiteralType (Val.Int 20));
-      NoOverlapComp (LiteralType (Val.Int 20), LiteralType (Val.Int 10));
+      NoOverlapComp (LiteralType (Val.Int 10), LiteralType (Val.Int 20));
     ]
 
 let%test _ =
-  Test.type_checker_test "example/constraint/combine.esl"
+  Test.type_checker_test "examples/constraint/combine.esl"
     [
       BadValue (IntType, BooleanType);
       BadValue (StringType, IntType);

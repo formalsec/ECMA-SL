@@ -39,19 +39,43 @@ let rec str (f : t) : string =
   | Or (f1, f2) -> "(" ^ str f1 ^ " || " ^ str f2 ^ ")"
 
 let rec nnf_converter (f : t) : t =
-  let _nnf_convert f1 f2 = (nnf_converter (Not f1), nnf_converter (Not f2)) in
+  let _nnf_negate f1 f2 = (nnf_converter (Not f1), nnf_converter (Not f2)) in
   let _nnf_propagate f1 f2 = (nnf_converter f1, nnf_converter f2) in
   match f with
   | Not NoConstraint -> NoConstraint
-  | And (NoConstraint, f) -> nnf_converter f
-  | And (f, NoConstraint) -> nnf_converter f
-  | Or (NoConstraint, f) -> nnf_converter f
-  | Or (f, NoConstraint) -> nnf_converter f
-  | Not (And (f1, f2)) -> _nnf_convert f1 f2 |> fun (f1', f2') -> Or (f1', f2')
-  | Not (Or (f1, f2)) -> _nnf_convert f1 f2 |> fun (f1', f2') -> And (f1', f2')
+  | Not (And (f1, f2)) -> _nnf_negate f1 f2 |> fun (f1', f2') -> Or (f1', f2')
+  | Not (Or (f1, f2)) -> _nnf_negate f1 f2 |> fun (f1', f2') -> And (f1', f2')
   | Not (Not f') -> f'
   | And (f1, f2) -> _nnf_propagate f1 f2 |> fun (f1', f2') -> And (f1', f2')
   | Or (f1, f2) -> _nnf_propagate f1 f2 |> fun (f1', f2') -> Or (f1', f2')
+  | _ -> f
+
+(* let rec nnf_cleaner (f : t) : t =
+   match f with
+   | And (NoConstraint, NoConstraint) -> NoConstraint
+   | And (NoConstraint, f') -> nnf_cleaner f'
+   | And (f', NoConstraint) -> nnf_cleaner f'
+   | And (f1, f2) -> And (nnf_cleaner f1, nnf_cleaner f2)
+   | Or (NoConstraint, NoConstraint) -> NoConstraint
+   | Or (NoConstraint, f') -> nnf_cleaner f'
+   | Or (f', NoConstraint) -> nnf_cleaner f'
+   | Or (f1, f2) -> Or (nnf_cleaner f1, nnf_cleaner f2)
+   | _ -> f *)
+let rec nnf_cleaner (f : t) : t =
+  let _nnf_cleaner f1 f2 = (nnf_cleaner f1, nnf_cleaner f2) in
+  match f with
+  | And (f1, f2) -> (
+      match _nnf_cleaner f1 f2 with
+      | NoConstraint, NoConstraint -> NoConstraint
+      | NoConstraint, f2' -> f2'
+      | f1', NoConstraint -> f1'
+      | f1', f2' -> And (f1', f2'))
+  | Or (f1, f2) -> (
+      match _nnf_cleaner f1 f2 with
+      | NoConstraint, NoConstraint -> NoConstraint
+      | NoConstraint, f2' -> f2'
+      | f1', NoConstraint -> f1'
+      | f1', f2' -> Or (f1', f2'))
   | _ -> f
 
 let rec nnf_distribute (f : t) : t =
@@ -74,31 +98,37 @@ let rec nnf_distribute (f : t) : t =
 
 let rec cnf_and_clauses (f : t) : t list =
   match f with
-  | And (f', c) -> List.append (cnf_and_clauses f') [ c ]
+  | And (f1, f2) -> List.append (cnf_and_clauses f1) (cnf_and_clauses f2)
   | _ -> [ f ]
 
 let rec cnf_or_clauses (f : t) : t list =
   match f with
-  | Or (f', c) -> List.append (cnf_or_clauses f') [ c ]
+  | Or (f1, f2) -> List.append (cnf_or_clauses f1) (cnf_or_clauses f2)
   | _ -> [ f ]
 
 let cnf_converter (f : t) : t list =
-  f |> nnf_converter |> nnf_distribute |> cnf_and_clauses
+  f |> nnf_converter |> nnf_cleaner |> nnf_distribute |> cnf_and_clauses
 
 type element_t = E_Expr.t * constraint_t
 
 and constraint_t = {
   expr : E_Expr.t;
   tcstr : E_Type.t;
-  isTypeof : bool;
   isNeq : bool;
+  isTypeof : bool;
 }
 
-let create_constraint (expr : E_Expr.t) (tcstr : E_Type.t) (isTypeof : bool)
-    (isNeq : bool) : constraint_t =
+let create_constraint (expr : E_Expr.t) (tcstr : E_Type.t) (isNeq : bool)
+    (isTypeof : bool) : constraint_t =
   { expr; tcstr; isTypeof; isNeq }
 
-let inspect_element (tctx : T_Ctx.t) (expr : E_Expr.t) : element_t =
+let inspect_element (tctx : T_Ctx.t) (expr : E_Expr.t) (isNeq : bool) :
+    element_t =
+  let choose_container e1 e2 =
+    match (is_container e1, is_container e2) with
+    | false, true -> (e2, e1)
+    | _ -> (e1, e2)
+  in
   let _eval_type expr =
     match expr with
     | E_Expr.UnOpt (Operators.Typeof, e) ->
@@ -106,15 +136,15 @@ let inspect_element (tctx : T_Ctx.t) (expr : E_Expr.t) : element_t =
     | _ -> T_Expr.type_expr tctx expr
   in
   match expr with
-  | E_Expr.BinOpt (Operators.Eq, tar, cstr) -> (
-      let tar, cstr = if is_container tar then (tar, cstr) else (cstr, tar) in
+  | E_Expr.BinOpt (Operators.Eq, e1, e2) -> (
+      let tar, cstr = choose_container e1 e2 in
       let tcstr = _eval_type cstr in
       match tar with
-      | E_Expr.Var _ -> (tar, create_constraint expr tcstr false false)
-      | E_Expr.Lookup _ -> (tar, create_constraint expr tcstr false false)
+      | E_Expr.Var _ -> (tar, create_constraint expr tcstr isNeq false)
+      | E_Expr.Lookup _ -> (tar, create_constraint expr tcstr isNeq false)
       | E_Expr.UnOpt (Operators.Typeof, tar') ->
-          (tar', create_constraint expr tcstr true false)
-      | _ -> (tar, create_constraint expr tcstr false false))
+          (tar', create_constraint expr tcstr isNeq true)
+      | _ -> (tar, create_constraint expr tcstr isNeq false))
   | _ -> failwith "Typed ECMA-SL: T_Constraint.inspect_element"
 
 let eval_constraint (ttar : E_Type.t) (cstr : constraint_t) : E_Type.t list =
@@ -124,10 +154,11 @@ let eval_constraint (ttar : E_Type.t) (cstr : constraint_t) : E_Type.t list =
     T_Err.raise (T_Err.NoOverlapComp (ttar, cstr.tcstr)) ~tkn
   in
   let _runtime_neq_f b = if cstr.isNeq then not b else b in
-  let _runtime_cmp_f t =
-    match cstr.tcstr with
+  let rec _runtime_cmp_f t =
+    match t with
     | E_Type.RuntimeType Type.TypeType -> true
-    | _ -> E_Type.to_runtime t = cstr.tcstr
+    | E_Type.RuntimeType _ -> t = cstr.tcstr
+    | _ -> _runtime_cmp_f (E_Type.to_runtime t)
   in
   if cstr.isTypeof then
     List.filter (fun t -> t |> _runtime_cmp_f |> _runtime_neq_f) (_tlst ttar)
@@ -163,11 +194,10 @@ let rec apply_constrain (tctx : T_Ctx.t) (target : E_Expr.t list)
 
 let apply_clause (tctx : T_Ctx.t) (clause : t) : unit =
   let _inspect_element_f element =
-    let _neq (tar, tcstr) = (tar, { tcstr with isNeq = true }) in
     match element with
-    | Expr expr -> inspect_element tctx expr
-    | Not (Expr expr) -> _neq (inspect_element tctx expr)
-    | _ -> failwith "Typed ECMA-SL: T_Constraint._inspect_element_f"
+    | Expr expr -> inspect_element tctx expr false
+    | Not (Expr expr) -> inspect_element tctx expr true
+    | _ -> failwith "Typed ECMA-SL: T_Constraint.apply_clause"
   in
   let _eval_constraint_f (tar, cstr) =
     eval_constraint (T_Expr.type_expr tctx tar) cstr

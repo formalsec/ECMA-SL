@@ -1,0 +1,4 @@
+function main(x: int, y) {
+
+	return 0
+}

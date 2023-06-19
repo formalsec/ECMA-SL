@@ -1,5 +1,15 @@
-let type_errors_str (terrs : T_Err.t list) : string =
+let terrs_str (terrs : T_Err.t list) : string =
   String.concat "" (List.map T_Err.format terrs)
+
+let type_main_func (tctx : T_Ctx.t) : T_Err.t list =
+  match T_Ctx.get_func_by_name tctx "main" with
+  | None -> [ T_Err.create T_Err.MissingMainFunc ]
+  | Some func ->
+      let params = E_Func.get_params func in
+      if List.length params = 0 then []
+      else
+        let tkn = T_Err.str_tkn (List.nth params 0) in
+        [ T_Err.create T_Err.BadMainArgs ~src:(T_Err.func_tkn func) ~tkn ]
 
 let type_function_params (tctx : T_Ctx.t) (func : E_Func.t) : unit =
   let _tparam = function None -> E_Type.AnyType | Some t -> t in
@@ -27,4 +37,6 @@ let type_function (tctx : T_Ctx.t) (func : E_Func.t) : T_Err.t list =
 
 let type_program (prog : E_Prog.t) : T_Err.t list =
   let tctx = T_Ctx.create prog in
-  List.concat (List.map (type_function tctx) (E_Prog.get_funcs prog))
+  let terrMain = type_main_func tctx in
+  let terrFuncs = List.map (type_function tctx) (E_Prog.get_funcs prog) in
+  List.concat (List.append [ terrMain ] terrFuncs)

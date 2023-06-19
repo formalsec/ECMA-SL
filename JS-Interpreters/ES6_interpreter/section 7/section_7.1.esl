@@ -574,9 +574,9 @@ function _ToInt32(argument) {
   };
   /* 4. Let int be the mathematical value that is the same sign as number and 
      whose magnitude is floor(abs(number)). */
-  int := floor(abs(num)) *(abs(num)/num);
+  integer := floor(abs(num)) *(abs(num)/num);
   /* 5. Let int32bit be int modulo 2^32. */
-  int32bit := mod(int, 2.**32.);
+  int32bit := mod(integer, 2.**32.);
   /* 6. If int32bit >= 2^31, */
   if (int32bit >= 2.**31.) {
     /* return int32bit - 2^32,*/
@@ -618,9 +618,9 @@ function _ToUint32(argument) {
   };
   /* 4. Let int be the mathematical value that is the same sign as number and 
      whose magnitude is floor(abs(number)). */
-  int := floor(abs(num)) *(abs(num)/num);
+  integer := floor(abs(num)) *(abs(num)/num);
   /* 5. Let int32bit be int modulo 2^32. */
-  int32bit := mod(int, 2.**32.);
+  int32bit := mod(integer, 2.**32.);
   /* 6. Return int32bit. */
   return int32bit
 };
@@ -650,9 +650,9 @@ function _ToUint16(argument) {
   };
   /* 4. Let int be the mathematical value that is the same sign as number and 
      whose magnitude is floor(abs(number)). */
-  int := floor(abs(num)) *(abs(num)/num);
+  integer := floor(abs(num)) *(abs(num)/num);
   /* 5. Let int16bit be int modulo 2^16. */
-  int16bit := mod(int, 2.**16.);
+  int16bit := mod(integer, 2.**16.);
   /* 6. Return int16bit */
   return int16bit
 };
@@ -677,9 +677,9 @@ function ToInt8(argument) {
   };
   /* 4. Let int be the mathematical value that is the same sign as number and 
      whose magnitude is floor(abs(number)). */
-  int := floor(abs(num)) *(abs(num)/num);
+  integer := floor(abs(num)) *(abs(num)/num);
   /* 5. Let int8bit be int modulo 2^8. */
-  int8bit := mod(int, 2.**8.); /*TODO usar modulo que funciona com negativos*/
+  int8bit := mod(integer, 2.**8.); /*TODO usar modulo que funciona com negativos*/
   /* 6. If int8bit ≥ 2^7, */
   if (int8bit >= 2.**7.) {
     /* return int8bit - 2^8, otherwise return int8bit */
@@ -707,9 +707,9 @@ function ToUint8(argument) {
   };
   /* 4. Let int be the mathematical value that is the same sign as number and 
      whose magnitude is floor(abs(number)). */
-  int := floor(abs(num)) *(abs(num)/num);
+  integer := floor(abs(num)) *(abs(num)/num);
   /* 5. Let int8bit be int modulo 2^8. */
-  int8bit := mod(int, 2.**8.); /*TODO usar modulo que funciona com negativos*/
+  int8bit := mod(integer, 2.**8.); /*TODO usar modulo que funciona com negativos*/
   /* 6. Return int8bit. */
   return int8bit
 };

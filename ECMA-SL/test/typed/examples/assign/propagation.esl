@@ -6,6 +6,7 @@ function main() {
 
 	bar := 20;								/* BadValue: string <- int */
 	baz: int := foo;					/* BadValue: string <- int */
-	qux: int := baz;       		/* UnknownVar: baz */
+	qux: int := baz;       		/* Valid */
+	fred: string := baz;      /* BadValue: string <- int */
 	return 0
 }

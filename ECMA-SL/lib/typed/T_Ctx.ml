@@ -1,17 +1,18 @@
 open Source
 
 type tenv_t = (string, tvar_t) Hashtbl.t
-and tvar_t = { rt : E_Type.t; nt : E_Type.t; mt : bool }
+and tvar_t = { at : E_Type.t; rt : E_Type.t; nt : E_Type.t; mt : bool }
 
+let get_tvar_at (tvar : tvar_t) : E_Type.t = tvar.at
 let get_tvar_rt (tvar : tvar_t) : E_Type.t = tvar.rt
 let get_tvar_nt (tvar : tvar_t) : E_Type.t = tvar.nt
 let get_tvar_mt (tvar : tvar_t) : bool = tvar.mt
 let get_tvar_t (tvar : tvar_t) : E_Type.t * E_Type.t = (tvar.rt, tvar.nt)
-let default_tvar (t : E_Type.t) : tvar_t = { rt = t; nt = t; mt = true }
+let default_tvar (t : E_Type.t) : tvar_t = { at = t; rt = t; nt = t; mt = true }
 
-let create_tvar (rt : E_Type.t) (nt : E_Type.t) (mt : bool) : tvar_t =
-  let nt' = T_Narrowing.create_narrow_type rt nt in
-  { rt; nt = nt'; mt }
+let create_tvar (at : E_Type.t) (nt : E_Type.t) (mt : bool) : tvar_t =
+  let nt' = T_Narrowing.create_narrow_type at nt in
+  { at; rt = at; nt = nt'; mt }
 
 type t = {
   prog : E_Prog.t;
@@ -23,8 +24,8 @@ type t = {
 let create (prog : E_Prog.t) : t =
   {
     prog;
-    func = E_Prog.get_func prog "main";
-    stmt = E_Stmt.Skip @@ no_region;
+    func = E_Func.default () @@ no_region;
+    stmt = E_Stmt.default () @@ no_region;
     tenv = Hashtbl.create !Config.default_hashtbl_sz;
   }
 
@@ -82,12 +83,12 @@ let tenv_intersect (tctx_src : t) (tctxs : t list) : unit =
   in
   let _typing_var_f (tenv : tenv_t) (x : string) =
     let tvars = _find_types_f x in
-    let rtvars = List.map get_tvar_rt tvars in
+    let atvars = List.map get_tvar_at tvars in
     let ntvars = List.map get_tvar_nt tvars in
     let mt = List.for_all get_tvar_mt tvars in
-    let rt = T_Narrowing.narrow_type (E_Type.UnionType rtvars) in
+    let at = T_Narrowing.narrow_type (E_Type.UnionType atvars) in
     let nt = T_Narrowing.narrow_type (E_Type.UnionType ntvars) in
-    Hashtbl.add tenv x { rt; nt; mt }
+    Hashtbl.add tenv x { at; rt = at; nt; mt }
   in
   let tenv_src = tenv_reset tctx_src |> fun tctx -> tctx.tenv in
   let tenv_lst = Hashtbl.create !Config.default_hashtbl_sz in

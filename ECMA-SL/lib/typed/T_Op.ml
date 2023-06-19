@@ -1,6 +1,6 @@
-type funPrototype_t = E_Type.t list * E_Type.t
+type funcPrototype_t = E_Type.t list * E_Type.t
 
-let type_unop (op : Operators.uopt) : funPrototype_t list =
+let type_unop (op : Operators.uopt) : funcPrototype_t list =
   let notImplemented = [ ([ E_Type.AnyType ], E_Type.AnyType) ] in
   match op with
   | Operators.Neg ->
@@ -18,7 +18,7 @@ let type_unop (op : Operators.uopt) : funPrototype_t list =
   | Operators.ToUint16 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
   | Operators.ToUint32 -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
   | Operators.IntToFloat -> [ ([ E_Type.IntType ], E_Type.FloatType) ]
-  | Operators.IntOfFloat -> [ ([ E_Type.FloatType ], E_Type.FloatType) ]
+  | Operators.IntOfFloat -> [ ([ E_Type.FloatType ], E_Type.IntType) ]
   | Operators.IntToString -> [ ([ E_Type.IntType ], E_Type.StringType) ]
   | Operators.IntOfString -> [ ([ E_Type.StringType ], E_Type.IntType) ]
   | Operators.IntToFourHex -> [ ([ E_Type.IntType ], E_Type.StringType) ]
@@ -82,7 +82,7 @@ let type_unop (op : Operators.uopt) : funPrototype_t list =
   | Operators.ObjToList -> notImplemented
   | Operators.ObjFields -> notImplemented
 
-let type_binop (op : Operators.bopt) : funPrototype_t list =
+let type_binop (op : Operators.bopt) : funcPrototype_t list =
   let notImplemented =
     [ ([ E_Type.AnyType; E_Type.AnyType ], E_Type.AnyType) ]
   in
@@ -164,14 +164,14 @@ let type_binop (op : Operators.bopt) : funPrototype_t list =
   | Operators.Tnth -> notImplemented
   | Operators.InObj -> notImplemented
 
-let type_ebinop (op : EOper.bopt) : funPrototype_t list =
+let type_ebinop (op : EOper.bopt) : funcPrototype_t list =
   match op with
   | EOper.SCLogAnd ->
       [ ([ E_Type.BooleanType; E_Type.BooleanType ], E_Type.BooleanType) ]
   | EOper.SCLogOr ->
       [ ([ E_Type.BooleanType; E_Type.BooleanType ], E_Type.BooleanType) ]
 
-let type_triop (op : Operators.topt) : funPrototype_t list =
+let type_triop (op : Operators.topt) : funcPrototype_t list =
   let notImplemented =
     [ ([ E_Type.AnyType; E_Type.AnyType; E_Type.AnyType ], E_Type.AnyType) ]
   in

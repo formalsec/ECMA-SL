@@ -2,7 +2,7 @@ open E_Type
 open T_Err
 
 let%test _ =
-  Test.type_checker_test "example/object/cons.esl"
+  Test.type_checker_test "examples/object/cons.esl"
     [
       DuplicatedField "foo";
       ExtraField "bar";
@@ -14,7 +14,7 @@ let%test _ =
 
 let%test _ =
   let tobj = Test.obj_cons [ ("foo", IntType); ("bar", StringType) ] in
-  Test.type_checker_test "example/object/lookup.esl"
+  Test.type_checker_test "examples/object/lookup.esl"
     [
       BadValue (IntType, StringType);
       BadLookup ("baz", tobj);
@@ -28,7 +28,7 @@ let%test _ =
 
 let%test _ =
   let tobj = Test.obj_cons [ ("foo", IntType); ("bar", StringType) ] in
-  Test.type_checker_test "example/object/fassign.esl"
+  Test.type_checker_test "examples/object/fassign.esl"
     [
       BadValue (StringType, IntType);
       BadLookup ("baz", tobj);
@@ -41,7 +41,7 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/object/narrowing.esl"
+  Test.type_checker_test "examples/object/narrowing.esl"
     [
       BadValue (IntType, StringType);
       BadValue (StringType, IntType);
@@ -51,7 +51,7 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/object/optional.esl"
+  Test.type_checker_test "examples/object/optional.esl"
     [
       BadValue (IntType, UndefinedType);
       BadValue (StringType, UndefinedType);
@@ -60,7 +60,7 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/object/union.esl"
+  Test.type_checker_test "examples/object/union.esl"
     [
       BadValue (IntType, StringType);
       BadValue (IntType, StringType);
@@ -74,7 +74,7 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/object/sigma.esl"
+  Test.type_checker_test "examples/object/sigma.esl"
     [
       BadValue (LiteralType (Val.Str "bar"), LiteralType (Val.Str "foo"));
       BadValue (LiteralType (Val.Str "foo"), LiteralType (Val.Bool false));

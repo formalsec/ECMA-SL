@@ -18,7 +18,7 @@ let create_narrow_type (rt : t) (nt : t) : t =
   | _, AnyType -> rt
   | AnyType, _ -> AnyType
   | UnknownType, _ -> UnknownType
-  | NeverType, _ -> failwith "Typed ECMA-SL: T_Narrowing.create_nt"
+  | NeverType, _ -> NeverType
   | UnionType rts, _ ->
       if List.mem AnyType rts then AnyType
       else if List.mem UnknownType rts then UnknownType

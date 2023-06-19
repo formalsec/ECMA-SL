@@ -2,7 +2,7 @@ open E_Type
 open T_Err
 
 let%test _ =
-  Test.type_checker_test "example/match/simple.esl"
+  Test.type_checker_test "examples/match/simple.esl"
     [
       BadSigma IntType;
       BadSigma (LiteralType (Val.Int 10));
@@ -13,7 +13,7 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/match/discriminant.esl"
+  Test.type_checker_test "examples/match/discriminant.esl"
     [
       BadDiscriminant "type";
       MissingDiscriminant "type";
@@ -21,11 +21,11 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/match/vars.esl"
+  Test.type_checker_test "examples/match/vars.esl"
     [ BadValue (StringType, IntType); UnknownVar "foo" ]
 
 let%test _ =
-  Test.type_checker_test "example/match/cases.esl"
+  Test.type_checker_test "examples/match/cases.esl"
     [
       BadValPattern (BooleanType, LiteralType (Val.Int 10));
       BadNonePattern;
@@ -38,5 +38,5 @@ let%test _ =
     ]
 
 let%test _ =
-  Test.type_checker_test "example/match/default.esl"
+  Test.type_checker_test "examples/match/default.esl"
     [ UnusedPatternCase; UnusedPatternCase; UnusedPatternCase ]

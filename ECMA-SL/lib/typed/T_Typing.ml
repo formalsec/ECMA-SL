@@ -95,6 +95,7 @@ let rec type_check (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   | _, AnyType -> ()
   | AnyType, _ -> ()
   | UnknownType, _ -> ()
+  | NeverType, NeverType -> ()
   | UndefinedType, UndefinedType -> ()
   | NullType, NullType -> ()
   | IntType, IntType -> ()

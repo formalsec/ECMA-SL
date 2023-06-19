@@ -179,6 +179,8 @@ let fold_type (ts : t list) =
 
 let to_runtime (t : t) : t =
   match t with
+  | AnyType -> RuntimeType Type.TypeType
+  | UnknownType -> RuntimeType Type.TypeType
   | UndefinedType -> RuntimeType Type.SymbolType
   | NullType -> RuntimeType Type.NullType
   | IntType -> RuntimeType Type.IntType
@@ -192,7 +194,6 @@ let to_runtime (t : t) : t =
   | LiteralType (Val.Str _) -> RuntimeType Type.StrType
   | LiteralType (Val.Bool _) -> RuntimeType Type.BoolType
   | LiteralType (Val.Symbol _) -> RuntimeType Type.SymbolType
-  | LiteralType (Val.Type t') -> RuntimeType t'
   | ObjectType _ -> RuntimeType Type.LocType
   | RuntimeType _ -> t
-  | _ -> RuntimeType Type.TypeType
+  | _ -> failwith "Typed ECMA-SL: E_Type.to_runtime"
