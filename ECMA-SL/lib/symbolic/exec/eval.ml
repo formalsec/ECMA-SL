@@ -2,11 +2,14 @@ open Core
 open Encoding
 open Expr
 open Func
-open State
 open Source
 open Reducer
 module Crash = Err.Make ()
 module Invalid_arg = Err.Make ()
+module Obj = S_object
+module Heap = S_heap.MakeHeap(Obj)
+module State = State.MakeState(Obj)
+open State
 
 exception Crash = Crash.Error
 exception Invalid_arg = Invalid_arg.Error
@@ -23,7 +26,7 @@ let func (at : region) (v : Expr.t) : string * Expr.t list =
   | Curry (Val (Val.Str x), vs) -> (x, vs)
   | _ -> Invalid_arg.error at "Sval is not a 'func' identifier"
 
-let step (c : config) : config list =
+let step (c : State.config) : State.config list =
   let open Stmt in
   let { prog; code; state; pc; solver; opt } = c in
   let heap, store, stack, f = state in
@@ -51,11 +54,11 @@ let step (c : config) : config list =
       let s =
         match e' with
         | Val (Val.Loc l) ->
-            let o = S_heap.get heap l in
-            S_object.to_string (Option.value_exn o) Expr.str
+            let o = Heap.get heap l in
+            Obj.to_string (Option.value_exn o) Expr.str
         | _ -> Expr.str e'
       in
-      (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (S_heap.get_id heap); *)
+      (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Heap.get_id heap); *)
       Logging.print_endline (lazy s);
       [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Fail e ->
@@ -123,7 +126,7 @@ let step (c : config) : config list =
         try
           if not (Batch.check_sat solver (ESet.to_list pc')) then []
           else
-            let state' = (S_heap.clone heap, store, stack, f) in
+            let state' = (Heap.clone heap, store, stack, f) in
             let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl_exn stmts in
             [ update c (Cont stmts') state' pc' ]
         with Batch.Unknown -> [ update c (Unknown (Some br_t)) state pc' ]
@@ -133,7 +136,7 @@ let step (c : config) : config list =
         try
           if not (Batch.check_sat solver (ESet.to_list pc')) then []
           else
-            let state' = (S_heap.clone heap, store, stack, f) in
+            let state' = (Heap.clone heap, store, stack, f) in
             let stmts' =
               match blk2 with
               | None -> List.tl_exn stmts
@@ -178,8 +181,8 @@ let step (c : config) : config list =
   | Stmt.AssignECall (x, y, es) ->
       Crash.error s.at "'AssignECall' not implemented!"
   | Stmt.AssignNewObj x ->
-      let obj = S_object.create () in
-      let loc = S_heap.insert heap obj in
+      let obj = Obj.create () in
+      let loc = Heap.insert heap obj in
       [
         update c
           (Cont (List.tl_exn stmts))
@@ -192,7 +195,7 @@ let step (c : config) : config list =
       in
       let reduced_field = reduce_expr ~at:s.at store e_field in
       let get_result =
-        S_heap.get_field heap loc reduced_field solver (ESet.to_list pc) store
+        Heap.get_field heap loc reduced_field solver (ESet.to_list pc) store
       in
       List.map get_result ~f:(fun (new_heap, new_pc, v) ->
           let v' = Val (Val.Bool (Option.is_some v)) in
@@ -204,7 +207,7 @@ let step (c : config) : config list =
   | Stmt.AssignObjToList (x, e) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e) "AssignObjToList" in
       let v =
-        match S_heap.get heap loc with
+        match Heap.get heap loc with
         | None -> Crash.error s.at ("'" ^ loc ^ "' not found in heap")
         | Some obj ->
             NOpt
@@ -212,7 +215,7 @@ let step (c : config) : config list =
                 List.map
                   ~f:(fun (f, v) ->
                     NOpt (Operators.TupleExpr, Val (Val.Str f) :: [ v ]))
-                  (S_object.to_list obj) )
+                  (Obj.to_list obj) )
       in
       [
         update c
@@ -223,9 +226,9 @@ let step (c : config) : config list =
   | Stmt.AssignObjFields (x, e) ->
       let loc = loc s.at (reduce_expr ~at:s.at store e) "AssignObjFields" in
       let v =
-        match S_heap.get heap loc with
+        match Heap.get heap loc with
         | None -> Crash.error s.at ("'" ^ loc ^ "' not found in heap")
-        | Some obj -> NOpt (Operators.ListExpr, S_object.get_fields obj)
+        | Some obj -> NOpt (Operators.ListExpr, Obj.get_fields obj)
       in
       [
         update c
@@ -239,7 +242,7 @@ let step (c : config) : config list =
       and v = reduce_expr ~at:s.at store e_v in
 
       let objects =
-        S_heap.set_field heap loc reduced_field v solver (ESet.to_list pc) store
+        Heap.set_field heap loc reduced_field v solver (ESet.to_list pc) store
       in
       List.map objects ~f:(fun (new_heap, new_pc) ->
           let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
@@ -248,7 +251,7 @@ let step (c : config) : config list =
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc) "FieldDelete" in
       let reduced_field = reduce_expr ~at:s.at store e_field in
       let objects =
-        S_heap.delete_field heap loc reduced_field solver (ESet.to_list pc)
+        Heap.delete_field heap loc reduced_field solver (ESet.to_list pc)
           store
       in
       List.map objects ~f:(fun (new_heap, new_pc) ->
@@ -258,7 +261,7 @@ let step (c : config) : config list =
       let loc = loc s.at (reduce_expr ~at:s.at store e_loc) "FieldLookup" in
       let reduced_field = reduce_expr ~at:s.at store e_field in
       let objects =
-        S_heap.get_field heap loc reduced_field solver (ESet.to_list pc) store
+        Heap.get_field heap loc reduced_field solver (ESet.to_list pc) store
       in
 
       List.map objects ~f:(fun (new_heap, new_pc, v) ->
@@ -349,17 +352,17 @@ end
 
 (* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
 module TreeSearch (L : WorkList) = struct
-  let eval c : config list =
+  let eval c : State.config list =
     let w = L.create () in
     L.push c w;
     let out = ref [] in
     while not (L.is_empty w) do
       let c = L.pop w in
       match c.code with
-      | Cont [] -> Crash.error Source.no_region "eval: Empty continuation!"
-      | Cont _ -> List.iter ~f:(fun c -> L.push c w) (step c)
-      | Error v | Final v | Unknown v -> out := c :: !out
-      | Failure (f, e) ->
+      | State.Cont [] -> Crash.error Source.no_region "eval: Empty continuation!"
+      | State.Cont _ -> List.iter ~f:(fun c -> L.push c w) (step c)
+      | State.Error v | State.Final v | State.Unknown v -> out := c :: !out
+      | State.Failure (f, e) ->
           let e' = Option.value_map e ~default:"" ~f:Expr.str in
           Logging.print_endline (lazy (sprintf "Failure: %s: %s" f e'));
           out := c :: !out
@@ -390,9 +393,10 @@ module BFS = TreeSearch (Caml.Queue)
 module RND = TreeSearch (RandArray)
 
 (* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
-let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
-    config list =
-  let heap = S_heap.create ()
+let invoke (prog : Prog.t) (func : Func.t) (eval : State.config -> State.config list) :
+    State.config list =
+  let heap = Heap.create()
+
   and store = Sstore.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
   let solver =
@@ -412,7 +416,7 @@ let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
   in
   eval initial_config
 
-let analyse (prog : Prog.t) (f : func) (policy : string) : config list =
+let analyse (prog : Prog.t) (f : State.func) (policy : string) : State.config list =
   let f = Prog.get_func prog f in
   let eval =
     match policy with
@@ -424,18 +428,18 @@ let analyse (prog : Prog.t) (f : func) (policy : string) : config list =
   in
   invoke prog f eval
 
-let main (prog : Prog.t) (f : func) : unit =
+let main (prog : Prog.t) (f : State.func) : unit =
   let time_analysis = ref 0.0 in
   let configs =
     Time_utils.time_call time_analysis (fun () -> analyse prog f !Config.policy)
   in
   let testsuite_path = Filename.concat !Config.workspace "test-suite" in
   Io.safe_mkdir testsuite_path;
-  let final_configs = List.filter ~f:(fun c -> is_final c.code) configs
-  and error_configs = List.filter ~f:(fun c -> is_fail c.code) configs in
+  let final_configs = List.filter ~f:(fun c -> State.is_final c.code) configs
+  and error_configs = List.filter ~f:(fun c -> State.is_fail c.code) configs in
   let f c =
     let open Encoding in
-    let pc' = ESet.to_list c.pc in
+    let pc' = State.ESet.to_list c.pc in
     let model = Batch.find_model c.solver pc' in
     let testcase =
       Option.value_map model ~default:[] ~f:(fun m ->
