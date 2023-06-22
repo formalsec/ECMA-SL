@@ -22,7 +22,7 @@ module MakeState(Object : S_obj.SymbolicObject) = struct
 
   and func = string
   and stack = Sstore.t Call_stack.t
-  and state = Expr.t S_heap.MakeHeap(Object).t * Sstore.t * stack * func
+  and state = S_heap.MakeHeap(Object).t * Sstore.t * stack * func
   and pc = ESet.t
 
   let is_cont (o : outcome) : bool = match o with Cont _ -> true | _ -> false

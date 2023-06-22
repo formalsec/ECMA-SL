@@ -111,6 +111,7 @@ let eval_triopt_expr (op : topt) (v1 : Val.t) (v2 : Val.t) (v3 : Val.t) : Val.t
   | SsubstrU -> s_substr_u (v1, v2, v3)
   | Aset -> array_set (v1, v2, v3)
   | Lset -> list_set (v1, v2, v3)
+  | ITE -> ite(v1, v2, v3)
 
 let eval_nopt_expr (op : nopt) (vals : Val.t list) : Val.t =
   match op with

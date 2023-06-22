@@ -2,25 +2,25 @@ open Core
 
 module MakeHeap(Object : S_obj.SymbolicObject) = struct
   type encoded_pct = Encoding.Expression.t
-  type 'a obj = 'a Object.t
-  type 'a t = { parent : 'a t option; map : (Loc.t, 'a obj) Hashtbl.t }
+  type obj = Object.t
+  type t = { parent : t option; map : (Loc.t, obj) Hashtbl.t }
 
-  let create () : 'a t = { parent = None; map = Hashtbl.create (module String) }
+  let create () : t = { parent = None; map = Hashtbl.create (module String) }
 
-  let clone (h : 'a t) : 'a t =
+  let clone (h : t) : t =
     { parent = Some h; map = Hashtbl.create (module String) }
 
-  let insert (h : 'a t) (obj : 'a obj) : Loc.t =
+  let insert (h : t) (obj : obj) : Loc.t =
     let loc = Loc.newloc () in
     Hashtbl.set h.map ~key:loc ~data:obj;
     loc
 
-  let remove (h : 'a t) (l : Loc.t) : unit = Hashtbl.remove h.map l
+  let remove (h : t) (l : Loc.t) : unit = Hashtbl.remove h.map l
 
-  let set (h : 'a t) (key : Loc.t) (data : 'a obj) : unit =
+  let set (h : t) (key : Loc.t) (data : obj) : unit =
     Hashtbl.set h.map ~key ~data
 
-  let rec get (h : 'a t) (l : Loc.t) : 'a obj option =
+  let rec get (h : t) (l : Loc.t) : obj option =
     let result = Hashtbl.find h.map l in
     match result with
     | Some o -> result
@@ -33,9 +33,13 @@ module MakeHeap(Object : S_obj.SymbolicObject) = struct
             Some o'
         | None -> None)
 
-  let get_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
+let has_field (h : t) (l : Loc.t) (f : Expr.t) : Expr.t =
+  Option.value_map (get h l) ~default:(Expr.Val (Val.Bool false)) ~f:(fun o ->
+      Object.has_field o f)
+
+  let get_field (heap : t) (loc : Loc.t) (field : Expr.t)
       (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
-      ('a t * encoded_pct list * 'a option) list =
+      (t * encoded_pct list * 'a option) list =
     let obj = get heap loc in
     let res =
       Option.bind obj ~f:(fun o -> Some (Object.get o field solver pc store))
@@ -54,9 +58,9 @@ module MakeHeap(Object : S_obj.SymbolicObject) = struct
                 set heap' loc obj;
                 (heap', pc, v)))
 
-  let set_field (heap : 'a t) (loc : Loc.t) (field : Expr.t) (v : 'a)
+  let set_field (heap : t) (loc : Loc.t) (field : Expr.t) (v : 'a)
       (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
-      ('a t * encoded_pct list) list =
+      (t * encoded_pct list) list =
     let obj = get heap loc in
     let res =
       Option.bind obj ~f:(fun o -> Some (Object.set o field v solver pc store))
@@ -75,9 +79,9 @@ module MakeHeap(Object : S_obj.SymbolicObject) = struct
                 set heap' loc obj;
                 (heap', pc)))
 
-  let delete_field (heap : 'a t) (loc : Loc.t) (field : Expr.t)
+  let delete_field (heap : t) (loc : Loc.t) (field : Expr.t)
       (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
-      ('a t * encoded_pct list) list =
+      (t * encoded_pct list) list =
     let obj = get heap loc in
     let res =
       Option.bind obj ~f:(fun o -> Some (Object.delete o field solver pc store))
