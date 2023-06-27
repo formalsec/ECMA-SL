@@ -3,7 +3,7 @@ open S_object
 let solver = Encoding.Batch.create ()
 let pc = []
 let expr_TRUE = Expr.Val (Val.Bool true)
-let o : Expr.t S_object.t = S_object.create ()
+let o : S_object.t = S_object.create ()
 let store = Sstore.create []
 
 let objects =

@@ -34,6 +34,7 @@
    extlib
    menhir
    menhirLib
+   encoding
    yojson)
  (tags
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml")))
