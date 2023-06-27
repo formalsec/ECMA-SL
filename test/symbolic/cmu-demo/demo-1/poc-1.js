@@ -1,4 +1,4 @@
-var iface___instr_symb_str_0 = "A; $(touch success) #BCDEF";
+var iface___instr_symb_str_0 = "CDE; $(touch success) #FG";
 var callback___instr_symb_0 = function () { };
 
 const v1 = require('child_process');

@@ -1,4 +1,0 @@
-{
-    "sink": "eval",
-    "expression": "s_concat([ \"cl.\", s_concat([ s_concat([ s_concat([ \",,\", symbolic (__$Str, \"color_0\") ]), \",\" ]), symbolic (__$Str, \"color_1\") ]), \"()\" ])"
-}

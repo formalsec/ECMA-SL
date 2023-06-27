@@ -1,6 +1,5 @@
 function symbolic_string_array(prefix, n) {
   var arr = [];
-	arr.length = n;
 	for (let i = 0; i < n; ++i) {
 		arr.push(esl_symbolic.string(prefix + "_" + i));
 	}
