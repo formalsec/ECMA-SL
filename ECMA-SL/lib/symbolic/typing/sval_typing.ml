@@ -21,6 +21,10 @@ let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
   | Operators.Exp -> un_args_typing_float_math arg_t Type.FltType
   | Operators.Log_e -> un_args_typing_float_math arg_t Type.FltType
   | Operators.Log_10 -> un_args_typing_float_math arg_t Type.FltType
+  | Operators.Ceil -> un_args_typing_float_math arg_t Type.FltType
+  | Operators.Floor -> un_args_typing_float_math arg_t Type.FltType
+  | Operators.Abs -> un_args_typing_float_math arg_t Type.FltType
+  | Operators.ToInt -> un_args_typing_float_math arg_t Type.FltType
   | Operators.Sqrt -> un_args_typing_float_math arg_t Type.FltType
   | Operators.IsNaN -> un_args_typing_float_math arg_t Type.BoolType
   | Operators.StringLen -> Some Type.IntType
@@ -49,8 +53,8 @@ let type_of_binop (op : Operators.bopt) (arg1 : Expr.t) (arg2 : Expr.t)
   | Operators.Ge -> bin_args_typing_comp arg1_t arg2_t
   | Operators.Log_And -> bin_args_typing_logic arg1_t arg2_t
   | Operators.Log_Or -> bin_args_typing_logic arg1_t arg2_t
-  | Operators.Min -> bin_args_typing_logic arg1_t arg2_t
-  | Operators.Max -> bin_args_typing_logic arg1_t arg2_t
+  | Operators.Min -> bin_args_typing_arith arg1_t arg2_t
+  | Operators.Max -> bin_args_typing_arith arg1_t arg2_t
   | Operators.Tnth -> None
   | Operators.Lnth -> bin_args_typing_lnth arg1 arg2
   | Operators.InList -> bin_args_typing_inlist arg1_t

@@ -23,10 +23,10 @@ let rec unfold_ite ~(accum : Expr.t) (e : Expr.t) :
       let accum' = BinOpt (Log_And, accum, UnOpt (Not, c)) in
       let tl = unfold_ite ~accum:accum' e in
       (Some (BinOpt (Log_And, accum, c)), l) :: tl
-  | _ -> 
+  | _ ->
     Printf.printf "rip with %s\n" (Expr.str e);
     assert false
-  
+
 let loc (at : region) (e : Expr.t) : (Expr.t Option.t * String.t) List.t =
   match e with
   | Val (Val.Loc l) -> [ (None, l) ]
@@ -67,13 +67,19 @@ let step (c : State.config) : State.config list =
     | _ -> Crash.error no_region "step: Empty continuation!"
   in
   let s = List.hd_exn stmts in
-
-  (* let str_e (e : Expr.t) : string = Expr.str (e) in
-     if Stmt.is_basic_stmt s then
-           (Printf.printf
-              "====================================\n\
-               Evaluating >>>>> %s: %s (%s)" f (Stmt.str s)
-              (Stmt.str ~print_expr:str_e s)); *)
+  (*
+  (if Stmt.is_basic_stmt s then
+     let str_e (e : Expr.t) : string = Expr.str e in
+     let debug =
+       lazy
+         (sprintf
+            "====================================\nEvaluating >>>>> %s: %s (%s)"
+            f (Stmt.str s)
+            (Stmt.str ~print_expr:str_e s))
+     in
+     Logging.print_endline debug
+     );
+     *)
   match s.it with
   | Skip -> [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Merge -> [ update c (Cont (List.tl_exn stmts)) state pc ]
@@ -316,7 +322,7 @@ let step (c : State.config) : State.config list =
       | Some cond' ->
         let pc' = ESet.add pc (Translator.translate cond') in
         if not (Batch.check_sat solver (ESet.to_list pc')) then accum
-        else 
+        else
           let objects =
             Heap.set_field heap l reduced_field v solver (ESet.to_list pc) store
           in
@@ -341,7 +347,7 @@ let step (c : State.config) : State.config list =
       | Some cond' ->
         let pc' = ESet.add pc (Translator.translate cond') in
         if not (Batch.check_sat solver (ESet.to_list pc')) then accum
-        else 
+        else
           let objects =
             Heap.delete_field heap l reduced_field solver (ESet.to_list pc) store
           in
@@ -370,7 +376,7 @@ let step (c : State.config) : State.config list =
       | Some cond' ->
         let pc' = ESet.add pc (Translator.translate cond') in
         if not (Batch.check_sat solver (ESet.to_list pc')) then accum
-        else 
+        else
           let objects =
             Heap.get_field heap l reduced_field solver (ESet.to_list pc) store
           in
@@ -380,7 +386,7 @@ let step (c : State.config) : State.config list =
             update c
             (Cont (List.tl_exn stmts))
             (new_heap, Sstore.add_exn store x v', stack, f)
-            pc')    
+            pc')
       )
   | Stmt.SymStmt (SymStmt.Assume e) -> (
       match reduce_expr ~at:s.at store e with
@@ -470,10 +476,13 @@ module TreeSearch (L : WorkList) = struct
     while not (L.is_empty w) do
       let c = L.pop w in
       match c.code with
-      | State.Cont [] -> Crash.error Source.no_region "eval: Empty continuation!"
-      | State.Cont _ -> List.iter ~f:(fun c -> L.push c w) (step c)
-      | State.Error v | State.Final v | State.Unknown v -> out := c :: !out
-      | State.Failure (f, e) ->
+      | Cont [] ->
+          let _, _, _, f = c.state in
+          Crash.error Source.no_region
+            (sprintf "%s: eval: Empty continuation!" f)
+      | Cont _ -> List.iter ~f:(fun c -> L.push c w) (step c)
+      | Error v | Final v | Unknown v -> out := c :: !out
+      | Failure (f, e) ->
           let e' = Option.value_map e ~default:"" ~f:Expr.str in
           Logging.print_endline (lazy (sprintf "Failure: %s: %s" f e'));
           out := c :: !out
