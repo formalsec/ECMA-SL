@@ -1,1 +1,0 @@
-(and (< (* #cond1___instr_symb_num_0 10.) 100.) (== (== (* #cond1___instr_symb_num_0 10.) 0.) false) (== (== (* #cond1___instr_symb_num_0 10.) 0.) false) (! (== (* #cond1___instr_symb_num_0 10.) 100.)))

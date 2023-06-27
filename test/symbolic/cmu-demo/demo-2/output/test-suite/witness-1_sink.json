@@ -1,0 +1,1 @@
+{ "sink" : "Abort", "expression": "se_mk_symbolic (__$Str, "malicious___instr_symb_0")" }
