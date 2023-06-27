@@ -251,7 +251,10 @@ function GetValue(V) {
 
 
   /* If IsUnresolvableReference(V), throw a ReferenceError exception. */
+  print "GetValue";
+  print V;
   if ( IsUnresolvableReference(V) ) {
+    print "UnresolvableRef";
     throw ReferenceErrorConstructorInternal()
   };
 
