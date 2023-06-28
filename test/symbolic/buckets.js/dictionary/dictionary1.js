@@ -375,5 +375,8 @@ esl_symbolic.assert(res3 == undefined);
 
 var res = dict.get(s1);
 
-esl_symbolic.assert(((s1 == s2) && (x1 == x2) && (res == x1)) || ((s1 == s2) && (!(x1 == x2)) && (res == x2)) || ((!(s1 == s2)) && (res == x1)));
+esl_symbolic.assert(
+    ( (s1 == s2) && (x1 == x2) && (res == x1))
+      || ((s1 == s2) && (!(x1 == x2)) && (res == x2))
+      || ((!(s1 == s2)) && (res == x1)));
 

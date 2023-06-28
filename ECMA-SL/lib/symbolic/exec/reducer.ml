@@ -171,12 +171,12 @@ let reduce_triop (op : topt) (v1 : Expr.t) (v2 : Expr.t) (v3 : Expr.t) : Expr.t
 
 let reduce_nop (op : nopt) (vs : Expr.t list) : Expr.t = NOpt (op, vs)
 
-let rec reduce_expr ?(at = Source.no_region) (store : Sstore.t) (e : Expr.t) :
+let rec reduce_expr ?(at = Source.no_region) (store : S_store.t) (e : Expr.t) :
     Expr.t =
   match e with
   | Val v -> Val v
   | Var x -> (
-      match Sstore.find store x with
+      match S_store.find store x with
       | Some v -> v
       | None -> failwith ("Cannot find var '" ^ x ^ "'"))
   | UnOpt (op, e) ->

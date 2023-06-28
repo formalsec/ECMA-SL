@@ -218,7 +218,8 @@ function JS_Interpreter_Expr(e, scope) {
     };
     /* 8. Return a value of type Reference whose base value is baseValue and whose referenced name is
           propertyNameString, and whose strict mode flag is strict. */
-    return newPropertyReference(baseValue, propertyNameString, strict)
+    ref := newPropertyReference(baseValue, propertyNameString, strict);
+    return ref
   }
   | { type: "NewExpression", callee: MemberExpression, arguments: Arguments } -> {
     /* 12.3.3.1 MemberExpression : new MemberExpression Arguments */

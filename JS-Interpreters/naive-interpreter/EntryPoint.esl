@@ -3,8 +3,9 @@ import "Completion.esl";
 import "InternalFunction.esl";
 import "FunctionObject.esl";
 import "Object.esl";
-import "GlobalObject.esl";
 import "Scope.esl";
+import "GlobalObject.esl";
+import "ArrayObject.esl";
 import "Interpreter.esl";
 
 function main() {

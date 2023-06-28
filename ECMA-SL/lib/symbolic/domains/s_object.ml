@@ -109,8 +109,8 @@ let has_field (o : t) (k : Expr.t) : Expr.t =
   let open Expr in
   assert (Expr.is_val k || Expr.is_symbolic k);
   if Hashtbl.is_empty o.concrete_fields && Expr_Hashtbl.is_empty o.symbolic_fields then Val (Bool false)
-  else if Expr.is_val k then 
-    match k with 
+  else if Expr.is_val k then
+    match k with
     | Val Str s -> Val (Bool (Hashtbl.mem o.concrete_fields s))
     | _ -> failwith "impossible"
   else
@@ -273,7 +273,7 @@ let get (o : t) (key : vt) (solver : Encoding.Batch.t)
 let delete (o : t) (key : Expr.t) (solver : Encoding.Batch.t)
     (pc : encoded_pct list) (store : Sstore.t) : (t * encoded_pct list) list
     =
-  match key with
+ match key with
   | Expr.Val (Val.Str s) ->
       if has_concrete_key o s then
         let _ = Hashtbl.remove o.concrete_fields s in

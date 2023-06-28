@@ -111,7 +111,7 @@ let step (c : State.config) : State.config list =
       [
         update c
           (Cont (List.tl_exn stmts))
-          (heap, Sstore.add_exn store x v, stack, f)
+          (heap, S_store.add_exn store x v, stack, f)
           pc;
       ]
   | Stmt.Assert e -> (
@@ -202,7 +202,7 @@ let step (c : State.config) : State.config list =
       | Call_stack.Intermediate (stmts', store', x, f') ->
           [
             update c (Cont stmts')
-              (heap, Sstore.add_exn store' x v, stack', f')
+              (heap, S_store.add_exn store' x v, stack', f')
               pc;
           ]
       | Call_stack.Toplevel -> [ update c (Final (Some v)) state pc ])
@@ -214,7 +214,7 @@ let step (c : State.config) : State.config list =
         Call_stack.push stack
           (Call_stack.Intermediate (List.tl_exn stmts, store, x, f))
       in
-      let store' = Sstore.create (List.zip_exn (Prog.get_params prog f') vs') in
+      let store' = S_store.create (List.zip_exn (Prog.get_params prog f') vs') in
       [ update c (Cont [ func.body ]) (heap, store', stack', f') pc ]
   | Stmt.AssignECall (x, y, es) ->
       Crash.error s.at "'AssignECall' not implemented!"
@@ -224,7 +224,7 @@ let step (c : State.config) : State.config list =
       [
         update c
           (Cont (List.tl_exn stmts))
-          (heap, Sstore.add_exn store x (Val (Val.Loc loc)), stack, f)
+          (heap, S_store.add_exn store x (Val (Val.Loc loc)), stack, f)
           pc;
       ]
   | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
@@ -280,7 +280,7 @@ let step (c : State.config) : State.config list =
             let pc' = ESet.add pc (Translator.translate cond') in
             if not (Batch.check_sat solver (ESet.to_list pc')) then accum
             else f (Heap.clone heap) l pc' :: accum)
-  | Stmt.AssignObjFields (x, e) ->
+ | Stmt.AssignObjFields (x, e) ->
     let f h l pc' =
       let v =
         match Heap.get h l with
@@ -304,7 +304,7 @@ let step (c : State.config) : State.config list =
             let pc' = ESet.add pc (Translator.translate cond') in
             if not (Batch.check_sat solver (ESet.to_list pc')) then accum
             else f (Heap.clone heap) l pc' :: accum)
-  | Stmt.FieldAssign (e_loc, e_field, e_v) ->
+ | Stmt.FieldAssign (e_loc, e_field, e_v) ->
     let locs = loc s.at (reduce_expr ~at:s.at store e_loc) in
     let reduced_field = reduce_expr ~at:s.at store e_field
     and v = reduce_expr ~at:s.at store e_v in
@@ -325,7 +325,7 @@ let step (c : State.config) : State.config list =
         else
           let objects =
             Heap.set_field heap l reduced_field v solver (ESet.to_list pc) store
-          in
+         in
           List.map objects ~f:(fun (new_heap, new_pc) ->
             let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
             update c (Cont (List.tl_exn stmts)) (new_heap, store, stack, f) pc')
@@ -403,14 +403,14 @@ let step (c : State.config) : State.config list =
               ("assume (" ^ Expr.str e' ^ ") = "
               ^ Bool.to_string (List.length cont > 0)));
           cont)
-  | Stmt.SymStmt (SymStmt.Evaluate (x, e)) ->
+ | Stmt.SymStmt (SymStmt.Evaluate (x, e)) ->
       let e' = Translator.translate (reduce_expr ~at:s.at store e) in
       let v =
         Option.map ~f:Translator.expr_of_value
           (Batch.eval solver e' (ESet.to_list pc))
       in
       let store' =
-        Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
+        S_store.add_exn store x (Option.value ~default:(Val Val.Null) v)
       in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Maximize (x, e)) ->
@@ -420,7 +420,7 @@ let step (c : State.config) : State.config list =
           (Optimizer.maximize opt e' (ESet.to_list pc))
       in
       let store' =
-        Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
+        S_store.add_exn store x (Option.value ~default:(Val Val.Null) v)
       in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Minimize (x, e)) ->
@@ -430,13 +430,13 @@ let step (c : State.config) : State.config list =
           (Optimizer.minimize opt e' (ESet.to_list pc))
       in
       let store' =
-        Sstore.add_exn store x (Option.value ~default:(Val Val.Null) v)
+        S_store.add_exn store x (Option.value ~default:(Val Val.Null) v)
       in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Is_symbolic (x, e)) ->
       let e' = reduce_expr ~at:s.at store e in
       let store' =
-        Sstore.add_exn store x (Val (Val.Bool (Expr.is_symbolic e')))
+        S_store.add_exn store x (Val (Val.Bool (Expr.is_symbolic e')))
       in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Is_sat (x, e)) ->
@@ -444,7 +444,7 @@ let step (c : State.config) : State.config list =
       let pc' = ESet.add pc (Translator.translate e') in
       let sat = Batch.check_sat c.solver (ESet.to_list pc') in
       let store' = Sstore.add_exn store x (Val (Val.Bool sat)) in
-      [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
+     [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Is_number (x, e)) ->
       let e' = reduce_expr ~at:s.at store e in
       let is_num =
@@ -452,7 +452,7 @@ let step (c : State.config) : State.config list =
         | Some Type.IntType | Some Type.FltType -> true
         | _ -> false
       in
-      let store' = Sstore.add_exn store x (Val (Val.Bool is_num)) in
+      let store' = S_store.add_exn store x (Val (Val.Bool is_num)) in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
 
 module type WorkList = sig
@@ -518,7 +518,7 @@ let invoke (prog : Prog.t) (func : Func.t) (eval : State.config -> State.config 
   let heap = Heap.create()
 
   and store = Sstore.create []
-  and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
+ and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
   let solver =
     let s = Batch.create () in
     if !Config.axioms then Batch.set_default_axioms s;

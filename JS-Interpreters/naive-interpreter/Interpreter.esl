@@ -1,4 +1,7 @@
 function interpreter(scope, s) {
+	print ("++++++++++++++++++++++++++++++++++++++++");
+	print (s);
+	print (scope.store);
 	match s with
 
 	/* main statements */
@@ -125,14 +128,17 @@ function interpreter(scope, s) {
 					objVal := interpreter(scope, object);
 					@checkAbruptCompletion(objVal);
 					if (computed) {
-						propName := interpreter(scope, prop);
-						@checkAbruptCompletion(propName)
+						propVal := interpreter(scope, prop);
+						@checkAbruptCompletion(propVal)
 					} else {
-						propName := prop.name
+						propVal := prop.name
 					};
-					oldVal := resolveProperty(objVal, propName);
+					if (!(typeof objVal = __$Obj)) {
+    				raiseError("Unable to update property from a non object value.", objVal)
+  				};
+					oldVal := {objVal.resolveProperty}(objVal, propVal);
 					newVal := applyAssignmentOperator(op, oldVal, rightVal);
-					updateObject(objVal, propName, newVal);
+					{objVal.updateProperty}(objVal, propVal, newVal);
 					return NormalCompletion(newVal)
 				}
 			| default -> { raiseError ("Illegal assignment expression", left) }
@@ -174,12 +180,16 @@ function interpreter(scope, s) {
 			objVal := interpreter(scope, object); 
 			@checkAbruptCompletion(objVal);
 			if (computed) {
-				propName := interpreter(scope, prop);
-				@checkAbruptCompletion(propName)
+				propVal := interpreter(scope, prop);
+				@checkAbruptCompletion(propVal)
 			} else {
-				propName := prop.name
+				propVal := prop.name
 			};
-			return NormalCompletion(resolveProperty(objVal, propName))
+			if (!(typeof objVal = __$Obj)) {
+    		raiseError("Unable to access property from a non object value.", objVal)
+  		};
+			val := {objVal.resolveProperty}(objVal, propVal);
+			return NormalCompletion(val)
 		}
 
 
@@ -202,10 +212,24 @@ function interpreter(scope, s) {
 			functionObject := interpreter(scope, callee);
 			@checkAbruptCompletion(functionObject);
 			newObject := Object();
+			newObject.__proto__ := getFunctionPrototype(functionObject);
 			retVal := interpretCall(scope, functionObject, args, newObject);
 			@checkReturnCompletion(retVal, newObject)
 		}
-	
+
+
+	/* array expressions */
+	| { type: "ArrayExpression", elements: elements } -> {
+		evalElements := [];
+		foreach (element : elements) {
+			elementVal := interpreter(scope, element);
+			@checkAbruptCompletion(elementVal);
+			evalElements := l_add(evalElements, elementVal)
+		};
+		arrayObject := ArrayObject(evalElements);
+		return NormalCompletion(arrayObject)
+	}
+
 
 	/* values */
 	| { type: "Literal", value: value, raw: raw } -> 
@@ -252,7 +276,6 @@ function interpreter(scope, s) {
 		}
 
 
-
 	| default -> { raiseError("Unsuported construct", s) }
 };
 
@@ -281,27 +304,31 @@ function interpretArgs(scope, args) {
 	return evalArgs
 };
 
-function interpretCall(scope, functionObject, args, thisBinding) {
+function interpretCall(oldScope, functionObject, args, thisBinding) {
 	if (functionObject = 'undefined) {
 		raiseError("Unknown function", functionObject)
 	};
+	evalArgs := interpretArgs(oldScope, args);
+	nEvalArgs := l_len(evalArgs);
 	match functionObject with
 	| { internal: false, name: name, params: params, code: code, scope: scope } -> {
-			if (!(l_len(params) = l_len(args))) {
-				raiseError("Invalid number of arguments in function call", name)
-			};
 			i := 0;
 			newScope := extendScope(scope, thisBinding);
-			evalArgs := interpretArgs(scope, args);
-			foreach (argVal : evalArgs) {
+			nParams := l_len(params);
+			while (i < nParams && i < nEvalArgs) {
 				paramName := l_nth(params, i);
+				argVal := l_nth(evalArgs, i);
 				updateScope(newScope, newScope, paramName, argVal);
+				i := i + 1
+			};
+			while (i < nParams) {
+				paramName := l_nth(params, i);
+				updateScope(newScope, newScope, paramName, 'undefined);
 				i := i + 1
 			};
 			return interpreter(newScope, code)
 		}
 	| { internal: true, functionName: functionName } -> {
-			evalArgs := interpretArgs(scope, args);
 			retVal := {functionName}(evalArgs);
 			return NormalCompletion(retVal)
 		}
@@ -340,6 +367,8 @@ function applyBinaryOperator(op, v1, v2) {
 		case "<": { return v1 < v2 }
 		case ">=": { return v1 >= v2 }
 		case "<=": { return v1 <= v2 }
+		case "===": { return v1 = v2 }
+		case "!==": { return !(v1 = v2) }
 		sdefault: raiseError("Unsuported binary operator", op)
 	}
 };

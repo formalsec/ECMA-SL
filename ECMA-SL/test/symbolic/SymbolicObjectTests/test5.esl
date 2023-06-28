@@ -1,14 +1,17 @@
 function main() {
   y := {};
-  x := symbolic(__$Str, "x");
-  z := symbolic(__$Str, "z");
+  x := se_mk_symbolic(__$Str, "x");
+  z := se_mk_symbolic(__$Str, "z");
 
   y["length"] := 2.0;
   y[x] := 1.0;
+  print y[x];
   y[z] := 5.0;
+  print y[x];
 
+  w := y[x];
+  assert(w = 1.0 || w = 5.0);
   assert(y["test"] = 'undefined || y["test"] = 1.0 || y["test"] = 5.0);
-  assert(y[x] = 1.0 || y[x] = 5.0);
   assert(y["length"] = 2.0 || y["length"] = 1.0 || y["length"] = 5.0);
   return 0
 }
