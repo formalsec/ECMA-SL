@@ -3,10 +3,20 @@
 	"name": "ECMA-SL",
 	"patterns": [
 		{ "include": "#comments" },
-		{ "include": "#keywords" },
-		{ "include": "#literals" },
+		
+		{ "include": "#control" },
+		{ "include": "#constants" },
+		{ "include": "#builtin" },
+		{ "include": "#api" },
+
+		{ "include": "#numbers" },
+		{ "include": "#strings" },
+		{ "include": "#booleans" },
+		{ "include": "#symbols" },
+
 		{ "include": "#types" }
 	],
+
 	"repository": {
 
 		"comments": {
@@ -19,57 +29,42 @@
 			]
 		},
 
-		"keywords": {
-			"patterns": [
-				{ "include": "#constants" },
-				{ "include": "#control" },
-				{ "include": "#builtin" },
-				{ "include": "#api" }
-			]
-		},
-		
 		"control": {
 			"patterns": [
 				{
 					"name": "keyword.control.esl",
-					"match": "\\b(if|else|elif|while|foreach|repeat|until|switch|case|sdefault|match|with|default|None|null|function|return|lambda|macro|catch|throw|fail|assume|assert|import|extern|print|delete|symbolic|typeof|gen_wrapper|NaN|Infinity)\\b"
+					"match": "\\b(if|else|elif|while|foreach|repeat|until|switch|case|sdefault|match|with|default|None|null|function|return|lambda|macro|catch|throw|fail|assume|assert|import|extern|print|delete|symbolic|typeof|gen_wrapper)\\b"
 				}
 			]
 		},
+
 		"constants": {
 			"patterns": [
 				{
 					"name": "constant.language.esl",
-					"match": "\\b(PI|MAX_VALUE|MIN_VALUE)\\b"
+					"match": "\\b(NaN|Infinity|PI|MAX_VALUE|MIN_VALUE)\\b"
 				}
 			]
 		},
-		"builtin": {
+
+		"builtin":{
 			"patterns": [
 				{
 					"name": "entity.name.function.esl",
-					"match": "\\b(is_NaN|to_int|to_int32|to_uint16|to_uint32|int_to_float|int_of_float|int_to_string|int_of_string|int_to_four_hex|int_to_be_bytes|int_from_le_bytes|uint_from_le_bytes|octal_to_decimal|float_to_string|float_of_string|float_to_byte|float64_to_le_bytes|float64_to_be_bytes|float32_to_le_bytes|float32_to_be_bytes|float64_from_le_bytes|float64_from_be_bytes|float32_from_le_bytes|float32_from_be_bytes|bytes_to_string|utf8_decode|hex_decode|from_char_code|from_char_code_u|to_char_code|to_char_code_u|to_lower_case|to_upper_case|trim|abs|sqrt|cos|sin|tan|cosh|sinh|tanh|acos|asin|atan|atan2|ceil|floor|exp|log_2|log_e|log_10|random|max|min|to_precision|to_exponential|to_fixed|parse_number|parse_string|parse_date|s_len|s_len_u|s_split|s_concat|s_nth|s_nth_u|s_substr|s_substr_u|a_nth|a_set|l_set|a_len|array_make|list_to_array|hd|tl|l_len|l_nth|l_add|l_prepend|l_concat|l_remove_last|l_remove_nth|l_remove|l_sort|l_reverse|in_list|fst|snd|t_len|t_nth|obj_to_list|obj_fields|in_obj)\\b"
+					"match": "\\b(is_NaN|to_int|to_int32|to_uint16|to_uint32|int_to_float|int_of_float|int_to_string|int_of_string|int_to_four_hex|int_to_be_bytes|int_from_le_bytes|octal_to_decimal|uint_from_le_bytes|float_to_string|float_of_string|float_to_byte|float64_to_le_bytes|float64_to_be_bytes|float32_to_le_bytes|float32_to_be_bytes|float64_from_le_bytes|float64_from_be_bytes|float32_from_le_bytes|float32_from_be_bytes|bytes_to_string|utf8_decode|hex_decode|from_char_code|from_char_code_u|to_char_code|to_char_code_u|to_lower_case|to_upper_case|trim|random|abs|sqrt|ceil|floor|exp|log_2|log_e|log_10|cos|sin|tan|cosh|sinh|tanh|acos|asin|atan|atan2|max|min|to_precision|to_exponential|to_fixed|parse_number|parse_string|parse_date|s_len|s_len_u|s_concat|s_split|s_nth|s_nth_u|s_substr|s_substr_u|a_nth|a_set|l_set|a_len|array_make|list_to_array|hd|tl|l_len|l_nth|l_add|l_prepend|l_concat|l_remove|l_remove_nth|l_remove_last|l_reverse|l_sort|in_list|fst|snd|t_len|t_nth|obj_to_list|obj_fields|in_obj)\\b"
 				}
 			]
 		},
+
 		"api": {
 			"patterns": [
 				{
 					"name": "keyword.other.esl",
-					"match": "\\b(se_assume|se_abort|se_is_sat|se_is_symbolic|se_mk_symbolic|se_evaluate|se_maximize|se_minimize)\\b"
+					"match": "\\b(se_assume|se_abort|se_is_sat|se_is_symbolic|se_is_number|se_mk_symbolic|se_evaluate|se_maximize|se_minimize)\\b"
 				}
 			]
 		},
 
-
-		"literals": {
-			"patterns": [
-				{ "include": "#numbers" },
-				{ "include": "#strings" },
-				{ "include": "#boolean" },
-				{ "include": "#symbols" }
-			]
-		},
 		"numbers": {
 			"patterns": [
 				{
@@ -78,6 +73,7 @@
 				}
 			]
 		},
+
 		"strings": {
 			"name": "string.quoted.double.esl",
 			"begin": "\"",
@@ -96,7 +92,8 @@
 				}
 			]
 		},
-		"boolean": {
+
+		"booleans": {
 			"patterns": [
 				{
 					"name": "keyword.control.esl",
@@ -104,6 +101,7 @@
 				}
 			]
 		},
+
 		"symbols": {
 			"patterns": [
 				{
@@ -116,12 +114,12 @@
 				}
 			]
 		},
-
+		
 		"types": {
 			"patterns": [
 				{
 					"name": "entity.name.type",
-					"match": "\\b(typedef|any|unknown|never|undefined|number|string|boolean|symbol|sigma)\\b"
+					"match": "\\b(any|unknown|never|undefined|int|float|string|boolean|symbol|sigma)\\b"
 				},
 				{
 					"name": "entity.name.type",
@@ -132,4 +130,4 @@
 		}
 	},
 	"scopeName": "source.esl"
-}	
+}
