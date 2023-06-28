@@ -1,4 +1,6 @@
-type t = string
+open Core
+
+type t = String.t
 
 let count = ref 0
 

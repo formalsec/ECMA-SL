@@ -1,6 +1,6 @@
 /* The functions are those that are not explicitly specified in the standard */
 
-/** 
+/**
  * The abstract operation Completion(completionRecord) is used to emphasize that
  * a previously computed Completion Record is being returned. The Completion abstract
  * operation takes a single argument, completionRecord, and performs the following steps:
@@ -15,9 +15,9 @@ function Completion(completionRecord) {
 /* auxiliary functions */
 function isAnAbruptCompletion (completion) {
   if (!(Type(completion) = "Completion")) {
-    return false 
+    return false
   };
-  
+
   if (!(getCompletionType(completion) = 'normal)) {
     return true
   };
@@ -62,12 +62,12 @@ function throwEmptyCompletion(V) {
 
 
 /* 6.2.2.4 ReturnIfAbrupt */
-macro ReturnIfAbrupt(e) { 
+macro ReturnIfAbrupt(e) {
   if (Type(e) = "Completion") {
     /* If argument is an abrupt completion, return argument. */
     if( isAnAbruptCompletion(e) ) {
       return e
-    } 
+    }
     /* Else if argument is a Completion Record, let argument be argument.[[value]]. */
     else {
       e := getCompletionValue(e)
@@ -79,11 +79,11 @@ macro ReturnIfAbrupt(e) {
 /**
  * 6.2.2.5 UpdateEmpty (completionRecord, value)
  *
- * The abstract operation UpdateEmpty with arguments completionRecord and value 
- * performs the following steps: 
+ * The abstract operation UpdateEmpty with arguments completionRecord and value
+ * performs the following steps:
  */
 function UpdateEmpty(completionRecord, value) {
-  /* 1. Assert: if completionRecord.[[type]] is throw then 
+  /* 1. Assert: if completionRecord.[[type]] is throw then
      completionRecord.[[value]] is not empty. */
   assert(!(getCompletionType(completionRecord) = 'throw &&& getCompletionValue(completionRecord) = 'empty));
   /* 2. If completionRecord.[[type]] is throw, */
@@ -96,7 +96,7 @@ function UpdateEmpty(completionRecord, value) {
     /* return Completion(completionRecord) */
     return Completion(completionRecord)
   };
-  /* 4. Return Completion{[[type]]: completionRecord.[[type]], [[value]]: 
+  /* 4. Return Completion{[[type]]: completionRecord.[[type]], [[value]]:
      value, [[target]]: completionRecord.[[target]] }. */
   return newCompletion(getCompletionType(completionRecord), value, getCompletionTarget(completionRecord))
 };
@@ -106,7 +106,7 @@ function CreateByteDataBlock(size) {
     maxSize := 7. * 1125899906842624.;
     /* 1. Assert: size ≥ 0. */
     assert (size >= (0.));
-    /* 2. Let db be a new Data Block value consisting of size bytes. */ 
+    /* 2. Let db be a new Data Block value consisting of size bytes. */
     /*db := [];*/
     /* If it is impossible to create such a Data Block, throw a RangeError exception. */
     if (size >= maxSize) {
@@ -116,7 +116,7 @@ function CreateByteDataBlock(size) {
         size := 1.
     };
     db := array_make(int_of_float(size), float_to_byte(0.));
-    
+
     /* i := 0.;
     while (i < size) {
         i := i + 1.;*/
@@ -134,7 +134,7 @@ function CopyDataBlockBytes(toBlock, toIndex, fromBlock, fromIndex, count) {
     /* Assert: fromBlock and toBlock are distinct Data Block values. */
     assert (!(fromBlock = toBlock));
     /* Assert: fromIndex, toIndex, and count are positive integer values. */
-    assert ((fromIndex >= 0) &&& (toIndex >= 0) &&& (count >= 0)); 
+    assert ((fromIndex >= 0) &&& (toIndex >= 0) &&& (count >= 0));
     /* Let fromSize be the number of bytes in fromBlock. */
     fromSize := a_len(fromBlock);
     /* Assert: fromIndex+count ≤ fromSize. */
@@ -201,6 +201,10 @@ function HasPrimitiveBase(V) {
 function IsPropertyReference (V) {
   base := GetBase(V);
 
+  /* if ( GetReferencedName(V) = "prop" ) {
+    type := Type(base)
+  }; */
+
   if ( ( Type(base) = "Object" ) ||| ( Type(base) = "Symbol" ) ||| (HasPrimitiveBase(V) = true) ) {
     return true
   };
@@ -229,8 +233,8 @@ function IsSuperReference (V) {
 
 /**
  * 6.2.3.1 GetValue (V)
- * 
- * 
+ *
+ *
 */
 function GetValue(V) {
 
@@ -246,7 +250,10 @@ function GetValue(V) {
   base := GetBase(V);
 
   /* If IsUnresolvableReference(V), throw a ReferenceError exception. */
+  print "GetValue";
+  print V;
   if ( IsUnresolvableReference(V) ) {
+    print "UnresolvableRef";
     throw ReferenceErrorConstructorInternal()
   };
 
@@ -262,8 +269,17 @@ function GetValue(V) {
       };
 
       /* Return base.[[Get]](GetReferencedName(V), GetThisValue(V)). */
-      ref := {base.Get}(base, GetReferencedName(V), GetThisValue(V));
-      return ref
+      ref_name := GetReferencedName(V);
+
+      x := {base.Get}(base, ref_name, GetThisValue(V));
+
+      /* if (se_is_symbolic(ref_name)) {
+        print "getValue";
+        print ref_name;
+        print x
+      }; */
+      return x
+      /* return {base.Get}(base, GetReferencedName(V), GetThisValue(V)) */
   }
   /* Else base must be an Environment Record, */
   else {
@@ -290,7 +306,7 @@ function PutValue(V, W) {
 
     /* Let base be GetBase(V). */
     base := GetBase(V);
- 
+
     /* If IsUnresolvableReference(V), then */
     if ( IsUnresolvableReference(V) ) {
         /* If IsStrictReference(V) is true, then */
@@ -328,7 +344,7 @@ function PutValue(V, W) {
         };
 
         /* Return. */
-        return 
+        return
     }
     /* Else base must be an Environment Record. */
     else {
@@ -521,8 +537,8 @@ function FromPropertyDescriptor(Desc) {
 
 /**
  * 6.2.4.5 ToPropertyDescriptor ( Obj )
- * 
- * When the abstract operation ToPropertyDescriptor is called with object Obj, the following steps are taken: 
+ *
+ * When the abstract operation ToPropertyDescriptor is called with object Obj, the following steps are taken:
  */
  function ToPropertyDescriptor(Obj) {
     /* ReturnIfAbrupt(Obj). */
@@ -661,14 +677,14 @@ function FromPropertyDescriptor(Desc) {
           throw TypeErrorConstructorInternal()
         }
     };
-    
+
     /* Return desc. */
     return desc
  };
 
  /**
   * 6.2.4.6 CompletePropertyDescriptor ( Desc )
-  * 
+  *
   * When the abstract operation CompletePropertyDescriptor is called with Property Descriptor Desc
   * the following steps are taken:
  */
@@ -681,7 +697,7 @@ function FromPropertyDescriptor(Desc) {
 
     /* Let like be Record{[[Value]]: undefined, [[Writable]]: false, [[Get]]: undefined, [[Set]]: undefined, [[Enumerable]]: false, [[Configurable]]: false}. */
     like := {Value: 'undefined, Writable: false, Get: 'undefined, Set: 'undefined, Enumerable: false, Configurable: false};
-    
+
     /* If either IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then */
     if ( (IsGenericDescriptor(Desc) = true) ||| (IsDataDescriptor(Desc) = true)) {
         /* If Desc does not have a [[Value]] field, set Desc.[[Value]] to like.[[Value]]. */

@@ -10,22 +10,20 @@ let reduce_sconcat (vs : Expr.t list) : Expr.t =
         | [] -> [ v ]
         | h :: t -> (
             match (h, v) with
-            | Val (Str h'), Val (Str b') ->
-                Val (Str (String.concat ~sep:"" [ h'; b' ])) :: t
+            | Val (Str h'), Val (Str v') ->
+                Val (Str (String.concat ~sep:"" [ h'; v' ])) :: t
+            | Val (Str ""), _ -> v :: t
+            | _, Val (Str "") -> acc
             | Val (Str h'), _ -> v :: acc
-            | _, Val (Str b') -> v :: acc
+            | _, Val (Str v') -> v :: acc
             | Symbolic (Type.StrType, _), Symbolic (Type.StrType, _) -> v :: acc
             | _ -> v :: acc))
-    (* failwith ("impossible argument types for concat " ^ Expr.str h ^" " ^ Expr.str v))) *)
   in
   let s = List.rev s in
-  if List.length s > 1 then UnOpt (Sconcat, NOpt (ListExpr, s))
-  else
-    Val
-      (Str
-         (String.concat ~sep:""
-            (List.fold_left vs ~init:[] ~f:(fun a b ->
-                 match b with Val (Str s) -> a @ [ s ] | _ -> a))))
+  match s with
+  | [] -> Val (Str "")
+  | [ v ] -> v
+  | _ -> UnOpt (Sconcat, NOpt (ListExpr, s))
 
 let reduce_list_compare (list1 : Expr.t list) (list2 : Expr.t list) : Expr.t =
   if List.length list1 = List.length list2 then
@@ -88,9 +86,9 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | Neg, Symbolic (_, _) -> UnOpt (Neg, v)
   | IsNaN, Symbolic _ -> Val (Bool false)
   | Not, v' -> UnOpt (Not, v)
-  | Head, NOpt (ListExpr, a :: _) -> a
+  | Head, NOpt (ListExpr, l) -> List.hd_exn l
   | Tail, NOpt (ListExpr, _ :: tl) -> NOpt (ListExpr, tl)
-  | First, NOpt (TupleExpr, a :: _) -> a
+  | First, NOpt (TupleExpr, l) -> List.hd_exn l
   | Second, NOpt (TupleExpr, _ :: b :: _) -> b
   | ListLen, NOpt (ListExpr, vs) -> Val (Int (List.length vs))
   | ListLen, UnOpt (LSort, NOpt (ListExpr, vs)) -> Val (Int (List.length vs))
@@ -104,6 +102,7 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | Typeof, Curry (_, _) -> Val (Type Type.CurryType)
   | Typeof, op ->
       let t = Sval_typing.type_of op in
+      printf "Typeof %s" (Expr.str v);
       Val (Type (Option.value_exn t))
   | Sconcat, NOpt (ListExpr, vs) -> reduce_sconcat vs
   | FloatOfString, UnOpt (FloatToString, x) -> x

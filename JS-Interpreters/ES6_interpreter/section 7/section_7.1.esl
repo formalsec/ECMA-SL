@@ -178,6 +178,9 @@ function ToBoolean( argument ) {
  * The abstract operation ToNumber converts argument to a value of type Number according to Table 11:
 */
 function ToNumber( argument ) {
+  print "ToNumber";
+  print argument;
+  print Type(argument);
 	switch( Type(argument) ) {
 		case "Completion": {
 			if ( isAnAbruptCompletion(argument) = true ) {

@@ -2,27 +2,53 @@ open Core
 open Encoding
 open Expr
 open Func
-open State
 open Source
 open Reducer
 module Crash = Err.Make ()
 module Invalid_arg = Err.Make ()
+module Obj = S_object
+module Heap = S_heap.MakeHeap (Obj)
+module State = State.MakeState (Obj)
+open State
 
 exception Crash = Crash.Error
 exception Invalid_arg = Invalid_arg.Error
 
-let loc (at : region) (e : Expr.t) : string =
+let rec unfold_ite ~(accum : Expr.t) (e : Expr.t) :
+    (Expr.t Option.t * String.t) List.t =
+  let open Operators in
   match e with
-  | Val (Val.Loc l) -> l
+  | Val (Val.Loc x) | Val (Val.Symbol x) -> [ (Some accum, x) ]
+  | TriOpt (ITE, c, Val (Val.Loc l), e) ->
+      let accum' = BinOpt (Log_And, accum, UnOpt (Not, c)) in
+      let tl = unfold_ite ~accum:accum' e in
+      (Some (BinOpt (Log_And, accum, c)), l) :: tl
+  | _ ->
+      Printf.printf "rip with %s\n" (Expr.str e);
+      assert false
+
+let loc (at : region) (e : Expr.t) : (Expr.t Option.t * String.t) List.t =
+  match e with
+  | Val (Val.Loc l) -> [ (None, l) ]
+  | TriOpt (Operators.ITE, c, Val (Val.Loc l), v) ->
+      (Some c, l) :: unfold_ite ~accum:(UnOpt (Operators.Not, c)) v
   | _ ->
       Invalid_arg.error at ("Expr '" ^ Expr.str e ^ "' is not a loc expression")
 
-(* let field (at : region) (v : Expr.t) : string =
-   match v with
-   | Val (Val.Str f) -> f
-   | _ ->
-       print_endline (Expr.str v);
-       Invalid_arg.error at "Sval is not a 'field' expression" *)
+(* Eval pass to remove variables from store *)
+let rec eval_expr (store : S_store.t) (e : Expr.t) : Expr.t =
+  match e with
+  | Val v -> Val v
+  | Var x ->
+      Option.value_exn (S_store.find store x)
+        ~message:(sprintf "Cannot find var '%s'" x)
+  | UnOpt (op, e') -> UnOpt (op, eval_expr store e')
+  | BinOpt (op, e1, e2) -> BinOpt (op, eval_expr store e1, eval_expr store e2)
+  | TriOpt (op, e1, e2, e3) ->
+      TriOpt (op, eval_expr store e1, eval_expr store e2, eval_expr store e3)
+  | NOpt (op, es) -> NOpt (op, List.map ~f:(eval_expr store) es)
+  | Curry (f, es) -> Curry (f, List.map ~f:(eval_expr store) es)
+  | Symbolic (t, x) -> Symbolic (t, eval_expr store x)
 
 let func (at : region) (v : Expr.t) : string * Expr.t list =
   match v with
@@ -30,7 +56,7 @@ let func (at : region) (v : Expr.t) : string * Expr.t list =
   | Curry (Val (Val.Str x), vs) -> (x, vs)
   | _ -> Invalid_arg.error at "Sval is not a 'func' identifier"
 
-let step (c : config) : config list =
+let step (c : State.config) : State.config list =
   let open Stmt in
   let { prog; code; state; pc; solver; opt } = c in
   let heap, store, stack, f = state in
@@ -40,6 +66,19 @@ let step (c : config) : config list =
     | _ -> Crash.error no_region "step: Empty continuation!"
   in
   let s = List.hd_exn stmts in
+  (*
+  (if Stmt.is_basic_stmt s then
+     let str_e (e : Expr.t) : string = Expr.str e in
+     let debug =
+       lazy
+         (sprintf
+            "====================================\nEvaluating >>>>> %s: %s (%s)"
+            f (Stmt.str s)
+            (Stmt.str ~print_expr:str_e s))
+     in
+     Logging.print_endline debug
+     );
+     *)
   match s.it with
   | Skip -> [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Merge -> [ update c (Cont (List.tl_exn stmts)) state pc ]
@@ -47,7 +86,16 @@ let step (c : config) : config list =
       fprintf stderr "%s: Exception: %s\n" (Source.string_of_region s.at) err;
       [ update c (Error (Some (Val (Val.Str err)))) state pc ]
   | Print e ->
-      Logging.print_endline (lazy (Expr.str (reduce_expr ~at:s.at store e)));
+      let e' = reduce_expr ~at:s.at store e in
+      let s =
+        match e' with
+        | Val (Val.Loc l) ->
+            let o = Heap.get heap l in
+            Obj.to_string (Option.value_exn o) Expr.str
+        | _ -> Expr.str e'
+      in
+      (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Heap.get_id heap); *)
+      Logging.print_endline (lazy s);
       [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Fail e ->
       [ update c (Error (Some (reduce_expr ~at:s.at store e))) state pc ]
@@ -65,27 +113,26 @@ let step (c : config) : config list =
           (heap, S_store.add_exn store x v, stack, f)
           pc;
       ]
-  | Stmt.Assert e
-    when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
-      [ update c (Cont (List.tl_exn stmts)) state pc ]
-  | Stmt.Assert e
-    when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
-      printf "%s" (Encoding.Expression.string_of_pc pc);
-      printf "%s = %s\n" (Expr.str e) (Expr.str (reduce_expr ~at:s.at store e));
-      let e' = Some (reduce_expr ~at:s.at store e) in
-      [ update c (Failure ("assert", e')) state pc ]
-  | Stmt.Assert e ->
-      let v = reduce_expr ~at:s.at store e in
-      let v' = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, e)) in
-      let cont =
-        if Batch.check_sat solver (Translator.translate v' :: pc) then
-          [ update c (Failure ("assert", Some v)) state pc ]
-        else [ update c (Cont (List.tl_exn stmts)) state pc ]
-      in
-      Logging.print_endline
-        (lazy
-          ("assert (" ^ Expr.str v ^ ") = " ^ Bool.to_string (is_cont c.code)));
-      cont
+  | Stmt.Assert e -> (
+      match reduce_expr ~at:s.at store e with
+      | Val (Val.Bool b) ->
+          if b then [ update c (Cont (List.tl_exn stmts)) state pc ]
+          else
+            let e' = Some (reduce_expr ~at:s.at store e) in
+            [ update c (Failure ("assert", e')) state pc ]
+      | v ->
+          let v' = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, v)) in
+          let cont =
+            let pc' = ESet.add pc (Translator.translate v') in
+            if Batch.check_sat solver (ESet.to_list pc') then
+              [ update c (Failure ("assert", Some v)) state pc' ]
+            else [ update c (Cont (List.tl_exn stmts)) state pc ]
+          in
+          Logging.print_endline
+            (lazy
+              ("assert (" ^ Expr.str v ^ ") = "
+              ^ Bool.to_string (is_cont c.code)));
+          cont)
   | Stmt.Block blk -> [ update c (Cont (blk @ List.tl_exn stmts)) state pc ]
   | Stmt.If (br, blk, _)
     when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store br) ->
@@ -103,37 +150,41 @@ let step (c : config) : config list =
       in
       [ update c (Cont cont) state pc ]
   | Stmt.If (br, blk1, blk2) ->
-      let br_t = reduce_expr ~at:s.at store br
-      and br_f = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, br)) in
+      let br' = eval_expr store br in
+      let br_t = reduce_expr ~at:s.at store br'
+      and br_f = reduce_expr ~at:s.at store (Expr.UnOpt (Operators.Not, br')) in
       Logging.print_endline
         (lazy
           (sprintf "%s: If (%s)" (Source.string_of_region s.at) (Expr.str br_t)));
       let br_t' = Translator.translate br_t
       and br_f' = Translator.translate br_f in
       let then_branch =
+        let pc' = ESet.add pc br_t' in
         try
-          if not (Batch.check_sat solver (br_t' :: pc)) then []
+          if not (Batch.check_sat solver (ESet.to_list pc')) then []
           else
+            let state' = (Heap.clone heap, store, stack, f) in
             let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl_exn stmts in
-            [ update c (Cont stmts') state (br_t' :: pc) ]
-        with Batch.Unknown ->
-          [ update c (Unknown (Some br_t)) state (br_t' :: pc) ]
+            [ update c (Cont stmts') state' pc' ]
+        with Batch.Unknown -> [ update c (Unknown (Some br_t)) state pc' ]
       in
       let else_branch =
+        let pc' = ESet.add pc br_f' in
         try
-          if not (Batch.check_sat solver (br_f' :: pc)) then []
+          if not (Batch.check_sat solver (ESet.to_list pc')) then []
           else
-            let state' = (S_heap.clone heap, store, stack, f) in
+            let state' = (Heap.clone heap, store, stack, f) in
             let stmts' =
               match blk2 with
               | None -> List.tl_exn stmts
               | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl_exn stmts
             in
-            [ update c (Cont stmts') state' (br_f' :: pc) ]
-        with Batch.Unknown ->
-          [ update c (Unknown (Some br_f)) state (br_f' :: pc) ]
+            [ update c (Cont stmts') state' pc' ]
+        with Batch.Unknown -> [ update c (Unknown (Some br_f)) state pc' ]
       in
-      else_branch @ then_branch
+      let temp = else_branch @ then_branch in
+
+      temp
   | Stmt.While (br, blk) ->
       let blk' =
         Stmt.Block (blk :: [ Stmt.While (br, blk) @@ s.at ]) @@ blk.at
@@ -162,13 +213,15 @@ let step (c : config) : config list =
         Call_stack.push stack
           (Call_stack.Intermediate (List.tl_exn stmts, store, x, f))
       in
-      let store' = S_store.create (List.zip_exn (Prog.get_params prog f') vs') in
+      let store' =
+        S_store.create (List.zip_exn (Prog.get_params prog f') vs')
+      in
       [ update c (Cont [ func.body ]) (heap, store', stack', f') pc ]
   | Stmt.AssignECall (x, y, es) ->
       Crash.error s.at "'AssignECall' not implemented!"
   | Stmt.AssignNewObj x ->
-      let obj = S_object.create () in
-      let loc = S_heap.insert heap obj in
+      let obj = Obj.create () in
+      let loc = Heap.insert heap obj in
       [
         update c
           (Cont (List.tl_exn stmts))
@@ -176,115 +229,211 @@ let step (c : config) : config list =
           pc;
       ]
   | Stmt.AssignInObjCheck (x, e_field, e_loc) ->
-      let loc = loc s.at (reduce_expr ~at:s.at store e_loc) in
-      let reduced_field = reduce_expr ~at:s.at store e_field in
-      let get_result =
-        S_heap.get_field heap loc reduced_field solver pc store
-      in
-
-      List.map get_result ~f:(fun (new_heap, obj, new_pc, v) ->
-          let v' = Val (Val.Bool (Option.is_some v)) in
-          let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
-
-          let new_pc' = new_pc' @ pc in
-
-          update c
-            (Cont (List.tl_exn stmts))
-            (new_heap, S_store.add_exn store x v', stack, f)
-            new_pc')
+      let locs = loc s.at (reduce_expr ~at:s.at store e_loc) in
+      let field = reduce_expr ~at:s.at store e_field in
+      List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
+          match cond with
+          | None ->
+              let heap' =
+                if List.length locs > 1 then Heap.clone heap else heap
+              in
+              let v = Heap.has_field heap' l field in
+              update c
+                (Cont (List.tl_exn stmts))
+                (heap', S_store.add_exn store x v, stack, f)
+                pc
+              :: accum
+          | Some cond' ->
+              let pc' = ESet.add pc (Translator.translate cond') in
+              if not (Batch.check_sat solver (ESet.to_list pc')) then accum
+              else
+                let v = Heap.has_field heap l field in
+                update c
+                  (Cont (List.tl_exn stmts))
+                  (Heap.clone heap, S_store.add_exn store x v, stack, f)
+                  pc'
+                :: accum)
   | Stmt.AssignObjToList (x, e) ->
-      let loc = loc s.at (reduce_expr ~at:s.at store e) in
-      let v =
-        match S_heap.get heap loc with
-        | None -> Crash.error s.at ("'" ^ loc ^ "' not found in heap")
-        | Some obj ->
-            NOpt
-              ( Operators.ListExpr,
-                List.map
-                  ~f:(fun (f, v) ->
-                    NOpt (Operators.TupleExpr, Val (Val.Str f) :: [ v ]))
-                  (S_object.to_list obj) )
-      in
-      [
+      let f h l pc' =
+        let v =
+          match Heap.get h l with
+          | None -> Crash.error s.at ("'" ^ l ^ "' not found in heap")
+          | Some obj ->
+              NOpt
+                ( Operators.ListExpr,
+                  List.map (Obj.to_list obj) ~f:(fun (f, v) ->
+                      NOpt (Operators.TupleExpr, [ f; v ])) )
+        in
         update c
           (Cont (List.tl_exn stmts))
-          (heap, S_store.add_exn store x v, stack, f)
-          pc;
-      ]
+          (h, S_store.add_exn store x v, stack, f)
+          pc'
+      in
+      let locs = loc s.at (reduce_expr ~at:s.at store e) in
+      List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
+          match cond with
+          | None ->
+              let heap' =
+                if List.length locs > 1 then Heap.clone heap else heap
+              in
+              f heap' l pc :: accum
+          | Some cond' ->
+              let pc' = ESet.add pc (Translator.translate cond') in
+              if not (Batch.check_sat solver (ESet.to_list pc')) then accum
+              else f (Heap.clone heap) l pc' :: accum)
   | Stmt.AssignObjFields (x, e) ->
-      let loc = loc s.at (reduce_expr ~at:s.at store e) in
-      let v =
-        match S_heap.get heap loc with
-        | None -> Crash.error s.at ("'" ^ loc ^ "' not found in heap")
-        | Some obj -> NOpt (Operators.ListExpr, S_object.get_fields obj)
-      in
-      [
+      let f h l pc' =
+        let v =
+          match Heap.get h l with
+          | None -> Crash.error s.at ("'" ^ l ^ "' not found in heap")
+          | Some obj -> NOpt (Operators.ListExpr, Obj.get_fields obj)
+        in
         update c
           (Cont (List.tl_exn stmts))
-          (heap, S_store.add_exn store x v, stack, f)
-          pc;
-      ]
+          (h, S_store.add_exn store x v, stack, f)
+          pc'
+      in
+      let locs = loc s.at (reduce_expr ~at:s.at store e) in
+      List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
+          match cond with
+          | None ->
+              let heap' =
+                if List.length locs > 1 then Heap.clone heap else heap
+              in
+              f heap' l pc :: accum
+          | Some cond' ->
+              let pc' = ESet.add pc (Translator.translate cond') in
+              if not (Batch.check_sat solver (ESet.to_list pc')) then accum
+              else f (Heap.clone heap) l pc' :: accum)
   | Stmt.FieldAssign (e_loc, e_field, e_v) ->
-      let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
-      and reduced_field = reduce_expr ~at:s.at store e_field
+      let locs = loc s.at (reduce_expr ~at:s.at store e_loc) in
+      let reduced_field = reduce_expr ~at:s.at store e_field
       and v = reduce_expr ~at:s.at store e_v in
 
-      let objects = S_heap.set_field heap loc reduced_field v solver pc store in
-      List.map objects ~f:(fun (new_heap, obj, new_pc) ->
-          let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
-          update c
-            (Cont (List.tl_exn stmts))
-            (new_heap, store, stack, f)
-            (new_pc' @ pc))
+      List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
+          match cond with
+          | None ->
+              let heap' =
+                if List.length locs > 1 then Heap.clone heap else heap
+              in
+              let objects =
+                Heap.set_field heap' l reduced_field v solver (ESet.to_list pc)
+                  store
+              in
+              List.map objects ~f:(fun (new_heap, new_pc) ->
+                  let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
+                  update c
+                    (Cont (List.tl_exn stmts))
+                    (new_heap, store, stack, f)
+                    pc')
+          | Some cond' ->
+              let pc' = ESet.add pc (Translator.translate cond') in
+              if not (Batch.check_sat solver (ESet.to_list pc')) then accum
+              else
+                let objects =
+                  Heap.set_field heap l reduced_field v solver (ESet.to_list pc)
+                    store
+                in
+                List.map objects ~f:(fun (new_heap, new_pc) ->
+                    let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
+                    update c
+                      (Cont (List.tl_exn stmts))
+                      (new_heap, store, stack, f)
+                      pc'))
   | Stmt.FieldDelete (e_loc, e_field) ->
-      let loc = loc s.at (reduce_expr ~at:s.at store e_loc) in
+      let locs = loc s.at (reduce_expr ~at:s.at store e_loc) in
       let reduced_field = reduce_expr ~at:s.at store e_field in
-      let objects =
-        S_heap.delete_field heap loc reduced_field solver pc store
-      in
 
-      List.map objects ~f:(fun (new_heap, obj, new_pc) ->
-          let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
-          update c
-            (Cont (List.tl_exn stmts))
-            (new_heap, store, stack, f)
-            (new_pc' @ pc))
+      List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
+          match cond with
+          | None ->
+              let heap' =
+                if List.length locs > 1 then Heap.clone heap else heap
+              in
+              let objects =
+                Heap.delete_field heap' l reduced_field solver (ESet.to_list pc)
+                  store
+              in
+              List.map objects ~f:(fun (new_heap, new_pc) ->
+                  let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
+                  update c
+                    (Cont (List.tl_exn stmts))
+                    (new_heap, store, stack, f)
+                    pc')
+          | Some cond' ->
+              let pc' = ESet.add pc (Translator.translate cond') in
+              if not (Batch.check_sat solver (ESet.to_list pc')) then accum
+              else
+                let objects =
+                  Heap.delete_field heap l reduced_field solver
+                    (ESet.to_list pc) store
+                in
+                List.map objects ~f:(fun (new_heap, new_pc) ->
+                    let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
+                    update c
+                      (Cont (List.tl_exn stmts))
+                      (new_heap, store, stack, f)
+                      pc'))
   | Stmt.FieldLookup (x, e_loc, e_field) ->
-      let loc = loc s.at (reduce_expr ~at:s.at store e_loc)
-      and reduced_field = reduce_expr ~at:s.at store e_field in
-      let objects = S_heap.get_field heap loc reduced_field solver pc store in
+      let locs = loc s.at (reduce_expr ~at:s.at store e_loc) in
+      let reduced_field = reduce_expr ~at:s.at store e_field in
 
-      List.map objects ~f:(fun (new_heap, obj, new_pc, v) ->
-          let new_pc' = match new_pc with Some p -> [ p ] | None -> [] in
-          let v' =
-            match v with Some v -> v | None -> Val (Val.Symbol "undefined")
+      List.fold locs ~init:[] ~f:(fun accum (cond, l) ->
+          match cond with
+          | None ->
+              let heap' =
+                if List.length locs > 1 then Heap.clone heap else heap
+              in
+              let objects =
+                Heap.get_field heap' l reduced_field solver (ESet.to_list pc)
+                  store
+              in
+              List.map objects ~f:(fun (new_heap, new_pc, v) ->
+                  let v' =
+                    Option.value v ~default:(Val (Val.Symbol "undefined"))
+                  in
+                  let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
+                  update c
+                    (Cont (List.tl_exn stmts))
+                    (new_heap, S_store.add_exn store x v', stack, f)
+                    pc')
+          | Some cond' ->
+              let pc' = ESet.add pc (Translator.translate cond') in
+              if not (Batch.check_sat solver (ESet.to_list pc')) then accum
+              else
+                let objects =
+                  Heap.get_field heap l reduced_field solver (ESet.to_list pc)
+                    store
+                in
+                List.map objects ~f:(fun (new_heap, new_pc, v) ->
+                    let v' =
+                      Option.value v ~default:(Val (Val.Symbol "undefined"))
+                    in
+                    let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
+                    update c
+                      (Cont (List.tl_exn stmts))
+                      (new_heap, S_store.add_exn store x v', stack, f)
+                      pc'))
+  | Stmt.SymStmt (SymStmt.Assume e) -> (
+      match reduce_expr ~at:s.at store e with
+      | Val (Val.Bool b) ->
+          if b then [ update c (Cont (List.tl_exn stmts)) state pc ] else []
+      | e' ->
+          let pc' = ESet.add pc (Translator.translate e') in
+          let cont =
+            if not (Batch.check_sat solver (ESet.to_list pc')) then []
+            else [ update c (Cont (List.tl_exn stmts)) state pc' ]
           in
-          update c
-            (Cont (List.tl_exn stmts))
-            (new_heap, S_store.add_exn store x v', stack, f)
-            (new_pc' @ pc))
-  | Stmt.SymStmt (SymStmt.Assume e)
-    when Expr.equal (Val (Val.Bool true)) (reduce_expr ~at:s.at store e) ->
-      [ update c (Cont (List.tl_exn stmts)) state pc ]
-  | Stmt.SymStmt (SymStmt.Assume e)
-    when Expr.equal (Val (Val.Bool false)) (reduce_expr ~at:s.at store e) ->
-      []
-  | Stmt.SymStmt (SymStmt.Assume e) ->
-      let e' = reduce_expr ~at:s.at store e in
-      let v = Translator.translate e' in
-      let cont =
-        if not (Batch.check_sat solver (v :: pc)) then []
-        else [ update c (Cont (List.tl_exn stmts)) state (v :: pc) ]
-      in
-      Logging.print_endline
-        (lazy
-          ("assume (" ^ Expr.str e' ^ ") = "
-          ^ Bool.to_string (List.length cont > 0)));
-      cont
+          Logging.print_endline
+            (lazy
+              ("assume (" ^ Expr.str e' ^ ") = "
+              ^ Bool.to_string (List.length cont > 0)));
+          cont)
   | Stmt.SymStmt (SymStmt.Evaluate (x, e)) ->
       let e' = Translator.translate (reduce_expr ~at:s.at store e) in
       let v =
-        Option.map ~f:Translator.expr_of_value (Batch.eval c.solver e' c.pc)
+        Option.map ~f:Translator.expr_of_value
+          (Batch.eval solver e' (ESet.to_list pc))
       in
       let store' =
         S_store.add_exn store x (Option.value ~default:(Val Val.Null) v)
@@ -294,7 +443,7 @@ let step (c : config) : config list =
       let e' = Translator.translate (reduce_expr ~at:s.at store e) in
       let v =
         Option.map ~f:Translator.expr_of_value
-          (Optimizer.maximize c.opt e' c.pc)
+          (Optimizer.maximize opt e' (ESet.to_list pc))
       in
       let store' =
         S_store.add_exn store x (Option.value ~default:(Val Val.Null) v)
@@ -304,7 +453,7 @@ let step (c : config) : config list =
       let e' = Translator.translate (reduce_expr ~at:s.at store e) in
       let v =
         Option.map ~f:Translator.expr_of_value
-          (Optimizer.minimize c.opt e' c.pc)
+          (Optimizer.minimize opt e' (ESet.to_list pc))
       in
       let store' =
         S_store.add_exn store x (Option.value ~default:(Val Val.Null) v)
@@ -317,8 +466,9 @@ let step (c : config) : config list =
       in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Is_sat (x, e)) ->
-      let e' = Translator.translate (reduce_expr ~at:s.at store e) in
-      let sat = Batch.check_sat c.solver (e' :: c.pc) in
+      let e' = reduce_expr ~at:s.at store e in
+      let pc' = ESet.add pc (Translator.translate e') in
+      let sat = Batch.check_sat c.solver (ESet.to_list pc') in
       let store' = S_store.add_exn store x (Val (Val.Bool sat)) in
       [ update c (Cont (List.tl_exn stmts)) (heap, store', stack, f) pc ]
   | Stmt.SymStmt (SymStmt.Is_number (x, e)) ->
@@ -345,14 +495,17 @@ end
 
 (* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
 module TreeSearch (L : WorkList) = struct
-  let eval c : config list =
+  let eval c : State.config list =
     let w = L.create () in
     L.push c w;
     let out = ref [] in
     while not (L.is_empty w) do
       let c = L.pop w in
       match c.code with
-      | Cont [] -> Crash.error Source.no_region "eval: Empty continuation!"
+      | Cont [] ->
+          let _, _, _, f = c.state in
+          Crash.error Source.no_region
+            (sprintf "%s: eval: Empty continuation!" f)
       | Cont _ -> List.iter ~f:(fun c -> L.push c w) (step c)
       | Error v | Final v | Unknown v -> out := c :: !out
       | Failure (f, e) ->
@@ -386,9 +539,9 @@ module BFS = TreeSearch (Caml.Queue)
 module RND = TreeSearch (RandArray)
 
 (* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
-let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
-    config list =
-  let heap = S_heap.create ()
+let invoke (prog : Prog.t) (func : Func.t)
+    (eval : State.config -> State.config list) : State.config list =
+  let heap = Heap.create ()
   and store = S_store.create []
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
   let solver =
@@ -401,14 +554,15 @@ let invoke (prog : Prog.t) (func : Func.t) (eval : config -> config list) :
       prog;
       code = Cont [ func.body ];
       state = (heap, store, stack, func.name);
-      pc = [];
+      pc = ESet.empty;
       solver;
       opt = Optimizer.create ();
     }
   in
   eval initial_config
 
-let analyse (prog : Prog.t) (f : func) (policy : string) : config list =
+let analyse (prog : Prog.t) (f : State.func) (policy : string) :
+    State.config list =
   let f = Prog.get_func prog f in
   let eval =
     match policy with
@@ -420,18 +574,19 @@ let analyse (prog : Prog.t) (f : func) (policy : string) : config list =
   in
   invoke prog f eval
 
-let main (prog : Prog.t) (f : func) : unit =
+let main (prog : Prog.t) (f : State.func) : unit =
   let time_analysis = ref 0.0 in
   let configs =
     Time_utils.time_call time_analysis (fun () -> analyse prog f !Config.policy)
   in
   let testsuite_path = Filename.concat !Config.workspace "test-suite" in
   Io.safe_mkdir testsuite_path;
-  let final_configs = List.filter ~f:(fun c -> is_final c.code) configs
-  and error_configs = List.filter ~f:(fun c -> is_fail c.code) configs in
+  let final_configs = List.filter ~f:(fun c -> State.is_final c.code) configs
+  and error_configs = List.filter ~f:(fun c -> State.is_fail c.code) configs in
   let f c =
     let open Encoding in
-    let model = Batch.find_model c.solver c.pc in
+    let pc' = State.ESet.to_list c.pc in
+    let model = Batch.find_model c.solver pc' in
     let testcase =
       Option.value_map model ~default:[] ~f:(fun m ->
           List.map (Model.get_bindings m) ~f:(fun (s, v) ->
@@ -440,7 +595,7 @@ let main (prog : Prog.t) (f : func) : unit =
               and interp = Value.to_string v in
               (sort, name, interp)))
     in
-    let pc = (Expression.string_of_pc c.pc, Expression.to_smt c.pc) in
+    let pc = (Expression.string_of_pc pc', Expression.to_smt pc') in
     let sink =
       match c.code with
       | Failure (sink, e) -> (sink, Option.value_map e ~default:"" ~f:Expr.str)

@@ -46,7 +46,7 @@ type bopt =
   | IntFromBytes
   | UintFromBytes
 
-type topt = Ssubstr | SsubstrU | Aset | Lset
+type topt = Ssubstr | SsubstrU | Aset | Lset | ITE
 
 type uopt =
   | Neg
@@ -136,7 +136,7 @@ let neg (v : Val.t) : Val.t =
 
 let not (v : Val.t) : Val.t =
   match v with
-  | Bool v -> Bool (v = false)
+  | Bool v -> Bool (not v)
   | _ ->
       invalid_arg
         "Exception in Oper.not: this operation is only applicable to a boolean \
@@ -772,6 +772,9 @@ let list_set ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
       invalid_arg
         "Exception in Oper.list_set: this operation is only applicable to \
          List, Int and Any arguments"
+
+let ite ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
+  match v1 with Bool b -> if b then v2 else v3 | _ -> invalid_arg "something"
 
 let first (v : Val.t) : Val.t =
   match v with
@@ -1415,6 +1418,7 @@ let str_of_triopt (op : topt) (e1 : string) (e2 : string) (e3 : string) : string
   | SsubstrU -> "s_substr_u(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
   | Aset -> "a_set(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
   | Lset -> "l_set(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
+  | ITE -> "ite(" ^ e1 ^ ", " ^ e2 ^ ", " ^ e3 ^ ")"
 
 let str_of_nopt (op : nopt) (es : string list) : string =
   match op with
@@ -1529,7 +1533,8 @@ let topt_to_json (op : topt) : string =
     | Ssubstr -> Printf.sprintf "Ssubstr\" }"
     | SsubstrU -> Printf.sprintf "SsubstrU\" }"
     | Aset -> Printf.sprintf "Aset\" }"
-    | Lset -> Printf.sprintf "Lset\" }")
+    | Lset -> Printf.sprintf "Lset\" }"
+    | ITE -> Printf.sprintf "ITE\" }")
 
 let nopt_to_json (op : nopt) : string =
   Printf.sprintf "{ \"type\" : \"nopt\", \"value\" : \"%s"

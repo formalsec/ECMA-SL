@@ -52,6 +52,9 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
       | IsNaN -> fun _ -> Boolean.mk_val false
       | FloatToString -> Real.mk_to_string
       | FloatOfString -> Real.mk_of_string
+      | Ceil -> Real.mk_ceil
+      | Floor -> Real.mk_floor
+      | ToInt -> Integer.mk_of_real
       | _ ->
           Printf.printf "op: %s\n" (Operators.str_of_unopt op);
           assert false
@@ -188,7 +191,11 @@ let translate_triop (t1 : Type.t option) (t2 : Type.t option)
     | Ssubstr -> Strings.mk_substr e1 ~pos:e2 ~len:e3
     | _ -> assert false
   in
+  let bool_triop op e1 e2 e3 =
+    match op with ITE -> Boolean.mk_ite e1 e2 e3 | _ -> assert false
+  in
   match (t1, t2, t3) with
+  | Some BoolType, _, _ -> bool_triop op e1 e2 e3
   | Some StrType, _, _ -> str_triop op e1 e2 e3
   | None, _, _ | _, None, _ | _, _, None ->
       failwith

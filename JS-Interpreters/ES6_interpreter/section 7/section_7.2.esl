@@ -1,12 +1,12 @@
 /**
  * 7.2.1 RequireObjectCoercible ( argument )
- * 
+ *
  * The abstract operation RequireObjectCoercible throws an error if argument is a value that cannot be
  * converted to an Object using ToObject.
 */
 function RequireObjectCoercible(argument) {
 	switch(Type(argument)) {
-		case "Completion": { 
+		case "Completion": {
 			if ( isAnAbruptCompletion(argument) = true ) {
 				return argument
 			} else {
@@ -25,7 +25,7 @@ function RequireObjectCoercible(argument) {
 
 /**
  * 7.2.2 IsArray ( argument )
- * 
+ *
  * The abstract operation IsArray takes one argument argument, and performs the following steps:
 */
 function IsArray(argument) {
@@ -40,7 +40,7 @@ function IsArray(argument) {
       return true
     };
 
-    /* If argument is a Proxy exotic object, then */ 
+    /* If argument is a Proxy exotic object, then */
     if ( IsProxy(argument) ) {
       /* a. If the value of the [[ProxyHandler]] internal slot of argument is null, throw a TypeError exception. */
       if (argument.ProxyHandler = 'null) {
@@ -51,7 +51,7 @@ function IsArray(argument) {
       /* c. Return IsArray(target). */
       return IsArray(target)
     };
-    
+
     /* Return false. */
     return false
 };
@@ -79,7 +79,7 @@ function isArrayExoticObject(arr) {
 
 /**
  * 7.2.3 IsCallable ( argument )
- * 
+ *
  * The abstract operation IsCallable determines if argument, which must be an ECMAScript language value or a
  * Completion Record, is a callable function with a [[Call]] internal method.
 */
@@ -102,7 +102,7 @@ function IsCallable( argument ) {
 };
 
 /**
- *  7.2.4 IsConstructor ( argument ) 
+ *  7.2.4 IsConstructor ( argument )
  * The abstract operation IsConstructor determines if argument,
  * which must be an ECMAScript language value or a Completion Record,
  * is a function object with a [[Construct]] internal method.
@@ -128,7 +128,7 @@ function IsConstructor(argument) {
 
 /**
  * 7.2.5 IsExtensible (O)
- * 
+ *
  * The abstract operation IsExtensible is used to determine whether additional properties can be added to
  * the object that is O. A Boolean value is returned. This abstract operation performs the following steps:
 */
@@ -171,7 +171,7 @@ function IsInteger(argument){
 };
 
 /**
- *  7.2.7 IsPropertyKey ( argument ) 
+ *  7.2.7 IsPropertyKey ( argument )
  * The abstract operation IsPropertyKey determines if argument,
  * which must be an ECMAScript language value or a Completion Record,
  * is a value that may be used as a property key.
@@ -179,7 +179,7 @@ function IsInteger(argument){
 function IsPropertyKey( argument ) {
 	/* ReturnIfAbrupt(argument). */
 	@ReturnIfAbrupt(argument);
-  
+
   t := Type(argument);
 
 	/* If Type(argument) is String, return true. */
@@ -227,7 +227,7 @@ function IsRegExp(argument){
 
 /**
  * 7.2.9 SameValue(x, y)
- * 
+ *
  * The internal comparison abstract operation SameValue(x, y), where x and y are ECMAScript language values,
  * produces true or false. Such a comparison is performed as follows:
 */
@@ -270,7 +270,7 @@ function SameValue (x, y) {
 
 /**
  * 7.2.10 SameValueZero(x, y)
- * 
+ *
  * The internal comparison abstract operation SameValueZero(x, y), where x and y are ECMAScript language
  * values, produces true or false. Such a comparison is performed as follows:
 */
@@ -313,7 +313,7 @@ function SameValueZero(x, y) {
 
 /**
  * 7.2.11 Abstract Relational Comparison
- * 
+ *
  * The comparison x < y, where x and y are values, produces true, false, or undefined (which indicates that at
  * least one operand is NaN). In addition to x and y the algorithm takes a Boolean flag named LeftFirst as a
  * parameter. The flag is used to control the order in which operations with potentially visible side-effects
@@ -399,8 +399,8 @@ function AbstractRelationalComparison(x, y, LeftFirst) {
 /**
  * 7.2.12 Abstract Equality Comparison
  *
- * The comparison x == y, where x and y are values, produces true or false. Such 
- * a comparison is performed as follows: 
+ * The comparison x == y, where x and y are values, produces true or false. Such
+ * a comparison is performed as follows:
  */
 function AbstractEqualityComparison(x, y) {
 
@@ -464,8 +464,8 @@ function AbstractEqualityComparison(x, y) {
 /**
  * 7.2.13 Strict Equality Comparison
  *
- * The comparison x === y, where x and y are values, produces true or false. 
- * Such a comparison is performed as follows: 
+ * The comparison x === y, where x and y are values, produces true or false.
+ * Such a comparison is performed as follows:
  */
 function StrictEqualityComparison(x, y) {
   tx := Type(x);
@@ -497,10 +497,9 @@ function StrictEqualityComparison(x, y) {
       return false
     };
 
-		if (se_is_symbolic(x) ||| se_is_symbolic(y)) {
-			return x = y
-		};
-
+    if (se_is_symbolic(x) ||| se_is_symbolic(y)) {
+      return x = y
+    };
     /* c. If x is the same Number value as y, */
     if (x = y) {
       /* return true */
@@ -521,7 +520,7 @@ function StrictEqualityComparison(x, y) {
   };
   /* 5. If Type(x) is String, then */
   if (tx = "String") {
-    /* a. If x and y are exactly the same sequence of code units (same length 
+    /* a. If x and y are exactly the same sequence of code units (same length
        and same code units at corresponding indices), */
     if (x = y) {
       /* return true */
@@ -560,6 +559,6 @@ function StrictEqualityComparison(x, y) {
   return false
 }
 /**
- * NOTE This algorithm differs from the SameValue Algorithm (7.2.9) in its 
- * treatment of signed zeroes and NaNs. 
+ * NOTE This algorithm differs from the SameValue Algorithm (7.2.9) in its
+ * treatment of signed zeroes and NaNs.
  */

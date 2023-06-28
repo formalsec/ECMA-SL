@@ -23,10 +23,9 @@
  (depends
    (ocaml (>= 4.14.0))
    (ocamlformat (= 0.24.1))
-   core
-   core_unix
+   (core (= v0.15.1))
+   (core_unix (= v0.15.1))
    dune
-   z3
    batteries
    ppx_import
    ppx_deriving
@@ -34,6 +33,7 @@
    extlib
    menhir
    menhirLib
+   encoding
    yojson)
  (tags
   (ECMAScript "Specification Language" "Reference Interpreters" "OCaml")))
