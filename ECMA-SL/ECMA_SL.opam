@@ -14,10 +14,9 @@ bug-reports: "https://github.com/j3fsantos/ECMA-SL/issues"
 depends: [
   "ocaml" {>= "4.14.0"}
   "ocamlformat" {= "0.24.1"}
-  "core"
-  "core_unix"
+  "core" {= "v0.15.1"}
+  "core_unix" {= "v0.15.1"}
   "dune" {>= "3.2"}
-  "z3"
   "batteries"
   "ppx_import"
   "ppx_deriving"
