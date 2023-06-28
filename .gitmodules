@@ -1,6 +1,3 @@
-[submodule "ECMA-SL/encoding"]
-	path = ECMA-SL/encoding
-	url = git@github.com:wasp-platform/encoding.git
 [submodule "extensions/ecmasl-vim"]
 	path = extensions/ecmasl-vim
 	url = https://github.com/wasp-platform/ecmasl-vim
