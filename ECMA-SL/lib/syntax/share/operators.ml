@@ -1410,6 +1410,7 @@ let str_of_triopt_single (op : topt) : string =
   | SsubstrU -> "s_substr_u"
   | Aset -> "a_set"
   | Lset -> "l_set"
+  | ITE -> "ite"
 
 let str_of_triopt (op : topt) (e1 : string) (e2 : string) (e3 : string) : string
     =

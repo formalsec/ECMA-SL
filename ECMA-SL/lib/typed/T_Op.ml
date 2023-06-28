@@ -186,5 +186,4 @@ let type_triop (op : Operators.topt) : funcPrototype_t list =
         ( [ E_Type.StringType; E_Type.IntType; E_Type.IntType ],
           E_Type.StringType );
       ]
-  | Operators.Aset -> notImplemented
-  | Operators.Lset -> notImplemented
+  | Operators.Aset | Operators.Lset | Operators.ITE -> notImplemented
