@@ -142,3 +142,14 @@ let string_of_subst (sbst : subst_t) : string =
     Caml.Hashtbl.fold (fun x e ac -> (x ^ ": " ^ str e) :: ac) sbst []
   in
   String.concat ~sep:", " strs
+
+let rec get_expr_name (e : t) : string option =
+  match e with
+  | Var x -> Some x
+  | GVar x -> Some ("|" ^ x ^ "|")
+  | Lookup (e, f) -> (
+      let ename = get_expr_name e in
+      match (ename, f) with
+      | Some ename', Val (Val.Str fn) -> Some (ename' ^ "[" ^ fn ^ "]")
+      | _ -> None)
+  | _ -> None

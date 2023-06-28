@@ -44,6 +44,7 @@ let argspec =
         " workspace directory" );
       ("--verbose", Arg.Set Config.verbose, " verbose interpreter");
       ("--parse", Arg.Set Config.parse, " parse to JSON");
+      ("--untyped", Arg.Set Config.untyped, " disable the type checker");
     ]
 
 let combine_progs (prog1 : Prog.t) (prog2 : Prog.t) : Prog.t =
@@ -66,7 +67,13 @@ let core_of_plus (file : string) : Prog.t =
   let e_prog_macros_applied =
     Parsing_utils.apply_prog_macros e_prog_imports_resolved
   in
-  Compiler.compile_prog e_prog_macros_applied
+  let terrs = T_Checker.type_program e_prog_macros_applied in
+  match (!Config.untyped, terrs) with
+  | true, _ -> Compiler.compile_prog e_prog_macros_applied
+  | false, [] -> Compiler.compile_prog e_prog_macros_applied
+  | false, _ ->
+      let _ = Printf.eprintf "%s" (T_Checker.terrs_str terrs) in
+      exit (-1)
 
 let compile_from_plus_to_core (file : string) : unit =
   let c_prog = core_of_plus file in

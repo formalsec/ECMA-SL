@@ -1,0 +1,12 @@
+function foo(x: int, y: int): int {
+  return 0
+};
+
+function main() {
+  foo(10, 20);          /* Valid */
+  foo(10);              /* NExpectedArgs: 2 != 1 */
+  foo(10, 20, 30);      /* NExpectedArgs: 2 != 3 */
+  foo(10, "abc");       /* BadArgument(2nd): int <- string */
+  bar();                /* UnknownFunc: bar */
+  return 0
+}

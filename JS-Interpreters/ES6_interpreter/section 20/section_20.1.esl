@@ -195,13 +195,13 @@ function initNumberConstructor(prototype, global, strict) {
 
 /* 20.1.2.2 Number.isFinite ( number ) */
 function NumberConstructorIsFinite(global, this, NewTarget, strict, items) {
-  number := getOptionalParam(items, 0);
+  num := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
-  if (number = null ||| !(Type(number) = "Number")) {
+  if (num = null ||| !(Type(num) = "Number")) {
     return false
   };
   /* 2. If number is NaN, +∞, or −∞, return false. */
-  if (is_NaN number ||| number = Infinity ||| number = -Infinity) {
+  if (is_NaN num ||| num = Infinity ||| num = -Infinity) {
     return false
   };
   /* 3. Otherwise, return true. */
@@ -211,20 +211,20 @@ function NumberConstructorIsFinite(global, this, NewTarget, strict, items) {
 
 /* 20.1.2.3 Number.isInteger ( number ) */
 function NumberConstructorIsInteger(global, this, NewTarget, strict, items) {
-  number := getOptionalParam(items, 0);
+  num := getOptionalParam(items, 0);
   
   /* 1. If Type(number) is not Number, return false. */
-  if (number = null ||| !(Type(number) = "Number")) {
+  if (num = null ||| !(Type(num) = "Number")) {
     return false
   };
   /* 2. f number is NaN, +∞, or −∞, return false. */
-  if (is_NaN number ||| number = Infinity ||| number = -Infinity) {
+  if (is_NaN num ||| num = Infinity ||| num = -Infinity) {
     return false
   };
   /* 3. Let integer be ToInteger(number). */
-  integer := ToInteger(number);
+  integer := ToInteger(num);
   /* 4. If integer is not equal to number, return false. */
-  if (!(integer = number)) {
+  if (!(integer = num)) {
     return false
   };
   /* 5. Otherwise, return true. */
@@ -234,13 +234,13 @@ function NumberConstructorIsInteger(global, this, NewTarget, strict, items) {
 
 /* 20.1.2.4 Number.isNaN ( number ) */
 function NumberConstructorIsNaN(global, this, NewTarget, strict, items) {
-  number := getOptionalParam(items, 0);
+  num := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
-  if (number = null ||| !(Type(number) = "Number")) {
+  if (num = null ||| !(Type(num) = "Number")) {
     return false
   };
   /* 2. If number is NaN, return true. */
-  if (is_NaN number) {
+  if (is_NaN num) {
     return true
   };
   /* 3. Otherwise, return false. */
@@ -250,19 +250,19 @@ function NumberConstructorIsNaN(global, this, NewTarget, strict, items) {
 
 /* 20.1.2.5 Number.isSafeInteger ( number ) */
 function NumberConstructorIsSafeInteger(global, this, NewTarget, strict, items) {
-  number := getOptionalParam(items, 0);
+  num := getOptionalParam(items, 0);
   /* 1. If Type(number) is not Number, return false. */
-  if (number = null ||| !(Type(number) = "Number")) {
+  if (num = null ||| !(Type(num) = "Number")) {
     return false
   };
   /* 2. If number is NaN, +∞, or −∞, return false. */
-  if (is_NaN number ||| number = Infinity ||| number = -Infinity) {
+  if (is_NaN num ||| num = Infinity ||| num = -Infinity) {
     return false
   };
   /* 3. Let integer be ToInteger(number). */
-  integer := ToInteger(number);
+  integer := ToInteger(num);
   /* 4. If integer is not equal to number, return false. */
-  if (!(integer = number)) {
+  if (!(integer = num)) {
     return false
   };
   /* 5. If abs(integer) ≤ 2^53 − 1, return true. */

@@ -1,0 +1,15 @@
+function untypedFunction(x) {
+  return "abc"
+};
+
+function typedFunction(x: int, y: string): int {
+  return 0
+};
+
+function duplicatedParams (x: int, x: string) {   /* DuplicatedParam: "x" */
+  return 0
+};
+
+function main() {
+  return 0
+}

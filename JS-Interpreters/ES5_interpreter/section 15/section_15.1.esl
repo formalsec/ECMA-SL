@@ -182,7 +182,7 @@ function GlobalObjectEval(externalScope, ref, this, strict, params) {
 
 /* 15.1.2.2 parseInt (string , radix) */
 function GlobalObjectParseInt(globalObject, this, strict, params) {
-  string := l_nth(params, 0);
+  str := l_nth(params, 0);
   radix := l_nth(params, 1);
   /* The parseInt function produces an integer value dictated by interpretation of the contents of the string
       argument according to the specified radix. Leading white space in string is ignored. If radix is undefined or 0,
@@ -192,7 +192,7 @@ function GlobalObjectParseInt(globalObject, this, strict, params) {
   /* When the parseInt function is called, the following steps are taken: */
 
   /* 1. Let inputString be ToString(string). */
-  inputString := ToString(string);
+  inputString := ToString(str);
   /* 2. Let S be a newly created substring of inputString consisting of the first character that is not a
         StrWhiteSpaceChar and all characters following that character. (In other words, remove leading white
         space.) If inputString does not contain any such characters, let S be the empty string. */
@@ -255,21 +255,21 @@ function GlobalObjectParseInt(globalObject, this, strict, params) {
          approximation to the mathematical integer value that is represented by Z in radix-R notation.) */
   mathInt := mathIntegerOf(Z, R);
   /* 14. Let number be the Number value for mathInt. */
-  number := mathInt;
+  num := mathInt;
   /* 15. Return sign x number. */
-  return sign * number
+  return sign * num
 };
 
 /* 15.1.2.3 parseFloat (string) */
 function GlobalObjectParseFloat(globalObject, this, strict, params) {
-  string := l_nth(params, 0);
+  str := l_nth(params, 0);
   /* The parseFloat function produces a Number value dictated by interpretation of the contents of the string
      argument as a decimal literal. */
 
   /* When the parseFloat function is called, the following steps are taken: */
 
   /* 1. Let inputString be ToString(string). */
-  inputString := ToString(string);
+  inputString := ToString(str);
   /* 2. Let trimmedString be a substring of inputString consisting of the leftmost character that is not a
         StrWhiteSpaceChar and all characters to the right of that character. (In other words, remove leading white
         space.) If inputString does not contain any such characters, let trimmedString be the empty string. */
@@ -292,11 +292,11 @@ function GlobalObjectParseFloat(globalObject, this, strict, params) {
 
 /* 15.1.2.4 isNaN (number) */
 function GlobalObjectIsNaN(globalObject, this, strict, params) {
-  number := l_nth(params, 0);
+  num := l_nth(params, 0);
   /* Returns true if the argument coerces to NaN, and otherwise returns false. */
 
   /* 1. If ToNumber(number) is NaN, return true. */
-  if (is_NaN ToNumber(number)) {
+  if (is_NaN ToNumber(num)) {
     return true
   };
   /* 2. Otherwise, return false. */
@@ -308,11 +308,11 @@ function GlobalObjectIsNaN(globalObject, this, strict, params) {
 
 /* 15.1.2.5 isFinite (number) */
 function GlobalObjectIsFinite(globalObject, this, strict, params) {
-  number := l_nth(params, 0);
+  num := l_nth(params, 0);
   /* Returns false if the argument coerces to NaN, +Infinity, or -Infinity, and otherwise returns true. */
 
   /* 1. If ToNumber(number) is NaN, +Infinity, or -Infinity, return false.*/
-  if ((is_NaN ToNumber(number)) ||| (ToNumber(number) = Infinity) ||| (ToNumber(number) = -Infinity)) {
+  if ((is_NaN ToNumber(num)) ||| (ToNumber(num) = Infinity) ||| (ToNumber(num) = -Infinity)) {
     return false
   };
   /* 2. Otherwise, return true. */
@@ -351,8 +351,8 @@ function optimizeInitGlobalObject(strict) {
   return loc_global
 };
 
-function removeLeadingWhitespace(string) {
-  T := trim string;
+function removeLeadingWhitespace(str) {
+  T := trim str;
   /* Remove leading spaces */
   if (!(T = "")) {
     len := s_len_u T;
@@ -373,8 +373,8 @@ function removeLeadingWhitespace(string) {
   return T
 };
 
-function removeTrailingWhitespace(string) {
-  T := trim string;
+function removeTrailingWhitespace(str) {
+  T := trim str;
   /* Remove trailing spaces */
   if (!(T = "")) {
     len := s_len_u T;
@@ -396,13 +396,13 @@ function removeTrailingWhitespace(string) {
 };
 
 /* Returns true if string contains any character that is not a radix-R digit */
-function containsInvalidDigit(string, radix) {
+function containsInvalidDigit(str, radix) {
   radixInt := int_of_float radix;
-  str_len := s_len_u string;
+  str_len := s_len_u str;
   i := 0;
 
   while (i < str_len) {
-    char := s_nth_u(string, i);
+    char := s_nth_u(str, i);
     index := indexOfChar(char);
 
     if (index = -1 ||| index >= radixInt) {
@@ -417,23 +417,23 @@ function containsInvalidDigit(string, radix) {
 
 /* Returns the substring of string consisting of all characters before
     the first character that is not a radix-R digit. */
-function stripInvalidChars(string, radix) {
+function stripInvalidChars(str, radix) {
   radixInt := int_of_float radix;
-  str_len := s_len_u string;
+  str_len := s_len_u str;
   i := 0;
 
   while (i < str_len) {
-    char := s_nth_u(string, i);
+    char := s_nth_u(str, i);
     index := indexOfChar(char);
 
     if (index = -1 ||| index >= radixInt) {
-      return s_substr_u(string, 0, i)
+      return s_substr_u(str, 0, i)
     };
 
     i:= i + 1
   };
 
-  return string
+  return str
 };
 
 /* Returns the mathematical integer value that is represented by Z in radix-R notation, using the letters
@@ -441,13 +441,13 @@ function stripInvalidChars(string, radix) {
     significant digits, every significant digit after the 20th may be replaced by a 0 digit, at the option of the
     implementation; and if R is not 2, 4, 8, 10, 16, or 32, then mathInt may be an implementation-dependent
     approximation to the mathematical integer value that is represented by Z in radix-R notation.) */
-function mathIntegerOf(string, radix) {
-  str_len := s_len_u string;
+function mathIntegerOf(str, radix) {
+  str_len := s_len_u str;
   i := str_len;
   value := 0.;
 
   while(i > 0) {
-    char := s_nth_u(string, i - 1);
+    char := s_nth_u(str, i - 1);
     charValue := indexOfChar(char);
 
     value := value + ((radix ** (int_to_float (str_len - i))) * (int_to_float charValue));

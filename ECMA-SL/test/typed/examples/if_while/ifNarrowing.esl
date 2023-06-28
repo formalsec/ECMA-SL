@@ -1,0 +1,31 @@
+function main() {
+	foo: boolean := true;
+	if (true) {
+		foo: int := 10;
+		bar: int := 10;
+		baz: int := 10;
+		qux: int | boolean := 10;
+		/* fred does not exist in this branch */
+		thud: int := 10
+	} else {
+		/* foo has original value in this branch */
+		bar: string := "abc";
+		/* baz does not exist in this branch */
+		qux: "abc" := "abc";
+		fred: any := 10;
+		thud: int := 20
+	};
+
+	x: 10 | true := foo;			/* Valid */
+	y: 10 | "abc" := bar;			/* Valid */
+	z: 10 | unknown := baz;		/* Valid */
+	w: 10 | "abc" := qux;			/* Valid */
+	v: null := fred;					/* Valid */
+	u: 10 | 20 := thud;				/* Valid */
+
+	x: int := foo;						/* BadValue: int <- boolean */
+	y: int := bar;						/* BadValue: int <- string */
+	z: int := baz;						/* BadValue: int <- undefined */
+	w: int := qux;						/* BadValue: int <- boolean */
+	return 0
+}

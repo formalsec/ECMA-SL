@@ -31,4 +31,4 @@
     (run %{bin:ocamllex} -ml -q -o %{target} %{deps}))))
  (menhir
   (modules E_Parser)
-  (flags --table)))
+  (flags --table --explain)))
