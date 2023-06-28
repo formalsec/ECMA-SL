@@ -45,5 +45,5 @@ build: [
 ]
 dev-repo: "git+https://github.com/j3fsantos/ECMA-SL.git"
 pin-depends: [
-  [ "encoding" "git+https://github.com/wasp-platform/encoding" ]
+  [ "encoding.dev" "git+https://github.com/wasp-platform/encoding" ]
 ]
