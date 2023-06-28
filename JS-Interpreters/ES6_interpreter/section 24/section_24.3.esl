@@ -200,15 +200,15 @@ function getTokens(global, this, NewTarget, strict, args) {
        * - (, ) and | must be escaped
        */
       /*re := "-?\\(0\\|[1-9][0-9]*\\)\\(\\.[0-9]+\\)?\\([eE][+-]?[0-9]+\\)?";
-      number := re_exec (re, JText, i);*/
-      number := parse_number (s_substr_u (JText, i, (s_len_u JText) - i));
-      num_len := s_len_u number;
+      num := re_exec (re, JText, i);*/
+      num := parse_number (s_substr_u (JText, i, (s_len_u JText) - i));
+      num_len := s_len_u num;
       if (num_len = 0) {
         throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict,
           [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
       };
       i := i + num_len;
-      tokens := l_add(tokens, number)
+      tokens := l_add(tokens, num)
     }
     /* Strings. */
     elif (c = "\"") {
@@ -217,17 +217,17 @@ function getTokens(global, this, NewTarget, strict, args) {
        * "(\\(["\\\/bfnrt]|u[a-fA-F0-9]{4})|[^"\\\0-\x1F\x7F]+)*"
        */
       /*re := "\x22\\(\\\\\\([\x22\\\/bfnrt]\\|u[a-fA-F0-9]{4}\\)\\|[^\x22\\\0-\x1F\x7F]+\\)*\x22";
-      string := re_exec (re, JText, i);*/
-      string := parse_string (s_substr_u (JText, i, (s_len_u JText) - i));
-      str_len := s_len_u string;
+      str := re_exec (re, JText, i);*/
+      str := parse_string (s_substr_u (JText, i, (s_len_u JText) - i));
+      str_len := s_len_u str;
 
       if (str_len = 0) {
         throw SyntaxErrorConstructor(global, this, getSyntaxErrorConstructor(), strict,
           [s_concat(["JSON.parse: Unexpected token ", c, " in JSON at position ", (int_to_string i)])])
       };
       i := i + str_len;
-      string := unescapeJSONString(string);
-      tokens := l_add(tokens, string)
+      str := unescapeJSONString(str);
+      tokens := l_add(tokens, str)
     }
     /* literal name tokens */
     else {

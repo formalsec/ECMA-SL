@@ -44,8 +44,13 @@
                 "delete"                , DELETE;
                 "typeof"                , TYPEOF;
                 "gen_wrapper"           , WRAPPER;
-                "NaN"                   , FLOAT (Float.nan);
-                "Infinity"              , FLOAT (Float.infinity);
+                
+                (* Constants *)
+                "NaN"                   , FLOAT (float_of_string "nan");
+                "Infinity"              , FLOAT (float_of_string "infinity");
+                "PI"                    , PI;
+                "MAX_VALUE"             , MAX_VALUE;
+                "MIN_VALUE"             , MIN_VALUE;
 
                 (* Built-Ins *)
                 "is_NaN"                , IS_NAN;
@@ -74,8 +79,8 @@
                 "float64_from_be_bytes" , FLOAT64_FROM_BE_BYTES; 
                 "float32_from_le_bytes" , FLOAT32_FROM_LE_BYTES; 
                 "float32_from_be_bytes" , FLOAT32_FROM_BE_BYTES;
-                "bytes_to_string"       , BYTES_TO_STRING;
 
+                "bytes_to_string"       , BYTES_TO_STRING;
                 "utf8_decode"           , UTF8_DECODE;
                 "hex_decode"            , HEX_DECODE;
                 "from_char_code"        , FROM_CHAR_CODE;
@@ -84,10 +89,11 @@
                 "to_char_code_u"        , TO_CHAR_CODE_U;
                 "to_lower_case"         , TO_LOWER_CASE;
                 "to_upper_case"         , TO_UPPER_CASE;
-
                 "trim"                  , TRIM;
-                "sqrt"                  , SQRT;
+
+                "random"                , RANDOM;
                 "abs"                   , ABS;
+                "sqrt"                  , SQRT;
                 "ceil"                  , CEIL;
                 "floor"                 , FLOOR;
                 "PI"                    , PI;
@@ -97,7 +103,6 @@
                 "log_2"                 , LOG_2;
                 "log_e"                 , LOG_E;
                 "log_10"                , LOG_10;
-                "random"                , RANDOM;
                 "cos"                   , COS;
                 "sin"                   , SIN;
                 "tan"                   , TAN;
@@ -167,6 +172,19 @@
                 "se_evaluate"           , API_EVAL;
                 "se_maximize"           , API_MAXIMIZE;
                 "se_minimize"           , API_MINIMIZE;
+
+                (* Types *)
+                "typedef"               , TYPEDEF;
+                "any"                   , TYPE_ANY;
+                "unknown"               , TYPE_UNKNOWN;
+                "never"                 , TYPE_NEVER;
+                "undefined"             , TYPE_UNDEFINED;
+                "int"                   , TYPE_INT;
+                "float"                 , TYPE_FLOAT;
+                "string"                , TYPE_STRING;
+                "boolean"               , TYPE_BOOLEAN;
+                "symbol"                , TYPE_SYMBOL;
+                "sigma"                 , TYPE_SIGMA;
               ]
 
   exception Syntax_error of string
@@ -256,6 +274,7 @@ rule read =
   | '}'            { RBRACE }
   | '['            { LBRACK }
   | ']'            { RBRACK }
+  | '?'            { QUESTION }
   | "__$"          { read_type lexbuf }
   | int            { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | float          { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }

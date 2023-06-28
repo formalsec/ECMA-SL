@@ -1,0 +1,21 @@
+(library
+ (name typed_ecmasl_tests)
+ (modules
+  Test
+  TestAssign
+  TestFunction
+  TestLiteral
+  TestUnion
+  TestIfWhile
+  TestObject
+  TestConstraint
+  TestMatch)
+ (inline_tests)
+ (preprocess
+  (pps ppx_expect ppx_inline_test))
+ (libraries ECMA_SL))
+
+(alias
+ (name runtest)
+ (deps
+  (source_tree examples)))

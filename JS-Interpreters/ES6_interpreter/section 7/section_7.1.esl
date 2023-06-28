@@ -235,23 +235,23 @@ function MV(str) {
 */
 function ToInteger( argument ) {
 	/* Let number be the result of calling ToNumber on the input argument. */
-	number := ToNumber(argument);
+	num := ToNumber(argument);
 
 	/* ReturnIfAbrupt(number). */
-	@ReturnIfAbrupt(number);
+	@ReturnIfAbrupt(num);
 
 	/* If number is NaN, return +0. */
-	if ( is_NaN number ) {
+	if ( is_NaN num ) {
 		return 0.
 	};
 
 	/* If number is +0, -0, +Infinity, or -Infinity, return number. */
 	if ( ( isZero(argument) = true ) ||| ( isMinusZero(argument) = true ) ||| (argument = Infinity) ||| (argument = -Infinity) ) {
-		return number
+		return num
 	};
 
 	/* Return the number value that is the same sign as number and whose magnitude is floor(abs(number)). */
-	return to_int(number)
+	return to_int(num)
 };
 
 /**
@@ -262,12 +262,12 @@ function ToInteger( argument ) {
 */
 function ToInt32(argument) {
   /* 1. Let number be the result of calling ToNumber on the input argument. */
-  number := ToNumber(argument);
+  num := ToNumber(argument);
 
   /* ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(number);
+  @ReturnIfAbrupt(num);
 
-  return to_int32(number)
+  return to_int32(num)
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
   /* 3. Let posInt be sign(number) * floor(abs(number)). */
   /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
@@ -291,13 +291,13 @@ function ToInt32(argument) {
 */
 function ToUint32(argument) {
   /* 1. Let number be the result of calling ToNumber on the input argument. */
-  number := ToNumber(argument);
+  num := ToNumber(argument);
 
   /* ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(number);
+  @ReturnIfAbrupt(num);
 
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
-  return to_uint32(number)
+  return to_uint32(num)
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
   /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
         than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
@@ -320,12 +320,12 @@ function ToUint32(argument) {
 */
 function ToInt16(argument) {
   /* 1. Let number be the result of calling ToNumber on the input argument. */
-  number := ToNumber(argument);
+  num := ToNumber(argument);
 
   /* ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(number);
+  @ReturnIfAbrupt(num);
 
-  return to_int(number)
+  return to_int(num)
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
   /* 4. Let int16bit be posInt modulo 2 16 ; that is, a finite integer value k of Number type with positive sign and less
@@ -345,12 +345,12 @@ function ToInt16(argument) {
 */
 function ToUint16(argument) {
   /* 1. Let number be the result of calling ToNumber on the input argument. */
-  number := ToNumber(argument);
+  num := ToNumber(argument);
 
   /* ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(number);
+  @ReturnIfAbrupt(num);
 
-  return to_uint16(number)
+  return to_uint16(num)
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
   /* 4. Let int16bit be posInt modulo 2 16 ; that is, a finite integer value k of Number type with positive sign and less
@@ -567,19 +567,19 @@ function CanonicalNumericIndexString(argument) {
  */
 function _ToInt32(argument) {
   /* 1. Let number be ToNumber(argument). */
-  number := ToNumber(argument);
+  num := ToNumber(argument);
   /* 2. ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(number);
+  @ReturnIfAbrupt(num);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN number ||| number = Infinity ||| number = -Infinity 
-        ||| isZero(number) ||| isMinusZero(number)) {
+  if (is_NaN num ||| num = Infinity ||| num = -Infinity 
+        ||| isZero(num) ||| isMinusZero(num)) {
     return 0.
   };
   /* 4. Let int be the mathematical value that is the same sign as number and 
      whose magnitude is floor(abs(number)). */
-  int := floor(abs(number)) *(abs(number)/number);
+  integer := floor(abs(num)) *(abs(num)/num);
   /* 5. Let int32bit be int modulo 2^32. */
-  int32bit := mod(int, 2.**32.);
+  int32bit := mod(integer, 2.**32.);
   /* 6. If int32bit >= 2^31, */
   if (int32bit >= 2.**31.) {
     /* return int32bit - 2^32,*/
@@ -611,19 +611,19 @@ function _ToInt32(argument) {
  */
 function _ToUint32(argument) {
    /* 1. Let number be ToNumber(argument). */
-  number := ToNumber(argument);
+  num := ToNumber(argument);
   /* 2. ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(number);
+  @ReturnIfAbrupt(num);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN number ||| number = Infinity ||| number = -Infinity 
-        ||| isZero(number) ||| isMinusZero(number)) {
+  if (is_NaN num ||| num = Infinity ||| num = -Infinity 
+        ||| isZero(num) ||| isMinusZero(num)) {
     return 0.
   };
   /* 4. Let int be the mathematical value that is the same sign as number and 
      whose magnitude is floor(abs(number)). */
-  int := floor(abs(number)) *(abs(number)/number);
+  integer := floor(abs(num)) *(abs(num)/num);
   /* 5. Let int32bit be int modulo 2^32. */
-  int32bit := mod(int, 2.**32.);
+  int32bit := mod(integer, 2.**32.);
   /* 6. Return int32bit. */
   return int32bit
 };
@@ -643,19 +643,19 @@ function _ToUint32(argument) {
  */
 function _ToUint16(argument) {
   /* 1. Let number be ToNumber(argument). */
-  number := ToNumber(argument);
+  num := ToNumber(argument);
   /* 2. ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(number);
+  @ReturnIfAbrupt(num);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN number ||| number = Infinity ||| number = -Infinity 
-        ||| isZero(number) ||| isMinusZero(number)) {
+  if (is_NaN num ||| num = Infinity ||| num = -Infinity 
+        ||| isZero(num) ||| isMinusZero(num)) {
     return 0.
   };
   /* 4. Let int be the mathematical value that is the same sign as number and 
      whose magnitude is floor(abs(number)). */
-  int := floor(abs(number)) *(abs(number)/number);
+  integer := floor(abs(num)) *(abs(num)/num);
   /* 5. Let int16bit be int modulo 2^16. */
-  int16bit := mod(int, 2.**16.);
+  int16bit := mod(integer, 2.**16.);
   /* 6. Return int16bit */
   return int16bit
 };
@@ -670,19 +670,19 @@ function _ToUint16(argument) {
  */
 function ToInt8(argument) {
   /* 1. Let number be ToNumber(argument). */
-  number := ToNumber(argument);
+  num := ToNumber(argument);
   /* 2. ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(number);
+  @ReturnIfAbrupt(num);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN number ||| number = Infinity ||| number = -Infinity 
-        ||| isZero(number) ||| isMinusZero(number)) {
+  if (is_NaN num ||| num = Infinity ||| num = -Infinity 
+        ||| isZero(num) ||| isMinusZero(num)) {
     return 0.
   };
   /* 4. Let int be the mathematical value that is the same sign as number and 
      whose magnitude is floor(abs(number)). */
-  int := floor(abs(number)) *(abs(number)/number);
+  integer := floor(abs(num)) *(abs(num)/num);
   /* 5. Let int8bit be int modulo 2^8. */
-  int8bit := mod(int, 2.**8.); /*TODO usar modulo que funciona com negativos*/
+  int8bit := mod(integer, 2.**8.); /*TODO usar modulo que funciona com negativos*/
   /* 6. If int8bit ≥ 2^7, */
   if (int8bit >= 2.**7.) {
     /* return int8bit - 2^8, otherwise return int8bit */
@@ -700,19 +700,19 @@ function ToInt8(argument) {
  */
 function ToUint8(argument) {
   /* 1. Let number be ToNumber(argument). */
-  number := ToNumber(argument);
+  num := ToNumber(argument);
   /* 2. ReturnIfAbrupt(number). */
-  @ReturnIfAbrupt(number);
+  @ReturnIfAbrupt(num);
   /* 3. If number is NaN, +0, -0, +∞, or -∞, return +0 */
-  if (is_NaN number ||| number = Infinity ||| number = -Infinity 
-        ||| isZero(number) ||| isMinusZero(number)) {
+  if (is_NaN num ||| num = Infinity ||| num = -Infinity 
+        ||| isZero(num) ||| isMinusZero(num)) {
     return 0.
   };
   /* 4. Let int be the mathematical value that is the same sign as number and 
      whose magnitude is floor(abs(number)). */
-  int := floor(abs(number)) *(abs(number)/number);
+  integer := floor(abs(num)) *(abs(num)/num);
   /* 5. Let int8bit be int modulo 2^8. */
-  int8bit := mod(int, 2.**8.); /*TODO usar modulo que funciona com negativos*/
+  int8bit := mod(integer, 2.**8.); /*TODO usar modulo que funciona com negativos*/
   /* 6. Return int8bit. */
   return int8bit
 };
@@ -732,29 +732,29 @@ function ToUint8(argument) {
 function ToUint8Clamp(argument) {
 
     /* 1. Let number be ToNumber(argument). */
-    number := ToNumber(argument);
+    num := ToNumber(argument);
     /* 2. ReturnIfAbrupt(number). */
-    @ReturnIfAbrupt(number);
+    @ReturnIfAbrupt(num);
     /* 3. If number is NaN, return +0. */
-    if (is_NaN number){
+    if (is_NaN num){
         return 0.
     };
     /* 4. If number ≤ 0, return +0. */
-    if (number <= 0.){
+    if (num <= 0.){
         return 0.
     };
     /* 5. If number ≥ 255, return 255. */
-    if (number >= 255.){
+    if (num >= 255.){
         return 255.
     };
     /* 6. Let f be floor(number). */
-    f := floor(number);
+    f := floor(num);
     /* 7. If f + 0.5 < number, return f + 1. */
-    if (f + 0.5 < number){
+    if (f + 0.5 < num){
         return (f + 1.)
     };
     /* 8. If number < f + 0.5, return f. */
-    if (number < (f + 0.5)){
+    if (num < (f + 0.5)){
         return f
     };
     /* 9. If f is odd, return f + 1. */

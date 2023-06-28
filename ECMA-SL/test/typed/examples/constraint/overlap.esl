@@ -1,0 +1,13 @@
+function main() {
+	x: int := 10;
+	if (typeof(x) = __$Str) {
+		x: int := x;							/* BadValue: int <- never */
+		y: string := x						/* BadValue: string <- int */
+	};
+
+	y: 10 := 10;
+	if (x = 10) {};							/* Valid */
+	if (y = 20) {};							/* NoOverlapComp: 10 <-> 20 */
+	if (10 = 20) {};						/* NoOverlapComp: 10 <-> 20 */
+	return 0
+}

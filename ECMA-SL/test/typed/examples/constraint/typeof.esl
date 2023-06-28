@@ -1,0 +1,35 @@
+function _intFloat(): int | float { return 10 };
+function _stringBoolean(): string | boolean { return "abc" };
+function _objectNull(): { f: int } | null { return null };
+
+function main() {
+	foo: int | float := _intFloat();
+	bar: string | boolean := _stringBoolean();
+	baz: { f: int } | null := _objectNull();
+
+	if (typeof(foo) = __$Int) {
+		x: int := foo;							/* Valid */
+		y: float := foo							/* BadValue: float <- int */
+	} else {
+		x: int := foo;							/* BadValue: int <- float */
+		y: float := foo							/* Valid */
+	};
+
+	if (typeof(bar) = __$Str) {
+		x: string := bar;						/* Valid */
+		y: boolean := bar						/* BadValue: boolean <- string */
+	} else {
+		x: string := bar;						/* BadValue: string <- boolean */
+		y: boolean := bar						/* Valid */
+	};
+
+	if (typeof(baz) = __$Null) {
+		x: null := baz;							/* Valid */
+		y: int := baz.f							/* BadPossibleType: baz <- null */
+	} else {
+		x: null := baz;							/* BadVal: null <- { f: int }  */
+		y: int := baz.f							/* Valid */
+	};
+
+	return 0
+}

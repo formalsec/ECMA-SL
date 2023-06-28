@@ -1072,10 +1072,10 @@ module E_Stmt = struct
     | _ -> true
 
   let is_special_assign_expr (s : t) : bool =
-    match s.it with Assign (_, e) when is_special_expr e -> true | _ -> false
+    match s.it with Assign (_, _, e) when is_special_expr e -> true | _ -> false
 
   let is_let_stmt (s : t) : bool =
-    match s.it with Assign (x, e) -> true | _ -> false
+    match s.it with Assign (x, _, e) -> true | _ -> false
 
   let swappable (s : t) : bool =
     match s.it with
@@ -1161,9 +1161,9 @@ module E_Stmt = struct
             E_Expr.(to_html ExprStmt e)
             append_str,
           ctxt' )
-    | Assign (x, e) when is_special_expr e ->
+    | Assign (x, _, e) when is_special_expr e ->
         (sprintf "<li>%s.</li>" (expr_to_html e), ctxt')
-    | Assign (x, e) ->
+    | Assign (x, _, e) ->
         let contents =
           sprintf "<i>%s</i> be %s%s" x E_Expr.(to_html Let e) append_str
         in

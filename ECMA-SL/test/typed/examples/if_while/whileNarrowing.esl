@@ -1,0 +1,17 @@
+function main() {
+	foo: int := 10;
+	bar: int := 10;
+	while (true) {
+		x: 10 := foo;				/* BadValue: 10 <- int */
+		
+		foo := 20;
+		y: 20 := foo;				/* Valid */
+
+		bar := bar + 10;
+		z: 20 := bar				/* BadValue: 20 <- int */
+	};
+
+	w: 10 | 20 := foo;		/* BadValue: 10 | 20 <- int */
+	v: 10 | 20 := bar;		/* BadValue: 10 | 20 <- int */
+	return 0
+}

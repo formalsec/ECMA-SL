@@ -182,7 +182,7 @@ function symbolFor(global, this, NewTarget, strict, args) {
   /* The GlobalSymbolRegistry has been changed to an object instead of a list for optimization reasons. There seems to be no way to write in the GlobalSymbolRegistry besides this function so it should have no downside. */
   if (stringKey in_obj |GlobalSymbolRegistry|) {
     /* 3a. If SameValue(e.[[key]], stringKey) is true, return e.[[symbol]]. */
-    return |GlobalSymbolRegistry|[stringKey].symbol
+    return |GlobalSymbolRegistry|[stringKey].sym
   };
 
   /* 4. Assert: GlobalSymbolRegistry does not currently contain an entry for stringKey. */
@@ -192,7 +192,7 @@ function symbolFor(global, this, NewTarget, strict, args) {
   newSymbol := InternalSymbolConstructor(stringKey);
 
   /* 6. Append the record { [[key]]: stringKey, [[symbol]]: newSymbol } to the GlobalSymbolRegistry List. */
-  |GlobalSymbolRegistry|[stringKey] := {key: stringKey, symbol: newSymbol, wellknown: false};
+  |GlobalSymbolRegistry|[stringKey] := {key: stringKey, sym: newSymbol, wellknown: false};
 
   /* 7. Return newSymbol. */
   return newSymbol
@@ -211,14 +211,14 @@ function symbolKeyFor(global, this, NewTarget, strict, args) {
   print "KEYFOR";
   print sym;
   print |GlobalSymbolRegistry|;
-  print |GlobalSymbolRegistry|[sym.Description].symbol;
+  print |GlobalSymbolRegistry|[sym.Description].sym;
 
   /* 2. For each element e of the GlobalSymbolRegistry List (see 19.4.2.1), */
     /* 2a. If SameValue(e.[[symbol]], sym) is true, return e.[[key]]. */
   if (sym.Description in_obj |GlobalSymbolRegistry|) {
     e := |GlobalSymbolRegistry|[sym.Description];
 
-    if ( SameValue(e.symbol, sym) ) {
+    if ( SameValue(e.sym, sym) ) {
       return e.key
     }
   };

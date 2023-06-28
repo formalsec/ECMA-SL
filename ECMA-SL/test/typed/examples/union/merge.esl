@@ -1,0 +1,7 @@
+function _unionMerge(): string | string { return "abc" };
+
+function main() {
+  foo: int | boolean | int := _unionMerge();      /* BadValue: int | boolean <- string */
+  bar: int | (int | string) := true;              /* BadValue: int | string <- boolean */
+  return 0
+}

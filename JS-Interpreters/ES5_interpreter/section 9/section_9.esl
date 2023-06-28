@@ -81,11 +81,11 @@ function ToInteger(argument) {
      functions as follows: */
 
   /* Let number be the result of calling ToNumber on the input argument. */
-  number := ToNumber(argument);
+  num := ToNumber(argument);
   /* If number is NaN, return +0. */
   /* If number is +0, -0, +Infinity, or -Infinity, return number. */
   /* Return the result of computing sign(number) x floor(abs(number)). */
-  return to_int(number)
+  return to_int(num)
 };
 
 /* 9.5 ToInt32: (Signed 32 Bit Integer) */
@@ -94,14 +94,14 @@ function ToInt32(argument) {
     2^31 - 1, inclusive. This abstract operation functions as follows: */
 
   /* 1. Let number be the result of calling ToNumber on the input argument. */
-  number := ToNumber(argument);
+  num := ToNumber(argument);
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
   /* 3. Let posInt be sign(number) * floor(abs(number)). */
   /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
         than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
         multiple of 2^32 . */
   /* 5. If int32bit is greater than or equal to 2^31 , return int32bit - 2^32 , otherwise return int32bit. */
-  return to_int32(number)
+  return to_int32(num)
 
   /* NOTE Given the above definition of ToInt32:
           * The ToInt32 abstract operation is idempotent: if applied to a result that it produced, the second application leaves that
@@ -117,14 +117,14 @@ function ToUint32(argument) {
      inclusive. This abstraction operation functions as follows: */
 
   /* 1. Let number be the result of calling ToNumber on the input argument. */
-  number := ToNumber(argument);
+  num := ToNumber(argument);
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
   /* 4. Let int32bit be posInt modulo 2^32 ; that is, a finite integer value k of Number type with positive sign and less
         than 2^32 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
         multiple of 2^32 . */
   /* 5. Return int32bit. */
-  return to_uint32(number)
+  return to_uint32(num)
 
   /* NOTE Given the above definition of ToUint32:
           * Step 5 is the only difference between ToUint32 and ToInt32.
@@ -141,14 +141,14 @@ function ToUint16(argument) {
      inclusive. This abstract operation functions as follows: */
 
   /* 1. Let number be the result of calling ToNumber on the input argument. */
-  number := ToNumber(argument);
+  num := ToNumber(argument);
   /* 2. If number is NaN, +0, -0, +Infinity, or -Infinity, return +0. */
   /* 3. Let posInt be sign(number) x floor(abs(number)). */
   /* 4. Let int16bit be posInt modulo 2 16 ; that is, a finite integer value k of Number type with positive sign and less
         than 2 16 in magnitude such that the mathematical difference of posInt and k is mathematically an integer
         multiple of 2^16 . */
   /* 5. Return int16bit. */
-  return to_uint16(number)
+  return to_uint16(num)
 
   /* NOTE Given the above definition of ToUint16:
      * The substitution of 2 16 for 2 32 in step 4 is the only difference between ToUint32 and ToUint16.

@@ -488,7 +488,7 @@ and compile_pn_pat (expr : Expr.t) ((pn, patv) : string * E_Pat_v.t)
 
 and compile_pat (expr : Expr.t) (e_pat : E_Pat.t) (at : region) :
     string list * Stmt.t list * Stmt.t list =
-  match e_pat with
+  match e_pat.it with
   | DefaultPat -> ([], [], [])
   | ObjPat (pn_pats, _) ->
       let bs, pre_stmts, in_stmts =
@@ -610,7 +610,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
       let stmts, e' = compile_expr e_stmt.at e in
       stmts @ [ Stmt.Print e' @@ e_stmt.at ]
   | Wrapper (_, s) -> compile_stmt s
-  | Assign (lval, rval) -> compile_assign lval rval e_stmt.at
+  | Assign (lval, _, rval) -> compile_assign lval rval e_stmt.at
   | GlobAssign (x, e) ->
       let stmts_e, e' = compile_expr e_stmt.at e in
       compile_glob_assign x stmts_e e' e_stmt.at

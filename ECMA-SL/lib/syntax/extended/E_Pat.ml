@@ -1,9 +1,13 @@
-type t =
+open Source
+
+type t = t' Source.phrase
+
+and t' =
   | ObjPat of (string * E_Pat_v.t) list * E_Pat_Metadata.t option
   | DefaultPat
 
 let str (pat : t) : string =
-  match pat with
+  match pat.it with
   | ObjPat (pn_pats, _) ->
       "{ "
       ^ String.concat ", "

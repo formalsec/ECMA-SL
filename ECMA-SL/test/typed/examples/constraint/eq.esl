@@ -1,0 +1,39 @@
+function _int(): int { return 10 };
+function _boolean(): boolean { return true };
+function _objectNull(): { f: int } | null { return null };
+
+function main() {
+	foo: int := _int();
+	bar: boolean := _boolean();
+	baz: { f: int } | null := _objectNull();
+
+	if (foo = 10) {
+		x: int := foo;							/* Valid */
+		y: 10 := foo;								/* Valid */
+		z: 20 := foo								/* BadValue: 20 <- 10 */
+	} else {
+		x: int := foo;							/* Valid */
+		y: 10 := foo;								/* BadValue: 10 <- int */
+		z: 20 := foo								/* BadValue: 20 <- int */
+	};
+
+	if (bar = true) {
+		x: boolean := bar;					/* Valid */
+		y: true := bar;							/* Valid */
+		z: false := bar							/* BadValue: false <- true */
+	} else {
+		x: boolean := bar;					/* Valid */
+		y: true := bar;							/* BadValue: true <- false */
+		z: false := bar							/* Valid */
+	};
+
+	if (baz = null) {
+		x: null := baz;							/* Valid */
+		y: int := baz.f					/* BadPossibleType: baz <- null */
+	} else {
+		x: null := baz;							/* BadVal: null <- { f: int }  */
+		y: int := baz.f					/* Valid */
+	};
+
+	return 0
+}

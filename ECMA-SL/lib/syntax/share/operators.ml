@@ -1410,6 +1410,13 @@ let str_of_binopt (op : bopt) (e1 : string) (e2 : string) : string =
   | IntFromBytes -> "int_from_le_bytes(" ^ e1 ^ ", " ^ e2 ^ ")"
   | UintFromBytes -> "uint_from_le_bytes(" ^ e1 ^ ", " ^ e2 ^ ")"
 
+let str_of_triopt_single (op : topt) : string =
+  match op with
+  | Ssubstr -> "s_substr"
+  | SsubstrU -> "s_substr_u"
+  | Aset -> "a_set"
+  | Lset -> "l_set"
+
 let str_of_triopt (op : topt) (e1 : string) (e2 : string) (e3 : string) : string
     =
   match op with
