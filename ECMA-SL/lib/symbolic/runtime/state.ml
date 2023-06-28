@@ -1,7 +1,6 @@
 open Core
 
-module MakeState(Object : S_obj.SymbolicObject) = struct
-
+module MakeState (Object : S_object_intf.SymbolicObject) = struct
   module ESet = Set.Make (Encoding.Expression)
 
   type config = {
@@ -21,12 +20,17 @@ module MakeState(Object : S_obj.SymbolicObject) = struct
     | Unknown of Expr.t option
 
   and func = string
-  and stack = Sstore.t Call_stack.t
-  and state = S_heap.MakeHeap(Object).t * Sstore.t * stack * func
+  and stack = S_store.t Call_stack.t
+  and state = S_heap.MakeHeap(Object).t * S_store.t * stack * func
   and pc = ESet.t
 
   let is_cont (o : outcome) : bool = match o with Cont _ -> true | _ -> false
-  let is_fail (o : outcome) : bool = match o with Failure _ -> true | _ -> false
-  let is_final (o : outcome) : bool = match o with Final _ -> true | _ -> false
+
+  let is_fail (o : outcome) : bool =
+    match o with Failure _ -> true | _ -> false
+
+  let is_final (o : outcome) : bool =
+    match o with Final _ -> true | _ -> false
+
   let update (c : config) code state pc : config = { c with code; state; pc }
 end

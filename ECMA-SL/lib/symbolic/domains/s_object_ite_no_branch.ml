@@ -77,30 +77,30 @@ let mk_ite e1 e2 e3 = Expr.TriOpt(Operators.ITE, e1, e2, e3)
 
 let mk_or e1 e2 = Expr.BinOpt(Operators.Log_Or, e1, e2)
 
-let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : Sstore.t) :
+let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : S_store.t) :
     encoded_pct list =
   List.fold l ~init:[] ~f:(fun acc (pc, _) ->
       let ne = Expr.UnOpt (Operators.Not, mk_eq key pc) in
       let expr = Reducer.reduce_expr store ne |> Translator.translate in
       expr :: acc)
 
-let create_object (o : t) (k1 : pct) (k2 : pct) (store : Sstore.t) :
+let create_object (o : t) (k1 : pct) (k2 : pct) (store : S_store.t) :
     t * encoded_pct list =
   let o' = clone o in
   let eq = Reducer.reduce_expr store (mk_eq k1 k2) |> Translator.translate in
   (o', [ eq ])
 
-let create_ite (lst : (pct * pct) list) (key : Expr.t) (store : Sstore.t): (Expr.t * encoded_pct list) =
+let create_ite (lst : (pct * pct) list) (key : Expr.t) (store : S_store.t): (Expr.t * encoded_pct list) =
   let undef = Expr.Val (Val.Symbol "undefined") in
-  let (ite, new_pc) = List.fold lst ~init:(undef, []) 
-    ~f:(fun (acc_val, acc_pc) (k, d) -> 
+  let (ite, new_pc) = List.fold lst ~init:(undef, [])
+    ~f:(fun (acc_val, acc_pc) (k, d) ->
       let eq = Reducer.reduce_expr store (mk_eq key k) in
       let acc_val = Reducer.reduce_expr store (mk_ite eq d acc_val) in
       (acc_val, eq :: acc_pc)
     ) in
-  let new_pc = 
+  let new_pc =
   match new_pc with
-  | p :: tail when List.length tail > 1 -> 
+  | p :: tail when List.length tail > 1 ->
     let final = List.fold new_pc ~init:p ~f:(fun acc p -> mk_or p acc)
     in [Translator.translate final]
   | p :: tail -> [Translator.translate p]
@@ -109,7 +109,7 @@ let create_ite (lst : (pct * pct) list) (key : Expr.t) (store : Sstore.t): (Expr
   ite, new_pc
 
 let is_key_possible ?(b = false) (k1 : Expr.t) (k2 : Expr.t)
-    (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
+    (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : S_store.t) :
     bool =
   let eq0 = mk_eq k1 k2 in
   let eq = Reducer.reduce_expr store eq0 |> Translator.translate in
@@ -130,8 +130,8 @@ let has_field (o : t) (k : Expr.t) : Expr.t =
   let open Expr in
   assert (Expr.is_val k || Expr.is_symbolic k);
   if Hashtbl.is_empty o.concrete_fields && Expr_Hashtbl.is_empty o.symbolic_fields then Val (Bool false)
-  else if Expr.is_val k then 
-    match k with 
+  else if Expr.is_val k then
+    match k with
     | Val Str s -> Val (Bool (Hashtbl.mem o.concrete_fields s))
     | _ -> failwith "impossible"
   else
@@ -144,7 +144,7 @@ let has_field (o : t) (k : Expr.t) : Expr.t =
 
 
 let set (o : t) (key : vt) (data : Expr.t) (solver : Encoding.Batch.t)
-    (pc : encoded_pct list) (store : Sstore.t) : (t * encoded_pct list) list
+    (pc : encoded_pct list) (store : S_store.t) : (t * encoded_pct list) list
     =
   match key with
   | Expr.Val (Val.Str s) ->
@@ -225,7 +225,7 @@ let set (o : t) (key : vt) (data : Expr.t) (solver : Encoding.Batch.t)
         else rets
 
 let get (o : t) (key : vt) (solver : Encoding.Batch.t)
-  (pc : encoded_pct list) (store : Sstore.t) :
+  (pc : encoded_pct list) (store : S_store.t) :
   (t * encoded_pct list * Expr.t option) list =
       match key with
       | Expr.Val (Val.Str key_s) -> (
@@ -241,7 +241,7 @@ let get (o : t) (key : vt) (solver : Encoding.Batch.t)
                     if is_key_possible key k solver pc store then (k, d) :: acc
                     else acc) in
 
-              let ite, new_pc = create_ite lst key store in              
+              let ite, new_pc = create_ite lst key store in
               [(clone o, [], Some ite)]
       )
       | _ -> (
@@ -261,13 +261,13 @@ let get (o : t) (key : vt) (solver : Encoding.Batch.t)
                   let k' = Expr.Val (Val.Str k) in
                   if is_key_possible key k' solver pc store then (k', d) :: acc
                   else acc)
-            in 
+            in
             let ite_symb, symb_pct = create_ite (symb_lst @ concrete_lst) key store in
             [(clone o, [], Some ite_symb)]
       )
 
 let delete (o : t) (key : Expr.t) (solver : Encoding.Batch.t)
-    (pc : encoded_pct list) (store : Sstore.t) : (t * encoded_pct list) list
+    (pc : encoded_pct list) (store : S_store.t) : (t * encoded_pct list) list
     =
   match key with
   | Expr.Val (Val.Str s) ->

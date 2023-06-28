@@ -72,21 +72,21 @@ let get_concrete_field (o : t) (key : string) : Expr.t option =
 
 let mk_eq e1 e2 = Expr.BinOpt (Operators.Eq, e1, e2)
 
-let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : Sstore.t) :
+let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : S_store.t) :
     encoded_pct list =
   List.fold l ~init:[] ~f:(fun acc (pc, _) ->
       let ne = Expr.UnOpt (Operators.Not, mk_eq key pc) in
       let expr = Reducer.reduce_expr store ne |> Translator.translate in
       expr :: acc)
 
-let create_object (o : t) (k1 : pct) (k2 : pct) (store : Sstore.t) :
+let create_object (o : t) (k1 : pct) (k2 : pct) (store : S_store.t) :
     t * encoded_pct list =
   let o' = clone o in
   let eq = Reducer.reduce_expr store (mk_eq k1 k2) |> Translator.translate in
   (o', [ eq ])
 
 let is_key_possible ?(b = false) (k1 : Expr.t) (k2 : Expr.t)
-    (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
+    (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : S_store.t) :
     bool =
   let eq0 = mk_eq k1 k2 in
   let eq = Reducer.reduce_expr store eq0 |> Translator.translate in
@@ -123,7 +123,7 @@ let has_field (o : t) (k : Expr.t) : Expr.t =
 
 
 let set (o : t) (key : vt) (data : Expr.t) (solver : Encoding.Batch.t)
-    (pc : encoded_pct list) (store : Sstore.t) : (t * encoded_pct list) list
+    (pc : encoded_pct list) (store : S_store.t) : (t * encoded_pct list) list
     =
   match key with
   | Expr.Val (Val.Str s) ->
@@ -204,7 +204,7 @@ let set (o : t) (key : vt) (data : Expr.t) (solver : Encoding.Batch.t)
         else rets
 
 let get (o : t) (key : vt) (solver : Encoding.Batch.t)
-    (pc : encoded_pct list) (store : Sstore.t) :
+    (pc : encoded_pct list) (store : S_store.t) :
     (t * encoded_pct list * Expr.t option) list =
   match key with
   | Expr.Val (Val.Str key_s) -> (
@@ -271,7 +271,7 @@ let get (o : t) (key : vt) (solver : Encoding.Batch.t)
           rets)
 
 let delete (o : t) (key : Expr.t) (solver : Encoding.Batch.t)
-    (pc : encoded_pct list) (store : Sstore.t) : (t * encoded_pct list) list
+    (pc : encoded_pct list) (store : S_store.t) : (t * encoded_pct list) list
     =
  match key with
   | Expr.Val (Val.Str s) ->

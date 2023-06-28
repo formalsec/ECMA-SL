@@ -1,6 +1,6 @@
 open Core
 
-module MakeHeap(Object : S_obj.SymbolicObject) = struct
+module MakeHeap(Object : S_object_intf.SymbolicObject) = struct
   type encoded_pct = Encoding.Expression.t
   type obj = Object.t
   type t = { parent : t option; map : (Loc.t, obj) Hashtbl.t }
@@ -38,7 +38,7 @@ let has_field (h : t) (l : Loc.t) (f : Expr.t) : Expr.t =
       Object.has_field o f)
 
   let get_field (heap : t) (loc : Loc.t) (field : Expr.t)
-      (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
+      (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : S_store.t) :
       (t * encoded_pct list * 'a option) list =
     let obj = get heap loc in
     let res =
@@ -59,7 +59,7 @@ let has_field (h : t) (l : Loc.t) (f : Expr.t) : Expr.t =
                 (heap', pc, v)))
 
   let set_field (heap : t) (loc : Loc.t) (field : Expr.t) (v : 'a)
-      (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
+      (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : S_store.t) :
       (t * encoded_pct list) list =
     let obj = get heap loc in
     let res =
@@ -80,7 +80,7 @@ let has_field (h : t) (l : Loc.t) (f : Expr.t) : Expr.t =
                 (heap', pc)))
 
   let delete_field (heap : t) (loc : Loc.t) (field : Expr.t)
-      (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : Sstore.t) :
+      (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : S_store.t) :
       (t * encoded_pct list) list =
     let obj = get heap loc in
     let res =

@@ -4,7 +4,7 @@ let solver = Encoding.Batch.create ()
 let pc = []
 let expr_TRUE = Expr.Val (Val.Bool true)
 let o : S_object.t = S_object.create ()
-let store = Sstore.create []
+let store = S_store.create []
 
 let objects =
   S_object.set o (Expr.Val (Val.Str "key")) (Expr.Val (Val.Str "val")) solver pc
