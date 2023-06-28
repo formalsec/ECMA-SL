@@ -773,15 +773,9 @@ let list_set ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
         "Exception in Oper.list_set: this operation is only applicable to \
          List, Int and Any arguments"
 
-
 let ite ((v1, v2, v3) : Val.t * Val.t * Val.t) : Val.t =
-  match v1 with
-  | Bool b -> 
-    if b then
-      v2
-    else
-      v3
-  | _ -> invalid_arg "something"
+  match v1 with Bool b -> if b then v2 else v3 | _ -> invalid_arg "something"
+
 let first (v : Val.t) : Val.t =
   match v with
   | Tuple t -> List.hd t

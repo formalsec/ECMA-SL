@@ -79,14 +79,11 @@ let type_of_triop (op : Operators.topt) (arg1_t : Type.t option)
   | Operators.SsubstrU -> Some Type.StrType
   | Operators.Lset -> Some Type.ListType
   | Operators.Aset -> Some Type.ArrayType
-  | Operators.ITE -> 
-    match arg2_t, arg3_t with
-    | Some t2, Some t3 -> 
-      if t2 = t3 then 
-        arg2_t 
-      else 
-        failwith "types don't match for ITE." 
-    | _ -> failwith "types don't match for ITE." 
+  | Operators.ITE -> (
+      match (arg2_t, arg3_t) with
+      | Some t2, Some t3 ->
+          if t2 = t3 then arg2_t else failwith "types don't match for ITE."
+      | _ -> failwith "types don't match for ITE.")
 
 let rec type_of (v : Expr.t) : Type.t option =
   match v with

@@ -1,6 +1,6 @@
 open Core
 
-module MakeHeap(Object : S_object_intf.SymbolicObject) = struct
+module MakeHeap (Object : S_object_intf.SymbolicObject) = struct
   type encoded_pct = Encoding.Expression.t
   type obj = Object.t
   type t = { parent : t option; map : (Loc.t, obj) Hashtbl.t }
@@ -33,9 +33,9 @@ module MakeHeap(Object : S_object_intf.SymbolicObject) = struct
             Some o'
         | None -> None)
 
-let has_field (h : t) (l : Loc.t) (f : Expr.t) : Expr.t =
-  Option.value_map (get h l) ~default:(Expr.Val (Val.Bool false)) ~f:(fun o ->
-      Object.has_field o f)
+  let has_field (h : t) (l : Loc.t) (f : Expr.t) : Expr.t =
+    Option.value_map (get h l) ~default:(Expr.Val (Val.Bool false)) ~f:(fun o ->
+        Object.has_field o f)
 
   let get_field (heap : t) (loc : Loc.t) (field : Expr.t)
       (solver : Encoding.Batch.t) (pc : encoded_pct list) (store : S_store.t) :
@@ -102,28 +102,28 @@ let has_field (h : t) (l : Loc.t) (f : Expr.t) : Expr.t =
                 (heap', pc)))
 
   (* let to_string (h : 'a t) (pp : 'a -> string) : string =
-    "{ "
-    ^ String.concat ~sep:", "
-        (Hashtbl.fold h.map ~init:[] ~f:(fun ~key:n ~data:v acc ->
-            Printf.sprintf "%s: %s" (Loc.str n) (S_object.to_string v pp) :: acc))
-    ^ " }" *)
+     "{ "
+     ^ String.concat ~sep:", "
+         (Hashtbl.fold h.map ~init:[] ~f:(fun ~key:n ~data:v acc ->
+             Printf.sprintf "%s: %s" (Loc.str n) (S_object.to_string v pp) :: acc))
+     ^ " }" *)
 
   (* let to_string_with_glob (h : 'a t) (pp : 'a -> string) : string =
-    let glob =
-      Hashtbl.fold h.map ~init:None ~f:(fun ~key:_ ~data:obj acc ->
-          match acc with
-          | Some _ -> acc
-          (* Keep this in sync with Compiler.ml function *)
-          (* "compile_gvar" and "compile_glob_assign" *)
-          | None -> S_object.get_concrete_field obj Common.global_var_compiled)
-    in
-    match glob with
-    | Some l ->
-        Printf.sprintf "{ \"heap\": %s, \"global\": %s }" (to_string h pp)
-          (Val.str l)
-    | None ->
-        raise
-          (Failure
-            "Couldn't find the Object that contains only one property, named \
-              \"global\".") *)
+     let glob =
+       Hashtbl.fold h.map ~init:None ~f:(fun ~key:_ ~data:obj acc ->
+           match acc with
+           | Some _ -> acc
+           (* Keep this in sync with Compiler.ml function *)
+           (* "compile_gvar" and "compile_glob_assign" *)
+           | None -> S_object.get_concrete_field obj Common.global_var_compiled)
+     in
+     match glob with
+     | Some l ->
+         Printf.sprintf "{ \"heap\": %s, \"global\": %s }" (to_string h pp)
+           (Val.str l)
+     | None ->
+         raise
+           (Failure
+             "Couldn't find the Object that contains only one property, named \
+               \"global\".") *)
 end

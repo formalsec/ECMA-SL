@@ -1,4 +1,5 @@
 open Core
+
 type vt = Expr.t
 type pct = Expr.t
 type encoded_pct = Encoding.Expression.t
@@ -28,13 +29,13 @@ let create () : t =
     symbolic_fields = Hashtbl.create (module ExprHash);
   }
 
-let clone (o : t) :  t =
+let clone (o : t) : t =
   {
     concrete_fields = Hashtbl.copy o.concrete_fields;
     symbolic_fields = Expr_Hashtbl.copy o.symbolic_fields;
   }
 
-let to_string (o :  t) (printer : Expr.t -> string) : string =
+let to_string (o : t) (printer : Expr.t -> string) : string =
   let str_obj =
     Hashtbl.fold o.concrete_fields ~init:"{ " ~f:(fun ~key:n ~data:v ac ->
         (if String.(ac <> "{ ") then ac ^ ", " else ac)
@@ -102,29 +103,31 @@ let is_key_possible ?(b = false) (k1 : Expr.t) (k2 : Expr.t)
     ret)
   else ret
 
-let mk_ite e1 e2 e3 = Expr.TriOpt(Operators.ITE, e1, e2, e3)
+let mk_ite e1 e2 e3 = Expr.TriOpt (Operators.ITE, e1, e2, e3)
 
 let has_field (o : t) (k : Expr.t) : Expr.t =
   let open Val in
   let open Expr in
   assert (Expr.is_val k || Expr.is_symbolic k);
-  if Hashtbl.is_empty o.concrete_fields && Expr_Hashtbl.is_empty o.symbolic_fields then Val (Bool false)
+  if
+    Hashtbl.is_empty o.concrete_fields
+    && Expr_Hashtbl.is_empty o.symbolic_fields
+  then Val (Bool false)
   else if Expr.is_val k then
     match k with
-    | Val Str s -> Val (Bool (Hashtbl.mem o.concrete_fields s))
+    | Val (Str s) -> Val (Bool (Hashtbl.mem o.concrete_fields s))
     | _ -> failwith "impossible"
   else
     let v0 =
-      Expr_Hashtbl.fold o.symbolic_fields ~init:(Val (Bool false)) ~f:(fun ~key ~data accum ->
+      Expr_Hashtbl.fold o.symbolic_fields ~init:(Val (Bool false))
+        ~f:(fun ~key ~data accum ->
           mk_ite (mk_eq k key) (Val (Bool true)) accum)
     in
     Hashtbl.fold o.concrete_fields ~init:v0 ~f:(fun ~key ~data accum ->
-      mk_ite (mk_eq k (Val (Str key))) (Val (Bool true)) accum)
-
+        mk_ite (mk_eq k (Val (Str key))) (Val (Bool true)) accum)
 
 let set (o : t) (key : vt) (data : Expr.t) (solver : Encoding.Batch.t)
-    (pc : encoded_pct list) (store : S_store.t) : (t * encoded_pct list) list
-    =
+    (pc : encoded_pct list) (store : S_store.t) : (t * encoded_pct list) list =
   match key with
   | Expr.Val (Val.Str s) ->
       if has_concrete_key o s || Expr_Hashtbl.length o.symbolic_fields = 0 then
@@ -203,9 +206,8 @@ let set (o : t) (key : vt) (data : Expr.t) (solver : Encoding.Batch.t)
           (o', new_pc) :: rets
         else rets
 
-let get (o : t) (key : vt) (solver : Encoding.Batch.t)
-    (pc : encoded_pct list) (store : S_store.t) :
-    (t * encoded_pct list * Expr.t option) list =
+let get (o : t) (key : vt) (solver : Encoding.Batch.t) (pc : encoded_pct list)
+    (store : S_store.t) : (t * encoded_pct list * Expr.t option) list =
   match key with
   | Expr.Val (Val.Str key_s) -> (
       let res = Hashtbl.find o.concrete_fields key_s in
@@ -271,9 +273,8 @@ let get (o : t) (key : vt) (solver : Encoding.Batch.t)
           rets)
 
 let delete (o : t) (key : Expr.t) (solver : Encoding.Batch.t)
-    (pc : encoded_pct list) (store : S_store.t) : (t * encoded_pct list) list
-    =
- match key with
+    (pc : encoded_pct list) (store : S_store.t) : (t * encoded_pct list) list =
+  match key with
   | Expr.Val (Val.Str s) ->
       if has_concrete_key o s then
         let _ = Hashtbl.remove o.concrete_fields s in
