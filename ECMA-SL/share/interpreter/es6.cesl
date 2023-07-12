@@ -1150,13 +1150,13 @@ return __v229
 __v229 := snd(__v229)
 };
 return ( false, __v229 ) };
-function stripInvalidChars (___internal_esl_global, string, radix) { __v230 := int_of_float(radix);
+function stripInvalidChars (___internal_esl_global, str, radix) { __v230 := int_of_float(radix);
 radixInt := __v230;
-__v231 := s_len_u(string);
+__v231 := s_len_u(str);
 str_len := __v231;
 i := 0;
 __v232 := i < str_len;
-while (__v232) { __v233 := s_nth_u(string, i);
+while (__v232) { __v233 := s_nth_u(str, i);
 char := __v233;
 __v234 := "indexOfChar" (___internal_esl_global, char);
 if (fst(__v234)) {
@@ -1177,13 +1177,13 @@ __v235 := false
 }
 };
 if (__v235) {
-__v238 := s_substr_u(string, 0, i);
+__v238 := s_substr_u(str, 0, i);
 return ( false, __v238 )
 };
 __v239 := i + 1;
 i := __v239;
 __v232 := i < str_len };
-return ( false, string ) };
+return ( false, str ) };
 function isESFunctionObject (___internal_esl_global, obj) { __v242 := obj["FunctionKind"];
 __v243 := __v242 = "normal";
 if (__v243 = true) {
@@ -1243,7 +1243,7 @@ print __v255;
 __v258 := ___internal_esl_global["GlobalSymbolRegistry"];
 __v259 := sym["Description"];
 __v257 := __v258[__v259];
-__v256 := __v257["symbol"];
+__v256 := __v257["sym"];
 print __v256;
 __v260 := sym["Description"];
 __v261 := ___internal_esl_global["GlobalSymbolRegistry"];
@@ -1253,7 +1253,7 @@ __v264 := ___internal_esl_global["GlobalSymbolRegistry"];
 __v265 := sym["Description"];
 __v263 := __v264[__v265];
 e := __v263;
-__v266 := e["symbol"];
+__v266 := e["sym"];
 __v267 := "SameValue" (___internal_esl_global, __v266, sym);
 if (fst(__v267)) {
 return __v267
@@ -2126,7 +2126,7 @@ return __v470
 __v470 := snd(__v470)
 };
 return ( false, prototype ) };
-function CreateStringIterator (___internal_esl_global, string) { __v471 := "Type" (___internal_esl_global, string);
+function CreateStringIterator (___internal_esl_global, str) { __v471 := "Type" (___internal_esl_global, str);
 if (fst(__v471)) {
 return __v471
 } else {
@@ -2144,7 +2144,7 @@ return __v476
 __v476 := snd(__v476)
 };
 iterator := __v476;
-iterator["IteratedString"] := string;
+iterator["IteratedString"] := str;
 iterator["StringIteratorNextIndex"] := 0.;
 return ( false, iterator ) };
 function MathSinh (___internal_esl_global, globalObject, this, NewTarget, strict, params) { __v477 := "getOptionalParam" (___internal_esl_global, params, 0);
@@ -3855,7 +3855,7 @@ m := __v810
 __v815 := [ s, m ];
 __v814 := s_concat(__v815);
 return ( false, __v814 ) };
-function Decode (___internal_esl_global, string, reservedSet) { __v816 := s_len_u(string);
+function Decode (___internal_esl_global, str, reservedSet) { __v816 := s_len_u(str);
 strLen := __v816;
 R := "";
 k := 0;
@@ -3863,7 +3863,7 @@ while (true) { __v817 := k = strLen;
 if (__v817) {
 return ( false, R )
 };
-__v818 := s_nth_u(string, k);
+__v818 := s_nth_u(str, k);
 C := __v818;
 __v820 := C = "%";
 __v819 := !(__v820);
@@ -3883,10 +3883,10 @@ __v823 := snd(__v823)
 return ( true, __v823 )
 };
 __v824 := k + 1;
-__v825 := s_nth_u(string, __v824);
+__v825 := s_nth_u(str, __v824);
 k1 := __v825;
 __v826 := k + 2;
-__v827 := s_nth_u(string, __v826);
+__v827 := s_nth_u(str, __v826);
 k2 := __v827;
 __v830 := "is_hexa" (___internal_esl_global, k1);
 if (fst(__v830)) {
@@ -3965,7 +3965,7 @@ S := C
 __v847 := int_to_float(start);
 __v849 := k + 1;
 __v848 := int_to_float(__v849);
-__v850 := "substring" (___internal_esl_global, string, __v847, __v848);
+__v850 := "substring" (___internal_esl_global, str, __v847, __v848);
 if (fst(__v850)) {
 return __v850
 } else {
@@ -6354,8 +6354,8 @@ return __v1334
 } else {
 __v1334 := snd(__v1334)
 };
-number := __v1334;
-__v1335 := "Type" (___internal_esl_global, number);
+num := __v1334;
+__v1335 := "Type" (___internal_esl_global, num);
 if (fst(__v1335)) {
 return __v1335
 } else {
@@ -6363,29 +6363,29 @@ __v1335 := snd(__v1335)
 };
 __v1336 := __v1335 = "Completion";
 if (__v1336) {
-__v1337 := "isAnAbruptCompletion" (___internal_esl_global, number);
+__v1337 := "isAnAbruptCompletion" (___internal_esl_global, num);
 if (fst(__v1337)) {
 return __v1337
 } else {
 __v1337 := snd(__v1337)
 };
 if (__v1337) {
-return ( false, number )
+return ( false, num )
 } else {
-__v1338 := "getCompletionValue" (___internal_esl_global, number);
+__v1338 := "getCompletionValue" (___internal_esl_global, num);
 if (fst(__v1338)) {
 return __v1338
 } else {
 __v1338 := snd(__v1338)
 };
-number := __v1338
+num := __v1338
 }
 };
-__v1343 := is_NaN(number);
+__v1343 := is_NaN(num);
 if (__v1343 = true) {
 __v1342 := true
 } else {
-__v1344 := number = inf;
+__v1344 := num = inf;
 if (__v1344 = true) {
 __v1342 := true
 } else {
@@ -6396,7 +6396,7 @@ if (__v1342 = true) {
 __v1341 := true
 } else {
 __v1345 := -(inf);
-__v1346 := number = __v1345;
+__v1346 := num = __v1345;
 if (__v1346 = true) {
 __v1341 := true
 } else {
@@ -6406,7 +6406,7 @@ __v1341 := false
 if (__v1341 = true) {
 __v1340 := true
 } else {
-__v1347 := "isZero" (___internal_esl_global, number);
+__v1347 := "isZero" (___internal_esl_global, num);
 if (fst(__v1347)) {
 return __v1347
 } else {
@@ -6421,7 +6421,7 @@ __v1340 := false
 if (__v1340 = true) {
 __v1339 := true
 } else {
-__v1348 := "isMinusZero" (___internal_esl_global, number);
+__v1348 := "isMinusZero" (___internal_esl_global, num);
 if (fst(__v1348)) {
 return __v1348
 } else {
@@ -6436,14 +6436,14 @@ __v1339 := false
 if (__v1339) {
 return ( false, 0. )
 };
-__v1350 := abs(number);
+__v1350 := abs(num);
 __v1349 := floor(__v1350);
-__v1351 := abs(number);
-__v1352 := __v1351 / number;
+__v1351 := abs(num);
+__v1352 := __v1351 / num;
 __v1353 := __v1349 * __v1352;
-int := __v1353;
+integer := __v1353;
 __v1354 := 2. ** 32.;
-__v1355 := "mod" (___internal_esl_global, int, __v1354);
+__v1355 := "mod" (___internal_esl_global, integer, __v1354);
 if (fst(__v1355)) {
 return __v1355
 } else {
@@ -6545,7 +6545,7 @@ __v1384 := stringKey in_obj __v1383;
 if (__v1384) {
 __v1387 := ___internal_esl_global["GlobalSymbolRegistry"];
 __v1386 := __v1387[stringKey];
-__v1385 := __v1386["symbol"];
+__v1385 := __v1386["sym"];
 return ( false, __v1385 )
 };
 __v1388 := "InternalSymbolConstructor" (___internal_esl_global, stringKey);
@@ -6558,7 +6558,7 @@ newSymbol := __v1388;
 __v1389 := ___internal_esl_global["GlobalSymbolRegistry"];
 __v1390 := { };
 __v1390["key"] := stringKey;
-__v1390["symbol"] := newSymbol;
+__v1390["sym"] := newSymbol;
 __v1390["wellknown"] := false;
 __v1389[stringKey] := __v1390;
 return ( false, newSymbol ) };
@@ -9571,8 +9571,8 @@ __v2047 := snd(__v2047)
 return ( false, __v2047 )
 } };
 function GlobalObjectIsFinite (___internal_esl_global, globalObject, this, NewTarget, strict, params) { __v2048 := l_nth(params, 0);
-number := __v2048;
-__v2049 := "ToNumber" (___internal_esl_global, number);
+num := __v2048;
+__v2049 := "ToNumber" (___internal_esl_global, num);
 if (fst(__v2049)) {
 return __v2049
 } else {
@@ -10591,8 +10591,8 @@ return __v2267
 } else {
 __v2267 := snd(__v2267)
 };
-string := __v2267;
-__v2268 := "Type" (___internal_esl_global, string);
+str := __v2267;
+__v2268 := "Type" (___internal_esl_global, str);
 if (fst(__v2268)) {
 return __v2268
 } else {
@@ -10600,22 +10600,22 @@ __v2268 := snd(__v2268)
 };
 __v2269 := __v2268 = "Completion";
 if (__v2269) {
-__v2270 := "isAnAbruptCompletion" (___internal_esl_global, string);
+__v2270 := "isAnAbruptCompletion" (___internal_esl_global, str);
 if (fst(__v2270)) {
 return __v2270
 } else {
 __v2270 := snd(__v2270)
 };
 if (__v2270) {
-return ( false, string )
+return ( false, str )
 } else {
-__v2271 := "getCompletionValue" (___internal_esl_global, string);
+__v2271 := "getCompletionValue" (___internal_esl_global, str);
 if (fst(__v2271)) {
 return __v2271
 } else {
 __v2271 := snd(__v2271)
 };
-string := __v2271
+str := __v2271
 }
 };
 __v2272 := "RegExpCreate" (___internal_esl_global, regexp, 'undefined);
@@ -10657,7 +10657,7 @@ return __v2277
 } else {
 __v2277 := snd(__v2277)
 };
-__v2278 := [ string ];
+__v2278 := [ str ];
 __v2279 := "Invoke" (___internal_esl_global, null, null, rx, __v2277, __v2278);
 if (fst(__v2279)) {
 return __v2279
@@ -12609,8 +12609,8 @@ return __v2652
 } else {
 __v2652 := snd(__v2652)
 };
-number := __v2652;
-__v2653 := "Type" (___internal_esl_global, number);
+num := __v2652;
+__v2653 := "Type" (___internal_esl_global, num);
 if (fst(__v2653)) {
 return __v2653
 } else {
@@ -12618,46 +12618,46 @@ __v2653 := snd(__v2653)
 };
 __v2654 := __v2653 = "Completion";
 if (__v2654) {
-__v2655 := "isAnAbruptCompletion" (___internal_esl_global, number);
+__v2655 := "isAnAbruptCompletion" (___internal_esl_global, num);
 if (fst(__v2655)) {
 return __v2655
 } else {
 __v2655 := snd(__v2655)
 };
 if (__v2655) {
-return ( false, number )
+return ( false, num )
 } else {
-__v2656 := "getCompletionValue" (___internal_esl_global, number);
+__v2656 := "getCompletionValue" (___internal_esl_global, num);
 if (fst(__v2656)) {
 return __v2656
 } else {
 __v2656 := snd(__v2656)
 };
-number := __v2656
+num := __v2656
 }
 };
-__v2657 := is_NaN(number);
+__v2657 := is_NaN(num);
 if (__v2657) {
 return ( false, 0. )
 };
-__v2658 := number <= 0.;
+__v2658 := num <= 0.;
 if (__v2658) {
 return ( false, 0. )
 };
-__v2659 := number >= 255.;
+__v2659 := num >= 255.;
 if (__v2659) {
 return ( false, 255. )
 };
-__v2660 := floor(number);
+__v2660 := floor(num);
 f := __v2660;
 __v2661 := f + 0.5;
-__v2662 := __v2661 < number;
+__v2662 := __v2661 < num;
 if (__v2662) {
 __v2663 := f + 1.;
 return ( false, __v2663 )
 };
 __v2664 := f + 0.5;
-__v2665 := number < __v2664;
+__v2665 := num < __v2664;
 if (__v2665) {
 return ( false, f )
 };
@@ -13518,12 +13518,12 @@ __v2864 := snd(__v2864)
 };
 __v2863 := int_to_float(__v2864);
 return ( false, __v2863 ) };
-function auxIsFinite (___internal_esl_global, number) { __v2868 := number = inf;
+function auxIsFinite (___internal_esl_global, num) { __v2868 := num = inf;
 if (__v2868 = true) {
 __v2867 := true
 } else {
 __v2869 := -(inf);
-__v2870 := number = __v2869;
+__v2870 := num = __v2869;
 if (__v2870 = true) {
 __v2867 := true
 } else {
@@ -13533,7 +13533,7 @@ __v2867 := false
 if (__v2867 = true) {
 __v2866 := true
 } else {
-__v2871 := is_NaN(number);
+__v2871 := is_NaN(num);
 if (__v2871 = true) {
 __v2866 := true
 } else {
@@ -14304,7 +14304,7 @@ __v3015 := snd(__v3015)
 sym := __v3015;
 __v3016 := { };
 __v3016["key"] := description;
-__v3016["symbol"] := sym;
+__v3016["sym"] := sym;
 __v3016["wellknown"] := true;
 rec := __v3016;
 __v3017 := ___internal_esl_global["GlobalSymbolRegistry"];
@@ -15940,7 +15940,7 @@ return ( false, p )
 __v3351 := __v3351 + 1;
 __v3352 := __v3350 > __v3351 };
 return ( false, 'undefined ) };
-function Encode (___internal_esl_global, string, unescapedSet) { __v3355 := s_len_u(string);
+function Encode (___internal_esl_global, str, unescapedSet) { __v3355 := s_len_u(str);
 strLen := __v3355;
 R := "";
 k := 0;
@@ -15948,7 +15948,7 @@ while (true) { __v3356 := k = strLen;
 if (__v3356) {
 return ( false, R )
 };
-__v3357 := s_nth_u(string, k);
+__v3357 := s_nth_u(str, k);
 C := __v3357;
 __v3359 := s_len_u(unescapedSet);
 __v3358 := int_to_float(__v3359);
@@ -16642,12 +16642,12 @@ return __v3517
 } else {
 __v3517 := snd(__v3517)
 };
-number := __v3517;
-__v3519 := number = null;
+num := __v3517;
+__v3519 := num = null;
 if (__v3519 = true) {
 __v3518 := true
 } else {
-__v3521 := "Type" (___internal_esl_global, number);
+__v3521 := "Type" (___internal_esl_global, num);
 if (fst(__v3521)) {
 return __v3521
 } else {
@@ -16664,11 +16664,11 @@ __v3518 := false
 if (__v3518) {
 return ( false, false )
 };
-__v3525 := is_NaN(number);
+__v3525 := is_NaN(num);
 if (__v3525 = true) {
 __v3524 := true
 } else {
-__v3526 := number = inf;
+__v3526 := num = inf;
 if (__v3526 = true) {
 __v3524 := true
 } else {
@@ -16679,7 +16679,7 @@ if (__v3524 = true) {
 __v3523 := true
 } else {
 __v3527 := -(inf);
-__v3528 := number = __v3527;
+__v3528 := num = __v3527;
 if (__v3528 = true) {
 __v3523 := true
 } else {
@@ -16689,14 +16689,14 @@ __v3523 := false
 if (__v3523) {
 return ( false, false )
 };
-__v3529 := "ToInteger" (___internal_esl_global, number);
+__v3529 := "ToInteger" (___internal_esl_global, num);
 if (fst(__v3529)) {
 return __v3529
 } else {
 __v3529 := snd(__v3529)
 };
 integer := __v3529;
-__v3531 := integer = number;
+__v3531 := integer = num;
 __v3530 := !(__v3531);
 if (__v3530) {
 return ( false, false )
@@ -23366,8 +23366,8 @@ return __v4833
 } else {
 __v4833 := snd(__v4833)
 };
-number := __v4833;
-__v4834 := "ToNumber" (___internal_esl_global, number);
+num := __v4833;
+__v4834 := "ToNumber" (___internal_esl_global, num);
 if (fst(__v4834)) {
 return __v4834
 } else {
@@ -35625,8 +35625,8 @@ return __v7388
 } else {
 __v7388 := snd(__v7388)
 };
-number := __v7388;
-__v7389 := "Type" (___internal_esl_global, number);
+num := __v7388;
+__v7389 := "Type" (___internal_esl_global, num);
 if (fst(__v7389)) {
 return __v7389
 } else {
@@ -35634,25 +35634,25 @@ __v7389 := snd(__v7389)
 };
 __v7390 := __v7389 = "Completion";
 if (__v7390) {
-__v7391 := "isAnAbruptCompletion" (___internal_esl_global, number);
+__v7391 := "isAnAbruptCompletion" (___internal_esl_global, num);
 if (fst(__v7391)) {
 return __v7391
 } else {
 __v7391 := snd(__v7391)
 };
 if (__v7391) {
-return ( false, number )
+return ( false, num )
 } else {
-__v7392 := "getCompletionValue" (___internal_esl_global, number);
+__v7392 := "getCompletionValue" (___internal_esl_global, num);
 if (fst(__v7392)) {
 return __v7392
 } else {
 __v7392 := snd(__v7392)
 };
-number := __v7392
+num := __v7392
 }
 };
-__v7393 := is_NaN(number);
+__v7393 := is_NaN(num);
 if (__v7393) {
 return ( false, 0. )
 };
@@ -35701,9 +35701,9 @@ __v7394 := false
 }
 };
 if (__v7394) {
-return ( false, number )
+return ( false, num )
 };
-__v7404 := to_int(number);
+__v7404 := to_int(num);
 return ( false, __v7404 ) };
 function thisTimeValue (___internal_esl_global, value) { __v7406 := "Type" (___internal_esl_global, value);
 if (fst(__v7406)) {
@@ -40812,8 +40812,8 @@ return __v8552
 } else {
 __v8552 := snd(__v8552)
 };
-number := __v8552;
-__v8553 := "Type" (___internal_esl_global, number);
+num := __v8552;
+__v8553 := "Type" (___internal_esl_global, num);
 if (fst(__v8553)) {
 return __v8553
 } else {
@@ -40821,25 +40821,25 @@ __v8553 := snd(__v8553)
 };
 __v8554 := __v8553 = "Completion";
 if (__v8554) {
-__v8555 := "isAnAbruptCompletion" (___internal_esl_global, number);
+__v8555 := "isAnAbruptCompletion" (___internal_esl_global, num);
 if (fst(__v8555)) {
 return __v8555
 } else {
 __v8555 := snd(__v8555)
 };
 if (__v8555) {
-return ( false, number )
+return ( false, num )
 } else {
-__v8556 := "getCompletionValue" (___internal_esl_global, number);
+__v8556 := "getCompletionValue" (___internal_esl_global, num);
 if (fst(__v8556)) {
 return __v8556
 } else {
 __v8556 := snd(__v8556)
 };
-number := __v8556
+num := __v8556
 }
 };
-__v8557 := to_int32(number);
+__v8557 := to_int32(num);
 return ( false, __v8557 ) };
 function FunctionCreate (___internal_esl_global, kind, ParameterList, Body, Scope, Strict, prototype) { __v8558 := prototype = null;
 if (__v8558) {
@@ -41687,8 +41687,8 @@ return __v8718
 } else {
 __v8718 := snd(__v8718)
 };
-number := __v8718;
-__v8719 := "Type" (___internal_esl_global, number);
+num := __v8718;
+__v8719 := "Type" (___internal_esl_global, num);
 if (fst(__v8719)) {
 return __v8719
 } else {
@@ -41696,29 +41696,29 @@ __v8719 := snd(__v8719)
 };
 __v8720 := __v8719 = "Completion";
 if (__v8720) {
-__v8721 := "isAnAbruptCompletion" (___internal_esl_global, number);
+__v8721 := "isAnAbruptCompletion" (___internal_esl_global, num);
 if (fst(__v8721)) {
 return __v8721
 } else {
 __v8721 := snd(__v8721)
 };
 if (__v8721) {
-return ( false, number )
+return ( false, num )
 } else {
-__v8722 := "getCompletionValue" (___internal_esl_global, number);
+__v8722 := "getCompletionValue" (___internal_esl_global, num);
 if (fst(__v8722)) {
 return __v8722
 } else {
 __v8722 := snd(__v8722)
 };
-number := __v8722
+num := __v8722
 }
 };
-__v8727 := is_NaN(number);
+__v8727 := is_NaN(num);
 if (__v8727 = true) {
 __v8726 := true
 } else {
-__v8728 := number = inf;
+__v8728 := num = inf;
 if (__v8728 = true) {
 __v8726 := true
 } else {
@@ -41729,7 +41729,7 @@ if (__v8726 = true) {
 __v8725 := true
 } else {
 __v8729 := -(inf);
-__v8730 := number = __v8729;
+__v8730 := num = __v8729;
 if (__v8730 = true) {
 __v8725 := true
 } else {
@@ -41739,7 +41739,7 @@ __v8725 := false
 if (__v8725 = true) {
 __v8724 := true
 } else {
-__v8731 := "isZero" (___internal_esl_global, number);
+__v8731 := "isZero" (___internal_esl_global, num);
 if (fst(__v8731)) {
 return __v8731
 } else {
@@ -41754,7 +41754,7 @@ __v8724 := false
 if (__v8724 = true) {
 __v8723 := true
 } else {
-__v8732 := "isMinusZero" (___internal_esl_global, number);
+__v8732 := "isMinusZero" (___internal_esl_global, num);
 if (fst(__v8732)) {
 return __v8732
 } else {
@@ -41769,14 +41769,14 @@ __v8723 := false
 if (__v8723) {
 return ( false, 0. )
 };
-__v8734 := abs(number);
+__v8734 := abs(num);
 __v8733 := floor(__v8734);
-__v8735 := abs(number);
-__v8736 := __v8735 / number;
+__v8735 := abs(num);
+__v8736 := __v8735 / num;
 __v8737 := __v8733 * __v8736;
-int := __v8737;
+integer := __v8737;
 __v8738 := 2. ** 32.;
-__v8739 := "mod" (___internal_esl_global, int, __v8738);
+__v8739 := "mod" (___internal_esl_global, integer, __v8738);
 if (fst(__v8739)) {
 return __v8739
 } else {
@@ -43614,8 +43614,8 @@ return __v9117
 } else {
 __v9117 := snd(__v9117)
 };
-string := __v9117;
-__v9118 := "Type" (___internal_esl_global, string);
+str := __v9117;
+__v9118 := "Type" (___internal_esl_global, str);
 if (fst(__v9118)) {
 return __v9118
 } else {
@@ -43623,25 +43623,25 @@ __v9118 := snd(__v9118)
 };
 __v9119 := __v9118 = "Completion";
 if (__v9119) {
-__v9120 := "isAnAbruptCompletion" (___internal_esl_global, string);
+__v9120 := "isAnAbruptCompletion" (___internal_esl_global, str);
 if (fst(__v9120)) {
 return __v9120
 } else {
 __v9120 := snd(__v9120)
 };
 if (__v9120) {
-return ( false, string )
+return ( false, str )
 } else {
-__v9121 := "getCompletionValue" (___internal_esl_global, string);
+__v9121 := "getCompletionValue" (___internal_esl_global, str);
 if (fst(__v9121)) {
 return __v9121
 } else {
 __v9121 := snd(__v9121)
 };
-string := __v9121
+str := __v9121
 }
 };
-__v9122 := "RegExpExec" (___internal_esl_global, R, string);
+__v9122 := "RegExpExec" (___internal_esl_global, R, str);
 if (fst(__v9122)) {
 return __v9122
 } else {
@@ -45754,13 +45754,13 @@ __v9573 := snd(__v9573)
 v := __v9573;
 this["DateValue"] := v;
 return ( false, v ) };
-function containsInvalidDigit (___internal_esl_global, string, radix) { __v9574 := int_of_float(radix);
+function containsInvalidDigit (___internal_esl_global, str, radix) { __v9574 := int_of_float(radix);
 radixInt := __v9574;
-__v9575 := s_len_u(string);
+__v9575 := s_len_u(str);
 str_len := __v9575;
 i := 0;
 __v9576 := i < str_len;
-while (__v9576) { __v9577 := s_nth_u(string, i);
+while (__v9576) { __v9577 := s_nth_u(str, i);
 char := __v9577;
 __v9578 := "indexOfChar" (___internal_esl_global, char);
 if (fst(__v9578)) {
@@ -47001,8 +47001,8 @@ __v9840 := s_len_u(JText);
 __v9841 := __v9840 - i;
 __v9842 := s_substr_u(JText, i, __v9841);
 __v9839 := parse_number(__v9842);
-number := __v9839;
-__v9843 := s_len_u(number);
+num := __v9839;
+__v9843 := s_len_u(num);
 num_len := __v9843;
 __v9844 := num_len = 0;
 if (__v9844) {
@@ -47026,7 +47026,7 @@ return ( true, __v9850 )
 };
 __v9851 := i + num_len;
 i := __v9851;
-__v9852 := l_add(tokens, number);
+__v9852 := l_add(tokens, num);
 tokens := __v9852
 } else {
 __v9820 := c = "\"";
@@ -47035,8 +47035,8 @@ __v9822 := s_len_u(JText);
 __v9823 := __v9822 - i;
 __v9824 := s_substr_u(JText, i, __v9823);
 __v9821 := parse_string(__v9824);
-string := __v9821;
-__v9825 := s_len_u(string);
+str := __v9821;
+__v9825 := s_len_u(str);
 str_len := __v9825;
 __v9826 := str_len = 0;
 if (__v9826) {
@@ -47060,14 +47060,14 @@ return ( true, __v9832 )
 };
 __v9833 := i + str_len;
 i := __v9833;
-__v9834 := "unescapeJSONString" (___internal_esl_global, string);
+__v9834 := "unescapeJSONString" (___internal_esl_global, str);
 if (fst(__v9834)) {
 return __v9834
 } else {
 __v9834 := snd(__v9834)
 };
-string := __v9834;
-__v9835 := l_add(tokens, string);
+str := __v9834;
+__v9835 := l_add(tokens, str);
 tokens := __v9835
 } else {
 valid_tok := false;
@@ -48329,13 +48329,13 @@ return __v10099
 __v10099 := snd(__v10099)
 };
 return ( false, __v10099 ) };
-function mathIntegerOf (___internal_esl_global, string, radix) { __v10100 := s_len_u(string);
+function mathIntegerOf (___internal_esl_global, str, radix) { __v10100 := s_len_u(str);
 str_len := __v10100;
 i := str_len;
 value := 0.;
 __v10101 := i > 0;
 while (__v10101) { __v10102 := i - 1;
-__v10103 := s_nth_u(string, __v10102);
+__v10103 := s_nth_u(str, __v10102);
 char := __v10103;
 __v10104 := "indexOfChar" (___internal_esl_global, char);
 if (fst(__v10104)) {
@@ -48604,8 +48604,8 @@ return __v10155
 } else {
 __v10155 := snd(__v10155)
 };
-number := __v10155;
-__v10156 := "Type" (___internal_esl_global, number);
+num := __v10155;
+__v10156 := "Type" (___internal_esl_global, num);
 if (fst(__v10156)) {
 return __v10156
 } else {
@@ -48613,29 +48613,29 @@ __v10156 := snd(__v10156)
 };
 __v10157 := __v10156 = "Completion";
 if (__v10157) {
-__v10158 := "isAnAbruptCompletion" (___internal_esl_global, number);
+__v10158 := "isAnAbruptCompletion" (___internal_esl_global, num);
 if (fst(__v10158)) {
 return __v10158
 } else {
 __v10158 := snd(__v10158)
 };
 if (__v10158) {
-return ( false, number )
+return ( false, num )
 } else {
-__v10159 := "getCompletionValue" (___internal_esl_global, number);
+__v10159 := "getCompletionValue" (___internal_esl_global, num);
 if (fst(__v10159)) {
 return __v10159
 } else {
 __v10159 := snd(__v10159)
 };
-number := __v10159
+num := __v10159
 }
 };
-__v10164 := is_NaN(number);
+__v10164 := is_NaN(num);
 if (__v10164 = true) {
 __v10163 := true
 } else {
-__v10165 := number = inf;
+__v10165 := num = inf;
 if (__v10165 = true) {
 __v10163 := true
 } else {
@@ -48646,7 +48646,7 @@ if (__v10163 = true) {
 __v10162 := true
 } else {
 __v10166 := -(inf);
-__v10167 := number = __v10166;
+__v10167 := num = __v10166;
 if (__v10167 = true) {
 __v10162 := true
 } else {
@@ -48656,7 +48656,7 @@ __v10162 := false
 if (__v10162 = true) {
 __v10161 := true
 } else {
-__v10168 := "isZero" (___internal_esl_global, number);
+__v10168 := "isZero" (___internal_esl_global, num);
 if (fst(__v10168)) {
 return __v10168
 } else {
@@ -48671,7 +48671,7 @@ __v10161 := false
 if (__v10161 = true) {
 __v10160 := true
 } else {
-__v10169 := "isMinusZero" (___internal_esl_global, number);
+__v10169 := "isMinusZero" (___internal_esl_global, num);
 if (fst(__v10169)) {
 return __v10169
 } else {
@@ -48686,14 +48686,14 @@ __v10160 := false
 if (__v10160) {
 return ( false, 0. )
 };
-__v10171 := abs(number);
+__v10171 := abs(num);
 __v10170 := floor(__v10171);
-__v10172 := abs(number);
-__v10173 := __v10172 / number;
+__v10172 := abs(num);
+__v10173 := __v10172 / num;
 __v10174 := __v10170 * __v10173;
-int := __v10174;
+integer := __v10174;
 __v10175 := 2. ** 8.;
-__v10176 := "mod" (___internal_esl_global, int, __v10175);
+__v10176 := "mod" (___internal_esl_global, integer, __v10175);
 if (fst(__v10176)) {
 return __v10176
 } else {
@@ -50833,7 +50833,7 @@ return ( false, true )
 };
 return ( false, false ) };
 function RegExpPrototypesearch (___internal_esl_global, global, this, NewTarget, strict, args) { __v10585 := l_nth(args, 0);
-string := __v10585;
+str := __v10585;
 rx := this;
 __v10587 := "Type" (___internal_esl_global, rx);
 if (fst(__v10587)) {
@@ -50852,7 +50852,7 @@ __v10589 := snd(__v10589)
 };
 return ( true, __v10589 )
 };
-__v10590 := "ToString" (___internal_esl_global, string);
+__v10590 := "ToString" (___internal_esl_global, str);
 if (fst(__v10590)) {
 return __v10590
 } else {
@@ -56264,20 +56264,20 @@ function isStrictBinding (___internal_esl_global, envRec, name) { __v11597 := en
 binding := __v11597;
 __v11598 := t_nth(binding, 4);
 return ( false, __v11598 ) };
-function padding (___internal_esl_global, number, size) { __v11599 := float_to_string(number);
-string := __v11599;
-__v11600 := s_len(string);
+function padding (___internal_esl_global, num, size) { __v11599 := float_to_string(num);
+str := __v11599;
+__v11600 := s_len(str);
 __v11601 := size - __v11600;
 pad := __v11601;
 i := 0;
 __v11602 := i < pad;
-while (__v11602) { __v11604 := [ "0", string ];
+while (__v11602) { __v11604 := [ "0", str ];
 __v11603 := s_concat(__v11604);
-string := __v11603;
+str := __v11603;
 __v11605 := i + 1;
 i := __v11605;
 __v11602 := i < pad };
-return ( false, string ) };
+return ( false, str ) };
 function ObjectIs (___internal_esl_global, globalObject, this, NewTarget, strict, params) { __v11606 := l_nth(params, 0);
 value1 := __v11606;
 __v11607 := l_nth(params, 1);
@@ -56532,8 +56532,8 @@ return __v11658
 } else {
 __v11658 := snd(__v11658)
 };
-number := __v11658;
-__v11659 := "Type" (___internal_esl_global, number);
+num := __v11658;
+__v11659 := "Type" (___internal_esl_global, num);
 if (fst(__v11659)) {
 return __v11659
 } else {
@@ -56541,29 +56541,29 @@ __v11659 := snd(__v11659)
 };
 __v11660 := __v11659 = "Completion";
 if (__v11660) {
-__v11661 := "isAnAbruptCompletion" (___internal_esl_global, number);
+__v11661 := "isAnAbruptCompletion" (___internal_esl_global, num);
 if (fst(__v11661)) {
 return __v11661
 } else {
 __v11661 := snd(__v11661)
 };
 if (__v11661) {
-return ( false, number )
+return ( false, num )
 } else {
-__v11662 := "getCompletionValue" (___internal_esl_global, number);
+__v11662 := "getCompletionValue" (___internal_esl_global, num);
 if (fst(__v11662)) {
 return __v11662
 } else {
 __v11662 := snd(__v11662)
 };
-number := __v11662
+num := __v11662
 }
 };
-__v11667 := is_NaN(number);
+__v11667 := is_NaN(num);
 if (__v11667 = true) {
 __v11666 := true
 } else {
-__v11668 := number = inf;
+__v11668 := num = inf;
 if (__v11668 = true) {
 __v11666 := true
 } else {
@@ -56574,7 +56574,7 @@ if (__v11666 = true) {
 __v11665 := true
 } else {
 __v11669 := -(inf);
-__v11670 := number = __v11669;
+__v11670 := num = __v11669;
 if (__v11670 = true) {
 __v11665 := true
 } else {
@@ -56584,7 +56584,7 @@ __v11665 := false
 if (__v11665 = true) {
 __v11664 := true
 } else {
-__v11671 := "isZero" (___internal_esl_global, number);
+__v11671 := "isZero" (___internal_esl_global, num);
 if (fst(__v11671)) {
 return __v11671
 } else {
@@ -56599,7 +56599,7 @@ __v11664 := false
 if (__v11664 = true) {
 __v11663 := true
 } else {
-__v11672 := "isMinusZero" (___internal_esl_global, number);
+__v11672 := "isMinusZero" (___internal_esl_global, num);
 if (fst(__v11672)) {
 return __v11672
 } else {
@@ -56614,14 +56614,14 @@ __v11663 := false
 if (__v11663) {
 return ( false, 0. )
 };
-__v11674 := abs(number);
+__v11674 := abs(num);
 __v11673 := floor(__v11674);
-__v11675 := abs(number);
-__v11676 := __v11675 / number;
+__v11675 := abs(num);
+__v11676 := __v11675 / num;
 __v11677 := __v11673 * __v11676;
-int := __v11677;
+integer := __v11677;
 __v11678 := 2. ** 16.;
-__v11679 := "mod" (___internal_esl_global, int, __v11678);
+__v11679 := "mod" (___internal_esl_global, integer, __v11678);
 if (fst(__v11679)) {
 return __v11679
 } else {
@@ -56652,8 +56652,8 @@ __v11693 := float32_from_be_bytes(__v11694);
 __v11692 := float_to_string(__v11693);
 __v11686 := [ "Byte: ", __v11687, "Float littleEndian: ", __v11689, ", Float BigEndian: ", __v11692 ];
 __v11685 := s_concat(__v11686);
-string := __v11685;
-return ( false, string ) };
+str := __v11685;
+return ( false, str ) };
 function getErrorPrototype (___internal_esl_global, strict) { __v11696 := ___internal_esl_global["Intrinsics"];
 __v11695 := __v11696["ErrorPrototype"];
 return ( false, __v11695 ) };
@@ -57008,12 +57008,12 @@ return __v11785
 } else {
 __v11785 := snd(__v11785)
 };
-number := __v11785;
-__v11787 := number = null;
+num := __v11785;
+__v11787 := num = null;
 if (__v11787 = true) {
 __v11786 := true
 } else {
-__v11789 := "Type" (___internal_esl_global, number);
+__v11789 := "Type" (___internal_esl_global, num);
 if (fst(__v11789)) {
 return __v11789
 } else {
@@ -57030,11 +57030,11 @@ __v11786 := false
 if (__v11786) {
 return ( false, false )
 };
-__v11793 := is_NaN(number);
+__v11793 := is_NaN(num);
 if (__v11793 = true) {
 __v11792 := true
 } else {
-__v11794 := number = inf;
+__v11794 := num = inf;
 if (__v11794 = true) {
 __v11792 := true
 } else {
@@ -57045,7 +57045,7 @@ if (__v11792 = true) {
 __v11791 := true
 } else {
 __v11795 := -(inf);
-__v11796 := number = __v11795;
+__v11796 := num = __v11795;
 if (__v11796 = true) {
 __v11791 := true
 } else {
@@ -58184,12 +58184,12 @@ return __v12029
 } else {
 __v12029 := snd(__v12029)
 };
-number := __v12029;
-__v12031 := number = null;
+num := __v12029;
+__v12031 := num = null;
 if (__v12031 = true) {
 __v12030 := true
 } else {
-__v12033 := "Type" (___internal_esl_global, number);
+__v12033 := "Type" (___internal_esl_global, num);
 if (fst(__v12033)) {
 return __v12033
 } else {
@@ -58206,7 +58206,7 @@ __v12030 := false
 if (__v12030) {
 return ( false, false )
 };
-__v12035 := is_NaN(number);
+__v12035 := is_NaN(num);
 if (__v12035) {
 return ( false, true )
 };
@@ -58578,8 +58578,8 @@ return __v12119
 } else {
 __v12119 := snd(__v12119)
 };
-string := __v12119;
-__v12120 := "Type" (___internal_esl_global, string);
+str := __v12119;
+__v12120 := "Type" (___internal_esl_global, str);
 if (fst(__v12120)) {
 return __v12120
 } else {
@@ -58587,22 +58587,22 @@ __v12120 := snd(__v12120)
 };
 __v12121 := __v12120 = "Completion";
 if (__v12121) {
-__v12122 := "isAnAbruptCompletion" (___internal_esl_global, string);
+__v12122 := "isAnAbruptCompletion" (___internal_esl_global, str);
 if (fst(__v12122)) {
 return __v12122
 } else {
 __v12122 := snd(__v12122)
 };
 if (__v12122) {
-return ( false, string )
+return ( false, str )
 } else {
-__v12123 := "getCompletionValue" (___internal_esl_global, string);
+__v12123 := "getCompletionValue" (___internal_esl_global, str);
 if (fst(__v12123)) {
 return __v12123
 } else {
 __v12123 := snd(__v12123)
 };
-string := __v12123
+str := __v12123
 }
 };
 __v12124 := "ToString" (___internal_esl_global, searchValue);
@@ -58682,7 +58682,7 @@ replaceValue := __v12135
 }
 };
 __v12136 := [ searchString ];
-__v12137 := "StringPrototypeSearch" (___internal_esl_global, global, string, 'undefined, strict, __v12136);
+__v12137 := "StringPrototypeSearch" (___internal_esl_global, global, str, 'undefined, strict, __v12136);
 if (fst(__v12137)) {
 return __v12137
 } else {
@@ -58719,11 +58719,11 @@ matched := searchString;
 __v12142 := -(1.);
 __v12143 := pos = __v12142;
 if (__v12143) {
-return ( false, string )
+return ( false, str )
 };
 __v12144 := functionalReplace = true;
 if (__v12144) {
-__v12145 := [ matched, pos, string ];
+__v12145 := [ matched, pos, str ];
 __v12146 := "Call" (___internal_esl_global, null, null, replaceValue, 'undefined, __v12145);
 if (fst(__v12146)) {
 return __v12146
@@ -58767,7 +58767,7 @@ replStr := __v12151
 } else {
 __v12152 := [  ];
 captures := __v12152;
-__v12153 := "GetSubstitution" (___internal_esl_global, matched, string, pos, captures, replaceValue, global, strict);
+__v12153 := "GetSubstitution" (___internal_esl_global, matched, str, pos, captures, replaceValue, global, strict);
 if (fst(__v12153)) {
 return __v12153
 } else {
@@ -58781,7 +58781,7 @@ __v12156 := pos + __v12154;
 tailPos := __v12156;
 __v12157 := pos > 0.;
 if (__v12157) {
-__v12158 := "substring" (___internal_esl_global, string, 0., pos);
+__v12158 := "substring" (___internal_esl_global, str, 0., pos);
 if (fst(__v12158)) {
 return __v12158
 } else {
@@ -58791,9 +58791,9 @@ first := __v12158
 } else {
 first := ""
 };
-__v12160 := s_len_u(string);
+__v12160 := s_len_u(str);
 __v12159 := int_to_float(__v12160);
-__v12161 := "substring" (___internal_esl_global, string, tailPos, __v12159);
+__v12161 := "substring" (___internal_esl_global, str, tailPos, __v12159);
 if (fst(__v12161)) {
 return __v12161
 } else {
@@ -59087,8 +59087,8 @@ return __v12219
 } else {
 __v12219 := snd(__v12219)
 };
-string := __v12219;
-__v12220 := "ToString" (___internal_esl_global, string);
+str := __v12219;
+__v12220 := "ToString" (___internal_esl_global, str);
 if (fst(__v12220)) {
 return __v12220
 } else {
@@ -59129,8 +59129,8 @@ return __v12226
 } else {
 __v12226 := snd(__v12226)
 };
-number := __v12226;
-__v12227 := "Type" (___internal_esl_global, number);
+num := __v12226;
+__v12227 := "Type" (___internal_esl_global, num);
 if (fst(__v12227)) {
 return __v12227
 } else {
@@ -59138,25 +59138,25 @@ __v12227 := snd(__v12227)
 };
 __v12228 := __v12227 = "Completion";
 if (__v12228) {
-__v12229 := "isAnAbruptCompletion" (___internal_esl_global, number);
+__v12229 := "isAnAbruptCompletion" (___internal_esl_global, num);
 if (fst(__v12229)) {
 return __v12229
 } else {
 __v12229 := snd(__v12229)
 };
 if (__v12229) {
-return ( false, number )
+return ( false, num )
 } else {
-__v12230 := "getCompletionValue" (___internal_esl_global, number);
+__v12230 := "getCompletionValue" (___internal_esl_global, num);
 if (fst(__v12230)) {
 return __v12230
 } else {
 __v12230 := snd(__v12230)
 };
-number := __v12230
+num := __v12230
 }
 };
-__v12231 := to_uint16(number);
+__v12231 := to_uint16(num);
 return ( false, __v12231 ) };
 function IsOfType (___internal_esl_global, arg, type) { __v12233 := "type" in_obj arg;
 if (__v12233 = false) {
@@ -59920,12 +59920,12 @@ return __v12371
 } else {
 __v12371 := snd(__v12371)
 };
-number := __v12371;
-__v12373 := number = null;
+num := __v12371;
+__v12373 := num = null;
 if (__v12373 = true) {
 __v12372 := true
 } else {
-__v12375 := "Type" (___internal_esl_global, number);
+__v12375 := "Type" (___internal_esl_global, num);
 if (fst(__v12375)) {
 return __v12375
 } else {
@@ -59942,11 +59942,11 @@ __v12372 := false
 if (__v12372) {
 return ( false, false )
 };
-__v12379 := is_NaN(number);
+__v12379 := is_NaN(num);
 if (__v12379 = true) {
 __v12378 := true
 } else {
-__v12380 := number = inf;
+__v12380 := num = inf;
 if (__v12380 = true) {
 __v12378 := true
 } else {
@@ -59957,7 +59957,7 @@ if (__v12378 = true) {
 __v12377 := true
 } else {
 __v12381 := -(inf);
-__v12382 := number = __v12381;
+__v12382 := num = __v12381;
 if (__v12382 = true) {
 __v12377 := true
 } else {
@@ -59967,14 +59967,14 @@ __v12377 := false
 if (__v12377) {
 return ( false, false )
 };
-__v12383 := "ToInteger" (___internal_esl_global, number);
+__v12383 := "ToInteger" (___internal_esl_global, num);
 if (fst(__v12383)) {
 return __v12383
 } else {
 __v12383 := snd(__v12383)
 };
 integer := __v12383;
-__v12385 := integer = number;
+__v12385 := integer = num;
 __v12384 := !(__v12385);
 if (__v12384) {
 return ( false, false )
@@ -61620,7 +61620,7 @@ __v12677 := snd(__v12677)
 };
 return ( false, prototype ) };
 function RegExpPrototypematch (___internal_esl_global, global, this, NewTarget, strict, args) { __v12678 := l_nth(args, 0);
-string := __v12678;
+str := __v12678;
 rx := this;
 __v12680 := "Type" (___internal_esl_global, rx);
 if (fst(__v12680)) {
@@ -61639,7 +61639,7 @@ __v12682 := snd(__v12682)
 };
 return ( true, __v12682 )
 };
-__v12683 := "ToString" (___internal_esl_global, string);
+__v12683 := "ToString" (___internal_esl_global, str);
 if (fst(__v12683)) {
 return __v12683
 } else {
@@ -62623,7 +62623,7 @@ __v12860 := i + 1;
 i := __v12860;
 __v12828 := i < l_properties };
 return ( false, null ) };
-function auxParseDate (___internal_esl_global, string) { __v12861 := parse_date(string);
+function auxParseDate (___internal_esl_global, str) { __v12861 := parse_date(str);
 list := __v12861;
 __v12862 := -(1.);
 __v12863 := list = __v12862;
@@ -63875,7 +63875,7 @@ return __v13106
 __v13106 := snd(__v13106)
 };
 return ( false, prototype ) };
-function removeLeadingWhitespace (___internal_esl_global, string) { __v13107 := trim(string);
+function removeLeadingWhitespace (___internal_esl_global, str) { __v13107 := trim(str);
 T := __v13107;
 __v13109 := T = "";
 __v13108 := !(__v13109);
@@ -67760,8 +67760,8 @@ return __v13868
 } else {
 __v13868 := snd(__v13868)
 };
-string := __v13868;
-__v13869 := "ToString" (___internal_esl_global, string);
+str := __v13868;
+__v13869 := "ToString" (___internal_esl_global, str);
 if (fst(__v13869)) {
 return __v13869
 } else {
@@ -69846,8 +69846,8 @@ return __v14305
 } else {
 __v14305 := snd(__v14305)
 };
-string := __v14305;
-__v14307 := "Type" (___internal_esl_global, string);
+str := __v14305;
+__v14307 := "Type" (___internal_esl_global, str);
 if (fst(__v14307)) {
 return __v14307
 } else {
@@ -69857,7 +69857,7 @@ __v14308 := __v14307 = "Completion";
 if (__v14308 = false) {
 __v14306 := false
 } else {
-__v14309 := "isAnAbruptCompletion" (___internal_esl_global, string);
+__v14309 := "isAnAbruptCompletion" (___internal_esl_global, str);
 if (fst(__v14309)) {
 return __v14309
 } else {
@@ -69870,7 +69870,7 @@ __v14306 := true
 }
 };
 if (__v14306) {
-__v14310 := "getCompletionValue" (___internal_esl_global, string);
+__v14310 := "getCompletionValue" (___internal_esl_global, str);
 if (fst(__v14310)) {
 return __v14310
 } else {
@@ -69878,7 +69878,7 @@ __v14310 := snd(__v14310)
 };
 return ( false, __v14310 )
 } else {
-__v14311 := "auxParseDate" (___internal_esl_global, string);
+__v14311 := "auxParseDate" (___internal_esl_global, str);
 if (fst(__v14311)) {
 return __v14311
 } else {
@@ -79364,8 +79364,8 @@ return __v16247
 } else {
 __v16247 := snd(__v16247)
 };
-number := __v16247;
-__v16248 := "Type" (___internal_esl_global, number);
+num := __v16247;
+__v16248 := "Type" (___internal_esl_global, num);
 if (fst(__v16248)) {
 return __v16248
 } else {
@@ -79373,29 +79373,29 @@ __v16248 := snd(__v16248)
 };
 __v16249 := __v16248 = "Completion";
 if (__v16249) {
-__v16250 := "isAnAbruptCompletion" (___internal_esl_global, number);
+__v16250 := "isAnAbruptCompletion" (___internal_esl_global, num);
 if (fst(__v16250)) {
 return __v16250
 } else {
 __v16250 := snd(__v16250)
 };
 if (__v16250) {
-return ( false, number )
+return ( false, num )
 } else {
-__v16251 := "getCompletionValue" (___internal_esl_global, number);
+__v16251 := "getCompletionValue" (___internal_esl_global, num);
 if (fst(__v16251)) {
 return __v16251
 } else {
 __v16251 := snd(__v16251)
 };
-number := __v16251
+num := __v16251
 }
 };
-__v16256 := is_NaN(number);
+__v16256 := is_NaN(num);
 if (__v16256 = true) {
 __v16255 := true
 } else {
-__v16257 := number = inf;
+__v16257 := num = inf;
 if (__v16257 = true) {
 __v16255 := true
 } else {
@@ -79406,7 +79406,7 @@ if (__v16255 = true) {
 __v16254 := true
 } else {
 __v16258 := -(inf);
-__v16259 := number = __v16258;
+__v16259 := num = __v16258;
 if (__v16259 = true) {
 __v16254 := true
 } else {
@@ -79416,7 +79416,7 @@ __v16254 := false
 if (__v16254 = true) {
 __v16253 := true
 } else {
-__v16260 := "isZero" (___internal_esl_global, number);
+__v16260 := "isZero" (___internal_esl_global, num);
 if (fst(__v16260)) {
 return __v16260
 } else {
@@ -79431,7 +79431,7 @@ __v16253 := false
 if (__v16253 = true) {
 __v16252 := true
 } else {
-__v16261 := "isMinusZero" (___internal_esl_global, number);
+__v16261 := "isMinusZero" (___internal_esl_global, num);
 if (fst(__v16261)) {
 return __v16261
 } else {
@@ -79446,14 +79446,14 @@ __v16252 := false
 if (__v16252) {
 return ( false, 0. )
 };
-__v16263 := abs(number);
+__v16263 := abs(num);
 __v16262 := floor(__v16263);
-__v16264 := abs(number);
-__v16265 := __v16264 / number;
+__v16264 := abs(num);
+__v16265 := __v16264 / num;
 __v16266 := __v16262 * __v16265;
-int := __v16266;
+integer := __v16266;
 __v16267 := 2. ** 8.;
-__v16268 := "mod" (___internal_esl_global, int, __v16267);
+__v16268 := "mod" (___internal_esl_global, integer, __v16267);
 if (fst(__v16268)) {
 return __v16268
 } else {
@@ -88578,8 +88578,8 @@ return __v18109
 } else {
 __v18109 := snd(__v18109)
 };
-number := __v18109;
-__v18110 := "Type" (___internal_esl_global, number);
+num := __v18109;
+__v18110 := "Type" (___internal_esl_global, num);
 if (fst(__v18110)) {
 return __v18110
 } else {
@@ -88587,25 +88587,25 @@ __v18110 := snd(__v18110)
 };
 __v18111 := __v18110 = "Completion";
 if (__v18111) {
-__v18112 := "isAnAbruptCompletion" (___internal_esl_global, number);
+__v18112 := "isAnAbruptCompletion" (___internal_esl_global, num);
 if (fst(__v18112)) {
 return __v18112
 } else {
 __v18112 := snd(__v18112)
 };
 if (__v18112) {
-return ( false, number )
+return ( false, num )
 } else {
-__v18113 := "getCompletionValue" (___internal_esl_global, number);
+__v18113 := "getCompletionValue" (___internal_esl_global, num);
 if (fst(__v18113)) {
 return __v18113
 } else {
 __v18113 := snd(__v18113)
 };
-number := __v18113
+num := __v18113
 }
 };
-__v18114 := to_int(number);
+__v18114 := to_int(num);
 return ( false, __v18114 ) };
 function TypedArraySubConstructor (___internal_esl_global, ctx, this, NewTarget, strict, argumentsList, here) { __v18115 := NewTarget = 'undefined;
 if (__v18115) {
@@ -89451,7 +89451,7 @@ __v18244 := snd(__v18244)
 arr["DefineOwnProperty"] := "ArrayDefineOwnProperty";
 return ( false, arr ) };
 function RegExpPrototypereplace (___internal_esl_global, global, this, NewTarget, strict, args) { __v18245 := l_nth(args, 0);
-string := __v18245;
+str := __v18245;
 __v18246 := l_nth(args, 1);
 replaceValue := __v18246;
 rx := this;
@@ -89472,7 +89472,7 @@ __v18250 := snd(__v18250)
 };
 return ( true, __v18250 )
 };
-__v18251 := "ToString" (___internal_esl_global, string);
+__v18251 := "ToString" (___internal_esl_global, str);
 if (fst(__v18251)) {
 return __v18251
 } else {
@@ -101235,8 +101235,8 @@ __v20852 := snd(__v20852)
 };
 return ( false, __v20852 ) };
 function RegExpPrototypeTest (___internal_esl_global, global, this, NewTarget, strict, args) { __v20853 := l_nth(args, 0);
-string := __v20853;
-__v20854 := [ string ];
+str := __v20853;
+__v20854 := [ str ];
 __v20855 := "RegExpPrototypeExec" (___internal_esl_global, global, this, 'undefined, strict, __v20854);
 if (fst(__v20855)) {
 return __v20855
@@ -101492,7 +101492,7 @@ return __v20899
 } else {
 __v20899 := snd(__v20899)
 };
-string := __v20899;
+str := __v20899;
 __v20900 := "getOptionalParam" (___internal_esl_global, params, 1);
 if (fst(__v20900)) {
 return __v20900
@@ -101500,7 +101500,7 @@ return __v20900
 __v20900 := snd(__v20900)
 };
 radix := __v20900;
-__v20901 := "ToString" (___internal_esl_global, string);
+__v20901 := "ToString" (___internal_esl_global, str);
 if (fst(__v20901)) {
 return __v20901
 } else {
@@ -101657,8 +101657,8 @@ return __v20943
 __v20943 := snd(__v20943)
 };
 mathInt := __v20943;
-number := mathInt;
-__v20944 := sign * number;
+num := mathInt;
+__v20944 := sign * num;
 return ( false, __v20944 ) };
 function IntegerIndexedElementSet (___internal_esl_global, O, index, value) { __v20945 := "Type" (___internal_esl_global, index);
 if (fst(__v20945)) {
@@ -102114,7 +102114,7 @@ __v21041 := snd(__v21041)
 __v21042 := __v21040 + __v21041;
 return ( false, __v21042 ) };
 function RegExpPrototypesplit (___internal_esl_global, global, this, NewTarget, strict, args) { __v21043 := l_nth(args, 0);
-string := __v21043;
+str := __v21043;
 __v21044 := l_nth(args, 1);
 limit := __v21044;
 rx := this;
@@ -102142,7 +102142,7 @@ __v21049 := snd(__v21049)
 };
 return ( true, __v21049 )
 };
-__v21050 := "ToString" (___internal_esl_global, string);
+__v21050 := "ToString" (___internal_esl_global, str);
 if (fst(__v21050)) {
 return __v21050
 } else {
@@ -103055,7 +103055,7 @@ setStatus := __v21222
 __v21223 := len + argCount;
 return ( false, __v21223 ) };
 function RegExpPrototypeexec (___internal_esl_global, global, this, NewTarget, strict, args) { __v21224 := l_nth(args, 0);
-string := __v21224;
+str := __v21224;
 R := this;
 __v21226 := "Type" (___internal_esl_global, R);
 if (fst(__v21226)) {
@@ -103085,7 +103085,7 @@ __v21231 := snd(__v21231)
 };
 return ( true, __v21231 )
 };
-__v21232 := "ToString" (___internal_esl_global, string);
+__v21232 := "ToString" (___internal_esl_global, str);
 if (fst(__v21232)) {
 return __v21232
 } else {
@@ -103510,7 +103510,7 @@ __v21319 := key in_obj __v21318;
 if (__v21319) {
 __v21322 := ___internal_esl_global["GlobalSymbolRegistry"];
 __v21321 := __v21322[key];
-__v21320 := __v21321["symbol"];
+__v21320 := __v21321["sym"];
 return ( false, __v21320 )
 };
 return ( false, 'undefined ) };
@@ -104437,7 +104437,7 @@ __v21500 := __v21499 + 1;
 ___internal_esl_global["__CUR__SYMB__"] := __v21500;
 return ( false, sym ) };
 function RegExpPrototypeExec (___internal_esl_global, global, this, NewTarget, strict, args) { __v21501 := l_nth(args, 0);
-string := __v21501;
+str := __v21501;
 R := this;
 __v21503 := "isRegExpObject" (___internal_esl_global, R);
 if (fst(__v21503)) {
@@ -104468,7 +104468,7 @@ return __v21506
 __v21506 := snd(__v21506)
 };
 sticky := __v21506;
-__v21507 := "ToString" (___internal_esl_global, string);
+__v21507 := "ToString" (___internal_esl_global, str);
 if (fst(__v21507)) {
 return __v21507
 } else {
@@ -108526,8 +108526,8 @@ return __v22355
 } else {
 __v22355 := snd(__v22355)
 };
-number := __v22355;
-__v22356 := "Type" (___internal_esl_global, number);
+num := __v22355;
+__v22356 := "Type" (___internal_esl_global, num);
 if (fst(__v22356)) {
 return __v22356
 } else {
@@ -108535,25 +108535,25 @@ __v22356 := snd(__v22356)
 };
 __v22357 := __v22356 = "Completion";
 if (__v22357) {
-__v22358 := "isAnAbruptCompletion" (___internal_esl_global, number);
+__v22358 := "isAnAbruptCompletion" (___internal_esl_global, num);
 if (fst(__v22358)) {
 return __v22358
 } else {
 __v22358 := snd(__v22358)
 };
 if (__v22358) {
-return ( false, number )
+return ( false, num )
 } else {
-__v22359 := "getCompletionValue" (___internal_esl_global, number);
+__v22359 := "getCompletionValue" (___internal_esl_global, num);
 if (fst(__v22359)) {
 return __v22359
 } else {
 __v22359 := snd(__v22359)
 };
-number := __v22359
+num := __v22359
 }
 };
-__v22360 := to_uint32(number);
+__v22360 := to_uint32(num);
 return ( false, __v22360 ) };
 function ReflectApply (___internal_esl_global, global, this, NewTarget, strict, args) { __v22361 := l_nth(args, 0);
 target := __v22361;

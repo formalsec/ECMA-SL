@@ -1,6 +1,6 @@
 open S_object
 
-let solver = Encoding.Batch.create ()
+let solver = Batch.create ()
 let pc = []
 let expr_TRUE = Expr.Val (Val.Bool true)
 let o : S_object.t = S_object.create ()

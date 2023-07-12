@@ -1,5 +1,4 @@
 open Core
-open Encoding
 open Expr
 open Func
 open Source
@@ -160,27 +159,23 @@ let step (c : State.config) : State.config list =
       and br_f' = Translator.translate br_f in
       let then_branch =
         let pc' = ESet.add pc br_t' in
-        try
-          if not (Batch.check_sat solver (ESet.to_list pc')) then []
-          else
-            let state' = (Heap.clone heap, store, stack, f) in
-            let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl_exn stmts in
-            [ update c (Cont stmts') state' pc' ]
-        with Batch.Unknown -> [ update c (Unknown (Some br_t)) state pc' ]
+        if not (Batch.check_sat solver (ESet.to_list pc')) then []
+        else
+          let state' = (Heap.clone heap, store, stack, f) in
+          let stmts' = blk1 :: (Stmt.Merge @@ blk1.at) :: List.tl_exn stmts in
+          [ update c (Cont stmts') state' pc' ]
       in
       let else_branch =
         let pc' = ESet.add pc br_f' in
-        try
-          if not (Batch.check_sat solver (ESet.to_list pc')) then []
-          else
-            let state' = (Heap.clone heap, store, stack, f) in
-            let stmts' =
-              match blk2 with
-              | None -> List.tl_exn stmts
-              | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl_exn stmts
-            in
-            [ update c (Cont stmts') state' pc' ]
-        with Batch.Unknown -> [ update c (Unknown (Some br_f)) state pc' ]
+        if not (Batch.check_sat solver (ESet.to_list pc')) then []
+        else
+          let state' = (Heap.clone heap, store, stack, f) in
+          let stmts' =
+            match blk2 with
+            | None -> List.tl_exn stmts
+            | Some s' -> s' :: (Stmt.Merge @@ s'.at) :: List.tl_exn stmts
+          in
+          [ update c (Cont stmts') state' pc' ]
       in
       let temp = else_branch @ then_branch in
 
@@ -443,7 +438,7 @@ let step (c : State.config) : State.config list =
       let e' = Translator.translate (reduce_expr ~at:s.at store e) in
       let v =
         Option.map ~f:Translator.expr_of_value
-          (Optimizer.maximize opt e' (ESet.to_list pc))
+          (Encoding.Optimizer.maximize opt e' (ESet.to_list pc))
       in
       let store' =
         S_store.add_exn store x (Option.value ~default:(Val Val.Null) v)
@@ -453,7 +448,7 @@ let step (c : State.config) : State.config list =
       let e' = Translator.translate (reduce_expr ~at:s.at store e) in
       let v =
         Option.map ~f:Translator.expr_of_value
-          (Optimizer.minimize opt e' (ESet.to_list pc))
+          (Encoding.Optimizer.minimize opt e' (ESet.to_list pc))
       in
       let store' =
         S_store.add_exn store x (Option.value ~default:(Val Val.Null) v)
@@ -556,7 +551,7 @@ let invoke (prog : Prog.t) (func : Func.t)
       state = (heap, store, stack, func.name);
       pc = ESet.empty;
       solver;
-      opt = Optimizer.create ();
+      opt = Encoding.Optimizer.create ();
     }
   in
   eval initial_config
@@ -584,9 +579,9 @@ let main (prog : Prog.t) (f : State.func) : unit =
   let final_configs = List.filter ~f:(fun c -> State.is_final c.code) configs
   and error_configs = List.filter ~f:(fun c -> State.is_fail c.code) configs in
   let f c =
-    let open Encoding in
     let pc' = State.ESet.to_list c.pc in
     let model = Batch.find_model c.solver pc' in
+    let open Encoding in
     let testcase =
       Option.value_map model ~default:[] ~f:(fun m ->
           List.map (Model.get_bindings m) ~f:(fun (s, v) ->

@@ -8,7 +8,7 @@ module MakeState (Object : S_object_intf.SymbolicObject) = struct
     code : outcome;
     state : state;
     pc : pc;
-    solver : Encoding.Batch.t;
+    solver : Batch.t;
     opt : Encoding.Optimizer.t;
   }
 

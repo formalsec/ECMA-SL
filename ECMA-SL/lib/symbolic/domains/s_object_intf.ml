@@ -10,7 +10,7 @@ module type SymbolicObject = sig
     t ->
     Expr.t ->
     Expr.t ->
-    Encoding.Batch.t ->
+    Batch.t ->
     encoded_pct list ->
     S_store.t ->
     (t * encoded_pct list) list
@@ -18,7 +18,7 @@ module type SymbolicObject = sig
   val get :
     t ->
     Expr.t ->
-    Encoding.Batch.t ->
+    Batch.t ->
     encoded_pct list ->
     S_store.t ->
     (t * encoded_pct list * Expr.t option) list
@@ -26,7 +26,7 @@ module type SymbolicObject = sig
   val delete :
     t ->
     Expr.t ->
-    Encoding.Batch.t ->
+    Batch.t ->
     encoded_pct list ->
     S_store.t ->
     (t * encoded_pct list) list
