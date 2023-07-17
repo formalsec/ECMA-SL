@@ -112,7 +112,7 @@ let is_key_possible ?(b = false) (k1 : Expr.t) (k2 : Expr.t)
     bool =
   let eq0 = mk_eq k1 k2 in
   let eq = Reducer.reduce_expr store eq0 |> Translator.translate in
-  let ret = Batch.check_sat solver (eq :: pc) in
+  let ret = Batch.check solver (eq :: pc) in
 
   if b then (
     Printf.printf "\n\n";
@@ -173,7 +173,7 @@ let set (o : t) (key : vt) (data : Expr.t) (solver : Batch.t)
          being equal to any of the existing fields
         *)
         let new_pc = create_not_pct lst key store in
-        if Batch.check_sat solver (new_pc @ pc) then (
+        if Batch.check solver (new_pc @ pc) then (
           let o' = clone o in
           Hashtbl.set o'.concrete_fields ~key:s ~data;
           (o', new_pc) :: rets)
@@ -218,7 +218,7 @@ let set (o : t) (key : vt) (data : Expr.t) (solver : Batch.t)
         let new_pc =
           create_not_pct (concrete_conds @ symbolic_conds) key store
         in
-        let check = Batch.check_sat solver (new_pc @ pc) in
+        let check = Batch.check solver (new_pc @ pc) in
         if check then
           let o' = clone o in
           let _ = Expr_Hashtbl.set o'.symbolic_fields ~key ~data in
@@ -297,7 +297,7 @@ let delete (o : t) (key : Expr.t) (solver : Batch.t)
             being equal to any of the existing fields
         *)
         let new_pc = create_not_pct lst key store in
-        if Batch.check_sat solver (new_pc @ pc) then
+        if Batch.check solver (new_pc @ pc) then
           let o' = clone o in
           (o', new_pc) :: rets
         else rets
@@ -348,7 +348,7 @@ let delete (o : t) (key : Expr.t) (solver : Batch.t)
           let new_pc =
             create_not_pct (symbolic_list @ concrete_list) key store
           in
-          if Batch.check_sat solver (new_pc @ pc) then
+          if Batch.check solver (new_pc @ pc) then
             let o' = clone o in
             (o', new_pc) :: rets
           else rets)
