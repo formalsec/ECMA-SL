@@ -118,6 +118,10 @@
 		"types": {
 			"patterns": [
 				{
+					"name": "keyword.control.esl",
+					"match": "\\b(typedef)\\b"
+				},
+				{
 					"name": "entity.name.type",
 					"match": "\\b(any|unknown|never|undefined|int|float|string|boolean|symbol|sigma)\\b"
 				},
