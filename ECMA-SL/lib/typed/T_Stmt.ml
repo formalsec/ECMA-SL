@@ -88,8 +88,9 @@ let type_fassign (tctx : T_Ctx.t) (oe : E_Expr.t) (fe : E_Expr.t)
     let tref = T_Expr.type_fld_lookup oe fe fn (_rt_of_nt rtoe nt) in
     ignore (T_Expr.safe_type_expr tctx expr tref)
   in
-  let rtoe, ntoe = T_Expr.full_type_expr tctx oe in
+  let rtoe, ntoe = T_Expr.full_type_expr_resolved tctx oe in
   match (fe, ntoe) with
+  | E_Expr.Val (Val.Str fn), E_Type.SigmaType (_, nts)
   | E_Expr.Val (Val.Str fn), E_Type.UnionType nts ->
       List.iter (_type_fassign fn rtoe) nts
   | E_Expr.Val (Val.Str fn), _ -> List.iter (_type_fassign fn rtoe) [ ntoe ]
@@ -129,10 +130,12 @@ let type_match (tctx : T_Ctx.t) (expr : E_Expr.t)
     List.append (List.concat terrs) terrsComplete
   in
   try
-    let rtexpr, ntexpr = T_Expr.full_type_expr tctx expr in
+    let rtexpr, ntexpr = T_Expr.full_type_expr_resolved tctx expr in
     match (rtexpr, ntexpr) with
     | _, E_Type.AnyType -> []
-    | E_Type.SigmaType (d, _), E_Type.UnionType ts -> _type_match d ts
+    | E_Type.SigmaType (d, _), E_Type.SigmaType (_, ts)
+    | E_Type.SigmaType (d, _), E_Type.UnionType ts ->
+        _type_match d ts
     | E_Type.SigmaType (d, _), _ -> _type_match d [ ntexpr ]
     | _ ->
         set_terr_stmt tctx (fun () ->

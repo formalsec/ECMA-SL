@@ -1,0 +1,24 @@
+typedef case1_t := { type: "int", foo: int };
+typedef case2_t := { type: "string", foo: string };
+typedef union_t := case1_t | case2_t;
+
+function _unionCall() : union_t {
+	return { type: "int", foo: 10 }
+};
+
+function main() {
+	x: union_t := _unionCall(); 				/* Valid */
+	x.foo := 20;												/* BadValue: string <- int */
+
+	if (x.type = "int") {
+		y: int := x.foo;									/* Valid */
+		x.foo := 20;											/* Valid */
+		x.foo := "abc"										/* BadValue: int <- string */
+	} else {
+		z: string := x.foo;								/* Valid */
+		x.foo := "def";										/* Valid */
+		x.foo := 20												/* BadValue: string <- int */
+	};
+
+	return 0
+}

@@ -1,5 +1,16 @@
 open E_Type
 
+let typedefs : (string, E_Type.t) Hashtbl.t ref =
+  ref (Hashtbl.create !Config.default_hashtbl_sz)
+
+let resolve_typedef (tref : E_Type.t) : E_Type.t =
+  match tref with
+  | UserDefinedType tname -> (
+      match Hashtbl.find_opt !typedefs tname with
+      | None -> T_Err.raise (T_Err.UnknownType tref) ~tkn:(T_Err.type_tkn tref)
+      | Some tref' -> tref')
+  | _ -> failwith "Typed ECMA-SL: T_Typing.resolve_typedef"
+
 let literal_terr (expr : E_Expr.t) (texpr : t) : t =
   match expr with E_Expr.Val _ -> E_Type.wide_type texpr | _ -> texpr
 
@@ -90,6 +101,14 @@ let check_runtime_type (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
         T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.expr_tkn expr)
   | _ -> failwith "Typed ECMA-SL: T_Typing.check_runtime_type"
 
+let check_user_type (expr : E_Expr.t) (tref : t) (texpr : t)
+    (type_check_f : t -> t -> unit) : unit =
+  let tref' = resolve_typedef tref in
+  try type_check_f tref' texpr
+  with T_Err.TypeError terr ->
+    let texpr' = literal_terr expr texpr in
+    T_Err.push terr (T_Err.BadValue (tref, texpr'))
+
 let rec type_check (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   match (tref, texpr) with
   | _, AnyType -> ()
@@ -108,8 +127,10 @@ let rec type_check (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   | _, UnionType _ -> check_union_expr expr tref texpr (type_check expr)
   | UnionType _, _ -> check_union_type expr tref texpr (type_check expr)
   | SigmaType _, _ -> check_union_type expr tref texpr (type_check expr)
-  | _, LiteralType _ -> check_literal_expr expr tref texpr
   | RuntimeType _, RuntimeType _ -> check_runtime_type expr tref texpr
+  | UserDefinedType _, UserDefinedType _ when tref = texpr -> ()
+  | UserDefinedType _, _ -> check_user_type expr tref texpr (type_check expr)
+  | _, LiteralType _ -> check_literal_expr expr tref texpr
   | _ -> T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.expr_tkn expr)
 
 let is_typeable (tref : t) (texpr : t) : bool =

@@ -87,8 +87,8 @@ let type_newobj (tctx : T_Ctx.t) (tfes : (string * E_Type.t) list) : E_Type.t =
   List.iter (_type_obj_field_f flds) tfes |> fun () ->
   E_Type.ObjectType { E_Type.flds; E_Type.smry = None }
 
-let type_fld_lookup (oe : E_Expr.t) (fe : E_Expr.t) (fn : string) (t : E_Type.t)
-    : E_Type.t =
+let rec type_fld_lookup (oe : E_Expr.t) (fe : E_Expr.t) (fn : string)
+    (t : E_Type.t) : E_Type.t =
   let _terr_obj msg = T_Err.raise msg ~tkn:(T_Err.expr_tkn oe) in
   let _terr_fexpr msg = T_Err.raise msg ~tkn:(T_Err.expr_tkn fe) in
   let objName = E_Expr.get_expr_name oe in
@@ -101,30 +101,33 @@ let type_fld_lookup (oe : E_Expr.t) (fe : E_Expr.t) (fn : string) (t : E_Type.t)
       match E_Type.find_tfld_opt tobj fn with
       | Some tfld -> E_Type.tfld_t tfld
       | None -> _terr_fexpr (T_Err.BadLookup (fn, t)))
+  | E_Type.UserDefinedType _ ->
+      let t' = T_Typing.resolve_typedef t in
+      type_fld_lookup oe fe fn t'
   | _ -> _terr_fexpr (T_Err.BadLookup (fn, t))
 
-let type_lookup (narrow : bool) (tctx : T_Ctx.t) (oe : E_Expr.t) (fe : E_Expr.t)
-    (toe : E_Type.t) : E_Type.t =
-  let _union_to_sigma d t =
-    match t with E_Type.UnionType ts -> E_Type.SigmaType (d, ts) | _ -> t
-  in
-  let _type_fld_lookup fn tobj =
+let rec type_lookup (narrow : bool) (tctx : T_Ctx.t) (oe : E_Expr.t)
+    (fe : E_Expr.t) (toe : E_Type.t) : E_Type.t =
+  let _type_fld_lookup unionLookup fn tobj =
     try type_fld_lookup oe fe fn tobj
     with T_Err.TypeError terr -> (
-      match T_Err.top_err terr with
-      | T_Err.BadLookup (fn, t) -> T_Err.push terr (T_Err.BadLookup (fn, toe))
+      match (unionLookup, T_Err.top_err terr) with
+      | true, T_Err.BadLookup (fn, t) ->
+          T_Err.push terr (T_Err.BadLookup (fn, toe))
       | _ -> T_Err.continue terr)
   in
   let _type_union_lookup fn ts =
-    List.map (_type_fld_lookup fn) ts
+    List.map (_type_fld_lookup true fn) ts
     |> E_Type.merge_type E_Type.merge_union_type
     |> fun t -> if narrow then T_Narrowing.narrow_type t else t
   in
   match (fe, toe) with
-  | E_Expr.Val (Val.Str fn), E_Type.SigmaType (d, ts) ->
-      _type_union_lookup fn ts |> _union_to_sigma d
   | E_Expr.Val (Val.Str fn), E_Type.UnionType ts -> _type_union_lookup fn ts
-  | E_Expr.Val (Val.Str fn), _ -> _type_fld_lookup fn toe
+  | E_Expr.Val (Val.Str fn), E_Type.SigmaType (d, ts) ->
+      _type_union_lookup fn ts |> E_Type.union_to_sigma d
+  | E_Expr.Val (Val.Str fn), E_Type.UserDefinedType _ ->
+      type_lookup narrow tctx oe fe (T_Typing.resolve_typedef toe)
+  | E_Expr.Val (Val.Str fn), _ -> _type_fld_lookup false fn toe
   | _ -> E_Type.AnyType
 
 let rec type_expr ?(narrow : bool = true) (tctx : T_Ctx.t) (expr : E_Expr.t) :
@@ -186,3 +189,13 @@ let full_type_expr (tctx : T_Ctx.t) (expr : E_Expr.t) : E_Type.t * E_Type.t =
   let rtexpr = type_expr ~narrow:false tctx expr in
   let ntexpr = type_expr tctx expr in
   (rtexpr, ntexpr)
+
+let full_type_expr_resolved (tctx : T_Ctx.t) (expr : E_Expr.t) :
+    E_Type.t * E_Type.t =
+  let _resolve_typedef t =
+    match t with
+    | E_Type.UserDefinedType _ -> T_Typing.resolve_typedef t
+    | _ -> t
+  in
+  full_type_expr tctx expr |> fun (rt, nt) ->
+  (_resolve_typedef rt, _resolve_typedef nt)

@@ -168,6 +168,7 @@ let rec unfold_type (addNonLits : bool) (t : t) : t list =
   | _, BooleanType -> bLits
   | _, LiteralType _ -> [ t ]
   | _, UnionType ts -> List.concat (List.map (unfold_type addNonLits) ts)
+  | _, SigmaType (_, ts) -> List.concat (List.map (unfold_type addNonLits) ts)
   | true, _ -> [ t ]
   | false, _ -> []
 
@@ -197,3 +198,9 @@ let to_runtime (t : t) : t =
   | ObjectType _ -> RuntimeType Type.LocType
   | RuntimeType _ -> t
   | _ -> failwith "Typed ECMA-SL: E_Type.to_runtime"
+
+let tlst (t : t) =
+  match t with UnionType ts | SigmaType (_, ts) -> ts | _ -> [ t ]
+
+let union_to_sigma (d : string) (t : t) : t =
+  match t with UnionType ts -> SigmaType (d, ts) | _ -> t

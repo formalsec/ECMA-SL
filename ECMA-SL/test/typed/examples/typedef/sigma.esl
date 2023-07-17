@@ -1,0 +1,32 @@
+typedef sigma_t := sigma[type] { type: "int", foo: int } | { type: "string", foo: string };
+
+function _sigmaCall() : sigma_t {
+	return { type: "int", foo: 10 }
+};
+
+function main() {
+	x: sigma_t := _sigmaCall(); 				/* Valid */
+	x.foo := 20;												/* BadValue: string <- int */
+
+	if (x.type = "int") {
+		y: int := x.foo;									/* Valid */
+		x.foo := 20;											/* Valid */
+		x.foo := "abc"										/* BadValue: int <- string */
+	} else {
+		z: string := x.foo;								/* Valid */
+		x.foo := "def";										/* Valid */
+		x.foo := 20												/* BadValue: string <- int */
+	};
+
+	match x with
+	| { type: "int", foo: foo } -> {
+		y: int := foo;										/* Valid */
+		z: string := foo									/* BadValue: string <- int */
+	}
+	| { type: "string", foo: foo } -> {
+		y: string := foo;									/* Valid */
+		z: int := foo											/* BadValue: int <- string */
+	};
+
+	return 0
+}

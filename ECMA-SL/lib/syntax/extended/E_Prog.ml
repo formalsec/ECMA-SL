@@ -10,7 +10,7 @@ end
 type t = {
   mutable file_name : string;
   imports : string list;
-  type_decls : (string, E_Type.t) Hashtbl.t;
+  typedefs : (string, E_Type.t) Hashtbl.t;
   funcs : (string, E_Func.t) Hashtbl.t;
   macros : (string, E_Macro.t) Hashtbl.t;
 }
@@ -20,8 +20,8 @@ let add_type_decls (prog : t) (type_decls : (string * E_Type.t) list) =
     (fun (d : string * E_Type.t) ->
       let id = fst d in
       let t = snd d in
-      match Hashtbl.find_opt prog.type_decls id with
-      | None -> Hashtbl.replace prog.type_decls id t
+      match Hashtbl.find_opt prog.typedefs id with
+      | None -> Hashtbl.replace prog.typedefs id t
       | Some _ ->
           invalid_arg ("Type \"" ^ id ^ "\" already exists in the program"))
     type_decls
@@ -52,7 +52,7 @@ let create (imports : string list) (type_decls : (string * E_Type.t) list)
     {
       file_name = "temporary name";
       imports;
-      type_decls = Hashtbl.create !Config.default_hashtbl_sz;
+      typedefs = Hashtbl.create !Config.default_hashtbl_sz;
       funcs = Hashtbl.create !Config.default_hashtbl_sz;
       macros = Hashtbl.create !Config.default_hashtbl_sz;
     }
@@ -63,10 +63,10 @@ let create (imports : string list) (type_decls : (string * E_Type.t) list)
   prog
 
 let get_file_name (prog : t) : string = prog.file_name
-let get_type_decls (prog : t) : (string, E_Type.t) Hashtbl.t = prog.type_decls
+let get_typedefs (prog : t) : (string, E_Type.t) Hashtbl.t = prog.typedefs
 
-let get_type_decls_list (prog : t) : (string * E_Type.t) list =
-  Hashtbl.fold (fun n t tps -> (n, t) :: tps) prog.type_decls []
+let get_typedefs_list (prog : t) : (string * E_Type.t) list =
+  Hashtbl.fold (fun n t tps -> (n, t) :: tps) prog.typedefs []
 
 let get_func (prog : t) (func : string) : E_Func.t =
   Hashtbl.find prog.funcs func
@@ -92,7 +92,7 @@ let str (prog : t) : string =
       (fun n t tps ->
         (if tps <> "" then tps ^ "\n" else tps)
         ^ Printf.sprintf "%s := %s" n (E_Type.str t))
-      prog.type_decls ""
+      prog.typedefs ""
   ^ Hashtbl.fold
       (fun n v ac ->
         (if ac <> "" then ac ^ "\n" else ac)
@@ -105,8 +105,8 @@ let apply_macros (prog : t) : t =
       (fun _ f ac -> E_Func.apply_macros f (Hashtbl.find_opt prog.macros) :: ac)
       prog.funcs []
   in
-  let type_decls = get_type_decls_list prog in
-  create prog.imports type_decls new_funcs []
+  let typedefs = get_typedefs_list prog in
+  create prog.imports typedefs new_funcs []
 
 let lambdas (p : t) : (string * string list * string list * E_Stmt.t) list =
   Hashtbl.fold (fun _ f ac -> E_Func.lambdas f @ ac) p.funcs []

@@ -1,0 +1,12 @@
+typedef number_t := int;
+typedef string_t := string;
+
+function main() {
+	foo: number_t := 10;				/* Valid */
+	foo: number_t := "abc";			/* BadValue: int <- string */
+	bar: string_t := "abc";			/* Valid */
+	bar: string_t := 10;				/* BadValue: string <- int */
+	baz: boolean_t := 10;				/* UnknownType: boolean_t */
+
+	return 0
+}

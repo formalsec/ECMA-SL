@@ -50,17 +50,6 @@ let rec nnf_converter (f : t) : t =
   | Or (f1, f2) -> _nnf_propagate f1 f2 |> fun (f1', f2') -> Or (f1', f2')
   | _ -> f
 
-(* let rec nnf_cleaner (f : t) : t =
-   match f with
-   | And (NoConstraint, NoConstraint) -> NoConstraint
-   | And (NoConstraint, f') -> nnf_cleaner f'
-   | And (f', NoConstraint) -> nnf_cleaner f'
-   | And (f1, f2) -> And (nnf_cleaner f1, nnf_cleaner f2)
-   | Or (NoConstraint, NoConstraint) -> NoConstraint
-   | Or (NoConstraint, f') -> nnf_cleaner f'
-   | Or (f', NoConstraint) -> nnf_cleaner f'
-   | Or (f1, f2) -> Or (nnf_cleaner f1, nnf_cleaner f2)
-   | _ -> f *)
 let rec nnf_cleaner (f : t) : t =
   let _nnf_cleaner f1 f2 = (nnf_cleaner f1, nnf_cleaner f2) in
   match f with
@@ -148,7 +137,6 @@ let inspect_element (tctx : T_Ctx.t) (expr : E_Expr.t) (isNeq : bool) :
   | _ -> failwith "Typed ECMA-SL: T_Constraint.inspect_element"
 
 let eval_constraint (ttar : E_Type.t) (cstr : constraint_t) : E_Type.t list =
-  let _tlst t = match t with E_Type.UnionType ts -> ts | _ -> [ t ] in
   let _terr ttar cstr =
     let tkn = T_Err.expr_tkn cstr.expr in
     T_Err.raise (T_Err.NoOverlapComp (ttar, cstr.tcstr)) ~tkn
@@ -161,35 +149,44 @@ let eval_constraint (ttar : E_Type.t) (cstr : constraint_t) : E_Type.t list =
     | _ -> _runtime_cmp_f (E_Type.to_runtime t)
   in
   if cstr.isTypeof then
-    List.filter (fun t -> t |> _runtime_cmp_f |> _runtime_neq_f) (_tlst ttar)
+    List.filter
+      (fun t -> t |> _runtime_cmp_f |> _runtime_neq_f)
+      (E_Type.tlst ttar)
   else if cstr.isNeq then
     let tlit = E_Type.unfold_type false ttar in
     let tunfolded = E_Type.unfold_type true ttar in
-    let tremoved = List.filter (fun t -> List.mem t tlit) (_tlst cstr.tcstr) in
+    let tremoved =
+      List.filter (fun t -> List.mem t tlit) (E_Type.tlst cstr.tcstr)
+    in
     let tkeep = List.filter (fun t -> not (List.mem t tremoved)) tunfolded in
     E_Type.fold_type tkeep
   else
     let isTypeable_f = T_Typing.is_typeable ttar in
-    let tconstraint = List.filter isTypeable_f (_tlst cstr.tcstr) in
+    let tconstraint = List.filter isTypeable_f (E_Type.tlst cstr.tcstr) in
     if tconstraint = [] then _terr ttar cstr else tconstraint
 
 let rec apply_constrain (tctx : T_Ctx.t) (target : E_Expr.t list)
     (tconstraint : E_Type.t) : unit =
-  let _tlst t = match t with E_Type.UnionType ts -> ts | _ -> [ t ] in
   let _test_union_case oe fe fn nt =
     let tref = T_Expr.type_fld_lookup oe fe fn nt in
-    List.mem tref (_tlst tconstraint)
+    List.mem tref (E_Type.tlst tconstraint)
+  in
+  let rec _filter_union_case oe fexpr ntoe =
+    match (fexpr, ntoe) with
+    | _, E_Type.UserDefinedType _ ->
+        _filter_union_case oe fexpr (T_Typing.resolve_typedef ntoe)
+    | E_Expr.Val (Val.Str fn), E_Type.UnionType nts
+    | E_Expr.Val (Val.Str fn), E_Type.SigmaType (_, nts) ->
+        List.filter (_test_union_case oe fexpr fn) nts |> fun ts ->
+        T_Narrowing.narrow_type (E_Type.UnionType ts) |> fun t ->
+        apply_constrain tctx [ oe ] t
+    | _ -> ()
   in
   match target with
   | E_Expr.Var var :: [] -> T_Ctx.tenv_constrain tctx var tconstraint
-  | E_Expr.Lookup (oe, fexpr) :: [] -> (
+  | E_Expr.Lookup (oe, fexpr) :: [] ->
       let ntoe = T_Expr.type_expr tctx oe in
-      match (fexpr, ntoe) with
-      | E_Expr.Val (Val.Str fn), E_Type.UnionType nts ->
-          List.filter (_test_union_case oe fexpr fn) nts |> fun ts ->
-          T_Narrowing.narrow_type (E_Type.UnionType ts) |> fun t ->
-          apply_constrain tctx [ oe ] t
-      | _ -> ())
+      _filter_union_case oe fexpr ntoe
   | _ -> ()
 
 let apply_clause (tctx : T_Ctx.t) (clause : t) : unit =

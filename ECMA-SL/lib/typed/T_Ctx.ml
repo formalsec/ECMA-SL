@@ -49,6 +49,9 @@ let get_curr_return_t (tctx : t) : E_Type.t option =
 let get_func_by_name (tctx : t) (fname : string) : E_Func.t option =
   E_Prog.get_func_opt tctx.prog fname
 
+let get_typedefs (tctx : t) : (string, E_Type.t) Hashtbl.t = 
+  E_Prog.get_typedefs tctx.prog
+
 let tenv_reset (tctx : t) : t = Hashtbl.clear tctx.tenv |> fun () -> tctx
 
 let tenv_find (tctx : t) (x : string) : tvar_t option =

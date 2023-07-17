@@ -3,6 +3,7 @@ open T_ErrFmt
 type err_t =
   | UnknownVar of string
   | UnknownFunction of string
+  | UnknownType of E_Type.t
   | NExpectedArgs of int * int
   | DuplicatedParam of string
   | DuplicatedField of string
@@ -35,6 +36,7 @@ let err_str (err : err_t) : string =
   match err with
   | UnknownVar x -> Printf.sprintf "Cannot find variable '%s'." x
   | UnknownFunction fname -> Printf.sprintf "Cannot find function '%s'." fname
+  | UnknownType t -> Printf.sprintf "Cannot find type '%s'." (E_Type.str t)
   | NExpectedArgs (nparams, nargs) ->
       Printf.sprintf "Expected %d arguments, but got %d." nparams nargs
   | DuplicatedParam param ->

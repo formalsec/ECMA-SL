@@ -23,9 +23,9 @@ let create_narrow_type (rt : t) (nt : t) : t =
       if List.mem AnyType rts then AnyType
       else if List.mem UnknownType rts then UnknownType
       else create_narrow_union rts nt
-  | SigmaType (_, rts), SigmaType (_, nts) ->
-      create_narrow_union rts (UnionType nts)
-  | SigmaType (_, rts), _ -> create_narrow_union rts nt
+  | SigmaType (d, rts), SigmaType (_, nts) ->
+      create_narrow_union rts (UnionType nts) |> E_Type.union_to_sigma d
+  | SigmaType (d, rts), _ -> create_narrow_union rts nt |> E_Type.union_to_sigma d
   | _, ObjectType ntobj -> rt
   | _ -> nt
 
