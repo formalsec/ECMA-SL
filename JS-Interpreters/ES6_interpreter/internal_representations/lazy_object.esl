@@ -1,0 +1,23 @@
+function newLazyObject() {
+  realm := { globalEnv : |global| };
+  n_object :=
+    CreateBuiltInFunctionObject([], "lazyFunction", realm, false, null);
+  n_object.Get := "lazyGet";
+  return n_object
+};
+
+function lazyFunction(globalObject, this, NewTarget, strict, params) {
+  return newLazyObject()
+};
+
+function lazyGet(O, P, Receiver) {
+  if (P in_obj O.JSProperties) {
+    desc := getJSProperty(O, P);
+    return desc.Value
+  } else {
+    desc := newDataPropertyDescriptorFull(newLazyObject(), true, true, true);
+    setJSProperty(O, P, desc);
+    return desc.Value
+
+  }
+}

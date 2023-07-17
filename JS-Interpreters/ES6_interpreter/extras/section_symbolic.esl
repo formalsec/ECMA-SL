@@ -10,6 +10,7 @@ function initESLSymbolicObject(globalObject, objectPrototype, strict) {
   apiIsSymbolic := CreateBuiltInFunctionObject(["expr"], "__apiSymbolicIsSymbolic", globalObject, strict, null);
   apiEvalWrapper := CreateBuiltInFunctionObject(["expr"], "__apiSymbolicEvalWrapper", globalObject, strict, null);
   apiExecWrapper := CreateBuiltInFunctionObject(["expr"], "__apiSymbolicExecWrapper", globalObject, strict, null);
+  apiLazyObject := CreateBuiltInFunctionObject([], "__apiSymbolicLazyObject", globalObject, strict, null);
 
   createBuiltInProperty(esl_symbolic, "number", apiSymbolicNumber);
   createBuiltInProperty(esl_symbolic, "string", apiSymbolicString);
@@ -19,6 +20,8 @@ function initESLSymbolicObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(esl_symbolic, "is_symbolic", apiIsSymbolic);
   createBuiltInProperty(esl_symbolic, "evalWrapper", apiEvalWrapper);
   createBuiltInProperty(esl_symbolic, "execWrapper", apiExecWrapper);
+  print "in init lazy_object";
+  createBuiltInProperty(esl_symbolic, "lazy_object", apiLazyObject);
 
   createBuiltInProperty(apiSymbolicNumber, "prototype", objectPrototype);
   createBuiltInProperty(apiSymbolicString, "prototype", objectPrototype);
@@ -28,6 +31,7 @@ function initESLSymbolicObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(apiIsSymbolic, "prototype", objectPrototype);
   createBuiltInProperty(apiEvalWrapper, "prototype", objectPrototype);
   createBuiltInProperty(apiExecWrapper, "prototype", objectPrototype);
+  createBuiltInProperty(apiLazyObject, "prototype", objectPrototype);
 
   setInternalProperty(esl_symbolic, "Prototype", objectPrototype);
 
@@ -56,9 +60,11 @@ function __apiSymbolicAssert(globalObject, this, NewTarget, strict, params) {
   assert(e);
   return 0
 };
+
 function __apiSymbolicIsSymbolic(globalObject, this, NewTarget, strict, params) {
   return se_is_symbolic(l_nth(params, 0))
 };
+
 function __apiSymbolicEvalWrapper(globalObject, this, NewTarget, strict, params) {
   x := l_nth(params, 0);
   if (se_is_symbolic(x)) {
@@ -67,6 +73,7 @@ function __apiSymbolicEvalWrapper(globalObject, this, NewTarget, strict, params)
     return GlobalObjectEval(globalObject, this, NewTarget, strict, params)
   }
 };
+
 function __apiSymbolicExecWrapper(globalObject, this, NewTarget, strict, params) {
   x := l_nth(params, 0);
   if (se_is_symbolic(x)) {
@@ -77,4 +84,8 @@ function __apiSymbolicExecWrapper(globalObject, this, NewTarget, strict, params)
     }
   };
   return 0
+};
+
+function __apiSymbolicLazyObject(globalObject, this, NewTarget, strict, params) {
+  return newLazyObject()
 }
