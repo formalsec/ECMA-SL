@@ -188,6 +188,7 @@ let translate_triop (t1 : Type.t option) (t2 : Type.t option)
   let open Operators in
   let str_triop op e1 e2 e3 =
     match op with
+    | SsubstrU
     | Ssubstr -> Strings.mk_substr e1 ~pos:e2 ~len:e3
     | _ -> assert false
   in

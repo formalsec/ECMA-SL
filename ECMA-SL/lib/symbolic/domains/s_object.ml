@@ -116,7 +116,9 @@ let has_field (o : t) (k : Expr.t) : Expr.t =
   else if Expr.is_val k then
     match k with
     | Val (Str s) -> Val (Bool (Hashtbl.mem o.concrete_fields s))
-    | _ -> failwith "impossible"
+    | _ ->
+        Format.printf "has_field: %s@." (Expr.str k);
+        assert false
   else
     let v0 =
       Expr_Hashtbl.fold o.symbolic_fields ~init:(Val (Bool false))

@@ -95,7 +95,7 @@ let step (c : State.config) : (State.config list, string) Result.t =
         | _ -> Expr.str e'
       in
       (* Printf.printf "print:%s\npc:%s\nheap id:%d\n" s (Encoding.Expression.string_of_pc pc) (Heap.get_id heap); *)
-      Logging.print_endline (lazy s);
+      Format.printf "%s@." s;
       return [ update c (Cont (List.tl_exn stmts)) state pc ]
   | Fail e ->
       return [ update c (Error (Some (reduce_expr ~at:s.at store e))) state pc ]
@@ -488,13 +488,14 @@ module TreeSearch (L : WorkList) = struct
           Crash.error Source.no_region
             (sprintf "%s: eval: Empty continuation!" f)
       | Cont _ -> (
-          match (step c) with
+          match step c with
           | Ok cs -> List.iter ~f:(fun c -> L.push c w) cs
           | Error msg -> Crash.error Source.no_region msg)
       | Error v | Final v | Unknown v -> out := c :: !out
       | Failure (f, e) ->
+          let _, _, _, func = c.state in
           let e' = Option.value_map e ~default:"" ~f:Expr.str in
-          Logging.print_endline (lazy (sprintf "Failure: %s: %s" f e'));
+          Logging.print_endline (lazy (sprintf "Failure: %s: %s: %s" func f e'));
           out := c :: !out
     done;
     !out
@@ -530,7 +531,7 @@ let invoke (prog : Prog.t) (func : Func.t)
   and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
   let solver =
     let s = Batch.create () in
-    if !Config.axioms then Batch.add s (Encoding.Axioms.axioms);
+    if !Config.axioms then Batch.add s Encoding.Axioms.axioms;
     s
   in
   let initial_config =

@@ -102,7 +102,6 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | Typeof, Curry (_, _) -> Val (Type Type.CurryType)
   | Typeof, op ->
       let t = Sval_typing.type_of op in
-      printf "Typeof %s" (Expr.str v);
       Val (Type (Option.value_exn t))
   | Sconcat, NOpt (ListExpr, vs) -> reduce_sconcat vs
   | FloatOfString, UnOpt (FloatToString, x) -> x
