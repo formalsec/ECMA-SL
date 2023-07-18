@@ -1,6 +1,7 @@
 function initESLSymbolicObject(globalObject, objectPrototype, strict) {
   esl_symbolic := NewECMAScriptObject();
   setAllInternalMethodsOfOrdinaryObject(esl_symbolic);
+  setInternalProperty(esl_symbolic, "Prototype", objectPrototype);
 
   apiSymbolicNumber := CreateBuiltInFunctionObject(["var"], "__apiSymbolicNumber", globalObject, strict, null);
   apiSymbolicString := CreateBuiltInFunctionObject(["var"], "__apiSymbolicString", globalObject, strict, null);
@@ -20,8 +21,8 @@ function initESLSymbolicObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(esl_symbolic, "is_symbolic", apiIsSymbolic);
   createBuiltInProperty(esl_symbolic, "evalWrapper", apiEvalWrapper);
   createBuiltInProperty(esl_symbolic, "execWrapper", apiExecWrapper);
-  print "in init lazy_object";
   createBuiltInProperty(esl_symbolic, "lazy_object", apiLazyObject);
+  createBuiltInProperty(esl_symbolic, "function", apiLazyObject);
 
   createBuiltInProperty(apiSymbolicNumber, "prototype", objectPrototype);
   createBuiltInProperty(apiSymbolicString, "prototype", objectPrototype);
@@ -33,7 +34,6 @@ function initESLSymbolicObject(globalObject, objectPrototype, strict) {
   createBuiltInProperty(apiExecWrapper, "prototype", objectPrototype);
   createBuiltInProperty(apiLazyObject, "prototype", objectPrototype);
 
-  setInternalProperty(esl_symbolic, "Prototype", objectPrototype);
 
   return esl_symbolic
 };

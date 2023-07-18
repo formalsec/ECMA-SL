@@ -111,13 +111,13 @@ function initGlobalObject(globalObject, intrinsic) {
 
   /* 25.4.3.1 Promise */
   createBuiltInProperty(globalObject, "Promise", intrinsic.Promise);
-  
+
   /* 20.1 Number Objects */
   createBuiltInProperty(globalObject, "Number", intrinsic.Number);
 
   /* 23.1 Map */
   createBuiltInProperty(globalObject, "Map", intrinsic.Map);
-  
+
   createBuiltInProperty(globalObject, "Symbol", intrinsic.Symbol);
 
   /* 23.2 Set */
@@ -125,17 +125,17 @@ function initGlobalObject(globalObject, intrinsic) {
 
   /* 23.3 WeakMap Objects */
   createBuiltInProperty(globalObject, "WeakMap", intrinsic.WeakMap);
-  
+
   /* 23.4 WeakSet Objects */
   createBuiltInProperty(globalObject, "WeakSet", intrinsic.WeakSet);
 
-  /* 24.1 ArrayBuffer Objects */  
+  /* 24.1 ArrayBuffer Objects */
   createBuiltInProperty(globalObject, "ArrayBuffer", intrinsic.ArrayBuffer);
 
-  /* 24.2 DataView Objects */  
+  /* 24.2 DataView Objects */
   createBuiltInProperty(globalObject, "DataView", intrinsic.DataView);
 
-  /* 26.1 Reflect Object */  
+  /* 26.1 Reflect Object */
   createBuiltInProperty(globalObject, "Reflect", intrinsic.Reflect);
   /* 26.2 Proxy Objects */
   createBuiltInProperty(globalObject, "Proxy", intrinsic.Proxy);
@@ -146,6 +146,8 @@ function initGlobalObject(globalObject, intrinsic) {
 
   ESLSymbolicObject := initESLSymbolicObject(globalObject, intrinsic.ObjectPrototype, false);
   createBuiltInProperty(globalObject, "esl_symbolic", ESLSymbolicObject);
+
+  initNodeGlobalObject(globalObject, intrinsic.ObjectPrototype, false);
 
   test262Object := initTest262Object(globalObject, intrinsic.ObjectPrototype, false);
   createBuiltInProperty(globalObject, "$262", test262Object);
@@ -292,7 +294,7 @@ function GlobalObjectParseFloatAlt(globalObject, this, NewTarget, strict, params
   /* 3. Let trimmedString be a substring of inputString
   consisting of the leftmost code unit that is not a StrWhiteSpaceChar
   and all code units to the right of that code unit.
-  (In other words, remove leading white space.) 
+  (In other words, remove leading white space.)
   If inputString does not contain any such code units, let trimmedString be the empty string. */
   trimmedString := inputString;
   len := s_len_u(inputString);
@@ -311,7 +313,7 @@ function GlobalObjectParseFloatAlt(globalObject, this, NewTarget, strict, params
   that satisfies the syntax of a StrDecimalLiteral. */
 
   /* 6. TODO Let mathFloat be MV of numberString. */
-  
+
   /* 7. If mathFloat=0, then */
   if (mathFloat = 0) {
     /* a. If the first code unit of trimmedString is "-", return −0. */
@@ -330,7 +332,7 @@ function GlobalObjectParseFloatAlt(globalObject, this, NewTarget, strict, params
  *
  * The isNaN function is the %isNaN% intrinsic object.
  * When the isNaN function is called with one argument number, the following steps are taken:
- * 
+ *
  * NOTE: A reliable way for ECMAScript code to test if a value X is a NaN is an expression of the form X !== X.
  *      The result will be true if and only if X is a NaN.
  */
@@ -346,13 +348,13 @@ function GlobalObjectIsNaN(globalObject, this, NewTarget, strict, params) {
   };
   /* 4. Otherwise, return false. */
   return false
-  
+
 };
 
 /**
  * 18.2.2 isFinite (number)
  *
- * The isFinite function is the %isFinite% intrinsic object. 
+ * The isFinite function is the %isFinite% intrinsic object.
  * When the isFinite function is called with one argument x, the following steps are taken:
  */
 function GlobalObjectIsFinite(globalObject, this, NewTarget, strict, params) {

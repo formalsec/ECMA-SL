@@ -1,0 +1,50 @@
+function createProcessObject(objectPrototype) {
+  process := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(process);
+  setInternalProperty(process, "Prototype", objectPrototype);
+
+  /* Properties: */
+  createBuiltInProperty(process, "arch", se_mk_symbolic(__$Str, "p.arch"));
+  createBuiltInProperty(
+    process, "execPath", se_mk_symbolic(__$Str, "p.execPath"));
+  createBuiltInProperty(
+    process, "platform", se_mk_symbolic(__$Str, "p.platform"));
+
+  /* Should be a symbolic lazy object, but now it just keeps env empty */
+  env := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(env);
+  setInternalProperty(env, "Prototype", objectPrototype);
+  createBuiltInProperty(process, "env", env);
+
+  argv := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(argv);
+  setInternalProperty(argv, "Prototype", objectPrototype);
+  createBuiltInProperty(process, "argv", argv);
+
+  /* Functions: */
+  return process
+};
+
+function initNodeGlobalObject(globalObject, objectPrototype, strict) {
+  createBuiltInProperty(
+    globalObject, "__dirname", se_mk_symbolic(__$Str, "__dirname"));
+  createBuiltInProperty(
+    globalObject, "__filename", se_mk_symbolic(__$Str, "__filename"));
+  createBuiltInProperty(globalObject, "require", newLazyObject());
+
+  module := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(module);
+  setInternalProperty(module, "Prototype", objectPrototype);
+  createBuiltInProperty(globalObject, "module", module);
+
+  exports := NewECMAScriptObject();
+  setAllInternalMethodsOfOrdinaryObject(exports);
+  setInternalProperty(module, "Prototype", objectPrototype);
+  createBuiltInProperty(module, "exports", exports);
+  createBuiltInProperty(globalObject, "exports", exports);
+
+  /* process */
+  process := createProcessObject(objectPrototype);
+  createBuiltInProperty(globalObject, "process", process);
+  return 'null
+}

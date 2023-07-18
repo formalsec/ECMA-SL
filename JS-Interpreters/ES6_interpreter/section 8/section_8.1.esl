@@ -109,7 +109,7 @@ function newGlobalEnvironmentRecord() {
 		HasThisBinding: 								"HasThisBindingGlobalRecord",
 		HasSuperBinding: 								"HasSuperBindingGlobalRecord",
 		WithBaseObject:  								"WithBaseObjectGlobalRecord",
-		
+
 		GetThisBinding:  								"GetThisBindingGlobalRecord",
 		HasVarDeclaration:							"HasVarDeclaration",
 		HasLexicalDeclaration:					"HasLexicalDeclaration",
@@ -117,7 +117,7 @@ function newGlobalEnvironmentRecord() {
 		CanDeclareGlobalVar:   					"CanDeclareGlobalVar",
 		CanDeclareGlobalFunction:   		"CanDeclareGlobalFunction",
 		CreateGlobalVarBinding: 				"CreateGlobalVarBinding",
-		CreateGlobalFunctionBinding:    "CreateGlobalFunctionBinding" 
+		CreateGlobalFunctionBinding:    "CreateGlobalFunctionBinding"
 	};
 
 	return env
@@ -316,11 +316,11 @@ function HasBindingDeclarativeRecord(envRec, N) {
 /* The concrete Environment Record method CreateMutableBinding for declarative Environment Records creates
    a new mutable binding for the name N that is uninitialized. A binding must not already exist in this
    Environment Record for N. If Boolean argument D is provided and has the value true the new binding is marked
-   as being subject to deletion. 
+   as being subject to deletion.
 */
-function CreateMutableBindingDeclarativeRecord(envRec, N, D) {	
+function CreateMutableBindingDeclarativeRecord(envRec, N, D) {
     /* Let envRec be the declarative Environment Record for which the method was invoked. */
-    
+
     /* Assert: envRec does not already have a binding for N. */
     assert( !(N in_obj envRec) );
 
@@ -346,7 +346,7 @@ function CreateMutableBindingDeclarativeRecord(envRec, N, D) {
 */
 function CreateImmutableBindingDeclarativeRecord(envRec, N, S) {
 	/* Let envRec be the declarative Environment Record for which the method was invoked. */
-	
+
 	/* Assert: envRec does not already have a binding for N. */
 	assert( !(N in_obj envRec) );
 
@@ -371,6 +371,7 @@ function InitializeBindingDeclarativeRecord(envRec, N, V) {
 	/* Let envRec be the declarative Environment Record for which the method was invoked. */
 
 	/* Assert: envRec must have an uninitialized binding for N. */
+  print N;
 	assert( isUninitialisedBinding(envRec, N) );
 
 	/* Set the bound value for N in envRec to V. */
@@ -428,7 +429,7 @@ function SetMutableBindingDeclarativeRecord(envRec, N, V, S) {
 			throw TypeErrorConstructorInternal()
 		}
 	};
-	
+
 	/* Return NormalCompletion(empty). */
 	return NormalCompletion('empty)
 };
@@ -459,7 +460,7 @@ function GetBindingValueDeclarativeRecord(envRec, N, S) {
 */
 function DeleteBindingDeclarativeRecord(envRec, N) {
 	/* Let envRec be the declarative Environment Record for which the method was invoked. */
-	
+
 	/* Assert: envRec has a binding for the name that is the value of N. */
 	assert( HasBindingDeclarativeRecord(envRec, N) );
 
@@ -493,8 +494,8 @@ function WithBaseObjectDeclarativeRecord(envRec) {
 	return 'undefined
 };
 
-/* 
-8.1.1.2 Object Environment Records 
+/*
+8.1.1.2 Object Environment Records
 
 Each object Environment Record is associated with an object called its binding object. An object Environment
 Record binds the set of string identifier names that directly correspond to the property names of its binding
@@ -517,7 +518,7 @@ following algorithms.
 
 /* 8.1.1.2.1 HasBinding(N) */
 /* The concrete Environment Record method HasBinding for object Environment Records determines if its
-   associated binding object has a property whose name is the value of the argument N: 
+   associated binding object has a property whose name is the value of the argument N:
 */
 function HasBindingObjectRecord(envRec, N) {
 	/* Let envRec be the object Environment Record for which the method was invoked. */
@@ -606,7 +607,7 @@ function CreateImmutableBindingObjectRecord(envRec, N, S) {
    bound value of the current binding of the identifier whose name is the value of the argument N to the value of
    argument V. An uninitialized binding for N must already exist.
 */
-function InitializeBindingObjectRecord(envRec, N, V) {	
+function InitializeBindingObjectRecord(envRec, N, V) {
 	/* Let envRec be the object Environment Record for which the method was invoked. */
 
 	/* Assert: envRec must have an uninitialized binding for N. */
@@ -631,7 +632,7 @@ function InitializeBindingObjectRecord(envRec, N, V) {
    argument N to the value of argument V. A property named N normally already exists but if it does not or is not
    currently writable, error handling is determined by the value of the Boolean argument S.
 */
-function SetMutableBindingObjectRecord(envRec, N, V, S) {	
+function SetMutableBindingObjectRecord(envRec, N, V, S) {
     /* Let envRec be the object Environment Record for which the method was invoked. */
 
     /* Let bindings be the binding object for envRec. */
@@ -665,7 +666,7 @@ function GetBindingValueObjectRecord(envRec, N, S) {
 	    	return 'undefined
 	    }
 	    else {
-	    	throw ReferenceErrorConstructorInternal() 
+	    	throw ReferenceErrorConstructorInternal()
 	    }
 	};
 
@@ -729,7 +730,7 @@ ArrowFunction function and references super, its function Environment Record als
 used to perform super method invocations from within the function.
 */
 
-/* 
+/*
 Function Environment Records support all of the declarative Environment Record methods listed in Table 15
 and share the same specifications for all of those methods except for HasThisBinding and HasSuperBinding. In
 addition, function Environment Records support the methods listed in Table 17: */
@@ -737,7 +738,7 @@ addition, function Environment Records support the methods listed in Table 17: *
 /* 8.1.1.3.1 BindThisValue(V) */
 function BindThisValue(envRec, V) {
     /* Let envRec be the function Environment Record for which the method was invoked. */
-    
+
     /* Assert: envRec.[[thisBindingStatus]] is not "lexical". */
     assert( !(envRec.thisBindingStatus = "lexical") );
 
@@ -757,12 +758,12 @@ function BindThisValue(envRec, V) {
 };
 
 /* 8.1.1.3.2 HasThisBinding () */
-function HasThisBindingFunctionRecord(envRec) {	
+function HasThisBindingFunctionRecord(envRec) {
     /* Let envRec be the function Environment Record for which the method was invoked. */
 
     /* If envRec.[[thisBindingStatus]] is "lexical", return false; otherwise, return true. */
     if ( envRec.thisBindingStatus = "lexical" ) {
-    	return false 
+    	return false
     };
 
     return true
@@ -895,7 +896,7 @@ function CreateMutableBindingGlobalRecord(envRec, N, D) {
 /* The concrete Environment Record method CreateImmutableBinding for global Environment Records creates a
    new immutable binding for the name N that is uninitialized. A binding must not already exist in this
    Environment Record for N. If Boolean argument S is provided and has the value true the new binding is
-   marked as a strict binding. 
+   marked as a strict binding.
 */
 function CreateImmutableBindingGlobalRecord(envRec, N, S) {
     /* Let envRec be the global Environment Record for which the method was invoked. */
@@ -915,7 +916,7 @@ function CreateImmutableBindingGlobalRecord(envRec, N, S) {
 /* 8.1.1.4.4 InitializeBinding (N,V) */
 /* The concrete Environment Record method InitializeBinding for global Environment Records is used to set the
    bound value of the current binding of the identifier whose name is the value of the argument N to the value of
-   argument V. An uninitialized binding for N must already exist. 
+   argument V. An uninitialized binding for N must already exist.
 */
 function InitializeBindingGlobalRecord(envRec, N, V) {
     /* Let envRec be the global Environment Record for which the method was invoked. */
@@ -944,12 +945,12 @@ function isObjectEnvRec(envRec) {
 };
 
 /* 8.1.1.4.5 SetMutableBinding (N,V,S) */
-/* 
+/*
 The concrete Environment Record method SetMutableBinding for global Environment Records attempts to
 change the bound value of the current binding of the identifier whose name is the value of the argument N to
 the value of argument V. If the binding is an immutable binding, a TypeError is thrown if S is true. A property
 named N normally already exists but if it does not or is not currently writable, error handling is determined by
-the value of the Boolean argument S. 
+the value of the Boolean argument S.
 */
 function SetMutableBindingGlobalRecord(envRec, N, V, S) {
     /* Let envRec be the global Environment Record for which the method was invoked. */
@@ -1040,7 +1041,7 @@ function DeleteBindingGlobalRecord(envRec, N) {
 
             /* If N is an element of varNames, remove that element from the varNames. */
             if ( N in_list varNames) {
-              
+
               newVarNames := [];
               foreach( name : varNames ) {
                 if ( !(name = N)) {
@@ -1115,7 +1116,7 @@ function HasVarDeclaration(envRec, N) {
 };
 
 /* 8.1.1.4.13 HasLexicalDeclaration (N) */
-/* 
+/*
 The concrete Environment Record method HasLexicalDeclaration for global Environment Records determines
 if the argument identifier has a binding in this record that was created using a lexical declaration such as a
 LexicalDeclaration or a ClassDeclaration :
@@ -1338,7 +1339,7 @@ function CreateGlobalFunctionBinding(envRec, N, V, D) {
     status := Set(globalObject, N, V, false);
 
     /* Record that the binding for N in ObjRec has been initialized. */
-    
+
     /* TODO check como por o binding a initialized */
     /* setBindingInitialised(ObjRec, N, true); */
 
@@ -1374,7 +1375,7 @@ binding that exists in another Environment Record.
 Module Environment Records support all of the declarative Environment Record methods listed in Table 15
 and share the same specifications for all of those methods except for GetBindingValue, DeleteBinding,
 HasThisBinding and GetThisBinding. In addition, module Environment Records support the methods listed in
-Table 20:  
+Table 20:
 */
 
 /* 8.1.1.5.1 GetBindingValue(N,S) */
@@ -1458,7 +1459,7 @@ function CreateImportBinding(envRec, N, M, N2) {
     return NormalCompletion('empty)
 };
 
-/* 
+/*
 8.1.2 Lexical Environment Operations
 
 The following abstract operations are used in this specification to operate upon lexical environments:
@@ -1494,7 +1495,7 @@ function GetIdentifierReference(lex, name, strict) {
     /* Else */
     else {
         /* Let outer be the value of lex’s outer environment reference. */
-        outer := getOuterEnvironmentReference(lex); 
+        outer := getOuterEnvironmentReference(lex);
 
         /* Return GetIdentifierReference(outer, name, strict). */
         return GetIdentifierReference(outer, name, strict)

@@ -1,8 +1,22 @@
+/* TODO:Move to summaries file? */
+function __concatStringList(globalObject, this, NewTarget, strict, params) {
+  return s_concat(params)
+};
+
 function newLazyObject() {
   realm := { globalEnv : |global| };
   n_object :=
     CreateBuiltInFunctionObject([], "lazyFunction", realm, false, null);
   n_object.Get := "lazyGet";
+
+  join := CreateBuiltInFunctionObject(
+    ["v1", "v2"], "__concatStringList", realm, false, null);
+  createBuiltInProperty(n_object, "join", join);
+
+  format := CreateBuiltInFunctionObject(
+    ["..."], "__concatStringList", realm, false, null);
+  createBuiltInProperty(n_object, "format", format);
+
   return n_object
 };
 
