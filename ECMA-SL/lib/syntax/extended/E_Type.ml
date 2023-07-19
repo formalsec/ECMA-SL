@@ -4,6 +4,7 @@ type t =
   | NeverType
   | UndefinedType
   | NullType
+  | VoidType
   | IntType
   | FloatType
   | StringType
@@ -131,6 +132,7 @@ let rec str (t : t) : string =
   | NeverType -> "never"
   | UndefinedType -> "undefined"
   | NullType -> "null"
+  | VoidType -> "void"
   | IntType -> "int"
   | FloatType -> "float"
   | StringType -> "string"

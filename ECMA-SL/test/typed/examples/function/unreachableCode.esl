@@ -1,0 +1,15 @@
+function returnUnreachable () {
+	a := 10;
+	return a;
+	b := 20			                        /* UnreachableCode */
+};
+
+function throwUnreachable () {
+	a := 10;
+	throw a;
+	b := 20			                        /* UnreachableCode */
+};
+
+function main() {
+	return 0
+}

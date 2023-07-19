@@ -9,14 +9,14 @@ function Scope(thisBinding: JSObject_t, globalObject: JSObject_t) {
 };
 
 
-function _initScopeVdecls(scope: JSScope_t, vdecls: any): null {      /* FIXME: replace by list type and void return */
+function _initScopeVdecls(scope: JSScope_t, vdecls: any): void {      /* FIXME: replace by list type */
   foreach(vdecl : vdecls) {
     scope.store[vdecl] := 'undefined
   }; 
   return 
 };
 
-function _initScopeFdecls(scope: JSScope_t, fdecls: any): null {      /* FIXME: replace by list type and void return */
+function _initScopeFdecls(scope: JSScope_t, fdecls: any): void {      /* FIXME: replace by list type */
   foreach(fdecl : fdecls) {
     match fdecl with
     | { type: "FunctionDeclaration", id: id, params: params, body: code } -> {
@@ -31,7 +31,7 @@ function _initScopeFdecls(scope: JSScope_t, fdecls: any): null {      /* FIXME: 
   return 
 };
 
-function initScope(scope: JSScope_t, vdecls: any, fdecls: any): null {    /* FIXME: replace by list type and void return */
+function initScope(scope: JSScope_t, vdecls: any, fdecls: any): void {    /* FIXME: replace by list type */
   _initScopeVdecls(scope, vdecls);
   _initScopeFdecls(scope, fdecls); 
   return 
@@ -56,7 +56,7 @@ function resolveName(scope: JSScope_t, name: string) {
   }
 };
 
-function updateScope(currScope: JSScope_t, scope: JSScope_t, name: string, val: unknown) {
+function updateScope(currScope: JSScope_t, scope: JSScope_t, name: string, val: unknown): void {
   if (name in_obj scope.store) {
     scope.store[name] := val
   } else {

@@ -22,7 +22,7 @@ function resolveObject(objVal: JSObject_t, propName: string): unknown {
   }
 };
 
-function updateObject(objVal: JSObject_t, propName: string, val: unknown): null {     /* FIXME: Change for void return type */
+function updateObject(objVal: JSObject_t, propName: string, val: unknown): void {
   objVal.__js_props__[propName] := val; 
   return
 }

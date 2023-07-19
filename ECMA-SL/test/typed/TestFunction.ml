@@ -16,7 +16,11 @@ let%test _ =
 
 let%test _ =
   Test.type_checker_test "examples/function/return.esl"
-    [ BadReturn (StringType, IntType) ]
+    [
+      BadReturn (VoidType, IntType);
+      BadReturn (IntType, VoidType);
+      BadReturn (StringType, IntType);
+    ]
 
 let%test _ =
   Test.type_checker_test "examples/function/operator.esl"
@@ -33,3 +37,11 @@ let%test _ =
 
 let%test _ =
   Test.type_checker_test "examples/function/badMain.esl" [ BadMainArgs ]
+
+let%test _ =
+  Test.type_checker_test "examples/function/openCodePath.esl"
+    [ OpenCodePath; OpenCodePath; OpenCodePath; OpenCodePath ]
+
+let%test _ =
+  Test.type_checker_test "examples/function/unreachableCode.esl"
+    [ UnreachableCode; UnreachableCode ]

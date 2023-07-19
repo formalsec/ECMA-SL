@@ -179,6 +179,7 @@
                 "unknown"               , TYPE_UNKNOWN;
                 "never"                 , TYPE_NEVER;
                 "undefined"             , TYPE_UNDEFINED;
+                "void"                  , TYPE_VOID;
                 "int"                   , TYPE_INT;
                 "float"                 , TYPE_FLOAT;
                 "string"                , TYPE_STRING;

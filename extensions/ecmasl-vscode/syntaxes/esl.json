@@ -123,7 +123,7 @@
 				},
 				{
 					"name": "entity.name.type",
-					"match": "\\b(any|unknown|never|undefined|int|float|string|boolean|symbol|sigma)\\b"
+					"match": "\\b(any|unknown|never|undefined|void|int|float|string|boolean|symbol|sigma)\\b"
 				},
 				{
 					"name": "entity.name.type",

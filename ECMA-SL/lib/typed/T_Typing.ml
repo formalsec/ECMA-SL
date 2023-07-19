@@ -132,11 +132,18 @@ let check_runtime_type (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
 
 let check_user_type (expr : E_Expr.t) (tref : t) (texpr : t)
     (type_check_f : t -> t -> unit) : unit =
-  let tref' = resolve_typedef tref in
-  try type_check_f tref' texpr
-  with T_Err.TypeError terr ->
-    let texpr' = literal_terr expr texpr in
-    T_Err.push terr (T_Err.BadValue (tref, texpr'))
+  let _check_user_type tref' texpr' =
+    try type_check_f tref' texpr'
+    with T_Err.TypeError terr ->
+      T_Err.push terr (T_Err.BadValue (tref, literal_terr expr texpr))
+  in
+  match (tref, texpr) with
+  | UserDefinedType _, UserDefinedType _ when tref = texpr -> ()
+  | UserDefinedType _, UserDefinedType _ ->
+      _check_user_type (resolve_typedef tref) (resolve_typedef texpr)
+  | UserDefinedType _, _ -> _check_user_type (resolve_typedef tref) texpr
+  | _, UserDefinedType _ -> _check_user_type tref (resolve_typedef texpr)
+  | _ -> failwith "Typed ECMA-SL: T_Typing.check_user_type"
 
 let rec type_check (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   match (tref, texpr) with
@@ -158,7 +165,7 @@ let rec type_check (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   | SigmaType _, _ -> check_union_type expr tref texpr (type_check expr)
   | ObjectType _, ObjectType _ -> check_obj_type expr tref texpr type_check
   | RuntimeType _, RuntimeType _ -> check_runtime_type expr tref texpr
-  | UserDefinedType _, UserDefinedType _ when tref = texpr -> ()
+  | _, UserDefinedType _ -> check_user_type expr tref texpr (type_check expr)
   | UserDefinedType _, _ -> check_user_type expr tref texpr (type_check expr)
   | _, LiteralType _ -> check_literal_expr expr tref texpr
   | _ -> T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.expr_tkn expr)

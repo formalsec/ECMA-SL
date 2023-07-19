@@ -69,7 +69,7 @@ let at (startpos, endpos) =
 %token LIST_TYPE TUPLE_TYPE NULL_TYPE SYMBOL_TYPE CURRY_TYPE
 %token QUESTION
 %token EOF
-%token TYPEDEF, TYPE_ANY, TYPE_UNKNOWN, TYPE_NEVER, TYPE_UNDEFINED, TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL, TYPE_SIGMA
+%token TYPEDEF, TYPE_ANY, TYPE_UNKNOWN, TYPE_NEVER, TYPE_UNDEFINED, TYPE_VOID, TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BOOLEAN TYPE_SYMBOL, TYPE_SIGMA
 
 
 %token API_ASSUME API_MK_SYMBOLIC API_ABORT
@@ -585,10 +585,10 @@ e_stmt_target:
   | FOREACH; LPAREN; x = VAR; COLON; e = e_expr_target; RPAREN; meta = e_stmt_metadata_target; var_meta_opt = option(delimited(LBRACK, var_metadata_target, RBRACK)); s = e_block_target;
     { E_Stmt.ForEach (x, e, s, meta, var_meta_opt) @@ at $sloc }
   | RETURN; e = e_expr_target;
-    { E_Stmt.Return e @@ at $sloc }
+    { E_Stmt.Return (Some e) @@ at $sloc }
   | RETURN;
     /* { E_Stmt.Return (E_Expr.Val (Val.Void)) } */
-    { E_Stmt.Return (E_Expr.Val Val.Null) @@ at $sloc }
+    { E_Stmt.Return None @@ at $sloc }
   | THROW; e = e_expr_target;
     { E_Stmt.Throw e @@ at $sloc }
   | FAIL; e = e_expr_target;
@@ -738,6 +738,8 @@ e_simple_type_target:
     { E_Type.NeverType }
   | TYPE_UNDEFINED;
     { E_Type.UndefinedType }
+  | TYPE_VOID;
+    { E_Type.VoidType }
   | TYPE_INT;
     { E_Type.IntType }
   | TYPE_FLOAT;

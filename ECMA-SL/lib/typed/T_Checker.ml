@@ -31,13 +31,22 @@ let type_function_params (tctx : T_Ctx.t) (func : E_Func.t) : unit =
             ~tkn:(T_Err.str_tkn param))
     tparams
 
+let test_function_return (tctx : T_Ctx.t) (func : E_Func.t) : unit =
+  if T_Ctx.get_tstate tctx = T_Ctx.Normal then
+    T_Err.raise T_Err.OpenCodePath ~src:(T_Err.func_tkn func)
+      ~tkn:(T_Err.str_tkn (E_Func.get_name func))
+
 let type_function (tctx : T_Ctx.t) (func : E_Func.t) : T_Err.t list =
-  let _ = T_Ctx.set_func tctx func in
-  let paramErrs =
-    try type_function_params tctx func |> fun () -> []
+  let _throwToErrLst targetFunc =
+    try targetFunc tctx func |> fun () -> []
     with T_Err.TypeError terr' -> [ terr' ]
   in
-  List.append paramErrs (T_Stmt.type_stmt tctx (E_Func.get_body func))
+  let _ = T_Ctx.set_func tctx func in
+  let _ = T_Ctx.set_tstate tctx T_Ctx.Normal in
+  let terrsParams = _throwToErrLst type_function_params in
+  let terrsCode = T_Stmt.type_stmt tctx (E_Func.get_body func) in
+  let terrsReturn = _throwToErrLst test_function_return in
+  List.concat [ terrsParams; terrsCode; terrsReturn ]
 
 let type_program (prog : E_Prog.t) : T_Err.t list =
   let tctx = T_Ctx.create prog in

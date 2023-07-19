@@ -1,9 +1,21 @@
-function foo(): int {
-  return 10
+function valReturn(): int {
+  return 10                           /* Valid */
 };
 
-function bar(): string {
-  return 10                 /* BadReturn: int <- string */
+function badValVoidReturn(): int {
+  return                              /* BadReturn: int <- void */
+};
+
+function badValReturn(): string {
+  return 10                           /* BadReturn: int <- string */
+};
+
+function voidReturn(): void {
+  return                              /* Valid */
+};
+
+function badVoidValReturn(): void {
+  return 10                           /* BadReturn: void <- int */
 };
 
 function main() {

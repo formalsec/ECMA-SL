@@ -37,8 +37,7 @@ let%test _ =
     ]
 
 let%test _ =
+  let tBar = UnionType [ UserDefinedType "type_t"; NullType ] in
+  let tobj = Test.obj_cons [ ("foo", IntType); ("bar", tBar) ] in
   Test.type_checker_test "examples/typedef/recursive.esl"
-    [
-      BadValue (NullType, UserDefinedType "type_t");
-      BadPossibleType (Some "x[bar]", NullType);
-    ]
+    [ BadValue (NullType, tobj); BadPossibleType (Some "x[bar]", NullType) ]

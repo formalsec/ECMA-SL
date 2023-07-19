@@ -32,6 +32,8 @@ type err_t =
   | MissingPatternCase
   | MissingMainFunc
   | BadMainArgs
+  | UnreachableCode
+  | OpenCodePath
 
 let err_str (err : err_t) : string =
   match err with
@@ -120,6 +122,8 @@ let err_str (err : err_t) : string =
       "This pattern-matching is not exhaustive. The following case is missing:"
   | MissingMainFunc -> "The main function is missing from the program."
   | BadMainArgs -> "The main function is not expected to have any parameters."
+  | UnreachableCode -> "Unreachable code detected."
+  | OpenCodePath -> "Not all code paths return a value."
 
 let error_kind () : kind_t = Error
 let warning_kind () : kind_t = Warning

@@ -29,7 +29,7 @@ function resolveArray(arrayObject: JSArrayObject_t, propVal: float): unknown {		
 	}
 };
 
-function updateArray(arrayObject: JSArrayObject_t, propVal: float, val: unknown): null {			/* FIXME: void return and previous bug */
+function updateArray(arrayObject: JSArrayObject_t, propVal: float, val: unknown): void {			/* BUG: subtyping relationship */
 	if (typeof(propVal) = __$Flt) {
 		oldLength: int := int_of_float(arrayObject.__js_props__.length);
 		index: int := int_of_float(propVal);

@@ -1177,20 +1177,22 @@ module E_Stmt = struct
                 contents),
           ctxt' )
     | Return e when ctxt' = Table ->
+        let e' = E_Stmt.return_val e in
         let html =
-          match e with
+          match e' with
           | E_Expr.Var _ ->
               "The result equals the input argument (no conversion)."
           | E_Expr.Val Val.Null -> "Return"
-          | _ -> E_Expr.to_html E_Expr.Table e
+          | _ -> E_Expr.to_html E_Expr.Table e'
         in
         (html, CNone)
     | Return e -> (
-        match (ctxt, e) with
+        let e' = E_Stmt.return_val e in
+        match (ctxt, e') with
         | SameParagraph, E_Expr.Val Val.Null ->
             (sprintf "%sreturn%s" prepend_str append_str, CNone)
         | SameParagraph, _ ->
-            ( sprintf "%sreturn %s%s" prepend_str (expr_to_html e) append_str,
+            ( sprintf "%sreturn %s%s" prepend_str (expr_to_html e') append_str,
               CNone )
         | _, E_Expr.Val Val.Null ->
             ( sprintf "<li>%s%s%s.</li>" prepend_str
@@ -1208,7 +1210,7 @@ module E_Stmt = struct
         | _ ->
             ( sprintf "<li>%s%s %s%s.</li>" prepend_str
                 (if prepend_str = "" then "Return" else "return")
-                (expr_to_html e) append_str,
+                (expr_to_html e') append_str,
               ctxt' ))
     | Throw e when ctxt' = Table -> (sprintf "Throw %s." (expr_to_html e), CNone)
     | Throw e -> (

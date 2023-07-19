@@ -10,7 +10,7 @@ and t' =
   | Fail of E_Expr.t
   | Throw of E_Expr.t
   | Print of E_Expr.t
-  | Return of E_Expr.t
+  | Return of E_Expr.t option
   | Wrapper of metadata_t list * t
   | Assign of string * E_Type.t option * E_Expr.t
   | GlobAssign of string * E_Expr.t
@@ -61,7 +61,8 @@ let rec str (stmt : t) : string =
   | Throw e -> "throw " ^ E_Expr.str e
   | Print e -> "print " ^ E_Expr.str e
   | Assert e -> "assert " ^ E_Expr.str e
-  | Return exp -> "return " ^ E_Expr.str exp
+  | Return None -> "return"
+  | Return (Some e) -> "return " ^ E_Expr.str e
   | Wrapper (m, s) -> str s
   | Assign (x, t, exp) ->
       let x' = match t with None -> x | Some t' -> x ^ ": " ^ E_Type.str t' in
@@ -104,6 +105,9 @@ let rec str (stmt : t) : string =
   | Abort e -> "se_abort " ^ E_Expr.str e
   | SymStmt (Assume e) -> "se_assume " ^ E_Expr.str e
 
+let return_val (expr_opt : E_Expr.t option) : E_Expr.t =
+  Option.default (E_Expr.Val Val.Null) expr_opt
+
 let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
   let fe = Option.default (fun x -> x) fe in
   let f_pat = List.map (fun (epat, s) -> (epat, map ~fe f s)) in
@@ -124,7 +128,8 @@ let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
     | Throw e -> Throw (fe e)
     | Print e -> Print (fe e)
     | Assert e -> Assert (fe e)
-    | Return e -> Return (fe e)
+    | Return None -> Return None
+    | Return (Some e) -> Return (Some (fe e))
     | Wrapper (m, s) -> Wrapper (m, map ~fe f s)
     | Assign (x, t, e) -> Assign (fx x, t, fe e)
     | GlobAssign (x, e) -> GlobAssign (fx x, fe e)

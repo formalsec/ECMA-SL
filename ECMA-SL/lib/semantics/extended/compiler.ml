@@ -689,7 +689,7 @@ and compile_stmt (e_stmt : E_Stmt.t) : Stmt.t list =
       let ret_so = Option.map_default compile_stmt [] so in
       compile_switch ret_e ret_cases ret_so e_stmt.at
   | Return e_e ->
-      let ret_e = compile_expr e_stmt.at e_e in
+      let ret_e = compile_expr e_stmt.at (E_Stmt.return_val e_e) in
       compile_return ret_e e_stmt.at
   | Abort e ->
       let stmts, e' = compile_expr e_stmt.at e in

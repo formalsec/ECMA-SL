@@ -69,10 +69,14 @@ let test_nargs (tctx : T_Ctx.t) (expr : E_Expr.t) (args : E_Expr.t list)
 
 let type_named_call (tctx : T_Ctx.t) (expr : E_Expr.t) (fname : string)
     (args : E_Expr.t list) : E_Type.t list * E_Type.t =
+  let _check_abrupt tret =
+    if tret = E_Type.NeverType then T_Ctx.set_tstate tctx T_Ctx.Abrupt
+  in
   match T_Ctx.get_func_by_name tctx fname with
   | Some func ->
       let tparams = E_Func.get_tparams func in
       let tret = Option.default E_Type.AnyType (E_Func.get_return_t func) in
+      let _ = _check_abrupt tret in
       test_nargs tctx expr args tparams |> fun () -> (tparams, tret)
   | None -> T_Err.raise (T_Err.UnknownFunction fname) ~tkn:(T_Err.str_tkn fname)
 
