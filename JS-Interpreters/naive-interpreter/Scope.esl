@@ -1,5 +1,5 @@
-function Scope(thisBinding, globalObject) {
-  scope := {
+function Scope(thisBinding: JSObject_t, globalObject: JSObject_t) {
+  scope: JSScope_t := {
     store: {},
     parent: null,
     thisBinding: thisBinding,
@@ -9,14 +9,14 @@ function Scope(thisBinding, globalObject) {
 };
 
 
-function _initScopeVdecls(scope, vdecls) {
+function _initScopeVdecls(scope: JSScope_t, vdecls: any): null {      /* FIXME: replace by list type and void return */
   foreach(vdecl : vdecls) {
     scope.store[vdecl] := 'undefined
   }; 
   return 
 };
 
-function _initScopeFdecls(scope, fdecls) {
+function _initScopeFdecls(scope: JSScope_t, fdecls: any): null {      /* FIXME: replace by list type and void return */
   foreach(fdecl : fdecls) {
     match fdecl with
     | { type: "FunctionDeclaration", id: id, params: params, body: code } -> {
@@ -31,45 +31,47 @@ function _initScopeFdecls(scope, fdecls) {
   return 
 };
 
-function initScope(scope, vdecls, fdecls) {
+function initScope(scope: JSScope_t, vdecls: any, fdecls: any): null {    /* FIXME: replace by list type and void return */
   _initScopeVdecls(scope, vdecls);
   _initScopeFdecls(scope, fdecls); 
   return 
 };
 
 
-function getThisBinding(scope) {
+function getThisBinding(scope: JSScope_t): JSObject_t {
   return scope.thisBinding
 };
 
-function resolveName(scope, name) {
+function resolveName(scope: JSScope_t, name: string) {
   if (name in_obj scope.store) {
     return scope.store[name]
   } else {
-    if (scope.parent = null) {
+    parent: JSScope_t | null := scope.parent;
+    if (parent = null) {
       globalObject := scope.globalObject;
       return {globalObject.resolveProperty}(globalObject, name)
     } else {
-      return resolveName(scope.parent, name)
+      return resolveName(parent, name)
     }
   }
 };
 
-function updateScope(currScope, scope, name, val) {
+function updateScope(currScope: JSScope_t, scope: JSScope_t, name: string, val: unknown) {
   if (name in_obj scope.store) {
     scope.store[name] := val
   } else {
-    if (scope.parent = null) {
+    parent: JSScope_t | null := scope.parent;
+    if (parent = null) {
       currScope.store[name] := val
     } else {
-      updateScope(currScope, scope.parent, name, val)
+      updateScope(currScope, parent, name, val)
     }
   }; 
   return
 };
 
-function extendScope(scope, thisBinding) {
-  newScope := Scope(thisBinding, scope.globalObject);
+function extendScope(scope: JSScope_t, thisBinding: JSObject_t) {
+  newScope: JSScope_t := Scope(thisBinding, scope.globalObject);
   newScope.parent := scope;
   return newScope
 }

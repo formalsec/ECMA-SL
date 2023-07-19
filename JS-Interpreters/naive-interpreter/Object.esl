@@ -1,5 +1,5 @@
-function Object() {
-  object := { 
+function Object() : JSObject_t {
+  object: JSObject_t := { 
     __js_props__: {},
     __proto__: null,
     resolveProperty: "resolveObject",
@@ -9,19 +9,20 @@ function Object() {
 };
 
 
-function resolveObject(objVal, propName) {
+function resolveObject(objVal: JSObject_t, propName: string): unknown {
   if (propName in_obj objVal.__js_props__) {
     return objVal.__js_props__[propName]
   } else {
-    if (objVal.__proto__ = null) {
+    proto: JSObject_t | null := objVal.__proto__;
+    if (proto = null) {
       return 'undefined
     } else {
-      return resolveObject(objVal.__proto__, propName)
+      return resolveObject(proto, propName)
     }
   }
 };
 
-function updateObject(objVal, propName, val){
+function updateObject(objVal: JSObject_t, propName: string, val: unknown): null {     /* FIXME: Change for void return type */
   objVal.__js_props__[propName] := val; 
   return
 }

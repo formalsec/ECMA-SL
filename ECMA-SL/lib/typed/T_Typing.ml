@@ -1,5 +1,15 @@
 open E_Type
 
+let nth_expr (expr : E_Expr.t) (n : int) : E_Expr.t =
+  match expr with
+  | E_Expr.NOpt (_, es) -> List.nth es n
+  | _ -> failwith "Typed ECMA-SL: T_Typing.nth_expr"
+
+let lst_expr (expr : E_Expr.t) : E_Expr.t list =
+  match expr with
+  | E_Expr.NOpt (_, es) -> es
+  | _ -> failwith "Typed ECMA-SL: T_Typing.lst_expr"
+
 let typedefs : (string, E_Type.t) Hashtbl.t ref =
   ref (Hashtbl.create !Config.default_hashtbl_sz)
 
@@ -32,6 +42,25 @@ let check_literal_expr (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
         T_Err.raise (T_Err.BadValue (tref, texpr)) ~tkn:(T_Err.expr_tkn expr)
   | _, LiteralType _ -> check_literal_narrowing expr tref texpr
   | _ -> failwith "Typed ECMA-SL: T_Typing.check_literal_expr"
+
+let check_tuple_type (expr : E_Expr.t) (tref : t) (texpr : t)
+    (type_check_f : E_Expr.t -> t -> t -> unit) : unit =
+  let _check_obj_el_f (expr, (tref, texpr)) = type_check_f expr tref texpr in
+  let _check_tuple_els elements =
+    try List.iter _check_obj_el_f elements
+    with T_Err.TypeError terr ->
+      T_Err.push terr (T_Err.BadValue (tref, texpr))
+  in
+  let _terr_nelements nts ntes expr =
+    T_Err.raise (T_Err.NExpectedElements (nts, ntes)) ~tkn:(T_Err.expr_tkn expr)
+  in
+  match (tref, texpr) with
+  | TupleType ts, TupleType tes ->
+      let nts, ntes = (List.length ts, List.length tes) in
+      if nts > ntes then _terr_nelements nts ntes expr
+      else if nts < ntes then _terr_nelements nts ntes (nth_expr expr nts)
+      else _check_tuple_els (List.combine (lst_expr expr) (List.combine ts tes))
+  | _ -> failwith "Typed ECMA-SL: T_Typing.check_tuple_type"
 
 let check_union_expr (expr : E_Expr.t) (tref : t) (texpr : t)
     (type_check_f : t -> t -> unit) : unit =
@@ -122,11 +151,12 @@ let rec type_check (expr : E_Expr.t) (tref : t) (texpr : t) : unit =
   | StringType, StringType -> ()
   | BooleanType, BooleanType -> ()
   | SymbolType, SymbolType -> ()
-  | ObjectType _, ObjectType _ -> check_obj_type expr tref texpr type_check
+  | TupleType _, TupleType _ -> check_tuple_type expr tref texpr type_check
   | _, SigmaType (_, nts) -> type_check expr tref (UnionType nts)
   | _, UnionType _ -> check_union_expr expr tref texpr (type_check expr)
   | UnionType _, _ -> check_union_type expr tref texpr (type_check expr)
   | SigmaType _, _ -> check_union_type expr tref texpr (type_check expr)
+  | ObjectType _, ObjectType _ -> check_obj_type expr tref texpr type_check
   | RuntimeType _, RuntimeType _ -> check_runtime_type expr tref texpr
   | UserDefinedType _, UserDefinedType _ when tref = texpr -> ()
   | UserDefinedType _, _ -> check_user_type expr tref texpr (type_check expr)

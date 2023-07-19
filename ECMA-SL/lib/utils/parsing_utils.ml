@@ -108,27 +108,30 @@ let parse_file str : Prog.t =
   fs
 
 let rec resolve_imports (to_resolve : string list list) (resolved : StrSet.t)
-    (path : string list) (funcs : E_Func.t list) (macros : E_Macro.t list) :
-    E_Func.t list * E_Macro.t list =
+    (path : string list) (typedefs : (string * E_Type.t) list)
+    (funcs : E_Func.t list) (macros : E_Macro.t list) :
+    (string * E_Type.t) list * E_Func.t list * E_Macro.t list =
   match (to_resolve, path) with
-  | [], _ -> (funcs, macros)
+  | [], _ -> (typedefs, funcs, macros)
   | [] :: lst, file :: rest_path ->
       let resolved = StrSet.add file resolved in
-      resolve_imports lst resolved rest_path funcs macros
+      resolve_imports lst resolved rest_path typedefs funcs macros
   | (file :: files) :: _, _ ->
       if StrSet.mem file resolved then
-        resolve_imports [ files ] resolved path funcs macros
+        resolve_imports [ files ] resolved path typedefs funcs macros
       else if List.mem file path then
         failwith "Error resolving imports: Cyclic dependency"
       else
         let file_contents = load_file file in
         let cur_prog = parse_e_prog file file_contents in
+        let cur_prog_typedefs = E_Prog.get_typedefs_list cur_prog in
         let cur_prog_funcs = E_Prog.get_funcs cur_prog in
         let cur_prog_macros = E_Prog.get_macros cur_prog in
         resolve_imports
           (E_Prog.get_imports cur_prog :: to_resolve)
-          resolved (file :: path) (cur_prog_funcs @ funcs)
-          (cur_prog_macros @ macros)
+          resolved (file :: path)
+          (cur_prog_typedefs @ typedefs)
+          (cur_prog_funcs @ funcs) (cur_prog_macros @ macros)
   | [] :: _, [] ->
       invalid_arg
         "Error resolving imports: path is empty and still some imports to \
@@ -136,15 +139,15 @@ let rec resolve_imports (to_resolve : string list list) (resolved : StrSet.t)
 
 let resolve_prog_imports (prog : E_Prog.t) : E_Prog.t =
   let file_name = E_Prog.get_file_name prog in
-  let typedefs = E_Prog.get_typedefs_list prog in
-  let total_funcs, total_macros =
+  let total_typedefs, total_funcs, total_macros =
     resolve_imports
       [ E_Prog.get_imports prog ]
       StrSet.empty
       [ E_Prog.get_file_name prog ]
+      (E_Prog.get_typedefs_list prog)
       (E_Prog.get_funcs prog) (E_Prog.get_macros prog)
   in
-  let new_prog = E_Prog.create [] typedefs total_funcs total_macros in
+  let new_prog = E_Prog.create [] total_typedefs total_funcs total_macros in
   E_Prog.set_file_name new_prog file_name;
   new_prog
 

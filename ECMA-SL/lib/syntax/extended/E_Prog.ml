@@ -15,16 +15,15 @@ type t = {
   macros : (string, E_Macro.t) Hashtbl.t;
 }
 
-let add_type_decls (prog : t) (type_decls : (string * E_Type.t) list) =
+let add_typedefs (prog : t) (typedefs : (string * E_Type.t) list) =
   List.iter
     (fun (d : string * E_Type.t) ->
-      let id = fst d in
-      let t = snd d in
-      match Hashtbl.find_opt prog.typedefs id with
-      | None -> Hashtbl.replace prog.typedefs id t
+      let tname, t = d in
+      match Hashtbl.find_opt prog.typedefs tname with
+      | None -> Hashtbl.replace prog.typedefs tname t
       | Some _ ->
-          invalid_arg ("Type \"" ^ id ^ "\" already exists in the program"))
-    type_decls
+          invalid_arg ("Type \"" ^ tname ^ "\" already exists in the program"))
+    typedefs
 
 let add_funcs (prog : t) (funcs : E_Func.t list) : unit =
   List.iter
@@ -46,7 +45,7 @@ let add_macros (prog : t) (macros : E_Macro.t list) : unit =
           invalid_arg ("Macro \"" ^ m.name ^ "\" already exists in the program"))
     macros
 
-let create (imports : string list) (type_decls : (string * E_Type.t) list)
+let create (imports : string list) (typedefs : (string * E_Type.t) list)
     (funcs : E_Func.t list) (macros : E_Macro.t list) : t =
   let prog =
     {
@@ -57,7 +56,7 @@ let create (imports : string list) (type_decls : (string * E_Type.t) list)
       macros = Hashtbl.create !Config.default_hashtbl_sz;
     }
   in
-  add_type_decls prog type_decls;
+  add_typedefs prog typedefs;
   add_funcs prog funcs;
   add_macros prog macros;
   prog

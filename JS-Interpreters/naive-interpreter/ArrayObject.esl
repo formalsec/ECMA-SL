@@ -1,5 +1,13 @@
-function ArrayObject(elements) {
-	arrayObject := Object();
+typedef JSArrayObject_t := {
+	__elements__: any, 							/* FIXME: replace by list type */
+  __js_props__: JSProps_t, 
+  __proto__: JSObject_t | null,
+  resolveProperty: string,
+  updateProperty: string
+};
+
+function ArrayObject(elements: any): JSArrayObject_t {
+	arrayObject: JSArrayObject_t := Object();																					/* BUG: subtyping relationship */
 	arrayObject.resolveProperty := "resolveArray";
 	arrayObject.updateProperty := "updateArray";
 	arrayObject.__js_props__.length := int_to_float(l_len(elements));
@@ -7,24 +15,24 @@ function ArrayObject(elements) {
   return arrayObject
 };
 
-function resolveArray(arrayObject, propVal) {
+function resolveArray(arrayObject: JSArrayObject_t, propVal: float): unknown {			/* BUG: problem with the typeof of unknown types */
 	if (typeof(propVal) = __$Flt) {
-		length := int_of_float(arrayObject.__js_props__.length);
-		index := int_of_float propVal;
+		length: int := int_of_float(arrayObject.__js_props__.length);
+		index: int := int_of_float(propVal);
 			if (index >= length) {
 				return 'undefined
 			} else {
 				return l_nth(arrayObject.__elements__, index)
 			}
 	} else {
-		return resolveObject(arrayObject, propVal)
+		return resolveObject(arrayObject, propVal)																			/* BUG: subtyping relationship */
 	}
 };
 
-function updateArray(arrayObject, propVal, val) {
+function updateArray(arrayObject: JSArrayObject_t, propVal: float, val: unknown): null {			/* FIXME: void return and previous bug */
 	if (typeof(propVal) = __$Flt) {
-		oldLength := int_of_float(arrayObject.__js_props__.length);
-		index := int_of_float propVal;
+		oldLength: int := int_of_float(arrayObject.__js_props__.length);
+		index: int := int_of_float(propVal);
 		while (oldLength < index) {
 			arrayObject.__elements__ := l_add(arrayObject.__elements__, 'undefined);
 			oldLength := oldLength + 1

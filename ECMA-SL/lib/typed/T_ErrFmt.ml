@@ -89,6 +89,12 @@ let triop_tkns (op : Operators.topt) (e1 : E_Expr.t) (e2 : E_Expr.t)
   let opTkn = Lit (Operators.str_of_triopt_single op) in
   match op with _ -> call_tkns opTkn [ e1; e2; e3 ]
 
+let nopt_tkns (op : Operators.nopt) (es : E_Expr.t list) : tkn_t list =
+  let exprTkns = concat_tkns (List.map (fun arg -> [ Expr arg ]) es) ", " in
+  match op with
+  | Operators.TupleExpr -> List.concat [ [ Lit "(" ]; exprTkns; [ Lit ")" ] ]
+  | _ -> []
+
 let expr_tkns (expr : E_Expr.t) : tkn_t list =
   match expr with
   | Val v -> [ Lit (Val.str v) ]
@@ -99,7 +105,7 @@ let expr_tkns (expr : E_Expr.t) : tkn_t list =
   | BinOpt (op, e1, e2) -> binop_tkns op e1 e2
   | EBinOpt (op, e1, e2) -> ebinop_tkns op e1 e2
   | TriOpt (op, e1, e2, e3) -> triop_tkns op e1 e2 e3
-  (* | NOpt (_, _) -> [] *)
+  | NOpt (op, es) -> nopt_tkns op es
   | Call (Val (Val.Str fn), args, _) -> call_tkns (Str fn) args
   (* | ECall (_, _) -> [] *)
   | NewObj fes ->

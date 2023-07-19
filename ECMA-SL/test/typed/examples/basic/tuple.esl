@@ -1,0 +1,8 @@
+function main() {
+	foo: int * string := (10, "abc");								/* Valid */
+	bar: int * string := (10, 20);									/* BadValue: */
+	baz: int * string := (10, "abc", true);					/* ExtraElement: 2 <- 3 */
+	qux: int * string * boolean := (10, "abc");			/* MissingElement: 3 <- 2*/
+
+	return 0
+}

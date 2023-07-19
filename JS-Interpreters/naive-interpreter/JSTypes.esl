@@ -1,0 +1,43 @@
+typedef JSProps_t := any;    					/* FIXME: replace with object with summary type */
+
+typedef JSObject_t := { 
+  __js_props__: JSProps_t, 
+  __proto__: JSObject_t | null,
+  resolveProperty: string,
+  updateProperty: string
+};
+
+
+
+typedef JSFunctionObject_t := {
+  __js_props__: JSProps_t, 
+  __proto__: JSObject_t | null,
+  resolveProperty: string,
+  updateProperty: string,
+
+  internal: false,
+  name: string,
+  params: any,          /* FIXME: replace by list type */
+  code: any,            /* FIXME: replace by js_stmt */
+  scope: JSScope_t
+};
+
+typedef JSInternalFunction_t := {
+	internal: true,
+	functionName: string
+};
+
+
+
+typedef CompletionType_t := 'Normal | 'Return | 'Break | 'Continue | 'Throw;
+typedef Completion_t := CompletionType_t * unknown;
+
+
+typedef JSStore_t := any;				/* FIXME: replace by object with summary type */
+
+typedef JSScope_t := {
+  store: JSStore_t,                  
+  parent: JSScope_t | null,
+  thisBinding: JSObject_t,
+  globalObject: JSObject_t
+}

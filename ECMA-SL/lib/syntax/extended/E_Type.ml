@@ -71,7 +71,7 @@ module Field = struct
   type ft = NamedField of string * (t * bool) | SumryField of t
 end
 
-let parse_literal_type (v : Val.t) : t =
+let rec parse_literal_type (v : Val.t) : t =
   match v with
   | Val.Null -> NullType
   | Val.Int _ -> LiteralType v
@@ -81,6 +81,7 @@ let parse_literal_type (v : Val.t) : t =
   | Val.Symbol "undefined" -> UndefinedType
   | Val.Symbol _ -> LiteralType v
   | Val.Type t -> RuntimeType t
+  | Val.Tuple ts -> TupleType (List.map parse_literal_type ts)
   | _ -> invalid_arg ("Invalid value '" ^ Val.str v ^ "' for literal type.")
 
 let parse_sigma_type (d : string) (t : t) : t =

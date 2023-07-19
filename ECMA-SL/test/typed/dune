@@ -2,7 +2,7 @@
  (name typed_ecmasl_tests)
  (modules
   Test
-  TestAssign
+  TestBasic
   TestFunction
   TestLiteral
   TestUnion

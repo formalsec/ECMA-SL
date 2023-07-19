@@ -16,6 +16,11 @@ let type_const (c : Operators.const) : E_Type.t =
   | Operators.MIN_VALUE -> E_Type.FloatType
   | Operators.PI -> E_Type.FloatType
 
+let type_nopt (op : Operators.nopt) (tes : E_Type.t list) : E_Type.t =
+  match op with
+  | Operators.TupleExpr -> E_Type.TupleType tes
+  | _ -> E_Type.AnyType
+
 let test_operand (test_operand_f : E_Expr.t -> E_Type.t -> E_Type.t)
     ((arg, tparam) : E_Expr.t * E_Type.t) : unit =
   try ignore (test_operand_f arg tparam)
@@ -157,7 +162,9 @@ let rec type_expr ?(narrow : bool = true) (tctx : T_Ctx.t) (expr : E_Expr.t) :
       let funPrototype = T_Op.type_triop op in
       let test_operand_f = test_operand (safe_type_expr tctx) in
       test_operator_call tctx args funPrototype test_operand_f
-  (* | NOpt (_, _) ->  *)
+  | NOpt (op, es) ->
+      let tes = List.map (type_expr ~narrow tctx) es in
+      type_nopt op tes
   | Call (fexpr, args, _) ->
       let tparams, tret = type_call tctx expr fexpr args in
       let test_arg_f = test_arg (safe_type_expr tctx) in
