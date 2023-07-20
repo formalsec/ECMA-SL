@@ -1,4 +1,4 @@
-module type SymbolicObject = sig
+module type S = sig
   type t
   type encoded_pct = Encoding.Expression.t
 
