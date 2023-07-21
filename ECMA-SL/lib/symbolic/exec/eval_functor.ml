@@ -50,6 +50,25 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
       opt : Encoding.Optimizer.t;
     }
 
+    let empty_state ~env ~cont =
+      let func, prog = env in
+      let heap = Heap.create () in
+      let store = Store.create [] in
+      let stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
+      let solver =
+        let s = Batch.create () in
+        if !Config.axioms then Batch.add s Encoding.Axioms.axioms;
+        s
+      in
+      {
+        prog;
+        code = Cont cont;
+        state = (heap, store, stack, func);
+        pc = ESet.empty;
+        solver;
+        opt = Encoding.Optimizer.create ();
+      }
+
     let is_cont (o : outcome) : bool =
       match o with Cont _ -> true | _ -> false
 
@@ -158,7 +177,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                 [ update c (Failure ("assert", Some v)) state pc' ]
               else [ update c (Cont (List.tl_exn stmts)) state pc ]
             in
-            Logging.print_endline
+            Log.debug
               (lazy
                 ("assert (" ^ Expr.str v ^ ") = "
                 ^ Bool.to_string (is_cont c.code)));
@@ -180,7 +199,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
               st @@ Cont cont
         | cond ->
             let no = Reducer.reduce_expr (Expr.Bool.not_ cond) in
-            Logging.print_endline
+            Log.debug
               (lazy
                 (sprintf "%s: If (%s)"
                    (Source.string_of_region s.at)
@@ -229,14 +248,13 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
         let* f', vs = Expr.func (Reducer.reduce_expr e') in
         let* es' = list_map ~f:(eval_expr store) es in
         let vs' = vs @ List.map ~f:Reducer.reduce_expr es' in
-        let func = Prog.get_func prog f' in
+        let* func = Prog.get_func prog f' in
         let stack' =
           Call_stack.push stack
             (Call_stack.Intermediate (List.tl_exn stmts, store, x, f))
         in
-        let store' =
-          Store.create (List.zip_exn (Prog.get_params prog f') vs')
-        in
+        let* params = Prog.get_params prog f' in
+        let store' = Store.create (List.zip_exn params vs') in
         return [ update c (Cont [ func.body ]) (heap, store', stack', f') pc ]
     | Stmt.AssignECall _ -> Error "'AssignECall' not implemented!"
     | Stmt.AssignNewObj x ->
@@ -342,7 +360,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    in
                    let objects =
                      Heap.set_field heap' l reduced_field v solver
-                       (ESet.to_list pc) store
+                       (ESet.to_list pc)
                    in
                    List.map objects ~f:(fun (new_heap, new_pc) ->
                        let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
@@ -356,7 +374,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    else
                      let objects =
                        Heap.set_field heap l reduced_field v solver
-                         (ESet.to_list pc) store
+                         (ESet.to_list pc)
                      in
                      List.map objects ~f:(fun (new_heap, new_pc) ->
                          let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
@@ -378,7 +396,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    in
                    let objects =
                      Heap.delete_field heap' l reduced_field solver
-                       (ESet.to_list pc) store
+                       (ESet.to_list pc)
                    in
                    List.map objects ~f:(fun (new_heap, new_pc) ->
                        let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
@@ -392,7 +410,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    else
                      let objects =
                        Heap.delete_field heap l reduced_field solver
-                         (ESet.to_list pc) store
+                         (ESet.to_list pc)
                      in
                      List.map objects ~f:(fun (new_heap, new_pc) ->
                          let pc' = List.fold new_pc ~init:pc ~f:ESet.add in
@@ -414,7 +432,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    in
                    let objects =
                      Heap.get_field heap' l reduced_field solver
-                       (ESet.to_list pc) store
+                       (ESet.to_list pc)
                    in
                    List.map objects ~f:(fun (new_heap, new_pc, v) ->
                        let v' =
@@ -432,7 +450,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
                    else
                      let objects =
                        Heap.get_field heap l reduced_field solver
-                         (ESet.to_list pc) store
+                         (ESet.to_list pc)
                      in
                      List.map objects ~f:(fun (new_heap, new_pc, v) ->
                          let v' =
@@ -456,7 +474,7 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
               if not (Batch.check solver (ESet.to_list pc')) then []
               else [ update c (Cont (List.tl_exn stmts)) state pc' ]
             in
-            Logging.print_endline
+            Log.debug
               (lazy
                 ("assume (" ^ Expr.str e' ^ ") = "
                 ^ Bool.to_string (List.length cont > 0)));
@@ -549,18 +567,18 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
         | Cont _ -> (
             match step c with
             | Ok cs -> List.iter ~f:(fun c -> L.push c w) cs
-            | Error msg -> Crash.error Source.no_region msg)
+            | Error msg -> failwith msg)
         | Error _ | Final _ | Unknown _ -> out := c :: !out
         | Failure (f, e) ->
             let _, _, _, func = c.state in
             let e' = Option.value_map e ~default:"" ~f:Expr.str in
-            Logging.print_endline
-              (lazy (sprintf "Failure: %s: %s: %s" func f e'));
+            Log.debug (lazy (sprintf "Failure: %s: %s: %s" func f e'));
             out := c :: !out
       done;
       !out
   end
 
+  (* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
   module RandArray : WorkList = struct
     type 'a t = 'a BatDynArray.t
 
@@ -579,37 +597,20 @@ module Make (P : Eval_functor_intf.P) : Eval_functor_intf.S = struct
     let length = BatDynArray.length
   end
 
-  module DFS = TreeSearch (Caml.Stack)
-  module BFS = TreeSearch (Caml.Queue)
+  module DFS = TreeSearch (Stdlib.Stack)
+  module BFS = TreeSearch (Stdlib.Queue)
   module RND = TreeSearch (RandArray)
 
-  (* Source: Thanks to Joao Borges (@RageKnify) for writing this code *)
   let invoke (prog : Prog.t) (func : Func.t)
       (eval : State.config -> State.config list) : State.config list =
-    let heap = Heap.create ()
-    and store = Store.create []
-    and stack = Call_stack.push Call_stack.empty Call_stack.Toplevel in
-    let solver =
-      let s = Batch.create () in
-      if !Config.axioms then Batch.add s Encoding.Axioms.axioms;
-      s
-    in
-    let initial_config =
-      State.
-        {
-          prog;
-          code = Cont [ func.body ];
-          state = (heap, store, stack, func.name);
-          pc = ESet.empty;
-          solver;
-          opt = Encoding.Optimizer.create ();
-        }
-    in
-    eval initial_config
+    let env = (func.name, prog) in
+    eval @@ State.empty_state ~env ~cont:[ func.body ]
 
   let analyse (prog : Prog.t) (f : State.func) (policy : string) :
       State.config list =
-    let f = Prog.get_func prog f in
+    let f =
+      match Prog.get_func prog f with Ok f -> f | Error msg -> failwith msg
+    in
     let eval =
       match policy with
       | "breadth" -> BFS.eval

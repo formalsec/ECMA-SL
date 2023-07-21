@@ -1,6 +1,8 @@
 open Core
 open Func
 
+let ( let+ ) o f = Result.map o ~f
+
 type t = (String.t, Func.t) Caml.Hashtbl.t
 
 let create_empty () : t = Caml.Hashtbl.create !Config.default_hashtbl_sz
@@ -10,22 +12,20 @@ let create (funcs : Func.t list) : t =
   List.iter ~f:(fun (f : Func.t) -> Caml.Hashtbl.replace prog f.name f) funcs;
   prog
 
-let get_func (prog : t) (id : string) : Func.t =
-  try Caml.Hashtbl.find prog id
-  with _ ->
-    Printf.printf "Could not find function %s " id;
-    failwith "Function not found."
+let get_func (prog : t) (id : string) : (Func.t, string) Result.t =
+  let f = Stdlib.Hashtbl.find_opt prog id in
+  Result.of_option f ~error:(Format.sprintf "Could not find function %s " id)
 
-let get_body (prog : t) (id : string) : Stmt.t =
-  let s = get_func prog id in
+let get_body (prog : t) (id : string) : (Stmt.t, string) Result.t =
+  let+ s = get_func prog id in
   s.body
 
-let get_params (prog : t) (id : string) : string list =
-  let s = get_func prog id in
+let get_params (prog : t) (id : string) : (string list, string) Result.t =
+  let+ s = get_func prog id in
   s.params
 
-let get_name (prog : t) (id : string) : string =
-  let s = get_func prog id in
+let get_name (prog : t) (id : string) : (string, string) Result.t =
+  let+ s = get_func prog id in
   s.name
 
 let add_func (prog : t) (k : string) (v : Func.t) : unit =
