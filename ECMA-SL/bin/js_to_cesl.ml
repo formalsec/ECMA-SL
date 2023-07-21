@@ -18,7 +18,6 @@ let argspec =
             banner ();
             exit 0),
         " show version" );
-      ("-verb", Arg.Set Config.verbose, " verbose");
     ]
 
 let compile file interp out_file =

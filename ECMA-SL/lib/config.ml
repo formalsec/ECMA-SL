@@ -6,7 +6,6 @@ let output = ref ""
 let target = ref "main"
 let policy = ref "depth"
 let workspace = ref "output"
-let verbose = ref false
 let silent = ref false
 let parse = ref false
 let axioms = ref false

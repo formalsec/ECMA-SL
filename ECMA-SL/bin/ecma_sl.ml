@@ -42,7 +42,7 @@ let argspec =
       ( "--workspace",
         Arg.String (fun o -> Config.workspace := o),
         " workspace directory" );
-      ("--verbose", Arg.Set Config.verbose, " verbose interpreter");
+      ("--verbose", Arg.Set Log.on_debug, " verbose interpreter");
       ("--parse", Arg.Set Config.parse, " parse to JSON");
       ("--untyped", Arg.Set Config.untyped, " disable the type checker");
     ]
@@ -133,7 +133,6 @@ let core_interpretation (prog : Prog.t) : exit_code =
 let () =
   Arg.parse argspec (fun file -> Config.file := file) usage;
   print_string "=====================\n\tECMA-SL\n=====================\n";
-  if !Config.verbose then Logging.set_verbose ();
   (* Disable logging (when using "print_endline" and/or "print_string") *)
   let code : exit_code =
     if !Config.file = "" && !Config.mode = "" && !Config.output = "" then (

@@ -69,7 +69,7 @@ let command_parameters : (unit -> unit) Command.Param.t =
     Config.target := target;
     Config.workspace := workspace;
     Config.policy := policy;
-    Config.verbose := verbose;
+    Log.on_debug := verbose;
     List.iter files ~f:(fun f ->
         Config.file := f;
         let prog =

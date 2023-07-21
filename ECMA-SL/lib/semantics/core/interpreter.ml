@@ -3,9 +3,10 @@ open Expr
 open Stmt
 open Func
 open Source
-open Logging
 open Operators
 open Eval_op
+
+let ( let+ ) o f = match o with Ok v -> f v | Error m -> failwith m
 
 module type SecurityMonitor = sig
   type state_t
@@ -90,7 +91,7 @@ module M (Mon : SecurityMonitor) = struct
     let cs' =
       Call_stack.push cs (Call_stack.Intermediate (cont, sto, x, calling_f))
     in
-    let params = Prog.get_params prog f in
+    let+ params = Prog.get_params prog f in
     let pvs =
       try List.combine params vs
       with _ -> raise (Failure ("Invalid number of arguments: " ^ f))
@@ -181,7 +182,7 @@ module M (Mon : SecurityMonitor) = struct
     let cs, heap, sto, f = state in
     let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
     if Stmt.is_basic_stmt s then
-      print_endline
+      Log.debug
         (lazy
           (Printf.sprintf
              "====================================\n\
@@ -200,20 +201,20 @@ module M (Mon : SecurityMonitor) = struct
         | Loc l -> (
             match Heap.get heap l with
             | Some o ->
-                print_endline
+                Log.debug
                   (lazy
                     ("PROGRAM PRINT: "
                     ^ Object.to_string o (Val.str ~flt_with_dot:false)))
             | None ->
-                print_endline (lazy "PROGRAM PRINT: Non-existent location"))
-        | _ -> print_endline (lazy ("PROGRAM PRINT: " ^ Val.str v)));
+                Log.debug (lazy "PROGRAM PRINT: Non-existent location"))
+        | _ -> Log.debug (lazy ("PROGRAM PRINT: " ^ Val.str v)));
         (Intermediate ((cs, heap, sto, f), cont), SecLabel.PrintLab e)
     | Abort _ ->
         (* NOP *)
         (Intermediate (state, cont), SecLabel.EmptyLab)
     | Fail e ->
         let str_e (e : Expr.t) : string = Val.str (eval_expr sto e) in
-        print_endline
+        Log.debug
           (lazy
             (Printf.sprintf
                "====================================\n\
@@ -279,7 +280,7 @@ module M (Mon : SecurityMonitor) = struct
         let b = interceptor f' vs es in
         match b with
         | None ->
-            let func = Prog.get_func prog f' in
+            let+ func = Prog.get_func prog f' in
             let cs', sto_aux, params =
               prepare_call prog f cs sto cont x es f' vs
             in
@@ -413,7 +414,7 @@ module M (Mon : SecurityMonitor) = struct
   (*Worker class of the Interpreter*)
   let eval_prog (prog : Prog.t) (monitor : string) (main : string) :
       Val.t option * Val.t Heap.t =
-    let func = Prog.get_func prog main in
+    let+ func = Prog.get_func prog main in
     let state_0 = initial_state () in
     let mon_state_0 = Mon.initial_monitor_state () in
     let interceptor = SecLabel.interceptor Mon.parse_lvl in
@@ -425,10 +426,10 @@ module M (Mon : SecurityMonitor) = struct
     | Finalv v -> (v, heap)
     | Errorv (Some (Val.Str s)) ->
         let subStr = String.sub s 0 11 in
-        print_endline (lazy subStr);
+        Log.debug (lazy subStr);
         if subStr = "Unsupported" then (Some (Val.Str s), heap)
         else (
-          print_endline (lazy "eval_prog else");
+          Log.debug (lazy "eval_prog else");
           raise (Except s))
     | _ -> raise (Except "No return value")
   (*ERROR*)
