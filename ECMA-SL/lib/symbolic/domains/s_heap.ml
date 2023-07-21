@@ -24,7 +24,7 @@ module MakeHeap (Object : S_object_intf.S) = struct
   let rec get (h : t) (l : Loc.t) : obj option =
     let result = Hashtbl.find h.map l in
     match result with
-    | Some o -> result
+    | Some _o -> result
     | None -> (
         let obj = Option.bind h.parent ~f:(fun h -> get h l) in
         match obj with

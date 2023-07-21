@@ -122,7 +122,7 @@ let core_interpretation (prog : Prog.t) : exit_code =
           else (
             print_string ("MAIN return -> " ^ s);
             SUCCESS)
-      | ret ->
+      | _ ->
           print_string ("MAIN return -> " ^ Val.str z);
           SUCCESS)
   | None ->

@@ -235,7 +235,7 @@ let parse_json (json : Yojson.Basic.t) : t list =
                 ] ->
                     parse_rules func_call_rules (fun r ->
                         match r with
-                        | `Assoc k_v ->
+                        | `Assoc _k_v ->
                             List.map
                               (fun fc -> FuncCall fc)
                               (create_func_call_t r)
@@ -247,7 +247,7 @@ let parse_json (json : Yojson.Basic.t) : t list =
                   ->
                     parse_rules lookup_rules (fun r ->
                         match r with
-                        | `Assoc k_v ->
+                        | `Assoc _k_v ->
                             List.map (fun l -> Lookup l) (create_lookup_t r)
                         | _ ->
                             invalid_arg
@@ -256,7 +256,7 @@ let parse_json (json : Yojson.Basic.t) : t list =
                 | [ ("type", `String "binop_rules"); ("rules", binop_rules) ] ->
                     parse_rules binop_rules (fun r ->
                         match r with
-                        | `Assoc k_v ->
+                        | `Assoc _k_v ->
                             List.map
                               (fun bop -> BinOper bop)
                               (create_binoper_t r)

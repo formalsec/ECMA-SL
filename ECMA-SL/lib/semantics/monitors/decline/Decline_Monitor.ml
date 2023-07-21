@@ -5,7 +5,7 @@ module M (SL : SecLevel.M) = struct
   type state_t = sl SecCallStack.t * sl SecHeap.t * sl SecStore.t * sl list
   type monitor_return = MReturn of state_t | MFail of (state_t * string)
 
-  let eval_small_step (m_state : state_t) (tl : sl SecLabel.t) : monitor_return
+  let eval_small_step (m_state : state_t) (_tl : sl SecLabel.t) : monitor_return
       =
     MFail (m_state, "Everything is declined!")
 

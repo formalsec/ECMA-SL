@@ -25,7 +25,7 @@ let top : t option ref = ref None
 let flows : flow list ref = ref []
 let all_levels : t list ref = ref []
 
-let addFlow (lst1 : t) (lst2 : t) : unit =
+let addFlow (_lst1 : t) (_lst2 : t) : unit =
   raise (Except "Illegal Lattice operation - addflow")
 
 let setTop (_ : t) : unit = raise (Except "Illegal Lattice operation - setTop")

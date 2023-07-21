@@ -39,7 +39,7 @@ let test_arg (test_arg_f : E_Expr.t -> E_Type.t -> E_Type.t)
         T_Err.update terr (T_Err.BadArgument (tref, texpr))
     | _ -> T_Err.continue terr)
 
-let test_generic_call (tctx : T_Ctx.t) (args : E_Expr.t list)
+let test_generic_call (_tctx : T_Ctx.t) (args : E_Expr.t list)
     (tparams : E_Type.t list) (tret : E_Type.t)
     (test_f : E_Expr.t * E_Type.t -> unit) : E_Type.t =
   List.combine args tparams |> List.iter test_f |> fun () ->
@@ -55,11 +55,11 @@ let test_operator_call (tctx : T_Ctx.t) (args : E_Expr.t list)
   let succCalls, errCalls = List.fold_right _test_call_f fProtos ([], []) in
   match (succCalls, errCalls) with
   | t :: [], _ -> t
-  | t :: _, _ -> E_Type.AnyType
+  | _t :: _, _ -> E_Type.AnyType
   | [], terr :: _ -> T_Err.continue terr
   | _ -> failwith "Typed ECMA-SL: T_Expr.test_operator_call"
 
-let test_nargs (tctx : T_Ctx.t) (expr : E_Expr.t) (args : E_Expr.t list)
+let test_nargs (_tctx : T_Ctx.t) (expr : E_Expr.t) (args : E_Expr.t list)
     (tparams : E_Type.t list) : unit =
   let nparams, nargs = (List.length tparams, List.length args) in
   if nparams != nargs then
@@ -86,7 +86,7 @@ let type_call (tctx : T_Ctx.t) (expr : E_Expr.t) (fexpr : E_Expr.t)
   | E_Expr.Val (Val.Str fname) -> type_named_call tctx expr fname args
   | _ -> (List.map (fun _ -> E_Type.AnyType) args, E_Type.AnyType)
 
-let type_newobj (tctx : T_Ctx.t) (tfes : (string * E_Type.t) list) : E_Type.t =
+let type_newobj (_tctx : T_Ctx.t) (tfes : (string * E_Type.t) list) : E_Type.t =
   let _type_obj_field_f flds (fn, ft) =
     match Hashtbl.find_opt flds fn with
     | None -> Hashtbl.add flds fn (ft, E_Type.Required)
@@ -121,7 +121,7 @@ let rec type_lookup (narrow : bool) (tctx : T_Ctx.t) (oe : E_Expr.t)
     try type_fld_lookup oe fe fn tobj
     with T_Err.TypeError terr -> (
       match (unionLookup, T_Err.top_err terr) with
-      | true, T_Err.BadLookup (fn, t) ->
+      | true, T_Err.BadLookup (fn, _t) ->
           T_Err.push terr (T_Err.BadLookup (fn, toe))
       | _ -> T_Err.continue terr)
   in
@@ -134,7 +134,7 @@ let rec type_lookup (narrow : bool) (tctx : T_Ctx.t) (oe : E_Expr.t)
   | E_Expr.Val (Val.Str fn), E_Type.UnionType ts -> _type_union_lookup fn ts
   | E_Expr.Val (Val.Str fn), E_Type.SigmaType (d, ts) ->
       _type_union_lookup fn ts |> E_Type.union_to_sigma d
-  | E_Expr.Val (Val.Str fn), E_Type.UserDefinedType _ ->
+  | E_Expr.Val (Val.Str _fn), E_Type.UserDefinedType _ ->
       type_lookup narrow tctx oe fe (T_Typing.resolve_typedef toe)
   | E_Expr.Val (Val.Str fn), _ -> _type_fld_lookup false fn toe
   | _ -> E_Type.AnyType

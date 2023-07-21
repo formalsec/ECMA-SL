@@ -26,7 +26,7 @@ and sopt =
   | Is_number of t
   | Is_symbolic of t
 
-type subst_t = (string, t) Caml.Hashtbl.t
+type subst_t = (string, t) Stdlib.Hashtbl.t
 
 let rec str (e : t) : string =
   let str_es es = String.concat ~sep:", " (List.map ~f:str es) in
@@ -55,12 +55,12 @@ let rec str (e : t) : string =
   | SymOpt op ->
       let op' =
         match op with
-        | Evaluate e -> "se_evaluate"
-        | Maximize e -> "se_maximize"
-        | Minimize e -> "se_minimize"
-        | Is_symbolic e -> "se_is_symbolic"
-        | Is_sat e -> "se_is_sat"
-        | Is_number e -> "se_is_number"
+        | Evaluate _e -> "se_evaluate"
+        | Maximize _e -> "se_maximize"
+        | Minimize _e -> "se_minimize"
+        | Is_symbolic _e -> "se_is_symbolic"
+        | Is_sat _e -> "se_is_sat"
+        | Is_number _e -> "se_is_number"
       in
       sprintf "%s(%s)" op' (str e)
 
@@ -69,17 +69,17 @@ let rec str (e : t) : string =
 let rec pattern_match (subst : subst_t) (e1 : t) (e2 : t) : bool =
   match (e1, e2) with
   | Val v1, Val v2 -> Val.equal v1 v2
-  | Var x1, Var x2 | GVar x1, GVar x2 -> (
-      let x1' = Caml.Hashtbl.find_opt subst x1 in
+  | Var x1, Var _x2 | GVar x1, GVar _x2 -> (
+      let x1' = Stdlib.Hashtbl.find_opt subst x1 in
       match x1' with
       | None ->
-          Caml.Hashtbl.replace subst x1 e2;
+          Stdlib.Hashtbl.replace subst x1 e2;
           true
-      | Some e2' -> Caml.(e2 = e2'))
-  | Const c1, Const c2 -> Caml.(c1 = c2)
-  | UnOpt (op, e), UnOpt (op', e') when Caml.(op = op') ->
+      | Some e2' -> Stdlib.(e2 = e2'))
+  | Const c1, Const c2 -> Stdlib.(c1 = c2)
+  | UnOpt (op, e), UnOpt (op', e') when Stdlib.(op = op') ->
       pattern_match subst e e'
-  | BinOpt (op, e1, e2), BinOpt (op', e1', e2') when Caml.(op = op') ->
+  | BinOpt (op, e1, e2), BinOpt (op', e1', e2') when Stdlib.(op = op') ->
       pattern_match subst e1 e1' && pattern_match subst e2 e2'
   | Call (f, es, None), Call (f', es', None)
     when List.length es = List.length es' ->
@@ -91,12 +91,12 @@ let rec pattern_match (subst : subst_t) (e1 : t) (e2 : t) : bool =
   | _ -> false
 
 let make_subst (xs_es : (string * t) list) : subst_t =
-  let subst = Caml.Hashtbl.create !Config.default_hashtbl_sz in
-  List.iter xs_es ~f:(fun (x, e) -> Caml.Hashtbl.replace subst x e);
+  let subst = Stdlib.Hashtbl.create !Config.default_hashtbl_sz in
+  List.iter xs_es ~f:(fun (x, e) -> Stdlib.Hashtbl.replace subst x e);
   subst
 
 let get_subst_o (sbst : subst_t) (x : string) : t option =
-  Caml.Hashtbl.find_opt sbst x
+  Stdlib.Hashtbl.find_opt sbst x
 
 let get_subst (sbst : subst_t) (x : string) : t =
   let eo = get_subst_o sbst x in
@@ -139,7 +139,7 @@ let subst (sbst : subst_t) (e : t) : t =
 
 let string_of_subst (sbst : subst_t) : string =
   let strs =
-    Caml.Hashtbl.fold (fun x e ac -> (x ^ ": " ^ str e) :: ac) sbst []
+    Stdlib.Hashtbl.fold (fun x e ac -> (x ^ ": " ^ str e) :: ac) sbst []
   in
   String.concat ~sep:", " strs
 

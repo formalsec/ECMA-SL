@@ -78,7 +78,7 @@ let split_pattern_flds (patFlds : (string * E_Pat_v.t) list) :
   let _get_pt pv = Some (snd (parse_pattern_val pv)) in
   let _split_pattern_f (pn, pv) (patValFlds, patVarFlds) =
     match pv with
-    | PatVal v -> ((pn, pv, _get_pt pv) :: patValFlds, patVarFlds)
+    | PatVal _v -> ((pn, pv, _get_pt pv) :: patValFlds, patVarFlds)
     | PatVar x -> (patValFlds, (pn, x) :: patVarFlds)
     | PatNone -> ((pn, pv, None) :: patValFlds, patVarFlds)
   in
@@ -86,7 +86,7 @@ let split_pattern_flds (patFlds : (string * E_Pat_v.t) list) :
 
 let update_sigma_object ((tobj, sigmaCases) : sigmaObject_t)
     (patValFlds : patValFld_t list) : sigmaObject_t =
-  let _test_pattern_val tfld pn pv pt =
+  let _test_pattern_val tfld _pn pv pt =
     let ft = E_Type.tfld_t tfld in
     if T_Typing.is_typeable ft pt then List.mem pt (E_Type.unfold_type false ft)
     else T_Err.raise (T_Err.BadValPattern (ft, pt)) ~tkn:(T_Err.patval_tkn pv)

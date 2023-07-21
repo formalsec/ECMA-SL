@@ -90,7 +90,7 @@ let translate_unop (t : Type.t option) (op : Operators.uopt) (e : Expression.t)
   | Some FltType -> flt_unop op e
   | Some StrType -> str_unop op e
   | Some BoolType -> bool_unop op e
-  | Some t -> failwith "translate_unop: ill-typed or unsupported operator!"
+  | Some _ -> failwith "translate_unop: ill-typed or unsupported operator!"
   | None -> failwith "translate_unop: untyped operator!"
 
 let translate_binop (t1 : Type.t option) (t2 : Type.t option)

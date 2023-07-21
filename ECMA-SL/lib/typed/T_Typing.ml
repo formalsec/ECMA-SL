@@ -62,7 +62,7 @@ let check_tuple_type (expr : E_Expr.t) (tref : t) (texpr : t)
       else _check_tuple_els (List.combine (lst_expr expr) (List.combine ts tes))
   | _ -> failwith "Typed ECMA-SL: T_Typing.check_tuple_type"
 
-let check_union_expr (expr : E_Expr.t) (tref : t) (texpr : t)
+let check_union_expr (_expr : E_Expr.t) (tref : t) (texpr : t)
     (type_check_f : t -> t -> unit) : unit =
   match (tref, texpr) with
   | _, UnionType ts -> (

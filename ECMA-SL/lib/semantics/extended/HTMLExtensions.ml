@@ -246,7 +246,7 @@ module E_Expr = struct
     | _ -> invalid_arg ("Unexpected argument passed to E_Expr.to_html: " ^ str e)
 
   let lookup_html_attribute (attribute_name : string) (ctxt : ctxt_t) (e : t)
-      (f : t) : string =
+      (_f : t) : string =
     let e_html = to_html ctxt e in
     match (attribute_name, ctxt) with
     | _, Set -> sprintf "%s's [[%s]] attribute" e_html attribute_name
@@ -254,7 +254,7 @@ module E_Expr = struct
         sprintf "the [[%s]] internal method of %s" attribute_name e_html
     | _ -> sprintf "%s.[[%s]]" e_html attribute_name
 
-  let call_html_type (ctxt : ctxt_t) (e : t) (es : t list) : string option =
+  let call_html_type (ctxt : ctxt_t) (_e : t) (es : t list) : string option =
     match (ctxt, es) with
     | Table, [ Var v ] -> Some (sprintf "%s Type" (String.capitalize_ascii v))
     | _, [ e ] ->
@@ -262,7 +262,7 @@ module E_Expr = struct
     | _ -> None
 
   let call_html_conversion_abstract_operations (oper_name : string)
-      (ctxt : ctxt_t) (e : t) (es : t list) : string option =
+      (_ctxt : ctxt_t) (_e : t) (es : t list) : string option =
     match (oper_name, es) with
     | "ToObject", [ Var "this" ] -> None
     | "ToObject", [ e ] ->
@@ -271,7 +271,7 @@ module E_Expr = struct
     | _ -> None
 
   let call_html_internal_method ?(print_brackets = true) (method_name : string)
-      (ctxt : ctxt_t) (e : t) (es : t list) : string option =
+      (ctxt : ctxt_t) (_e : t) (es : t list) : string option =
     match (ctxt, method_name, es) with
     | ExprStmt, "put", [ e_this; e_prop; e_value; e_strict ] ->
         Some
@@ -346,7 +346,7 @@ module E_Expr = struct
              (to_html TopLevel e_f2))
     | _ -> None
 
-  let call_html_call (ctxt : ctxt_t) (e : t) (es : t list) : string option =
+  let call_html_call (ctxt : ctxt_t) (_e : t) (es : t list) : string option =
     match (ctxt, es) with
     | ( ExprStmt,
         [
@@ -433,7 +433,7 @@ module E_Expr = struct
              (to_html TopLevel args_list))
     | _ -> None
 
-  let call_html_createmutablebinding_method (ctxt : ctxt_t) (e : t)
+  let call_html_createmutablebinding_method (ctxt : ctxt_t) (_e : t)
       (es : t list) : string option =
     match es with
     | [ e1; Val (Val.Str s); Val (Val.Bool false) ] ->
@@ -457,7 +457,7 @@ module E_Expr = struct
              (to_html ctxt e1) (to_html ctxt e2) (to_html ctxt e3))
     | _ -> None
 
-  let call_html_createimmutablebinding_method (ctxt : ctxt_t) (e : t)
+  let call_html_createimmutablebinding_method (ctxt : ctxt_t) (_e : t)
       (es : t list) : string option =
     match es with
     | [ e1; Val (Val.Str s) ] ->
@@ -475,7 +475,7 @@ module E_Expr = struct
              (to_html ctxt e1) (to_html ctxt e2))
     | _ -> None
 
-  let call_html_abstractrelationalcomparison (ctxt : ctxt_t) (e : t)
+  let call_html_abstractrelationalcomparison (ctxt : ctxt_t) (_e : t)
       (es : t list) : string option =
     match es with
     | [ e1; e2; Val (Val.Bool true) ] ->
@@ -496,7 +496,7 @@ module E_Expr = struct
   let call_html_constructor (constructor : string) (ctxt : ctxt_t) (e : t)
       (es : t list) : string option =
     match (ctxt, es) with
-    | Table, [ GVar _; _; _; NOpt (Operators.ListExpr, [ expr ]) ] ->
+    | Table, [ GVar _; _; _; NOpt (Operators.ListExpr, [ _expr ]) ] ->
         let built_in, section_html =
           match e with
           | Val (Val.Str "BooleanConstructor") ->
@@ -549,7 +549,7 @@ module E_Expr = struct
              constructor (to_html ctxt e1) constructor const_hmtl)
     | _ -> None
 
-  let call_html_objectdefineproperties_builtin_method (ctxt : ctxt_t) (e : t)
+  let call_html_objectdefineproperties_builtin_method (ctxt : ctxt_t) (_e : t)
       (es : t list) : string option =
     match es with
     | [ _; _; _; NOpt (Operators.ListExpr, [ e1; e2 ]) ] ->
@@ -561,7 +561,7 @@ module E_Expr = struct
              (to_html ctxt e1) (to_html ctxt e1) (to_html ctxt e2))
     | _ -> None
 
-  let call_html_iscallable (ctxt : ctxt_t) (e : t) (es : t list) : string option
+  let call_html_iscallable (ctxt : ctxt_t) (_e : t) (es : t list) : string option
       =
     match (es, ctxt) with
     | [ e ], BinaryExpr ->
@@ -571,7 +571,7 @@ module E_Expr = struct
     | [ e ], _ -> Some (sprintf "%s is callable" (to_html TopLevel e))
     | _ -> None
 
-  let call_html_getvalue (ctxt : ctxt_t) (e : t) (es : t list) : string option =
+  let call_html_getvalue (ctxt : ctxt_t) (_e : t) (es : t list) : string option =
     match (ctxt, es) with
     | ExprStmt, [ e ] ->
         Some
@@ -583,7 +583,7 @@ module E_Expr = struct
              (to_html TopLevel e))
     | _ -> None
 
-  let call_html_dataproperty (ctxt : ctxt_t) (e : t) (es : t list) :
+  let call_html_dataproperty (ctxt : ctxt_t) (_e : t) (es : t list) :
       string option =
     match (es, ctxt) with
     | [ e ], BinaryExpr ->
@@ -593,7 +593,7 @@ module E_Expr = struct
     | [ e ], _ -> Some (sprintf "%s is a data property" (to_html TopLevel e))
     | _ -> None
 
-  let call_html_accessorproperty (ctxt : ctxt_t) (e : t) (es : t list) :
+  let call_html_accessorproperty (ctxt : ctxt_t) (_e : t) (es : t list) :
       string option =
     match (es, ctxt) with
     | [ e ], BinaryExpr ->
@@ -604,7 +604,7 @@ module E_Expr = struct
         Some (sprintf "%s is an accessor property" (to_html TopLevel e))
     | _ -> None
 
-  let call_html_setbindinginitialised (ctxt : ctxt_t) (e : t) (es : t list) :
+  let call_html_setbindinginitialised (ctxt : ctxt_t) (_e : t) (es : t list) :
       string option =
     match es with
     | [ e1; e2; Val (Val.Bool false) ] ->
@@ -619,7 +619,7 @@ module E_Expr = struct
              (to_html ctxt e2) (to_html ctxt e1))
     | _ -> None
 
-  let call_html_setlexicalenvironment (ctxt : ctxt_t) (e : t) (es : t list) :
+  let call_html_setlexicalenvironment (ctxt : ctxt_t) (_e : t) (es : t list) :
       string option =
     match es with
     | [ Var "scope"; e1 ] ->
@@ -634,7 +634,7 @@ module E_Expr = struct
              (to_html ctxt e1))
     | _ -> None
 
-  let call_html_getlexicalenvironment (ctxt : ctxt_t) (e : t) (es : t list) :
+  let call_html_getlexicalenvironment (_ctxt : ctxt_t) (_e : t) (es : t list) :
       string option =
     match es with
     | [ Var "callingExecCtx" ] ->
@@ -647,7 +647,7 @@ module E_Expr = struct
           "the running execution context‘s <a \
            href=\"#sec-10.2\">LexicalEnvironment</a>"
 
-  let call_html_getvariableenvironment (ctxt : ctxt_t) (e : t) (es : t list) :
+  let call_html_getvariableenvironment (_ctxt : ctxt_t) (_e : t) (es : t list) :
       string option =
     match es with
     | [ Var "callingExecCtx" ] ->
@@ -659,7 +659,7 @@ module E_Expr = struct
           "the running execution context‘s <a \
            href=\"#sec-10.3\">VariableEnvironment</a>"
 
-  let call_html_declarationbindinginstantiation (ctxt : ctxt_t) (e : t)
+  let call_html_declarationbindinginstantiation (ctxt : ctxt_t) (_e : t)
       (es : t list) : string option =
     match es with
     | [ Var x; _; _; Val Val.Null ] ->
@@ -677,7 +677,7 @@ module E_Expr = struct
              (to_html ctxt e1) (to_html ctxt e2))
     | _ -> None
 
-  let call_html_createfunctionobject (ctxt : ctxt_t) (e : t) (es : t list) :
+  let call_html_createfunctionobject (ctxt : ctxt_t) (_e : t) (es : t list) :
       string option =
     match es with
     | [ NOpt (Operators.ListExpr, []); e1; e2; e3; _ ] ->
@@ -722,7 +722,7 @@ module E_Expr = struct
              (to_html ctxt e4))
     | _ -> None
 
-  let call_html_initialglobalexecutioncontext (ctxt : ctxt_t) (e : t)
+  let call_html_initialglobalexecutioncontext (_ctxt : ctxt_t) (_e : t)
       (es : t list) : string option =
     match es with
     | [ _; Var "evalCode" ] ->
@@ -736,7 +736,7 @@ module E_Expr = struct
            href=\"#global-code\">global code</a> as described in <a \
            href=\"#sec-10.4.1.1\">10.4.1.1</a>"
 
-  let call_html_isstrictmodecode (ctxt : ctxt_t) (e : t) (es : t list) :
+  let call_html_isstrictmodecode (ctxt : ctxt_t) (_e : t) (es : t list) :
       string option =
     match es with
     | [ Var "evalCode"; _ ] ->
@@ -749,7 +749,7 @@ module E_Expr = struct
              (to_html ctxt e))
     | _ -> None
 
-  let call_html_setinternalproperty (ctxt : ctxt_t) (e : t) (es : t list) :
+  let call_html_setinternalproperty (ctxt : ctxt_t) (_e : t) (es : t list) :
       string option =
     match es with
     | [ obj; p; Val (Val.Str s) ] when is_special_val s ->
@@ -762,7 +762,7 @@ module E_Expr = struct
              (to_html ctxt obj) (to_html ctxt v))
     | _ -> None
 
-  let oper_html_lnth (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) :
+  let oper_html_lnth (ctxt : ctxt_t) (_op : string) (e1 : t) (e2 : t) :
       string option =
     match e2 with
     | BinOpt (Operators.Minus, x, Val (Val.Int 1)) ->
@@ -779,7 +779,7 @@ module E_Expr = struct
         Some (sprintf "the second element of %s" (to_html ctxt e1))
     | _ -> None
 
-  let oper_html_inobj (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) :
+  let oper_html_inobj (ctxt : ctxt_t) (_op : string) (e1 : t) (e2 : t) :
       string option =
     match (e1, e2, ctxt) with
     | _, Lookup (e2', Val (Val.Str "JSProperties")), Negative ->
@@ -819,14 +819,14 @@ module E_Expr = struct
         Some (sprintf "%s.%s is present" (to_html ctxt e2) (to_html ctxt e1))
     | _ -> None
 
-  let oper_html_inlist (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) :
+  let oper_html_inlist (ctxt : ctxt_t) (_op : string) (e1 : t) (e2 : t) :
       string option =
     let ctxt_str = match ctxt with Negative -> "is not" | _ -> "is" in
     Some
       (sprintf "%s %s an element of %s" (to_html BinaryExpr e1) ctxt_str
          (to_html BinaryExpr e2))
 
-  let oper_html_equal (ctxt : ctxt_t) (op : string) (e1 : t) (e2 : t) :
+  let oper_html_equal (ctxt : ctxt_t) (_op : string) (e1 : t) (e2 : t) :
       string option =
     match (e2, ctxt) with
     | GVar "global", _ ->
@@ -860,7 +860,7 @@ module E_Expr = struct
     | "l_len" -> Some (sprintf "the number of elements in %s" (to_html ctxt e))
     | _ -> None
 
-  let oper_html_sconcat (ctxt : ctxt_t) (op : string) (e : t) _ : string option
+  let oper_html_sconcat (ctxt : ctxt_t) (_op : string) (e : t) _ : string option
       =
     match e with
     | NOpt (Operators.ListExpr, [ e1; e2; e3 ]) ->
@@ -886,7 +886,7 @@ module E_Expr = struct
                    (to_html ctxt last_e)))
     | _ -> None
 
-  let oper_html_bitwisenot (ctxt : ctxt_t) (op : string) (e : t) _ :
+  let oper_html_bitwisenot (ctxt : ctxt_t) (_op : string) (e : t) _ :
       string option =
     Some
       (sprintf
@@ -894,7 +894,7 @@ module E_Expr = struct
           signed 32-bit integer"
          (to_html ctxt e))
 
-  let oper_hmtl_print_ignore (ctxt : ctxt_t) (op : string) (e : t) _ :
+  let oper_hmtl_print_ignore (ctxt : ctxt_t) (_op : string) (e : t) _ :
       string option =
     Some (to_html ctxt e)
 
@@ -1055,7 +1055,7 @@ module E_Stmt = struct
 
   let is_basic_if (s : t) : bool =
     is_basic s
-    || match s.it with If (e, s1, None, _, _) -> is_basic s1 | _ -> false
+    || match s.it with If (_e, s1, None, _, _) -> is_basic s1 | _ -> false
 
   let is_special_expr (e : E_Expr.t) : bool =
     match e with
@@ -1077,7 +1077,7 @@ module E_Stmt = struct
     | _ -> false
 
   let is_let_stmt (s : t) : bool =
-    match s.it with Assign (x, _, e) -> true | _ -> false
+    match s.it with Assign (_x, _, _e) -> true | _ -> false
 
   let swappable (s : t) : bool =
     match s.it with
@@ -1095,7 +1095,7 @@ module E_Stmt = struct
     in
     match stmt.it with
     | Skip | Print _ | GlobAssign _ | Fail _ -> ("", ctxt')
-    | MatchWith (_, e_pats) ->
+    | MatchWith (_, _e_pats) ->
         invalid_arg "MatchWith"
         (* String.concat "" (List.map (
             fun ((e_pat : E_Pat.t), (s : E_Stmt.t)) ->
@@ -1154,7 +1154,7 @@ module E_Stmt = struct
         | "before-same" -> to_html ~ctxt:(Prepend m.html) s
         | "after-same" -> to_html ~ctxt:(Append m.html) s
         | _ -> ("", ctxt'))
-    | MacroApply (x, es) ->
+    | MacroApply (x, _es) ->
         let f_x = Hashtbl.find_opt macro_hashtable_html x in
         let res_x = Option.map_default (fun f -> f) None f_x in
         (sprintf "%s" (match res_x with Some s -> s | None -> x), ctxt')
@@ -1163,7 +1163,7 @@ module E_Stmt = struct
             E_Expr.(to_html ExprStmt e)
             append_str,
           ctxt' )
-    | Assign (x, _, e) when is_special_expr e ->
+    | Assign (_x, _, e) when is_special_expr e ->
         (sprintf "<li>%s.</li>" (expr_to_html e), ctxt')
     | Assign (x, _, e) ->
         let contents =
@@ -1220,7 +1220,7 @@ module E_Stmt = struct
             let str = sprintf "%sthrow %s" prepend_str e_html in
             ( (match append_str with
               | "" -> str
-              | s -> sprintf "%s. %s" str append_str),
+              | _s -> sprintf "%s. %s" str append_str),
               CNone )
         | _ ->
             ( sprintf "<li>%s%s %s. %s</li>" prepend_str
@@ -1269,7 +1269,7 @@ module E_Stmt = struct
             ([], ctxt) stmts
         in
         (String.concat "" htmls, ctxt_block)
-    | RepeatUntil (s, e, meta) ->
+    | RepeatUntil (s, _e, meta) ->
         let after_same, _ = parse_if_meta meta ctxt in
         ( sprintf "<li>Repeat%s<ol class=\"block\">%s</ol></li>" after_same
             (fst (to_html ~ctxt:ctxt' s)),
@@ -1283,7 +1283,7 @@ module E_Stmt = struct
         let var_prepend_str =
           match var_meta with Some (s, alt) when s = x -> alt | _ -> ""
         in
-        let after_same, next_ctxt = parse_if_meta meta ctxt in
+        let after_same, _next_ctxt = parse_if_meta meta ctxt in
         ( sprintf "<li>For each %s %s in %s%s<ol class=\"block\">%s</ol></li>"
             var_prepend_str
             (expr_to_html (E_Expr.Var x))
@@ -1301,11 +1301,11 @@ module E_Stmt = struct
             E_Expr.(to_html Table e)
             (fst (to_html ~ctxt:ctxt' s2)),
           ctxt' )
-    | If (e, s, None, if_meta, _)
+    | If (_e, s, None, if_meta, _)
       when is_split_if if_meta && parse_if_split_meta if_meta = "" ->
         (* Ignore if_split_meta as it's expected to be empty, since this syntax is only supposed to appear at the middle of a block of statements *)
         (sprintf "%s" (fst (to_html s)), ctxt')
-    | If (e, s1, None, if_meta, _) when is_split_if if_meta ->
+    | If (_e, s1, None, if_meta, _) when is_split_if if_meta ->
         let split_html = parse_if_split_meta if_meta in
         ( sprintf
             (* Since the function contents are wrapped in <ol> and this "if statement"
@@ -1321,7 +1321,7 @@ module E_Stmt = struct
             after_same
             (fst (to_html ~ctxt:SameParagraph s)),
           next_ctxt )
-    | If (e, s, None, if_meta, _) when is_basic_and_not_call s && swappable s ->
+    | If (e, s, None, _if_meta, _) when is_basic_and_not_call s && swappable s ->
         ( sprintf "<li>%s, if %s.</li>"
             (fst (to_html ~ctxt:SameParagraph s))
             E_Expr.(to_html IfGuard e),
@@ -1343,7 +1343,7 @@ module E_Stmt = struct
     | If (e, s1, Some s2, if_meta, else_meta)
       when is_let_stmt s1 && is_let_stmt s2 ->
         let after_same_if, _ = parse_if_meta if_meta ctxt in
-        let after_same_else, next_ctxt = parse_if_meta else_meta ctxt in
+        let after_same_else, _next_ctxt = parse_if_meta else_meta ctxt in
         ( sprintf "<li>If %s, %s then %s, %s%s %s.</li>"
             E_Expr.(to_html IfGuard e)
             after_same_if
@@ -1443,7 +1443,7 @@ module E_Stmt = struct
                 (fst (to_html s))
         in
         (first_if_html ^ other_ifs_html ^ final_else_html, ctxt)
-    | Switch (e, es_ss, sd, meta) ->
+    | Switch (e, es_ss, _sd, meta) ->
         let table_caption = meta in
         let contain_ifs (stmts : t list) : bool =
           List.exists
@@ -1546,7 +1546,7 @@ module E_Func = struct
         in
         match header with
         | "" -> section_contents
-        | h ->
+        | _h ->
             sprintf "<section id=\"sec-%s\">%s%s</section>" metadata_sec_number
               header section_contents)
 end

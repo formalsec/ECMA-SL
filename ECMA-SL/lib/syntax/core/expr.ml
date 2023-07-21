@@ -61,7 +61,7 @@ let rec str (e : t) : string =
   | Curry (f, es) -> "{" ^ str f ^ "}@(" ^ str_es es ^ ")"
   | Symbolic (t, x) -> "se_mk_symbolic (" ^ Type.str t ^ ", " ^ str x ^ ")"
 
-let js (e : t) : string = failwith "missing js"
+let js (_e : t) : string = failwith "missing js"
 
 let rec vars (exp : t) : string list =
   (*returns every var used in exp*)

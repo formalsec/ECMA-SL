@@ -27,8 +27,8 @@ type t = {
 let create (prog : E_Prog.t) : t =
   {
     prog;
-    func = E_Func.default () @@ no_region;
-    stmt = E_Stmt.default () @@ no_region;
+    func = E_Func.default () @> no_region;
+    stmt = E_Stmt.default () @> no_region;
     state = Normal;
     tenv = Hashtbl.create !Config.default_hashtbl_sz;
   }

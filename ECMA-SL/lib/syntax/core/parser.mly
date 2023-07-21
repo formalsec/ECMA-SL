@@ -376,58 +376,58 @@ expr_target:
 
 stmt_block:
   | s = separated_list (SEMICOLON, stmt_target); 
-    { Stmt.Block s @@ at $sloc }
+    { Stmt.Block s @> at $sloc }
   ;
 
 (* s ::= e.f := e | delete e.f | skip | x := e | s1; s2 | if (e) { s1 } else { s2 } | while (e) { s } | return e | return *)
 stmt_target:
   | PRINT; e = expr_target;
-    { Stmt.Print e @@ at $sloc }
+    { Stmt.Print e @> at $sloc }
   | FAIL; e = expr_target;
-    { Stmt.Fail e @@ at $sloc }
+    { Stmt.Fail e @> at $sloc }
   | API_ABORT; e = expr_target;
-    { Stmt.Abort e @@ at $sloc }
+    { Stmt.Abort e @> at $sloc }
   | ASSERT; LPAREN; e = expr_target; RPAREN;
-    { Stmt.Assert e @@ at $sloc }
+    { Stmt.Assert e @> at $sloc }
   | THROW; str = STRING;
-    { Stmt.Exception str @@ at $sloc }
+    { Stmt.Exception str @> at $sloc }
   | e1 = expr_target; PERIOD; f = VAR; DEFEQ; e2 = expr_target;
-    { Stmt.FieldAssign (e1, Expr.Val (Val.Str f), e2) @@ at $sloc }
+    { Stmt.FieldAssign (e1, Expr.Val (Val.Str f), e2) @> at $sloc }
   | e1 = expr_target; LBRACK; f = expr_target; RBRACK; DEFEQ; e2 = expr_target;
-    { Stmt.FieldAssign (e1, f, e2) @@ at $sloc }
+    { Stmt.FieldAssign (e1, f, e2) @> at $sloc }
   | DELETE; e = expr_target; PERIOD; f = VAR;
-    { Stmt.FieldDelete (e, Expr.Val (Val.Str f)) @@ at $sloc }
+    { Stmt.FieldDelete (e, Expr.Val (Val.Str f)) @> at $sloc }
   | DELETE; e = expr_target; LBRACK; f = expr_target; RBRACK;
-    { Stmt.FieldDelete (e, f) @@ at $sloc }
+    { Stmt.FieldDelete (e, f) @> at $sloc }
   | SKIP;
-    { Stmt.Skip @@ at $sloc }
+    { Stmt.Skip @> at $sloc }
   | v = VAR; DEFEQ; e = expr_target;
-    { Stmt.Assign (v, e) @@ at $sloc }
+    { Stmt.Assign (v, e) @> at $sloc }
   | exps_stmts = ifelse_target;
     { exps_stmts }
   | WHILE; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block; RBRACE;
-    { Stmt.While (e, s) @@ at $sloc }
+    { Stmt.While (e, s) @> at $sloc }
   | RETURN; e = expr_target;
-    { Stmt.Return e @@ at $sloc }
+    { Stmt.Return e @> at $sloc }
   | RETURN;
-    { Stmt.Return (Expr.Val Val.Void) @@ at $sloc }
-  | api_stmt = api_stmt_target; { api_stmt @@ at $sloc }
+    { Stmt.Return (Expr.Val Val.Void) @> at $sloc }
+  | api_stmt = api_stmt_target; { api_stmt @> at $sloc }
   | v = VAR; DEFEQ; f = expr_target; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
-    { Stmt.AssignCall (v,f,vs) @@ at $sloc }
+    { Stmt.AssignCall (v,f,vs) @> at $sloc }
   | x = VAR; DEFEQ; EXTERN; f = VAR; LPAREN; vs = separated_list(COMMA, expr_target); RPAREN;
-    { Stmt.AssignECall (x,f,vs) @@ at $sloc }
+    { Stmt.AssignECall (x,f,vs) @> at $sloc }
   | v = VAR; DEFEQ; e1 = expr_target; IN_OBJ; e2 = expr_target;
-    { Stmt.AssignInObjCheck (v,e1,e2) @@ at $sloc }
+    { Stmt.AssignInObjCheck (v,e1,e2) @> at $sloc }
   | v = VAR; DEFEQ; e = expr_target; PERIOD; f = VAR;
-    { Stmt.FieldLookup (v,e, Expr.Val (Val.Str f)) @@ at $sloc }
+    { Stmt.FieldLookup (v,e, Expr.Val (Val.Str f)) @> at $sloc }
   | v = VAR; DEFEQ; e = expr_target; LBRACK; f = expr_target; RBRACK;
-    { Stmt.FieldLookup (v,e, f) @@ at $sloc }
+    { Stmt.FieldLookup (v,e, f) @> at $sloc }
   | v = VAR; DEFEQ; LBRACE; RBRACE;
-    { Stmt.AssignNewObj v @@ at $sloc }
+    { Stmt.AssignNewObj v @> at $sloc }
   | v = VAR; DEFEQ; OBJ_TO_LIST; e = expr_target;
-    { Stmt.AssignObjToList (v, e) @@ at $sloc }
+    { Stmt.AssignObjToList (v, e) @> at $sloc }
   | v = VAR; DEFEQ; OBJ_FIELDS; e = expr_target;
-    { Stmt.AssignObjFields (v, e) @@ at $sloc }
+    { Stmt.AssignObjFields (v, e) @> at $sloc }
   ;
 
 api_stmt_target:
@@ -450,9 +450,9 @@ api_stmt_target:
 (* if (e) { s } | if (e) {s} else { s } *)
 ifelse_target:
   | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s1 = stmt_block; RBRACE; ELSE;LBRACE; s2 = stmt_block; RBRACE;
-    { Stmt.If (e, s1, Some s2) @@ at $sloc }
+    { Stmt.If (e, s1, Some s2) @> at $sloc }
   | IF; LPAREN; e = expr_target; RPAREN; LBRACE; s = stmt_block; RBRACE;
-    { Stmt.If (e, s, None) @@ at $sloc }
+    { Stmt.If (e, s, None) @> at $sloc }
   ;
 
 %inline op_target:

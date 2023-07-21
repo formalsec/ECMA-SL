@@ -11,8 +11,8 @@ module ExprHash = struct
 
   let equal (e1 : Expr.t) (e2 : Expr.t) = Expr.equal e1 e2
   let hash (e : Expr.t) = Hashtbl.hash e
-  let t_of_sexp e = failwith "Not implemented."
-  let sexp_of_t e = failwith "Not implemented"
+  let t_of_sexp _ = failwith "Not implemented."
+  let sexp_of_t _ = failwith "Not implemented"
   let compare (e1 : Expr.t) (e2 : Expr.t) = Hashtbl.hash e1 - Hashtbl.hash e2
 end
 
@@ -75,26 +75,26 @@ let mk_eq e1 e2 = Expr.BinOpt (Operators.Eq, e1, e2)
 let mk_ite e1 e2 e3 = Expr.TriOpt (Operators.ITE, e1, e2, e3)
 let mk_or e1 e2 = Expr.BinOpt (Operators.Log_Or, e1, e2)
 
-let create_not_pct (l : (pct * Expr.t) list) (key : pct) (store : S_store.t) :
+let create_not_pct (l : (pct * Expr.t) list) (key : pct) (_ : S_store.t) :
     encoded_pct list =
   List.fold l ~init:[] ~f:(fun acc (pc, _) ->
       let ne = Expr.UnOpt (Operators.Not, mk_eq key pc) in
-      let expr = Reducer.reduce_expr store ne |> Translator.translate in
+      let expr = Reducer.reduce_expr ne |> Translator.translate in
       expr :: acc)
 
-let create_object (o : t) (k1 : pct) (k2 : pct) (store : S_store.t) :
+let create_object (o : t) (k1 : pct) (k2 : pct) (_ : S_store.t) :
     t * encoded_pct list =
   let o' = clone o in
-  let eq = Reducer.reduce_expr store (mk_eq k1 k2) |> Translator.translate in
+  let eq = Reducer.reduce_expr (mk_eq k1 k2) |> Translator.translate in
   (o', [ eq ])
 
-let create_ite (lst : (pct * pct) list) (key : Expr.t) (store : S_store.t) :
+let create_ite (lst : (pct * pct) list) (key : Expr.t) (_ : S_store.t) :
     Expr.t * encoded_pct list =
   let undef = Expr.Val (Val.Symbol "undefined") in
   let ite, new_pc =
     List.fold lst ~init:(undef, []) ~f:(fun (acc_val, acc_pc) (k, d) ->
-        let eq = Reducer.reduce_expr store (mk_eq key k) in
-        let acc_val = Reducer.reduce_expr store (mk_ite eq d acc_val) in
+        let eq = Reducer.reduce_expr (mk_eq key k) in
+        let acc_val = Reducer.reduce_expr (mk_ite eq d acc_val) in
         (acc_val, eq :: acc_pc))
   in
   let new_pc =
@@ -102,16 +102,16 @@ let create_ite (lst : (pct * pct) list) (key : Expr.t) (store : S_store.t) :
     | p :: tail when List.length tail > 1 ->
         let final = List.fold new_pc ~init:p ~f:(fun acc p -> mk_or p acc) in
         [ Translator.translate final ]
-    | p :: tail -> [ Translator.translate p ]
+    | p :: _ -> [ Translator.translate p ]
     | _ -> []
   in
   (ite, new_pc)
 
 let is_key_possible ?(b = false) (k1 : Expr.t) (k2 : Expr.t)
-    (solver : Batch.t) (pc : encoded_pct list) (store : S_store.t) :
+    (solver : Batch.t) (pc : encoded_pct list) (_store : S_store.t) :
     bool =
   let eq0 = mk_eq k1 k2 in
-  let eq = Reducer.reduce_expr store eq0 |> Translator.translate in
+  let eq = Reducer.reduce_expr eq0 |> Translator.translate in
   let ret = Batch.check solver (eq :: pc) in
 
   if b then (
@@ -139,10 +139,10 @@ let has_field (o : t) (k : Expr.t) : Expr.t =
   else
     let v0 =
       Expr_Hashtbl.fold o.symbolic_fields ~init:(Val (Bool false))
-        ~f:(fun ~key ~data accum ->
+        ~f:(fun ~key ~data:_ accum ->
           mk_ite (mk_eq k key) (Val (Bool true)) accum)
     in
-    Hashtbl.fold o.concrete_fields ~init:v0 ~f:(fun ~key ~data accum ->
+    Hashtbl.fold o.concrete_fields ~init:v0 ~f:(fun ~key ~data:_ accum ->
         mk_ite (mk_eq k (Val (Str key))) (Val (Bool true)) accum)
 
 let set (o : t) (key : vt) (data : Expr.t) (solver : Batch.t)
@@ -242,7 +242,7 @@ let get (o : t) (key : vt) (solver : Batch.t) (pc : encoded_pct list)
                   else acc)
             in
 
-            let ite, new_pc = create_ite lst key store in
+            let ite, _ = create_ite lst key store in
             [ (clone o, [], Some ite) ])
   | _ -> (
       let res = get_symbolic_field o key in
@@ -263,7 +263,7 @@ let get (o : t) (key : vt) (solver : Batch.t) (pc : encoded_pct list)
                 if is_key_possible key k' solver pc store then (k', d) :: acc
                 else acc)
           in
-          let ite_symb, symb_pct =
+          let ite_symb, _ =
             create_ite (symb_lst @ concrete_lst) key store
           in
           [ (clone o, [], Some ite_symb) ])
@@ -304,7 +304,7 @@ let delete (o : t) (key : Expr.t) (solver : Batch.t)
   | _ -> (
       let res = get_symbolic_field o key in
       match res with
-      | Some v ->
+      | Some _ ->
           Expr_Hashtbl.remove o.symbolic_fields key;
           [ (o, []) ]
       | None ->

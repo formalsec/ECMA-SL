@@ -64,7 +64,7 @@ module M = struct
 
   let close_level (lev : SSet.t) : SSet.t =
     Printf.printf "Closing level %s\n" (str_sset lev);
-    let rec loop (chng : bool) (level : SSet.t) : SSet.t =
+    let rec loop (_chng : bool) (level : SSet.t) : SSet.t =
       let old_lev = level in
       let lev2 =
         List.fold_left (fun ac flow -> apply_flow flow ac) level !flows

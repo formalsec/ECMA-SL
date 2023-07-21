@@ -77,11 +77,11 @@ let type_ifelse (tctx : T_Ctx.t) (expr : E_Expr.t) (stmt1 : E_Stmt.t)
     (stmt2 : E_Stmt.t option)
     (type_stmt_f : T_Ctx.t -> E_Stmt.t -> T_Err.t list) : T_Err.t list =
   let terrGuard = type_guard tctx expr in
-  let stmt2 = Option.default (Skip @@ no_region) stmt2 in
+  let stmt2 = Option.default (Skip @> no_region) stmt2 in
   let tctx1, tctx2 = (T_Ctx.copy tctx, T_Ctx.copy tctx) in
   let form1 = T_Constraint.generate tctx expr in
   let form2 =
-    if stmt2 <> Skip @@ no_region then T_Constraint.Not form1
+    if stmt2 <> Skip @> no_region then T_Constraint.Not form1
     else T_Constraint.NoConstraint
   in
   let terrForm1 = apply_constrains tctx1 form1 in

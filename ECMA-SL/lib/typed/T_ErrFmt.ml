@@ -31,7 +31,7 @@ let tkn_region (src : tkn_t) : Source.region =
   | _ -> no_region
 
 let concat_tkns (tkns : tkn_t list list) (split : string) : tkn_t list =
-  let _split_tkn_f r = match r with [] -> r | r' :: _ -> Lit split :: r in
+  let _split_tkn_f r = match r with [] -> r | _r' :: _ -> Lit split :: r in
   List.fold_right (fun f r -> List.append f (_split_tkn_f r)) tkns []
 
 let type_tkns (t : E_Type.t option) : tkn_t list =
@@ -133,7 +133,7 @@ let stmt_tkns (stmt : E_Stmt.t) : tkn_t list =
       let typeTkns = type_tkns t in
       List.concat [ [ Str x ]; typeTkns; [ Lit " := " ]; [ Expr e ] ]
   (* | GlobAssign (_, _) -> [] *)
-  | Block stmts -> []
+  | Block _stmts -> []
   | If (e, _, _, _, _) -> [ Lit "if ("; Expr e; Lit ") { "; Lit threedots ]
   (* | EIf (_, _) -> [] *)
   | While (e, _) -> [ Lit "while ("; Expr e; Lit ") { "; Lit threedots ]

@@ -25,11 +25,11 @@ module M (SL : SecLevel.M) = struct
     let pc' = List.rev pc in
     match pc' with
     | [] -> raise (Except "PC list is empty!")
-    | l :: ls' -> List.rev ls'
+    | _l :: ls' -> List.rev ls'
 
   let check_pc (pc : sl list) : sl =
     let pc' = List.rev pc in
-    match pc' with s :: ss' -> s | _ -> raise (Except "PC list is empty!")
+    match pc' with s :: _ss' -> s | _ -> raise (Except "PC list is empty!")
 
   let expr_lvl (ssto : sl SecStore.t) (exp : Expr.t) : sl =
     (*Criar lub entre lista de variaveis*)
@@ -110,12 +110,12 @@ module M (SL : SecLevel.M) = struct
             SecStore.set ssto x (SL.lub ctx_lvl struct_lvl);
             MReturn (scs, sheap, ssto, pc)
         | _ -> raise (Except "Internal Error"))
-    | BranchLab (exp, st) ->
+    | BranchLab (exp, _st) ->
         let lev = expr_lvl ssto exp in
         let pc_lvl = check_pc pc in
         let pc' = add_pc pc (SL.lub lev pc_lvl) in
         MReturn (scs, sheap, ssto, pc')
-    | AssignCallLab (params, exp, x, f) -> (
+    | AssignCallLab (params, exp, x, _f) -> (
         match SecStore.get_safe ssto x with
         | Some x_lvl ->
             if SL.leq (check_pc pc) x_lvl then
@@ -230,7 +230,7 @@ module M (SL : SecLevel.M) = struct
         let lev_ctx = SL.lubn [ lev_o; lev_f; check_pc pc ] in
         let lev_exp = expr_lvl ssto exp in
         match SecHeap.get_field sheap loc field with
-        | Some (prop_exists_lvl, prop_val_lvl) ->
+        | Some (_prop_exists_lvl, prop_val_lvl) ->
             if SL.leq lev_ctx prop_val_lvl then (
               SecHeap.upg_prop_val_lvl sheap loc field (SL.lub lev_exp lev_ctx);
               MReturn (scs, sheap, ssto, pc))

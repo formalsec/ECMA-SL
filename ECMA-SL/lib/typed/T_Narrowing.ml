@@ -8,7 +8,7 @@ let rec create_narrow_union (rts : t list) (nt : t) : t =
       else
         List.map (create_narrow_union rts) nts |> fun nts' ->
         E_Type.merge_type E_Type.merge_union_type nts'
-  | ObjectType ntobj ->
+  | ObjectType _ntobj ->
       List.filter (fun rt -> T_Typing.is_typeable rt nt) rts |> fun nts' ->
       E_Type.merge_type E_Type.merge_union_type nts'
   | _ -> nt
@@ -26,7 +26,7 @@ let create_narrow_type (rt : t) (nt : t) : t =
   | SigmaType (d, rts), SigmaType (_, nts) ->
       create_narrow_union rts (UnionType nts) |> E_Type.union_to_sigma d
   | SigmaType (d, rts), _ -> create_narrow_union rts nt |> E_Type.union_to_sigma d
-  | _, ObjectType ntobj -> rt
+  | _, ObjectType _ntobj -> rt
   | _ -> nt
 
 let rec narrow_union_type (ts : t list) : t list =
@@ -54,5 +54,5 @@ let narrow_type (t : t) : t =
   match t with
   | UnionType ts -> (
       let ts' = narrow_union_type ts in
-      match ts' with [] -> NeverType | e :: [] -> e | e :: r -> UnionType ts')
+      match ts' with [] -> NeverType | e :: [] -> e | _e :: _r -> UnionType ts')
   | _ -> t

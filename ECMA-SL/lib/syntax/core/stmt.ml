@@ -102,8 +102,8 @@ let rec js (stmt : t) : string =
       Printf.sprintf "%s = Object.keys(%s)" x (Expr.js e)
   | Exception st -> Printf.sprintf "throw \"%s\"" st
   | Fail e | Abort e -> Printf.sprintf "throw %s" (Expr.js e)
-  | Assert e -> failwith "Stmt: js: Assert not implemented!"
-  | SymStmt e -> failwith "Stmt: js: SymStmt not implemented!"
+  | Assert _e -> failwith "Stmt: js: Assert not implemented!"
+  | SymStmt _e -> failwith "Stmt: js: SymStmt not implemented!"
 (*Printf.sprintf "throw %s" (Expr.js e)*)
 
 let rec to_json (stmt : t) : string =

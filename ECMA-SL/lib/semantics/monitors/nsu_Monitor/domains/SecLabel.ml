@@ -25,7 +25,7 @@ type 'sl t =
   | SetTopLab of string
   | AllowFlowLab of string * string
 
-let str (sl_str : 'sl -> string) (label : 'sl t) : string =
+let str (_sl_str : 'sl -> string) (label : 'sl t) : string =
   match label with
   | EmptyLab -> "EmptyLab"
   | PrintLab e -> "PrintLab (" ^ Expr.str e ^ ")"
@@ -34,16 +34,16 @@ let str (sl_str : 'sl -> string) (label : 'sl t) : string =
   | AssignLab (st, exp) -> "AsgnLab (" ^ Expr.str exp ^ ", " ^ st ^ ")"
   | BranchLab (exp, stmt) ->
       "BranchLab (" ^ Expr.str exp ^ "),{ " ^ Stmt.str stmt ^ "}"
-  | AssignCallLab (params, exp, x, f) ->
+  | AssignCallLab (_params, exp, x, _f) ->
       "AssignCallLab ("
       ^ String.concat "; " (List.map Expr.str exp)
       ^ ", " ^ x ^ ")"
-  | AssignInObjCheckLab (x, field, loc, e_f, e_l) -> "AssingnInObjCheckLab"
-  | UpgVarLab (x, lvl) -> "UpgVarLab"
-  | UpgPropValLab (loc, x, e_o, e_f, lvl) -> "UpgPropLab"
-  | UpgPropExistsLab (loc, x, e_o, e_f, lvl) -> "UpgPropLab"
-  | UpgObjectLab (loc, e_o, lvl) -> "UpgStructLab"
-  | UpgStructLab (loc, e_o, lvl) -> "UpgStructLab"
+  | AssignInObjCheckLab _ -> "AssingnInObjCheckLab"
+  | UpgVarLab _ -> "UpgVarLab"
+  | UpgPropValLab _ -> "UpgPropLab"
+  | UpgPropExistsLab _ -> "UpgPropLab"
+  | UpgObjectLab _ -> "UpgStructLab"
+  | UpgStructLab _ -> "UpgStructLab"
   | SetTopLab st -> "TopLevelLab ( " ^ st ^ " )"
   | AllowFlowLab (st1, st2) -> "AllowFlowLab ( " ^ st1 ^ ",  " ^ st2 ^ " )"
   | _ -> "Missing str"
@@ -62,15 +62,15 @@ let interceptor (parse_sl : string -> 'sl) (func : string) (vs : Val.t list)
     when lev_str = lev_str' ->
       Some (UpgPropExistsLab (loc, x, e_o, e_f, parse_sl lev_str))
   | ( "upgPropExists",
-      [ Val.Loc loc; Val.Str x; Val.Str lev_str ],
-      [ e_o; e_f; _ ] ) ->
+      [ Val.Loc _loc; Val.Str _x; Val.Str _lev_str ],
+      [ _; _; _ ] ) ->
       raise (Except "Level is not a literal ") (*Gerar uma exception*)
   | ( "upgPropVal",
       [ Val.Loc loc; Val.Str x; Val.Str lev_str ],
       [ e_o; e_f; Expr.Val (Str lev_str') ] )
     when lev_str = lev_str' ->
       Some (UpgPropValLab (loc, x, e_o, e_f, parse_sl lev_str))
-  | "upgPropVal", [ Val.Loc loc; Val.Str x; Val.Str lev_str ], [ e_o; e_f; _ ]
+  | "upgPropVal", [ Val.Loc _; Val.Str _x; Val.Str _lev_str ], [ _; _; _ ]
     ->
       raise (Except "Level is not a literal ")
   | ( "upgStruct",
@@ -78,18 +78,18 @@ let interceptor (parse_sl : string -> 'sl) (func : string) (vs : Val.t list)
       [ e_o; Expr.Val (Str lev_str') ] )
     when lev_str = lev_str' ->
       Some (UpgStructLab (loc, e_o, parse_sl lev_str))
-  | "upgStruct", [ Val.Loc loc; Val.Str lev_str ], [ e_o; _ ] ->
+  | "upgStruct", [ Val.Loc _loc; Val.Str _lev_str ], [ _e_o; _ ] ->
       raise (Except "Level is not a literal ")
   | ( "upgObject",
       [ Val.Loc loc; Val.Str lev_str ],
       [ e_o; Expr.Val (Str lev_str') ] )
     when lev_str = lev_str' ->
       Some (UpgObjectLab (loc, e_o, parse_sl lev_str))
-  | "upgObject", [ Val.Loc loc; Val.Str lev_str ], [ e_o; _ ] ->
+  | "upgObject", [ Val.Loc _loc; Val.Str _lev_str ], [ _e_o; _ ] ->
       raise (Except "Level is not a literal ")
   | "setTop", [ Val.Str str ], [ Expr.Val (Str str') ] when str = str' ->
       Some (SetTopLab str)
-  | "setTop", [ Val.Str str ], [ _ ] -> raise (Except "Level is not a string ")
+  | "setTop", [ Val.Str _str ], [ _ ] -> raise (Except "Level is not a string ")
   | ( "allowFlow",
       [ Val.Str str1; Val.Str str2 ],
       [ Expr.Val (Str str1'); Expr.Val (Str str2') ] )

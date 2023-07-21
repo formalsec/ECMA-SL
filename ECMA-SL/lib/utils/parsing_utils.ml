@@ -24,7 +24,7 @@ let e_parse start (lexbuf : Lexing.lexbuf) =
     (fun result -> result)
     (function
       | ESLMI.Rejected -> failwith "Parser rejected input"
-      | ESLMI.HandlingError e ->
+      | ESLMI.HandlingError _e ->
           (* let csn = ESLMI.current_state_number e in *)
           Format.eprintf "%a, last token: %s: %s.@." print_position lexbuf
             (show_e_token !last_token) "Error message found";
@@ -47,7 +47,7 @@ let parse start (lexbuf : Lexing.lexbuf) =
     (fun result -> result)
     (function
       | Core_ESLMI.Rejected -> failwith "Parser rejected input"
-      | Core_ESLMI.HandlingError e ->
+      | Core_ESLMI.HandlingError _e ->
           (* let csn = Core_ESLMI.current_state_number e in *)
           Format.eprintf "%a, last token: %s: %s.@." print_position lexbuf
             (show_token !last_token) "Error message found";

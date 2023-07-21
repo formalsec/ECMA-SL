@@ -85,7 +85,7 @@ module M (Mon : SecurityMonitor) = struct
     | _ -> raise (Except "Wrong/Invalid Function ID")
 
   let prepare_call (prog : Prog.t) (calling_f : string) (cs : stack_t)
-      (sto : Val.t Store.t) (cont : Stmt.t list) (x : string) (es : Expr.t list)
+      (sto : Val.t Store.t) (cont : Stmt.t list) (x : string) (_es : Expr.t list)
       (f : string) (vs : Val.t list) : stack_t * Val.t Store.t * string list =
     let cs' =
       Call_stack.push cs (Call_stack.Intermediate (cont, sto, x, calling_f))
@@ -98,8 +98,8 @@ module M (Mon : SecurityMonitor) = struct
     let sto_aux = Store.create pvs in
     (cs', sto_aux, params)
 
-  let eval_inobj_expr (prog : Prog.t) (heap : Val.t Heap.t)
-      (sto : Val.t Store.t) (field : Val.t) (loc : Val.t) : Val.t =
+  let eval_inobj_expr (_prog : Prog.t) (heap : Val.t Heap.t)
+      (_sto : Val.t Store.t) (field : Val.t) (loc : Val.t) : Val.t =
     let b =
       match (loc, field) with
       | Loc l, Str f -> Heap.get_field heap l f
@@ -108,7 +108,7 @@ module M (Mon : SecurityMonitor) = struct
             "Exception in Interpreter.eval_inobj_expr : \"loc\" is not a Loc \
              value or \"field\" is not a string"
     in
-    match b with Some v -> Bool true | None -> Bool false
+    match b with Some _v -> Bool true | None -> Bool false
 
   let eval_objtolist_oper (heap : Val.t Heap.t) (st : Val.t Store.t)
       (loc_expr : Expr.t) : Val.t =
@@ -150,7 +150,7 @@ module M (Mon : SecurityMonitor) = struct
          ^ "\" doesn't exist in the Heap")
     | Some o -> List (List.map (fun f -> Val.Str f) (Object.get_fields o))
 
-  let eval_fielddelete_stmt (prog : Prog.t) (heap : Val.t Heap.t)
+  let eval_fielddelete_stmt (_prog : Prog.t) (heap : Val.t Heap.t)
       (sto : Val.t Store.t) (e : Expr.t) (f : Expr.t) : unit =
     let loc = eval_expr sto e and field = eval_expr sto f in
     let loc' =
@@ -248,29 +248,29 @@ module M (Mon : SecurityMonitor) = struct
         if is_true v then
           match s1.it with
           | Block block -> (
-              let blockm = block @ ((Stmt.Merge @@ s1.at) :: []) in
+              let blockm = block @ ((Stmt.Merge @> s1.at) :: []) in
               match s2 with
               | Some v ->
                   ( Intermediate ((cs, heap, sto, f), blockm @ cont),
                     SecLabel.BranchLab (e, v) )
               | None ->
                   ( Intermediate ((cs, heap, sto, f), blockm @ cont),
-                    SecLabel.BranchLab (e, Stmt.Skip @@ s.at) ))
+                    SecLabel.BranchLab (e, Stmt.Skip @> s.at) ))
           | _ -> raise (Except "IF block expected ")
         else
           match s2 with
           | Some v -> (
               match v.it with
               | Block block2 ->
-                  let block2m = block2 @ ((Stmt.Merge @@ v.at) :: []) in
+                  let block2m = block2 @ ((Stmt.Merge @> v.at) :: []) in
                   ( Intermediate ((cs, heap, sto, f), block2m @ cont),
                     SecLabel.BranchLab (e, s1) )
               | _ -> raise (Except "Not expected"))
           | None -> (Intermediate ((cs, heap, sto, f), cont), SecLabel.EmptyLab)
         )
     | While (e, s') ->
-        let s1 = (s' :: []) @ ((Stmt.While (e, s') @@ s.at) :: []) in
-        let stms = Stmt.If (e, Stmt.Block s1 @@ s'.at, None) @@ s.at in
+        let s1 = (s' :: []) @ ((Stmt.While (e, s') @> s.at) :: []) in
+        let stms = Stmt.If (e, Stmt.Block s1 @> s'.at, None) @> s.at in
         (Intermediate ((cs, heap, sto, f), stms :: cont), SecLabel.EmptyLab)
     | AssignCall (x, func, es) -> (
         let f', vs' = get_func_id sto func in
@@ -389,7 +389,7 @@ module M (Mon : SecurityMonitor) = struct
               | Intermediate (state', stmts'') ->
                   small_step_iter interceptor prog state' mon_state' stmts''
                     monitor)
-          | Mon.MFail (mon_state', str) ->
+          | Mon.MFail (_mon_state', str) ->
               print_string ("MONITOR EXCEPTION -> " ^ str);
               exit 1)
         else

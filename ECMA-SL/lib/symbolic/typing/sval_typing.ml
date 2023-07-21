@@ -33,7 +33,7 @@ let type_of_unop (op : Operators.uopt) (arg_t : Type.t option) : Type.t option =
   | Operators.Trim -> Some Type.StrType
   | Operators.ListLen -> Some Type.IntType
   | Operators.LSort -> Some Type.ListType
-  | default ->
+  | _ ->
       failwith
         ("Typing Error: [type_of_unop] -> unsuported typing for unary \
           operation " ^ Operators.str_of_unopt op)
@@ -66,13 +66,13 @@ let type_of_binop (op : Operators.bopt) (arg1 : Expr.t) (arg2 : Expr.t)
   | Operators.BitwiseAnd | Operators.BitwiseOr | Operators.BitwiseXor
   | Operators.ShiftLeft | Operators.ShiftRight | Operators.ShiftRightLogical ->
       bitwise_operators_typing_logic arg1_t arg2_t
-  | default ->
+  | _ ->
       failwith
         ("Typing Error: [type_of_binop] -> unsuported typing for binary \
           operation "
         ^ Operators.str_of_binopt_single op)
 
-let type_of_triop (op : Operators.topt) (arg1_t : Type.t option)
+let type_of_triop (op : Operators.topt) (_arg1_t : Type.t option)
     (arg2_t : Type.t option) (arg3_t : Type.t option) : Type.t option =
   match op with
   | Operators.Ssubstr -> Some Type.StrType

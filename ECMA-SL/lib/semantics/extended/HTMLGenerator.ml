@@ -136,12 +136,12 @@ let rec generate_html (std : std_t) : string =
 let mapper (new_funcs : (string, E_Func.t) Hashtbl.t) (s : E_Stmt.t) : E_Stmt.t
     =
   match s.Source.it with
-  | MatchWith (e, pats_stmts) ->
+  | MatchWith (_e, pats_stmts) ->
       (* Filter MatchWith statements that have metadata *)
       let pats_stmts_filtered =
         List.filter
-          (fun ((pat : E_Pat.t), (stmt : E_Stmt.t)) ->
-            match pat.it with E_Pat.ObjPat (_, Some meta) -> true | _ -> false)
+          (fun ((pat : E_Pat.t), (_stmt : E_Stmt.t)) ->
+            match pat.it with E_Pat.ObjPat (_, Some _meta) -> true | _ -> false)
           pats_stmts
       in
       (* Convert MatchWith in a E_Func *)

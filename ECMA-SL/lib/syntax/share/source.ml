@@ -2,7 +2,7 @@ type pos = { file : string; line : int; column : int }
 type region = { left : pos; right : pos }
 type 'a phrase = { at : region; it : 'a }
 
-let ( @@ ) x region = { it = x; at = region }
+let ( @> ) x region = { it = x; at = region }
 let no_pos = { file = ""; line = 0; column = 0 }
 let no_region = { left = no_pos; right = no_pos }
 

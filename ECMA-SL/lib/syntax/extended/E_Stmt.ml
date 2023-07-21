@@ -63,7 +63,7 @@ let rec str (stmt : t) : string =
   | Assert e -> "assert " ^ E_Expr.str e
   | Return None -> "return"
   | Return (Some e) -> "return " ^ E_Expr.str e
-  | Wrapper (m, s) -> str s
+  | Wrapper (_m, s) -> str s
   | Assign (x, t, exp) ->
       let x' = match t with None -> x | Some t' -> x ^ ": " ^ E_Type.str t' in
       x' ^ " := " ^ E_Expr.str exp
@@ -154,7 +154,7 @@ let rec map ?(fe : (E_Expr.t -> E_Expr.t) option) (f : t -> t) (s : t) : t =
     | Abort e -> Abort (fe e)
     | SymStmt (Assume e) -> SymStmt (Assume (fe e))
   in
-  f (s' @@ s.at)
+  f (s' @> s.at)
 
 let subst (sbst : E_Expr.subst_t) (s : t) : t =
   (*Printf.printf "Applying the subst: %s\nOn statement:\n%s\n" (E_Expr.string_of_subst sbst) (str s); *)
@@ -180,15 +180,15 @@ let rec to_list (is_rec : t -> bool) (f : t -> 'a list) (s : t) : 'a list =
       | SymStmt (Assume _) ->
           []
       | Block stmts -> f_stmts stmts
-      | If (e, st, sf, _, _) -> f' st @ f_o sf
+      | If (_e, st, sf, _, _) -> f' st @ f_o sf
       | EIf (ifs, final_else) ->
           f_stmts
             (f_if_elses ifs
             @ Option.map_default (fun (s, _) -> [ s ]) [] final_else)
-      | While (e, s) -> f' s
-      | ForEach (x, e, s, _, _) -> f' s
-      | RepeatUntil (s, e, _) -> f' s
-      | MatchWith (e, pats) -> f_pat pats
+      | While (_e, s) -> f' s
+      | ForEach (_x, _e, s, _, _) -> f' s
+      | RepeatUntil (s, _e, _) -> f' s
+      | MatchWith (_e, pats) -> f_pat pats
       | Lambda (_, _, _, _, s) -> f' s
       | MacroApply _ -> failwith "E_Stmt.to_list on MacroApply"
       | Switch (_, cases, so, _) ->
@@ -202,5 +202,5 @@ let lambdas (s : t) : (string * string list * string list * t) list =
     | Lambda (_, fid, xs, ys, s) -> [ (fid, ys, xs, s) ]
     | _ -> []
   in
-  let f_rec s = true in
+  let f_rec _s = true in
   to_list f_rec f_l s
