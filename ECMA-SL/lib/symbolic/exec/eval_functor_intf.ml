@@ -48,7 +48,7 @@ module type P = sig
     val get_fields : t -> Expr.t list
   end
 
-  module Heap :  sig 
+  module Heap : sig
     type encoded_pct = Encoding.Expression.t
     type obj = Object.t
     type store = Store.t
@@ -92,6 +92,31 @@ module type P = sig
   end
 
   module Reducer : sig
-    val reduce_expr : ?at:Source.region -> Store.t -> Expr.t -> Expr.t
+    val reduce_expr : Expr.t -> Expr.t
   end
+end
+
+module type S = sig
+  module State : sig
+    type pc
+    type func
+    type stack
+    type state
+
+    type outcome =
+      | Cont of Stmt.t list
+      | Error of Expr.t option
+      | Final of Expr.t option
+      | Failure of string * Expr.t option
+      | Unknown of Expr.t option
+
+    type config
+
+    val is_cont : outcome -> bool
+    val is_fail : outcome -> bool
+    val is_final : outcome -> bool
+    val update : config -> outcome -> state -> pc -> config
+  end
+
+  val main : Prog.t -> string -> unit
 end

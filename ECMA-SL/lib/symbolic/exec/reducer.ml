@@ -14,8 +14,8 @@ let reduce_sconcat (vs : Expr.t list) : Expr.t =
                 Val (Str (String.concat ~sep:"" [ h'; v' ])) :: t
             | Val (Str ""), _ -> v :: t
             | _, Val (Str "") -> acc
-            | Val (Str h'), _ -> v :: acc
-            | _, Val (Str v') -> v :: acc
+            | Val (Str _), _ -> v :: acc
+            | _, Val (Str _) -> v :: acc
             | Symbolic (Type.StrType, _), Symbolic (Type.StrType, _) -> v :: acc
             | _ -> v :: acc))
   in
@@ -29,7 +29,7 @@ let reduce_list_compare (list1 : Expr.t list) (list2 : Expr.t list) : Expr.t =
   if List.length list1 = List.length list2 then
     let comp val1 val2 =
       match (val1, val2) with
-      | Symbolic (tp1, n1), Symbolic (tp2, n2) -> BinOpt (Eq, n1, n2)
+      | Symbolic (_tp1, n1), Symbolic (_tp2, n2) -> BinOpt (Eq, n1, n2)
       | Symbolic (_, n), Val _ -> BinOpt (Eq, n, val2)
       | Val _, Symbolic (_, n) -> BinOpt (Eq, val1, n)
       | Val val1, Val val2 -> Val (Bool (Val.equal val1 val2))
@@ -85,7 +85,7 @@ let reduce_unop (op : uopt) (v : Expr.t) : Expr.t =
   | op, Val v -> Val (Eval_op.eval_unop op v)
   | Neg, Symbolic (_, _) -> UnOpt (Neg, v)
   | IsNaN, Symbolic _ -> Val (Bool false)
-  | Not, v' -> UnOpt (Not, v)
+  | Not, _v' -> UnOpt (Not, v)
   | Head, NOpt (ListExpr, l) -> List.hd_exn l
   | Tail, NOpt (ListExpr, _ :: tl) -> NOpt (ListExpr, tl)
   | First, NOpt (TupleExpr, l) -> List.hd_exn l
@@ -124,7 +124,7 @@ let reduce_binop (op : bopt) (v1 : Expr.t) (v2 : Expr.t) : Expr.t =
       UnOpt (IntToFloat, UnOpt (StringLenU, Symbolic (Type.StrType, _))),
       Expr.Val (Flt 4294967296.0) ) ->
       Val (Bool false)
-  | Eq, NOpt (v1_t, list1), NOpt (v2_t, list2) ->
+  | Eq, NOpt (_v1_t, list1), NOpt (_v2_t, list2) ->
       reduce_list_compare list1 list2
   | Eq, v, Val (Symbol _) when is_symbolic v -> Val (Bool false)
   | Eq, v, Val (Flt x)
@@ -170,29 +170,25 @@ let reduce_triop (op : topt) (v1 : Expr.t) (v2 : Expr.t) (v3 : Expr.t) : Expr.t
 
 let reduce_nop (op : nopt) (vs : Expr.t list) : Expr.t = NOpt (op, vs)
 
-let rec reduce_expr ?(at = Source.no_region) (store : S_store.t) (e : Expr.t) :
-    Expr.t =
+let rec reduce_expr (e : Expr.t) : Expr.t =
   match e with
   | Val v -> Val v
-  | Var x -> (
-      match S_store.find store x with
-      | Some v -> v
-      | None -> failwith ("Cannot find var '" ^ x ^ "'"))
+  | Var _ -> assert false
   | UnOpt (op, e) ->
-      let v = reduce_expr ~at store e in
+      let v = reduce_expr e in
       reduce_unop op v
   | BinOpt (op, e1, e2) ->
-      let v1 = reduce_expr ~at store e1 and v2 = reduce_expr ~at store e2 in
+      let v1 = reduce_expr e1 in
+      let v2 = reduce_expr e2 in
       let reduced_op = reduce_binop op v1 v2 in
-      if Expr.equal reduced_op e then reduced_op
-      else reduce_expr ~at store reduced_op
+      if Expr.equal reduced_op e then reduced_op else reduce_expr reduced_op
   | TriOpt (op, e1, e2, e3) ->
-      let v1 = reduce_expr ~at store e1
-      and v2 = reduce_expr ~at store e2
-      and v3 = reduce_expr ~at store e3 in
+      let v1 = reduce_expr e1 in
+      let v2 = reduce_expr e2 in
+      let v3 = reduce_expr e3 in
       reduce_triop op v1 v2 v3
   | NOpt (op, es) ->
-      let vs = List.map ~f:(reduce_expr ~at store) es in
+      let vs = List.map ~f:reduce_expr es in
       reduce_nop op vs
-  | Curry (f, es) -> Curry (f, List.map ~f:(reduce_expr ~at store) es)
-  | Symbolic (t, x) -> Symbolic (t, reduce_expr ~at store x)
+  | Curry (f, es) -> Curry (f, List.map ~f:reduce_expr es)
+  | Symbolic (t, x) -> Symbolic (t, reduce_expr x)
